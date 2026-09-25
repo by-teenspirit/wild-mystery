@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wild Mystery — fiche de projet</title>
+<meta name="description" content="Wild Mystery, forum RPG Pokémon en région originale. Fiche de projet.">
+<style>body{margin:0;padding:24px 16px;background:#E7D5C6}</style>
+</head>
+<body>
+<style>
+#wmf .wmf-p{display:none}
+#wmf .wmf-t{display:inline-block;padding:9px 16px;margin:0 4px 6px 0;border-radius:10px;background:#FFFBF7;border:1px solid #EADACD;color:#4E3B30;font-size:11.5px;font-weight:700;cursor:pointer;-webkit-user-select:none;user-select:none}
+#wmf .wmf-t:hover{border-color:#2E6E8E;color:#1F5470}
+#wmf .wmf-lock{display:inline-block;padding:9px 16px;margin:0 4px 6px 0;border-radius:10px;background:transparent;border:1px dashed #D9C3B1;color:#9C8674;font-size:11.5px;font-weight:700}
+#wmf1:checked~#wmfp1,#wmf2:checked~#wmfp2{display:block}
+#wmf1:checked~.wmf-bar label[for=wmf1],#wmf2:checked~.wmf-bar label[for=wmf2]{background:#2E6E8E;border-color:#2E6E8E;color:#FFFBF7}
+</style>
+
+<div style="max-width:820px;margin:0 auto;background:#EECFB5;border-radius:12px;overflow:hidden;font-family:'Nunito Sans',Verdana,sans-serif;color:#4E3B30;font-size:13px;line-height:1.6;box-shadow:0 2px 14px rgba(46,32,24,.10)">
+
+<div style="height:340px;background-color:#EECFB5;background-image:linear-gradient(to bottom,rgba(238,207,181,0) 74%,#EECFB5 100%),url('https://cdn.jsdelivr.net/gh/by-teenspirit/wild-mystery@main/assets/banniere.png');background-size:cover,cover;background-position:center top,center top;background-repeat:no-repeat,no-repeat"></div>
+
+<div style="padding:22px 30px 26px">
+
+<div style="background:#F3E1D2;border:1px solid #D9C3B1;border-radius:10px;padding:18px;font-size:14px;color:#2E2018;line-height:1.7">
+Je vous présente Wild Mystery, la V2 d'un forum qu'on avait construit avec Foxblida/Plumtys à l'époque. Aujourd'hui, avec mes connaissances en développement, je me suis dit que ce serait une bonne idée de reprendre le forum mais de faire en sorte d'automatiser certaines choses. Pour ce projet, j'aurai besoin quand même d'avis et de coups de main alors si vous voulez faire partie du projet, n'hésite pas&nbsp;!
+</div>
+
+<div id="wmf" style="margin-top:20px">
+<input type="radio" name="wmfonglets" id="wmf1" checked style="display:none">
+<input type="radio" name="wmfonglets" id="wmf2" style="display:none">
+
+<div class="wmf-bar" style="margin-bottom:10px">
+<label class="wmf-t" for="wmf1">Le contexte</label><label class="wmf-t" for="wmf2">Les groupes</label><span class="wmf-lock">Arènes, Colosseums et missions</span><span class="wmf-lock">Élevage &amp; pension</span><span class="wmf-lock">Combats et capture</span><span class="wmf-lock">Expérience et évolution</span>
+<div style="font-size:11.5px;color:#756054;margin:4px 0 0 2px;font-style:italic">Les onglets grisés s'ouvriront petit à petit, au fil des annexes que je publierai.</div>
+</div>
+
+<div class="wmf-p" id="wmfp1" style="background:#FFFBF7;border:1px solid #EADACD;border-radius:10px;padding:20px">
+<div style="max-height:260px;overflow:auto;padding-right:14px">
+<p style="margin:0 0 12px">Dix ans après la chute de la Team Ombre, la région de Rhode se reconstruit. Pendant longtemps, elle a été abandonnée par les pokémon eux-mêmes&nbsp;: on la connaissait pour son hostilité et pour son sable, pas pour ce qui y vivait.</p>
+<p style="margin:0 0 12px">Il y a un peu plus de dix ans, un groupe a régné sur la région et transformé le peu de pokémon qui y vivaient en machines de guerre. Vous vous rappelez sûrement de l'affaire des Pokémon Obscurs. C'est bien d'eux qu'il s'agit. Volés à leurs dresseurs, rendus méconnaissables, et seul un long processus permettait de leur rendre conscience.</p>
+<p style="margin:0 0 12px">La Team Ombre est tombée. Le désert, lui, est resté — et quelque chose y est revenu. Les zones qu'on croyait mortes se repeuplent, une par une, et personne ne sait encore par quoi.</p>
+<p style="margin:0">Dix zones, cent quarante-cinq lieux. Cinq sont ouvertes aujourd'hui&nbsp;; les autres s'ouvriront par vagues, au rythme de ce que les dresseurs y trouveront. C'est là que commence ce que vous écrirez.</p>
+</div>
+</div>
+
+<div class="wmf-p" id="wmfp2" style="background:#FFFBF7;border:1px solid #EADACD;border-radius:10px;padding:20px">
+<p style="margin:0 0 14px">Six groupes, six avantages mécaniques — pas six couleurs. On en change une fois par saison, et les trois camps de Rhode leur restent transversaux.</p>
+<div style="max-height:260px;overflow:auto;padding-right:14px">
+<div style="padding:10px 0;border-bottom:1px solid #EADACD"><b style="color:#2E2018">Ho-Oh</b> <span style="color:#756054">· les challengers</span><br><span style="color:#A8582F;font-weight:700">+ 10 % d'XP dans les combats d'arène</span></div>
+<div style="padding:10px 0;border-bottom:1px solid #EADACD"><b style="color:#2E2018">Reshiram</b> <span style="color:#756054">· champions et Conseil 4, sur demande</span><br><span style="color:#A8582F;font-weight:700">Peut tenir une arène dès le niveau 20 au lieu de 25</span></div>
+<div style="padding:10px 0;border-bottom:1px solid #EADACD"><b style="color:#2E2018">Deoxys</b> <span style="color:#756054">· les scientifiques</span><br><span style="color:#A8582F;font-weight:700">Voit les IV et la nature avant de tenter la capture</span></div>
+<div style="padding:10px 0;border-bottom:1px solid #EADACD"><b style="color:#2E2018">Xerneas</b> <span style="color:#756054">· éleveurs et soigneurs</span><br><span style="color:#A8582F;font-weight:700">Éclosion deux fois plus rapide, soins gratuits</span></div>
+<div style="padding:10px 0;border-bottom:1px solid #EADACD"><b style="color:#2E2018">Zamazenta</b> <span style="color:#756054">· police et secours</span><br><span style="color:#A8582F;font-weight:700">Aucune perte d'argent en cas de défaite</span></div>
+<div style="padding:10px 0"><b style="color:#2E2018">Mew</b> <span style="color:#756054">· les habitants</span><br><span style="color:#A8582F;font-weight:700">− 15 % sur tous les achats en boutique</span></div>
+</div>
+</div>
+</div>
+
+<div style="background:#FFFBF7;border:1px solid #EADACD;border-radius:10px;padding:20px;margin-top:16px">
+<div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#756054;margin-bottom:14px">OÙ ON EN EST</div>
+<div style="margin-bottom:11px"><span style="display:inline-block;width:190px">Système de jeu</span><span style="display:inline-block;width:170px;height:7px;background:#F3E1D2;border-radius:99px;vertical-align:middle"><span style="display:block;width:136px;height:7px;background:#A8582F;border-radius:99px"></span></span> <b style="color:#A8582F">80 %</b></div>
+<div style="margin-bottom:11px"><span style="display:inline-block;width:190px">Annexes</span><span style="display:inline-block;width:170px;height:7px;background:#F3E1D2;border-radius:99px;vertical-align:middle"><span style="display:block;width:102px;height:7px;background:#A8582F;border-radius:99px"></span></span> <b style="color:#A8582F">60 %</b></div>
+<div style="margin-bottom:11px"><span style="display:inline-block;width:190px">Graphisme</span><span style="display:inline-block;width:170px;height:7px;background:#F3E1D2;border-radius:99px;vertical-align:middle"><span style="display:block;width:102px;height:7px;background:#A8582F;border-radius:99px"></span></span> <b style="color:#A8582F">60 %</b></div>
+<div style="margin-bottom:11px"><span style="display:inline-block;width:190px">Charte et maquettes</span><span style="display:inline-block;width:170px;height:7px;background:#F3E1D2;border-radius:99px;vertical-align:middle"><span style="display:block;width:85px;height:7px;background:#A8582F;border-radius:99px"></span></span> <b style="color:#A8582F">50 %</b></div>
+<div><span style="display:inline-block;width:190px">Codage</span><span style="display:inline-block;width:170px;height:7px;background:#F3E1D2;border-radius:99px;vertical-align:middle"></span> <b style="color:#756054">0 %</b></div>
+</div>
+
+<div style="background:#F3E1D2;border:1px solid #D9C3B1;border-radius:10px;padding:20px;margin-top:16px">
+<div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#756054;margin-bottom:14px">MES RECHERCHES</div>
+<div style="padding:0 0 12px 0;border-bottom:1px solid #E0C8B4"><b style="color:#2E2018">Un codeur pour m'épauler.</b> Je vais faire la partie automatisation, mais si quelqu'un veut coder le forum à partir de la maquette, je suis preneuse.</div>
+<div style="padding:12px 0;border-bottom:1px solid #E0C8B4"><b style="color:#2E2018">Un graphiste.</b> J'ai une bannière actuellement mais mes compétences ne sont pas folles et j'aimerais bien améliorer ça.</div>
+<div style="padding:12px 0;border-bottom:1px solid #E0C8B4"><b style="color:#2E2018">Un admin</b> pour s'occuper des membres à l'ouverture.</div>
+<div style="padding:12px 0 0"><b style="color:#2E2018">N'importe qui pour questionner mes annexes.</b> Mes idées, réfléchir ensemble pour faire un projet vraiment intéressant. Si tu ne veux pas administrer mais donner ton point de vue et tes idées, tu es le bienvenu. Si c'est le contraire, ou les deux, c'est pareil&nbsp;!</div>
+</div>
+
+<div style="background:#FFFBF7;border:1px solid #EADACD;border-radius:10px;padding:20px;margin-top:16px">
+<div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#756054;margin-bottom:10px">LES PRÉVENUS</div>
+<div style="font-size:14px;color:#2E2018;line-height:1.7">Dites-moi si vous voulez que je vous rajoute et vous serez prévenus de la pré-ouverture (je vais avoir besoin de bêta-testeurs pour mon système de jeu).</div>
+<div style="margin-top:12px;font-size:12.5px;color:#1F5470;font-weight:700">[ la liste des prévenus ]</div>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
