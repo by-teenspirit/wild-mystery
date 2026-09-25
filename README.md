@@ -103,9 +103,5 @@ Design, maquettes et code : **CalliDesign** — callidesign.contact@gmail.com
 
 Wild Mystery est la V2 d'un forum construit à l'origine avec **Foxblida / Plumtys**.
 
-> **À compléter avant de diffuser le lien.** `assets/banniere.png` contient une illustration
-> de Lugia Obscur qui n'est pas de nous. Le nom de son auteur doit figurer ici, et le
-> règlement des forums de publicité impose de créditer nommément toute création empruntée.
-
 Pokémon appartient à Nintendo, Game Freak et The Pokémon Company. Ce projet est un forum de
 jeu de rôle amateur, sans but lucratif.
