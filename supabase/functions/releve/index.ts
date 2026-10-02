@@ -20,7 +20,10 @@
 
 import { appelPostgrest } from "../../../src/adaptateurs/supabase/appel.ts";
 import { RegistreSupabase } from "../../../src/adaptateurs/supabase/registre.ts";
-import { ClotureSupabase } from "../../../src/adaptateurs/supabase/cloture.ts";
+import {
+  BilansEnAttenteSupabase,
+  ClotureSupabase,
+} from "../../../src/adaptateurs/supabase/cloture.ts";
 import { CatalogueSupabase, EtatDuJeuSupabase } from "../../../src/adaptateurs/supabase/jeu.ts";
 import {
   JournalSupabase,
@@ -36,6 +39,7 @@ import { FauneEnFichiers, lecteurHttp } from "../../../src/adaptateurs/faune/fic
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
 import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
 import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.ts";
+import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
 
 /**
  * La version de ce déploiement, et elle sert à DEUX choses.
@@ -51,7 +55,7 @@ import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.
  *
  * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
  */
-const VERSION = "2026-10-02-g";
+const VERSION = "2026-10-02-h";
 
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
@@ -113,6 +117,10 @@ const VERROU_SECONDES = 240;
 
 type Montage = {
   readonly parcourir: ParcourirLesZones;
+  /** La reprise des bilans appliqués mais pas encore publiés. Tâche
+   *  séparée, et c'est le fond de la correction du 2 octobre : la clôture
+   *  est le seul point de non-retour, la publication se repasse. */
+  readonly bilans: PosterLesBilans;
   readonly verrou: VerrouSupabase;
 };
 
@@ -158,7 +166,13 @@ function assembler(reglages: Reglages): Montage {
     new JournalSupabase(appeler),
   );
 
-  return { parcourir, verrou: new VerrouSupabase(appeler) };
+  const bilans = new PosterLesBilans(
+    new BilansEnAttenteSupabase(appeler),
+    forumEnEcriture,
+    new JournalSupabase(appeler),
+  );
+
+  return { parcourir, bilans, verrou: new VerrouSupabase(appeler) };
 }
 
 // ── le point d'entrée ───────────────────────────────────────────────
@@ -183,7 +197,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     return json({ version: VERSION, erreur: "clé de relève absente ou fausse" }, 401);
   }
 
-  const { parcourir, verrou } = assembler(reglages);
+  const { parcourir, bilans, verrou } = assembler(reglages);
 
   if (!await verrou.prendre(NOM_DU_VERROU, VERROU_SECONDES)) {
     // Ce n'est pas une erreur : c'est le passage précédent qui travaille
@@ -193,12 +207,20 @@ Deno.serve(async (requete: Request): Promise<Response> => {
 
   const debut = Date.now();
   try {
+    // Les bilans en retard d'abord : un joueur qui attend son bilan depuis
+    // le passage précédent passe avant une clôture qui n'a pas encore été
+    // demandée. Et si le forum refuse la connexion, on l'apprend ici, avant
+    // d'appliquer de nouvelles clôtures dont le bilan ne partirait pas non
+    // plus.
+    const repris = await bilans.executer();
     const bilan = await parcourir.executer();
     return json({
       version: VERSION,
       traitees: bilan.traitees,
       issues: bilan.issues,
       erreurs: bilan.erreurs,
+      bilans_repris: repris.publies.length,
+      bilans_en_echec: repris.erreurs,
       duree_ms: Date.now() - debut,
     }, 200);
   } catch (e) {

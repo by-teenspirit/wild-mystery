@@ -100,10 +100,16 @@ Deno.test("la preuve du piège : stringifier les Effets bruts perd tout", () => 
 });
 
 Deno.test("chargeDeCloture · un versement par joueur, le code au-dessus", () => {
-  const charge = chargeDeCloture(7000, [
-    { joueurId: ANNA, effets: effetsReels([]) },
-    { joueurId: BORIS, effets: effetsReels([]) },
-  ], "WM-ACDE-FGH");
+  const charge = chargeDeCloture(
+    7000,
+    [
+      { joueurId: ANNA, effets: effetsReels([]) },
+      { joueurId: BORIS, effets: effetsReels([]) },
+    ],
+    "WM-ACDE-FGH",
+    "Sujet clôturé.",
+    "Anna",
+  );
 
   assertEquals(charge.sujetId, 7000);
   assertEquals(charge.code, "WM-ACDE-FGH");
@@ -145,6 +151,8 @@ Deno.test("appliquer · envoie la charge attendue par appliquer_cloture", async 
       ]),
     }],
     "WM-ACDE-FGH",
+    "Sujet clôturé.",
+    "Anna",
   );
 
   assertEquals(vus.length, 1);
@@ -152,6 +160,8 @@ Deno.test("appliquer · envoie la charge attendue par appliquer_cloture", async 
   assertEquals(vus[0].argument, {
     sujetId: 7000,
     code: "WM-ACDE-FGH",
+    bilan: "Sujet clôturé.",
+    mentionne: "Anna",
     versements: [{
       joueurId: ANNA,
       effets: {
@@ -169,7 +179,7 @@ Deno.test("appliquer · envoie la charge attendue par appliquer_cloture", async 
 Deno.test("appliquer · une clôture sans versement est refusée ici, avec le sujet", async () => {
   const { appel, vus } = espionne();
   const e = await assertRejects(
-    () => new ClotureSupabase(appel).appliquer(7000, [], "WM-ACDE-FGH"),
+    () => new ClotureSupabase(appel).appliquer(7000, [], "WM-ACDE-FGH", "Bilan.", "Anna"),
     AppelEchoue,
   );
   assert(e.message.includes("7000"), e.message);
@@ -184,6 +194,8 @@ Deno.test("appliquer · un refus de la base remonte tel quel", async () => {
         7000,
         [{ joueurId: ANNA, effets: effetsReels([]) }],
         "WM-ACDE-FGH",
+        "Sujet clôturé.",
+        "Anna",
       ),
     AppelEchoue,
   );

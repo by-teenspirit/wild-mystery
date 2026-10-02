@@ -125,7 +125,13 @@ if (CIBLE === "postgres" && PGURL !== undefined) {
 
     const cloture = new ClotureSupabase(appel);
     assertEquals(await cloture.deja(7000), false);
-    await cloture.appliquer(7000, [{ joueurId: ANNA, effets: v.effets }], "WM-ACDE-FGH");
+    await cloture.appliquer(
+      7000,
+      [{ joueurId: ANNA, effets: v.effets }],
+      "WM-ACDE-FGH",
+      "Bilan de test.",
+      "Anna",
+    );
     assertEquals(await cloture.deja(7000), true);
 
     // Le sac : 5 − 2 ball, et une potion apparue.
@@ -184,6 +190,8 @@ if (CIBLE === "postgres" && PGURL !== undefined) {
       7001,
       [{ joueurId: ANNA, effets: v.effets }],
       "WM-ACDE-FGJ",
+      "Bilan de test.",
+      "Anna",
     );
     assertEquals(
       await psql(
@@ -200,17 +208,23 @@ if (CIBLE === "postgres" && PGURL !== undefined) {
     // base doit faire tomber la transaction entière.
     const cloture = new ClotureSupabase(appel);
     await assertRejects(() =>
-      cloture.appliquer(7002, [{
-        joueurId: ANNA,
-        effets: {
-          especesCroisees: [],
-          captures: [],
-          xpParPokemon: new Map(),
-          objetsConsommes: new Map(),
-          objetsAjoutes: new Map([[POTION, 1]]),
-          pokedollars: -999_999,
-        },
-      }], "WM-ACDE-FGK")
+      cloture.appliquer(
+        7002,
+        [{
+          joueurId: ANNA,
+          effets: {
+            especesCroisees: [],
+            captures: [],
+            xpParPokemon: new Map(),
+            objetsConsommes: new Map(),
+            objetsAjoutes: new Map([[POTION, 1]]),
+            pokedollars: -999_999,
+          },
+        }],
+        "WM-ACDE-FGK",
+        "Bilan de test.",
+        "Anna",
+      )
     );
 
     assertEquals(await cloture.deja(7002), false, "le sujet doit rester ouvert");
@@ -231,9 +245,21 @@ if (CIBLE === "postgres" && PGURL !== undefined) {
       { messageId: 8001, evenement: { type: "pokedollars", montant: 10 } },
     ]);
     assert(v.possible);
-    await cloture.appliquer(7003, [{ joueurId: ANNA, effets: v.effets }], "WM-ACDE-FGL");
+    await cloture.appliquer(
+      7003,
+      [{ joueurId: ANNA, effets: v.effets }],
+      "WM-ACDE-FGL",
+      "Bilan de test.",
+      "Anna",
+    );
     await assertRejects(() =>
-      cloture.appliquer(7003, [{ joueurId: ANNA, effets: v.effets }], "WM-ACDE-FGM")
+      cloture.appliquer(
+        7003,
+        [{ joueurId: ANNA, effets: v.effets }],
+        "WM-ACDE-FGM",
+        "Bilan de test.",
+        "Anna",
+      )
     );
     assertEquals(await psql(url, `select pokedollars from joueur where id='${ANNA}'`), "1010");
   });
@@ -263,6 +289,8 @@ if (CIBLE === "postgres" && PGURL !== undefined) {
       7004,
       [{ joueurId: ANNA, effets: v.effets }],
       "WM-ACDE-FGQ",
+      "Bilan de test.",
+      "Anna",
     );
 
     assertEquals(

@@ -24,6 +24,17 @@ import { graineDepuis } from "../../domaine/alea.ts";
 import { demandesDeCloture } from "../forumactif/demandes.ts";
 
 export class EtatDuJeuEnMemoire implements EtatDuJeu {
+  readonly #pseudos = new Map<string, string>();
+
+  pseudo(joueurId: string, pseudo: string): this {
+    this.#pseudos.set(joueurId, pseudo);
+    return this;
+  }
+
+  pseudoDe(joueurId: string): Promise<string> {
+    return Promise.resolve(this.#pseudos.get(joueurId) ?? joueurId);
+  }
+
   readonly #joueurs = new Map<string, EtatDuJoueur>();
   readonly #comptes = new Map<number, string>();
   readonly #clos = new Set<number>();
@@ -59,7 +70,10 @@ export class EtatDuJeuEnMemoire implements EtatDuJeu {
 }
 
 export class ClotureEnMemoire implements Cloture {
-  readonly #closes = new Map<number, { versements: readonly Versement[]; code: string }>();
+  readonly #closes = new Map<
+    number,
+    { versements: readonly Versement[]; code: string; bilan: string; mentionne: string }
+  >();
   /** Posé par un test pour simuler un refus de la base. */
   refuseLaProchaine: Error | null = null;
 
@@ -71,14 +85,22 @@ export class ClotureEnMemoire implements Cloture {
     sujetId: number,
     versements: readonly Versement[],
     code: string,
+    bilan: string,
+    mentionne: string,
   ): Promise<void> {
     if (this.refuseLaProchaine) {
       const erreur = this.refuseLaProchaine;
       this.refuseLaProchaine = null;
       return Promise.reject(erreur);
     }
-    this.#closes.set(sujetId, { versements, code });
+    this.#closes.set(sujetId, { versements, code, bilan, mentionne });
     return Promise.resolve();
+  }
+
+  /** Hors contrat : le bilan enregistré avec la clôture. C'est lui qui
+   *  prouve qu'un bilan existe même quand la publication a échoué. */
+  bilan(sujetId: number): string | undefined {
+    return this.#closes.get(sujetId)?.bilan;
   }
 
   /** Hors contrat : ce qui a été versé, pour les assertions. */
@@ -115,7 +137,7 @@ export class ForumEnMemoire implements LecteurDeForum, LecteurDeDemandes, Posteu
   /** Le texte des messages, pour que `demandesDeCloture` ait quelque chose
    *  à lire. Séparé parce que le port `LecteurDeForum` ne porte pas de corps. */
   readonly #corps = new Map<number, string>();
-  readonly postes: { sujetId: number; mentionne: string; corps: string }[] = [];
+  readonly postes: { sujetId: number; mentionne: string; corps: string; code: string }[] = [];
   #prochainId = 1;
 
   ajouter(
@@ -174,8 +196,16 @@ export class ForumEnMemoire implements LecteurDeForum, LecteurDeDemandes, Posteu
     );
   }
 
-  repondre(sujetId: number, mentionne: string, corps: string): Promise<number> {
-    this.postes.push({ sujetId, mentionne, corps });
+  /** Posé par un test pour simuler un forum injoignable. */
+  refuseLaProchaineReponse: Error | null = null;
+
+  repondre(sujetId: number, mentionne: string, corps: string, code: string): Promise<number> {
+    if (this.refuseLaProchaineReponse) {
+      const erreur = this.refuseLaProchaineReponse;
+      this.refuseLaProchaineReponse = null;
+      return Promise.reject(erreur);
+    }
+    this.postes.push({ sujetId, mentionne, corps, code });
     const m = this.ajouter({
       sujetId,
       auteurId: 0,

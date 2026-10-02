@@ -18,11 +18,14 @@ import {
   Bocal,
   champsDeLaReponse,
   ConnexionRefusee,
+  enClair,
   estLaPageDeConnexion,
   FormulaireIntrouvable,
   ForumactifEnPublication,
   idDuMessagePoste,
   lireLeFormulaireDeReponse,
+  messageDuForum,
+  MotDePasseExpire,
   PublicationIncertaine,
   PublicationRefusee,
   type Reponse,
@@ -107,6 +110,16 @@ function fauxForum(reglages: Reglages = {}): FauxForum {
   const transport: Transport = (r: Requete): Promise<Reponse> => {
     journal.push(`${r.methode} ${r.chemin}`);
     const sansSession = reglages.sessionExigee === true && !connecte;
+
+    if (r.chemin === "/login" && r.methode === "GET") {
+      // Le vrai forum pose une session anonyme sur la page de connexion.
+      return Promise.resolve({
+        statut: 200,
+        corps: pageDeConnexion(),
+        cookies: ["fa_sid=anonyme; path=/"],
+        emplacement: null,
+      });
+    }
 
     if (r.chemin === "/login") {
       if (reglages.motDePasseFaux === true) {
@@ -203,10 +216,6 @@ function fauxForum(reglages: Reglages = {}): FauxForum {
   };
 }
 
-function corpsAvecMarqueur(code = CODE): string {
-  return `Bilan du sujet.\n\n[[WM:eyJhIjoxfQ:${code}]]`;
-}
-
 // ── le bocal à cookies ──────────────────────────────────────────────
 
 Deno.test("Bocal · garde nom=valeur et jette le reste", () => {
@@ -299,10 +308,13 @@ Deno.test("repondre · se connecte, relit le formulaire, poste, rend l'id", asyn
   const forum = fauxForum({ sessionExigee: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
 
-  const id = await p.repondre(813, "Dresseuse", corpsAvecMarqueur());
+  const id = await p.repondre(813, "Dresseuse", "Bilan du sujet.", CODE);
 
   assertEquals(id, 15264);
+  // Le GET /login n'est pas décoratif : Forumactif pose une session
+  // anonyme dessus et l'exige dans le POST qui suit.
   assertEquals(forum.journal, [
+    "GET /login",
     "POST /login",
     "GET /post?t=813&mode=reply",
     "POST /post",
@@ -313,8 +325,8 @@ Deno.test("repondre · se connecte, relit le formulaire, poste, rend l'id", asyn
 Deno.test("repondre · ne se reconnecte pas pour le deuxième message", async () => {
   const forum = fauxForum({ sessionExigee: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  await p.repondre(813, "A", corpsAvecMarqueur());
-  await p.repondre(813, "B", corpsAvecMarqueur("WM-ACDE-FGH"));
+  await p.repondre(813, "A", "Bilan du sujet.", CODE);
+  await p.repondre(813, "B", "Bilan du sujet.", "WM-ACDE-FGH");
   assertEquals(forum.journal.filter((l) => l === "POST /login").length, 1);
 });
 
@@ -323,15 +335,15 @@ Deno.test("repondre · relit le formulaire à CHAQUE envoi, jamais en cache", as
   // l'envoi dès qu'un joueur a posté entre les deux.
   const forum = fauxForum();
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  await p.repondre(813, "", corpsAvecMarqueur());
-  await p.repondre(813, "", corpsAvecMarqueur("WM-ACDE-FGH"));
+  await p.repondre(813, "", "Bilan du sujet.", CODE);
+  await p.repondre(813, "", "Bilan du sujet.", "WM-ACDE-FGH");
   assertEquals(forum.journal.filter((l) => l.startsWith("GET /post?")).length, 2);
 });
 
 Deno.test("repondre · sans personne à mentionner, le corps part tel quel", async () => {
   const forum = fauxForum();
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  await p.repondre(813, "", "Juste un mot. [[WM:eyJhIjoxfQ:WM-7K4P-9QX]]");
+  await p.repondre(813, "", "Juste un mot.", CODE);
   assert(!forum.posteCorps?.startsWith("@"), forum.posteCorps ?? "rien");
 });
 
@@ -352,7 +364,7 @@ Deno.test("repondre · une session tombée en cours de route est reprise une foi
   };
 
   const p = new ForumactifEnPublication(transport, COMPTE);
-  assertEquals(await p.repondre(813, "", corpsAvecMarqueur()), 15264);
+  assertEquals(await p.repondre(813, "", "Bilan du sujet.", CODE), 15264);
   // Deux connexions : la paresseuse, puis celle de la reprise.
   assertEquals(vrai.journal.filter((l) => l === "POST /login").length, 2);
 });
@@ -375,14 +387,14 @@ Deno.test("repondre · une session qui retombe aussitôt n'est pas reprise sans 
     });
   };
   const p = new ForumactifEnPublication(transport, COMPTE);
-  await assertRejects(() => p.repondre(813, "", corpsAvecMarqueur()), ConnexionRefusee);
+  await assertRejects(() => p.repondre(813, "", "Bilan du sujet.", CODE), ConnexionRefusee);
 });
 
 Deno.test("un mot de passe faux est reconnu malgré le statut 200", async () => {
   const forum = fauxForum({ sessionExigee: true, motDePasseFaux: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
   const e = await assertRejects(
-    () => p.repondre(813, "", corpsAvecMarqueur()),
+    () => p.repondre(813, "", "Bilan du sujet.", CODE),
     ConnexionRefusee,
   );
   assert(e.message.includes("resservi"), e.message);
@@ -391,7 +403,7 @@ Deno.test("un mot de passe faux est reconnu malgré le statut 200", async () => 
 Deno.test("une connexion sans cookie est refusée au lieu de continuer à vide", async () => {
   const forum = fauxForum({ sessionExigee: true, aucunCookie: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  await assertRejects(() => p.repondre(813, "", corpsAvecMarqueur()), ConnexionRefusee);
+  await assertRejects(() => p.repondre(813, "", "Bilan du sujet.", CODE), ConnexionRefusee);
 });
 
 // ── le filet contre le double envoi ─────────────────────────────────
@@ -402,7 +414,7 @@ Deno.test("une coupure APRÈS enregistrement ne reposte pas : on retrouve le mes
   const forum = fauxForum({ coupureApresEnregistrement: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
 
-  const id = await p.repondre(813, "", corpsAvecMarqueur());
+  const id = await p.repondre(813, "", "Bilan du sujet.", CODE);
 
   assertEquals(id, 15264);
   assertEquals(forum.journal.filter((l) => l === "POST /post").length, 1);
@@ -438,7 +450,7 @@ Deno.test("une coupure AVANT enregistrement est signalée comme incertaine, pas 
   };
   const p = new ForumactifEnPublication(transport, COMPTE);
   const e = await assertRejects(
-    () => p.repondre(813, "", corpsAvecMarqueur()),
+    () => p.repondre(813, "", "Bilan du sujet.", CODE),
     PublicationIncertaine,
   );
   assert(e.message.includes("à la main"), e.message);
@@ -447,7 +459,7 @@ Deno.test("une coupure AVANT enregistrement est signalée comme incertaine, pas 
 Deno.test("un refus clair du forum est un refus, pas une incertitude", async () => {
   const forum = fauxForum({ refusSansLocation: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  await assertRejects(() => p.repondre(813, "", corpsAvecMarqueur()), PublicationRefusee);
+  await assertRejects(() => p.repondre(813, "", "Bilan du sujet.", CODE), PublicationRefusee);
 });
 
 Deno.test("un lt périmé fait refuser l'envoi, et on ne le prend pas pour un succès", async () => {
@@ -455,23 +467,113 @@ Deno.test("un lt périmé fait refuser l'envoi, et on ne le prend pas pour un su
   // exactement ce qui arrive quand un joueur poste entre les deux.
   const forum = fauxForum({ lt: 15263, ltAttendu: 99999 });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  await assertRejects(() => p.repondre(813, "", corpsAvecMarqueur()), PublicationRefusee);
+  await assertRejects(() => p.repondre(813, "", "Bilan du sujet.", CODE), PublicationRefusee);
 });
 
-Deno.test("sans marqueur dans le corps, une coupure reste incertaine", async () => {
-  // Pas de code, donc rien pour reconnaître notre propre message. Le dire
-  // plutôt que de deviner.
+Deno.test("le marqueur est posé par l'adaptateur, donc le filet n'est jamais inerte", async () => {
+  // Avant le 2 octobre, le marqueur devait venir de l'appelant — et le vrai
+  // bilan n'en avait pas. Le filet contre le double envoi existait sans
+  // pouvoir servir. C'est l'adaptateur qui l'écrit désormais : un corps
+  // sans le moindre marqueur se retrouve quand même après une coupure.
   const forum = fauxForum({ coupureApresEnregistrement: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  await assertRejects(
-    () => p.repondre(813, "", "un bilan sans marqueur"),
-    PublicationIncertaine,
-  );
+
+  const id = await p.repondre(813, "", "un bilan sans le moindre marqueur", CODE);
+
+  assertEquals(id, 15264, "retrouvé dans le sujet grâce au marqueur ajouté");
+  assert(forum.posteCorps?.includes(`:${CODE}]]`), forum.posteCorps ?? "rien");
 });
 
 Deno.test("avec deux marqueurs, on ne tranche pas tout seul", async () => {
   const forum = fauxForum({ refusSansLocation: true });
   const p = new ForumactifEnPublication(forum.transport, COMPTE);
-  const corps = `[[WM:eyJhIjoxfQ:WM-7K4P-9QX]] et [[WM:eyJhIjoyfQ:WM-ACDE-FGH]]`;
-  await assertRejects(() => p.repondre(813, "", corps), PublicationIncertaine);
+  // Le joueur a recopié un marqueur dans son message : avec celui que
+  // l'adaptateur ajoute, il y en a deux, et on ne tranche pas tout seul.
+  const corps = `Bilan. [[WM:eyJhIjoyfQ:WM-ACDE-FGH]]`;
+  await assertRejects(() => p.repondre(813, "", corps, CODE), PublicationIncertaine);
+});
+
+// ── le diagnostic de connexion ──────────────────────────────────────
+
+Deno.test("un mot de passe faux est annoncé comme tel, pas comme une absence de cookie", async () => {
+  // Le 2 octobre, l'ordre inverse a fait chercher du côté des cookies
+  // pendant une heure pour un simple refus d'identifiants.
+  const forum = fauxForum({ sessionExigee: true, motDePasseFaux: true });
+  const p = new ForumactifEnPublication(forum.transport, COMPTE);
+  const e = await assertRejects(
+    () => p.repondre(813, "", "Bilan du sujet.", CODE),
+    ConnexionRefusee,
+  );
+  assert(e.message.includes("identifiants probablement refusés"), e.message);
+  assert(e.message.includes("visite 200"), e.message);
+  assert(e.message.includes("envoi 200"), e.message);
+});
+
+Deno.test("le message d'erreur rapporte ce que le forum a répondu", async () => {
+  const transport: Transport = (r) => {
+    if (r.chemin === "/login" && r.methode === "GET") {
+      return Promise.resolve({ statut: 200, corps: "", cookies: [], emplacement: null });
+    }
+    return Promise.resolve({
+      statut: 200,
+      corps:
+        "<html><body><h1>Trop de tentatives</h1><p>Réessayez dans 15 minutes.</p></body></html>",
+      cookies: [],
+      emplacement: null,
+    });
+  };
+  const p = new ForumactifEnPublication(transport, COMPTE);
+  const e = await assertRejects(
+    () => p.repondre(813, "", "Bilan du sujet.", CODE),
+    ConnexionRefusee,
+  );
+  assert(e.message.includes("Trop de tentatives"), e.message);
+  assert(e.message.includes("Réessayez dans 15 minutes"), e.message);
+});
+
+Deno.test("enClair retire les balises, les scripts et les styles", () => {
+  assertEquals(
+    enClair("<script>var a=1</script><style>p{}</style><p>Bonjour&nbsp;toi</p>"),
+    "Bonjour toi",
+  );
+  assertEquals(enClair("<p>abcdefghij</p>", 4), "abcd");
+});
+
+Deno.test("messageDuForum trouve la phrase et saute le menu", () => {
+  const menu =
+    "<p>Accueil Calendrier FAQ Rechercher Membres Groupes S'enregistrer Connexion</p>";
+  const page =
+    `<html>${menu}<div>Le mot de passe que vous avez entré est incorrect.</div></html>`;
+  const vu = messageDuForum(page);
+  assert(vu.includes("mot de passe que vous avez entré est incorrect"), vu);
+});
+
+Deno.test("messageDuForum rend quand même quelque chose s'il ne reconnaît rien", () => {
+  const long = "<p>" + "a".repeat(300) + "ce qui compte vraiment</p>";
+  assert(messageDuForum(long).includes("ce qui compte vraiment"));
+});
+
+Deno.test("un mot de passe expiré est nommé, avec son remède", async () => {
+  // Relevé le 2 octobre : Forumactif périme le mot de passe d'un compte
+  // longtemps inutilisé. Le compte de publication est par nature peu
+  // utilisé à la main : ça se reproduira.
+  const transport: Transport = (r) => {
+    if (r.chemin === "/login" && r.methode === "GET") {
+      return Promise.resolve({ statut: 200, corps: "", cookies: [], emplacement: null });
+    }
+    return Promise.resolve({
+      statut: 200,
+      corps:
+        "<p>Pour des raisons de sécurité, votre mot de passe a expiré suite à une longue période d'inactivité.</p>",
+      cookies: [],
+      emplacement: null,
+    });
+  };
+  const e = await assertRejects(
+    () =>
+      new ForumactifEnPublication(transport, COMPTE).repondre(813, "", "Bilan du sujet.", CODE),
+    MotDePasseExpire,
+  );
+  assert(e.message.includes("FORUM_MOTDEPASSE"), e.message);
+  assert(e.message.includes("Rien à corriger dans le code"), e.message);
 });

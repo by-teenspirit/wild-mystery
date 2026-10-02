@@ -76,11 +76,21 @@ export interface LecteurDeDemandes {
 }
 
 export interface PosteurSurForum {
-  /** Poste une réponse dans un sujet, avec le compte de publication.
-   *  Rend l'identifiant du message créé. Toute réponse automatique
-   *  commence par une mention native `@pseudo`, pour que la
-   *  notification arrive même des jours plus tard. */
-  repondre(sujetId: number, mentionne: string, corps: string): Promise<number>;
+  /**
+   * Publie une réponse dans un sujet, et rend l'identifiant du message.
+   *
+   * `code` n'est pas décoratif : l'adaptateur s'en sert pour poser son
+   * marqueur dans le message. C'est ce marqueur qui lui permet, si l'envoi
+   * échoue sans réponse, de relire le sujet et de savoir si le message est
+   * passé malgré tout. Sans lui, une coupure réseau devient une
+   * incertitude qu'un humain doit lever à la main.
+   */
+  repondre(
+    sujetId: number,
+    mentionne: string,
+    corps: string,
+    code: string,
+  ): Promise<number>;
 }
 
 // ── le registre et l'état du jeu ────────────────────────────────────
@@ -111,6 +121,9 @@ export type EtatDuJoueur = {
 
 export interface EtatDuJeu {
   etatDe(joueurId: string): Promise<EtatDuJoueur>;
+  /** Le pseudo du joueur. Un bilan doit nommer les gens, pas afficher
+   *  leur identifiant : personne ne se reconnaît dans un UUID. */
+  pseudoDe(joueurId: string): Promise<string>;
   /** Le joueur lié à un compte Forumactif, ou null s'il n'est pas lié. */
   joueurDuCompte(forumUserId: number): Promise<string | null>;
   estClos(sujetId: number): Promise<boolean>;
@@ -196,7 +209,31 @@ export interface Cloture {
     sujetId: number,
     versements: readonly Versement[],
     code: string,
+    bilan: string,
+    mentionne: string,
   ): Promise<void>;
+}
+
+/** Un bilan calculé, appliqué, et pas encore publié.
+ *
+ *  Cette file existe parce qu'appliquer et poster ne sont pas atomiques :
+ *  entre les deux il y a un forum qui peut être injoignable. Le 2 octobre,
+ *  un mot de passe expiré a laissé un sujet clos sans aucun bilan publié,
+ *  et plus rien ne réessayait. */
+export type BilanEnAttente = {
+  readonly sujetId: number;
+  readonly code: string;
+  readonly bilan: string;
+  readonly mentionne: string;
+  /** Combien de fois on a déjà essayé. Un bilan qui ne passera jamais doit
+   *  finir par se voir plutôt que de tourner en silence. */
+  readonly essais: number;
+};
+
+export interface BilansEnAttente {
+  aPoster(combien: number): Promise<readonly BilanEnAttente[]>;
+  poste(sujetId: number, messageId: number): Promise<void>;
+  echoue(sujetId: number, erreur: string): Promise<number>;
 }
 
 export interface Catalogue {

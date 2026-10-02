@@ -35,7 +35,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type { PosteurSurForum } from "../../application/ports.ts";
-import { marqueursDe } from "./marqueur.ts";
+import { ecrireUnMarqueur, marqueursDe } from "./marqueur.ts";
 import { lireLesMessages } from "./lecture.ts";
 
 // ── le transport ────────────────────────────────────────────────────
@@ -299,6 +299,14 @@ export function estLaPageDeConnexion(html: string): boolean {
 
 // ── l'adaptateur ────────────────────────────────────────────────────
 
+/** La charge du marqueur : l'identifiant du sujet, en base64url. Elle n'a
+ *  pas besoin d'être riche — le code à côté suffit à retrouver le message.
+ *  Elle est là pour que le marqueur reste relisible si le format grandit. */
+function chargeDuMarqueur(sujetId: number): string {
+  return btoa(JSON.stringify({ s: sujetId }))
+    .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
 export type Identifiants = {
   readonly compte: string;
   readonly motDePasse: string;
@@ -432,12 +440,26 @@ export class ForumactifEnPublication implements PosteurSurForum {
     return null;
   }
 
-  async repondre(sujetId: number, mentionne: string, corps: string): Promise<number> {
+  /**
+   * Publie une réponse, marqueur compris.
+   *
+   * **C'est ici que le marqueur est posé, et nulle part ailleurs.** Le cas
+   * d'usage rédige le bilan ; il n'a pas à connaître la syntaxe d'un
+   * marqueur Forumactif. Et comme c'est l'adaptateur qui l'écrit, il est
+   * certain qu'il y en a exactement un : le filet contre le double envoi
+   * ne peut plus être inerte par oubli.
+   */
+  async repondre(
+    sujetId: number,
+    mentionne: string,
+    corps: string,
+    code: string,
+  ): Promise<number> {
     await this.assurerLaSession();
 
-    const message = mentionne === "" ? corps : `@${mentionne}\n\n${corps}`;
-    // Le code du marqueur sert de preuve d'identité du message. S'il n'y
-    // en a pas, on ne saura pas reconnaître notre propre envoi.
+    const charge = chargeDuMarqueur(sujetId);
+    const avecMarqueur = `${corps}\n\n${ecrireUnMarqueur(charge, code)}`;
+    const message = mentionne === "" ? avecMarqueur : `@${mentionne}\n\n${avecMarqueur}`;
     const codes = marqueursDe(message).map((m) => m.code);
     const formulaire = await this.formulaire(sujetId);
 

@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(69);
+select plan(101);
 
 -- ── le décor ────────────────────────────────────────────────────────
 insert into joueur (id, forum_user_id, pseudo, groupe, palier, pokedollars)
@@ -314,6 +314,116 @@ select is(releve_avancer('{"forumId":9,"dernierMessage":8100}'::jsonb), 8100::bi
   'le curseur avance');
 select is(releve_avancer('{"forumId":9,"dernierMessage":8000}'::jsonb), 8100::bigint,
   'et ne recule pas');
+
+-- ── 13 · la file des bilans en attente (0006) ───────────────────────
+--  LE DÉFAUT DU 2 OCTOBRE. Appliquer une clôture et publier son bilan ne
+--  sont pas atomiques : ce jour-là, un mot de passe expiré a laissé un
+--  sujet marqué clos sans aucun bilan publié, et comme il était clos,
+--  plus rien ne réessayait. Ce qui suit vérifie qu'un bilan survit
+--  désormais à un forum injoignable.
+select has_column('cloture', 'bilan');
+select has_column('cloture', 'mentionne');
+select has_column('cloture', 'bilan_poste_le');
+select has_column('cloture', 'bilan_essais');
+select has_function('clotures_sans_bilan', array['jsonb']);
+select has_function('cloture_bilan_poste', array['jsonb']);
+select has_function('cloture_bilan_echoue', array['jsonb']);
+select has_function('pseudo_du_joueur', array['jsonb']);
+
+--  Le bilan entre en base DANS la même transaction que la clôture. C'est
+--  toute la correction : il n'existe pas d'instant où un sujet est clos
+--  sans qu'un bilan soit prêt à partir.
+select lives_ok($$
+  select appliquer_cloture('{
+    "sujetId": 7910, "code": "WM-ACDE-FGM",
+    "bilan": "Sujet clôturé. CAPTURÉ Goupix Nv.9",
+    "mentionne": "Callista",
+    "versements": [{
+      "joueurId": "11111111-1111-1111-1111-111111111111",
+      "effets": {"pokedollars": 10}
+    }]
+  }'::jsonb)
+$$, 'une clôture avec bilan passe');
+
+select is((select bilan from cloture where sujet_id = 7910),
+  'Sujet clôturé. CAPTURÉ Goupix Nv.9', 'le texte du bilan est gardé');
+select is((select mentionne from cloture where sujet_id = 7910),
+  'Callista', 'et le joueur à mentionner avec lui');
+select is((select bilan_poste_le from cloture where sujet_id = 7910),
+  null::timestamptz, 'rien n''est publié pour l''instant');
+
+select is(
+  jsonb_array_length(clotures_sans_bilan('{}'::jsonb)),
+  1, 'la clôture entre dans la file d''attente');
+select is(
+  clotures_sans_bilan('{}'::jsonb)->0->>'sujetId', '7910',
+  'et c''est bien celle-là');
+select is(
+  clotures_sans_bilan('{}'::jsonb)->0->>'code', 'WM-ACDE-FGM',
+  'la file porte le code : c''est lui qui pose le marqueur');
+select is(
+  clotures_sans_bilan('{}'::jsonb)->0->>'mentionne', 'Callista',
+  'et le joueur à mentionner');
+
+--  Le sujet 7900, clôturé plus haut sans bilan, n'a rien à publier et ne
+--  doit pas encombrer la file.
+select isnt(
+  clotures_sans_bilan('{}'::jsonb)->0->>'sujetId', '7900',
+  'une clôture sans bilan n''entre pas dans la file');
+
+--  Un échec compte, et garde sa raison. Sans ça, un bilan qui ne passera
+--  jamais — sujet verrouillé, compte bloqué — tournerait en silence.
+select is(cloture_bilan_echoue(
+  '{"sujetId":7910,"erreur":"ConnexionRefusee : mot de passe expiré"}'::jsonb),
+  1, 'un premier échec est compté');
+select alike((select bilan_derniere_erreur from cloture where sujet_id = 7910),
+  '%mot de passe expiré%', 'et sa raison est gardée');
+select is(cloture_bilan_echoue('{"sujetId":7910,"erreur":"encore"}'::jsonb),
+  2, 'le second aussi');
+select is(
+  jsonb_array_length(clotures_sans_bilan('{}'::jsonb)),
+  1, 'un bilan qui a échoué RESTE en file');
+
+--  La publication réussit. Elle ne doit réussir qu'une fois : reposter un
+--  bilan déjà publié doublerait le message dans le sujet.
+select is(cloture_bilan_poste('{"sujetId":7910,"messageId":15545}'::jsonb),
+  true, 'la publication est enregistrée');
+select is((select bilan_message_id from cloture where sujet_id = 7910),
+  15545::bigint, 'avec le numéro du message publié');
+select is((select bilan_derniere_erreur from cloture where sujet_id = 7910),
+  null::text, 'et l''erreur précédente est effacée');
+select is(
+  jsonb_array_length(clotures_sans_bilan('{}'::jsonb)),
+  0, 'il sort de la file');
+select is(cloture_bilan_poste('{"sujetId":7910,"messageId":15999}'::jsonb),
+  false, 'un second enregistrement ne passe pas : la publication est idempotente');
+select is((select bilan_message_id from cloture where sujet_id = 7910),
+  15545::bigint, 'et n''écrase pas le premier numéro');
+
+--  Une fonction Edge a une durée maximale : mieux vaut poster dix bilans
+--  par passage que d'en rater cent.
+select lives_ok($$
+  select appliquer_cloture('{"sujetId":7911,"code":"WM-ACDE-FGN",
+    "bilan":"b1","mentionne":"Callista","versements":[{"joueurId":
+    "11111111-1111-1111-1111-111111111111","effets":{}}]}'::jsonb);
+  select appliquer_cloture('{"sujetId":7912,"code":"WM-ACDE-FGP",
+    "bilan":"b2","mentionne":"Plumtys","versements":[{"joueurId":
+    "22222222-2222-2222-2222-222222222222","effets":{}}]}'::jsonb);
+$$, 'deux autres clôtures entrent en file');
+select is(jsonb_array_length(clotures_sans_bilan('{}'::jsonb)), 2,
+  'la file en compte deux');
+select is(jsonb_array_length(clotures_sans_bilan('{"combien":1}'::jsonb)), 1,
+  'et « combien » la borne');
+
+--  Un bilan doit nommer les gens. Personne ne se reconnaît dans un UUID.
+select is(
+  pseudo_du_joueur('{"joueurId":"11111111-1111-1111-1111-111111111111"}'::jsonb)
+    ->>'pseudo',
+  'Callista', 'le pseudo se lit par son identifiant');
+select is(
+  pseudo_du_joueur('{"joueurId":"33333333-3333-3333-3333-333333333333"}'::jsonb)
+    ->>'pseudo',
+  null::text, 'et un joueur inconnu ne rend rien plutôt que de lever');
 
 select * from finish();
 rollback;

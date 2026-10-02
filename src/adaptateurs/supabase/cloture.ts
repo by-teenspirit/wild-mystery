@@ -13,7 +13,12 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type { Effets } from "../../domaine/cloture.ts";
-import type { Cloture, Versement } from "../../application/ports.ts";
+import type {
+  BilanEnAttente,
+  BilansEnAttente,
+  Cloture,
+  Versement,
+} from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
 /** Les effets, dans la forme que `appliquer_cloture` attend. Les clés
@@ -46,6 +51,11 @@ export function versJson(effets: Effets): EffetsEnJson {
 export type ChargeDeCloture = {
   readonly sujetId: number;
   readonly code: string;
+  /** Le texte à publier, enregistré DANS la même transaction que la
+   *  clôture. C'est ce qui garantit qu'une clôture appliquée a toujours un
+   *  bilan à poster, même si le forum est injoignable à cet instant. */
+  readonly bilan: string;
+  readonly mentionne: string;
   readonly versements: readonly { joueurId: string; effets: EffetsEnJson }[];
 };
 
@@ -53,10 +63,14 @@ export function chargeDeCloture(
   sujetId: number,
   versements: readonly Versement[],
   code: string,
+  bilan: string,
+  mentionne: string,
 ): ChargeDeCloture {
   return {
     sujetId,
     code,
+    bilan,
+    mentionne,
     versements: versements.map((v) => ({ joueurId: v.joueurId, effets: versJson(v.effets) })),
   };
 }
@@ -76,12 +90,60 @@ export class ClotureSupabase implements Cloture {
     sujetId: number,
     versements: readonly Versement[],
     code: string,
+    bilan: string,
+    mentionne: string,
   ): Promise<void> {
     // Une clôture sans versement n'a pas de sens, et la base la refuse.
     // Mieux vaut le dire ici, avec le numéro du sujet, qu'en SQL.
     if (versements.length === 0) {
       throw new AppelEchoue("appliquer_cloture", `aucun versement pour le sujet ${sujetId}`);
     }
-    await this.appeler("appliquer_cloture", chargeDeCloture(sujetId, versements, code));
+    if (bilan.trim() === "") {
+      // Un bilan vide ferait entrer dans la file une clôture que personne
+      // ne pourrait jamais publier.
+      throw new AppelEchoue("appliquer_cloture", `bilan vide pour le sujet ${sujetId}`);
+    }
+    await this.appeler(
+      "appliquer_cloture",
+      chargeDeCloture(sujetId, versements, code, bilan, mentionne),
+    );
+  }
+}
+
+/** La file des bilans appliqués mais pas encore publiés. */
+export class BilansEnAttenteSupabase implements BilansEnAttente {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async aPoster(combien: number): Promise<readonly BilanEnAttente[]> {
+    const nom = "clotures_sans_bilan";
+    const recu = await this.appeler(nom, { combien });
+    if (!Array.isArray(recu)) {
+      throw new AppelEchoue(nom, `tableau attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    return recu.map((brut) => {
+      const o = brut as Record<string, unknown>;
+      if (
+        typeof o.sujetId !== "number" || typeof o.code !== "string" ||
+        typeof o.bilan !== "string" || o.bilan === ""
+      ) {
+        throw new AppelEchoue(nom, `bilan en attente illisible : ${JSON.stringify(brut)}`);
+      }
+      return {
+        sujetId: o.sujetId,
+        code: o.code,
+        bilan: o.bilan,
+        mentionne: typeof o.mentionne === "string" ? o.mentionne : "",
+        essais: typeof o.essais === "number" ? o.essais : 0,
+      };
+    });
+  }
+
+  async poste(sujetId: number, messageId: number): Promise<void> {
+    await this.appeler("cloture_bilan_poste", { sujetId, messageId });
+  }
+
+  async echoue(sujetId: number, erreur: string): Promise<number> {
+    const recu = await this.appeler("cloture_bilan_echoue", { sujetId, erreur });
+    return typeof recu === "number" ? recu : 0;
   }
 }

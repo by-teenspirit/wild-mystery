@@ -25,7 +25,9 @@ const PAGE = await Deno.readTextFile(
 
 Deno.test("lit les messages du sujet et laisse la publicité dehors", () => {
   const messages = lireLesMessages(PAGE, 813);
-  assertEquals(messages.map((m) => m.id), [12485, 15263]);
+  // 15543 vient du relevé du 2 octobre sur /t975-test, ajouté à la même
+  // fixture : un compte sans couleur de groupe.
+  assertEquals(messages.map((m) => m.id), [12485, 15263, 15543]);
 });
 
 Deno.test("le bloc « Contenu sponsorisé » n'est pas un message", () => {
@@ -104,8 +106,8 @@ Deno.test("lireLesSujetsRemues · garde le plus grand identifiant par sujet", ()
 
 Deno.test("l'adaptateur ne garde que ce qui est arrivé après le dernier vu", async () => {
   const forum = new ForumactifEnLecture((_chemin: string) => Promise.resolve(PAGE));
-  assertEquals((await forum.messagesDuSujet(813, 0)).map((m) => m.id), [12485, 15263]);
-  assertEquals((await forum.messagesDuSujet(813, 12485)).map((m) => m.id), [15263]);
+  assertEquals((await forum.messagesDuSujet(813, 0)).map((m) => m.id), [12485, 15263, 15543]);
+  assertEquals((await forum.messagesDuSujet(813, 12485)).map((m) => m.id), [15263, 15543]);
   assertEquals(await forum.messagesDuSujet(813, 99999), []);
 });
 
@@ -117,4 +119,36 @@ Deno.test("l'adaptateur demande bien la page du sujet", async () => {
   });
   await forum.messagesDuSujet(813, 0);
   assertEquals(demandes, ["/t813-"]);
+});
+
+// ── la forme relevée le 2 octobre sur /t975-test ────────────────────
+
+Deno.test("un pseudo SANS <strong> est lu quand même", async () => {
+  // Forumactif sert deux formes selon que le membre a une couleur de
+  // groupe ou non. La seconde faisait lever PageIllisible, et la relève
+  // s'arrêtait sur tout le sujet.
+  const html = await Deno.readTextFile(
+    new URL("./fixtures/sujet-813.html", import.meta.url),
+  );
+  const messages = lireLesMessages(html, 975);
+  const sansGroupe = messages.find((m) => m.id === 15543);
+  assert(sansGroupe !== undefined, "le message sans groupe doit être lu");
+  assertEquals(sansGroupe.auteurPseudo, "Compte de test");
+  assertEquals(sansGroupe.auteurId, 4);
+  assertEquals(sansGroupe.groupeId, null, "pas de post-group-N : null, pas une erreur");
+});
+
+Deno.test("les deux formes de pseudo cohabitent dans la même page", () => {
+  const avec =
+    `<div id="p1" class="post row1 post--1 post-group-2"><div class="postprofile-avatar" data-id="3"></div><div class="postprofile-name"><span class="group-2"><strong>Ma&icirc;tre du Jeu</strong></span></div></div>`;
+  const sans =
+    `<div id="p2" class="post row2 post--2 "><div class="postprofile-avatar" data-id="4"></div><div class="postprofile-name">Compte de test</div></div>`;
+  const lus = lireLesMessages(avec + sans, 975);
+  assertEquals(lus.map((m) => m.auteurPseudo), ["Maître du Jeu", "Compte de test"]);
+});
+
+Deno.test("un bloc de pseudo vide lève plutôt que de rendre un pseudo vide", () => {
+  const html =
+    `<div id="p1" class="post row1 post--1 "><div class="postprofile-avatar" data-id="4"></div><div class="postprofile-name">  </div></div>`;
+  assertThrows(() => lireLesMessages(html, 975), PageIllisible);
 });

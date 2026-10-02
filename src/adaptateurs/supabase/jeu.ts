@@ -53,6 +53,15 @@ export class EtatDuJeuSupabase implements EtatDuJeu {
     };
   }
 
+  async pseudoDe(joueurId: string): Promise<string> {
+    const nom = "pseudo_du_joueur";
+    const recu = objet(nom, await this.appeler(nom, { joueurId }));
+    if (typeof recu.pseudo !== "string" || recu.pseudo === "") {
+      throw new AppelEchoue(nom, `pseudo introuvable pour ${joueurId}`);
+    }
+    return recu.pseudo;
+  }
+
   async joueurDuCompte(forumUserId: number): Promise<string | null> {
     const nom = "joueur_du_compte";
     const recu = objet(nom, await this.appeler(nom, { forumUserId }));

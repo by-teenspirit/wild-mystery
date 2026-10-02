@@ -15,6 +15,7 @@
 
 import { evaluerCloture, type Manque, type Verdict } from "../domaine/cloture.ts";
 import { codeDepuisEmpreinte } from "../domaine/code.ts";
+import { type LigneDeBilan, redigerLeBilan, redigerLeRefus } from "./bilan.ts";
 import type {
   Catalogue,
   Cloture,
@@ -36,6 +37,10 @@ export type Resultat =
     readonly issue: "close";
     readonly code: string;
     readonly versements: readonly Versement[];
+    /** Vrai quand la clôture est appliquée mais que le bilan n'a pas pu
+     *  être publié. Ce n'est PAS un échec : le bilan est en file et sera
+     *  reposté. C'est une information pour le journal. */
+    readonly bilanEnAttente: boolean;
   }
   | { readonly issue: "deja close" }
   | { readonly issue: "rien a clore" }
@@ -84,11 +89,18 @@ export class CloturerUnSujet {
       if (!v.possible) manques.set(joueurId, v.manques);
     }
 
+    const codeDuSujet = codeDepuisEmpreinte(
+      await this.signataire.empreinte(`cloture|${sujetId}|${joueurs.join(",")}`),
+    );
+
     if (manques.size > 0) {
+      // Un refus ne change rien en base : on le poste directement, et s'il
+      // n'part pas, la relève repassera — le sujet n'est pas clos.
       await this.forum.repondre(
         sujetId,
         demandeurPseudo,
-        await this.redigerLeRefus(manques),
+        redigerLeRefus(await this.manquesLisibles(manques), codeDuSujet),
+        codeDuSujet,
       );
       return { issue: "refusee", manques };
     }
@@ -98,33 +110,92 @@ export class CloturerUnSujet {
       if (v.possible) versements.push({ joueurId, effets: v.effets });
     }
 
-    const code = codeDepuisEmpreinte(
-      await this.signataire.empreinte(`cloture|${sujetId}|${joueurs.join(",")}`),
+    const bilan = redigerLeBilan(
+      await this.lignesDeBilan(versements, verdicts),
+      codeDuSujet,
     );
 
     try {
-      await this.cloture.appliquer(sujetId, versements, code);
+      // Le bilan entre en base AVEC la clôture, dans la même transaction.
+      await this.cloture.appliquer(
+        sujetId,
+        versements,
+        codeDuSujet,
+        bilan,
+        demandeurPseudo,
+      );
     } catch (erreur) {
       // La base a dit non. On ne poste rien : le registre est intact,
       // la relève repassera dans cinq minutes.
       throw new ClotureEchouee(erreur);
     }
 
-    await this.forum.repondre(sujetId, demandeurPseudo, `Sujet clôturé. Code ${code}`);
-    return { issue: "close", code, versements };
+    // ── ET SURTOUT : un échec ici ne fait PLUS tomber la clôture ──────
+    //  Appliquer et poster ne sont pas atomiques. Le 2 octobre, un mot de
+    //  passe expiré a laissé un sujet clos sans aucun bilan publié, et
+    //  comme il était clos, plus rien ne réessayait. Désormais le bilan
+    //  est en base : s'il ne part pas maintenant, il partira plus tard.
+    try {
+      await this.forum.repondre(sujetId, demandeurPseudo, bilan, codeDuSujet);
+      return { issue: "close", code: codeDuSujet, versements, bilanEnAttente: false };
+    } catch {
+      return { issue: "close", code: codeDuSujet, versements, bilanEnAttente: true };
+    }
   }
 
-  private async redigerLeRefus(
-    manques: ReadonlyMap<string, readonly Manque[]>,
-  ): Promise<string> {
-    const lignes: string[] = ["La clôture n'a pas pu se faire. Il manque :"];
-    for (const [joueurId, liste] of manques) {
-      for (const m of liste) {
-        lignes.push(`— ${joueurId} : ${await this.direLeManque(m)}`);
-      }
+  /** Ce que chaque joueur emporte, avec des noms lisibles. */
+  private async lignesDeBilan(
+    versements: readonly Versement[],
+    verdicts: ReadonlyMap<string, Verdict>,
+  ): Promise<readonly LigneDeBilan[]> {
+    const lignes: LigneDeBilan[] = [];
+    for (const v of versements) {
+      const avant = await this.jeu.etatDe(v.joueurId);
+      const e = v.effets;
+      lignes.push({
+        pseudo: await this.jeu.pseudoDe(v.joueurId),
+        captures: await Promise.all(e.captures.map(async (c) => ({
+          espece: await this.catalogue.nomEspece(c.especeId),
+          niveau: c.niveau,
+        }))),
+        croisees: await Promise.all(
+          e.especesCroisees.map((id) => this.catalogue.nomEspece(id)),
+        ),
+        experience: [...e.xpParPokemon].map(([pokemon, gain]) => ({ pokemon, gain })),
+        ajoutes: await Promise.all(
+          [...e.objetsAjoutes].map(async ([id, quantite]) => ({
+            objet: await this.catalogue.nomObjet(id),
+            quantite,
+          })),
+        ),
+        consommes: await Promise.all(
+          [...e.objetsConsommes].map(async ([id, quantite]) => ({
+            objet: await this.catalogue.nomObjet(id),
+            quantite,
+          })),
+        ),
+        pokedollarsAvant: avant.pokedollars,
+        pokedollarsApres: avant.pokedollars + e.pokedollars,
+      });
+      // `verdicts` n'est pas lu ici : il l'est plus haut pour décider.
+      void verdicts;
     }
-    lignes.push("Rien n'a été versé, et le registre du sujet est intact.");
-    return lignes.join("\n");
+    return lignes;
+  }
+
+  private async manquesLisibles(
+    manques: ReadonlyMap<string, readonly Manque[]>,
+  ): Promise<readonly { pseudo: string; manques: readonly string[] }[]> {
+    const sortie: { pseudo: string; manques: readonly string[] }[] = [];
+    for (const [joueurId, liste] of manques) {
+      sortie.push({
+        // Le pseudo, pas l'identifiant : un joueur ne doit pas lire un
+        // UUID pour savoir que c'est de lui qu'on parle.
+        pseudo: await this.jeu.pseudoDe(joueurId),
+        manques: await Promise.all(liste.map((m) => this.direLeManque(m))),
+      });
+    }
+    return sortie;
   }
 
   private async direLeManque(m: Manque): Promise<string> {

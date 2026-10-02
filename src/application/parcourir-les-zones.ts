@@ -86,6 +86,22 @@ export class ParcourirLesZones {
     const curseur = await this.suivi.dernierMessageLu(forumId);
     const remues = await this.forum.sujetsRemues([forumId]);
 
+    // ── LA RELÈVE NE REMONTE PAS LE TEMPS ──────────────────────────
+    //  Au tout premier passage, le curseur vaut zéro : « tout est neuf ».
+    //  Sans ce cas, la relève irait lire CHAQUE sujet jamais écrit dans
+    //  les dix-sept zones — des centaines de pages — et dépasserait la
+    //  durée maximale d'une fonction Edge avant d'avoir rien fait. Pire :
+    //  elle clôturerait des sujets clos à la main il y a des mois.
+    //
+    //  Donc au premier passage on ne lit rien : on pose le curseur à
+    //  l'instant présent. La relève s'occupe de ce qui arrive APRÈS son
+    //  arrivée, et c'est la seule chose qu'elle puisse honnêtement faire.
+    if (curseur === 0) {
+      const maintenant = remues.reduce((m, s) => Math.max(m, s.dernierMessageId), 0);
+      if (maintenant > 0) await this.suivi.avancer(forumId, maintenant);
+      return;
+    }
+
     let plusLoin = curseur;
     let incident = false;
 

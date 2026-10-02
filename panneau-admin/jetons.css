@@ -1,0 +1,364 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 00 · Les jetons
+   Relevé le 2 octobre dans le fichier Figma « Wild Mystery Design
+   System » (R5Fz0KRaAwrpIGhMJK74ED, page « Fondations »).
+
+   Deux collections dans Figma : « Couleur », qui porte les modes
+   Aube et Ténèbra, et « Mesure », qui n'a qu'un mode. Les couleurs
+   d'Aube — le mode par défaut — sont ici dans `:root` ; Ténèbra est
+   en bas du fichier, dans son propre bloc.
+
+   La typographie n'est pas en variables dans Figma : elle vit dans
+   quinze styles de texte. Les jetons ci-dessous en sont la lecture,
+   un par valeur distincte, nommé d'après le style qui la porte.
+
+   Aucune valeur n'est inventée. Ce que Figma ne porte pas n'est pas
+   ici : ni ombre, ni largeur de trait, ni point de rupture. La liste
+   de ce qui manque est dans JETONS.md.
+
+   Aucun `@import`, aucune police distante : rien dans ce fichier ne
+   déclenche une requête réseau. Les quatre familles sont des Google
+   Fonts et personne ne les charge — voir JETONS.md §3.
+
+   CE FICHIER N'EST PAS SERVI PAR jsDELIVR, et c'est pour ça qu'il
+   est ici et pas dans `css/`. Le partage posé dans 48-… §8 tient à
+   une règle : le dépôt ne définit jamais un jeton, il ne fait que
+   s'en servir, en `var(--wm-x, repli)`. La feuille du panneau
+   d'administration est servie AVANT la nôtre ; si le dépôt
+   redéfinissait les mêmes variables, il gagnerait, et changer une
+   couleur de la charte redeviendrait un commit au lieu de trente
+   secondes dans le panneau.
+
+   Ce fichier est donc le relevé de référence et le bloc à coller
+   dans le CSS principal du panneau d'administration. Les valeurs de
+   repli à écrire dans le dépôt sont dans JETONS.md.
+   ════════════════════════════════════════════════════════════════════ */
+
+:root {
+
+  /* ── 1 · les quatre familles, et leurs axes variables ─────────────── */
+  /* Fraunces titre, Kaushan Script pour la signature manuscrite,
+     Cormorant Garamond pour le chapô, Nunito Sans pour tout le reste.
+     Les replis sont les nôtres : Figma ne nomme qu'une famille, et
+     comme rien ne charge la police il faut bien tomber quelque part. */
+
+  --wm-police-titre:  "Fraunces", Georgia, "Times New Roman", serif;
+  --wm-police-accent: "Kaushan Script", "Brush Script MT", cursive;
+  --wm-police-chapo:  "Cormorant Garamond", Garamond, Georgia, serif;
+  --wm-police-corps:  "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+
+  /* sans ces axes, Fraunces et Nunito Sans ne rendent pas la maquette */
+  --wm-police-titre-axes: "SOFT" 0, "WONK" 1;
+  --wm-police-corps-axes: "wdth" 100, "YTLC" 500;
+
+  /* ── 2 · la taille du texte, par rôle ─────────────────────────────── */
+  /* Figma nomme ses styles par usage, pas par échelle : on garde ses
+     noms plutôt que d'inventer une suite de nombres. */
+
+  --wm-taille-display:       44px;  /* Titre/Display */
+  --wm-taille-accent:        46px;  /* Titre/Accent */
+  --wm-taille-titre-page:    25px;  /* Titre/Page */
+  --wm-taille-chapo:         21px;  /* Chapô */
+  --wm-taille-chiffre:       20px;  /* Chiffre/Grand */
+  --wm-taille-titre-section: 19px;  /* Titre/Section */
+  --wm-taille-titre-carte:   16px;  /* Titre/Carte */
+  --wm-taille-message:       16px;  /* Corps/Message */
+  --wm-taille-normal:      13.5px;  /* Corps/Normal, Corps/Fort */
+  --wm-taille-petit:       11.5px;  /* Corps/Petit, Corps/Petit fort */
+  --wm-taille-surtitre:    10.5px;  /* Surtitre */
+  --wm-taille-legende:     10.5px;  /* Légende */
+  --wm-taille-etiquette:     10px;  /* Étiquette */
+
+  /* ── 3 · les trois graisses ───────────────────────────────────────── */
+
+  --wm-graisse-normale: 400;
+  --wm-graisse-demi:    600;
+  --wm-graisse-gras:    700;
+
+  /* ── 4 · l'interligne, par rôle ───────────────────────────────────── */
+  /* Figma les stocke en pourcentage, un par style. Onze valeurs
+     distinctes pour quinze styles ; chacune est nommée d'après le
+     style qui la porte, et les correspondances sont dans JETONS.md. */
+
+  --wm-interligne-affiche:   1;     /* Titre/Display, Titre/Accent */
+  --wm-interligne-titre:     1.1;   /* Titre/Page */
+  --wm-interligne-chiffre:   1.15;  /* Chiffre/Grand */
+  --wm-interligne-section:   1.2;   /* Titre/Section */
+  --wm-interligne-carte:     1.25;  /* Titre/Carte */
+  --wm-interligne-etiquette: 1.3;   /* Étiquette */
+  --wm-interligne-surtitre:  1.4;   /* Surtitre, Corps/Petit fort */
+  --wm-interligne-legende:   1.45;  /* Légende */
+  --wm-interligne-courant:   1.5;   /* Chapô, Corps/Fort, Corps/Petit */
+  --wm-interligne-normal:    1.65;  /* Corps/Normal */
+  --wm-interligne-message:   1.75;  /* Corps/Message */
+
+  /* ── 5 · l'interlettrage des capitales ────────────────────────────── */
+  /* Les deux seuls styles en petites capitales. Partout ailleurs
+     Figma est à 0, donc il n'y a pas de jeton pour 0. */
+
+  --wm-interlettre-surtitre:  0.018em;  /* 1,8 % de 10,5px */
+  --wm-interlettre-etiquette: 0.012em;  /* 1,2 % de 10px */
+
+  /* ── 6 · les fonds, du plus clair au plus sombre ──────────────────── */
+  /* `page` est le fond du forum, `surface` celui d'une carte,
+     `surface-haute` celui d'une carte posée sur une carte. `nuit`
+     sert à la barre de navigation et au pied de page. */
+
+  --wm-fond-page:          #f2e4d8;
+  --wm-fond-surface:       #fffbf7;
+  --wm-fond-surface-haute: #fcf4ec;
+  --wm-fond-douce:         #f3e1d2;
+  --wm-fond-nuit:          #3a2a22;
+  --wm-fond-terre:         #f8eae1;
+
+  /* ── 7 · le texte, du plus appuyé au plus effacé ──────────────────── */
+  /* `inverse` s'assoit sur un bouton d'accent, `sur-nuit` sur la
+     barre de navigation : les deux divergent en Ténèbra. */
+
+  --wm-encre:           #2e2018;
+  --wm-texte-corps:     #4e3b30;
+  --wm-texte-doux:      #6e5749;
+  --wm-texte-pale:      #756054;
+  --wm-texte-inverse:   #fffbf7;
+  --wm-texte-sur-nuit:  #fffbf7;
+
+  /* ── 8 · les accents, pour ce qui se clique ───────────────────────── */
+
+  --wm-accent-primaire: #2e6e8e;
+  --wm-accent-fort:     #1f5470;
+  --wm-accent-terre:    #a8582f;
+
+  /* ── 9 · les bords ────────────────────────────────────────────────── */
+  /* `fin` sépare deux lignes d'une même liste, `net` détache une
+     carte de son fond. */
+
+  --wm-bord-fin: #eadacd;
+  --wm-bord-net: #d9c3b1;
+
+  /* ── 10 · le danger d'une zone ────────────────────────────────────── */
+  /* Les trois niveaux d'une zone de la carte de Rhode. */
+
+  --wm-danger-paisible:   #4f7a52;
+  --wm-danger-dangereuse: #8d5d27;
+  --wm-danger-interdite:  #a64430;
+
+  /* ── 11 · les dix-huit types, fond et texte ───────────────────────── */
+  /* Chaque paire est validée à 4,5:1 dans Figma. Le nom du type est
+     toujours écrit à côté de la pastille : deux types voisins ne se
+     distinguent pas à la couleur seule. Ordre du Pokédex. */
+
+  --wm-type-normal-fond:   #eaeaec;
+  --wm-type-normal-texte:  #666a5f;
+  --wm-type-combat-fond:   #efddde;
+  --wm-type-combat-texte:  #9e4a38;
+  --wm-type-vol-fond:      #e3e8f6;
+  --wm-type-vol-texte:     #506a8e;
+  --wm-type-poison-fond:   #ebdef0;
+  --wm-type-poison-texte:  #894f8b;
+  --wm-type-sol-fond:      #efe7df;
+  --wm-type-sol-texte:     #7e6331;
+  --wm-type-roche-fond:    #ebe7e2;
+  --wm-type-roche-texte:   #72663e;
+  --wm-type-insecte-fond:  #e6ecdf;
+  --wm-type-insecte-texte: #59712c;
+  --wm-type-spectre-fond:  #e4dff0;
+  --wm-type-spectre-texte: #6f5999;
+  --wm-type-acier-fond:    #e5e8ef;
+  --wm-type-acier-texte:   #5a6a74;
+  --wm-type-feu-fond:      #f4e1dc;
+  --wm-type-feu-texte:     #9a5128;
+  --wm-type-eau-fond:      #dce6f7;
+  --wm-type-eau-texte:     #38699a;
+  --wm-type-plante-fond:   #e1ede1;
+  --wm-type-plante-texte:  #427233;
+  --wm-type-electrik-fond:  #f3eddb;
+  --wm-type-electrik-texte: #7c6a1a;
+  --wm-type-psy-fond:      #f3e0ec;
+  --wm-type-psy-texte:     #9c4c69;
+  --wm-type-glace-fond:    #e1eef5;
+  --wm-type-glace-texte:   #3f7277;
+  --wm-type-dragon-fond:   #e0e1ef;
+  --wm-type-dragon-texte:  #55628c;
+  --wm-type-tenebres-fond:  #e1dfe6;
+  --wm-type-tenebres-texte: #686169;
+  --wm-type-fee-fond:      #f3e6f4;
+  --wm-type-fee-texte:     #885b7d;
+
+  /* ── 12 · pokémon pur ou obscur ───────────────────────────────────── */
+  /* Figma ne donne que le fond : il n'y a pas de couleur de texte
+     associée, contrairement aux types et aux groupes. */
+
+  --wm-pokemon-pur:     #3c6b47;
+  --wm-pokemon-obscur:  #4a3a63;
+
+  /* ── 13 · les six groupes ─────────────────────────────────────────── */
+
+  --wm-groupe-ho-oh-fond:      #f3d8c0;
+  --wm-groupe-ho-oh-texte:     #9a4f22;
+  --wm-groupe-reshiram-fond:   #dee6ef;
+  --wm-groupe-reshiram-texte:  #4c5a6c;
+  --wm-groupe-deoxys-fond:     #e0d6ef;
+  --wm-groupe-deoxys-texte:    #5e4a7e;
+  --wm-groupe-xerneas-fond:    #cdeae4;
+  --wm-groupe-xerneas-texte:   #2a6a62;
+  --wm-groupe-zamazenta-fond:  #f2d4da;
+  --wm-groupe-zamazenta-texte: #7a3341;
+  --wm-groupe-mew-fond:        #f7dce8;
+  --wm-groupe-mew-texte:       #5c3348;
+
+  /* ── 14 · l'échelle d'espacement ──────────────────────────────────── */
+  /* Figma nomme chaque pas par sa valeur, pas par un rang : on garde
+     ses noms. 18 est le pas de référence — c'est l'écart et le
+     rembourrage d'une ligne de liste dans 01-deflottement.css. */
+
+  --wm-espace-2:   2px;
+  --wm-espace-4:   4px;
+  --wm-espace-6:   6px;
+  --wm-espace-8:   8px;
+  --wm-espace-10: 10px;
+  --wm-espace-12: 12px;
+  --wm-espace-14: 14px;
+  --wm-espace-16: 16px;
+  --wm-espace-18: 18px;
+  --wm-espace-20: 20px;
+  --wm-espace-24: 24px;
+  --wm-espace-32: 32px;
+  --wm-espace-40: 40px;
+  --wm-espace-48: 48px;
+
+  /* ── 15 · les rayons ──────────────────────────────────────────────── */
+  /* Les suffixes sont ceux de Figma, en anglais au milieu de noms
+     français — signalé dans JETONS.md. Seul `lg` est posé sur la
+     planche : les trois autres sont déclarés et jamais employés. */
+
+  --wm-rayon-xs:  4px;
+  --wm-rayon-sm:  6px;
+  --wm-rayon-md:  8px;
+  --wm-rayon-lg: 10px;
+
+  /* ── 16 · les tailles fixes ───────────────────────────────────────── */
+  /* Des dimensions d'image et une cible tactile, pas une grille. */
+
+  --wm-avatar-largeur:        200px;
+  --wm-avatar-hauteur:        320px;
+  --wm-vignette-zone-largeur: 900px;
+  --wm-vignette-zone-hauteur: 560px;
+  --wm-sprite:                 96px;
+  --wm-cible-tactile:          44px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Le mode Ténèbra
+
+   Seule la collection « Couleur » a deux modes, donc seules les
+   soixante-dix couleurs sont redéfinies ici. Les mesures et la
+   typographie ne changent pas.
+
+   Le sélecteur : `body#modernbb` est le seul accroche-pied stable
+   relevé sur le forum (48-… §1), et `wm-tenebra` est une classe que
+   notre propre JS poserait dessus. Ce qui déclenche la bascule
+   n'est PAS décidé : il n'y a rien à ce sujet dans le relevé du
+   1er octobre. Trois pistes, à arbitrer, aucune retenue ici :
+
+     · un bouton à nous, qui pose la classe et retient le choix ;
+     · `@media (prefers-color-scheme: dark)`, sans bouton — le bloc
+       ci-dessous se recopie alors sous la requête média ;
+     · le script `switcheero` de la V1, encore actif parmi les dix-huit
+       codes JavaScript du panneau d'administration. Personne n'a lu
+       ce qu'il fait ; c'est la seule piste existante, et elle est à
+       vérifier avant qu'on s'appuie dessus.
+
+   `:root` ne peut pas servir ici : la feuille du panneau
+   d'administration est servie avant la nôtre, et une variable est
+   résolue là où elle est lue, pas là où elle est déclarée. Poser la
+   bascule sur `body` suffit donc, tout le contenu en descend.
+   ════════════════════════════════════════════════════════════════════ */
+
+body#modernbb.wm-tenebra {
+
+  /* les fonds */
+  --wm-fond-page:          #1a1210;
+  --wm-fond-surface:       #241a16;
+  --wm-fond-surface-haute: #2e211c;
+  --wm-fond-douce:         #201714;
+  --wm-fond-nuit:          #201714;
+  --wm-fond-terre:         #33211a;
+
+  /* le texte */
+  --wm-encre:           #f2e4d8;
+  --wm-texte-corps:     #dcc9ba;
+  --wm-texte-doux:      #ae9585;
+  --wm-texte-pale:      #997f6f;
+  --wm-texte-inverse:   #1a1210;
+  --wm-texte-sur-nuit:  #f2e4d8;
+
+  /* les accents */
+  --wm-accent-primaire: #7fc2de;
+  --wm-accent-fort:     #a3d6ec;
+  --wm-accent-terre:    #e0906a;
+
+  /* les bords */
+  --wm-bord-fin: #2e211c;
+  --wm-bord-net: #46332a;
+
+  /* le danger d'une zone */
+  --wm-danger-paisible:   #7fb183;
+  --wm-danger-dangereuse: #dfa860;
+  --wm-danger-interdite:  #d97f6e;
+
+  /* les dix-huit types */
+  --wm-type-normal-fond:   #3d3c47;
+  --wm-type-normal-texte:  #aab09f;
+  --wm-type-combat-fond:   #442a34;
+  --wm-type-combat-texte:  #d78574;
+  --wm-type-vol-fond:      #333a55;
+  --wm-type-vol-texte:     #80a8df;
+  --wm-type-poison-fond:   #3f2c4c;
+  --wm-type-poison-texte:  #c386c5;
+  --wm-type-sol-fond:      #443835;
+  --wm-type-sol-texte:     #cc9f4f;
+  --wm-type-roche-fond:    #3f3839;
+  --wm-type-roche-texte:   #b4a264;
+  --wm-type-insecte-fond:  #383e34;
+  --wm-type-insecte-texte: #94bc4a;
+  --wm-type-spectre-fond:  #342c4c;
+  --wm-type-spectre-texte: #a491c9;
+  --wm-type-acier-fond:    #36384b;
+  --wm-type-acier-texte:   #90a7b5;
+  --wm-type-feu-fond:      #4b3031;
+  --wm-type-feu-texte:     #ec854c;
+  --wm-type-eau-fond:      #2a3756;
+  --wm-type-eau-texte:     #64a4e5;
+  --wm-type-plante-fond:   #304037;
+  --wm-type-plante-texte:  #71c558;
+  --wm-type-electrik-fond:  #4a402f;
+  --wm-type-electrik-texte: #e5c531;
+  --wm-type-psy-fond:      #4a2e46;
+  --wm-type-psy-texte:     #e87ea5;
+  --wm-type-glace-fond:    #304253;
+  --wm-type-glace-texte:   #70cbd4;
+  --wm-type-dragon-fond:   #2f304a;
+  --wm-type-dragon-texte:  #8e9bc2;
+  --wm-type-tenebres-fond:  #312d3e;
+  --wm-type-tenebres-texte: #9a959c;
+  --wm-type-fee-fond:      #493652;
+  --wm-type-fee-texte:     #e397d1;
+
+  /* pokémon pur ou obscur */
+  --wm-pokemon-pur:     #4e8259;
+  --wm-pokemon-obscur:  #605080;
+
+  /* les six groupes */
+  --wm-groupe-ho-oh-fond:      #6b3a1e;
+  --wm-groupe-ho-oh-texte:     #e8a05c;
+  --wm-groupe-reshiram-fond:   #3c4654;
+  --wm-groupe-reshiram-texte:  #c9d6e4;
+  --wm-groupe-deoxys-fond:     #4a3a63;
+  --wm-groupe-deoxys-texte:    #b79bda;
+  --wm-groupe-xerneas-fond:    #1f4f4a;
+  --wm-groupe-xerneas-texte:   #7fd1c4;
+  --wm-groupe-zamazenta-fond:  #5a2430;
+  --wm-groupe-zamazenta-texte: #e08497;
+  --wm-groupe-mew-fond:        #5c3348;
+  --wm-groupe-mew-texte:       #f0a8c8;
+}

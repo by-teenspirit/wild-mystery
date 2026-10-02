@@ -177,7 +177,7 @@ Deno.test("un sujet déjà clos ne se reclôt pas et ne poste rien", async () =>
   const { cas, registre, jeu, cloture, forum } = monter();
   jeu.poser(ANNA, sacAvec(1));
   await registre.inscrire(SUJET, ANNA, 8001, { type: "croise", especeId: 37 }, "WM-ACDE-FGH");
-  await cloture.appliquer(SUJET, [], "WM-ACDE-FGH");
+  await cloture.appliquer(SUJET, [], "WM-ACDE-FGH", "Bilan de test.", "Anna");
 
   const r = await cas.executer(DEMANDE);
 
@@ -228,4 +228,69 @@ Deno.test("deux clôtures du même sujet par les mêmes joueurs donnent le même
     return r.issue === "close" ? r.code : "";
   };
   assertEquals(await faire(), await faire());
+});
+
+// ── la correction du 2 octobre ──────────────────────────────────────
+
+Deno.test("si le forum est injoignable, la clôture tient et le bilan attend", async () => {
+  // Le défaut constaté en vrai : un mot de passe expiré a laissé un sujet
+  // clos sans aucun bilan publié, et comme il était clos, plus rien ne
+  // réessayait. Désormais le bilan est en base avec la clôture.
+  const c = monter();
+  c.jeu.poser(ANNA, sacAvec(1));
+  await c.registre.inscrire(SUJET, ANNA, 8001, {
+    type: "objet_trouve",
+    objetId: BALL,
+    quantite: 1,
+  }, "WM-ACDE-FGH");
+  c.forum.refuseLaProchaineReponse = new Error("forum injoignable");
+
+  const resultat = await c.cas.executer({
+    sujetId: SUJET,
+    demandeurId: ANNA,
+    demandeurPseudo: "Anna",
+  });
+
+  assertEquals(resultat.issue, "close", "la clôture est bien appliquée");
+  assert(resultat.issue === "close" && resultat.bilanEnAttente, "le bilan attend");
+  assertEquals(c.forum.postes.length, 0, "rien n'a été posté");
+  assert(
+    (c.cloture.bilan(SUJET) ?? "").includes("Sujet clôturé"),
+    "mais le bilan est en base, prêt à être reposté",
+  );
+});
+
+Deno.test("quand le forum répond, le bilan n'attend pas", async () => {
+  const c = monter();
+  c.jeu.poser(ANNA, sacAvec(1));
+  await c.registre.inscrire(SUJET, ANNA, 8001, {
+    type: "objet_trouve",
+    objetId: BALL,
+    quantite: 1,
+  }, "WM-ACDE-FGH");
+
+  const resultat = await c.cas.executer({
+    sujetId: SUJET,
+    demandeurId: ANNA,
+    demandeurPseudo: "Anna",
+  });
+
+  assert(resultat.issue === "close" && !resultat.bilanEnAttente);
+  assertEquals(c.forum.postes.length, 1);
+});
+
+Deno.test("le bilan posté nomme le joueur, pas son identifiant", async () => {
+  const c = monter();
+  c.jeu.poser(ANNA, sacAvec(1)).pseudo(ANNA, "Calliste Vanne");
+  await c.registre.inscrire(SUJET, ANNA, 8001, {
+    type: "capture",
+    especeId: 215,
+    niveau: 19,
+  }, "WM-ACDE-FGH");
+
+  await c.cas.executer({ sujetId: SUJET, demandeurId: ANNA, demandeurPseudo: "Anna" });
+
+  const corps = c.forum.postes[0].corps;
+  assert(corps.includes("CALLISTE VANNE"), corps);
+  assertEquals(corps.includes(ANNA), false, "aucun UUID dans un message de joueur");
 });

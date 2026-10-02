@@ -97,8 +97,61 @@ function monter(
 
 // ── le cas qui marche ───────────────────────────────────────────────
 
-Deno.test("une demande de clôture dans une zone sauvage est traitée", async () => {
+// ── le premier passage ──────────────────────────────────────────────
+
+Deno.test("au PREMIER passage, la relève ne lit rien et pose son curseur", async () => {
+  // Sans ce cas, elle irait lire chaque sujet jamais écrit dans les
+  // dix-sept zones, dépasserait la durée maximale d'une fonction Edge, et
+  // clôturerait des sujets clos à la main il y a des mois.
   const c = monter();
+  c.forum.forumDuSujet.set(7000, 9);
+  c.forum.ajouter({
+    id: 8001,
+    sujetId: 7000,
+    auteurId: COMPTE_ANNA,
+    auteurPseudo: "Anna",
+    corps: "[cloture]",
+  });
+
+  const bilan = await c.tache.executer();
+
+  assertEquals(bilan.issues, [], "rien n'est traité au premier passage");
+  assertEquals(bilan.erreurs, []);
+  assertEquals(c.suivi.curseurs.get(9), 8001, "mais le curseur est posé");
+});
+
+Deno.test("une zone vide au premier passage ne pose pas de curseur", async () => {
+  const c = monter();
+  await c.tache.executer();
+  assertEquals(c.suivi.avances, []);
+});
+
+Deno.test("au passage SUIVANT, elle traite ce qui est arrivé depuis", async () => {
+  const c = monter();
+  c.forum.forumDuSujet.set(7000, 9);
+  c.forum.ajouter({ id: 8001, sujetId: 7000, auteurId: COMPTE_ANNA, auteurPseudo: "Anna" });
+  await c.tache.executer(); // premier passage : pose le curseur à 8001
+
+  await c.registre.inscrire(7000, ANNA, 8002, {
+    type: "croise",
+    especeId: 37,
+  }, "WM-ACDE-FGH");
+  c.forum.ajouter({
+    id: 8002,
+    sujetId: 7000,
+    auteurId: COMPTE_ANNA,
+    auteurPseudo: "Anna",
+    corps: "[cloture]",
+  });
+
+  const second = await c.tache.executer();
+  assertEquals(second.issues, [{ sujetId: 7000, issue: "close" }]);
+});
+
+// ── le cas qui marche ───────────────────────────────────────────────
+
+Deno.test("une demande de clôture dans une zone sauvage est traitée", async () => {
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 9);
   c.forum.ajouter({ id: 8001, sujetId: 7000, auteurId: COMPTE_ANNA, auteurPseudo: "Anna" });
   await c.registre.inscrire(7000, ANNA, 8001, {
@@ -124,7 +177,7 @@ Deno.test("une demande de clôture dans une zone sauvage est traitée", async ()
 });
 
 Deno.test("un sujet sans demande ne déclenche rien, mais fait avancer le curseur", async () => {
-  const c = monter();
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 9);
   c.forum.ajouter({
     id: 8001,
@@ -159,7 +212,7 @@ Deno.test("un message déjà lu au passage précédent n'est pas relu", async ()
 Deno.test("seuls les sujets des zones sauvages sont parcourus", async () => {
   // Une demande postée en ville ne doit rien déclencher : le jeu ne s'y
   // joue pas, et `data/zones.json` est la seule source de cette liste.
-  const c = monter([FORET]);
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 12); // f12 = Pyrite, une ville
   c.forum.ajouter({
     id: 8001,
@@ -188,7 +241,7 @@ Deno.test("un sujet illisible n'empêche pas les autres de se clôturer", async 
     },
   };
 
-  const c = monter([FORET], forumQuiCasse);
+  const c = monter([FORET], forumQuiCasse, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 9);
   c.forum.forumDuSujet.set(7001, 9);
   c.forum.ajouter({ id: 8001, sujetId: 7000, auteurId: COMPTE_ANNA, auteurPseudo: "Anna" });
@@ -212,18 +265,18 @@ Deno.test("après un incident, le curseur n'avance PAS", async () => {
       return Promise.reject(new Error("page illisible"));
     },
   };
-  const c = monter([FORET], quiCasse);
+  const c = monter([FORET], quiCasse, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 9);
   c.forum.ajouter({ id: 8001, sujetId: 7000, auteurId: COMPTE_ANNA, auteurPseudo: "Anna" });
 
   await c.tache.executer();
   assertEquals(c.suivi.avances, [], "aucun avancement demandé");
-  assertEquals(c.suivi.curseurs.get(9) ?? 0, 0);
+  assertEquals(c.suivi.curseurs.get(9), 8000, "le curseur est resté où il était");
 });
 
 Deno.test("relire un sujet déjà clos ne poste rien une seconde fois", async () => {
   // C'est ce qui rend la prudence du test précédent gratuite.
-  const c = monter();
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 9);
   c.forum.ajouter({ id: 8001, sujetId: 7000, auteurId: COMPTE_ANNA, auteurPseudo: "Anna" });
   await c.registre.inscrire(7000, ANNA, 8001, { type: "croise", especeId: 37 }, "WM-ACDE-FGH");
@@ -238,8 +291,10 @@ Deno.test("relire un sujet déjà clos ne poste rien une seconde fois", async ()
   await c.tache.executer();
   const postesApresLePremier = c.forum.postes.length;
 
-  // Second passage, curseur remis en arrière comme si l'on relisait.
-  c.suivi.curseurs.set(9, 0);
+  // Second passage, curseur remis en arrière comme si l'on relisait. Pas
+  // à zéro : zéro voudrait dire « premier passage », et la relève ne
+  // remonte pas le temps.
+  c.suivi.curseurs.set(9, 8000);
   const second = await c.tache.executer();
 
   assertEquals(second.issues, [{ sujetId: 7000, issue: "deja close" }]);
@@ -249,7 +304,7 @@ Deno.test("relire un sujet déjà clos ne poste rien une seconde fois", async ()
 // ── les cas limites ─────────────────────────────────────────────────
 
 Deno.test("une zone injoignable n'emporte pas les autres", async () => {
-  const c = monter([FORET, PLAGE]);
+  const c = monter([FORET, PLAGE], undefined, new Map([[9, 8000], [32, 8000]]));
   // La Forêt casse à la lecture des sujets remués, pas à celle d'un sujet.
   const vraiSujetsRemues = c.forum.sujetsRemues.bind(c.forum);
   c.forum.sujetsRemues = (forums) => {
@@ -274,7 +329,7 @@ Deno.test("une zone injoignable n'emporte pas les autres", async () => {
 });
 
 Deno.test("une demande d'un compte non lié est signalée, pas exécutée", async () => {
-  const c = monter();
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 9);
   c.forum.ajouter({
     id: 8001,
@@ -293,7 +348,7 @@ Deno.test("une demande d'un compte non lié est signalée, pas exécutée", asyn
 });
 
 Deno.test("un sujet sans registre répond « rien a clore », sans erreur", async () => {
-  const c = monter();
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
   c.forum.forumDuSujet.set(7000, 9);
   c.forum.ajouter({
     id: 8001,
