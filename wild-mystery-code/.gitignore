@@ -1,0 +1,23 @@
+# secrets — jamais dans le dépôt
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# couverture et artefacts de test
+.couverture/
+cov/
+*.lcov
+
+# dépendances
+node_modules/
+vendor/
+
+# système
+.DS_Store
+Thumbs.db
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/

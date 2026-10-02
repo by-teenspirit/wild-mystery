@@ -1,0 +1,236 @@
+# ════════════════════════════════════════════════════════════════════
+#  Wild Mystery · intégration continue
+#
+#  Rien ne part en production sans cette chaîne. L'ordre des travaux
+#  est celui d'ARCHITECTURE.md §5 : on vérifie la forme, puis les
+#  règles, puis l'orchestration, puis le vrai Postgres.
+# ════════════════════════════════════════════════════════════════════
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  DENO_VERSION: "2.x"
+  PGTAP_VERSION: "v1.3.3"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1 · la forme ──────────────────────────────────────────────────
+  forme:
+    name: Forme et garde-fou
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - run: deno fmt --check
+      - run: deno lint
+      - run: deno check src/
+      - name: Garde-fou
+        run: bash outils/garde-fou.sh
+
+  # ── 2 · les règles ────────────────────────────────────────────────
+  domaine:
+    name: Domaine (100 % exigés)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - name: Tests du domaine
+        run: deno test src/domaine/
+      - name: Couverture du domaine
+        run: bash outils/couverture.sh
+
+  # ── 3 · l'orchestration ───────────────────────────────────────────
+  usage:
+    name: Cas d'usage et adaptateurs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - name: Tests de cas d'usage
+        if: hashFiles('src/application/**/*.test.ts') != ''
+        run: deno test --allow-env src/application/
+      - name: Aucun cas d'usage encore écrit
+        if: hashFiles('src/application/**/*.test.ts') == ''
+        run: |
+          echo "::warning::src/application/ ne contient aucun test — étape sans effet."
+      # Les adaptateurs se testent sur des pages enregistrées sur le vrai
+      # forum : d'où la lecture de fichiers, et aucun accès réseau.
+      - name: Tests d'adaptateurs
+        if: hashFiles('src/adaptateurs/**/*.test.ts') != ''
+        run: deno test --allow-read src/adaptateurs/
+
+  # ── 4 · le faux ne doit pas mentir au vrai ────────────────────────
+  # La même suite tourne deux fois : contre l'adaptateur en mémoire,
+  # puis contre l'adaptateur Supabase branché sur un vrai Postgres.
+  # Si les deux divergent, c'est ici que ça casse.
+  contrat:
+    name: Contrat (${{ matrix.cible }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        cible: [memoire, postgres]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: wild_mystery
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CONTRAT_CIBLE: ${{ matrix.cible }}
+      CONTRAT_PGURL: postgres://postgres:ci@localhost:5432/wild_mystery
+      DATABASE_URL: postgres://postgres:ci@localhost:5432/wild_mystery
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - name: Monter les migrations
+        if: matrix.cible == 'postgres'
+        run: |
+          # Les migrations, dans l'ordre. C'est le même chemin que
+          # `supabase db push` : si l'une ne passe pas ici, elle ne passera
+          # pas en production non plus.
+          for m in supabase/migrations/*.sql; do
+            echo "── $m"
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$m"
+          done
+      # --allow-run : la suite de contrat appelle les fonctions SQL par
+      # psql, pour n'ajouter aucune dépendance au dépôt (contrat §8).
+      - name: Tests de contrat
+        if: hashFiles('src/contrat/**/*.ts') != ''
+        run: |
+          set -o pipefail
+          deno test --allow-env --allow-net --allow-read --allow-run src/contrat/ 2>&1 \
+            | tee /tmp/contrat.txt
+      # Un test qui se saute en silence laisserait croire à une couverture
+      # qu'on n'a pas. Sur la cible postgres, on exige de le voir tourner.
+      - name: Le contrat Supabase a vraiment tourné
+        if: matrix.cible == 'postgres' && hashFiles('src/contrat/**/*.ts') != ''
+        run: |
+          grep -q "Supabase · " /tmp/contrat.txt
+          grep -q "clôture réelle · " /tmp/contrat.txt
+          ! grep -q "IGNORÉ faute de base" /tmp/contrat.txt
+      - name: Aucun test de contrat encore écrit
+        if: hashFiles('src/contrat/**/*.ts') == ''
+        run: |
+          echo "::warning::src/contrat/ est vide — l'adaptateur en mémoire n'est pas encore confronté au vrai."
+
+  # ── 5 · les garanties qui vivent dans la base ─────────────────────
+  base:
+    name: Garanties SQL (pgTAP)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: wild_mystery
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGURL: postgres://postgres:ci@localhost:5432/wild_mystery
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: pg_prove
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            postgresql-client libtap-parser-sourcehandler-pgtap-perl
+
+      - name: Installer pgTAP dans la base de CI
+        run: |
+          curl -fsSL -o /tmp/pgtap.sql.in \
+            "https://raw.githubusercontent.com/theory/pgtap/${PGTAP_VERSION}/sql/pgtap.sql.in"
+          sed 's/MODULE_PATHNAME/pgtap/g; s/__OS__/linux/g; s/__VERSION__/1.03/g' \
+            /tmp/pgtap.sql.in > /tmp/pgtap.sql
+          psql "$PGURL" -q -v ON_ERROR_STOP=1 -f /tmp/pgtap.sql
+
+      - name: Monter les migrations
+        run: |
+          for m in supabase/migrations/*.sql; do
+            echo "── $m"
+            psql "$PGURL" -v ON_ERROR_STOP=1 -f "$m"
+          done
+
+      - name: Lancer la suite
+        run: pg_prove --ext .sql -d "$PGURL" supabase/tests/
+
+  # ── 6 · le déploiement, seulement sur un tag v* ───────────────────
+  deploiement:
+    name: Déploiement
+    needs: [forme, domaine, usage, contrat, base]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # 1. les migrations SQL d'abord : les fonctions Edge en dépendent
+      - name: Migrations SQL
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+          supabase db push
+
+      # 2. puis les fonctions Edge. Les trois secrets du compte de
+      #    publication ne passent pas par ici : ils sont posés à la
+      #    main dans Supabase › Edge Functions › Secrets.
+      - name: Fonctions Edge
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase functions deploy releve
+
+      # 3. enfin la bascule du navigateur. jsDelivr sert le tag, donc
+      #    l'URL est immuable : il n'y a rien à purger, mais les deux
+      #    lignes du template Forumactif sont à remplacer à la main
+      #    (templates réservés au fondateur, aucune API).
+      - name: Les deux lignes à coller dans Forumactif
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          BASE="https://cdn.jsdelivr.net/gh/by-teenspirit/wild-mystery@${TAG}"
+          {
+            echo "## Bascule du navigateur vers \`${TAG}\`"
+            echo
+            echo "À coller dans **Affichage › Templates › overall_header**, en remplacement des deux lignes de la version précédente :"
+            echo
+            echo '```html'
+            echo "<link rel=\"stylesheet\" href=\"${BASE}/css/wild-mystery.css\">"
+            echo "<script defer src=\"${BASE}/js/wild-mystery.js\"></script>"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
