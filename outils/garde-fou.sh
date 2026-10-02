@@ -116,6 +116,28 @@ refuse_code '(document\.|window\.|localStorage|sessionStorage|fetch\(|navigator\
   "src/navigateur/ ne touche ni au DOM, ni au stockage, ni au réseau — ça, c'est un adaptateur" \
   "${NAV[@]}"
 
+echo "── 6. le paquet du navigateur ne fuit pas ──────────────────────"
+# CE QUI A COÛTÉ UNE SOIRÉE, le 2 octobre : le paquet était servi en
+# script classique SANS enveloppe. Chacune de ses variables de premier
+# niveau — minifiées en une lettre — devenait une globale de la page.
+# Forumactif déclare un `j` de son côté ; le nôtre s'est fait écraser, et
+# `j.includes is not a function` a cassé le bouton d'action en silence.
+#
+# `--format iife` enveloppe tout. Cette règle vérifie que l'enveloppe est
+# bien là, parce qu'une option de construction s'oublie et que la panne,
+# elle, ne se voit qu'en production.
+PAQUET="js/wild-mystery.js"
+if [ -f "$PAQUET" ]; then
+  if head -c 16 "$PAQUET" | grep -qE '^\((\(\)=>|function)'; then
+    echo "   $PAQUET : enveloppé, rien ne fuit dans la page"
+  else
+    gronde "$PAQUET n'est pas enveloppé — ses variables fuient dans la page (construire avec --format iife)"
+  fi
+  if ! grep -q -- '--format iife' deno.json; then
+    gronde "deno.json : la tâche « construire » doit passer --format iife"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."
