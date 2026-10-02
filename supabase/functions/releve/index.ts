@@ -37,6 +37,22 @@ import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-sign
 import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
 import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.ts";
 
+/**
+ * La version de ce déploiement, et elle sert à DEUX choses.
+ *
+ * 1 · Elle est rendue dans chaque réponse. On sait donc toujours quel code
+ *     a répondu, au lieu de le déduire d'un message d'erreur.
+ * 2 · Elle force l'outil Supabase à voir un changement. Cette fonction
+ *     importe du code situé HORS de son dossier (`src/`), et le CLI ne
+ *     semble regarder que `supabase/functions/` pour décider s'il y a
+ *     quelque chose à redéployer : il répond « No change found » alors
+ *     qu'un fichier importé a changé, et c'est l'ancien code qui reste en
+ *     ligne. Toucher à CE fichier à chaque livraison supprime le piège.
+ *
+ * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
+ */
+const VERSION = "2026-10-02-g";
+
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
 const ATTENDUS = [
@@ -164,7 +180,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
 
   // Sans cette clé, n'importe qui pourrait déclencher la relève en boucle.
   if (!memeCle(requete.headers.get("x-wm-cle") ?? "", reglages.WM_CLE_DE_RELEVE)) {
-    return json({ erreur: "clé de relève absente ou fausse" }, 401);
+    return json({ version: VERSION, erreur: "clé de relève absente ou fausse" }, 401);
   }
 
   const { parcourir, verrou } = assembler(reglages);
@@ -172,13 +188,14 @@ Deno.serve(async (requete: Request): Promise<Response> => {
   if (!await verrou.prendre(NOM_DU_VERROU, VERROU_SECONDES)) {
     // Ce n'est pas une erreur : c'est le passage précédent qui travaille
     // encore. 409 pour que ça se voie dans les journaux sans alerter.
-    return json({ ignore: "un passage est déjà en cours" }, 409);
+    return json({ version: VERSION, ignore: "un passage est déjà en cours" }, 409);
   }
 
   const debut = Date.now();
   try {
     const bilan = await parcourir.executer();
     return json({
+      version: VERSION,
       traitees: bilan.traitees,
       issues: bilan.issues,
       erreurs: bilan.erreurs,
@@ -188,7 +205,11 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     // Une panne ici est anormale : `ParcourirLesZones` isole déjà chaque
     // zone et chaque sujet. Si on arrive là, c'est la relève elle-même qui
     // est cassée, et ça doit se voir.
-    return json({ erreur: (e as Error).message, duree_ms: Date.now() - debut }, 500);
+    return json({
+      version: VERSION,
+      erreur: (e as Error).message,
+      duree_ms: Date.now() - debut,
+    }, 500);
   } finally {
     // `finally` et pas après le `try` : un verrou qu'on ne rend pas bloque
     // la relève pendant quatre minutes à chaque panne.

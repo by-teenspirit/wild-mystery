@@ -81,6 +81,26 @@ export class ConnexionRefusee extends Error {
   }
 }
 
+/** Forumactif fait expirer le mot de passe d'un compte resté longtemps
+ *  sans servir. Relevé le 2 octobre sur le compte de publication, après
+ *  trois allers-retours à chercher ailleurs.
+ *
+ *  **Conséquence d'exploitation, et elle compte :** le compte de
+ *  publication est par nature peu utilisé à la main. Il expirera donc
+ *  encore. Ce n'est pas une panne à déboguer, c'est un mot de passe à
+ *  renouveler — d'où une erreur qui porte son propre mode d'emploi. */
+export class MotDePasseExpire extends Error {
+  constructor() {
+    super(
+      "Le mot de passe du compte de publication a EXPIRÉ : Forumactif le " +
+        "périme après une longue inactivité. Rien à corriger dans le code. " +
+        "Réinitialiser le mot de passe du compte sur le forum, puis le " +
+        "remplacer dans Supabase › Edge Functions › Secrets › FORUM_MOTDEPASSE.",
+    );
+    this.name = "MotDePasseExpire";
+  }
+}
+
 export class FormulaireIntrouvable extends Error {
   constructor(detail: string) {
     super(`Formulaire de réponse illisible : ${detail}`);
@@ -220,6 +240,57 @@ export function idDuMessagePoste(emplacement: string | null): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+/** Un extrait lisible de ce que le forum a répondu : les balises, les
+ *  scripts et les styles retirés, l'espace resserré. Sert à mettre le
+ *  message d'erreur du forum DANS notre message d'erreur, au lieu de le
+ *  laisser deviner. */
+export function enClair(html: string, combien = 200): string {
+  return html
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, " ")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, combien);
+}
+
+/** Les mots autour desquels Forumactif écrit ce qui s'est passé. Relevés
+ *  le 2 octobre : la réponse à un envoi de connexion est une « page
+ *  d'information » dont les deux cents premiers caractères ne sont que le
+ *  menu du forum. Chercher le message plutôt que couper au début. */
+const MOTS_DU_MESSAGE = [
+  "mot de passe",
+  "incorrect",
+  "nom d'utilisateur",
+  "authentifi",
+  "succès",
+  "erreur",
+  "tentative",
+  "patienter",
+  "désactiv",
+  "banni",
+  "captcha",
+  "inconnu",
+  "invalide",
+];
+
+/** Ce que le forum a voulu dire, extrait de sa page.
+ *
+ *  On rend une fenêtre autour du premier mot reconnu ; à défaut, un large
+ *  extrait qui saute le menu. Un message d'erreur qui cite le forum fait
+ *  gagner une demi-heure à chaque fois. */
+export function messageDuForum(html: string): string {
+  const texte = enClair(html, 4000);
+  const bas = texte.toLowerCase();
+  for (const mot of MOTS_DU_MESSAGE) {
+    const ou = bas.indexOf(mot);
+    if (ou >= 0) return texte.slice(Math.max(0, ou - 120), ou + 240).trim();
+  }
+  // Rien de reconnu : on saute le menu, qui fait environ deux cents
+  // caractères, et on rend la suite.
+  return texte.slice(200, 800).trim();
+}
+
 /** Vrai si la page servie est l'écran de connexion : c'est ainsi qu'on
  *  reconnaît une session expirée, Forumactif ne renvoyant pas de 401. */
 export function estLaPageDeConnexion(html: string): boolean {
@@ -248,12 +319,33 @@ export class ForumactifEnPublication implements PosteurSurForum {
 
   /** Se connecte. Appelée paresseusement, et une seconde fois si la
    *  session tombe en cours de relève. */
+  /** Se connecter, en deux temps, **comme un navigateur**.
+   *
+   *  D'abord un GET sur la page de connexion, parce que c'est ce que fait
+   *  un navigateur et que certains forums y posent une session anonyme
+   *  qu'ils exigent ensuite.
+   *
+   *  **L'ORDRE DES VÉRIFICATIONS COMPTE.** On regarde d'abord si le forum
+   *  nous a resservi l'écran de connexion — c'est le signe d'identifiants
+   *  refusés, et c'est la cause la plus fréquente. Chercher l'absence de
+   *  cookie en premier donnerait « aucune session posée » pour un simple
+   *  mot de passe faux, et on chercherait du mauvais côté pendant une
+   *  heure. C'est exactement ce qui est arrivé le 2 octobre.
+   *
+   *  Le message d'erreur porte tout ce qu'il faut pour trancher sans
+   *  relancer : les deux statuts, les deux comptes de cookies, et ce que
+   *  le forum a répondu. Jamais le mot de passe, évidemment. */
   private async seConnecter(): Promise<void> {
     this.bocal.oublier();
+
+    const page = await this.transport({ chemin: "/login", methode: "GET", cookie: "" });
+    this.bocal.avaler(page.cookies);
+    const apresVisite = this.bocal.entete();
+
     const reponse = await this.transport({
       chemin: "/login",
       methode: "POST",
-      cookie: "",
+      cookie: apresVisite,
       corps: {
         encodage: "formulaire",
         champs: [
@@ -266,16 +358,27 @@ export class ForumactifEnPublication implements PosteurSurForum {
         ],
       },
     });
-
     this.bocal.avaler(reponse.cookies);
-    if (this.bocal.vide) {
-      throw new ConnexionRefusee(`statut ${reponse.statut}, aucun cookie posé`);
-    }
-    // Forumactif renvoie l'écran de connexion quand le mot de passe est
-    // faux, avec un 200 : le statut ne suffit pas à juger.
-    if (reponse.statut === 200 && estLaPageDeConnexion(reponse.corps)) {
+
+    const detail = `visite ${page.statut} (${page.cookies.length} cookie(s)), ` +
+      `envoi ${reponse.statut} (${reponse.cookies.length} cookie(s))` +
+      `, le forum dit « ${messageDuForum(reponse.corps)} »`;
+
+    // Un cas nommé plutôt qu'une erreur générique : il a sa cause, son
+    // remède, et il reviendra.
+    if (/mot de passe a expir/i.test(reponse.corps)) {
       this.bocal.oublier();
-      throw new ConnexionRefusee("le forum a resservi l'écran de connexion");
+      throw new MotDePasseExpire();
+    }
+    if (estLaPageDeConnexion(reponse.corps)) {
+      this.bocal.oublier();
+      throw new ConnexionRefusee(
+        `le forum a resservi l'écran de connexion — identifiants probablement ` +
+          `refusés. ${detail}`,
+      );
+    }
+    if (this.bocal.vide) {
+      throw new ConnexionRefusee(`aucune session posée. ${detail}`);
     }
   }
 
@@ -289,10 +392,22 @@ export class ForumactifEnPublication implements PosteurSurForum {
     const chemin = `/post?t=${sujetId}&mode=reply`;
     let reponse = await this.transport({ chemin, methode: "GET", cookie: this.bocal.entete() });
 
+    // Un cas nommé plutôt qu'une erreur générique : il a sa cause, son
+    // remède, et il reviendra.
+    if (/mot de passe a expir/i.test(reponse.corps)) {
+      this.bocal.oublier();
+      throw new MotDePasseExpire();
+    }
     if (estLaPageDeConnexion(reponse.corps)) {
       // La session est tombée. On se reconnecte une fois, pas deux.
       await this.seConnecter();
       reponse = await this.transport({ chemin, methode: "GET", cookie: this.bocal.entete() });
+      // Un cas nommé plutôt qu'une erreur générique : il a sa cause, son
+      // remède, et il reviendra.
+      if (/mot de passe a expir/i.test(reponse.corps)) {
+        this.bocal.oublier();
+        throw new MotDePasseExpire();
+      }
       if (estLaPageDeConnexion(reponse.corps)) {
         throw new ConnexionRefusee("session perdue juste après la connexion");
       }
@@ -367,6 +482,21 @@ export class ForumactifEnPublication implements PosteurSurForum {
 
 // ── le transport réel, pour la racine de composition ────────────────
 
+/** Les en-têtes Set-Cookie, un par un.
+ *
+ *  `getSetCookie()` est la bonne façon — elle rend les valeurs séparées.
+ *  Elle n'existe pas partout ; là où elle manque, `get("set-cookie")` rend
+ *  TOUT collé en une chaîne, et découper sur les virgules casserait les
+ *  dates (« expires=Thu, 01 Jan »). On découpe donc sur une virgule suivie
+ *  d'un nom de cookie, et sur rien d'autre. */
+function lireLesCookies(entetes: Headers): readonly string[] {
+  const avecMethode = entetes as Headers & { getSetCookie?: () => string[] };
+  if (typeof avecMethode.getSetCookie === "function") return avecMethode.getSetCookie();
+  const brut = entetes.get("set-cookie");
+  if (brut === null || brut === "") return [];
+  return brut.split(/,(?=\s*[A-Za-z0-9_\-]+=)/).map((c) => c.trim());
+}
+
 /** Le `fetch` de Deno, habillé en Transport. **Les redirections ne sont
  *  pas suivies** : la session arrive dans la 302, et son Location dit où
  *  le message a atterri. */
@@ -375,7 +505,17 @@ export function transportFetch(
   recuperer: typeof fetch = fetch,
 ): Transport {
   return async (requete) => {
-    const entetes: Record<string, string> = {};
+    const entetes: Record<string, string> = {
+      // Forumactif sert des pages différentes — voire rien du tout — à ce
+      // qui ne ressemble pas à un navigateur. On se présente donc comme
+      // un navigateur, parce que c'est exactement ce qu'on imite : il n'y
+      // a pas d'API, et le forum n'a pas d'autre langue pour nous parler.
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " +
+        "(KHTML, like Gecko) Chrome/129.0 Safari/537.36",
+      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "accept-language": "fr-FR,fr;q=0.9",
+      "referer": base + "/",
+    };
     if (requete.cookie !== "") entetes["cookie"] = requete.cookie;
 
     let body: BodyInit | undefined;
@@ -401,7 +541,7 @@ export function transportFetch(
     return {
       statut: reponse.status,
       corps: await reponse.text(),
-      cookies: reponse.headers.getSetCookie(),
+      cookies: lireLesCookies(reponse.headers),
       emplacement: reponse.headers.get("location"),
     };
   };

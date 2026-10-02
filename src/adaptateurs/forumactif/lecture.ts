@@ -50,7 +50,18 @@ export type MessageLu = MessageDuForum & {
 
 const DEBUT_DE_MESSAGE = /<div id="p(\d+)" class="post [^"]*?post--\1\b[^"]*"/g;
 const AUTEUR = /class="postprofile-avatar"\s+data-id="(-?\d+)"/;
-const PSEUDO_MEMBRE = /<div class="postprofile-name">.*?<strong>(.*?)<\/strong>/s;
+/** Le pseudo. **Pas de `<strong>` dans ce motif, et c'est une correction
+ *  du 2 octobre.** Forumactif sert deux formes selon le membre :
+ *
+ *    <div class="postprofile-name"><span class="group-2 …"><strong>X</strong></span></div>
+ *    <div class="postprofile-name">X</div>
+ *
+ *  La seconde — un compte sans couleur de groupe — faisait lever
+ *  `PageIllisible` et plantait la relève sur tout le sujet. On prend donc
+ *  le contenu du bloc et on en retire les balises, quelles qu'elles
+ *  soient. */
+const PSEUDO_MEMBRE = /<div class="postprofile-name">([\s\S]*?)<\/div>/;
+const BALISE = /<[^>]*>/g;
 const GROUPE = /\bpost-group-(\d+)\b/;
 
 /** Les entités que Forumactif pose dans les pseudos. On n'en décode que
@@ -118,15 +129,17 @@ export function lireLesMessages(html: string, sujetId: number): readonly Message
     // id 0 = pas un message ; auteur négatif = publicité ou invité
     if (bornes[i].id === 0 || auteurId < 0) continue;
 
-    const pseudo = PSEUDO_MEMBRE.exec(bloc);
-    if (!pseudo) throw new PageIllisible(`message ${bornes[i].id} sans pseudo`);
+    const brutPseudo = PSEUDO_MEMBRE.exec(bloc);
+    if (!brutPseudo) throw new PageIllisible(`message ${bornes[i].id} sans bloc de pseudo`);
+    const pseudo = decoder(brutPseudo[1].replace(BALISE, "")).trim();
+    if (pseudo === "") throw new PageIllisible(`message ${bornes[i].id} au pseudo vide`);
     const groupe = GROUPE.exec(bloc);
 
     messages.push({
       id: bornes[i].id,
       sujetId,
       auteurId,
-      auteurPseudo: decoder(pseudo[1]).trim(),
+      auteurPseudo: pseudo,
       groupeId: groupe ? Number(groupe[1]) : null,
       marqueurs: marqueursDe(bloc),
       corps: bloc,
