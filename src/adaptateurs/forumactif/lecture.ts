@@ -17,8 +17,15 @@
 //      <div class="postprofile-name">…<strong>Maître du Jeu</strong>
 // ════════════════════════════════════════════════════════════════════
 
-import type { LecteurDeForum, MessageDuForum, SujetRemue } from "../../application/ports.ts";
+import type {
+  DemandeDeClotureLue,
+  LecteurDeDemandes,
+  LecteurDeForum,
+  MessageDuForum,
+  SujetRemue,
+} from "../../application/ports.ts";
 import { type Marqueur, marqueursDe } from "./marqueur.ts";
+import { demandesDeCloture } from "./demandes.ts";
 
 export class PageIllisible extends Error {
   constructor(quoi: string) {
@@ -33,6 +40,12 @@ export class PageIllisible extends Error {
 export type MessageLu = MessageDuForum & {
   readonly groupeId: number | null;
   readonly marqueurs: readonly Marqueur[];
+  /** Le bloc HTML du message, tel qu'il est servi. Nécessaire pour y
+   *  chercher ce que le JOUEUR a écrit — une demande de clôture, demain un
+   *  bloc d'événement. On garde le HTML brut et non du texte nettoyé :
+   *  nettoyer serait une interprétation, et chaque module décide lui-même
+   *  ce qu'il cherche. */
+  readonly corps: string;
 };
 
 const DEBUT_DE_MESSAGE = /<div id="p(\d+)" class="post [^"]*?post--\1\b[^"]*"/g;
@@ -116,6 +129,7 @@ export function lireLesMessages(html: string, sujetId: number): readonly Message
       auteurPseudo: decoder(pseudo[1]).trim(),
       groupeId: groupe ? Number(groupe[1]) : null,
       marqueurs: marqueursDe(bloc),
+      corps: bloc,
     });
   }
 
@@ -148,8 +162,21 @@ export type Recuperateur = (chemin: string) => Promise<string>;
 /** L'adaptateur, branché sur un récupérateur. Le `fetch` vit dans la
  *  racine de composition, pas ici : comme ça ce fichier se teste sur des
  *  pages enregistrées, sans réseau. */
-export class ForumactifEnLecture implements LecteurDeForum {
+export class ForumactifEnLecture implements LecteurDeForum, LecteurDeDemandes {
   constructor(private readonly recuperer: Recuperateur) {}
+
+  /** Les demandes de clôture d'un sujet, depuis un message donné.
+   *
+   *  C'est ici que le HTML s'arrête : la couche application ne voit jamais
+   *  le corps d'un message, seulement ce qu'un joueur a demandé. */
+  async demandesDeCloture(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly DemandeDeClotureLue[]> {
+    const html = await this.recuperer(`/t${sujetId}-`);
+    const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    return demandesDeCloture(nouveaux).map((d) => ({ sujetId, ...d }));
+  }
 
   async messagesDuSujet(
     sujetId: number,

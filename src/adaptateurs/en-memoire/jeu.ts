@@ -8,9 +8,11 @@
 import type {
   Catalogue,
   Cloture,
+  DemandeDeClotureLue,
   EtatDuJeu,
   EtatDuJoueur,
   Horloge,
+  LecteurDeDemandes,
   LecteurDeForum,
   MessageDuForum,
   PosteurSurForum,
@@ -19,6 +21,7 @@ import type {
   Versement,
 } from "../../application/ports.ts";
 import { graineDepuis } from "../../domaine/alea.ts";
+import { demandesDeCloture } from "../forumactif/demandes.ts";
 
 export class EtatDuJeuEnMemoire implements EtatDuJeu {
   readonly #joueurs = new Map<string, EtatDuJoueur>();
@@ -107,16 +110,41 @@ export class CatalogueEnMemoire implements Catalogue {
   }
 }
 
-export class ForumEnMemoire implements LecteurDeForum, PosteurSurForum {
+export class ForumEnMemoire implements LecteurDeForum, LecteurDeDemandes, PosteurSurForum {
   readonly #messages: MessageDuForum[] = [];
+  /** Le texte des messages, pour que `demandesDeCloture` ait quelque chose
+   *  à lire. Séparé parce que le port `LecteurDeForum` ne porte pas de corps. */
+  readonly #corps = new Map<number, string>();
   readonly postes: { sujetId: number; mentionne: string; corps: string }[] = [];
   #prochainId = 1;
 
-  ajouter(m: Omit<MessageDuForum, "id"> & { id?: number }): MessageDuForum {
-    const complet = { ...m, id: m.id ?? this.#prochainId++ };
+  ajouter(
+    m: Omit<MessageDuForum, "id"> & { id?: number; corps?: string },
+  ): MessageDuForum {
+    const { corps, ...reste } = m;
+    const complet = { ...reste, id: m.id ?? this.#prochainId++ };
     this.#messages.push(complet);
+    this.#corps.set(complet.id, corps ?? "");
     this.#prochainId = Math.max(this.#prochainId, complet.id + 1);
     return complet;
+  }
+
+  /** La détection réutilise le VRAI détecteur, et pas une imitation : un
+   *  faux qui reconnaîtrait `[cloture]` autrement que le vrai rendrait les
+   *  tests de cas d'usage menteurs. */
+  demandesDeCloture(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly DemandeDeClotureLue[]> {
+    const nouveaux = this.#messages
+      .filter((m) => m.sujetId === sujetId && m.id > depuisMessageId)
+      .map((m) => ({
+        id: m.id,
+        auteurId: m.auteurId,
+        auteurPseudo: m.auteurPseudo,
+        corps: this.#corps.get(m.id) ?? "",
+      }));
+    return Promise.resolve(demandesDeCloture(nouveaux).map((d) => ({ sujetId, ...d })));
   }
 
   messagesDuSujet(
@@ -130,9 +158,15 @@ export class ForumEnMemoire implements LecteurDeForum, PosteurSurForum {
     );
   }
 
-  sujetsRemues(_forums: readonly number[]): Promise<readonly SujetRemue[]> {
+  /** Quels sujets vivent dans quel forum. Le vrai le sait par la page du
+   *  forum ; le faux a besoin qu'on le lui dise. */
+  readonly forumDuSujet = new Map<number, number>();
+
+  sujetsRemues(forums: readonly number[]): Promise<readonly SujetRemue[]> {
     const dernier = new Map<number, number>();
     for (const m of this.#messages) {
+      const forum = this.forumDuSujet.get(m.sujetId);
+      if (forum !== undefined && !forums.includes(forum)) continue;
       dernier.set(m.sujetId, Math.max(dernier.get(m.sujetId) ?? 0, m.id));
     }
     return Promise.resolve(

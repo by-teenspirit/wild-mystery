@@ -56,6 +56,25 @@ export interface LecteurDeForum {
   sujetsRemues(forums: readonly number[]): Promise<readonly SujetRemue[]>;
 }
 
+/** Une demande de clôture, telle qu'un joueur l'a posée. */
+export type DemandeDeClotureLue = {
+  readonly sujetId: number;
+  readonly messageId: number;
+  readonly auteurId: number;
+  readonly auteurPseudo: string;
+};
+
+/** Lire ce que les joueurs DEMANDENT. Port séparé de `LecteurDeForum` à
+ *  dessein : la relève en a besoin, un futur outil de vérification qui ne
+ *  fait que relire des pages n'aurait pas à feindre de savoir reconnaître
+ *  une demande. */
+export interface LecteurDeDemandes {
+  demandesDeCloture(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly DemandeDeClotureLue[]>;
+}
+
 export interface PosteurSurForum {
   /** Poste une réponse dans un sujet, avec le compte de publication.
    *  Rend l'identifiant du message créé. Toute réponse automatique
@@ -130,9 +149,29 @@ export interface Faune {
 
 // ── la trace des passages de la relève ──────────────────────────────
 
+/** Le journal, dans la forme que la table `releve_journal` porte vraiment :
+ *  une ligne par tâche et par passage, avec ce qui a été traité et ce qui a
+ *  échoué. Pas de durée — la table n'en garde pas, et inventer un champ que
+ *  personne n'écrit ne sert à rien. */
 export interface JournalDeReleve {
-  dernierPassage(): Promise<Date | null>;
-  noter(debut: Date, fin: Date, tache: string, resultat: string): Promise<void>;
+  dernierPassage(tache?: string): Promise<Date | null>;
+  noter(tache: string, traites: number, erreurs: readonly string[]): Promise<void>;
+}
+
+/** Le verrou de la relève. Elle tourne toutes les cinq minutes ; un passage
+ *  plus lent que l'intervalle doublerait les clôtures. */
+export interface Verrou {
+  /** Vrai si on l'a pris. Faux si quelqu'un d'autre l'a déjà. */
+  prendre(nom: string, secondes: number): Promise<boolean>;
+  rendre(nom: string): Promise<void>;
+}
+
+/** Où en est la lecture de chaque forum. Les dates de Forumactif n'ont pas
+ *  d'année : ce sont les identifiants de message qui servent d'horloge, et
+ *  ils ne reculent jamais. */
+export interface SuiviDesForums {
+  dernierMessageLu(forumId: number): Promise<number>;
+  avancer(forumId: number, messageId: number): Promise<void>;
 }
 
 // ── la clôture ──────────────────────────────────────────────────────

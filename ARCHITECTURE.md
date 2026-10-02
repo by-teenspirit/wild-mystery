@@ -124,14 +124,15 @@ src/
 │   ├─ rencontre.ts             le tirage, déterministe à graine         · à faire
 │   └─ rencontre.test.ts                                                · à faire
 ├─ application/
-│   ├─ ports.ts                 les interfaces, et rien d'autre          · à faire
+│   ├─ ports.ts                 les interfaces, et rien d'autre          ✓
 │   ├─ cloturer-un-sujet.ts
 │   ├─ cloturer-un-sujet.test.ts
 │   └─ servir-une-commande.ts
 ├─ adaptateurs/
 │   ├─ forumactif/              lecture réelle du forum, marqueurs       ✓ écrit
 │   ├─ faune/                   les tables, lues dans data/              ✓ 28 tests
-│   ├─ supabase/                registre, clôture, appel SQL, traduction ✓ 38 tests
+│   ├─ supabase/                registre, clôture, état, journal, verrou ✓ 57 tests
+│   ├─ systeme/                 horloge et signature HMAC                ✓ 10 tests
 │   └─ en-memoire/              les faux, soumis aux tests de contrat    ✓ écrit
 └─ contrat/
     ├─ registre.contrat.ts      la suite partagée par les deux implémentations
@@ -148,8 +149,8 @@ supabase/
 │   ├─ 0002_services.sql        boutique, pension, fossiles, pokédex     ✓
 │   ├─ 0003_registre.sql        les quatre opérations du port Registre   ✓
 │   └─ 0004_identite_et_cloture.sql  auth_id, appliquer_cloture          ✓
-├─ tests/garanties.sql          ✓ 55 assertions pgTAP, toutes vertes
-└─ functions/releve/index.ts    racine de composition, zéro règle        · à faire
+├─ tests/garanties.sql          ✓ 69 assertions pgTAP, toutes vertes
+└─ functions/releve/index.ts    racine de composition, zéro règle        ✓ écrit
 
 .github/workflows/ci.yml        les six travaux du §5
 ```
@@ -430,3 +431,66 @@ D'où `versJson` et `chargeDeCloture`, deux fonctions pures et testées, plutôt
 `JSON.stringify(effets)` posé au milieu d'un appel. Un des tests ne vérifie pas notre code mais
 **documente le piège** : il affirme que les `Effets` bruts stringifiés donnent bien `{}`, pour que
 quiconque voudrait « simplifier » un jour tombe dessus.
+
+---
+
+## 12. La relève tourne — 2 octobre
+
+La fonction Edge existe. Elle est la **racine de composition** : le seul fichier où l'on écrive
+`new …Supabase(…)` ou `new Forumactif…(…)`, et le garde-fou refuse qu'on le fasse ailleurs. Elle ne
+contient aucune règle : elle lit des secrets, assemble, prend un verrou, lance une tâche, rend le
+verrou, répond.
+
+### La seule tâche branchée : les clôtures
+
+Sur les huit tâches de la planche 45, une seule est branchée — la tâche 2, parce qu'elle est la
+seule dont **tout** est décidé. `ParcourirLesZones` parcourt les dix-sept zones, repère les sujets
+remués depuis le dernier passage, y cherche `[cloture]`, et confie chaque demande à
+`CloturerUnSujet`.
+
+**Ce qui bloque la tâche 1 n'est pas du code** : le format des blocs d'événement — « j'utilise une
+ball », « je lance un dé » — n'est pas tranché. Il n'est donc pas deviné : `demandes.ts` ne reconnaît
+que `[cloture]`, qui est décidé, et le dit en commentaire.
+
+### Les deux règles de sûreté du parcours
+
+Elles comptent plus que le reste, parce qu'elles décident ce qui se passe le jour où ça casse.
+
+**Une tâche qui échoue n'en bloque pas les autres.** Chaque zone et chaque sujet sont isolés. Un
+sujet dont la page est illisible n'empêche pas les quinze autres de se clôturer.
+
+**Le curseur n'avance que si la zone s'est passée sans incident.** C'est contre-intuitif : ne pas
+avancer fait relire au passage suivant. Mais relire est **gratuit** — `CloturerUnSujet` commence par
+demander si le sujet est déjà clos et répond « déjà close » sans rien poster — tandis qu'avancer
+après un échec perdrait la demande d'un joueur **pour toujours**. L'idempotence de la clôture est ce
+qui rend cette prudence sans coût, et deux tests la tiennent.
+
+### Le verrou
+
+La relève tourne toutes les cinq minutes. Un passage plus lent que l'intervalle doublerait les
+clôtures. `releve_prendre_le_verrou` est donc **un seul ordre SQL** — `insert … on conflict … where`
+— parce qu'un `select` suivi d'un `insert` laisse une fenêtre où deux passages se croisent. Il
+expire tout seul au bout de quatre minutes : un passage mort ne doit pas bloquer la relève
+indéfiniment. Il est rendu dans un `finally`, pour la même raison.
+
+### Ce qui ne sort jamais
+
+| | Où ça vit |
+|---|---|
+| `FORUM_URL`, `FORUM_COMPTE`, `FORUM_MOTDEPASSE` | Supabase › Edge Functions › Secrets, et nulle part ailleurs |
+| `WM_SECRET_SIGNATURE` | idem. Sans lui, un joueur fabriquerait un code de vérification |
+| `WM_CLE_DE_RELEVE` | idem. Sans elle, n'importe qui déclencherait la relève en boucle |
+| La clé de service Supabase | fournie par Supabase à la fonction ; elle ne part jamais vers le navigateur |
+
+La configuration est lue d'un bloc au démarrage, et la fonction **refuse de tourner** s'il manque
+une variable, en nommant lesquelles — jamais leur valeur. Démarrer à moitié configuré serait pire :
+la relève noterait « 0 traité » toutes les cinq minutes sans que personne ne comprenne pourquoi.
+
+La clé de relève est comparée en **temps constant**. Un `===` laisse fuir la longueur du préfixe
+commun par le temps de réponse.
+
+### Un défaut trouvé par un test, pas par un accident
+
+`HorlogeFigee` gardait la `Date` qu'on lui passait, par référence. Modifier cette date après coup
+décalait l'horloge de tout le monde. Elle garde maintenant un nombre, et rend une copie à chaque
+appel. C'est exactement le genre de chose qu'un test de « ça marche » ne trouve jamais.

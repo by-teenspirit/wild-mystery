@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(55);
+select plan(69);
 
 -- ── le décor ────────────────────────────────────────────────────────
 insert into joueur (id, forum_user_id, pseudo, groupe, palier, pokedollars)
@@ -281,6 +281,39 @@ select is_empty($$
    where proname in ('ranger_pokedex', 'pensions_a_rendre')
      and (prosrc like '%espece_id''%' or prosrc like '%pension_id''%')
 $$, 'plus une seule clé de charge en serpent');
+
+-- ── 12 · ce dont la relève a besoin ─────────────────────────────────
+select has_table('verrou');
+select has_function('releve_prendre_le_verrou', array['jsonb']);
+select has_function('releve_rendre_le_verrou', array['jsonb']);
+select has_function('releve_noter', array['jsonb']);
+select has_function('etat_du_joueur', array['jsonb']);
+select has_function('joueur_du_compte', array['jsonb']);
+
+--  Le verrou est pris par UN SEUL ordre SQL (`insert … on conflict … where`).
+--  Un `select` puis un `insert` laisserait une fenêtre où deux passages se
+--  croisent, et deux passages qui se croisent clôturent deux fois.
+select is(releve_prendre_le_verrou('{"nom":"tap","secondes":240}'::jsonb), true,
+  'le premier passage prend le verrou');
+select is(releve_prendre_le_verrou('{"nom":"tap","secondes":240}'::jsonb), false,
+  'le second ne l''a pas');
+select is(releve_rendre_le_verrou('{"nom":"tap"}'::jsonb), true, 'il se rend');
+select is(releve_prendre_le_verrou('{"nom":"tap","secondes":240}'::jsonb), true,
+  'et se reprend après');
+
+--  Un passage mort ne doit pas bloquer la relève pour toujours : le verrou
+--  expire tout seul.
+select is(releve_prendre_le_verrou('{"nom":"mort","secondes":-1}'::jsonb), true,
+  'un verrou déjà expiré est posé');
+select is(releve_prendre_le_verrou('{"nom":"mort","secondes":240}'::jsonb), true,
+  'et il se reprend aussitôt, sans intervention');
+
+--  Le curseur de lecture ne recule jamais : un passage en retard qui le
+--  ferait reculer relirait et réécrirait le registre.
+select is(releve_avancer('{"forumId":9,"dernierMessage":8100}'::jsonb), 8100::bigint,
+  'le curseur avance');
+select is(releve_avancer('{"forumId":9,"dernierMessage":8000}'::jsonb), 8100::bigint,
+  'et ne recule pas');
 
 select * from finish();
 rollback;
