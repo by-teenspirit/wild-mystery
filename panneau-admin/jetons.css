@@ -3,10 +3,12 @@
    Relevé le 2 octobre dans le fichier Figma « Wild Mystery Design
    System » (R5Fz0KRaAwrpIGhMJK74ED, page « Fondations »).
 
-   Deux collections dans Figma : « Couleur », qui porte les modes
-   Aube et Ténèbra, et « Mesure », qui n'a qu'un mode. Les couleurs
-   d'Aube — le mode par défaut — sont ici dans `:root` ; Ténèbra est
-   en bas du fichier, dans son propre bloc.
+   Deux collections dans Figma : « Couleur » et « Mesure ». La
+   collection Couleur porte désormais deux modes, Clair et Sombre,
+   mais **le forum n'a qu'un thème pour le moment** : ce fichier ne
+   contient que le mode Clair. Le mode Sombre est préparé dans Figma
+   et attend que la bascule soit décidée côté forum — le jour où elle
+   l'est, il se relève et vient ici dans un second bloc.
 
    La typographie n'est pas en variables dans Figma : elle vit dans
    quinze styles de texte. Les jetons ci-dessous en sont la lecture,
@@ -112,8 +114,12 @@
   --wm-fond-terre:         #f8eae1;
 
   /* ── 7 · le texte, du plus appuyé au plus effacé ──────────────────── */
-  /* `inverse` s'assoit sur un bouton d'accent, `sur-nuit` sur la
-     barre de navigation : les deux divergent en Ténèbra. */
+  /* Trois jetons valent le même blanc cassé ici, et ce n'est pas une
+     redite : `surface` est un fond, `inverse` s'assoit sur un bouton
+     d'accent, `sur-nuit` sur la barre de navigation. Ils divergent
+     dans le mode sombre, donc un mauvais choix ne se verra qu'au jour
+     de la bascule. Prendre celui qui dit l'intention, pas celui dont
+     la valeur tombe juste. */
 
   --wm-encre:           #2e2018;
   --wm-texte-corps:     #4e3b30;
@@ -185,11 +191,13 @@
   --wm-type-fee-texte:     #885b7d;
 
   /* ── 12 · pokémon pur ou obscur ───────────────────────────────────── */
-  /* Figma ne donne que le fond : il n'y a pas de couleur de texte
-     associée, contrairement aux types et aux groupes. */
+  /* Une paire fond + texte, comme les types et les groupes. Le texte
+     passe 6:1 sur les deux fonds. */
 
-  --wm-pokemon-pur:     #3c6b47;
-  --wm-pokemon-obscur:  #4a3a63;
+  --wm-pokemon-pur-fond:       #3c6b47;
+  --wm-pokemon-pur-texte:      #fffbf7;
+  --wm-pokemon-obscur-fond:    #4a3a63;
+  --wm-pokemon-obscur-texte:   #fffbf7;
 
   /* ── 13 · les six groupes ─────────────────────────────────────────── */
 
@@ -245,120 +253,4 @@
   --wm-vignette-zone-hauteur: 560px;
   --wm-sprite:                 96px;
   --wm-cible-tactile:          44px;
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   Le mode Ténèbra
-
-   Seule la collection « Couleur » a deux modes, donc seules les
-   soixante-dix couleurs sont redéfinies ici. Les mesures et la
-   typographie ne changent pas.
-
-   Le sélecteur : `body#modernbb` est le seul accroche-pied stable
-   relevé sur le forum (48-… §1), et `wm-tenebra` est une classe que
-   notre propre JS poserait dessus. Ce qui déclenche la bascule
-   n'est PAS décidé : il n'y a rien à ce sujet dans le relevé du
-   1er octobre. Trois pistes, à arbitrer, aucune retenue ici :
-
-     · un bouton à nous, qui pose la classe et retient le choix ;
-     · `@media (prefers-color-scheme: dark)`, sans bouton — le bloc
-       ci-dessous se recopie alors sous la requête média ;
-     · le script `switcheero` de la V1, encore actif parmi les dix-huit
-       codes JavaScript du panneau d'administration. Personne n'a lu
-       ce qu'il fait ; c'est la seule piste existante, et elle est à
-       vérifier avant qu'on s'appuie dessus.
-
-   `:root` ne peut pas servir ici : la feuille du panneau
-   d'administration est servie avant la nôtre, et une variable est
-   résolue là où elle est lue, pas là où elle est déclarée. Poser la
-   bascule sur `body` suffit donc, tout le contenu en descend.
-   ════════════════════════════════════════════════════════════════════ */
-
-body#modernbb.wm-tenebra {
-
-  /* les fonds */
-  --wm-fond-page:          #1a1210;
-  --wm-fond-surface:       #241a16;
-  --wm-fond-surface-haute: #2e211c;
-  --wm-fond-douce:         #201714;
-  --wm-fond-nuit:          #201714;
-  --wm-fond-terre:         #33211a;
-
-  /* le texte */
-  --wm-encre:           #f2e4d8;
-  --wm-texte-corps:     #dcc9ba;
-  --wm-texte-doux:      #ae9585;
-  --wm-texte-pale:      #997f6f;
-  --wm-texte-inverse:   #1a1210;
-  --wm-texte-sur-nuit:  #f2e4d8;
-
-  /* les accents */
-  --wm-accent-primaire: #7fc2de;
-  --wm-accent-fort:     #a3d6ec;
-  --wm-accent-terre:    #e0906a;
-
-  /* les bords */
-  --wm-bord-fin: #2e211c;
-  --wm-bord-net: #46332a;
-
-  /* le danger d'une zone */
-  --wm-danger-paisible:   #7fb183;
-  --wm-danger-dangereuse: #dfa860;
-  --wm-danger-interdite:  #d97f6e;
-
-  /* les dix-huit types */
-  --wm-type-normal-fond:   #3d3c47;
-  --wm-type-normal-texte:  #aab09f;
-  --wm-type-combat-fond:   #442a34;
-  --wm-type-combat-texte:  #d78574;
-  --wm-type-vol-fond:      #333a55;
-  --wm-type-vol-texte:     #80a8df;
-  --wm-type-poison-fond:   #3f2c4c;
-  --wm-type-poison-texte:  #c386c5;
-  --wm-type-sol-fond:      #443835;
-  --wm-type-sol-texte:     #cc9f4f;
-  --wm-type-roche-fond:    #3f3839;
-  --wm-type-roche-texte:   #b4a264;
-  --wm-type-insecte-fond:  #383e34;
-  --wm-type-insecte-texte: #94bc4a;
-  --wm-type-spectre-fond:  #342c4c;
-  --wm-type-spectre-texte: #a491c9;
-  --wm-type-acier-fond:    #36384b;
-  --wm-type-acier-texte:   #90a7b5;
-  --wm-type-feu-fond:      #4b3031;
-  --wm-type-feu-texte:     #ec854c;
-  --wm-type-eau-fond:      #2a3756;
-  --wm-type-eau-texte:     #64a4e5;
-  --wm-type-plante-fond:   #304037;
-  --wm-type-plante-texte:  #71c558;
-  --wm-type-electrik-fond:  #4a402f;
-  --wm-type-electrik-texte: #e5c531;
-  --wm-type-psy-fond:      #4a2e46;
-  --wm-type-psy-texte:     #e87ea5;
-  --wm-type-glace-fond:    #304253;
-  --wm-type-glace-texte:   #70cbd4;
-  --wm-type-dragon-fond:   #2f304a;
-  --wm-type-dragon-texte:  #8e9bc2;
-  --wm-type-tenebres-fond:  #312d3e;
-  --wm-type-tenebres-texte: #9a959c;
-  --wm-type-fee-fond:      #493652;
-  --wm-type-fee-texte:     #e397d1;
-
-  /* pokémon pur ou obscur */
-  --wm-pokemon-pur:     #4e8259;
-  --wm-pokemon-obscur:  #605080;
-
-  /* les six groupes */
-  --wm-groupe-ho-oh-fond:      #6b3a1e;
-  --wm-groupe-ho-oh-texte:     #e8a05c;
-  --wm-groupe-reshiram-fond:   #3c4654;
-  --wm-groupe-reshiram-texte:  #c9d6e4;
-  --wm-groupe-deoxys-fond:     #4a3a63;
-  --wm-groupe-deoxys-texte:    #b79bda;
-  --wm-groupe-xerneas-fond:    #1f4f4a;
-  --wm-groupe-xerneas-texte:   #7fd1c4;
-  --wm-groupe-zamazenta-fond:  #5a2430;
-  --wm-groupe-zamazenta-texte: #e08497;
-  --wm-groupe-mew-fond:        #5c3348;
-  --wm-groupe-mew-texte:       #f0a8c8;
 }

@@ -82,9 +82,10 @@ Deno.test("un sujet complet se clôt, et ce qui est versé est ce que le domaine
   assertEquals(verse?.[0].effets.captures, [{ especeId: 215, niveau: 19 }]);
   assertEquals(verse?.[0].effets.objetsConsommes.get(BALL), 1);
 
-  assertEquals(forum.postes.length, 1);
-  assertEquals(forum.postes[0].mentionne, "Anna");
-  assert(forum.postes[0].corps.includes("clôturé"));
+  // Rien n'est posté d'ici : le bilan est en file, nommément mentionné.
+  assertEquals(forum.postes.length, 0);
+  assertEquals(cloture.mentionne(SUJET), "Anna");
+  assert((cloture.bilan(SUJET) ?? "").includes("clôturé"));
 });
 
 Deno.test("un multi à deux joueurs verse les deux d'un coup", async () => {
@@ -232,10 +233,12 @@ Deno.test("deux clôtures du même sujet par les mêmes joueurs donnent le même
 
 // ── la correction du 2 octobre ──────────────────────────────────────
 
-Deno.test("si le forum est injoignable, la clôture tient et le bilan attend", async () => {
-  // Le défaut constaté en vrai : un mot de passe expiré a laissé un sujet
-  // clos sans aucun bilan publié, et comme il était clos, plus rien ne
-  // réessayait. Désormais le bilan est en base avec la clôture.
+Deno.test("la clôture ne poste rien : le bilan part en file", async () => {
+  // Deux défauts du 2 octobre en un seul test. D'abord un mot de passe
+  // expiré avait laissé un sujet clos sans bilan publié, et plus rien ne
+  // réessayait. Ensuite, quand le cas d'usage postait lui-même, il
+  // oubliait de marquer le bilan comme posté — et la relève le republiait
+  // à chaque passage. Désormais il n'y a qu'un publicateur.
   const c = monter();
   c.jeu.poser(ANNA, sacAvec(1));
   await c.registre.inscrire(SUJET, ANNA, 8001, {
@@ -243,26 +246,26 @@ Deno.test("si le forum est injoignable, la clôture tient et le bilan attend", a
     objetId: BALL,
     quantite: 1,
   }, "WM-ACDE-FGH");
-  c.forum.refuseLaProchaineReponse = new Error("forum injoignable");
-
   const resultat = await c.cas.executer({
     sujetId: SUJET,
     demandeurId: ANNA,
     demandeurPseudo: "Anna",
   });
 
-  assertEquals(resultat.issue, "close", "la clôture est bien appliquée");
-  assert(resultat.issue === "close" && resultat.bilanEnAttente, "le bilan attend");
-  assertEquals(c.forum.postes.length, 0, "rien n'a été posté");
+  assertEquals(resultat.issue, "close", "la clôture est appliquée");
+  assertEquals(c.forum.postes.length, 0, "et rien n'est posté d'ici");
   assert(
     (c.cloture.bilan(SUJET) ?? "").includes("Sujet clôturé"),
-    "mais le bilan est en base, prêt à être reposté",
+    "le bilan est en base, c'est PosterLesBilans qui le publiera",
   );
 });
 
-Deno.test("quand le forum répond, le bilan n'attend pas", async () => {
+Deno.test("un forum injoignable ne change rien : on ne lui parlait pas", async () => {
+  // La clôture ne dépend plus du forum du tout. C'est ce qui rend le
+  // point de non-retour unique : la transaction en base, et elle seule.
   const c = monter();
   c.jeu.poser(ANNA, sacAvec(1));
+  c.forum.refuseLaProchaineReponse = new Error("forum injoignable");
   await c.registre.inscrire(SUJET, ANNA, 8001, {
     type: "objet_trouve",
     objetId: BALL,
@@ -275,11 +278,11 @@ Deno.test("quand le forum répond, le bilan n'attend pas", async () => {
     demandeurPseudo: "Anna",
   });
 
-  assert(resultat.issue === "close" && !resultat.bilanEnAttente);
-  assertEquals(c.forum.postes.length, 1);
+  assertEquals(resultat.issue, "close");
+  assertEquals(c.forum.postes.length, 0);
 });
 
-Deno.test("le bilan posté nomme le joueur, pas son identifiant", async () => {
+Deno.test("le bilan mis en file nomme le joueur, pas son identifiant", async () => {
   const c = monter();
   c.jeu.poser(ANNA, sacAvec(1)).pseudo(ANNA, "Calliste Vanne");
   await c.registre.inscrire(SUJET, ANNA, 8001, {
@@ -290,7 +293,7 @@ Deno.test("le bilan posté nomme le joueur, pas son identifiant", async () => {
 
   await c.cas.executer({ sujetId: SUJET, demandeurId: ANNA, demandeurPseudo: "Anna" });
 
-  const corps = c.forum.postes[0].corps;
+  const corps = c.cloture.bilan(SUJET) ?? "";
   assert(corps.includes("CALLISTE VANNE"), corps);
   assertEquals(corps.includes(ANNA), false, "aucun UUID dans un message de joueur");
 });

@@ -173,7 +173,11 @@ Deno.test("une demande de clôture dans une zone sauvage est traitée", async ()
   assertEquals(bilan.issues, [{ sujetId: 7000, issue: "close" }]);
   assertEquals(c.journal.lignes, [{ tache: TACHE, traites: 1, erreurs: [] }]);
   assertEquals(c.suivi.curseurs.get(9), 8002, "le curseur avance jusqu'au dernier message");
-  assert(c.forum.postes.length === 1, "le bilan est posté dans le fil");
+  //  Le parcours ne poste plus : il applique, et laisse le bilan en file.
+  //  C'est `PosterLesBilans` qui publie, dans le même passage de la relève
+  //  mais dans une seule et même tâche — un publicateur, pas deux.
+  assertEquals(c.forum.postes.length, 0, "le parcours ne publie pas lui-même");
+  assert((c.cloture.bilan(7000) ?? "").length > 0, "mais le bilan est bien en file");
 });
 
 Deno.test("un sujet sans demande ne déclenche rien, mais fait avancer le curseur", async () => {

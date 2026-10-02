@@ -21,3 +21,6 @@ Thumbs.db
 # Supabase local
 supabase/.temp/
 supabase/.branches/
+
+# Les archives de livraison : elles atterrissent ici, elles ne sont pas le dépôt.
+livraison.zip

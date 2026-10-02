@@ -299,6 +299,15 @@ export function estLaPageDeConnexion(html: string): boolean {
 
 // ── l'adaptateur ────────────────────────────────────────────────────
 
+/** Le chemin seul d'une adresse de redirection. Forumactif renvoie
+ *  tantôt `/t976-test2`, tantôt `https://…forumactif.com/t976-test2` : le
+ *  transport, lui, n'attend qu'un chemin — il ne parle qu'à un hôte. */
+export function cheminSeul(emplacement: string): string {
+  const m = /^[a-z][a-z0-9+.-]*:\/\/[^/]+(\/.*)?$/i.exec(emplacement);
+  if (m) return m[1] ?? "/";
+  return emplacement.startsWith("/") ? emplacement : `/${emplacement}`;
+}
+
 /** La charge du marqueur : l'identifiant du sujet, en base64url. Elle n'a
  *  pas besoin d'être riche — le code à côté suffit à retrouver le message.
  *  Elle est là pour que le marqueur reste relisible si le format grandit. */
@@ -424,14 +433,40 @@ export class ForumactifEnPublication implements PosteurSurForum {
     return lireLeFormulaireDeReponse(reponse.corps);
   }
 
+  /**
+   * Un GET qui SUIT les redirections.
+   *
+   * Le transport de publication est en `redirect: "manual"`, et il doit le
+   * rester : l'identifiant du message posté se lit dans l'en-tête
+   * `Location` de la 302, c'est le seul endroit où Forumactif le donne.
+   *
+   * Mais une LECTURE a besoin de la page, pas de la redirection. Le
+   * 2 octobre, le filet anti-doublon demandait `/t976-`, recevait la 301
+   * vers `/t976-test2`, et analysait un corps vide :
+   *
+   *     PageIllisible : aucun bloc de message trouvé
+   *
+   * Le message avait pourtant été publié. Trois sauts suffisent largement
+   * et bornent le ping-pong si le forum se met à boucler.
+   */
+  private async lirePage(chemin: string, sauts = 3): Promise<Reponse> {
+    let reponse = await this.transport({ chemin, methode: "GET", cookie: this.bocal.entete() });
+    for (let reste = sauts; reste > 0; reste--) {
+      const vers = reponse.emplacement;
+      if (reponse.statut < 300 || reponse.statut >= 400 || vers === null) break;
+      reponse = await this.transport({
+        chemin: cheminSeul(vers),
+        methode: "GET",
+        cookie: this.bocal.entete(),
+      });
+    }
+    return reponse;
+  }
+
   /** Cherche dans le sujet un message portant ce code de marqueur, et
    *  rend son identifiant. C'est le filet contre le double envoi. */
   private async messagePortantLeCode(sujetId: number, code: string): Promise<number | null> {
-    const reponse = await this.transport({
-      chemin: `/t${sujetId}-`,
-      methode: "GET",
-      cookie: this.bocal.entete(),
-    });
+    const reponse = await this.lirePage(`/t${sujetId}-`);
     const messages = lireLesMessages(reponse.corps, sujetId);
     // Le dernier d'abord : un bilan vient d'être posté, il est en fin de page.
     for (const m of [...messages].reverse()) {
@@ -461,6 +496,21 @@ export class ForumactifEnPublication implements PosteurSurForum {
     const avecMarqueur = `${corps}\n\n${ecrireUnMarqueur(charge, code)}`;
     const message = mentionne === "" ? avecMarqueur : `@${mentionne}\n\n${avecMarqueur}`;
     const codes = marqueursDe(message).map((m) => m.code);
+
+    // ── ON REGARDE AVANT D'ÉCRIRE ────────────────────────────────────
+    //  Le 2 octobre à 17 h 05, le bilan du sujet 976 a été publié une
+    //  SECONDE fois. Le marqueur était pourtant là — mais il n'était relu
+    //  qu'APRÈS un envoi raté. Un envoi réussi, lui, postait sans rien
+    //  demander : le filet rattrapait les coupures réseau, pas les
+    //  reprises.
+    //
+    //  Or `PosterLesBilans` est faite pour reprendre. Son en-tête promet
+    //  que « reposter est sans danger » ; cette vérification est ce qui
+    //  rend la promesse vraie, au prix d'une lecture de page par bilan
+    //  publié — et un bilan est rare.
+    const deja = await this.messagePortantLeCode(sujetId, code);
+    if (deja !== null) return deja;
+
     const formulaire = await this.formulaire(sujetId);
 
     let reponse: Reponse;

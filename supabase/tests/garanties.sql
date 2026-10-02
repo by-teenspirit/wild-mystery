@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(101);
+select plan(133);
 
 -- ── le décor ────────────────────────────────────────────────────────
 insert into joueur (id, forum_user_id, pseudo, groupe, palier, pokedollars)
@@ -424,6 +424,275 @@ select is(
   pseudo_du_joueur('{"joueurId":"33333333-3333-3333-3333-333333333333"}'::jsonb)
     ->>'pseudo',
   null::text, 'et un joueur inconnu ne rend rien plutôt que de lever');
+
+-- ── 14 · la RLS, vue depuis un vrai joueur (0007) ───────────────────
+--  LE DÉFAUT QU'ON VERROUILLE, trouvé le 2 octobre.
+--
+--  `joueur_courant()` était une fonction SQL ordinaire qui lit `joueur`,
+--  et la politique de lecture de `joueur` l'appelle. Résultat :
+--  « stack depth limit exceeded » à la première requête d'un joueur.
+--
+--  Personne ne l'avait vu parce que **tout ce qui tourne ici tourne en
+--  superutilisateur, et un superutilisateur contourne toujours la RLS**.
+--  Les assertions qui suivent prennent donc un rôle ordinaire : c'est la
+--  seule façon de faire appliquer une politique, et donc la seule façon
+--  de prouver qu'elle protège quelque chose.
+--  On prend `authenticated`, le rôle RÉEL d'un joueur connecté, créé et
+--  doté par 0008. Un rôle inventé pour le test prouverait ce que le test
+--  a lui-même accordé ; celui-ci prouve ce que la production fait.
+create temp table rls_vu (quoi text primary key, valeur text);
+grant insert on rls_vu to authenticated;
+
+--  Callista et Plumtys reçoivent un compte d'authentification, et chacun
+--  de quoi être confondu avec l'autre : même objet, même espèce.
+update joueur set auth_id = 'aaaaaaaa-0000-0000-0000-0000000000a1'
+ where id = '11111111-1111-1111-1111-111111111111';
+update joueur set auth_id = 'bbbbbbbb-0000-0000-0000-0000000000b2'
+ where id = '22222222-2222-2222-2222-222222222222';
+
+insert into sac (joueur_id, objet_id, quantite)
+values ('22222222-2222-2222-2222-222222222222', 9001, 99)
+    on conflict (joueur_id, objet_id) do update set quantite = 99;
+
+insert into pokemon (joueur_id, espece_id, niveau, emplacement)
+values ('22222222-2222-2222-2222-222222222222', 37, 50, 'boite');
+
+--  On lit SOUS le rôle ordinaire et on range le résultat ; les
+--  assertions, elles, se font ensuite en superutilisateur — pgTAP écrit
+--  dans ses propres tables et n'a pas à les partager.
+do $$
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaaaaaa-0000-0000-0000-0000000000a1"}', true);
+
+  insert into rls_vu values
+    ('joueur_courant',  coalesce(joueur_courant()::text, '(null)')),
+    ('fiches',          (select count(*)::text from joueur)),
+    ('pseudo',          (select coalesce(max(pseudo), '(rien)') from joueur)),
+    ('lignes_de_sac',   (select count(*)::text from sac)),
+    ('plus_grosse_pile', (select coalesce(max(quantite)::text, '(rien)') from sac)),
+    ('pokemon_des_autres',
+      (select count(*)::text from pokemon where joueur_id <> joueur_courant())),
+    ('registre',        (select count(*)::text from registre));
+  reset role;
+end $$;
+
+select is((select valeur from rls_vu where quoi = 'joueur_courant'),
+  '11111111-1111-1111-1111-111111111111',
+  'le jeton se résout en joueur — et SANS récursion, ce qui est tout l''objet de 0007');
+
+select is((select valeur from rls_vu where quoi = 'fiches'), '1',
+  'un joueur ne voit qu''une fiche : la sienne');
+select is((select valeur from rls_vu where quoi = 'pseudo'), 'Callista',
+  'et c''est bien la sienne, pas la première venue');
+
+--  Plumtys a 99 exemplaires du même objet. Si Callista voyait 99, la
+--  politique du sac ne filtrerait rien.
+select is((select valeur from rls_vu where quoi = 'lignes_de_sac'), '2',
+  'elle voit ses deux lignes de sac');
+select is((select valeur from rls_vu where quoi = 'plus_grosse_pile'), '1',
+  'et pas la pile de 99 du voisin');
+
+select is((select valeur from rls_vu where quoi = 'pokemon_des_autres'), '0',
+  'aucun Pokémon visible qui ne soit le sien — y compris celui de Plumtys');
+
+--  Le registre est public à dessein : c'est ce qui permet à n'importe qui
+--  de rejouer une clôture et de vérifier un code.
+select isnt((select valeur from rls_vu where quoi = 'registre'), '0',
+  'le registre reste lisible par tous : un arbitrage doit pouvoir se refaire');
+
+-- ── le même, depuis l'autre siège ───────────────────────────────────
+--  Sans ça, « il voit une fiche » pourrait vouloir dire « il voit
+--  toujours la première ligne de la table ».
+do $$
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"bbbbbbbb-0000-0000-0000-0000000000b2"}', true);
+  insert into rls_vu values
+    ('pseudo_b',   (select coalesce(max(pseudo), '(rien)') from joueur)),
+    ('plus_grosse_pile_b', (select coalesce(max(quantite)::text, '(rien)') from sac));
+  reset role;
+end $$;
+
+select is((select valeur from rls_vu where quoi = 'pseudo_b'), 'Plumtys',
+  'l''autre joueur voit la SIENNE : la politique filtre, elle ne trie pas');
+select is((select valeur from rls_vu where quoi = 'plus_grosse_pile_b'), '99',
+  'et c''est bien lui qui a la pile de 99');
+
+-- ── sans jeton, rien ────────────────────────────────────────────────
+do $$
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims', '', true);
+  insert into rls_vu values
+    ('sans_jeton_fiches', (select count(*)::text from joueur)),
+    ('sans_jeton_sac',    (select count(*)::text from sac));
+  reset role;
+end $$;
+
+select is((select valeur from rls_vu where quoi = 'sans_jeton_fiches'), '0',
+  'sans jeton, aucune fiche — et surtout pas toutes');
+select is((select valeur from rls_vu where quoi = 'sans_jeton_sac'), '0',
+  'sans jeton, aucun sac');
+
+-- ── écrire chez le voisin ───────────────────────────────────────────
+--  Ranger ses Pokémon est le seul geste d'écriture ouvert au navigateur.
+--  Il doit s'arrêter net à la frontière du joueur.
+do $$
+declare n integer;
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaaaaaa-0000-0000-0000-0000000000a1"}', true);
+  update pokemon set emplacement = 'equipe'
+   where joueur_id = '22222222-2222-2222-2222-222222222222';
+  get diagnostics n = row_count;
+  insert into rls_vu values ('ecriture_chez_le_voisin', n::text);
+  reset role;
+end $$;
+
+select is((select valeur from rls_vu where quoi = 'ecriture_chez_le_voisin'), '0',
+  'on ne range pas les Pokémon du voisin : zéro ligne touchée, sans erreur');
+select is(
+  (select emplacement::text from pokemon
+    where joueur_id = '22222222-2222-2222-2222-222222222222' limit 1),
+  'boite', 'et le Pokémon du voisin n''a pas bougé');
+
+-- ── la garantie structurelle ────────────────────────────────────────
+--  Repasser `joueur_courant` en « security invoker » ramènerait la
+--  récursion. L'assertion le dit avant que ça n'arrive.
+select is(
+  (select prosecdef from pg_proc where proname = 'joueur_courant'),
+  true, 'joueur_courant reste SECURITY DEFINER, sinon la politique récurse');
+select alike(
+  (select array_to_string(proconfig, ',') from pg_proc where proname = 'joueur_courant'),
+  '%search_path=%',
+  'et son search_path reste épinglé, comme toute fonction security definer');
+
+-- ── 15 · la surface fermée (0008) ───────────────────────────────────
+--  Trois trous trouvés le 2 octobre, et invisibles pour la même raison
+--  que la récursion de 0007 : tout tournait en superutilisateur.
+--
+--  Le pire était que les vingt-neuf fonctions `security definer` étaient
+--  exécutables par PUBLIC, donc appelables en RPC avec la clé publiable
+--  — laquelle est dans le code source de la page, par construction.
+
+--  LA GARANTIE LA PLUS UTILE DU FICHIER : elle ne nomme aucune table, donc
+--  elle couvre aussi celles qu'on ajoutera. Une table sans RLS est
+--  entièrement exposée dès qu'un grant lui parvient, et un grant finit
+--  toujours par arriver.
+select is(
+  (select coalesce(string_agg(c.relname, ', ' order by c.relname), '')
+     from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity),
+  '', 'aucune table de public sans RLS — y compris les futures');
+
+--  Même esprit : aucune fonction qui s'exécute avec les droits du
+--  propriétaire ne doit être appelable par n'importe qui. Les deux
+--  exceptions sont celles que les POLITIQUES appellent à chaque lecture.
+select is(
+  (select coalesce(string_agg(p.proname, ', ' order by p.proname), '')
+     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.prosecdef
+      and p.proname not in ('joueur_courant', 'auth_courant')
+      and has_function_privilege('public', p.oid, 'execute')),
+  '', 'aucune fonction security definer n''est exécutable par PUBLIC');
+
+select ok(has_function_privilege('authenticated', 'joueur_courant()', 'execute'),
+  'joueur_courant reste exécutable par un joueur : une politique RLS exige ' ||
+  'que l''APPELANT l''ait, sinon chaque lecture rend « permission denied »');
+
+-- ── ce qu'un joueur connecté ne peut pas faire ──────────────────────
+create temp table interdit (quoi text primary key, verdict text);
+grant insert on interdit to authenticated;
+
+do $$
+declare
+  essais text[][] := array[
+    ['écrire le prix d''un objet',      'update objet set prix = 0'],
+    ['lire le verrou de la relève',     'select count(*) from verrou'],
+    ['lire le curseur de la relève',    'select count(*) from releve'],
+    ['lire le journal de la relève',    'select count(*) from releve_journal'],
+    ['se verser une clôture',
+     'select appliquer_cloture(''{"sujetId":1,"code":"WM-ACDE-FGH","versements":[]}''::jsonb)'],
+    ['écrire dans le registre',         'select registre_inscrire(''{}''::jsonb)'],
+    ['prendre le verrou de la relève',
+     'select releve_prendre_le_verrou(''{"nom":"x","secondes":1}''::jsonb)'],
+    ['monter son Pokémon au niveau 100', 'update pokemon set niveau = 100'],
+    ['effacer une table de rencontres', 'delete from zone_espece']
+  ];
+  i integer;
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaaaaaa-0000-0000-0000-0000000000a1"}', true);
+  for i in 1 .. array_length(essais, 1) loop
+    begin
+      execute essais[i][2];
+      insert into interdit values (essais[i][1], 'AUTORISÉ');
+    exception
+      when insufficient_privilege then
+        insert into interdit values (essais[i][1], 'refusé');
+      when others then
+        --  Une autre erreur n'est pas un refus de droits : on le dit,
+        --  plutôt que de la compter comme une protection.
+        insert into interdit values (essais[i][1], 'autre erreur : ' || sqlstate);
+    end;
+  end loop;
+  reset role;
+end $$;
+
+select is((select verdict from interdit where quoi = 'écrire le prix d''un objet'),
+  'refusé', 'un joueur ne réécrit pas le prix d''un objet');
+select is((select verdict from interdit where quoi = 'lire le verrou de la relève'),
+  'refusé', 'il ne voit pas le verrou de la relève');
+select is((select verdict from interdit where quoi = 'lire le curseur de la relève'),
+  'refusé', 'ni son curseur');
+select is((select verdict from interdit where quoi = 'lire le journal de la relève'),
+  'refusé', 'ni son journal');
+select is((select verdict from interdit where quoi = 'se verser une clôture'),
+  'refusé', 'il n''appelle PAS appliquer_cloture — c''était le trou le plus grave');
+select is((select verdict from interdit where quoi = 'écrire dans le registre'),
+  'refusé', 'il n''écrit pas de faux événements dans le registre');
+select is((select verdict from interdit where quoi = 'prendre le verrou de la relève'),
+  'refusé', 'il ne peut pas arrêter la relève');
+select is((select verdict from interdit where quoi = 'monter son Pokémon au niveau 100'),
+  'refusé', 'le grant ne porte que sur « emplacement » : ni le niveau, ni l''XP');
+select is((select verdict from interdit where quoi = 'effacer une table de rencontres'),
+  'refusé', 'il ne touche pas aux tables de rencontres');
+
+-- ── et ce qu'il peut toujours faire ─────────────────────────────────
+--  Fermer trop est aussi un défaut : un carnet qui ne s'ouvre plus est
+--  aussi cassé qu'un carnet qui laisse tout faire.
+do $$
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaaaaaa-0000-0000-0000-0000000000a1"}', true);
+  insert into interdit values
+    ('lire le catalogue', (select count(*)::text from objet)),
+    ('lire sa fiche',     (select count(*)::text from joueur));
+  update pokemon set emplacement = 'boite' where joueur_id = joueur_courant();
+  insert into interdit values ('ranger ses Pokémon', 'permis');
+  reset role;
+end $$;
+
+select isnt((select verdict from interdit where quoi = 'lire le catalogue'), '0',
+  'le catalogue reste lisible : sinon il n''y a plus ni boutique ni Pokédex');
+select is((select verdict from interdit where quoi = 'lire sa fiche'), '1',
+  'il lit toujours sa fiche');
+select is((select verdict from interdit where quoi = 'ranger ses Pokémon'), 'permis',
+  'et il range toujours ses Pokémon : c''est le seul geste d''écriture ouvert');
+
+-- ── la relève n'a rien perdu ────────────────────────────────────────
+--  Révoquer à PUBLIC sans réaccorder au rôle de service couperait la
+--  relève net. L'assertion le dit ici plutôt qu'en production.
+select ok(has_function_privilege('service_role', 'appliquer_cloture(jsonb)', 'execute'),
+  'la relève appelle toujours appliquer_cloture');
+select ok(has_table_privilege('service_role', 'verrou', 'select'),
+  'et elle lit toujours son verrou');
 
 select * from finish();
 rollback;

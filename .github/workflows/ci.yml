@@ -18,7 +18,10 @@ permissions:
   contents: read
 
 env:
-  DENO_VERSION: "2.x"
+  #  Épinglé au patch, et pas en "2.x" : `deno bundle` est annoncé
+  #  expérimental par Deno lui-même. Une version flottante ferait changer
+  #  le fichier livré aux joueurs sans qu'on touche à une ligne de code.
+  DENO_VERSION: "2.9.6"
   PGTAP_VERSION: "v1.3.3"
 
 concurrency:
@@ -185,10 +188,46 @@ jobs:
       - name: Lancer la suite
         run: pg_prove --ext .sql -d "$PGURL" supabase/tests/
 
+  # ── 5 bis · le navigateur ─────────────────────────────────────────
+  navigateur:
+    name: Navigateur et fichier livré
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      #  `deno bundle` télécharge esbuild au tout premier passage, puis
+      #  tourne hors réseau. C'est la seule entorse à la règle « zéro
+      #  dépendance réseau » (ARCHITECTURE §8), et le cache la referme :
+      #  après un passage, plus rien ne sort.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/deno
+          key: deno-${{ runner.os }}-${{ env.DENO_VERSION }}-${{ hashFiles('deno.json') }}
+          restore-keys: deno-${{ runner.os }}-${{ env.DENO_VERSION }}-
+
+      - run: deno task test:navigateur
+
+      #  LA VÉRIFICATION QUI COMPTE. jsDelivr sert `js/wild-mystery.js`
+      #  depuis le dépôt, pas depuis une étape de construction : si le
+      #  fichier commité ne correspond pas aux sources, les joueurs
+      #  reçoivent du code que personne n'a relu.
+      - name: Le fichier livré est bien celui des sources
+        run: |
+          deno task construire
+          if ! git diff --quiet -- js/wild-mystery.js; then
+            echo "::error::js/wild-mystery.js ne correspond pas aux sources."
+            echo "::error::Relance « deno task construire » et commite le résultat."
+            git --no-pager diff --stat -- js/wild-mystery.js
+            exit 1
+          fi
+
   # ── 6 · le déploiement, seulement sur un tag v* ───────────────────
   deploiement:
     name: Déploiement
-    needs: [forme, domaine, usage, contrat, base]
+    needs: [forme, domaine, usage, contrat, base, navigateur]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04
     environment: production

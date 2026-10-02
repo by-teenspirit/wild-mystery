@@ -8,20 +8,23 @@
     "@std/internal/": "./vendoreur/std-internal/"
   },
   "tasks": {
-    "verif": "deno fmt --check && deno lint && deno check src/ supabase/functions/releve/index.ts && bash outils/garde-fou.sh",
+    "verif": "deno fmt --check && deno lint && deno check src/ js/ supabase/functions/releve/index.ts && bash outils/garde-fou.sh",
     "test": "deno test src/domaine/",
     "test:usage": "deno test --allow-env src/application/",
     "test:contrat": "deno test --allow-env --allow-net --allow-read --allow-run src/contrat/",
     "couverture": "bash outils/couverture.sh",
     "garde-fou": "bash outils/garde-fou.sh",
     "test:adaptateurs": "deno test --allow-read src/adaptateurs/",
-    "test:tout": "deno test --allow-env --allow-read --allow-net --allow-run src/"
+    "test:tout": "deno test --allow-env --allow-read --allow-net --allow-run src/",
+    "construire": "deno bundle --platform browser --minify -o js/wild-mystery.js js/wild-mystery.ts",
+    "test:navigateur": "deno test --allow-env src/navigateur/"
   },
   "fmt": {
     "include": [
       "src/",
       "supabase/functions/",
-      "deno.json"
+      "deno.json",
+      "js/"
     ],
     "lineWidth": 96,
     "indentWidth": 2,
@@ -29,13 +32,15 @@
     "singleQuote": false,
     "exclude": [
       "src/adaptateurs/forumactif/fixtures/",
-      "vendoreur/"
+      "vendoreur/",
+      "js/wild-mystery.js"
     ]
   },
   "lint": {
     "include": [
       "src/",
-      "supabase/functions/"
+      "supabase/functions/",
+      "js/"
     ],
     "rules": {
       "tags": [
@@ -49,7 +54,8 @@
       ]
     },
     "exclude": [
-      "vendoreur/"
+      "vendoreur/",
+      "js/wild-mystery.js"
     ]
   },
   "test": {

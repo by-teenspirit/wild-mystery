@@ -103,6 +103,11 @@ export class ClotureEnMemoire implements Cloture {
     return this.#closes.get(sujetId)?.bilan;
   }
 
+  /** Hors contrat : le joueur à mentionner, enregistré avec la clôture. */
+  mentionne(sujetId: number): string | undefined {
+    return this.#closes.get(sujetId)?.mentionne;
+  }
+
   /** Hors contrat : ce qui a été versé, pour les assertions. */
   verse(sujetId: number): readonly Versement[] | undefined {
     return this.#closes.get(sujetId)?.versements;

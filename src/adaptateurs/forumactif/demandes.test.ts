@@ -13,7 +13,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals } from "@std/assert";
-import { demandeLaCloture, demandesDeCloture } from "./demandes.ts";
+import { actionsDemandees, demandeLaCloture, demandesDeCloture } from "./demandes.ts";
 
 // ── ce qui compte comme une demande ─────────────────────────────────
 
@@ -116,4 +116,56 @@ Deno.test("l'ordre des identifiants prime sur l'ordre de la liste", () => {
   ]);
   assertEquals(r.length, 1);
   assertEquals(r[0].auteurPseudo, "Tot");
+});
+
+// ── les actions, tranchées le 2 octobre ─────────────────────────────
+
+Deno.test("une action est rattachée à son message et à son auteur", () => {
+  // `messageId` est la graine du tirage : s'il se perd ici, la rencontre
+  // n'est plus rejouable et une contestation ne se tranche plus.
+  const lues = actionsDemandees([
+    { id: 15546, auteurId: 4, auteurPseudo: "Compte de test", corps: "Elle avance." },
+    {
+      id: 15547,
+      auteurId: 4,
+      auteurPseudo: "Compte de test",
+      corps: "Elle fouille les herbes.\n\n[[WM-ACTION:fouiller]]",
+    },
+  ]);
+  assertEquals(lues.length, 1);
+  assertEquals(lues[0], {
+    messageId: 15547,
+    auteurId: 4,
+    auteurPseudo: "Compte de test",
+    action: { type: "fouiller" },
+  });
+});
+
+Deno.test("les actions sortent dans l'ordre où elles ont été postées", () => {
+  const lues = actionsDemandees([
+    { id: 30, auteurId: 7, auteurPseudo: "C", corps: "[[WM-ACTION:fouiller]]" },
+    { id: 10, auteurId: 5, auteurPseudo: "A", corps: "[[WM-ACTION:chercher:berge-est]]" },
+    { id: 20, auteurId: 6, auteurPseudo: "B", corps: "[[WM-ACTION:fouiller]]" },
+  ]);
+  assertEquals(lues.map((l) => l.messageId), [10, 20, 30]);
+});
+
+Deno.test("un message qui ne demande rien ne déclenche rien", () => {
+  assertEquals(
+    actionsDemandees([
+      { id: 1, auteurId: 4, auteurPseudo: "A", corps: "Le vent se lève." },
+    ]),
+    [],
+  );
+});
+
+Deno.test("une demande de clôture n'est pas une action, et réciproquement", () => {
+  // Les deux blocs cohabitent dans un sujet. Les confondre ferait
+  // clôturer une fouille, ou fouiller une clôture.
+  const messages = [
+    { id: 1, auteurId: 4, auteurPseudo: "A", corps: "[cloture]" },
+    { id: 2, auteurId: 4, auteurPseudo: "A", corps: "[[WM-ACTION:fouiller]]" },
+  ];
+  assertEquals(actionsDemandees(messages).map((l) => l.messageId), [2]);
+  assertEquals(demandesDeCloture(messages).map((d) => d.messageId), [1]);
 });

@@ -55,7 +55,7 @@ import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
  *
  * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
  */
-const VERSION = "2026-10-02-h";
+const VERSION = "2026-10-02-j";
 
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
@@ -207,19 +207,25 @@ Deno.serve(async (requete: Request): Promise<Response> => {
 
   const debut = Date.now();
   try {
-    // Les bilans en retard d'abord : un joueur qui attend son bilan depuis
-    // le passage précédent passe avant une clôture qui n'a pas encore été
-    // demandée. Et si le forum refuse la connexion, on l'apprend ici, avant
-    // d'appliquer de nouvelles clôtures dont le bilan ne partirait pas non
-    // plus.
-    const repris = await bilans.executer();
+    // L'ORDRE COMPTE, et il a changé le 2 octobre au soir.
+    //
+    // On parcourt d'abord, on publie ensuite. `CloturerUnSujet` ne poste
+    // plus rien : il applique la clôture et laisse le bilan dans la file.
+    // `PosterLesBilans` est donc le SEUL publicateur — un seul endroit qui
+    // écrit dans le sujet, un seul endroit qui marque le bilan comme posté.
+    //
+    // Publier en second plutôt qu'en premier n'ajoute aucune attente : un
+    // sujet clôturé à l'instant voit son bilan partir dans le même passage,
+    // quelques secondes plus tard. L'inverse l'aurait fait attendre cinq
+    // minutes.
     const bilan = await parcourir.executer();
+    const repris = await bilans.executer();
     return json({
       version: VERSION,
       traitees: bilan.traitees,
       issues: bilan.issues,
       erreurs: bilan.erreurs,
-      bilans_repris: repris.publies.length,
+      bilans_publies: repris.publies.length,
       bilans_en_echec: repris.erreurs,
       duree_ms: Date.now() - debut,
     }, 200);

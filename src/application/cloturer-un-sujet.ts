@@ -37,10 +37,6 @@ export type Resultat =
     readonly issue: "close";
     readonly code: string;
     readonly versements: readonly Versement[];
-    /** Vrai quand la clôture est appliquée mais que le bilan n'a pas pu
-     *  être publié. Ce n'est PAS un échec : le bilan est en file et sera
-     *  reposté. C'est une information pour le journal. */
-    readonly bilanEnAttente: boolean;
   }
   | { readonly issue: "deja close" }
   | { readonly issue: "rien a clore" }
@@ -130,17 +126,21 @@ export class CloturerUnSujet {
       throw new ClotureEchouee(erreur);
     }
 
-    // ── ET SURTOUT : un échec ici ne fait PLUS tomber la clôture ──────
-    //  Appliquer et poster ne sont pas atomiques. Le 2 octobre, un mot de
-    //  passe expiré a laissé un sujet clos sans aucun bilan publié, et
-    //  comme il était clos, plus rien ne réessayait. Désormais le bilan
-    //  est en base : s'il ne part pas maintenant, il partira plus tard.
-    try {
-      await this.forum.repondre(sujetId, demandeurPseudo, bilan, codeDuSujet);
-      return { issue: "close", code: codeDuSujet, versements, bilanEnAttente: false };
-    } catch {
-      return { issue: "close", code: codeDuSujet, versements, bilanEnAttente: true };
-    }
+    // ── ET ON NE POSTE PAS ICI ───────────────────────────────────────
+    //  Le bilan est en base, dans la file. C'est `PosterLesBilans` qui le
+    //  publie, et elle seule.
+    //
+    //  POURQUOI, alors qu'on postait ici le 2 octobre au matin. Parce que
+    //  publier des deux endroits demandait de marquer le bilan comme posté
+    //  des deux endroits — et ça a été oublié. Résultat : un bilan publié
+    //  restait en file, et la relève le republiait à chaque passage. Seul
+    //  le filet du marqueur l'a évité, et un filet n'est pas une
+    //  architecture.
+    //
+    //  Le joueur n'attend pas pour autant : la fonction Edge lance
+    //  `PosterLesBilans` APRÈS ce parcours, donc le bilan part dans le même
+    //  passage, quelques secondes plus tard.
+    return { issue: "close", code: codeDuSujet, versements };
   }
 
   /** Ce que chaque joueur emporte, avec des noms lisibles. */

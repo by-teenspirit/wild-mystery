@@ -9,10 +9,12 @@ les valeurs : elles sont dans `jetons.css`.
 
 ---
 
-## 1. Les couleurs — collection « Couleur », modes Aube et Ténèbra
+## 1. Les couleurs — collection « Couleur », modes Clair et Sombre
 
-Soixante-dix variables, toutes à deux valeurs. Aube est le mode par défaut, donc
-Aube est dans `:root` et Ténèbra dans `body#modernbb.wm-tenebra`.
+Soixante-douze variables, toutes à deux valeurs. **Ce fichier ne porte que le
+mode Clair** : le forum n'a qu'un thème pour le moment. Le mode Sombre est
+préparé dans Figma et vérifié sur un aperçu, il attend que la bascule soit
+décidée côté forum.
 
 | Figma | CSS |
 |---|---|
@@ -25,7 +27,7 @@ Aube est dans `:root` et Ténèbra dans `body#modernbb.wm-tenebra`.
 | `bord/fin` · `bord/net` | `--wm-bord-fin` · `--wm-bord-net` |
 | `danger/paisible` · `danger/dangereuse` · `danger/interdite` | `--wm-danger-paisible` · `--wm-danger-dangereuse` · `--wm-danger-interdite` |
 | `type/<Nom>/fond` · `type/<Nom>/texte` (18 × 2) | `--wm-type-<nom>-fond` · `--wm-type-<nom>-texte` |
-| `pokémon/pur` · `pokémon/obscur` | `--wm-pokemon-pur` · `--wm-pokemon-obscur` |
+| `pokémon/<état>/fond` · `pokémon/<état>/texte` | `--wm-pokemon-<état>-fond` · `--wm-pokemon-<état>-texte` |
 | `groupe/<nom>/fond` · `groupe/<nom>/texte` (6 × 2) | `--wm-groupe-<nom>-fond` · `--wm-groupe-<nom>-texte` |
 
 Les accents tombent en chemin : `Électrik` → `electrik`, `Ténèbres` → `tenebres`,
@@ -35,7 +37,7 @@ d'administration et jsDelivr avant d'arriver au navigateur. On ne tente pas.
 
 ## 2. Les mesures — collection « Mesure », un seul mode
 
-Vingt-quatre variables, une seule valeur chacune : rien à redéfinir en Ténèbra.
+Vingt-quatre variables, une seule valeur chacune : rien à redéfinir dans le mode sombre.
 
 | Figma | CSS |
 |---|---|
@@ -103,24 +105,31 @@ leurs axes ne sont pas optionnels pour retrouver le rendu de la maquette :
 | **Les ombres** | Zéro style d'effet, et zéro ombre posée en dur : les 228 nœuds de la page n'en portent aucune. Il n'y a donc rien à relever, et rien dans le fichier. Une carte sans ombre est un choix défendable ; il faut qu'il soit dit. |
 | **La largeur de trait** | Aucune variable. En dur, une seule valeur, `1px`, sur les 19 nœuds qui ont un contour — elle est donc cohérente, mais ce n'est pas un jeton, donc elle n'est pas dans le fichier. À créer dans Figma plutôt qu'ici. |
 | **Les points de rupture** | Rien dans Figma. Ils existent pourtant, relevés dans le CSS de base de ModernBB et réemployés par `01-deflottement.css` : 1200 · 900 · 800 · 740 · 700 · 400 · 320. Une maquette mobile existe (`15-le-mobile.md`) mais aucune largeur n'en est devenue une variable. |
-| **Une couleur de texte pour `pokémon/pur` et `pokémon/obscur`** | Les types et les groupes viennent par paire fond + texte ; ces deux-là n'ont qu'un fond. Donc on ne sait pas ce qu'on écrit dessus, et aucun contraste n'a été validé. |
 | **Les largeurs de colonne du forum** | `01-deflottement.css` code en dur 211px pour la fiche de profil, 220px pour la dernière réponse et 56px pour un compteur. Aucune des trois n'est dans Figma, alors que `taille/avatar/largeur` y vaut 200. |
 
-## 5. Les incohérences trouvées
+## 5. Ce qui a été corrigé dans Figma le 2 octobre
 
-**Deux noms pour une même couleur, en Aube.** `fond/surface`, `texte/inverse` et
-`texte/sur-nuit` valent tous `#fffbf7`. Les trois divergent bien en Ténèbra et
-`texte/sur-nuit` porte une description qui explique pourquoi — mais en Aube, un
-seul de ces trois jetons mal choisi ne se voit pas. Ça se verra à la bascule.
+**Les modes s'appellent Clair et Sombre**, et plus Aube et Ténèbra : un bouton
+de bascule porte un nom que le visiteur comprend.
 
-**En Ténèbra, `fond/douce` et `fond/nuit` valent tous deux `#201714`.** Or en
-Aube `fond/nuit` est un brun foncé et `fond/douce` un rose pâle : ce sont deux
-intentions opposées qui se confondent dans un mode. La barre de navigation et un
-fond doux deviennent indiscernables.
+**`fond/douce` et `fond/nuit` ne se confondent plus dans le mode sombre.** Ils
+valaient tous deux `#201714`, alors qu'en clair l'un est un rose pâle et l'autre
+un brun foncé : deux intentions opposées dans le même ton. `fond/nuit` descend à
+`#120c0a`, sous le fond de page, et redevient une bande ; `fond/douce` remonte à
+`#1f1613`, juste au-dessus.
 
-**En Ténèbra, `bord/fin` vaut `#2e211c`, exactement `fond/surface-haute`.** Un
-séparateur invisible sur une carte posée sur une carte, c'est-à-dire sur le cas
-précis où il est le plus utile.
+**`bord/fin` ne vaut plus `#2e211c`**, qui était exactement `fond/surface-haute`
+— un séparateur invisible sur une carte posée sur une carte, c'est-à-dire là où
+il sert le plus. Il passe à `#3a2b24`, sous `bord/net`.
+
+**`pokémon/pur` et `pokémon/obscur` sont devenus des paires fond + texte**, comme
+les types et les groupes. Le vert du mode sombre était trop clair pour porter
+du texte lisible (3,6:1) ; assombri à `#2f5a3c`, il passe à 6,4:1.
+
+**Les portées de `groupe/*` sont alignées sur `type/*`** : un fond ne se propose
+plus comme couleur de texte.
+
+## 6. Ce qui reste incohérent
 
 **`rayon/xs`, `rayon/sm` et `rayon/md` ne servent nulle part.** Les 37 nœuds
 arrondis de la planche sont tous à 10, donc à `rayon/lg`. Soit les trois autres
@@ -131,23 +140,35 @@ sont pour des composants qui n'existent pas encore, soit ils sont à supprimer.
 `lg`). C'est le seul endroit. Le CSS reprend les noms de Figma tels quels plutôt
 que de traduire dans son coin.
 
-**Les portées ne sont pas appliquées pareil.** `type/<Nom>/fond` est limité à
-`FRAME_FILL` et `SHAPE_FILL`, mais `groupe/<nom>/fond` autorise aussi
-`TEXT_FILL`. Deux familles qui jouent le même rôle, deux réglages.
-
 **Six styles de texte sur quinze ne sont pas sur la planche.** `Titre/Carte`,
 `Chiffre/Grand`, `Corps/Fort`, `Corps/Petit fort`, `Étiquette` et `Légende`
 existent dans la liste des styles mais n'ont aucun échantillon dans le cadre
 « Typographie ». Ils sont relevés depuis la liste, pas depuis un rendu : personne
 ne les a vus.
 
-**Rien ne porte la bascule de mode.** Les deux modes s'appellent Aube et Ténèbra
-dans Figma, et aucun document du projet ne dit ce qui fait passer de l'un à
-l'autre. Le sélecteur retenu dans `jetons.css` est une classe à nous, posée
-sur `body#modernbb` ; le déclencheur reste à décider, et les trois pistes sont
-listées dans le commentaire du fichier.
+**Trois jetons valent le même blanc cassé en mode clair.** `fond/surface`,
+`texte/inverse` et `texte/sur-nuit` valent tous `#fffbf7`. Les valeurs sont
+justes — les trois divergent bien en sombre — mais un mauvais choix parmi les
+trois ne se voit pas tant qu'on reste en clair. Ce n'est pas une valeur à
+corriger, c'est une règle d'usage : prendre celui qui dit l'intention.
 
-## 6. Aucun jeton n'est pensé pour un tableau
+**La bascule est décidée : c'est un bouton à nous.** Le composant « Bouton de
+thème » est dans Figma, à poser près des flèches de défilement en bas à droite.
+Il pose une classe sur `body#modernbb` et retient le choix. Les deux autres
+pistes sont écartées : `prefers-color-scheme` ne laisse pas le visiteur
+choisir, et le `switcheero` de la V1 est un script que personne n'a lu.
+
+Reste à écrire côté code, et ce n'est pas fait :
+
+- le sélecteur du second bloc de jetons, qui sera `body#modernbb.<classe>` —
+  `:root` ne peut pas servir, la feuille du panneau est servie avant la nôtre
+  et une variable est résolue là où elle est lue ;
+- le script qui pose la classe, lit le choix retenu au chargement et respecte
+  `prefers-color-scheme` à la première visite ;
+- le relevé du mode Sombre depuis Figma vers un second bloc de `jetons.css`,
+  qui n'a pas lieu d'être tant que le forum n'a qu'un thème.
+
+## 7. Aucun jeton n'est pensé pour un tableau
 
 Vérifié, puisque la règle du projet est zéro `<table>`. Les mesures de Figma sont
 des écarts (`espace/*`), des rayons et six dimensions d'image ou de cible

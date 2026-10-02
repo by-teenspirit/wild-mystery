@@ -26,6 +26,30 @@ refuse() {
   done <<< "$trouve"
 }
 
+#  Comme `refuse`, mais sans regarder les commentaires. Un garde-fou qui
+#  gronde parce qu'un commentaire EXPLIQUE pourquoi on n'utilise pas
+#  `localStorage` est un garde-fou qu'on finit par désactiver — et le
+#  jour où on le désactive, il ne protège plus rien.
+#
+#  On écarte les lignes dont le premier caractère non blanc ouvre ou
+#  continue un commentaire. Un commentaire en fin de ligne de code n'est
+#  pas couvert : c'est volontaire, le cas est rare et le traiter
+#  demanderait de savoir analyser du TypeScript, ce qu'un script shell ne
+#  fera jamais correctement.
+refuse_code() {
+  local motif="$1" reproche="$2"
+  shift 2
+  [ "$#" -eq 0 ] && return 0
+  local f ligne
+  for f in "$@"; do
+    [ -f "$f" ] || continue
+    while IFS= read -r ligne; do
+      [ -n "$ligne" ] && gronde "$f:$ligne — $reproche"
+    done < <(grep -nE "$motif" "$f" 2>/dev/null |
+      grep -vE '^[0-9]+:[[:space:]]*(//|/\*|\*)' || true)
+  done
+}
+
 ts_de() { [ -d "$1" ] && find "$1" -name '*.ts' -type f | sort || true; }
 mapfile -t TESTS  < <(ts_de src | grep '\.test\.ts$' || true)
 mapfile -t SOURCE < <(ts_de src | grep -v '\.test\.ts$' || true)
@@ -52,7 +76,7 @@ sans_execution() {
   ! grep -qE '^[[:space:]]*export[[:space:]]+(async[[:space:]]+)?(function|class|const|let|var|enum|default)\b' "$1"
 }
 for f in "${SOURCE[@]}"; do
-  case "$f" in src/domaine/*|src/application/*) ;; *) continue;; esac
+  case "$f" in src/domaine/*|src/application/*|src/navigateur/*) ;; *) continue;; esac
   [ -f "${f%.ts}.test.ts" ] && continue
   if sans_execution "$f"; then
     echo "   $f : types seuls, pas de test attendu"
@@ -66,7 +90,7 @@ mapfile -t DOM < <(printf '%s\n' "${SOURCE[@]}" | grep '^src/domaine/' || true)
 refuse '^[[:space:]]*(import|export)[^"]*from[[:space:]]+"[^."]' \
   "le domaine n'importe rien d'extérieur" \
   "${DOM[@]}"
-refuse '(Deno\.|fetch\(|Date\.now\(|new Date\(|crypto\.)' \
+refuse_code '(Deno\.|fetch\(|Date\.now\(|new Date\(|crypto\.)' \
   "le domaine ne touche ni au monde, ni au réseau, ni à l'horloge" \
   "${DOM[@]}"
 
@@ -81,6 +105,16 @@ mapfile -t HORS_ADAPT < <(printf '%s\n' "${SOURCE[@]}" | grep -v '^src/adaptateu
 refuse 'new [A-Z][A-Za-z]*(Supabase|Forumactif|Http)\b' \
   "seule la racine de composition instancie un adaptateur" \
   "${HORS_ADAPT[@]}"
+
+# `src/navigateur/` est au navigateur ce que `src/domaine/` est au
+# serveur : des règles pures. Le DOM, le stockage et le réseau vivent
+# dans `src/adaptateurs/navigateur/`, et la racine de composition est
+# `js/wild-mystery.ts`. Sans cette règle, une ligne de `document.` finit
+# par s'y glisser et plus rien ne se teste sans navigateur.
+mapfile -t NAV < <(printf '%s\n' "${SOURCE[@]}" | grep '^src/navigateur/' || true)
+refuse_code '(document\.|window\.|localStorage|sessionStorage|fetch\(|navigator\.)' \
+  "src/navigateur/ ne touche ni au DOM, ni au stockage, ni au réseau — ça, c'est un adaptateur" \
+  "${NAV[@]}"
 
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then

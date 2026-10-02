@@ -316,6 +316,10 @@ Deno.test("repondre · se connecte, relit le formulaire, poste, rend l'id", asyn
   assertEquals(forum.journal, [
     "GET /login",
     "POST /login",
+    // On relit le sujet AVANT d'écrire : c'est ce qui rend une reprise
+    // sans danger. Sans cette lecture, reposter un bilan le duplique —
+    // constaté en vrai le 2 octobre à 17 h 05.
+    "GET /t813-",
     "GET /post?t=813&mode=reply",
     "POST /post",
   ]);
@@ -379,6 +383,17 @@ Deno.test("repondre · une session qui retombe aussitôt n'est pas reprise sans 
         emplacement: "/",
       });
     }
+    if (r.chemin.startsWith("/t")) {
+      // Un sujet lisible et sans notre marqueur : la lecture préalable
+      // doit passer, pour que le test échoue bien sur la SESSION et pas
+      // sur autre chose.
+      return Promise.resolve({
+        statut: 200,
+        corps: pageDeSujet([bloc(12485, 3, "Dresseuse")]),
+        cookies: [],
+        emplacement: null,
+      });
+    }
     return Promise.resolve({
       statut: 200,
       corps: pageDeConnexion(),
@@ -388,6 +403,100 @@ Deno.test("repondre · une session qui retombe aussitôt n'est pas reprise sans 
   };
   const p = new ForumactifEnPublication(transport, COMPTE);
   await assertRejects(() => p.repondre(813, "", "Bilan du sujet.", CODE), ConnexionRefusee);
+});
+
+Deno.test("repondre · un bilan déjà dans le sujet n'est PAS reposté", async () => {
+  // LE DÉFAUT DU 2 OCTOBRE, 17 h 05. Le bilan du sujet 976 a été publié
+  // une seconde fois. Le marqueur était pourtant là — mais il n'était
+  // relu qu'APRÈS un envoi raté, jamais avant. Un envoi réussi postait
+  // sans rien demander : le filet rattrapait les coupures réseau, pas
+  // les reprises. Or `PosterLesBilans` est faite pour reprendre.
+  let postsEnvoyes = 0;
+  const transport: Transport = (r) => {
+    if (r.chemin === "/login") {
+      return Promise.resolve({
+        statut: 302,
+        corps: "",
+        cookies: ["fa_sid=abc"],
+        emplacement: "/",
+      });
+    }
+    if (r.chemin.startsWith("/t")) {
+      return Promise.resolve({
+        statut: 200,
+        corps: pageDeSujet([
+          bloc(12485, 3, "Dresseuse"),
+          bloc(15264, 3, "Maître du Jeu", `Bilan du sujet.\n\n[[WM:eyJzIjo4MTN9:${CODE}]]`),
+        ]),
+        cookies: [],
+        emplacement: null,
+      });
+    }
+    if (r.chemin === "/post" && r.methode === "POST") {
+      postsEnvoyes++;
+      return Promise.resolve({
+        statut: 302,
+        corps: "",
+        cookies: [],
+        emplacement: "/t813-x#99999",
+      });
+    }
+    return Promise.resolve({
+      statut: 200,
+      corps: formulaireDeReponse(813, 15263),
+      cookies: [],
+      emplacement: null,
+    });
+  };
+
+  const p = new ForumactifEnPublication(transport, COMPTE);
+  const id = await p.repondre(813, "Dresseuse", "Bilan du sujet.", CODE);
+
+  assertEquals(id, 15264, "on rend l'identifiant du message DÉJÀ publié");
+  assertEquals(postsEnvoyes, 0, "et on n'écrit rien de plus dans le sujet");
+});
+
+Deno.test("repondre · la lecture préalable suit la redirection de Forumactif", async () => {
+  // `/t813-` répond 301 vers `/t813-un-sujet`. Le transport de
+  // publication est en `redirect: "manual"` — obligatoire, l'identifiant
+  // du message posté se lit dans le Location de la 302 — donc la LECTURE
+  // doit suivre elle-même. Sans ça : « PageIllisible : aucun bloc de
+  // message trouvé », constaté en vrai le 2 octobre.
+  const vus: string[] = [];
+  const transport: Transport = (r) => {
+    vus.push(`${r.methode} ${r.chemin}`);
+    if (r.chemin === "/login") {
+      return Promise.resolve({
+        statut: 302,
+        corps: "",
+        cookies: ["fa_sid=abc"],
+        emplacement: "/",
+      });
+    }
+    if (r.chemin === "/t813-") {
+      return Promise.resolve({
+        statut: 301,
+        corps: "",
+        cookies: [],
+        emplacement: "https://exemple.forumactif.com/t813-un-sujet",
+      });
+    }
+    if (r.chemin === "/t813-un-sujet") {
+      return Promise.resolve({
+        statut: 200,
+        corps: pageDeSujet([
+          bloc(15264, 3, "Maître du Jeu", `Bilan du sujet.\n\n[[WM:eyJzIjo4MTN9:${CODE}]]`),
+        ]),
+        cookies: [],
+        emplacement: null,
+      });
+    }
+    return Promise.reject(new Error(`chemin inattendu : ${r.chemin}`));
+  };
+
+  const p = new ForumactifEnPublication(transport, COMPTE);
+  assertEquals(await p.repondre(813, "", "Bilan du sujet.", CODE), 15264);
+  assert(vus.includes("GET /t813-un-sujet"), vus.join(" · "));
 });
 
 Deno.test("un mot de passe faux est reconnu malgré le statut 200", async () => {
