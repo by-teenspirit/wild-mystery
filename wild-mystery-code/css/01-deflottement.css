@@ -1,0 +1,181 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 01 · Dé-flottement
+   À coller en tête du CSS principal, avant tout style de charte.
+
+   ModernBB construit ses colonnes avec des flottants et des largeurs
+   en pourcentage (146 `float`, 0 `grid` dans le CSS de base). Ce
+   fichier les remplace par du flexbox, sans toucher à un template.
+   Aucune couleur ici : uniquement de la structure.
+
+   Points de rupture du CSS de base, qu'on réutilise tels quels :
+   1200 · 900 · 800 · 740 · 700 · 400 · 320
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · une ligne de catégorie, de forum ou de sujet ──────────────── */
+
+#modernbb ul.topiclist li.header dl.icon,
+#modernbb ul.topiclist li.row dl.icon {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 0;
+}
+
+/* la cellule qui s'étire : min-width:0 ou un titre long déborde */
+#modernbb ul.topiclist dt,
+#modernbb ul.topiclist dd.dterm {
+  float: none;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 18px;
+}
+
+#modernbb ul.topiclist dd {
+  float: none;
+  padding: 0;
+}
+
+#modernbb dd.topics,
+#modernbb dd.posts,
+#modernbb dd.views {
+  width: auto;
+  flex: 0 0 56px;
+  text-align: center;
+}
+
+#modernbb dd.lastpost {
+  width: auto !important;
+  flex: 0 0 220px;
+  padding: 0 18px !important;
+}
+
+/* l'indentation des sous-forums arrive en style inline ({INC_LEVEL}) */
+#modernbb ul.forums dl.icon dd.dterm > div,
+#modernbb .modern-resp ul.forums dl.icon dd.dterm > div {
+  margin: 0 !important;
+  padding: 0;
+}
+
+/* ── 2 · le responsive : on replie au lieu de masquer ──────────────── */
+
+/* ModernBB met les colonnes à display:none sous 740px. On annule. */
+#modernbb .modern-resp .forabg .row dd.posts,
+#modernbb .modern-resp .forabg .row dd.topics,
+#modernbb .modern-resp .forabg .row dd.views,
+#modernbb .modern-resp .forumbg .row dd.posts,
+#modernbb .modern-resp .forumbg .row dd.views,
+#modernbb .modern-resp .forabg .header dd.topics,
+#modernbb .modern-resp .forabg .header dd.posts,
+#modernbb .modern-resp .forabg .header dd.lastpost,
+#modernbb .modern-resp .forumbg .header dd.posts,
+#modernbb .modern-resp .forumbg .header dd.views,
+#modernbb .modern-resp .forumbg .header dd.lastpost {
+  display: block;
+}
+
+#modernbb .modern-resp .forabg .row dd.dterm,
+#modernbb .modern-resp .forabg .row dd.lastpost,
+#modernbb .modern-resp .forumbg .row dd.dterm,
+#modernbb .modern-resp .forumbg .row dd.lastpost {
+  display: block;
+  width: auto;
+  float: none;
+  padding: 18px !important;
+}
+
+@media (max-width: 740px) {
+  #modernbb ul.topiclist li.row dl.icon {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  #modernbb ul.topiclist dd.dterm { flex: 1 1 100%; }
+  #modernbb dd.topics,
+  #modernbb dd.posts,
+  #modernbb dd.views { flex: 0 0 auto; text-align: left; }
+  #modernbb dd.lastpost { flex: 1 1 100%; padding: 0 18px 18px !important; }
+  /* l'en-tête de colonnes n'a plus de sens empilé */
+  #modernbb ul.topiclist li.header dd.topics,
+  #modernbb ul.topiclist li.header dd.posts,
+  #modernbb ul.topiclist li.header dd.views,
+  #modernbb ul.topiclist li.header dd.lastpost { display: none; }
+}
+
+/* ── 3 · un message ───────────────────────────────────────────────── */
+
+#modernbb div[class*="post--"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+/* la tête passe au-dessus des deux colonnes malgré sa position
+   intermédiaire dans le template */
+#modernbb .post-head {
+  order: -1;
+  flex: 1 1 100%;
+}
+
+#modernbb .postprofile {
+  float: none;
+  width: 211px;
+  flex: 0 0 211px;
+  padding: 0;
+}
+
+#modernbb .postbody {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* fiche à gauche : décommenter
+#modernbb .postprofile { order: 0 }
+#modernbb .postbody    { order: 1 }
+*/
+
+@media (max-width: 740px) {
+  #modernbb .postprofile { flex: 1 1 100%; width: auto; }
+}
+
+/* ── 4 · portail, widgets, pied de page ───────────────────────────── */
+
+/* .portal .column est encore en flottant, et sa largeur arrive en
+   style inline ({column.WIDTH}) : d'où les !important */
+#modernbb .portal {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+#modernbb .portal .column {
+  float: none !important;
+  width: auto !important;
+  flex: 1 1 0;
+  padding: 0;
+  display: block;
+}
+
+/* #footer_widgets et .container-imgs-list sont déjà en flex dans le
+   CSS de base : on ne les touche pas. */
+
+/* ── 5 · ce qui reste en tableau dans les templates ───────────────── */
+
+/* Tant que les templates ne sont pas reprises, on neutralise au moins
+   le rendu tabulaire. La liste des templates concernés est dans
+   49-zero-tableau-que-du-flexbox.md §2. */
+
+#modernbb table.postbody,
+#modernbb table.postbody > tbody,
+#modernbb table.postbody > tbody > tr {
+  display: block;
+  width: 100%;
+}
+#modernbb table.postbody > tbody > tr {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+#modernbb table.postbody td { display: block; }
+#modernbb table.postbody td.logo { flex: 0 0 auto; }
+#modernbb table.postbody td.rules,
+#modernbb table.postbody td.content { flex: 1 1 auto; min-width: 0; }

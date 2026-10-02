@@ -1,0 +1,63 @@
+{
+  "name": "@by-teenspirit/wild-mystery",
+  "version": "0.1.0",
+  "exports": {},
+  "imports": {
+    "@std/assert": "./vendoreur/std-assert/mod.ts",
+    "@std/assert/": "./vendoreur/std-assert/",
+    "@std/internal/": "./vendoreur/std-internal/"
+  },
+  "tasks": {
+    "verif": "deno fmt --check && deno lint && deno check src/ && bash outils/garde-fou.sh",
+    "test": "deno test src/domaine/",
+    "test:usage": "deno test --allow-env src/application/",
+    "test:contrat": "deno test --allow-env --allow-net --allow-read --allow-run src/contrat/",
+    "couverture": "bash outils/couverture.sh",
+    "garde-fou": "bash outils/garde-fou.sh",
+    "test:adaptateurs": "deno test --allow-read src/adaptateurs/",
+    "test:tout": "deno test --allow-env --allow-read --allow-net --allow-run src/"
+  },
+  "fmt": {
+    "include": [
+      "src/",
+      "supabase/functions/",
+      "deno.json"
+    ],
+    "lineWidth": 96,
+    "indentWidth": 2,
+    "semiColons": true,
+    "singleQuote": false,
+    "exclude": [
+      "src/adaptateurs/forumactif/fixtures/",
+      "vendoreur/"
+    ]
+  },
+  "lint": {
+    "include": [
+      "src/",
+      "supabase/functions/"
+    ],
+    "rules": {
+      "tags": [
+        "recommended"
+      ],
+      "include": [
+        "no-explicit-any",
+        "explicit-function-return-type",
+        "eqeqeq",
+        "no-throw-literal"
+      ]
+    },
+    "exclude": [
+      "vendoreur/"
+    ]
+  },
+  "test": {
+    "include": [
+      "src/"
+    ],
+    "exclude": [
+      "vendoreur/"
+    ]
+  }
+}

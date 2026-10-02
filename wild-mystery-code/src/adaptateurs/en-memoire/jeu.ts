@@ -1,0 +1,185 @@
+// ════════════════════════════════════════════════════════════════════
+//  src/adaptateurs/en-memoire/jeu.ts
+//  L'état du jeu, la clôture, le catalogue et le forum, en mémoire.
+//
+//  Aucune règle de jeu ici non plus : ces objets rangent et rendent.
+// ════════════════════════════════════════════════════════════════════
+
+import type {
+  Catalogue,
+  Cloture,
+  EtatDuJeu,
+  EtatDuJoueur,
+  Horloge,
+  LecteurDeForum,
+  MessageDuForum,
+  PosteurSurForum,
+  Signataire,
+  SujetRemue,
+  Versement,
+} from "../../application/ports.ts";
+import { graineDepuis } from "../../domaine/alea.ts";
+
+export class EtatDuJeuEnMemoire implements EtatDuJeu {
+  readonly #joueurs = new Map<string, EtatDuJoueur>();
+  readonly #comptes = new Map<number, string>();
+  readonly #clos = new Set<number>();
+
+  poser(joueurId: string, etat: EtatDuJoueur): this {
+    this.#joueurs.set(joueurId, etat);
+    return this;
+  }
+
+  lier(forumUserId: number, joueurId: string): this {
+    this.#comptes.set(forumUserId, joueurId);
+    return this;
+  }
+
+  clore(sujetId: number): this {
+    this.#clos.add(sujetId);
+    return this;
+  }
+
+  etatDe(joueurId: string): Promise<EtatDuJoueur> {
+    const e = this.#joueurs.get(joueurId);
+    if (!e) return Promise.reject(new Error(`Joueur inconnu : ${joueurId}`));
+    return Promise.resolve(e);
+  }
+
+  joueurDuCompte(forumUserId: number): Promise<string | null> {
+    return Promise.resolve(this.#comptes.get(forumUserId) ?? null);
+  }
+
+  estClos(sujetId: number): Promise<boolean> {
+    return Promise.resolve(this.#clos.has(sujetId));
+  }
+}
+
+export class ClotureEnMemoire implements Cloture {
+  readonly #closes = new Map<number, { versements: readonly Versement[]; code: string }>();
+  /** Posé par un test pour simuler un refus de la base. */
+  refuseLaProchaine: Error | null = null;
+
+  deja(sujetId: number): Promise<boolean> {
+    return Promise.resolve(this.#closes.has(sujetId));
+  }
+
+  appliquer(
+    sujetId: number,
+    versements: readonly Versement[],
+    code: string,
+  ): Promise<void> {
+    if (this.refuseLaProchaine) {
+      const erreur = this.refuseLaProchaine;
+      this.refuseLaProchaine = null;
+      return Promise.reject(erreur);
+    }
+    this.#closes.set(sujetId, { versements, code });
+    return Promise.resolve();
+  }
+
+  /** Hors contrat : ce qui a été versé, pour les assertions. */
+  verse(sujetId: number): readonly Versement[] | undefined {
+    return this.#closes.get(sujetId)?.versements;
+  }
+}
+
+export class CatalogueEnMemoire implements Catalogue {
+  readonly #objets = new Map<number, string>();
+  readonly #especes = new Map<number, string>();
+
+  objet(id: number, nom: string): this {
+    this.#objets.set(id, nom);
+    return this;
+  }
+
+  espece(id: number, nom: string): this {
+    this.#especes.set(id, nom);
+    return this;
+  }
+
+  nomObjet(objetId: number): Promise<string> {
+    return Promise.resolve(this.#objets.get(objetId) ?? `objet n°${objetId}`);
+  }
+
+  nomEspece(especeId: number): Promise<string> {
+    return Promise.resolve(this.#especes.get(especeId) ?? `espèce n°${especeId}`);
+  }
+}
+
+export class ForumEnMemoire implements LecteurDeForum, PosteurSurForum {
+  readonly #messages: MessageDuForum[] = [];
+  readonly postes: { sujetId: number; mentionne: string; corps: string }[] = [];
+  #prochainId = 1;
+
+  ajouter(m: Omit<MessageDuForum, "id"> & { id?: number }): MessageDuForum {
+    const complet = { ...m, id: m.id ?? this.#prochainId++ };
+    this.#messages.push(complet);
+    this.#prochainId = Math.max(this.#prochainId, complet.id + 1);
+    return complet;
+  }
+
+  messagesDuSujet(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly MessageDuForum[]> {
+    return Promise.resolve(
+      this.#messages
+        .filter((m) => m.sujetId === sujetId && m.id > depuisMessageId)
+        .sort((a, b) => a.id - b.id),
+    );
+  }
+
+  sujetsRemues(_forums: readonly number[]): Promise<readonly SujetRemue[]> {
+    const dernier = new Map<number, number>();
+    for (const m of this.#messages) {
+      dernier.set(m.sujetId, Math.max(dernier.get(m.sujetId) ?? 0, m.id));
+    }
+    return Promise.resolve(
+      [...dernier].map(([sujetId, dernierMessageId]) => ({ sujetId, dernierMessageId })),
+    );
+  }
+
+  repondre(sujetId: number, mentionne: string, corps: string): Promise<number> {
+    this.postes.push({ sujetId, mentionne, corps });
+    const m = this.ajouter({
+      sujetId,
+      auteurId: 0,
+      auteurPseudo: "compte de publication",
+    });
+    return Promise.resolve(m.id);
+  }
+}
+
+export class HorlogeFigee implements Horloge {
+  #instant: Date;
+
+  constructor(instant: Date) {
+    this.#instant = new Date(instant.getTime());
+  }
+
+  maintenant(): Date {
+    return new Date(this.#instant.getTime());
+  }
+
+  avanceDe(millisecondes: number): void {
+    this.#instant = new Date(this.#instant.getTime() + millisecondes);
+  }
+}
+
+/** Un signataire de test. **Il n'est pas sûr et ne doit jamais servir
+ *  ailleurs que dans les tests** : il ne fait pas de HMAC, il hache.
+ *  Le vrai vit dans adaptateurs/http/ et utilise Web Crypto. */
+export class SignataireDeTest implements Signataire {
+  constructor(private readonly secret: string = "secret-de-test") {}
+
+  empreinte(message: string): Promise<Uint8Array> {
+    const octets = new Uint8Array(32);
+    let g = graineDepuis(`${this.secret}|${message}`);
+    for (let i = 0; i < octets.length; i++) {
+      g = (g * 1664525 + 1013904223) >>> 0;
+      octets[i] = (g >>> 24) & 0xff;
+    }
+    return Promise.resolve(octets);
+  }
+}

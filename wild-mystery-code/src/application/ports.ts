@@ -1,0 +1,168 @@
+// ════════════════════════════════════════════════════════════════════
+//  src/application/ports.ts
+//  Les interfaces, et rien d'autre.
+//
+//  Aucune implémentation ici, aucun import d'adaptateur. Un cas d'usage
+//  reçoit ces ports par son constructeur et ne sait jamais s'il parle à
+//  Postgres, à Forumactif ou à un tableau en mémoire.
+//
+//  Ils sont volontairement FINS et séparés : la relève lit ET poste,
+//  mais un futur outil de vérification ne fera que lire, et il n'aura
+//  pas à feindre de savoir poster.
+// ════════════════════════════════════════════════════════════════════
+
+import type { Effets, Evenement, LigneRegistre } from "../domaine/cloture.ts";
+import type { EntreeDeTable } from "../domaine/rencontre.ts";
+
+// ── le temps et le hasard, pour qu'un test puisse les figer ─────────
+
+export interface Horloge {
+  maintenant(): Date;
+}
+
+export interface Signataire {
+  /** Empreinte d'un message, avec le secret du serveur. C'est elle qui
+   *  rend un code de vérification infalsifiable par un joueur. */
+  empreinte(message: string): Promise<Uint8Array>;
+}
+
+// ── le forum ────────────────────────────────────────────────────────
+
+/** Ce qu'on sait d'un message en le lisant sur le forum.
+ *
+ *  Pas de date : Forumactif affiche « Lun 6 Sep - 10:21 », sans année.
+ *  Rien de fiable n'en sort. Pas de forumId non plus : il n'est pas dans
+ *  le message, et on le connaît déjà puisque c'est nous qui avons
+ *  demandé la page. On ne remplit pas de champ qu'on ne sait pas lire. */
+export type MessageDuForum = {
+  readonly id: number;
+  readonly sujetId: number;
+  readonly auteurId: number;
+  readonly auteurPseudo: string;
+};
+
+export type SujetRemue = {
+  readonly sujetId: number;
+  readonly dernierMessageId: number;
+};
+
+export interface LecteurDeForum {
+  /** Les messages d'un sujet parus après un identifiant donné.
+   *  `depuisMessageId` à 0 veut dire : tout le sujet. */
+  messagesDuSujet(sujetId: number, depuisMessageId: number): Promise<readonly MessageDuForum[]>;
+
+  /** Ce qui a bougé dans les forums suivis, repéré par identifiant de
+   *  message et non par date : les identifiants ne reculent jamais. */
+  sujetsRemues(forums: readonly number[]): Promise<readonly SujetRemue[]>;
+}
+
+export interface PosteurSurForum {
+  /** Poste une réponse dans un sujet, avec le compte de publication.
+   *  Rend l'identifiant du message créé. Toute réponse automatique
+   *  commence par une mention native `@pseudo`, pour que la
+   *  notification arrive même des jours plus tard. */
+  repondre(sujetId: number, mentionne: string, corps: string): Promise<number>;
+}
+
+// ── le registre et l'état du jeu ────────────────────────────────────
+
+export interface Registre {
+  lignesDuSujet(sujetId: number, joueurId: string): Promise<readonly LigneRegistre[]>;
+  /** Écrit une ligne. L'unicité `(messageId, type)` est garantie par la
+   *  base : une seconde écriture du même événement ne lève pas, elle
+   *  n'a simplement aucun effet. */
+  inscrire(
+    sujetId: number,
+    joueurId: string,
+    messageId: number,
+    evenement: Evenement,
+    code: string,
+  ): Promise<void>;
+  /** Les joueurs qui ont au moins une ligne dans ce sujet. */
+  joueursDuSujet(sujetId: number): Promise<readonly string[]>;
+  /** Le ménage des sujets abandonnés. Rend le nombre de lignes effacées. */
+  oublier(sujetId: number): Promise<number>;
+}
+
+export type EtatDuJoueur = {
+  readonly sac: ReadonlyMap<number, number>;
+  readonly placesEnBoite: number;
+  readonly pokedollars: number;
+};
+
+export interface EtatDuJeu {
+  etatDe(joueurId: string): Promise<EtatDuJoueur>;
+  /** Le joueur lié à un compte Forumactif, ou null s'il n'est pas lié. */
+  joueurDuCompte(forumUserId: number): Promise<string | null>;
+  estClos(sujetId: number): Promise<boolean>;
+}
+
+/** Une zone sauvage, telle que le forum la découpe : un forum par zone,
+ *  rangé sous un forum de palier. */
+export type ZoneSauvage = {
+  readonly forumId: number;
+  readonly nom: string;
+  readonly palier: 1 | 2 | 3;
+  readonly parentId: number;
+  /** Faux pour les sept zones qui n'ont encore aucune table. Le dire ici
+   *  plutôt que de le découvrir au premier tirage. */
+  readonly aUneFaune: boolean;
+};
+
+/** La faune, telle que les annexes la décrivent vraiment : une zone n'a
+ *  pas UNE table, elle a une quinzaine de lieux, et chaque lieu a ses
+ *  tables par condition (jour, nuit, et parfois une météo). */
+export interface Faune {
+  /** Les dix-sept zones sauvages. Ailleurs, rien ne se joue. */
+  zonesSauvages(): Promise<readonly ZoneSauvage[]>;
+  /** Les lieux d'une zone. Vide pour une zone sans faune. */
+  lieuxDe(forumId: number): Promise<readonly string[]>;
+  /** Les conditions disponibles pour un lieu : « jour », « nuit », et
+   *  selon les lieux « orage », « blizzard », « tempête de sable »… */
+  conditionsDe(forumId: number, lieu: string): Promise<readonly string[]>;
+  /** La table d'un lieu, pour une condition. Déjà vérifiée par le domaine. */
+  tableDe(
+    forumId: number,
+    lieu: string,
+    condition: string,
+  ): Promise<readonly EntreeDeTable[]>;
+}
+
+// ── la trace des passages de la relève ──────────────────────────────
+
+export interface JournalDeReleve {
+  dernierPassage(): Promise<Date | null>;
+  noter(debut: Date, fin: Date, tache: string, resultat: string): Promise<void>;
+}
+
+// ── la clôture ──────────────────────────────────────────────────────
+
+export type Versement = {
+  readonly joueurId: string;
+  readonly effets: Effets;
+};
+
+export interface Cloture {
+  deja(sujetId: number): Promise<boolean>;
+  /**
+   * Applique tous les versements d'un sujet **en une seule transaction**,
+   * et enregistre la clôture. Si la base refuse quoi que ce soit — un
+   * stock négatif, une boîte pleine, un solde sous zéro — rien n'est
+   * appliqué et l'erreur remonte.
+   *
+   * La vérification métier a déjà eu lieu dans le domaine ; les
+   * contraintes de la base sont un filet, pas la règle.
+   */
+  appliquer(
+    sujetId: number,
+    versements: readonly Versement[],
+    code: string,
+  ): Promise<void>;
+}
+
+export interface Catalogue {
+  /** Le nom lisible d'un objet, pour écrire un refus qu'un joueur
+   *  comprend sans aller chercher un identifiant. */
+  nomObjet(objetId: number): Promise<string>;
+  nomEspece(especeId: number): Promise<string>;
+}
