@@ -8,6 +8,7 @@
 
      · css/01-deflottement.css
      · css/02-socle.css
+     · css/03-index.css
      · css/10-coin-outils.css
    ════════════════════════════════════════════════════════════════════ */
 
@@ -593,6 +594,228 @@ body#modernbb {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 03 · L'index
+
+   L'apparence des blocs de catégorie et des lignes de forum. La
+   STRUCTURE est à `01` (flexbox à la place des flottants) et les
+   surfaces génériques à `02` : ici, ce qui reste — les écarts, l'icône,
+   la description, les compteurs, la dernière réponse, le pied de page
+   statistique.
+
+   ── CE QUI MANQUE, ET POURQUOI CE N'EST PAS ICI ───────────────────────
+
+   **La carte « La vie de Rhode » n'existe pas dans le forum.** Elle est
+   dans la maquette, pas dans le DOM : aucun élément ne lui correspond,
+   et lui écrire du CSS reviendrait à décorer un fantôme. Elle demande
+   une reprise du template `index_box` (50-… §9). Le jour où le bloc
+   existe, sa feuille sera celle-ci.
+
+   ── CE QUI A ÉTÉ RELEVÉ SUR LE FORUM ──────────────────────────────────
+
+   · l'icône d'un forum est un `background-image` de 33 px posé sur
+     `dl.icon`, servi par ModernBB (`forum_read.png`). On la place et on
+     lui fait de la place ; la remplacer est une décision d'image
+     (31-les-images-a-fournir), pas de feuille de style ;
+   · les en-têtes de colonnes ne sont pas du texte mais trois icônes
+     Ionicons (`ion-android-list`, `-chat`, `-time`) ;
+   · un compteur est un `<dfn>` invisible (« Sujets », « Messages »)
+     suivi du nombre en texte nu. Le `<dfn>` est la seule étiquette que
+     reçoit un lecteur d'écran : on ne le masque pas, on le déplace ;
+   · l'indentation des sous-forums arrive en **style inline**
+     (`margin: 0 0 0 45px`), déjà neutralisée par `01`.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · l'espace entre les blocs ─────────────────────────────────── */
+
+#modernbb .forabg,
+#modernbb .forumbg {
+  margin: 0 0 var(--wm-espace-24, 24px);
+}
+
+/* ── 2 · la bande de titre ────────────────────────────────────────── */
+
+/*  `01` a déjà mis la ligne en flex ; on lui donne sa hauteur et son
+    rembourrage. Le titre est dans `dd.dterm`, les trois icônes de
+    colonne dans `dd.topics`, `dd.posts` et `dd.lastpost`. */
+#modernbb li.header dl.icon {
+  min-height: 0;
+  padding: var(--wm-espace-4, 4px) 0;
+}
+
+#modernbb li.header dd.dterm {
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-18, 18px);
+}
+
+/*  Les trois icônes de colonne. Elles disent ce que comptent les
+    colonnes en dessous, et elles ne le disent qu'en forme : un lecteur
+    d'écran n'en tire rien. C'est un défaut de ModernBB qu'on ne peut
+    pas corriger en CSS — il faudrait un `aria-label` dans le template,
+    et c'est noté pour la reprise d'`index_box`. */
+#modernbb li.header dd.topics i,
+#modernbb li.header dd.posts i,
+#modernbb li.header dd.lastpost i {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+/*  Le bouton qui replie une catégorie. ModernBB le pose en absolu dans
+    la bande ; on lui donne la couleur de la charte et une cible qui se
+    vise au doigt. */
+#modernbb .btn-collapse {
+  color: var(--wm-accent-fort, #1f5470);
+  cursor: pointer;
+}
+
+/*  La couleur est posée sur l'icône ELLE-MÊME et pas seulement sur son
+    conteneur : ModernBB met `color: #fff` directement sur le `<i>`, qui
+    l'emporte donc sur ce qu'il hériterait. Posée au mauvais endroit,
+    la règle donnait du blanc sur `fond/douce` — **1,27 de contraste en
+    mode clair**, soit un bouton de repli invisible. Troisième fois que
+    le même piège se referme aujourd'hui, et toujours le même remède :
+    mesurer plutôt que supposer. */
+#modernbb .btn-collapse i {
+  color: inherit;
+  font-size: var(--wm-taille-chapo, 21px);
+  line-height: 1;
+}
+
+#modernbb .btn-collapse:hover {
+  color: var(--wm-accent-primaire, #2e6e8e);
+}
+
+/* ── 3 · une ligne de forum ───────────────────────────────────────── */
+
+/*  L'icône de ModernBB fait 33 px et vit en fond de `dl.icon`. On la
+    cale à gauche, centrée verticalement, et on réserve sa place —
+    sinon le titre lui passe dessus. */
+#modernbb ul.topiclist li.row dl.icon {
+  padding-left: var(--wm-espace-48, 48px);
+  background-position: var(--wm-espace-12, 12px) center;
+  background-repeat: no-repeat;
+}
+
+#modernbb ul.topiclist li.row dd.dterm {
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+}
+
+/*  La description d'un forum, sous son titre. Elle arrive dans le même
+    `<div>` que le titre, après deux `<br>` : on ne peut pas la cibler
+    seule, donc c'est le conteneur qui porte le style, et le titre a
+    déjà le sien (02). */
+#modernbb ul.topiclist li.row dd.dterm > div {
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  Les deux `<br>` que le template met entre le titre et la
+    description valent un saut de ligne chacun : ça fait un trou. On les
+    ramène à un écart réglé. */
+#modernbb ul.topiclist li.row dd.dterm > div br {
+  content: "";
+  display: block;
+  height: var(--wm-espace-4, 4px);
+}
+
+/* ── 4 · les compteurs ────────────────────────────────────────────── */
+
+/*  Chiffre/Grand sur le nombre, et l'étiquette dessous. Le `<dfn>` est
+    porté par le template et contient « Sujets » ou « Messages » : c'est
+    la seule étiquette qu'un lecteur d'écran reçoit, donc on l'AFFICHE
+    plutôt que de la masquer — elle manquait à l'œil aussi. */
+#modernbb ul.topiclist li.row dd.topics,
+#modernbb ul.topiclist li.row dd.posts,
+#modernbb ul.topiclist li.row dd.views {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-2, 2px);
+
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-chiffre, 20px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-chiffre, 1.15);
+}
+
+#modernbb ul.topiclist li.row dd.topics dfn,
+#modernbb ul.topiclist li.row dd.posts dfn,
+#modernbb ul.topiclist li.row dd.views dfn {
+  /*  ModernBB le sort de l'écran — et, relevé en mesurant, le met
+      carrément à `display: none` (`ul.topiclist dfn`). Les deux sont à
+      défaire : sans `display`, le reste ne sert à rien. On le ramène,
+      il devient l'étiquette de la colonne, puisque l'en-tête n'en a
+      pas. */
+  display: block;
+  position: static;
+  overflow: visible;
+  width: auto;
+  height: auto;
+  clip-path: none;
+
+  color: var(--wm-texte-pale, #756054);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-style: normal;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/* ── 5 · la dernière réponse ──────────────────────────────────────── */
+
+#modernbb ul.topiclist li.row dd.lastpost {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .lastpost-avatar img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  object-fit: cover;
+}
+
+#modernbb .lastpost-infos {
+  display: block;
+  min-width: 0;
+}
+
+/*  Un titre de sujet long ne doit pas pousser la colonne : il se coupe. */
+#modernbb .lastpost-infos a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 6 · le pied de page statistique ──────────────────────────────── */
+
+/*  ModernBB le pose sur sa propre bande sombre (`#1d262c`), qui ne suit
+    pas notre thème. Même piège que le `h1` et que `.mainmenu` en `02` :
+    on ne recolore pas un texte posé sur une surface qu'on ne possède
+    pas. Donc on prend la surface AUSSI, et le couple tient. */
+#modernbb .statistics {
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .statistics .statistics-item {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .statistics a {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  text-decoration: underline;
 }
 
 /* ════════════════════════════════════════════════════════════════════
