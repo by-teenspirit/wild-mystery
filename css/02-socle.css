@@ -112,10 +112,15 @@ html,
 }
 
 /*  Un bloc de contenu posé sur la page : la description d'un forum, un
-    encart. ModernBB les met en `#f8f8f8`. */
+    encart, la boîte de rédaction. ModernBB les met en `#f8f8f8`.
+
+    `.panel` vient de la page d'écriture (`06`) mais il n'y est pas
+    réservé — il porte aussi les blocs du profil et des recherches. Sa
+    place est donc ici, avec les autres surfaces. */
 #modernbb .block,
 #modernbb .overview,
-#modernbb .module {
+#modernbb .module,
+#modernbb .panel {
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
 }
@@ -141,11 +146,13 @@ html,
 #modernbb .block,
 #modernbb .overview,
 #modernbb .module,
+#modernbb .panel,
 #modernbb ul.topiclist {
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-#modernbb :is(.forabg, .forumbg, .block, .overview, .module, ul.topiclist)
+#modernbb
+  :is(.forabg, .forumbg, .block, .overview, .module, .panel, ul.topiclist)
   :where(p, div, span, strong, em, b, i, dfn, label, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
@@ -211,23 +218,28 @@ html,
     correspond dans ModernBB. La correspondance est dans JETONS.md §3 ;
     on ne réinvente pas une échelle ici, on applique la sienne. */
 
-/*  Titre/Display — le nom du forum, en tête de page.
+/*  Titre/Display — le nom du forum, le titre d'une page.
 
-    `texte/sur-nuit` et PAS `texte/encre`, pour une raison qu'on n'a vue
-    qu'en mesurant : ModernBB pose le nom du forum sur une bande sombre
-    à lui (`#1d262c`), qui ne change pas avec notre thème. `encre` y
-    tombait à **1,02 de contraste en mode clair** — le titre devenait
-    invisible. En sombre il passait, parce qu'`encre` y vaut du crème :
-    la faute se cachait derrière un mode sur deux.
+    DEUX SURFACES, DONC DEUX COULEURS. ModernBB pose le nom du forum sur
+    une bande sombre à lui (`#1d262c`), qui ne change pas avec notre
+    thème : là il faut `texte/sur-nuit`, et c'est la règle d'au-dessus
+    (`.headerbar h1`) qui s'en charge — `encre` y tombait à **1,02 de
+    contraste en mode clair**, le titre disparaissait.
+
+    Mais `h1` tout court attrape aussi les titres de page posés sur le
+    fond ordinaire : « Poster une réponse », le nom d'un forum dans
+    `.sub-header`. Donner `sur-nuit` à tous les `h1` y faisait
+    exactement la faute inverse — du crème sur du beige, **1,1 en mode
+    clair**. Relevé sur `/post?t=976&mode=reply` le 3 octobre.
 
     C'est l'avertissement de JETONS.md §7, mot pour mot : trois jetons
     valent le même blanc cassé en clair, et prendre celui dont la valeur
     tombe juste plutôt que celui qui dit l'intention ne se voit pas tant
-    qu'on reste d'un côté. `sur-nuit` est celui qui dit « posé sur une
-    surface sombre », et il est crème dans les deux modes. */
+    qu'on reste d'un côté. `sur-nuit` dit « posé sur une surface
+    sombre » — il n'a rien à faire ailleurs. */
 #modernbb h1 {
   margin: 0;
-  color: var(--wm-texte-sur-nuit, #fffbf7);
+  color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-size: var(--wm-taille-display, 44px);
