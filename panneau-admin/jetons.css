@@ -4,11 +4,15 @@
    System » (R5Fz0KRaAwrpIGhMJK74ED, page « Fondations »).
 
    Deux collections dans Figma : « Couleur » et « Mesure ». La
-   collection Couleur porte désormais deux modes, Clair et Sombre,
-   mais **le forum n'a qu'un thème pour le moment** : ce fichier ne
-   contient que le mode Clair. Le mode Sombre est préparé dans Figma
-   et attend que la bascule soit décidée côté forum — le jour où elle
-   l'est, il se relève et vient ici dans un second bloc.
+   collection Couleur porte deux modes, Clair et Sombre, et **les deux
+   sont ici** : le mode Clair sur `:root`, le mode Sombre sur
+   `body.wm-sombre`, relevés le 3 octobre. Le bouton du coin d'outils
+   pose et retire cette classe ; sans le second bloc, il basculait une
+   classe à laquelle rien ne répondait.
+
+   Seules les COULEURS changent entre les deux modes. La typographie,
+   l'espacement et les rayons n'ont qu'une valeur : ils ne sont pas
+   repris dans le bloc sombre.
 
    La typographie n'est pas en variables dans Figma : elle vit dans
    quinze styles de texte. Les jetons ci-dessous en sont la lecture,
@@ -212,7 +216,7 @@
   --wm-groupe-zamazenta-fond:  #f2d4da;
   --wm-groupe-zamazenta-texte: #7a3341;
   --wm-groupe-mew-fond:        #f7dce8;
-  --wm-groupe-mew-texte:       #5c3348;
+  --wm-groupe-mew-texte:       #7a4460;
 
   /* ── 14 · l'échelle d'espacement ──────────────────────────────────── */
   /* Figma nomme chaque pas par sa valeur, pas par un rang : on garde
@@ -253,4 +257,111 @@
   --wm-vignette-zone-hauteur: 560px;
   --wm-sprite:                 96px;
   --wm-cible-tactile:          44px;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LE MODE SOMBRE
+
+   Relevé le 3 octobre dans le mode « Sombre » de la collection
+   Couleur. Aucune valeur n'est calculée ici : ce sont les jetons de
+   Figma, un pour un, dans le même ordre que le mode clair.
+
+   `body.wm-sombre` est la classe que pose le bouton du coin d'outils
+   (`src/navigateur/theme.ts`). Sur `body` et pas sur `:root` parce
+   que c'est ce que le script touche — et parce que ça suffit à
+   l'emporter sur `:root` sans `!important`.
+
+   TROIS JETONS DIVERGENT ICI alors qu'ils valent le même blanc cassé
+   en mode clair : `texte/inverse` devient sombre (il s'assoit sur un
+   bouton d'accent, qui s'éclaircit), pendant que `texte/sur-nuit` et
+   `encre` restent clairs. C'est le jour annoncé dans §7 : un jeton
+   choisi pour sa valeur et non pour son intention se voit maintenant.
+   ════════════════════════════════════════════════════════════════════ */
+
+body.wm-sombre {
+
+  /* ── 6 et 7 · fonds, texte, accents, bords, danger ──────────────── */
+
+  --wm-fond-page:             #1a1210;
+  --wm-fond-surface:          #241a16;
+  --wm-fond-surface-haute:    #2e211c;
+  --wm-fond-douce:            #1f1613;
+  --wm-fond-nuit:             #120c0a;
+  --wm-fond-terre:            #33211a;
+  --wm-encre:                 #f2e4d8;
+  --wm-texte-corps:           #dcc9ba;
+  --wm-texte-doux:            #ae9585;
+  --wm-texte-pale:            #997f6f;
+  --wm-texte-inverse:         #1a1210;
+  --wm-texte-sur-nuit:        #f2e4d8;
+  --wm-accent-primaire:       #7fc2de;
+  --wm-accent-fort:           #a3d6ec;
+  --wm-accent-terre:          #e0906a;
+  --wm-bord-fin:              #3a2b24;
+  --wm-bord-net:              #46332a;
+  --wm-danger-paisible:       #7fb183;
+  --wm-danger-dangereuse:     #dfa860;
+  --wm-danger-interdite:      #d97f6e;
+
+  /* ── 11 · les dix-huit types ────────────────────────────────────── */
+  /* Chaque paire est revalidée à 4,5:1 dans Figma sur le fond sombre. */
+
+  --wm-type-normal-fond:      #3d3c47;
+  --wm-type-normal-texte:     #aab09f;
+  --wm-type-combat-fond:      #442a34;
+  --wm-type-combat-texte:     #d78574;
+  --wm-type-vol-fond:         #333a55;
+  --wm-type-vol-texte:        #80a8df;
+  --wm-type-poison-fond:      #3f2c4c;
+  --wm-type-poison-texte:     #c386c5;
+  --wm-type-sol-fond:         #443835;
+  --wm-type-sol-texte:        #cc9f4f;
+  --wm-type-roche-fond:       #3f3839;
+  --wm-type-roche-texte:      #b4a264;
+  --wm-type-insecte-fond:     #383e34;
+  --wm-type-insecte-texte:    #94bc4a;
+  --wm-type-spectre-fond:     #342c4c;
+  --wm-type-spectre-texte:    #a491c9;
+  --wm-type-acier-fond:       #36384b;
+  --wm-type-acier-texte:      #90a7b5;
+  --wm-type-feu-fond:         #4b3031;
+  --wm-type-feu-texte:        #ec854c;
+  --wm-type-eau-fond:         #2a3756;
+  --wm-type-eau-texte:        #64a4e5;
+  --wm-type-plante-fond:      #304037;
+  --wm-type-plante-texte:     #71c558;
+  --wm-type-electrik-fond:    #4a402f;
+  --wm-type-electrik-texte:   #e5c531;
+  --wm-type-psy-fond:         #4a2e46;
+  --wm-type-psy-texte:        #e87ea5;
+  --wm-type-glace-fond:       #304253;
+  --wm-type-glace-texte:      #70cbd4;
+  --wm-type-dragon-fond:      #2f304a;
+  --wm-type-dragon-texte:     #8e9bc2;
+  --wm-type-tenebres-fond:    #312d3e;
+  --wm-type-tenebres-texte:   #9a959c;
+  --wm-type-fee-fond:         #493652;
+  --wm-type-fee-texte:        #e397d1;
+
+  /* ── 12 · pokémon pur ou obscur ─────────────────────────────────── */
+
+  --wm-pokemon-pur-fond:       #2f5a3c;
+  --wm-pokemon-pur-texte:      #f2e4d8;
+  --wm-pokemon-obscur-fond:    #605080;
+  --wm-pokemon-obscur-texte:   #f2e4d8;
+
+  /* ── 13 · les six groupes ───────────────────────────────────────── */
+
+  --wm-groupe-ho-oh-fond:       #6b3a1e;
+  --wm-groupe-ho-oh-texte:      #e8a05c;
+  --wm-groupe-reshiram-fond:    #3c4654;
+  --wm-groupe-reshiram-texte:   #c9d6e4;
+  --wm-groupe-deoxys-fond:      #4a3a63;
+  --wm-groupe-deoxys-texte:     #b79bda;
+  --wm-groupe-xerneas-fond:     #1f4f4a;
+  --wm-groupe-xerneas-texte:    #7fd1c4;
+  --wm-groupe-zamazenta-fond:   #5a2430;
+  --wm-groupe-zamazenta-texte:  #e08497;
+  --wm-groupe-mew-fond:         #5c3348;
+  --wm-groupe-mew-texte:        #f0a8c8;
 }

@@ -11,10 +11,14 @@ les valeurs : elles sont dans `jetons.css`.
 
 ## 1. Les couleurs — collection « Couleur », modes Clair et Sombre
 
-Soixante-douze variables, toutes à deux valeurs. **Ce fichier ne porte que le
-mode Clair** : le forum n'a qu'un thème pour le moment. Le mode Sombre est
-préparé dans Figma et vérifié sur un aperçu, il attend que la bascule soit
-décidée côté forum.
+Soixante-douze variables, toutes à deux valeurs, et **les deux modes sont
+relevés** dans `jetons.css` depuis le 3 octobre : le mode Clair sur `:root`, le
+mode Sombre sur `body.wm-sombre`. Le tableau ci-dessous donne la correspondance
+Figma → CSS, commune aux deux blocs.
+
+Le relevé du 3 octobre a corrigé une valeur du mode clair au passage :
+`groupe/mew/texte` valait `#5c3348` dans le CSS et `#7a4460` dans Figma. Figma
+fait foi.
 
 | Figma | CSS |
 |---|---|
@@ -158,15 +162,20 @@ Il pose une classe sur `body#modernbb` et retient le choix. Les deux autres
 pistes sont écartées : `prefers-color-scheme` ne laisse pas le visiteur
 choisir, et le `switcheero` de la V1 est un script que personne n'a lu.
 
-Reste à écrire côté code, et ce n'est pas fait :
+Fait depuis, les trois d'un coup :
 
-- le sélecteur du second bloc de jetons, qui sera `body#modernbb.<classe>` —
-  `:root` ne peut pas servir, la feuille du panneau est servie avant la nôtre
-  et une variable est résolue là où elle est lue ;
-- le script qui pose la classe, lit le choix retenu au chargement et respecte
-  `prefers-color-scheme` à la première visite ;
-- le relevé du mode Sombre depuis Figma vers un second bloc de `jetons.css`,
-  qui n'a pas lieu d'être tant que le forum n'a qu'un thème.
+- **le sélecteur** est `body.wm-sombre`. `body` et pas `:root` parce que c'est
+  ce que le script touche, et parce que `body.wm-sombre` l'emporte sur `:root`
+  sans `!important` ;
+- **le script** est `src/navigateur/theme.ts` (trois états : clair, sombre,
+  système) posé par `src/adaptateurs/navigateur/coin-outils.ts`. Il lit le choix
+  retenu dans `localStorage` sous `wm.theme`, retombe sur `prefers-color-scheme`
+  à la première visite, et s'applique **avant tout le reste** — chaque
+  milliseconde de retard se voit comme un éclair blanc ;
+- **le relevé du mode Sombre** est dans `jetons.css`, second bloc.
+
+Reste à écrire : rien pour les jetons. Les feuilles `02` à `09` restent à
+faire, et c'est un autre sujet.
 
 ## 7. Aucun jeton n'est pensé pour un tableau
 
