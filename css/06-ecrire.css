@@ -254,6 +254,14 @@
 /*  `02` donne leur forme aux boutons, mais ModernBB ne marque pas
     « Envoyer » d'un `.mainoption` sur cette page : c'est pourtant
     l'action principale, et la seule qui compte. */
+/*  LE RÉSERVOIR DE DROITE N'EST PAS DÉCORATIF. Le coin d'outils (`10`)
+    est fixé en bas à droite : 92 px de large, 16 px de marge, 108 en
+    tout. Pousser les boutons au bord droit les faisait passer dessous
+    — vérifié à l'écran, « Envoyer » disparaissait sous « CLAIR ». Avant
+    cette feuille le problème n'existait pas, parce que ModernBB les
+    laissait à gauche : c'est donc à nous de rendre la place.
+
+    Si `10` change la largeur du coin, ce nombre change avec lui. */
 #modernbb .submit-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -261,7 +269,7 @@
   justify-content: flex-end;
   gap: var(--wm-espace-10, 10px);
   margin: 0;
-  padding: 0;
+  padding: 0 108px 0 0;
   border: 0;
 }
 
@@ -312,8 +320,11 @@
     margin-top: var(--wm-espace-12, 12px);
   }
 
+  /*  Plus de réserve : les boutons prennent la largeur, et le coin se
+      dépasse en faisant défiler. */
   #modernbb .submit-buttons {
     justify-content: stretch;
+    padding-right: 0;
   }
 
   #modernbb .submit-buttons input {
