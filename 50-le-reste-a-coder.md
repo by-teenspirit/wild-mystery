@@ -180,7 +180,7 @@ Dans le dépôt, sauf les jetons (`48-…` §8).
 | | Fichier | Contenu |
 |---|---|---|
 | ✓ | `css/01-deflottement.css` | flexbox à la place des flottants et des pourcentages |
-| · | `css/02-socle.css` | typographie, titres, liens, boutons, champs, états de focus |
+| ✓ | `css/02-socle.css` | typographie, titres, liens, boutons, champs, états de focus — **et les trois surfaces génériques**, parce qu'une couleur de texte et la surface qui la porte sont une seule décision |
 | · | `css/03-index.css` | catégories, lignes de forum, carte « La vie de Rhode » |
 | · | `css/04-forum.css` | en-tête de forum, liste des sujets, pagination |
 | · | `css/05-sujet.css` | message, fiche de personnage, boutons, module de bilan, infobulle |
@@ -188,7 +188,8 @@ Dans le dépôt, sauf les jetons (`48-…` §8).
 | · | `css/07-carnet.css` | les huit onglets du carnet |
 | · | `css/08-annexes.css` | le gabarit d'annexe, sommaire sombre à 252 px |
 | · | `css/09-mobile.css` | les points de rupture 1200 / 900 / 800 / 740 / 700 / 400 / 320 |
-| · | **le bloc `:root` à coller dans le panneau d'administration** | les jetons de la charte, les douze de groupes, les deux modes. Il faut encore relever `texte/doux`, `texte/pale` et `texte/sur-nuit` dans Figma |
+| ✓ | **le bloc `:root` à coller dans le panneau d'administration** | les jetons de la charte, les douze de groupes, **les deux modes**, relevés et collés le 3 octobre |
+| ✓ | `css/wild-mystery.css` | la feuille assemblée, produite par `outils/css.sh`. C'est ELLE que sert jsDelivr : `overall_header` ne bouge plus quand une feuille s'ajoute |
 
 ---
 
@@ -198,7 +199,7 @@ Sept à reprendre, chacun téléchargé avant modification, enregistré puis pub
 
 | | Template | Pourquoi |
 |---|---|---|
-| ✓ | `overall_header` | la police d'icônes ; il reste à y ajouter les deux lignes jsDelivr |
+| ✓ | `overall_header` | la police d'icônes, les quatre polices de la charte, et les deux lignes jsDelivr — sur la **branche** et plus sur un commit, pour ne plus avoir à le rouvrir. **Enregistrer ne suffit pas : il faut Publier**, sinon le forum garde l'ancienne version sans rien dire |
 | · | `viewtopic_body` | le point d'ancrage du module de bilan, la fiche de personnage, et le `<table>` du bloc de règles |
 | · | `posting_body` | le même bloc de règles, le lanceur de dés, la case « je veux un MJ » |
 | · | `index_box` | les lignes de catégorie et de forum |

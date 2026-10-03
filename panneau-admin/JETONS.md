@@ -83,22 +83,43 @@ jeton pour 0.
 `Chapô` est en italique dans Figma (`Cormorant Garamond Italic`) : c'est un
 `font-style`, pas un jeton.
 
-### Les quatre polices sont des Google Fonts, et rien ne les charge
+### Les quatre polices sont des Google Fonts, chargées depuis `overall_header`
 
 **Fraunces**, **Kaushan Script**, **Cormorant Garamond**, **Nunito Sans** —
-toutes les quatre chez Google Fonts. Conformément à la contrainte du projet, ce
-dépôt n'en importe aucune : pas d'`@import`, pas de `<link>`, aucune requête
-réseau partie d'une de nos feuilles. Les jetons `--wm-police-*` nomment la
-famille et enchaînent sur des familles génériques, donc le forum reste lisible
-sans elles — mais **il ne ressemble pas à la maquette**.
+toutes les quatre chez Google Fonts. Le dépôt n'en importe toujours aucune : pas
+d'`@import`, pas d'`url()`, aucune requête réseau partie d'une de nos feuilles,
+et le garde-fou le vérifie (règle 7). Le chargement se fait d'`overall_header`,
+le seul endroit qui le permette, à côté du `<link>` qui sert déjà les trois
+familles Material du thème (48-… §7).
 
-Le chargement est une décision à prendre ailleurs : le `<link>` d'`overall_header`
-est le seul endroit qui le permette, et il y en a déjà un pour les trois familles
-Material du thème (48-… §7). Deux des quatre sont des polices variables, et
-leurs axes ne sont pas optionnels pour retrouver le rendu de la maquette :
+La ligne posée le 3 octobre, une requête pour les quatre :
 
-- Fraunces — `--wm-police-titre-axes` : `"SOFT" 0, "WONK" 1`
-- Nunito Sans — `--wm-police-corps-axes` : `"wdth" 100, "YTLC" 500`
+```html
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400&family=Fraunces:SOFT,WONK,opsz,wght@0,1,9..144,600..700&family=Kaushan+Script&family=Nunito+Sans:YTLC,opsz,wdth,wght@500,6..12,100,400..700&display=swap">
+```
+
+Les axes des deux polices variables sont **dans l'URL**, et c'est ce qui compte :
+sans eux Google sert une instance par défaut, et `font-variation-settings` n'a
+plus rien à faire varier.
+
+- Fraunces — `SOFT 0, WONK 1`, graisses 600 à 700 → `--wm-police-titre-axes`
+- Nunito Sans — `YTLC 500, wdth 100`, graisses 400 à 700 → `--wm-police-corps-axes`
+
+Les familles sont triées par ordre alphabétique : l'API `css2` le réclame quand
+on en demande plusieurs. `display=swap` fait rendre le texte dans la police de
+repli pendant le téléchargement plutôt que de le laisser invisible.
+
+**Poids réel** : 164 Ko pour les quatre sous-ensembles latins, mis en cache
+ensuite. Le navigateur ne télécharge une famille que si un élément de la page
+s'en sert — tant que seule la feuille `10` est servie, seul Nunito Sans part.
+
+**Ce que ça coûte par ailleurs.** Un `<link>` vers Google envoie l'adresse IP de
+chaque visiteur à Google, et un tribunal allemand l'a jugé contraire au RGPD en
+2022 (LG München I, 3 O 17493/20). Les trois `<link>` Material du thème font
+déjà exactement ça, donc la ligne n'ouvre pas une porte fermée. Si on veut la
+refermer, l'alternative est d'héberger les quatre `.woff2` dans le dépôt et de
+les servir par jsDelivr — ce qui demande d'amender la règle 7 du garde-fou pour
+autoriser `url()` sur nos propres fichiers de police, et rien d'autre.
 
 ---
 
