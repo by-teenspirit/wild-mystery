@@ -23,11 +23,16 @@ import {
 import { RegistreEnMemoire } from "../adaptateurs/en-memoire/registre.ts";
 import {
   FauneEnMemoire,
+  HeuresEnMemoire,
   JournalEnMemoire,
   SuiviEnMemoire,
 } from "../adaptateurs/en-memoire/releve.ts";
 import type { DemandeDeClotureLue, LecteurDeDemandes, ZoneSauvage } from "./ports.ts";
 import { CloturerUnSujet } from "./cloturer-un-sujet.ts";
+import {
+  LireLesNouveauxMessages,
+  TACHE as TACHE_MESSAGES,
+} from "./lire-les-nouveaux-messages.ts";
 import { ParcourirLesZones, TACHE } from "./parcourir-les-zones.ts";
 
 const ANNA = "11111111-1111-1111-1111-111111111111";
@@ -82,13 +87,25 @@ function monter(
     new SignataireDeTest(),
   );
 
+  const faune = new FauneEnMemoire(zones);
+  const lecture = new LireLesNouveauxMessages(
+    faune,
+    forum,
+    jeu,
+    new HeuresEnMemoire(),
+    registre,
+    { maintenant: () => new Date("2026-10-03T12:00:00Z") },
+    new SignataireDeTest(),
+  );
+
   const tache = new ParcourirLesZones(
-    new FauneEnMemoire(zones),
+    faune,
     forum,
     demandes ?? forum,
     suivi,
     jeu,
     cloturer,
+    lecture,
     journal,
   );
 
@@ -171,7 +188,11 @@ Deno.test("une demande de clôture dans une zone sauvage est traitée", async ()
 
   assertEquals(bilan.erreurs, []);
   assertEquals(bilan.issues, [{ sujetId: 7000, issue: "close" }]);
-  assertEquals(c.journal.lignes, [{ tache: TACHE, traites: 1, erreurs: [] }]);
+  //  Deux lignes de journal, une par tâche : le parcours fait les deux.
+  assertEquals(c.journal.lignes, [
+    { tache: TACHE_MESSAGES, traites: 0, erreurs: [] },
+    { tache: TACHE, traites: 1, erreurs: [] },
+  ]);
   assertEquals(c.suivi.curseurs.get(9), 8002, "le curseur avance jusqu'au dernier message");
   //  Le parcours ne poste plus : il applique, et laisse le bilan en file.
   //  C'est `PosterLesBilans` qui publie, dans le même passage de la relève
@@ -373,5 +394,66 @@ Deno.test("le journal est écrit même quand il n'y a rien eu à faire", async (
   const c = monter();
   const bilan = await c.tache.executer();
   assertEquals(bilan.traitees, 0);
-  assertEquals(c.journal.lignes, [{ tache: TACHE, traites: 0, erreurs: [] }]);
+  assertEquals(c.journal.lignes, [
+    { tache: TACHE_MESSAGES, traites: 0, erreurs: [] },
+    { tache: TACHE, traites: 0, erreurs: [] },
+  ]);
+});
+
+// ── les deux tâches, et leur ordre ──────────────────────────────────
+
+Deno.test("une fouille du même passage est inscrite AVANT la clôture", async () => {
+  //  LE TEST QUI PORTE LE BRANCHEMENT. Fouiller puis clôturer dans le
+  //  même passage de relève est le cas normal en fin de RP. Si la clôture
+  //  passait d'abord, elle verserait un registre auquel il manque la
+  //  dernière action — et la clôture efface le registre, donc l'action
+  //  serait perdue pour toujours.
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
+  c.forum.forumDuSujet.set(7000, 9);
+  c.forum.ajouter({
+    id: 8001,
+    sujetId: 7000,
+    auteurId: COMPTE_ANNA,
+    auteurPseudo: "Anna",
+    corps: "Elle écarte les roseaux.\n\n[[WM-ACTION:fouiller]]",
+  });
+  c.forum.ajouter({
+    id: 8002,
+    sujetId: 7000,
+    auteurId: COMPTE_ANNA,
+    auteurPseudo: "Anna",
+    corps: "On s'arrête là. [cloture]",
+  });
+
+  const bilan = await c.tache.executer();
+
+  assertEquals(bilan.erreurs, []);
+  assertEquals(bilan.inscrites, 1, "la fouille a été inscrite");
+  assertEquals(bilan.issues, [{ sujetId: 7000, issue: "close" }]);
+  //  Et la preuve que l'ordre a tenu : le bilan versé parle des
+  //  Pokédollars trouvés.
+  const verse = c.cloture.bilan(7000) ?? "";
+  assert(/okédollar/i.test(verse), `le bilan devrait mentionner la trouvaille : ${verse}`);
+});
+
+Deno.test("une action d'un joueur sans fiche va dans le journal des messages, pas des clôtures", async () => {
+  //  Les deux tâches ont leur ligne : mélanger leurs erreurs ferait croire
+  //  à une panne de clôture là où quelqu'un a seulement cliqué sans fiche.
+  const c = monter([FORET], undefined, new Map([[9, 8000]]));
+  c.forum.forumDuSujet.set(7000, 9);
+  c.forum.ajouter({
+    id: 8001,
+    sujetId: 7000,
+    auteurId: 999,
+    auteurPseudo: "Inconnu",
+    corps: "[[WM-ACTION:fouiller]]",
+  });
+
+  await c.tache.executer();
+
+  const messages = c.journal.lignes.find((l) => l.tache === TACHE_MESSAGES);
+  const clotures = c.journal.lignes.find((l) => l.tache === TACHE);
+  assertEquals(messages?.erreurs.length, 1);
+  assert(messages?.erreurs[0].includes("n'est lié à aucun joueur"));
+  assertEquals(clotures?.erreurs, []);
 });

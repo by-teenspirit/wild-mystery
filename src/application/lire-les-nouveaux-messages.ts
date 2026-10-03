@@ -38,6 +38,11 @@
 //  · **On ne poste rien.** Le bilan en cours est un module, pas un
 //    message (planche 45 §5). Un joueur qui fouille ne reçoit pas de
 //    réponse automatique dans le fil.
+//  · **On ne note rien au journal.** Cette tâche s'exécute SUR UN SUJET,
+//    et `releve_journal` tient une ligne par tâche et par PASSAGE. Noter
+//    ici écrirait une ligne par sujet lu : le journal deviendrait
+//    illisible le jour où il servirait. C'est `ParcourirLesZones`, qui
+//    tient le passage, qui note — pour cette tâche comme pour la sienne.
 //  · **On n'échoue jamais en bloc.** Un message illisible, un joueur sans
 //    fiche, une zone sans faune : chacun est noté et on continue. Une
 //    action perdue est un incident ; seize actions perdues parce que la
@@ -56,7 +61,6 @@ import type {
   EtatDuJeu,
   Faune,
   Horloge,
-  JournalDeReleve,
   LecteurDActions,
   Registre,
   Signataire,
@@ -104,7 +108,6 @@ export class LireLesNouveauxMessages {
     private readonly registre: Registre,
     private readonly horloge: Horloge,
     private readonly signataire: Signataire,
-    private readonly journal: JournalDeReleve,
   ) {}
 
   /**
@@ -132,9 +135,7 @@ export class LireLesNouveauxMessages {
       }
     }
 
-    const bilan: BilanDeLecture = { traitees: lignes.length, erreurs, lignes };
-    await this.journal.noter(TACHE, bilan.traitees, erreurs);
-    return bilan;
+    return { traitees: lignes.length, erreurs, lignes };
   }
 
   /** Rend la ligne écrite, ou null quand l'action n'avait rien à inscrire

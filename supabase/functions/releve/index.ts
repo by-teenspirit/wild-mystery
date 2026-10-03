@@ -24,7 +24,11 @@ import {
   BilansEnAttenteSupabase,
   ClotureSupabase,
 } from "../../../src/adaptateurs/supabase/cloture.ts";
-import { CatalogueSupabase, EtatDuJeuSupabase } from "../../../src/adaptateurs/supabase/jeu.ts";
+import {
+  CatalogueSupabase,
+  EtatDuJeuSupabase,
+  HeuresSupabase,
+} from "../../../src/adaptateurs/supabase/jeu.ts";
 import {
   JournalSupabase,
   SuiviSupabase,
@@ -38,6 +42,7 @@ import {
 import { FauneEnFichiers, lecteurHttp } from "../../../src/adaptateurs/faune/fichiers.ts";
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
 import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
+import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouveaux-messages.ts";
 import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.ts";
 import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
 
@@ -55,7 +60,7 @@ import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
  *
  * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
  */
-const VERSION = "2026-10-02-j";
+const VERSION = "2026-10-03-a";
 
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
@@ -149,20 +154,42 @@ function assembler(reglages: Reglages): Montage {
     { compte: reglages.FORUM_COMPTE, motDePasse: reglages.FORUM_MOTDEPASSE },
   );
 
+  //  Les adaptateurs partagés une seule fois : ils n'ont pas d'état, mais
+  //  en construire trois copies ferait croire le contraire au prochain
+  //  lecteur.
+  const faune = new FauneEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES);
+  const jeu = new EtatDuJeuSupabase(appeler);
+  const registre = new RegistreSupabase(appeler);
+  const signataire = new SignataireHmac(reglages.WM_SECRET_SIGNATURE);
+
+  //  Tâche 1 : les blocs d'action deviennent des lignes de registre. Elle
+  //  s'exécute SUR UN SUJET ; c'est `ParcourirLesZones` qui l'appelle, au
+  //  bon moment — avant la clôture, voir son en-tête.
+  const lecture = new LireLesNouveauxMessages(
+    faune,
+    forumEnLecture,
+    jeu,
+    new HeuresSupabase(appeler),
+    registre,
+    { maintenant: () => new Date() },
+    signataire,
+  );
+
   const parcourir = new ParcourirLesZones(
-    new FauneEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES),
+    faune,
     forumEnLecture,
     forumEnLecture,
     new SuiviSupabase(appeler),
-    new EtatDuJeuSupabase(appeler),
+    jeu,
     new CloturerUnSujet(
-      new RegistreSupabase(appeler),
-      new EtatDuJeuSupabase(appeler),
+      registre,
+      jeu,
       new ClotureSupabase(appeler),
       forumEnEcriture,
       new CatalogueSupabase(appeler),
-      new SignataireHmac(reglages.WM_SECRET_SIGNATURE),
+      signataire,
     ),
+    lecture,
     new JournalSupabase(appeler),
   );
 
@@ -222,6 +249,10 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     const repris = await bilans.executer();
     return json({
       version: VERSION,
+      //  Ce que la tâche 1 a inscrit au registre pendant le même parcours.
+      //  Rendu à part des clôtures : zéro clôture et douze inscriptions est
+      //  un passage normal et actif, pas un passage vide.
+      inscrites: bilan.inscrites,
       traitees: bilan.traitees,
       issues: bilan.issues,
       erreurs: bilan.erreurs,

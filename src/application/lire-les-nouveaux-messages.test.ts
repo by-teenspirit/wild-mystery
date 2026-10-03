@@ -3,7 +3,6 @@ import {
   type HeuresDesJoueurs,
   jourDe,
   LireLesNouveauxMessages,
-  TACHE,
 } from "./lire-les-nouveaux-messages.ts";
 import type {
   ActionLue,
@@ -11,7 +10,6 @@ import type {
   EtatDuJoueur,
   Faune,
   Horloge,
-  JournalDeReleve,
   LecteurDActions,
   Registre,
   Signataire,
@@ -122,17 +120,6 @@ class RegistreEspion implements Registre {
   }
 }
 
-class JournalEspion implements JournalDeReleve {
-  readonly notes: { tache: string; traites: number; erreurs: readonly string[] }[] = [];
-  dernierPassage(): Promise<Date | null> {
-    return Promise.resolve(null);
-  }
-  noter(tache: string, traites: number, erreurs: readonly string[]): Promise<void> {
-    this.notes.push({ tache, traites, erreurs });
-    return Promise.resolve();
-  }
-}
-
 const HORLOGE: Horloge = { maintenant: () => new Date("2026-10-03T12:00:00Z") };
 
 //  Une empreinte déterministe : le vrai signataire est testé ailleurs, et
@@ -160,13 +147,11 @@ type Decor = {
 type Montage = {
   readonly tache: LireLesNouveauxMessages;
   readonly registre: RegistreEspion;
-  readonly journal: JournalEspion;
   readonly zone: ZoneSauvage;
 };
 
 function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
   const registre = new RegistreEspion();
-  const journal = new JournalEspion();
   const tache = new LireLesNouveauxMessages(
     d.faune ?? new FauneFixe(),
     new ActionsFixes(lues),
@@ -175,9 +160,8 @@ function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
     registre,
     HORLOGE,
     SIGNATAIRE,
-    journal,
   );
-  return { tache, registre, journal, zone: d.zone ?? ZONE };
+  return { tache, registre, zone: d.zone ?? ZONE };
 }
 
 // ── la fouille ──────────────────────────────────────────────────────
@@ -345,7 +329,6 @@ Deno.test("une écriture qui lève n'emporte pas les actions suivantes", async (
     }
   }
   const registre = new RegistreCapricieux();
-  const journal = new JournalEspion();
   const tache = new LireLesNouveauxMessages(
     new FauneFixe(),
     new ActionsFixes([
@@ -357,7 +340,6 @@ Deno.test("une écriture qui lève n'emporte pas les actions suivantes", async (
     registre,
     HORLOGE,
     SIGNATAIRE,
-    journal,
   );
 
   const bilan = await tache.executerSur(ZONE, 976, 0);
@@ -396,18 +378,12 @@ Deno.test("deux messages différents n'ont pas le même code", async () => {
   assert(c.registre.ecrites[0].code !== c.registre.ecrites[1].code);
 });
 
-Deno.test("le passage est noté au journal, même sans rien à faire", async () => {
-  const c = monter([]);
-  await c.tache.executerSur(c.zone, 976, 0);
-  assertEquals(c.journal.notes, [{ tache: TACHE, traites: 0, erreurs: [] }]);
-});
-
-Deno.test("le journal reçoit aussi les erreurs", async () => {
-  const c = monter([action(15630, { type: "fouiller" }, 99)]);
-  await c.tache.executerSur(c.zone, 976, 0);
-  assertEquals(c.journal.notes.length, 1);
-  assertEquals(c.journal.notes[0].traites, 0);
-  assertEquals(c.journal.notes[0].erreurs.length, 1);
+Deno.test("un sujet sans aucune action rend un bilan vide, sans erreur", () => {
+  //  Le cas le plus fréquent de la relève, et il doit être muet : la
+  //  plupart des messages d'un RP ne demandent rien.
+  return monter([]).tache.executerSur(ZONE, 976, 0).then((b) => {
+    assertEquals(b, { traitees: 0, erreurs: [], lignes: [] });
+  });
 });
 
 // ── le jour, pour la météo ──────────────────────────────────────────

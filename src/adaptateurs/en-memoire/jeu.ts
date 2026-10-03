@@ -6,12 +6,14 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type {
+  ActionLue,
   Catalogue,
   Cloture,
   DemandeDeClotureLue,
   EtatDuJeu,
   EtatDuJoueur,
   Horloge,
+  LecteurDActions,
   LecteurDeDemandes,
   LecteurDeForum,
   MessageDuForum,
@@ -21,7 +23,7 @@ import type {
   Versement,
 } from "../../application/ports.ts";
 import { graineDepuis } from "../../domaine/alea.ts";
-import { demandesDeCloture } from "../forumactif/demandes.ts";
+import { actionsDemandees, demandesDeCloture } from "../forumactif/demandes.ts";
 
 export class EtatDuJeuEnMemoire implements EtatDuJeu {
   readonly #pseudos = new Map<string, string>();
@@ -137,7 +139,8 @@ export class CatalogueEnMemoire implements Catalogue {
   }
 }
 
-export class ForumEnMemoire implements LecteurDeForum, LecteurDeDemandes, PosteurSurForum {
+export class ForumEnMemoire
+  implements LecteurDeForum, LecteurDeDemandes, LecteurDActions, PosteurSurForum {
   readonly #messages: MessageDuForum[] = [];
   /** Le texte des messages, pour que `demandesDeCloture` ait quelque chose
    *  à lire. Séparé parce que le port `LecteurDeForum` ne porte pas de corps. */
@@ -172,6 +175,24 @@ export class ForumEnMemoire implements LecteurDeForum, LecteurDeDemandes, Posteu
         corps: this.#corps.get(m.id) ?? "",
       }));
     return Promise.resolve(demandesDeCloture(nouveaux).map((d) => ({ sujetId, ...d })));
+  }
+
+  /** Comme ci-dessus : c'est le VRAI lecteur d'actions qui travaille. Un
+   *  faux qui reconnaîtrait `[[WM-ACTION:…]]` autrement que le vrai
+   *  laisserait passer des tests sur un format qui n'existe pas. */
+  actionsDuSujet(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly ActionLue[]> {
+    const nouveaux = this.#messages
+      .filter((m) => m.sujetId === sujetId && m.id > depuisMessageId)
+      .map((m) => ({
+        id: m.id,
+        auteurId: m.auteurId,
+        auteurPseudo: m.auteurPseudo,
+        corps: this.#corps.get(m.id) ?? "",
+      }));
+    return Promise.resolve(actionsDemandees(nouveaux).map((a) => ({ sujetId, ...a })));
   }
 
   messagesDuSujet(

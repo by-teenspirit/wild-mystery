@@ -13,6 +13,7 @@ import type {
   ZoneSauvage,
 } from "../../application/ports.ts";
 import type { EntreeDeTable } from "../../domaine/rencontre.ts";
+import type { HeuresDesJoueurs } from "../../application/lire-les-nouveaux-messages.ts";
 
 export class FauneEnMemoire implements Faune {
   constructor(private readonly zones: readonly ZoneSauvage[]) {}
@@ -87,5 +88,27 @@ export class VerrouEnMemoire implements Verrou {
   rendre(nom: string): Promise<void> {
     this.pris.delete(nom);
     return Promise.resolve();
+  }
+}
+
+/** L'heure locale des joueurs, figée.
+ *
+ *  Le vrai adaptateur lit `joueur.fuseau` et laisse Postgres convertir
+ *  (migration 0009). Ici on pose l'heure directement : ce qu'un test de
+ *  cas d'usage veut vérifier, c'est que le jour et la nuit changent la
+ *  table de rencontre, pas que `Europe/Paris` existe. */
+export class HeuresEnMemoire implements HeuresDesJoueurs {
+  constructor(
+    private readonly parDefaut = 14,
+    private readonly parJoueur = new Map<string, number>(),
+  ) {}
+
+  poser(joueurId: string, heure: number): this {
+    this.parJoueur.set(joueurId, heure);
+    return this;
+  }
+
+  heureLocaleDe(joueurId: string): Promise<number> {
+    return Promise.resolve(this.parJoueur.get(joueurId) ?? this.parDefaut);
   }
 }

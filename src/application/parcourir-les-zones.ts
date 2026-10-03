@@ -1,11 +1,26 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/application/parcourir-les-zones.ts
 //
-//  La tâche « les clôtures » de la relève (planche 45, tâche 2).
+//  LE PARCOURS DES ZONES : les tâches 1 et 2 de la relève (planche 45).
 //
 //  Elle parcourt les dix-sept zones sauvages, repère les sujets qui ont
-//  bougé depuis le dernier passage, y cherche les demandes de clôture, et
-//  confie chacune à `CloturerUnSujet`.
+//  bougé depuis le dernier passage, et fait sur chacun deux choses, **dans
+//  cet ordre** :
+//
+//    1. `LireLesNouveauxMessages` inscrit au registre ce que les joueurs
+//       ont demandé — une fouille, une recherche ;
+//    2. `CloturerUnSujet` traite les demandes de clôture.
+//
+//  **L'ORDRE EST UNE GARANTIE, PAS UNE COMMODITÉ.** Un joueur peut
+//  fouiller et demander la clôture dans le même passage de relève — c'est
+//  même le cas normal en fin de RP. Clôturer d'abord verserait un registre
+//  auquel il manque la dernière action, et elle serait perdue pour
+//  toujours : la clôture efface le registre. Lire d'abord coûte zéro et
+//  ferme le trou.
+//
+//  Les deux tâches partagent le même parcours parce qu'elles ont besoin du
+//  même curseur et des mêmes pages. Les séparer doublerait les requêtes
+//  vers Forumactif pour le même résultat.
 //
 //  DEUX RÈGLES DE SÛRETÉ, et ce sont elles qui justifient ce fichier.
 //
@@ -30,8 +45,13 @@ import type {
   LecteurDeDemandes,
   LecteurDeForum,
   SuiviDesForums,
+  ZoneSauvage,
 } from "./ports.ts";
 import type { CloturerUnSujet, Resultat } from "./cloturer-un-sujet.ts";
+import {
+  type LireLesNouveauxMessages,
+  TACHE as TACHE_MESSAGES,
+} from "./lire-les-nouveaux-messages.ts";
 
 export const TACHE = "clotures";
 
@@ -42,6 +62,8 @@ export type BilanDuPassage = {
   readonly erreurs: readonly string[];
   /** Le détail, pour le journal et pour les tests. */
   readonly issues: readonly { readonly sujetId: number; readonly issue: Resultat["issue"] }[];
+  /** Ce que la tâche 1 a inscrit au registre pendant le même parcours. */
+  readonly inscrites: number;
 };
 
 function raison(e: unknown): string {
@@ -56,33 +78,47 @@ export class ParcourirLesZones {
     private readonly suivi: SuiviDesForums,
     private readonly jeu: EtatDuJeu,
     private readonly cloturer: CloturerUnSujet,
+    private readonly lecture: LireLesNouveauxMessages,
     private readonly journal: JournalDeReleve,
   ) {}
 
   async executer(): Promise<BilanDuPassage> {
     const erreurs: string[] = [];
     const issues: { sujetId: number; issue: Resultat["issue"] }[] = [];
+    //  Les erreurs de la tâche 1 sont tenues à part : elles vont dans sa
+    //  ligne de journal à elle, pas dans celle des clôtures. Mélanger les
+    //  deux ferait croire à une panne de clôture là où un joueur a
+    //  simplement cliqué sans avoir de fiche.
+    const lecture = { inscrites: 0, erreurs: [] as string[] };
 
     for (const zone of await this.faune.zonesSauvages()) {
       try {
-        await this.parcourirUneZone(zone.forumId, zone.nom, erreurs, issues);
+        await this.parcourirUneZone(zone, erreurs, issues, lecture);
       } catch (e) {
         // Une zone injoignable ne doit pas emporter les seize autres.
         erreurs.push(`zone ${zone.nom} (f${zone.forumId}) : ${raison(e)}`);
       }
     }
 
-    const bilan: BilanDuPassage = { traitees: issues.length, erreurs, issues };
+    const bilan: BilanDuPassage = {
+      traitees: issues.length,
+      erreurs,
+      issues,
+      inscrites: lecture.inscrites,
+    };
+    //  Une ligne par tâche et par passage, comme la table le demande.
+    await this.journal.noter(TACHE_MESSAGES, lecture.inscrites, lecture.erreurs);
     await this.journal.noter(TACHE, bilan.traitees, erreurs);
     return bilan;
   }
 
   private async parcourirUneZone(
-    forumId: number,
-    nomDeLaZone: string,
+    zone: ZoneSauvage,
     erreurs: string[],
     issues: { sujetId: number; issue: Resultat["issue"] }[],
+    lecture: { inscrites: number; erreurs: string[] },
   ): Promise<void> {
+    const forumId = zone.forumId;
     const curseur = await this.suivi.dernierMessageLu(forumId);
     const remues = await this.forum.sujetsRemues([forumId]);
 
@@ -108,11 +144,11 @@ export class ParcourirLesZones {
     for (const sujet of remues) {
       if (sujet.dernierMessageId <= curseur) continue;
       try {
-        await this.traiterUnSujet(sujet.sujetId, curseur, erreurs, issues);
+        await this.traiterUnSujet(zone, sujet.sujetId, curseur, erreurs, issues, lecture);
         plusLoin = Math.max(plusLoin, sujet.dernierMessageId);
       } catch (e) {
         incident = true;
-        erreurs.push(`sujet ${sujet.sujetId} (${nomDeLaZone}) : ${raison(e)}`);
+        erreurs.push(`sujet ${sujet.sujetId} (${zone.nom}) : ${raison(e)}`);
       }
     }
 
@@ -122,11 +158,19 @@ export class ParcourirLesZones {
   }
 
   private async traiterUnSujet(
+    zone: ZoneSauvage,
     sujetId: number,
     depuisMessageId: number,
     erreurs: string[],
     issues: { sujetId: number; issue: Resultat["issue"] }[],
+    lecture: { inscrites: number; erreurs: string[] },
   ): Promise<void> {
+    //  TÂCHE 1 D'ABORD. Voir l'en-tête : clôturer avant d'avoir inscrit
+    //  perdrait la dernière action du joueur, et pour de bon.
+    const lu = await this.lecture.executerSur(zone, sujetId, depuisMessageId);
+    lecture.inscrites += lu.traitees;
+    lecture.erreurs.push(...lu.erreurs);
+
     for (const demande of await this.demandes.demandesDeCloture(sujetId, depuisMessageId)) {
       const joueurId = await this.jeu.joueurDuCompte(demande.auteurId);
       if (joueurId === null) {

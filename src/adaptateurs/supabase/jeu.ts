@@ -11,6 +11,7 @@
 
 import type { EtatDuJoueur } from "../../domaine/cloture.ts";
 import type { Catalogue, EtatDuJeu } from "../../application/ports.ts";
+import type { HeuresDesJoueurs } from "../../application/lire-les-nouveaux-messages.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
 function objet(fonction: string, recu: unknown): Record<string, unknown> {
@@ -105,5 +106,32 @@ export class CatalogueSupabase implements Catalogue {
 
   nomEspece(especeId: number): Promise<string> {
     return this.nom("catalogue_nom_espece", { especeId });
+  }
+}
+
+/**
+ * L'heure locale d'un joueur.
+ *
+ * C'est Postgres qui convertit, pas nous : `heure_locale_du_joueur` lit
+ * `joueur.fuseau` et applique `now() at time zone`. Refaire ce calcul ici
+ * voudrait dire embarquer une base de fuseaux horaires dans une fonction
+ * Edge et la tenir à jour — alors que Postgres en a déjà une, à jour, et
+ * qu'elle a validé le fuseau à l'écriture (migration 0009).
+ *
+ * **La fonction rend bien 0 à 23**, et on le vérifie quand même : une
+ * heure hors bornes ferait croire au domaine qu'il fait nuit à midi, et
+ * le joueur croiserait des Pokémon nocturnes sans comprendre pourquoi.
+ */
+export class HeuresSupabase implements HeuresDesJoueurs {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async heureLocaleDe(joueurId: string): Promise<number> {
+    const nom = "heure_locale_du_joueur";
+    const recu = await this.appeler(nom, { joueurId });
+    const heure = entier(nom, recu, "heure");
+    if (heure < 0 || heure > 23) {
+      throw new AppelEchoue(nom, `heure hors bornes pour ${joueurId} : ${heure}`);
+    }
+    return heure;
   }
 }

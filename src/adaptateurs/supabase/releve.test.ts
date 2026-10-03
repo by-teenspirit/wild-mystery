@@ -14,7 +14,7 @@
 
 import { assert, assertEquals, assertRejects } from "@std/assert";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
-import { CatalogueSupabase, EtatDuJeuSupabase } from "./jeu.ts";
+import { CatalogueSupabase, EtatDuJeuSupabase, HeuresSupabase } from "./jeu.ts";
 import { JournalSupabase, SuiviSupabase, VerrouSupabase } from "./releve.ts";
 
 function repond(valeurs: Record<string, unknown>): {
@@ -180,4 +180,35 @@ Deno.test("catalogue · rend les noms, et refuse une réponse vide", async () =>
 
   const vide = repond({ catalogue_nom_objet: { nom: "" } });
   await assertRejects(() => new CatalogueSupabase(vide.appel).nomObjet(1), AppelEchoue);
+});
+
+// ── l'heure locale du joueur ────────────────────────────────────────
+
+Deno.test("heures · l'heure rendue par Postgres est reprise telle quelle", async () => {
+  const { appel } = repond({ heure_locale_du_joueur: 23 });
+  assertEquals(await new HeuresSupabase(appel).heureLocaleDe("anna"), 23);
+});
+
+Deno.test("heures · minuit est une heure valable, pas une absence", async () => {
+  //  Le piège classique : `0` est falsy. Un `??` ou un `||` mal placé le
+  //  remplacerait par une valeur par défaut, et le joueur jouerait en
+  //  plein jour à minuit.
+  const { appel } = repond({ heure_locale_du_joueur: 0 });
+  assertEquals(await new HeuresSupabase(appel).heureLocaleDe("anna"), 0);
+});
+
+Deno.test("heures · une heure hors bornes lève plutôt que de passer", async () => {
+  //  Elle ferait croire au domaine qu'il fait nuit à midi, et le joueur
+  //  croiserait des Pokémon nocturnes sans comprendre pourquoi.
+  for (const heure of [-1, 24, 99]) {
+    const { appel } = repond({ heure_locale_du_joueur: heure });
+    await assertRejects(() => new HeuresSupabase(appel).heureLocaleDe("anna"), AppelEchoue);
+  }
+});
+
+Deno.test("heures · une réponse qui n'est pas un entier lève", async () => {
+  for (const recu of [null, "14", 14.5, {}, []]) {
+    const { appel } = repond({ heure_locale_du_joueur: recu });
+    await assertRejects(() => new HeuresSupabase(appel).heureLocaleDe("anna"), AppelEchoue);
+  }
 });
