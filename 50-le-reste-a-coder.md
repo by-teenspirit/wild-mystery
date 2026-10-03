@@ -181,7 +181,7 @@ Dans le dépôt, sauf les jetons (`48-…` §8).
 |---|---|---|
 | ✓ | `css/01-deflottement.css` | flexbox à la place des flottants et des pourcentages |
 | ✓ | `css/02-socle.css` | typographie, titres, liens, boutons, champs, états de focus — **et les trois surfaces génériques**, parce qu'une couleur de texte et la surface qui la porte sont une seule décision |
-| · | `css/03-index.css` | catégories, lignes de forum, carte « La vie de Rhode » |
+| ✓ | `css/03-index.css` | catégories, lignes de forum. **La carte « La vie de Rhode » n'est pas faite** : elle n'existe pas dans le DOM, il faut d'abord reprendre `index_box` |
 | · | `css/04-forum.css` | en-tête de forum, liste des sujets, pagination |
 | · | `css/05-sujet.css` | message, fiche de personnage, boutons, module de bilan, infobulle |
 | · | `css/06-ecrire.css` | la page de rédaction, les options, le lanceur de dés |

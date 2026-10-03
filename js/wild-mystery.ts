@@ -28,9 +28,21 @@ import { CoinOutils } from "../src/adaptateurs/navigateur/coin-outils.ts";
 import { masquerLesMarqueurs } from "../src/adaptateurs/navigateur/marqueurs.ts";
 import { BrouillonForumactif } from "../src/adaptateurs/navigateur/editeur.ts";
 import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts";
+import {
+  adresseDuScript,
+  CatalogueDistant,
+  forumDeLaPage,
+  racineDesDonnees,
+} from "../src/adaptateurs/navigateur/catalogue.ts";
+import { zoneDe } from "../src/navigateur/zone.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
+
+//  LU TOUT DE SUITE, et pas plus tard : `document.currentScript` n'est
+//  renseigné que pendant l'exécution initiale du script. Après le premier
+//  `await` il vaut null, et la racine des données serait introuvable.
+const RACINE = racineDesDonnees(adresseDuScript(document));
 
 //  Le `<body>` existe dès que notre script s'exécute si le `<script>` est
 //  placé en fin de corps ; on se garde du cas contraire sans attendre
@@ -40,21 +52,42 @@ function desQueLeCorpsEstLa(faire: () => void): void {
   else document.addEventListener("DOMContentLoaded", faire, { once: true });
 }
 
-/** La barre d'actions, s'il y a un formulaire de réponse sur cette page.
- *  La plupart des pages n'en ont pas, et c'est le cas normal : on ne
- *  cherche pas plus loin, on ne signale rien. */
-function poserLaBarre(): void {
+/** La barre d'actions, s'il y a un formulaire de réponse **et** si on est
+ *  dans une zone sauvage.
+ *
+ *  LES DEUX CONDITIONS SONT DES CAS NORMAUX quand elles ne sont pas
+ *  remplies : la plupart des pages n'ont pas de formulaire, et la
+ *  plupart des forums ne sont pas des zones. On ne signale rien, on ne
+ *  cherche pas plus loin.
+ *
+ *  La règle 4 de la planche 45 : le module n'existe que dans les
+ *  dix-sept zones. Un bouton ailleurs écrirait un bloc que la relève ne
+ *  lirait jamais — elle ne parcourt que les zones — et le joueur
+ *  n'aurait aucun moyen de comprendre pourquoi rien ne se passe. */
+async function poserLaBarre(): Promise<void> {
   const brouillon = BrouillonForumactif.surLaPage(document);
   if (brouillon === null) return;
   const formulaire = document.querySelector("#quick_reply") ??
     document.querySelector("form[name=post]");
   if (formulaire === null) return;
-  new BarreDActions(document, brouillon).poser(formulaire);
+  if (RACINE === null) return;
+
+  const catalogue = new CatalogueDistant(RACINE);
+  const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
+  if (zone === null) return;
+
+  //  Sept zones n'ont pas encore de table : la barre se pose quand même,
+  //  sans la rangée « chercher ». Fouiller et clôturer y marchent.
+  const lieux = await catalogue.lieuxDe(zone.forumId);
+  new BarreDActions(document, brouillon, lieux).poser(formulaire);
 }
 
 desQueLeCorpsEstLa(() => {
   coin.appliquerLeTheme();
   masquerLesMarqueurs(document);
   coin.poser();
-  poserLaBarre();
+  //  La barre attend deux fichiers : elle arrive donc après le reste, et
+  //  c'est voulu. Une panne de réseau ne doit priver que d'elle — d'où le
+  //  `catch` qui ne fait rien de plus que l'empêcher de remonter.
+  poserLaBarre().catch(() => {});
 });
