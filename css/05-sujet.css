@@ -1,0 +1,385 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 05 · Un sujet
+
+   Le message, la fiche de personnage à sa gauche, la tête du message et
+   le corps du texte. C'est la page la plus lue du forum : un RP s'y
+   écrit sur trois semaines, et c'est là que le confort de lecture
+   compte le plus.
+
+   ── RELEVÉ SUR `/t976-test2`, CONNECTÉ, le 3 octobre ─────────────────
+
+       div.post.row2.post--15546.post-group-4
+         div.postprofile
+           dl > dt            l'avatar, le pseudo, le rang
+              > dd.postprofile-info      46 paires étiquette/valeur
+              > dd.postprofile-contact
+         div.post-head
+           div.menu-wrap > ul.profile-icons   les actions, en icônes
+           h2.topic-title
+           div.topic-date
+         div.postbody
+           div.content
+           div.edited-message
+         div.fa_like_div
+
+   La STRUCTURE est à `01` : la tête passe au-dessus des deux colonnes
+   (`order: -1`), la fiche fait 211 px, le corps prend le reste. Ici,
+   l'apparence.
+
+   ── CE QUI N'EST PAS ICI ──────────────────────────────────────────────
+
+   **Le module de bilan** (planche 38) n'existe pas encore dans le DOM :
+   il demande le JavaScript qui le construit et un point d'ancrage dans
+   `viewtopic_body`. Sa feuille viendra avec lui.
+
+   **La citation, le spoiler et le code** n'ont pas pu être relevés :
+   aucun message du forum n'en contient aujourd'hui. Les règles qui les
+   concerneraient ne sont pas écrites — on ne dessine pas à l'aveugle un
+   bloc dont on ne connaît pas le balisage.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · le bloc d'un message ─────────────────────────────────────── */
+
+/*  Chaque message est une carte.
+
+    ATTENTION, LE PIÈGE DU 59, TROISIÈME FOIS : `02` donne leur surface
+    aux lignes `li.row1`/`li.row2`, mais un message n'est pas un `li` —
+    c'est un `div.post.row2`, et ModernBB le peint `#f8f8f8` EN DUR, dans
+    les deux thèmes. En sombre, la page entière virait au noir sauf les
+    messages, restés blancs avec du texte clair dessus : 1,51.
+    On prend la surface, donc on prend le texte qui est dessus. */
+#modernbb [class*="post--"] {
+  margin: 0 0 var(--wm-espace-18, 18px);
+  padding: var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  `:where()` ne pèse rien, MAIS LE SÉLECTEUR QUI LE PORTE, SI. Écrit
+    `div[class*="post--"] :where(…)`, l'ensemble pèse (1,1,1) — le `div`
+    compte — et il battait mes propres règles de couleur en (1,1,0) : la
+    date du message sortait en corps au lieu de pâle. Sans le `div`, on
+    retombe à (1,1,0) : ça bat toujours ModernBB (0,1,0), et les règles
+    qui suivent ici gardent la main. */
+#modernbb [class*="post--"]
+  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+  color: inherit;
+}
+
+/*  Le « + » qui ouvre le menu du message. ModernBB lui peint un fond
+    ardoise à lui : si on ne lui donne que la couleur du texte, on
+    obtient 1,1. Il est à côté des icônes d'action — on le traite
+    pareil. */
+#modernbb .post-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+}
+
+/* ── 2 · la tête du message ───────────────────────────────────────── */
+
+/*  Le titre du sujet, la date, et les actions. `01` l'a déjà fait passer
+    au-dessus des deux colonnes ; on lui donne sa ligne. */
+/*  ModernBB teinte la tête d'un `rgba(0,0,0,.03)` : sur une carte chaude
+    ça tire au gris, et on a déjà un filet pour séparer. On la remet à
+    plat. */
+#modernbb .post-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+
+  margin-bottom: var(--wm-espace-16, 16px);
+  padding: 0 0 var(--wm-espace-12, 12px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  background: none;
+}
+
+/*  DANS LE TEMPLATE, LES ACTIONS VIENNENT EN PREMIER : `menu-wrap`, puis
+    le titre, puis la date. Un `margin-left: auto` sur le premier enfant
+    ne pousse pas ce premier enfant à droite — il pousse tous les autres.
+    On remet l'ordre visuel sans toucher au template. */
+#modernbb .post-head .topic-title {
+  order: 1;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+#modernbb .post-head .topic-date {
+  order: 2;
+}
+
+/*  Le titre du sujet est répété sur CHAQUE message par le template. Il
+    est donc une répétition, pas un titre : Titre/Carte et pas
+    Titre/Page, sinon la page devient une suite de pancartes. */
+#modernbb .post-head .topic-title {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-carte, 1.25);
+}
+
+/*  Le titre est un lien vers l'ancre du message. C'est un repère, pas
+    une action : il ne part pas en bleu au milieu d'un fil de RP.
+
+    ModernBB en fait un bloc à `max-width: 95%` coupé aux points de
+    suspension — dans une rangée en flex, un bloc qui sait se couper ne
+    réclame aucune largeur, et « Re: test2 » sortait en « Re: te… ». On
+    le repasse en ligne et on le laisse revenir à la ligne. */
+#modernbb .post-head .topic-title a {
+  display: inline;
+  max-width: none;
+  overflow: visible;
+  color: inherit;
+  white-space: normal;
+  text-decoration: none;
+  text-overflow: clip;
+}
+
+/*  Le `empty.gif` que le template colle devant le titre. */
+#modernbb .post-head .topic-title > img {
+  display: none;
+}
+
+#modernbb .topic-date {
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: var(--wm-interligne-legende, 1.45);
+}
+
+/*  Les actions du message — citer, éditer, remercier — sont des icônes.
+    Elles poussent à droite et restent discrètes jusqu'au survol : un fil
+    de RP ne doit pas ressembler à une barre d'outils. */
+#modernbb .post-head .menu-wrap {
+  order: 3;
+  margin-left: auto;
+}
+
+#modernbb .profile-icons {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .profile-icons a,
+#modernbb .profile-icons span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+}
+
+#modernbb .profile-icons a:hover,
+#modernbb .profile-icons span:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── 3 · la fiche de personnage ───────────────────────────────────── */
+
+/*  La colonne de gauche. C'est elle qui donne son caractère à un forum
+    RP : on la traite comme une carte dans la carte, posée sur
+    `surface-haute` pour se détacher du message sans l'écraser. */
+#modernbb .postprofile {
+  padding: var(--wm-espace-14, 14px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-corps, #4e3b30);
+  text-align: center;
+}
+
+#modernbb .postprofile dl,
+#modernbb .postprofile dt,
+#modernbb .postprofile dd {
+  margin: 0;
+  padding: 0;
+}
+
+/*  L'avatar. La charte lui donne 200 × 320 — un portrait, pas une
+    vignette : c'est le dessin du personnage, et c'est ce qu'on vient
+    voir. `object-fit` l'empêche de se déformer quand l'image fournie
+    n'a pas le bon rapport. */
+#modernbb .postprofile-avatar img {
+  display: block;
+  width: 100%;
+  max-width: var(--wm-avatar-largeur, 200px);
+  height: auto;
+  margin: 0 auto var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  object-fit: cover;
+}
+
+/*  Le pseudo. Sa couleur vient du groupe, en style inline : on ne la
+    touche pas (voir 59-… §8), on ne donne que la forme. */
+#modernbb .postprofile-name {
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-carte, 1.25);
+}
+
+/*  ModernBB souligne le rang d'une barre de 3 px, dans sa propre
+    couleur. Deux lignes à dix pixels d'écart — celle-ci et le filet de
+    `.postprofile-info` — font un accordéon ; on garde la seconde. */
+#modernbb .postprofile-rank {
+  margin-bottom: var(--wm-espace-10, 10px);
+  border-bottom: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Les champs du profil : quarante-six paires étiquette/valeur dans le
+    relevé. Alignées à gauche et serrées, sinon la colonne devient plus
+    longue que le message qu'elle accompagne. */
+#modernbb .postprofile-info {
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  text-align: left;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  `texte/pale` donnait 4,16 sur la fiche en mode sombre — sous le seuil
+    pour du 10 px, même en gras. `texte/doux` passe. */
+#modernbb .postprofile-info .label {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .postprofile-contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--wm-espace-6, 6px);
+  margin-top: var(--wm-espace-10, 10px);
+}
+
+/* ── 4 · le corps du message ──────────────────────────────────────── */
+
+/*  CORPS/MESSAGE, 16 px et 1,75 d'interligne. C'est le style le plus
+    généreux de la charte, et c'est voulu : on lit ici des pavés de
+    plusieurs milliers de signes. ModernBB y servait du 13 px.
+
+    `overflow-wrap` parce qu'un joueur colle une URL longue tôt ou tard,
+    et qu'elle ne doit pas élargir toute la page. */
+#modernbb .postbody .content {
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-message, 16px);
+  line-height: var(--wm-interligne-message, 1.75);
+  overflow-wrap: break-word;
+}
+
+#modernbb .postbody .content p {
+  margin: 0 0 var(--wm-espace-16, 16px);
+}
+
+#modernbb .postbody .content p:last-child {
+  margin-bottom: 0;
+}
+
+/*  Une image postée dans un RP ne doit jamais dépasser sa colonne. */
+#modernbb .postbody .content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/*  « Dernière édition par… ». C'est une note de bas de page, pas une
+    information du RP. */
+#modernbb .edited-message {
+  margin-top: var(--wm-espace-16, 16px);
+  padding-top: var(--wm-espace-8, 8px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-legende, 10.5px);
+  font-style: italic;
+  line-height: var(--wm-interligne-legende, 1.45);
+}
+
+/* ── 5 · sous le message ──────────────────────────────────────────── */
+
+#modernbb .fa_like_div {
+  flex: 1 1 100%;
+  margin-top: var(--wm-espace-12, 12px);
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 6 · la réponse rapide ────────────────────────────────────────── */
+
+/*  Le formulaire du bas. La barre d'actions de Wild Mystery vient se
+    poser juste après lui (feuille `10`) : les deux doivent se lire comme
+    un même ensemble, donc même rayon et même bord. */
+#modernbb #quick_reply {
+  margin-top: var(--wm-espace-24, 24px);
+  padding: var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  Le compteur de signes, sous l'éditeur. */
+#modernbb #textarea_content .count,
+#modernbb .sceditor-container ~ div {
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-legende, 10.5px);
+}
+
+/* ── 7 · sous 740 px ──────────────────────────────────────────────── */
+
+/*  `01` fait déjà passer la fiche en pleine largeur. Au-dessus d'un
+    message, un portrait de 320 px de haut repousse le texte hors de
+    l'écran : on le couche et on le réduit. */
+@media (max-width: 740px) {
+  #modernbb .postprofile {
+    display: flex;
+    align-items: center;
+    gap: var(--wm-espace-12, 12px);
+    text-align: left;
+  }
+
+  #modernbb .postprofile dl {
+    display: flex;
+    align-items: center;
+    gap: var(--wm-espace-12, 12px);
+    width: 100%;
+  }
+
+  #modernbb .postprofile-avatar img {
+    width: 72px;
+    margin: 0;
+  }
+
+  /*  Les quarante-six champs du profil n'ont pas leur place au-dessus
+      de chaque message sur un téléphone. Le pseudo et le rang suffisent
+      à savoir qui parle ; la fiche complète est à un clic. */
+  #modernbb .postprofile-info,
+  #modernbb .postprofile-contact {
+    display: none;
+  }
+}
