@@ -138,6 +138,49 @@ if [ -f "$PAQUET" ]; then
   fi
 fi
 
+echo "── 7. les feuilles de style ────────────────────────────────────"
+# LE PARTAGE DE 48-… §8 : le dépôt ne DÉFINIT jamais un jeton, il s'en
+# sert. Les jetons vivent dans le panneau d'administration, servi avant
+# nous ; si une feuille d'ici redéclarait `--wm-…`, elle gagnerait, et
+# changer une couleur de la charte redeviendrait un commit.
+#
+# Et : zéro requête réseau partie d'une de nos feuilles.
+mapfile -t CSS < <(find css -maxdepth 1 -name '[0-9][0-9]-*.css' | sort)
+for f in "${CSS[@]}"; do
+  # on retire les commentaires avant de chercher : le fichier parle de
+  # ses propres interdits, et il a le droit de les nommer
+  # on retire d'abord les commentaires, puis les `var(…)` : un `--wm-`
+  # qui survit aux deux est une DÉFINITION, pas un usage. L'ancrage en
+  # début de ligne ne suffirait pas — `:root { --wm-x: red }` tient sur
+  # une ligne, et c'est exactement la faute qu'on cherche.
+  nu=$(perl -0pe 's{/\*.*?\*/}{}gs; 1 while s{var\([^()]*\)}{}g' "$f")
+  if grep -q -- '--wm-' <<< "$nu"; then
+    gronde "$f définit un jeton — le dépôt s'en sert, il ne les déclare pas (48-… §8)"
+  fi
+  if grep -qE '@import|url\(' <<< "$nu"; then
+    gronde "$f fait une requête réseau — aucune feuille du dépôt n'a le droit"
+  fi
+done
+
+# La feuille assemblée est servie par jsDelivr depuis le dépôt, pas
+# depuis une étape de construction : si elle ne correspond pas aux
+# feuilles, les joueurs reçoivent un CSS que personne n'a relu.
+if [ ${#CSS[@]} -gt 0 ]; then
+  if [ ! -f css/wild-mystery.css ]; then
+    gronde "css/wild-mystery.css manque — lance « bash outils/css.sh »"
+  else
+    temoin=$(mktemp)
+    bash outils/css.sh "$temoin" > /dev/null
+    if ! cmp -s css/wild-mystery.css "$temoin"; then
+      rm -f "$temoin"
+      gronde "css/wild-mystery.css ne correspond pas aux feuilles — relance « bash outils/css.sh » et commite"
+    else
+      rm -f "$temoin"
+      echo "   css/wild-mystery.css : à jour (${#CSS[@]} feuilles)"
+    fi
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

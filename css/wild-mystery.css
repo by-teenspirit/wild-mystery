@@ -1,0 +1,801 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery — feuille assemblée. NE PAS MODIFIER À LA MAIN.
+
+   Produit par outils/css.sh à partir des feuilles numérotées de
+   css/. Pour changer une règle, change la feuille qui la porte et
+   relance le script — une correction faite ici serait écrasée au
+   prochain assemblage, et la CI la refuserait avant ça.
+
+     · css/01-deflottement.css
+     · css/02-socle.css
+     · css/10-coin-outils.css
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 01 · Dé-flottement
+   À coller en tête du CSS principal, avant tout style de charte.
+
+   ModernBB construit ses colonnes avec des flottants et des largeurs
+   en pourcentage (146 `float`, 0 `grid` dans le CSS de base). Ce
+   fichier les remplace par du flexbox, sans toucher à un template.
+   Aucune couleur ici : uniquement de la structure.
+
+   Points de rupture du CSS de base, qu'on réutilise tels quels :
+   1200 · 900 · 800 · 740 · 700 · 400 · 320
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · une ligne de catégorie, de forum ou de sujet ──────────────── */
+
+#modernbb ul.topiclist li.header dl.icon,
+#modernbb ul.topiclist li.row dl.icon {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 0;
+}
+
+/* la cellule qui s'étire : min-width:0 ou un titre long déborde */
+#modernbb ul.topiclist dt,
+#modernbb ul.topiclist dd.dterm {
+  float: none;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 18px;
+}
+
+#modernbb ul.topiclist dd {
+  float: none;
+  padding: 0;
+}
+
+#modernbb dd.topics,
+#modernbb dd.posts,
+#modernbb dd.views {
+  width: auto;
+  flex: 0 0 56px;
+  text-align: center;
+}
+
+#modernbb dd.lastpost {
+  width: auto !important;
+  flex: 0 0 220px;
+  padding: 0 18px !important;
+}
+
+/* l'indentation des sous-forums arrive en style inline ({INC_LEVEL}) */
+#modernbb ul.forums dl.icon dd.dterm > div,
+#modernbb .modern-resp ul.forums dl.icon dd.dterm > div {
+  margin: 0 !important;
+  padding: 0;
+}
+
+/* ── 2 · le responsive : on replie au lieu de masquer ──────────────── */
+
+/* ModernBB met les colonnes à display:none sous 740px. On annule. */
+#modernbb .modern-resp .forabg .row dd.posts,
+#modernbb .modern-resp .forabg .row dd.topics,
+#modernbb .modern-resp .forabg .row dd.views,
+#modernbb .modern-resp .forumbg .row dd.posts,
+#modernbb .modern-resp .forumbg .row dd.views,
+#modernbb .modern-resp .forabg .header dd.topics,
+#modernbb .modern-resp .forabg .header dd.posts,
+#modernbb .modern-resp .forabg .header dd.lastpost,
+#modernbb .modern-resp .forumbg .header dd.posts,
+#modernbb .modern-resp .forumbg .header dd.views,
+#modernbb .modern-resp .forumbg .header dd.lastpost {
+  display: block;
+}
+
+#modernbb .modern-resp .forabg .row dd.dterm,
+#modernbb .modern-resp .forabg .row dd.lastpost,
+#modernbb .modern-resp .forumbg .row dd.dterm,
+#modernbb .modern-resp .forumbg .row dd.lastpost {
+  display: block;
+  width: auto;
+  float: none;
+  padding: 18px !important;
+}
+
+@media (max-width: 740px) {
+  #modernbb ul.topiclist li.row dl.icon {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  #modernbb ul.topiclist dd.dterm { flex: 1 1 100%; }
+  #modernbb dd.topics,
+  #modernbb dd.posts,
+  #modernbb dd.views { flex: 0 0 auto; text-align: left; }
+  #modernbb dd.lastpost { flex: 1 1 100%; padding: 0 18px 18px !important; }
+  /* l'en-tête de colonnes n'a plus de sens empilé */
+  #modernbb ul.topiclist li.header dd.topics,
+  #modernbb ul.topiclist li.header dd.posts,
+  #modernbb ul.topiclist li.header dd.views,
+  #modernbb ul.topiclist li.header dd.lastpost { display: none; }
+}
+
+/* ── 3 · un message ───────────────────────────────────────────────── */
+
+#modernbb div[class*="post--"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+/* la tête passe au-dessus des deux colonnes malgré sa position
+   intermédiaire dans le template */
+#modernbb .post-head {
+  order: -1;
+  flex: 1 1 100%;
+}
+
+#modernbb .postprofile {
+  float: none;
+  width: 211px;
+  flex: 0 0 211px;
+  padding: 0;
+}
+
+#modernbb .postbody {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* fiche à gauche : décommenter
+#modernbb .postprofile { order: 0 }
+#modernbb .postbody    { order: 1 }
+*/
+
+@media (max-width: 740px) {
+  #modernbb .postprofile { flex: 1 1 100%; width: auto; }
+}
+
+/* ── 4 · portail, widgets, pied de page ───────────────────────────── */
+
+/* .portal .column est encore en flottant, et sa largeur arrive en
+   style inline ({column.WIDTH}) : d'où les !important */
+#modernbb .portal {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+#modernbb .portal .column {
+  float: none !important;
+  width: auto !important;
+  flex: 1 1 0;
+  padding: 0;
+  display: block;
+}
+
+/* #footer_widgets et .container-imgs-list sont déjà en flex dans le
+   CSS de base : on ne les touche pas. */
+
+/* ── 5 · ce qui reste en tableau dans les templates ───────────────── */
+
+/* Tant que les templates ne sont pas reprises, on neutralise au moins
+   le rendu tabulaire. La liste des templates concernés est dans
+   49-zero-tableau-que-du-flexbox.md §2. */
+
+#modernbb table.postbody,
+#modernbb table.postbody > tbody,
+#modernbb table.postbody > tbody > tr {
+  display: block;
+  width: 100%;
+}
+#modernbb table.postbody > tbody > tr {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+#modernbb table.postbody td { display: block; }
+#modernbb table.postbody td.logo { flex: 0 0 auto; }
+#modernbb table.postbody td.rules,
+#modernbb table.postbody td.content { flex: 1 1 auto; min-width: 0; }
+
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 02 · Le socle
+
+   La charte posée sur ce que ModernBB sert déjà : les familles, les
+   couleurs, les titres, les liens, les boutons, les champs et les états
+   de focus. Rien de spécifique à une page — l'index, un forum, un sujet
+   ont leurs feuilles à eux (03 à 08).
+
+   ── DEUX PIÈGES RELEVÉS SUR LE FORUM, le 3 octobre ────────────────────
+
+   1. **`body` est à `font-size: 10px`**, et tout le CSS de base enchaîne
+      en `em` : `.gensmall` rend 15,6 px parce qu'elle vaut 1.56em. Poser
+      `font-size: 13.5px` sur `body` multiplierait le forum entier par
+      1,35. **On n'y touche pas.** Les tailles sont posées une par une,
+      en px, là où on reprend l'élément — et ce qu'on ne reprend pas
+      garde la chaîne d'em de ModernBB, intacte.
+
+   2. **Les quatre polices ne sont chargées par personne** (JETONS.md
+      §3). Ce fichier les nomme, et le navigateur tombe sur Georgia et
+      system-ui. C'est lisible, et ça ne ressemble pas à la maquette.
+      Le `<link>` d'`overall_header` est le seul endroit qui puisse les
+      charger ; tant qu'il n'est pas posé, ce socle est juste mais pâle.
+
+   ── CE QUE CE FICHIER NE FAIT PAS ─────────────────────────────────────
+
+   · il ne DÉFINIT aucun jeton — il s'en sert, avec un repli en mode
+     clair (48-… §8). Si la feuille du panneau saute, le forum reste
+     lisible ;
+   · il ne touche pas à `.usr_grp_clr` : la couleur de groupe arrive en
+     style inline, c'est elle qui doit gagner ;
+   · il ne touche pas à `.wm-coin` ni à `.wm-barre`, qui sont à `10` ;
+   · aucune requête réseau : pas d'`@import`, pas d'`url()`.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la page ──────────────────────────────────────────────────── */
+
+/*  Famille, couleur et fond, mais SURTOUT PAS la taille : voir le piège
+    n°1 en tête de fichier. */
+body#modernbb {
+  background: var(--wm-fond-page, #f2e4d8);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-variation-settings: var(--wm-police-corps-axes, "wdth" 100, "YTLC" 500);
+}
+
+/*  La chaîne d'em s'applique aussi aux descendants : on hérite la
+    famille sans jamais toucher à la taille. */
+#modernbb input,
+#modernbb select,
+#modernbb textarea,
+#modernbb button {
+  font-family: inherit;
+  font-variation-settings: inherit;
+}
+
+/*  Le texte sélectionné : la maquette n'en dit rien, mais le bleu par
+    défaut du navigateur jure avec la charte, et ça se voit dès qu'on
+    relit un message. */
+#modernbb ::selection {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+}
+
+/* ── 1 bis · les surfaces, parce qu'une couleur ne voyage pas seule ── */
+
+/*  CETTE SECTION N'ÉTAIT PAS PRÉVUE ICI, et voilà pourquoi elle y est.
+
+    Le découpage disait : 02 les couleurs de texte, 03 les blocs de
+    l'index. Posé tel quel, le résultat était illisible — `ul.topiclist`
+    porte un `#ffffff` EN DUR dans le CSS de base, et notre `texte/encre`
+    en mode sombre vaut `#f2e4d8`. Crème sur blanc. Le titre d'un forum
+    disparaissait purement et simplement.
+
+    La leçon tient en une phrase : **une couleur de texte et la surface
+    qui la porte sont une seule décision, pas deux.** Les séparer entre
+    deux fichiers, c'est garantir qu'une moitié parte sans l'autre.
+
+    Donc : les trois surfaces génériques sont ici, avec le texte qu'elles
+    portent. Ce qui reste à 03, c'est tout le reste — les écarts, les
+    bords entre lignes, la carte « La vie de Rhode », les icônes. */
+
+/*  Le bloc d'une catégorie ou d'un forum. ModernBB lui met son bleu. */
+#modernbb .forabg,
+#modernbb .forumbg {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  overflow: hidden;
+}
+
+/*  La bande de titre, en haut du bloc. Même paire que l'en-tête de la
+    barre d'actions (feuille 10) : `fond/douce` + `accent/fort`. */
+#modernbb .forabg li.header,
+#modernbb .forumbg li.header {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  La liste elle-même. Le `#ffffff` en dur est le coupable du
+    paragraphe ci-dessus. */
+#modernbb ul.topiclist {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  Un filet entre deux lignes, et pas sur la dernière : sans lui les
+    lignes se touchent, et le bloc devient un pavé. */
+#modernbb ul.topiclist li.row + li.row {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/* ── 2 · les titres ───────────────────────────────────────────────── */
+
+/*  Les quatre styles de titre de Figma, chacun sur ce qui lui
+    correspond dans ModernBB. La correspondance est dans JETONS.md §3 ;
+    on ne réinvente pas une échelle ici, on applique la sienne. */
+
+/*  Titre/Display — le nom du forum, en tête de page.
+
+    `texte/sur-nuit` et PAS `texte/encre`, pour une raison qu'on n'a vue
+    qu'en mesurant : ModernBB pose le nom du forum sur une bande sombre
+    à lui (`#1d262c`), qui ne change pas avec notre thème. `encre` y
+    tombait à **1,02 de contraste en mode clair** — le titre devenait
+    invisible. En sombre il passait, parce qu'`encre` y vaut du crème :
+    la faute se cachait derrière un mode sur deux.
+
+    C'est l'avertissement de JETONS.md §7, mot pour mot : trois jetons
+    valent le même blanc cassé en clair, et prendre celui dont la valeur
+    tombe juste plutôt que celui qui dit l'intention ne se voit pas tant
+    qu'on reste d'un côté. `sur-nuit` est celui qui dit « posé sur une
+    surface sombre », et il est crème dans les deux modes. */
+#modernbb h1 {
+  margin: 0;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-display, 44px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-affiche, 1);
+}
+
+/*  Titre/Section — le titre d'une catégorie, posé sur `fond/douce`.
+    ModernBB le met en blanc sur son bleu : il faut donc reprendre la
+    couleur en même temps que la typographie, sinon il disparaît. */
+#modernbb .table-title h2,
+#modernbb li.header .table-title {
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+/*  Titre/Carte — le nom d'un forum ou d'un sujet dans une liste. C'est
+    le titre le plus souvent lu du forum. */
+#modernbb h3.hierarchy,
+#modernbb a.forumtitle,
+#modernbb a.topictitle {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-carte, 1.25);
+}
+
+#modernbb h3.hierarchy {
+  margin: 0;
+}
+
+#modernbb a.forumtitle:hover,
+#modernbb a.topictitle:hover {
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── 3 · les petits textes ────────────────────────────────────────── */
+
+/*  `.gensmall` porte 47 fois sur l'index : les dates, les compteurs, les
+    « par Untel ». C'est le texte secondaire du forum, donc Corps/Petit
+    et `texte/pale`. */
+#modernbb .gensmall,
+#modernbb .lastpost-infos {
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  Surtitre — les intitulés de colonne d'une liste, en capitales. */
+#modernbb li.header dd.topics,
+#modernbb li.header dd.posts,
+#modernbb li.header dd.views,
+#modernbb li.header dd.lastpost {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-surtitre, 1.4);
+  text-transform: uppercase;
+}
+
+/* ── 4 · les liens ────────────────────────────────────────────────── */
+
+/*  Deux accents et pas un : `primaire` au repos, `fort` au survol. Le
+    soulignement arrive au survol plutôt qu'au repos — une liste de
+    forum en compte des dizaines, et tout souligner la rend illisible.
+
+    `:not([class])` épargne tout ce qui a déjà sa règle : les titres, les
+    boutons, les onglets, les pseudos colorés par groupe.
+
+    **`.mainmenu` n'est PAS dans cette liste, et c'est délibéré.** La
+    barre de navigation de ModernBB est sombre dans les deux modes : y
+    poser `accent/primaire` donnait 6,36 de contraste en sombre et
+    **2,23 en clair**. Encore la même faute que pour le `h1` — recolorer
+    un texte posé sur une surface qu'on ne possède pas encore. La
+    navigation ira avec la feuille qui prendra sa surface, pas avant. */
+#modernbb a:not([class]),
+#modernbb .postbody a {
+  color: var(--wm-accent-primaire, #2e6e8e);
+  text-decoration: none;
+}
+
+#modernbb a:not([class]):hover,
+#modernbb .postbody a:hover {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: underline;
+}
+
+/*  La couleur de groupe arrive en style inline sur le pseudo : on la
+    laisse gagner, et on ne lui met qu'une graisse. */
+#modernbb .usr_grp_clr {
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/* ── 5 · les boutons ──────────────────────────────────────────────── */
+
+/*  Même gabarit que la barre d'actions (feuille 10) : 10 de rayon,
+    Corps/Fort, 44px de cible tactile. Deux formes seulement — pleine
+    pour l'action principale, cerclée pour le reste —, comme dans
+    Figma, page Composants.
+
+    `input[type=submit]` ne porte pas toujours `.button1` selon le
+    template : on prend les deux. */
+#modernbb .button1,
+#modernbb .button2,
+#modernbb .mainoption,
+#modernbb .liteoption,
+#modernbb input[type="submit"],
+#modernbb input[type="button"],
+#modernbb input[type="reset"],
+#modernbb button[type="submit"] {
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: 10px 18px;
+  border: 1.5px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-fort, #1f5470);
+  cursor: pointer;
+
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-transform: none;
+}
+
+/*  L'action principale d'un formulaire. ModernBB la marque déjà avec
+    `.mainoption`, et met un bleu en dur : on reprend les deux. */
+#modernbb .mainoption,
+#modernbb input[type="submit"].mainoption {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .button1:hover,
+#modernbb .button2:hover,
+#modernbb .liteoption:hover,
+#modernbb input[type="submit"]:hover,
+#modernbb input[type="button"]:hover,
+#modernbb button[type="submit"]:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .mainoption:hover,
+#modernbb input[type="submit"].mainoption:hover {
+  background: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── 6 · les champs ───────────────────────────────────────────────── */
+
+/*  ModernBB sert `.inputbox` sans bord ni fond : un champ qu'on ne voit
+    pas tant qu'on n'a pas cliqué dedans. On lui rend une boîte. */
+#modernbb .inputbox,
+#modernbb input[type="text"],
+#modernbb input[type="search"],
+#modernbb input[type="email"],
+#modernbb input[type="url"],
+#modernbb input[type="number"],
+#modernbb input[type="password"],
+#modernbb select,
+#modernbb textarea {
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb textarea {
+  min-height: 120px;
+  line-height: var(--wm-interligne-message, 1.75);
+  resize: vertical;
+}
+
+#modernbb ::placeholder {
+  color: var(--wm-texte-pale, #756054);
+  opacity: 1; /* Firefox le descend à 0.54 sans ça, et ça passe sous 4,5:1 */
+}
+
+/*  Une case et un bouton radio prennent la couleur d'accent plutôt que
+    le bleu du système. Une ligne, et c'est tout ce qu'il faut. */
+#modernbb input[type="checkbox"],
+#modernbb input[type="radio"] {
+  accent-color: var(--wm-accent-primaire, #2e6e8e);
+}
+
+/* ── 7 · le focus, partout ────────────────────────────────────────── */
+
+/*  LA RÈGLE LA PLUS IMPORTANTE DU FICHIER, et la moins visible. Le CSS
+    de base met `outline: none` à plusieurs endroits : au clavier, le
+    forum devient alors impossible à parcourir — on ne sait plus où on
+    est. On remet un contour, sur TOUT ce qui se focalise, et seulement
+    au clavier (`:focus-visible`), pour ne pas cercler ce qu'on vient de
+    cliquer à la souris.
+
+    Le `:focus:not(:focus-visible)` qui suit annule l'éventuel contour
+    laissé par un navigateur qui ne connaît pas encore `:focus-visible`. */
+#modernbb a:focus-visible,
+#modernbb button:focus-visible,
+#modernbb input:focus-visible,
+#modernbb select:focus-visible,
+#modernbb textarea:focus-visible,
+#modernbb [tabindex]:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 2px;
+  border-radius: var(--wm-rayon-xs, 4px);
+}
+
+#modernbb a:focus:not(:focus-visible),
+#modernbb button:focus:not(:focus-visible),
+#modernbb input:focus:not(:focus-visible),
+#modernbb select:focus:not(:focus-visible),
+#modernbb textarea:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/*  Un champ actif se signale aussi par son bord, pas seulement par le
+    contour : c'est ce qui reste visible quand on a cliqué à la souris. */
+#modernbb .inputbox:focus,
+#modernbb input:focus,
+#modernbb select:focus,
+#modernbb textarea:focus {
+  border-color: var(--wm-accent-primaire, #2e6e8e);
+}
+
+/* ── 8 · ce qui doit rester atteignable ───────────────────────────── */
+
+/*  Un lien d'évitement n'existe pas dans ModernBB, et ce n'est pas à ce
+    fichier de l'ajouter — ça demande une ligne de template. Mais quand
+    il arrivera, il devra se voir au clavier et nulle part ailleurs. La
+    règle est posée d'avance, elle ne coûte rien. */
+#modernbb .wm-evitement {
+  position: absolute;
+  left: -9999px;
+}
+
+#modernbb .wm-evitement:focus-visible {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 50;
+  padding: 10px 14px;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-fort, #1f5470);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  Les animations ne sont pas nombreuses ici, mais le jour où il y en
+    aura, cette règle sera déjà passée. */
+@media (prefers-reduced-motion: reduce) {
+  #modernbb *,
+  #modernbb *::before,
+  #modernbb *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 10 · Le coin d'outils
+
+   Le bloc fixé en bas à droite : la bascule de thème et les deux
+   flèches. Dessiné dans Figma, page Composants.
+
+   RAPPEL DU PARTAGE (48-… §8) : ce fichier ne DÉFINIT aucun jeton, il
+   ne fait que s'en servir, avec une valeur de repli. Les jetons vivent
+   dans le CSS principal du panneau d'administration, qui est servi
+   AVANT celui-ci — et une variable est résolue là où elle est lue, pas
+   là où elle est déclarée. Si la feuille du panneau est vidée par
+   erreur, les replis ci-dessous gardent le forum lisible.
+
+   Les replis valent le mode clair. Le mode sombre n'a pas de repli :
+   sans les jetons du panneau, il n'y a pas de mode sombre, et c'est le
+   bon comportement.
+   ════════════════════════════════════════════════════════════════════ */
+
+.wm-coin {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 92px;
+}
+
+/* Le groupe des deux flèches : un seul bloc, un filet entre elles. */
+.wm-coin__fleches {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+.wm-coin__fleches .wm-coin__bouton + .wm-coin__bouton {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+.wm-coin__bouton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wm-espace-08, 8px);
+
+  margin: 0;
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: 700;
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+/* Le bouton de thème est seul dans sa boîte, donc il la porte. */
+.wm-coin__theme {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+.wm-coin__bouton svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.wm-coin__bouton:hover {
+  color: var(--wm-accent-fort, #1f5470);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/* Un contour visible au clavier, et pas seulement à la souris. Sans
+   ça, le bloc est inatteignable autrement qu'au doigt. */
+.wm-coin__bouton:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: -2px;
+}
+
+/* Le marqueur de vérification reste dans le texte du message — c'est
+   lui qui permet de reconnaître un bilan déjà posté — mais il ne se
+   lit pas. `hidden` est posé par le script ; cette règle le tient même
+   si une feuille du thème redéfinit [hidden]. */
+.wm-marqueur {
+  display: none !important;
+}
+
+/* Sous 400 px, les libellés mangent toute la largeur utile : on garde
+   les icônes seules, et les noms restent annoncés par aria-label. */
+@media (max-width: 400px) {
+  .wm-coin {
+    width: auto;
+  }
+
+  .wm-coin__texte {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .wm-coin__bouton {
+    padding: 12px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   La barre d'actions, sous le formulaire de réponse.
+
+   Dessinée dans Figma, page Composants. Même gabarit que le bloc de
+   rencontre : 10 de rayon, bord/net, fond/surface.
+   ════════════════════════════════════════════════════════════════════ */
+
+.wm-barre {
+  margin: 16px 0;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  overflow: hidden;
+}
+
+.wm-barre__entete {
+  margin: 0;
+  padding: 9px 14px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: 700;
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+.wm-barre__rangee {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-08, 8px);
+  padding: 12px 14px;
+}
+
+.wm-barre__bouton {
+  flex: 1 1 180px;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1.5px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-fort, #1f5470);
+  cursor: pointer;
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-corps-fort, 13.5px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.wm-barre__bouton--pleine {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/* Clôturer ne fait pas la même chose que les autres : il termine. */
+.wm-barre__bouton--terre {
+  color: var(--wm-accent-terre, #a8582f);
+}
+
+/* Posé : le bloc est dans le message. Un second clic l'enlève — d'où un
+   état qui se voit, et pas seulement un bouton qu'on a cliqué. */
+.wm-barre__bouton--pose {
+  border-color: var(--wm-accent-primaire, #2e6e8e);
+  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #2e6e8e);
+}
+
+.wm-barre__bouton:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 2px;
+}
+
+.wm-barre__note {
+  margin: 0;
+  padding: 0 14px 12px;
+  color: var(--wm-texte-pale, #756054);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 1.45;
+}
+

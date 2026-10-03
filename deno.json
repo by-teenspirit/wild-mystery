@@ -16,6 +16,7 @@
     "garde-fou": "bash outils/garde-fou.sh",
     "test:adaptateurs": "deno test --allow-read src/adaptateurs/",
     "test:tout": "deno test --allow-env --allow-read --allow-net --allow-run src/",
+    "css": "bash outils/css.sh",
     "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts",
     "test:navigateur": "deno test --allow-env src/navigateur/"
   },
