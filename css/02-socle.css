@@ -79,6 +79,77 @@ body#modernbb {
     portent. Ce qui reste à 03, c'est tout le reste — les écarts, les
     bords entre lignes, la carte « La vie de Rhode », les icônes. */
 
+/*  LA SURFACE DE LA PAGE. `#wrap` est un conteneur de ModernBB, à
+    l'intérieur de `body`, qui peint `#e9ebed` en dur. Tant qu'il n'est
+    pas repris, le fond de page de la charte n'est visible nulle part :
+    on ne voyait que celui de ModernBB, et le titre d'un forum tombait à
+    **1,04 de contraste en mode sombre**.
+
+    C'était invisible depuis l'index, où `#wrap` n'enveloppe pas le même
+    contenu. Deux pages, deux résultats, et une seule avait été regardée
+    avant de livrer. D'où la liste ci-dessous : toutes les surfaces que
+    ModernBB peint sur une page de forum, relevées d'un coup le 3 octobre,
+    plutôt qu'une par une au fil des découvertes. */
+html,
+#modernbb #wrap {
+  background: var(--wm-fond-page, #f2e4d8);
+}
+
+/*  La bannière du haut. ModernBB la veut sombre dans les deux modes, et
+    c'est aussi ce que dit la charte : `fond/nuit` est fait pour ça. La
+    reprendre permet au titre qu'elle porte d'avoir une couleur sûre. */
+#modernbb .headerbar {
+  background-color: var(--wm-fond-nuit, #3a2a22);
+}
+
+/*  Le nom du forum, sur la bannière : posé sur du sombre dans les deux
+    modes, donc `sur-nuit`. Le titre d'une PAGE (`h1.page-title`), lui,
+    est sur le fond de page et prend l'encre — voir plus bas. Le même
+    `h1` dans deux contextes : c'est pour ça qu'une couleur ne se décide
+    pas sans sa surface. */
+#modernbb .headerbar h1 {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  Un bloc de contenu posé sur la page : la description d'un forum, un
+    encart. ModernBB les met en `#f8f8f8`. */
+#modernbb .block,
+#modernbb .overview,
+#modernbb .module {
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  ET LE PENDANT : À L'INTÉRIEUR DE NOS SURFACES, C'EST NOTRE ENCRE.
+    
+    Prendre le fond sans prendre le texte est l'erreur inverse de celle
+    du dessus, et elle donne le même résultat. Relevé sur la page de
+    forum le 3 octobre : **dix éléments sous 4,5 de contraste**, tous
+    parce que le CSS de base pose `color: #444` (ou `#000`) directement
+    sur un `p`, un `span`, un `strong`, un `dfn`.
+    
+    On ne les énumère pas un par un — il y en aurait autant que de
+    pages. On rend l'héritage à ce qui est dans nos blocs, et c'est le
+    conteneur qui décide de la couleur.
+    
+    `:where()` ne compte pour rien dans la spécificité, et cette règle
+    est posée AVANT les règles de texte : un `.gensmall` ou un titre
+    gardent donc la leur. Ce qui n'a pas de règle à lui hérite — ce qui
+    est le comportement qu'on attendait depuis le début. */
+#modernbb .forabg,
+#modernbb .forumbg,
+#modernbb .block,
+#modernbb .overview,
+#modernbb .module,
+#modernbb ul.topiclist {
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb :is(.forabg, .forumbg, .block, .overview, .module, ul.topiclist)
+  :where(p, div, span, strong, em, b, i, dfn, label, dd, dt, li, h2, h3, h4) {
+  color: inherit;
+}
+
 /*  Le bloc d'une catégorie ou d'un forum. ModernBB lui met son bleu. */
 #modernbb .forabg,
 #modernbb .forumbg {
@@ -101,10 +172,37 @@ body#modernbb {
   background: var(--wm-fond-surface, #fffbf7);
 }
 
+/*  LA ZÉBRURE. ModernBB alterne `#ffffff` et `#f8f8f8` sur les lignes
+    elles-mêmes, ce qui l'emporte sur le fond de la liste : c'est ce qui
+    faisait disparaître les titres de sujets en mode sombre, à 1,17 de
+    contraste. On garde l'alternance — elle aide à suivre une ligne — en
+    la rejouant avec nos deux surfaces. */
+#modernbb li.row1 {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb li.row2 {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
 /*  Un filet entre deux lignes, et pas sur la dernière : sans lui les
     lignes se touchent, et le bloc devient un pavé. */
 #modernbb ul.topiclist li.row + li.row {
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  Le fil d'Ariane et les étiquettes de formulaire vivent sur le fond de
+    page, hors de nos blocs : ils n'héritent de rien et ModernBB les
+    laisse en `#3e464c`. Deux lignes, et les quatre derniers textes sous
+    le seuil passent. */
+#modernbb .sub-header-path,
+#modernbb .sub-header-path a,
+#modernbb label {
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .sub-header-path a:hover {
+  color: var(--wm-accent-primaire, #2e6e8e);
 }
 
 /* ── 2 · les titres ───────────────────────────────────────────────── */
