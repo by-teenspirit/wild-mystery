@@ -1,0 +1,253 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 10 · Le coin d'outils
+
+   Le bloc fixé en bas à droite : la bascule de thème et les deux
+   flèches. Dessiné dans Figma, page Composants.
+
+   RAPPEL DU PARTAGE (48-… §8) : ce fichier ne DÉFINIT aucun jeton, il
+   ne fait que s'en servir, avec une valeur de repli. Les jetons vivent
+   dans le CSS principal du panneau d'administration, qui est servi
+   AVANT celui-ci — et une variable est résolue là où elle est lue, pas
+   là où elle est déclarée. Si la feuille du panneau est vidée par
+   erreur, les replis ci-dessous gardent le forum lisible.
+
+   Les replis valent le mode clair. Le mode sombre n'a pas de repli :
+   sans les jetons du panneau, il n'y a pas de mode sombre, et c'est le
+   bon comportement.
+   ════════════════════════════════════════════════════════════════════ */
+
+.wm-coin {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 92px;
+}
+
+/* Le groupe des deux flèches : un seul bloc, un filet entre elles. */
+.wm-coin__fleches {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+.wm-coin__fleches .wm-coin__bouton + .wm-coin__bouton {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+.wm-coin__bouton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wm-espace-08, 8px);
+
+  margin: 0;
+  padding: 10px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: 700;
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  line-height: 1.3;
+}
+
+/* Le bouton de thème est seul dans sa boîte, donc il la porte. */
+.wm-coin__theme {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+.wm-coin__bouton svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+.wm-coin__bouton:hover {
+  color: var(--wm-accent-fort, #1f5470);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/* Un contour visible au clavier, et pas seulement à la souris. Sans
+   ça, le bloc est inatteignable autrement qu'au doigt. */
+.wm-coin__bouton:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: -2px;
+}
+
+/* Le marqueur de vérification reste dans le texte du message — c'est
+   lui qui permet de reconnaître un bilan déjà posté — mais il ne se
+   lit pas. `hidden` est posé par le script ; cette règle le tient même
+   si une feuille du thème redéfinit [hidden]. */
+.wm-marqueur {
+  display: none !important;
+}
+
+/* Sous 400 px, les libellés mangent toute la largeur utile : on garde
+   les icônes seules, et les noms restent annoncés par aria-label. */
+@media (max-width: 400px) {
+  .wm-coin {
+    width: auto;
+  }
+
+  .wm-coin__texte {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .wm-coin__bouton {
+    padding: 12px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   La barre d'actions, sous le formulaire de réponse.
+
+   Dessinée dans Figma, page Composants. Même gabarit que le bloc de
+   rencontre : 10 de rayon, bord/net, fond/surface.
+   ════════════════════════════════════════════════════════════════════ */
+
+.wm-barre {
+  margin: 16px 0;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  overflow: hidden;
+}
+
+.wm-barre__entete {
+  margin: 0;
+  padding: 9px 14px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: 700;
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+.wm-barre__rangee {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-08, 8px);
+  padding: 12px 14px;
+}
+
+.wm-barre__bouton {
+  flex: 1 1 180px;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1.5px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-fort, #1f5470);
+  cursor: pointer;
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-corps-fort, 13.5px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.wm-barre__bouton--pleine {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/* Clôturer ne fait pas la même chose que les autres : il termine. */
+.wm-barre__bouton--terre {
+  color: var(--wm-accent-terre, #a8582f);
+}
+
+/* Posé : le bloc est dans le message. Un second clic l'enlève — d'où un
+   état qui se voit, et pas seulement un bouton qu'on a cliqué. */
+.wm-barre__bouton--pose {
+  border-color: var(--wm-accent-primaire, #2e6e8e);
+  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #2e6e8e);
+}
+
+.wm-barre__bouton:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 2px;
+}
+
+.wm-barre__note {
+  margin: 0;
+  padding: 0 14px 12px;
+  color: var(--wm-texte-pale, #756054);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 1.45;
+}
+
+/* ── la rangée « chercher », avec son menu de lieux ───────────────── */
+
+/*  Une zone a une quinzaine de lieux : un bouton par lieu ferait quinze
+    boutons. Un menu et un bouton en font deux, et le menu dit lesquels
+    existent — le joueur ne tape pas un nom, donc la clé écrite dans le
+    bloc est forcément valable côté serveur. */
+
+.wm-barre__rangee--lieu {
+  align-items: center;
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+.wm-barre__etiquette {
+  flex: none;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: 700;
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  `flex: 1 1 200px` et pas une largeur fixe : un nom de lieu va de
+    « Berge Est » à « Lisière de Samaragd », et une largeur choisie pour
+    l'un coupe l'autre. */
+.wm-barre__menu {
+  flex: 1 1 200px;
+  min-width: 0;
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: 10px 12px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+.wm-barre__menu:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 2px;
+}
+
+/*  Le bouton de cette rangée ne s'étire pas comme les deux autres : il
+    suit le menu, il ne partage pas la largeur avec lui. */
+.wm-barre__rangee--lieu .wm-barre__bouton {
+  flex: 0 0 auto;
+}
