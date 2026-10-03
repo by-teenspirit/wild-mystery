@@ -194,8 +194,17 @@ echo "── 8. le paquet livré est celui des sources ────────�
 # vérifié le 3 octobre, deux constructions d'affilée donnent le même
 # fichier. Si une version de Deno casse ça, cette règle le dira tout de
 # suite plutôt que de laisser passer un décalage silencieux.
+#
+# ET SI `deno` N'EST PAS LÀ, ON LE DIT ET ON PASSE. Le shell du Mac ne
+# l'a pas sur son PATH : une règle qui échoue faute d'outil est une
+# règle qu'on finit par ignorer, et le jour où on l'ignore elle ne
+# protège plus rien. Le CI, lui, a Deno — c'est là qu'elle mord. Si Deno
+# venait à manquer AU CI, `deno task verif` serait tombé bien avant
+# d'arriver ici.
 if [ -f js/wild-mystery.ts ]; then
-  if [ ! -f js/wild-mystery.js ]; then
+  if ! command -v deno > /dev/null 2>&1; then
+    echo "   js/wild-mystery.js : non vérifié, deno n'est pas sur ce poste"
+  elif [ ! -f js/wild-mystery.js ]; then
     gronde "js/wild-mystery.js manque — lance « deno task construire »"
   else
     paquet=$(mktemp -d)
