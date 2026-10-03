@@ -35,6 +35,32 @@ import {
 export interface Catalogue {
   zones(): Promise<readonly ZoneDuNavigateur[]>;
   lieuxDe(forumId: number): Promise<readonly LieuChoisissable[]>;
+  /** Le nom français d'une espèce, ou `null` si on ne le connaît pas.
+   *
+   *  `null` et pas « Espèce 42 » : un nom inventé dans un bilan a l'air
+   *  d'une donnée, et le joueur le recopierait dans une contestation.
+   *  L'appelant décide quoi afficher à la place. */
+  nomEspece(especeId: number): Promise<string | null>;
+}
+
+/** L'index des espèces, tel que `outils/especes.py` l'écrit.
+ *
+ *  Il ne couvre que les espèces présentes en zone sauvage — c'est
+ *  exactement ce qu'une ligne de registre écrite en zone peut nommer. */
+export function especesDepuis(donnees: unknown): ReadonlyMap<number, string> {
+  const vide = new Map<number, string>();
+  if (typeof donnees !== "object" || donnees === null) return vide;
+  const brut = (donnees as { especes?: unknown }).especes;
+  if (typeof brut !== "object" || brut === null) return vide;
+
+  const index = new Map<number, string>();
+  for (const [cle, valeur] of Object.entries(brut as Record<string, unknown>)) {
+    const id = Number(cle);
+    if (!Number.isInteger(id) || id <= 0) continue;
+    if (typeof valeur !== "string" || valeur === "") continue;
+    index.set(id, valeur);
+  }
+  return index;
 }
 
 /** L'adresse du dossier `data/`, déduite de celle du script.
@@ -80,6 +106,7 @@ export class CatalogueDistant implements Catalogue {
   //  retélécharge pas. La promesse est mise en cache, pas son résultat,
   //  pour que deux appels simultanés ne fassent qu'une requête.
   #zones: Promise<readonly ZoneDuNavigateur[]> | null = null;
+  #especes: Promise<ReadonlyMap<number, string>> | null = null;
   readonly #lieux = new Map<number, Promise<readonly LieuChoisissable[]>>();
 
   constructor(racine: string, recuperer: Recuperateur = parDefaut) {
@@ -108,6 +135,14 @@ export class CatalogueDistant implements Catalogue {
     const promesse = this.#lire(`faune/${forumId}.json`).then(lieuxDepuis);
     this.#lieux.set(forumId, promesse);
     return promesse;
+  }
+
+  async nomEspece(especeId: number): Promise<string | null> {
+    //  Un seul fichier pour les 444 espèces : on le prend en entier, une
+    //  fois, plutôt qu'une requête par identifiant. Un bilan en nomme
+    //  volontiers une dizaine.
+    this.#especes ??= this.#lire("especes.json").then(especesDepuis);
+    return (await this.#especes).get(especeId) ?? null;
   }
 }
 

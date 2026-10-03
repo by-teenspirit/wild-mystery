@@ -106,6 +106,7 @@ refuse 'new [A-Z][A-Za-z]*(Supabase|Forumactif|Http)\b' \
   "seule la racine de composition instancie un adaptateur" \
   "${HORS_ADAPT[@]}"
 
+echo "── 5. le navigateur a son domaine, lui aussi ───────────────────"
 # `src/navigateur/` est au navigateur ce que `src/domaine/` est au
 # serveur : des règles pures. Le DOM, le stockage et le réseau vivent
 # dans `src/adaptateurs/navigateur/`, et la racine de composition est
@@ -178,6 +179,52 @@ if [ ${#CSS[@]} -gt 0 ]; then
       rm -f "$temoin"
       echo "   css/wild-mystery.css : à jour (${#CSS[@]} feuilles)"
     fi
+  fi
+fi
+
+echo "── 8. le paquet livré est celui des sources ────────────────────"
+
+# Même raison que pour la feuille assemblée : `js/wild-mystery.js` est
+# servi par jsDelivr DEPUIS LE DÉPÔT, pas depuis une étape de
+# construction. S'il ne correspond pas aux sources, les joueurs
+# reçoivent un script que personne n'a relu — et c'est invisible, parce
+# qu'il est minifié.
+#
+# `deno bundle` est reproductible à l'octet près pour une même entrée :
+# vérifié le 3 octobre, deux constructions d'affilée donnent le même
+# fichier. Si une version de Deno casse ça, cette règle le dira tout de
+# suite plutôt que de laisser passer un décalage silencieux.
+if [ -f js/wild-mystery.ts ]; then
+  if [ ! -f js/wild-mystery.js ]; then
+    gronde "js/wild-mystery.js manque — lance « deno task construire »"
+  else
+    paquet=$(mktemp -d)
+    if deno bundle --platform browser --format iife --minify \
+      -o "$paquet/w.js" js/wild-mystery.ts > /dev/null 2>&1; then
+      if ! cmp -s js/wild-mystery.js "$paquet/w.js"; then
+        gronde "js/wild-mystery.js ne correspond pas aux sources — relance « deno task construire » et commite"
+      else
+        echo "   js/wild-mystery.js : à jour"
+      fi
+    else
+      gronde "la construction du paquet a échoué"
+    fi
+    rm -rf "$paquet"
+  fi
+fi
+
+echo "── 9. l'index des espèces suit les tables ──────────────────────"
+
+# `data/especes.json` est DÉRIVÉ de `data/faune/*.json` : il ne se tient
+# pas à la main. Un nom corrigé dans une table et pas dans l'index, et
+# le bilan d'un joueur affiche l'ancien — sans que rien ne casse.
+#
+# L'outil refuse aussi quand deux tables donnent deux noms au même
+# identifiant : c'est une faute de saisie dans la faune, pas une faute
+# de l'index.
+if [ -d data/faune ]; then
+  if ! python3 outils/especes.py --verifier; then
+    gronde "l'index des espèces est en faute — la raison est à la ligne du dessus"
   fi
 fi
 

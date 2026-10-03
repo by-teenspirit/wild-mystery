@@ -62,7 +62,8 @@ endroit du projet où on écrit `new ForumactifAdapter(...)`. Il ne contient auc
   **base de données**, jamais une **décision**.
 
 Les deux premiers sont vérifiés mécaniquement par `outils/garde-fou.sh`, qui refuse aussi
-ce que la règle de dépendance interdit. Quatre contrôles :
+ce que la règle de dépendance interdit. **Neuf contrôles**, et chacun a été testé en le
+cassant exprès — un garde-fou qu'on n'a jamais vu refuser ne prouve rien.
 
 | | Ce qu'il refuse |
 |---|---|
@@ -70,6 +71,15 @@ ce que la règle de dépendance interdit. Quatre contrôles :
 | 2 | `--no-check` n'importe où dans la configuration |
 | 3 | un fichier de `domaine/` ou d'`application/` sans son `.test.ts` à côté |
 | 4 | un import extérieur, un `Deno.`, un `fetch`, une horloge dans `domaine/` ; un import d'adaptateur dans `application/` ; un `new …Supabase()` ailleurs qu'à la racine de composition |
+| 5 | un `document.`, un `localStorage`, un `fetch(` dans `src/navigateur/` — c'est le domaine du navigateur, pas son adaptateur |
+| 6 | un paquet de navigateur sans enveloppe. Sans `--format iife`, chaque variable de premier niveau devient une globale de page, et Forumactif en tient déjà une qui s'appelle `j` |
+| 7 | une feuille qui **définit** un jeton `--wm-`, un `@import`, un `url(` ; et une feuille assemblée qui ne correspond pas à ses sources |
+| 8 | un `js/wild-mystery.js` qui ne correspond pas à ses sources — il est servi depuis le dépôt, et il est minifié, donc le décalage est invisible |
+| 9 | un `data/especes.json` qui ne suit plus les tables de faune, ou deux tables qui donnent deux noms au même identifiant |
+
+Les règles 7, 8 et 9 ont la même raison d'être : **trois fichiers sont livrés depuis le
+dépôt alors qu'ils sont dérivés d'autres fichiers du dépôt.** Un dérivé périmé ne casse
+rien — il sert simplement une version que personne n'a relue.
 
 Le troisième interdit, lui, ne se vérifie pas par `grep` : il se vérifie en relecture, et
 c'est à ça que sert ce document.
@@ -113,7 +123,7 @@ deno.json                       une seule version de @std, dans imports
 .gitignore                      .env et .env.local, avant le premier commit
 ARCHITECTURE.md                 ce document
 outils/
-├─ garde-fou.sh                 les quatre refus du §3
+├─ garde-fou.sh                 les neuf refus du §3
 └─ couverture.sh                100 % du domaine, lu dans le lcov
 src/
 ├─ domaine/                     aucun import extérieur

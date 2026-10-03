@@ -5,7 +5,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assertEquals } from "@std/assert";
-import { CatalogueDistant, racineDesDonnees } from "./catalogue.ts";
+import { CatalogueDistant, especesDepuis, racineDesDonnees } from "./catalogue.ts";
 
 const SERVI =
   "https://cdn.jsdelivr.net/gh/by-teenspirit/wild-mystery@socle-v2/js/wild-mystery.js";
@@ -73,4 +73,48 @@ Deno.test("un réseau coupé rend une liste vide, il ne lève pas", async () => 
   });
   assertEquals(await c.zones(), []);
   assertEquals(await c.lieuxDe(9), []);
+  assertEquals(await c.nomEspece(16), null);
+});
+
+Deno.test("l'index des espèces se lit, et une seule fois", async () => {
+  let appels = 0;
+  const c = new CatalogueDistant("https://exemple.fr/data/", (url) => {
+    appels++;
+    assertEquals(url, "https://exemple.fr/data/especes.json");
+    return Promise.resolve({ especes: { "16": "Roucool", "928": "Olivini" } });
+  });
+  assertEquals(await c.nomEspece(16), "Roucool");
+  assertEquals(await c.nomEspece(928), "Olivini");
+  assertEquals(appels, 1, "un bilan nomme dix espèces, pas dix requêtes");
+});
+
+Deno.test("une espèce inconnue rend null, pas un nom inventé", async () => {
+  //  « Espèce 42 » dans un bilan a l'air d'une donnée, et le joueur le
+  //  recopierait dans une contestation.
+  const c = new CatalogueDistant("https://exemple.fr/data/", () => {
+    return Promise.resolve({ especes: { "16": "Roucool" } });
+  });
+  assertEquals(await c.nomEspece(999), null);
+});
+
+Deno.test("un index abîmé ne fait pas tomber la page", () => {
+  for (const donnees of [null, 42, "", {}, { especes: null }, { especes: [] }]) {
+    assertEquals(especesDepuis(donnees).size, 0, JSON.stringify(donnees) ?? "undefined");
+  }
+});
+
+Deno.test("les entrées qui n'ont pas la bonne forme sont écartées une par une", () => {
+  //  Une ligne fausse ne doit pas emporter les 443 autres.
+  const index = especesDepuis({
+    especes: {
+      "16": "Roucool",
+      "0": "Rien", // un identifiant n'est jamais 0
+      "-3": "Rien", // ni négatif
+      "abc": "Rien", // ni une lettre
+      "17": "", // un nom vide ne nomme pas
+      "18": 12, // ni un nombre
+      "928": "Olivini",
+    },
+  });
+  assertEquals([...index.entries()], [[16, "Roucool"], [928, "Olivini"]]);
 });
