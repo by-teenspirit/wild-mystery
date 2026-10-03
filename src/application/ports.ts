@@ -13,6 +13,7 @@
 
 import type { Effets, Evenement, LigneRegistre } from "../domaine/cloture.ts";
 import type { EntreeDeTable } from "../domaine/rencontre.ts";
+import type { Action } from "../domaine/action.ts";
 
 // ── le temps et le hasard, pour qu'un test puisse les figer ─────────
 
@@ -73,6 +74,32 @@ export interface LecteurDeDemandes {
     sujetId: number,
     depuisMessageId: number,
   ): Promise<readonly DemandeDeClotureLue[]>;
+}
+
+/** Une action demandée, telle qu'un joueur l'a posée en cliquant.
+ *
+ *  `messageId` n'est pas décoratif : c'est **la graine du tirage**. Il est
+ *  fixé à la seconde où le joueur envoie, il ne recule jamais, et il rend
+ *  le résultat rejouable à l'identique des années plus tard. Éditer son
+ *  message ne rejoue donc rien (planche 45, règle 2). */
+export type ActionLue = {
+  readonly sujetId: number;
+  readonly messageId: number;
+  readonly auteurId: number;
+  readonly auteurPseudo: string;
+  readonly action: Action;
+};
+
+/** Lire ce que les joueurs FONT. Séparé de `LecteurDeDemandes` pour la
+ *  même raison que celui-ci l'est de `LecteurDeForum` : une clôture et une
+ *  fouille ne se lisent pas au même moment de la relève, et un outil qui
+ *  rejoue un tirage contesté n'a aucune raison de savoir reconnaître une
+ *  demande de clôture. */
+export interface LecteurDActions {
+  actionsDuSujet(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly ActionLue[]>;
 }
 
 export interface PosteurSurForum {

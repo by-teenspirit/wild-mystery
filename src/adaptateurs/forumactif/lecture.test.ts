@@ -152,3 +152,40 @@ Deno.test("un bloc de pseudo vide lève plutôt que de rendre un pseudo vide", (
     `<div id="p1" class="post row1 post--1 "><div class="postprofile-avatar" data-id="4"></div><div class="postprofile-name">  </div></div>`;
   assertThrows(() => lireLesMessages(html, 975), PageIllisible);
 });
+
+// ── les actions, tâche 1 de la relève ───────────────────────────────
+
+Deno.test("l'adaptateur rend les actions rattachées à leur sujet", async () => {
+  //  La page enregistrée ne contient aucun bloc d'action — elle date
+  //  d'avant les boutons. On en pose un dans une copie plutôt que de
+  //  réenregistrer la page : ce qu'on teste ici, c'est le branchement
+  //  entre `lireLesMessages` et `actionsDemandees`, pas la lecture du
+  //  HTML, qui a ses propres tests juste au-dessus.
+  const avecAction = PAGE.replace(
+    /(<div id="p15543"[\s\S]{0,4000}?<div class="content">)/,
+    "$1[[WM-ACTION:fouiller]]",
+  );
+
+  const forum = new ForumactifEnLecture((_c: string) => Promise.resolve(avecAction));
+  const actions = await forum.actionsDuSujet(813, 0);
+
+  assertEquals(actions.length, 1);
+  assertEquals(actions[0].sujetId, 813);
+  assertEquals(actions[0].messageId, 15543);
+  assertEquals(actions[0].action, { type: "fouiller" });
+  assertEquals(actions[0].auteurPseudo, "Compte de test");
+});
+
+Deno.test("le curseur s'applique aussi aux actions", async () => {
+  const avecAction = PAGE.replace(
+    /(<div id="p15543"[\s\S]{0,4000}?<div class="content">)/,
+    "$1[[WM-ACTION:fouiller]]",
+  );
+  const forum = new ForumactifEnLecture((_c: string) => Promise.resolve(avecAction));
+  assertEquals((await forum.actionsDuSujet(813, 15543)).length, 0);
+});
+
+Deno.test("un sujet sans aucun bloc ne rend aucune action", async () => {
+  const forum = new ForumactifEnLecture((_c: string) => Promise.resolve(PAGE));
+  assertEquals(await forum.actionsDuSujet(813, 0), []);
+});
