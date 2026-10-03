@@ -43,38 +43,56 @@ function enumerer(morceaux: readonly string[]): string {
   return morceaux.join(" · ");
 }
 
-/** Les lignes d'un joueur. Une rubrique absente n'est pas écrite : un
+/** Ce qu'on écrit pour un joueur qui n'a rien gagné. Partagé pour que
+ *  le module affiche la même phrase que le message posté. */
+export const RIEN_A_VERSER = "Rien à verser pour ce sujet.";
+
+/** Une rubrique du bilan : son étiquette, et ce qu'elle dit. */
+export type Rubrique = {
+  readonly etiquette: string;
+  readonly valeur: string;
+};
+
+/** Les rubriques d'un joueur. Une rubrique absente n'est pas écrite : un
  *  bilan ne doit pas être une liste de « aucun » qu'il faut lire en
- *  entier pour trouver les deux lignes qui comptent. */
-function rubriques(l: LigneDeBilan): string[] {
-  const sortie: string[] = [];
+ *  entier pour trouver les deux lignes qui comptent.
+ *
+ *  ── POURQUOI C'EST EXPORTÉ, ET EN MORCEAUX ───────────────────────────
+ *
+ *  Le bilan existe à deux endroits : **posté** dans le sujet à la
+ *  clôture, et **affiché** au-dessus du premier message pendant tout le
+ *  RP (planche 38, `45-…` §5). Les deux doivent dire exactement la même
+ *  chose — c'est la raison d'être de tout le partage de code entre le
+ *  serveur et le navigateur.
+ *
+ *  S'ils sortaient de deux fonctions, ils divergeraient : pas le jour
+ *  où on les écrit, le jour où on en corrige une seule. Le texte posté
+ *  est donc `etiquette : valeur` recollé, et le module affiche les
+ *  mêmes paires dans sa grille. Une rubrique ajoutée ici apparaît des
+ *  deux côtés, sans qu'on y pense. */
+export function rubriques(l: LigneDeBilan): readonly Rubrique[] {
+  const sortie: Rubrique[] = [];
+  const pose = (etiquette: string, valeur: string) => sortie.push({ etiquette, valeur });
 
   if (l.captures.length > 0) {
-    sortie.push(
-      "CAPTURÉ : " + enumerer(l.captures.map((c) => `${c.espece} niv. ${c.niveau}`)),
-    );
+    pose("CAPTURÉ", enumerer(l.captures.map((c) => `${c.espece} niv. ${c.niveau}`)));
   }
   if (l.croisees.length > 0) {
-    sortie.push("CROISÉ : " + enumerer(l.croisees));
+    pose("CROISÉ", enumerer(l.croisees));
   }
   if (l.experience.length > 0) {
-    sortie.push(
-      "EXPÉRIENCE : " + enumerer(l.experience.map((x) => `${x.pokemon} +${x.gain}`)),
-    );
+    pose("EXPÉRIENCE", enumerer(l.experience.map((x) => `${x.pokemon} +${x.gain}`)));
   }
   if (l.ajoutes.length > 0) {
-    sortie.push(
-      "AJOUTÉ AU SAC : " + enumerer(l.ajoutes.map((o) => quantifie(o.quantite, o.objet))),
-    );
+    pose("AJOUTÉ AU SAC", enumerer(l.ajoutes.map((o) => quantifie(o.quantite, o.objet))));
   }
   if (l.consommes.length > 0) {
-    sortie.push(
-      "CONSOMMÉ : " + enumerer(l.consommes.map((o) => quantifie(o.quantite, o.objet))),
-    );
+    pose("CONSOMMÉ", enumerer(l.consommes.map((o) => quantifie(o.quantite, o.objet))));
   }
   if (l.pokedollarsApres !== l.pokedollarsAvant) {
-    sortie.push(
-      `POKÉDOLLARS : ${pokedollars(l.pokedollarsAvant)} → ${pokedollars(l.pokedollarsApres)}`,
+    pose(
+      "POKÉDOLLARS",
+      `${pokedollars(l.pokedollarsAvant)} → ${pokedollars(l.pokedollarsApres)}`,
     );
   }
   return sortie;
@@ -95,10 +113,10 @@ export function redigerLeBilan(
 
   for (const l of lignes) {
     texte.push("", l.pseudo.toUpperCase());
-    const r = rubriques(l);
+    const r = rubriques(l).map((x) => `${x.etiquette} : ${x.valeur}`);
     // Un joueur présent au registre mais sans aucun effet : on le dit,
     // plutôt que de laisser une colonne vide qui ressemble à un bogue.
-    texte.push(...(r.length > 0 ? r : ["Rien à verser pour ce sujet."]));
+    texte.push(...(r.length > 0 ? r : [RIEN_A_VERSER]));
   }
 
   texte.push("", `CODE : ${code}`);

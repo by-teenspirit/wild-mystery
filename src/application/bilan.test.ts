@@ -8,7 +8,14 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals } from "@std/assert";
-import { type LigneDeBilan, pokedollars, redigerLeBilan, redigerLeRefus } from "./bilan.ts";
+import {
+  type LigneDeBilan,
+  pokedollars,
+  redigerLeBilan,
+  redigerLeRefus,
+  RIEN_A_VERSER,
+  rubriques,
+} from "./bilan.ts";
 
 function ligne(partiel: Partial<LigneDeBilan> = {}): LigneDeBilan {
   return {
@@ -33,6 +40,71 @@ Deno.test("pokedollars · milliers séparés, comme dans la maquette", () => {
   assertEquals(pokedollars(1590), "1 590");
   assertEquals(pokedollars(1234567), "1 234 567");
   assertEquals(pokedollars(-250), "-250");
+});
+
+// ── les rubriques, partagées avec le module du navigateur ───────────
+
+//  Le bilan existe à deux endroits : posté dans le sujet à la clôture,
+//  et affiché au-dessus du premier message pendant tout le RP. Ces
+//  essais tiennent la promesse que les deux disent la même chose — pas
+//  le jour où on les écrit, le jour où on en corrige un seul.
+
+Deno.test("chaque rubrique du texte posté vient d'une rubrique affichée", () => {
+  const l = ligne({
+    captures: [{ espece: "Roucool", niveau: 7 }],
+    croisees: ["Olivini", "Spododo"],
+    experience: [{ pokemon: "Lumi", gain: 48 }],
+    ajoutes: [{ objet: "Poké Ball", quantite: 2 }],
+    consommes: [{ objet: "Potion", quantite: 1 }],
+    pokedollarsApres: 1240,
+  });
+
+  const paires = rubriques(l);
+  const texte = redigerLeBilan([l], "WM-7K2P-9QX");
+
+  //  Chaque paire se retrouve telle quelle dans le message, recollée.
+  for (const { etiquette, valeur } of paires) {
+    assert(
+      texte.includes(`${etiquette} : ${valeur}`),
+      `« ${etiquette} » manque au texte posté`,
+    );
+  }
+
+  //  Et le message n'en invente aucune. « CODE : … » n'est pas une
+  //  rubrique de joueur : c'est la signature du bilan, et elle est
+  //  écartée ici comme elle l'est dans le module.
+  const lignesDeRubrique = texte.split("\n")
+    .filter((x) => /^[A-ZÉÀÈÊÔÛÇ' ]+ : /.test(x) && !x.startsWith("CODE : "));
+  assertEquals(
+    lignesDeRubrique,
+    paires.map((r) => `${r.etiquette} : ${r.valeur}`),
+  );
+});
+
+Deno.test("les rubriques sortent dans l'ordre de la maquette", () => {
+  //  L'ordre n'est pas cosmétique : le joueur lit d'abord ce qu'il a
+  //  gagné, puis ce que ça lui a coûté.
+  const l = ligne({
+    captures: [{ espece: "Roucool", niveau: 7 }],
+    croisees: ["Olivini"],
+    experience: [{ pokemon: "Lumi", gain: 48 }],
+    ajoutes: [{ objet: "Poké Ball", quantite: 2 }],
+    consommes: [{ objet: "Potion", quantite: 1 }],
+    pokedollarsApres: 1240,
+  });
+  assertEquals(rubriques(l).map((r) => r.etiquette), [
+    "CAPTURÉ",
+    "CROISÉ",
+    "EXPÉRIENCE",
+    "AJOUTÉ AU SAC",
+    "CONSOMMÉ",
+    "POKÉDOLLARS",
+  ]);
+});
+
+Deno.test("un joueur sans effet n'a aucune rubrique, et le texte le dit", () => {
+  assertEquals(rubriques(ligne()), []);
+  assert(redigerLeBilan([ligne()], "WM-7K2P-9QX").includes(RIEN_A_VERSER));
 });
 
 // ── le bilan ────────────────────────────────────────────────────────
