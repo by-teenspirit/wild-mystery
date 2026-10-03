@@ -1,0 +1,256 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 04 · Une page de forum
+
+   L'en-tête d'un forum, la liste de ses sujets, la barre d'actions, le
+   tri et la légende. Les surfaces génériques sont à `02`, la ligne de
+   liste à `03` : ici, ce qui n'existe que sur cette page.
+
+   ── CE QUI A ÉTÉ RELEVÉ, ET CE QUI NE L'A PAS ÉTÉ ─────────────────────
+
+   Relevé le 3 octobre sur `/f9-foret-marecageuse`, connecté et
+   déconnecté — les deux, parce que la barre d'actions est vide pour un
+   visiteur et pleine pour un membre.
+
+   **La pagination n'a pas pu être relevée** : aucun forum n'a encore
+   deux pages. `.pagination` existe et reste vide. Les règles ci-dessous
+   ne portent donc que sur le conteneur et sur les liens qu'il
+   contiendra, sans supposer de classe interne. Quand un forum dépassera
+   une page, il faudra revenir le vérifier — c'est écrit ici pour qu'on
+   s'en souvienne plutôt que de croire que c'est fait.
+
+   ── LA RÈGLE DU JOUR (59-…) ───────────────────────────────────────────
+
+   Une couleur et la surface qui la porte sont une seule décision. Tout
+   ce qui reçoit une couleur de texte ici reçoit aussi son fond, ou alors
+   il est déjà dans un bloc que `02` possède.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · l'en-tête du forum ───────────────────────────────────────── */
+
+/*  Le titre, le fil d'Ariane et la description. `02` leur a donné leurs
+    couleurs ; il leur manque l'air autour. */
+#modernbb .sub-header {
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-18, 18px);
+}
+
+#modernbb h1.page-title {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  font-size: var(--wm-taille-titre-page, 25px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .sub-header-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  La description du forum, en chapô. C'est le seul endroit de la page
+    où la maquette emploie Cormorant Garamond, et il est en italique
+    dans Figma — un `font-style`, pas un jeton (JETONS.md §3). */
+#modernbb #page-desc {
+  padding: var(--wm-espace-18, 18px);
+  font-family: var(--wm-police-chapo, "Cormorant Garamond", Garamond, Georgia, serif);
+  font-size: var(--wm-taille-chapo, 21px);
+  font-style: italic;
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/* ── 2 · une ligne de sujet ───────────────────────────────────────── */
+
+/*  L'icône de sujet est un `background-image` de 33 px, comme celle d'un
+    forum (`03` §3) : même traitement, même réserve de place. */
+#modernbb ul.topics li.row dl.icon {
+  padding-left: var(--wm-espace-48, 48px);
+  background-position: var(--wm-espace-12, 12px) center;
+  background-repeat: no-repeat;
+}
+
+#modernbb .topic-title-container {
+  min-width: 0;
+}
+
+/*  « par Untel », sous le titre. `accent/terre` plutôt que `texte/pale` :
+    c'est un nom de personne, et la maquette le traite comme une
+    signature, pas comme une métadonnée. */
+#modernbb .topic-author {
+  display: block;
+  margin-top: var(--wm-espace-2, 2px);
+  color: var(--wm-accent-terre, #a8582f);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .topic-author a {
+  color: inherit;
+}
+
+/* ── 3 · la barre d'actions ───────────────────────────────────────── */
+
+/*  Elle porte la pagination à gauche et les actions à droite. Vide pour
+    un visiteur : elle ne doit alors pas laisser un trou, d'où le `gap`
+    plutôt que des marges sur les enfants. */
+#modernbb .topic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-espace-12, 12px);
+  margin: var(--wm-espace-18, 18px) 0;
+}
+
+#modernbb .topic-actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-16, 16px);
+  margin-left: auto;
+}
+
+/*  Les actions secondaires — « Marquer tous les sujets comme lus »,
+    « Plus ! » — sont des liens, pas des boutons : elles ne doivent pas
+    peser autant que « Poster un nouveau sujet ». */
+#modernbb .topic-actions-buttons a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  color: var(--wm-accent-primaire, #2e6e8e);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-decoration: none;
+}
+
+#modernbb .topic-actions-buttons a:hover {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: underline;
+}
+
+/*  Un `<br>` et un `<script>` traînent au milieu des actions dans le
+    template. Le second ne se voit pas ; le premier casse la rangée. */
+#modernbb .topic-actions-buttons > br {
+  display: none;
+}
+
+/* ── 4 · la pagination ────────────────────────────────────────────── */
+
+/*  NON VÉRIFIÉE SUR PAGE RÉELLE : voir l'en-tête. On habille le
+    conteneur et les liens qu'il portera, sans parier sur une classe
+    interne qu'on n'a pas vue. */
+#modernbb .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .pagination a,
+#modernbb .pagination strong,
+#modernbb .pagination span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  text-decoration: none;
+}
+
+#modernbb .pagination a {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  color: var(--wm-accent-primaire, #2e6e8e);
+}
+
+#modernbb .pagination a:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/*  La page courante : pleine, comme le bouton d'action principal. Elle
+    n'est pas un lien, donc elle ne doit pas en avoir l'air. */
+#modernbb .pagination strong {
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/* ── 5 · le tri ───────────────────────────────────────────────────── */
+
+/*  `02` lui a donné sa surface (`.module`). Il lui manque sa mise en
+    page : un titre, un menu, deux boutons radio, un bouton. */
+#modernbb .sort-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-18, 18px);
+}
+
+/*  `.h3` sert de titre à plusieurs encarts de ModernBB, ici comme dans
+    « Modérateurs ». Il porte un fond sombre à lui dans le CSS de base :
+    on le remet à plat, le bloc a déjà le sien. */
+#modernbb .sort-form .h3,
+#modernbb .block .h3 {
+  flex: none;
+  padding: 0;
+  background: none;
+  color: var(--wm-texte-doux, #6e5749);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .sort-form > br {
+  display: none;
+}
+
+/* ── 6 · la légende du bas ────────────────────────────────────────── */
+
+/*  Onze entrées, chacune une image et un mot. En colonne elles font une
+    liste de courses ; en flex elles tiennent sur deux lignes. */
+#modernbb #picture_legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-18, 18px);
+
+  margin: var(--wm-espace-18, 18px) 0;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-18, 18px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-petit, 11.5px);
+  list-style: none;
+}
+
+#modernbb #picture_legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+}
+
+/*  Les icônes sont servies par ModernBB et restent les siennes — les
+    remplacer est une décision d'image (31-les-images-a-fournir), pas de
+    feuille de style. On leur donne juste une taille tenable. */
+#modernbb #picture_legend img {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── 7 · le saut vers un autre forum ──────────────────────────────── */
+
+#modernbb .jumpbox {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--wm-espace-8, 8px);
+  margin: var(--wm-espace-18, 18px) 0;
+}
