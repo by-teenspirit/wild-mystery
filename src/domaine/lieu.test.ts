@@ -54,3 +54,12 @@ Deno.test("deux zones peuvent porter le même lieu sans se gêner", () => {
   assertEquals(lieuDepuisLaCle("passe-du-large", ocean), "Passe du Large");
   assertEquals(lieuDepuisLaCle("passe-du-large", plage), "Passe du Large");
 });
+
+Deno.test("les ligatures ne font pas un trou dans la clé", () => {
+  //  Relevé sur la Forêt Marécageuse le 3 octobre : « Cœur de la Forêt »
+  //  donnait `c-ur-de-la-foret`. NFD ne décompose pas `œ`, qui est une
+  //  lettre à part et non un `o` accentué.
+  assertEquals(cleDeLieu("Cœur de la Forêt"), "coeur-de-la-foret");
+  assertEquals(cleDeLieu("Cœur"), "coeur");
+  assertEquals(cleDeLieu("Nævus"), "naevus");
+});

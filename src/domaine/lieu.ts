@@ -25,10 +25,28 @@
 //  dans la zone du sujet, il n'y a rien à départager.
 // ════════════════════════════════════════════════════════════════════
 
+/** Les ligatures que NFD ne décompose pas.
+ *
+ *  RELEVÉ SUR LE FORUM LE 3 OCTOBRE, et ce n'était pas prévu : « Cœur de
+ *  la Forêt » donnait `c-ur-de-la-foret`. Le `œ` n'est pas une lettre
+ *  accentuée mais un caractère à part entière ; NFD ne le sépare pas, et
+ *  la règle « tout ce qui n'est pas a-z0-9 devient un tiret » l'avalait.
+ *
+ *  La clé fonctionnait quand même — les deux côtés emploient CETTE
+ *  fonction, donc l'aller-retour tombait juste. Mais elle est écrite dans
+ *  le message du joueur, qui la lit. Un trou au milieu d'un nom de lieu
+ *  n'inspire pas confiance, et on corrige tant que rien n'est posté. */
+const LIGATURES: readonly (readonly [RegExp, string])[] = [
+  [/œ/g, "oe"],
+  [/æ/g, "ae"],
+];
+
 /** La clé d'un lieu : minuscules, sans accent, les groupes de caractères
  *  non alphanumériques réduits à un tiret. */
 export function cleDeLieu(nom: string): string {
-  return nom
+  let sansLigature = nom.toLowerCase();
+  for (const [quoi, par] of LIGATURES) sansLigature = sansLigature.replace(quoi, par);
+  return sansLigature
     .normalize("NFD")
     //  On retire les diacritiques, pas les lettres : « Clairière » donne
     //  « clairiere » et non « clairre ».
