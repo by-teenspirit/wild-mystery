@@ -107,12 +107,20 @@ echo
 echo "Le forum sert le nouveau fichier au prochain chargement."
 echo "Et vide le cache du navigateur par-dessus : Cmd+Maj+R."
 echo
-echo "POUR VÉRIFIER, ET NE PAS CROIRE : sur une page du forum, compare la"
-echo "taille servie à celle du dépôt. C'est ce qui a démasqué les"
-echo "quarante-huit heures de cache."
+echo "POUR VÉRIFIER, ET NE PAS CROIRE. Il y a DEUX caches, et ils mentent"
+echo "chacun à leur tour : celui de jsDelivr, et celui du navigateur."
 echo
-echo "   fetch(document.querySelector('link[href*=wild-mystery.css]').href,"
-echo "     {cache:'reload'}).then(r=>r.text()).then(t =>"
-echo "       console.log(new TextEncoder().encode(t).length))"
+echo "   console.table(performance.getEntriesByType('resource')"
+echo "     .filter(r => r.name.includes('wild-mystery'))"
+echo "     .map(r => ({ f: r.name.split('/').pop(),"
+echo "                  octets: r.encodedBodySize,"
+echo "                  transfert: r.transferSize })))"
 echo
-echo "   wc -c css/wild-mystery.css"
+echo "   transfert = 0       la page sert une copie du CACHE NAVIGATEUR."
+echo "                       Cmd+Maj+R, et recommence."
+echo "   octets trop petits  c'est jsDelivr qui est en retard. Purge."
+echo
+echo "NE PAS vérifier avec un fetch({cache:'reload'}) : il contourne le"
+echo "cache du navigateur, donc il rend la BONNE taille pendant que la"
+echo "page, elle, continue d'utiliser l'ancienne. L'erreur a été faite le"
+echo "5 octobre, dans l'heure qui a suivi l'écriture de ce fichier."
