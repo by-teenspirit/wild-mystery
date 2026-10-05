@@ -5,8 +5,19 @@
 --  rejoue à chaque déploiement, et un prix qui change doit
 --  s'appliquer sans vider la table — les sacs des joueurs
 --  référencent ces lignes.
+--
+--  `overriding system value` : `objet.id` est
+--  `generated always as identity`, et PostgreSQL refuse un id
+--  explicite sans ça — « cannot insert a non-DEFAULT value into
+--  column id ». Or les identifiants du catalogue ne sont pas
+--  négociables : ils sont écrits dans le message du sujet de
+--  boutique (`data-wm-objet`) et dans les lignes de registre
+--  déjà posées. C'est la base qui s'adapte, pas eux.
+--
+--  La séquence n'est PAS déplacée : voir la migration 0010.
 
-insert into objet (id, slug, nom, famille, prix, en_vente) values
+insert into objet (id, slug, nom, famille, prix, en_vente)
+overriding system value values
   (990001, 'poke-ball', 'Poké Ball', 'ball', 200, true),
   (990002, 'great-ball', 'Super Ball', 'ball', 600, true),
   (990003, 'ultra-ball', 'Hyper Ball', 'ball', 1200, true),

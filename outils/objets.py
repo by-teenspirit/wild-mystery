@@ -23,10 +23,12 @@
 
 import json
 import pathlib
+import re
 import sys
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 CATALOGUE = RACINE / "data" / "objets.json"
+MIGRATIONS = RACINE / "supabase" / "migrations"
 SEED = RACINE / "supabase" / "seeds" / "objets.sql"
 
 ORDRE_DES_FAMILLES = ["ball", "soin", "statut", "rappel", "evolution", "tenu"]
@@ -45,10 +47,49 @@ class CatalogueIncoherent(Exception):
     """Levée plutôt que d'écrire un fichier dérivé qu'on sait faux."""
 
 
+def familles_du_schema() -> set[str]:
+    """Les familles que la base ACCEPTE, lues dans les migrations.
+
+    LA LEÇON DU 5 OCTOBRE. `0001` fixait cinq familles avant qu'un
+    catalogue existe ; le catalogue en a inventé six, dont quatre que la
+    contrainte refusait. Le seed était cohérent avec `objets.json`, le
+    garde-fou disait « à jour », et l'insertion échouait quand même —
+    parce que personne ne comparait les deux listes.
+
+    On lit donc la DERNIÈRE contrainte écrite, pas une liste recopiée
+    ici : recopier, c'est créer la troisième source qui divergera.
+    """
+    derniere: set[str] | None = None
+    for chemin in sorted(MIGRATIONS.glob("*.sql")):
+        texte = chemin.read_text(encoding="utf-8")
+        #  On retire les commentaires : une migration explique souvent
+        #  l'ancienne contrainte avant de poser la nouvelle.
+        nu = re.sub(r"--[^\n]*", "", texte)
+        for trouve in re.finditer(r"famille\s+in\s*\(([^)]*)\)", nu, re.S):
+            derniere = set(re.findall(r"'([^']+)'", trouve.group(1)))
+    if derniere is None:
+        raise CatalogueIncoherent(
+            "aucune contrainte « famille in (…) » dans supabase/migrations/"
+        )
+    return derniere
+
+
 def charger() -> list[dict]:
     donnees = json.loads(CATALOGUE.read_text(encoding="utf-8"))
     objets = donnees["objets"]
     familles = set(donnees["familles"])
+
+    #  Déclarées dans le catalogue ET acceptées par la base. Les deux,
+    #  jamais l'une sans l'autre.
+    du_schema = familles_du_schema()
+    inconnues = familles - du_schema
+    if inconnues:
+        raise CatalogueIncoherent(
+            "famille(s) que la base refuse : "
+            + ", ".join(f"« {f} »" for f in sorted(inconnues))
+            + " — la contrainte accepte "
+            + ", ".join(sorted(du_schema))
+        )
 
     vus_id: dict[int, str] = {}
     vus_slug: dict[str, int] = {}
@@ -83,8 +124,19 @@ def en_sql(objets: list[dict]) -> str:
         "--  rejoue à chaque déploiement, et un prix qui change doit",
         "--  s'appliquer sans vider la table — les sacs des joueurs",
         "--  référencent ces lignes.",
+        "--",
+        "--  `overriding system value` : `objet.id` est",
+        "--  `generated always as identity`, et PostgreSQL refuse un id",
+        "--  explicite sans ça — « cannot insert a non-DEFAULT value into",
+        "--  column id ». Or les identifiants du catalogue ne sont pas",
+        "--  négociables : ils sont écrits dans le message du sujet de",
+        "--  boutique (`data-wm-objet`) et dans les lignes de registre",
+        "--  déjà posées. C'est la base qui s'adapte, pas eux.",
+        "--",
+        "--  La séquence n'est PAS déplacée : voir la migration 0010.",
         "",
-        "insert into objet (id, slug, nom, famille, prix, en_vente) values",
+        "insert into objet (id, slug, nom, famille, prix, en_vente)",
+        "overriding system value values",
     ]
     corps = [
         "  ({}, {}, {}, {}, {}, {})".format(
