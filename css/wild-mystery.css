@@ -2539,7 +2539,7 @@ html,
 }
 
 #modernbb .wm-boutique__nom {
-  flex: 1 1 10em;
+  flex: 1 1 8em;
   min-width: 0;
   color: var(--wm-texte-corps, #4e3b30);
 }
@@ -2563,9 +2563,32 @@ html,
 
 /* ── les commandes, ajoutées par le script ───────────────────────── */
 
+/*  LES COMMANDES SONT À GAUCHE, et c'est une mesure, pas un goût.
+
+    LE COIN D'OUTILS MORD LES SOIXANTE DERNIERS PIXELS. Il est en
+    `position: fixed` en bas à droite et occupe 108 px ; la colonne de
+    contenu de ModernBB, elle, est fluide avec 48 px de marge tant que
+    la fenêtre fait moins d'environ 1 030 px. Sous cette largeur, le
+    coin recouvre donc TOUJOURS le bord droit du contenu — relevé le
+    5 octobre : deux boutons « + » rendus **réellement incliquables**,
+    `elementFromPoint` ne les atteignait pas. Et ça suit le défilement,
+    donc c'est vrai de la dernière rangée visible en permanence.
+
+    Réserver 108 px comme le fait `06` pour le bouton Envoyer coûterait
+    un cinquième de la largeur sur trente-quatre rangées. Les mettre à
+    gauche ne coûte rien.
+
+    ET ÇA SE DÉFEND SANS LE COIN : à gauche, les boutons sont dans une
+    colonne fixe au lieu de se déplacer avec la longueur du nom. Sur une
+    page où l'on clique soixante-huit fois, viser toujours au même
+    endroit compte.
+
+    `order` plutôt qu'un déplacement dans le DOM : l'ordre de lecture
+    reste nom → prix → commandes, qui est l'ordre dans lequel on décide. */
 #modernbb .wm-boutique__commandes {
   display: flex;
   flex: 0 0 auto;
+  order: -1;
   align-items: center;
   gap: var(--wm-espace-4, 4px);
 }
