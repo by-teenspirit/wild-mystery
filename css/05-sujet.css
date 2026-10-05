@@ -330,7 +330,69 @@
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
-/* ── 6 · la réponse rapide ────────────────────────────────────────── */
+/* ── 6 · le bloc de règles du forum ───────────────────────────────── */
+
+/*  Il n'apparaît que si le forum a des règles. Son `<table class="postbody">`
+    est devenu une rangée en flex (`49-…` §2).
+
+    ET LE PIÈGE, UNE FOIS DE PLUS : il porte `class="post row1"`. Ce
+    n'est ni un `li.rowN` — que `02` possède — ni un `[class*="post--"]`
+    — que `05` possède au §1. ModernBB lui peint donc son `#f8f8f8` en
+    dur, et il resterait blanc en mode sombre. Troisième variante du
+    même défaut ; on la prend comme les deux autres. */
+#modernbb #forum_rules {
+  margin: 0 0 var(--wm-espace-18, 18px);
+  padding: var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb #forum_rules
+  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+  color: inherit;
+}
+
+#modernbb #forum_rules .h3 {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  padding: 0;
+  background: none;
+  color: var(--wm-texte-doux, #6e5749);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .forum-rules-corps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--wm-espace-18, 18px);
+}
+
+#modernbb .forum-rules-corps .logo {
+  flex: 0 0 auto;
+}
+
+#modernbb .forum-rules-corps .logo img {
+  display: block;
+  max-width: 120px;
+  height: auto;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+/*  `min-width: 0` sur ce qui s'étire et contient du texte : c'est la
+    règle 5 du `49-…`, et sans elle un lien long déborde. */
+#modernbb .forum-rules-corps .rules {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+/* ── 7 · la réponse rapide ────────────────────────────────────────── */
 
 /*  Le formulaire du bas. La barre d'actions de Wild Mystery vient se
     poser juste après lui (feuille `10`) : les deux doivent se lire comme
@@ -350,7 +412,7 @@
   font-size: var(--wm-taille-legende, 10.5px);
 }
 
-/* ── 7 · sous 740 px ──────────────────────────────────────────────── */
+/* ── 8 · sous 740 px ──────────────────────────────────────────────── */
 
 /*  `01` fait déjà passer la fiche en pleine largeur. Au-dessus d'un
     message, un portrait de 320 px de haut repousse le texte hors de
