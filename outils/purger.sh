@@ -7,24 +7,46 @@
 #  rouvrir le template à chaque push pour y recoller un hash de quarante
 #  caractères. Une branche ne change jamais d'URL.
 #
-#  Le prix, c'est le cache : jsDelivr garde une URL de branche **douze
-#  heures**. Un push ne se voit donc pas tout de suite sur le forum — sauf
-#  si on le lui demande, et c'est ce que fait ce script.
+#  LE PRIX, MESURÉ ET PAS SUPPOSÉ. On a longtemps écrit « douze heures »
+#  en reprenant la documentation. Le 5 octobre, QUARANTE-HUIT HEURES
+#  après un push, le forum recevait encore la feuille d'avant : 40 Ko au
+#  lieu de 80, sans `04`, `05` ni `06`. Le cache de branche ne se vide
+#  donc pas tout seul dans un délai sur lequel on puisse compter.
+#
+#  **Un push n'est pas une livraison. La purge en fait partie.**
 #
 #  CE N'EST PAS UN DÉPLOIEMENT. Rien n'est envoyé ici : le fichier est
 #  déjà sur GitHub, on ne fait que dire au cache d'aller le relire. Si le
-#  push n'est pas passé, purger ne sert à rien.
+#  push n'est pas passé, purger ne sert à rien — d'où la comparaison
+#  ci-dessous.
+#
+#  ── ET SI LE SHELL N'A PAS DE RÉSEAU ─────────────────────────────────
+#
+#  Ni le bac à sable, ni le shell du Mac ne joignent
+#  `purge.jsdelivr.net`. Le script le détecte, et au lieu d'échouer il
+#  imprime les adresses à ouvrir dans le navigateur — où elles marchent.
+#  Une purge est un simple GET public : l'ouvrir dans un onglet fait
+#  exactement ce que ferait `curl`.
 #
 #  Usage :  bash outils/purger.sh [branche]
 #           (la branche courante par défaut)
 # ════════════════════════════════════════════════════════════════════
 
-set -euo pipefail
+set -uo pipefail
 
 DEPOT="by-teenspirit/wild-mystery"
+
+#  CE QUI EST SERVI, PAS CE QUI EST ÉCRIT. Le forum ne charge que la
+#  feuille assemblée et le paquet : purger `css/10-coin-outils.css`
+#  purgeait un fichier que personne ne demande. L'erreur a vécu trois
+#  jours.
+#
+#  `data/` n'est pas listé : ces fichiers sont ajoutés bien plus souvent
+#  qu'ils ne sont modifiés, et une adresse jamais servie n'a rien en
+#  cache. Si une table de faune change, ajouter sa ligne ici.
 FICHIERS=(
+  "css/wild-mystery.css"
   "js/wild-mystery.js"
-  "css/10-coin-outils.css"
 )
 
 BRANCHE="${1:-$(git rev-parse --abbrev-ref HEAD)}"
@@ -32,38 +54,65 @@ BRANCHE="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 #  Le commit que GitHub porte, pas celui qu'on a en local : purger pour
 #  un commit qui n'est pas poussé ne fait rien, et c'est l'erreur la plus
 #  facile à commettre juste après un `git commit`.
-distant=$(git ls-remote "https://github.com/$DEPOT" "refs/heads/$BRANCHE" | cut -f1)
-if [ -z "$distant" ]; then
-  echo "La branche « $BRANCHE » n'existe pas sur $DEPOT." >&2
-  exit 1
-fi
+distant=$(git ls-remote "https://github.com/$DEPOT" "refs/heads/$BRANCHE" 2>/dev/null | cut -f1)
 local_=$(git rev-parse HEAD)
 
 echo "dépôt    : $DEPOT"
 echo "branche  : $BRANCHE"
-echo "distant  : ${distant:0:8}"
-echo "local    : ${local_:0:8}"
-if [ "$distant" != "$local_" ]; then
-  echo
-  echo "⚠  Le local et le distant diffèrent — il reste sans doute un"
-  echo "   « git push » à faire. On purge quand même ce qui est en ligne."
+if [ -z "$distant" ]; then
+  echo "distant  : injoignable d'ici"
+else
+  echo "distant  : ${distant:0:8}"
+  echo "local    : ${local_:0:8}"
+  if [ "$distant" != "$local_" ]; then
+    echo
+    echo "⚠  Le local et le distant diffèrent — il reste un « git push » à"
+    echo "   faire. Purger maintenant remettrait en cache l'ANCIEN fichier,"
+    echo "   ce qui est pire que de ne rien faire."
+    echo
+    echo "   Pousse d'abord, relance ensuite."
+    exit 1
+  fi
 fi
 echo
 
+aFaireAlaMain=0
 for f in "${FICHIERS[@]}"; do
   url="https://purge.jsdelivr.net/gh/$DEPOT@$BRANCHE/$f"
   printf '%-26s ' "$f"
   if reponse=$(curl -fsS --max-time 20 "$url" 2>&1); then
-    #  La réponse est un JSON ; on n'en veut qu'un mot.
     case "$reponse" in
-      *'"success":true'*|*'"status":"finished"'*) echo "purgé" ;;
+      *'"success":true'* | *'"status":"finished"'*) echo "purgé" ;;
       *) echo "réponse inattendue : $reponse" ;;
     esac
   else
-    echo "échec : $reponse"
+    echo "pas de réseau d'ici"
+    aFaireAlaMain=1
   fi
 done
 
+if [ "$aFaireAlaMain" -eq 1 ]; then
+  echo
+  echo "Ce shell ne joint pas jsDelivr. Ouvre ces adresses dans le"
+  echo "navigateur — un onglet suffit, elles répondent un JSON :"
+  echo
+  for f in "${FICHIERS[@]}"; do
+    echo "   https://purge.jsdelivr.net/gh/$DEPOT@$BRANCHE/$f"
+  done
+  echo
+  echo "Attends « \"status\": \"finished\" » avant de recharger le forum."
+fi
+
 echo
 echo "Le forum sert le nouveau fichier au prochain chargement."
-echo "Pense à vider le cache du navigateur si tu ne vois rien (Cmd+Maj+R)."
+echo "Et vide le cache du navigateur par-dessus : Cmd+Maj+R."
+echo
+echo "POUR VÉRIFIER, ET NE PAS CROIRE : sur une page du forum, compare la"
+echo "taille servie à celle du dépôt. C'est ce qui a démasqué les"
+echo "quarante-huit heures de cache."
+echo
+echo "   fetch(document.querySelector('link[href*=wild-mystery.css]').href,"
+echo "     {cache:'reload'}).then(r=>r.text()).then(t =>"
+echo "       console.log(new TextEncoder().encode(t).length))"
+echo
+echo "   wc -c css/wild-mystery.css"
