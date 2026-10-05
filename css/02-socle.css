@@ -125,6 +125,33 @@ html,
   background: var(--wm-fond-surface, #fffbf7);
 }
 
+/*  LA CINQUIÈME ET LA SIXIÈME SURFACE PEINTE EN DUR, relevées sur
+    l'index le 5 octobre — et elles sont DANS un `.block` déjà traité
+    au-dessus, ce qui est précisément ce qui les rendait invisibles à la
+    relecture : le bloc est bon, son pied ne l'est pas.
+
+    · `.block-footer` porte la légende des groupes, en `#f0f0f0`. Son
+      parent était bien sombre, et notre crème se retrouvait sur du gris
+      clair : **1,41 de contraste**, c'est-à-dire illisible. La légende
+      n'existe que sur l'index, et c'est la seule page où le harnais
+      n'avait jamais tourné.
+    · `#imageList` — « Dernières images » — est en `#ffffff` sur 411 × 279
+      pixels. Pas un défaut de contraste (il ne porte que des vignettes),
+      mais un rectangle blanc au milieu d'une page sombre.
+
+    `transparent` et pas une surface à nous : les deux sont À L'INTÉRIEUR
+    d'un `.block`, qui porte déjà la bonne. Leur rendre un fond serait
+    empiler deux surfaces pour obtenir celle qu'on a déjà. Le pied garde
+    sa séparation par le trait, pas par la teinte. */
+#modernbb .block-footer,
+#modernbb #imageList {
+  background: transparent;
+}
+
+#modernbb .block-footer {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
 /*  ET LE PENDANT : À L'INTÉRIEUR DE NOS SURFACES, C'EST NOTRE ENCRE.
     
     Prendre le fond sans prendre le texte est l'erreur inverse de celle
