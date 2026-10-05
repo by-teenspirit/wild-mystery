@@ -177,3 +177,58 @@ export function ligneEnAttente(
     pokedollars: e.pokedollars,
   };
 }
+
+/** Le pseudo de chaque joueur, pris dans la page et non dans la base.
+ *
+ *  ── POURQUOI PAS UNE REQUÊTE DE PLUS ─────────────────────────────────
+ *
+ *  Le registre ne connaît que des identifiants. La table `joueur`, elle,
+ *  n'est lisible que par son propriétaire — c'est la bonne politique, et
+ *  on ne va pas l'ouvrir pour afficher un nom.
+ *
+ *  Or le nom est déjà sous les yeux du lecteur : chaque message de la
+ *  page porte `post--<messageId>` et le pseudo de son auteur, et le
+ *  registre porte le même `messageId`. On relie les deux là où ils se
+ *  rencontrent déjà, sans exposer quoi que ce soit de plus.
+ *
+ *  Un joueur dont aucun message n'est sur la page — une pagination plus
+ *  tard — n'a pas de nom ici. Il n'a pas non plus de colonne à l'écran :
+ *  `colonnesDuBilan` l'écarte. Montrer un UUID serait pire que de ne
+ *  rien montrer. */
+export function pseudoParJoueur(
+  lignes: readonly LigneDeJoueur[],
+  pseudoDuMessage: (messageId: number) => string | null,
+): ReadonlyMap<string, string> {
+  const pseudos = new Map<string, string>();
+  for (const { joueurId, ligne } of lignes) {
+    if (pseudos.has(joueurId)) continue;
+    const pseudo = pseudoDuMessage(ligne.messageId);
+    if (pseudo !== null && pseudo !== "") pseudos.set(joueurId, pseudo);
+  }
+  return pseudos;
+}
+
+/** Une colonne du module : un joueur, ses rubriques. */
+export type Colonne = {
+  readonly joueurId: string;
+  readonly ligne: LigneEnAttente;
+};
+
+/** Les colonnes à dessiner, dans l'ordre d'entrée dans le sujet.
+ *
+ *  Un joueur qu'on ne sait pas nommer est écarté — voir ci-dessus. Un
+ *  joueur nommé mais sans effet garde sa colonne : le module dira qu'il
+ *  n'a rien à verser, comme le fait le message posté. */
+export function colonnesDuBilan(
+  lignes: readonly LigneDeJoueur[],
+  pseudos: ReadonlyMap<string, string>,
+  noms: Noms,
+): readonly Colonne[] {
+  const sortie: Colonne[] = [];
+  for (const [joueurId, siennes] of parJoueur(lignes)) {
+    const pseudo = pseudos.get(joueurId);
+    if (pseudo === undefined) continue;
+    sortie.push({ joueurId, ligne: ligneEnAttente(pseudo, siennes, noms) });
+  }
+  return sortie;
+}

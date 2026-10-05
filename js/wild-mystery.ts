@@ -35,6 +35,8 @@ import {
   racineDesDonnees,
 } from "../src/adaptateurs/navigateur/catalogue.ts";
 import { zoneDe } from "../src/navigateur/zone.ts";
+import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/registre.ts";
+import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -82,6 +84,34 @@ async function poserLaBarre(): Promise<void> {
   new BarreDActions(document, brouillon, lieux).poser(formulaire);
 }
 
+/** Le module de bilan, au-dessus du premier message d'un sujet de zone.
+ *
+ *  MÊME PORTE QUE LA BARRE, et pour la même raison : la règle 4 de la
+ *  planche 45. Le registre ne contient que des zones, et un module
+ *  ailleurs montrerait toujours un cadre vide.
+ *
+ *  Il lit la configuration Supabase dans `data/` — la clé publiable,
+ *  bornée par les politiques RLS, et rien d'autre. */
+async function poserLeModule(): Promise<void> {
+  if (RACINE === null) return;
+
+  const catalogue = new CatalogueDistant(RACINE);
+  const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
+  if (zone === null) return;
+
+  const reponse = await fetch(`${RACINE}supabase.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  const config = configDepuis(reponse);
+  if (config === null) return;
+
+  await poserLeBilan({
+    doc: document,
+    registre: new RegistreDistant(config),
+    catalogue,
+  });
+}
+
 desQueLeCorpsEstLa(() => {
   coin.appliquerLeTheme();
   masquerLesMarqueurs(document);
@@ -90,4 +120,5 @@ desQueLeCorpsEstLa(() => {
   //  c'est voulu. Une panne de réseau ne doit priver que d'elle — d'où le
   //  `catch` qui ne fait rien de plus que l'empêcher de remonter.
   poserLaBarre().catch(() => {});
+  poserLeModule().catch(() => {});
 });

@@ -9,7 +9,15 @@
 
 import { assertEquals } from "@std/assert";
 import { rubriquesEnAttente } from "../application/bilan.ts";
-import { aNommer, evenementDepuis, ligneEnAttente, lignesDepuis, parJoueur } from "./bilan.ts";
+import {
+  aNommer,
+  colonnesDuBilan,
+  evenementDepuis,
+  ligneEnAttente,
+  lignesDepuis,
+  parJoueur,
+  pseudoParJoueur,
+} from "./bilan.ts";
 import { cumuler } from "../domaine/cloture.ts";
 
 const ANNA = "11111111-1111-1111-1111-111111111111";
@@ -197,5 +205,103 @@ Deno.test("une ball lancée s'affiche même sans l'avoir trouvée", () => {
   });
   assertEquals(rubriquesEnAttente(l), [
     { etiquette: "CONSOMMÉ", valeur: "2 Poké Ball" },
+  ]);
+});
+
+// ── le pseudo vient de la page, pas de la base ──────────────────────
+
+const PAGE = new Map([[10, "Anna"], [20, "Boris"], [30, "Anna"]]);
+const dansLaPage = (id: number) => PAGE.get(id) ?? null;
+
+Deno.test("chaque joueur prend le pseudo de son premier message", () => {
+  const lues = lignesDepuis([
+    brut(ANNA, 10, "croise", { especeId: 37 }),
+    brut(BORIS, 20, "croise", { especeId: 16 }),
+    brut(ANNA, 30, "croise", { especeId: 25 }),
+  ]);
+  assertEquals([...pseudoParJoueur(lues, dansLaPage)], [[ANNA, "Anna"], [BORIS, "Boris"]]);
+});
+
+Deno.test("un joueur dont le message n'est pas sur la page n'a pas de nom", () => {
+  //  Pagination : ses lignes existent, son message est ailleurs.
+  const lues = lignesDepuis([brut(ANNA, 999, "croise", { especeId: 37 })]);
+  assertEquals(pseudoParJoueur(lues, dansLaPage).size, 0);
+});
+
+Deno.test("et il n'a pas de colonne non plus", () => {
+  //  Montrer un UUID serait pire que de ne rien montrer.
+  const lues = lignesDepuis([
+    brut(ANNA, 10, "croise", { especeId: 37 }),
+    brut(BORIS, 999, "croise", { especeId: 16 }),
+  ]);
+  const cols = colonnesDuBilan(lues, pseudoParJoueur(lues, dansLaPage), {
+    especes: new Map([[37, "Goupix"]]),
+    objets: new Map(),
+  });
+  assertEquals(cols.length, 1);
+  assertEquals(cols[0].ligne.pseudo, "Anna");
+});
+
+Deno.test("les colonnes sortent dans l'ordre d'entrée dans le sujet", () => {
+  const lues = lignesDepuis([
+    brut(BORIS, 20, "croise", { especeId: 16 }),
+    brut(ANNA, 10, "croise", { especeId: 37 }),
+  ]);
+  const cols = colonnesDuBilan(lues, pseudoParJoueur(lues, dansLaPage), {
+    especes: new Map(),
+    objets: new Map(),
+  });
+  //  Boris parle en premier dans le tableau reçu : il passe en premier,
+  //  quel que soit son identifiant.
+  assertEquals(cols.map((c) => c.ligne.pseudo), ["Boris", "Anna"]);
+});
+
+Deno.test("un joueur nommé mais sans effet garde sa colonne", () => {
+  //  Comme dans le message posté : on le nomme, et on dit qu'il n'a
+  //  rien à verser. Une colonne absente ressemblerait à un bogue.
+  const lues = lignesDepuis([brut(ANNA, 10, "evolution", { especeId: 37 })]);
+  assertEquals(lues.length, 0, "le type inconnu a bien été écarté");
+
+  const avecLigne = lignesDepuis([brut(ANNA, 10, "xp", { pokemonId: "lumi", gain: 0 })]);
+  const cols = colonnesDuBilan(avecLigne, pseudoParJoueur(avecLigne, dansLaPage), {
+    especes: new Map(),
+    objets: new Map(),
+  });
+  assertEquals(cols.length, 1);
+  assertEquals(rubriquesEnAttente(cols[0].ligne), [
+    { etiquette: "EXPÉRIENCE", valeur: "lumi +0" },
+  ]);
+});
+
+// ── le cas réel, relevé sur le forum le 5 octobre ───────────────────
+
+Deno.test("le registre réel du sujet 976, tel que PostgREST le rend", () => {
+  //  Copié de la réponse de l'API, pas inventé : c'est la forme exacte
+  //  que la base renvoie, serpent compris sur `joueur_id` et
+  //  `message_id`, chameau compris dans la charge. Si l'une des deux
+  //  conventions change, cet essai tombe avant les joueurs.
+  const reponse = [{
+    joueur_id: "a7dfc8ad-71b0-49c0-83e0-a7c82038bb05",
+    message_id: 15546,
+    type: "objet_trouve",
+    charge: { objetId: 990001, quantite: 1 },
+  }];
+
+  const lignes = lignesDepuis(reponse);
+  assertEquals(lignes.length, 1);
+
+  //  Le pseudo vient de la page : le message 15546 y est, signé
+  //  « Compte de test ».
+  const pseudos = pseudoParJoueur(lignes, (id) => (id === 15546 ? "Compte de test" : null));
+
+  const cols = colonnesDuBilan(lignes, pseudos, {
+    especes: new Map(),
+    objets: new Map([[990001, "Poké Ball"]]),
+  });
+
+  assertEquals(cols.length, 1);
+  assertEquals(cols[0].ligne.pseudo, "Compte de test");
+  assertEquals(rubriquesEnAttente(cols[0].ligne), [
+    { etiquette: "AJOUTÉ AU SAC", valeur: "1 Poké Ball" },
   ]);
 });

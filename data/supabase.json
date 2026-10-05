@@ -1,0 +1,5 @@
+{
+  "lisezMoi": "La clé PUBLIABLE, et elle seule. Elle est faite pour être servie aux navigateurs : ce n'est pas elle qui protège, ce sont les politiques RLS. La clé de service ne sort jamais de Supabase, et le garde-fou n° 10 refuse qu'elle entre dans ce dépôt.",
+  "url": "https://ajhajteavsbygvkhipzt.supabase.co",
+  "clePubliable": "sb_publishable_l0zJm2_bmhj67mDXxM6_nA_BYiYVueJ"
+}

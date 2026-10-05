@@ -237,6 +237,61 @@ if [ -d data/faune ]; then
   fi
 fi
 
+echo "── 10. aucune clé de service dans le dépôt ─────────────────────"
+
+# `data/supabase.json` porte la clé PUBLIABLE, et c'est voulu : elle est
+# faite pour être servie aux navigateurs, et ce sont les politiques RLS
+# qui bornent ce qu'elle lit. Le jour où quelqu'un y colle la clé de
+# service « juste pour essayer », tout le schéma est lisible et
+# modifiable par le premier visiteur venu — et le dépôt est public.
+#
+# Ce que ça refuse :
+#   · la clé de service nouvelle forme, préfixée ;
+#   · un JWT COMPLET — `en-tête.charge.signature`, les deux premiers
+#     segments commençant par `eyJ`, c'est-à-dire `{"` en base64.
+#
+# DEUX FAUSSES ALERTES PAYÉES EN L'ÉCRIVANT, et elles valent la peine
+# d'être dites :
+#
+#   · chercher `eyJ` suivi de trente caractères attrapait NOS PROPRES
+#     marqueurs. `[[WM:eyJ0IjoieHAi…:WM-ACDE-FGH]]` est du base64 lui
+#     aussi. D'où la structure complète exigée : un JWT a des points,
+#     un marqueur n'en a pas ;
+#   · et ce fichier contient forcément les motifs qu'il cherche. Il
+#     s'exclut, sinon il gronde sur lui-même à chaque passage — et un
+#     garde-fou qui crie toujours ne protège plus rien.
+#
+# `service_role` tout court n'est PAS refusé : il apparaît légitimement
+# dans les `grant … to service_role` des migrations.
+# `--others --exclude-standard` en plus de `--cached` : un fichier
+# fraîchement créé et pas encore ajouté est EXACTEMENT celui qu'on veut
+# examiner. Sans ces deux drapeaux la règle ne regardait que le passé,
+# et elle a laissé passer les deux essais faits pour la casser.
+mapfile -t SUIVIS < <(
+  {
+    git ls-files --cached --others --exclude-standard 2>/dev/null ||
+      find . -type f -not -path './.git/*'
+  } | grep -v '^outils/garde-fou.sh$'
+)
+if [ ${#SUIVIS[@]} -gt 0 ]; then
+  refuse 'sb''_secret_' \
+    "clé de service Supabase — elle ne sort jamais de Supabase" \
+    "${SUIVIS[@]}"
+  refuse 'eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.' \
+    "jeton JWT complet en dur — si c'est la clé de service, le dépôt est public" \
+    "${SUIVIS[@]}"
+fi
+
+# Et la clé publiable doit en être une : un copier-coller malheureux se
+# voit ici plutôt qu'en production.
+if [ -f data/supabase.json ]; then
+  if grep -q '"clePubliable": *"sb_publishable_' data/supabase.json; then
+    echo "   data/supabase.json : clé publiable, bornée par RLS"
+  else
+    gronde "data/supabase.json ne porte pas une clé « sb_publishable_ »"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

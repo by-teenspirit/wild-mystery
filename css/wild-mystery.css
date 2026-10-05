@@ -1521,7 +1521,108 @@ html,
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
-/* ── 6 · le bloc de règles du forum ───────────────────────────────── */
+/* ── 6 · le module de bilan ───────────────────────────────────────── */
+
+/*  Planche 38. Il se pose au-dessus du premier message, en JavaScript,
+    et n'existe que dans les dix-sept zones sauvages.
+
+    C'est NOTRE balisage, pas celui de ModernBB : rien à défaire ici, on
+    écrit directement ce qu'on veut. */
+#modernbb .wm-bilan {
+  margin: 0 0 var(--wm-espace-18, 18px);
+  padding: var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-bilan__titre {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  color: var(--wm-texte-doux, #6e5749);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Une colonne par joueur (`45-…` règle 5). Elles se partagent la
+    largeur et passent à la ligne : un multi à quatre tient sur deux
+    rangées plutôt que de rétrécir jusqu'à l'illisible. */
+#modernbb .wm-bilan__colonnes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-18, 18px);
+}
+
+#modernbb .wm-bilan__colonne {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: var(--wm-espace-14, 14px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-bilan__pseudo {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-encre, #2e2018);
+
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-carte, 1.25);
+}
+
+/*  Les mêmes paires étiquette/valeur que le message posté à la clôture.
+    Une `dl` parce que c'en est une : l'étiquette définit la valeur. */
+#modernbb .wm-bilan__rubriques {
+  margin: 0;
+}
+
+#modernbb .wm-bilan__etiquette {
+  margin-top: var(--wm-espace-8, 8px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-bilan__etiquette:first-child {
+  margin-top: 0;
+}
+
+#modernbb .wm-bilan__valeur {
+  margin: 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  overflow-wrap: break-word;
+}
+
+#modernbb .wm-bilan__rien {
+  margin: 0;
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+}
+
+/*  LA PHRASE QUI ÉVITE LE MALENTENDU LE PLUS COÛTEUX DU PROJET. Un
+    joueur qui lit « 2 Poké Ball » au-dessus de son RP doit comprendre
+    que rien n'a bougé dans son sac. Elle n'est donc pas une note de bas
+    de page qu'on met en gris clair : elle se lit. */
+#modernbb .wm-bilan__note {
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding-top: var(--wm-espace-12, 12px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/* ── 7 · le bloc de règles du forum ───────────────────────────────── */
 
 /*  Il n'apparaît que si le forum a des règles. Son `<table class="postbody">`
     est devenu une rangée en flex (`49-…` §2).
@@ -1583,7 +1684,7 @@ html,
   min-width: 0;
 }
 
-/* ── 7 · la réponse rapide ────────────────────────────────────────── */
+/* ── 8 · la réponse rapide ────────────────────────────────────────── */
 
 /*  Le formulaire du bas. La barre d'actions de Wild Mystery vient se
     poser juste après lui (feuille `10`) : les deux doivent se lire comme
@@ -1603,7 +1704,7 @@ html,
   font-size: var(--wm-taille-legende, 10.5px);
 }
 
-/* ── 8 · sous 740 px ──────────────────────────────────────────────── */
+/* ── 9 · sous 740 px ──────────────────────────────────────────────── */
 
 /*  `01` fait déjà passer la fiche en pleine largeur. Au-dessus d'un
     message, un portrait de 320 px de haut repousse le texte hors de
