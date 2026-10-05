@@ -292,6 +292,24 @@ if [ -f data/supabase.json ]; then
   fi
 fi
 
+echo "── 11. le catalogue de la boutique ─────────────────────────────"
+# `data/objets.json` est la source unique du catalogue. Le seed SQL en
+# est dérivé, et c'est LUI que `servir_commande` relit pour facturer.
+#
+# LES DEUX DOIVENT DIRE LE MÊME PRIX. Sinon un joueur commande en voyant
+# 200 et se fait débiter 600 — et on cherche une soirée qui a menti.
+#
+# Même forme que la règle 9 : l'outil sait vérifier, le garde-fou ne fait
+# que l'appeler. Et il passe son chemin quand `python3` manque, comme la
+# règle 8 le fait pour `deno`.
+if [ ! -f data/objets.json ]; then
+  echo "   pas de catalogue à vérifier"
+elif ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — vérification sautée"
+elif ! python3 outils/objets.py --verifier; then
+  gronde "le catalogue et son seed ne correspondent pas"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

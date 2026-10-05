@@ -1,0 +1,53 @@
+{
+  "lisezMoi": "Le catalogue de la boutique. SOURCE UNIQUE : la table `objet` de Supabase et le message du sujet de boutique sont tous les deux DÉRIVÉS de ce fichier, par `outils/objets.py`. Changer un prix se fait ici, une fois. Les prix sont une PROPOSITION de Claude, ancrée sur la seule qui existait déjà (Poké Ball à 200 ₽, id 990001) — à relire par Callista, ce sont des règles de jeu.",
+  "sourceDesImages": "img/objets/<slug>.png — le slug est l'anglais de PokeAPI (31-les-images-a-fournir.md)",
+  "familles": {
+    "ball": "Les balls de capture. Vendues partout.",
+    "soin": "Rendre des PV.",
+    "statut": "Soigner un statut.",
+    "rappel": "Ranimer un pokémon K.O.",
+    "evolution": "Pierres et objets d'évolution. L'annexe combat les place à la boutique SPÉCIALE de la Station Service.",
+    "tenu": "Objets qu'un pokémon tient."
+  },
+  "objets": [
+    { "id": 990001, "slug": "poke-ball", "nom": "Poké Ball", "famille": "ball", "prix": 200, "enVente": true },
+    { "id": 990002, "slug": "great-ball", "nom": "Super Ball", "famille": "ball", "prix": 600, "enVente": true },
+    { "id": 990003, "slug": "ultra-ball", "nom": "Hyper Ball", "famille": "ball", "prix": 1200, "enVente": true },
+    { "id": 990004, "slug": "net-ball", "nom": "Filet Ball", "famille": "ball", "prix": 1000, "enVente": true },
+    { "id": 990005, "slug": "dive-ball", "nom": "Scuba Ball", "famille": "ball", "prix": 1000, "enVente": true },
+    { "id": 990006, "slug": "nest-ball", "nom": "Faiblo Ball", "famille": "ball", "prix": 1000, "enVente": true },
+    { "id": 990007, "slug": "dusk-ball", "nom": "Sombre Ball", "famille": "ball", "prix": 1000, "enVente": true },
+    { "id": 990008, "slug": "quick-ball", "nom": "Rapide Ball", "famille": "ball", "prix": 1000, "enVente": true },
+
+    { "id": 990020, "slug": "potion", "nom": "Potion", "famille": "soin", "prix": 300, "enVente": true },
+    { "id": 990021, "slug": "super-potion", "nom": "Super Potion", "famille": "soin", "prix": 700, "enVente": true },
+    { "id": 990022, "slug": "hyper-potion", "nom": "Hyper Potion", "famille": "soin", "prix": 1200, "enVente": true },
+    { "id": 990023, "slug": "max-potion", "nom": "Potion Max", "famille": "soin", "prix": 2500, "enVente": true },
+
+    { "id": 990040, "slug": "antidote", "nom": "Antidote", "famille": "statut", "prix": 100, "enVente": true },
+    { "id": 990041, "slug": "burn-heal", "nom": "Anti-Brûle", "famille": "statut", "prix": 250, "enVente": true },
+    { "id": 990042, "slug": "ice-heal", "nom": "Antigel", "famille": "statut", "prix": 250, "enVente": true },
+    { "id": 990043, "slug": "awakening", "nom": "Réveil", "famille": "statut", "prix": 250, "enVente": true },
+    { "id": 990044, "slug": "paralyze-heal", "nom": "Anti-Para", "famille": "statut", "prix": 200, "enVente": true },
+    { "id": 990045, "slug": "full-heal", "nom": "Total Soin", "famille": "statut", "prix": 600, "enVente": true },
+
+    { "id": 990060, "slug": "revive", "nom": "Rappel", "famille": "rappel", "prix": 1500, "enVente": true },
+    { "id": 990061, "slug": "max-revive", "nom": "Rappel Max", "famille": "rappel", "prix": 4000, "enVente": true },
+
+    { "id": 990080, "slug": "fire-stone", "nom": "Pierre Feu", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990081, "slug": "water-stone", "nom": "Pierre Eau", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990082, "slug": "thunder-stone", "nom": "Pierre Foudre", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990083, "slug": "leaf-stone", "nom": "Pierre Plante", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990084, "slug": "ice-stone", "nom": "Pierre Glace", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990085, "slug": "moon-stone", "nom": "Pierre Lune", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990086, "slug": "sun-stone", "nom": "Pierre Soleil", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990087, "slug": "shiny-stone", "nom": "Pierre Éclat", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990088, "slug": "dusk-stone", "nom": "Pierre Nuit", "famille": "evolution", "prix": 3000, "enVente": true },
+    { "id": 990089, "slug": "dawn-stone", "nom": "Pierre Aube", "famille": "evolution", "prix": 3000, "enVente": true },
+
+    { "id": 990100, "slug": "metal-coat", "nom": "Peau Métal", "famille": "tenu", "prix": 3000, "enVente": true },
+    { "id": 990101, "slug": "prism-scale", "nom": "Bel'Écaille", "famille": "tenu", "prix": 3000, "enVente": true },
+    { "id": 990102, "slug": "sweet-apple", "nom": "Fleur Sucrée", "famille": "tenu", "prix": 3000, "enVente": true },
+    { "id": 990103, "slug": "kings-rock", "nom": "Roche Royale", "famille": "tenu", "prix": 3000, "enVente": true }
+  ]
+}
