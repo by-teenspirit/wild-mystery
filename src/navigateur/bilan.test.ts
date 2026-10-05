@@ -7,11 +7,12 @@
 //  autres restent, la page tient.
 // ════════════════════════════════════════════════════════════════════
 
-import { assertEquals } from "@std/assert";
+import { assert, assertEquals } from "@std/assert";
 import { rubriquesEnAttente } from "../application/bilan.ts";
 import {
   aNommer,
   colonnesDuBilan,
+  etatDuBoutonDeCloture,
   evenementDepuis,
   ligneEnAttente,
   lignesDepuis,
@@ -304,4 +305,27 @@ Deno.test("le registre réel du sujet 976, tel que PostgREST le rend", () => {
   assertEquals(rubriquesEnAttente(cols[0].ligne), [
     { etiquette: "AJOUTÉ AU SAC", valeur: "1 Poké Ball" },
   ]);
+});
+
+// ── le bouton de clôture ────────────────────────────────────────────
+
+Deno.test("le bouton annonce ce qu'un second clic ferait", () => {
+  //  Le défaut qu'on évite : rester sur « Clôturer le sujet » une fois le
+  //  mot posé, ce qui laisse croire qu'on clôturerait deux fois.
+  assertEquals(etatDuBoutonDeCloture(false).libelle, "Clôturer le sujet");
+  assertEquals(etatDuBoutonDeCloture(true).libelle, "Annuler la clôture");
+});
+
+Deno.test("les deux états disent que rien ne part sans le joueur", () => {
+  //  C'est la peur à désamorcer ici, et elle ne disparaît pas une fois le
+  //  mot posé — au contraire.
+  for (const demandee of [false, true]) {
+    const etat = etatDuBoutonDeCloture(demandee);
+    assertEquals(etat.demandee, demandee);
+    assert(etat.note.length > 0, "une note vide laisserait le joueur seul");
+    assert(
+      /envoyer|sans toi/i.test(etat.note),
+      `la note doit parler de l'envoi : ${etat.note}`,
+    );
+  }
 });

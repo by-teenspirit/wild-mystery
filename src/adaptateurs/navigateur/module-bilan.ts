@@ -24,12 +24,15 @@ import { rubriquesEnAttente } from "../../application/bilan.ts";
 import {
   aNommer,
   colonnesDuBilan,
+  etatDuBoutonDeCloture,
   lignesDepuis,
   parJoueur,
   pseudoParJoueur,
 } from "../../navigateur/bilan.ts";
+import { basculerLaCloture, clotureDemandee } from "../../navigateur/redaction.ts";
 import { cumuler } from "../../domaine/cloture.ts";
 import type { Catalogue } from "./catalogue.ts";
+import type { Brouillon } from "./editeur.ts";
 import type { LectureDuRegistre } from "./registre.ts";
 
 /** L'identifiant du sujet, lu dans l'adresse.
@@ -74,7 +77,83 @@ export type Dependances = {
   readonly doc: Document;
   readonly registre: LectureDuRegistre;
   readonly catalogue: Catalogue;
+  /** Le brouillon de la réponse rapide, quand la page en a un.
+   *
+   *  **Absent est un cas normal et fréquent** : un visiteur déconnecté,
+   *  un sujet verrouillé, un forum en lecture seule. Le module s'affiche
+   *  quand même — il se lit —, simplement sans bouton de clôture. */
+  readonly brouillon?: Brouillon | null;
 };
+
+/** Le bouton de clôture du module (règle 6 de la planche 45).
+ *
+ *  ── IL N'EST JAMAIS GRISÉ ────────────────────────────────────────────
+ *
+ *  Le `45-…` §7 l'interdit : « pas de bouton grisé quand il manque
+ *  quelque chose : on explique ». Et le navigateur ne SAIT pas ce qui
+ *  manque — il faudrait le sac, la place en boîte et le solde, que seul
+ *  le joueur lui-même peut lire. C'est le serveur qui vérifie, et qui
+ *  poste un refus en nommant ce qui manque (règle 7). Un bouton grisé
+ *  mentirait deux fois : sur ce qu'il sait, et sur ce qui est possible.
+ *
+ *  ── IL NE POSTE RIEN ─────────────────────────────────────────────────
+ *
+ *  Il écrit `[cloture]` dans la réponse rapide et amène le joueur
+ *  dessus. C'est le joueur qui envoie. La même fonction que le bouton de
+ *  la barre, pour qu'ils ne puissent pas se contredire. */
+function boutonDeCloture(doc: Document, brouillon: Brouillon): HTMLElement {
+  const zone = element(doc, "div", "wm-bilan__cloture");
+  const bouton = doc.createElement("button");
+  bouton.type = "button";
+  bouton.className = "wm-bilan__bouton";
+
+  const note = element(doc, "p", "wm-bilan__cloture-note");
+
+  const rafraichir = () => {
+    const { demandee, libelle, note: texte } = etatDuBoutonDeCloture(
+      clotureDemandee(brouillon.lire()),
+    );
+    bouton.textContent = libelle;
+    bouton.setAttribute("aria-pressed", String(demandee));
+    bouton.classList.toggle("wm-bilan__bouton--pose", demandee);
+    note.textContent = texte;
+  };
+
+  bouton.addEventListener("click", () => {
+    brouillon.ecrire(basculerLaCloture(brouillon.lire()));
+    rafraichir();
+    //  On amène le joueur à sa réponse : le module est en haut du sujet,
+    //  le formulaire tout en bas. Sans ça, il clique et il ne voit rien
+    //  se passer — ce serait le bouton le plus déroutant du forum.
+    amenerAlaReponse(doc);
+  });
+
+  //  Le joueur peut effacer le mot à la main, ou cliquer sur le bouton de
+  //  la barre : le nôtre doit suivre plutôt que de mentir.
+  brouillon.surChangement(rafraichir);
+  rafraichir();
+
+  zone.appendChild(bouton);
+  zone.appendChild(note);
+  return zone;
+}
+
+/** Fait défiler jusqu'au formulaire de réponse, et y met le curseur.
+ *
+ *  Tout est enveloppé : `scrollIntoView` et `focus` n'existent pas dans
+ *  tous les environnements de test, et un bouton qui lève après avoir
+ *  correctement écrit le mot serait un comble. */
+function amenerAlaReponse(doc: Document): void {
+  const cible = doc.querySelector("#quick_reply") ??
+    doc.querySelector("form[name=post]") ??
+    doc.querySelector("#text_editor_textarea");
+  try {
+    (cible as HTMLElement | null)?.scrollIntoView?.({ block: "center" });
+    doc.querySelector<HTMLTextAreaElement>("#text_editor_textarea")?.focus?.();
+  } catch {
+    //  Rien à faire : le mot est écrit, c'est l'essentiel.
+  }
+}
 
 /**
  * Pose le module, et rend `true` s'il a été posé.
@@ -85,7 +164,7 @@ export type Dependances = {
  * ce qui est le bon moment pour le découvrir.
  */
 export async function poserLeBilan(
-  { doc, registre, catalogue }: Dependances,
+  { doc, registre, catalogue, brouillon = null }: Dependances,
 ): Promise<boolean> {
   const sujetId = sujetDepuisAdresse(doc.location?.pathname ?? "");
   if (sujetId === null) return false;
@@ -149,6 +228,10 @@ export async function poserLeBilan(
     "wm-bilan__note",
     "Rien n'est acquis tant que le sujet n'est pas clôturé.",
   ));
+
+  //  Le bouton ferme le module : c'est la dernière chose qu'on lit, et
+  //  c'est la seule qu'on puisse faire depuis ici.
+  if (brouillon !== null) module.appendChild(boutonDeCloture(doc, brouillon));
 
   ancre.parentNode?.insertBefore(module, ancre);
   return true;

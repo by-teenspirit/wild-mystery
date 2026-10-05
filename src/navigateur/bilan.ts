@@ -232,3 +232,40 @@ export function colonnesDuBilan(
   }
   return sortie;
 }
+
+// ── LE BOUTON DE CLÔTURE ─────────────────────────────────────────────
+//
+//  Ce que le joueur LIT sur le bouton est une règle, pas du dessin : elle
+//  vit donc ici, avec le reste, et pas dans le DOM. L'adaptateur ne fait
+//  que peindre ce que cette fonction décide.
+
+/** L'état du bouton de clôture, d'après le brouillon en cours. */
+export type EtatDuBouton = {
+  readonly demandee: boolean;
+  readonly libelle: string;
+  readonly note: string;
+};
+
+/** Ce qu'affiche le bouton de clôture du module.
+ *
+ *  DEUX ÉTATS, ET LE SECOND DIT COMMENT REVENIR EN ARRIÈRE. Un bouton qui
+ *  resterait « Clôturer le sujet » après avoir posé le mot laisserait
+ *  croire qu'un second clic clôture deux fois — alors qu'il annule.
+ *
+ *  LES DEUX NOTES DISENT LA MÊME CHOSE : rien ne part sans le joueur.
+ *  C'est la peur qu'il faut désamorcer à cet endroit précis, parce que
+ *  « clôturer » sonne définitif et que le bouton est à côté d'un bilan
+ *  chiffré. */
+export function etatDuBoutonDeCloture(demandee: boolean): EtatDuBouton {
+  return demandee
+    ? {
+      demandee,
+      libelle: "Annuler la clôture",
+      note: "C'est écrit dans ta réponse. Il reste à l'envoyer.",
+    }
+    : {
+      demandee,
+      libelle: "Clôturer le sujet",
+      note: "Le mot sera écrit dans ta réponse. Rien ne part sans toi.",
+    };
+}

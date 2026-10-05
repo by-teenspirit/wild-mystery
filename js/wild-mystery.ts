@@ -105,10 +105,14 @@ async function poserLeModule(): Promise<void> {
   const config = configDepuis(reponse);
   if (config === null) return;
 
+  //  Le brouillon, s'il y en a un. **Absent est fréquent et normal** : un
+  //  visiteur déconnecté, un sujet verrouillé. Le module s'affiche quand
+  //  même — il se lit —, simplement sans bouton de clôture.
   await poserLeBilan({
     doc: document,
     registre: new RegistreDistant(config),
     catalogue,
+    brouillon: BrouillonForumactif.surLaPage(document),
   });
 }
 

@@ -1622,6 +1622,64 @@ html,
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
+/*  LE BOUTON DE CLÔTURE (règle 6 de la planche 45).
+
+    IL NE PARAÎT PAS TOUJOURS : pas de formulaire de réponse sur la page,
+    pas de bouton. Un visiteur déconnecté lit le bilan sans voir une
+    action qu'il ne peut pas faire.
+
+    DÉLIBÉRÉMENT PLUS DISCRET QUE CELUI DE LA BARRE. Celui-ci est posé à
+    côté d'un bilan chiffré, en haut du sujet, et « clôturer » sonne
+    définitif : il ne doit pas attirer le clic, il doit être trouvable
+    quand on le cherche. D'où `flex: 0 0 auto` — il prend sa largeur, pas
+    toute la rangée comme dans la barre. */
+#modernbb .wm-bilan__cloture {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  margin-top: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-bilan__bouton {
+  flex: 0 0 auto;
+  min-height: 40px;
+  margin: 0;
+  padding: 9px 16px;
+  border: 1.5px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-terre, #a8582f);
+  cursor: pointer;
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-corps-fort, 13.5px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/*  Posé : le mot est dans la réponse. Le même état visuel que la barre —
+    les deux boutons font la même chose, ils doivent se ressembler. */
+#modernbb .wm-bilan__bouton--pose {
+  border-color: var(--wm-accent-primaire, #2e6e8e);
+  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb .wm-bilan__bouton:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 2px;
+}
+
+#modernbb .wm-bilan__cloture-note {
+  flex: 1 1 200px;
+  min-width: 0;
+  margin: 0;
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 1.45;
+}
+
 /* ── 7 · le bloc de règles du forum ───────────────────────────────── */
 
 /*  Il n'apparaît que si le forum a des règles. Son `<table class="postbody">`

@@ -125,12 +125,24 @@ export class BrouillonForumactif implements Brouillon {
       //  Recopie dans le champ du formulaire. Sans ça, ce qu'on vient
       //  d'écrire ne part pas avec le message.
       edit.updateOriginal?.();
-      return;
+    } else {
+      this.#champ.value = texte;
     }
-    this.#champ.value = texte;
-    //  Un `input` à la main : le compteur de mots du forum l'écoute, et
-    //  un compteur qui ne bouge pas donne l'impression que rien n'a été
-    //  écrit.
+    this.#prevenir();
+  }
+
+  /** Un `input` à la main, **dans les deux chemins**.
+   *
+   *  Deux publics l'écoutent, et aucun des deux ne voit une écriture
+   *  faite en JavaScript : le compteur de mots du forum — un compteur
+   *  figé donne l'impression que rien n'a été écrit — et nos propres
+   *  boutons, depuis que DEUX endroits posent `[cloture]` (la barre sous
+   *  l'éditeur et le module au-dessus du premier message). Sans cet
+   *  événement, cliquer dans l'un laisse l'autre afficher le contraire.
+   *
+   *  Il n'était émis que dans le repli, et ça suffisait tant qu'un seul
+   *  bouton écrivait. */
+  #prevenir(): void {
     this.#champ.dispatchEvent(new Event("input", { bubbles: true }));
   }
 

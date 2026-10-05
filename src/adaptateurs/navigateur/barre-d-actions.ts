@@ -30,21 +30,15 @@
 //  toujours le joueur qui envoie.
 // ════════════════════════════════════════════════════════════════════
 
-import { basculer } from "../../navigateur/redaction.ts";
+import { basculer, basculerLaCloture, clotureDemandee } from "../../navigateur/redaction.ts";
 import { actionDe } from "../../domaine/action.ts";
 import type { LieuChoisissable } from "../../navigateur/zone.ts";
 import type { Brouillon } from "./editeur.ts";
-
-/** Le mot que le bouton de clôture pose. Il est lu par la relève comme
- *  n'importe quelle demande tapée à la main : même forme, même effet. */
-export const MOT_DE_CLOTURE = "[cloture]";
 
 /** La clé interne du bouton de recherche dans la table des boutons. Son
  *  libellé change avec le lieu choisi, donc il ne peut pas servir de clé
  *  comme pour les deux autres. */
 const CHERCHER = "chercher";
-
-const EST_UNE_CLOTURE = /\[\s*cl[oô]ture\s*\]/i;
 
 type Choix = {
   readonly libelle: string;
@@ -81,12 +75,8 @@ const CHOIX: readonly Choix[] = [
   {
     libelle: "Clôturer le sujet",
     forme: "terre",
-    pose: (t) => {
-      if (EST_UNE_CLOTURE.test(t)) return t.replace(EST_UNE_CLOTURE, "").replace(/\s+$/, "");
-      const propre = t.replace(/\s+$/, "");
-      return propre === "" ? MOT_DE_CLOTURE : `${propre}\n\n${MOT_DE_CLOTURE}`;
-    },
-    estPose: (t) => EST_UNE_CLOTURE.test(t),
+    pose: basculerLaCloture,
+    estPose: clotureDemandee,
   },
 ];
 

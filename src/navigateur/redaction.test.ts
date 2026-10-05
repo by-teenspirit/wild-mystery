@@ -1,5 +1,14 @@
 import { assertEquals } from "@std/assert";
-import { actionDuBrouillon, avecAction, basculer, sansAction } from "./redaction.ts";
+import {
+  actionDuBrouillon,
+  avecAction,
+  basculer,
+  basculerLaCloture,
+  clotureDemandee,
+  MOT_DE_CLOTURE,
+  sansAction,
+} from "./redaction.ts";
+import { demandeLaCloture } from "../adaptateurs/forumactif/demandes.ts";
 import { actionDe } from "../domaine/action.ts";
 
 const FOUILLER = { type: "fouiller" } as const;
@@ -73,4 +82,60 @@ Deno.test("poser puis retirer rend exactement le texte de départ", () => {
   for (const texte of ["", "Un mot.", "Deux\nlignes.", "Ponctuation !?"]) {
     assertEquals(sansAction(avecAction(texte, FOUILLER)), texte.replace(/\s+$/, ""), texte);
   }
+});
+
+// ── la clôture ──────────────────────────────────────────────────────
+
+Deno.test("le mot de clôture se pose en fin de message, après une ligne vide", () => {
+  assertEquals(
+    basculerLaCloture("Elle range sa ball."),
+    "Elle range sa ball.\n\n[cloture]",
+  );
+});
+
+Deno.test("sur un brouillon vide, le mot est posé seul", () => {
+  assertEquals(basculerLaCloture(""), "[cloture]");
+  assertEquals(basculerLaCloture("   \n\n "), "[cloture]");
+});
+
+Deno.test("un second clic retire le mot et rend le texte de départ", () => {
+  for (const texte of ["", "Un mot.", "Deux\nlignes.", "Ponctuation !?"]) {
+    const pose = basculerLaCloture(texte);
+    assertEquals(basculerLaCloture(pose), texte.replace(/\s+$/, ""), texte);
+  }
+});
+
+Deno.test("le mot est reconnu quelle que soit la forme tapée à la main", () => {
+  // Le joueur a pu l'écrire lui-même avant qu'on ait un bouton.
+  for (const forme of ["[cloture]", "[clôture]", "[ Clôture ]", "[CLOTURE]", "[\tcloture\t]"]) {
+    assertEquals(clotureDemandee(`Fin du RP.\n\n${forme}`), true, forme);
+    // et un second clic l'enlève, quelle que soit la forme
+    assertEquals(basculerLaCloture(`Fin du RP.\n\n${forme}`), "Fin du RP.");
+  }
+});
+
+Deno.test("un message ordinaire ne demande rien", () => {
+  for (const texte of ["", "Elle clôture son sac.", "cloture", "[clotures]", "[ clot ure ]"]) {
+    assertEquals(clotureDemandee(texte), false, texte);
+  }
+});
+
+Deno.test("CE QUE LE BOUTON POSE EST CE QUE LA RELÈVE LIT", () => {
+  //  Les deux expressions vivent dans deux fichiers — l'une côté
+  //  navigateur, l'autre côté serveur — parce qu'ils ne partagent pas de
+  //  dépendance. Ce test est ce qui les tient ensemble : s'il tombe,
+  //  c'est qu'un bouton pose un mot que personne ne traitera.
+  assertEquals(demandeLaCloture(basculerLaCloture("Fin du RP.")), true);
+  assertEquals(demandeLaCloture(MOT_DE_CLOTURE), true);
+  for (const forme of ["[cloture]", "[clôture]", "[ Clôture ]", "[CLOTURE]"]) {
+    assertEquals(demandeLaCloture(forme), clotureDemandee(forme), forme);
+  }
+});
+
+Deno.test("une action et une clôture tiennent dans le même message", () => {
+  //  On peut fouiller une dernière fois et clôturer dans la foulée : la
+  //  clôture n'est pas une action, elle ne la remplace pas.
+  const texte = basculerLaCloture(avecAction("Un dernier tour.", FOUILLER));
+  assertEquals(clotureDemandee(texte), true);
+  assertEquals(actionDuBrouillon(texte)?.type, "fouiller");
 });

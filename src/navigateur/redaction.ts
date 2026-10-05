@@ -59,3 +59,50 @@ function memeAction(a: Action | null, b: Action): boolean {
   if (a === null || a.type !== b.type) return false;
   return a.type === "chercher" && b.type === "chercher" ? a.lieu === b.lieu : true;
 }
+
+// ── LA CLÔTURE ───────────────────────────────────────────────────────
+//
+//  `[cloture]` N'EST PAS UNE ACTION, et ne passe donc pas par `basculer`.
+//  Une action est écrite par nous en `[[WM-ACTION:…]]` et prouvée par un
+//  marqueur ; la clôture est un mot que les joueurs tapent déjà à la main
+//  aujourd'hui, et que le bouton ne fait que leur épargner. Les deux
+//  peuvent coexister dans un même message — on peut fouiller une dernière
+//  fois et clôturer dans la foulée.
+//
+//  DEUX BOUTONS LA POSENT : celui de la barre, sous l'éditeur, et celui du
+//  module, au-dessus du premier message (règle 6 de la planche 45). Ils
+//  appellent la même fonction, ici, et lisent le même texte : ils ne
+//  peuvent donc pas se contredire. C'est la raison d'être de ce déplacement
+//  — la règle vivait en double, écrite deux fois.
+
+/** Le mot que le bouton pose. Lu par la relève comme n'importe quelle
+ *  demande tapée à la main : même forme, même effet. */
+export const MOT_DE_CLOTURE = "[cloture]";
+
+/** `[cloture]`, avec ou sans accent, avec ou sans espaces, en n'importe
+ *  quelle casse. Un joueur tape ce qu'il tape — et l'éditeur de Forumactif
+ *  peut glisser des balises autour, mais pas DEDANS, parce que le bloc est
+ *  posé d'un coup.
+ *
+ *  **La même expression que `adaptateurs/forumactif/demandes.ts`**, et ce
+ *  n'est pas une coïncidence : ce que le bouton pose doit être exactement
+ *  ce que la relève reconnaît. Un test le vérifie. */
+const EST_UNE_CLOTURE = /\[\s*cl[oô]ture\s*\]/i;
+
+/** Vrai si ce brouillon demande déjà la clôture. */
+export function clotureDemandee(texte: string): boolean {
+  return EST_UNE_CLOTURE.test(texte);
+}
+
+/** Ce qu'un clic sur « Clôturer » produit : on pose le mot, ou on le
+ *  retire s'il est déjà là.
+ *
+ *  Il va en fin de message, comme un bloc d'action : c'est là qu'on le
+ *  cherche en relisant, et ça ne coupe pas une phrase. */
+export function basculerLaCloture(texte: string): string {
+  if (clotureDemandee(texte)) {
+    return texte.replace(EST_UNE_CLOTURE, "").replace(/\s+$/, "");
+  }
+  const propre = texte.replace(/\s+$/, "");
+  return propre === "" ? MOT_DE_CLOTURE : `${propre}\n\n${MOT_DE_CLOTURE}`;
+}
