@@ -1671,11 +1671,19 @@ html,
   outline-offset: 2px;
 }
 
+/*  `texte-doux` ET PAS `texte-pale`, mesuré et pas choisi.
+
+    La note de la barre d'actions utilise `texte-pale` et passe — mais à
+    4,55 sur sa surface, c'est-à-dire de justesse. Le module est posé sur
+    `fond-surface-haute`, plus clair d'un cran : le même jeton y tombe à
+    4,16 en thème sombre, sous les 4,5 exigés à 10,5 px. C'est aussi le
+    jeton de l'autre note du module, et deux notes du même bloc n'ont
+    aucune raison d'être de deux gris différents. */
 #modernbb .wm-bilan__cloture-note {
   flex: 1 1 200px;
   min-width: 0;
   margin: 0;
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-legende, 10.5px);
   line-height: 1.45;
 }
