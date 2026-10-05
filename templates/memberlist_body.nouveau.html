@@ -1,0 +1,84 @@
+<h1 class="page-title solo">{PAGE_TITLE}</h1>
+
+<form action="{S_MODE_ACTION}" method="get">
+<div class="panel">
+	<h2 class="h3">{L_ORDER_OR_SELECT}</h2>
+	<div class="memberlist-tri">
+		<label class="memberlist-tri__champ">
+			<span class="label">{L_USER_SELECT}</span>
+			<input type="text" class="inputbox tiny" name="username" maxlength="25" size="20" value="{L_USER_SELECT_VALUE}" />
+		</label>
+		<label class="memberlist-tri__champ">
+			<span class="label">{L_SELECT_SORT_METHOD}</span>
+			{S_MODE_SELECT}
+		</label>
+		<label class="memberlist-tri__champ">
+			<span class="label">{L_ORDER}</span>
+			{S_ORDER_SELECT}
+		</label>
+		{S_HIDDEN_SID}
+		<input class="button2" type="submit" name="submit" value="{L_SUBMIT}" />
+	</div>
+</div>
+</form>
+
+<div class="forumbg forumbg-table">
+	<ul class="memberlist" id="memberlist">
+		<!-- BEGIN memberrow -->
+		<li class="memberlist-membre {memberrow.ROW_CLASS}">
+			<a class="memberlist-qui" href="{memberrow.U_VIEWPROFILE}">
+				<span class="memberlist-rang">{memberrow.ROW_NUMBER}</span>
+				{memberrow.AVATAR_IMG}
+				<span class="memberlist-nom">{memberrow.USERNAME}</span>
+			</a>
+
+			<div class="memberlist-champs">
+				<!-- BEGIN switch_td_group -->
+				<div class="memberlist-champ">
+					<span class="label">{L_GROUPS}</span>
+					<span class="memberlist-valeur">{memberrow.GROUPS}</span>
+				</div>
+				<!-- END switch_td_group -->
+				<!-- BEGIN switch_td_point -->
+				<div class="memberlist-champ">
+					<span class="label">{L_POINT}</span>
+					<span class="memberlist-valeur">{memberrow.POINTS}</span>
+				</div>
+				<!-- END switch_td_point -->
+				<div class="memberlist-champ">
+					<span class="label">{L_POSTS}</span>
+					<span class="memberlist-valeur">{memberrow.POSTS}</span>
+				</div>
+				<div class="memberlist-champ">
+					<span class="label">{L_JOINED}</span>
+					<span class="memberlist-valeur">{memberrow.JOINED}</span>
+				</div>
+				<div class="memberlist-champ">
+					<span class="label">{L_VISITED}</span>
+					<span class="memberlist-valeur">{memberrow.LASTVISIT}</span>
+				</div>
+				<div class="memberlist-champ memberlist-champ--long">
+					<span class="label">{L_INTERESTS}</span>
+					<span class="memberlist-valeur">{memberrow.INTERESTS}</span>
+				</div>
+			</div>
+
+			<div class="memberlist-liens">
+				<!-- BEGIN switch_td_pm -->
+				{memberrow.PM_IMG}
+				<!-- END switch_td_pm -->
+				{memberrow.WWW_IMG}
+			</div>
+		</li>
+		<!-- END memberrow -->
+		<!-- BEGIN switch_no_user -->
+		<li class="memberlist-vide">{switch_no_user.L_NO_USER}</li>
+		<!-- END switch_no_user -->
+	</ul>
+</div>
+
+<div class="pagination">
+	<!-- BEGIN switch_pagination -->
+	{PAGINATION}
+	<!-- END switch_pagination -->
+</div>
