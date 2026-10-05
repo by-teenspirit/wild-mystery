@@ -316,22 +316,30 @@ function vraieFaune(): FauneEnFichiers {
   return new FauneEnFichiers(lecteurDeno(), RACINE);
 }
 
-Deno.test("les vrais fichiers · dix-sept zones, dix avec une faune", async () => {
+Deno.test("les vrais fichiers · dix-sept zones, TOUTES avec une faune", async () => {
+  //  Il y en avait dix le 4 octobre. Les sept dernières — Manoir Barjok,
+  //  Usine Désaffectée, Libra Échoué, Oasis Perdue, Planque Snatch,
+  //  Relique Sacrée, Volcan Sombre — sont arrivées le 5, générées par
+  //  `outils/zones-neuves.py` depuis la planche 39.
+  //
+  //  **Elles n'ont qu'UN lieu chacune**, et c'est assumé : la V1 ne les
+  //  avait pas, elles n'ont donc aucun lieu d'origine. Ce test le fige
+  //  pour qu'un découpage futur se voie.
   const zones = await vraieFaune().zonesSauvages();
   assertEquals(zones.length, 17);
-  assertEquals(zones.filter((z) => z.aUneFaune).length, 10);
-  assertEquals(zones.filter((z) => !z.aUneFaune).map((z) => z.forumId), [
-    31,
-    35,
-    33,
-    101,
-    102,
-    46,
-    105,
-  ]);
+  assertEquals(zones.filter((z) => z.aUneFaune).length, 17);
+  assertEquals(zones.filter((z) => !z.aUneFaune).map((z) => z.forumId), []);
 });
 
-Deno.test("les vrais fichiers · les 298 tables se chargent et sont jouables", async () => {
+Deno.test("les vrais fichiers · les sept zones neuves n'ont qu'un lieu", async () => {
+  const f = vraieFaune();
+  for (const forumId of [31, 35, 33, 101, 102, 46, 105]) {
+    const lieux = await f.lieuxDe(forumId);
+    assertEquals(lieux.length, 1, `le forum ${forumId} n'a plus un seul lieu`);
+  }
+});
+
+Deno.test("les vrais fichiers · les 312 tables se chargent et sont jouables", async () => {
   const f = vraieFaune();
   let lieux = 0;
   let tables = 0;
@@ -350,8 +358,8 @@ Deno.test("les vrais fichiers · les 298 tables se chargent et sont jouables", a
       }
     }
   }
-  assertEquals(lieux, 145);
-  assertEquals(tables, 298);
+  assertEquals(lieux, 152);
+  assertEquals(tables, 312);
 });
 
 Deno.test("les vrais fichiers · jour et nuit existent partout", async () => {

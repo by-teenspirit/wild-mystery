@@ -66,8 +66,8 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 0,
-   "faune": null
+   "lieux": 1,
+   "faune": "data/faune/31.json"
   },
   {
    "forumId": 35,
@@ -75,8 +75,8 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 0,
-   "faune": null
+   "lieux": 1,
+   "faune": "data/faune/35.json"
   },
   {
    "forumId": 39,
@@ -93,8 +93,8 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 0,
-   "faune": null
+   "lieux": 1,
+   "faune": "data/faune/33.json"
   },
   {
    "forumId": 37,
@@ -111,8 +111,8 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 0,
-   "faune": null
+   "lieux": 1,
+   "faune": "data/faune/101.json"
   },
   {
    "forumId": 102,
@@ -120,8 +120,8 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 0,
-   "faune": null
+   "lieux": 1,
+   "faune": "data/faune/102.json"
   },
   {
    "forumId": 103,
@@ -138,8 +138,8 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 0,
-   "faune": null
+   "lieux": 1,
+   "faune": "data/faune/46.json"
   },
   {
    "forumId": 104,
@@ -156,8 +156,8 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 0,
-   "faune": null
+   "lieux": 1,
+   "faune": "data/faune/105.json"
   }
  ]
 }
