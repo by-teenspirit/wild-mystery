@@ -159,7 +159,17 @@
   height: auto;
   clip-path: none;
 
-  color: var(--wm-texte-pale, #756054);
+  /*  `texte-doux` ET PAS `texte-pale`, et c'est la TROISIÈME fois que
+      cette paire tombe : `texte-pale` sur `fond-surface-haute`, en
+      thème sombre, à petite taille, ne tient pas les 4,5. Mesuré ici à
+      **4,16** sur un forum réel, sur la ligne paire de la liste de
+      sujets — la ligne impaire, elle, passait, ce qui est exactement ce
+      qui rend ce défaut difficile à voir à l'œil.
+
+      LA RÈGLE, pour ne pas la repayer une quatrième fois : `texte-pale`
+      ne va que sur `fond-page` et `fond-surface`. Sur
+      `fond-surface-haute`, c'est `texte-doux`. */
+  color: var(--wm-texte-doux, #6e5749);
   font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-style: normal;

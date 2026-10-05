@@ -355,6 +355,38 @@ html,
   text-decoration: none;
 }
 
+/*  LE PIED DE PAGE DE FORUMACTIF — et la preuve que « on ne possède pas
+    cette surface, donc on n'y touche pas » est un raisonnement, pas une
+    mesure.
+
+    `#page-footer` est peint `#2c353b` par Forumactif, SOMBRE DANS LES
+    DEUX MODES, comme `.mainmenu` juste au-dessus. Notre bleu y donnait
+    **2,23 en clair** — la faute déjà nommée. La conclusion qu'on en
+    avait tirée pour la navigation était « on laisse ». Mesuré ici, le
+    5 octobre, en rendant la main à Forumactif : **1,33.** Sa propre
+    couleur est PIRE que la nôtre. Ne rien faire aurait aggravé.
+
+    D'où la couleur de la surface, comme pour `.headerbar h1` : 12,14 en
+    clair, 10,04 en sombre. Le `.gensmall` du crédit est dans la même
+    règle — il passait de 2,12 à 12,14, et rendre un crédit lisible n'est
+    pas y toucher.
+
+    `.mainmenu`, vérifié au passage, est en blanc à **12,5 dans les deux
+    modes** : l'écarter était juste, et elle n'a besoin de rien. */
+#modernbb #page-footer a:not([class]),
+#modernbb #page-footer .gensmall {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  Le survol par le SOULIGNEMENT et pas par la couleur : la règle
+    ci-dessus l'emporte en spécificité sur le `:hover` générique plus
+    bas, et un lien qui ne répond pas au survol est un lien mort. Le
+    soulignement marche sur n'importe quel fond, lui. */
+#modernbb #page-footer a:not([class]):hover {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  text-decoration: underline;
+}
+
 #modernbb a:not([class]):hover,
 #modernbb .postbody a:hover {
   color: var(--wm-accent-fort, #1f5470);
