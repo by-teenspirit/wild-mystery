@@ -294,7 +294,7 @@ fi
 
 echo "── 11. le catalogue de la boutique ─────────────────────────────"
 # `data/objets.json` est la source unique du catalogue. Le seed SQL en
-# est dérivé, et c'est LUI que `servir_commande` relit pour facturer.
+# est dérivé, et c'est LUI que `boutique_servir` relit pour facturer.
 #
 # LES DEUX DOIVENT DIRE LE MÊME PRIX. Sinon un joueur commande en voyant
 # 200 et se fait débiter 600 — et on cherche une soirée qui a menti.
@@ -308,6 +308,62 @@ elif ! command -v python3 >/dev/null 2>&1; then
   echo "   python3 absent du PATH — vérification sautée"
 elif ! python3 outils/objets.py --verifier; then
   gronde "le catalogue et son seed ne correspondent pas"
+fi
+
+echo "── 12. les bornes du panier ────────────────────────────────────"
+# Les bornes du panier sont écrites DEUX FOIS, et il n'y a pas moyen de
+# faire autrement : `src/domaine/panier.ts` les applique au navigateur,
+# la migration 0011 les applique en base, et on n'importe pas du
+# TypeScript dans du SQL.
+#
+# DONC ON LES RELIT, on ne les recopie pas en espérant. Une liste
+# recopiée sans vérification est la troisième source de vérité qui finira
+# par mentir — c'est la leçon du 5 octobre, où le catalogue utilisait
+# quatre familles que la contrainte de la base refusait, pendant que le
+# garde-fou n° 11 confirmait que tout était à jour.
+#
+# Ce qui arriverait sans ça : la base accepte 99 et le navigateur borne à
+# 50. Le joueur ne peut pas cliquer plus de 50, donc personne ne le voit
+# — jusqu'au jour où quelqu'un écrit son bloc à la main et obtient un
+# refus que le catalogue ne laissait pas prévoir.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — vérification sautée"
+else
+  python3 - <<'PYTHON' || gronde "les bornes du panier divergent entre le domaine et la base"
+import pathlib, re, sys
+
+def un(chemin, motif, quoi):
+    texte = pathlib.Path(chemin).read_text(encoding="utf-8")
+    trouves = re.findall(motif, texte)
+    if len(trouves) != 1:
+        print(f"   {chemin} : {len(trouves)} definition(s) de {quoi}, il en faut une",
+              file=sys.stderr)
+        sys.exit(1)
+    return int(trouves[0])
+
+DOMAINE = "src/domaine/panier.ts"
+SQL = "supabase/migrations/0011_la_boutique_qui_marche.sql"
+
+paires = [
+    ("quantité max",
+     un(DOMAINE, r"QUANTITE_MAX\s*=\s*(\d+)", "QUANTITE_MAX"),
+     un(SQL, r"function boutique_quantite_max\(\)[^$]*\$\$\s*select\s+(\d+)",
+        "boutique_quantite_max")),
+    ("lignes max",
+     un(DOMAINE, r"LIGNES_MAX\s*=\s*(\d+)", "LIGNES_MAX"),
+     un(SQL, r"function boutique_lignes_max\(\)[^$]*\$\$\s*select\s+(\d+)",
+        "boutique_lignes_max")),
+]
+
+faute = False
+for quoi, domaine, sql in paires:
+    if domaine != sql:
+        print(f"   {quoi} : {domaine} dans le domaine, {sql} en base", file=sys.stderr)
+        faute = True
+    else:
+        print(f"   {quoi} : {domaine} des deux côtés")
+sys.exit(1 if faute else 0)
+PYTHON
 fi
 
 echo "────────────────────────────────────────────────────────────────"

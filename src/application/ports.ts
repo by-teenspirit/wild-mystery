@@ -14,6 +14,7 @@
 import type { Effets, Evenement, LigneRegistre } from "../domaine/cloture.ts";
 import type { EntreeDeTable } from "../domaine/rencontre.ts";
 import type { Action } from "../domaine/action.ts";
+import type { LecturePanier, LignePanier } from "../domaine/panier.ts";
 
 // ── le temps et le hasard, pour qu'un test puisse les figer ─────────
 
@@ -261,6 +262,85 @@ export interface BilansEnAttente {
   aPoster(combien: number): Promise<readonly BilanEnAttente[]>;
   poste(sujetId: number, messageId: number): Promise<void>;
   echoue(sujetId: number, erreur: string): Promise<number>;
+}
+
+// ── la boutique ─────────────────────────────────────────────────────
+
+/** Un panier posé par un joueur, tel qu'on le lit dans son message.
+ *
+ *  `panier` est le type du domaine, moins le cas « aucun » : un message
+ *  sans bloc n'est pas une commande et n'apparaît jamais ici. Un bloc
+ *  ILLISIBLE, lui, apparaît — c'est une commande qu'il faut refuser avec
+ *  un motif, pas un message à ignorer (voir l'en-tête de `panier.ts`). */
+export type CommandeLue = {
+  readonly sujetId: number;
+  readonly messageId: number;
+  readonly auteurId: number;
+  readonly auteurPseudo: string;
+  readonly panier: Exclude<LecturePanier, { readonly type: "aucun" }>;
+};
+
+export interface LecteurDeCommandes {
+  commandesDuSujet(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly CommandeLue[]>;
+}
+
+/** Ce que la base répond quand on lui soumet un panier.
+ *
+ *  UN REFUS EST UNE VALEUR, PAS UNE EXCEPTION. C'est la forme de
+ *  `boutique_servir` (migration 0011) et elle n'est pas gratuite : un
+ *  `raise` annule la transaction, donc le `etat='refusee'` avec lui, et
+ *  un refus qui s'efface est un refus que la relève repasse à chaque
+ *  passage pour l'éternité. Seul l'impossible lève.
+ *
+ *  `deja` dit que ce message avait déjà été traité. La relève ne tient
+ *  aucun état pour le savoir : `commande.message_id` est unique, et un
+ *  identifiant de message ne recule jamais. */
+export type VerdictDeCommande =
+  | {
+    readonly etat: "servie";
+    readonly commandeId: string;
+    readonly total: number;
+    readonly solde: number;
+    readonly deja: boolean;
+    readonly lignes: readonly LigneFacturee[];
+  }
+  | {
+    readonly etat: "refusee";
+    readonly commandeId: string;
+    readonly motif: string;
+    /** Écrit pour être recopié tel quel dans la réponse au joueur. */
+    readonly detail: string;
+    readonly total: number;
+    readonly solde: number;
+    readonly deja: boolean;
+  };
+
+/** Une ligne telle que la BASE l'a chiffrée. Le prix vient de la table
+ *  `objet`, jamais du bloc : c'est toute la raison d'être de la planche
+ *  30 — « la vérité est côté serveur ». */
+export type LigneFacturee = {
+  readonly objetId: number;
+  readonly nom: string;
+  readonly quantite: number;
+  readonly prix: number;
+  readonly sousTotal: number;
+};
+
+/** `CompteNonLie` vit dans `servir-une-commande.ts` : ce fichier ne
+ *  porte que des interfaces et des types, et une classe y serait du code
+ *  exécutable dans un fichier qui promet de n'en avoir aucun. */
+
+export interface Boutique {
+  /** Soumet un panier. Idempotent par `messageId`. */
+  servir(demande: {
+    readonly messageId: number;
+    readonly forumUserId: number;
+    readonly lignes: readonly LignePanier[];
+    readonly code: string;
+  }): Promise<VerdictDeCommande>;
 }
 
 export interface Catalogue {

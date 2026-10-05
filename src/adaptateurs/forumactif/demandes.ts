@@ -25,6 +25,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { type Action, actionDe } from "../../domaine/action.ts";
+import { type LecturePanier, panierDe } from "../../domaine/panier.ts";
 
 /** `[cloture]`, avec ou sans accent, avec ou sans espaces, en n'importe
  *  quelle casse. Un joueur tape ce qu'il tape, et l'éditeur de Forumactif
@@ -117,5 +118,52 @@ export function actionsDemandees(
       auteurId: m.auteurId,
       auteurPseudo: m.auteurPseudo,
       action,
+    }));
+}
+
+// ── les paniers de boutique ─────────────────────────────────────────
+
+/** Un panier posé dans un message, rattaché à son auteur.
+ *
+ *  `panier` est le type du domaine moins le cas « aucun » : un message
+ *  qui ne commande rien n'apparaît pas. Un bloc ILLISIBLE, lui, apparaît
+ *  — c'est la distinction que l'en-tête de `domaine/panier.ts` pose
+ *  exprès, et elle n'est pas théorique : « rater une commande, c'est un
+ *  joueur qui attend des objets qui n'arriveront jamais ». */
+export type PanierLu = {
+  readonly messageId: number;
+  readonly auteurId: number;
+  readonly auteurPseudo: string;
+  readonly panier: Exclude<LecturePanier, { readonly type: "aucun" }>;
+};
+
+/**
+ * Les paniers d'une liste de messages, dans l'ordre où ils ont été
+ * postés.
+ *
+ * **Un par message au plus** — `panierDe` ne garde que le premier bloc,
+ * et c'est la règle qui empêche de coller le bloc dix fois pour commander
+ * dix fois. Un message sans bloc n'apparaît pas : ne pas cliquer ne doit
+ * rien déclencher.
+ *
+ * L'ORDRE EST CONTRACTUEL, contrairement aux actions où il est un
+ * confort : la relève avance son curseur message par message et s'arrête
+ * au premier reçu qui ne part pas. Traiter le 15 552 avant le 15 551
+ * perdrait le reçu du second pour toujours.
+ */
+export function paniersPoses(
+  messages: readonly MessageAvecCorps[],
+): readonly PanierLu[] {
+  return messages
+    .map((m) => ({ m, panier: panierDe(m.corps) }))
+    .filter((x): x is { m: MessageAvecCorps; panier: PanierLu["panier"] } =>
+      x.panier.type !== "aucun"
+    )
+    .sort((a, b) => a.m.id - b.m.id)
+    .map(({ m, panier }) => ({
+      messageId: m.id,
+      auteurId: m.auteurId,
+      auteurPseudo: m.auteurPseudo,
+      panier,
     }));
 }

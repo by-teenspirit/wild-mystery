@@ -13,7 +13,12 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals } from "@std/assert";
-import { actionsDemandees, demandeLaCloture, demandesDeCloture } from "./demandes.ts";
+import {
+  actionsDemandees,
+  demandeLaCloture,
+  demandesDeCloture,
+  paniersPoses,
+} from "./demandes.ts";
 
 // ── ce qui compte comme une demande ─────────────────────────────────
 
@@ -166,6 +171,77 @@ Deno.test("une demande de clôture n'est pas une action, et réciproquement", ()
     { id: 1, auteurId: 4, auteurPseudo: "A", corps: "[cloture]" },
     { id: 2, auteurId: 4, auteurPseudo: "A", corps: "[[WM-ACTION:fouiller]]" },
   ];
+  assertEquals(actionsDemandees(messages).map((l) => l.messageId), [2]);
+  assertEquals(demandesDeCloture(messages).map((d) => d.messageId), [1]);
+});
+
+// ── les paniers de boutique ─────────────────────────────────────────
+
+Deno.test("un panier posé est rattaché à son auteur", () => {
+  const lus = paniersPoses([
+    {
+      id: 15551,
+      auteurId: 7,
+      auteurPseudo: "Anna",
+      corps: "Je prends ça. [[WM-PANIER:990080x2;990020x3]]",
+    },
+  ]);
+
+  assertEquals(lus.length, 1);
+  assertEquals(lus[0].messageId, 15551);
+  assertEquals(lus[0].auteurId, 7);
+  assertEquals(lus[0].auteurPseudo, "Anna");
+  assert(lus[0].panier.type === "panier");
+  assertEquals(lus[0].panier.lignes, [
+    { objetId: 990080, quantite: 2 },
+    { objetId: 990020, quantite: 3 },
+  ]);
+});
+
+Deno.test("un message sans bloc n'est pas une commande", () => {
+  assertEquals(
+    paniersPoses([
+      { id: 1, auteurId: 4, auteurPseudo: "A", corps: "Bonjour la boutique !" },
+    ]),
+    [],
+  );
+});
+
+Deno.test("UN PANIER ILLISIBLE REMONTE, lui", () => {
+  //  C'est la distinction que l'en-tête de `domaine/panier.ts` pose
+  //  exprès : rater une fouille coûte un tour, rater une commande laisse
+  //  un joueur attendre des objets qui n'arriveront jamais. Le silence
+  //  n'est donc pas une option.
+  const lus = paniersPoses([
+    { id: 15551, auteurId: 7, auteurPseudo: "Anna", corps: "[[WM-PANIER:990080xdeux]]" },
+  ]);
+
+  assertEquals(lus.length, 1);
+  assert(lus[0].panier.type === "illisible");
+  assert(lus[0].panier.motif.length > 0, "un refus sans motif ne sert à rien");
+});
+
+Deno.test("les paniers sortent dans l'ordre des messages", () => {
+  //  L'ORDRE EST CONTRACTUEL ICI, pas un confort : la relève avance son
+  //  curseur message par message et s'arrête au premier reçu qui ne part
+  //  pas. Traiter le 15 552 d'abord perdrait le reçu du 15 551.
+  const lus = paniersPoses([
+    { id: 15553, auteurId: 7, auteurPseudo: "C", corps: "[[WM-PANIER:990020x1]]" },
+    { id: 15551, auteurId: 5, auteurPseudo: "A", corps: "[[WM-PANIER:990080x1]]" },
+    { id: 15552, auteurId: 6, auteurPseudo: "B", corps: "[[WM-PANIER:990021x1]]" },
+  ]);
+  assertEquals(lus.map((l) => l.messageId), [15551, 15552, 15553]);
+});
+
+Deno.test("un panier n'est ni une action ni une clôture", () => {
+  //  Les trois blocs peuvent cohabiter dans un même sujet de service.
+  //  Les confondre ferait facturer une fouille.
+  const messages = [
+    { id: 1, auteurId: 4, auteurPseudo: "A", corps: "[cloture]" },
+    { id: 2, auteurId: 4, auteurPseudo: "A", corps: "[[WM-ACTION:fouiller]]" },
+    { id: 3, auteurId: 4, auteurPseudo: "A", corps: "[[WM-PANIER:990020x1]]" },
+  ];
+  assertEquals(paniersPoses(messages).map((l) => l.messageId), [3]);
   assertEquals(actionsDemandees(messages).map((l) => l.messageId), [2]);
   assertEquals(demandesDeCloture(messages).map((d) => d.messageId), [1]);
 });

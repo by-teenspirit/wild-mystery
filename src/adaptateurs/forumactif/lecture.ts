@@ -19,15 +19,17 @@
 
 import type {
   ActionLue,
+  CommandeLue,
   DemandeDeClotureLue,
   LecteurDActions,
+  LecteurDeCommandes,
   LecteurDeDemandes,
   LecteurDeForum,
   MessageDuForum,
   SujetRemue,
 } from "../../application/ports.ts";
 import { type Marqueur, marqueursDe } from "./marqueur.ts";
-import { actionsDemandees, demandesDeCloture } from "./demandes.ts";
+import { actionsDemandees, demandesDeCloture, paniersPoses } from "./demandes.ts";
 
 export class PageIllisible extends Error {
   constructor(quoi: string) {
@@ -177,7 +179,8 @@ export type Recuperateur = (chemin: string) => Promise<string>;
 /** L'adaptateur, branché sur un récupérateur. Le `fetch` vit dans la
  *  racine de composition, pas ici : comme ça ce fichier se teste sur des
  *  pages enregistrées, sans réseau. */
-export class ForumactifEnLecture implements LecteurDeForum, LecteurDeDemandes, LecteurDActions {
+export class ForumactifEnLecture
+  implements LecteurDeForum, LecteurDeDemandes, LecteurDActions, LecteurDeCommandes {
   constructor(private readonly recuperer: Recuperateur) {}
 
   /** Les demandes de clôture d'un sujet, depuis un message donné.
@@ -205,6 +208,20 @@ export class ForumactifEnLecture implements LecteurDeForum, LecteurDeDemandes, L
     const html = await this.recuperer(`/t${sujetId}-`);
     const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
     return actionsDemandees(nouveaux).map((a) => ({ sujetId, ...a }));
+  }
+
+  /** Les paniers posés dans un sujet, depuis un message donné.
+   *
+   *  Même page, même découpage, même frontière que les deux précédentes :
+   *  le HTML s'arrête ici. La couche application reçoit des lignes de
+   *  panier du domaine, jamais du texte de message. */
+  async commandesDuSujet(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly CommandeLue[]> {
+    const html = await this.recuperer(`/t${sujetId}-`);
+    const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    return paniersPoses(nouveaux).map((p) => ({ sujetId, ...p }));
   }
 
   async messagesDuSujet(

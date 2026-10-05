@@ -40,11 +40,14 @@ import {
   transportFetch,
 } from "../../../src/adaptateurs/forumactif/publication.ts";
 import { FauneEnFichiers, lecteurHttp } from "../../../src/adaptateurs/faune/fichiers.ts";
+import { ComptoirsEnFichiers } from "../../../src/adaptateurs/faune/comptoirs.ts";
+import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
 import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
 import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouveaux-messages.ts";
 import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.ts";
 import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
+import { ServirUneCommande } from "../../../src/application/servir-une-commande.ts";
 
 /**
  * La version de ce déploiement, et elle sert à DEUX choses.
@@ -60,7 +63,7 @@ import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
  *
  * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
  */
-const VERSION = "2026-10-03-a";
+const VERSION = "2026-10-05-a";
 
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
@@ -126,6 +129,10 @@ type Montage = {
    *  séparée, et c'est le fond de la correction du 2 octobre : la clôture
    *  est le seul point de non-retour, la publication se repasse. */
   readonly bilans: PosterLesBilans;
+  /** Tâche 3 : la boutique. Les paniers posés dans les sujets de comptoir
+   *  deviennent des commandes servies, et chacune reçoit son reçu. */
+  readonly boutique: ServirUneCommande;
+  readonly comptoirs: ComptoirsEnFichiers;
   readonly verrou: VerrouSupabase;
 };
 
@@ -199,7 +206,27 @@ function assembler(reglages: Reglages): Montage {
     new JournalSupabase(appeler),
   );
 
-  return { parcourir, bilans, verrou: new VerrouSupabase(appeler) };
+  //  Tâche 3 : la boutique. Elle tient SON curseur, celui du forum qui
+  //  porte le comptoir — `ParcourirLesZones` tient ceux des zones, et
+  //  deux tâches qui avancent le même curseur se voleraient des
+  //  messages. C'est pour ça que `data/comptoirs.json` refuse deux
+  //  comptoirs dans un même forum.
+  const boutique = new ServirUneCommande(
+    forumEnLecture,
+    new BoutiqueSupabase(appeler),
+    forumEnEcriture,
+    new SuiviSupabase(appeler),
+    new JournalSupabase(appeler),
+    signataire,
+  );
+
+  return {
+    parcourir,
+    bilans,
+    boutique,
+    comptoirs: new ComptoirsEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES),
+    verrou: new VerrouSupabase(appeler),
+  };
 }
 
 // ── le point d'entrée ───────────────────────────────────────────────
@@ -224,7 +251,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     return json({ version: VERSION, erreur: "clé de relève absente ou fausse" }, 401);
   }
 
-  const { parcourir, bilans, verrou } = assembler(reglages);
+  const { parcourir, bilans, boutique, comptoirs, verrou } = assembler(reglages);
 
   if (!await verrou.prendre(NOM_DU_VERROU, VERROU_SECONDES)) {
     // Ce n'est pas une erreur : c'est le passage précédent qui travaille
@@ -247,6 +274,40 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     // minutes.
     const bilan = await parcourir.executer();
     const repris = await bilans.executer();
+
+    //  ── LA BOUTIQUE PASSE EN DERNIER, ET C'EST UN CHOIX ──────────────
+    //
+    //  Elle est indépendante du reste : aucune zone, aucun registre,
+    //  aucune clôture. Elle pourrait donc passer n'importe quand. En
+    //  dernier, parce que c'est la seule tâche qui débite de l'argent, et
+    //  qu'un passage qui meurt avant elle n'aura rien débité — alors
+    //  qu'un passage qui meurt après aura au moins rendu les clôtures.
+    //
+    //  Un comptoir en panne n'empêche pas les autres : la boucle isole
+    //  chacun, comme `ParcourirLesZones` isole chaque zone.
+    const achats: { servies: number; refusees: number; erreurs: string[] } = {
+      servies: 0,
+      refusees: 0,
+      erreurs: [],
+    };
+    try {
+      for (const comptoir of await comptoirs.comptoirs()) {
+        try {
+          const passage = await boutique.executer(comptoir);
+          achats.servies += passage.servies.length;
+          achats.refusees += passage.refusees.length;
+          achats.erreurs.push(...passage.erreurs);
+        } catch (e) {
+          achats.erreurs.push(`comptoir t${comptoir.sujetId} : ${(e as Error).message}`);
+        }
+      }
+    } catch (e) {
+      //  La LISTE des comptoirs est illisible : on ne sait pas où lire,
+      //  donc on ne lit nulle part. Le reste du passage a déjà réussi et
+      //  doit être rendu quand même.
+      achats.erreurs.push(`data/comptoirs.json : ${(e as Error).message}`);
+    }
+
     return json({
       version: VERSION,
       //  Ce que la tâche 1 a inscrit au registre pendant le même parcours.
@@ -258,6 +319,9 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       erreurs: bilan.erreurs,
       bilans_publies: repris.publies.length,
       bilans_en_echec: repris.erreurs,
+      commandes_servies: achats.servies,
+      commandes_refusees: achats.refusees,
+      boutique_en_echec: achats.erreurs,
       duree_ms: Date.now() - debut,
     }, 200);
   } catch (e) {

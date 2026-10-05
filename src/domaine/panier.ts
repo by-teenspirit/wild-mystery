@@ -22,7 +22,7 @@
 //
 //  ── POURQUOI LES DOUBLONS SONT FUSIONNÉS ICI ─────────────────────────
 //
-//  `servir_commande` remplit le sac avec un seul `insert … select …
+//  `boutique_servir` remplit le sac avec un seul `insert … select …
 //  on conflict (joueur_id, objet_id) do update`. **PostgreSQL refuse
 //  qu'un même `insert` touche deux fois la même ligne** — « ON CONFLICT
 //  DO UPDATE command cannot affect row a second time ». Deux lignes pour
@@ -32,6 +32,12 @@
 //  On additionne donc avant d'écrire, et c'est le bon endroit : la
 //  lecture du bloc est la frontière, et une règle appliquée à la
 //  frontière ne se contourne pas.
+//
+//  LA BASE LE FAIT AUSSI, depuis la migration 0011, et ce n'est pas une
+//  redondance : un bloc écrit à la main ne passe jamais par ici. Le
+//  défaut a été relevé en vrai le 5 octobre contre un PostgreSQL 16, et
+//  `src/contrat/boutique.supabase.test.ts` le garde fermé des deux
+//  côtés.
 //
 //  ── UN PANIER ILLISIBLE N'EST PAS UN MESSAGE SANS PANIER ─────────────
 //

@@ -48,7 +48,7 @@ Deno.test("LE PREMIER BLOC L'EMPORTE", () => {
 // ── les doublons ────────────────────────────────────────────────────
 
 Deno.test("DEUX LIGNES DU MÊME OBJET SONT ADDITIONNÉES", () => {
-  //  `servir_commande` remplit le sac avec un seul `insert … on conflict
+  //  `boutique_servir` remplit le sac avec un seul `insert … on conflict
   //  do update`. PostgreSQL refuse qu'un même `insert` touche deux fois
   //  la même ligne : deux lignes pour le même objet feraient échouer la
   //  transaction entière.

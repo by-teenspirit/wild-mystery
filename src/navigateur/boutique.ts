@@ -18,7 +18,7 @@
 //  ── LE TOTAL AFFICHÉ EST UNE INDICATION, ET IL LE DIT ────────────────
 //
 //  C'est le serveur qui facture, en relisant les prix dans sa propre
-//  table (`servir_commande`). Le total du panier sert à ne pas commander
+//  table (`boutique_servir`). Le total du panier sert à ne pas commander
 //  à l'aveugle, pas à faire autorité. Si les deux divergent, c'est le
 //  message du forum qui a vieilli — et c'est au serveur d'avoir raison.
 //
