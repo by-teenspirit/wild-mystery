@@ -7,7 +7,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals } from "@std/assert";
-import { type EtatDuJoueur, evaluerCloture, type LigneRegistre } from "./cloture.ts";
+import { cumuler, type EtatDuJoueur, evaluerCloture, type LigneRegistre } from "./cloture.ts";
 
 const POKE_BALL = 1;
 const POTION = 2;
@@ -172,4 +172,71 @@ Deno.test("évaluer ne modifie pas l'état qu'on lui donne", () => {
     e,
   );
   assertEquals(sac.get(POKE_BALL), 2, "le sac d'origine doit être intact");
+});
+
+// ── ce que le registre CONTIENT, sans verdict ───────────────────────
+
+//  `cumuler` sert au module affiché pendant le RP. Il montre des faits :
+//  un joueur qui a lancé une ball l'a lancée, que la clôture puisse la
+//  lui débiter ou non. C'est la règle 1 du `45-…` — rien n'est acquis
+//  avant la clôture, et rien n'est retenu non plus.
+
+Deno.test("cumuler montre une ball utilisée même avec le sac vide", () => {
+  //  Le même registre refusé par `evaluerCloture` est affiché par
+  //  `cumuler` : c'est toute la différence entre un fait et un verdict.
+  const lignes = [ligne(1, { type: "objet_utilise", objetId: POKE_BALL, quantite: 1 })];
+
+  const verdict = evaluerCloture(lignes, etat({ sac: new Map() }));
+  assertEquals(verdict.possible, false);
+
+  assertEquals([...cumuler(lignes).objetsConsommes], [[POKE_BALL, 1]]);
+});
+
+Deno.test("cumuler ne retient rien : ni place, ni argent", () => {
+  const lignes = [
+    ligne(1, { type: "capture", especeId: 25, niveau: 7 }),
+    ligne(2, { type: "capture", especeId: 16, niveau: 4 }),
+    ligne(3, { type: "pokedollars", montant: -5000 }),
+  ];
+  //  Zéro place en boîte et zéro pokédollar : `evaluerCloture` refuse.
+  assertEquals(
+    evaluerCloture(lignes, etat({ placesEnBoite: 0, pokedollars: 0 })).possible,
+    false,
+  );
+
+  const e = cumuler(lignes);
+  assertEquals(e.captures.length, 2);
+  assertEquals(e.pokedollars, -5000);
+});
+
+Deno.test("cumuler garde l'ordre des messages, comme le rejeu", () => {
+  //  C'est le même rejeu : si quelqu'un le réécrivait en somme, ce test
+  //  et celui du haut du fichier tomberaient ensemble.
+  const e = cumuler([
+    ligne(7, { type: "objet_utilise", objetId: POKE_BALL, quantite: 1 }),
+    ligne(3, { type: "objet_trouve", objetId: POKE_BALL, quantite: 1 }),
+  ]);
+  assertEquals([...e.objetsAjoutes], [[POKE_BALL, 1]]);
+  assertEquals([...e.objetsConsommes], [[POKE_BALL, 1]]);
+});
+
+Deno.test("cumuler sur un registre vide ne rend rien du tout", () => {
+  const e = cumuler([]);
+  assertEquals(e.captures, []);
+  assertEquals(e.especesCroisees, []);
+  assertEquals(e.pokedollars, 0);
+  assertEquals(e.xpParPokemon.size, 0);
+  assertEquals(e.objetsAjoutes.size, 0);
+  assertEquals(e.objetsConsommes.size, 0);
+});
+
+Deno.test("cumuler dédoublonne les croisements et additionne l'XP", () => {
+  const e = cumuler([
+    ligne(1, { type: "croise", especeId: 37 }),
+    ligne(2, { type: "croise", especeId: 37 }),
+    ligne(3, { type: "xp", pokemonId: "lumi", gain: 20 }),
+    ligne(4, { type: "xp", pokemonId: "lumi", gain: 28 }),
+  ]);
+  assertEquals(e.especesCroisees, [37]);
+  assertEquals([...e.xpParPokemon], [["lumi", 48]]);
 });

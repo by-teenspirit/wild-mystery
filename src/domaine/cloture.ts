@@ -70,6 +70,50 @@ export function evaluerCloture(
   lignes: readonly LigneRegistre[],
   etat: EtatDuJoueur,
 ): Verdict {
+  const { effets, manques } = rejouer(lignes, etat);
+  if (manques.length > 0) return { possible: false, manques };
+  return { possible: true, effets };
+}
+
+/**
+ * Ce que le registre CONTIENT, sans se demander si c'est payable.
+ *
+ * C'est ce que le module affiche au-dessus du premier message pendant
+ * tout le RP : des faits, pas un verdict. Un joueur qui a lancé une
+ * ball l'a lancée — que la clôture puisse la lui débiter ou non est une
+ * autre question, et elle ne se pose qu'à la clôture (`45-…` règle 1).
+ *
+ * Le rejeu est le même, à une contrainte près : un sac sans fond. On ne
+ * réécrit donc pas la boucle une seconde fois — c'est elle qui décide
+ * de l'ordre, des doublons et des cumuls, et deux copies finiraient par
+ * ne plus dire la même chose.
+ */
+export function cumuler(lignes: readonly LigneRegistre[]): Effets {
+  return rejouer(lignes, sansContrainte(lignes)).effets;
+}
+
+/** Un état où rien ne peut manquer : le sac contient d'avance tout ce
+ *  que le registre consomme, et la boîte comme la bourse sont sans
+ *  fond. */
+function sansContrainte(lignes: readonly LigneRegistre[]): EtatDuJoueur {
+  const sac = new Map<number, number>();
+  for (const { evenement } of lignes) {
+    if (evenement.type === "objet_utilise") {
+      sac.set(evenement.objetId, Number.MAX_SAFE_INTEGER);
+    }
+  }
+  return { sac, placesEnBoite: Infinity, pokedollars: Infinity };
+}
+
+type Rejeu = {
+  readonly effets: Effets;
+  readonly manques: readonly Manque[];
+};
+
+function rejouer(
+  lignes: readonly LigneRegistre[],
+  etat: EtatDuJoueur,
+): Rejeu {
   const ordre = [...lignes]
     .map((l, i) => ({ l, i }))
     .sort((a, b) => a.l.messageId - b.l.messageId || a.i - b.i)
@@ -143,10 +187,8 @@ export function evaluerCloture(
     });
   }
 
-  if (manques.length > 0) return { possible: false, manques };
-
   return {
-    possible: true,
+    manques,
     effets: {
       especesCroisees: croisees,
       captures,

@@ -70,7 +70,10 @@ export type Rubrique = {
  *  est donc `etiquette : valeur` recollé, et le module affiche les
  *  mêmes paires dans sa grille. Une rubrique ajoutée ici apparaît des
  *  deux côtés, sans qu'on y pense. */
-export function rubriques(l: LigneDeBilan): readonly Rubrique[] {
+/** Les cinq rubriques qui ne dépendent d'aucun solde. */
+function rubriquesCommunes(
+  l: Omit<LigneDeBilan, "pokedollarsAvant" | "pokedollarsApres">,
+): Rubrique[] {
   const sortie: Rubrique[] = [];
   const pose = (etiquette: string, valeur: string) => sortie.push({ etiquette, valeur });
 
@@ -89,11 +92,44 @@ export function rubriques(l: LigneDeBilan): readonly Rubrique[] {
   if (l.consommes.length > 0) {
     pose("CONSOMMÉ", enumerer(l.consommes.map((o) => quantifie(o.quantite, o.objet))));
   }
+  return sortie;
+}
+
+export function rubriques(l: LigneDeBilan): readonly Rubrique[] {
+  const sortie = rubriquesCommunes(l);
   if (l.pokedollarsApres !== l.pokedollarsAvant) {
-    pose(
-      "POKÉDOLLARS",
-      `${pokedollars(l.pokedollarsAvant)} → ${pokedollars(l.pokedollarsApres)}`,
-    );
+    sortie.push({
+      etiquette: "POKÉDOLLARS",
+      valeur: `${pokedollars(l.pokedollarsAvant)} → ${pokedollars(l.pokedollarsApres)}`,
+    });
+  }
+  return sortie;
+}
+
+/** Ce qu'un joueur a fait dans un sujet encore ouvert. */
+export type LigneEnAttente =
+  & Omit<LigneDeBilan, "pokedollarsAvant" | "pokedollarsApres">
+  & { readonly pokedollars: number };
+
+/** Les mêmes rubriques, pour le module affiché pendant le RP.
+ *
+ *  UNE SEULE DIFFÉRENCE, ET ELLE EST DE FOND : le bilan posté écrit un
+ *  solde — « 1 240 → 1 590 » — parce qu'à la clôture le serveur connaît
+ *  la bourse. Le module, lui, n'a pas à la connaître et ne doit surtout
+ *  pas en afficher une : **rien n'est acquis avant la clôture**
+ *  (`45-…` règle 1). Il écrit donc un écart en attente, « +350 ».
+ *
+ *  Les cinq autres rubriques sont les mêmes lignes de code que celles
+ *  du message posté. C'est voulu : les deux doivent dire la même chose,
+ *  et une rubrique ajoutée apparaît des deux côtés sans qu'on y pense. */
+export function rubriquesEnAttente(l: LigneEnAttente): readonly Rubrique[] {
+  const sortie = rubriquesCommunes(l);
+  if (l.pokedollars !== 0) {
+    const signe = l.pokedollars > 0 ? "+" : "−";
+    sortie.push({
+      etiquette: "POKÉDOLLARS",
+      valeur: `${signe}${pokedollars(Math.abs(l.pokedollars))}`,
+    });
   }
   return sortie;
 }

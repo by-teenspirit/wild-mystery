@@ -10,11 +10,13 @@
 import { assert, assertEquals } from "@std/assert";
 import {
   type LigneDeBilan,
+  type LigneEnAttente,
   pokedollars,
   redigerLeBilan,
   redigerLeRefus,
   RIEN_A_VERSER,
   rubriques,
+  rubriquesEnAttente,
 } from "./bilan.ts";
 
 function ligne(partiel: Partial<LigneDeBilan> = {}): LigneDeBilan {
@@ -209,4 +211,55 @@ Deno.test("un refus à plusieurs nomme chacun séparément", () => {
     { pseudo: "Boris", manques: ["350 ₽"] },
   ], "WM-A");
   assert(texte.indexOf("ANNA") < texte.indexOf("BORIS"), texte);
+});
+
+// ── les rubriques en attente, pour le module ────────────────────────
+
+function enAttente(partiel: Partial<LigneEnAttente> = {}): LigneEnAttente {
+  return {
+    pseudo: "Calliste Vanne",
+    captures: [],
+    experience: [],
+    ajoutes: [],
+    consommes: [],
+    croisees: [],
+    pokedollars: 0,
+    ...partiel,
+  };
+}
+
+Deno.test("le module écrit un écart, jamais un solde", () => {
+  //  Rien n'est acquis avant la clôture : afficher « 1 240 → 1 590 »
+  //  pendant le RP promettrait un versement qui n'a pas eu lieu.
+  assertEquals(
+    rubriquesEnAttente(enAttente({ pokedollars: 350 })),
+    [{ etiquette: "POKÉDOLLARS", valeur: "+350" }],
+  );
+  //  Le séparateur de milliers est une espace fine insécable, pas une
+  //  espace ordinaire : on le reprend de `pokedollars` au lieu de le
+  //  retaper, sinon l'essai passe à l'œil et échoue à l'octet.
+  assertEquals(
+    rubriquesEnAttente(enAttente({ pokedollars: -1240 })),
+    [{ etiquette: "POKÉDOLLARS", valeur: "−" + pokedollars(1240) }],
+  );
+});
+
+Deno.test("zéro pokédollar ne s'écrit pas du tout", () => {
+  assertEquals(rubriquesEnAttente(enAttente()), []);
+});
+
+Deno.test("les cinq autres rubriques sont les mêmes des deux côtés", () => {
+  //  C'est la promesse du partage : si quelqu'un change une étiquette
+  //  d'un côté, ce test tombe.
+  const commun = {
+    captures: [{ espece: "Roucool", niveau: 7 }],
+    croisees: ["Olivini"],
+    experience: [{ pokemon: "Lumi", gain: 48 }],
+    ajoutes: [{ objet: "Poké Ball", quantite: 2 }],
+    consommes: [{ objet: "Potion", quantite: 1 }],
+  };
+  assertEquals(
+    rubriquesEnAttente(enAttente(commun)),
+    rubriques(ligne(commun)),
+  );
 });
