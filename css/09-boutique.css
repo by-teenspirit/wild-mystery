@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════════════════════════════
+   09-boutique.css — le catalogue et son panier
+
+   LE BALISAGE N'EST PAS DE MODERNBB : c'est le nôtre, écrit dans le
+   premier message du sujet par `outils/objets.py --forum`. C'est la
+   première feuille du dépôt dans ce cas, avec celle des annexes à
+   venir — d'où des règles qui n'ont à défaire aucun héritage.
+
+   MAIS ELLE EST DANS UN MESSAGE, donc à l'intérieur de `.postbody`, et
+   `05` y impose déjà une taille de corps et un interligne. On ne les
+   reprend pas : ce qui se lit se lit comme le reste du message.
+
+   SANS JAVASCRIPT, LE BLOC EST UNE LISTE DE PRIX, et cette feuille doit
+   la rendre lisible toute seule. Les boutons sont ajoutés par le script
+   APRÈS coup : rien ici ne suppose leur présence.
+   ═══════════════════════════════════════════════════════════════════ */
+
+#modernbb .wm-boutique {
+  margin: var(--wm-espace-18, 18px) 0;
+}
+
+#modernbb .wm-boutique h2 {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-titre-section, 20px);
+  line-height: var(--wm-interligne-titre, 1.2);
+}
+
+#modernbb .wm-boutique__famille {
+  margin: var(--wm-espace-18, 18px) 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  EN FLEXBOX, PAS EN GRILLE DE COLONNES FIXES. Un nom d'objet va de
+    « Potion » à « Super Potion Max » ; une colonne fixe ferait des
+    trous à gauche ou couperait à droite. Chaque ligne se dimensionne
+    sur son contenu, et le prix est poussé au bout par `margin-left`. */
+#modernbb .wm-boutique__liste {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  list-style: none;
+  overflow: hidden;
+}
+
+#modernbb .wm-boutique__liste li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+}
+
+/*  La zébrure, rejouée avec nos deux surfaces — même raison que pour
+    les lignes de sujets dans `02` : elle aide à suivre une ligne du nom
+    jusqu'au prix. */
+#modernbb .wm-boutique__liste li:nth-child(odd) {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-boutique__liste li:nth-child(even) {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-boutique__nom {
+  flex: 1 1 10em;
+  min-width: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  Les chiffres en tabulaire : sans ça, le 1 est plus étroit que le 8 et
+    une colonne de prix ondule. */
+#modernbb .wm-boutique__prix {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/*  Un article pris se voit par son BORD GAUCHE, pas par un fond : le
+    fond porte déjà la zébrure, et empiler les deux rendrait une ligne
+    paire prise indiscernable d'une ligne impaire ordinaire. */
+#modernbb .wm-boutique__article--pris {
+  box-shadow: inset 3px 0 0 0 var(--wm-accent-primaire, #2e6e8e);
+}
+
+/* ── les commandes, ajoutées par le script ───────────────────────── */
+
+#modernbb .wm-boutique__commandes {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+}
+
+/*  44 px de haut : c'est la taille de cible tactile qu'on tient
+    partout ailleurs (barre d'actions, bouton de clôture), et il y a
+    soixante-huit de ces boutons sur la page. */
+#modernbb .wm-boutique__pas {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-fort, #1f5470);
+  cursor: pointer;
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-corps-fort, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
+#modernbb .wm-boutique__pas:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 2px;
+}
+
+/*  Le compte garde sa place même à zéro, sinon les boutons sautent d'un
+    cran à chaque premier clic et le « + » se dérobe sous le doigt. */
+#modernbb .wm-boutique__compte {
+  min-width: 1.6em;
+  color: var(--wm-encre, #2e2018);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-gras, 700);
+  text-align: center;
+}
+
+/* ── la barre de validation ──────────────────────────────────────── */
+
+#modernbb .wm-boutique__barre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  margin-top: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wm-boutique__valider {
+  flex: 0 0 auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 18px;
+  border: 1.5px solid transparent;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+  cursor: pointer;
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-corps-fort, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1.3;
+}
+
+/*  DÉSACTIVÉ, PAS CACHÉ (voir `navigateur/boutique.ts`). Il garde donc
+    sa place et son contour, et perd son aplat : on voit qu'il existe et
+    qu'il n'est pas encore utilisable. */
+#modernbb .wm-boutique__valider:disabled {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: default;
+}
+
+#modernbb .wm-boutique__valider:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 2px;
+}
+
+#modernbb .wm-boutique__note {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 1.45;
+}
+
+/* ── sous 560 px ─────────────────────────────────────────────────── */
+
+/*  Le prix passe À LA LIGNE plutôt que de se serrer contre les boutons.
+    Mesuré : à 400 px, nom + prix + trois boutons sur une seule rangée
+    laisse 2,4 em au nom, ce qui coupe « Super Potion ». */
+@media (max-width: 560px) {
+  #modernbb .wm-boutique__nom {
+    flex: 1 1 100%;
+  }
+
+  #modernbb .wm-boutique__prix {
+    margin-left: 0;
+  }
+
+  #modernbb .wm-boutique__commandes {
+    margin-left: auto;
+  }
+}

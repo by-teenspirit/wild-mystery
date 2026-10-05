@@ -18,6 +18,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { type Action, actionDe, ecrireUneAction, sansActions } from "../domaine/action.ts";
+import { ecrireUnPanier, type LignePanier, sansPaniers } from "../domaine/panier.ts";
 
 /** L'action demandée par un texte en cours de rédaction, s'il y en a une. */
 export function actionDuBrouillon(texte: string): Action | null {
@@ -105,4 +106,26 @@ export function basculerLaCloture(texte: string): string {
   }
   const propre = texte.replace(/\s+$/, "");
   return propre === "" ? MOT_DE_CLOTURE : `${propre}\n\n${MOT_DE_CLOTURE}`;
+}
+
+// ── LE PANIER ────────────────────────────────────────────────────────
+//
+//  PAS UNE BASCULE, UN REMPLACEMENT. Les boutons d'action et de clôture
+//  basculent parce qu'ils n'ont que deux états. Un panier en a autant
+//  qu'il y a de combinaisons : à chaque « + » le bloc change, et le
+//  seul geste juste est de réécrire celui qui est là.
+//
+//  LE JOUEUR GARDE SON TEXTE. On ne touche qu'au bloc : ce qu'il a écrit
+//  au-dessus part avec sa commande, c'est la règle de la planche 30 —
+//  « le message reste un message de joueur, pas un formulaire ».
+
+/** Le texte avec ce panier, et lui seul. Un panier vide retire le bloc.
+ *
+ *  Le bloc va en fin de message, séparé par une ligne vide, comme les
+ *  autres. */
+export function poserLePanier(texte: string, lignes: readonly LignePanier[]): string {
+  const propre = sansPaniers(texte).replace(/\s+$/, "");
+  if (lignes.length === 0) return propre;
+  const bloc = ecrireUnPanier(lignes);
+  return propre === "" ? bloc : `${propre}\n\n${bloc}`;
 }

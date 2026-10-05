@@ -37,6 +37,7 @@ import {
 import { zoneDe } from "../src/navigateur/zone.ts";
 import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/registre.ts";
 import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
+import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -120,6 +121,15 @@ desQueLeCorpsEstLa(() => {
   coin.appliquerLeTheme();
   masquerLesMarqueurs(document);
   coin.poser();
+  //  La boutique ne demande NI réseau NI zone : elle lit son catalogue
+  //  dans le message qui est déjà sous les yeux du joueur. Elle part
+  //  donc tout de suite, et elle ne fait rien du tout si la page n'a pas
+  //  de `.wm-boutique` — ce qui est le cas de tout le forum sauf un
+  //  sujet.
+  poserLaBoutique({
+    doc: document,
+    brouillon: BrouillonForumactif.surLaPage(document),
+  });
   //  La barre attend deux fichiers : elle arrive donc après le reste, et
   //  c'est voulu. Une panne de réseau ne doit priver que d'elle — d'où le
   //  `catch` qui ne fait rien de plus que l'empêcher de remonter.
