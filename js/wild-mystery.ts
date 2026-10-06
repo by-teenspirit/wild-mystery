@@ -40,6 +40,7 @@ import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
+import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -99,6 +100,22 @@ async function configSupabase(): Promise<ReturnType<typeof configDepuis>> {
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
   return configDepuis(reponse);
+}
+
+/** Le sommaire des douze annexes, posé dans le trou que la page laisse.
+ *
+ *  **La porte d'entrée est le nœud `[data-wm-sommaire]`**, pas une liste
+ *  d'adresses : Callista peut créer une treizième annexe sans qu'on
+ *  touche au code. Le module sort tout de suite sur les autres pages, et
+ *  ne demande le fichier que s'il a un trou à remplir — une page de forum
+ *  ne doit pas payer une requête pour rien. */
+async function poserLesAnnexes(): Promise<void> {
+  if (RACINE === null) return;
+  if (document.querySelector("[data-wm-sommaire]") === null) return;
+  const donnees = await fetch(`${RACINE}annexes.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  poserLeSommaire({ doc: document, donnees });
 }
 
 /** L'encart « La vie de Rhode », sur l'index et nulle part ailleurs.
@@ -161,4 +178,5 @@ desQueLeCorpsEstLa(() => {
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
   poserLaVie().catch(() => {});
+  poserLesAnnexes().catch(() => {});
 });

@@ -1,0 +1,51 @@
+{
+ "_": "Le sommaire des annexes, en UN seul endroit. Les douze pages le portent toutes, et aucune ne le recopie : `module-annexes.ts` le pose dans `[data-wm-sommaire]`. Ajouter une annexe ou changer un titre est donc une modification de ce fichier, pas de douze pages collées à la main. Relevé des pages HTML réellement en ligne : 6 octobre 2026.",
+ "_adresse": "null = la page n'existe pas encore. Le sommaire l'affiche quand même, sans lien : douze entrées dont trois cliquables dit la vérité, là où douze liens dont neuf morts ne la dit pas. Dès que tu crées la page, mets son adresse ici (par exemple \"/h20-le-reglement\") et le lien apparaît partout.",
+ "_entete": "ATTENTION : une page HTML Forumactif ne reçoit notre CSS et notre JS QUE si elle est créée avec « utiliser le header et footer du forum » = OUI. Les onze pages actuellement en ligne sont toutes en NON, et c'est pour ça qu'aucune ne porte la charte.",
+ "sections": [
+  {
+   "titre": "Les annexes",
+   "entrees": [
+    { "numero": "01", "slug": "par-ou-commencer", "titre": "Par où commencer", "adresse": null },
+    { "numero": "02", "slug": "le-contexte", "titre": "Le contexte", "adresse": null },
+    { "numero": "03", "slug": "le-reglement", "titre": "Le règlement", "adresse": null },
+    {
+     "numero": "04",
+     "slug": "creer-son-personnage",
+     "titre": "Créer son personnage",
+     "adresse": null
+    },
+    {
+     "numero": "05",
+     "slug": "le-guide-du-dresseur",
+     "titre": "Le guide du dresseur",
+     "adresse": null
+    },
+    {
+     "numero": "06",
+     "slug": "la-carte-et-les-zones",
+     "titre": "La carte et les zones",
+     "adresse": null
+    },
+    { "numero": "07", "slug": "arenes-et-ligue", "titre": "Arènes et Ligue", "adresse": null },
+    { "numero": "08", "slug": "les-chiffres", "titre": "Les chiffres", "adresse": null }
+   ]
+  },
+  {
+   "titre": "Les pages de la région",
+   "entrees": [
+    { "numero": "09", "slug": "la-carte-de-rhode", "titre": "La carte de Rhode", "adresse": null },
+    { "numero": "10", "slug": "la-faune-de-rhode", "titre": "La Faune de Rhode", "adresse": null },
+    { "numero": "11", "slug": "la-pension", "titre": "La pension", "adresse": null },
+    { "numero": "12", "slug": "les-fossiles", "titre": "Les fossiles", "adresse": null }
+   ]
+  }
+ ],
+ "_pied": "Le gabarit prévoit un pied « Pour aller plus loin ». Je n'y mets que des adresses MESURÉES : le bottin et les recherches de RP ne sont pas visibles depuis un compte déconnecté, donc je ne les devine pas. Ajoute-les ici et elles apparaîtront sur les douze pages. Un pied sans lien ne s'affiche pas.",
+ "pied": {
+  "titre": "Pour aller plus loin",
+  "liens": [
+   { "titre": "La boutique de Rhode", "adresse": "/t977-boutique-de-rhode" }
+  ]
+ }
+}
