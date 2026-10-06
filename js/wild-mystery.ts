@@ -38,6 +38,8 @@ import { zoneDe } from "../src/navigateur/zone.ts";
 import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/registre.ts";
 import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
+import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
+import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -85,6 +87,32 @@ async function poserLaBarre(): Promise<void> {
   new BarreDActions(document, brouillon, lieux).poser(formulaire);
 }
 
+/** La configuration Supabase servie dans `data/` : l'URL et la clé
+ *  publiable, bornée par les politiques RLS, et rien d'autre.
+ *
+ *  **La clé de service ne sort jamais de Supabase** (garde-fou n° 10).
+ *  Lue par les deux modules qui parlent à la base ; une panne rend null,
+ *  et le module concerné ne se pose pas. */
+async function configSupabase(): Promise<ReturnType<typeof configDepuis>> {
+  if (RACINE === null) return null;
+  const reponse = await fetch(`${RACINE}supabase.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  return configDepuis(reponse);
+}
+
+/** L'encart « La vie de Rhode », sur l'index et nulle part ailleurs.
+ *
+ *  Il ne demande NI zone NI catalogue : une seule requête, et il décide
+ *  lui-même s'il a quelque chose à afficher. Il part donc en parallèle du
+ *  reste, et il ne se pose pas si le journal est vide — un forum neuf n'a
+ *  rien à raconter, et un cadre vide dirait que la région est morte. */
+async function poserLaVie(): Promise<void> {
+  const config = await configSupabase();
+  if (config === null) return;
+  await poserLaVieDeRhode({ doc: document, journal: new JournalDistant(config) });
+}
+
 /** Le module de bilan, au-dessus du premier message d'un sujet de zone.
  *
  *  MÊME PORTE QUE LA BARRE, et pour la même raison : la règle 4 de la
@@ -100,10 +128,7 @@ async function poserLeModule(): Promise<void> {
   const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
   if (zone === null) return;
 
-  const reponse = await fetch(`${RACINE}supabase.json`, { credentials: "omit" })
-    .then((r) => (r.ok ? r.json() : null))
-    .catch(() => null);
-  const config = configDepuis(reponse);
+  const config = await configSupabase();
   if (config === null) return;
 
   //  Le brouillon, s'il y en a un. **Absent est fréquent et normal** : un
@@ -135,4 +160,5 @@ desQueLeCorpsEstLa(() => {
   //  `catch` qui ne fait rien de plus que l'empêcher de remonter.
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
+  poserLaVie().catch(() => {});
 });

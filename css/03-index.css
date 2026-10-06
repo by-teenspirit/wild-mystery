@@ -7,13 +7,13 @@
    la description, les compteurs, la dernière réponse, le pied de page
    statistique.
 
-   ── CE QUI MANQUE, ET POURQUOI CE N'EST PAS ICI ───────────────────────
+   ── « LA VIE DE RHODE » EXISTE MAINTENANT (§ 7) ───────────────────────
 
-   **La carte « La vie de Rhode » n'existe pas dans le forum.** Elle est
-   dans la maquette, pas dans le DOM : aucun élément ne lui correspond,
-   et lui écrire du CSS reviendrait à décorer un fantôme. Elle demande
-   une reprise du template `index_box` (50-… §9). Le jour où le bloc
-   existe, sa feuille sera celle-ci.
+   Cet en-tête disait qu'elle demandait une reprise du template
+   `index_box`. **C'était faux**, et c'est la même erreur qui avait
+   retardé le module de bilan pour rien : un nœud s'insère en
+   JavaScript. L'encart est posé par `module-vie.ts` après la dernière
+   catégorie, aucun template n'a bougé, et sa feuille est bien celle-ci.
 
    ── CE QUI A ÉTÉ RELEVÉ SUR LE FORUM ──────────────────────────────────
 
@@ -228,4 +228,87 @@
 #modernbb .statistics a {
   color: var(--wm-texte-sur-nuit, #fffbf7);
   text-decoration: underline;
+}
+
+/* ── 7 · l'encart « La vie de Rhode » ─────────────────────────────── */
+
+/*  Posé en JavaScript après la dernière catégorie (planche 18, règle 6 :
+    huit lignes, avec l'heure). Il n'existe donc que si le script tourne
+    ET si le journal a quelque chose à raconter — un forum neuf n'a pas
+    d'encart, et c'est mieux qu'un cadre vide.
+
+    La même surface que le module de bilan (`05`), et pour la même
+    raison : ce sont les deux blocs que NOUS ajoutons à des pages de
+    ModernBB. Ils doivent se reconnaître entre eux sans se confondre
+    avec un bloc du forum. */
+#modernbb .wm-vie {
+  margin: 0 0 var(--wm-espace-24, 24px);
+  padding: var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-vie__titre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-doux, #6e5749);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Une colonne de lignes, en flexbox : aucun tableau, aucune puce. Les
+    puces de ModernBB sont remises à zéro par `01`, mais un `list-style`
+    explicite évite d'en dépendre. */
+#modernbb .wm-vie__lignes {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+/*  Une ligne tient sur une ligne quand elle peut, et passe à deux quand
+    il faut. L'écart de temps est poussé à droite par `margin-left:auto`
+    sur un seul enfant — c'est ce qui le garde aligné sans grille. */
+#modernbb .wm-vie__ligne {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-vie__qui {
+  color: var(--wm-accent-fort, #1f5470);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  L'écart de temps : discret, mais pas pâle au point d'être illisible
+    — il est mesuré au harnais de contraste comme le reste. Il porte la
+    date exacte en infobulle, d'où le curseur d'aide. */
+#modernbb .wm-vie__quand {
+  margin-left: auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  white-space: nowrap;
+  cursor: help;
+}
+
+/*  Sur petit écran, l'heure passe sous la phrase plutôt que de la
+    comprimer. `margin-left: auto` ne sert plus à rien quand la ligne
+    s'enroule : on le neutralise pour qu'elle commence à gauche. */
+@media (max-width: 520px) {
+  #modernbb .wm-vie__quand {
+    margin-left: 0;
+  }
 }
