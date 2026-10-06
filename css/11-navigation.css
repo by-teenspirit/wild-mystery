@@ -20,24 +20,42 @@
    34 × 50 à 12,5.
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── 1 · la barre normale ─────────────────────────────────────────── */
+/* ── 1 · notre barre, pleine largeur et collée en haut ────────────── */
 
-#modernbb ul#modernbb-nav-menu.wm-nav {
+/*  **Elle n'est plus celle de ModernBB.** La sienne vit dans un `.wrap`
+    à `max-width: 1400px` — mesuré à 1182 px sur une fenêtre de 1280 —,
+    elle part avec la page au défilement, et sous 760 px elle passe en
+    `position: fixed` avec une largeur de 0. Trois défauts, une seule
+    cause : on ne lutte pas contre son en-tête, on pose la nôtre.
+
+    `sticky` et non `fixed` : la page garde sa hauteur, donc rien ne
+    passe sous la barre au chargement — c'est `fixed` qui aurait demandé
+    de compenser avec un `padding-top` sur le corps, que ModernBB
+    recalcule déjà de son côté. */
+#modernbb .wm-nav {
+  position: sticky;
+  z-index: 70;
+  top: 0;
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  width: 100%;
   min-height: 56px;
   margin: 0;
   padding: 0 28px;
   gap: var(--wm-espace-24, 24px);
   background: var(--wm-fond-nuit, #3a2a22);
+  /*  Aucun arrondi : la barre touche les deux bords et le haut de la
+      fenêtre. Un coin rond au milieu d'un bord d'écran se lit comme un
+      défaut d'alignement. */
+  border-radius: 0;
   list-style: none;
 }
 
-#modernbb .wm-nav__porte {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
+/*  Celle de ModernBB est masquée, pas retirée : d'autres scripts gardent
+    une référence dessus. */
+#modernbb .wm-nav-remplacee {
+  display: none;
 }
 
 /*  Le logo bascule le panneau : c'est un bouton, pas un lien. 40 de
@@ -46,6 +64,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   width: 40px;
   min-height: 40px;
   padding: 0;
@@ -94,10 +113,10 @@
   text-decoration: underline;
 }
 
-/*  La page courante. Un soulignement épais plutôt qu'un fond : la barre
-    est déjà une surface, et un second aplat dessus se lit mal. */
+/*  La page courante : **le gras, et rien d'autre.** Le filet sous le
+    libellé a été essayé et retiré — sur une barre déjà sombre il se
+    lisait comme une erreur d'alignement plutôt que comme un état. */
 #modernbb a.wm-nav__lien--courant {
-  box-shadow: inset 0 -2px 0 var(--wm-accent-primaire, #2e6e8e);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
@@ -105,6 +124,9 @@
 
 /*  296 de large, sous la barre, pleine hauteur. `position: fixed` : il
     couvre la page, il ne la pousse pas. */
+/*  Il commence SOUS la barre et ne passe jamais dessus : `z-index` 60
+    contre 70. Première version, il recouvrait les cinq liens et le
+    logo — donc on perdait le bouton qui l'avait ouvert. */
 #modernbb .wm-panneau {
   position: fixed;
   z-index: 60;
@@ -117,8 +139,26 @@
   overflow-y: auto;
   background: var(--wm-fond-nuit, #3a2a22);
   color: var(--wm-texte-sur-nuit, #fffbf7);
+  /*  IL GLISSE. `hidden` seul le faisait apparaître d'un coup, ce qui ne
+      dit pas d'où il vient. On ne peut pas animer `display`, donc le
+      panneau reste dans le flux et c'est sa POSITION qui bouge :
+      `translateX` se compose sans recalcul de mise en page.
+
+      `visibility` accompagne la translation pour qu'il ne reçoive ni
+      clic ni tabulation une fois sorti — un panneau fermé mais encore
+      focusable est un piège au clavier. */
+  transform: translateX(-100%);
+  transition: transform 0.22s ease, visibility 0.22s;
+  visibility: hidden;
 }
 
+#modernbb .wm-panneau--ouvert {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+/*  `hidden` n'est plus porté : il couperait l'animation. L'état est dans
+    la classe, et `aria-expanded` sur le bouton le dit à voix haute. */
 #modernbb .wm-panneau[hidden] {
   display: none;
 }

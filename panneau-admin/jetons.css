@@ -227,3 +227,31 @@ body.wm-sombre {
   --wm-groupe-mew-fond:         #5c3348;
   --wm-groupe-mew-texte:        #f0a8c8;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   « Grossir le texte » — le réglage de confort de la feuille 12
+
+   Il vit ICI et pas dans `css/`, pour la même raison que le reste de ce
+   fichier : le dépôt se sert des jetons, il ne les déclare pas.
+
+   ON NE TOUCHE PAS À `font-size` SUR `body`. ModernBB le tient à 10px et
+   tout son CSS enchaîne en `em` : le changer multiplierait le forum
+   entier. On remonte les jetons, que toutes nos feuilles emploient, et
+   ce qui vient de ModernBB garde sa propre chaîne.
+
+   +2 px sur le courant, +1,5 sur le petit, +2 sur les titres : assez
+   pour que ça compte, pas assez pour casser une mise en page mesurée au
+   contraste.
+   ════════════════════════════════════════════════════════════════════ */
+
+body.wm-texte-large {
+  --wm-taille-normal: 15.5px;
+  --wm-taille-petit: 13px;
+  --wm-taille-message: 16px;
+  --wm-taille-chapo: 21px;
+  --wm-taille-titre-carte: 18px;
+  --wm-taille-titre-section: 21px;
+  --wm-taille-legende: 13px;
+  --wm-taille-etiquette: 11px;
+  --wm-taille-surtitre: 11.5px;
+}

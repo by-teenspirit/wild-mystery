@@ -203,7 +203,6 @@ function personnageEnDOM(doc: Document, p: Personnage): HTMLElement {
 function panneauEnDOM(doc: Document, nav: Navigation): HTMLElement {
   const panneau = element(doc, "div", "wm-panneau");
   panneau.id = "wm-panneau";
-  panneau.setAttribute("hidden", "");
 
   if (nav.utiles.length > 0) {
     panneau.appendChild(element(doc, "p", "wm-panneau__titre-section", "Mes liens utiles"));
@@ -224,22 +223,43 @@ function panneauEnDOM(doc: Document, nav: Navigation): HTMLElement {
 
 // ── la barre normale ────────────────────────────────────────────────
 
-/** Réécrit `ul#modernbb-nav-menu`, et rend le bouton du panneau.
+/** Pose NOTRE barre en haut du document, et masque celle de ModernBB.
  *
- *  **On remplace le contenu, pas l'élément.** ModernBB et d'autres
- *  scripts gardent une référence sur ce `<ul>` ; le retirer casserait des
- *  choses qu'on ne voit pas. */
+ *  ── POURQUOI ON NE RÉÉCRIT PLUS LA SIENNE ───────────────────────────
+ *
+ *  C'était la première version, et trois défauts en venaient tous :
+ *
+ *  · **elle ne prenait pas toute la largeur** — `ul#modernbb-nav-menu`
+ *    vit dans un `.wrap` à `max-width: 1400px`, mesuré à 1182 px sur une
+ *    fenêtre de 1280 ;
+ *  · **elle partait avec la page** — statique dans l'en-tête, donc elle
+ *    disparaissait au premier défilement ;
+ *  · **sous 760 px, ModernBB la met en `position: fixed` avec une
+ *    largeur de 0** : son propre menu repliable prenait la main, et il ne
+ *    restait rien à l'écran.
+ *
+ *  On ne lutte pas contre cette mécanique : on pose la nôtre directement
+ *  sur `body`, pleine largeur et collée en haut, et on masque la sienne.
+ *  C'est ce que montre la maquette — une barre de 56 px bord à bord, au
+ *  tout premier plan de la page.
+ *
+ *  **L'ancienne est masquée, pas retirée.** ModernBB et d'autres scripts
+ *  gardent une référence dessus ; la retirer casserait ce qu'on ne voit
+ *  pas. */
 function poserLaBarre(doc: Document, nav: Navigation): HTMLButtonElement | null {
-  const barre = doc.querySelector<HTMLElement>("#modernbb-nav-menu");
-  if (barre === null || nav.liens.length === 0) return null;
+  if (nav.liens.length === 0) return null;
+  if (doc.querySelector(".wm-nav") !== null) return null;
 
-  barre.textContent = "";
-  barre.classList.add("wm-nav");
+  const ancienne = doc.querySelector<HTMLElement>("#modernbb-nav-menu");
+  if (ancienne !== null) ancienne.classList.add("wm-nav-remplacee");
+
+  const barre = doc.createElement("nav");
+  barre.className = "wm-nav";
+  barre.setAttribute("aria-label", "Navigation principale");
 
   //  Le logo ouvre le panneau, et devient une croix tant qu'il est
   //  ouvert (maquette 390:3676). C'est un `<button>` : il n'ouvre pas une
   //  page, il bascule un état.
-  const porte = element(doc, "li", "wm-nav__porte");
   const bouton = doc.createElement("button");
   bouton.type = "button";
   bouton.className = "wm-nav__logo";
@@ -247,11 +267,10 @@ function poserLaBarre(doc: Document, nav: Navigation): HTMLButtonElement | null 
   bouton.setAttribute("aria-controls", "wm-panneau");
   bouton.setAttribute("aria-label", "Ouvrir le panneau");
   bouton.appendChild(element(doc, "span", "wm-nav__losange", "◈"));
-  porte.appendChild(bouton);
-  barre.appendChild(porte);
+  barre.appendChild(bouton);
 
   const courant = lienCourant(nav.liens, doc.location?.pathname ?? "");
-  const liens = element(doc, "li", "wm-nav__liens");
+  const liens = element(doc, "div", "wm-nav__liens");
   for (const l of nav.liens) {
     const a = doc.createElement("a");
     a.className = "wm-nav__lien";
@@ -264,6 +283,11 @@ function poserLaBarre(doc: Document, nav: Navigation): HTMLButtonElement | null 
     liens.appendChild(a);
   }
   barre.appendChild(liens);
+
+  //  En PREMIER dans le corps : la barre est le haut de la page, et
+  //  l'ordre du DOM doit le dire autant que le CSS — c'est lui que suit
+  //  un lecteur d'écran, et la tabulation.
+  doc.body?.insertBefore(barre, doc.body.firstChild);
   return bouton;
 }
 
@@ -382,7 +406,11 @@ export function poserLaNavigation(
   doc.body?.appendChild(panneau);
 
   const basculer = (ouvrir: boolean): void => {
-    panneau.toggleAttribute("hidden", !ouvrir);
+    //  **On ne touche plus à `hidden` pour ouvrir.** Il met l'élément en
+    //  `display: none`, et `display` ne s'anime pas : le panneau
+    //  apparaissait d'un coup, sans dire d'où il venait. L'état est donc
+    //  une classe, et le CSS fait glisser la position.
+    panneau.classList.toggle("wm-panneau--ouvert", ouvrir);
     bouton.setAttribute("aria-expanded", String(ouvrir));
     bouton.setAttribute("aria-label", ouvrir ? "Fermer le panneau" : "Ouvrir le panneau");
     bouton.classList.toggle("wm-nav__logo--ouvert", ouvrir);
@@ -391,11 +419,12 @@ export function poserLaNavigation(
     const marque = bouton.querySelector(".wm-nav__losange");
     if (marque !== null) marque.textContent = ouvrir ? "✕" : "◈";
   };
-  bouton.addEventListener("click", () => basculer(panneau.hasAttribute("hidden")));
+  const ouvert = (): boolean => panneau.classList.contains("wm-panneau--ouvert");
+  bouton.addEventListener("click", () => basculer(!ouvert()));
   //  Échap ferme, comme partout : un panneau qui couvre l'écran sans
   //  issue au clavier est un piège.
   doc.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && !panneau.hasAttribute("hidden")) basculer(false);
+    if (e.key === "Escape" && ouvert()) basculer(false);
   });
 
   //  `#fa_toolbar` est posée par un script tiers, après nous. On la

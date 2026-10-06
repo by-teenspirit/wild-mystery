@@ -3630,24 +3630,42 @@ html,
    34 × 50 à 12,5.
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── 1 · la barre normale ─────────────────────────────────────────── */
+/* ── 1 · notre barre, pleine largeur et collée en haut ────────────── */
 
-#modernbb ul#modernbb-nav-menu.wm-nav {
+/*  **Elle n'est plus celle de ModernBB.** La sienne vit dans un `.wrap`
+    à `max-width: 1400px` — mesuré à 1182 px sur une fenêtre de 1280 —,
+    elle part avec la page au défilement, et sous 760 px elle passe en
+    `position: fixed` avec une largeur de 0. Trois défauts, une seule
+    cause : on ne lutte pas contre son en-tête, on pose la nôtre.
+
+    `sticky` et non `fixed` : la page garde sa hauteur, donc rien ne
+    passe sous la barre au chargement — c'est `fixed` qui aurait demandé
+    de compenser avec un `padding-top` sur le corps, que ModernBB
+    recalcule déjà de son côté. */
+#modernbb .wm-nav {
+  position: sticky;
+  z-index: 70;
+  top: 0;
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  width: 100%;
   min-height: 56px;
   margin: 0;
   padding: 0 28px;
   gap: var(--wm-espace-24, 24px);
   background: var(--wm-fond-nuit, #3a2a22);
+  /*  Aucun arrondi : la barre touche les deux bords et le haut de la
+      fenêtre. Un coin rond au milieu d'un bord d'écran se lit comme un
+      défaut d'alignement. */
+  border-radius: 0;
   list-style: none;
 }
 
-#modernbb .wm-nav__porte {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
+/*  Celle de ModernBB est masquée, pas retirée : d'autres scripts gardent
+    une référence dessus. */
+#modernbb .wm-nav-remplacee {
+  display: none;
 }
 
 /*  Le logo bascule le panneau : c'est un bouton, pas un lien. 40 de
@@ -3656,6 +3674,7 @@ html,
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   width: 40px;
   min-height: 40px;
   padding: 0;
@@ -3704,10 +3723,10 @@ html,
   text-decoration: underline;
 }
 
-/*  La page courante. Un soulignement épais plutôt qu'un fond : la barre
-    est déjà une surface, et un second aplat dessus se lit mal. */
+/*  La page courante : **le gras, et rien d'autre.** Le filet sous le
+    libellé a été essayé et retiré — sur une barre déjà sombre il se
+    lisait comme une erreur d'alignement plutôt que comme un état. */
 #modernbb a.wm-nav__lien--courant {
-  box-shadow: inset 0 -2px 0 var(--wm-accent-primaire, #2e6e8e);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
@@ -3715,6 +3734,9 @@ html,
 
 /*  296 de large, sous la barre, pleine hauteur. `position: fixed` : il
     couvre la page, il ne la pousse pas. */
+/*  Il commence SOUS la barre et ne passe jamais dessus : `z-index` 60
+    contre 70. Première version, il recouvrait les cinq liens et le
+    logo — donc on perdait le bouton qui l'avait ouvert. */
 #modernbb .wm-panneau {
   position: fixed;
   z-index: 60;
@@ -3727,8 +3749,26 @@ html,
   overflow-y: auto;
   background: var(--wm-fond-nuit, #3a2a22);
   color: var(--wm-texte-sur-nuit, #fffbf7);
+  /*  IL GLISSE. `hidden` seul le faisait apparaître d'un coup, ce qui ne
+      dit pas d'où il vient. On ne peut pas animer `display`, donc le
+      panneau reste dans le flux et c'est sa POSITION qui bouge :
+      `translateX` se compose sans recalcul de mise en page.
+
+      `visibility` accompagne la translation pour qu'il ne reçoive ni
+      clic ni tabulation une fois sorti — un panneau fermé mais encore
+      focusable est un piège au clavier. */
+  transform: translateX(-100%);
+  transition: transform 0.22s ease, visibility 0.22s;
+  visibility: hidden;
 }
 
+#modernbb .wm-panneau--ouvert {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+/*  `hidden` n'est plus porté : il couperait l'animation. L'état est dans
+    la classe, et `aria-expanded` sur le bouton le dit à voix haute. */
 #modernbb .wm-panneau[hidden] {
   display: none;
 }
@@ -4020,33 +4060,40 @@ body.wm-sans-animation .wm-notifs * {
 
 /* ── 2 · grossir le texte ─────────────────────────────────────────── */
 
-/*  **On ne touche pas à `font-size` sur `body`.** ModernBB le tient à
-    10px et tout son CSS enchaîne en `em` : le changer multiplierait le
-    forum entier (feuille `02`, piège n° 1). On grossit donc ce que NOUS
-    posons, élément par élément, là où on l'a déjà posé en px.
+/*  **PREMIÈRE VERSION : UNE LISTE DE SÉLECTEURS, ET ELLE NE SERVAIT À
+    RIEN.** Elle grossissait nos blocs à nous — l'encart, le panneau, les
+    briques d'annexe — et laissait le forum entier inchangé. Sur l'index,
+    sur un sujet, sur la liste des membres, « grossir le texte » ne
+    changeait rien du tout. C'était un réglage d'accessibilité qui
+    n'aidait personne.
 
-    +2 px sur le courant, +1,5 sur le petit : assez pour que ça compte,
-    pas assez pour casser une mise en page mesurée au contraste. */
-body.wm-texte-large #modernbb .wm-paras > p,
-body.wm-texte-large #modernbb .wm-tirets > li,
-body.wm-texte-large #modernbb .wm-table__cellule,
-body.wm-texte-large #modernbb .wm-encart,
-body.wm-texte-large #modernbb .wm-vie__ligne,
-body.wm-texte-large #modernbb .wm-panneau__lien,
-body.wm-texte-large #modernbb .wm-panneau__nom,
-body.wm-texte-large #modernbb a.wm-nav__lien {
-  font-size: calc(var(--wm-taille-normal, 13.5px) + 2px);
-}
+    On redéfinit donc les JETONS DE TAILLE. Toutes nos feuilles les
+    emploient, donc tout grossit d'un coup, et ce qui vient de ModernBB
+    continue de suivre sa propre chaîne d'`em` sans qu'on y touche —
+    c'est le piège n° 1 de la feuille `02`, et il reste évité.
 
-body.wm-texte-large #modernbb .wm-vie__quand,
-body.wm-texte-large #modernbb .wm-panneau__en-jeu,
-body.wm-texte-large #modernbb .wm-lieu,
-body.wm-texte-large #modernbb .wm-annexe__lien {
-  font-size: calc(var(--wm-taille-petit, 11.5px) + 1.5px);
-}
+    +2 px sur le courant, +1,5 sur le petit, +3 sur les titres : assez
+    pour que ça compte, pas assez pour casser une mise en page mesurée au
+    contraste. */
+/*  **Les jetons sont redéfinis dans `panneau-admin/jetons.css`**, pas
+    ici : le dépôt se sert des jetons, il ne les déclare pas (`48-…` §8),
+    et le garde-fou n° 2 le vérifie. C'est le même endroit où
+    `body.wm-sombre` redéfinit toute la palette — un réglage d'affichage
+    qui change des jetons appartient au fichier des jetons.
 
-body.wm-texte-large #modernbb .wm-annexe__chapo {
-  font-size: calc(var(--wm-taille-chapo, 19px) + 2px);
+    **Conséquence : « grossir le texte » demande de recoller
+    `jetons.css` dans le panneau d'administration.** Sans ça les deux
+    autres réglages marchent et celui-là ne fait rien.
+
+*/
+
+/*  Et ce que ModernBB sert en `em` : on remonte sa base d'un cran plutôt
+    que de poser une taille, qui multiplierait toute sa chaîne. 11px au
+    lieu de 10 fait +10 % partout, sans rien casser. */
+body.wm-texte-large #modernbb .postbody,
+body.wm-texte-large #modernbb .post-entry,
+body.wm-texte-large #modernbb .content {
+  font-size: 11px;
 }
 
 /* ── 3 · souligner tous les liens ─────────────────────────────────── */
@@ -4062,14 +4109,56 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 4 · les trois interrupteurs, dans le coin d'outils ───────────── */
 
+/*  **Le coin fait 92 px de large**, et les trois libellés s'y entassaient
+    sur trois lignes de 59 px de haut, en texte pâle sur un fond
+    transparent : illisibles, mesuré. Le bloc prend donc sa propre
+    largeur et son propre fond — il reste dans le coin, il n'y est plus
+    comprimé. */
 #modernbb .wm-coin__confort,
 .wm-coin .wm-coin__confort {
   display: flex;
   flex-direction: column;
+  width: 208px;
   margin-top: var(--wm-espace-8, 8px);
-  padding-top: var(--wm-espace-8, 8px);
+  margin-left: auto;
+  padding: var(--wm-espace-8, 8px);
   gap: var(--wm-espace-4, 4px);
-  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  Un interrupteur : pleine largeur du bloc, texte à gauche, cible
+    tactile pleine. Il porte son propre fond — sans lui, il héritait du
+    transparent du coin et se lisait sur la page. */
+.wm-coin .wm-coin__confort-bouton {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 38px;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-encre, #2e2018);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-align: left;
+}
+
+.wm-coin .wm-coin__confort-bouton .wm-coin__texte {
+  /*  Le libellé se lit : la règle qui le masque sous 760 px vaut pour
+      les boutons à icône du coin, pas pour ceux-ci, qui n'ont que leur
+      texte pour dire ce qu'ils font. */
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  white-space: normal;
 }
 
 /*  Coché : le fond d'accent et le texte inverse. Pas seulement une
