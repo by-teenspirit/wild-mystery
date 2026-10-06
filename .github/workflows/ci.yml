@@ -142,6 +142,11 @@ jobs:
           # peut à nouveau ne servir AUCUNE commande sans que rien ne crie,
           # ce qui est exactement ce qui est arrivé pendant trois jours.
           grep -q "boutique réelle · " /tmp/contrat.txt
+          # Le pokédex, ajouté le 6 octobre. `ranger_pokedex` a été écrite
+          # deux fois et cassée deux fois ; ces huit cas sont les seuls qui
+          # exécutent le vrai SQL de rangement, et le seul endroit où le
+          # désaccord de dates entre la clôture et le rangement se voit.
+          grep -q "pokédex réel · " /tmp/contrat.txt
           ! grep -q "IGNORÉ faute de base" /tmp/contrat.txt
       - name: Aucun test de contrat encore écrit
         if: hashFiles('src/contrat/**/*.ts') == ''

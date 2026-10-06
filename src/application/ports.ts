@@ -343,6 +343,23 @@ export interface Boutique {
   }): Promise<VerdictDeCommande>;
 }
 
+// ── le pokédex ──────────────────────────────────────────────────────
+
+/** Remettre le pokédex d'accord avec le registre des sujets clôturés.
+ *
+ *  CE N'EST PAS LUI QUI LE REMPLIT. `appliquer_cloture` écrit le pokédex
+ *  dans la transaction de la clôture, donc en régime normal il n'y a
+ *  **rien à corriger** et le compte rendu est zéro.
+ *
+ *  Un nombre non nul est donc un SIGNAL, pas un travail accompli : une
+ *  clôture d'avant ce comportement, une ligne de registre reprise à la
+ *  main, ou un bogue. */
+export interface Pokedex {
+  /** Rend le nombre de lignes réellement corrigées. Zéro est la réponse
+   *  attendue. */
+  ranger(): Promise<number>;
+}
+
 export interface Catalogue {
   /** Le nom lisible d'un objet, pour écrire un refus qu'un joueur
    *  comprend sans aller chercher un identifiant. */

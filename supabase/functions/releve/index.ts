@@ -31,6 +31,7 @@ import {
 } from "../../../src/adaptateurs/supabase/jeu.ts";
 import {
   JournalSupabase,
+  PokedexSupabase,
   SuiviSupabase,
   VerrouSupabase,
 } from "../../../src/adaptateurs/supabase/releve.ts";
@@ -48,6 +49,7 @@ import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouve
 import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.ts";
 import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
 import { ServirUneCommande } from "../../../src/application/servir-une-commande.ts";
+import { RangerLePokedex } from "../../../src/application/ranger-le-pokedex.ts";
 
 /**
  * La version de ce déploiement, et elle sert à DEUX choses.
@@ -63,7 +65,7 @@ import { ServirUneCommande } from "../../../src/application/servir-une-commande.
  *
  * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
  */
-const VERSION = "2026-10-05-a";
+const VERSION = "2026-10-06-a";
 
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
@@ -133,6 +135,9 @@ type Montage = {
    *  deviennent des commandes servies, et chacune reçoit son reçu. */
   readonly boutique: ServirUneCommande;
   readonly comptoirs: ComptoirsEnFichiers;
+  /** Tâche 7 : le pokédex, remis d'accord avec le registre. **Zéro est
+   *  la réponse attendue** — `appliquer_cloture` l'écrit déjà. */
+  readonly pokedex: RangerLePokedex;
   readonly verrou: VerrouSupabase;
 };
 
@@ -224,6 +229,10 @@ function assembler(reglages: Reglages): Montage {
     parcourir,
     bilans,
     boutique,
+    pokedex: new RangerLePokedex(
+      new PokedexSupabase(appeler),
+      new JournalSupabase(appeler),
+    ),
     comptoirs: new ComptoirsEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES),
     verrou: new VerrouSupabase(appeler),
   };
@@ -251,7 +260,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     return json({ version: VERSION, erreur: "clé de relève absente ou fausse" }, 401);
   }
 
-  const { parcourir, bilans, boutique, comptoirs, verrou } = assembler(reglages);
+  const { parcourir, bilans, boutique, comptoirs, pokedex, verrou } = assembler(reglages);
 
   if (!await verrou.prendre(NOM_DU_VERROU, VERROU_SECONDES)) {
     // Ce n'est pas une erreur : c'est le passage précédent qui travaille
@@ -308,6 +317,13 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       achats.erreurs.push(`data/comptoirs.json : ${(e as Error).message}`);
     }
 
+    //  ── LE POKÉDEX EN DERNIER, APRÈS LES CLÔTURES ────────────────────
+    //
+    //  Il réconcilie ce que les clôtures viennent d'écrire : le passer
+    //  avant reviendrait à vérifier le travail du passage PRÉCÉDENT.
+    //  Il n'écrit rien sur le forum et ne lève jamais.
+    const rangement = await pokedex.executer();
+
     return json({
       version: VERSION,
       //  Ce que la tâche 1 a inscrit au registre pendant le même parcours.
@@ -322,6 +338,11 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       commandes_servies: achats.servies,
       commandes_refusees: achats.refusees,
       boutique_en_echec: achats.erreurs,
+      //  Attendu à ZÉRO. Un nombre non nul veut dire qu'une ligne du
+      //  pokédex était en retard sur le registre — à regarder, pas à
+      //  ignorer.
+      pokedex_corrige: rangement.corrigees,
+      pokedex_en_echec: rangement.erreurs,
       duree_ms: Date.now() - debut,
     }, 200);
   } catch (e) {

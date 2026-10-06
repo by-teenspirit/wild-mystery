@@ -1,7 +1,9 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/supabase/releve.ts
 //
-//  Le verrou, le journal, et la mémoire du dernier message lu.
+//  Le verrou, le journal, la mémoire du dernier message lu, et le
+//  rangement du pokédex — tout ce qui sert à la relève elle-même plutôt
+//  qu'au jeu.
 //
 //  Une précaution qui mérite d'être lue : **prendre le verrou est un seul
 //  ordre SQL.** Un `select` suivi d'un `insert` laisserait une fenêtre où
@@ -10,7 +12,12 @@
 //  et cet adaptateur ne fait que l'appeler.
 // ════════════════════════════════════════════════════════════════════
 
-import type { JournalDeReleve, SuiviDesForums, Verrou } from "../../application/ports.ts";
+import type {
+  JournalDeReleve,
+  Pokedex,
+  SuiviDesForums,
+  Verrou,
+} from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
 export class VerrouSupabase implements Verrou {
@@ -82,5 +89,36 @@ export class SuiviSupabase implements SuiviDesForums {
 
   async avancer(forumId: number, messageId: number): Promise<void> {
     await this.appeler("releve_avancer", { forumId, dernierMessage: messageId });
+  }
+}
+
+// ── le pokédex ──────────────────────────────────────────────────────
+
+/** `pokedex_ranger` (migration `0012`).
+ *
+ *  LE COMPTE EST RELU, pas tenu pour acquis : il ne sert qu'à être
+ *  journalisé, mais un `undefined` journalisé donnerait une ligne de
+ *  journal muette au moment où on viendrait justement y chercher un
+ *  chiffre. Même raison que dans `supabase/boutique.ts`.
+ *
+ *  **Avant la migration `0012`, cette fonction comptait les lignes
+ *  TOUCHÉES**, donc elle rendait toujours le nombre de paires
+ *  (joueur, espèce) du registre — un chiffre qui ne voulait rien dire.
+ *  Elle compte maintenant les lignes CHANGÉES, et zéro est la réponse
+ *  attendue. */
+export class PokedexSupabase implements Pokedex {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async ranger(): Promise<number> {
+    const nom = "pokedex_ranger";
+    const recu = await this.appeler(nom, {});
+    const corrigees = (recu as { corrigees?: unknown } | null)?.corrigees;
+    if (typeof corrigees !== "number" || !Number.isInteger(corrigees) || corrigees < 0) {
+      throw new AppelEchoue(
+        nom,
+        `entier positif ou nul attendu, reçu ${JSON.stringify(recu)}`,
+      );
+    }
+    return corrigees;
   }
 }
