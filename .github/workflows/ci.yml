@@ -147,6 +147,11 @@ jobs:
           # exécutent le vrai SQL de rangement, et le seul endroit où le
           # désaccord de dates entre la clôture et le rangement se voit.
           grep -q "pokédex réel · " /tmp/contrat.txt
+          # Les services, ajoutés le 6 octobre. Huit fonctions de 0001 et
+          # 0002 qui n avaient JAMAIS ete executees par un test : quatre de
+          # celles qu on a regardees etaient cassees. Ces treize cas sont le
+          # seul endroit ou leur SQL tourne.
+          grep -q "services réels · " /tmp/contrat.txt
           ! grep -q "IGNORÉ faute de base" /tmp/contrat.txt
       - name: Aucun test de contrat encore écrit
         if: hashFiles('src/contrat/**/*.ts') == ''
