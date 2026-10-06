@@ -152,6 +152,11 @@ jobs:
           # celles qu on a regardees etaient cassees. Ces treize cas sont le
           # seul endroit ou leur SQL tourne.
           grep -q "services réels · " /tmp/contrat.txt
+          # La vie de Rhode, ajoutee le 6 octobre. Ses huit cas verifient
+          # que la ligne de journal est ecrite DANS la transaction du debit,
+          # et surtout qu elle ne dit ni le prix ni la liste des objets : le
+          # journal est public.
+          grep -q "vie de Rhode · " /tmp/contrat.txt
           ! grep -q "IGNORÉ faute de base" /tmp/contrat.txt
       - name: Aucun test de contrat encore écrit
         if: hashFiles('src/contrat/**/*.ts') == ''
