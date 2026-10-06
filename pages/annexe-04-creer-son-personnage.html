@@ -1,17 +1,25 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      Annexe 04 · Créer son personnage — à coller dans une page HTML.
 
-     Mêmes deux choses qu'à l'annexe 03 :
-       1. « Utiliser le header et footer du forum » = OUI.
-       2. L'adresse doit finir par « -creer-son-personnage », et il faut
-          la reporter dans data/annexes.json pour que le lien apparaisse
-          dans les douze sommaires.
+     REPRIS SUR LA MAQUETTE `247:1786`, le 6 octobre. Ma première version
+     était une recomposition des planches 41 et 42 ; la maquette dit
+     autre chose, et porte des règles que ces planches n'ont pas :
 
-     SOURCES : planche 42 pour les six clans et les personnages des jeux,
-     planche 41 pour l'avatar, le pseudo et les délais, planche 18 pour
-     le numéro de dresseur, le caractère au choix et les prédéfinis.
-     Les dés sont remplacés par le tirage du serveur (planche 40 §1), et
-     « clan » remplace « groupe » partout (planche 40 §8).
+       · LE CAMP — Team Ombre, Parti de soutien, Clan de la Nuit, ou
+         aucun. Une notion qui n'apparaît dans aucune autre planche ;
+       · L'AVANTAGE DE CHAQUE GROUPE — six bonus de jeu chiffrés, qui
+         n'existent nulle part ailleurs non plus ;
+       · LE STARTER EST CHOISI, ou tiré au sort si on préfère la
+         surprise.
+
+     TROIS CONTRADICTIONS À TRANCHER, signalées plutôt que décidées :
+       1. la maquette dit « groupe », la planche 40 §8 dit « clan » ;
+       2. le starter est CHOISI ici, et TIRÉ par le serveur à l'annexe 03
+          (« tu ne lances rien toi-même ») ;
+       3. « pas de personnage canon » à l'annexe 03, alors que la
+          planche 42 dit qu'on peut jouer Red ou Serena.
+
+     Les mots de la maquette sont gardés tels quels en attendant.
      ═══════════════════════════════════════════════════════════════════ -->
 
 <div class="wm-annexe">
@@ -24,151 +32,100 @@
       <p class="wm-annexe__surtitre">Annexe 04</p>
       <h1 class="wm-annexe__titre">Créer son <em>personnage</em></h1>
       <p class="wm-annexe__chapo">
-        Un visage, un nom, un clan, et de quoi commencer. Rien ici n'est irréversible : on
-        peut demander de l'aide, des délais, et changer d'avis avant la validation.
+        Un formulaire, deux images, et autant de fond que tu veux — ou aussi peu.
       </p>
 
       <div class="wm-annexe__blocs">
 
-        <!-- ── les quatre pas ────────────────────────────────────── -->
+        <div class="wm-paire">
+          <div class="wm-carte">
+            <h2 class="wm-carte__titre">La fiche de présentation</h2>
+            <ul class="wm-tirets">
+              <li><b>L'identité</b> — nom, âge, origine, métier.</li>
+              <li><b>Le groupe</b> — l'une des six affinités, avec son avantage de jeu.</li>
+              <li><b>Le camp</b> — Team Ombre, Parti de soutien, Clan de la Nuit, ou
+                aucun.</li>
+              <li><b>Le physique et le caractère</b> — libre, du paragraphe au roman.</li>
+              <li><b>L'histoire</b> — cinq lignes suffisent pour commencer.</li>
+              <li><b>Le starter</b> — choisi, ou tiré au sort si tu préfères la surprise.</li>
+            </ul>
+          </div>
+          <div class="wm-carte">
+            <h2 class="wm-carte__titre">Les images</h2>
+            <ul class="wm-tirets">
+              <li><b>Avatar 200 × 320</b> — c'est le format affiché dans les sujets.</li>
+              <li><b>Une célébrité</b> comme visage, vérifiée pour éviter les doublons.</li>
+              <li><b>Un gif 200 × 110</b> pour ta fiche de liens, si tu veux.</li>
+              <li>Les images de pokémons, d'objets et de types sont fournies : tu n'as rien à
+                chercher.</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="wm-carte">
-          <h2 class="wm-carte__titre">Dans l'ordre</h2>
-          <ul class="wm-tirets">
-            <li><b>Choisis une célébrité</b> libre au bottin, et vérifie qu'elle n'y est pas
-              déjà — on n'accepte pas les doublons, sauf pour des jumeaux.</li>
-            <li><b>Inscris-toi</b> avec un pseudo en deux parties, prénom (ou surnom) et nom
-              de famille, <b>28 caractères au plus</b>.</li>
-            <li><b>Poste ta fiche sous trois jours</b>, même vide : c'est ce qui réserve ton
-              avatar. Tu as ensuite <b>dix jours</b> pour la terminer — et tu peux demander
-              plus de temps.</li>
-            <li><b>Le serveur tire ton starter</b> une fois la fiche postée, et te donne son
-              code de vérification.</li>
-          </ul>
+          <h2 class="wm-carte__titre">Les six groupes</h2>
+          <div class="wm-table">
+            <div class="wm-table__ligne wm-table__ligne--entete">
+              <span class="wm-table__cellule wm-table__cellule--nom">Groupe</span>
+              <span class="wm-table__cellule">Qui</span>
+              <span class="wm-table__cellule">L'avantage</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Ho-Oh</span>
+              <span class="wm-table__cellule">les challengers</span>
+              <span class="wm-table__cellule">+ 10 % d'XP en combat d'arène</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Reshiram</span>
+              <span class="wm-table__cellule">champions et Conseil</span>
+              <span class="wm-table__cellule">peut tenir une arène dès le niveau 20</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Deoxys</span>
+              <span class="wm-table__cellule">scientifiques</span>
+              <span class="wm-table__cellule">voit les IV et la nature avant la capture</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Xerneas</span>
+              <span class="wm-table__cellule">éleveurs, soigneurs</span>
+              <span class="wm-table__cellule">éclosion deux fois plus rapide, soins
+                gratuits</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Zamazenta</span>
+              <span class="wm-table__cellule">police, secours</span>
+              <span class="wm-table__cellule">aucune perte d'argent en cas de défaite</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Mew</span>
+              <span class="wm-table__cellule">habitants, métiers</span>
+              <span class="wm-table__cellule">− 15 % sur tous les achats</span>
+            </div>
+          </div>
         </div>
 
         <div class="wm-encarts">
           <div class="wm-encart wm-encart--terre">
-            <span class="wm-encart__etiquette">Ton avatar</span>
-            <p><b>200 × 320 px ou 400 × 640 px</b>, une personne réelle et célèbre. Pas de
-              manga, pas de dessin, pas d'inconnu — et il y en a bien assez pour que personne
-              ne soit coincé.</p>
+            <span class="wm-encart__etiquette">Après la validation</span>
+            <p>Tu postes ta fiche de liens, et le bottin t'ajoute automatiquement avec tes
+              deux fiches. Tu peux ouvrir ton premier RP sans attendre.</p>
           </div>
-          <div class="wm-encart">
-            <span class="wm-encart__etiquette">Ton numéro de dresseur</span>
-            <p><b>Quatre chiffres, tirés à la validation</b>, jamais deux fois les mêmes. Il
-              relie ta fiche, ton carnet et ton Pokédex. <b>On ne le choisit pas</b> — c'est
-              ce qui en fait une identité et pas une décoration.</p>
-          </div>
-        </div>
-
-        <!-- ── le caractère ──────────────────────────────────────── -->
-        <div class="wm-paire">
-          <div class="wm-carte">
-            <h2 class="wm-carte__titre">Le caractère, comme tu veux</h2>
-            <div class="wm-paras">
-              <p><b>Les traits</b> — trois qualités, trois défauts — ou <b>un texte libre</b>,
-                ou les deux : l'un n'annule pas l'autre. <b>Aucune longueur n'est imposée.</b>
-                Une fiche de dix lignes bien tenue vaut une fiche de dix écrans.</p>
-            </div>
-          </div>
-          <div class="wm-carte">
-            <h2 class="wm-carte__titre">Un personnage des jeux</h2>
-            <div class="wm-paras">
-              <p>Red, Blue, Serena : c'est permis, sauf les protagonistes et antagonistes de
-                <i>Colosseum</i> et <i>XD</i> (les exceptions sont listées dans le sujet
-                dédié). Mais <b>tu repars du début</b>, et <b>pas forcément avec le même
-                starter</b> : Rhode est une région qu'ils n'ont pas découverte.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── les six clans ─────────────────────────────────────── -->
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Choisir son clan</h2>
-          <div class="wm-paras">
-            <p>Six clans, chacun du nom d'un légendaire. <b>Tu choisis le tien</b> — il n'est
-              jamais tiré au sort. Il dit le métier de ton personnage et sa place dans la
-              région, pas sa puissance : aucun clan n'est meilleur qu'un autre.</p>
-          </div>
-        </div>
-
-        <div class="wm-table">
-          <div class="wm-table__ligne wm-table__ligne--entete">
-            <span class="wm-table__cellule">Le clan</span>
-            <span class="wm-table__cellule">Pour qui</span>
-          </div>
-          <div class="wm-table__ligne">
-            <span class="wm-table__cellule"><b>Ho-Oh</b> · Oiseau de Légende</span>
-            <span class="wm-table__cellule">Les aventuriers et les dresseurs de combat. Ils
-              n'ont peur de rien, vont jusqu'au bout, et visent la Ligue Finale ; le Mont
-              Bataille n'aura aucun secret pour eux.</span>
-          </div>
-          <div class="wm-table__ligne">
-            <span class="wm-table__cellule"><b>Reshiram</b> · Dragon Légendaire</span>
-            <span class="wm-table__cellule">Les plus entraînés de la région, parfois vus comme
-              des célébrités. Champion d'arène, membre du Conseil 4, Maître de Rhode : ta
-              place est ici.</span>
-          </div>
-          <div class="wm-table__ligne">
-            <span class="wm-table__cellule"><b>Deoxys</b> · Visiteur de l'Espace</span>
-            <span class="wm-table__cellule">Scientifiques, archéologues, paléontologues, et
-              quelques Professeurs. Les pokémons sont pour eux un mystère qu'ils n'ont pas
-              fini de percer.</span>
-          </div>
-          <div class="wm-table__ligne">
-            <span class="wm-table__cellule"><b>Xerneas</b> · Pokémon Vie</span>
-            <span class="wm-table__cellule">Éleveurs, gérants de pension, soigneurs. Ni les
-              captures à outrance ni la quête des arènes ne les intéressent — la quiétude,
-              oui.</span>
-          </div>
-          <div class="wm-table__ligne">
-            <span class="wm-table__cellule"><b>Zamazenta</b> · Pokémon Protecteur</span>
-            <span class="wm-table__cellule">Pompiers, policiers, infirmiers. Ils font régner
-              la loi ou sauvent des vies, et la population leur fait une confiance
-              aveugle.</span>
-          </div>
-          <div class="wm-table__ligne">
-            <span class="wm-table__cellule"><b>Mew</b> · Pokémon Nouveau</span>
-            <span class="wm-table__cellule">Pâtissiers, écrivains, acteurs, agents
-              immobiliers. Un travail qui n'implique pas leurs pokémons, qui mènent une vie
-              tranquille au coin de la cheminée.</span>
-          </div>
-        </div>
-
-        <!-- ── si tu ne sais pas quoi jouer ──────────────────────── -->
-        <div class="wm-encarts">
           <div class="wm-encart wm-encart--paisible">
-            <span class="wm-encart__etiquette">Tu ne sais pas quoi jouer</span>
-            <p>L'onglet <b>Prédéfinis</b> de l'accueil propose des personnages déjà écrits,
-              avec leur place dans le décor et leurs liens. <b>Réservé quinze jours</b> quand
-              tu en prends un. C'est la même question que les recherches de RP — « qui je
-              joue » — répondue par un rôle qui attend plutôt qu'un rôle à inventer.</p>
+            <span class="wm-encart__etiquette">Changer d'avis</span>
+            <p>Le groupe se change une fois, après un RP qui le raconte. Le physique, le
+              caractère et l'histoire se modifient quand tu veux, sans demander.</p>
           </div>
-          <div class="wm-encart">
-            <span class="wm-encart__etiquette">Les origines de ton avatar</span>
-            <p><b>Le whitewashing et le pocfishing sont interdits.</b> Les avatars d'une même
-              famille doivent avoir <b>au moins une origine en commun</b>. Tu peux aussi
-              choisir de ne pas mentionner l'ethnie ou les origines de ton personnage. En cas
-              de doute, demande — on cherche avec toi.</p>
-          </div>
-        </div>
-
-        <!-- ── ce qu'il n'y a pas ────────────────────────────────── -->
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Ce qu'on ne te demandera pas</h2>
-          <ul class="wm-tirets">
-            <li><b>Aucune question anti-bot</b> à l'inscription.</li>
-            <li><b>Aucun minimum de lignes</b> pour la fiche.</li>
-            <li><b>Aucun dé à lancer</b>, aucune calculatrice à ouvrir : le serveur tire,
-              calcule et poste, avec un code que tu peux vérifier.</li>
-            <li><b>Aucune compétition</b> pour un poste vacant ou un faceclaim : le premier
-              inscrit ayant posté sa fiche l'obtient.</li>
-          </ul>
         </div>
 
         <div class="wm-suivante">
-          <span class="wm-lieu">Rhode</span>
-          <a class="wm-suivante__bouton" href="#">Annexe suivante — Le guide du dresseur</a>
+          <a class="wm-suivante__bouton" href="#">
+            <span class="wm-suivante__etiquette">Annexe suivante</span>
+            Le guide du dresseur →
+          </a>
+          <span class="wm-lieu">
+            Le col, sous les Monts Enneigés
+            <b>une question sans réponse ici ? écris au staff</b>
+          </span>
         </div>
 
       </div>

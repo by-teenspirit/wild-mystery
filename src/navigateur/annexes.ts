@@ -41,18 +41,15 @@ export type SectionDAnnexes = {
   readonly entrees: readonly EntreeDAnnexe[];
 };
 
-export type LienDePied = {
-  readonly titre: string;
-  readonly adresse: string;
-};
-
 export type Sommaire = {
   readonly sections: readonly SectionDAnnexes[];
-  readonly piedTitre: string;
-  readonly piedLiens: readonly LienDePied[];
 };
 
-const VIDE: Sommaire = { sections: [], piedTitre: "", piedLiens: [] };
+const VIDE: Sommaire = { sections: [] };
+
+//  PAS DE PIED. J'en avais inventé un — « Pour aller plus loin » et trois
+//  liens — en lisant la description du gabarit. La maquette (`245:1772`)
+//  n'en a pas : sous les douze entrées, il n'y a que du vide.
 
 function texte(v: unknown): string {
   return typeof v === "string" ? v.replace(/\s+/g, " ").trim() : "";
@@ -101,21 +98,7 @@ export function sommaireDepuis(donnees: unknown): Sommaire {
     if (entrees.length > 0) sections.push({ titre: texte(s.titre), entrees });
   }
 
-  const pied = typeof d.pied === "object" && d.pied !== null
-    ? d.pied as Record<string, unknown>
-    : {};
-  const liens: LienDePied[] = [];
-  if (Array.isArray(pied.liens)) {
-    for (const brut of pied.liens) {
-      if (typeof brut !== "object" || brut === null) continue;
-      const l = brut as Record<string, unknown>;
-      const titre = texte(l.titre);
-      const ou = adresse(l.adresse);
-      if (titre !== "" && ou !== null) liens.push({ titre, adresse: ou });
-    }
-  }
-
-  return { sections, piedTitre: texte(pied.titre), piedLiens: liens };
+  return { sections };
 }
 
 /** Le slug de la page courante, lu dans l'adresse.

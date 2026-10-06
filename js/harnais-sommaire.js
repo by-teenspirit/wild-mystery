@@ -1,9 +1,7 @@
 (() => {
   // src/navigateur/annexes.ts
   var VIDE = {
-    sections: [],
-    piedTitre: "",
-    piedLiens: []
+    sections: []
   };
   function texte(v) {
     return typeof v === "string" ? v.replace(/\s+/g, " ").trim() : "";
@@ -40,24 +38,8 @@
         entrees
       });
     }
-    const pied = typeof d.pied === "object" && d.pied !== null ? d.pied : {};
-    const liens = [];
-    if (Array.isArray(pied.liens)) {
-      for (const brut of pied.liens) {
-        if (typeof brut !== "object" || brut === null) continue;
-        const l = brut;
-        const titre = texte(l.titre);
-        const ou = adresse(l.adresse);
-        if (titre !== "" && ou !== null) liens.push({
-          titre,
-          adresse: ou
-        });
-      }
-    }
     return {
-      sections,
-      piedTitre: texte(pied.titre),
-      piedLiens: liens
+      sections
     };
   }
   function slugDepuisAdresse(chemin) {
@@ -91,10 +73,7 @@
     corps.className = "wm-annexe__lien";
     if (cliquable && e.adresse !== null) corps.href = e.adresse;
     if (e.active) corps.setAttribute("aria-current", "page");
-    if (e.numero !== "") {
-      corps.appendChild(element(doc, "span", "wm-annexe__numero", e.numero));
-    }
-    corps.appendChild(element(doc, "span", "wm-annexe__titre-entree", e.titre));
+    corps.appendChild(doc.createTextNode(e.numero === "" ? e.titre : `${e.numero} \xB7 ${e.titre}`));
     if (e.aVenir) {
       corps.appendChild(element(doc, "span", "wm-annexe__a-venir", "\xE0 venir"));
     }
@@ -118,32 +97,13 @@
     if (sections.length === 0) return false;
     trou.textContent = "";
     const entete = element(doc, "div", "wm-annexe__entete");
+    const logo = element(doc, "div", "wm-annexe__logo");
+    logo.setAttribute("aria-hidden", "true");
+    entete.appendChild(logo);
     entete.appendChild(element(doc, "p", "wm-annexe__enseigne", "Les annexes"));
     trou.appendChild(entete);
     sections.forEach((s, i) => trou.appendChild(sectionEnDOM(doc, s, i === 0)));
-    const pied = piedEnDOM(doc, donnees);
-    if (pied !== null) trou.appendChild(pied);
     return true;
-  }
-  function piedEnDOM(doc, donnees) {
-    const { piedTitre, piedLiens } = sommaireDepuis(donnees);
-    if (piedLiens.length === 0) return null;
-    const pied = element(doc, "div", "wm-annexe__pied");
-    if (piedTitre !== "") {
-      pied.appendChild(element(doc, "p", "wm-annexe__intertitre", piedTitre));
-    }
-    const liste = element(doc, "ul", "wm-annexe__liste");
-    for (const l of piedLiens) {
-      const li = element(doc, "li", "wm-annexe__entree");
-      const a = doc.createElement("a");
-      a.className = "wm-annexe__lien";
-      a.href = l.adresse;
-      a.appendChild(element(doc, "span", "wm-annexe__titre-entree", l.titre));
-      li.appendChild(a);
-      liste.appendChild(li);
-    }
-    pied.appendChild(liste);
-    return pied;
   }
 
   // js/harnais-sommaire.ts

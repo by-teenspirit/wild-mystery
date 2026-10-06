@@ -67,12 +67,16 @@ function entreeEnDOM(doc: Document, e: EntreeAffichee): HTMLElement {
   if (cliquable && e.adresse !== null) (corps as HTMLAnchorElement).href = e.adresse;
   if (e.active) corps.setAttribute("aria-current", "page");
 
-  if (e.numero !== "") {
-    corps.appendChild(element(doc, "span", "wm-annexe__numero", e.numero));
-  }
-  corps.appendChild(element(doc, "span", "wm-annexe__titre-entree", e.titre));
-  //  « à venir » est écrit, pas seulement grisé : un gris ne se lit pas à
-  //  haute voix, et il ne dit pas pourquoi l'entrée ne répond pas.
+  //  « 01 · PAR OÙ COMMENCER » en UN SEUL texte, comme la maquette :
+  //  numéro et titre séparés d'un point médian, pas deux colonnes. Avec
+  //  deux colonnes, les titres longs se décalaient d'une ligne à l'autre
+  //  et le sommaire perdait sa régularité.
+  corps.appendChild(
+    doc.createTextNode(e.numero === "" ? e.titre : `${e.numero} · ${e.titre}`),
+  );
+  //  « à venir » est écrit, pas seulement pâli : un gris ne se lit pas à
+  //  haute voix, et il ne dit pas pourquoi l'entrée ne répond pas. La
+  //  maquette n'a pas cet état — chez elle les douze pages existent.
   if (e.aVenir) {
     corps.appendChild(element(doc, "span", "wm-annexe__a-venir", "à venir"));
   }
@@ -123,40 +127,15 @@ export function poserLeSommaire({ doc, donnees }: Dependances): boolean {
   trou.textContent = "";
 
   const entete = element(doc, "div", "wm-annexe__entete");
+  //  Le cercle de 84 px en pointillés de la maquette : un repère de
+  //  calage, en attendant le logo (planche 46). `aria-hidden` parce
+  //  qu'un rond vide n'a rien à annoncer.
+  const logo = element(doc, "div", "wm-annexe__logo");
+  logo.setAttribute("aria-hidden", "true");
+  entete.appendChild(logo);
   entete.appendChild(element(doc, "p", "wm-annexe__enseigne", "Les annexes"));
   trou.appendChild(entete);
 
   sections.forEach((s, i) => trou.appendChild(sectionEnDOM(doc, s, i === 0)));
-
-  const pied = piedEnDOM(doc, donnees);
-  if (pied !== null) trou.appendChild(pied);
   return true;
-}
-
-/** Le pied « Pour aller plus loin », s'il a au moins un lien.
- *
- *  Sans lien il ne s'affiche pas : un titre suivi de rien a l'air d'un
- *  bogue. Aujourd'hui il n'en porte qu'un — le bottin et les recherches
- *  de RP ne sont pas visibles depuis un compte déconnecté, et je ne
- *  devine pas une adresse que je n'ai pas mesurée. */
-function piedEnDOM(doc: Document, donnees: unknown): HTMLElement | null {
-  const { piedTitre, piedLiens } = sommaireDepuis(donnees);
-  if (piedLiens.length === 0) return null;
-
-  const pied = element(doc, "div", "wm-annexe__pied");
-  if (piedTitre !== "") {
-    pied.appendChild(element(doc, "p", "wm-annexe__intertitre", piedTitre));
-  }
-  const liste = element(doc, "ul", "wm-annexe__liste");
-  for (const l of piedLiens) {
-    const li = element(doc, "li", "wm-annexe__entree");
-    const a = doc.createElement("a");
-    a.className = "wm-annexe__lien";
-    a.href = l.adresse;
-    a.appendChild(element(doc, "span", "wm-annexe__titre-entree", l.titre));
-    li.appendChild(a);
-    liste.appendChild(li);
-  }
-  pied.appendChild(liste);
-  return pied;
 }

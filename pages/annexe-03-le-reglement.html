@@ -1,25 +1,22 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      Annexe 03 · Le règlement — à coller dans une page HTML Forumactif.
 
-     DEUX CHOSES À FAIRE EN CRÉANT LA PAGE :
+     REPRIS SUR LA MAQUETTE `245:1772`, le 6 octobre. La première version
+     de cette page transposait le règlement de la V1 — deux mille mots.
+     La maquette en fait un règlement COURT : huit points, deux cartes,
+     deux encarts, et « le reste se règle en parlant ». C'est une
+     décision de ton, pas une mise en page, et je l'avais ratée.
 
-       1. « Utiliser le header et footer du forum » = OUI. Sans ça, ni
-          notre feuille ni notre script n'arrivent sur la page, et elle
-          s'affiche en HTML nu. C'est le défaut des onze pages /h1 à /h12
-          déjà en ligne.
-       2. Le titre de la page doit finir par « -le-reglement » dans
-          l'adresse (par exemple /h20-le-reglement) : c'est ce slug que
-          le sommaire reconnaît pour se surligner. Il est déclaré dans
-          data/annexes.json, où il faut aussi reporter l'adresse obtenue.
+     Le texte ci-dessous est celui de la maquette, au mot près.
+
+     DEUX CHOSES EN CRÉANT LA PAGE :
+       1. « Utiliser le header et footer du forum » = OUI.
+       2. L'adresse doit finir par « -reglement » (elle l'est déjà :
+          /h3-reglement), et cette adresse est déclarée dans
+          data/annexes.json pour que le sommaire se surligne.
 
      Le sommaire n'est PAS dans ce fichier : le `<nav data-wm-sommaire>`
-     est un trou que le script remplit depuis data/annexes.json. Les
-     douze pages portent donc le même sommaire sans qu'aucune le recopie.
-
-     SOURCE DU TEXTE : planche 41, réécrite selon la planche 40 —
-     l'automatisation remplace les dés, une seule monnaie, un seul
-     système de clans. La sanction du quota de solos, perdue dans la
-     version en ligne, est remise (planche 41, « Les deux ajouts datés »).
+     est un trou que le script remplit depuis data/annexes.json.
      ═══════════════════════════════════════════════════════════════════ -->
 
 <div class="wm-annexe">
@@ -32,191 +29,66 @@
       <p class="wm-annexe__surtitre">Annexe 03</p>
       <h1 class="wm-annexe__titre">Le <em>règlement</em></h1>
       <p class="wm-annexe__chapo">
-        À lire avant de s'inscrire. Il est le même pour tout le monde, quel que soit le rôle
-        ou le statut — invités compris. Il pourra changer si le forum change.
+        Court, parce qu'un règlement long ne se lit pas. Tout tient en huit points, et le
+        reste se règle en parlant.
       </p>
 
       <div class="wm-annexe__blocs">
 
-        <!-- ── la célébrité ──────────────────────────────────────── -->
         <div class="wm-carte">
-          <h2 class="wm-carte__titre">Choisir sa célébrité</h2>
+          <h2 class="wm-carte__titre">Entre nous</h2>
           <ul class="wm-tirets">
-            <li><b>200 × 320 px ou 400 × 640 px</b>, et une personne réelle et célèbre — pas
-              de manga, pas de dessin, pas d'inconnu.</li>
-            <li><b>Pas de doublon d'avatar</b>, sauf pour des jumeaux. Vérifie le bottin
-              avant de construire un personnage autour d'une célébrité déjà prise.</li>
-            <li><b>Évite la nudité excessive</b> et ce qui pourrait heurter.</li>
-            <li><b>L'écart d'âge</b> entre le personnage et son faceclaim n'est pas regardé de
-              près — reste cohérent avec les ressources dont tu disposes.</li>
+            <li><b>On se respecte.</b> Le personnage peut être odieux ; le joueur, non. Un
+              désaccord se règle en MP, pas dans un RP.</li>
+            <li><b>Un RP par mois.</b> C'est la seule règle de rythme, et elle se compte sur
+              l'ensemble de tes personnages. Dans un sujet, en revanche, rien ne presse :
+              aucun délai de réponse, aucune relance automatique. Préviens juste si tu
+              t'absentes longtemps.</li>
+            <li><b>Le hors-jeu reste hors-jeu.</b> Ton personnage ne sait pas ce que tu sais.
+              C'est la seule règle d'écriture qu'on tient vraiment.</li>
+          </ul>
+        </div>
+
+        <div class="wm-carte">
+          <h2 class="wm-carte__titre">En jeu</h2>
+          <ul class="wm-tirets">
+            <li><b>Cent mots minimum</b> pour déclencher une rencontre. En dessous, tu écris
+              quand même, tu ne croises simplement personne.</li>
+            <li><b>Tu ne lances rien toi-même.</b> Rencontres, captures, fouilles, éclosions :
+              le serveur tire, affiche un code de vérification, et le résultat est
+              définitif.</li>
+            <li><b>Un compte par personnage,</b> rattaché publiquement à ton compte joueur.
+              Deux de tes personnages ne peuvent pas jouer le même combat ni s'échanger des
+              objets.</li>
+            <li><b>Une défaite ne coûte pas cher</b> : le sujet se clôt, tu perds 5 % de ton
+              argent, plafonné à 200 ₽. Aucun pokémon n'est jamais perdu.</li>
+            <li><b>Images officielles</b> pour les pokémons, les objets et les types ; avatars
+              de personnes réelles pour les personnages. Pas de personnage canon.</li>
           </ul>
         </div>
 
         <div class="wm-encarts">
           <div class="wm-encart wm-encart--terre">
-            <span class="wm-encart__etiquette">Les personnages mineurs</span>
-            <p>Jouables <b>à partir de dix ans</b> — c'est l'âge moyen du premier pokémon.
-              <b>Toute relation sexuelle, amoureuse ou toxique entre un personnage majeur et
-              un personnage mineur est interdite</b>, consentie ou non.</p>
+            <span class="wm-encart__etiquette">La validation</span>
+            <p>Les fiches sont relues par le staff en un ou deux jours. On corrige avec toi ;
+              un refus sec n'arrive pas.</p>
           </div>
           <div class="wm-encart">
-            <span class="wm-encart__etiquette">Les origines</span>
-            <p><b>Le whitewashing et le pocfishing sont interdits</b>, et nous serons
-              intransigeants. Les avatars d'une même famille doivent avoir <b>au moins une
-              origine en commun</b>. Tu peux aussi choisir de ne pas mentionner l'ethnie ou
-              les origines de ton personnage.</p>
+            <span class="wm-encart__etiquette">Si ça dérape</span>
+            <p>Prévenir un membre du staff suffit. On ne sanctionne jamais sans avoir entendu
+              les deux personnes.</p>
           </div>
         </div>
 
-        <div class="wm-paras">
-          <p>Si tu ne connais pas les origines de ton avatar, <i>Ethnicity of Celebs</i> les
-            donne — et on peut t'aider à chercher. Nous ne nous proclamons pas experts du
-            sujet et nous ferons des erreurs ; nous nous engageons à nous remettre en
-            question et à faire évoluer ces règles. Nous nous réservons en revanche le droit
-            de refuser un choix qui profiterait d'un manque de précision du règlement.</p>
-        </div>
-
-        <!-- ── avant la validation ───────────────────────────────── -->
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Avant la validation</h2>
-          <ul class="wm-tirets">
-            <li><b>Le pseudo</b> se construit d'un prénom (ou surnom) et d'un nom de famille,
-              au format que tu veux, <b>sans dépasser 28 caractères</b> — au-delà, le codage
-              du forum se déforme.</li>
-            <li><b>Trois jours</b> pour poster ta fiche de présentation, même vide : c'est ce
-              qui réserve ton avatar.</li>
-            <li><b>Dix jours</b> pour la terminer, et des délais supplémentaires si tu en as
-              besoin — demande, c'est tout.</li>
-            <li><b>Un personnage des animés, des jeux ou des mangas</b> est jouable. Reste
-              cohérent avec Rhode : nous sommes <b>dix ans après Pokémon XD, Le Souffle des
-              Ténèbres</b>, donc dix ans ont passé pour tout le monde.</li>
-            <li><b>Pas de compétition entre joueurs</b> pour un poste vacant ou un faceclaim :
-              le premier inscrit ayant posté sa fiche l'obtient. Pour les pré-liens et les
-              scénarios, c'est leur auteur qui décide.</li>
-          </ul>
-        </div>
-
-        <div class="wm-encarts">
-          <div class="wm-encart wm-encart--paisible">
-            <span class="wm-encart__etiquette">Ton starter</span>
-            <p>Une fois ta fiche postée, <b>le serveur tire ton pokémon de départ</b> et le
-              poste avec son code de vérification. Rien à lancer, rien à calculer, rien à
-              recopier : tu écris, le reste se fait tout seul, et tu peux vérifier.</p>
-          </div>
-          <div class="wm-encart">
-            <span class="wm-encart__etiquette">Ton clan</span>
-            <p><b>Tu choisis ton clan</b> parmi les six — Ho-Oh, Reshiram, Deoxys, Xerneas,
-              Zamazenta, Mew. Il dit le métier et la place de ton personnage dans la région ;
-              il n'est jamais tiré au sort.</p>
-          </div>
-        </div>
-
-        <!-- ── les RP ────────────────────────────────────────────── -->
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Les RP</h2>
-          <div class="wm-table">
-            <div class="wm-table__ligne wm-table__ligne--entete">
-              <span class="wm-table__cellule">La règle</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">Combien</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule">Réponses RP minimum, tous personnages
-                confondus</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">1 / mois</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule">RP solos par mois</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">2 max</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule">RP simultanés</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">sans limite</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule">Minimum de mots, solo en zone sauvage</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">100 mots</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule">Tri des membres en danger</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">1 / semaine</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="wm-paire">
-          <div class="wm-carte">
-            <h2 class="wm-carte__titre">Le quota de solos</h2>
-            <div class="wm-paras">
-              <p>Pas de limite de RP simultanés, <b>du moment que tu as le nombre d'objets ou
-                de places nécessaires à la clôture</b>. Mais pas plus de deux solos par mois —
-                et <b>nous n'accepterons pas la clôture d'un nouveau solo si le quota est
-                dépassé</b>. C'est la sanction, et c'est ce qui rend la règle applicable.</p>
-            </div>
-          </div>
-          <div class="wm-carte">
-            <h2 class="wm-carte__titre">Pas de minimum ailleurs</h2>
-            <div class="wm-paras">
-              <p>Aucun minimum de lignes pour les multijoueurs, les évents ou les solos hors
-                capture. Tu es là pour te faire plaisir, pas pour remplir une jauge. <b>Les
-                cent mots du solo en zone sauvage</b> sont là pour éviter les abus, rien de
-                plus.</p>
-              <p>Tu peux <b>jouer les dialogues ou tout un RP en langue étrangère</b> avec
-                l'accord de ton partenaire ; mets la traduction en hide ou en spoiler pour
-                ceux qui ne la parlent pas.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── les multicomptes ──────────────────────────────────── -->
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Les multicomptes</h2>
-          <ul class="wm-tirets">
-            <li><b>Les doubles-comptes sont acceptés</b> avec plaisir, et sans exigence
-              particulière. Les quelques règles et la liste des DC en cours sont dans le sujet
-              dédié.</li>
-            <li><b>Pas de maximum</b>, mais reste cohérent avec ton temps : <b>chaque
-              personnage est soumis séparément à la règle des membres en danger</b>. Être
-              très actif avec l'un n'empêche pas un autre d'être en danger.</li>
-          </ul>
-        </div>
-
-        <!-- ── le respect ────────────────────────────────────────── -->
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Le respect sur le forum</h2>
-          <div class="wm-paras">
-            <p><b>Aucune insulte n'est tolérée</b>, et le respect est de mise entre joueurs,
-              invités et administration, hors RP comme en RP. <b>Tout propos ou comportement
-              discriminatoire sera sévèrement puni, de la suppression au bannissement, sans
-              négociation possible</b> — le cyber-harcèlement également. Si tu fais face à
-              l'une de ces situations sur le forum, viens en parler à un membre de
-              l'administration.</p>
-            <p>Aucun type de relation n'est interdit entre personnages ; reste cohérent avec
-              l'univers et utilise les balises <code>hide</code> ou <code>tw</code> quand tes
-              propos peuvent heurter. Nous sommes avant tout sur un thème Pokémon, même si le
-              contexte est sombre, et <b>de jeunes joueurs peuvent nous rejoindre</b>.</p>
-          </div>
-        </div>
-
-        <div class="wm-encarts">
-          <div class="wm-encart wm-encart--terre">
-            <span class="wm-encart__etiquette">Les trigger warnings</span>
-            <p>Un <b>champ de profil</b> dit les limites du joueur en face de toi : <b>il est
-              demandé de les respecter</b>. Au moindre doute, parle-lui. Et <b>signale les
-              trigger warnings dans la description de ton sujet et en tête de chacun de tes
-              messages</b>.</p>
-          </div>
-          <div class="wm-encart">
-            <span class="wm-encart__etiquette">Un pavé, et on s'en excuse</span>
-            <p>Lis-le en plusieurs fois si tu veux, et relis-le si un doute te saisit. Bon jeu
-              sur Wild Mystery.</p>
-          </div>
-        </div>
-
-        <!-- ── le pied ───────────────────────────────────────────── -->
         <div class="wm-suivante">
-          <span class="wm-lieu">Rhode</span>
-          <a class="wm-suivante__bouton" href="#">Annexe suivante — Créer son
-            personnage</a>
+          <a class="wm-suivante__bouton" href="#">
+            <span class="wm-suivante__etiquette">Annexe suivante</span>
+            Créer son personnage →
+          </a>
+          <span class="wm-lieu">
+            La Lande Broussailleuse
+            <b>une question sans réponse ici ? écris au staff</b>
+          </span>
         </div>
 
       </div>

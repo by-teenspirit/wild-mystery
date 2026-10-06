@@ -62,8 +62,6 @@ Deno.test("un sommaire complet se lit entier", () => {
   ]);
   assertEquals(s.sections[0].entrees[0].adresse, null);
   assertEquals(s.sections[0].entrees[1].adresse, "/h20-le-reglement");
-  assertEquals(s.piedTitre, "Pour aller plus loin");
-  assertEquals(s.piedLiens, [{ titre: "La boutique", adresse: "/t977-x" }]);
 });
 
 Deno.test("un fichier illisible rend un sommaire vide, il ne lève pas", () => {
@@ -72,7 +70,6 @@ Deno.test("un fichier illisible rend un sommaire vide, il ne lève pas", () => {
   for (const brut of [null, undefined, 3, "non", [], {}, { sections: "deux" }]) {
     const s = sommaireDepuis(brut);
     assertEquals(s.sections.length, 0, JSON.stringify(brut ?? null));
-    assertEquals(s.piedLiens.length, 0);
   }
 });
 
@@ -137,23 +134,6 @@ Deno.test("une adresse qui n'est pas interne au forum est refusée", () => {
   assertEquals(bonne.sections[0].entrees[0].adresse, "/h20-le-reglement");
 });
 
-Deno.test("un lien de pied sans titre ou sans adresse ne passe pas", () => {
-  const s = sommaireDepuis({
-    sections: [{ titre: "x", entrees: [{ slug: "a", titre: "A" }] }],
-    pied: {
-      titre: "Pour aller plus loin",
-      liens: [
-        { titre: "Bon", adresse: "/t1-x" },
-        { titre: "", adresse: "/t2-x" },
-        { titre: "Sans adresse" },
-        { titre: "Sortant", adresse: "https://ailleurs.example" },
-        null,
-      ],
-    },
-  });
-  assertEquals(s.piedLiens.map((l) => l.titre), ["Bon"]);
-});
-
 // ── la page courante ────────────────────────────────────────────────
 
 Deno.test("le slug se lit dans l'adresse", () => {
@@ -213,6 +193,6 @@ Deno.test("UNE PAGE PAS ENCORE CRÉÉE EST MARQUÉE « À VENIR »", () => {
 });
 
 Deno.test("un sommaire vide rend un affichage vide", () => {
-  const vide: Sommaire = { sections: [], piedTitre: "", piedLiens: [] };
+  const vide: Sommaire = { sections: [] };
   assertEquals(sommaireAffiche(vide, "le-reglement").length, 0);
 });
