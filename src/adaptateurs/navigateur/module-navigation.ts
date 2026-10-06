@@ -219,22 +219,88 @@ function panneauEnDOM(doc: Document, nav: Navigation): HTMLElement {
   return panneau;
 }
 
+/** Le bouton « Associer un personnage », ou `null` si le switcheroo n'est
+ *  pas là.
+ *
+ *  ── POURQUOI IL EXISTE, ET POURQUOI IL MANQUAIT ─────────────────────
+ *
+ *  **Le switcheroo démarre VIDE.** Lu dans son code : il garde sa liste
+ *  dans `localStorage`, et sur un navigateur qui ne l'a jamais vu il
+ *  l'initialise à `[]`. Il ne dessine alors qu'une seule pastille — le
+ *  « + » qui ouvre son formulaire de connexion. Même le compte déjà
+ *  connecté n'y est pas tant qu'on ne l'a pas associé.
+ *
+ *  Or ce « + » vit dans son conteneur, que nous cachons. Résultat :
+ *  **aucun personnage ne pouvait jamais être ajouté**, et « Mes
+ *  personnages » restait vide pour l'éternité. C'est exactement ce que
+ *  Callista a vu le 6 octobre.
+ *
+ *  On relaie donc son bouton, comme on relaie ses pastilles. Le
+ *  formulaire qu'il ouvre est posé sur `body` par `monomer`, donc en
+ *  dehors de notre conteneur caché : il s'affiche. */
+function boutonAssocier(doc: Document): HTMLElement | null {
+  if (doc.querySelector('[data-action="open-login"]') === null) return null;
+
+  const li = element(doc, "li", "wm-panneau__personnage wm-panneau__personnage--ajout");
+  const b = doc.createElement("button");
+  b.type = "button";
+  b.className = "wm-panneau__carte wm-panneau__carte--ajout";
+  b.addEventListener("click", () => {
+    //  Relu au clic, comme les pastilles : le switcheroo redessine sa
+    //  liste à chaque bascule, et le bouton d'alors n'est plus dans la
+    //  page.
+    doc.querySelector<HTMLElement>('[data-action="open-login"]')?.click();
+  });
+
+  const vignette = element(doc, "span", "wm-panneau__vignette wm-panneau__vignette--plus", "+");
+  vignette.setAttribute("aria-hidden", "true");
+  b.appendChild(vignette);
+
+  const texte = element(doc, "span", "wm-panneau__infos");
+  texte.appendChild(element(doc, "span", "wm-panneau__nom", "Associer un personnage"));
+  b.appendChild(texte);
+
+  li.appendChild(b);
+  return li;
+}
+
 /** Remplit « Mes personnages » depuis le switcheroo, maintenant.
  *
- *  Appelée à chaque ouverture du panneau. Si le switcheroo n'a encore
- *  rien dessiné — ou s'il n'est pas là du tout — la section disparaît
- *  plutôt que d'afficher un titre suivi de rien. */
+ *  Appelée à chaque ouverture du panneau — le switcheroo se charge après
+ *  nous et redessine sa liste.
+ *
+ *  **La section s'affiche dès que le switcheroo est là**, même sans aucun
+ *  personnage : c'est elle qui porte « Associer un personnage », et sans
+ *  elle il n'y a aucun moyen d'en ajouter un. Elle ne disparaît que
+ *  lorsqu'il n'y a rien du tout à montrer — switcheroo absent, donc ni
+ *  liste ni bouton.
+ *
+ *  Rend le nombre de personnages lus, le bouton non compris. */
 export function remplirLesPersonnages(doc: Document, panneau: Element): number {
   const zone = panneau.querySelector(".wm-panneau__personnages");
   if (zone === null) return 0;
   zone.textContent = "";
 
   const personnages = personnagesDeLaPage(doc);
-  if (personnages.length === 0) return 0;
+  const ajout = boutonAssocier(doc);
+  if (personnages.length === 0 && ajout === null) return 0;
 
   zone.appendChild(element(doc, "p", "wm-panneau__titre-section", "Mes personnages"));
+
+  //  Dit pourquoi la liste est vide, plutôt que de laisser un titre seul
+  //  au-dessus d'un bouton. « Rien » n'explique rien.
+  if (personnages.length === 0) {
+    zone.appendChild(element(
+      doc,
+      "p",
+      "wm-panneau__vide",
+      "Aucun personnage associé sur ce navigateur.",
+    ));
+  }
+
   const liste = element(doc, "ul", "wm-panneau__liste");
   for (const p of personnages) liste.appendChild(personnageEnDOM(doc, p));
+  if (ajout !== null) liste.appendChild(ajout);
   zone.appendChild(liste);
   return personnages.length;
 }
@@ -311,50 +377,130 @@ function poserLaBarre(doc: Document, nav: Navigation): HTMLButtonElement | null 
 
 // ── la barre Forumactif ─────────────────────────────────────────────
 
-/** Le menu du compte, accroché au lien que la barre Forumactif porte.
+/** Une entrée du menu du compte : la pastille d'icône, puis le libellé.
  *
- *  **La déconnexion est reprise, jamais fabriquée** : son adresse porte
- *  un jeton de session. On cherche l'ancre existante et on la déplace
- *  dans le menu ; si on ne la trouve pas, le menu n'a pas d'entrée de
- *  déconnexion — ce qui est préférable à une qui ne marche pas. */
-function menuDuCompte(doc: Document, nav: Navigation, identifiant: number | null): HTMLElement {
+ *  La maquette `390:3636` en fait une gélule blanche à bord arrondi
+ *  complet, avec l'icône dans un rond d'accent à gauche. */
+function entreeDeCompteEnDOM(
+  doc: Document,
+  nomDIcone: string,
+  titre: string,
+  ou: string | null,
+): HTMLElement {
+  const li = element(doc, "li", "wm-compte__entree");
+  const corps = doc.createElement(ou === null ? "span" : "a");
+  corps.className = "wm-compte__lien";
+  if (ou !== null) (corps as HTMLAnchorElement).href = ou;
+  else li.classList.add("wm-compte__entree--a-venir");
+
+  const pastille = element(doc, "span", "wm-compte__pastille");
+  pastille.setAttribute("aria-hidden", "true");
+  const ico = icone(doc, nomDIcone);
+  if (ico !== null) pastille.appendChild(ico);
+  corps.appendChild(pastille);
+
+  corps.appendChild(element(doc, "span", "wm-compte__titre", titre));
+  if (ou === null) corps.appendChild(element(doc, "span", "wm-panneau__a-venir", "à venir"));
+  li.appendChild(corps);
+  return li;
+}
+
+/** Le menu du compte, tel que la maquette `390:3636` le montre.
+ *
+ *  ── CE QU'ELLE MONTRE ───────────────────────────────────────────────
+ *
+ *  Un cadre de 347 × 240 à fond blanc translucide : à gauche l'avatar
+ *  dans son cadre à filet, au format 200/320 comme partout ailleurs ; à
+ *  droite une colonne de 181 px, six gélules blanches de 28 px espacées
+ *  de 8, chacune avec son rond d'accent et son libellé en capitales.
+ *
+ *  ── L'AVATAR NE S'INJECTE PAS ───────────────────────────────────────
+ *
+ *  Forumactif met du HTML dans `_userdata.avatar`. On en tire la source
+ *  et on fabrique notre `<img>` ; on n'écrit jamais ce fragment dans la
+ *  page. Sans avatar, la colonne de droite prend tout — le menu n'a pas
+ *  de trou.
+ *
+ *  ── LA DÉCONNEXION EST REPRISE, JAMAIS FABRIQUÉE ────────────────────
+ *
+ *  Son adresse porte un jeton de session. On cherche l'ancre existante et
+ *  on recopie son `href` ; si on ne la trouve pas, le menu n'a pas
+ *  d'entrée de déconnexion — ce qui vaut mieux qu'une qui ne marche pas. */
+function menuDuCompte(
+  doc: Document,
+  nav: Navigation,
+  identifiant: number | null,
+  avatar: string | null,
+): HTMLElement {
   const menu = element(doc, "div", "wm-compte__menu");
   menu.id = "wm-compte-menu";
   menu.setAttribute("hidden", "");
 
+  if (avatar !== null) {
+    const cadre = element(doc, "div", "wm-compte__avatar");
+    const img = doc.createElement("img");
+    img.src = avatar;
+    //  Vide : le nom du compte est juste à côté, dans la barre. Le
+    //  répéter ferait entendre deux fois la même chose.
+    img.alt = "";
+    img.loading = "lazy";
+    cadre.appendChild(img);
+    menu.appendChild(cadre);
+  }
+
   const liste = element(doc, "ul", "wm-compte__liste");
   for (const e of nav.compte) {
-    const ou = adresseDeCompte(e, identifiant);
-    const li = element(doc, "li", "wm-compte__entree");
-    const corps = doc.createElement(ou === null ? "span" : "a");
-    corps.className = "wm-compte__lien";
-    if (ou !== null) (corps as HTMLAnchorElement).href = ou;
-    else li.classList.add("wm-compte__entree--a-venir");
-    const ico = icone(doc, e.icone);
-    if (ico !== null) corps.appendChild(ico);
-    corps.appendChild(element(doc, "span", "wm-compte__titre", e.titre));
-    if (ou === null) corps.appendChild(element(doc, "span", "wm-panneau__a-venir", "à venir"));
-    li.appendChild(corps);
-    liste.appendChild(li);
+    liste.appendChild(
+      entreeDeCompteEnDOM(doc, e.icone, e.titre, adresseDeCompte(e, identifiant)),
+    );
   }
 
   const sortie = doc.querySelector<HTMLAnchorElement>('a[href*="login"][href*="logout"]') ??
     doc.querySelector<HTMLAnchorElement>('a[href*="mode=logout"]');
   if (sortie !== null) {
-    const li = element(doc, "li", "wm-compte__entree wm-compte__entree--sortie");
-    const a = doc.createElement("a");
-    a.className = "wm-compte__lien";
     //  L'adresse est RECOPIÉE de l'ancre trouvée, jamais reconstruite.
-    a.href = sortie.getAttribute("href") as string;
-    const ico = icone(doc, "logout");
-    if (ico !== null) a.appendChild(ico);
-    a.appendChild(element(doc, "span", "wm-compte__titre", "Déconnexion"));
-    li.appendChild(a);
+    const li = entreeDeCompteEnDOM(
+      doc,
+      "logout",
+      "Déconnexion",
+      sortie.getAttribute("href") as string,
+    );
+    li.classList.add("wm-compte__entree--sortie");
     liste.appendChild(li);
   }
 
   menu.appendChild(liste);
   return menu;
+}
+
+/** Place le menu sous le lien du compte, en coordonnées d'écran.
+ *
+ *  ── POURQUOI PAS UN SIMPLE `position: absolute` DANS LA BARRE ───────
+ *
+ *  Parce que `#fa_toolbar` n'est pas à nous. Elle est posée par
+ *  Forumactif avec ses propres `overflow`, ses propres contextes
+ *  d'empilement et une hauteur de 2,3 em : un menu de 240 px calé dedans
+ *  se fait rogner, et aucun `z-index` ne rattrape un `overflow: hidden`.
+ *
+ *  Le menu vit donc sur `body`, en `position: fixed`, et on le recale à
+ *  chaque ouverture sur la position réelle du lien. */
+function placerLeMenu(doc: Document, ancre: HTMLElement, menu: HTMLElement): void {
+  const r = ancre.getBoundingClientRect();
+  const largeur = doc.defaultView?.innerWidth ?? 0;
+  menu.style.top = `${Math.round(r.bottom + 6)}px`;
+
+  //  ── LES DEUX BORDS, PAS UN SEUL ───────────────────────────────────
+  //
+  //  Aligné à droite sur le lien du compte. Mais un menu de 347 px calé
+  //  sur un lien situé à gauche sort par la GAUCHE de l'écran, et la
+  //  première version ne bornait que le bord droit : mesuré à x = −272,
+  //  l'avatar et la moitié des entrées hors champ.
+  //
+  //  On mesure donc le menu — il est déjà visible quand on arrive ici,
+  //  sans quoi sa largeur vaudrait zéro — et on le borne des deux côtés.
+  const sien = menu.offsetWidth;
+  const maxi = Math.max(8, largeur - sien - 8);
+  menu.style.right = `${Math.min(maxi, Math.max(8, Math.round(largeur - r.right)))}px`;
 }
 
 /** Habille `#fa_right` et y accroche le menu.
@@ -365,6 +511,7 @@ function habillerLaBarreForumactif(
   doc: Document,
   nav: Navigation,
   identifiant: number | null,
+  avatar: string | null,
 ): boolean {
   const droite = doc.querySelector<HTMLElement>("#fa_right");
   if (droite === null) return false;
@@ -383,16 +530,36 @@ function habillerLaBarreForumactif(
     droite.querySelector<HTMLAnchorElement>('a[href*="/profile"]');
   if (compte === null) return true;
 
-  const menu = menuDuCompte(doc, nav, identifiant);
-  droite.appendChild(menu);
+  const menu = menuDuCompte(doc, nav, identifiant, avatar);
+  //  Sur `body`, pas dans la barre : voir `placerLeMenu`.
+  doc.body?.appendChild(menu);
+
+  const basculer = (ouvrir: boolean): void => {
+    //  ON LE MONTRE D'ABORD, ON LE PLACE ENSUITE : un élément `hidden` est
+    //  en `display: none`, et sa largeur vaut zéro — la borne de l'écran
+    //  serait calculée sur rien.
+    menu.toggleAttribute("hidden", !ouvrir);
+    if (ouvrir) placerLeMenu(doc, compte, menu);
+    compte.setAttribute("aria-expanded", String(ouvrir));
+  };
 
   compte.setAttribute("aria-haspopup", "true");
   compte.setAttribute("aria-expanded", "false");
   compte.addEventListener("click", (e) => {
     e.preventDefault();
-    const ouvert = menu.hasAttribute("hidden");
-    menu.toggleAttribute("hidden", !ouvert);
-    compte.setAttribute("aria-expanded", String(ouvert));
+    e.stopPropagation();
+    basculer(menu.hasAttribute("hidden"));
+  });
+
+  //  Un menu flottant se ferme en cliquant à côté et à Échap. Sans ça il
+  //  reste ouvert par-dessus la page qu'on essaie de lire.
+  doc.addEventListener("click", (e) => {
+    if (menu.hasAttribute("hidden")) return;
+    if (e.target instanceof Node && menu.contains(e.target)) return;
+    basculer(false);
+  });
+  doc.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !menu.hasAttribute("hidden")) basculer(false);
   });
   return true;
 }
@@ -405,6 +572,9 @@ export type Dependances = {
   readonly donnees: unknown;
   /** L'identifiant Forumactif du compte connecté, ou `null`. */
   readonly identifiant?: number | null;
+  /** La source de l'avatar du compte, déjà extraite — pas le HTML brut
+   *  que Forumactif met dans `_userdata.avatar`. */
+  readonly avatar?: string | null;
 };
 
 /**
@@ -412,7 +582,7 @@ export type Dependances = {
  * trouvée et réécrite.
  */
 export function poserLaNavigation(
-  { doc, donnees, identifiant = null }: Dependances,
+  { doc, donnees, identifiant = null, avatar = null }: Dependances,
 ): boolean {
   const nav = navigationDepuis(donnees);
   if (nav.liens.length === 0) return false;
@@ -451,9 +621,9 @@ export function poserLaNavigation(
   //  `#fa_toolbar` est posée par un script tiers, après nous. On la
   //  guette, et on arrête de guetter — un observateur qui tourne pour
   //  rien est une fuite.
-  if (!habillerLaBarreForumactif(doc, nav, identifiant)) {
+  if (!habillerLaBarreForumactif(doc, nav, identifiant, avatar)) {
     const guetteur = new MutationObserver(() => {
-      if (habillerLaBarreForumactif(doc, nav, identifiant)) guetteur.disconnect();
+      if (habillerLaBarreForumactif(doc, nav, identifiant, avatar)) guetteur.disconnect();
     });
     guetteur.observe(doc.documentElement, { childList: true, subtree: true });
     setTimeout(() => guetteur.disconnect(), 10_000);

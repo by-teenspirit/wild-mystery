@@ -24,6 +24,7 @@ import {
   lienCourant,
   navigationDepuis,
   personnagesDepuis,
+  sourceDAvatar,
 } from "./navigation.ts";
 
 const DONNEES = {
@@ -184,4 +185,43 @@ Deno.test("un identifiant qui n'est pas un nombre est refusé", () => {
 
 Deno.test("une liste vide rend une liste vide : la section ne s'affiche pas", () => {
   assertEquals(personnagesDepuis([]).length, 0);
+});
+
+// ── l'avatar du compte ──────────────────────────────────────────────
+
+Deno.test("l'avatar se lit dans le HTML que Forumactif pose, jamais injecté", () => {
+  //  C'est bien un fragment de HTML, pas une adresse : c'est pour ça
+  //  qu'on en extrait la source au lieu de l'écrire dans la page.
+  assertEquals(
+    sourceDAvatar('<img src="https://i.servimg.com/u/f12/a.jpg" alt="" />'),
+    "https://i.servimg.com/u/f12/a.jpg",
+  );
+  //  Certains thèmes l'échappent.
+  assertEquals(
+    sourceDAvatar('<img src=\\"https://i.servimg.com/u/f12/b.jpg\\" />'),
+    "https://i.servimg.com/u/f12/b.jpg",
+  );
+  //  Et d'autres posent l'adresse nue.
+  assertEquals(sourceDAvatar("/users/1234/a.png"), "/users/1234/a.png");
+});
+
+Deno.test("PAS D'AVATAR EST UN CAS NORMAL, ET RIEN NE SE DEVINE", () => {
+  for (const brut of ["", "   ", '<img alt="" />', null, undefined, 12, {}]) {
+    assertEquals(sourceDAvatar(brut), null, JSON.stringify(brut) ?? "undefined");
+  }
+});
+
+Deno.test("une source qui n'est pas une image du forum est refusée", () => {
+  //  `javascript:` et `data:` entrent dans un `src` : la source vient
+  //  d'un champ de profil, donc d'un endroit où quelqu'un écrit.
+  for (
+    const mauvais of [
+      '<img src="javascript:alert(1)">',
+      '<img src="data:text/html,<script>">',
+      '<img src="ftp://ailleurs.example/a.png">',
+      "javascript:alert(1)",
+    ]
+  ) {
+    assertEquals(sourceDAvatar(mauvais), null, mauvais);
+  }
 });

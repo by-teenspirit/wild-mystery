@@ -20,7 +20,8 @@
     "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts",
     "test:navigateur": "deno test --allow-env src/navigateur/",
     "harnais": "deno bundle --platform browser --format iife -o js/harnais-sommaire.js js/harnais-sommaire.ts",
-    "contraste": "deno run -A outils/contraste.mjs"
+    "contraste": "deno run -A outils/contraste.mjs",
+    "navigation": "deno run -A outils/navigation.mjs"
   },
   "fmt": {
     "include": [

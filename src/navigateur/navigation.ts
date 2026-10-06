@@ -169,6 +169,32 @@ export function lienCourant(liens: readonly Lien[], chemin: string): Lien | null
   return null;
 }
 
+/** La source de l'avatar, extraite de ce que Forumactif met dans
+ *  `_userdata.avatar`.
+ *
+ *  **Ce n'est pas une adresse, c'est un fragment de HTML** : Forumactif y
+ *  écrit `<img src="…" alt="" />`, parfois avec des guillemets échappés.
+ *  C'est le même constat que fait le switcheroo, qui le lit à l'expression
+ *  régulière plutôt qu'au DOM.
+ *
+ *  On ne l'injecte donc JAMAIS en `innerHTML` : on en tire la seule chose
+ *  dont on a besoin — la source — et on fabrique notre propre `<img>`. Du
+ *  HTML venu d'un champ de profil posé dans la page serait une porte
+ *  ouverte, et une porte qu'on n'a aucune raison d'ouvrir.
+ *
+ *  Rend `null` quand il n'y a pas d'image : un compte sans avatar est un
+ *  cas courant, et le menu s'affiche très bien sans. */
+export function sourceDAvatar(brut: unknown): string | null {
+  if (typeof brut !== "string") return null;
+  //  Déjà une adresse nue, ce que certains thèmes posent.
+  const nu = brut.trim();
+  if (/^(https?:\/\/|\/)[^\s"'<>]+$/.test(nu)) return nu;
+  const trouve = /<img[^>]*\ssrc\s*=\s*\\?["']([^"'\\]+)/i.exec(brut);
+  if (trouve === null) return null;
+  const src = trouve[1].trim();
+  return /^(https?:\/\/|\/)[^\s"'<>]+$/.test(src) ? src : null;
+}
+
 export type Personnage = {
   readonly nom: string;
   /** L'identifiant que le switcheroo porte sur sa pastille (`data-id`).

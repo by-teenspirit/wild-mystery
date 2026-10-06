@@ -273,9 +273,57 @@
   text-decoration: none;
 }
 
+/*  `button` AUTANT QUE `a` : une carte de personnage est un bouton — le
+    switcheroo n'a pas d'adresse de bascule —, et la première version ne
+    visait que les ancres. Les cartes ne réagissaient donc pas au survol,
+    alors qu'elles sont la seule chose cliquable de la section. */
 #modernbb a.wm-panneau__carte:hover,
-#modernbb a.wm-panneau__carte:focus-visible {
+#modernbb a.wm-panneau__carte:focus-visible,
+#modernbb button.wm-panneau__carte:hover,
+#modernbb button.wm-panneau__carte:focus-visible {
   background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  Une carte qui est un bouton n'hérite d'aucun style de bouton : ni la
+    police, ni l'alignement, ni le cadre. */
+#modernbb button.wm-panneau__carte {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  text-align: left;
+}
+
+/*  ── « ASSOCIER UN PERSONNAGE » ────────────────────────────────────
+
+    LE SWITCHEROO DÉMARRE VIDE : il garde sa liste dans `localStorage`, et
+    sur un navigateur qui ne l'a jamais vu elle vaut `[]`. Son seul bouton
+    d'ajout vit dans son conteneur, que nous cachons — donc sans cette
+    carte, personne ne peut associer un seul personnage. C'est ce qui
+    faisait que « Mes personnages » restait vide pour toujours. */
+#modernbb .wm-panneau__carte--ajout {
+  background: transparent;
+  border: 1px dashed var(--wm-bord-net, #d9c3b1);
+}
+
+#modernbb .wm-panneau__vignette--plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--wm-bord-net, #d9c3b1);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: 1;
+}
+
+/*  Dit POURQUOI la liste est vide. Un titre seul au-dessus d'un bouton
+    laisse croire à une panne. */
+#modernbb .wm-panneau__vide {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
 }
 
 /*  34 × 50, comme la maquette : un portrait, pas une vignette carrée. */
@@ -324,49 +372,84 @@
   white-space: nowrap;
 }
 
-/* ── 4 · le menu du compte, sur la barre Forumactif ───────────────── */
+/* ── 4 · le menu du compte (maquette 390:3636) ────────────────────── */
 
-/*  `#fa_right` est posée par Forumactif avec ses propres styles : on
-    insiste sur l'identifiant plutôt que d'ajouter des `!important`. */
-#fa_toolbar #fa_right.wm-compte {
-  position: relative;
-}
+/*  ── IL VIT SUR `body`, PAS DANS LA BARRE FORUMACTIF ───────────────
 
-#fa_toolbar .wm-compte__menu {
-  position: absolute;
-  z-index: 70;
-  top: calc(100% + 6px);
-  right: 0;
-  min-width: 232px;
-  padding: var(--wm-espace-8, 8px);
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
+    `#fa_toolbar` n'est pas à nous : Forumactif la pose avec sa propre
+    hauteur de 2,3 em, ses `overflow` et ses contextes d'empilement. Un
+    menu de 240 px calé dedans se fait rogner, et aucun `z-index` ne
+    rattrape un `overflow: hidden` sur un ancêtre.
+
+    Le menu est donc posé sur le corps de page, en coordonnées d'écran, et
+    `placerLeMenu` le recale sous le lien du compte à chaque ouverture.
+
+    `#fa_right` garde quand même sa classe : c'est elle qui marque la
+    barre comme habillée, et elle sert de prise si on veut la retoucher. */
+#modernbb .wm-compte__menu {
+  position: fixed;
+  z-index: 80;
+  display: flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  max-width: calc(100vw - 16px);
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  /*  La maquette met un blanc translucide : la page se devine derrière,
+      et le menu ne se lit pas comme une seconde page. */
+  background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 86%, transparent);
+  backdrop-filter: blur(6px);
   text-align: left;
 }
 
-#fa_toolbar .wm-compte__menu[hidden] {
+#modernbb .wm-compte__menu[hidden] {
   display: none;
 }
 
-#fa_toolbar .wm-compte__liste {
+/*  L'avatar, au format 200/320 comme partout ailleurs sur le forum —
+    c'est le rapport des portraits de la charte, pas un carré rogné. */
+#modernbb .wm-compte__avatar {
+  display: flex;
+  box-sizing: border-box;
+  align-self: stretch;
+  flex: 0 0 auto;
+  padding: var(--wm-espace-4, 4px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-compte__avatar img {
+  display: block;
+  width: 124px;
+  aspect-ratio: 200 / 320;
+  border-radius: var(--wm-rayon-sm, 6px);
+  object-fit: cover;
+}
+
+#modernbb .wm-compte__liste {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   margin: 0;
   padding: 0;
-  gap: var(--wm-espace-4, 4px);
+  gap: var(--wm-espace-8, 8px);
   list-style: none;
 }
 
-#fa_toolbar .wm-compte__lien {
+/*  Une gélule blanche à arrondi complet : c'est la forme de la maquette,
+    et elle distingue ces entrées des lignes carrées du panneau latéral. */
+#modernbb .wm-compte__lien {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  min-height: 36px;
-  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
-  gap: var(--wm-espace-10, 10px);
-  border-radius: var(--wm-rayon-md, 8px);
-  color: var(--wm-accent-fort, #1f5470);
+  min-width: 181px;
+  padding: var(--wm-espace-4, 4px);
+  gap: var(--wm-espace-4, 4px);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -375,35 +458,204 @@
   text-transform: uppercase;
 }
 
-#fa_toolbar a.wm-compte__lien:hover,
-#fa_toolbar a.wm-compte__lien:focus-visible {
-  background: var(--wm-fond-douce, #f3e1d2);
-  text-decoration: underline;
+/*  Le rond d'accent qui porte l'icône. 20 px de rond, 12 px de glyphe —
+    les mesures de la maquette. */
+#modernbb .wm-compte__pastille {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
-#fa_toolbar .wm-compte__entree--a-venir .wm-compte__lien {
+#modernbb .wm-compte__pastille .wm-nav__icone {
+  font-size: 12px;
+  line-height: 1;
+}
+
+#modernbb a.wm-compte__lien:hover,
+#modernbb a.wm-compte__lien:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-compte__entree--a-venir .wm-compte__lien {
+  background: transparent;
   color: var(--wm-texte-doux, #6e5749);
   cursor: default;
 }
 
+#modernbb .wm-compte__entree--a-venir .wm-compte__pastille {
+  background: var(--wm-bord-net, #d9c3b1);
+  color: var(--wm-texte-doux, #6e5749);
+}
+
 /*  La déconnexion se détache : c'est la seule entrée qu'on ne clique pas
     par curiosité. */
-#fa_toolbar .wm-compte__entree--sortie {
+#modernbb .wm-compte__entree--sortie {
   margin-top: var(--wm-espace-4, 4px);
-  padding-top: var(--wm-espace-4, 4px);
+  padding-top: var(--wm-espace-8, 8px);
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
-/* ── 5 · sur petit écran ──────────────────────────────────────────── */
+/* ── 5 · le formulaire du switcheroo ──────────────────────────────── */
+
+/*  ── POURQUOI IL EST ICI, ALORS QUE LE SWITCHEROO N'EST PAS À NOUS ──
+
+    Parce qu'il n'apporte AUCUN style. Son dépôt livre deux fichiers JS et
+    renvoie à une feuille écrite pour un autre thème. Sans CSS, son
+    formulaire de connexion s'empile en bas de page, illisible — et pire :
+    sa fermeture attend un `transitionend` qui n'arrive jamais, donc la
+    fenêtre ne se referme plus du tout.
+
+    On lui donne donc le strict nécessaire, à nos jetons : un voile, une
+    boîte, un formulaire — et une transition, qui n'est pas de la
+    décoration mais la condition pour qu'il se referme.
+
+    **On ne touche pas à ses classes de pastille** (`switcheroo__squircle`
+    et compagnie) : son conteneur est hors écran, elles n'ont rien à
+    porter. */
+.monomer-overlay {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  background: color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 55%, transparent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.monomer-overlay.monomer-open {
+  opacity: 1;
+}
+
+.monomer-modal {
+  position: fixed;
+  z-index: 91;
+  top: 50%;
+  left: 50%;
+  box-sizing: border-box;
+  width: min(400px, calc(100vw - 32px));
+  padding: var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  /*  UNE SEULE PROPRIÉTÉ ANIMÉE, ET C'EST VOULU. `monomer` retire la
+      fenêtre sur le premier `transitionend` venu, sans se désabonner :
+      deux propriétés animées font deux événements, et le second lève un
+      `removeChild` sur un parent déjà null — une erreur dans la console
+      du joueur à chaque fermeture. Mesuré. */
+  transition: opacity 0.18s ease;
+}
+
+.monomer-modal.monomer-open {
+  opacity: 1;
+}
+
+/*  Trop haut pour l'écran : il se cale en haut et défile, plutôt que de
+    sortir par les deux bouts. */
+.monomer-modal.monomer-anchored {
+  top: var(--wm-espace-16, 16px);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  transform: translate(-50%, 0);
+}
+
+.monomer-modal .monomer-close {
+  position: absolute;
+  top: var(--wm-espace-8, 8px);
+  right: var(--wm-espace-8, 8px);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: 1;
+}
+
+.switcheroo__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+}
+
+.switcheroo__form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+}
+
+.switcheroo__form-label {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+.switcheroo__form-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-page, #f2e4d8);
+  color: var(--wm-encre, #2e2018);
+  font-family: inherit;
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+.switcheroo__form-button {
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/* ── 6 · sur petit écran ──────────────────────────────────────────── */
 
 @media (max-width: 760px) {
   /*  Les cinq liens passent à la ligne plutôt que de se comprimer, et la
       barre grandit. Le logo reste à sa place : c'est lui qui ouvre tout
-      le reste. */
-  #modernbb ul#modernbb-nav-menu.wm-nav {
+      le reste.
+
+      **Le sélecteur visait `ul#modernbb-nav-menu`** — la barre de
+      ModernBB, celle qu'on a cessé de réécrire. Il ne touchait donc plus
+      rien, et sur téléphone la barre restait sur une seule ligne. */
+  #modernbb .wm-nav {
     flex-wrap: wrap;
     padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
     gap: var(--wm-espace-8, 8px);
+  }
+
+  /*  Le menu du compte ne tient pas à 347 px de large : l'avatar passe
+      dessous, et la colonne prend tout. */
+  #modernbb .wm-compte__menu {
+    flex-direction: column;
+    width: calc(100vw - 16px);
+  }
+
+  #modernbb .wm-compte__avatar {
+    align-self: center;
   }
 
   #modernbb .wm-nav__liens {

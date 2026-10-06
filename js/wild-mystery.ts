@@ -41,8 +41,12 @@ import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.t
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
-import { poserLaNavigation } from "../src/adaptateurs/navigateur/module-navigation.ts";
+import {
+  poserLaNavigation,
+  remplirLesPersonnages,
+} from "../src/adaptateurs/navigateur/module-navigation.ts";
 import { poserLeSwitcheroo } from "../src/adaptateurs/navigateur/module-switcheroo.ts";
+import { sourceDAvatar } from "../src/navigateur/navigation.ts";
 import {
   compterLesMessages,
   poserLAccessibilite,
@@ -125,7 +129,22 @@ async function poserLaNav(): Promise<void> {
   //  `_userdata` est posé par Forumactif sur chaque page. Déconnectée,
   //  `session_logged_in` vaut 0 : il n'y a pas de compte, donc pas de
   //  menu — et surtout aucun identifiant à inventer.
-  poserLaNavigation({ doc: document, donnees, identifiant: identifiantDuCompte() });
+  poserLaNavigation({
+    doc: document,
+    donnees,
+    identifiant: identifiantDuCompte(),
+    avatar: avatarDuCompte(),
+  });
+}
+
+/** La source de l'avatar du compte connecté, ou null.
+ *
+ *  `_userdata.avatar` contient du HTML, pas une adresse : on en tire la
+ *  source et on fabrique notre propre `<img>`. Le fragment lui-même
+ *  n'entre jamais dans la page. */
+function avatarDuCompte(): string | null {
+  const u = (globalThis as unknown as { _userdata?: Record<string, unknown> })._userdata;
+  return sourceDAvatar(u?.avatar);
 }
 
 /** L'identifiant Forumactif du compte connecté, ou null.
@@ -229,7 +248,16 @@ desQueLeCorpsEstLa(() => {
   poserLaNav().catch(() => {});
   //  Le switcheroo, chargé depuis sa source et épinglé à un commit. Il
   //  remplit « Mes personnages » ; sans lui la section ne s'affiche pas.
-  poserLeSwitcheroo(document, estConnectee()).catch(() => {});
+  //
+  //  **On relit le panneau quand il a fini de se dessiner.** Il arrive
+  //  après la barre, et un panneau déjà ouvert à ce moment-là — ou laissé
+  //  ouvert d'un clic rapide — montrerait une section vide.
+  poserLeSwitcheroo(document, estConnectee())
+    .then((pose) => {
+      const panneau = document.querySelector("#wm-panneau");
+      if (pose && panneau !== null) remplirLesPersonnages(document, panneau);
+    })
+    .catch(() => {});
   //  Les trois réglages de confort s'ajoutent au coin d'outils, qui vient
   //  d'être posé juste au-dessus. Pas de second bloc flottant.
   poserLAccessibilite(document, prefs);
