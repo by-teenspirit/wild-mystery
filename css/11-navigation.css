@@ -1,0 +1,361 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 11 · La navigation
+
+   La barre, le panneau latéral et le menu du compte. Repris sur les
+   maquettes `390:3142`, `390:3676` et `390:3636`, le 6 octobre.
+
+   ── DEUX BARRES, ET ELLES NE SE RESSEMBLENT PAS ───────────────────────
+
+   `#modernbb-nav-menu` est la barre normale : le logo et les cinq liens.
+   `#fa_toolbar` est la barre Forumactif : le compte, les messages, les
+   notifications. La seconde est posée par un script tiers APRÈS nous, et
+   porte ses propres styles — d'où les sélecteurs plus insistants de §4.
+
+   ── LES MESURES VIENNENT DE LA MAQUETTE ──────────────────────────────
+
+   Barre 56 de haut, logo à 28 du bord, liens centrés. Panneau 296 de
+   large, contenu à 22, bouton de fermeture 42 × 42 à 11/14. Une entrée
+   fait 36 de haut avec 10 d'écart, son icône 22 à 8 du bord, son libellé
+   à 41. Une carte de personnage fait 75 avec 12 d'écart, sa vignette
+   34 × 50 à 12,5.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la barre normale ─────────────────────────────────────────── */
+
+#modernbb ul#modernbb-nav-menu.wm-nav {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 56px;
+  margin: 0;
+  padding: 0 28px;
+  gap: var(--wm-espace-24, 24px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  list-style: none;
+}
+
+#modernbb .wm-nav__porte {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+/*  Le logo bascule le panneau : c'est un bouton, pas un lien. 40 de
+    cible tactile autour d'un losange de 16 (maquette). */
+#modernbb button.wm-nav__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+#modernbb button.wm-nav__logo:hover,
+#modernbb button.wm-nav__logo:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#modernbb .wm-nav__logo--ouvert {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/*  Les cinq liens, centrés dans la barre. `margin: auto` des deux côtés
+    les centre sur la BARRE et non entre leurs voisins — c'est ce que
+    montre la maquette, où le bloc est à 391,5 sur 1280. */
+#modernbb .wm-nav__liens {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  gap: var(--wm-espace-18, 18px);
+}
+
+#modernbb a.wm-nav__lien {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  text-decoration: none;
+}
+
+#modernbb a.wm-nav__lien:hover,
+#modernbb a.wm-nav__lien:focus-visible {
+  text-decoration: underline;
+}
+
+/*  La page courante. Un soulignement épais plutôt qu'un fond : la barre
+    est déjà une surface, et un second aplat dessus se lit mal. */
+#modernbb a.wm-nav__lien--courant {
+  box-shadow: inset 0 -2px 0 var(--wm-accent-primaire, #2e6e8e);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/* ── 2 · le panneau latéral ───────────────────────────────────────── */
+
+/*  296 de large, sous la barre, pleine hauteur. `position: fixed` : il
+    couvre la page, il ne la pousse pas. */
+#modernbb .wm-panneau {
+  position: fixed;
+  z-index: 60;
+  top: 56px;
+  bottom: 0;
+  left: 0;
+  width: 296px;
+  box-sizing: border-box;
+  padding: 18px 22px var(--wm-espace-24, 24px);
+  overflow-y: auto;
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-panneau[hidden] {
+  display: none;
+}
+
+#modernbb .wm-panneau__titre-section {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  opacity: 0.68;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-panneau__liste {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 var(--wm-espace-32, 32px);
+  padding: 0;
+  gap: var(--wm-espace-10, 10px);
+  list-style: none;
+}
+
+#modernbb .wm-panneau__liste:last-child {
+  margin-bottom: 0;
+}
+
+/*  Une entrée : 36 de haut, icône 22 à 8 du bord, libellé à 41. */
+#modernbb .wm-panneau__lien {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px) var(--wm-espace-6, 6px) 8px;
+  gap: 11px;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-decoration: none;
+}
+
+#modernbb a.wm-panneau__lien:hover,
+#modernbb a.wm-panneau__lien:focus-visible {
+  background: var(--wm-fond-surface, #fffbf7);
+  text-decoration: underline;
+}
+
+/*  L'icône est en `accent/terre`, la seule couleur vive du panneau. */
+#modernbb .wm-nav__icone {
+  flex: 0 0 auto;
+  width: 22px;
+  color: var(--wm-accent-terre, #a8582f);
+  font-size: 22px;
+  line-height: 22px;
+}
+
+#modernbb .wm-panneau__titre {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/*  Une page pas encore créée : affichée, pas cliquable, et le dire en
+    mots plutôt qu'en gris. Même règle qu'au sommaire des annexes. */
+#modernbb .wm-panneau__entree--a-venir .wm-panneau__lien {
+  opacity: 0.62;
+  cursor: default;
+}
+
+#modernbb .wm-panneau__a-venir {
+  flex: 0 0 auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-style: italic;
+  font-weight: var(--wm-graisse-normale, 400);
+  white-space: nowrap;
+}
+
+/* ── 3 · les personnages (le switcheroo) ──────────────────────────── */
+
+#modernbb .wm-panneau__carte {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 75px;
+  padding: 12px;
+  gap: var(--wm-espace-12, 12px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+  text-decoration: none;
+}
+
+#modernbb a.wm-panneau__carte:hover,
+#modernbb a.wm-panneau__carte:focus-visible {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  34 × 50, comme la maquette : un portrait, pas une vignette carrée. */
+#modernbb .wm-panneau__vignette {
+  display: block;
+  overflow: hidden;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 50px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-panneau__vignette img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#modernbb .wm-panneau__infos {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-panneau__nom {
+  overflow: hidden;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*  Le personnage en jeu : son nom prend l'accent, et « en jeu » est
+    ÉCRIT. Un surlignage seul ne se lit pas à haute voix. */
+#modernbb .wm-panneau__personnage--actif .wm-panneau__nom {
+  color: var(--wm-accent-primaire, #2e6e8e);
+}
+
+#modernbb .wm-panneau__en-jeu {
+  flex: 0 0 auto;
+  color: var(--wm-accent-primaire, #2e6e8e);
+  font-size: var(--wm-taille-petit, 11.5px);
+  white-space: nowrap;
+}
+
+/* ── 4 · le menu du compte, sur la barre Forumactif ───────────────── */
+
+/*  `#fa_right` est posée par Forumactif avec ses propres styles : on
+    insiste sur l'identifiant plutôt que d'ajouter des `!important`. */
+#fa_toolbar #fa_right.wm-compte {
+  position: relative;
+}
+
+#fa_toolbar .wm-compte__menu {
+  position: absolute;
+  z-index: 70;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 232px;
+  padding: var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  text-align: left;
+}
+
+#fa_toolbar .wm-compte__menu[hidden] {
+  display: none;
+}
+
+#fa_toolbar .wm-compte__liste {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-4, 4px);
+  list-style: none;
+}
+
+#fa_toolbar .wm-compte__lien {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#fa_toolbar a.wm-compte__lien:hover,
+#fa_toolbar a.wm-compte__lien:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+  text-decoration: underline;
+}
+
+#fa_toolbar .wm-compte__entree--a-venir .wm-compte__lien {
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: default;
+}
+
+/*  La déconnexion se détache : c'est la seule entrée qu'on ne clique pas
+    par curiosité. */
+#fa_toolbar .wm-compte__entree--sortie {
+  margin-top: var(--wm-espace-4, 4px);
+  padding-top: var(--wm-espace-4, 4px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/* ── 5 · sur petit écran ──────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  /*  Les cinq liens passent à la ligne plutôt que de se comprimer, et la
+      barre grandit. Le logo reste à sa place : c'est lui qui ouvre tout
+      le reste. */
+  #modernbb ul#modernbb-nav-menu.wm-nav {
+    flex-wrap: wrap;
+    padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+    gap: var(--wm-espace-8, 8px);
+  }
+
+  #modernbb .wm-nav__liens {
+    flex-wrap: wrap;
+    margin: 0;
+    gap: var(--wm-espace-4, 4px) var(--wm-espace-12, 12px);
+  }
+
+  /*  Le panneau prend toute la largeur : 296 px sur un écran de 375
+      laisserait une bande inutilisable à droite. */
+  #modernbb .wm-panneau {
+    top: 0;
+    width: 100%;
+  }
+}

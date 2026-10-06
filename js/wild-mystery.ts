@@ -41,6 +41,7 @@ import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.t
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
+import { poserLaNavigation } from "../src/adaptateurs/navigateur/module-navigation.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -100,6 +101,30 @@ async function configSupabase(): Promise<ReturnType<typeof configDepuis>> {
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
   return configDepuis(reponse);
+}
+
+/** La barre de navigation, le panneau latéral et le menu du compte.
+ *
+ *  **Deux barres, tenues séparément** : la barre normale
+ *  (`#modernbb-nav-menu`) porte le logo et les cinq liens ; la barre
+ *  Forumactif (`#fa_toolbar`) porte le compte et les notifications. La
+ *  seconde arrive après nous, le module la guette.
+ *
+ *  Elle part sur TOUTES les pages — c'est le cadre du forum. */
+async function poserLaNav(): Promise<void> {
+  if (RACINE === null) return;
+  const donnees = await fetch(`${RACINE}navigation.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  //  `_userdata` est posé par Forumactif sur chaque page. Déconnectée,
+  //  `session_logged_in` vaut 0 : il n'y a pas de compte, donc pas de
+  //  menu — et surtout aucun identifiant à inventer.
+  const u = (globalThis as unknown as { _userdata?: Record<string, unknown> })._userdata;
+  const identifiant = u !== undefined && Number(u.session_logged_in) === 1 &&
+      Number.isInteger(Number(u.user_id))
+    ? Number(u.user_id)
+    : null;
+  poserLaNavigation({ doc: document, donnees, identifiant });
 }
 
 /** Le sommaire des douze annexes, posé dans le trou que la page laisse.
@@ -179,4 +204,5 @@ desQueLeCorpsEstLa(() => {
   poserLeModule().catch(() => {});
   poserLaVie().catch(() => {});
   poserLesAnnexes().catch(() => {});
+  poserLaNav().catch(() => {});
 });
