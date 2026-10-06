@@ -171,8 +171,18 @@ export function lienCourant(liens: readonly Lien[], chemin: string): Lien | null
 
 export type Personnage = {
   readonly nom: string;
-  /** L'adresse qui bascule vers ce compte. Jamais fabriquée. */
-  readonly adresse: string | null;
+  /** L'identifiant que le switcheroo porte sur sa pastille (`data-id`).
+   *
+   *  **Ce n'est pas une adresse, et il n'y en a pas.** Relevé dans le
+   *  code du switcheroo (`Lostmindy/switcheroo-fork`, lu le 6 octobre) :
+   *  chaque compte est un `<li data-action="switcheroo">` **sans
+   *  `href`**, et la bascule se fait au clic, par son propre script.
+   *
+   *  On garde donc l'identifiant pour retrouver la pastille et lui
+   *  **déléguer le clic**. Fabriquer une adresse de bascule reviendrait à
+   *  inventer une connexion — et une connexion inventée est au mieux un
+   *  lien mort, au pire une page qui déconnecte. */
+  readonly identifiant: string | null;
   readonly image: string | null;
   readonly actif: boolean;
 };
@@ -188,7 +198,7 @@ export type Personnage = {
 export function personnagesDepuis(
   brut: readonly {
     nom: string;
-    adresse: string | null;
+    identifiant?: string | null;
     image?: string | null;
     actif?: boolean;
   }[],
@@ -201,7 +211,10 @@ export function personnagesDepuis(
     vus.add(nom);
     sortie.push({
       nom,
-      adresse: adresse(p.adresse),
+      //  Un identifiant est un nombre chez Forumactif. On le garde en
+      //  texte — c'est ce que `data-id` rend — mais on refuse ce qui n'en
+      //  est pas un : il sert à retrouver une pastille par sélecteur.
+      identifiant: /^[0-9]{1,12}$/.test(texte(p.identifiant)) ? texte(p.identifiant) : null,
       image: typeof p.image === "string" && /^https?:\/\/|^\//.test(p.image) ? p.image : null,
       actif: p.actif === true,
     });

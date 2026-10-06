@@ -76,32 +76,64 @@ function icone(doc: Document, nom: string): HTMLElement | null {
 
 // ── le switcheroo ───────────────────────────────────────────────────
 
-/** Les personnages, lus dans la page.
+/** Les personnages, lus dans le switcheroo.
  *
- *  **Trois portes, dans l'ordre.** La première est à nous et gagne : un
- *  `[data-wm-personnages]` posé dans un template laisse décrire la liste
- *  sans dépendre du balisage d'un script tiers. Les deux autres sont les
- *  formes connues du switcheroo de la V1.
+ *  ── LE BALISAGE EST CELUI DU VRAI SWITCHEROO ───────────────────────
  *
- *  Aucune n'est devinée au-delà de ça : si rien ne répond, on rend une
- *  liste vide et la section disparaît. */
+ *  Lu dans son code (`Lostmindy/switcheroo-fork`, le 6 octobre), pas
+ *  deviné :
+ *
+ *      <nav id="switcheroo" class="switcheroo">
+ *        <ul class="switcheroo__squircles">
+ *          <li class="switcheroo__squircle active" data-id="12"
+ *              data-action="switcheroo">
+ *            <div class="switcheroo__avatar"><img …></div>
+ *            <div class="switcheroo__popper">
+ *              <span class="switcheroo__popper-text">Elijah</span></div>
+ *            <div class="switcheroo__delete">…</div>
+ *          </li>
+ *
+ *  **Un compte n'est PAS un lien.** Il n'a pas de `href` : la bascule se
+ *  fait au clic, par le script du switcheroo. C'est pour ça qu'on garde
+ *  son `data-id` et pas une adresse.
+ *
+ *  Le bouton « Associer un personnage » (`data-action="open-login"`) et
+ *  le logo portent la même classe de pastille mais **pas de `data-id`** :
+ *  c'est ce qui les écarte.
+ *
+ *  La porte `[data-wm-personnages]` reste la première : elle permet de
+ *  décrire la liste dans un template sans dépendre d'un script tiers. */
 export function personnagesDeLaPage(doc: Document): readonly Personnage[] {
-  const portes = [
-    "[data-wm-personnages] a",
-    "#switcheroo a[href]",
-    ".switcheroo a[href]",
-  ];
-  for (const porte of portes) {
-    const ancres = [...doc.querySelectorAll<HTMLAnchorElement>(porte)];
-    if (ancres.length === 0) continue;
-    return personnagesDepuis(ancres.map((a) => ({
-      nom: a.dataset.wmNom ?? a.textContent?.replace(/\s+/g, " ").trim() ?? "",
-      adresse: a.getAttribute("href"),
-      image: a.querySelector("img")?.getAttribute("src") ?? a.dataset.wmImage ?? null,
-      actif: a.dataset.wmActif === "true" || a.classList.contains("actif"),
+  const aNous = [...doc.querySelectorAll<HTMLElement>("[data-wm-personnages] [data-wm-id]")];
+  if (aNous.length > 0) {
+    return personnagesDepuis(aNous.map((e) => ({
+      nom: e.dataset.wmNom ?? e.textContent?.replace(/\s+/g, " ").trim() ?? "",
+      identifiant: e.dataset.wmId ?? null,
+      image: e.querySelector("img")?.getAttribute("src") ?? null,
+      actif: e.dataset.wmActif === "true",
     })));
   }
-  return [];
+
+  const pastilles = [...doc.querySelectorAll<HTMLElement>(
+    '#switcheroo [data-action="switcheroo"][data-id], .switcheroo [data-action="switcheroo"][data-id]',
+  )];
+  return personnagesDepuis(pastilles.map((li) => ({
+    //  Le nom vit dans l'infobulle : c'est le seul endroit où le
+    //  switcheroo l'écrit.
+    nom:
+      (li.querySelector(".switcheroo__popper-text") ?? li.querySelector(".switcheroo__popper"))
+        ?.textContent?.replace(/\s+/g, " ").trim() ?? "",
+    identifiant: li.dataset.id ?? null,
+    image: li.querySelector(".switcheroo__avatar img")?.getAttribute("src") ?? null,
+    actif: li.classList.contains("active"),
+  })));
+}
+
+/** La pastille du switcheroo qui porte cet identifiant, s'il y en a une. */
+function pastilleDuSwitcheroo(doc: Document, identifiant: string): HTMLElement | null {
+  return doc.querySelector<HTMLElement>(
+    `[data-action="switcheroo"][data-id="${CSS.escape(identifiant)}"]`,
+  );
 }
 
 // ── le panneau latéral ──────────────────────────────────────────────
@@ -130,9 +162,22 @@ function personnageEnDOM(doc: Document, p: Personnage): HTMLElement {
   const li = element(doc, "li", "wm-panneau__personnage");
   if (p.actif) li.classList.add("wm-panneau__personnage--actif");
 
-  const corps = doc.createElement(p.adresse !== null && !p.actif ? "a" : "div");
+  //  **Un bouton, pas un lien.** Le switcheroo n'a pas d'adresse de
+  //  bascule : il bascule au clic. Notre carte relaie donc le clic à sa
+  //  pastille, et quand il n'y en a pas — ou quand c'est déjà le
+  //  personnage en jeu — ce n'est pas un bouton du tout.
+  const relayable = !p.actif && p.identifiant !== null;
+  const corps = doc.createElement(relayable ? "button" : "div");
   corps.className = "wm-panneau__carte";
-  if (corps instanceof HTMLAnchorElement && p.adresse !== null) corps.href = p.adresse;
+  if (corps instanceof HTMLButtonElement) {
+    corps.type = "button";
+    corps.addEventListener("click", () => {
+      //  On relit la pastille au moment du clic : le switcheroo redessine
+      //  sa liste, et une référence gardée depuis l'ouverture du panneau
+      //  pointerait sur un nœud retiré de la page.
+      pastilleDuSwitcheroo(doc, p.identifiant as string)?.click();
+    });
+  }
 
   const vignette = element(doc, "span", "wm-panneau__vignette");
   if (p.image !== null) {

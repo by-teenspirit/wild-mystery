@@ -157,19 +157,29 @@ Deno.test("AUCUN PERSONNAGE NE S'INVENTE", () => {
   const p = personnagesDepuis([
     {
       nom: "Elijah Lustgarten",
-      adresse: "/u12",
+      identifiant: "12",
       image: "https://i.example/a.png",
       actif: true,
     },
-    { nom: "  ", adresse: "/u13" },
-    { nom: "Charlie Spinster", adresse: null },
-    { nom: "Elijah Lustgarten", adresse: "/u99" },
-    { nom: "Nael Ardent", adresse: "/u14", image: "pas une adresse" },
+    { nom: "  ", identifiant: "13" },
+    { nom: "Charlie Spinster", identifiant: null },
+    { nom: "Elijah Lustgarten", identifiant: "99" },
+    { nom: "Nael Ardent", identifiant: "14", image: "pas une adresse" },
   ]);
   assertEquals(p.map((x) => x.nom), ["Elijah Lustgarten", "Charlie Spinster", "Nael Ardent"]);
-  assertEquals(p[1].adresse, null, "sans adresse : affiché, mais il ne bascule pas");
+  assertEquals(p[1].identifiant, null, "sans identifiant : affiché, mais il ne bascule pas");
   assertEquals(p[2].image, null, "une image qui n'est pas une adresse ne s'affiche pas");
   assertEquals(p.filter((x) => x.actif).length, 1);
+});
+
+Deno.test("un identifiant qui n'est pas un nombre est refusé", () => {
+  //  Il sert à retrouver une pastille par sélecteur : un identifiant
+  //  bancal irait chercher un nœud qui n'existe pas, ou pire.
+  for (const id of ['12" ]', "../x", "", "abc", "1.5", "-4", "1".repeat(13), null]) {
+    const [p] = personnagesDepuis([{ nom: "X", identifiant: id }]);
+    assertEquals(p.identifiant, null, JSON.stringify(id));
+  }
+  assertEquals(personnagesDepuis([{ nom: "X", identifiant: "412" }])[0].identifiant, "412");
 });
 
 Deno.test("une liste vide rend une liste vide : la section ne s'affiche pas", () => {
