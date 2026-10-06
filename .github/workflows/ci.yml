@@ -235,6 +235,8 @@ jobs:
           restore-keys: deno-${{ runner.os }}-${{ env.DENO_VERSION }}-
 
       - run: deno task test:navigateur
+      - name: La navigation, dans un navigateur
+        run: deno task navigation
 
       #  LA VÉRIFICATION QUI COMPTE. jsDelivr sert `js/wild-mystery.js`
       #  depuis le dépôt, pas depuis une étape de construction : si le
