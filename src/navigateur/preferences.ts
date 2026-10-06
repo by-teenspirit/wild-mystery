@@ -19,6 +19,7 @@
 
 import { CHOIX_PAR_DEFAUT, type ChoixDeTheme, estUnChoixDeTheme } from "./theme.ts";
 import { estUnStyleDeSprite, STYLE_PAR_DEFAUT, type StyleDeSprite } from "./sprites.ts";
+import { type Confort, confortsDepuis, texteDesConforts } from "./confort.ts";
 
 /** Le port. `localStorage` le remplit, un `Map` le remplit aussi. */
 export interface Stockage {
@@ -28,6 +29,7 @@ export interface Stockage {
 
 export const CLE_THEME = "wm.theme";
 export const CLE_SPRITES = "wm.sprites";
+export const CLE_CONFORT = "wm.confort";
 
 export class Preferences {
   constructor(private readonly stockage: Stockage) {}
@@ -67,5 +69,22 @@ export class Preferences {
 
   poserStyleDeSprite(style: StyleDeSprite): void {
     this.ecrire(CLE_SPRITES, style);
+  }
+
+  /** Les réglages d'accessibilité cochés.
+   *
+   *  Ils ne passent pas par `lire` : celui-ci valide une valeur entière
+   *  et rend un défaut, alors qu'une liste se nettoie morceau par
+   *  morceau. Un nom inconnu coûte un réglage, pas les trois. */
+  conforts(): readonly Confort[] {
+    try {
+      return confortsDepuis(this.stockage.lire(CLE_CONFORT));
+    } catch {
+      return [];
+    }
+  }
+
+  poserConforts(actifs: readonly Confort[]): void {
+    this.ecrire(CLE_CONFORT, texteDesConforts(actifs));
   }
 }

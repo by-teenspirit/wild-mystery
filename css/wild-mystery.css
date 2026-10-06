@@ -17,6 +17,7 @@
      · css/09-boutique.css
      · css/10-coin-outils.css
      · css/11-navigation.css
+     · css/12-confort.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -3966,6 +3967,228 @@ html,
   #modernbb .wm-panneau {
     top: 0;
     width: 100%;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 12 · Le confort de lecture et les notifications
+
+   Les trois interrupteurs d'accessibilité, ce qu'ils changent, et
+   l'encart flottant. Écrits sans maquette, au plus simple.
+
+   ── LES TROIS RÉGLAGES S'AJOUTENT AU SYSTÈME ──────────────────────────
+
+   `prefers-reduced-motion` continue de valoir : ces classes servent à qui
+   n'a pas la main sur son navigateur. D'où deux règles au lieu d'une pour
+   les animations — l'une sur la préférence du système, l'autre sur la
+   nôtre.
+
+   ── CETTE FEUILLE EST LA DERNIÈRE, ET C'EST VOULU ─────────────────────
+
+   Elle corrige ce que les onze autres ont posé : le corps du texte, le
+   soulignement des liens, la durée des transitions. À spécificité égale,
+   la dernière gagne — c'est la cascade qui fait le travail, pas des
+   `!important`.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · réduire les animations ───────────────────────────────────── */
+
+/*  `0.01ms` et non `0` : une durée nulle supprime l'événement de fin de
+    transition, et un script qui l'attend reste bloqué. C'est le réglage
+    recommandé par le WAI pour cette raison précise. */
+@media (prefers-reduced-motion: reduce) {
+  #modernbb *,
+  #modernbb *::before,
+  #modernbb *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
+  }
+}
+
+body.wm-sans-animation #modernbb *,
+body.wm-sans-animation #modernbb *::before,
+body.wm-sans-animation #modernbb *::after,
+body.wm-sans-animation .wm-coin *,
+body.wm-sans-animation .wm-notifs * {
+  animation-duration: 0.01ms;
+  animation-iteration-count: 1;
+  scroll-behavior: auto;
+  transition-duration: 0.01ms;
+}
+
+/* ── 2 · grossir le texte ─────────────────────────────────────────── */
+
+/*  **On ne touche pas à `font-size` sur `body`.** ModernBB le tient à
+    10px et tout son CSS enchaîne en `em` : le changer multiplierait le
+    forum entier (feuille `02`, piège n° 1). On grossit donc ce que NOUS
+    posons, élément par élément, là où on l'a déjà posé en px.
+
+    +2 px sur le courant, +1,5 sur le petit : assez pour que ça compte,
+    pas assez pour casser une mise en page mesurée au contraste. */
+body.wm-texte-large #modernbb .wm-paras > p,
+body.wm-texte-large #modernbb .wm-tirets > li,
+body.wm-texte-large #modernbb .wm-table__cellule,
+body.wm-texte-large #modernbb .wm-encart,
+body.wm-texte-large #modernbb .wm-vie__ligne,
+body.wm-texte-large #modernbb .wm-panneau__lien,
+body.wm-texte-large #modernbb .wm-panneau__nom,
+body.wm-texte-large #modernbb a.wm-nav__lien {
+  font-size: calc(var(--wm-taille-normal, 13.5px) + 2px);
+}
+
+body.wm-texte-large #modernbb .wm-vie__quand,
+body.wm-texte-large #modernbb .wm-panneau__en-jeu,
+body.wm-texte-large #modernbb .wm-lieu,
+body.wm-texte-large #modernbb .wm-annexe__lien {
+  font-size: calc(var(--wm-taille-petit, 11.5px) + 1.5px);
+}
+
+body.wm-texte-large #modernbb .wm-annexe__chapo {
+  font-size: calc(var(--wm-taille-chapo, 19px) + 2px);
+}
+
+/* ── 3 · souligner tous les liens ─────────────────────────────────── */
+
+/*  Un lien reconnu à sa seule couleur est invisible pour qui ne
+    distingue pas cette couleur. Le soulignement le dit en forme.
+
+    Les liens qui sont des BOUTONS en sont exclus : ils se reconnaissent
+    déjà à leur cadre, et un bouton souligné se lit comme un défaut. */
+body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__lien):not(.wm-compte__lien) {
+  text-decoration: underline;
+}
+
+/* ── 4 · les trois interrupteurs, dans le coin d'outils ───────────── */
+
+#modernbb .wm-coin__confort,
+.wm-coin .wm-coin__confort {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--wm-espace-8, 8px);
+  padding-top: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-4, 4px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  Coché : le fond d'accent et le texte inverse. Pas seulement une
+    teinte — un état qui ne se lit qu'à la nuance disparaît pour la
+    moitié des gens. `aria-pressed` le dit aussi à voix haute. */
+.wm-coin .wm-coin__confort--coche {
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/* ── 5 · l'encart de notifications ────────────────────────────────── */
+
+/*  Au-dessus du coin d'outils, pas à côté : le coin tient le bas du
+    bord droit, et les deux côte à côte se disputeraient les soixante
+    derniers pixels (feuille `08` de la planche 50). */
+.wm-notifs {
+  position: fixed;
+  z-index: 50;
+  right: var(--wm-espace-16, 16px);
+  bottom: 140px;
+  max-width: 272px;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+}
+
+.wm-notifs__liste {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+.wm-notifs__lien {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  min-height: var(--wm-cible-tactile, 44px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-decoration: none;
+}
+
+.wm-notifs__lien:hover,
+.wm-notifs__lien:focus-visible {
+  text-decoration: underline;
+}
+
+/*  La pastille du nombre. Elle est `aria-hidden` : la phrase à côté le
+    dit déjà, et l'entendre deux fois fait bégayer. */
+.wm-notifs__nombre {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 var(--wm-espace-6, 6px);
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-notifs__raccourcis {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-10, 10px) 0 0;
+  padding-top: var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+.wm-notifs__raccourci {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-decoration: underline;
+}
+
+/*  Il se ferme. Un encart qu'on ne peut pas écarter est une bannière. */
+.wm-notifs__fermer {
+  position: absolute;
+  top: var(--wm-espace-4, 4px);
+  right: var(--wm-espace-4, 4px);
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1;
+}
+
+.wm-notifs__fermer:hover,
+.wm-notifs__fermer:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/* ── 6 · sur petit écran ──────────────────────────────────────────── */
+
+/*  L'encart passe en bas, pleine largeur : un bloc de 272 px flottant
+    sur un écran de 375 couvre le contenu qu'on essaie de lire. */
+@media (max-width: 760px) {
+  .wm-notifs {
+    right: var(--wm-espace-8, 8px);
+    bottom: var(--wm-espace-8, 8px);
+    left: var(--wm-espace-8, 8px);
+    max-width: none;
   }
 }
 

@@ -42,6 +42,11 @@ import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import { poserLaNavigation } from "../src/adaptateurs/navigateur/module-navigation.ts";
+import {
+  compterLesMessages,
+  poserLAccessibilite,
+  poserLesNotifications,
+} from "../src/adaptateurs/navigateur/module-confort.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -204,5 +209,13 @@ desQueLeCorpsEstLa(() => {
   poserLeModule().catch(() => {});
   poserLaVie().catch(() => {});
   poserLesAnnexes().catch(() => {});
+  //  LE COMPTEUR SE LIT AVANT QUE LA BARRE SOIT RÉÉCRITE. Forumactif le
+  //  pose dans le lien « Messagerie », et `poserLaNav` remplace le
+  //  contenu de cette barre : lu après, il vaudrait toujours zéro.
+  const messages = compterLesMessages(document);
   poserLaNav().catch(() => {});
+  //  Les trois réglages de confort s'ajoutent au coin d'outils, qui vient
+  //  d'être posé juste au-dessus. Pas de second bloc flottant.
+  poserLAccessibilite(document, prefs);
+  poserLesNotifications({ doc: document, messages });
 });
