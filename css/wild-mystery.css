@@ -3850,6 +3850,26 @@ html,
 
 /* ── 3 · les personnages (le switcheroo) ──────────────────────────── */
 
+/*  Le conteneur du switcheroo est hors écran : il dessine des pastilles
+    rondes, et le panneau montre la même liste en cartes. Mais il reste
+    PRÉSENT ET VIVANT — c'est lui qui porte les gestionnaires de clic, et
+    nos cartes lui délèguent la bascule.
+
+    `clip-path` et pas `display: none` : un élément en `display: none` ne
+    reçoit pas de clic programmatique partout, et c'est précisément le
+    clic qu'on lui envoie. */
+#modernbb .wm-switcheroo-cache,
+.wm-switcheroo-cache {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+
 #modernbb .wm-panneau__carte {
   display: flex;
   align-items: center;

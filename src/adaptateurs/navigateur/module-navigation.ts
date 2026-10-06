@@ -211,14 +211,32 @@ function panneauEnDOM(doc: Document, nav: Navigation): HTMLElement {
     panneau.appendChild(liste);
   }
 
-  const personnages = personnagesDeLaPage(doc);
-  if (personnages.length > 0) {
-    panneau.appendChild(element(doc, "p", "wm-panneau__titre-section", "Mes personnages"));
-    const liste = element(doc, "ul", "wm-panneau__liste");
-    for (const p of personnages) liste.appendChild(personnageEnDOM(doc, p));
-    panneau.appendChild(liste);
-  }
+  //  La section des personnages est posée VIDE et remplie à chaque
+  //  ouverture : le switcheroo arrive après nous, et sa liste se
+  //  redessine quand il se recharge. Lue une fois au chargement, elle
+  //  serait vide sur toutes les pages.
+  panneau.appendChild(element(doc, "div", "wm-panneau__personnages"));
   return panneau;
+}
+
+/** Remplit « Mes personnages » depuis le switcheroo, maintenant.
+ *
+ *  Appelée à chaque ouverture du panneau. Si le switcheroo n'a encore
+ *  rien dessiné — ou s'il n'est pas là du tout — la section disparaît
+ *  plutôt que d'afficher un titre suivi de rien. */
+export function remplirLesPersonnages(doc: Document, panneau: Element): number {
+  const zone = panneau.querySelector(".wm-panneau__personnages");
+  if (zone === null) return 0;
+  zone.textContent = "";
+
+  const personnages = personnagesDeLaPage(doc);
+  if (personnages.length === 0) return 0;
+
+  zone.appendChild(element(doc, "p", "wm-panneau__titre-section", "Mes personnages"));
+  const liste = element(doc, "ul", "wm-panneau__liste");
+  for (const p of personnages) liste.appendChild(personnageEnDOM(doc, p));
+  zone.appendChild(liste);
+  return personnages.length;
 }
 
 // ── la barre normale ────────────────────────────────────────────────
@@ -410,6 +428,9 @@ export function poserLaNavigation(
     //  `display: none`, et `display` ne s'anime pas : le panneau
     //  apparaissait d'un coup, sans dire d'où il venait. L'état est donc
     //  une classe, et le CSS fait glisser la position.
+    //  On relit les personnages À L'OUVERTURE, pas au chargement : le
+    //  switcheroo se charge après nous et redessine sa liste.
+    if (ouvrir) remplirLesPersonnages(doc, panneau);
     panneau.classList.toggle("wm-panneau--ouvert", ouvrir);
     bouton.setAttribute("aria-expanded", String(ouvrir));
     bouton.setAttribute("aria-label", ouvrir ? "Fermer le panneau" : "Ouvrir le panneau");

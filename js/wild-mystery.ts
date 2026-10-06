@@ -42,6 +42,7 @@ import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import { poserLaNavigation } from "../src/adaptateurs/navigateur/module-navigation.ts";
+import { poserLeSwitcheroo } from "../src/adaptateurs/navigateur/module-switcheroo.ts";
 import {
   compterLesMessages,
   poserLAccessibilite,
@@ -124,12 +125,24 @@ async function poserLaNav(): Promise<void> {
   //  `_userdata` est posé par Forumactif sur chaque page. Déconnectée,
   //  `session_logged_in` vaut 0 : il n'y a pas de compte, donc pas de
   //  menu — et surtout aucun identifiant à inventer.
+  poserLaNavigation({ doc: document, donnees, identifiant: identifiantDuCompte() });
+}
+
+/** L'identifiant Forumactif du compte connecté, ou null.
+ *
+ *  `_userdata` est posé par Forumactif sur chaque page. Déconnectée,
+ *  `session_logged_in` vaut 0 : il n'y a pas de compte, donc pas de
+ *  menu — et surtout aucun identifiant à inventer. */
+function identifiantDuCompte(): number | null {
   const u = (globalThis as unknown as { _userdata?: Record<string, unknown> })._userdata;
-  const identifiant = u !== undefined && Number(u.session_logged_in) === 1 &&
+  return u !== undefined && Number(u.session_logged_in) === 1 &&
       Number.isInteger(Number(u.user_id))
     ? Number(u.user_id)
     : null;
-  poserLaNavigation({ doc: document, donnees, identifiant });
+}
+
+function estConnectee(): boolean {
+  return identifiantDuCompte() !== null;
 }
 
 /** Le sommaire des douze annexes, posé dans le trou que la page laisse.
@@ -214,6 +227,9 @@ desQueLeCorpsEstLa(() => {
   //  contenu de cette barre : lu après, il vaudrait toujours zéro.
   const messages = compterLesMessages(document);
   poserLaNav().catch(() => {});
+  //  Le switcheroo, chargé depuis sa source et épinglé à un commit. Il
+  //  remplit « Mes personnages » ; sans lui la section ne s'affiche pas.
+  poserLeSwitcheroo(document, estConnectee()).catch(() => {});
   //  Les trois réglages de confort s'ajoutent au coin d'outils, qui vient
   //  d'être posé juste au-dessus. Pas de second bloc flottant.
   poserLAccessibilite(document, prefs);
