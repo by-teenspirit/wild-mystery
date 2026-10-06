@@ -157,6 +157,12 @@ jobs:
           # et surtout qu elle ne dit ni le prix ni la liste des objets : le
           # journal est public.
           grep -q "vie de Rhode · " /tmp/contrat.txt
+          # La concurrence, ajoutee le 6 octobre. Ses six cas sont les seuls
+          # qui ouvrent DEUX connexions : pgTAP tourne dans une seule
+          # session et ne peut pas voir deux appels se croiser. Sans eux,
+          # `boutique_servir` peut a nouveau lever au lieu de rendre
+          # « deja servie », et la releve boucle sur un message deja servi.
+          grep -q "concurrence · " /tmp/contrat.txt
           ! grep -q "IGNORÉ faute de base" /tmp/contrat.txt
       - name: Aucun test de contrat encore écrit
         if: hashFiles('src/contrat/**/*.ts') == ''
