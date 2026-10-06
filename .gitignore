@@ -24,3 +24,8 @@ supabase/.branches/
 
 # Les archives de livraison : elles atterrissent ici, elles ne sont pas le dépôt.
 livraison.zip
+
+# La feuille que le travail « contraste » du CI cree et efface aussitot.
+# Elle ne doit jamais entrer dans le depot : elle rend le titre des
+# cartes illisible expres.
+css/99-essai-contraste.css

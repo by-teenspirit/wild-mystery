@@ -250,10 +250,84 @@ jobs:
             exit 1
           fi
 
+  # ── 5 bis · le contraste des pages collees ────────────────────────
+  #
+  #  POURQUOI UN TRAVAIL A PART. « Ce texte me parait pale » n'est pas une
+  #  mesure, et un jeton de texte doux sur un pave teinte peut tomber a
+  #  4,49 contre 4,5 exiges — un cheveu qu'aucun oeil ne voit et qu'un
+  #  lecteur mal-voyant paie. Le harnais monte chaque page avec les jetons
+  #  et la feuille assemblee, pose le VRAI sommaire par le module, et
+  #  mesure chaque texte sur son fond reel, dans les deux themes et a
+  #  quatre largeurs.
+  #
+  #  Il a trouve deux defauts le jour ou il a ete ecrit, et il s'est
+  #  trompe deux fois avant de servir. Les deux fois c'etait lui qui avait
+  #  tort — d'ou l'essai a blanc ci-dessous, qui refuse un harnais muet.
+  contraste:
+    name: Contraste des pages
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/deno
+            ~/.cache/ms-playwright
+          key: contraste-${{ runner.os }}-${{ env.DENO_VERSION }}-${{ hashFiles('outils/contraste.mjs') }}
+          restore-keys: contraste-${{ runner.os }}-${{ env.DENO_VERSION }}-
+
+      #  Le binaire de Chromium ne vient pas avec le paquet npm : il
+      #  s'installe a part, et c'est la seule dependance reseau de ce
+      #  travail.
+      - name: Installer Chromium
+        run: npx --yes playwright@1.49.1 install --with-deps chromium
+
+      #  La feuille servie est un fichier derive : on la reconstruit
+      #  avant de la mesurer, sinon on mesurerait une version perimee et
+      #  on dirait « zero defaut » sans rien avoir verifie.
+      - run: bash outils/css.sh
+      - run: deno task harnais
+
+      - name: Chaque page collee, dans les deux themes
+        run: |
+          echec=0
+          for page in pages/*.html; do
+            echo "── $page"
+            deno task contraste "$page" || echec=1
+          done
+          exit $echec
+
+      #  L'ESSAI A BLANC. Un harnais qui ne mesure rien passe en vert, et
+      #  c'est exactement comme ca qu'un test de contraste devient un
+      #  decor. On casse donc une page expres, et on exige qu'il crie.
+      #
+      #  LA FEUILLE D'ESSAI EST EN 99, ET C'EST LE POINT. Ecrite d'abord
+      #  dans `02`, la regle etait ecrasee par celle de `08` — meme
+      #  specificite, la derniere gagne — et l'essai passait en vert sans
+      #  rien avoir casse. Un essai a blanc qui ne casse rien n'essaie
+      #  rien ; celui-la a failli entrer tel quel.
+      - name: Le harnais attrape vraiment quelque chose
+        run: |
+          printf '#modernbb .wm-carte__titre { color: #f6efe7; }\n' > css/99-essai-contraste.css
+          bash outils/css.sh
+          vu=1
+          deno task contraste pages/annexe-03-le-reglement.html || vu=0
+          rm -f css/99-essai-contraste.css
+          bash outils/css.sh
+          if [ "$vu" = "1" ]; then
+            echo "::error::Le harnais n'a RIEN vu sur un titre illisible — il ne mesure plus."
+            exit 1
+          fi
+          echo "Le harnais a bien crie."
+
   # ── 6 · le déploiement, seulement sur un tag v* ───────────────────
   deploiement:
     name: Déploiement
-    needs: [forme, domaine, usage, contrat, base, navigateur]
+    needs: [forme, domaine, usage, contrat, base, navigateur, contraste]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-24.04
     environment: production
