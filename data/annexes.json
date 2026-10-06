@@ -1,14 +1,15 @@
 {
  "_": "Le sommaire des annexes, en UN seul endroit. Les douze pages le portent toutes, et aucune ne le recopie : `module-annexes.ts` le pose dans `[data-wm-sommaire]`. Ajouter une annexe ou changer un titre est donc une modification de ce fichier, pas de douze pages collées à la main. Relevé des pages HTML réellement en ligne : 6 octobre 2026.",
- "_adresse": "null = la page n'existe pas encore. Le sommaire l'affiche quand même, sans lien : douze entrées dont trois cliquables dit la vérité, là où douze liens dont neuf morts ne la dit pas. Dès que tu crées la page, mets son adresse ici (par exemple \"/h20-le-reglement\") et le lien apparaît partout.",
- "_entete": "ATTENTION : une page HTML Forumactif ne reçoit notre CSS et notre JS QUE si elle est créée avec « utiliser le header et footer du forum » = OUI. Les onze pages actuellement en ligne sont toutes en NON, et c'est pour ça qu'aucune ne porte la charte.",
+ "_adresse": "null = la page n'existe pas encore. Le sommaire l'affiche quand même, SANS lien : douze entrées dont les créées sont cliquables dit la vérité, là où douze liens dont la plupart morts ne la dit pas. Dès que tu crées une page, mets son adresse ici et le lien apparaît dans les douze sommaires d'un coup.",
+ "_entete": "Une page HTML Forumactif ne reçoit notre CSS et notre JS QUE si elle est créée avec « utiliser le header et footer du forum » = OUI. Les pages de la V1 étaient toutes en NON ; /h3-reglement est en OUI, et ça marche.",
+ "_slug": "Le slug est la fin de l'adresse : /h3-reglement donne « reglement ». C'est lui que le sommaire reconnaît pour se surligner, et PAS le numéro de page — h3 dépend de l'ordre de création chez Forumactif, le slug est celui qu'on a choisi.",
  "sections": [
   {
    "titre": "Les annexes",
    "entrees": [
     { "numero": "01", "slug": "par-ou-commencer", "titre": "Par où commencer", "adresse": null },
     { "numero": "02", "slug": "le-contexte", "titre": "Le contexte", "adresse": null },
-    { "numero": "03", "slug": "le-reglement", "titre": "Le règlement", "adresse": null },
+    { "numero": "03", "slug": "reglement", "titre": "Le règlement", "adresse": "/h3-reglement" },
     {
      "numero": "04",
      "slug": "creer-son-personnage",
