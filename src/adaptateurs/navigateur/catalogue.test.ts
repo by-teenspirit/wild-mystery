@@ -28,6 +28,16 @@ Deno.test("la branche suit toute seule", () => {
   );
 });
 
+Deno.test("GITHUB PAGES AUSSI : c'est ce qui sert le forum depuis le 7 octobre", () => {
+  //  On a quitté jsDelivr parce qu'un tag par correction ne tient pas.
+  //  La déduction ne connaît ni l'un ni l'autre — elle coupe à `/js/` —
+  //  et ce test est là pour que ça reste vrai.
+  assertEquals(
+    racineDesDonnees("https://by-teenspirit.github.io/wild-mystery/js/wild-mystery.js"),
+    "https://by-teenspirit.github.io/wild-mystery/data/",
+  );
+});
+
 Deno.test("une adresse qu'on ne sait pas lire rend null", () => {
   //  Mieux vaut pas de barre qu'une barre qui demande des données à une
   //  adresse inventée.
