@@ -647,7 +647,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
     reçoit pas de clic programmatique partout, et c'est précisément le
     clic qu'on lui envoie. */
 #modernbb .wm-switcheroo-cache,
-.wm-switcheroo-cache {
+#modernbb .wm-switcheroo-cache {
   position: absolute;
   top: 0;
   left: 0;
@@ -988,7 +988,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
     **On ne touche pas à ses classes de pastille** (`switcheroo__squircle`
     et compagnie) : son conteneur est hors écran, elles n'ont rien à
     porter. */
-.monomer-overlay {
+#modernbb .monomer-overlay {
   position: fixed;
   z-index: 90;
   inset: 0;
@@ -997,11 +997,11 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   transition: opacity 0.18s ease;
 }
 
-.monomer-overlay.monomer-open {
+#modernbb .monomer-overlay.monomer-open {
   opacity: 1;
 }
 
-.monomer-modal {
+#modernbb .monomer-modal {
   position: fixed;
   z-index: 91;
   top: 50%;
@@ -1024,20 +1024,20 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   transition: opacity 0.18s ease;
 }
 
-.monomer-modal.monomer-open {
+#modernbb .monomer-modal.monomer-open {
   opacity: 1;
 }
 
 /*  Trop haut pour l'écran : il se cale en haut et défile, plutôt que de
     sortir par les deux bouts. */
-.monomer-modal.monomer-anchored {
+#modernbb .monomer-modal.monomer-anchored {
   top: var(--wm-espace-16, 16px);
   max-height: calc(100vh - 32px);
   overflow: auto;
   transform: translate(-50%, 0);
 }
 
-.monomer-modal .monomer-close {
+#modernbb .monomer-modal .monomer-close {
   position: absolute;
   top: var(--wm-espace-8, 8px);
   right: var(--wm-espace-8, 8px);
@@ -1053,19 +1053,19 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   line-height: 1;
 }
 
-.switcheroo__form {
+#modernbb .switcheroo__form {
   display: flex;
   flex-direction: column;
   gap: var(--wm-espace-12, 12px);
 }
 
-.switcheroo__form-row {
+#modernbb .switcheroo__form-row {
   display: flex;
   flex-direction: column;
   gap: var(--wm-espace-4, 4px);
 }
 
-.switcheroo__form-label {
+#modernbb .switcheroo__form-label {
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -1073,7 +1073,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   text-transform: uppercase;
 }
 
-.switcheroo__form-input {
+#modernbb .switcheroo__form-input {
   box-sizing: border-box;
   width: 100%;
   min-height: var(--wm-cible-tactile, 44px);
@@ -1086,7 +1086,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   font-size: var(--wm-taille-normal, 13.5px);
 }
 
-.switcheroo__form-button {
+#modernbb .switcheroo__form-button {
   min-height: var(--wm-cible-tactile, 44px);
   padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
   border: 0;

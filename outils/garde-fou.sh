@@ -504,6 +504,34 @@ elif ! python3 outils/jetons.py --verifier; then
   gronde "des replis de var() ne correspondent plus à jetons.css"
 fi
 
+echo "── 16. chaque règle est sous #modernbb ─────────────────────────"
+# Un sélecteur sans racine perd contre ModernBB dès que le sien est plus
+# précis — et ça ne se voit qu'à l'écran, sur le forum réel.
+#
+# CE QUI L'A FAIT ÉCRIRE. « La page d'accueil ne ressemble pas du tout à
+# la maquette. » La feuille était juste, elle était servie, ses règles
+# étaient là. Elles PERDAIENT : le bloc vit dans le message d'accueil,
+# donc dans `.content`, et `10-ltr.css` y pose
+# `.content h2 { font-family: Roboto }` — 0-1-1 contre nos 0-1-0.
+#
+# Mesuré sur le forum en injectant la feuille préfixée et en comparant
+# les styles calculés : 260 propriétés changeaient. Les titres, les
+# tailles de corps, la couleur des liens, les 40 px de retrait des `ul`,
+# et 200 px de hauteur en trop.
+#
+# L'ERREUR DE RAISONNEMENT : « c'est notre balisage, rien ne peut entrer
+# en collision ». Faux dès qu'il atterrit dans une zone que le thème
+# habille — et où il atterrit, on ne le sait qu'à l'exécution. Donc tout
+# est préfixé, sans exception à juger au cas par cas.
+#
+# Vérifié en le cassant dans les deux sens : une règle de premier
+# niveau, une règle dans un `@media`.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — spécificité non vérifiée"
+elif ! python3 outils/specificite.py --verifier; then
+  gronde "des sélecteurs ne sont pas sous #modernbb"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

@@ -16,7 +16,7 @@
    bon comportement.
    ════════════════════════════════════════════════════════════════════ */
 
-.wm-coin {
+#modernbb .wm-coin {
   position: fixed;
   right: 16px;
   bottom: 16px;
@@ -30,7 +30,7 @@
 }
 
 /* Le groupe des deux flèches : un seul bloc, un filet entre elles. */
-.wm-coin__fleches {
+#modernbb .wm-coin__fleches {
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -39,11 +39,11 @@
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-.wm-coin__fleches .wm-coin__bouton + .wm-coin__bouton {
+#modernbb .wm-coin__fleches .wm-coin__bouton + .wm-coin__bouton {
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
-.wm-coin__bouton {
+#modernbb .wm-coin__bouton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,26 +65,26 @@
 }
 
 /* Le bouton de thème est seul dans sa boîte, donc il la porte. */
-.wm-coin__theme {
+#modernbb .wm-coin__theme {
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-.wm-coin__bouton svg {
+#modernbb .wm-coin__bouton svg {
   flex: none;
   width: 16px;
   height: 16px;
 }
 
-.wm-coin__bouton:hover {
+#modernbb .wm-coin__bouton:hover {
   color: var(--wm-accent-fort, #1f5470);
   background: var(--wm-fond-terre, #f8eae1);
 }
 
 /* Un contour visible au clavier, et pas seulement à la souris. Sans
    ça, le bloc est inatteignable autrement qu'au doigt. */
-.wm-coin__bouton:focus-visible {
+#modernbb .wm-coin__bouton:focus-visible {
   outline: 2px solid var(--wm-accent-primaire, #2b6988);
   outline-offset: -2px;
 }
@@ -93,18 +93,18 @@
    lui qui permet de reconnaître un bilan déjà posté — mais il ne se
    lit pas. `hidden` est posé par le script ; cette règle le tient même
    si une feuille du thème redéfinit [hidden]. */
-.wm-marqueur {
+#modernbb .wm-marqueur {
   display: none !important;
 }
 
 /* Sous 400 px, les libellés mangent toute la largeur utile : on garde
    les icônes seules, et les noms restent annoncés par aria-label. */
 @media (max-width: 400px) {
-  .wm-coin {
+  #modernbb .wm-coin {
     width: auto;
   }
 
-  .wm-coin__texte {
+  #modernbb .wm-coin__texte {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -113,7 +113,7 @@
     white-space: nowrap;
   }
 
-  .wm-coin__bouton {
+  #modernbb .wm-coin__bouton {
     padding: 12px;
   }
 }
@@ -125,7 +125,7 @@
    rencontre : 10 de rayon, bord/net, fond/surface.
    ════════════════════════════════════════════════════════════════════ */
 
-.wm-barre {
+#modernbb .wm-barre {
   margin: 16px 0;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
@@ -133,7 +133,7 @@
   overflow: hidden;
 }
 
-.wm-barre__entete {
+#modernbb .wm-barre__entete {
   margin: 0;
   padding: 9px 14px;
   background: var(--wm-fond-douce, #f3e1d2);
@@ -146,14 +146,14 @@
   text-transform: uppercase;
 }
 
-.wm-barre__rangee {
+#modernbb .wm-barre__rangee {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-8, 8px);
   padding: 12px 14px;
 }
 
-.wm-barre__bouton {
+#modernbb .wm-barre__bouton {
   flex: 1 1 180px;
   min-height: 44px;
   margin: 0;
@@ -170,30 +170,30 @@
   line-height: 1.3;
 }
 
-.wm-barre__bouton--pleine {
+#modernbb .wm-barre__bouton--pleine {
   border-color: transparent;
   background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /* Clôturer ne fait pas la même chose que les autres : il termine. */
-.wm-barre__bouton--terre {
+#modernbb .wm-barre__bouton--terre {
   color: var(--wm-accent-terre, #9a4f29);
 }
 
 /* Posé : le bloc est dans le message. Un second clic l'enlève — d'où un
    état qui se voit, et pas seulement un bouton qu'on a cliqué. */
-.wm-barre__bouton--pose {
+#modernbb .wm-barre__bouton--pose {
   border-color: var(--wm-accent-primaire, #2b6988);
   box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #2b6988);
 }
 
-.wm-barre__bouton:focus-visible {
+#modernbb .wm-barre__bouton:focus-visible {
   outline: 2px solid var(--wm-accent-primaire, #2b6988);
   outline-offset: 2px;
 }
 
-.wm-barre__note {
+#modernbb .wm-barre__note {
   margin: 0;
   padding: 0 14px 12px;
   color: var(--wm-texte-pale, #756054);
@@ -209,12 +209,12 @@
     existent — le joueur ne tape pas un nom, donc la clé écrite dans le
     bloc est forcément valable côté serveur. */
 
-.wm-barre__rangee--lieu {
+#modernbb .wm-barre__rangee--lieu {
   align-items: center;
   border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
-.wm-barre__etiquette {
+#modernbb .wm-barre__etiquette {
   flex: none;
   color: var(--wm-texte-doux, #6e5749);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -227,7 +227,7 @@
 /*  `flex: 1 1 200px` et pas une largeur fixe : un nom de lieu va de
     « Berge Est » à « Lisière de Samaragd », et une largeur choisie pour
     l'un coupe l'autre. */
-.wm-barre__menu {
+#modernbb .wm-barre__menu {
   flex: 1 1 200px;
   min-width: 0;
   min-height: var(--wm-cible-tactile, 44px);
@@ -241,13 +241,13 @@
   font-size: var(--wm-taille-normal, 13.5px);
 }
 
-.wm-barre__menu:focus-visible {
+#modernbb .wm-barre__menu:focus-visible {
   outline: 2px solid var(--wm-accent-primaire, #2b6988);
   outline-offset: 2px;
 }
 
 /*  Le bouton de cette rangée ne s'étire pas comme les deux autres : il
     suit le menu, il ne partage pas la largeur avec lui. */
-.wm-barre__rangee--lieu .wm-barre__bouton {
+#modernbb .wm-barre__rangee--lieu .wm-barre__bouton {
   flex: 0 0 auto;
 }

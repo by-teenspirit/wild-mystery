@@ -20,11 +20,37 @@
    22 px de marge intérieure et 10 px de rayon, les liens rapides à
    36 px de haut, les bulles de pré-lien à 56 px, les avatars de staff à
    60 px, les quatre vignettes de vote à 32 px.
+
+   ── POURQUOI CHAQUE RÈGLE COMMENCE PAR `#modernbb` ──────────────────
+
+   CETTE FEUILLE A ÉTÉ ÉCRITE SANS, ET MODERNBB A GAGNÉ PARTOUT. Le bloc
+   d'accueil vit dans le message d'accueil, donc dans `.content` — et
+   `10-ltr.css` y pose, entre autres :
+
+       .content h2, .panel h2 { font-family: Roboto, sans-serif }
+
+   0-1-1 contre nos 0-1-0. Tous les titres manuscrits sortaient en
+   Roboto 19,2 px au lieu de Kaushan 36. Relevé le 7 octobre sur le
+   forum réel en injectant la feuille préfixée et en comparant les
+   styles calculés : **260 propriétés changeaient**, et le bloc entier
+   faisait 200 px de trop.
+
+   Ce n'était pas que les titres. Les `ul` reprenaient leurs 40 px de
+   retrait, les liens le gris de ModernBB, tous les corps de texte
+   15,6 px au lieu de 13,5.
+
+   **L'ERREUR DE RAISONNEMENT** : « c'est notre balisage à nous, rien ne
+   peut entrer en collision ». C'est faux dès qu'il est posé DANS une
+   zone que le thème habille. Les feuilles qui touchent au balisage de
+   ModernBB avaient le préfixe depuis le début ; celles qui posent le
+   nôtre — 10, 12 et 14 — ne l'avaient pas, et seule la 14 vit dans
+   `.content`. Les trois l'ont maintenant, et le garde-fou n° 16 le
+   vérifie.
    ════════════════════════════════════════════════════════════════════ */
 
 /* ── 1 · l'enveloppe ──────────────────────────────────────────────── */
 
-.wm-accueil {
+#modernbb .wm-accueil {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -36,7 +62,7 @@
     fond de page. En thème sombre il se retourne — c'est `fond-surface`
     qui porte la bascule, et la transparence laisse voir le fond nuit
     au lieu d'y coller un carré blanc. */
-.wm-accueil__panneau {
+#modernbb .wm-accueil__panneau {
   position: relative;
   width: 100%;
   box-sizing: border-box;
@@ -53,7 +79,7 @@
 /*  Le fond d'image, quand Callista en pose un. En couche, pas en
     `background` tout court : la couleur translucide doit rester
     au-dessus, sinon le texte se lit sur la photo. */
-.wm-accueil__panneau--image {
+#modernbb .wm-accueil__panneau--image {
   background-image:
     linear-gradient(
     color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 82%, transparent),
@@ -67,7 +93,7 @@
 /*  `position` et `z-index` : le contenu passe DEVANT la mascotte, qui
     est en `z-index: 0` sur le panneau. Sans empiler les colonnes,
     l'image resterait au-dessus du texte qu'elle borde. */
-.wm-accueil__colonnes {
+#modernbb .wm-accueil__colonnes {
   position: relative;
   z-index: 1;
   display: flex;
@@ -80,7 +106,7 @@
     ses marges. `min-width: 0` sur la grande : sans lui, un titre long
     dans les actualités pousserait la colonne et ferait déborder la
     page — c'est la règle de la planche 50 sur tout ce qui s'étire. */
-.wm-accueil__principale {
+#modernbb .wm-accueil__principale {
   display: flex;
   min-width: 0;
   flex: 1 1 520px;
@@ -88,7 +114,7 @@
   gap: var(--wm-espace-24, 24px);
 }
 
-.wm-accueil__cote {
+#modernbb .wm-accueil__cote {
   display: flex;
   min-width: 0;
   flex: 1 1 340px;
@@ -96,20 +122,20 @@
   gap: var(--wm-espace-24, 24px);
 }
 
-.wm-accueil__rangee {
+#modernbb .wm-accueil__rangee {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-24, 24px);
 }
 
-.wm-accueil__rangee--bas {
+#modernbb .wm-accueil__rangee--bas {
   align-items: flex-start;
 }
 
 /*  La carte blanche de la maquette, commune aux partenaires, aux votes
     et aux actualités : 22 px de marge, 10 px de rayon, et l'ombre
     discrète relevée dans Figma. */
-.wm-accueil__carte {
+#modernbb .wm-accueil__carte {
   box-sizing: border-box;
   padding: var(--wm-espace-20, 20px);
   border-radius: var(--wm-rayon-lg, 10px);
@@ -121,28 +147,28 @@
 
 /*  Les titres manuscrits de la maquette. `--wm-police-titre` est la
     Kaushan Script, déjà chargée par le forum. */
-.wm-accueil__titre,
-.wm-accueil__titre-carte,
-.wm-accueil__titre-cote {
+#modernbb .wm-accueil__titre,
+#modernbb .wm-accueil__titre-carte,
+#modernbb .wm-accueil__titre-cote {
   margin: 0;
   font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
   font-weight: 400;
   line-height: 1.1;
 }
 
-.wm-accueil__titre {
+#modernbb .wm-accueil__titre {
   margin-bottom: var(--wm-espace-10, 10px);
   color: var(--wm-accent-terre, #9a4f29);
   font-size: 36px;
 }
 
-.wm-accueil__titre-carte {
+#modernbb .wm-accueil__titre-carte {
   margin-bottom: var(--wm-espace-12, 12px);
   color: var(--wm-encre, #2e2018);
   font-size: 20px;
 }
 
-.wm-accueil__titre-actus {
+#modernbb .wm-accueil__titre-actus {
   color: var(--wm-encre, #2e2018);
   font-size: 30px;
   text-align: right;
@@ -153,7 +179,7 @@
     `writing-mode` et pas une rotation : un texte tourné par
     `transform` garde la place d'un texte horizontal, et laissait un
     trou de la largeur du mot à côté de lui. */
-.wm-accueil__titre-cote {
+#modernbb .wm-accueil__titre-cote {
   align-self: center;
   margin: 0;
   color: var(--wm-accent-fort, #1f5470);
@@ -194,7 +220,7 @@
     Donc l'encre, écrite en clair. Le jour où l'image change, cette
     mesure est à refaire — c'est le prix d'un texte posé sur une photo,
     et c'est pour ça que la règle est écrite ici et pas ailleurs. */
-.wm-accueil__bandeau--image {
+#modernbb .wm-accueil__bandeau--image {
   display: flex;
   box-sizing: border-box;
   min-width: 70px;
@@ -210,19 +236,19 @@
   text-align: center;
 }
 
-.wm-accueil__preliens .wm-accueil__titre-cote {
+#modernbb .wm-accueil__preliens .wm-accueil__titre-cote {
   color: var(--wm-accent-terre, #9a4f29);
   font-size: 26px;
 }
 
 /* ── 3 · le contexte ──────────────────────────────────────────────── */
 
-.wm-accueil__contexte {
+#modernbb .wm-accueil__contexte {
   min-width: 0;
   flex: 1 1 300px;
 }
 
-.wm-accueil__chapo {
+#modernbb .wm-accueil__chapo {
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -232,7 +258,7 @@
   text-transform: uppercase;
 }
 
-.wm-accueil__texte {
+#modernbb .wm-accueil__texte {
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -240,12 +266,12 @@
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
-.wm-accueil__pied {
+#modernbb .wm-accueil__pied {
   margin: var(--wm-espace-8, 8px) 0 0;
   text-align: right;
 }
 
-.wm-accueil__lien {
+#modernbb .wm-accueil__lien {
   color: var(--wm-accent-primaire, #2b6988);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
@@ -253,19 +279,19 @@
   text-decoration: none;
 }
 
-.wm-accueil__lien:hover,
-.wm-accueil__lien:focus-visible {
+#modernbb .wm-accueil__lien:hover,
+#modernbb .wm-accueil__lien:focus-visible {
   text-decoration: underline;
 }
 
 /* ── 4 · les liens rapides ────────────────────────────────────────── */
 
-.wm-accueil__liens {
+#modernbb .wm-accueil__liens {
   min-width: 0;
   flex: 1 1 280px;
 }
 
-.wm-accueil__liste-liens {
+#modernbb .wm-accueil__liste-liens {
   display: flex;
   margin: 0;
   padding: 0;
@@ -276,7 +302,7 @@
 
 /*  Une rangée : 36 px de haut, le fond doux, l'œil dans son carré
     terre. Les mesures viennent de la maquette. */
-.wm-accueil__rapide {
+#modernbb .wm-accueil__rapide {
   display: flex;
   box-sizing: border-box;
   min-height: 36px;
@@ -292,8 +318,8 @@
   text-decoration: none;
 }
 
-a.wm-accueil__rapide:hover,
-a.wm-accueil__rapide:focus-visible {
+#modernbb a.wm-accueil__rapide:hover,
+#modernbb a.wm-accueil__rapide:focus-visible {
   background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
@@ -305,7 +331,7 @@ a.wm-accueil__rapide:focus-visible {
     Au passage, le barré de `--sans-adresse` ne le traverse plus : une
     décoration de texte ne se propage pas à un élément remplacé. C'était
     l'autre moitié du défaut — le mot `visibility` sortait barré. */
-.wm-accueil__oeil {
+#modernbb .wm-accueil__oeil {
   display: block;
   box-sizing: content-box;
   width: 12px;
@@ -319,7 +345,7 @@ a.wm-accueil__rapide:focus-visible {
 
 /*  L'œil d'une rangée sans adresse perd son accent : il n'annonce plus
     rien qui s'ouvre. */
-.wm-accueil__rapide--sans-adresse .wm-accueil__oeil {
+#modernbb .wm-accueil__rapide--sans-adresse .wm-accueil__oeil {
   background: var(--wm-bord-net, #d9c3b1);
   color: var(--wm-texte-doux, #6e5749);
 }
@@ -337,8 +363,8 @@ a.wm-accueil__rapide:focus-visible {
     celui-ci est une troisième surface. 4,64 en clair, 4,75 en sombre —
     au-dessus de 4,5, mais de peu : ne pas éclaircir ce gris sans
     remesurer. */
-.wm-accueil__lien--sans-adresse,
-.wm-accueil__rapide--sans-adresse {
+#modernbb .wm-accueil__lien--sans-adresse,
+#modernbb .wm-accueil__rapide--sans-adresse {
   color: var(--wm-texte-pale, #756054);
   cursor: default;
   text-decoration: line-through;
@@ -349,18 +375,18 @@ a.wm-accueil__rapide:focus-visible {
 /*  La carte flotte au-dessus du panneau, alignée à droite, comme la
     maquette. En flux, pas en absolu : au-dessus de 1 172 px elle y est
     déjà, et en dessous elle se range toute seule. */
-.wm-accueil__votes {
+#modernbb .wm-accueil__votes {
   display: flex;
   max-width: 100%;
   align-items: center;
   gap: var(--wm-espace-12, 12px);
 }
 
-.wm-accueil__votes .wm-accueil__titre-carte {
+#modernbb .wm-accueil__votes .wm-accueil__titre-carte {
   margin: 0;
 }
 
-.wm-accueil__votes-liste {
+#modernbb .wm-accueil__votes-liste {
   display: flex;
   margin: 0;
   padding: 0;
@@ -370,13 +396,13 @@ a.wm-accueil__rapide:focus-visible {
   list-style: none;
 }
 
-.wm-accueil__vote {
+#modernbb .wm-accueil__vote {
   display: block;
   border-radius: var(--wm-rayon-sm, 6px);
   line-height: 0;
 }
 
-.wm-accueil__vote-image {
+#modernbb .wm-accueil__vote-image {
   display: block;
   overflow: hidden;
   width: 32px;
@@ -385,7 +411,7 @@ a.wm-accueil__rapide:focus-visible {
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
-.wm-accueil__vote-image img {
+#modernbb .wm-accueil__vote-image img {
   display: block;
   width: 100%;
   height: 100%;
@@ -394,12 +420,12 @@ a.wm-accueil__rapide:focus-visible {
 
 /* ── 6 · les partenaires ──────────────────────────────────────────── */
 
-.wm-accueil__partenaires {
+#modernbb .wm-accueil__partenaires {
   min-width: 0;
   flex: 1 1 260px;
 }
 
-.wm-accueil__partenaires-liste {
+#modernbb .wm-accueil__partenaires-liste {
   display: flex;
   margin: 0;
   padding: 0;
@@ -409,29 +435,29 @@ a.wm-accueil__rapide:focus-visible {
   list-style: none;
 }
 
-.wm-accueil__partenaire {
+#modernbb .wm-accueil__partenaire {
   display: block;
   width: 24px;
   height: 24px;
   color: var(--wm-accent-terre, #9a4f29);
 }
 
-.wm-accueil__partenaire svg {
+#modernbb .wm-accueil__partenaire svg {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-a.wm-accueil__partenaire:hover,
-a.wm-accueil__partenaire:focus-visible {
+#modernbb a.wm-accueil__partenaire:hover,
+#modernbb a.wm-accueil__partenaire:focus-visible {
   color: var(--wm-accent-fort, #1f5470);
 }
 
-.wm-accueil__partenaire--sans-adresse {
+#modernbb .wm-accueil__partenaire--sans-adresse {
   color: var(--wm-texte-pale, #756054);
 }
 
-.wm-accueil__partenaire-image {
+#modernbb .wm-accueil__partenaire-image {
   display: block;
   overflow: hidden;
   width: 24px;
@@ -439,7 +465,7 @@ a.wm-accueil__partenaire:focus-visible {
   border-radius: var(--wm-rayon-sm, 6px);
 }
 
-.wm-accueil__partenaire-image img {
+#modernbb .wm-accueil__partenaire-image img {
   display: block;
   width: 100%;
   height: 100%;
@@ -448,13 +474,13 @@ a.wm-accueil__partenaire:focus-visible {
 
 /* ── 7 · le staff ─────────────────────────────────────────────────── */
 
-.wm-accueil__staff {
+#modernbb .wm-accueil__staff {
   display: flex;
   align-items: stretch;
   gap: var(--wm-espace-16, 16px);
 }
 
-.wm-accueil__staff-liste {
+#modernbb .wm-accueil__staff-liste {
   display: flex;
   min-width: 0;
   margin: 0;
@@ -465,7 +491,7 @@ a.wm-accueil__partenaire:focus-visible {
   list-style: none;
 }
 
-.wm-accueil__membre {
+#modernbb .wm-accueil__membre {
   display: flex;
   min-width: 0;
   align-items: center;
@@ -478,7 +504,7 @@ a.wm-accueil__partenaire:focus-visible {
     jeton à lui — et je n'en invente pas un pour une bordure. On le
     DÉRIVE de l'accent : la nuance est la même en clair, et elle suit le
     thème en sombre au lieu de rester un bleu de jour. */
-.wm-accueil__membre-avatar {
+#modernbb .wm-accueil__membre-avatar {
   display: block;
   overflow: hidden;
   box-sizing: border-box;
@@ -491,7 +517,7 @@ a.wm-accueil__partenaire:focus-visible {
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
-.wm-accueil__membre-avatar img {
+#modernbb .wm-accueil__membre-avatar img {
   display: block;
   width: 100%;
   height: 100%;
@@ -499,7 +525,7 @@ a.wm-accueil__partenaire:focus-visible {
   object-fit: cover;
 }
 
-.wm-accueil__membre-corps {
+#modernbb .wm-accueil__membre-corps {
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -507,7 +533,7 @@ a.wm-accueil__partenaire:focus-visible {
   gap: var(--wm-espace-8, 8px);
 }
 
-.wm-accueil__membre-tete {
+#modernbb .wm-accueil__membre-tete {
   display: flex;
   margin: 0;
   flex-wrap: wrap;
@@ -515,7 +541,7 @@ a.wm-accueil__partenaire:focus-visible {
   gap: var(--wm-espace-8, 8px);
 }
 
-.wm-accueil__membre-pseudo {
+#modernbb .wm-accueil__membre-pseudo {
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
@@ -523,12 +549,12 @@ a.wm-accueil__partenaire:focus-visible {
   text-decoration: none;
 }
 
-a.wm-accueil__membre-pseudo:hover,
-a.wm-accueil__membre-pseudo:focus-visible {
+#modernbb a.wm-accueil__membre-pseudo:hover,
+#modernbb a.wm-accueil__membre-pseudo:focus-visible {
   text-decoration: underline;
 }
 
-.wm-accueil__membre-role {
+#modernbb .wm-accueil__membre-role {
   color: var(--wm-accent-primaire, #2b6988);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
@@ -537,7 +563,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
   text-transform: uppercase;
 }
 
-.wm-accueil__membre-personnages {
+#modernbb .wm-accueil__membre-personnages {
   display: flex;
   margin: 0;
   flex-wrap: wrap;
@@ -552,7 +578,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
 /*  Le point de séparation de la maquette. Un pseudo-élément plutôt
     qu'un caractère : « · » dépend d'une police, et il se lit à voix
     haute dans certains lecteurs. */
-.wm-accueil__point {
+#modernbb .wm-accueil__point {
   display: block;
   width: 4px;
   height: 4px;
@@ -562,7 +588,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
     #fffbf7));
 }
 
-.wm-accueil__presence {
+#modernbb .wm-accueil__presence {
   margin: 0;
 }
 
@@ -577,13 +603,13 @@ a.wm-accueil__membre-pseudo:focus-visible {
 
     Le seul ajustement propre à l'accueil : la liste tient dans la carte,
     qui est étroite. */
-.wm-accueil__actus-liste {
+#modernbb .wm-accueil__actus-liste {
   min-width: 0;
 }
 
 /* ── 9 · les pré-liens ────────────────────────────────────────────── */
 
-.wm-accueil__preliens {
+#modernbb .wm-accueil__preliens {
   display: flex;
   min-width: 0;
   flex: 1 1 260px;
@@ -591,7 +617,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
   gap: var(--wm-espace-10, 10px);
 }
 
-.wm-accueil__preliens-liste {
+#modernbb .wm-accueil__preliens-liste {
   display: flex;
   margin: 0;
   padding: 0;
@@ -603,11 +629,11 @@ a.wm-accueil__membre-pseudo:focus-visible {
 
 /*  La bulle porte le panneau : `relative` ici, et le panneau se place
     par rapport à elle. */
-.wm-accueil__prelien {
+#modernbb .wm-accueil__prelien {
   position: relative;
 }
 
-.wm-accueil__prelien-bouton {
+#modernbb .wm-accueil__prelien-bouton {
   display: block;
   padding: 4px;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
@@ -617,13 +643,13 @@ a.wm-accueil__membre-pseudo:focus-visible {
   line-height: 0;
 }
 
-.wm-accueil__prelien--ouvert .wm-accueil__prelien-bouton,
-.wm-accueil__prelien-bouton:hover,
-.wm-accueil__prelien-bouton:focus-visible {
+#modernbb .wm-accueil__prelien--ouvert .wm-accueil__prelien-bouton,
+#modernbb .wm-accueil__prelien-bouton:hover,
+#modernbb .wm-accueil__prelien-bouton:focus-visible {
   border-color: var(--wm-accent-primaire, #2b6988);
 }
 
-.wm-accueil__prelien-avatar {
+#modernbb .wm-accueil__prelien-avatar {
   display: block;
   overflow: hidden;
   width: 46px;
@@ -632,7 +658,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
-.wm-accueil__prelien-avatar img {
+#modernbb .wm-accueil__prelien-avatar img {
   display: block;
   width: 100%;
   height: 100%;
@@ -649,11 +675,11 @@ a.wm-accueil__membre-pseudo:focus-visible {
 
     Et elle reste `hidden` quand elle est fermée — redit ici, parce que
     l'attribut seul perd contre notre `display: flex`. */
-.wm-accueil__prelien-panneau[hidden] {
+#modernbb .wm-accueil__prelien-panneau[hidden] {
   display: none;
 }
 
-.wm-accueil__prelien-panneau {
+#modernbb .wm-accueil__prelien-panneau {
   position: absolute;
   bottom: calc(100% + var(--wm-espace-8, 8px));
   left: 50%;
@@ -674,7 +700,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
   transform: translateX(-50%);
 }
 
-.wm-accueil__prelien-nom {
+#modernbb .wm-accueil__prelien-nom {
   margin: 0;
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -682,7 +708,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
   font-weight: var(--wm-graisse-gras, 700);
 }
 
-.wm-accueil__prelien-ligne {
+#modernbb .wm-accueil__prelien-ligne {
   margin: 0;
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -690,12 +716,12 @@ a.wm-accueil__membre-pseudo:focus-visible {
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
-.wm-accueil__prelien-clef {
+#modernbb .wm-accueil__prelien-clef {
   color: var(--wm-texte-doux, #6e5749);
   font-weight: var(--wm-graisse-demi, 600);
 }
 
-.wm-accueil__prelien-lien {
+#modernbb .wm-accueil__prelien-lien {
   margin-top: var(--wm-espace-4, 4px);
 }
 
@@ -717,7 +743,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
     clics.** Deux changements : il rapetisse à 190 px, et la rangée du
     bas lui rend son coin (règle suivante). Les deux ensemble, pas l'un
     — à 190 px seul il mordait encore le tiers gauche de la carte. */
-.wm-accueil__mascotte {
+#modernbb .wm-accueil__mascotte {
   position: absolute;
   z-index: 0;
   bottom: -34px;
@@ -736,7 +762,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
     mascotte, elle, disparaît à 900 — entre les deux, la marge n'a plus
     de raison d'être et la carte reprend toute la largeur. */
 @media (min-width: 1100px) {
-  .wm-accueil__rangee--bas {
+  #modernbb .wm-accueil__rangee--bas {
     padding-left: 128px;
   }
 }
@@ -745,19 +771,19 @@ a.wm-accueil__membre-pseudo:focus-visible {
     couvrirait le contexte, et une illustration qui cache le texte
     qu'elle illustre n'a plus de raison d'être. */
 @media (max-width: 900px) {
-  .wm-accueil__mascotte {
+  #modernbb .wm-accueil__mascotte {
     display: none;
   }
 
-  .wm-accueil__titre-cote {
+  #modernbb .wm-accueil__titre-cote {
     /*  Les étiquettes verticales se recouchent : à l'étroit, une
         colonne de 30 px de haut pour un mot est du gâchis. */
     align-self: flex-start;
     writing-mode: horizontal-tb;
   }
 
-  .wm-accueil__staff,
-  .wm-accueil__preliens {
+  #modernbb .wm-accueil__staff,
+  #modernbb .wm-accueil__preliens {
     flex-direction: column;
   }
 }

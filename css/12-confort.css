@@ -115,14 +115,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     L'ancre est en `relative` : le panneau se place par rapport à ELLE,
     donc il suit le coin où qu'il aille, et il n'a pas de coordonnées
     d'écran à tenir à jour. */
-.wm-confort {
+#modernbb .wm-confort {
   position: relative;
 }
 
 /*  Le bouton reprend `.wm-coin__bouton` — même fond, même taille, même
     cible tactile que le thème et les flèches. Il n'a besoin ici que de
     son cadre, que les boutons groupés tiennent de leur conteneur. */
-.wm-coin .wm-confort__bouton {
+#modernbb .wm-coin .wm-confort__bouton {
   width: 100%;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
@@ -132,13 +132,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  Ouvert, le bouton le MONTRE — pas seulement l'annonce. Une nuance
     seule ne suffirait pas : on prend le fond d'accent, comme un état
     coché ailleurs dans la charte. */
-.wm-confort--ouvert .wm-confort__bouton {
+#modernbb .wm-confort--ouvert .wm-confort__bouton {
   border-color: var(--wm-accent-primaire, #2b6988);
   background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
-.wm-coin .wm-confort__bouton svg {
+#modernbb .wm-coin .wm-confort__bouton svg {
   width: 18px;
   height: 18px;
   flex: none;
@@ -166,11 +166,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     oui, hauteur : 159 px ».
 
     On le redit donc nous-mêmes, avant la règle qui l'affiche. */
-.wm-confort__panneau[hidden] {
+#modernbb .wm-confort__panneau[hidden] {
   display: none;
 }
 
-.wm-confort__panneau {
+#modernbb .wm-confort__panneau {
   position: absolute;
   box-sizing: border-box;
   right: 0;
@@ -195,7 +195,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  Le titre du panneau : il répète l'`aria-label`, pour l'œil cette
     fois. Un panneau qui s'ouvre sans dire ce qu'il règle oblige à
     deviner. */
-.wm-confort__titre {
+#modernbb .wm-confort__titre {
   margin: 0 0 var(--wm-espace-4, 4px);
   padding: 0 var(--wm-espace-4, 4px);
   color: var(--wm-texte-doux, #6e5749);
@@ -209,7 +209,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  Un réglage : pleine largeur, texte à gauche, cible tactile pleine.
     Il porte son propre fond — sans lui il héritait du transparent du
     coin et se lisait sur la page. */
-.wm-confort__choix {
+#modernbb .wm-confort__choix {
   display: flex;
   box-sizing: border-box;
   width: 100%;
@@ -234,7 +234,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     la nuance disparaît pour une personne sur douze — et sur un panneau
     d'accessibilité, ce serait une faute particulière. `aria-pressed` le
     dit aussi à voix haute. */
-.wm-confort__coche {
+#modernbb .wm-confort__coche {
   position: relative;
   width: 16px;
   height: 16px;
@@ -244,12 +244,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-page, #f2e4d8);
 }
 
-.wm-confort__choix--coche {
+#modernbb .wm-confort__choix--coche {
   background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
-.wm-confort__choix--coche .wm-confort__coche {
+#modernbb .wm-confort__choix--coche .wm-confort__coche {
   border-color: var(--wm-texte-inverse, #fffbf7);
   background: transparent;
 }
@@ -257,7 +257,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  Le crochet, en deux traits de bordure tournés : pas un caractère —
     « ✓ » dépend d'une police qui peut manquer, et il ne se centre pas
     pareil d'un système à l'autre. */
-.wm-confort__choix--coche .wm-confort__coche::after {
+#modernbb .wm-confort__choix--coche .wm-confort__coche::after {
   content: "";
   position: absolute;
   top: 1px;
@@ -272,7 +272,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  Le libellé se lit : la règle qui masque les textes du coin sous
     760 px vaut pour les boutons à icône, pas pour ceux-ci, qui n'ont
     que leur texte pour dire ce qu'ils font. */
-.wm-confort__libelle {
+#modernbb .wm-confort__libelle {
   position: static;
   width: auto;
   height: auto;
@@ -286,7 +286,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  Au-dessus du coin d'outils, pas à côté : le coin tient le bas du
     bord droit, et les deux côte à côte se disputeraient les soixante
     derniers pixels (feuille `08` de la planche 50). */
-.wm-notifs {
+#modernbb .wm-notifs {
   position: fixed;
   z-index: 50;
   right: var(--wm-espace-16, 16px);
@@ -300,7 +300,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
-.wm-notifs__liste {
+#modernbb .wm-notifs__liste {
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -309,7 +309,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   list-style: none;
 }
 
-.wm-notifs__lien {
+#modernbb .wm-notifs__lien {
   display: flex;
   align-items: center;
   gap: var(--wm-espace-10, 10px);
@@ -320,14 +320,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-decoration: none;
 }
 
-.wm-notifs__lien:hover,
-.wm-notifs__lien:focus-visible {
+#modernbb .wm-notifs__lien:hover,
+#modernbb .wm-notifs__lien:focus-visible {
   text-decoration: underline;
 }
 
 /*  La pastille du nombre. Elle est `aria-hidden` : la phrase à côté le
     dit déjà, et l'entendre deux fois fait bégayer. */
-.wm-notifs__nombre {
+#modernbb .wm-notifs__nombre {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -343,7 +343,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-variant-numeric: tabular-nums;
 }
 
-.wm-notifs__raccourcis {
+#modernbb .wm-notifs__raccourcis {
   display: flex;
   flex-wrap: wrap;
   margin: var(--wm-espace-10, 10px) 0 0;
@@ -352,14 +352,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
-.wm-notifs__raccourci {
+#modernbb .wm-notifs__raccourci {
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
   text-decoration: underline;
 }
 
 /*  Il se ferme. Un encart qu'on ne peut pas écarter est une bannière. */
-.wm-notifs__fermer {
+#modernbb .wm-notifs__fermer {
   position: absolute;
   top: var(--wm-espace-4, 4px);
   right: var(--wm-espace-4, 4px);
@@ -375,8 +375,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: 1;
 }
 
-.wm-notifs__fermer:hover,
-.wm-notifs__fermer:focus-visible {
+#modernbb .wm-notifs__fermer:hover,
+#modernbb .wm-notifs__fermer:focus-visible {
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
@@ -385,7 +385,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  L'encart passe en bas, pleine largeur : un bloc de 272 px flottant
     sur un écran de 375 couvre le contenu qu'on essaie de lire. */
 @media (max-width: 760px) {
-  .wm-notifs {
+  #modernbb .wm-notifs {
     right: var(--wm-espace-8, 8px);
     bottom: var(--wm-espace-8, 8px);
     left: var(--wm-espace-8, 8px);

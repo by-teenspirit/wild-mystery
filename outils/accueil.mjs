@@ -106,15 +106,60 @@ const DONNEES = {
   images: { mascotte: "https://exemple.test/img/accueil/mascotte.png", fond: "" },
 };
 
+//  ── LES RÈGLES DE MODERNBB QUI DISPUTENT LES NÔTRES ─────────────────
+//
+//  RELEVÉES SUR LE FORUM, PAS INVENTÉES : le 7 octobre, en parcourant
+//  `10-ltr.css` et en gardant les règles qui collent à un nœud du bloc
+//  d'accueil. Dix-sept, recopiées telles quelles.
+//
+//  POURQUOI ELLES SONT LÀ. Le harnais ne les servait pas, et c'est ce
+//  qui a laissé passer le défaut du 7 octobre : la feuille 14 n'avait
+//  pas le préfixe `#modernbb`, donc `.content h2` (0-1-1) battait
+//  `.wm-accueil__titre` (0-1-0) et TOUS les titres sortaient en Roboto
+//  19,2 px au lieu de Kaushan 36. Ici tout passait, puisqu'il n'y avait
+//  personne contre qui perdre.
+//
+//  Elles sont servies AVANT la nôtre, comme sur le forum : à
+//  spécificité égale c'est la dernière qui gagne, et l'ordre fait donc
+//  partie de ce qu'on éprouve.
+const MODERNBB = `
+*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
+h2 { color: #3e464c; font-family: Roboto, sans-serif; font-size: 2em; font-weight: 400; margin: 0; }
+p { line-height: 1.3846; font-size: 1.3rem; margin-bottom: 18px; }
+p:last-child { margin-bottom: 0; }
+img { border-width: 0; }
+ul { list-style-type: none; }
+button { background-color: rgba(255,255,255,0); cursor: pointer; }
+a { text-decoration: none; }
+a:link { color: #3e464c; }
+.panel p, .panel div.mes-txt { font-size: 1.3rem; margin-bottom: 18px; word-break: break-word; }
+.panel p:last-child, .panel div.mes-txt:last-child { word-break: break-word; margin-bottom: 18px; }
+.content h2, .panel h2 { border-color: #3793ff; color: #3793ff; border-style: solid;
+  border-width: 0 0 1px; font-family: Roboto, sans-serif; font-size: 1.6rem;
+  font-weight: 400; line-height: 1.526; margin-bottom: 9px; margin-top: -3px; padding-bottom: 3px; }
+div.mes-txt ul, div.mes-txt ol { padding-left: 40px; }
+div.mes-txt ul { list-style-type: disc; }
+#wrap div#page-body h2 { font-weight: 500; border-bottom: 1px solid #ccc; margin-bottom: 1em; }
+.modern-resp .panel p { word-break: break-word; }
+.modern-resp .panel div.mes-txt img { max-width: 100%; }
+`;
+
+//  L'EMPILEMENT RÉEL, relevé le même jour en remontant les parents du
+//  bloc sur le forum. `.panel`, `.mes-txt` et `#wrap > #page-body` sont
+//  ceux qui portent les règles ci-dessus : sans eux, la moitié d'entre
+//  elles ne collerait à rien et le harnais mentirait dans l'autre sens.
 const page = `<!doctype html><html lang="fr" id="min-width"><head><meta charset="utf-8">
-<style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
+<style>html,body{margin:0}body{font-size:10px;background:var(--wm-fond-page)}</style>
+<style>${MODERNBB}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style></head>
 <body id="modernbb">
-<div id="page-body">
+<div class="conteneur_minwidth_IE modern-resp"><div id="wrap"><div id="page-body">
+<div id="main-content"><div class="panel introduction"><div class="mes-txt">
 ${REPLI}
+</div></div></div>
 <div class="forabg" style="height:1200px">la liste des forums, qui reste en dessous</div>
-</div>
+</div></div></div>
 </body></html>`;
 
 const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
@@ -265,6 +310,43 @@ const sansAdresse = await p.evaluate(() => {
 dire("UN LIEN SANS ADRESSE N'EST PAS UN LIEN", !sansAdresse.muetEstUnLien);
 dire("celui qui en a une l'a gardée", sansAdresse.parlantEstUnLien);
 dire("et le manque se voit", sansAdresse.barre.includes("line-through"), sansAdresse.barre);
+
+// ── 2 ter · C'EST NOUS QUI GAGNONS CONTRE MODERNBB ──────────────────
+//  Le harnais sert maintenant les dix-sept règles de `10-ltr.css` qui
+//  disputent les nôtres, dans l'ordre réel. Reste à vérifier que la
+//  cascade tourne de notre côté — c'est tout l'objet du préfixe
+//  `#modernbb`, et c'est ce qui manquait le 7 octobre.
+//
+//  On mesure ce que ModernBB imposait ce jour-là, pas une propriété au
+//  hasard : la police des titres, la taille du corps, la couleur des
+//  liens et le retrait des listes.
+const cascade = await p.evaluate(() => {
+  const g = (s, p) => {
+    const e = document.querySelector(s);
+    return e === null ? "absent" : getComputedStyle(e).getPropertyValue(p);
+  };
+  return {
+    titre: g(".wm-accueil__titre", "font-family").split(",")[0].replace(/"/g, ""),
+    titreCarte: g(".wm-accueil__titre-carte", "font-family").split(",")[0].replace(/"/g, ""),
+    tailleDuTitre: g(".wm-accueil__titre", "font-size"),
+    corps: g(".wm-accueil__texte", "font-size"),
+    //  `a:link { color: #3e464c }` de ModernBB.
+    lien: g(".wm-accueil__lien", "color"),
+    //  `div.mes-txt ul { padding-left: 40px }`.
+    retrait: g(".wm-accueil__liste-liens", "padding-left"),
+  };
+});
+dire(
+  "LES TITRES SONT EN KAUSHAN, PAS EN ROBOTO",
+  cascade.titre === "Kaushan Script" && cascade.titreCarte === "Kaushan Script",
+  JSON.stringify(cascade),
+);
+dire(
+  "et le reste aussi est à nous : taille, couleur, retrait",
+  cascade.tailleDuTitre === "36px" && cascade.corps === "13.5px" &&
+    cascade.lien !== "rgb(62, 70, 76)" && cascade.retrait === "0px",
+  JSON.stringify(cascade),
+);
 
 // ── 3 bis · L'ŒIL EST UN TRACÉ, PAS UN MOT ──────────────────────────
 //  Il a été `<span class="material-symbols-outlined">visibility</span>`,
