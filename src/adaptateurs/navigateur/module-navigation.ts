@@ -580,6 +580,7 @@ function rangerLaBarreForumactif(
   identifiant: number | null,
   avatar: string | null,
   pseudo: string | null,
+  secours?: () => void,
 ): boolean {
   const droite = doc.querySelector<HTMLElement>("#fa_right");
   if (droite === null) return false;
@@ -595,7 +596,15 @@ function rangerLaBarreForumactif(
   if (identifiant === null) {
     //  Déconnectée : on reprend ses deux liens tels quels. Les perdre
     //  serait pire que tout — un visiteur ne pourrait plus se connecter.
-    for (const a of droite.querySelectorAll<HTMLAnchorElement>("a[href]")) {
+    //
+    //  **`:scope >` et pas `a[href]` tout court.** La première version
+    //  ramassait TOUT ce que la barre contenait, y compris le « Voir
+    //  toutes les notifications » d'une liste déroulante — le harnais
+    //  l'a attrapé. On ne prend que ses enfants directs, et on écarte
+    //  `#fa_hide`, qui est son bouton « masquer la barre » : il n'a rien
+    //  à faire chez nous puisqu'on la masque déjà.
+    for (const a of droite.querySelectorAll<HTMLAnchorElement>(":scope > a[href]")) {
+      if (a.id === "fa_hide") continue;
       const titre = a.textContent?.replace(/\s+/g, " ").trim() ?? "";
       const ou = a.getAttribute("href");
       if (titre === "" || ou === null || ou === "") continue;
@@ -608,6 +617,10 @@ function rangerLaBarreForumactif(
     rangerLaToolbar(doc);
     return true;
   }
+
+  //  Les notifications d'abord : la cloche se lit à gauche du compte,
+  //  comme partout ailleurs sur le web.
+  const cloche = deplacerLesNotifications(doc, notre);
 
   //  Connectée : l'avatar rond de 24 px et le pseudo, comme la maquette
   //  `141:3646`. C'est un bouton — il ouvre le menu, il ne mène pas au
@@ -661,7 +674,52 @@ function rangerLaBarreForumactif(
     if (e.key === "Escape" && !menu.hasAttribute("hidden")) basculer(false);
   });
 
+  //  Le bloc flottant ne sert QUE de secours : deux endroits où lire ses
+  //  notifications, c'est un de trop. Quand la cloche est là, elle gagne
+  //  — c'est la vraie, celle que Forumactif met à jour tout seul.
+  if (!cloche) secours?.();
+
   rangerLaToolbar(doc);
+  return true;
+}
+
+/** Déménage les notifications de Forumactif dans notre barre.
+ *
+ *  ── ON DÉPLACE, ON NE COPIE PAS ─────────────────────────────────────
+ *
+ *  C'est l'inverse de la règle qui vaut pour les liens : eux sont de
+ *  simples `<a href>`, donc copiables. Relevé le 7 octobre sur un compte
+ *  connecté, la cloche est `<a id="fa_notifications">Notifications<span
+ *  id="notif_unread"></span></a>` — **sans href**. C'est le script de
+ *  Forumactif qui l'ouvre, qui remplit `#notif_list` et qui met le
+ *  compteur à jour. Une cloche clonée serait une cloche morte.
+ *
+ *  Les identifiants survivent au déménagement, donc leur script continue
+ *  de les retrouver. On emmène les trois nœuds ensemble :
+ *
+ *    `#fa_notifications`  la cloche et son compteur
+ *    `#notif_list`        le menu déroulant — absolu, `display: none`
+ *    `#live_notif`        les apparitions en direct
+ *
+ *  **On ne touche pas à leur `display`** : c'est lui que leur script
+ *  bascule. On ne fait que les replacer, et la feuille les recale sur
+ *  notre conteneur.
+ *
+ *  Rend `true` si la cloche a été trouvée. */
+function deplacerLesNotifications(doc: Document, ou: HTMLElement): boolean {
+  const cloche = doc.querySelector<HTMLElement>("#fa_notifications");
+  if (cloche === null) return false;
+
+  //  Le mot « Notifications » est masqué à l'œil par la feuille, pas
+  //  retiré du nœud : leur script réécrit ce contenu. L'étiquette ARIA
+  //  est un ATTRIBUT, donc elle survit à une réécriture.
+  cloche.setAttribute("aria-label", "Notifications");
+  ou.appendChild(cloche);
+
+  for (const id of ["#notif_list", "#live_notif"]) {
+    const n = doc.querySelector<HTMLElement>(id);
+    if (n !== null) ou.appendChild(n);
+  }
   return true;
 }
 
@@ -697,6 +755,9 @@ export type Dependances = {
   /** Le nombre de messages non lus, relevé AVANT la réécriture de la
    *  barre — c'est Forumactif qui l'écrit dans le lien « Messagerie ». */
   readonly messages?: number;
+  /** Ce qu'on fait si Forumactif n'a PAS de cloche de notifications —
+   *  toolbar désactivée, par exemple. Appelé au plus une fois. */
+  readonly secoursNotifications?: () => void;
 };
 
 /**
@@ -704,7 +765,15 @@ export type Dependances = {
  * trouvée et réécrite.
  */
 export function poserLaNavigation(
-  { doc, donnees, identifiant = null, avatar = null, pseudo = null, messages = 0 }: Dependances,
+  {
+    doc,
+    donnees,
+    identifiant = null,
+    avatar = null,
+    pseudo = null,
+    messages = 0,
+    secoursNotifications,
+  }: Dependances,
 ): boolean {
   const nav = navigationDepuis(donnees);
   if (nav.liens.length === 0) return false;
@@ -748,9 +817,13 @@ export function poserLaNavigation(
   //  `#fa_toolbar` est posée par un script tiers, après nous. On la
   //  guette, et on arrête de guetter — un observateur qui tourne pour
   //  rien est une fuite.
-  if (!rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo)) {
+  if (!rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo, secoursNotifications)) {
     const guetteur = new MutationObserver(() => {
-      if (rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo)) guetteur.disconnect();
+      if (
+        rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo, secoursNotifications)
+      ) {
+        guetteur.disconnect();
+      }
     });
     guetteur.observe(doc.documentElement, { childList: true, subtree: true });
     setTimeout(() => guetteur.disconnect(), 10_000);

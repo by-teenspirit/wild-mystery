@@ -103,10 +103,21 @@ const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
     z-index 20002, et un margin-top de 42 sur le corps pour lui faire
     place. C'est elle qui recouvrait notre barre collée. */
 #fa_toolbar{position:fixed;top:0;left:0;right:0;height:42px;z-index:20002;background:#222;color:#fff}
-#fa_right{float:right}
+#fa_right{float:right;position:relative}
+/*  Les styles que Forumactif leur donne, releves : la liste est en
+    absolu sur #fa_right, masquee, et c'est leur script qui bascule le
+    display.  */
+#notif_list{display:none;position:absolute;top:42px;right:0;left:41px;z-index:10000}
+#live_notif{position:absolute;right:47px;visibility:hidden}
 body{margin-top:42px}</style></head>
 <body id="modernbb">
 <div id="fa_toolbar"><div id="fa_right">
+  <!--  Le balisage REEL des notifications, releve le 7 octobre sur un
+        compte connecte. La cloche n'a PAS de href : c'est leur script
+        qui l'ouvre, d'ou le demenagement au lieu de la copie.  -->
+  <a id="fa_notifications" class="rightHeaderLink">Notifications<span id="notif_unread"></span></a>
+  <ul id="notif_list"><li class="see_all"><a href="/profile?mode=editprofile&amp;page_profil=notifications">Voir toutes les notifications</a></li></ul>
+  <div id="live_notif"></div>
   <a href="/u4">Compte de test</a>
   <a href="/privmsg?folder=inbox">Messagerie 3</a>
   <a href="/login?logout=1&amp;tid=JETON">Déconnexion</a>
@@ -498,6 +509,40 @@ dire(
   String(adroite.messagerie),
 );
 
+//  6 ter · LA CLOCHE DE FORUMACTIF EST DÉMÉNAGÉE, PAS CLONÉE
+//
+//  Elle n'a pas de href : c'est leur script qui l'ouvre. Un clone serait
+//  mort. On vérifie que c'est bien LE MÊME nœud, qu'il a gardé son
+//  identifiant — leur script le retrouve par là — et que sa liste est
+//  recalée sur notre conteneur au lieu de l'ancienne barre.
+const cloche = await p.evaluate(() => {
+  const c = document.querySelector("#fa_notifications");
+  const l = document.querySelector("#notif_list");
+  const droite = document.querySelector(".wm-nav__droite");
+  const st = c === null ? null : getComputedStyle(c);
+  return {
+    dansNotreBarre: c?.closest(".wm-nav__droite") !== null,
+    uneSeule: document.querySelectorAll("#fa_notifications").length,
+    aria: c?.getAttribute("aria-label") ?? null,
+    //  Le mot est masqué à l'œil, pas retiré : leur script le réécrit.
+    motMasque: st?.fontSize === "0px" && c.textContent.includes("Notifications"),
+    listeChezNous: l?.parentElement === droite,
+    //  On ne touche JAMAIS à leur display : c'est leur interrupteur.
+    listeFermee: getComputedStyle(l).display === "none",
+    pastilleVideMasquee: getComputedStyle(document.querySelector("#notif_unread")).display ===
+      "none",
+    flottantAbsent: document.querySelector(".wm-notifs") === null,
+  };
+});
+dire("la cloche est passée dans notre barre", cloche.dansNotreBarre, JSON.stringify(cloche));
+dire("et c'est LE MÊME nœud, pas un clone", cloche.uneSeule === 1, String(cloche.uneSeule));
+dire("son libellé est dit à voix haute", cloche.aria === "Notifications", String(cloche.aria));
+dire("le mot est masqué à l'œil, pas retiré", cloche.motMasque);
+dire("sa liste est recalée sur notre conteneur", cloche.listeChezNous);
+dire("et on n'a pas touché à son interrupteur", cloche.listeFermee);
+dire("une pastille vide ne s'affiche pas", cloche.pastilleVideMasquee);
+dire("le bloc flottant s'efface devant la vraie cloche", cloche.flottantAbsent);
+
 //  7 · il se ferme en cliquant à côté
 await p.evaluate(() => document.querySelector("#page-body").click());
 await p.waitForTimeout(150);
@@ -511,11 +556,10 @@ const notifs = await p.evaluate(() => {
   const n = document.querySelector(".wm-notifs");
   return n === null ? null : n.textContent.replace(/\s+/g, " ").trim();
 });
-dire(
-  "l'encart de notifications lit le vrai compteur",
-  /3 messages non lus/.test(notifs ?? ""),
-  String(notifs),
-);
+//  L'encart flottant n'est plus posé quand la cloche est là : c'est
+//  vérifié plus haut, au 6 ter. Ce qui reste vrai, c'est que le compteur
+//  est lu AVANT la réécriture de la barre — on le voit dans le lien
+//  central, vérifié au 6 bis.
 
 //  9 · sur téléphone
 await p.setViewportSize({ width: 390, height: 844 });

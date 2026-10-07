@@ -136,6 +136,12 @@ async function poserLaNav(messages: number): Promise<void> {
     avatar: avatarDuCompte(),
     pseudo: pseudoDuCompte(),
     messages,
+    //  Le bloc flottant ne sert QUE de secours : si Forumactif a sa
+    //  cloche, c'est elle qui montre les notifications, et deux endroits
+    //  pour la même chose en font un de trop. Le module le décide
+    //  lui-même, parce que c'est lui qui sait QUAND la toolbar est
+    //  arrivée.
+    secoursNotifications: () => poserLesNotifications({ doc: document, messages }),
   });
 }
 
@@ -273,5 +279,4 @@ desQueLeCorpsEstLa(() => {
   //  Les trois réglages de confort s'ajoutent au coin d'outils, qui vient
   //  d'être posé juste au-dessus. Pas de second bloc flottant.
   poserLAccessibilite(document, prefs);
-  poserLesNotifications({ doc: document, messages });
 });

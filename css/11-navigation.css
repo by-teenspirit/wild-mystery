@@ -184,6 +184,143 @@
   object-fit: cover;
 }
 
+/*  ── LES NOTIFICATIONS DE FORUMACTIF, DÉMÉNAGÉES ───────────────────
+
+    Ce sont SES nœuds, déplacés chez nous : `#fa_notifications`,
+    `#notif_list` et `#live_notif`. Son script continue de les piloter —
+    il les retrouve par identifiant, et un déménagement ne change pas un
+    identifiant.
+
+    **On ne touche jamais à leur `display`** : c'est lui qu'il bascule
+    pour ouvrir le menu. On ne fait que les replacer.
+
+    Deux identifiants dans le sélecteur, donc on gagne sans `!important`
+    contre la feuille de Forumactif, qui n'en met qu'un. */
+#modernbb .wm-nav__droite {
+  position: relative;
+}
+
+#modernbb .wm-nav__droite #fa_notifications {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  /*  Le mot « Notifications » est dans le nœud et leur script le
+      réécrit : on le masque à l'œil au lieu de le retirer. L'étiquette
+      ARIA posée par le module le dit à voix haute. */
+  color: transparent;
+  cursor: pointer;
+  font-size: 0;
+  text-decoration: none;
+}
+
+#modernbb .wm-nav__droite #fa_notifications::before {
+  content: "notifications";
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: "Material Symbols Rounded", "Material Symbols Outlined", sans-serif;
+  font-size: 20px;
+  line-height: 1;
+}
+
+#modernbb .wm-nav__droite #fa_notifications:hover,
+#modernbb .wm-nav__droite #fa_notifications:focus-visible {
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 16%, transparent);
+}
+
+/*  La pastille du compteur. `:empty` est la clé : Forumactif laisse le
+    `<span>` VIDE quand il n'y a rien — mesuré — et une pastille à zéro
+    est un mensonge visuel. */
+#modernbb .wm-nav__droite #notif_unread {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+#modernbb .wm-nav__droite #notif_unread:empty {
+  display: none;
+}
+
+/*  Le menu déroulant. Il était calé sur `#fa_right` — `top: 42px;
+    left: 41px` — ce qui n'a plus de sens une fois déménagé. On le
+    recale sur notre conteneur, et on le borne : 420 px de liste sur un
+    téléphone sortent de l'écran. */
+#modernbb .wm-nav__droite #notif_list {
+  top: calc(100% + 10px);
+  right: 0;
+  left: auto;
+  z-index: 80;
+  box-sizing: border-box;
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  max-height: 60vh;
+  margin: 0;
+  padding: var(--wm-espace-8, 8px);
+  overflow-y: auto;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  list-style: none;
+  text-align: left;
+}
+
+#modernbb .wm-nav__droite #notif_list li {
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-nav__droite #notif_list li + li {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-nav__droite #notif_list a {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: none;
+}
+
+#modernbb .wm-nav__droite #notif_list a:hover,
+#modernbb .wm-nav__droite #notif_list a:focus-visible {
+  text-decoration: underline;
+}
+
+/*  « Voir toutes les notifications » ferme la liste : il se détache. */
+#modernbb .wm-nav__droite #notif_list li.see_all {
+  margin-top: var(--wm-espace-4, 4px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-align: center;
+}
+
+/*  Les apparitions en direct : elles sortaient à `right: 47px` par
+    rapport à leur ancienne barre. On les remet sous la cloche. */
+#modernbb .wm-nav__droite #live_notif {
+  top: calc(100% + 10px);
+  right: 0;
+  left: auto;
+  z-index: 80;
+  max-width: calc(100vw - 16px);
+}
+
 /*  Déconnectée : « Connexion » et « S'enregistrer », repris de la barre
     Forumactif. Ce sont des actions de service, pas la navigation du
     forum — d'où la taille plus petite. */
