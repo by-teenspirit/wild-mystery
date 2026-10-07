@@ -334,6 +334,17 @@ const cascade = await p.evaluate(() => {
     lien: g(".wm-accueil__lien", "color"),
     //  `div.mes-txt ul { padding-left: 40px }`.
     retrait: g(".wm-accueil__liste-liens", "padding-left"),
+    //  `.content h2 { border-width: 0 0 1px; border-color: #3793ff;
+    //  padding-bottom: 3px }`. On gagnait la police et la taille, donc
+    //  on croyait avoir gagné — et le FILET BLEU restait sous chacun
+    //  des cinq titres, en plein thème sombre.
+    filet: g(".wm-accueil__titre", "border-bottom-width"),
+    sousTitre: g(".wm-accueil__titre", "padding-bottom"),
+    //  Et la couleur : notre propre `02-socle` la mangeait. Son
+    //  `:is(…, .panel, …) :where(…, h2, …) { color: inherit }` pèse
+    //  (1,1,1) — `:is()` prend la spécificité de son plus fort
+    //  argument — contre les (1,1,0) de nos composants.
+    couleurDuTitre: g(".wm-accueil__titre", "color"),
   };
 });
 dire(
@@ -345,6 +356,16 @@ dire(
   "et le reste aussi est à nous : taille, couleur, retrait",
   cascade.tailleDuTitre === "36px" && cascade.corps === "13.5px" &&
     cascade.lien !== "rgb(62, 70, 76)" && cascade.retrait === "0px",
+  JSON.stringify(cascade),
+);
+dire(
+  "PAS DE FILET BLEU SOUS LES TITRES",
+  cascade.filet === "0px" && cascade.sousTitre === "0px",
+  JSON.stringify(cascade),
+);
+dire(
+  "et le titre a bien sa terre, que notre propre neutraliseur mangeait",
+  cascade.couleurDuTitre === "rgb(154, 79, 41)",
   JSON.stringify(cascade),
 );
 
@@ -492,6 +513,49 @@ for (const largeur of [900, 520, 390, 320]) {
   dire(`à ${largeur} px, rien ne déborde`, !m.debord);
   await p.keyboard.press("Escape");
 }
+
+// ── 5 bis · EN THÈME SOMBRE, RIEN NE RESTE CLAIR ────────────────────
+//  Le bandeau du staff était une image — un dégradé bleu pâle de la
+//  maquette — et une image ne suit pas le thème. En sombre, c'était le
+//  seul bloc clair de la page : « pourquoi y'a un fond blanc ? j'en
+//  veux pas ». Le harnais de contraste ne pouvait pas le voir, il
+//  mesure du TEXTE sur son fond, pas un aplat au milieu d'une page.
+//
+//  On regarde donc les deux : la couleur de fond ET l'image de fond.
+//  Une image reste un soupçon à elle seule — on ne sait pas la mesurer
+//  d'ici, et c'est justement ce qui s'est passé.
+await p.setViewportSize({ width: 1280, height: 900 });
+await p.evaluate(() => document.body.classList.add("wm-sombre"));
+await p.waitForTimeout(150);
+const ensombre = await p.evaluate(() => {
+  const clair = (c) => {
+    const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(c);
+    if (m === null) return false;
+    const a = m[4] === undefined ? 1 : Number(m[4]);
+    return a > 0.15 && (Number(m[1]) + Number(m[2]) + Number(m[3])) / 3 > 150;
+  };
+  const hote = document.querySelector("#wm-accueil");
+  const fonds = [], images = [];
+  for (const n of [hote, ...hote.querySelectorAll("*")]) {
+    const s = getComputedStyle(n), r = n.getBoundingClientRect();
+    if (r.width * r.height < 900) continue;
+    const nom = (n.className || "").toString().split(" ")[0] || n.tagName.toLowerCase();
+    if (clair(s.backgroundColor)) fonds.push(`${nom} ${s.backgroundColor}`);
+    if (s.backgroundImage.includes("url(")) images.push(nom);
+  }
+  return { fonds, images, themeDuCorps: getComputedStyle(document.body).backgroundColor };
+});
+dire(
+  "EN SOMBRE, AUCUN BLOC DU BLOC D'ACCUEIL N'EST CLAIR",
+  ensombre.fonds.length === 0,
+  JSON.stringify(ensombre),
+);
+dire(
+  "et aucun fond n'est une image, qui ne saurait pas se retourner",
+  ensombre.images.length === 0,
+  JSON.stringify(ensombre.images),
+);
+await p.evaluate(() => document.body.classList.remove("wm-sombre"));
 
 // ── 6 · LA MÊME PAGE, AVEC LES VRAIES DONNÉES DU DÉPÔT ──────────────
 //  Les cinq sections au-dessus tournent sur un jeu d'essai taillé pour

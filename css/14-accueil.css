@@ -187,52 +187,56 @@
   writing-mode: vertical-rl;
 }
 
-/*  Le bandeau dégradé derrière « Staff », 99 × 318 dans la maquette.
-    Il porte le texte, donc il a besoin d'une largeur : sans elle, un
-    `writing-mode` vertical donne une colonne de la largeur d'une
-    lettre, et l'image se réduirait à un trait. */
-/*  `align-self: stretch` ANNULE LE `center` DU TITRE DE CÔTÉ, et c'est
+/*  ── LE BANDEAU DU STAFF : PEINT, PLUS TÉLÉCHARGÉ ──────────────────
+
+    Il a été `bandeau-staff.png`, un dégradé plat de 99 × 318 sorti de
+    la maquette. **Une image ne suit pas le thème** : en sombre, le
+    bandeau restait clair, et c'était le seul bloc clair de la page —
+    onze mille six cents pixels de haut, scannés le 7 octobre, pas un
+    autre. Callista : « pourquoi y'a un fond blanc ? j'en veux pas ».
+
+    Le dégradé d'origine, relevé au pixel sur l'image : bleu poussiéreux
+    `rgb(150 191 209)` en haut, crème `rgb(235 222 215)` en bas. Les
+    deux se dérivent des jetons, et c'est ce qu'on fait ici :
+
+      · le bleu, c'est `accent-primaire` à 45 % dans `fond-surface` —
+        exactement la dérivation déjà employée pour le cercle des
+        avatars du staff, quinze lignes plus bas ;
+      · le crème, c'est `fond-douce`, qui est ce jeton-là.
+
+    Trois choses gagnées en passant de l'image au dégradé : il se
+    retourne en sombre, il ne coûte pas une requête, et il n'y a plus de
+    fichier à refaire le jour où la charte bouge.
+
+    ET LE MOT REPREND UN JETON. Sur l'image il fallait une couleur en
+    dur — le fond ne changeait pas, la couleur ne devait pas changer non
+    plus. Le fond suit maintenant le thème, donc `encre` suit avec lui,
+    et le contraste est mesuré par le harnais plutôt que par moi.
+
+    `align-self: stretch` ANNULE LE `center` DU TITRE DE CÔTÉ, et c'est
     le but : dans la maquette le bandeau court sur toute la hauteur du
-    bloc du staff (318 px pour deux membres), il n'est pas une étiquette
-    posée au milieu. Centré, il faisait 90 px de haut et l'image de
-    99 × 318 s'y retrouvait rognée en son milieu — un aplat bleu pâle
-    sans dégradé, qui ne ressemblait plus à rien.
+    bloc du staff, il n'est pas une étiquette posée au milieu. Comme il
+    s'étire, le mot doit se recentrer dedans : d'où le flex, que
+    `text-align` ne peut pas faire sur un axe vertical.
 
-    Et comme il s'étire, le mot doit se recentrer dedans : d'où le flex,
-    que `text-align` ne pouvait pas faire sur un axe vertical. */
-/*  ── LA SEULE COULEUR EN DUR DE CETTE FEUILLE, ET POURQUOI ──────────
-
-    Le mot se pose sur une IMAGE, et une image ne change pas de thème.
-    Lui donner un jeton, c'est lui donner une couleur qui se retourne en
-    sombre pendant que son fond reste clair : `accent-fort` passait du
-    bleu nuit au bleu pâle, sur un bandeau bleu pâle. Illisible, et
-    visible à l'œil sur la capture du 7 octobre.
-
-    Mesuré sur les pixels de la bande centrale (la plus sombre est
-    `rgb(147 189 209)`) :
-
-      · `accent-fort` clair #1f5470 → 4,08  — SOUS LA BARRE, déjà en
-        clair, et personne ne l'avait vu : le harnais de contraste ne
-        tourne que sur `pages/`, où ce bandeau n'est pas.
-      · `texte-inverse` #fffbf7      → 1,25
-      · l'encre claire #2e2018       → 7,81  ✓
-
-    Donc l'encre, écrite en clair. Le jour où l'image change, cette
-    mesure est à refaire — c'est le prix d'un texte posé sur une photo,
-    et c'est pour ça que la règle est écrite ici et pas ailleurs. */
-#modernbb .wm-accueil__bandeau--image {
+    La largeur minimale, enfin : sans elle, un `writing-mode` vertical
+    donne une colonne de la largeur d'une lettre, et le bandeau se
+    réduit à un trait. */
+#modernbb .wm-accueil__bandeau {
   display: flex;
   box-sizing: border-box;
   min-width: 70px;
   align-self: stretch;
   align-items: center;
   justify-content: center;
-  color: #2e2018;
   padding: var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--wm-accent-primaire, #2b6988) 45%, var(--wm-fond-surface, #fffbf7)),
+    var(--wm-fond-douce, #f3e1d2)
+  );
+  color: var(--wm-encre, #2e2018);
   text-align: center;
 }
 

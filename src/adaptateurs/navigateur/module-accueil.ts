@@ -250,14 +250,18 @@ function blocStaff(doc: Document, a: Accueil): HTMLElement | null {
   if (a.staff.length === 0) return null;
   const bloc = element(doc, "section", "wm-accueil__staff");
   bloc.setAttribute("aria-label", "L'équipe");
+  //  LE BANDEAU A ÉTÉ UNE IMAGE, ET UNE IMAGE NE SUIT PAS LE THÈME.
+  //  `bandeau-staff.png` est un dégradé plat de 99 × 318, relevé dans
+  //  la maquette : bleu poussiéreux en haut, crème en bas. Posé en
+  //  thème sombre, il restait clair — un bloc blanc au milieu d'une
+  //  page nuit, repéré par Callista le 7 octobre.
+  //
+  //  Il est maintenant peint par la feuille, en jetons. Mêmes deux
+  //  couleurs, mais dérivées : elles se retournent avec le thème, elles
+  //  ne coûtent pas une requête, et il n'y a plus de fichier à tenir à
+  //  jour quand la charte bouge. Le module n'a donc plus rien à poser
+  //  ici — d'où la classe seule.
   const etiquette = element(doc, "h2", "wm-accueil__titre-cote wm-accueil__bandeau", "Staff");
-  if (a.images.bandeauStaff !== "") {
-    //  Le dégradé de la maquette, en fond de l'étiquette. En
-    //  `background` et pas en `<img>` : c'est un décor, il n'a rien à
-    //  dire, et un lecteur d'écran n'a pas à le rencontrer.
-    etiquette.style.backgroundImage = `url("${a.images.bandeauStaff}")`;
-    etiquette.classList.add("wm-accueil__bandeau--image");
-  }
   bloc.appendChild(etiquette);
   const liste = element(doc, "ul", "wm-accueil__staff-liste");
   for (const m of a.staff) {

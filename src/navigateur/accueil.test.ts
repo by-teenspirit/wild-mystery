@@ -16,7 +16,7 @@
 //  l'écran plutôt que de le remplacer par du blanc.
 // ════════════════════════════════════════════════════════════════════
 
-import { assert, assertEquals } from "@std/assert";
+import { assert, assertEquals, assertRejects } from "@std/assert";
 import { ACCUEIL_VIDE, accueilDepuis, adresse, estVide, lignesDUnPrelien } from "./accueil.ts";
 
 // ── les adresses ────────────────────────────────────────────────────
@@ -200,36 +200,43 @@ Deno.test("L'INFOBULLE NE MONTRE QUE LES LIGNES QU'ELLE A", () => {
 
 // ── les images ──────────────────────────────────────────────────────
 
-Deno.test("les trois images se lisent, et une adresse douteuse est écartée", () => {
+Deno.test("les images se lisent, et une adresse douteuse est écartée", () => {
   const a = accueilDepuis({
     images: {
       mascotte: "https://i.test/krokorok.png",
-      bandeauStaff: "https://i.test/bandeau.png",
       fond: "javascript:alert(1)",
     },
   });
   assertEquals(a.images.mascotte, "https://i.test/krokorok.png");
-  assertEquals(a.images.bandeauStaff, "https://i.test/bandeau.png");
   assertEquals(a.images.fond, "", "une image est une adresse comme une autre");
 });
 
-Deno.test("LE VRAI FICHIER PORTE SES DEUX IMAGES", async () => {
-  //  Elles sont servies par le dépôt (`img/accueil/`), pas par un
+Deno.test("LE VRAI FICHIER PORTE SA MASCOTTE, ET PLUS DE BANDEAU", async () => {
+  //  Elle est servie par le dépôt (`img/accueil/`), pas par un
   //  hébergeur tiers : ce test attrape le jour où quelqu'un renomme le
   //  dossier sans toucher au JSON.
+  //
+  //  ET IL ATTRAPE LE RETOUR DU BANDEAU. `bandeau-staff.png` a été
+  //  supprimé le 7 octobre : c'était une image, donc une chose qui ne
+  //  suit pas le thème, et en sombre elle était le seul bloc clair de
+  //  la page. Son dégradé est maintenant peint par `14-accueil` à
+  //  partir des jetons. Le remettre serait refaire le défaut.
   const brut = JSON.parse(
     await Deno.readTextFile(new URL("../../data/accueil.json", import.meta.url)),
   );
   const a = accueilDepuis(brut);
   assert(a.images.mascotte.endsWith("/img/accueil/mascotte.png"), a.images.mascotte);
+  const fichier = await Deno.stat(new URL("../../img/accueil/mascotte.png", import.meta.url));
+  assert(fichier.size > 1000, "img/accueil/mascotte.png est vide ou absent");
+
   assert(
-    a.images.bandeauStaff.endsWith("/img/accueil/bandeau-staff.png"),
-    a.images.bandeauStaff,
+    !JSON.stringify(brut).includes("bandeau"),
+    "le bandeau du staff est peint par la feuille, il n'a plus à être une image",
   );
-  for (const chemin of ["img/accueil/mascotte.png", "img/accueil/bandeau-staff.png"]) {
-    const fichier = await Deno.stat(new URL(`../../${chemin}`, import.meta.url));
-    assert(fichier.size > 1000, `${chemin} est vide ou absent`);
-  }
+  await assertRejects(
+    () => Deno.stat(new URL("../../img/accueil/bandeau-staff.png", import.meta.url)),
+    Deno.errors.NotFound,
+  );
 });
 
 // ── estVide ─────────────────────────────────────────────────────────

@@ -167,7 +167,24 @@ html,
     `:where()` ne compte pour rien dans la spécificité, et cette règle
     est posée AVANT les règles de texte : un `.gensmall` ou un titre
     gardent donc la leur. Ce qui n'a pas de règle à lui hérite — ce qui
-    est le comportement qu'on attendait depuis le début. */
+    est le comportement qu'on attendait depuis le début.
+
+    ── ET C'ÉTAIT FAUX, PARCE QUE `:is()` N'EST PAS `:where()` ─────────
+
+    Le paragraphe ci-dessus comptait `:where()` pour zéro — c'est juste —
+    et oubliait que **`:is()` prend la spécificité de son argument le
+    plus fort**. Ici c'est `ul.topiclist`, soit (0,1,1). La règle pesait
+    donc (1,1,1) au lieu des (1,0,0) annoncés, et elle battait TOUS nos
+    composants, qui sont à (1,1,0).
+
+    Relevé le 7 octobre sur le forum : les titres de l'accueil, qui est
+    posé dans un `.panel`, héritaient de `texte-corps` au lieu de
+    prendre leur terre et leur encre. Le `color: inherit` écrit pour
+    neutraliser ModernBB neutralisait aussi le nôtre.
+
+    `:where()` autour du `:is()` ramène la règle à (1,0,0) — ce que le
+    commentaire d'origine croyait déjà. Elle garde tout son effet sur le
+    balisage de ModernBB, qui n'a pas de règle à lui. */
 #modernbb .forabg,
 #modernbb .forumbg,
 #modernbb .block,
@@ -179,9 +196,55 @@ html,
 }
 
 #modernbb
-  :is(.forabg, .forumbg, .block, .overview, .module, .panel, ul.topiclist)
+  :where(.forabg, .forumbg, .block, .overview, .module, .panel, ul.topiclist)
   :where(p, div, span, strong, em, b, i, dfn, label, dd, dt, li, h2, h3, h4) {
   color: inherit;
+}
+
+/*  ── ET CE QUE MODERNBB POSE SUR UN TITRE, EN PLUS DE SA COULEUR ────
+
+    `.content h2, .panel h2` lui met aussi un filet et trois pixels de
+    marge intérieure :
+
+        border-width: 0 0 1px; border-color: #3793ff; padding-bottom: 3px
+
+    Nos règles de titre nomment la police, la taille et la couleur —
+    donc elles gagnent sur celles-là, et sur rien d'autre. Le filet
+    BLEU, lui, restait : relevé sous « Contexte », « Nos partenaires »,
+    « Staff » et les deux autres titres de l'accueil, en plein thème
+    sombre.
+
+    **Une règle qu'on bat sur une propriété n'est pas une règle qu'on
+    bat.** C'est la même leçon que le préfixe `#modernbb` d'un cran plus
+    bas : gagner la cascade ne suffit pas, il faut aussi nommer ce qu'on
+    veut effacer.
+
+    Posée ICI, tôt, et à (1,1,0) grâce au `:where()` : un composant qui
+    veut sa propre marge intérieure — le bandeau du staff en veut 20 —
+    la déclare plus loin et gagne à égalité. C'est le cas du `padding`.
+
+    ── ET LE FILET DEMANDE UN `!important`, LUI ───────────────────────
+
+    Parce qu'il n'y a pas qu'une règle. ModernBB en a une SECONDE :
+
+        #wrap div#page-body h2 { border-bottom: 1px solid #ccc }
+
+    **Deux identifiants**, soit (2,0,1). Aucun sélecteur à base de
+    classe ne passe devant — il faudrait trois identifiants, qu'on n'a
+    pas, ou copier sa chaîne, ce qui amarrerait nos composants à une
+    structure de page qui ne les concerne pas.
+
+    Mesuré, et pas supposé : le harnais rend `1px solid rgb(204,204,204)`
+    sans ce `!important`, et c'est bien cette règle-là qui gagne, pas le
+    bleu de `.content h2` qu'on voyait à l'écran. Les deux étaient là.
+
+    Le `!important` reste donc étroit : il ne porte que sur `border`, et
+    seulement sur NOS titres. Aucun composant n'en veut un aujourd'hui ;
+    celui qui en voudra un le déclarera `!important` à son tour, et ce
+    sera visible. */
+#modernbb :where(h1, h2, h3, h4, h5, h6)[class*="wm-"] {
+  padding: 0;
+  border: 0 !important;
 }
 
 /*  Le bloc d'une catégorie ou d'un forum. ModernBB lui met son bleu. */

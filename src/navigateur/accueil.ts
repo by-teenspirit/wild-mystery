@@ -108,11 +108,18 @@ export type Accueil = {
   readonly preliens: { readonly titre: string; readonly liste: readonly Prelien[] };
   readonly images: {
     readonly mascotte: string;
-    /** Le dégradé derrière l'étiquette « Staff », 99 × 318 dans la
-     *  maquette. Décoratif : sans lui, l'étiquette reste lisible. */
-    readonly bandeauStaff: string;
     readonly fond: string;
   };
+  /*  IL Y A EU UN TROISIÈME CHAMP, `bandeauStaff`, ET IL A DISPARU LE
+      7 OCTOBRE. C'était le dégradé derrière l'étiquette « Staff », un
+      PNG de 99 × 318 sorti de la maquette — donc une image, donc une
+      chose qui ne suit pas le thème : en sombre, le bandeau restait
+      clair, seul bloc clair de toute la page.
+
+      Le dégradé est maintenant peint par `14-accueil` à partir des
+      jetons, et il n'y a plus rien à télécharger ni à tenir à jour. Un
+      champ de données qui ne sert plus est un piège : on l'enlève
+      plutôt que de le laisser traîner. */
 };
 
 /** L'accueil vide. Rendu quand le fichier est illisible, et c'est ce qui
@@ -125,7 +132,7 @@ export const ACCUEIL_VIDE: Accueil = {
   staff: [],
   actualites: { titre: "", lien: null, liste: [] },
   preliens: { titre: "", liste: [] },
-  images: { mascotte: "", bandeauStaff: "", fond: "" },
+  images: { mascotte: "", fond: "" },
 };
 
 function objet(v: unknown): Record<string, unknown> | null {
@@ -301,7 +308,6 @@ export function accueilDepuis(brut: unknown): Accueil {
     preliens: preliensDepuis(o.preliens),
     images: {
       mascotte: adresse(images.mascotte),
-      bandeauStaff: adresse(images.bandeauStaff),
       fond: adresse(images.fond),
     },
   };

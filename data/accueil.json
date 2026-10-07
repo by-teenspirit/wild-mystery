@@ -212,7 +212,6 @@
     "_": "Les images du bloc, SERVIES PAR LE DÉPÔT comme le reste — `img/accueil/`, publié par GitHub Pages. L'adresse est écrite en entier et pas en relatif : le script tourne sur le forum, donc un chemin qui commence par `/` y désignerait le forum, pas Pages.",
     "_remplacer": "Pour changer une image : remplacer le fichier dans `img/accueil/` et pousser. L'adresse ne bouge pas.",
     "mascotte": "https://by-teenspirit.github.io/wild-mystery/img/accueil/mascotte.png",
-    "bandeauStaff": "https://by-teenspirit.github.io/wild-mystery/img/accueil/bandeau-staff.png",
     "fond": ""
   }
 }
