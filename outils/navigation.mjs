@@ -120,11 +120,33 @@ body{font-size:10px;margin:0;height:100%;display:flex;flex-direction:column;back
     place. C'est elle qui recouvrait notre barre collée. */
 #fa_toolbar{position:fixed;top:0;left:0;right:0;height:42px;z-index:20002;background:#222;color:#fff}
 #fa_right{float:right;position:relative}
-/*  Les styles que Forumactif leur donne, releves : la liste est en
-    absolu sur #fa_right, masquee, et c'est leur script qui bascule le
-    display.  */
-#notif_list{display:none;position:absolute;top:42px;right:0;left:41px;z-index:10000}
+/*  LES VRAIES REGLES DE FORUMACTIF, relevees mot pour mot dans
+    "8-ltr.css" le 7 octobre. Elles sont recopiees ici parce qu'elles
+    portent LE MECANISME, et pas seulement une apparence :
+
+      · la liste n'est montree que par ".notification" sur #fa_right,
+        et le selecteur exige la chaine "#fa_toolbar #fa_right ..." —
+        c'est ce qui rendait impossible de l'ouvrir quand on avait
+        sorti la liste de cette chaine ;
+      · la pastille est masquee hors de ".unread" ;
+      · le texte d'une notification est fixe a 27em, ce qui debordait
+        de notre liste ;
+      · et la couleur des liens est forcee en !important.
+
+    Un harnais qui ne reproduirait pas ces quatre regles dirait que
+    tout va bien.  */
+#fa_toolbar #fa_right #notif_list{display:none;position:absolute;top:42px;right:0;left:41px;z-index:10000;font-size:1.3rem}
+#fa_toolbar #fa_right.notification #notif_list{display:block}
+#fa_toolbar #fa_right #notif_list li .contentText{float:left;width:27em;overflow:hidden}
+#fa_toolbar #fa_right #notif_list li .contentText a{color:rgb(0,86,156) !important;text-decoration:none !important}
+#fa_toolbar #fa_right #fa_notifications{line-height:30px;padding:0 5px;color:#fff}
+#fa_toolbar #fa_right #fa_notifications #notif_unread{display:none;margin-left:.5em}
+#fa_toolbar #fa_right #fa_notifications.unread #notif_unread{display:inline}
+#fa_toolbar > #fa_right.notification > #fa_notifications{color:#333;background-color:#fff}
 #live_notif{position:absolute;right:47px;visibility:hidden}
+/*  Et son escamotage de telephone, qui ferait disparaitre les
+    notifications une fois la barre chez nous.  */
+@media (max-width:800px){#modernbb #fa_toolbar{visibility:hidden;height:0;padding:0}}
 body{margin-top:42px}
 /*  La barre collante de ModernBB : son script lui ajoute ".is-sticky"
     au defilement. Vide chez nous, elle se reduit a une bande bleue de
@@ -141,17 +163,24 @@ a#logo img{max-width:100%}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style></head>
 <body id="modernbb">
-<div id="fa_toolbar"><div id="fa_right">
-  <!--  Le balisage REEL des notifications, releve le 7 octobre sur un
-        compte connecte. La cloche n'a PAS de href : c'est leur script
-        qui l'ouvre, d'ou le demenagement au lieu de la copie.  -->
-  <a id="fa_notifications" class="rightHeaderLink">Notifications<span id="notif_unread"></span></a>
-  <ul id="notif_list"><li class="see_all"><a href="/profile?mode=editprofile&amp;page_profil=notifications">Voir toutes les notifications</a></li></ul>
+<div id="fa_toolbar" class="fa_toolbar_XL_Sized"><div id="fa_right" class="fa_tbMainElement">
+  <!--  Le balisage REEL de la barre, releve le 7 octobre sur un compte
+        connecte. La cloche n'a PAS de href : c'est leur script qui
+        l'ouvre, d'ou le demenagement de la BARRE ENTIERE au lieu de la
+        copie de la cloche.  -->
+  <div id="fa_menu"><span id="fa_welcome">Bienvenue Compte de test</span><ul><li>un menu</li></ul></div>
+  <a id="fa_notifications" class="rightHeaderLink unread">Notifications<span id="notif_unread">2</span></a>
+  <ul id="notif_list">
+    <li><span class="contentText"><a href="/t1-un-sujet">Quelqu'un a repondu dans un sujet au titre tres long</a></span></li>
+    <li class="see_all"><a href="/profile?mode=editprofile&amp;page_profil=notifications">Voir toutes les notifications</a></li>
+  </ul>
   <div id="live_notif"></div>
   <a href="/u4">Compte de test</a>
   <a href="/privmsg?folder=inbox">Messagerie 3</a>
   <a href="/login?logout=1&amp;tid=JETON">Déconnexion</a>
-</div></div>
+  <a id="fa_hide" class="rightHeaderLink"></a>
+</div><div id="fa_search"><form><input name="search_keywords"></form></div>
+<span id="fa_left"><a id="fa_service" href="https://www.forumactif.com">Forumactif</a></span></div>
 <div id="page-header"><div class="headerbar">
 <div id="headerbar-top" class="responsive-headerbar w-toolbar"><div class="wrap">
   <!--  L'image a les MESURES DE LA VRAIE banniere, 1280 x 620, parce
@@ -266,14 +295,20 @@ const colle = await p.evaluate(() => {
   const tb = document.querySelector("#fa_toolbar");
   return {
     barre: n.y,
-    toolbarCachee: getComputedStyle(tb).display === "none",
+    //  ELLE N'EST PLUS MASQUÉE, ELLE EST CHEZ NOUS. Depuis le 7
+    //  octobre la barre entière passe dans la nôtre pour ses
+    //  notifications : ce qu'on vérifie, c'est qu'elle a perdu tout ce
+    //  qui en faisait une barre — sa position fixe et son fond.
+    toolbarRangee: tb.closest(".wm-nav__droite") !== null &&
+      getComputedStyle(tb).position === "static" &&
+      getComputedStyle(tb).backgroundColor === "rgba(0, 0, 0, 0)",
     margeDuCorps: getComputedStyle(document.body).marginTop,
     jeton: getComputedStyle(document.documentElement).getPropertyValue("--wm-haut-toolbar")
       .trim(),
     panneau: document.querySelector("#wm-panneau").getBoundingClientRect().y,
   };
 });
-dire("la toolbar Forumactif est rangée", colle.toolbarCachee, JSON.stringify(colle));
+dire("la toolbar Forumactif est rangée dans la nôtre", colle.toolbarRangee, JSON.stringify(colle));
 
 //  ELLE COLLE VRAIMENT, ET LOIN. `position: sticky` ne colle que dans
 //  son bloc conteneur : avec le `html { height: 100% }` de ModernBB, la
@@ -637,33 +672,161 @@ dire(
 //  mort. On vérifie que c'est bien LE MÊME nœud, qu'il a gardé son
 //  identifiant — leur script le retrouve par là — et que sa liste est
 //  recalée sur notre conteneur au lieu de l'ancienne barre.
+//  LEUR ÉCOUTEUR, REPRODUIT. Il est délégué sur `document` et branche
+//  sur `e.target.id` : c'est le code de `FAToolbar.js`, lu le 7
+//  octobre, réduit à ce qui compte.
+//
+//      case NOTIFICATIONS:
+//        $('#'+RIGHT).toggleClass('notification')…
+//      default:  // hors de #notif_list
+//        $('#'+RIGHT).removeClass('notification')
+//
+//  Sans lui, le harnais ne peut PAS voir le défaut que Callista a
+//  signalé : la liste ne s'ouvrait jamais, et le seul lien visible
+//  menait à la page des notifs.
+await p.evaluate(() => {
+  document.addEventListener("click", (e) => {
+    const droite = document.querySelector("#fa_right");
+    const liste = document.querySelector("#notif_list");
+    if (e.target.id === "fa_notifications") {
+      droite.classList.toggle("notification");
+      e.stopPropagation();
+      return;
+    }
+    if (!liste.contains(e.target)) droite.classList.remove("notification");
+  });
+});
+
 const cloche = await p.evaluate(() => {
   const c = document.querySelector("#fa_notifications");
   const l = document.querySelector("#notif_list");
-  const droite = document.querySelector(".wm-nav__droite");
+  const barre = document.querySelector("#fa_toolbar");
   const st = c === null ? null : getComputedStyle(c);
+  const autre = document.querySelector(".wm-nav__lien");
   return {
     dansNotreBarre: c?.closest(".wm-nav__droite") !== null,
     uneSeule: document.querySelectorAll("#fa_notifications").length,
     aria: c?.getAttribute("aria-label") ?? null,
-    //  Le mot est masqué à l'œil, pas retiré : leur script le réécrit.
-    motMasque: st?.fontSize === "0px" && c.textContent.includes("Notifications"),
-    listeChezNous: l?.parentElement === droite,
+    //  ELLE DIT « Notifications », en clair : c'est la demande du 7
+    //  octobre, et l'ancienne version la rendait muette (`font-size: 0`
+    //  et une icône en `::before`).
+    mot: c.textContent.replace(/\s+/g, " ").trim(),
+    taille: st.fontSize,
+    tailleDesAutres: autre === null ? null : getComputedStyle(autre).fontSize,
+    //  PAS UN GROS BOUTON : ni fond, ni cadre, ni rondeur.
+    fond: st.backgroundColor,
+    cadre: st.borderTopWidth,
+    rondeur: st.borderTopLeftRadius,
+    largeur: Math.round(c.getBoundingClientRect().width),
+    //  La barre entière est venue, et c'est ce qui fait marcher leur
+    //  mécanique : la liste est restée dans la chaîne
+    //  `#fa_toolbar #fa_right …`.
+    barreChezNous: barre?.closest(".wm-nav__droite") !== null,
+    listeDansLaChaine: l.closest("#fa_toolbar #fa_right") !== null,
     //  On ne touche JAMAIS à leur display : c'est leur interrupteur.
     listeFermee: getComputedStyle(l).display === "none",
-    pastilleVideMasquee: getComputedStyle(document.querySelector("#notif_unread")).display ===
-      "none",
+    //  La pastille est pleine ici (« 2 ») : leur classe `.unread` est
+    //  posée, donc elle doit se voir.
+    pastille: getComputedStyle(document.querySelector("#notif_unread")).display,
+    //  …et ne JAMAIS attraper le clic : il doit arriver sur la cloche.
+    pastilleTransparenteAuClic:
+      getComputedStyle(document.querySelector("#notif_unread")).pointerEvents === "none",
+    //  Ce qu'on remplace nous-mêmes est masqué.
+    menuMasque: getComputedStyle(document.querySelector("#fa_menu")).display === "none",
+    rechercheMasquee: getComputedStyle(document.querySelector("#fa_search")).display === "none",
+    logoFaMasque: getComputedStyle(document.querySelector("#fa_left")).display === "none",
     flottantAbsent: document.querySelector(".wm-notifs") === null,
   };
 });
 dire("la cloche est passée dans notre barre", cloche.dansNotreBarre, JSON.stringify(cloche));
 dire("et c'est LE MÊME nœud, pas un clone", cloche.uneSeule === 1, String(cloche.uneSeule));
 dire("son libellé est dit à voix haute", cloche.aria === "Notifications", String(cloche.aria));
-dire("le mot est masqué à l'œil, pas retiré", cloche.motMasque);
-dire("sa liste est recalée sur notre conteneur", cloche.listeChezNous);
+dire(
+  "ELLE AFFICHE SIMPLEMENT « Notifications »",
+  cloche.mot.startsWith("Notifications") && cloche.taille !== "0px",
+  `${cloche.mot} / ${cloche.taille}`,
+);
+dire(
+  "à la taille des autres liens de la barre",
+  cloche.taille === cloche.tailleDesAutres,
+  `${cloche.taille} contre ${cloche.tailleDesAutres}`,
+);
+dire(
+  "ET CE N'EST PAS UN GROS BOUTON : ni fond, ni cadre, ni rondeur",
+  cloche.fond === "rgba(0, 0, 0, 0)" && cloche.cadre === "0px" && cloche.rondeur === "0px",
+  JSON.stringify(cloche),
+);
+dire(
+  "LA BARRE ENTIÈRE EST VENUE, et la liste est restée dans leur chaîne",
+  cloche.barreChezNous && cloche.listeDansLaChaine,
+  JSON.stringify(cloche),
+);
 dire("et on n'a pas touché à son interrupteur", cloche.listeFermee);
-dire("une pastille vide ne s'affiche pas", cloche.pastilleVideMasquee);
+dire("une pastille pleine s'affiche", cloche.pastille !== "none", cloche.pastille);
+dire("et elle n'attrape pas le clic", cloche.pastilleTransparenteAuClic);
+dire(
+  "ce qu'on remplace nous-mêmes est masqué",
+  cloche.menuMasque && cloche.rechercheMasquee && cloche.logoFaMasque,
+  JSON.stringify(cloche),
+);
 dire("le bloc flottant s'efface devant la vraie cloche", cloche.flottantAbsent);
+
+// ── LE CLIC OUVRE LA LISTE, ET C'EST TOUT L'OBJET DE LA CORRECTION ──
+await p.evaluate(() => document.querySelector("#fa_notifications").click());
+await p.waitForTimeout(120);
+const ouverte = await p.evaluate(() => {
+  const l = document.querySelector("#notif_list");
+  const r = l.getBoundingClientRect();
+  return {
+    affichee: getComputedStyle(l).display,
+    classe: document.querySelector("#fa_right").className,
+    l: Math.round(r.width),
+    h: Math.round(r.height),
+    dansLecran: r.left >= 0 && r.right <= innerWidth,
+    //  Le texte d'une notification se lit : leur feuille le fixait à
+    //  27em, ce qui débordait de notre liste.
+    texteBorne: (() => {
+      const t = l.querySelector(".contentText");
+      return t === null || t.getBoundingClientRect().right <= r.right + 1;
+    })(),
+    debord: document.documentElement.scrollWidth > innerWidth,
+  };
+});
+dire(
+  "LE CLIC SUR LA CLOCHE OUVRE LA LISTE DES NOTIFICATIONS",
+  ouverte.affichee === "block" && ouverte.h > 0,
+  JSON.stringify(ouverte),
+);
+dire("elle tient dans l'écran", ouverte.dansLecran && !ouverte.debord, JSON.stringify(ouverte));
+dire("et le texte d'une notification ne déborde pas", ouverte.texteBorne, JSON.stringify(ouverte));
+
+//  UN CLIC SUR LA PASTILLE OUVRE AUSSI. C'est le second piège de leur
+//  `switch (e.target.id)` : un clic sur un enfant de la cloche tombe
+//  dans le `default`, qui REFERME. `pointer-events: none` le rend
+//  impossible.
+await p.evaluate(() => document.querySelector("#page-body").click());
+await p.waitForTimeout(80);
+await p.evaluate(() => {
+  const pastille = document.querySelector("#notif_unread");
+  const r = pastille.getBoundingClientRect();
+  //  On clique aux COORDONNÉES de la pastille, pas sur le nœud : c'est
+  //  la seule façon de voir qui attrape vraiment le clic.
+  document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2).click();
+});
+await p.waitForTimeout(120);
+dire(
+  "un clic sur la pastille ouvre la liste, il ne la referme pas",
+  await p.evaluate(() => getComputedStyle(document.querySelector("#notif_list")).display) ===
+    "block",
+);
+
+await p.evaluate(() => document.querySelector("#page-body").click());
+await p.waitForTimeout(100);
+dire(
+  "et un clic à côté la referme",
+  await p.evaluate(() => getComputedStyle(document.querySelector("#notif_list")).display) ===
+    "none",
+);
 
 //  7 · il se ferme en cliquant à côté
 await p.evaluate(() => document.querySelector("#page-body").click());

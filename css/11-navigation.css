@@ -184,85 +184,185 @@
   object-fit: cover;
 }
 
-/*  ── LES NOTIFICATIONS DE FORUMACTIF, DÉMÉNAGÉES ───────────────────
+/*  ── LES NOTIFICATIONS DE FORUMACTIF, DÉMÉNAGÉES AVEC LEUR BARRE ───
 
-    Ce sont SES nœuds, déplacés chez nous : `#fa_notifications`,
-    `#notif_list` et `#live_notif`. Son script continue de les piloter —
-    il les retrouve par identifiant, et un déménagement ne change pas un
-    identifiant.
+    C'EST `#fa_toolbar` ENTIÈRE QUI PASSE CHEZ NOUS, et pas la cloche
+    seule. La raison est dans leur code, relevé le 7 octobre :
 
-    **On ne touche jamais à leur `display`** : c'est lui qu'il bascule
-    pour ouvrir le menu. On ne fait que les replacer.
+        case NOTIFICATIONS:  $('#'+RIGHT).toggleClass('notification')…
 
-    Deux identifiants dans le sélecteur, donc on gagne sans `!important`
-    contre la feuille de Forumactif, qui n'en met qu'un. */
+        #fa_toolbar #fa_right #notif_list               { display: none }
+        #fa_toolbar #fa_right.notification #notif_list  { display: block }
+
+    L'état « ouvert » est une classe sur `#fa_right`, et la règle qui
+    montre la liste exige la chaîne `#fa_toolbar #fa_right …`. Sortir la
+    liste de cette chaîne, c'était garantir qu'aucun clic ne l'ouvre
+    jamais : il ne restait de visible que le lien « Voir toutes les
+    notifications », d'où le départ vers la page des notifs que Callista
+    a signalé.
+
+    En déménageant la barre entière, leur mécanique ne s'aperçoit de
+    rien. On ne touche qu'à l'apparence, et jamais au `display` de leurs
+    nœuds : c'est lui qu'ils basculent. */
 #modernbb .wm-nav__droite {
   position: relative;
 }
 
-#modernbb .wm-nav__droite #fa_notifications {
-  display: inline-flex;
+/*  POURQUOI LA CHAÎNE COMPLÈTE DANS LES SÉLECTEURS CI-DESSOUS.
+    Forumactif écrit `#fa_toolbar #fa_right #notif_list` : TROIS
+    identifiants. `#modernbb .wm-nav__droite #notif_list` n'en a que
+    deux, donc il PERDAIT — mesuré par le harnais, qui a vu la liste
+    sortir de l'écran parce que leur `left: 41px` s'appliquait toujours.
+    On reprend donc leur chaîne et on ajoute la nôtre devant. */
+
+/*  La barre perd tout ce qui en faisait une barre : sa position fixe,
+    sa hauteur, son fond, son plan. Elle devient une boîte en ligne dans
+    la nôtre.
+
+    `height: auto` ET `min-height: 0` : la règle de Forumactif pose une
+    hauteur fixe, et sa valeur dépend du template. */
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous {
+  position: static;
+  z-index: auto;
+  display: flex;
+  height: auto;
+  min-height: 0;
   align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  /*  Le mot « Notifications » est dans le nœud et leur script le
-      réécrit : on le masque à l'œil au lieu de le retirer. L'étiquette
-      ARIA posée par le module le dit à voix haute. */
-  color: transparent;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  visibility: visible;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LEUR RÈGLE DE TÉLÉPHONE, ANNULÉE. Forumactif escamote sa barre sous
+    800 px — `visibility: hidden; height: 0` —, ce qui est juste quand
+    elle est en haut de l'écran et faux une fois qu'elle est chez nous :
+    les notifications disparaîtraient sur téléphone, là où elles servent
+    le plus. */
+@media (max-width: 800px) {
+  #modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous {
+    visibility: visible;
+    height: auto;
+    padding: 0;
+  }
+}
+
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_right {
+  position: static;
+  display: flex;
+  align-items: center;
+  float: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*  TOUT CE QU'ON REMPLACE EST MASQUÉ, et seulement ça. Le menu de
+    bienvenue, la recherche, le logo Forumactif, le bouton d'escamotage,
+    et les liens de service qu'on réaffiche nous-mêmes : ils restent
+    dans la page — le switcheroo exige une barre vivante — mais ils ne
+    se voient plus.
+
+    On nomme ce qu'on masque plutôt que de masquer tout et de rallumer
+    la cloche : une barre future contiendra autre chose, et il vaut
+    mieux qu'un inconnu apparaisse que disparaisse en silence. */
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_left,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_search,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_menu,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_hide,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_show,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_separator,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_right > a[href],
+#modernbb #fa_toolbar_hidden {
+  display: none;
+}
+
+/*  LA CLOCHE EST UN LIEN, PAS UN BOUTON. Demande de Callista le 7
+    octobre : « affiche simplement Notifications sans en faire un gros
+    bouton ». Elle reprend donc exactement la forme des autres liens de
+    la barre — même police, même taille, même couleur. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #fa_notifications {
+  position: relative;
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
   cursor: pointer;
-  font-size: 0;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1.2;
   text-decoration: none;
 }
 
-#modernbb .wm-nav__droite #fa_notifications::before {
-  content: "notifications";
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #fa_notifications:hover,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #fa_notifications:focus-visible {
+  background: transparent;
+  text-decoration: underline;
+}
+
+/*  Ouverte, leur script met `#fa_right` en `.notification` et leur
+    feuille peint la cloche en blanc sur blanc. On reprend la main : un
+    soulignement, qui se lit dans les deux thèmes. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right.notification > #fa_notifications {
+  background: transparent;
   color: var(--wm-texte-sur-nuit, #fffbf7);
-  font-family: "Material Symbols Rounded", "Material Symbols Outlined", sans-serif;
-  font-size: 20px;
-  line-height: 1;
+  text-decoration: underline;
 }
 
-#modernbb .wm-nav__droite #fa_notifications:hover,
-#modernbb .wm-nav__droite #fa_notifications:focus-visible {
-  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 16%, transparent);
-}
+/*  La pastille du compteur, posée dans le flux à droite du mot — pas en
+    absolu sur un coin : il n'y a plus de pastille ronde sur laquelle se
+    poser.
 
-/*  La pastille du compteur. `:empty` est la clé : Forumactif laisse le
-    `<span>` VIDE quand il n'y a rien — mesuré — et une pastille à zéro
-    est un mensonge visuel. */
-#modernbb .wm-nav__droite #notif_unread {
-  position: absolute;
-  top: -2px;
-  right: -2px;
+    `pointer-events: none` N'EST PAS DE LA COSMÉTIQUE. Leur écouteur est
+    délégué sur `document` et branche sur `e.target.id` : un clic qui
+    atterrit sur la pastille tombe dans le `default`, qui REFERME la
+    liste. Le clic doit donc toujours arriver sur la cloche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_unread {
   display: inline-flex;
+  min-width: 16px;
+  height: 16px;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  min-width: 16px;
-  height: 16px;
   padding: 0 4px;
   border-radius: 999px;
   background: var(--wm-accent-terre, #9a4f29);
   color: var(--wm-texte-inverse, #fffbf7);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  pointer-events: none;
 }
 
-#modernbb .wm-nav__droite #notif_unread:empty {
+/*  `:empty` reste la clé : Forumactif laisse le `<span>` VIDE quand il
+    n'y a rien — mesuré — et une pastille à zéro est un mensonge
+    visuel. Leur propre feuille le masque déjà hors de `.unread`, mais
+    elle le fait depuis la chaîne `#fa_toolbar #fa_right …` : on ne
+    dépend pas d'elle pour ça. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_unread:empty {
   display: none;
 }
 
-/*  Le menu déroulant. Il était calé sur `#fa_right` — `top: 42px;
-    left: 41px` — ce qui n'a plus de sens une fois déménagé. On le
-    recale sur notre conteneur, et on le borne : 420 px de liste sur un
-    téléphone sortent de l'écran. */
-#modernbb .wm-nav__droite #notif_list {
+/*  Le menu déroulant. Leur feuille le cale sur `#fa_right` — `top:
+    42px; left: 41px` —, ce qui visait le haut de l'écran. On le recale
+    sur notre conteneur, et on le borne : 420 px de liste sur un
+    téléphone sortent de l'écran.
+
+    **Ni `display`, ni `visibility` ici.** C'est leur bascule, et la lui
+    prendre rendrait la liste ouverte en permanence — c'est précisément
+    le défaut qu'on corrige. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list {
+  position: absolute;
   top: calc(100% + 10px);
   right: 0;
   left: auto;
@@ -277,6 +377,7 @@
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
@@ -284,36 +385,53 @@
   text-align: left;
 }
 
-#modernbb .wm-nav__droite #notif_list li {
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  width: auto;
   padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-texte-corps, #4e3b30);
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
-#modernbb .wm-nav__droite #notif_list li + li {
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li {
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
-#modernbb .wm-nav__droite #notif_list a {
-  color: var(--wm-accent-fort, #1f5470);
-  text-decoration: none;
+/*  Leur feuille met un `!important` sur la couleur des liens de la
+    liste — un bleu de template. Trois identifiants ne suffisent pas
+    contre un `!important` : il faut le même. C'est le second du projet,
+    et il ne sert qu'à reprendre une couleur qu'ils ont forcée. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list a,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText a {
+  color: var(--wm-accent-fort, #1f5470) !important;
+  text-decoration: none !important;
 }
 
-#modernbb .wm-nav__droite #notif_list a:hover,
-#modernbb .wm-nav__droite #notif_list a:focus-visible {
-  text-decoration: underline;
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list a:hover,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list a:focus-visible {
+  text-decoration: underline !important;
+}
+
+/*  Leur feuille fixe la largeur du texte d'une notification à `27em`,
+    ce qui débordait de notre liste plus étroite. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText {
+  float: none;
+  width: auto;
+  max-width: 100%;
 }
 
 /*  « Voir toutes les notifications » ferme la liste : il se détache. */
-#modernbb .wm-nav__droite #notif_list li.see_all {
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all {
   margin-top: var(--wm-espace-4, 4px);
   font-weight: var(--wm-graisse-gras, 700);
   text-align: center;
 }
 
 /*  Les apparitions en direct : elles sortaient à `right: 47px` par
-    rapport à leur ancienne barre. On les remet sous la cloche. */
-#modernbb .wm-nav__droite #live_notif {
+    rapport à leur ancienne barre, et leur script leur pose une largeur
+    de 330 px EN STYLE INLINE. On ne peut donc que les borner. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #live_notif {
+  position: absolute;
   top: calc(100% + 10px);
   right: 0;
   left: auto;
@@ -342,7 +460,16 @@ body.wm-toolbar-rangee {
   margin-top: 0 !important;
 }
 
-body.wm-toolbar-rangee #fa_toolbar {
+/*  ELLE N'EST PLUS MASQUÉE : elle est chez nous, dans la barre, et
+    c'est elle qui porte les notifications. Ne reste masqué que son
+    doublon d'escamotage, qui n'a plus rien à escamoter.
+
+    Le repli compte quand même : si le module ne tourne pas — JavaScript
+    coupé, paquet injoignable —, la barre n'a pas été déplacée, elle est
+    restée en haut de l'écran, et c'est très bien ainsi. Une barre
+    masquée sans module aurait privé le joueur de ses notifications ET
+    de sa déconnexion. */
+body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   display: none;
 }
 

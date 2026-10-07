@@ -620,7 +620,7 @@ function rangerLaBarreForumactif(
 
   //  Les notifications d'abord : la cloche se lit à gauche du compte,
   //  comme partout ailleurs sur le web.
-  const cloche = deplacerLesNotifications(doc, notre);
+  const cloche = deplacerLaToolbar(doc, notre);
 
   //  Connectée : l'avatar rond de 24 px et le pseudo, comme la maquette
   //  `141:3646`. C'est un bouton — il ouvre le menu, il ne mène pas au
@@ -683,43 +683,68 @@ function rangerLaBarreForumactif(
   return true;
 }
 
-/** Déménage les notifications de Forumactif dans notre barre.
+/** Déménage la barre Forumactif ENTIÈRE dans la nôtre, pour ses
+ *  notifications.
  *
- *  ── ON DÉPLACE, ON NE COPIE PAS ─────────────────────────────────────
+ *  ── POURQUOI LA BARRE ENTIÈRE, ET PAS LA CLOCHE ─────────────────────
  *
- *  C'est l'inverse de la règle qui vaut pour les liens : eux sont de
- *  simples `<a href>`, donc copiables. Relevé le 7 octobre sur un compte
- *  connecté, la cloche est `<a id="fa_notifications">Notifications<span
- *  id="notif_unread"></span></a>` — **sans href**. C'est le script de
- *  Forumactif qui l'ouvre, qui remplit `#notif_list` et qui met le
- *  compteur à jour. Une cloche clonée serait une cloche morte.
+ *  Première version : on déplaçait les trois nœuds — la cloche,
+ *  `#notif_list`, `#live_notif` — et on les recalait à la feuille.
+ *  Résultat rapporté par Callista : « c'est censé afficher les
+ *  notifications qu'on a reçues, et pas ouvrir la page des notifs ».
  *
- *  Les identifiants survivent au déménagement, donc leur script continue
- *  de les retrouver. On emmène les trois nœuds ensemble :
+ *  La raison est entièrement dans leur code, lu le 7 octobre dans
+ *  `FAToolbar.js` et dans la feuille `8-ltr.css` du forum :
  *
- *    `#fa_notifications`  la cloche et son compteur
- *    `#notif_list`        le menu déroulant — absolu, `display: none`
- *    `#live_notif`        les apparitions en direct
+ *      case NOTIFICATIONS:
+ *        $('#'+RIGHT).toggleClass('notification')…
  *
- *  **On ne touche pas à leur `display`** : c'est lui que leur script
- *  bascule. On ne fait que les replacer, et la feuille les recale sur
- *  notre conteneur.
+ *      #fa_toolbar #fa_right #notif_list          { display: none }
+ *      #fa_toolbar #fa_right.notification
+ *                              #notif_list        { display: block }
  *
- *  Rend `true` si la cloche a été trouvée. */
-function deplacerLesNotifications(doc: Document, ou: HTMLElement): boolean {
-  const cloche = doc.querySelector<HTMLElement>("#fa_notifications");
+ *  Deux choses s'en déduisent, et aucune ne se devinait :
+ *
+ *  1. **L'état « ouvert » est une classe sur `#fa_right`**, pas sur la
+ *     cloche. Et la règle qui montre la liste exige la CHAÎNE
+ *     `#fa_toolbar #fa_right …`. Sortir la liste de cette chaîne, c'est
+ *     garantir qu'aucun clic ne l'ouvrira jamais — ce qui laissait pour
+ *     seul comportement visible le lien « Voir toutes les
+ *     notifications » qu'elle contient, d'où la page des notifs.
+ *  2. Leur écouteur est posé sur `document` et branche sur
+ *     **`e.target.id`**. Donc déplacer ne casse pas l'écouteur — mais un
+ *     clic qui atterrit sur un ENFANT de la cloche tombe dans le
+ *     `default`, qui referme. C'est pour ça que `#notif_unread` est en
+ *     `pointer-events: none` dans la feuille : le clic doit toujours
+ *     arriver sur la cloche elle-même.
+ *
+ *  On emmène donc `#fa_toolbar` tel quel, avec tout ce qu'il contient.
+ *  Leur mécanique ne s'aperçoit de rien, et on ne réécrit pas une
+ *  logique de notifications qui marche déjà.
+ *
+ *  ── CE QU'ON FAIT, ALORS ────────────────────────────────────────────
+ *
+ *  Rien que de l'apparence, et la feuille s'en charge : la barre perd sa
+ *  position fixe et son fond, tout ce qu'on remplace nous-mêmes est
+ *  masqué, et la cloche devient un lien comme les autres — « affiche
+ *  simplement Notifications sans en faire un gros bouton ».
+ *
+ *  Rend `true` si la cloche est bien là. */
+function deplacerLaToolbar(doc: Document, ou: HTMLElement): boolean {
+  const toolbar = doc.querySelector<HTMLElement>("#fa_toolbar");
+  if (toolbar === null) return false;
+
+  //  La classe, et pas des styles posés ici : la feuille est relue par
+  //  le harnais de contraste, un style inline ne l'est pas.
+  toolbar.classList.add("wm-toolbar-chez-nous");
+  ou.appendChild(toolbar);
+
+  const cloche = toolbar.querySelector<HTMLElement>("#fa_notifications");
   if (cloche === null) return false;
 
-  //  Le mot « Notifications » est masqué à l'œil par la feuille, pas
-  //  retiré du nœud : leur script réécrit ce contenu. L'étiquette ARIA
-  //  est un ATTRIBUT, donc elle survit à une réécriture.
+  //  L'étiquette est un ATTRIBUT, donc elle survit à une réécriture du
+  //  contenu par leur script — ce qui arrive à chaque notification.
   cloche.setAttribute("aria-label", "Notifications");
-  ou.appendChild(cloche);
-
-  for (const id of ["#notif_list", "#live_notif"]) {
-    const n = doc.querySelector<HTMLElement>(id);
-    if (n !== null) ou.appendChild(n);
-  }
   return true;
 }
 
