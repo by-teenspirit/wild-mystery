@@ -6545,10 +6545,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   display: none;
 }
 
+/*  « 18 sept » TIENT SUR UNE LIGNE. Les 48 px fixes la coupaient en
+    deux — « 18 » au-dessus de « sept » — ce qui doublait la hauteur de
+    la rangée et désalignait le point du filet. Vu sur le forum et dans
+    l'aperçu, et pourtant la maquette est nette : les quatre dates y
+    sont d'un seul tenant.
+
+    `min-width` plutôt que `width` : la colonne garde son alignement
+    quand les dates font la même longueur — ce qui est le cas de « 18
+    sept » et « 04 sept » — et s'élargit pour « 1er novembre » au lieu
+    de le casser. */
 #modernbb .wm-news__date {
-  flex: 0 0 48px;
-  width: 48px;
+  flex: 0 0 auto;
+  min-width: 48px;
   margin: 0;
+  white-space: nowrap;
   color: var(--wm-accent-terre, #9a4f29);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -6567,7 +6578,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wm-news__titre {
   margin: 0;
+  /*  PAS DE SOULIGNEMENT. Le titre est un `<a>`, donc souligné par
+      défaut ; ModernBB l'enlève pour toute la page avec son
+      `a { text-decoration: none }`, et c'est précisément pour ça qu'on
+      l'écrit ici : un composant qui ne tient que par une règle du
+      thème se découvre cassé le jour où le thème change. La maquette
+      ne souligne aucun titre de nouvelle. */
   color: var(--wm-encre, #2e2018);
+  text-decoration: none;
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
@@ -6702,9 +6720,18 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     s'ouvrait sous « Lire le contexte » pendant que la rangée du bas
     attendait la colonne la plus longue.
 
-    Le rapport est porté par `flex-grow` et non par la base, pour la
-    raison dite plus bas : un `flex-wrap` tranche sur les bases, et
-    deux pixels de trop suffisent à renvoyer une colonne à la ligne. */
+    LA BASE EST LA COTE, et la croissance porte le même rapport. On a
+    d'abord mis des bases plus petites pour éviter le repli à la ligne,
+    en laissant la croissance faire le reste — et c'était une erreur
+    d'un autre genre : avec des bases inégales, `flex-grow` répartit
+    l'espace LIBRE dans son rapport, pas la largeur finale. La bande du
+    bas recevait 655 là où il lui en fallait 699, et la grille des
+    pré-liens tombait à deux colonnes.
+
+    Base = cote, croissance = cote : les deux coïncident, et la largeur
+    finale est celle du dessin dès qu'il y a la place. Le forum lui en
+    donne — sa colonne va jusqu'à 1 400. En dessous, `flex-shrink`
+    rétrécit proportionnellement, puis la bande se replie. */
 #modernbb .wm-accueil__bande {
   position: relative;
   z-index: 1;
@@ -6721,20 +6748,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /*  Haut : 635 à gauche, 474 à droite. */
 #modernbb .wm-accueil__bande > .wm-accueil__rangee {
-  flex: 635 1 520px;
+  flex: 635 1 635px;
 }
 
 #modernbb .wm-accueil__bande > .wm-accueil__staff {
-  flex: 474 1 340px;
+  flex: 474 1 474px;
 }
 
 /*  Bas : 699 à gauche, 396 à droite. */
 #modernbb .wm-accueil__bande--bas > .wm-accueil__rangee--bas {
-  flex: 699 1 460px;
+  flex: 699 1 699px;
 }
 
 #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
-  flex: 396 1 340px;
+  flex: 396 1 396px;
 }
 
 /*  ET LA BANDE DU HAUT DESCEND DE 40 PX À DROITE, pour laisser passer
@@ -6768,6 +6795,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-accueil__rangee--bas {
   align-items: flex-start;
   gap: 46px;
+}
+
+/*  ET ELLE NE SE COUPE PAS. Avec `flex-wrap`, le navigateur tranche
+    sur les BASES avant de rétrécir qui que ce soit : 123 de retrait +
+    284 de carte + 46 d'écart + 246 de pré-liens font 699, et la
+    rangée n'en recevait que 655 — les pré-liens passaient sous la
+    carte. C'est la troisième fois que ce mécanisme mord dans cette
+    feuille, et toujours pour quelques dizaines de pixels.
+
+    `nowrap` au-dessus de 1 100 : la grille des pré-liens est en
+    `auto-fill`, elle rétrécit donc d'elle-même à deux colonnes s'il le
+    faut, au lieu de renvoyer le bloc entier à la ligne. En dessous, le
+    repli à la ligne redevient le bon comportement. */
+@media (min-width: 1101px) {
+  #modernbb .wm-accueil__rangee--bas {
+    flex-wrap: nowrap;
+  }
 }
 
 /*  La carte blanche de la maquette, commune aux partenaires, aux votes

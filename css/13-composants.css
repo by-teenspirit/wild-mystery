@@ -1152,10 +1152,21 @@
   display: none;
 }
 
+/*  « 18 sept » TIENT SUR UNE LIGNE. Les 48 px fixes la coupaient en
+    deux — « 18 » au-dessus de « sept » — ce qui doublait la hauteur de
+    la rangée et désalignait le point du filet. Vu sur le forum et dans
+    l'aperçu, et pourtant la maquette est nette : les quatre dates y
+    sont d'un seul tenant.
+
+    `min-width` plutôt que `width` : la colonne garde son alignement
+    quand les dates font la même longueur — ce qui est le cas de « 18
+    sept » et « 04 sept » — et s'élargit pour « 1er novembre » au lieu
+    de le casser. */
 #modernbb .wm-news__date {
-  flex: 0 0 48px;
-  width: 48px;
+  flex: 0 0 auto;
+  min-width: 48px;
   margin: 0;
+  white-space: nowrap;
   color: var(--wm-accent-terre, #9a4f29);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -1174,7 +1185,14 @@
 
 #modernbb .wm-news__titre {
   margin: 0;
+  /*  PAS DE SOULIGNEMENT. Le titre est un `<a>`, donc souligné par
+      défaut ; ModernBB l'enlève pour toute la page avec son
+      `a { text-decoration: none }`, et c'est précisément pour ça qu'on
+      l'écrit ici : un composant qui ne tient que par une règle du
+      thème se découvre cassé le jour où le thème change. La maquette
+      ne souligne aucun titre de nouvelle. */
   color: var(--wm-encre, #2e2018);
+  text-decoration: none;
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
