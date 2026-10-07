@@ -276,6 +276,97 @@ dire(
   String(panneau.ajout),
 );
 
+//  3 bis · LE « + » EST CENTRÉ, ET LA CARTE SE LIT SUR LE PANNEAU SOMBRE
+//
+//  Les deux défauts du 7 octobre. Le « + » se posait en haut à gauche :
+//  le bloc d'ajout était écrit AVANT `.wm-panneau__vignette`, et à
+//  spécificité égale le `display: block` de celle-ci gagnait. Et la
+//  carte héritait de l'encre foncée des cartes de personnage, qui elles
+//  sont sur fond clair — du brun sur du brun.
+await p.evaluate(() => {
+  globalThis.__mesureLAjout = () => {
+    const voie = (s) => {
+      const n = s.match(/-?\d*\.?\d+(?:e-?\d+)?/g)?.map(Number) ?? [];
+      if (n.length < 3) return null;
+      const srgb = /^color\(/.test(s);
+      const a = s.includes("/") ? (n[3] ?? 1) : (n.length > 3 ? n[3] : 1);
+      return { rgb: srgb ? n.slice(0, 3).map((v) => v * 255) : n.slice(0, 3), alpha: a };
+    };
+    const f = (v) => {
+      const c = v / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    };
+    const lum = (c) => 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]);
+    const sur = (d, b, a) => d.map((v, i) => v * a + b[i] * (1 - a));
+    //  Le fond RÉEL : on empile les fonds translucides, du plus profond au
+    //  plus proche. La carte en pose un, le panneau en pose un autre.
+    const fond = (el) => {
+      const pile = [];
+      for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+        const c = voie(getComputedStyle(n).backgroundColor);
+        if (c && c.alpha > 0) pile.push(c);
+      }
+      let base = [255, 255, 255];
+      for (const c of pile.reverse()) base = sur(c.rgb, base, c.alpha);
+      return base;
+    };
+    const contraste = (el) => {
+      const t = voie(getComputedStyle(el).color);
+      const b = fond(el);
+      const d = sur(t.rgb, b, t.alpha);
+      const [x, y] = [lum(d), lum(b)].sort((m, n) => n - m);
+      return Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100;
+    };
+
+    const vignette = document.querySelector(".wm-panneau__vignette--plus");
+    const nom = document.querySelector(".wm-panneau__carte--ajout .wm-panneau__nom");
+    const vide = document.querySelector(".wm-panneau__vide");
+    const r = vignette.getBoundingClientRect();
+    //  Le glyphe vit dans un nœud de texte : on l'encadre pour le mesurer.
+    const p2 = document.createRange();
+    p2.selectNodeContents(vignette);
+    const g = p2.getBoundingClientRect();
+    return {
+      affichage: getComputedStyle(vignette).display,
+      ecartX: Math.round(((g.left + g.right) / 2 - (r.left + r.right) / 2) * 10) / 10,
+      ecartY: Math.round(((g.top + g.bottom) / 2 - (r.top + r.bottom) / 2) * 10) / 10,
+      contrasteDuNom: contraste(nom),
+      contrasteDuPlus: contraste(vignette),
+      contrasteDuVide: contraste(vide),
+    };
+  };
+});
+const lisible = await p.evaluate(() => globalThis.__mesureLAjout());
+dire(
+  "le « + » est centré dans son rectangle",
+  lisible.affichage === "flex" && Math.abs(lisible.ecartX) <= 1 &&
+    Math.abs(lisible.ecartY) <= 1.5,
+  JSON.stringify(lisible),
+);
+dire(
+  "« Associer un personnage » se lit sur le panneau",
+  lisible.contrasteDuNom >= 4.5,
+  String(lisible.contrasteDuNom),
+);
+dire("le « + » aussi", lisible.contrasteDuPlus >= 4.5, String(lisible.contrasteDuPlus));
+dire(
+  "et la phrase qui dit pourquoi la liste est vide",
+  lisible.contrasteDuVide >= 4.5,
+  String(lisible.contrasteDuVide),
+);
+
+//  Le thème sombre retourne toute la palette, `--wm-fond-nuit` compris :
+//  une couleur lisible en clair ne l'est pas forcément là.
+await p.evaluate(() => document.body.classList.add("wm-sombre"));
+await p.waitForTimeout(150);
+const nuit = await p.evaluate(() => {
+  const m = globalThis.__mesureLAjout();
+  return { nom: m.contrasteDuNom, plus: m.contrasteDuPlus, vide: m.contrasteDuVide };
+});
+dire("en thème sombre aussi", Math.min(...Object.values(nuit)) >= 4.5, JSON.stringify(nuit));
+await p.evaluate(() => document.body.classList.remove("wm-sombre"));
+await p.waitForTimeout(150);
+
 //  4 · ce bouton ouvre VRAIMENT le formulaire du switcheroo, et il est lisible
 await p.click(".wm-panneau__carte--ajout");
 await p.waitForTimeout(400);

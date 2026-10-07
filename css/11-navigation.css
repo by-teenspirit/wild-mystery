@@ -308,34 +308,15 @@
   text-align: left;
 }
 
-/*  ── « ASSOCIER UN PERSONNAGE » ────────────────────────────────────
-
-    LE SWITCHEROO DÉMARRE VIDE : il garde sa liste dans `localStorage`, et
-    sur un navigateur qui ne l'a jamais vu elle vaut `[]`. Son seul bouton
-    d'ajout vit dans son conteneur, que nous cachons — donc sans cette
-    carte, personne ne peut associer un seul personnage. C'est ce qui
-    faisait que « Mes personnages » restait vide pour toujours. */
-#modernbb .wm-panneau__carte--ajout {
-  background: transparent;
-  border: 1px dashed var(--wm-bord-net, #d9c3b1);
-}
-
-#modernbb .wm-panneau__vignette--plus {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed var(--wm-bord-net, #d9c3b1);
-  background: transparent;
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-titre-carte, 16px);
-  line-height: 1;
-}
-
 /*  Dit POURQUOI la liste est vide. Un titre seul au-dessus d'un bouton
-    laisse croire à une panne. */
+    laisse croire à une panne.
+
+    **Sur fond sombre, donc en texte clair.** Le panneau est en
+    `--wm-fond-nuit` ; `--wm-texte-doux` y tombait à 2,4 de contraste —
+    illisible, et c'est ce que Callista a signalé le 7 octobre. */
 #modernbb .wm-panneau__vide {
   margin: 0 0 var(--wm-espace-8, 8px);
-  color: var(--wm-texte-doux, #6e5749);
+  color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 78%, transparent);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
 }
@@ -355,6 +336,61 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/*  ── « ASSOCIER UN PERSONNAGE » ────────────────────────────────────
+
+    LE SWITCHEROO DÉMARRE VIDE : il garde sa liste dans `localStorage`, et
+    sur un navigateur qui ne l'a jamais vu elle vaut `[]`. Son seul bouton
+    d'ajout vit dans son conteneur, que nous cachons — donc sans cette
+    carte, personne ne peut associer un seul personnage. C'est ce qui
+    faisait que « Mes personnages » restait vide pour toujours.
+
+    ── CE BLOC VIENT APRÈS `.wm-panneau__vignette`, ET C'EST OBLIGATOIRE ─
+
+    Il était avant. À spécificité égale — un identifiant et une classe des
+    deux côtés — c'est la DERNIÈRE règle qui gagne : le `display: block`
+    de la vignette écrasait notre `display: flex`, et le « + » se posait
+    en haut à gauche au lieu d'être centré. Déplacer le bloc, pas ajouter
+    de poids.
+
+    ── ET IL EST EN CLAIR SUR SOMBRE ─────────────────────────────────
+
+    Le panneau est en `--wm-fond-nuit`. La carte héritait de `--wm-encre`,
+    l'encre foncée des cartes de personnage — qui, elles, sont posées sur
+    un fond clair. Sur le panneau, c'était du brun sur du brun.
+
+    La carte prend donc un voile clair à elle : assez pour se détacher du
+    panneau, assez discret pour que les vrais personnages — en aplat clair
+    — restent ce qu'on voit en premier. */
+#modernbb .wm-panneau__carte--ajout {
+  border: 1px dashed color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 32%, transparent);
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 9%, transparent);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb button.wm-panneau__carte--ajout:hover,
+#modernbb button.wm-panneau__carte--ajout:focus-visible {
+  border-style: solid;
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 18%, transparent);
+}
+
+#modernbb .wm-panneau__carte--ajout .wm-panneau__nom {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-panneau__vignette--plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 32%, transparent);
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-titre-page, 25px);
+  font-weight: var(--wm-graisse-normale, 400);
+  /*  `1` et pas l'interligne du corps : un glyphe centré par le flexbox
+      ne doit pas en plus être décalé par sa propre demi-interligne. */
+  line-height: 1;
 }
 
 #modernbb .wm-panneau__infos {
