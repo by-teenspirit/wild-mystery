@@ -625,6 +625,17 @@ dire(
     document.querySelector("#wm-panneau").classList.contains("wm-panneau--ouvert")
   )),
 );
+
+// ── DIX PERSONNAGES DOIVENT TENIR ───────────────────────────────────
+//
+//  « Il arrive qu'on associe jusqu'à 10 personnages sur un forum. »
+//  Dix cartes à 75 px plus leurs écarts faisaient 850 px de
+//  personnages SEULS, avant les liens et les titres : sur un portable
+//  de 768 px de haut on en voyait sept.
+//
+//  On en pose donc dix pour de vrai — dans le stock du switcheroo, par
+//  son propre format — et on mesure. Un chiffre écrit dans la feuille
+//  ne prouve rien ; une hauteur mesurée, si.
 await p.click(".wm-nav__compte");
 await p.waitForTimeout(200);
 const menu = await p.evaluate(() => {
@@ -1006,6 +1017,140 @@ dire(
 dire("et il n'y a pas de menu de compte", !invite.compte);
 dire("ni de switcheroo : rien à gérer", !invite.switcheroo);
 dire("la toolbar est rangée là aussi", invite.toolbar === "none", invite.toolbar);
+
+
+// ── 11 · DIX PERSONNAGES DOIVENT TENIR ──────────────────────────────
+//
+//  « Il arrive qu'on associe jusqu'à 10 personnages sur un forum. »
+//  Dix cartes à 75 px plus leurs écarts faisaient 850 px DE
+//  PERSONNAGES SEULS, avant les liens et les titres : sur un portable
+//  de 768 px de haut, on en voyait sept et on cherchait les trois
+//  autres.
+//
+//  Une troisième page, et pas un rechargement de la première : le
+//  stock du switcheroo doit être écrit AVANT que le module parte, et
+//  `addInitScript` est le seul endroit qui passe avant tout le reste.
+//  Lui demander de se redessiner en cours de route voudrait que le
+//  paquet expose son remplisseur — or il ne fuit rien dans la page, et
+//  c'est la règle 6 du garde-fou.
+const p3 = await nav.newPage({ viewport: { width: 1280, height: 900 } });
+p3.on("pageerror", (e) => soucis.push("erreur JS (dix personnages) : " + e.message));
+await p3.route("**/*", (r) => {
+  const u = r.request().url();
+  if (u.endsWith("/data/navigation.json")) {
+    return r.fulfill({
+      contentType: "application/json",
+      body: readFileSync(R + "data/navigation.json", "utf8"),
+    });
+  }
+  if (u.endsWith("/js/wild-mystery.js")) {
+    return r.fulfill({
+      contentType: "text/javascript",
+      body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  for (const f of ["monomer.js", "switcheroo.js"]) {
+    if (u.endsWith("/" + f)) {
+      return r.fulfill({ contentType: "text/javascript", body: switcheroo[f] });
+    }
+  }
+  return r.fulfill({ contentType: "text/html; charset=utf-8", body: page });
+});
+await p3.addInitScript(() => {
+  globalThis._userdata = {
+    session_logged_in: 1,
+    user_id: 4,
+    username: "Compte de test",
+    avatar: '<img src="https://i.servimg.com/u/f12/avatar.jpg" alt="" />',
+  };
+  //  LA FORME EXACTE DU SWITCHEROO, relue dans son code à son commit
+  //  épinglé : `id`, `username`, et `avatar` qui est du HTML — c'est
+  //  ce que Forumactif met dans `_userdata.avatar`.
+  //
+  //  Un avatar vide ne marche PAS : il fait
+  //  `avatar.querySelector('img').draggable = false`, donc il lève sur
+  //  la première entrée et la boucle meurt. Mesuré en l'essayant : une
+  //  seule pastille au lieu de dix.
+  const faux = [];
+  for (let i = 1; i <= 10; i++) {
+    faux.push({
+      id: 1000 + i,
+      username: "Personnage numéro " + i,
+      avatar: '<img src="https://i.servimg.com/u/f12/avatar.jpg" alt="" />',
+    });
+  }
+  localStorage.setItem("switcheroo", JSON.stringify(faux));
+});
+await p3.goto("http://wild-mystery.test/");
+await p3.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p3.waitForTimeout(900);
+await p3.evaluate(() => document.querySelector('[aria-controls="wm-panneau"]')?.click());
+await p3.waitForTimeout(400);
+
+const place = await p3.evaluate(() => {
+  const panneau = document.querySelector("#wm-panneau");
+  if (panneau === null) return { personnages: -1 };
+  const toutes = [...panneau.querySelectorAll(".wm-panneau__carte")];
+  //  La carte « Associer un personnage » n'est pas un personnage.
+  const persos = toutes.filter((c) => !c.classList.contains("wm-panneau__carte--ajout"));
+  const liens = [...panneau.querySelectorAll(".wm-panneau__lien")];
+  const h = (e) => Math.round(e.getBoundingClientRect().height);
+  return {
+    personnages: persos.length,
+    hauteurCarte: persos.length > 0 ? h(persos[0]) : 0,
+    hauteurLien: liens.length > 0 ? h(liens[0]) : 0,
+    //  LA MESURE QUI COMPTE : tout le contenu du panneau contre la
+    //  place qu'il a. `scrollHeight` inclut ce qui dépasse.
+    contenu: panneau.scrollHeight,
+    place: Math.round(panneau.getBoundingClientRect().height),
+    //  Et le dernier doit être ATTEIGNABLE : on y défile, et on
+    //  vérifie qu'il entre dans la fenêtre du panneau.
+    //  La liste des dix, SEULE : c'est la garantie stable. Le panneau
+    //  entier dépend du nombre de liens, qui bougera ; la section des
+    //  personnages, elle, doit toujours pouvoir se voir d'un coup.
+    hauteurDesDix: (() => {
+      if (persos.length === 0) return 0;
+      const a = persos[0].getBoundingClientRect(), z = persos[persos.length - 1];
+      return Math.round(z.getBoundingClientRect().bottom - a.top);
+    })(),
+    dernierAtteignable: (() => {
+      if (persos.length === 0) return false;
+      const dernier = persos[persos.length - 1];
+      dernier.scrollIntoView({ block: "nearest" });
+      const rd = dernier.getBoundingClientRect(), rp = panneau.getBoundingClientRect();
+      return rd.top >= rp.top - 1 && rd.bottom <= rp.bottom + 1;
+    })(),
+  };
+});
+dire("les dix personnages sont posés", place.personnages === 10, JSON.stringify(place));
+dire(
+  "une carte de personnage a maigri : 46 px au lieu de 75",
+  place.hauteurCarte > 0 && place.hauteurCarte <= 46,
+  `${place.hauteurCarte} px`,
+);
+dire(
+  "et une entrée de menu, 28 au lieu de 36",
+  place.hauteurLien > 0 && place.hauteurLien <= 28,
+  `${place.hauteurLien} px`,
+);
+//  LA GARANTIE STABLE : les dix cartes se voient d'un coup. Le nombre
+//  de liens du menu bougera ; dix personnages, non.
+dire(
+  "LES DIX CARTES SE VOIENT D'UN COUP",
+  place.hauteurDesDix > 0 && place.hauteurDesDix <= place.place,
+  `${place.hauteurDesDix} px de cartes pour ${place.place} de panneau`,
+);
+//  ET C'EST UN BUDGET, pas une coïncidence : à 900 px de haut, le
+//  panneau entier — liens compris — tient tout juste. Si cette
+//  assertion tombe un jour, c'est qu'on a ajouté une entrée au menu ou
+//  repris de la hauteur quelque part, et il faudra décider laquelle des
+//  deux sections la rend.
+dire(
+  "et le panneau entier tient sur un écran de 900",
+  place.contenu <= place.place,
+  `${place.contenu} px de contenu pour ${place.place} de place`,
+);
+dire("et le dixième personnage s'atteint", place.dernierAtteignable, JSON.stringify(place));
 
 await nav.close();
 if (soucis.length > 0) { for (const x of soucis) console.log("  · " + x); }

@@ -505,7 +505,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   left: 0;
   width: 296px;
   box-sizing: border-box;
-  padding: 18px 22px var(--wm-espace-24, 24px);
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
   overflow-y: auto;
   background: var(--wm-fond-nuit, #3a2a22);
   color: var(--wm-texte-sur-nuit, #fffbf7);
@@ -534,7 +534,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 }
 
 #modernbb .wm-panneau__titre-section {
-  margin: 0 0 var(--wm-espace-10, 10px);
+  margin: 0 0 var(--wm-espace-6, 6px);
   color: var(--wm-texte-sur-nuit, #fffbf7);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -546,9 +546,9 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 #modernbb .wm-panneau__liste {
   display: flex;
   flex-direction: column;
-  margin: 0 0 var(--wm-espace-32, 32px);
+  margin: 0 0 var(--wm-espace-16, 16px);
   padding: 0;
-  gap: var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-4, 4px);
   list-style: none;
 }
 
@@ -556,13 +556,26 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   margin-bottom: 0;
 }
 
-/*  Une entrée : 36 de haut, icône 22 à 8 du bord, libellé à 41. */
+/*  Une entrée : l'icône à 8 du bord, le libellé à 41.
+
+    ── ELLE A MAIGRI LE 7 OCTOBRE, ET POUR UNE RAISON PRÉCISE ────────
+
+    « Il arrive qu'on associe jusqu'à 10 personnages sur un forum. »
+    Dix cartes à 75 px plus leurs écarts faisaient 850 px DE
+    PERSONNAGES SEULS, avant les liens et les titres : sur un portable
+    de 768 px de haut, on en voyait sept et on cherchait les trois
+    autres.
+
+    On reprend donc partout où il y a du vide à reprendre : 36 → 30 de
+    haut ici, 10 → 6 d'écart. Sept entrées passent de 322 à 246 px.
+    La cible tactile reste au-dessus du minimum de 24 px, et le texte
+    ne bouge pas. */
 #modernbb .wm-panneau__lien {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  min-height: 36px;
-  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px) var(--wm-espace-6, 6px) 8px;
+  min-height: 28px;
+  padding: var(--wm-espace-2, 3px) var(--wm-espace-12, 12px) var(--wm-espace-2, 3px) 8px;
   gap: 11px;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
@@ -637,13 +650,21 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   pointer-events: none;
 }
 
+/*  DIX PERSONNAGES DOIVENT TENIR. La carte faisait 75 px de haut pour
+    un portrait de 50 : vingt-cinq pixels de marge intérieure autour
+    d'une vignette. Elle descend à 52, et la vignette à 26 × 38 —
+    toujours un portrait, toujours reconnaissable à cette taille, parce
+    que ce qu'on y lit est une silhouette et une couleur de cheveux.
+
+    Dix cartes passent de 850 px à 580. Avec les liens resserrés, le
+    panneau entier tient sous 900 px de haut. */
 #modernbb .wm-panneau__carte {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  min-height: 75px;
-  padding: 12px;
-  gap: var(--wm-espace-12, 12px);
+  min-height: 46px;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
   color: var(--wm-encre, #2e2018);
@@ -684,13 +705,15 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
-/*  34 × 50, comme la maquette : un portrait, pas une vignette carrée. */
+/*  Un portrait, pas une vignette carrée — la maquette dit 34 × 50, et
+    on garde ses proportions en descendant à 26 × 38 : c'est le prix
+    des dix personnages, et le même rapport de 2 pour 3. */
 #modernbb .wm-panneau__vignette {
   display: block;
   overflow: hidden;
-  flex: 0 0 34px;
-  width: 34px;
-  height: 50px;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 34px;
   border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-douce, #f3e1d2);
 }

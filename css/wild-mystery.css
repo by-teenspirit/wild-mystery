@@ -20,6 +20,7 @@
      · css/12-confort.css
      · css/13-composants.css
      · css/14-accueil.css
+     · css/15-messenger.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -4296,7 +4297,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   left: 0;
   width: 296px;
   box-sizing: border-box;
-  padding: 18px 22px var(--wm-espace-24, 24px);
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
   overflow-y: auto;
   background: var(--wm-fond-nuit, #3a2a22);
   color: var(--wm-texte-sur-nuit, #fffbf7);
@@ -4325,7 +4326,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 }
 
 #modernbb .wm-panneau__titre-section {
-  margin: 0 0 var(--wm-espace-10, 10px);
+  margin: 0 0 var(--wm-espace-6, 6px);
   color: var(--wm-texte-sur-nuit, #fffbf7);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -4337,9 +4338,9 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 #modernbb .wm-panneau__liste {
   display: flex;
   flex-direction: column;
-  margin: 0 0 var(--wm-espace-32, 32px);
+  margin: 0 0 var(--wm-espace-16, 16px);
   padding: 0;
-  gap: var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-4, 4px);
   list-style: none;
 }
 
@@ -4347,13 +4348,26 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   margin-bottom: 0;
 }
 
-/*  Une entrée : 36 de haut, icône 22 à 8 du bord, libellé à 41. */
+/*  Une entrée : l'icône à 8 du bord, le libellé à 41.
+
+    ── ELLE A MAIGRI LE 7 OCTOBRE, ET POUR UNE RAISON PRÉCISE ────────
+
+    « Il arrive qu'on associe jusqu'à 10 personnages sur un forum. »
+    Dix cartes à 75 px plus leurs écarts faisaient 850 px DE
+    PERSONNAGES SEULS, avant les liens et les titres : sur un portable
+    de 768 px de haut, on en voyait sept et on cherchait les trois
+    autres.
+
+    On reprend donc partout où il y a du vide à reprendre : 36 → 30 de
+    haut ici, 10 → 6 d'écart. Sept entrées passent de 322 à 246 px.
+    La cible tactile reste au-dessus du minimum de 24 px, et le texte
+    ne bouge pas. */
 #modernbb .wm-panneau__lien {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  min-height: 36px;
-  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px) var(--wm-espace-6, 6px) 8px;
+  min-height: 28px;
+  padding: var(--wm-espace-2, 3px) var(--wm-espace-12, 12px) var(--wm-espace-2, 3px) 8px;
   gap: 11px;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
@@ -4428,13 +4442,21 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   pointer-events: none;
 }
 
+/*  DIX PERSONNAGES DOIVENT TENIR. La carte faisait 75 px de haut pour
+    un portrait de 50 : vingt-cinq pixels de marge intérieure autour
+    d'une vignette. Elle descend à 52, et la vignette à 26 × 38 —
+    toujours un portrait, toujours reconnaissable à cette taille, parce
+    que ce qu'on y lit est une silhouette et une couleur de cheveux.
+
+    Dix cartes passent de 850 px à 580. Avec les liens resserrés, le
+    panneau entier tient sous 900 px de haut. */
 #modernbb .wm-panneau__carte {
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  min-height: 75px;
-  padding: 12px;
-  gap: var(--wm-espace-12, 12px);
+  min-height: 46px;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
   color: var(--wm-encre, #2e2018);
@@ -4475,13 +4497,15 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
-/*  34 × 50, comme la maquette : un portrait, pas une vignette carrée. */
+/*  Un portrait, pas une vignette carrée — la maquette dit 34 × 50, et
+    on garde ses proportions en descendant à 26 × 38 : c'est le prix
+    des dix personnages, et le même rapport de 2 pour 3. */
 #modernbb .wm-panneau__vignette {
   display: block;
   overflow: hidden;
-  flex: 0 0 34px;
-  width: 34px;
-  height: 50px;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 34px;
   border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-douce, #f3e1d2);
 }
@@ -7170,4 +7194,177 @@ a.wm-accueil__membre-pseudo:focus-visible {
     flex-direction: column;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 15 · Le Messenger, à la charte
+
+   Forumactif Messenger (FAM) est un script de la communauté, en
+   GPL-3.0, servi depuis notre fork. Son apparence d'origine est celle
+   d'un widget de 2017 : du bleu #39F, des bordures #DDD, du blanc dur,
+   et rien qui suive le thème.
+
+   Cette feuille ne fait QUE l'habiller. Elle ne change aucun
+   comportement — tout ce qui est mécanique vit dans le fork, et c'est
+   là qu'on le change.
+
+   ── POURQUOI CHAQUE RÈGLE COMMENCE PAR `#modernbb` ──────────────────
+
+   FAM n'a pas de feuille à lui : il INJECTE un `<style>` dans la page
+   au démarrage. Il arrive donc APRÈS la nôtre dans la cascade, et à
+   spécificité égale c'est lui qui gagne. Relevé le 7 octobre : ses
+   sélecteurs sont `#FAM`, `.FAM-button`, `#FAM-content`… — un
+   identifiant ou une classe. `#modernbb` devant nous en donne un de
+   plus, et ça suffit partout.
+
+   PREMIÈRE PASSE, écrite sans l'avoir sous les yeux : le script n'est
+   pas encore installé. À relire une fois qu'il tourne.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la fenêtre ───────────────────────────────────────────────── */
+
+#modernbb #FAM {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+
+  /*  Elle flotte au-dessus de tout, y compris de notre barre collée
+      (70) et du coin d'outils (40). On ne touche pas à son plan —
+      99999 est le sien — mais on la décale du bord, comme le coin :
+      deux blocs flottants collés au même pixel se marchent dessus. */
+  right: var(--wm-espace-16, 16px);
+  bottom: var(--wm-espace-16, 16px);
+}
+
+/*  La pastille qui ouvre le tchat. C'est elle qu'on voit tout le
+    temps : elle prend l'accent de la charte, et la taille d'une vraie
+    cible tactile — 30 px était trop petit au doigt. */
+#modernbb #FAM-button {
+  right: var(--wm-espace-16, 16px);
+  bottom: var(--wm-espace-16, 16px);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-texte-inverse, #fffbf7);
+  line-height: 44px;
+  text-align: center;
+}
+
+#modernbb #FAM-button:hover,
+#modernbb #FAM-button:focus-visible {
+  background: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── 2 · les titres et les onglets ────────────────────────────────── */
+
+#modernbb #FAM .FAM-maintitle,
+#modernbb #FAM .FAM-chat-title {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Kaushan Script", cursive);
+  font-weight: 400;
+  text-transform: none;
+}
+
+/*  `text-transform: uppercase` est posé par FAM sur tous ses titres.
+    On le laisse où il sert — les étiquettes — et on l'enlève des
+    titres, que la police manuscrite rend illisibles en capitales. */
+#modernbb #FAM .FAM-title {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: 0.08em;
+}
+
+#modernbb #FAM #FAM-tabs {
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-page, #f2e4d8);
+}
+
+#modernbb #FAM .FAM-tab {
+  border-radius: var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb #FAM .FAM-tab.FAM-active-tab {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+}
+
+/* ── 3 · les messages ─────────────────────────────────────────────── */
+
+#modernbb #FAM .FAM-msg {
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb #FAM .FAM-msg-text {
+  color: var(--wm-texte-corps, #4e3b30);
+  line-height: var(--wm-interligne-courant, 1.4);
+}
+
+#modernbb #FAM .FAM-msg-date {
+  color: var(--wm-texte-pale, #9a8475);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  Ses propres messages se distinguent par le fond, pas seulement par
+    l'alignement : sur un écran étroit, FAM les empile et le côté ne se
+    lit plus. */
+#modernbb #FAM .FAM-my-msg {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb #FAM .FAM-msg-avatar img {
+  border-radius: 999px;
+}
+
+/* ── 4 · la saisie et les boutons ─────────────────────────────────── */
+
+#modernbb #FAM .FAM-inputbox {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb #FAM .FAM-inputbox:focus-visible {
+  border-color: var(--wm-accent-primaire, #2b6988);
+  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  outline-offset: 1px;
+}
+
+#modernbb #FAM .FAM-button,
+#modernbb #FAM .FAM-toolbar-button {
+  border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-accent-primaire, #2b6988);
+}
+
+#modernbb #FAM .FAM-button:hover,
+#modernbb #FAM .FAM-toolbar-button:hover,
+#modernbb #FAM .FAM-button:focus-visible,
+#modernbb #FAM .FAM-toolbar-button:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb #FAM .FAM-page-link {
+  color: var(--wm-accent-primaire, #2b6988);
+}
+
+/* ── 5 · ce qu'on ne touche pas, et pourquoi ──────────────────────── */
+
+/*  `#FAM-modal-overlay`, `.FAM-codebox`, `.FAM-spoiler`,
+    `.FAM-attachment` : laissés tels quels. Ils ne se voient qu'une
+    fois dans le tchat, ils sont cohérents entre eux, et les
+    repeindre à l'aveugle — sans le script installé — ferait plus de
+    dégâts que de bien.
+
+    De même pour la police d'icônes : FAM charge Font Awesome 4.7
+    depuis cdnjs, et c'est SON choix. La remplacer par Material
+    Symbols demanderait de réécrire chaque appel d'icône dans le fork,
+    pour un gain d'un kilo-octet. */
 
