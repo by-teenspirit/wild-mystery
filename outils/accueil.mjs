@@ -256,42 +256,49 @@ dire(
 );
 dire("et rien ne déborde en largeur", !pose.debord);
 
-// ── 2 bis · LA MASCOTTE NE COUVRE RIEN QUI SE LISE ──────────────────
-//  `pointer-events: none` garde les liens cliquables ; il ne les garde
-//  pas VISIBLES. Au premier rendu avec la vraie image, le Krokorok
-//  mangeait trois lignes du contexte, le titre des partenaires et cinq
-//  étoiles sur sept. Le harnais servait un carré de 300 px qui, lui, ne
-//  gênait rien : il sert maintenant la vraie image.
+// ── 2 bis · LA MASCOTTE EST UN DÉCOR, ET ELLE RESTE DANS SON COIN ──
+//  CETTE SECTION A DIT AUTRE CHOSE PENDANT UNE JOURNÉE, ET C'ÉTAIT
+//  FAUX. Elle exigeait que le rectangle de la mascotte ne croise aucun
+//  texte ni aucun lien. La maquette dit l'inverse : `image 7` fait
+//  312 × 312 à x = −60, la carte des partenaires commence à 155, et le
+//  Krokorok passe franchement par-dessus son bord gauche. C'est la
+//  TRANSPARENCE du PNG qui fait le travail, pas un évitement — ses
+//  pixels opaques s'arrêtent bien avant le titre de la carte.
+//
+//  Un rectangle ne sait pas dire ça. On avait donc écrit un test qui
+//  mesurait la bonne chose pour défendre une invention : rapetisser
+//  l'image à 190 px pour qu'elle ne morde plus. Le test passait, et le
+//  bloc ne ressemblait plus au dessin.
+//
+//  Ce qui se vérifie vraiment, et qui est ce qui compte :
 const decor = await p.evaluate(() => {
   const m = document.querySelector(".wm-accueil__mascotte");
-  if (m === null) return { absente: true, couvre: ["pas de mascotte"] };
+  if (m === null) return { absente: true };
   const r = m.getBoundingClientRect();
-  const chevauche = (e) => {
-    const b = e.getBoundingClientRect();
-    if (b.width === 0 || b.height === 0) return 0;
-    const l = Math.max(0, Math.min(r.right, b.right) - Math.max(r.left, b.left));
-    const h = Math.max(0, Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top));
-    return Math.round(l * h);
-  };
-  //  Tout ce qui porte du texte ou se clique dans le panneau.
-  const lisibles = [
-    ...document.querySelectorAll(
-      "#wm-accueil .wm-accueil__texte, #wm-accueil .wm-accueil__titre-carte," +
-        " #wm-accueil .wm-accueil__rapide, #wm-accueil .wm-accueil__partenaire," +
-        " #wm-accueil .wm-accueil__prelien, #wm-accueil .wm-accueil__lien",
-    ),
-  ];
+  const pan = document.querySelector(".wm-accueil__panneau").getBoundingClientRect();
+  const avant = document.documentElement.scrollHeight;
   return {
     absente: false,
-    mascotte: `${Math.round(r.width)}x${Math.round(r.height)}`,
-    couvre: lisibles
-      .filter((e) => chevauche(e) > 0)
-      .map((e) => `${e.className.split(" ")[0]} (${chevauche(e)} px²)`),
+    //  Elle ne prend aucune place : enlevée, la page garde sa hauteur.
+    horsDuFlux: getComputedStyle(m).position === "absolute",
+    hauteurDeLaPage: avant,
+    //  Elle n'attrape pas un clic destiné à ce qui passe dessous.
+    transparenteAuClic: getComputedStyle(m).pointerEvents === "none",
+    //  Et elle est bien dans le coin bas-gauche, débordant des deux
+    //  côtés, comme la maquette : x = −60 et 93 px sous le panneau.
+    deborde: Math.round(r.left - pan.left) < 0 && Math.round(r.bottom - pan.bottom) > 0,
+    aGauche: Math.round(r.left - pan.left),
+    sousLePanneau: Math.round(r.bottom - pan.bottom),
   };
 });
 dire(
-  "LA MASCOTTE NE RECOUVRE NI TEXTE NI LIEN",
-  !decor.absente && decor.couvre.length === 0,
+  "LA MASCOTTE NE PREND PAS DE PLACE ET N'ATTRAPE PAS LES CLICS",
+  !decor.absente && decor.horsDuFlux && decor.transparenteAuClic,
+  JSON.stringify(decor),
+);
+dire(
+  "et elle déborde en bas à gauche, comme la maquette",
+  decor.deborde,
   JSON.stringify(decor),
 );
 
@@ -612,20 +619,6 @@ const vrai = await p.evaluate(() => {
   const hote = document.querySelector("#wm-accueil");
   const m = hote.querySelector(".wm-accueil__mascotte");
   const r = m === null ? null : m.getBoundingClientRect();
-  const chevauche = (e) => {
-    if (r === null) return 0;
-    const b = e.getBoundingClientRect();
-    if (b.width === 0 || b.height === 0) return 0;
-    const l = Math.max(0, Math.min(r.right, b.right) - Math.max(r.left, b.left));
-    const h = Math.max(0, Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top));
-    return Math.round(l * h);
-  };
-  const lisibles = [
-    ...hote.querySelectorAll(
-      ".wm-accueil__texte, .wm-accueil__titre-carte, .wm-accueil__rapide," +
-        " .wm-accueil__partenaire, .wm-accueil__prelien, .wm-accueil__lien",
-    ),
-  ];
   const entrees = [...hote.querySelectorAll(".wm-news__entree")];
   return {
     pose: hote.classList.contains("wm-accueil--pose"),
@@ -634,15 +627,15 @@ const vrai = await p.evaluate(() => {
     actus: entrees.length,
     preliens: hote.querySelectorAll(".wm-accueil__prelien").length,
     mascotte: m === null ? "aucune" : `${Math.round(r.width)}x${Math.round(r.height)}`,
-    couvre: lisibles.filter((e) => chevauche(e) > 0).length,
     plusHaute: Math.max(0, ...entrees.map((e) => Math.round(e.getBoundingClientRect().height))),
     debord: document.documentElement.scrollWidth > innerWidth,
     motVisible: /visibility/i.test(hote.textContent),
   };
 });
 dire(
-  "AVEC LES VRAIES DONNÉES, LA MASCOTTE NE COUVRE TOUJOURS RIEN",
-  vrai.pose && vrai.couvre === 0,
+  "AVEC LES VRAIES DONNÉES, LES SEPT BLOCS TIENNENT LA PAGE",
+  vrai.pose && vrai.liens === 7 && vrai.partenaires === 7 && vrai.actus === 4 &&
+    vrai.preliens === 6 && vrai.mascotte !== "aucune",
   JSON.stringify(vrai),
 );
 dire(

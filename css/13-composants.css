@@ -1105,7 +1105,11 @@
   flex-direction: column;
   margin: 0;
   padding: 0;
-  gap: var(--wm-espace-18, 18px);
+  /*  15, et pas 18. Relevé dans la maquette le 7 octobre : les quatre
+      « Entrée de nouvelle » sont à y = 10, 54, 98 et 142 pour 29 px de
+      haut — donc un pas de 44 et un écart de 15. Le 18 venait du
+      jeton le plus proche, choisi à l'œil. */
+  gap: 15px;
   background: transparent;
   list-style: none;
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -1140,7 +1144,7 @@
   top: 12px;
   left: 3px;
   width: 1px;
-  height: calc(100% + var(--wm-espace-18, 18px) - 12px);
+  height: calc(100% + 15px - 12px);
   background: var(--wm-bord-fin, #eadacd);
 }
 

@@ -6498,7 +6498,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex-direction: column;
   margin: 0;
   padding: 0;
-  gap: var(--wm-espace-18, 18px);
+  /*  15, et pas 18. Relevé dans la maquette le 7 octobre : les quatre
+      « Entrée de nouvelle » sont à y = 10, 54, 98 et 142 pour 29 px de
+      haut — donc un pas de 44 et un écart de 15. Le 18 venait du
+      jeton le plus proche, choisi à l'œil. */
+  gap: 15px;
   background: transparent;
   list-style: none;
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -6533,7 +6537,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   top: 12px;
   left: 3px;
   width: 1px;
-  height: calc(100% + var(--wm-espace-18, 18px) - 12px);
+  height: calc(100% + 15px - 12px);
   background: var(--wm-bord-fin, #eadacd);
 }
 
@@ -6630,11 +6634,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 1 · l'enveloppe ──────────────────────────────────────────────── */
 
+/*  LA CARTE DES VOTES CHEVAUCHE LE PANNEAU, elle ne flotte pas
+    au-dessus avec un écart. Maquette : `partenaires` à y = −36 pour une
+    hauteur de 72 — exactement la MOITIÉ dehors, la moitié dedans.
+
+    C'est une des deux choses qui donnent son allure au bloc, avec les
+    avatars du staff qui mordent leur bandeau. On avait mis un écart de
+    12 px à la place : la carte flottait proprement au-dessus, et le
+    bloc perdait ce qui le distinguait d'un empilement de cartes.
+
+    `gap` négatif n'existe pas : c'est la carte qui descend dans le
+    panneau par une marge, et le `z-index` qui la garde devant. */
 #modernbb .wm-accueil {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--wm-espace-12, 12px);
   margin-bottom: var(--wm-espace-24, 24px);
 }
 
@@ -6673,43 +6687,87 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  `position` et `z-index` : le contenu passe DEVANT la mascotte, qui
     est en `z-index: 0` sur le panneau. Sans empiler les colonnes,
     l'image resterait au-dessus du texte qu'elle borde. */
-#modernbb .wm-accueil__colonnes {
+/*  ── DEUX BANDES, CHACUNE AVEC SA COUPE ────────────────────────────
+
+    Les cotes de la maquette, dans son cadre de 1172 :
+
+      bande du haut   contexte + liens  32 → 667  |  staff  698 → 1151
+      bande du bas    partenaires + pré-liens 155 → 731 | actus 755 → 1151
+
+    Soit 635 : 474 en haut, et 699 : 396 en bas. **Ce ne sont pas les
+    mêmes proportions**, donc ce ne sont pas deux colonnes — c'est ce
+    qu'on avait cru, et ça donnait deux défauts à l'écran : les
+    pré-liens passaient sous la carte des partenaires, faute des 64 px
+    qui manquaient à la colonne de gauche, et un trou de 250 px
+    s'ouvrait sous « Lire le contexte » pendant que la rangée du bas
+    attendait la colonne la plus longue.
+
+    Le rapport est porté par `flex-grow` et non par la base, pour la
+    raison dite plus bas : un `flex-wrap` tranche sur les bases, et
+    deux pixels de trop suffisent à renvoyer une colonne à la ligne. */
+#modernbb .wm-accueil__bande {
   position: relative;
   z-index: 1;
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 31px;
+}
+
+#modernbb .wm-accueil__bande--bas {
+  margin-top: var(--wm-espace-24, 24px);
   gap: var(--wm-espace-24, 24px);
 }
 
-/*  LES DEUX COLONNES. La grande prend ce qui reste, la latérale a la
-    largeur de la carte des actualités dans la maquette (396 px) moins
-    ses marges. `min-width: 0` sur la grande : sans lui, un titre long
-    dans les actualités pousserait la colonne et ferait déborder la
-    page — c'est la règle de la planche 50 sur tout ce qui s'étire. */
-#modernbb .wm-accueil__principale {
-  display: flex;
-  min-width: 0;
-  flex: 1 1 520px;
-  flex-direction: column;
-  gap: var(--wm-espace-24, 24px);
+/*  Haut : 635 à gauche, 474 à droite. */
+#modernbb .wm-accueil__bande > .wm-accueil__rangee {
+  flex: 635 1 520px;
 }
 
-#modernbb .wm-accueil__cote {
-  display: flex;
-  min-width: 0;
-  flex: 1 1 340px;
-  flex-direction: column;
-  gap: var(--wm-espace-24, 24px);
+#modernbb .wm-accueil__bande > .wm-accueil__staff {
+  flex: 474 1 340px;
+}
+
+/*  Bas : 699 à gauche, 396 à droite. */
+#modernbb .wm-accueil__bande--bas > .wm-accueil__rangee--bas {
+  flex: 699 1 460px;
+}
+
+#modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
+  flex: 396 1 340px;
+}
+
+/*  ET LA BANDE DU HAUT DESCEND DE 40 PX À DROITE, pour laisser passer
+    la carte des votes, qui mord la moitié haute du panneau (−36).
+    Relevé à l'écran : elle recouvrait le premier membre du staff et
+    son rôle, « FONDATRICE » disparaissait. La maquette dit la même
+    chose en chiffres — la carte finit à y = 36, les membres
+    commencent à 72.
+
+    Sous 1 100 px la carte se range au-dessus du panneau, et il n'y a
+    plus rien à éviter. */
+@media (min-width: 1101px) {
+  #modernbb .wm-accueil__bande > .wm-accueil__staff {
+    margin-top: 40px;
+  }
 }
 
 #modernbb .wm-accueil__rangee {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-24, 24px);
+  gap: 15px;
 }
 
+/*  La rangée du bas a son propre écart : 46 dans la maquette, entre
+    la carte des partenaires (qui finit à 439) et les pré-liens (485).
+
+    Elle est posée au niveau du PANNEAU et non dans la colonne de
+    gauche — voir le commentaire du module, qui donne les cotes : elle
+    est plus large que la colonne au-dessus d'elle. D'où sa marge
+    haute, qui remplace l'écart que la colonne lui donnait. */
 #modernbb .wm-accueil__rangee--bas {
   align-items: flex-start;
+  gap: 46px;
 }
 
 /*  La carte blanche de la maquette, commune aux partenaires, aux votes
@@ -6805,7 +6863,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-accueil__bandeau {
   display: flex;
   box-sizing: border-box;
-  min-width: 70px;
+  /*  99 × 318 dans la maquette, et le 318 n'est pas la hauteur du
+      staff : les deux membres n'en occupent que 160. C'est une bande
+      décorative qui court sur toute la hauteur du bloc du haut, et le
+      mot « Staff » se tient en son milieu.
+
+      `min-height` et pas `height` : avec dix membres — Callista en
+      associe jusqu'à dix — la bande les suit au lieu de les couper. */
+  min-width: 99px;
+  min-height: 318px;
   align-self: stretch;
   align-items: center;
   justify-content: center;
@@ -6827,9 +6893,22 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 3 · le contexte ──────────────────────────────────────────────── */
 
+/*  LE RAPPORT DE LA MAQUETTE EST DANS LA CROISSANCE, PAS DANS LA BASE.
+    Elle donne contexte 321 et liens 299 dans un cadre de 1172. Les
+    écrire comme bases a paru évident, et ça a cassé : 321 + 15 + 299
+    font 635, pour 633 de place réelle une fois les marges déduites.
+    **Deux pixels, et la colonne des liens passait sous le contexte** —
+    un `flex-wrap` tranche sur les bases, avant de rétrécir qui que ce
+    soit.
+
+    Alors la base reste petite — assez pour tenir côte à côte — et
+    c'est `flex-grow` qui porte le rapport 321 : 299. Les deux
+    remplissent la ligne dans les proportions du dessin, quelle que
+    soit la largeur, et se replient quand il n'y a vraiment plus la
+    place. */
 #modernbb .wm-accueil__contexte {
   min-width: 0;
-  flex: 1 1 300px;
+  flex: 321 1 280px;
 }
 
 #modernbb .wm-accueil__chapo {
@@ -6872,7 +6951,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wm-accueil__liens {
   min-width: 0;
-  flex: 1 1 280px;
+  flex: 299 1 260px;
 }
 
 #modernbb .wm-accueil__liste-liens {
@@ -6922,7 +7001,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   height: 12px;
   flex: none;
   padding: var(--wm-espace-4, 4px);
-  border-radius: var(--wm-rayon-md, 8px);
+  /*  ROND, et pas un carré arrondi. Relevé dans la maquette le
+      7 octobre : `Frame 13`, 20 × 20, avec le tracé de 12 au milieu —
+      et une pastille parfaitement circulaire. On avait mis
+      `rayon-md`, soit 8 px, ce qui donne un carré aux coins cassés. */
+  border-radius: 999px;
   background: var(--wm-accent-terre, #9a4f29);
   color: var(--wm-texte-inverse, #fffbf7);
 }
@@ -6960,10 +7043,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     maquette. En flux, pas en absolu : au-dessus de 1 172 px elle y est
     déjà, et en dessous elle se range toute seule. */
 #modernbb .wm-accueil__votes {
+  position: relative;
+  z-index: 2;
   display: flex;
   max-width: 100%;
+  /*  La moitié de sa hauteur, posée dans le panneau. 72 dans la
+      maquette, donc −36. Elle vaut pour la hauteur réelle de la carte,
+      qui suit son contenu : on descend d'une demi-hauteur, pas d'un
+      chiffre. */
+  margin-bottom: -36px;
+  margin-right: var(--wm-espace-24, 24px);
   align-items: center;
   gap: var(--wm-espace-12, 12px);
+}
+
+/*  SOUS 1 100 PX, ELLE SE RANGE. Le panneau passe en colonne, la carte
+    n'a plus de coin à mordre, et un chevauchement sur un écran étroit
+    ne serait plus une allure mais un défaut. */
+@media (max-width: 1100px) {
+  #modernbb .wm-accueil__votes {
+    margin-right: 0;
+    margin-bottom: var(--wm-espace-12, 12px);
+  }
 }
 
 #modernbb .wm-accueil__votes .wm-accueil__titre-carte {
@@ -7004,9 +7105,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 6 · les partenaires ──────────────────────────────────────────── */
 
+/*  LA CARTE DES PARTENAIRES NE S'ÉTIRE PAS. Maquette : 284 de large,
+    fixe, à côté des pré-liens — et pas une carte qui prend toute la
+    colonne avec les pré-liens relégués en dessous, ce qui était le
+    cas tant qu'elle avait le droit de grandir.
+
+    `flex-grow: 0` donc, et les pré-liens prennent ce qui reste. */
 #modernbb .wm-accueil__partenaires {
   min-width: 0;
-  flex: 1 1 260px;
+  flex: 0 1 284px;
 }
 
 #modernbb .wm-accueil__partenaires-liste {
@@ -7064,15 +7171,34 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-16, 16px);
 }
 
+/*  LES AVATARS MORDENT LE BANDEAU DE 29 PX. Maquette : le bandeau
+    occupe x = 698 à 797, et la liste des membres commence à 768 — donc
+    29 px par-dessus. C'est voulu, et c'est la seconde chose qui donne
+    son allure au bloc : le premier avatar chevauche le dégradé au lieu
+    de s'aligner sagement à côté.
+
+    Le `z-index` les met devant ; sans lui, le bandeau — qui vient après
+    dans le flux — leur passerait dessus. */
 #modernbb .wm-accueil__staff-liste {
+  position: relative;
+  z-index: 1;
   display: flex;
   min-width: 0;
-  margin: 0;
+  margin: 0 0 0 -29px;
   padding: 0;
   flex: 1 1 auto;
   flex-direction: column;
   gap: var(--wm-espace-20, 20px);
   list-style: none;
+}
+
+/*  Sous 900 px le bandeau se recouche à l'horizontale (feuille §10) :
+    il n'y a plus de bord vertical à mordre, et le retrait négatif
+    rognerait le premier avatar contre le bord de l'écran. */
+@media (max-width: 900px) {
+  #modernbb .wm-accueil__staff-liste {
+    margin-left: 0;
+  }
 }
 
 #modernbb .wm-accueil__membre {
@@ -7196,18 +7322,32 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-accueil__preliens {
   display: flex;
   min-width: 0;
-  flex: 1 1 260px;
+  flex: 0 1 246px;
   align-items: stretch;
   gap: var(--wm-espace-10, 10px);
 }
 
+/*  TROIS COLONNES, PAS UNE RANGÉE. Maquette : une grille de 3 × 2,
+    bulles de 55,86 — on garde 56 — et 15 d'écart, soit 198 de large.
+    En flexbox libre, les six bulles se mettaient sur une seule ligne
+    dès qu'il y avait la place, et la carte des partenaires se
+    retrouvait seule au-dessus : ce n'était plus la maquette.
+
+    `grid` et pas `flex`, parce que c'est une vraie grille à deux
+    dimensions — c'est le cas que la planche 49 réserve à `grid`.
+
+    `auto-fill` plutôt que `repeat(3, …)` : à l'étroit la grille
+    retombe à deux colonnes puis à une, au lieu de déborder. Et
+    au-delà de six personnages elle s'allonge vers le bas, ce qui est
+    ce qu'on veut — Callista en associe jusqu'à dix. */
 #modernbb .wm-accueil__preliens-liste {
-  display: flex;
+  display: grid;
   margin: 0;
   padding: 0;
   flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: var(--wm-espace-16, 16px);
+  grid-template-columns: repeat(auto-fill, 56px);
+  justify-content: start;
+  gap: 15px;
   list-style: none;
 }
 
@@ -7330,24 +7470,42 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-accueil__mascotte {
   position: absolute;
   z-index: 0;
-  bottom: -34px;
-  left: -46px;
-  width: 190px;
+  /*  LES COTES DE LA MAQUETTE, relevées le 7 octobre : `image 7`,
+      312 × 312, posée à x = −60, y = 340 dans un cadre de 1172 × 559.
+      Elle déborde donc de 60 px à gauche et de 93 en bas.
+
+      On l'avait rapetissée à 190 pour qu'elle cesse de manger la carte
+      des partenaires. C'était traiter le symptôme : dans la maquette
+      elle fait bien 312 et elle PASSE DEVANT la carte — c'est la
+      transparence du PNG qui fait le travail, pas un évitement. Ce
+      qu'il fallait corriger, c'était le retrait de la rangée du bas
+      (règle suivante), que la maquette met à 123 px. */
+  bottom: -93px;
+  left: -60px;
+  width: 312px;
   max-width: 28%;
   height: auto;
   pointer-events: none;
 }
 
-/*  LE COIN QUE LA MASCOTTE OCCUPE, LA RANGÉE DU BAS NE L'OCCUPE PAS.
-    190 − 46 = 144 px de mascotte dans le panneau, dont 24 de marge :
-    120 px pris sur le contenu. On en rend 128, huit de battement.
+/*  LE RETRAIT DE LA RANGÉE DU BAS, ET IL VIENT DE LA MAQUETTE.
+    La carte des partenaires y est posée à x = 155 dans un cadre dont
+    le contenu commence à 32 : **123 px de retrait**. C'est ce qui
+    laisse la place à la mascotte, et ce n'est pas un évitement — elle
+    passe par-dessus le bord gauche de la carte, sa transparence s'en
+    charge.
+
+    On avait trouvé 128 à tâtons la veille, en rapetissant la mascotte
+    pour qu'elle ne morde plus. Le chiffre était presque juste et le
+    raisonnement faux : c'est le retrait qui fait la place, pas la
+    taille de l'image.
 
     Au-dessous de 1 100 px la rangée se replie en colonne et la
-    mascotte, elle, disparaît à 900 — entre les deux, la marge n'a plus
-    de raison d'être et la carte reprend toute la largeur. */
+    mascotte, elle, disparaît à 900 — entre les deux, le retrait n'a
+    plus de raison d'être et la carte reprend toute la largeur. */
 @media (min-width: 1100px) {
   #modernbb .wm-accueil__rangee--bas {
-    padding-left: 128px;
+    padding-left: 123px;
   }
 }
 

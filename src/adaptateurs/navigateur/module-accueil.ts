@@ -508,27 +508,45 @@ export function poserLAccueil(doc: Document, a: Accueil): boolean {
     panneau.classList.add("wm-accueil__panneau--image");
   }
 
-  const colonnes = element(doc, "div", "wm-accueil__colonnes");
-  const principale = element(doc, "div", "wm-accueil__principale");
-  const haut = element(doc, "div", "wm-accueil__rangee");
+  //  ── DEUX RANGÉES, PAS DEUX COLONNES ───────────────────────────────
+  //
+  //  C'est la lecture que les cotes de la maquette imposent, et on y
+  //  est venu après deux essais. Dans son cadre de 1172 :
+  //
+  //    rangée du haut   contexte + liens   32 → 667   |  staff  698 → 1151
+  //    rangée du bas    partenaires + pré-liens 155 → 731 | actus 755 → 1151
+  //
+  //  **Les deux rangées n'ont pas la même coupe** : 635 contre 474 en
+  //  haut, 699 contre 396 en bas. Deux colonnes qui descendraient tout
+  //  du long ne peuvent pas rendre ça — et c'est ce qu'on avait, avec
+  //  deux conséquences visibles : les pré-liens passaient sous la carte
+  //  des partenaires, faute des 64 px qui manquaient à la colonne de
+  //  gauche ; et la colonne de gauche, plus courte que celle de droite,
+  //  laissait un trou de 250 px sous « Lire le contexte » pendant que
+  //  la rangée du bas attendait la plus longue des deux.
+  //
+  //  Deux rangées indépendantes, chacune avec sa coupe, règlent les
+  //  deux d'un coup.
+  const haut = element(doc, "div", "wm-accueil__bande");
+  const gaucheHaut = element(doc, "div", "wm-accueil__rangee");
   for (const bloc of [blocContexte(doc, a), blocLiens(doc, a)]) {
-    if (bloc !== null) haut.appendChild(bloc);
+    if (bloc !== null) gaucheHaut.appendChild(bloc);
   }
-  const bas = element(doc, "div", "wm-accueil__rangee wm-accueil__rangee--bas");
+  if (gaucheHaut.childElementCount > 0) haut.appendChild(gaucheHaut);
+  const staff = blocStaff(doc, a);
+  if (staff !== null) haut.appendChild(staff);
+
+  const bas = element(doc, "div", "wm-accueil__bande wm-accueil__bande--bas");
+  const gaucheBas = element(doc, "div", "wm-accueil__rangee wm-accueil__rangee--bas");
   for (const bloc of [blocPartenaires(doc, a), blocPreliens(doc, a)]) {
-    if (bloc !== null) bas.appendChild(bloc);
+    if (bloc !== null) gaucheBas.appendChild(bloc);
   }
-  if (haut.childElementCount > 0) principale.appendChild(haut);
-  if (bas.childElementCount > 0) principale.appendChild(bas);
+  if (gaucheBas.childElementCount > 0) bas.appendChild(gaucheBas);
+  const actus = blocActualites(doc, a);
+  if (actus !== null) bas.appendChild(actus);
 
-  const cote = element(doc, "div", "wm-accueil__cote");
-  for (const bloc of [blocStaff(doc, a), blocActualites(doc, a)]) {
-    if (bloc !== null) cote.appendChild(bloc);
-  }
-
-  if (principale.childElementCount > 0) colonnes.appendChild(principale);
-  if (cote.childElementCount > 0) colonnes.appendChild(cote);
-  panneau.appendChild(colonnes);
+  if (haut.childElementCount > 0) panneau.appendChild(haut);
+  if (bas.childElementCount > 0) panneau.appendChild(bas);
 
   if (a.images.mascotte !== "") {
     const img = doc.createElement("img");
