@@ -858,6 +858,39 @@ dire(
 dire("et on n'a pas touché à son interrupteur", cloche.listeFermee);
 dire("une pastille pleine s'affiche", cloche.pastille !== "none", cloche.pastille);
 dire("et elle n'attrape pas le clic", cloche.pastilleTransparenteAuClic);
+//  « JE NE VEUX RIEN VOIR » de la barre Forumactif, 7 octobre. On
+//  vérifie donc l'INVERSE de d'habitude : non pas que les quelques
+//  nœuds qu'on connaît sont masqués, mais qu'il ne reste QUE les
+//  notifications de visible — y compris les nœuds qu'on n'a pas
+//  nommés, comme `#fa_hide`, qui résistait à la feuille.
+const resteVisible = await p.evaluate(() => {
+  const tb = document.querySelector("#fa_toolbar");
+  const garde = new Set(["fa_right", "fa_notifications", "notif_list", "live_notif"]);
+  return [...tb.querySelectorAll("*")]
+    .filter((e) => {
+      if (garde.has(e.id)) return false;
+      if (e.closest("#notif_list") || e.closest("#live_notif")) return false;
+      if (e.closest("#fa_notifications")) return false;
+      return getComputedStyle(e).display !== "none";
+    })
+    .map((e) => e.id || e.tagName + "." + String(e.className).trim().split(/\s+/)[0]);
+});
+dire(
+  "IL NE RESTE QUE LES NOTIFICATIONS de la barre Forumactif",
+  resteVisible.length === 0,
+  resteVisible.join(", "),
+);
+dire(
+  "et le groupe de droite se réduit à son contenu",
+  await p.evaluate(() => {
+    const tb = document.querySelector("#fa_toolbar");
+    return tb.getBoundingClientRect().width < 260;
+  }),
+  await p.evaluate(() =>
+    Math.round(document.querySelector("#fa_toolbar").getBoundingClientRect().width) + " px"
+  ),
+);
+
 dire(
   "ce qu'on remplace nous-mêmes est masqué",
   cloche.menuMasque && cloche.rechercheMasquee && cloche.logoFaMasque,

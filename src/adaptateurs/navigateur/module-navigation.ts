@@ -730,6 +730,102 @@ function rangerLaBarreForumactif(
  *  simplement Notifications sans en faire un gros bouton ».
  *
  *  Rend `true` si la cloche est bien là. */
+/** Les seuls nœuds de la barre Forumactif qu'on garde. Tout le reste
+ *  disparaît — « je ne veux rien voir », 7 octobre. */
+const CE_QU_ON_GARDE = new Set(["fa_right", "fa_notifications", "notif_list", "live_notif"]);
+
+/** Ce qu'on impose à la barre déménagée, EN STYLE INLINE.
+ *
+ *  ── POURQUOI PAS LA FEUILLE, COMME TOUT LE RESTE ────────────────────
+ *
+ *  Parce qu'elle perd. Mesuré sur le forum le 7 octobre, et vérifié
+ *  trois fois : notre règle
+ *
+ *      #modernbb .wm-nav__droite #fa_toolbar #fa_right #fa_notifications
+ *
+ *  **correspond bien** au nœud — `element.matches()` le confirme —, elle
+ *  est **bien servie** — le fichier la contient —, et pourtant son
+ *  `display` ne s'applique pas. Recopiée dans une balise `<style>`
+ *  injectée en dernier, elle perd encore. Quelque chose d'inatteignable
+ *  depuis la page — une feuille d'origine croisée dont le CSSOM est
+ *  fermé — la bat avec un `!important`.
+ *
+ *  On a passé assez de temps à chercher qui. Une déclaration inline
+ *  `!important` ne se dispute avec personne : c'est la dernière marche
+ *  de la cascade. On la réserve à CE cas, qui est le seul du projet où
+ *  la feuille a échoué, et on garde la feuille pour tout le reste —
+ *  couleurs, police, arrondis — où elle passe très bien.
+ *
+ *  Ce qui est posé ici est de la MISE EN PLACE, pas de l'apparence :
+ *  ce qui disparaît, et où se place ce qui reste. */
+function habillerLaToolbar(toolbar: HTMLElement): void {
+  const poser = (e: HTMLElement, p: readonly (readonly [string, string])[]): void => {
+    for (const [nom, valeur] of p) e.style.setProperty(nom, valeur, "important");
+  };
+
+  //  La barre et son conteneur se réduisent à leur contenu. Sans ça,
+  //  `#fa_right` reste un bloc et prend toute la largeur : mesuré à
+  //  681 px dans une barre de 1440, ce qui repoussait notre compte à
+  //  l'autre bout.
+  poser(toolbar, [["display", "inline-flex"], ["align-items", "center"], ["width", "auto"]]);
+
+  const droite = toolbar.querySelector<HTMLElement>("#fa_right");
+  if (droite !== null) {
+    poser(droite, [
+      ["display", "inline-flex"],
+      ["align-items", "center"],
+      ["width", "auto"],
+      ["float", "none"],
+      ["position", "static"],
+    ]);
+  }
+
+  //  TOUT LE RESTE DISPARAÎT. Une liste de ce qu'on garde, et pas une
+  //  liste de ce qu'on masque : une barre future contiendra autre
+  //  chose, et il vaut mieux qu'un inconnu soit caché que visible —
+  //  c'est l'inverse du choix qu'on fait d'habitude, et c'est la
+  //  demande : « je ne veux rien voir ».
+  for (const e of toolbar.querySelectorAll<HTMLElement>("*")) {
+    if (CE_QU_ON_GARDE.has(e.id)) continue;
+    //  Ce qui vit DANS les notifications reste : la pastille du
+    //  compteur, les lignes de la liste, leurs liens.
+    if (e.closest("#notif_list") !== null || e.closest("#live_notif") !== null) continue;
+    if (e.closest("#fa_notifications") !== null) continue;
+    e.style.setProperty("display", "none", "important");
+  }
+
+  //  La liste déroulante se recale sur notre conteneur. Leur feuille la
+  //  pose à `top: 42px; left: 41px`, ce qui visait le haut de l'écran :
+  //  mesurée telle quelle chez nous, elle sortait de 109 px par la
+  //  droite sur un écran de 1440.
+  //
+  //  NI `display` NI `visibility` : c'est leur interrupteur, et le lui
+  //  prendre laisserait la liste ouverte en permanence.
+  const liste = toolbar.querySelector<HTMLElement>("#notif_list");
+  if (liste !== null) {
+    poser(liste, [
+      ["position", "absolute"],
+      ["top", "calc(100% + 10px)"],
+      ["right", "0"],
+      ["left", "auto"],
+      ["width", "320px"],
+      ["max-width", "calc(100vw - 32px)"],
+      ["max-height", "60vh"],
+      ["overflow-y", "auto"],
+    ]);
+  }
+
+  const direct = toolbar.querySelector<HTMLElement>("#live_notif");
+  if (direct !== null) {
+    poser(direct, [
+      ["top", "calc(100% + 10px)"],
+      ["right", "0"],
+      ["left", "auto"],
+      ["max-width", "calc(100vw - 32px)"],
+    ]);
+  }
+}
+
 function deplacerLaToolbar(doc: Document, ou: HTMLElement): boolean {
   const toolbar = doc.querySelector<HTMLElement>("#fa_toolbar");
   if (toolbar === null) return false;
@@ -753,6 +849,8 @@ function deplacerLaToolbar(doc: Document, ou: HTMLElement): boolean {
 
   const cloche = toolbar.querySelector<HTMLElement>("#fa_notifications");
   if (cloche === null) return false;
+
+  habillerLaToolbar(toolbar);
 
   //  L'étiquette est un ATTRIBUT, donc elle survit à une réécriture du
   //  contenu par leur script — ce qui arrive à chaque notification.
