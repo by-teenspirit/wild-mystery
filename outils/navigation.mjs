@@ -98,7 +98,13 @@ const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 <style>body{font-size:10px;margin:0;background:var(--wm-fond-page)}
-.wrap{max-width:1400px;margin:0 auto}</style></head>
+.wrap{max-width:1400px;margin:0 auto}
+/*  La vraie toolbar, telle qu'elle est servie : FIXÉE, 42 px de haut,
+    z-index 20002, et un margin-top de 42 sur le corps pour lui faire
+    place. C'est elle qui recouvrait notre barre collée. */
+#fa_toolbar{position:fixed;top:0;left:0;right:0;height:42px;z-index:20002;background:#222;color:#fff}
+#fa_right{float:right}
+body{margin-top:42px}</style></head>
 <body id="modernbb">
 <div id="fa_toolbar"><div id="fa_right">
   <a href="/u4">Compte de test</a>
@@ -188,10 +194,42 @@ const barre = await p.evaluate(() => {
 dire("la barre existe", barre !== null);
 if (barre !== null) {
   dire("pleine largeur", barre.x === 0 && barre.l === 1280, `x=${barre.x} l=${barre.l}`);
-  dire("collée en haut", barre.pos === "sticky" && barre.y === 0, `${barre.pos} y=${barre.y}`);
+  dire("collée en haut", barre.pos === "sticky", barre.pos);
   dire("premier enfant du corps", barre.premier);
   dire("celle de ModernBB est masquée", barre.ancienne === "none", barre.ancienne);
 }
+
+//  1 bis · ELLE NE PASSE PAS SOUS LA TOOLBAR FORUMACTIF
+//
+//  `#fa_toolbar` est fixée en haut avec un z-index de 20002 : une barre
+//  collée à `top: 0` disparaît dessous au premier défilement, et on perd
+//  le logo qui ouvre le panneau. Mesuré sur le forum le 7 octobre.
+await p.evaluate(() => scrollTo(0, 600));
+await p.waitForTimeout(250);
+const colle = await p.evaluate(() => {
+  const n = document.querySelector("nav.wm-nav").getBoundingClientRect();
+  const t = document.querySelector("#fa_toolbar").getBoundingClientRect();
+  return {
+    barre: n.y,
+    toolbar: t.bottom,
+    jeton: getComputedStyle(document.documentElement).getPropertyValue("--wm-haut-toolbar")
+      .trim(),
+    panneau: document.querySelector("#wm-panneau").getBoundingClientRect().y,
+  };
+});
+dire(
+  "la barre colle SOUS la toolbar, pas derrière elle",
+  colle.barre >= colle.toolbar,
+  JSON.stringify(colle),
+);
+dire("le jeton porte la hauteur mesurée", colle.jeton === "42px", colle.jeton);
+dire(
+  "et le panneau descend d'autant",
+  colle.panneau === colle.toolbar + 56,
+  String(colle.panneau),
+);
+await p.evaluate(() => scrollTo(0, 0));
+await p.waitForTimeout(250);
 
 //  2 · le switcheroo démarre VIDE : c'est le cœur du défaut signalé
 const avant = await p.evaluate(() => ({

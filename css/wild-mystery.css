@@ -3642,10 +3642,21 @@ html,
     passe sous la barre au chargement — c'est `fixed` qui aurait demandé
     de compenser avec un `padding-top` sur le corps, que ModernBB
     recalcule déjà de son côté. */
+/*  ── POURQUOI UN DÉCALAGE EN HAUT ───────────────────────────────────
+
+    `#fa_toolbar` est FIXÉE en haut de l'écran, et Forumactif lui donne un
+    `z-index: 20002`. Une barre collée à `top: 0` passe donc dessous dès
+    le premier défilement : mesuré sur le forum, la toolbar couvrait nos
+    liens et le logo qui ouvre le panneau.
+
+    On ne lui dispute pas son plan — un `z-index` plus grand nous mettrait
+    par-dessus la messagerie et le compte, qui sont à elle. On mesure sa
+    hauteur et on colle JUSTE EN DESSOUS. Déconnectée, elle fait zéro, le
+    jeton vaut zéro, et la barre colle bien au bord. */
 #modernbb .wm-nav {
   position: sticky;
   z-index: 70;
-  top: 0;
+  top: var(--wm-haut-toolbar, 0px);
   display: flex;
   align-items: center;
   box-sizing: border-box;
@@ -3740,7 +3751,10 @@ html,
 #modernbb .wm-panneau {
   position: fixed;
   z-index: 60;
-  top: 56px;
+  /*  Sous la barre, elle-même sous la toolbar : les deux hauteurs
+      s'additionnent, sinon le panneau remonte derrière la barre et on
+      perd sa première entrée. */
+  top: calc(var(--wm-haut-toolbar, 0px) + 56px);
   bottom: 0;
   left: 0;
   width: 296px;
@@ -4277,7 +4291,7 @@ html,
   /*  Le panneau prend toute la largeur : 296 px sur un écran de 375
       laisserait une bande inutilisable à droite. */
   #modernbb .wm-panneau {
-    top: 0;
+    top: var(--wm-haut-toolbar, 0px);
     width: 100%;
   }
 }

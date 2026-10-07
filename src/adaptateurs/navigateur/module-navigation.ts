@@ -377,6 +377,30 @@ function poserLaBarre(doc: Document, nav: Navigation): HTMLButtonElement | null 
 
 // ── la barre Forumactif ─────────────────────────────────────────────
 
+/** Mesure `#fa_toolbar` et pose sa hauteur en jeton.
+ *
+ *  ── LE DÉFAUT QUE ÇA CORRIGE ────────────────────────────────────────
+ *
+ *  La toolbar Forumactif est `position: fixed` en haut, avec un
+ *  `z-index: 20002` — relevé sur le forum. Notre barre collait à
+ *  `top: 0` avec un z-index de 70 : au premier défilement elle passait
+ *  DESSOUS, et on perdait les liens et le logo qui ouvre le panneau.
+ *
+ *  On ne lui dispute pas son plan : passer au-dessus recouvrirait la
+ *  messagerie et le compte, qui sont à elle. On se cale juste en
+ *  dessous, et le CSS additionne.
+ *
+ *  Déconnectée, la toolbar ne porte que deux liens et peut faire zéro de
+ *  haut : le jeton vaut alors zéro et la barre colle bien au bord. */
+function mesurerLaToolbar(doc: Document): void {
+  const tb = doc.querySelector<HTMLElement>("#fa_toolbar");
+  const h = tb === null ? 0 : Math.round(tb.getBoundingClientRect().height);
+  //  Borné : une toolbar mesurée à 400 px (une image qui charge, un
+  //  thème tiers) pousserait la barre hors de l'écran. Au-delà, on
+  //  préfère ne pas décaler du tout.
+  doc.documentElement.style.setProperty("--wm-haut-toolbar", `${h > 0 && h <= 96 ? h : 0}px`);
+}
+
 /** Une entrée du menu du compte : la pastille d'icône, puis le libellé.
  *
  *  La maquette `390:3636` en fait une gélule blanche à bord arrondi
@@ -515,6 +539,10 @@ function habillerLaBarreForumactif(
 ): boolean {
   const droite = doc.querySelector<HTMLElement>("#fa_right");
   if (droite === null) return false;
+  //  Mesurée ICI parce que c'est le moment où la toolbar a sa hauteur
+  //  définitive : avant, elle n'existe pas ; après, plus rien ne la
+  //  change.
+  mesurerLaToolbar(doc);
   if (droite.classList.contains("wm-compte")) return true;
   droite.classList.add("wm-compte");
 
@@ -617,6 +645,11 @@ export function poserLaNavigation(
   doc.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && ouvert()) basculer(false);
   });
+
+  //  Elle peut changer de hauteur quand la fenêtre change de largeur :
+  //  ses liens passent à la ligne. Une barre calée sur l'ancienne mesure
+  //  laisserait un trou ou se ferait recouvrir.
+  doc.defaultView?.addEventListener("resize", () => mesurerLaToolbar(doc));
 
   //  `#fa_toolbar` est posée par un script tiers, après nous. On la
   //  guette, et on arrête de guetter — un observateur qui tourne pour
