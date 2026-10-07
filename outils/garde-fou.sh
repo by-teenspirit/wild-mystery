@@ -456,6 +456,26 @@ elif ! python3 outils/fossiles.py --verifier; then
   gronde "la table des fossiles et son seed ne correspondent pas"
 fi
 
+echo "── 14. le bloc d'accueil et son repli ──────────────────────────"
+# `data/accueil.json` est la source ; `pages/accueil-repli.html` en est
+# dérivé, et c'est LUI qui est collé dans le message d'accueil du forum.
+#
+# LES DEUX DOIVENT DIRE LE MÊME CONTEXTE. Sinon un visiteur sans
+# JavaScript lit une version du texte, et les autres en lisent une
+# autre — et personne ne s'en aperçoit, puisque les deux s'affichent
+# très bien.
+#
+# Le bloc ne contient QUE ce qui ne change jamais : le contexte et les
+# sept liens. Les actualités n'y sont pas, justement pour n'avoir rien
+# à recoller.
+if [ ! -f data/accueil.json ]; then
+  echo "   pas de bloc d'accueil à vérifier"
+elif ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — vérification sautée"
+elif ! python3 outils/accueil.py --verifier; then
+  gronde "le bloc d'accueil et son repli ne correspondent pas"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

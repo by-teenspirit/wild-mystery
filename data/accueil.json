@@ -1,0 +1,82 @@
+{
+  "_": "Le bloc d'accueil, maquette `390:3170`. SOURCE UNIQUE de ses sept blocs : contexte, liens rapides, partenaires, votes, staff, actualités, pré-liens. Arbitrage de Callista du 7 octobre : tout vient d'ici, et pas du forum.",
+
+  "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module le lit et dessine. Changer une actualité = changer une ligne ici et pousser ; RIEN à recoller dans le panneau d'administration. Ce qui y est collé une fois pour toutes est un bloc court — le texte du contexte et les sept liens en dur — pour que la page reste lisible sans JavaScript.",
+
+  "_cequiManque": "Les URL vides sont VOLONTAIREMENT vides : je ne les invente pas. Une entrée sans URL s'affiche en gris et ne clique pas, ce qui se voit — c'est préférable à un lien qui mène dans le vide. Les images aussi : sans URL, pas de balise `img`, et le bloc tient quand même.",
+
+  "contexte": {
+    "titre": "Contexte",
+    "chapo": "10 ans après la chute de la Team Ombre, la région de Rhode se reconstruit.",
+    "paragraphes": [
+      "Pendant longtemps, la Région de Rhode était connue pour son inhospitalité et son hostilité. Abandonnée par les pokémons sauvages et les humains, elle était en proie aux méfaits d'un groupe, la Team Ombre.",
+      "Heureusement, les temps ont changé. La TO est tombée et la région est de nouveau peuplée. Mais il se murmure que certains membres seraient encore en vie et s'en prendraient toujours aux pokémons sauvages…"
+    ],
+    "lien": { "texte": "Lire le contexte", "url": "" }
+  },
+
+  "liens": [
+    { "texte": "Contexte", "url": "" },
+    { "texte": "Règlement", "url": "" },
+    { "texte": "Questions", "url": "" },
+    { "texte": "Pré-liens", "url": "" },
+    { "texte": "Bottin", "url": "" },
+    { "texte": "Zone Invités", "url": "" },
+    { "texte": "Annexes", "url": "" }
+  ],
+
+  "partenaires": {
+    "titre": "Nos partenaires",
+    "lien": { "texte": "Devenir partenaire", "url": "" },
+    "liste": [
+      { "nom": "", "url": "" }
+    ]
+  },
+
+  "votes": {
+    "titre": "Votez !",
+    "liste": [
+      { "nom": "", "url": "", "image": "" }
+    ]
+  },
+
+  "staff": [
+    {
+      "pseudo": "",
+      "role": "",
+      "profil": "",
+      "avatar": "",
+      "personnages": [],
+      "presence": ""
+    }
+  ],
+
+  "actualites": {
+    "titre": "Actualités",
+    "lien": { "texte": "Toutes les annonces", "url": "" },
+    "liste": [
+      { "date": "", "titre": "", "categorie": "", "url": "" }
+    ]
+  },
+
+  "preliens": {
+    "titre": "Pré-liens",
+    "liste": [
+      {
+        "personnage": "",
+        "avatar": "",
+        "lienAttendu": "",
+        "auteur": "",
+        "url": ""
+      }
+    ]
+  },
+
+  "images": {
+    "_": "Les images du bloc, SERVIES PAR LE DÉPÔT comme le reste — `img/accueil/`, publié par GitHub Pages. L'adresse est écrite en entier et pas en relatif : le script tourne sur le forum, donc un chemin qui commence par `/` y désignerait le forum, pas Pages.",
+    "_remplacer": "Pour changer une image : remplacer le fichier dans `img/accueil/` et pousser. L'adresse ne bouge pas.",
+    "mascotte": "https://by-teenspirit.github.io/wild-mystery/img/accueil/mascotte.png",
+    "bandeauStaff": "https://by-teenspirit.github.io/wild-mystery/img/accueil/bandeau-staff.png",
+    "fond": ""
+  }
+}

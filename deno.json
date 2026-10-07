@@ -22,7 +22,8 @@
     "harnais": "deno bundle --platform browser --format iife -o js/harnais-sommaire.js js/harnais-sommaire.ts",
     "contraste": "deno run -A outils/contraste.mjs",
     "navigation": "deno run -A outils/navigation.mjs",
-    "confort": "deno run -A outils/confort.mjs"
+    "confort": "deno run -A outils/confort.mjs",
+    "accueil": "deno run -A outils/accueil.mjs"
   },
   "fmt": {
     "include": [

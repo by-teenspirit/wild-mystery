@@ -1,0 +1,689 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 14 · Le bloc d'accueil
+
+   Maquette `390:3170`. Sept blocs dans un panneau translucide :
+   contexte, liens rapides, partenaires, votes, staff, actualités,
+   pré-liens — plus la mascotte, qui déborde en bas à gauche.
+
+   RAPPEL DU PARTAGE (48-… §8) : ce fichier ne DÉFINIT aucun jeton, il
+   ne fait que s'en servir, avec une valeur de repli.
+
+   ── LA MAQUETTE EST EN POSITIONS ABSOLUES, PAS CETTE FEUILLE ────────
+
+   Figma pose tout en `left`/`top` dans un cadre de 1172 × 559. Recopier
+   ces coordonnées donnerait une page qui casse au premier paragraphe en
+   trop, et qui ne tient sur aucun téléphone. On lit donc la maquette
+   comme une INTENTION — deux colonnes, deux rangées dans la grande — et
+   on la monte en flexbox.
+
+   Les mesures qui viennent de la maquette et qu'on garde : les cartes à
+   22 px de marge intérieure et 10 px de rayon, les liens rapides à
+   36 px de haut, les bulles de pré-lien à 56 px, les avatars de staff à
+   60 px, les quatre vignettes de vote à 32 px.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · l'enveloppe ──────────────────────────────────────────────── */
+
+.wm-accueil {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--wm-espace-12, 12px);
+  margin-bottom: var(--wm-espace-24, 24px);
+}
+
+/*  Le panneau translucide de la maquette : du blanc à 70 % posé sur le
+    fond de page. En thème sombre il se retourne — c'est `fond-surface`
+    qui porte la bascule, et la transparence laisse voir le fond nuit
+    au lieu d'y coller un carré blanc. */
+.wm-accueil__panneau {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--wm-espace-24, 24px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 70%, transparent);
+  /*  La mascotte déborde par la gauche : rien ne la rogne, mais rien ne
+      doit non plus faire défiler la page de travers. C'est
+      `overflow-x: clip` sur le conteneur de page qui s'en charge — ici
+      on laisse passer. */
+  overflow: visible;
+}
+
+/*  Le fond d'image, quand Callista en pose un. En couche, pas en
+    `background` tout court : la couleur translucide doit rester
+    au-dessus, sinon le texte se lit sur la photo. */
+.wm-accueil__panneau--image {
+  background-image:
+    linear-gradient(
+    color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 82%, transparent),
+    color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 82%, transparent)
+  ),
+    var(--wm-accueil-fond);
+  background-position: center;
+  background-size: cover;
+}
+
+.wm-accueil__colonnes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-24, 24px);
+}
+
+/*  LES DEUX COLONNES. La grande prend ce qui reste, la latérale a la
+    largeur de la carte des actualités dans la maquette (396 px) moins
+    ses marges. `min-width: 0` sur la grande : sans lui, un titre long
+    dans les actualités pousserait la colonne et ferait déborder la
+    page — c'est la règle de la planche 50 sur tout ce qui s'étire. */
+.wm-accueil__principale {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 520px;
+  flex-direction: column;
+  gap: var(--wm-espace-24, 24px);
+}
+
+.wm-accueil__cote {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 340px;
+  flex-direction: column;
+  gap: var(--wm-espace-24, 24px);
+}
+
+.wm-accueil__rangee {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-24, 24px);
+}
+
+.wm-accueil__rangee--bas {
+  align-items: flex-start;
+}
+
+/*  La carte blanche de la maquette, commune aux partenaires, aux votes
+    et aux actualités : 22 px de marge, 10 px de rayon, et l'ombre
+    discrète relevée dans Figma. */
+.wm-accueil__carte {
+  box-sizing: border-box;
+  padding: var(--wm-espace-20, 20px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 1px 3px rgb(20 48 58 / 5%);
+}
+
+/* ── 2 · les titres ───────────────────────────────────────────────── */
+
+/*  Les titres manuscrits de la maquette. `--wm-police-titre` est la
+    Kaushan Script, déjà chargée par le forum. */
+.wm-accueil__titre,
+.wm-accueil__titre-carte,
+.wm-accueil__titre-cote {
+  margin: 0;
+  font-family: var(--wm-police-titre, "Kaushan Script", cursive);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.wm-accueil__titre {
+  margin-bottom: var(--wm-espace-10, 10px);
+  color: var(--wm-accent-terre, #9a4f29);
+  font-size: 36px;
+}
+
+.wm-accueil__titre-carte {
+  margin-bottom: var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-size: 20px;
+}
+
+.wm-accueil__titre-actus {
+  color: var(--wm-encre, #2e2018);
+  font-size: 30px;
+  text-align: right;
+}
+
+/*  Les étiquettes verticales « Staff » et « Pré-liens ».
+
+    `writing-mode` et pas une rotation : un texte tourné par
+    `transform` garde la place d'un texte horizontal, et laissait un
+    trou de la largeur du mot à côté de lui. */
+.wm-accueil__titre-cote {
+  align-self: center;
+  margin: 0;
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: 30px;
+  writing-mode: vertical-rl;
+}
+
+/*  Le bandeau dégradé derrière « Staff », 99 × 318 dans la maquette.
+    Il porte le texte, donc il a besoin d'une largeur : sans elle, un
+    `writing-mode` vertical donne une colonne de la largeur d'une
+    lettre, et l'image se réduirait à un trait. */
+.wm-accueil__bandeau--image {
+  box-sizing: border-box;
+  min-width: 70px;
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  text-align: center;
+}
+
+.wm-accueil__preliens .wm-accueil__titre-cote {
+  color: var(--wm-accent-terre, #9a4f29);
+  font-size: 26px;
+}
+
+/* ── 3 · le contexte ──────────────────────────────────────────────── */
+
+.wm-accueil__contexte {
+  min-width: 0;
+  flex: 1 1 300px;
+}
+
+.wm-accueil__chapo {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-courant, 1.4);
+  text-transform: uppercase;
+}
+
+.wm-accueil__texte {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.4);
+}
+
+.wm-accueil__pied {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  text-align: right;
+}
+
+.wm-accueil__lien {
+  color: var(--wm-accent-primaire, #2b6988);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+.wm-accueil__lien:hover,
+.wm-accueil__lien:focus-visible {
+  text-decoration: underline;
+}
+
+/* ── 4 · les liens rapides ────────────────────────────────────────── */
+
+.wm-accueil__liens {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+.wm-accueil__liste-liens {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+/*  Une rangée : 36 px de haut, le fond doux, l'œil dans son carré
+    terre. Les mesures viennent de la maquette. */
+.wm-accueil__rapide {
+  display: flex;
+  box-sizing: border-box;
+  min-height: 36px;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+a.wm-accueil__rapide:hover,
+a.wm-accueil__rapide:focus-visible {
+  background: var(--wm-fond-surface-haute, #f8ece2);
+}
+
+.wm-accueil__oeil {
+  display: flex;
+  box-sizing: content-box;
+  width: 12px;
+  height: 12px;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: 12px;
+  line-height: 1;
+}
+
+/*  L'œil d'une rangée sans adresse perd son accent : il n'annonce plus
+    rien qui s'ouvre. */
+.wm-accueil__rapide--sans-adresse .wm-accueil__oeil {
+  background: var(--wm-bord-net, #d9c3b1);
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+/*  CE QUI N'A PAS ENCORE D'ADRESSE SE VOIT. Un `<a href="">` recharge
+    la page sans rien dire ; ce gris barré dit « à remplir », et il le
+    dit à Callista avant de le dire à un visiteur.
+
+    **APRÈS les deux règles qu'il corrige**, et pas avant : à
+    spécificité égale, c'est la dernière écrite qui gagne, et la
+    première version perdait contre le `text-decoration: none` de
+    `.wm-accueil__rapide`. Mesuré par le harnais. */
+/*  `texte-pale` sur `fond-douce` : MESURÉ, parce que la planche 50
+    n'autorise ce jeton que sur `fond-page` et `fond-surface`, et que
+    celui-ci est une troisième surface. 4,64 en clair, 4,75 en sombre —
+    au-dessus de 4,5, mais de peu : ne pas éclaircir ce gris sans
+    remesurer. */
+.wm-accueil__lien--sans-adresse,
+.wm-accueil__rapide--sans-adresse {
+  color: var(--wm-texte-pale, #9a8475);
+  cursor: default;
+  text-decoration: line-through;
+}
+
+/* ── 5 · les votes ────────────────────────────────────────────────── */
+
+/*  La carte flotte au-dessus du panneau, alignée à droite, comme la
+    maquette. En flux, pas en absolu : au-dessus de 1 172 px elle y est
+    déjà, et en dessous elle se range toute seule. */
+.wm-accueil__votes {
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+}
+
+.wm-accueil__votes .wm-accueil__titre-carte {
+  margin: 0;
+}
+
+.wm-accueil__votes-liste {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+.wm-accueil__vote {
+  display: block;
+  border-radius: var(--wm-rayon-sm, 4px);
+  line-height: 0;
+}
+
+.wm-accueil__vote-image {
+  display: block;
+  overflow: hidden;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--wm-rayon-sm, 4px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+.wm-accueil__vote-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── 6 · les partenaires ──────────────────────────────────────────── */
+
+.wm-accueil__partenaires {
+  min-width: 0;
+  flex: 1 1 260px;
+}
+
+.wm-accueil__partenaires-liste {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+.wm-accueil__partenaire {
+  display: block;
+  width: 24px;
+  height: 24px;
+  color: var(--wm-accent-terre, #9a4f29);
+}
+
+.wm-accueil__partenaire svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+a.wm-accueil__partenaire:hover,
+a.wm-accueil__partenaire:focus-visible {
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+.wm-accueil__partenaire--sans-adresse {
+  color: var(--wm-texte-pale, #9a8475);
+}
+
+.wm-accueil__partenaire-image {
+  display: block;
+  overflow: hidden;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--wm-rayon-sm, 4px);
+}
+
+.wm-accueil__partenaire-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── 7 · le staff ─────────────────────────────────────────────────── */
+
+.wm-accueil__staff {
+  display: flex;
+  align-items: stretch;
+  gap: var(--wm-espace-16, 16px);
+}
+
+.wm-accueil__staff-liste {
+  display: flex;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--wm-espace-20, 20px);
+  list-style: none;
+}
+
+.wm-accueil__membre {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+}
+
+/*  L'avatar : 60 px, cerclé du bleu de la maquette. Le cercle est une
+    bordure et pas une seconde image : il suit le thème. */
+/*  Le cercle de la maquette est un bleu pâle (#96bfd2) qui n'a pas de
+    jeton à lui — et je n'en invente pas un pour une bordure. On le
+    DÉRIVE de l'accent : la nuance est la même en clair, et elle suit le
+    thème en sombre au lieu de rester un bleu de jour. */
+.wm-accueil__membre-avatar {
+  display: block;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 60px;
+  height: 60px;
+  flex: none;
+  border: 1px solid color-mix(in srgb, var(--wm-accent-primaire, #2b6988) 45%,
+    var(--wm-fond-surface, #fffbf7));
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+.wm-accueil__membre-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.wm-accueil__membre-corps {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--wm-espace-8, 8px);
+}
+
+.wm-accueil__membre-tete {
+  display: flex;
+  margin: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+.wm-accueil__membre-pseudo {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+a.wm-accueil__membre-pseudo:hover,
+a.wm-accueil__membre-pseudo:focus-visible {
+  text-decoration: underline;
+}
+
+.wm-accueil__membre-role {
+  color: var(--wm-accent-primaire, #2b6988);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.12px;
+  text-transform: uppercase;
+}
+
+.wm-accueil__membre-personnages {
+  display: flex;
+  margin: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: 0.12px;
+}
+
+/*  Le point de séparation de la maquette. Un pseudo-élément plutôt
+    qu'un caractère : « · » dépend d'une police, et il se lit à voix
+    haute dans certains lecteurs. */
+.wm-accueil__point {
+  display: block;
+  width: 4px;
+  height: 4px;
+  flex: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-accent-primaire, #2b6988) 45%, var(--wm-fond-surface,
+    #fffbf7));
+}
+
+.wm-accueil__presence {
+  margin: 0;
+}
+
+/* ── 8 · les actualités ───────────────────────────────────────────── */
+
+.wm-accueil__actus-liste {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-16, 16px);
+  list-style: none;
+}
+
+/* ── 9 · les pré-liens ────────────────────────────────────────────── */
+
+.wm-accueil__preliens {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 260px;
+  align-items: stretch;
+  gap: var(--wm-espace-10, 10px);
+}
+
+.wm-accueil__preliens-liste {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-16, 16px);
+  list-style: none;
+}
+
+/*  La bulle porte le panneau : `relative` ici, et le panneau se place
+    par rapport à elle. */
+.wm-accueil__prelien {
+  position: relative;
+}
+
+.wm-accueil__prelien-bouton {
+  display: block;
+  padding: 4px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.wm-accueil__prelien--ouvert .wm-accueil__prelien-bouton,
+.wm-accueil__prelien-bouton:hover,
+.wm-accueil__prelien-bouton:focus-visible {
+  border-color: var(--wm-accent-primaire, #2b6988);
+}
+
+.wm-accueil__prelien-avatar {
+  display: block;
+  overflow: hidden;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+.wm-accueil__prelien-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*  L'INFOBULLE NE DÉPASSE PAS, et c'est tenu par les mêmes trois
+    réglages que le panneau de confort — la leçon du 7 octobre :
+
+      · `bottom: calc(100% + 8px)` l'ouvre VERS LE HAUT, où il y a de
+        la place : vers le bas il y a le pied de page ;
+      · `left: 50%` + `translateX(-50%)` la centre sur sa bulle ;
+      · `max-width: calc(100vw - 32px)` la borne à la fenêtre.
+
+    Et elle reste `hidden` quand elle est fermée — redit ici, parce que
+    l'attribut seul perd contre notre `display: flex`. */
+.wm-accueil__prelien-panneau[hidden] {
+  display: none;
+}
+
+.wm-accueil__prelien-panneau {
+  position: absolute;
+  bottom: calc(100% + var(--wm-espace-8, 8px));
+  left: 50%;
+  z-index: 60;
+
+  display: flex;
+  box-sizing: border-box;
+  width: 232px;
+  max-width: calc(100vw - 32px);
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-10, 10px);
+
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+  transform: translateX(-50%);
+}
+
+.wm-accueil__prelien-nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+.wm-accueil__prelien-ligne {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-courant, 1.4);
+}
+
+.wm-accueil__prelien-clef {
+  color: var(--wm-texte-doux, #6e5749);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+.wm-accueil__prelien-lien {
+  margin-top: var(--wm-espace-4, 4px);
+}
+
+/* ── 10 · la mascotte ─────────────────────────────────────────────── */
+
+/*  Elle déborde du panneau par la gauche et par le bas, comme la
+    maquette. `pointer-events: none` : c'est un décor, il ne doit pas
+    attraper un clic destiné au texte qui passe dessous. */
+.wm-accueil__mascotte {
+  position: absolute;
+  bottom: -40px;
+  left: -60px;
+  width: 312px;
+  max-width: 40%;
+  height: auto;
+  pointer-events: none;
+}
+
+/*  SOUS 900 PX ELLE S'EN VA. Elle mesure 312 px : sur un téléphone elle
+    couvrirait le contexte, et une illustration qui cache le texte
+    qu'elle illustre n'a plus de raison d'être. */
+@media (max-width: 900px) {
+  .wm-accueil__mascotte {
+    display: none;
+  }
+
+  .wm-accueil__titre-cote {
+    /*  Les étiquettes verticales se recouchent : à l'étroit, une
+        colonne de 30 px de haut pour un mot est du gâchis. */
+    align-self: flex-start;
+    writing-mode: horizontal-tb;
+  }
+
+  .wm-accueil__staff,
+  .wm-accueil__preliens {
+    flex-direction: column;
+  }
+}

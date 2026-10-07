@@ -1,0 +1,300 @@
+// ════════════════════════════════════════════════════════════════════
+//  outils/accueil.mjs
+//
+//  POURQUOI CE HARNAIS EXISTE. Le bloc d'accueil tient en trois choses
+//  qu'aucun test de domaine ne peut voir :
+//
+//    · **il remplace un bloc déjà là.** Si le remplacement part de
+//      travers, ce qui reste à l'écran n'est pas une page incomplète,
+//      c'est une page VIDE. On vérifie donc les deux sens : qu'il
+//      remplace quand il a de quoi, et qu'il ne touche à rien quand il
+//      n'a rien ;
+//    · **les infobulles des pré-liens flottent.** Elles contiennent un
+//      lien, donc elles doivent s'ouvrir au clic ET au clavier, se
+//      fermer à Échap, et ne pas sortir de l'écran — la leçon du
+//      panneau de confort, le même jour ;
+//    · **la mascotte déborde exprès.** Un décor qui déborde ne doit pas
+//      faire défiler la page de travers, et c'est une mesure, pas une
+//      intention.
+//
+//  Lancé par `deno task accueil`. Il monte le VRAI bloc de repli
+//  (`pages/accueil-repli.html`), le vrai paquet et les vraies données :
+//  si l'un des trois change sans les autres, il le dit.
+// ════════════════════════════════════════════════════════════════════
+
+import { chromium } from "npm:playwright@1.49.1";
+import { readFileSync } from "node:fs";
+
+const R = new URL("..", import.meta.url).pathname;
+const CHROME = [
+  "/opt/pw-browsers/chromium",
+  "/opt/pw-browsers/chromium-1140/chrome-linux/chrome",
+].find((c) => {
+  try {
+    readFileSync(c);
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+const REPLI = readFileSync(R + "pages/accueil-repli.html", "utf8");
+
+//  LES DONNÉES DU HARNAIS, PAS CELLES DU DÉPÔT. Le fichier du dépôt est
+//  à moitié vide — Callista n'a pas encore rempli les URL —, et un
+//  harnais qui ne verrait jamais une bulle remplie ne vérifierait rien.
+//  Le vrai fichier est éprouvé ailleurs, par `accueil.test.ts`.
+const DONNEES = {
+  contexte: {
+    titre: "Contexte",
+    chapo: "10 ans après la chute de la Team Ombre.",
+    paragraphes: ["Un premier paragraphe.", "Un second."],
+    lien: { texte: "Lire le contexte", url: "/t1-contexte" },
+  },
+  liens: [
+    { texte: "Contexte", url: "/t1" },
+    { texte: "Règlement", url: "/t2" },
+    { texte: "Questions", url: "" },
+  ],
+  partenaires: {
+    titre: "Nos partenaires",
+    lien: { texte: "Devenir partenaire", url: "/t9" },
+    liste: [
+      { nom: "Un forum ami", url: "https://ami.test" },
+      { nom: "Un autre", url: "https://autre.test" },
+    ],
+  },
+  votes: {
+    titre: "Votez !",
+    liste: [
+      { nom: "Top site", url: "https://vote.test/1" },
+      { nom: "Un autre classement", url: "https://vote.test/2" },
+    ],
+  },
+  staff: [{
+    pseudo: "Teenspirit",
+    role: "Fondatrice",
+    profil: "/u1",
+    avatar: "",
+    personnages: ["Elijah Springsteen", "Adam Lockhart"],
+    presence: "Présente",
+  }],
+  actualites: {
+    titre: "Actualités",
+    lien: { texte: "Toutes les annonces", url: "/f1" },
+    liste: [
+      { date: "18 sept", titre: "Le Festival du Soleil ouvre ses stands", categorie: "événement", url: "/t20" },
+      { date: "12 sept", titre: "Le carnet de bord est en ligne", categorie: "mise à jour", url: "" },
+    ],
+  },
+  preliens: {
+    titre: "Pré-liens",
+    liste: [
+      {
+        personnage: "Elijah Springsteen",
+        avatar: "",
+        lienAttendu: "Un rival d'enfance",
+        auteur: "Teenspirit",
+        url: "/t42-prelien",
+      },
+      { personnage: "Adam Lockhart", avatar: "", lienAttendu: "", auteur: "", url: "" },
+    ],
+  },
+  images: { mascotte: "", fond: "" },
+};
+
+const page = `<!doctype html><html lang="fr" id="min-width"><head><meta charset="utf-8">
+<style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
+<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
+<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style></head>
+<body id="modernbb">
+<div id="page-body">
+${REPLI}
+<div class="forabg" style="height:1200px">la liste des forums, qui reste en dessous</div>
+</div>
+</body></html>`;
+
+const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
+const p = await nav.newPage({ viewport: { width: 1280, height: 900 } });
+const soucis = [];
+p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
+
+function dire(nom, ok, detail = "") {
+  if (!ok) soucis.push(nom + (detail ? " — " + detail : ""));
+  console.log(`${ok ? "  ok  " : "DÉFAUT"} ${nom}${detail ? " — " + detail : ""}`);
+}
+
+//  UN SEUL AIGUILLAGE, qui sert trois choses : la page, le paquet, et
+//  le fichier de données. Les trois passent par le réseau comme sur le
+//  forum — c'est le CHEMIN RÉEL qu'on éprouve, racine des données
+//  comprise, et pas un appel direct au poseur.
+await p.route("**/*", (route) => {
+  const url = route.request().url();
+  if (url.endsWith("/accueil.json")) {
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify(DONNEES) });
+  }
+  if (url.endsWith("/wild-mystery.js")) {
+    return route.fulfill({
+      contentType: "text/javascript; charset=utf-8",
+      body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  return route.fulfill({ contentType: "text/html; charset=utf-8", body: page });
+});
+await p.goto("https://exemple.test/");
+
+// ── 1 · LE REPLI SEUL EST DÉJÀ LISIBLE ──────────────────────────────
+//  Avant tout module : c'est l'état d'un visiteur sans JavaScript, et
+//  c'est la seule raison pour laquelle ce bloc existe.
+const sansModule = await p.evaluate(() => {
+  const hote = document.querySelector("#wm-accueil");
+  return {
+    la: hote !== null,
+    texte: hote.textContent.replace(/\s+/g, " ").trim().slice(0, 60),
+    liens: hote.querySelectorAll(".wm-accueil__rapide").length,
+    hauteur: Math.round(hote.getBoundingClientRect().height),
+  };
+});
+dire("sans JavaScript, le bloc de repli est déjà là", sansModule.la);
+dire(
+  "il porte le contexte et les sept liens",
+  sansModule.texte.startsWith("Contexte") && sansModule.liens === 7,
+  JSON.stringify(sansModule),
+);
+dire("et il occupe de la place : ce n'est pas un bloc vide", sansModule.hauteur > 200);
+
+// ── 2 · le module le remplace ───────────────────────────────────────
+//  Le paquet lit la racine des données dans `currentScript.src` : on le
+//  charge donc depuis une vraie adresse, et pas en collant son texte.
+await p.evaluate(() => {
+  const s = document.createElement("script");
+  s.src = "https://exemple.test/js/wild-mystery.js";
+  document.body.appendChild(s);
+});
+await p.waitForTimeout(600);
+
+const pose = await p.evaluate(() => {
+  const hote = document.querySelector("#wm-accueil");
+  const q = (s) => hote.querySelectorAll(s).length;
+  return {
+    pose: hote.classList.contains("wm-accueil--pose"),
+    contexte: q(".wm-accueil__contexte"),
+    liens: q(".wm-accueil__rapide"),
+    partenaires: q(".wm-accueil__partenaire"),
+    votes: q(".wm-accueil__vote"),
+    staff: q(".wm-accueil__membre"),
+    actus: q(".wm-news"),
+    preliens: q(".wm-accueil__prelien"),
+    //  Les sept blocs doivent tenir dans la largeur : c'est la
+    //  première chose qui casse quand on traduit des positions
+    //  absolues en flexbox.
+    debord: document.documentElement.scrollWidth > innerWidth,
+  };
+});
+dire("le module a remplacé le repli", pose.pose, JSON.stringify(pose));
+dire(
+  "LES SEPT BLOCS SONT LÀ",
+  pose.contexte === 1 && pose.liens === 3 && pose.partenaires === 2 &&
+    pose.votes === 2 && pose.staff === 1 && pose.actus === 2 && pose.preliens === 2,
+  JSON.stringify(pose),
+);
+dire("et rien ne déborde en largeur", !pose.debord);
+
+// ── 3 · un lien sans adresse n'est pas un lien ──────────────────────
+const sansAdresse = await p.evaluate(() => {
+  const rapides = [...document.querySelectorAll(".wm-accueil__rapide")];
+  const muet = rapides.find((r) => r.textContent.includes("Questions"));
+  const parlant = rapides.find((r) => r.textContent.includes("Contexte"));
+  return {
+    muetEstUnLien: muet.tagName === "A",
+    parlantEstUnLien: parlant.tagName === "A" && parlant.getAttribute("href") === "/t1",
+    //  Et il se VOIT : sinon Callista ne saurait pas ce qui lui manque.
+    barre: getComputedStyle(muet).textDecorationLine,
+  };
+});
+dire("UN LIEN SANS ADRESSE N'EST PAS UN LIEN", !sansAdresse.muetEstUnLien);
+dire("celui qui en a une l'a gardée", sansAdresse.parlantEstUnLien);
+dire("et le manque se voit", sansAdresse.barre.includes("line-through"), sansAdresse.barre);
+
+// ── 4 · L'INFOBULLE D'UN PRÉ-LIEN ───────────────────────────────────
+const bulleFermee = await p.evaluate(() => {
+  const pan = document.querySelector(".wm-accueil__prelien-panneau");
+  return { cache: pan.hidden, hauteur: Math.round(pan.getBoundingClientRect().height) };
+});
+dire(
+  "l'infobulle est fermée au départ",
+  bulleFermee.cache === true && bulleFermee.hauteur === 0,
+  JSON.stringify(bulleFermee),
+);
+
+async function ouvrirLaBulle() {
+  return await p.evaluate(() => {
+    const b = document.querySelector(".wm-accueil__prelien-bouton");
+    if (document.querySelector(".wm-accueil__prelien-panneau").hidden) b.click();
+    const pan = document.querySelector(".wm-accueil__prelien-panneau");
+    const r = pan.getBoundingClientRect();
+    return {
+      ecran: innerWidth,
+      texte: pan.textContent.replace(/\s+/g, " ").trim(),
+      lien: pan.querySelector("a")?.getAttribute("href") ?? null,
+      deplie: b.getAttribute("aria-expanded"),
+      dedans: r.left >= 0 && r.right <= innerWidth && r.top >= 0,
+      debord: document.documentElement.scrollWidth > innerWidth,
+      l: Math.round(r.width),
+    };
+  });
+}
+
+const ouverte = await ouvrirLaBulle();
+dire("elle s'ouvre au clic", ouverte.deplie === "true" && ouverte.l > 0, JSON.stringify(ouverte));
+dire(
+  "ELLE DIT LES TROIS CHOSES DEMANDÉES : le lien attendu, qui l'attend, et le sujet",
+  ouverte.texte.includes("Un rival d'enfance") &&
+    ouverte.texte.includes("Teenspirit") &&
+    ouverte.lien === "/t42-prelien",
+  JSON.stringify(ouverte),
+);
+dire("et elle ne sort pas de l'écran", ouverte.dedans && !ouverte.debord, JSON.stringify(ouverte));
+
+await p.keyboard.press("Escape");
+const apresEchap = await p.evaluate(() => ({
+  cache: document.querySelector(".wm-accueil__prelien-panneau").hidden,
+  focus: document.activeElement?.className ?? "",
+}));
+dire("Échap la referme", apresEchap.cache === true);
+dire(
+  "et le focus revient à la bulle",
+  apresEchap.focus.includes("wm-accueil__prelien-bouton"),
+  apresEchap.focus,
+);
+
+//  UNE BULLE SANS DÉTAIL NE MONTRE PAS DE LIGNES VIDES.
+const bulleNue = await p.evaluate(() => {
+  const bulles = document.querySelectorAll(".wm-accueil__prelien");
+  const pan = bulles[1].querySelector(".wm-accueil__prelien-panneau");
+  return {
+    lignes: pan.querySelectorAll(".wm-accueil__prelien-ligne").length,
+    lien: pan.querySelector("a"),
+    nom: pan.querySelector(".wm-accueil__prelien-nom")?.textContent,
+  };
+});
+dire(
+  "une bulle sans détail ne montre que le nom",
+  bulleNue.lignes === 0 && bulleNue.lien === null && bulleNue.nom === "Adam Lockhart",
+  JSON.stringify(bulleNue),
+);
+
+// ── 5 · petits écrans ───────────────────────────────────────────────
+for (const largeur of [900, 520, 390, 320]) {
+  await p.setViewportSize({ width: largeur, height: 800 });
+  await p.waitForTimeout(100);
+  const m = await ouvrirLaBulle();
+  dire(`à ${largeur} px, l'infobulle reste dans l'écran`, m.dedans, JSON.stringify(m));
+  dire(`à ${largeur} px, rien ne déborde`, !m.debord);
+  await p.keyboard.press("Escape");
+}
+
+await nav.close();
+console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
+for (const s of soucis) console.log("  · " + s);
+if (soucis.length > 0) Deno.exit(1);

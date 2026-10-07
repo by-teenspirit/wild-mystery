@@ -45,7 +45,9 @@ import {
   poserLaNavigation,
   remplirLesPersonnages,
 } from "../src/adaptateurs/navigateur/module-navigation.ts";
+import { poserLAccueil } from "../src/adaptateurs/navigateur/module-accueil.ts";
 import { poserLeSwitcheroo } from "../src/adaptateurs/navigateur/module-switcheroo.ts";
+import { accueilDepuis } from "../src/navigateur/accueil.ts";
 import { sourceDAvatar } from "../src/navigateur/navigation.ts";
 import {
   compterLesMessages,
@@ -121,6 +123,26 @@ async function configSupabase(): Promise<ReturnType<typeof configDepuis>> {
  *  seconde arrive après nous, le module la guette.
  *
  *  Elle part sur TOUTES les pages — c'est le cadre du forum. */
+/** Le bloc d'accueil, maquette `390:3170`.
+ *
+ *  IL NE PART QUE S'IL TROUVE SON HÔTE. `#wm-accueil` est le bloc de
+ *  repli que Callista a collé une fois dans le message d'accueil : sur
+ *  toutes les autres pages, il n'existe pas, et le module ne fait rien.
+ *
+ *  Et si le fichier est injoignable, on ne touche à rien non plus : le
+ *  repli reste à l'écran. Une page d'accueil blanche est pire qu'une
+ *  page d'accueil sans JavaScript. */
+async function poserLeBlocDAccueil(): Promise<void> {
+  if (RACINE === null) return;
+  //  On ne va chercher le fichier QUE si le bloc est là : sur les
+  //  centaines d'autres pages du forum, c'est une requête de moins.
+  if (document.querySelector("#wm-accueil") === null) return;
+  const donnees = await fetch(`${RACINE}accueil.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  poserLAccueil(document, accueilDepuis(donnees));
+}
+
 async function poserLaNav(messages: number): Promise<void> {
   if (RACINE === null) return;
   const donnees = await fetch(`${RACINE}navigation.json`, { credentials: "omit" })
@@ -279,4 +301,8 @@ desQueLeCorpsEstLa(() => {
   //  Les trois réglages de confort s'ajoutent au coin d'outils, qui vient
   //  d'être posé juste au-dessus. Pas de second bloc flottant.
   poserLAccessibilite(document, prefs);
+
+  //  L'accueil en dernier : il remplace un bloc déjà lisible, donc rien
+  //  ne presse, et il ne doit pas retarder la barre.
+  poserLeBlocDAccueil().catch(() => {});
 });
