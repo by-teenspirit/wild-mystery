@@ -37,7 +37,7 @@ existait déjà reste figé sur l'ancien commit.
 **C'est la vraie explication des « deux jours d'attente » et du « compte jusqu'à dix ».** Ce
 n'était pas un CDN froid, c'était un alias de branche qui ne bougeait pas.
 
-## Ce qu'il faut faire
+## Ce qu'on a fait d'abord : un tag
 
 **Ne plus servir une branche. Servir un tag.** jsDelivr traite un tag comme immuable : il le
 sert tout de suite, et il n'y a plus jamais rien à purger.
@@ -64,6 +64,52 @@ puis changer le numéro aux deux lignes du template. **Trois gestes, et plus auc
 
 En prime, le template dit alors **ce qui est en ligne** : aujourd'hui, personne ne peut le
 savoir en le lisant.
+
+## Ce qu'on fait maintenant : GitHub Pages
+
+**Relevé le 7 octobre**, après quatre tags en deux jours.
+
+Le tag marche, mais il fait payer trois gestes **à chaque correction**, y compris à celles
+d'une ligne. Ça ne tient pas : on finit par ne plus corriger.
+
+GitHub Pages sert le même dépôt, à une adresse **qui ne change jamais** :
+
+```html
+<link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/css/wild-mystery.css">
+<script src="https://by-teenspirit.github.io/wild-mystery/js/wild-mystery.js"></script>
+```
+
+Un `git push`, et c'est en ligne. Pas de tag, pas de purge, pas de numéro à reporter.
+
+**Pourquoi ça ne refait pas le même piège.** jsDelivr fige la *résolution* d'une branche :
+rien ne l'expire, d'où les trois jours. Pages met un `Cache-Control: max-age=600` — mesuré
+le 7 octobre — donc **dix minutes au pire, et ça s'expire tout seul**. Un cache qui tourne
+n'est pas un alias qui se fige.
+
+Les deux points vérifiés avant de basculer :
+
+- **CORS** : Pages répond `Access-Control-Allow-Origin: *`. Il le faut, parce que
+  `js/wild-mystery.js` va chercher `data/*.json` depuis le domaine du forum. Vérifié par un
+  `fetch` croisé depuis `mysteryinrhode.forumactif.com` : lisible, donc autorisé.
+- **`racineDesDonnees`** ne change pas : elle déduit `…/data/` de `currentScript.src`, quelle
+  que soit la machine qui sert.
+
+**À activer une fois**, dans `Settings → Pages` du dépôt : source `Deploy from a branch`,
+branche **`socle-v2`**, dossier **`/ (root)`**. Le `.nojekyll` à la racine est là pour que
+Pages serve les fichiers tels quels au lieu de les passer par Jekyll.
+
+### Ce qu'on perd, et c'est assumé
+
+Un tag est un **verrou** : tant qu'on ne le bouge pas, les joueurs voient une version figée.
+Avec Pages, **un `push` est en ligne** — une étourderie casse le forum tout de suite.
+
+Ce qui tient lieu de garde-corps : la chaîne tourne à chaque poussée (600 tests, garde-fou,
+contraste, le harnais de navigation), et la réparation est un `push`, pas une purge.
+
+### Le tag garde un rôle
+
+Il déclenche toujours le **déploiement Supabase** — migrations et fonctions Edge. Ça, ça
+mérite un geste délibéré, et ça n'a rien à voir avec la vitesse d'affichage d'un CSS.
 
 ## Le dépannage immédiat
 
