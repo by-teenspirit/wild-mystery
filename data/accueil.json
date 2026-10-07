@@ -3,6 +3,8 @@
 
   "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module le lit et dessine. Changer une actualité = changer une ligne ici et pousser ; RIEN à recoller dans le panneau d'administration. Ce qui y est collé une fois pour toutes est un bloc court — le texte du contexte et les sept liens en dur — pour que la page reste lisible sans JavaScript.",
 
+  "_adressesRelevees": "Six adresses relevées sur le forum le 7 octobre et vérifiées une par une — code 200, et le titre de la page confirme à chaque fois : Contexte /t12, Règlement /t10, Pré-liens /f6, Bottin /t51, Zone Invités /f54, Toutes les annonces /f56. Les deux qui restent vides le restent exprès : « Questions » n'a pas de page évidente, et les Annexes ne sont pas encore sur le forum.",
+
   "_cequiManque": "Les URL vides sont VOLONTAIREMENT vides : je ne les invente pas. Une entrée sans URL s'affiche en gris et ne clique pas, ce qui se voit — c'est préférable à un lien qui mène dans le vide. Les images aussi : sans URL, pas de balise `img`, et le bloc tient quand même.",
 
   "contexte": {
@@ -12,16 +14,16 @@
       "Pendant longtemps, la Région de Rhode était connue pour son inhospitalité et son hostilité. Abandonnée par les pokémons sauvages et les humains, elle était en proie aux méfaits d'un groupe, la Team Ombre.",
       "Heureusement, les temps ont changé. La TO est tombée et la région est de nouveau peuplée. Mais il se murmure que certains membres seraient encore en vie et s'en prendraient toujours aux pokémons sauvages…"
     ],
-    "lien": { "texte": "Lire le contexte", "url": "" }
+    "lien": { "texte": "Lire le contexte", "url": "/t12-contexte" }
   },
 
   "liens": [
-    { "texte": "Contexte", "url": "" },
-    { "texte": "Règlement", "url": "" },
+    { "texte": "Contexte", "url": "/t12-contexte" },
+    { "texte": "Règlement", "url": "/t10-reglement-et-disclaimer" },
     { "texte": "Questions", "url": "" },
-    { "texte": "Pré-liens", "url": "" },
-    { "texte": "Bottin", "url": "" },
-    { "texte": "Zone Invités", "url": "" },
+    { "texte": "Pré-liens", "url": "/f6-trouver-son-alter-ego" },
+    { "texte": "Bottin", "url": "/t51-bottin-des-avatars" },
+    { "texte": "Zone Invités", "url": "/f54-zone-invites" },
     { "texte": "Annexes", "url": "" }
   ],
 
@@ -53,7 +55,7 @@
 
   "actualites": {
     "titre": "Actualités",
-    "lien": { "texte": "Toutes les annonces", "url": "" },
+    "lien": { "texte": "Toutes les annonces", "url": "/f56-les-informations" },
     "liste": [
       { "date": "", "titre": "", "categorie": "", "url": "" }
     ]
