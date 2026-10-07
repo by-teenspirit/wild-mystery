@@ -216,9 +216,17 @@
 
 /* ── 3 · la tête de la colonne de lecture ─────────────────────────── */
 
+/*  **`accent-fort`, pas `accent-primaire`.** Le corps d'annexe porte un
+    voile terre en radial dans son coin bas-droit : là, le fond descend à
+    `#e5cfc0`, et l'accent primaire y tombe à 4,04. Le surtitre est en
+    haut à gauche, donc en pratique il est à 4,85 — mais le harnais mesure
+    le pire point du fond, et il a raison de le faire : un voile qu'on
+    déplace, un chapô qu'on rallonge, et le surtitre se retrouve dedans.
+
+    L'écart est invisible à l'œil et le risque disparaît. */
 #modernbb .wm-annexe__surtitre {
   margin: 0 0 var(--wm-espace-8, 8px);
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
   font-size: var(--wm-taille-surtitre, 10.5px);
   font-weight: var(--wm-graisse-gras, 700);

@@ -2771,9 +2771,17 @@ html,
 
 /* ── 3 · la tête de la colonne de lecture ─────────────────────────── */
 
+/*  **`accent-fort`, pas `accent-primaire`.** Le corps d'annexe porte un
+    voile terre en radial dans son coin bas-droit : là, le fond descend à
+    `#e5cfc0`, et l'accent primaire y tombe à 4,04. Le surtitre est en
+    haut à gauche, donc en pratique il est à 4,85 — mais le harnais mesure
+    le pire point du fond, et il a raison de le faire : un voile qu'on
+    déplace, un chapô qu'on rallonge, et le surtitre se retrouve dedans.
+
+    L'écart est invisible à l'œil et le risque disparaît. */
 #modernbb .wm-annexe__surtitre {
   margin: 0 0 var(--wm-espace-8, 8px);
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
   font-size: var(--wm-taille-surtitre, 10.5px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -5099,5 +5107,700 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-color: var(--wm-accent-primaire, #2e6e8e);
   outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
   outline-offset: 1px;
+}
+
+/* ── 9 · le fil d'Ariane ──────────────────────────────────────────── */
+
+/*  Le chemin en haut de chaque page intérieure, avec un niveau
+    intermédiaire facultatif et le lien d'action poussé à droite.
+
+    **Les chevrons sont écrits par le CSS**, pas dans le texte : un « › »
+    tapé dans le balisage se fait lire à voix haute entre chaque étape. */
+#modernbb .wm-crumbs {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  gap: var(--wm-espace-10, 11px);
+  overflow: hidden;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+#modernbb .wm-crumbs__etape {
+  flex: 0 0 auto;
+  color: var(--wm-texte-doux, #6e5749);
+  white-space: nowrap;
+}
+
+#modernbb .wm-crumbs__etape + .wm-crumbs__etape::before {
+  content: "›";
+  display: inline-block;
+  margin-right: var(--wm-espace-10, 11px);
+  color: var(--wm-texte-pale, #756054);
+}
+
+/*  La page courante : plus sombre que les étapes, et `aria-current` le
+    dit. Elle n'est pas un lien — on y est déjà. */
+#modernbb .wm-crumbs__courante {
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-crumbs__ressort {
+  flex: 1 1 auto;
+  min-width: 1px;
+  height: 1px;
+}
+
+#modernbb .wm-crumbs__action {
+  flex: 0 0 auto;
+  color: var(--wm-accent-primaire, #2e6e8e);
+  font-weight: var(--wm-graisse-gras, 700);
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  #modernbb .wm-crumbs {
+    flex-wrap: wrap;
+    gap: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
+  }
+
+  #modernbb .wm-crumbs__etape + .wm-crumbs__etape::before {
+    margin-right: var(--wm-espace-8, 8px);
+  }
+
+  #modernbb .wm-crumbs__ressort {
+    display: none;
+  }
+}
+
+/* ── 10 · le titre de page ────────────────────────────────────────── */
+
+/*  Un surtitre facultatif, le titre en DEUX morceaux — serif puis
+    manuscrit — et le chapô.
+
+    **42 et 44 px, pas les jetons display et accent** (44 et 46). Le
+    composant porte ses propres tailles ; les jetons décrivent l'échelle
+    typographique de la planche Fondations, qui sert ailleurs. L'écart est
+    dans la maquette, il n'est pas introduit ici. */
+#modernbb .wm-titre-page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  gap: var(--wm-espace-10, 10px);
+  overflow: hidden;
+}
+
+#modernbb .wm-titre-page__surtitre {
+  margin: 0;
+  color: var(--wm-accent-terre, #a0532c);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+  text-transform: uppercase;
+}
+
+/*  `baseline` et pas `center` : les deux polices n'ont ni la même
+    hauteur d'œil ni le même jambage, et centrées elles flottent l'une
+    par rapport à l'autre. */
+#modernbb .wm-titre-page__titre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 0;
+  gap: var(--wm-espace-14, 14px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-size: 42px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-titre-page__manuscrit {
+  color: var(--wm-accent-primaire, #2e6e8e);
+  font-family: var(--wm-police-accent, "Kaushan Script", cursive);
+  font-size: 44px;
+  font-weight: var(--wm-graisse-normale, 400);
+}
+
+#modernbb .wm-titre-page__chapo {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-chapo, "Cormorant Garamond", Georgia, serif);
+  font-size: 22px;
+  font-style: italic;
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+/*  Sur téléphone le titre descend : 42 px sur 390 coupe au milieu d'un
+    mot, et la seconde ligne manuscrite dépasse. */
+@media (max-width: 760px) {
+  #modernbb .wm-titre-page__titre {
+    font-size: 30px;
+    gap: var(--wm-espace-8, 8px);
+  }
+
+  #modernbb .wm-titre-page__manuscrit {
+    font-size: 32px;
+  }
+
+  #modernbb .wm-titre-page__chapo {
+    font-size: 18px;
+  }
+}
+
+/* ── 11 · la case de Pokédex ──────────────────────────────────────── */
+
+/*  TROIS ÉTATS, PAS DEUX, et c'est la raison d'être du composant : « vu »
+    porte la ZONE où on a croisé l'espèce. C'est ce qui fait du Pokédex un
+    outil de préparation de RP plutôt qu'une collection.
+
+    Chaque état se reconnaît à son CADRE autant qu'à sa teinte : tirets
+    pour l'inconnu, filet fin pour le vu, contour d'accent pour le
+    capturé. Trois nuances de crème ne se distinguent pas. */
+#modernbb .wm-dex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 112px;
+  padding: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-6, 6px);
+  overflow: hidden;
+  border: 1px dashed var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-page, #f2e4d8);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+}
+
+#modernbb .wm-dex--vu {
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-dex--capture {
+  border: 1.5px solid var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-dex__numero {
+  margin: 0;
+  color: var(--wm-texte-pale, #756054);
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  **`texte-doux` sur la case vue**, parce qu'elle est en
+    `fond-surface-haute` : c'est la règle de la planche 50, la même qui a
+    rattrapé la pastille « Terminé ». */
+#modernbb .wm-dex--vu .wm-dex__numero {
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-dex__sprite {
+  display: block;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+}
+
+#modernbb .wm-dex__nom {
+  width: 96px;
+  margin: 0;
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-align: center;
+}
+
+#modernbb .wm-dex--vu .wm-dex__nom {
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-dex--capture .wm-dex__nom {
+  color: var(--wm-encre, #2e2018);
+}
+
+/* ── 12 · la case de boîte ────────────────────────────────────────── */
+
+/*  Trente par boîte, comme dans tous les jeux depuis vingt ans. Le niveau
+    en bas à droite : les jeux ne l'affichent pas, mais chez nous il
+    pilote tout le combat. */
+#modernbb .wm-boite {
+  position: relative;
+  box-sizing: border-box;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+}
+
+#modernbb .wm-boite__sprite {
+  position: absolute;
+  top: 5px;
+  left: 8px;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+#modernbb .wm-boite__niveau {
+  position: absolute;
+  top: 49px;
+  right: 5px;
+  margin: 0;
+  color: var(--wm-texte-pale, #756054);
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
+#modernbb .wm-boite__objet {
+  position: absolute;
+  top: 46px;
+  left: 5px;
+  width: 11px;
+  height: 11px;
+}
+
+/* ── 13 · la ligne d'objet du sac ─────────────────────────────────── */
+
+/*  Icône, nom, quantité, description, et les deux actions. La largeur
+    vient du conteneur : le composant Figma fait 420, c'est la valeur d'un
+    cas et pas une règle. */
+#modernbb .wm-objet {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 9px 11px;
+  gap: var(--wm-espace-10, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-objet__icone {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+#modernbb .wm-objet__texte {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--wm-espace-2, 2px);
+}
+
+#modernbb .wm-objet__nom {
+  display: flex;
+  align-items: baseline;
+  margin: 0;
+  gap: var(--wm-espace-6, 6px);
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-objet__quantite {
+  color: var(--wm-texte-pale, #756054);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-objet__detail {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-weight: var(--wm-graisse-normale, 400);
+}
+
+/*  **Les actions sont À GAUCHE sous 1 030 px** — non, elles restent à
+    droite, mais elles passent SOUS le texte : le coin d'outils mord les
+    soixante derniers pixels (planche 50 §8), et une action collée au bord
+    droit y devient incliquable. */
+#modernbb .wm-objet__actions {
+  display: flex;
+  align-items: flex-start;
+  flex: 0 0 auto;
+  gap: var(--wm-espace-6, 6px);
+}
+
+/*  Les deux boutons du sac sont des `btn--discret` à largeur fixe : 72 ×
+    36 dans la maquette, pour que « Utiliser » et « Vendre » fassent la
+    même largeur et que la colonne ne tremble pas d'une ligne à l'autre. */
+#modernbb .wm-objet__action {
+  width: 72px;
+  min-height: 36px;
+  padding: 0 var(--wm-espace-12, 12px);
+}
+
+@media (max-width: 760px) {
+  #modernbb .wm-objet {
+    flex-wrap: wrap;
+  }
+
+  /*  `calc`, pas `100%` : la ligne porte aussi son retrait de 38 px, et
+      100 % + 38 déborde de la largeur du parent — mesuré à 520 et 390 px,
+      et c'est le harnais qui a nommé le coupable. */
+  #modernbb .wm-objet__actions {
+    width: calc(100% - 38px);
+    margin-left: 38px;
+  }
+}
+
+/* ── 14 · le bandeau du dresseur ──────────────────────────────────── */
+
+/*  La bande d'identité en haut du carnet.
+
+    **Le dégradé est écrit en dur, et c'est voulu** : c'est une image, pas
+    un jeton. Trois arrêts relevés dans la maquette — nuit, violet, brique
+    — qui ne correspondent à aucune couleur du système parce qu'ils n'ont
+    pas à en suivre les changements. */
+#modernbb .wm-dresseur {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-24, 28px);
+  gap: var(--wm-espace-18, 18px);
+  overflow: hidden;
+  background: linear-gradient(to right, #1b1330 0%, #3d2b61 50%, #754042 100%);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+}
+
+#modernbb .wm-dresseur__avatar {
+  flex: 0 0 54px;
+  width: 54px;
+  height: 86px;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: linear-gradient(130deg, #574d8f 7%, #1f1a33 79%);
+  object-fit: cover;
+}
+
+#modernbb .wm-dresseur__infos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 7px;
+  overflow: hidden;
+}
+
+#modernbb .wm-dresseur__identite {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  margin: 0;
+  gap: var(--wm-espace-14, 14px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-dresseur__nom {
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-size: 22px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-dresseur__numero {
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-dresseur__ligne {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wm-dresseur__niveau {
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+/*  La jauge. Elle vaut aussi pour le quota de messagerie et l'avancement
+    du carnet — relevée à trois hauteurs dans les maquettes, on fige celle
+    du carnet. */
+#modernbb .wm-jauge {
+  display: flex;
+  align-items: flex-start;
+  flex: 0 0 auto;
+  width: 200px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 22%, transparent);
+}
+
+#modernbb .wm-jauge__remplie {
+  height: 100%;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: #d99e80;
+}
+
+/*  85 % d'opacité dans la maquette : le chiffre d'XP est une précision,
+    pas l'information principale de la ligne. */
+#modernbb .wm-dresseur__xp {
+  opacity: 0.85;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-normale, 400);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+@media (max-width: 760px) {
+  #modernbb .wm-dresseur {
+    flex-wrap: wrap;
+    padding: var(--wm-espace-16, 16px);
+  }
+
+  #modernbb .wm-jauge {
+    width: 100%;
+  }
+}
+
+/* ── 15 · la chronologie ──────────────────────────────────────────── */
+
+/*  ── LE FILET APPARTIENT AU CONTENEUR, PAS À L'ENTRÉE ──────────────
+    (planche 22)
+
+    Dans Figma il est posé en absolu avec `constraints.vertical =
+    "STRETCH"`, calé sur le centre du premier et du dernier point — donc à
+    recalculer dès que l'espacement change.
+
+    **En CSS on fait autrement, et c'est mieux** : chaque entrée porte le
+    segment qui la relie à la SUIVANTE, et la dernière n'en porte pas. Le
+    filet suit alors la hauteur réelle du contenu sans qu'on ait rien à
+    recalculer — ce que Figma ne sait pas faire, et c'est pour ça que la
+    maquette s'en sort autrement. */
+#modernbb .wm-chrono {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+}
+
+#modernbb .wm-chrono__entree {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding-bottom: 26px;
+  gap: var(--wm-espace-18, 18px);
+}
+
+/*  Le point. Plein et gris pour le passé, plein et terre pour l'en-cours,
+    creux pour l'à-venir : trois formes, pas trois teintes. */
+#modernbb .wm-chrono__entree::before {
+  content: "";
+  flex: 0 0 14px;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  margin-top: 2px;
+  border: 2px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
+  background: var(--wm-bord-net, #d9c3b1);
+}
+
+#modernbb .wm-chrono__entree--en-cours::before {
+  border-color: var(--wm-accent-terre, #a0532c);
+  background: var(--wm-accent-terre, #a0532c);
+}
+
+#modernbb .wm-chrono__entree--a-venir::before {
+  background: var(--wm-fond-page, #f2e4d8);
+}
+
+/*  Le segment vers l'entrée suivante. `calc` le fait partir du bas du
+    point et descendre jusqu'au point d'après, quelle que soit la hauteur
+    du texte au-dessus. */
+#modernbb .wm-chrono__entree::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 6px;
+  width: 1px;
+  height: calc(100% - 18px);
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-chrono__entree:last-child::after {
+  display: none;
+}
+
+#modernbb .wm-chrono__contenu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 5px;
+  overflow: hidden;
+}
+
+#modernbb .wm-chrono__date {
+  margin: 0;
+  color: var(--wm-accent-terre, #a0532c);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+#modernbb .wm-chrono__entree--a-venir .wm-chrono__date {
+  color: var(--wm-texte-pale, #756054);
+}
+
+#modernbb .wm-chrono__titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-message, 16px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+#modernbb .wm-chrono__entree--a-venir .wm-chrono__titre {
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  Trois lignes, coupées net (planche 22). `-webkit-line-clamp` reste le
+    seul qui marche partout ; la propriété standard l'accompagne pour le
+    jour où elle suffira. */
+#modernbb .wm-chrono__texte {
+  display: -webkit-box;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.6);
+}
+
+#modernbb .wm-chrono__marqueur {
+  display: inline-flex;
+  align-items: flex-start;
+  padding: 2px var(--wm-espace-8, 8px);
+  overflow: hidden;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-primaire, #2e6e8e);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+/* ── 16 · les nouvelles ───────────────────────────────────────────── */
+
+/*  Même grammaire que la chronologie, à une autre échelle : un filet, des
+    points, une date. L'une raconte, l'autre signale.
+
+    Le bloc est TRANSPARENT : il se pose sur le fond de page, dans le
+    rail. */
+#modernbb .wm-news {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-18, 18px);
+  background: transparent;
+  list-style: none;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+}
+
+#modernbb .wm-news__entree {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-news__entree::before {
+  content: "";
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 999px;
+  background: var(--wm-bord-net, #d9c3b1);
+}
+
+/*  La plus récente prend l'accent terre — un seul point allumé à la fois,
+    et c'est le premier de la pile. */
+#modernbb .wm-news__entree:first-child::before {
+  background: var(--wm-accent-terre, #a0532c);
+}
+
+#modernbb .wm-news__entree::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 3px;
+  width: 1px;
+  height: calc(100% + var(--wm-espace-18, 18px) - 12px);
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-news__entree:last-child::after {
+  display: none;
+}
+
+#modernbb .wm-news__date {
+  flex: 0 0 48px;
+  width: 48px;
+  margin: 0;
+  color: var(--wm-accent-terre, #a0532c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+#modernbb .wm-news__texte {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 1px;
+  overflow: hidden;
+}
+
+#modernbb .wm-news__titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+#modernbb .wm-news__categorie {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-section, 1.2);
 }
 
