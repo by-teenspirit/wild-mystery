@@ -235,6 +235,10 @@ jobs:
           restore-keys: deno-${{ runner.os }}-${{ env.DENO_VERSION }}-
 
       - run: deno task test:navigateur
+
+      - name: Chromium pour le harnais
+        run: deno run -A npm:playwright@1.49.1 install chromium
+
       - name: La navigation, dans un navigateur
         run: deno task navigation
 
