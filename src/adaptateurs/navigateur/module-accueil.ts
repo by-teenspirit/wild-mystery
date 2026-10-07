@@ -88,13 +88,39 @@ function etoile(doc: Document): SVGSVGElement {
   return s;
 }
 
-/** L'œil des liens rapides. Material Symbols est déjà chargé par le
- *  forum, et ici la ligature est acceptable : à côté du mot, une icône
- *  qui ne charge pas laisse un carré, pas un bouton muet. */
-function oeil(doc: Document): HTMLElement {
-  const i = element(doc, "span", "wm-accueil__oeil material-symbols-outlined", "visibility");
-  i.setAttribute("aria-hidden", "true");
-  return i;
+/** L'œil des liens rapides, en tracé.
+ *
+ *  IL A ÉTÉ UNE LIGATURE MATERIAL, ET ÇA S'EST VU. Une ligature n'est
+ *  pas une icône : c'est le mot `visibility` écrit en clair, que la
+ *  police remplace par un dessin SI elle charge. Au premier rendu de
+ *  l'accueil, elle n'avait pas chargé, et les sept lignes affichaient le
+ *  mot — barré, sur les deux liens sans adresse. Même règle que le coin
+ *  d'outils : les icônes sont des tracés. */
+function oeil(doc: Document): SVGSVGElement {
+  const s = doc.createElementNS(SVG, "svg");
+  s.setAttribute("viewBox", "0 0 24 24");
+  s.setAttribute("class", "wm-accueil__oeil");
+  s.setAttribute("aria-hidden", "true");
+  s.setAttribute("focusable", "false");
+  //  La paupière en deux arcs, et l'iris au milieu. Deux tracés plutôt
+  //  qu'un seul : l'iris est plein, la paupière ne l'est pas.
+  const paupiere = doc.createElementNS(SVG, "path");
+  paupiere.setAttribute(
+    "d",
+    "M1.8 12S5.4 5.4 12 5.4 22.2 12 22.2 12 18.6 18.6 12 18.6 1.8 12 1.8 12Z",
+  );
+  paupiere.setAttribute("fill", "none");
+  paupiere.setAttribute("stroke", "currentColor");
+  paupiere.setAttribute("stroke-width", "1.7");
+  paupiere.setAttribute("stroke-linejoin", "round");
+  const iris = doc.createElementNS(SVG, "circle");
+  iris.setAttribute("cx", "12");
+  iris.setAttribute("cy", "12");
+  iris.setAttribute("r", "2.6");
+  iris.setAttribute("fill", "currentColor");
+  s.appendChild(paupiere);
+  s.appendChild(iris);
+  return s;
 }
 
 function vignette(doc: Document, src: string, classe: string): HTMLElement {
@@ -293,15 +319,22 @@ function blocActualites(doc: Document, a: Accueil): HTMLElement | null {
     element(doc, "h2", "wm-accueil__titre-carte wm-accueil__titre-actus", a.actualites.titre),
   );
   const carte = element(doc, "div", "wm-accueil__carte");
-  const liste = element(doc, "ol", "wm-accueil__actus-liste");
+  //  `.wm-news` est le composant de la bibliothèque (`13-composants`),
+  //  dessiné d'après « Entrée de nouvelle » : on le réutilise, on n'en
+  //  refait pas un.
+  //
+  //  ET IL FAUT LE NOMMER AU BON ÉTAGE. `.wm-news` est la PILE, qui
+  //  empile en colonne avec 18 px d'écart ; `.wm-news__entree` est la
+  //  RANGÉE, qui pose le point, la date et le texte côte à côte. La
+  //  première version mettait `.wm-news` sur chaque `<li>` : chaque
+  //  entrée devenait donc une colonne, et la date se retrouvait seule
+  //  au-dessus d'un trou de 18 px. Ça se voyait à l'écran, et aucun
+  //  test ne le voyait — d'où celui qui mesure maintenant la hauteur
+  //  d'une entrée.
+  const liste = element(doc, "ol", "wm-accueil__actus-liste wm-news");
   for (const n of a.actualites.liste) {
-    //  `.wm-news` est le composant de la bibliothèque (`13-composants`),
-    //  dessiné d'après « Entrée de nouvelle » : on le réutilise, on n'en
-    //  refait pas un.
-    const li = element(doc, "li", "wm-news");
-    const point = element(doc, "span", "wm-news__point");
-    point.setAttribute("aria-hidden", "true");
-    li.appendChild(point);
+    //  Le point est le `::before` de la rangée : pas de nœud pour lui.
+    const li = element(doc, "li", "wm-news__entree");
     if (n.date !== "") li.appendChild(element(doc, "span", "wm-news__date", n.date));
     const texte = element(doc, "span", "wm-news__texte");
     texte.appendChild(

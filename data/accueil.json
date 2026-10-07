@@ -1,12 +1,9 @@
 {
   "_": "Le bloc d'accueil, maquette `390:3170`. SOURCE UNIQUE de ses sept blocs : contexte, liens rapides, partenaires, votes, staff, actualités, pré-liens. Arbitrage de Callista du 7 octobre : tout vient d'ici, et pas du forum.",
-
+  "_PROVISOIRE": "⚠ CONTENU DE LA MAQUETTE `390:3170`, posé le 7 octobre à la demande de Callista — « les mêmes que la maquette et moi je viendrai corriger plus tard ». Le staff, les actualités, les partenaires et les pré-liens sont CEUX DU DESSIN, pas ceux du forum : Teenspirit n'est pas un vrai compte, « Le Festival du Soleil » n'est pas une vraie annonce. TOUTE ADRESSE VALANT « # » EST UN TROU — elle ne mène nulle part et se repère d'un coup d'œil. Ce qui est VRAI ici : le contexte, les six adresses relevées sur le forum, les trois votes, et les deux images.",
   "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module le lit et dessine. Changer une actualité = changer une ligne ici et pousser ; RIEN à recoller dans le panneau d'administration. Ce qui y est collé une fois pour toutes est un bloc court — le texte du contexte et les sept liens en dur — pour que la page reste lisible sans JavaScript.",
-
   "_adressesRelevees": "Six adresses relevées sur le forum le 7 octobre et vérifiées une par une — code 200, et le titre de la page confirme à chaque fois : Contexte /t12, Règlement /t10, Pré-liens /f6, Bottin /t51, Zone Invités /f54, Toutes les annonces /f56. Les deux qui restent vides le restent exprès : « Questions » n'a pas de page évidente, et les Annexes ne sont pas encore sur le forum.",
-
   "_cequiManque": "Les URL vides sont VOLONTAIREMENT vides : je ne les invente pas. Une entrée sans URL s'affiche en gris et ne clique pas, ce qui se voit — c'est préférable à un lien qui mène dans le vide. Les images aussi : sans URL, pas de balise `img`, et le bloc tient quand même.",
-
   "contexte": {
     "titre": "Contexte",
     "chapo": "10 ans après la chute de la Team Ombre, la région de Rhode se reconstruit.",
@@ -14,27 +11,78 @@
       "Pendant longtemps, la Région de Rhode était connue pour son inhospitalité et son hostilité. Abandonnée par les pokémons sauvages et les humains, elle était en proie aux méfaits d'un groupe, la Team Ombre.",
       "Heureusement, les temps ont changé. La TO est tombée et la région est de nouveau peuplée. Mais il se murmure que certains membres seraient encore en vie et s'en prendraient toujours aux pokémons sauvages…"
     ],
-    "lien": { "texte": "Lire le contexte", "url": "/t12-contexte" }
+    "lien": {
+      "texte": "Lire le contexte",
+      "url": "/t12-contexte"
+    }
   },
-
   "liens": [
-    { "texte": "Contexte", "url": "/t12-contexte" },
-    { "texte": "Règlement", "url": "/t10-reglement-et-disclaimer" },
-    { "texte": "Questions", "url": "" },
-    { "texte": "Pré-liens", "url": "/f6-trouver-son-alter-ego" },
-    { "texte": "Bottin", "url": "/t51-bottin-des-avatars" },
-    { "texte": "Zone Invités", "url": "/f54-zone-invites" },
-    { "texte": "Annexes", "url": "" }
+    {
+      "texte": "Contexte",
+      "url": "/t12-contexte"
+    },
+    {
+      "texte": "Règlement",
+      "url": "/t10-reglement-et-disclaimer"
+    },
+    {
+      "texte": "Questions",
+      "url": ""
+    },
+    {
+      "texte": "Pré-liens",
+      "url": "/f6-trouver-son-alter-ego"
+    },
+    {
+      "texte": "Bottin",
+      "url": "/t51-bottin-des-avatars"
+    },
+    {
+      "texte": "Zone Invités",
+      "url": "/f54-zone-invites"
+    },
+    {
+      "texte": "Annexes",
+      "url": ""
+    }
   ],
-
   "partenaires": {
     "titre": "Nos partenaires",
-    "lien": { "texte": "Devenir partenaire", "url": "" },
+    "lien": {
+      "texte": "Devenir partenaire",
+      "url": ""
+    },
     "liste": [
-      { "nom": "", "url": "" }
+      {
+        "nom": "Partenaire 1",
+        "url": "#"
+      },
+      {
+        "nom": "Partenaire 2",
+        "url": "#"
+      },
+      {
+        "nom": "Partenaire 3",
+        "url": "#"
+      },
+      {
+        "nom": "Partenaire 4",
+        "url": "#"
+      },
+      {
+        "nom": "Partenaire 5",
+        "url": "#"
+      },
+      {
+        "nom": "Partenaire 6",
+        "url": "#"
+      },
+      {
+        "nom": "Partenaire 7",
+        "url": "#"
+      }
     ]
   },
-
   "_votes": "Relevés dans /t133-votez-pour-wild-mystery le 7 octobre : trois liens de top-site avec leur bannière. Le sujet dit « quatre top-site » mais n'en porte que trois — à revoir quand le quatrième reviendra. Les noms sont déduits de l'adresse, qui est ce que le sujet donne : les bannières, elles, n'ont pas de texte.",
   "votes": {
     "titre": "Votez !",
@@ -56,39 +104,110 @@
       }
     ]
   },
-
   "staff": [
     {
-      "pseudo": "",
-      "role": "",
-      "profil": "",
-      "avatar": "",
-      "personnages": [],
-      "presence": ""
+      "pseudo": "Teenspirit",
+      "role": "Fondatrice",
+      "profil": "#",
+      "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+      "personnages": [
+        "Elijah Springsteen",
+        "Adam Lockhart"
+      ],
+      "presence": "Présente"
+    },
+    {
+      "pseudo": "Teenspirit",
+      "role": "Fondatrice",
+      "profil": "#",
+      "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+      "personnages": [
+        "Elijah Springsteen",
+        "Adam Lockhart"
+      ],
+      "presence": "Présente"
     }
   ],
-
   "actualites": {
     "titre": "Actualités",
-    "lien": { "texte": "Toutes les annonces", "url": "/f56-les-informations" },
+    "lien": {
+      "texte": "Toutes les annonces",
+      "url": "/f56-les-informations"
+    },
     "liste": [
-      { "date": "", "titre": "", "categorie": "", "url": "" }
+      {
+        "date": "18 sept",
+        "titre": "Le Festival du Soleil ouvre ses stands",
+        "categorie": "événement",
+        "url": "#"
+      },
+      {
+        "date": "12 sept",
+        "titre": "Le carnet de bord est en ligne",
+        "categorie": "mise à jour",
+        "url": "#"
+      },
+      {
+        "date": "04 sept",
+        "titre": "Les Monts Cendrillon sont ouverts",
+        "categorie": "zone",
+        "url": "#"
+      },
+      {
+        "date": "04 sept",
+        "titre": "Les Monts Cendrillon sont ouverts",
+        "categorie": "zone",
+        "url": "#"
+      }
     ]
   },
-
   "preliens": {
     "titre": "Pré-liens",
     "liste": [
       {
-        "personnage": "",
-        "avatar": "",
-        "lienAttendu": "",
-        "auteur": "",
-        "url": ""
+        "personnage": "Personnage 1",
+        "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+        "lienAttendu": "Un rival d'enfance",
+        "auteur": "Teenspirit",
+        "url": "#"
+      },
+      {
+        "personnage": "Personnage 2",
+        "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+        "lienAttendu": "Une amitié de longue date",
+        "auteur": "Teenspirit",
+        "url": "#"
+      },
+      {
+        "personnage": "Personnage 3",
+        "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+        "lienAttendu": "Un mentor",
+        "auteur": "Teenspirit",
+        "url": "#"
+      },
+      {
+        "personnage": "Personnage 4",
+        "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+        "lienAttendu": "Une rencontre manquée",
+        "auteur": "Teenspirit",
+        "url": "#"
+      },
+      {
+        "personnage": "Personnage 5",
+        "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+        "lienAttendu": "Un lien familial",
+        "auteur": "Teenspirit",
+        "url": "#"
+      },
+      {
+        "personnage": "Personnage 6",
+        "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
+        "lienAttendu": "Une dette non réglée",
+        "auteur": "Teenspirit",
+        "url": "#"
       }
     ]
   },
-
   "images": {
     "_": "Les images du bloc, SERVIES PAR LE DÉPÔT comme le reste — `img/accueil/`, publié par GitHub Pages. L'adresse est écrite en entier et pas en relatif : le script tourne sur le forum, donc un chemin qui commence par `/` y désignerait le forum, pas Pages.",
     "_remplacer": "Pour changer une image : remplacer le fichier dans `img/accueil/` et pousser. L'adresse ne bouge pas.",

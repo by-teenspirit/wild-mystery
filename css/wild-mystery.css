@@ -6579,7 +6579,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background-size: cover;
 }
 
+/*  `position` et `z-index` : le contenu passe DEVANT la mascotte, qui
+    est en `z-index: 0` sur le panneau. Sans empiler les colonnes,
+    l'image resterait au-dessus du texte qu'elle borde. */
 .wm-accueil__colonnes {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-24, 24px);
@@ -6675,9 +6680,22 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Il porte le texte, donc il a besoin d'une largeur : sans elle, un
     `writing-mode` vertical donne une colonne de la largeur d'une
     lettre, et l'image se réduirait à un trait. */
+/*  `align-self: stretch` ANNULE LE `center` DU TITRE DE CÔTÉ, et c'est
+    le but : dans la maquette le bandeau court sur toute la hauteur du
+    bloc du staff (318 px pour deux membres), il n'est pas une étiquette
+    posée au milieu. Centré, il faisait 90 px de haut et l'image de
+    99 × 318 s'y retrouvait rognée en son milieu — un aplat bleu pâle
+    sans dégradé, qui ne ressemblait plus à rien.
+
+    Et comme il s'étire, le mot doit se recentrer dedans : d'où le flex,
+    que `text-align` ne pouvait pas faire sur un axe vertical. */
 .wm-accueil__bandeau--image {
+  display: flex;
   box-sizing: border-box;
   min-width: 70px;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
   padding: var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
   background-position: center;
@@ -6773,20 +6791,24 @@ a.wm-accueil__rapide:focus-visible {
   background: var(--wm-fond-surface-haute, #f8ece2);
 }
 
+/*  C'EST UN `<svg>`, PLUS UN MOT. Donc `display: block` et pas `flex` :
+    il n'y a plus rien à centrer dedans, et `content-box` garde les 12 px
+    du dessin à l'intérieur des 4 px de marge — la pastille fait 20 px,
+    comme la maquette.
+
+    Au passage, le barré de `--sans-adresse` ne le traverse plus : une
+    décoration de texte ne se propage pas à un élément remplacé. C'était
+    l'autre moitié du défaut — le mot `visibility` sortait barré. */
 .wm-accueil__oeil {
-  display: flex;
+  display: block;
   box-sizing: content-box;
   width: 12px;
   height: 12px;
   flex: none;
-  align-items: center;
-  justify-content: center;
   padding: var(--wm-espace-4, 4px);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-accent-terre, #9a4f29);
   color: var(--wm-texte-inverse, #fffbf7);
-  font-size: 12px;
-  line-height: 1;
 }
 
 /*  L'œil d'une rangée sans adresse perd son accent : il n'annonce plus
@@ -7040,13 +7062,17 @@ a.wm-accueil__membre-pseudo:focus-visible {
 
 /* ── 8 · les actualités ───────────────────────────────────────────── */
 
+/*  RIEN ICI NE MET EN PAGE LA LISTE. Elle porte `.wm-news`, et c'est le
+    composant de `13-composants` qui l'empile, dessine le filet, les
+    points et les 48 px de la date — mesurés sur « Entrée de nouvelle ».
+    Les redéclarer d'ici reviendrait à tenir deux fois la même mise en
+    page, et la première version le faisait avec un écart différent
+    (16 px contre 18) : le filet, calculé sur 18, aurait laissé un trou.
+
+    Le seul ajustement propre à l'accueil : la liste tient dans la carte,
+    qui est étroite. */
 .wm-accueil__actus-liste {
-  display: flex;
-  margin: 0;
-  padding: 0;
-  flex-direction: column;
-  gap: var(--wm-espace-16, 16px);
-  list-style: none;
+  min-width: 0;
 }
 
 /* ── 9 · les pré-liens ────────────────────────────────────────────── */
@@ -7171,18 +7197,45 @@ a.wm-accueil__membre-pseudo:focus-visible {
 
 /*  Elle déborde du panneau par la gauche et par le bas, comme la
     maquette. `pointer-events: none` : c'est un décor, il ne doit pas
-    attraper un clic destiné au texte qui passe dessous. */
+    attraper un clic destiné au texte qui passe dessous.
+
+    ── ELLE A COUVERT LE TEXTE, ET `pointer-events` N'Y CHANGEAIT RIEN ─
+
+    Premier rendu avec la vraie image : à 312 px posée à −60, le
+    Krokorok mangeait les trois dernières lignes du contexte, le titre
+    « Nos partenaires » et cinq des sept étoiles. Les liens restaient
+    cliquables — c'est ce que `pointer-events: none` garantit — mais on
+    ne les voyait plus, et un lien qu'on ne voit pas n'est pas un lien.
+
+    **Un décor ne se défend pas en disant qu'il laisse passer les
+    clics.** Deux changements : il rapetisse à 190 px, et la rangée du
+    bas lui rend son coin (règle suivante). Les deux ensemble, pas l'un
+    — à 190 px seul il mordait encore le tiers gauche de la carte. */
 .wm-accueil__mascotte {
   position: absolute;
-  bottom: -40px;
-  left: -60px;
-  width: 312px;
-  max-width: 40%;
+  z-index: 0;
+  bottom: -34px;
+  left: -46px;
+  width: 190px;
+  max-width: 28%;
   height: auto;
   pointer-events: none;
 }
 
-/*  SOUS 900 PX ELLE S'EN VA. Elle mesure 312 px : sur un téléphone elle
+/*  LE COIN QUE LA MASCOTTE OCCUPE, LA RANGÉE DU BAS NE L'OCCUPE PAS.
+    190 − 46 = 144 px de mascotte dans le panneau, dont 24 de marge :
+    120 px pris sur le contenu. On en rend 128, huit de battement.
+
+    Au-dessous de 1 100 px la rangée se replie en colonne et la
+    mascotte, elle, disparaît à 900 — entre les deux, la marge n'a plus
+    de raison d'être et la carte reprend toute la largeur. */
+@media (min-width: 1100px) {
+  .wm-accueil__rangee--bas {
+    padding-left: 128px;
+  }
+}
+
+/*  SOUS 900 PX ELLE S'EN VA. Elle mesure 190 px : sur un téléphone elle
     couvrirait le contexte, et une illustration qui cache le texte
     qu'elle illustre n'a plus de raison d'être. */
 @media (max-width: 900px) {

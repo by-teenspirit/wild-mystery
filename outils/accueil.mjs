@@ -100,7 +100,10 @@ const DONNEES = {
       { personnage: "Adam Lockhart", avatar: "", lienAttendu: "", auteur: "", url: "" },
     ],
   },
-  images: { mascotte: "", fond: "" },
+  //  La mascotte est SERVIE, et à sa vraie taille (306 × 303), parce
+  //  que c'est sa taille qui a cassé la rangée du bas. Un carré de
+  //  300 px de côté serait un faux témoin dans l'autre sens.
+  images: { mascotte: "https://exemple.test/img/accueil/mascotte.png", fond: "" },
 };
 
 const page = `<!doctype html><html lang="fr" id="min-width"><head><meta charset="utf-8">
@@ -137,6 +140,14 @@ await p.route("**/*", (route) => {
     return route.fulfill({
       contentType: "text/javascript; charset=utf-8",
       body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  //  La vraie image du dépôt, à ses vraies dimensions.
+  const img = /\/img\/accueil\/([a-z-]+\.png)$/.exec(url);
+  if (img !== null) {
+    return route.fulfill({
+      contentType: "image/png",
+      body: readFileSync(R + "img/accueil/" + img[1]),
     });
   }
   return route.fulfill({ contentType: "text/html; charset=utf-8", body: page });
@@ -183,7 +194,7 @@ const pose = await p.evaluate(() => {
     partenaires: q(".wm-accueil__partenaire"),
     votes: q(".wm-accueil__vote"),
     staff: q(".wm-accueil__membre"),
-    actus: q(".wm-news"),
+    actus: q(".wm-news__entree"),
     preliens: q(".wm-accueil__prelien"),
     //  Les sept blocs doivent tenir dans la largeur : c'est la
     //  première chose qui casse quand on traduit des positions
@@ -200,6 +211,45 @@ dire(
 );
 dire("et rien ne déborde en largeur", !pose.debord);
 
+// ── 2 bis · LA MASCOTTE NE COUVRE RIEN QUI SE LISE ──────────────────
+//  `pointer-events: none` garde les liens cliquables ; il ne les garde
+//  pas VISIBLES. Au premier rendu avec la vraie image, le Krokorok
+//  mangeait trois lignes du contexte, le titre des partenaires et cinq
+//  étoiles sur sept. Le harnais servait un carré de 300 px qui, lui, ne
+//  gênait rien : il sert maintenant la vraie image.
+const decor = await p.evaluate(() => {
+  const m = document.querySelector(".wm-accueil__mascotte");
+  if (m === null) return { absente: true, couvre: ["pas de mascotte"] };
+  const r = m.getBoundingClientRect();
+  const chevauche = (e) => {
+    const b = e.getBoundingClientRect();
+    if (b.width === 0 || b.height === 0) return 0;
+    const l = Math.max(0, Math.min(r.right, b.right) - Math.max(r.left, b.left));
+    const h = Math.max(0, Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top));
+    return Math.round(l * h);
+  };
+  //  Tout ce qui porte du texte ou se clique dans le panneau.
+  const lisibles = [
+    ...document.querySelectorAll(
+      "#wm-accueil .wm-accueil__texte, #wm-accueil .wm-accueil__titre-carte," +
+        " #wm-accueil .wm-accueil__rapide, #wm-accueil .wm-accueil__partenaire," +
+        " #wm-accueil .wm-accueil__prelien, #wm-accueil .wm-accueil__lien",
+    ),
+  ];
+  return {
+    absente: false,
+    mascotte: `${Math.round(r.width)}x${Math.round(r.height)}`,
+    couvre: lisibles
+      .filter((e) => chevauche(e) > 0)
+      .map((e) => `${e.className.split(" ")[0]} (${chevauche(e)} px²)`),
+  };
+});
+dire(
+  "LA MASCOTTE NE RECOUVRE NI TEXTE NI LIEN",
+  !decor.absente && decor.couvre.length === 0,
+  JSON.stringify(decor),
+);
+
 // ── 3 · un lien sans adresse n'est pas un lien ──────────────────────
 const sansAdresse = await p.evaluate(() => {
   const rapides = [...document.querySelectorAll(".wm-accueil__rapide")];
@@ -215,6 +265,73 @@ const sansAdresse = await p.evaluate(() => {
 dire("UN LIEN SANS ADRESSE N'EST PAS UN LIEN", !sansAdresse.muetEstUnLien);
 dire("celui qui en a une l'a gardée", sansAdresse.parlantEstUnLien);
 dire("et le manque se voit", sansAdresse.barre.includes("line-through"), sansAdresse.barre);
+
+// ── 3 bis · L'ŒIL EST UN TRACÉ, PAS UN MOT ──────────────────────────
+//  Il a été `<span class="material-symbols-outlined">visibility</span>`,
+//  et au premier rendu la police n'avait pas chargé : le mot s'affichait
+//  en clair sur les sept lignes, barré sur celles sans adresse. Aucun
+//  test ne pouvait le voir — ils comptaient des nœuds, pas des pixels.
+const loeil = await p.evaluate(() => {
+  const yeux = [...document.querySelectorAll(".wm-accueil__oeil")];
+  const hote = document.querySelector("#wm-accueil");
+  return {
+    combien: yeux.length,
+    balises: [...new Set(yeux.map((o) => o.tagName.toLowerCase()))],
+    //  Le mot ne doit figurer NULLE PART dans le bloc, pas même caché :
+    //  un lecteur d'écran le lirait.
+    motVisible: /visibility/i.test(hote.textContent),
+    //  Et la pastille garde sa taille : 12 px de dessin, 4 px de marge.
+    taille: yeux.map((o) => {
+      const r = o.getBoundingClientRect();
+      return `${Math.round(r.width)}x${Math.round(r.height)}`;
+    }),
+  };
+});
+dire(
+  "L'ŒIL EST UN SVG, PAS UNE LIGATURE",
+  loeil.combien === 3 && loeil.balises.length === 1 && loeil.balises[0] === "svg",
+  JSON.stringify(loeil),
+);
+dire("et le mot « visibility » n'est écrit nulle part", !loeil.motVisible);
+dire(
+  "la pastille fait toujours 20 px",
+  loeil.taille.every((t) => t === "20x20"),
+  JSON.stringify(loeil.taille),
+);
+
+// ── 3 ter · UNE ACTUALITÉ EST UNE RANGÉE, PAS UNE COLONNE ───────────
+//  `.wm-news` est la pile, `.wm-news__entree` la rangée. Les nommer à
+//  l'envers — ce que faisait la première version — empilait la date
+//  au-dessus du titre avec 18 px de trou entre les deux, et triplait la
+//  hauteur du bloc. Même défaut que ci-dessus : visible à l'écran,
+//  invisible à un test qui compte des nœuds.
+const uneActu = await p.evaluate(() => {
+  const e = document.querySelector(".wm-news__entree");
+  //  SANS CE GARDE, LE HARNAIS PLANTE AU LIEU DE DIRE CE QUI MANQUE.
+  //  Vérifié en remettant le défaut : on obtenait une pile d'appels
+  //  Playwright, qui ne nomme pas la classe absente.
+  if (e === null) return { absente: true, memeLigne: false, dateAGauche: false, hauteur: 0 };
+  const date = e.querySelector(".wm-news__date").getBoundingClientRect();
+  const titre = e.querySelector(".wm-news__titre").getBoundingClientRect();
+  return {
+    absente: false,
+    //  Même ligne : leurs hauts sont à moins de 4 px l'un de l'autre.
+    memeLigne: Math.abs(date.top - titre.top) <= 4,
+    //  Et la date est À GAUCHE du titre, pas au-dessus.
+    dateAGauche: date.right <= titre.left + 1,
+    hauteur: Math.round(e.getBoundingClientRect().height),
+  };
+});
+dire(
+  "LA DATE ET LE TITRE SONT SUR LA MÊME LIGNE",
+  uneActu.memeLigne && uneActu.dateAGauche,
+  JSON.stringify(uneActu),
+);
+dire(
+  "et une entrée ne dépasse pas 48 px de haut",
+  uneActu.hauteur > 0 && uneActu.hauteur <= 48,
+  JSON.stringify(uneActu),
+);
 
 // ── 4 · L'INFOBULLE D'UN PRÉ-LIEN ───────────────────────────────────
 const bulleFermee = await p.evaluate(() => {
@@ -293,6 +410,101 @@ for (const largeur of [900, 520, 390, 320]) {
   dire(`à ${largeur} px, rien ne déborde`, !m.debord);
   await p.keyboard.press("Escape");
 }
+
+// ── 6 · LA MÊME PAGE, AVEC LES VRAIES DONNÉES DU DÉPÔT ──────────────
+//  Les cinq sections au-dessus tournent sur un jeu d'essai taillé pour
+//  éprouver les cas limites — trois liens, deux partenaires, une bulle
+//  vide. C'est le bon outil pour ça, et c'est aussi sa limite : il est
+//  PLUS PETIT que la vraie page.
+//
+//  Les deux défauts du 7 octobre — la mascotte qui mangeait le texte,
+//  les actualités empilées en colonne — ne se voyaient qu'avec les sept
+//  liens, les sept partenaires et les quatre nouvelles réels. Un aperçu
+//  jetable les a trouvés ; cette section le remplace, pour qu'ils ne
+//  reviennent pas en silence.
+const REEL = JSON.parse(readFileSync(R + "data/accueil.json", "utf8"));
+await p.setViewportSize({ width: 1340, height: 1000 });
+await p.unrouteAll();
+await p.route("**/*", (route) => {
+  const url = route.request().url();
+  if (url.endsWith("/accueil.json")) {
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify(REEL) });
+  }
+  if (url.endsWith("/wild-mystery.js")) {
+    return route.fulfill({
+      contentType: "text/javascript; charset=utf-8",
+      body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  const img = /\/img\/accueil\/([a-z-]+\.png)$/.exec(url);
+  if (img !== null) {
+    return route.fulfill({
+      contentType: "image/png",
+      body: readFileSync(R + "img/accueil/" + img[1]),
+    });
+  }
+  //  Les avatars et les bannières de vote sont hébergés ailleurs : un
+  //  carré de 80 px suffit, ce ne sont pas eux qu'on mesure.
+  if (/\.(png|jpg|jpeg|gif)/.test(url)) {
+    return route.fulfill({
+      contentType: "image/svg+xml",
+      body: '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80">' +
+        '<rect width="80" height="80" fill="#c9a88e"/></svg>',
+    });
+  }
+  return route.fulfill({ contentType: "text/html; charset=utf-8", body: page });
+});
+await p.goto("https://exemple.test/");
+await p.evaluate(() => {
+  const s = document.createElement("script");
+  s.src = "https://exemple.test/js/wild-mystery.js";
+  document.body.appendChild(s);
+});
+await p.waitForTimeout(900);
+
+const vrai = await p.evaluate(() => {
+  const hote = document.querySelector("#wm-accueil");
+  const m = hote.querySelector(".wm-accueil__mascotte");
+  const r = m === null ? null : m.getBoundingClientRect();
+  const chevauche = (e) => {
+    if (r === null) return 0;
+    const b = e.getBoundingClientRect();
+    if (b.width === 0 || b.height === 0) return 0;
+    const l = Math.max(0, Math.min(r.right, b.right) - Math.max(r.left, b.left));
+    const h = Math.max(0, Math.min(r.bottom, b.bottom) - Math.max(r.top, b.top));
+    return Math.round(l * h);
+  };
+  const lisibles = [
+    ...hote.querySelectorAll(
+      ".wm-accueil__texte, .wm-accueil__titre-carte, .wm-accueil__rapide," +
+        " .wm-accueil__partenaire, .wm-accueil__prelien, .wm-accueil__lien",
+    ),
+  ];
+  const entrees = [...hote.querySelectorAll(".wm-news__entree")];
+  return {
+    pose: hote.classList.contains("wm-accueil--pose"),
+    liens: hote.querySelectorAll(".wm-accueil__rapide").length,
+    partenaires: hote.querySelectorAll(".wm-accueil__partenaire").length,
+    actus: entrees.length,
+    preliens: hote.querySelectorAll(".wm-accueil__prelien").length,
+    mascotte: m === null ? "aucune" : `${Math.round(r.width)}x${Math.round(r.height)}`,
+    couvre: lisibles.filter((e) => chevauche(e) > 0).length,
+    plusHaute: Math.max(0, ...entrees.map((e) => Math.round(e.getBoundingClientRect().height))),
+    debord: document.documentElement.scrollWidth > innerWidth,
+    motVisible: /visibility/i.test(hote.textContent),
+  };
+});
+dire(
+  "AVEC LES VRAIES DONNÉES, LA MASCOTTE NE COUVRE TOUJOURS RIEN",
+  vrai.pose && vrai.couvre === 0,
+  JSON.stringify(vrai),
+);
+dire(
+  "les actualités réelles tiennent en une rangée chacune",
+  vrai.actus > 0 && vrai.plusHaute <= 48,
+  JSON.stringify(vrai),
+);
+dire("et rien ne déborde, ni l'œil ne s'écrit", !vrai.debord && !vrai.motVisible);
 
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
