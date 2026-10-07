@@ -387,13 +387,13 @@ fautes = []
 if len(f) == 0:
     fautes.append("la table est vide")
 
-for champ, n in (("clef", str), ("objet", str), ("espece", str),
-                 ("objetId", int), ("especeId", int)):
+for champ, n in (("clef", str), ("objet", str), ("espece", str), ("slug", str),
+                 ("id", int), ("morceauId", int), ("pokeapiId", int), ("especeId", int)):
     manquants = [x.get("clef", "?") for x in f if not isinstance(x.get(champ), n)]
     if manquants:
         fautes.append(f"{champ} absent ou du mauvais type : {manquants}")
 
-for quoi in ("clef", "objetId", "especeId"):
+for quoi in ("clef", "slug", "id", "morceauId", "pokeapiId", "especeId"):
     vus = [x.get(quoi) for x in f]
     doubles = {v for v in vus if vus.count(v) > 1}
     if doubles:
@@ -422,6 +422,13 @@ if isinstance(d.get("chanceDEntier"), (int, float)) and \
    d["chanceDEntier"] >= d["chanceDeMorceau"]:
     fautes.append("chanceDEntier >= chanceDeMorceau : la rareté est à l'envers")
 
+# UN IDENTIFIANT D'OBJET PARTAGÉ ENTRE UN FOSSILE ET UN MORCEAU, c'est
+# un sac dont le contenu change au prochain déploiement.
+tous = [x.get("id") for x in f] + [x.get("morceauId") for x in f]
+doubles = {v for v in tous if tous.count(v) > 1}
+if doubles:
+    fautes.append(f"un id sert deux fois (fossile et morceau) : {sorted(map(str, doubles))}")
+
 for x in fautes:
     print(f"   {x}", file=sys.stderr)
 if fautes:
@@ -433,6 +440,20 @@ PYTHON
 then
   echo "::error::data/fossiles.json ne tient pas"
   fautes=$((fautes + 1))
+fi
+
+# Et le seed qui en est dérivé. Même forme que la règle 11 : l'outil sait
+# vérifier, le garde-fou ne fait que l'appeler — et il passe son chemin
+# quand `python3` manque.
+#
+# CE QU'IL ATTRAPE QUE LE BLOC AU-DESSUS N'ATTRAPE PAS : un identifiant
+# qui empiète sur le catalogue de la boutique, une famille que la
+# contrainte de la base refuse, et un seed qu'on a oublié de régénérer
+# après avoir changé le JSON.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — seed des fossiles non vérifié"
+elif ! python3 outils/fossiles.py --verifier; then
+  gronde "la table des fossiles et son seed ne correspondent pas"
 fi
 
 echo "────────────────────────────────────────────────────────────────"

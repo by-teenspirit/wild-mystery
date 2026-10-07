@@ -52,6 +52,7 @@
 import type { Action } from "../domaine/action.ts";
 import type { Evenement } from "../domaine/cloture.ts";
 import { codeDepuisEmpreinte } from "../domaine/code.ts";
+import { fossileDeLaFouille } from "../domaine/fossile.ts";
 import { fouiller } from "../domaine/fouille.ts";
 import { lieuDepuisLaCle } from "../domaine/lieu.ts";
 import { conditionDuLieu, estLaNuit, tempsDuJour } from "../domaine/meteo.ts";
@@ -64,6 +65,7 @@ import type {
   LecteurDActions,
   Registre,
   Signataire,
+  TableDesFossiles,
   ZoneSauvage,
 } from "./ports.ts";
 
@@ -108,6 +110,7 @@ export class LireLesNouveauxMessages {
     private readonly registre: Registre,
     private readonly horloge: Horloge,
     private readonly signataire: Signataire,
+    private readonly fossiles: TableDesFossiles,
   ) {}
 
   /**
@@ -126,8 +129,7 @@ export class LireLesNouveauxMessages {
 
     for (const lue of await this.actions.actionsDuSujet(sujetId, depuisMessageId)) {
       try {
-        const ligne = await this.inscrireUneAction(zone, sujetId, lue, erreurs);
-        if (ligne !== null) lignes.push(ligne);
+        lignes.push(...await this.inscrireUneAction(zone, sujetId, lue, erreurs));
       } catch (e) {
         //  Une action perdue n'emporte pas les suivantes : le joueur
         //  d'après n'a rien fait de mal.
@@ -138,15 +140,19 @@ export class LireLesNouveauxMessages {
     return { traitees: lignes.length, erreurs, lignes };
   }
 
-  /** Rend la ligne écrite, ou null quand l'action n'avait rien à inscrire
-   *  — ce qui n'est pas une erreur : une fouille bredouille est un
-   *  résultat, pas une panne. */
+  /** Rend les lignes écrites — souvent une, parfois zéro, parfois deux.
+   *
+   *  ZÉRO N'EST PAS UNE ERREUR : une fouille bredouille est un résultat.
+   *  DEUX NON PLUS, et c'est la règle du 7 octobre : une même fouille
+   *  donne des Pokédollars ET, rarement, un fossile. L'index unique
+   *  `(message_id, type)` de la base l'autorise justement parce que les
+   *  deux lignes ne sont pas du même type. */
   private async inscrireUneAction(
     zone: ZoneSauvage,
     sujetId: number,
     lue: ActionLue,
     erreurs: string[],
-  ): Promise<LigneEcrite | null> {
+  ): Promise<readonly LigneEcrite[]> {
     const joueurId = await this.jeu.joueurDuCompte(lue.auteurId);
     if (joueurId === null) {
       //  Cas normal : quelqu'un sans fiche validée a cliqué. On le dit,
@@ -155,19 +161,23 @@ export class LireLesNouveauxMessages {
         `message ${lue.messageId} : ${lue.auteurPseudo} (compte ${lue.auteurId}) ` +
           `n'est lié à aucun joueur, action ignorée`,
       );
-      return null;
+      return [];
     }
 
-    const evenement = await this.resoudre(zone, lue, joueurId, erreurs);
-    if (evenement === null) return null;
-
-    const code = codeDepuisEmpreinte(
-      await this.signataire.empreinte(
-        `${evenement.type}|${sujetId}|${lue.messageId}|${joueurId}`,
-      ),
-    );
-    await this.registre.inscrire(sujetId, joueurId, lue.messageId, evenement, code);
-    return { sujetId, messageId: lue.messageId, joueurId, type: evenement.type };
+    const ecrites: LigneEcrite[] = [];
+    for (const evenement of await this.resoudre(zone, lue, joueurId, erreurs)) {
+      //  LE CODE EST PROPRE À L'ÉVÉNEMENT, pas au message : deux lignes
+      //  d'une même fouille portent deux codes, sinon le code du fossile
+      //  vérifierait les Pokédollars et réciproquement.
+      const code = codeDepuisEmpreinte(
+        await this.signataire.empreinte(
+          `${evenement.type}|${sujetId}|${lue.messageId}|${joueurId}`,
+        ),
+      );
+      await this.registre.inscrire(sujetId, joueurId, lue.messageId, evenement, code);
+      ecrites.push({ sujetId, messageId: lue.messageId, joueurId, type: evenement.type });
+    }
+    return ecrites;
   }
 
   /** Ce que l'action produit. Tout le hasard est ici, et il est entièrement
@@ -177,16 +187,50 @@ export class LireLesNouveauxMessages {
     lue: ActionLue,
     joueurId: string,
     erreurs: string[],
-  ): Promise<Evenement | null> {
-    if (lue.action.type === "fouiller") {
-      const { pokedollars } = fouiller(lue.messageId, zone.palier);
-      //  Bredouille : on n'inscrit pas une ligne à zéro. Elle ne dirait
-      //  rien au joueur et encombrerait le registre et le module.
-      if (pokedollars === 0) return null;
-      return { type: "pokedollars", montant: pokedollars };
+  ): Promise<readonly Evenement[]> {
+    if (lue.action.type === "fouiller") return await this.resoudreUneFouille(lue, zone);
+
+    const un = await this.resoudreUneRecherche(zone, lue.action, lue, joueurId, erreurs);
+    return un === null ? [] : [un];
+  }
+
+  /** Une fouille rend des Pokédollars, et — rarement — un fossile.
+   *
+   *  LES DEUX SONT INDÉPENDANTS, et c'est voulu : `fossileDeLaFouille`
+   *  dérive sa propre graine (`<message>:fossile`) de celle des
+   *  Pokédollars. S'ils partageaient la suite, les grosses fouilles
+   *  donneraient toujours des fossiles — ou jamais. Un joueur
+   *  s'apercevrait de la corrélation avant nous.
+   *
+   *  La règle est celle du 7 octobre : « n'importe où et n'importe
+   *  quand ». Ni palier, ni zone, ni lieu n'entrent dans le tirage du
+   *  fossile — seul le message. */
+  private async resoudreUneFouille(
+    lue: ActionLue,
+    zone: ZoneSauvage,
+  ): Promise<readonly Evenement[]> {
+    const sortie: Evenement[] = [];
+
+    const { pokedollars } = fouiller(lue.messageId, zone.palier);
+    //  Bredouille : on n'inscrit pas une ligne à zéro. Elle ne dirait
+    //  rien au joueur et encombrerait le registre et le module.
+    if (pokedollars > 0) sortie.push({ type: "pokedollars", montant: pokedollars });
+
+    const trouvaille = fossileDeLaFouille(
+      lue.messageId,
+      await this.fossiles.fossiles(),
+      await this.fossiles.regles(),
+    );
+    //  `objet_trouve` et pas un type nouveau : un morceau comme un
+    //  fossile entier sont des objets du sac, et la clôture sait déjà
+    //  verser un objet trouvé. Le reste — trois morceaux font un
+    //  fossile — se passe en base, sur `sac`, et vaut donc aussi pour
+    //  un cadeau du staff ou un échange entre joueurs.
+    if (trouvaille !== null) {
+      sortie.push({ type: "objet_trouve", objetId: trouvaille.objetId, quantite: 1 });
     }
 
-    return await this.resoudreUneRecherche(zone, lue.action, lue, joueurId, erreurs);
+    return sortie;
   }
 
   private async resoudreUneRecherche(

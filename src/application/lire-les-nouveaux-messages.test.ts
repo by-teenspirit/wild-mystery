@@ -13,8 +13,10 @@ import type {
   LecteurDActions,
   Registre,
   Signataire,
+  TableDesFossiles,
   ZoneSauvage,
 } from "./ports.ts";
+import { REGLES_PAR_DEFAUT } from "../domaine/fossile.ts";
 import type { Evenement, LigneRegistre } from "../domaine/cloture.ts";
 import type { EntreeDeTable } from "../domaine/rencontre.ts";
 import { codeValide } from "../domaine/code.ts";
@@ -142,7 +144,44 @@ type Decor = {
   jeu?: EtatDuJeu;
   heures?: HeuresDesJoueurs;
   zone?: ZoneSauvage;
+  fossiles?: TableDesFossiles;
 };
+
+/** AUCUN FOSSILE, par défaut — et c'est le décor HONNÊTE : la table
+ *  rend `null` dans plus de quatre-vingt-dix pour cent des fouilles, et
+ *  les suites qui parlent de Pokédollars n'ont pas à composer avec une
+ *  deuxième ligne. Les tests du fossile montent leur propre table. */
+const SANS_FOSSILES: TableDesFossiles = {
+  fossiles: () => Promise.resolve([]),
+  regles: () => Promise.resolve(REGLES_PAR_DEFAUT),
+};
+
+/** Une table d'un seul fossile, et des chances POUSSÉES À LA CERTITUDE
+ *  moins un cheveu. On ne veut pas chercher une graine chanceuse : on
+ *  veut que le cas arrive, pour voir ce que la tâche en fait.
+ *
+ *  `0.999` et pas `1` : le domaine refuse une chance de 1 — elle
+ *  rendrait la trouvaille certaine, ce qui est plus probablement une
+ *  faute de frappe qu'une intention. */
+function tableDUnSeulFossile(genre: "entier" | "morceau"): TableDesFossiles {
+  return {
+    fossiles: () =>
+      Promise.resolve([{
+        clef: "racine",
+        objet: "Fossile Racine",
+        id: 991001,
+        morceauId: 991101,
+        especeId: 345,
+        espece: "Lilia",
+      }]),
+    regles: () =>
+      Promise.resolve(
+        genre === "entier"
+          ? { morceauxParFossile: 3, chanceDeMorceau: 0.0001, chanceDEntier: 0.999 }
+          : { morceauxParFossile: 3, chanceDeMorceau: 0.999, chanceDEntier: 0.0001 },
+      ),
+  };
+}
 
 type Montage = {
   readonly tache: LireLesNouveauxMessages;
@@ -160,6 +199,7 @@ function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
     registre,
     HORLOGE,
     SIGNATAIRE,
+    d.fossiles ?? SANS_FOSSILES,
   );
   return { tache, registre, zone: d.zone ?? ZONE };
 }
@@ -207,6 +247,91 @@ Deno.test("une fouille bredouille n'écrit aucune ligne, et ce n'est pas une err
   const bilan = await c.tache.executerSur(c.zone, 976, 0);
   assertEquals(bilan.traitees, 0);
   assertEquals(bilan.erreurs, []);
+});
+
+Deno.test("UNE FOUILLE PEUT DONNER DEUX LIGNES : des pokédollars ET un fossile", async () => {
+  //  La règle du 7 octobre. L'index unique de la base est sur
+  //  `(message_id, type)`, et c'est exactement pour ça que les deux
+  //  tiennent : elles ne sont pas du même type.
+  const c = monter([action(15600, { type: "fouiller" })], {
+    fossiles: tableDUnSeulFossile("entier"),
+  });
+  const bilan = await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(bilan.traitees, 2);
+  assertEquals(bilan.erreurs, []);
+  assertEquals(c.registre.ecrites.map((e) => e.evenement.type), [
+    "pokedollars",
+    "objet_trouve",
+  ]);
+  assertEquals(c.registre.ecrites[1].evenement, {
+    type: "objet_trouve",
+    objetId: 991001,
+    quantite: 1,
+  }, "un fossile entier met LE FOSSILE dans le sac");
+});
+
+Deno.test("un morceau met le MORCEAU dans le sac, pas le fossile", async () => {
+  const c = monter([action(15600, { type: "fouiller" })], {
+    fossiles: tableDUnSeulFossile("morceau"),
+  });
+  await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(c.registre.ecrites[1].evenement, {
+    type: "objet_trouve",
+    objetId: 991101,
+    quantite: 1,
+  });
+});
+
+Deno.test("LES DEUX LIGNES PORTENT DEUX CODES", async () => {
+  //  Un code par ligne, pas par message : un code partagé vérifierait
+  //  les pokédollars avec celui du fossile, et un joueur qui conteste
+  //  l'un remettrait l'autre en cause.
+  const c = monter([action(15600, { type: "fouiller" })], {
+    fossiles: tableDUnSeulFossile("entier"),
+  });
+  await c.tache.executerSur(c.zone, 976, 0);
+
+  const codes = c.registre.ecrites.map((e) => e.code);
+  assertEquals(codes.length, 2);
+  assert(codes[0] !== codes[1], `les deux lignes partagent le code ${codes[0]}`);
+  for (const code of codes) assert(codeValide(code), `code mal formé : ${code}`);
+});
+
+Deno.test("une fouille bredouille peut QUAND MÊME donner un fossile", async () => {
+  //  Les deux tirages sont indépendants — graines dérivées différentes —
+  //  donc zéro pokédollar n'interdit pas la trouvaille. L'inverse
+  //  lierait la rareté au montant, et un joueur s'en apercevrait.
+  let bredouille = -1;
+  for (let id = 1; id < 500 && bredouille < 0; id++) {
+    const c = monter([action(id, { type: "fouiller" })]);
+    await c.tache.executerSur(c.zone, 976, 0);
+    if (c.registre.ecrites.length === 0) bredouille = id;
+  }
+  assert(bredouille > 0, "aucun message bredouille trouvé sur 500");
+
+  const c = monter([action(bredouille, { type: "fouiller" })], {
+    fossiles: tableDUnSeulFossile("entier"),
+  });
+  await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(c.registre.ecrites.map((e) => e.evenement.type), ["objet_trouve"]);
+});
+
+Deno.test("sans table de fossiles, une fouille reste une fouille", async () => {
+  //  Le cas du fichier injoignable, et le cas NORMAL du jeu. Rien ne
+  //  doit casser : on perd la trouvaille, pas le passage.
+  const c = monter([action(15600, { type: "fouiller" })], {
+    fossiles: {
+      fossiles: () => Promise.resolve([]),
+      regles: () => Promise.resolve(REGLES_PAR_DEFAUT),
+    },
+  });
+  const bilan = await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(bilan.erreurs, []);
+  assertEquals(c.registre.ecrites.map((e) => e.evenement.type), ["pokedollars"]);
 });
 
 Deno.test("le palier de la zone change les bornes", async () => {
@@ -340,6 +465,7 @@ Deno.test("une écriture qui lève n'emporte pas les actions suivantes", async (
     registre,
     HORLOGE,
     SIGNATAIRE,
+    SANS_FOSSILES,
   );
 
   const bilan = await tache.executerSur(ZONE, 976, 0);

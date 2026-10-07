@@ -1,7 +1,11 @@
 {
-  "_": "Les fossiles et l'espèce que chacun ressuscite. Relevé sur PokéAPI le 7 octobre 2026 : nom français de l'objet, identifiant PokéAPI de l'objet, et espèce lue dans ses `effect_entries` (« Can be revived into … »). Rien n'est deviné.",
+  "_": "Les fossiles et l'espèce que chacun ressuscite. Relevé sur PokéAPI les 7 octobre 2026 : nom français de l'objet, identifiant et nom anglais PokéAPI de l'objet, et espèce lue dans ses `effect_entries` (« Can be revived into … »). Rien n'est deviné.",
 
   "_regle": "Arbitrage de Callista, 7 octobre : on fouille et on trouve un fossile ENTIER ou un MORCEAU, n'importe où et n'importe quand. Trois morceaux d'une même espèce font un fossile entier. Il n'y a NI dé Fossile NI morceaux génériques — l'annexe du monde décrivait l'ancien système de la V1, celui-ci le remplace.",
+
+  "_morceauxSontDesObjets": "CE QUE J'AI TRANCHÉ FAUTE DE POUVOIR DEMANDER (7 octobre). Un morceau est un OBJET du sac, un par espèce, qui ne se vend pas — pas une colonne ni une table à part. Trois raisons : le sac compte déjà des quantités, l'événement `objet_trouve` existe déjà et dit tout ce qu'il faut, et un joueur voit ses morceaux là où il voit le reste de ses affaires. Conséquence : « jusqu'à 3 morceaux de chaque espèce » se lit en base — à trois, la base les échange contre le fossile entier (migration 0016), donc on n'en détient jamais plus de deux. Si Callista préfère que l'assemblage se demande à la main, c'est le déclencheur qu'on retire, rien d'autre.",
+
+  "_identifiants": "Les fossiles prennent la plage 991001+, leurs morceaux 991101+. Le catalogue de la boutique tient la plage 990001+ (`data/objets.json`), et la séquence de la base reste en bas : les trois ne se croisent pas. Les identifiants PokéAPI (`pokeapiId`) ne sont PAS ceux de la table : ils ne servent qu'à dire d'où vient la ligne.",
 
   "_absents": "Les quatre fossiles de la 8G — Oiseau (1163), Poisson (1164), Dragon (1165), Aileron (1166) — ne sont PAS ici. Dans les jeux ils se combinent par PAIRES pour donner Galvagon, Galvagla, Hydragon et Hydragla, et PokéAPI ne leur donne donc aucune espèce. La règle du 7 octobre est « une espèce, un fossile » : les y faire entrer demanderait de réintroduire un appariement, ce qui est une décision de jeu. Les quatre espèces sont dans la faune du forum, elles n'attendent qu'une règle.",
 
@@ -13,16 +17,115 @@
   "chanceDEntier": 0.008,
 
   "fossiles": [
-    { "clef": "racine",    "objet": "Fossile Racine",    "objetId": 99,  "especeId": 345, "espece": "Lilia" },
-    { "clef": "griffe",    "objet": "Fossile Griffe",    "objetId": 100, "especeId": 347, "espece": "Anorith" },
-    { "clef": "nautile",   "objet": "Nautile",           "objetId": 101, "especeId": 138, "espece": "Amonita" },
-    { "clef": "dome",      "objet": "Fossile Dôme",      "objetId": 102, "especeId": 140, "espece": "Kabuto" },
-    { "clef": "ambre",     "objet": "Vieil Ambre",       "objetId": 103, "especeId": 142, "espece": "Ptéra" },
-    { "clef": "armure",    "objet": "Fossile Armure",    "objetId": 104, "especeId": 410, "espece": "Dinoclier" },
-    { "clef": "crane",     "objet": "Fossile Crâne",     "objetId": 105, "especeId": 408, "espece": "Kranidos" },
-    { "clef": "plaque",    "objet": "Fossile Plaque",    "objetId": 613, "especeId": 564, "espece": "Carapagos" },
-    { "clef": "plume",     "objet": "Fossile Plume",     "objetId": 614, "especeId": 566, "espece": "Arkéapti" },
-    { "clef": "machoire",  "objet": "Fossile Mâchoire",  "objetId": 729, "especeId": 696, "espece": "Ptyranidur" },
-    { "clef": "nageoire",  "objet": "Fossile Nageoire",  "objetId": 730, "especeId": 698, "espece": "Amagara" }
+    {
+      "clef": "racine",
+      "id": 991001,
+      "slug": "root-fossil",
+      "objet": "Fossile Racine",
+      "pokeapiId": 99,
+      "morceauId": 991101,
+      "especeId": 345,
+      "espece": "Lilia"
+    },
+    {
+      "clef": "griffe",
+      "id": 991002,
+      "slug": "claw-fossil",
+      "objet": "Fossile Griffe",
+      "pokeapiId": 100,
+      "morceauId": 991102,
+      "especeId": 347,
+      "espece": "Anorith"
+    },
+    {
+      "clef": "nautile",
+      "id": 991003,
+      "slug": "helix-fossil",
+      "objet": "Nautile",
+      "pokeapiId": 101,
+      "morceauId": 991103,
+      "especeId": 138,
+      "espece": "Amonita"
+    },
+    {
+      "clef": "dome",
+      "id": 991004,
+      "slug": "dome-fossil",
+      "objet": "Fossile Dôme",
+      "pokeapiId": 102,
+      "morceauId": 991104,
+      "especeId": 140,
+      "espece": "Kabuto"
+    },
+    {
+      "clef": "ambre",
+      "id": 991005,
+      "slug": "old-amber",
+      "objet": "Vieil Ambre",
+      "pokeapiId": 103,
+      "morceauId": 991105,
+      "especeId": 142,
+      "espece": "Ptéra"
+    },
+    {
+      "clef": "armure",
+      "id": 991006,
+      "slug": "armor-fossil",
+      "objet": "Fossile Armure",
+      "pokeapiId": 104,
+      "morceauId": 991106,
+      "especeId": 410,
+      "espece": "Dinoclier"
+    },
+    {
+      "clef": "crane",
+      "id": 991007,
+      "slug": "skull-fossil",
+      "objet": "Fossile Crâne",
+      "pokeapiId": 105,
+      "morceauId": 991107,
+      "especeId": 408,
+      "espece": "Kranidos"
+    },
+    {
+      "clef": "plaque",
+      "id": 991008,
+      "slug": "cover-fossil",
+      "objet": "Fossile Plaque",
+      "pokeapiId": 613,
+      "morceauId": 991108,
+      "especeId": 564,
+      "espece": "Carapagos"
+    },
+    {
+      "clef": "plume",
+      "id": 991009,
+      "slug": "plume-fossil",
+      "objet": "Fossile Plume",
+      "pokeapiId": 614,
+      "morceauId": 991109,
+      "especeId": 566,
+      "espece": "Arkéapti"
+    },
+    {
+      "clef": "machoire",
+      "id": 991010,
+      "slug": "jaw-fossil",
+      "objet": "Fossile Mâchoire",
+      "pokeapiId": 729,
+      "morceauId": 991110,
+      "especeId": 696,
+      "espece": "Ptyranidur"
+    },
+    {
+      "clef": "nageoire",
+      "id": 991011,
+      "slug": "sail-fossil",
+      "objet": "Fossile Nageoire",
+      "pokeapiId": 730,
+      "morceauId": 991111,
+      "especeId": 698,
+      "espece": "Amagara"
+    }
   ]
 }

@@ -34,9 +34,30 @@ const TABLE = {
   chanceDeMorceau: 0.06,
   chanceDEntier: 0.008,
   fossiles: [
-    { clef: "racine", objet: "Fossile Racine", objetId: 99, especeId: 345, espece: "Lilia" },
-    { clef: "dome", objet: "Fossile Dôme", objetId: 102, especeId: 140, espece: "Kabuto" },
-    { clef: "ambre", objet: "Vieil Ambre", objetId: 103, especeId: 142, espece: "Ptéra" },
+    {
+      clef: "racine",
+      objet: "Fossile Racine",
+      id: 991001,
+      morceauId: 991101,
+      especeId: 345,
+      espece: "Lilia",
+    },
+    {
+      clef: "dome",
+      objet: "Fossile Dôme",
+      id: 991004,
+      morceauId: 991104,
+      especeId: 140,
+      espece: "Kabuto",
+    },
+    {
+      clef: "ambre",
+      objet: "Vieil Ambre",
+      id: 991005,
+      morceauId: 991105,
+      especeId: 142,
+      espece: "Ptéra",
+    },
   ],
 };
 
@@ -49,7 +70,8 @@ Deno.test("la table se lit entière", () => {
   assertEquals(TROIS[0], {
     clef: "racine",
     objet: "Fossile Racine",
-    objetId: 99,
+    id: 991001,
+    morceauId: 991101,
     especeId: 345,
     espece: "Lilia",
   });
@@ -58,17 +80,43 @@ Deno.test("la table se lit entière", () => {
 Deno.test("UN FOSSILE QUI NE RESSUSCITE RIEN N'ENTRE PAS", () => {
   const bancals = fossilesDepuis({
     fossiles: [
-      { clef: "", objet: "Sans clef", objetId: 1, especeId: 1, espece: "X" },
-      { clef: "a", objet: "", objetId: 1, especeId: 1, espece: "X" },
-      { clef: "b", objet: "Sans espèce", objetId: 1, especeId: 1, espece: "  " },
-      { clef: "c", objet: "Sans id d'objet", objetId: 0, especeId: 1, espece: "X" },
-      { clef: "d", objet: "Sans id d'espèce", objetId: 1, especeId: null, espece: "X" },
+      { clef: "", objet: "Sans clef", id: 1, morceauId: 2, especeId: 1, espece: "X" },
+      { clef: "a", objet: "", id: 1, morceauId: 2, especeId: 1, espece: "X" },
+      { clef: "b", objet: "Sans espèce", id: 1, morceauId: 2, especeId: 1, espece: "  " },
+      { clef: "c", objet: "Sans id d'objet", id: 0, morceauId: 2, especeId: 1, espece: "X" },
+      {
+        clef: "g",
+        objet: "Sans id de morceau",
+        id: 1,
+        morceauId: null,
+        especeId: 1,
+        espece: "X",
+      },
+      //  UN FOSSILE QUI EST SON PROPRE MORCEAU ferait boucler
+      //  l'assemblage : trois morceaux retirés pour en rendre un, et
+      //  ainsi de suite jusqu'à ce que quelqu'un regarde la base.
+      { clef: "h", objet: "Son propre morceau", id: 7, morceauId: 7, especeId: 1, espece: "X" },
+      {
+        clef: "d",
+        objet: "Sans id d'espèce",
+        id: 1,
+        morceauId: 2,
+        especeId: null,
+        espece: "X",
+      },
       //  Un champ qui n'est pas du texte du tout : c'est ce qu'un
       //  fichier écrit à la main finit par contenir.
-      { clef: 42, objet: "Clef numérique", objetId: 1, especeId: 1, espece: "X" },
-      { clef: "f", objet: ["pas", "du", "texte"], objetId: 1, especeId: 1, espece: "X" },
-      { clef: "e", objet: "Bon", objetId: 1, especeId: 1, espece: "X" },
-      { clef: "e", objet: "Doublon de clef", objetId: 2, especeId: 2, espece: "Y" },
+      { clef: 42, objet: "Clef numérique", id: 1, morceauId: 2, especeId: 1, espece: "X" },
+      {
+        clef: "f",
+        objet: ["pas", "du", "texte"],
+        id: 1,
+        morceauId: 91,
+        especeId: 1,
+        espece: "X",
+      },
+      { clef: "e", objet: "Bon", id: 1, morceauId: 91, especeId: 1, espece: "X" },
+      { clef: "e", objet: "Doublon de clef", id: 2, morceauId: 92, especeId: 2, espece: "Y" },
       "pas un objet",
       null,
     ],
@@ -148,6 +196,27 @@ Deno.test("L'ENTIER RESTE ATTEIGNABLE QUAND LE MORCEAU EST PLUS PROBABLE", () =>
     if (fossileDeLaFouille(g, TROIS, regles)?.genre === "entier") entiers++;
   }
   assert(entiers > 20, `${entiers} entiers sur 500`);
+});
+
+Deno.test("LE GENRE DIT QUEL OBJET ENTRE DANS LE SAC", () => {
+  //  C'est la trouvaille qui résout l'objet, pas l'appelant : un `genre`
+  //  et un `objetId` qu'on assemble ailleurs peuvent se contredire, et
+  //  personne ne s'en apercevrait avant qu'un joueur ait un morceau
+  //  dans son sac à la place d'un fossile.
+  let entier = null, morceau = null;
+  for (let g = 0; g < 20000 && (entier === null || morceau === null); g++) {
+    const t = fossileDeLaFouille(g, TROIS);
+    if (t?.genre === "entier") entier ??= t;
+    if (t?.genre === "morceau") morceau ??= t;
+  }
+  assert(entier !== null && morceau !== null, "les deux genres doivent sortir");
+  assertEquals(entier.objetId, entier.fossile.id, "un entier met LE FOSSILE dans le sac");
+  assertEquals(
+    morceau.objetId,
+    morceau.fossile.morceauId,
+    "un morceau met LE MORCEAU, qui est un autre objet",
+  );
+  assert(entier.fossile.id !== entier.fossile.morceauId, "et les deux ne sont jamais le même");
 });
 
 Deno.test("toutes les espèces de la table sortent", () => {

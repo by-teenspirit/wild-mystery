@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(133);
+select plan(158);
 
 -- ── le décor ────────────────────────────────────────────────────────
 insert into joueur (id, forum_user_id, pseudo, groupe, palier, pokedollars)
@@ -693,6 +693,192 @@ select ok(has_function_privilege('service_role', 'appliquer_cloture(jsonb)', 'ex
   'la relève appelle toujours appliquer_cloture');
 select ok(has_table_privilege('service_role', 'verrou', 'select'),
   'et elle lit toujours son verrou');
+
+-- ── 16 · les fossiles et leurs morceaux (0016) ──────────────────────
+--  La règle du 7 octobre : on trouve un fossile ENTIER ou un MORCEAU, et
+--  trois morceaux d'une même espèce font un fossile. Les deux moitiés de
+--  cette règle vivent en base — l'assemblage dans un déclencheur, la
+--  résurrection dans `rendre_fossile` — donc elles se testent ici.
+--
+--  LA FIXTURE EST À ELLE : elle n'utilise PAS `supabase/seeds/fossiles.sql`.
+--  La CI ne joue pas les seeds (ils référencent une faune que la base de
+--  CI n'a pas), et un test qui dépend du seed ne dit plus si c'est la
+--  règle ou la donnée qui a cassé.
+select has_table('fossile_morceau');
+select has_column('fossile_morceau', 'morceaux_requis');
+
+insert into espece (id, nom_fr, types, stade, pv_base, est_fossile)
+values (9801, 'Testacera', array['roche'], 1, 40, true),
+       (9802, 'Testaptéryx', array['roche','vol'], 1, 40, true)
+  on conflict (id) do nothing;
+
+insert into objet (id, slug, nom, famille, prix, en_vente)
+overriding system value values
+  (998001, 'fossile-de-test',  'Fossile de test',            'fossile', null, false),
+  (998002, 'morceau-de-test',  'Morceau de fossile de test',  'fossile', null, false),
+  (998003, 'fossile-a-deux',   'Fossile de test à deux noms', 'fossile', null, false)
+  on conflict (id) do nothing;
+
+insert into fossile_espece (objet_id, espece_id) values
+  (998001, 9801),
+  --  CELUI-LÀ EN REND DEUX, exprès : c'est la forme que `0013` disait
+  --  indécidable, et le tirage ne doit plus être un tirage.
+  (998003, 9801), (998003, 9802)
+  on conflict do nothing;
+
+insert into fossile_morceau (morceau_id, fossile_id, morceaux_requis)
+values (998002, 998001, 3) on conflict (morceau_id) do nothing;
+
+-- ── la base refuse une table de morceaux absurde ────────────────────
+select throws_ok(
+  $$insert into fossile_morceau (morceau_id, fossile_id, morceaux_requis)
+    values (998002, 998002, 3)$$,
+  null, null, 'un morceau ne peut pas être son propre fossile : ce serait une boucle');
+select throws_ok(
+  $$insert into fossile_morceau (morceau_id, fossile_id, morceaux_requis)
+    values (998003, 998001, 1)$$,
+  null, null, 'un seul morceau par fossile voudrait dire qu''il n''y a pas de morceaux');
+
+-- ── deux morceaux restent deux morceaux ─────────────────────────────
+insert into sac (joueur_id, objet_id, quantite)
+values ('11111111-1111-1111-1111-111111111111', 998002, 2);
+
+select is((select quantite from sac
+            where joueur_id = '11111111-1111-1111-1111-111111111111' and objet_id = 998002),
+  2, 'deux morceaux ne font rien : il en faut trois');
+select is((select count(*)::int from sac
+            where joueur_id = '11111111-1111-1111-1111-111111111111' and objet_id = 998001),
+  0, 'et aucun fossile n''est apparu');
+
+-- ── LE TROISIÈME LES ASSEMBLE ───────────────────────────────────────
+update sac set quantite = quantite + 1
+ where joueur_id = '11111111-1111-1111-1111-111111111111' and objet_id = 998002;
+
+select is((select quantite from sac
+            where joueur_id = '11111111-1111-1111-1111-111111111111' and objet_id = 998001),
+  1, 'TROIS MORCEAUX FONT UN FOSSILE');
+select is((select quantite from sac
+            where joueur_id = '11111111-1111-1111-1111-111111111111' and objet_id = 998002),
+  0, 'et les trois morceaux sont partis');
+
+-- ── le reste ne disparaît pas ───────────────────────────────────────
+--  Sept morceaux d'un coup — un cadeau du staff, une correction — font
+--  deux fossiles et il en reste un. En rendre un seul mangerait six
+--  fouilles.
+insert into sac (joueur_id, objet_id, quantite)
+values ('22222222-2222-2222-2222-222222222222', 998002, 7);
+
+select is((select quantite from sac
+            where joueur_id = '22222222-2222-2222-2222-222222222222' and objet_id = 998001),
+  2, 'sept morceaux font DEUX fossiles, pas un');
+select is((select quantite from sac
+            where joueur_id = '22222222-2222-2222-2222-222222222222' and objet_id = 998002),
+  1, 'et le septième est gardé : le reste ne se jette pas');
+
+-- ── rendre un fossile ressuscite, et consomme ───────────────────────
+insert into analyse_fossile (id, joueur_id, objet_id, message_id, code)
+values ('dddddddd-0000-0000-0000-00000000d001',
+        '11111111-1111-1111-1111-111111111111', 998001, 980001, 'WM-FOS1');
+
+select is(
+  (select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-00000000d001"}'::jsonb)->>'espece'),
+  'Testacera', 'le fossile rend son espèce');
+select is((select quantite from sac
+            where joueur_id = '11111111-1111-1111-1111-111111111111' and objet_id = 998001),
+  0, 'et il est consommé : on ne ressuscite pas deux fois le même');
+select is((select count(*)::int from pokemon
+            where joueur_id = '11111111-1111-1111-1111-111111111111' and espece_id = 9801),
+  1, 'le Pokémon arrive');
+select is((select count(*)::int from pokedex
+            where joueur_id = '11111111-1111-1111-1111-111111111111'
+              and espece_id = 9801 and attrape_le is not null),
+  1, 'et le Pokédex le note attrapé');
+
+-- ── LE TIRAGE NE TIRE PLUS ──────────────────────────────────────────
+--  `0002` ordonnait par `random()`. C'était le seul hasard du jeu qui ne
+--  se rejouait pas : impossible de trancher une contestation en
+--  recalculant. Deux analyses du MÊME fossile à deux espèces doivent
+--  donner la même.
+--  QUATRE FOIS, ET EN QUATRE REQUÊTES SÉPARÉES. Les deux détails
+--  comptent, et le second a failli me passer sous le nez :
+--
+--    · deux appels seulement tomberaient d'accord une fois sur deux
+--      même avec `random()` — le test passerait la moitié du temps sur
+--      le code cassé. Quatre le rattrapent quinze fois sur seize ;
+--    · et surtout, MESURÉ le 7 octobre : quatre `order by random()`
+--      dans UNE SEULE requête rendent tous la même ligne. PostgreSQL
+--      n'évalue le sous-ensemble qu'une fois. Un test qui les groupait
+--      dans un `string_agg` passait sur l'ancien code, qui tirait
+--      vraiment au hasard. Le hasard ne se voit qu'entre requêtes.
+--
+--  Chacun doit rendre la PLUS PETITE des deux espèces : c'est ce que
+--  `order by fe.espece_id` garantit, et qu'un hasard ne garantit pas.
+insert into sac (joueur_id, objet_id, quantite)
+values ('22222222-2222-2222-2222-222222222222', 998003, 4);
+insert into analyse_fossile (id, joueur_id, objet_id, message_id, code)
+select ('dddddddd-0000-0000-0000-00000000d00' || n)::uuid,
+       '22222222-2222-2222-2222-222222222222', 998003, 980000 + n, 'WM-FOS' || n
+  from generate_series(2, 5) as n;
+
+select is(
+  (select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-00000000d002"}'::jsonb)->>'especeId'),
+  '9801', 'un fossile à deux espèces rend la première, pas une au hasard');
+select is(
+  (select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-00000000d003"}'::jsonb)->>'especeId'),
+  '9801', 'la deuxième fois aussi');
+select is(
+  (select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-00000000d004"}'::jsonb)->>'especeId'),
+  '9801', 'la troisième');
+select is(
+  (select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-00000000d005"}'::jsonb)->>'especeId'),
+  '9801', 'LA QUATRIÈME : le tirage ne tire plus, il se recalcule');
+
+-- ── le refus survit (la leçon de 0013) ──────────────────────────────
+--  `0002` écrivait `update … set etat = 'refusee'` puis `raise`, et le
+--  `raise` annulait l'`update` : la relève repassait l'analyse à chaque
+--  passage, pour toujours. Aucun test ne l'avait jamais vu.
+insert into analyse_fossile (id, joueur_id, objet_id, message_id, code)
+values ('dddddddd-0000-0000-0000-00000000d006',
+        '11111111-1111-1111-1111-111111111111', 998001, 980006, 'WM-FOS6');
+
+select is(
+  (select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-00000000d006"}'::jsonb)->>'motif'),
+  'FOSSILE_ABSENT', 'sans le fossile dans le sac, c''est un refus');
+select is(
+  (select etat from analyse_fossile where id = 'dddddddd-0000-0000-0000-00000000d006'),
+  'refusee', 'ET LE REFUS EST ÉCRIT : sinon la relève le rejouerait sans fin');
+
+-- ── une donnée qui manque n'est pas la faute du joueur ──────────────
+insert into sac (joueur_id, objet_id, quantite)
+values ('11111111-1111-1111-1111-111111111111', 998002, 0)
+    on conflict (joueur_id, objet_id) do nothing;
+insert into objet (id, slug, nom, famille, prix, en_vente)
+overriding system value values
+  (998004, 'fossile-sans-espece', 'Fossile sans espèce', 'fossile', null, false)
+  on conflict (id) do nothing;
+insert into sac (joueur_id, objet_id, quantite)
+values ('11111111-1111-1111-1111-111111111111', 998004, 1);
+insert into analyse_fossile (id, joueur_id, objet_id, message_id, code)
+values ('dddddddd-0000-0000-0000-00000000d007',
+        '11111111-1111-1111-1111-111111111111', 998004, 980007, 'WM-FOS7');
+
+select is(
+  (select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-00000000d007"}'::jsonb)->>'motif'),
+  'FOSSILE_SANS_ESPECE', 'un fossile sans espèce ne rend rien');
+select is(
+  (select etat from analyse_fossile where id = 'dddddddd-0000-0000-0000-00000000d007'),
+  'en_attente', 'et l''analyse ATTEND : c''est notre donnée qui manque, pas son fossile');
+select is((select quantite from sac
+            where joueur_id = '11111111-1111-1111-1111-111111111111' and objet_id = 998004),
+  1, 'son fossile est encore dans son sac : rien n''a été consommé');
+
+-- ── et une analyse introuvable lève, elle ───────────────────────────
+select throws_ok(
+  $$select rendre_fossile('{"analyseId":"dddddddd-0000-0000-0000-0000000000ff"}'::jsonb)$$,
+  null, null, 'l''impossible lève : il n''y a pas de ligne où écrire le refus');
+select throws_ok(
+  $$select rendre_fossile('{}'::jsonb)$$,
+  null, null, 'et un appel sans analyseId aussi');
 
 select * from finish();
 rollback;

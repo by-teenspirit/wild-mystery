@@ -27,13 +27,28 @@ import {
   JournalEnMemoire,
   SuiviEnMemoire,
 } from "../adaptateurs/en-memoire/releve.ts";
-import type { DemandeDeClotureLue, LecteurDeDemandes, ZoneSauvage } from "./ports.ts";
+import type {
+  DemandeDeClotureLue,
+  LecteurDeDemandes,
+  TableDesFossiles,
+  ZoneSauvage,
+} from "./ports.ts";
+import { REGLES_PAR_DEFAUT } from "../domaine/fossile.ts";
 import { CloturerUnSujet } from "./cloturer-un-sujet.ts";
 import {
   LireLesNouveauxMessages,
   TACHE as TACHE_MESSAGES,
 } from "./lire-les-nouveaux-messages.ts";
 import { ParcourirLesZones, TACHE } from "./parcourir-les-zones.ts";
+
+/** AUCUN FOSSILE : cette suite teste le parcours des zones, pas la
+ *  rareté. Une table vide rend `null` à chaque fouille — c'est le cas
+ *  normal du jeu, donc le décor le plus honnête ici. Le tirage des
+ *  fossiles a sa suite à lui. */
+const sansFossiles: TableDesFossiles = {
+  fossiles: () => Promise.resolve([]),
+  regles: () => Promise.resolve(REGLES_PAR_DEFAUT),
+};
 
 const ANNA = "11111111-1111-1111-1111-111111111111";
 const COMPTE_ANNA = 3;
@@ -96,6 +111,7 @@ function monter(
     registre,
     { maintenant: () => new Date("2026-10-03T12:00:00Z") },
     new SignataireDeTest(),
+    sansFossiles,
   );
 
   const tache = new ParcourirLesZones(

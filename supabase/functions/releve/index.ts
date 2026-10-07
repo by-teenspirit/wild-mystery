@@ -41,6 +41,7 @@ import {
   transportFetch,
 } from "../../../src/adaptateurs/forumactif/publication.ts";
 import { FauneEnFichiers, lecteurHttp } from "../../../src/adaptateurs/faune/fichiers.ts";
+import { FossilesEnFichiers } from "../../../src/adaptateurs/faune/fossiles.ts";
 import { ComptoirsEnFichiers } from "../../../src/adaptateurs/faune/comptoirs.ts";
 import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
@@ -170,6 +171,10 @@ function assembler(reglages: Reglages): Montage {
   //  en construire trois copies ferait croire le contraire au prochain
   //  lecteur.
   const faune = new FauneEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES);
+  //  MÊME RACINE QUE LA FAUNE : les deux fichiers sont servis au même
+  //  endroit, et une racine de plus serait une occasion de les
+  //  désaccorder.
+  const fossiles = new FossilesEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES);
   const jeu = new EtatDuJeuSupabase(appeler);
   const registre = new RegistreSupabase(appeler);
   const signataire = new SignataireHmac(reglages.WM_SECRET_SIGNATURE);
@@ -185,6 +190,7 @@ function assembler(reglages: Reglages): Montage {
     registre,
     { maintenant: () => new Date() },
     signataire,
+    fossiles,
   );
 
   const parcourir = new ParcourirLesZones(

@@ -13,6 +13,7 @@
 
 import type { Effets, Evenement, LigneRegistre } from "../domaine/cloture.ts";
 import type { EntreeDeTable } from "../domaine/rencontre.ts";
+import type { Fossile, ReglesDeFossile } from "../domaine/fossile.ts";
 import type { Action } from "../domaine/action.ts";
 import type { LecturePanier, LignePanier } from "../domaine/panier.ts";
 
@@ -172,6 +173,21 @@ export type ZoneSauvage = {
 /** La faune, telle que les annexes la décrivent vraiment : une zone n'a
  *  pas UNE table, elle a une quinzaine de lieux, et chaque lieu a ses
  *  tables par condition (jour, nuit, et parfois une météo). */
+/** Ce que la relève a besoin de savoir des fossiles.
+ *
+ *  La table vit dans `data/fossiles.json`, comme les zones et les
+ *  comptoirs : c'est de la donnée de jeu, elle change par un `git push`
+ *  et pas par un déploiement. L'adaptateur est
+ *  `src/adaptateurs/faune/fossiles.ts`.
+ *
+ *  UNE TABLE VIDE EST UNE RÉPONSE VALIDE, pas une panne : le domaine
+ *  rend alors `null` à chaque fouille, ce qui est le cas normal et de
+ *  très loin le plus fréquent. */
+export interface TableDesFossiles {
+  fossiles(): Promise<readonly Fossile[]>;
+  regles(): Promise<ReglesDeFossile>;
+}
+
 export interface Faune {
   /** Les dix-sept zones sauvages. Ailleurs, rien ne se joue. */
   zonesSauvages(): Promise<readonly ZoneSauvage[]>;

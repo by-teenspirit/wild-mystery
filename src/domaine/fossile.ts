@@ -34,14 +34,23 @@
 
 import { entreBornes, graineDepuis, suiteAleatoire } from "./alea.ts";
 
-/** Un fossile : l'objet qu'on ramasse, et l'espèce qu'il rend. */
+/** Un fossile : l'objet qu'on ramasse, son morceau, et l'espèce qu'il
+ *  rend.
+ *
+ *  DEUX JEUX D'IDENTIFIANTS, ET IL NE FAUT PAS LES CONFONDRE. `id` et
+ *  `morceauId` sont ceux de la table `objet` — ceux qui s'écrivent dans
+ *  un sac et dans une ligne de registre. L'identifiant PokéAPI ne sert
+ *  qu'à dire d'où vient la ligne, et il n'entre donc pas ici : le
+ *  domaine n'a rien à en faire. */
 export type Fossile = {
   /** Identifiant court et stable, celui du dépôt. */
   readonly clef: string;
   /** Le nom de l'objet, en français (PokéAPI). */
   readonly objet: string;
-  /** L'identifiant PokéAPI de l'objet. */
-  readonly objetId: number;
+  /** L'objet « fossile entier », dans la table `objet`. */
+  readonly id: number;
+  /** L'objet « morceau », un par espèce. */
+  readonly morceauId: number;
   /** L'espèce ressuscitée. */
   readonly especeId: number;
   readonly espece: string;
@@ -55,6 +64,11 @@ export type Fossile = {
 export type TrouvailleDeFossile = {
   readonly genre: "entier" | "morceau";
   readonly fossile: Fossile;
+  /** L'objet à mettre dans le sac : le fossile ou son morceau, selon le
+   *  genre. Il est résolu ICI et pas chez l'appelant — c'est la seule
+   *  façon qu'un `genre` et un `objetId` ne puissent pas se
+   *  contredire. */
+  readonly objetId: number;
 };
 
 /** Les réglages, lus avec la table plutôt que figés ici : ce sont des
@@ -106,14 +120,20 @@ export function fossilesDepuis(donnees: unknown): readonly Fossile[] {
     const clef = texte(f.clef);
     const objet = texte(f.objet);
     const espece = texte(f.espece);
-    const objetId = entier(f.objetId);
+    const id = entier(f.id);
+    const morceauId = entier(f.morceauId);
     const especeId = entier(f.especeId);
     if (clef === "" || objet === "" || espece === "") continue;
-    if (objetId === null || especeId === null) continue;
+    if (id === null || morceauId === null || especeId === null) continue;
+    //  UN FOSSILE QUI SERAIT SON PROPRE MORCEAU ferait boucler
+    //  l'assemblage : trois morceaux retirés pour en rendre un, et ainsi
+    //  de suite. La base le refuse aussi (migration 0016) ; on ne compte
+    //  pas sur elle pour s'en apercevoir.
+    if (id === morceauId) continue;
     //  Deux fossiles de même clef se marcheraient dessus dans le sac.
     if (vues.has(clef)) continue;
     vues.add(clef);
-    sortie.push({ clef, objet, objetId, espece, especeId });
+    sortie.push({ clef, objet, id, morceauId, espece, especeId });
   }
   return sortie;
 }
@@ -162,7 +182,12 @@ export function fossileDeLaFouille(
   //  Un second tirage pour l'espèce : réutiliser `sort`, qui est déjà
   //  borné par la rareté, donnerait toujours les mêmes fossiles.
   const i = entreBornes(suite(), 0, fossiles.length - 1);
-  return { genre, fossile: fossiles[i] };
+  const fossile = fossiles[i];
+  return {
+    genre,
+    fossile,
+    objetId: genre === "entier" ? fossile.id : fossile.morceauId,
+  };
 }
 
 /** Ce que des morceaux donnent : des fossiles entiers, et un reste.
