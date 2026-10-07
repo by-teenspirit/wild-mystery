@@ -94,11 +94,27 @@ const CHROME = [
 //  Un squelette ModernBB : `body#modernbb`, la barre d'origine dans son
 //  `.wrap`, et la barre Forumactif avec son lien de compte et sa
 //  déconnexion à jeton.
-const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
-<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
-<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
-<style>body{font-size:10px;margin:0;background:var(--wm-fond-page)}
-.wrap{max-width:1400px;margin:0 auto}
+//  L'ORDRE DES FEUILLES EST CELUI DU FORUM, et il n'est pas décoratif :
+//  ModernBB est servi AVANT nous. Mettre le squelette en dernier
+//  inverserait la cascade et un départage à spécificité égale —
+//  `html#min-width { height: … }` est exactement de ce genre — se
+//  jouerait à l'envers du vrai forum.
+const page = `<!doctype html><html lang="fr" id="min-width"><head><meta charset="utf-8">
+<style>
+/*  LE SQUELETTE REPRODUIT CE QUE MODERNBB IMPOSE, pas une page idéale.
+    Deux reglages y ont coute une soiree le 7 octobre :
+
+      · "html#min-width { height: 100% }" — il fige la hauteur du corps,
+        donc la plage de collage de notre barre s'arretait a un ecran.
+        L'id vient de ModernBB lui-meme : son balise html le porte, et
+        nos regles le visent, donc le squelette le porte aussi ;
+      · "body { display: flex; flex-direction: column }".
+
+    Sans eux, le harnais disait « collee en haut » pendant que le forum
+    la perdait au premier defilement.  */
+html#min-width{height:100%}
+body{font-size:10px;margin:0;height:100%;display:flex;flex-direction:column;background:var(--wm-fond-page)}
+.wrap{max-width:1400px;width:98%;margin:0 auto}
 /*  La vraie toolbar, telle qu'elle est servie : FIXÉE, 42 px de haut,
     z-index 20002, et un margin-top de 42 sur le corps pour lui faire
     place. C'est elle qui recouvrait notre barre collée. */
@@ -109,7 +125,21 @@ const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
     display.  */
 #notif_list{display:none;position:absolute;top:42px;right:0;left:41px;z-index:10000}
 #live_notif{position:absolute;right:47px;visibility:hidden}
-body{margin-top:42px}</style></head>
+body{margin-top:42px}
+/*  La barre collante de ModernBB : son script lui ajoute ".is-sticky"
+    au defilement. Vide chez nous, elle se reduit a une bande bleue de
+    12 px posee PAR-DESSUS tout, a 10000.  */
+#headerbar-top.is-sticky{position:fixed;top:0;left:0;right:0;height:12px;z-index:10000;background:rgb(55,147,255)}
+/*  LA BANNIERE TELLE QUE MODERNBB LA SERT, releve le 7 octobre sur le
+    forum connecte : div.headerbar > div#headerbar-top > div.wrap >
+    a#logo > img. La hauteur de 350 px avec overflow cache rognait une
+    image de 620, et le .wrap a 98 % la decalait de 49 px.  */
+.headerbar{height:350px;overflow:hidden;background-image:url("data:image/gif;base64,R0lGODlhAQABAAAAACw=")}
+#headerbar-top > .wrap{padding:0 36px}
+a#logo{display:block}
+a#logo img{max-width:100%}</style>
+<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
+<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style></head>
 <body id="modernbb">
 <div id="fa_toolbar"><div id="fa_right">
   <!--  Le balisage REEL des notifications, releve le 7 octobre sur un
@@ -122,8 +152,17 @@ body{margin-top:42px}</style></head>
   <a href="/privmsg?folder=inbox">Messagerie 3</a>
   <a href="/login?logout=1&amp;tid=JETON">Déconnexion</a>
 </div></div>
-<div class="wrap"><ul id="modernbb-nav-menu"><li><a href="/">Accueil</a></li></ul></div>
-<div id="page-body"><div class="forabg">des forums</div></div>
+<div id="page-header"><div class="headerbar">
+<div id="headerbar-top" class="responsive-headerbar w-toolbar"><div class="wrap">
+  <!--  L'image a les MESURES DE LA VRAIE banniere, 1280 x 620, parce
+        que c'est d'elles que depend le rognage qu'on mesure.  -->
+  <a id="logo"><img src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1280'%20height='620'%3E%3C/svg%3E" alt="WILD MYSTERY"></a>
+  <ul id="modernbb-nav-menu"><li><a href="/">Accueil</a></li></ul>
+  <span id="menu-btn"></span>
+</div></div>
+<p id="site-desc">Forum RPG Pokémon</p>
+</div></div>
+<div id="page-body"><div class="forabg" style="height:4000px">des forums</div></div>
 </body></html>`;
 
 const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
@@ -235,6 +274,89 @@ const colle = await p.evaluate(() => {
   };
 });
 dire("la toolbar Forumactif est rangée", colle.toolbarCachee, JSON.stringify(colle));
+
+//  ELLE COLLE VRAIMENT, ET LOIN. `position: sticky` ne colle que dans
+//  son bloc conteneur : avec le `html { height: 100% }` de ModernBB, la
+//  plage s'arrêtait à un écran et la barre partait au-delà. Mesuré sur
+//  le forum à 1 400 px — `navY: -556` alors que `position` valait bien
+//  « sticky ». On défile donc LOIN, pas d'un cran.
+const loin = await p.evaluate(async () => {
+  const out = {};
+  const haut = document.querySelector("#headerbar-top");
+  for (const y of [700, 1400, 3000]) {
+    scrollTo(0, y);
+    //  CE QUE FAIT LE SCRIPT DE MODERNBB au défilement, et qu'aucun
+    //  script ne fait ici : il épingle sa propre barre. Sans cette
+    //  ligne, la bande bleue n'existe jamais dans le harnais et la
+    //  règle qui la dépingle n'est pas éprouvée du tout.
+    haut.classList.add("is-sticky");
+    await new Promise((r) => setTimeout(r, 120));
+    const n = document.querySelector("nav.wm-nav").getBoundingClientRect();
+    //  Ce qui est au sommet doit être NOTRE barre, pas la bande bleue
+    //  de ModernBB, qui est posée à 10000.
+    const dessus = document.elementsFromPoint(300, 20)[0];
+    out[y] = {
+      y: Math.round(n.y),
+      dessus: dessus?.closest("nav.wm-nav") !== null,
+      bleue: getComputedStyle(haut).position,
+    };
+  }
+  scrollTo(0, 0);
+  haut.classList.remove("is-sticky");
+  return out;
+});
+dire(
+  "elle colle encore à 3 000 px de défilement",
+  Object.values(loin).every((m) => m.y === 0),
+  JSON.stringify(loin),
+);
+dire(
+  "et rien ne passe par-dessus",
+  Object.values(loin).every((m) => m.dessus),
+  JSON.stringify(loin),
+);
+dire(
+  "LA BANDE BLEUE DE MODERNBB EST DÉPINGLÉE",
+  Object.values(loin).every((m) => m.bleue === "static"),
+  JSON.stringify(loin),
+);
+//  ── LA BANNIÈRE ─────────────────────────────────────────────────────
+//
+//  Elle n'est pas du code : c'est une image déjà posée dans le forum,
+//  dans `#headerbar-top > .wrap > a#logo`. Ce qu'on vérifie, c'est
+//  qu'aucun réglage de ModernBB ne la rogne ni ne la décale :
+//
+//    · son `.wrap` est tenu à `max-width: 1400px` + 36 px de marge
+//      intérieure + `width: 98%` — l'image mesurait 1 254 au lieu de
+//      1 280 et commençait à x = 49 ;
+//    · `.headerbar` est forcée à 350 px avec `overflow: hidden`, donc
+//      une image de 620 était coupée à mi-hauteur.
+const banniere = await p.evaluate(() => {
+  const img = document.querySelector("#headerbar-top a#logo img");
+  const r = img.getBoundingClientRect();
+  //  C'est `.headerbar` — le PARENT de `#headerbar-top` — qui porte les
+  //  350 px et l'`overflow: hidden`. Mesurer la mauvaise des deux
+  //  rendait un test qui ne pouvait pas échouer.
+  const cadre = document.querySelector(".headerbar");
+  return {
+    x: Math.round(r.x),
+    l: Math.round(r.width),
+    //  L'image fait 1280 × 620 : si le cadre est plus court qu'elle,
+    //  c'est qu'il la rogne.
+    hauteurDeLImage: Math.round(r.height),
+    hauteurDuCadre: Math.round(cadre.getBoundingClientRect().height),
+    rognee: Math.round(cadre.getBoundingClientRect().height) < Math.round(r.height),
+    debord: document.documentElement.scrollWidth > innerWidth,
+  };
+});
+dire(
+  "la bannière part du bord et prend toute la largeur",
+  banniere.x === 0 && banniere.l === 1280,
+  JSON.stringify(banniere),
+);
+dire("et elle n'est plus rognée à 350 px", !banniere.rognee, JSON.stringify(banniere));
+dire("sans rien faire déborder à droite", !banniere.debord, JSON.stringify(banniere));
+
 dire("sa marge inline de 42 px est annulée", colle.margeDuCorps === "0px", colle.margeDuCorps);
 dire("le jeton repasse à zéro", colle.jeton === "0px", colle.jeton);
 dire("la barre colle au bord après défilement", colle.barre === 0, String(colle.barre));

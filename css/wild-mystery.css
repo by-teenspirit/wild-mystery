@@ -774,6 +774,141 @@ html,
   }
 }
 
+/* ── 9 · la bannière ──────────────────────────────────────────────── */
+
+/*  ── RIEN À DESSINER : L'IMAGE EST DÉJÀ LÀ ────────────────────────
+
+    `banniere-wm.png`, 1280 × 620 — exactement les mesures de la
+    maquette `518:1191`. Elle était juste mal posée, et trois réglages de
+    ModernBB s'y mettaient à trois :
+
+      · `.headerbar` est forcée à **350 px de haut** avec
+        `overflow: hidden` — l'image de 620 était coupée à mi-hauteur ;
+      · elle vit dans un `.wrap` à `max-width: 1400px` et 36 px de
+        marge intérieure, ce qui la décalait de **49 px vers la
+        droite** ;
+      · et ModernBB peint par-dessus son propre `bg_header.svg`.
+
+    Tout se règle ici. Aucun template touché, aucune ligne de
+    JavaScript : c'est une image bien placée, pas un composant. */
+
+/*  ── MODERNBB A SA PROPRE BARRE COLLANTE, ET ELLE EST BLEUE ───────
+
+    Au défilement, son script ajoute `.is-sticky` à `#headerbar-top` :
+    `position: fixed`, `z-index: 10000`, fond `rgb(55, 147, 255)`. Chez
+    nous elle est vide — sa navigation est masquée — donc elle se réduit
+    à **une bande bleue de 12 px par-dessus tout**, y compris notre
+    barre à nous qui est à 70.
+
+    On ne lui dispute pas son plan, on lui retire son épingle : deux
+    barres collantes pour un seul haut de page, c'en est une de trop. */
+#modernbb #headerbar-top.is-sticky {
+  position: static;
+  z-index: auto;
+  background: transparent;
+  box-shadow: none;
+}
+
+/*  ── ET SON `html { height: 100% }` TUAIT NOTRE `sticky` ───────────
+
+    Celui-là a coûté cher à trouver. `position: sticky` ne colle que
+    DANS son bloc conteneur. ModernBB fige la hauteur de `html` à 100 %,
+    donc `body` faisait **900 px** quand la page en mesure 5 296 : passé
+    900 px de défilement, la plage de collage était épuisée et la barre
+    partait avec le reste. Mesuré : `navY: -556` à 1 400 px de
+    défilement, alors que `position` valait bien `sticky`.
+
+    `height: auto` sur `html` et `min-height: 100vh` sur le corps : la
+    page peut grandir, et le pied reste en bas d'un écran court — c'est
+    le montage classique d'une colonne flex, et `body` en est déjà une. */
+html#min-width {
+  height: auto;
+}
+
+#modernbb {
+  min-height: 100vh;
+}
+
+/*  La barre reprend la hauteur de ce qu'elle contient. `overflow` reste
+    caché : c'est lui qui tient le débord à droite quand la fenêtre est
+    plus étroite que l'image. */
+#modernbb .headerbar {
+  height: auto;
+  min-height: 0;
+  background-image: none;
+}
+
+/*  Le `.wrap` qui porte la bannière perd sa laisse. On vise CELUI-LÀ et
+    pas tous les `.wrap` : les autres centrent le contenu du forum, et
+    les élargir déformerait toutes les pages.
+
+    Pas de `100vw` ici — il compte la barre de défilement et déborde de
+    quelques pixels. Enlever la marge intérieure suffit, et ne ment
+    pas. */
+/*  `width` AUSSI, et pas seulement `max-width` : ModernBB lui donne
+    `98 %`, ce qui laissait 26 px de blanc. Mesuré — l'image faisait
+    1 254 au lieu de 1 280. */
+#modernbb #headerbar-top > .wrap {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+#modernbb a#logo {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+/*  `height: auto` : sous 1280 px l'image rétrécit au lieu d'être rognée.
+    C'est la seule façon de garder la mascotte entière sur un
+    téléphone. */
+#modernbb a#logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+
+/*  Le fondu vers la page, 96 px, comme dans la maquette : l'image ne
+    s'arrête pas net sur le fond, elle s'y dissout.
+
+    Il suit le thème — `fond-page` se retourne en sombre — donc le
+    raccord tient dans les deux. */
+#modernbb a#logo::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 96px;
+  background: linear-gradient(to bottom, transparent, var(--wm-fond-page, #f2e4d8));
+  pointer-events: none;
+}
+
+/*  Le titre est DANS l'image. Le garder à l'écran l'écrirait deux fois.
+    Masqué à l'œil, pas retiré : `#site-title` est le `h1` de la page, et
+    un forum sans `h1` est un forum sans titre pour tout ce qui lit la
+    page autrement qu'avec des yeux. */
+#modernbb #site-desc {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*  Le bouton de menu repliable de ModernBB. Il n'a plus rien à ouvrir —
+    sa barre est masquée et la nôtre la remplace —, mais il réapparaît
+    sous 760 px si on le laisse. */
+#modernbb #headerbar-top > .wrap > #menu-btn,
+#modernbb #headerbar-top > .wrap > .menu-icon {
+  display: none;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 03 · L'index
 
