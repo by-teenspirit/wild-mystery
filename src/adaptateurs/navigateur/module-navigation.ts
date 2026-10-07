@@ -620,7 +620,6 @@ function rangerLaBarreForumactif(
 
   //  Les notifications d'abord : la cloche se lit à gauche du compte,
   //  comme partout ailleurs sur le web.
-  const cloche = deplacerLaToolbar(doc, notre);
 
   //  Connectée : l'avatar rond de 24 px et le pseudo, comme la maquette
   //  `141:3646`. C'est un bouton — il ouvre le menu, il ne mène pas au
@@ -645,6 +644,12 @@ function rangerLaBarreForumactif(
   //  celui-ci change avec la langue du forum.
   b.appendChild(element(doc, "span", "wm-nav__pseudo", pseudo ?? "Mon compte"));
   notre.appendChild(b);
+
+  //  LES NOTIFICATIONS APRÈS LE COMPTE, donc à sa droite — demande de
+  //  Callista du 7 octobre : « le placer à droite de notre bulle et du
+  //  nom de notre perso ». L'ordre du DOM fait l'ordre à l'écran dans
+  //  une rangée flex, et c'est le seul endroit où il se décide.
+  const cloche = deplacerLaToolbar(doc, notre);
 
   const menu = menuDuCompte(doc, nav, identifiant, avatar);
   doc.body?.appendChild(menu);
@@ -763,11 +768,53 @@ function habillerLaToolbar(toolbar: HTMLElement): void {
     for (const [nom, valeur] of p) e.style.setProperty(nom, valeur, "important");
   };
 
+  //  LA CLOCHE SE COMPORTE COMME « Accueil » OU « Rechercher ».
+  //
+  //  Même hauteur, même rembourrage, même arrondi, même police — elle
+  //  hérite de la barre au lieu de redéclarer, pour qu'elle suive si la
+  //  barre change.
+  //
+  //  **Et PAS DE TRAIT SOUS LE TEXTE**, qui est ce que Callista
+  //  voyait : c'est le soulignement par défaut d'un `<a>`, et notre
+  //  `text-decoration: none` perdait comme le reste de la feuille.
+  //  `line-height: 1` en plus : Forumactif lui impose 30 px, ce qui la
+  //  poussait vers le haut de la rangée.
+  const bell = toolbar.querySelector<HTMLElement>("#fa_notifications");
+  if (bell !== null) {
+    poser(bell, [
+      ["display", "inline-flex"],
+      ["align-items", "center"],
+      ["gap", "6px"],
+      ["min-height", "40px"],
+      ["height", "auto"],
+      ["padding", "0 8px"],
+      ["border-radius", "6px"],
+      ["background", "transparent"],
+      ["color", "inherit"],
+      ["font-family", "inherit"],
+      ["font-size", "inherit"],
+      ["font-weight", "inherit"],
+      ["line-height", "1"],
+      ["text-decoration", "none"],
+      ["white-space", "nowrap"],
+    ]);
+  }
+
   //  La barre et son conteneur se réduisent à leur contenu. Sans ça,
   //  `#fa_right` reste un bloc et prend toute la largeur : mesuré à
   //  681 px dans une barre de 1440, ce qui repoussait notre compte à
   //  l'autre bout.
-  poser(toolbar, [["display", "inline-flex"], ["align-items", "center"], ["width", "auto"]]);
+  poser(toolbar, [
+    ["display", "inline-flex"],
+    ["align-items", "center"],
+    ["width", "auto"],
+    //  Elle ne porte plus sa propre hauteur : celle de la cloche suffit,
+    //  et c'est ce qui la recale sur la rangée. « Les notifications sont
+    //  trop hautes », 7 octobre.
+    ["height", "auto"],
+    ["min-height", "0"],
+    ["line-height", "normal"],
+  ]);
 
   const droite = toolbar.querySelector<HTMLElement>("#fa_right");
   if (droite !== null) {

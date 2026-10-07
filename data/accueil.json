@@ -35,10 +35,25 @@
     ]
   },
 
+  "_votes": "Relevés dans /t133-votez-pour-wild-mystery le 7 octobre : trois liens de top-site avec leur bannière. Le sujet dit « quatre top-site » mais n'en porte que trois — à revoir quand le quatrième reviendra. Les noms sont déduits de l'adresse, qui est ce que le sujet donne : les bannières, elles, n'ont pas de texte.",
   "votes": {
     "titre": "Votez !",
     "liste": [
-      { "nom": "", "url": "", "image": "" }
+      {
+        "nom": "Pub RPG Design",
+        "url": "http://www.root-top.com/topsite/pubrpgdesign/in.php?ID=2624",
+        "image": "https://2img.net/i.imgur.com/TXKMVAi.png"
+      },
+      {
+        "nom": "Obsession 27",
+        "url": "http://www.root-top.com/topsite/obsession27/in.php?ID=26375",
+        "image": "https://2img.net/i.imgur.com/x4DAblk.png"
+      },
+      {
+        "nom": "Bazz'Art",
+        "url": "http://www.root-top.com/topsite/bazzart/in.php?ID=2595",
+        "image": "https://2img.net/i.imgur.com/yXDNd4D.png"
+      }
     ]
   },
 

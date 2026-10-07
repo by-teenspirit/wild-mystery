@@ -147,8 +147,15 @@
   gap: var(--wm-espace-16, 16px);
 }
 
+/*  LE PSEUDO S'AFFICHE COMME LE RESTE DE LA BARRE — demande du 7
+    octobre. Il était à 11,5 px au milieu de liens à 13,5 : une taille
+    de moins pour un nom qui est, lui, le repère du joueur dans la
+    barre. Il prend donc la taille des liens, et la hauteur aussi, pour
+    que les trois — liens, compte, notifications — s'alignent sur la
+    même rangée. */
 #modernbb button.wm-nav__compte {
   display: inline-flex;
+  min-height: 40px;
   align-items: center;
   padding: 0;
   gap: var(--wm-espace-10, 10px);
@@ -157,8 +164,7 @@
   color: var(--wm-texte-sur-nuit, #fffbf7);
   cursor: pointer;
   font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-weight: var(--wm-graisse-gras, 700);
+  font-size: var(--wm-taille-normal, 13.5px);
 }
 
 #modernbb button.wm-nav__compte:hover .wm-nav__pseudo,
@@ -248,7 +254,9 @@
   background: transparent;
   box-shadow: none;
   visibility: visible;
-  font-size: var(--wm-taille-petit, 11.5px);
+  /*  La taille des liens de la barre, pas une taille à elle : la cloche
+      en hérite, et « ça doit s'afficher pareil que le reste ». */
+  font-size: var(--wm-taille-normal, 13.5px);
 }
 
 /*  LEUR RÈGLE DE TÉLÉPHONE, ANNULÉE. Forumactif escamote sa barre sous

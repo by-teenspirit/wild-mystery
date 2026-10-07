@@ -811,6 +811,13 @@ const cloche = await p.evaluate(() => {
     fond: st.backgroundColor,
     cadre: st.borderTopWidth,
     rondeur: st.borderTopLeftRadius,
+    rondeurDesAutres: autre === null ? null : getComputedStyle(autre).borderTopLeftRadius,
+    //  PAS DE TRAIT SOUS LE TEXTE : c'est le soulignement par défaut
+    //  d'un `<a>`, et il revient dès qu'on cesse de le poser.
+    souligne: st.textDecorationLine,
+    //  Et elle s'aligne sur la rangée : même hauteur que les liens.
+    hauteur: Math.round(c.getBoundingClientRect().height),
+    hauteurDesAutres: autre === null ? null : Math.round(autre.getBoundingClientRect().height),
     largeur: Math.round(c.getBoundingClientRect().width),
     //  La barre entière est venue, et c'est ce qui fait marcher leur
     //  mécanique : la liste est restée dans la chaîne
@@ -846,10 +853,34 @@ dire(
   `${cloche.taille} contre ${cloche.tailleDesAutres}`,
 );
 dire(
-  "ET CE N'EST PAS UN GROS BOUTON : ni fond, ni cadre, ni rondeur",
-  cloche.fond === "rgba(0, 0, 0, 0)" && cloche.cadre === "0px" && cloche.rondeur === "0px",
+  "ET CE N'EST PAS UN GROS BOUTON : ni fond, ni cadre, et l'arrondi des liens",
+  cloche.fond === "rgba(0, 0, 0, 0)" && cloche.cadre === "0px" &&
+    cloche.rondeur === cloche.rondeurDesAutres,
   JSON.stringify(cloche),
 );
+dire(
+  "PAS DE TRAIT SOUS LE TEXTE",
+  cloche.souligne === "none",
+  cloche.souligne,
+);
+dire(
+  "et elle s'aligne sur la rangée, comme « Accueil »",
+  cloche.hauteur === cloche.hauteurDesAutres,
+  `${cloche.hauteur} px contre ${cloche.hauteurDesAutres}`,
+);
+//  À DROITE DU COMPTE, et pas à sa gauche : l'ordre du DOM fait
+//  l'ordre à l'écran, et c'est la demande du 7 octobre.
+dire(
+  "LES NOTIFICATIONS SONT À DROITE DU COMPTE",
+  await p.evaluate(() => {
+    const d = document.querySelector(".wm-nav__droite");
+    const compte = d.querySelector(".wm-nav__compte");
+    const barre = d.querySelector("#fa_toolbar");
+    if (compte === null || barre === null) return false;
+    return compte.compareDocumentPosition(barre) & Node.DOCUMENT_POSITION_FOLLOWING;
+  }),
+);
+
 dire(
   "LA BARRE ENTIÈRE EST VENUE, et la liste est restée dans leur chaîne",
   cloche.barreChezNous && cloche.listeDansLaChaine,
