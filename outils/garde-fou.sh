@@ -366,6 +366,75 @@ sys.exit(1 if faute else 0)
 PYTHON
 fi
 
+echo "── 13. la table des fossiles ───────────────────────────────────"
+# Elle est relevée sur PokéAPI, et c'est précisément pour ça qu'elle se
+# relit : une correspondance recopiée à la main entre un objet et une
+# espèce est une faute qu'on ne voit qu'en jouant, des mois plus tard,
+# quand un joueur ressuscite autre chose que ce qu'il croyait.
+#
+# Le contrôle n'est PAS dans `src/domaine/fossile.test.ts` : le domaine
+# ne lit aucun fichier, et un test qui demanderait `--allow-read` y
+# casserait la règle que la couverture fait respecter.
+if ! python3 - <<'PYTHON'
+import json, sys
+
+d = json.load(open("data/fossiles.json", encoding="utf-8"))
+f = d.get("fossiles", [])
+especes = json.load(open("data/especes.json", encoding="utf-8"))["especes"]
+connues = {int(i) for i in especes}
+
+fautes = []
+if len(f) == 0:
+    fautes.append("la table est vide")
+
+for champ, n in (("clef", str), ("objet", str), ("espece", str),
+                 ("objetId", int), ("especeId", int)):
+    manquants = [x.get("clef", "?") for x in f if not isinstance(x.get(champ), n)]
+    if manquants:
+        fautes.append(f"{champ} absent ou du mauvais type : {manquants}")
+
+for quoi in ("clef", "objetId", "especeId"):
+    vus = [x.get(quoi) for x in f]
+    doubles = {v for v in vus if vus.count(v) > 1}
+    if doubles:
+        fautes.append(f"{quoi} en double : {sorted(str(x) for x in doubles)}")
+
+# UNE ESPÈCE QUI N'EST PAS DANS LA FAUNE est un fossile qu'on ramasse et
+# qu'on ne peut pas rendre.
+inconnues = [f"{x['espece']} ({x['especeId']})" for x in f
+             if x.get("especeId") not in connues]
+if inconnues:
+    fautes.append(f"espèces absentes de data/especes.json : {inconnues}")
+
+morceaux = d.get("morceauxParFossile")
+if not isinstance(morceaux, int) or morceaux < 2:
+    fautes.append(f"morceauxParFossile vaut {morceaux}, attendu un entier >= 2")
+
+for quoi in ("chanceDeMorceau", "chanceDEntier"):
+    v = d.get(quoi)
+    if not isinstance(v, (int, float)) or not (0 < v < 1):
+        fautes.append(f"{quoi} vaut {v}, attendu strictement entre 0 et 1")
+
+# L'ENTIER DOIT RESTER PLUS RARE QUE LE MORCEAU, sinon la rareté est à
+# l'envers et personne ne le verra avant des mois de jeu.
+if isinstance(d.get("chanceDEntier"), (int, float)) and \
+   isinstance(d.get("chanceDeMorceau"), (int, float)) and \
+   d["chanceDEntier"] >= d["chanceDeMorceau"]:
+    fautes.append("chanceDEntier >= chanceDeMorceau : la rareté est à l'envers")
+
+for x in fautes:
+    print(f"   {x}", file=sys.stderr)
+if fautes:
+    sys.exit(1)
+print(f"   {len(f)} fossiles, une espèce chacun, toutes dans la faune")
+print(f"   {morceaux} morceaux pour un entier · "
+      f"morceau {d['chanceDeMorceau']:.1%} · entier {d['chanceDEntier']:.1%}")
+PYTHON
+then
+  echo "::error::data/fossiles.json ne tient pas"
+  fautes=$((fautes + 1))
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

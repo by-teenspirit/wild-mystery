@@ -1,0 +1,28 @@
+{
+  "_": "Les fossiles et l'espèce que chacun ressuscite. Relevé sur PokéAPI le 7 octobre 2026 : nom français de l'objet, identifiant PokéAPI de l'objet, et espèce lue dans ses `effect_entries` (« Can be revived into … »). Rien n'est deviné.",
+
+  "_regle": "Arbitrage de Callista, 7 octobre : on fouille et on trouve un fossile ENTIER ou un MORCEAU, n'importe où et n'importe quand. Trois morceaux d'une même espèce font un fossile entier. Il n'y a NI dé Fossile NI morceaux génériques — l'annexe du monde décrivait l'ancien système de la V1, celui-ci le remplace.",
+
+  "_absents": "Les quatre fossiles de la 8G — Oiseau (1163), Poisson (1164), Dragon (1165), Aileron (1166) — ne sont PAS ici. Dans les jeux ils se combinent par PAIRES pour donner Galvagon, Galvagla, Hydragon et Hydragla, et PokéAPI ne leur donne donc aucune espèce. La règle du 7 octobre est « une espèce, un fossile » : les y faire entrer demanderait de réintroduire un appariement, ce qui est une décision de jeu. Les quatre espèces sont dans la faune du forum, elles n'attendent qu'une règle.",
+
+  "_morceaux": "3 morceaux pour un fossile entier.",
+
+  "_rareté": "LES DEUX NOMBRES SONT ARBITRAIRES, posés pour que le code tourne. L'annexe du monde dit seulement que les fossiles sont « rares, très peu communs » et qu'en zone sauvage « il faudrait être réellement chanceux ». À relire.",
+  "morceauxParFossile": 3,
+  "chanceDeMorceau": 0.06,
+  "chanceDEntier": 0.008,
+
+  "fossiles": [
+    { "clef": "racine",    "objet": "Fossile Racine",    "objetId": 99,  "especeId": 345, "espece": "Lilia" },
+    { "clef": "griffe",    "objet": "Fossile Griffe",    "objetId": 100, "especeId": 347, "espece": "Anorith" },
+    { "clef": "nautile",   "objet": "Nautile",           "objetId": 101, "especeId": 138, "espece": "Amonita" },
+    { "clef": "dome",      "objet": "Fossile Dôme",      "objetId": 102, "especeId": 140, "espece": "Kabuto" },
+    { "clef": "ambre",     "objet": "Vieil Ambre",       "objetId": 103, "especeId": 142, "espece": "Ptéra" },
+    { "clef": "armure",    "objet": "Fossile Armure",    "objetId": 104, "especeId": 410, "espece": "Dinoclier" },
+    { "clef": "crane",     "objet": "Fossile Crâne",     "objetId": 105, "especeId": 408, "espece": "Kranidos" },
+    { "clef": "plaque",    "objet": "Fossile Plaque",    "objetId": 613, "especeId": 564, "espece": "Carapagos" },
+    { "clef": "plume",     "objet": "Fossile Plume",     "objetId": 614, "especeId": 566, "espece": "Arkéapti" },
+    { "clef": "machoire",  "objet": "Fossile Mâchoire",  "objetId": 729, "especeId": 696, "espece": "Ptyranidur" },
+    { "clef": "nageoire",  "objet": "Fossile Nageoire",  "objetId": 730, "especeId": 698, "espece": "Amagara" }
+  ]
+}
