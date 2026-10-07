@@ -91,7 +91,15 @@ body.wm-texte-large #modernbb .content {
 
     Les liens qui sont des BOUTONS en sont exclus : ils se reconnaissent
     déjà à leur cadre, et un bouton souligné se lit comme un défaut. */
-body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__lien):not(.wm-compte__lien) {
+/*  La liste s'allonge avec la bibliothèque de composants (feuille 13) :
+    un lien qui porte `.wm-btn` ou `.wm-onglet` est un bouton, et un
+    bouton souligné se lit comme un défaut.
+
+    Elle est tenue ICI et pas dans la feuille 13, parce que c'est cette
+    règle-ci qui souligne : `:not()` porte la spécificité de son argument,
+    donc ce sélecteur bat un `#modernbb a.wm-btn` quoi qu'il arrive — y
+    répondre dans l'autre feuille ne marcherait pas. */
+body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__lien):not(.wm-compte__lien):not(.wm-btn):not(.wm-onglet) {
   text-decoration: underline;
 }
 

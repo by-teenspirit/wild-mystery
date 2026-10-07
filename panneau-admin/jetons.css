@@ -57,7 +57,7 @@
 
   --wm-accent-primaire: #2e6e8e;
   --wm-accent-fort:     #1f5470;
-  --wm-accent-terre:    #a8582f;
+  --wm-accent-terre:    #a0532c;
 
   --wm-bord-fin: #eadacd;
   --wm-bord-net: #d9c3b1;
@@ -179,7 +179,7 @@ body.wm-sombre {
   --wm-type-vol-fond:         #333a55;
   --wm-type-vol-texte:        #80a8df;
   --wm-type-poison-fond:      #3f2c4c;
-  --wm-type-poison-texte:     #c386c5;
+  --wm-type-poison-texte:     #c78ec9;
   --wm-type-sol-fond:         #443835;
   --wm-type-sol-texte:        #cc9f4f;
   --wm-type-roche-fond:       #3f3839;
@@ -193,13 +193,13 @@ body.wm-sombre {
   --wm-type-feu-fond:         #4b3031;
   --wm-type-feu-texte:        #ec854c;
   --wm-type-eau-fond:         #2a3756;
-  --wm-type-eau-texte:        #64a4e5;
+  --wm-type-eau-texte:        #6eaae7;
   --wm-type-plante-fond:      #304037;
   --wm-type-plante-texte:     #71c558;
   --wm-type-electrik-fond:    #4a402f;
   --wm-type-electrik-texte:   #e5c531;
   --wm-type-psy-fond:         #4a2e46;
-  --wm-type-psy-texte:        #e87ea5;
+  --wm-type-psy-texte:        #ea86ab;
   --wm-type-glace-fond:       #304253;
   --wm-type-glace-texte:      #70cbd4;
   --wm-type-dragon-fond:      #2f304a;

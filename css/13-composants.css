@@ -1,0 +1,488 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 13 · La bibliothèque de composants
+
+   Les blocs qui reviennent d'un écran à l'autre, et qui n'avaient aucun
+   code : la pastille de type, celle de danger, celle d'un sujet, le
+   bouton, l'étiquette, l'onglet de filtre, l'en-tête de section et le
+   champ de formulaire.
+
+   ── COMMENT ON SAIT QU'ILS MANQUAIENT ─────────────────────────────────
+
+   Par les jetons. `panneau-admin/jetons.css` déclare **36 jetons de
+   type**, douze de groupe, quatre pour pur/obscur — et pas une seule
+   feuille ne les lisait. Un jeton déclaré que personne ne consomme est un
+   composant qui n'existe pas.
+
+   ── RELEVÉS DANS FIGMA, PAS DEVINÉS ───────────────────────────────────
+
+   Chaque mesure vient du composant lui-même (fichier `R5Fz…`, page
+   Composants), lu le 7 octobre :
+
+     Bouton              4:85    h 44 · px 20 · r 10 · Bold 13.5
+     Pastille de type    4:75    pl 10 pr 14 py 6 · r 10 · point 15 · Bold 12
+     Pastille de danger  4:98    pl 8 pr 10 py 3 · r 10 · point 9 · Bold 10
+     Pastille de sujet   4:111   px 9 py 3 · r 10 · Bold 10
+     Étiquette           96:1247 px 9 py 4 · r 10 · Regular 11.5
+     Onglet de filtre    89:1119 px 20 py 18 · r 10 — et 14/13 · r 6 sur téléphone
+     En-tête de section  94:1197 gap 14 · tiret 28×1 · capitales suivies
+     Champ               96:1286 px 20 py 18 · r 10 · contour bord/fin
+
+   ── CETTE FEUILLE NE DÉCLARE AUCUN JETON ──────────────────────────────
+
+   Elle s'en sert, c'est tout (`48-…` §8, garde-fou n° 2). Les deux
+   interlettrages qu'elle emploie et que le fichier des jetons ne porte
+   pas encore sont écrits avec une valeur de repli : les poser dans
+   `jetons.css` les reprendra sans toucher ici.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · le bouton ────────────────────────────────────────────────── */
+
+/*  Trois rôles, et un seul geste de lecture : le primaire porte l'action
+    de la page, le secondaire la double, le discret range.
+
+    `inline-flex` et pas `flex` : un bouton est posé DANS une phrase ou
+    dans une rangée, il ne prend pas la largeur tout seul. */
+#modernbb .wm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 var(--wm-espace-20, 20px);
+  border: 0;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-align: center;
+  text-decoration: none;
+}
+
+/*  Le contour fait 1,5 px dans la maquette, et c'est voulu : à 1 px il
+    disparaît à côté du plein du primaire. */
+#modernbb .wm-btn--sec {
+  border: 1.5px solid var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-primaire, #2e6e8e);
+}
+
+#modernbb .wm-btn--discret {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb a.wm-btn:hover,
+#modernbb a.wm-btn:focus-visible,
+#modernbb button.wm-btn:hover,
+#modernbb button.wm-btn:focus-visible {
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb a.wm-btn--sec:hover,
+#modernbb a.wm-btn--sec:focus-visible,
+#modernbb button.wm-btn--sec:hover,
+#modernbb button.wm-btn--sec:focus-visible,
+#modernbb a.wm-btn--discret:hover,
+#modernbb a.wm-btn--discret:focus-visible,
+#modernbb button.wm-btn--discret:hover,
+#modernbb button.wm-btn--discret:focus-visible {
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  Il garde son contour au survol, sinon la gélule saute d'un pixel et
+    demi et toute la rangée bouge. */
+#modernbb a.wm-btn--sec:hover,
+#modernbb button.wm-btn--sec:hover {
+  border-color: var(--wm-accent-primaire, #2e6e8e);
+}
+
+/* ── 2 · la pastille de type ──────────────────────────────────────── */
+
+/*  **LE NOM EST TOUJOURS ÉCRIT.** C'est la note de la maquette, et c'est
+    une règle d'accessibilité, pas une préférence : dix-huit teintes dont
+    plusieurs voisines ne se distinguent pas à la couleur seule.
+
+    Le point reprend la couleur du texte : chaque paire fond/texte est
+    validée à 4,5 dans les deux thèmes, donc le point l'est aussi. */
+#modernbb .wm-type {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-14, 14px) var(--wm-espace-6, 6px)
+    var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-6, 6px);
+  overflow: hidden;
+  border-radius: var(--wm-rayon-lg, 10px);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: var(--wm-graisse-gras, 700);
+  white-space: nowrap;
+}
+
+/*  Le point est posé par le CSS, pas par une image : dix-huit SVG pour
+    dix-huit ronds de 15 px seraient dix-huit requêtes. */
+#modernbb .wm-type::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  background: currentcolor;
+}
+
+#modernbb .wm-type--normal {
+  background: var(--wm-type-normal-fond);
+  color: var(--wm-type-normal-texte);
+}
+
+#modernbb .wm-type--combat {
+  background: var(--wm-type-combat-fond);
+  color: var(--wm-type-combat-texte);
+}
+
+#modernbb .wm-type--vol {
+  background: var(--wm-type-vol-fond);
+  color: var(--wm-type-vol-texte);
+}
+
+#modernbb .wm-type--poison {
+  background: var(--wm-type-poison-fond);
+  color: var(--wm-type-poison-texte);
+}
+
+#modernbb .wm-type--sol {
+  background: var(--wm-type-sol-fond);
+  color: var(--wm-type-sol-texte);
+}
+
+#modernbb .wm-type--roche {
+  background: var(--wm-type-roche-fond);
+  color: var(--wm-type-roche-texte);
+}
+
+#modernbb .wm-type--insecte {
+  background: var(--wm-type-insecte-fond);
+  color: var(--wm-type-insecte-texte);
+}
+
+#modernbb .wm-type--spectre {
+  background: var(--wm-type-spectre-fond);
+  color: var(--wm-type-spectre-texte);
+}
+
+#modernbb .wm-type--acier {
+  background: var(--wm-type-acier-fond);
+  color: var(--wm-type-acier-texte);
+}
+
+#modernbb .wm-type--feu {
+  background: var(--wm-type-feu-fond);
+  color: var(--wm-type-feu-texte);
+}
+
+#modernbb .wm-type--eau {
+  background: var(--wm-type-eau-fond);
+  color: var(--wm-type-eau-texte);
+}
+
+#modernbb .wm-type--plante {
+  background: var(--wm-type-plante-fond);
+  color: var(--wm-type-plante-texte);
+}
+
+#modernbb .wm-type--electrik {
+  background: var(--wm-type-electrik-fond);
+  color: var(--wm-type-electrik-texte);
+}
+
+#modernbb .wm-type--psy {
+  background: var(--wm-type-psy-fond);
+  color: var(--wm-type-psy-texte);
+}
+
+#modernbb .wm-type--glace {
+  background: var(--wm-type-glace-fond);
+  color: var(--wm-type-glace-texte);
+}
+
+#modernbb .wm-type--dragon {
+  background: var(--wm-type-dragon-fond);
+  color: var(--wm-type-dragon-texte);
+}
+
+#modernbb .wm-type--tenebres {
+  background: var(--wm-type-tenebres-fond);
+  color: var(--wm-type-tenebres-texte);
+}
+
+#modernbb .wm-type--fee {
+  background: var(--wm-type-fee-fond);
+  color: var(--wm-type-fee-texte);
+}
+
+/* ── 3 · la pastille de danger ────────────────────────────────────── */
+
+/*  Elle double le découpage géographique au lieu de le remplacer : la
+    carte dit où c'est, la pastille dit si on peut y aller.
+
+    Son fond est un blanc à 75 % — elle se pose sur une photo de zone, et
+    un aplat opaque y ferait un timbre collé. */
+#modernbb .wm-danger {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--wm-espace-2, 3px) var(--wm-espace-10, 10px) var(--wm-espace-2, 3px)
+    var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-6, 6px);
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 75%, transparent);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  white-space: nowrap;
+}
+
+/*  Le point porte la couleur du danger, le texte reste en texte doux :
+    c'est la seule façon d'avoir trois niveaux lisibles sur un fond
+    translucide posé sur n'importe quelle photo. */
+#modernbb .wm-danger::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--wm-danger-paisible, #4f7a52);
+}
+
+#modernbb .wm-danger--dangereuse::before {
+  background: var(--wm-danger-dangereuse, #8d5d27);
+}
+
+#modernbb .wm-danger--interdite::before {
+  background: var(--wm-danger-interdite, #a64430);
+}
+
+/* ── 4 · la pastille d'un sujet ───────────────────────────────────── */
+
+/*  Libre, PV, -16, Terminé. Elle est posée par le gabarit, pas tapée par
+    le joueur — sans elle on se retrouve avec [pv], (PV), P.V. et pv dans
+    le même forum. */
+#modernbb .wm-sujet {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--wm-espace-2, 3px) var(--wm-espace-8, 9px);
+  overflow: hidden;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  white-space: nowrap;
+}
+
+/*  PV et -16 partagent le même traitement : ce sont les deux marques qui
+    disent « ce sujet ne t'est pas ouvert ». */
+#modernbb .wm-sujet--pv,
+#modernbb .wm-sujet--16 {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-terre, #a8582f);
+}
+
+/*  **`texte-doux`, PAS `texte-pale`**, et c'est la règle de la planche
+    50 : « `texte-pale` ne va que sur `fond-page` et `fond-surface` ; sur
+    `fond-surface-haute`, c'est `texte-doux` ». La maquette dit pale ;
+    mesuré en thème sombre, pale donne 4,16 et doux 5,51. La règle a été
+    payée trois fois en une journée, elle gagne contre la maquette. */
+#modernbb .wm-sujet--termine {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+/* ── 5 · l'étiquette ──────────────────────────────────────────────── */
+
+/*  Sans action. Pour une action, c'est un bouton — et c'est pour ça
+    qu'elle n'a ni survol ni curseur. */
+#modernbb .wm-etiquette {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 9px);
+  overflow: hidden;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-normale, 400);
+  white-space: nowrap;
+}
+
+/* ── 6 · l'onglet de filtre ───────────────────────────────────────── */
+
+/*  Un seul actif à la fois. L'actif prend l'accent PLEIN : un onglet qui
+    ne se distingue qu'à la nuance disparaît pour la moitié des gens, et
+    `aria-selected` le dit à voix haute. */
+#modernbb .wm-onglet {
+  display: inline-flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  padding: var(--wm-espace-18, 18px) var(--wm-espace-20, 20px);
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/*  L'actif n'a PAS de contour dans la maquette. On garde quand même un
+    contour transparent pour que les deux états fassent la même hauteur —
+    sinon la rangée saute d'un pixel au changement d'onglet. */
+#modernbb .wm-onglet--actif {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb a.wm-onglet:hover,
+#modernbb a.wm-onglet:focus-visible,
+#modernbb button.wm-onglet:hover,
+#modernbb button.wm-onglet:focus-visible {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  Sur téléphone la maquette le resserre : 14/13 de marge et un rayon de
+    6. Ce n'est pas le même composant rétréci, c'est une variante — elle
+    existe dans Figma sous `Taille=Téléphone`. */
+@media (max-width: 760px) {
+  #modernbb .wm-onglet {
+    padding: 13px 14px;
+    border-radius: var(--wm-rayon-sm, 6px);
+  }
+
+  #modernbb .wm-onglet:not(.wm-onglet--actif) {
+    background: var(--wm-fond-douce, #f3e1d2);
+  }
+}
+
+/* ── 7 · l'en-tête de section ─────────────────────────────────────── */
+
+/*  Le numéro, un tiret de 28 px, le titre en capitales suivies, un
+    ressort, et la note poussée à droite.
+
+    **Le ressort est un `flex: 1`, pas une marge automatique** : avec une
+    marge, la note colle au titre quand la ligne est trop courte. */
+#modernbb .wm-section {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  gap: var(--wm-espace-14, 14px);
+  overflow: hidden;
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-section__numero {
+  flex: 0 0 auto;
+  color: var(--wm-accent-primaire, #2e6e8e);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-section__tiret {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 1px;
+  background: var(--wm-bord-net, #d9c3b1);
+}
+
+#modernbb .wm-section__titre {
+  flex: 0 0 auto;
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  /*  1,6 px sur 11,5 : mesuré dans la maquette. Le jeton n'existe pas
+      encore — le poser dans `jetons.css` le reprendra sans toucher ici. */
+  letter-spacing: var(--wm-interlettre-section, 0.139em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-section__ressort {
+  flex: 1 1 auto;
+  min-width: 1px;
+  height: 1px;
+}
+
+/*  En texte pâle, et c'est la règle de la feuille 08 : `texte-pale` ne va
+    que sur `fond-page` et `fond-surface`. L'en-tête de section vit sur le
+    fond de page — si on la pose un jour sur `fond-surface-haute`, elle
+    passe en `texte-doux`. */
+#modernbb .wm-section__note {
+  flex: 0 0 auto;
+  color: var(--wm-texte-pale, #756054);
+  font-weight: var(--wm-graisse-normale, 400);
+}
+
+/*  Sous 760 px la note passe à la ligne plutôt que d'écraser le titre. */
+@media (max-width: 760px) {
+  #modernbb .wm-section {
+    flex-wrap: wrap;
+    gap: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  }
+
+  #modernbb .wm-section__ressort {
+    display: none;
+  }
+}
+
+/* ── 8 · le champ de formulaire ───────────────────────────────────── */
+
+/*  La largeur se règle par l'instance, donc elle n'est pas ici : le
+    composant Figma fait 260, mais c'est la valeur d'un cas, pas une
+    règle. */
+#modernbb .wm-champ {
+  display: flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--wm-espace-18, 18px) var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-etiquette, 1.4);
+}
+
+/*  L'invite est pâle, la saisie ne l'est pas : un champ rempli qui garde
+    la couleur de son invite se lit comme un champ vide. */
+#modernbb .wm-champ::placeholder {
+  color: var(--wm-texte-pale, #756054);
+  opacity: 1;
+}
+
+#modernbb .wm-champ:focus-visible {
+  border-color: var(--wm-accent-primaire, #2e6e8e);
+  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline-offset: 1px;
+}
