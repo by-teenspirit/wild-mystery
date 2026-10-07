@@ -330,7 +330,11 @@ export function remplirLesPersonnages(doc: Document, panneau: Element): number {
  *  **L'ancienne est masquée, pas retirée.** ModernBB et d'autres scripts
  *  gardent une référence dessus ; la retirer casserait ce qu'on ne voit
  *  pas. */
-function poserLaBarre(doc: Document, nav: Navigation): HTMLButtonElement | null {
+function poserLaBarre(
+  doc: Document,
+  nav: Navigation,
+  messages: number,
+): HTMLButtonElement | null {
   if (nav.liens.length === 0) return null;
   if (doc.querySelector(".wm-nav") !== null) return null;
 
@@ -364,9 +368,26 @@ function poserLaBarre(doc: Document, nav: Navigation): HTMLButtonElement | null 
       a.classList.add("wm-nav__lien--courant");
       a.setAttribute("aria-current", "page");
     }
+    //  « Messagerie 3 » : le compteur est DANS le lien, comme la
+    //  maquette, et pas une pastille à côté. Il n'est écrit que s'il y a
+    //  quelque chose à lire — « Messagerie 0 » n'est pas une
+    //  information.
+    if (l.clef === "messagerie" && messages > 0) {
+      a.appendChild(
+        element(doc, "span", "wm-nav__compteur", String(messages)),
+      );
+      a.setAttribute(
+        "aria-label",
+        `${l.titre} — ${messages} ${messages > 1 ? "messages non lus" : "message non lu"}`,
+      );
+    }
     liens.appendChild(a);
   }
   barre.appendChild(liens);
+
+  //  Le groupe de droite, VIDE pour l'instant : il se remplit avec ce
+  //  qu'on prend à la barre Forumactif, qui arrive après nous.
+  barre.appendChild(element(doc, "div", "wm-nav__droite"));
 
   //  En PREMIER dans le corps : la barre est le haut de la page, et
   //  l'ordre du DOM doit le dire autant que le CSS — c'est lui que suit
@@ -527,54 +548,104 @@ function placerLeMenu(doc: Document, ancre: HTMLElement, menu: HTMLElement): voi
   menu.style.right = `${Math.min(maxi, Math.max(8, Math.round(largeur - r.right)))}px`;
 }
 
-/** Habille `#fa_right` et y accroche le menu.
+/** Prend à la barre Forumactif ce qui nous intéresse, le pose à droite
+ *  de NOTRE barre, et range la sienne.
  *
- *  Rend `true` quand elle a trouvé la barre. Elle n'invente pas le nom du
- *  compte : s'il n'est pas déjà là, il n'y a rien à habiller. */
-function habillerLaBarreForumactif(
+ *  ── POURQUOI ON DÉMÉNAGE AU LIEU D'HABILLER ─────────────────────────
+ *
+ *  La maquette ne montre qu'une seule barre : le logo et les liens à
+ *  gauche, l'avatar et le pseudo à droite. `#fa_toolbar` est une
+ *  deuxième barre, posée par Forumactif par-dessus, avec son propre
+ *  `z-index: 20002` et un `margin-top: 42px` qu'elle écrit **en style
+ *  inline sur `body`** — mesuré le 7 octobre. Déconnectée, elle est même
+ *  haute de zéro et ne laisse qu'une bande vide de 42 px.
+ *
+ *  On la range donc : on COPIE ses adresses, on bâtit notre groupe de
+ *  droite, et on la masque. Elle reste dans la page et reste activée —
+ *  le switcheroo en a besoin pour fonctionner, c'est écrit dans ses
+ *  prérequis, et son propre mode d'emploi donne le CSS pour la cacher
+ *  sans la désactiver.
+ *
+ *  ── LES ADRESSES SONT COPIÉES, JAMAIS FABRIQUÉES ────────────────────
+ *
+ *  Déconnexion comme connexion : ce sont les ancres de la page qu'on
+ *  relit. La déconnexion porte un jeton de session ; une adresse
+ *  reconstruite mènerait à une erreur sous un libellé qui promet de
+ *  déconnecter.
+ *
+ *  Rend `true` quand elle a trouvé la barre. */
+function rangerLaBarreForumactif(
   doc: Document,
   nav: Navigation,
   identifiant: number | null,
   avatar: string | null,
+  pseudo: string | null,
 ): boolean {
   const droite = doc.querySelector<HTMLElement>("#fa_right");
   if (droite === null) return false;
-  //  Mesurée ICI parce que c'est le moment où la toolbar a sa hauteur
-  //  définitive : avant, elle n'existe pas ; après, plus rien ne la
-  //  change.
+  //  Mesurée AVANT d'être masquée : si elle a une hauteur, c'est
+  //  maintenant qu'on peut la lire. Après, elle vaut zéro — ce qui est
+  //  justement ce qu'on veut pour la barre collée.
   mesurerLaToolbar(doc);
-  if (droite.classList.contains("wm-compte")) return true;
-  droite.classList.add("wm-compte");
 
-  //  Déconnectée, la barre ne porte que « Connexion » et
-  //  « S'enregistrer » : il n'y a pas de compte, donc pas de menu. On
-  //  s'arrête là plutôt que d'ouvrir un menu vide.
-  if (identifiant === null) return true;
+  const notre = doc.querySelector<HTMLElement>(".wm-nav__droite");
+  if (notre === null) return true;
+  if (notre.childElementCount > 0) return true;
 
-  //  Le lien du compte est celui qui mène au profil. On le prend tel
-  //  qu'il est plutôt que de le reconnaître à son libellé, qui change
-  //  avec la langue du forum.
-  const compte = droite.querySelector<HTMLAnchorElement>(`a[href*="/u${identifiant}"]`) ??
-    droite.querySelector<HTMLAnchorElement>('a[href*="/profile"]');
-  if (compte === null) return true;
+  if (identifiant === null) {
+    //  Déconnectée : on reprend ses deux liens tels quels. Les perdre
+    //  serait pire que tout — un visiteur ne pourrait plus se connecter.
+    for (const a of droite.querySelectorAll<HTMLAnchorElement>("a[href]")) {
+      const titre = a.textContent?.replace(/\s+/g, " ").trim() ?? "";
+      const ou = a.getAttribute("href");
+      if (titre === "" || ou === null || ou === "") continue;
+      const lien = doc.createElement("a");
+      lien.className = "wm-nav__lien wm-nav__lien--compte";
+      lien.href = ou;
+      lien.textContent = titre;
+      notre.appendChild(lien);
+    }
+    rangerLaToolbar(doc);
+    return true;
+  }
+
+  //  Connectée : l'avatar rond de 24 px et le pseudo, comme la maquette
+  //  `141:3646`. C'est un bouton — il ouvre le menu, il ne mène pas au
+  //  profil, lequel est la première entrée du menu.
+  const b = doc.createElement("button");
+  b.type = "button";
+  b.className = "wm-nav__compte";
+  b.setAttribute("aria-haspopup", "true");
+  b.setAttribute("aria-expanded", "false");
+  b.setAttribute("aria-controls", "wm-compte-menu");
+
+  const vignette = element(doc, "span", "wm-nav__avatar");
+  if (avatar !== null) {
+    const img = doc.createElement("img");
+    img.src = avatar;
+    img.alt = "";
+    img.loading = "lazy";
+    vignette.appendChild(img);
+  }
+  b.appendChild(vignette);
+  //  Le pseudo vient de `_userdata`, pas d'un libellé de la toolbar :
+  //  celui-ci change avec la langue du forum.
+  b.appendChild(element(doc, "span", "wm-nav__pseudo", pseudo ?? "Mon compte"));
+  notre.appendChild(b);
 
   const menu = menuDuCompte(doc, nav, identifiant, avatar);
-  //  Sur `body`, pas dans la barre : voir `placerLeMenu`.
   doc.body?.appendChild(menu);
 
   const basculer = (ouvrir: boolean): void => {
-    //  ON LE MONTRE D'ABORD, ON LE PLACE ENSUITE : un élément `hidden` est
-    //  en `display: none`, et sa largeur vaut zéro — la borne de l'écran
-    //  serait calculée sur rien.
+    //  ON LE MONTRE D'ABORD, ON LE PLACE ENSUITE : un élément `hidden`
+    //  est en `display: none`, et sa largeur vaut zéro — la borne de
+    //  l'écran serait calculée sur rien.
     menu.toggleAttribute("hidden", !ouvrir);
-    if (ouvrir) placerLeMenu(doc, compte, menu);
-    compte.setAttribute("aria-expanded", String(ouvrir));
+    if (ouvrir) placerLeMenu(doc, b, menu);
+    b.setAttribute("aria-expanded", String(ouvrir));
   };
 
-  compte.setAttribute("aria-haspopup", "true");
-  compte.setAttribute("aria-expanded", "false");
-  compte.addEventListener("click", (e) => {
-    e.preventDefault();
+  b.addEventListener("click", (e) => {
     e.stopPropagation();
     basculer(menu.hasAttribute("hidden"));
   });
@@ -589,7 +660,25 @@ function habillerLaBarreForumactif(
   doc.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !menu.hasAttribute("hidden")) basculer(false);
   });
+
+  rangerLaToolbar(doc);
   return true;
+}
+
+/** Masque la barre Forumactif et annule la marge qu'elle impose.
+ *
+ *  **La marge est en STYLE INLINE sur `body`** — `margin-top: 42px`,
+ *  écrit par son script, mesuré sur le forum. Une règle CSS ordinaire ne
+ *  la bat pas : on pose donc une classe, et la feuille s'en sert avec un
+ *  `!important`, le seul du projet et il est justifié ici.
+ *
+ *  On ne retire RIEN : la barre reste dans la page, vivante. C'est une
+ *  exigence du switcheroo, pas une précaution. */
+function rangerLaToolbar(doc: Document): void {
+  doc.body?.classList.add("wm-toolbar-rangee");
+  //  Le jeton repasse à zéro : plus rien ne surplombe la barre, elle
+  //  colle au bord.
+  doc.documentElement.style.setProperty("--wm-haut-toolbar", "0px");
 }
 
 // ── l'assemblage ────────────────────────────────────────────────────
@@ -603,6 +692,11 @@ export type Dependances = {
   /** La source de l'avatar du compte, déjà extraite — pas le HTML brut
    *  que Forumactif met dans `_userdata.avatar`. */
   readonly avatar?: string | null;
+  /** Le pseudo du compte connecté, lu dans `_userdata`. */
+  readonly pseudo?: string | null;
+  /** Le nombre de messages non lus, relevé AVANT la réécriture de la
+   *  barre — c'est Forumactif qui l'écrit dans le lien « Messagerie ». */
+  readonly messages?: number;
 };
 
 /**
@@ -610,12 +704,12 @@ export type Dependances = {
  * trouvée et réécrite.
  */
 export function poserLaNavigation(
-  { doc, donnees, identifiant = null, avatar = null }: Dependances,
+  { doc, donnees, identifiant = null, avatar = null, pseudo = null, messages = 0 }: Dependances,
 ): boolean {
   const nav = navigationDepuis(donnees);
   if (nav.liens.length === 0) return false;
 
-  const bouton = poserLaBarre(doc, nav);
+  const bouton = poserLaBarre(doc, nav, messages);
   if (bouton === null) return false;
 
   const panneau = panneauEnDOM(doc, nav);
@@ -654,9 +748,9 @@ export function poserLaNavigation(
   //  `#fa_toolbar` est posée par un script tiers, après nous. On la
   //  guette, et on arrête de guetter — un observateur qui tourne pour
   //  rien est une fuite.
-  if (!habillerLaBarreForumactif(doc, nav, identifiant, avatar)) {
+  if (!rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo)) {
     const guetteur = new MutationObserver(() => {
-      if (habillerLaBarreForumactif(doc, nav, identifiant, avatar)) guetteur.disconnect();
+      if (rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo)) guetteur.disconnect();
     });
     guetteur.observe(doc.documentElement, { childList: true, subtree: true });
     setTimeout(() => guetteur.disconnect(), 10_000);

@@ -121,7 +121,7 @@ async function configSupabase(): Promise<ReturnType<typeof configDepuis>> {
  *  seconde arrive après nous, le module la guette.
  *
  *  Elle part sur TOUTES les pages — c'est le cadre du forum. */
-async function poserLaNav(): Promise<void> {
+async function poserLaNav(messages: number): Promise<void> {
   if (RACINE === null) return;
   const donnees = await fetch(`${RACINE}navigation.json`, { credentials: "omit" })
     .then((r) => (r.ok ? r.json() : null))
@@ -134,7 +134,19 @@ async function poserLaNav(): Promise<void> {
     donnees,
     identifiant: identifiantDuCompte(),
     avatar: avatarDuCompte(),
+    pseudo: pseudoDuCompte(),
+    messages,
   });
+}
+
+/** Le pseudo du compte connecté, ou null.
+ *
+ *  Lu dans `_userdata` et pas dans le libellé de la barre Forumactif :
+ *  celui-ci change avec la langue du forum. */
+function pseudoDuCompte(): string | null {
+  const u = (globalThis as unknown as { _userdata?: Record<string, unknown> })._userdata;
+  const n = typeof u?.username === "string" ? u.username.replace(/\s+/g, " ").trim() : "";
+  return n === "" ? null : n;
 }
 
 /** La source de l'avatar du compte connecté, ou null.
@@ -245,7 +257,7 @@ desQueLeCorpsEstLa(() => {
   //  pose dans le lien « Messagerie », et `poserLaNav` remplace le
   //  contenu de cette barre : lu après, il vaudrait toujours zéro.
   const messages = compterLesMessages(document);
-  poserLaNav().catch(() => {});
+  poserLaNav(messages).catch(() => {});
   //  Le switcheroo, chargé depuis sa source et épinglé à un commit. Il
   //  remplit « Mes personnages » ; sans lui la section ne s'affiche pas.
   //

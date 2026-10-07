@@ -199,35 +199,35 @@ if (barre !== null) {
   dire("celle de ModernBB est masquée", barre.ancienne === "none", barre.ancienne);
 }
 
-//  1 bis · ELLE NE PASSE PAS SOUS LA TOOLBAR FORUMACTIF
+//  1 bis · LA BARRE FORUMACTIF EST RANGÉE, PAS CONTOURNÉE
 //
-//  `#fa_toolbar` est fixée en haut avec un z-index de 20002 : une barre
-//  collée à `top: 0` disparaît dessous au premier défilement, et on perd
-//  le logo qui ouvre le panneau. Mesuré sur le forum le 7 octobre.
+//  Elle était fixée en haut avec un z-index de 20002, et notre barre
+//  collée passait dessous au premier défilement. On a d'abord mesuré sa
+//  hauteur pour se caler en dessous ; depuis le 7 octobre on lui prend
+//  ses adresses et on la masque — la maquette ne montre qu'une barre.
+//
+//  Ce qu'on vérifie ici : qu'elle est bien masquée, que sa marge de
+//  42 px écrite EN STYLE INLINE sur `body` est annulée, et que la barre
+//  colle donc au bord.
 await p.evaluate(() => scrollTo(0, 600));
 await p.waitForTimeout(250);
 const colle = await p.evaluate(() => {
   const n = document.querySelector("nav.wm-nav").getBoundingClientRect();
-  const t = document.querySelector("#fa_toolbar").getBoundingClientRect();
+  const tb = document.querySelector("#fa_toolbar");
   return {
     barre: n.y,
-    toolbar: t.bottom,
+    toolbarCachee: getComputedStyle(tb).display === "none",
+    margeDuCorps: getComputedStyle(document.body).marginTop,
     jeton: getComputedStyle(document.documentElement).getPropertyValue("--wm-haut-toolbar")
       .trim(),
     panneau: document.querySelector("#wm-panneau").getBoundingClientRect().y,
   };
 });
-dire(
-  "la barre colle SOUS la toolbar, pas derrière elle",
-  colle.barre >= colle.toolbar,
-  JSON.stringify(colle),
-);
-dire("le jeton porte la hauteur mesurée", colle.jeton === "42px", colle.jeton);
-dire(
-  "et le panneau descend d'autant",
-  colle.panneau === colle.toolbar + 56,
-  String(colle.panneau),
-);
+dire("la toolbar Forumactif est rangée", colle.toolbarCachee, JSON.stringify(colle));
+dire("sa marge inline de 42 px est annulée", colle.margeDuCorps === "0px", colle.margeDuCorps);
+dire("le jeton repasse à zéro", colle.jeton === "0px", colle.jeton);
+dire("la barre colle au bord après défilement", colle.barre === 0, String(colle.barre));
+dire("et le panneau part juste dessous", colle.panneau === 56, String(colle.panneau));
 await p.evaluate(() => scrollTo(0, 0));
 await p.waitForTimeout(250);
 
@@ -415,13 +415,13 @@ dire(
     document.querySelector("#wm-panneau").classList.contains("wm-panneau--ouvert")
   )),
 );
-await p.click('#fa_right a[href="/u4"]');
+await p.click(".wm-nav__compte");
 await p.waitForTimeout(200);
 const menu = await p.evaluate(() => {
   const m = document.querySelector("#wm-compte-menu");
   if (m === null) return null;
   const r = m.getBoundingClientRect();
-  const lien = document.querySelector('#fa_right a[href="/u4"]').getBoundingClientRect();
+  const lien = document.querySelector(".wm-nav__compte").getBoundingClientRect();
   const sortie = m.querySelector(".wm-compte__entree--sortie a");
   return {
     cache: m.hasAttribute("hidden"),
@@ -461,6 +461,43 @@ if (menu !== null) {
   );
 }
 
+//  6 bis · LE GROUPE DE DROITE EST DANS NOTRE BARRE
+//
+//  C'est la demande du 7 octobre : la maquette ne montre qu'une barre.
+const adroite = await p.evaluate(() => {
+  const g = document.querySelector(".wm-nav__droite");
+  const msg = [...document.querySelectorAll(".wm-nav__lien")]
+    .find((a) => a.getAttribute("href") === "/privmsg");
+  return {
+    dansLaBarre: g?.closest("nav.wm-nav") !== null,
+    avatar: g?.querySelector(".wm-nav__avatar img")?.getAttribute("src") ?? null,
+    pseudo: g?.querySelector(".wm-nav__pseudo")?.textContent ?? null,
+    compteur: msg?.querySelector(".wm-nav__compteur")?.textContent ?? null,
+    messagerie: msg?.getAttribute("aria-label") ?? null,
+  };
+});
+dire("le compte est dans NOTRE barre", adroite.dansLaBarre, JSON.stringify(adroite));
+dire(
+  "avec son avatar",
+  adroite.avatar === "https://i.servimg.com/u/f12/avatar.jpg",
+  String(adroite.avatar),
+);
+dire(
+  "et son pseudo, lu dans _userdata",
+  adroite.pseudo === "Compte de test",
+  String(adroite.pseudo),
+);
+dire(
+  "« Messagerie 3 » : le compteur est dans le lien",
+  adroite.compteur === "3",
+  String(adroite.compteur),
+);
+dire(
+  "et il est dit en toutes lettres",
+  /3 messages non lus/.test(adroite.messagerie ?? ""),
+  String(adroite.messagerie),
+);
+
 //  7 · il se ferme en cliquant à côté
 await p.evaluate(() => document.querySelector("#page-body").click());
 await p.waitForTimeout(150);
@@ -493,6 +530,70 @@ const petit = await p.evaluate(() => {
 });
 dire("la barre s'enroule sur petit écran", petit.enroule === "wrap", JSON.stringify(petit));
 dire("et rien ne déborde", !petit.debord);
+
+//  10 · DÉCONNECTÉE, ON NE PERD PAS « CONNEXION »
+//
+//  C'est le risque de ranger la barre Forumactif : ses deux seuls liens
+//  utiles à un visiteur sont là-dedans. On recharge la page sans
+//  `_userdata` connecté et on vérifie qu'ils sont passés dans la nôtre.
+const p2 = await nav.newPage({ viewport: { width: 1280, height: 900 } });
+p2.on("pageerror", (e) => soucis.push("erreur JS (déconnectée) : " + e.message));
+await p2.route("**/*", (r) => {
+  const u = r.request().url();
+  if (u.endsWith("/data/navigation.json")) {
+    return r.fulfill({
+      contentType: "application/json",
+      body: readFileSync(R + "data/navigation.json", "utf8"),
+    });
+  }
+  if (u.endsWith("/js/wild-mystery.js")) {
+    return r.fulfill({
+      contentType: "text/javascript",
+      body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  for (const f of ["monomer.js", "switcheroo.js"]) {
+    if (u.endsWith("/" + f)) {
+      return r.fulfill({ contentType: "text/javascript", body: switcheroo[f] });
+    }
+  }
+  //  La même page, mais la barre Forumactif d'un visiteur : deux liens,
+  //  relevés sur le forum le 7 octobre.
+  return r.fulfill({
+    contentType: "text/html; charset=utf-8",
+    body: page
+      .replace('<a href="/u4">Compte de test</a>', '<a href="/login">Connexion</a>')
+      .replace(
+        '<a href="/privmsg?folder=inbox">Messagerie 3</a>',
+        '<a href="/register">S\'enregistrer</a>',
+      )
+      .replace('<a href="/login?logout=1&amp;tid=JETON">Déconnexion</a>', ""),
+  });
+});
+await p2.goto("http://wild-mystery.test/");
+await p2.evaluate(() => {
+  globalThis._userdata = { session_logged_in: 0 };
+});
+await p2.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p2.waitForTimeout(600);
+const invite = await p2.evaluate(() => ({
+  liens: [...document.querySelectorAll(".wm-nav__droite a")].map((a) => ({
+    t: a.textContent.trim(),
+    h: a.getAttribute("href"),
+  })),
+  compte: document.querySelector(".wm-nav__compte") !== null,
+  switcheroo: document.querySelector("#switcheroo") !== null,
+  toolbar: getComputedStyle(document.querySelector("#fa_toolbar")).display,
+}));
+dire(
+  "déconnectée, « Connexion » et « S'enregistrer » sont repris",
+  invite.liens.length === 2 && invite.liens[0].h === "/login" &&
+    invite.liens[1].h === "/register",
+  JSON.stringify(invite),
+);
+dire("et il n'y a pas de menu de compte", !invite.compte);
+dire("ni de switcheroo : rien à gérer", !invite.switcheroo);
+dire("la toolbar est rangée là aussi", invite.toolbar === "none", invite.toolbar);
 
 await nav.close();
 if (soucis.length > 0) { for (const x of soucis) console.log("  · " + x); }
