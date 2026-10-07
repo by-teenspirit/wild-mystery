@@ -125,7 +125,7 @@
 .wm-accueil__titre-carte,
 .wm-accueil__titre-cote {
   margin: 0;
-  font-family: var(--wm-police-titre, "Kaushan Script", cursive);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
   font-weight: 400;
   line-height: 1.1;
 }
@@ -225,19 +225,19 @@
 .wm-accueil__chapo {
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-courant, 1.4);
+  line-height: var(--wm-interligne-courant, 1.5);
   text-transform: uppercase;
 }
 
 .wm-accueil__texte {
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
-  line-height: var(--wm-interligne-courant, 1.4);
+  line-height: var(--wm-interligne-courant, 1.5);
 }
 
 .wm-accueil__pied {
@@ -247,7 +247,7 @@
 
 .wm-accueil__lien {
   color: var(--wm-accent-primaire, #2b6988);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   text-decoration: none;
@@ -286,7 +286,7 @@
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   text-decoration: none;
@@ -294,7 +294,7 @@
 
 a.wm-accueil__rapide:hover,
 a.wm-accueil__rapide:focus-visible {
-  background: var(--wm-fond-surface-haute, #f8ece2);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
 /*  C'EST UN `<svg>`, PLUS UN MOT. Donc `display: block` et pas `flex` :
@@ -339,7 +339,7 @@ a.wm-accueil__rapide:focus-visible {
     remesurer. */
 .wm-accueil__lien--sans-adresse,
 .wm-accueil__rapide--sans-adresse {
-  color: var(--wm-texte-pale, #9a8475);
+  color: var(--wm-texte-pale, #756054);
   cursor: default;
   text-decoration: line-through;
 }
@@ -372,7 +372,7 @@ a.wm-accueil__rapide:focus-visible {
 
 .wm-accueil__vote {
   display: block;
-  border-radius: var(--wm-rayon-sm, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
   line-height: 0;
 }
 
@@ -381,7 +381,7 @@ a.wm-accueil__rapide:focus-visible {
   overflow: hidden;
   width: 32px;
   height: 32px;
-  border-radius: var(--wm-rayon-sm, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
@@ -428,7 +428,7 @@ a.wm-accueil__partenaire:focus-visible {
 }
 
 .wm-accueil__partenaire--sans-adresse {
-  color: var(--wm-texte-pale, #9a8475);
+  color: var(--wm-texte-pale, #756054);
 }
 
 .wm-accueil__partenaire-image {
@@ -436,7 +436,7 @@ a.wm-accueil__partenaire:focus-visible {
   overflow: hidden;
   width: 24px;
   height: 24px;
-  border-radius: var(--wm-rayon-sm, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
 }
 
 .wm-accueil__partenaire-image img {
@@ -517,7 +517,7 @@ a.wm-accueil__partenaire:focus-visible {
 
 .wm-accueil__membre-pseudo {
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   text-decoration: none;
@@ -530,7 +530,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
 
 .wm-accueil__membre-role {
   color: var(--wm-accent-primaire, #2b6988);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: 0.12px;
@@ -544,7 +544,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
   align-items: center;
   gap: var(--wm-espace-8, 8px);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   letter-spacing: 0.12px;
 }
@@ -677,7 +677,7 @@ a.wm-accueil__membre-pseudo:focus-visible {
 .wm-accueil__prelien-nom {
   margin: 0;
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
 }
@@ -685,9 +685,9 @@ a.wm-accueil__membre-pseudo:focus-visible {
 .wm-accueil__prelien-ligne {
   margin: 0;
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
-  line-height: var(--wm-interligne-courant, 1.4);
+  line-height: var(--wm-interligne-courant, 1.5);
 }
 
 .wm-accueil__prelien-clef {

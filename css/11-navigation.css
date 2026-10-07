@@ -114,7 +114,7 @@
   padding: 0 var(--wm-espace-8, 8px);
   border-radius: var(--wm-rayon-sm, 6px);
   color: var(--wm-texte-sur-nuit, #fffbf7);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
   text-decoration: none;
 }
@@ -163,7 +163,7 @@
   background: transparent;
   color: var(--wm-texte-sur-nuit, #fffbf7);
   cursor: pointer;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
 }
 
@@ -318,7 +318,7 @@
   background: transparent;
   color: var(--wm-texte-sur-nuit, #fffbf7);
   cursor: pointer;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-demi, 600);
   line-height: 1.2;
@@ -401,7 +401,7 @@
   background: var(--wm-fond-surface, #fffbf7);
   box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   list-style: none;
   text-align: left;
@@ -583,7 +583,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   align-items: center;
   box-sizing: border-box;
   min-height: 28px;
-  padding: var(--wm-espace-2, 3px) var(--wm-espace-12, 12px) var(--wm-espace-2, 3px) 8px;
+  padding: var(--wm-espace-2, 2px) var(--wm-espace-12, 12px) var(--wm-espace-2, 2px) 8px;
   gap: 11px;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
@@ -603,7 +603,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 #modernbb .wm-nav__icone {
   flex: 0 0 auto;
   width: 22px;
-  color: var(--wm-accent-terre, #a8582f);
+  color: var(--wm-accent-terre, #9a4f29);
   font-size: 22px;
   line-height: 22px;
 }
@@ -696,7 +696,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   width: 100%;
   border: 0;
   cursor: pointer;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   text-align: left;
 }
 
@@ -806,12 +806,12 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 /*  Le personnage en jeu : son nom prend l'accent, et « en jeu » est
     ÉCRIT. Un surlignage seul ne se lit pas à haute voix. */
 #modernbb .wm-panneau__personnage--actif .wm-panneau__nom {
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
 }
 
 #modernbb .wm-panneau__en-jeu {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
   font-size: var(--wm-taille-petit, 11.5px);
   white-space: nowrap;
 }
@@ -894,7 +894,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   border-radius: 999px;
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -912,7 +912,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   width: 20px;
   height: 20px;
   border-radius: 999px;
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -1013,7 +1013,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   opacity: 0;
   transform: translate(-50%, -50%);
   /*  UNE SEULE PROPRIÉTÉ ANIMÉE, ET C'EST VOULU. `monomer` retire la
@@ -1091,7 +1091,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
   border: 0;
   border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
   cursor: pointer;
   font-family: inherit;

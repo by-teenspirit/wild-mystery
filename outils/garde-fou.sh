@@ -476,6 +476,34 @@ elif ! python3 outils/accueil.py --verifier; then
   gronde "le bloc d'accueil et son repli ne correspondent pas"
 fi
 
+echo "── 15. les replis disent la vérité ─────────────────────────────"
+# Chaque `var(--wm-x, repli)` de `css/` doit porter la valeur que
+# `panneau-admin/jetons.css` déclare vraiment pour `--wm-x`.
+#
+# CE QUI L'A FAIT ÉCRIRE. La page d'accueil affichait tous ses titres
+# manuscrits en Fraunces, et la règle fautive se lisait très bien :
+#
+#     font-family: var(--wm-police-titre, "Kaushan Script", cursive);
+#
+# Le repli dit Kaushan Script, donc on relit « manuscrit ». Mais
+# `--wm-police-titre` VAUT Fraunces : c'est `--wm-police-accent` qui est
+# la manuscrite. Le repli ne s'affiche jamais quand la charte est
+# servie — il ne faisait que mentir au relecteur, et il l'a fait trois
+# fois de suite. Callista l'a vu à l'écran ; moi, non.
+#
+# Les jetons vivent dans le panneau d'administration (48-… §8), donc le
+# repli est la SEULE valeur lisible dans le dépôt : c'est lui qu'on lit
+# pour savoir de quelle couleur ou de quelle police on parle. Il ne peut
+# pas mentir.
+#
+# Vérifié en le cassant dans les trois sens : un repli périmé, le jeton
+# du jour (accent remplacé par titre), un jeton inventé.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — replis non vérifiés"
+elif ! python3 outils/jetons.py --verifier; then
+  gronde "des replis de var() ne correspondent plus à jetons.css"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

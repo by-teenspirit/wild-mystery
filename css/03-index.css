@@ -85,7 +85,7 @@
 }
 
 #modernbb .btn-collapse:hover {
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
 }
 
 /* ── 3 · une ligne de forum ───────────────────────────────────────── */
@@ -137,7 +137,7 @@
   gap: var(--wm-espace-2, 2px);
 
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-size: var(--wm-taille-chiffre, 20px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -170,7 +170,7 @@
       ne va que sur `fond-page` et `fond-surface`. Sur
       `fond-surface-haute`, c'est `texte-doux`. */
   color: var(--wm-texte-doux, #6e5749);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-style: normal;
   font-weight: var(--wm-graisse-gras, 700);
@@ -254,7 +254,7 @@
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-texte-doux, #6e5749);
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);

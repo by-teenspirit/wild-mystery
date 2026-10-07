@@ -133,8 +133,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     seule ne suffirait pas : on prend le fond d'accent, comme un état
     coché ailleurs dans la charte. */
 .wm-confort--ouvert .wm-confort__bouton {
-  border-color: var(--wm-accent-primaire, #2e6e8e);
-  background: var(--wm-accent-primaire, #2e6e8e);
+  border-color: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -199,7 +199,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin: 0 0 var(--wm-espace-4, 4px);
   padding: 0 var(--wm-espace-4, 4px);
   color: var(--wm-texte-doux, #6e5749);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-demi, 600);
   letter-spacing: 0.08em;
@@ -224,7 +224,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-encre, #2e2018);
   cursor: pointer;
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-demi, 600);
   text-align: left;
@@ -240,12 +240,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   height: 16px;
   flex: none;
   border: 1.5px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-sm, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-page, #f2e4d8);
 }
 
 .wm-confort__choix--coche {
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -297,7 +297,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
 .wm-notifs__liste {
@@ -336,7 +336,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   height: 26px;
   padding: 0 var(--wm-espace-6, 6px);
   border-radius: 999px;
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);

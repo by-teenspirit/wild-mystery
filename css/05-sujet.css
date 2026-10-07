@@ -123,7 +123,7 @@
 #modernbb .post-head .topic-title {
   margin: 0;
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-size: var(--wm-taille-titre-carte, 16px);
   font-weight: var(--wm-graisse-demi, 600);
@@ -230,7 +230,7 @@
 /*  Le pseudo. Sa couleur vient du groupe, en style inline : on ne la
     touche pas (voir 59-… §8), on ne donne que la forme. */
 #modernbb .postprofile-name {
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-size: var(--wm-taille-titre-carte, 16px);
   font-weight: var(--wm-graisse-demi, 600);
@@ -350,7 +350,7 @@
   margin: 0 0 var(--wm-espace-16, 16px);
   color: var(--wm-texte-doux, #6e5749);
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -378,7 +378,7 @@
   margin: 0 0 var(--wm-espace-10, 10px);
   color: var(--wm-encre, #2e2018);
 
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-size: var(--wm-taille-titre-carte, 16px);
   font-weight: var(--wm-graisse-demi, 600);
@@ -458,11 +458,11 @@
   border: 1.5px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-accent-terre, #a8582f);
+  color: var(--wm-accent-terre, #9a4f29);
   cursor: pointer;
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
-  font-size: var(--wm-taille-corps-fort, 13.5px);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-weight: 700;
   line-height: 1.3;
 }
@@ -470,13 +470,13 @@
 /*  Posé : le mot est dans la réponse. Le même état visuel que la barre —
     les deux boutons font la même chose, ils doivent se ressembler. */
 #modernbb .wm-bilan__bouton--pose {
-  border-color: var(--wm-accent-primaire, #2e6e8e);
-  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #2e6e8e);
+  border-color: var(--wm-accent-primaire, #2b6988);
+  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #2b6988);
   color: var(--wm-accent-fort, #1f5470);
 }
 
 #modernbb .wm-bilan__bouton:focus-visible {
-  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  outline: 2px solid var(--wm-accent-primaire, #2b6988);
   outline-offset: 2px;
 }
 
@@ -527,7 +527,7 @@
   background: none;
   color: var(--wm-texte-doux, #6e5749);
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);

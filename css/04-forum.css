@@ -80,7 +80,7 @@
 #modernbb .topic-author {
   display: block;
   margin-top: var(--wm-espace-2, 2px);
-  color: var(--wm-accent-terre, #a8582f);
+  color: var(--wm-accent-terre, #9a4f29);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
 }
@@ -118,7 +118,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--wm-espace-6, 6px);
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
   font-size: var(--wm-taille-petit, 11.5px);
   text-decoration: none;
 }
@@ -164,7 +164,7 @@
 
 #modernbb .pagination a {
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
 }
 
 #modernbb .pagination a:hover {
@@ -174,7 +174,7 @@
 /*  La page courante : pleine, comme le bouton d'action principal. Elle
     n'est pas un lien, donc elle ne doit pas en avoir l'air. */
 #modernbb .pagination strong {
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -200,7 +200,7 @@
   background: none;
   color: var(--wm-texte-doux, #6e5749);
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);

@@ -51,10 +51,10 @@
   padding: 0 var(--wm-espace-20, 20px);
   border: 0;
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
   cursor: pointer;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   text-align: center;
@@ -64,9 +64,9 @@
 /*  Le contour fait 1,5 px dans la maquette, et c'est voulu : à 1 px il
     disparaît à côté du plein du primaire. */
 #modernbb .wm-btn--sec {
-  border: 1.5px solid var(--wm-accent-primaire, #2e6e8e);
+  border: 1.5px solid var(--wm-accent-primaire, #2b6988);
   background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
 }
 
 #modernbb .wm-btn--discret {
@@ -90,7 +90,7 @@
 #modernbb a.wm-btn--discret:focus-visible,
 #modernbb button.wm-btn--discret:hover,
 #modernbb button.wm-btn--discret:focus-visible {
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -98,7 +98,7 @@
     demi et toute la rangée bouge. */
 #modernbb a.wm-btn--sec:hover,
 #modernbb button.wm-btn--sec:hover {
-  border-color: var(--wm-accent-primaire, #2e6e8e);
+  border-color: var(--wm-accent-primaire, #2b6988);
 }
 
 /* ── 2 · la pastille de type ──────────────────────────────────────── */
@@ -118,7 +118,7 @@
   gap: var(--wm-espace-6, 6px);
   overflow: hidden;
   border-radius: var(--wm-rayon-lg, 10px);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: 12px;
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
@@ -236,7 +236,7 @@
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
-  padding: var(--wm-espace-2, 3px) var(--wm-espace-10, 10px) var(--wm-espace-2, 3px)
+  padding: var(--wm-espace-2, 2px) var(--wm-espace-10, 10px) var(--wm-espace-2, 2px)
     var(--wm-espace-8, 8px);
   gap: var(--wm-espace-6, 6px);
   overflow: hidden;
@@ -244,7 +244,7 @@
   border-radius: var(--wm-rayon-lg, 10px);
   background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 75%, transparent);
   color: var(--wm-texte-doux, #6e5749);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
@@ -279,12 +279,12 @@
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
-  padding: var(--wm-espace-2, 3px) var(--wm-espace-8, 9px);
+  padding: var(--wm-espace-2, 2px) var(--wm-espace-8, 8px);
   overflow: hidden;
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-accent-fort, #1f5470);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
@@ -295,7 +295,7 @@
 #modernbb .wm-sujet--pv,
 #modernbb .wm-sujet--16 {
   background: var(--wm-fond-terre, #f8eae1);
-  color: var(--wm-accent-terre, #a8582f);
+  color: var(--wm-accent-terre, #9a4f29);
 }
 
 /*  **`texte-doux`, PAS `texte-pale`**, et c'est la règle de la planche
@@ -316,12 +316,12 @@
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
-  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 9px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
   overflow: hidden;
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-texte-doux, #6e5749);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-normale, 400);
   white-space: nowrap;
@@ -343,10 +343,10 @@
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
   cursor: pointer;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -356,7 +356,7 @@
     sinon la rangée saute d'un pixel au changement d'onglet. */
 #modernbb .wm-onglet--actif {
   border-color: transparent;
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -396,13 +396,13 @@
   width: 100%;
   gap: var(--wm-espace-14, 14px);
   overflow: hidden;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
 #modernbb .wm-section__numero {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
@@ -419,9 +419,12 @@
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  /*  1,6 px sur 11,5 : mesuré dans la maquette. Le jeton n'existe pas
-      encore — le poser dans `jetons.css` le reprendra sans toucher ici. */
-  letter-spacing: var(--wm-interlettre-section, 0.139em);
+  /*  1,6 px sur 11,5 : mesuré dans la maquette. PAS DE JETON, et donc
+      pas de `var()` : `var(--wm-interlettre-section, …)` ne résolvait
+      jamais — la valeur par défaut était la seule qui servait, et le
+      `var()` faisait croire le contraire. Le jour où la charte se donne
+      un jeton d'interlettrage de section, il remplacera cette ligne. */
+  letter-spacing: 0.139em;
   text-transform: uppercase;
 }
 
@@ -469,9 +472,9 @@
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 /*  L'invite est pâle, la saisie ne l'est pas : un champ rempli qui garde
@@ -482,8 +485,8 @@
 }
 
 #modernbb .wm-champ:focus-visible {
-  border-color: var(--wm-accent-primaire, #2e6e8e);
-  outline: 2px solid var(--wm-accent-primaire, #2e6e8e);
+  border-color: var(--wm-accent-primaire, #2b6988);
+  outline: 2px solid var(--wm-accent-primaire, #2b6988);
   outline-offset: 1px;
 }
 
@@ -499,11 +502,11 @@
   align-items: center;
   box-sizing: border-box;
   width: 100%;
-  gap: var(--wm-espace-10, 11px);
+  gap: var(--wm-espace-10, 10px);
   overflow: hidden;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 #modernbb .wm-crumbs__etape {
@@ -515,7 +518,7 @@
 #modernbb .wm-crumbs__etape + .wm-crumbs__etape::before {
   content: "›";
   display: inline-block;
-  margin-right: var(--wm-espace-10, 11px);
+  margin-right: var(--wm-espace-10, 10px);
   color: var(--wm-texte-pale, #756054);
 }
 
@@ -533,7 +536,7 @@
 
 #modernbb .wm-crumbs__action {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
 }
@@ -574,12 +577,12 @@
 
 #modernbb .wm-titre-page__surtitre {
   margin: 0;
-  color: var(--wm-accent-terre, #a0532c);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  color: var(--wm-accent-terre, #9a4f29);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
   text-transform: uppercase;
 }
 
@@ -593,7 +596,7 @@
   margin: 0;
   gap: var(--wm-espace-14, 14px);
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: 42px;
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-weight: var(--wm-graisse-demi, 600);
@@ -601,8 +604,8 @@
 }
 
 #modernbb .wm-titre-page__manuscrit {
-  color: var(--wm-accent-primaire, #2e6e8e);
-  font-family: var(--wm-police-accent, "Kaushan Script", cursive);
+  color: var(--wm-accent-primaire, #2b6988);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
   font-size: 44px;
   font-weight: var(--wm-graisse-normale, 400);
 }
@@ -610,10 +613,10 @@
 #modernbb .wm-titre-page__chapo {
   margin: 0;
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-chapo, "Cormorant Garamond", Georgia, serif);
+  font-family: var(--wm-police-chapo, "Cormorant Garamond", Garamond, Georgia, serif);
   font-size: 22px;
   font-style: italic;
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 /*  Sur téléphone le titre descend : 42 px sur 390 coupe au milieu d'un
@@ -654,7 +657,7 @@
   border: 1px dashed var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-page, #f2e4d8);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
 #modernbb .wm-dex--vu {
@@ -663,7 +666,7 @@
 }
 
 #modernbb .wm-dex--capture {
-  border: 1.5px solid var(--wm-accent-primaire, #2e6e8e);
+  border: 1.5px solid var(--wm-accent-primaire, #2b6988);
   background: var(--wm-fond-surface, #fffbf7);
 }
 
@@ -719,7 +722,7 @@
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
 #modernbb .wm-boite__sprite {
@@ -763,7 +766,7 @@
   padding: 9px 11px;
   gap: var(--wm-espace-10, 10px);
   background: var(--wm-fond-surface, #fffbf7);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
@@ -850,12 +853,12 @@
   align-items: center;
   box-sizing: border-box;
   width: 100%;
-  padding: var(--wm-espace-20, 20px) var(--wm-espace-24, 28px);
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-24, 24px);
   gap: var(--wm-espace-18, 18px);
   overflow: hidden;
   background: linear-gradient(to right, #1b1330 0%, #3d2b61 50%, #754042 100%);
   color: var(--wm-texte-sur-nuit, #fffbf7);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
 #modernbb .wm-dresseur__avatar {
@@ -888,7 +891,7 @@
 }
 
 #modernbb .wm-dresseur__nom {
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: 22px;
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-weight: var(--wm-graisse-demi, 600);
@@ -912,7 +915,7 @@
 #modernbb .wm-dresseur__niveau {
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 /*  La jauge. Elle vaut aussi pour le quota de messagerie et l'avancement
@@ -941,7 +944,7 @@
   opacity: 0.85;
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-normale, 400);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 @media (max-width: 760px) {
@@ -975,7 +978,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
 #modernbb .wm-chrono__entree {
@@ -1001,8 +1004,8 @@
 }
 
 #modernbb .wm-chrono__entree--en-cours::before {
-  border-color: var(--wm-accent-terre, #a0532c);
-  background: var(--wm-accent-terre, #a0532c);
+  border-color: var(--wm-accent-terre, #9a4f29);
+  background: var(--wm-accent-terre, #9a4f29);
 }
 
 #modernbb .wm-chrono__entree--a-venir::before {
@@ -1038,12 +1041,12 @@
 
 #modernbb .wm-chrono__date {
   margin: 0;
-  color: var(--wm-accent-terre, #a0532c);
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  color: var(--wm-accent-terre, #9a4f29);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-weight: var(--wm-graisse-demi, 600);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 #modernbb .wm-chrono__entree--a-venir .wm-chrono__date {
@@ -1055,7 +1058,7 @@
   color: var(--wm-encre, #2e2018);
   font-size: var(--wm-taille-message, 16px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 #modernbb .wm-chrono__entree--a-venir .wm-chrono__titre {
@@ -1075,7 +1078,7 @@
   line-clamp: 3;
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-courant, 1.6);
+  line-height: var(--wm-interligne-courant, 1.5);
 }
 
 #modernbb .wm-chrono__marqueur {
@@ -1085,9 +1088,9 @@
   overflow: hidden;
   border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-douce, #f3e1d2);
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
   font-size: var(--wm-taille-etiquette, 10px);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 /* ── 16 · les nouvelles ───────────────────────────────────────────── */
@@ -1105,7 +1108,7 @@
   gap: var(--wm-espace-18, 18px);
   background: transparent;
   list-style: none;
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
 #modernbb .wm-news__entree {
@@ -1128,7 +1131,7 @@
 /*  La plus récente prend l'accent terre — un seul point allumé à la fois,
     et c'est le premier de la pile. */
 #modernbb .wm-news__entree:first-child::before {
-  background: var(--wm-accent-terre, #a0532c);
+  background: var(--wm-accent-terre, #9a4f29);
 }
 
 #modernbb .wm-news__entree::after {
@@ -1149,10 +1152,10 @@
   flex: 0 0 48px;
   width: 48px;
   margin: 0;
-  color: var(--wm-accent-terre, #a0532c);
+  color: var(--wm-accent-terre, #9a4f29);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 #modernbb .wm-news__texte {
@@ -1170,7 +1173,7 @@
   color: var(--wm-encre, #2e2018);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-etiquette, 1.4);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 #modernbb .wm-news__categorie {

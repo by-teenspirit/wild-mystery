@@ -64,7 +64,7 @@
   background:
     radial-gradient(
       120% 90% at 85% 100%,
-      color-mix(in srgb, var(--wm-accent-terre, #b9704a) 14%, transparent),
+      color-mix(in srgb, var(--wm-accent-terre, #9a4f29) 14%, transparent),
       transparent 60%
     ),
     linear-gradient(
@@ -111,7 +111,7 @@
   align-items: center;
   margin: 0;
   padding: 26px 0 var(--wm-espace-16, 16px);
-  border-bottom: 4px solid var(--wm-accent-primaire, #2e6e8e);
+  border-bottom: 4px solid var(--wm-accent-primaire, #2b6988);
 }
 
 /*  Le logo, en attendant l'image : un cercle de 84 en pointillés, comme
@@ -128,7 +128,7 @@
 #modernbb .wm-annexe__enseigne {
   margin: 0;
   color: var(--wm-texte-sur-nuit, #fffbf7);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
@@ -170,7 +170,7 @@
 
 #modernbb .wm-annexe__entree--active {
   border-left-color: var(--wm-accent-fort, #1f5470);
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
 }
 
 /*  39 px de haut, texte à 22 du bord, en capitales (maquette). Le numéro
@@ -227,7 +227,7 @@
 #modernbb .wm-annexe__surtitre {
   margin: 0 0 var(--wm-espace-8, 8px);
   color: var(--wm-accent-fort, #1f5470);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-surtitre, 10.5px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: 0.14em;
@@ -240,14 +240,14 @@
 #modernbb .wm-annexe__titre {
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-display, 44px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-titre, 1.1);
 }
 
 #modernbb .wm-annexe__titre em {
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
   font-style: normal;
   font-weight: var(--wm-graisse-demi, 600);
 }
@@ -255,8 +255,8 @@
 #modernbb .wm-annexe__chapo {
   margin: 0 0 var(--wm-espace-24, 24px);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-chapo, "Fraunces", Georgia, serif);
-  font-size: var(--wm-taille-chapo, 19px);
+  font-family: var(--wm-police-chapo, "Cormorant Garamond", Garamond, Georgia, serif);
+  font-size: var(--wm-taille-chapo, 21px);
   line-height: var(--wm-interligne-normal, 1.65);
 }
 
@@ -280,7 +280,7 @@
 #modernbb .wm-carte__titre {
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-accent-fort, #1f5470);
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, serif);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-section, 19px);
   font-weight: var(--wm-graisse-demi, 600);
   line-height: var(--wm-interligne-carte, 1.25);
@@ -314,7 +314,7 @@
 
 #modernbb .wm-tirets > li::before {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-accent-primaire, #2b6988);
   content: "—";
 }
 
@@ -446,7 +446,7 @@
 
 #modernbb .wm-encart--paisible {
   background: rgba(63, 122, 82, 0.16);
-  background: color-mix(in srgb, var(--wm-danger-paisible, #3f7a52) 16%, transparent);
+  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, transparent);
 }
 
 #modernbb .wm-encart__etiquette {
@@ -550,7 +550,7 @@
   }
 
   #modernbb .wm-annexe__titre {
-    font-size: var(--wm-taille-titre-page, 34px);
+    font-size: var(--wm-taille-titre-page, 25px);
   }
 
   /*  Une ligne de table s'empile. L'en-tête disparaît : des étiquettes

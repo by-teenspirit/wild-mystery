@@ -78,7 +78,7 @@
   background: none;
   color: var(--wm-texte-doux, #6e5749);
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -199,7 +199,7 @@
   border: 0;
   color: var(--wm-texte-corps, #4e3b30);
 
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-message, 16px);
   line-height: var(--wm-interligne-message, 1.75);
   resize: vertical;
@@ -212,8 +212,7 @@
 /*  Le focus se voit sur la boîte, pas sur la zone de texte : sinon
     l'anneau passe sous la barre d'outils. */
 #modernbb .sceditor-container:focus-within {
-  outline: var(--wm-focus-epaisseur, 2px) solid
-    var(--wm-focus-couleur, #2e6e8e);
+  outline: 2px solid var(--wm-accent-primaire, #2b6988);
   outline-offset: 2px;
 }
 
@@ -276,7 +275,7 @@
 #modernbb .submit-buttons .button1 {
   order: 1;
   border-color: transparent;
-  background: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2b6988);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 

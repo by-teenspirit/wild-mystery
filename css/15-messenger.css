@@ -31,7 +31,7 @@
   background: var(--wm-fond-surface, #fffbf7);
   box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
   color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
 
   /*  Elle flotte au-dessus de tout, y compris de notre barre collée
@@ -67,7 +67,7 @@
 #modernbb #FAM .FAM-maintitle,
 #modernbb #FAM .FAM-chat-title {
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-titre, "Kaushan Script", cursive);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
   font-weight: 400;
   text-transform: none;
 }
@@ -104,11 +104,11 @@
 
 #modernbb #FAM .FAM-msg-text {
   color: var(--wm-texte-corps, #4e3b30);
-  line-height: var(--wm-interligne-courant, 1.4);
+  line-height: var(--wm-interligne-courant, 1.5);
 }
 
 #modernbb #FAM .FAM-msg-date {
-  color: var(--wm-texte-pale, #9a8475);
+  color: var(--wm-texte-pale, #756054);
   font-size: var(--wm-taille-etiquette, 10px);
 }
 
@@ -130,7 +130,7 @@
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
 }
 
