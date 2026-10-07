@@ -768,6 +768,35 @@ function habillerLaToolbar(toolbar: HTMLElement): void {
     for (const [nom, valeur] of p) e.style.setProperty(nom, valeur, "important");
   };
 
+  //  ── ON COPIE LE VOISIN, ON N'HÉRITE PAS ────────────────────────────
+  //
+  //  La première version posait `font-size: inherit` sur la cloche, en
+  //  se disant qu'elle prendrait celle de la barre. Mesuré le 7 octobre
+  //  sur le forum : **13 px, contre 13,5 pour « Accueil »**.
+  //
+  //  Parce que la barre, elle, n'a pas de taille à elle : `.wm-nav` est
+  //  à 10 px — ModernBB tient `body` à 10 px et tout son CSS enchaîne
+  //  en `em` — et ce sont `.wm-nav__lien` et `.wm-nav__compte` qui
+  //  déclarent chacun leurs 13,5. Hériter remontait donc jusqu'au 10 px
+  //  de la barre, ou s'arrêtait au 13 px que Forumactif pose sur sa
+  //  propre toolbar. Jamais 13,5.
+  //
+  //  **Donc on lit le bouton du compte et on recopie.** C'est le nœud
+  //  d'à côté, celui dont Callista dit « ça doit s'afficher pareil que
+  //  le reste » ; le mesurer vaut mieux que réécrire une valeur qui
+  //  devra suivre la feuille à la main.
+  const voisin = toolbar.ownerDocument.querySelector<HTMLElement>(".wm-nav__compte");
+  const vu = voisin === null
+    ? null
+    : toolbar.ownerDocument.defaultView?.getComputedStyle(voisin);
+  const commeLeVoisin: readonly (readonly [string, string])[] = vu === undefined || vu === null
+    ? [["font-size", "inherit"], ["font-family", "inherit"], ["font-weight", "inherit"]]
+    : [
+      ["font-size", vu.fontSize],
+      ["font-family", vu.fontFamily],
+      ["font-weight", vu.fontWeight],
+    ];
+
   //  LA CLOCHE SE COMPORTE COMME « Accueil » OU « Rechercher ».
   //
   //  Même hauteur, même rembourrage, même arrondi, même police — elle
@@ -791,12 +820,21 @@ function habillerLaToolbar(toolbar: HTMLElement): void {
       ["border-radius", "6px"],
       ["background", "transparent"],
       ["color", "inherit"],
-      ["font-family", "inherit"],
-      ["font-size", "inherit"],
-      ["font-weight", "inherit"],
+      //  LA MARGE DE FORUMACTIF, QUI MANQUAIT. `margin: 3px 0 0 18px`
+      //  sur la cloche : elle la posait **deux pixels plus bas** que
+      //  « Accueil » et le bouton du compte, et faisait monter son
+      //  enveloppe à 43 px là où toute la rangée est à 40. Mesuré sur
+      //  le forum : cloche à y=53, ses deux voisins à y=51.
+      //
+      //  C'est ça, « les notifs sont encore trop hautes » : trois
+      //  pixels de marge qu'on n'avait pas pensé à effacer, parce
+      //  qu'on regardait la hauteur du bouton et pas celle de la
+      //  rangée.
+      ["margin", "0"],
       ["line-height", "1"],
       ["text-decoration", "none"],
       ["white-space", "nowrap"],
+      ...commeLeVoisin,
     ]);
   }
 
@@ -814,16 +852,34 @@ function habillerLaToolbar(toolbar: HTMLElement): void {
     ["height", "auto"],
     ["min-height", "0"],
     ["line-height", "normal"],
+    ["margin", "0"],
+    //  `#fa_toolbar { padding: 3px 18px }` — ET C'EST LUI, LES 43 PX.
+    //  On avait effacé sa hauteur sans effacer sa marge intérieure :
+    //  3 + 37 + 3 font 43, dans une rangée où tout le reste est à 40.
+    //  Relevé sur le forum le 7 octobre en lisant ses propres règles,
+    //  après avoir cru deux fois que ça venait de la cloche.
+    ["padding", "0"],
+    ...commeLeVoisin,
   ]);
 
+  //  `#fa_right` EST LE MAILLON QU'ON AVAIT SAUTÉ. Il est entre la
+  //  toolbar et la cloche, il portait ses propres 13 px et sa propre
+  //  hauteur, et c'est par lui que la taille passait. Lui remettre les
+  //  mêmes trois propriétés ferme la chaîne.
   const droite = toolbar.querySelector<HTMLElement>("#fa_right");
   if (droite !== null) {
     poser(droite, [
       ["display", "inline-flex"],
       ["align-items", "center"],
       ["width", "auto"],
+      ["height", "auto"],
+      ["min-height", "0"],
+      ["margin", "0"],
+      ["padding", "0"],
       ["float", "none"],
       ["position", "static"],
+      ["line-height", "normal"],
+      ...commeLeVoisin,
     ]);
   }
 

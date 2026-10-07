@@ -119,7 +119,25 @@ body{font-size:10px;margin:0;height:100%;display:flex;flex-direction:column;back
     z-index 20002, et un margin-top de 42 sur le corps pour lui faire
     place. C'est elle qui recouvrait notre barre collée. */
 #fa_toolbar{position:fixed;top:0;left:0;right:0;height:42px;z-index:20002;background:#222;color:#fff}
-#fa_right{float:right;position:relative}
+/*  LES TROIS MESURES QUI FONT LA HAUTEUR, relevees mot pour mot sur le
+    forum le 7 octobre, apres deux passages ou on avait cru avoir fini.
+
+    Le harnais ne les servait pas, donc la cloche y etait deja a la
+    bonne hauteur, et ses deux assertions passaient sur un code faux.
+    C'est le meme trou que pour le CSS de ModernBB dans le harnais de
+    l'accueil : un test ne vaut que ce que son decor reproduit.
+
+      · "padding: 3px 18px" sur la toolbar : c'est LUI les 43 px — on
+        lui avait efface sa hauteur, pas sa marge interieure ;
+      · "margin-top: 3px" sur ".rightHeaderLink", qui posait la cloche
+        deux pixels sous « Accueil » et le bouton du compte ;
+      · "font-size: 1.3rem" sur #fa_right, soit 13 px — contre les 13,5
+        de la rangee. Heriter n'y pouvait rien : la barre elle-meme est
+        a 10 px, et ce sont les liens qui declarent leurs 13,5.  */
+#fa_toolbar{padding:3px 18px;font-family:Roboto,sans-serif;font-size:1.3rem}
+#fa_right{float:right;position:relative;font-size:1.3rem}
+#fa_right a.rightHeaderLink{margin-left:18px;margin-top:3px;vertical-align:top;line-height:30px;border-radius:3px;padding:0 9px}
+.fa_tbMainElement,.fa_tbMainElement a{display:inline-block !important;vertical-align:middle}
 /*  LES VRAIES REGLES DE FORUMACTIF, relevees mot pour mot dans
     "8-ltr.css" le 7 octobre. Elles sont recopiees ici parce qu'elles
     portent LE MECANISME, et pas seulement une apparence :
@@ -819,6 +837,24 @@ const cloche = await p.evaluate(() => {
     hauteur: Math.round(c.getBoundingClientRect().height),
     hauteurDesAutres: autre === null ? null : Math.round(autre.getBoundingClientRect().height),
     largeur: Math.round(c.getBoundingClientRect().width),
+    //  ── ET ELLE EST SUR LA MÊME LIGNE, AU PIXEL ─────────────────────
+    //
+    //  « Les notifs sont encore trop hautes », 7 octobre, APRÈS deux
+    //  passages où la hauteur était déjà la bonne. Elle l'était : 40,
+    //  comme les autres. Ce qui n'allait pas, c'était le reste de la
+    //  rangée — la cloche posée deux pixels plus bas par le
+    //  `margin-top: 3px` de `.rightHeaderLink`, et son enveloppe à
+    //  43 px à cause du `padding: 3px 18px` de la toolbar.
+    //
+    //  **Mesurer une hauteur ne dit pas si c'est aligné.** D'où ces
+    //  trois-là, qui regardent les BORDS et l'enveloppe.
+    hautDeLaCloche: Math.round(c.getBoundingClientRect().top),
+    hautDuCompte: (() => {
+      const e = document.querySelector(".wm-nav__compte");
+      return e === null ? null : Math.round(e.getBoundingClientRect().top);
+    })(),
+    hautDesAutres: autre === null ? null : Math.round(autre.getBoundingClientRect().top),
+    hauteurDeLEnveloppe: barre === null ? null : Math.round(barre.getBoundingClientRect().height),
     //  La barre entière est venue, et c'est ce qui fait marcher leur
     //  mécanique : la liste est restée dans la chaîne
     //  `#fa_toolbar #fa_right …`.
@@ -867,6 +903,21 @@ dire(
   "et elle s'aligne sur la rangée, comme « Accueil »",
   cloche.hauteur === cloche.hauteurDesAutres,
   `${cloche.hauteur} px contre ${cloche.hauteurDesAutres}`,
+);
+//  LA HAUTEUR N'EST PAS L'ALIGNEMENT. Les deux assertions ci-dessus
+//  passaient pendant que la cloche était posée deux pixels trop bas et
+//  que son enveloppe dépassait de trois : elles mesuraient la bonne
+//  chose au mauvais endroit.
+dire(
+  "ELLE EST SUR LA MÊME LIGNE QUE SES DEUX VOISINS, AU PIXEL",
+  cloche.hautDeLaCloche === cloche.hautDuCompte &&
+    cloche.hautDeLaCloche === cloche.hautDesAutres,
+  `cloche ${cloche.hautDeLaCloche} · compte ${cloche.hautDuCompte} · liens ${cloche.hautDesAutres}`,
+);
+dire(
+  "et son enveloppe ne dépasse pas de la rangée",
+  cloche.hauteurDeLEnveloppe === cloche.hauteurDesAutres,
+  `${cloche.hauteurDeLEnveloppe} px contre ${cloche.hauteurDesAutres}`,
 );
 //  À DROITE DU COMPTE, et pas à sa gauche : l'ordre du DOM fait
 //  l'ordre à l'écran, et c'est la demande du 7 octobre.
