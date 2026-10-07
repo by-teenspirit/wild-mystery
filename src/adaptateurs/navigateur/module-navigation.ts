@@ -734,6 +734,18 @@ function deplacerLaToolbar(doc: Document, ou: HTMLElement): boolean {
   const toolbar = doc.querySelector<HTMLElement>("#fa_toolbar");
   if (toolbar === null) return false;
 
+  //  LEUR ÉPINGLE, RETIRÉE. `fa_fix` est l'option « barre fixée en
+  //  haut » de Forumactif, que leur script pose quand le membre l'a
+  //  cochée dans son profil. Sa règle est
+  //  `.fa_fix { position: fixed !important }` — un seul nom de classe,
+  //  mais un `!important`, et un `!important` ne se bat qu'avec un
+  //  autre. Mesuré sur le forum connecté le 7 octobre : la barre était
+  //  bien déménagée dans la nôtre, et se peignait quand même en haut de
+  //  l'écran, avec ses notifications dedans.
+  //
+  //  On la retire donc du nœud plutôt que de lui disputer sa règle :
+  //  une barre rangée dans la nôtre n'a plus rien à épingler.
+  toolbar.classList.remove("fa_fix");
   //  La classe, et pas des styles posés ici : la feuille est relue par
   //  le harnais de contraste, un style inline ne l'est pas.
   toolbar.classList.add("wm-toolbar-chez-nous");

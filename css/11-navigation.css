@@ -221,8 +221,22 @@
 
     `height: auto` ET `min-height: 0` : la règle de Forumactif pose une
     hauteur fixe, et sa valeur dépend du template. */
+/*  LE SEUL `!important` DE CETTE RÈGLE, ET IL EST FORCÉ. Forumactif
+    écrit `.fa_fix { position: fixed !important }` pour le membre qui a
+    coché « barre fixée » dans son profil. Le module retire la classe,
+    mais leur script peut la reposer après nous : on tient les deux
+    bouts, parce qu'une barre qui se ré-épingle se peint en haut de
+    l'écran avec les notifications dedans — c'est le défaut signalé le
+    7 octobre.
+
+    `min-width` AUSSI : leurs classes de taille (`fa_toolbar_M_Sized` et
+    les autres) posent jusqu'à 980 px de largeur minimale, ce qui fait
+    exploser notre barre sur un écran étroit. */
 #modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous {
-  position: static;
+  position: static !important;
+  min-width: 0;
+  top: auto;
+  right: auto;
   z-index: auto;
   display: flex;
   height: auto;
@@ -871,7 +885,25 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
+/*  L'ICÔNE PREND LA COULEUR DE SA PASTILLE, et c'est `inherit` qui le
+    dit — pas un jeton recopié. Sans ça elle gardait l'accent terre de
+    `.wm-nav__icone`, posé pour la barre : mesuré sur le forum en thème
+    sombre, un orange (224, 144, 106) sur une pastille bleu clair, là
+    où il faut l'encre inverse.
+
+    `inherit` plutôt que `texte-inverse` : la pastille change de
+    couleur — accent pour une entrée ouverte, bord pour une entrée à
+    venir — et l'icône doit suivre, pas être redécidée deux fois.
+
+    Et sa boîte fait 1 em, pas la largeur de la ligature : le glyphe
+    mesurait 22 px dans un rond de 20, donc il mordait des deux côtés. */
 #modernbb .wm-compte__pastille .wm-nav__icone {
+  display: flex;
+  width: 1em;
+  height: 1em;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
   font-size: 12px;
   line-height: 1;
 }
@@ -881,15 +913,23 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
+/*  Le libellé reprend l'encre des autres entrées : seul le curseur
+    dit qu'il n'y a rien à ouvrir, et le mot « à venir » dit pourquoi.
+    Un texte pâli en plus faisait trois signaux pour une seule chose. */
 #modernbb .wm-compte__entree--a-venir .wm-compte__lien {
   background: transparent;
-  color: var(--wm-texte-doux, #6e5749);
+  color: var(--wm-encre, #2e2018);
   cursor: default;
 }
 
+/*  LE CARNET S'AFFICHE COMME LES AUTRES — demande de Callista du 7
+    octobre. Sa pastille gardait le gris des entrées à venir, et il
+    tranchait au milieu d'un menu bleu. Ce qui le distingue reste le
+    mot « à venir », qui se lit ; la couleur, elle, ne disait rien de
+    plus et faisait tache. */
 #modernbb .wm-compte__entree--a-venir .wm-compte__pastille {
-  background: var(--wm-bord-net, #d9c3b1);
-  color: var(--wm-texte-doux, #6e5749);
+  background: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /*  La déconnexion se détache : c'est la seule entrée qu'on ne clique pas

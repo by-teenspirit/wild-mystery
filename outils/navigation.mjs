@@ -144,6 +144,19 @@ body{font-size:10px;margin:0;height:100%;display:flex;flex-direction:column;back
 #fa_toolbar #fa_right #fa_notifications.unread #notif_unread{display:inline}
 #fa_toolbar > #fa_right.notification > #fa_notifications{color:#333;background-color:#fff}
 #live_notif{position:absolute;right:47px;visibility:hidden}
+/*  DEUX PIEGES DE PLUS, releves le 7 octobre sur le forum connecte, et
+    qui ont tous les deux mordu :
+
+      · "fa_fix" est l'option « barre fixee en haut » du profil. Sa
+        regle porte un !important, donc elle gagne contre n'importe
+        quelle specificite : la barre etait bien demenagee chez nous et
+        se peignait quand meme en haut de l'ecran, notifications
+        comprises ;
+      · les classes de taille posent jusqu'a 980 px de largeur
+        minimale, ce qui fait exploser notre barre sur petit ecran.  */
+.fa_fix{top:0;right:0;position:fixed !important}
+.fa_toolbar_XL_Sized{min-width:980px;width:100%}
+.fa_toolbar_M_Sized{min-width:519px}
 /*  Et son escamotage de telephone, qui ferait disparaitre les
     notifications une fois la barre chez nous.  */
 @media (max-width:800px){#modernbb #fa_toolbar{visibility:hidden;height:0;padding:0}}
@@ -163,7 +176,7 @@ a#logo img{max-width:100%}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style></head>
 <body id="modernbb">
-<div id="fa_toolbar" class="fa_toolbar_XL_Sized"><div id="fa_right" class="fa_tbMainElement">
+<div id="fa_toolbar" class="fa_fix fa_toolbar_XL_Sized"><div id="fa_right" class="fa_tbMainElement">
   <!--  Le balisage REEL de la barre, releve le 7 octobre sur un compte
         connecte. La cloche n'a PAS de href : c'est leur script qui
         l'ouvre, d'ou le demenagement de la BARRE ENTIERE au lieu de la
@@ -309,6 +322,35 @@ const colle = await p.evaluate(() => {
   };
 });
 dire("la toolbar Forumactif est rangée dans la nôtre", colle.toolbarRangee, JSON.stringify(colle));
+
+//  SON ÉPINGLE EST RETIRÉE. `.fa_fix` porte un `!important` : la barre
+//  se peignait en haut de l'écran tout en étant déménagée chez nous, et
+//  les notifications partaient avec elle. C'est le défaut signalé le
+//  7 octobre, et il ne se voyait pas sans cette classe dans le décor.
+const epingle = await p.evaluate(() => {
+  const t = document.querySelector("#fa_toolbar");
+  const c = getComputedStyle(t);
+  const r = t.getBoundingClientRect();
+  const nav = document.querySelector("nav.wm-nav").getBoundingClientRect();
+  return {
+    classes: t.className,
+    position: c.position,
+    largeurMini: c.minWidth,
+    //  Elle doit être DANS notre barre, pas posée par-dessus la page.
+    dedans: r.top >= nav.top - 1 && r.bottom <= nav.bottom + 1,
+  };
+});
+dire(
+  "ELLE N'EST PLUS ÉPINGLÉE EN HAUT DE L'ÉCRAN",
+  epingle.position === "static" && !epingle.classes.includes("fa_fix"),
+  JSON.stringify(epingle),
+);
+dire("elle tient dans notre barre, et pas par-dessus", epingle.dedans, JSON.stringify(epingle));
+dire(
+  "et elle n'impose plus ses 980 px de largeur minimale",
+  epingle.largeurMini === "0px",
+  epingle.largeurMini,
+);
 
 //  ELLE COLLE VRAIMENT, ET LOIN. `position: sticky` ne colle que dans
 //  son bloc conteneur : avec le `html { height: 100% }` de ModernBB, la
@@ -626,6 +668,47 @@ if (menu !== null) {
     "LA DÉCONNEXION GARDE SON JETON",
     menu.deconnexion === "/login?logout=1&tid=JETON",
     String(menu.deconnexion),
+  );
+
+  //  LES ICÔNES DU MENU prennent la couleur de leur pastille, pas
+  //  l'accent de la barre. Mesuré en sombre sur le forum le 7 octobre :
+  //  un orange (224, 144, 106) sur une pastille bleu clair. Et le
+  //  carnet s'affiche comme les autres entrées.
+  const icones = await p.evaluate(() => {
+    const entrees = [...document.querySelectorAll(".wm-compte__entree")];
+    const lire = (li) => {
+      const past = li.querySelector(".wm-compte__pastille");
+      const ico = li.querySelector(".wm-nav__icone");
+      const rp = past.getBoundingClientRect(), ri = ico.getBoundingClientRect();
+      return {
+        fond: getComputedStyle(past).backgroundColor,
+        pastille: getComputedStyle(past).color,
+        icone: getComputedStyle(ico).color,
+        //  Centrée ET à sa taille : le glyphe mesurait 22 px dans un
+        //  rond de 20, donc il mordait des deux côtés.
+        ecart: Math.round(Math.abs((ri.x + ri.width / 2) - (rp.x + rp.width / 2)) * 10) / 10,
+        tient: ri.width <= rp.width && ri.height <= rp.height,
+      };
+    };
+    return {
+      carnet: lire(entrees.find((e) => /carnet/i.test(e.textContent))),
+      autre: lire(entrees.find((e) => /Voir mon profil/i.test(e.textContent))),
+    };
+  });
+  dire(
+    "L'ICÔNE PREND LA COULEUR DE SA PASTILLE",
+    icones.autre.icone === icones.autre.pastille,
+    JSON.stringify(icones.autre),
+  );
+  dire(
+    "elle est centrée et tient dans son rond",
+    icones.autre.ecart === 0 && icones.autre.tient,
+    JSON.stringify(icones.autre),
+  );
+  dire(
+    "ET LE CARNET S'AFFICHE COMME LES AUTRES",
+    icones.carnet.fond === icones.autre.fond && icones.carnet.icone === icones.autre.icone,
+    JSON.stringify(icones),
   );
 }
 
