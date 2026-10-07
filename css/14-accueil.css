@@ -174,6 +174,26 @@
 
     Et comme il s'étire, le mot doit se recentrer dedans : d'où le flex,
     que `text-align` ne pouvait pas faire sur un axe vertical. */
+/*  ── LA SEULE COULEUR EN DUR DE CETTE FEUILLE, ET POURQUOI ──────────
+
+    Le mot se pose sur une IMAGE, et une image ne change pas de thème.
+    Lui donner un jeton, c'est lui donner une couleur qui se retourne en
+    sombre pendant que son fond reste clair : `accent-fort` passait du
+    bleu nuit au bleu pâle, sur un bandeau bleu pâle. Illisible, et
+    visible à l'œil sur la capture du 7 octobre.
+
+    Mesuré sur les pixels de la bande centrale (la plus sombre est
+    `rgb(147 189 209)`) :
+
+      · `accent-fort` clair #1f5470 → 4,08  — SOUS LA BARRE, déjà en
+        clair, et personne ne l'avait vu : le harnais de contraste ne
+        tourne que sur `pages/`, où ce bandeau n'est pas.
+      · `texte-inverse` #fffbf7      → 1,25
+      · l'encre claire #2e2018       → 7,81  ✓
+
+    Donc l'encre, écrite en clair. Le jour où l'image change, cette
+    mesure est à refaire — c'est le prix d'un texte posé sur une photo,
+    et c'est pour ça que la règle est écrite ici et pas ailleurs. */
 .wm-accueil__bandeau--image {
   display: flex;
   box-sizing: border-box;
@@ -181,6 +201,7 @@
   align-self: stretch;
   align-items: center;
   justify-content: center;
+  color: #2e2018;
   padding: var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
   background-position: center;
