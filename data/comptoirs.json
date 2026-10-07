@@ -1,0 +1,13 @@
+{
+ "_": "Les comptoirs de boutique : les sujets où la relève lit les paniers. Relevé sur le forum le 5 octobre 2026.",
+ "_pourquoi": "Ce n'est pas une constante du code, et c'est volontaire. Le module de boutique côté navigateur se reconnaît à la classe `.wm-boutique` dans le message et JAMAIS à `t977` — Callista peut déplacer le sujet, le renommer, ou en ouvrir un second (boutique saisonnière, stand d'évent) sans qu'on touche au code. La tâche 3 de la relève garde la même propriété : pour ajouter un comptoir, on ajoute une ligne ici et on pousse.",
+ "_forumId": "Le forum qui PORTE le sujet, et pas le sujet lui-même : le curseur de lecture (`releve_suivi`) est tenu par forum. Le sujet dit où lire, le forum dit où se souvenir. Deux comptoirs dans le même forum partageraient donc leur curseur — à éviter, chacun le sien.",
+ "comptoirs": [
+  {
+   "sujetId": 977,
+   "forumId": 3,
+   "nom": "Boutique de Rhode",
+   "_": "Le catalogue général, 34 articles. Dans « Le Marché de Rhode » (f3), sous « Station Service » (f18). Le premier message est écrit par `python3 outils/objets.py --forum`."
+  }
+ ]
+}

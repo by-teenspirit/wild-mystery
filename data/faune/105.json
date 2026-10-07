@@ -1,0 +1,478 @@
+{
+ "forumId": 105,
+ "zone": "Volcan Sombre",
+ "palier": 3,
+ "_": "Zone NEUVE : la V1 ne l'avait pas, elle n'a donc aucune table d'origine. Un seul lieu, pourcentages égaux, jour et nuit identiques — voir l'en-tête de outils/zones-neuves.py. À découper en lieux quand l'annexe de la zone sera écrite.",
+ "lieux": {
+  "Volcan Sombre": {
+   "jour": [
+    {
+     "espece": 6,
+     "nom": "Dracaufeu",
+     "pct": 3.4483,
+     "min": 35,
+     "max": 40,
+     "rarete": "commun"
+    },
+    {
+     "espece": 467,
+     "nom": "Maganon",
+     "pct": 3.4483,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 157,
+     "nom": "Typhlosion",
+     "pct": 3.4483,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 655,
+     "nom": "Goupelin",
+     "pct": 3.4483,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 815,
+     "nom": "Pyrobut",
+     "pct": 3.4483,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 136,
+     "nom": "Pyroli",
+     "pct": 3.4483,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 862,
+     "nom": "Ixon",
+     "pct": 3.4483,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 553,
+     "nom": "Crocorible",
+     "pct": 3.4483,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 727,
+     "nom": "Félinferno",
+     "pct": 3.4483,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 197,
+     "nom": "Noctali",
+     "pct": 3.4483,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 257,
+     "nom": "Braségali",
+     "pct": 3.4483,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 445,
+     "nom": "Carchacrok",
+     "pct": 3.4483,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 635,
+     "nom": "Trioxhydre",
+     "pct": 3.4483,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 663,
+     "nom": "Flambusard",
+     "pct": 3.4483,
+     "min": 42,
+     "max": 47,
+     "rarete": "commun"
+    },
+    {
+     "espece": 861,
+     "nom": "Angoliath",
+     "pct": 3.4483,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 612,
+     "nom": "Tranchodon",
+     "pct": 3.4483,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 65,
+     "nom": "Alakazam",
+     "pct": 3.4483,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 373,
+     "nom": "Drattak",
+     "pct": 3.4483,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 149,
+     "nom": "Dracolosse",
+     "pct": 3.4483,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 784,
+     "nom": "Ékaïser",
+     "pct": 3.4483,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 724,
+     "nom": "Archéduc",
+     "pct": 3.4483,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 609,
+     "nom": "Lugulabre",
+     "pct": 3.4483,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 839,
+     "nom": "Monthracite",
+     "pct": 3.4483,
+     "min": 47,
+     "max": 52,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 392,
+     "nom": "Simiabraz",
+     "pct": 3.4483,
+     "min": 47,
+     "max": 52,
+     "rarete": "rare"
+    },
+    {
+     "espece": 500,
+     "nom": "Roitiflam",
+     "pct": 3.4483,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 911,
+     "nom": "Flâmigator",
+     "pct": 3.4483,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 979,
+     "nom": "Courrousinge",
+     "pct": 3.4483,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 983,
+     "nom": "Scalpereur",
+     "pct": 3.4483,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 10233,
+     "nom": "Typhlosion de Hisui",
+     "pct": 3.4476,
+     "min": 50,
+     "max": 55,
+     "rarete": "rare"
+    }
+   ],
+   "nuit": [
+    {
+     "espece": 6,
+     "nom": "Dracaufeu",
+     "pct": 3.4483,
+     "min": 35,
+     "max": 40,
+     "rarete": "commun"
+    },
+    {
+     "espece": 467,
+     "nom": "Maganon",
+     "pct": 3.4483,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 157,
+     "nom": "Typhlosion",
+     "pct": 3.4483,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 655,
+     "nom": "Goupelin",
+     "pct": 3.4483,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 815,
+     "nom": "Pyrobut",
+     "pct": 3.4483,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 136,
+     "nom": "Pyroli",
+     "pct": 3.4483,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 862,
+     "nom": "Ixon",
+     "pct": 3.4483,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 553,
+     "nom": "Crocorible",
+     "pct": 3.4483,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 727,
+     "nom": "Félinferno",
+     "pct": 3.4483,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 197,
+     "nom": "Noctali",
+     "pct": 3.4483,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 257,
+     "nom": "Braségali",
+     "pct": 3.4483,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 445,
+     "nom": "Carchacrok",
+     "pct": 3.4483,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 635,
+     "nom": "Trioxhydre",
+     "pct": 3.4483,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 663,
+     "nom": "Flambusard",
+     "pct": 3.4483,
+     "min": 42,
+     "max": 47,
+     "rarete": "commun"
+    },
+    {
+     "espece": 861,
+     "nom": "Angoliath",
+     "pct": 3.4483,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 612,
+     "nom": "Tranchodon",
+     "pct": 3.4483,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 65,
+     "nom": "Alakazam",
+     "pct": 3.4483,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 373,
+     "nom": "Drattak",
+     "pct": 3.4483,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 149,
+     "nom": "Dracolosse",
+     "pct": 3.4483,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 784,
+     "nom": "Ékaïser",
+     "pct": 3.4483,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 724,
+     "nom": "Archéduc",
+     "pct": 3.4483,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 609,
+     "nom": "Lugulabre",
+     "pct": 3.4483,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 839,
+     "nom": "Monthracite",
+     "pct": 3.4483,
+     "min": 47,
+     "max": 52,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 392,
+     "nom": "Simiabraz",
+     "pct": 3.4483,
+     "min": 47,
+     "max": 52,
+     "rarete": "rare"
+    },
+    {
+     "espece": 500,
+     "nom": "Roitiflam",
+     "pct": 3.4483,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 911,
+     "nom": "Flâmigator",
+     "pct": 3.4483,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 979,
+     "nom": "Courrousinge",
+     "pct": 3.4483,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 983,
+     "nom": "Scalpereur",
+     "pct": 3.4483,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 10233,
+     "nom": "Typhlosion de Hisui",
+     "pct": 3.4476,
+     "min": 50,
+     "max": 55,
+     "rarete": "rare"
+    }
+   ]
+  }
+ }
+}

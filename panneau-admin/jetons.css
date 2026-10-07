@@ -1,0 +1,257 @@
+:root {
+
+  --wm-police-titre:  "Fraunces", Georgia, "Times New Roman", serif;
+  --wm-police-accent: "Kaushan Script", "Brush Script MT", cursive;
+  --wm-police-chapo:  "Cormorant Garamond", Garamond, Georgia, serif;
+  --wm-police-corps:  "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+
+  --wm-police-titre-axes: "SOFT" 0, "WONK" 1;
+  --wm-police-corps-axes: "wdth" 100, "YTLC" 500;
+
+  --wm-taille-display:       44px;
+  --wm-taille-accent:        46px;
+  --wm-taille-titre-page:    25px;
+  --wm-taille-chapo:         21px;
+  --wm-taille-chiffre:       20px;
+  --wm-taille-titre-section: 19px;
+  --wm-taille-titre-carte:   16px;
+  --wm-taille-message:       16px;
+  --wm-taille-normal:      13.5px;
+  --wm-taille-petit:       11.5px;
+  --wm-taille-surtitre:    10.5px;
+  --wm-taille-legende:     10.5px;
+  --wm-taille-etiquette:     10px;
+
+  --wm-graisse-normale: 400;
+  --wm-graisse-demi:    600;
+  --wm-graisse-gras:    700;
+
+  --wm-interligne-affiche:   1;
+  --wm-interligne-titre:     1.1;
+  --wm-interligne-chiffre:   1.15;
+  --wm-interligne-section:   1.2;
+  --wm-interligne-carte:     1.25;
+  --wm-interligne-etiquette: 1.3;
+  --wm-interligne-surtitre:  1.4;
+  --wm-interligne-legende:   1.45;
+  --wm-interligne-courant:   1.5;
+  --wm-interligne-normal:    1.65;
+  --wm-interligne-message:   1.75;
+
+  --wm-interlettre-surtitre:  0.018em;
+  --wm-interlettre-etiquette: 0.012em;
+
+  --wm-fond-page:          #f2e4d8;
+  --wm-fond-surface:       #fffbf7;
+  --wm-fond-surface-haute: #fcf4ec;
+  --wm-fond-douce:         #f3e1d2;
+  --wm-fond-nuit:          #3a2a22;
+  --wm-fond-terre:         #f8eae1;
+
+  --wm-encre:           #2e2018;
+  --wm-texte-corps:     #4e3b30;
+  --wm-texte-doux:      #6e5749;
+  --wm-texte-pale:      #756054;
+  --wm-texte-inverse:   #fffbf7;
+  --wm-texte-sur-nuit:  #fffbf7;
+
+  --wm-accent-primaire: #2b6988;
+  --wm-accent-fort:     #1f5470;
+  --wm-accent-terre:    #9a4f29;
+
+  --wm-bord-fin: #eadacd;
+  --wm-bord-net: #d9c3b1;
+
+  --wm-danger-paisible:   #4f7a52;
+  --wm-danger-dangereuse: #8d5d27;
+  --wm-danger-interdite:  #a64430;
+
+  --wm-type-normal-fond:   #eaeaec;
+  --wm-type-normal-texte:  #666a5f;
+  --wm-type-combat-fond:   #efddde;
+  --wm-type-combat-texte:  #9e4a38;
+  --wm-type-vol-fond:      #e3e8f6;
+  --wm-type-vol-texte:     #506a8e;
+  --wm-type-poison-fond:   #ebdef0;
+  --wm-type-poison-texte:  #894f8b;
+  --wm-type-sol-fond:      #efe7df;
+  --wm-type-sol-texte:     #7e6331;
+  --wm-type-roche-fond:    #ebe7e2;
+  --wm-type-roche-texte:   #72663e;
+  --wm-type-insecte-fond:  #e6ecdf;
+  --wm-type-insecte-texte: #59712c;
+  --wm-type-spectre-fond:  #e4dff0;
+  --wm-type-spectre-texte: #6f5999;
+  --wm-type-acier-fond:    #e5e8ef;
+  --wm-type-acier-texte:   #5a6a74;
+  --wm-type-feu-fond:      #f4e1dc;
+  --wm-type-feu-texte:     #9a5128;
+  --wm-type-eau-fond:      #dce6f7;
+  --wm-type-eau-texte:     #38699a;
+  --wm-type-plante-fond:   #e1ede1;
+  --wm-type-plante-texte:  #427233;
+  --wm-type-electrik-fond:  #f3eddb;
+  --wm-type-electrik-texte: #7c6a1a;
+  --wm-type-psy-fond:      #f3e0ec;
+  --wm-type-psy-texte:     #9c4c69;
+  --wm-type-glace-fond:    #e1eef5;
+  --wm-type-glace-texte:   #3f7277;
+  --wm-type-dragon-fond:   #e0e1ef;
+  --wm-type-dragon-texte:  #55628c;
+  --wm-type-tenebres-fond:  #e1dfe6;
+  --wm-type-tenebres-texte: #686169;
+  --wm-type-fee-fond:      #f3e6f4;
+  --wm-type-fee-texte:     #885b7d;
+
+  --wm-pokemon-pur-fond:       #3c6b47;
+  --wm-pokemon-pur-texte:      #fffbf7;
+  --wm-pokemon-obscur-fond:    #4a3a63;
+  --wm-pokemon-obscur-texte:   #fffbf7;
+
+  --wm-groupe-ho-oh-fond:      #f3d8c0;
+  --wm-groupe-ho-oh-texte:     #9a4f22;
+  --wm-groupe-reshiram-fond:   #dee6ef;
+  --wm-groupe-reshiram-texte:  #4c5a6c;
+  --wm-groupe-deoxys-fond:     #e0d6ef;
+  --wm-groupe-deoxys-texte:    #5e4a7e;
+  --wm-groupe-xerneas-fond:    #cdeae4;
+  --wm-groupe-xerneas-texte:   #2a6a62;
+  --wm-groupe-zamazenta-fond:  #f2d4da;
+  --wm-groupe-zamazenta-texte: #7a3341;
+  --wm-groupe-mew-fond:        #f7dce8;
+  --wm-groupe-mew-texte:       #7a4460;
+
+  --wm-espace-2:   2px;
+  --wm-espace-4:   4px;
+  --wm-espace-6:   6px;
+  --wm-espace-8:   8px;
+  --wm-espace-10: 10px;
+  --wm-espace-12: 12px;
+  --wm-espace-14: 14px;
+  --wm-espace-16: 16px;
+  --wm-espace-18: 18px;
+  --wm-espace-20: 20px;
+  --wm-espace-24: 24px;
+  --wm-espace-32: 32px;
+  --wm-espace-40: 40px;
+  --wm-espace-48: 48px;
+
+  --wm-rayon-xs:  4px;
+  --wm-rayon-sm:  6px;
+  --wm-rayon-md:  8px;
+  --wm-rayon-lg: 10px;
+
+  --wm-avatar-largeur:        200px;
+  --wm-avatar-hauteur:        320px;
+  --wm-vignette-zone-largeur: 900px;
+  --wm-vignette-zone-hauteur: 560px;
+  --wm-sprite:                 96px;
+  --wm-cible-tactile:          44px;
+}
+
+body.wm-sombre {
+
+  --wm-fond-page:             #1a1210;
+  --wm-fond-surface:          #241a16;
+  --wm-fond-surface-haute:    #2e211c;
+  --wm-fond-douce:            #1f1613;
+  --wm-fond-nuit:             #120c0a;
+  --wm-fond-terre:            #33211a;
+  --wm-encre:                 #f2e4d8;
+  --wm-texte-corps:           #dcc9ba;
+  --wm-texte-doux:            #ae9585;
+  --wm-texte-pale:            #997f6f;
+  --wm-texte-inverse:         #1a1210;
+  --wm-texte-sur-nuit:        #f2e4d8;
+  --wm-accent-primaire:       #7fc2de;
+  --wm-accent-fort:           #a3d6ec;
+  --wm-accent-terre:          #e0906a;
+  --wm-bord-fin:              #3a2b24;
+  --wm-bord-net:              #46332a;
+  --wm-danger-paisible:       #7fb183;
+  --wm-danger-dangereuse:     #dfa860;
+  --wm-danger-interdite:      #d97f6e;
+
+  --wm-type-normal-fond:      #3d3c47;
+  --wm-type-normal-texte:     #aab09f;
+  --wm-type-combat-fond:      #442a34;
+  --wm-type-combat-texte:     #d78574;
+  --wm-type-vol-fond:         #333a55;
+  --wm-type-vol-texte:        #80a8df;
+  --wm-type-poison-fond:      #3f2c4c;
+  --wm-type-poison-texte:     #c78ec9;
+  --wm-type-sol-fond:         #443835;
+  --wm-type-sol-texte:        #cc9f4f;
+  --wm-type-roche-fond:       #3f3839;
+  --wm-type-roche-texte:      #b4a264;
+  --wm-type-insecte-fond:     #383e34;
+  --wm-type-insecte-texte:    #94bc4a;
+  --wm-type-spectre-fond:     #342c4c;
+  --wm-type-spectre-texte:    #a491c9;
+  --wm-type-acier-fond:       #36384b;
+  --wm-type-acier-texte:      #90a7b5;
+  --wm-type-feu-fond:         #4b3031;
+  --wm-type-feu-texte:        #ec854c;
+  --wm-type-eau-fond:         #2a3756;
+  --wm-type-eau-texte:        #6eaae7;
+  --wm-type-plante-fond:      #304037;
+  --wm-type-plante-texte:     #71c558;
+  --wm-type-electrik-fond:    #4a402f;
+  --wm-type-electrik-texte:   #e5c531;
+  --wm-type-psy-fond:         #4a2e46;
+  --wm-type-psy-texte:        #ea86ab;
+  --wm-type-glace-fond:       #304253;
+  --wm-type-glace-texte:      #70cbd4;
+  --wm-type-dragon-fond:      #2f304a;
+  --wm-type-dragon-texte:     #8e9bc2;
+  --wm-type-tenebres-fond:    #312d3e;
+  --wm-type-tenebres-texte:   #9a959c;
+  --wm-type-fee-fond:         #493652;
+  --wm-type-fee-texte:        #e397d1;
+
+  --wm-pokemon-pur-fond:       #2f5a3c;
+  --wm-pokemon-pur-texte:      #f2e4d8;
+  --wm-pokemon-obscur-fond:    #605080;
+  --wm-pokemon-obscur-texte:   #f2e4d8;
+
+  --wm-groupe-ho-oh-fond:       #6b3a1e;
+  --wm-groupe-ho-oh-texte:      #e8a05c;
+  --wm-groupe-reshiram-fond:    #3c4654;
+  --wm-groupe-reshiram-texte:   #c9d6e4;
+  --wm-groupe-deoxys-fond:      #4a3a63;
+  --wm-groupe-deoxys-texte:     #b79bda;
+  --wm-groupe-xerneas-fond:     #1f4f4a;
+  --wm-groupe-xerneas-texte:    #7fd1c4;
+  --wm-groupe-zamazenta-fond:   #5a2430;
+  --wm-groupe-zamazenta-texte:  #e08497;
+  --wm-groupe-mew-fond:         #5c3348;
+  --wm-groupe-mew-texte:        #f0a8c8;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   « Grossir le texte » — le réglage de confort de la feuille 12
+
+   Il vit ICI et pas dans `css/`, pour la même raison que le reste de ce
+   fichier : le dépôt se sert des jetons, il ne les déclare pas.
+
+   ON NE TOUCHE PAS À `font-size` SUR `body`. ModernBB le tient à 10px et
+   tout son CSS enchaîne en `em` : le changer multiplierait le forum
+   entier. On remonte les jetons, que toutes nos feuilles emploient, et
+   ce qui vient de ModernBB garde sa propre chaîne.
+
+   +2 px sur le courant, +1,5 sur le petit, +2 sur les titres : assez
+   pour que ça compte, pas assez pour casser une mise en page mesurée au
+   contraste.
+   ════════════════════════════════════════════════════════════════════ */
+
+body.wm-texte-large {
+  --wm-taille-normal: 15.5px;
+  --wm-taille-petit: 13px;
+  --wm-taille-message: 16px;
+  --wm-taille-chapo: 21px;
+  --wm-taille-titre-carte: 18px;
+  --wm-taille-titre-section: 21px;
+  --wm-taille-legende: 13px;
+  --wm-taille-etiquette: 11px;
+  --wm-taille-surtitre: 11.5px;
+}

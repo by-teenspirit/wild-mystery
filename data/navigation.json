@@ -1,0 +1,33 @@
+{
+  "_": "La barre de navigation et le panneau latéral, en un seul endroit. Relevé sur le forum et sur les maquettes 390:3142, 390:3676 et 390:3636, le 6 octobre 2026.",
+  "_deux_barres": "ATTENTION, c'est tenu à DEUX endroits. La grosse partie — le logo et les cinq liens — est la barre normale, `ul#modernbb-nav-menu`. Le profil, les notifications et le menu du compte sont la barre FORUMACTIF, `#fa_toolbar`. On ne mélange pas les deux : la seconde porte des adresses à jeton de session qu'on ne reconstruit jamais, on réutilise ses liens tels quels.",
+  "_adresse": "null = la page n'existe pas encore. L'entrée s'affiche sans lien, comme au sommaire des annexes. Dès que tu crées la page, mets son adresse ici et le lien apparaît.",
+
+  "liens": [
+    { "clef": "accueil", "titre": "Accueil", "adresse": "/" },
+    { "clef": "rechercher", "titre": "Rechercher", "adresse": "/search" },
+    { "clef": "personnages", "titre": "Personnages", "adresse": "/memberlist" },
+    { "clef": "groupes", "titre": "Groupes", "adresse": "/groups" },
+    { "clef": "messagerie", "titre": "Messagerie", "adresse": "/privmsg" }
+  ],
+
+  "_utiles": "Les sept liens du panneau latéral. `icone` est un nom de Material Symbols — la police est déjà chargée par le forum, on n'en ajoute pas. Deux adresses sont MESURÉES sur le forum ; les cinq autres sont des pages qui n'existent pas encore.",
+  "utiles": [
+    { "icone": "menu_book", "titre": "Mon Carnet de Bord", "adresse": null },
+    { "icone": "list_alt", "titre": "Annexes", "adresse": null },
+    { "icone": "map", "titre": "Carte de Rhode", "adresse": null },
+    { "icone": "storefront", "titre": "Marché de Rhode", "adresse": "/f3-le-marche-de-rhode" },
+    { "icone": "cottage", "titre": "Liste des pensions", "adresse": null },
+    { "icone": "science", "titre": "Laboratoire fossile", "adresse": "/f25-laboratoire" },
+    { "icone": "emoji_events", "titre": "Liste des arènes", "adresse": null }
+  ],
+
+  "_compte": "Le menu qui s'ouvre sur le nom du compte. DÉCONNEXION n'est pas ici : son adresse porte un jeton de session, et on reprend le lien que la page contient déjà plutôt que d'en fabriquer un qui serait faux.",
+  "compte": [
+    { "icone": "visibility", "titre": "Voir mon profil", "modele": "/u{id}" },
+    { "icone": "edit", "titre": "Éditer mon profil", "modele": "/profile?mode=editprofile" },
+    { "icone": "menu_book", "titre": "Mon carnet de bord", "modele": null },
+    { "icone": "forum", "titre": "Mes sujets", "modele": "/search?search_id=egosearch" },
+    { "icone": "mail", "titre": "Mes messages", "modele": "/privmsg" }
+  ]
+}

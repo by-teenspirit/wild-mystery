@@ -1,0 +1,172 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 15 · Le Messenger, à la charte
+
+   Forumactif Messenger (FAM) est un script de la communauté, en
+   GPL-3.0, servi depuis notre fork. Son apparence d'origine est celle
+   d'un widget de 2017 : du bleu #39F, des bordures #DDD, du blanc dur,
+   et rien qui suive le thème.
+
+   Cette feuille ne fait QUE l'habiller. Elle ne change aucun
+   comportement — tout ce qui est mécanique vit dans le fork, et c'est
+   là qu'on le change.
+
+   ── POURQUOI CHAQUE RÈGLE COMMENCE PAR `#modernbb` ──────────────────
+
+   FAM n'a pas de feuille à lui : il INJECTE un `<style>` dans la page
+   au démarrage. Il arrive donc APRÈS la nôtre dans la cascade, et à
+   spécificité égale c'est lui qui gagne. Relevé le 7 octobre : ses
+   sélecteurs sont `#FAM`, `.FAM-button`, `#FAM-content`… — un
+   identifiant ou une classe. `#modernbb` devant nous en donne un de
+   plus, et ça suffit partout.
+
+   PREMIÈRE PASSE, écrite sans l'avoir sous les yeux : le script n'est
+   pas encore installé. À relire une fois qu'il tourne.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la fenêtre ───────────────────────────────────────────────── */
+
+#modernbb #FAM {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+
+  /*  Elle flotte au-dessus de tout, y compris de notre barre collée
+      (70) et du coin d'outils (40). On ne touche pas à son plan —
+      99999 est le sien — mais on la décale du bord, comme le coin :
+      deux blocs flottants collés au même pixel se marchent dessus. */
+  right: var(--wm-espace-16, 16px);
+  bottom: var(--wm-espace-16, 16px);
+}
+
+/*  La pastille qui ouvre le tchat. C'est elle qu'on voit tout le
+    temps : elle prend l'accent de la charte, et la taille d'une vraie
+    cible tactile — 30 px était trop petit au doigt. */
+#modernbb #FAM-button {
+  right: var(--wm-espace-16, 16px);
+  bottom: var(--wm-espace-16, 16px);
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-texte-inverse, #fffbf7);
+  line-height: 44px;
+  text-align: center;
+}
+
+#modernbb #FAM-button:hover,
+#modernbb #FAM-button:focus-visible {
+  background: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── 2 · les titres et les onglets ────────────────────────────────── */
+
+#modernbb #FAM .FAM-maintitle,
+#modernbb #FAM .FAM-chat-title {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  font-weight: 400;
+  text-transform: none;
+}
+
+/*  `text-transform: uppercase` est posé par FAM sur tous ses titres.
+    On le laisse où il sert — les étiquettes — et on l'enlève des
+    titres, que la police manuscrite rend illisibles en capitales. */
+#modernbb #FAM .FAM-title {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: 0.08em;
+}
+
+#modernbb #FAM #FAM-tabs {
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-page, #f2e4d8);
+}
+
+#modernbb #FAM .FAM-tab {
+  border-radius: var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb #FAM .FAM-tab.FAM-active-tab {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+}
+
+/* ── 3 · les messages ─────────────────────────────────────────────── */
+
+#modernbb #FAM .FAM-msg {
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb #FAM .FAM-msg-text {
+  color: var(--wm-texte-corps, #4e3b30);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb #FAM .FAM-msg-date {
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  Ses propres messages se distinguent par le fond, pas seulement par
+    l'alignement : sur un écran étroit, FAM les empile et le côté ne se
+    lit plus. */
+#modernbb #FAM .FAM-my-msg {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb #FAM .FAM-msg-avatar img {
+  border-radius: 999px;
+}
+
+/* ── 4 · la saisie et les boutons ─────────────────────────────────── */
+
+#modernbb #FAM .FAM-inputbox {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb #FAM .FAM-inputbox:focus-visible {
+  border-color: var(--wm-accent-primaire, #2b6988);
+  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  outline-offset: 1px;
+}
+
+#modernbb #FAM .FAM-button,
+#modernbb #FAM .FAM-toolbar-button {
+  border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-accent-primaire, #2b6988);
+}
+
+#modernbb #FAM .FAM-button:hover,
+#modernbb #FAM .FAM-toolbar-button:hover,
+#modernbb #FAM .FAM-button:focus-visible,
+#modernbb #FAM .FAM-toolbar-button:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb #FAM .FAM-page-link {
+  color: var(--wm-accent-primaire, #2b6988);
+}
+
+/* ── 5 · ce qu'on ne touche pas, et pourquoi ──────────────────────── */
+
+/*  `#FAM-modal-overlay`, `.FAM-codebox`, `.FAM-spoiler`,
+    `.FAM-attachment` : laissés tels quels. Ils ne se voient qu'une
+    fois dans le tchat, ils sont cohérents entre eux, et les
+    repeindre à l'aveugle — sans le script installé — ferait plus de
+    dégâts que de bien.
+
+    De même pour la police d'icônes : FAM charge Font Awesome 4.7
+    depuis cdnjs, et c'est SON choix. La remplacer par Material
+    Symbols demanderait de réécrire chaque appel d'icône dans le fork,
+    pour un gain d'un kilo-octet. */

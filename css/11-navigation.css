@@ -1,0 +1,1143 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 11 · La navigation
+
+   La barre, le panneau latéral et le menu du compte. Repris sur les
+   maquettes `390:3142`, `390:3676` et `390:3636`, le 6 octobre.
+
+   ── DEUX BARRES, ET ELLES NE SE RESSEMBLENT PAS ───────────────────────
+
+   `#modernbb-nav-menu` est la barre normale : le logo et les cinq liens.
+   `#fa_toolbar` est la barre Forumactif : le compte, les messages, les
+   notifications. La seconde est posée par un script tiers APRÈS nous, et
+   porte ses propres styles — d'où les sélecteurs plus insistants de §4.
+
+   ── LES MESURES VIENNENT DE LA MAQUETTE ──────────────────────────────
+
+   Barre 56 de haut, logo à 28 du bord, liens centrés. Panneau 296 de
+   large, contenu à 22, bouton de fermeture 42 × 42 à 11/14. Une entrée
+   fait 36 de haut avec 10 d'écart, son icône 22 à 8 du bord, son libellé
+   à 41. Une carte de personnage fait 75 avec 12 d'écart, sa vignette
+   34 × 50 à 12,5.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · notre barre, pleine largeur et collée en haut ────────────── */
+
+/*  **Elle n'est plus celle de ModernBB.** La sienne vit dans un `.wrap`
+    à `max-width: 1400px` — mesuré à 1182 px sur une fenêtre de 1280 —,
+    elle part avec la page au défilement, et sous 760 px elle passe en
+    `position: fixed` avec une largeur de 0. Trois défauts, une seule
+    cause : on ne lutte pas contre son en-tête, on pose la nôtre.
+
+    `sticky` et non `fixed` : la page garde sa hauteur, donc rien ne
+    passe sous la barre au chargement — c'est `fixed` qui aurait demandé
+    de compenser avec un `padding-top` sur le corps, que ModernBB
+    recalcule déjà de son côté. */
+/*  ── POURQUOI UN DÉCALAGE EN HAUT ───────────────────────────────────
+
+    `#fa_toolbar` est FIXÉE en haut de l'écran, et Forumactif lui donne un
+    `z-index: 20002`. Une barre collée à `top: 0` passe donc dessous dès
+    le premier défilement : mesuré sur le forum, la toolbar couvrait nos
+    liens et le logo qui ouvre le panneau.
+
+    On ne lui dispute pas son plan — un `z-index` plus grand nous mettrait
+    par-dessus la messagerie et le compte, qui sont à elle. On mesure sa
+    hauteur et on colle JUSTE EN DESSOUS. Déconnectée, elle fait zéro, le
+    jeton vaut zéro, et la barre colle bien au bord. */
+#modernbb .wm-nav {
+  position: sticky;
+  z-index: 70;
+  top: var(--wm-haut-toolbar, 0px);
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 56px;
+  margin: 0;
+  padding: 0 28px;
+  gap: var(--wm-espace-24, 24px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  /*  Aucun arrondi : la barre touche les deux bords et le haut de la
+      fenêtre. Un coin rond au milieu d'un bord d'écran se lit comme un
+      défaut d'alignement. */
+  border-radius: 0;
+  list-style: none;
+}
+
+/*  Celle de ModernBB est masquée, pas retirée : d'autres scripts gardent
+    une référence dessus. */
+#modernbb .wm-nav-remplacee {
+  display: none;
+}
+
+/*  Le logo bascule le panneau : c'est un bouton, pas un lien. 40 de
+    cible tactile autour d'un losange de 16 (maquette). */
+#modernbb button.wm-nav__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+#modernbb button.wm-nav__logo:hover,
+#modernbb button.wm-nav__logo:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#modernbb .wm-nav__logo--ouvert {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/*  Les cinq liens, centrés dans la barre. `margin: auto` des deux côtés
+    les centre sur la BARRE et non entre leurs voisins — c'est ce que
+    montre la maquette, où le bloc est à 391,5 sur 1280. */
+#modernbb .wm-nav__liens {
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  gap: var(--wm-espace-18, 18px);
+}
+
+#modernbb a.wm-nav__lien {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  text-decoration: none;
+}
+
+#modernbb a.wm-nav__lien:hover,
+#modernbb a.wm-nav__lien:focus-visible {
+  text-decoration: underline;
+}
+
+/*  La page courante : **le gras, et rien d'autre.** Le filet sous le
+    libellé a été essayé et retiré — sur une barre déjà sombre il se
+    lisait comme une erreur d'alignement plutôt que comme un état. */
+#modernbb a.wm-nav__lien--courant {
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  ── LE GROUPE DE DROITE ───────────────────────────────────────────
+
+    La maquette `141:3646` ne montre QU'UNE barre : le logo et les liens
+    à gauche, l'avatar de 24 px et le pseudo à droite. `#fa_toolbar` est
+    une seconde barre que Forumactif pose par-dessus ; on lui prend ses
+    adresses et on la range (plus bas, « la barre Forumactif rangée »).
+
+    `margin-left: auto` pousse le groupe au bord : c'est le ressort de la
+    maquette, en une déclaration au lieu d'un nœud vide. */
+#modernbb .wm-nav__droite {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: var(--wm-espace-16, 16px);
+}
+
+/*  LE PSEUDO S'AFFICHE COMME LE RESTE DE LA BARRE — demande du 7
+    octobre. Il était à 11,5 px au milieu de liens à 13,5 : une taille
+    de moins pour un nom qui est, lui, le repère du joueur dans la
+    barre. Il prend donc la taille des liens, et la hauteur aussi, pour
+    que les trois — liens, compte, notifications — s'alignent sur la
+    même rangée. */
+#modernbb button.wm-nav__compte {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 0;
+  gap: var(--wm-espace-10, 10px);
+  border: 0;
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb button.wm-nav__compte:hover .wm-nav__pseudo,
+#modernbb button.wm-nav__compte:focus-visible .wm-nav__pseudo {
+  text-decoration: underline;
+}
+
+/*  24 px, rond. Le cadre reste visible sans image : un compte sans
+    avatar garde sa place dans la barre au lieu de la faire sauter. */
+#modernbb .wm-nav__avatar {
+  display: block;
+  overflow: hidden;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 18%, transparent);
+}
+
+#modernbb .wm-nav__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*  ── LES NOTIFICATIONS DE FORUMACTIF, DÉMÉNAGÉES AVEC LEUR BARRE ───
+
+    C'EST `#fa_toolbar` ENTIÈRE QUI PASSE CHEZ NOUS, et pas la cloche
+    seule. La raison est dans leur code, relevé le 7 octobre :
+
+        case NOTIFICATIONS:  $('#'+RIGHT).toggleClass('notification')…
+
+        #fa_toolbar #fa_right #notif_list               { display: none }
+        #fa_toolbar #fa_right.notification #notif_list  { display: block }
+
+    L'état « ouvert » est une classe sur `#fa_right`, et la règle qui
+    montre la liste exige la chaîne `#fa_toolbar #fa_right …`. Sortir la
+    liste de cette chaîne, c'était garantir qu'aucun clic ne l'ouvre
+    jamais : il ne restait de visible que le lien « Voir toutes les
+    notifications », d'où le départ vers la page des notifs que Callista
+    a signalé.
+
+    En déménageant la barre entière, leur mécanique ne s'aperçoit de
+    rien. On ne touche qu'à l'apparence, et jamais au `display` de leurs
+    nœuds : c'est lui qu'ils basculent. */
+#modernbb .wm-nav__droite {
+  position: relative;
+}
+
+/*  POURQUOI LA CHAÎNE COMPLÈTE DANS LES SÉLECTEURS CI-DESSOUS.
+    Forumactif écrit `#fa_toolbar #fa_right #notif_list` : TROIS
+    identifiants. `#modernbb .wm-nav__droite #notif_list` n'en a que
+    deux, donc il PERDAIT — mesuré par le harnais, qui a vu la liste
+    sortir de l'écran parce que leur `left: 41px` s'appliquait toujours.
+    On reprend donc leur chaîne et on ajoute la nôtre devant. */
+
+/*  La barre perd tout ce qui en faisait une barre : sa position fixe,
+    sa hauteur, son fond, son plan. Elle devient une boîte en ligne dans
+    la nôtre.
+
+    `height: auto` ET `min-height: 0` : la règle de Forumactif pose une
+    hauteur fixe, et sa valeur dépend du template. */
+/*  LE SEUL `!important` DE CETTE RÈGLE, ET IL EST FORCÉ. Forumactif
+    écrit `.fa_fix { position: fixed !important }` pour le membre qui a
+    coché « barre fixée » dans son profil. Le module retire la classe,
+    mais leur script peut la reposer après nous : on tient les deux
+    bouts, parce qu'une barre qui se ré-épingle se peint en haut de
+    l'écran avec les notifications dedans — c'est le défaut signalé le
+    7 octobre.
+
+    `min-width` AUSSI : leurs classes de taille (`fa_toolbar_M_Sized` et
+    les autres) posent jusqu'à 980 px de largeur minimale, ce qui fait
+    exploser notre barre sur un écran étroit. */
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous {
+  position: static !important;
+  min-width: 0;
+  top: auto;
+  right: auto;
+  z-index: auto;
+  display: flex;
+  height: auto;
+  min-height: 0;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  visibility: visible;
+  /*  La taille des liens de la barre, pas une taille à elle : la cloche
+      en hérite, et « ça doit s'afficher pareil que le reste ». */
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+/*  LEUR RÈGLE DE TÉLÉPHONE, ANNULÉE. Forumactif escamote sa barre sous
+    800 px — `visibility: hidden; height: 0` —, ce qui est juste quand
+    elle est en haut de l'écran et faux une fois qu'elle est chez nous :
+    les notifications disparaîtraient sur téléphone, là où elles servent
+    le plus. */
+@media (max-width: 800px) {
+  #modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous {
+    visibility: visible;
+    height: auto;
+    padding: 0;
+  }
+}
+
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_right {
+  position: static;
+  display: flex;
+  align-items: center;
+  float: none;
+  margin: 0;
+  padding: 0;
+}
+
+/*  TOUT CE QU'ON REMPLACE EST MASQUÉ, et seulement ça. Le menu de
+    bienvenue, la recherche, le logo Forumactif, le bouton d'escamotage,
+    et les liens de service qu'on réaffiche nous-mêmes : ils restent
+    dans la page — le switcheroo exige une barre vivante — mais ils ne
+    se voient plus.
+
+    On nomme ce qu'on masque plutôt que de masquer tout et de rallumer
+    la cloche : une barre future contiendra autre chose, et il vaut
+    mieux qu'un inconnu apparaisse que disparaisse en silence. */
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_left,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_search,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_menu,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_hide,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_show,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_separator,
+#modernbb .wm-nav__droite #fa_toolbar.wm-toolbar-chez-nous #fa_right > a[href],
+#modernbb #fa_toolbar_hidden {
+  display: none;
+}
+
+/*  LA CLOCHE EST UN LIEN, PAS UN BOUTON. Demande de Callista le 7
+    octobre : « affiche simplement Notifications sans en faire un gros
+    bouton ». Elle reprend donc exactement la forme des autres liens de
+    la barre — même police, même taille, même couleur. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #fa_notifications {
+  position: relative;
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #fa_notifications:hover,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #fa_notifications:focus-visible {
+  background: transparent;
+  text-decoration: underline;
+}
+
+/*  Ouverte, leur script met `#fa_right` en `.notification` et leur
+    feuille peint la cloche en blanc sur blanc. On reprend la main : un
+    soulignement, qui se lit dans les deux thèmes. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right.notification > #fa_notifications {
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  text-decoration: underline;
+}
+
+/*  La pastille du compteur, posée dans le flux à droite du mot — pas en
+    absolu sur un coin : il n'y a plus de pastille ronde sur laquelle se
+    poser.
+
+    `pointer-events: none` N'EST PAS DE LA COSMÉTIQUE. Leur écouteur est
+    délégué sur `document` et branche sur `e.target.id` : un clic qui
+    atterrit sur la pastille tombe dans le `default`, qui REFERME la
+    liste. Le clic doit donc toujours arriver sur la cloche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_unread {
+  display: inline-flex;
+  min-width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/*  `:empty` reste la clé : Forumactif laisse le `<span>` VIDE quand il
+    n'y a rien — mesuré — et une pastille à zéro est un mensonge
+    visuel. Leur propre feuille le masque déjà hors de `.unread`, mais
+    elle le fait depuis la chaîne `#fa_toolbar #fa_right …` : on ne
+    dépend pas d'elle pour ça. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_unread:empty {
+  display: none;
+}
+
+/*  Le menu déroulant. Leur feuille le cale sur `#fa_right` — `top:
+    42px; left: 41px` —, ce qui visait le haut de l'écran. On le recale
+    sur notre conteneur, et on le borne : 420 px de liste sur un
+    téléphone sortent de l'écran.
+
+    **Ni `display`, ni `visibility` ici.** C'est leur bascule, et la lui
+    prendre rendrait la liste ouverte en permanence — c'est précisément
+    le défaut qu'on corrige. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  left: auto;
+  z-index: 80;
+  box-sizing: border-box;
+  width: 320px;
+  max-width: calc(100vw - 16px);
+  max-height: 60vh;
+  margin: 0;
+  padding: var(--wm-espace-8, 8px);
+  overflow-y: auto;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  list-style: none;
+  text-align: left;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  width: auto;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-texte-corps, #4e3b30);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  Leur feuille met un `!important` sur la couleur des liens de la
+    liste — un bleu de template. Trois identifiants ne suffisent pas
+    contre un `!important` : il faut le même. C'est le second du projet,
+    et il ne sert qu'à reprendre une couleur qu'ils ont forcée. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list a,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText a {
+  color: var(--wm-accent-fort, #1f5470) !important;
+  text-decoration: none !important;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list a:hover,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list a:focus-visible {
+  text-decoration: underline !important;
+}
+
+/*  Leur feuille fixe la largeur du texte d'une notification à `27em`,
+    ce qui débordait de notre liste plus étroite. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText {
+  float: none;
+  width: auto;
+  max-width: 100%;
+}
+
+/*  « Voir toutes les notifications » ferme la liste : il se détache. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all {
+  margin-top: var(--wm-espace-4, 4px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-align: center;
+}
+
+/*  Les apparitions en direct : elles sortaient à `right: 47px` par
+    rapport à leur ancienne barre, et leur script leur pose une largeur
+    de 330 px EN STYLE INLINE. On ne peut donc que les borner. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #live_notif {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  left: auto;
+  z-index: 80;
+  max-width: calc(100vw - 16px);
+}
+
+/*  Déconnectée : « Connexion » et « S'enregistrer », repris de la barre
+    Forumactif. Ce sont des actions de service, pas la navigation du
+    forum — d'où la taille plus petite. */
+#modernbb a.wm-nav__lien--compte {
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  ── LA BARRE FORUMACTIF, RANGÉE ───────────────────────────────────
+
+    Masquée, pas retirée, et pas désactivée : le switcheroo exige qu'elle
+    soit active — c'est écrit dans ses prérequis.
+
+    **Le `!important` est le seul du projet, et il est justifié** : le
+    `margin-top: 42px` est écrit EN STYLE INLINE sur `body` par le script
+    de la toolbar (mesuré le 7 octobre). Aucune règle ordinaire ne bat un
+    style inline. Sans lui, une bande vide de 42 px reste en haut de
+    chaque page — elle y était déjà, et personne ne l'avait vue. */
+body.wm-toolbar-rangee {
+  margin-top: 0 !important;
+}
+
+/*  ELLE N'EST PLUS MASQUÉE : elle est chez nous, dans la barre, et
+    c'est elle qui porte les notifications. Ne reste masqué que son
+    doublon d'escamotage, qui n'a plus rien à escamoter.
+
+    Le repli compte quand même : si le module ne tourne pas — JavaScript
+    coupé, paquet injoignable —, la barre n'a pas été déplacée, elle est
+    restée en haut de l'écran, et c'est très bien ainsi. Une barre
+    masquée sans module aurait privé le joueur de ses notifications ET
+    de sa déconnexion. */
+body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
+  display: none;
+}
+
+/* ── 2 · le panneau latéral ───────────────────────────────────────── */
+
+/*  296 de large, sous la barre, pleine hauteur. `position: fixed` : il
+    couvre la page, il ne la pousse pas. */
+/*  Il commence SOUS la barre et ne passe jamais dessus : `z-index` 60
+    contre 70. Première version, il recouvrait les cinq liens et le
+    logo — donc on perdait le bouton qui l'avait ouvert. */
+#modernbb .wm-panneau {
+  position: fixed;
+  z-index: 60;
+  /*  Sous la barre, elle-même sous la toolbar : les deux hauteurs
+      s'additionnent, sinon le panneau remonte derrière la barre et on
+      perd sa première entrée. */
+  top: calc(var(--wm-haut-toolbar, 0px) + 56px);
+  bottom: 0;
+  left: 0;
+  width: 296px;
+  box-sizing: border-box;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
+  overflow-y: auto;
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  /*  IL GLISSE. `hidden` seul le faisait apparaître d'un coup, ce qui ne
+      dit pas d'où il vient. On ne peut pas animer `display`, donc le
+      panneau reste dans le flux et c'est sa POSITION qui bouge :
+      `translateX` se compose sans recalcul de mise en page.
+
+      `visibility` accompagne la translation pour qu'il ne reçoive ni
+      clic ni tabulation une fois sorti — un panneau fermé mais encore
+      focusable est un piège au clavier. */
+  transform: translateX(-100%);
+  transition: transform 0.22s ease, visibility 0.22s;
+  visibility: hidden;
+}
+
+#modernbb .wm-panneau--ouvert {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+/*  `hidden` n'est plus porté : il couperait l'animation. L'état est dans
+    la classe, et `aria-expanded` sur le bouton le dit à voix haute. */
+#modernbb .wm-panneau[hidden] {
+  display: none;
+}
+
+#modernbb .wm-panneau__titre-section {
+  margin: 0 0 var(--wm-espace-6, 6px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  opacity: 0.68;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-panneau__liste {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: 0;
+  gap: var(--wm-espace-4, 4px);
+  list-style: none;
+}
+
+#modernbb .wm-panneau__liste:last-child {
+  margin-bottom: 0;
+}
+
+/*  Une entrée : l'icône à 8 du bord, le libellé à 41.
+
+    ── ELLE A MAIGRI LE 7 OCTOBRE, ET POUR UNE RAISON PRÉCISE ────────
+
+    « Il arrive qu'on associe jusqu'à 10 personnages sur un forum. »
+    Dix cartes à 75 px plus leurs écarts faisaient 850 px DE
+    PERSONNAGES SEULS, avant les liens et les titres : sur un portable
+    de 768 px de haut, on en voyait sept et on cherchait les trois
+    autres.
+
+    On reprend donc partout où il y a du vide à reprendre : 36 → 30 de
+    haut ici, 10 → 6 d'écart. Sept entrées passent de 322 à 246 px.
+    La cible tactile reste au-dessus du minimum de 24 px, et le texte
+    ne bouge pas. */
+#modernbb .wm-panneau__lien {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 28px;
+  padding: var(--wm-espace-2, 2px) var(--wm-espace-12, 12px) var(--wm-espace-2, 2px) 8px;
+  gap: 11px;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-decoration: none;
+}
+
+#modernbb a.wm-panneau__lien:hover,
+#modernbb a.wm-panneau__lien:focus-visible {
+  background: var(--wm-fond-surface, #fffbf7);
+  text-decoration: underline;
+}
+
+/*  L'icône est en `accent/terre`, la seule couleur vive du panneau. */
+#modernbb .wm-nav__icone {
+  flex: 0 0 auto;
+  width: 22px;
+  color: var(--wm-accent-terre, #9a4f29);
+  font-size: 22px;
+  line-height: 22px;
+}
+
+#modernbb .wm-panneau__titre {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/*  Une page pas encore créée : affichée, pas cliquable, et le dire en
+    mots plutôt qu'en gris. Même règle qu'au sommaire des annexes. */
+#modernbb .wm-panneau__entree--a-venir .wm-panneau__lien {
+  opacity: 0.62;
+  cursor: default;
+}
+
+#modernbb .wm-panneau__a-venir {
+  flex: 0 0 auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-style: italic;
+  font-weight: var(--wm-graisse-normale, 400);
+  white-space: nowrap;
+}
+
+/*  « Messagerie 3 ». Le compteur est DANS le lien, à 11,5 comme la
+    maquette, et il n'apparaît que s'il y a quelque chose à lire. */
+#modernbb .wm-nav__compteur {
+  margin-left: var(--wm-espace-6, 6px);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 3 · les personnages (le switcheroo) ──────────────────────────── */
+
+/*  Le conteneur du switcheroo est hors écran : il dessine des pastilles
+    rondes, et le panneau montre la même liste en cartes. Mais il reste
+    PRÉSENT ET VIVANT — c'est lui qui porte les gestionnaires de clic, et
+    nos cartes lui délèguent la bascule.
+
+    `clip-path` et pas `display: none` : un élément en `display: none` ne
+    reçoit pas de clic programmatique partout, et c'est précisément le
+    clic qu'on lui envoie. */
+#modernbb .wm-switcheroo-cache,
+#modernbb .wm-switcheroo-cache {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+
+/*  DIX PERSONNAGES DOIVENT TENIR. La carte faisait 75 px de haut pour
+    un portrait de 50 : vingt-cinq pixels de marge intérieure autour
+    d'une vignette. Elle descend à 52, et la vignette à 26 × 38 —
+    toujours un portrait, toujours reconnaissable à cette taille, parce
+    que ce qu'on y lit est une silhouette et une couleur de cheveux.
+
+    Dix cartes passent de 850 px à 580. Avec les liens resserrés, le
+    panneau entier tient sous 900 px de haut. */
+#modernbb .wm-panneau__carte {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+  text-decoration: none;
+}
+
+/*  `button` AUTANT QUE `a` : une carte de personnage est un bouton — le
+    switcheroo n'a pas d'adresse de bascule —, et la première version ne
+    visait que les ancres. Les cartes ne réagissaient donc pas au survol,
+    alors qu'elles sont la seule chose cliquable de la section. */
+#modernbb a.wm-panneau__carte:hover,
+#modernbb a.wm-panneau__carte:focus-visible,
+#modernbb button.wm-panneau__carte:hover,
+#modernbb button.wm-panneau__carte:focus-visible {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  Une carte qui est un bouton n'hérite d'aucun style de bouton : ni la
+    police, ni l'alignement, ni le cadre. */
+#modernbb button.wm-panneau__carte {
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  text-align: left;
+}
+
+/*  Dit POURQUOI la liste est vide. Un titre seul au-dessus d'un bouton
+    laisse croire à une panne.
+
+    **Sur fond sombre, donc en texte clair.** Le panneau est en
+    `--wm-fond-nuit` ; `--wm-texte-doux` y tombait à 2,4 de contraste —
+    illisible, et c'est ce que Callista a signalé le 7 octobre. */
+#modernbb .wm-panneau__vide {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 78%, transparent);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  Un portrait, pas une vignette carrée — la maquette dit 34 × 50, et
+    on garde ses proportions en descendant à 26 × 38 : c'est le prix
+    des dix personnages, et le même rapport de 2 pour 3. */
+#modernbb .wm-panneau__vignette {
+  display: block;
+  overflow: hidden;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 34px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-panneau__vignette img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/*  ── « ASSOCIER UN PERSONNAGE » ────────────────────────────────────
+
+    LE SWITCHEROO DÉMARRE VIDE : il garde sa liste dans `localStorage`, et
+    sur un navigateur qui ne l'a jamais vu elle vaut `[]`. Son seul bouton
+    d'ajout vit dans son conteneur, que nous cachons — donc sans cette
+    carte, personne ne peut associer un seul personnage. C'est ce qui
+    faisait que « Mes personnages » restait vide pour toujours.
+
+    ── CE BLOC VIENT APRÈS `.wm-panneau__vignette`, ET C'EST OBLIGATOIRE ─
+
+    Il était avant. À spécificité égale — un identifiant et une classe des
+    deux côtés — c'est la DERNIÈRE règle qui gagne : le `display: block`
+    de la vignette écrasait notre `display: flex`, et le « + » se posait
+    en haut à gauche au lieu d'être centré. Déplacer le bloc, pas ajouter
+    de poids.
+
+    ── ET IL EST EN CLAIR SUR SOMBRE ─────────────────────────────────
+
+    Le panneau est en `--wm-fond-nuit`. La carte héritait de `--wm-encre`,
+    l'encre foncée des cartes de personnage — qui, elles, sont posées sur
+    un fond clair. Sur le panneau, c'était du brun sur du brun.
+
+    La carte prend donc un voile clair à elle : assez pour se détacher du
+    panneau, assez discret pour que les vrais personnages — en aplat clair
+    — restent ce qu'on voit en premier. */
+#modernbb .wm-panneau__carte--ajout {
+  border: 1px dashed color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 32%, transparent);
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 9%, transparent);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb button.wm-panneau__carte--ajout:hover,
+#modernbb button.wm-panneau__carte--ajout:focus-visible {
+  border-style: solid;
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 18%, transparent);
+}
+
+#modernbb .wm-panneau__carte--ajout .wm-panneau__nom {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-panneau__vignette--plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 32%, transparent);
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-titre-page, 25px);
+  font-weight: var(--wm-graisse-normale, 400);
+  /*  `1` et pas l'interligne du corps : un glyphe centré par le flexbox
+      ne doit pas en plus être décalé par sa propre demi-interligne. */
+  line-height: 1;
+}
+
+#modernbb .wm-panneau__infos {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-panneau__nom {
+  overflow: hidden;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*  Le personnage en jeu : son nom prend l'accent, et « en jeu » est
+    ÉCRIT. Un surlignage seul ne se lit pas à haute voix. */
+#modernbb .wm-panneau__personnage--actif .wm-panneau__nom {
+  color: var(--wm-accent-primaire, #2b6988);
+}
+
+#modernbb .wm-panneau__en-jeu {
+  flex: 0 0 auto;
+  color: var(--wm-accent-primaire, #2b6988);
+  font-size: var(--wm-taille-petit, 11.5px);
+  white-space: nowrap;
+}
+
+/* ── 4 · le menu du compte (maquette 390:3636) ────────────────────── */
+
+/*  ── IL VIT SUR `body`, PAS DANS LA BARRE FORUMACTIF ───────────────
+
+    `#fa_toolbar` n'est pas à nous : Forumactif la pose avec sa propre
+    hauteur de 2,3 em, ses `overflow` et ses contextes d'empilement. Un
+    menu de 240 px calé dedans se fait rogner, et aucun `z-index` ne
+    rattrape un `overflow: hidden` sur un ancêtre.
+
+    Le menu est donc posé sur le corps de page, en coordonnées d'écran, et
+    `placerLeMenu` le recale sous le lien du compte à chaque ouverture.
+
+    `#fa_right` garde quand même sa classe : c'est elle qui marque la
+    barre comme habillée, et elle sert de prise si on veut la retoucher. */
+#modernbb .wm-compte__menu {
+  position: fixed;
+  z-index: 80;
+  display: flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  max-width: calc(100vw - 16px);
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  /*  La maquette met un blanc translucide : la page se devine derrière,
+      et le menu ne se lit pas comme une seconde page. */
+  background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 86%, transparent);
+  backdrop-filter: blur(6px);
+  text-align: left;
+}
+
+#modernbb .wm-compte__menu[hidden] {
+  display: none;
+}
+
+/*  L'avatar, au format 200/320 comme partout ailleurs sur le forum —
+    c'est le rapport des portraits de la charte, pas un carré rogné. */
+#modernbb .wm-compte__avatar {
+  display: flex;
+  box-sizing: border-box;
+  align-self: stretch;
+  flex: 0 0 auto;
+  padding: var(--wm-espace-4, 4px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-compte__avatar img {
+  display: block;
+  width: 124px;
+  aspect-ratio: 200 / 320;
+  border-radius: var(--wm-rayon-sm, 6px);
+  object-fit: cover;
+}
+
+#modernbb .wm-compte__liste {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+/*  Une gélule blanche à arrondi complet : c'est la forme de la maquette,
+    et elle distingue ces entrées des lignes carrées du panneau latéral. */
+#modernbb .wm-compte__lien {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 181px;
+  padding: var(--wm-espace-4, 4px);
+  gap: var(--wm-espace-4, 4px);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+/*  Le rond d'accent qui porte l'icône. 20 px de rond, 12 px de glyphe —
+    les mesures de la maquette. */
+#modernbb .wm-compte__pastille {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  L'ICÔNE PREND LA COULEUR DE SA PASTILLE, et c'est `inherit` qui le
+    dit — pas un jeton recopié. Sans ça elle gardait l'accent terre de
+    `.wm-nav__icone`, posé pour la barre : mesuré sur le forum en thème
+    sombre, un orange (224, 144, 106) sur une pastille bleu clair, là
+    où il faut l'encre inverse.
+
+    `inherit` plutôt que `texte-inverse` : la pastille change de
+    couleur — accent pour une entrée ouverte, bord pour une entrée à
+    venir — et l'icône doit suivre, pas être redécidée deux fois.
+
+    Et sa boîte fait 1 em, pas la largeur de la ligature : le glyphe
+    mesurait 22 px dans un rond de 20, donc il mordait des deux côtés. */
+#modernbb .wm-compte__pastille .wm-nav__icone {
+  display: flex;
+  width: 1em;
+  height: 1em;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  font-size: 12px;
+  line-height: 1;
+}
+
+#modernbb a.wm-compte__lien:hover,
+#modernbb a.wm-compte__lien:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  Le libellé reprend l'encre des autres entrées : seul le curseur
+    dit qu'il n'y a rien à ouvrir, et le mot « à venir » dit pourquoi.
+    Un texte pâli en plus faisait trois signaux pour une seule chose. */
+#modernbb .wm-compte__entree--a-venir .wm-compte__lien {
+  background: transparent;
+  color: var(--wm-encre, #2e2018);
+  cursor: default;
+}
+
+/*  LE CARNET S'AFFICHE COMME LES AUTRES — demande de Callista du 7
+    octobre. Sa pastille gardait le gris des entrées à venir, et il
+    tranchait au milieu d'un menu bleu. Ce qui le distingue reste le
+    mot « à venir », qui se lit ; la couleur, elle, ne disait rien de
+    plus et faisait tache. */
+#modernbb .wm-compte__entree--a-venir .wm-compte__pastille {
+  background: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  La déconnexion se détache : c'est la seule entrée qu'on ne clique pas
+    par curiosité. */
+#modernbb .wm-compte__entree--sortie {
+  margin-top: var(--wm-espace-4, 4px);
+  padding-top: var(--wm-espace-8, 8px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/* ── 5 · le formulaire du switcheroo ──────────────────────────────── */
+
+/*  ── POURQUOI IL EST ICI, ALORS QUE LE SWITCHEROO N'EST PAS À NOUS ──
+
+    Parce qu'il n'apporte AUCUN style. Son dépôt livre deux fichiers JS et
+    renvoie à une feuille écrite pour un autre thème. Sans CSS, son
+    formulaire de connexion s'empile en bas de page, illisible — et pire :
+    sa fermeture attend un `transitionend` qui n'arrive jamais, donc la
+    fenêtre ne se referme plus du tout.
+
+    On lui donne donc le strict nécessaire, à nos jetons : un voile, une
+    boîte, un formulaire — et une transition, qui n'est pas de la
+    décoration mais la condition pour qu'il se referme.
+
+    **On ne touche pas à ses classes de pastille** (`switcheroo__squircle`
+    et compagnie) : son conteneur est hors écran, elles n'ont rien à
+    porter. */
+#modernbb .monomer-overlay {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  background: color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 55%, transparent);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+#modernbb .monomer-overlay.monomer-open {
+  opacity: 1;
+}
+
+#modernbb .monomer-modal {
+  position: fixed;
+  z-index: 91;
+  top: 50%;
+  left: 50%;
+  box-sizing: border-box;
+  width: min(400px, calc(100vw - 32px));
+  padding: var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  /*  UNE SEULE PROPRIÉTÉ ANIMÉE, ET C'EST VOULU. `monomer` retire la
+      fenêtre sur le premier `transitionend` venu, sans se désabonner :
+      deux propriétés animées font deux événements, et le second lève un
+      `removeChild` sur un parent déjà null — une erreur dans la console
+      du joueur à chaque fermeture. Mesuré. */
+  transition: opacity 0.18s ease;
+}
+
+#modernbb .monomer-modal.monomer-open {
+  opacity: 1;
+}
+
+/*  Trop haut pour l'écran : il se cale en haut et défile, plutôt que de
+    sortir par les deux bouts. */
+#modernbb .monomer-modal.monomer-anchored {
+  top: var(--wm-espace-16, 16px);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  transform: translate(-50%, 0);
+}
+
+#modernbb .monomer-modal .monomer-close {
+  position: absolute;
+  top: var(--wm-espace-8, 8px);
+  right: var(--wm-espace-8, 8px);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: 1;
+}
+
+#modernbb .switcheroo__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .switcheroo__form-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .switcheroo__form-label {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .switcheroo__form-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-page, #f2e4d8);
+  color: var(--wm-encre, #2e2018);
+  font-family: inherit;
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .switcheroo__form-button {
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-texte-inverse, #fffbf7);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/* ── 6 · sur petit écran ──────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  /*  Les cinq liens passent à la ligne plutôt que de se comprimer, et la
+      barre grandit. Le logo reste à sa place : c'est lui qui ouvre tout
+      le reste.
+
+      **Le sélecteur visait `ul#modernbb-nav-menu`** — la barre de
+      ModernBB, celle qu'on a cessé de réécrire. Il ne touchait donc plus
+      rien, et sur téléphone la barre restait sur une seule ligne. */
+  #modernbb .wm-nav {
+    flex-wrap: wrap;
+    padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+    gap: var(--wm-espace-8, 8px);
+  }
+
+  /*  Le menu du compte ne tient pas à 347 px de large : l'avatar passe
+      dessous, et la colonne prend tout. */
+  #modernbb .wm-compte__menu {
+    flex-direction: column;
+    width: calc(100vw - 16px);
+  }
+
+  #modernbb .wm-compte__avatar {
+    align-self: center;
+  }
+
+  #modernbb .wm-nav__liens {
+    flex-wrap: wrap;
+    margin: 0;
+    gap: var(--wm-espace-4, 4px) var(--wm-espace-12, 12px);
+  }
+
+  /*  Le panneau prend toute la largeur : 296 px sur un écran de 375
+      laisserait une bande inutilisable à droite. */
+  #modernbb .wm-panneau {
+    top: var(--wm-haut-toolbar, 0px);
+    width: 100%;
+  }
+}

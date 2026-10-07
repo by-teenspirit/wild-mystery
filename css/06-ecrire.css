@@ -1,0 +1,358 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 06 · Écrire
+
+   La page de rédaction : le panneau, le champ de titre, l'éditeur
+   sceditor, la boîte à smileys et les boutons d'envoi. C'est la page
+   où un joueur passe une heure à écrire son RP.
+
+   ── RELEVÉ SUR `/post?t=976&mode=reply`, CONNECTÉ, le 3 octobre ──────
+
+       form
+         h1.page-title
+         div#postingbox.panel
+           div.inner
+             div.h3                        « Poster une réponse »
+             fieldset.fields1
+               dl > dt > label             « Titre du message »
+                  > dd > input[type=text]
+               div#smiley-box              la colonne de droite
+               div#message-box
+                 div#textarea_content
+                   textarea#text_editor_textarea     0 × 0, caché
+                   div.sceditor-container.sourceMode
+                     div.sceditor-toolbar
+                       div.sceditor-group × 9
+                         a.sceditor-button > div     un sprite 16 × 16
+                     iframe                          0 × 0 en mode source
+                     textarea                        l'éditeur réel
+         div.panel.row2 > … > fieldset.submit-buttons
+           input.button2  « Prévisualiser »
+           input.button2.btn-post-draft  « Brouillon »
+           input.button1  « Envoyer »
+
+   ── TROIS CHOSES QU'ON NE PEUT PAS ATTEINDRE D'ICI ────────────────────
+
+   **Le mode WYSIWYG écrit dans une `iframe`.** Une feuille de style
+   externe ne la traverse pas. Ici l'éditeur est en mode source, donc
+   c'est la `textarea` qui compte et on l'habille ; en mode visuel, le
+   texte restera dans l'habillage par défaut de sceditor tant qu'on n'a
+   pas de main sur le document de l'iframe. À traiter en JS, pas ici.
+
+   **Les icônes de la barre d'outils sont un sprite qu'on ne possède
+   pas** — `famfamfam.png`, servi par Forumactif. Des glyphes sombres
+   sur fond transparent. Vérifié à l'écran : sur une barre sombre, le
+   gras, l'italique et le souligné DISPARAISSENT. On ne peut pas les
+   recolorer, donc on ne peut pas changer ce qu'il y a dessous : la
+   barre reste claire dans les deux thèmes. C'est la règle du 59 lue à
+   l'envers — la surface et ce qu'elle porte sont une seule décision, et
+   ici c'est le sprite qui décide.
+
+   **sceditor peint son fond en `!important`.** `.sceditor-container`
+   est à `#d4d4d4 !important` et sa `textarea` à `transparent
+   !important` ; son bord, son rayon et le bord de sa barre d'outils le
+   sont aussi. Un gris de bureautique en plein milieu d'une page sombre,
+   et aucune porte de sortie : on ne bat un `!important` qu'avec un
+   `!important`. Ils sont tous groupés au §3 et nulle part ailleurs.
+
+   (Les autres du projet ne touchent aucune couleur : `01` défait les
+   flottants de ModernBB, `02` sert `prefers-reduced-motion`, `10`
+   masque le widget à l'impression.)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · le panneau ───────────────────────────────────────────────── */
+
+#modernbb #postingbox {
+  margin: var(--wm-espace-18, 18px) 0;
+}
+
+#modernbb #postingbox .inner {
+  padding: var(--wm-espace-18, 18px);
+}
+
+/*  `.h3` sert de titre à tous les encarts de ModernBB et porte un
+    `#444` à lui. `04` l'a déjà remis à plat pour le tri et les blocs ;
+    la boîte de rédaction en est un de plus. */
+#modernbb #postingbox .h3 {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: 0;
+  background: none;
+  color: var(--wm-texte-doux, #6e5749);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb #postingbox fieldset.fields1 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* ── 2 · le titre du message ──────────────────────────────────────── */
+
+/*  Une `dl` à deux cases. En bloc, l'étiquette et le champ se suivent
+    sur deux lignes et mangent une hauteur d'écran pour rien. */
+#modernbb #postingbox dl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  margin: 0 0 var(--wm-espace-16, 16px);
+}
+
+#modernbb #postingbox dt,
+#modernbb #postingbox dd {
+  margin: 0;
+  padding: 0;
+}
+
+#modernbb #postingbox dt label {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb #postingbox dd {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+#modernbb #postingbox dd input[type="text"] {
+  width: 100%;
+}
+
+/* ── 3 · l'éditeur ────────────────────────────────────────────────── */
+
+/*  La boîte entière : même bord et même rayon qu'un champ, parce que
+    c'en est un — le plus grand de la page. L'`overflow: hidden` fait
+    suivre les coins à la barre d'outils, qui n'a pas de rayon à elle. */
+/*  TOUS LES `!important` DU PROJET QUI TOUCHENT UNE COULEUR SONT ICI.
+
+    sceditor stampe `!important` sur son fond, son bord, son rayon et le
+    bord de sa barre — relevé dans le CSSOM, pas supposé. Ce n'est pas
+    un choix d'écriture de notre côté : on ne bat un `!important`
+    qu'avec un `!important`. Ils sont groupés dans cette section et
+    nulle part ailleurs.
+
+    Deux identifiants parce que ModernBB ajoute par-dessus
+    `#message-box .sceditor-container { border-color: rgba(0,0,0,.1) }`,
+    un bord noir à 10 % qui ne se voit pas sur une page sombre. */
+#modernbb #message-box .sceditor-container {
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-net, #d9c3b1) !important;
+  border-radius: var(--wm-rayon-md, 8px) !important;
+  background: var(--wm-fond-surface, #fffbf7) !important;
+}
+
+/*  LA BARRE RESTE CLAIRE DANS LES DEUX THÈMES. Les valeurs sont
+    écrites en dur et c'est voulu : elles sont accrochées à un sprite
+    qu'on ne possède pas, pas au thème. Si la charte veut les
+    récupérer, il lui faut un jeton « surface/outils » qui ne bascule
+    pas — et c'est elle qui décide, pas cette feuille.
+
+    Et sceditor espace ses groupes avec des marges négatives. On
+    repasse en flex : un `gap`, pas des marges qui se mordent. */
+#modernbb .sceditor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-2, 2px) var(--wm-espace-10, 10px);
+
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
+  border: 0 !important;
+  border-bottom: 1px solid #eadacd !important;
+  background: #fcf4ec !important;
+}
+
+#modernbb .sceditor-group {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+#modernbb .sceditor-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  cursor: pointer;
+}
+
+#modernbb .sceditor-button:hover,
+#modernbb .sceditor-button:focus-visible {
+  background: #f1e2d5;
+}
+
+/*  La zone de frappe. CORPS/MESSAGE, comme le message une fois posté :
+    on écrit dans la taille où on sera lu. */
+#modernbb .sceditor-container textarea {
+  padding: var(--wm-espace-14, 14px);
+  border: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-message, 16px);
+  line-height: var(--wm-interligne-message, 1.75);
+  resize: vertical;
+}
+
+#modernbb .sceditor-container textarea:focus {
+  outline: none;
+}
+
+/*  Le focus se voit sur la boîte, pas sur la zone de texte : sinon
+    l'anneau passe sous la barre d'outils. */
+#modernbb .sceditor-container:focus-within {
+  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  outline-offset: 2px;
+}
+
+/*  « Caractères : 0 Mots : 0 », sous l'éditeur. */
+#modernbb #textarea_content > div:last-child {
+  margin-top: var(--wm-espace-6, 6px);
+  color: var(--wm-texte-pale, #756054);
+  font-size: var(--wm-taille-legende, 10.5px);
+}
+
+/* ── 4 · la boîte à smileys ───────────────────────────────────────── */
+
+/*  Une colonne à droite de l'éditeur. ModernBB la pose sans surface :
+    elle flotte au milieu de la page. */
+#modernbb #smiley-box {
+  padding: var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb #smileyContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px);
+}
+
+/*  Les deux liens du bas — « Voir plus de smileys », « Masquer ». */
+#modernbb #smiley-box a {
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 5 · les boutons d'envoi ──────────────────────────────────────── */
+
+/*  `02` donne leur forme aux boutons, mais ModernBB ne marque pas
+    « Envoyer » d'un `.mainoption` sur cette page : c'est pourtant
+    l'action principale, et la seule qui compte. */
+/*  LE RÉSERVOIR DE DROITE N'EST PAS DÉCORATIF. Le coin d'outils (`10`)
+    est fixé en bas à droite : 92 px de large, 16 px de marge, 108 en
+    tout. Pousser les boutons au bord droit les faisait passer dessous
+    — vérifié à l'écran, « Envoyer » disparaissait sous « CLAIR ». Avant
+    cette feuille le problème n'existait pas, parce que ModernBB les
+    laissait à gauche : c'est donc à nous de rendre la place.
+
+    Si `10` change la largeur du coin, ce nombre change avec lui. */
+#modernbb .submit-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--wm-espace-10, 10px);
+  margin: 0;
+  padding: 0 108px 0 0;
+  border: 0;
+}
+
+#modernbb .submit-buttons .button1 {
+  order: 1;
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .submit-buttons .button1:hover {
+  background: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── 6 · le lanceur de dés ────────────────────────────────────────── */
+
+/*  Son `<table id="list_dice">` est devenu une colonne de `div`.
+
+    ATTENTION SI ON Y RETOUCHE : le template porte son propre
+    `add_dice()`, qui construisait un `<tr><td>` et l'accrochait au
+    `lastChild` du tableau — c'est-à-dire au `<tbody>` implicite. Le
+    script a été changé en même temps que le balisage ; l'un sans
+    l'autre casse le bouton « + ». */
+#modernbb #list_dice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .des-ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .des-ligne input[type="text"] {
+  width: 4em;
+}
+
+/* ── 7 · les blocs repliables ─────────────────────────────────────── */
+
+/*  « Options » et « Revoir le sujet », repliés par défaut. Le titre est
+    le bouton : il doit s'annoncer comme tel. */
+#modernbb .h3.forum-hideable {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+
+  margin: var(--wm-espace-12, 12px) 0 0;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .h3.forum-hideable:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/* ── 8 · sous 740 px ──────────────────────────────────────────────── */
+
+/*  La boîte à smileys passe sous l'éditeur plutôt qu'à côté, et les
+    boutons prennent toute la largeur : on écrit au pouce. */
+@media (max-width: 740px) {
+  #modernbb #smiley-box {
+    width: 100%;
+    margin-top: var(--wm-espace-12, 12px);
+  }
+
+  /*  Plus de réserve : les boutons prennent la largeur, et le coin se
+      dépasse en faisant défiler. */
+  #modernbb .submit-buttons {
+    justify-content: stretch;
+    padding-right: 0;
+  }
+
+  #modernbb .submit-buttons input {
+    flex: 1 1 auto;
+  }
+}

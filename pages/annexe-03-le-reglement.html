@@ -1,0 +1,97 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     Annexe 03 · Le règlement — à coller dans une page HTML Forumactif.
+
+     REPRIS SUR LA MAQUETTE `245:1772`, le 6 octobre. La première version
+     de cette page transposait le règlement de la V1 — deux mille mots.
+     La maquette en fait un règlement COURT : huit points, deux cartes,
+     deux encarts, et « le reste se règle en parlant ». C'est une
+     décision de ton, pas une mise en page, et je l'avais ratée.
+
+     Le texte ci-dessous est celui de la maquette, au mot près.
+
+     DEUX CHOSES EN CRÉANT LA PAGE :
+       1. « Utiliser le header et footer du forum » = OUI.
+       2. L'adresse doit finir par « -reglement » (elle l'est déjà :
+          /h3-reglement), et cette adresse est déclarée dans
+          data/annexes.json pour que le sommaire se surligne.
+
+     Le sommaire n'est PAS dans ce fichier : le `<nav data-wm-sommaire>`
+     est un trou que le script remplit depuis data/annexes.json.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<div class="wm-annexe">
+
+  <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
+
+  <div class="wm-annexe__corps">
+    <div class="wm-annexe__colonne">
+
+      <p class="wm-annexe__surtitre">Annexe 03</p>
+      <h1 class="wm-annexe__titre">Le <em>règlement</em></h1>
+      <p class="wm-annexe__chapo">
+        Court, parce qu'un règlement long ne se lit pas. Tout tient en huit points, et le
+        reste se règle en parlant.
+      </p>
+
+      <div class="wm-annexe__blocs">
+
+        <div class="wm-carte">
+          <h2 class="wm-carte__titre">Entre nous</h2>
+          <ul class="wm-tirets">
+            <li><b>On se respecte.</b> Le personnage peut être odieux ; le joueur, non. Un
+              désaccord se règle en MP, pas dans un RP.</li>
+            <li><b>Un RP par mois.</b> C'est la seule règle de rythme, et elle se compte sur
+              l'ensemble de tes personnages. Dans un sujet, en revanche, rien ne presse :
+              aucun délai de réponse, aucune relance automatique. Préviens juste si tu
+              t'absentes longtemps.</li>
+            <li><b>Le hors-jeu reste hors-jeu.</b> Ton personnage ne sait pas ce que tu sais.
+              C'est la seule règle d'écriture qu'on tient vraiment.</li>
+          </ul>
+        </div>
+
+        <div class="wm-carte">
+          <h2 class="wm-carte__titre">En jeu</h2>
+          <ul class="wm-tirets">
+            <li><b>Cent mots minimum</b> pour déclencher une rencontre. En dessous, tu écris
+              quand même, tu ne croises simplement personne.</li>
+            <li><b>Tu ne lances rien toi-même.</b> Rencontres, captures, fouilles, éclosions :
+              le serveur tire, affiche un code de vérification, et le résultat est
+              définitif.</li>
+            <li><b>Un compte par personnage,</b> rattaché publiquement à ton compte joueur.
+              Deux de tes personnages ne peuvent pas jouer le même combat ni s'échanger des
+              objets.</li>
+            <li><b>Une défaite ne coûte pas cher</b> : le sujet se clôt, tu perds 5 % de ton
+              argent, plafonné à 200 ₽. Aucun pokémon n'est jamais perdu.</li>
+            <li><b>Images officielles</b> pour les pokémons, les objets et les types ; avatars
+              de personnes réelles pour les personnages. Pas de personnage canon.</li>
+          </ul>
+        </div>
+
+        <div class="wm-encarts">
+          <div class="wm-encart wm-encart--terre">
+            <span class="wm-encart__etiquette">La validation</span>
+            <p>Les fiches sont relues par le staff en un ou deux jours. On corrige avec toi ;
+              un refus sec n'arrive pas.</p>
+          </div>
+          <div class="wm-encart">
+            <span class="wm-encart__etiquette">Si ça dérape</span>
+            <p>Prévenir un membre du staff suffit. On ne sanctionne jamais sans avoir entendu
+              les deux personnes.</p>
+          </div>
+        </div>
+
+        <div class="wm-suivante">
+          <a class="wm-suivante__bouton" href="#">
+            <span class="wm-suivante__etiquette">Annexe suivante</span>
+            Créer son personnage →
+          </a>
+          <span class="wm-lieu">
+            La Lande Broussailleuse
+            <b>une question sans réponse ici ? écris au staff</b>
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

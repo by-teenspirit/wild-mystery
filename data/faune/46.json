@@ -1,0 +1,494 @@
+{
+ "forumId": 46,
+ "zone": "Relique Sacrée",
+ "palier": 3,
+ "_": "Zone NEUVE : la V1 ne l'avait pas, elle n'a donc aucune table d'origine. Un seul lieu, pourcentages égaux, jour et nuit identiques — voir l'en-tête de outils/zones-neuves.py. À découper en lieux quand l'annexe de la zone sera écrite.",
+ "lieux": {
+  "Relique Sacrée": {
+   "jour": [
+    {
+     "espece": 189,
+     "nom": "Cotovol",
+     "pct": 3.3333,
+     "min": 35,
+     "max": 40,
+     "rarete": "commun"
+    },
+    {
+     "espece": 671,
+     "nom": "Florges",
+     "pct": 3.3333,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 154,
+     "nom": "Méganium",
+     "pct": 3.3333,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 182,
+     "nom": "Joliflor",
+     "pct": 3.3333,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 254,
+     "nom": "Jungko",
+     "pct": 3.3333,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 470,
+     "nom": "Phyllali",
+     "pct": 3.3333,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 497,
+     "nom": "Majaspic",
+     "pct": 3.3333,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 763,
+     "nom": "Sucreine",
+     "pct": 3.3333,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 812,
+     "nom": "Gorythmic",
+     "pct": 3.3333,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 3,
+     "nom": "Florizarre",
+     "pct": 3.3333,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 45,
+     "nom": "Rafflesia",
+     "pct": 3.3333,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 71,
+     "nom": "Empiflor",
+     "pct": 3.3333,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 407,
+     "nom": "Roserade",
+     "pct": 3.3333,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 15,
+     "nom": "Dardargnan",
+     "pct": 3.3333,
+     "min": 42,
+     "max": 47,
+     "rarete": "commun"
+    },
+    {
+     "espece": 269,
+     "nom": "Papinox",
+     "pct": 3.3333,
+     "min": 42,
+     "max": 47,
+     "rarete": "commun"
+    },
+    {
+     "espece": 282,
+     "nom": "Gardevoir",
+     "pct": 3.3333,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 242,
+     "nom": "Leuphorie",
+     "pct": 3.3333,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 36,
+     "nom": "Mélodelfe",
+     "pct": 3.3333,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 700,
+     "nom": "Nymphali",
+     "pct": 3.3333,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 10163,
+     "nom": "Galopa de Galar",
+     "pct": 3.3333,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 275,
+     "nom": "Tengalice",
+     "pct": 3.3333,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 267,
+     "nom": "Charmillon",
+     "pct": 3.3333,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 666,
+     "nom": "Prismillon",
+     "pct": 3.3333,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 542,
+     "nom": "Manternel",
+     "pct": 3.3333,
+     "min": 47,
+     "max": 52,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 12,
+     "nom": "Papilusion",
+     "pct": 3.3333,
+     "min": 47,
+     "max": 52,
+     "rarete": "rare"
+    },
+    {
+     "espece": 826,
+     "nom": "Astronelle",
+     "pct": 3.3333,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 908,
+     "nom": "Miascarade",
+     "pct": 3.3333,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 930,
+     "nom": "Arboliva",
+     "pct": 3.3333,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 1019,
+     "nom": "Pomdorochi",
+     "pct": 3.3333,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 10244,
+     "nom": "Archéduc de Hisui",
+     "pct": 3.3343,
+     "min": 50,
+     "max": 55,
+     "rarete": "rare"
+    }
+   ],
+   "nuit": [
+    {
+     "espece": 189,
+     "nom": "Cotovol",
+     "pct": 3.3333,
+     "min": 35,
+     "max": 40,
+     "rarete": "commun"
+    },
+    {
+     "espece": 671,
+     "nom": "Florges",
+     "pct": 3.3333,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 154,
+     "nom": "Méganium",
+     "pct": 3.3333,
+     "min": 36,
+     "max": 41,
+     "rarete": "commun"
+    },
+    {
+     "espece": 182,
+     "nom": "Joliflor",
+     "pct": 3.3333,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 254,
+     "nom": "Jungko",
+     "pct": 3.3333,
+     "min": 37,
+     "max": 42,
+     "rarete": "commun"
+    },
+    {
+     "espece": 470,
+     "nom": "Phyllali",
+     "pct": 3.3333,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 497,
+     "nom": "Majaspic",
+     "pct": 3.3333,
+     "min": 38,
+     "max": 43,
+     "rarete": "commun"
+    },
+    {
+     "espece": 763,
+     "nom": "Sucreine",
+     "pct": 3.3333,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 812,
+     "nom": "Gorythmic",
+     "pct": 3.3333,
+     "min": 39,
+     "max": 44,
+     "rarete": "commun"
+    },
+    {
+     "espece": 3,
+     "nom": "Florizarre",
+     "pct": 3.3333,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 45,
+     "nom": "Rafflesia",
+     "pct": 3.3333,
+     "min": 40,
+     "max": 45,
+     "rarete": "commun"
+    },
+    {
+     "espece": 71,
+     "nom": "Empiflor",
+     "pct": 3.3333,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 407,
+     "nom": "Roserade",
+     "pct": 3.3333,
+     "min": 41,
+     "max": 46,
+     "rarete": "commun"
+    },
+    {
+     "espece": 15,
+     "nom": "Dardargnan",
+     "pct": 3.3333,
+     "min": 42,
+     "max": 47,
+     "rarete": "commun"
+    },
+    {
+     "espece": 269,
+     "nom": "Papinox",
+     "pct": 3.3333,
+     "min": 42,
+     "max": 47,
+     "rarete": "commun"
+    },
+    {
+     "espece": 282,
+     "nom": "Gardevoir",
+     "pct": 3.3333,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 242,
+     "nom": "Leuphorie",
+     "pct": 3.3333,
+     "min": 43,
+     "max": 48,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 36,
+     "nom": "Mélodelfe",
+     "pct": 3.3333,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 700,
+     "nom": "Nymphali",
+     "pct": 3.3333,
+     "min": 44,
+     "max": 49,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 10163,
+     "nom": "Galopa de Galar",
+     "pct": 3.3333,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 275,
+     "nom": "Tengalice",
+     "pct": 3.3333,
+     "min": 45,
+     "max": 50,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 267,
+     "nom": "Charmillon",
+     "pct": 3.3333,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 666,
+     "nom": "Prismillon",
+     "pct": 3.3333,
+     "min": 46,
+     "max": 51,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 542,
+     "nom": "Manternel",
+     "pct": 3.3333,
+     "min": 47,
+     "max": 52,
+     "rarete": "peu commun"
+    },
+    {
+     "espece": 12,
+     "nom": "Papilusion",
+     "pct": 3.3333,
+     "min": 47,
+     "max": 52,
+     "rarete": "rare"
+    },
+    {
+     "espece": 826,
+     "nom": "Astronelle",
+     "pct": 3.3333,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 908,
+     "nom": "Miascarade",
+     "pct": 3.3333,
+     "min": 48,
+     "max": 53,
+     "rarete": "rare"
+    },
+    {
+     "espece": 930,
+     "nom": "Arboliva",
+     "pct": 3.3333,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 1019,
+     "nom": "Pomdorochi",
+     "pct": 3.3333,
+     "min": 49,
+     "max": 54,
+     "rarete": "rare"
+    },
+    {
+     "espece": 10244,
+     "nom": "Archéduc de Hisui",
+     "pct": 3.3343,
+     "min": 50,
+     "max": 55,
+     "rarete": "rare"
+    }
+   ]
+  }
+ }
+}

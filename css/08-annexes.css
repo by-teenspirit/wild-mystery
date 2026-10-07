@@ -1,0 +1,574 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 08 · Les annexes
+
+   Le gabarit des douze pages HTML. **Repris sur la maquette elle-même
+   le 6 octobre** (`245:1772` · annexe 03, `247:1786` · annexe 04), après
+   une première version écrite sur la seule DESCRIPTION du gabarit dans
+   la planche 25. La description était fidèle ; elle ne disait pas tout.
+
+   ── CE QUE LA MAQUETTE A CORRIGÉ ──────────────────────────────────────
+
+   · le sommaire est **pleine hauteur, collé au bord gauche, sans
+     arrondi** — pas une carte posée dans la page ;
+   · son en-tête fait **163 px** : un cercle de 84 en pointillés, centré,
+     puis « LES ANNEXES », puis le filet de 4 px ;
+   · une entrée fait **39 px** et son texte est en **capitales**, numéro
+     et titre dans un seul texte séparé d'un point médian — pas deux
+     colonnes ;
+   · l'entrée active porte l'accent **plein**, pas à 42 %, et son texte se
+     décale de 4 px — c'est l'épaisseur du filet ;
+   · **il n'y a pas de pied dans le sommaire.** J'en avais inventé un ;
+   · le contenu est posé sur une **photo** voilée, rembourrage 40 / 48 /
+     36, et la colonne de lecture de 768 px laisse à sa droite la place du
+     **rendu pokémon 446 × 446**.
+
+   ── CE QUE LA MAQUETTE NE DIT PAS, ET QU'ON GARDE ─────────────────────
+
+   **L'état « à venir ».** Dans la maquette, les douze pages existent ;
+   sur le forum, une seule. Une entrée sans page reste donc non cliquable
+   et pâlie. Ce n'est pas une divergence, c'est un état que la maquette
+   n'avait pas à montrer.
+
+   ── SEPT BRIQUES ─────────────────────────────────────────────────────
+
+   `wm-carte` · `wm-tirets` · `wm-paras` · `wm-table` · `wm-paire` ·
+   `wm-encarts` · `wm-suivante` (avec `wm-lieu`). Une huitième se discute
+   avant de s'écrire, sinon le gabarit se dissout en douze pages
+   différentes. **`wm-table` est en flexbox**, pas un `<table>`
+   (planche 49) : un vrai tableau ne se replie pas sur téléphone.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la page en deux colonnes ──────────────────────────────────── */
+
+/*  Le sommaire ne rétrécit pas, le contenu prend le reste. `min-width: 0`
+    sur le contenu : sans lui, une longue ligne de table pousse la mise en
+    page au-delà de la fenêtre et écrase le sommaire.
+
+    Pas d'écart entre les deux : dans la maquette ils se touchent, le
+    sommaire étant un pan de couleur et non une carte. */
+#modernbb .wm-annexe {
+  display: flex;
+  align-items: stretch;
+}
+
+#modernbb .wm-annexe__corps {
+  flex: 1 1 auto;
+  min-width: 0;
+  /*  40 en haut, 48 sur les côtés, 36 en bas (maquette). */
+  padding: var(--wm-espace-40, 40px) var(--wm-espace-48, 48px) var(--wm-espace-32, 32px);
+  /*  LA PHOTO DE FOND MANQUE ENCORE (planche 46). En attendant, un
+      dégradé vers le fond de page tient la place : c'est exactement le
+      voile que la maquette pose SUR la photo, servi seul. Le jour où
+      l'image arrive, elle se glisse en premier plan de `background` et
+      rien d'autre ne bouge. */
+  background:
+    radial-gradient(
+      120% 90% at 85% 100%,
+      color-mix(in srgb, var(--wm-accent-terre, #9a4f29) 14%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      var(--wm-fond-douce, #f3e1d2) 0%,
+      var(--wm-fond-page, #f2e4d8) 55%
+    );
+}
+
+/*  768 px pour les huit annexes : c'est la largeur des cartes dans la
+    maquette, et la place qui reste à droite est celle du rendu pokémon.
+    Les quatre pages de la région portent `--large` — elles ont des
+    grilles que 768 ne tiennent pas. */
+#modernbb .wm-annexe__colonne {
+  max-width: 768px;
+}
+
+#modernbb .wm-annexe__colonne--large {
+  max-width: none;
+}
+
+/* ── 2 · le sommaire ──────────────────────────────────────────────── */
+
+/*  Posé par `module-annexes.ts` depuis `data/annexes.json`. La page n'en
+    porte que le trou : `<nav class="wm-annexe__sommaire" data-wm-sommaire>`.
+
+    `sticky` : les annexes sont longues, et un sommaire qui disparaît au
+    premier défilement ne sert à rien. Il se décroche sous 900 px. */
+#modernbb .wm-annexe__sommaire {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  flex: 0 0 252px;
+  width: 252px;
+  padding: 0 0 var(--wm-espace-24, 24px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  L'en-tête de 163 px : le cercle, l'enseigne, le filet. */
+#modernbb .wm-annexe__entete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  padding: 26px 0 var(--wm-espace-16, 16px);
+  border-bottom: 4px solid var(--wm-accent-primaire, #2b6988);
+}
+
+/*  Le logo, en attendant l'image : un cercle de 84 en pointillés, comme
+    dans la maquette — qui en est elle-même au repère. */
+#modernbb .wm-annexe__logo {
+  width: 84px;
+  height: 84px;
+  margin: 0 0 var(--wm-espace-12, 12px);
+  border: 1px dashed var(--wm-texte-sur-nuit, #fffbf7);
+  border-radius: 50%;
+  opacity: 0.55;
+}
+
+#modernbb .wm-annexe__enseigne {
+  margin: 0;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-annexe__section {
+  padding-top: var(--wm-espace-16, 16px);
+}
+
+/*  L'intertitre « LES PAGES DE LA RÉGION ». Celui de la première section
+    n'est pas rendu : il doublerait l'enseigne juste au-dessus. */
+#modernbb .wm-annexe__intertitre {
+  margin: 0;
+  padding: var(--wm-espace-14, 14px) 22px var(--wm-espace-8, 8px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-annexe__liste {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*  Le filet gauche est TOUJOURS là, transparent par défaut : posé
+    seulement sur l'entrée active, il décalerait le texte de 4 px au
+    changement de page. La maquette montre justement ce décalage de 4 px
+    sur l'entrée active, et c'est bien le filet qui le produit. */
+#modernbb .wm-annexe__entree {
+  border-left: 4px solid transparent;
+}
+
+#modernbb .wm-annexe__entree--active {
+  border-left-color: var(--wm-accent-fort, #1f5470);
+  background: var(--wm-accent-primaire, #2b6988);
+}
+
+/*  39 px de haut, texte à 22 du bord, en capitales (maquette). Le numéro
+    et le titre sont un SEUL texte séparé d'un point médian — pas deux
+    colonnes : c'est ce qui donne la ligne régulière du sommaire. */
+#modernbb .wm-annexe__lien {
+  display: block;
+  padding: 11px 18px;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 17px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#modernbb a.wm-annexe__lien:hover,
+#modernbb a.wm-annexe__lien:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: underline;
+}
+
+/*  Une page pas encore créée. La maquette ne montre pas cet état — chez
+    elle les douze existent. On le garde quand même : une entrée qui ne
+    répond pas et qui ressemble à un lien est pire qu'une entrée pâlie. */
+#modernbb .wm-annexe__entree--a-venir .wm-annexe__lien {
+  opacity: 0.58;
+  cursor: default;
+}
+
+#modernbb .wm-annexe__a-venir {
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-style: italic;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+#modernbb .wm-annexe__a-venir::before {
+  content: " · ";
+}
+
+/* ── 3 · la tête de la colonne de lecture ─────────────────────────── */
+
+/*  **`accent-fort`, pas `accent-primaire`.** Le corps d'annexe porte un
+    voile terre en radial dans son coin bas-droit : là, le fond descend à
+    `#e5cfc0`, et l'accent primaire y tombe à 4,04. Le surtitre est en
+    haut à gauche, donc en pratique il est à 4,85 — mais le harnais mesure
+    le pire point du fond, et il a raison de le faire : un voile qu'on
+    déplace, un chapô qu'on rallonge, et le surtitre se retrouve dedans.
+
+    L'écart est invisible à l'œil et le risque disparaît. */
+#modernbb .wm-annexe__surtitre {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/*  Le titre en deux mots : le premier à l'encre, le second à l'accent.
+    Les deux dans le MÊME `h1` — coupé en deux balises, un lecteur
+    d'écran lirait deux titres. */
+#modernbb .wm-annexe__titre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-display, 44px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-annexe__titre em {
+  color: var(--wm-accent-primaire, #2b6988);
+  font-style: normal;
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-annexe__chapo {
+  margin: 0 0 var(--wm-espace-24, 24px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-chapo, "Cormorant Garamond", Garamond, Georgia, serif);
+  font-size: var(--wm-taille-chapo, 21px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  Les briques se suivent avec un écart constant. C'est la SEULE règle
+    d'espacement vertical de la page : aucune brique ne porte de marge à
+    elle, sinon deux voisines en additionnent deux. */
+#modernbb .wm-annexe__blocs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-16, 16px);
+}
+
+/* ── 4 · brique « carte » ─────────────────────────────────────────── */
+
+#modernbb .wm-carte {
+  padding: var(--wm-espace-18, 18px) var(--wm-espace-24, 24px) var(--wm-espace-20, 20px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-carte__titre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-carte, 1.25);
+}
+
+#modernbb .wm-carte > :last-child {
+  margin-bottom: 0;
+}
+
+/* ── 5 · brique « tirets » ────────────────────────────────────────── */
+
+/*  « — **amorce en gras.** la suite ». Le tiret est un pseudo-élément :
+    dans le HTML collé, la ligne commence par son amorce, ce qui garde le
+    texte copiable sans ponctuation parasite. */
+#modernbb .wm-tirets {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+#modernbb .wm-tirets > li {
+  display: flex;
+  gap: var(--wm-espace-10, 10px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-tirets > li::before {
+  flex: 0 0 auto;
+  color: var(--wm-accent-primaire, #2b6988);
+  content: "—";
+}
+
+#modernbb .wm-tirets b,
+#modernbb .wm-tirets strong {
+  color: var(--wm-encre, #2e2018);
+}
+
+/* ── 6 · brique « paras » ─────────────────────────────────────────── */
+
+#modernbb .wm-paras {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-paras > p {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-paras b,
+#modernbb .wm-paras strong {
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/* ── 7 · brique « table » — en flexbox, pas en `<table>` ──────────── */
+
+/*  Dans la maquette (annexe 04, « Les six groupes ») la table vit DANS
+    une carte : pas de cadre à elle, seulement des filets entre les
+    lignes. C'est ce qui est repris ici.
+
+    **Le `role` fait le travail d'accessibilité** que la balise aurait
+    fait : sans lui, une table en `div` est une suite de blocs muets. */
+#modernbb .wm-table {
+  display: flex;
+  flex-direction: column;
+}
+
+#modernbb .wm-table__ligne {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-16, 16px);
+  padding: var(--wm-espace-10, 10px) 0;
+}
+
+#modernbb .wm-table__ligne + .wm-table__ligne {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-table__ligne--entete {
+  padding-top: 0;
+}
+
+#modernbb .wm-table__ligne--entete .wm-table__cellule {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-table__cellule {
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  La première colonne est un nom : elle ne s'étire pas comme les
+    autres, et elle porte l'encre. */
+#modernbb .wm-table__cellule--nom {
+  flex: 0 0 160px;
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-table__cellule--chiffre {
+  flex: 0 0 auto;
+  min-width: 88px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ── 8 · brique « paire » ─────────────────────────────────────────── */
+
+/*  Deux cartes côte à côte : 376 + 16 + 376 = 768 dans la maquette. */
+#modernbb .wm-paire {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-paire > * {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+/* ── 9 · brique « deux encarts » ──────────────────────────────────── */
+
+/*  Des pavés teintés à étiquette. Trois teintes, et c'est tout : sable,
+    terre, vert. Une quatrième teinte n'est pas une variante, c'est un
+    sens de plus — et un sens porté par la seule couleur ne se lit pas,
+    d'où l'étiquette en capitales qui le dit en mots. */
+#modernbb .wm-encarts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-encart {
+  flex: 1 1 300px;
+  min-width: 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-encart--terre {
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .wm-encart--paisible {
+  background: rgba(63, 122, 82, 0.16);
+  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, transparent);
+}
+
+#modernbb .wm-encart__etiquette {
+  display: block;
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-encart > :last-child {
+  margin-bottom: 0;
+}
+
+/* ── 10 · le pied : le bouton, puis la pastille ───────────────────── */
+
+/*  Dans la maquette ils sont l'un SOUS l'autre, alignés à gauche — pas
+    sur une même ligne. Je les avais mis côte à côte. */
+#modernbb .wm-suivante {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--wm-espace-10, 10px);
+  margin-top: var(--wm-espace-24, 24px);
+}
+
+/*  Le bouton de page suivante est un LIEN, pas un `<button>` : il mène
+    ailleurs. Le socle (`02`) ne style que `.button1` / `.button2`, qui
+    sont les classes de ModernBB — un `<a>` n'en porte aucune. On reprend
+    donc le même gabarit, aux mêmes jetons. */
+#modernbb a.wm-suivante__bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: 10px 20px;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+#modernbb a.wm-suivante__bouton:hover,
+#modernbb a.wm-suivante__bouton:focus-visible {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  text-decoration: underline;
+}
+
+/*  L'étiquette « ANNEXE SUIVANTE » devant le titre de la page suivante. */
+#modernbb .wm-suivante__etiquette {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  La pastille : le lieu dont parle la page, et le mot du staff. Elle
+    n'est pas un lien — c'est un repère, pas une navigation. */
+#modernbb .wm-lieu {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-lieu b {
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── 11 · sur petit écran ─────────────────────────────────────────── */
+
+/*  Le sommaire passe au-dessus du contenu et se décolle : un pan de
+    252 px collé en haut d'un écran de téléphone mangerait la moitié de
+    la page à chaque défilement. */
+@media (max-width: 900px) {
+  #modernbb .wm-annexe {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-annexe__sommaire {
+    position: static;
+    flex: 1 1 auto;
+    width: auto;
+    align-self: stretch;
+  }
+
+  #modernbb .wm-annexe__corps {
+    padding: var(--wm-espace-24, 24px) var(--wm-espace-16, 16px);
+  }
+
+  #modernbb .wm-annexe__colonne {
+    max-width: none;
+  }
+
+  #modernbb .wm-annexe__titre {
+    font-size: var(--wm-taille-titre-page, 25px);
+  }
+
+  /*  Une ligne de table s'empile. L'en-tête disparaît : des étiquettes
+      de colonnes au-dessus de lignes empilées ne désignent plus rien. */
+  #modernbb .wm-table__ligne {
+    flex-direction: column;
+    gap: var(--wm-espace-4, 4px);
+  }
+
+  #modernbb .wm-table__ligne--entete {
+    display: none;
+  }
+
+  #modernbb .wm-table__cellule--nom {
+    flex: 1 1 auto;
+  }
+
+  #modernbb .wm-table__cellule--chiffre {
+    text-align: left;
+  }
+}

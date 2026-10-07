@@ -1,0 +1,163 @@
+{
+ "_": "Les dix-sept zones sauvages de Rhode. C'est ce fichier qui décide où le module de bilan s'affiche : partout ailleurs, il ne se charge pas. Relevé sur le forum le 2 octobre 2026.",
+ "montBataille": {
+  "forumId": 65,
+  "nom": "Mont Bataille",
+  "_": "La Ligue. Pas une zone sauvage : aucune rencontre, pas de module."
+ },
+ "zones": [
+  {
+   "forumId": 9,
+   "nom": "Forêt Marécageuse",
+   "palier": 1,
+   "parentId": 96,
+   "parent": "Zones Palier 1",
+   "lieux": 15,
+   "faune": "data/faune/9.json"
+  },
+  {
+   "forumId": 34,
+   "nom": "Montagnes Embrumées",
+   "palier": 1,
+   "parentId": 96,
+   "parent": "Zones Palier 1",
+   "lieux": 16,
+   "faune": "data/faune/34.json"
+  },
+  {
+   "forumId": 38,
+   "nom": "Lande Broussailleuse",
+   "palier": 1,
+   "parentId": 96,
+   "parent": "Zones Palier 1",
+   "lieux": 16,
+   "faune": "data/faune/38.json"
+  },
+  {
+   "forumId": 100,
+   "nom": "Fleuve Paisible",
+   "palier": 1,
+   "parentId": 96,
+   "parent": "Zones Palier 1",
+   "lieux": 14,
+   "faune": "data/faune/100.json"
+  },
+  {
+   "forumId": 32,
+   "nom": "Plage Grain de Sel",
+   "palier": 1,
+   "parentId": 96,
+   "parent": "Zones Palier 1",
+   "lieux": 14,
+   "faune": "data/faune/32.json"
+  },
+  {
+   "forumId": 36,
+   "nom": "Steppes Arides",
+   "palier": 1,
+   "parentId": 96,
+   "parent": "Zones Palier 1",
+   "lieux": 16,
+   "faune": "data/faune/36.json"
+  },
+  {
+   "forumId": 31,
+   "nom": "Manoir Barjok",
+   "palier": 2,
+   "parentId": 97,
+   "parent": "Zones Palier 2",
+   "lieux": 1,
+   "faune": "data/faune/31.json"
+  },
+  {
+   "forumId": 35,
+   "nom": "Usine Désaffectée",
+   "palier": 2,
+   "parentId": 97,
+   "parent": "Zones Palier 2",
+   "lieux": 1,
+   "faune": "data/faune/35.json"
+  },
+  {
+   "forumId": 39,
+   "nom": "Volcan Nuageux",
+   "palier": 2,
+   "parentId": 97,
+   "parent": "Zones Palier 2",
+   "lieux": 14,
+   "faune": "data/faune/39.json"
+  },
+  {
+   "forumId": 33,
+   "nom": "Libra Échoué",
+   "palier": 2,
+   "parentId": 97,
+   "parent": "Zones Palier 2",
+   "lieux": 1,
+   "faune": "data/faune/33.json"
+  },
+  {
+   "forumId": 37,
+   "nom": "Canyon Lekro",
+   "palier": 2,
+   "parentId": 97,
+   "parent": "Zones Palier 2",
+   "lieux": 14,
+   "faune": "data/faune/37.json"
+  },
+  {
+   "forumId": 101,
+   "nom": "Oasis Perdue",
+   "palier": 2,
+   "parentId": 97,
+   "parent": "Zones Palier 2",
+   "lieux": 1,
+   "faune": "data/faune/101.json"
+  },
+  {
+   "forumId": 102,
+   "nom": "Planque Snatch",
+   "palier": 3,
+   "parentId": 98,
+   "parent": "Zones Palier 3",
+   "lieux": 1,
+   "faune": "data/faune/102.json"
+  },
+  {
+   "forumId": 103,
+   "nom": "Monts Enneigés",
+   "palier": 3,
+   "parentId": 98,
+   "parent": "Zones Palier 3",
+   "lieux": 13,
+   "faune": "data/faune/103.json"
+  },
+  {
+   "forumId": 46,
+   "nom": "Relique Sacrée",
+   "palier": 3,
+   "parentId": 98,
+   "parent": "Zones Palier 3",
+   "lieux": 1,
+   "faune": "data/faune/46.json"
+  },
+  {
+   "forumId": 104,
+   "nom": "Océan Mystérieux",
+   "palier": 3,
+   "parentId": 98,
+   "parent": "Zones Palier 3",
+   "lieux": 13,
+   "faune": "data/faune/104.json"
+  },
+  {
+   "forumId": 105,
+   "nom": "Volcan Sombre",
+   "palier": 3,
+   "parentId": 98,
+   "parent": "Zones Palier 3",
+   "lieux": 1,
+   "faune": "data/faune/105.json"
+  }
+ ]
+}
