@@ -683,6 +683,42 @@ html#min-width {
   pointer-events: none;
 }
 
+/*  ── ET MODERNBB CACHE LA BANNIÈRE QUAND IL SE COLLE ──────────────
+
+    Le défaut que Callista décrit comme « la bannière saute quand tu
+    montes et tu descends », et il est entièrement dans cette règle de
+    ModernBB, relevée le 7 octobre :
+
+        .is-sticky #logo { display: none; height: 0; margin: 0;
+                           opacity: 0; transform: translateY(-200px);
+                           width: 0; }
+
+    Leur barre collante se veut compacte, donc elle escamote le logo —
+    qui est NOTRE bannière. Mesuré : `.headerbar` passe de **620 px à
+    12 px** dès que la classe apparaît, et la page entière remonte de
+    608 px d'un coup ; elle redescend quand on revient en haut.
+
+    On a déjà dépinglé leur barre : la classe n'a donc plus rien à
+    rendre compact, et tout ce qu'elle fait encore est ce saut. On
+    annule les deux gestes qui restent — l'escamotage du logo, et les
+    6 px de marge intérieure qu'elle ajoute.
+
+    Mesuré après : 620 px à 0, 500 et 2 000 px de défilement, et la
+    hauteur de page ne bouge plus (5 091 px partout). */
+#modernbb #headerbar-top.is-sticky {
+  padding: 0;
+  top: auto;
+}
+
+#modernbb #headerbar-top.is-sticky #logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  opacity: 1;
+  transform: none;
+}
+
 /*  Le titre est DANS l'image. Le garder à l'écran l'écrirait deux fois.
     Masqué à l'œil, pas retiré : `#site-title` est le `h1` de la page, et
     un forum sans `h1` est un forum sans titre pour tout ce qui lit la

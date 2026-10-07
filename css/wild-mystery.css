@@ -888,6 +888,42 @@ html#min-width {
   pointer-events: none;
 }
 
+/*  ── ET MODERNBB CACHE LA BANNIÈRE QUAND IL SE COLLE ──────────────
+
+    Le défaut que Callista décrit comme « la bannière saute quand tu
+    montes et tu descends », et il est entièrement dans cette règle de
+    ModernBB, relevée le 7 octobre :
+
+        .is-sticky #logo { display: none; height: 0; margin: 0;
+                           opacity: 0; transform: translateY(-200px);
+                           width: 0; }
+
+    Leur barre collante se veut compacte, donc elle escamote le logo —
+    qui est NOTRE bannière. Mesuré : `.headerbar` passe de **620 px à
+    12 px** dès que la classe apparaît, et la page entière remonte de
+    608 px d'un coup ; elle redescend quand on revient en haut.
+
+    On a déjà dépinglé leur barre : la classe n'a donc plus rien à
+    rendre compact, et tout ce qu'elle fait encore est ce saut. On
+    annule les deux gestes qui restent — l'escamotage du logo, et les
+    6 px de marge intérieure qu'elle ajoute.
+
+    Mesuré après : 620 px à 0, 500 et 2 000 px de défilement, et la
+    hauteur de page ne bouge plus (5 091 px partout). */
+#modernbb #headerbar-top.is-sticky {
+  padding: 0;
+  top: auto;
+}
+
+#modernbb #headerbar-top.is-sticky #logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  opacity: 1;
+  transform: none;
+}
+
 /*  Le titre est DANS l'image. Le garder à l'écran l'écrirait deux fois.
     Masqué à l'œil, pas retiré : `#site-title` est le `h1` de la page, et
     un forum sans `h1` est un forum sans titre pour tout ce qui lit la
@@ -4803,66 +4839,182 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-decoration: underline;
 }
 
-/* ── 4 · les trois interrupteurs, dans le coin d'outils ───────────── */
+/* ── 4 · le bouton de confort, et son panneau ─────────────────────── */
 
-/*  **Le coin fait 92 px de large**, et les trois libellés s'y entassaient
-    sur trois lignes de 59 px de haut, en texte pâle sur un fond
-    transparent : illisibles, mesuré. Le bloc prend donc sa propre
-    largeur et son propre fond — il reste dans le coin, il n'y est plus
-    comprimé. */
-#modernbb .wm-coin__confort,
-.wm-coin .wm-coin__confort {
-  display: flex;
-  flex-direction: column;
-  width: 208px;
-  margin-top: var(--wm-espace-8, 8px);
-  margin-left: auto;
-  padding: var(--wm-espace-8, 8px);
-  gap: var(--wm-espace-4, 4px);
+/*  CE QUI A CHANGÉ LE 7 OCTOBRE, et pourquoi. Les trois interrupteurs
+    étaient dépliés en permanence dans un bloc de 208 px accroché à un
+    coin de 92 px : **il dépassait**, et il mangeait un tiers de la
+    hauteur d'un écran de téléphone pour des réglages qu'on touche une
+    fois. Ils sont maintenant derrière un bouton, comme tous les widgets
+    d'accessibilité qu'on croise ailleurs.
+
+    L'ancre est en `relative` : le panneau se place par rapport à ELLE,
+    donc il suit le coin où qu'il aille, et il n'a pas de coordonnées
+    d'écran à tenir à jour. */
+.wm-confort {
+  position: relative;
+}
+
+/*  Le bouton reprend `.wm-coin__bouton` — même fond, même taille, même
+    cible tactile que le thème et les flèches. Il n'a besoin ici que de
+    son cadre, que les boutons groupés tiennent de leur conteneur. */
+.wm-coin .wm-confort__bouton {
+  width: 100%;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-/*  Un interrupteur : pleine largeur du bloc, texte à gauche, cible
-    tactile pleine. Il porte son propre fond — sans lui, il héritait du
-    transparent du coin et se lisait sur la page. */
-.wm-coin .wm-coin__confort-bouton {
+/*  Ouvert, le bouton le MONTRE — pas seulement l'annonce. Une nuance
+    seule ne suffirait pas : on prend le fond d'accent, comme un état
+    coché ailleurs dans la charte. */
+.wm-confort--ouvert .wm-confort__bouton {
+  border-color: var(--wm-accent-primaire, #2e6e8e);
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+.wm-coin .wm-confort__bouton svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+/*  LE PANNEAU NE DÉPASSE PAS, et c'est tenu par trois réglages, pas
+    par un espoir :
+
+      · `right: 0` l'aligne sur le bord droit du coin, donc il s'ouvre
+        VERS LA GAUCHE, là où il y a de la place ;
+      · `bottom: calc(100% + 8px)` le pose AU-DESSUS du bouton : vers le
+        bas, il n'y a que 16 px avant le bord de l'écran ;
+      · `max-width: calc(100vw - 32px)` le borne à la fenêtre moins les
+        deux marges du coin. Sur un téléphone de 320 px, il se resserre
+        au lieu de sortir.
+
+    `max-height` et le défilement en plus : trois réglages tiennent
+    partout, mais un quatrième sur un écran bas ne doit pas pousser le
+    panneau hors de la vue. */
+/*  `[hidden]` D'ABORD, ET C'EST UN PIÈGE MESURÉ. L'attribut `hidden` ne
+    fait rien d'autre que `display: none` dans la feuille du
+    navigateur — qui a la plus basse priorité qui existe. Un
+    `display: flex` de notre feuille le bat, et le panneau restait
+    visible tout en se déclarant caché. Le harnais l'a vu : « caché :
+    oui, hauteur : 159 px ».
+
+    On le redit donc nous-mêmes, avant la règle qui l'affiche. */
+.wm-confort__panneau[hidden] {
+  display: none;
+}
+
+.wm-confort__panneau {
+  position: absolute;
+  box-sizing: border-box;
+  right: 0;
+  bottom: calc(100% + var(--wm-espace-8, 8px));
+  z-index: 1;
+
   display: flex;
-  align-items: center;
+  width: 232px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 120px);
+  flex-direction: column;
+  overflow-y: auto;
+  padding: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-4, 4px);
+
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+}
+
+/*  Le titre du panneau : il répète l'`aria-label`, pour l'œil cette
+    fois. Un panneau qui s'ouvre sans dire ce qu'il règle oblige à
+    deviner. */
+.wm-confort__titre {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  padding: 0 var(--wm-espace-4, 4px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/*  Un réglage : pleine largeur, texte à gauche, cible tactile pleine.
+    Il porte son propre fond — sans lui il héritait du transparent du
+    coin et se lisait sur la page. */
+.wm-confort__choix {
+  display: flex;
   box-sizing: border-box;
   width: 100%;
   min-height: 38px;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
   padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+
   border: 0;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-encre, #2e2018);
   cursor: pointer;
+
   font-family: var(--wm-police-corps, "Nunito Sans", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-demi, 600);
   text-align: left;
 }
 
-.wm-coin .wm-coin__confort-bouton .wm-coin__texte {
-  /*  Le libellé se lit : la règle qui le masque sous 760 px vaut pour
-      les boutons à icône du coin, pas pour ceux-ci, qui n'ont que leur
-      texte pour dire ce qu'ils font. */
+/*  LA COCHE EST UNE FORME, pas une couleur. Un état qui ne se lit qu'à
+    la nuance disparaît pour une personne sur douze — et sur un panneau
+    d'accessibilité, ce serait une faute particulière. `aria-pressed` le
+    dit aussi à voix haute. */
+.wm-confort__coche {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 1.5px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 4px);
+  background: var(--wm-fond-page, #f2e4d8);
+}
+
+.wm-confort__choix--coche {
+  background: var(--wm-accent-primaire, #2e6e8e);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+.wm-confort__choix--coche .wm-confort__coche {
+  border-color: var(--wm-texte-inverse, #fffbf7);
+  background: transparent;
+}
+
+/*  Le crochet, en deux traits de bordure tournés : pas un caractère —
+    « ✓ » dépend d'une police qui peut manquer, et il ne se centre pas
+    pareil d'un système à l'autre. */
+.wm-confort__choix--coche .wm-confort__coche::after {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid var(--wm-texte-inverse, #fffbf7);
+  border-bottom: 2px solid var(--wm-texte-inverse, #fffbf7);
+  transform: rotate(45deg);
+}
+
+/*  Le libellé se lit : la règle qui masque les textes du coin sous
+    760 px vaut pour les boutons à icône, pas pour ceux-ci, qui n'ont
+    que leur texte pour dire ce qu'ils font. */
+.wm-confort__libelle {
   position: static;
   width: auto;
   height: auto;
   overflow: visible;
   clip-path: none;
   white-space: normal;
-}
-
-/*  Coché : le fond d'accent et le texte inverse. Pas seulement une
-    teinte — un état qui ne se lit qu'à la nuance disparaît pour la
-    moitié des gens. `aria-pressed` le dit aussi à voix haute. */
-.wm-coin .wm-coin__confort--coche {
-  background: var(--wm-accent-primaire, #2e6e8e);
-  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /* ── 5 · l'encart de notifications ────────────────────────────────── */

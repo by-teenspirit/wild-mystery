@@ -58,6 +58,41 @@ function element(doc: Document, balise: string, classe: string, texte?: string):
 
 // ── les trois interrupteurs ─────────────────────────────────────────
 
+const SVG = "http://www.w3.org/2000/svg";
+
+/** Le pictogramme universel d'accessibilité, en tracé.
+ *
+ *  PAS UNE LIGATURE MATERIAL, pour la raison écrite dans
+ *  `coin-outils.ts` : un bouton qui dépend d'une police distante
+ *  affiche un carré vide le jour où elle ne charge pas — et ce bouton-là
+ *  est précisément celui dont a besoin la personne qui n'y voit pas
+ *  bien. */
+function pictoAccessibilite(doc: Document): SVGSVGElement {
+  const racine = doc.createElementNS(SVG, "svg");
+  racine.setAttribute("viewBox", "0 0 16 16");
+  racine.setAttribute("aria-hidden", "true");
+  racine.setAttribute("focusable", "false");
+
+  const tete = doc.createElementNS(SVG, "circle");
+  tete.setAttribute("cx", "8");
+  tete.setAttribute("cy", "2.6");
+  tete.setAttribute("r", "1.6");
+  tete.setAttribute("fill", "currentColor");
+
+  //  Les bras en croix puis les deux jambes, d'un seul tracé : c'est la
+  //  silhouette qu'on reconnaît sans la lire.
+  const corps = doc.createElementNS(SVG, "path");
+  corps.setAttribute("d", "M2.6 6h10.8M8 6v4m0 0-2.2 5m2.2-5 2.2 5");
+  corps.setAttribute("fill", "none");
+  corps.setAttribute("stroke", "currentColor");
+  corps.setAttribute("stroke-width", "1.7");
+  corps.setAttribute("stroke-linecap", "round");
+  corps.setAttribute("stroke-linejoin", "round");
+
+  racine.append(tete, corps);
+  return racine;
+}
+
 /** Pose les classes de confort sur `body`.
  *
  *  Appelée au chargement ET à chaque bascule : c'est le seul endroit qui
@@ -69,10 +104,37 @@ export function appliquerLesConforts(doc: Document, actifs: readonly Confort[]):
 }
 
 /**
- * Ajoute les trois interrupteurs au coin d'outils, et rend le bloc posé.
+ * Ajoute au coin d'outils UN BOUTON qui ouvre les trois réglages.
  *
- * Rend `null` si le coin n'existe pas : il est posé par `CoinOutils`, et
- * sans lui il n'y a nulle part où les mettre. On n'en crée pas un second.
+ * Rend le panneau posé, ou `null` si le coin n'existe pas : il est posé
+ * par `CoinOutils`, et sans lui il n'y a nulle part où le mettre. On
+ * n'en crée pas un second.
+ *
+ * ── POURQUOI UN BOUTON ET PLUS TROIS ───────────────────────────────
+ *
+ * Les trois interrupteurs étaient dépliés en permanence, dans un bloc
+ * de 208 px accroché à un coin de 92 px : il **dépassait** du coin, et
+ * il occupait un tiers de la hauteur d'un écran de téléphone pour des
+ * réglages qu'on touche une fois.
+ *
+ * C'est aussi la forme que prennent tous les widgets d'accessibilité
+ * qu'on croise ailleurs — un pictogramme, et un panneau qui s'ouvre.
+ * Ça se reconnaît sans explication, ce qui vaut mieux qu'une invention
+ * à nous.
+ *
+ * ── CE QUI EN FAIT UN VRAI PANNEAU, PAS UNE DIV QU'ON MONTRE ───────
+ *
+ * Un menu qu'on ouvre sans pouvoir le fermer au clavier est un piège
+ * pour qui n'a pas de souris — et sur un panneau d'accessibilité, ce
+ * serait une faute particulière. Donc :
+ *
+ *   · le bouton porte `aria-expanded`, qui dit l'état à voix haute ;
+ *   · Échap referme et **rend le focus au bouton**, sinon le curseur
+ *     reste dans un panneau invisible ;
+ *   · un clic à côté referme aussi ;
+ *   · le panneau est `hidden` quand il est fermé, pas seulement
+ *     transparent : un lecteur d'écran ne doit pas lire trois
+ *     interrupteurs qui ne sont pas là.
  */
 export function poserLAccessibilite(
   doc: Document,
@@ -81,11 +143,28 @@ export function poserLAccessibilite(
   const coin = doc.querySelector(".wm-coin");
   if (coin === null) return null;
 
-  const bloc = element(doc, "div", "wm-coin__confort");
-  //  Un groupe nommé : sans ça, un lecteur d'écran annonce trois
-  //  interrupteurs qui ne disent pas de quoi ils règlent l'affichage.
-  bloc.setAttribute("role", "group");
-  bloc.setAttribute("aria-label", "Confort de lecture");
+  //  Une ancre en position relative : le panneau se place par rapport à
+  //  ELLE et pas à l'écran, donc il suit le coin où qu'il soit.
+  const ancre = element(doc, "div", "wm-confort");
+
+  const bouton = doc.createElement("button");
+  bouton.type = "button";
+  bouton.className = "wm-coin__bouton wm-confort__bouton";
+  bouton.setAttribute("aria-expanded", "false");
+  bouton.setAttribute("aria-controls", "wm-confort-panneau");
+  bouton.appendChild(pictoAccessibilite(doc));
+  //  Le libellé est visible ET annoncé, comme les autres boutons du
+  //  coin. « CONFORT » et pas « ACCESSIBILITÉ » : il reste lisible dans
+  //  les 92 px du coin.
+  bouton.appendChild(element(doc, "span", "wm-coin__texte", "CONFORT"));
+  bouton.setAttribute("aria-label", "Confort de lecture");
+
+  const panneau = element(doc, "div", "wm-confort__panneau");
+  panneau.id = "wm-confort-panneau";
+  panneau.hidden = true;
+  panneau.setAttribute("role", "group");
+  panneau.setAttribute("aria-label", "Confort de lecture");
+  panneau.appendChild(element(doc, "p", "wm-confort__titre", "Confort de lecture"));
 
   const boutons = new Map<Confort, HTMLButtonElement>();
   const rafraichir = (actifs: readonly Confort[]): void => {
@@ -93,29 +172,55 @@ export function poserLAccessibilite(
     for (const [c, b] of boutons) {
       const coche = actifs.includes(c);
       b.setAttribute("aria-pressed", String(coche));
-      b.classList.toggle("wm-coin__confort--coche", coche);
+      b.classList.toggle("wm-confort__choix--coche", coche);
     }
   };
 
   for (const c of CONFORTS) {
     const b = doc.createElement("button");
     b.type = "button";
-    b.className = "wm-coin__bouton wm-coin__confort-bouton";
+    b.className = "wm-confort__choix";
     //  Le libellé EST le texte du bouton, pas seulement un `title` : une
     //  infobulle ne se lit ni au doigt ni au clavier.
-    b.appendChild(element(doc, "span", "wm-coin__texte", LIBELLE_DE_CONFORT[c]));
+    b.appendChild(element(doc, "span", "wm-confort__coche"));
+    b.lastElementChild?.setAttribute("aria-hidden", "true");
+    b.appendChild(element(doc, "span", "wm-confort__libelle", LIBELLE_DE_CONFORT[c]));
     b.addEventListener("click", () => {
       const suivant = basculerConfort(prefs.conforts(), c);
       prefs.poserConforts(suivant);
       rafraichir(suivant);
     });
     boutons.set(c, b);
-    bloc.appendChild(b);
+    panneau.appendChild(b);
   }
 
-  coin.appendChild(bloc);
+  const montrer = (ouvert: boolean): void => {
+    panneau.hidden = !ouvert;
+    bouton.setAttribute("aria-expanded", String(ouvert));
+    ancre.classList.toggle("wm-confort--ouvert", ouvert);
+  };
+
+  bouton.addEventListener("click", (e) => {
+    //  Sans ça, le clic qui OUVRE remonte jusqu'au document et referme
+    //  aussitôt. C'est le piège classique du clic-à-côté.
+    e.stopPropagation();
+    montrer(panneau.hidden === true);
+  });
+  panneau.addEventListener("click", (e) => e.stopPropagation());
+  doc.addEventListener("click", () => montrer(false));
+  doc.addEventListener("keydown", (e) => {
+    if ((e as KeyboardEvent).key !== "Escape" || panneau.hidden === true) return;
+    montrer(false);
+    //  LE FOCUS REVIENT AU BOUTON. Sans ça, il reste dans un panneau
+    //  devenu `hidden`, et la tabulation suivante repart du haut de la
+    //  page.
+    bouton.focus();
+  });
+
+  ancre.append(bouton, panneau);
+  coin.appendChild(ancre);
   rafraichir(prefs.conforts());
-  return bloc;
+  return panneau;
 }
 
 // ── l'encart de notifications ───────────────────────────────────────
