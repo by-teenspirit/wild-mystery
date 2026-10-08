@@ -42,6 +42,7 @@ import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import {
   numeroterLesCategories,
+  rangerLesSousForums,
   recomposerLesDerniersMessages,
 } from "../src/adaptateurs/navigateur/module-categories.ts";
 import { rangerLeMessenger } from "../src/adaptateurs/navigateur/module-messenger.ts";
@@ -310,6 +311,10 @@ desQueLeCorpsEstLa(() => {
   //  TOUTES les pages qui en portent — l'index comme les listes de
   //  sujets.
   recomposerLesDerniersMessages(document);
+  //  ET LES SOUS-FORUMS DEVIENNENT DES PASTILLES. Même raison : les
+  //  virgules qui les séparent sont des nœuds de texte, qu'aucune
+  //  règle n'atteint.
+  rangerLesSousForums(document);
   //  ET LE BOUTON DU TCHAT VA DANS LE COIN D'OUTILS, dès que FAM l'a
   //  posé. Sans réseau de notre côté : on guette un nœud, on le range,
   //  on s'arrête.

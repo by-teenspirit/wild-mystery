@@ -1642,6 +1642,46 @@ html#min-width {
   text-transform: none;
 }
 
+/*  ── LES SOUS-FORUMS EN PASTILLES ──────────────────────────────────
+
+    `390:3328` les dessine en rang sous la description : des boîtes de
+    18 de haut, 7 de rembourrage, 5 d'écart, en bas de casse sur un
+    fond pâle. ModernBB les sert en liens séparés par des virgules ;
+    `rangerLesSousForums` retire les virgules et les regroupe, parce
+    qu'un nœud de texte ne se cible pas.
+
+    `inline-flex` et pas `block` : le rang ne doit pas prendre toute la
+    largeur de la colonne, sinon il pousse la description quand la
+    ligne est serrée. */
+#modernbb ul.topiclist li.row .wm-sous-forums {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: var(--wm-espace-4, 4px);
+}
+
+#modernbb ul.topiclist li.row a.wm-sous-forum {
+  display: inline-block;
+  padding: 2px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: 14px;
+  text-decoration: none;
+  /*  PAS DE CAPITALES FORCÉES. Les libellés viennent du panneau
+      d'administration et Callista les y écrit comme elle veut —
+      « MISSIONS » en capitales, « Arène Roche » non. Les mettre tous
+      en capitales effacerait son choix. */
+  text-transform: none;
+}
+
+#modernbb ul.topiclist li.row a.wm-sous-forum:hover,
+#modernbb ul.topiclist li.row a.wm-sous-forum:focus-visible {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
 /*  ── SUR TÉLÉPHONE, LA LIGNE S'EMPILE ──────────────────────────────
 
     LE TITRE DU FORUM ÉTAIT INVISIBLE À 390. Relevé à l'écran en

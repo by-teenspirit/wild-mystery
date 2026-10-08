@@ -75,6 +75,75 @@ export function numeroterLesCategories(doc: Document): number {
   return faits;
 }
 
+// ── les sous-forums ─────────────────────────────────────────────────
+
+/** La classe du rang de pastilles. La feuille 03 l'habille. */
+export const CLASSE_SOUS_FORUMS = "wm-sous-forums";
+
+/** Range les sous-forums d'une ligne en un rang de pastilles.
+ *
+ *  ── CE QUE LA MAQUETTE DEMANDE ──────────────────────────────────────
+ *
+ *  `390:3328` dessine trois rangées dans la colonne d'identité : le
+ *  titre, la description, puis un rang de pastilles — « En cours de
+ *  validation », « Validées », « Modèles de fiche », « Archives ». Des
+ *  boîtes de 18 de haut, 7 de rembourrage, 5 d'écart.
+ *
+ *  ── CE QUE MODERNBB SERT ────────────────────────────────────────────
+ *
+ *      <h3>…</h3>La description<br><br>
+ *      <a class="gensmall" href="/f99-missions">MISSIONS</a>,
+ *      <a class="gensmall" href="/f44-…">VALIDER UNE FICHE</a><strong></strong>
+ *
+ *  Des liens séparés par des VIRGULES EN NŒUDS DE TEXTE. Une virgule
+ *  entre deux pastilles ne veut plus rien dire — c'est la pastille qui
+ *  sépare —, et aucun sélecteur n'atteint un nœud de texte. D'où ce
+ *  passage en JavaScript plutôt qu'une règle de plus.
+ *
+ *  On les regroupe aussi dans un conteneur : sans lui, le rang ne peut
+ *  pas s'écarter du texte au-dessus ni se replier proprement, puisque
+ *  les liens sont frères de la description.
+ *
+ *  ── CE QU'ON NE TOUCHE PAS ──────────────────────────────────────────
+ *
+ *  Les adresses, les libellés, l'ordre. On déplace des nœuds, on ne
+ *  fabrique rien : un sous-forum renommé dans le panneau
+ *  d'administration suit tout seul.
+ *
+ *  Rend le nombre de lignes rangées. */
+export function rangerLesSousForums(doc: Document): number {
+  let faits = 0;
+  for (const corps of Array.from(doc.querySelectorAll("li.row dd.dterm > div"))) {
+    if (corps.querySelector(`.${CLASSE_SOUS_FORUMS}`) !== null) continue;
+    const liens = Array.from(corps.querySelectorAll<HTMLAnchorElement>(":scope > a.gensmall"));
+    if (liens.length === 0) continue;
+
+    //  LES SÉPARATEURS D'ABORD, LE DÉPLACEMENT ENSUITE. L'inverse
+    //  laisse des virgules orphelines là où les liens étaient.
+    const premier = liens[0];
+    const dernier = liens[liens.length - 1];
+    let n: ChildNode | null = premier;
+    while (n !== null) {
+      const suivant: ChildNode | null = n.nextSibling;
+      //  Entre le premier et le dernier lien, tout ce qui est du texte
+      //  est une virgule ou une espace : rien d'autre ne vit là.
+      if (n !== premier && n.nodeType === 3) n.remove();
+      if (n === dernier) break;
+      n = suivant;
+    }
+
+    const rang = doc.createElement("span");
+    rang.className = CLASSE_SOUS_FORUMS;
+    corps.insertBefore(rang, premier);
+    for (const a of liens) {
+      a.classList.add("wm-sous-forum");
+      rang.appendChild(a);
+    }
+    faits += 1;
+  }
+  return faits;
+}
+
 // ── le dernier message ──────────────────────────────────────────────
 
 /** Ce qu'on a su tirer d'un bloc « dernière réponse ». */
