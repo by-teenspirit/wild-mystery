@@ -169,26 +169,36 @@ const dire = (nom, ok, detail = "") => {
   if (!ok) soucis.push(nom + (detail ? " — " + detail : ""));
 };
 
-// ── 1 · elle est là, et elle est complète ───────────────────────────
+// ── 1 · elle est là, elle est complète, et elle a un titre ──────────
 const pose = await p.evaluate(() => {
   const c = document.querySelector(".wm-carte");
   if (c === null) return null;
-  const avant = c.closest("#wm-carte")?.nextElementSibling;
+  const avant = document.querySelector("#wm-carte")?.nextElementSibling;
+  const vu = (n) => n !== null && n.getClientRects().length > 0;
   return {
+    titre: c.querySelector(".wm-carte__titre")?.textContent.trim(),
     formes: document.querySelectorAll(".wm-carte__lieu").length,
     entrees: document.querySelectorAll(".wm-carte__entree").length,
-    legende: [...document.querySelectorAll(".wm-carte__legende-mot")].map((m) =>
+    groupes: [...document.querySelectorAll(".wm-carte__groupe-mot")].map((m) =>
       m.textContent.trim()
     ),
     //  Elle se pose AVANT la première catégorie qui porte un de ses
     //  forums — « Les Villes de Rhode », pas « Zone staff ».
     suivie: (avant?.querySelector("li.header h2")?.textContent ?? "").trim(),
-    //  Et les catégories restent : la carte s'ajoute, elle ne
-    //  remplace pas.
-    categories: document.querySelectorAll(".forabg").length,
+    //  « Les catégories en dessous ne doivent donc plus se voir » :
+    //  les deux qui portent des lieux sont cachées, « Zone staff »
+    //  reste.
+    cachees: document.querySelectorAll(".forabg.wm-carte-remplacee").length,
+    visibles: [...document.querySelectorAll(".forabg")].filter(vu).length,
+    staffVu: vu(
+      [...document.querySelectorAll(".forabg")].find((b) =>
+        b.textContent.includes("Zone staff")
+      ) ?? null,
+    ),
   };
 });
 dire("LA CARTE EST POSÉE", pose !== null, JSON.stringify(pose));
+dire("elle porte un titre", pose?.titre === "La carte de Rhode", pose?.titre);
 dire("elle porte les vingt-six lieux", pose?.formes === 26, `${pose?.formes} formes`);
 dire("et la liste les reprend tous", pose?.entrees === 26, `${pose?.entrees} entrées`);
 dire(
@@ -197,9 +207,13 @@ dire(
   pose?.suivie,
 );
 dire(
-  "les catégories restent sous elle : on ajoute, on ne remplace pas",
-  pose?.categories === 3,
-  `${pose?.categories} catégories`,
+  "LES DEUX CATÉGORIES QU'ELLE REDIT NE SE VOIENT PLUS",
+  pose?.cachees === 2 && pose?.visibles === 1,
+  JSON.stringify({ cachees: pose?.cachees, visibles: pose?.visibles }),
+);
+dire(
+  "mais une catégorie qui n'est pas sur la carte reste, elle",
+  pose?.staffVu === true,
 );
 
 // ── 2 · LE PALIER EST ÉCRIT, PAS SEULEMENT COLORÉ ───────────────────
@@ -207,8 +221,14 @@ const mots = await p.evaluate(() => ({
   legende: [...document.querySelectorAll(".wm-carte__legende-mot")].map((m) =>
     m.textContent.trim()
   ),
-  entrees: [...document.querySelectorAll(".wm-carte__entree-famille")].map((m) =>
+  groupes: [...document.querySelectorAll(".wm-carte__groupe-mot")].map((m) =>
     m.textContent.trim()
+  ),
+  comptes: [...document.querySelectorAll(".wm-carte__groupe-compte")].map((m) =>
+    Number(m.textContent.trim())
+  ),
+  entrees: [...document.querySelectorAll(".wm-carte__entree")].map((a) =>
+    a.getAttribute("aria-label")
   ),
   noms: [...document.querySelectorAll(".wm-carte__lieu")].map((g) =>
     g.getAttribute("aria-label")
@@ -220,9 +240,21 @@ dire(
   JSON.stringify(mots.legende),
 );
 dire(
-  "chaque entrée de la liste porte sa famille écrite",
-  mots.entrees.length === 26 && mots.entrees.every((m) => m !== ""),
-  `${mots.entrees.length} sur 26`,
+  "LA LISTE EST GROUPÉE PAR FAMILLE, et chaque groupe est titré",
+  JSON.stringify(mots.groupes) ===
+    JSON.stringify(["Les villes", "Palier 1", "Palier 2", "Palier 3", "La ligue"]),
+  JSON.stringify(mots.groupes),
+);
+dire(
+  "chaque groupe dit combien de lieux il tient, et la somme fait vingt-six",
+  mots.comptes.reduce((a, b) => a + b, 0) === 26,
+  JSON.stringify(mots.comptes),
+);
+dire(
+  "et chaque entrée garde sa famille dans son nom accessible",
+  mots.entrees.length === 26 &&
+    mots.entrees.every((n) => /, (ville|ligue|palier [123]) — entrer/.test(n ?? "")),
+  JSON.stringify(mots.entrees.filter((n) => !/, (ville|ligue|palier [123]) — /.test(n ?? ""))),
 );
 dire(
   "ET LE NOM ACCESSIBLE DE CHAQUE FORME AUSSI",
@@ -231,43 +263,111 @@ dire(
   JSON.stringify(mots.noms.filter((n) => !/, (ville|ligue|palier [123])$/.test(n ?? ""))),
 );
 
-// ── 3 · les chiffres des villes viennent de la page ─────────────────
-await p.evaluate(() => {
-  document.querySelector('.wm-carte__entree[data-wm-forum="12"]').click();
+// ── 3 · la liste ENTRE dans le forum ────────────────────────────────
+//
+//  « Cliquer sur la catégorie à droite nous fait rentrer dans la
+//  catégorie. » Donc un lien, et un lien qui mène au bon forum.
+const liens = await p.evaluate(() => {
+  const a = [...document.querySelectorAll(".wm-carte__entree")];
+  return {
+    tous: a.every((x) => x.tagName === "A" && /^\/f\d+-$/.test(x.getAttribute("href") ?? "")),
+    pyrite: document.querySelector('.wm-carte__entree[data-wm-forum="12"]')?.getAttribute(
+      "href",
+    ),
+    fleches: document.querySelectorAll(".wm-carte__entree-fleche").length,
+  };
 });
-await p.waitForTimeout(80);
+dire("CHAQUE ENTRÉE DE LA LISTE EST UN LIEN VERS SON FORUM", liens.tous === true);
+dire("et il mène au bon", liens.pyrite === "/f12-", liens.pyrite);
+dire("chacune porte sa flèche", liens.fleches === 26, `${liens.fleches}`);
+
+// ── 4 · le panneau, rempli par le survol de la liste ────────────────
+//
+//  Le clic part dans le forum : c'est le SURVOL qui montre. On
+//  reproduit donc le survol, pas le clic, sinon on quitte la page.
+const survoler = async (f) => {
+  await p.evaluate((f) => {
+    document.querySelector(`.wm-carte__entree[data-wm-forum="${f}"]`).dispatchEvent(
+      new PointerEvent("pointerenter", { bubbles: false }),
+    );
+  }, f);
+  await p.waitForTimeout(80);
+};
+await survoler(12);
 const pyrite = await p.evaluate(() => {
   const pan = document.querySelector(".wm-carte__panneau");
   return {
-    ouvert: pan.classList.contains("wm-carte__panneau--ouvert"),
+    vide: pan.classList.contains("wm-carte__panneau--vide"),
     famille: pan.querySelector(".wm-carte__panneau-famille")?.textContent.trim(),
-    nom: pan.querySelector(".wm-carte__panneau-nom")?.textContent.trim(),
+    nom: pan.querySelector(".wm-carte__panneau-mot")?.textContent.trim(),
+    lien: pan.querySelector(".wm-carte__panneau-lien")?.getAttribute("href"),
+    fleche: pan.querySelector(".wm-carte__panneau-lien .wm-carte__fleche") !== null,
     niveau: pan.querySelector(".wm-carte__panneau-niveau")?.textContent.trim(),
+    texte: pan.querySelector(".wm-carte__panneau-texte")?.textContent.trim(),
+    sousForums: [...pan.querySelectorAll(".wm-carte__sous-forum a")].map((a) => ({
+      t: a.textContent.trim(),
+      u: a.getAttribute("href"),
+    })),
     chiffres: [...pan.querySelectorAll(".wm-carte__chiffre")].map((c) => c.textContent.trim()),
-    dernier: pan.querySelector(".wm-carte__dernier-titre")?.textContent.trim(),
-    signature: pan.querySelector(".wm-carte__dernier-signature")?.textContent.trim(),
+    dernierTag: pan.querySelector(".wm-carte__dernier")?.tagName,
+    dernierLien: pan.querySelector(".wm-carte__dernier")?.getAttribute("href"),
+    dernierTitre: pan.querySelector(".wm-carte__dernier-titre")?.textContent.trim(),
+    dernierDate: pan.querySelector(".wm-carte__dernier-date")?.textContent.trim(),
+    dernierQui: pan.querySelector(".wm-carte__dernier-qui")?.textContent.trim(),
+    dernierFleche: pan.querySelector(".wm-carte__dernier .wm-carte__fleche") !== null,
     avatar: pan.querySelector(".wm-carte__dernier-avatar") !== null,
     choisie: document.querySelectorAll(".wm-carte__lieu--choisi").length,
+    entreeChoisie: document.querySelector(".wm-carte__entree--choisie")?.dataset.wmForum,
   };
 });
-dire("UN CLIC DANS LA LISTE OUVRE LE PANNEAU", pyrite.ouvert === true, JSON.stringify(pyrite));
+dire("SURVOLER LA LISTE REMPLIT LE PANNEAU", pyrite.vide === false, JSON.stringify(pyrite));
 dire("il nomme le lieu et sa famille", pyrite.nom === "Pyrite" && pyrite.famille === "Ville");
+dire(
+  "LE NOM EST LA PORTE DU FORUM, et il porte sa flèche",
+  pyrite.lien === "/f12-" && pyrite.fleche === true,
+  JSON.stringify({ l: pyrite.lien, f: pyrite.fleche }),
+);
 dire("il donne les niveaux", (pyrite.niveau ?? "") !== "", pyrite.niveau);
+dire(
+  "LA DESCRIPTION EST CELLE DU FORUM, pas celle de data/carte.json",
+  pyrite.texte === "La description de Pyrite.",
+  pyrite.texte,
+);
+dire(
+  "ON VOIT LES SOUS-FORUMS, et ils mènent quelque part",
+  pyrite.sousForums.length === 2 &&
+    pyrite.sousForums[0].t === "Arène" &&
+    /^\/f\d+-/.test(pyrite.sousForums[0].u ?? ""),
+  JSON.stringify(pyrite.sousForums),
+);
 dire(
   "LES CHIFFRES DE LA VILLE SONT LUS DANS LA PAGE, sans une requête",
   pyrite.chiffres[0] === "11 sujets" && pyrite.chiffres[1] === "42 messages",
   JSON.stringify(pyrite.chiffres),
 );
 dire(
-  "avec le dernier sujet, son auteur et son avatar",
-  (pyrite.dernier ?? "").includes("Pyrite") &&
-    (pyrite.signature ?? "").includes("Maître du Jeu") &&
-    pyrite.avatar,
-  JSON.stringify({ d: pyrite.dernier, s: pyrite.signature, a: pyrite.avatar }),
+  "LE DERNIER MESSAGE EST UN LIEN CLIQUABLE, avec sa flèche",
+  pyrite.dernierTag === "A" && /^\/t\d+-/.test(pyrite.dernierLien ?? "") &&
+    pyrite.dernierFleche === true,
+  JSON.stringify({ t: pyrite.dernierTag, l: pyrite.dernierLien, f: pyrite.dernierFleche }),
 );
-dire("et la forme correspondante s'allume, une seule", pyrite.choisie === 1);
+dire(
+  "et il porte son titre, SA DATE, son auteur et son avatar",
+  (pyrite.dernierTitre ?? "").includes("Pyrite") &&
+    /2024/.test(pyrite.dernierDate ?? "") &&
+    (pyrite.dernierQui ?? "").includes("Maître du Jeu") &&
+    pyrite.avatar,
+  JSON.stringify({
+    t: pyrite.dernierTitre,
+    d: pyrite.dernierDate,
+    q: pyrite.dernierQui,
+    a: pyrite.avatar,
+  }),
+);
+dire("la forme correspondante s'allume, une seule", pyrite.choisie === 1);
+dire("et l'entrée de la liste aussi", pyrite.entreeChoisie === "12", pyrite.entreeChoisie);
 
-// ── 4 · les zones viennent des trois pages de palier ────────────────
+// ── 5 · les zones viennent des trois pages de palier ────────────────
 dire(
   "TROIS REQUÊTES POUR DIX-SEPT ZONES, pas dix-sept",
   demandesDePalier === 3,
@@ -282,15 +382,20 @@ await p.waitForTimeout(80);
 const foret = await p.evaluate(() => {
   const pan = document.querySelector(".wm-carte__panneau");
   return {
-    nom: pan.querySelector(".wm-carte__panneau-nom")?.textContent.trim(),
+    nom: pan.querySelector(".wm-carte__panneau-mot")?.textContent.trim(),
     famille: pan.querySelector(".wm-carte__panneau-famille")?.textContent.trim(),
     niveau: pan.querySelector(".wm-carte__panneau-niveau")?.textContent.trim(),
+    texte: pan.querySelector(".wm-carte__panneau-texte")?.textContent.trim(),
     chiffres: [...pan.querySelectorAll(".wm-carte__chiffre")].map((c) => c.textContent.trim()),
     //  La liste a suivi : les deux vues disent la même chose.
     listeChoisie: document.querySelector(".wm-carte__entree--choisie")?.dataset.wmForum,
+    //  Et le nombre de sujets est passé dans la liste.
+    entreeChiffre: document.querySelector(
+      '.wm-carte__entree[data-wm-forum="9"] .wm-carte__entree-chiffres',
+    )?.textContent.trim(),
   };
 });
-dire("UN CLIC SUR LA CARTE FAIT LA MÊME CHOSE", foret.nom === "Forêt Marécageuse");
+dire("UN CLIC SUR LA CARTE REMPLIT LE PANNEAU À DROITE", foret.nom === "Forêt Marécageuse");
 dire("et la liste suit la carte", foret.listeChoisie === "9", foret.listeChoisie);
 dire("le palier et les niveaux sont ceux du forum", foret.famille === "Palier 1", foret.niveau);
 dire(
@@ -298,19 +403,29 @@ dire(
   foret.chiffres[0] === "14 sujets" && foret.chiffres[1] === "61 messages",
   JSON.stringify(foret.chiffres),
 );
+dire(
+  "la description de la zone vient de sa page de palier, elle aussi",
+  foret.texte === "Des racines dans l'eau noire.",
+  foret.texte,
+);
+dire(
+  "ET LA LISTE PORTE LES CHIFFRES, c'est elle qui dit où ça joue",
+  foret.entreeChiffre === "14 sujets",
+  foret.entreeChiffre,
+);
 
-// ── 5 · une page de palier qui tombe ne coûte que ses chiffres ──────
-await p.evaluate(() => {
-  document.querySelector('.wm-carte__entree[data-wm-forum="103"]').click();
-});
-await p.waitForTimeout(80);
+// ── 6 · une page de palier qui tombe ne coûte que ses chiffres ──────
+await survoler(103);
 const monts = await p.evaluate(() => {
   const pan = document.querySelector(".wm-carte__panneau");
   return {
-    nom: pan.querySelector(".wm-carte__panneau-nom")?.textContent.trim(),
-    lien: pan.querySelector(".wm-carte__panneau-nom a")?.getAttribute("href"),
+    nom: pan.querySelector(".wm-carte__panneau-mot")?.textContent.trim(),
+    lien: pan.querySelector(".wm-carte__panneau-lien")?.getAttribute("href"),
     texte: pan.querySelector(".wm-carte__panneau-texte")?.textContent.trim(),
     chiffres: [...pan.querySelectorAll(".wm-carte__chiffre")].map((c) => c.textContent.trim()),
+    entreeChiffre: document.querySelector(
+      '.wm-carte__entree[data-wm-forum="103"] .wm-carte__entree-chiffres',
+    )?.textContent.trim(),
   };
 });
 dire(
@@ -320,11 +435,11 @@ dire(
 );
 dire(
   "et le chiffre manquant se dit, il ne vaut pas zéro",
-  monts.chiffres[0] === "— sujets",
-  JSON.stringify(monts.chiffres),
+  monts.chiffres[0] === "— sujets" && monts.entreeChiffre === "—",
+  JSON.stringify([monts.chiffres[0], monts.entreeChiffre]),
 );
 
-// ── 6 · on traîne la carte, et elle s'arrête ────────────────────────
+// ── 7 · on traîne la carte, et elle s'arrête ────────────────────────
 const glisse = async (dx, dy) => {
   const b = await p.evaluate(() => {
     const r = document.querySelector(".wm-carte__cadre").getBoundingClientRect();
@@ -350,8 +465,7 @@ dire("LE BOUTON ZOOME", zoome !== "0 0 1000 640", zoome);
 const apresGauche = await glisse(-250, 0);
 dire("ON TRAÎNE LA CARTE ET ELLE SUIT", apresGauche !== zoome, `${zoome} → ${apresGauche}`);
 const auBord = await glisse(-2000, -2000);
-const [bx, by] = auBord.split(" ").map(Number);
-const [, , bl, bh] = auBord.split(" ").map(Number);
+const [bx, by, bl, bh] = auBord.split(" ").map(Number);
 dire(
   "ET ELLE S'ARRÊTE À SES BORDS",
   bx <= 1000 - bl + 0.5 && by <= 640 - bh + 0.5,
@@ -361,27 +475,94 @@ const retour = await glisse(4000, 4000);
 const [rx, ry] = retour.split(" ").map(Number);
 dire("dans l'autre sens aussi", rx >= -0.5 && ry >= -0.5, retour);
 
-// ── 7 · le clavier ──────────────────────────────────────────────────
+// ── 8 · le clavier ──────────────────────────────────────────────────
 const clavier = await p.evaluate(() => {
   const g = document.querySelector('.wm-carte__lieu[data-wm-forum="37"]');
   g.focus();
   g.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-  return document.querySelector(".wm-carte__panneau-nom")?.textContent.trim();
+  return document.querySelector(".wm-carte__panneau-mot")?.textContent.trim();
 });
 dire("UNE FORME S'OUVRE AU CLAVIER", clavier === "Canyon Lekro", clavier);
+//  Et tabuler dans la liste montre aussi : on voit où l'on va avant
+//  d'appuyer sur Entrée.
+const auFocus = await p.evaluate(() => {
+  document.querySelector('.wm-carte__entree[data-wm-forum="15"]').focus();
+  return document.querySelector(".wm-carte__panneau-mot")?.textContent.trim();
+});
+dire("ET TABULER DANS LA LISTE MONTRE LE LIEU", auFocus === "Suerebe", auFocus);
 
-// ── 8 · rien ne déborde ─────────────────────────────────────────────
+// ── 9 · la colonne de droite prend toute la hauteur ─────────────────
+//
+//  « Le panneau de droite doit prendre toute la hauteur. » Donc : la
+//  colonne monte du bord haut au bord bas du cadre, et c'est la LISTE
+//  qui défile — pas le bloc entier qui s'allonge.
+await p.setViewportSize({ width: 1440, height: 900 });
+await p.waitForTimeout(150);
+const hauteurs = await p.evaluate(() => {
+  const h = (s) => Math.round(document.querySelector(s).getBoundingClientRect().height);
+  const l = document.querySelector(".wm-carte__liste-cadre");
+  return {
+    cadre: h(".wm-carte__cadre"),
+    colonne: h(".wm-carte__colonne"),
+    panneau: h(".wm-carte__panneau"),
+    liste: h(".wm-carte__liste-cadre"),
+    defile: l.scrollHeight > l.clientHeight + 1,
+  };
+});
+dire(
+  "LA COLONNE FAIT LA HAUTEUR DU CADRE",
+  Math.abs(hauteurs.colonne - hauteurs.cadre) <= 2,
+  JSON.stringify(hauteurs),
+);
+dire(
+  "et c'est la liste qui défile, pas le bloc qui s'allonge",
+  hauteurs.defile === true && hauteurs.panneau + hauteurs.liste <= hauteurs.cadre + 2,
+  JSON.stringify(hauteurs),
+);
+
+// ── 10 · l'image d'en-tête du panneau ───────────────────────────────
+//
+//  AUCUN LIEU N'A LA SIENNE. Ce qu'on vérifie, c'est que le panneau
+//  retombe bien sur le bandeau des catégories et qu'il reste LISIBLE :
+//  le voile est au-dessus de l'image, donc le texte tient quelle que
+//  soit la photo dessous.
+const banniere = await p.evaluate(() => {
+  const b = document.querySelector(".wm-carte__banniere");
+  const s = getComputedStyle(b);
+  return {
+    la: b !== null,
+    haut: Math.round(b.getBoundingClientRect().height),
+    image: s.backgroundImage.slice(0, 40),
+    couches: s.backgroundImage.split(/,(?![^(]*\))/).length,
+    texte: s.color,
+  };
+});
+dire(
+  "LE PANNEAU A UN EN-TÊTE IMAGÉ, avec son voile par-dessus",
+  banniere.la && banniere.haut >= 70 && banniere.couches >= 2,
+  JSON.stringify(banniere),
+);
+
+// ── 11 · rien ne déborde ────────────────────────────────────────────
 for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
   await p.setViewportSize({ width: l, height: h });
-  await p.waitForTimeout(120);
+  await p.waitForTimeout(150);
   const d = await p.evaluate(() => ({
     debord: document.documentElement.scrollWidth > document.documentElement.clientWidth,
     carte: Math.round(document.querySelector(".wm-carte").getBoundingClientRect().width),
     cadre: Math.round(document.querySelector(".wm-carte__cadre").getBoundingClientRect().width),
-    liste: Math.round(document.querySelector(".wm-carte__liste").getBoundingClientRect().width),
+    liste: Math.round(
+      document.querySelector(".wm-carte__liste-cadre").getBoundingClientRect().width,
+    ),
+    panneau: Math.round(
+      document.querySelector(".wm-carte__panneau").getBoundingClientRect().width,
+    ),
   }));
   dire(`à ${l} px, rien ne déborde`, !d.debord, JSON.stringify(d));
-  dire(`à ${l} px, la carte et la liste tiennent toutes les deux`, d.cadre > 0 && d.liste > 0);
+  dire(
+    `à ${l} px, la carte, le panneau et la liste tiennent tous les trois`,
+    d.cadre > 0 && d.liste > 0 && d.panneau > 0,
+  );
 }
 
 await nav.close();

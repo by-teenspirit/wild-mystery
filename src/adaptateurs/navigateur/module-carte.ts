@@ -55,7 +55,9 @@
 //  n'informe pas seule.
 // ════════════════════════════════════════════════════════════════════
 
+import { lireLeDernierMessage, morceauxDuDernierMessage } from "./module-categories.ts";
 import {
+  adresseDuForum,
   type Carte,
   carteDepuis,
   cleDeFamille,
@@ -63,9 +65,10 @@ import {
   deplacer,
   familleDe,
   forumDeLAdresse,
+  grouper,
   type Lieu,
   nombreDans,
-  ranger,
+  ordreDeDessin,
   type Vue,
   ZOOM_MAX,
   ZOOM_MIN,
@@ -122,32 +125,66 @@ export function comptagesDe(doc: Document | DocumentFragment): Map<number, Compt
       "dd.lastpost a:not(.last-post-icon)",
     );
     const avatar = ligne.querySelector<HTMLImageElement>("dd.lastpost img");
-    //  LES DEUX LIGNES DU DERNIER MESSAGE, recomposées en une.
-    //  `module-categories.ts` les pose séparément — la date puis
-    //  l'auteur, sur deux lignes, comme la maquette de la liste le
-    //  demande. Le panneau de la carte, lui, n'a qu'une ligne à leur
-    //  donner : on les recolle. Lire les deux classes plutôt qu'une
-    //  signature toute faite évite d'avoir deux formats à tenir
-    //  d'accord.
-    const quand = ligne.querySelector(".wm-dernier__date");
-    const qui = ligne.querySelector(".wm-dernier__qui");
+
+    //  ── LE DERNIER MESSAGE SE LIT DANS LES DEUX FORMES ──────────────
+    //
+    //  Sur l'index, `module-categories.ts` est déjà passé : la date et
+    //  l'auteur sont dans `.wm-dernier__date` et `.wm-dernier__qui`.
+    //  Sur une page de palier, qu'on va chercher et qu'on analyse hors
+    //  de la page, il n'est PAS passé : les deux sont encore des nœuds
+    //  de texte nus entre deux `<br>`.
+    //
+    //  On essaie les classes, puis le découpage brut. Ne lire qu'une
+    //  des deux formes voudrait dire faire tourner le module sur un
+    //  document détaché — plus cher, et pour rien.
+    const infos = ligne.querySelector("dd.lastpost .lastpost-infos");
+    const net = (n: Element | null) => (n?.textContent ?? "").replace(/\s+/g, " ").trim();
+    let quand = net(ligne.querySelector(".wm-dernier__date"));
+    let qui = net(ligne.querySelector(".wm-dernier__qui"));
+    if ((quand === "" || qui === "") && infos !== null) {
+      const lu = lireLeDernierMessage(morceauxDuDernierMessage(infos));
+      if (lu !== null) {
+        quand = lu.quand;
+        qui = lu.qui;
+      }
+    }
+
+    //  ── LA DESCRIPTION ET LES SOUS-FORUMS ───────────────────────────
+    //
+    //  Le gabarit de ModernBB met la description en texte NU dans le
+    //  même `<div>` que le titre et les liens de sous-forum. On prend
+    //  donc le texte du conteneur et on en retire celui de ses
+    //  enfants : ce qui reste est la description, et elle seule.
+    const corps = ligne.querySelector("dd.dterm > div");
+    let description = "";
+    const sousForums: { titre: string; url: string }[] = [];
+    if (corps !== null) {
+      for (const a of Array.from(corps.querySelectorAll<HTMLAnchorElement>("a.gensmall"))) {
+        const u = a.getAttribute("href") ?? "";
+        const t = net(a);
+        if (u !== "" && t !== "") sousForums.push({ titre: t, url: u });
+      }
+      const morceaux: string[] = [];
+      for (const n of Array.from(corps.childNodes)) {
+        if (n.nodeType === 3) morceaux.push(n.textContent ?? "");
+      }
+      description = morceaux.join(" ").replace(/\s+/g, " ").trim();
+    }
 
     sortie.set(id, {
       sujets: lire("dd.topics"),
       messages: lire("dd.posts"),
       ...(dernierLien === null ? {} : {
         dernier: {
-          titre: (dernierLien.textContent ?? "").replace(/\s+/g, " ").trim(),
+          titre: net(dernierLien),
           url: dernierLien.getAttribute("href") ?? "",
         },
       }),
       ...(avatar === null ? {} : { avatar: avatar.getAttribute("src") ?? "" }),
-      ...(() => {
-        const d = (quand?.textContent ?? "").replace(/\s+/g, " ").trim();
-        const q = (qui?.textContent ?? "").replace(/\s+/g, " ").trim();
-        if (d === "" && q === "") return {};
-        return { signature: q === "" ? d : d === "" ? `par ${q}` : `par ${q} · ${d}` };
-      })(),
+      ...(qui === "" ? {} : { qui }),
+      ...(quand === "" ? {} : { quand }),
+      ...(description === "" ? {} : { description }),
+      ...(sousForums.length === 0 ? {} : { sousForums }),
     });
   }
   return sortie;
@@ -228,26 +265,43 @@ function legende(doc: Document, carte: Carte): HTMLElement {
  *  pose juste avant. La règle suit les données : ajouter un lieu à
  *  `data/carte.json` suffit, et renommer une catégorie ne casse rien.
  *
- *  LES DEUX CATÉGORIES RESTENT EN DESSOUS. La carte s'ajoute, elle ne
- *  remplace pas : sans JavaScript on garde la liste complète des
- *  villes et des paliers, et avec, on a les deux — la carte pour
- *  regarder, les lignes pour lire. */
+ *  ── LES DEUX CATÉGORIES DISPARAISSENT, MAIS PAS DU HTML ─────────────
+ *
+ *  Demandé le 8 octobre : « les catégories en dessous ne doivent donc
+ *  plus se voir en toute logique ». Elles portent exactement ce que la
+ *  carte montre, en double.
+ *
+ *  ON LES CACHE EN JAVASCRIPT, PAS DANS LA FEUILLE. Une règle écrite
+ *  dans la feuille les ferait disparaître même quand le module tombe —
+ *  et on se retrouverait avec une page sans carte ET sans liste, c'est
+ *  à dire sans territoires du tout. En posant la classe ici, la
+ *  disparition est la CONSÉQUENCE de la carte posée : pas de carte,
+ *  pas de classe, les lignes restent. */
+export const CLASSE_REMPLACE = "wm-carte-remplacee";
+
 export function ancrerLaCarte(doc: Document, carte: Carte): HTMLElement | null {
-  const deja = doc.querySelector<HTMLElement>(`#${ANCRE}`);
-  if (deja !== null) return deja;
   const ids = new Set(carte.lieux.map((l) => l.forumId));
-  for (const bloc of Array.from(doc.querySelectorAll<HTMLElement>(".forabg, .forumbg"))) {
-    const tient = Array.from(bloc.querySelectorAll<HTMLAnchorElement>("a[href]")).some((a) => {
+  const porte = (bloc: HTMLElement): boolean =>
+    Array.from(bloc.querySelectorAll<HTMLAnchorElement>("a[href]")).some((a) => {
       const f = forumDeLAdresse(a.getAttribute("href") ?? "");
       return f !== null && ids.has(f);
     });
-    if (!tient) continue;
-    const hote = doc.createElement("div");
-    hote.id = ANCRE;
-    bloc.parentElement?.insertBefore(hote, bloc);
-    return hote;
-  }
-  return null;
+
+  const blocs = Array.from(doc.querySelectorAll<HTMLElement>(".forabg, .forumbg"))
+    .filter(porte);
+  //  Chaque bloc qui porte un lieu de la carte est maintenant redit par
+  //  elle. Un bloc imbriqué dans un autre ne compte qu'une fois — la
+  //  classe est idempotente.
+  for (const bloc of blocs) bloc.classList.add(CLASSE_REMPLACE);
+
+  const deja = doc.querySelector<HTMLElement>(`#${ANCRE}`);
+  if (deja !== null) return deja;
+  const premier = blocs[0];
+  if (premier === undefined) return null;
+  const hote = doc.createElement("div");
+  hote.id = ANCRE;
+  premier.parentElement?.insertBefore(hote, premier);
+  return hote;
 }
 
 /** Pose la carte dans son hôte. Rend `null` si l'hôte ou la carte
@@ -260,6 +314,28 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
 
   const racine = el(doc, "section", "wm-carte");
   racine.setAttribute("aria-label", "La carte de Rhode");
+
+  // ── le titre ─────────────────────────────────────────────────────
+  //
+  //  « il faut un titre à cette map ». Un `h2` : la carte remplace deux
+  //  catégories, qui en portaient chacune un, et un bloc sans titre
+  //  dans le plan du document est un bloc qu'un lecteur d'écran ne sait
+  //  pas annoncer.
+  const tete = el(doc, "header", "wm-carte__tete");
+  tete.appendChild(el(doc, "p", "wm-carte__surtitre", "Les territoires"));
+  tete.appendChild(el(doc, "h2", "wm-carte__titre", "La carte de Rhode"));
+  tete.appendChild(
+    el(
+      doc,
+      "p",
+      "wm-carte__chapo",
+      "Choisissez un lieu sur la carte pour le détail, ou entrez directement " +
+        "depuis la liste.",
+    ),
+  );
+  racine.appendChild(tete);
+
+  const corps = el(doc, "div", "wm-carte__corps");
 
   // ── le cadre et son dessin ───────────────────────────────────────
   const cadre = el(doc, "div", "wm-carte__cadre");
@@ -278,12 +354,12 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
 
   const formes = new Map<number, SVGElement>();
   const entrees = new Map<number, HTMLElement>();
-  const rangs = ranger(carte.lieux);
 
-  //  LES ZONES D'ABORD, LES VILLES ENSUITE. Dans un SVG, c'est l'ordre
-  //  du document qui fait l'empilement : une ville dessinée avant sa
-  //  zone passerait dessous et ne se cliquerait pas.
-  for (const lieu of [...rangs].reverse()) {
+  //  LES TERRITOIRES D'ABORD, LES ÉPINGLES ENSUITE. Dans un SVG, c'est
+  //  l'ordre du document qui fait l'empilement, et `ordreDeDessin` est
+  //  la seule chose qui empêche une tache de recouvrir le nom d'un
+  //  point — c'est arrivé à « Mont Bataille », voir la fonction.
+  for (const lieu of ordreDeDessin(carte.lieux)) {
     const g = svg(doc, "g", {
       class: "wm-carte__lieu",
       "data-wm-forum": String(lieu.forumId),
@@ -325,35 +401,76 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   }
   cadre.appendChild(dessin);
 
-  // ── le panneau, posé SUR la carte et translucide ─────────────────
-  const panneau = el(doc, "div", "wm-carte__panneau");
-  panneau.setAttribute("aria-live", "polite");
-  cadre.appendChild(panneau);
-
-  // ── la liste, qui pilote la même sélection ───────────────────────
+  // ── la colonne de droite, sur toute la hauteur ───────────────────
+  //
+  //  « le panneau de droite doit prendre toute la hauteur ». Le panneau
+  //  ne flotte plus SUR la carte : il tient le haut d'une colonne qui
+  //  monte du bord haut au bord bas du cadre, et la liste occupe ce qui
+  //  reste en défilant.
   const colonne = el(doc, "div", "wm-carte__colonne");
-  colonne.appendChild(legende(doc, carte));
-  const liste = el(doc, "ul", "wm-carte__liste");
-  liste.setAttribute("aria-label", "Tous les lieux de Rhode");
-  for (const lieu of rangs) {
-    const item = el(doc, "li", "wm-carte__item");
-    const bouton = el(doc, "button", "wm-carte__entree");
-    bouton.type = "button";
-    bouton.dataset.wmForum = String(lieu.forumId);
-    bouton.dataset.wmFamille = cleDeFamille(lieu);
-    bouton.appendChild(el(doc, "span", "wm-carte__puce"));
-    bouton.appendChild(el(doc, "span", "wm-carte__entree-nom", lieu.nom));
-    //  Le palier, écrit, sur chaque entrée. C'est redondant avec la
-    //  légende, et c'est voulu : on ne doit pas avoir à remonter.
-    bouton.appendChild(el(doc, "span", "wm-carte__entree-famille", familleDe(lieu)));
-    item.appendChild(bouton);
-    liste.appendChild(item);
-    entrees.set(lieu.forumId, bouton);
-  }
-  colonne.appendChild(liste);
 
-  racine.appendChild(cadre);
-  racine.appendChild(colonne);
+  const panneau = el(doc, "div", "wm-carte__panneau");
+  //  `polite` et pas `assertive` : le panneau se remplit au clic, donc
+  //  l'utilisateur sait déjà qu'il vient de se passer quelque chose.
+  panneau.setAttribute("aria-live", "polite");
+  colonne.appendChild(panneau);
+
+  // ── la liste : groupée, et chaque entrée entre dans le forum ─────
+  const bloc = el(doc, "div", "wm-carte__liste-cadre");
+  bloc.appendChild(legende(doc, carte));
+  const chiffresDesEntrees = new Map<number, HTMLElement>();
+
+  for (const groupe of grouper(carte.lieux)) {
+    const section = el(doc, "section", "wm-carte__groupe");
+    section.dataset.wmFamille = groupe.cle;
+    const titre = el(doc, "h3", "wm-carte__groupe-titre");
+    titre.appendChild(el(doc, "span", "wm-carte__puce"));
+    titre.appendChild(el(doc, "span", "wm-carte__groupe-mot", groupe.titre));
+    titre.appendChild(
+      el(doc, "span", "wm-carte__groupe-compte", String(groupe.lieux.length)),
+    );
+    section.appendChild(titre);
+
+    const liste = el(doc, "ul", "wm-carte__liste");
+    for (const lieu of groupe.lieux) {
+      const item = el(doc, "li", "wm-carte__item");
+      //  UN LIEN, PAS UN BOUTON. « Cliquer sur la catégorie à droite
+      //  nous fait rentrer dans la catégorie » : c'est une navigation,
+      //  donc un `a[href]` — qui s'ouvre dans un onglet au clic du
+      //  milieu, se copie, et s'annonce comme un lien. Le panneau, lui,
+      //  se remplit depuis la carte et au survol d'une entrée.
+      const entree = doc.createElement("a");
+      entree.className = "wm-carte__entree";
+      entree.href = adresseDuForum(lieu.forumId);
+      entree.dataset.wmForum = String(lieu.forumId);
+      entree.dataset.wmFamille = cleDeFamille(lieu);
+      const nom = el(doc, "span", "wm-carte__entree-nom", lieu.nom);
+      entree.appendChild(nom);
+      const chiffres = el(doc, "span", "wm-carte__entree-chiffres", "—");
+      entree.appendChild(chiffres);
+      const fleche = el(doc, "span", "wm-carte__entree-fleche", "→");
+      fleche.setAttribute("aria-hidden", "true");
+      entree.appendChild(fleche);
+      //  Le palier est déjà dans le titre du groupe juste au-dessus ;
+      //  ici il repart dans le nom accessible, parce qu'une entrée
+      //  atteinte à la tabulation s'annonce seule.
+      entree.setAttribute(
+        "aria-label",
+        `${lieu.nom}, ${familleDe(lieu).toLowerCase()} — entrer dans le forum`,
+      );
+      item.appendChild(entree);
+      liste.appendChild(item);
+      entrees.set(lieu.forumId, entree);
+      chiffresDesEntrees.set(lieu.forumId, chiffres);
+    }
+    section.appendChild(liste);
+    bloc.appendChild(section);
+  }
+  colonne.appendChild(bloc);
+
+  corps.appendChild(cadre);
+  corps.appendChild(colonne);
+  racine.appendChild(corps);
   hote.replaceChildren(racine);
 
   // ── l'état ───────────────────────────────────────────────────────
@@ -367,27 +484,102 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
 
   const parId = new Map(carte.lieux.map((l) => [l.forumId, l]));
 
+  //  ZÉRO N'EST PAS « JE NE SAIS PAS ». Un forum vide dit « 0 sujets »,
+  //  un relevé qui n'est pas arrivé dit qu'il n'est pas arrivé. Les
+  //  confondre ferait croire le forum vide pendant une panne réseau.
+  const dit = (n: number | null, un: string, plusieurs: string): string =>
+    n === null ? `— ${plusieurs}` : `${n} ${n === 1 ? un : plusieurs}`;
+
+  /** Ce que le panneau montre avant le premier clic. Il occupe toute la
+   *  hauteur de la colonne : le laisser vide ferait un trou, et un trou
+   *  ne dit pas quoi faire. */
+  const inviterLePanneau = (): void => {
+    panneau.replaceChildren();
+    panneau.classList.add("wm-carte__panneau--vide");
+    panneau.appendChild(
+      el(
+        doc,
+        "p",
+        "wm-carte__invite",
+        "Cliquez un lieu sur la carte : son palier, ses niveaux, sa description " +
+          "et son dernier sujet s'affichent ici.",
+      ),
+    );
+  };
+
   const remplirLePanneau = (lieu: Lieu): void => {
     const c = comptages.get(lieu.forumId);
     panneau.replaceChildren();
-    panneau.appendChild(el(doc, "p", "wm-carte__panneau-famille", familleDe(lieu)));
+    panneau.classList.remove("wm-carte__panneau--vide");
+    panneau.dataset.wmFamille = cleDeFamille(lieu);
+
+    //  ── L'IMAGE D'EN-TÊTE ─────────────────────────────────────────
+    //
+    //  « on doit avoir une image ou un fond (en se basant sur le
+    //  figma) pour chaque catégorie ». Aucun lieu n'a la sienne pour
+    //  l'instant : la variable reste vide et la feuille retombe sur
+    //  `--wm-bandeau-categorie`, le bandeau des en-têtes de catégorie.
+    //  Le jour où les images arrivent, c'est `data/carte.json` qui
+    //  change, pas ce module.
+    const banniere = el(doc, "div", "wm-carte__banniere");
+    if (lieu.image !== undefined && lieu.image !== "") {
+      banniere.style.setProperty("--wm-carte-image", `url("${lieu.image}")`);
+    }
+    banniere.appendChild(el(doc, "p", "wm-carte__panneau-famille", familleDe(lieu)));
+    if (lieu.niveau !== "") {
+      banniere.appendChild(el(doc, "p", "wm-carte__panneau-niveau", lieu.niveau));
+    }
+    panneau.appendChild(banniere);
+
+    //  ── LE NOM, QUI EST LA PORTE ──────────────────────────────────
+    //
+    //  « il faut une flèche dans l'infobulle pour indiquer pour entrer
+    //  dans la catégorie ». La flèche est décorative : c'est le nom qui
+    //  porte le lien, et le nom est déjà le nom du forum.
     const titre = el(doc, "h3", "wm-carte__panneau-nom");
     const lien = doc.createElement("a");
-    lien.href = `/f${lieu.forumId}-`;
-    lien.textContent = lieu.nom;
+    lien.className = "wm-carte__panneau-lien";
+    lien.href = adresseDuForum(lieu.forumId);
+    lien.appendChild(el(doc, "span", "wm-carte__panneau-mot", lieu.nom));
+    const fleche = el(doc, "span", "wm-carte__fleche", "→");
+    fleche.setAttribute("aria-hidden", "true");
+    lien.appendChild(fleche);
     titre.appendChild(lien);
     panneau.appendChild(titre);
-    panneau.appendChild(el(doc, "p", "wm-carte__panneau-niveau", lieu.niveau));
-    if (lieu.description !== "") {
-      panneau.appendChild(el(doc, "p", "wm-carte__panneau-texte", lieu.description));
+
+    //  ── LA DESCRIPTION ────────────────────────────────────────────
+    //
+    //  « La description doit s'appuyer sur celle qui est indiquée et
+    //  qu'on a écrit dans les catégories » : celle du FORUM d'abord,
+    //  relevée sur la ligne ; celle de `data/carte.json` seulement en
+    //  dernier recours, parce qu'elle est de moi.
+    const texte = c?.description !== undefined && c.description !== ""
+      ? c.description
+      : lieu.description;
+    if (texte !== "") {
+      panneau.appendChild(el(doc, "p", "wm-carte__panneau-texte", texte));
+    }
+
+    //  ── LES SOUS-FORUMS ───────────────────────────────────────────
+    //
+    //  « on doit voir les sous-forums ». Une zone de palier en a
+    //  rarement ; une ville en a souvent trois ou quatre, et ce sont
+    //  eux qu'on cherche quand on clique.
+    if (c?.sousForums !== undefined && c.sousForums.length > 0) {
+      const liste = el(doc, "ul", "wm-carte__sous-forums");
+      liste.setAttribute("aria-label", `Les sous-forums de ${lieu.nom}`);
+      for (const sf of c.sousForums) {
+        const item = el(doc, "li", "wm-carte__sous-forum");
+        const a = doc.createElement("a");
+        a.href = sf.url;
+        a.textContent = sf.titre;
+        item.appendChild(a);
+        liste.appendChild(item);
+      }
+      panneau.appendChild(liste);
     }
 
     const chiffres = el(doc, "p", "wm-carte__chiffres");
-    //  ZÉRO N'EST PAS « JE NE SAIS PAS ». Un forum vide dit « 0 sujets »,
-    //  un relevé qui n'est pas arrivé dit qu'il n'est pas arrivé. Les
-    //  confondre ferait croire le forum vide pendant une panne réseau.
-    const dit = (n: number | null, un: string, plusieurs: string): string =>
-      n === null ? `— ${plusieurs}` : `${n} ${n === 1 ? un : plusieurs}`;
     chiffres.appendChild(
       el(doc, "span", "wm-carte__chiffre", dit(c?.sujets ?? null, "sujet", "sujets")),
     );
@@ -396,27 +588,40 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     );
     panneau.appendChild(chiffres);
 
+    //  ── LE DERNIER MESSAGE ────────────────────────────────────────
+    //
+    //  « on doit pouvoir cliquer sur le dernier message posté », « une
+    //  flèche pour voir le dernier post », « ainsi que la date du
+    //  post ». Le bloc entier est le lien : une cible de 68 px de haut
+    //  se clique, un titre de 11 px sur une ligne, moins bien.
     if (c?.dernier !== undefined && c.dernier.titre !== "") {
-      const bloc = el(doc, "p", "wm-carte__dernier");
+      const a = doc.createElement("a");
+      a.className = "wm-carte__dernier";
+      a.href = c.dernier.url;
       if (c.avatar !== undefined && c.avatar !== "") {
         const img = doc.createElement("img");
         img.className = "wm-carte__dernier-avatar";
         img.src = c.avatar;
         img.alt = "";
         img.loading = "lazy";
-        bloc.appendChild(img);
+        a.appendChild(img);
       }
-      const corps = el(doc, "span", "wm-carte__dernier-corps");
-      const a = doc.createElement("a");
-      a.className = "wm-carte__dernier-titre";
-      a.href = c.dernier.url;
-      a.textContent = c.dernier.titre;
-      corps.appendChild(a);
-      if (c.signature !== undefined && c.signature !== "") {
-        corps.appendChild(el(doc, "span", "wm-carte__dernier-signature", c.signature));
+      const bloc = el(doc, "span", "wm-carte__dernier-corps");
+      bloc.appendChild(el(doc, "span", "wm-carte__dernier-sur", "Dernier message"));
+      bloc.appendChild(el(doc, "span", "wm-carte__dernier-titre", c.dernier.titre));
+      const bas = el(doc, "span", "wm-carte__dernier-bas");
+      if (c.quand !== undefined && c.quand !== "") {
+        bas.appendChild(el(doc, "span", "wm-carte__dernier-date", c.quand));
       }
-      bloc.appendChild(corps);
-      panneau.appendChild(bloc);
+      if (c.qui !== undefined && c.qui !== "") {
+        bas.appendChild(el(doc, "span", "wm-carte__dernier-qui", c.qui));
+      }
+      bloc.appendChild(bas);
+      a.appendChild(bloc);
+      const f = el(doc, "span", "wm-carte__fleche", "→");
+      f.setAttribute("aria-hidden", "true");
+      a.appendChild(f);
+      panneau.appendChild(a);
     }
   };
 
@@ -427,10 +632,8 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     for (const [id, g] of formes) g.classList.toggle("wm-carte__lieu--choisi", id === forumId);
     for (const [id, b] of entrees) {
       b.classList.toggle("wm-carte__entree--choisie", id === forumId);
-      b.setAttribute("aria-pressed", String(id === forumId));
     }
     remplirLePanneau(lieu);
-    panneau.classList.add("wm-carte__panneau--ouvert");
   };
 
   for (const [id, g] of formes) {
@@ -443,7 +646,18 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
       }
     });
   }
-  for (const [id, b] of entrees) b.addEventListener("click", () => choisir(id));
+
+  //  ── LA LISTE MONTRE, LE CLIC EMMÈNE ───────────────────────────────
+  //
+  //  L'entrée est un lien : son clic part dans le forum, et on ne
+  //  l'intercepte pas. Mais survoler ou tabuler dessus allume la forme
+  //  sur la carte et remplit le panneau — on voit où l'on va avant d'y
+  //  aller, et c'est la même paire d'yeux qui fait l'aller-retour entre
+  //  les deux colonnes.
+  for (const [id, b] of entrees) {
+    b.addEventListener("pointerenter", () => choisir(id));
+    b.addEventListener("focus", () => choisir(id));
+  }
 
   // ── se déplacer à la souris, comme sur une vraie carte ───────────
   //
@@ -517,9 +731,16 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   cadre.appendChild(barre);
 
   poserLaVue();
+  inviterLePanneau();
 
   const enrichir = (nouveaux: Map<number, Comptage>): void => {
     for (const [id, c] of nouveaux) comptages.set(id, c);
+    //  Les chiffres de la liste, posés au passage : c'est ce qui donne
+    //  sa hiérarchie à la colonne. Un lieu sans relevé garde son tiret.
+    for (const [id, n] of chiffresDesEntrees) {
+      const c = comptages.get(id);
+      n.textContent = c === undefined ? "—" : dit(c.sujets, "sujet", "sujets");
+    }
     //  Le panneau ouvert se redessine : sinon il garde ses tirets
     //  alors que les chiffres viennent d'arriver.
     if (choisi !== null) {

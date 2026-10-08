@@ -63,6 +63,14 @@ export type Lieu = {
    *  Absente, le nom se pose sur l'ancre — c'est le cas d'une carte
    *  écrite à la main. */
   readonly etiquette?: { readonly x: number; readonly y: number };
+  /** L'image d'en-tête du panneau, demandée le 8 octobre : « on doit
+   *  avoir une image ou un fond pour chaque catégorie ».
+   *
+   *  ABSENTE, LE PANNEAU NE MET PAS DE TROU : la feuille 16 retombe
+   *  sur `--wm-bandeau-categorie`, le même bandeau que les en-têtes
+   *  de catégorie. Aucun lieu n'a encore la sienne — il faut
+   *  vingt-six images, et elles n'existent pas. */
+  readonly image?: string;
 };
 
 /** Le repère dans lequel toutes les coordonnées sont écrites. */
@@ -106,6 +114,7 @@ export function lieuDepuis(brut: unknown): Lieu | null {
   const p = nombre(o.palier);
   const palier = p === 1 || p === 2 || p === 3 ? (p as 1 | 2 | 3) : undefined;
   const forme = texte(o.forme);
+  const image = texte(o.image);
   const e = o.etiquette as Record<string, unknown> | undefined;
   const ex = nombre(e?.x);
   const ey = nombre(e?.y);
@@ -119,6 +128,7 @@ export function lieuDepuis(brut: unknown): Lieu | null {
     ...(forme === "" ? {} : { forme }),
     ancre: { x, y },
     ...(ex === null || ey === null ? {} : { etiquette: { x: ex, y: ey } }),
+    ...(image === "" ? {} : { image }),
   };
 }
 
@@ -179,6 +189,98 @@ export function rang(lieu: Lieu): number {
  *  l'ordre du fichier survit à l'intérieur de chaque groupe. */
 export function ranger(lieux: readonly Lieu[]): readonly Lieu[] {
   return [...lieux].sort((a, b) => rang(a) - rang(b));
+}
+
+/** Un groupe de la liste de droite : son titre, sa clé de style, ses
+ *  lieux. */
+export type Groupe = {
+  /** Le titre du groupe, au pluriel quand il y a lieu. */
+  readonly titre: string;
+  /** La famille au singulier, telle que `familleDe` l'écrit : elle
+   *  sert encore dans le panneau et les noms accessibles. */
+  readonly famille: string;
+  readonly cle: string;
+  readonly lieux: readonly Lieu[];
+};
+
+/** Le titre d'un groupe. « Ville » au singulier au-dessus de huit
+ *  villes se lit mal ; les paliers, eux, sont déjà des noms propres. */
+export function titreDeFamille(lieu: Lieu): string {
+  if (lieu.type === "ville") return "Les villes";
+  if (lieu.type === "ligue") return "La ligue";
+  return `Palier ${lieu.palier ?? "?"}`;
+}
+
+/** Les lieux, rangés PUIS regroupés par famille.
+ *
+ *  ── POURQUOI ON GROUPE ──────────────────────────────────────────────
+ *
+ *  Vingt-six entrées plates, chacune portant son palier écrit à droite,
+ *  c'est vingt-six fois le même mot à relire. Demandé le 8 octobre :
+ *  « pour la liste : améliore la hiérarchie, et l'affichage ». Un titre
+ *  par famille dit le palier UNE fois, et les entrées n'ont plus qu'à
+ *  porter leur nom.
+ *
+ *  LE GROUPAGE SUIT `ranger`, IL NE LE REFAIT PAS. On parcourt la liste
+ *  déjà triée et on coupe au changement de clé : si `rang` change
+ *  demain, les groupes changent avec lui, et il n'y a pas deux ordres à
+ *  garder d'accord. */
+export function grouper(lieux: readonly Lieu[]): readonly Groupe[] {
+  const sortie: { titre: string; famille: string; cle: string; lieux: Lieu[] }[] = [];
+  for (const lieu of ranger(lieux)) {
+    const cle = cleDeFamille(lieu);
+    const dernier = sortie[sortie.length - 1];
+    if (dernier !== undefined && dernier.cle === cle) dernier.lieux.push(lieu);
+    else {
+      sortie.push({
+        titre: titreDeFamille(lieu),
+        famille: familleDe(lieu),
+        cle,
+        lieux: [lieu],
+      });
+    }
+  }
+  return sortie;
+}
+
+/** L'ordre dans lequel les lieux se DESSINENT, qui n'est pas celui
+ *  dans lequel ils se lisent.
+ *
+ *  ── CE QUI SE PASSE QUAND ON L'OUBLIE ───────────────────────────────
+ *
+ *  Dans un SVG, c'est l'ordre du document qui fait l'empilement. Au
+ *  premier jet on dessinait simplement `ranger` à l'envers — les
+ *  villes en dernier, donc au-dessus. Mais la Ligue a le rang 9 : à
+ *  l'envers, elle passait EN PREMIER, et la tache de « Lande
+ *  Broussailleuse » venait recouvrir le nom « Mont Bataille », qu'on
+ *  lisait à moitié. Un défaut qu'aucun test ne voyait et qu'il a fallu
+ *  regarder pour trouver.
+ *
+ *  LA RÈGLE N'EST DONC PAS LE RANG, C'EST LA FORME. Ce qui a un
+ *  contour est un territoire : ça s'étale, ça va dessous. Ce qui n'en
+ *  a pas est une épingle : c'est un point, ça va dessus. Les villes ET
+ *  la Ligue sont des épingles, et elles passent ensemble à la fin. */
+export function ordreDeDessin(lieux: readonly Lieu[]): readonly Lieu[] {
+  //  À l'envers du rang À L'INTÉRIEUR des territoires : le palier 3
+  //  est le plus foncé et le plus large, il tient le fond ; le palier
+  //  1 se pose dessus.
+  const envers = [...ranger(lieux)].reverse();
+  return [
+    ...envers.filter((l) => l.forme !== undefined),
+    ...envers.filter((l) => l.forme === undefined),
+  ];
+}
+
+/** L'adresse de la page d'un forum.
+ *
+ *  Forumactif accepte `/fNN-` sans le nom : il redirige vers l'adresse
+ *  complète. C'est l'inverse exact de `forumDeLAdresse`, et les deux
+ *  sont ici pour qu'un seul test les tienne.
+ *
+ *  Demandé le 8 octobre : « cliquer sur la catégorie à droite nous fait
+ *  rentrer dans la catégorie ». */
+export function adresseDuForum(forumId: number): string {
+  return `/f${forumId}-`;
 }
 
 // ── se déplacer dans la carte ───────────────────────────────────────
@@ -267,8 +369,19 @@ export type Comptage = {
   readonly dernier?: { readonly titre: string; readonly url: string };
   /** L'adresse de l'avatar du dernier posteur. */
   readonly avatar?: string;
-  /** « par X · il y a 1 h », recopié tel quel. */
-  readonly signature?: string;
+  /** Le nom de l'auteur du dernier message. */
+  readonly qui?: string;
+  /** La date du dernier message, recopiée telle quelle. */
+  readonly quand?: string;
+  /** LA DESCRIPTION ÉCRITE DANS LE PANNEAU D'ADMINISTRATION.
+   *
+   *  Demandée le 8 octobre : « la description doit s'appuyer sur celle
+   *  qui est indiquée et qu'on a écrit dans les catégories ». Celles
+   *  de `data/carte.json` étaient de moi ; celles-ci sont de
+   *  Callista, et c'est le forum qui fait foi. */
+  readonly description?: string;
+  /** Les sous-forums, tels que la ligne les liste. */
+  readonly sousForums?: readonly { readonly titre: string; readonly url: string }[];
 };
 
 /** Lit un nombre dans un libellé de ModernBB — « 26 Sujets » → 26.

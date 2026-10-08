@@ -74,6 +74,14 @@ HORS_CHARTE = {
     #  panneau d'administration — on ne règle pas une échelle à la main.
     "--wm-accueil-largeur",
     "--wm-accueil-echelle",
+    #  La hauteur du bloc de la carte : c'est la hauteur du repère de
+    #  `data/carte.json`, pas une valeur de charte. La régler à la main
+    #  dans le panneau désaccorderait le cadre et le dessin qu'il tient.
+    "--wm-carte-hauteur",
+    #  L'image d'en-tête du panneau de la carte, posée EN LIGNE par
+    #  `module-carte.ts` depuis `data/carte.json`. Elle n'existe nulle
+    #  part en feuille : son repli est le bandeau des catégories.
+    "--wm-carte-image",
 }
 
 #  ── CEUX DONT LE REPLI NE PEUT PAS DIRE LA VÉRITÉ ───────────────────

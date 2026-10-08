@@ -11,6 +11,7 @@
 
 import { assertEquals } from "@std/assert";
 import {
+  adresseDuForum,
   borner,
   cadrerSur,
   carteDepuis,
@@ -18,9 +19,11 @@ import {
   deplacer,
   familleDe,
   forumDeLAdresse,
+  grouper,
   type Lieu,
   lieuDepuis,
   nombreDans,
+  ordreDeDessin,
   ranger,
   ZOOM_MAX,
 } from "./carte.ts";
@@ -218,4 +221,81 @@ Deno.test("le zoom est borné des deux côtés", () => {
   //  minimum la carte flotte et le déplacement n'a plus de sens.
   assertEquals(cadrerSur({ x: 500, y: 320 }, 99, R).largeur, 1000 / ZOOM_MAX);
   assertEquals(cadrerSur({ x: 500, y: 320 }, 0.1, R).largeur, 1000);
+});
+
+// ── le groupage de la liste, et la porte du forum ───────────────────
+
+Deno.test("une image se relit, et son absence ne laisse pas de champ vide", () => {
+  //  Aucun lieu n'en a encore : la feuille 16 retombe alors sur
+  //  `--wm-bandeau-categorie`. Un champ vide posé quand même ferait
+  //  `url("")`, que le navigateur essaie de charger — sur la page
+  //  courante, ce qui la retélécharge.
+  assertEquals(lieuDepuis({ ...ZONE, image: "  " })?.image, undefined);
+  assertEquals(lieuDepuis(ZONE)?.image, undefined);
+  assertEquals(
+    lieuDepuis({ ...ZONE, image: "https://i.postimg.cc/x/z.png" })?.image,
+    "https://i.postimg.cc/x/z.png",
+  );
+});
+
+Deno.test("les lieux se groupent par famille, dans l'ordre de `ranger`", () => {
+  const lieux = [
+    lieuDepuis({ ...ZONE, forumId: 1, palier: 3 }),
+    lieuDepuis({ ...ZONE, forumId: 2, type: "ville", palier: undefined }),
+    lieuDepuis({ ...ZONE, forumId: 3, palier: 1 }),
+    lieuDepuis({ ...ZONE, forumId: 4, type: "ville", palier: undefined }),
+    lieuDepuis({ ...ZONE, forumId: 5, type: "ligue", palier: undefined }),
+    lieuDepuis({ ...ZONE, forumId: 6, palier: 1 }),
+  ].filter((l): l is Lieu => l !== null);
+  const g = grouper(lieux);
+  assertEquals(g.map((x) => x.cle), ["ville", "palier1", "palier3", "ligue"]);
+  //  L'ordre du fichier survit À L'INTÉRIEUR d'un groupe : la liste et
+  //  le dessin doivent se lire dans le même ordre.
+  assertEquals(g[0].lieux.map((l) => l.forumId), [2, 4]);
+  assertEquals(g[1].lieux.map((l) => l.forumId), [3, 6]);
+});
+
+Deno.test("un groupe porte son titre au pluriel, et sa famille au singulier", () => {
+  //  « Ville » au-dessus de huit villes se lit mal ; mais le singulier
+  //  reste nécessaire pour le panneau et les noms accessibles.
+  const villes = [lieuDepuis({ ...ZONE, type: "ville", palier: undefined })].filter(
+    (l): l is Lieu => l !== null,
+  );
+  assertEquals(grouper(villes)[0].titre, "Les villes");
+  assertEquals(grouper(villes)[0].famille, "Ville");
+  assertEquals(grouper([lieuDepuis(ZONE) as Lieu])[0].titre, "Palier 2");
+});
+
+Deno.test("grouper une carte vide ne rend pas un groupe vide", () => {
+  assertEquals(grouper([]), []);
+});
+
+Deno.test("l'adresse d'un forum est l'inverse exact de sa lecture", () => {
+  //  Les deux fonctions sont côte à côte pour que ce test les tienne
+  //  ensemble : si l'une change de forme, l'autre tombe ici.
+  for (const id of [1, 37, 96, 1234]) {
+    assertEquals(forumDeLAdresse(adresseDuForum(id)), id);
+  }
+  assertEquals(adresseDuForum(37), "/f37-");
+});
+
+Deno.test("LES ÉPINGLES SE DESSINENT APRÈS LES TERRITOIRES", () => {
+  //  Le défaut qu'on a payé : la Ligue a le rang 9, donc à l'envers du
+  //  rang elle passait EN PREMIER, et la tache de la zone voisine
+  //  recouvrait le nom « Mont Bataille ». Ce n'est pas le rang qui
+  //  décide de l'empilement, c'est d'avoir un contour ou non.
+  const lieux = [
+    lieuDepuis({ ...ZONE, forumId: 65, type: "ligue", palier: undefined, forme: undefined }),
+    lieuDepuis({ ...ZONE, forumId: 38, palier: 1 }),
+    lieuDepuis({ ...ZONE, forumId: 12, type: "ville", palier: undefined, forme: undefined }),
+    lieuDepuis({ ...ZONE, forumId: 103, palier: 3 }),
+  ].filter((l): l is Lieu => l !== null);
+  const o = ordreDeDessin(lieux);
+  //  Les deux territoires d'abord, du plus foncé au plus clair ; les
+  //  deux épingles ensuite, et peu importe laquelle des deux d'abord —
+  //  deux points de 9 px ne se recouvrent pas.
+  assertEquals(o.slice(0, 2).map((l) => l.forumId), [103, 38]);
+  assertEquals(new Set(o.slice(2).map((l) => l.forumId)), new Set([12, 65]));
+  //  Et tout le monde est encore là : on ordonne, on ne filtre pas.
+  assertEquals(o.length, lieux.length);
 });
