@@ -130,25 +130,22 @@
       est un aplat clair dessus : c'est ce contraste-là qui donne un
       bord à la terre sans avoir à l'entourer d'un trait épais.
 
-      `--wm-carte-fond` est l'image de mer, posée par le panneau
-      d'administration comme la bande des catégories. Elle ne porte
-      QUE l'EAU : le continent, les zones et les villes restent
-      dessinés en SVG par-dessus, et peuvent donc changer — la vraie
-      carte de Callista, un jour — sans qu'on refasse l'image.
+      LA MER, ELLE, N'EST PAS ICI : elle est dessinée DANS le SVG,
+      par `outils/carte-mer.py`. Une image de fond posée sur ce cadre
+      ne suivrait ni le déplacement ni le zoom — on traînerait le
+      continent sur une mer immobile — et ne se calerait pas sur la
+      côte, puisque le SVG s'échelonne en `meet` et un fond CSS en
+      `cover`.
 
-      Le dégradé bleu reste AU-DESSUS d'elle, à faible opacité : il
-      tient le coin nord-ouest quel que soit le fond, et il reste
-      seul le jour où l'adresse tombe. */
+      Ce qui reste ici est ce qu'on voit AVANT que le JavaScript
+      passe, et le jour où il ne passe pas. */
   background-color: var(--wm-fond-douce, #f3e1d2);
   background-image:
     radial-gradient(
       120% 120% at 18% 12%,
       color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 16%, transparent) 0%,
       transparent 58%
-    ),
-    var(--wm-carte-fond, none);
-  background-position: center;
-  background-size: auto, cover;
+    );
   cursor: grab;
   touch-action: none;
 }
@@ -164,6 +161,59 @@
 }
 
 /* ── 2 · le dessin ────────────────────────────────────────────────── */
+
+/*  ── LA MER, EN QUATRE PALIERS ─────────────────────────────────────
+
+    C'est le vocabulaire des cartes de région : l'eau se creuse par
+    paliers depuis la côte, pas en dégradé continu. Les quatre
+    rivages parallèles sont calculés par `outils/carte-mer.py` depuis
+    le contour du continent, et ils sont EMBOÎTÉS — le module les
+    peint du large vers la côte.
+
+    LA RAMPE PART DE L'EAU ET VA VERS L'ACCENT, et c'est ce qui lui
+    donne un thème sombre gratuitement : en clair, `accent/primaire`
+    est un bleu profond, donc l'eau se creuse en s'assombrissant ; en
+    sombre il est clair, donc elle se creuse en s'éclaircissant. Dans
+    les deux cas le large se détache de la côte, qui est le seul point
+    qui compte.
+
+    Les pourcentages ne sont pas réguliers : 21 / 27 / 34 / 44 / 58.
+    Près
+    de la côte, deux paliers voisins doivent rester distincts du
+    continent, qui est juste à côté ; au large, on peut s'étaler. */
+#modernbb .wm-carte__mer-fond {
+  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 54%, var(--wm-fond-douce, #f3e1d2));
+}
+
+#modernbb .wm-carte__mer-bande[data-wm-profondeur="4"] {
+  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 44%, var(--wm-fond-douce, #f3e1d2));
+}
+
+#modernbb .wm-carte__mer-bande[data-wm-profondeur="3"] {
+  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 34%, var(--wm-fond-douce, #f3e1d2));
+}
+
+#modernbb .wm-carte__mer-bande[data-wm-profondeur="2"] {
+  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 27%, var(--wm-fond-douce, #f3e1d2));
+}
+
+#modernbb .wm-carte__mer-bande[data-wm-profondeur="1"] {
+  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 21%, var(--wm-fond-douce, #f3e1d2));
+}
+
+/*  LES RIDES SONT DES TRAITS, PAS DES DISQUES. Un disque, même très
+    transparent, change la couleur de la bande sous lui et casse les
+    paliers qu'on vient d'établir ; un cercle non rempli décore sans
+    rien repeindre. */
+#modernbb .wm-carte__ride {
+  fill: none;
+  stroke: color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 42%, transparent);
+  stroke-width: 1.5;
+}
+
+#modernbb .wm-carte__ride--dedans {
+  stroke-width: 1;
+}
 
 /*  Le continent. Un aplat sous les zones, qui donne un bord à la
     terre : sans lui, les taches flottent sur l'eau sans qu'on

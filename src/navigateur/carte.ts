@@ -76,11 +76,40 @@ export type Lieu = {
 /** Le repère dans lequel toutes les coordonnées sont écrites. */
 export type Repere = { readonly largeur: number; readonly hauteur: number };
 
+/** La mer, calculée par `outils/carte-mer.py` depuis le contour du
+ *  continent.
+ *
+ *  ── POURQUOI ELLE EST DANS LE SVG ET PAS EN IMAGE DE FOND ───────────
+ *
+ *  Une image posée sur le cadre ne suivrait ni le déplacement ni le
+ *  zoom : on traînerait le continent sur une mer immobile. Et elle ne
+ *  se calerait pas — le SVG se met à l'échelle en `meet`, un fond CSS
+ *  en `cover`, et les deux ne coïncident qu'à un seul rapport de
+ *  côtés. Dessinée ici, elle est calée sur la côte par construction.
+ *
+ *  ELLE EST FACULTATIVE. Une carte sans `mer` se dessine sur l'aplat
+ *  du cadre, comme avant : le jour où Callista donne sa vraie carte,
+ *  le contour change et la mer se recalcule — mais entre les deux, la
+ *  carte marche. */
+export type Mer = {
+  /** Les rivages parallèles, de la PLUS PROCHE de la côte à la plus
+   *  lointaine. Le module les peint dans l'ordre inverse, pour
+   *  qu'elles s'emboîtent au lieu de se recouvrir. */
+  readonly bandes: readonly string[];
+  /** Les ronds dans l'eau. */
+  readonly rides: readonly {
+    readonly x: number;
+    readonly y: number;
+    readonly r: number;
+  }[];
+};
+
 export type Carte = {
   readonly repere: Repere;
   /** Le contour du continent, en chemin SVG. */
   readonly terre: string;
   readonly lieux: readonly Lieu[];
+  readonly mer?: Mer;
 };
 
 const TYPES = new Set(["zone", "ville", "ligue"]);
@@ -146,7 +175,40 @@ export function carteDepuis(brut: unknown): Carte | null {
   const bruts = Array.isArray(o.lieux) ? o.lieux : [];
   const lieux = bruts.map(lieuDepuis).filter((l): l is Lieu => l !== null);
   if (lieux.length === 0) return null;
-  return { repere: { largeur, hauteur }, terre: texte(o.terre), lieux };
+  const mer = merDepuis(o.mer);
+  return {
+    repere: { largeur, hauteur },
+    terre: texte(o.terre),
+    lieux,
+    ...(mer === null ? {} : { mer }),
+  };
+}
+
+/** Relit la mer. Rend `null` dès qu'elle est douteuse.
+ *
+ *  ON NE GARDE PAS UNE MER À MOITIÉ. Trois bandes sur quatre, ou des
+ *  bandes sans rides, c'est un fichier à moitié écrit : on retombe sur
+ *  l'aplat, qui est une mer honnête. Une bande manquante, elle,
+ *  laisserait un trou en forme de rivage au milieu de l'eau. */
+export function merDepuis(brut: unknown): Mer | null {
+  if (brut === null || typeof brut !== "object") return null;
+  const o = brut as Record<string, unknown>;
+  if (!Array.isArray(o.bandes)) return null;
+  const bandes = o.bandes.map(texte).filter((b) => b !== "");
+  if (bandes.length !== o.bandes.length || bandes.length === 0) return null;
+  const brutes = Array.isArray(o.rides) ? o.rides : [];
+  const rides: { x: number; y: number; r: number }[] = [];
+  for (const b of brutes) {
+    const p = b as Record<string, unknown>;
+    const x = nombre(p?.x);
+    const y = nombre(p?.y);
+    const r = nombre(p?.r);
+    //  Un rayon nul ou négatif ferait un cercle invisible ou une
+    //  erreur de rendu selon le navigateur. On le laisse tomber.
+    if (x === null || y === null || r === null || r <= 0) continue;
+    rides.push({ x, y, r });
+  }
+  return { bandes, rides };
 }
 
 // ── le classement ───────────────────────────────────────────────────

@@ -99,7 +99,7 @@ HORS_CHARTE = {
 #  dégradé, et le titre reste lisible. Ce n'est pas un repli qui ment —
 #  c'est un repli qui dit « pas d'image », ce qui est exactement l'état
 #  des lieux quand `jetons.css` n'est pas servi.
-SANS_REPLI_POSSIBLE = {"--wm-bandeau-categorie", "--wm-carte-fond"}
+SANS_REPLI_POSSIBLE = {"--wm-bandeau-categorie"}
 
 #  Un `var()` avec repli, le repli pouvant lui-même contenir une
 #  parenthèse (`color-mix(…)`), mais pas deux niveaux.

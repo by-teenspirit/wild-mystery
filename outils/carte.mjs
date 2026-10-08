@@ -543,7 +543,68 @@ dire(
   JSON.stringify(banniere),
 );
 
-// ── 11 · rien ne déborde ────────────────────────────────────────────
+// ── 11 · la mer ─────────────────────────────────────────────────────
+//
+//  Elle est DANS le SVG, pas en image de fond : c'est la seule façon
+//  qu'elle suive le déplacement et le zoom. Ce qu'on vérifie, c'est
+//  justement ça — qu'elle bouge avec la carte, qu'elle soit derrière
+//  le continent, et que ses paliers soient quatre couleurs distinctes.
+await p.setViewportSize({ width: 1440, height: 1100 });
+await p.waitForTimeout(200);
+const mer = await p.evaluate(() => {
+  const g = document.querySelector(".wm-carte__mer");
+  if (g === null) return null;
+  const bandes = [...document.querySelectorAll(".wm-carte__mer-bande")];
+  const terre = document.querySelector(".wm-carte__terre");
+  const noeuds = [...document.querySelector(".wm-carte__dessin").children];
+  return {
+    bandes: bandes.length,
+    //  4 au large, 1 contre la côte : l'ordre de peinture va du large
+    //  vers la côte, sinon on ne verrait que la bande la plus large.
+    ordre: bandes.map((b) => b.dataset.wmProfondeur),
+    teintes: [...new Set(bandes.map((b) => getComputedStyle(b).fill))],
+    rides: document.querySelectorAll(".wm-carte__ride").length,
+    //  Le continent doit venir APRÈS la mer dans le document : c'est
+    //  l'ordre du document qui fait l'empilement dans un SVG.
+    merAvantTerre: noeuds.indexOf(g) < noeuds.indexOf(terre),
+    //  Et la mer ne doit pas être annoncée : elle ne dit rien que la
+    //  liste ne dise déjà.
+    cachee: g.getAttribute("aria-hidden") === "true",
+  };
+});
+dire("LA MER EST DESSINÉE DANS LE SVG", mer !== null, JSON.stringify(mer));
+dire("elle a ses quatre paliers", mer?.bandes === 4, `${mer?.bandes} bandes`);
+dire(
+  "peints du large vers la côte, pour qu'ils s'emboîtent",
+  JSON.stringify(mer?.ordre) === JSON.stringify(["4", "3", "2", "1"]),
+  JSON.stringify(mer?.ordre),
+);
+dire(
+  "ET LES QUATRE SONT DE QUATRE COULEURS DIFFÉRENTES",
+  mer?.teintes.length === 4,
+  JSON.stringify(mer?.teintes),
+);
+dire("elle porte ses rides", (mer?.rides ?? 0) >= 20, `${mer?.rides} cercles`);
+dire("elle passe sous le continent", mer?.merAvantTerre === true);
+dire("et elle n'est pas annoncée aux lecteurs d'écran", mer?.cachee === true);
+
+//  LE POINT QUI JUSTIFIE TOUT LE RESTE : une image de fond serait
+//  restée collée au cadre. Celle-ci se déplace avec la carte.
+const avantGlisse = await p.evaluate(() =>
+  document.querySelector(".wm-carte__mer-bande").getBoundingClientRect().x
+);
+await p.evaluate(() => document.querySelectorAll(".wm-carte__zoom-bouton")[0].click());
+await p.waitForTimeout(120);
+const apresZoom = await p.evaluate(() =>
+  document.querySelector(".wm-carte__mer-bande").getBoundingClientRect().x
+);
+dire(
+  "LA MER SUIT LE ZOOM — c'est pour ça qu'elle n'est pas une image",
+  Math.abs(apresZoom - avantGlisse) > 1,
+  `${Math.round(avantGlisse)} → ${Math.round(apresZoom)}`,
+);
+
+// ── 12 · rien ne déborde ────────────────────────────────────────────
 for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
   await p.setViewportSize({ width: l, height: h });
   await p.waitForTimeout(150);

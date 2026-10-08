@@ -22,6 +22,7 @@ import {
   grouper,
   type Lieu,
   lieuDepuis,
+  merDepuis,
   nombreDans,
   ordreDeDessin,
   ranger,
@@ -298,4 +299,61 @@ Deno.test("LES ÉPINGLES SE DESSINENT APRÈS LES TERRITOIRES", () => {
   assertEquals(new Set(o.slice(2).map((l) => l.forumId)), new Set([12, 65]));
   //  Et tout le monde est encore là : on ordonne, on ne filtre pas.
   assertEquals(o.length, lieux.length);
+});
+
+// ── la mer ──────────────────────────────────────────────────────────
+
+const MER = {
+  bandes: ["M 0 0 C 1 1 2 2 3 3 Z", "M 0 0 C 4 4 5 5 6 6 Z"],
+  rides: [{ x: 120, y: 80, r: 14 }, { x: 300, y: 500, r: 9.5 }],
+};
+
+Deno.test("une mer complète se relit entière", () => {
+  const m = merDepuis(MER);
+  assertEquals(m?.bandes.length, 2);
+  assertEquals(m?.rides.length, 2);
+  assertEquals(m?.rides[0], { x: 120, y: 80, r: 14 });
+});
+
+Deno.test("UNE MER À MOITIÉ ÉCRITE EST REFUSÉE EN ENTIER", () => {
+  //  Une bande vide au milieu laisserait un TROU en forme de rivage
+  //  au milieu de l'eau — les bandes sont emboîtées, celle qui manque
+  //  découvre le large jusqu'à la côte. Mieux vaut l'aplat, qui est
+  //  une mer honnête.
+  assertEquals(merDepuis({ ...MER, bandes: ["M 0 0 Z", "  "] }), null);
+  assertEquals(merDepuis({ ...MER, bandes: [] }), null);
+  assertEquals(merDepuis({ ...MER, bandes: "M 0 0 Z" }), null);
+  assertEquals(merDepuis(null), null);
+  assertEquals(merDepuis(undefined), null);
+});
+
+Deno.test("une ride bancale tombe, la mer reste", () => {
+  //  Une ride est une décoration : son absence ne se voit pas, alors
+  //  qu'un rayon nul ou négatif fait un cercle invisible ici et une
+  //  erreur de rendu là.
+  const m = merDepuis({
+    ...MER,
+    rides: [{ x: 1, y: 2, r: 3 }, { x: 4, y: 5, r: 0 }, { x: 6, y: 7, r: -2 }, { x: 8 }],
+  });
+  assertEquals(m?.rides, [{ x: 1, y: 2, r: 3 }]);
+  assertEquals(m?.bandes.length, 2);
+});
+
+Deno.test("une carte sans mer reste une carte", () => {
+  //  Le jour où Callista donne sa vraie carte, le contour change et la
+  //  mer se recalcule — mais entre les deux, la carte doit marcher.
+  const c = carteDepuis({
+    repere: { largeur: 1000, hauteur: 640 },
+    terre: "M 0 0 Z",
+    lieux: [ZONE],
+  });
+  assertEquals(c?.mer, undefined);
+  assertEquals(c?.lieux.length, 1);
+  const avec = carteDepuis({
+    repere: { largeur: 1000, hauteur: 640 },
+    terre: "M 0 0 Z",
+    lieux: [ZONE],
+    mer: MER,
+  });
+  assertEquals(avec?.mer?.bandes.length, 2);
 });

@@ -348,6 +348,64 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     role: "application",
     "aria-label": "Carte de Rhode. Les mêmes lieux sont listés à droite.",
   });
+  //  ── LA MER, AVANT TOUT LE RESTE ───────────────────────────────────
+  //
+  //  Elle est DANS le SVG, pas en image de fond sur le cadre : elle se
+  //  déplace et se zoome avec la carte, elle est calée sur la côte par
+  //  construction, et elle prend ses couleurs des jetons — donc elle a
+  //  un thème sombre. Voir `Mer` dans `carte.ts`.
+  //
+  //  L'ORDRE EST CELUI D'UN EMPILEMENT, PAS D'UNE LISTE. Les bandes
+  //  sont emboîtées : la plus lointaine contient toutes les autres. On
+  //  les peint donc de la plus lointaine à la plus proche, chacune
+  //  recouvrant le centre de la précédente. Peintes dans l'autre sens,
+  //  on ne verrait que la plus lointaine.
+  if (carte.mer !== undefined) {
+    const mer = svg(doc, "g", { class: "wm-carte__mer", "aria-hidden": "true" });
+    //  Le fond couvre tout le repère : au zoom maximum la vue reste
+    //  dedans (`borner` s'en assure), donc il n'y a jamais de trou.
+    mer.appendChild(
+      svg(doc, "rect", {
+        class: "wm-carte__mer-fond",
+        x: "0",
+        y: "0",
+        width: String(carte.repere.largeur),
+        height: String(carte.repere.hauteur),
+      }),
+    );
+    const bandes = [...carte.mer.bandes].reverse();
+    for (const [i, d] of bandes.entries()) {
+      mer.appendChild(
+        svg(doc, "path", {
+          class: "wm-carte__mer-bande",
+          //  4 au large, 1 contre la côte : la feuille lit ce chiffre
+          //  et n'a pas à compter.
+          "data-wm-profondeur": String(bandes.length - i),
+          d,
+        }),
+      );
+    }
+    for (const ride of carte.mer.rides) {
+      mer.appendChild(
+        svg(doc, "circle", {
+          class: "wm-carte__ride",
+          cx: String(ride.x),
+          cy: String(ride.y),
+          r: String(ride.r),
+        }),
+      );
+      mer.appendChild(
+        svg(doc, "circle", {
+          class: "wm-carte__ride wm-carte__ride--dedans",
+          cx: String(ride.x),
+          cy: String(ride.y),
+          r: String(Math.round(ride.r * 0.55 * 10) / 10),
+        }),
+      );
+    }
+    dessin.appendChild(mer);
+  }
+
   if (carte.terre !== "") {
     dessin.appendChild(svg(doc, "path", { class: "wm-carte__terre", d: carte.terre }));
   }
