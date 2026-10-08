@@ -803,9 +803,13 @@ dire("et rien ne déborde, ni l'œil ne s'écrit", !vrai.debord && !vrai.motVisi
 //  actualités remonte de 69 sur le bas de la bande, la bande du bas
 //  descend de 32 sous elle. Les deux donnent 290 et 391 quand le
 //  contexte est court, comme dans le dessin.
-const COTES = [
-  [".wm-accueil__bandeau", 41, "le bandeau du staff"],
-];
+//  LE BANDEAU NE SE MESURE PLUS EN ABSOLU. Il était à 41, la cote de
+//  la maquette ; Callista l'aligne sur le contexte et les liens
+//  rapides, et ce qui compte n'est donc plus un nombre mais une
+//  ÉGALITÉ — trois blocs sur la même ligne de départ. Un jour où le
+//  rembourrage du panneau changera, les trois bougeront ensemble et
+//  l'assertion tiendra toujours.
+const COTES = [];
 const cotes = await p.evaluate((liste) => {
   const r = (s) => document.querySelector(s).getBoundingClientRect();
   const panneau = r(".wm-accueil__panneau");
@@ -815,6 +819,20 @@ const cotes = await p.evaluate((liste) => {
     lu[nom] = e === null ? null : Math.round(e.getBoundingClientRect().top - panneau.top);
   }
   const bande = r(".wm-accueil__bande");
+  //  Les trois départs de la bande du haut.
+  const departs = {
+    contexte: Math.round(r(".wm-accueil__contexte").top - panneau.top),
+    liens: Math.round(r(".wm-accueil__liens").top - panneau.top),
+    bandeau: Math.round(r(".wm-accueil__bandeau").top - panneau.top),
+  };
+  //  ET LES MEMBRES PASSENT TOUJOURS SOUS LA CARTE DES VOTES. C'est
+  //  eux qu'elle croise — le bandeau, non : elle va de 1021 à 1268, il
+  //  s'arrête à 849. Le jour où l'un des deux s'élargit, cette mesure
+  //  le dit avant l'écran.
+  const votes = r(".wm-accueil__votes");
+  const m0 = document.querySelector(".wm-accueil__membre").getBoundingClientRect();
+  const croiseEnX = Math.min(votes.right, m0.right) - Math.max(votes.left, m0.left) > 0;
+  const sousLesVotes = Math.round(m0.top - votes.bottom);
   const ecarts = {
     "la remontée des actualités": Math.round(bande.bottom - r(".wm-accueil__actus").top),
     "la descente de la bande du bas": Math.round(r(".wm-accueil__partenaires").top - bande.bottom),
@@ -901,6 +919,8 @@ const cotes = await p.evaluate((liste) => {
     chevauche: Math.round(Math.min(m.right, carte.right) - Math.max(m.left, carte.left)),
   };
   return {
+    departs,
+    votes: { croiseEnX, sousLesVotes },
     bas,
     rangeesDePartenaires: rangees,
     staff,
@@ -928,6 +948,17 @@ for (const [nom, attendu] of Object.entries({
 })) {
   dire(`${nom} vaut ${attendu}`, cotes.ecarts[nom] === attendu, `relevé ${cotes.ecarts[nom]}`);
 }
+
+dire(
+  "LE BANDEAU DU STAFF PART DE LA MÊME LIGNE QUE LE CONTEXTE ET LES LIENS",
+  new Set(Object.values(cotes.departs)).size === 1,
+  JSON.stringify(cotes.departs),
+);
+dire(
+  "et les membres passent sous la carte des votes, qu'eux seuls croisent",
+  !cotes.votes.croiseEnX || cotes.votes.sousLesVotes >= 0,
+  JSON.stringify(cotes.votes),
+);
 
 const bas = Object.values(cotes.bas).map((b) => b.bas);
 dire(

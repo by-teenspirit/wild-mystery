@@ -19,27 +19,162 @@
    identifiant ou une classe. `#modernbb` devant nous en donne un de
    plus, et ça suffit partout.
 
-   PREMIÈRE PASSE, écrite sans l'avoir sous les yeux : le script n'est
-   pas encore installé. À relire une fois qu'il tourne.
+   ── RELUE LE 8 OCTOBRE, LE TCHAT SOUS LES YEUX ──────────────────────
+
+   La première passe avait été écrite à l'aveugle. Deux choses ont
+   changé depuis qu'il tourne :
+
+   **LE BOUTON NE FLOTTE PLUS.** FAM l'accroche au corps de la page en
+   bas à droite, exactement là où vit le coin d'outils — il recouvrait
+   « CLAIR », les flèches et « CONFORT ». `module-messenger.ts` le
+   DÉPLACE dans la colonne du coin, et il y prend l'allure des autres.
+   Une marge l'aurait aussi écarté, et se serait cassée au premier
+   outil ajouté.
+
+   **LA FENÊTRE DEVIENT UN TIROIR PLEINE HAUTEUR.** C'est l'allure que
+   Callista veut, celle de Cedar Cove, relevée chez eux le 8 octobre :
+   `position: fixed`, du haut au bas de l'écran, 558 de large, rangée
+   hors écran et ramenée par la gauche, une ombre large et douce, et
+   AUCUN cadre — pas de rayon, pas de bordure, des fonds transparents à
+   l'intérieur. Le titre en capitales espacées tient lieu d'en-tête.
+
+   On garde le principe et on change deux choses : le tiroir vient de
+   la DROITE, du côté du coin d'outils d'où on l'ouvre — un panneau qui
+   sort à l'opposé du bouton qu'on vient de cliquer se cherche —, et
+   toutes les couleurs sortent des jetons, donc il suit le thème, ce
+   que celui de Cedar Cove ne fait pas.
    ════════════════════════════════════════════════════════════════════ */
+
+/* ── 0 · le bouton, rangé dans le coin d'outils ───────────────────── */
+
+/*  Il prend la largeur de la colonne et l'allure de ses voisins : même
+    rayon, même fond, même étiquette de 10 px. La règle ne s'applique
+    QU'UNE FOIS RANGÉ — `module-messenger.ts` pose la classe — pour que
+    le bouton resté au corps de la page, faute de coin d'outils sur
+    cette page-là, garde celle de FAM plutôt qu'une allure de bouton
+    sans sa colonne. */
+#modernbb .wm-coin .wm-messenger-range {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 1px 3px rgb(20 48 58 / 8%);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-coin .wm-messenger-range:hover,
+#modernbb .wm-coin .wm-messenger-range:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+/*  La pastille de messages non lus que FAM pose dans le bouton. Elle
+    reprend celle des notifications, à l'identique : deux compteurs qui
+    disent la même chose ne doivent pas se dessiner de deux façons. */
+#modernbb .wm-coin .wm-messenger-range .FAM-notification {
+  display: inline-flex;
+  min-width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
 
 /* ── 1 · la fenêtre ───────────────────────────────────────────────── */
 
+/*  ── UN TIROIR PLEINE HAUTEUR, PAS UNE BULLE POSÉE DANS UN COIN ────
+
+    C'est l'allure que Callista veut, celle de Cedar Cove — relevée
+    chez eux le 8 octobre : `position: fixed`, du haut au bas de
+    l'écran, 558 de large, rangée hors champ et ramenée en glissant,
+    une ombre large et douce, et AUCUN cadre. Pas de rayon, pas de
+    bordure, des fonds transparents à l'intérieur : le titre en
+    capitales espacées tient lieu d'en-tête, et le tiroir se détache
+    de la page par son ombre, pas par un trait.
+
+    DEUX CHOSES CHANGENT. Le tiroir vient de la DROITE, du côté du coin
+    d'outils d'où on l'ouvre — un panneau qui sort à l'opposé du bouton
+    qu'on vient de cliquer se cherche. Et toutes les couleurs sortent
+    des jetons : il suit donc le thème, ce que celui de Cedar Cove ne
+    fait pas.
+
+    `min()` sur la largeur : 558 quand l'écran le permet, et sinon tout
+    l'écran moins une marge — un tiroir plus large que la fenêtre n'est
+    plus un tiroir. */
 #modernbb #FAM {
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-lg, 10px);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: min(558px, 100vw - var(--wm-espace-32, 32px));
+  max-width: none;
+  height: auto;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
   background: var(--wm-fond-surface, #fffbf7);
-  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+  box-shadow: 0 0 25px rgb(20 48 58 / 24%);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
+}
 
-  /*  Elle flotte au-dessus de tout, y compris de notre barre collée
-      (70) et du coin d'outils (40). On ne touche pas à son plan —
-      99999 est le sien — mais on la décale du bord, comme le coin :
-      deux blocs flottants collés au même pixel se marchent dessus. */
-  right: var(--wm-espace-16, 16px);
-  bottom: var(--wm-espace-16, 16px);
+/*  LES CLOISONS INTÉRIEURES TOMBENT. FAM dessine un cadre par bloc —
+    barre, onglets, contenu, pied —, chacun avec son fond et son filet.
+    Empilés dans un tiroir qui a déjà ses bords, ils font un escalier
+    de boîtes. Chez Cedar Cove, tout l'intérieur est transparent et
+    c'est le rembourrage qui sépare. */
+#modernbb #FAM-toolbar,
+#modernbb #FAM-toolbar-inner,
+#modernbb #FAM-tab-container,
+#modernbb #FAM-tabs,
+#modernbb .FAM-container-content,
+#modernbb #FAM-content {
+  border: 0;
+  background: transparent;
+}
+
+/*  Le titre : la seule chose qui tienne lieu d'en-tête, donc elle
+    porte. Capitales espacées, comme les surtitres de la charte, et la
+    taille d'un titre de section. */
+#modernbb #FAM .FAM-maintitle {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+/*  Le rembourrage de Cedar Cove, qui remplace les cloisons : 20 autour
+    de la barre, 30 et 20 autour du contenu. */
+#modernbb #FAM-toolbar {
+  padding: var(--wm-espace-20, 20px);
+}
+
+#modernbb #FAM-content {
+  padding: var(--wm-espace-32, 32px) var(--wm-espace-20, 20px);
 }
 
 /*  La pastille qui ouvre le tchat. C'est elle qu'on voit tout le

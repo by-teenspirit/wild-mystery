@@ -41,6 +41,7 @@ import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.t
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import { numeroterLesCategories } from "../src/adaptateurs/navigateur/module-categories.ts";
+import { rangerLeMessenger } from "../src/adaptateurs/navigateur/module-messenger.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import {
   poserLaNavigation,
@@ -285,6 +286,10 @@ desQueLeCorpsEstLa(() => {
   //  réseau : ils se lisent dans la page. Rien n'en dépend — sans eux
   //  la bande garde son titre entre ses filets.
   numeroterLesCategories(document);
+  //  ET LE BOUTON DU TCHAT VA DANS LE COIN D'OUTILS, dès que FAM l'a
+  //  posé. Sans réseau de notre côté : on guette un nœud, on le range,
+  //  on s'arrête.
+  rangerLeMessenger(document);
   poserLesAnnexes().catch(() => {});
   //  LE COMPTEUR SE LIT AVANT QUE LA BARRE SOIT RÉÉCRITE. Forumactif le
   //  pose dans le lien « Messagerie », et `poserLaNav` remplace le

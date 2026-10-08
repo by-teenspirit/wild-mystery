@@ -255,11 +255,23 @@
 
     Sous 1 100 px la carte se range au-dessus du panneau, et il n'y a
     plus rien à éviter. */
+/*  ── LE BANDEAU S'ALIGNE SUR LE CONTEXTE ET LES LIENS ──────────────
+
+    Il descendait de 17 px pour laisser passer la carte des votes.
+    Précaution inutile, et il a fallu la mesurer pour s'en apercevoir :
+    la carte des votes va de x = 1021 à 1268, le bandeau de 750 à 849.
+    **Ils ne se croisent jamais.** Ce qui croise la carte, ce sont les
+    MEMBRES, à partir de x = 836 — et eux gardent leurs trente et un
+    pixels.
+
+    Le bandeau part donc du haut du panneau, comme le contexte et comme
+    les liens rapides : trois blocs sur la même ligne de départ,
+    demandé le 8 octobre. Les membres suivent à 55, la carte des votes
+    finit à 36 : dix-neuf pixels d'air. */
 @media (min-width: 1101px) {
   #modernbb .wm-accueil__bande > .wm-accueil__staff {
-    margin-top: 17px;
+    margin-top: 0;
   }
-
 }
 
 /*  15 dans la maquette (le contexte finit à 353, les liens commencent

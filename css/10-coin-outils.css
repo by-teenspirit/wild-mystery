@@ -26,7 +26,12 @@
   flex-direction: column;
   align-items: stretch;
   gap: 10px;
-  width: 92px;
+  /*  100 ET PLUS 92. Les boutons s'alignent maintenant à gauche sur
+      une colonne d'icône fixe (voir plus bas), et « CONFORT » est la
+      plus longue des étiquettes : 18 d'icône + 8 d'écart + 52 de
+      texte font 78, pour 72 de place dans 92 moins les marges. Huit
+      pixels de plus, et les quatre tiennent sans serrer. */
+  width: 100px;
 }
 
 /* Le groupe des deux flèches : un seul bloc, un filet entre elles. */
@@ -43,10 +48,22 @@
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
+/*  ── LES ICÔNES SUR UNE SEULE COLONNE ──────────────────────────────
+
+    Elles étaient centrées AVEC leur étiquette, comme une paire. Les
+    étiquettes n'ont pas la même longueur — CLAIR 32, HAUT 30, BAS 22,
+    CONFORT 52 —, donc chaque icône tombait à un endroit différent :
+    18, 18, 22 et 7. Les deux flèches, qui se suivent dans le même
+    bloc, étaient décalées de quatre pixels l'une sous l'autre.
+    Relevé à l'écran le 8 octobre : « aligne les flèches haut et bas ».
+
+    On aligne à gauche, et l'icône prend une largeur FIXE. Toutes
+    commencent alors au même pixel, et toutes les étiquettes aussi —
+    la colonne se lit d'un coup au lieu de zigzaguer. */
 #modernbb .wm-coin__bouton {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--wm-espace-8, 8px);
 
   margin: 0;
@@ -71,10 +88,14 @@
   background: var(--wm-fond-surface, #fffbf7);
 }
 
+/*  18 DE LARGE POUR UN DESSIN DE 16 : la fente est un peu plus large
+    que l'icône pour que celle du confort, qui fait 18, tienne dans la
+    même colonne que les trois autres. C'est la fente qui aligne, pas
+    le dessin. */
 #modernbb .wm-coin__bouton svg {
+  width: 18px;
+  height: 18px;
   flex: none;
-  width: 16px;
-  height: 16px;
 }
 
 #modernbb .wm-coin__bouton:hover {

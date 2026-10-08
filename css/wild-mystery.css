@@ -3853,7 +3853,12 @@ html#min-width {
   flex-direction: column;
   align-items: stretch;
   gap: 10px;
-  width: 92px;
+  /*  100 ET PLUS 92. Les boutons s'alignent maintenant à gauche sur
+      une colonne d'icône fixe (voir plus bas), et « CONFORT » est la
+      plus longue des étiquettes : 18 d'icône + 8 d'écart + 52 de
+      texte font 78, pour 72 de place dans 92 moins les marges. Huit
+      pixels de plus, et les quatre tiennent sans serrer. */
+  width: 100px;
 }
 
 /* Le groupe des deux flèches : un seul bloc, un filet entre elles. */
@@ -3870,10 +3875,22 @@ html#min-width {
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
+/*  ── LES ICÔNES SUR UNE SEULE COLONNE ──────────────────────────────
+
+    Elles étaient centrées AVEC leur étiquette, comme une paire. Les
+    étiquettes n'ont pas la même longueur — CLAIR 32, HAUT 30, BAS 22,
+    CONFORT 52 —, donc chaque icône tombait à un endroit différent :
+    18, 18, 22 et 7. Les deux flèches, qui se suivent dans le même
+    bloc, étaient décalées de quatre pixels l'une sous l'autre.
+    Relevé à l'écran le 8 octobre : « aligne les flèches haut et bas ».
+
+    On aligne à gauche, et l'icône prend une largeur FIXE. Toutes
+    commencent alors au même pixel, et toutes les étiquettes aussi —
+    la colonne se lit d'un coup au lieu de zigzaguer. */
 #modernbb .wm-coin__bouton {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--wm-espace-8, 8px);
 
   margin: 0;
@@ -3898,10 +3915,14 @@ html#min-width {
   background: var(--wm-fond-surface, #fffbf7);
 }
 
+/*  18 DE LARGE POUR UN DESSIN DE 16 : la fente est un peu plus large
+    que l'icône pour que celle du confort, qui fait 18, tienne dans la
+    même colonne que les trois autres. C'est la fente qui aligne, pas
+    le dessin. */
 #modernbb .wm-coin__bouton svg {
+  width: 18px;
+  height: 18px;
   flex: none;
-  width: 16px;
-  height: 16px;
 }
 
 #modernbb .wm-coin__bouton:hover {
@@ -7296,11 +7317,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     Sous 1 100 px la carte se range au-dessus du panneau, et il n'y a
     plus rien à éviter. */
+/*  ── LE BANDEAU S'ALIGNE SUR LE CONTEXTE ET LES LIENS ──────────────
+
+    Il descendait de 17 px pour laisser passer la carte des votes.
+    Précaution inutile, et il a fallu la mesurer pour s'en apercevoir :
+    la carte des votes va de x = 1021 à 1268, le bandeau de 750 à 849.
+    **Ils ne se croisent jamais.** Ce qui croise la carte, ce sont les
+    MEMBRES, à partir de x = 836 — et eux gardent leurs trente et un
+    pixels.
+
+    Le bandeau part donc du haut du panneau, comme le contexte et comme
+    les liens rapides : trois blocs sur la même ligne de départ,
+    demandé le 8 octobre. Les membres suivent à 55, la carte des votes
+    finit à 36 : dix-neuf pixels d'air. */
 @media (min-width: 1101px) {
   #modernbb .wm-accueil__bande > .wm-accueil__staff {
-    margin-top: 17px;
+    margin-top: 0;
   }
-
 }
 
 /*  15 dans la maquette (le contexte finit à 353, les liens commencent
@@ -8508,27 +8541,162 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
    identifiant ou une classe. `#modernbb` devant nous en donne un de
    plus, et ça suffit partout.
 
-   PREMIÈRE PASSE, écrite sans l'avoir sous les yeux : le script n'est
-   pas encore installé. À relire une fois qu'il tourne.
+   ── RELUE LE 8 OCTOBRE, LE TCHAT SOUS LES YEUX ──────────────────────
+
+   La première passe avait été écrite à l'aveugle. Deux choses ont
+   changé depuis qu'il tourne :
+
+   **LE BOUTON NE FLOTTE PLUS.** FAM l'accroche au corps de la page en
+   bas à droite, exactement là où vit le coin d'outils — il recouvrait
+   « CLAIR », les flèches et « CONFORT ». `module-messenger.ts` le
+   DÉPLACE dans la colonne du coin, et il y prend l'allure des autres.
+   Une marge l'aurait aussi écarté, et se serait cassée au premier
+   outil ajouté.
+
+   **LA FENÊTRE DEVIENT UN TIROIR PLEINE HAUTEUR.** C'est l'allure que
+   Callista veut, celle de Cedar Cove, relevée chez eux le 8 octobre :
+   `position: fixed`, du haut au bas de l'écran, 558 de large, rangée
+   hors écran et ramenée par la gauche, une ombre large et douce, et
+   AUCUN cadre — pas de rayon, pas de bordure, des fonds transparents à
+   l'intérieur. Le titre en capitales espacées tient lieu d'en-tête.
+
+   On garde le principe et on change deux choses : le tiroir vient de
+   la DROITE, du côté du coin d'outils d'où on l'ouvre — un panneau qui
+   sort à l'opposé du bouton qu'on vient de cliquer se cherche —, et
+   toutes les couleurs sortent des jetons, donc il suit le thème, ce
+   que celui de Cedar Cove ne fait pas.
    ════════════════════════════════════════════════════════════════════ */
+
+/* ── 0 · le bouton, rangé dans le coin d'outils ───────────────────── */
+
+/*  Il prend la largeur de la colonne et l'allure de ses voisins : même
+    rayon, même fond, même étiquette de 10 px. La règle ne s'applique
+    QU'UNE FOIS RANGÉ — `module-messenger.ts` pose la classe — pour que
+    le bouton resté au corps de la page, faute de coin d'outils sur
+    cette page-là, garde celle de FAM plutôt qu'une allure de bouton
+    sans sa colonne. */
+#modernbb .wm-coin .wm-messenger-range {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 1px 3px rgb(20 48 58 / 8%);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-coin .wm-messenger-range:hover,
+#modernbb .wm-coin .wm-messenger-range:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+/*  La pastille de messages non lus que FAM pose dans le bouton. Elle
+    reprend celle des notifications, à l'identique : deux compteurs qui
+    disent la même chose ne doivent pas se dessiner de deux façons. */
+#modernbb .wm-coin .wm-messenger-range .FAM-notification {
+  display: inline-flex;
+  min-width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
 
 /* ── 1 · la fenêtre ───────────────────────────────────────────────── */
 
+/*  ── UN TIROIR PLEINE HAUTEUR, PAS UNE BULLE POSÉE DANS UN COIN ────
+
+    C'est l'allure que Callista veut, celle de Cedar Cove — relevée
+    chez eux le 8 octobre : `position: fixed`, du haut au bas de
+    l'écran, 558 de large, rangée hors champ et ramenée en glissant,
+    une ombre large et douce, et AUCUN cadre. Pas de rayon, pas de
+    bordure, des fonds transparents à l'intérieur : le titre en
+    capitales espacées tient lieu d'en-tête, et le tiroir se détache
+    de la page par son ombre, pas par un trait.
+
+    DEUX CHOSES CHANGENT. Le tiroir vient de la DROITE, du côté du coin
+    d'outils d'où on l'ouvre — un panneau qui sort à l'opposé du bouton
+    qu'on vient de cliquer se cherche. Et toutes les couleurs sortent
+    des jetons : il suit donc le thème, ce que celui de Cedar Cove ne
+    fait pas.
+
+    `min()` sur la largeur : 558 quand l'écran le permet, et sinon tout
+    l'écran moins une marge — un tiroir plus large que la fenêtre n'est
+    plus un tiroir. */
 #modernbb #FAM {
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-lg, 10px);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  width: min(558px, 100vw - var(--wm-espace-32, 32px));
+  max-width: none;
+  height: auto;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
   background: var(--wm-fond-surface, #fffbf7);
-  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+  box-shadow: 0 0 25px rgb(20 48 58 / 24%);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
+}
 
-  /*  Elle flotte au-dessus de tout, y compris de notre barre collée
-      (70) et du coin d'outils (40). On ne touche pas à son plan —
-      99999 est le sien — mais on la décale du bord, comme le coin :
-      deux blocs flottants collés au même pixel se marchent dessus. */
-  right: var(--wm-espace-16, 16px);
-  bottom: var(--wm-espace-16, 16px);
+/*  LES CLOISONS INTÉRIEURES TOMBENT. FAM dessine un cadre par bloc —
+    barre, onglets, contenu, pied —, chacun avec son fond et son filet.
+    Empilés dans un tiroir qui a déjà ses bords, ils font un escalier
+    de boîtes. Chez Cedar Cove, tout l'intérieur est transparent et
+    c'est le rembourrage qui sépare. */
+#modernbb #FAM-toolbar,
+#modernbb #FAM-toolbar-inner,
+#modernbb #FAM-tab-container,
+#modernbb #FAM-tabs,
+#modernbb .FAM-container-content,
+#modernbb #FAM-content {
+  border: 0;
+  background: transparent;
+}
+
+/*  Le titre : la seule chose qui tienne lieu d'en-tête, donc elle
+    porte. Capitales espacées, comme les surtitres de la charte, et la
+    taille d'un titre de section. */
+#modernbb #FAM .FAM-maintitle {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+/*  Le rembourrage de Cedar Cove, qui remplace les cloisons : 20 autour
+    de la barre, 30 et 20 autour du contenu. */
+#modernbb #FAM-toolbar {
+  padding: var(--wm-espace-20, 20px);
+}
+
+#modernbb #FAM-content {
+  padding: var(--wm-espace-32, 32px) var(--wm-espace-20, 20px);
 }
 
 /*  La pastille qui ouvre le tchat. C'est elle qu'on voit tout le

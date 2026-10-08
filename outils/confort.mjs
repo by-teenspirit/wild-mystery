@@ -102,7 +102,10 @@ dire("le bouton de confort existe", bouton !== null);
 dire("il est dans le coin d'outils, pas dans un second coin", bouton?.dansLeCoin === true);
 dire(
   "IL EST PETIT : il tient dans la largeur du coin",
-  bouton !== null && bouton.l <= 92 && bouton.h <= 60,
+  //  100 depuis le 8 octobre : la colonne s'est élargie de huit pixels
+  //  pour que « CONFORT » tienne une fois les icônes alignées à
+  //  gauche sur une fente fixe.
+  bouton !== null && bouton.l <= 100 && bouton.h <= 60,
   JSON.stringify(bouton),
 );
 dire("il a son pictogramme en tracé, pas une ligature", bouton?.picto === true);
