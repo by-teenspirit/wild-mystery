@@ -786,7 +786,6 @@ dire("et rien ne déborde, ni l'œil ne s'écrit", !vrai.debord && !vrai.motVisi
 //  contexte est court, comme dans le dessin.
 const COTES = [
   [".wm-accueil__bandeau", 41, "le bandeau du staff"],
-  [".wm-accueil__membre", 72, "le premier membre du staff"],
 ];
 const cotes = await p.evaluate((liste) => {
   const r = (s) => document.querySelector(s).getBoundingClientRect();
@@ -802,6 +801,41 @@ const cotes = await p.evaluate((liste) => {
     "la descente de la bande du bas": Math.round(r(".wm-accueil__partenaires").top - bande.bottom),
     "la moitié dedans de la carte des votes": Math.round(r(".wm-accueil__votes").bottom - panneau.top),
     "la vignette de vote": Math.round(r(".wm-accueil__vote-image").height),
+    "la bulle de pré-lien": Math.round(r(".wm-accueil__prelien-bouton").height),
+  };
+
+  //  ── LES TROIS BLOCS DU BAS FINISSENT ENSEMBLE ───────────────────
+  //  Demandé le 8 octobre, et c'est `align-items: stretch` qui le
+  //  tient — donc exactement le genre de chose qui se défait en
+  //  silence le jour où quelqu'un remet un `min-height`.
+  const bas = Object.fromEntries(
+    [["partenaires", ".wm-accueil__partenaires"], ["préliens", ".wm-accueil__preliens"], [
+      "actualités",
+      ".wm-accueil__actus",
+    ]].map(([nom, sel]) => [nom, {
+      bas: Math.round(r(sel).bottom - panneau.top),
+      h: Math.round(r(sel).height),
+    }]),
+  );
+
+  //  ── LES MEMBRES SE TIENNENT AU MILIEU DU BANDEAU ────────────────
+  //  « Centre bien les deux staffiens au milieu du bloc de staff,
+  //  bien face au mot Staff ». On compare les deux milieux, pas une
+  //  ordonnée : le nombre de membres change, le centre non.
+  const membres = [...document.querySelectorAll(".wm-accueil__membre")]
+    .map((e) => e.getBoundingClientRect());
+  const bandeau = r(".wm-accueil__bandeau");
+  const staff = {
+    ecart: Math.round(bandeau.top + bandeau.height / 2 -
+      (membres[0].top + membres[membres.length - 1].bottom) / 2),
+    //  Et la carte des actualités remonte jusqu'à eux, pas dedans.
+    sousLesMembres: Math.round(r(".wm-accueil__actus").top - membres[membres.length - 1].bottom),
+    retraitAvatar: parseFloat(getComputedStyle(document.querySelector(".wm-accueil__membre-avatar")).paddingTop),
+    pseudo: parseFloat(getComputedStyle(document.querySelector(".wm-accueil__membre-pseudo")).fontSize),
+    tags: [...document.querySelectorAll(".wm-accueil__tag")].map((a) => [
+      a.textContent,
+      a.getAttribute("href"),
+    ]),
   };
   const m = r(".wm-accueil__mascotte");
   //  CE QUI SUIT LE BLOC DOIT COMMENCER SOUS ELLE. Elle déborde de
@@ -825,6 +859,8 @@ const cotes = await p.evaluate((liste) => {
     chevauche: Math.round(Math.min(m.right, carte.right) - Math.max(m.left, carte.left)),
   };
   return {
+    bas,
+    staff,
     devant,
     lu,
     ecarts,
@@ -841,13 +877,50 @@ for (const [, attendu, nom] of COTES) {
   );
 }
 for (const [nom, attendu] of Object.entries({
-  "la remontée des actualités": 69,
+  "la remontée des actualités": 77,
   "la descente de la bande du bas": 32,
   "la moitié dedans de la carte des votes": 36,
   "la vignette de vote": 32,
+  "la bulle de pré-lien": 75,
 })) {
   dire(`${nom} vaut ${attendu}`, cotes.ecarts[nom] === attendu, `relevé ${cotes.ecarts[nom]}`);
 }
+
+const bas = Object.values(cotes.bas).map((b) => b.bas);
+dire(
+  "PARTENAIRES, PRÉ-LIENS ET ACTUALITÉS FINISSENT SUR LA MÊME LIGNE",
+  new Set(bas).size === 1,
+  JSON.stringify(cotes.bas),
+);
+dire(
+  "et les pré-liens font la hauteur des partenaires",
+  cotes.bas["préliens"].h === cotes.bas.partenaires.h,
+  JSON.stringify(cotes.bas),
+);
+//  Deux pixels de tolérance : le centrage tombe sur un demi-pixel dès
+//  que la hauteur des membres est impaire, et l'arrondi du navigateur
+//  le rend tantôt d'un côté tantôt de l'autre.
+dire(
+  "les membres du staff sont centrés face au mot « Staff »",
+  Math.abs(cotes.staff.ecart) <= 2,
+  JSON.stringify(cotes.staff.ecart),
+);
+dire(
+  "et la carte des actualités remonte jusqu'à eux SANS les toucher",
+  cotes.staff.sousLesMembres >= 0,
+  `${cotes.staff.sousLesMembres} px sous le dernier membre`,
+);
+dire(
+  "l'avatar du staff a le retrait des bulles de pré-lien, et le pseudo a grossi",
+  cotes.staff.retraitAvatar === 5 && cotes.staff.pseudo >= 13,
+  JSON.stringify(cotes.staff),
+);
+dire(
+  "les personnages sont des comptes taggués, et ils mènent quelque part",
+  cotes.staff.tags.length > 0 &&
+    cotes.staff.tags.every(([t, h]) => t.startsWith("@") && h !== null && h !== ""),
+  JSON.stringify(cotes.staff.tags),
+);
 dire(
   "la mascotte déborde de 93 en bas et de 60 à gauche",
   cotes.debordBas === 93 && cotes.debordGauche === 60,

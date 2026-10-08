@@ -64,7 +64,16 @@ export type MembreDuStaff = {
   readonly role: string;
   readonly profil: string;
   readonly avatar: string;
-  readonly personnages: readonly string[];
+  /** Les comptes du membre, taggués `@` sous son pseudo.
+   *
+   *  C'ÉTAIT UNE LISTE DE NOMS, C'EST UNE LISTE DE COMPTES. Les noms
+   *  seuls ne menaient nulle part : on lisait « Elijah Springsteen »
+   *  sans pouvoir aller le voir. Demandé le 8 octobre.
+   *
+   *  Un nom simple reste accepté dans le fichier — il devient un
+   *  `@nom` sans adresse, et la règle du reste du bloc s'applique : pas
+   *  de `<a>` sans URL. */
+  readonly personnages: readonly Lien[];
   /** « Présente », « Absente jusqu'au 3 », … Texte libre : c'est une
    *  phrase que le staff écrit, pas un état que le code connaît. */
   readonly presence: string;
@@ -230,6 +239,28 @@ function votesDepuis(v: unknown): Accueil["votes"] {
   };
 }
 
+/** Un compte du staff, écrit en nom simple ou en couple nom + adresse.
+ *
+ *  LES DEUX FORMES SONT ACCEPTÉES parce que le fichier contient les
+ *  deux : les personnages déjà associés à un compte du forum, et ceux
+ *  qui ne le sont pas encore. Le second cas n'est pas une erreur, c'est
+ *  l'état normal d'un forum qui ouvre — et il se dit à l'écran comme
+ *  partout ailleurs ici : un texte, pas un `<a>` qui ne mène nulle
+ *  part. */
+function personnageDepuis(v: unknown): Lien[] {
+  if (typeof v === "string") {
+    const t = v.trim();
+    return t === "" ? [] : [{ texte: t, url: "" }];
+  }
+  const o = objet(v);
+  if (o === null) return [];
+  //  `nom` ou `texte` : le fichier dit « nom » pour une personne, et le
+  //  reste du modèle dit « texte ». On lit les deux plutôt que
+  //  d'imposer au fichier un mot qui n'est pas le sien.
+  const t = texte(o.nom) || texte(o.texte);
+  return t === "" ? [] : [{ texte: t, url: adresse(o.url) }];
+}
+
 function staffDepuis(v: unknown): readonly MembreDuStaff[] {
   return liste(v).flatMap((b) => {
     const m = objet(b);
@@ -241,7 +272,7 @@ function staffDepuis(v: unknown): readonly MembreDuStaff[] {
       role: texte(m.role),
       profil: adresse(m.profil),
       avatar: adresse(m.avatar),
-      personnages: liste(m.personnages).map(texte).filter((p) => p !== ""),
+      personnages: liste(m.personnages).flatMap(personnageDepuis),
       presence: texte(m.presence),
     }];
   });

@@ -101,6 +101,11 @@
         "nom": "Bazz'Art",
         "url": "http://www.root-top.com/topsite/bazzart/in.php?ID=2595",
         "image": "https://2img.net/i.imgur.com/yXDNd4D.png"
+      },
+      {
+        "nom": "Pub RPG Design",
+        "url": "http://www.root-top.com/topsite/pubrpgdesign/in.php?ID=2624",
+        "image": "https://2img.net/i.imgur.com/TXKMVAi.png"
       }
     ]
   },
@@ -111,8 +116,14 @@
       "profil": "#",
       "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
       "personnages": [
-        "Elijah Springsteen",
-        "Adam Lockhart"
+        {
+          "nom": "Arceus",
+          "url": "/u1"
+        },
+        {
+          "nom": "Maître du Jeu",
+          "url": "/u3"
+        }
       ],
       "presence": "Présente"
     },
@@ -122,8 +133,14 @@
       "profil": "#",
       "avatar": "https://illiweb.com/fa/invision/pp-blank-thumb.png",
       "personnages": [
-        "Elijah Springsteen",
-        "Adam Lockhart"
+        {
+          "nom": "Arceus",
+          "url": "/u1"
+        },
+        {
+          "nom": "Maître du Jeu",
+          "url": "/u3"
+        }
       ],
       "presence": "Présente"
     }

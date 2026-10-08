@@ -160,6 +160,20 @@
 #modernbb .wm-accueil__bande--bas {
   margin-top: var(--wm-espace-32, 32px);
   gap: var(--wm-espace-24, 24px);
+  /*  ── LES TROIS BLOCS DU BAS FINISSENT SUR LA MÊME LIGNE ──────────
+      Demandé le 8 octobre : les pré-liens à la hauteur des
+      partenaires, et les trois alignés en bas avec les actualités.
+
+      `stretch` le fait tout seul, et c'est pour ça qu'on ne pose
+      aucune hauteur : la bande prend la plus haute des deux colonnes
+      et les étire toutes les deux. La carte des actualités compte sa
+      marge négative dans sa hauteur extérieure — c'est donc elle qui
+      décide, et les deux autres la suivent.
+
+      L'alternative était trois `min-height` à tenir d'accord à la
+      main. Au quatrième changement d'avis elles auraient divergé, et
+      une quatrième nouvelle les aurait toutes fait mentir. */
+  align-items: stretch;
 }
 
 /*  Haut : 635 à gauche, 474 à droite. */
@@ -201,7 +215,12 @@
     au-dessus. */
 @media (min-width: 1101px) {
   #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
-    margin-top: calc(-69px - var(--wm-espace-32, 32px));
+    /*  77 depuis le 8 octobre au soir — « remonte légèrement les
+        actualités encore ». Le plafond n'est pas le dessin mais les
+        membres du staff, qui descendent jusqu'à 280 une fois centrés
+        dans le bandeau : à 77 la carte commence à 282, et le harnais
+        tient cet écart. */
+    margin-top: calc(-77px - var(--wm-espace-32, 32px));
   }
 }
 
@@ -213,10 +232,13 @@
     eux, et il commençait 23 px trop bas.
 
     La maquette distingue les deux : le bandeau à y = 41, les membres à
-    y = 72. Soit 17 px sous le haut du panneau (24) pour le bandeau, et
-    31 de plus pour la liste. La carte des votes finit à 36 : le
-    bandeau passe 5 px dessous, les membres 36. Relevé au pixel sur le
-    forum le 8 octobre, les deux tombent juste.
+    y = 72. Soit 17 px sous le haut du panneau (24) pour le bandeau. La
+    carte des votes finit à 36 : il passe 5 px dessous.
+
+    Les membres, eux, ne sont plus posés à 72 : Callista les veut au
+    milieu du bandeau, face au mot « Staff ». C'est `justify-content`
+    qui s'en charge, plus bas, et le centrage les éloigne encore de la
+    carte des votes.
 
     Sous 1 100 px la carte se range au-dessus du panneau, et il n'y a
     plus rien à éviter. */
@@ -225,9 +247,6 @@
     margin-top: 17px;
   }
 
-  #modernbb .wm-accueil__bande > .wm-accueil__staff .wm-accueil__staff-liste {
-    margin-top: 31px;
-  }
 }
 
 /*  15 dans la maquette (le contexte finit à 353, les liens commencent
@@ -247,7 +266,10 @@
     est plus large que la colonne au-dessus d'elle. D'où sa marge
     haute, qui remplace l'écart que la colonne lui donnait. */
 #modernbb .wm-accueil__rangee--bas {
-  align-items: flex-start;
+  /*  `stretch` et pas `flex-start` : la bande étire la rangée, la
+      rangée étire ses deux cartes. Sans ce second étage, la rangée
+      s'allongeait et les deux cartes restaient collées en haut. */
+  align-items: stretch;
   gap: 46px;
 }
 
@@ -380,7 +402,7 @@
       `min-height` et pas `height` : avec dix membres — Callista en
       associe jusqu'à dix — la bande les suit au lieu de les couper. */
   min-width: 99px;
-  min-height: 318px;
+  height: 100%;
   align-self: stretch;
   align-items: center;
   justify-content: center;
@@ -556,7 +578,12 @@
 /*  La carte flotte au-dessus du panneau, alignée à droite, comme la
     maquette. En flux, pas en absolu : au-dessus de 1 172 px elle y est
     déjà, et en dessous elle se range toute seule. */
+/*  ELLE RESPIRE PLUS QUE LES AUTRES CARTES. « Mets plus de padding sur
+    le bloc de vote » : c'est la seule qui ne contient qu'une ligne de
+    vignettes, et les 20 px communs la serraient des deux côtés. 24,
+    le cran au-dessus. */
 #modernbb .wm-accueil__votes {
+  padding: var(--wm-espace-24, 24px);
   position: relative;
   z-index: 2;
   display: flex;
@@ -605,13 +632,18 @@
   line-height: 0;
 }
 
+/*  PAS DE FOND SOUS LES VIGNETTES. Il était là pour meubler le carré
+    avant que l'image charge ; les bannières des topsites sont opaques
+    et le couvrent entièrement, si bien qu'on ne le voyait jamais —
+    sauf en cas de panne du topsite, où il faisait un carré beige
+    énigmatique. « Pas de couleur de fond sur les pokéballs, y'a pas
+    besoin ». */
 #modernbb .wm-accueil__vote-image {
   display: block;
   overflow: hidden;
   width: 32px;
   height: 32px;
   border-radius: var(--wm-rayon-sm, 6px);
-  background: var(--wm-fond-douce, #f3e1d2);
 }
 
 #modernbb .wm-accueil__vote-image img {
@@ -629,14 +661,25 @@
     cas tant qu'elle avait le droit de grandir.
 
     `flex-grow: 0` donc, et les pré-liens prennent ce qui reste. */
+/*  PLUS DE `min-height` : C'EST LA BANDE QUI DONNE LA HAUTEUR. Elle a
+    valu 135 (la maquette), puis 170 (« bloc plus de hauteur »), et
+    maintenant ce que la carte des actualités décide — « légèrement
+    moins haute et doit bien s'aligner », ce qui est la même phrase dite
+    deux fois : une hauteur qui s'aligne ne se choisit pas.
+
+    ET LES TROIS PARTIES SE RÉPARTISSENT DEDANS. Titre, rangée de
+    vignettes, lien : `space-between` les écarte au lieu de les empiler
+    en haut avec un trou en bas. C'est aussi ce qui donne l'air demandé
+    — « plus d'espace entre le titre, les partenaires et le lien » —
+    sans poser trois marges qui se périmeraient à la hauteur
+    suivante. */
 #modernbb .wm-accueil__partenaires {
+  display: flex;
   min-width: 0;
   flex: 0 1 284px;
-  /*  135 dans la maquette, mais Callista la veut plus haute : la
-      rangée d'étoiles et le lien y sont à l'étroit entre les 20 px de
-      marge de la carte. 170 lui donne l'air qu'il lui manquait, et
-      c'est un minimum — avec quinze partenaires elle s'allonge. */
-  min-height: 170px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--wm-espace-12, 12px);
 }
 
 #modernbb .wm-accueil__partenaires-liste {
@@ -691,8 +734,30 @@
 
 /* ── 7 · le staff ─────────────────────────────────────────────────── */
 
+/*  ── UNE GRILLE D'UNE SEULE RANGÉE, ET C'EST LE BANDEAU QUI L'IMPOSE
+
+    Le bloc était un `flex` et les 318 de la maquette étaient posés sur
+    le bandeau. Ça tenait tant que la liste des membres restait plus
+    courte que lui. Le jour où elle l'a dépassé — avatars à 68, textes
+    plus gros, écart à 24 —, le bloc est monté à 348 et le bandeau est
+    resté à 318 : trente pixels de trop sous le mot « Staff », et les
+    membres centrés dans une colonne plus haute que lui. C'est de là
+    que venait le décentrage, mesuré le 8 octobre.
+
+    UN ÉLÉMENT EN `writing-mode` VERTICAL NE S'ÉTIRE PAS. Il est en
+    flux orthogonal, et Chrome lui donne la hauteur de son contenu
+    quoi que dise `align-self: stretch` — vérifié dans les deux sens,
+    en `flex` comme en `grid`. Ce qui le fait céder, c'est une RANGÉE
+    DE TAILLE DÉFINIE : `minmax(318px, auto)` donne le plancher de la
+    maquette et laisse la liste pousser au-delà, et le `height: 100%`
+    du bandeau s'y accroche.
+
+    Les deux enfants font alors la même hauteur, et le
+    `justify-content: center` de la liste tombe face au mot. */
 #modernbb .wm-accueil__staff {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: minmax(318px, auto);
   align-items: stretch;
   gap: var(--wm-espace-16, 16px);
 }
@@ -714,7 +779,16 @@
   padding: 0;
   flex: 1 1 auto;
   flex-direction: column;
-  gap: var(--wm-espace-20, 20px);
+  /*  LES MEMBRES SE TIENNENT AU MILIEU DU BANDEAU, face au mot
+      « Staff » qui y est centré lui aussi. Demandé le 8 octobre.
+
+      Ils étaient posés en haut, avec une marge de 31 px pour passer
+      sous la carte des votes. Le centrage fait mieux et sans chiffre :
+      la bande fait 318, deux membres en font moins de 200, et ce qui
+      reste se partage en deux. La carte des votes finit à 36, ils
+      commencent bien plus bas. */
+  justify-content: center;
+  gap: var(--wm-espace-24, 24px);
   list-style: none;
 }
 
@@ -740,13 +814,23 @@
     jeton à lui — et je n'en invente pas un pour une bordure. On le
     DÉRIVE de l'accent : la nuance est la même en clair, et elle suit le
     thème en sombre au lieu de rester un bleu de jour. */
+/*  LE MÊME RETRAIT QUE LES BULLES DE PRÉ-LIEN. L'image touchait son
+    filet — « il y a un écart entre l'avatar et la border, comme les
+    pré-liens ». Les bulles posent 5 px entre les deux ; on reprend le
+    chiffre plutôt que d'en inventer un second pour le même geste.
+
+    68 ET PLUS 60 : les 60 de la maquette étaient l'image. Lui prendre
+    5 px de chaque côté pour le retrait l'aurait ramenée à 48, et les
+    visages se seraient réduits d'un cinquième. 58 + 2 × 5 = 68 garde
+    l'image à sa taille. */
 #modernbb .wm-accueil__membre-avatar {
   display: block;
   overflow: hidden;
   box-sizing: border-box;
-  width: 60px;
-  height: 60px;
+  width: 68px;
+  height: 68px;
   flex: none;
+  padding: 5px;
   border: 1px solid color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 45%,
     var(--wm-fond-surface, #fffbf7));
   border-radius: 999px;
@@ -777,10 +861,15 @@
   gap: var(--wm-espace-8, 8px);
 }
 
+/*  ── LES TROIS LIGNES MONTENT D'UN CRAN ────────────────────────────
+    « Écrit les textes du staff en plus gros ». Elles tenaient en 11,5
+    et 10 — la taille des légendes —, pour un bloc qui occupe le tiers
+    droit du panneau et qu'on lit de loin. Chacune prend le cran
+    au-dessus dans l'échelle, sans en inventer : 13,5, puis 11,5. */
 #modernbb .wm-accueil__membre-pseudo {
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   text-decoration: none;
 }
@@ -793,7 +882,7 @@
 #modernbb .wm-accueil__membre-role {
   color: var(--wm-accent-primaire, #275e7a);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-etiquette, 10px);
+  font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: 0.12px;
   text-transform: uppercase;
@@ -804,11 +893,32 @@
   margin: 0;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-10, 10px);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-etiquette, 10px);
+  font-size: var(--wm-taille-petit, 11.5px);
   letter-spacing: 0.12px;
+}
+
+/*  Le tag d'un compte. Bleu comme tous les liens du bloc depuis le
+    8 octobre, et sans soulignement au repos : deux tags soulignés
+    côte à côte font un trait continu qu'on lit comme un seul mot. */
+#modernbb .wm-accueil__tag {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-decoration: none;
+}
+
+#modernbb a.wm-accueil__tag:hover,
+#modernbb a.wm-accueil__tag:focus-visible {
+  text-decoration: underline;
+}
+
+/*  Le compte qui n'existe pas encore : même règle que partout ici — le
+    manque se dit dans le `title`, il ne se peint pas. */
+#modernbb .wm-accueil__tag--sans-adresse {
+  color: var(--wm-texte-corps, #4e3b30);
+  cursor: default;
 }
 
 /*  Le point de séparation de la maquette. Un pseudo-élément plutôt
@@ -845,10 +955,15 @@
 
 /* ── 9 · les pré-liens ────────────────────────────────────────────── */
 
+/*  `auto` ET PAS 246 : la grille a grandi (56 → 75 par bulle) et la
+    base aurait menti d'une bulle entière. Le bloc prend la largeur de
+    ce qu'il contient — l'étiquette, l'écart, et les trois colonnes —
+    et la rangée du bas a la place : mesurée à 779 px sur le forum
+    pour 699 de contenu. */
 #modernbb .wm-accueil__preliens {
   display: flex;
   min-width: 0;
-  flex: 0 1 246px;
+  flex: 0 1 auto;
   align-items: stretch;
   gap: var(--wm-espace-10, 10px);
 }
@@ -866,12 +981,29 @@
     retombe à deux colonnes puis à une, au lieu de déborder. Et
     au-delà de six personnages elle s'allonge vers le bas, ce qui est
     ce qu'on veut — Callista en associe jusqu'à dix. */
+/*  ── 75 ET PLUS 56, PARCE QUE LA HAUTEUR A CHANGÉ ──────────────────
+
+    Les bulles valaient les 55,86 de la maquette. Mais le bloc s'aligne
+    maintenant sur la carte des actualités, et deux rangées de 56 y
+    laissaient 38 px de vide en bas : « si tu augmentes la taille des
+    cercles de pré-liens au passage pour que ça corresponde bien ».
+
+    Le chiffre se déduit, il ne se choisit pas : deux rangées et un
+    écart de 15 doivent faire la hauteur de la bande, relevée à 165 sur
+    le forum. (165 − 15) / 2 = 75.
+
+    `max-width` borne la grille à trois colonnes — 3 × 75 + 2 × 15 =
+    255 — là où `auto-fill` en mettrait quatre dès qu'il y a la place,
+    et la maquette en dessine trois. En dessous, `auto-fill` retombe
+    seul à deux puis à une. */
 #modernbb .wm-accueil__preliens-liste {
   display: grid;
   margin: 0;
   padding: 0;
   flex: 1 1 auto;
-  grid-template-columns: repeat(auto-fill, 56px);
+  grid-template-columns: repeat(auto-fill, 75px);
+  max-width: 255px;
+  align-content: space-between;
   justify-content: start;
   gap: 15px;
   list-style: none;
@@ -885,7 +1017,7 @@
 
 #modernbb .wm-accueil__prelien-bouton {
   display: block;
-  padding: 4px;
+  padding: 5px;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: 999px;
   background: var(--wm-fond-surface, #fffbf7);
@@ -902,8 +1034,10 @@
 #modernbb .wm-accueil__prelien-avatar {
   display: block;
   overflow: hidden;
-  width: 46px;
-  height: 46px;
+  /*  63 + 2 × 5 de retrait + 2 × 1 de filet = 75, la bulle. Les trois
+      nombres bougent ensemble ou pas du tout. */
+  width: 63px;
+  height: 63px;
   border-radius: 999px;
   background: var(--wm-fond-douce, #f3e1d2);
 }

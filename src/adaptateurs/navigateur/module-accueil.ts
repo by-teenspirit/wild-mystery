@@ -313,16 +313,23 @@ function blocStaff(doc: Document, a: Accueil): HTMLElement | null {
     }
     corps.appendChild(tete);
 
+    //  ── LES PERSONNAGES SONT DES COMPTES, ET ON LES TAGUE ───────────
+    //
+    //  Ils étaient trois mots gris séparés par un point : on lisait le
+    //  nom du personnage sans pouvoir aller le voir. Demandé le
+    //  8 octobre — un `@` et le compte derrière.
+    //
+    //  Le `@` est DANS le lien, parce qu'il en fait partie : posé à
+    //  côté, il resterait seul à la fin d'une ligne quand le nom passe
+    //  à la suivante, et il ne serait pas souligné au survol avec lui.
+    //
+    //  Plus de point de séparation : le `@` sépare déjà, et deux
+    //  marqueurs pour une seule frontière, c'en est un de trop.
     if (m.personnages.length > 0) {
       const perso = element(doc, "p", "wm-accueil__membre-personnages");
-      m.personnages.forEach((nomPerso, i) => {
-        if (i > 0) {
-          const point = element(doc, "span", "wm-accueil__point");
-          point.setAttribute("aria-hidden", "true");
-          perso.appendChild(point);
-        }
-        perso.appendChild(element(doc, "span", "", nomPerso));
-      });
+      for (const p of m.personnages) {
+        perso.appendChild(lienOuTexte(doc, { ...p, texte: `@${p.texte}` }, "wm-accueil__tag"));
+      }
       corps.appendChild(perso);
     }
 

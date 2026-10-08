@@ -144,8 +144,38 @@ Deno.test("le staff se lit avec ses personnages", () => {
       presence: "Présente",
     }],
   });
-  assertEquals(a.staff[0].personnages, ["Elijah Springsteen", "Adam Lockhart"]);
+  //  Un nom seul reste un personnage, sans compte derrière : c'est
+  //  l'état d'un forum qui n'a pas encore ouvert les profils.
+  assertEquals(a.staff[0].personnages, [
+    { texte: "Elijah Springsteen", url: "" },
+    { texte: "Adam Lockhart", url: "" },
+  ]);
   assertEquals(a.staff[0].presence, "Présente");
+});
+
+Deno.test("un personnage peut porter le compte qu'on tague", () => {
+  const a = accueilDepuis({
+    staff: [{
+      pseudo: "Teenspirit",
+      personnages: [
+        { nom: "Arceus", url: "/u1" },
+        { texte: "Maître du Jeu", url: "/u3" },
+        { nom: "", url: "/u9" },
+        { nom: "Sans compte" },
+        "Un nom tout seul",
+        42,
+      ],
+    }],
+  });
+  //  Les deux orthographes du fichier — « nom » et « texte » —, le
+  //  compte sans nom qui disparaît, celui sans adresse qui reste, la
+  //  chaîne nue, et le nombre qu'on jette.
+  assertEquals(a.staff[0].personnages, [
+    { texte: "Arceus", url: "/u1" },
+    { texte: "Maître du Jeu", url: "/u3" },
+    { texte: "Sans compte", url: "" },
+    { texte: "Un nom tout seul", url: "" },
+  ]);
 });
 
 Deno.test("un membre sans pseudo disparaît", () => {
