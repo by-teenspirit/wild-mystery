@@ -387,11 +387,29 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  left: auto;
+  /*  ── `!important` CONTRE UN STYLE EN LIGNE, ET C'EST LE SEUL CAS ──
+
+      Forumactif pose `style="left: 0px"` SUR LE NŒUD au moment où on
+      clique sur la cloche. Un style en ligne bat tous les sélecteurs,
+      quelle que soit leur précision — nos quatre identifiants n'y
+      peuvent rien.
+
+      Et `left: 0` avec une largeur fixe l'emporte sur `right` : le
+      panneau partait du bord gauche de la barre et courait 320 px à
+      droite. Relevé le 8 octobre : son bord droit sortait de
+      QUATRE-VINGT-TREIZE PIXELS hors de l'écran.
+
+      L'autre route était un observateur qui retire l'attribut à
+      chaque ouverture — se battre avec un script à chaque clic pour
+      un mot-clé que le langage prévoit exactement pour ça. */
+  left: auto !important;
   z-index: 80;
   box-sizing: border-box;
   width: 320px;
-  max-width: calc(100vw - 16px);
+  /*  32 et plus 16 : le panneau pend du bord droit de la barre, qui
+      est déjà à 16 du bord de l'écran. Sur un téléphone, les deux
+      marges comptent. */
+  max-width: calc(100vw - var(--wm-espace-32, 32px));
   max-height: 60vh;
   margin: 0;
   padding: var(--wm-espace-8, 8px);

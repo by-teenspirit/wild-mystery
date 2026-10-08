@@ -227,14 +227,99 @@
 /*  L'icône de ModernBB fait 33 px et vit en fond de `dl.icon`. On la
     cale à gauche, centrée verticalement, et on réserve sa place —
     sinon le titre lui passe dessus. */
+/*  ── LA LIGNE DE FORUM, À LA COTE DE `390:3328` ────────────────────
+
+    Quatre zones, relevées dans Figma sur une ligne de 1158 × 92 :
+
+      pastille      x =   0, 48 × 40
+      identité      x =  58, largeur 735
+      compteurs     x = 803, 104 de large
+      filet         x = 917, 1 × 52
+      dernier msg   x = 928, 212 de large
+
+    UNE GRILLE, ET PAS UNE RANGÉE SOUPLE. Les deux compteurs doivent
+    s'EMPILER — « 26 SUJETS » puis « 36 MESSAGES » — alors qu'ils sont
+    frères de l'identité et du dernier message dans le balisage de
+    ModernBB. En flexbox, quatre frères font quatre colonnes ; on ne
+    peut en empiler deux sans toucher au template. La grille le fait
+    par les zones : deux rangées, et les deux cellules longues
+    traversent les deux.
+
+    Les largeurs sont celles du dessin SAUF l'identité, qui prend ce
+    qui reste : c'est la seule qui doit respirer quand la colonne du
+    forum passe de 1172 à 1400. */
 #modernbb ul.topiclist li.row dl.icon {
-  padding-left: var(--wm-espace-48, 48px);
-  background-position: var(--wm-espace-12, 12px) center;
+  display: grid;
+  min-height: 92px;
+  grid-template-columns: 48px minmax(0, 1fr) 104px 212px;
+  grid-template-areas:
+    "pastille identite sujets dernier"
+    "pastille identite messages dernier";
+  align-items: center;
+  column-gap: 10px;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-18, 18px);
+  /*  L'icône du forum est un fond posé par ModernBB sur ce nœud. La
+      première colonne de la grille lui garde sa place ; sans elle, le
+      titre lui passerait dessus. */
+  background-position: left center;
   background-repeat: no-repeat;
 }
 
 #modernbb ul.topiclist li.row dd.dterm {
-  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  grid-area: identite;
+  padding: 0;
+}
+
+/*  ── LES DEUX `<br>` DU TEMPLATE NE PÈSENT PLUS RIEN ───────────────
+
+    ModernBB sépare le titre de la description par DEUX sauts de
+    ligne. Sur un forum sans description — ils sont nombreux ici — ça
+    fait vingt-huit pixels de vide sous le titre, et la ligne montait
+    à 147 au lieu des 92 de la maquette. Mesuré le 8 octobre : `h3` 20,
+    `br` 14, `br` 14, et un `<strong>` vide.
+
+    `line-height: 0` plutôt que `display: none` : le saut de ligne doit
+    RESTER — sans lui, la description viendrait se coller à la suite du
+    titre sur la même ligne. Ce qu'on enlève, c'est sa hauteur. */
+#modernbb ul.topiclist li.row dd.dterm br {
+  line-height: 0;
+}
+
+#modernbb ul.topiclist li.row dd.topics {
+  grid-area: sujets;
+}
+
+#modernbb ul.topiclist li.row dd.posts {
+  grid-area: messages;
+}
+
+/*  LE FILET DE LA MAQUETTE EST UNE BORDURE, pas un nœud : 1 × 52 à
+    x = 917, soit juste avant le dernier message. Une bordure gauche
+    sur la cellule, et les 10 px qui la séparent du texte. */
+#modernbb ul.topiclist li.row dd.lastpost {
+  grid-area: dernier;
+  align-self: stretch;
+  padding-left: var(--wm-espace-10, 10px);
+  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  ── LE NOMBRE ET SON ÉTIQUETTE SUR LA MÊME LIGNE ──────────────────
+
+    Ils étaient empilés, le nombre au-dessus de son mot. La maquette
+    les met côte à côte — le nombre à 23 de large, l'étiquette à 28 —
+    et c'est ce qui permet aux deux compteurs de tenir l'un sous
+    l'autre dans 104 px au lieu de s'étaler en deux colonnes.
+
+    `baseline` et pas `center` : un chiffre de 20 px et une capitale de
+    10 alignés par leur milieu flottent l'un par rapport à l'autre ; par
+    leur pied, ils se posent sur la même ligne. */
+#modernbb ul.topiclist li.row dd.topics,
+#modernbb ul.topiclist li.row dd.posts,
+#modernbb ul.topiclist li.row dd.views {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: var(--wm-espace-6, 6px);
 }
 
 /*  La description d'un forum, sous son titre. Elle arrive dans le même
@@ -320,10 +405,16 @@
   gap: var(--wm-espace-10, 10px);
 }
 
+/*  35 × 56 DANS LA MAQUETTE, et c'est un RECTANGLE DEBOUT, pas un
+    carré : les avatars de Rhode sont des portraits en pied, et un
+    carré leur coupe la tête ou les pieds. `object-fit: cover` cadre
+    le haut, là où est le visage. */
 #modernbb .lastpost-avatar img {
   display: block;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 56px;
+  object-fit: cover;
+  object-position: top center;
   border-radius: var(--wm-rayon-sm, 6px);
   object-fit: cover;
 }
