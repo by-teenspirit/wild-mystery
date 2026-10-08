@@ -699,6 +699,95 @@ dire(
 );
 dire("et rien ne déborde, ni l'œil ne s'écrit", !vrai.debord && !vrai.motVisible);
 
+// ── 7 · LES COTES DE LA MAQUETTE, AU PIXEL ──────────────────────────
+//  Relevées sur le forum réel le 8 octobre, dans le navigateur, avec
+//  la feuille de ce dépôt injectée par-dessus celle qui est servie.
+//  Quatre d'entre elles étaient fausses, et aucune ne se voyait :
+//
+//    · le bandeau du staff commençait à 64 au lieu de 41 — on
+//      descendait le bloc entier de 40 au lieu de 17 ;
+//    · les membres à 64 au lieu de 72 ;
+//    · la carte des actualités à 314 au lieu de 290 — la marge
+//      négative se comptait depuis la bande, déjà décalée ;
+//    · les partenaires à 383 au lieu de 391 — 24 entre les bandes au
+//      lieu de 32.
+//
+//  Les mesures sont RELATIVES AU PANNEAU, comme dans Figma.
+//
+//  DEUX COTES SUR CINQ NE SONT PAS DES NOMBRES, MAIS DES ÉCARTS. La
+//  bande du bas commence sous la plus haute des deux colonnes du
+//  haut : avec le texte de contexte réel, à 1 340 px, c'est la colonne
+//  de gauche, et la bande descend de 48 px. Figer 290 et 391 ferait
+//  échouer le harnais sur un paragraphe en plus — ce n'est pas la
+//  maquette qu'on vérifierait, c'est la longueur du contexte.
+//
+//  Ce qui doit tenir quoi qu'il arrive, c'est l'ÉCART : la carte des
+//  actualités remonte de 69 sur le bas de la bande, la bande du bas
+//  descend de 32 sous elle. Les deux donnent 290 et 391 quand le
+//  contexte est court, comme dans le dessin.
+const COTES = [
+  [".wm-accueil__bandeau", 41, "le bandeau du staff"],
+  [".wm-accueil__membre", 72, "le premier membre du staff"],
+];
+const cotes = await p.evaluate((liste) => {
+  const r = (s) => document.querySelector(s).getBoundingClientRect();
+  const panneau = r(".wm-accueil__panneau");
+  const lu = {};
+  for (const [sel, , nom] of liste) {
+    const e = document.querySelector(sel);
+    lu[nom] = e === null ? null : Math.round(e.getBoundingClientRect().top - panneau.top);
+  }
+  const bande = r(".wm-accueil__bande");
+  const ecarts = {
+    "la remontée des actualités": Math.round(bande.bottom - r(".wm-accueil__actus").top),
+    "la descente de la bande du bas": Math.round(r(".wm-accueil__partenaires").top - bande.bottom),
+    "la moitié dedans de la carte des votes": Math.round(r(".wm-accueil__votes").bottom - panneau.top),
+    "la vignette de vote": Math.round(r(".wm-accueil__vote-image").height),
+  };
+  const m = r(".wm-accueil__mascotte");
+  //  CE QUI SUIT LE BLOC DOIT COMMENCER SOUS ELLE. Elle déborde de
+  //  93 px ; avec les 24 habituels sous le bloc, elle tombait sur le
+  //  lien « Voir les messages sans réponses » et lui barrait la
+  //  première ligne. Relevé sur le forum le 8 octobre.
+  //
+  //  On mesure l'écart, et pas `elementFromPoint` : la mascotte ne
+  //  prend pas le clic, donc le point rendrait toujours le conteneur
+  //  qui est dessous, qu'elle le recouvre ou non.
+  const apres = Math.round(r(".forabg").top - m.bottom);
+  return {
+    lu,
+    ecarts,
+    debordBas: Math.round(m.bottom - panneau.bottom),
+    debordGauche: Math.round(panneau.left - m.left),
+    apres,
+  };
+}, COTES);
+for (const [, attendu, nom] of COTES) {
+  dire(
+    `${nom} est à y = ${attendu} dans le panneau`,
+    cotes.lu[nom] === attendu,
+    `relevé ${cotes.lu[nom]}`,
+  );
+}
+for (const [nom, attendu] of Object.entries({
+  "la remontée des actualités": 69,
+  "la descente de la bande du bas": 32,
+  "la moitié dedans de la carte des votes": 36,
+  "la vignette de vote": 32,
+})) {
+  dire(`${nom} vaut ${attendu}`, cotes.ecarts[nom] === attendu, `relevé ${cotes.ecarts[nom]}`);
+}
+dire(
+  "la mascotte déborde de 93 en bas et de 60 à gauche",
+  cotes.debordBas === 93 && cotes.debordGauche === 60,
+  JSON.stringify(cotes),
+);
+dire(
+  "et ce qui suit le bloc commence sous elle",
+  cotes.apres >= 0,
+  `${cotes.apres} px entre le bas de la mascotte et la liste des forums`,
+);
+
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
 for (const s of soucis) console.log("  · " + s);

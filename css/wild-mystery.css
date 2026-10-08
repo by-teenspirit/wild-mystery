@@ -6752,11 +6752,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     `gap` négatif n'existe pas : c'est la carte qui descend dans le
     panneau par une marge, et le `z-index` qui la garde devant. */
+/*  ET LA MARGE DU BAS LAISSE PASSER LA MASCOTTE. Elle déborde de 93 px
+    sous le panneau ; avec les 24 habituels, elle tombait sur « Voir
+    les messages sans réponses », qu'elle barrait d'un bras. Relevé sur
+    le forum le 8 octobre.
+
+    `pointer-events: none` évitait déjà qu'elle vole le clic ; elle
+    cachait quand même le lien. 93 + 24 : le débordement, puis l'écart
+    normal en dessous. */
 #modernbb .wm-accueil {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  margin-bottom: var(--wm-espace-24, 24px);
+  margin-bottom: calc(93px + var(--wm-espace-24, 24px));
 }
 
 /*  Le panneau translucide de la maquette : du blanc à 70 % posé sur le
@@ -6830,8 +6838,18 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: 31px;
 }
 
+/*  32 AU-DESSUS, 24 ENTRE : les deux écarts de la bande du bas ne sont
+    pas le même, et on leur avait donné 24 à tous les deux. Mesuré sur
+    le forum le 8 octobre, puis relu dans la maquette : le bandeau du
+    staff finit à y = 359, la carte des partenaires commence à 391 —
+    32 entre les deux bandes. À l'intérieur, la rangée de gauche finit
+    à x = 731 et les actualités commencent à 755 — 24.
+
+    Huit pixels, mais ils décalaient toute la bande du bas, et avec
+    elle le chevauchement des actualités, qui se compte à partir de
+    là. */
 #modernbb .wm-accueil__bande--bas {
-  margin-top: var(--wm-espace-24, 24px);
+  margin-top: var(--wm-espace-32, 32px);
   gap: var(--wm-espace-24, 24px);
 }
 
@@ -6862,24 +6880,44 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex: 396 1 396px;
 }
 
+/*  LA MARGE SE COMPTE DEPUIS LA BANDE, PAS DEPUIS LE BANDEAU. `-69px`
+    tout court plaçait la carte à y = 314 au lieu de 290 — relevé sur
+    le forum le 8 octobre. La marge haute remonte la carte depuis le
+    HAUT DE SA BANDE, qui est déjà 32 px sous le bandeau ; il faut donc
+    défaire ces 32 avant de monter les 69 de la maquette.
+
+    Écrit en `calc` et pas en `-101px` pour que les deux nombres
+    restent lisibles : 69, c'est le chevauchement du dessin ; 32, c'est
+    l'écart entre les bandes, et il est écrit une seule fois,
+    au-dessus. */
 @media (min-width: 1101px) {
   #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
-    margin-top: -69px;
+    margin-top: calc(-69px - var(--wm-espace-32, 32px));
   }
 }
 
-/*  ET LA BANDE DU HAUT DESCEND DE 40 PX À DROITE, pour laisser passer
-    la carte des votes, qui mord la moitié haute du panneau (−36).
-    Relevé à l'écran : elle recouvrait le premier membre du staff et
-    son rôle, « FONDATRICE » disparaissait. La maquette dit la même
-    chose en chiffres — la carte finit à y = 36, les membres
-    commencent à 72.
+/*  ── LE BLOC DU STAFF DESCEND, MAIS PAS D'UN SEUL BLOC ─────────────
+
+    La carte des votes mord la moitié haute du panneau (−36), et le
+    staff doit la laisser passer. On avait descendu le bloc ENTIER de
+    40 px : les membres étaient dégagés, mais le bandeau partait avec
+    eux, et il commençait 23 px trop bas.
+
+    La maquette distingue les deux : le bandeau à y = 41, les membres à
+    y = 72. Soit 17 px sous le haut du panneau (24) pour le bandeau, et
+    31 de plus pour la liste. La carte des votes finit à 36 : le
+    bandeau passe 5 px dessous, les membres 36. Relevé au pixel sur le
+    forum le 8 octobre, les deux tombent juste.
 
     Sous 1 100 px la carte se range au-dessus du panneau, et il n'y a
     plus rien à éviter. */
 @media (min-width: 1101px) {
   #modernbb .wm-accueil__bande > .wm-accueil__staff {
-    margin-top: 40px;
+    margin-top: 17px;
+  }
+
+  #modernbb .wm-accueil__bande > .wm-accueil__staff .wm-accueil__staff-liste {
+    margin-top: 31px;
   }
 }
 
@@ -7128,11 +7166,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin: 0;
   padding: 0;
   flex-direction: column;
-  gap: var(--wm-espace-12, 12px);
+  /*  11 dans la maquette : les rangées font 36 et se suivent tous les
+      47. Le jeton le plus proche, 12, donnait un pas de 49 — deux
+      pixels de trop sur sept lignes, soit une rangée qui finit 14 px
+      plus bas que le dessin. */
+  gap: 11px;
   list-style: none;
 }
 
-/*  Une rangée : 36 px de haut, le fond doux, l'œil dans son carré
+/*  Une rangée : 36 px de haut, le fond doux, la puce dans sa pastille
     terre. Les mesures viennent de la maquette. */
 #modernbb .wm-accueil__rapide {
   display: flex;
