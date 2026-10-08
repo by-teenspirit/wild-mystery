@@ -158,8 +158,23 @@
   flex: 699 1 699px;
 }
 
+/*  LES ACTUALITÉS REMONTENT SUR LE BANDEAU DU STAFF. Maquette : la
+    carte est posée à y = 290 alors que le bandeau court jusqu'à 359 —
+    soixante-neuf pixels de chevauchement, et c'est ce qui noue les
+    deux bandes au lieu de les empiler. Demandé le 8 octobre.
+
+    Seulement la carte : la rangée de gauche, elle, reste où elle est.
+    Et seulement là où le chevauchement a un sens — sous 1 100 px les
+    bandes se replient l'une sous l'autre, et remonter la carte la
+    ferait mordre sur le staff. */
 #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
   flex: 396 1 396px;
+}
+
+@media (min-width: 1101px) {
+  #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
+    margin-top: -69px;
+  }
 }
 
 /*  ET LA BANDE DU HAUT DESCEND DE 40 PX À DROITE, pour laisser passer
@@ -177,10 +192,13 @@
   }
 }
 
+/*  15 dans la maquette (le contexte finit à 353, les liens commencent
+    à 368), mais Callista en veut plus : les deux colonnes se touchaient
+    presque. 40, le jeton au-dessus de la moitié. */
 #modernbb .wm-accueil__rangee {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: var(--wm-espace-40, 40px);
 }
 
 /*  La rangée du bas a son propre écart : 46 dans la maquette, entre
@@ -238,7 +256,7 @@
 
 #modernbb .wm-accueil__titre {
   margin-bottom: var(--wm-espace-10, 10px);
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
   font-size: 36px;
 }
 
@@ -265,6 +283,17 @@
   color: var(--wm-accent-fort, #1f5470);
   font-size: 30px;
   writing-mode: vertical-rl;
+}
+
+/*  « STAFF » SE LIT DE BAS EN HAUT, comme dans la maquette, et pas de
+    haut en bas. `sideways-lr` fait exactement ça : le texte garde son
+    sens de lecture et la colonne tourne dans l'autre sens.
+
+    `rotate(180deg)` aurait donné le même dessin et retourné aussi les
+    lettres sur un navigateur qui ne gère pas le mode d'écriture ; ici
+    le repli, c'est l'horizontale, et elle reste lisible. */
+#modernbb .wm-accueil__bandeau {
+  writing-mode: sideways-lr;
 }
 
 /*  ── LE BANDEAU DU STAFF : PEINT, PLUS TÉLÉCHARGÉ ──────────────────
@@ -319,17 +348,24 @@
   justify-content: center;
   padding: var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
+  /*  35 % ET PAS 45, ET C'EST LE MOT QUI LE DÉCIDE. Callista veut
+      « Staff » en bleu — `accent-fort`, le bleu de la charte. Mesuré
+      sur le dégradé à 45 % : 4,00 en clair et 3,88 en sombre, sous la
+      barre des deux côtés. Foncer le fond empire tout (le mot est
+      bleu lui aussi, on les rapproche) ; l'éclaircir écarte. À 35 % :
+      **4,74 en clair, 4,96 en sombre**, et le bas du dégradé est à
+      6,45 et 11,32. Un seul chiffre changé, aucune couleur inventée. */
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--wm-accent-primaire, #2b6988) 45%, var(--wm-fond-surface, #fffbf7)),
+    color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 35%, var(--wm-fond-surface, #fffbf7)),
     var(--wm-fond-douce, #f3e1d2)
   );
-  color: var(--wm-encre, #2e2018);
+  color: var(--wm-accent-fort, #1f5470);
   text-align: center;
 }
 
 #modernbb .wm-accueil__preliens .wm-accueil__titre-cote {
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
   font-size: 26px;
 }
 
@@ -377,7 +413,7 @@
 }
 
 #modernbb .wm-accueil__lien {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -448,36 +484,30 @@
       et une pastille parfaitement circulaire. On avait mis
       `rayon-md`, soit 8 px, ce qui donne un carré aux coins cassés. */
   border-radius: 999px;
-  background: var(--wm-accent-terre, #9a4f29);
+  background: var(--wm-accent-terre, #8b4725);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
-/*  L'œil d'une rangée sans adresse perd son accent : il n'annonce plus
-    rien qui s'ouvre. */
-#modernbb .wm-accueil__rapide--sans-adresse .wm-accueil__oeil {
-  background: var(--wm-bord-net, #d9c3b1);
-  color: var(--wm-texte-doux, #6e5749);
-}
+/*  ── CE QUI N'A PAS ENCORE D'ADRESSE : PLUS DE GRIS BARRÉ ──────────
 
-/*  CE QUI N'A PAS ENCORE D'ADRESSE SE VOIT. Un `<a href="">` recharge
-    la page sans rien dire ; ce gris barré dit « à remplir », et il le
-    dit à Callista avant de le dire à un visiteur.
+    Le gris barré était MON idée : montrer à Callista les trous qui
+    restent à remplir. Elle n'en veut pas — « Devenir partenaire pas
+    barré mais en bleu », et « tous les liens en bleu ». La maquette lui
+    donne raison : ses sept liens rapides y sont tous identiques.
 
-    **APRÈS les deux règles qu'il corrige**, et pas avant : à
-    spécificité égale, c'est la dernière écrite qui gagne, et la
-    première version perdait contre le `text-decoration: none` de
-    `.wm-accueil__rapide`. Mesuré par le harnais. */
-/*  `texte-pale` sur `fond-douce` : MESURÉ, parce que la planche 50
-    n'autorise ce jeton que sur `fond-page` et `fond-surface`, et que
-    celui-ci est une troisième surface. 4,64 en clair, 4,75 en sombre —
-    au-dessus de 4,5, mais de peu : ne pas éclaircir ce gris sans
-    remesurer. */
+    Le repère ne disparaît pas pour autant, il change de canal : le
+    `title` « Adresse à renseigner » reste posé par le module, et le
+    nœud reste un `<span>` et non un `<a>` — donc rien ne se clique
+    dans le vide, ce qui était le vrai enjeu. Ce qui s'en va, c'est le
+    signal VISUEL, qui faisait lire la page comme si elle était cassée.
+
+    `cursor: default` reste : un texte qui n'est pas un lien ne doit
+    pas prendre la main du lien au survol. */
 #modernbb .wm-accueil__lien--sans-adresse,
 #modernbb .wm-accueil__rapide--sans-adresse {
-  color: var(--wm-texte-pale, #756054);
   cursor: default;
-  text-decoration: line-through;
 }
+
 
 /* ── 5 · les votes ────────────────────────────────────────────────── */
 
@@ -496,7 +526,7 @@
   margin-bottom: -36px;
   margin-right: var(--wm-espace-24, 24px);
   align-items: center;
-  gap: var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-24, 24px);
 }
 
 /*  SOUS 1 100 PX, ELLE SE RANGE. Le panneau passe en colonne, la carte
@@ -513,13 +543,17 @@
   margin: 0;
 }
 
+/*  La maquette pose les quatre pastilles à 17, 62, 107 et 152 — un pas
+    de 45 pour 32 de large, donc 13 d'écart. Callista en veut plus : 16,
+    le jeton au-dessus. Et 24 entre le titre et la rangée, au lieu de
+    12, pour la même raison. */
 #modernbb .wm-accueil__votes-liste {
   display: flex;
   margin: 0;
   padding: 0;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-16, 16px);
   list-style: none;
 }
 
@@ -556,6 +590,11 @@
 #modernbb .wm-accueil__partenaires {
   min-width: 0;
   flex: 0 1 284px;
+  /*  135 dans la maquette, mais Callista la veut plus haute : la
+      rangée d'étoiles et le lien y sont à l'étroit entre les 20 px de
+      marge de la carte. 170 lui donne l'air qu'il lui manquait, et
+      c'est un minimum — avec quinze partenaires elle s'allonge. */
+  min-height: 170px;
 }
 
 #modernbb .wm-accueil__partenaires-liste {
@@ -572,7 +611,7 @@
   display: block;
   width: 24px;
   height: 24px;
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
 }
 
 #modernbb .wm-accueil__partenaire svg {
@@ -586,8 +625,11 @@
   color: var(--wm-accent-fort, #1f5470);
 }
 
+/*  Même règle que pour les liens rapides : plus de gris pour dire
+    « pas encore d'adresse ». Le `title` le dit, et le nœud n'est pas
+    un `<a>`. */
 #modernbb .wm-accueil__partenaire--sans-adresse {
-  color: var(--wm-texte-pale, #756054);
+  cursor: default;
 }
 
 #modernbb .wm-accueil__partenaire-image {
@@ -663,7 +705,7 @@
   width: 60px;
   height: 60px;
   flex: none;
-  border: 1px solid color-mix(in srgb, var(--wm-accent-primaire, #2b6988) 45%,
+  border: 1px solid color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 45%,
     var(--wm-fond-surface, #fffbf7));
   border-radius: 999px;
   background: var(--wm-fond-douce, #f3e1d2);
@@ -707,7 +749,7 @@
 }
 
 #modernbb .wm-accueil__membre-role {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -736,7 +778,7 @@
   height: 4px;
   flex: none;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--wm-accent-primaire, #2b6988) 45%, var(--wm-fond-surface,
+  background: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 45%, var(--wm-fond-surface,
     #fffbf7));
 }
 
@@ -812,7 +854,7 @@
 #modernbb .wm-accueil__prelien--ouvert .wm-accueil__prelien-bouton,
 #modernbb .wm-accueil__prelien-bouton:hover,
 #modernbb .wm-accueil__prelien-bouton:focus-visible {
-  border-color: var(--wm-accent-primaire, #2b6988);
+  border-color: var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb .wm-accueil__prelien-avatar {

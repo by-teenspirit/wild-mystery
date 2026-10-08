@@ -51,7 +51,7 @@
   width: 44px;
   height: 44px;
   border-radius: 999px;
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
   line-height: 44px;
   text-align: center;
@@ -83,7 +83,7 @@
 
 #modernbb #FAM #FAM-tabs {
   border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
-  background: var(--wm-fond-page, #f2e4d8);
+  background: var(--wm-fond-page, #eecfb5);
 }
 
 #modernbb #FAM .FAM-tab {
@@ -108,7 +108,7 @@
 }
 
 #modernbb #FAM .FAM-msg-date {
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-etiquette, 10px);
 }
 
@@ -135,15 +135,15 @@
 }
 
 #modernbb #FAM .FAM-inputbox:focus-visible {
-  border-color: var(--wm-accent-primaire, #2b6988);
-  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  border-color: var(--wm-accent-primaire, #275e7a);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 1px;
 }
 
 #modernbb #FAM .FAM-button,
 #modernbb #FAM .FAM-toolbar-button {
   border-radius: var(--wm-rayon-md, 8px);
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb #FAM .FAM-button:hover,
@@ -155,7 +155,7 @@
 }
 
 #modernbb #FAM .FAM-page-link {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 /* ── 5 · ce qu'on ne touche pas, et pourquoi ──────────────────────── */

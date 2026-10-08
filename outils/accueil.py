@@ -43,17 +43,16 @@ RACINE = pathlib.Path(__file__).resolve().parent.parent
 DONNEES = RACINE / "data" / "accueil.json"
 REPLI = RACINE / "pages" / "accueil-repli.html"
 
-#  L'ŒIL EST UN TRACÉ, PAS UNE LIGATURE. Il a été
+#  LA PUCE EST UN TRACÉ, PAS UNE LIGATURE. Elle a été
 #  `<span class="material-symbols-outlined">visibility</span>`, et le
 #  premier rendu de l'accueil affichait le mot en clair sur les sept
 #  lignes — la police n'avait pas chargé. Le même dessin est posé par
 #  `module-accueil.ts` ; les deux doivent rester d'accord, et le
 #  garde-fou n° 14 compare le bloc dérivé à sa source.
-OEIL = (
+PUCE = (
     '<svg class="wm-accueil__oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
-    '<path d="M1.8 12S5.4 5.4 12 5.4 22.2 12 22.2 12 18.6 18.6 12 18.6 1.8 12 1.8 12Z" '
-    'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>'
-    '<circle cx="12" cy="12" r="2.6" fill="currentColor"></circle>'
+    '<path d="M4 12h14M12.5 6.2 18.6 12l-6.1 5.8" fill="none" stroke="currentColor" '
+    'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>'
     "</svg>"
 )
 
@@ -125,7 +124,7 @@ def en_forum(d: dict) -> str:
     for lien in d["liens"]:
         url = str(lien.get("url", "")).strip()
         texte = echappe(lien["texte"])
-        oeil = OEIL
+        oeil = PUCE
         if url:
             dedans = f'<a class="wm-accueil__rapide" href="{echappe(url)}">{oeil}{texte}</a>'
         else:

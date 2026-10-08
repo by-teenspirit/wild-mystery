@@ -212,14 +212,14 @@
 /*  Le focus se voit sur la boîte, pas sur la zone de texte : sinon
     l'anneau passe sous la barre d'outils. */
 #modernbb .sceditor-container:focus-within {
-  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 2px;
 }
 
 /*  « Caractères : 0 Mots : 0 », sous l'éditeur. */
 #modernbb #textarea_content > div:last-child {
   margin-top: var(--wm-espace-6, 6px);
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-legende, 10.5px);
 }
 
@@ -275,7 +275,7 @@
 #modernbb .submit-buttons .button1 {
   order: 1;
   border-color: transparent;
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 

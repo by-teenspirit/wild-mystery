@@ -41,7 +41,7 @@
   --wm-interlettre-surtitre:  0.018em;
   --wm-interlettre-etiquette: 0.012em;
 
-  --wm-fond-page:          #f2e4d8;
+  --wm-fond-page:          #eecfb5;
   --wm-fond-surface:       #fffbf7;
   --wm-fond-surface-haute: #fcf4ec;
   --wm-fond-douce:         #f3e1d2;
@@ -51,13 +51,13 @@
   --wm-encre:           #2e2018;
   --wm-texte-corps:     #4e3b30;
   --wm-texte-doux:      #6e5749;
-  --wm-texte-pale:      #756054;
+  --wm-texte-pale:      #69564c;
   --wm-texte-inverse:   #fffbf7;
   --wm-texte-sur-nuit:  #fffbf7;
 
-  --wm-accent-primaire: #2b6988;
+  --wm-accent-primaire: #275e7a;
   --wm-accent-fort:     #1f5470;
-  --wm-accent-terre:    #9a4f29;
+  --wm-accent-terre:    #8b4725;
 
   --wm-bord-fin: #eadacd;
   --wm-bord-net: #d9c3b1;

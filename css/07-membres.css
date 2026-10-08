@@ -117,7 +117,7 @@
     il reste aligné d'une ligne à l'autre, d'où la largeur fixe. */
 #modernbb .memberlist-rang {
   flex: 0 0 2.2em;
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-legende, 10.5px);
   text-align: right;
   font-variant-numeric: tabular-nums;

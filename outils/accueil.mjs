@@ -142,6 +142,17 @@ div.mes-txt ul { list-style-type: disc; }
 #wrap div#page-body h2 { font-weight: 500; border-bottom: 1px solid #ccc; margin-bottom: 1em; }
 .modern-resp .panel p { word-break: break-word; }
 .modern-resp .panel div.mes-txt img { max-width: 100%; }
+/*  ET CELLE-CI ROGNAIT LA MASCOTTE. Relevee le 8 octobre dans le CSS
+    principal : ModernBB met "overflow: hidden" sur ".panel", et le
+    bloc d'accueil vit dedans. Le Krokorok est fait pour deborder de
+    60 px a gauche et de 93 en bas - il etait coupe net au bord du
+    panneau. Le harnais ne la servait pas, donc il ne pouvait pas le
+    voir.  PAS DE BACKTICK DANS CE COMMENTAIRE : il est dans un
+    gabarit JS, et un backtick y ferme la chaine. Quatrieme fois. */
+.panel { background-color: #f8f8f8; color: #444; border-radius: 3px;
+  box-shadow: 0 1px 6px rgb(0 0 0 / .06); margin-bottom: 24px;
+  overflow: hidden; position: relative; }
+.row3 { background-color: #f8f8f8; }
 `;
 
 //  L'EMPILEMENT RÉEL, relevé le même jour en remontant les parents du
@@ -301,6 +312,30 @@ dire(
   decor.deborde,
   JSON.stringify(decor),
 );
+//  ET RIEN NE LA ROGNE. ModernBB met `overflow: hidden` sur `.panel`,
+//  qui est le conteneur du message d'accueil : le Krokorok était coupé
+//  net au bord. Un rectangle ne le dit pas — l'image garde sa taille,
+//  c'est le PARENT qui la cache. On remonte donc la chaîne.
+const rognage = await p.evaluate(() => {
+  const coupables = [];
+  let n = document.querySelector(".wm-accueil__mascotte")?.parentElement ?? null;
+  while (n !== null && n !== document.documentElement) {
+    const o = getComputedStyle(n);
+    if (o.overflow !== "visible" && o.overflowX !== "visible") {
+      coupables.push(
+        (n.id ? "#" + n.id : "") + (n.className ? "." + n.className.toString().trim().split(/\s+/)[0] : n.tagName.toLowerCase()) +
+          " → " + o.overflow,
+      );
+    }
+    n = n.parentElement;
+  }
+  return coupables;
+});
+dire(
+  "ET RIEN NE LA ROGNE : aucun parent ne coupe ce qui déborde",
+  rognage.length === 0,
+  JSON.stringify(rognage),
+);
 
 // ── 3 · un lien sans adresse n'est pas un lien ──────────────────────
 const sansAdresse = await p.evaluate(() => {
@@ -310,13 +345,21 @@ const sansAdresse = await p.evaluate(() => {
   return {
     muetEstUnLien: muet.tagName === "A",
     parlantEstUnLien: parlant.tagName === "A" && parlant.getAttribute("href") === "/t1",
-    //  Et il se VOIT : sinon Callista ne saurait pas ce qui lui manque.
+    //  IL NE SE VOIT PLUS, et c'est voulu depuis le 8 octobre : « pas
+    //  barré mais en bleu ». Le gris barré était mon idée, pas la
+    //  maquette, qui montre ses sept liens identiques. Ce qui reste,
+    //  c'est le `title` — et le fait que ce ne soit pas un `<a>`.
     barre: getComputedStyle(muet).textDecorationLine,
+    infobulle: muet.getAttribute("title"),
   };
 });
 dire("UN LIEN SANS ADRESSE N'EST PAS UN LIEN", !sansAdresse.muetEstUnLien);
 dire("celui qui en a une l'a gardée", sansAdresse.parlantEstUnLien);
-dire("et le manque se voit", sansAdresse.barre.includes("line-through"), sansAdresse.barre);
+dire(
+  "ET IL N'EST NI BARRÉ NI GRIS — le manque se dit, il ne se peint plus",
+  sansAdresse.barre === "none" && sansAdresse.infobulle === "Adresse à renseigner",
+  JSON.stringify(sansAdresse),
+);
 
 // ── 2 ter · C'EST NOUS QUI GAGNONS CONTRE MODERNBB ──────────────────
 //  Le harnais sert maintenant les dix-sept règles de `10-ltr.css` qui
@@ -370,10 +413,21 @@ dire(
   cascade.filet === "0px" && cascade.sousTitre === "0px",
   JSON.stringify(cascade),
 );
+//  La VALEUR du jeton, pas une couleur recopiée : `accent-terre` a
+//  changé le 8 octobre quand le fond de page a foncé, et une couleur
+//  en dur dans un test se périme en silence.
+const terre = await p.evaluate(() => {
+  const d = document.createElement("div");
+  d.style.color = "var(--wm-accent-terre)";
+  document.body.appendChild(d);
+  const c = getComputedStyle(d).color;
+  d.remove();
+  return c;
+});
 dire(
   "et le titre a bien sa terre, que notre propre neutraliseur mangeait",
-  cascade.couleurDuTitre === "rgb(154, 79, 41)",
-  JSON.stringify(cascade),
+  cascade.couleurDuTitre === terre,
+  `${cascade.couleurDuTitre} contre ${terre}`,
 );
 
 // ── 3 bis · L'ŒIL EST UN TRACÉ, PAS UN MOT ──────────────────────────

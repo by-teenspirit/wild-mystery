@@ -64,13 +64,13 @@
   background:
     radial-gradient(
       120% 90% at 85% 100%,
-      color-mix(in srgb, var(--wm-accent-terre, #9a4f29) 14%, transparent),
+      color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
       transparent 60%
     ),
     linear-gradient(
       180deg,
       var(--wm-fond-douce, #f3e1d2) 0%,
-      var(--wm-fond-page, #f2e4d8) 55%
+      var(--wm-fond-page, #eecfb5) 55%
     );
 }
 
@@ -111,7 +111,7 @@
   align-items: center;
   margin: 0;
   padding: 26px 0 var(--wm-espace-16, 16px);
-  border-bottom: 4px solid var(--wm-accent-primaire, #2b6988);
+  border-bottom: 4px solid var(--wm-accent-primaire, #275e7a);
 }
 
 /*  Le logo, en attendant l'image : un cercle de 84 en pointillés, comme
@@ -170,7 +170,7 @@
 
 #modernbb .wm-annexe__entree--active {
   border-left-color: var(--wm-accent-fort, #1f5470);
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
 }
 
 /*  39 px de haut, texte à 22 du bord, en capitales (maquette). Le numéro
@@ -247,7 +247,7 @@
 }
 
 #modernbb .wm-annexe__titre em {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-style: normal;
   font-weight: var(--wm-graisse-demi, 600);
 }
@@ -314,7 +314,7 @@
 
 #modernbb .wm-tirets > li::before {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   content: "—";
 }
 
@@ -444,9 +444,25 @@
   background: var(--wm-fond-terre, #f8eae1);
 }
 
+/*  ── LA TEINTE EST POSÉE SUR DU CRÈME, PLUS SUR DU TRANSPARENT ─────
+
+    L'encart était une teinte à 16 % sur `transparent` : sa couleur
+    réelle dépendait donc de ce qu'il y avait DERRIÈRE. Tant que
+    c'était l'ancien `fond-page`, ça passait. Le 8 octobre le fond a
+    foncé — Callista le trouvait « vachement clair », et la maquette
+    lui donne raison — et l'étiquette « CHANGER D'AVIS » est tombée à
+    4,00.
+
+    C'est la leçon des surfaces peintes en dur, prise par l'autre
+    bout : **une couleur qui dépend de son fond se casse quand le fond
+    bouge.** La teinte prend donc `fond-surface` comme base et ne
+    dépend plus de rien — 6,49 au lieu de 4,00.
+
+    Le repli ne peut pas être translucide pour la même raison : il
+    porte la composition déjà faite. */
 #modernbb .wm-encart--paisible {
-  background: rgba(63, 122, 82, 0.16);
-  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, transparent);
+  background: #e3e6dd;
+  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, var(--wm-fond-surface, #fffbf7));
 }
 
 #modernbb .wm-encart__etiquette {

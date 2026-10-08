@@ -80,7 +80,7 @@
 #modernbb .topic-author {
   display: block;
   margin-top: var(--wm-espace-2, 2px);
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
 }
@@ -118,7 +118,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--wm-espace-6, 6px);
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-petit, 11.5px);
   text-decoration: none;
 }
@@ -145,7 +145,7 @@
   align-items: center;
   gap: var(--wm-espace-4, 4px);
 
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
@@ -164,7 +164,7 @@
 
 #modernbb .pagination a {
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb .pagination a:hover {
@@ -174,7 +174,7 @@
 /*  La page courante : pleine, comme le bouton d'action principal. Elle
     n'est pas un lien, donc elle ne doit pas en avoir l'air. */
 #modernbb .pagination strong {
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -225,7 +225,7 @@
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
 
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-petit, 11.5px);
   list-style: none;
 }

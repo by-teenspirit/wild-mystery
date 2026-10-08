@@ -51,7 +51,7 @@
   padding: 0 var(--wm-espace-20, 20px);
   border: 0;
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
   cursor: pointer;
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -64,9 +64,9 @@
 /*  Le contour fait 1,5 px dans la maquette, et c'est voulu : à 1 px il
     disparaît à côté du plein du primaire. */
 #modernbb .wm-btn--sec {
-  border: 1.5px solid var(--wm-accent-primaire, #2b6988);
+  border: 1.5px solid var(--wm-accent-primaire, #275e7a);
   background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb .wm-btn--discret {
@@ -90,7 +90,7 @@
 #modernbb a.wm-btn--discret:focus-visible,
 #modernbb button.wm-btn--discret:hover,
 #modernbb button.wm-btn--discret:focus-visible {
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -98,7 +98,7 @@
     demi et toute la rangée bouge. */
 #modernbb a.wm-btn--sec:hover,
 #modernbb button.wm-btn--sec:hover {
-  border-color: var(--wm-accent-primaire, #2b6988);
+  border-color: var(--wm-accent-primaire, #275e7a);
 }
 
 /* ── 2 · la pastille de type ──────────────────────────────────────── */
@@ -295,7 +295,7 @@
 #modernbb .wm-sujet--pv,
 #modernbb .wm-sujet--16 {
   background: var(--wm-fond-terre, #f8eae1);
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
 }
 
 /*  **`texte-doux`, PAS `texte-pale`**, et c'est la règle de la planche
@@ -356,7 +356,7 @@
     sinon la rangée saute d'un pixel au changement d'onglet. */
 #modernbb .wm-onglet--actif {
   border-color: transparent;
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -402,7 +402,7 @@
 
 #modernbb .wm-section__numero {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
@@ -440,7 +440,7 @@
     passe en `texte-doux`. */
 #modernbb .wm-section__note {
   flex: 0 0 auto;
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-weight: var(--wm-graisse-normale, 400);
 }
 
@@ -480,13 +480,13 @@
 /*  L'invite est pâle, la saisie ne l'est pas : un champ rempli qui garde
     la couleur de son invite se lit comme un champ vide. */
 #modernbb .wm-champ::placeholder {
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   opacity: 1;
 }
 
 #modernbb .wm-champ:focus-visible {
-  border-color: var(--wm-accent-primaire, #2b6988);
-  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  border-color: var(--wm-accent-primaire, #275e7a);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 1px;
 }
 
@@ -519,7 +519,7 @@
   content: "›";
   display: inline-block;
   margin-right: var(--wm-espace-10, 10px);
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
 }
 
 /*  La page courante : plus sombre que les étapes, et `aria-current` le
@@ -536,7 +536,7 @@
 
 #modernbb .wm-crumbs__action {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
 }
@@ -577,7 +577,7 @@
 
 #modernbb .wm-titre-page__surtitre {
   margin: 0;
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -604,7 +604,7 @@
 }
 
 #modernbb .wm-titre-page__manuscrit {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
   font-size: 44px;
   font-weight: var(--wm-graisse-normale, 400);
@@ -656,7 +656,7 @@
   overflow: hidden;
   border: 1px dashed var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-page, #f2e4d8);
+  background: var(--wm-fond-page, #eecfb5);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
@@ -666,13 +666,13 @@
 }
 
 #modernbb .wm-dex--capture {
-  border: 1.5px solid var(--wm-accent-primaire, #2b6988);
+  border: 1.5px solid var(--wm-accent-primaire, #275e7a);
   background: var(--wm-fond-surface, #fffbf7);
 }
 
 #modernbb .wm-dex__numero {
   margin: 0;
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: 9px;
   font-weight: var(--wm-graisse-gras, 700);
 }
@@ -694,7 +694,7 @@
 #modernbb .wm-dex__nom {
   width: 96px;
   margin: 0;
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   text-align: center;
@@ -739,7 +739,7 @@
   top: 49px;
   right: 5px;
   margin: 0;
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: 9px;
   font-weight: var(--wm-graisse-gras, 700);
   line-height: 1;
@@ -796,7 +796,7 @@
 }
 
 #modernbb .wm-objet__quantite {
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
@@ -1004,12 +1004,12 @@
 }
 
 #modernbb .wm-chrono__entree--en-cours::before {
-  border-color: var(--wm-accent-terre, #9a4f29);
-  background: var(--wm-accent-terre, #9a4f29);
+  border-color: var(--wm-accent-terre, #8b4725);
+  background: var(--wm-accent-terre, #8b4725);
 }
 
 #modernbb .wm-chrono__entree--a-venir::before {
-  background: var(--wm-fond-page, #f2e4d8);
+  background: var(--wm-fond-page, #eecfb5);
 }
 
 /*  Le segment vers l'entrée suivante. `calc` le fait partir du bas du
@@ -1041,7 +1041,7 @@
 
 #modernbb .wm-chrono__date {
   margin: 0;
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
@@ -1050,7 +1050,7 @@
 }
 
 #modernbb .wm-chrono__entree--a-venir .wm-chrono__date {
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
 }
 
 #modernbb .wm-chrono__titre {
@@ -1088,7 +1088,7 @@
   overflow: hidden;
   border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-douce, #f3e1d2);
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-etiquette, 10px);
   line-height: var(--wm-interligne-etiquette, 1.3);
 }
@@ -1135,7 +1135,7 @@
 /*  La plus récente prend l'accent terre — un seul point allumé à la fois,
     et c'est le premier de la pile. */
 #modernbb .wm-news__entree:first-child::before {
-  background: var(--wm-accent-terre, #9a4f29);
+  background: var(--wm-accent-terre, #8b4725);
 }
 
 #modernbb .wm-news__entree::after {
@@ -1167,7 +1167,7 @@
   min-width: 48px;
   margin: 0;
   white-space: nowrap;
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
@@ -1191,11 +1191,21 @@
       l'écrit ici : un composant qui ne tient que par une règle du
       thème se découvre cassé le jour où le thème change. La maquette
       ne souligne aucun titre de nouvelle. */
-  color: var(--wm-encre, #2e2018);
+  /*  BLEU, comme tous les liens — demandé le 8 octobre. Le titre d'une
+      nouvelle EST un lien : lui donner l'encre du corps le faisait
+      passer pour du texte, et on ne savait pas qu'on pouvait cliquer.
+      Une nouvelle sans adresse garde l'encre, elle (règle suivante). */
+  color: var(--wm-accent-primaire, #275e7a);
   text-decoration: none;
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+/*  Sauf quand il n'y a pas d'adresse : ce n'est plus un lien, donc
+    plus le bleu des liens. Le module pose alors un `<span>`. */
+#modernbb span.wm-news__titre {
+  color: var(--wm-encre, #2e2018);
 }
 
 #modernbb .wm-news__categorie {

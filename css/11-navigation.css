@@ -357,7 +357,7 @@
   box-sizing: border-box;
   padding: 0 4px;
   border-radius: 999px;
-  background: var(--wm-accent-terre, #9a4f29);
+  background: var(--wm-accent-terre, #8b4725);
   color: var(--wm-texte-inverse, #fffbf7);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -442,11 +442,31 @@
   max-width: 100%;
 }
 
-/*  « Voir toutes les notifications » ferme la liste : il se détache. */
+/*  « Voir toutes les notifications » ferme la liste : il se détache.
+
+    REPRIS LE 8 OCTOBRE sur la demande de Callista, qui a relu la règle
+    de Forumactif ligne par ligne. Ce qu'elle en garde et ce qu'elle en
+    jette :
+
+      · `color: #fff` — JETÉ. Blanc en dur sur un fond qui suit le
+        thème : illisible en clair. La couleur vient du lien, comme
+        partout ailleurs dans la liste.
+      · `background-color: #333` — REMPLACÉ par `fond-douce`, qui est
+        le jeton de la surface douce et se retourne avec le thème.
+      · `border-radius: 0 0 3px 3px` — JETÉ : la liste porte déjà le
+        sien, et 3 n'est pas notre rayon.
+      · `text-align: center` — JETÉ. Les autres lignes sont à gauche,
+        et une dernière ligne centrée sous une pile alignée à gauche
+        se lit comme un pied de page qu'on n'a pas demandé.
+      · le rembourrage de 12 × 18 est GARDÉ, c'est lui qui en fait une
+        vraie cible. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all {
   margin-top: var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-18, 18px);
+  background-color: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-primaire, #275e7a);
   font-weight: var(--wm-graisse-gras, 700);
-  text-align: center;
+  text-align: left;
 }
 
 /*  Les apparitions en direct : elles sortaient à `right: 47px` par
@@ -603,7 +623,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 #modernbb .wm-nav__icone {
   flex: 0 0 auto;
   width: 22px;
-  color: var(--wm-accent-terre, #9a4f29);
+  color: var(--wm-accent-terre, #8b4725);
   font-size: 22px;
   line-height: 22px;
 }
@@ -806,12 +826,12 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
 /*  Le personnage en jeu : son nom prend l'accent, et « en jeu » est
     ÉCRIT. Un surlignage seul ne se lit pas à haute voix. */
 #modernbb .wm-panneau__personnage--actif .wm-panneau__nom {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb .wm-panneau__en-jeu {
   flex: 0 0 auto;
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-petit, 11.5px);
   white-space: nowrap;
 }
@@ -912,7 +932,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   width: 20px;
   height: 20px;
   border-radius: 999px;
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -959,7 +979,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
     mot « à venir », qui se lit ; la couleur, elle, ne disait rien de
     plus et faisait tache. */
 #modernbb .wm-compte__entree--a-venir .wm-compte__pastille {
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -1080,7 +1100,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-page, #f2e4d8);
+  background: var(--wm-fond-page, #eecfb5);
   color: var(--wm-encre, #2e2018);
   font-family: inherit;
   font-size: var(--wm-taille-normal, 13.5px);
@@ -1091,7 +1111,7 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
   border: 0;
   border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
   cursor: pointer;
   font-family: inherit;

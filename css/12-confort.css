@@ -133,8 +133,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     seule ne suffirait pas : on prend le fond d'accent, comme un état
     coché ailleurs dans la charte. */
 #modernbb .wm-confort--ouvert .wm-confort__bouton {
-  border-color: var(--wm-accent-primaire, #2b6988);
-  background: var(--wm-accent-primaire, #2b6988);
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -241,11 +241,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex: none;
   border: 1.5px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-sm, 6px);
-  background: var(--wm-fond-page, #f2e4d8);
+  background: var(--wm-fond-page, #eecfb5);
 }
 
 #modernbb .wm-confort__choix--coche {
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -336,7 +336,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   height: 26px;
   padding: 0 var(--wm-espace-6, 6px);
   border-radius: 999px;
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);

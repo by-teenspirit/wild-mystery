@@ -88,38 +88,40 @@ function etoile(doc: Document): SVGSVGElement {
   return s;
 }
 
-/** L'œil des liens rapides, en tracé.
+/** La puce des liens rapides, en tracé.
  *
- *  IL A ÉTÉ UNE LIGATURE MATERIAL, ET ÇA S'EST VU. Une ligature n'est
- *  pas une icône : c'est le mot `visibility` écrit en clair, que la
- *  police remplace par un dessin SI elle charge. Au premier rendu de
- *  l'accueil, elle n'avait pas chargé, et les sept lignes affichaient le
- *  mot — barré, sur les deux liens sans adresse. Même règle que le coin
- *  d'outils : les icônes sont des tracés. */
-function oeil(doc: Document): SVGSVGElement {
+ *  ── ELLE A ÉTÉ UN ŒIL, ET L'ŒIL NE DISAIT RIEN ─────────────────────
+ *
+ *  La maquette met `visibility` dans la pastille, donc un œil, et on
+ *  l'a recopié. Callista le 8 octobre : « une icône adaptée pour les
+ *  liens rapides ». Elle a raison, et la raison est simple : un œil
+ *  veut dire « voir », « afficher », « révéler ». Ces sept entrées ne
+ *  révèlent rien — ce sont des liens vers sept pages. Ce qu'elles
+ *  font, c'est EMMENER.
+ *
+ *  Donc une flèche vers la droite, qui est le signe de « va là ». Elle
+ *  garde la pastille ronde terre de la maquette, sa taille et sa place
+ *  — c'est le pictogramme dedans qui change, rien d'autre.
+ *
+ *  Tracée, pas en ligature : c'est la règle du coin d'outils, et elle
+ *  nous a déjà coûté une page affichant le mot « visibility » en clair
+ *  sur sept lignes. */
+function puce(doc: Document): SVGSVGElement {
   const s = doc.createElementNS(SVG, "svg");
   s.setAttribute("viewBox", "0 0 24 24");
   s.setAttribute("class", "wm-accueil__oeil");
   s.setAttribute("aria-hidden", "true");
   s.setAttribute("focusable", "false");
-  //  La paupière en deux arcs, et l'iris au milieu. Deux tracés plutôt
-  //  qu'un seul : l'iris est plein, la paupière ne l'est pas.
-  const paupiere = doc.createElementNS(SVG, "path");
-  paupiere.setAttribute(
-    "d",
-    "M1.8 12S5.4 5.4 12 5.4 22.2 12 22.2 12 18.6 18.6 12 18.6 1.8 12 1.8 12Z",
-  );
-  paupiere.setAttribute("fill", "none");
-  paupiere.setAttribute("stroke", "currentColor");
-  paupiere.setAttribute("stroke-width", "1.7");
-  paupiere.setAttribute("stroke-linejoin", "round");
-  const iris = doc.createElementNS(SVG, "circle");
-  iris.setAttribute("cx", "12");
-  iris.setAttribute("cy", "12");
-  iris.setAttribute("r", "2.6");
-  iris.setAttribute("fill", "currentColor");
-  s.appendChild(paupiere);
-  s.appendChild(iris);
+  const p = doc.createElementNS(SVG, "path");
+  //  La hampe et la pointe en un seul tracé, à bouts ronds : la
+  //  pastille fait 12 px de côté, un angle vif y bave.
+  p.setAttribute("d", "M4 12h14M12.5 6.2 18.6 12l-6.1 5.8");
+  p.setAttribute("fill", "none");
+  p.setAttribute("stroke", "currentColor");
+  p.setAttribute("stroke-width", "2.4");
+  p.setAttribute("stroke-linecap", "round");
+  p.setAttribute("stroke-linejoin", "round");
+  s.appendChild(p);
   return s;
 }
 
@@ -168,7 +170,7 @@ function blocLiens(doc: Document, a: Accueil): HTMLElement | null {
     //  L'œil est AVANT le texte, comme la maquette, et il est posé
     //  après coup pour que `lienOuTexte` reste le seul endroit qui
     //  décide du lien.
-    rangee.insertBefore(oeil(doc), rangee.firstChild);
+    rangee.insertBefore(puce(doc), rangee.firstChild);
     li.appendChild(rangee);
     ul.appendChild(li);
   }

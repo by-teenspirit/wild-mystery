@@ -90,7 +90,7 @@
     fond porte déjà la zébrure, et empiler les deux rendrait une ligne
     paire prise indiscernable d'une ligne impaire ordinaire. */
 #modernbb .wm-boutique__article--pris {
-  box-shadow: inset 3px 0 0 0 var(--wm-accent-primaire, #2b6988);
+  box-shadow: inset 3px 0 0 0 var(--wm-accent-primaire, #275e7a);
 }
 
 /* ── les commandes, ajoutées par le script ───────────────────────── */
@@ -149,7 +149,7 @@
 }
 
 #modernbb .wm-boutique__pas:focus-visible {
-  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 2px;
 }
 
@@ -180,7 +180,7 @@
   padding: 10px 18px;
   border: 1.5px solid transparent;
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
   cursor: pointer;
 
@@ -201,7 +201,7 @@
 }
 
 #modernbb .wm-boutique__valider:focus-visible {
-  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 2px;
 }
 

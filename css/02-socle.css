@@ -37,7 +37,7 @@
 /*  Famille, couleur et fond, mais SURTOUT PAS la taille : voir le piège
     n°1 en tête de fichier. */
 body#modernbb {
-  background: var(--wm-fond-page, #f2e4d8);
+  background: var(--wm-fond-page, #eecfb5);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-variation-settings: var(--wm-police-corps-axes, "wdth" 100, "YTLC" 500);
@@ -92,7 +92,7 @@ body#modernbb {
     plutôt qu'une par une au fil des découvertes. */
 html,
 #modernbb #wrap {
-  background: var(--wm-fond-page, #f2e4d8);
+  background: var(--wm-fond-page, #eecfb5);
 }
 
 /*  La bannière du haut. ModernBB la veut sombre dans les deux modes, et
@@ -122,7 +122,50 @@ html,
 #modernbb .module,
 #modernbb .panel {
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
+
+  /*  LE FOND S'EN VA, demandé par Callista le 8 octobre. `.panel` est
+      le conteneur du message d'accueil, donc du bloc d'accueil : lui
+      donner `fond-surface` posait une surface crème derrière un
+      panneau qui a déjà la sienne, et on voyait deux cartes empilées
+      au lieu d'une. Les autres — `.block`, `.overview`, `.module` —
+      suivent, ils portent le même rôle.
+
+      `transparent` ET PAS LA RÈGLE SUPPRIMÉE, et la différence se
+      voit à l'œil. La commenter rend la main à ModernBB, qui met
+      `#f8f8f8` : en thème sombre, une bande BLANCHE en haut du bloc
+      d'accueil, mesurée à (248,248,248) dans le rendu du 8 octobre.
+      Ne rien dire, ici, c'est laisser dire quelqu'un d'autre.
+
+      Ils gardent leur rayon : c'est la forme, pas la peinture. Ce qui
+      a besoin d'un fond le déclare pour lui (`.forabg`, `.forumbg`,
+      `.wm-accueil__panneau`, les cartes de la feuille 14). */
+  background: transparent;
+}
+
+/*  ── ET LE RESTE DE CE QUE MODERNBB POSE SUR `.panel` ───────────────
+
+    Son CSS de base lui met un fond, une ombre, `color: #444` et un
+    rayon de 3 px — relevés le 8 octobre dans le CSS principal. Les
+    quatre sont à défaire : le fond et l'ombre pour la raison
+    ci-dessus, la couleur parce qu'elle ignore le thème, le rayon
+    parce que c'est 10 chez nous.
+
+    `overflow: visible` est le plus important des quatre. ModernBB met
+    `overflow: hidden`, et le bloc d'accueil vit DANS un `.panel` :
+    c'est ce qui rognait la mascotte, qui est faite pour déborder de
+    60 px à gauche et de 93 en bas. « L'image du escrocro doit sortir
+    et pas être crop. »
+
+    `.row3` prend le même traitement : c'est la troisième zébrure, et
+    elle est peinte en dur comme les deux autres (02 §surfaces). */
+#modernbb .panel {
+  overflow: visible;
+  box-shadow: none;
+  color: inherit;
+}
+
+#modernbb .row3 {
+  background-color: transparent;
 }
 
 /*  LA CINQUIÈME ET LA SIXIÈME SURFACE PEINTE EN DUR, relevées sur
@@ -299,7 +342,7 @@ html,
 }
 
 #modernbb .sub-header-path a:hover {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 /* ── 2 · les titres ───────────────────────────────────────────────── */
@@ -379,7 +422,7 @@ html,
     et `texte/pale`. */
 #modernbb .gensmall,
 #modernbb .lastpost-infos {
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
 }
@@ -414,7 +457,7 @@ html,
     navigation ira avec la feuille qui prendra sa surface, pas avant. */
 #modernbb a:not([class]),
 #modernbb .postbody a {
-  color: var(--wm-accent-primaire, #2b6988);
+  color: var(--wm-accent-primaire, #275e7a);
   text-decoration: none;
 }
 
@@ -498,7 +541,7 @@ html,
 #modernbb .mainoption,
 #modernbb input[type="submit"].mainoption {
   border-color: transparent;
-  background: var(--wm-accent-primaire, #2b6988);
+  background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
@@ -547,7 +590,7 @@ html,
 }
 
 #modernbb ::placeholder {
-  color: var(--wm-texte-pale, #756054);
+  color: var(--wm-texte-pale, #69564c);
   opacity: 1; /* Firefox le descend à 0.54 sans ça, et ça passe sous 4,5:1 */
 }
 
@@ -555,7 +598,7 @@ html,
     le bleu du système. Une ligne, et c'est tout ce qu'il faut. */
 #modernbb input[type="checkbox"],
 #modernbb input[type="radio"] {
-  accent-color: var(--wm-accent-primaire, #2b6988);
+  accent-color: var(--wm-accent-primaire, #275e7a);
 }
 
 /* ── 7 · le focus, partout ────────────────────────────────────────── */
@@ -575,7 +618,7 @@ html,
 #modernbb select:focus-visible,
 #modernbb textarea:focus-visible,
 #modernbb [tabindex]:focus-visible {
-  outline: 2px solid var(--wm-accent-primaire, #2b6988);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 2px;
   border-radius: var(--wm-rayon-xs, 4px);
 }
@@ -594,7 +637,7 @@ html,
 #modernbb input:focus,
 #modernbb select:focus,
 #modernbb textarea:focus {
-  border-color: var(--wm-accent-primaire, #2b6988);
+  border-color: var(--wm-accent-primaire, #275e7a);
 }
 
 /* ── 8 · ce qui doit rester atteignable ───────────────────────────── */
@@ -742,7 +785,7 @@ html#min-width {
   bottom: 0;
   left: 0;
   height: 96px;
-  background: linear-gradient(to bottom, transparent, var(--wm-fond-page, #f2e4d8));
+  background: linear-gradient(to bottom, transparent, var(--wm-fond-page, #eecfb5));
   pointer-events: none;
 }
 
