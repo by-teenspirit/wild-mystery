@@ -83,8 +83,18 @@ const DONNEES = {
     titre: "Actualités",
     lien: { texte: "Toutes les annonces", url: "/f1" },
     liste: [
-      { date: "18 sept", titre: "Le Festival du Soleil ouvre ses stands", categorie: "événement", url: "/t20" },
-      { date: "12 sept", titre: "Le carnet de bord est en ligne", categorie: "mise à jour", url: "" },
+      {
+        date: "18 sept",
+        titre: "Le Festival du Soleil ouvre ses stands",
+        categorie: "événement",
+        url: "/t20",
+      },
+      {
+        date: "12 sept",
+        titre: "Le carnet de bord est en ligne",
+        categorie: "mise à jour",
+        url: "",
+      },
     ],
   },
   preliens: {
@@ -326,7 +336,9 @@ const rognage = await p.evaluate(() => {
     const o = getComputedStyle(n);
     if (o.overflow !== "visible" && o.overflowX !== "visible") {
       coupables.push(
-        (n.id ? "#" + n.id : "") + (n.className ? "." + n.className.toString().trim().split(/\s+/)[0] : n.tagName.toLowerCase()) +
+        (n.id ? "#" + n.id : "") + (n.className
+          ? "." + n.className.toString().trim().split(/\s+/)[0]
+          : n.tagName.toLowerCase()) +
           " → " + o.overflow,
       );
     }
@@ -530,7 +542,11 @@ async function ouvrirLaBulle() {
 }
 
 const ouverte = await ouvrirLaBulle();
-dire("elle s'ouvre au clic", ouverte.deplie === "true" && ouverte.l > 0, JSON.stringify(ouverte));
+dire(
+  "elle s'ouvre au clic",
+  ouverte.deplie === "true" && ouverte.l > 0,
+  JSON.stringify(ouverte),
+);
 dire(
   "ELLE DIT LES TROIS CHOSES DEMANDÉES : le lien attendu, qui l'attend, et le sujet",
   ouverte.texte.includes("Un rival d'enfance") &&
@@ -538,7 +554,11 @@ dire(
     ouverte.lien === "/t42-prelien",
   JSON.stringify(ouverte),
 );
-dire("et elle ne sort pas de l'écran", ouverte.dedans && !ouverte.debord, JSON.stringify(ouverte));
+dire(
+  "et elle ne sort pas de l'écran",
+  ouverte.dedans && !ouverte.debord,
+  JSON.stringify(ouverte),
+);
 
 //  ── LES TROIS ÉTAGES DU PANNEAU ─────────────────────────────────────
 //  Il disait ses trois choses d'une seule voix : nom, clés et valeurs à
@@ -819,12 +839,23 @@ const cotes = await p.evaluate((liste) => {
     lu[nom] = e === null ? null : Math.round(e.getBoundingClientRect().top - panneau.top);
   }
   const bande = r(".wm-accueil__bande");
-  //  Les trois départs de la bande du haut.
-  const departs = {
-    contexte: Math.round(r(".wm-accueil__contexte").top - panneau.top),
-    liens: Math.round(r(".wm-accueil__liens").top - panneau.top),
-    bandeau: Math.round(r(".wm-accueil__bandeau").top - panneau.top),
+  //  LES TROIS ARRIVÉES de la bande du haut, et plus les départs. Le
+  //  staff s'aligne par le BAS depuis le 8 octobre : « tu as pas
+  //  aligné l'image du staff avec les liens rapides et le contexte en
+  //  bas ». Son haut tombe donc où il tombe, et le mesurer figerait
+  //  une conséquence au lieu de la règle.
+  const arrivees = {
+    contexte: Math.round(r(".wm-accueil__contexte").bottom - panneau.top),
+    liens: Math.round(r(".wm-accueil__liens").bottom - panneau.top),
+    bandeau: Math.round(r(".wm-accueil__bandeau").bottom - panneau.top),
   };
+  //  ET LE BLOC DU STAFF COMMENCE SOUS LA CARTE DES VOTES, pas à côté
+  //  d'elle : « il doit s'aligner entre le bas des votes et le haut
+  //  des actu ». C'est le bloc entier maintenant, bandeau compris, et
+  //  pas seulement les membres.
+  const sousLesVotesLeBloc = Math.round(
+    r(".wm-accueil__staff").top - r(".wm-accueil__votes").bottom,
+  );
   //  ET LES MEMBRES PASSENT TOUJOURS SOUS LA CARTE DES VOTES. C'est
   //  eux qu'elle croise — le bandeau, non : elle va de 1021 à 1268, il
   //  s'arrête à 849. Le jour où l'un des deux s'élargit, cette mesure
@@ -835,8 +866,12 @@ const cotes = await p.evaluate((liste) => {
   const sousLesVotes = Math.round(m0.top - votes.bottom);
   const ecarts = {
     "la remontée des actualités": Math.round(bande.bottom - r(".wm-accueil__actus").top),
-    "la descente de la bande du bas": Math.round(r(".wm-accueil__partenaires").top - bande.bottom),
-    "la moitié dedans de la carte des votes": Math.round(r(".wm-accueil__votes").bottom - panneau.top),
+    "la descente de la bande du bas": Math.round(
+      r(".wm-accueil__partenaires").top - bande.bottom,
+    ),
+    "la moitié dedans de la carte des votes": Math.round(
+      r(".wm-accueil__votes").bottom - panneau.top,
+    ),
     "la vignette de vote": Math.round(r(".wm-accueil__vote-image").height),
     "la bulle de pré-lien": Math.round(r(".wm-accueil__prelien-bouton").height),
   };
@@ -874,9 +909,15 @@ const cotes = await p.evaluate((liste) => {
       return Math.round(parseFloat(b.paddingBottom));
     })(),
     //  Et la carte des actualités remonte jusqu'à eux, pas dedans.
-    sousLesMembres: Math.round(r(".wm-accueil__actus").top - membres[membres.length - 1].bottom),
-    retraitAvatar: parseFloat(getComputedStyle(document.querySelector(".wm-accueil__membre-avatar")).paddingTop),
-    pseudo: parseFloat(getComputedStyle(document.querySelector(".wm-accueil__membre-pseudo")).fontSize),
+    sousLesMembres: Math.round(
+      r(".wm-accueil__actus").top - membres[membres.length - 1].bottom,
+    ),
+    retraitAvatar: parseFloat(
+      getComputedStyle(document.querySelector(".wm-accueil__membre-avatar")).paddingTop,
+    ),
+    pseudo: parseFloat(
+      getComputedStyle(document.querySelector(".wm-accueil__membre-pseudo")).fontSize,
+    ),
     tags: [...document.querySelectorAll(".wm-accueil__tag")].map((a) => [
       a.textContent,
       a.getAttribute("href"),
@@ -919,7 +960,8 @@ const cotes = await p.evaluate((liste) => {
     chevauche: Math.round(Math.min(m.right, carte.right) - Math.max(m.left, carte.left)),
   };
   return {
-    departs,
+    arrivees,
+    sousLesVotesLeBloc,
     votes: { croiseEnX, sousLesVotes },
     bas,
     rangeesDePartenaires: rangees,
@@ -939,20 +981,27 @@ for (const [, attendu, nom] of COTES) {
     `relevé ${cotes.lu[nom]}`,
   );
 }
-for (const [nom, attendu] of Object.entries({
-  "la remontée des actualités": 77,
-  "la descente de la bande du bas": 32,
-  "la moitié dedans de la carte des votes": 36,
-  "la vignette de vote": 26,
-  "la bulle de pré-lien": 75,
-})) {
+for (
+  const [nom, attendu] of Object.entries({
+    "la remontée des actualités": 77,
+    "la descente de la bande du bas": 32,
+    "la moitié dedans de la carte des votes": 36,
+    "la vignette de vote": 26,
+    "la bulle de pré-lien": 75,
+  })
+) {
   dire(`${nom} vaut ${attendu}`, cotes.ecarts[nom] === attendu, `relevé ${cotes.ecarts[nom]}`);
 }
 
 dire(
-  "LE BANDEAU DU STAFF PART DE LA MÊME LIGNE QUE LE CONTEXTE ET LES LIENS",
-  new Set(Object.values(cotes.departs)).size === 1,
-  JSON.stringify(cotes.departs),
+  "LE BANDEAU DU STAFF FINIT SUR LA MÊME LIGNE QUE LE CONTEXTE ET LES LIENS",
+  new Set(Object.values(cotes.arrivees)).size === 1,
+  JSON.stringify(cotes.arrivees),
+);
+dire(
+  "et le bloc du staff commence sous la carte des votes",
+  cotes.sousLesVotesLeBloc >= 0,
+  `${cotes.sousLesVotesLeBloc} px sous la carte`,
 );
 dire(
   "et les membres passent sous la carte des votes, qu'eux seuls croisent",

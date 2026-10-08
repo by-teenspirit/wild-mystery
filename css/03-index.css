@@ -150,14 +150,14 @@
   padding: 0 var(--wm-espace-16, 16px);
   background:
     linear-gradient(
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
-    )
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+  )
     left center / 1px 18px no-repeat,
     linear-gradient(
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
-    )
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+  )
     right center / 1px 18px no-repeat;
 }
 
@@ -257,6 +257,37 @@
     "pastille identite messages dernier";
   align-items: center;
   column-gap: 10px;
+  /*  `row-gap: 0` EXPLICITEMENT. La feuille 01 pose `gap: 18px` sur ce
+      même nœud, du temps où c'était une rangée souple ; en grille, ce
+      raccourci devient aussi un écart ENTRE LES DEUX RANGÉES, et les
+      deux compteurs se retrouvaient à 18 l'un de l'autre. La ligne
+      montait à 147 au lieu de 92. Déclarer l'axe qu'on veut ne suffit
+      pas : il faut annuler l'autre. */
+  row-gap: 0;
+  /*  ── ET LES DEUX RANGÉES SONT FIXES, 36 ET 36 ───────────────────
+
+      « On est loin de la maquette », 8 octobre. Ce qu'on voyait :
+      vingt-six lignes de 92, 93, 97, 103 et 107, c'est-à-dire aucune
+      ligne de la même hauteur que sa voisine. La maquette en dessine
+      une seule, 92, répétée.
+
+      Le `min-height` ne pouvait pas y suffire : il pose un plancher,
+      et c'est le contenu le plus haut qui décidait du reste — ici le
+      bloc du dernier message, là les trois lignes de description, là
+      les deux compteurs. Trois limiteurs différents selon la ligne,
+      donc trois hauteurs.
+
+      Deux rangées de 36 font 72, plus 2 × 10 de rembourrage : 92,
+      exactement, et sans dépendre de ce qu'il y a dedans. Ce qui
+      dépasse est coupé proprement, cellule par cellule, plus bas.
+
+      C'EST UNE DÉCISION, pas un repli : sur une liste, l'œil suit le
+      bord gauche et compte les lignes. Une hauteur qui varie de
+      quinze pixels d'une ligne à l'autre casse ce balayage, et c'est
+      exactement ce qui faisait « pas la maquette » avant même qu'on
+      regarde un détail. */
+  grid-template-rows: 36px 36px;
+  align-content: center;
   padding: var(--wm-espace-10, 10px) var(--wm-espace-18, 18px);
   /*  L'icône du forum est un fond posé par ModernBB sur ce nœud. La
       première colonne de la grille lui garde sa place ; sans elle, le
@@ -268,7 +299,23 @@
 #modernbb ul.topiclist li.row dd.dterm {
   grid-area: identite;
   padding: 0;
+  overflow: hidden;
 }
+
+/*  LA DESCRIPTION SE COUPE AU PIXEL, ET C'EST ASSUMÉ.
+
+    On a essayé `-webkit-line-clamp`, qui coupe sur une ligne entière
+    et pose les points de suspension. IL NE PEUT PAS S'APPLIQUER ICI :
+    le gabarit de ModernBB écrit `<div style="display: block; margin :
+    0 0px 0 45px">` autour du titre et de la description — un style EN
+    LIGNE, et aucun sélecteur ne bat un style en ligne. Lui donner
+    `display: -webkit-box` demanderait un second `!important` dans un
+    projet qui n'en compte qu'un, et pour une coupe de deux pixels.
+
+    Le `overflow: hidden` du `dd` au-dessus suffit donc : la ligne
+    fait 92, la description entre ou elle est rognée. Relevé à
+    l'écran sur la plus longue du forum — « Notice d'utilisation »,
+    cinq lignes à 1 440 — le texte s'arrête après la quatrième. */
 
 /*  ── LES DEUX `<br>` DU TEMPLATE NE PÈSENT PLUS RIEN ───────────────
 
@@ -299,7 +346,11 @@
 #modernbb ul.topiclist li.row dd.lastpost {
   grid-area: dernier;
   align-self: stretch;
-  padding-left: var(--wm-espace-10, 10px);
+  /*  Le rembourrage de 18 que ModernBB met sur toutes les cellules
+      s'ajoutait à la hauteur de l'avatar : 56 + 36 = 92 pour cette
+      seule cellule, et c'est elle qui tirait la ligne. Ici, rien à
+      gauche sauf les dix pixels qui séparent le texte du filet. */
+  padding: 0 0 0 var(--wm-espace-10, 10px);
   border-left: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
@@ -397,12 +448,133 @@
   text-transform: uppercase;
 }
 
+/*  ── SUR TÉLÉPHONE, LA LIGNE S'EMPILE ──────────────────────────────
+
+    LE TITRE DU FORUM ÉTAIT INVISIBLE À 390. Relevé à l'écran en
+    vérifiant autre chose : les quatre colonnes de la grille sont
+    fixes sauf l'identité, et 48 + 104 + 212 plus trois écarts de 10
+    font 394 — quatre de plus que l'écran. `minmax(0, 1fr)` fait ce
+    qu'on lui demande et donne zéro à l'identité. Le nom du forum
+    n'était pas coupé : il n'était pas là.
+
+    On passe donc à deux colonnes et trois rangées : l'identité à
+    côté de la pastille, les deux compteurs côte à côte en dessous,
+    le dernier message sur toute la largeur.
+
+    La hauteur ne reste pas fixe — 92 sur un écran de 390 ne tient
+    pas trois rangées. L'identité garde ses 72 pour que la liste
+    reste une liste et pas une suite de paragraphes ; le reste
+    s'ajuste. Le filet du dernier message part avec : il séparait
+    deux colonnes qui n'en sont plus. */
+@media (max-width: 740px) {
+  #modernbb ul.topiclist li.row dl.icon {
+    grid-template-columns: 48px minmax(0, 1fr);
+    grid-template-rows: 72px 36px auto;
+    grid-template-areas:
+      "pastille identite"
+      "sujets messages"
+      "dernier dernier";
+    align-content: start;
+    row-gap: var(--wm-espace-10, 10px);
+  }
+
+  #modernbb ul.topiclist li.row dd.lastpost {
+    max-height: none;
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
 /* ── 5 · la dernière réponse ──────────────────────────────────────── */
 
 #modernbb ul.topiclist li.row dd.lastpost {
   display: flex;
+  max-height: 72px;
   align-items: center;
   gap: var(--wm-espace-10, 10px);
+  /*  La ligne mesure 92 quoi qu'il arrive (voir les rangées fixes
+      plus haut) ; cette cellule ne doit donc pas chercher à la
+      pousser. 72, c'est les deux rangées de 36 : ce qui dépasse est
+      coupé ici plutôt que de déformer la liste entière. */
+  overflow: hidden;
+}
+
+/*  ── LA CELLULE DU DERNIER MESSAGE FAISAIT 127 DE HAUT ─────────────
+
+    C'est elle qui tirait la ligne à 147, et pas la grille : la vignette
+    à 78 avec son rembourrage, et les informations à 91 — un titre de
+    sujet, deux sauts de ligne de 14, une date, un auteur, et une
+    flèche de 5. La maquette leur donne 56 en tout.
+
+    Les mêmes deux `<br>` que sous le titre du forum, et le même
+    remède : ils gardent leur rôle de séparateur, ils perdent leur
+    hauteur. L'interligne descend à 1,3 — trois lignes serrées, comme
+    dans le dessin, où le sujet fait 16 et la ligne « qui · quand »
+    14. */
+#modernbb ul.topiclist li.row .lastpost-infos {
+  position: relative;
+  display: block;
+  padding-right: 16px;
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb ul.topiclist li.row .lastpost-infos br {
+  line-height: 0;
+}
+
+/*  ── CINQ LIGNES POUR TROIS, ET POURQUOI `line-height: 0` N'Y FAIT
+       RIEN ─────────────────────────────────────────────────────────
+
+    Le bloc faisait encore 77 après le remède ci-dessus, pour un
+    contenu de trois lignes. Mesuré nœud par nœud : le titre à 509,
+    un `br` à 517, la date, un `br` à 540, l'auteur à 554. Les deux
+    `br` prenaient toujours leurs quatorze pixels.
+
+    LA RAISON, et elle vaut d'être écrite une fois pour toutes : un
+    `br` qui suit un élément de NIVEAU BLOC ouvre une ligne vide, et
+    la hauteur de cette ligne vient de la CHASSE du bloc qui la
+    contient, pas du `line-height` du `br`. Lui mettre zéro ne change
+    donc rien — on règle la hauteur d'un élément qui n'est pas celui
+    qui la décide.
+
+    On repasse les trois en ligne, et les `br` redeviennent ce qu'ils
+    sont dans le gabarit : des fins de ligne. 77 → 67.
+
+    LE DÉCOUPAGE DU TITRE NE SE PERD PAS : c'est Forumactif qui le
+    coupe, côté serveur, avec ses propres points de suspension —
+    « Suivi des missio… » arrive déjà tronqué dans la page. Le
+    `text-overflow` plus bas ne servait que de ceinture. */
+#modernbb ul.topiclist li.row .lastpost-infos a,
+#modernbb ul.topiclist li.row .lastpost-infos strong,
+#modernbb ul.topiclist li.row .lastpost-infos span {
+  display: inline;
+  line-height: inherit;
+}
+
+/*  ── LA FLÈCHE NE PREND PLUS UNE LIGNE POUR ELLE ───────────────────
+
+    `a.last-post-icon` mène au dernier message. ModernBB la pose après
+    l'auteur, donc sur une quatrième ligne, seule, sous le nom — cinq
+    pixels de haut et tout un interligne de place. À l'écran elle
+    pendait sous le bloc sans rien dire.
+
+    Rangée dans le coin bas-droit, elle garde sa cible cliquable et
+    son rôle, et le bloc revient à trois lignes. Les 16 px de
+    rembourrage à droite, au-dessus, sont sa place réservée : sans
+    eux, un auteur au nom long passerait dessous. */
+#modernbb ul.topiclist li.row .lastpost-infos a.last-post-icon {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: block;
+  line-height: 0;
+}
+
+#modernbb ul.topiclist li.row .lastpost-avatar {
+  display: block;
+  flex: none;
+  padding: 0;
+  line-height: 0;
 }
 
 /*  35 × 56 DANS LA MAQUETTE, et c'est un RECTANGLE DEBOUT, pas un
