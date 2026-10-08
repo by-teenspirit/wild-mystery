@@ -452,7 +452,23 @@ function bullePrelien(doc: Document, p: Prelien, i: number): HTMLElement {
   const panneau = element(doc, "div", "wm-accueil__prelien-panneau");
   panneau.id = idPanneau;
   panneau.hidden = true;
-  panneau.appendChild(element(doc, "p", "wm-accueil__prelien-nom", p.personnage));
+  //  ── UNE EN-TÊTE, PAS UNE PREMIÈRE LIGNE ─────────────────────────
+  //
+  //  Le nom était un paragraphe en gras sur un filet. Ça hiérarchisait,
+  //  mais ça ne disait toujours pas DE QUI on parle : la bulle qu'on
+  //  vient de survoler est une pastille ronde, et le panneau qui
+  //  s'ouvre à côté n'en reprenait rien.
+  //
+  //  L'avatar revient donc en tête du panneau, dans une bande teintée
+  //  qui va d'un bord à l'autre. Deux choses gagnées : on reconnaît la
+  //  bulle d'où ça sort, et le panneau a enfin un haut, un corps et un
+  //  pied au lieu d'une pile de lignes.
+  const tete = element(doc, "div", "wm-accueil__prelien-tete");
+  tete.append(
+    vignette(doc, p.avatar, "wm-accueil__prelien-figure"),
+    element(doc, "p", "wm-accueil__prelien-nom", p.personnage),
+  );
+  panneau.appendChild(tete);
   //  ── CLÉ ET VALEUR SUR DEUX LIGNES, DANS UNE LISTE DE DÉFINITIONS ──
   //
   //  Elles tenaient sur une seule, séparées par une espace et deux

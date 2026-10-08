@@ -84,6 +84,146 @@ body.wm-texte-large #modernbb .content {
   font-size: 11px;
 }
 
+/* ── 2 bis · aérer le texte ───────────────────────────────────────── */
+
+/*  ── TROIS ESPACEMENTS, ET CE SONT CEUX DU WCAG ────────────────────
+
+    C'est le réglage qui aide le plus, et de loin, davantage que la
+    taille : interligne, interlettre, intermot. Le critère 1.4.12 du
+    WCAG donne les trois chiffres, et ils ne sont pas inventés — ce
+    sont ceux qu'une page doit SUPPORTER sans rien perdre :
+
+      · interligne   ≥ 1,5 × la taille du texte ;
+      · interlettre  ≥ 0,12 em ;
+      · intermot     ≥ 0,16 em ;
+      · entre deux paragraphes ≥ 2 × la taille.
+
+    Le critère demande de les supporter ; ici on les APPLIQUE, ce qui
+    est le pas d'après. Nos jetons d'interligne montent donc à 1,5 au
+    minimum, et les deux autres passent en jetons à leur tour.
+
+    POURQUOI ÇA PASSE PAR LES JETONS, et pas par une liste de
+    sélecteurs : c'est la leçon de « grossir le texte », vingt lignes
+    plus haut. Une liste n'aère que nos blocs à nous et laisse l'index,
+    les sujets et la liste des membres inchangés — un réglage
+    d'accessibilité qui n'aide personne. Les jetons, eux, sont employés
+    par les quinze feuilles.
+
+    LES TITRES NE SUIVENT PAS. Un titre manuscrit de 36 px à 1,5
+    d'interligne et 0,12 em d'interlettre devient une banderole : les
+    deux lignes se décollent et les lettres de la Kaushan, qui sont
+    liées, se séparent. Le critère vise le texte courant ; les jetons
+    de titre restent où ils sont.
+
+    LES JETONS EUX-MÊMES SONT DANS `panneau-admin/jetons.css`, avec ceux
+    de « grossir le texte » et pour la même raison : le dépôt se sert
+    des jetons, il ne les déclare pas. Ce qui suit est tout ce qui n'en
+    est pas un. */
+
+/*  ET CE QUI VIENT DE MODERNBB EST SERVI AUSSI. Les jetons ne portent
+    que nos feuilles ; les messages, les descriptions de forum et les
+    titres de sujet sont habillés par le thème, et c'est justement ce
+    qu'on vient lire. On les prend par leurs conteneurs, comme le fait
+    « grossir le texte » juste au-dessus avec les mêmes trois. */
+/*  `body.wm-texte-aere#modernbb` SANS ESPACE : `#modernbb` EST le
+    corps, ce n'est pas un bloc dedans. Avec l'espace, le sélecteur
+    cherchait un descendant qui n'existe pas, et le réglage ne
+    changeait rien — attrapé par le harnais, qui monte le vrai corps
+    du forum. */
+body.wm-texte-aere#modernbb,
+body.wm-texte-aere #modernbb .postbody,
+body.wm-texte-aere #modernbb .post-entry,
+body.wm-texte-aere #modernbb .content {
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+  word-spacing: 0.16em;
+}
+
+/*  Deux fois la taille entre deux paragraphes, l'autre moitié du
+    critère. `:where()` pour ne rien peser : une règle de confort ne
+    doit pas se mettre à gagner contre une mise en page. */
+body.wm-texte-aere #modernbb :where(p, li, dd, blockquote) {
+  margin-bottom: 2em;
+}
+
+/* ── 2 ter · la police pour la dyslexie ───────────────────────────── */
+
+/*  ── ELLE NE SE TÉLÉCHARGE QUE SI ON LA COCHE ──────────────────────
+
+    C'est le seul `url()` de tout le dépôt, et il mérite sa dérogation :
+    un navigateur ne va chercher une police que lorsqu'un élément REND
+    quelque chose avec. Case décochée, le `@font-face` ne coûte pas une
+    requête ; case cochée, 40 ko par graisse. Le harnais de confort
+    compte les requêtes dans les deux états.
+
+    `font-display: swap` : la page ne reste pas blanche pendant le
+    téléchargement. Quelqu'un qui coche cette case a souvent une
+    connexion comme une autre, mais la règle vaut pour tout le monde.
+
+    Pas d'italique ni de grasse italique : 270 ko chacune pour un usage
+    rare sur un forum, et le navigateur les synthétise. La licence
+    Bitstream et ce que vaut vraiment cette police sont dans
+    `assets/polices/LISEZMOI.md` — en deux mots : les études ne lui
+    trouvent pas d'avance mesurable, c'est l'espacement qui aide, et
+    elle est là parce que des lecteurs la demandent. */
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../assets/polices/opendyslexic-regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../assets/polices/opendyslexic-bold.woff2") format("woff2");
+  font-display: swap;
+}
+
+/*  LES QUATRE FAMILLES PASSENT, TITRES COMPRIS. Garder la Kaushan pour
+    les titres aurait laissé en manuscrit ce qui est déjà le plus dur à
+    lire. Qui coche cette case la coche pour toute la page.
+
+    Les jetons suffisent pour nos feuilles ; `body#modernbb` prend ce
+    qui vient du thème, qui hérite de lui. */
+body.wm-police-dyslexie#modernbb,
+body.wm-police-dyslexie #modernbb,
+body.wm-police-dyslexie .wm-coin,
+body.wm-police-dyslexie .wm-notifs {
+  font-family: "OpenDyslexic", "Nunito Sans", system-ui, sans-serif;
+}
+
+/* ── 2 quater · le contraste renforcé du système ──────────────────── */
+
+/*  `prefers-contrast: more` est posé par Windows, macOS et Android
+    quand on y demande un contraste élevé. On ne l'écoutait pas : une
+    personne qui l'a réglé une fois pour tout son système devait
+    recocher nos cases sur chaque forum.
+
+    Ce qu'on en fait, et seulement ça :
+
+      · les filets montent d'un cran — `bord-fin` prend la valeur de
+        `bord-net`, `bord-net` celle de l'encre. Un filet qu'on ne voit
+        pas est un bloc dont on ne voit pas la limite ;
+      · les textes doux et pâles rejoignent le corps. Ils sont pâles
+        par dessin, et le dessin cède ici ;
+      · les liens se soulignent, comme le réglage voisin.
+
+    Les quatre jetons sont dans `panneau-admin/jetons.css` ; ici, le
+    soulignement, qui n'en est pas un.
+
+    ON NE TOUCHE PAS AUX FONDS. Forcer le blanc et le noir casserait le
+    thème sombre et les quinze teintes de type, toutes mesurées au
+    contraste ; et `forced-colors`, qui est le vrai mode contrasté de
+    Windows, remplace déjà les couleurs lui-même. */
+@media (prefers-contrast: more) {
+  #modernbb a:not(.wm-btn):not(.wm-onglet):not(.wm-panneau__lien):not(.wm-compte__lien) {
+    text-decoration: underline;
+  }
+}
+
 /* ── 3 · souligner tous les liens ─────────────────────────────────── */
 
 /*  Un lien reconnu à sa seule couleur est invisible pour qui ne

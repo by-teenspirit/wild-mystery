@@ -90,9 +90,12 @@ const DONNEES = {
   preliens: {
     titre: "Pré-liens",
     liste: [
+      //  LE PREMIER A UN AVATAR, LE SECOND NON, et c'est le vrai jeu de
+      //  cas : le panneau en reprend un dans sa bande de tête, et il
+      //  doit tenir aussi quand il n'y en a pas.
       {
         personnage: "Elijah Springsteen",
-        avatar: "",
+        avatar: "https://exemple.test/img/accueil/avatar-par-defaut.png",
         lienAttendu: "Un rival d'enfance",
         auteur: "Teenspirit",
         url: "/t42-prelien",
@@ -554,7 +557,17 @@ const etages = await p.evaluate(() => {
     clef: px(clef, "fontSize"),
     valeur: px(valeur, "fontSize"),
     capitales: getComputedStyle(clef).textTransform,
-    filet: px(nom, "borderBottomWidth"),
+    //  Le filet n'est plus SOUS le nom mais sous la bande de tête, qui
+    //  le contient : c'est elle qui sépare l'en-tête du corps depuis
+    //  que le panneau en a une.
+    filet: px(pan.querySelector(".wm-accueil__prelien-tete"), "borderBottomWidth"),
+    figure: pan.querySelector(".wm-accueil__prelien-figure img") !== null,
+    bouton: (() => {
+      const l = pan.querySelector(".wm-accueil__prelien-lien");
+      if (l === null) return null;
+      const s = getComputedStyle(l);
+      return { fond: s.backgroundColor, large: Math.round(l.getBoundingClientRect().width) };
+    })(),
     clefAuDessus: Math.round(clef.getBoundingClientRect().bottom) <=
       Math.round(valeur.getBoundingClientRect().top),
     couple: pan.querySelector(".wm-accueil__prelien-liste")?.tagName ?? "aucun",
@@ -564,6 +577,12 @@ dire(
   "LE NOM, LES CLÉS ET LES VALEURS NE SE LISENT PAS À LA MÊME VOIX",
   etages.nom > etages.valeur && etages.valeur > etages.clef && etages.filet >= 1,
   JSON.stringify(etages),
+);
+dire(
+  "LE PANNEAU A UNE TÊTE AVEC L'AVATAR, ET UN PIED QUI EST UN BOUTON",
+  etages.figure && etages.bouton !== null &&
+    etages.bouton.fond !== "rgba(0, 0, 0, 0)" && etages.bouton.large > 150,
+  JSON.stringify({ figure: etages.figure, bouton: etages.bouton }),
 );
 dire(
   "chaque clé est en capitales AU-DESSUS de sa valeur, dans une liste de définitions",
@@ -880,7 +899,7 @@ for (const [nom, attendu] of Object.entries({
   "la remontée des actualités": 77,
   "la descente de la bande du bas": 32,
   "la moitié dedans de la carte des votes": 36,
-  "la vignette de vote": 32,
+  "la vignette de vote": 26,
   "la bulle de pré-lien": 75,
 })) {
   dire(`${nom} vaut ${attendu}`, cotes.ecarts[nom] === attendu, `relevé ${cotes.ecarts[nom]}`);

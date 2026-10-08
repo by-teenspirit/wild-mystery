@@ -1161,3 +1161,45 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
     width: 100%;
   }
 }
+
+/* ── le lien d'évitement ──────────────────────────────────────────── */
+
+/*  IL NE SE CACHE PAS, IL SORT DE L'ÉCRAN. `display: none` et
+    `visibility: hidden` le retireraient aussi de la tabulation, et un
+    lien d'évitement qu'on ne peut pas atteindre au clavier est le
+    contraire de ce qu'on voulait.
+
+    Il revient au `:focus` — et pas au `:focus-visible` : on n'y arrive
+    que par tabulation, donc le focus EST toujours visible, et
+    `:focus-visible` n'apporterait qu'un risque de le rater.
+
+    `z-index` au-dessus de la barre, qui est en 50 : il la recouvre le
+    temps qu'on le lise. */
+#modernbb .wm-evitement {
+  position: fixed;
+  top: 0;
+  left: var(--wm-espace-8, 8px);
+  z-index: 100;
+  transform: translateY(-120%);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  border-radius: 0 0 var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+#modernbb .wm-evitement:focus {
+  transform: translateY(0);
+}
+
+/*  La cible reçoit `tabindex="-1"` pour que le focus y aille vraiment.
+    Elle n'est pas un bouton pour autant : pas de contour autour de la
+    moitié de la page. */
+#modernbb #main-content:focus,
+#modernbb #page-body:focus,
+#modernbb #content-main:focus {
+  outline: none;
+}

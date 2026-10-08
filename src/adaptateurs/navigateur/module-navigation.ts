@@ -393,7 +393,48 @@ function poserLaBarre(
   //  l'ordre du DOM doit le dire autant que le CSS — c'est lui que suit
   //  un lecteur d'écran, et la tabulation.
   doc.body?.insertBefore(barre, doc.body.firstChild);
+  poserLeLienDEvitement(doc);
   return bouton;
+}
+
+/** Le lien d'évitement, tout en haut.
+ *
+ *  ── CE QU'IL Y A À ÉVITER, ET COMBIEN ÇA COÛTE ──────────────────────
+ *
+ *  Avant le contenu d'une page du forum, au clavier : le logo, les cinq
+ *  liens de la barre, les quatre de la barre Forumactif, la bannière et
+ *  son image, le fil d'Ariane. Une vingtaine de tabulations à refaire À
+ *  CHAQUE PAGE pour arriver au premier message. C'est le genre de coût
+ *  qu'on ne voit jamais à la souris.
+ *
+ *  Le lien est le PREMIER nœud du corps, donc la première tabulation, et
+ *  il ne se voit qu'au clavier : la feuille le sort de l'écran et l'y
+ *  ramène au `:focus`. Invisible à la souris, inévitable au clavier —
+ *  c'est exactement ce qu'on veut, et c'est pour ça qu'il ne se cache
+ *  pas avec `display: none`, qui le retirerait aussi de la tabulation.
+ *
+ *  `tabindex="-1"` SUR LA CIBLE, et sans lui le lien ne fait rien de
+ *  visible : un navigateur fait défiler jusqu'à une ancre, mais ne
+ *  DONNE LE FOCUS qu'à un élément focalisable. Le coup de tabulation
+ *  suivant repartait donc du haut de la page, et le lien n'avait rien
+ *  évité du tout. */
+export function poserLeLienDEvitement(doc: Document): boolean {
+  if (doc.getElementById("wm-evitement") !== null) return false;
+  //  Le premier qui existe : `#main-content` sur l'index et la liste
+  //  des membres, `#page-body` sur un sujet. On ne vise pas un `<main>`,
+  //  que les gabarits de ModernBB ne posent pas.
+  const cibles = ["main-content", "page-body", "content-main"];
+  const cible = cibles.map((id) => doc.getElementById(id)).find((e) => e !== null);
+  if (cible === undefined || cible === null) return false;
+  cible.setAttribute("tabindex", "-1");
+
+  const lien = doc.createElement("a");
+  lien.id = "wm-evitement";
+  lien.className = "wm-evitement";
+  lien.href = `#${cible.id}`;
+  lien.textContent = "Aller au contenu";
+  doc.body?.insertBefore(lien, doc.body.firstChild);
+  return true;
 }
 
 // ── la barre Forumactif ─────────────────────────────────────────────

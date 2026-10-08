@@ -4,13 +4,25 @@
 //  Les trois réglages d'accessibilité, et ce que l'encart de
 //  notifications a le droit d'afficher. Pur — aucun DOM, aucun réseau.
 //
-//  ── TROIS RÉGLAGES, ET PAS UN DE PLUS ───────────────────────────────
+//  ── CINQ RÉGLAGES, ET CHACUN A ÉTÉ DISCUTÉ ──────────────────────────
 //
-//  Réduire les animations · grossir le texte · souligner tous les liens.
-//  Chacun répond à un besoin nommé, chacun se vérifie à l'œil, et chacun
-//  tient en une classe sur `body`. Un quatrième se discute avant de
-//  s'écrire : un panneau d'accessibilité de douze cases que personne ne
-//  lit est une case cochée dans un cahier des charges, pas une aide.
+//  Réduire les animations · grossir le texte · aérer le texte ·
+//  souligner tous les liens · police pour la dyslexie. Chacun répond à
+//  un besoin nommé, chacun se vérifie à l'œil, et chacun tient en une
+//  classe sur `body`. La règle d'avant tenait à trois et disait qu'un
+//  quatrième se discuterait ; les deux qui arrivent le 8 octobre ont
+//  été discutés, et le reste de la règle vaut toujours — un panneau de
+//  douze cases que personne ne lit est une case cochée dans un cahier
+//  des charges, pas une aide.
+//
+//  CE QUI N'A PAS ÉTÉ RETENU, et c'est la moitié du travail : les
+//  surcouches d'accessibilité qu'on colle en une ligne de script
+//  (UserWay, AccessiBe, FACIL'iti). Elles réécrivent le balisage par
+//  au-dessus, les associations de personnes aveugles s'y opposent —
+//  la NFB a voté une résolution contre l'une d'elles —, et elles
+//  cassent régulièrement les lecteurs d'écran qu'elles prétendent
+//  servir. Ce qui est ici est fait à la main, se mesure, et se
+//  décoche.
 //
 //  **Ils ne remplacent pas les réglages du système.** `prefers-reduced-
 //  motion` continue de valoir ; celui-ci s'ajoute, pour qui n'a pas la
@@ -24,7 +36,13 @@
 //  neuf » coûte un coin d'écran pour n'apprendre rien.
 // ════════════════════════════════════════════════════════════════════
 
-export const CONFORTS = ["animations", "texte", "liens"] as const;
+export const CONFORTS = [
+  "animations",
+  "texte",
+  "espacement",
+  "liens",
+  "dyslexie",
+] as const;
 
 export type Confort = typeof CONFORTS[number];
 
@@ -32,7 +50,9 @@ export type Confort = typeof CONFORTS[number];
 export const CLASSE_DE_CONFORT: Readonly<Record<Confort, string>> = {
   animations: "wm-sans-animation",
   texte: "wm-texte-large",
+  espacement: "wm-texte-aere",
   liens: "wm-liens-soulignes",
+  dyslexie: "wm-police-dyslexie",
 };
 
 /** Ce que le bouton annonce. Au présent, et à la première personne du
@@ -40,7 +60,11 @@ export const CLASSE_DE_CONFORT: Readonly<Record<Confort, string>> = {
 export const LIBELLE_DE_CONFORT: Readonly<Record<Confort, string>> = {
   animations: "Réduire les animations",
   texte: "Grossir le texte",
+  //  « Aérer » et pas « augmenter l'interlignage » : le réglage touche
+  //  trois espacements à la fois, et c'est le résultat qu'on nomme.
+  espacement: "Aérer le texte",
   liens: "Souligner tous les liens",
+  dyslexie: "Police pour la dyslexie",
 };
 
 export function estUnConfort(v: unknown): v is Confort {

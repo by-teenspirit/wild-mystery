@@ -255,3 +255,130 @@ body.wm-texte-large {
   --wm-taille-etiquette: 11px;
   --wm-taille-surtitre: 11.5px;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   « Aérer le texte » — l'autre réglage de confort de la feuille 12
+
+   Les trois chiffres du critère 1.4.12 du WCAG : interligne à 1,5 fois
+   la taille au moins, interlettre à 0,12 em, intermot à 0,16 em. Le
+   critère demande qu'une page les SUPPORTE sans rien perdre ; ce
+   réglage les applique.
+
+   Ici, les jetons — l'interligne et l'interlettre. L'intermot et ce
+   qui vient de ModernBB sont dans la feuille 12, qui n'a pas le droit
+   de déclarer un jeton.
+
+   LES TITRES NE SUIVENT PAS. Un titre manuscrit de 36 px à 1,5
+   d'interligne et 0,12 em d'interlettre devient une banderole, et les
+   lettres liées de la Kaushan se séparent. Le critère vise le texte
+   courant.
+   ════════════════════════════════════════════════════════════════════ */
+
+body.wm-texte-aere {
+  --wm-interligne-courant:    1.6;
+  --wm-interligne-normal:     1.75;
+  --wm-interligne-message:    1.9;
+  --wm-interligne-legende:    1.6;
+  --wm-interligne-etiquette:  1.5;
+  --wm-interligne-surtitre:   1.5;
+  --wm-interlettre-etiquette: 0.12em;
+  --wm-interlettre-surtitre:  0.12em;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   « Police pour la dyslexie » — le réglage de confort de la feuille 12
+
+   Les `@font-face` sont dans la feuille 12, qui est servie depuis le
+   dépôt et peut donc désigner les fichiers en chemin relatif. Ici, les
+   quatre familles.
+
+   LES QUATRE PASSENT, TITRES COMPRIS. Garder la Kaushan pour les titres
+   aurait laissé en manuscrit ce qui est déjà le plus dur à lire.
+   ════════════════════════════════════════════════════════════════════ */
+
+body.wm-police-dyslexie {
+  --wm-police-titre:  "OpenDyslexic", "Nunito Sans", system-ui, sans-serif;
+  --wm-police-accent: "OpenDyslexic", "Nunito Sans", system-ui, sans-serif;
+  --wm-police-chapo:  "OpenDyslexic", "Nunito Sans", system-ui, sans-serif;
+  --wm-police-corps:  "OpenDyslexic", "Nunito Sans", system-ui, sans-serif;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   Le contraste renforcé réglé dans le système
+
+   `prefers-contrast: more` est posé par Windows, macOS et Android quand
+   on y demande un contraste élevé. Une personne qui l'a réglé une fois
+   pour tout son système ne devrait pas avoir à recocher nos cases sur
+   chaque forum.
+
+   LES DEUX FILETS PASSENT À L'ENCRE. On avait écrit « `bord-fin`
+   prend la valeur de `bord-net`, `bord-net` celle de l'encre », et
+   c'est faux : une propriété personnalisée se résout sur la valeur
+   FINALE de celle qu'elle cite, et les deux changent dans la même
+   règle. `bord-fin` suit donc `bord-net` jusqu'au bout. C'est bien ce
+   qu'on veut ici — un filet qu'on ne voit pas est un bloc dont on ne
+   voit pas la limite —, mais il fallait le dire juste. Le harnais
+   mesure la valeur obtenue, pas celle qu'on espérait.
+
+   Et les textes doux et pâles rejoignent le corps : ils sont pâles par
+   dessin, et le dessin cède ici.
+
+   ON NE TOUCHE PAS AUX FONDS. Forcer le blanc et le noir casserait le
+   thème sombre et les quinze teintes de type, toutes mesurées au
+   contraste ; et `forced-colors`, le vrai mode contrasté de Windows,
+   remplace déjà les couleurs lui-même.
+   ════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-contrast: more) {
+  body#modernbb {
+    --wm-bord-fin:   var(--wm-bord-net, #d9c3b1);
+    --wm-bord-net:   var(--wm-encre, #2e2018);
+    --wm-texte-doux: var(--wm-texte-corps, #4e3b30);
+    --wm-texte-pale: var(--wm-texte-corps, #4e3b30);
+  }
+}
+
+
+/* ════════════════════════════════════════════════════════════════════
+   La chatbox
+
+   ── POURQUOI ELLE EST ICI ET PAS DANS `css/` ─────────────────────────
+
+   La chatbox n'est pas dans la page : c'est un `<object>` qui charge
+   `/chatbox/`, un DOCUMENT À PART. Relevé le 8 octobre en lisant son
+   `contentDocument` : il charge `0-ltr.css` — ce fichier-ci — et la
+   feuille de Forumactif, mais PAS notre feuille servie par Pages. Son
+   corps n'a pas non plus l'identifiant `modernbb`, dont toutes nos
+   règles dépendent.
+
+   Les deux seules couleurs demandées, donc, écrites là où elles
+   arrivent : le haut en terre, le fond en blanc. Elles reprennent les
+   jetons déclarés plus haut, qui, eux, lui parviennent.
+
+   ELLE NE SUIT PAS LE THÈME SOMBRE, et c'est une limite, pas un
+   oubli : la bascule pose `wm-sombre` sur le corps du FORUM, et ce
+   corps-là n'est pas le sien. Un jour, en lui posant la classe depuis
+   le module ; pas aujourd'hui.
+   ════════════════════════════════════════════════════════════════════ */
+
+body.chatbox {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+body.chatbox #chatbox_header {
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  Tout ce que l'en-tête contient passe en inverse avec elle : les
+    options étaient en #444 sur le bleu de ModernBB, elles l'auraient
+    été sur le terre. */
+body.chatbox #chatbox_header a,
+body.chatbox #chatbox_header i,
+body.chatbox #nb-users-connected,
+body.chatbox .title_channel_selected,
+body.chatbox .chatbox-options,
+body.chatbox .chatbox-options a {
+  color: var(--wm-texte-inverse, #fffbf7);
+}

@@ -326,7 +326,29 @@
   font-size: 20px;
 }
 
+/*  ── IL CHEVAUCHE SA PROPRE CARTE, ET IL RENTRE DU BORD ────────────
+
+    Il était posé AU-DESSUS de la carte, aligné à droite sur elle, et
+    c'est tout. La maquette en fait autre chose, et les cotes le disent
+    au pixel (`Frame 63`, relevé dans Figma le 8 octobre) :
+
+      · le bloc des actualités commence à y = 222, la carte à 290 — le
+        titre occupe les 68 px d'écart ;
+      · le titre fait 117 × 44 et commence à y = 262. Il finit donc à
+        306, SEIZE PIXELS DANS LA CARTE ;
+      · il commence à x = 1022 dans une carte qui finit à 1151, soit
+        douze pixels avant son bord droit.
+
+    D'où les deux nombres, et le `z-index` : la carte vient après lui
+    dans le flux, et sans lui elle lui passerait dessus.
+
+    La marge négative est la bonne façon de le dire — elle remonte la
+    carte sous le titre sans sortir le titre du flux, donc le bloc fait
+    toujours la hauteur de ce qu'il contient. */
 #modernbb .wm-accueil__titre-actus {
+  position: relative;
+  z-index: 1;
+  margin: 0 12px -16px 0;
   color: var(--wm-encre, #2e2018);
   font-size: 30px;
   text-align: right;
@@ -622,7 +644,7 @@
   padding: 0;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-24, 24px);
   list-style: none;
 }
 
@@ -641,8 +663,12 @@
 #modernbb .wm-accueil__vote-image {
   display: block;
   overflow: hidden;
-  width: 32px;
-  height: 32px;
+  /*  26 ET PLUS LES 32 DE LA MAQUETTE. Une fois la carte rembourrée à
+      24, elles pesaient trop : « réduis la taille des pokéballs, elles
+      sont trop grosses », le 8 octobre. Quatre de 26 et trois écarts
+      de 24 font 176, là où la maquette donnait 201 à la rangée. */
+  width: 26px;
+  height: 26px;
   border-radius: var(--wm-rayon-sm, 6px);
 }
 
@@ -965,7 +991,12 @@
   min-width: 0;
   flex: 0 1 auto;
   align-items: stretch;
-  gap: var(--wm-espace-10, 10px);
+  /*  24 et plus 10 : le mot touchait presque la dernière colonne de
+      bulles. La maquette lui laisse 48 (grille jusqu'à 198, étiquette
+      à 246), mais elle n'a pas nos bulles de 75 — on prend la moitié,
+      qui suffit à décoller le mot sans pousser le bloc dans la carte
+      des actualités. */
+  gap: var(--wm-espace-24, 24px);
 }
 
 /*  TROIS COLONNES, PAS UNE RANGÉE. Maquette : une grille de 3 × 2,
@@ -1143,10 +1174,53 @@
   transform: translateX(-50%) rotate(45deg);
 }
 
-#modernbb .wm-accueil__prelien-nom {
-  margin: 0;
-  padding-bottom: var(--wm-espace-8, 8px);
+/*  ── LA BANDE DE TÊTE, D'UN BORD À L'AUTRE ─────────────────────────
+
+    Les marges négatives valent le rembourrage du panneau : la bande
+    ressort donc des deux côtés et vient toucher le filet, au lieu de
+    flotter avec 14 px de blanc autour. Le rayon reprend celui du
+    panneau, moins l'épaisseur du filet — un rayon intérieur égal au
+    rayon extérieur laisse voir un croissant de fond entre les deux.
+
+    `overflow: hidden` sur le panneau rognerait le bec ; c'est donc la
+    bande qui porte ses propres coins. */
+#modernbb .wm-accueil__prelien-tete {
+  display: flex;
+  margin: calc(-1 * var(--wm-espace-14, 14px)) calc(-1 * var(--wm-espace-14, 14px)) 0;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
   border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 9px 9px 0 0;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  L'avatar repris de la bulle, en plus petit : il dit d'où sort le
+    panneau. Même anneau que la bulle, même retrait. */
+#modernbb .wm-accueil__prelien-figure {
+  display: block;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  padding: 3px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-accueil__prelien-figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+#modernbb .wm-accueil__prelien-nom {
+  min-width: 0;
+  margin: 0;
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
@@ -1161,8 +1235,18 @@
   gap: var(--wm-espace-8, 8px);
 }
 
+/*  Un filet d'accent le long du couple : il regroupe l'étiquette et sa
+    valeur à l'œil, et il donne au corps du panneau une colonne — sans
+    lui, les deux couples flottaient dans le blanc entre la bande et le
+    bouton. */
 #modernbb .wm-accueil__prelien-ligne {
   display: flex;
+  padding-left: var(--wm-espace-10, 10px);
+  border-left: 2px solid color-mix(
+    in srgb,
+    var(--wm-accent-primaire, #275e7a) 35%,
+    var(--wm-fond-surface, #fffbf7)
+  );
   flex-direction: column;
   gap: var(--wm-espace-2, 2px);
 }
@@ -1188,11 +1272,40 @@
 /*  Le lien du pied, aligné à droite comme celui des cartes, avec son
     chevron collé au mot — `gap` et pas une espace, qui se couperait
     en bout de ligne. */
+/*  ── LE PIED EST UN BOUTON, PAS UNE LIGNE DE PLUS ──────────────────
+
+    « Voir le pré-lien » était un lien bleu aligné à droite, de la même
+    taille et de la même couleur que tout le reste du panneau. C'était
+    la seule chose à FAIRE dans ce panneau, et rien ne le disait.
+
+    Pleine largeur et plein accent : on ne peut plus le rater, et il
+    donne au panneau son troisième étage. Le chevron reste, collé au
+    mot par un `gap` — une espace se couperait en bout de ligne. */
 #modernbb .wm-accueil__prelien-lien {
   display: flex;
+  box-sizing: border-box;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--wm-espace-4, 4px);
+  justify-content: center;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb a.wm-accueil__prelien-lien:hover,
+#modernbb a.wm-accueil__prelien-lien:focus-visible {
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  Le chevron avance d'un cheveu au survol : c'est le seul mouvement
+    du panneau, il dure 120 ms, et `wm-sans-animation` l'éteint comme
+    le reste. */
+#modernbb a.wm-accueil__prelien-lien:hover .wm-accueil__chevron,
+#modernbb a.wm-accueil__prelien-lien:focus-visible .wm-accueil__chevron {
+  transform: translateX(2px);
 }
 
 #modernbb .wm-accueil__chevron {
@@ -1200,6 +1313,7 @@
   width: 10px;
   height: 10px;
   flex: none;
+  transition: transform 120ms ease-out;
 }
 
 /* ── 10 · la mascotte ─────────────────────────────────────────────── */

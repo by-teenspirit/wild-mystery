@@ -298,6 +298,30 @@ const barre = await p.evaluate(() => {
     pos: s.position,
     parent: b.parentElement.tagName,
     premier: b === document.body.firstElementChild,
+    //  Depuis le 8 octobre, un seul nœud la précède : le lien
+    //  d'évitement, qui DOIT être avant elle — c'est la barre qu'il
+    //  sert à sauter.
+    secondApresLEvitement: document.body.firstElementChild?.id === "wm-evitement" &&
+      b === document.body.children[1],
+    evitement: (() => {
+      const l = document.getElementById("wm-evitement");
+      if (l === null) return null;
+      const cible = document.querySelector(l.getAttribute("href"));
+      const avant = l.getBoundingClientRect();
+      l.focus();
+      const apres = l.getBoundingClientRect();
+      const r = cible === null ? null : cible.getBoundingClientRect();
+      l.click();
+      return {
+        cible: cible === null ? null : cible.id,
+        focalisable: cible !== null && cible.getAttribute("tabindex") === "-1",
+        horsEcranAuRepos: avant.bottom <= 0,
+        visibleAuFocus: apres.top >= 0 && apres.bottom <= innerHeight,
+        //  Et le focus arrive VRAIMENT dessus, pas seulement le défilement.
+        focusSurLaCible: document.activeElement === cible,
+        sousLaBarre: r !== null && r.top >= 0,
+      };
+    })(),
     ancienne: getComputedStyle(document.querySelector("#modernbb-nav-menu")).display,
   };
 });
@@ -305,7 +329,22 @@ dire("la barre existe", barre !== null);
 if (barre !== null) {
   dire("pleine largeur", barre.x === 0 && barre.l === 1280, `x=${barre.x} l=${barre.l}`);
   dire("collée en haut", barre.pos === "sticky", barre.pos);
-  dire("premier enfant du corps", barre.premier);
+  dire(
+    "le lien d'évitement passe avant elle, et elle vient juste après",
+    barre.secondApresLEvitement,
+  );
+  dire(
+    "LE LIEN D'ÉVITEMENT MÈNE AU CONTENU, et le focus y va vraiment",
+    barre.evitement !== null && barre.evitement.cible !== null &&
+      barre.evitement.focalisable && barre.evitement.focusSurLaCible,
+    JSON.stringify(barre.evitement),
+  );
+  dire(
+    "il est hors de l'écran au repos et dedans au focus",
+    barre.evitement !== null && barre.evitement.horsEcranAuRepos &&
+      barre.evitement.visibleAuFocus,
+    JSON.stringify(barre.evitement),
+  );
   dire("celle de ModernBB est masquée", barre.ancienne === "none", barre.ancienne);
 }
 

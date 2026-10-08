@@ -158,7 +158,14 @@ for f in "${CSS[@]}"; do
   if grep -q -- '--wm-' <<< "$nu"; then
     gronde "$f définit un jeton — le dépôt s'en sert, il ne les déclare pas (48-… §8)"
   fi
-  if grep -qE '@import|url\(' <<< "$nu"; then
+  # LA SEULE DÉROGATION : les polices embarquées dans `assets/polices`.
+  # Elle tient à une propriété du navigateur, pas à une promesse : une
+  # police n'est téléchargée que lorsqu'un élément RENDU s'en sert.
+  # Décochée, la case « Police pour la dyslexie » ne coûte pas une
+  # requête, et le harnais de confort les compte dans les deux états.
+  # Tout autre `url(` reste une faute, y compris dans ce fichier-là.
+  sans_police=$(perl -0pe 's{url\(\s*"\.\./assets/polices/[^"]+"\s*\)}{}g' <<< "$nu")
+  if grep -qE '@import|url\(' <<< "$sans_police"; then
     gronde "$f fait une requête réseau — aucune feuille du dépôt n'a le droit"
   fi
 done

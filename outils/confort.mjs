@@ -39,7 +39,14 @@ const page = `<!doctype html><html lang="fr" id="min-width"><head><meta charset=
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style></head>
 <body id="modernbb">
-<div id="page-body"><div class="forabg" style="height:3000px">des forums</div></div>
+<div id="page-body">
+<div class="post"><div class="postbody"><div class="content">
+<p>Un message, parce qu'un réglage de lisibilité se mesure sur du texte
+lu et pas sur un bloc vide.</p>
+<p>Un second paragraphe, pour l'écart entre deux.</p>
+<p><a href="/t1-un-sujet">un lien dans le message</a></p>
+</div></div></div>
+<div class="forabg" style="height:3000px">des forums</div></div>
 </body></html>`;
 
 const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
@@ -48,7 +55,24 @@ const soucis = [];
 p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 
 await p.goto("https://exemple.test/", { waitUntil: "domcontentloaded" }).catch(() => {});
-await p.route("**/*", (r) => r.fulfill({ contentType: "text/html; charset=utf-8", body: page }));
+//  ON COMPTE LES REQUÊTES DE POLICE. C'est la promesse du réglage
+//  « Police pour la dyslexie » : décochée, elle ne coûte rien, parce
+//  qu'un navigateur ne va chercher une police que lorsqu'un élément
+//  RENDU s'en sert. Une promesse de ce genre ne se tient pas sur
+//  parole — elle se compte.
+const requetesDePolice = [];
+await p.route("**/*", (r) => {
+  const url = r.request().url();
+  if (url.includes("opendyslexic")) {
+    requetesDePolice.push(url);
+    const n = url.includes("bold") ? "bold" : "regular";
+    return r.fulfill({
+      contentType: "font/woff2",
+      body: readFileSync(R + `assets/polices/opendyslexic-${n}.woff2`),
+    });
+  }
+  return r.fulfill({ contentType: "text/html; charset=utf-8", body: page });
+});
 await p.goto("https://exemple.test/");
 await p.addScriptTag({ content: readFileSync(R + "js/wild-mystery.js", "utf8") });
 await p.waitForTimeout(250);
@@ -95,7 +119,7 @@ const ferme = await p.evaluate(() => {
   };
 });
 dire("le panneau est caché au départ", ferme.cache === true && ferme.visible === false);
-dire("et il porte bien les trois réglages", ferme.choix === 3, JSON.stringify(ferme));
+dire("et il porte bien les cinq réglages", ferme.choix === 5, JSON.stringify(ferme));
 
 // ── il s'ouvre, ET IL NE DÉPASSE PAS ────────────────────────────────
 async function ouvrirEtMesurer() {
@@ -183,6 +207,124 @@ for (const largeur of [900, 520, 390, 320]) {
   dire(`à ${largeur} px, rien ne déborde`, !m.debordDuDocument);
   await p.keyboard.press("Escape");
 }
+
+// ── LES DEUX RÉGLAGES DU 8 OCTOBRE ──────────────────────────────────
+await p.setViewportSize({ width: 1280, height: 900 });
+await p.evaluate(() => document.body.className = "");
+await p.waitForTimeout(80);
+
+//  1 · AÉRER LE TEXTE : les trois chiffres du critère 1.4.12 du WCAG.
+//  On mesure sur un paragraphe de MESSAGE, pas sur un de nos blocs :
+//  c'est la leçon de « grossir le texte », qui n'aérait que nous.
+const aere = await p.evaluate(() => {
+  const lire = () => {
+    const e = document.querySelector("#page-body p") ?? document.querySelector("#page-body");
+    const s = getComputedStyle(e);
+    const taille = parseFloat(s.fontSize);
+    //  « normal » est la valeur par défaut de `letter-spacing` et de
+    //  `word-spacing`, et `parseFloat` en fait un NaN — qui compare
+    //  faux avec tout, y compris avec lui-même. Zéro, c'est ce que
+    //  « normal » vaut ici.
+    const n = (v) => {
+      const x = parseFloat(v);
+      return Number.isFinite(x) ? x : 0;
+    };
+    return {
+      rapport: Number((n(s.lineHeight) / taille).toFixed(2)),
+      lettre: Number((n(s.letterSpacing) / taille).toFixed(3)),
+      mot: Number((n(s.wordSpacing) / taille).toFixed(3)),
+    };
+  };
+  const avant = lire();
+  document.body.classList.add("wm-texte-aere");
+  return { avant, apres: lire() };
+});
+dire(
+  "AÉRER LE TEXTE ATTEINT LES TROIS PLANCHERS DU WCAG 1.4.12",
+  aere.apres.rapport >= 1.5 && aere.apres.lettre >= 0.12 && aere.apres.mot >= 0.16,
+  JSON.stringify(aere),
+);
+dire(
+  "et il change bien quelque chose",
+  aere.apres.rapport > aere.avant.rapport && aere.apres.lettre > aere.avant.lettre,
+  JSON.stringify(aere),
+);
+await p.evaluate(() => document.body.classList.remove("wm-texte-aere"));
+
+//  2 · LA POLICE POUR LA DYSLEXIE, et ce qu'elle coûte décochée.
+await p.waitForTimeout(150);
+const avantLaPolice = requetesDePolice.length;
+dire(
+  "DÉCOCHÉE, LA POLICE POUR LA DYSLEXIE NE COÛTE PAS UNE REQUÊTE",
+  avantLaPolice === 0,
+  `${avantLaPolice} requête(s)`,
+);
+const police = await p.evaluate(async () => {
+  document.body.classList.add("wm-police-dyslexie");
+  await document.fonts.ready;
+  const s = getComputedStyle(document.querySelector("#page-body"));
+  return { famille: s.fontFamily };
+});
+await p.waitForTimeout(250);
+dire(
+  "cochée, elle se télécharge et s'applique",
+  requetesDePolice.length > 0 && police.famille.includes("OpenDyslexic"),
+  JSON.stringify({ requetes: requetesDePolice.length, ...police }),
+);
+await p.evaluate(() => document.body.classList.remove("wm-police-dyslexie"));
+
+//  3 · LE CONTRASTE RENFORCÉ DU SYSTÈME, qu'on n'écoutait pas.
+const contraste = await p.evaluate(() => {
+  const r = getComputedStyle(document.documentElement);
+  const lire = () => {
+    const c = getComputedStyle(document.body);
+    return {
+      pale: c.getPropertyValue("--wm-texte-pale").trim(),
+      corps: c.getPropertyValue("--wm-texte-corps").trim(),
+      filet: c.getPropertyValue("--wm-bord-fin").trim(),
+      net: c.getPropertyValue("--wm-bord-net").trim(),
+    };
+  };
+  return { r: r.length > 0, lu: lire() };
+});
+//  PAR CDP ET PAS PAR `emulateMedia` : l'option `contrast` n'est
+//  arrivée dans Playwright qu'après la version épinglée ici, et elle y
+//  est ignorée EN SILENCE — l'assertion passait au vert sans rien
+//  émuler. Le protocole Chrome, lui, le fait depuis longtemps.
+const cdp = await p.context().newCDPSession(p);
+await cdp.send("Emulation.setEmulatedMedia", {
+  features: [{ name: "prefers-contrast", value: "more" }],
+});
+await p.waitForTimeout(80);
+const renforce = await p.evaluate(() => {
+  const c = getComputedStyle(document.body);
+  const lien = document.querySelector("#page-body a") ?? document.querySelector("a");
+  return {
+    pale: c.getPropertyValue("--wm-texte-pale").trim(),
+    corps: c.getPropertyValue("--wm-texte-corps").trim(),
+    filet: c.getPropertyValue("--wm-bord-fin").trim(),
+    net: c.getPropertyValue("--wm-bord-net").trim(),
+    souligne: lien === null ? null : getComputedStyle(lien).textDecorationLine,
+  };
+});
+//  LES DEUX FILETS FINISSENT À L'ENCRE, et pas l'un à la valeur de
+//  l'autre : une propriété personnalisée se résout sur la valeur
+//  FINALE de celle qu'elle cite, et les deux changent dans la même
+//  règle. `bord-fin` suit donc `bord-net` jusqu'à l'encre. C'est ce
+//  qu'on veut en contraste renforcé, et c'est ce qu'on vérifie — pas
+//  ce que j'avais d'abord écrit dans le commentaire.
+dire(
+  "EN CONTRASTE RENFORCÉ, LE PÂLE REJOINT LE CORPS ET LES FILETS PASSENT À L'ENCRE",
+  renforce.pale === renforce.corps && renforce.pale !== contraste.lu.pale &&
+    renforce.filet === renforce.net && renforce.filet !== contraste.lu.filet,
+  JSON.stringify({ avant: contraste.lu, apres: renforce }),
+);
+dire(
+  "et les liens se soulignent",
+  renforce.souligne !== null && renforce.souligne.includes("underline"),
+  JSON.stringify(renforce.souligne),
+);
+await cdp.send("Emulation.setEmulatedMedia", { features: [] });
 
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);

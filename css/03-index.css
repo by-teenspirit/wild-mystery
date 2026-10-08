@@ -312,3 +312,31 @@
     margin-left: 0;
   }
 }
+
+/* ── 8 · la chatbox ───────────────────────────────────────────────── */
+
+/*  ELLE ÉTAIT PLUS ÉTROITE QUE LES CATÉGORIES DE 36 PX, et ça ne se
+    voyait qu'une fois connecté — déconnecté, elle n'est pas rendue du
+    tout. Relevé le 8 octobre dans le navigateur, en se connectant :
+    `.forabg` à x = 56 sur 1 328, la chatbox à 74 sur 1 292.
+
+    Les 18 de chaque côté viennent de ModernBB, qui met la chatbox dans
+    un `.panel` rembourré de 18 — le même rembourrage que celui du
+    message d'accueil, où il a sa raison d'être. Ici non : la chatbox
+    est un bloc à elle seule, de la même famille que les catégories, et
+    elle doit commencer et finir où elles commencent et finissent.
+
+    `:has(> #chatbox_top)` ET PAS `.panel.row3`. Les deux désignent le
+    même nœud aujourd'hui — il n'y en a qu'un sur la page. Mais
+    `row3` est une classe de ZÉBRURE que ModernBB pose un peu partout
+    selon la parité des lignes : le jour où elle tombe ailleurs, la
+    règle y irait aussi. `:has` dit ce qu'on veut dire — le panneau QUI
+    CONTIENT la chatbox —, et il est posé par tous les navigateurs
+    depuis 2023.
+
+    Le rembourrage vertical reste : c'est lui qui sépare la chatbox du
+    bloc au-dessus. */
+#modernbb .panel:has(> #chatbox_top) {
+  padding-right: 0;
+  padding-left: 0;
+}
