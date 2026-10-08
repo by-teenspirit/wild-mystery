@@ -849,13 +849,16 @@ const cotes = await p.evaluate((liste) => {
     liens: Math.round(r(".wm-accueil__liens").bottom - panneau.top),
     bandeau: Math.round(r(".wm-accueil__bandeau").bottom - panneau.top),
   };
-  //  ET LE BLOC DU STAFF COMMENCE SOUS LA CARTE DES VOTES, pas à côté
-  //  d'elle : « il doit s'aligner entre le bas des votes et le haut
-  //  des actu ». C'est le bloc entier maintenant, bandeau compris, et
-  //  pas seulement les membres.
-  const sousLesVotesLeBloc = Math.round(
-    r(".wm-accueil__staff").top - r(".wm-accueil__votes").bottom,
-  );
+  //  ET LES TROIS DÉPARTS SONT ÉGAUX DE NOUVEAU. Callista a rayé la
+  //  marge haute du bloc du staff le 8 octobre au soir : il s'aligne
+  //  sur le contexte et les liens PAR LES DEUX BOUTS. On mesure donc
+  //  les deux, les départs ici et les arrivées au-dessus — c'est la
+  //  paire qui dit la règle, pas l'une des deux.
+  const departs = {
+    contexte: Math.round(r(".wm-accueil__contexte").top - panneau.top),
+    liens: Math.round(r(".wm-accueil__liens").top - panneau.top),
+    bandeau: Math.round(r(".wm-accueil__bandeau").top - panneau.top),
+  };
   //  ET LES MEMBRES PASSENT TOUJOURS SOUS LA CARTE DES VOTES. C'est
   //  eux qu'elle croise — le bandeau, non : elle va de 1021 à 1268, il
   //  s'arrête à 849. Le jour où l'un des deux s'élargit, cette mesure
@@ -961,7 +964,7 @@ const cotes = await p.evaluate((liste) => {
   };
   return {
     arrivees,
-    sousLesVotesLeBloc,
+    departs,
     votes: { croiseEnX, sousLesVotes },
     bas,
     rangeesDePartenaires: rangees,
@@ -999,9 +1002,9 @@ dire(
   JSON.stringify(cotes.arrivees),
 );
 dire(
-  "et le bloc du staff commence sous la carte des votes",
-  cotes.sousLesVotesLeBloc >= 0,
-  `${cotes.sousLesVotesLeBloc} px sous la carte`,
+  "ET IL EN PART AUSSI : les trois colonnes commencent ensemble",
+  new Set(Object.values(cotes.departs)).size === 1,
+  JSON.stringify(cotes.departs),
 );
 dire(
   "et les membres passent sous la carte des votes, qu'eux seuls croisent",
@@ -1029,8 +1032,8 @@ dire(
 //  que la hauteur des membres est impaire, et l'arrondi du navigateur
 //  le rend tantôt d'un côté tantôt de l'autre.
 dire(
-  "les membres du staff commencent 31 px sous le bandeau, comme la maquette",
-  cotes.staff.sousLeBandeau === 31,
+  "les membres du staff commencent 51 px sous le bandeau",
+  cotes.staff.sousLeBandeau === 51,
   `relevé ${cotes.staff.sousLeBandeau}`,
 );
 dire(

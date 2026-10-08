@@ -75,6 +75,85 @@ export function numeroterLesCategories(doc: Document): number {
   return faits;
 }
 
+// ── la pastille de gauche ───────────────────────────────────────────
+
+/** La classe du rond qui porte l'image du forum. */
+export const CLASSE_PASTILLE = "wm-pastille";
+
+/** L'adresse d'image contenue dans un `style` de ModernBB.
+ *
+ *  Forumactif écrit, EN LIGNE sur le `<dl>` de chaque ligne :
+ *
+ *      style="background:url(https://…/no-new.png) no-repeat scroll 10px 50%;"
+ *
+ *  Les guillemets sont facultatifs et de l'un ou l'autre genre selon
+ *  les versions ; on les accepte tous les trois cas. */
+export function imageDuStyle(style: string): string | null {
+  const m = style.match(/url\(\s*(['"]?)([^'")]+)\1\s*\)/);
+  const u = m === null ? "" : m[2].trim();
+  return u === "" ? null : u;
+}
+
+/** Sort l'image du forum de son style en ligne et la pose dans un rond.
+ *
+ *  ── POURQUOI CE DÉTOUR ──────────────────────────────────────────────
+ *
+ *  « Les images sont là. » Elles le sont, et je ne les avais pas
+ *  trouvées parce que je lisais le style CALCULÉ du premier `<dl>`
+ *  venu, qui rendait l'icône par défaut de ModernBB. L'image que
+ *  Callista a posée dans le panneau d'administration est écrite EN
+ *  LIGNE sur chaque `<dl>`, et un style en ligne ne se voit pas dans
+ *  une feuille.
+ *
+ *  C'est aussi pour ça qu'on ne peut pas s'en contenter : `background`
+ *  en ligne porte la POSITION — `10px 50%` — et aucune de nos règles
+ *  ne la bat. L'image restait donc collée au bord gauche, à sa taille
+ *  d'origine, là où `390:3328` dessine un rond de 40 avec l'image
+ *  dedans.
+ *
+ *  On la SORT donc : on lit l'adresse, on fabrique la pastille que la
+ *  grille attend déjà dans sa première colonne, et on efface le fond
+ *  en ligne — qui ne sert plus à rien une fois l'image déplacée.
+ *
+ *  ── LE REPLI EST BON ────────────────────────────────────────────────
+ *
+ *  Sans JavaScript, rien de tout ça n'arrive : le style en ligne reste,
+ *  et l'image s'affiche là où Forumactif la met. On ne perd pas
+ *  l'information « nouveaux messages », on perd juste le rond.
+ *
+ *  Rend le nombre de pastilles posées. */
+export function poserLesPastilles(doc: Document): number {
+  let faits = 0;
+  for (const dl of Array.from(doc.querySelectorAll<HTMLElement>("li.row dl.icon"))) {
+    if (dl.querySelector(`.${CLASSE_PASTILLE}`) !== null) continue;
+    const url = imageDuStyle(dl.getAttribute("style") ?? "");
+    if (url === null) continue;
+
+    const rond = doc.createElement("span");
+    rond.className = CLASSE_PASTILLE;
+    const img = doc.createElement("img");
+    img.src = url;
+    //  DÉCORATIVE, et c'est un choix. L'image dit « nouveaux messages
+    //  ou pas » — la même information que porte déjà le titre du
+    //  forum, en gras ou non, et que Forumactif écrit dans le lien.
+    //  Un second nom pour la même chose encombre la lecture à voix
+    //  haute d'une page qui en compte vingt-six.
+    img.alt = "";
+    img.loading = "lazy";
+    rond.appendChild(img);
+    dl.insertBefore(rond, dl.firstChild);
+
+    //  LE FOND EN LIGNE S'EFFACE, pas le style entier : Forumactif
+    //  pourrait y mettre autre chose un jour, et tout jeter serait
+    //  jeter ce qu'on n'a pas lu.
+    dl.style.removeProperty("background");
+    dl.style.removeProperty("background-image");
+    if (dl.getAttribute("style") === "") dl.removeAttribute("style");
+    faits += 1;
+  }
+  return faits;
+}
+
 // ── les sous-forums ─────────────────────────────────────────────────
 
 /** La classe du rang de pastilles. La feuille 03 l'habille. */

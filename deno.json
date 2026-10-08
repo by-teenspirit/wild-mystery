@@ -23,7 +23,8 @@
     "contraste": "deno run -A outils/contraste.mjs",
     "navigation": "deno run -A outils/navigation.mjs",
     "confort": "deno run -A outils/confort.mjs",
-    "accueil": "deno run -A outils/accueil.mjs"
+    "accueil": "deno run -A outils/accueil.mjs",
+    "carte": "deno run -A outils/carte.mjs"
   },
   "fmt": {
     "include": [

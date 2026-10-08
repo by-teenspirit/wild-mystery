@@ -290,7 +290,15 @@
 @media (min-width: 1101px) {
   #modernbb .wm-accueil__bande > .wm-accueil__staff {
     align-self: stretch;
-    margin-top: var(--wm-espace-24, 24px);
+    /*  PAS DE MARGE HAUTE. Callista a rayé celle de 24 que j'avais
+        posée : le bloc s'aligne sur le contexte et les liens PAR LES
+        DEUX BOUTS, haut et bas, et pas seulement par le bas. C'est
+        plus simple à lire, et ça se tient tout seul — trois colonnes
+        qui commencent et finissent ensemble.
+
+        Ce qui croisait la carte des votes, ce ne sont pas les
+        bandeaux, ce sont les MEMBRES. C'est donc eux qu'on descend,
+        plus bas, et pas le bloc entier. */
     grid-template-rows: minmax(0, 1fr);
   }
 }
@@ -875,9 +883,16 @@
       Le haut du bandeau est la position de la maquette : les membres y
       sont à y = 72, soit 31 sous le bandeau. On y revient, et les 46 px
       gagnés sont exactement l'air qui manquait au-dessus des
-      actualités. */
+      actualités.
+
+      **51 DEPUIS LE 8 OCTOBRE AU SOIR**, réglé par Callista. Le bloc du
+      staff est remonté au niveau du contexte et des liens rapides — sa
+      marge haute est partie —, donc ce sont les membres seuls qui
+      doivent laisser passer la carte des votes. Vingt pixels de plus
+      ici font exactement le travail que la marge faisait sur le bloc
+      entier, sans emmener le bandeau avec eux. */
   justify-content: flex-start;
-  padding-top: 31px;
+  padding-top: 51px;
   gap: var(--wm-espace-24, 24px);
   list-style: none;
 }

@@ -533,6 +533,42 @@
   text-transform: none;
 }
 
+/*  ── LE ROND DE GAUCHE, 40 AVEC L'IMAGE DEDANS ─────────────────────
+
+    `390:3328` : une boîte de 48 × 40 dans la première colonne, un
+    cadre de 40 × 40 dedans, et une ellipse de 33 au centre. C'est le
+    rond qu'on voit à gauche de chaque ligne.
+
+    L'image vient du panneau d'administration et c'est
+    `poserLesPastilles` qui la sort de son style en ligne — elle y est
+    écrite avec sa POSITION, `10px 50%`, et un style en ligne ne se bat
+    pas. Déplacée, elle se laisse enfin cadrer.
+
+    `object-fit: cover` parce que les images du panneau ne sont pas
+    carrées : une icône de 32 × 20 étirée en rond est méconnaissable,
+    rognée au centre elle reste elle-même. */
+#modernbb ul.topiclist li.row .wm-pastille {
+  display: flex;
+  overflow: hidden;
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  grid-area: pastille;
+  padding: 3px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb ul.topiclist li.row .wm-pastille img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
 /*  ── LES SOUS-FORUMS EN PASTILLES ──────────────────────────────────
 
     `390:3328` les dessine en rang sous la description : des boîtes de

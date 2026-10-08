@@ -1,0 +1,221 @@
+// ════════════════════════════════════════════════════════════════════
+//  Les règles de la carte. Pas de DOM ici : le dessin, la souris et le
+//  panneau sont dans le module, et c'est `outils/carte.mjs` qui les
+//  regarde dans un vrai navigateur.
+//
+//  CE QUI EST TESTÉ EST CE QUI PEUT SE TROMPER EN SILENCE : un lieu
+//  bancal qu'on dessinerait quand même, un palier perdu en route, un
+//  nombre de sujets lu de travers parce que Forumactif sépare ses
+//  milliers avec une espace qu'on ne voit pas.
+// ════════════════════════════════════════════════════════════════════
+
+import { assertEquals } from "@std/assert";
+import {
+  borner,
+  cadrerSur,
+  carteDepuis,
+  cleDeFamille,
+  deplacer,
+  familleDe,
+  forumDeLAdresse,
+  type Lieu,
+  lieuDepuis,
+  nombreDans,
+  ranger,
+  ZOOM_MAX,
+} from "./carte.ts";
+
+const ZONE = {
+  forumId: 37,
+  nom: "Canyon Lekro",
+  type: "zone",
+  palier: 2,
+  niveau: "Niveaux 15 à 40",
+  description: "Des parois de grès rouge.",
+  forme: "M 0 0 Z",
+  ancre: { x: 688, y: 268 },
+};
+
+Deno.test("un lieu complet se relit entier", () => {
+  const l = lieuDepuis(ZONE);
+  assertEquals(l?.forumId, 37);
+  assertEquals(l?.palier, 2);
+  assertEquals(l?.type, "zone");
+  assertEquals(l?.ancre, { x: 688, y: 268 });
+});
+
+Deno.test("un lieu sans ancre ne se dessine pas", () => {
+  //  Une tache muette au milieu de la carte est pire qu'un trou : on
+  //  ne peut ni la cliquer ni comprendre ce qu'elle fait là.
+  assertEquals(lieuDepuis({ ...ZONE, ancre: undefined }), null);
+  assertEquals(lieuDepuis({ ...ZONE, ancre: { x: 1 } }), null);
+});
+
+Deno.test("ni sans nom, ni sans forum, ni avec un type inventé", () => {
+  assertEquals(lieuDepuis({ ...ZONE, nom: "  " }), null);
+  assertEquals(lieuDepuis({ ...ZONE, forumId: "37" }), null);
+  assertEquals(lieuDepuis({ ...ZONE, type: "continent" }), null);
+});
+
+Deno.test("un palier hors de 1-2-3 est écarté, le lieu reste", () => {
+  //  Le palier décide d'une couleur et d'un rang. Un « palier 7 »
+  //  donnerait une couleur par défaut sans qu'on sache pourquoi ; sans
+  //  palier du tout, `familleDe` le dit.
+  const l = lieuDepuis({ ...ZONE, palier: 7 });
+  assertEquals(l?.palier, undefined);
+  assertEquals(familleDe(l as Lieu), "Palier ?");
+});
+
+Deno.test("une ville n'a pas de palier et le dit", () => {
+  const v = lieuDepuis({ ...ZONE, type: "ville", palier: undefined, forme: undefined });
+  assertEquals(familleDe(v as Lieu), "Ville");
+  assertEquals(cleDeFamille(v as Lieu), "ville");
+  assertEquals(v?.forme, undefined);
+});
+
+Deno.test("LA FAMILLE S'ÉCRIT, parce que la couleur ne suffit pas", () => {
+  //  Un joueur sur douze ne distingue pas les trois paliers à la
+  //  teinte. Ce texte part dans l'étiquette, dans le panneau et dans
+  //  le nom accessible de la forme.
+  assertEquals(familleDe(lieuDepuis(ZONE) as Lieu), "Palier 2");
+  assertEquals(familleDe(lieuDepuis({ ...ZONE, type: "ligue" }) as Lieu), "Ligue");
+});
+
+Deno.test("la clé de style n'a ni accent ni espace", () => {
+  //  Elle devient un sélecteur d'attribut dans la feuille 16.
+  for (const l of [ZONE, { ...ZONE, type: "ville" }, { ...ZONE, type: "ligue" }]) {
+    const cle = cleDeFamille(lieuDepuis(l) as Lieu);
+    assertEquals(/^[a-z0-9]+$/.test(cle), true, cle);
+  }
+});
+
+Deno.test("la liste met les villes devant et la Ligue au bout", () => {
+  const carte = carteDepuis({
+    repere: { largeur: 1000, hauteur: 640 },
+    terre: "M 0 0 Z",
+    lieux: [
+      { ...ZONE, forumId: 1, nom: "Trois", palier: 3 },
+      { ...ZONE, forumId: 2, nom: "Ligue", type: "ligue", palier: undefined },
+      { ...ZONE, forumId: 3, nom: "Un", palier: 1 },
+      { ...ZONE, forumId: 4, nom: "Ville", type: "ville", palier: undefined },
+      { ...ZONE, forumId: 5, nom: "Deux", palier: 2 },
+    ],
+  });
+  assertEquals(
+    ranger(carte!.lieux).map((l) => l.nom),
+    ["Ville", "Un", "Deux", "Trois", "Ligue"],
+  );
+});
+
+Deno.test("le tri garde l'ordre du fichier dans un même groupe", () => {
+  //  C'est l'ordre de la carte. Deux ordres différents entre la liste
+  //  et le dessin se paient en allers-retours des yeux.
+  const carte = carteDepuis({
+    lieux: [
+      { ...ZONE, forumId: 1, nom: "B", type: "ville", palier: undefined },
+      { ...ZONE, forumId: 2, nom: "A", type: "ville", palier: undefined },
+      { ...ZONE, forumId: 3, nom: "C", type: "ville", palier: undefined },
+    ],
+  });
+  assertEquals(ranger(carte!.lieux).map((l) => l.nom), ["B", "A", "C"]);
+});
+
+Deno.test("une carte sans aucun lieu lisible ne se pose pas", () => {
+  //  Mieux vaut pas de carte qu'un cadre avec un océan dedans.
+  assertEquals(carteDepuis({ lieux: [] }), null);
+  assertEquals(carteDepuis({ lieux: [{ nom: "sans rien" }] }), null);
+  assertEquals(carteDepuis(null), null);
+  assertEquals(carteDepuis("une carte"), null);
+});
+
+Deno.test("un repère manquant retombe sur celui du fichier", () => {
+  const c = carteDepuis({ lieux: [ZONE] });
+  assertEquals(c?.repere, { largeur: 1000, hauteur: 640 });
+});
+
+Deno.test("LES MILLIERS DE FORUMACTIF SE LISENT", () => {
+  //  « 1 240 Sujets » avec une espace fine insécable : `parseInt` s'y
+  //  arrête et rend 1. Relevé sur des forums qui ont tourné.
+  assertEquals(nombreDans("26 Sujets"), 26);
+  assertEquals(nombreDans("1 240 Messages"), 1240);
+  assertEquals(nombreDans("1 240"), 1240);
+  assertEquals(nombreDans("0 Sujets"), 0);
+});
+
+Deno.test("et un libellé sans chiffre ne vaut pas zéro", () => {
+  //  Zéro est une information — « ce forum est vide ». L'absence de
+  //  relevé en est une autre, et le panneau ne les affiche pas pareil.
+  assertEquals(nombreDans("Sujets"), null);
+  assertEquals(nombreDans(""), null);
+});
+
+Deno.test("l'identifiant se lit dans l'adresse du forum", () => {
+  assertEquals(forumDeLAdresse("/f37-canyon-lekro"), 37);
+  assertEquals(forumDeLAdresse("https://x.forumactif.com/f100-fleuve-paisible"), 100);
+});
+
+Deno.test("et pas dans l'adresse d'un sujet", () => {
+  //  `/t977-...` est un sujet, `/u3` un profil. Les confondre
+  //  accrocherait un comptage au mauvais lieu.
+  assertEquals(forumDeLAdresse("/t977-le-marche"), null);
+  assertEquals(forumDeLAdresse("/u3"), null);
+  assertEquals(forumDeLAdresse("/f37"), null);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  Le déplacement. C'est de l'arithmétique, et c'est exactement le
+//  genre de code qui se trompe d'un signe et qu'on ne voit qu'en
+//  ligne, sur un écran étroit, un jour où on cherchait autre chose.
+// ════════════════════════════════════════════════════════════════════
+
+const R = { largeur: 1000, hauteur: 640 };
+
+Deno.test("on traîne le papier à droite, la fenêtre va à gauche", () => {
+  //  Le sens d'une vraie carte. Inversé, le geste est désagréable sans
+  //  qu'on sache dire pourquoi.
+  const v = { x: 300, y: 200, largeur: 500, hauteur: 320 };
+  assertEquals(deplacer(v, 100, 50, R).x, 200);
+  assertEquals(deplacer(v, 100, 50, R).y, 150);
+});
+
+Deno.test("ET ELLE S'ARRÊTE AUX BORDS", () => {
+  //  Sans ça on traîne la carte et on finit sur du vide : le continent
+  //  sort par la gauche et il ne reste rien à l'écran, pas même un
+  //  bord pour comprendre où l'on est.
+  const v = { x: 0, y: 0, largeur: 500, hauteur: 320 };
+  assertEquals(deplacer(v, 400, 400, R).x, 0);
+  assertEquals(deplacer(v, 400, 400, R).y, 0);
+  const w = { x: 500, y: 320, largeur: 500, hauteur: 320 };
+  assertEquals(deplacer(w, -400, -400, R).x, 500);
+  assertEquals(deplacer(w, -400, -400, R).y, 320);
+});
+
+Deno.test("une vue plus grande que la carte se CENTRE", () => {
+  //  Le cas qui se trompe : `Math.min(max, Math.max(0, x))` donne ici
+  //  un maximum négatif et colle la carte en haut à gauche. Il n'y a
+  //  qu'une chose sensée à faire du mou, c'est le partager.
+  const v = borner({ x: 300, y: 300, largeur: 1400, hauteur: 900 }, R);
+  assertEquals(v.x, -200);
+  assertEquals(v.y, -130);
+});
+
+Deno.test("cadrer sur un lieu l'amène au milieu", () => {
+  const v = cadrerSur({ x: 500, y: 320 }, 2, R);
+  assertEquals([v.x, v.y, v.largeur, v.hauteur], [250, 160, 500, 320]);
+});
+
+Deno.test("et un lieu au bord ne sort pas la carte du cadre", () => {
+  //  Cliquer « Montagnes Embrumées » dans la liste ne doit pas montrer
+  //  la moitié d'un océan vide au-dessus du continent.
+  const v = cadrerSur({ x: 10, y: 10 }, 2, R);
+  assertEquals([v.x, v.y], [0, 0]);
+  const w = cadrerSur({ x: 990, y: 630 }, 2, R);
+  assertEquals([w.x, w.y], [500, 320]);
+});
+
+Deno.test("le zoom est borné des deux côtés", () => {
+  //  Au-delà du maximum on ne voit plus qu'une tache ; en deçà du
+  //  minimum la carte flotte et le déplacement n'a plus de sens.
+  assertEquals(cadrerSur({ x: 500, y: 320 }, 99, R).largeur, 1000 / ZOOM_MAX);
+  assertEquals(cadrerSur({ x: 500, y: 320 }, 0.1, R).largeur, 1000);
+});

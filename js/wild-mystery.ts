@@ -39,9 +39,10 @@ import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/reg
 import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
-import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
+import { estLIndex, poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import {
   numeroterLesCategories,
+  poserLesPastilles,
   rangerLesSousForums,
   recomposerLesDerniersMessages,
 } from "../src/adaptateurs/navigateur/module-categories.ts";
@@ -54,6 +55,11 @@ import {
   remplirLesPersonnages,
 } from "../src/adaptateurs/navigateur/module-navigation.ts";
 import { poserLAccueil } from "../src/adaptateurs/navigateur/module-accueil.ts";
+import {
+  comptagesDe,
+  comptagesDesPaliers,
+  poserLaCarte,
+} from "../src/adaptateurs/navigateur/module-carte.ts";
 import { poserLeSwitcheroo } from "../src/adaptateurs/navigateur/module-switcheroo.ts";
 import { accueilDepuis } from "../src/navigateur/accueil.ts";
 import { sourceDAvatar } from "../src/navigateur/navigation.ts";
@@ -281,6 +287,49 @@ async function poserLeModule(): Promise<void> {
   });
 }
 
+/** La carte des territoires, sur l'index seulement.
+ *
+ *  ── L'ORDRE EST LA MOITIÉ DU TRAVAIL ────────────────────────────────
+ *
+ *  1. `carte.json` arrive, la carte se dessine avec les comptages que
+ *     LA PAGE porte déjà — les huit villes sont des lignes de l'index,
+ *     leurs chiffres et leur dernier message sont sous nos yeux. Zéro
+ *     requête de plus, et la carte est utilisable tout de suite.
+ *  2. Puis les trois pages de palier partent en parallèle, et les
+ *     dix-sept zones se remplissent dedans. Trois requêtes, pas
+ *     dix-sept : les zones sont des sous-forums, et la page du parent
+ *     les liste toutes avec leurs chiffres.
+ *
+ *  Si les trois tombent, la carte garde les villes, les noms, les
+ *  descriptions et les liens. On perd des chiffres, pas la carte.
+ *
+ *  LES COMPTAGES SE RELÈVENT AVANT QUE LA CARTE SE POSE : elle
+ *  s'insère au-dessus de la première catégorie, et lire après coup
+ *  marcherait aussi — mais l'ordre inverse se casserait le jour où on
+ *  décide de REMPLACER la catégorie au lieu de la précéder. */
+async function poserLesTerritoires(): Promise<void> {
+  if (RACINE === null) return;
+  if (!estLIndex(location.pathname)) return;
+  const donnees = await fetch(`${RACINE}carte.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  if (donnees === null) return;
+
+  const deLaPage = comptagesDe(document);
+  const pose = poserLaCarte(document, donnees);
+  if (pose === null) return;
+  pose.enrichir(deLaPage);
+
+  //  Les trois paliers. Leurs adresses se lisent DANS LA PAGE plutôt
+  //  que de s'écrire ici : un identifiant en dur dans le code est un
+  //  identifiant qui ment le jour où le forum bouge.
+  const paliers = Array.from(document.querySelectorAll<HTMLAnchorElement>("a.forumtitle"))
+    .map((a) => a.getAttribute("href") ?? "")
+    .filter((h) => /\/f(96|97|98)-/.test(h));
+  if (paliers.length === 0) return;
+  pose.enrichir(await comptagesDesPaliers(document, paliers));
+}
+
 desQueLeCorpsEstLa(() => {
   coin.appliquerLeTheme();
   masquerLesMarqueurs(document);
@@ -315,6 +364,15 @@ desQueLeCorpsEstLa(() => {
   //  virgules qui les séparent sont des nœuds de texte, qu'aucune
   //  règle n'atteint.
   rangerLesSousForums(document);
+  //  ET L'IMAGE DU FORUM SORT DE SON STYLE EN LIGNE pour entrer dans
+  //  le rond de la maquette. Elle est posée par Forumactif en
+  //  `background` sur le `<dl>`, position comprise : aucune règle ne
+  //  la bat, il faut la déplacer.
+  poserLesPastilles(document);
+  //  ET LA CARTE DES TERRITOIRES, sur l'index seulement. Elle s'AJOUTE
+  //  au-dessus des catégories, elle ne les remplace pas : sans
+  //  JavaScript on garde la liste entière, et avec, on a les deux.
+  poserLesTerritoires().catch(() => {});
   //  ET LE BOUTON DU TCHAT VA DANS LE COIN D'OUTILS, dès que FAM l'a
   //  posé. Sans réseau de notre côté : on guette un nœud, on le range,
   //  on s'arrête.

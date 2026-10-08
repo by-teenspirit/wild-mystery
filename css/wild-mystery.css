@@ -21,6 +21,7 @@
      · css/13-composants.css
      · css/14-accueil.css
      · css/15-messenger.css
+     · css/16-carte.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -1640,6 +1641,42 @@ html#min-width {
   font-weight: var(--wm-graisse-normale, 400);
   letter-spacing: normal;
   text-transform: none;
+}
+
+/*  ── LE ROND DE GAUCHE, 40 AVEC L'IMAGE DEDANS ─────────────────────
+
+    `390:3328` : une boîte de 48 × 40 dans la première colonne, un
+    cadre de 40 × 40 dedans, et une ellipse de 33 au centre. C'est le
+    rond qu'on voit à gauche de chaque ligne.
+
+    L'image vient du panneau d'administration et c'est
+    `poserLesPastilles` qui la sort de son style en ligne — elle y est
+    écrite avec sa POSITION, `10px 50%`, et un style en ligne ne se bat
+    pas. Déplacée, elle se laisse enfin cadrer.
+
+    `object-fit: cover` parce que les images du panneau ne sont pas
+    carrées : une icône de 32 × 20 étirée en rond est méconnaissable,
+    rognée au centre elle reste elle-même. */
+#modernbb ul.topiclist li.row .wm-pastille {
+  display: flex;
+  overflow: hidden;
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  grid-area: pastille;
+  padding: 3px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb ul.topiclist li.row .wm-pastille img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
 }
 
 /*  ── LES SOUS-FORUMS EN PASTILLES ──────────────────────────────────
@@ -7863,7 +7900,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 @media (min-width: 1101px) {
   #modernbb .wm-accueil__bande > .wm-accueil__staff {
     align-self: stretch;
-    margin-top: var(--wm-espace-24, 24px);
+    /*  PAS DE MARGE HAUTE. Callista a rayé celle de 24 que j'avais
+        posée : le bloc s'aligne sur le contexte et les liens PAR LES
+        DEUX BOUTS, haut et bas, et pas seulement par le bas. C'est
+        plus simple à lire, et ça se tient tout seul — trois colonnes
+        qui commencent et finissent ensemble.
+
+        Ce qui croisait la carte des votes, ce ne sont pas les
+        bandeaux, ce sont les MEMBRES. C'est donc eux qu'on descend,
+        plus bas, et pas le bloc entier. */
     grid-template-rows: minmax(0, 1fr);
   }
 }
@@ -8448,9 +8493,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       Le haut du bandeau est la position de la maquette : les membres y
       sont à y = 72, soit 31 sous le bandeau. On y revient, et les 46 px
       gagnés sont exactement l'air qui manquait au-dessus des
-      actualités. */
+      actualités.
+
+      **51 DEPUIS LE 8 OCTOBRE AU SOIR**, réglé par Callista. Le bloc du
+      staff est remonté au niveau du contexte et des liens rapides — sa
+      marge haute est partie —, donc ce sont les membres seuls qui
+      doivent laisser passer la carte des votes. Vingt pixels de plus
+      ici font exactement le travail que la marge faisait sur le bloc
+      entier, sans emmener le bandeau avec eux. */
   justify-content: flex-start;
-  padding-top: 31px;
+  padding-top: 51px;
   gap: var(--wm-espace-24, 24px);
   list-style: none;
 }
@@ -9487,4 +9539,484 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     depuis cdnjs, et c'est SON choix. La remplacer par Material
     Symbols demanderait de réécrire chaque appel d'icône dans le fork,
     pour un gain d'un kilo-octet. */
+
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 16 · La carte des territoires
+
+   Demandée le 8 octobre : « une carte interactive avec toutes les
+   villes et toutes les zones. Je veux faire en sorte que ce soit
+   compréhensible facilement pour chaque personne. »
+
+   ── DEUX COLONNES, ET C'EST LA DEMANDE ──────────────────────────────
+
+   « À côté de la carte, ce panneau s'affiche à droite en transparence.
+   […] À droite, on doit avoir quand même la liste de tous les lieux. »
+
+   Donc trois choses à l'écran, et pas deux : le dessin, le panneau
+   POSÉ DESSUS en translucide, et la liste à côté. Le panneau n'est pas
+   dans la colonne — il flotte sur la carte, au-dessus du lieu qu'on
+   vient de choisir, comme sur une carte qu'on annote.
+
+   ── LA COULEUR NE DIT JAMAIS RIEN TOUTE SEULE ───────────────────────
+
+   Quatre familles, quatre teintes : ville, palier 1, palier 2,
+   palier 3. Un joueur sur douze ne les distingue pas. Le mot est donc
+   écrit dans la légende, sur chaque entrée de la liste, dans le
+   panneau, et dans le nom accessible de chaque forme — et les teintes
+   sont choisies pour que leur CLARTÉ diffère aussi, pas seulement leur
+   ton : on les distingue encore en noir et blanc.
+   ════════════════════════════════════════════════════════════════════ */
+
+#modernbb .wm-carte {
+  display: flex;
+  margin: 0 0 var(--wm-espace-24, 24px);
+  gap: var(--wm-espace-20, 20px);
+  align-items: stretch;
+}
+
+/* ── 1 · le cadre et le dessin ────────────────────────────────────── */
+
+/*  `touch-action: none` est ce qui rend le glissement possible au
+    doigt : sans lui, le navigateur prend le geste pour un défilement
+    de page et ne nous envoie plus rien après le premier pixel.
+
+    `overflow: hidden` parce que le dessin déborde dès qu'on zoome, et
+    `cursor: grab` parce qu'une carte qu'on peut traîner doit le dire
+    avant qu'on essaie. */
+#modernbb .wm-carte__cadre {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 420px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  cursor: grab;
+  touch-action: none;
+}
+
+#modernbb .wm-carte__cadre--attrape {
+  cursor: grabbing;
+}
+
+#modernbb .wm-carte__dessin {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 420px;
+}
+
+/*  Le continent. Un aplat sous les zones, qui donne un bord à la
+    terre : sans lui, les taches flottent sur l'eau sans qu'on
+    comprenne ce qui les relie. */
+#modernbb .wm-carte__terre {
+  fill: var(--wm-fond-surface, #fffbf7);
+  stroke: var(--wm-bord-net, #d9c3b1);
+  stroke-width: 2;
+}
+
+#modernbb .wm-carte__lieu {
+  cursor: pointer;
+}
+
+#modernbb .wm-carte__forme {
+  fill: var(--wm-accent-terre, #8b4725);
+  stroke: var(--wm-fond-surface, #fffbf7);
+  stroke-width: 1.5;
+  transition: opacity 0.15s ease;
+}
+
+/*  LES QUATRE FAMILLES. Les teintes viennent des jetons, et leur
+    OPACITÉ les sépare autant que leur ton : 0,30 / 0,52 / 0,78 pour
+    les trois paliers. En noir et blanc, le palier 3 reste le plus
+    foncé — la progression se lit toujours. */
+#modernbb .wm-carte__lieu[data-wm-famille="palier1"] .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 30%, transparent);
+}
+
+#modernbb .wm-carte__lieu[data-wm-famille="palier2"] .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 52%, transparent);
+}
+
+#modernbb .wm-carte__lieu[data-wm-famille="palier3"] .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 78%, transparent);
+}
+
+/*  Les villes sont des ÉPINGLES, pas des territoires : une ville est
+    un point où l'on va, pas une étendue où l'on erre. Et elles
+    prennent l'accent plutôt que la terre, parce qu'elles ne sont pas
+    du même ordre que les zones. */
+#modernbb .wm-carte__epingle {
+  fill: var(--wm-accent-primaire, #275e7a);
+  stroke: var(--wm-fond-surface, #fffbf7);
+  stroke-width: 3;
+}
+
+#modernbb .wm-carte__lieu[data-wm-famille="ligue"] .wm-carte__epingle {
+  fill: var(--wm-encre, #2e2018);
+}
+
+#modernbb .wm-carte__nom {
+  fill: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: var(--wm-graisse-gras, 700);
+  paint-order: stroke;
+  /*  LE NOM SE LIT SUR N'IMPORTE QUEL FOND. Un contour clair peint
+      SOUS le glyphe — c'est ce que fait `paint-order: stroke` — vaut
+      mieux qu'un rectangle derrière chaque mot : il épouse la lettre
+      et ne mange pas la carte. */
+  stroke: var(--wm-fond-surface, #fffbf7);
+  stroke-width: 3.5;
+  pointer-events: none;
+}
+
+#modernbb .wm-carte__lieu[data-wm-famille="palier3"] .wm-carte__nom {
+  fill: var(--wm-texte-inverse, #fffbf7);
+  stroke: var(--wm-encre, #2e2018);
+}
+
+#modernbb .wm-carte__lieu:hover .wm-carte__forme,
+#modernbb .wm-carte__lieu:focus-visible .wm-carte__forme {
+  opacity: 0.75;
+}
+
+/*  LE LIEU CHOISI SE VOIT AUTREMENT QUE PAR SA COULEUR : il prend un
+    liseré d'encre. Sur une carte où quatre teintes servent déjà à
+    dire le palier, une cinquième pour dire « choisi » serait une de
+    trop. */
+#modernbb .wm-carte__lieu--choisi .wm-carte__forme,
+#modernbb .wm-carte__lieu--choisi .wm-carte__epingle {
+  stroke: var(--wm-encre, #2e2018);
+  stroke-width: 3;
+}
+
+#modernbb .wm-carte__lieu:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/* ── 2 · le panneau, posé sur la carte ────────────────────────────── */
+
+/*  « Ce panneau s'affiche à droite en transparence. » Donc sur la
+    carte et pas à côté : il recouvre le coin droit du dessin, et on
+    voit le relief dessous.
+
+    `backdrop-filter` floute ce qu'il couvre. S'il n'est pas reconnu —
+    Firefox l'a longtemps refusé —, il ne reste que le fond à 92 %,
+    qui suffit à lire. Le texte ne dépend jamais du flou. */
+#modernbb .wm-carte__panneau {
+  position: absolute;
+  top: var(--wm-espace-16, 16px);
+  right: var(--wm-espace-16, 16px);
+  width: min(300px, 70%);
+  box-sizing: border-box;
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 92%, transparent);
+  box-shadow: 0 6px 20px rgb(20 48 58 / 14%);
+  backdrop-filter: blur(6px);
+  /*  Fermé, il ne prend ni le clic ni la tabulation : un panneau vide
+      mais focusable est un piège au clavier. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+#modernbb .wm-carte__panneau--ouvert {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#modernbb .wm-carte__panneau-famille {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carte__panneau-nom {
+  margin: 0 0 var(--wm-espace-2, 2px);
+  font-size: var(--wm-taille-titre-section, 19px);
+}
+
+#modernbb .wm-carte__panneau-nom a {
+  color: var(--wm-encre, #2e2018);
+  text-decoration: none;
+}
+
+#modernbb .wm-carte__panneau-nom a:hover {
+  text-decoration: underline;
+}
+
+#modernbb .wm-carte__panneau-niveau {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carte__panneau-texte {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-carte__chiffres {
+  display: flex;
+  margin: 0 0 var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-12, 12px);
+  padding-top: var(--wm-espace-8, 8px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-carte__chiffre {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-carte__dernier {
+  display: flex;
+  margin: 0;
+  gap: var(--wm-espace-8, 8px);
+  align-items: center;
+}
+
+#modernbb .wm-carte__dernier-avatar {
+  width: 32px;
+  height: 42px;
+  flex: none;
+  border-radius: var(--wm-rayon-sm, 6px);
+  object-fit: cover;
+  object-position: top center;
+}
+
+#modernbb .wm-carte__dernier-corps {
+  display: block;
+  min-width: 0;
+}
+
+#modernbb .wm-carte__dernier-titre {
+  display: block;
+  overflow: hidden;
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modernbb .wm-carte__dernier-signature {
+  display: block;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/* ── 3 · le zoom ──────────────────────────────────────────────────── */
+
+/*  Deux boutons, et PAS LA MOLETTE. La carte vit au milieu d'une page
+    qu'on fait défiler : une molette qui zoome au lieu de faire défiler
+    enferme le lecteur dans un bloc dont il ne sait plus sortir. */
+#modernbb .wm-carte__zoom {
+  position: absolute;
+  bottom: var(--wm-espace-16, 16px);
+  left: var(--wm-espace-16, 16px);
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-carte__zoom-bouton {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--wm-texte-corps, #4e3b30);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+#modernbb .wm-carte__zoom-bouton + .wm-carte__zoom-bouton {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-carte__zoom-bouton:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/* ── 4 · la légende et la liste ───────────────────────────────────── */
+
+#modernbb .wm-carte__colonne {
+  display: flex;
+  flex: 0 0 248px;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+  min-width: 0;
+}
+
+#modernbb .wm-carte__legende {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+#modernbb .wm-carte__legende-item {
+  display: flex;
+  gap: var(--wm-espace-6, 6px);
+  align-items: center;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carte__pastille,
+#modernbb .wm-carte__puce {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 3px;
+  background: var(--wm-accent-terre, #8b4725);
+}
+
+#modernbb [data-wm-famille="palier1"] .wm-carte__pastille,
+#modernbb [data-wm-famille="palier1"] .wm-carte__puce {
+  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 30%, transparent);
+}
+
+#modernbb [data-wm-famille="palier2"] .wm-carte__pastille,
+#modernbb [data-wm-famille="palier2"] .wm-carte__puce {
+  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 52%, transparent);
+}
+
+#modernbb [data-wm-famille="palier3"] .wm-carte__pastille,
+#modernbb [data-wm-famille="palier3"] .wm-carte__puce {
+  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 78%, transparent);
+}
+
+#modernbb [data-wm-famille="ville"] .wm-carte__pastille,
+#modernbb [data-wm-famille="ville"] .wm-carte__puce {
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb [data-wm-famille="ligue"] .wm-carte__pastille,
+#modernbb [data-wm-famille="ligue"] .wm-carte__puce {
+  border-radius: 999px;
+  background: var(--wm-encre, #2e2018);
+}
+
+/*  La liste défile seule quand la carte est plus haute qu'elle :
+    vingt-six lieux ne tiennent pas en 420 px, et une liste qui
+    allonge le bloc entier ferait de la carte une bande. */
+#modernbb .wm-carte__liste {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  max-height: 420px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  list-style: none;
+}
+
+#modernbb .wm-carte__item + .wm-carte__item {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-carte__entree {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  border: 0;
+  background: transparent;
+  color: var(--wm-texte-corps, #4e3b30);
+  cursor: pointer;
+  text-align: left;
+}
+
+#modernbb .wm-carte__entree-nom {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*  LE PALIER, ÉCRIT SUR CHAQUE ENTRÉE. C'est redondant avec la
+    légende, et c'est voulu : on ne doit pas avoir à remonter pour
+    savoir ce que veut dire la couleur de la puce. */
+#modernbb .wm-carte__entree-famille {
+  flex: none;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carte__entree:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .wm-carte__entree--choisie {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carte__entree:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: -2px;
+}
+
+/* ── 5 · sur petit écran ──────────────────────────────────────────── */
+
+/*  La liste passe SOUS la carte, et le panneau cesse de flotter : à
+    390 px de large, un panneau de 300 posé sur le dessin ne laisse
+    plus voir la carte qu'il commente. Il se range donc dessous, en
+    pleine largeur, et il reste au même endroit du flux — on ne le
+    cherche pas d'une taille d'écran à l'autre. */
+@media (max-width: 900px) {
+  #modernbb .wm-carte {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-carte__colonne {
+    flex: 1 1 auto;
+  }
+
+  #modernbb .wm-carte__panneau {
+    position: static;
+    width: auto;
+    margin-top: var(--wm-espace-12, 12px);
+    backdrop-filter: none;
+  }
+
+  /*  Fermé, il ne doit pas laisser un trou dans le flux. */
+  #modernbb .wm-carte__panneau:not(.wm-carte__panneau--ouvert) {
+    display: none;
+  }
+
+  #modernbb .wm-carte__liste {
+    max-height: 280px;
+  }
+}
 
