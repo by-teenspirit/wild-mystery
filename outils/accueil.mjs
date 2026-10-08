@@ -845,8 +845,16 @@ const cotes = await p.evaluate((liste) => {
     .map((e) => e.getBoundingClientRect());
   const bandeau = r(".wm-accueil__bandeau");
   const staff = {
-    ecart: Math.round(bandeau.top + bandeau.height / 2 -
-      (membres[0].top + membres[membres.length - 1].bottom) / 2),
+    //  31 SOUS LE BANDEAU, la cote de la maquette. Ils ont été centrés
+    //  une demi-journée ; centrés, le dernier touchait la carte des
+    //  actualités. On mesure donc l'écart au bandeau, pas un milieu.
+    sousLeBandeau: Math.round(membres[0].top - bandeau.top),
+    //  Et le mot, lui, se centre sur ce QU'ON VOIT du bandeau — la
+    //  carte des actualités en recouvre le bas.
+    motAuMilieuDuVisible: (() => {
+      const b = getComputedStyle(document.querySelector(".wm-accueil__bandeau"));
+      return Math.round(parseFloat(b.paddingBottom));
+    })(),
     //  Et la carte des actualités remonte jusqu'à eux, pas dedans.
     sousLesMembres: Math.round(r(".wm-accueil__actus").top - membres[membres.length - 1].bottom),
     retraitAvatar: parseFloat(getComputedStyle(document.querySelector(".wm-accueil__membre-avatar")).paddingTop),
@@ -871,6 +879,21 @@ const cotes = await p.evaluate((liste) => {
   //  superposition : on lit les deux `z-index` dans le même contexte
   //  d'empilement, et on vérifie qu'elles se chevauchent — un ordre
   //  juste sur deux boîtes disjointes ne veut rien dire.
+  //  CE QU'ON VOIT DES ACTUALITÉS, c'est la carte blanche, pas la
+  //  boîte qui la contient : le titre déborde par le haut, et la carte
+  //  s'arrêtait 36 px avant les deux autres alors que les boîtes, elles,
+  //  tombaient juste.
+  bas["la carte des actualités"] = {
+    bas: Math.round(r(".wm-accueil__actus > .wm-accueil__carte").bottom - panneau.top),
+    h: Math.round(r(".wm-accueil__actus > .wm-accueil__carte").height),
+  };
+  //  ET LES SEPT VIGNETTES DE PARTENAIRE TIENNENT SUR UNE RANGÉE. La
+  //  carte pouvait rétrécir à 264, et la septième passait à la ligne.
+  const rangees = new Set(
+    [...document.querySelectorAll(".wm-accueil__partenaire")]
+      .map((e) => Math.round(e.getBoundingClientRect().top)),
+  ).size;
+
   const carte = r(".wm-accueil__partenaires");
   const devant = {
     mascotte: Number(getComputedStyle(document.querySelector(".wm-accueil__mascotte")).zIndex),
@@ -879,6 +902,7 @@ const cotes = await p.evaluate((liste) => {
   };
   return {
     bas,
+    rangeesDePartenaires: rangees,
     staff,
     devant,
     lu,
@@ -912,6 +936,11 @@ dire(
   JSON.stringify(cotes.bas),
 );
 dire(
+  "les sept vignettes de partenaire tiennent sur une rangée",
+  cotes.rangeesDePartenaires === 1,
+  `${cotes.rangeesDePartenaires} rangée(s)`,
+);
+dire(
   "et les pré-liens font la hauteur des partenaires",
   cotes.bas["préliens"].h === cotes.bas.partenaires.h,
   JSON.stringify(cotes.bas),
@@ -920,9 +949,14 @@ dire(
 //  que la hauteur des membres est impaire, et l'arrondi du navigateur
 //  le rend tantôt d'un côté tantôt de l'autre.
 dire(
-  "les membres du staff sont centrés face au mot « Staff »",
-  Math.abs(cotes.staff.ecart) <= 2,
-  JSON.stringify(cotes.staff.ecart),
+  "les membres du staff commencent 31 px sous le bandeau, comme la maquette",
+  cotes.staff.sousLeBandeau === 31,
+  `relevé ${cotes.staff.sousLeBandeau}`,
+);
+dire(
+  "et le mot « Staff » se centre sur la partie que les actualités ne couvrent pas",
+  cotes.staff.motAuMilieuDuVisible === 77,
+  `rembourrage bas ${cotes.staff.motAuMilieuDuVisible}`,
 );
 dire(
   "et la carte des actualités remonte jusqu'à eux SANS les toucher",

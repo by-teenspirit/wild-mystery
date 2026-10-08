@@ -7100,8 +7100,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Et seulement là où le chevauchement a un sens — sous 1 100 px les
     bandes se replient l'une sous l'autre, et remonter la carte la
     ferait mordre sur le staff. */
+/*  ET LA CARTE REMPLIT LE BLOC. Les trois blocs du bas finissaient
+    bien sur la même ligne, mais ce qu'on VOIT des actualités, c'est la
+    carte blanche, et elle s'arrêtait 36 px plus haut : le bloc contient
+    le titre, qui déborde par le haut, puis la carte, qui ne faisait que
+    la hauteur de ses quatre nouvelles. « Les actualités ne sont plus
+    alignées avec les deux autres », et c'était vrai à l'œil même si les
+    boîtes, elles, l'étaient. */
 #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
+  display: flex;
   flex: 396 1 396px;
+  flex-direction: column;
+}
+
+#modernbb .wm-accueil__actus > .wm-accueil__carte {
+  flex: 1 1 auto;
 }
 
 /*  LA MARGE SE COMPTE DEPUIS LA BANDE, PAS DEPUIS LE BANDEAU. `-69px`
@@ -7329,7 +7342,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   align-self: stretch;
   align-items: center;
   justify-content: center;
-  padding: var(--wm-espace-20, 20px) var(--wm-espace-10, 10px);
+  /*  LE MOT SE CENTRE SUR CE QU'ON VOIT DU BANDEAU, pas sur toute sa
+      hauteur. La carte des actualités lui recouvre les 77 derniers
+      pixels ; centré sur 318, le mot tombait à 200, soit DANS la
+      partie cachée. Le rembourrage bas vaut le recouvrement, et le
+      centrage se fait donc sur 41 → 282. */
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-10, 10px) 77px;
   border-radius: var(--wm-rayon-lg, 10px);
   /*  35 % ET PAS 45, ET C'EST LE MOT QUI LE DÉCIDE. Callista veut
       « Staff » en bleu — `accent-fort`, le bleu de la charte. Mesuré
@@ -7600,10 +7618,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     — « plus d'espace entre le titre, les partenaires et le lien » —
     sans poser trois marges qui se périmeraient à la hauteur
     suivante. */
+/*  ELLE NE RÉTRÉCIT PLUS NON PLUS. Elle pouvait tomber à 264, et sept
+    vignettes de 24 avec 12 d'écart demandent 240 pour 224 restants :
+    la septième passait à la ligne et la carte prenait un étage de
+    plus. Relevé le 8 octobre.
+
+    `0 0` plutôt qu'un écart réduit : 284 est la cote de la maquette, et
+    c'est la grille des pré-liens qui doit céder quand la place manque
+    — elle est en `auto-fill`, elle retombe d'elle-même à deux colonnes
+    puis à une. */
 #modernbb .wm-accueil__partenaires {
   display: flex;
   min-width: 0;
-  flex: 0 1 284px;
+  flex: 0 0 284px;
   flex-direction: column;
   justify-content: space-between;
   gap: var(--wm-espace-12, 12px);
@@ -7706,15 +7733,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   padding: 0;
   flex: 1 1 auto;
   flex-direction: column;
-  /*  LES MEMBRES SE TIENNENT AU MILIEU DU BANDEAU, face au mot
-      « Staff » qui y est centré lui aussi. Demandé le 8 octobre.
+  /*  ── ILS SONT REMONTÉS EN HAUT, ET C'EST LA TROISIÈME POSITION ──
 
-      Ils étaient posés en haut, avec une marge de 31 px pour passer
-      sous la carte des votes. Le centrage fait mieux et sans chiffre :
-      la bande fait 318, deux membres en font moins de 200, et ce qui
-      reste se partage en deux. La carte des votes finit à 36, ils
-      commencent bien plus bas. */
-  justify-content: center;
+      D'abord posés en haut avec 31 px de marge, puis centrés dans le
+      bandeau (« centre bien les deux staffiens »), et maintenant
+      remontés : centrés, le second finissait à 282, exactement là où
+      commence la carte des actualités — les deux se touchaient.
+      « Remonte le staff pour s'éloigner un peu du bloc d'actualités ».
+
+      Le haut du bandeau est la position de la maquette : les membres y
+      sont à y = 72, soit 31 sous le bandeau. On y revient, et les 46 px
+      gagnés sont exactement l'air qui manquait au-dessus des
+      actualités. */
+  justify-content: flex-start;
+  padding-top: 31px;
   gap: var(--wm-espace-24, 24px);
   list-style: none;
 }
@@ -7761,7 +7793,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border: 1px solid color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 45%,
     var(--wm-fond-surface, #fffbf7));
   border-radius: 999px;
-  background: var(--wm-fond-douce, #f3e1d2);
 }
 
 #modernbb .wm-accueil__membre-avatar img {
@@ -7935,7 +7966,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex: 1 1 auto;
   grid-template-columns: repeat(auto-fill, 75px);
   max-width: 255px;
-  align-content: space-between;
+  /*  `start` ET PAS `space-between` : la grille est étirée par la
+      bande, et `space-between` répartissait le surplus ENTRE LES
+      RANGÉES — 15 px entre les colonnes, davantage entre les lignes.
+      « Le gap entre les pré-liens doit être égal partout ». */
+  align-content: start;
   justify-content: start;
   gap: 15px;
   list-style: none;
@@ -7952,7 +7987,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   padding: 5px;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: 999px;
-  background: var(--wm-fond-surface, #fffbf7);
+  /*  PAS DE FOND DERRIÈRE L'AVATAR. Il était là pour meubler l'anneau
+      avant que l'image charge ; l'image le couvre, et quand elle manque
+      le rond crème se lisait comme une pastille vide au lieu d'un
+      contour. Demandé le 8 octobre, et c'est la même décision que sous
+      les vignettes de vote. */
   cursor: pointer;
   line-height: 0;
 }
