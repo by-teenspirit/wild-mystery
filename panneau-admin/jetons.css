@@ -66,6 +66,16 @@
       revenir au dégradé : `none`. */
   --wm-bandeau-categorie: url("https://i.postimg.cc/zGgX8jDz/bandeau.png");
 
+  /*  LA MER DE LA CARTE DES TERRITOIRES.
+
+      Même règle que la bande ci-dessus : l'adresse vit ici, pas dans
+      une feuille. Elle se pose SOUS le continent, qui reste dessiné
+      en SVG — l'image ne porte donc que l'eau, et le dessin peut
+      changer sans qu'on la refasse.
+
+      Pour revenir à l'eau unie : `none`. */
+  --wm-carte-fond: none;
+
   --wm-accent-primaire: #275e7a;
   --wm-accent-fort:     #1f5470;
   --wm-accent-terre:    #8b4725;

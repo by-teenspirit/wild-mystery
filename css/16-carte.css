@@ -124,16 +124,31 @@
   height: 100%;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
-  /*  L'EAU EST PLUS SOMBRE QUE LA TERRE, pas l'inverse. Le continent
+  /*  ── L'EAU, EN TROIS COUCHES ───────────────────────────────────
+
+      L'EAU EST PLUS SOMBRE QUE LA TERRE, pas l'inverse. Le continent
       est un aplat clair dessus : c'est ce contraste-là qui donne un
-      bord à la terre sans avoir à l'entourer d'un trait épais. */
+      bord à la terre sans avoir à l'entourer d'un trait épais.
+
+      `--wm-carte-fond` est l'image de mer, posée par le panneau
+      d'administration comme la bande des catégories. Elle ne porte
+      QUE l'EAU : le continent, les zones et les villes restent
+      dessinés en SVG par-dessus, et peuvent donc changer — la vraie
+      carte de Callista, un jour — sans qu'on refasse l'image.
+
+      Le dégradé bleu reste AU-DESSUS d'elle, à faible opacité : il
+      tient le coin nord-ouest quel que soit le fond, et il reste
+      seul le jour où l'adresse tombe. */
   background-color: var(--wm-fond-douce, #f3e1d2);
   background-image:
     radial-gradient(
       120% 120% at 18% 12%,
       color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 16%, transparent) 0%,
       transparent 58%
-    );
+    ),
+    var(--wm-carte-fond, none);
+  background-position: center;
+  background-size: auto, cover;
   cursor: grab;
   touch-action: none;
 }
