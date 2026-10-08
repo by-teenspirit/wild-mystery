@@ -434,3 +434,236 @@
     depuis cdnjs, et c'est SON choix. La remplacer par Material
     Symbols demanderait de réécrire chaque appel d'icône dans le fork,
     pour un gain d'un kilo-octet. */
+
+/* ── 5 · le dedans de la conversation ─────────────────────────────── */
+
+/*  ── CE QUI RESTAIT DE 2017, UNE FOIS LE TIROIR OUVERT ─────────────
+
+    La première passe avait habillé le CADRE : le bouton, le tiroir,
+    les onglets, les titres. Le dedans, lui, était resté celui du
+    greffon, et Callista l'a vu : « tu peux améliorer l'intérieur du
+    tchat ? »
+
+    Relevé à l'écran le 8 octobre, dans une conversation ouverte :
+
+      · la bulle de message est en `#DDD` avec du texte noir, et la
+        mienne en `#07C` — sur le thème sombre, la bulle était une
+        tache gris clair et le texte dedans, crème, INVISIBLE. C'est
+        le défaut qui comptait ;
+      · les trois boutons du bas — trombone, frimousse, envoi — sont
+        des carrés blancs à icône `#333`, séparés par des filets
+        `#DDD`. Une barre claire au bas d'un tiroir sombre ;
+      · la pastille de pièces jointes est en `#39F` ;
+      · le cercle de l'avatar est en `#CCC`, et en `#39F` quand la
+        personne est connectée ;
+      · les cinq entrées du menu sont écrites en 30 px ;
+      · la barre de temporisation est en `#CCC`.
+
+    Tout ce qui suit remplace ces couleurs par des jetons, et RIEN
+    D'AUTRE : aucune mesure, aucune position, aucun comportement. Ce
+    qui est mécanique vit dans le fork, et c'est là qu'on le change. */
+
+/*  LA BULLE. `fond/douce` pour les autres, l'accent pour les miennes —
+    la même paire que partout ailleurs sur le forum, et le même sens :
+    ce qui vient de moi prend la couleur d'action.
+
+    Le bec est un `::before` en bordure pleine : sa couleur doit suivre
+    la bulle, sinon il reste gris à côté d'une bulle terre. */
+#modernbb #FAM .FAM-msg-content {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+  /*  UN FILET AUTOUR, et c'est la même leçon que pour les pastilles de
+      sous-forum, payée le même jour : en thème sombre, `fond/douce` et
+      `fond/surface` ne sont séparés que de trois points de luminosité.
+      Sans filet, la bulle existe et on ne la VOIT pas — le texte a
+      l'air posé à même le tiroir. La bulle de l'autre en a besoin ;
+      la mienne, qui est en accent plein, non. */
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb #FAM .FAM-msg-content::before {
+  border-right-color: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb #FAM .FAM-my-msg .FAM-msg-content {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb #FAM .FAM-my-msg .FAM-msg-content::before {
+  border-left-color: var(--wm-accent-primaire, #275e7a);
+}
+
+/*  L'erreur garde son rouge, mais celui de la charte : `#F33` est un
+    rouge d'alerte de navigateur, pas une couleur de ce forum. */
+#modernbb #FAM .FAM-msg-error .FAM-msg-content {
+  background: var(--wm-danger-interdite, #a64430);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb #FAM .FAM-msg-error .FAM-msg-content::before {
+  border-left-color: var(--wm-danger-interdite, #a64430);
+}
+
+/*  Le nom au-dessus, la date en dessous : l'un se lit, l'autre
+    s'aperçoit. */
+#modernbb #FAM .FAM-msg-name {
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb #FAM .FAM-msg-date {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  Le cercle de l'avatar prend le filet de la charte, et l'accent
+    quand la personne est connectée — c'est la seule information que
+    cette couleur porte, et elle vaut d'être gardée. */
+#modernbb #FAM .FAM-msg-avatar {
+  border-color: var(--wm-bord-net, #d9c3b1);
+}
+
+#modernbb #FAM .FAM-msg-online .FAM-msg-avatar {
+  border-color: var(--wm-accent-primaire, #275e7a);
+}
+
+/* ── 6 · la barre du bas ──────────────────────────────────────────── */
+
+/*  Elle était blanche sous un tiroir sombre. Elle prend la surface du
+    tiroir, et son filet du haut celui de la charte. */
+#modernbb #FAM-actions {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb #FAM-actions > button {
+  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb #FAM-actions > button:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb #FAM-actions > button:active {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  Le bouton d'envoi est l'action principale de la barre : il prend
+    l'accent plein, comme un bouton primaire ailleurs sur le forum. */
+#modernbb #FAM-actions > button#FAM-send {
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb #FAM-actions > button#FAM-send:hover {
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb #FAM #FAM-msg-container {
+  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb #FAM #FAM-msg {
+  background: transparent;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb #FAM #FAM-msg::placeholder {
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+/*  La pastille de pièces jointes reprend celle des notifications et
+    celle du tchat : trois compteurs qui disent la même chose ne
+    doivent pas se dessiner de trois façons. */
+#modernbb #FAM #FAM-attachment-total {
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+#modernbb #FAM #FAM-timeout-bar {
+  background: var(--wm-accent-terre, #8b4725);
+}
+
+/*  Les menus déroulants que la barre ouvre — frimousses, pièces
+    jointes — sont des panneaux blancs posés sur le tiroir. */
+#modernbb #FAM .FAM-dropdown {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/* ── 7 · le menu du coin ──────────────────────────────────────────── */
+
+/*  TRENTE PIXELS POUR UNE ICÔNE DE MENU. C'est la taille que FAM leur
+    donne, et dans un panneau de 75 de large elles se touchaient
+    presque. On les ramène à la taille d'une icône de barre, et on
+    rend au panneau un fond, un filet et une ombre — il était posé
+    sans bord sur le contenu qu'il recouvre. */
+#modernbb #FAM #FAM-menu {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 20px rgb(20 48 58 / 14%);
+  overflow: hidden;
+}
+
+#modernbb #FAM .FAM-menu-option {
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-chapo, 21px);
+}
+
+#modernbb #FAM .FAM-menu-option:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
+  opacity: 1;
+}
+
+#modernbb #FAM .FAM-menu-option:active {
+  background: var(--wm-fond-douce, #f3e1d2);
+  opacity: 1;
+}
+
+/*  Les champs de saisie du greffon — recherche, réglages — sont des
+    `input` blancs à filet gris. */
+#modernbb #FAM .FAM-inputbox {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  Et ses boutons pleins, qui sont bleus d'origine. */
+#modernbb #FAM .FAM-button {
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb #FAM .FAM-button:hover {
+  background: var(--wm-accent-fort, #1f5470);
+}
+
+/*  La vignette d'une pièce jointe, et son filet. */
+#modernbb #FAM .FAM-attachment-thumb {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
