@@ -63,7 +63,7 @@ FEUILLES = "[0-9][0-9]-*.css"
 #  ils mesurent la page. Ils n'ont pas de valeur de charte, et leur repli
 #  est ce qui s'applique avant la mesure — il est donc juste par
 #  construction.
-HORS_CHARTE = {"--wm-haut-toolbar", "--wm-accueil-fond"}
+HORS_CHARTE = {"--wm-haut-toolbar", "--wm-accueil-fond", "--wm-bec"}
 
 #  Un `var()` avec repli, le repli pouvant lui-même contenir une
 #  parenthèse (`color-mix(…)`), mais pas deux niveaux.

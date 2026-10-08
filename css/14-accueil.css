@@ -929,6 +929,28 @@
   display: none;
 }
 
+/*  ── TROIS ÉTAGES, ET ON N'EN VOYAIT QU'UN ─────────────────────────
+
+    Le panneau disait trois choses de nature différente — QUI, QUOI,
+    et OÙ CLIQUER — et les posait l'une sous l'autre à 10 px, en deux
+    gris voisins. « Lien attendu Un rival d'enfance » se lisait comme
+    une phrase, et le nom du personnage ne tenait pas au-dessus du
+    reste : un demi-point d'écart et une graisse, c'est tout ce qui
+    les séparait.
+
+    Ce qu'on pose à la place, de haut en bas :
+
+      · LE NOM, à la taille du corps et sur un filet. C'est le titre
+        du panneau, et un titre se détache d'abord par la place qu'il
+        prend, pas par sa graisse ;
+      · LES COUPLES, étiquette en capitales par-dessus sa valeur. La
+        capitale à 10 px ne se confond avec aucun texte courant, et la
+        valeur récupère les 11,5 px du corps au lieu d'être écrasée
+        avec son étiquette ;
+      · LE LIEN, détaché par un écart et son chevron.
+
+    Rien n'est inventé : les trois étages sont ceux des cartes du
+    forum — surtitre, corps, pied — à l'échelle d'une infobulle. */
 #modernbb .wm-accueil__prelien-panneau {
   position: absolute;
   bottom: calc(100% + var(--wm-espace-8, 8px));
@@ -940,39 +962,110 @@
   width: 232px;
   max-width: calc(100vw - 32px);
   flex-direction: column;
-  gap: var(--wm-espace-4, 4px);
-  padding: var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-14, 14px);
 
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
-  box-shadow: 0 6px 18px rgb(0 0 0 / 14%);
+  box-shadow: 0 8px 24px rgb(20 48 58 / 16%);
   transform: translateX(-50%);
+  text-align: left;
+}
+
+/*  LE PONT AU-DESSUS DES HUIT PIXELS DE VIDE. Le panneau flotte 8 px
+    au-dessus de sa bulle ; en allant de l'une à l'autre, le curseur
+    traversait un no man's land, `mouseleave` partait, et le panneau
+    se dérobait sous la souris.
+
+    Le pont est un pseudo-élément du PANNEAU, donc un descendant de la
+    bulle : `mouseleave` ne se déclenche pas quand on passe sur un
+    descendant, même posé hors de la boîte. */
+#modernbb .wm-accueil__prelien-panneau::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: calc(-1 * var(--wm-espace-8, 8px));
+  left: 0;
+  height: var(--wm-espace-8, 8px);
+}
+
+/*  LE BEC, qui rattache le panneau à sa bulle. Un carré tourné de 45°
+    dont on ne garde que deux bords : les deux qui dépassent.
+
+    `--wm-bec` vaut la moitié par défaut et le module la corrige quand
+    il recale le panneau pour le garder dans l'écran — sans quoi le
+    bec désignerait le vide à côté de la bulle. */
+#modernbb .wm-accueil__prelien-panneau::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: var(--wm-bec, 50%);
+  width: 8px;
+  height: 8px;
+  border-right: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-bottom: 1px solid var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-surface, #fffbf7);
+  transform: translateX(-50%) rotate(45deg);
 }
 
 #modernbb .wm-accueil__prelien-nom {
   margin: 0;
+  padding-bottom: var(--wm-espace-8, 8px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb .wm-accueil__prelien-liste {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
 }
 
 #modernbb .wm-accueil__prelien-ligne {
-  margin: 0;
-  color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-etiquette, 10px);
-  line-height: var(--wm-interligne-courant, 1.5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-2, 2px);
 }
 
 #modernbb .wm-accueil__prelien-clef {
-  color: var(--wm-texte-doux, #6e5749);
-  font-weight: var(--wm-graisse-demi, 600);
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
 }
 
+#modernbb .wm-accueil__prelien-valeur {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  Le lien du pied, aligné à droite comme celui des cartes, avec son
+    chevron collé au mot — `gap` et pas une espace, qui se couperait
+    en bout de ligne. */
 #modernbb .wm-accueil__prelien-lien {
-  margin-top: var(--wm-espace-4, 4px);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-accueil__chevron {
+  display: block;
+  width: 10px;
+  height: 10px;
+  flex: none;
 }
 
 /* ── 10 · la mascotte ─────────────────────────────────────────────── */
@@ -1006,6 +1099,16 @@
       transparence du PNG qui fait le travail, pas un évitement. Ce
       qu'il fallait corriger, c'était le retrait de la rangée du bas
       (règle suivante), que la maquette met à 123 px. */
+  /*  ELLE PASSE DEVANT LA CARTE DES PARTENAIRES, pas derrière.
+      Demandé le 8 octobre, et c'est ce que la maquette dessine : le
+      Krokorok mord le coin gauche de la carte, et c'est la
+      transparence du PNG qui laisse le titre lisible.
+
+      Elle était en `z-index: 0` sous une bande à 1 — le contraire. 2
+      la met au-dessus des deux bandes. Elle ne monte pas plus haut
+      que la carte : son bord supérieur est à 10 px sous le bas de la
+      bande du haut, et la carte des votes est à 60. */
+  z-index: 2;
   bottom: -93px;
   left: -60px;
   width: 312px;

@@ -125,6 +125,29 @@ function puce(doc: Document): SVGSVGElement {
   return s;
 }
 
+/** Le chevron du lien « Voir le pré-lien ».
+ *
+ *  La même flèche que la puce des liens rapides, sans sa pastille et
+ *  sans sa hampe : le lien est déjà écrit, le signe dit seulement
+ *  qu'on sort du panneau. Tracé pour la même raison que l'autre — une
+ *  ligature non chargée écrit son mot en clair. */
+function chevron(doc: Document): SVGSVGElement {
+  const s = doc.createElementNS(SVG, "svg");
+  s.setAttribute("viewBox", "0 0 24 24");
+  s.setAttribute("class", "wm-accueil__chevron");
+  s.setAttribute("aria-hidden", "true");
+  s.setAttribute("focusable", "false");
+  const p = doc.createElementNS(SVG, "path");
+  p.setAttribute("d", "M9 5.5 16 12l-7 6.5");
+  p.setAttribute("fill", "none");
+  p.setAttribute("stroke", "currentColor");
+  p.setAttribute("stroke-width", "2.6");
+  p.setAttribute("stroke-linecap", "round");
+  p.setAttribute("stroke-linejoin", "round");
+  s.appendChild(p);
+  return s;
+}
+
 function vignette(doc: Document, src: string, classe: string): HTMLElement {
   const cadre = element(doc, "span", classe);
   if (src !== "") {
@@ -394,6 +417,12 @@ function bornerAuxBords(doc: Document, panneau: HTMLElement): void {
   if (r.left < marge) decalage = marge - r.left;
   else if (r.right > vue.innerWidth - marge) decalage = vue.innerWidth - marge - r.right;
   if (decalage !== 0) panneau.style.marginLeft = `${Math.round(decalage)}px`;
+  //  ET LE BEC SUIT LE PANNEAU EN SENS INVERSE. Il pointe la bulle,
+  //  qui n'a pas bougé : si le panneau glisse de 40 px vers la droite
+  //  pour rentrer dans l'écran et que le bec reste à son milieu, il
+  //  désigne un point 40 px à côté de la bulle. La feuille le pose à
+  //  `--wm-bec`, qui vaut la moitié moins le décalage.
+  panneau.style.setProperty("--wm-bec", `calc(50% - ${Math.round(decalage)}px)`);
 }
 
 /** Une bulle de pré-lien, et son panneau.
@@ -417,19 +446,35 @@ function bullePrelien(doc: Document, p: Prelien, i: number): HTMLElement {
   panneau.id = idPanneau;
   panneau.hidden = true;
   panneau.appendChild(element(doc, "p", "wm-accueil__prelien-nom", p.personnage));
-  for (const ligne of lignesDUnPrelien(p)) {
-    const l = element(doc, "p", "wm-accueil__prelien-ligne");
-    l.append(
-      element(doc, "span", "wm-accueil__prelien-clef", `${ligne.cle} `),
-      element(doc, "span", "", ligne.valeur),
-    );
-    panneau.appendChild(l);
+  //  ── CLÉ ET VALEUR SUR DEUX LIGNES, DANS UNE LISTE DE DÉFINITIONS ──
+  //
+  //  Elles tenaient sur une seule, séparées par une espace et deux
+  //  nuances de gris : « Lien attendu Un rival d'enfance ». À 10 px,
+  //  l'œil ne voyait qu'une phrase, et la phrase ne voulait rien dire.
+  //
+  //  `dl` n'est pas un ornement : un lecteur d'écran annonce « Lien
+  //  attendu, Un rival d'enfance » comme un couple, là où deux `span`
+  //  dans un `p` ne disaient rien de leur rapport. Et il laisse la
+  //  feuille poser l'étiquette en capitales au-dessus de sa valeur
+  //  sans une espace insécable de bricolage.
+  const lignes = lignesDUnPrelien(p);
+  if (lignes.length > 0) {
+    const dl = element(doc, "dl", "wm-accueil__prelien-liste");
+    for (const ligne of lignes) {
+      const l = element(doc, "div", "wm-accueil__prelien-ligne");
+      l.append(
+        element(doc, "dt", "wm-accueil__prelien-clef", ligne.cle),
+        element(doc, "dd", "wm-accueil__prelien-valeur", ligne.valeur),
+      );
+      dl.appendChild(l);
+    }
+    panneau.appendChild(dl);
   }
   if (p.url !== "") {
     const lien = doc.createElement("a");
     lien.className = "wm-accueil__lien wm-accueil__prelien-lien";
     lien.href = p.url;
-    lien.textContent = "Voir le pré-lien";
+    lien.append(doc.createTextNode("Voir le pré-lien"), chevron(doc));
     panneau.appendChild(lien);
   }
 

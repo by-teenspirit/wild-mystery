@@ -537,6 +537,40 @@ dire(
 );
 dire("et elle ne sort pas de l'écran", ouverte.dedans && !ouverte.debord, JSON.stringify(ouverte));
 
+//  ── LES TROIS ÉTAGES DU PANNEAU ─────────────────────────────────────
+//  Il disait ses trois choses d'une seule voix : nom, clés et valeurs à
+//  un demi-point d'écart, les clés collées à leurs valeurs sur la même
+//  ligne. On vérifie que la hiérarchie EXISTE, en mesures et pas en
+//  intentions : le nom plus grand que les valeurs, la clé plus petite,
+//  et la clé AU-DESSUS de sa valeur et non à côté.
+const etages = await p.evaluate(() => {
+  const pan = document.querySelector(".wm-accueil__prelien-panneau");
+  const px = (e, prop) => parseFloat(getComputedStyle(e)[prop]);
+  const nom = pan.querySelector(".wm-accueil__prelien-nom");
+  const clef = pan.querySelector(".wm-accueil__prelien-clef");
+  const valeur = pan.querySelector(".wm-accueil__prelien-valeur");
+  return {
+    nom: px(nom, "fontSize"),
+    clef: px(clef, "fontSize"),
+    valeur: px(valeur, "fontSize"),
+    capitales: getComputedStyle(clef).textTransform,
+    filet: px(nom, "borderBottomWidth"),
+    clefAuDessus: Math.round(clef.getBoundingClientRect().bottom) <=
+      Math.round(valeur.getBoundingClientRect().top),
+    couple: pan.querySelector(".wm-accueil__prelien-liste")?.tagName ?? "aucun",
+  };
+});
+dire(
+  "LE NOM, LES CLÉS ET LES VALEURS NE SE LISENT PAS À LA MÊME VOIX",
+  etages.nom > etages.valeur && etages.valeur > etages.clef && etages.filet >= 1,
+  JSON.stringify(etages),
+);
+dire(
+  "chaque clé est en capitales AU-DESSUS de sa valeur, dans une liste de définitions",
+  etages.clefAuDessus && etages.capitales === "uppercase" && etages.couple === "DL",
+  JSON.stringify(etages),
+);
+
 await p.keyboard.press("Escape");
 const apresEchap = await p.evaluate(() => ({
   cache: document.querySelector(".wm-accueil__prelien-panneau").hidden,
@@ -572,6 +606,31 @@ for (const largeur of [900, 520, 390, 320]) {
   const m = await ouvrirLaBulle();
   dire(`à ${largeur} px, l'infobulle reste dans l'écran`, m.dedans, JSON.stringify(m));
   dire(`à ${largeur} px, rien ne déborde`, !m.debord);
+  //  ET LE BEC DÉSIGNE ENCORE SA BULLE. C'est là que ça se joue : sous
+  //  520 px le panneau glisse de plus de 200 px pour rentrer dans
+  //  l'écran, et un bec resté au milieu pointerait le vide.
+  const bec = await p.evaluate(() => {
+    const bulle = document.querySelector(".wm-accueil__prelien");
+    const pan = bulle.querySelector(".wm-accueil__prelien-panneau");
+    const g = getComputedStyle(pan, "::after");
+    const x = pan.getBoundingClientRect().left + parseFloat(g.left);
+    const b = bulle.getBoundingClientRect();
+    //  Le pont, lui, se mesure en hauteur : il doit couvrir l'écart
+    //  entre le bas du panneau et le haut de la bulle.
+    const pont = parseFloat(getComputedStyle(pan, "::before").height);
+    const vide = Math.round(b.top - pan.getBoundingClientRect().bottom);
+    return { x: Math.round(x), g: Math.round(b.left), d: Math.round(b.right), pont, vide };
+  });
+  dire(
+    `à ${largeur} px, le bec pointe encore sa bulle`,
+    bec.x >= bec.g && bec.x <= bec.d,
+    JSON.stringify(bec),
+  );
+  dire(
+    `à ${largeur} px, le pont couvre le vide entre les deux`,
+    bec.pont >= bec.vide,
+    JSON.stringify(bec),
+  );
   await p.keyboard.press("Escape");
 }
 
@@ -754,7 +813,19 @@ const cotes = await p.evaluate((liste) => {
   //  prend pas le clic, donc le point rendrait toujours le conteneur
   //  qui est dessous, qu'elle le recouvre ou non.
   const apres = Math.round(r(".forabg").top - m.bottom);
+  //  LA MASCOTTE PASSE DEVANT LA CARTE DES PARTENAIRES, et pas
+  //  derrière. Demandé le 8 octobre. On ne peut pas lire une
+  //  superposition : on lit les deux `z-index` dans le même contexte
+  //  d'empilement, et on vérifie qu'elles se chevauchent — un ordre
+  //  juste sur deux boîtes disjointes ne veut rien dire.
+  const carte = r(".wm-accueil__partenaires");
+  const devant = {
+    mascotte: Number(getComputedStyle(document.querySelector(".wm-accueil__mascotte")).zIndex),
+    bande: Number(getComputedStyle(document.querySelector(".wm-accueil__bande--bas")).zIndex),
+    chevauche: Math.round(Math.min(m.right, carte.right) - Math.max(m.left, carte.left)),
+  };
   return {
+    devant,
     lu,
     ecarts,
     debordBas: Math.round(m.bottom - panneau.bottom),
@@ -786,6 +857,11 @@ dire(
   "et ce qui suit le bloc commence sous elle",
   cotes.apres >= 0,
   `${cotes.apres} px entre le bas de la mascotte et la liste des forums`,
+);
+dire(
+  "la carte des partenaires passe DERRIÈRE la mascotte",
+  cotes.devant.mascotte > cotes.devant.bande && cotes.devant.chevauche > 0,
+  JSON.stringify(cotes.devant),
 );
 
 await nav.close();
