@@ -59,18 +59,24 @@
 
 /* ── 2 · le responsive : on replie au lieu de masquer ──────────────── */
 
-/* ModernBB met les colonnes à display:none sous 740px. On annule. */
+/*  ModernBB met les colonnes à `display: none` sous 740 px. On annule
+    — POUR LES LIGNES SEULEMENT.
+
+    LES CELLULES DE LA BANDE DE TITRE EN SONT SORTIES le 8 octobre. La
+    maquette `390:3317` ne dessine pas de colonnes dans la bande, et la
+    feuille 03 les masque ; cette règle-ci les rallumait par-dessus,
+    parce qu'elle est plus précise — (1,4,1) contre (1,2,2) — et que la
+    cascade ne regarde l'ordre des feuilles qu'à spécificité égale.
+
+    Relevé à l'écran : le titre tombait 130 px à gauche du centre, et
+    l'écart variait avec la longueur du titre — la signature d'un
+    voisin qui prend de la place. C'est la deuxième fois ce mois-ci
+    qu'une règle de `01` bat une règle de `03` sans qu'on la cherche. */
 #modernbb .modern-resp .forabg .row dd.posts,
 #modernbb .modern-resp .forabg .row dd.topics,
 #modernbb .modern-resp .forabg .row dd.views,
 #modernbb .modern-resp .forumbg .row dd.posts,
-#modernbb .modern-resp .forumbg .row dd.views,
-#modernbb .modern-resp .forabg .header dd.topics,
-#modernbb .modern-resp .forabg .header dd.posts,
-#modernbb .modern-resp .forabg .header dd.lastpost,
-#modernbb .modern-resp .forumbg .header dd.posts,
-#modernbb .modern-resp .forumbg .header dd.views,
-#modernbb .modern-resp .forumbg .header dd.lastpost {
+#modernbb .modern-resp .forumbg .row dd.views {
   display: block;
 }
 

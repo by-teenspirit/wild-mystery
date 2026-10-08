@@ -70,7 +70,7 @@
     remet le titre au milieu quelle que soit la place, et c'est le seul
     moyen que les deux restent égaux quand le rang et le compte n'ont
     pas la même largeur. */
-#modernbb li.header dl.icon {
+#modernbb ul.topiclist li.header dl.icon {
   display: flex;
   min-height: 74px;
   align-items: center;
@@ -81,21 +81,40 @@
 /*  Le rang, posé par `module-categories.ts`. Sans lui — JavaScript
     coupé — le pseudo-élément n'a pas de contenu et disparaît : la
     bande garde son titre entre ses filets, et c'est très bien. */
-#modernbb li.header dl.icon[data-wm-rang]::before {
-  content: attr(data-wm-rang) " ";
+#modernbb ul.topiclist li.header dl.icon[data-wm-rang]::before {
+  content: attr(data-wm-rang);
+  width: 34px;
+  flex: none;
   color: var(--wm-accent-terre, #8b4725);
   font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
   font-size: 26px;
   line-height: 1;
 }
 
-#modernbb li.header dl.icon[data-wm-forums]::after {
-  content: attr(data-wm-forums);
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-weight: var(--wm-graisse-gras, 700);
-  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
-  white-space: nowrap;
+/*  ── ET À DROITE, UN VIDE DE LA LARGEUR DU RANG ────────────────────
+
+    La maquette met « 4 FORUMS » là ; Callista n'en veut pas — « ne
+    mets rien, mais centre bien le titre ». Les deux vont ensemble, et
+    c'est tout le problème : enlever le texte de droite ne centre pas
+    le titre, ça le DÉCALE. Avec le rang seul à gauche, le titre se
+    centre entre le rang et le bord, donc 17 px trop à droite.
+
+    Un vide de la même largeur que le rang rétablit la symétrie, et le
+    titre retombe au milieu de la bande — pas au milieu de ce qui
+    reste.
+
+    34 px, et c'est une largeur FIXE assumée : le rang va de « 01 » à
+    « 99 » en Kaushan 26, deux chiffres toujours. Le jour où il en faut
+    trois, les deux nombres changent ensemble, et le rang est juste
+    au-dessus.
+
+    Lié à `[data-wm-rang]` : sans JavaScript il n'y a pas de rang à
+    gauche, donc pas de vide à compenser à droite, et la bande reste
+    symétrique d'elle-même. */
+#modernbb ul.topiclist li.header dl.icon[data-wm-rang]::after {
+  content: "";
+  width: 34px;
+  flex: none;
 }
 
 /*  LE TITRE PREND TOUTE LA PLACE QUI RESTE, et ses deux filets sont

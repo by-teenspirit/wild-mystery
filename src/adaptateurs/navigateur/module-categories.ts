@@ -1,25 +1,28 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-categories.ts
 //
-//  Les deux nombres de la bande de titre d'une catégorie.
+//  Le rang de la bande de titre d'une catégorie.
 //
 //  ── POURQUOI UN MODULE POUR SI PEU ──────────────────────────────────
 //
 //  La maquette `390:3317` dessine la bande ainsi :
 //
-//      02 │ ──────── AVANT DE PARTIR ──────── │ 4 FORUMS
+//      02 │ ──────── AVANT DE PARTIR ──────── │
 //
 //  Les filets, le centrage et les séparateurs sont de la feuille 03 :
-//  ils ne dépendent de rien. Les DEUX NOMBRES, eux, n'existent nulle
-//  part dans le balisage de ModernBB, qui ne sert qu'un titre. Il n'y a
-//  pas de `counter()` CSS qui sache compter des LIGNES DE FORUM à
-//  l'intérieur d'un bloc voisin, et pas de sélecteur qui sache écrire
-//  « 4 FORUMS » — `::after { content: counter(…) }` compte ce qu'on
-//  incrémente, pas ce qu'on trouve ailleurs.
+//  ils ne dépendent de rien. LE RANG, lui, n'existe nulle part dans le
+//  balisage de ModernBB, qui ne sert qu'un titre — et il n'y a pas de
+//  `counter()` CSS qui sache numéroter des blocs frères à travers un
+//  pseudo-élément.
 //
-//  Donc deux attributs posés une fois, et la feuille les affiche :
+//  Donc un attribut posé une fois, et la feuille l'affiche :
 //
-//      data-wm-rang="02"        data-wm-forums="4 FORUMS"
+//      data-wm-rang="02"
+//
+//  LE COMPTE DE FORUMS A EXISTÉ UNE HEURE, à droite, comme dans la
+//  maquette. Callista n'en veut pas : « ne mets rien ». Il est parti
+//  avec sa fonction d'accord — un compteur qu'on n'affiche pas est du
+//  code mort, et du code mort finit par être réactivé par erreur.
 //
 //  ── POURQUOI PAS DANS LE TEMPLATE ───────────────────────────────────
 //
@@ -38,11 +41,6 @@
 
 import { estLIndex } from "./module-vie.ts";
 
-/** Le mot, accordé. Un forum seul n'est pas « 1 FORUMS ». */
-export function compterLesForums(n: number): string {
-  return `${n} ${n > 1 ? "FORUMS" : "FORUM"}`;
-}
-
 /** Le rang, sur deux chiffres jusqu'à 99.
  *
  *  La maquette écrit « 02 » et pas « 2 » : le zéro tient la colonne, et
@@ -53,7 +51,7 @@ export function rangEnDeuxChiffres(n: number): string {
   return n < 10 ? `0${n}` : String(n);
 }
 
-/** Pose les deux nombres sur chaque bande de titre de l'index.
+/** Pose le rang sur chaque bande de titre de l'index.
  *
  *  Rend le nombre de catégories décorées, pour que le harnais puisse
  *  distinguer « rien à faire » de « je n'ai rien trouvé ». */
@@ -66,14 +64,12 @@ export function numeroterLesCategories(doc: Document): number {
   const blocs = doc.querySelectorAll<HTMLElement>(".forabg, .forumbg");
   let faits = 0;
   blocs.forEach((bloc, i) => {
-    const bande = bloc.querySelector<HTMLElement>("li.header");
+    //  SUR LE `dl`, PAS SUR LE `li` : c'est le `dl` que la feuille met
+    //  en rangée, et un pseudo-élément appartient à l'élément qui porte
+    //  l'attribut. Posé sur le `li`, il serait hors de la rangée.
+    const bande = bloc.querySelector<HTMLElement>("li.header dl.icon");
     if (bande === null) return;
-    //  LES LIGNES DE LA CATÉGORIE, ET PAS TOUTES CELLES DE LA PAGE :
-    //  on compte dans le bloc. Et `li.row` seulement — `li.header` est
-    //  une ligne elle aussi pour ModernBB.
-    const forums = bloc.querySelectorAll("ul.topiclist li.row").length;
     bande.dataset.wmRang = rangEnDeuxChiffres(i + 1);
-    bande.dataset.wmForums = compterLesForums(forums);
     faits += 1;
   });
   return faits;
