@@ -524,9 +524,13 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
       //  Le palier est déjà dans le titre du groupe juste au-dessus ;
       //  ici il repart dans le nom accessible, parce qu'une entrée
       //  atteinte à la tabulation s'annonce seule.
+      //  CE QUE FAIT LE PROCHAIN CLIC, ÉCRIT. À la souris, la flèche
+      //  qui apparaît sur l'entrée choisie dit « maintenant j'entre » ;
+      //  au clavier, rien ne le dirait. `choisir` réécrit cette
+      //  étiquette.
       entree.setAttribute(
         "aria-label",
-        `${lieu.nom}, ${familleDe(lieu).toLowerCase()} — entrer dans le forum`,
+        `${lieu.nom}, ${familleDe(lieu).toLowerCase()} — voir le détail`,
       );
       item.appendChild(entree);
       liste.appendChild(item);
@@ -701,13 +705,24 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     choisi = forumId;
     for (const [id, g] of formes) g.classList.toggle("wm-carte__lieu--choisi", id === forumId);
     for (const [id, b] of entrees) {
-      b.classList.toggle("wm-carte__entree--choisie", id === forumId);
+      const sienne = id === forumId;
+      b.classList.toggle("wm-carte__entree--choisie", sienne);
+      const l = parId.get(id);
+      if (l !== undefined) {
+        b.setAttribute(
+          "aria-label",
+          `${l.nom}, ${familleDe(l).toLowerCase()} — ${
+            sienne ? "entrer dans le forum" : "voir le détail"
+          }`,
+        );
+      }
     }
     remplirLePanneau(lieu);
   };
 
+  //  LE CLAVIER OUVRE LA FORME. Le clic à la souris, lui, ne passe
+  //  PAS par ici : voir le pointeur capturé, plus bas.
   for (const [id, g] of formes) {
-    g.addEventListener("click", () => choisir(id));
     g.addEventListener("keydown", (e) => {
       const k = (e as KeyboardEvent).key;
       if (k === "Enter" || k === " ") {
@@ -717,16 +732,32 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     });
   }
 
-  //  ── LA LISTE MONTRE, LE CLIC EMMÈNE ───────────────────────────────
+  //  ── DEUX CLICS : LE PREMIER MONTRE, LE SECOND EMMÈNE ──────────────
   //
-  //  L'entrée est un lien : son clic part dans le forum, et on ne
-  //  l'intercepte pas. Mais survoler ou tabuler dessus allume la forme
-  //  sur la carte et remplit le panneau — on voit où l'on va avant d'y
-  //  aller, et c'est la même paire d'yeux qui fait l'aller-retour entre
-  //  les deux colonnes.
+  //  Relevé par Callista le 8 octobre : « quand je survole les noms, ça
+  //  saute et c'est trop rapide, je préfère que ce soit au clic », et
+  //  « pour entrer dans la catégorie, il faut un 2e clic ».
+  //
+  //  LE SURVOL ÉTAIT UNE MAUVAISE IDÉE, et pour une raison qu'on ne
+  //  voit qu'à l'usage : en descendant la liste de la souris, on
+  //  traverse huit entrées avant d'arriver à la sienne, et le panneau
+  //  se redessine huit fois. Ce qui était censé aider donne un bloc
+  //  qui clignote.
+  //
+  //  L'entrée reste un LIEN — elle s'ouvre dans un onglet au clic du
+  //  milieu, se copie, et marche sans JavaScript. On intercepte
+  //  seulement le premier clic : il choisit. Le second, sur une entrée
+  //  déjà choisie, laisse le lien partir.
   for (const [id, b] of entrees) {
-    b.addEventListener("pointerenter", () => choisir(id));
-    b.addEventListener("focus", () => choisir(id));
+    b.addEventListener("click", (e) => {
+      //  Clic du milieu, Ctrl, Cmd, Maj : la personne demande un
+      //  onglet, pas une sélection. On ne touche à rien.
+      const ev = e as MouseEvent;
+      if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) return;
+      if (choisi === id) return;
+      e.preventDefault();
+      choisir(id);
+    });
   }
 
   // ── se déplacer à la souris, comme sur une vraie carte ───────────
@@ -736,20 +767,56 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   //  du cadre tout le temps, puisqu'on traîne vers les bords. Le
   //  pointeur capturé continue d'envoyer ses événements au nœud qui
   //  l'a pris, où qu'il aille.
+  //  ── POURQUOI LE CLIC SUR UNE FORME NE MARCHAIT PAS ───────────────
+  //
+  //  « Quand je clique sur la map, ça n'affiche pas la zone à droite. »
+  //
+  //  `setPointerCapture` REDIRIGE TOUS LES ÉVÉNEMENTS SUIVANTS vers le
+  //  nœud qui a capturé — le `click` compris. Le cadre capturait au
+  //  `pointerdown`, donc le `click` arrivait sur le cadre et jamais sur
+  //  la tache qu'on venait de viser. Les écouteurs posés sur les formes
+  //  ne se déclenchaient tout simplement pas.
+  //
+  //  ET LE HARNAIS NE LE VOYAIT PAS, parce qu'il envoyait un
+  //  `MouseEvent` synthétique directement sur la forme : un événement
+  //  fabriqué ne passe pas par la capture. Il testait le code, pas le
+  //  geste. Il clique maintenant pour de vrai.
+  //
+  //  On retient donc la forme visée au `pointerdown`, et on décide au
+  //  `pointerup` : si le pointeur n'a pas bougé de plus de quatre
+  //  pixels, c'était un clic ; au-delà, c'était un glissement, et on ne
+  //  choisit rien — sinon traîner la carte changerait de zone à
+  //  l'arrivée.
+  const SEUIL_CLIC = 4;
   let attrape: { x: number; y: number } | null = null;
+  let vise: number | null = null;
+  let depart: { x: number; y: number } | null = null;
   cadre.addEventListener("pointerdown", (e) => {
     const ev = e as PointerEvent;
-    //  Seulement le bouton principal, et pas sur un lieu : un clic sur
-    //  une tache doit la choisir, pas démarrer un glissement.
     if (ev.button !== 0) return;
     attrape = { x: ev.clientX, y: ev.clientY };
+    depart = { x: ev.clientX, y: ev.clientY };
+    vise = null;
+    const cible = ev.target as Element | null;
+    const forme = cible?.closest?.(".wm-carte__lieu") ?? null;
+    const f = forme?.getAttribute("data-wm-forum");
+    if (f !== null && f !== undefined) vise = Number(f);
     cadre.setPointerCapture(ev.pointerId);
     cadre.classList.add("wm-carte__cadre--attrape");
   });
   const relacher = (e: Event): void => {
-    attrape = null;
-    cadre.classList.remove("wm-carte__cadre--attrape");
     const ev = e as PointerEvent;
+    if (
+      vise !== null && depart !== null && ev.type === "pointerup" &&
+      Math.abs(ev.clientX - depart.x) <= SEUIL_CLIC &&
+      Math.abs(ev.clientY - depart.y) <= SEUIL_CLIC
+    ) {
+      choisir(vise);
+    }
+    attrape = null;
+    vise = null;
+    depart = null;
+    cadre.classList.remove("wm-carte__cadre--attrape");
     if (cadre.hasPointerCapture?.(ev.pointerId)) cadre.releasePointerCapture(ev.pointerId);
   };
   cadre.addEventListener("pointerup", relacher);

@@ -253,8 +253,10 @@ dire(
 dire(
   "et chaque entrée garde sa famille dans son nom accessible",
   mots.entrees.length === 26 &&
-    mots.entrees.every((n) => /, (ville|ligue|palier [123]) — entrer/.test(n ?? "")),
-  JSON.stringify(mots.entrees.filter((n) => !/, (ville|ligue|palier [123]) — /.test(n ?? ""))),
+    mots.entrees.every((n) => /, (ville|ligue|palier [123]) — (voir|entrer)/.test(n ?? "")),
+  JSON.stringify(
+    mots.entrees.filter((n) => !/, (ville|ligue|palier [123]) — (voir|entrer)/.test(n ?? "")),
+  ),
 );
 dire(
   "ET LE NOM ACCESSIBLE DE CHAQUE FORME AUSSI",
@@ -281,17 +283,19 @@ dire("CHAQUE ENTRÉE DE LA LISTE EST UN LIEN VERS SON FORUM", liens.tous === tru
 dire("et il mène au bon", liens.pyrite === "/f12-", liens.pyrite);
 dire("chacune porte sa flèche", liens.fleches === 26, `${liens.fleches}`);
 
-// ── 4 · le panneau, rempli par le survol de la liste ────────────────
+// ── 4 · le panneau, rempli au PREMIER clic sur la liste ─────────────
 //
-//  Le clic part dans le forum : c'est le SURVOL qui montre. On
-//  reproduit donc le survol, pas le clic, sinon on quitte la page.
+//  « Quand je survole les noms, ça saute et c'est trop rapide, je
+//  préfère que ce soit au clic », et « pour entrer dans la catégorie,
+//  il faut un 2e clic ». Le premier clic choisit, le second laisse le
+//  lien partir.
+//
+//  ON CLIQUE POUR DE VRAI, à la souris de Playwright. Un événement
+//  fabriqué et envoyé au nœud ne prouve rien : c'est exactement ce
+//  qui a laissé passer le défaut du clic sur la carte.
 const survoler = async (f) => {
-  await p.evaluate((f) => {
-    document.querySelector(`.wm-carte__entree[data-wm-forum="${f}"]`).dispatchEvent(
-      new PointerEvent("pointerenter", { bubbles: false }),
-    );
-  }, f);
-  await p.waitForTimeout(80);
+  await p.click(`.wm-carte__entree[data-wm-forum="${f}"]`);
+  await p.waitForTimeout(90);
 };
 await survoler(12);
 const pyrite = await p.evaluate(() => {
@@ -320,7 +324,11 @@ const pyrite = await p.evaluate(() => {
     entreeChoisie: document.querySelector(".wm-carte__entree--choisie")?.dataset.wmForum,
   };
 });
-dire("SURVOLER LA LISTE REMPLIT LE PANNEAU", pyrite.vide === false, JSON.stringify(pyrite));
+dire(
+  "UN PREMIER CLIC DANS LA LISTE REMPLIT LE PANNEAU",
+  pyrite.vide === false,
+  JSON.stringify(pyrite),
+);
 dire("il nomme le lieu et sa famille", pyrite.nom === "Pyrite" && pyrite.famille === "Ville");
 dire(
   "LE NOM EST LA PORTE DU FORUM, et il porte sa flèche",
@@ -373,12 +381,24 @@ dire(
   demandesDePalier === 3,
   `${demandesDePalier} requête(s)`,
 );
-await p.evaluate(() => {
-  document.querySelector('.wm-carte__lieu[data-wm-forum="9"]').dispatchEvent(
-    new MouseEvent("click", { bubbles: true }),
-  );
-});
-await p.waitForTimeout(80);
+//  LE CLIC SUR LA CARTE, À LA SOURIS. Le cadre capture le pointeur
+//  pour pouvoir traîner la carte, et une capture REDIRIGE le `click`
+//  vers le capteur : un écouteur posé sur la forme ne se déclenche
+//  jamais. Un `MouseEvent` fabriqué, lui, ne passe pas par la capture
+//  et réussissait quand même — c'est le trou par lequel le défaut est
+//  passé en ligne.
+const cliquerLaForme = async (f) => {
+  const b = await p.evaluate((f) => {
+    const r = document.querySelector(`.wm-carte__lieu[data-wm-forum="${f}"] .wm-carte__forme,
+      .wm-carte__lieu[data-wm-forum="${f}"] .wm-carte__epingle`).getBoundingClientRect();
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+  }, f);
+  await p.mouse.move(b.x, b.y);
+  await p.mouse.down();
+  await p.mouse.up();
+  await p.waitForTimeout(90);
+};
+await cliquerLaForme(9);
 const foret = await p.evaluate(() => {
   const pan = document.querySelector(".wm-carte__panneau");
   return {
@@ -412,6 +432,69 @@ dire(
   "ET LA LISTE PORTE LES CHIFFRES, c'est elle qui dit où ça joue",
   foret.entreeChiffre === "14 sujets",
   foret.entreeChiffre,
+);
+
+// ── 5bis · les deux clics, et le glissement qui ne choisit pas ──────
+const deuxClics = await p.evaluate(() => {
+  const a = document.querySelector('.wm-carte__entree[data-wm-forum="18"]');
+  return { avant: a.getAttribute("aria-label"), href: a.getAttribute("href") };
+});
+await p.click('.wm-carte__entree[data-wm-forum="18"]');
+await p.waitForTimeout(90);
+const apresUn = await p.evaluate(() => ({
+  url: location.pathname,
+  nom: document.querySelector(".wm-carte__panneau-mot")?.textContent.trim(),
+  etiquette: document.querySelector('.wm-carte__entree[data-wm-forum="18"]')
+    .getAttribute("aria-label"),
+}));
+dire(
+  "LE PREMIER CLIC CHOISIT ET NE NAVIGUE PAS",
+  apresUn.url === "/" && apresUn.nom === "Station Service",
+  JSON.stringify(apresUn),
+);
+dire(
+  "et l'étiquette dit ce que fera le second",
+  /voir le détail/.test(deuxClics.avant ?? "") &&
+    /entrer dans le forum/.test(apresUn.etiquette ?? ""),
+  JSON.stringify([deuxClics.avant, apresUn.etiquette]),
+);
+await p.click('.wm-carte__entree[data-wm-forum="18"]');
+await p.waitForTimeout(220);
+const apresDeux = await p.evaluate(() => location.pathname);
+dire(
+  "LE SECOND CLIC ENTRE DANS LE FORUM",
+  apresDeux === "/f18-",
+  apresDeux,
+);
+//  On est VRAIMENT parti dans le forum : il faut remonter la page
+//  entière, pas revenir en arrière. `goBack` rend une page restaurée
+//  du cache, sans que le module repasse — et la carte n'y est plus.
+await p.goto("http://wild-mystery.test/");
+await p.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p.waitForTimeout(800);
+
+//  Traîner la carte ne doit PAS choisir la zone sous le doigt :
+//  sinon le panneau change à chaque déplacement.
+const avantGlissement = await p.evaluate(() =>
+  document.querySelector(".wm-carte__panneau-mot")?.textContent.trim() ?? ""
+);
+const bb = await p.evaluate(() => {
+  const r = document.querySelector('.wm-carte__lieu[data-wm-forum="9"] .wm-carte__forme')
+    .getBoundingClientRect();
+  return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+});
+await p.mouse.move(bb.x, bb.y);
+await p.mouse.down();
+await p.mouse.move(bb.x + 60, bb.y + 20, { steps: 5 });
+await p.mouse.up();
+await p.waitForTimeout(90);
+const apresGlissement = await p.evaluate(() =>
+  document.querySelector(".wm-carte__panneau-mot")?.textContent.trim() ?? ""
+);
+dire(
+  "TRAÎNER LA CARTE NE CHOISIT RIEN",
+  avantGlissement === apresGlissement,
+  `${avantGlissement} → ${apresGlissement}`,
 );
 
 // ── 6 · une page de palier qui tombe ne coûte que ses chiffres ──────
@@ -483,13 +566,31 @@ const clavier = await p.evaluate(() => {
   return document.querySelector(".wm-carte__panneau-mot")?.textContent.trim();
 });
 dire("UNE FORME S'OUVRE AU CLAVIER", clavier === "Canyon Lekro", clavier);
-//  Et tabuler dans la liste montre aussi : on voit où l'on va avant
-//  d'appuyer sur Entrée.
-const auFocus = await p.evaluate(() => {
-  document.querySelector('.wm-carte__entree[data-wm-forum="15"]').focus();
-  return document.querySelector(".wm-carte__panneau-mot")?.textContent.trim();
-});
-dire("ET TABULER DANS LA LISTE MONTRE LE LIEU", auFocus === "Suerebe", auFocus);
+//  AU CLAVIER, LA MÊME RÈGLE QU'À LA SOURIS. Tabuler ne choisit plus
+//  rien — c'était le défaut du survol, en pire : on traverse la liste
+//  à la tabulation et le panneau se redessine à chaque arrêt. C'est
+//  Entrée qui choisit, et Entrée une seconde fois qui entre.
+await p.evaluate(() => document.querySelector('.wm-carte__entree[data-wm-forum="15"]').focus());
+await p.waitForTimeout(60);
+const auFocus = await p.evaluate(() =>
+  document.querySelector(".wm-carte__panneau-mot")?.textContent.trim()
+);
+dire(
+  "TABULER NE CHOISIT PAS — c'était ça, le panneau qui clignotait",
+  auFocus !== "Suerebe",
+  `panneau sur « ${auFocus} »`,
+);
+await p.keyboard.press("Enter");
+await p.waitForTimeout(90);
+const auClavier = await p.evaluate(() => ({
+  nom: document.querySelector(".wm-carte__panneau-mot")?.textContent.trim(),
+  url: location.pathname,
+}));
+dire(
+  "MAIS ENTRÉE CHOISIT, SANS NAVIGUER",
+  auClavier.nom === "Suerebe" && auClavier.url === "/",
+  JSON.stringify(auClavier),
+);
 
 // ── 9 · la colonne de droite prend toute la hauteur ─────────────────
 //
