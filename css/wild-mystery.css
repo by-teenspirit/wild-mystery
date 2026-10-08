@@ -10177,7 +10177,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     bande vide ni en haut ni sur les côtés. */
 #modernbb .wm-carte__corps {
   display: flex;
-  height: var(--wm-carte-hauteur, 640px);
+  height: var(--wm-carte-hauteur, 760px);
   gap: var(--wm-espace-20, 20px);
   align-items: stretch;
 }
@@ -10391,9 +10391,81 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   stroke-width: 4.5;
 }
 
+/*  LE HALO DE FOCUS SUIT LA SILHOUETTE, PAS LA BOÎTE. Un `outline`
+    sur un groupe SVG dessine le rectangle englobant : sur la Forêt
+    Marécageuse, qui couvre un quart du continent, ça donnait un grand
+    cadre noir en travers de la carte. Un `stroke` épais sous le trait
+    normal épouse la forme. */
+#modernbb .wm-carte__lieu:focus,
 #modernbb .wm-carte__lieu:focus-visible {
-  outline: 2px solid var(--wm-accent-primaire, #275e7a);
-  outline-offset: 2px;
+  /*  `:focus` AUSSI, et pas seulement `:focus-visible` : sur un
+      groupe SVG focalisable, Chromium dessine son anneau par défaut
+      dès le `:focus`, y compris après un clic à la souris. On a
+      cherché d'où venait ce grand cadre noir en travers du canyon. */
+  outline: none;
+}
+
+#modernbb .wm-carte__lieu:focus-visible .wm-carte__forme,
+#modernbb .wm-carte__lieu:focus-visible .wm-carte__epingle {
+  stroke: var(--wm-accent-primaire, #275e7a);
+  stroke-width: 4;
+}
+
+/*  ── QUAND LA CARTE EST PEINTE ─────────────────────────────────────
+
+    Les territoires cessent d'être des aplats : c'est la peinture
+    qu'on regarde, et un voile de couleur par-dessus la salirait. Ils
+    restent des SURFACES CLIQUABLES — `fill: transparent` et non
+    `fill: none`, parce que `none` ne reçoit pas le pointeur et la
+    carte deviendrait inerte.
+
+    La zone choisie se dit alors par un liseré clair et un voile très
+    léger : assez pour la trouver, pas assez pour repeindre le biome
+    qu'elle désigne. */
+#modernbb .wm-carte--peinte .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille] .wm-carte__forme {
+  fill: transparent;
+  stroke: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 30%, transparent);
+  stroke-width: 1.2;
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu:hover .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 16%, transparent);
+  opacity: 1;
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu--choisi .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 22%, transparent);
+  stroke: var(--wm-texte-sur-nuit, #fffbf7);
+  stroke-width: 3;
+}
+
+/*  Le nom sur la peinture a besoin d'un contour plus épais : sous lui
+    il peut y avoir n'importe quoi, de la neige au basalte. */
+#modernbb .wm-carte--peinte .wm-carte__nom {
+  fill: var(--wm-encre, #2e2018);
+  stroke: var(--wm-texte-sur-nuit, #fffbf7);
+  stroke-width: 4.5;
+}
+
+#modernbb .wm-carte__peinte {
+  pointer-events: none;
+}
+
+/*  ── LES BANDES DE PART ET D'AUTRE DE LA PEINTURE ──────────────────
+
+    La peinture est carrée, le cadre ne l'est pas : le SVG se centre
+    en `meet` — toute la carte reste visible, c'est l'essentiel — et
+    laisse deux bandes sur les côtés.
+
+    ON NE LES SUPPRIME PAS, ON LES CONTINUE. Les remplir d'un gris
+    clair donnait deux rectangles morts ; les remplir du bleu du BORD
+    DE L'IMAGE — relevé dessus, 15 67 107 — fait que la mer déborde
+    du tableau au lieu de s'y arrêter. L'alternative, `slice`, rognait
+    la carte : on ne voyait plus Rhode en entier sans la traîner. */
+#modernbb .wm-carte--peinte .wm-carte__cadre {
+  background-color: var(--wm-carte-marge-peinte, #0f436b);
+  background-image: none;
 }
 
 /* ── 3 · le zoom ──────────────────────────────────────────────────── */

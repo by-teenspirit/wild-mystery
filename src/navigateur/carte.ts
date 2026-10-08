@@ -112,6 +112,15 @@ export type Carte = {
    *  c'est ce qui justifie le port de la Relique Sacrée : on ne s'y
    *  rend pas à pied. */
   readonly iles: readonly string[];
+  /** L'adresse de la carte PEINTE, posée dans le SVG derrière les
+   *  zones.
+   *
+   *  ELLE EST FACULTATIVE, ET C'EST LE POINT. Le dessin vectoriel —
+   *  mer, terre, territoires — reste dessous : si l'adresse tombe, ou
+   *  tant qu'elle n'est pas renseignée, la carte marche, elle est
+   *  simplement moins belle. Une image qui ne charge pas ne doit
+   *  jamais laisser un trou là où il y avait un continent. */
+  readonly fond: string;
   readonly lieux: readonly Lieu[];
   readonly mer?: Mer;
 };
@@ -186,6 +195,7 @@ export function carteDepuis(brut: unknown): Carte | null {
     repere: { largeur, hauteur },
     terre: texte(o.terre),
     iles,
+    fond: texte(o.fond),
     lieux,
     ...(mer === null ? {} : { mer }),
   };

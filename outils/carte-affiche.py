@@ -400,6 +400,19 @@ def sinueux(a, b, graine):
     return catmull(pts)
 
 
+def route_de_mer(a, b):
+    """Le trait pointillé du port vers l'île. Il part du port, il
+    arrive à l'île, et il contourne par le large : une ligne droite
+    traverserait la pointe des ruines."""
+    ax, ay = a["x"], a["y"]
+    bx, by = b["x"], b["y"]
+    mx, my = (ax + bx) / 2, max(ay, by) + 110
+    d = catmull([(ax, ay), (mx, my), (bx, by)])
+    return (f'<path d="{d}" fill="none" stroke="{CREME}" stroke-width="4" '
+            f'stroke-opacity="0.8" stroke-dasharray="11 11" '
+            f'stroke-linecap="round"/>')
+
+
 def jusqu_a_la_mer(pts, terre):
     """Prolonge une course d'eau jusqu'à sortir des terres.
 
@@ -434,8 +447,8 @@ def fleuve(d):
 
 # ── l'écartement des étiquettes ─────────────────────────────────────
 
-CARACTERE = 5.6
-HAUT_ZONE, HAUT_VILLE = 26, 17
+CARACTERE = 6.1
+HAUT_ZONE, HAUT_VILLE = 28, 18
 
 
 def boite_etiquette(nom, x, y, zone):
@@ -449,6 +462,9 @@ def croise(a, b):
             and a[1] < b[1] + b[3] and b[1] < a[1] + a[3])
 
 
+LARGEUR, HAUTEUR = 1000, 1000
+
+
 def ecarter(lieux):
     """La même relaxation que `carte-geographie.py`, avec des boîtes
     plus hautes : ici le nom est suivi du biome, donc deux lignes."""
@@ -457,7 +473,7 @@ def ecarter(lieux):
     ancres = [(l["ancre"]["x"], l["ancre"]["y"] + (0 if z else 19))
               for l, z in zip(lieux, zone)]
     pos = [list(a) for a in ancres]
-    for tour in range(3000):
+    for tour in range(6000):
         boites = [boite_etiquette(noms[i], pos[i][0], pos[i][1], zone[i])
                   for i in range(len(pos))]
         bouge = False
@@ -472,19 +488,19 @@ def ecarter(lieux):
                 cx = (a[0] + a[2] / 2) - (b[0] + b[2] / 2)
                 cy = (a[1] + a[3] / 2) - (b[1] + b[3] / 2)
                 if dx < dy:
-                    p = (dx / 2 + 0.7) * (1 if cx >= 0 else -1)
+                    p = (dx / 2 + 1.4) * (1 if cx >= 0 else -1)
                     pos[i][0] += p
                     pos[j][0] -= p
                 else:
-                    p = (dy / 2 + 0.7) * (1 if cy >= 0 else -1)
+                    p = (dy / 2 + 1.4) * (1 if cy >= 0 else -1)
                     pos[i][1] += p
                     pos[j][1] -= p
         for i in range(len(pos)):
             ax, ay = ancres[i]
-            pos[i][0] += (ax - pos[i][0]) * 0.05
-            pos[i][1] += (ay - pos[i][1]) * 0.05
-            pos[i][0] = min(1000 + MARGE_D - 50, max(-MARGE_G + 50, pos[i][0]))
-            pos[i][1] = min(640 + MARGE_B - 54, max(-MARGE_H + 58, pos[i][1]))
+            pos[i][0] += (ax - pos[i][0]) * 0.03
+            pos[i][1] += (ay - pos[i][1]) * 0.03
+            pos[i][0] = min(LARGEUR + MARGE_D - 50, max(-MARGE_G + 50, pos[i][0]))
+            pos[i][1] = min(HAUTEUR + MARGE_B - 54, max(-MARGE_H + 58, pos[i][1]))
         if not bouge and tour > 40:
             break
     boites = [boite_etiquette(noms[i], pos[i][0], pos[i][1], zone[i])
@@ -496,21 +512,34 @@ def ecarter(lieux):
 
 # ── l'affiche ───────────────────────────────────────────────────────
 
-def main():
-    carte = json.loads(pathlib.Path("data/carte.json").read_text())
-    lieux = carte["lieux"]
-    par_id = {l["forumId"]: l for l in lieux}
-    out = []
+PEINTE = pathlib.Path("planches/peinte/source.png")
 
-    x0, y0 = -MARGE_G, -MARGE_H
-    L = 1000 + MARGE_G + MARGE_D
-    H = 640 + MARGE_H + MARGE_B
 
-    out.append(
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x0} {y0} {L} {H}" '
-        f'width="{L * 2}" height="{H * 2}" font-family="DejaVu Sans, '
-        f'Verdana, sans-serif">')
+def lien_de_la_peinture():
+    """L'adresse de la peinture, RELATIVE au SVG.
 
+    Premier jet : encodée en base64 dans le fichier, pour qu'il soit
+    entier. Résultat, un SVG de 9,5 Mo dont neuf sont une seconde
+    copie d'une image que le dépôt porte déjà à côté — et qui
+    regrossit à chaque construction.
+
+    Le livrable, c'est le PNG et le JPEG : eux sont entiers par
+    nature. Le SVG est un FICHIER SOURCE, il vit à côté de son image,
+    et un chemin relatif est ce qu'on attend d'un fichier source.
+    `planches/peinte/source.png` depuis `planches/` donne donc
+    `peinte/source.png`."""
+    return "peinte/source.png"
+
+
+def dessiner_a_la_main(out, carte, lieux, x0, y0, L, H):
+    """Le dessin vectoriel : mer, continent, territoires, relief,
+    fleuves, chemins, villages.
+
+    IL N'EST PLUS LE CHEMIN PRINCIPAL depuis que la carte est
+    peinte — mais il reste, et il reste testé, parce qu'il est ce
+    qui s'affiche si `planches/peinte/source.png` disparaît. Une
+    affiche qui ne sait se faire que d'une seule manière est une
+    affiche qu'on ne peut plus refaire."""
     #  ── 1 · la mer ────────────────────────────────────────────────
     #  Les mêmes bandes que le forum, calculées par `carte-mer.py`. Le
     #  fond couvre TOUT le cadre, marges comprises : au large du large,
@@ -660,6 +689,59 @@ def main():
         out.append(ligue(x, y) if l["type"] == "ligue" else ville(x, y))
     p = par_id[PORT]["ancre"]
     out.append(ancre(p["x"] + 26, p["y"] - 20))
+
+
+
+def main():
+    carte = json.loads(pathlib.Path("data/carte.json").read_text())
+    lieux = carte["lieux"]
+    par_id = {l["forumId"]: l for l in lieux}
+    out = []
+
+    #  LE CADRE SE DÉDUIT DU REPÈRE. Il valait 1000 × 640 quand la
+    #  carte était dessinée, il est carré depuis qu'elle est peinte :
+    #  écrit en dur, le second laissait une bande vide de 360 px en
+    #  bas de l'affiche.
+    global LARGEUR, HAUTEUR
+    LARGEUR = carte["repere"]["largeur"]
+    HAUTEUR = carte["repere"]["hauteur"]
+    x0, y0 = -MARGE_G, -MARGE_H
+    L = LARGEUR + MARGE_G + MARGE_D
+    H = HAUTEUR + MARGE_H + MARGE_B
+
+    out.append(
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{x0} {y0} {L} {H}" '
+        f'width="{L * 2}" height="{H * 2}" font-family="DejaVu Sans, '
+        f'Verdana, sans-serif">')
+
+    peinte = PEINTE.exists()
+    if peinte:
+        #  ── LA PEINTURE REMPLACE LE DESSIN ────────────────────────
+        #
+        #  Mer, continent, territoires, relief, chemins, villages :
+        #  tout ça est DANS l'image. Le dessin vectoriel n'a plus rien
+        #  à faire ici — il ferait double emploi, et mal, puisque la
+        #  géométrie en a été extraite.
+        #
+        #  Ce que l'affiche apporte encore, et que le générateur ne
+        #  sait pas faire : les NOMS. Vingt-six, au bon endroit, dans
+        #  la bonne typographie, écartés par relaxation, avec leur
+        #  biome dessous, l'ancre du port et la légende.
+        out.append(f'<rect x="{x0}" y="{y0}" width="{L}" height="{H}" '
+                   f'fill="#0f436b"/>')
+        out.append(f'<image href="{lien_de_la_peinture()}" x="0" y="0" '
+                   f'width="{carte["repere"]["largeur"]}" '
+                   f'height="{carte["repere"]["hauteur"]}"/>')
+    else:
+        dessiner_a_la_main(out, carte, lieux, x0, y0, L, H)
+
+    #  L'ANCRE EST DESSINÉE DANS LES DEUX CAS. Le peintre a mis un
+    #  ponton sur l'Île Ténèbra, mais rien qui dise d'où l'on
+    #  embarque : c'est précisément ce que Callista a demandé de
+    #  signaler, et aucun générateur ne sait le poser au bon endroit.
+    port = par_id[PORT]["ancre"]
+    out.append(ancre(port["x"] + 54, port["y"] - 40))
+    out.append(route_de_mer(par_id[PORT]["ancre"], par_id[17]["ancre"]))
 
     #  ── 6 · les étiquettes, tout en haut ──────────────────────────
     pos, restes = ecarter(lieux)

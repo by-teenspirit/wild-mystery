@@ -342,6 +342,9 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   const dessin = svg(doc, "svg", {
     class: "wm-carte__dessin",
     viewBox: `0 0 ${carte.repere.largeur} ${carte.repere.hauteur}`,
+    //  Le repère, lisible depuis le dehors : le harnais en a besoin
+    //  pour vérifier les bornes sans les réciter.
+    "data-wm-repere": `${carte.repere.largeur} ${carte.repere.hauteur}`,
     //  Le dessin est décoratif en lui-même : tout ce qu'il dit est
     //  repris en texte dans la liste à droite. Le groupe des formes,
     //  lui, est bien exposé — ce sont des boutons.
@@ -420,6 +423,33 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   //  l'eau.
   for (const d of [carte.terre, ...carte.iles]) {
     if (d !== "") dessin.appendChild(svg(doc, "path", { class: "wm-carte__terre", d }));
+  }
+  //  ── LA CARTE PEINTE, PAR-DESSUS LE DESSIN ─────────────────────
+  //
+  //  Elle est DANS le SVG, pas en fond du cadre : elle se déplace et
+  //  se zoome avec la carte, et elle est calée au repère près. Posée
+  //  en fond CSS, elle aurait dérivé du dessin à chaque largeur
+  //  d'écran — le SVG s'échelonne en `meet`, un fond en `cover`.
+  //
+  //  LE VECTORIEL RESTE DESSOUS. L'image se pose au-dessus de la mer
+  //  et de la terre, pas à leur place : le jour où l'adresse tombe,
+  //  on retrouve la carte dessinée au lieu d'un trou.
+  if (carte.fond !== "") {
+    const image = svg(doc, "image", {
+      class: "wm-carte__peinte",
+      href: carte.fond,
+      x: "0",
+      y: "0",
+      width: String(carte.repere.largeur),
+      height: String(carte.repere.hauteur),
+      preserveAspectRatio: "none",
+    });
+    //  `xlink:href` en plus de `href` : Safari a longtemps ignoré le
+    //  second dans un SVG en ligne, et un fond qui manque sur un
+    //  navigateur entier se remarque.
+    image.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", carte.fond);
+    dessin.appendChild(image);
+    racine.classList.add("wm-carte--peinte");
   }
 
   const formes = new Map<number, SVGElement>();

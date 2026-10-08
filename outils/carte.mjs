@@ -549,10 +549,18 @@ const apresGauche = await glisse(-250, 0);
 dire("ON TRAÎNE LA CARTE ET ELLE SUIT", apresGauche !== zoome, `${zoome} → ${apresGauche}`);
 const auBord = await glisse(-2000, -2000);
 const [bx, by, bl, bh] = auBord.split(" ").map(Number);
+//  LE REPÈRE SE LIT, IL NE SE RÉCITE PAS. Il valait 1000 × 640 tant
+//  que la carte était dessinée ; depuis qu'elle est peinte il est
+//  carré. Un harnais qui récite les bornes tombe au premier
+//  changement de format — et c'est arrivé.
+const repere = await p.evaluate(() => {
+  const v = document.querySelector(".wm-carte__dessin").dataset.wmRepere ?? "";
+  return v.split(" ").map(Number);
+});
 dire(
   "ET ELLE S'ARRÊTE À SES BORDS",
-  bx <= 1000 - bl + 0.5 && by <= 640 - bh + 0.5,
-  auBord,
+  bx <= repere[0] - bl + 0.5 && by <= repere[1] - bh + 0.5,
+  `${auBord} dans ${repere.join(" × ")}`,
 );
 const retour = await glisse(4000, 4000);
 const [rx, ry] = retour.split(" ").map(Number);

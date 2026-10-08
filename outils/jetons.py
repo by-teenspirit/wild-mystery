@@ -82,6 +82,10 @@ HORS_CHARTE = {
     #  chaque bande, parce que lui seul sait combien il y en a. Une
     #  valeur de charte ne saurait pas le dire.
     "--wm-mer-melange",
+    #  La couleur des bandes de part et d'autre de la carte peinte :
+    #  elle est RELEVÉE SUR L'IMAGE, pas choisie. Changer l'image
+    #  change cette valeur, et aucune charte ne peut le prévoir.
+    "--wm-carte-marge-peinte",
     #  L'image d'en-tête du panneau de la carte, posée EN LIGNE par
     #  `module-carte.ts` depuis `data/carte.json`. Elle n'existe nulle
     #  part en feuille : son repli est le bandeau des catégories.
