@@ -371,3 +371,54 @@ export function lignesDUnPrelien(p: Prelien): readonly { cle: string; valeur: st
   if (p.auteur !== "") out.push({ cle: "Attendu par", valeur: p.auteur });
   return out;
 }
+
+// ── la mise à l'échelle ─────────────────────────────────────────────
+
+/** La largeur pour laquelle la composition est dessinée.
+ *
+ *  Relevée sur le forum le 8 octobre : à 1 440 px de fenêtre, le bloc
+ *  d'accueil fait 1 292. C'est la largeur que la maquette `390:3170`
+ *  suppose, et toutes les cotes de la feuille 14 en dépendent — les
+ *  474 du staff, les 396 des actualités, les 46 entre les pré-liens et
+ *  les partenaires. */
+export const LARGEUR_COMPOSITION = 1292;
+
+/** En deçà, on ne réduit plus. */
+export const ECHELLE_MIN = 0.1;
+/** Au-delà, on n'agrandit plus. */
+export const ECHELLE_MAX = 1.6;
+
+/** De quel facteur réduire la composition pour qu'elle tienne.
+ *
+ *  ── POURQUOI LA PAGE D'ACCUEIL NE SE REPLIE PLUS ────────────────────
+ *
+ *  Demande de Callista du 8 octobre : « fais en sorte que la PA
+ *  s'affiche pareil en mobile et en desktop ». Choix confirmé : la
+ *  MÊME composition, en plus petit — et pas la même en empilé.
+ *
+ *  Ce que ça remplace : sept blocs qui se mettaient en colonne sous
+ *  1 100 px, la carte des votes qui remontait en tête, la mascotte qui
+ *  disparaissait, et les titres verticaux qui se recouchaient. Un
+ *  téléphone voyait une autre page.
+ *
+ *  Maintenant il voit la même, réduite. C'est `zoom` qui s'en charge
+ *  côté feuille — et pas `transform: scale()`, qui laisserait dans le
+ *  flux un trou de la hauteur d'origine : `zoom` met la MISE EN PAGE à
+ *  l'échelle, donc le bloc occupe vraiment sa place réduite.
+ *
+ *  LE PRIX EST ASSUMÉ ET IL EST CONNU : à 390 px de large, le facteur
+ *  vaut 0,28 et un texte de 13,5 px s'affiche à moins de 4. C'est le
+ *  choix de Callista, pris en connaissance de cause.
+ *
+ *  La fonction est ici et pas dans le module parce que c'est une
+ *  division et deux bornes, et que ce genre de calcul se trompe d'un
+ *  sens sans qu'on le voie. */
+export function echelleDeLAccueil(
+  largeurDisponible: number,
+  composition = LARGEUR_COMPOSITION,
+): number {
+  if (!Number.isFinite(largeurDisponible) || largeurDisponible <= 0) return 1;
+  if (!Number.isFinite(composition) || composition <= 0) return 1;
+  const brut = largeurDisponible / composition;
+  return Math.min(ECHELLE_MAX, Math.max(ECHELLE_MIN, brut));
+}

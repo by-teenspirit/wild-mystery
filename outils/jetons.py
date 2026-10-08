@@ -63,7 +63,35 @@ FEUILLES = "[0-9][0-9]-*.css"
 #  ils mesurent la page. Ils n'ont pas de valeur de charte, et leur repli
 #  est ce qui s'applique avant la mesure — il est donc juste par
 #  construction.
-HORS_CHARTE = {"--wm-haut-toolbar", "--wm-accueil-fond", "--wm-bec"}
+HORS_CHARTE = {
+    "--wm-haut-toolbar",
+    "--wm-accueil-fond",
+    "--wm-bec",
+    #  La largeur de la composition de l'accueil et le facteur qui la
+    #  fait tenir : la première est une cote de la feuille 14 et pas une
+    #  valeur de charte, le second est MESURÉ à chaque redimensionnement
+    #  par `module-accueil.ts`. Aucun des deux n'a sa place dans le
+    #  panneau d'administration — on ne règle pas une échelle à la main.
+    "--wm-accueil-largeur",
+    "--wm-accueil-echelle",
+}
+
+#  ── CEUX DONT LE REPLI NE PEUT PAS DIRE LA VÉRITÉ ───────────────────
+#
+#  Une catégorie à part, et une seule entrée pour l'instant.
+#
+#  `--wm-bandeau-categorie` vaut `url(…)`. Recopier cette valeur en
+#  repli dans `css/03-index.css` ferait partir une requête réseau d'une
+#  de nos feuilles — ce que le garde-fou n° 10 interdit, et pour une
+#  bonne raison : une feuille qui va chercher une image ailleurs est
+#  une feuille qui casse quand l'ailleurs tombe.
+#
+#  Les deux règles ne peuvent donc pas être satisfaites ensemble, et
+#  c'est la dixième qui gagne : le repli est `none`, la bande garde son
+#  dégradé, et le titre reste lisible. Ce n'est pas un repli qui ment —
+#  c'est un repli qui dit « pas d'image », ce qui est exactement l'état
+#  des lieux quand `jetons.css` n'est pas servi.
+SANS_REPLI_POSSIBLE = {"--wm-bandeau-categorie"}
 
 #  Un `var()` avec repli, le repli pouvant lui-même contenir une
 #  parenthèse (`color-mix(…)`), mais pas deux niveaux.
@@ -107,7 +135,7 @@ def ecarts(aligner: bool) -> list[str]:
         morceaux: list[tuple[int, int, str]] = []
         for m in APPEL.finditer(code):
             nom, repli = m.group(1), re.sub(r"\s+", " ", m.group(2).strip())
-            if nom in HORS_CHARTE:
+            if nom in HORS_CHARTE or nom in SANS_REPLI_POSSIBLE:
                 continue
             ligne = code.count("\n", 0, m.start()) + 1
             if nom not in connus:

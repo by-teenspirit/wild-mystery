@@ -1227,7 +1227,44 @@ html#min-width {
       harnais qu'on finit par ne plus lire. Elle sert aussi de repli
       si le dégradé ne prend pas. */
   background-color: var(--wm-fond-nuit, #3a2a22);
+  /*  ── L'IMAGE EST ARRIVÉE, LE DÉGRADÉ RESTE DESSOUS ──────────────
+
+      Callista a donné la photo du bandeau le 8 octobre. Elle est
+      déclarée comme un JETON, dans le panneau d'administration : une
+      feuille d'ici n'a pas le droit d'aller chercher une image
+      (garde-fou n° 10), et une image de charte se change comme une
+      couleur de charte — en recollant `jetons.css`.
+
+      TROIS COUCHES, dans cet ordre de peinture : l'image par-dessus,
+      la tache chaude et le dégradé en dessous. Les deux derniers ne
+      sont plus un pis-aller mais un FILET : si l'adresse tombe, si le
+      jeton n'est pas servi, si l'image met une seconde à arriver, la
+      bande reste sombre et le titre blanc reste lisible. Sans eux,
+      elle virerait au crème le temps du chargement et le titre
+      disparaîtrait.
+
+      `center / cover` : la photo est un paysage large, la bande fait
+      74 de haut. On cadre au milieu et on remplit. */
   background-image:
+    /*  ── UN VOILE SOMBRE PAR-DESSUS LA PHOTO ───────────────────────
+
+        Le titre est en crème. Sur la photo d'aujourd'hui il se lit
+        très bien — elle est sombre. Mais une image qu'on remplace en
+        recollant `jetons.css` est une image dont on ne sait rien
+        d'avance, et le harnais de contraste ne sait pas mesurer du
+        texte sur une photo : il lit des couleurs, pas des pixels.
+
+        Le voile règle la question une fois pour toutes. Il est peint
+        AU-DESSUS — dans `background-image`, la première couche est
+        celle de devant — et il assombrit assez pour que le crème
+        tienne ses 4,5 contre n'importe quel cliché. Un peu plus à
+        gauche, là où est le rang, un peu moins à droite. */
+    linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 72%, transparent) 0%,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 48%, transparent) 100%
+  ),
+    var(--wm-bandeau-categorie, none),
     radial-gradient(
     120% 180% at 82% 120%,
     color-mix(in srgb, var(--wm-accent-terre, #8b4725) 55%, transparent) 0%,
@@ -1238,6 +1275,8 @@ html#min-width {
     var(--wm-fond-nuit, #3a2a22) 0%,
     color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 62%, var(--wm-accent-terre, #8b4725)) 100%
   );
+  background-position: center;
+  background-size: cover;
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
@@ -7608,6 +7647,25 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: var(--wm-interligne-section, 1.2);
 }
 
+/*  ── PLUS AUCUN `@media` DANS CETTE FEUILLE, ET C'EST VOULU ────────
+
+    Il y en avait cinq : les sept blocs passaient en colonne sous
+    1 100 px, la carte des votes remontait en tête, la mascotte
+    disparaissait sous 900, les titres verticaux se recouchaient.
+    Un téléphone voyait une autre page.
+
+    Callista, le 8 octobre : « fais en sorte que la PA s'affiche
+    pareil en mobile et en desktop », et, mise devant les trois
+    lectures possibles, elle a choisi la MÊME composition en plus
+    petit. Il n'y a donc plus de version mobile à tenir d'accord avec
+    la version large : il y en a une seule, et elle rétrécit.
+
+    LE PRIX EST CONNU ET IL EST ASSUMÉ : à 390 px de large, le facteur
+    vaut 0,28, et un texte de 13,5 px s'affiche à moins de 4. C'est
+    inconfortable, c'est dit, et c'est le choix qui a été fait. Si on
+    revient dessus un jour, c'est ICI que ça se passe — `zoom` sur
+    `.wm-accueil` et le calcul dans `src/navigateur/accueil.ts`. */
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 14 · Le bloc d'accueil
 
@@ -7684,6 +7742,32 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex-direction: column;
   align-items: flex-end;
   margin-bottom: calc(93px + var(--wm-espace-24, 24px));
+
+  /*  ── LA COMPOSITION A UNE LARGEUR, ET ELLE NE BOUGE PLUS ────────
+
+      « Fais en sorte que la PA s'affiche pareil en mobile et en
+      desktop », 8 octobre — et le choix confirmé est la MÊME
+      composition en plus petit, pas la même empilée.
+
+      1 292, c'est la largeur relevée sur le forum à 1 440 de fenêtre,
+      et c'est celle que toutes les cotes de cette feuille supposent :
+      les 474 du staff, les 396 des actualités, les 46 entre les
+      pré-liens et les partenaires. Les figer ici et laisser le bloc
+      s'étirer ailleurs, c'était justement ce qui obligeait à
+      réécrire la page en dessous de 1 100.
+
+      `zoom` ET PAS `transform: scale()`. Le second ne met à l'échelle
+      que le DESSIN : le bloc garderait sa hauteur d'origine dans le
+      flux et laisserait un trou de 600 px sous lui. `zoom` met la
+      mise en page à l'échelle, donc le bloc occupe vraiment la place
+      qu'il a l'air d'occuper.
+
+      Le facteur est posé par `module-accueil.ts`, qui mesure le
+      parent. Sans JavaScript, il vaut 1 et le bloc de repli — qui,
+      lui, est fluide — reste en place : on ne sert jamais une page de
+      1 292 dans un écran de 390. */
+  width: var(--wm-accueil-largeur, 1292px);
+  zoom: var(--wm-accueil-echelle, 1);
 }
 
 /*  Le panneau translucide de la maquette : du blanc à 70 % posé sur le
@@ -7836,15 +7920,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     restent lisibles : 69, c'est le chevauchement du dessin ; 32, c'est
     l'écart entre les bandes, et il est écrit une seule fois,
     au-dessus. */
-@media (min-width: 1101px) {
-  #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
-    /*  77 depuis le 8 octobre au soir — « remonte légèrement les
-        actualités encore ». Le plafond n'est pas le dessin mais les
-        membres du staff, qui descendent jusqu'à 280 une fois centrés
-        dans le bandeau : à 77 la carte commence à 282, et le harnais
-        tient cet écart. */
-    margin-top: calc(-77px - var(--wm-espace-32, 32px));
-  }
+#modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
+  /*  77 depuis le 8 octobre au soir — « remonte légèrement les
+      actualités encore ». Le plafond n'est pas le dessin mais les
+      membres du staff, qui descendent jusqu'à 280 une fois centrés
+      dans le bandeau : à 77 la carte commence à 282, et le harnais
+      tient cet écart. */
+  margin-top: calc(-77px - var(--wm-espace-32, 32px));
 }
 
 /*  ── LE BLOC DU STAFF DESCEND, MAIS PAS D'UN SEUL BLOC ─────────────
@@ -7897,20 +7979,18 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     bande, il a enfin une hauteur définie : `1fr` la lui donne, et le
     minimum de 318 la contredirait en débordant. Il reste en vigueur
     sous 1 100, où rien n'étire plus rien. */
-@media (min-width: 1101px) {
-  #modernbb .wm-accueil__bande > .wm-accueil__staff {
-    align-self: stretch;
-    /*  PAS DE MARGE HAUTE. Callista a rayé celle de 24 que j'avais
-        posée : le bloc s'aligne sur le contexte et les liens PAR LES
-        DEUX BOUTS, haut et bas, et pas seulement par le bas. C'est
-        plus simple à lire, et ça se tient tout seul — trois colonnes
-        qui commencent et finissent ensemble.
+#modernbb .wm-accueil__bande > .wm-accueil__staff {
+  align-self: stretch;
+  /*  PAS DE MARGE HAUTE. Callista a rayé celle de 24 que j'avais
+      posée : le bloc s'aligne sur le contexte et les liens PAR LES
+      DEUX BOUTS, haut et bas, et pas seulement par le bas. C'est
+      plus simple à lire, et ça se tient tout seul — trois colonnes
+      qui commencent et finissent ensemble.
 
-        Ce qui croisait la carte des votes, ce ne sont pas les
-        bandeaux, ce sont les MEMBRES. C'est donc eux qu'on descend,
-        plus bas, et pas le bloc entier. */
-    grid-template-rows: minmax(0, 1fr);
-  }
+      Ce qui croisait la carte des votes, ce ne sont pas les
+      bandeaux, ce sont les MEMBRES. C'est donc eux qu'on descend,
+      plus bas, et pas le bloc entier. */
+  grid-template-rows: minmax(0, 1fr);
 }
 
 /*  15 dans la maquette (le contexte finit à 353, les liens commencent
@@ -7948,10 +8028,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     `auto-fill`, elle rétrécit donc d'elle-même à deux colonnes s'il le
     faut, au lieu de renvoyer le bloc entier à la ligne. En dessous, le
     repli à la ligne redevient le bon comportement. */
-@media (min-width: 1101px) {
-  #modernbb .wm-accueil__rangee--bas {
-    flex-wrap: nowrap;
-  }
+#modernbb .wm-accueil__rangee--bas {
+  flex-wrap: nowrap;
 }
 
 /*  La carte blanche de la maquette, commune aux partenaires, aux votes
@@ -8291,12 +8369,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  SOUS 1 100 PX, ELLE SE RANGE. Le panneau passe en colonne, la carte
     n'a plus de coin à mordre, et un chevauchement sur un écran étroit
     ne serait plus une allure mais un défaut. */
-@media (max-width: 1100px) {
-  #modernbb .wm-accueil__votes {
-    margin-right: 0;
-    margin-bottom: var(--wm-espace-12, 12px);
-  }
-}
 
 #modernbb .wm-accueil__votes .wm-accueil__titre-carte {
   margin: 0;
@@ -8510,11 +8582,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  Sous 900 px le bandeau se recouche à l'horizontale (feuille §10) :
     il n'y a plus de bord vertical à mordre, et le retrait négatif
     rognerait le premier avatar contre le bord de l'écran. */
-@media (max-width: 900px) {
-  #modernbb .wm-accueil__staff-liste {
-    margin-left: 0;
-  }
-}
 
 #modernbb .wm-accueil__membre {
   display: flex;
@@ -9076,32 +9143,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Au-dessous de 1 100 px la rangée se replie en colonne et la
     mascotte, elle, disparaît à 900 — entre les deux, le retrait n'a
     plus de raison d'être et la carte reprend toute la largeur. */
-@media (min-width: 1100px) {
-  #modernbb .wm-accueil__rangee--bas {
-    padding-left: 123px;
-  }
+#modernbb .wm-accueil__rangee--bas {
+  padding-left: 123px;
 }
 
 /*  SOUS 900 PX ELLE S'EN VA. Elle mesure 190 px : sur un téléphone elle
     couvrirait le contexte, et une illustration qui cache le texte
     qu'elle illustre n'a plus de raison d'être. */
-@media (max-width: 900px) {
-  #modernbb .wm-accueil__mascotte {
-    display: none;
-  }
-
-  #modernbb .wm-accueil__titre-cote {
-    /*  Les étiquettes verticales se recouchent : à l'étroit, une
-        colonne de 30 px de haut pour un mot est du gâchis. */
-    align-self: flex-start;
-    writing-mode: horizontal-tb;
-  }
-
-  #modernbb .wm-accueil__staff,
-  #modernbb .wm-accueil__preliens {
-    flex-direction: column;
-  }
-}
 
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 15 · Le Messenger, à la charte

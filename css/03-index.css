@@ -117,7 +117,44 @@
       harnais qu'on finit par ne plus lire. Elle sert aussi de repli
       si le dégradé ne prend pas. */
   background-color: var(--wm-fond-nuit, #3a2a22);
+  /*  ── L'IMAGE EST ARRIVÉE, LE DÉGRADÉ RESTE DESSOUS ──────────────
+
+      Callista a donné la photo du bandeau le 8 octobre. Elle est
+      déclarée comme un JETON, dans le panneau d'administration : une
+      feuille d'ici n'a pas le droit d'aller chercher une image
+      (garde-fou n° 10), et une image de charte se change comme une
+      couleur de charte — en recollant `jetons.css`.
+
+      TROIS COUCHES, dans cet ordre de peinture : l'image par-dessus,
+      la tache chaude et le dégradé en dessous. Les deux derniers ne
+      sont plus un pis-aller mais un FILET : si l'adresse tombe, si le
+      jeton n'est pas servi, si l'image met une seconde à arriver, la
+      bande reste sombre et le titre blanc reste lisible. Sans eux,
+      elle virerait au crème le temps du chargement et le titre
+      disparaîtrait.
+
+      `center / cover` : la photo est un paysage large, la bande fait
+      74 de haut. On cadre au milieu et on remplit. */
   background-image:
+    /*  ── UN VOILE SOMBRE PAR-DESSUS LA PHOTO ───────────────────────
+
+        Le titre est en crème. Sur la photo d'aujourd'hui il se lit
+        très bien — elle est sombre. Mais une image qu'on remplace en
+        recollant `jetons.css` est une image dont on ne sait rien
+        d'avance, et le harnais de contraste ne sait pas mesurer du
+        texte sur une photo : il lit des couleurs, pas des pixels.
+
+        Le voile règle la question une fois pour toutes. Il est peint
+        AU-DESSUS — dans `background-image`, la première couche est
+        celle de devant — et il assombrit assez pour que le crème
+        tienne ses 4,5 contre n'importe quel cliché. Un peu plus à
+        gauche, là où est le rang, un peu moins à droite. */
+    linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 72%, transparent) 0%,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 48%, transparent) 100%
+  ),
+    var(--wm-bandeau-categorie, none),
     radial-gradient(
     120% 180% at 82% 120%,
     color-mix(in srgb, var(--wm-accent-terre, #8b4725) 55%, transparent) 0%,
@@ -128,6 +165,8 @@
     var(--wm-fond-nuit, #3a2a22) 0%,
     color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 62%, var(--wm-accent-terre, #8b4725)) 100%
   );
+  background-position: center;
+  background-size: cover;
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 

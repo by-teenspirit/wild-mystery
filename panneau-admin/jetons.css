@@ -55,6 +55,17 @@
   --wm-texte-inverse:   #fffbf7;
   --wm-texte-sur-nuit:  #fffbf7;
 
+  /*  L'IMAGE DU BANDEAU DE CATÉGORIE, donnée par Callista le 8
+      octobre. Elle est ICI et pas dans `css/16-…` parce qu'aucune de
+      nos feuilles n'a le droit de partir chercher quoi que ce soit
+      sur le réseau (garde-fou n° 10) — et parce qu'une image de
+      charte se change comme une couleur de charte : en recollant ce
+      fichier, sans commit.
+
+      Pour la remplacer : une autre adresse ici, et c'est tout. Pour
+      revenir au dégradé : `none`. */
+  --wm-bandeau-categorie: url("https://i.postimg.cc/zGgX8jDz/bandeau.png");
+
   --wm-accent-primaire: #275e7a;
   --wm-accent-fort:     #1f5470;
   --wm-accent-terre:    #8b4725;

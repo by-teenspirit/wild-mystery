@@ -34,7 +34,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type { Accueil, Lien, Prelien } from "../../navigateur/accueil.ts";
-import { estVide, lignesDUnPrelien } from "../../navigateur/accueil.ts";
+import { echelleDeLAccueil, estVide, lignesDUnPrelien } from "../../navigateur/accueil.ts";
 
 const SVG = "http://www.w3.org/2000/svg";
 
@@ -423,13 +423,41 @@ function bornerAuxBords(doc: Document, panneau: HTMLElement): void {
   let decalage = 0;
   if (r.left < marge) decalage = marge - r.left;
   else if (r.right > vue.innerWidth - marge) decalage = vue.innerWidth - marge - r.right;
-  if (decalage !== 0) panneau.style.marginLeft = `${Math.round(decalage)}px`;
+  //  ── DES PIXELS D'ÉCRAN VERS DES PIXELS DE MISE EN PAGE ──────────
+  //
+  //  `getBoundingClientRect` rend ce qu'on VOIT ; une marge en CSS est
+  //  posée dans le repère du bloc. Depuis que l'accueil est mis à
+  //  l'échelle par `zoom`, les deux ne sont plus la même unité, et
+  //  écrire un nombre mesuré dans une propriété CSS le multiplie par
+  //  le facteur. Relevé au harnais : à 390 px, le bec sortait de la
+  //  bulle de huit pixels, et de plus en plus à mesure qu'on
+  //  rétrécissait.
+  //
+  //  On divise donc par le facteur avant d'écrire. Le ratio se LIT sur
+  //  l'élément plutôt que de se recalculer : c'est le même nombre que
+  //  `mettreALEchelle` a posé, et le relire évite d'avoir deux
+  //  sources pour une seule vérité.
+  const facteur = echelleLue(vue, panneau);
+  const enPage = (px: number) => Math.round(px / facteur);
+  if (decalage !== 0) panneau.style.marginLeft = `${enPage(decalage)}px`;
   //  ET LE BEC SUIT LE PANNEAU EN SENS INVERSE. Il pointe la bulle,
   //  qui n'a pas bougé : si le panneau glisse de 40 px vers la droite
   //  pour rentrer dans l'écran et que le bec reste à son milieu, il
   //  désigne un point 40 px à côté de la bulle. La feuille le pose à
   //  `--wm-bec`, qui vaut la moitié moins le décalage.
-  panneau.style.setProperty("--wm-bec", `calc(50% - ${Math.round(decalage)}px)`);
+  panneau.style.setProperty("--wm-bec", `calc(50% - ${enPage(decalage)}px)`);
+}
+
+/** Le facteur d'échelle qui s'applique à un nœud.
+ *
+ *  Il est posé sur `.wm-accueil` par `mettreALEchelle`, et il descend
+ *  par héritage : n'importe quel enfant peut le lire. Un facteur
+ *  absent, nul ou illisible vaut 1 — c'est le cas de toutes les pages
+ *  qui ne sont pas l'accueil. */
+function echelleLue(vue: Window, noeud: Element): number {
+  const brut = vue.getComputedStyle(noeud).getPropertyValue("--wm-accueil-echelle");
+  const n = Number.parseFloat(brut);
+  return Number.isFinite(n) && n > 0 ? n : 1;
 }
 
 /** Une bulle de pré-lien, et son panneau.
@@ -636,5 +664,47 @@ export function poserLAccueil(doc: Document, a: Accueil): boolean {
   const votes = blocVotes(doc, a);
   if (votes !== null) hote.appendChild(votes);
   hote.appendChild(panneau);
+  mettreALEchelle(hote);
   return true;
+}
+
+/** Garde la composition à la largeur de son hôte, en la réduisant.
+ *
+ *  ── CE QUE ÇA REMPLACE ──────────────────────────────────────────────
+ *
+ *  Sept blocs qui se mettaient en colonne sous 1 100 px, la carte des
+ *  votes qui remontait en tête, la mascotte qui disparaissait, les
+ *  titres verticaux qui se recouchaient. Un téléphone voyait une
+ *  autre page que l'écran. « Fais en sorte que la PA s'affiche pareil
+ *  en mobile et en desktop », 8 octobre, et le choix confirmé est bien
+ *  la MÊME composition en plus petit.
+ *
+ *  ── POURQUOI ON MESURE LE PARENT, PAS LE BLOC ───────────────────────
+ *
+ *  Parce que le bloc, lui, fait désormais 1 292 quoi qu'il arrive :
+ *  c'est le `zoom` qui le fait tenir. Le mesurer rendrait toujours la
+ *  même chose, et une boucle d'observation qui se regarde elle-même
+ *  est le meilleur moyen de faire tourner un navigateur à vide.
+ *
+ *  ── POURQUOI UN OBSERVATEUR ET PAS `resize` SUR LA FENÊTRE ──────────
+ *
+ *  La largeur disponible ne dépend pas que de la fenêtre : le panneau
+ *  latéral, le tiroir du tchat et les colonnes de widgets de ModernBB
+ *  la changent sans que la fenêtre bouge. `ResizeObserver` voit les
+ *  quatre ; `window.resize` n'en voit qu'un. */
+export function mettreALEchelle(hote: HTMLElement): void {
+  const parent = hote.parentElement;
+  if (parent === null) return;
+  const poser = (): void => {
+    const e = echelleDeLAccueil(parent.getBoundingClientRect().width);
+    hote.style.setProperty("--wm-accueil-echelle", String(Math.round(e * 10000) / 10000));
+  };
+  poser();
+  const vue = hote.ownerDocument.defaultView;
+  //  `ResizeObserver` manque sur les très vieux navigateurs. Sans lui,
+  //  l'échelle est posée une fois au chargement et ne suit pas les
+  //  rotations d'écran — c'est un repli, pas une panne.
+  if (vue !== null && typeof vue.ResizeObserver === "function") {
+    new vue.ResizeObserver(poser).observe(parent);
+  }
 }

@@ -17,7 +17,17 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals, assertRejects } from "@std/assert";
-import { ACCUEIL_VIDE, accueilDepuis, adresse, estVide, lignesDUnPrelien } from "./accueil.ts";
+import {
+  ACCUEIL_VIDE,
+  accueilDepuis,
+  adresse,
+  ECHELLE_MAX,
+  ECHELLE_MIN,
+  echelleDeLAccueil,
+  estVide,
+  LARGEUR_COMPOSITION,
+  lignesDUnPrelien,
+} from "./accueil.ts";
 
 // ── les adresses ────────────────────────────────────────────────────
 
@@ -280,4 +290,45 @@ Deno.test("UN SEUL BLOC SUFFIT À NE PLUS ÊTRE VIDE", () => {
   //  Une image seule ne compte pas : une mascotte sans texte autour
   //  n'est pas une page d'accueil.
   assert(estVide(accueilDepuis({ images: { mascotte: "https://i.test/m.png" } })));
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  La mise à l'échelle. « Fais en sorte que la PA s'affiche pareil en
+//  mobile et en desktop » : la même composition, réduite.
+//
+//  C'est une division et deux bornes — et c'est exactement le genre de
+//  calcul qui se trompe de sens sans qu'on le voie, parce qu'une page
+//  deux fois trop grande et une page deux fois trop petite se
+//  ressemblent sur une capture.
+// ════════════════════════════════════════════════════════════════════
+
+Deno.test("à sa largeur de dessin, la composition ne bouge pas", () => {
+  assertEquals(echelleDeLAccueil(LARGEUR_COMPOSITION), 1);
+});
+
+Deno.test("plus étroit, elle rétrécit dans la bonne proportion", () => {
+  //  390 est la largeur de téléphone de la maquette mobile.
+  assertEquals(Math.round(echelleDeLAccueil(362) * 1000) / 1000, 0.28);
+  assertEquals(echelleDeLAccueil(646), 0.5);
+});
+
+Deno.test("plus large, elle grandit — « pareil » vaut dans les deux sens", () => {
+  assertEquals(echelleDeLAccueil(1938), 1.5);
+});
+
+Deno.test("et elle est bornée des deux côtés", () => {
+  //  Sans plancher, une mesure prise avant la mise en page (largeur 1)
+  //  réduirait la page à rien et on ne verrait jamais pourquoi.
+  assertEquals(echelleDeLAccueil(1), ECHELLE_MIN);
+  assertEquals(echelleDeLAccueil(99999), ECHELLE_MAX);
+});
+
+Deno.test("UNE MESURE ABSENTE LAISSE LA PAGE INTACTE", () => {
+  //  Zéro, NaN, une largeur négative : tous veulent dire « je n'ai pas
+  //  pu mesurer ». Dans ce cas on ne touche à rien — une page à taille
+  //  normale est toujours mieux qu'une page réduite à tort.
+  assertEquals(echelleDeLAccueil(0), 1);
+  assertEquals(echelleDeLAccueil(-100), 1);
+  assertEquals(echelleDeLAccueil(Number.NaN), 1);
+  assertEquals(echelleDeLAccueil(600, 0), 1);
 });

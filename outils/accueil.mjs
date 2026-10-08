@@ -651,14 +651,34 @@ for (const largeur of [900, 520, 390, 320]) {
   const bec = await p.evaluate(() => {
     const bulle = document.querySelector(".wm-accueil__prelien");
     const pan = bulle.querySelector(".wm-accueil__prelien-panneau");
+    //  DEUX UNITÉS, ET IL FAUT LES RAMENER À UNE. Le rectangle est en
+    //  pixels d'écran, le `left` calculé du pseudo-élément est en
+    //  pixels de mise en page. Depuis le `zoom` de l'accueil, les
+    //  additionner donnait un bec huit pixels hors de sa bulle, et de
+    //  plus en plus à mesure qu'on rétrécissait.
+    const ech = (() => {
+      const v = Number.parseFloat(
+        getComputedStyle(document.querySelector(".wm-accueil"))
+          .getPropertyValue("--wm-accueil-echelle"),
+      );
+      return Number.isFinite(v) && v > 0 ? v : 1;
+    })();
     const g = getComputedStyle(pan, "::after");
-    const x = pan.getBoundingClientRect().left + parseFloat(g.left);
+    const x = pan.getBoundingClientRect().left + parseFloat(g.left) * ech;
     const b = bulle.getBoundingClientRect();
     //  Le pont, lui, se mesure en hauteur : il doit couvrir l'écart
     //  entre le bas du panneau et le haut de la bulle.
-    const pont = parseFloat(getComputedStyle(pan, "::before").height);
-    const vide = Math.round(b.top - pan.getBoundingClientRect().bottom);
-    return { x: Math.round(x), g: Math.round(b.left), d: Math.round(b.right), pont, vide };
+    const pont = parseFloat(getComputedStyle(pan, "::before").height) * ech;
+    //  Dans la même unité que le pont, sinon on compare des pixels
+    //  d'écran à des pixels de mise en page.
+    const vide = b.top - pan.getBoundingClientRect().bottom;
+    return {
+      x: Math.round(x),
+      g: Math.round(b.left),
+      d: Math.round(b.right),
+      pont: Math.round(pont * 100) / 100,
+      vide: Math.round(vide * 100) / 100,
+    };
   });
   dire(
     `à ${largeur} px, le bec pointe encore sa bulle`,
@@ -831,7 +851,35 @@ dire("et rien ne déborde, ni l'œil ne s'écrit", !vrai.debord && !vrai.motVisi
 //  l'assertion tiendra toujours.
 const COTES = [];
 const cotes = await p.evaluate((liste) => {
-  const r = (s) => document.querySelector(s).getBoundingClientRect();
+  //  ── TOUT SE MESURE DANS LE REPÈRE DE LA COMPOSITION ─────────────
+  //
+  //  Depuis que l'accueil est mis à l'échelle par `zoom`,
+  //  `getBoundingClientRect` rend des pixels d'ÉCRAN : à 1 340 de
+  //  fenêtre le facteur vaut 1,04, et les cotes de la maquette
+  //  arrivaient à 80 au lieu de 77, 33 au lieu de 32, 27 au lieu de
+  //  26. Rien n'avait bougé — c'est l'unité qui avait changé.
+  //
+  //  On divise donc par le facteur, et on retrouve les nombres du
+  //  dessin. C'est la bonne unité pour ce harnais : il vérifie une
+  //  MAQUETTE, pas un rendu à une taille d'écran donnée.
+  const bloc = document.querySelector(".wm-accueil");
+  const f = (() => {
+    const v = Number.parseFloat(
+      getComputedStyle(bloc).getPropertyValue("--wm-accueil-echelle"),
+    );
+    return Number.isFinite(v) && v > 0 ? v : 1;
+  })();
+  const r = (s) => {
+    const b = document.querySelector(s).getBoundingClientRect();
+    return {
+      top: b.top / f,
+      bottom: b.bottom / f,
+      left: b.left / f,
+      right: b.right / f,
+      width: b.width / f,
+      height: b.height / f,
+    };
+  };
   const panneau = r(".wm-accueil__panneau");
   const lu = {};
   for (const [sel, , nom] of liste) {
@@ -897,8 +945,10 @@ const cotes = await p.evaluate((liste) => {
   //  « Centre bien les deux staffiens au milieu du bloc de staff,
   //  bien face au mot Staff ». On compare les deux milieux, pas une
   //  ordonnée : le nombre de membres change, le centre non.
+  //  Par `r()`, comme tout le reste : dans le repère de la composition
+  //  et pas en pixels d'écran.
   const membres = [...document.querySelectorAll(".wm-accueil__membre")]
-    .map((e) => e.getBoundingClientRect());
+    .map((_, i) => r(`.wm-accueil__membre:nth-of-type(${i + 1})`));
   const bandeau = r(".wm-accueil__bandeau");
   const staff = {
     //  31 SOUS LE BANDEAU, la cote de la maquette. Ils ont été centrés
@@ -1072,6 +1122,68 @@ dire(
   cotes.devant.mascotte > cotes.devant.bande && cotes.devant.chevauche > 0,
   JSON.stringify(cotes.devant),
 );
+
+// ── 9 · LA MÊME COMPOSITION, À TOUTES LES LARGEURS ──────────────────
+//
+//  « Fais en sorte que la PA s'affiche pareil en mobile et en
+//  desktop. » Ce bloc est là pour que « pareil » soit vérifié et pas
+//  seulement promis : à 390 comme à 1 340, le staff doit être À CÔTÉ
+//  du contexte, pas en dessous, et la mascotte doit être là.
+//
+//  IL MESURE AUSSI LE PRIX, et il l'affiche. Le texte rétrécit avec le
+//  reste : c'est la conséquence directe du choix, elle est connue, et
+//  elle doit rester sous les yeux de qui relira ce harnais.
+for (const largeur of [1340, 900, 520, 390]) {
+  await p.setViewportSize({ width: largeur, height: 900 });
+  await p.waitForTimeout(150);
+  const m = await p.evaluate(() => {
+    const R = (s) => {
+      const e = document.querySelector(s);
+      return e === null ? null : e.getBoundingClientRect();
+    };
+    const ctx = R(".wm-accueil__contexte");
+    const staff = R(".wm-accueil__staff");
+    const bloc = document.querySelector(".wm-accueil");
+    const echelle = Number.parseFloat(
+      getComputedStyle(bloc).getPropertyValue("--wm-accueil-echelle"),
+    );
+    return {
+      echelle,
+      //  Le staff est À DROITE du contexte, et non dessous : c'est la
+      //  signature de la composition large. Empilés, leurs rectangles
+      //  se croiseraient en abscisse.
+      cote: ctx !== null && staff !== null && staff.left >= ctx.right - 1,
+      mascotte: R(".wm-accueil__mascotte") !== null &&
+        getComputedStyle(document.querySelector(".wm-accueil__mascotte")).display !== "none",
+      //  Le titre vertical reste vertical.
+      debout: getComputedStyle(document.querySelector(".wm-accueil__bandeau")).writingMode,
+      debord: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      //  LA TAILLE VUE, pas la taille déclarée. `getComputedStyle`
+      //  rend des pixels de MISE EN PAGE : il dira 13,5 à toutes les
+      //  largeurs, ce qui est vrai et ne renseigne sur rien. Ce que
+      //  l'œil reçoit, c'est ce nombre multiplié par le facteur.
+      corps: Math.round(
+        Number.parseFloat(
+          getComputedStyle(document.querySelector(".wm-accueil__contexte p"))
+            .fontSize,
+        ) * echelle * 10,
+      ) / 10,
+    };
+  });
+  dire(
+    `à ${largeur} px, LE STAFF EST ENCORE À CÔTÉ DU CONTEXTE`,
+    m.cote,
+    JSON.stringify(m),
+  );
+  dire(`à ${largeur} px, la mascotte est toujours là`, m.mascotte);
+  dire(`à ${largeur} px, le titre du staff reste debout`, m.debout.startsWith("sideways"));
+  dire(`à ${largeur} px, rien ne déborde`, !m.debord);
+  //  Pas une assertion : un relevé. Le texte à 3,8 px est le prix du
+  //  choix, pas un défaut à corriger ici.
+  console.log(
+    `       ↳ facteur ${m.echelle}, le corps de texte s'affiche à ${m.corps} px`,
+  );
+}
 
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
