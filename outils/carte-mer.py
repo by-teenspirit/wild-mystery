@@ -63,11 +63,15 @@
 import json
 import math
 import pathlib
+import sys
 
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage
 from skimage import measure
+
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+from chemin_svg import points_du_chemin  # noqa: E402
 
 #  Les quatre profondeurs, en unités du repère. Pas régulières : près
 #  de la côte on veut des bandes serrées — c'est là que l'œil lit la
@@ -76,51 +80,6 @@ NIVEAUX = [16, 40, 72, 116]
 
 MARGE = 220          # la toile déborde du repère, voir plus haut
 PAS = 20             # un sommet tous les ~20 px sur un contour relissé
-
-
-# ── lire le chemin du continent ─────────────────────────────────────
-
-def points_du_chemin(d, pas=22):
-    """Aplatit un chemin SVG en liste de points.
-
-    On ne gère que `M`, `L`, `C` et `Z` : c'est ce que produit
-    `carte-geographie.py`, et c'est ce que produit un export Figma
-    d'un tracé fermé. Une commande inconnue lève — mieux vaut un
-    script qui s'arrête qu'une côte fausse qu'on ne remarquera que
-    sur l'écran."""
-    jetons = d.replace(",", " ").split()
-    pts, i, courant = [], 0, (0.0, 0.0)
-    while i < len(jetons):
-        c = jetons[i]
-        if c == "M":
-            courant = (float(jetons[i + 1]), float(jetons[i + 2]))
-            pts.append(courant)
-            i += 3
-        elif c == "L":
-            courant = (float(jetons[i + 1]), float(jetons[i + 2]))
-            pts.append(courant)
-            i += 3
-        elif c == "C":
-            p0 = courant
-            p1 = (float(jetons[i + 1]), float(jetons[i + 2]))
-            p2 = (float(jetons[i + 3]), float(jetons[i + 4]))
-            p3 = (float(jetons[i + 5]), float(jetons[i + 6]))
-            for k in range(1, pas + 1):
-                t = k / pas
-                u = 1 - t
-                pts.append((
-                    u**3 * p0[0] + 3 * u * u * t * p1[0]
-                    + 3 * u * t * t * p2[0] + t**3 * p3[0],
-                    u**3 * p0[1] + 3 * u * u * t * p1[1]
-                    + 3 * u * t * t * p2[1] + t**3 * p3[1],
-                ))
-            courant = p3
-            i += 7
-        elif c in ("Z", "z"):
-            i += 1
-        else:
-            raise ValueError(f"commande SVG non gérée dans `terre` : {c!r}")
-    return pts
 
 
 # ── relisser un contour ─────────────────────────────────────────────

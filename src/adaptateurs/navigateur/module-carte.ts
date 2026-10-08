@@ -406,8 +406,12 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     dessin.appendChild(mer);
   }
 
-  if (carte.terre !== "") {
-    dessin.appendChild(svg(doc, "path", { class: "wm-carte__terre", d: carte.terre }));
+  //  LA TERRE, PUIS LES ÎLES. Même classe, donc même teinte et même
+  //  trait de côte : une île est du continent détaché, pas autre
+  //  chose. Sans elles, l'Île Ténèbra serait une épingle posée sur
+  //  l'eau.
+  for (const d of [carte.terre, ...carte.iles]) {
+    if (d !== "") dessin.appendChild(svg(doc, "path", { class: "wm-carte__terre", d }));
   }
 
   const formes = new Map<number, SVGElement>();

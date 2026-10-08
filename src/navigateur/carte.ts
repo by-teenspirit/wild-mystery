@@ -108,6 +108,10 @@ export type Carte = {
   readonly repere: Repere;
   /** Le contour du continent, en chemin SVG. */
   readonly terre: string;
+  /** Les îles, séparées du continent. L'Île Ténèbra en est une, et
+   *  c'est ce qui justifie le port de la Relique Sacrée : on ne s'y
+   *  rend pas à pied. */
+  readonly iles: readonly string[];
   readonly lieux: readonly Lieu[];
   readonly mer?: Mer;
 };
@@ -176,9 +180,12 @@ export function carteDepuis(brut: unknown): Carte | null {
   const lieux = bruts.map(lieuDepuis).filter((l): l is Lieu => l !== null);
   if (lieux.length === 0) return null;
   const mer = merDepuis(o.mer);
+  const iles = (Array.isArray(o.iles) ? o.iles : [])
+    .map(texte).filter((i) => i !== "");
   return {
     repere: { largeur, hauteur },
     terre: texte(o.terre),
+    iles,
     lieux,
     ...(mer === null ? {} : { mer }),
   };

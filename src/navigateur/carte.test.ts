@@ -357,3 +357,16 @@ Deno.test("une carte sans mer reste une carte", () => {
   });
   assertEquals(avec?.mer?.bandes.length, 2);
 });
+
+Deno.test("les îles se relisent, et leur absence ne casse rien", () => {
+  //  L'Île Ténèbra est une île : sans son bout de terre, la ville est
+  //  une épingle posée sur l'eau. Mais une carte qui n'en a pas est
+  //  valable — c'était l'état du fichier avant le 8 octobre.
+  const base = { repere: { largeur: 1000, hauteur: 640 }, terre: "M 0 0 Z", lieux: [ZONE] };
+  assertEquals(carteDepuis(base)?.iles, []);
+  assertEquals(carteDepuis({ ...base, iles: ["M 1 1 Z", "  ", "M 2 2 Z"] })?.iles, [
+    "M 1 1 Z",
+    "M 2 2 Z",
+  ]);
+  assertEquals(carteDepuis({ ...base, iles: "M 1 1 Z" })?.iles, []);
+});
