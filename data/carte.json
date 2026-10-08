@@ -1,6 +1,6 @@
 {
   "_": "La carte de Rhode, RECALÉE SUR LA PEINTURE. Les contours, les ancres, la côte et les îles sont segmentés depuis `planches/peinte/source.png` par `outils/carte-peinte.py` : chaque zone épouse la région peinte qu'elle désigne. Les paliers, niveaux et descriptions viennent du forum et survivent à la fusion.",
-  "_fond": "L'image peinte se pose DANS le SVG, derrière les zones : `fond` porte son adresse, et le dessin vectoriel reste dessous — si l'adresse tombe, la carte marche encore.",
+  "_fond": "L'image peinte se pose DANS le SVG, derrière les zones. L'adresse est celle de l'ORIGINALE sur postimg (1400 × 1400) : le lien que donne la page de partage pointe sur une copie réduite à 800, qui est floue dès qu'on zoome. Le dessin vectoriel reste dessous — si l'adresse tombe, la carte marche encore.",
   "repere": {
     "largeur": 1000,
     "hauteur": 1000
@@ -9,7 +9,7 @@
   "iles": [
     "M 810 932 C 809 932 808 928 806 927 C 804 926 800 926 798 926 C 796 926 794 930 793 930 C 792 930 790 927 790 926 C 790 925 795 925 794 924 C 793 923 789 922 786 921 C 783 920 778 920 775 920 C 772 920 770 924 768 924 C 766 924 762 922 760 922 C 758 922 755 922 752 922 C 749 922 745 923 742 922 C 739 921 736 919 734 917 C 732 915 730 912 729 910 C 728 908 729 904 729 902 C 729 900 727 896 726 894 C 725 892 720 890 719 888 C 718 886 717 882 717 880 C 717 878 719 875 720 873 C 721 871 725 870 726 868 C 727 866 728 860 729 858 C 730 856 734 854 735 852 C 736 850 737 846 738 844 C 739 842 742 838 744 836 C 746 834 748 832 750 830 C 752 828 754 825 756 823 C 758 821 761 818 763 816 C 765 814 769 813 771 812 C 773 811 776 809 778 808 C 780 807 783 807 785 806 C 787 805 792 803 795 803 C 798 803 801 803 803 803 C 805 803 808 800 810 800 C 812 800 818 803 820 804 C 822 805 824 804 826 805 C 828 806 832 808 834 809 C 836 810 838 813 840 814 C 842 815 847 815 849 816 C 851 817 854 820 856 821 C 858 822 861 824 863 826 C 865 828 867 832 868 834 C 869 836 867 841 868 843 C 869 845 872 849 873 851 C 874 853 873 858 874 860 C 875 862 880 865 880 867 C 880 869 877 872 876 874 C 875 876 875 880 874 882 C 873 884 871 889 870 891 C 869 893 867 897 866 899 C 865 901 865 907 864 908 C 863 909 858 903 856 904 C 854 905 854 912 853 913 C 852 914 850 910 849 908 C 848 906 844 901 843 901 C 842 901 841 904 840 906 C 839 908 840 913 839 915 C 838 917 834 916 832 917 C 830 918 827 922 824 923 C 821 924 816 924 814 925 C 812 926 811 932 810 932 Z"
   ],
-  "fond": "",
+  "fond": "https://i.postimg.cc/1Pv4YbVB/fond-forum.jpg",
   "lieux": [
     {
       "forumId": 34,

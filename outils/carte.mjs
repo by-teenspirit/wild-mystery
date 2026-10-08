@@ -724,6 +724,51 @@ dire(
   `${Math.round(avantGlisse)} → ${Math.round(apresZoom)}`,
 );
 
+// ── 11bis · la carte peinte, et son repli ───────────────────────────
+//
+//  LE HARNAIS NE PEUT PAS CHARGER L'IMAGE : il intercepte toutes les
+//  requêtes, et postimg n'est pas joignable d'ici. C'est une chance —
+//  il exerce donc exactement le cas qui compte, celui où l'adresse ne
+//  répond pas. On vérifie que la carte tient quand même : l'image est
+//  bien posée, et le dessin vectoriel est TOUJOURS dessous.
+const peinte = await p.evaluate(() => {
+  const img = document.querySelector(".wm-carte__peinte");
+  const noeuds = [...document.querySelector(".wm-carte__dessin").children];
+  return {
+    posee: img !== null,
+    adresse: (img?.getAttribute("href") ?? "").slice(0, 8),
+    marquee: document.querySelector(".wm-carte--peinte") !== null,
+    //  L'image doit venir APRÈS la mer et la terre, et AVANT les
+    //  zones : par-dessus le décor, sous les surfaces cliquables.
+    apresLaTerre: img === null
+      ? false
+      : noeuds.indexOf(img) > noeuds.indexOf(document.querySelector(".wm-carte__terre")),
+    merEncoreLa: document.querySelectorAll(".wm-carte__mer-bande").length,
+    terreEncoreLa: document.querySelectorAll(".wm-carte__terre").length,
+    //  Et les zones restent cliquables : `fill: transparent`, pas
+    //  `fill: none`, qui ne reçoit pas le pointeur.
+    remplissage: getComputedStyle(
+      document.querySelector('.wm-carte__lieu[data-wm-forum="37"] .wm-carte__forme'),
+    ).fill,
+  };
+});
+dire(
+  "LA PEINTURE EST POSÉE DANS LE SVG",
+  peinte.posee && peinte.marquee,
+  JSON.stringify(peinte),
+);
+dire("sur le décor vectoriel, pas à sa place", peinte.apresLaTerre === true);
+dire(
+  "ET LE DÉCOR RESTE DESSOUS — c'est lui qu'on voit si l'adresse tombe",
+  peinte.merEncoreLa >= 7 && peinte.terreEncoreLa >= 1,
+  `${peinte.merEncoreLa} bandes, ${peinte.terreEncoreLa} terre(s)`,
+);
+dire(
+  "les zones restent cliquables sous la peinture",
+  peinte.remplissage !== "none",
+  peinte.remplissage,
+);
+
 // ── 12 · rien ne déborde ────────────────────────────────────────────
 for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
   await p.setViewportSize({ width: l, height: h });
