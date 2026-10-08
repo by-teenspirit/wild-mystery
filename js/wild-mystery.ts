@@ -40,7 +40,10 @@ import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
-import { numeroterLesCategories } from "../src/adaptateurs/navigateur/module-categories.ts";
+import {
+  numeroterLesCategories,
+  recomposerLesDerniersMessages,
+} from "../src/adaptateurs/navigateur/module-categories.ts";
 import { rangerLeMessenger } from "../src/adaptateurs/navigateur/module-messenger.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import {
@@ -300,6 +303,13 @@ desQueLeCorpsEstLa(() => {
   //  réseau : ils se lisent dans la page. Rien n'en dépend — sans eux
   //  la bande garde son titre entre ses filets.
   numeroterLesCategories(document);
+  //  ET LE DERNIER MESSAGE PASSE DE TROIS LIGNES À DEUX. La maquette
+  //  écrit « par X · quand » ; ModernBB sert la date et l'auteur sur
+  //  deux lignes séparées, et la date est un nœud de texte nu qu'aucun
+  //  sélecteur n'atteint. Ça se fait donc ici, et pas en CSS. Sur
+  //  TOUTES les pages qui en portent — l'index comme les listes de
+  //  sujets.
+  recomposerLesDerniersMessages(document);
   //  ET LE BOUTON DU TCHAT VA DANS LE COIN D'OUTILS, dès que FAM l'a
   //  posé. Sans réseau de notre côté : on guette un nœud, on le range,
   //  on s'arrête.

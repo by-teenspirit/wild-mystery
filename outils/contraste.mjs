@@ -123,7 +123,30 @@ const mesurer = async (theme) => {
         const c = canal(st.backgroundColor);
         if (c && c.alpha > 0) couches.push({ type: "plat", c });
         const img = st.backgroundImage;
-        if (img && img !== "none" && /gradient\(/.test(img)) {
+        //  ── UN FILET N'EST PAS UN FOND ────────────────────────────
+        //
+        //  Quatrieme regle, et elle a coute deux faux defauts le
+        //  8 octobre. La bande de categorie peint ses deux traits
+        //  verticaux avec des degrades de 1 x 18 en `no-repeat` : un
+        //  separateur est une forme, et une forme dessinee en fond
+        //  reste une forme. Le harnais les lisait comme la couleur du
+        //  bloc entier et annoncait « creme sur creme » pour un titre
+        //  qui est en creme sur brun nuit — mesure a 11,9 dans le
+        //  navigateur.
+        //
+        //  On ecarte donc les COUCHES dont la taille est une lamelle
+        //  et qui ne se repetent pas. Le critere est etroit a dessein :
+        //  un fond qui couvre vraiment la surface n'a ni `no-repeat` ni
+        //  une taille de quelques pixels, et un vrai defaut de
+        //  contraste sur un aplat continue d'etre vu.
+        const lamelles = st.backgroundSize.split(",").map((t) => t.trim());
+        const repets = st.backgroundRepeat.split(",").map((t) => t.trim());
+        const couvre = lamelles.some((taille, i) => {
+          const mesures = taille.match(/-?\d+(\.\d+)?px/g);
+          const mince = mesures !== null && mesures.some((m) => parseFloat(m) <= 4);
+          return !(mince && (repets[i] ?? repets[0] ?? "").includes("no-repeat"));
+        });
+        if (img && img !== "none" && /gradient\(/.test(img) && couvre) {
           const bruts = img.match(/(rgba?\([^)]*\)|color\([^)]*\))/g) ?? [];
           const arrets = bruts.map(canal).filter((a) => a !== null && a.alpha > 0);
           if (arrets.length > 0) couches.push({ type: "degrade", arrets });
@@ -149,6 +172,18 @@ const mesurer = async (theme) => {
       }
       const st = getComputedStyle(el);
       if (st.display === "none" || st.visibility === "hidden") continue;
+      //  ── ET SES ANCETRES COMPTENT AUSSI ────────────────────────────
+      //
+      //  `display: none` ne s'herite pas, il EFFACE : un `<span>` bien
+      //  visible dans un `<dd>` masque n'est dessine nulle part, et son
+      //  contraste ne veut rien dire. Le harnais ne regardait que
+      //  l'element lui-meme et criait au defaut sur le « Dernier
+      //  message » de la bande de categorie, que la feuille masque
+      //  depuis le 8 octobre.
+      //
+      //  `getClientRects()` tranche sans remonter la chaine a la main :
+      //  pas de boite, pas de pixel, rien a mesurer.
+      if (el.getClientRects().length === 0) continue;
       const t = canal(st.color);
       if (t === null) continue;
       let o = 1;

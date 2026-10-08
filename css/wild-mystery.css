@@ -1179,12 +1179,65 @@ html#min-width {
     remet le titre au milieu quelle que soit la place, et c'est le seul
     moyen que les deux restent égaux quand le rang et le compte n'ont
     pas la même largeur. */
+/*  ── ET LA BANDE EST SOMBRE, PAS CRÈME ─────────────────────────────
+
+    « Les catégories doivent ressembler à ça », avec le lien Figma.
+    Première chose qu'on voit en ouvrant `390:3317` : la bande n'est
+    pas une ligne de texte sur le fond de la page, c'est un BANDEAU —
+    une photo de dunes rognée, assombrie, et le titre écrit en blanc
+    par-dessus. Le nôtre était crème sur crème. À structure identique
+    — rang, filet, titre, filet, compte — ça ne pouvait pas se
+    ressembler.
+
+    LA PHOTO N'EST PAS ENCORE LÀ, et le garde-fou n° 10 interdit
+    qu'une feuille d'ici parte chercher une image : c'est une requête
+    réseau, et aucune ne sort de nos feuilles. L'image viendra donc
+    d'une donnée, comme les dunes des pré-liens, le jour où Callista
+    en donne une.
+
+    En attendant, le dégradé nuit → terre de la charte (document 19,
+    § 2.4 : « bandeau de 74 px, dégradé nuit → terre, nom centré en
+    capitales suivies »). Ce n'est pas un pis-aller : c'est le
+    traitement, et la photo prendra sa place au même endroit, aux
+    mêmes dimensions. */
 #modernbb ul.topiclist li.header dl.icon {
   display: flex;
   min-height: 74px;
   align-items: center;
   gap: var(--wm-espace-14, 14px);
   padding: 0 22px;
+  /*  DEUX COUCHES, ET LA RAISON EST UNE BANDE QU'ON A VUE À L'ÉCRAN.
+      Premier essai : un dégradé droit de nuit à terre sur 1 300 px.
+      Il MOIRAIT — des bandes verticales franches, visibles à l'œil
+      nu sur la capture. C'est le défaut classique du dégradé 8 bits :
+      il ne dépend pas du nombre d'arrêts mais de l'écart total à
+      franchir, et nuit → terre en est un gros.
+
+      On réduit donc l'écart du dégradé droit — nuit vers un nuit
+      juste teinté de terre — et la chaleur revient par une tache
+      radiale en bas à droite, dont les cercles cassent l'alignement
+      des bandes. Plus de moiré, et ça ressemble davantage au cadrage
+      de la photo : sombre à gauche, chaud vers le bas-droite. */
+  /*  LA COULEUR PLEINE EN DESSOUS, et ce n'est pas une ceinture
+      décorative : le harnais de contraste lit une couleur de fond, pas
+      un dégradé. Sans elle il remontait jusqu'au fond de page et
+      annonçait « crème sur crème, 1,76 » pour un titre qui est en
+      fait crème sur brun nuit. Un harnais qui crie à tort est un
+      harnais qu'on finit par ne plus lire. Elle sert aussi de repli
+      si le dégradé ne prend pas. */
+  background-color: var(--wm-fond-nuit, #3a2a22);
+  background-image:
+    radial-gradient(
+    120% 180% at 82% 120%,
+    color-mix(in srgb, var(--wm-accent-terre, #8b4725) 55%, transparent) 0%,
+    transparent 62%
+  ),
+    linear-gradient(
+    100deg,
+    var(--wm-fond-nuit, #3a2a22) 0%,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 62%, var(--wm-accent-terre, #8b4725)) 100%
+  );
+  color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
 /*  Le rang, posé par `module-categories.ts`. Sans lui — JavaScript
@@ -1194,7 +1247,10 @@ html#min-width {
   content: attr(data-wm-rang);
   width: 34px;
   flex: none;
-  color: var(--wm-accent-terre, #8b4725);
+  /*  Sur le bandeau sombre, le terre ne se lit plus : mesuré à 2,1
+      contre `fond-nuit`. Le rang passe donc en crème atténué — la
+      maquette le pose à la même valeur que le compte de droite. */
+  color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 72%, transparent);
   font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
   font-size: 26px;
   line-height: 1;
@@ -1242,11 +1298,7 @@ html#min-width {
   content: "";
   height: 1px;
   flex: 1 1 0;
-  background: color-mix(
-    in srgb,
-    var(--wm-texte-pale, #69564c) 45%,
-    var(--wm-fond-page, #eecfb5)
-  );
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 28%, transparent);
 }
 
 /*  LES DEUX TRAITS VERTICAUX, 1 × 18 dans la maquette, l'un après le
@@ -1259,21 +1311,33 @@ html#min-width {
   padding: 0 var(--wm-espace-16, 16px);
   background:
     linear-gradient(
-    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
-    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+    color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 42%, transparent),
+    color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 42%, transparent)
   )
     left center / 1px 18px no-repeat,
     linear-gradient(
-    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
-    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+    color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 42%, transparent),
+    color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 42%, transparent)
   )
     right center / 1px 18px no-repeat;
+}
+
+/*  LE `h2` PORTE SA PROPRE COULEUR, et c'est lui qu'on voit. Mesuré
+    sur le bandeau sombre : `.table-title` était bien en crème, et le
+    `<h2>` dedans en `rgb(31, 84, 112)` — le bleu des titres. Le titre
+    de catégorie était donc bleu nuit sur brun nuit, c'est-à-dire
+    illisible. Même piège que le pied statistique et que `.mainmenu` :
+    on ne recolore pas un conteneur en oubliant ce qu'il contient. */
+#modernbb li.header dd.dterm div.table-title,
+#modernbb li.header dd.dterm div.table-title h2,
+#modernbb li.header dd.dterm div.table-title a,
+#modernbb li.header .btn-collapse {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
 #modernbb li.header dd.dterm div.table-title {
   min-width: 0;
   flex: none;
-  color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-titre-section, 19px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -1325,6 +1389,14 @@ html#min-width {
   color: inherit;
   font-size: var(--wm-taille-chapo, 21px);
   line-height: 1;
+}
+
+/*  SUR LE BANDEAU SOMBRE, l'accent ne se lit plus — c'est un bleu de
+    nuit sur un brun de nuit. Le bouton y passe en crème, comme le
+    titre qu'il accompagne, et il garde sa couleur d'accent partout
+    ailleurs (les listes de sujets, où la bande est restée claire). */
+#modernbb li.header .btn-collapse:hover {
+  color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 75%, transparent);
 }
 
 #modernbb .btn-collapse:hover {
@@ -1473,14 +1545,6 @@ html#min-width {
     `baseline` et pas `center` : un chiffre de 20 px et une capitale de
     10 alignés par leur milieu flottent l'un par rapport à l'autre ; par
     leur pied, ils se posent sur la même ligne. */
-#modernbb ul.topiclist li.row dd.topics,
-#modernbb ul.topiclist li.row dd.posts,
-#modernbb ul.topiclist li.row dd.views {
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: var(--wm-espace-6, 6px);
-}
 
 /*  La description d'un forum, sous son titre. Elle arrive dans le même
     `<div>` que le titre, après deux `<br>` : on ne peut pas la cibler
@@ -1503,17 +1567,34 @@ html#min-width {
 
 /* ── 4 · les compteurs ────────────────────────────────────────────── */
 
-/*  Chiffre/Grand sur le nombre, et l'étiquette dessous. Le `<dfn>` est
-    porté par le template et contient « Sujets » ou « Messages » : c'est
-    la seule étiquette qu'un lecteur d'écran reçoit, donc on l'AFFICHE
-    plutôt que de la masquer — elle manquait à l'œil aussi. */
+/*  ── LE NOMBRE ET SON MOT SUR LA MÊME LIGNE, CALÉS À DROITE ───────
+
+    Ils étaient empilés et centrés — gros chiffre, puis « SUJETS » en
+    capitales dessous. La maquette ne fait pas ça : relevé dans
+    `390:3328`, le bloc des compteurs occupe 104 px et contient deux
+    rangées, « 23 sujets » et « 68 messages », chacune le nombre PUIS
+    son mot, côte à côte. Les deux rangées finissent au même x (86) :
+    elles sont calées à droite, pas centrées, et c'est ce qui les
+    aligne sur le filet qui les suit.
+
+    Les cotes : le nombre 23 de large, 5 d'écart, le mot 28. Deuxième
+    rangée : 17, 5, 48. Les nombres ne s'alignent donc PAS entre eux —
+    c'est le bord droit qui tient la colonne, et lui seul.
+
+    `baseline` et pas `center` : un chiffre de 20 et un mot de 11,5
+    alignés par leur milieu flottent l'un par rapport à l'autre ; par
+    leur pied, ils se posent sur la même ligne.
+
+    Le `<dfn>` est porté par le gabarit et contient « Sujets » ou
+    « Messages » : c'est la seule étiquette qu'un lecteur d'écran
+    reçoit, donc on l'AFFICHE plutôt que de la masquer. */
 #modernbb ul.topiclist li.row dd.topics,
 #modernbb ul.topiclist li.row dd.posts,
 #modernbb ul.topiclist li.row dd.views {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--wm-espace-2, 2px);
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--wm-espace-6, 6px);
 
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
@@ -1550,11 +1631,15 @@ html#min-width {
       `fond-surface-haute`, c'est `texte-doux`. */
   color: var(--wm-texte-doux, #6e5749);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-etiquette, 10px);
+  /*  EN BAS DE CASSE, et c'est la maquette qui le dit : « sujets »,
+      « messages ». Les capitales suivies sont pour les bandeaux et
+      les surtitres ; ici le mot accompagne un chiffre, il ne titre
+      rien, et en capitales il pesait autant que lui. */
+  font-size: var(--wm-taille-petit, 11.5px);
   font-style: normal;
-  font-weight: var(--wm-graisse-gras, 700);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  text-transform: uppercase;
+  font-weight: var(--wm-graisse-normale, 400);
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 /*  ── SUR TÉLÉPHONE, LA LIGNE S'EMPILE ──────────────────────────────
@@ -1653,11 +1738,25 @@ html#min-width {
     coupe, côté serveur, avec ses propres points de suspension —
     « Suivi des missio… » arrive déjà tronqué dans la page. Le
     `text-overflow` plus bas ne servait que de ceinture. */
-#modernbb ul.topiclist li.row .lastpost-infos a,
 #modernbb ul.topiclist li.row .lastpost-infos strong,
-#modernbb ul.topiclist li.row .lastpost-infos span {
+#modernbb ul.topiclist li.row .lastpost-infos span:not(.wm-dernier__signature) {
   display: inline;
   line-height: inherit;
+}
+
+/*  LE TITRE DU SUJET GARDE SA LIGNE. Il est en bloc, donc il la
+    termine, donc le `<br>` qui le suit ouvrirait une ligne vide —
+    mais il n'y a plus de `<br>` : `recomposerLesDerniersMessages` a
+    remplacé la date et l'auteur par une seule ligne de signature.
+    Si le script ne tourne pas, les deux `<br>` sont toujours là et la
+    quatrième ligne dépasse ; la cellule la coupe, et la ligne reste à
+    92. Le repli coûte une ligne tronquée, pas une liste déformée. */
+#modernbb ul.topiclist li.row .lastpost-infos a:not(.last-post-icon) {
+  display: block;
+  overflow: hidden;
+  line-height: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /*  ── LA FLÈCHE NE PREND PLUS UNE LIGNE POUR ELLE ───────────────────
@@ -1703,6 +1802,25 @@ html#min-width {
 #modernbb .lastpost-infos {
   display: block;
   min-width: 0;
+}
+
+/*  ── « PAR ALIÉNOR · IL Y A 1 H » ──────────────────────────────────
+
+    La ligne que `module-categories.ts` compose à la place des deux de
+    ModernBB. La maquette lui donne 14 de haut, sous un titre de 16,
+    dans le gris des étiquettes — elle accompagne le sujet, elle ne
+    rivalise pas avec lui.
+
+    Elle est en bloc : le titre au-dessus est en ligne depuis qu'on a
+    réglé les `<br>`, et sans ça les deux se suivraient sur la même
+    ligne. */
+#modernbb .wm-dernier__signature {
+  display: block;
+  overflow: hidden;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /*  Un titre de sujet long ne doit pas pousser la colonne : il se coupe. */

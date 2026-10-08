@@ -74,3 +74,123 @@ export function numeroterLesCategories(doc: Document): number {
   });
   return faits;
 }
+
+// ── le dernier message ──────────────────────────────────────────────
+
+/** Ce qu'on a su tirer d'un bloc « dernière réponse ». */
+export type DernierMessage = {
+  /** Le nom de l'auteur, tel qu'il est écrit dans la page. */
+  readonly qui: string;
+  /** La date, telle qu'elle est écrite dans la page. */
+  readonly quand: string;
+};
+
+/** Lit l'auteur et la date dans le contenu d'un `.lastpost-infos`.
+ *
+ *  ── POURQUOI ÇA SE PASSE SUR DU TEXTE ───────────────────────────────
+ *
+ *  ModernBB sert ceci, et rien de plus structuré :
+ *
+ *      <a>titre du sujet</a><br>Mar 2 Avr 2024 - 18:42<br>Invité &nbsp;<a…>
+ *
+ *  La DATE est un nœud de texte nu entre deux `<br>`. Elle n'a ni
+ *  classe, ni balise, ni attribut : il n'y a aucun sélecteur qui
+ *  l'atteigne, et c'est pour ça que la maquette ne peut pas se faire en
+ *  CSS seul. L'auteur, lui, est tantôt un texte nu (« Invité »), tantôt
+ *  un `<a class="gensmall">` dans un `<strong>` avec la couleur de son
+ *  groupe.
+ *
+ *  On découpe donc sur les sauts de ligne, et on prend les deux
+ *  morceaux dans l'ordre où le gabarit les écrit : date, puis auteur.
+ *
+ *  ── CE QU'ON NE FAIT PAS ────────────────────────────────────────────
+ *
+ *  On ne devine pas, et on ne reformate pas la date : « hier », « il y
+ *  a 1 h » et « Mar 2 Avr 2024 - 18:42 » sortent tous les trois de
+ *  Forumactif selon ses propres réglages, et les réécrire voudrait
+ *  dire les analyser — donc se tromper un jour sur un fuseau ou une
+ *  langue. On les recopie.
+ *
+ *  Rend `null` si l'un des deux manque : mieux vaut laisser le bloc tel
+ *  que ModernBB l'a écrit qu'afficher « par · » avec un trou dedans. */
+export function lireLeDernierMessage(morceaux: readonly string[]): DernierMessage | null {
+  //  L'espace insécable que le gabarit colle après le nom en fait
+  //  partie : `\s` ne l'attrape pas dans toutes les implémentations,
+  //  on le nomme.
+  const propre = (s: string) => s.replace(/[\s ]+/g, " ").trim();
+  const quand = propre(morceaux[1] ?? "");
+  const qui = propre(morceaux[2] ?? "");
+  if (quand === "" || qui === "") return null;
+  return { qui, quand };
+}
+
+/** Découpe le contenu d'un `.lastpost-infos` sur ses `<br>`.
+ *
+ *  La moitié DOM de la lecture ci-dessus : elle ne décide de rien, elle
+ *  ne fait que rendre les morceaux dans l'ordre du document. C'est le
+ *  harnais de navigateur qui la couvre — une fonction qui marche sur
+ *  des `childNodes` ne se teste pas sans navigateur, et un faux DOM
+ *  monté à la main testerait le faux. */
+export function morceauxDuDernierMessage(infos: Element): readonly string[] {
+  const morceaux: string[] = [];
+  let courant = "";
+  for (const n of Array.from(infos.childNodes)) {
+    if (n.nodeName === "BR") {
+      morceaux.push(courant);
+      courant = "";
+      continue;
+    }
+    //  La flèche « voir le dernier message » n'est pas du texte : elle
+    //  n'a pas à se retrouver collée au nom de l'auteur.
+    if (n.nodeType === 1 && (n as Element).classList.contains("last-post-icon")) continue;
+    courant += n.textContent ?? "";
+  }
+  morceaux.push(courant);
+  return morceaux;
+}
+
+/** La classe de la ligne « par X · quand » qu'on pose à la place des
+ *  deux lignes de ModernBB. La feuille 03 l'habille. */
+export const CLASSE_SIGNATURE = "wm-dernier__signature";
+
+/** Recompose les blocs « dernière réponse » de la page.
+ *
+ *  La maquette `390:3328` écrit DEUX lignes — le sujet, puis « par
+ *  Aliénor · il y a 1 h ». ModernBB en écrit trois, dans l'autre
+ *  ordre : sujet, date, auteur. Un bloc de 56 px de haut pour trois
+ *  lignes de texte, ça ne tient pas, et ce n'est pas le dessin.
+ *
+ *  LA COULEUR DE GROUPE EST PERDUE, et c'est voulu : le nom de
+ *  l'auteur arrive parfois dans un `<span class="group-2">` qui lui
+ *  donne la couleur de son groupe. Sur une ligne de huit mots en gris
+ *  pâle, un nom en rouge vif attire l'œil vers l'information la moins
+ *  utile de la ligne. La maquette met les deux dans le même gris.
+ *
+ *  Rend le nombre de blocs recomposés. Aucun si le gabarit change de
+ *  forme : on ne touche qu'à ce qu'on a su lire en entier. */
+export function recomposerLesDerniersMessages(doc: Document): number {
+  let faits = 0;
+  for (const infos of Array.from(doc.querySelectorAll(".lastpost-infos"))) {
+    //  Idempotent : le module peut repasser (un observateur, un
+    //  rechargement partiel) sans empiler les signatures.
+    if (infos.querySelector(`.${CLASSE_SIGNATURE}`) !== null) continue;
+    const lu = lireLeDernierMessage(morceauxDuDernierMessage(infos));
+    if (lu === null) continue;
+
+    const titre = infos.querySelector("a:not(.last-post-icon)");
+    const fleche = infos.querySelector(".last-post-icon");
+    const signature = doc.createElement("span");
+    signature.className = CLASSE_SIGNATURE;
+    signature.textContent = `par ${lu.qui} · ${lu.quand}`;
+
+    //  On vide et on remonte, plutôt que de retirer les nœuds un par
+    //  un : la liste des enfants change pendant qu'on la parcourt, et
+    //  c'est la façon classique de perdre un nœud sur deux.
+    infos.textContent = "";
+    if (titre !== null) infos.appendChild(titre);
+    infos.appendChild(signature);
+    if (fleche !== null) infos.appendChild(fleche);
+    faits += 1;
+  }
+  return faits;
+}
