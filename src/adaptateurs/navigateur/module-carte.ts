@@ -373,17 +373,25 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
         height: String(carte.repere.hauteur),
       }),
     );
+    //  ── LE DÉGRADÉ EST CALCULÉ ICI, PAS ÉNUMÉRÉ DANS LA FEUILLE ───
+    //
+    //  Neuf bandes, donc neuf teintes. Les écrire une par une dans la
+    //  feuille voudrait dire la rouvrir à chaque fois qu'on change le
+    //  nombre de paliers — et se tromper d'un cran sans que rien ne
+    //  crie. On pose le TAUX DE MÉLANGE sur chaque bande, la feuille
+    //  n'a plus qu'une règle, et le nombre de paliers vit dans
+    //  `outils/carte-mer.py`, là où il est décidé.
     const bandes = [...carte.mer.bandes].reverse();
+    const PROFOND = 58;
+    const SURFACE = 17;
     for (const [i, d] of bandes.entries()) {
-      mer.appendChild(
-        svg(doc, "path", {
-          class: "wm-carte__mer-bande",
-          //  4 au large, 1 contre la côte : la feuille lit ce chiffre
-          //  et n'a pas à compter.
-          "data-wm-profondeur": String(bandes.length - i),
-          d,
-        }),
+      const t = bandes.length === 1 ? 0 : i / (bandes.length - 1);
+      const noeud = svg(doc, "path", { class: "wm-carte__mer-bande", d });
+      noeud.setAttribute(
+        "style",
+        `--wm-mer-melange: ${Math.round(PROFOND + (SURFACE - PROFOND) * t)}%`,
       );
+      mer.appendChild(noeud);
     }
     for (const ride of carte.mer.rides) {
       mer.appendChild(

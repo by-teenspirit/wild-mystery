@@ -559,9 +559,12 @@ const mer = await p.evaluate(() => {
   const noeuds = [...document.querySelector(".wm-carte__dessin").children];
   return {
     bandes: bandes.length,
-    //  4 au large, 1 contre la côte : l'ordre de peinture va du large
-    //  vers la côte, sinon on ne verrait que la bande la plus large.
-    ordre: bandes.map((b) => b.dataset.wmProfondeur),
+    //  Le taux de mélange va du large (58 %) vers la côte : c'est
+    //  l'ordre de peinture, et peint à l'envers on ne verrait que la
+    //  bande la plus large.
+    melanges: bandes.map((b) =>
+      Number((b.style.getPropertyValue("--wm-mer-melange") || "0").replace("%", ""))
+    ),
     teintes: [...new Set(bandes.map((b) => getComputedStyle(b).fill))],
     rides: document.querySelectorAll(".wm-carte__ride").length,
     //  Le continent doit venir APRÈS la mer dans le document : c'est
@@ -573,16 +576,24 @@ const mer = await p.evaluate(() => {
   };
 });
 dire("LA MER EST DESSINÉE DANS LE SVG", mer !== null, JSON.stringify(mer));
-dire("elle a ses quatre paliers", mer?.bandes === 4, `${mer?.bandes} bandes`);
+//  ASSEZ DE PALIERS POUR QUE ÇA NE SE LISE PLUS COMME DES PALIERS.
+//  « Tu peux faire un vrai dégradé pour l'océan ? » — le harnais ne
+//  sait pas juger un dégradé à l'œil, mais il sait compter les
+//  marches et vérifier qu'aucune ne répète la précédente.
 dire(
-  "peints du large vers la côte, pour qu'ils s'emboîtent",
-  JSON.stringify(mer?.ordre) === JSON.stringify(["4", "3", "2", "1"]),
-  JSON.stringify(mer?.ordre),
+  "elle a assez de paliers pour faire un dégradé",
+  (mer?.bandes ?? 0) >= 7,
+  `${mer?.bandes} bandes`,
 );
 dire(
-  "ET LES QUATRE SONT DE QUATRE COULEURS DIFFÉRENTES",
-  mer?.teintes.length === 4,
-  JSON.stringify(mer?.teintes),
+  "peints du large vers la côte, pour qu'ils s'emboîtent",
+  (mer?.melanges ?? []).every((v, i, t) => i === 0 || v < t[i - 1]),
+  JSON.stringify(mer?.melanges),
+);
+dire(
+  "ET AUCUNE TEINTE NE RÉPÈTE SA VOISINE",
+  mer?.teintes.length === mer?.bandes,
+  `${mer?.teintes.length} teintes pour ${mer?.bandes} bandes`,
 );
 dire("elle porte ses rides", (mer?.rides ?? 0) >= 20, `${mer?.rides} cercles`);
 dire("elle passe sous le continent", mer?.merAvantTerre === true);

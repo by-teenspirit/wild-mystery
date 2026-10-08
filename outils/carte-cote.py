@@ -35,13 +35,13 @@
 #
 #  ── L'ORDRE DES TROIS OUTILS ────────────────────────────────────────
 #
-#      carte-geographie.py   les lieux, les contours, les étiquettes
-#      carte-cote.py         la côte, déduite des lieux   ← ici
-#      carte-mer.py          la mer, déduite de la côte
+#      carte-geographie.py    les lieux, les noyaux, les étiquettes
+#      carte-cote.py          la côte, déduite des noyaux   ← ici
+#      carte-territoires.py   les zones étendues jusqu'à se toucher
+#      carte-mer.py           la mer, déduite de la côte
 #
-#  Chacun lit et réécrit `data/carte.json`. Sauter le deuxième laisse
-#  des zones dans l'eau ; sauter le troisième laisse la mer sur
-#  l'ancienne côte.
+#  Chacun lit et réécrit `data/carte.json`, et chacun est rejouable
+#  autant de fois qu'on veut : c'est à ça que sert `noyau`.
 # ════════════════════════════════════════════════════════════════════
 
 import json
@@ -112,8 +112,13 @@ def main():
         if l["forumId"] in AU_LARGE:
             dehors.append(l["nom"])
             continue
-        pinceau.polygon([(x + MARGE, y + MARGE)
-                         for x, y in points_du_chemin(l["forme"])], fill=255)
+        #  LE NOYAU, PAS LA FORME. Une fois `carte-territoires.py`
+        #  passé, `forme` est le territoire étendu jusqu'à ses
+        #  voisins : le dilater ferait grossir le continent d'un
+        #  littoral à chaque construction. `noyau` est la forme
+        #  d'origine, et elle ne bouge jamais.
+        pinceau.polygon([(x + MARGE, y + MARGE) for x, y in
+                         points_du_chemin(l.get("noyau", l["forme"]))], fill=255)
 
     masque = np.array(toile) > 127
     masque = ndimage.binary_closing(masque, ndimage.generate_binary_structure(2, 1),

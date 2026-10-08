@@ -10255,23 +10255,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     de la côte, deux paliers voisins doivent rester distincts du
     continent, qui est juste à côté ; au large, on peut s'étaler. */
 #modernbb .wm-carte__mer-fond {
-  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 54%, var(--wm-fond-douce, #f3e1d2));
+  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 58%, var(--wm-fond-douce, #f3e1d2));
 }
 
-#modernbb .wm-carte__mer-bande[data-wm-profondeur="4"] {
-  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 44%, var(--wm-fond-douce, #f3e1d2));
-}
+/*  UNE SEULE RÈGLE POUR TOUTES LES BANDES. Le taux de mélange est
+    posé par le module sur chaque bande, parce que c'est lui qui sait
+    combien il y en a. La feuille, elle, ne sait que la rampe : de
+    l'eau vers l'accent.
 
-#modernbb .wm-carte__mer-bande[data-wm-profondeur="3"] {
-  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 34%, var(--wm-fond-douce, #f3e1d2));
-}
-
-#modernbb .wm-carte__mer-bande[data-wm-profondeur="2"] {
-  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 27%, var(--wm-fond-douce, #f3e1d2));
-}
-
-#modernbb .wm-carte__mer-bande[data-wm-profondeur="1"] {
-  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 21%, var(--wm-fond-douce, #f3e1d2));
+    Le repli de 58 % est celui du large : si la variable manque, la
+    mer est unie et profonde — ce qui est l'état d'avant les paliers,
+    et une mer honnête. */
+#modernbb .wm-carte__mer-bande {
+  fill: color-mix(
+    in srgb,
+    var(--wm-accent-primaire, #275e7a) var(--wm-mer-melange, 58%),
+    var(--wm-fond-douce, #f3e1d2)
+  );
 }
 
 /*  LES RIDES SONT DES TRAITS, PAS DES DISQUES. Un disque, même très

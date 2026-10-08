@@ -59,7 +59,20 @@ MARGE_D, MARGE_B = 86, 118
 #  charte — terre, sable, mousse — avec l'eau en bleu-ardoise pour
 #  trancher.
 
+#  La rampe de mer : de l'eau profonde au bord du cadre jusqu'au
+#  turquoise du rivage. Neuf crans, interpolés — « un vrai dégradé »
+#  demandé le 8 octobre — et FLOUTÉS au rendu, ce qu'une affiche peut
+#  se permettre et pas une page qu'on fait glisser.
+EAU_LARGE = (0x1e, 0x4a, 0x60)
+EAU_RIVE = (0x8e, 0xc4, 0xc9)
 EAU = ["#2c5c73", "#35697f", "#44798d", "#58909f", "#79aab4"]
+
+
+def eau(t):
+    """La teinte de la mer à la profondeur `t`, de 0 au large à 1 au
+    rivage."""
+    return "#%02x%02x%02x" % tuple(
+        round(EAU_LARGE[k] + (EAU_RIVE[k] - EAU_LARGE[k]) * t) for k in range(3))
 SABLE_COTE = "#ecd9b8"
 TERRE = "#e7e4c4"   # une plaine, pas un parchemin
 TRAIT = "#5a4433"
@@ -502,12 +515,24 @@ def main():
     #  Les mêmes bandes que le forum, calculées par `carte-mer.py`. Le
     #  fond couvre TOUT le cadre, marges comprises : au large du large,
     #  c'est encore la mer.
-    out.append(f'<rect x="{x0}" y="{y0}" width="{L}" height="{H}" '
-               f'fill="{EAU[0]}"/>')
+    #  LE FLOU EST CE QUI FAIT LE DÉGRADÉ. Neuf bandes emboîtées et un
+    #  `feGaussianBlur` de 22 : les marches disparaissent, la
+    #  profondeur reste, et elle suit la côte — ce qu'aucun dégradé
+    #  linéaire ou radial ne sait faire sur un continent qui n'est ni
+    #  une bande ni un disque.
+    out.append('<defs><filter id="fondu" x="-12%" y="-12%" width="124%" '
+               'height="124%"><feGaussianBlur stdDeviation="22"/>'
+               '</filter></defs>')
     mer = carte.get("mer")
+    out.append('<g filter="url(#fondu)">' if mer else '<g>')
+    out.append(f'<rect x="{x0 - 60}" y="{y0 - 60}" width="{L + 120}" '
+               f'height="{H + 120}" fill="{eau(0)}"/>')
     if mer:
+        n = len(mer["bandes"])
         for i, d in enumerate(reversed(mer["bandes"])):
-            out.append(f'<path d="{d}" fill="{EAU[min(i + 1, len(EAU) - 1)]}"/>')
+            out.append(f'<path d="{d}" fill="{eau((i + 1) / n)}"/>')
+    out.append('</g>')
+    if mer:
         for i, r in enumerate(mer["rides"]):
             for f in (1.0, 0.55):
                 out.append(f'<circle cx="{r["x"]}" cy="{r["y"]}" '
@@ -541,10 +566,16 @@ def main():
         biome, fond, ombre, sorte = BIOMES[l["forumId"]]
         marine = l["forumId"] in MARINES
         out.append(f'<g clip-path="url(#hors-terre)">' if marine else '<g>')
+        #  LE TRAIT EST FIN PARCE QUE LES FRONTIÈRES SONT PARTAGÉES :
+        #  deux voisines tracent le même bord, donc chaque frontière
+        #  est peinte deux fois. À 1,5 elles faisaient des bourrelets.
         out.append(f'<path d="{l["forme"]}" fill="{fond}" stroke="{TRAIT}" '
-                   f'stroke-width="1.5" stroke-opacity="0.55" '
+                   f'stroke-width="0.9" stroke-opacity="0.4" '
                    f'stroke-linejoin="round"/>')
-        poly = points_du_chemin(l["forme"])
+        #  Le relief se sème dans le territoire entier : c'est lui
+        #  qu'on voit, et un noyau texturé au milieu d'une zone unie
+        #  dessinerait l'ancienne tache en creux.
+        poly = points_du_chemin(l["forme"].split(" M ")[0])
         pas = 21 if sorte == "mesa" else (
             17 if sorte in ("pic", "pic-neige", "cratère") else 14)
         grains = semer(poly, pas, bord=7, graine=l["forumId"])
@@ -568,15 +599,16 @@ def main():
     #  connaître les territoires, et c'est pour leur laisser la place.
     terre_poly = points_du_chemin(carte["terre"])
     zones_poly = [points_du_chemin(l["forme"]) for l in lieux if "forme" in l]
-    out.append('<g opacity="0.5">')
-    for k, (gx, gy) in enumerate(semer(terre_poly, 23, bord=16, graine=7)):
+    #  Il ne reste que le LITTORAL à habiller : depuis que les
+    #  territoires se touchent, la terre n'a plus de vide au milieu.
+    #  Quelques touffes sur la plage, et c'est tout — c'est une plage,
+    #  pas un pré.
+    out.append('<g opacity="0.42">')
+    for k, (gx, gy) in enumerate(semer(terre_poly, 26, bord=6, graine=7)):
         if any(dedans((gx, gy), z) for z in zones_poly):
             continue
         h = hache(k * 11 + 5)
-        if h > 0.78:
-            out.append(glyphe("palétuvier", gx, gy, 4.4 + 1.6 * h, k, "#9bb183"))
-        else:
-            out.append(glyphe("touffe", gx, gy, 4.6 + 2.2 * h, k, "#b9ad8c"))
+        out.append(glyphe("touffe", gx, gy, 4.2 + 1.8 * h, k, "#c6b696"))
     out.append('</g>')
 
     #  ── 3ter · l'eau douce ────────────────────────────────────────

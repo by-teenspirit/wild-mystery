@@ -78,6 +78,10 @@ HORS_CHARTE = {
     #  `data/carte.json`, pas une valeur de charte. La régler à la main
     #  dans le panneau désaccorderait le cadre et le dessin qu'il tient.
     "--wm-carte-hauteur",
+    #  Le taux de mélange d'une bande de mer : POSÉ PAR LE MODULE sur
+    #  chaque bande, parce que lui seul sait combien il y en a. Une
+    #  valeur de charte ne saurait pas le dire.
+    "--wm-mer-melange",
     #  L'image d'en-tête du panneau de la carte, posée EN LIGNE par
     #  `module-carte.ts` depuis `data/carte.json`. Elle n'existe nulle
     #  part en feuille : son repli est le bandeau des catégories.

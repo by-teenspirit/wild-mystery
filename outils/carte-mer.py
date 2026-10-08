@@ -73,12 +73,25 @@ from skimage import measure
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from chemin_svg import points_du_chemin  # noqa: E402
 
-#  Les quatre profondeurs, en unités du repère. Pas régulières : près
-#  de la côte on veut des bandes serrées — c'est là que l'œil lit la
-#  forme du rivage — et au large on peut s'étaler.
-NIVEAUX = [16, 40, 72, 116]
+#  Les profondeurs, en unités du repère.
+#
+#  ── POURQUOI NEUF ET PLUS QUATRE ────────────────────────────────────
+#
+#  Demandé le 8 octobre : « tu peux faire un vrai dégradé pour l'océan
+#  en fond ? » Quatre bandes se lisent comme quatre bandes. Neuf, à
+#  pas resserré près de la côte, se lisent comme un fond qui se creuse
+#  — sans filtre, sans flou, et sans rien coûter au navigateur.
+#
+#  L'affiche, elle, passe un flou par-dessus : une image qu'on rend une
+#  fois peut se permettre ce qu'une page qu'on fait glisser ne peut
+#  pas.
+#
+#  Les pas ne sont pas réguliers : près de la côte on veut des bandes
+#  serrées — c'est là que l'œil lit la forme du rivage — et au large
+#  on peut s'étaler.
+NIVEAUX = [9, 20, 33, 48, 66, 87, 112, 141, 174]
 
-MARGE = 220          # la toile déborde du repère, voir plus haut
+MARGE = 300          # la toile déborde du repère, voir plus haut
 PAS = 20             # un sommet tous les ~20 px sur un contour relissé
 
 
@@ -183,7 +196,14 @@ def main():
             #  poussière du raster, pas un rivage.
             if len(contour) < 30:
                 continue
-            allege = eclaircir([(c - MARGE, r - MARGE) for r, c in contour])
+            #  Plus on s'éloigne, plus le contour est long et plat :
+            #  un sommet tous les 23 px près de la côte, tous les 92
+            #  au large. Le détail d'une bande à 174 unités du rivage
+            #  ne se voit pas — mais il se PAIE, en octets sur chaque
+            #  chargement de l'index. Sans cette règle, neuf bandes
+            #  pèsent le double de quatre pour un dessin identique.
+            pas = PAS + int(niveau / 2.4)
+            allege = eclaircir([(c - MARGE, r - MARGE) for r, c in contour], pas)
             if len(allege) >= 6:
                 morceaux.append(chemin_lisse(allege))
         if morceaux:
