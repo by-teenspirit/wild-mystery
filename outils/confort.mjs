@@ -329,6 +329,97 @@ dire(
 );
 await cdp.send("Emulation.setEmulatedMedia", { features: [] });
 
+// ── LE BOUTON DU TCHAT SE RANGE DANS LA COLONNE ─────────────────────
+//
+//  CE QUE CE BLOC AURAIT ÉVITÉ. Le module cherchait `#FAM-button-open`.
+//  Ce nœud n'existe pas : FAM sert `#FAM-button`. Le rangement ne
+//  partait donc jamais, et le bouton restait en bas à droite de
+//  l'écran — c'est-à-dire PAR-DESSUS le coin d'outils, sur « Confort ».
+//  Ça a tenu une journée, parce que rien ne regardait.
+//
+//  FAM n'est pas chargé ici : on pose son bouton à la main, avec SA
+//  règle à lui — `position: fixed`, 30 x 30, collé au coin bas droit.
+//  C'est tout ce dont le module a besoin pour se tromper.
+await p.evaluate(() => {
+  const css = document.createElement("style");
+  //  Relevé mot pour mot dans le CSS que FAM injecte, le 8 octobre.
+  css.textContent =
+    "#FAM-button{color:#FFF;background:#39F;position:fixed;width:30px;height:30px;right:3px;bottom:3px;cursor:pointer;z-index:99999}";
+  document.head.appendChild(css);
+  const a = document.createElement("a");
+  a.id = "FAM-button";
+  a.title = "Forumactif Messenger";
+  a.innerHTML = '<i class="fa fa-comment"></i>';
+  document.body.appendChild(a);
+});
+//  L'observateur du module le prend au vol : on lui laisse un tour.
+await p.waitForTimeout(250);
+
+const tchat = await p.evaluate(() => {
+  const b = document.querySelector("#FAM-button");
+  const coin = document.querySelector(".wm-coin");
+  if (b === null || coin === null) return null;
+  const r = b.getBoundingClientRect();
+  const voisins = [...coin.children].filter((c) => c !== b).map((c) => {
+    const x = c.getBoundingClientRect();
+    return { l: Math.round(x.left), w: Math.round(x.width) };
+  });
+  return {
+    dansLeCoin: b.parentElement === coin,
+    premier: coin.firstElementChild === b,
+    classes: b.className,
+    role: b.getAttribute("role"),
+    tabindex: b.getAttribute("tabindex"),
+    etiquette: (b.textContent || "").trim(),
+    position: getComputedStyle(b).position,
+    l: Math.round(r.width),
+    h: Math.round(r.height),
+    coin: Math.round(coin.getBoundingClientRect().width),
+    voisins,
+    //  Le chevauchement, mesuré et pas supposé : aucun outil de la
+    //  colonne ne doit recouvrir un autre.
+    croise: [...coin.children].some((c, i, t) =>
+      t.slice(i + 1).some((d) => {
+        const a = c.getBoundingClientRect(), e = d.getBoundingClientRect();
+        return a.bottom > e.top + 1 && e.bottom > a.top + 1;
+      })
+    ),
+  };
+});
+dire(
+  "LE BOUTON DU TCHAT EST RANGÉ DANS LE COIN",
+  tchat?.dansLeCoin === true,
+  JSON.stringify(tchat),
+);
+dire("et il y prend la première place", tchat?.premier === true);
+dire(
+  "il rentre dans le flux : plus de `position: fixed`",
+  tchat?.position === "static",
+  tchat?.position,
+);
+dire(
+  "il prend toute la largeur de la colonne, comme ses voisins",
+  tchat !== null && tchat.l === tchat.coin && tchat.voisins.every((v) => v.w === tchat.coin),
+  JSON.stringify({ bouton: tchat?.l, coin: tchat?.coin, voisins: tchat?.voisins }),
+);
+dire("RIEN NE CHEVAUCHE RIEN dans la colonne", tchat?.croise === false);
+dire(
+  "il porte l'allure des autres outils",
+  (tchat?.classes ?? "").includes("wm-coin__bouton") &&
+    (tchat?.classes ?? "").includes("wm-messenger-range"),
+  tchat?.classes,
+);
+dire(
+  "et une étiquette écrite, pas seulement un `title`",
+  (tchat?.etiquette ?? "") !== "",
+  tchat?.etiquette,
+);
+dire(
+  "il s'atteint au clavier",
+  tchat?.role === "button" && tchat?.tabindex === "0",
+  JSON.stringify({ role: tchat?.role, tabindex: tchat?.tabindex }),
+);
+
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
 for (const s of soucis) console.log("  · " + s);

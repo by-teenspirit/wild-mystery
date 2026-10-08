@@ -9060,39 +9060,69 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 0 · le bouton, rangé dans le coin d'outils ───────────────────── */
 
-/*  Il prend la largeur de la colonne et l'allure de ses voisins : même
-    rayon, même fond, même étiquette de 10 px. La règle ne s'applique
-    QU'UNE FOIS RANGÉ — `module-messenger.ts` pose la classe — pour que
-    le bouton resté au corps de la page, faute de coin d'outils sur
-    cette page-là, garde celle de FAM plutôt qu'une allure de bouton
-    sans sa colonne. */
+/*  ── LA MISE EN PAGE VIENT DE LA FEUILLE 10, PAS D'ICI ────────────
+
+    Le module pose DEUX classes sur le bouton : `wm-coin__bouton`, qui
+    est celle des trois autres outils, et `wm-messenger-range`, qui est
+    la nôtre. La première tient tout l'alignement de la colonne — icône
+    à gauche dans une fente fixe, étiquette à sa droite, même
+    rembourrage, même casse. Cette feuille-ci n'ajoute plus que la
+    BOÎTE : bordure, rayon, fond — exactement ce que `wm-coin__theme`
+    fait pour le bouton de thème, qui est seul dans la sienne.
+
+    Première version : elle redécrivait tout, et en centrant. Deux
+    conséquences, et la seconde est la vraie. Le tchat ne s'alignait
+    pas sur ses voisins, ça se voyait. Et surtout, toute retouche de la
+    colonne aurait demandé de penser à venir ici aussi — une mise en
+    page écrite à deux endroits finit toujours par diverger.
+
+    Les règles ne s'appliquent QU'UNE FOIS RANGÉ : sur une page sans
+    coin d'outils, le bouton garde l'allure de FAM plutôt qu'une allure
+    de bouton de colonne sans sa colonne. */
+#modernbb .wm-coin #FAM-button.wm-messenger-range,
 #modernbb .wm-coin .wm-messenger-range {
-  display: flex;
+  /*  FAM pose son bouton en `position: fixed` en bas à droite de
+      l'écran — pile sur le coin d'outils. Une fois rangé il rentre
+      dans le flux de la colonne, et ses quatre côtés avec lui. */
+  position: static;
   box-sizing: border-box;
   width: 100%;
-  height: 38px;
-  align-items: center;
-  justify-content: center;
-  gap: var(--wm-espace-8, 8px);
-  padding: 10px 14px;
-  border: 0;
+  height: auto;
+  margin: 0;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
-  box-shadow: 0 1px 3px rgb(20 48 58 / 8%);
+  box-shadow: none;
   color: var(--wm-texte-doux, #6e5749);
-  cursor: pointer;
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-weight: var(--wm-graisse-gras, 700);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  inset: auto;
+  line-height: 1.3;
+  text-align: left;
   text-decoration: none;
-  text-transform: uppercase;
 }
 
+/*  ── LA FENTE DE L'ICÔNE, 18 COMME LES AUTRES ──────────────────────
+
+    La feuille 10 donne 18 px de large aux icônes du coin, et c'est LA
+    FENTE qui aligne la colonne, pas le dessin. Mais sa règle vise
+    `svg` : les trois outils du coin sont des dessins à nous. FAM, lui,
+    sert `<i class="fa fa-comment">` — une police d'icônes. Même
+    traitement, autre sélecteur, et les quatre étiquettes repartent
+    enfin du même pixel. */
+#modernbb .wm-coin #FAM-button.wm-messenger-range i,
+#modernbb .wm-coin .wm-messenger-range i {
+  width: 18px;
+  flex: none;
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+}
+
+#modernbb .wm-coin #FAM-button.wm-messenger-range:hover,
+#modernbb .wm-coin #FAM-button.wm-messenger-range:focus-visible,
 #modernbb .wm-coin .wm-messenger-range:hover,
 #modernbb .wm-coin .wm-messenger-range:focus-visible {
-  background: var(--wm-fond-douce, #f3e1d2);
-  color: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-accent-fort, #1f5470);
+  background: var(--wm-fond-terre, #f8eae1);
 }
 
 /*  La pastille de messages non lus que FAM pose dans le bouton. Elle
@@ -9137,10 +9167,26 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     plus un tiroir. */
 #modernbb #FAM {
   top: 0;
-  right: 0;
+  /*  ── IL S'ARRÊTE AVANT LE COIN D'OUTILS ─────────────────────────
+
+      « Déplace le messenger pour qu'il ne chevauche rien. » Collé au
+      bord droit, le tiroir recouvrait la colonne du coin — donc le
+      bouton « Tchat » lui-même, celui par lequel on vient de l'ouvrir
+      et par lequel on le referme. Un panneau qui avale son propre
+      interrupteur.
+
+      On le fait donc s'arrêter à gauche du coin : la colonne fait
+      100 et vit à 16 du bord, il reste 16 entre les deux. Le coin
+      garde ses quatre outils accessibles pendant que le tchat est
+      ouvert, et le tiroir se referme d'où on l'a ouvert.
+
+      L'autre route était de passer le coin au-dessus en `z-index`.
+      Elle met les deux l'un SUR l'autre : on lit le tchat à travers
+      une colonne de boutons. */
+  right: calc(100px + 2 * var(--wm-espace-16, 16px));
   bottom: 0;
   left: auto;
-  width: min(558px, 100vw - var(--wm-espace-32, 32px));
+  width: min(480px, 100vw - 164px);
   max-width: none;
   height: auto;
   max-height: none;
@@ -9151,6 +9197,74 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
+}
+
+/*  ── LE DEDANS SE MESURE COMME LE DEHORS ────────────────────────
+
+    FAM écrit des `width: 100%` sur des blocs à rembourrage sans leur
+    donner `box-sizing: border-box` : relevé à l'écran, sa barre
+    d'outils faisait 482 dans un tiroir de 480, et dépassait d'un
+    pixel de chaque côté. Un pixel, mais il se voit : c'est une ligne
+    claire le long de l'ombre.
+
+    On le pose sur TOUT le dedans du tiroir plutôt que bloc par bloc —
+    la règle est juste pour tous, et le jour où le fork ajoute un
+    panneau, il naît droit. */
+#modernbb #FAM * {
+  box-sizing: border-box;
+}
+
+#modernbb #FAM #FAM-toolbar {
+  width: 100%;
+  margin: 0;
+}
+
+/*  ── LES ONGLETS ET LE BOUTON ROND, AUX JETONS ──────────────────────
+
+    Deux restes du bleu de 2017, vus une fois le tiroir ouvert : la
+    bande d'onglets sur `fond/page`, avec l'onglet actif en BLANC PUR
+    — pas un blanc de la charte —, et le gros bouton « nouvelle
+    conversation » en #39F.
+
+    Le menu déroulant du coin en haut à droite aussi : fond blanc,
+    texte gris, aucun cadre. Il est servi par FAM au-dessus de tout,
+    donc c'est le seul endroit du tiroir qui garde une ombre. */
+#modernbb #FAM #FAM-tabs {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb #FAM .FAM-tab {
+  border-radius: var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb #FAM .FAM-tab.FAM-tab-active {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb #FAM #FAM-new-topic i.fa-circle {
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb #FAM #FAM-menu {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 20px rgb(20 48 58 / 14%);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  Une conversation se sépare de la suivante par un filet, pas par un
+    cadre : c'est une liste, comme la liste des forums. */
+#modernbb #FAM .FAM-chat {
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb #FAM .FAM-chat-avatar img {
+  border-radius: var(--wm-rayon-sm, 6px);
 }
 
 /*  LES CLOISONS INTÉRIEURES TOMBENT. FAM dessine un cadre par bloc —
@@ -9190,10 +9304,25 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   padding: var(--wm-espace-32, 32px) var(--wm-espace-20, 20px);
 }
 
-/*  La pastille qui ouvre le tchat. C'est elle qu'on voit tout le
-    temps : elle prend l'accent de la charte, et la taille d'une vraie
-    cible tactile — 30 px était trop petit au doigt. */
-#modernbb #FAM-button {
+/*  ── LA PASTILLE FLOTTANTE : LE CAS OÙ IL N'Y A PAS DE COIN ───────
+
+    Sur une page sans coin d'outils, le bouton reste là où FAM le pose
+    et prend au moins l'accent de la charte et une vraie cible tactile
+    — 30 px était trop petit au doigt.
+
+    `:not(.wm-messenger-range)` N'EST PAS UNE PRÉCAUTION, c'est la
+    correction d'un bug qui a tenu une demi-heure. Cette règle était
+    écrite sans la négation, et `#modernbb #FAM-button` pèse deux
+    identifiants : elle battait `#modernbb .wm-coin .wm-messenger-range`,
+    qui n'en a qu'un. Le bouton était bien déplacé dans la colonne, et
+    il y restait un rond de 44 × 44 au lieu de prendre les 100 de
+    large de ses voisins. On cherchait le coupable dans le CSS de FAM.
+
+    LA LEÇON : nos propres règles à identifiant sont les plus
+    dangereuses du dossier, parce qu'on les écrit en pensant à un seul
+    état. Quand un élément a deux vies — flottant ou rangé —, c'est la
+    règle de la PREMIÈRE vie qu'il faut borner. */
+#modernbb #FAM-button:not(.wm-messenger-range) {
   right: var(--wm-espace-16, 16px);
   bottom: var(--wm-espace-16, 16px);
   width: 44px;
@@ -9205,8 +9334,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-align: center;
 }
 
-#modernbb #FAM-button:hover,
-#modernbb #FAM-button:focus-visible {
+#modernbb #FAM-button:not(.wm-messenger-range):hover,
+#modernbb #FAM-button:not(.wm-messenger-range):focus-visible {
   background: var(--wm-accent-fort, #1f5470);
 }
 
