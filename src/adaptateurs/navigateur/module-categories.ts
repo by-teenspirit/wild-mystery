@@ -297,9 +297,16 @@ export function morceauxDuDernierMessage(infos: Element): readonly string[] {
   return morceaux;
 }
 
-/** La classe de la ligne « par X · quand » qu'on pose à la place des
- *  deux lignes de ModernBB. La feuille 03 l'habille. */
-export const CLASSE_SIGNATURE = "wm-dernier__signature";
+/** Les trois lignes du bloc « dernière réponse », posées à la place
+ *  des trois de ModernBB — qui sont les mêmes, mais mélangées à des
+ *  `<br>` et des nœuds de texte nus qu'aucune règle n'atteint.
+ *
+ *  Demandé le 8 octobre : « à côté, je veux : titre du dernier post,
+ *  en dessous la date, en dessous la personne qui a posté et la flèche
+ *  bien alignée. » C'est l'ordre du gabarit ; ce qui manquait, c'est
+ *  que chaque morceau soit un élément À LUI, qu'on puisse habiller. */
+export const CLASSE_DATE = "wm-dernier__date";
+export const CLASSE_QUI = "wm-dernier__qui";
 
 /** Recompose les blocs « dernière réponse » de la page.
  *
@@ -320,24 +327,34 @@ export function recomposerLesDerniersMessages(doc: Document): number {
   let faits = 0;
   for (const infos of Array.from(doc.querySelectorAll(".lastpost-infos"))) {
     //  Idempotent : le module peut repasser (un observateur, un
-    //  rechargement partiel) sans empiler les signatures.
-    if (infos.querySelector(`.${CLASSE_SIGNATURE}`) !== null) continue;
+    //  rechargement partiel) sans empiler les lignes.
+    if (infos.querySelector(`.${CLASSE_DATE}`) !== null) continue;
     const lu = lireLeDernierMessage(morceauxDuDernierMessage(infos));
     if (lu === null) continue;
 
     const titre = infos.querySelector("a:not(.last-post-icon)");
     const fleche = infos.querySelector(".last-post-icon");
-    const signature = doc.createElement("span");
-    signature.className = CLASSE_SIGNATURE;
-    signature.textContent = `par ${lu.qui} · ${lu.quand}`;
+
+    const date = doc.createElement("span");
+    date.className = CLASSE_DATE;
+    date.textContent = lu.quand;
+
+    //  LE NOM ET LA FLÈCHE SUR LA MÊME LIGNE. C'est ce qui permet de
+    //  les aligner : la flèche mène au dernier message, le nom dit qui
+    //  l'a écrit — les séparer sur deux lignes laissait la flèche
+    //  pendre sous le bloc, et c'est ce que Callista a vu.
+    const qui = doc.createElement("span");
+    qui.className = CLASSE_QUI;
+    qui.appendChild(doc.createTextNode(lu.qui));
+    if (fleche !== null) qui.appendChild(fleche);
 
     //  On vide et on remonte, plutôt que de retirer les nœuds un par
     //  un : la liste des enfants change pendant qu'on la parcourt, et
     //  c'est la façon classique de perdre un nœud sur deux.
     infos.textContent = "";
     if (titre !== null) infos.appendChild(titre);
-    infos.appendChild(signature);
-    if (fleche !== null) infos.appendChild(fleche);
+    infos.appendChild(date);
+    infos.appendChild(qui);
     faits += 1;
   }
   return faits;

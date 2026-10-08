@@ -181,8 +181,15 @@
       contre `fond-nuit`. Le rang passe donc en crème atténué — la
       maquette le pose à la même valeur que le compte de droite. */
   color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 72%, transparent);
-  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  /*  FRAUNCES, et pas la Kaushan. « Typo des catégories : les numéros :
+      Fraunces », 8 octobre. Le manuscrit est pour les titres de
+      section — « Actualités », « Staff », « Qui est en ligne ? » — pas
+      pour un numéro d'ordre, qui est un chiffre avant d'être un
+      ornement. */
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: 26px;
+  font-style: italic;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   line-height: 1;
 }
 
@@ -362,7 +369,13 @@
 #modernbb ul.topiclist li.row dl.icon {
   display: grid;
   min-height: 92px;
-  grid-template-columns: 48px minmax(0, 1fr) 104px 212px;
+  /*  252 ET PLUS 212 POUR LE DERNIER MESSAGE. La maquette lui en
+      donne 212 : 35 d'avatar, 11 d'écart, 166 de texte. L'avatar est
+      devenu un rond de 68 — demande du 8 octobre —, soit 33 de plus,
+      et les trois lignes se coupaient toutes à mi-mot. On rend les 33
+      à la colonne, et on les prend sur l'identité, qui est la seule
+      des quatre à savoir respirer. */
+  grid-template-columns: 48px minmax(0, 1fr) 104px 252px;
   grid-template-areas:
     "pastille identite sujets dernier"
     "pastille identite messages dernier";
@@ -397,9 +410,14 @@
       quinze pixels d'une ligne à l'autre casse ce balayage, et c'est
       exactement ce qui faisait « pas la maquette » avant même qu'on
       regarde un détail. */
-  grid-template-rows: 36px 36px;
+  /*  46 ET 46 DEPUIS LE 8 OCTOBRE AU SOIR : « les catégories ne sont
+      pas assez hautes », et « les paddings des forums sont pas bons ».
+      92 de contenu plus 2 × 14 font 120. La ligne respire, l'avatar
+      rond de 68 y tient avec de l'air au-dessus et en dessous, et les
+      trois lignes du dernier message aussi. */
+  grid-template-rows: 46px 46px;
   align-content: center;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-18, 18px);
+  padding: 14px 22px;
   /*  L'icône du forum est un fond posé par ModernBB sur ce nœud. La
       première colonne de la grille lui garde sa place ; sans elle, le
       titre lui passerait dessus. */
@@ -428,6 +446,49 @@
     l'écran sur la plus longue du forum — « Notice d'utilisation »,
     cinq lignes à 1 440 — le texte s'arrête après la quatrième. */
 
+/*  ── LE TITRE EN NUNITO, ET PLUS ROGNÉ ────────────────────────────
+
+    Deux choses dans la même règle, parce qu'elles portent sur le même
+    nœud.
+
+    LA POLICE. « Typo des catégories : les numéros : Fraunces, le
+    texte : Nunito Sans. » Le nom d'un forum est du texte : il se lit
+    vingt-six fois sur la page, à la suite. La Fraunces est pour ce
+    qu'on regarde — les nombres, les titres de section ; la Nunito
+    pour ce qu'on lit. On ne change QUE la ligne de forum : les titres
+    de sujet sont un autre écran, et Callista ne l'a pas revu.
+
+    LA MARGE. « Les titres sont cropés » : ModernBB pose
+    `margin-top: -6px` sur `a.forumtitle` — un reste de son propre
+    calage —, et la cellule coupe ce qui dépasse depuis qu'elle a un
+    `overflow: hidden`. Six pixels de haut de lettres mangés, sur
+    toutes les lignes. On annule la marge plutôt que l'`overflow` :
+    c'est lui qui tient la ligne à sa hauteur. */
+#modernbb ul.topiclist li.row a.forumtitle {
+  margin: 0;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-corps-axes, "wdth" 100, "YTLC" 500);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  ── LE « − » DE L'EN-TÊTE, CENTRÉ ────────────────────────────────
+
+    « Aligne le − aussi dans l'en-tête de catégorie. » ModernBB le
+    pose en absolu avec un `top` en pixels, calculé pour sa bande à
+    lui ; la nôtre fait 74, et le bouton tombait dix-neuf pixels
+    au-dessus du milieu.
+
+    On le centre sur la bande plutôt que de corriger son `top` : un
+    nombre corrigé redeviendrait faux à la prochaine hauteur de
+    bande. */
+#modernbb li.header .btn-collapse {
+  top: 50%;
+  right: 22px;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
 /*  ── LES DEUX `<br>` DU TEMPLATE NE PÈSENT PLUS RIEN ───────────────
 
     ModernBB sépare le titre de la description par DEUX sauts de
@@ -455,14 +516,33 @@
     x = 917, soit juste avant le dernier message. Une bordure gauche
     sur la cellule, et les 10 px qui la séparent du texte. */
 #modernbb ul.topiclist li.row dd.lastpost {
+  position: relative;
   grid-area: dernier;
   align-self: stretch;
   /*  Le rembourrage de 18 que ModernBB met sur toutes les cellules
       s'ajoutait à la hauteur de l'avatar : 56 + 36 = 92 pour cette
       seule cellule, et c'est elle qui tirait la ligne. Ici, rien à
       gauche sauf les dix pixels qui séparent le texte du filet. */
-  padding: 0 0 0 var(--wm-espace-10, 10px);
-  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+  padding: 0 0 0 var(--wm-espace-16, 16px);
+}
+
+/*  ── LE FILET FAIT 52, PAS TOUTE LA HAUTEUR ────────────────────────
+
+    « La barre verticale est trop haute. » Elle l'était : une bordure
+    gauche sur une cellule étirée mesure la cellule entière — 72, puis
+    92 quand la ligne a grandi. La maquette en dessine 52, centrés.
+
+    Un pseudo-élément, donc, et pas une bordure : une bordure ne sait
+    pas faire moins que son côté. */
+#modernbb ul.topiclist li.row dd.lastpost::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 1px;
+  height: 52px;
+  background: var(--wm-bord-fin, #eadacd);
+  transform: translateY(-50%);
 }
 
 /*  ── LE NOMBRE ET SON ÉTIQUETTE SUR LA MÊME LIGNE ──────────────────
@@ -526,10 +606,17 @@
   justify-content: flex-end;
   gap: var(--wm-espace-6, 6px);
 
-  color: var(--wm-encre, #2e2018);
+  /*  LE CHIFFRE EN TERRE, PAS EN ENCRE. « Les couleurs non plus » :
+      dans `390:3317` les nombres sont de la couleur de terre, et
+      c'est ce qui les détache de la ligne sans les faire crier.
+
+      13,5 : demandé le 8 octobre. La maquette dessine des chiffres de
+      23 ; Callista les veut à la taille du texte courant, et c'est
+      elle qui regarde la page. */
+  color: var(--wm-accent-terre, #8b4725);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
-  font-size: var(--wm-taille-chiffre, 20px);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-chiffre, 1.15);
 }
@@ -586,25 +673,28 @@
     `object-fit: cover` parce que les images du panneau ne sont pas
     carrées : une icône de 32 × 20 étirée en rond est méconnaissable,
     rognée au centre elle reste elle-même. */
+/*  PLUS DE CERCLE DERRIÈRE L'IMAGE. « Pourquoi y'a un cercle derrière
+    l'avatar ? » — parce que le rond avait un fond et une bordure, et
+    que l'image, plus petite que lui, laissait voir l'anneau tout
+    autour. Deux cercles concentriques là où le dessin n'en montre
+    qu'un.
+
+    L'image remplit donc le rond, et le rond n'est plus qu'un
+    masque. */
 #modernbb ul.topiclist li.row .wm-pastille {
-  display: flex;
+  display: block;
   overflow: hidden;
   width: 40px;
   height: 40px;
   box-sizing: border-box;
-  align-items: center;
-  justify-content: center;
   grid-area: pastille;
-  padding: 3px;
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: 999px;
-  background: var(--wm-fond-surface, #fffbf7);
 }
 
 #modernbb ul.topiclist li.row .wm-pastille img {
+  display: block;
   width: 100%;
   height: 100%;
-  border-radius: 999px;
   object-fit: cover;
 }
 
@@ -629,7 +719,14 @@
 #modernbb ul.topiclist li.row a.wm-sous-forum {
   display: inline-block;
   padding: 2px var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-sm, 6px);
+  /*  UN FILET AUTOUR, et c'est ce qui manquait. « Il manque la mise en
+      page des sous-forums » : en thème sombre, `fond/douce` et la
+      surface de la carte ne sont séparés que de trois points de
+      luminosité — les pastilles existaient, on ne les VOYAIT pas. Le
+      filet les détache sur les deux thèmes, et c'est lui qui en fait
+      des pastilles plutôt que des mots. */
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-etiquette, 10px);
@@ -689,7 +786,7 @@
 
 #modernbb ul.topiclist li.row dd.lastpost {
   display: flex;
-  max-height: 72px;
+  max-height: 92px;
   align-items: center;
   gap: var(--wm-espace-10, 10px);
   /*  La ligne mesure 92 quoi qu'il arrive (voir les rangées fixes
@@ -712,9 +809,9 @@
     dans le dessin, où le sujet fait 16 et la ligne « qui · quand »
     14. */
 #modernbb ul.topiclist li.row .lastpost-infos {
-  position: relative;
   display: block;
-  padding-right: 16px;
+  min-width: 0;
+  flex: 1 1 auto;
   line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
@@ -760,7 +857,10 @@
 #modernbb ul.topiclist li.row .lastpost-infos a:not(.last-post-icon) {
   display: block;
   overflow: hidden;
-  line-height: inherit;
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-carte, 1.25);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -776,33 +876,41 @@
     son rôle, et le bloc revient à trois lignes. Les 16 px de
     rembourrage à droite, au-dessus, sont sa place réservée : sans
     eux, un auteur au nom long passerait dessous. */
-#modernbb ul.topiclist li.row .lastpost-infos a.last-post-icon {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  display: block;
-  line-height: 0;
-}
 
-#modernbb ul.topiclist li.row .lastpost-avatar {
+/*  ── ROND, BORDÉ, REMBOURRÉ ────────────────────────────────────────
+
+    « Les images à droite : circulaire avec une border et un padding. »
+    La maquette en fait un rectangle debout de 35 × 56 ; Callista le
+    veut rond, et comme les bulles de pré-lien et les avatars du
+    staff — 5 px entre l'image et son filet. C'est le même geste
+    partout sur ce forum, et un seul geste vaut mieux que deux.
+
+    68 de côté : 56 d'image, les 5 de part et d'autre, et le filet. 56
+    est la hauteur de la maquette — « pourquoi l'avatar n'est pas
+    aussi haut que sur les maquettes » —, elle est gardée, c'est la
+    forme qui change.
+
+    `object-position: top center` reste : les avatars de Rhode sont des
+    portraits en pied, et un rond centré leur couperait la tête. */
+#modernbb .lastpost-avatar {
   display: block;
+  width: 68px;
+  height: 68px;
+  box-sizing: border-box;
   flex: none;
-  padding: 0;
+  padding: 5px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
   line-height: 0;
 }
 
-/*  35 × 56 DANS LA MAQUETTE, et c'est un RECTANGLE DEBOUT, pas un
-    carré : les avatars de Rhode sont des portraits en pied, et un
-    carré leur coupe la tête ou les pieds. `object-fit: cover` cadre
-    le haut, là où est le visage. */
 #modernbb .lastpost-avatar img {
   display: block;
-  width: 35px;
-  height: 56px;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
   object-fit: cover;
   object-position: top center;
-  border-radius: var(--wm-rayon-sm, 6px);
-  object-fit: cover;
 }
 
 #modernbb .lastpost-infos {
@@ -820,22 +928,45 @@
     Elle est en bloc : le titre au-dessus est en ligne depuis qu'on a
     réglé les `<br>`, et sans ça les deux se suivraient sur la même
     ligne. */
-#modernbb .wm-dernier__signature {
+/*  ── TROIS LIGNES, ET LA FLÈCHE AVEC LE NOM ────────────────────────
+
+    « À côté, je veux : titre du dernier post, en dessous la date, en
+    dessous la personne qui a posté et la flèche bien alignée. »
+
+    C'est l'ordre du gabarit de ModernBB ; ce qui manquait, c'est que
+    chaque morceau soit un élément à lui. La date et le nom étaient un
+    nœud de texte nu entre deux `<br>` — `module-categories.ts` les
+    sort et les nomme.
+
+    LA FLÈCHE EST DANS LA LIGNE DU NOM, poussée au bout par
+    `margin-left: auto`. Elle pendait sous le bloc, seule sur une
+    quatrième ligne ; maintenant elle est au bord droit, sur la
+    dernière ligne, en face du nom. */
+#modernbb .wm-dernier__date,
+#modernbb .wm-dernier__qui {
   display: block;
   overflow: hidden;
   color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-etiquette, 10px);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/*  Un titre de sujet long ne doit pas pousser la colonne : il se coupe. */
-#modernbb .lastpost-infos a {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+#modernbb .wm-dernier__qui {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-weight: var(--wm-graisse-gras, 700);
 }
+
+#modernbb .wm-dernier__qui .last-post-icon {
+  flex: none;
+  margin-left: auto;
+  line-height: 0;
+}
+
+/*  Un titre de sujet long ne doit pas pousser la colonne : il se coupe. */
 
 /* ── 6 · le pied de page statistique ──────────────────────────────── */
 

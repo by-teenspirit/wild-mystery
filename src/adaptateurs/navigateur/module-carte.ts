@@ -122,7 +122,15 @@ export function comptagesDe(doc: Document | DocumentFragment): Map<number, Compt
       "dd.lastpost a:not(.last-post-icon)",
     );
     const avatar = ligne.querySelector<HTMLImageElement>("dd.lastpost img");
-    const signature = ligne.querySelector(".wm-dernier__signature");
+    //  LES DEUX LIGNES DU DERNIER MESSAGE, recomposées en une.
+    //  `module-categories.ts` les pose séparément — la date puis
+    //  l'auteur, sur deux lignes, comme la maquette de la liste le
+    //  demande. Le panneau de la carte, lui, n'a qu'une ligne à leur
+    //  donner : on les recolle. Lire les deux classes plutôt qu'une
+    //  signature toute faite évite d'avoir deux formats à tenir
+    //  d'accord.
+    const quand = ligne.querySelector(".wm-dernier__date");
+    const qui = ligne.querySelector(".wm-dernier__qui");
 
     sortie.set(id, {
       sujets: lire("dd.topics"),
@@ -134,9 +142,12 @@ export function comptagesDe(doc: Document | DocumentFragment): Map<number, Compt
         },
       }),
       ...(avatar === null ? {} : { avatar: avatar.getAttribute("src") ?? "" }),
-      ...(signature === null ? {} : {
-        signature: (signature.textContent ?? "").replace(/\s+/g, " ").trim(),
-      }),
+      ...(() => {
+        const d = (quand?.textContent ?? "").replace(/\s+/g, " ").trim();
+        const q = (qui?.textContent ?? "").replace(/\s+/g, " ").trim();
+        if (d === "" && q === "") return {};
+        return { signature: q === "" ? d : d === "" ? `par ${q}` : `par ${q} · ${d}` };
+      })(),
     });
   }
   return sortie;
