@@ -97,22 +97,52 @@
     l'écart variait avec la longueur du titre — la signature d'un
     voisin qui prend de la place. C'est la deuxième fois ce mois-ci
     qu'une règle de `01` bat une règle de `03` sans qu'on la cherche. */
-#modernbb .modern-resp .forabg .row dd.posts,
-#modernbb .modern-resp .forabg .row dd.topics,
-#modernbb .modern-resp .forabg .row dd.views,
-#modernbb .modern-resp .forumbg .row dd.posts,
-#modernbb .modern-resp .forumbg .row dd.views {
-  display: block;
+@media (max-width: 740px) {
+  #modernbb .modern-resp .forabg .row dd.posts,
+  #modernbb .modern-resp .forabg .row dd.topics,
+  #modernbb .modern-resp .forabg .row dd.views,
+  #modernbb .modern-resp .forumbg .row dd.posts,
+  #modernbb .modern-resp .forumbg .row dd.views {
+    display: block;
+  }
 }
 
 #modernbb .modern-resp .forabg .row dd.dterm,
-#modernbb .modern-resp .forabg .row dd.lastpost,
-#modernbb .modern-resp .forumbg .row dd.dterm,
-#modernbb .modern-resp .forumbg .row dd.lastpost {
-  display: block;
-  width: auto;
-  float: none;
-  padding: 18px !important;
+/*  LE REMBOURRAGE EST PARTI D'ICI, ET SON `!important` AVEC.
+
+    Cette règle défait le repli de ModernBB sous 740 px — c'est le
+    travail de cette feuille. Elle imposait AUSSI `padding: 18px
+    !important` à toutes les largeurs, et un `!important` bat tout,
+    quelle que soit la précision de ce qui vient après : la ligne de
+    forum de la feuille 03, qui met le dernier message contre son
+    filet, ne pouvait pas passer. La ligne restait à 147 px au lieu des
+    92 de la maquette, et la cellule du dernier message à 127.
+
+    Le rembourrage est de la présentation : il appartient à la feuille
+    qui dessine la ligne, pas à celle qui la défloate. C'est la
+    troisième règle de `01` à battre `03` aujourd'hui sans qu'on la
+    cherche, et la première à le faire par un `!important`. */ /*  ── ET `display: block` NE VAUT QUE LÀ OÙ MODERNBB REPLIE ─────────
+
+    Quatrième fois aujourd'hui qu'une règle de cette feuille bat la
+    03 sans qu'on la cherche, et c'est toujours la même cause : des
+    `.modern-resp` qui font (1,4,1) contre les (1,3,3) de la ligne de
+    forum, appliqués À TOUTES LES LARGEURS alors qu'ils défont un repli
+    qui n'a lieu que sous 740.
+
+    `display: block` sur la cellule du dernier message empilait la
+    vignette et le texte au lieu de les mettre côte à côte : la cellule
+    faisait 92 au lieu de 56, et la ligne 123 au lieu de 92.
+
+    La règle part donc dans la requête de média à laquelle elle a
+    toujours appartenu. Au-dessus de 740, la feuille 03 dessine la
+    ligne sans personne sur son chemin. */ @media (max-width: 740px) {
+  #modernbb .modern-resp .forabg .row dd.lastpost,
+  #modernbb .modern-resp .forumbg .row dd.dterm,
+  #modernbb .modern-resp .forumbg .row dd.lastpost {
+    display: block;
+    width: auto;
+    float: none;
+  }
 }
 
 @media (max-width: 740px) {
@@ -120,16 +150,26 @@
     flex-wrap: wrap;
     row-gap: 0;
   }
-  #modernbb ul.topiclist dd.dterm { flex: 1 1 100%; }
+  #modernbb ul.topiclist dd.dterm {
+    flex: 1 1 100%;
+  }
   #modernbb dd.topics,
   #modernbb dd.posts,
-  #modernbb dd.views { flex: 0 0 auto; text-align: left; }
-  #modernbb dd.lastpost { flex: 1 1 100%; padding: 0 18px 18px !important; }
+  #modernbb dd.views {
+    flex: 0 0 auto;
+    text-align: left;
+  }
+  #modernbb dd.lastpost {
+    flex: 1 1 100%;
+    padding: 0 18px 18px !important;
+  }
   /* l'en-tête de colonnes n'a plus de sens empilé */
   #modernbb ul.topiclist li.header dd.topics,
   #modernbb ul.topiclist li.header dd.posts,
   #modernbb ul.topiclist li.header dd.views,
-  #modernbb ul.topiclist li.header dd.lastpost { display: none; }
+  #modernbb ul.topiclist li.header dd.lastpost {
+    display: none;
+  }
 }
 
 /* ── 3 · un message ───────────────────────────────────────────────── */
@@ -166,7 +206,10 @@
 */
 
 @media (max-width: 740px) {
-  #modernbb .postprofile { flex: 1 1 100%; width: auto; }
+  #modernbb .postprofile {
+    flex: 1 1 100%;
+    width: auto;
+  }
 }
 
 /* ── 4 · portail, widgets, pied de page ───────────────────────────── */
@@ -206,10 +249,17 @@
   align-items: flex-start;
   gap: 18px;
 }
-#modernbb table.postbody td { display: block; }
-#modernbb table.postbody td.logo { flex: 0 0 auto; }
+#modernbb table.postbody td {
+  display: block;
+}
+#modernbb table.postbody td.logo {
+  flex: 0 0 auto;
+}
 #modernbb table.postbody td.rules,
-#modernbb table.postbody td.content { flex: 1 1 auto; min-width: 0; }
+#modernbb table.postbody td.content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 02 · Le socle
@@ -409,17 +459,17 @@ html,
 }
 
 /*  ET LE PENDANT : À L'INTÉRIEUR DE NOS SURFACES, C'EST NOTRE ENCRE.
-    
+
     Prendre le fond sans prendre le texte est l'erreur inverse de celle
     du dessus, et elle donne le même résultat. Relevé sur la page de
     forum le 3 octobre : **dix éléments sous 4,5 de contraste**, tous
     parce que le CSS de base pose `color: #444` (ou `#000`) directement
     sur un `p`, un `span`, un `strong`, un `dfn`.
-    
+
     On ne les énumère pas un par un — il y en aurait autant que de
     pages. On rend l'héritage à ce qui est dans nos blocs, et c'est le
     conteneur qui décide de la couleur.
-    
+
     `:where()` ne compte pour rien dans la spécificité, et cette règle
     est posée AVANT les règles de texte : un `.gensmall` ou un titre
     gardent donc la leur. Ce qui n'a pas de règle à lui hérite — ce qui
@@ -451,9 +501,7 @@ html,
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-#modernbb
-  :where(.forabg, .forumbg, .block, .overview, .module, .panel, ul.topiclist)
-  :where(p, div, span, strong, em, b, i, dfn, label, dd, dt, li, h2, h3, h4) {
+#modernbb :where(.forabg, .forumbg, .block, .overview, .module, .panel, ul.topiclist) :where(p, div, span, strong, em, b, i, dfn, label, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
@@ -1211,14 +1259,14 @@ html#min-width {
   padding: 0 var(--wm-espace-16, 16px);
   background:
     linear-gradient(
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
-    )
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+  )
     left center / 1px 18px no-repeat,
     linear-gradient(
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
-      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
-    )
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
+    color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+  )
     right center / 1px 18px no-repeat;
 }
 
@@ -1318,6 +1366,13 @@ html#min-width {
     "pastille identite messages dernier";
   align-items: center;
   column-gap: 10px;
+  /*  `row-gap: 0` EXPLICITEMENT. La feuille 01 pose `gap: 18px` sur ce
+      même nœud, du temps où c'était une rangée souple ; en grille, ce
+      raccourci devient aussi un écart ENTRE LES DEUX RANGÉES, et les
+      deux compteurs se retrouvaient à 18 l'un de l'autre. La ligne
+      montait à 147 au lieu de 92. Déclarer l'axe qu'on veut ne suffit
+      pas : il faut annuler l'autre. */
+  row-gap: 0;
   padding: var(--wm-espace-10, 10px) var(--wm-espace-18, 18px);
   /*  L'icône du forum est un fond posé par ModernBB sur ce nœud. La
       première colonne de la grille lui garde sa place ; sans elle, le
@@ -1360,7 +1415,11 @@ html#min-width {
 #modernbb ul.topiclist li.row dd.lastpost {
   grid-area: dernier;
   align-self: stretch;
-  padding-left: var(--wm-espace-10, 10px);
+  /*  Le rembourrage de 18 que ModernBB met sur toutes les cellules
+      s'ajoutait à la hauteur de l'avatar : 56 + 36 = 92 pour cette
+      seule cellule, et c'est elle qui tirait la ligne. Ici, rien à
+      gauche sauf les dix pixels qui séparent le texte du filet. */
+  padding: 0 0 0 var(--wm-espace-10, 10px);
   border-left: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
@@ -1464,6 +1523,34 @@ html#min-width {
   display: flex;
   align-items: center;
   gap: var(--wm-espace-10, 10px);
+}
+
+/*  ── LA CELLULE DU DERNIER MESSAGE FAISAIT 127 DE HAUT ─────────────
+
+    C'est elle qui tirait la ligne à 147, et pas la grille : la vignette
+    à 78 avec son rembourrage, et les informations à 91 — un titre de
+    sujet, deux sauts de ligne de 14, une date, un auteur, et une
+    flèche de 5. La maquette leur donne 56 en tout.
+
+    Les mêmes deux `<br>` que sous le titre du forum, et le même
+    remède : ils gardent leur rôle de séparateur, ils perdent leur
+    hauteur. L'interligne descend à 1,3 — trois lignes serrées, comme
+    dans le dessin, où le sujet fait 16 et la ligne « qui · quand »
+    14. */
+#modernbb ul.topiclist li.row .lastpost-infos {
+  display: block;
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb ul.topiclist li.row .lastpost-infos br {
+  line-height: 0;
+}
+
+#modernbb ul.topiclist li.row .lastpost-avatar {
+  display: block;
+  flex: none;
+  padding: 0;
+  line-height: 0;
 }
 
 /*  35 × 56 DANS LA MAQUETTE, et c'est un RECTANGLE DEBOUT, pas un
@@ -1949,8 +2036,7 @@ html#min-width {
     date du message sortait en corps au lieu de pâle. Sans le `div`, on
     retombe à (1,1,0) : ça bat toujours ModernBB (0,1,0), et les règles
     qui suivent ici gardent la main. */
-#modernbb [class*="post--"]
-  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+#modernbb [class*="post--"] :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
@@ -2402,8 +2488,7 @@ html#min-width {
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-#modernbb #forum_rules
-  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+#modernbb #forum_rules :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
@@ -3155,15 +3240,15 @@ html#min-width {
       rien d'autre ne bouge. */
   background:
     radial-gradient(
-      120% 90% at 85% 100%,
-      color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
-      transparent 60%
-    ),
+    120% 90% at 85% 100%,
+    color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
+    transparent 60%
+  ),
     linear-gradient(
-      180deg,
-      var(--wm-fond-douce, #f3e1d2) 0%,
-      var(--wm-fond-page, #eecfb5) 55%
-    );
+    180deg,
+    var(--wm-fond-douce, #f3e1d2) 0%,
+    var(--wm-fond-page, #eecfb5) 55%
+  );
 }
 
 /*  768 px pour les huit annexes : c'est la largeur des cartes dans la
@@ -3554,7 +3639,8 @@ html#min-width {
     porte la composition déjà faite. */
 #modernbb .wm-encart--paisible {
   background: #e3e6dd;
-  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, var(--wm-fond-surface, #fffbf7));
+  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, var(--wm-fond-surface,
+    #fffbf7));
 }
 
 #modernbb .wm-encart__etiquette {
@@ -4724,6 +4810,31 @@ body.wm-toolbar-rangee {
     de sa déconnexion. */
 body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   display: none;
+}
+
+/*  ── LE CLIGNOTEMENT DE L'AVATAR ────────────────────────────────────
+
+    Relevé par Callista le 8 octobre : « quand la page recharge, j'ai mon
+    avatar qui s'affiche en haut puis qui disparaît ».
+
+    Ce n'est pas le nôtre. Mesuré sur la page chargée, `.wm-nav__avatar`
+    est bien là, 24 × 24, et il y reste. Celui qui part est `#fa_avatar`,
+    dans la barre Forumactif, qui se peint en haut de l'écran AVANT qu'on
+    l'adopte — et entre les deux il y a le `fetch` de `navigation.json`.
+    Trois cents millisecondes, et bien plus sur une mauvaise connexion.
+
+    `html.wm-toolbar-attendue` EST NOTRE PRÉSENCE. Le script la pose dès
+    qu'il est analysé, donc avant que la barre existe, et la retire qu'il
+    l'ait rangée ou qu'il ait renoncé. Sans JavaScript, la classe n'est
+    jamais posée et la barre reste visible en haut : le joueur garde ses
+    notifications et sa déconnexion. C'est exactement la raison pour
+    laquelle la règle au-dessus est conditionnée elle aussi.
+
+    `visibility` et pas `display` : leur script mesure la hauteur de sa
+    barre pour écrire la marge du corps, et une barre en `display: none`
+    mesure zéro. On la rend invisible, pas absente. */
+html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
+  visibility: hidden;
 }
 
 /* ── 2 · le panneau latéral ───────────────────────────────────────── */
@@ -7794,7 +7905,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-accueil__rapide--sans-adresse {
   cursor: default;
 }
-
 
 /* ── 5 · les votes ────────────────────────────────────────────────── */
 

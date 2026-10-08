@@ -1018,6 +1018,54 @@ function rangerLaToolbar(doc: Document): void {
   doc.documentElement.style.setProperty("--wm-haut-toolbar", "0px");
 }
 
+/** La classe posée sur `<html>` le temps qu'on aille chercher la barre.
+ *
+ *  La feuille 11 s'en sert pour tenir `#fa_toolbar` invisible tant
+ *  qu'elle n'est pas chez nous. */
+export const CLASSE_ATTENTE = "wm-toolbar-attendue";
+
+/** Dit à la feuille de retenir la barre Forumactif.
+ *
+ *  ── CE QUE ÇA RÉPARE ────────────────────────────────────────────────
+ *
+ *  Relevé par Callista le 8 octobre : « quand la page recharge, j'ai mon
+ *  avatar qui s'affiche en haut puis qui disparaît ». Ce n'est pas le
+ *  nôtre — mesuré, `.wm-nav__avatar` est bien là et le reste. C'est
+ *  `#fa_avatar`, dans la barre Forumactif, qui se peint en haut de
+ *  l'écran AVANT qu'on l'adopte. Entre les deux il y a un `fetch` de
+ *  `navigation.json` : trois cents millisecondes de clignotement, et
+ *  bien plus sur une mauvaise connexion.
+ *
+ *  ── POURQUOI UNE CLASSE SUR `<html>` ET PAS UNE RÈGLE SÈCHE ─────────
+ *
+ *  Une règle qui masque `#fa_toolbar` sans condition masquerait aussi
+ *  chez le joueur dont le JavaScript ne tourne pas — paquet injoignable,
+ *  extension qui bloque. Celui-là perdrait ses notifications ET sa
+ *  déconnexion, et il n'aurait rien pour les retrouver. La barre reste
+ *  donc visible par défaut ; c'est NOTRE PRÉSENCE qui la retient, et la
+ *  présence se prouve en posant une classe.
+ *
+ *  `documentElement` et pas `body` : il existe dès que le script est
+ *  analysé, et c'est tout l'intérêt — on retient la barre avant qu'elle
+ *  n'existe.
+ *
+ *  **Et ça se libère toujours** : `libererLaToolbar` est appelée que la
+ *  barre ait été adoptée ou non. Une classe d'attente qui survit à
+ *  l'attente est une barre perdue. */
+export function attendreLaToolbar(doc: Document): void {
+  doc.documentElement.classList.add(CLASSE_ATTENTE);
+}
+
+/** Rend la barre Forumactif à elle-même.
+ *
+ *  Appelée dans les deux cas : quand on l'a rangée — elle porte alors
+ *  `wm-toolbar-chez-nous` et c'est la nôtre qui la montre — et quand on
+ *  a renoncé. Jamais de troisième cas : la classe ne doit pas pouvoir
+ *  rester posée. */
+export function libererLaToolbar(doc: Document): void {
+  doc.documentElement.classList.remove(CLASSE_ATTENTE);
+}
+
 // ── l'assemblage ────────────────────────────────────────────────────
 
 export type Dependances = {
@@ -1055,10 +1103,15 @@ export function poserLaNavigation(
   }: Dependances,
 ): boolean {
   const nav = navigationDepuis(donnees);
-  if (nav.liens.length === 0) return false;
-
-  const bouton = poserLaBarre(doc, nav, messages);
-  if (bouton === null) return false;
+  const bouton = nav.liens.length === 0 ? null : poserLaBarre(doc, nav, messages);
+  if (bouton === null) {
+    //  PAS DE BARRE À NOUS : la barre Forumactif est la seule issue vers
+    //  le compte, les messages privés et la déconnexion. On la rend tout
+    //  de suite — la retenir en attendant une barre qui ne viendra pas
+    //  la ferait disparaître pour de bon.
+    libererLaToolbar(doc);
+    return false;
+  }
 
   const panneau = panneauEnDOM(doc, nav);
   doc.body?.appendChild(panneau);
@@ -1096,16 +1149,27 @@ export function poserLaNavigation(
   //  `#fa_toolbar` est posée par un script tiers, après nous. On la
   //  guette, et on arrête de guetter — un observateur qui tourne pour
   //  rien est une fuite.
-  if (!rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo, secoursNotifications)) {
+  //
+  //  ET L'ATTENTE SE LIBÈRE DANS TOUS LES CAS. Rangée, elle porte
+  //  `wm-toolbar-chez-nous` et c'est notre barre qui la montre ;
+  //  abandonnée, elle redevient la barre d'en haut, ce qui est très bien
+  //  ainsi. Le seul cas impossible est celui où la classe reste posée.
+  if (rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo, secoursNotifications)) {
+    libererLaToolbar(doc);
+  } else {
     const guetteur = new MutationObserver(() => {
       if (
         rangerLaBarreForumactif(doc, nav, identifiant, avatar, pseudo, secoursNotifications)
       ) {
         guetteur.disconnect();
+        libererLaToolbar(doc);
       }
     });
     guetteur.observe(doc.documentElement, { childList: true, subtree: true });
-    setTimeout(() => guetteur.disconnect(), 10_000);
+    setTimeout(() => {
+      guetteur.disconnect();
+      libererLaToolbar(doc);
+    }, 10_000);
   }
   return true;
 }

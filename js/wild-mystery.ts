@@ -44,6 +44,8 @@ import { numeroterLesCategories } from "../src/adaptateurs/navigateur/module-cat
 import { rangerLeMessenger } from "../src/adaptateurs/navigateur/module-messenger.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import {
+  attendreLaToolbar,
+  libererLaToolbar,
   poserLaNavigation,
   remplirLesPersonnages,
 } from "../src/adaptateurs/navigateur/module-navigation.ts";
@@ -64,6 +66,13 @@ const coin = new CoinOutils(document, prefs);
 //  renseigné que pendant l'exécution initiale du script. Après le premier
 //  `await` il vaut null, et la racine des données serait introuvable.
 const RACINE = racineDesDonnees(adresseDuScript(document));
+
+//  LA BARRE FORUMACTIF EST RETENUE TOUT DE SUITE, et pas dans
+//  `desQueLeCorpsEstLa` : son avatar clignotait en haut de l'écran le
+//  temps qu'on aille chercher `navigation.json`. `documentElement` existe
+//  dès que ce script est analysé, donc avant que la barre n'existe.
+//  Elle se libère plus bas, rangée ou non.
+attendreLaToolbar(document);
 
 //  Le `<body>` existe dès que notre script s'exécute si le `<script>` est
 //  placé en fin de corps ; on se garde du cas contraire sans attendre
@@ -146,7 +155,12 @@ async function poserLeBlocDAccueil(): Promise<void> {
 }
 
 async function poserLaNav(messages: number): Promise<void> {
-  if (RACINE === null) return;
+  if (RACINE === null) {
+    //  Pas de racine, donc pas de barre : on rend la sienne à Forumactif
+    //  avant même de tenter quoi que ce soit.
+    libererLaToolbar(document);
+    return;
+  }
   const donnees = await fetch(`${RACINE}navigation.json`, { credentials: "omit" })
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
@@ -295,7 +309,11 @@ desQueLeCorpsEstLa(() => {
   //  pose dans le lien « Messagerie », et `poserLaNav` remplace le
   //  contenu de cette barre : lu après, il vaudrait toujours zéro.
   const messages = compterLesMessages(document);
-  poserLaNav(messages).catch(() => {});
+  //  LE `catch` REND LA BARRE. Sans lui, une exception imprévue laisserait
+  //  `wm-toolbar-attendue` posée pour de bon, et le joueur n'aurait plus
+  //  ni notifications ni déconnexion — une panne pire que celle qu'on
+  //  répare.
+  poserLaNav(messages).catch(() => libererLaToolbar(document));
   //  Le switcheroo, chargé depuis sa source et épinglé à un commit. Il
   //  remplit « Mes personnages » ; sans lui la section ne s'affiche pas.
   //

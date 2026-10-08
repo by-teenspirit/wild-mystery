@@ -533,6 +533,31 @@ body.wm-toolbar-rangee #fa_toolbar:not(.wm-toolbar-chez-nous) {
   display: none;
 }
 
+/*  ── LE CLIGNOTEMENT DE L'AVATAR ────────────────────────────────────
+
+    Relevé par Callista le 8 octobre : « quand la page recharge, j'ai mon
+    avatar qui s'affiche en haut puis qui disparaît ».
+
+    Ce n'est pas le nôtre. Mesuré sur la page chargée, `.wm-nav__avatar`
+    est bien là, 24 × 24, et il y reste. Celui qui part est `#fa_avatar`,
+    dans la barre Forumactif, qui se peint en haut de l'écran AVANT qu'on
+    l'adopte — et entre les deux il y a le `fetch` de `navigation.json`.
+    Trois cents millisecondes, et bien plus sur une mauvaise connexion.
+
+    `html.wm-toolbar-attendue` EST NOTRE PRÉSENCE. Le script la pose dès
+    qu'il est analysé, donc avant que la barre existe, et la retire qu'il
+    l'ait rangée ou qu'il ait renoncé. Sans JavaScript, la classe n'est
+    jamais posée et la barre reste visible en haut : le joueur garde ses
+    notifications et sa déconnexion. C'est exactement la raison pour
+    laquelle la règle au-dessus est conditionnée elle aussi.
+
+    `visibility` et pas `display` : leur script mesure la hauteur de sa
+    barre pour écrire la marge du corps, et une barre en `display: none`
+    mesure zéro. On la rend invisible, pas absente. */
+html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
+  visibility: hidden;
+}
+
 /* ── 2 · le panneau latéral ───────────────────────────────────────── */
 
 /*  296 de large, sous la barre, pleine hauteur. `position: fixed` : il

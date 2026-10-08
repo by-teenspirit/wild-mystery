@@ -378,7 +378,11 @@ const colle = await p.evaluate(() => {
     panneau: document.querySelector("#wm-panneau").getBoundingClientRect().y,
   };
 });
-dire("la toolbar Forumactif est rangée dans la nôtre", colle.toolbarRangee, JSON.stringify(colle));
+dire(
+  "la toolbar Forumactif est rangée dans la nôtre",
+  colle.toolbarRangee,
+  JSON.stringify(colle),
+);
 
 //  SON ÉPINGLE EST RETIRÉE. `.fa_fix` porte un `!important` : la barre
 //  se peignait en haut de l'écran tout en étant déménagée chez nous, et
@@ -893,7 +897,9 @@ const cloche = await p.evaluate(() => {
       return e === null ? null : Math.round(e.getBoundingClientRect().top);
     })(),
     hautDesAutres: autre === null ? null : Math.round(autre.getBoundingClientRect().top),
-    hauteurDeLEnveloppe: barre === null ? null : Math.round(barre.getBoundingClientRect().height),
+    hauteurDeLEnveloppe: barre === null
+      ? null
+      : Math.round(barre.getBoundingClientRect().height),
     //  La barre entière est venue, et c'est ce qui fait marcher leur
     //  mécanique : la liste est restée dans la chaîne
     //  `#fa_toolbar #fa_right …`.
@@ -1046,7 +1052,11 @@ dire(
   JSON.stringify(ouverte),
 );
 dire("elle tient dans l'écran", ouverte.dansLecran && !ouverte.debord, JSON.stringify(ouverte));
-dire("et le texte d'une notification ne déborde pas", ouverte.texteBorne, JSON.stringify(ouverte));
+dire(
+  "et le texte d'une notification ne déborde pas",
+  ouverte.texteBorne,
+  JSON.stringify(ouverte),
+);
 
 //  UN CLIC SUR LA PASTILLE OUVRE AUSSI. C'est le second piège de leur
 //  `switch (e.target.id)` : un clic sur un enfant de la cloche tombe
@@ -1171,7 +1181,6 @@ dire(
 dire("et il n'y a pas de menu de compte", !invite.compte);
 dire("ni de switcheroo : rien à gérer", !invite.switcheroo);
 dire("la toolbar est rangée là aussi", invite.toolbar === "none", invite.toolbar);
-
 
 // ── 11 · DIX PERSONNAGES DOIVENT TENIR ──────────────────────────────
 //
@@ -1305,6 +1314,148 @@ dire(
   `${place.contenu} px de contenu pour ${place.place} de place`,
 );
 dire("et le dixième personnage s'atteint", place.dernierAtteignable, JSON.stringify(place));
+
+// ── 12 · L'AVATAR NE CLIGNOTE PLUS ──────────────────────────────────
+//
+//  « Quand la page recharge, j'ai mon avatar qui s'affiche en haut puis
+//  qui disparaît » — Callista, 8 octobre. Ce n'est pas le nôtre :
+//  `.wm-nav__avatar` est là et le reste. C'est `#fa_avatar`, dans la
+//  barre Forumactif, qui se peint en haut de l'écran pendant qu'on va
+//  chercher `navigation.json`.
+//
+//  CE QUI SE TESTE ICI N'EST PAS L'ÉTAT FINAL — il est déjà couvert
+//  plus haut. C'est L'ENTRE-DEUX, et il ne se voit qu'en retenant la
+//  réponse : la route attend 700 ms avant de servir le fichier, et on
+//  regarde la barre pendant ce temps-là.
+const p4 = await nav.newPage({ viewport: { width: 1280, height: 900 } });
+p4.on("pageerror", (e) => soucis.push("erreur JS (clignotement) : " + e.message));
+await p4.route("**/*", async (r) => {
+  const u = r.request().url();
+  if (u.endsWith("/data/navigation.json")) {
+    //  LE RETARD EST LE DÉCOR. Sans lui, le fichier arrive avant qu'on
+    //  ait pu regarder, et l'assertion passerait sur du code faux.
+    await new Promise((f) => setTimeout(f, 700));
+    return r.fulfill({
+      contentType: "application/json",
+      body: readFileSync(R + "data/navigation.json", "utf8"),
+    });
+  }
+  if (u.endsWith("/js/wild-mystery.js")) {
+    return r.fulfill({
+      contentType: "text/javascript",
+      body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  for (const f of ["monomer.js", "switcheroo.js"]) {
+    if (u.endsWith("/" + f)) {
+      return r.fulfill({ contentType: "text/javascript", body: switcheroo[f] });
+    }
+  }
+  return r.fulfill({ contentType: "text/html; charset=utf-8", body: page });
+});
+await p4.goto("http://wild-mystery.test/");
+await p4.evaluate(() => {
+  globalThis._userdata = {
+    session_logged_in: 1,
+    user_id: 4,
+    username: "Compte de test",
+    avatar: '<img src="https://i.servimg.com/u/f12/avatar.jpg" alt="" />',
+  };
+});
+//  On n'attend PAS le script : `addScriptTag` rend la main quand il est
+//  exécuté, et c'est justement l'instant où la classe doit déjà être là.
+await p4.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p4.waitForTimeout(150);
+const pendant = await p4.evaluate(() => {
+  const tb = document.querySelector("#fa_toolbar");
+  return {
+    attendue: document.documentElement.classList.contains("wm-toolbar-attendue"),
+    visibilite: getComputedStyle(tb).visibility,
+    //  Elle est TOUJOURS DANS LA PAGE et toujours mesurable : c'est la
+    //  raison du `visibility` plutôt que du `display`. Leur script lit
+    //  cette hauteur pour écrire la marge du corps.
+    hauteur: Math.round(tb.getBoundingClientRect().height),
+    chezNous: tb.closest(".wm-nav__droite") !== null,
+  };
+});
+dire(
+  "PENDANT L'ATTENTE, la barre Forumactif est retenue",
+  pendant.attendue && pendant.visibilite === "hidden" && !pendant.chezNous,
+  JSON.stringify(pendant),
+);
+dire(
+  "et elle garde sa hauteur : invisible, pas absente",
+  pendant.hauteur > 0,
+  `${pendant.hauteur} px`,
+);
+await p4.waitForTimeout(900);
+const apres = await p4.evaluate(() => {
+  const tb = document.querySelector("#fa_toolbar");
+  return {
+    attendue: document.documentElement.classList.contains("wm-toolbar-attendue"),
+    visibilite: getComputedStyle(tb).visibility,
+    chezNous: tb.closest(".wm-nav__droite") !== null,
+    cloche: getComputedStyle(document.querySelector("#fa_notifications")).visibility,
+  };
+});
+dire(
+  "APRÈS, elle est chez nous et l'attente est levée",
+  !apres.attendue && apres.chezNous && apres.visibilite === "visible",
+  JSON.stringify(apres),
+);
+dire("et la cloche se voit", apres.cloche === "visible", apres.cloche);
+
+//  LE REPLI, ET C'EST LUI QUI COMPTE LE PLUS. Si `navigation.json`
+//  n'arrive jamais — panne de Pages, extension qui bloque —, la barre
+//  Forumactif redevient la seule issue vers les notifications et la
+//  déconnexion. Une classe d'attente qui survit à l'attente les perd
+//  toutes les deux, et personne ne saurait pourquoi.
+const p5 = await nav.newPage({ viewport: { width: 1280, height: 900 } });
+p5.on("pageerror", (e) => soucis.push("erreur JS (repli) : " + e.message));
+await p5.route("**/*", (r) => {
+  const u = r.request().url();
+  if (u.endsWith("/data/navigation.json")) return r.fulfill({ status: 503, body: "" });
+  if (u.endsWith("/js/wild-mystery.js")) {
+    return r.fulfill({
+      contentType: "text/javascript",
+      body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  for (const f of ["monomer.js", "switcheroo.js"]) {
+    if (u.endsWith("/" + f)) {
+      return r.fulfill({ contentType: "text/javascript", body: switcheroo[f] });
+    }
+  }
+  return r.fulfill({ contentType: "text/html; charset=utf-8", body: page });
+});
+await p5.goto("http://wild-mystery.test/");
+await p5.evaluate(() => {
+  globalThis._userdata = { session_logged_in: 1, user_id: 4, username: "Compte de test" };
+});
+await p5.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p5.waitForTimeout(600);
+const repli = await p5.evaluate(() => {
+  const tb = document.querySelector("#fa_toolbar");
+  const d = document.querySelector("#fa_notifications");
+  return {
+    attendue: document.documentElement.classList.contains("wm-toolbar-attendue"),
+    visibilite: getComputedStyle(tb).visibility,
+    deconnexion: [...tb.querySelectorAll("a[href]")].some((a) =>
+      /logout/.test(a.getAttribute("href") ?? "")
+    ),
+    cloche: d === null ? "absente" : getComputedStyle(d).visibility,
+  };
+});
+dire(
+  "SANS `navigation.json`, LA BARRE FORUMACTIF EST RENDUE",
+  !repli.attendue && repli.visibilite === "visible",
+  JSON.stringify(repli),
+);
+dire(
+  "et le joueur garde sa déconnexion et ses notifications",
+  repli.deconnexion && repli.cloche === "visible",
+  JSON.stringify(repli),
+);
 
 await nav.close();
 if (soucis.length > 0) { for (const x of soucis) console.log("  · " + x); }
