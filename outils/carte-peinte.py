@@ -221,6 +221,12 @@ def main():
     plein = propriete[idx[0], idx[1]]
     plein[~continent] = 0
 
+    #  ON GARDE LA CARTE DES ZONES, en image : `outils/carte-fondu.py`
+    #  en a besoin pour savoir où sont les coutures, et la recalculer
+    #  chez lui voudrait dire tenir deux fois les mêmes graines — donc
+    #  les voir diverger un jour.
+    Image.fromarray(plein.astype(np.uint8)).save("planches/peinte/zones.png")
+
     lieux = []
     for n_, (forum, nom, gx, gy, tol, rayon) in enumerate(GRAINES, start=1):
         region = ndimage.binary_closing(plein == n_, iterations=2)
@@ -352,6 +358,12 @@ def main():
         json.dumps(carte, ensure_ascii=False, indent=2) + "\n")
     print(f"peinte : {len(fusion)} lieux fusionnés, "
           f"{len(carte['iles'])} île(s), {len(perdus)} perdu(s)")
+    #  LA MER VECTORIELLE A ÉTÉ EMPORTÉE, et c'est voulu : elle était
+    #  calculée sur l'ancienne côte. Mais elle doit revenir — c'est
+    #  elle qu'on voit si la peinture ne charge pas, et une carte sans
+    #  mer est un continent qui flotte sur le fond du cadre.
+    print("   ↳ enchaîner « python3 outils/carte-mer.py », "
+          "la mer est le repli de la peinture")
 
 
 if __name__ == "__main__":

@@ -512,7 +512,19 @@ def ecarter(lieux):
 
 # ── l'affiche ───────────────────────────────────────────────────────
 
-PEINTE = pathlib.Path("planches/peinte/source.png")
+PEINTE = pathlib.Path("planches/peinte/fondue.png")
+
+
+def bleu_du_decor():
+    """La couleur du pourtour de la peinture, par médiane — la même
+    que celle que `carte-fondu.py` pose dans la feuille 16."""
+    from PIL import Image
+    import numpy as np
+    a = np.asarray(Image.open(PEINTE).convert("RGB")).astype(np.float32)
+    bandes = [a[:8, :, :].reshape(-1, 3), a[-8:, :, :].reshape(-1, 3),
+              a[:, :8, :].reshape(-1, 3), a[:, -8:, :].reshape(-1, 3)]
+    m = np.median(np.concatenate(bandes), axis=0)
+    return "#%02x%02x%02x" % tuple(int(round(c)) for c in m)
 
 
 def lien_de_la_peinture():
@@ -526,9 +538,9 @@ def lien_de_la_peinture():
     Le livrable, c'est le PNG et le JPEG : eux sont entiers par
     nature. Le SVG est un FICHIER SOURCE, il vit à côté de son image,
     et un chemin relatif est ce qu'on attend d'un fichier source.
-    `planches/peinte/source.png` depuis `planches/` donne donc
-    `peinte/source.png`."""
-    return "peinte/source.png"
+    `planches/peinte/fondue.png` depuis `planches/` donne donc
+    `peinte/fondue.png`."""
+    return "peinte/fondue.png"
 
 
 def dessiner_a_la_main(out, carte, lieux, x0, y0, L, H):
@@ -727,8 +739,13 @@ def main():
         #  sait pas faire : les NOMS. Vingt-six, au bon endroit, dans
         #  la bonne typographie, écartés par relaxation, avec leur
         #  biome dessous, l'ancre du port et la légende.
+        #  LE FOND DE L'AFFICHE EST LA COULEUR DU BORD DE LA PEINTURE,
+        #  relevée dessus et pas choisie : c'est elle que l'image rejoint
+        #  sur ses cent cinquante derniers pixels. Écrite en dur, elle
+        #  dériverait à la première peinture suivante et on reverrait le
+        #  carré.
         out.append(f'<rect x="{x0}" y="{y0}" width="{L}" height="{H}" '
-                   f'fill="#0f436b"/>')
+                   f'fill="{bleu_du_decor()}"/>')
         out.append(f'<image href="{lien_de_la_peinture()}" x="0" y="0" '
                    f'width="{carte["repere"]["largeur"]}" '
                    f'height="{carte["repere"]["hauteur"]}"/>')
