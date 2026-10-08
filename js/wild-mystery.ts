@@ -40,6 +40,7 @@ import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
+import { numeroterLesCategories } from "../src/adaptateurs/navigateur/module-categories.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import {
   poserLaNavigation,
@@ -280,6 +281,10 @@ desQueLeCorpsEstLa(() => {
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
   poserLaVie().catch(() => {});
+  //  LES DEUX NOMBRES DES BANDES DE CATÉGORIE, tout de suite et sans
+  //  réseau : ils se lisent dans la page. Rien n'en dépend — sans eux
+  //  la bande garde son titre entre ses filets.
+  numeroterLesCategories(document);
   poserLesAnnexes().catch(() => {});
   //  LE COMPTEUR SE LIT AVANT QUE LA BARRE SOIT RÉÉCRITE. Forumactif le
   //  pose dans le lien « Messagerie », et `poserLaNav` remplace le

@@ -1097,25 +1097,140 @@ html#min-width {
 /*  `01` a déjà mis la ligne en flex ; on lui donne sa hauteur et son
     rembourrage. Le titre est dans `dd.dterm`, les trois icônes de
     colonne dans `dd.topics`, `dd.posts` et `dd.lastpost`. */
+/*  ── LA BANDE DE TITRE, À LA COTE DE LA MAQUETTE `390:3317` ────────
+
+    Elle était un titre calé à gauche. Le dessin en fait tout autre
+    chose, et les cotes, relevées dans Figma le 8 octobre sur un cadre
+    de 1172, disent exactement ceci :
+
+        02 │ ──────── AVANT DE PARTIR ──────── │ 4 FORUMS
+
+      · la bande fait 74 de haut ;
+      · le rang « 02 » commence à x = 22, le séparateur vertical à 57
+        (1 × 18), le premier filet à 72 sur 383 ;
+      · le titre est à 469 sur 191 — donc CENTRÉ dans la bande, pas
+        posé après le filet : 469 + 191/2 = 564,5, et la bande fait
+        1172, soit 586. L'écart de 21 est celui du compte à droite, qui
+        est plus large que le rang à gauche ;
+      · le second filet à 674 sur 383, le second séparateur à 1071, le
+        compte « 4 FORUMS » à 1086.
+
+    ON NE RECOPIE PAS CES ABSCISSES. Elles valent pour 1172 et la
+    colonne du forum va jusqu'à 1400 : ce qu'on garde, c'est la
+    STRUCTURE — rang, filet qui s'étire, titre, filet qui s'étire,
+    compte — et les trois nombres qui ne dépendent pas de la largeur :
+    la bande à 74, les séparateurs à 18, les marges à 22.
+
+    Les filets sont des `flex: 1` et pas des largeurs : c'est ce qui
+    remet le titre au milieu quelle que soit la place, et c'est le seul
+    moyen que les deux restent égaux quand le rang et le compte n'ont
+    pas la même largeur. */
 #modernbb li.header dl.icon {
-  min-height: 0;
-  padding: var(--wm-espace-4, 4px) 0;
+  display: flex;
+  min-height: 74px;
+  align-items: center;
+  gap: var(--wm-espace-14, 14px);
+  padding: 0 22px;
 }
 
+/*  Le rang, posé par `module-categories.ts`. Sans lui — JavaScript
+    coupé — le pseudo-élément n'a pas de contenu et disparaît : la
+    bande garde son titre entre ses filets, et c'est très bien. */
+#modernbb li.header dl.icon[data-wm-rang]::before {
+  content: attr(data-wm-rang) " ";
+  color: var(--wm-accent-terre, #8b4725);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  font-size: 26px;
+  line-height: 1;
+}
+
+#modernbb li.header dl.icon[data-wm-forums]::after {
+  content: attr(data-wm-forums);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  white-space: nowrap;
+}
+
+/*  LE TITRE PREND TOUTE LA PLACE QUI RESTE, et ses deux filets sont
+    DANS lui : posés comme frères du rang et du compte, ils auraient
+    été poussés par la largeur du texte au lieu de l'encadrer. */
 #modernbb li.header dd.dterm {
-  padding: var(--wm-espace-12, 12px) var(--wm-espace-18, 18px);
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--wm-espace-16, 16px);
 }
 
-/*  Les trois icônes de colonne. Elles disent ce que comptent les
-    colonnes en dessous, et elles ne le disent qu'en forme : un lecteur
-    d'écran n'en tire rien. C'est un défaut de ModernBB qu'on ne peut
-    pas corriger en CSS — il faudrait un `aria-label` dans le template,
-    et c'est noté pour la reprise d'`index_box`. */
-#modernbb li.header dd.topics i,
-#modernbb li.header dd.posts i,
-#modernbb li.header dd.lastpost i {
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-titre-carte, 16px);
+#modernbb li.header dd.dterm::before,
+#modernbb li.header dd.dterm::after {
+  content: "";
+  height: 1px;
+  flex: 1 1 0;
+  background: color-mix(
+    in srgb,
+    var(--wm-texte-pale, #69564c) 45%,
+    var(--wm-fond-page, #eecfb5)
+  );
+}
+
+/*  LES DEUX TRAITS VERTICAUX, 1 × 18 dans la maquette, l'un après le
+    rang et l'autre avant le compte. Ils sont peints sur les bords de
+    la cellule du titre, en deux fonds de 1 px sur 18 : un séparateur
+    est une forme, et une forme n'a pas à devenir un nœud. Le
+    rembourrage de 16 les écarte des filets, qui commencent au bord du
+    contenu. */
+#modernbb li.header dd.dterm {
+  padding: 0 var(--wm-espace-16, 16px);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
+      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+    )
+    left center / 1px 18px no-repeat,
+    linear-gradient(
+      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5)),
+      color-mix(in srgb, var(--wm-texte-pale, #69564c) 45%, var(--wm-fond-page, #eecfb5))
+    )
+    right center / 1px 18px no-repeat;
+}
+
+#modernbb li.header dd.dterm div.table-title {
+  min-width: 0;
+  flex: none;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/*  ── LES TROIS ICÔNES DE COLONNE S'EN VONT ─────────────────────────
+
+    Elles disaient ce que comptent les colonnes d'en dessous, et elles
+    ne le disaient qu'en forme : trois pictogrammes Ionicons, dont un
+    lecteur d'écran ne tire rien. On leur avait donné une couleur et
+    une taille, faute de pouvoir leur donner un nom sans toucher au
+    template.
+
+    La maquette tranche autrement, et mieux : sa bande ne porte que le
+    rang, le titre et le compte de forums. Les colonnes se nomment
+    elles-mêmes dans chaque ligne — « SUJETS », « MESSAGES » en toutes
+    lettres sous les nombres. Une étiquette écrite une fois par ligne
+    vaut mieux qu'un pictogramme muet en tête de bloc.
+
+    Et c'est ce qui remet le titre AU MILIEU : tant que les trois
+    cellules restaient dans la rangée, elles prenaient leur part de la
+    largeur et poussaient le titre à gauche — relevé sur le forum, son
+    centre tombait à 162 pour une bande de 596. */
+#modernbb li.header dd.topics,
+#modernbb li.header dd.posts,
+#modernbb li.header dd.lastpost {
+  display: none;
 }
 
 /*  Le bouton qui replie une catégorie. ModernBB le pose en absolu dans
