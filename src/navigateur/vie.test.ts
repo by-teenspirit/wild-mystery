@@ -18,7 +18,16 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assertEquals } from "@std/assert";
-import { ilYA, type LigneDeVie, lignesDeVie, phraseDeVie, vieDeRhode } from "./vie.ts";
+import {
+  etiquetteDeType,
+  ilYA,
+  type LigneDeVie,
+  lignesDeVie,
+  phraseDeVie,
+  signeDeType,
+  TYPES_DE_VIE,
+  vieDeRhode,
+} from "./vie.ts";
 
 const T = "2026-10-06T10:00:00.000Z";
 
@@ -218,4 +227,49 @@ Deno.test("vieDeRhode : une ligne affichée porte le pseudo à part de la phrase
   assertEquals(l.phrase, "a emporté 2 objets du comptoir de Rhode");
   assertEquals(l.ecart, "il y a 5 min");
   assertEquals(l.instant.toISOString(), T);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  Ce que la maquette `390:3386` ajoute : une étiquette de catégorie
+//  et un signe, sous chaque phrase.
+// ════════════════════════════════════════════════════════════════════
+
+Deno.test("« achat » s'écrit BOUTIQUE, pas ACHAT", () => {
+  //  Le mot de la maquette, pas le nom de la table : un joueur connaît
+  //  la boutique, pas l'énumération SQL qui enregistre ses passages.
+  assertEquals(etiquetteDeType("achat"), "BOUTIQUE");
+});
+
+Deno.test("et les six types ont tous le leur", () => {
+  for (const t of TYPES_DE_VIE) {
+    const e = etiquetteDeType(t);
+    assertEquals(e.length > 0, true, t);
+    //  En capitales DANS LE TEXTE, comme la maquette les écrit : un
+    //  `text-transform` seul laisse un lecteur d'écran épeler.
+    assertEquals(e, e.toLocaleUpperCase("fr"), t);
+  }
+});
+
+Deno.test("chaque type a son signe, et aucun n'est vide", () => {
+  const vus = new Set<string>();
+  for (const t of TYPES_DE_VIE) {
+    const s = signeDeType(t);
+    assertEquals(s.length > 0, true, t);
+    vus.add(s);
+  }
+  //  SIX SIGNES DIFFÉRENTS. Deux catégories au même signe se liraient
+  //  comme une seule, et on ne s'en apercevrait qu'en comparant deux
+  //  lignes éloignées.
+  assertEquals(vus.size, TYPES_DE_VIE.length);
+});
+
+Deno.test("LE TYPE ARRIVE JUSQU'À L'AFFICHAGE", () => {
+  //  Sans lui, l'encart ne peut écrire ni l'étiquette ni le signe — et
+  //  c'est le genre de champ qu'on oublie de faire voyager.
+  const lignes = vieDeRhode(
+    [{ type: "capture", pseudo: "Orion", detail: {}, arrive_le: "2026-10-08T12:00:00Z" }],
+    new Date("2026-10-08T17:00:00Z"),
+  );
+  assertEquals(lignes[0]?.type, "capture");
+  assertEquals(etiquetteDeType(lignes[0].type), "CAPTURE");
 });

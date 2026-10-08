@@ -38,7 +38,12 @@
 //  cadre ne dit rien du tout, ce qui est préférable.
 // ════════════════════════════════════════════════════════════════════
 
-import { type LigneAffichee, vieDeRhode } from "../../navigateur/vie.ts";
+import {
+  etiquetteDeType,
+  type LigneAffichee,
+  signeDeType,
+  vieDeRhode,
+} from "../../navigateur/vie.ts";
 import type { LectureDuJournal } from "./journal.ts";
 
 /** Les chemins de l'index, et eux seuls.
@@ -80,21 +85,49 @@ function element(doc: Document, balise: string, classe: string, texte?: string):
 function ligneEnDOM(doc: Document, l: LigneAffichee): HTMLElement {
   const li = element(doc, "li", "wm-vie__ligne");
 
-  const qui = element(doc, "b", "wm-vie__qui", l.pseudo);
-  li.appendChild(qui);
-  li.appendChild(doc.createTextNode(` ${l.phrase} `));
+  //  LE CARRÉ, 22 × 22 dans la maquette, avec son signe dedans. Il est
+  //  DÉCORATIF : la catégorie est écrite en toutes lettres juste en
+  //  dessous, et faire lire « ◍ » à voix haute n'apprendrait rien.
+  const rail = element(doc, "span", "wm-vie__rail", signeDeType(l.type));
+  rail.setAttribute("aria-hidden", "true");
+  li.appendChild(rail);
+
+  const corps = element(doc, "span", "wm-vie__corps");
+
+  //  ── LA PHRASE, AVEC LE PSEUDO EN GRAS DEDANS ────────────────────
+  //
+  //  **Tout passe par `textContent`.** Un pseudo vient de la base,
+  //  donc d'un joueur : il n'entre jamais dans `innerHTML`.
+  const phrase = element(doc, "span", "wm-vie__phrase");
+  phrase.appendChild(element(doc, "b", "wm-vie__qui", l.pseudo));
+  phrase.appendChild(doc.createTextNode(` ${l.phrase}`));
+  corps.appendChild(phrase);
+
+  //  ── « PENSION · IL Y A 2 H » ────────────────────────────────────
+  //
+  //  Le `<time>` porte l'instant exact en `datetime` et en `title` :
+  //  l'écart se lit d'un coup d'œil, la date précise reste à un
+  //  survol. C'est ce que demande « avec l'heure » sans obliger
+  //  personne à calculer.
+  const meta = element(doc, "span", "wm-vie__meta");
+  meta.appendChild(element(doc, "span", "wm-vie__categorie", etiquetteDeType(l.type)));
+  //  Le point médian est un SÉPARATEUR : il se voit, il ne se lit pas.
+  const point = element(doc, "span", "wm-vie__point", "·");
+  point.setAttribute("aria-hidden", "true");
+  meta.appendChild(point);
 
   const quand = doc.createElement("time");
   quand.className = "wm-vie__quand";
-  quand.textContent = l.ecart;
+  quand.textContent = l.ecart.toLocaleUpperCase("fr");
   const iso = l.instant.toISOString();
   quand.setAttribute("datetime", iso);
-  //  La date lisible, en français, pour l'infobulle. `toLocaleString`
-  //  utilise le fuseau du joueur, ce qui est exactement ce qu'il veut
-  //  voir ; `datetime` garde l'instant absolu pour les machines.
+  //  `toLocaleString` prend le fuseau du joueur, ce qu'il veut voir ;
+  //  `datetime` garde l'instant absolu pour les machines.
   quand.setAttribute("title", l.instant.toLocaleString("fr-FR"));
-  li.appendChild(quand);
+  meta.appendChild(quand);
 
+  corps.appendChild(meta);
+  li.appendChild(corps);
   return li;
 }
 
@@ -131,11 +164,51 @@ export async function poserLaVieDeRhode(
   //  milieu de la liste des forums.
   encart.setAttribute("aria-label", "La vie de Rhode");
 
-  encart.appendChild(element(doc, "h2", "wm-vie__titre", "La vie de Rhode"));
+  //  ── L'EN-TÊTE DE `390:3386` ──────────────────────────────────────
+  //
+  //  Le titre, un point, « EN DIRECT », un ressort, et une note à
+  //  droite. Le ressort est un trait qui mange la place : c'est lui
+  //  qui pousse la note au bord, et c'est aussi lui qui tient le
+  //  rythme de la bande quand le titre change de longueur.
+  const tete = element(doc, "div", "wm-vie__tete");
+  tete.appendChild(element(doc, "h2", "wm-vie__titre", "La vie de Rhode"));
+  const direct = element(doc, "span", "wm-vie__direct");
+  const puce = element(doc, "span", "wm-vie__puce");
+  puce.setAttribute("aria-hidden", "true");
+  direct.appendChild(puce);
+  direct.appendChild(element(doc, "span", "wm-vie__direct-mot", "En direct"));
+  tete.appendChild(direct);
+  const ressort = element(doc, "span", "wm-vie__ressort");
+  ressort.setAttribute("aria-hidden", "true");
+  tete.appendChild(ressort);
+  tete.appendChild(
+    element(doc, "p", "wm-vie__sous-titre", "ce que Rhode a vu passer aujourd'hui"),
+  );
+  encart.appendChild(tete);
 
+  //  ── DEUX COLONNES, ET UNE SEULE LISTE ────────────────────────────
+  //
+  //  La maquette range les huit entrées en deux colonnes de quatre.
+  //  C'est une mise en page, pas une structure : les huit restent une
+  //  seule liste, dans l'ordre, et c'est `column-count` qui les
+  //  partage. Deux `<ul>` auraient coupé l'ordre de lecture en deux
+  //  pour un lecteur d'écran, et obligé à recompter à chaque ligne
+  //  ajoutée.
   const liste = element(doc, "ul", "wm-vie__lignes");
   for (const l of lignes) liste.appendChild(ligneEnDOM(doc, l));
   encart.appendChild(liste);
+
+  //  ── LE PIED ──────────────────────────────────────────────────────
+  //
+  //  La maquette y met « Tout le journal » à gauche et une note à
+  //  droite. LE LIEN N'EST PAS POSÉ : la page du journal n'existe pas
+  //  encore, et un lien qui ne mène nulle part est exactement ce que
+  //  `data/accueil.json` appelle un trou. Il reviendra avec sa page.
+  const pied = element(doc, "div", "wm-vie__pied");
+  pied.appendChild(
+    element(doc, "p", "wm-vie__note", "le journal se lit — rien n'est posté dans les sujets"),
+  );
+  encart.appendChild(pied);
 
   ancre.parentNode?.insertBefore(encart, ancre.nextSibling);
   return true;

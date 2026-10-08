@@ -188,6 +188,67 @@ export function ilYA(arriveLe: Date, maintenant: Date): string {
   return mois < 12 ? `il y a ${mois} mois` : "il y a plus d'un an";
 }
 
+// ── ce que la maquette `390:3386` ajoute ────────────────────────────
+
+/** Le mot qui nomme la catégorie, sous la phrase.
+ *
+ *  La maquette écrit « PENSION · IL Y A 2 H », « BOUTIQUE · IL Y A 3 H ».
+ *  Le mot n'est PAS le nom du type dans la base : « achat » devient
+ *  « BOUTIQUE », parce qu'un joueur connaît la boutique et pas la
+ *  table qui enregistre ses achats.
+ *
+ *  Les capitales sont dans le texte et pas seulement en CSS : la
+ *  maquette les veut, et un `text-transform` seul laisse un lecteur
+ *  d'écran épeler certaines abréviations. Ici le mot est écrit comme
+ *  il se lit. */
+export function etiquetteDeType(type: TypeDeVie): string {
+  switch (type) {
+    case "achat":
+      return "BOUTIQUE";
+    case "pension":
+      return "PENSION";
+    case "fossile":
+      return "FOSSILE";
+    case "eclosion":
+      return "ÉCLOSION";
+    case "capture":
+      return "CAPTURE";
+    case "badge":
+      return "BADGE";
+  }
+}
+
+/** Le signe posé dans le petit carré, à gauche de la phrase.
+ *
+ *  ── POURQUOI DES CARACTÈRES ET PAS DES DESSINS ──────────────────────
+ *
+ *  Six icônes vectorielles, c'est six chemins à dessiner, à garder
+ *  d'accord avec le thème et à mesurer au contraste. Ces six signes-là
+ *  sont dans toutes les polices depuis trente ans, ils héritent de la
+ *  couleur du texte, et ils grossissent avec le réglage « grossir le
+ *  texte » sans qu'on s'en occupe.
+ *
+ *  ILS NE PORTENT AUCUNE INFORMATION À EUX SEULS : la catégorie est
+ *  écrite en toutes lettres juste à côté, par `etiquetteDeType`. Le
+ *  signe est une ponctuation visuelle, pas un code à apprendre — et
+ *  c'est pour ça que le module les marque décoratifs. */
+export function signeDeType(type: TypeDeVie): string {
+  switch (type) {
+    case "achat":
+      return "▤";
+    case "pension":
+      return "◍";
+    case "fossile":
+      return "◈";
+    case "eclosion":
+      return "▦";
+    case "capture":
+      return "◉";
+    case "badge":
+      return "✦";
+  }
+}
+
 /** Ce que l'encart affiche : une ligne prête, pseudo compris.
  *
  *  Le pseudo est rendu à part de la phrase parce que l'encart le met en
@@ -196,6 +257,8 @@ export type LigneAffichee = {
   readonly pseudo: string;
   readonly phrase: string;
   readonly ecart: string;
+  /** Le type, qui donne l'étiquette et le signe du carré. */
+  readonly type: TypeDeVie;
   /** L'instant exact, pour `datetime` et l'infobulle. */
   readonly instant: Date;
 };
@@ -215,6 +278,7 @@ export function vieDeRhode(
     pseudo: l.pseudo,
     phrase: phraseDeVie(l),
     ecart: ilYA(l.arriveLe, maintenant),
+    type: l.type,
     instant: l.arriveLe,
   }));
 }

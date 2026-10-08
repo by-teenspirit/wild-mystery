@@ -1970,87 +1970,205 @@ html#min-width {
   text-decoration: underline;
 }
 
-/* ── 7 · l'encart « La vie de Rhode » ─────────────────────────────── */
+/* ── 7 · l'encart « La vie de Rhode », maquette `390:3386` ───────── */
 
 /*  Posé en JavaScript après la dernière catégorie (planche 18, règle 6 :
     huit lignes, avec l'heure). Il n'existe donc que si le script tourne
     ET si le journal a quelque chose à raconter — un forum neuf n'a pas
     d'encart, et c'est mieux qu'un cadre vide.
 
-    La même surface que le module de bilan (`05`), et pour la même
-    raison : ce sont les deux blocs que NOUS ajoutons à des pages de
-    ModernBB. Ils doivent se reconnaître entre eux sans se confondre
-    avec un bloc du forum. */
+    LES COTES DE `390:3386`, relevées dans Figma : carte de 1172 × 347,
+    rembourrage de 29. En-tête de 27, puis 18 de vide, un filet, 20 de
+    vide, les deux colonnes sur 184, 20 de vide, un filet, 14 de vide,
+    le pied sur 16. Les colonnes font 517 chacune, séparées par un
+    filet vertical à 557 — donc 40 de part et d'autre.
+
+    On garde les ESPACES et les proportions, pas les abscisses : la
+    carte vaut 1172 dans le dessin et la colonne du forum va jusqu'à
+    1400. */
 #modernbb .wm-vie {
   margin: 0 0 var(--wm-espace-24, 24px);
-  padding: var(--wm-espace-18, 18px);
+  padding: 29px;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-#modernbb .wm-vie__titre {
-  margin: 0 0 var(--wm-espace-12, 12px);
-  color: var(--wm-texte-doux, #6e5749);
+/* ── l'en-tête ───────────────────────────────────────────────────── */
 
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+#modernbb .wm-vie__tete {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  Le titre reprend la police de titre et la taille de la maquette :
+    27 de haut pour 165 de large, soit du 22 en Fraunces. */
+#modernbb .wm-vie__titre {
+  margin: 0;
+  flex: none;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 22px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  « EN DIRECT » et son point. Le vert est celui de `danger-paisible` :
+    c'est le seul vert de la charte, et en inventer un second pour une
+    pastille de sept pixels ne se justifie pas. */
+#modernbb .wm-vie__direct {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-vie__puce {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--wm-danger-paisible, #4f7a52);
+}
+
+#modernbb .wm-vie__direct-mot {
+  color: var(--wm-danger-paisible, #4f7a52);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-transform: uppercase;
 }
 
-/*  Une colonne de lignes, en flexbox : aucun tableau, aucune puce. Les
-    puces de ModernBB sont remises à zéro par `01`, mais un `list-style`
-    explicite évite d'en dépendre. */
-#modernbb .wm-vie__lignes {
-  display: flex;
-  flex-direction: column;
+/*  LE RESSORT EST UN TRAIT QUI MANGE LA PLACE. C'est lui qui pousse la
+    note au bord droit, et c'est aussi lui qui tient le rythme de la
+    bande quand le titre change de longueur — une marge automatique
+    aurait poussé la note sans rien dessiner entre les deux. */
+#modernbb .wm-vie__ressort {
+  height: 1px;
+  flex: 1 1 0;
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-vie__sous-titre {
   margin: 0;
-  padding: 0;
-  gap: var(--wm-espace-8, 8px);
+  flex: none;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── les deux colonnes ───────────────────────────────────────────── */
+
+/*  `column-count` ET PAS UNE GRILLE. Les huit entrées sont UNE liste,
+    dans l'ordre : c'est une mise en page qui les partage, pas une
+    structure. Deux `<ul>` auraient coupé l'ordre de lecture en deux
+    pour un lecteur d'écran, et obligé à recompter à chaque ligne
+    ajoutée.
+
+    Le filet vertical de la maquette est la règle de colonne, et les
+    40 px de part et d'autre font les 81 d'écart. */
+#modernbb .wm-vie__lignes {
+  margin: 0;
+  padding: 20px 0;
+  column-count: 2;
+  column-gap: 81px;
+  column-rule: 1px solid var(--wm-bord-fin, #eadacd);
   list-style: none;
 }
 
-/*  Une ligne tient sur une ligne quand elle peut, et passe à deux quand
-    il faut. L'écart de temps est poussé à droite par `margin-left:auto`
-    sur un seul enfant — c'est ce qui le garde aligné sans grille. */
+/*  `break-inside` : sans lui, une entrée se coupe en deux au bas de la
+    première colonne — le signe d'un côté, la phrase de l'autre. */
 #modernbb .wm-vie__ligne {
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 var(--wm-espace-6, 6px);
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
-  font-size: var(--wm-taille-normal, 13.5px);
-  line-height: var(--wm-interligne-courant, 1.5);
+  gap: var(--wm-espace-12, 12px);
+  align-items: flex-start;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+#modernbb .wm-vie__ligne + .wm-vie__ligne {
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+/*  Le carré de 22 et son signe. Le signe hérite de la couleur du
+    texte, donc il suit le thème, et il grossit avec le réglage
+    « grossir le texte » sans qu'on s'en occupe. */
+#modernbb .wm-vie__rail {
+  display: flex;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: 11px;
+  line-height: 1;
+}
+
+#modernbb .wm-vie__corps {
+  display: block;
+  min-width: 0;
+}
+
+#modernbb .wm-vie__phrase {
+  display: block;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-carte, 1.25);
 }
 
 #modernbb .wm-vie__qui {
-  color: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-encre, #2e2018);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
-/*  L'écart de temps : discret, mais pas pâle au point d'être illisible
-    — il est mesuré au harnais de contraste comme le reste. Il porte la
-    date exacte en infobulle, d'où le curseur d'aide. */
-#modernbb .wm-vie__quand {
-  margin-left: auto;
+/*  La seconde ligne : « PENSION · IL Y A 2 H ». Trois pixels sous la
+    phrase dans la maquette (y = 17 puis y = 20). */
+#modernbb .wm-vie__meta {
+  display: flex;
+  margin-top: 3px;
+  gap: var(--wm-espace-6, 6px);
+  align-items: baseline;
   color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
-  white-space: nowrap;
-  cursor: help;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
 }
 
-/*  Sur petit écran, l'heure passe sous la phrase plutôt que de la
-    comprimer. `margin-left: auto` ne sert plus à rien quand la ligne
-    s'enroule : on le neutralise pour qu'elle commence à gauche. */
-@media (max-width: 520px) {
-  #modernbb .wm-vie__quand {
-    margin-left: 0;
-  }
+/*  L'écart de temps est déjà écrit en capitales par le module : on ne
+    le repasse pas en CSS, sinon un lecteur d'écran reçoit un mot et
+    l'œil en voit un autre. */
+#modernbb .wm-vie__quand {
+  color: inherit;
+  font: inherit;
+}
+
+/* ── le pied ─────────────────────────────────────────────────────── */
+
+#modernbb .wm-vie__pied {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 14px;
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  LE LIEN « TOUT LE JOURNAL » N'EST PAS LÀ, et son absence est
+    délibérée : la page du journal n'existe pas encore, et un lien qui
+    ne mène nulle part est exactement ce que `data/accueil.json`
+    appelle un trou. Le pied n'a donc que sa note, calée à droite comme
+    dans le dessin. Le jour où la page arrive, le lien revient à
+    gauche et le ressort reprend sa place entre les deux. */
+#modernbb .wm-vie__note {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
 }
 
 /* ── 8 · la chatbox ───────────────────────────────────────────────── */
