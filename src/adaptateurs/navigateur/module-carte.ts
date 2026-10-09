@@ -55,7 +55,11 @@
 //  n'informe pas seule.
 // ════════════════════════════════════════════════════════════════════
 
-import { lireLeDernierMessage, morceauxDuDernierMessage } from "./module-categories.ts";
+import {
+  CLASSE_DESCRIPTION,
+  lireLeDernierMessage,
+  morceauxDuDernierMessage,
+} from "./module-categories.ts";
 import {
   adresseDuForum,
   type Carte,
@@ -164,11 +168,32 @@ export function comptagesDe(doc: Document | DocumentFragment): Map<number, Compt
         const t = net(a);
         if (u !== "" && t !== "") sousForums.push({ titre: t, url: u });
       }
-      const morceaux: string[] = [];
-      for (const n of Array.from(corps.childNodes)) {
-        if (n.nodeType === 3) morceaux.push(n.textContent ?? "");
+      //  ── ET DEPUIS LE 9 OCTOBRE ELLE A UNE BOÎTE ────────────────
+      //
+      //  `envelopperLesDescriptions` l'enferme dans un `<span>` pour
+      //  qu'elle soit la seule à défiler. Conséquence immédiate : il
+      //  n'y a plus de nœud de texte nu dans le conteneur, et la
+      //  lecture ci-dessous rendait une chaîne VIDE. Le panneau de la
+      //  carte retombait alors sur la description de
+      //  `data/carte.json`, qui est de moi et pas d'elle.
+      //
+      //  C'est le harnais `outils/carte.mjs` qui l'a vu, à la ligne
+      //  « LA DESCRIPTION EST CELLE DU FORUM » — écrite exprès pour
+      //  ce défaut-là, quand on avait décidé que le forum fait foi.
+      //
+      //  On lit donc la boîte quand elle est là, et les nœuds nus
+      //  sinon : le module de la carte ne doit pas dépendre de
+      //  l'ordre dans lequel les deux tournent.
+      const boite = corps.querySelector(`.${CLASSE_DESCRIPTION}`);
+      if (boite !== null) {
+        description = (boite.textContent ?? "").replace(/\s+/g, " ").trim();
+      } else {
+        const morceaux: string[] = [];
+        for (const n of Array.from(corps.childNodes)) {
+          if (n.nodeType === 3) morceaux.push(n.textContent ?? "");
+        }
+        description = morceaux.join(" ").replace(/\s+/g, " ").trim();
       }
-      description = morceaux.join(" ").replace(/\s+/g, " ").trim();
     }
 
     sortie.set(id, {

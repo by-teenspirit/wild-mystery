@@ -20,17 +20,57 @@
 #
 #  1. on sépare la terre de l'eau — le bleu est franc, la frontière
 #     est nette ;
-#  2. on pose une graine par zone, à la main : c'est le SEUL endroit
+#  2. ON RELÈVE LE RÉSEAU DE PISTES, et c'est la pièce ajoutée le
+#     9 octobre : voir plus bas, c'est elle qui change tout ;
+#  3. on pose une graine par zone, à la main : c'est le SEUL endroit
 #     où un humain doit regarder l'image, et c'est irréductible —
 #     aucun algorithme ne sait que la tache violette est le Manoir
 #     Barjok ;
-#  3. chaque graine s'étend aux pixels de couleur voisine, en Lab,
-#     bornée par un rayon — sans borne, deux prairies voisines
-#     fusionnent ;
-#  4. ce qui reste de terre va au territoire le plus proche. C'est la
+#  4. chaque graine s'étend aux pixels de couleur voisine, en Lab,
+#     bornée par un rayon ET PAR LES PISTES ;
+#  5. ce qui reste de terre va au territoire le plus proche. C'est la
 #     même règle que `carte-territoires.py`, et elle garantit ce que
-#     Callista a demandé hier : les zones se touchent, il n'y a pas de
-#     vide.
+#     Callista a demandé le 8 : les zones se touchent, il n'y a pas de
+#     vide. Les pistes elles-mêmes sont reprises par ce partage, donc
+#     elles ne laissent aucune rainure entre deux zones.
+#
+#  ── LES PISTES SONT LA FRONTIÈRE, ET C'EST LA PEINTURE QUI LE DIT ───
+#
+#  « J'aimerais que tu suives davantage les bords de la map plutôt que
+#  mes rectangles incertains », 9 octobre. Les bords y sont, mais pas
+#  tous de la même nature, et la première version de ce script n'en
+#  voyait qu'une :
+#
+#    · sur la MOITIÉ DROITE, les zones se séparent PAR LA COULEUR —
+#      sable, canyon rouge, manoir violet, volcan noir. La croissance
+#      en Lab suffit ;
+#    · sur la MOITIÉ VERTE, elles se séparent PAR LES CHEMINS DE
+#      TERRE. Lande, Fleuve, Marécage et Plage sont du même vert à
+#      deux ou trois unités près : une croissance de couleur les
+#      fusionne en un seul territoire, et le rayon qui l'en empêche
+#      découpe des disques, pas des régions.
+#
+#  Le peintre a tracé ces pistes, et elles sont exactement la carte
+#  des frontières qu'on cherchait à deviner. On les relève donc, et on
+#  interdit à une graine de les franchir.
+#
+#  COMMENT ON LES DISTINGUE DU SABLE, qui est du même beige : par leur
+#  ÉPAISSEUR. Une piste fait une trentaine de pixels de large, donc
+#  aucun de ses pixels n'est à plus de dix-huit d'un bord ; le désert
+#  en fait huit cents. Un seuil sur la transformée de distance tranche
+#  net là où aucun seuil de teinte ne le peut — c'est le même
+#  raisonnement que pour les toits des villages et la roche du canyon,
+#  plus bas, et c'est la deuxième fois qu'il sert.
+#
+#  Une OUVERTURE MORPHOLOGIQUE aurait semblé plus naturelle : essayée,
+#  elle hache le réseau en fragments — elle mange le cœur des
+#  carrefours, qui sont larges, et garde les bavures des bords. Un
+#  réseau en morceaux n'arrête plus rien.
+#
+#  LA PLAGE CÔTIÈRE EST ÉCARTÉE du relevé : elle est du même beige et
+#  fait le tour du continent, donc elle enfermerait chaque zone dans
+#  un anneau. On ne garde que ce qui est à plus de trente pixels de la
+#  mer.
 #
 #  LES VILLAGES SONT DÉTECTÉS, PAS PLACÉS. Le peintre a mis des toits
 #  rouges ; on les cherche par leur teinte, on les regroupe, et on
@@ -55,7 +95,7 @@ import sys
 import numpy as np
 from PIL import Image
 from scipy import ndimage
-from skimage import color, measure
+from skimage import color, filters, graph, measure
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 
@@ -63,55 +103,108 @@ SOURCE = pathlib.Path("planches/peinte/source.png")
 COTE = 1000          # le repère de sortie, carré comme la peinture
 PAS = 26             # un sommet tous les 26 px de l'image sur un contour
 
-#  ── LES GRAINES ─────────────────────────────────────────────────────
+#  ── LES ZONES VIENNENT DE LA CARTE ANNOTÉE DE CALLISTA ─────────────
 #
-#  En coordonnées de l'image source (512 × 512), relevées à l'œil sur
-#  la peinture. `tolerance` est l'écart de couleur admis en Lab,
-#  `rayon` la distance maximale à la graine, en pixels.
+#  « Je t'avais pourtant fait un exemple détaillé. Recommence. »
+#  9 octobre, et elle a raison : j'avais posé seize graines à l'œil et
+#  laissé un algorithme deviner le reste, alors que le découpage
+#  existait déjà — elle l'avait peint par-dessus la carte.
 #
-#  Un biome franc (neige, lave, sable) s'étend loin avec une tolérance
-#  serrée. Les prairies, qui se ressemblent toutes, sont tenues court
-#  et c'est le partage final qui leur donne leur part.
-GRAINES = [
-    #  forumId, nom,                   x,    y,  tol, rayon
-    (34, "Montagnes Embrumées",       429,  257,  17, 430),
-    (103, "Monts Enneigés",           986,  214,  18, 300),
-    (39, "Volcan Nuageux",           1280,  230,  20, 380),
-    (36, "Steppes Arides",           1643,  329,  17, 420),
-    (101, "Oasis Perdue",            1814,  557,  17, 380),
-    (9, "Forêt Marécageuse",          345,  730,  21, 460),
-    (38, "Lande Broussailleuse",      850,  560,   8, 300),
-    (100, "Fleuve Paisible",          865,  885,   8, 340),
-    (31, "Manoir Barjok",            1286,  586,  13, 200),
-    (37, "Canyon Lekro",             1443,  800,  19, 300),
-    (105, "Volcan Sombre",           1843,  886,  19, 260),
-    (35, "Usine Désaffectée",        1429, 1186,  17, 260),
-    (102, "Planque Snatch",          1757, 1171,  18, 280),
-    (46, "Relique Sacrée",           1120, 1450,  18, 320),
-    (32, "Plage Grain de Sel",        686, 1314,  15, 380),
+#  `planches/peinte/zones-callista.png` EST la même image que
+#  `source.png`, avec un calque de blocs par-dessus. On les retrouve
+#  donc par SOUSTRACTION, pixel à pixel : là où les deux images
+#  diffèrent, elle a peint. Rien à relever à l'œil, rien à approcher.
+#
+#  ── ET LES COULEURS SONT LES PALIERS ────────────────────────────────
+#
+#  « Les couleurs indiquent les paliers. » Le vert est le palier 1, le
+#  rouge les paliers 2 et 3. C'est une VÉRIFICATION offerte : le
+#  décompte doit tomber sur celui de `data/carte.json` — six zones de
+#  palier 1, onze de palier 2 et 3 — et il tombe. Six blocs verts,
+#  dix rouges, plus le Canyon qu'elle n'a pas eu besoin de colorer
+#  parce que la peinture le découpe déjà toute seule.
+#
+#  ── CE QUE LE SCRIPT AJOUTE, ET C'EST TOUT ──────────────────────────
+#
+#  Ses blocs sont des quadrilatères approximatifs — « mes rectangles
+#  incertains », et elle demande de suivre les bords du dessin plutôt
+#  qu'eux. On s'en sert donc comme AMORCES, pas comme contours : chaque
+#  bloc est érodé pour n'en garder que le cœur, puis on laisse ce cœur
+#  se propager jusqu'aux frontières peintes, par chemin de moindre
+#  coût. Traverser une piste coûte cher, traverser une lisière de biome
+#  aussi ; traverser un pré ne coûte rien.
+#
+#  Le résultat : l'ÉTENDUE est la sienne, la FRONTIÈRE est celle du
+#  peintre. C'est exactement la demande.
+#
+#  Le point donné ici ne sert qu'à NOMMER le bloc qui le contient —
+#  c'est le seul endroit où un humain doit encore regarder l'image,
+#  et il est irréductible : rien ne sait que le bloc rouge du coin
+#  est l'Océan Mystérieux. Il est pris au plus loin du bord du bloc
+#  (maximum de la transformée de distance), donc il reste dedans même
+#  pour une forme concave.
+ANNOTATION = pathlib.Path("planches/peinte/zones-callista.png")
+
+ZONES = [
+    #  forumId, nom,                    x,    y
+    (103, "Monts Enneigés",            878,  171),
+    (36, "Steppes Arides",            1595,  263),
+    (34, "Montagnes Embrumées",        430,  291),
+    (39, "Volcan Nuageux",            1243,  312),
+    (33, "Libra Échoué",              1717,  433),
+    (38, "Lande Broussailleuse",       870,  594),
+    (31, "Manoir Barjok",             1309,  607),
+    (9, "Forêt Marécageuse",           446,  698),
+    (101, "Oasis Perdue",             1806,  758),
+    (105, "Volcan Sombre",            1825, 1120),
+    (35, "Usine Désaffectée",         1492, 1207),
+    (100, "Fleuve Paisible",           709, 1219),
+    (32, "Plage Grain de Sel",         237, 1305),
+    (102, "Planque Snatch",           1370, 1437),
+    (46, "Relique Sacrée",            1069, 1572),
 ]
 
-#  Les deux zones qui sont DANS l'eau. Elles ne participent pas au
-#  partage des terres — sinon elles mangeraient la côte.
-MARINES = [
-    (33, "Libra Échoué", 260, 1333, 330),      # les épaves, au large
-    (104, "Océan Mystérieux", 1875, 1730, 220),
-]
+#  LE CANYON N'A PAS DE BLOC, et ce n'est pas un oubli : sa roche
+#  rouge-orange est le seul aplat de la peinture qu'aucun voisin
+#  n'imite. Callista n'avait rien à montrer là. Il reçoit donc une
+#  amorce prise dans la peinture, au même titre que les autres — un
+#  disque, que la propagation étend.
+CANYON = (37, "Canyon Lekro", 1430, 780)
+
+#  LA SEULE ZONE QUI EST DANS L'EAU, et son bloc y est aussi : elle se
+#  découpe donc directement, sans propagation — au large il n'y a
+#  aucune frontière peinte à épouser.
+#
+#  EN BAS À GAUCHE, et c'est un changement : `data/carte.json` la
+#  posait en bas à droite, près de Ténèbra. Callista l'a déplacée sur
+#  sa carte annotée, et confirmé.
+OCEAN = (104, "Océan Mystérieux", 227, 1762)
+
+#  COMBIEN ON ÉRODE UN BLOC pour en faire une amorce. Assez pour que
+#  ses bords approximatifs ne décident de rien — ils débordent sur le
+#  voisin par endroits —, pas assez pour qu'un bloc étroit disparaisse.
+#  Le plus petit fait 51 000 px, soit un carré de 225 de côté.
+EROSION = 45
 
 #  Où CHERCHER chaque ville : le nom va à la grappe de toits la plus
 #  proche de ce point. Les coordonnées sont celles des grappes
 #  RELEVÉES dans la peinture — le rattachement est donc exact, et la
 #  position finale reste celle du peintre, au pixel près.
+#
+#  ELLES NE SONT PAS RELEVÉES À L'ŒIL. Callista a posé neuf pastilles
+#  grises sur sa carte annotée, une par ville ; elles sont toutes des
+#  disques de 49 px d'un gris uniforme, donc `outils/carte-pastilles.py`
+#  les retrouve et donne leur centre au pixel. Ce sont ces centres-là.
 VILLES = [
-    (12, "Pyrite", "ville", 651, 525),
-    (16, "Tour Titanite", "ville", 1289, 174),
-    (15, "Suerebe", "ville", 1336, 764),
-    (5, "Phenacit", "ville", 1229, 935),
-    (14, "Samaragd", "ville", 949, 981),
-    (18, "Station Service", "ville", 1535, 912),
-    (13, "Port-Amarée", "ville", 628, 1153),
-    (17, "Île Ténèbra", "ville", 1597, 1704),
-    (65, "Mont Bataille", "ligue", 923, 446),
+    (65, "Mont Bataille", "ligue", 970, 334),
+    (16, "Tour Titanite", "ville", 1340, 353),
+    (12, "Pyrite", "ville", 601, 469),
+    (15, "Suerebe", "ville", 1613, 625),
+    (5, "Phenacit", "ville", 1196, 752),
+    (18, "Station Service", "ville", 1455, 956),
+    (13, "Port-Amarée", "ville", 626, 968),
+    (14, "Samaragd", "ville", 945, 1088),
+    (17, "Île Ténèbra", "ville", 1719, 1718),
 ]
 
 def lisser(contour, pas=PAS, echelle=1.0):
@@ -193,46 +286,133 @@ def main():
 
     ys, xs = np.mgrid[0:H, 0:W]
 
-    #  ── LES ZONES, PAR CROISSANCE DE COULEUR ──────────────────────
-    propriete = np.zeros((H, W), dtype=np.int32)
-    for n_, (forum, nom, gx, gy, tol, rayon) in enumerate(GRAINES, start=1):
-        cible = lab[gy, gx]
-        ecart = np.sqrt(((lab - cible) ** 2).sum(axis=2))
-        proche = (ecart < tol) & continent & (propriete == 0)
-        dans_rayon = (xs - gx) ** 2 + (ys - gy) ** 2 <= rayon ** 2
-        candidat = proche & dans_rayon
-        #  LA CROISSANCE EST CONNEXE. Sans ça, une tache de la même
-        #  couleur à l'autre bout du rayon rejoint la zone, et on
-        #  obtient un territoire en deux morceaux qui ne se touchent
-        #  pas.
-        lab_c, k = ndimage.label(candidat)
-        if lab_c[gy, gx] == 0:
-            print(f"   · graine hors cible : {nom}")
-            continue
-        region = lab_c == lab_c[gy, gx]
-        region = ndimage.binary_closing(region, iterations=3)
-        propriete[region & continent & (propriete == 0)] = n_
+    #  ── LE RÉSEAU DE PISTES ───────────────────────────────────────
+    #  Voir l'en-tête : c'est lui qui sépare les quatre verts, que la
+    #  couleur ne sépare pas.
+    beige = continent & (lab[:, :, 0] > 75) & (lab[:, :, 0] < 92) \
+        & (np.abs(lab[:, :, 1]) < 9) \
+        & (lab[:, :, 2] > 18) & (lab[:, :, 2] < 34)
+    beige = ndimage.binary_closing(beige, iterations=4)
+    #  L'ÉPAISSEUR, et pas la teinte : une piste n'a aucun pixel à plus
+    #  de dix-huit d'un bord, le désert en a des milliers.
+    assez_fin = ndimage.distance_transform_edt(beige) < 18
+    #  La plage côtière est du même beige et ferait un anneau autour de
+    #  chaque zone du bord.
+    loin_de_la_mer = ndimage.distance_transform_edt(~eau) > 30
+    pistes = ndimage.binary_closing(
+        beige & assez_fin & loin_de_la_mer, iterations=4)
+    print(f"   pistes : {pistes.sum()} px, "
+          f"{100 * pistes.sum() / continent.sum():.1f} % de la terre")
 
-    #  ── LE PARTAGE DU RESTE ───────────────────────────────────────
-    #  Comme `carte-territoires.py` : chaque pixel de terre non réclamé
-    #  va au territoire le plus proche. C'est ce qui fait que les zones
-    #  se touchent sans trou.
-    _, idx = ndimage.distance_transform_edt(propriete == 0, return_indices=True)
-    plein = propriete[idx[0], idx[1]]
-    plein[~continent] = 0
+    #  ── LES AMORCES : LES BLOCS DE CALLISTA, ÉRODÉS ──────────────
+    #
+    #  Par soustraction avec la peinture : là où les deux images
+    #  diffèrent, elle a peint. Le vert est le palier 1, le rouge les
+    #  paliers 2 et 3 — on ne s'en sert pas pour décider, seulement
+    #  pour SÉPARER deux blocs voisins qui se touchent.
+    ann = np.asarray(Image.open(ANNOTATION).convert("RGB")).astype(np.int16)
+    brut = np.asarray(im).astype(np.int16)
+    if ann.shape != brut.shape:
+        raise SystemExit("la carte annotée et la peinture n'ont pas la même taille")
+    ecart_ann = ann - brut
+    peint = np.abs(ecart_ann).sum(axis=2) > 18
+    familles = {
+        "vert": (ecart_ann[:, :, 1] > ecart_ann[:, :, 0] + 20)
+        & (ecart_ann[:, :, 1] > ecart_ann[:, :, 2] + 20) & peint,
+        "rouge": (ecart_ann[:, :, 0] > ecart_ann[:, :, 1] + 20)
+        & (ecart_ann[:, :, 0] > ecart_ann[:, :, 2] + 20) & peint,
+    }
+    blocs = []
+    for sel in familles.values():
+        #  L'ouverture enlève le liseré du tracé et les quelques
+        #  pixels que l'anti-crénelage laisse entre deux blocs.
+        s = ndimage.binary_opening(sel, iterations=3)
+        etiq_s, k = ndimage.label(s)
+        for j in range(1, k + 1):
+            m_ = etiq_s == j
+            if m_.sum() >= 25000:
+                blocs.append(m_)
+    print(f"   {len(blocs)} bloc(s) relevé(s) sur la carte annotée")
+
+    def bloc_contenant(x, y):
+        for m_ in blocs:
+            if m_[y, x]:
+                return m_
+        return None
+
+    #  ── LE RELIEF : CE QU'IL EN COÛTE DE TRAVERSER ───────────────
+    #
+    #  Un pas coûte 1 dans un pré, beaucoup sur une piste, beaucoup sur
+    #  une lisière de biome. Le gradient est pris sur une image LISSÉE :
+    #  sans ça, chaque arbre et chaque rocher est une falaise, et la
+    #  propagation n'avance plus nulle part.
+    doux = np.dstack([ndimage.gaussian_filter(lab[:, :, i], 12) for i in range(3)])
+    pente = sum(filters.sobel(doux[:, :, i]) ** 2 for i in range(3)) ** 0.5
+    pente = pente / (np.percentile(pente[continent], 99) or 1)
+    cout = 1.0 + 35.0 * pistes + 45.0 * np.clip(pente, 0, 3)
+    #  La mer est infranchissable : une zone ne passe pas d'une rive à
+    #  l'autre d'une baie.
+    cout[~continent] = np.inf
+
+    #  ── CHAQUE AMORCE SE PROPAGE, ET LA MOINS CHÈRE L'EMPORTE ────
+    liste = [(f, nom, x, y) for f, nom, x, y in ZONES]
+    liste.append(CANYON)
+    amorces = []
+    for f, nom, gx, gy in liste:
+        if (f, nom, gx, gy) == CANYON:
+            #  Pas de bloc : un disque dans la roche rouge.
+            m_ = ((xs - gx) ** 2 + (ys - gy) ** 2) <= 60 ** 2
+        else:
+            bloc = bloc_contenant(gx, gy)
+            if bloc is None:
+                raise SystemExit(f"aucun bloc ne contient le point de {nom}")
+            #  ÉRODÉ : les bords de ses quadrilatères débordent sur le
+            #  voisin par endroits, et ce sont précisément les bords
+            #  qu'elle ne veut pas qu'on suive.
+            m_ = ndimage.binary_erosion(bloc, iterations=EROSION)
+            if not m_.any():
+                m_ = bloc
+        m_ = m_ & continent
+        if not m_.any():
+            raise SystemExit(f"l'amorce de {nom} ne touche pas la terre")
+        amorces.append((f, nom, m_))
+
+    piles = []
+    for f, nom, m_ in amorces:
+        mcp = graph.MCP_Geometric(cout)
+        depart = [tuple(p) for p in np.argwhere(
+            ndimage.binary_erosion(m_, iterations=2) if m_.sum() > 4000 else m_)]
+        #  Un seul départ par amorce suffirait, mais une amorce est une
+        #  SURFACE : partir de tous ses pixels, c'est propager depuis sa
+        #  frontière, donc ne jamais traverser son propre intérieur.
+        couts, _ = mcp.find_costs(depart[:: max(1, len(depart) // 4000)])
+        piles.append(couts)
+    pile = np.stack(piles)
+    propriete = (np.argmin(pile, axis=0) + 1).astype(np.int32)
+    propriete[~continent] = 0
+    plein = propriete
 
     #  ON GARDE LA CARTE DES ZONES, en image : `outils/carte-fondu.py`
     #  en a besoin pour savoir où sont les coutures, et la recalculer
-    #  chez lui voudrait dire tenir deux fois les mêmes graines — donc
+    #  chez lui voudrait dire tenir deux fois les mêmes amorces — donc
     #  les voir diverger un jour.
     Image.fromarray(plein.astype(np.uint8)).save("planches/peinte/zones.png")
 
     lieux = []
-    for n_, (forum, nom, gx, gy, tol, rayon) in enumerate(GRAINES, start=1):
+    for n_, (forum, nom, _) in enumerate(amorces, start=1):
         region = ndimage.binary_closing(plein == n_, iterations=2)
         if not region.any():
             print(f"   · {nom} n'a rien reçu")
             continue
+        #  ── LA PLAGE PREND AUSSI SON EAU CÔTIÈRE ──────────────────
+        #  « Plage Grain de Sel s'arrête au sable, ou tu veux qu'elle
+        #  prenne aussi l'eau côtière ? » — « oui ». Son bloc déborde
+        #  sur la mer et c'est voulu ; la propagation, elle, s'arrête
+        #  à la côte. On lui rend donc la partie marine de son bloc.
+        if forum == 32:
+            bloc = bloc_contenant(237, 1305)
+            if bloc is not None:
+                region = region | (bloc & ~continent)
         morceaux = contours_de(region, echelle)
         if not morceaux:
             print(f"   · {nom} : contour trop petit")
@@ -245,24 +425,26 @@ def main():
             "aire": int(region.sum()),
         })
 
-    #  ── LES ZONES MARINES ─────────────────────────────────────────
-    for forum, nom, gx, gy, rayon in MARINES:
-        cible = lab[gy, gx]
-        ecart = np.sqrt(((lab - cible) ** 2).sum(axis=2))
-        dans_rayon = (xs - gx) ** 2 + (ys - gy) ** 2 <= rayon ** 2
-        #  Un disque, pas une tache : au large il n'y a pas de
-        #  frontière à épouser, et une tache d'eau suivrait les
-        #  vaguelettes du peintre.
-        region = dans_rayon & ~continent
-        region = ndimage.binary_closing(region, iterations=2)
-        morceaux = contours_de(region, echelle)
-        if morceaux:
-            lieux.append({
-                "forumId": forum, "nom": nom, "marine": True,
-                "ancre": {"x": round(gx * echelle), "y": round(gy * echelle)},
-                "forme": " ".join(morceaux),
-                "aire": int(region.sum()),
-            })
+    #  ── L'OCÉAN MYSTÉRIEUX ────────────────────────────────────────
+    #  Son bloc est dans l'eau : il se découpe tel quel, sans
+    #  propagation — au large il n'y a aucune frontière peinte à
+    #  épouser, et une tache d'eau suivrait les vaguelettes.
+    forum_o, nom_o, ox, oy = OCEAN
+    bloc_o = bloc_contenant(ox, oy)
+    if bloc_o is None:
+        raise SystemExit(f"aucun bloc ne contient le point de {nom_o}")
+    region_o = ndimage.binary_closing(bloc_o & ~continent, iterations=4)
+    morceaux_o = contours_de(region_o, echelle)
+    if morceaux_o:
+        cy, cx = ndimage.center_of_mass(region_o)
+        lieux.append({
+            "forumId": forum_o, "nom": nom_o, "marine": True,
+            "ancre": {"x": round(cx * echelle), "y": round(cy * echelle)},
+            "forme": " ".join(morceaux_o),
+            "aire": int(region_o.sum()),
+        })
+    else:
+        print(f"   · {nom_o} : contour trop petit")
 
     #  ── LES VILLAGES, DÉTECTÉS PAR LEURS TOITS ────────────────────
     #  Le rouge des toits est le seul rouge saturé de la peinture : a*

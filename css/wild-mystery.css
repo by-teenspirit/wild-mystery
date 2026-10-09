@@ -10753,7 +10753,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     du tableau au lieu de s'y arrêter. L'alternative, `slice`, rognait
     la carte : on ne voyait plus Rhode en entier sans la traîner. */
 #modernbb .wm-carte--peinte .wm-carte__cadre {
-  background-color: var(--wm-carte-marge-peinte, #114971);
+  background-color: var(--wm-carte-marge-peinte, #1b5481);
   background-image: none;
 }
 
