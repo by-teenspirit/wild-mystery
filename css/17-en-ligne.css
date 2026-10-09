@@ -233,6 +233,41 @@
   color: var(--wm-accent-fort, #1f5470);
 }
 
+/*  ── LE SABELETTE DU FOND ─────────────────────────────────────────
+
+    `390:3387` le pose en haut à droite, grand, et IL DÉBORDE du bloc
+    par le haut — c'est ce débordement qui fait qu'il décore au lieu
+    d'illustrer. On le sort donc de 28 px, et le bloc ne coupe pas.
+
+    `pointer-events: none` : il couvre le coin de la carte du clan, et
+    une image décorative n'a pas à voler un clic.
+
+    IL S'EN VA SOUS 900 px. Sur un écran étroit les trois colonnes
+    s'empilent, le bloc devient haut et étroit, et une bête de 250 px
+    dans le coin passe par-dessus le texte. Elle n'apporte rien d'assez
+    pour qu'on s'arrange avec ça. */
+#modernbb .wm-enligne__mascotte {
+  position: absolute;
+  top: -28px;
+  right: -8px;
+  width: 250px;
+  max-width: 34%;
+  height: auto;
+  pointer-events: none;
+}
+
+/*  Le bloc devient le repère du Sabelette. Sans ça il se cale sur la
+    page, et il part se poser n'importe où. */
+#modernbb .wm-enligne {
+  position: relative;
+}
+
+@media (max-width: 900px) {
+  #modernbb .wm-enligne__mascotte {
+    display: none;
+  }
+}
+
 /* ── le clan du moment ────────────────────────────────────────────── */
 
 #modernbb .wm-enligne__clan-bloc {
@@ -242,20 +277,22 @@
   min-height: 0;
 }
 
-/*  Six cases de 65, espacées de 9 — la bande du dessin. Elle ne se
-    pose que si la carte de couverture sait rendre au moins une
-    image : six cases vides valent moins que pas de bande du tout. */
-#modernbb .wm-enligne__sprites {
+/*  ── LA BANDE DES SIX ONGLETS ─────────────────────────────────────
+
+    Six cases de 65, espacées de 9 — la bande du dessin `390:3387`.
+    Elle porte un clan par case, et c'est elle qui ouvre sa carte.
+
+    Ce sont des `<button>` : la feuille doit donc défaire ce qu'un
+    navigateur met d'office sur un bouton — sa bordure, son fond, son
+    rembourrage et sa police. */
+#modernbb .wm-enligne__onglets {
   display: flex;
   flex: none;
   flex-direction: column;
-  margin: 0;
-  padding: 0;
   gap: 9px;
-  list-style: none;
 }
 
-#modernbb .wm-enligne__sprite {
+#modernbb button.wm-enligne__onglet {
   display: flex;
   width: 65px;
   height: 65px;
@@ -263,15 +300,57 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding: 0;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-douce, #f3e1d2);
+  cursor: pointer;
+  font: inherit;
 }
 
-#modernbb .wm-enligne__sprite img {
+#modernbb button.wm-enligne__onglet img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
+}
+
+/*  LE NOM EST LÀ POUR QUI ÉCOUTE LA PAGE. Une vignette seule ne dit
+    rien à un lecteur d'écran, et un `aria-label` se perd à la
+    traduction automatique. On écrit donc le nom, et on le sort de
+    l'œil — pas avec `display: none`, qui le retirerait aussi de ce
+    que le lecteur annonce. */
+#modernbb .wm-enligne__onglet-nom {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*  L'ONGLET OUVERT SE VOIT, et il se voit AUTREMENT QUE PAR LA
+    COULEUR : un liseré épais, que le daltonisme ne mange pas et que
+    le mode fort contraste garde. */
+#modernbb button.wm-enligne__onglet[aria-selected="true"] {
+  border-color: var(--wm-accent-terre, #8b4725);
+  border-width: 2px;
+}
+
+#modernbb button.wm-enligne__onglet:hover:not([disabled]) {
+  border-color: var(--wm-bord-net, #d9c3b1);
+}
+
+/*  ── UN CLAN SANS TEXTE RESTE DANS LA BANDE ───────────────────────
+    Cinq sur six au 9 octobre. Les retirer donnerait une bande d'une
+    seule vignette, qui ne ressemble à rien et qui cacherait le
+    travail qui reste. Ils sont éteints, et ils ne s'ouvrent pas.
+
+    `opacity` ET `filter` : l'opacité seule laisse une image
+    colorée bien lisible, et on croirait l'onglet cliquable. */
+#modernbb button.wm-enligne__onglet[disabled] {
+  opacity: 0.45;
+  cursor: default;
+  filter: grayscale(0.8);
 }
 
 /*  LA COULEUR VIENT DE LA CLÉ. Les six paires existent déjà dans le
@@ -379,12 +458,12 @@
     margin-bottom: -10px;
   }
 
-  /*  La bande de sprites se couche avec la carte. */
+  /*  La bande d'onglets se couche avec la carte. */
   #modernbb .wm-enligne__clan-bloc {
     flex-direction: column;
   }
 
-  #modernbb .wm-enligne__sprites {
+  #modernbb .wm-enligne__onglets {
     flex-direction: row;
     flex-wrap: wrap;
   }

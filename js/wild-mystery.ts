@@ -33,6 +33,7 @@ import {
   CatalogueDistant,
   forumDeLaPage,
   racineDesDonnees,
+  racineDesImages,
 } from "../src/adaptateurs/navigateur/catalogue.ts";
 import { zoneDe } from "../src/navigateur/zone.ts";
 import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/registre.ts";
@@ -346,7 +347,16 @@ async function poserLesPresents(): Promise<void> {
   const clans = await fetch(`${RACINE}clans.json`, { credentials: "omit" })
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
-  poserQuiEstEnLigne({ doc: document, clans });
+  //  Les vignettes des clans et le Sabelette vivent dans `assets/`,
+  //  à côté de `data/` : une seule coupe donne les deux racines, donc
+  //  elles ne peuvent pas se désaccorder.
+  const images = racineDesImages(adresseDuScript(document));
+  poserQuiEstEnLigne({
+    doc: document,
+    clans,
+    icone: (cle) => images === null ? null : `${images}clans/${cle}.png`,
+    mascotte: images === null ? null : `${images}clans/sabelette.png`,
+  });
 }
 
 desQueLeCorpsEstLa(() => {

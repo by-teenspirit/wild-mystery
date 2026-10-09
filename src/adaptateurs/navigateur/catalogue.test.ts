@@ -5,7 +5,12 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assertEquals } from "@std/assert";
-import { CatalogueDistant, especesDepuis, racineDesDonnees } from "./catalogue.ts";
+import {
+  CatalogueDistant,
+  especesDepuis,
+  racineDesDonnees,
+  racineDesImages,
+} from "./catalogue.ts";
 
 const SERVI =
   "https://cdn.jsdelivr.net/gh/by-teenspirit/wild-mystery@socle-v2/js/wild-mystery.js";
@@ -127,4 +132,19 @@ Deno.test("les entrées qui n'ont pas la bonne forme sont écartées une par une
     },
   });
   assertEquals([...index.entries()], [[16, "Roucool"], [928, "Olivini"]]);
+});
+
+Deno.test("la racine des images est sœur de celle des données", () => {
+  //  Les deux dossiers sont frères dans le dépôt : une seule coupe
+  //  les trouve tous les deux, quel que soit le CDN qui les sert.
+  assertEquals(
+    racineDesImages("https://cdn.jsdelivr.net/gh/x/y@v1/js/wild-mystery.js"),
+    "https://cdn.jsdelivr.net/gh/x/y@v1/assets/",
+  );
+  assertEquals(
+    racineDesImages("https://by-teenspirit.github.io/wild-mystery/js/wild-mystery.js"),
+    "https://by-teenspirit.github.io/wild-mystery/assets/",
+  );
+  assertEquals(racineDesImages(null), null);
+  assertEquals(racineDesImages("https://exemple.test/wild-mystery.js"), null);
 });

@@ -76,6 +76,17 @@ export function racineDesDonnees(adresseDuScript: string | null): string | null 
   return `${adresseDuScript.slice(0, coupe)}/data/`;
 }
 
+/** L'adresse du dossier `assets/`, déduite de celle du script.
+ *
+ *  Même coupe que `racineDesDonnees`, et c'est voulu : les deux
+ *  dossiers sont frères dans le dépôt, donc ils le restent une fois
+ *  servis, quel que soit le CDN. Une seconde racine à régler serait
+ *  une seconde occasion de les désaccorder. */
+export function racineDesImages(adresseDuScript: string | null): string | null {
+  const donnees = racineDesDonnees(adresseDuScript);
+  return donnees === null ? null : donnees.replace(/data\/$/, "assets/");
+}
+
 /** L'adresse de notre propre script, telle que le navigateur la connaît.
  *
  *  `currentScript` n'est renseigné que pendant l'exécution initiale : on
