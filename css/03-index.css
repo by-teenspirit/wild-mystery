@@ -198,7 +198,28 @@
     color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 62%, var(--wm-accent-terre, #8b4725)) 100%
   );
   background-position: center;
-  background-size: cover;
+  /*  ── `!important`, ET C'EST LA BASE DE MODERNBB QUI L'IMPOSE ───────
+
+      « Je vois l'image mais elle est toute petite », 9 octobre. Elle
+      l'était : **33 × 33, au milieu d'une bande de 1326**.
+
+      `11-ltr.css`, le CSS de base servi par Forumactif, déclare
+
+          dl.icon { background-size: 33px 33px !important }
+
+      pour l'icône d'état d'un forum. Un `!important` dans une feuille
+      qu'on ne possède pas bat tout : ma règle, et même un style en
+      ligne — vérifié dans le navigateur, poser `style="background-size:
+      cover"` à la main ne changeait rien.
+
+      C'est le seul endroit de la feuille où on répond par un
+      `!important`, et il est ciblé : `background-size`, sur la bande
+      d'en-tête, et rien d'autre.
+
+      CE QUI A MANQUÉ POUR LE VOIR PLUS TÔT : les harnais servent notre
+      feuille seule. Ils ne peuvent pas attraper un `!important` de la
+      base, parce qu'ils ne la chargent pas. */
+  background-size: cover !important;
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 

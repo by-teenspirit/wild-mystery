@@ -1343,7 +1343,28 @@ html#min-width {
     color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 62%, var(--wm-accent-terre, #8b4725)) 100%
   );
   background-position: center;
-  background-size: cover;
+  /*  ── `!important`, ET C'EST LA BASE DE MODERNBB QUI L'IMPOSE ───────
+
+      « Je vois l'image mais elle est toute petite », 9 octobre. Elle
+      l'était : **33 × 33, au milieu d'une bande de 1326**.
+
+      `11-ltr.css`, le CSS de base servi par Forumactif, déclare
+
+          dl.icon { background-size: 33px 33px !important }
+
+      pour l'icône d'état d'un forum. Un `!important` dans une feuille
+      qu'on ne possède pas bat tout : ma règle, et même un style en
+      ligne — vérifié dans le navigateur, poser `style="background-size:
+      cover"` à la main ne changeait rien.
+
+      C'est le seul endroit de la feuille où on répond par un
+      `!important`, et il est ciblé : `background-size`, sur la bande
+      d'en-tête, et rien d'autre.
+
+      CE QUI A MANQUÉ POUR LE VOIR PLUS TÔT : les harnais servent notre
+      feuille seule. Ils ne peuvent pas attraper un `!important` de la
+      base, parce qu'ils ne la chargent pas. */
+  background-size: cover !important;
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
@@ -10732,20 +10753,27 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   transition: opacity 0.15s ease, stroke-width 0.15s ease;
 }
 
-/*  LES QUATRE FAMILLES. Les teintes viennent des jetons, et leur
-    OPACITÉ les sépare autant que leur ton : 0,30 / 0,52 / 0,78 pour
-    les trois paliers. En noir et blanc, le palier 3 reste le plus
-    foncé — la progression se lit toujours. */
+/*  ── LES TROIS PALIERS, VERT · ORANGE · ROUGE ──────────────────────
+
+    « Palier 1 : vert, palier 2 : orange, palier 3 : rouge »,
+    9 octobre. Avant, c'était une seule teinte à trois opacités —
+    0,30 / 0,52 / 0,78 — ce qui disait « plus ou moins » et pas
+    « lequel ». Trois couleurs disent lequel.
+
+    L'OPACITÉ RESTE, EN PLUS DE LA TEINTE, et elle monte dans le même
+    sens : en noir et blanc, ou pour qui ne distingue pas le vert du
+    rouge, le palier 3 reste le plus dense. Le mot est écrit à côté
+    partout où la couleur sert. */
 #modernbb .wm-carte__lieu[data-wm-famille="palier1"] .wm-carte__forme {
-  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 30%, transparent);
+  fill: color-mix(in srgb, var(--wm-palier-1, #3f7d52) 42%, transparent);
 }
 
 #modernbb .wm-carte__lieu[data-wm-famille="palier2"] .wm-carte__forme {
-  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 52%, transparent);
+  fill: color-mix(in srgb, var(--wm-palier-2, #a05e18) 56%, transparent);
 }
 
 #modernbb .wm-carte__lieu[data-wm-famille="palier3"] .wm-carte__forme {
-  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 78%, transparent);
+  fill: color-mix(in srgb, var(--wm-palier-3, #b1402f) 70%, transparent);
 }
 
 /*  Les villes sont des ÉPINGLES, pas des territoires : une ville est
@@ -10841,9 +10869,36 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   stroke-width: 1.2;
 }
 
-#modernbb .wm-carte--peinte .wm-carte__lieu:hover .wm-carte__forme {
+/*  ── LE SURVOL PREND LA COULEUR DU PALIER, EN LÉGER ────────────────
+
+    « Est-ce qu'on peut avoir une couleur légère au survol ? »
+    Oui, et autant qu'elle dise quelque chose : c'est la teinte du
+    palier, à 22 %. On apprend la zone et sa difficulté du même geste,
+    et sur la peinture 22 % se voit sans rien salir.
+
+    Le voile blanc d'avant disait seulement « vous êtes ici ». */
+#modernbb .wm-carte--peinte .wm-carte__lieu:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu:focus-visible .wm-carte__forme {
   fill: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 16%, transparent);
   opacity: 1;
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier1"]:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier1"]:focus-visible
+  .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-palier-1, #3f7d52) 22%, transparent);
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier2"]:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier2"]:focus-visible
+  .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-palier-2, #a05e18) 22%, transparent);
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier3"]:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier3"]:focus-visible
+  .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-palier-3, #b1402f) 22%, transparent);
 }
 
 #modernbb .wm-carte--peinte .wm-carte__lieu--choisi .wm-carte__forme {
@@ -11116,9 +11171,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-accent-fort, #1f5470);
 }
 
+/*  ── QUAND IL N'Y A PAS DE SUJET, LA LIGNE COLLAIT AU BORD ─────────
+
+    « Davantage d'espace entre "sujets et messages" et ce qui
+    s'affiche en dessous quand y'a pas de sujets dans la zone, parce
+    que du coup, ça colle avec le bord », 9 octobre.
+
+    Elle a raison et la cause est simple : quand la zone n'a aucun
+    sujet, le bloc du dernier message n'est pas posé, et cette ligne
+    devient la DERNIÈRE du panneau. Sa marge du bas valait zéro, parce
+    qu'en temps normal c'est le bloc suivant qui fait l'écart.
+
+    On lui donne donc sa propre marge du bas. Quand le dernier message
+    est là, elle s'ajoute à la sienne — et c'est très bien : les deux
+    se touchaient d'un peu trop près. */
 #modernbb .wm-carte__chiffres {
   display: flex;
-  margin: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px) 0;
+  margin: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px) var(--wm-espace-14, 14px);
   gap: var(--wm-espace-12, 12px);
   padding-top: var(--wm-espace-8, 8px);
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
@@ -11256,19 +11325,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-accent-terre, #8b4725);
 }
 
+/*  La légende et les puces disent la MÊME couleur que la carte — une
+    pastille verte en marge d'une zone verte, sinon la légende ne
+    légende rien. Pleines ici, parce qu'elles sont petites : à 10 px,
+    une couleur diluée n'est plus une couleur. */
 #modernbb [data-wm-famille="palier1"] .wm-carte__pastille,
 #modernbb [data-wm-famille="palier1"] .wm-carte__puce {
-  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 30%, transparent);
+  background: var(--wm-palier-1, #3f7d52);
 }
 
 #modernbb [data-wm-famille="palier2"] .wm-carte__pastille,
 #modernbb [data-wm-famille="palier2"] .wm-carte__puce {
-  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 52%, transparent);
+  background: var(--wm-palier-2, #a05e18);
 }
 
 #modernbb [data-wm-famille="palier3"] .wm-carte__pastille,
 #modernbb [data-wm-famille="palier3"] .wm-carte__puce {
-  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 78%, transparent);
+  background: var(--wm-palier-3, #b1402f);
 }
 
 #modernbb [data-wm-famille="ville"] .wm-carte__pastille,
@@ -11739,40 +11812,31 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     l'image 250. Son bord droit se range donc à
     -(10,9 % + 250 px) du bord droit du bloc.
 
-    ── ON RÉSERVE SA PLACE, ON NE DÉBORDE PAS ────────────────────
+    ── IL NE DÉPLACE RIEN ────────────────────────────────────────
 
-    Dans la maquette il est dans la marge de la page : le bloc fait
-    1172 et il commence à 1300. Sur le forum il n'y a pas de marge —
-    le bloc occupe toute la colonne de contenu. Le faire déborder
-    demanderait de couper le débordement quelque part, et j'ai essayé :
-    `overflow-x: clip` sur `#modernbb` fait échouer le harnais de
-    l'accueil, parce qu'un axe en `clip` force l'autre de `visible` à
-    `hidden` — la mascotte de l'accueil, qui déborde par le haut, se
-    faisait rogner.
+    « Right: -103px. Attention à ce que ça ne déplace rien d'autre. Il
+    est en absolute. Ce que tu avais fait avant pour le placement
+    était très bien pour le reste des blocs. »
 
-    Donc on RÉSERVE la bande à droite du panneau, et il s'y range. Ce
-    n'est pas un pis-aller : les trois colonnes de la maquette font
-    1098 à elles trois, pas 1382. Réserver 282 px sur une colonne de
-    contenu de 1382 leur rend exactement leur largeur de dessin.
+    J'avais essayé de lui RÉSERVER une bande de 282 px à droite du
+    panneau. Ça le sortait bien des clans, mais ça rétrécissait les
+    trois colonnes — donc ça déplaçait tout le reste pour une image
+    décorative. C'était payer trop cher.
 
-    Sous 1200 px la réservation tombe avec lui : il n'y a plus de
-    place, et il ne dit rien que le texte ne dise déjà. */
+    Il reprend donc sa place d'origine : en absolu, hors du flux, à
+    -103 px du bord droit. Rien ne bouge autour de lui, et il mord un
+    peu moins sur la colonne des clans qu'avant parce qu'il part plus
+    à droite.
+
+    Sous 1200 px il disparaît : il n'y a plus de marge où mordre, et
+    il ne dit rien que le texte ne dise déjà. */
 #modernbb .wm-enligne__mascotte {
   position: absolute;
   top: 0;
-  right: 0;
+  right: -103px;
   width: 250px;
   height: auto;
   pointer-events: none;
-}
-
-/*  LA BANDE RÉSERVÉE : l'image, plus l'écart qui la détache des
-    clans. Elle est sur le PANNEAU et pas sur le bloc, pour que le
-    titre « Qui est en ligne ? » garde toute sa largeur. */
-@media (min-width: 1200px) {
-  #modernbb .wm-enligne__panneau {
-    padding-right: 282px;
-  }
 }
 
 /*  Le bloc devient le repère du Sabelette. Sans ça il se cale sur la
@@ -11859,6 +11923,25 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-color: var(--wm-bord-net, #d9c3b1);
 }
 
+/*  ── CELUI QU'ON NE REGARDE PAS S'EFFACE ───────────────────────────
+
+    « Quand il n'est pas sélectionné, visibilité de 50 % », 9 octobre.
+    La bande montre six clans et on en lit un : les cinq autres sont là
+    pour qu'on sache qu'ils existent, pas pour se disputer l'œil.
+
+    AU SURVOL ET AU CLAVIER, IL REVIENT À PLEIN. Sans ça, un onglet
+    qu'on vise reste à moitié éteint pendant qu'on le vise, et on doute
+    d'avoir visé juste. */
+#modernbb button.wm-enligne__onglet:not([aria-selected="true"]):not([disabled]) {
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+#modernbb button.wm-enligne__onglet:not([aria-selected="true"]):not([disabled]):hover,
+#modernbb button.wm-enligne__onglet:not([aria-selected="true"]):not([disabled]):focus-visible {
+  opacity: 1;
+}
+
 /*  ── UN CLAN SANS TEXTE RESTE DANS LA BANDE ───────────────────────
     Cinq sur six au 9 octobre. Les retirer donnerait une bande d'une
     seule vignette, qui ne ressemble à rien et qui cacherait le
@@ -11888,28 +11971,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="reshiram"] {
-  background: var(--wm-groupe-reshiram-fond, #dee6ef);
-  color: var(--wm-groupe-reshiram-texte, #4c5a6c);
+  background: var(--wm-groupe-reshiram-fond, #f5e8d3);
+  color: var(--wm-groupe-reshiram-texte, #896220);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="deoxys"] {
-  background: var(--wm-groupe-deoxys-fond, #e0d6ef);
-  color: var(--wm-groupe-deoxys-texte, #5e4a7e);
+  background: var(--wm-groupe-deoxys-fond, #e1dbe8);
+  color: var(--wm-groupe-deoxys-texte, #5b4ba6);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="xerneas"] {
-  background: var(--wm-groupe-xerneas-fond, #cdeae4);
-  color: var(--wm-groupe-xerneas-texte, #2a6a62);
+  background: var(--wm-groupe-xerneas-fond, #dce7db);
+  color: var(--wm-groupe-xerneas-texte, #327048);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="zamazenta"] {
-  background: var(--wm-groupe-zamazenta-fond, #f2d4da);
-  color: var(--wm-groupe-zamazenta-texte, #7a3341);
+  background: var(--wm-groupe-zamazenta-fond, #dae2e7);
+  color: var(--wm-groupe-zamazenta-texte, #2b6591);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="mew"] {
-  background: var(--wm-groupe-mew-fond, #f7dce8);
-  color: var(--wm-groupe-mew-texte, #7a4460);
+  background: var(--wm-groupe-mew-fond, #f4dee3);
+  color: var(--wm-groupe-mew-texte, #9a486e);
 }
 
 #modernbb .wm-enligne__clan-nom {

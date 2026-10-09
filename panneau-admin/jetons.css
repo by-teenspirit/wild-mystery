@@ -48,6 +48,35 @@
   --wm-fond-nuit:          #3a2a22;
   --wm-fond-terre:         #f8eae1;
 
+  /*  ── LES TROIS PALIERS ─────────────────────────────────────────
+
+      « Palier 1 : vert, palier 2 : orange, palier 3 : rouge »,
+      9 octobre. Trois teintes, et pas trois opacités d'une même
+      teinte comme avant : la progression se lit d'un coup d'œil, et
+      elle se lit dans le même ordre que partout ailleurs — vert, on
+      y va ; rouge, on se prépare.
+
+      ELLES SONT TERREUSES, PAS SIGNALÉTIQUES. Un vert de feu tricolore
+      sur une carte peinte à l'aquarelle jurerait. Ces trois-là sont
+      désaturées vers la charte, et MESURÉES sur `fond-surface` :
+      **4,78 / 4,96 / 5,60** en clair, 7,48 / 7,66 / 5,72 en sombre.
+      L'orange est descendu d'un cran en route — à #b06a1f il donnait
+      4,14, sous le seuil, et une couleur qui dit la difficulté doit
+      d'abord se lire.
+
+      LE MOT RESTE À CÔTÉ DE LA COULEUR partout où elle sert — un
+      joueur sur douze ne distingue pas le vert du rouge. */
+  --wm-palier-1:        #3f7d52;
+  --wm-palier-2:        #a05e18;
+  --wm-palier-3:        #b1402f;
+
+  /*  Le bleu du bord de la peinture de Rhode, relevé au pixel sur
+      `planches/peinte/fond-forum.jpg` : #1a5380 sur tout le pourtour.
+      Le cadre de la carte s'y fond, pour que la boîte aux lettres
+      autour de l'image cesse de se voir. IL NE CHANGE PAS AVEC LE
+      THÈME : c'est la couleur d'une image, pas celle d'une surface. */
+  --wm-carte-bord-peinte: #1a5380;
+
   --wm-encre:           #2e2018;
   --wm-texte-corps:     #4e3b30;
   --wm-texte-doux:      #6e5749;
@@ -129,18 +158,32 @@
   --wm-pokemon-obscur-fond:    #4a3a63;
   --wm-pokemon-obscur-texte:   #fffbf7;
 
+  /*  ── LES SIX CLANS ─────────────────────────────────────────────
+
+      Callista a donné cinq teintes le 9 octobre : Reshiram C9902F,
+      Deoxys 5B4BA6, Xerneas 3E8C5A, Zamazenta 2F6E9E, Mew C05A8A.
+      Ho-Oh garde la sienne.
+
+      CE SONT DES TEINTES, PAS DES PAIRES, et une carte a besoin des
+      deux : le fond est la teinte à 18 % sur `fond-surface`, le texte
+      la teinte assombrie juste assez pour tenir 4,5 dessus — mesuré
+      clan par clan, entre 4,53 et 5,16. Reshiram et Xerneas ont dû
+      descendre ; Deoxys passe tel quel.
+
+      Si c'est le FOND que ces couleurs devaient remplir, c'est un
+      échange de deux lignes par clan — dis-le et je le fais. */
   --wm-groupe-ho-oh-fond:      #f3d8c0;
   --wm-groupe-ho-oh-texte:     #9a4f22;
-  --wm-groupe-reshiram-fond:   #dee6ef;
-  --wm-groupe-reshiram-texte:  #4c5a6c;
-  --wm-groupe-deoxys-fond:     #e0d6ef;
-  --wm-groupe-deoxys-texte:    #5e4a7e;
-  --wm-groupe-xerneas-fond:    #cdeae4;
-  --wm-groupe-xerneas-texte:   #2a6a62;
-  --wm-groupe-zamazenta-fond:  #f2d4da;
-  --wm-groupe-zamazenta-texte: #7a3341;
-  --wm-groupe-mew-fond:        #f7dce8;
-  --wm-groupe-mew-texte:       #7a4460;
+  --wm-groupe-reshiram-fond:   #f5e8d3;
+  --wm-groupe-reshiram-texte:  #896220;
+  --wm-groupe-deoxys-fond:     #e1dbe8;
+  --wm-groupe-deoxys-texte:    #5b4ba6;
+  --wm-groupe-xerneas-fond:    #dce7db;
+  --wm-groupe-xerneas-texte:   #327048;
+  --wm-groupe-zamazenta-fond:  #dae2e7;
+  --wm-groupe-zamazenta-texte: #2b6591;
+  --wm-groupe-mew-fond:        #f4dee3;
+  --wm-groupe-mew-texte:       #9a486e;
 
   --wm-espace-2:   2px;
   --wm-espace-4:   4px;
@@ -178,6 +221,15 @@ body.wm-sombre {
   --wm-fond-douce:            #1f1613;
   --wm-fond-nuit:             #120c0a;
   --wm-fond-terre:            #33211a;
+  /*  LES TROIS PALIERS, ÉCLAIRCIS. Mêmes teintes, remontées pour
+      tenir sur les fonds sombres : 5,4 / 6,3 / 5,1. */
+  --wm-palier-1:              #7fb98f;
+  --wm-palier-2:              #e3a05d;
+  --wm-palier-3:              #e0786a;
+
+  /*  LA MÊME VALEUR QU'EN CLAIR : c'est la couleur d'une image. */
+  --wm-carte-bord-peinte:     #1a5380;
+
   --wm-encre:                 #f2e4d8;
   --wm-texte-corps:           #dcc9ba;
   --wm-texte-doux:            #ae9585;
@@ -242,16 +294,16 @@ body.wm-sombre {
 
   --wm-groupe-ho-oh-fond:       #6b3a1e;
   --wm-groupe-ho-oh-texte:      #e8a05c;
-  --wm-groupe-reshiram-fond:    #3c4654;
-  --wm-groupe-reshiram-texte:   #c9d6e4;
-  --wm-groupe-deoxys-fond:      #4a3a63;
-  --wm-groupe-deoxys-texte:     #b79bda;
-  --wm-groupe-xerneas-fond:     #1f4f4a;
-  --wm-groupe-xerneas-texte:    #7fd1c4;
-  --wm-groupe-zamazenta-fond:   #5a2430;
-  --wm-groupe-zamazenta-texte:  #e08497;
-  --wm-groupe-mew-fond:         #5c3348;
-  --wm-groupe-mew-texte:        #f0a8c8;
+  --wm-groupe-reshiram-fond:    #4c361c;
+  --wm-groupe-reshiram-texte:   #cf9d48;
+  --wm-groupe-deoxys-fond:      #312639;
+  --wm-groupe-deoxys-texte:     #968cc6;
+  --wm-groupe-xerneas-fond:     #2a3526;
+  --wm-groupe-xerneas-texte:    #6ca882;
+  --wm-groupe-zamazenta-fond:   #272e37;
+  --wm-groupe-zamazenta-texte:  #729cbd;
+  --wm-groupe-mew-fond:         #492932;
+  --wm-groupe-mew-texte:        #d288ab;
 }
 
 /* ════════════════════════════════════════════════════════════════════

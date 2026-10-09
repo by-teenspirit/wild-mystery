@@ -247,20 +247,27 @@
   transition: opacity 0.15s ease, stroke-width 0.15s ease;
 }
 
-/*  LES QUATRE FAMILLES. Les teintes viennent des jetons, et leur
-    OPACITÉ les sépare autant que leur ton : 0,30 / 0,52 / 0,78 pour
-    les trois paliers. En noir et blanc, le palier 3 reste le plus
-    foncé — la progression se lit toujours. */
+/*  ── LES TROIS PALIERS, VERT · ORANGE · ROUGE ──────────────────────
+
+    « Palier 1 : vert, palier 2 : orange, palier 3 : rouge »,
+    9 octobre. Avant, c'était une seule teinte à trois opacités —
+    0,30 / 0,52 / 0,78 — ce qui disait « plus ou moins » et pas
+    « lequel ». Trois couleurs disent lequel.
+
+    L'OPACITÉ RESTE, EN PLUS DE LA TEINTE, et elle monte dans le même
+    sens : en noir et blanc, ou pour qui ne distingue pas le vert du
+    rouge, le palier 3 reste le plus dense. Le mot est écrit à côté
+    partout où la couleur sert. */
 #modernbb .wm-carte__lieu[data-wm-famille="palier1"] .wm-carte__forme {
-  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 30%, transparent);
+  fill: color-mix(in srgb, var(--wm-palier-1, #3f7d52) 42%, transparent);
 }
 
 #modernbb .wm-carte__lieu[data-wm-famille="palier2"] .wm-carte__forme {
-  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 52%, transparent);
+  fill: color-mix(in srgb, var(--wm-palier-2, #a05e18) 56%, transparent);
 }
 
 #modernbb .wm-carte__lieu[data-wm-famille="palier3"] .wm-carte__forme {
-  fill: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 78%, transparent);
+  fill: color-mix(in srgb, var(--wm-palier-3, #b1402f) 70%, transparent);
 }
 
 /*  Les villes sont des ÉPINGLES, pas des territoires : une ville est
@@ -356,9 +363,36 @@
   stroke-width: 1.2;
 }
 
-#modernbb .wm-carte--peinte .wm-carte__lieu:hover .wm-carte__forme {
+/*  ── LE SURVOL PREND LA COULEUR DU PALIER, EN LÉGER ────────────────
+
+    « Est-ce qu'on peut avoir une couleur légère au survol ? »
+    Oui, et autant qu'elle dise quelque chose : c'est la teinte du
+    palier, à 22 %. On apprend la zone et sa difficulté du même geste,
+    et sur la peinture 22 % se voit sans rien salir.
+
+    Le voile blanc d'avant disait seulement « vous êtes ici ». */
+#modernbb .wm-carte--peinte .wm-carte__lieu:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu:focus-visible .wm-carte__forme {
   fill: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 16%, transparent);
   opacity: 1;
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier1"]:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier1"]:focus-visible
+  .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-palier-1, #3f7d52) 22%, transparent);
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier2"]:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier2"]:focus-visible
+  .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-palier-2, #a05e18) 22%, transparent);
+}
+
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier3"]:hover .wm-carte__forme,
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier3"]:focus-visible
+  .wm-carte__forme {
+  fill: color-mix(in srgb, var(--wm-palier-3, #b1402f) 22%, transparent);
 }
 
 #modernbb .wm-carte--peinte .wm-carte__lieu--choisi .wm-carte__forme {
@@ -631,9 +665,23 @@
   color: var(--wm-accent-fort, #1f5470);
 }
 
+/*  ── QUAND IL N'Y A PAS DE SUJET, LA LIGNE COLLAIT AU BORD ─────────
+
+    « Davantage d'espace entre "sujets et messages" et ce qui
+    s'affiche en dessous quand y'a pas de sujets dans la zone, parce
+    que du coup, ça colle avec le bord », 9 octobre.
+
+    Elle a raison et la cause est simple : quand la zone n'a aucun
+    sujet, le bloc du dernier message n'est pas posé, et cette ligne
+    devient la DERNIÈRE du panneau. Sa marge du bas valait zéro, parce
+    qu'en temps normal c'est le bloc suivant qui fait l'écart.
+
+    On lui donne donc sa propre marge du bas. Quand le dernier message
+    est là, elle s'ajoute à la sienne — et c'est très bien : les deux
+    se touchaient d'un peu trop près. */
 #modernbb .wm-carte__chiffres {
   display: flex;
-  margin: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px) 0;
+  margin: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px) var(--wm-espace-14, 14px);
   gap: var(--wm-espace-12, 12px);
   padding-top: var(--wm-espace-8, 8px);
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
@@ -771,19 +819,23 @@
   background: var(--wm-accent-terre, #8b4725);
 }
 
+/*  La légende et les puces disent la MÊME couleur que la carte — une
+    pastille verte en marge d'une zone verte, sinon la légende ne
+    légende rien. Pleines ici, parce qu'elles sont petites : à 10 px,
+    une couleur diluée n'est plus une couleur. */
 #modernbb [data-wm-famille="palier1"] .wm-carte__pastille,
 #modernbb [data-wm-famille="palier1"] .wm-carte__puce {
-  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 30%, transparent);
+  background: var(--wm-palier-1, #3f7d52);
 }
 
 #modernbb [data-wm-famille="palier2"] .wm-carte__pastille,
 #modernbb [data-wm-famille="palier2"] .wm-carte__puce {
-  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 52%, transparent);
+  background: var(--wm-palier-2, #a05e18);
 }
 
 #modernbb [data-wm-famille="palier3"] .wm-carte__pastille,
 #modernbb [data-wm-famille="palier3"] .wm-carte__puce {
-  background: color-mix(in srgb, var(--wm-accent-terre, #8b4725) 78%, transparent);
+  background: var(--wm-palier-3, #b1402f);
 }
 
 #modernbb [data-wm-famille="ville"] .wm-carte__pastille,

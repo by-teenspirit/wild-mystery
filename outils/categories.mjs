@@ -181,8 +181,33 @@ const STATS = `
   <div class="statistics-item">L'utilisateur enregistré le plus récent est <strong><a href="/u4">Compte de test</a></strong></div>
 </div></div>`;
 
+/*  ── CE QUE MODERNBB IMPOSE, ET QU'ON NE SERVAIT PAS ───────────────
+ *
+ *  « Je vois l'image mais elle est toute petite », 9 octobre : la
+ *  photo du bandeau était dessinée en 33 × 33 au milieu d'une bande de
+ *  1326. La cause est dans `11-ltr.css`, le CSS de base de Forumactif,
+ *  qu'on ne possède pas :
+ *
+ *      dl.icon { background-size: 33px 33px !important }
+ *
+ *  Un `!important` d'une feuille qu'on ne possède pas bat tout — même
+ *  un style en ligne, vérifié dans le navigateur.
+ *
+ *  AUCUN HARNAIS NE POUVAIT L'ATTRAPER : ils servent notre feuille
+ *  seule. On sert donc ici les déclarations de la base dont on sait
+ *  qu'elles se battent avec les nôtres, AVANT la nôtre et avec leur
+ *  `!important`. La liste est courte et elle grandira à mesure qu'on
+ *  en trouve.
+ *
+ *  Le vrai remède : verser `11-ltr.css` dans le dépôt et le servir en
+ *  entier. 233 Ko, à exporter depuis le panneau d'administration. */
+const BASE_MODERNBB = `
+dl.icon { background-size: 33px 33px !important; }
+`;
+
 const page = (corps) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<style>${BASE_MODERNBB}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 <style>body{margin:0;background:var(--wm-fond-page)}#page-body{padding:24px}</style>
@@ -318,6 +343,7 @@ const MESURER = () => {
         aLaPhoto: /url\(/.test(fond),
         couchesDevant: alphas.length,
         voileMax: alphas.length === 0 ? null : Math.max(...alphas),
+        taille: s.backgroundSize.split(",")[0].trim(),
         ombreDuTitre: titre === null ? null : getComputedStyle(titre).textShadow,
         hauteur: Math.round(e.getBoundingClientRect().height),
       };
@@ -397,6 +423,11 @@ dire(
   avant.bandeau?.aLaPhoto === true && avant.bandeau?.voileMax !== null &&
     avant.bandeau.voileMax <= 0.2,
   JSON.stringify(avant.bandeau),
+);
+dire(
+  "ET LA PHOTO N'EST PAS RÉDUITE À 33 PX PAR LA BASE DE MODERNBB",
+  avant.bandeau?.taille === "cover",
+  avant.bandeau?.taille,
 );
 dire(
   "et le titre porte l'ombre qui remplace le voile",

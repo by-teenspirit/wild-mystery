@@ -286,40 +286,31 @@
     l'image 250. Son bord droit se range donc à
     -(10,9 % + 250 px) du bord droit du bloc.
 
-    ── ON RÉSERVE SA PLACE, ON NE DÉBORDE PAS ────────────────────
+    ── IL NE DÉPLACE RIEN ────────────────────────────────────────
 
-    Dans la maquette il est dans la marge de la page : le bloc fait
-    1172 et il commence à 1300. Sur le forum il n'y a pas de marge —
-    le bloc occupe toute la colonne de contenu. Le faire déborder
-    demanderait de couper le débordement quelque part, et j'ai essayé :
-    `overflow-x: clip` sur `#modernbb` fait échouer le harnais de
-    l'accueil, parce qu'un axe en `clip` force l'autre de `visible` à
-    `hidden` — la mascotte de l'accueil, qui déborde par le haut, se
-    faisait rogner.
+    « Right: -103px. Attention à ce que ça ne déplace rien d'autre. Il
+    est en absolute. Ce que tu avais fait avant pour le placement
+    était très bien pour le reste des blocs. »
 
-    Donc on RÉSERVE la bande à droite du panneau, et il s'y range. Ce
-    n'est pas un pis-aller : les trois colonnes de la maquette font
-    1098 à elles trois, pas 1382. Réserver 282 px sur une colonne de
-    contenu de 1382 leur rend exactement leur largeur de dessin.
+    J'avais essayé de lui RÉSERVER une bande de 282 px à droite du
+    panneau. Ça le sortait bien des clans, mais ça rétrécissait les
+    trois colonnes — donc ça déplaçait tout le reste pour une image
+    décorative. C'était payer trop cher.
 
-    Sous 1200 px la réservation tombe avec lui : il n'y a plus de
-    place, et il ne dit rien que le texte ne dise déjà. */
+    Il reprend donc sa place d'origine : en absolu, hors du flux, à
+    -103 px du bord droit. Rien ne bouge autour de lui, et il mord un
+    peu moins sur la colonne des clans qu'avant parce qu'il part plus
+    à droite.
+
+    Sous 1200 px il disparaît : il n'y a plus de marge où mordre, et
+    il ne dit rien que le texte ne dise déjà. */
 #modernbb .wm-enligne__mascotte {
   position: absolute;
   top: 0;
-  right: 0;
+  right: -103px;
   width: 250px;
   height: auto;
   pointer-events: none;
-}
-
-/*  LA BANDE RÉSERVÉE : l'image, plus l'écart qui la détache des
-    clans. Elle est sur le PANNEAU et pas sur le bloc, pour que le
-    titre « Qui est en ligne ? » garde toute sa largeur. */
-@media (min-width: 1200px) {
-  #modernbb .wm-enligne__panneau {
-    padding-right: 282px;
-  }
 }
 
 /*  Le bloc devient le repère du Sabelette. Sans ça il se cale sur la
@@ -406,6 +397,25 @@
   border-color: var(--wm-bord-net, #d9c3b1);
 }
 
+/*  ── CELUI QU'ON NE REGARDE PAS S'EFFACE ───────────────────────────
+
+    « Quand il n'est pas sélectionné, visibilité de 50 % », 9 octobre.
+    La bande montre six clans et on en lit un : les cinq autres sont là
+    pour qu'on sache qu'ils existent, pas pour se disputer l'œil.
+
+    AU SURVOL ET AU CLAVIER, IL REVIENT À PLEIN. Sans ça, un onglet
+    qu'on vise reste à moitié éteint pendant qu'on le vise, et on doute
+    d'avoir visé juste. */
+#modernbb button.wm-enligne__onglet:not([aria-selected="true"]):not([disabled]) {
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+#modernbb button.wm-enligne__onglet:not([aria-selected="true"]):not([disabled]):hover,
+#modernbb button.wm-enligne__onglet:not([aria-selected="true"]):not([disabled]):focus-visible {
+  opacity: 1;
+}
+
 /*  ── UN CLAN SANS TEXTE RESTE DANS LA BANDE ───────────────────────
     Cinq sur six au 9 octobre. Les retirer donnerait une bande d'une
     seule vignette, qui ne ressemble à rien et qui cacherait le
@@ -435,28 +445,28 @@
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="reshiram"] {
-  background: var(--wm-groupe-reshiram-fond, #dee6ef);
-  color: var(--wm-groupe-reshiram-texte, #4c5a6c);
+  background: var(--wm-groupe-reshiram-fond, #f5e8d3);
+  color: var(--wm-groupe-reshiram-texte, #896220);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="deoxys"] {
-  background: var(--wm-groupe-deoxys-fond, #e0d6ef);
-  color: var(--wm-groupe-deoxys-texte, #5e4a7e);
+  background: var(--wm-groupe-deoxys-fond, #e1dbe8);
+  color: var(--wm-groupe-deoxys-texte, #5b4ba6);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="xerneas"] {
-  background: var(--wm-groupe-xerneas-fond, #cdeae4);
-  color: var(--wm-groupe-xerneas-texte, #2a6a62);
+  background: var(--wm-groupe-xerneas-fond, #dce7db);
+  color: var(--wm-groupe-xerneas-texte, #327048);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="zamazenta"] {
-  background: var(--wm-groupe-zamazenta-fond, #f2d4da);
-  color: var(--wm-groupe-zamazenta-texte, #7a3341);
+  background: var(--wm-groupe-zamazenta-fond, #dae2e7);
+  color: var(--wm-groupe-zamazenta-texte, #2b6591);
 }
 
 #modernbb .wm-enligne__clan[data-wm-clan="mew"] {
-  background: var(--wm-groupe-mew-fond, #f7dce8);
-  color: var(--wm-groupe-mew-texte, #7a4460);
+  background: var(--wm-groupe-mew-fond, #f4dee3);
+  color: var(--wm-groupe-mew-texte, #9a486e);
 }
 
 #modernbb .wm-enligne__clan-nom {

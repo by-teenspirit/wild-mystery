@@ -214,19 +214,35 @@ const bande = await p.evaluate(() => {
     //  Un onglet ouvrable doit porter `aria-selected` : c'est ce qui
     //  dit au lecteur d'écran lequel est ouvert.
     annonces: onglets.filter((o) => o.hasAttribute("aria-selected")).length,
+    //  ── « ATTENTION À CE QUE ÇA NE DÉPLACE RIEN D'AUTRE » ───────
+    //
+    //  C'est la consigne du 9 octobre, et c'est elle qu'on mesure —
+    //  pas sa position, qu'elle a fixée elle-même à -103 px. On
+    //  relève donc la largeur des colonnes AVEC le Sabelette, puis on
+    //  le retire et on relève à nouveau : les deux doivent être
+    //  identiques. Un essai précédent lui réservait 282 px, ce qui
+    //  rétrécissait les trois colonnes — c'est exactement la panne
+    //  que ce cas attrape.
     mascotte: m === null ? null : (() => {
       const r = m.getBoundingClientRect();
       const bloc = b.getBoundingClientRect();
-      const clan = col?.getBoundingClientRect() ?? null;
+      const avant = [...document.querySelectorAll(".wm-enligne__colonne")]
+        .map((e) => Math.round(e.getBoundingClientRect().width));
+      const place = getComputedStyle(m).position;
+      m.style.display = "none";
+      const apres = [...document.querySelectorAll(".wm-enligne__colonne")]
+        .map((e) => Math.round(e.getBoundingClientRect().width));
+      m.style.display = "";
       return {
         largeur: Math.round(r.width),
-        //  Il tient dans le bloc — on ne déborde plus, on réserve —
-        //  mais il doit rester À DROITE de la colonne des clans, et
-        //  collé au bord droit du panneau.
-        dansLeBloc: r.right <= Math.ceil(bloc.right),
-        ecartAuxClans: clan === null ? null : Math.round(r.left - clan.right),
-        chevaucheLesClans: clan === null ? null : r.left < clan.right,
+        horsDuFlux: place === "absolute",
+        colonnesAvec: avant,
+        colonnesSans: apres,
+        neDeplaceRien: JSON.stringify(avant) === JSON.stringify(apres),
         hautAligne: Math.abs(Math.round(r.top - bloc.top)) <= 2,
+        //  Il mord à droite, c'est voulu — mais il ne doit pas aller
+        //  se poser sur le texte du clan.
+        mordDe: Math.round(bloc.right - r.left),
       };
     })(),
   };
@@ -242,10 +258,9 @@ dire(
   `${bande.annonces}/6`,
 );
 dire(
-  "LE SABELETTE EST HORS DU BLOC, PAS SUR LES CLANS",
-  bande.mascotte !== null && bande.mascotte.dansLeBloc === true &&
-    bande.mascotte.chevaucheLesClans === false &&
-    (bande.mascotte.ecartAuxClans ?? -1) >= 0 && bande.mascotte.hautAligne === true,
+  "LE SABELETTE NE DÉPLACE RIEN",
+  bande.mascotte !== null && bande.mascotte.horsDuFlux === true &&
+    bande.mascotte.neDeplaceRien === true && bande.mascotte.hautAligne === true,
   JSON.stringify(bande.mascotte),
 );
 
