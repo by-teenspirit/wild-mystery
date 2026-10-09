@@ -1,0 +1,57 @@
+{
+  "_": "Les six clans de Rhode. CONTENU À COMPLÉTER : seul Ho-Oh est rempli, et son texte comme son avantage sont RECOPIÉS DE LA MAQUETTE `390:3387` — ce ne sont pas des règles actées. Les cinq autres sont des trous, et ils se voient : un clan sans description ne s'affiche pas.",
+  "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module lit `duMoment` et dessine ce clan. Changer de clan, c'est changer ce mot. Les couleurs ne sont pas ici : chaque clan a déjà sa paire de jetons `--wm-groupe-<clé>-fond` et `-texte` dans le panneau d'administration.",
+  "_pokemons": "Les numéros du Pokédex national. Le module les passe à la carte de couverture (`data/sprites-couverture.json`) pour en tirer une image ; un numéro qu'elle ne couvre pas ne donne pas de case vide, il ne donne rien.",
+  "duMoment": "ho-oh",
+  "clans": [
+    {
+      "cle": "ho-oh",
+      "nom": "Ho-Oh",
+      "description": "Ils sont venus ici, sur les terres de Rhode dans l'unique but de conquérir la zone. Ce sont des voyageurs, des challengers venus d'une autre contrée. Ils sont en quête des badges, de la gloire et de la compétition. Ils se surpassent et font évoluer leurs pokémons.",
+      "avantage": "+ 10 % d'XP dans les combats d'arène.",
+      "pokemons": [
+        250,
+        230,
+        386,
+        384,
+        643,
+        151
+      ]
+    },
+    {
+      "cle": "reshiram",
+      "nom": "Reshiram",
+      "description": "",
+      "avantage": "",
+      "pokemons": []
+    },
+    {
+      "cle": "deoxys",
+      "nom": "Deoxys",
+      "description": "",
+      "avantage": "",
+      "pokemons": []
+    },
+    {
+      "cle": "xerneas",
+      "nom": "Xerneas",
+      "description": "",
+      "avantage": "",
+      "pokemons": []
+    },
+    {
+      "cle": "zamazenta",
+      "nom": "Zamazenta",
+      "description": "",
+      "avantage": "",
+      "pokemons": []
+    },
+    {
+      "cle": "mew",
+      "nom": "Mew",
+      "description": "",
+      "avantage": "",
+      "pokemons": []
+    }
+  ]
+}

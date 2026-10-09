@@ -289,6 +289,39 @@ const MESURER = () => {
       qui: document.querySelector("li.row .wm-dernier__qui")?.textContent.trim() ?? null,
       fleche: document.querySelector("li.row .wm-dernier__qui .last-post-icon") !== null,
     },
+    //  ── LE VOILE NE DOIT PAS NOYER LA PHOTO ─────────────────────
+    //
+    //  « Où est le bandeau de fond de l'en-tête ? » Il y était, sous
+    //  un voile de 48 à 72 %. La photo de Rhode a une luminance de
+    //  0,111 ; sous 72 % de `fond-nuit` elle tombait à 0,048 et son
+    //  relief passait de (0,191 · 0,055) à (0,071 · 0,033). Un
+    //  rectangle brun.
+    //
+    //  On garde donc la MAIN sur la couche de devant : son opacité
+    //  doit rester sous 20 %. Ce qui protège le texte, c'est l'ombre
+    //  portée, pas le voile — et on vérifie qu'elle est là.
+    bandeau: (() => {
+      const e = document.querySelector("li.header dl.icon");
+      if (e === null) return null;
+      const s = getComputedStyle(e);
+      const fond = s.backgroundImage;
+      //  TOUT CE QUI EST AVANT `url(` EST DEVANT LA PHOTO. On ne
+      //  découpe pas sur les virgules : un dégradé en contient, et
+      //  découper là rendait « linear-gradient(100deg » comme
+      //  première couche — sans alpha, donc sans rien à mesurer. Le
+      //  harnais disait alors `null` et laissait passer n'importe quel
+      //  voile, ce qui est la panne exacte qu'il doit attraper.
+      const devant = fond.slice(0, fond.indexOf("url("));
+      const alphas = [...devant.matchAll(/\/\s*([0-9.]+)\s*\)/g)].map((m) => Number(m[1]));
+      const titre = document.querySelector("li.header .table-title h2");
+      return {
+        aLaPhoto: /url\(/.test(fond),
+        couchesDevant: alphas.length,
+        voileMax: alphas.length === 0 ? null : Math.max(...alphas),
+        ombreDuTitre: titre === null ? null : getComputedStyle(titre).textShadow,
+        hauteur: Math.round(e.getBoundingClientRect().height),
+      };
+    })(),
     rang: document.querySelector("li.header dl.icon")?.dataset.wmRang ?? null,
     lignes: document.querySelectorAll("li.row").length,
     hauteurLigne: ligne === null ? null : Math.round(ligne.getBoundingClientRect().height),
@@ -359,6 +392,17 @@ dire(
   JSON.stringify(avant.dernier),
 );
 dire("la bande porte son rang sur deux chiffres", avant.rang === "01", avant.rang);
+dire(
+  "LE BANDEAU EST DANS LA BANDE, ET LE VOILE NE LE NOIE PAS",
+  avant.bandeau?.aLaPhoto === true && avant.bandeau?.voileMax !== null &&
+    avant.bandeau.voileMax <= 0.2,
+  JSON.stringify(avant.bandeau),
+);
+dire(
+  "et le titre porte l'ombre qui remplace le voile",
+  (avant.bandeau?.ombreDuTitre ?? "none") !== "none",
+  avant.bandeau?.ombreDuTitre,
+);
 dire("rien ne déborde", avant.debord === false);
 //  LE `<strong></strong>` VIDE EST LÀ, dans l'ancien : c'est la
 //  variable mal préfixée. On le constate, pour pouvoir montrer qu'il

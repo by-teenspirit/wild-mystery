@@ -75,9 +75,7 @@ const source = `
     <a href="/u3">Maître du Jeu</a>, <a href="/u7">Lyra</a>
   </div>
 </div>
-<div class="block wm-qeel-reste">
-  Le record de connexions simultanées est de <strong>8</strong>
-</div>`;
+`;
 
 /** Une catégorie, telle que `index_box` la sert. Sortie de `page` pour
  *  qu'on puisse servir un index qui n'en a aucune. */
@@ -328,8 +326,26 @@ const unSeul = await p6.evaluate(() => {
     //  confondus : le nôtre, et celui du gabarit s'il traîne encore.
     panneaux: document.querySelectorAll(".wm-enligne").length,
     source: document.getElementById("wm-qeel") !== null,
-    //  Ce qui n'était pas dans la maquette a été SORTI du bloc source
-    //  dans le gabarit, donc ça survit au remplacement.
+    //  ── COMBIEN DE BLOCS PARLENT DE QUI EST EN LIGNE ─────────────
+    //
+    //  « Le QEEL est toujours pas bon, il est en double. » Compter les
+    //  `.wm-enligne` ne suffisait pas : le second bloc n'était pas un
+    //  panneau à moi, c'était un `.block` de ModernBB que le gabarit
+    //  gardait à côté. Vu de la page, c'est pourtant bien un second
+    //  « qui est en ligne ».
+    //
+    //  On compte donc ce que le LECTEUR compte : tout bloc de premier
+    //  rang dont le texte propre parle de connexion. Il doit y en
+    //  avoir UN.
+    parlentDEnLigne: [...document.querySelectorAll("#page-body > *, #page-body .block, #page-body .wm-enligne")]
+      .filter((e) =>
+        /qui est en ligne|utilisateurs? en ligne|connect[ée]s?|record de connexions/i.test(
+          [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join(" ") +
+            " " +
+            [...e.querySelectorAll(":scope > *")].filter((c) => c.children.length === 0)
+              .map((c) => c.textContent).join(" "),
+        )
+      ).length,
     reste: document.querySelector(".wm-qeel-reste") !== null,
     gens: [...b.querySelectorAll(".wm-enligne__gens")].map((l) =>
       [...l.querySelectorAll("a")].map((a) => a.textContent.trim())
@@ -351,8 +367,13 @@ dire(
   JSON.stringify(unSeul.gens),
 );
 dire(
-  "ce que la maquette ne montre pas survit à côté",
-  unSeul.reste === true,
+  "UN SEUL BLOC PARLE DE QUI EST EN LIGNE, PANNEAUX ET `.block` CONFONDUS",
+  unSeul.parlentDEnLigne === 1,
+  `${unSeul.parlentDEnLigne} bloc(s)`,
+);
+dire(
+  "le gabarit ne garde plus de pavé ModernBB à côté",
+  unSeul.reste === false,
 );
 await p6.close();
 

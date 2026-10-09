@@ -145,6 +145,21 @@ PAS = 26             # un sommet tous les 26 px de l'image sur un contour
 #  pour une forme concave.
 ANNOTATION = pathlib.Path("planches/peinte/zones-callista.png")
 
+#  ── L'IMAGE DE FOND SORT DU DÉPÔT, ET C'EST UNE LEÇON ───────────────
+#
+#  « Tu as modifié les zones mais pas la carte de Rhode ? » Non : les
+#  zones venaient d'ici, et l'image affichée d'un hébergeur d'images
+#  mis à jour à la main. Deux sources pour un seul dessin, donc deux
+#  sources qui dérivent — et elles avaient dérivé de deux peintures
+#  d'écart.
+#
+#  Les deux sortent du même outil, dans la même passe : elles voyagent
+#  donc ensemble, par le dépôt. GitHub Pages sert `planches/`, vérifié.
+#  Changer d'hébergeur reste possible — il suffit d'écrire l'adresse
+#  dans `fond`, elle survit à la régénération.
+FOND = ("https://by-teenspirit.github.io/wild-mystery/"
+        "planches/peinte/fond-forum.jpg")
+
 ZONES = [
     #  forumId, nom,                    x,    y
     (103, "Monts Enneigés",            878,  171),
@@ -529,11 +544,13 @@ def main():
         "_fond": "L'image peinte se pose DANS le SVG, derrière les "
                  "zones : `fond` porte son adresse, et le dessin "
                  "vectoriel reste dessous — si l'adresse tombe, la "
-                 "carte marche encore.",
+                 "carte marche encore. ELLE POINTE SUR LE DÉPÔT, pas "
+                 "sur un hébergeur d'images : l'image et les zones "
+                 "sortent du même outil et doivent voyager ensemble.",
         "repere": {"largeur": COTE, "hauteur": COTE},
         "terre": " ".join(contours_de(continent, echelle, mini=1200)),
         "iles": contours_de(grandes, echelle, mini=420),
-        "fond": ancien.get("fond", ""),
+        "fond": ancien.get("fond", "") or FOND,
         "lieux": fusion,
     }
     pathlib.Path("data/carte.json").write_text(

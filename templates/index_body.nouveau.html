@@ -72,29 +72,32 @@
 	</div>
 
 	<!-- ════════════════════════════════════════════════════════════
-	     CE QUE LE PANNEAU NE MONTRE PAS
+	     CE QUI A ÉTÉ RETIRÉ, ET POURQUOI
 
-	     Le record de connexions, les anniversaires et la légende des
-	     groupes ne sont pas dans la maquette `390:3387`. Ils sont
-	     SORTIS du bloc du dessus plutôt que laissés dedans : le
-	     script retire ce bloc, et tout ce qui y serait resté
-	     disparaîtrait sans qu'on l'ait décidé.
+	     Il y avait ici un second `.block` qui portait ce que la
+	     maquette ne montre pas : le total en ligne, le record de
+	     connexions, les anniversaires et la légende des groupes. Je
+	     l'avais gardé en me disant que rien ne devait disparaître sans
+	     qu'on l'ait décidé.
 
-	     Ici, ils survivent. À retirer à la main le jour où on les
-	     juge en trop — et ce jour-là, ça se verra.
+	     « Le QEEL est toujours pas bon, il est en double. » C'ÉTAIT
+	     CE BLOC. Un pavé ModernBB juste sous le panneau, qui parle lui
+	     aussi de qui est en ligne : vu de la page, c'est bien un
+	     second « qui est en ligne », et la décision était déjà prise
+	     par la maquette.
+
+	     Ce qu'on perd, nommément : le record de connexions
+	     simultanées, les deux lignes d'anniversaires et la légende des
+	     groupes. Le total en ligne, lui, ne se perd pas — la colonne
+	     « Actuellement en ligne » dit la même chose en mieux, elle les
+	     nomme.
+
+	     Pour en remettre un : rouvrir ce gabarit, et écrire la ligne
+	     voulue dans un `.block` à cet endroit. Les variables sont
+	     `{TOTAL_USERS_ONLINE}`, `{RECORD_USERS}`, `{L_ONLINE_USERS}`,
+	     `{L_WHOSBIRTHDAY_TODAY}`, `{L_WHOSBIRTHDAY_WEEK}`, et la
+	     légende vit dans le bloc `switch_group_legend`.
 	     ════════════════════════════════════════════════════════════ -->
-	<div class="block wm-qeel-reste">
-		{TOTAL_USERS_ONLINE}<br />
-		{RECORD_USERS}
-
-		{L_ONLINE_USERS}
-
-		{L_WHOSBIRTHDAY_TODAY}{L_WHOSBIRTHDAY_WEEK}
-
-		<!-- BEGIN switch_group_legend -->
-		<div class="block-footer"><strong>{LEGEND}:</strong>&nbsp;{GROUP_LEGEND}</div>
-		<!-- END switch_group_legend -->
-	</div>
 
 	<!-- BEGIN switch_chatbox_activate -->
 		<div class="block">

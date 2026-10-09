@@ -1255,23 +1255,38 @@ html#min-width {
       `center / cover` : la photo est un paysage large, la bande fait
       74 de haut. On cadre au milieu et on remplit. */
   background-image:
-    /*  ── UN VOILE SOMBRE PAR-DESSUS LA PHOTO ───────────────────────
+    /*  ── UN VOILE, MAIS MESURÉ CETTE FOIS ──────────────────────────
 
-        Le titre est en crème. Sur la photo d'aujourd'hui il se lit
-        très bien — elle est sombre. Mais une image qu'on remplace en
-        recollant `jetons.css` est une image dont on ne sait rien
-        d'avance, et le harnais de contraste ne sait pas mesurer du
-        texte sur une photo : il lit des couleurs, pas des pixels.
+        « Où est le bandeau de fond de l'en-tête ? », 9 octobre. Il
+        était là. Sous un voile de 48 à 72 %, qui ne laissait rien
+        passer.
 
-        Le voile règle la question une fois pour toutes. Il est peint
-        AU-DESSUS — dans `background-image`, la première couche est
-        celle de devant — et il assombrit assez pour que le crème
-        tienne ses 4,5 contre n'importe quel cliché. Un peu plus à
-        gauche, là où est le rang, un peu moins à droite. */
+        J'avais posé ce voile en RAISONNANT : « une photo qu'on
+        remplace en recollant `jetons.css` est une photo dont on ne
+        sait rien d'avance », donc on assombrit beaucoup, par
+        précaution. Le raisonnement tient. La valeur, non — et elle se
+        mesure.
+
+        LA PHOTO, LUE AU CANVAS DANS LE NAVIGATEUR : luminance
+        relative moyenne 0,111, colonne la plus claire 0,191, la plus
+        sombre 0,055. Le crème `#fffbf7` dessus, sans aucun voile,
+        donne **4,23 sur la colonne la plus claire** et 6,35 en
+        moyenne. Il manquait 0,27 à l'AA, pas six points.
+
+        À 10 % : **4,54 au pire**, et la photo garde 90 % de sa propre
+        étendue. À 72 %, elle tombait de (0,191 · 0,055) à
+        (0,071 · 0,033) — le relief écrasé, un rectangle brun. C'est
+        ce qu'elle voyait.
+
+        LA PRÉCAUTION PASSE DANS L'OMBRE DU TEXTE, pas dans le voile :
+        une ombre portée tient le titre lisible sur une photo claire
+        qu'on ne connaît pas encore, et elle ne coûte rien à celle
+        d'aujourd'hui. Les deux dégradés du dessous restent le filet
+        si l'adresse tombe. */
     linear-gradient(
     100deg,
-    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 72%, transparent) 0%,
-    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 48%, transparent) 100%
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 10%, transparent) 0%,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 6%, transparent) 100%
   ),
     /*  ── LE REPLI PORTE L'ADRESSE, DEPUIS LE 9 OCTOBRE ─────────────
 
@@ -1417,6 +1432,28 @@ html#min-width {
 #modernbb li.header dd.dterm div.table-title a,
 #modernbb li.header .btn-collapse {
   color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  ── L'OMBRE QUI REMPLACE LE VOILE ─────────────────────────────────
+
+    Le voile est passé de 72 % à 10 % pour qu'on voie enfin la photo
+    (plus haut, chiffres à l'appui). Ce qu'il garantissait — du crème
+    lisible sur une photo qu'on ne connaît pas encore — passe ici.
+
+    UNE OMBRE PORTÉE NE COÛTE RIEN À UNE PHOTO SOMBRE et sauve le
+    titre sur une photo claire : le halo suit la lettre au lieu de
+    couvrir l'image. Deux couches, une serrée pour le bord et une
+    large pour détacher du fond.
+
+    Le rang et le bouton de repli en prennent autant : ils sont sur la
+    même bande, dans le même crème. */
+#modernbb li.header dd.dterm div.table-title h2,
+#modernbb li.header dd.dterm div.table-title a,
+#modernbb li.header .btn-collapse,
+#modernbb ul.topiclist li.header dl.icon[data-wm-rang]::before {
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 85%, transparent),
+    0 0 10px color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 65%, transparent);
 }
 
 /*  16 ET PLUS 19. « Les titres d'en-tête : Nunito Sans, Bold, 16px »,
