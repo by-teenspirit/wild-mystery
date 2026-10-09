@@ -154,7 +154,24 @@
     color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 72%, transparent) 0%,
     color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 48%, transparent) 100%
   ),
-    var(--wm-bandeau-categorie, none),
+    /*  ── LE REPLI PORTE L'ADRESSE, DEPUIS LE 9 OCTOBRE ─────────────
+
+        « Bah tu as le lien du bandeau non ? » — oui, et c'est une
+        règle que j'avais posée moi-même et qu'elle lève : j'avais
+        écrit qu'aucune feuille du dépôt n'irait chercher une image,
+        donc le repli valait `none` et la bande restait grise tant que
+        `jetons.css` n'était pas recollé dans le panneau.
+
+        La règle était trop stricte pour ce cas. Un repli n'est pas une
+        requête de plus : c'est la MÊME adresse que le jeton, et elle
+        ne sert que le jour où le jeton n'est pas servi — c'est-à-dire
+        exactement aujourd'hui. Le garde-fou n° 15 relit d'ailleurs les
+        deux et refuse qu'elles divergent, donc elles ne peuvent pas
+        se désaccorder en silence.
+
+        Le jeton reste le maître : le changer dans le panneau change la
+        photo sans toucher au dépôt. */
+    var(--wm-bandeau-categorie, url("https://i.postimg.cc/zGgX8jDz/bandeau.png")),
     radial-gradient(
     120% 180% at 82% 120%,
     color-mix(in srgb, var(--wm-accent-terre, #8b4725) 55%, transparent) 0%,
@@ -288,11 +305,30 @@
     taille qui descend d'un cran, à celle du titre d'un forum juste en
     dessous. Les capitales suivies restent : c'est le traitement du
     bandeau (document 19, § 2.4), et elles ne sont pas en cause. */
-#modernbb li.header dd.dterm div.table-title {
+/*  ── ET LE `h2` AUSSI, SINON RIEN NE CHANGE ───────────────────────
+
+    Relevé par Callista le 9 octobre, et j'avais mesuré à côté : j'ai
+    lu la police du `<div>`, qui est bien passée en Nunito, pendant que
+    le texte qu'on voit est dans le `<h2>` DEDANS. Et ce `h2` a sa
+    propre règle, dans la feuille 02 :
+
+        #modernbb .table-title h2 { font-family: var(--wm-police-titre) }
+
+    Elle le vise directement, donc il ne peut rien hériter du `div`.
+    La spécificité n'y était pour rien — c'était une règle plus
+    précise sur un autre nœud.
+
+    LA LEÇON, et c'est la même que pour `.mainmenu`, le pied
+    statistique et le bouton de repli : **on ne restyle pas un
+    conteneur en oubliant ce qu'il contient.** Quatrième fois. */
+#modernbb li.header dd.dterm div.table-title,
+#modernbb li.header dd.dterm div.table-title h2,
+#modernbb li.header dd.dterm div.table-title a {
   min-width: 0;
   flex: none;
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-corps-axes, "wdth" 100, "YTLC" 500);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
   text-align: center;

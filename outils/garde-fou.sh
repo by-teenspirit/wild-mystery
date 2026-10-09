@@ -154,7 +154,27 @@ for f in "${CSS[@]}"; do
   # qui survit aux deux est une DÉFINITION, pas un usage. L'ancrage en
   # début de ligne ne suffirait pas — `:root { --wm-x: red }` tient sur
   # une ligne, et c'est exactement la faute qu'on cherche.
-  nu=$(perl -0pe 's{/\*.*?\*/}{}gs; 1 while s{var\([^()]*\)}{}g' "$f")
+  #  LA SECONDE DÉROGATION, posée le 9 octobre : un `var(--jeton,
+  #  url(…))`. Elle est étroite et elle se défend.
+  #
+  #  « Bah tu as le lien du bandeau non ? » — le bandeau de catégorie
+  #  est une image de charte, donc un jeton, donc dans le panneau
+  #  d'administration. Tant que le panneau sert un `jetons.css`
+  #  antérieur, le jeton est VIDE et la bande reste grise : la règle
+  #  « zéro requête » transformait un retard de copier-coller en
+  #  défaut d'affichage.
+  #
+  #  Le repli porte donc la même adresse que le jeton. Ce n'est pas
+  #  une requête de plus — c'est la même, et seulement le jour où le
+  #  jeton manque. **Et le garde-fou n° 15 relit les deux** : un repli
+  #  qui divergerait du jeton est déjà une faute, donc l'adresse ne
+  #  peut pas vieillir en silence ici.
+  #
+  #  Un `url(` HORS d'un `var()` reste une faute, et c'est ce que la
+  #  seconde passe vérifie encore.
+  nu=$(perl -0pe 's{/\*.*?\*/}{}gs;
+       1 while s{var\(\s*--[\w-]+\s*(?:,\s*(?:[^()]|url\([^()"]*"[^"]*"[^()]*\))*)?\)}{}g;
+       1 while s{var\([^()]*\)}{}g' "$f")
   if grep -q -- '--wm-' <<< "$nu"; then
     gronde "$f définit un jeton — le dépôt s'en sert, il ne les déclare pas (48-… §8)"
   fi
