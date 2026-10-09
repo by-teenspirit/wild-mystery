@@ -1,0 +1,282 @@
+<ul class="linklist top">
+	<!-- BEGIN switch_user_logged_in -->
+	<li>
+		<a href="{U_SEARCH_NEW}"><i class="ion-ios-flame"></i>{L_SEARCH_NEW}</a>
+	</li>
+	<li>
+		<a href="{U_SEARCH_SELF}"><i class="ion-ios-box-outline"></i>{L_SEARCH_SELF}</a>
+	</li>
+	<!-- END switch_user_logged_in -->
+	<li>
+		<a href="{U_SEARCH_UNANSWERED}"><i class="ion-ios-chatbubble-outline"></i>{L_SEARCH_UNANSWERED}</a>
+	</li>
+	<!-- BEGIN switch_user_logged_in -->
+		<li class="rightside">
+			<a href="{U_MARK_READ}" accesskey="m"><i class="ion-android-checkmark-circle"></i>{L_MARK_FORUMS_READ}</a>
+		</li>
+	<!-- END switch_user_logged_in -->
+</ul>
+
+<!-- BEGIN catrow -->
+	<!-- BEGIN tablehead -->
+		<div class="forabg">
+			<ul class="topiclist">
+				<li class="header">
+					<dl class="icon">
+						<dd class="dterm"><div class="table-title">{catrow.tablehead.L_FORUM}</div></dd>
+						<dd class="topics"><i class="ion-android-list" data-tooltip="{L_TOPICS}"></i></dd>
+						<dd class="posts"><i class="ion-android-chat" data-tooltip="{L_POSTS}"></i></dd>
+						<dd class="lastpost"><i class="ion-android-time" data-tooltip="{L_LASTPOST}"></i></dd>
+					</dl>
+				</li>
+			</ul>
+			<ul class="topiclist forums">
+	<!-- END tablehead -->
+
+	<!-- BEGIN forumrow -->
+				<li class="row">
+					<!-- ════════════════════════════════════════════════
+					     LA PASTILLE EST ICI, PLUS DANS UN `style=`
+
+					     D'origine, cette ligne portait :
+
+					       style="background:url({FORUM_FOLDER_IMG})
+					              no-repeat scroll {INC_LEVEL} 50%;"
+
+					     Un fond en ligne, et aucune règle de feuille ne
+					     le bat : l'image restait collée au bord gauche,
+					     à sa taille d'origine, là où `390:3328` dessine
+					     un rond de 48 avec l'image dedans. Le script
+					     devait lire l'adresse dans l'attribut, poser la
+					     pastille et effacer le fond — trois gestes pour
+					     réparer une balise qu'on peut écrire juste.
+
+					     `{INC_LEVEL}` s'en va avec : c'était le décalage
+					     des sous-forums en arborescence, et la maquette
+					     ne décale pas — elle aligne.
+					     ════════════════════════════════════════════════ -->
+					<dl class="icon">
+						<span class="wm-pastille"><img src="{catrow.forumrow.FORUM_FOLDER_IMG}" alt="" loading="lazy" /></span>
+						<dd class="dterm">
+							<div class="wm-forum__identite">
+								<h{catrow.forumrow.LEVEL} class="hierarchy">
+								<a href="{catrow.forumrow.U_VIEWFORUM}" class="forumtitle">{catrow.forumrow.FORUM_NAME}</a>
+								</h{catrow.forumrow.LEVEL}>
+
+								<!-- ════════════════════════════════════
+								     LA DESCRIPTION A ENFIN UNE BALISE
+
+								     « L'overflow auto ne se situe que sur
+								     la description et pas sur le titre et
+								     les sous-forums », 9 octobre. Nue, la
+								     description était un NŒUD DE TEXTE :
+								     aucun sélecteur ne l'atteint, donc on
+								     bornait la cellule entière et le
+								     titre défilait avec elle.
+
+								     Le script l'enveloppait après coup.
+								     Ici, elle naît enveloppée.
+								     ════════════════════════════════════ -->
+								<div class="wm-forum__description">{catrow.forumrow.FORUM_DESC}</div>
+
+								<!-- BEGIN switch_moderators_links -->
+									{catrow.forumrow.switch_moderators_links.L_MODERATOR}{catrow.forumrow.switch_moderators_links.MODERATORS}
+								<!-- END switch_moderators_links -->
+
+								<!-- Les sous-forums arrivent par `LINKS`,
+								     séparés par des virgules en nœuds de
+								     texte. On les laisse nus : c'est le
+								     script qui retire les virgules et les
+								     regroupe, et il ne sait le faire que
+								     s'ils sont frères directs d'ici. -->
+								{catrow.forumrow.L_LINKS}{catrow.forumrow.LINKS}
+
+								<!-- ════════════════════════════════════
+								     CE QUI A ÉTÉ RETIRÉ, ET POURQUOI
+
+								       <strong>{forumrow.L_SUBFORUM_STR}</strong>
+								       {forumrow.SUBFORUMS}
+
+								     Deux variables SANS leur préfixe de
+								     boucle. Partout ailleurs dans ce
+								     gabarit c'est `{catrow.forumrow.…}` ;
+								     ces deux-là disaient `{forumrow.…}`,
+								     que Forumactif ne résout pas dans
+								     `catrow`. Elles rendaient donc le
+								     vide — et le `<strong></strong>` vide
+								     qu'on retrouvait en fin de chaque
+								     ligne, celui qui obligeait le script
+								     à vérifier qu'une description
+								     contient bien du texte avant de
+								     l'envelopper, c'était celui-là.
+
+								     Les sous-forums s'affichent par
+								     `LINKS`, juste au-dessus. Ces deux
+								     lignes ne servaient à rien depuis le
+								     début.
+								     ════════════════════════════════════ -->
+							</div>
+						</dd>
+						<dd class="topics">{catrow.forumrow.TOPICS} <dfn>{L_TOPICS}</dfn></dd>
+						<dd class="posts">{catrow.forumrow.POSTS} <dfn>{L_POSTS}</dfn></dd>
+						<dd class="lastpost">
+							<!-- BEGIN ads -->
+							<span class="AD_LastPA">
+                                <span class="lastpost-avatar"><img src="{catrow.forumrow.ads.IMG}" alt="{catrow.forumrow.ads.TITLE}" /></span>
+                                <span class="AD_LastInfos">
+                                    <a href="{catrow.forumrow.ads.LINK}">{catrow.forumrow.ads.TITLE}</a>
+                                    {catrow.forumrow.ads.DATE}<br />
+                                    {catrow.forumrow.ads.LOCATION}
+                                </span>
+							</span>
+                            <!-- END ads -->
+
+                            <!-- BEGIN avatar -->
+                            <span class="lastpost-avatar">{catrow.forumrow.avatar.LAST_POST_AVATAR}</span>
+                            <!-- END avatar -->
+
+							<!-- La date et l'auteur sont DANS
+							     `USER_LAST_POST`, séparés par un `<br>`
+							     que Forumactif écrit lui-même. Un
+							     gabarit ne peut pas découper le contenu
+							     d'une variable : celui-là reste au
+							     script, et ce n'est pas un choix. -->
+							<span class="lastpost-infos">
+							<!-- BEGIN switch_topic_title -->
+							<a href="{catrow.forumrow.U_LATEST_TOPIC}" title="{catrow.forumrow.LATEST_TOPIC_TITLE}">{catrow.forumrow.LATEST_TOPIC_NAME}</a><br />
+							<!-- END switch_topic_title -->
+							{catrow.forumrow.USER_LAST_POST}
+							</span>
+						</dd>
+					</dl>
+				</li>
+	<!-- END forumrow -->
+
+	<!-- BEGIN tablefoot -->
+				</ul>
+		</div>
+	<!-- END tablefoot -->
+<!-- END catrow -->
+
+<!-- BEGIN switch_forum_images -->
+<div class="forabg">
+	<div class="header">
+		<h3 class="table-title" style="padding:18px;display:block;margin:0;">{switch_forum_images.TITLE}</h3>
+	</div>
+	<div class="container-imgs-list" style="max-height: 500px" id="imageList">
+        {switch_forum_images.SCRIPTS}
+	</div>
+</div>
+<!-- END switch_forum_images -->
+
+<!-- BEGIN switch_on_index -->
+<ul class="linklist bottom">
+	<li>
+		<a href="{U_TODAY_ACTIVE}">{L_TODAY_ACTIVE}</a>
+	</li>
+	<li>
+		<a href="{U_TODAY_POSTERS}">{L_TODAY_POSTERS}</a>
+	</li>
+	<li class="last">
+		<a href="{U_OVERALL_POSTERS}">{L_OVERALL_POSTERS}</a>
+	</li>
+	<!-- BEGIN switch_delete_cookies -->
+		<li class="rightside">
+			<a href="{switch_on_index.switch_delete_cookies.U_DELETE_COOKIES}" rel="nofollow"><i class="ion-trash-a"></i>{switch_on_index.switch_delete_cookies.L_DELETE_COOKIES}</a>
+		</li>
+	<!-- END switch_delete_cookies -->
+</ul>
+<!-- END switch_on_index -->
+
+<script type="text/javascript">
+//<![CDATA[
+$(document).ready(function() {
+	var btn_collapse = $('<div></div>', {
+		class: 'btn-collapse'
+	});
+
+	var btn_collapse_show = $('<i></i>', {
+		class: 'ion-android-add-circle hidden',
+		'data-tooltip': '{L_EXPEND_CAT}'
+	}).appendTo(btn_collapse);
+
+	var btn_collapse_hide = $('<i></i>', {
+		class: 'ion-android-remove-circle',
+		'data-tooltip': '{L_HIDE_CAT}'
+	}).appendTo(btn_collapse);
+
+	var collapsed = [];
+
+	if (readCookie('collapsed') != null && readCookie('collapsed') != '') {
+		collapsed = readCookie('collapsed').split(',');
+	}
+
+	$(document).on('click', '.btn-collapse', function() {
+		$(this).children('.ion-android-add-circle').toggleClass('hidden');
+		$(this).children('.ion-android-remove-circle').toggleClass('hidden');
+		$(this).parents('.forabg').toggleClass('hidden');
+
+		if (readCookie('collapsed') != null && readCookie('collapsed') != '') {
+			collapsed = readCookie('collapsed').split(',');
+		}
+
+		if (!$(this).parents('.forabg').hasClass('hidden')) {
+			removeFromArray('' + $(this).parents('.forabg').data('cindex'), collapsed);
+
+			createCookie('collapsed', collapsed);
+		} else {
+			collapsed.push('' + $(this).parents('.forabg').data('cindex'));
+
+			createCookie('collapsed', collapsed);
+		}
+	});
+
+	$('.forabg').each(function(i) {
+		$(this).data('cindex', '' + i);
+
+		$(btn_collapse)
+			.clone()
+			.attr('id', 'forabg' + i)
+			.appendTo($(this).find('.header'));
+
+		if ($.inArray('' + i, collapsed) > -1) {
+			$(this).toggleClass('hidden');
+			$('#forabg' + i).children('.ion-android-add-circle').toggleClass('hidden');
+			$('#forabg' + i).children('.ion-android-remove-circle').toggleClass('hidden');
+		}
+	});
+});
+
+function removeFromArray(item, array) {
+	var i = array.indexOf(item);
+
+	if (i > -1) {
+		array = array.splice(i, 1);
+	}
+}
+
+function createCookie(name, value, days) {
+	var expires;
+
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+		expires = "; expires=" + date.toGMTString();
+	} else {
+		expires = "";
+	}
+	document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
+function readCookie(name) {
+	var nameEQ = encodeURIComponent(name) + "=";
+	var ca = document.cookie.split(';');
+	for (var i = 0; i < ca.length; i++) {
+		var c = ca[i];
+		while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+		if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+	}
+	return null;
+}
+//]]>
+</script>

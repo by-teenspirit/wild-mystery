@@ -25,7 +25,8 @@
     "confort": "deno run -A outils/confort.mjs",
     "accueil": "deno run -A outils/accueil.mjs",
     "carte": "deno run -A outils/carte.mjs",
-    "enligne": "deno run -A outils/enligne.mjs"
+    "enligne": "deno run -A outils/enligne.mjs",
+    "categories": "deno run -A outils/categories.mjs"
   },
   "fmt": {
     "include": [

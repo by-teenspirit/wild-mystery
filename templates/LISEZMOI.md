@@ -37,7 +37,8 @@ On ne colle jamais un template sans le relire en entier. Et surtout :
 | `memberlist_body` | 113 | `table#memberlist.table1` → `ul`/`li` + flex |
 | `viewtopic_body` | | l'ancrage du module de bilan, et le `<table>` du bloc de règles |
 | `posting_body` | | le même bloc, le lanceur de dés, la case « je veux un MJ » |
-| `index_box`, `topics_list_box` | | les lignes de catégorie, de forum et de sujet |
+| `index_box` | | **fait** : la pastille, la description enveloppée, la variable morte retirée |
+| `topics_list_box` | | les lignes de sujet |
 | `portal_body` | | quatre tableaux imbriqués |
 | `groupcp_info_body` | | la page des groupes |
 
