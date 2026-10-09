@@ -54,6 +54,16 @@
   --wm-texte-pale:      #69564c;
   --wm-texte-inverse:   #fffbf7;
   --wm-texte-sur-nuit:  #fffbf7;
+  /*  LE CHIFFRE SUR LE BANDEAU SOMBRE — le rang d'une catégorie, et
+      rien d'autre pour l'instant. Donné le 9 octobre : « les numéros
+      doivent avoir du Fraunces, semi-bold, 16px, D99E80 ».
+
+      IL A SON PROPRE JETON et ne réutilise pas `accent-terre` : le
+      terre clair (#8b4725) ne se lit pas sur le bandeau — mesuré à
+      2,1 —, et le terre sombre (#e0906a) est une valeur de THÈME, qui
+      changerait le chiffre selon le mode. Le bandeau est sombre dans
+      les deux modes, donc le chiffre y garde une seule valeur. */
+  --wm-chiffre-sur-nuit: #d99e80;
 
   /*  L'IMAGE DU BANDEAU DE CATÉGORIE, donnée par Callista le 8
       octobre. Elle est ICI et pas dans `css/16-…` parce qu'aucune de
@@ -174,6 +184,11 @@ body.wm-sombre {
   --wm-texte-pale:            #997f6f;
   --wm-texte-inverse:         #1a1210;
   --wm-texte-sur-nuit:        #f2e4d8;
+  /*  LA MÊME VALEUR QU'EN CLAIR, et c'est voulu : le bandeau de
+      catégorie est sombre dans les deux modes. Un chiffre qui
+      changerait de teinte avec le thème changerait sur un fond qui,
+      lui, ne change pas. */
+  --wm-chiffre-sur-nuit:      #d99e80;
   --wm-accent-primaire:       #7fc2de;
   --wm-accent-fort:           #a3d6ec;
   --wm-accent-terre:          #e0906a;
