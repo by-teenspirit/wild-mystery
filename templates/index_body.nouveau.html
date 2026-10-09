@@ -69,6 +69,34 @@
 
 		<div id="wm-qeel-maintenant">{LOGGED_IN_USER_LIST}</div>
 		<div id="wm-qeel-24h">{L_CONNECTED_MEMBERS}</div>
+
+		<!-- ════════════════════════════════════════════════════════
+		     LES TROIS CHIFFRES, ICI PLUTÔT QU'AILLEURS
+
+		     « Pourquoi j'ai plus le nombre de messages et le nombre
+		     de membres dans le QEEL ? » Parce que le panneau les
+		     lisait dans `div.statistics`, qui n'est PAS dans ce
+		     gabarit : ModernBB l'écrit dans `overall_footer_begin`,
+		     lignes 38 à 50. Le jour où ce bloc disparaît — un
+		     gabarit republié, une option du panneau d'administration
+		     —, les compteurs passent à « — » sans que personne
+		     comprenne pourquoi.
+
+		     Alors on cesse d'en dépendre. Les trois variables sont
+		     servies ICI, dans des balises nommées, à côté des deux
+		     listes. Le panneau les lit d'abord ici, et `.statistics`
+		     ne reste qu'un second recours.
+
+		     Elles sont masquées : elles ne sont pas là pour être
+		     lues, elles sont là pour être relevées. Le panneau les
+		     affiche à sa façon, et le vrai bloc de statistiques du
+		     pied de page continue sa vie de son côté.
+		     ════════════════════════════════════════════════════════ -->
+		<div id="wm-qeel-chiffres" style="display:none">
+			<div id="wm-qeel-messages">{TOTAL_POSTS}</div>
+			<div id="wm-qeel-membres">{TOTAL_USERS}</div>
+			<div id="wm-qeel-dernier">{NEWEST_USER}</div>
+		</div>
 	</div>
 
 	<!-- ════════════════════════════════════════════════════════════

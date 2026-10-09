@@ -67,9 +67,23 @@ const source = `
 <div class="block wm-qeel" id="wm-qeel">
   <div class="h3"><a href="/viewonline" rel="nofollow">Qui est en ligne ?</a></div>
   <div id="wm-qeel-maintenant">
-    <a href="/u3" class="group-2 usr_grp_clr">Maître du Jeu</a>,
-    <a href="/u1">Arceus</a>,
+    <!-- LES TROIS FAÇONS dont Forumactif écrit la couleur d'un groupe,
+         relevées sur des forums ModernBB : sur le lien, sur un span
+         DEDANS, et sur un span qui ENVELOPPE le lien. Le module doit
+         les lire toutes les trois. Et « Compte de test » n'a pas de
+         groupe : il ne doit pas hériter d'une couleur. -->
+    <a href="/u3" class="group-2 usr_grp_clr" style="color:#B56A45">Maître du Jeu</a>,
+    <span class="group-1 usr_grp_clr" style="color:#c7a008"><a href="/u1">Arceus</a></span>,
+    <a href="/u5"><span class="group-3 usr_grp_clr" style="color:#4f7a4f">Ines Kervadec</span></a>,
     <a href="/u4">Compte de test</a>
+  </div>
+  <!-- LES TROIS CHIFFRES, dans les balises du gabarit. Les variables de
+       Forumactif rendent des PHRASES, pas des nombres : on sert donc
+       la phrase telle qu'elle arrive, balise forte comprise. -->
+  <div id="wm-qeel-chiffres" style="display:none">
+    <div id="wm-qeel-messages">Nos membres ont posté un total de <strong>1&nbsp;204</strong> messages</div>
+    <div id="wm-qeel-membres">Nous avons <strong>42</strong> membres enregistrés</div>
+    <div id="wm-qeel-dernier">L'utilisateur enregistré le plus récent est <strong><a href="/u9">Ines Kervadec</a></strong></div>
   </div>
   <div id="wm-qeel-24h">
     <a href="/u3">Maître du Jeu</a>, <a href="/u7">Lyra</a>
@@ -84,7 +98,8 @@ const categorie = `
   <dd class="dterm"><div class="table-title"><h2>Une catégorie</h2></div></dd>
 </dl></li></ul></div>`;
 
-const page = (stats, liste, cats = categorie) => `<!doctype html><html lang="fr"><head><meta charset="utf-8">
+const page = (stats, liste, cats = categorie) =>
+  `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 <style>body{margin:0;font-size:10px;background:var(--wm-fond-page)}#page-body{padding:24px}</style>
@@ -155,7 +170,10 @@ const pose = await p.evaluate(() => {
   };
 });
 dire("LE BLOC EST POSÉ", pose !== null, JSON.stringify(pose));
-dire("il a son titre et ses trois colonnes", pose?.titre === "Qui est en ligne ?" && pose?.colonnes === 3);
+dire(
+  "il a son titre et ses trois colonnes",
+  pose?.titre === "Qui est en ligne ?" && pose?.colonnes === 3,
+);
 dire("et il se range après les forums", pose?.apresLesForums === true);
 dire(
   "LES DEUX COMPTEURS SONT LUS DANS LA PAGE",
@@ -172,6 +190,100 @@ dire(
   "SANS L'OPTION DE FORUMACTIF, LES DEUX CARTES DISENT « PERSONNE »",
   pose?.personne === 2,
   `${pose?.personne} carte(s) sur 2`,
+);
+
+// ── LES SIX ONGLETS, ET LE SABELETTE ───────────────────────────────
+//
+//  « Je vois le premier groupe mais je peux pas cliquer sur les autres
+//  onglets » : les cinq clans n'avaient pas de description, donc leurs
+//  onglets étaient éteints — par construction, mais ça ne se devine
+//  pas. Le lorem ipsum du 9 octobre les allume, et ce cas le garde.
+//
+//  « Le Sabelette doit être beaucoup plus décalé vers la droite, il
+//  doit pas être placé comme ça sur les groupes » : la maquette le met
+//  à x = 1300 dans un bloc de 1172, donc ENTIÈREMENT hors du bloc. On
+//  vérifie que son bord gauche est à droite du bord droit du bloc.
+const bande = await p.evaluate(() => {
+  const b = document.querySelector(".wm-enligne");
+  const onglets = [...document.querySelectorAll(".wm-enligne__onglet")];
+  const m = document.querySelector(".wm-enligne__mascotte");
+  const col = document.querySelector(".wm-enligne__colonne--clan");
+  return {
+    combien: onglets.length,
+    eteints: onglets.filter((o) => o.disabled).length,
+    //  Un onglet ouvrable doit porter `aria-selected` : c'est ce qui
+    //  dit au lecteur d'écran lequel est ouvert.
+    annonces: onglets.filter((o) => o.hasAttribute("aria-selected")).length,
+    mascotte: m === null ? null : (() => {
+      const r = m.getBoundingClientRect();
+      const bloc = b.getBoundingClientRect();
+      const clan = col?.getBoundingClientRect() ?? null;
+      return {
+        largeur: Math.round(r.width),
+        //  Il tient dans le bloc — on ne déborde plus, on réserve —
+        //  mais il doit rester À DROITE de la colonne des clans, et
+        //  collé au bord droit du panneau.
+        dansLeBloc: r.right <= Math.ceil(bloc.right),
+        ecartAuxClans: clan === null ? null : Math.round(r.left - clan.right),
+        chevaucheLesClans: clan === null ? null : r.left < clan.right,
+        hautAligne: Math.abs(Math.round(r.top - bloc.top)) <= 2,
+      };
+    })(),
+  };
+});
+dire(
+  "LES SIX ONGLETS SONT LÀ, ET TOUS CLIQUABLES",
+  bande.combien === 6 && bande.eteints === 0,
+  JSON.stringify({ combien: bande.combien, eteints: bande.eteints }),
+);
+dire(
+  "et chacun s'annonce ouvert ou fermé",
+  bande.annonces === 6,
+  `${bande.annonces}/6`,
+);
+dire(
+  "LE SABELETTE EST HORS DU BLOC, PAS SUR LES CLANS",
+  bande.mascotte !== null && bande.mascotte.dansLeBloc === true &&
+    bande.mascotte.chevaucheLesClans === false &&
+    (bande.mascotte.ecartAuxClans ?? -1) >= 0 && bande.mascotte.hautAligne === true,
+  JSON.stringify(bande.mascotte),
+);
+
+//  ON CLIQUE VRAIMENT, et la carte doit changer de clan. Sans ça on
+//  vérifierait qu'un bouton n'est pas grisé, pas qu'il sert à quelque
+//  chose.
+const bascule = await p.evaluate(async () => {
+  const avant = document.querySelector(".wm-enligne__clan")?.dataset.wmClan ?? null;
+  const autre = [...document.querySelectorAll(".wm-enligne__onglet")]
+    .find((o) => o.dataset.wmClan !== avant && !o.disabled);
+  if (autre === undefined) return { avant, apres: null, vise: null };
+  autre.click();
+  await new Promise((r) => setTimeout(r, 60));
+  const c = document.querySelector(".wm-enligne__clan");
+  return {
+    avant,
+    apres: c?.dataset.wmClan ?? null,
+    vise: autre.dataset.wmClan,
+    nom: c?.querySelector(".wm-enligne__clan-nom")?.textContent.trim() ?? null,
+    texte: (c?.querySelector(".wm-enligne__clan-texte")?.textContent ?? "").length,
+    selectionne: autre.getAttribute("aria-selected"),
+  };
+});
+//  ON REMET LE CLAN DU MOMENT. Les cas qui suivent mesurent la carte
+//  de Ho-Oh ; les laisser lire celle qu'on vient d'ouvrir ferait
+//  échouer un test juste à cause de l'ordre, et on chercherait le
+//  défaut dans la feuille.
+await p.evaluate(async () => {
+  const o = [...document.querySelectorAll(".wm-enligne__onglet")]
+    .find((x) => x.dataset.wmClan === "ho-oh");
+  o?.click();
+  await new Promise((r) => setTimeout(r, 60));
+});
+dire(
+  "CLIQUER SUR UN ONGLET OUVRE SON CLAN",
+  bascule.apres === bascule.vise && bascule.apres !== bascule.avant &&
+    bascule.selectionne === "true" && bascule.texte > 100,
+  JSON.stringify(bascule),
 );
 
 const clan = await p.evaluate(() => {
@@ -192,7 +304,11 @@ const clan = await p.evaluate(() => {
 });
 dire("LA CARTE DU CLAN EST LÀ", clan !== null, JSON.stringify(clan));
 dire("elle nomme le clan du moment", clan?.cle === "ho-oh" && clan?.nom === "Ho-Oh");
-dire("elle porte sa description entière", (clan?.texte ?? 0) > 200, `${clan?.texte} caractères`);
+dire(
+  "elle porte sa description entière",
+  (clan?.texte ?? 0) > 200,
+  `${clan?.texte} caractères`,
+);
 dire(
   "et son avantage",
   (clan?.avantage ?? "").startsWith("+ 10 %"),
@@ -225,7 +341,10 @@ for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
 await p.close();
 
 // ── 3 · l'option cochée : les listes se remplissent ─────────────────
-const p2 = await ouvrir(page(statistiques("3&nbsp;214", "27", "Ines Kervadec"), enLigne), CLANS);
+const p2 = await ouvrir(
+  page(statistiques("3&nbsp;214", "27", "Ines Kervadec"), enLigne),
+  CLANS,
+);
 const avecListes = await p2.evaluate(() => {
   const b = document.querySelector(".wm-enligne");
   const listes = [...b.querySelectorAll(".wm-enligne__gens")];
@@ -262,9 +381,19 @@ await p2.close();
 //  désigne un, mieux vaut pas de carte qu'un cadre au nom d'un clan et
 //  au corps vide : celui-là ferait croire à une panne, et on
 //  chercherait le défaut dans le code.
+//  ON VIDE UN CLAN DANS LE DÉCOR, plutôt que de compter sur « mew » :
+//  les cinq clans ont reçu leur lorem ipsum le 9 octobre, donc aucun
+//  n'est plus vide dans `data/clans.json`. Un test qui dépend d'un
+//  trou dans les données meurt le jour où le trou est bouché, et ce
+//  jour-là c'est le test qu'on accuse. Ici le trou est explicite.
 const p3 = await ouvrir(
   page(statistiques("436", "3", "Compte de test"), ""),
-  { duMoment: "mew", clans: CLANS.clans },
+  {
+    duMoment: "mew",
+    clans: CLANS.clans.map((c) =>
+      c.cle === "mew" ? { ...c, description: "", avantage: "" } : c
+    ),
+  },
 );
 const vide = await p3.evaluate(() => ({
   bloc: document.querySelector(".wm-enligne") !== null,
@@ -337,10 +466,14 @@ const unSeul = await p6.evaluate(() => {
     //  On compte donc ce que le LECTEUR compte : tout bloc de premier
     //  rang dont le texte propre parle de connexion. Il doit y en
     //  avoir UN.
-    parlentDEnLigne: [...document.querySelectorAll("#page-body > *, #page-body .block, #page-body .wm-enligne")]
+    parlentDEnLigne: [...document.querySelectorAll(
+      "#page-body > *, #page-body .block, #page-body .wm-enligne",
+    )]
       .filter((e) =>
         /qui est en ligne|utilisateurs? en ligne|connect[ée]s?|record de connexions/i.test(
-          [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join(" ") +
+          [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent).join(
+            " ",
+          ) +
             " " +
             [...e.querySelectorAll(":scope > *")].filter((c) => c.children.length === 0)
               .map((c) => c.textContent).join(" "),
@@ -350,6 +483,18 @@ const unSeul = await p6.evaluate(() => {
     gens: [...b.querySelectorAll(".wm-enligne__gens")].map((l) =>
       [...l.querySelectorAll("a")].map((a) => a.textContent.trim())
     ),
+    //  ── LA COULEUR DE SON GROUPE ────────────────────────────────
+    //  On lit la couleur RENDUE, pas l'attribut : c'est ce que l'œil
+    //  voit, et ça vérifie du même coup que la feuille ne l'écrase
+    //  pas. Un membre sans groupe doit garder l'accent du thème, donc
+    //  être d'une autre couleur que les trois autres.
+    couleurs: [...b.querySelectorAll(".wm-enligne__gens-lien")].map((a) => ({
+      qui: a.textContent.trim(),
+      rendue: getComputedStyle(a).color,
+      gras: getComputedStyle(a).fontWeight,
+      colore: a.hasAttribute("data-wm-groupe-colore"),
+      groupes: [...a.classList].filter((c) => c.startsWith("group-")),
+    })),
     personne: b.querySelectorAll(".wm-enligne__personne").length,
     //  Il prend la place du bloc du gabarit, donc il reste après les
     //  forums — c'est là que `{BOARD_INDEX}` le met.
@@ -363,8 +508,39 @@ dire("LA SOURCE DU GABARIT A ÉTÉ RETIRÉE", unSeul.source === false);
 dire("et le panneau reste après les forums", unSeul.apresLesForums === true);
 dire(
   "LES LISTES SE LISENT DANS LES BALISES DU GABARIT",
-  unSeul.personne === 0 && unSeul.gens[0]?.length === 3 && unSeul.gens[1]?.length === 2,
+  unSeul.personne === 0 && unSeul.gens[0]?.length === 4 && unSeul.gens[1]?.length === 2,
   JSON.stringify(unSeul.gens),
+);
+
+// ── LA COULEUR DE GROUPE, DANS SES TROIS ÉCRITURES ─────────────────
+//
+//  « Les joueurs connectés, on doit voir la couleur de leur groupe. »
+//  Trois membres colorés, chacun par une écriture différente, et un
+//  quatrième sans groupe qui doit garder l'accent du thème.
+const attendu = {
+  "Maître du Jeu": "rgb(181, 106, 69)",
+  "Arceus": "rgb(199, 160, 8)",
+  "Ines Kervadec": "rgb(79, 122, 79)",
+};
+const colores = unSeul.couleurs.filter((c) => c.colore);
+dire(
+  "CHAQUE GROUPE DONNE SA COULEUR AU PSEUDO",
+  colores.length === 3 && colores.every((c) => c.rendue === attendu[c.qui]),
+  JSON.stringify(colores.map((c) => [c.qui, c.rendue])),
+);
+dire(
+  "et le gras va avec, pour qu'une couleur pâle reste lisible",
+  colores.every((c) => Number(c.gras) >= 700),
+  JSON.stringify(colores.map((c) => c.gras)),
+);
+dire(
+  "UN MEMBRE SANS GROUPE N'HÉRITE PAS D'UNE COULEUR",
+  (() => {
+    const sans = unSeul.couleurs.find((c) => c.qui === "Compte de test");
+    return sans !== undefined && sans.colore === false &&
+      !Object.values(attendu).includes(sans.rendue);
+  })(),
+  JSON.stringify(unSeul.couleurs.find((c) => c.qui === "Compte de test")),
 );
 dire(
   "UN SEUL BLOC PARLE DE QUI EST EN LIGNE, PANNEAUX ET `.block` CONFONDUS",
@@ -375,6 +551,60 @@ dire(
   "le gabarit ne garde plus de pavé ModernBB à côté",
   unSeul.reste === false,
 );
+
+// ── LES CHIFFRES VIENNENT DU GABARIT, PLUS DE `.statistics` ────────
+//
+//  « Pourquoi j'ai plus le nombre de messages et le nombre de membres
+//  dans le QEEL ? » Parce qu'ils venaient de `div.statistics`, qui est
+//  dans `overall_footer_begin` — un gabarit qu'on ne touche pas, et
+//  qui peut cesser de servir ce bloc. Le décor ici ne porte AUCUN
+//  `.statistics` : les nombres ne peuvent venir que du gabarit.
+//  UNE PAGE SANS `.statistics` DU TOUT : le décor des autres cas en
+//  porte un, donc il ne prouvait rien — c'est ce qu'il m'a dit au
+//  premier essai, et il avait raison.
+const p6b = await ouvrir(page("", source), CLANS);
+const duGabarit = await p6b.evaluate(() => ({
+  statistics: document.querySelector(".statistics") !== null,
+  compteurs: [...document.querySelectorAll(".wm-enligne__compteur")].map((c) => ({
+    n: c.querySelector(".wm-enligne__compteur-n").textContent.trim(),
+    mot: c.querySelector(".wm-enligne__compteur-mot").textContent.trim(),
+  })),
+  arrive: document.querySelector(".wm-enligne__arrive-nom")?.textContent.trim() ?? null,
+  arriveUrl: document.querySelector(".wm-enligne__arrive-nom")?.getAttribute("href") ?? null,
+  //  Les balises de relevé partent avec la source : elles ne sont là
+  //  que pour être lues une fois.
+  chiffresRestants: document.getElementById("wm-qeel-chiffres") !== null,
+}));
+//  ON COMPARE SANS LES ESPACES. Le panneau écrit « 1 204 » avec
+//  l'espace fine insécable de `toLocaleString("fr-FR")`, le décor
+//  servait un `&nbsp;` : deux caractères différents pour la même
+//  séparation de milliers. Comparer les glyphes ferait échouer un
+//  test juste, et c'est ce qu'il a fait au premier essai.
+const sansEspaces = (x) => (x ?? "").replace(/[\s\u00a0\u202f]/g, "");
+dire(
+  "SANS AUCUN `.statistics`, LES CHIFFRES ARRIVENT QUAND MÊME",
+  duGabarit.statistics === false &&
+    sansEspaces(duGabarit.compteurs[0]?.n) === "1204" &&
+    sansEspaces(duGabarit.compteurs[1]?.n) === "42",
+  JSON.stringify(duGabarit.compteurs),
+);
+dire(
+  "LE NOMBRE SE LIT DANS LA PHRASE, PAR SA BALISE FORTE",
+  //  « Nos membres ont posté un total de 1 204 messages » : la phrase
+  //  change avec la langue du forum, la balise forte non.
+  sansEspaces(duGabarit.compteurs[0]?.n) === "1204",
+  JSON.stringify(duGabarit.compteurs[0]),
+);
+dire(
+  "et le dernier arrivé vient de la même source, avec son profil",
+  duGabarit.arrive === "Ines Kervadec" && duGabarit.arriveUrl === "/u9",
+  JSON.stringify({ n: duGabarit.arrive, u: duGabarit.arriveUrl }),
+);
+dire(
+  "et les balises de relevé partent avec leur source",
+  duGabarit.chiffresRestants === false,
+);
+await p6b.close();
 await p6.close();
 
 // ── 8 · LA SOURCE SEULE SUFFIT, SANS AUCUNE CATÉGORIE ───────────────
@@ -387,7 +617,9 @@ const p7 = await ouvrir(page(statistiques("436", "3", "Compte de test"), source,
 const sansCategorie = await p7.evaluate(() => ({
   categories: document.querySelectorAll(".forabg").length,
   panneaux: document.querySelectorAll(".wm-enligne").length,
-  noms: [...document.querySelectorAll(".wm-enligne__gens-lien")].map((a) => a.textContent.trim()),
+  noms: [...document.querySelectorAll(".wm-enligne__gens-lien")].map((a) =>
+    a.textContent.trim()
+  ),
   source: document.getElementById("wm-qeel") !== null,
 }));
 dire(
@@ -404,6 +636,6 @@ dire(
 await p7.close();
 
 await nav.close();
-if (soucis.length > 0) for (const s of soucis) console.log("  · " + s);
+if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
 Deno.exit(soucis.length === 0 ? 0 : 1);

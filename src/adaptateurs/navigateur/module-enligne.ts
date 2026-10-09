@@ -87,42 +87,143 @@ function el<K extends keyof HTMLElementTagNameMap>(
 
 // ── ce que la page sait déjà ────────────────────────────────────────
 
-/** Lit les trois chiffres de `.statistics`.
+/** Les trois sources de chiffres, du gabarit vers ModernBB.
  *
- *  ON LIT DES POSITIONS, PAS DES PHRASES. ModernBB écrit « Nos membres
- *  ont posté un total de 436 messages » ; chercher le nombre dans ce
- *  texte marcherait aujourd'hui et rendrait zéro le jour où le forum
- *  change de langue ou de libellés. Ce qui ne change pas, c'est la
- *  structure : trois `.statistics-item` dans l'ordre, chacun avec son
- *  `<strong>`.
+ *  ── POURQUOI LE GABARIT PASSE DEVANT ────────────────────────────────
+ *
+ *  « Pourquoi j'ai plus le nombre de messages et le nombre de membres
+ *  dans le QEEL ? », 9 octobre. Parce que `div.statistics` n'est pas
+ *  dans `index_body` : ModernBB l'écrit dans `overall_footer_begin`,
+ *  lignes 38 à 50. Le panneau dépendait donc d'un gabarit qu'on ne
+ *  touche pas, et le jour où ce bloc a disparu — gabarit republié,
+ *  option du panneau d'administration —, les compteurs sont passés à
+ *  « — » sans que rien n'explique pourquoi.
+ *
+ *  `index_body.nouveau.html` sert maintenant les trois variables dans
+ *  ses propres balises, à côté des listes de connectés. Le panneau les
+ *  lit là d'abord. `.statistics` reste le second recours, pour le
+ *  forum dont le gabarit n'est pas encore posé. */
+export const SOURCES_MESSAGES = ["#wm-qeel-messages"] as const;
+export const SOURCES_MEMBRES = ["#wm-qeel-membres"] as const;
+export const SOURCES_DERNIER = ["#wm-qeel-dernier"] as const;
+
+/** Le nombre porté par un conteneur, qu'il soit nu ou dans une phrase.
+ *
+ *  ── UNE VARIABLE FORUMACTIF N'EST PAS UN NOMBRE ─────────────────────
+ *
+ *  `{TOTAL_POSTS}` ne rend pas « 436 » : il rend « Nos membres ont
+ *  posté un total de <strong>436</strong> messages ». La phrase change
+ *  avec la langue du forum, le `<strong>` non — on prend donc le
+ *  PREMIER `<strong>` quand il y en a un, et le texte entier sinon,
+ *  pour le cas où une version servirait le nombre nu.
+ *
+ *  C'est la même règle que pour `.statistics`, et c'est elle qui fait
+ *  qu'un forum passé en anglais rend les mêmes nombres. */
+export function nombreDuBloc(bloc: Element | null): number | null {
+  if (bloc === null) return null;
+  const fort = bloc.querySelector("strong");
+  return nombreEcrit((fort ?? bloc).textContent ?? "");
+}
+
+/** Lit les trois chiffres : le gabarit d'abord, `.statistics` ensuite.
+ *
+ *  ON LIT DES POSITIONS ET DES BALISES, PAS DES PHRASES. ModernBB écrit
+ *  « Nos membres ont posté un total de 436 messages » ; chercher le
+ *  nombre dans ce texte marcherait aujourd'hui et rendrait zéro le jour
+ *  où le forum change de langue ou de libellés. Ce qui ne change pas,
+ *  c'est la structure : un `<strong>` dans chaque ligne, et trois
+ *  `.statistics-item` dans l'ordre.
  *
  *  Chaque ligne manquante vaut `null`, pas zéro — « ce forum a zéro
  *  message » et « je n'ai pas su lire » ne s'affichent pas pareil. */
 export function chiffresDe(doc: Document): Chiffres {
-  const items = Array.from(doc.querySelectorAll(".statistics .statistics-item"));
-  const fort = (i: number): Element | null => items[i]?.querySelector("strong") ?? null;
+  const premier = (selecteurs: readonly string[]): Element | null =>
+    selecteurs.map((x) => doc.querySelector(x)).find((e) => e !== null) ?? null;
 
-  const nb = (i: number): number | null => {
-    const n = fort(i);
-    return n === null ? null : nombreEcrit(n.textContent ?? "");
-  };
+  const items = Array.from(doc.querySelectorAll(".statistics .statistics-item"));
+
+  //  Le gabarit d'abord. Un bloc présent mais illisible ne fait pas
+  //  retomber sur `.statistics` : s'il est là et vide, c'est que la
+  //  variable n'a rien rendu, et `.statistics` dirait la même chose.
+  const duGabarit = premier(SOURCES_MESSAGES) !== null;
+
+  const messages = duGabarit
+    ? nombreDuBloc(premier(SOURCES_MESSAGES))
+    : nombreDuBloc(items[0] ?? null);
+  const membres = duGabarit
+    ? nombreDuBloc(premier(SOURCES_MEMBRES))
+    : nombreDuBloc(items[1] ?? null);
 
   //  Le dernier arrivé est le seul des trois à porter un lien : c'est
   //  ce lien qu'on reprend, et pas une adresse reconstruite à partir
   //  du pseudo — un pseudo n'est pas un identifiant.
-  const lien = items[2]?.querySelector<HTMLAnchorElement>("a[href]") ?? null;
+  const boite = duGabarit ? premier(SOURCES_DERNIER) : (items[2] ?? null);
+  const lien = boite?.querySelector<HTMLAnchorElement>("a[href]") ?? null;
   const pseudo = (lien?.textContent ?? "").replace(/\s+/g, " ").trim();
   const url = lien?.getAttribute("href") ?? "";
 
   return {
-    messages: nb(0),
-    membres: nb(1),
+    messages,
+    membres,
     dernierArrive: pseudo === "" || url === "" ? null : { pseudo, url },
   };
 }
 
-/** Un membre relevé dans une liste de connectés. */
-export type Connecte = { readonly pseudo: string; readonly url: string };
+/** Un membre relevé dans une liste de connectés.
+ *
+ *  `couleur` est celle de son GROUPE, telle que Forumactif l'écrit —
+ *  vide s'il n'en a pas. `groupes` garde ses classes `group-N`, pour
+ *  qu'une règle de feuille puisse les viser un jour. */
+export type Connecte = {
+  readonly pseudo: string;
+  readonly url: string;
+  readonly couleur: string;
+  readonly groupes: readonly string[];
+};
+
+/** La couleur de groupe écrite dans un `style` en ligne.
+ *
+ *  ── POURQUOI ON LA CHERCHE À TROIS ENDROITS ─────────────────────────
+ *
+ *  « Les joueurs connectés, on doit voir la couleur de leur groupe »,
+ *  9 octobre. Je ne la perdais pas par choix ici : je ne lisais que le
+ *  TEXTE du lien, et la couleur n'est pas dans le texte.
+ *
+ *  Forumactif l'écrit de trois façons selon la page et la version :
+ *  sur le `<a>` lui-même, sur un `<span class="group-N usr_grp_clr">`
+ *  DEDANS, ou sur un `<span>` qui ENVELOPPE le lien. On regarde les
+ *  trois, dans cet ordre, et on prend la première trouvée.
+ *
+ *  ON LIT L'ATTRIBUT, PAS LE STYLE CALCULÉ : un style calculé rendrait
+ *  la couleur héritée de la feuille pour un membre sans groupe, donc
+ *  tout le monde aurait une couleur et plus personne ne se
+ *  distinguerait. L'attribut, lui, n'existe que si Forumactif l'a
+ *  écrit. */
+export function couleurDeGroupe(a: Element): string {
+  const candidats: (Element | null)[] = [
+    a,
+    a.querySelector("[style*='color']"),
+    a.closest("span[style*='color']"),
+  ];
+  for (const n of candidats) {
+    if (n === null) continue;
+    const m = (n.getAttribute("style") ?? "").match(/(?:^|;)\s*color\s*:\s*([^;]+)/i);
+    const c = (m?.[1] ?? "").trim();
+    if (c !== "") return c;
+  }
+  return "";
+}
+
+/** Ses classes `group-N`, sur le lien ou juste dedans. */
+export function groupesDe(a: Element): readonly string[] {
+  const vus = new Set<string>();
+  for (const n of [a, ...Array.from(a.querySelectorAll("[class*='group-']"))]) {
+    for (const c of Array.from(n.classList)) {
+      if (/^group-\d+$/.test(c)) vus.add(c);
+    }
+  }
+  return Array.from(vus);
+}
 
 /** Les membres d'une liste de connectés servie par Forumactif.
  *
@@ -157,7 +258,7 @@ export function connectesDe(
     //  une fois dans une infobulle. On garde le premier.
     if (pseudo === "" || vus.has(url)) continue;
     vus.add(url);
-    sortie.push({ pseudo, url });
+    sortie.push({ pseudo, url, couleur: couleurDeGroupe(a), groupes: groupesDe(a) });
   }
   return sortie;
 }
@@ -182,8 +283,20 @@ function listeDeConnectes(doc: Document, gens: readonly Connecte[]): HTMLElement
     const li = el(doc, "li", "wm-enligne__gens-item");
     const a = doc.createElement("a");
     a.className = "wm-enligne__gens-lien";
+    for (const c of g.groupes) a.classList.add(c);
     a.href = g.url;
     a.textContent = g.pseudo;
+    //  ── LA COULEUR DU GROUPE, EN LIGNE ───────────────────────────
+    //  Elle ne peut pas venir de la feuille : les groupes sont créés
+    //  dans le panneau d'administration et leurs couleurs avec, donc
+    //  le dépôt ne les connaît pas. On recopie celle que Forumactif a
+    //  écrite, et on la pose en PROPRIÉTÉ PERSONNALISÉE plutôt qu'en
+    //  `color` : la feuille garde ainsi la main sur le survol et sur
+    //  l'état visité, en faisant ce qu'elle veut de la teinte.
+    if (g.couleur !== "") {
+      a.style.setProperty("--wm-couleur-groupe", g.couleur);
+      a.dataset.wmGroupeColore = "";
+    }
     li.appendChild(a);
     ul.appendChild(li);
   }

@@ -476,10 +476,33 @@ html,
     pas y toucher.
 
     `.mainmenu`, vérifié au passage, est en blanc à **12,5 dans les deux
-    modes** : l'écarter était juste, et elle n'a besoin de rien. */
+    modes** : l'écarter était juste, et elle n'a besoin de rien.
+
+    ── LE FOND PASSE À L'ENCRE, LE 9 OCTOBRE ─────────────────────────
+
+    « Change la couleur de fond pour wm-encre. » On prend donc la
+    surface aussi, au lieu de laisser le `#2c353b` de Forumactif.
+
+    ET LE TEXTE CHANGE DE JETON AVEC, SANS QUOI LE PIED DEVIENT
+    ILLISIBLE EN SOMBRE. `--wm-encre` s'INVERSE avec le thème —
+    `#2e2018` en clair, `#f2e4d8` en sombre — alors que
+    `--wm-texte-sur-nuit` vaut `#f2e4d8` en sombre LUI AUSSI. Crème
+    sur crème : **1,0 de contraste**, soit rien du tout.
+
+    `--wm-texte-inverse` s'inverse dans l'AUTRE sens, et c'est le
+    jeton fait pour aller avec l'encre :
+
+      · clair  — `#2e2018` sous `#fffbf7` : **15,27**
+      · sombre — `#f2e4d8` sous `#1a1210` : **14,82**
+
+    Les deux au-dessus du `#2c353b` d'origine, qui donnait 12,14. */
+#modernbb #page-footer {
+  background-color: var(--wm-encre, #2e2018);
+}
+
 #modernbb #page-footer a:not([class]),
 #modernbb #page-footer .gensmall {
-  color: var(--wm-texte-sur-nuit, #fffbf7);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /*  ── LE SURVOL EST UNE COULEUR, PLUS UN SOULIGNEMENT ───────────
@@ -496,8 +519,11 @@ html,
     8,9 de contraste, donc le lien survolé reste parfaitement lisible.
     C'est la même teinte que le bouton de repli du bandeau, qui a eu
     le même problème. */
+/*  Le survol suit le même jeton que le lien, pour la même raison :
+    atténué à 75 %, il se distingue du lien au repos dans les deux
+    modes sans jamais s'approcher de la couleur du fond. */
 #modernbb #page-footer a:not([class]):hover {
-  color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 75%, transparent);
+  color: color-mix(in srgb, var(--wm-texte-inverse, #fffbf7) 75%, transparent);
 }
 
 #modernbb a:not([class]):hover,

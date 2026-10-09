@@ -132,6 +132,30 @@
   text-decoration: underline;
 }
 
+/*  ── LA COULEUR DE SON GROUPE ──────────────────────────────────────
+
+    « Les joueurs connectés, on doit voir la couleur de leur groupe »,
+    9 octobre.
+
+    Elle arrive par `--wm-couleur-groupe`, posée en ligne par le
+    script : les groupes sont créés dans le panneau d'administration et
+    leurs couleurs avec, donc le dépôt ne peut pas les connaître. Un
+    membre sans groupe n'a pas l'attribut et garde l'accent du thème —
+    c'est pour ça que la règle est liée à `[data-wm-groupe-colore]` et
+    pas au seul `var()` : sans lui, un repli suffirait et tout le monde
+    serait de la même couleur.
+
+    LE GRAS EN PLUS DE LA TEINTE. Une couleur de groupe peut être pâle
+    — c'est le choix de Callista dans le panneau, pas le nôtre — et une
+    teinte seule sur onze pixels et demi peut descendre sous le seuil
+    de lisibilité sans qu'on le sache. La graisse tient la lecture quoi
+    qu'il arrive, et elle dit la même chose : ce membre a un groupe. */
+#modernbb .wm-enligne__gens-lien[data-wm-groupe-colore],
+#modernbb .wm-enligne__gens-lien[data-wm-groupe-colore]:hover {
+  color: var(--wm-couleur-groupe);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
 /* ── les deux compteurs ───────────────────────────────────────────── */
 
 #modernbb .wm-enligne__compteurs {
@@ -246,14 +270,56 @@
     s'empilent, le bloc devient haut et étroit, et une bête de 250 px
     dans le coin passe par-dessus le texte. Elle n'apporte rien d'assez
     pour qu'on s'arrange avec ça. */
+/*  ── LE SABELETTE EST HORS DU BLOC, PAS DESSUS ─────────────────────
+
+    « Il doit être beaucoup plus décalé vers la droite, il doit pas
+    être placé comme ça sur les groupes », 9 octobre. Elle a raison, et
+    la maquette le dit au pixel : `390:3430` est à **x = 1300 dans un
+    bloc large de 1172**, y = 0. Il commence donc 128 px APRÈS le bord
+    droit, et il ne chevauche rien du tout.
+
+    J'avais lu « en fond » comme « derrière le contenu ». C'était « à
+    côté ».
+
+    LES COTES, EN PROPORTION DU BLOC, pour que le rapport tienne à
+    toutes les largeurs : l'écart au bord droit vaut 128/1172 = 10,9 %,
+    l'image 250. Son bord droit se range donc à
+    -(10,9 % + 250 px) du bord droit du bloc.
+
+    ── ON RÉSERVE SA PLACE, ON NE DÉBORDE PAS ────────────────────
+
+    Dans la maquette il est dans la marge de la page : le bloc fait
+    1172 et il commence à 1300. Sur le forum il n'y a pas de marge —
+    le bloc occupe toute la colonne de contenu. Le faire déborder
+    demanderait de couper le débordement quelque part, et j'ai essayé :
+    `overflow-x: clip` sur `#modernbb` fait échouer le harnais de
+    l'accueil, parce qu'un axe en `clip` force l'autre de `visible` à
+    `hidden` — la mascotte de l'accueil, qui déborde par le haut, se
+    faisait rogner.
+
+    Donc on RÉSERVE la bande à droite du panneau, et il s'y range. Ce
+    n'est pas un pis-aller : les trois colonnes de la maquette font
+    1098 à elles trois, pas 1382. Réserver 282 px sur une colonne de
+    contenu de 1382 leur rend exactement leur largeur de dessin.
+
+    Sous 1200 px la réservation tombe avec lui : il n'y a plus de
+    place, et il ne dit rien que le texte ne dise déjà. */
 #modernbb .wm-enligne__mascotte {
   position: absolute;
-  top: -28px;
-  right: -8px;
+  top: 0;
+  right: 0;
   width: 250px;
-  max-width: 34%;
   height: auto;
   pointer-events: none;
+}
+
+/*  LA BANDE RÉSERVÉE : l'image, plus l'écart qui la détache des
+    clans. Elle est sur le PANNEAU et pas sur le bloc, pour que le
+    titre « Qui est en ligne ? » garde toute sa largeur. */
+@media (min-width: 1200px) {
+  #modernbb .wm-enligne__panneau {
+    padding-right: 282px;
+  }
 }
 
 /*  Le bloc devient le repère du Sabelette. Sans ça il se cale sur la
@@ -262,7 +328,7 @@
   position: relative;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1199px) {
   #modernbb .wm-enligne__mascotte {
     display: none;
   }

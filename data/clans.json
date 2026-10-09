@@ -21,37 +21,38 @@
     {
       "cle": "reshiram",
       "nom": "Reshiram",
-      "description": "",
-      "avantage": "",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "avantage": "Lorem ipsum : + 10 % de lorem dans les ipsum.",
       "pokemons": []
     },
     {
       "cle": "deoxys",
       "nom": "Deoxys",
-      "description": "",
-      "avantage": "",
+      "description": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      "avantage": "Lorem ipsum : + 10 % de lorem dans les ipsum.",
       "pokemons": []
     },
     {
       "cle": "xerneas",
       "nom": "Xerneas",
-      "description": "",
-      "avantage": "",
+      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+      "avantage": "Lorem ipsum : + 10 % de lorem dans les ipsum.",
       "pokemons": []
     },
     {
       "cle": "zamazenta",
       "nom": "Zamazenta",
-      "description": "",
-      "avantage": "",
+      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.",
+      "avantage": "Lorem ipsum : + 10 % de lorem dans les ipsum.",
       "pokemons": []
     },
     {
       "cle": "mew",
       "nom": "Mew",
-      "description": "",
-      "avantage": "",
+      "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.",
+      "avantage": "Lorem ipsum : + 10 % de lorem dans les ipsum.",
       "pokemons": []
     }
-  ]
+  ],
+  "_lorem": "LES CINQ CLANS EN LOREM IPSUM, à la demande de Callista le 9 octobre : sans description, un onglet reste éteint, et on ne pouvait cliquer que sur Ho-Oh. À remplacer par les vrais textes — ils se repèrent au « Lorem ipsum » de l'avantage."
 }
