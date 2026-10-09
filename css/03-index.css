@@ -458,46 +458,45 @@
   background-repeat: no-repeat;
 }
 
-/*  ── LA DESCRIPTION SE DÉROULE, ELLE NE SE COUPE PLUS ─────────────
+/*  ── SEULE LA DESCRIPTION DÉFILE ──────────────────────────────────
 
-    « Mets une hauteur max pour les descriptions et un overflow auto »,
-    9 octobre. C'est l'inverse de la décision d'hier — « la description
-    se coupe au pixel, et c'est assumé » — et c'est le bon sens : un
-    texte coupé est un texte perdu.
+    « L'overflow auto ne se situe que sur la description et pas sur le
+    titre et les sous-forums », 9 octobre — et c'était déjà l'intention
+    la veille. Ce qui l'empêchait : le gabarit de ModernBB met le
+    titre, la description et les sous-forums dans un seul `<div>`, et
+    la description y est un nœud de texte nu. On avait donc borné la
+    CELLULE, et le titre défilait avec.
 
-    MESURÉ SUR LE FORUM, 24 forums à 1 400 de large : **quatre cellules
-    dépassent 94** — « Appuyer sur Start » à 113, puis trois à 96. Ce
-    sont elles, et elles seules, qui porteront une barre. Les vingt
-    autres ne changent pas d'un pixel.
+    `envelopperLesDescriptions` lui donne maintenant une boîte à elle,
+    comme `rangerLesSousForums` en donne une aux liens. La cellule
+    revient à `overflow: hidden` — c'est elle qui tient la ligne à sa
+    hauteur — et c'est la boîte qui défile.
 
-    Et aujourd'hui ces quatre-là DÉBORDENT de leur case sans le dire :
-    la rangée fait 92, le contenu 113, et `overflow: hidden` posé sur
-    la cellule rogne ses enfants, pas elle-même. Les 10 px de trop
-    mordent dans le rembourrage de la ligne. Le `max-height` est donc
-    aussi ce qui remet la cellule dans sa case.
+    SANS JAVASCRIPT il n'y a pas de boîte, donc pas de défilement : la
+    cellule rogne, exactement comme le 8 octobre. Le repli coûte une
+    description tronquée, pas une ligne déformée.
 
-    CE N'EST PAS LA DESCRIPTION QU'ON BORNE, C'EST LA CELLULE, et on n'a
-    pas le choix : le gabarit de ModernBB écrit le titre ET la
-    description dans le même `<div>`, derrière un style EN LIGNE
-    qu'aucun sélecteur ne bat. Il n'existe aucun nœud qui ne contienne
-    que la description. Le titre défile donc avec elle — en pratique on
-    ne le voit pas, parce qu'il tient sur la première ligne et que
-    personne ne fait défiler vers le haut une boîte déjà en haut.
+    42 px : deux lignes de texte à 11,5 et son interligne, plus un
+    filet. C'est la place que la maquette laisse sous le titre, et
+    MESURÉ sur le forum : quatre forums sur vingt-quatre en demandent
+    davantage, dont « Appuyer sur Start » à 113.
 
-    94 : les deux rangées de 46 et les 2 px qui les séparent. La ligne
-    garde donc exactement sa hauteur, et c'est tout l'intérêt par
-    rapport à un `max-height` choisi à la main — qui, lui, serait faux
-    à la prochaine rangée.
-
-    LA BARRE EST FINE ET DISCRÈTE : vingt-quatre lignes dont quatre
-    portent une barre de défilement grise d'usine, c'est quatre taches
-    dans une liste. */
+    LA BARRE EST FINE ET DISCRÈTE : quatre barres d'usine grises dans
+    une liste de vingt-quatre lignes, ce sont quatre taches. */
 #modernbb ul.topiclist li.row dd.dterm {
-  max-height: 94px;
   grid-area: identite;
   padding: 0;
+  overflow: hidden;
+}
+
+#modernbb ul.topiclist li.row .wm-forum__description {
+  display: block;
+  max-height: 42px;
   overflow-x: hidden;
   overflow-y: auto;
+  /*  SIX PIXELS POUR LA BARRE, sans quoi elle passe sur les dernières
+      lettres des quatre forums qui en portent une. */
+  padding-right: var(--wm-espace-6, 6px);
   scrollbar-color: var(--wm-bord-net, #d9c3b1) transparent;
   scrollbar-width: thin;
 }
@@ -577,11 +576,29 @@
 
     28 de côté : c'est aussi la cible au doigt. Elle était jusqu'ici
     celle du glyphe seul. */
+/*  ── ET IL LUI FALLAIT UN PARENT POSITIONNÉ ───────────────────────
+    MESURÉ APRÈS COUP, le 9 octobre : le bouton avait bien ses 28 px,
+    et il rendait `x = -44`. **Hors de l'écran, à gauche.**
+
+    `right: 22px` se compte depuis le BLOC CONTENANT, c'est-à-dire le
+    premier ancêtre positionné — et il n'y en avait aucun jusqu'au
+    bloc initial. Le bouton se calait donc sur la page entière, pas
+    sur sa bande, et ModernBB ne s'en apercevait pas parce que sa
+    propre règle le posait en `top` absolu sans `right`.
+
+    Lui donner une taille sans lui donner un repère, c'était corriger
+    la moitié du défaut — et la moitié qui ne se voit pas. */
+#modernbb ul.topiclist li.header {
+  position: relative;
+}
+
 #modernbb li.header .btn-collapse {
   display: flex;
+  position: absolute;
   top: 50%;
   right: 22px;
   bottom: auto;
+  left: auto;
   width: 28px;
   height: 28px;
   align-items: center;
@@ -661,10 +678,6 @@
     seule, donc c'est le conteneur qui porte le style, et le titre a
     déjà le sien (02). */
 #modernbb ul.topiclist li.row dd.dterm > div {
-  /*  SIX PIXELS POUR LA BARRE DE DÉFILEMENT, depuis que la cellule
-      défile : sans eux, la barre passe sur les dernières lettres des
-      quatre forums que la mesure a trouvés trop longs. */
-  padding-right: var(--wm-espace-6, 6px);
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
@@ -747,13 +760,29 @@
 
 /*  LE NOMBRE DE SUJETS EST LE PLUS GROS DE LA LIGNE. `dd.views` le
     suit : c'est la même colonne sur la liste des sujets, et le nombre
-    de vues y joue le même rôle que le nombre de sujets ici. */
+    de vues y joue le même rôle que le nombre de sujets ici.
+
+    ── ET LES DEUX SE TOUCHENT PRESQUE ───────────────────────────────
+
+    « L'espace entre les messages et les sujets est beaucoup trop
+    élevé encore », 9 octobre, après un premier réglage qui n'avait
+    rien changé — et pour cause : **l'écart ne venait pas du
+    `row-gap`**, qui vaut deux pixels, mais de la HAUTEUR DES RANGÉES.
+    Chaque compteur était centré dans sa rangée de 46, donc les deux
+    chiffres se retrouvaient à une quarantaine de pixels l'un de
+    l'autre quoi qu'on fasse au `gap`.
+
+    On les colle au joint : le premier se cale en BAS de sa rangée, le
+    second en HAUT de la sienne. Ils se retrouvent de part et d'autre
+    des deux pixels d'écart, et c'est tout ce qui les sépare. */
 #modernbb ul.topiclist li.row dd.topics,
 #modernbb ul.topiclist li.row dd.views {
+  align-self: end;
   font-size: var(--wm-taille-titre-section, 19px);
 }
 
 #modernbb ul.topiclist li.row dd.posts {
+  align-self: start;
   font-size: var(--wm-taille-normal, 13.5px);
 }
 
@@ -1091,24 +1120,24 @@
     pastille de gauche, qui les demande dans la même liste. Ce qui
     reste : 68 de côté, et le cadrage par le haut.
 
-    68 ET PAS 56 × 68. Un carré est un rectangle, et c'est celui qui
-    marche ici : la colonne du dernier message fait 252, le texte en
-    prend ce qu'il peut, et un avatar plus étroit que haut laisserait
-    un vide à sa droite que rien ne remplirait. Le dessin de la
-    maquette — 35 × 56 — valait pour une colonne de 212 et un avatar
-    sans cadre.
+    35 × 56, ET C'EST LA COTE DE LA MAQUETTE. J'avais gardé 68 × 68 en
+    me disant qu'un carré est un rectangle et que la colonne de 252
+    supporterait la largeur. Callista a tranché le 9 octobre : « les
+    dimensions de l'avatar du dernier posteur : 35 × 56 ». C'est le
+    dessin de `390:3328`, et ce sont trente-trois pixels rendus au
+    texte du dernier message, qui en manquait.
 
     `object-position: top center` reste : les avatars de Rhode sont des
     portraits en pied, et un cadrage centré leur couperait la tête. */
 #modernbb .lastpost-avatar {
   display: block;
-  width: 68px;
-  height: 68px;
+  width: 35px;
+  height: 56px;
   box-sizing: border-box;
   flex: none;
   padding: 0;
   border: 0;
-  border-radius: var(--wm-rayon-lg, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
   line-height: 0;
 }
 
@@ -1116,7 +1145,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: var(--wm-rayon-lg, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
   object-fit: cover;
   object-position: top center;
 }
@@ -1168,10 +1197,26 @@
   font-weight: var(--wm-graisse-gras, 700);
 }
 
+/*  ── LA FLÈCHE COLLE AU NOM ───────────────────────────────────────
+    « L'espace entre la flèche et le nom du dernier posteur ne doit
+    pas dépasser quelques pixels », 9 octobre. Elle était poussée au
+    bout de la ligne par `margin-left: auto`, donc l'écart valait tout
+    ce qui restait de la colonne — vingt pixels sur un nom court, cent
+    sur « Arceus ».
+
+    Elle suit maintenant le nom, à six pixels, et c'est le `gap` de la
+    ligne qui les tient. Le nom est tronqué par `text-overflow`, donc
+    la flèche ne sort jamais de la cellule. */
 #modernbb .wm-dernier__qui .last-post-icon {
   flex: none;
-  margin-left: auto;
+  margin-left: 0;
   line-height: 0;
+}
+
+/*  Le nom prend la place, la flèche suit. Sans ça, `flex` répartirait
+    l'espace restant entre les deux. */
+#modernbb .wm-dernier__qui {
+  justify-content: flex-start;
 }
 
 /*  Un titre de sujet long ne doit pas pousser la colonne : il se coupe. */

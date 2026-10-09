@@ -223,6 +223,82 @@ export function rangerLesSousForums(doc: Document): number {
   return faits;
 }
 
+export const CLASSE_DESCRIPTION = "wm-forum__description";
+
+/** Enveloppe la description d'un forum dans un élément à elle.
+ *
+ *  ── POURQUOI ON NE PEUT PAS S'EN PASSER ─────────────────────────────
+ *
+ *  « L'overflow auto ne se situe que sur la description et pas sur le
+ *  titre et les sous-forums », 9 octobre. C'était déjà l'intention la
+ *  veille, et la feuille 03 disait alors pourquoi elle ne pouvait pas :
+ *  le gabarit de ModernBB écrit le titre, la description et les
+ *  sous-forums dans un SEUL `<div>`, derrière un style en ligne, et la
+ *  description y est un **nœud de texte nu**. Aucun sélecteur
+ *  n'atteint un nœud de texte. On avait donc borné la cellule entière,
+ *  et le titre défilait avec.
+ *
+ *  Le même remède que pour les virgules des sous-forums et pour la
+ *  date du dernier message : si le gabarit ne donne pas d'élément, on
+ *  en pose un. Trois fois le même geste sur la même ligne, et c'est
+ *  cohérent — ce qui ne peut pas se styler se nomme.
+ *
+ *  ── CE QU'ON ENVELOPPE, ET CE QU'ON LAISSE DEHORS ───────────────────
+ *
+ *  Tout ce qui suit le `<h3>` et précède le rang de sous-forums. Les
+ *  deux `<br>` du gabarit restent DEHORS : ils font l'écart entre le
+ *  titre et la description, et dedans ils défileraient avec elle —
+ *  donc la description commencerait quatre pixels trop bas à chaque
+ *  fois qu'on la remonte.
+ *
+ *  À LANCER APRÈS `rangerLesSousForums`, qui regroupe les liens dans
+ *  un seul `<span>` : la frontière est alors un élément, et pas une
+ *  suite de liens et de virgules à reconnaître un par un.
+ *
+ *  Un forum sans description — il y en a — ne reçoit rien : envelopper
+ *  le vide poserait une boîte qui ne contient pas de texte, et la
+ *  feuille lui donnerait quand même sa marge.
+ *
+ *  Rend le nombre de descriptions enveloppées. */
+export function envelopperLesDescriptions(doc: Document): number {
+  let faits = 0;
+  for (const corps of Array.from(doc.querySelectorAll("li.row dd.dterm > div"))) {
+    if (corps.querySelector(`.${CLASSE_DESCRIPTION}`) !== null) continue;
+    const titre = corps.querySelector("h3");
+    if (titre === null) continue;
+    const rang = corps.querySelector(`.${CLASSE_SOUS_FORUMS}`);
+
+    //  On ramasse d'abord, on déplace ensuite : déplacer en marchant
+    //  dans `nextSibling` fait sauter des nœuds.
+    const dedans: ChildNode[] = [];
+    let n: ChildNode | null = titre.nextSibling;
+    let encoreEnTete = true;
+    while (n !== null && n !== rang) {
+      const suivant: ChildNode | null = n.nextSibling;
+      const estSaut = n.nodeType === 1 && (n as Element).tagName === "BR";
+      //  Les sauts de TÊTE restent dehors ; ceux du milieu d'une
+      //  description sur deux paragraphes rentrent avec elle.
+      if (!(encoreEnTete && estSaut)) {
+        encoreEnTete = false;
+        dedans.push(n);
+      }
+      n = suivant;
+    }
+
+    //  Du texte, et pas seulement des balises vides : ModernBB laisse
+    //  traîner un `<strong></strong>` en fin de ligne.
+    const aDuTexte = dedans.some((x) => (x.textContent ?? "").trim() !== "");
+    if (!aDuTexte) continue;
+
+    const boite = doc.createElement("span");
+    boite.className = CLASSE_DESCRIPTION;
+    corps.insertBefore(boite, dedans[0]);
+    for (const x of dedans) boite.appendChild(x);
+    faits += 1;
+  }
+  return faits;
+}
+
 // ── le dernier message ──────────────────────────────────────────────
 
 /** Ce qu'on a su tirer d'un bloc « dernière réponse ». */

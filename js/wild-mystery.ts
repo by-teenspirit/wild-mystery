@@ -39,8 +39,10 @@ import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/reg
 import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
+import { poserQuiEstEnLigne } from "../src/adaptateurs/navigateur/module-enligne.ts";
 import { estLIndex, poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import {
+  envelopperLesDescriptions,
   numeroterLesCategories,
   poserLesPastilles,
   rangerLesSousForums,
@@ -330,6 +332,23 @@ async function poserLesTerritoires(): Promise<void> {
   pose.enrichir(await comptagesDesPaliers(document, paliers));
 }
 
+/** « Qui est en ligne ? », maquette `390:3387`.
+ *
+ *  Les compteurs et le dernier arrivé sont DANS la page — ModernBB
+ *  les écrit en bas de l'index. Seul le clan du moment demande un
+ *  fichier, et c'est pour lui qu'on va sur le réseau.
+ *
+ *  Le bloc se pose quand même si `clans.json` ne répond pas : on perd
+ *  la carte du clan, pas les chiffres. */
+async function poserLesPresents(): Promise<void> {
+  if (RACINE === null) return;
+  if (!estLIndex(location.pathname)) return;
+  const clans = await fetch(`${RACINE}clans.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  poserQuiEstEnLigne({ doc: document, clans });
+}
+
 desQueLeCorpsEstLa(() => {
   coin.appliquerLeTheme();
   masquerLesMarqueurs(document);
@@ -364,6 +383,10 @@ desQueLeCorpsEstLa(() => {
   //  virgules qui les séparent sont des nœuds de texte, qu'aucune
   //  règle n'atteint.
   rangerLesSousForums(document);
+  //  ET LA DESCRIPTION REÇOIT UNE BOÎTE À ELLE, pour que ce soit ELLE
+  //  qui défile et pas le titre au-dessus. Après les sous-forums :
+  //  c'est leur rang qui lui sert de frontière.
+  envelopperLesDescriptions(document);
   //  ET L'IMAGE DU FORUM SORT DE SON STYLE EN LIGNE pour entrer dans
   //  le rond de la maquette. Elle est posée par Forumactif en
   //  `background` sur le `<dl>`, position comprise : aucune règle ne
@@ -373,6 +396,9 @@ desQueLeCorpsEstLa(() => {
   //  au-dessus des catégories, elle ne les remplace pas : sans
   //  JavaScript on garde la liste entière, et avec, on a les deux.
   poserLesTerritoires().catch(() => {});
+  //  ET « QUI EST EN LIGNE », tout en bas de l'index : les forums, ce
+  //  qui s'y passe, puis qui l'habite.
+  poserLesPresents().catch(() => {});
   //  ET LE BOUTON DU TCHAT VA DANS LE COIN D'OUTILS, dès que FAM l'a
   //  posé. Sans réseau de notre côté : on guette un nœud, on le range,
   //  on s'arrête.
