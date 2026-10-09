@@ -109,8 +109,11 @@
   text-decoration: none;
 }
 
+/*  Le survol change la COULEUR et rien d'autre (9 octobre). Le nom
+    n'en avait pas de seconde : il prend l'accent fort, comme tous les
+    liens survolés du forum. */
 #modernbb .memberlist-qui:hover .memberlist-nom {
-  text-decoration: underline;
+  color: var(--wm-accent-fort, #1f5470);
 }
 
 /*  Le numéro de ligne. Il compte peu, il prend donc peu de place — mais

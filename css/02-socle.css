@@ -196,17 +196,17 @@ html,
 }
 
 /*  ET LE PENDANT : À L'INTÉRIEUR DE NOS SURFACES, C'EST NOTRE ENCRE.
-    
+
     Prendre le fond sans prendre le texte est l'erreur inverse de celle
     du dessus, et elle donne le même résultat. Relevé sur la page de
     forum le 3 octobre : **dix éléments sous 4,5 de contraste**, tous
     parce que le CSS de base pose `color: #444` (ou `#000`) directement
     sur un `p`, un `span`, un `strong`, un `dfn`.
-    
+
     On ne les énumère pas un par un — il y en aurait autant que de
     pages. On rend l'héritage à ce qui est dans nos blocs, et c'est le
     conteneur qui décide de la couleur.
-    
+
     `:where()` ne compte pour rien dans la spécificité, et cette règle
     est posée AVANT les règles de texte : un `.gensmall` ou un titre
     gardent donc la leur. Ce qui n'a pas de règle à lui hérite — ce qui
@@ -238,9 +238,7 @@ html,
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-#modernbb
-  :where(.forabg, .forumbg, .block, .overview, .module, .panel, ul.topiclist)
-  :where(p, div, span, strong, em, b, i, dfn, label, dd, dt, li, h2, h3, h4) {
+#modernbb :where(.forabg, .forumbg, .block, .overview, .module, .panel, ul.topiclist) :where(p, div, span, strong, em, b, i, dfn, label, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
@@ -484,19 +482,27 @@ html,
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
-/*  Le survol par le SOULIGNEMENT et pas par la couleur : la règle
-    ci-dessus l'emporte en spécificité sur le `:hover` générique plus
-    bas, et un lien qui ne répond pas au survol est un lien mort. Le
-    soulignement marche sur n'importe quel fond, lui. */
+/*  ── LE SURVOL EST UNE COULEUR, PLUS UN SOULIGNEMENT ───────────
+    « Pas de soulignement de lien au survol, seulement un changement
+    de couleur », 9 octobre, et c'est général à tout le forum.
+
+    ICI C'ÉTAIT LE CONTRAIRE, et pour une raison qui tenait : sur le
+    pied de page nuit, le lien EST déjà en crème, donc il n'y avait
+    pas de seconde couleur à lui donner — le soulignement marchait,
+    lui, sur n'importe quel fond.
+
+    On lui en donne une : le crème atténué à 75 %, qui se distingue du
+    crème plein sans sortir de la charte. Mesuré contre `fond-nuit` :
+    8,9 de contraste, donc le lien survolé reste parfaitement lisible.
+    C'est la même teinte que le bouton de repli du bandeau, qui a eu
+    le même problème. */
 #modernbb #page-footer a:not([class]):hover {
-  color: var(--wm-texte-sur-nuit, #fffbf7);
-  text-decoration: underline;
+  color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 75%, transparent);
 }
 
 #modernbb a:not([class]):hover,
 #modernbb .postbody a:hover {
   color: var(--wm-accent-fort, #1f5470);
-  text-decoration: underline;
 }
 
 /*  La couleur de groupe arrive en style inline sur le pseudo : on la

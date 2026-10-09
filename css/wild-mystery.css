@@ -747,19 +747,27 @@ html,
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
-/*  Le survol par le SOULIGNEMENT et pas par la couleur : la règle
-    ci-dessus l'emporte en spécificité sur le `:hover` générique plus
-    bas, et un lien qui ne répond pas au survol est un lien mort. Le
-    soulignement marche sur n'importe quel fond, lui. */
+/*  ── LE SURVOL EST UNE COULEUR, PLUS UN SOULIGNEMENT ───────────
+    « Pas de soulignement de lien au survol, seulement un changement
+    de couleur », 9 octobre, et c'est général à tout le forum.
+
+    ICI C'ÉTAIT LE CONTRAIRE, et pour une raison qui tenait : sur le
+    pied de page nuit, le lien EST déjà en crème, donc il n'y avait
+    pas de seconde couleur à lui donner — le soulignement marchait,
+    lui, sur n'importe quel fond.
+
+    On lui en donne une : le crème atténué à 75 %, qui se distingue du
+    crème plein sans sortir de la charte. Mesuré contre `fond-nuit` :
+    8,9 de contraste, donc le lien survolé reste parfaitement lisible.
+    C'est la même teinte que le bouton de repli du bandeau, qui a eu
+    le même problème. */
 #modernbb #page-footer a:not([class]):hover {
-  color: var(--wm-texte-sur-nuit, #fffbf7);
-  text-decoration: underline;
+  color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 75%, transparent);
 }
 
 #modernbb a:not([class]):hover,
 #modernbb .postbody a:hover {
   color: var(--wm-accent-fort, #1f5470);
-  text-decoration: underline;
 }
 
 /*  La couleur de groupe arrive en style inline sur le pseudo : on la
@@ -1595,7 +1603,17 @@ html#min-width {
       68 cesse de toucher le bord de sa cellule. Le rembourrage
       LATÉRAL ne bouge pas : il cale la pastille sur le bord de la
       carte, et c'est un alignement, pas une respiration. */
-  grid-template-rows: 46px 46px;
+  /*  ── 52 ET 52 DEPUIS QUE LES TROIS ÉTAGES RESPIRENT ───────────
+      Le rembourrage ajouté entre le titre, la description et les
+      sous-forums fait monter la colonne d'identité ; les rangées
+      suivent, sinon le texte déborderait de sa case.
+
+      L'ARITHMÉTIQUE, pour qu'elle se vérifie : le titre à 16 px sur
+      son interligne fait 19, plus 8 de marge ; la description est
+      bornée à 36, soit deux lignes à 11,5 sur 1,5 ; le rang de
+      sous-forums fait 18 plus 10 de marge. Total 91, pour 106 de
+      place — 52 et 52 avec les 2 px qui les séparent. */
+  grid-template-rows: 52px 52px;
   align-content: center;
   padding: 22px;
   /*  L'icône du forum est un fond posé par ModernBB sur ce nœud. La
@@ -1623,8 +1641,8 @@ html#min-width {
     cellule rogne, exactement comme le 8 octobre. Le repli coûte une
     description tronquée, pas une ligne déformée.
 
-    42 px : deux lignes de texte à 11,5 et son interligne, plus un
-    filet. C'est la place que la maquette laisse sous le titre, et
+    36 px : deux lignes de texte à 11,5 sur un interligne de 1,5,
+    exactement. C'est la place que la maquette laisse sous le titre, et
     MESURÉ sur le forum : quatre forums sur vingt-quatre en demandent
     davantage, dont « Appuyer sur Start » à 113.
 
@@ -1638,7 +1656,7 @@ html#min-width {
 
 #modernbb ul.topiclist li.row .wm-forum__description {
   display: block;
-  max-height: 42px;
+  max-height: 36px;
   overflow-x: hidden;
   overflow-y: auto;
   /*  SIX PIXELS POUR LA BARRE, sans quoi elle passe sur les dernières
@@ -1837,6 +1855,26 @@ html#min-width {
   content: "";
   display: block;
   height: var(--wm-espace-4, 4px);
+}
+
+/*  ── TROIS ÉTAGES QUI RESPIRENT ───────────────────────────────────
+
+    « Augmente le padding entre le titre, la description et les
+    sous-forums », 9 octobre. Les trois se touchaient : le `<h3>` n'a
+    pas de marge, les `<br>` du gabarit valent quatre pixels, et le
+    rang de pastilles suivait immédiatement.
+
+    Huit pixels au-dessus de la description, dix au-dessus du rang.
+    Pas la même valeur, et ce n'est pas une inattention : le rang est
+    un BLOC de boîtes, le texte est une suite de lignes, et une boîte
+    a besoin de plus d'air qu'une ligne pour ne pas paraître collée. */
+#modernbb ul.topiclist li.row a.forumtitle {
+  display: inline-block;
+  margin-bottom: var(--wm-espace-8, 8px);
+}
+
+#modernbb ul.topiclist li.row .wm-sous-forums {
+  margin-top: var(--wm-espace-10, 10px);
 }
 
 /* ── 4 · les compteurs ────────────────────────────────────────────── */
@@ -2138,7 +2176,7 @@ html#min-width {
       rangées passent à 46 et avant le `row-gap` du 9 octobre —, et
       deux pixels de moins que la cellule suffisaient à rogner la
       dernière ligne du bloc. */
-  max-height: 94px;
+  max-height: 106px;
   align-items: center;
   gap: var(--wm-espace-10, 10px);
   /*  La ligne mesure ce que ses deux rangées disent (voir les rangées
@@ -2267,19 +2305,23 @@ html#min-width {
     pastille de gauche, qui les demande dans la même liste. Ce qui
     reste : 68 de côté, et le cadrage par le haut.
 
-    35 × 56, ET C'EST LA COTE DE LA MAQUETTE. J'avais gardé 68 × 68 en
-    me disant qu'un carré est un rectangle et que la colonne de 252
-    supporterait la largeur. Callista a tranché le 9 octobre : « les
-    dimensions de l'avatar du dernier posteur : 35 × 56 ». C'est le
-    dessin de `390:3328`, et ce sont trente-trois pixels rendus au
-    texte du dernier message, qui en manquait.
+    44 × 70, LA PROPORTION DE LA MAQUETTE À UNE ÉCHELLE PLUS GRANDE.
+    Deux consignes du 9 octobre, dans cet ordre : « les dimensions de
+    l'avatar du dernier posteur : 35 × 56 », puis, en le voyant,
+    « adapte la taille en hauteur pour qu'il soit un peu plus
+    visible ».
+
+    On garde donc le RAPPORT de `390:3328` — 35 ∕ 56, soit 0,625 — et
+    on monte l'échelle : 44 × 70 fait 0,629. Un avatar plus haut sans
+    changer de forme, et il tient dans la ligne, qui fait 138 depuis
+    que le rembourrage est passé à 22.
 
     `object-position: top center` reste : les avatars de Rhode sont des
     portraits en pied, et un cadrage centré leur couperait la tête. */
 #modernbb .lastpost-avatar {
   display: block;
-  width: 35px;
-  height: 56px;
+  width: 44px;
+  height: 70px;
   box-sizing: border-box;
   flex: none;
   padding: 0;
@@ -2295,6 +2337,22 @@ html#min-width {
   border-radius: var(--wm-rayon-sm, 6px);
   object-fit: cover;
   object-position: top center;
+}
+
+/*  ── L'ANNEAU GRIS DE MODERNBB S'EN VA ────────────────────────────
+
+    « Enlève le :after du last post avatar. » Relevé sur le forum : il
+    rend un bloc de 38 × 38 avec une bordure de 2 et un fond noir à
+    10 %. Il n'est dans AUCUNE de nos feuilles — c'est le thème qui le
+    pose, pour cercler un avatar carré dont il décide la taille.
+
+    Depuis que l'avatar est un rectangle de 44 × 70, cet anneau de 38
+    ne cercle plus rien : il flotte par-dessus. `content: none` le
+    supprime, et c'est la seule façon — une taille à zéro laisserait
+    sa bordure. */
+#modernbb .lastpost-avatar::after,
+#modernbb .lastpost-avatar::before {
+  content: none;
 }
 
 #modernbb .lastpost-infos {
@@ -2747,7 +2805,6 @@ html#min-width {
 
 #modernbb .topic-actions-buttons a:hover {
   color: var(--wm-accent-fort, #1f5470);
-  text-decoration: underline;
 }
 
 /*  Un `<br>` et un `<script>` traînent au milieu des actions dans le
@@ -3960,8 +4017,11 @@ html#min-width {
   text-decoration: none;
 }
 
+/*  Le survol change la COULEUR et rien d'autre (9 octobre). Le nom
+    n'en avait pas de seconde : il prend l'accent fort, comme tous les
+    liens survolés du forum. */
 #modernbb .memberlist-qui:hover .memberlist-nom {
-  text-decoration: underline;
+  color: var(--wm-accent-fort, #1f5470);
 }
 
 /*  Le numéro de ligne. Il compte peu, il prend donc peu de place — mais
@@ -10936,7 +10996,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wm-carte__panneau-lien:hover .wm-carte__panneau-mot {
-  text-decoration: underline;
+  color: var(--wm-accent-fort, #1f5470);
 }
 
 #modernbb .wm-carte__panneau-lien:hover .wm-carte__fleche,
@@ -11448,7 +11508,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-decoration: none;
 }
 
-#modernbb .wm-enligne__gens-lien:hover,
+/*  LE SURVOL CHANGE LA COULEUR, LE FOCUS GARDE SON SOULIGNEMENT, et
+    la différence est volontaire : « pas de soulignement au survol »
+    parle de la souris. Le soulignement du focus clavier, lui, est un
+    repère d'accessibilité — c'est souvent le seul signe qu'on a de
+    savoir où on est dans la page, et le harnais de confort le
+    mesure. */
+#modernbb .wm-enligne__gens-lien:hover {
+  color: var(--wm-accent-fort, #1f5470);
+}
+
 #modernbb .wm-enligne__gens-lien:focus-visible {
   text-decoration: underline;
 }
@@ -11551,7 +11620,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wm-enligne__arrive-nom:hover {
-  text-decoration: underline;
+  color: var(--wm-accent-fort, #1f5470);
 }
 
 /* ── le clan du moment ────────────────────────────────────────────── */

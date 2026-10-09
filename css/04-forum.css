@@ -125,7 +125,6 @@
 
 #modernbb .topic-actions-buttons a:hover {
   color: var(--wm-accent-fort, #1f5470);
-  text-decoration: underline;
 }
 
 /*  Un `<br>` et un `<script>` traînent au milieu des actions dans le

@@ -1,0 +1,391 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 17 · « Qui est en ligne ? », maquette `390:3387`
+
+   ── LES COTES DU DESSIN ─────────────────────────────────────────────
+
+   Bande de 1172 × 586. Le titre manuscrit en haut à gauche, 66 de
+   haut. En dessous, un panneau de 508, rembourré de 28 et 35. Dedans,
+   trois colonnes : 341, 341 et 368, avec 24 entre elles.
+
+     colonne 1   « Actuellement en ligne » sur 348, puis deux
+                 compteurs de 164 × 73, séparés de 12
+     colonne 2   le dernier arrivé (carte de 86, avec un rond de 56),
+                 surmonté du mot « Bienvenue » qui la chevauche ;
+                 puis « Connectés dans les 24 dernières heures », 297
+     colonne 3   une bande de six sprites de 65, et la carte du clan
+                 sur 292, avec son encart d'avantage en bas
+
+   On garde les PROPORTIONS et les espaces, pas les abscisses : la
+   carte vaut 1172 dans le dessin et la colonne du forum va jusqu'à
+   1400.
+
+   ── LA COULEUR DU CLAN VIENT DE SA CLÉ ──────────────────────────────
+
+   Six clans, six paires de jetons déjà déclarées dans le panneau
+   d'administration — `--wm-groupe-ho-oh-fond` et `-texte`, et ainsi de
+   suite. La carte lit la paire qui correspond à son `data-wm-clan`.
+   Aucune couleur n'est écrite ici, et changer de clan du moment ne
+   demande donc pas une ligne de CSS.
+   ════════════════════════════════════════════════════════════════════ */
+
+#modernbb .wm-enligne {
+  margin: 0 0 var(--wm-espace-24, 24px);
+}
+
+/*  Le titre manuscrit, posé à même la page et pas dans le panneau —
+    comme « Actualités » sur l'accueil. */
+#modernbb .wm-enligne__titre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  padding-left: var(--wm-espace-12, 12px);
+  color: var(--wm-accent-terre, #8b4725);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  font-size: var(--wm-taille-accent, 46px);
+  font-weight: var(--wm-graisse-normale, 400);
+  line-height: var(--wm-interligne-affiche, 1);
+}
+
+#modernbb .wm-enligne__panneau {
+  display: flex;
+  align-items: stretch;
+  gap: var(--wm-espace-24, 24px);
+  padding: 35px 28px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  Les deux premières colonnes partagent la place à parts égales, la
+    troisième est un peu plus large — 341, 341, 368 dans le dessin. */
+#modernbb .wm-enligne__colonne {
+  display: flex;
+  flex: 341 1 0;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+  min-width: 0;
+}
+
+#modernbb .wm-enligne__colonne--clan {
+  flex: 368 1 0;
+}
+
+/* ── les cartes ───────────────────────────────────────────────────── */
+
+#modernbb .wm-enligne__carte {
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  Les deux cartes de connectés prennent la hauteur qui reste : dans
+    le dessin elles font 348 et 297, c'est-à-dire tout ce que leur
+    colonne ne donne pas aux compteurs et au dernier arrivé. Une
+    hauteur écrite ici serait fausse dès qu'une liste se remplit. */
+#modernbb .wm-enligne__carte--haute {
+  flex: 1 1 auto;
+}
+
+#modernbb .wm-enligne__carte-titre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  font-size: var(--wm-taille-chapo, 21px);
+  font-weight: var(--wm-graisse-normale, 400);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+/*  « Personne pour l'instant » plutôt qu'une carte muette : une carte
+    vide sans un mot laisse croire que le chargement a échoué. */
+#modernbb .wm-enligne__personne {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+}
+
+#modernbb .wm-enligne__gens {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  list-style: none;
+}
+
+#modernbb .wm-enligne__gens-lien {
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-decoration: none;
+}
+
+/*  LE SURVOL CHANGE LA COULEUR, LE FOCUS GARDE SON SOULIGNEMENT, et
+    la différence est volontaire : « pas de soulignement au survol »
+    parle de la souris. Le soulignement du focus clavier, lui, est un
+    repère d'accessibilité — c'est souvent le seul signe qu'on a de
+    savoir où on est dans la page, et le harnais de confort le
+    mesure. */
+#modernbb .wm-enligne__gens-lien:hover {
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb .wm-enligne__gens-lien:focus-visible {
+  text-decoration: underline;
+}
+
+/* ── les deux compteurs ───────────────────────────────────────────── */
+
+#modernbb .wm-enligne__compteurs {
+  display: flex;
+  flex: none;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-enligne__compteur {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  28 de haut dans le dessin, donc du 24 en Fraunces. Les chiffres
+    sont en chasse fixe — `tabular-nums` — pour que deux compteurs
+    côte à côte s'alignent au lieu de danser. */
+#modernbb .wm-enligne__compteur-n {
+  color: var(--wm-accent-terre, #8b4725);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-chiffre, 1.15);
+}
+
+#modernbb .wm-enligne__compteur-mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── le dernier arrivé ────────────────────────────────────────────── */
+
+/*  « Bienvenue » chevauche sa carte, comme le titre des actualités sur
+    l'accueil : il est posé en relatif par-dessus, calé à droite, et la
+    carte remonte sous lui. */
+#modernbb .wm-enligne__bienvenue {
+  position: relative;
+  flex: none;
+}
+
+#modernbb .wm-enligne__bienvenue-mot {
+  position: relative;
+  z-index: 1;
+  margin: 0 var(--wm-espace-12, 12px) -18px 0;
+  color: var(--wm-accent-terre, #8b4725);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  font-size: var(--wm-taille-accent, 46px);
+  font-weight: var(--wm-graisse-normale, 400);
+  line-height: var(--wm-interligne-affiche, 1);
+  text-align: right;
+}
+
+#modernbb .wm-enligne__arrive {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-16, 16px);
+  padding: 15px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LE ROND EST VIDE, et c'est honnête. Forumactif n'écrit pas l'avatar
+    du dernier inscrit dans `.statistics` — seulement son pseudo et le
+    lien vers son profil. Aller le chercher coûterait une requête par
+    chargement de page pour une vignette. Le rond garde sa place, dans
+    la teinte des surfaces, et il attend le jour où l'avatar passera
+    par les données. */
+#modernbb .wm-enligne__arrive-rond {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-enligne__arrive-nom {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modernbb .wm-enligne__arrive-nom:hover {
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+/* ── le clan du moment ────────────────────────────────────────────── */
+
+#modernbb .wm-enligne__clan-bloc {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 11px;
+  min-height: 0;
+}
+
+/*  Six cases de 65, espacées de 9 — la bande du dessin. Elle ne se
+    pose que si la carte de couverture sait rendre au moins une
+    image : six cases vides valent moins que pas de bande du tout. */
+#modernbb .wm-enligne__sprites {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: 9px;
+  list-style: none;
+}
+
+#modernbb .wm-enligne__sprite {
+  display: flex;
+  width: 65px;
+  height: 65px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-enligne__sprite img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/*  LA COULEUR VIENT DE LA CLÉ. Les six paires existent déjà dans le
+    panneau d'administration ; la carte prend celle de son clan. Les
+    replis sont ceux de Ho-Oh, qui est le clan du moment — c'est le
+    seul repli honnête : si les jetons ne sont pas servis, c'est bien
+    cette carte-là qu'on verra. */
+#modernbb .wm-enligne__clan {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: 19px 16px 16px;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-groupe-ho-oh-fond, #f3d8c0);
+  color: var(--wm-groupe-ho-oh-texte, #9a4f22);
+}
+
+#modernbb .wm-enligne__clan[data-wm-clan="reshiram"] {
+  background: var(--wm-groupe-reshiram-fond, #dee6ef);
+  color: var(--wm-groupe-reshiram-texte, #4c5a6c);
+}
+
+#modernbb .wm-enligne__clan[data-wm-clan="deoxys"] {
+  background: var(--wm-groupe-deoxys-fond, #e0d6ef);
+  color: var(--wm-groupe-deoxys-texte, #5e4a7e);
+}
+
+#modernbb .wm-enligne__clan[data-wm-clan="xerneas"] {
+  background: var(--wm-groupe-xerneas-fond, #cdeae4);
+  color: var(--wm-groupe-xerneas-texte, #2a6a62);
+}
+
+#modernbb .wm-enligne__clan[data-wm-clan="zamazenta"] {
+  background: var(--wm-groupe-zamazenta-fond, #f2d4da);
+  color: var(--wm-groupe-zamazenta-texte, #7a3341);
+}
+
+#modernbb .wm-enligne__clan[data-wm-clan="mew"] {
+  background: var(--wm-groupe-mew-fond, #f7dce8);
+  color: var(--wm-groupe-mew-texte, #7a4460);
+}
+
+#modernbb .wm-enligne__clan-nom {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: inherit;
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  font-size: 34px;
+  font-weight: var(--wm-graisse-normale, 400);
+  line-height: var(--wm-interligne-affiche, 1);
+}
+
+#modernbb .wm-enligne__clan-texte {
+  margin: 0;
+  color: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  L'encart d'avantage est collé en bas : `margin-top: auto` le pousse
+    quand la description est courte, et il reste sous elle quand elle
+    est longue. Le dessin le met à 361 d'un bloc de 437 — c'est-à-dire
+    en bas. */
+#modernbb .wm-enligne__avantage {
+  margin-top: auto;
+  padding: 12px 14px;
+  border-radius: var(--wm-rayon-md, 8px);
+  /*  Un voile clair sur la couleur du clan, et pas une seconde teinte
+      à déclarer six fois : il suit le clan quel qu'il soit. */
+  background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 42%, transparent);
+}
+
+#modernbb .wm-enligne__avantage-titre {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  color: inherit;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-enligne__avantage-texte {
+  margin: 0;
+  color: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── sur petit écran ──────────────────────────────────────────────── */
+
+/*  LES TROIS COLONNES S'EMPILENT, et c'est volontairement différent de
+    l'accueil. L'accueil est une COMPOSITION — une mise en page dessinée,
+    qu'on réduit d'un bloc. Ce panneau-ci est une suite de cartes
+    indépendantes : les empiler ne change rien à ce qu'elles disent, et
+    les réduire rendrait trois listes de pseudos illisibles. */
+@media (max-width: 900px) {
+  #modernbb .wm-enligne__panneau {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-enligne__titre {
+    font-size: var(--wm-taille-titre-page, 25px);
+  }
+
+  #modernbb .wm-enligne__bienvenue-mot {
+    font-size: var(--wm-taille-titre-page, 25px);
+    margin-bottom: -10px;
+  }
+
+  /*  La bande de sprites se couche avec la carte. */
+  #modernbb .wm-enligne__clan-bloc {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-enligne__sprites {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

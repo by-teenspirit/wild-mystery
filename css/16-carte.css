@@ -574,7 +574,7 @@
 }
 
 #modernbb .wm-carte__panneau-lien:hover .wm-carte__panneau-mot {
-  text-decoration: underline;
+  color: var(--wm-accent-fort, #1f5470);
 }
 
 #modernbb .wm-carte__panneau-lien:hover .wm-carte__fleche,
