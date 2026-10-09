@@ -9,6 +9,7 @@
 
 import { assertEquals } from "@std/assert";
 import {
+  avatarParmi,
   type Chiffres,
   clanDepuis,
   clanDuMoment,
@@ -157,4 +158,60 @@ Deno.test("une entrée sans clé ni nom n'est pas un onglet", () => {
   assertEquals(ongletsDesClans({ clans: [{ description: "x" }, null, 3] }).length, 0);
   assertEquals(ongletsDesClans(null).length, 0);
   assertEquals(ongletsDesClans({}).length, 0);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  L'AVATAR DU DERNIER ARRIVÉ
+//
+//  « Pour le dernier arrivant, le rond à côté c'est pour afficher son
+//  avatar », 9 octobre. Forumactif ne le sert nulle part sur l'index :
+//  il faut le lire sur la page de profil, qui porte vingt images.
+//  Choisir la bonne, c'est une règle, et une règle se teste.
+// ════════════════════════════════════════════════════════════════════
+
+const img = (classes: string, src: string, largeur = 0) => ({ classes, src, largeur });
+
+Deno.test("LA CLASSE « AVATAR » GAGNE, c'est le nom de l'emplacement", () => {
+  assertEquals(
+    avatarParmi([
+      img("flag", "/images/flags/fr.png", 16),
+      img("avatar-profile", "https://i.servimg.com/u/f11/20/12/34/56/moi.png", 200),
+      img("rang", "/images/rangs/mj.png", 60),
+    ]),
+    "https://i.servimg.com/u/f11/20/12/34/56/moi.png",
+  );
+});
+
+Deno.test("sans la classe, le CHEMIN la trouve", () => {
+  assertEquals(
+    avatarParmi([
+      img("logo", "/logo.png", 200),
+      img("", "/users/2015/11/22/avatars/44-13.png", 150),
+    ]),
+    "/users/2015/11/22/avatars/44-13.png",
+  );
+});
+
+Deno.test("LES PETITES IMAGES SONT ÉCARTÉES : drapeaux et icônes de rang", () => {
+  //  Une image de 16 px dans un conteneur nommé « avatar » reste une
+  //  icône. Sans ce filtre, le drapeau du pays passerait pour un
+  //  visage.
+  assertEquals(avatarParmi([img("avatar", "/flags/fr.png", 16)]), null);
+});
+
+Deno.test("UNE PAGE SANS AVATAR NE REND RIEN, et surtout pas la première image", () => {
+  assertEquals(
+    avatarParmi([img("logo", "/logo.png", 300), img("pub", "/pub.jpg", 728)]),
+    null,
+  );
+});
+
+Deno.test("une image sans largeur déclarée est acceptée", () => {
+  //  `width` n'est pas toujours écrit dans le balisage, et une image
+  //  pas encore chargée a une largeur naturelle de zéro. L'écarter
+  //  reviendrait à n'en trouver aucune sur la moitié des profils.
+  assertEquals(
+    avatarParmi([img("avatar-profile", "/users/avatars/7.png", 0)]),
+    "/users/avatars/7.png",
+  );
 });

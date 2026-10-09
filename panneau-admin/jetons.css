@@ -77,6 +77,14 @@
       THÈME : c'est la couleur d'une image, pas celle d'une surface. */
   --wm-carte-bord-peinte: #1a5380;
 
+  /*  ── LA BANNIÈRE, UNE PAR THÈME ────────────────────────────────
+
+      Callista en a fourni deux le 9 octobre : une claire et une
+      sombre. Elles sont ici plutôt que dans la feuille pour la même
+      raison que le bandeau de catégorie — changer la photo se fait
+      dans le panneau d'administration, sans toucher au dépôt. */
+  --wm-banniere: url("https://i.postimg.cc/pXVM2Cd6/wild-mystery-header.png");
+
   --wm-encre:           #2e2018;
   --wm-texte-corps:     #4e3b30;
   --wm-texte-doux:      #6e5749;
@@ -229,6 +237,11 @@ body.wm-sombre {
 
   /*  LA MÊME VALEUR QU'EN CLAIR : c'est la couleur d'une image. */
   --wm-carte-bord-peinte:     #1a5380;
+
+  /*  LA BANNIÈRE SOMBRE. C'est le seul jeton d'image qui change avec
+      le thème — le bandeau de catégorie, lui, reste le même parce que
+      sa bande est sombre dans les deux modes. */
+  --wm-banniere:              url("https://i.postimg.cc/Gh3ncKpk/wild-mystery-header-sombre.png");
 
   --wm-encre:                 #f2e4d8;
   --wm-texte-corps:           #dcc9ba;

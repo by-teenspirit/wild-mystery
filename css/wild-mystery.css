@@ -1070,6 +1070,25 @@ html#min-width {
   max-width: none;
 }
 
+/*  ── UNE BANNIÈRE PAR THÈME ────────────────────────────────────────
+
+    « J'ai une bannière pour le mode clair et une bannière pour le
+    mode sombre », 9 octobre.
+
+    `content` SUR UNE IMAGE LA REMPLACE. C'est la seule façon de
+    changer de bannière sans toucher à l'en-tête — « l'en-tête est
+    parfaite, on change pas » — ni au gabarit, ni au panneau
+    d'administration, ni avec une ligne de JavaScript : le jeton se
+    retourne avec le thème, l'image suit.
+
+    Celle du panneau reste le repli : si le jeton n'est pas servi,
+    `content` n'est pas déclaré et c'est l'image d'origine qui
+    s'affiche. On ne peut pas perdre la bannière en se trompant de
+    jeton, au pire on perd le mode sombre. */
+#modernbb a#logo img {
+  content: var(--wm-banniere);
+}
+
 /*  Le fondu vers la page, 96 px, comme dans la maquette : l'image ne
     s'arrête pas net sur le fond, elle s'y dissout.
 
@@ -2760,6 +2779,135 @@ html#min-width {
 #modernbb .panel:has(> #chatbox_top) {
   padding-right: 0;
   padding-left: 0;
+}
+
+/*  ════════════════════════════════════════════════════════════════
+    LES DEUX BARRES DE LIENS DE L'INDEX
+
+    « Fais des jolis boutons qui vont avec le design », 9 octobre,
+    pour `ul.linklist.top` et `ul.linklist.bottom`. Elles n'avaient
+    AUCUN style à nous jusqu'ici : c'était la liste à puces de
+    ModernBB, servie telle quelle.
+
+    ── CE QU'ELLES SONT ────────────────────────────────────────────
+
+    Haut : « nouveaux messages », « mes messages », « sans réponse »,
+    et à droite « tout marquer comme lu ». Bas : les trois palmarès,
+    et à droite « supprimer les cookies ».
+
+    Ce sont des RACCOURCIS, pas la navigation — celle-ci est dans la
+    barre du haut. Ils prennent donc la surface claire et le bord fin
+    de la charte, pas l'accent : un rang de boutons terre au-dessus de
+    la première catégorie volerait l'œil à ce qu'on vient lire.
+
+    ── POURQUOI UN FLEX ET PAS DES `float` ─────────────────────────
+
+    ModernBB fait flotter `.rightside`. Un flottant sort du flux, donc
+    la barre n'a plus de hauteur propre et le `margin` du bloc suivant
+    passe à travers. `margin-left: auto` sur le premier `.rightside`
+    fait la même chose sans ce défaut, et garde l'ordre du document —
+    ce qui compte pour qui lit au clavier.
+    ════════════════════════════════════════════════════════════════ */
+#modernbb ul.linklist.top,
+#modernbb ul.linklist.bottom {
+  display: flex;
+  margin: 0 0 var(--wm-espace-14, 14px);
+  padding: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+#modernbb ul.linklist.bottom {
+  margin: var(--wm-espace-14, 14px) 0 0;
+}
+
+#modernbb ul.linklist.top > li,
+#modernbb ul.linklist.bottom > li {
+  display: flex;
+  float: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*  LE PREMIER `.rightside` POUSSE, LES SUIVANTS SUIVENT. S'il y en
+    avait deux, un `margin-left: auto` sur chacun les séparerait tout
+    le long de la barre au lieu de les grouper à droite. */
+#modernbb ul.linklist.top > li.rightside:first-of-type,
+#modernbb ul.linklist.bottom > li.rightside:first-of-type {
+  margin-left: auto;
+}
+
+#modernbb ul.linklist.top > li > a,
+#modernbb ul.linklist.bottom > li > a {
+  display: inline-flex;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+/*  AU SURVOL, LA COULEUR ET LE BORD, JAMAIS LE SOULIGNEMENT —
+    « pas de soulignement de lien au survol, seulement un changement
+    de couleur », et c'est général au forum. Le fond monte d'un cran
+    pour que le bouton se décolle sans changer de taille : une bordure
+    qui s'épaissit au survol décale tout le rang. */
+#modernbb ul.linklist.top > li > a:hover,
+#modernbb ul.linklist.bottom > li > a:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-accent-terre, #8b4725);
+  text-decoration: none;
+}
+
+#modernbb ul.linklist.top > li > a:focus-visible,
+#modernbb ul.linklist.bottom > li > a:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  L'icône est Ionicons, déjà chargée par ModernBB. Elle est
+    DÉCORATIVE : le libellé dit déjà tout, et une icône annoncée en
+    plus du texte le ferait lire deux fois. */
+#modernbb ul.linklist.top > li > a > i,
+#modernbb ul.linklist.bottom > li > a > i {
+  margin: 0;
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: 14px;
+  line-height: 1;
+}
+
+#modernbb ul.linklist.top > li > a:hover > i,
+#modernbb ul.linklist.bottom > li > a:hover > i {
+  color: inherit;
+}
+
+/*  À l'étroit, les libellés de la barre du haut sont longs — « Voir
+    les nouveaux messages depuis votre dernière visite » fait quatre
+    lignes sur un téléphone. On les laisse se replier, et le
+    `.rightside` cesse de pousser : il passe à la ligne comme les
+    autres. */
+@media (max-width: 740px) {
+  #modernbb ul.linklist.top > li.rightside:first-of-type,
+  #modernbb ul.linklist.bottom > li.rightside:first-of-type {
+    margin-left: 0;
+  }
+
+  #modernbb ul.linklist.top > li > a,
+  #modernbb ul.linklist.bottom > li > a {
+    font-size: var(--wm-taille-etiquette, 10px);
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -10862,6 +11010,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     La zone choisie se dit alors par un liseré clair et un voile très
     léger : assez pour la trouver, pas assez pour repeindre le biome
     qu'elle désigne. */
+/*  ── LA PEINTURE PORTE SON PROPRE OCÉAN ───────────────────────────
+
+    « Les paths "mer bande" et la carte elle-même : ça ne se fond pas
+    du tout », 9 octobre.
+
+    Il n'y avait rien à fondre — il y avait UN FOND DE TROP. La mer
+    vectorielle (neuf bandes de profondeur et vingt-neuf rides) a été
+    dessinée quand la carte était un dessin ; la peinture, elle, a sa
+    mer peinte dedans. Les deux se touchent forcément mal : l'une est
+    un aplat en dégradé de jetons, l'autre une aquarelle.
+
+    Alors on n'en garde qu'une. Sous `--peinte`, la mer vectorielle ne
+    se dessine plus.
+
+    ELLE N'EST PAS SUPPRIMÉE POUR AUTANT, et c'est le point : si
+    l'image ne charge pas, le module retire `--peinte` et toute la
+    carte dessinée revient — mer, bandes, rides et terre. On ne tombe
+    pas sur un cadre vide, on tombe sur la version d'avant. */
+#modernbb .wm-carte--peinte .wm-carte__mer {
+  display: none;
+}
+
 #modernbb .wm-carte--peinte .wm-carte__forme,
 #modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille] .wm-carte__forme {
   fill: transparent;
@@ -11609,8 +11779,26 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /*  Le titre manuscrit, posé à même la page et pas dans le panneau —
     comme « Actualités » sur l'accueil. */
+/*  ── LE TITRE MORD SUR LE PANNEAU ──────────────────────────────────
+
+    « Il doit chevaucher le bloc en dessous de lui », 9 octobre, et
+    c'est le traitement de toute la charte : le « Bienvenue » de la
+    colonne du milieu et le titre des actualités de l'accueil font
+    déjà ça. Un titre en Kaushan de 46 px posé SUR le bord du panneau
+    appartient à la page ; posé au-dessus avec son écart, il flotte.
+
+    LA MARGE NÉGATIVE, PAS UN DÉCALAGE. `position: relative` + `top`
+    laisserait l'espace vide derrière lui — le panneau resterait où il
+    était et on aurait juste poussé le texte. La marge négative
+    REMONTE le panneau, qui vient donc passer sous le titre.
+
+    `z-index` et un fond de surface derrière la lettre : sinon le
+    panneau, qui est peint après dans l'ordre du document, passerait
+    par-dessus le bas des jambages. */
 #modernbb .wm-enligne__titre {
-  margin: 0 0 var(--wm-espace-12, 12px);
+  position: relative;
+  z-index: 1;
+  margin: 0 0 calc(-1 * var(--wm-espace-14, 14px));
   padding-left: var(--wm-espace-12, 12px);
   color: var(--wm-accent-terre, #8b4725);
   font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
@@ -11806,13 +11994,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     chargement de page pour une vignette. Le rond garde sa place, dans
     la teinte des surfaces, et il attend le jour où l'avatar passera
     par les données. */
+/*  Le rond est l'emplacement de l'avatar. Il garde son fond doux
+    tant que l'image n'est pas là — ou si le membre n'en a pas : un
+    rond plein vaut mieux qu'un trou. `overflow: hidden` taille
+    l'image au cercle sans qu'elle ait à le savoir. */
 #modernbb .wm-enligne__arrive-rond {
   width: 56px;
   height: 56px;
+  overflow: hidden;
   flex: none;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: 999px;
   background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-enligne__arrive-avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /*  `cover` et pas `contain` : un avatar Forumactif peut être
+      rectangulaire, et le laisser flotter avec des bandes dans un
+      cercle est pire que le recadrer. */
+  object-fit: cover;
 }
 
 #modernbb .wm-enligne__arrive-nom {
@@ -12051,6 +12254,34 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-size: 34px;
   font-weight: var(--wm-graisse-normale, 400);
   line-height: var(--wm-interligne-affiche, 1);
+}
+
+/*  ── LA GRIFFE DU SABELETTE NE MORD PLUS LE TEXTE ──────────────────
+
+    « Moins large pour que la griffe de Sabelette ne vienne pas
+    chevaucher le texte », 9 octobre.
+
+    Il est à `right: -103px` et large de 250 : il couvre donc 147 px
+    du bord droit du bloc, et le haut de la carte du clan est
+    justement là. On rend ces 147 px au décor — le texte s'arrête
+    avant, le nom aussi.
+
+    SUR LE TEXTE ET LE NOM, PAS SUR LA CARTE : l'encart d'avantage est
+    en bas, sous les 239 px du Sabelette, et rien ne l'y gêne. Lui
+    retirer sa largeur serait payer pour un chevauchement qui n'existe
+    pas. */
+#modernbb .wm-enligne__clan-nom,
+#modernbb .wm-enligne__clan-texte {
+  padding-right: 128px;
+}
+
+@media (max-width: 1199px) {
+  /*  Sous 1200 px le Sabelette disparaît : le texte reprend toute sa
+      largeur, sinon on garderait un trou pour une image absente. */
+  #modernbb .wm-enligne__clan-nom,
+  #modernbb .wm-enligne__clan-texte {
+    padding-right: 0;
+  }
 }
 
 #modernbb .wm-enligne__clan-texte {

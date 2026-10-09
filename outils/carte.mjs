@@ -129,6 +129,10 @@ p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 //  LA TROISIÈME PAGE DE PALIER RÉPOND 503, EXPRÈS. C'est le cas qui
 //  compte : une page injoignable ne doit coûter que ses chiffres.
 let demandesDePalier = 0;
+//  La peinture, lue une fois. `peintureServie` décide si on la sert :
+//  les deux états sont des cas à part entière.
+const PEINTURE = readFileSync(R + "planches/peinte/fond-forum.jpg");
+let peintureServie = false;
 await p.route("**/*", (r) => {
   const u = r.request().url();
   if (u.endsWith("/data/carte.json")) {
@@ -142,6 +146,18 @@ await p.route("**/*", (r) => {
       contentType: "text/javascript",
       body: readFileSync(R + "js/wild-mystery.js", "utf8"),
     });
+  }
+  //  ── LA PEINTURE EST SERVIE, OU PAS, SELON L'ESSAI ─────────────
+  //
+  //  Jusqu'ici le harnais ne la servait pas : l'adresse tombait dans
+  //  la réponse par défaut, l'image échouait, et tous les cas de mer
+  //  passaient — en testant le mode DESSINÉ en croyant tester l'autre.
+  //  C'est ce qui a laissé passer « les bandes de mer et la carte ne
+  //  se fondent pas » : les deux fonds ne se sont jamais rencontrés
+  //  ici.
+  if (/fond-forum\.jpg$/.test(u)) {
+    if (!peintureServie) return r.fulfill({ status: 404, body: "" });
+    return r.fulfill({ contentType: "image/jpeg", body: PEINTURE });
   }
   if (/\/f96-/.test(u)) {
     demandesDePalier += 1;
@@ -546,69 +562,63 @@ const zoome = await p.evaluate(() =>
 );
 dire("LE BOUTON ZOOME", zoome !== "0 0 1000 640", zoome);
 
-// ── LA MOLETTE ZOOME, ET ELLE REND LA MAIN ─────────────────────────
+// ── LE BOUTON ZOOME, À LA SOURIS ───────────────────────────────────
 //
-//  « Le zoom ne fonctionne pas », 9 octobre : les boutons marchaient,
-//  la molette non — elle était écartée exprès. Elle zoome maintenant,
-//  mais elle ne doit PAS avaler le défilement de la page quand il n'y
-//  a plus de zoom à prendre : sinon on reste coincé dans le bloc.
-const molette = await (async () => {
-  const cadre = await p.$(".wm-carte__cadre");
-  const b = await cadre.boundingBox();
-  const au = () =>
-    p.evaluate(() => document.querySelector(".wm-carte__dessin").getAttribute("viewBox"));
-  //  On repart du plus large.
-  await p.evaluate(() => {
-    const m = [...document.querySelectorAll(".wm-carte__zoom-bouton")]
-      .find((x) => x.textContent.trim() === "−");
-    for (let i = 0; i < 12; i += 1) m.click();
-  });
-  await p.waitForTimeout(80);
-  const large = await au();
-
-  //  Au plus large, une molette vers le BAS (dézoomer) n'a rien à
-  //  prendre : elle doit laisser la page faire son travail.
-  //
-  //  ON LIT `defaultPrevented`, PAS LE DÉFILEMENT : le décor du
-  //  harnais ne dépasse pas la fenêtre, donc `scrollY` reste à zéro
-  //  quoi qu'il arrive, et un test sur le défilement passerait pour
-  //  de mauvaises raisons. Ce qu'on veut savoir, c'est si la carte a
-  //  retenu l'événement.
-  const rendLaMain = await p.evaluate(() => {
-    const c = document.querySelector(".wm-carte__cadre");
-    const e = new WheelEvent("wheel", { deltaY: 240, bubbles: true, cancelable: true });
-    c.dispatchEvent(e);
-    return {
-      retenu: e.defaultPrevented,
-      vue: document.querySelector(".wm-carte__dessin").getAttribute("viewBox"),
-    };
-  });
-
-  //  Une molette vers le HAUT, elle, zoome, et la page ne bouge pas.
-  await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
-  const avantPage2 = await p.evaluate(() => globalThis.scrollY);
-  await p.mouse.wheel(0, -240);
+//  « Le + − en bas à gauche ne fonctionne pas. » Il ne fonctionnait
+//  pas, et mon harnais disait le contraire : il appelait `.click()` en
+//  JavaScript, ce qui saute tout le trajet du pointeur. Or la panne
+//  était précisément là — le cadre s'emparait du pointeur au
+//  `pointerdown` et le bouton ne recevait jamais son clic.
+//
+//  UN TEST QUI CONTOURNE LE CODE NE TESTE RIEN. On clique à la souris,
+//  aux vraies coordonnées du bouton.
+const auZoom = async (signe) => {
+  const b = await p.$(`.wm-carte__zoom-bouton >> text="${signe}"`);
+  const boite = await b.boundingBox();
+  const avant = await p.evaluate(() =>
+    document.querySelector(".wm-carte__dessin").getAttribute("viewBox")
+  );
+  await p.mouse.click(boite.x + boite.width / 2, boite.y + boite.height / 2);
   await p.waitForTimeout(120);
   return {
-    large,
-    rendLaMain,
-    zoome: { vue: await au(), page: (await p.evaluate(() => globalThis.scrollY)) - avantPage2 },
+    avant,
+    apres: await p.evaluate(() =>
+      document.querySelector(".wm-carte__dessin").getAttribute("viewBox")
+    ),
   };
-})();
+};
+const plus = await auZoom("+");
 dire(
-  "LA MOLETTE ZOOME",
-  molette.zoome.vue !== molette.large,
-  JSON.stringify({ avant: molette.large, apres: molette.zoome.vue }),
+  "LE BOUTON + ZOOME, À LA SOURIS",
+  plus.avant !== plus.apres,
+  JSON.stringify(plus),
 );
+const moins = await auZoom("\u2212");
 dire(
-  "ET ELLE NE RETIENT PAS LE DÉFILEMENT PENDANT QU'ELLE ZOOME",
-  molette.zoome.page === 0,
-  `${molette.zoome.page} px de page`,
+  "ET LE BOUTON − DÉZOOME",
+  moins.avant !== moins.apres,
+  JSON.stringify(moins),
 );
+
+// ── ET LA MOLETTE NE ZOOME PAS ─────────────────────────────────────
+//
+//  « Enlève le zoom à la souris sur la carte, c'est infernal. »
+//  Essayé, retiré. Ce cas garde la décision : la carte ne doit jamais
+//  retenir un coup de molette.
+const molette = await p.evaluate(() => {
+  const c = document.querySelector(".wm-carte__cadre");
+  const avant = document.querySelector(".wm-carte__dessin").getAttribute("viewBox");
+  const e = new WheelEvent("wheel", { deltaY: -240, bubbles: true, cancelable: true });
+  c.dispatchEvent(e);
+  return {
+    retenu: e.defaultPrevented,
+    bouge: document.querySelector(".wm-carte__dessin").getAttribute("viewBox") !== avant,
+  };
+});
 dire(
-  "AU BOUT DE LA COURSE, ELLE REND LA MAIN À LA PAGE",
-  molette.rendLaMain.vue === molette.large && molette.rendLaMain.retenu === false,
-  JSON.stringify(molette.rendLaMain),
+  "LA MOLETTE NE ZOOME PAS, ET NE RETIENT RIEN",
+  molette.retenu === false && molette.bouge === false,
+  JSON.stringify(molette),
 );
 
 // ── LES ÉTIQUETTES NE SE MARCHENT PLUS DESSUS ──────────────────────
@@ -850,6 +860,12 @@ const mer = await p.evaluate(() => {
   };
 });
 dire("LA MER EST DESSINÉE DANS LE SVG", mer !== null, JSON.stringify(mer));
+dire(
+  "et sans peinture, c'est bien le dessin qu'on voit",
+  (await p.evaluate(() =>
+    document.querySelector(".wm-carte")?.classList.contains("wm-carte--peinte")
+  )) === false,
+);
 //  ASSEZ DE PALIERS POUR QUE ÇA NE SE LISE PLUS COMME DES PALIERS.
 //  « Tu peux faire un vrai dégradé pour l'océan ? » — le harnais ne
 //  sait pas juger un dégradé à l'œil, mais il sait compter les
@@ -889,50 +905,11 @@ dire(
   `${Math.round(avantGlisse)} → ${Math.round(apresZoom)}`,
 );
 
-// ── 11bis · la carte peinte, et son repli ───────────────────────────
-//
-//  LE HARNAIS NE PEUT PAS CHARGER L'IMAGE : il intercepte toutes les
-//  requêtes, et postimg n'est pas joignable d'ici. C'est une chance —
-//  il exerce donc exactement le cas qui compte, celui où l'adresse ne
-//  répond pas. On vérifie que la carte tient quand même : l'image est
-//  bien posée, et le dessin vectoriel est TOUJOURS dessous.
-const peinte = await p.evaluate(() => {
-  const img = document.querySelector(".wm-carte__peinte");
-  const noeuds = [...document.querySelector(".wm-carte__dessin").children];
-  return {
-    posee: img !== null,
-    adresse: (img?.getAttribute("href") ?? "").slice(0, 8),
-    marquee: document.querySelector(".wm-carte--peinte") !== null,
-    //  L'image doit venir APRÈS la mer et la terre, et AVANT les
-    //  zones : par-dessus le décor, sous les surfaces cliquables.
-    apresLaTerre: img === null
-      ? false
-      : noeuds.indexOf(img) > noeuds.indexOf(document.querySelector(".wm-carte__terre")),
-    merEncoreLa: document.querySelectorAll(".wm-carte__mer-bande").length,
-    terreEncoreLa: document.querySelectorAll(".wm-carte__terre").length,
-    //  Et les zones restent cliquables : `fill: transparent`, pas
-    //  `fill: none`, qui ne reçoit pas le pointeur.
-    remplissage: getComputedStyle(
-      document.querySelector('.wm-carte__lieu[data-wm-forum="37"] .wm-carte__forme'),
-    ).fill,
-  };
-});
-dire(
-  "LA PEINTURE EST POSÉE DANS LE SVG",
-  peinte.posee && peinte.marquee,
-  JSON.stringify(peinte),
-);
-dire("sur le décor vectoriel, pas à sa place", peinte.apresLaTerre === true);
-dire(
-  "ET LE DÉCOR RESTE DESSOUS — c'est lui qu'on voit si l'adresse tombe",
-  peinte.merEncoreLa >= 7 && peinte.terreEncoreLa >= 1,
-  `${peinte.merEncoreLa} bandes, ${peinte.terreEncoreLa} terre(s)`,
-);
-dire(
-  "les zones restent cliquables sous la peinture",
-  peinte.remplissage !== "none",
-  peinte.remplissage,
-);
+//  (L'ancien bloc « 11bis · la carte peinte » a été retiré le
+//  9 octobre. Il affirmait tester la peinture alors que le harnais ne
+//  servait pas l'image : il vérifiait donc le REPLI en croyant
+//  vérifier l'autre. Les deux états sont maintenant testés pour de
+//  bon, tout en bas, chacun avec son décor.)
 
 // ── 12 · rien ne déborde ────────────────────────────────────────────
 for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
@@ -955,6 +932,86 @@ for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
     d.cadre > 0 && d.liste > 0 && d.panneau > 0,
   );
 }
+
+// ── LA PEINTURE REMPLACE LE DESSIN, ELLE NE S'Y AJOUTE PAS ─────────
+//
+//  « Les paths "mer bande" et la carte elle-même : ça ne se fond pas
+//  du tout. » Il n'y avait rien à fondre, il y avait un fond de trop :
+//  la peinture porte son propre océan, la mer vectorielle est le
+//  dessin de secours. Les deux ensemble ne pouvaient que se voir.
+//  ON REVIENT À 1440 : la boucle de débordement laisse la fenêtre à
+//  390, et une mesure de largeur faite là-dessus ne veut rien dire.
+await p.setViewportSize({ width: 1440, height: 900 });
+peintureServie = true;
+await p.goto("http://wild-mystery.test/");
+await p.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p.waitForTimeout(900);
+const avecPeinture = await p.evaluate(() => {
+  const c = document.querySelector(".wm-carte");
+  const g = document.querySelector(".wm-carte__mer");
+  const img = document.querySelector(".wm-carte__peinte");
+  return {
+    peinte: c?.classList.contains("wm-carte--peinte") ?? null,
+    //  Le groupe existe toujours — c'est le repli — mais il ne se
+    //  dessine pas.
+    merPresente: g !== null,
+    merVisible: g === null ? null : getComputedStyle(g).display !== "none",
+    image: img === null ? null : {
+      //  Une image SVG chargée a une boîte ; une image en échec, non.
+      large: Math.round(img.getBoundingClientRect().width),
+    },
+  };
+});
+dire(
+  "AVEC LA PEINTURE, LA MER VECTORIELLE NE SE DESSINE PLUS",
+  avecPeinture.peinte === true && avecPeinture.merPresente === true &&
+    avecPeinture.merVisible === false,
+  JSON.stringify(avecPeinture),
+);
+dire(
+  "et la peinture, elle, occupe le cadre",
+  (avecPeinture.image?.large ?? 0) > 400,
+  JSON.stringify(avecPeinture.image),
+);
+
+// ── ET SI LA PEINTURE NE VIENT PAS, LE DESSIN REVIENT ──────────────
+//
+//  C'est la contrepartie : cacher la mer sous `--peinte` laisserait un
+//  cadre bleu uni le jour où l'adresse tombe. Le module retire alors
+//  la classe, et toute la carte dessinée repasse devant.
+peintureServie = false;
+await p.goto("http://wild-mystery.test/");
+await p.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p.waitForTimeout(900);
+const repli = await p.evaluate(() => {
+  const g = document.querySelector(".wm-carte__mer");
+  return {
+    peinte: document.querySelector(".wm-carte")?.classList.contains("wm-carte--peinte") ?? null,
+    merVisible: g === null ? null : getComputedStyle(g).display !== "none",
+    bandes: document.querySelectorAll(".wm-carte__mer-bande").length,
+    //  Les territoires reprennent leur aplat de palier : sous
+    //  `--peinte` ils sont transparents.
+    forme: (() => {
+      const f = document.querySelector('[data-wm-famille="palier3"] .wm-carte__forme');
+      return f === null ? null : getComputedStyle(f).fill;
+    })(),
+    imageRetiree: document.querySelector(".wm-carte__peinte") === null,
+  };
+});
+dire(
+  "SANS LA PEINTURE, LA CARTE DESSINÉE REPREND SA PLACE",
+  repli.peinte === false && repli.merVisible === true && repli.bandes >= 7 &&
+    repli.imageRetiree === true,
+  JSON.stringify(repli),
+);
+dire(
+  "et les territoires retrouvent leur aplat de palier",
+  //  Chromium rend les `color-mix` en `color(srgb …)`, pas en
+  //  `rgb(…)`. Ce qui compte, c'est qu'il ne soit plus transparent :
+  //  sous la peinture, les formes sont `fill: transparent`.
+  (repli.forme ?? "") !== "" && !/\/\s*0\s*\)|rgba\(0, 0, 0, 0\)|transparent/.test(repli.forme),
+  repli.forme,
+);
 
 await nav.close();
 if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }

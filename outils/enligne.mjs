@@ -136,6 +136,24 @@ async function ouvrir(corps, clans) {
     if (u.endsWith("/data/carte.json") || u.endsWith("/data/navigation.json")) {
       return r.fulfill({ status: 404, body: "" });
     }
+    //  ── LA PAGE DE PROFIL DU DERNIER ARRIVÉ ──────────────────────
+    //
+    //  « Le rond à côté c'est pour afficher son avatar. » Forumactif
+    //  ne le sert nulle part sur l'index : le module va le lire ici.
+    //  On sert donc une page de profil TELLE QU'ELLE EST — avec son
+    //  drapeau, son icône de rang et sa pub, pour que le choix de la
+    //  bonne image soit vraiment exercé.
+    if (/\/u\d+$/.test(u)) {
+      return r.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: `<!doctype html><html><body>
+          <img src="/images/flags/fr.png" width="16" height="11">
+          <img src="/pub/728.jpg" width="728" height="90">
+          <div class="avatar-profile"><img src="https://i.servimg.com/u/f11/20/12/34/visage.png" width="200" height="320"></div>
+          <img src="/images/rangs/mj.png" width="60" height="20">
+        </body></html>`,
+      });
+    }
     return r.fulfill({ contentType: "text/html; charset=utf-8", body: corps });
   });
   await p.goto("http://wild-mystery.test/");
@@ -557,6 +575,49 @@ dire(
   })(),
   JSON.stringify(unSeul.couleurs.find((c) => c.qui === "Compte de test")),
 );
+// ── L'AVATAR DU DERNIER ARRIVÉ ─────────────────────────────────────
+//
+//  Le rond se remplit APRÈS coup : le module lance la requête et pose
+//  l'image au retour. On attend donc, et on vérifie que c'est bien le
+//  visage qui a été choisi — pas le drapeau, pas la pub, pas l'icône
+//  de rang, qui sont tous dans la même page.
+await p6.waitForTimeout(600);
+const avatar = await p6.evaluate(() => {
+  const rond = document.querySelector(".wm-enligne__arrive-rond");
+  const img = rond?.querySelector("img") ?? null;
+  return {
+    rond: rond !== null,
+    src: img?.getAttribute("src") ?? null,
+    alt: img?.getAttribute("alt") ?? null,
+    //  Il doit remplir le cercle, pas flotter dedans.
+    //  LE BORD DU ROND COMPTE : `getBoundingClientRect` rend la boîte
+    //  de bordure du rond (56) et celle de l'image, qui vit DANS le
+    //  rembourrage (54). Les comparer à l'identique faisait échouer
+    //  un test juste — on tolère les deux pixels du liseré.
+    taille: img === null ? null : (() => {
+      const r = rond.getBoundingClientRect();
+      const i = img.getBoundingClientRect();
+      return r.width - i.width <= 2 && i.width > 40 &&
+        getComputedStyle(img).objectFit === "cover";
+    })(),
+  };
+});
+dire(
+  "LE ROND DU DERNIER ARRIVÉ PORTE SON AVATAR",
+  avatar.src === "https://i.servimg.com/u/f11/20/12/34/visage.png",
+  JSON.stringify(avatar),
+);
+dire(
+  "et pas le drapeau, la pub ou l'icône de rang de la même page",
+  avatar.src !== null && !/flags|pub|rangs/.test(avatar.src),
+  avatar.src,
+);
+dire(
+  "il remplit le cercle, et ne s'annonce pas — le pseudo est à côté",
+  avatar.taille === true && avatar.alt === "",
+  JSON.stringify({ taille: avatar.taille, alt: avatar.alt }),
+);
+
 dire(
   "UN SEUL BLOC PARLE DE QUI EST EN LIGNE, PANNEAUX ET `.block` CONFONDUS",
   unSeul.parlentDEnLigne === 1,

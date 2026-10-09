@@ -805,6 +805,25 @@ html#min-width {
   max-width: none;
 }
 
+/*  ── UNE BANNIÈRE PAR THÈME ────────────────────────────────────────
+
+    « J'ai une bannière pour le mode clair et une bannière pour le
+    mode sombre », 9 octobre.
+
+    `content` SUR UNE IMAGE LA REMPLACE. C'est la seule façon de
+    changer de bannière sans toucher à l'en-tête — « l'en-tête est
+    parfaite, on change pas » — ni au gabarit, ni au panneau
+    d'administration, ni avec une ligne de JavaScript : le jeton se
+    retourne avec le thème, l'image suit.
+
+    Celle du panneau reste le repli : si le jeton n'est pas servi,
+    `content` n'est pas déclaré et c'est l'image d'origine qui
+    s'affiche. On ne peut pas perdre la bannière en se trompant de
+    jeton, au pire on perd le mode sombre. */
+#modernbb a#logo img {
+  content: var(--wm-banniere);
+}
+
 /*  Le fondu vers la page, 96 px, comme dans la maquette : l'image ne
     s'arrête pas net sur le fond, elle s'y dissout.
 

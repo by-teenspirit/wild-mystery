@@ -34,8 +34,26 @@
 
 /*  Le titre manuscrit, posé à même la page et pas dans le panneau —
     comme « Actualités » sur l'accueil. */
+/*  ── LE TITRE MORD SUR LE PANNEAU ──────────────────────────────────
+
+    « Il doit chevaucher le bloc en dessous de lui », 9 octobre, et
+    c'est le traitement de toute la charte : le « Bienvenue » de la
+    colonne du milieu et le titre des actualités de l'accueil font
+    déjà ça. Un titre en Kaushan de 46 px posé SUR le bord du panneau
+    appartient à la page ; posé au-dessus avec son écart, il flotte.
+
+    LA MARGE NÉGATIVE, PAS UN DÉCALAGE. `position: relative` + `top`
+    laisserait l'espace vide derrière lui — le panneau resterait où il
+    était et on aurait juste poussé le texte. La marge négative
+    REMONTE le panneau, qui vient donc passer sous le titre.
+
+    `z-index` et un fond de surface derrière la lettre : sinon le
+    panneau, qui est peint après dans l'ordre du document, passerait
+    par-dessus le bas des jambages. */
 #modernbb .wm-enligne__titre {
-  margin: 0 0 var(--wm-espace-12, 12px);
+  position: relative;
+  z-index: 1;
+  margin: 0 0 calc(-1 * var(--wm-espace-14, 14px));
   padding-left: var(--wm-espace-12, 12px);
   color: var(--wm-accent-terre, #8b4725);
   font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
@@ -231,13 +249,28 @@
     chargement de page pour une vignette. Le rond garde sa place, dans
     la teinte des surfaces, et il attend le jour où l'avatar passera
     par les données. */
+/*  Le rond est l'emplacement de l'avatar. Il garde son fond doux
+    tant que l'image n'est pas là — ou si le membre n'en a pas : un
+    rond plein vaut mieux qu'un trou. `overflow: hidden` taille
+    l'image au cercle sans qu'elle ait à le savoir. */
 #modernbb .wm-enligne__arrive-rond {
   width: 56px;
   height: 56px;
+  overflow: hidden;
   flex: none;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: 999px;
   background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-enligne__arrive-avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /*  `cover` et pas `contain` : un avatar Forumactif peut être
+      rectangulaire, et le laisser flotter avec des bandes dans un
+      cercle est pire que le recadrer. */
+  object-fit: cover;
 }
 
 #modernbb .wm-enligne__arrive-nom {
@@ -476,6 +509,34 @@
   font-size: 34px;
   font-weight: var(--wm-graisse-normale, 400);
   line-height: var(--wm-interligne-affiche, 1);
+}
+
+/*  ── LA GRIFFE DU SABELETTE NE MORD PLUS LE TEXTE ──────────────────
+
+    « Moins large pour que la griffe de Sabelette ne vienne pas
+    chevaucher le texte », 9 octobre.
+
+    Il est à `right: -103px` et large de 250 : il couvre donc 147 px
+    du bord droit du bloc, et le haut de la carte du clan est
+    justement là. On rend ces 147 px au décor — le texte s'arrête
+    avant, le nom aussi.
+
+    SUR LE TEXTE ET LE NOM, PAS SUR LA CARTE : l'encart d'avantage est
+    en bas, sous les 239 px du Sabelette, et rien ne l'y gêne. Lui
+    retirer sa largeur serait payer pour un chevauchement qui n'existe
+    pas. */
+#modernbb .wm-enligne__clan-nom,
+#modernbb .wm-enligne__clan-texte {
+  padding-right: 128px;
+}
+
+@media (max-width: 1199px) {
+  /*  Sous 1200 px le Sabelette disparaît : le texte reprend toute sa
+      largeur, sinon on garderait un trou pour une image absente. */
+  #modernbb .wm-enligne__clan-nom,
+  #modernbb .wm-enligne__clan-texte {
+    padding-right: 0;
+  }
 }
 
 #modernbb .wm-enligne__clan-texte {

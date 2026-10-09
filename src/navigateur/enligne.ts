@@ -166,3 +166,44 @@ export function clanDuMoment(brut: unknown): Clan | null {
 export function rienAMontrer(c: Chiffres, clan: Clan | null): boolean {
   return c.messages === null && c.membres === null && c.dernierArrive === null && clan === null;
 }
+
+// ── l'avatar du dernier arrivé ──────────────────────────────────────
+
+/** Une image relevée sur une page de profil. */
+export type ImageDeProfil = {
+  /** Les classes de l'image et de ses parents, mises bout à bout. */
+  readonly classes: string;
+  readonly src: string;
+  readonly largeur: number;
+};
+
+/** Choisit l'avatar parmi les images d'une page de profil.
+ *
+ *  ── POURQUOI IL FAUT CHOISIR ────────────────────────────────────────
+ *
+ *  « Pour le dernier arrivant, le rond à côté c'est pour afficher son
+ *  avatar », 9 octobre. Forumactif ne sert cet avatar NULLE PART sur
+ *  l'index : ni dans `.statistics`, ni dans les listes de connectés,
+ *  ni dans aucune variable de `index_body`. Il faut aller le lire sur
+ *  la page de profil, et une page de profil porte vingt images —
+ *  drapeaux, rangs, boutons, pubs.
+ *
+ *  ── LA RÈGLE, DANS L'ORDRE ──────────────────────────────────────────
+ *
+ *  1. une image dont elle ou un parent porte « avatar » dans sa
+ *     classe : c'est le nom que Forumactif donne à l'emplacement, et
+ *     c'est le plus sûr ;
+ *  2. sinon, une image servie depuis un dossier d'avatars — les deux
+ *     hébergements de Forumactif écrivent le chemin en clair ;
+ *  3. sinon rien. Un rond vide vaut mieux qu'un drapeau de pays à la
+ *     place d'un visage.
+ *
+ *  LES TOUTES PETITES SONT ÉCARTÉES d'office : sous 40 px c'est une
+ *  icône de rang ou un drapeau, jamais un avatar. */
+export function avatarParmi(images: readonly ImageDeProfil[]): string | null {
+  const assezGrande = images.filter((i) => i.largeur === 0 || i.largeur >= 40);
+  const nommee = assezGrande.find((i) => /avatar/i.test(i.classes));
+  if (nommee !== undefined) return nommee.src;
+  const parLeChemin = assezGrande.find((i) => /\/avatars?\//i.test(i.src));
+  return parLeChemin?.src ?? null;
+}

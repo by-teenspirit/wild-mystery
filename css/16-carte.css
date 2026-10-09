@@ -356,6 +356,28 @@
     La zone choisie se dit alors par un liseré clair et un voile très
     léger : assez pour la trouver, pas assez pour repeindre le biome
     qu'elle désigne. */
+/*  ── LA PEINTURE PORTE SON PROPRE OCÉAN ───────────────────────────
+
+    « Les paths "mer bande" et la carte elle-même : ça ne se fond pas
+    du tout », 9 octobre.
+
+    Il n'y avait rien à fondre — il y avait UN FOND DE TROP. La mer
+    vectorielle (neuf bandes de profondeur et vingt-neuf rides) a été
+    dessinée quand la carte était un dessin ; la peinture, elle, a sa
+    mer peinte dedans. Les deux se touchent forcément mal : l'une est
+    un aplat en dégradé de jetons, l'autre une aquarelle.
+
+    Alors on n'en garde qu'une. Sous `--peinte`, la mer vectorielle ne
+    se dessine plus.
+
+    ELLE N'EST PAS SUPPRIMÉE POUR AUTANT, et c'est le point : si
+    l'image ne charge pas, le module retire `--peinte` et toute la
+    carte dessinée revient — mer, bandes, rides et terre. On ne tombe
+    pas sur un cadre vide, on tombe sur la version d'avant. */
+#modernbb .wm-carte--peinte .wm-carte__mer {
+  display: none;
+}
+
 #modernbb .wm-carte--peinte .wm-carte__forme,
 #modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille] .wm-carte__forme {
   fill: transparent;

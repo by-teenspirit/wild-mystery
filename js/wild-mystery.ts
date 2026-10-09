@@ -41,6 +41,7 @@ import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserQuiEstEnLigne } from "../src/adaptateurs/navigateur/module-enligne.ts";
+import { avatarParmi } from "../src/navigateur/enligne.ts";
 import { estLIndex, poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import {
   envelopperLesDescriptions,
@@ -341,6 +342,54 @@ async function poserLesTerritoires(): Promise<void> {
  *
  *  Le bloc se pose quand même si `clans.json` ne répond pas : on perd
  *  la carte du clan, pas les chiffres. */
+/** L'avatar d'un membre, lu sur sa page de profil, et retenu.
+ *
+ *  ── POURQUOI UNE REQUÊTE, ET POURQUOI UNE SEULE ─────────────────────
+ *
+ *  Forumactif ne sert l'avatar du dernier inscrit nulle part sur
+ *  l'index. La seule page qui le porte est son profil.
+ *
+ *  ON LE RETIENT DANS `localStorage`, par adresse de profil : le
+ *  dernier inscrit ne change pas d'un rechargement à l'autre, donc
+ *  sans mémoire on referait la même requête à chaque visite de
+ *  l'index pour la même image. Avec, on la fait une fois par membre.
+ *
+ *  LA MÉMOIRE RETIENT AUSSI L'ABSENCE — la chaîne vide — sinon un
+ *  membre sans avatar coûterait une requête à chaque page.
+ *
+ *  Tout échoue en silence et rend `null` : le rond garde son fond, et
+ *  un forum lent ou hors ligne ne doit pas faire parler une décoration.
+ */
+async function avatarDe(urlDuProfil: string): Promise<string | null> {
+  const cle = `wm-avatar:${urlDuProfil}`;
+  try {
+    const retenu = localStorage.getItem(cle);
+    if (retenu !== null) return retenu === "" ? null : retenu;
+  } catch {
+    //  Navigation privée, stockage refusé : on continue sans mémoire.
+  }
+  try {
+    const r = await fetch(urlDuProfil, { credentials: "same-origin" });
+    if (!r.ok) return null;
+    const page = new DOMParser().parseFromString(await r.text(), "text/html");
+    const images = Array.from(page.querySelectorAll("img")).map((i) => ({
+      //  Les classes de l'image ET de ses parents : Forumactif met
+      //  « avatar » tantôt sur l'une, tantôt sur l'autre.
+      classes: `${i.className} ${i.closest("[class]")?.className ?? ""} ` +
+        `${i.parentElement?.parentElement?.className ?? ""}`,
+      src: i.getAttribute("src") ?? "",
+      largeur: Number(i.getAttribute("width") ?? "0") || i.naturalWidth || 0,
+    })).filter((i) => i.src !== "");
+    const trouve = avatarParmi(images);
+    try {
+      localStorage.setItem(cle, trouve ?? "");
+    } catch { /* pas de mémoire, tant pis */ }
+    return trouve;
+  } catch {
+    return null;
+  }
+}
+
 async function poserLesPresents(): Promise<void> {
   if (RACINE === null) return;
   if (!estLIndex(location.pathname)) return;
@@ -356,6 +405,7 @@ async function poserLesPresents(): Promise<void> {
     clans,
     icone: (cle) => images === null ? null : `${images}clans/${cle}.png`,
     mascotte: images === null ? null : `${images}clans/sabelette.png`,
+    avatarDe,
   });
 }
 

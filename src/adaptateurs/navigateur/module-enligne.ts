@@ -428,6 +428,10 @@ export type Dependances = {
   readonly icone?: (cle: string) => string | null;
   /** L'adresse du Sabelette de fond, ou `null`. */
   readonly mascotte?: string | null;
+  /** Rend l'adresse de l'avatar d'un membre depuis l'adresse de son
+   *  profil, ou `null`. Injecté : ce module ne fait pas de réseau, et
+   *  le harnais doit pouvoir répondre sans en faire non plus. */
+  readonly avatarDe?: (urlDuProfil: string) => Promise<string | null>;
 };
 
 /** Pose le bloc à la fin de l'index. Rend `true` s'il l'a posé.
@@ -436,7 +440,7 @@ export type Dependances = {
  *  de la maquette, et c'est aussi le bon ordre de lecture — les
  *  forums, ce qui s'y passe, puis qui l'habite. */
 export function poserQuiEstEnLigne(
-  { doc, clans, icone = () => null, mascotte = null }: Dependances,
+  { doc, clans, icone = () => null, mascotte = null, avatarDe }: Dependances,
 ): boolean {
   if (!estLIndex(doc.location?.pathname ?? "")) return false;
 
@@ -512,7 +516,35 @@ export function poserQuiEstEnLigne(
     //  fait ; ici il est simplement avant.
     accueil.appendChild(el(doc, "p", "wm-enligne__bienvenue-mot", "Bienvenue"));
     const fiche = el(doc, "div", "wm-enligne__arrive");
-    fiche.appendChild(el(doc, "span", "wm-enligne__arrive-rond"));
+    //  ── LE ROND EST L'EMPLACEMENT DE SON AVATAR ─────────────────
+    //
+    //  « Pour le dernier arrivant, le rond à côté c'est pour afficher
+    //  son avatar », 9 octobre.
+    //
+    //  IL RESTE VIDE PAR DÉFAUT, ET C'EST VOULU. Forumactif ne sert
+    //  l'avatar nulle part sur l'index : il faut aller le lire sur la
+    //  page de profil, donc une requête. On la lance, et le rond se
+    //  remplit quand elle revient — jamais avant, jamais à sa place.
+    //  Si elle échoue, ou si le membre n'a pas d'avatar, le rond
+    //  garde son fond doux : c'est le dessin d'origine, pas une
+    //  panne.
+    const rond = el(doc, "span", "wm-enligne__arrive-rond");
+    fiche.appendChild(rond);
+    if (avatarDe !== undefined) {
+      const qui = chiffres.dernierArrive;
+      avatarDe(qui.url).then((adresse) => {
+        if (adresse === null || adresse === "") return;
+        const img = doc.createElement("img");
+        img.className = "wm-enligne__arrive-avatar";
+        img.src = adresse;
+        //  Décoratif : son pseudo est juste à côté, en toutes
+        //  lettres et en lien. Le dire deux fois encombre.
+        img.alt = "";
+        img.loading = "lazy";
+        rond.appendChild(img);
+        rond.dataset.wmAvatar = "";
+      }).catch(() => {});
+    }
     const a = doc.createElement("a");
     a.className = "wm-enligne__arrive-nom";
     a.href = chiffres.dernierArrive.url;

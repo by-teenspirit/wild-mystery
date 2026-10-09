@@ -1616,3 +1616,132 @@
   padding-right: 0;
   padding-left: 0;
 }
+
+/*  ════════════════════════════════════════════════════════════════
+    LES DEUX BARRES DE LIENS DE L'INDEX
+
+    « Fais des jolis boutons qui vont avec le design », 9 octobre,
+    pour `ul.linklist.top` et `ul.linklist.bottom`. Elles n'avaient
+    AUCUN style à nous jusqu'ici : c'était la liste à puces de
+    ModernBB, servie telle quelle.
+
+    ── CE QU'ELLES SONT ────────────────────────────────────────────
+
+    Haut : « nouveaux messages », « mes messages », « sans réponse »,
+    et à droite « tout marquer comme lu ». Bas : les trois palmarès,
+    et à droite « supprimer les cookies ».
+
+    Ce sont des RACCOURCIS, pas la navigation — celle-ci est dans la
+    barre du haut. Ils prennent donc la surface claire et le bord fin
+    de la charte, pas l'accent : un rang de boutons terre au-dessus de
+    la première catégorie volerait l'œil à ce qu'on vient lire.
+
+    ── POURQUOI UN FLEX ET PAS DES `float` ─────────────────────────
+
+    ModernBB fait flotter `.rightside`. Un flottant sort du flux, donc
+    la barre n'a plus de hauteur propre et le `margin` du bloc suivant
+    passe à travers. `margin-left: auto` sur le premier `.rightside`
+    fait la même chose sans ce défaut, et garde l'ordre du document —
+    ce qui compte pour qui lit au clavier.
+    ════════════════════════════════════════════════════════════════ */
+#modernbb ul.linklist.top,
+#modernbb ul.linklist.bottom {
+  display: flex;
+  margin: 0 0 var(--wm-espace-14, 14px);
+  padding: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+#modernbb ul.linklist.bottom {
+  margin: var(--wm-espace-14, 14px) 0 0;
+}
+
+#modernbb ul.linklist.top > li,
+#modernbb ul.linklist.bottom > li {
+  display: flex;
+  float: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*  LE PREMIER `.rightside` POUSSE, LES SUIVANTS SUIVENT. S'il y en
+    avait deux, un `margin-left: auto` sur chacun les séparerait tout
+    le long de la barre au lieu de les grouper à droite. */
+#modernbb ul.linklist.top > li.rightside:first-of-type,
+#modernbb ul.linklist.bottom > li.rightside:first-of-type {
+  margin-left: auto;
+}
+
+#modernbb ul.linklist.top > li > a,
+#modernbb ul.linklist.bottom > li > a {
+  display: inline-flex;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+/*  AU SURVOL, LA COULEUR ET LE BORD, JAMAIS LE SOULIGNEMENT —
+    « pas de soulignement de lien au survol, seulement un changement
+    de couleur », et c'est général au forum. Le fond monte d'un cran
+    pour que le bouton se décolle sans changer de taille : une bordure
+    qui s'épaissit au survol décale tout le rang. */
+#modernbb ul.linklist.top > li > a:hover,
+#modernbb ul.linklist.bottom > li > a:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-accent-terre, #8b4725);
+  text-decoration: none;
+}
+
+#modernbb ul.linklist.top > li > a:focus-visible,
+#modernbb ul.linklist.bottom > li > a:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  L'icône est Ionicons, déjà chargée par ModernBB. Elle est
+    DÉCORATIVE : le libellé dit déjà tout, et une icône annoncée en
+    plus du texte le ferait lire deux fois. */
+#modernbb ul.linklist.top > li > a > i,
+#modernbb ul.linklist.bottom > li > a > i {
+  margin: 0;
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: 14px;
+  line-height: 1;
+}
+
+#modernbb ul.linklist.top > li > a:hover > i,
+#modernbb ul.linklist.bottom > li > a:hover > i {
+  color: inherit;
+}
+
+/*  À l'étroit, les libellés de la barre du haut sont longs — « Voir
+    les nouveaux messages depuis votre dernière visite » fait quatre
+    lignes sur un téléphone. On les laisse se replier, et le
+    `.rightside` cesse de pousser : il passe à la ligne comme les
+    autres. */
+@media (max-width: 740px) {
+  #modernbb ul.linklist.top > li.rightside:first-of-type,
+  #modernbb ul.linklist.bottom > li.rightside:first-of-type {
+    margin-left: 0;
+  }
+
+  #modernbb ul.linklist.top > li > a,
+  #modernbb ul.linklist.bottom > li > a {
+    font-size: var(--wm-taille-etiquette, 10px);
+  }
+}

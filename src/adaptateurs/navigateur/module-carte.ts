@@ -475,6 +475,22 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     //  second dans un SVG en ligne, et un fond qui manque sur un
     //  navigateur entier se remarque.
     image.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", carte.fond);
+    //  ── SI LA PEINTURE NE VIENT PAS, LE DESSIN REVIENT ───────────
+    //
+    //  Sous `--peinte`, la feuille cache la mer vectorielle et vide
+    //  les territoires : la peinture porte son propre océan, et deux
+    //  fonds l'un sur l'autre ne se fondent pas — c'est le défaut du
+    //  9 octobre.
+    //
+    //  Mais une image qui ne charge pas laisserait alors un cadre
+    //  bleu uni. On retire donc la classe, et toute la carte dessinée
+    //  repasse devant : mer, bandes, rides, terre et aplats de
+    //  palier. C'est exactement la version d'avant la peinture, et
+    //  elle marche.
+    image.addEventListener("error", () => {
+      racine.classList.remove("wm-carte--peinte");
+      image.remove();
+    });
     dessin.appendChild(image);
     racine.classList.add("wm-carte--peinte");
   }
@@ -869,6 +885,19 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   cadre.addEventListener("pointerdown", (e) => {
     const ev = e as PointerEvent;
     if (ev.button !== 0) return;
+    //  ── ON NE S'EMPARE PAS DU POINTEUR SUR UN BOUTON ────────────
+    //
+    //  « Le + − en bas à gauche ne fonctionne pas », 9 octobre, et
+    //  c'était vrai : `setPointerCapture` sur le cadre redirige TOUS
+    //  les événements de pointeur qui suivent vers le cadre. Le
+    //  bouton ne recevait donc jamais son `pointerup`, donc jamais
+    //  son `click`, et il ne se passait rien.
+    //
+    //  MON HARNAIS NE POUVAIT PAS LE VOIR : il cliquait le bouton en
+    //  JavaScript, ce qui saute tout le trajet du pointeur. C'est un
+    //  test qui contourne le code, et il a laissé passer une panne
+    //  complète. Il clique à la souris maintenant.
+    if ((ev.target as Element | null)?.closest?.(".wm-carte__zoom") !== null) return;
     attrape = { x: ev.clientX, y: ev.clientY };
     depart = { x: ev.clientX, y: ev.clientY };
     vise = null;
@@ -937,33 +966,17 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   }
   cadre.appendChild(barre);
 
-  //  ── LA MOLETTE ZOOME, MAIS ELLE REND LA MAIN ──────────────────
+  //  ── PAS DE ZOOM À LA MOLETTE ──────────────────────────────────
   //
-  //  « Le zoom ne fonctionne pas », 9 octobre. Les boutons marchent —
-  //  le repère change bien. C'est la molette qui ne faisait rien, et
-  //  je l'avais écartée exprès : une carte qui avale le défilement au
-  //  milieu d'une page enferme le lecteur dans un bloc dont il ne sait
-  //  plus sortir.
+  //  Essayé le 9 octobre, retiré le jour même : « enlève le zoom à la
+  //  souris sur la carte, c'est infernal. »
   //
-  //  LA CRAINTE ÉTAIT JUSTE, LA CONCLUSION NON. On zoome tant qu'il y
-  //  a du zoom à prendre dans ce sens-là, et on NE RETIENT LE
-  //  DÉFILEMENT QUE DANS CE CAS. Au bout de la course — déjà au plus
-  //  près, ou déjà au plus loin — la molette repasse à la page, et on
-  //  sort du bloc en continuant le même geste.
-  //
-  //  `passive: false` est obligatoire : sans lui le navigateur refuse
-  //  le `preventDefault` et la page défile quand même.
-  cadre.addEventListener("wheel", (e) => {
-    const ev = e as WheelEvent;
-    if (ev.deltaY === 0) return;
-    const z = carte.repere.largeur / vue.largeur;
-    const vers = ev.deltaY < 0 ? 1.18 : 1 / 1.18;
-    //  Au bout de la course : on ne prend pas la main.
-    if (vers > 1 && z >= ZOOM_MAX - 0.001) return;
-    if (vers < 1 && z <= ZOOM_MIN + 0.001) return;
-    ev.preventDefault();
-    zoomer(vers);
-  }, { passive: false });
+  //  Je l'avais écarté au départ en disant qu'une carte qui avale le
+  //  défilement enferme le lecteur, puis je me suis convaincu qu'en
+  //  rendant la main au bout de la course ça passerait. Non : avant
+  //  d'arriver au bout, chaque coup de molette sur la carte zoome au
+  //  lieu de descendre la page, et on ne veut presque jamais ça. Les
+  //  deux boutons suffisent, et ils s'atteignent au clavier.
 
   //  ── LES ÉTIQUETTES QUI SE MARCHAIENT DESSUS ───────────────────
   //
