@@ -539,6 +539,33 @@ elif ! python3 outils/specificite.py --verifier; then
   gronde "des sélecteurs ne sont pas sous #modernbb"
 fi
 
+echo "── 17. le seed des espèces suit l'index ────────────────────────"
+# `supabase/seeds/especes.sql` est dérivé de `data/especes.json` (les
+# noms, qui viennent des tables de faune) et de
+# `data/especes-fiches.json` (les types, le stade, les PV, relevés sur
+# PokéAPI). Le même contrôle que pour le catalogue et les fossiles :
+# relire le dérivé contre ses sources, au lieu de le croire.
+#
+# CE QUI L'A FAIT ÉCRIRE, et c'est le plus gros défaut trouvé le
+# 9 octobre : **la table `espece` de la vraie base ne contenait qu'UNE
+# ligne**, Goupix. `pokemon`, `pokedex`, `fossile_espece` et
+# `zone_espece` ont toutes une clé étrangère vers elle — donc aucune
+# capture ne pouvait s'écrire, donc **aucune clôture ne pouvait
+# aboutir**, et le seed des fossiles échouait à sa première ligne.
+#
+# Personne ne l'avait vu parce qu'il n'y avait RIEN à relire : aucun
+# seed d'espèces n'existait dans le dépôt, et un fichier absent ne
+# contredit aucune source.
+#
+# Ce garde-fou ne vérifie pas la BASE — il ne la joint pas — mais il
+# garantit que le fichier à y coller existe et dit la vérité. Pour
+# savoir où en est la base, `supabase/ou-en-est-la-base.sql`.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — seed des espèces non vérifié"
+elif ! python3 outils/especes-sql.py --verifier; then
+  gronde "le seed des espèces ne correspond plus à data/especes.json"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."
