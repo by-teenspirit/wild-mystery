@@ -359,6 +359,99 @@ export interface Boutique {
   }): Promise<VerdictDeCommande>;
 }
 
+// ── les fossiles ────────────────────────────────────────────────────
+
+/** Une demande de résurrection qui attend sa réponse.
+ *
+ *  `sujetId` VIENT DE LA LIGNE, pas d'une configuration : la réponse
+ *  part là où la demande a été faite. C'est ce qui permet à cette tâche
+ *  de n'avoir aucun réglage — pas de `data/laboratoires.json`, pas de
+ *  curseur partagé, et un second laboratoire ne demande aucun code.
+ *
+ *  `messageId` est celui du message où le joueur a demandé. C'est la clé
+ *  d'unicité de la table : un identifiant de message ne recule jamais,
+ *  donc deux passages ne peuvent pas créer deux analyses pour la même
+ *  demande.
+ *
+ *  `code` est déjà en base — il a été posé par la demande. On ne le
+ *  redérive pas ici : un code recalculé à l'annonce ne serait plus celui
+ *  qu'un repassage retrouverait, et le marqueur de l'adaptateur de
+ *  publication ne reconnaîtrait pas son propre message. */
+export type AnalyseAAnnoncer = {
+  readonly analyseId: string;
+  readonly sujetId: number;
+  readonly messageId: number;
+  readonly pseudo: string;
+  /** Le nom de l'objet. Un message nomme les choses ; personne ne
+   *  reconnaît son fossile dans un identifiant de catalogue. */
+  readonly fossile: string;
+  readonly code: string;
+  readonly essais: number;
+};
+
+/** Ce que `rendre_fossile` (migrations `0016` puis `0017`) répond.
+ *
+ *  TROIS ÉTATS, ET LE TROISIÈME N'EST PAS UN REFUS. C'est la
+ *  distinction que `0013` a introduite et qu'il ne faut pas perdre :
+ *
+ *  · `rendue` — le pokémon est né, le fossile est consommé ;
+ *  · `refusee` — le joueur n'a plus le fossile. **Sa faute, écrite en
+ *    base, définitive** : l'analyse ne repassera pas ;
+ *  · `impossible` — aucune espèce n'est rattachée à ce fossile. **Notre
+ *    donnée qui manque**, pas la sienne. L'analyse reste en attente et
+ *    rien n'est consommé : elle repartira toute seule le jour où la
+ *    ligne existera.
+ *
+ *  Confondre les deux derniers coûterait un pokémon à un joueur qui
+ *  n'a rien fait de mal. */
+export type VerdictDeFossile =
+  | {
+    readonly etat: "rendue";
+    readonly analyseId: string;
+    readonly especeId: number;
+    readonly espece: string;
+    /** Vrai si la base avait déjà rendu ce verdict et vient de le
+     *  rejouer : on ne fait que reposter l'annonce. Compté à part,
+     *  sinon une coupure réseau gonflerait le compte des réanimations
+     *  dans le journal. */
+    readonly deja: boolean;
+  }
+  | {
+    readonly etat: "refusee";
+    readonly analyseId: string;
+    readonly motif: string;
+    /** Écrit pour être recopié tel quel dans la réponse au joueur. */
+    readonly detail: string;
+    readonly deja: boolean;
+  }
+  | {
+    readonly etat: "impossible";
+    readonly analyseId: string;
+    readonly motif: string;
+    readonly detail: string;
+  };
+
+export interface Fossiles {
+  /** Les analyses qui attendent une réponse, **les plus anciennes
+   *  d'abord**. Celles qui ne sont pas encore tranchées comme celles
+   *  dont le message n'est pas parti : c'est la même question, et le
+   *  cas d'usage n'a donc qu'un chemin.
+   *
+   *  La limite borne un passage : une file qui a grossi se résorbe sur
+   *  plusieurs passages plutôt que de faire expirer celui-ci. */
+  aAnnoncer(limite: number): Promise<readonly AnalyseAAnnoncer[]>;
+  /** Tranche l'analyse, ou rejoue le verdict déjà rendu. **Idempotente
+   *  depuis `0017`** : le verdict est gardé dans la ligne, et un second
+   *  appel le rend à l'identique sans rien consommer. C'est ce qui rend
+   *  l'annonce repassable. */
+  rendre(analyseId: string): Promise<VerdictDeFossile>;
+  /** Le joueur est prévenu : l'analyse quitte la file. */
+  annoncee(analyseId: string, messageId: number): Promise<void>;
+  /** L'annonce n'est pas partie. Rend le nombre d'essais, pour qu'une
+   *  file bloquée finisse par se voir. */
+  echouee(analyseId: string, erreur: string): Promise<number>;
+}
+
 // ── le pokédex ──────────────────────────────────────────────────────
 
 /** Remettre le pokédex d'accord avec le registre des sujets clôturés.

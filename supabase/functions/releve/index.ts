@@ -44,6 +44,7 @@ import { FauneEnFichiers, lecteurHttp } from "../../../src/adaptateurs/faune/fic
 import { FossilesEnFichiers } from "../../../src/adaptateurs/faune/fossiles.ts";
 import { ComptoirsEnFichiers } from "../../../src/adaptateurs/faune/comptoirs.ts";
 import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
+import { FossilesSupabase } from "../../../src/adaptateurs/supabase/fossile.ts";
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
 import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
 import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouveaux-messages.ts";
@@ -51,6 +52,7 @@ import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.
 import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
 import { ServirUneCommande } from "../../../src/application/servir-une-commande.ts";
 import { RangerLePokedex } from "../../../src/application/ranger-le-pokedex.ts";
+import { RendreLesFossiles } from "../../../src/application/rendre-les-fossiles.ts";
 
 /**
  * La version de ce déploiement, et elle sert à DEUX choses.
@@ -66,7 +68,7 @@ import { RangerLePokedex } from "../../../src/application/ranger-le-pokedex.ts";
  *
  * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
  */
-const VERSION = "2026-10-06-a";
+const VERSION = "2026-10-09-a";
 
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
@@ -136,6 +138,10 @@ type Montage = {
    *  deviennent des commandes servies, et chacune reçoit son reçu. */
   readonly boutique: ServirUneCommande;
   readonly comptoirs: ComptoirsEnFichiers;
+  /** Tâche 5 : le laboratoire. Les analyses de fossiles sont tranchées
+   *  et annoncées. **Aucun réglage** : chaque analyse porte son sujet,
+   *  donc la réponse part là où la demande a été faite. */
+  readonly fossilesARendre: RendreLesFossiles;
   /** Tâche 7 : le pokédex, remis d'accord avec le registre. **Zéro est
    *  la réponse attendue** — `appliquer_cloture` l'écrit déjà. */
   readonly pokedex: RangerLePokedex;
@@ -240,6 +246,15 @@ function assembler(reglages: Reglages): Montage {
       new JournalSupabase(appeler),
     ),
     comptoirs: new ComptoirsEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES),
+    //  Tâche 5 : le laboratoire. Même forme que `PosterLesBilans` — une
+    //  file en base, et un message par ligne — et pour la même raison :
+    //  rendre un fossile est le point de non-retour, l'annoncer se
+    //  repasse.
+    fossilesARendre: new RendreLesFossiles(
+      new FossilesSupabase(appeler),
+      forumEnEcriture,
+      new JournalSupabase(appeler),
+    ),
     verrou: new VerrouSupabase(appeler),
   };
 }
@@ -266,7 +281,8 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     return json({ version: VERSION, erreur: "clé de relève absente ou fausse" }, 401);
   }
 
-  const { parcourir, bilans, boutique, comptoirs, pokedex, verrou } = assembler(reglages);
+  const { parcourir, bilans, boutique, comptoirs, fossilesARendre, pokedex, verrou } =
+    assembler(reglages);
 
   if (!await verrou.prendre(NOM_DU_VERROU, VERROU_SECONDES)) {
     // Ce n'est pas une erreur : c'est le passage précédent qui travaille
@@ -323,6 +339,17 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       achats.erreurs.push(`data/comptoirs.json : ${(e as Error).message}`);
     }
 
+    //  ── LE LABORATOIRE AVANT LE POKÉDEX, ET C'EST UN CHOIX ───────────
+    //
+    //  Une réanimation écrit un pokémon ET une ligne de pokédex. La
+    //  passer après le rangement ferait vérifier par le pokédex le
+    //  travail du passage PRÉCÉDENT — c'est exactement ce que l'en-tête
+    //  du rangement reproche à l'ordre inverse.
+    //
+    //  Elle ne lève jamais : chaque analyse est isolée, et une analyse
+    //  bloquée faute de donnée n'arrête pas les autres.
+    const labo = await fossilesARendre.executer();
+
     //  ── LE POKÉDEX EN DERNIER, APRÈS LES CLÔTURES ────────────────────
     //
     //  Il réconcilie ce que les clôtures viennent d'écrire : le passer
@@ -344,6 +371,14 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       commandes_servies: achats.servies,
       commandes_refusees: achats.refusees,
       boutique_en_echec: achats.erreurs,
+      fossiles_rendus: labo.rendus.length,
+      fossiles_refuses: labo.refuses.length,
+      //  Attendu à ZÉRO. Un nombre non nul veut dire qu'il manque une
+      //  ligne dans `fossile_espece` : le joueur n'a rien perdu, n'est
+      //  pas prévenu, et sa demande repartira toute seule le jour où la
+      //  ligne existera. Les identifiants sont dans `fossiles_en_echec`.
+      fossiles_bloques: labo.bloquees.length,
+      fossiles_en_echec: labo.erreurs,
       //  Attendu à ZÉRO. Un nombre non nul veut dire qu'une ligne du
       //  pokédex était en retard sur le registre — à regarder, pas à
       //  ignorer.
