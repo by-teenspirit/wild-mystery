@@ -485,3 +485,96 @@ export function forumDeLAdresse(url: string): number | null {
   const m = url.match(/\/f(\d+)-/);
   return m === null ? null : Number(m[1]);
 }
+
+// ── les étiquettes qui se marchent dessus ───────────────────────────
+
+/** Une boîte d'étiquette, en unités de carte. */
+export type Boite = {
+  readonly cle: number;
+  readonly x: number;
+  readonly y: number;
+  readonly largeur: number;
+  readonly hauteur: number;
+};
+
+/** De combien on peut pousser une étiquette avant de mentir.
+ *
+ *  Au-delà, le nom ne désigne plus sa zone : mieux vaut un léger
+ *  chevauchement qu'un nom posé sur le voisin. */
+export const ECART_MAX = 20;
+
+/** L'écart vertical à donner à chaque étiquette pour qu'aucune n'en
+ *  recouvre une autre.
+ *
+ *  ── POURQUOI PAS DES COORDONNÉES À LA MAIN ──────────────────────────
+ *
+ *  « Le titre "Samaragd" et "Fleuve Paisible" se chevauchent »,
+ *  9 octobre. On pourrait déplacer Samaragd de dix pixels dans
+ *  `data/carte.json` et passer à la suite. Ça tiendrait jusqu'à la
+ *  prochaine zone ajoutée, ou jusqu'au prochain renommage qui rallonge
+ *  un nom — et on ne le verrait qu'en regardant.
+ *
+ *  Alors on mesure et on écarte. Les boîtes arrivent du navigateur,
+ *  qui seul sait ce que font une police et un contour ; la règle, elle,
+ *  est ici, et elle se teste sans navigateur.
+ *
+ *  ── LA RÈGLE ────────────────────────────────────────────────────────
+ *
+ *  Du haut vers le bas. Chaque étiquette est comparée à celles déjà
+ *  posées ; si elle en touche une, elle descend juste assez pour la
+ *  dégager, plus deux unités d'air. La PREMIÈRE ne bouge jamais : il
+ *  faut un point fixe, sinon tout glisse.
+ *
+ *  Au-delà de `ECART_MAX`, on renonce et on laisse l'étiquette où elle
+ *  est — un nom à vingt unités de sa zone ne désigne plus rien.
+ *
+ *  Rend un écart par clé, et seulement pour celles qui bougent. */
+export function ecarterLesEtiquettes(boites: readonly Boite[]): ReadonlyMap<number, number> {
+  const ordre = [...boites].sort((a, b) => a.y - b.y || a.x - b.x);
+  const posees: Boite[] = [];
+  const ecarts = new Map<number, number>();
+
+  for (const b of ordre) {
+    let dy = 0;
+    //  On repasse tant qu'on bouge : dégager une voisine peut en
+    //  rencontrer une autre juste en dessous.
+    for (let tour = 0; tour < 8; tour += 1) {
+      const gene = posees.find((p) =>
+        b.x + dy * 0 < p.x + p.largeur && p.x < b.x + b.largeur &&
+        b.y + dy < p.y + p.hauteur && p.y < b.y + dy + b.hauteur
+      );
+      if (gene === undefined) break;
+      dy = gene.y + gene.hauteur + 2 - b.y;
+      if (dy > ECART_MAX) break;
+    }
+    if (dy > ECART_MAX || dy <= 0) {
+      posees.push(b);
+      continue;
+    }
+    ecarts.set(b.cle, dy);
+    posees.push({ ...b, y: b.y + dy });
+  }
+  return ecarts;
+}
+
+/** Le mot qui dit la difficulté d'un palier.
+ *
+ *  « Une indication du niveau de difficulté dans le panneau latéral ? »
+ *  Trois paliers, trois mots. Le MOT et pas seulement la couleur : un
+ *  joueur sur douze ne distingue pas le vert du rouge, et une pastille
+ *  seule ne dit rien à qui écoute la page.
+ *
+ *  Une ville ou la Ligue n'ont pas de palier — elles n'ont donc pas de
+ *  difficulté, et on rend la chaîne vide plutôt qu'un « Palier ? ». */
+export function difficulteDe(lieu: Lieu): string {
+  switch (lieu.palier) {
+    case 1:
+      return "Abordable";
+    case 2:
+      return "Exigeant";
+    case 3:
+      return "Redoutable";
+    default:
+      return "";
+  }
+}

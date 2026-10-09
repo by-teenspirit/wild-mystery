@@ -545,6 +545,171 @@ const zoome = await p.evaluate(() =>
   document.querySelector(".wm-carte__dessin").getAttribute("viewBox")
 );
 dire("LE BOUTON ZOOME", zoome !== "0 0 1000 640", zoome);
+
+// ── LA MOLETTE ZOOME, ET ELLE REND LA MAIN ─────────────────────────
+//
+//  « Le zoom ne fonctionne pas », 9 octobre : les boutons marchaient,
+//  la molette non — elle était écartée exprès. Elle zoome maintenant,
+//  mais elle ne doit PAS avaler le défilement de la page quand il n'y
+//  a plus de zoom à prendre : sinon on reste coincé dans le bloc.
+const molette = await (async () => {
+  const cadre = await p.$(".wm-carte__cadre");
+  const b = await cadre.boundingBox();
+  const au = () =>
+    p.evaluate(() => document.querySelector(".wm-carte__dessin").getAttribute("viewBox"));
+  //  On repart du plus large.
+  await p.evaluate(() => {
+    const m = [...document.querySelectorAll(".wm-carte__zoom-bouton")]
+      .find((x) => x.textContent.trim() === "−");
+    for (let i = 0; i < 12; i += 1) m.click();
+  });
+  await p.waitForTimeout(80);
+  const large = await au();
+
+  //  Au plus large, une molette vers le BAS (dézoomer) n'a rien à
+  //  prendre : elle doit laisser la page faire son travail.
+  //
+  //  ON LIT `defaultPrevented`, PAS LE DÉFILEMENT : le décor du
+  //  harnais ne dépasse pas la fenêtre, donc `scrollY` reste à zéro
+  //  quoi qu'il arrive, et un test sur le défilement passerait pour
+  //  de mauvaises raisons. Ce qu'on veut savoir, c'est si la carte a
+  //  retenu l'événement.
+  const rendLaMain = await p.evaluate(() => {
+    const c = document.querySelector(".wm-carte__cadre");
+    const e = new WheelEvent("wheel", { deltaY: 240, bubbles: true, cancelable: true });
+    c.dispatchEvent(e);
+    return {
+      retenu: e.defaultPrevented,
+      vue: document.querySelector(".wm-carte__dessin").getAttribute("viewBox"),
+    };
+  });
+
+  //  Une molette vers le HAUT, elle, zoome, et la page ne bouge pas.
+  await p.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
+  const avantPage2 = await p.evaluate(() => globalThis.scrollY);
+  await p.mouse.wheel(0, -240);
+  await p.waitForTimeout(120);
+  return {
+    large,
+    rendLaMain,
+    zoome: { vue: await au(), page: (await p.evaluate(() => globalThis.scrollY)) - avantPage2 },
+  };
+})();
+dire(
+  "LA MOLETTE ZOOME",
+  molette.zoome.vue !== molette.large,
+  JSON.stringify({ avant: molette.large, apres: molette.zoome.vue }),
+);
+dire(
+  "ET ELLE NE RETIENT PAS LE DÉFILEMENT PENDANT QU'ELLE ZOOME",
+  molette.zoome.page === 0,
+  `${molette.zoome.page} px de page`,
+);
+dire(
+  "AU BOUT DE LA COURSE, ELLE REND LA MAIN À LA PAGE",
+  molette.rendLaMain.vue === molette.large && molette.rendLaMain.retenu === false,
+  JSON.stringify(molette.rendLaMain),
+);
+
+// ── LES ÉTIQUETTES NE SE MARCHENT PLUS DESSUS ──────────────────────
+//
+//  « Le titre "Samaragd" et "Fleuve Paisible" se chevauchent. » On ne
+//  vérifie pas ces deux-là en particulier : on vérifie qu'AUCUNE paire
+//  ne se croise, ce qui couvre aussi les suivantes.
+const etiquettes = await p.evaluate(() => {
+  const n = [...document.querySelectorAll(".wm-carte__nom")];
+  const b = n.map((e) => {
+    const r = e.getBoundingClientRect();
+    return {
+      nom: e.textContent.trim(),
+      x: r.x,
+      y: r.y,
+      w: r.width,
+      h: r.height,
+      ecarte: e.dataset.wmEcarte ?? null,
+    };
+  });
+  const paires = [];
+  for (let i = 0; i < b.length; i += 1) {
+    for (let j = i + 1; j < b.length; j += 1) {
+      const a = b[i], c = b[j];
+      //  Deux unités de tolérance : un contour peint sous le glyphe
+      //  déborde d'un cheveu, et ça ne se voit pas.
+      if (
+        a.x < c.x + c.w - 2 && c.x < a.x + a.w - 2 &&
+        a.y < c.y + c.h - 2 && c.y < a.y + a.h - 2
+      ) {
+        paires.push(`${a.nom} × ${c.nom}`);
+      }
+    }
+  }
+  return { combien: b.length, paires, deplacees: b.filter((x) => x.ecarte !== null).length };
+});
+dire(
+  "AUCUNE ÉTIQUETTE N'EN RECOUVRE UNE AUTRE",
+  etiquettes.paires.length === 0,
+  etiquettes.paires.join(" · ") ||
+    `${etiquettes.combien} noms, ${etiquettes.deplacees} écartée(s)`,
+);
+
+// ── LA DIFFICULTÉ EST DITE EN TOUTES LETTRES ───────────────────────
+//
+//  ON ATTEND ENTRE LES DEUX CLICS. Le panneau ne se remplit pas dans
+//  la foulée du clic, et lire tout de suite rendait l'état PRÉCÉDENT :
+//  le test accusait la ville d'avoir une difficulté alors qu'il
+//  regardait encore la zone d'avant.
+//  ON PASSE PAR LA LISTE, pas par un clic simulé sur la carte : le
+//  choix se joue sur `pointerdown` puis `pointerup`, donc un
+//  `MouseEvent("click")` envoyé à la forme ne réveille personne. Mon
+//  premier essai lisait un panneau qu'une étape précédente avait
+//  rempli, et croyait tester le clic.
+const clic = async (famille) => {
+  await p.evaluate((f) => {
+    const lieu = [...document.querySelectorAll(".wm-carte__lieu")]
+      .find((e) => e.getAttribute("data-wm-famille") === f);
+    const id = lieu?.getAttribute("data-wm-forum");
+    const entree = [...document.querySelectorAll(".wm-carte__entree")]
+      .find((e) => (e.getAttribute("href") ?? "").includes(`/f${id}-`));
+    entree?.click();
+  }, famille);
+  await p.waitForTimeout(150);
+  return await p.evaluate(() => {
+    const pan = document.querySelector(".wm-carte__panneau");
+    const puce = pan?.querySelector(".wm-carte__difficulte-puce") ?? null;
+    return {
+      famille: pan?.getAttribute("data-wm-famille") ?? null,
+      nom: pan?.querySelector(".wm-carte__panneau-mot")?.textContent.trim() ?? null,
+      mot: pan?.querySelector(".wm-carte__difficulte-mot")?.textContent.trim() ?? null,
+      couleur: puce === null ? null : getComputedStyle(puce).backgroundColor,
+      jeton: getComputedStyle(document.documentElement).getPropertyValue("--wm-palier-3")
+        .trim(),
+    };
+  });
+};
+
+const dur = await clic("palier3");
+dire(
+  "LE PANNEAU DIT LA DIFFICULTÉ EN TOUTES LETTRES",
+  dur.mot === "Redoutable" && dur.famille === "palier3",
+  JSON.stringify(dur),
+);
+dire(
+  "et sa pastille prend la couleur du palier",
+  (() => {
+    const m = (dur.jeton || "").match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    if (m === null) return false;
+    return dur.couleur ===
+      `rgb(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)})`;
+  })(),
+  JSON.stringify({ rendue: dur.couleur, jeton: dur.jeton }),
+);
+
+const ville = await clic("ville");
+dire(
+  "UNE VILLE N'A PAS DE DIFFICULTÉ, et surtout pas un « Palier ? »",
+  ville.famille === "ville" && ville.mot === null,
+  JSON.stringify(ville),
+);
 const apresGauche = await glisse(-250, 0);
 dire("ON TRAÎNE LA CARTE ET ELLE SUIT", apresGauche !== zoome, `${zoome} → ${apresGauche}`);
 const auBord = await glisse(-2000, -2000);

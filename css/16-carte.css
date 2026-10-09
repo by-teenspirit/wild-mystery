@@ -560,6 +560,55 @@
   text-transform: uppercase;
 }
 
+/*  ── LA DIFFICULTÉ, DANS LA BANNIÈRE DU PANNEAU ───────────────────
+
+    « Une indication du niveau de difficulté dans le panneau
+    latéral ? » Un mot et une pastille, sur la bannière sombre, sous le
+    palier.
+
+    LE MOT PORTE L'INFORMATION, LA PASTILLE LA RÉPÈTE. L'inverse —
+    une pastille seule — ne se lit pas à voix haute et ne dit rien à
+    qui ne distingue pas le vert du rouge. Le mot est donc en crème
+    plein sur le fond sombre, et c'est la pastille qui prend la
+    couleur du palier : elle n'a rien à porter toute seule, elle peut
+    se permettre d'être colorée.
+
+    `data-wm-famille` est déjà posé sur le panneau par le module, donc
+    la pastille trouve sa couleur sans qu'on écrive un mot de plus. */
+#modernbb .wm-carte__difficulte {
+  display: flex;
+  margin: var(--wm-espace-4, 4px) 0 0;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-carte__difficulte-puce {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb [data-wm-famille="palier1"] .wm-carte__difficulte-puce {
+  background: var(--wm-palier-1, #3f7d52);
+}
+
+#modernbb [data-wm-famille="palier2"] .wm-carte__difficulte-puce {
+  background: var(--wm-palier-2, #a05e18);
+}
+
+#modernbb [data-wm-famille="palier3"] .wm-carte__difficulte-puce {
+  background: var(--wm-palier-3, #b1402f);
+}
+
+#modernbb .wm-carte__difficulte-mot {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
 /*  Les niveaux recommandés sont un CHIFFRE : ils prennent Fraunces,
     comme les compteurs des lignes de forum. */
 #modernbb .wm-carte__panneau-niveau {

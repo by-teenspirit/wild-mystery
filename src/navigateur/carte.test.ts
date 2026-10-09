@@ -17,6 +17,9 @@ import {
   carteDepuis,
   cleDeFamille,
   deplacer,
+  difficulteDe,
+  ECART_MAX,
+  ecarterLesEtiquettes,
   familleDe,
   forumDeLAdresse,
   grouper,
@@ -369,4 +372,88 @@ Deno.test("les îles se relisent, et leur absence ne casse rien", () => {
     "M 2 2 Z",
   ]);
   assertEquals(carteDepuis({ ...base, iles: "M 1 1 Z" })?.iles, []);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  L'ÉCARTEMENT DES ÉTIQUETTES
+//
+//  « Le titre "Samaragd" et "Fleuve Paisible" se chevauchent »,
+//  9 octobre. Les boîtes viennent du navigateur — lui seul sait ce que
+//  font une police et un contour. La RÈGLE est ici, et elle se teste
+//  sans navigateur.
+// ════════════════════════════════════════════════════════════════════
+
+const boite = (cle: number, x: number, y: number, l = 100, h = 17) => ({
+  cle,
+  x,
+  y,
+  largeur: l,
+  hauteur: h,
+});
+
+Deno.test("deux étiquettes qui ne se touchent pas ne bougent pas", () => {
+  const e = ecarterLesEtiquettes([boite(1, 0, 0), boite(2, 0, 100)]);
+  assertEquals(e.size, 0);
+});
+
+Deno.test("LE CAS DE CALLISTA : SAMARAGD SOUS FLEUVE PAISIBLE", () => {
+  //  Les cotes relevées sur le forum le 9 octobre, ramenées en unités
+  //  de carte : les deux boîtes se croisent sur neuf unités en
+  //  hauteur et sur soixante-quatre en largeur.
+  const e = ecarterLesEtiquettes([
+    boite(1, 450, 3303, 102),
+    boite(2, 488, 3295, 70),
+  ]);
+  //  La plus haute tient sa place, l'autre descend.
+  assertEquals(e.has(2), false);
+  assertEquals(e.get(1), 3295 + 17 + 2 - 3303);
+});
+
+Deno.test("CELLE DU HAUT NE BOUGE JAMAIS, ET LES SUIVANTES CASCADENT", () => {
+  //  La troisième est posée à 22, où la deuxième ne la gênait PAS à
+  //  sa place d'origine (5 → 22, elles se touchent sans se croiser).
+  //  Elle ne doit bouger que parce que la deuxième est descendue à
+  //  19 : c'est ce qui prouve qu'on compare aux boîtes DÉPLACÉES et
+  //  pas aux boîtes d'origine.
+  const e = ecarterLesEtiquettes([boite(1, 0, 0), boite(2, 0, 5), boite(3, 0, 22)]);
+  assertEquals(e.has(1), false);
+  assertEquals(e.get(2), 14, "la deuxième passe sous la première");
+  assertEquals(e.get(3), 16, "la troisième passe sous la deuxième déplacée");
+});
+
+Deno.test("deux étiquettes côte à côte ne se gênent pas", () => {
+  //  Même hauteur, mais elles ne se croisent pas en largeur.
+  const e = ecarterLesEtiquettes([boite(1, 0, 0, 50), boite(2, 200, 0, 50)]);
+  assertEquals(e.size, 0);
+});
+
+Deno.test("ON RENONCE PLUTÔT QUE DE MENTIR SUR L'EMPLACEMENT", () => {
+  //  Six étiquettes empilées au même endroit : les dernières
+  //  devraient descendre de plus de vingt unités. On les laisse.
+  const e = ecarterLesEtiquettes(
+    [0, 1, 2, 3, 4, 5].map((i) => boite(i, 0, i)),
+  );
+  for (const [, dy] of e) {
+    assertEquals(dy <= ECART_MAX, true, `un écart de ${dy} dépasse ${ECART_MAX}`);
+  }
+});
+
+// ── la difficulté, en toutes lettres ────────────────────────────────
+
+Deno.test("CHAQUE PALIER A SON MOT, parce que la couleur ne suffit pas", () => {
+  const avec = (palier?: 1 | 2 | 3) =>
+    ({
+      forumId: 1,
+      nom: "x",
+      niveau: "",
+      description: "",
+      ancre: { x: 0, y: 0 },
+      ...(palier === undefined ? {} : { palier }),
+    }) as Parameters<typeof difficulteDe>[0];
+  assertEquals(difficulteDe(avec(1)), "Abordable");
+  assertEquals(difficulteDe(avec(2)), "Exigeant");
+  assertEquals(difficulteDe(avec(3)), "Redoutable");
+  //  Une ville n'a pas de palier : pas de difficulté non plus, et
+  //  surtout pas un « Palier ? ».
+  assertEquals(difficulteDe(avec()), "");
 });

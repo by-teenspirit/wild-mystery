@@ -67,6 +67,8 @@ import {
   cleDeFamille,
   type Comptage,
   deplacer,
+  difficulteDe,
+  ecarterLesEtiquettes,
   familleDe,
   forumDeLAdresse,
   grouper,
@@ -655,6 +657,24 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
       banniere.style.setProperty("--wm-carte-image", `url("${lieu.image}")`);
     }
     banniere.appendChild(el(doc, "p", "wm-carte__panneau-famille", familleDe(lieu)));
+    //  ── LA DIFFICULTÉ, EN TOUTES LETTRES ──────────────────────────
+    //
+    //  « Une indication du niveau de difficulté dans le panneau
+    //  latéral ? » La carte dit le palier par sa couleur ; le panneau
+    //  le dit par un mot. Un joueur sur douze ne distingue pas le vert
+    //  du rouge, et une pastille ne se lit pas à voix haute.
+    //
+    //  `data-wm-famille` est déjà sur le panneau : la pastille y prend
+    //  la couleur du palier sans qu'on l'écrive ici.
+    const mot = difficulteDe(lieu);
+    if (mot !== "") {
+      const d = el(doc, "p", "wm-carte__difficulte");
+      const point = el(doc, "span", "wm-carte__difficulte-puce");
+      point.setAttribute("aria-hidden", "true");
+      d.appendChild(point);
+      d.appendChild(el(doc, "span", "wm-carte__difficulte-mot", mot));
+      banniere.appendChild(d);
+    }
     if (lieu.niveau !== "") {
       banniere.appendChild(el(doc, "p", "wm-carte__panneau-niveau", lieu.niveau));
     }
@@ -891,11 +911,6 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
     poserLaVue();
   });
 
-  //  LE ZOOM À LA MOLETTE EST VOLONTAIREMENT ABSENT. La carte vit au
-  //  milieu d'une page qu'on fait défiler : une molette qui zoome au
-  //  lieu de faire défiler bloque le lecteur dans un bloc dont il ne
-  //  sait plus sortir. Les deux boutons ci-dessous font le travail, et
-  //  ils s'atteignent au clavier.
   const barre = el(doc, "div", "wm-carte__zoom");
   const zoomer = (vers: number): void => {
     const z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, carte.repere.largeur / vue.largeur * vers));
@@ -922,7 +937,77 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
   }
   cadre.appendChild(barre);
 
+  //  ── LA MOLETTE ZOOME, MAIS ELLE REND LA MAIN ──────────────────
+  //
+  //  « Le zoom ne fonctionne pas », 9 octobre. Les boutons marchent —
+  //  le repère change bien. C'est la molette qui ne faisait rien, et
+  //  je l'avais écartée exprès : une carte qui avale le défilement au
+  //  milieu d'une page enferme le lecteur dans un bloc dont il ne sait
+  //  plus sortir.
+  //
+  //  LA CRAINTE ÉTAIT JUSTE, LA CONCLUSION NON. On zoome tant qu'il y
+  //  a du zoom à prendre dans ce sens-là, et on NE RETIENT LE
+  //  DÉFILEMENT QUE DANS CE CAS. Au bout de la course — déjà au plus
+  //  près, ou déjà au plus loin — la molette repasse à la page, et on
+  //  sort du bloc en continuant le même geste.
+  //
+  //  `passive: false` est obligatoire : sans lui le navigateur refuse
+  //  le `preventDefault` et la page défile quand même.
+  cadre.addEventListener("wheel", (e) => {
+    const ev = e as WheelEvent;
+    if (ev.deltaY === 0) return;
+    const z = carte.repere.largeur / vue.largeur;
+    const vers = ev.deltaY < 0 ? 1.18 : 1 / 1.18;
+    //  Au bout de la course : on ne prend pas la main.
+    if (vers > 1 && z >= ZOOM_MAX - 0.001) return;
+    if (vers < 1 && z <= ZOOM_MIN + 0.001) return;
+    ev.preventDefault();
+    zoomer(vers);
+  }, { passive: false });
+
+  //  ── LES ÉTIQUETTES QUI SE MARCHAIENT DESSUS ───────────────────
+  //
+  //  « Le titre "Samaragd" et "Fleuve Paisible" se chevauchent. »
+  //
+  //  ON MESURE, ON NE DEVINE PAS. `getBBox` rend la boîte réelle du
+  //  texte en unités de carte — police, graisse et contour compris.
+  //  C'est la seule façon d'attraper un chevauchement qui dépend d'une
+  //  police qu'on ne contrôle pas entièrement ; une cote écrite à la
+  //  main dans `data/carte.json` serait juste aujourd'hui et fausse au
+  //  prochain nom un peu long.
+  //
+  //  Il faut que le SVG soit DANS le document — `getBBox` rend zéro
+  //  sur un nœud détaché. C'est le cas ici : `hote.replaceChildren`
+  //  est passé bien avant.
+  //
+  //  La règle, elle, est dans `carte.ts` et se teste sans navigateur.
+  const ecarterLesNoms = (): void => {
+    const noms = Array.from(dessin.querySelectorAll<SVGTextElement>(".wm-carte__nom"));
+    const boites = [];
+    for (let i = 0; i < noms.length; i += 1) {
+      let b;
+      try {
+        b = noms[i].getBBox();
+      } catch {
+        //  Un SVG caché n'a pas de boîte. On ne décale rien plutôt
+        //  que de décaler au hasard.
+        return;
+      }
+      if (b.width === 0) return;
+      boites.push({ cle: i, x: b.x, y: b.y, largeur: b.width, hauteur: b.height });
+    }
+    for (const [i, dy] of ecarterLesEtiquettes(boites)) {
+      const n = noms[i];
+      const y = Number(n.getAttribute("y") ?? "0");
+      n.setAttribute("y", String(y + dy));
+      //  Le déplacement se voit : sans ça on chercherait pourquoi un
+      //  nom n'est pas tout à fait où `data/carte.json` le met.
+      n.dataset.wmEcarte = String(Math.round(dy));
+    }
+  };
+
   poserLaVue();
+  ecarterLesNoms();
   inviterLePanneau();
 
   const enrichir = (nouveaux: Map<number, Comptage>): void => {
