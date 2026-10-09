@@ -45,6 +45,34 @@ import { estLIndex } from "./module-vie.ts";
 /** Le conteneur que le module remplit. Il se pose lui-même. */
 export const ANCRE = "wm-enligne";
 
+/** Le bloc que `index_body` sert, et que le panneau REMPLACE.
+ *
+ *  ── POURQUOI IL Y EN AVAIT DEUX ─────────────────────────────────────
+ *
+ *  « Pourquoi est-ce que j'en ai 2 qui s'affiche ? », 9 octobre. Parce
+ *  que le gabarit imprimait le bloc « qui est en ligne » de ModernBB
+ *  et que le script en AJOUTAIT un second à la fin de l'index. Deux
+ *  blocs, deux vérités, et aucune des deux n'était fausse.
+ *
+ *  La correction est dans le gabarit, pas dans le script : le bloc de
+ *  Forumactif devient une SOURCE — `templates/index_body.nouveau.html`
+ *  met les deux listes de connectés dans des balises nommées — et le
+ *  script se pose À SA PLACE, en le retirant.
+ *
+ *  ── POURQUOI PAS UN `display: none` DANS LA FEUILLE ─────────────────
+ *
+ *  Parce qu'un script qui ne tourne pas ne doit pas emporter
+ *  l'information avec lui. Caché en CSS, le bloc d'origine disparaît
+ *  même quand il est le seul à rester. Retiré par le script, il ne
+ *  disparaît qu'une fois remplacé. */
+export const SOURCE = "wm-qeel";
+
+/** Où chercher les connectés. Le nom du gabarit d'abord, celui de
+ *  ModernBB ensuite : le module marche avant que le gabarit soit posé,
+ *  et il marchera encore si un jour il ne l'est plus. */
+export const SOURCES_MAINTENANT = ["#wm-qeel-maintenant", "#onlinelist"] as const;
+export const SOURCES_24H = ["#wm-qeel-24h", "#onlinelist_24h"] as const;
+
 function el<K extends keyof HTMLElementTagNameMap>(
   doc: Document,
   nom: K,
@@ -109,8 +137,15 @@ export type Connecte = { readonly pseudo: string; readonly url: string };
  *  UN LIEN DE PROFIL SE RECONNAÎT À SON ADRESSE, `/uN`. C'est plus sûr
  *  qu'une classe : Forumactif met `usr_grp_clr` et `group-N` sur les
  *  pseudos colorés, mais pas sur ceux des groupes sans couleur. */
-export function connectesDe(doc: Document, selecteur: string): readonly Connecte[] {
-  const bloc = doc.querySelector(selecteur);
+export function connectesDe(
+  doc: Document,
+  selecteurs: readonly string[],
+): readonly Connecte[] {
+  //  Le PREMIER conteneur présent gagne, et on ne fusionne pas : deux
+  //  conteneurs présents voudrait dire que le gabarit et ModernBB
+  //  donnent la même liste deux fois, et on l'afficherait en double.
+  //  C'est exactement la faute qu'on vient de corriger.
+  const bloc = selecteurs.map((s) => doc.querySelector(s)).find((b) => b !== null) ?? null;
   if (bloc === null) return [];
   const vus = new Set<string>();
   const sortie: Connecte[] = [];
@@ -292,13 +327,29 @@ export function poserQuiEstEnLigne(
 ): boolean {
   if (!estLIndex(doc.location?.pathname ?? "")) return false;
 
+  //  Deux fois posé, c'est deux blocs à l'écran. Ça n'arrive pas
+  //  aujourd'hui — le paquet n'appelle qu'une fois — mais le jour où
+  //  un rechargement partiel le rappellerait, mieux vaut un retour
+  //  sec qu'un doublon.
+  if (doc.getElementById(ANCRE) !== null) return false;
+
   const chiffres = chiffresDe(doc);
   const clan = clanDuMoment(clans);
   if (rienAMontrer(chiffres, clan)) return false;
 
+  //  ── OÙ LE PANNEAU SE POSE ───────────────────────────────────────
+  //  À la place du bloc du gabarit quand il est là : c'est lui qui
+  //  tient la bonne position, juste après `{BOARD_INDEX}`, et c'est
+  //  en le remplaçant qu'on cesse d'en avoir deux.
+  //
+  //  Sinon, après la dernière catégorie — le cas d'un forum dont le
+  //  gabarit n'est pas encore posé, ou dont l'option « qui est en
+  //  ligne » est décochée : Forumactif ne sert alors pas le bloc du
+  //  tout.
+  const source = doc.getElementById(SOURCE);
   const blocs = doc.querySelectorAll(".forabg, .forumbg");
   const dernier = blocs.length === 0 ? null : blocs[blocs.length - 1];
-  if (dernier === null) return false;
+  if (source === null && dernier === null) return false;
 
   const racine = el(doc, "section", "wm-enligne");
   racine.id = ANCRE;
@@ -331,7 +382,7 @@ export function poserQuiEstEnLigne(
   // ── colonne 1 : en ligne maintenant, et les deux compteurs ───────
   const col1 = el(doc, "div", "wm-enligne__colonne");
   const maintenant = carte(doc, "Actuellement en ligne", "wm-enligne__carte--haute");
-  maintenant.appendChild(listeDeConnectes(doc, connectesDe(doc, "#onlinelist")));
+  maintenant.appendChild(listeDeConnectes(doc, connectesDe(doc, SOURCES_MAINTENANT)));
   col1.appendChild(maintenant);
   const compteurs = el(doc, "div", "wm-enligne__compteurs");
   compteurs.appendChild(compteur(doc, chiffres.messages, "messages"));
@@ -362,7 +413,7 @@ export function poserQuiEstEnLigne(
     "Connectés dans les 24 dernières heures",
     "wm-enligne__carte--haute",
   );
-  vingtQuatre.appendChild(listeDeConnectes(doc, connectesDe(doc, "#onlinelist_24h")));
+  vingtQuatre.appendChild(listeDeConnectes(doc, connectesDe(doc, SOURCES_24H)));
   col2.appendChild(vingtQuatre);
   panneau.appendChild(col2);
 
@@ -374,6 +425,12 @@ export function poserQuiEstEnLigne(
   }
 
   racine.appendChild(panneau);
-  dernier.parentNode?.insertBefore(racine, dernier.nextSibling);
+
+  //  LE REMPLACEMENT EST LE DERNIER GESTE, et c'est voulu : tout ce
+  //  qui précède a LU la source. Si on l'avait retirée d'abord, les
+  //  deux listes seraient vides et on aurait remplacé une information
+  //  par deux « personne pour l'instant ».
+  if (source !== null) source.replaceWith(racine);
+  else dernier?.parentNode?.insertBefore(racine, dernier.nextSibling);
   return true;
 }

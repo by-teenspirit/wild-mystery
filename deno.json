@@ -24,7 +24,8 @@
     "navigation": "deno run -A outils/navigation.mjs",
     "confort": "deno run -A outils/confort.mjs",
     "accueil": "deno run -A outils/accueil.mjs",
-    "carte": "deno run -A outils/carte.mjs"
+    "carte": "deno run -A outils/carte.mjs",
+    "enligne": "deno run -A outils/enligne.mjs"
   },
   "fmt": {
     "include": [

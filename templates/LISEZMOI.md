@@ -33,6 +33,7 @@ On ne colle jamais un template sans le relire en entier. Et surtout :
 | Template | t | Ce qu'il faut y faire |
 |---|--:|---|
 | `overall_header` | 116 | déjà repris : les polices, la feuille et le script |
+| `index_body` | | **fait** : le bloc « qui est en ligne » devient une source nommée, voir `.nouveau.html` |
 | `memberlist_body` | 113 | `table#memberlist.table1` → `ul`/`li` + flex |
 | `viewtopic_body` | | l'ancrage du module de bilan, et le `<table>` du bloc de règles |
 | `posting_body` | | le même bloc, le lanceur de dés, la case « je veux un MJ » |

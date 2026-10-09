@@ -1,0 +1,149 @@
+{JAVASCRIPT}
+
+<!-- BEGIN switch_user_login_form_header -->
+<div class="panel">
+	<form action="{S_LOGIN_ACTION}" method="post" name="form_login">
+		<div class="user_login_form center">
+			<input placeholder="{L_USERNAME}" class="inputbox fl_username" type="text" size="10" name="username" />
+			<input placeholder="{L_PASSWORD}" class="inputbox fl_password" type="password" size="10" name="password" />
+			<br />
+			<label>{L_AUTO_LOGIN}: <input class="radio" type="checkbox" name="autologin" {AUTOLOGIN_CHECKED} /></label>
+			{S_HIDDEN_FIELDS}<input class="mainoption button1" type="submit" name="login" value="{L_LOGIN}" />
+            <!-- BEGIN switch_social_login -->
+            <div class="social_btn">
+                <!-- BEGIN fb_connect -->
+                <div class="fb-login-button"></div>
+                <!-- END fb_connect -->
+                <!-- BEGIN topicit_connect -->
+                <div class="ti-connect"></div>
+                <!-- END topicit_connect -->
+            </div>
+            <!-- END switch_social_login -->
+		</div>
+	</form>
+</div>
+<!-- END switch_user_login_form_header -->
+
+<!-- BEGIN message_admin_index -->
+	<div class="panel introduction">
+		<!-- BEGIN message_admin_titre -->
+			<div class="h3">{message_admin_index.message_admin_titre.MES_TITRE}</div>
+		<!-- END message_admin_titre -->
+
+		<!-- BEGIN message_admin_txt -->
+			<div class="mes-txt">{message_admin_index.message_admin_txt.MES_TXT}</div>
+		<!-- END message_admin_txt -->
+	</div>
+<!-- END message_admin_index -->
+
+{CHATBOX_TOP}
+
+{BOARD_INDEX}
+
+<!-- BEGIN disable_viewonline -->
+
+	<!-- ════════════════════════════════════════════════════════════
+	     « QUI EST EN LIGNE ? » — LA SOURCE, PAS L'AFFICHAGE
+
+	     Ce bloc-ci n'est plus ce qu'on voit : c'est ce qu'on LIT.
+	     Forumactif y écrit les deux listes de connectés, chacune
+	     dans sa balise nommée, et le script les reprend pour dessiner
+	     le panneau de la maquette À LA PLACE de ce bloc.
+
+	     Pourquoi ne pas le cacher en CSS : si le script ne tourne pas
+	     — réseau coupé, JS désactivé — les listes restent visibles
+	     ici, en ModernBB ordinaire. C'est le script qui retire ce
+	     bloc, et seulement une fois qu'il a de quoi le remplacer.
+
+	     NE PAS RENOMMER `wm-qeel`, `wm-qeel-maintenant` NI
+	     `wm-qeel-24h` : ce sont les trois noms que le script cherche.
+	     ════════════════════════════════════════════════════════════ -->
+	<div class="block wm-qeel" id="wm-qeel">
+		<!-- BEGIN switch_viewonline_link -->
+			<div class="h3"><a href="{U_VIEWONLINE}" rel="nofollow"><i class="ion-stats-bars"></i>{L_WHO_IS_ONLINE}</a></div>
+		<!-- END switch_viewonline_link -->
+
+		<!-- BEGIN switch_viewonline_nolink -->
+			<div class="h3"><i class="ion-stats-bars"></i>{L_WHO_IS_ONLINE}</div>
+		<!-- END switch_viewonline_nolink -->
+
+		<div id="wm-qeel-maintenant">{LOGGED_IN_USER_LIST}</div>
+		<div id="wm-qeel-24h">{L_CONNECTED_MEMBERS}</div>
+	</div>
+
+	<!-- ════════════════════════════════════════════════════════════
+	     CE QUE LE PANNEAU NE MONTRE PAS
+
+	     Le record de connexions, les anniversaires et la légende des
+	     groupes ne sont pas dans la maquette `390:3387`. Ils sont
+	     SORTIS du bloc du dessus plutôt que laissés dedans : le
+	     script retire ce bloc, et tout ce qui y serait resté
+	     disparaîtrait sans qu'on l'ait décidé.
+
+	     Ici, ils survivent. À retirer à la main le jour où on les
+	     juge en trop — et ce jour-là, ça se verra.
+	     ════════════════════════════════════════════════════════════ -->
+	<div class="block wm-qeel-reste">
+		{TOTAL_USERS_ONLINE}<br />
+		{RECORD_USERS}
+
+		{L_ONLINE_USERS}
+
+		{L_WHOSBIRTHDAY_TODAY}{L_WHOSBIRTHDAY_WEEK}
+
+		<!-- BEGIN switch_group_legend -->
+		<div class="block-footer"><strong>{LEGEND}:</strong>&nbsp;{GROUP_LEGEND}</div>
+		<!-- END switch_group_legend -->
+	</div>
+
+	<!-- BEGIN switch_chatbox_activate -->
+		<div class="block">
+			<div class="h3">
+				<a href="{S_JOIN_CHAT}" target="ChatBox"><i class="ion-ios-chatboxes-outline"></i>{CHATBOX_NAME}</a>
+				<!-- BEGIN switch_chatbox_popup -->
+					<div id="chatbox_popup"></div>
+					<script type="text/javascript">
+						insertChatBoxPopup('{disable_viewonline.switch_chatbox_activate.switch_chatbox_popup.U_FRAME_CHATBOX}', '{L_CLICK_TO_JOIN_CHAT}');
+					</script>
+				<!-- END switch_chatbox_popup -->
+			</div>
+			{TOTAL_CHATTERS_ONLINE}:&nbsp;{CHATTERS_LIST}
+		</div>
+	<!-- END switch_chatbox_activate -->
+<!-- END disable_viewonline -->
+
+{CHATBOX_BOTTOM}
+
+<!-- BEGIN switch_user_login_form_footer -->
+<div class="panel">
+	<form action="{S_LOGIN_ACTION}" method="post" name="form_login">
+		<div class="user_login_form center">
+			<input placeholder="{L_USERNAME}" class="inputbox fl_username" type="text" size="10" name="username" />
+			<input placeholder="{L_PASSWORD}" class="inputbox fl_password" type="password" size="10" name="password" />
+			<br />
+			<label>{L_AUTO_LOGIN}: <input class="radio" type="checkbox" name="autologin" {AUTOLOGIN_CHECKED} /></label>
+			{S_HIDDEN_FIELDS}<input class="mainoption button1" type="submit" name="login" value="{L_LOGIN}" />
+			<!-- BEGIN switch_social_login -->
+            <div class="social_btn">
+                <!-- BEGIN fb_connect -->
+                <div class="fb-login-button"></div>
+                <!-- END fb_connect -->
+                <!-- BEGIN topicit_connect -->
+                <div class="ti-connect"></div>
+                <!-- END topicit_connect -->
+            </div>
+            <!-- END switch_social_login -->
+		</div>
+	</form>
+</div>
+<!-- END switch_user_login_form_footer -->
+
+<!-- BEGIN switch_legend -->
+<ul id="picture_legend">
+	<li><img src="{FORUM_NEW_IMG}" alt="{L_NEW_POSTS}" loading="lazy" />{L_NEW_POSTS}</li>
+	<li><img src="{FORUM_IMG}" alt="{L_NO_NEW_POSTS}" loading="lazy" />{L_NO_NEW_POSTS}</li>
+	<li><img src="{FORUM_LOCKED_IMG}" alt="{L_FORUM_LOCKED}" loading="lazy" />{L_FORUM_LOCKED}</li>
+</ul>
+<!-- END switch_legend -->
+
+{AUTO_DST}
