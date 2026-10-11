@@ -527,7 +527,7 @@
     pas. */
 #modernbb .wm-enligne__clan-nom,
 #modernbb .wm-enligne__clan-texte {
-  padding-right: 128px;
+  padding-right: 100px;
 }
 
 @media (max-width: 1199px) {
@@ -539,10 +539,13 @@
   }
 }
 
+/*  LA TAILLE NORMALE, PAS LA PETITE. 11,5 px pour un paragraphe de
+    quatre lignes qu'on lit vraiment, c'était la taille d'une légende
+    appliquée à du texte courant. 13,5. */
 #modernbb .wm-enligne__clan-texte {
   margin: 0;
   color: inherit;
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-courant, 1.5);
 }
 

@@ -113,8 +113,10 @@ const BLOCS = {
   switch_moderators_links: 0,
   switch_forum_images: 0,
   switch_user_logged_in: 0,
-  switch_on_index: 0,
-  switch_delete_cookies: 0,
+  //  LA BARRE DU BAS EST SERVIE : elle porte les trois palmarès et le
+  //  lien des cookies, et c'est elle qui portait le filet du haut.
+  switch_on_index: 1,
+  switch_delete_cookies: 1,
 };
 
 /** Résout un gabarit Forumactif : les blocs d'abord, les variables
@@ -203,6 +205,9 @@ const STATS = `
  *  entier. 233 Ko, à exporter depuis le panneau d'administration. */
 const BASE_MODERNBB = `
 dl.icon { background-size: 33px 33px !important; }
+.linklist { margin-top: 24px; margin-bottom: 24px; }
+.linklist.top { border-bottom: 1px solid rgba(0,0,0,.1); padding-bottom: 6px; }
+.linklist.bottom { border-top: 1px solid rgba(0,0,0,.1); }
 `;
 
 const page = (corps) =>
@@ -424,6 +429,46 @@ dire(
     avant.bandeau.voileMax <= 0.2,
   JSON.stringify(avant.bandeau),
 );
+// ── LES DEUX BARRES DE LIENS ───────────────────────────────────────
+//
+//  « Enlève la ligne en dessous du bouton », « et là au-dessus » :
+//  deux filets de `13-ltr.css`, servis ici avec la base pour que le
+//  harnais puisse constater qu'on les bat.
+const barres = await p1.evaluate(() => {
+  const lis = (sel) => {
+    const e = document.querySelector(sel);
+    if (e === null) return null;
+    const s = getComputedStyle(e);
+    const a = e.querySelector("a");
+    return {
+      filetHaut: s.borderTopWidth,
+      filetBas: s.borderBottomWidth,
+      margeHaut: s.marginTop,
+      margeBas: s.marginBottom,
+      remplissageBas: s.paddingBottom,
+      rayonDuBouton: a === null ? null : getComputedStyle(a).borderRadius,
+    };
+  };
+  return { haut: lis("ul.linklist.top"), bas: lis("ul.linklist.bottom") };
+});
+dire(
+  "LES DEUX FILETS DE MODERNBB SONT RETIRÉS",
+  barres.haut?.filetBas === "0px" && barres.bas?.filetHaut === "0px" &&
+    barres.haut?.remplissageBas === "0px",
+  JSON.stringify(barres),
+);
+dire(
+  "et les barres respirent — 32 px, pas 14",
+  barres.haut?.margeBas === "32px" && barres.bas?.margeHaut === "32px" &&
+    barres.bas?.margeBas === "32px",
+  JSON.stringify({ haut: barres.haut?.margeBas, bas: barres.bas?.margeHaut }),
+);
+dire(
+  "les liens sont des boutons ronds",
+  barres.haut?.rayonDuBouton === "999px",
+  barres.haut?.rayonDuBouton,
+);
+
 dire(
   "ET LA PHOTO N'EST PAS RÉDUITE À 33 PX PAR LA BASE DE MODERNBB",
   avant.bandeau?.taille === "cover",

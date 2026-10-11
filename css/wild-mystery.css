@@ -2808,19 +2808,42 @@ html#min-width {
     fait la même chose sans ce défaut, et garde l'ordre du document —
     ce qui compte pour qui lit au clavier.
     ════════════════════════════════════════════════════════════════ */
+/*  ── LES DEUX FILETS DE MODERNBB S'EN VONT ─────────────────────────
+
+    « Enlève la ligne en dessous du bouton », « et là au-dessus »,
+    11 octobre. Relevé dans `13-ltr.css`, le CSS de base :
+
+        .linklist.top    { border-bottom-width: 1px; padding-bottom: 6px }
+        .linklist.bottom { border-top-width: 1px }
+
+    Un filet sous une barre de boutons ronds souligne un rang qui se
+    tient déjà tout seul. Pas d'`!important` cette fois — contrairement
+    au `background-size` de `dl.icon` —, donc notre sélecteur suffit.
+    Le rembourrage du bas part avec : il n'était là que pour écarter
+    les liens du filet.
+
+    ── ET DE L'AIR AUTOUR ──────────────────────────────────────────
+
+    « Mets plus d'espace entre les catégories, les liens et le QEEL. »
+    Les barres se collaient à ce qui les entoure : 14 px au-dessus et
+    en dessous, pour des blocs qui en font 22 de rembourrage intérieur.
+    On passe à 32 — l'échelon d'espacement juste au-dessus, et
+    l'écart qui sépare déjà deux blocs de l'accueil. */
 #modernbb ul.linklist.top,
 #modernbb ul.linklist.bottom {
   display: flex;
-  margin: 0 0 var(--wm-espace-14, 14px);
+  margin: 0 0 var(--wm-espace-32, 32px);
   padding: 0;
   flex-wrap: wrap;
   align-items: center;
+  border-top: 0;
+  border-bottom: 0;
   gap: var(--wm-espace-8, 8px);
   list-style: none;
 }
 
 #modernbb ul.linklist.bottom {
-  margin: var(--wm-espace-14, 14px) 0 0;
+  margin: var(--wm-espace-32, 32px) 0;
 }
 
 #modernbb ul.linklist.top > li,
@@ -12272,7 +12295,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     pas. */
 #modernbb .wm-enligne__clan-nom,
 #modernbb .wm-enligne__clan-texte {
-  padding-right: 128px;
+  padding-right: 100px;
 }
 
 @media (max-width: 1199px) {
@@ -12284,10 +12307,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
+/*  LA TAILLE NORMALE, PAS LA PETITE. 11,5 px pour un paragraphe de
+    quatre lignes qu'on lit vraiment, c'était la taille d'une légende
+    appliquée à du texte courant. 13,5. */
 #modernbb .wm-enligne__clan-texte {
   margin: 0;
   color: inherit;
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-courant, 1.5);
 }
 

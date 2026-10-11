@@ -342,6 +342,30 @@ dire(
   (clan?.texte ?? 0) > 200,
   `${clan?.texte} caractères`,
 );
+
+//  « La taille du texte en normal, pas en petit », 11 octobre : 11,5
+//  était la taille d'une légende, appliquée à un paragraphe de quatre
+//  lignes qu'on lit vraiment. Et la griffe du Sabelette mord 100 px,
+//  plus 128.
+const lisible = await p.evaluate(() => {
+  const t = document.querySelector(".wm-enligne__clan-texte");
+  const n = document.querySelector(".wm-enligne__clan-nom");
+  return t === null ? null : {
+    taille: getComputedStyle(t).fontSize,
+    reserveTexte: getComputedStyle(t).paddingRight,
+    reserveNom: n === null ? null : getComputedStyle(n).paddingRight,
+  };
+});
+dire(
+  "LE TEXTE DU CLAN EST À LA TAILLE NORMALE",
+  lisible?.taille === "13.5px",
+  JSON.stringify(lisible),
+);
+dire(
+  "et la réserve du Sabelette vaut 100 px, sur le nom comme sur le texte",
+  lisible?.reserveTexte === "100px" && lisible?.reserveNom === "100px",
+  JSON.stringify(lisible),
+);
 dire(
   "et son avantage",
   (clan?.avantage ?? "").startsWith("+ 10 %"),
