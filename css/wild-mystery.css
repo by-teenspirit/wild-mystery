@@ -10155,36 +10155,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   outline-offset: 2px;
 }
 
-/*  ── LA PASTILLE DE NON-LUS, AU COIN DE LA BULLE ───────────────────
+/*  ── IL N'Y A PAS DE COMPTEUR SUR LA BULLE, ET C'EST VÉRIFIÉ ───────
 
-    Elle était en ligne à côté de l'étiquette « Tchat », du temps où il
-    y avait une étiquette. Sans texte, elle n'a plus de voisin : elle
-    monte au coin haut droit de la bulle, là où se lit un compteur sur
-    une icône. Débordante exprès — une pastille posée dedans mange
-    l'icône.
+    Une pastille de messages non lus était habillée ici, sur
+    `.FAM-notification`. **Ce nom n'existe nulle part dans le greffon**
+    — relevé le 11 octobre dans le `fam.js` du fork, 180 noms en
+    `FAM-…` et aucun qui s'appelle comme ça. La règle ne dessinait
+    rien, et elle faisait croire que le cas était traité.
 
-    Elle reprend celle des notifications, à l'identique : deux compteurs
-    qui disent la même chose ne doivent pas se dessiner de deux façons. */
-#modernbb #FAM-button .FAM-notification,
-#modernbb .wm-messenger-bulle .FAM-notification {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  display: inline-flex;
-  min-width: 18px;
-  height: 18px;
-  box-sizing: border-box;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  border: 1px solid var(--wm-fond-surface, #fffbf7);
-  border-radius: 999px;
-  background: var(--wm-accent-terre, #8b4725);
-  color: var(--wm-texte-inverse, #fffbf7);
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
+    Ce que FAM pose vraiment quand des messages arrivent est À
+    L'INTÉRIEUR du tiroir : `#FAM-new-msg-notif`, une barre « 3
+    nouveaux messages » en haut du contenu. Elle est habillée au §6.
+
+    Le bouton, lui, n'annonce rien. Si on en veut un jour un compteur,
+    il faudra l'ajouter DANS LE FORK — c'est là que vit la mécanique —,
+    pas l'attendre d'un sélecteur deviné. */
 
 /* ── 1 · la fenêtre ───────────────────────────────────────────────── */
 
@@ -10272,8 +10257,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     Le menu déroulant du coin en haut à droite aussi : fond blanc,
     texte gris, aucun cadre. Il est servi par FAM au-dessus de tout,
-    donc c'est le seul endroit du tiroir qui garde une ombre. */
+    donc c'est le seul endroit du tiroir qui garde une ombre.
+
+    ── UNE SEULE RÈGLE PAR CHOSE, RELEVÉ DU 11 OCTOBRE ───────────────
+
+    Cette bande était décrite DEUX FOIS dans cette feuille : ici sur
+    `fond/douce`, et plus bas sur `fond/page` avec un filet. La
+    seconde gagnait en silence, parce qu'elle vient après à spécificité
+    égale — et c'est `fond/page` qui s'affichait, le fond de la PAGE à
+    l'intérieur d'un tiroir qui est en `fond/surface`.
+
+    Les deux sont réunies ici, et c'est `fond/douce` qui reste : dans
+    un tiroir en surface, la bande d'onglets doit se CREUSER d'un cran,
+    pas reprendre la couleur de la page qui est derrière. */
 #modernbb #FAM #FAM-tabs {
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
@@ -10283,23 +10281,29 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
+/*  L'ONGLET ACTIF. Son nom de classe est `FAM-tab-active` — relevé
+    dans le `fam.js` du fork le 11 octobre. Cette feuille en portait
+    AUSSI une règle pour `.FAM-active-tab`, qui n'existe nulle part
+    dans le greffon : du CSS mort, qui ressemblait à une seconde
+    définition et n'en était pas une. */
 #modernbb #FAM .FAM-tab.FAM-tab-active {
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-encre, #2e2018);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
+/*  Le trait de 4 px sous l'onglet actif, que FAM dessine en #39F. */
+#modernbb #FAM .FAM-tab.FAM-tab-active::after {
+  background: var(--wm-accent-primaire, #275e7a);
+}
+
 #modernbb #FAM #FAM-new-topic i.fa-circle {
   color: var(--wm-accent-primaire, #275e7a);
 }
 
-#modernbb #FAM #FAM-menu {
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
-  box-shadow: 0 6px 20px rgb(20 48 58 / 14%);
-  color: var(--wm-texte-corps, #4e3b30);
-}
+/*  Le menu du coin est habillé au §8, avec la taille de ses icônes. Il
+    l'était AUSSI ici, à l'identique moins une déclaration — c'est le
+    doublon que le garde-fou 18 a trouvé en dernier. */
 
 /*  Une conversation se sépare de la suivante par un filet, pas par un
     cadre : c'est une liste, comme la liste des forums. */
@@ -10316,26 +10320,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Empilés dans un tiroir qui a déjà ses bords, ils font un escalier
     de boîtes. Chez Cedar Cove, tout l'intérieur est transparent et
     c'est le rembourrage qui sépare. */
+/*  `.FAM-container-content` était de la liste, et n'existe pas :
+    relevé dans le `fam.js` du fork le 11 octobre, le greffon n'écrit
+    jamais cette classe. Les vrais noms voisins sont `FAM-content` et
+    `FAM-content-block`. Un sélecteur mort dans une liste groupée ne se
+    voit pas — il n'enlève rien, il ne casse rien, et il fait croire
+    qu'un bloc est traité alors qu'il ne l'est pas. */
 #modernbb #FAM-toolbar,
 #modernbb #FAM-toolbar-inner,
 #modernbb #FAM-tab-container,
 #modernbb #FAM-tabs,
-#modernbb .FAM-container-content,
 #modernbb #FAM-content {
   border: 0;
   background: transparent;
-}
-
-/*  Le titre : la seule chose qui tienne lieu d'en-tête, donc elle
-    porte. Capitales espacées, comme les surtitres de la charte, et la
-    taille d'un titre de section. */
-#modernbb #FAM .FAM-maintitle {
-  color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-titre-section, 19px);
-  font-weight: var(--wm-graisse-gras, 700);
-  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
-  text-transform: uppercase;
 }
 
 /*  Le rembourrage de Cedar Cove, qui remplace les cloisons : 20 autour
@@ -10348,8 +10345,22 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   padding: var(--wm-espace-32, 32px) var(--wm-espace-20, 20px);
 }
 
-/* ── 2 · les titres et les onglets ────────────────────────────────── */
+/* ── 2 · les titres ───────────────────────────────────────────────── */
 
+/*  ── LE TITRE, UNE FOIS ET PAS DEUX ────────────────────────────────
+
+    Il était décrit à deux endroits, et les deux se contredisaient :
+    plus haut en `police/corps` CAPITALES ESPACÉES, ici en
+    `police/accent` sans capitales. La seconde gagnait — donc le titre
+    s'affichait bien en manuscrite, et le commentaire d'au-dessus
+    décrivait quelque chose qui n'arrivait jamais. Un commentaire faux
+    est pire qu'un commentaire absent : il se croit.
+
+    C'est la manuscrite qu'on garde, et pour la raison écrite ici
+    depuis le début : `text-transform: uppercase` est posé par FAM sur
+    tous ses titres, et la manuscrite en capitales est illisible. La
+    taille, elle, vient de l'autre règle et reste : un titre de
+    section, puisque ce titre tient lieu d'en-tête au tiroir. */
 #modernbb #FAM .FAM-maintitle,
 #modernbb #FAM .FAM-chat-title {
   color: var(--wm-encre, #2e2018);
@@ -10358,28 +10369,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-transform: none;
 }
 
-/*  `text-transform: uppercase` est posé par FAM sur tous ses titres.
-    On le laisse où il sert — les étiquettes — et on l'enlève des
-    titres, que la police manuscrite rend illisibles en capitales. */
+/*  LA TAILLE NE VA QU'AU TITRE DU TIROIR. Le titre d'une conversation
+    porte la même police, mais il y en a un par ligne de liste : à 19
+    il ferait des lignes de titre là où il faut une liste. */
+#modernbb #FAM .FAM-maintitle {
+  font-size: var(--wm-taille-titre-section, 19px);
+}
+
+/*  Les étiquettes, elles, gardent leurs capitales : c'est là que
+    `uppercase` sert. */
 #modernbb #FAM .FAM-title {
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-etiquette, 10px);
   letter-spacing: 0.08em;
-}
-
-#modernbb #FAM #FAM-tabs {
-  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
-  background: var(--wm-fond-page, #eecfb5);
-}
-
-#modernbb #FAM .FAM-tab {
-  border-radius: var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px) 0 0;
-  color: var(--wm-texte-doux, #6e5749);
-}
-
-#modernbb #FAM .FAM-tab.FAM-active-tab {
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-encre, #2e2018);
 }
 
 /* ── 3 · les messages ─────────────────────────────────────────────── */
@@ -10391,11 +10393,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb #FAM .FAM-msg-text {
   color: var(--wm-texte-corps, #4e3b30);
   line-height: var(--wm-interligne-courant, 1.5);
-}
-
-#modernbb #FAM .FAM-msg-date {
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-etiquette, 10px);
 }
 
 /*  Ses propres messages se distinguent par le fond, pas seulement par
@@ -10411,13 +10408,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 4 · la saisie et les boutons ─────────────────────────────────── */
 
+/*  ── LE CHAMP, UNE FOIS ET PAS DEUX ────────────────────────────────
+
+    Il était décrit ici en `rayon/md` + `taille/normal` + encre, et une
+    seconde fois tout en bas en `rayon/sm` + `taille/petit` +
+    `texte/corps`. La seconde gagnait. Les deux sont réunies, et ce
+    sont les valeurs de la seconde qui restent — un champ de tchat est
+    petit et son texte est du corps de message, pas de l'encre de
+    titre. */
 #modernbb #FAM .FAM-inputbox {
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-encre, #2e2018);
+  color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-normal, 13.5px);
+  font-size: var(--wm-taille-petit, 11.5px);
 }
 
 #modernbb #FAM .FAM-inputbox:focus-visible {
@@ -10426,15 +10431,45 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   outline-offset: 1px;
 }
 
-#modernbb #FAM .FAM-button,
+/*  ── DEUX BOUTONS QUI NE SE RESSEMBLENT PAS ────────────────────────
+
+    LE DÉFAUT, ET IL SE VOYAIT. `.FAM-button` et `.FAM-toolbar-button`
+    étaient groupés ici — radius et couleur d'accent, sans fond —, et
+    `.FAM-button` était REPRIS tout en bas en accent PLEIN avec du
+    texte inverse. Le fond de la seconde gagnait ; la couleur de texte,
+    déclarée seulement dans la première, restait.
+
+    Au survol, le résultat était `accent/fort` sur `accent/fort` :
+    **rapport de contraste 1,0**, le mot disparaissait complètement.
+    Ça touchait « Charger les plus anciens », « Envoyer » et « Annuler »
+    de l'édition d'un message — les trois `.FAM-button` que le greffon
+    écrit (relevé dans le `fam.js` du fork le 11 octobre).
+
+    On les sépare, parce que ce ne sont pas les mêmes objets :
+    `.FAM-button` est un bouton plein, `.FAM-toolbar-button` est une
+    icône nue dans la barre. Un bouton plein garde son texte inverse
+    au survol ; une icône nue prend un fond doux. */
+#modernbb #FAM .FAM-button {
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb #FAM .FAM-button:hover,
+#modernbb #FAM .FAM-button:focus-visible {
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
 #modernbb #FAM .FAM-toolbar-button {
   border-radius: var(--wm-rayon-md, 8px);
   color: var(--wm-accent-primaire, #275e7a);
 }
 
-#modernbb #FAM .FAM-button:hover,
 #modernbb #FAM .FAM-toolbar-button:hover,
-#modernbb #FAM .FAM-button:focus-visible,
 #modernbb #FAM .FAM-toolbar-button:focus-visible {
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-accent-fort, #1f5470);
@@ -10445,6 +10480,25 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /* ── 5 · ce qu'on ne touche pas, et pourquoi ──────────────────────── */
+
+/*  ── ET CE QU'ON NE PEUT PAS TOUCHER PARCE QUE ÇA N'EXISTE PAS ─────
+
+    `.FAM-notification` était habillée dans cette feuille, en pastille
+    de messages non lus posée dans le bouton. **Ce nom n'existe pas
+    dans le greffon** — relevé le 11 octobre dans le `fam.js` du fork,
+    180 noms en `FAM-…` et aucun qui s'appelle comme ça.
+
+    Il n'y a PAS de compteur sur le bouton. Ce que FAM pose quand des
+    messages arrivent, c'est `#FAM-new-msg-notif` : une barre en pleine
+    largeur EN HAUT DU CONTENU, « 3 nouveaux messages », cliquable pour
+    marquer comme lu, et `#FAM-new-msg-divider`, le trait « nouveaux
+    messages » entre le lu et le non lu. Les deux sont en #39F, et
+    aucun des deux n'était habillé : ils sont traités plus bas, au §6.
+
+    LA LEÇON : un sélecteur inventé de bonne foi ne prévient jamais. Il
+    ne lève pas d'erreur, il ne casse rien, et il fait croire que le
+    cas est traité. C'est pour ça que la liste des noms se relève DANS
+    le fichier du greffon, pas de mémoire. */
 
 /*  `#FAM-modal-overlay`, `.FAM-codebox`, `.FAM-spoiler`,
     `.FAM-attachment` : laissés tels quels. Ils ne se voient qu'une
@@ -10457,7 +10511,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Symbols demanderait de réécrire chaque appel d'icône dans le fork,
     pour un gain d'un kilo-octet. */
 
-/* ── 5 · le dedans de la conversation ─────────────────────────────── */
+/* ── 6 · le dedans de la conversation ─────────────────────────────── */
 
 /*  ── CE QUI RESTAIT DE 2017, UNE FOIS LE TIROIR OUVERT ─────────────
 
@@ -10555,7 +10609,48 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-color: var(--wm-accent-primaire, #275e7a);
 }
 
-/* ── 6 · la barre du bas ──────────────────────────────────────────── */
+/*  ── CE QUI ANNONCE LES MESSAGES NON LUS ───────────────────────────
+
+    Deux blocs que personne n'avait habillés, parce qu'on les cherchait
+    sous le nom d'une pastille qui n'existe pas (§5) :
+
+      · `#FAM-new-msg-notif` — une barre en pleine largeur en haut du
+        contenu, « 3 nouveaux messages », cliquable pour marquer comme
+        lu, avec une croix FontAwesome à droite. Relevée dans le fork :
+        `background:#39F; color:#FFF; height:30px; opacity:.8`. Un
+        bandeau bleu vif en travers d'un tiroir crème ;
+      · `#FAM-new-msg-divider` — le trait entre le lu et le non lu,
+        `color:#39F` avec deux filets `#39F` de 2 px de chaque côté.
+
+    On ne change QUE les couleurs : la hauteur, la position absolue et
+    l'opacité au survol sont de la mécanique, et elles vivent dans le
+    fork. L'accent terre plutôt que l'accent primaire — c'est la
+    couleur que ce forum donne aux compteurs et aux alertes douces, la
+    même que la pastille de pièces jointes et la barre de temporisation
+    plus bas. Trois choses qui disent « il y a du nouveau » ne doivent
+    pas se dessiner de trois façons. */
+#modernbb #FAM #FAM-new-msg-notif {
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb #FAM #FAM-new-msg-divider {
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Les deux filets de part et d'autre du trait. */
+#modernbb #FAM #FAM-new-msg-divider::before,
+#modernbb #FAM #FAM-new-msg-divider::after {
+  background: var(--wm-bord-net, #d9c3b1);
+}
+
+/* ── 7 · la barre du bas ──────────────────────────────────────────── */
 
 /*  Elle était blanche sous un tiroir sombre. Elle prend la surface du
     tiroir, et son filet du haut celui de la charte. */
@@ -10628,7 +10723,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-/* ── 7 · le menu du coin ──────────────────────────────────────────── */
+/* ── 8 · le menu du coin ──────────────────────────────────────────── */
 
 /*  TRENTE PIXELS POUR UNE ICÔNE DE MENU. C'est la taille que FAM leur
     donne, et dans un panneau de 75 de large elles se touchaient
@@ -10636,11 +10731,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     rend au panneau un fond, un filet et une ombre — il était posé
     sans bord sur le contenu qu'il recouvre. */
 #modernbb #FAM #FAM-menu {
+  overflow: hidden;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
   box-shadow: 0 6px 20px rgb(20 48 58 / 14%);
-  overflow: hidden;
+  color: var(--wm-texte-corps, #4e3b30);
 }
 
 #modernbb #FAM .FAM-menu-option {
@@ -10659,30 +10755,10 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   opacity: 1;
 }
 
-/*  Les champs de saisie du greffon — recherche, réglages — sont des
-    `input` blancs à filet gris. */
-#modernbb #FAM .FAM-inputbox {
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-sm, 6px);
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
-}
-
-/*  Et ses boutons pleins, qui sont bleus d'origine. */
-#modernbb #FAM .FAM-button {
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-accent-primaire, #275e7a);
-  color: var(--wm-texte-inverse, #fffbf7);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-}
-
-#modernbb #FAM .FAM-button:hover {
-  background: var(--wm-accent-fort, #1f5470);
-}
+/*  LE CHAMP DE SAISIE ET LE BOUTON PLEIN du greffon — recherche,
+    réglages, édition d'un message — vivaient ICI une seconde fois.
+    Ils sont remontés au §4, avec les deux règles d'origine fusionnées
+    et le survol du bouton corrigé. Rien à redéclarer. */
 
 /*  La vignette d'une pièce jointe, et son filet. */
 #modernbb #FAM .FAM-attachment-thumb {

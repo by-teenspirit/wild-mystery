@@ -586,6 +586,28 @@ elif ! python3 outils/especes-sql.py --verifier; then
   gronde "le seed des espèces ne correspond plus à data/especes.json"
 fi
 
+echo "── 18. le messenger suit les noms du greffon ───────────────────"
+# Deux contrôles sur `css/15-messenger.css`, et les deux viennent de
+# défauts trouvés le 11 octobre.
+#
+# UN : chaque nom en `FAM-…` qu'on habille doit exister dans le
+# greffon. Trois n'existaient pas — `.FAM-notification`,
+# `.FAM-active-tab`, `.FAM-container-content`. Du CSS mort ne prévient
+# jamais : il ne lève pas d'erreur, il ne casse rien, et il fait croire
+# que le cas est traité.
+#
+# DEUX : aucun sélecteur deux fois. Cinq choses étaient décrites deux
+# fois avec des valeurs différentes, et à spécificité égale la dernière
+# gagne en silence. Le pire : le fond du bouton plein venait d'une
+# règle, sa couleur de texte de l'autre — `accent/fort` sur
+# `accent/fort`, **rapport 1,0**, le mot « Envoyer » disparaissait au
+# survol.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — feuille du messenger non vérifiée"
+elif ! python3 outils/messenger-noms.py; then
+  gronde "la feuille du messenger habille un nom inexistant, ou se répète"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."
