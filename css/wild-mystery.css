@@ -10239,10 +10239,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   right: auto;
   bottom: 0;
   left: 0;
-  /*  480 quand l'écran le permet, et sinon tout l'écran moins une
+  /*  560 quand l'écran le permet, et sinon tout l'écran moins une
       marge : un tiroir plus large que la fenêtre n'est plus un tiroir.
-      Il est collé au bord, donc une seule marge à retirer. */
-  width: min(480px, 100vw - var(--wm-espace-32, 32px));
+      Il est collé au bord, donc une seule marge à retirer.
+
+      « Élargit le cadre complet. » Il est passé de 480 à 560 — la
+      largeur de Cedar Cove, à deux pixels près, et celle qui laisse une
+      bulle de message respirer à côté d'un avatar de 48. */
+  width: min(560px, 100vw - var(--wm-espace-32, 32px));
+
+  /*  ── UNE COLONNE FLEX, ET LES TROIS `calc()` DE FAM TOMBENT ───────
+
+      FAM découpe la hauteur du tiroir à la main : `#FAM-content` vaut
+      `calc(100% - 69px)`, où 69 est la somme de la barre du haut (40)
+      et de la bande d'onglets (30), moins le pixel de bordure qu'elles
+      partagent. Et il en faut DEUX AUTRES pour les cas particuliers :
+      `calc(100% - 110px)` quand la réponse est ouverte, et
+      `calc(100% - 39px)` quand la bande d'onglets est masquée.
+
+      Trois soustractions à tenir d'accord avec quatre hauteurs. Chaque
+      fois qu'on touche à l'une des barres — et c'est ce qu'on fait
+      juste en dessous —, il faudrait repasser sur les trois.
+
+      En colonne flex, il n'y en a plus aucune : les barres prennent
+      leur hauteur, le contenu prend le reste. C'est aussi la règle de
+      ce dossier depuis la planche 49 — zéro tableau, que du flexbox. */
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   max-width: none;
   height: auto;
@@ -10320,10 +10343,123 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   box-sizing: border-box;
 }
 
-#modernbb #FAM #FAM-toolbar {
-  width: 100%;
-  margin: 0;
+/* ── 1 bis · la hauteur des quatre bandes ─────────────────────────── */
+
+/*  Les trois barres prennent leur hauteur, le contenu prend le reste.
+    Plus une seule soustraction à tenir. */
+#modernbb #FAM #FAM-toolbar,
+#modernbb #FAM #FAM-tab-container,
+#modernbb #FAM #FAM-actions {
+  flex: none;
 }
+
+/*  ── TROIS IDENTIFIANTS, ET C'EST NÉCESSAIRE ──────────────────────
+
+    La hauteur du contenu est écrite quatre fois par FAM, et l'une de
+    ces règles est `#FAM-tab-container[style*=none] + #FAM-content` :
+    deux identifiants ET un attribut, donc plus lourde que
+    `#modernbb #FAM-content`. Elle gagnait, et le contenu reprenait sa
+    hauteur calculée dès que la bande d'onglets était masquée.
+
+    `#modernbb #FAM #FAM-content` en pèse trois et passe devant les
+    quatre, sans avoir à sortir un `!important` — la feuille n'en a
+    qu'un, et il est pour la bande des catégories. */
+#modernbb #FAM #FAM-content {
+  height: auto;
+  max-height: none;
+  /*  `min-height: 0` : sans lui, un élément flex refuse de rétrécir en
+      dessous de son contenu, et une longue conversation pousse la barre
+      du bas hors du tiroir. */
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+/* ── 1 ter · la barre du haut, et son titre centré ────────────────── */
+
+/*  ── POURQUOI LE TITRE N'ÉTAIT PAS CENTRÉ ──────────────────────────
+
+    « Bien centrer le FAM main title. » FAM le centre pourtant :
+    `width: 70%; margin: 0 auto; text-align: center`. Horizontalement
+    il était juste. VERTICALEMENT il était écrasé, et c'est nous :
+
+      · FAM donne `height: 40px` à la barre ;
+      · notre feuille lui donnait `padding: 20px` ;
+      · et notre propre `#FAM * { box-sizing: border-box }` fait entrer
+        le rembourrage DANS les 40.
+
+    40 de haut moins 20 en haut et 20 en bas : une boîte de contenu de
+    zéro pixel, et un titre qui débordait de sa barre.
+
+    La barre prend donc sa hauteur de son contenu. Les 52 de côté sont
+    la place des deux boutons, qui sont en `position: absolute` chez
+    FAM — le retour à gauche, le menu à droite — et que le titre ne doit
+    jamais chevaucher. */
+/*  `display: flex` + `align-items: center` ET PAS SEULEMENT DU
+    REMBOURRAGE. Mesuré au harnais : avec 14 de rembourrage et 56 de
+    hauteur minimale, le titre tombait à 82 pour une barre centrée sur
+    84. Deux pixels, et c'est visible sur un titre en manuscrite.
+
+    La raison : le rembourrage le colle en HAUT, et les 18 px que la
+    hauteur minimale ajoute s'empilent tous en dessous. Centrer dans une
+    hauteur qu'on ne connaît pas à l'avance, c'est le travail de flex.
+
+    Les deux boutons de la barre sont en `position: absolute`, donc hors
+    du flux : ils ne deviennent pas des éléments flex et gardent leur
+    place. */
+#modernbb #FAM #FAM-toolbar {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: 56px;
+  align-items: center;
+  margin: 0;
+  padding: var(--wm-espace-14, 14px) 52px;
+}
+
+/*  Le seul enfant dans le flux de la barre : il porte le titre, et il
+    prend toute la largeur pour que `margin: 0 auto` ait un sens. */
+#modernbb #FAM #FAM-toolbar-inner {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+#modernbb #FAM .FAM-maintitle {
+  display: block;
+  width: auto;
+  margin: 0;
+  /*  LA TAILLE NE VA QU'AU TITRE DU TIROIR. Le titre d'une conversation
+      porte la même police (§2), mais il y en a un par ligne de liste :
+      à 19 il ferait des lignes de titre là où il faut une liste. */
+  font-size: var(--wm-taille-titre-section, 19px);
+  line-height: 1.25;
+  text-align: center;
+}
+
+/*  ── LES DEUX BOUTONS DE LA BARRE SUIVENT SA HAUTEUR ───────────────
+
+    FAM les cale en `top: -1px; height: 40px`, et sans `position` sur la
+    barre ils se repèrent sur le TIROIR — ils restaient donc collés en
+    haut de l'écran pendant que la barre, elle, grandissait. La barre est
+    maintenant `relative`, et eux s'étirent sur toute sa hauteur pour se
+    centrer avec le titre. */
+#modernbb #FAM .FAM-toolbar-button {
+  top: 0;
+  bottom: 0;
+  display: flex;
+  height: auto;
+  align-items: center;
+  border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb #FAM .FAM-toolbar-button i {
+  line-height: 1;
+}
+
+/*  Le menu déroulant du coin pendait de `top: 39px`, la hauteur de
+    l'ancienne barre. Il suit maintenant le bas de la vraie — c'est
+    écrit dans sa règle, au §8, et pas ici : une seule règle par chose. */
 
 /*  ── LES ONGLETS ET LE BOUTON ROND, AUX JETONS ──────────────────────
 
@@ -10344,18 +10480,37 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     égale — et c'est `fond/page` qui s'affichait, le fond de la PAGE à
     l'intérieur d'un tiroir qui est en `fond/surface`.
 
-    Les deux sont réunies ici, et c'est `fond/douce` qui reste : dans
-    un tiroir en surface, la bande d'onglets doit se CREUSER d'un cran,
-    pas reprendre la couleur de la page qui est derrière. */
+    Les deux sont réunies ici.
+
+    ── ET LA BANDE PASSE AU BLANC, LE 11 OCTOBRE AU SOIR ─────────────
+
+    « Fond du tab container : la même chose que le reste, en blanc. La
+    tab sélectionnée : mettre une autre couleur. » C'est le bon ordre
+    des choses, et l'inverse de ce que j'avais fait : la bande se
+    creusait d'un cran en `fond/douce` et l'onglet actif revenait à la
+    surface. Deux fonds proches, et c'est la BANDE qui attirait l'œil
+    au lieu de l'onglet.
+
+    La bande prend donc la surface du tiroir — elle disparaît —, et
+    l'onglet actif prend l'accent plein. Un seul élément coloré dans la
+    bande, et c'est celui qu'on cherche. Le filet du bas reste : il dit
+    où la bande s'arrête. */
 #modernbb #FAM #FAM-tabs {
   border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
-  background: var(--wm-fond-douce, #f3e1d2);
+  background: transparent;
 }
 
 #modernbb #FAM .FAM-tab {
+  border: 0;
   border-radius: var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px) 0 0;
+  background: transparent;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb #FAM .FAM-tab:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
 }
 
 /*  L'ONGLET ACTIF. Son nom de classe est `FAM-tab-active` — relevé
@@ -10364,18 +10519,36 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     dans le greffon : du CSS mort, qui ressemblait à une seconde
     définition et n'en était pas une. */
 #modernbb #FAM .FAM-tab.FAM-tab-active {
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-encre, #2e2018);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
   font-weight: var(--wm-graisse-gras, 700);
 }
 
-/*  Le trait de 4 px sous l'onglet actif, que FAM dessine en #39F. */
+/*  LE TRAIT DE 4 PX S'EN VA, et c'est la conséquence de ce qui
+    précède. FAM le dessine sous l'onglet actif pour le distinguer d'un
+    fond presque identique. L'onglet est maintenant en accent plein :
+    un soulignement de la même couleur sous un bloc de cette couleur ne
+    dit plus rien, il ajoute juste 4 px au bas de la bande. */
 #modernbb #FAM .FAM-tab.FAM-tab-active::after {
-  background: var(--wm-accent-primaire, #275e7a);
+  display: none;
 }
 
+/*  ── LES DEUX « + », À L'ACCENT ─────────────────────────────────────
+
+    « Le "+", pareil que la tab sélectionnée pour la couleur : la
+    couleur d'accent. » Il y en a deux, et ils portent le même signe :
+    `#FAM-tab-add`, au bout de la bande, qui ouvre un onglet ; et
+    `#FAM-new-topic`, posé sur le contenu, qui ouvre une conversation.
+    Les deux prennent l'accent — un même geste, une même couleur. */
+#modernbb #FAM #FAM-tab-add,
 #modernbb #FAM #FAM-new-topic i.fa-circle {
+  border-left: 0;
   color: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb #FAM #FAM-tab-add:hover,
+#modernbb #FAM #FAM-new-topic:hover i.fa-circle {
+  color: var(--wm-accent-fort, #1f5470);
 }
 
 /*  Le menu du coin est habillé au §8, avec la taille de ses icônes. Il
@@ -10389,7 +10562,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb #FAM .FAM-chat-avatar img {
-  border-radius: var(--wm-rayon-sm, 6px);
+  border-radius: var(--wm-rayon-md, 8px);
 }
 
 /*  LES CLOISONS INTÉRIEURES TOMBENT. FAM dessine un cadre par bloc —
@@ -10412,14 +10585,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: transparent;
 }
 
-/*  Le rembourrage de Cedar Cove, qui remplace les cloisons : 20 autour
-    de la barre, 30 et 20 autour du contenu. */
-#modernbb #FAM-toolbar {
-  padding: var(--wm-espace-20, 20px);
+/*  ── L'ESPACE ENTRE LA BARRE ET LA BANDE D'ONGLETS ────────────────
+
+    « Mets de l'espace entre la toolbar et le tab container. » Chez FAM
+    elles se touchent : la barre fait 40, la bande 30, l'une sous
+    l'autre sans rien entre les deux, séparées par un seul filet.
+
+    En colonne flex, une marge suffit — et c'est la bande qui la porte,
+    pas la barre : la barre a déjà son propre rembourrage, et une marge
+    du bas sur elle se confondrait avec lui. */
+#modernbb #FAM #FAM-tab-container {
+  margin-top: var(--wm-espace-16, 16px);
+  border-bottom: 0;
 }
 
+/*  Le rembourrage de Cedar Cove, qui remplace les cloisons. Celui de la
+    barre du haut est écrit dans sa propre règle, au §1 ter : il dépend
+    de la place des deux boutons absolus, et il y est expliqué.
+
+    Le haut du contenu descend à 20 plutôt que 32, maintenant que la
+    bande d'onglets apporte ses propres 16 au-dessus. */
 #modernbb #FAM-content {
-  padding: var(--wm-espace-32, 32px) var(--wm-espace-20, 20px);
+  padding: var(--wm-espace-20, 20px);
 }
 
 /* ── 2 · les titres ───────────────────────────────────────────────── */
@@ -10446,13 +10633,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-transform: none;
 }
 
-/*  LA TAILLE NE VA QU'AU TITRE DU TIROIR. Le titre d'une conversation
-    porte la même police, mais il y en a un par ligne de liste : à 19
-    il ferait des lignes de titre là où il faut une liste. */
-#modernbb #FAM .FAM-maintitle {
-  font-size: var(--wm-taille-titre-section, 19px);
-}
-
 /*  Les étiquettes, elles, gardent leurs capitales : c'est là que
     `uppercase` sert. */
 #modernbb #FAM .FAM-title {
@@ -10463,8 +10643,91 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 3 · les messages ─────────────────────────────────────────────── */
 
+/*  ── UNE RANGÉE FLEX, ET PLUS DEUX FLOTTANTS QUI SE RATENT ─────────
+
+    « Pas de contour et pas de padding ici. Le FAM msg avatar et le FAM
+    msg box sur la même ligne. »
+
+    CE QUI LES FAISAIT TOMBER L'UN SOUS L'AUTRE. Relevé dans le fork :
+
+        .FAM-msg-avatar { width: 48px; padding: 2px; border: 2px solid;
+                          float: left }
+        .FAM-msg-box    { width: calc(100% - 48px); float: right }
+
+    L'avatar est annoncé à 48 et mesure 56 : les deux pixels de
+    rembourrage et les deux de bordure, de chaque côté, ne sont pas
+    comptés. 56 + (100 % − 48) fait 100 % plus huit pixels, et le corps
+    du message passe à la ligne. Une largeur calculée contre une autre,
+    avec une erreur de modèle de boîte au milieu.
+
+    On ne corrige pas l'arithmétique, on l'enlève : une rangée flex, le
+    gabarit garde sa largeur, le corps prend ce qui reste. Zéro tableau,
+    que du flexbox — planche 49.
+
+    Le `::after` de FAM s'en va aussi : c'est un `clear: both`, le
+    nettoyage des flottants qui n'existent plus. Laissé là, il ajoute
+    une ligne vide au bas de chaque message.
+
+    Et le filet du bas disparaît, comme demandé. L'écart entre deux
+    messages le remplace — 24, parce que les trois boutons d'action
+    apparaissent AU SURVOL vingt pixels sous la bulle, et qu'ils
+    mordraient sur le message suivant avec moins que ça. */
 #modernbb #FAM .FAM-msg {
-  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wm-espace-12, 12px);
+  margin: 0 0 var(--wm-espace-24, 24px);
+  padding: 0;
+  border: 0;
+}
+
+#modernbb #FAM .FAM-msg::after {
+  display: none;
+}
+
+/*  Le cercle de l'avatar prend le filet de la charte, et l'accent quand
+    la personne est connectée — c'est la seule information que cette
+    couleur porte, et elle vaut d'être gardée. */
+#modernbb #FAM .FAM-msg-avatar {
+  flex: none;
+  margin: 0;
+  border-color: var(--wm-bord-net, #d9c3b1);
+  float: none;
+}
+
+/*  Le corps prend le reste. `min-width: 0` : sans lui, un mot long ou
+    une adresse collée refuse de rétrécir et pousse la bulle hors du
+    tiroir. */
+#modernbb #FAM .FAM-msg-box {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  width: auto;
+  padding: 0;
+  float: none;
+}
+
+/*  MES MESSAGES SE RANGENT À DROITE DE LEUR COLONNE. FAM le faisait
+    avec `float: right` sur la bulle ; en colonne flex, c'est
+    l'alignement du conteneur, et il emporte la bulle, la date et les
+    boutons d'un coup. */
+#modernbb #FAM .FAM-my-msg .FAM-msg-box {
+  align-items: flex-end;
+  padding: 0;
+}
+
+/*  Le nom est annoncé à 100 % de large et 20 de haut, pour une seule
+    ligne tronquée. Dans une colonne flex il prend sa place. */
+#modernbb #FAM .FAM-msg-name {
+  width: auto;
+  height: auto;
+  padding: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1.3;
 }
 
 #modernbb #FAM .FAM-msg-text {
@@ -10495,7 +10758,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     titre. */
 #modernbb #FAM .FAM-inputbox {
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-sm, 6px);
+  border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -10539,11 +10802,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb #FAM .FAM-button:focus-visible {
   background: var(--wm-accent-fort, #1f5470);
   color: var(--wm-texte-inverse, #fffbf7);
-}
-
-#modernbb #FAM .FAM-toolbar-button {
-  border-radius: var(--wm-rayon-md, 8px);
-  color: var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb #FAM .FAM-toolbar-button:hover,
@@ -10632,9 +10890,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       l'air posé à même le tiroir. La bulle de l'autre en a besoin ;
       la mienne, qui est en accent plein, non. */
   border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-md, 8px);
+  /*  « Plus d'arrondis. » La bulle passe de 8 à 10 — le rayon des
+      blocs de la charte, celui des cartes et du coin d'outils. */
+  border-radius: var(--wm-rayon-lg, 10px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
+  /*  Les flottants de FAM tombent avec la rangée flex du §3 : c'est
+      l'alignement de la colonne qui range la bulle, à gauche ou à
+      droite selon qu'elle est de moi. */
+  float: none;
 }
 
 #modernbb #FAM .FAM-msg-content::before {
@@ -10663,23 +10928,10 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /*  Le nom au-dessus, la date en dessous : l'un se lit, l'autre
-    s'aperçoit. */
-#modernbb #FAM .FAM-msg-name {
-  color: var(--wm-encre, #2e2018);
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-}
-
+    s'aperçoit. Le nom est habillé au §3, avec sa mise en page. */
 #modernbb #FAM .FAM-msg-date {
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-etiquette, 10px);
-}
-
-/*  Le cercle de l'avatar prend le filet de la charte, et l'accent
-    quand la personne est connectée — c'est la seule information que
-    cette couleur porte, et elle vaut d'être gardée. */
-#modernbb #FAM .FAM-msg-avatar {
-  border-color: var(--wm-bord-net, #d9c3b1);
 }
 
 #modernbb #FAM .FAM-msg-online .FAM-msg-avatar {
@@ -10729,15 +10981,58 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 7 · la barre du bas ──────────────────────────────────────────── */
 
-/*  Elle était blanche sous un tiroir sombre. Elle prend la surface du
-    tiroir, et son filet du haut celui de la charte. */
+/*  ── « DAVANTAGE D'ESPACE SUR LES FAM ACTIONS » ────────────────────
+
+    Chez FAM, c'est une bande de 41 px où trois boutons carrés de 40 et
+    la zone de saisie se touchent, séparés par des filets `#DDD` : une
+    rangée de cases, bord à bord, sans un pixel de respiration.
+
+    Elle devient une rangée flex avec du rembourrage et un écart, le
+    champ dans sa propre boîte à filet arrondi, et les trois boutons en
+    pastilles détachées. Les filets de séparation tombent : c'est
+    l'écart qui sépare, pas un trait.
+
+    ── CE QUE LA HAUTEUR LIBRE AURAIT CASSÉ, ET QU'ON REPOSE ──────────
+
+    FAM escamote cette barre dans deux états, et chaque fois avec une
+    règle à UN identifiant que la nôtre, qui en a deux, écraserait :
+
+      · `#FAM-actions:empty { display: none }` — rien à montrer ;
+      · `.FAM-viewing-forum + #FAM-actions { height: 0; border: none }`
+        — sur la liste d'un forum, on ne poste pas.
+
+    Les deux sont reposées juste en dessous. Sans elles, une barre vide
+    ou une barre de liste réapparaîtrait, avec son rembourrage. C'est le
+    genre de défaut qui ne se voit que sur une page précise, des jours
+    plus tard. */
 #modernbb #FAM-actions {
+  position: relative;
+  display: flex;
+  height: auto;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
   background: var(--wm-fond-surface, #fffbf7);
 }
 
+#modernbb #FAM-actions:empty {
+  display: none;
+}
+
+#modernbb .FAM-viewing-forum + #FAM-actions {
+  overflow: hidden;
+  height: 0;
+  padding: 0;
+  border: 0;
+}
+
 #modernbb #FAM-actions > button {
-  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+  width: var(--wm-cible-tactile, 44px);
+  height: var(--wm-cible-tactile, 44px);
+  flex: none;
+  border: 0;
+  border-radius: var(--wm-rayon-lg, 10px);
   background: transparent;
   color: var(--wm-texte-doux, #6e5749);
 }
@@ -10763,11 +11058,32 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
+/*  LE CHAMP DEVIENT UNE BOÎTE, pas une case entre deux filets. FAM lui
+    donne `width: calc(100% - 120px)` — les trois boutons de 40 — et un
+    filet à gauche en guise de séparation. En rangée flex il prend ce
+    qui reste, et les 120 écrits en dur disparaissent avec. */
 #modernbb #FAM #FAM-msg-container {
-  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  Le champ au focus : le filet de la boîte prend l'accent. C'est
+    l'état de focus des champs du forum, et il se pose sur la BOÎTE
+    puisque c'est elle qu'on voit. */
+#modernbb #FAM #FAM-msg-container:focus-within {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 1px;
 }
 
 #modernbb #FAM #FAM-msg {
+  height: var(--wm-cible-tactile, 44px);
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
   background: transparent;
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -10795,9 +11111,67 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     jointes — sont des panneaux blancs posés sur le tiroir. */
 #modernbb #FAM .FAM-dropdown {
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 20px rgb(20 48 58 / 14%);
   color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  ── ET IL S'OUVRE AU-DESSUS DE LA BARRE, PAS DEDANS ──────────────
+
+    FAM le cale à `bottom: 40px` — la hauteur de SA barre. La nôtre est
+    plus haute, le panneau lui rentrait donc dedans de vingt pixels.
+
+    `bottom: 100%` au lieu d'un nombre : la barre est maintenant
+    `position: relative`, donc 100 % est sa hauteur, quelle qu'elle
+    soit. Un panneau qui se repère sur la hauteur réelle de ce qui le
+    porte n'a plus besoin qu'on repasse dessus. */
+#modernbb #FAM-actions .FAM-dropdown {
+  bottom: calc(100% + var(--wm-espace-8, 8px));
+  max-width: calc(100% - 2 * var(--wm-espace-12, 12px));
+}
+
+/* ── 7 bis · les trois boutons d'un message ───────────────────────── */
+
+/*  Citer, modifier, supprimer : ils apparaissent au survol, sous la
+    bulle. Chez FAM ce sont trois icônes à `padding: 0 6px`, collées,
+    sur un fond hérité — donc sans boîte. Ils deviennent une pastille à
+    eux, avec un écart entre les trois : trois cibles distinctes dont
+    l'une supprime un message, ça vaut un pixel de séparation. */
+#modernbb #FAM .FAM-msg-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+  padding: 0 var(--wm-espace-4, 4px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 2px 8px rgb(20 48 58 / 10%);
+}
+
+#modernbb #FAM .FAM-msg-button {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 999px;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  `opacity: .7` au survol était le seul retour de FAM, et il est
+    invisible sur une icône déjà pâle. Un fond, comme partout
+    ailleurs. */
+#modernbb #FAM .FAM-msg-button:hover {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
+  opacity: 1;
+}
+
+#modernbb #FAM .FAM-msg-button i {
+  line-height: 1;
 }
 
 /* ── 8 · le menu du coin ──────────────────────────────────────────── */
@@ -10808,9 +11182,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     rend au panneau un fond, un filet et une ombre — il était posé
     sans bord sur le contenu qu'il recouvre. */
 #modernbb #FAM #FAM-menu {
+  /*  FAM le fait pendre de `top: 39px`, la hauteur de SA barre du haut.
+      La nôtre est plus haute : le menu lui rentrait dedans. `100 %` est
+      la hauteur réelle de la barre, qui est `position: relative` depuis
+      le §1 ter — plus un nombre à tenir d'accord avec un autre. */
+  top: 100%;
+  right: var(--wm-espace-8, 8px);
   overflow: hidden;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
   box-shadow: 0 6px 20px rgb(20 48 58 / 14%);
   color: var(--wm-texte-corps, #4e3b30);
@@ -10840,7 +11220,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  La vignette d'une pièce jointe, et son filet. */
 #modernbb #FAM .FAM-attachment-thumb {
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-sm, 6px);
+  border-radius: var(--wm-rayon-md, 8px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

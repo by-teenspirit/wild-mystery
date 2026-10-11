@@ -1574,9 +1574,13 @@ dire(
   ouvert.sousLeBas === 0,
   String(ouvert.sousLeBas),
 );
+//  560 depuis le 11 octobre au soir — « élargit le cadre complet ». Le
+//  chiffre vit ici ET dans `outils/messenger.mjs`, qui mesure le dedans
+//  du tiroir ; c'est le harnais du messenger qui en est le propriétaire,
+//  celui-ci ne vérifie que la place du panneau dans la page.
 dire(
-  "480 de large, et pas les 40 % de FAM",
-  ouvert.l === 480,
+  "560 de large, et pas les 40 % de FAM",
+  ouvert.l === 560,
   String(ouvert.l),
 );
 dire(

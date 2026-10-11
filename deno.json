@@ -26,7 +26,8 @@
     "accueil": "deno run -A outils/accueil.mjs",
     "carte": "deno run -A outils/carte.mjs",
     "enligne": "deno run -A outils/enligne.mjs",
-    "categories": "deno run -A outils/categories.mjs"
+    "categories": "deno run -A outils/categories.mjs",
+    "messenger": "deno run -A outils/messenger.mjs"
   },
   "fmt": {
     "include": [
