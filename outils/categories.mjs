@@ -443,6 +443,7 @@ const barres = await p1.evaluate(() => {
     return {
       filetHaut: s.borderTopWidth,
       filetBas: s.borderBottomWidth,
+      centrees: s.justifyContent,
       margeHaut: s.marginTop,
       margeBas: s.marginBottom,
       remplissageBas: s.paddingBottom,
@@ -462,6 +463,11 @@ dire(
   barres.haut?.margeBas === "32px" && barres.bas?.margeHaut === "32px" &&
     barres.bas?.margeBas === "32px",
   JSON.stringify({ haut: barres.haut?.margeBas, bas: barres.bas?.margeHaut }),
+);
+dire(
+  "ET ELLES SONT CENTRÉES, le `.rightside` compris",
+  barres.haut?.centrees === "center" && barres.bas?.centrees === "center",
+  JSON.stringify({ haut: barres.haut?.centrees, bas: barres.bas?.centrees }),
 );
 dire(
   "les liens sont des boutons ronds",

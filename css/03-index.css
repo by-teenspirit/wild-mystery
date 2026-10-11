@@ -1671,6 +1671,11 @@
   margin: 0 0 var(--wm-espace-32, 32px);
   padding: 0;
   flex-wrap: wrap;
+  /*  ── CENTRÉES ─────────────────────────────────────────────────
+      Demandé le 11 octobre. Les deux barres sont des raccourcis, pas
+      une navigation : un rang centré sous la bannière se lit comme un
+      sommaire, un rang collé à gauche comme une barre d'outils. */
+  justify-content: center;
   align-items: center;
   border-top: 0;
   border-bottom: 0;
@@ -1691,13 +1696,12 @@
   list-style: none;
 }
 
-/*  LE PREMIER `.rightside` POUSSE, LES SUIVANTS SUIVENT. S'il y en
-    avait deux, un `margin-left: auto` sur chacun les séparerait tout
-    le long de la barre au lieu de les grouper à droite. */
-#modernbb ul.linklist.top > li.rightside:first-of-type,
-#modernbb ul.linklist.bottom > li.rightside:first-of-type {
-  margin-left: auto;
-}
+/*  LE `.rightside` NE POUSSE PLUS. Il portait un `margin-left: auto`
+    pour se ranger à droite, comme chez ModernBB. Une marge
+    automatique mange tout l'espace libre : elle et le centrage ne
+    peuvent pas coexister, et c'est le centrage qui est demandé.
+    « Marquer tous les forums comme lus » et « supprimer les cookies »
+    rejoignent donc le rang, à leur place dans l'ordre du document. */
 
 #modernbb ul.linklist.top > li > a,
 #modernbb ul.linklist.bottom > li > a {
@@ -1758,11 +1762,6 @@
     `.rightside` cesse de pousser : il passe à la ligne comme les
     autres. */
 @media (max-width: 740px) {
-  #modernbb ul.linklist.top > li.rightside:first-of-type,
-  #modernbb ul.linklist.bottom > li.rightside:first-of-type {
-    margin-left: 0;
-  }
-
   #modernbb ul.linklist.top > li > a,
   #modernbb ul.linklist.bottom > li > a {
     font-size: var(--wm-taille-etiquette, 10px);
