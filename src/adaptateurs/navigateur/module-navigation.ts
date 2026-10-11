@@ -463,6 +463,30 @@ function mesurerLaToolbar(doc: Document): void {
   doc.documentElement.style.setProperty("--wm-haut-toolbar", `${h > 0 && h <= 96 ? h : 0}px`);
 }
 
+//  ── POURQUOI LA HAUTEUR DE NOTRE BARRE N'EST PAS MESURÉE, ELLE ──────
+//
+//  Les deux panneaux de bord — le latéral et le tiroir du tchat —
+//  portent `56` écrit en dur dans leur `top`. J'ai voulu le mesurer
+//  comme la toolbar, en croyant avoir trouvé un défaut : le harnais
+//  relevait la barre à 236 de haut et le tiroir qui partait à 96.
+//
+//  C'ÉTAIT FAUX, DEUX FOIS. Le relevé venait d'une page restée à 390 de
+//  large, et mesuré ensuite proprement, la barre fait **exactement 56 de
+//  1 280 jusqu'à 600 px**. Elle ne passe à la ligne qu'en dessous de
+//  500 — et là, la règle de `@media (max-width: 760px)` a déjà pris le
+//  relais : les deux panneaux partent du bas de la TOOLBAR et prennent
+//  toute la largeur. Il n'existe donc aucune largeur où `56` soit faux.
+//
+//  Et la mesure coûtait un vrai défaut : elle rangeait la SOMME
+//  `toolbar + barre` dans un jeton, qui se périmait dès que la toolbar
+//  changeait de hauteur sans nouvelle mesure. Deux contrôles du harnais
+//  l'ont dit tout de suite — le panneau partait à 104 au lieu de 56, et
+//  son contenu ne tenait plus dans la fenêtre.
+//
+//  LA LEÇON : mesurer vaut mieux que supposer, mais une mesure qu'on
+//  range dans une variable devient une supposition à son tour, dès
+//  qu'une des grandeurs qu'elle additionne bouge sans elle.
+
 /** Une entrée du menu du compte : la pastille d'icône, puis le libellé.
  *
  *  La maquette `390:3636` en fait une gélule blanche à bord arrondi

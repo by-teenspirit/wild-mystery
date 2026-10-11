@@ -82,8 +82,19 @@
       `right: auto` et `top: auto` sont posés exprès : FAM écrit `right`
       et `bottom`, et une bulle à gauche qui garde un `right` de 3 est
       une bulle étirée sur toute la largeur de l'écran. */
+  /*  ── 61, ET C'EST UN DE PLUS QUE LE TIROIR ────────────────────────
+      « Pouvoir refermer au même endroit qu'on ouvre. » Le tiroir est
+      collé au bord gauche sur toute la hauteur : il passe donc SOUS la
+      bulle, qui reste à sa place et ferme ce qu'elle a ouvert. Un
+      panneau qui avale son propre interrupteur oblige à chercher
+      ailleurs de quoi le refermer.
+
+      Et la bulle ne BOUGE pas à l'ouverture, non plus. FAM anime la
+      position de son bouton (`transition-property: right`) et le
+      déplace en plein écran ; ici il n'a aucune raison de se déplacer,
+      puisque c'est le même geste au même endroit. */
   position: fixed;
-  z-index: 40;
+  z-index: 61;
   top: auto;
   right: auto;
   bottom: var(--wm-espace-16, 16px);
@@ -186,32 +197,43 @@
     `min()` sur la largeur : 558 quand l'écran le permet, et sinon tout
     l'écran moins une marge — un tiroir plus large que la fenêtre n'est
     plus un tiroir. */
+/*  ── IL VIENT DE LA GAUCHE, EXACTEMENT COMME LE PANNEAU LATÉRAL ────
+
+    « Le placer à gauche au clic. Prendre toute la hauteur, comme un
+    panneau latéral qui s'ouvre, et pouvoir refermer au même endroit
+    qu'on ouvre. Collé au bord de gauche, juste en dessous de la barre
+    de navigation. »
+
+    Le tiroir était à droite, à 132 du bord, pour ne pas recouvrir le
+    coin d'outils. Il devient le JUMEAU du panneau latéral de la
+    feuille 11 : même bord, même haut, même rang, même durée de
+    glissement. Les trois mesures sont copiées de `.wm-panneau` et pas
+    choisies à nouveau — deux panneaux qui sortent du même bord et ne
+    s'arrêtent pas à la même ligne, ça se voit tout de suite.
+
+      · `top` : la hauteur de la barre Forumactif plus les 56 de la
+        nôtre. Les deux s'additionnent, sinon le panneau remonte
+        DERRIÈRE la barre et on perd sa première ligne ;
+      · `z-index: 60` : au-dessus de la page, sous la barre (70). FAM
+        lui donnait 99999 — il passait donc par-dessus la barre de
+        navigation, qui est le seul chemin vers le compte ;
+      · et le coin d'outils, en bas à DROITE, est désormais hors de
+        portée : il garde ses quatre outils sans qu'on ait à réserver
+        quoi que ce soit. */
 #modernbb #FAM {
-  top: 0;
-  /*  ── IL S'ARRÊTE AVANT LE COIN D'OUTILS ─────────────────────────
-
-      « Déplace le messenger pour qu'il ne chevauche rien. » Collé au
-      bord droit, le tiroir recouvrait la colonne du coin — et, du
-      temps où le bouton du tchat y était rangé, le bouton par lequel
-      on vient de l'ouvrir. Un panneau qui avale son propre
-      interrupteur.
-
-      Ce dernier défaut a disparu avec la bulle : elle est en bas à
-      GAUCHE, et le tiroir ne la touche pas. Mais la première raison
-      tient toujours — le thème, les deux flèches et le confort doivent
-      rester cliquables pendant qu'on lit le tchat. Le tiroir s'arrête
-      donc à gauche du coin : la colonne fait 100 et vit à 16 du bord,
-      il reste 16 entre les deux.
-
-      L'autre route était de passer le coin au-dessus en `z-index`.
-      Elle met les deux l'un SUR l'autre : on lit le tchat à travers
-      une colonne de boutons. */
-  right: calc(100px + 2 * var(--wm-espace-16, 16px));
+  z-index: 60;
+  top: calc(var(--wm-haut-toolbar, 0px) + 56px);
+  right: auto;
   bottom: 0;
-  left: auto;
-  width: min(480px, 100vw - 164px);
+  left: 0;
+  /*  480 quand l'écran le permet, et sinon tout l'écran moins une
+      marge : un tiroir plus large que la fenêtre n'est plus un tiroir.
+      Il est collé au bord, donc une seule marge à retirer. */
+  width: min(480px, 100vw - var(--wm-espace-32, 32px));
+  min-width: 0;
   max-width: none;
   height: auto;
+  min-height: 0;
   max-height: none;
   border: 0;
   border-radius: 0;
@@ -220,6 +242,54 @@
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
+  /*  IL GLISSE PAR LA GAUCHE, et c'est la même mécanique que
+      `.wm-panneau` : la position reste, c'est la TRANSLATION qui bouge,
+      parce qu'elle se compose sans recalcul de mise en page.
+
+      La transition est réécrite entièrement. Celle de FAM dure 500 ms
+      et porte sur `top, right, bottom, left, height, width, margin` —
+      sept propriétés de mise en page, et pas `transform`. Les 220 ms
+      sont celles du panneau latéral : deux panneaux qui sortent du même
+      bord à deux vitesses différentes, ça se remarque. */
+  transform: translateX(0);
+  transition: transform 0.22s ease, visibility 0.22s, opacity 0.22s;
+}
+
+/*  ── FERMÉ, IL RENTRE PAR LA GAUCHE ───────────────────────────────
+
+    FAM écrit `#FAM[data-hidden=true] { visibility: hidden; opacity: 0;
+    bottom: -100% }` — relevé dans le fork le 11 octobre. Sa fermeture
+    fait DESCENDRE le tiroir, ce qui était juste pour une bulle posée
+    en bas à droite et faux pour un panneau de bord.
+
+    `bottom: 0` est donc réécrit ici, sinon le panneau descend en même
+    temps qu'il rentre. Et c'est la seule raison pour laquelle cette
+    règle redit `visibility` et `opacity` : notre sélecteur pèse deux
+    identifiants, il remplace le leur en entier plutôt que de lui
+    laisser une déclaration sur trois. */
+#modernbb #FAM[data-hidden="true"] {
+  bottom: 0;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+/*  ── SOUS 760, IL FAIT CE QUE FAIT LE PANNEAU LATÉRAL ──────────────
+
+    Même point de bascule, même règle, et pour les mêmes deux raisons
+    que la feuille 11 : 480 sur un écran de 390 laisserait une bande
+    inutilisable, et la barre de navigation passe ses liens à la ligne
+    sous 500 — elle fait alors 156 de haut au lieu de 56, et un panneau
+    calé sous elle ne laisserait plus rien à lire.
+
+    Les deux partent donc du bas de la TOOLBAR et prennent tout : à
+    cette largeur, un panneau latéral est un écran, pas un côté. Et les
+    deux étant exclusifs, un seul couvre l'écran à la fois. */
+@media (max-width: 760px) {
+  #modernbb #FAM {
+    top: var(--wm-haut-toolbar, 0px);
+    width: 100%;
+  }
 }
 
 /*  ── LE DEDANS SE MESURE COMME LE DEHORS ────────────────────────

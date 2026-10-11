@@ -1457,6 +1457,242 @@ dire(
   JSON.stringify(repli),
 );
 
+// ── LE TCHAT ET LE PANNEAU LATÉRAL, JAMAIS LES DEUX À LA FOIS ───────
+//
+//  « Le placer à gauche au clic. Prendre toute la hauteur, comme un
+//  panneau latéral qui s'ouvre, et pouvoir refermer au même endroit
+//  qu'on ouvre. Collé au bord de gauche, juste en dessous de la barre
+//  de navigation. Si on ouvre la barre latérale de la barre de
+//  navigation, messenger se ferme, et inversement. »
+//
+//  QUATRE CHOSES QUI NE SE VÉRIFIENT QU'ICI, parce qu'il faut les DEUX
+//  panneaux sur la même page : la géométrie du tiroir, le fait que la
+//  bulle reste cliquable PAR-DESSUS lui, l'exclusion dans les deux
+//  sens, et l'absence de boucle.
+//
+//  FAM n'est pas chargé : on le remplace par son balisage et SES
+//  DÉCLARATIONS, recopiées mot pour mot du `fam.js` du fork le
+//  11 octobre — y compris `min-width: 300px`, `width: 40%`,
+//  `z-index: 99999` et sa fermeture en `bottom: -100%`, qui sont
+//  précisément ce que notre feuille doit battre. Le `toggle` reproduit
+//  le sien : il bascule `data-hidden`, et rien d'autre.
+//  LA PAGE ÉTAIT RESTÉE À 390 DE LARGE depuis les contrôles de la
+//  bannière. On la remet au bureau : une largeur oubliée fait mesurer
+//  la mise en page mobile et rend tous les chiffres faux — c'est une
+//  erreur déjà payée deux fois sur ce projet.
+await p.setViewportSize({ width: 1280, height: 900 });
+await p.waitForTimeout(200);
+
+await p.evaluate(() => {
+  const css = document.createElement("style");
+  css.textContent =
+    "#FAM{color:#333;font-size:13px;background:#FFF;border:1px solid #DDD;position:fixed;" +
+    "height:70%;width:40%;min-height:400px;min-width:300px;right:3px;z-index:99999;" +
+    "visibility:visible;opacity:1;bottom:35px;transition-property:top,right,bottom,left," +
+    "height,width,margin,opacity,visibility;transition-duration:500ms}" +
+    '#FAM[data-hidden=true]{visibility:hidden;opacity:0;bottom:-100%}' +
+    "#FAM-button{color:#FFF;background:#39F;position:fixed;width:30px;height:30px;right:3px;" +
+    "bottom:3px;cursor:pointer;z-index:99999;transition-property:right;" +
+    "transition-duration:500ms}";
+  document.head.appendChild(css);
+
+  const tiroir = document.createElement("div");
+  tiroir.id = "FAM";
+  tiroir.dataset.hidden = "true";
+  tiroir.innerHTML = '<div id="FAM-toolbar"><span class="FAM-maintitle">Tchat</span></div>' +
+    '<div id="FAM-content"></div>';
+  document.body.appendChild(tiroir);
+
+  const b = document.createElement("a");
+  b.id = "FAM-button";
+  b.title = "Forumactif Messenger";
+  b.innerHTML = '<i class="fa fa-comment"></i>';
+  //  `FAM.toggle` : il ne fait que basculer `data-hidden`.
+  b.addEventListener("click", () => {
+    tiroir.dataset.hidden = tiroir.dataset.hidden === "true" ? "false" : "true";
+  });
+  document.body.appendChild(b);
+});
+//  L'observateur du module prend le bouton au vol et l'habille.
+await p.waitForTimeout(250);
+//  On part du panneau FERMÉ : il est resté ouvert des contrôles d'avant.
+if (await p.evaluate(() => document.querySelector(".wm-nav__logo")?.getAttribute("aria-expanded") === "true")) {
+  await p.click(".wm-nav__logo");
+  await p.waitForTimeout(300);
+}
+
+const etat = () =>
+  p.evaluate(() => {
+    const t = document.querySelector("#FAM");
+    const b = document.querySelector("#FAM-button");
+    const barre = document.querySelector("nav.wm-nav");
+    const r = t.getBoundingClientRect();
+    const rb = b.getBoundingClientRect();
+    const nb = barre.getBoundingClientRect();
+    //  CE QUE LE CLIC ATTEINT au centre de la bulle : si le tiroir
+    //  passe par-dessus, on ne peut plus refermer là où on a ouvert.
+    const sousLaSouris = document.elementFromPoint(
+      Math.round(rb.left + rb.width / 2),
+      Math.round(rb.top + rb.height / 2),
+    );
+    return {
+      tchat: t.dataset.hidden === "false",
+      panneau: document.querySelector(".wm-nav__logo")?.getAttribute("aria-expanded") === "true",
+      x: Math.round(r.left),
+      haut: Math.round(r.top),
+      basDeLaBarre: Math.round(nb.bottom),
+      sousLeBas: Math.round(innerHeight - r.bottom),
+      l: Math.round(r.width),
+      rang: getComputedStyle(t).zIndex,
+      rangBulle: getComputedStyle(b).zIndex,
+      bulleAtteignable: sousLaSouris !== null && (sousLaSouris === b || b.contains(sousLaSouris)),
+      bulleX: Math.round(rb.left),
+      bulleBas: Math.round(innerHeight - rb.bottom),
+    };
+  });
+
+const ferme = await etat();
+dire("AU DÉPART, NI L'UN NI L'AUTRE", !ferme.tchat && !ferme.panneau, JSON.stringify(ferme));
+
+//  1 · la bulle ouvre le tiroir, et sa géométrie
+await p.click("#FAM-button");
+await p.waitForTimeout(400);
+const ouvert = await etat();
+dire("LA BULLE OUVRE LE TIROIR", ouvert.tchat, JSON.stringify(ouvert));
+dire(
+  "il est collé au bord gauche",
+  ouvert.x === 0,
+  String(ouvert.x),
+);
+dire(
+  "il part JUSTE SOUS la barre de navigation",
+  ouvert.haut === ouvert.basDeLaBarre,
+  JSON.stringify({ haut: ouvert.haut, barre: ouvert.basDeLaBarre }),
+);
+dire(
+  "et il descend jusqu'en bas de l'écran",
+  ouvert.sousLeBas === 0,
+  String(ouvert.sousLeBas),
+);
+dire(
+  "480 de large, et pas les 40 % de FAM",
+  ouvert.l === 480,
+  String(ouvert.l),
+);
+dire(
+  "il passe SOUS la barre en rang, pas par-dessus",
+  ouvert.rang === "60",
+  ouvert.rang,
+);
+//  ── CE QUE CE CONTRÔLE-LÀ GARDE ───────────────────────────────────
+//
+//  La bulle est à (16, bas−16), donc DANS le tiroir, qui est collé au
+//  bord sur toute la hauteur. Si elle passait dessous, il faudrait
+//  chercher ailleurs de quoi refermer — alors que la demande est de
+//  « refermer au même endroit qu'on ouvre ».
+dire(
+  "LA BULLE RESTE ATTEIGNABLE PAR-DESSUS LE TIROIR",
+  ouvert.bulleAtteignable && Number(ouvert.rangBulle) > Number(ouvert.rang),
+  JSON.stringify({ atteignable: ouvert.bulleAtteignable, bulle: ouvert.rangBulle, tiroir: ouvert.rang }),
+);
+dire(
+  "et elle n'a pas bougé d'un pixel",
+  ouvert.bulleX === 16 && ouvert.bulleBas === 16,
+  JSON.stringify({ x: ouvert.bulleX, bas: ouvert.bulleBas }),
+);
+
+//  2 · le même geste au même endroit referme
+await p.click("#FAM-button");
+await p.waitForTimeout(400);
+const referme = await etat();
+dire("LE MÊME CLIC AU MÊME ENDROIT LE REFERME", !referme.tchat, JSON.stringify(referme));
+
+//  3 · ouvrir le panneau latéral ferme le tchat
+await p.click("#FAM-button");
+await p.waitForTimeout(300);
+await p.click(".wm-nav__logo");
+await p.waitForTimeout(400);
+const bascule1 = await etat();
+dire(
+  "OUVRIR LE PANNEAU FERME LE TCHAT",
+  bascule1.panneau && !bascule1.tchat,
+  JSON.stringify(bascule1),
+);
+
+//  4 · et l'inverse
+await p.click("#FAM-button");
+await p.waitForTimeout(400);
+const bascule2 = await etat();
+dire(
+  "OUVRIR LE TCHAT FERME LE PANNEAU",
+  bascule2.tchat && !bascule2.panneau,
+  JSON.stringify(bascule2),
+);
+
+//  5 · PAS DE BOUCLE. Fermer l'un en cliquant son bouton rejoue
+//  l'écouteur ; si la garde était un drapeau mal posé, les deux
+//  finiraient fermés, ou l'un se rouvrirait. Dix allers-retours, et à
+//  la fin il doit y en avoir EXACTEMENT un d'ouvert.
+for (let i = 0; i < 5; i++) {
+  await p.click(".wm-nav__logo");
+  await p.waitForTimeout(120);
+  await p.click("#FAM-button");
+  await p.waitForTimeout(120);
+}
+await p.waitForTimeout(300);
+const finBascules = await etat();
+dire(
+  "DIX BASCULES PLUS TARD, EXACTEMENT UN DES DEUX EST OUVERT",
+  finBascules.tchat !== finBascules.panneau,
+  JSON.stringify({ tchat: finBascules.tchat, panneau: finBascules.panneau }),
+);
+
+//  6 · À 390, LES DEUX PANNEAUX FONT LA MÊME CHOSE
+//
+//  CE QUE CE CONTRÔLE A CORRIGÉ CHEZ MOI. Une première version
+//  mesurait la hauteur de la barre, parce que ce harnais la relevait à
+//  236 et le tiroir à 96 : j'ai cru à un défaut. Le relevé venait d'une
+//  page restée à 390 depuis les contrôles de la bannière, et mesurée
+//  proprement, la barre fait exactement 56 de 1 280 à 600. En dessous
+//  de 500 elle passe à 156 — mais le bloc `@media (max-width: 760px)`
+//  a déjà pris le relais pour les deux panneaux.
+//
+//  On vérifie donc la VRAIE règle à cette largeur : les deux partent du
+//  bas de la toolbar, pas de la barre, et prennent tout l'écran. À 390,
+//  un panneau latéral est un écran, pas un côté — et comme ils sont
+//  exclusifs, un seul le couvre à la fois.
+await p.setViewportSize({ width: 390, height: 844 });
+await p.waitForTimeout(400);
+const etroit = await p.evaluate(() => {
+  const barre = document.querySelector("nav.wm-nav").getBoundingClientRect();
+  const t = document.querySelector("#FAM").getBoundingClientRect();
+  const pan = document.querySelector("#wm-panneau").getBoundingClientRect();
+  return {
+    hauteurBarre: Math.round(barre.height),
+    tiroir: Math.round(t.top),
+    panneau: Math.round(pan.top),
+    toolbar: getComputedStyle(document.documentElement)
+      .getPropertyValue("--wm-haut-toolbar").trim(),
+    largeurTiroir: Math.round(t.width),
+    largeurPanneau: Math.round(pan.width),
+  };
+});
+dire(
+  "À 390, LE TIROIR ET LE PANNEAU PARTENT DE LA MÊME LIGNE",
+  etroit.tiroir === etroit.panneau,
+  JSON.stringify(etroit),
+);
+dire(
+  "et de celle de la toolbar, pas de la barre, qui passe à 156 ici",
+  `${etroit.tiroir}px` === etroit.toolbar && etroit.hauteurBarre > 56,
+  JSON.stringify({ haut: etroit.tiroir, toolbar: etroit.toolbar, barre: etroit.hauteurBarre }),
+);
+dire(
+  "les deux prennent tout l'écran : à cette largeur, c'est un écran",
+  etroit.largeurTiroir === 390 && etroit.largeurPanneau === 390,
+  JSON.stringify({ tiroir: etroit.largeurTiroir, panneau: etroit.largeurPanneau }),
+);
+
 await nav.close();
 if (soucis.length > 0) { for (const x of soucis) console.log("  · " + x); }
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);

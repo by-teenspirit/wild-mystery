@@ -570,7 +570,14 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   z-index: 60;
   /*  Sous la barre, elle-même sous la toolbar : les deux hauteurs
       s'additionnent, sinon le panneau remonte derrière la barre et on
-      perd sa première entrée. */
+      perd sa première entrée.
+
+      ET LES 56 TIENNENT, VÉRIFIÉ LE 11 OCTOBRE. J'ai voulu les
+      remplacer par une mesure, en croyant que la barre grandissait
+      quand ses liens passent à la ligne. Mesurée à onze largeurs, elle
+      fait **exactement 56 de 1 280 jusqu'à 600** ; elle ne passe à 156
+      qu'en dessous de 500, et là le bloc `@media` d'en bas a déjà pris
+      le relais. Il n'y a pas de largeur où ce nombre soit faux. */
   top: calc(var(--wm-haut-toolbar, 0px) + 56px);
   bottom: 0;
   left: 0;

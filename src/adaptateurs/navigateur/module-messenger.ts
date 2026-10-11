@@ -105,8 +105,99 @@ export function habillerLeBouton(doc: Document): boolean {
   return true;
 }
 
+// ════════════════════════════════════════════════════════════════════
+//  DEUX PANNEAUX SUR LE MÊME BORD, JAMAIS LES DEUX À LA FOIS
+//
+//  « Si on ouvre la barre latérale de la barre de navigation, messenger
+//  se ferme, et inversement. »
+//
+//  Le tchat et le panneau latéral sortent tous les deux du bord gauche,
+//  sous la barre, au même rang. Ouverts ensemble, le plus large recouvre
+//  l'autre et on ne sait plus lequel on lit.
+//
+//  ── POURQUOI ON CLIQUE SUR LEUR BOUTON AU LIEU DE FERMER NOUS-MÊMES ─
+//
+//  Chacun des deux a DÉJÀ un propriétaire de son état, et ce
+//  propriétaire fait plus que poser une classe :
+//
+//    · le panneau latéral vit dans `module-navigation.ts`. L'ouvrir ou
+//      le fermer bascule la classe, met `aria-expanded`, change
+//      `aria-label`, et remplace le losange par une croix. Quatre
+//      choses, et une cinquième le jour où la maquette en demande une ;
+//    · le tiroir du tchat vit dans FAM. `FAM.toggle()` bascule
+//      `data-hidden`, restaure l'historique à l'ouverture et rend le
+//      défilement du corps en plein écran.
+//
+//  Réécrire une fermeture ici, c'est reprendre ces listes — et les
+//  laisser diverger au premier changement de l'un des deux. On déclenche
+//  donc LEUR propre commande, celle que la personne aurait cliquée.
+//
+//  ── ET POURQUOI ÇA NE BOUCLE PAS ────────────────────────────────────
+//
+//  C'est la seule vraie difficulté. Fermer A en cliquant le bouton de A
+//  rejoue l'écouteur ci-dessous, qui pourrait fermer B, qui est en train
+//  de s'ouvrir.
+//
+//  La garde n'est pas un drapeau, c'est la CONDITION ELLE-MÊME : on ne
+//  ferme l'autre que si celui qu'on vient de cliquer était FERMÉ, donc
+//  s'il est en train de s'ouvrir. Le clic qu'on déclenche, lui, porte
+//  toujours sur un panneau OUVERT — il ne remplit donc jamais la
+//  condition, et la chaîne s'arrête d'elle-même, sans état à tenir.
+//
+//  ── POURQUOI EN CAPTURE SUR LE DOCUMENT ─────────────────────────────
+//
+//  Il faut lire l'état AVANT que le propriétaire ne le change. Sur
+//  l'élément lui-même, l'ordre entre deux écouteurs de la phase cible
+//  est l'ordre d'inscription — et FAM s'inscrit quand il veut, puisqu'il
+//  se charge après nous. En capture sur le document, on passe avant
+//  tout écouteur posé sur les boutons, quel qu'il soit et quand qu'il
+//  soit venu.
+// ════════════════════════════════════════════════════════════════════
+
+/** Le bouton qui ouvre et ferme le panneau latéral de la barre. */
+export const SELECTEUR_LOGO = ".wm-nav__logo";
+
+/** Vrai si le tiroir du tchat est ouvert. L'état est `data-hidden` sur
+ *  `#FAM`, relevé dans le `fam.js` du fork : `"false"` veut dire
+ *  ouvert. Absent — pas de tiroir sur la page —, c'est fermé. */
+export function messengerOuvert(doc: Document): boolean {
+  return doc.querySelector("#FAM")?.getAttribute("data-hidden") === "false";
+}
+
+/** Vrai si le panneau latéral est ouvert. On lit `aria-expanded` sur son
+ *  bouton plutôt que la classe du panneau : c'est l'état que
+ *  `module-navigation.ts` publie, et celui qu'un lecteur d'écran lit. */
+export function panneauOuvert(doc: Document): boolean {
+  return doc.querySelector(SELECTEUR_LOGO)?.getAttribute("aria-expanded") === "true";
+}
+
+/** Rend les deux panneaux exclusifs. À appeler une fois par page. */
+export function exclureLesDeuxPanneaux(doc: Document): void {
+  doc.addEventListener("click", (e) => {
+    const cible = e.target;
+    if (!(cible instanceof Element)) return;
+    //  On clique le bouton du tchat, et le tchat est FERMÉ : il s'ouvre.
+    if (cible.closest(SELECTEURS_BOUTON) !== null && !messengerOuvert(doc)) {
+      if (panneauOuvert(doc)) doc.querySelector<HTMLElement>(SELECTEUR_LOGO)?.click();
+      return;
+    }
+    //  On clique le logo, et le panneau est FERMÉ : il s'ouvre.
+    if (cible.closest(SELECTEUR_LOGO) !== null && !panneauOuvert(doc)) {
+      if (messengerOuvert(doc)) {
+        doc.querySelector<HTMLElement>(SELECTEURS_BOUTON)?.click();
+      }
+    }
+  }, true);
+}
+
 /** Guette le bouton de FAM et l'habille dès qu'il paraît. */
 export function habillerLeMessenger(doc: Document, limiteMs = 30_000): void {
+  //  L'EXCLUSION SE POSE TOUT DE SUITE, et pas quand le bouton paraît :
+  //  l'écouteur est sur le document, il n'a besoin d'aucun des deux
+  //  panneaux pour exister, et le panneau latéral, lui, est déjà là. Un
+  //  seul écouteur, posé une fois, qui ne cherche rien tant qu'on ne
+  //  clique pas.
+  exclureLesDeuxPanneaux(doc);
   if (habillerLeBouton(doc)) return;
   const corps = doc.body;
   if (corps === null) return;

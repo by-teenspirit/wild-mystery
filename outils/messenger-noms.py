@@ -74,18 +74,50 @@ def noms_de_la_feuille(css: str) -> set[str]:
     return set(NOM.findall(sans_commentaires(css)))
 
 
-def selecteurs(css: str) -> list[str]:
-    """Les groupes de sélecteurs, un par règle, normalisés."""
+def selecteurs(css: str) -> list[tuple[str, str]]:
+    """Les groupes de sélecteurs, un par règle, avec LEUR CONTEXTE.
+
+    ── POURQUOI LE CONTEXTE, ET PAS LE SÉLECTEUR SEUL ─────────────────
+
+    La première version comptait les sélecteurs à plat. Elle a aussitôt
+    grondé sur `#modernbb #FAM`, écrit deux fois : une fois en règle
+    pleine, une fois dans `@media (max-width: 760px)` pour la version
+    étroite. **C'est une surcharge, pas un doublon** — et c'est même la
+    façon dont ce dossier range ses media queries, dans la feuille
+    qu'elles corrigent plutôt que dans un fichier à part.
+
+    On suit donc les accolades pour savoir dans quel bloc on est. Deux
+    règles ne sont le même doublon que si elles portent le même
+    sélecteur DANS le même contexte.
+    """
     texte = sans_commentaires(css)
-    #  On retire le dedans des accolades pour ne garder que les têtes de
-    #  règle. Les `@media` deviennent des têtes aussi : on les écarte.
-    trouves = []
-    for tete in re.findall(r"(^|\})([^{}@]+)\{", texte, flags=re.M):
-        brut = tete[1].strip()
-        if brut == "" or brut.startswith("@"):
-            continue
-        #  Un groupe `a,\n b` et `a, b` sont le même groupe.
-        trouves.append(", ".join(p.strip() for p in brut.split(",") if p.strip()))
+    pile: list[str | None] = []
+    trouves: list[tuple[str, str]] = []
+    tampon = ""
+    for c in texte:
+        if c == "{":
+            tete = " ".join(tampon.split())
+            tampon = ""
+            if tete.startswith("@"):
+                #  Un bloc à règle — `@media`, `@supports`. Il ouvre un
+                #  contexte, il ne porte pas de sélecteur.
+                pile.append(tete)
+            else:
+                contexte = " > ".join(x for x in pile if x is not None)
+                #  Un groupe `a,\n b` et `a, b` sont le même groupe.
+                groupe = ", ".join(p.strip() for p in tete.split(",") if p.strip())
+                if groupe != "":
+                    trouves.append((contexte, groupe))
+                #  Le bloc de déclarations qui suit n'est pas un
+                #  contexte : on l'empile quand même pour que son `}` ne
+                #  dépile pas le `@media` qui l'entoure.
+                pile.append(None)
+        elif c == "}":
+            if pile:
+                pile.pop()
+            tampon = ""
+        else:
+            tampon += c
     return trouves
 
 
@@ -104,15 +136,15 @@ def verifier() -> int:
             print(f"       {n}")
         print(f"     (inventaire : {len(connus)} noms, relevé le {inventaire['releve_le']})")
 
-    vus: dict[str, int] = {}
+    vus: dict[tuple[str, str], int] = {}
     for s in selecteurs(css):
         vus[s] = vus.get(s, 0) + 1
     doubles = sorted(s for s, n in vus.items() if n > 1)
     if doubles:
         fautes += 1
         print(f"   ✗ {len(doubles)} sélecteur(s) écrit(s) deux fois — le second gagne en silence :")
-        for s in doubles:
-            print(f"       {s}")
+        for contexte, groupe in doubles:
+            print(f"       {groupe}" + (f"   [dans {contexte}]" if contexte else ""))
 
     if fautes == 0:
         print(
