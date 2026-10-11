@@ -50,7 +50,7 @@ import {
   rangerLesSousForums,
   recomposerLesDerniersMessages,
 } from "../src/adaptateurs/navigateur/module-categories.ts";
-import { rangerLeMessenger } from "../src/adaptateurs/navigateur/module-messenger.ts";
+import { habillerLeMessenger } from "../src/adaptateurs/navigateur/module-messenger.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import {
   attendreLaToolbar,
@@ -459,10 +459,10 @@ desQueLeCorpsEstLa(() => {
   //  ET « QUI EST EN LIGNE », tout en bas de l'index : les forums, ce
   //  qui s'y passe, puis qui l'habite.
   poserLesPresents().catch(() => {});
-  //  ET LE BOUTON DU TCHAT VA DANS LE COIN D'OUTILS, dès que FAM l'a
-  //  posé. Sans réseau de notre côté : on guette un nœud, on le range,
-  //  on s'arrête.
-  rangerLeMessenger(document);
+  //  ET LE BOUTON DU TCHAT DEVIENT UNE BULLE EN BAS À GAUCHE, dès que
+  //  FAM l'a posé. Sans réseau de notre côté : on guette un nœud, on le
+  //  nomme, on s'arrête. L'allure, elle, est en CSS.
+  habillerLeMessenger(document);
   poserLesAnnexes().catch(() => {});
   //  LE COMPTEUR SE LIT AVANT QUE LA BARRE SOIT RÉÉCRITE. Forumactif le
   //  pose dans le lien « Messagerie », et `poserLaNav` remplace le

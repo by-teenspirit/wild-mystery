@@ -329,13 +329,18 @@ dire(
 );
 await cdp.send("Emulation.setEmulatedMedia", { features: [] });
 
-// ── LE BOUTON DU TCHAT SE RANGE DANS LA COLONNE ─────────────────────
+// ── LE BOUTON DU TCHAT DEVIENT UNE BULLE EN BAS À GAUCHE ────────────
 //
 //  CE QUE CE BLOC AURAIT ÉVITÉ. Le module cherchait `#FAM-button-open`.
-//  Ce nœud n'existe pas : FAM sert `#FAM-button`. Le rangement ne
+//  Ce nœud n'existe pas : FAM sert `#FAM-button`. L'habillage ne
 //  partait donc jamais, et le bouton restait en bas à droite de
 //  l'écran — c'est-à-dire PAR-DESSUS le coin d'outils, sur « Confort ».
 //  Ça a tenu une journée, parce que rien ne regardait.
+//
+//  CE QUE CE BLOC VÉRIFIE MAINTENANT. « Mets-le plutôt en bas à gauche
+//  aussi, tu fais juste une jolie bulle sans le texte, en rond. » Donc :
+//  l'autre coin, rond, muet — et quand même NOMMÉ et atteignable au
+//  clavier, ce qu'une bulle sans texte ne peut pas être toute seule.
 //
 //  FAM n'est pas chargé ici : on pose son bouton à la main, avec SA
 //  règle à lui — `position: fixed`, 30 x 30, collé au coin bas droit.
@@ -360,64 +365,109 @@ const tchat = await p.evaluate(() => {
   const coin = document.querySelector(".wm-coin");
   if (b === null || coin === null) return null;
   const r = b.getBoundingClientRect();
-  const voisins = [...coin.children].filter((c) => c !== b).map((c) => {
-    const x = c.getBoundingClientRect();
-    return { l: Math.round(x.left), w: Math.round(x.width) };
-  });
+  const c = getComputedStyle(b);
+  const k = coin.getBoundingClientRect();
+  //  LE POINT CENTRAL DE LA BULLE : ce que `elementFromPoint` y trouve
+  //  doit être la bulle ou son icône, et rien d'autre. Un clic qui
+  //  atterrit ailleurs est un bouton qui ne s'ouvre pas.
+  const souris = document.elementFromPoint(
+    Math.round(r.left + r.width / 2),
+    Math.round(r.top + r.height / 2),
+  );
   return {
-    dansLeCoin: b.parentElement === coin,
-    premier: coin.firstElementChild === b,
     classes: b.className,
     role: b.getAttribute("role"),
     tabindex: b.getAttribute("tabindex"),
-    etiquette: (b.textContent || "").trim(),
-    position: getComputedStyle(b).position,
+    nom: b.getAttribute("aria-label"),
+    //  LE TEXTE DOIT ÊTRE VIDE : « sans le texte ».
+    texte: (b.textContent || "").trim(),
+    position: c.position,
+    rayon: c.borderRadius,
     l: Math.round(r.width),
     h: Math.round(r.height),
-    coin: Math.round(coin.getBoundingClientRect().width),
-    voisins,
-    //  Le chevauchement, mesuré et pas supposé : aucun outil de la
-    //  colonne ne doit recouvrir un autre.
-    croise: [...coin.children].some((c, i, t) =>
-      t.slice(i + 1).some((d) => {
-        const a = c.getBoundingClientRect(), e = d.getBoundingClientRect();
-        return a.bottom > e.top + 1 && e.bottom > a.top + 1;
-      })
-    ),
+    gauche: Math.round(r.left),
+    //  La distance au bas de la fenêtre, pas la valeur de `bottom` :
+    //  c'est ce que l'œil mesure.
+    sousLeBas: Math.round(innerHeight - r.bottom),
+    droite: Math.round(r.right),
+    fond: c.backgroundColor,
+    //  LE CHEVAUCHEMENT AVEC LE COIN D'OUTILS, mesuré et pas supposé —
+    //  c'est le défaut d'origine, et il doit avoir complètement
+    //  disparu : les deux coins ne se touchent pas.
+    croiseLeCoin: r.right > k.left && k.right > r.left && r.bottom > k.top && k.bottom > r.top,
+    souris: souris === null ? null : souris === b || b.contains(souris),
+    //  La bulle est-elle dans le coin ? Elle ne doit PLUS y être.
+    dansLeCoin: b.parentElement === coin,
   };
 });
 dire(
-  "LE BOUTON DU TCHAT EST RANGÉ DANS LE COIN",
-  tchat?.dansLeCoin === true,
+  "LA BULLE DU TCHAT EST EN BAS À GAUCHE",
+  tchat !== null && tchat.gauche === 16 && tchat.sousLeBas === 16,
   JSON.stringify(tchat),
 );
-dire("et il y prend la première place", tchat?.premier === true);
 dire(
-  "il rentre dans le flux : plus de `position: fixed`",
-  tchat?.position === "static",
-  tchat?.position,
+  "elle est ronde et à la bonne taille de cible",
+  tchat !== null && tchat.l === 48 && tchat.h === 48 && parseFloat(tchat.rayon) >= 24,
+  JSON.stringify({ l: tchat?.l, h: tchat?.h, rayon: tchat?.rayon }),
 );
 dire(
-  "il prend toute la largeur de la colonne, comme ses voisins",
-  tchat !== null && tchat.l === tchat.coin && tchat.voisins.every((v) => v.w === tchat.coin),
-  JSON.stringify({ bouton: tchat?.l, coin: tchat?.coin, voisins: tchat?.voisins }),
+  "elle est muette : plus d'étiquette écrite",
+  tchat?.texte === "",
+  JSON.stringify(tchat?.texte),
 );
-dire("RIEN NE CHEVAUCHE RIEN dans la colonne", tchat?.croise === false);
 dire(
-  "il porte l'allure des autres outils",
-  (tchat?.classes ?? "").includes("wm-coin__bouton") &&
-    (tchat?.classes ?? "").includes("wm-messenger-range"),
+  "mais elle a un NOM, qu'un lecteur d'écran annonce",
+  tchat?.nom === "Tchat",
+  tchat?.nom,
+);
+dire(
+  "elle s'atteint au clavier",
+  tchat?.role === "button" && tchat?.tabindex === "0",
+  JSON.stringify({ role: tchat?.role, tabindex: tchat?.tabindex }),
+);
+dire(
+  "elle porte la classe que la feuille 15 dessine",
+  (tchat?.classes ?? "").includes("wm-messenger-bulle"),
   tchat?.classes,
 );
 dire(
-  "et une étiquette écrite, pas seulement un `title`",
-  (tchat?.etiquette ?? "") !== "",
-  tchat?.etiquette,
+  "elle a quitté la colonne du coin d'outils",
+  tchat?.dansLeCoin === false,
+);
+//  ── LE DÉFAUT D'ORIGINE, VÉRIFIÉ PAR LA GÉOMÉTRIE ─────────────────
+//
+//  C'est tout le propos du changement : FAM posait son bouton à (1380,
+//  840) sur un écran de 1440, soit PILE sur « Confort », qui va jusqu'à
+//  (1424, 884). Les deux coins de l'écran ne peuvent plus se croiser,
+//  et on le mesure au lieu de le croire.
+dire(
+  "ELLE NE TOUCHE PLUS LE COIN D'OUTILS",
+  tchat?.croiseLeCoin === false,
 );
 dire(
-  "il s'atteint au clavier",
-  tchat?.role === "button" && tchat?.tabindex === "0",
-  JSON.stringify({ role: tchat?.role, tabindex: tchat?.tabindex }),
+  "et un clic en son centre l'atteint elle, pas ce qu'il y a dessous",
+  tchat?.souris === true,
+);
+//  ── CE QUE LA BULLE RECOUVRE, CHIFFRÉ ─────────────────────────────
+//
+//  LA LEÇON VIENT DE LA DROITE, et elle a coûté une journée : le coin
+//  d'outils fait 100 de large en `position: fixed`, il mord donc le
+//  bord droit du contenu, et deux boutons « + » de la boutique étaient
+//  RÉELLEMENT incliquables — `elementFromPoint` ne les atteignait pas
+//  (feuille `09`, relevé du 5 octobre).
+//
+//  Relevé sur le forum le 11 octobre à 1280 de large : la colonne de
+//  contenu de ModernBB commence à x = 49. La bulle va de 16 à 64, donc
+//  elle mord 15 px du bord gauche — le quart du lien « Accueil » du
+//  pied, et rien de plus : les boutons de la boutique vivent dans une
+//  liste à filet et 12 de rembourrage, ils commencent après 70.
+//
+//  Ce test TIENT LE CHIFFRE. Si quelqu'un élargit la bulle ou
+//  l'éloigne du bord, il le saura ici et pas sur la boutique.
+dire(
+  "elle ne mord pas plus de 15 px sur la colonne de contenu (bord à x = 49)",
+  tchat !== null && tchat.droite <= 64,
+  JSON.stringify({ borddroit: tchat?.droite, colonne: 49, morsure: (tchat?.droite ?? 0) - 49 }),
 );
 
 await nav.close();
