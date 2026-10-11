@@ -523,8 +523,14 @@ def main():
         if vieux is None:
             print(f"   · {neuf['nom']} n'existait pas dans data/carte.json")
             continue
+        #  `image` SURVIT À LA RÉGÉNÉRATION, comme le reste de ce qui
+        #  vient du forum et de la main de Callista. Les bannières de
+        #  zone ont été appariées une fois, à l'empreinte et à l'œil,
+        #  contre la planche Figma `310:68` : les refaire perdre à
+        #  chaque passe de l'outil serait refaire ce travail-là.
         garde = {k: vieux[k] for k in
-                 ("forumId", "nom", "type", "palier", "niveau", "description")
+                 ("forumId", "nom", "type", "palier", "niveau", "description",
+                  "image")
                  if k in vieux}
         garde["ancre"] = neuf["ancre"]
         if "forme" in neuf:

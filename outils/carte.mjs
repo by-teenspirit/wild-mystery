@@ -806,16 +806,31 @@ dire(
 
 // ── 10 · l'image d'en-tête du panneau ───────────────────────────────
 //
-//  AUCUN LIEU N'A LA SIENNE. Ce qu'on vérifie, c'est que le panneau
-//  retombe bien sur le bandeau des catégories et qu'il reste LISIBLE :
-//  le voile est au-dessus de l'image, donc le texte tient quelle que
-//  soit la photo dessous.
+//  Chaque zone a la sienne depuis le 11 octobre, appariée à la planche
+//  Figma `310:68`. On vérifie deux choses : que la bannière de LA ZONE
+//  est bien celle qui est posée — et pas le bandeau de catégorie, qui
+//  reste le repli —, et que le texte tient par-dessus quelle que soit
+//  la photo, parce que le voile est peint au-dessus d'elle.
 const banniere = await p.evaluate(() => {
+  const ouvrir = (famille) => {
+    const lieu = [...document.querySelectorAll(".wm-carte__lieu")]
+      .find((e) => e.getAttribute("data-wm-famille") === famille);
+    const id = lieu?.getAttribute("data-wm-forum");
+    [...document.querySelectorAll(".wm-carte__entree")]
+      .find((e) => (e.getAttribute("href") ?? "").includes(`/f${id}-`))?.click();
+    return id;
+  };
+  const id = ouvrir("palier2");
   const b = document.querySelector(".wm-carte__banniere");
   const s = getComputedStyle(b);
   return {
     la: b !== null,
+    forum: id,
     haut: Math.round(b.getBoundingClientRect().height),
+    //  Posée en propriété personnalisée par le module, depuis
+    //  `data/carte.json`. Vide = la zone n'a pas de bannière et on
+    //  retombe sur le bandeau de catégorie.
+    sienne: b.style.getPropertyValue("--wm-carte-image").trim(),
     image: s.backgroundImage.slice(0, 40),
     couches: s.backgroundImage.split(/,(?![^(]*\))/).length,
     texte: s.color,
@@ -824,7 +839,12 @@ const banniere = await p.evaluate(() => {
 dire(
   "LE PANNEAU A UN EN-TÊTE IMAGÉ, avec son voile par-dessus",
   banniere.la && banniere.haut >= 70 && banniere.couches >= 2,
-  JSON.stringify(banniere),
+  JSON.stringify({ haut: banniere.haut, couches: banniere.couches }),
+);
+dire(
+  "ET C'EST LA BANNIÈRE DE LA ZONE, pas le bandeau de catégorie",
+  /assets\/zones\/[a-z-]+\.jpg/.test(banniere.sienne),
+  banniere.sienne || "(vide — repli sur le bandeau)",
 );
 
 // ── 11 · la mer ─────────────────────────────────────────────────────
