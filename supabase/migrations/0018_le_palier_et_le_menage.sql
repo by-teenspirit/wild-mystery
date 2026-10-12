@@ -210,3 +210,43 @@ revoke all on function menage_oublier_les_abandons(jsonb)    from public, anon, 
 grant execute on function palier_pour(bigint)                to service_role;
 grant execute on function paliers_appliquer(jsonb)           to service_role;
 grant execute on function menage_oublier_les_abandons(jsonb) to service_role;
+
+-- ═══ 4 · une porte restée ouverte par `0012` ═════════════════════════
+
+--  ── RELEVÉ SUR LA VRAIE BASE LE 12 OCTOBRE ──────────────────────────
+--
+--  En vérifiant quelles migrations étaient appliquées, une fonction a
+--  répondu **200 à la clé publiable** là où toutes ses voisines rendent
+--  « permission denied » : `pokedex_date_du_registre`.
+--
+--  `0012` la crée et révoque soigneusement `pokedex_ranger` juste à
+--  côté — mais pas elle. Elle a donc gardé le `execute to public` que
+--  PostgreSQL donne par défaut à toute fonction neuve, et que le
+--  `alter default privileges` de `0008` n'a pas attrapée.
+--
+--  ── CE N'EST PAS UNE FUITE, ET ON LA FERME QUAND MÊME ───────────────
+--
+--  Elle n'est PAS `security definer` : elle s'exécute avec les droits de
+--  qui l'appelle, et `registre` est lisible par `anon` **par décision**
+--  (planche 50 § 5). Un visiteur peut donc déjà obtenir la même date en
+--  interrogeant `/rest/v1/registre` directement. Rien ne sort par là qui
+--  ne sorte déjà par la porte d'à côté.
+--
+--  Mais la règle de `56-fermer-la-surface.md` est « on n'ouvre pas une
+--  porte dont personne n'a besoin », et personne n'a besoin de celle-ci :
+--  ses deux seuls appelants sont `appliquer_cloture` et `ranger_pokedex`,
+--  tous deux `security definer`, donc tous deux indifférents à ce
+--  `revoke`. Vérifié : aucun code du navigateur ne la nomme.
+--
+--  **Et c'est un oubli, pas un choix** — c'est la différence qui compte.
+--  `journal_dernieres` est ouverte à `anon` dans `0014` par une ligne
+--  qui le dit. Celle-ci l'était par défaut, en silence. Une surface
+--  qu'on n'a pas décidée est une surface qu'on ne relira pas.
+--
+--  On la ferme ici plutôt que dans une migration à elle : `0018` n'est
+--  pas encore appliquée, donc c'est le dernier moment où ça ne coûte
+--  aucun aller-retour de plus.
+revoke all on function pokedex_date_du_registre(bigint, uuid, integer, text)
+  from public, anon, authenticated;
+grant execute on function pokedex_date_du_registre(bigint, uuid, integer, text)
+  to service_role;
