@@ -1490,7 +1490,7 @@ await p.evaluate(() => {
     "height:70%;width:40%;min-height:400px;min-width:300px;right:3px;z-index:99999;" +
     "visibility:visible;opacity:1;bottom:35px;transition-property:top,right,bottom,left," +
     "height,width,margin,opacity,visibility;transition-duration:500ms}" +
-    '#FAM[data-hidden=true]{visibility:hidden;opacity:0;bottom:-100%}' +
+    "#FAM[data-hidden=true]{visibility:hidden;opacity:0;bottom:-100%}" +
     "#FAM-button{color:#FFF;background:#39F;position:fixed;width:30px;height:30px;right:3px;" +
     "bottom:3px;cursor:pointer;z-index:99999;transition-property:right;" +
     "transition-duration:500ms}";
@@ -1516,7 +1516,11 @@ await p.evaluate(() => {
 //  L'observateur du module prend le bouton au vol et l'habille.
 await p.waitForTimeout(250);
 //  On part du panneau FERMÉ : il est resté ouvert des contrôles d'avant.
-if (await p.evaluate(() => document.querySelector(".wm-nav__logo")?.getAttribute("aria-expanded") === "true")) {
+if (
+  await p.evaluate(() =>
+    document.querySelector(".wm-nav__logo")?.getAttribute("aria-expanded") === "true"
+  )
+) {
   await p.click(".wm-nav__logo");
   await p.waitForTimeout(300);
 }
@@ -1537,7 +1541,8 @@ const etat = () =>
     );
     return {
       tchat: t.dataset.hidden === "false",
-      panneau: document.querySelector(".wm-nav__logo")?.getAttribute("aria-expanded") === "true",
+      panneau:
+        document.querySelector(".wm-nav__logo")?.getAttribute("aria-expanded") === "true",
       x: Math.round(r.left),
       haut: Math.round(r.top),
       basDeLaBarre: Math.round(nb.bottom),
@@ -1545,7 +1550,8 @@ const etat = () =>
       l: Math.round(r.width),
       rang: getComputedStyle(t).zIndex,
       rangBulle: getComputedStyle(b).zIndex,
-      bulleAtteignable: sousLaSouris !== null && (sousLaSouris === b || b.contains(sousLaSouris)),
+      bulleAtteignable: sousLaSouris !== null &&
+        (sousLaSouris === b || b.contains(sousLaSouris)),
       bulleX: Math.round(rb.left),
       bulleBas: Math.round(innerHeight - rb.bottom),
     };
@@ -1597,7 +1603,11 @@ dire(
 dire(
   "LA BULLE RESTE ATTEIGNABLE PAR-DESSUS LE TIROIR",
   ouvert.bulleAtteignable && Number(ouvert.rangBulle) > Number(ouvert.rang),
-  JSON.stringify({ atteignable: ouvert.bulleAtteignable, bulle: ouvert.rangBulle, tiroir: ouvert.rang }),
+  JSON.stringify({
+    atteignable: ouvert.bulleAtteignable,
+    bulle: ouvert.rangBulle,
+    tiroir: ouvert.rang,
+  }),
 );
 dire(
   "et elle n'a pas bougé d'un pixel",
@@ -1686,9 +1696,22 @@ dire(
   etroit.tiroir === etroit.panneau,
   JSON.stringify(etroit),
 );
+//  ── CE QUE CETTE ASSERTION NE DOIT PAS MESURER ────────────────────
+//
+//  Première version : elle exigeait AUSSI `hauteurBarre > 56`, pour
+//  dire « la barre a bien passé ses liens à la ligne ici ». Elle passait
+//  dans le bac à sable et elle était FAUSSE comme test : le retour à la
+//  ligne dépend de la largeur du texte, donc des polices installées. Un
+//  coureur de CI n'a pas les mêmes qu'ici, les cinq liens peuvent tenir
+//  sur une ligne, et le test tombe sur une machine où le code est juste.
+//
+//  On garde la règle, on jette la conséquence. La règle est : sous 760,
+//  les deux panneaux partent du bas de la TOOLBAR. Que la barre fasse
+//  56 ou 156 ne la change pas — et c'est justement pour ça qu'on a écrit
+//  la règle comme ça.
 dire(
-  "et de celle de la toolbar, pas de la barre, qui passe à 156 ici",
-  `${etroit.tiroir}px` === etroit.toolbar && etroit.hauteurBarre > 56,
+  "et de celle de la toolbar, pas de la barre",
+  `${etroit.tiroir}px` === etroit.toolbar,
   JSON.stringify({ haut: etroit.tiroir, toolbar: etroit.toolbar, barre: etroit.hauteurBarre }),
 );
 dire(

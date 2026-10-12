@@ -88,9 +88,35 @@
     `pointer-events: none` évitait déjà qu'elle vole le clic ; elle
     cachait quand même le lien. 93 + 24 : le débordement, puis l'écart
     normal en dessous. */
+/*  ── LE REPLI EST FLUIDE, LA COMPOSITION NE L'EST PAS ──────────────
+
+    Relevé par le harnais de contraste le 12 octobre, et c'était un vrai
+    défaut — vu par les visiteurs SANS JavaScript, c'est-à-dire ceux à
+    qui ce bloc est destiné.
+
+    `pages/accueil-repli.html` est dérivé de `data/accueil.json` et
+    collé dans le message d'accueil du forum. Il portait `.wm-accueil`,
+    donc les 1 292 px fixes de la composition — dans une colonne de
+    1 232, et sans script pour poser le facteur d'échelle. Le texte
+    sortait de l'écran à toutes les largeurs.
+
+    Le commentaire de la règle de largeur, plus bas, promettait déjà le
+    contraire : « le bloc de repli — qui, lui, est fluide — reste en
+    place ». Ce n'était pas implémenté. On le fait, et on ne décide rien
+    de neuf au passage.
+
+    LE CROCHET EXISTAIT DÉJÀ : `module-accueil.ts` vide l'hôte et lui
+    pose `wm-accueil--pose`. Tout ce qui est la COMPOSITION descend donc
+    sur cette classe — la largeur, l'échelle, l'alignement à droite et
+    la réserve de 93 px pour la mascotte, qui n'ont de sens qu'une fois
+    le bloc dessiné. `.wm-accueil` ne garde que ce dont le repli a
+    besoin : une colonne, et rien qui l'empêche de rétrécir. */
 #modernbb .wm-accueil {
   display: flex;
   flex-direction: column;
+}
+
+#modernbb .wm-accueil--pose {
   align-items: flex-end;
   margin-bottom: calc(93px + var(--wm-espace-24, 24px));
 
@@ -119,6 +145,13 @@
       1 292 dans un écran de 390. */
   width: var(--wm-accueil-largeur, 1292px);
   zoom: var(--wm-accueil-echelle, 1);
+}
+
+/*  Le repli, lui, prend la largeur qu'on lui donne et ses enfants la
+    remplissent : c'est un bloc de texte, pas une composition. */
+#modernbb .wm-accueil:not(.wm-accueil--pose) {
+  align-items: stretch;
+  width: auto;
 }
 
 /*  Le panneau translucide de la maquette : du blanc à 70 % posé sur le

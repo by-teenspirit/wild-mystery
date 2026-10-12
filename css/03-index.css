@@ -1196,8 +1196,7 @@
     nœuds n'en sont pas. L'exception appartient à la règle qui la
     souffre. */
 #modernbb ul.topiclist li.row .lastpost-infos strong,
-#modernbb ul.topiclist li.row .lastpost-infos
-  span:not(.wm-dernier__signature, .wm-dernier__date, .wm-dernier__qui) {
+#modernbb ul.topiclist li.row .lastpost-infos span:not(.wm-dernier__signature, .wm-dernier__date, .wm-dernier__qui) {
   display: inline;
   line-height: inherit;
 }
@@ -1476,6 +1475,35 @@
   flex: none;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  ── LA BANDE PASSE À LA LIGNE SOUS 760, ET LE RESSORT S'EFFACE ─────
+
+    Relevé par le harnais de contraste le 12 octobre, et c'était un
+    VRAI défaut : à 390 px, « ce que Rhode a vu passer aujourd'hui »
+    sortait de l'écran de 95 px.
+
+    La cause est le `flex: none` juste au-dessus, et il est voulu — la
+    note doit se coller au bord droit et ne pas se laisser comprimer.
+    Mais une boîte qui refuse de rétrécir dans une rangée plus étroite
+    qu'elle ne rétrécit pas : elle déborde. Le titre, « En direct » et
+    171 px de note ne tiennent pas dans 390.
+
+    Alors la rangée passe à la ligne, et le ressort disparaît : un trait
+    qui « mange la place » n'a plus rien à pousser quand la note est
+    descendue d'une ligne, et il laisserait un filet orphelin au milieu.
+
+    Le point de rupture est 760, le même que le panneau latéral et le
+    tiroir du tchat : un seul seuil pour tout le dossier, qu'on puisse
+    retenir. */
+@media (max-width: 760px) {
+  #modernbb .wm-vie__tete {
+    flex-wrap: wrap;
+  }
+
+  #modernbb .wm-vie__ressort {
+    display: none;
+  }
 }
 
 /* ── les deux colonnes ───────────────────────────────────────────── */

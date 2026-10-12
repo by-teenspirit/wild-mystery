@@ -99,52 +99,22 @@
     l'écart variait avec la longueur du titre — la signature d'un
     voisin qui prend de la place. C'est la deuxième fois ce mois-ci
     qu'une règle de `01` bat une règle de `03` sans qu'on la cherche. */
-@media (max-width: 740px) {
-  #modernbb .modern-resp .forabg .row dd.posts,
-  #modernbb .modern-resp .forabg .row dd.topics,
-  #modernbb .modern-resp .forabg .row dd.views,
-  #modernbb .modern-resp .forumbg .row dd.posts,
-  #modernbb .modern-resp .forumbg .row dd.views {
-    display: block;
-  }
+#modernbb .modern-resp .forabg .row dd.posts,
+#modernbb .modern-resp .forabg .row dd.topics,
+#modernbb .modern-resp .forabg .row dd.views,
+#modernbb .modern-resp .forumbg .row dd.posts,
+#modernbb .modern-resp .forumbg .row dd.views {
+  display: block;
 }
 
 #modernbb .modern-resp .forabg .row dd.dterm,
-/*  LE REMBOURRAGE EST PARTI D'ICI, ET SON `!important` AVEC.
-
-    Cette règle défait le repli de ModernBB sous 740 px — c'est le
-    travail de cette feuille. Elle imposait AUSSI `padding: 18px
-    !important` à toutes les largeurs, et un `!important` bat tout,
-    quelle que soit la précision de ce qui vient après : la ligne de
-    forum de la feuille 03, qui met le dernier message contre son
-    filet, ne pouvait pas passer. La ligne restait à 147 px au lieu des
-    92 de la maquette, et la cellule du dernier message à 127.
-
-    Le rembourrage est de la présentation : il appartient à la feuille
-    qui dessine la ligne, pas à celle qui la défloate. C'est la
-    troisième règle de `01` à battre `03` aujourd'hui sans qu'on la
-    cherche, et la première à le faire par un `!important`. */ /*  ── ET `display: block` NE VAUT QUE LÀ OÙ MODERNBB REPLIE ─────────
-
-    Quatrième fois aujourd'hui qu'une règle de cette feuille bat la
-    03 sans qu'on la cherche, et c'est toujours la même cause : des
-    `.modern-resp` qui font (1,4,1) contre les (1,3,3) de la ligne de
-    forum, appliqués À TOUTES LES LARGEURS alors qu'ils défont un repli
-    qui n'a lieu que sous 740.
-
-    `display: block` sur la cellule du dernier message empilait la
-    vignette et le texte au lieu de les mettre côte à côte : la cellule
-    faisait 92 au lieu de 56, et la ligne 123 au lieu de 92.
-
-    La règle part donc dans la requête de média à laquelle elle a
-    toujours appartenu. Au-dessus de 740, la feuille 03 dessine la
-    ligne sans personne sur son chemin. */ @media (max-width: 740px) {
-  #modernbb .modern-resp .forabg .row dd.lastpost,
-  #modernbb .modern-resp .forumbg .row dd.dterm,
-  #modernbb .modern-resp .forumbg .row dd.lastpost {
-    display: block;
-    width: auto;
-    float: none;
-  }
+#modernbb .modern-resp .forabg .row dd.lastpost,
+#modernbb .modern-resp .forumbg .row dd.dterm,
+#modernbb .modern-resp .forumbg .row dd.lastpost {
+  display: block;
+  width: auto;
+  float: none;
+  padding: 18px !important;
 }
 
 @media (max-width: 740px) {
@@ -152,26 +122,16 @@
     flex-wrap: wrap;
     row-gap: 0;
   }
-  #modernbb ul.topiclist dd.dterm {
-    flex: 1 1 100%;
-  }
+  #modernbb ul.topiclist dd.dterm { flex: 1 1 100%; }
   #modernbb dd.topics,
   #modernbb dd.posts,
-  #modernbb dd.views {
-    flex: 0 0 auto;
-    text-align: left;
-  }
-  #modernbb dd.lastpost {
-    flex: 1 1 100%;
-    padding: 0 18px 18px !important;
-  }
+  #modernbb dd.views { flex: 0 0 auto; text-align: left; }
+  #modernbb dd.lastpost { flex: 1 1 100%; padding: 0 18px 18px !important; }
   /* l'en-tête de colonnes n'a plus de sens empilé */
   #modernbb ul.topiclist li.header dd.topics,
   #modernbb ul.topiclist li.header dd.posts,
   #modernbb ul.topiclist li.header dd.views,
-  #modernbb ul.topiclist li.header dd.lastpost {
-    display: none;
-  }
+  #modernbb ul.topiclist li.header dd.lastpost { display: none; }
 }
 
 /* ── 3 · un message ───────────────────────────────────────────────── */
@@ -208,10 +168,7 @@
 */
 
 @media (max-width: 740px) {
-  #modernbb .postprofile {
-    flex: 1 1 100%;
-    width: auto;
-  }
+  #modernbb .postprofile { flex: 1 1 100%; width: auto; }
 }
 
 /* ── 4 · portail, widgets, pied de page ───────────────────────────── */
@@ -251,17 +208,10 @@
   align-items: flex-start;
   gap: 18px;
 }
-#modernbb table.postbody td {
-  display: block;
-}
-#modernbb table.postbody td.logo {
-  flex: 0 0 auto;
-}
+#modernbb table.postbody td { display: block; }
+#modernbb table.postbody td.logo { flex: 0 0 auto; }
 #modernbb table.postbody td.rules,
-#modernbb table.postbody td.content {
-  flex: 1 1 auto;
-  min-width: 0;
-}
+#modernbb table.postbody td.content { flex: 1 1 auto; min-width: 0; }
 
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 02 · Le socle
@@ -2360,8 +2310,7 @@ html#min-width {
     nœuds n'en sont pas. L'exception appartient à la règle qui la
     souffre. */
 #modernbb ul.topiclist li.row .lastpost-infos strong,
-#modernbb ul.topiclist li.row .lastpost-infos
-  span:not(.wm-dernier__signature, .wm-dernier__date, .wm-dernier__qui) {
+#modernbb ul.topiclist li.row .lastpost-infos span:not(.wm-dernier__signature, .wm-dernier__date, .wm-dernier__qui) {
   display: inline;
   line-height: inherit;
 }
@@ -2640,6 +2589,35 @@ html#min-width {
   flex: none;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  ── LA BANDE PASSE À LA LIGNE SOUS 760, ET LE RESSORT S'EFFACE ─────
+
+    Relevé par le harnais de contraste le 12 octobre, et c'était un
+    VRAI défaut : à 390 px, « ce que Rhode a vu passer aujourd'hui »
+    sortait de l'écran de 95 px.
+
+    La cause est le `flex: none` juste au-dessus, et il est voulu — la
+    note doit se coller au bord droit et ne pas se laisser comprimer.
+    Mais une boîte qui refuse de rétrécir dans une rangée plus étroite
+    qu'elle ne rétrécit pas : elle déborde. Le titre, « En direct » et
+    171 px de note ne tiennent pas dans 390.
+
+    Alors la rangée passe à la ligne, et le ressort disparaît : un trait
+    qui « mange la place » n'a plus rien à pousser quand la note est
+    descendue d'une ligne, et il laisserait un filet orphelin au milieu.
+
+    Le point de rupture est 760, le même que le panneau latéral et le
+    tiroir du tchat : un seul seuil pour tout le dossier, qu'on puisse
+    retenir. */
+@media (max-width: 760px) {
+  #modernbb .wm-vie__tete {
+    flex-wrap: wrap;
+  }
+
+  #modernbb .wm-vie__ressort {
+    display: none;
+  }
 }
 
 /* ── les deux colonnes ───────────────────────────────────────────── */
@@ -3253,7 +3231,8 @@ html#min-width {
     date du message sortait en corps au lieu de pâle. Sans le `div`, on
     retombe à (1,1,0) : ça bat toujours ModernBB (0,1,0), et les règles
     qui suivent ici gardent la main. */
-#modernbb [class*="post--"] :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+#modernbb [class*="post--"]
+  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
@@ -3705,7 +3684,8 @@ html#min-width {
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-#modernbb #forum_rules :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+#modernbb #forum_rules
+  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
@@ -4460,15 +4440,15 @@ html#min-width {
       rien d'autre ne bouge. */
   background:
     radial-gradient(
-    120% 90% at 85% 100%,
-    color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
-    transparent 60%
-  ),
+      120% 90% at 85% 100%,
+      color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
+      transparent 60%
+    ),
     linear-gradient(
-    180deg,
-    var(--wm-fond-douce, #f3e1d2) 0%,
-    var(--wm-fond-page, #eecfb5) 55%
-  );
+      180deg,
+      var(--wm-fond-douce, #f3e1d2) 0%,
+      var(--wm-fond-page, #eecfb5) 55%
+    );
 }
 
 /*  768 px pour les huit annexes : c'est la largeur des cartes dans la
@@ -4859,8 +4839,7 @@ html#min-width {
     porte la composition déjà faite. */
 #modernbb .wm-encart--paisible {
   background: #e3e6dd;
-  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, var(--wm-fond-surface,
-    #fffbf7));
+  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, var(--wm-fond-surface, #fffbf7));
 }
 
 #modernbb .wm-encart__etiquette {
@@ -8597,9 +8576,35 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     `pointer-events: none` évitait déjà qu'elle vole le clic ; elle
     cachait quand même le lien. 93 + 24 : le débordement, puis l'écart
     normal en dessous. */
+/*  ── LE REPLI EST FLUIDE, LA COMPOSITION NE L'EST PAS ──────────────
+
+    Relevé par le harnais de contraste le 12 octobre, et c'était un vrai
+    défaut — vu par les visiteurs SANS JavaScript, c'est-à-dire ceux à
+    qui ce bloc est destiné.
+
+    `pages/accueil-repli.html` est dérivé de `data/accueil.json` et
+    collé dans le message d'accueil du forum. Il portait `.wm-accueil`,
+    donc les 1 292 px fixes de la composition — dans une colonne de
+    1 232, et sans script pour poser le facteur d'échelle. Le texte
+    sortait de l'écran à toutes les largeurs.
+
+    Le commentaire de la règle de largeur, plus bas, promettait déjà le
+    contraire : « le bloc de repli — qui, lui, est fluide — reste en
+    place ». Ce n'était pas implémenté. On le fait, et on ne décide rien
+    de neuf au passage.
+
+    LE CROCHET EXISTAIT DÉJÀ : `module-accueil.ts` vide l'hôte et lui
+    pose `wm-accueil--pose`. Tout ce qui est la COMPOSITION descend donc
+    sur cette classe — la largeur, l'échelle, l'alignement à droite et
+    la réserve de 93 px pour la mascotte, qui n'ont de sens qu'une fois
+    le bloc dessiné. `.wm-accueil` ne garde que ce dont le repli a
+    besoin : une colonne, et rien qui l'empêche de rétrécir. */
 #modernbb .wm-accueil {
   display: flex;
   flex-direction: column;
+}
+
+#modernbb .wm-accueil--pose {
   align-items: flex-end;
   margin-bottom: calc(93px + var(--wm-espace-24, 24px));
 
@@ -8628,6 +8633,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       1 292 dans un écran de 390. */
   width: var(--wm-accueil-largeur, 1292px);
   zoom: var(--wm-accueil-echelle, 1);
+}
+
+/*  Le repli, lui, prend la largeur qu'on lui donne et ses enfants la
+    remplissent : c'est un bloc de texte, pas une composition. */
+#modernbb .wm-accueil:not(.wm-accueil--pose) {
+  align-items: stretch;
+  width: auto;
 }
 
 /*  Le panneau translucide de la maquette : du blanc à 70 % posé sur le
