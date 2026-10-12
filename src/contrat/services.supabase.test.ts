@@ -38,6 +38,8 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals, assertRejects } from "@std/assert";
+import { MenageSupabase, PaliersSupabase } from "../adaptateurs/supabase/services.ts";
+import { appelPsql } from "./appel-psql.ts";
 
 const CIBLE = Deno.env.get("CONTRAT_CIBLE");
 const PGURL = Deno.env.get("CONTRAT_PGURL");
@@ -404,4 +406,131 @@ essai("`rendre_fossile` refuse si le joueur n'a pas le fossile", async (url) => 
     "refusee",
     "un refus doit SURVIVRE : voir l'en-tête de la migration 0013",
   );
+});
+
+// ── 0018 · le palier appliqué, à travers l'adaptateur ───────────────
+//
+//  Les deux `essai` qui suivent passent par `PaliersSupabase` et
+//  `MenageSupabase`, pas par `psql` directement. C'est le point : ce sont
+//  les SEULS tests du dépôt où l'adaptateur et le SQL s'exécutent
+//  ensemble. Un test qui appelle la fonction SQL à la main valide le SQL ;
+//  un test qui double l'appel valide l'adaptateur ; aucun des deux ne
+//  valide leur rencontre — et c'est là qu'une fonction qui change de
+//  forme fait des dégâts silencieux.
+
+essai("`paliers_appliquer` ÉCRIT le palier, et dit qui a bougé", async (url) => {
+  const paliers = new PaliersSupabase(appelPsql({ url }));
+
+  //  Rien au départ : personne n'a de badge, tout le monde est au
+  //  palier 1, donc tout le monde est déjà juste.
+  assertEquals(await paliers.appliquer(), []);
+
+  //  Trois badges pour Anna.
+  await psql(
+    url,
+    `insert into badge (joueur_id, arene) values
+       ('${ANNA}', 'Arène Roche'), ('${ANNA}', 'Arène Vol'), ('${ANNA}', 'Arène Feu')`,
+  );
+
+  const monte = await paliers.appliquer();
+  assertEquals(monte.length, 1);
+  assertEquals(monte[0].pseudo, "Anna des services");
+  assertEquals([monte[0].avant, monte[0].apres], [1, 2]);
+  //  ET LE PALIER EST ÉCRIT EN BASE, pas seulement annoncé. C'est toute
+  //  la différence avec `paliers_a_revoir`, qui ne faisait que lister.
+  assertEquals(await psql(url, `select palier from joueur where id = '${ANNA}'`), "2");
+
+  //  IDEMPOTENTE : un second passage ne trouve plus rien. Sans ça, la
+  //  relève annoncerait la même montée toutes les cinq minutes.
+  assertEquals(await paliers.appliquer(), []);
+
+  //  ET ELLE REDESCEND. Un badge retiré — une erreur de staff corrigée —
+  //  ramène le palier, et la tâche le dit dans le même sens.
+  await psql(url, `delete from badge where joueur_id = '${ANNA}' and arene = 'Arène Feu'`);
+  const redescend = await paliers.appliquer();
+  assertEquals(redescend.length, 1);
+  assertEquals([redescend[0].avant, redescend[0].apres], [2, 1]);
+  assertEquals(await psql(url, `select palier from joueur where id = '${ANNA}'`), "1");
+});
+
+essai("`paliers_appliquer` passe au palier 3 à sept badges", async (url) => {
+  const paliers = new PaliersSupabase(appelPsql({ url }));
+  await psql(
+    url,
+    `insert into badge (joueur_id, arene)
+       select '${ANNA}', 'Arène ' || g from generate_series(1, 7) g`,
+  );
+  const monte = await paliers.appliquer();
+  assertEquals(monte.length, 1);
+  assertEquals(monte[0].apres, 3);
+  //  LE BARÈME N'EST PLUS ÉCRIT QU'UNE FOIS : `palier_pour`. Il l'était
+  //  trois fois dans `paliers_a_revoir` — même expression recopiée au
+  //  `select` et au `having`. On vérifie que les deux fonctions
+  //  s'accordent, puisque l'ancienne reste pour la lecture à la main.
+  assertEquals(await psql(url, `select count(*) from paliers_a_revoir()`), "0");
+});
+
+// ── 0018 · le ménage, à travers l'adaptateur ────────────────────────
+
+essai("`menage_oublier_les_abandons` oublie l'abandon et garde le reste", async (url) => {
+  const menage = new MenageSupabase(appelPsql({ url }));
+
+  //  Trois sujets : un vieux jamais clos, un vieux CLOS, un récent.
+  //  Le registre d'un sujet clos est FIGÉ par un déclencheur, donc on
+  //  écrit d'abord et on clôt ensuite — l'ordre inverse est refusé, et
+  //  c'est une garde qui a déjà attrapé un test avant moi.
+  await psql(
+    url,
+    `insert into registre (joueur_id, sujet_id, message_id, type, charge, code, cree_le) values
+       ('${ANNA}', 9101, 91011, 'croise', '{"especeId":25}', 'm1', now() - interval '90 days'),
+       ('${ANNA}', 9101, 91012, 'croise', '{"especeId":26}', 'm2', now() - interval '89 days'),
+       ('${ANNA}', 9102, 91021, 'croise', '{"especeId":27}', 'm3', now() - interval '95 days'),
+       ('${ANNA}', 9103, 91031, 'croise', '{"especeId":28}', 'm4', now() - interval '2 days');
+     insert into cloture (sujet_id, clos_le, resultat, code)
+       values (9102, now() - interval '94 days', '{}', 'k-menage');`,
+  );
+
+  const fait = await menage.oublierLesAbandons();
+  //  UN sujet, DEUX lignes : c'est le sujet 9101. Le compte des sujets
+  //  est le chiffre qui se lit ; celui des lignes dit l'ampleur.
+  assertEquals(fait, { sujets: 1, lignes: 2, jours: 60 });
+
+  //  CE QUI RESTE : le sujet CLOS, parce que son registre est la pièce
+  //  justificative de ce qui a été versé, et le RÉCENT, qui n'est pas
+  //  abandonné — il est en cours.
+  assertEquals(
+    await psql(
+      url,
+      `select string_agg(distinct sujet_id::text, ',' order by sujet_id::text)
+                       from registre where sujet_id in (9101, 9102, 9103)`,
+    ),
+    "9102,9103",
+  );
+
+  //  IDEMPOTENT : il ne reste rien à oublier.
+  assertEquals(await menage.oublierLesAbandons(), { sujets: 0, lignes: 0, jours: 60 });
+});
+
+essai("`menage_oublier_les_abandons` respecte la fenêtre qu'on lui donne", async (url) => {
+  const menage = new MenageSupabase(appelPsql({ url }));
+  await psql(
+    url,
+    `insert into registre (joueur_id, sujet_id, message_id, type, charge, code, cree_le) values
+       ('${ANNA}', 9201, 92011, 'croise', '{"especeId":25}', 'n1', now() - interval '10 days')`,
+  );
+
+  //  À soixante jours, dix jours ne sont pas un abandon.
+  assertEquals((await menage.oublierLesAbandons(60)).sujets, 0);
+  //  À cinq, si — et la base rend la fenêtre qu'elle a appliquée, ce qui
+  //  est ce qu'on journalise.
+  assertEquals(await menage.oublierLesAbandons(5), { sujets: 1, lignes: 1, jours: 5 });
+});
+
+essai("`menage_oublier_les_abandons` refuse une fenêtre absurde", async (url) => {
+  //  Zéro jour effacerait TOUT le registre non clos, y compris les
+  //  sujets en cours d'écriture. La fonction lève plutôt que d'obéir, et
+  //  l'adaptateur laisse remonter : ce n'est pas un refus métier dont il
+  //  faut se souvenir, c'est un appel qui n'aurait pas dû être écrit.
+  const menage = new MenageSupabase(appelPsql({ url }));
+  await assertRejects(() => menage.oublierLesAbandons(0));
 });

@@ -475,3 +475,57 @@ export interface Catalogue {
   nomObjet(objetId: number): Promise<string>;
   nomEspece(especeId: number): Promise<string>;
 }
+
+// ── le palier, et le ménage ─────────────────────────────────────────
+
+/** Ce qu'un recalcul de palier a changé pour une joueuse.
+ *
+ *  LE PSEUDO EST LÀ EXPRÈS. La table `joueur` n'est lisible que par son
+ *  propriétaire, et la relève est le seul endroit d'où on peut
+ *  rapprocher un identifiant d'un nom. Une ligne de journal « palier :
+ *  2 » ne sert à personne ; « Alix passe au palier 2 » se lit — et c'est
+ *  cette liste qui permet de mettre les rangs du forum à jour sans
+ *  chercher qui a bougé. */
+export type ChangementDePalier = {
+  readonly joueurId: string;
+  readonly pseudo: string;
+  readonly avant: number;
+  readonly apres: number;
+};
+
+/** Le palier d'un joueur, recalculé depuis ses badges.
+ *
+ *  ── CE QUE CE PORT NE FAIT PAS ──────────────────────────────────────
+ *
+ *  Il ne touche PAS au rang affiché sur Forumactif. Un rang se change
+ *  dans le panneau d'administration, dont les adresses portent un jeton
+ *  de session : la relève n'y a pas accès.
+ *
+ *  Ce qui compte est quand même ici : **le palier de la base est ce qui
+ *  ouvre les zones**. `data/zones.json` donne un palier minimum par
+ *  zone, et c'est `joueur.palier` qui est comparé. Un troisième badge
+ *  gagné sans recalcul laisse la joueuse enfermée hors des zones de
+ *  palier 2, et rien ne le dirait. */
+export interface Paliers {
+  /** Recalcule et écrit, et rend ce qui a changé. La liste vide est la
+   *  réponse ordinaire. */
+  appliquer(): Promise<readonly ChangementDePalier[]>;
+}
+
+/** Ce qu'un passage de ménage a effacé. */
+export type MenageFait = {
+  /** Le nombre de SUJETS oubliés — le chiffre qui se lit. */
+  readonly sujets: number;
+  /** Le nombre de lignes de registre effacées. */
+  readonly lignes: number;
+  /** La fenêtre appliquée, en jours, telle que la base l'a comprise. */
+  readonly jours: number;
+};
+
+/** Le ménage du registre : les sujets abandonnés s'oublient.
+ *
+ *  Un sujet CLÔTURÉ n'est jamais touché — son registre est la pièce
+ *  justificative de ce qui a été versé. */
+export interface Menage {
+  oublierLesAbandons(jours?: number): Promise<MenageFait>;
+}

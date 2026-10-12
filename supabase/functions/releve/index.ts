@@ -45,6 +45,7 @@ import { FossilesEnFichiers } from "../../../src/adaptateurs/faune/fossiles.ts";
 import { ComptoirsEnFichiers } from "../../../src/adaptateurs/faune/comptoirs.ts";
 import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
 import { FossilesSupabase } from "../../../src/adaptateurs/supabase/fossile.ts";
+import { MenageSupabase, PaliersSupabase } from "../../../src/adaptateurs/supabase/services.ts";
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
 import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
 import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouveaux-messages.ts";
@@ -53,6 +54,8 @@ import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
 import { ServirUneCommande } from "../../../src/application/servir-une-commande.ts";
 import { RangerLePokedex } from "../../../src/application/ranger-le-pokedex.ts";
 import { RendreLesFossiles } from "../../../src/application/rendre-les-fossiles.ts";
+import { SynchroniserLePalier } from "../../../src/application/synchroniser-le-palier.ts";
+import { OublierLesAbandons } from "../../../src/application/oublier-les-abandons.ts";
 
 /**
  * La version de ce déploiement, et elle sert à DEUX choses.
@@ -68,7 +71,7 @@ import { RendreLesFossiles } from "../../../src/application/rendre-les-fossiles.
  *
  * À incrémenter à chaque envoi. Vu le 2 octobre 2026.
  */
-const VERSION = "2026-10-09-a";
+const VERSION = "2026-10-12-a";
 
 // ── les secrets, tous lus au même endroit ───────────────────────────
 
@@ -145,6 +148,15 @@ type Montage = {
   /** Tâche 7 : le pokédex, remis d'accord avec le registre. **Zéro est
    *  la réponse attendue** — `appliquer_cloture` l'écrit déjà. */
   readonly pokedex: RangerLePokedex;
+  /** Tâche 6 : le palier suit les badges. **Elle n'écrit rien sur le
+   *  forum** — un rang se change dans le panneau d'administration, où la
+   *  relève n'entre pas. Ce qu'elle tient est la règle, pas l'affichage :
+   *  `joueur.palier` est ce qui ouvre les zones. */
+  readonly palier: SynchroniserLePalier;
+  /** Tâche 8 : le ménage du registre. **La seule tâche qui ne tourne pas
+   *  à chaque passage** : elle se limite elle-même à une fois par
+   *  semaine, en lisant la date de son dernier passage dans le journal. */
+  readonly menage: OublierLesAbandons;
   readonly verrou: VerrouSupabase;
 };
 
@@ -255,6 +267,23 @@ function assembler(reglages: Reglages): Montage {
       forumEnEcriture,
       new JournalSupabase(appeler),
     ),
+    //  Tâche 6 : le palier suit les badges. Elle n'écrit RIEN sur le
+    //  forum — le rang affiché se change dans le panneau
+    //  d'administration, où la relève n'entre pas. Ce qu'elle tient est
+    //  la règle : `joueur.palier` est ce qui ouvre les zones.
+    palier: new SynchroniserLePalier(
+      new PaliersSupabase(appeler),
+      new JournalSupabase(appeler),
+    ),
+    //  Tâche 8 : le ménage du registre. La SEULE tâche qui ne tourne pas
+    //  à chaque passage — elle se limite elle-même à une fois par
+    //  semaine, en lisant la date de son dernier passage dans le
+    //  journal. Un sujet mort depuis soixante jours n'est pas pressé.
+    menage: new OublierLesAbandons(
+      new MenageSupabase(appeler),
+      new JournalSupabase(appeler),
+      { maintenant: () => new Date() },
+    ),
     verrou: new VerrouSupabase(appeler),
   };
 }
@@ -281,8 +310,17 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     return json({ version: VERSION, erreur: "clé de relève absente ou fausse" }, 401);
   }
 
-  const { parcourir, bilans, boutique, comptoirs, fossilesARendre, pokedex, verrou } =
-    assembler(reglages);
+  const {
+    parcourir,
+    bilans,
+    boutique,
+    comptoirs,
+    fossilesARendre,
+    pokedex,
+    palier,
+    menage,
+    verrou,
+  } = assembler(reglages);
 
   if (!await verrou.prendre(NOM_DU_VERROU, VERROU_SECONDES)) {
     // Ce n'est pas une erreur : c'est le passage précédent qui travaille
@@ -357,6 +395,22 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     //  Il n'écrit rien sur le forum et ne lève jamais.
     const rangement = await pokedex.executer();
 
+    //  ── LE PALIER APRÈS LE POKÉDEX, ET LE MÉNAGE EN TOUT DERNIER ─────
+    //
+    //  Le palier ne dépend de rien de ce qui précède : il lit les badges,
+    //  que la relève n'écrit pas. Il passe donc à la fin, avec les deux
+    //  tâches de comptabilité, plutôt qu'au milieu de celles qui touchent
+    //  au jeu. Comme le pokédex, il n'écrit rien sur le forum et ne lève
+    //  jamais.
+    const paliers = await palier.executer();
+
+    //  LE MÉNAGE EN DERNIER, parce qu'il EFFACE. Même raisonnement que
+    //  pour la boutique, qui passe tard parce qu'elle débite : un passage
+    //  qui meurt avant lui n'a rien effacé, et tout ce qui précède a
+    //  déjà été rendu. Et il n'efface que du registre de sujets
+    //  abandonnés depuis deux mois — rien qui soit attendu aujourd'hui.
+    const nettoyage = await menage.executer();
+
     return json({
       version: VERSION,
       //  Ce que la tâche 1 a inscrit au registre pendant le même parcours.
@@ -384,6 +438,23 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       //  ignorer.
       pokedex_corrige: rangement.corrigees,
       pokedex_en_echec: rangement.erreurs,
+      //  ── LE PALIER EST RENDU NOMINATIVEMENT, ET C'EST VOULU ─────────
+      //
+      //  C'est la seule trace de ce qu'il faut faire À LA MAIN : mettre
+      //  le rang Forumactif de ces joueurs à jour. Un compte sans les
+      //  noms obligerait à aller chercher qui a bougé — et la table
+      //  `joueur` n'est lisible que par son propriétaire, donc la relève
+      //  est le seul endroit d'où ce rapprochement est possible.
+      //
+      //  La liste vide est la réponse ordinaire : les badges ne tombent
+      //  pas toutes les cinq minutes.
+      paliers_changes: paliers.changements,
+      palier_en_echec: paliers.erreurs,
+      //  `false` est la réponse ordinaire : le ménage ne tourne qu'une
+      //  fois par semaine, donc 287 passages sur 288 le sautent.
+      menage_tourne: nettoyage.tourne,
+      menage_sujets_oublies: nettoyage.fait?.sujets ?? 0,
+      menage_en_echec: nettoyage.erreurs,
       duree_ms: Date.now() - debut,
     }, 200);
   } catch (e) {
