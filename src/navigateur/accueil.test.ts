@@ -70,6 +70,25 @@ Deno.test("une adresse absente rend la chaîne vide, elle ne lève pas", () => {
 });
 
 // ── le fichier entier ───────────────────────────────────────────────
+//
+//  LES DEUX TESTS QUI LISENT LE DÉPÔT SONT LES SEULS DE
+//  `src/navigateur/` À TOUCHER UN FICHIER. La tâche `test:navigateur`
+//  leur ouvre exactement `data/accueil.json` et `img/accueil/`, rien
+//  d'autre : c'est la permission la plus étroite qui les laisse passer,
+//  et elle est volontairement étroite.
+//
+//  POURQUOI PAS UN `--allow-read` NU. Le test du bandeau exige un
+//  `NotFound` sur `bandeau-staff.png`. Hors permission, Deno lève
+//  `NotCapable` — le même échec pour « le fichier est parti » et pour
+//  « je n'ai pas le droit de regarder ». L'assertion ne distinguerait
+//  plus rien, et le bandeau pourrait revenir en vert. D'où le dossier
+//  entier dans la permission, et pas les deux chemins exacts.
+//
+//  Un test qui lirait autre chose ici tombera, et c'est voulu : il doit
+//  passer par la tâche, pas la contourner. Ce défaut a coûté un passage
+//  de CI le 13 octobre — `test:tout` donne `--allow-read`, la tâche du
+//  travail « Navigateur » ne le donnait pas, et les deux tests ne sont
+//  jamais tombés en local.
 
 Deno.test("un fichier illisible rend l'accueil vide, il ne lève pas", () => {
   for (const mauvais of [null, undefined, 12, "texte", []]) {

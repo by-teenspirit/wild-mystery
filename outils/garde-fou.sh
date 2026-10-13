@@ -608,6 +608,28 @@ elif ! python3 outils/messenger-noms.py; then
   gronde "la feuille du messenger habille un nom inexistant, ou se répète"
 fi
 
+echo "── 19. chaque tâche donne ce que ses tests réclament ───────────"
+# Le défaut du 13 octobre, et il a coûté un passage de CI entier.
+#
+# Deux tests de `src/navigateur/accueil.test.ts` lisent le vrai
+# `data/accueil.json` du dépôt. La tâche `test:navigateur` ne donnait
+# que `--allow-env`. Le travail « Navigateur » est tombé en huit
+# secondes — sur un tag dont le code n'avait rien à voir.
+#
+# POURQUOI PERSONNE NE L'AVAIT VU : en local on lançait `test:tout`,
+# qui donne `--allow-read --allow-net --allow-run`. Un fourre-tout qui
+# ne refuse rien ne prouve plus qu'un module est pur ; il cachait le
+# défaut au lieu de le trouver. C'est l'inverse de ce qu'un test doit
+# faire, et c'est pour ça que la règle exclut cette tâche-là.
+#
+# Vérifié en le cassant : avec l'ancienne ligne de `deno.json`, l'outil
+# nomme la tâche, la permission manquante et le fichier qui la réclame.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — permissions des tâches non vérifiées"
+elif ! python3 outils/permissions-des-taches.py; then
+  gronde "une tâche de test ne donne pas une permission que ses tests réclament"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."
