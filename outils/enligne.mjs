@@ -225,7 +225,6 @@ const bande = await p.evaluate(() => {
   const b = document.querySelector(".wm-enligne");
   const onglets = [...document.querySelectorAll(".wm-enligne__onglet")];
   const m = document.querySelector(".wm-enligne__mascotte");
-  const col = document.querySelector(".wm-enligne__colonne--clan");
   return {
     combien: onglets.length,
     eteints: onglets.filter((o) => o.disabled).length,

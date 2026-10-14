@@ -228,16 +228,39 @@ jobs:
       #  tourne hors réseau. C'est la seule entorse à la règle « zéro
       #  dépendance réseau » (ARCHITECTURE §8), et le cache la referme :
       #  après un passage, plus rien ne sort.
+      #  LE CACHE PORTE AUSSI LE BINAIRE DU NAVIGATEUR, comme celui du
+      #  travail « Contraste des pages ». Sans ça Chromium se
+      #  retélécharge à chaque passage. Le préfixe de clé passe de
+      #  `deno-` à `navigateur-` exprès : sous l'ancienne clé, le cache
+      #  du navigateur devenait invisible dès que `deno.json` bougeait —
+      #  ce qui est arrivé au passage v2.6.2.
       - uses: actions/cache@v4
         with:
-          path: ~/.cache/deno
-          key: deno-${{ runner.os }}-${{ env.DENO_VERSION }}-${{ hashFiles('deno.json') }}
-          restore-keys: deno-${{ runner.os }}-${{ env.DENO_VERSION }}-
+          path: |
+            ~/.cache/deno
+            ~/.cache/ms-playwright
+          key: navigateur-${{ runner.os }}-${{ env.DENO_VERSION }}-${{ hashFiles('deno.json') }}
+          restore-keys: navigateur-${{ runner.os }}-${{ env.DENO_VERSION }}-
 
       - run: deno task test:navigateur
 
+      #  LA MÊME COMMANDE QUE « Contraste des pages », et pas
+      #  `deno run -A npm:playwright install`.
+      #
+      #  Celle-là a tourné SIX HEURES PILE au passage v2.6.2 — de
+      #  14:03:31 à 20:03:56, tuée par la limite de GitHub, sans une
+      #  ligne d'erreur. Sous Deno, l'installateur de Playwright délègue
+      #  le téléchargement à un processus fils
+      #  (`oopDownloadBrowserMain.js`) qui peut rester pendu sans que le
+      #  parent s'en aperçoive : aucun progrès, aucun délai de garde.
+      #  `npx` ne passe pas par la couche de compatibilité node de Deno.
+      #
+      #  Et le harnais tourne bien sous Deno malgré une installation par
+      #  npx : le navigateur va dans `~/.cache/ms-playwright`, où le
+      #  Playwright de Deno le trouve. C'est exactement ce que fait
+      #  « Contraste des pages » depuis toujours, en 42 secondes.
       - name: Chromium pour le harnais
-        run: deno run -A npm:playwright@1.49.1 install chromium
+        run: npx --yes playwright@1.49.1 install --with-deps chromium
 
       - name: La navigation, dans un navigateur
         run: deno task navigation

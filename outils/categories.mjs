@@ -216,10 +216,28 @@ const page = (corps) =>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 <style>body{margin:0;background:var(--wm-fond-page)}#page-body{padding:24px}</style>
-</head><body id="modernbb"><div id="page-body">
+</head><body id="modernbb">
+<!--  LE .modern-resp ÉTAIT MANQUANT, ET CE HARNAIS ÉTAIT AVEUGLE SANS LUI.
+      Relevé le 14 octobre sur le forum en ligne : ModernBB enveloppe
+      toute la page dans div.conteneur_minwidth_IE.modern-resp, enfant
+      direct du body. Ce n'est pas dans index_box — c'est overall_header
+      qui le pose, et le harnais ne monte qu'index_box.
+
+      Conséquence : les quatre règles de 01-deflottement qui défont le
+      repli de ModernBB sont toutes préfixées .modern-resp. Sans cet
+      ancêtre, AUCUNE ne s'appliquait ici. Le harnais relevait un
+      rembourrage de 0 sur dd.dterm quand le vrai forum en avait 18
+      imposés par un !important — il mesurait une page qui n'existe
+      nulle part, et il est resté vert pendant que la ligne de forum
+      faisait 120 de haut au lieu de 92.
+
+      C'est la même leçon que data/fam-base.css pour le messenger : un
+      harnais qui ne sert que notre feuille, sur un DOM qui n'est pas
+      celui de la base, ne voit pas ce contre quoi on se bat. -->
+<div class="conteneur_minwidth_IE modern-resp"><div id="page-body">
 ${corps}
 ${STATS}
-</div></body></html>`;
+</div></div></body></html>`;
 
 const ANCIEN = poserLeBouton(resoudre(readFileSync(R + "templates/index_box.html", "utf8")));
 const NOUVEAU = poserLeBouton(
@@ -568,15 +586,72 @@ dire(
 for (const [l, h] of [[1440, 1200], [900, 900], [390, 844]]) {
   await p3.setViewportSize({ width: l, height: h });
   await p3.waitForTimeout(150);
-  const d = await p3.evaluate(() => ({
-    debord: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-    desc: Math.round(
-      document.querySelector("li.row .wm-forum__description")?.getBoundingClientRect().width ??
-        0,
-    ),
-  }));
+  const d = await p3.evaluate(() => {
+    const r = (n) => (n === null ? null : Math.round(n.getBoundingClientRect().height));
+    const ligne = document.querySelector("li.row");
+    const icon = document.querySelector("li.row dl.icon");
+    const dterm = document.querySelector("li.row dd.dterm");
+    const lp = document.querySelector("li.row dd.lastpost");
+    const vignette = lp?.querySelector("img, .wm-dernier__avatar") ?? null;
+    const texte = lp?.querySelector(".lastpost-infos, .wm-dernier__corps") ?? null;
+    return {
+      debord: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      desc: Math.round(
+        document.querySelector("li.row .wm-forum__description")?.getBoundingClientRect()
+          .width ??
+          0,
+      ),
+      hauteurLigne: r(ligne),
+      hauteurIcon: r(icon),
+      padIcon: icon === null ? null : getComputedStyle(icon).padding,
+      padDterm: dterm === null ? null : getComputedStyle(dterm).padding,
+      //  EMPILÉ OU CÔTE À CÔTE : si la vignette et le texte du dernier
+      //  message ne partagent aucune bande horizontale, ils sont
+      //  empilés — c'est ce que `display: block` faisait.
+      empile: vignette === null || texte === null
+        ? null
+        : vignette.getBoundingClientRect().bottom <= texte.getBoundingClientRect().top + 1,
+    };
+  });
   dire(`à ${l} px, rien ne déborde`, !d.debord, JSON.stringify(d));
   dire(`à ${l} px, la description a une largeur`, d.desc > 0, `${d.desc} px`);
+
+  //  ── CE QUE `01` NE DOIT PLUS IMPOSER AU-DESSUS DE 740 ────────────
+  //
+  //  Les deux assertions qui manquaient, et c'est pour ça que ce
+  //  harnais est resté vert pendant que la ligne de forum était fausse
+  //  EN LIGNE. On ne mesure pas une cote en pixels — elle dépend du
+  //  contenu de la ligne — mais deux faits binaires qui, eux, ne
+  //  dépendent de rien :
+  //
+  //  UN · le dernier message est CÔTE À CÔTE, pas empilé. `display:
+  //  block` de `01` mettait la vignette au-dessus du texte à TOUTES les
+  //  largeurs. Mesuré avant correction : empilé même à 1440.
+  //
+  //  DEUX · `01` n'impose plus de rembourrage sur `dd.dterm`. Son
+  //  `padding: 18px !important` battait la ligne de forum de `03`
+  //  quelle que soit la précision de celle-ci, et c'est `03` qui doit
+  //  dessiner la ligne — ses 22 px sont sur `dl.icon`.
+  //
+  //  SOUS 740, les deux redeviennent normaux : c'est là que ModernBB
+  //  replie, et que les règles de `01` ont le droit de travailler.
+  if (l > 740) {
+    dire(
+      `à ${l} px, LE DERNIER MESSAGE EST CÔTE À CÔTE, PAS EMPILÉ`,
+      d.empile === false,
+      JSON.stringify({ empile: d.empile, desc: d.desc }),
+    );
+    dire(
+      `à ${l} px, \`01\` N'IMPOSE AUCUN REMBOURRAGE SUR dd.dterm`,
+      d.padDterm === "0px",
+      `dd.dterm : ${d.padDterm} · dl.icon : ${d.padIcon}`,
+    );
+    dire(
+      `à ${l} px, et c'est bien \`03\` qui rembourre la ligne`,
+      d.padIcon === "22px",
+      `${d.padIcon}`,
+    );
+  }
 }
 await p3.close();
 

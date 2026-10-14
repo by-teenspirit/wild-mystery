@@ -72,22 +72,46 @@
     l'écart variait avec la longueur du titre — la signature d'un
     voisin qui prend de la place. C'est la deuxième fois ce mois-ci
     qu'une règle de `01` bat une règle de `03` sans qu'on la cherche. */
-#modernbb .modern-resp .forabg .row dd.posts,
-#modernbb .modern-resp .forabg .row dd.topics,
-#modernbb .modern-resp .forabg .row dd.views,
-#modernbb .modern-resp .forumbg .row dd.posts,
-#modernbb .modern-resp .forumbg .row dd.views {
-  display: block;
-}
+/*  ── ET ÇA NE VAUT QUE LÀ OÙ MODERNBB REPLIE ───────────────────────
+    Relevé le 14 octobre, sur le forum en ligne.
 
-#modernbb .modern-resp .forabg .row dd.dterm,
-#modernbb .modern-resp .forabg .row dd.lastpost,
-#modernbb .modern-resp .forumbg .row dd.dterm,
-#modernbb .modern-resp .forumbg .row dd.lastpost {
-  display: block;
-  width: auto;
-  float: none;
-  padding: 18px !important;
+    Ces deux règles annulent un repli qui N'A LIEU QUE SOUS 740 px.
+    Elles s'appliquaient pourtant à TOUTES les largeurs, et avec
+    (1,4,1) elles battaient les (1,3,3) de la ligne de forum de `03`
+    sans qu'on les cherche. C'est la même cause que les deux cas de la
+    note ci-dessus — la troisième et la quatrième fois.
+
+    MESURÉ EN LIGNE AVANT CORRECTION : `dd.dterm` faisait 120 px de
+    haut et la rangée 291, pour une maquette qui dessine 92 et 136.
+    `display: block` sur la cellule du dernier message empilait la
+    vignette au-dessus du texte au lieu de les mettre côte à côte.
+
+    ET LE REMBOURRAGE EST PARTI, AVEC SON `!important`. Un `!important`
+    bat tout, quelle que soit la précision de ce qui vient après : la
+    ligne de forum de `03`, qui met le dernier message contre son
+    filet, ne pouvait pas passer. Le rembourrage est de la
+    présentation : il appartient à la feuille qui DESSINE la ligne, pas
+    à celle qui la défloate. `03` pose ses 22 px sur `dl.icon`.
+
+    Au-dessus de 740, `03` dessine donc la ligne sans personne sur son
+    chemin. */
+@media (max-width: 740px) {
+  #modernbb .modern-resp .forabg .row dd.posts,
+  #modernbb .modern-resp .forabg .row dd.topics,
+  #modernbb .modern-resp .forabg .row dd.views,
+  #modernbb .modern-resp .forumbg .row dd.posts,
+  #modernbb .modern-resp .forumbg .row dd.views {
+    display: block;
+  }
+
+  #modernbb .modern-resp .forabg .row dd.dterm,
+  #modernbb .modern-resp .forabg .row dd.lastpost,
+  #modernbb .modern-resp .forumbg .row dd.dterm,
+  #modernbb .modern-resp .forumbg .row dd.lastpost {
+    display: block;
+    width: auto;
+    float: none;
+  }
 }
 
 @media (max-width: 740px) {
@@ -95,16 +119,26 @@
     flex-wrap: wrap;
     row-gap: 0;
   }
-  #modernbb ul.topiclist dd.dterm { flex: 1 1 100%; }
+  #modernbb ul.topiclist dd.dterm {
+    flex: 1 1 100%;
+  }
   #modernbb dd.topics,
   #modernbb dd.posts,
-  #modernbb dd.views { flex: 0 0 auto; text-align: left; }
-  #modernbb dd.lastpost { flex: 1 1 100%; padding: 0 18px 18px !important; }
+  #modernbb dd.views {
+    flex: 0 0 auto;
+    text-align: left;
+  }
+  #modernbb dd.lastpost {
+    flex: 1 1 100%;
+    padding: 0 18px 18px !important;
+  }
   /* l'en-tête de colonnes n'a plus de sens empilé */
   #modernbb ul.topiclist li.header dd.topics,
   #modernbb ul.topiclist li.header dd.posts,
   #modernbb ul.topiclist li.header dd.views,
-  #modernbb ul.topiclist li.header dd.lastpost { display: none; }
+  #modernbb ul.topiclist li.header dd.lastpost {
+    display: none;
+  }
 }
 
 /* ── 3 · un message ───────────────────────────────────────────────── */
@@ -141,7 +175,10 @@
 */
 
 @media (max-width: 740px) {
-  #modernbb .postprofile { flex: 1 1 100%; width: auto; }
+  #modernbb .postprofile {
+    flex: 1 1 100%;
+    width: auto;
+  }
 }
 
 /* ── 4 · portail, widgets, pied de page ───────────────────────────── */
@@ -181,7 +218,14 @@
   align-items: flex-start;
   gap: 18px;
 }
-#modernbb table.postbody td { display: block; }
-#modernbb table.postbody td.logo { flex: 0 0 auto; }
+#modernbb table.postbody td {
+  display: block;
+}
+#modernbb table.postbody td.logo {
+  flex: 0 0 auto;
+}
 #modernbb table.postbody td.rules,
-#modernbb table.postbody td.content { flex: 1 1 auto; min-width: 0; }
+#modernbb table.postbody td.content {
+  flex: 1 1 auto;
+  min-width: 0;
+}

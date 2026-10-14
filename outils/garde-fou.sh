@@ -630,6 +630,65 @@ elif ! python3 outils/permissions-des-taches.py; then
   gronde "une tâche de test ne donne pas une permission que ses tests réclament"
 fi
 
+echo "── 20. un seul Chromium, une seule façon de l'installer ────────"
+# Le défaut du 13 octobre, et il a coûté un deuxième passage.
+#
+# Deux travaux du CI installent Chromium. Ils ne le faisaient pas
+# pareil : « Contraste des pages » par `npx`, « Navigateur » par
+# `deno run -A npm:playwright install`. La seconde a tourné SIX HEURES
+# PILE — 14:03:31 → 20:03:56, tuée par la limite de GitHub, sans une
+# ligne d'erreur. Sous Deno, l'installateur de Playwright délègue le
+# téléchargement à un processus fils qui peut rester pendu sans que le
+# parent s'en aperçoive.
+#
+# Le défaut n'est pas « Deno est mauvais ». C'est DEUX FAÇONS DE FAIRE
+# LA MÊME CHOSE, dont une seule avait déjà tourné — et c'est celle
+# qu'on n'avait jamais vue marcher qui a cassé.
+#
+# La règle vérifie aussi que la version de Playwright du CI est celle
+# que les huit harnais importent : un navigateur installé par 1.50 pour
+# un harnais qui importe 1.49.1 cherche un numéro de build absent, et
+# se plaint d'un navigateur « manquant » alors qu'il est sur le disque.
+#
+# Vérifié dans les deux sens : remise à l'ancienne commande, elle
+# nomme les deux formes.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — installation de Chromium non vérifiée"
+elif ! python3 outils/chromium-du-ci.py; then
+  gronde "le CI installe Chromium de deux façons, ou pas à la version des harnais"
+fi
+
+echo "── 21. aucune mesure jetée dans les harnais ────────────────────"
+# `deno lint` ne regarde que `src/`, `js/` et les fonctions Edge —
+# `outils/` en est dehors, et à raison : la règle
+# `explicit-function-return-type` qu'on a activée est du TypeScript, et
+# les harnais sont du JavaScript pur. Dix des onze plaintes de `deno
+# lint outils/` sont ce faux positif-là.
+#
+# La onzième ne l'était pas, et c'est pour elle que cette règle existe :
+# une variable relevée dans un `evaluate` et JAMAIS UTILISÉE. Deux
+# trouvées le 14 octobre — `notifs` dans `navigation.mjs`, `col` dans
+# `enligne.mjs`. Les deux étaient des restes, mais on ne pouvait pas le
+# savoir sans aller lire : une mesure prise et jetée, dans un harnais,
+# c'est AUSSI SOUVENT une assertion qu'on a oublié d'écrire.
+#
+# C'est exactement ce qui venait de se passer deux fois ce jour-là : le
+# harnais des catégories relevait `hauteurLigne` sans jamais la
+# comparer à une cote, et il est resté vert pendant que la ligne de
+# forum était fausse en ligne.
+#
+# D'où une seule règle, ciblée, sur tout `outils/`.
+#
+# Vérifié en le cassant : une variable inutilisée ajoutée à
+# `confort.mjs` la fait nommer, fichier et ligne.
+if ! deno lint --rules-tags= --rules-include=no-unused-vars outils/ >/tmp/wm-lint-outils 2>&1; then
+  sed 's/^/   /' /tmp/wm-lint-outils
+  gronde "un harnais relève une mesure qu'il n'utilise pas — assertion oubliée ou code mort"
+else
+  echo "   harnais : $(ls outils/*.mjs | wc -l | tr -d ' ') fichiers, aucune mesure jetée"
+fi
+rm -f /tmp/wm-lint-outils
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

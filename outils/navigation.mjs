@@ -54,16 +54,38 @@ const SOURCES = [
   `https://raw.githubusercontent.com/Lostmindy/switcheroo-fork/${SHA}`,
   `https://cdn.jsdelivr.net/gh/Lostmindy/switcheroo-fork@${SHA}`,
 ];
+//  UN DÉLAI DE GARDE, ET IL EST LÀ POUR UNE RAISON PAYÉE.
+//
+//  Le 13 octobre, l'étape « Chromium pour le harnais » du CI est restée
+//  SIX HEURES PILE sur un téléchargement, jusqu'à la limite de GitHub,
+//  sans une ligne d'erreur. Ce `fetch`-ci était de la même famille :
+//  aucun délai, deux miroirs, et un miroir qui répond lentement sans
+//  jamais fermer bloquait le harnais pour toujours.
+//
+//  Quinze secondes par source, deux sources, deux fichiers : au pire une
+//  minute avant d'échouer en le DISANT. Un échec nommé coûte une minute ;
+//  un blocage silencieux a coûté deux passages.
+const DELAI_MS = 15_000;
+
 const switcheroo = {};
 for (const f of ["monomer.js", "switcheroo.js"]) {
   for (const base of SOURCES) {
     try {
-      const r = await fetch(`${base}/${f}`);
+      const r = await fetch(`${base}/${f}`, { signal: AbortSignal.timeout(DELAI_MS) });
       if (r.ok) {
         switcheroo[f] = await r.text();
         break;
       }
-    } catch { /* source suivante */ }
+      console.error(`   ${base}/${f} : ${r.status}`);
+    } catch (e) {
+      //  ON DIT POURQUOI. La version muette de cette boucle passait à la
+      //  source suivante sans un mot : quand les deux tombaient, on
+      //  n'avait que « injoignable » et rien pour savoir si c'était un
+      //  404, un délai ou le réseau.
+      console.error(
+        `   ${base}/${f} : ${e.name === "TimeoutError" ? "délai dépassé" : e.message}`,
+      );
+    }
   }
   if (switcheroo[f] === undefined) {
     console.error(`outils/navigation.mjs : ${f} injoignable à ${SHA}.`);
@@ -1095,10 +1117,6 @@ dire(
 );
 
 //  8 · les notifications : le compteur a été lu AVANT la réécriture
-const notifs = await p.evaluate(() => {
-  const n = document.querySelector(".wm-notifs");
-  return n === null ? null : n.textContent.replace(/\s+/g, " ").trim();
-});
 //  L'encart flottant n'est plus posé quand la cloche est là : c'est
 //  vérifié plus haut, au 6 ter. Ce qui reste vrai, c'est que le compteur
 //  est lu AVANT la réécriture de la barre — on le voit dans le lien
