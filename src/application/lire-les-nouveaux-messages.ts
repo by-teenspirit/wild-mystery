@@ -56,7 +56,7 @@ import { fossileDeLaFouille } from "../domaine/fossile.ts";
 import { fouiller } from "../domaine/fouille.ts";
 import { lieuDepuisLaCle } from "../domaine/lieu.ts";
 import { conditionDuLieu, estLaNuit, tempsDuJour } from "../domaine/meteo.ts";
-import { tirerUneRencontre } from "../domaine/rencontre.ts";
+import { tirerUneRencontre, tirerUnLieu } from "../domaine/rencontre.ts";
 import type {
   ActionLue,
   EtatDuJeu,
@@ -247,14 +247,33 @@ export class LireLesNouveauxMessages {
       return null;
     }
 
-    //  Le joueur a cliqué sur un lieu ; on vérifie qu'il appartient bien à
-    //  CETTE zone. Sans ce contrôle, un bloc recopié d'un autre sujet
-    //  ferait tirer dans la table d'ailleurs.
     const lieux = await this.faune.lieuxDe(zone.forumId);
-    const lieu = lieuDepuisLaCle(action.lieu, lieux);
+
+    //  ── LE LIEU EST TIRÉ, PLUS CHOISI ────────────────────────────────
+    //
+    //  Décidé le 15 octobre par Callista, en montrant le menu « Où » de
+    //  la barre : « on est déjà dans une zone sauvage, avec un palier,
+    //  donc y'a pas d'autres zones à rajouter. »
+    //
+    //  Les tables, elles, vivent toujours par lieu — Magicarpe est à
+    //  10 % à l'Étang Vaseux et absent de la Tourbière. On garde donc la
+    //  structure et on tire le lieu, avec la graine du message : le
+    //  résultat reste rejouable à l'identique.
+    //
+    //  ET ON CONTINUE D'HONORER UN LIEU ÉCRIT À LA MAIN. Des messages en
+    //  portent un, postés avant ce changement. Le contrôle
+    //  d'appartenance à la zone reste donc entier pour eux : sans lui, un
+    //  bloc recopié d'un autre sujet ferait tirer dans la table
+    //  d'ailleurs.
+    const lieu = action.lieu === undefined
+      ? tirerUnLieu(lieux, String(lue.messageId))
+      : lieuDepuisLaCle(action.lieu, lieux);
+
     if (lieu === null) {
       erreurs.push(
-        `message ${lue.messageId} : « ${action.lieu} » n'est pas un lieu de ${zone.nom}`,
+        action.lieu === undefined
+          ? `message ${lue.messageId} : ${zone.nom} n'a aucun lieu où tirer`
+          : `message ${lue.messageId} : « ${action.lieu} » n'est pas un lieu de ${zone.nom}`,
       );
       return null;
     }
@@ -277,7 +296,7 @@ export class LireLesNouveauxMessages {
     //  même message donneraient deux tirages différents. Ça n'arrive pas
     //  aujourd'hui — une action par message — mais la graine n'a pas à
     //  dépendre de cette règle-là pour être juste.
-    const rencontre = tirerUneRencontre(table, `${lue.messageId}|${action.lieu}`);
+    const rencontre = tirerUneRencontre(table, `${lue.messageId}|${lieu}`);
     return { type: "croise", especeId: rencontre.especeId };
   }
 }

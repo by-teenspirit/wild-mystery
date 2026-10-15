@@ -15,14 +15,35 @@ Deno.test("ce que le bouton écrit, le serveur le relit", () => {
   assertEquals([...VERBES].sort(), ["chercher", "fouiller"]);
 });
 
-Deno.test("« chercher » sans lieu ne dit pas où : on ne devine pas", () => {
-  // Une zone a quinze lieux. Tirer une rencontre sans savoir lequel,
-  // c'est choisir à la place du joueur.
-  assertEquals(actionDe("[[WM-ACTION:chercher]]"), null);
-  // …et le bloc suivant, lui, est bien lu.
+Deno.test("« CHERCHER » SANS LIEU EST LA FORME NORMALE", () => {
+  // CE TEST DISAIT L'INVERSE JUSQU'AU 15 OCTOBRE : « on ne devine pas ».
+  // Il encodait une décision, et la décision a changé — Callista :
+  // « on est déjà dans une zone sauvage, avec un palier, donc y'a pas
+  // d'autres zones à rajouter. » Le joueur ne choisit plus de lieu ;
+  // c'est le serveur qui le tire, avec la graine du message.
+  //
+  // Le raisonnement d'avant n'était pas faux : il FAUT savoir où. Mais
+  // ce n'est pas au joueur de le dire, et c'est ce glissement qui avait
+  // mis un menu déroulant dans la barre d'actions.
+  assertEquals(actionDe("[[WM-ACTION:chercher]]"), { type: "chercher" });
+  // Et c'est bien ce que le bouton écrit maintenant.
+  assertEquals(ecrireUneAction({ type: "chercher" }), "[[WM-ACTION:chercher]]");
+});
+
+Deno.test("UN LIEU ÉCRIT À LA MAIN EST ENCORE LU", () => {
+  // La compatibilité, et elle n'est pas théorique : un message portant
+  // `[[WM-ACTION:chercher:etang-vaseux]]` est posté sur `t976` depuis le
+  // 3 octobre. **Un message posté ne change pas de sens parce qu'on a
+  // changé le bouton.**
+  assertEquals(actionDe("[[WM-ACTION:chercher:etang-vaseux]]"), {
+    type: "chercher",
+    lieu: "etang-vaseux",
+  });
+  // Les deux formes cohabitent dans un même texte, et la PREMIÈRE
+  // l'emporte — une seule action par message, règle inchangée.
   assertEquals(
-    actionDe(`[[WM-ACTION:chercher]] ${ecrireUneAction(FOUILLER)}`),
-    FOUILLER,
+    actionDe("[[WM-ACTION:chercher:berge-est]] puis [[WM-ACTION:chercher]]"),
+    { type: "chercher", lieu: "berge-est" },
   );
 });
 

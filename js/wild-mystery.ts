@@ -120,10 +120,12 @@ async function poserLaBarre(): Promise<void> {
   const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
   if (zone === null) return;
 
-  //  Sept zones n'ont pas encore de table : la barre se pose quand même,
-  //  sans la rangée « chercher ». Fouiller et clôturer y marchent.
-  const lieux = await catalogue.lieuxDe(zone.forumId);
-  new BarreDActions(document, brouillon, lieux).poser(formulaire);
+  //  LA BARRE N'A PLUS BESOIN DES LIEUX, depuis le 15 octobre : le menu
+  //  « Où » est parti et c'est le serveur qui tire le lieu. Un
+  //  aller-retour réseau de moins au chargement d'un sujet de zone — le
+  //  fichier de faune pèse de 7 à 28 Ko selon la zone, et la barre
+  //  l'attendait avant de se poser.
+  new BarreDActions(document, brouillon).poser(formulaire);
 }
 
 /** La configuration Supabase servie dans `data/` : l'URL et la clé

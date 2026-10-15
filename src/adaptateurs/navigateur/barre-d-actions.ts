@@ -9,13 +9,28 @@
 //  QUE DU DOM. Ce qu'un clic fait au texte est décidé dans
 //  `src/navigateur/redaction.ts`, où c'est testé sans navigateur.
 //
-//  TROIS CHOIX : « Chercher un Pokémon », « Fouiller la zone » et
-//  « Clôturer le sujet ».
+//  TROIS CHOIX, ET TROIS BOUTONS : « Faire apparaître un Pokémon »,
+//  « Fouiller la zone » et « Clôturer le sujet ».
 //
-//  LE PREMIER A UN MENU, et c'est ce qui le distingue : une zone a une
-//  quinzaine de lieux, et le serveur refuse un lieu qui n'est pas de la
-//  zone (voir `LireLesNouveauxMessages`). Le joueur ne tape donc pas un
-//  nom, il le choisit — la clé écrite dans le bloc est forcément valable.
+//  ── LE MENU « OÙ » EST PARTI, LE 15 OCTOBRE ─────────────────────────
+//
+//  Il y avait une rangée de plus : une étiquette « Où », un menu des
+//  quinze lieux de la zone, et un bouton qui reprenait le lieu
+//  sélectionné. Callista, en montrant la barre sur `t996` : « on est
+//  déjà dans une zone sauvage, avec un palier (fleuve paisible etc.),
+//  donc y'a pas d'autres zones à rajouter. »
+//
+//  ET C'ÉTAIT AUSSI UN PIÈGE. Changer de lieu dans le menu ne touchait
+//  pas au message — c'était écrit en commentaire comme une intention,
+//  « le joueur reste maître de ce qu'il écrit ». Mais un menu ressemble
+//  à l'action : elle a déroulé, choisi, et rien ne s'est passé. Un
+//  contrôle qui a l'air d'agir et qui n'agit pas est un défaut, quelle
+//  que soit la bonne raison derrière.
+//
+//  Le lieu n'a pas disparu pour autant : les tables de rencontre vivent
+//  par lieu, et c'est le SERVEUR qui en tire un, avec la graine du
+//  message — voir `tirerUnLieu` dans `domaine/rencontre.ts`. Le joueur
+//  ne le choisit plus ; le bilan lui dira où ça s'est passé.
 //
 //  **La barre ne se pose que dans les dix-sept zones sauvages**, règle 4
 //  de la planche 45. Ailleurs, la relève ne lit rien : un bouton y
@@ -32,13 +47,7 @@
 
 import { basculer, basculerLaCloture, clotureDemandee } from "../../navigateur/redaction.ts";
 import { actionDe } from "../../domaine/action.ts";
-import type { LieuChoisissable } from "../../navigateur/zone.ts";
 import type { Brouillon } from "./editeur.ts";
-
-/** La clé interne du bouton de recherche dans la table des boutons. Son
- *  libellé change avec le lieu choisi, donc il ne peut pas servir de clé
- *  comme pour les deux autres. */
-const CHERCHER = "chercher";
 
 type Choix = {
   readonly libelle: string;
@@ -47,25 +56,20 @@ type Choix = {
   readonly estPose: (texte: string) => boolean;
 };
 
-/** « Chercher un Pokémon », un choix par lieu de la zone.
- *
- *  Un bouton par lieu ferait quinze boutons ; un menu déroulant et un
- *  bouton font deux éléments, et le menu dit lesquels existent. Le
- *  bouton reprend donc le lieu SÉLECTIONNÉ au moment du clic. */
-function chercherDans(lieu: LieuChoisissable): Choix {
-  const action = { type: "chercher", lieu: lieu.cle } as const;
-  return {
-    libelle: `Chercher à ${lieu.nom}`,
-    forme: "cerclee",
-    pose: (t) => basculer(t, action),
-    estPose: (t) => {
-      const a = actionDe(t);
-      return a?.type === "chercher" && a.lieu === lieu.cle;
-    },
-  };
-}
-
 const CHOIX: readonly Choix[] = [
+  {
+    //  LES MOTS SONT CEUX DE CALLISTA : « soit je fais rien, soit je
+    //  fouille la zone, soit je fais apparaître un pokémon ». Le libellé
+    //  disait « Chercher », et elle a demandé ce que ça voulait dire —
+    //  un bouton qu'il faut expliquer est mal nommé.
+    libelle: "Faire apparaître un Pokémon",
+    forme: "cerclee",
+    pose: (t) => basculer(t, { type: "chercher" }),
+    //  `estPose` accepte les DEUX formes : un message déjà posté peut
+    //  porter un lieu écrit à la main, et le bouton doit se montrer
+    //  enfoncé pour celui-là aussi.
+    estPose: (t) => actionDe(t)?.type === "chercher",
+  },
   {
     libelle: "Fouiller la zone",
     forme: "pleine",
@@ -83,24 +87,11 @@ const CHOIX: readonly Choix[] = [
 export class BarreDActions {
   readonly #doc: Document;
   readonly #brouillon: Brouillon;
-  readonly #lieux: readonly LieuChoisissable[];
   readonly #boutons = new Map<string, HTMLButtonElement>();
-  #menu: HTMLSelectElement | null = null;
 
-  /** `lieux` peut être vide : sept zones n'ont pas encore de table de
-   *  faune, et le fichier peut aussi n'avoir pas été servi. Dans ce cas
-   *  la rangée « chercher » ne s'affiche pas — plutôt qu'un menu vide. */
-  constructor(doc: Document, brouillon: Brouillon, lieux: readonly LieuChoisissable[] = []) {
+  constructor(doc: Document, brouillon: Brouillon) {
     this.#doc = doc;
     this.#brouillon = brouillon;
-    this.#lieux = lieux;
-  }
-
-  /** Le lieu choisi dans le menu, ou le premier de la liste. */
-  #lieuChoisi(): LieuChoisissable | null {
-    if (this.#lieux.length === 0) return null;
-    const cle = this.#menu?.value;
-    return this.#lieux.find((l) => l.cle === cle) ?? this.#lieux[0];
   }
 
   /** Reflète l'état du texte sur les boutons. Appelé après chaque clic ET
@@ -108,18 +99,6 @@ export class BarreDActions {
    *  barre doit le suivre plutôt que de mentir. */
   #rafraichir(): void {
     const texte = this.#brouillon.lire();
-
-    //  « Chercher » se marque sur le lieu DU MENU : si le joueur a posé
-    //  « Berge Est » puis déroule vers « Marais », le bouton s'éteint —
-    //  il poserait autre chose, il ne doit pas se dire posé.
-    const bouton = this.#boutons.get(CHERCHER);
-    const lieu = this.#lieuChoisi();
-    if (bouton && lieu) {
-      const pose = chercherDans(lieu).estPose(texte);
-      bouton.classList.toggle("wm-barre__bouton--pose", pose);
-      bouton.setAttribute("aria-pressed", String(pose));
-      bouton.textContent = `Chercher à ${lieu.nom}`;
-    }
 
     for (const choix of CHOIX) {
       const bouton = this.#boutons.get(choix.libelle);
@@ -139,8 +118,6 @@ export class BarreDActions {
     entete.className = "wm-barre__entete";
     entete.textContent = "Ton tour";
     barre.appendChild(entete);
-
-    if (this.#lieux.length > 0) barre.appendChild(this.#rangeeDeRecherche());
 
     const rangee = this.#doc.createElement("div");
     rangee.className = "wm-barre__rangee";
@@ -169,51 +146,5 @@ export class BarreDActions {
     this.#brouillon.surChangement(() => this.#rafraichir());
     this.#rafraichir();
     return barre;
-  }
-
-  /** Le menu des lieux et son bouton, sur une rangée à eux. */
-  #rangeeDeRecherche(): HTMLElement {
-    const rangee = this.#doc.createElement("div");
-    rangee.className = "wm-barre__rangee wm-barre__rangee--lieu";
-
-    //  Une vraie étiquette, liée au menu : sans elle, un lecteur d'écran
-    //  annonce « liste » et rien d'autre.
-    const etiquette = this.#doc.createElement("label");
-    etiquette.className = "wm-barre__etiquette";
-    etiquette.htmlFor = "wm-lieu";
-    etiquette.textContent = "Où";
-    rangee.appendChild(etiquette);
-
-    const menu = this.#doc.createElement("select");
-    menu.id = "wm-lieu";
-    menu.className = "wm-barre__menu";
-    for (const lieu of this.#lieux) {
-      const option = this.#doc.createElement("option");
-      option.value = lieu.cle;
-      option.textContent = lieu.nom;
-      menu.appendChild(option);
-    }
-    //  Changer de lieu ne touche PAS au message : ça ne fait que changer
-    //  ce que le bouton poserait. Le joueur reste maître de ce qu'il
-    //  écrit — rien ne part sans un clic.
-    menu.addEventListener("change", () => this.#rafraichir());
-    this.#menu = menu;
-    rangee.appendChild(menu);
-
-    const bouton = this.#doc.createElement("button");
-    bouton.type = "button";
-    bouton.className = "wm-barre__bouton wm-barre__bouton--cerclee";
-    bouton.setAttribute("aria-pressed", "false");
-    bouton.textContent = "Chercher";
-    bouton.addEventListener("click", () => {
-      const lieu = this.#lieuChoisi();
-      if (lieu === null) return;
-      this.#brouillon.ecrire(chercherDans(lieu).pose(this.#brouillon.lire()));
-      this.#rafraichir();
-    });
-    this.#boutons.set(CHERCHER, bouton);
-    rangee.appendChild(bouton);
-
-    return rangee;
   }
 }

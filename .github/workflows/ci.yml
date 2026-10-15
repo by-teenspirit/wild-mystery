@@ -163,6 +163,16 @@ jobs:
           # `boutique_servir` peut a nouveau lever au lieu de rendre
           # « deja servie », et la releve boucle sur un message deja servi.
           grep -q "concurrence · " /tmp/contrat.txt
+          # Le carnet, ajoute le 15 octobre. Ses onze cas eprouvent la SEULE
+          # fonction du depot ouverte a `anon` : `carnet()`. Quatre d entre
+          # eux ne testent pas une fonctionnalite mais une propriete — la
+          # cle ne fuit pas dans la reponse, les trois mauvais usages
+          # donnent le MEME refus (sinon la fonction dit si une cle
+          # existe), `anon` ne peut appeler qu elle, et renouveler une cle
+          # invalide l ancienne. Une exception a une regle de fermeture
+          # doit etre eprouvee plus que la regle ; se sauter en silence
+          # serait exactement le defaut qu on cherche a eviter.
+          grep -q "carnet réel · " /tmp/contrat.txt
           ! grep -q "IGNORÉ faute de base" /tmp/contrat.txt
       - name: Aucun test de contrat encore écrit
         if: hashFiles('src/contrat/**/*.ts') == ''
