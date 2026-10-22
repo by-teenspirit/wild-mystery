@@ -12,8 +12,7 @@ import { demandeLaCloture } from "../adaptateurs/forumactif/demandes.ts";
 import { actionDe } from "../domaine/action.ts";
 
 const FOUILLER = { type: "fouiller" } as const;
-const CHERCHER = { type: "chercher", lieu: "berge-est" } as const;
-const AILLEURS = { type: "chercher", lieu: "meandres" } as const;
+const CHERCHER = { type: "chercher" } as const;
 
 Deno.test("le bloc se pose en fin de message, après une ligne vide", () => {
   assertEquals(
@@ -56,11 +55,16 @@ Deno.test("cliquer un autre bouton bascule vers lui", () => {
   assertEquals(actionDe(autre), FOUILLER);
 });
 
-Deno.test("deux lieux différents sont deux actions différentes", () => {
-  // Recliquer « Berge Est » annule ; cliquer « Méandres » déplace.
-  const berge = basculer("Texte.", CHERCHER);
-  assertEquals(actionDe(basculer(berge, AILLEURS)), AILLEURS);
-  assertEquals(basculer(berge, CHERCHER), "Texte.");
+Deno.test("IL N'Y A PLUS QUE DEUX ACTIONS, ET ELLES S'EXCLUENT", () => {
+  // CE TEST EN VÉRIFIAIT TROIS JUSQU'AU 15 OCTOBRE : « chercher à Berge
+  // Est » et « chercher aux Méandres » étaient deux actions différentes,
+  // et recliquer la première annulait quand cliquer la seconde déplaçait.
+  // Les lieux ont disparu — « enlève tous les petits lieux » —, donc
+  // « chercher » est une action et une seule.
+  const pose = basculer("Texte.", CHERCHER);
+  assertEquals(actionDe(pose), CHERCHER);
+  assertEquals(basculer(pose, CHERCHER), "Texte.");
+  assertEquals(actionDe(basculer(pose, FOUILLER)), FOUILLER);
 });
 
 // ── le texte du joueur ──────────────────────────────────────────────

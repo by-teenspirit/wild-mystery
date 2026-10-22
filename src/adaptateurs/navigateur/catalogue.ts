@@ -2,9 +2,12 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/catalogue.ts
 //
-//  Les deux fichiers de données dont la barre a besoin : la liste des
-//  zones, et les lieux d'une zone. Les mêmes que le serveur lit — il n'y
+//  Les fichiers de données que le navigateur lit : la liste des zones,
+//  et l'index des noms d'espèce. Les mêmes que le serveur lit — il n'y
 //  a qu'une source, et c'est le dépôt.
+//
+//  Il en lisait un troisième jusqu'au 15 octobre — `faune/<forumId>.json`,
+//  pour le menu des lieux. Voir plus bas.
 //
 //  ── LA RACINE SE DÉDUIT, ELLE NE SE CODE PAS ─────────────────────────
 //
@@ -24,17 +27,11 @@
 //  marqueurs et tout le reste qui tombent.
 // ════════════════════════════════════════════════════════════════════
 
-import {
-  type LieuChoisissable,
-  lieuxDepuis,
-  type ZoneDuNavigateur,
-  zonesDepuis,
-} from "../../navigateur/zone.ts";
+import { type ZoneDuNavigateur, zonesDepuis } from "../../navigateur/zone.ts";
 
 /** Ce dont la barre a besoin pour se poser. */
 export interface Catalogue {
   zones(): Promise<readonly ZoneDuNavigateur[]>;
-  lieuxDe(forumId: number): Promise<readonly LieuChoisissable[]>;
   /** Le nom français d'une espèce, ou `null` si on ne le connaît pas.
    *
    *  `null` et pas « Espèce 42 » : un nom inventé dans un bilan a l'air
@@ -113,12 +110,11 @@ async function parDefaut(url: string): Promise<unknown> {
 export class CatalogueDistant implements Catalogue {
   readonly #racine: string;
   readonly #recuperer: Recuperateur;
-  //  Une page peut poser la barre et, plus tard, ouvrir un menu : on ne
-  //  retélécharge pas. La promesse est mise en cache, pas son résultat,
-  //  pour que deux appels simultanés ne fassent qu'une requête.
+  //  Deux modules peuvent demander les mêmes données sur une même page :
+  //  on ne retélécharge pas. La promesse est mise en cache, pas son
+  //  résultat, pour que deux appels simultanés ne fassent qu'une requête.
   #zones: Promise<readonly ZoneDuNavigateur[]> | null = null;
   #especes: Promise<ReadonlyMap<number, string>> | null = null;
-  readonly #lieux = new Map<number, Promise<readonly LieuChoisissable[]>>();
 
   constructor(racine: string, recuperer: Recuperateur = parDefaut) {
     this.#racine = racine;
@@ -140,13 +136,11 @@ export class CatalogueDistant implements Catalogue {
     return this.#zones;
   }
 
-  lieuxDe(forumId: number): Promise<readonly LieuChoisissable[]> {
-    const connu = this.#lieux.get(forumId);
-    if (connu !== undefined) return connu;
-    const promesse = this.#lire(`faune/${forumId}.json`).then(lieuxDepuis);
-    this.#lieux.set(forumId, promesse);
-    return promesse;
-  }
+  //  `lieuxDe` A DISPARU LE 15 OCTOBRE. Le navigateur ne lit plus du
+  //  tout `faune/<forumId>.json` : la barre d'actions n'a plus de menu à
+  //  remplir, et les tables ne concernent que le serveur. C'est un
+  //  aller-retour réseau de moins au chargement d'un sujet de zone — le
+  //  fichier pèse de 7 à 28 Ko.
 
   async nomEspece(especeId: number): Promise<string | null> {
     //  Un seul fichier pour les 444 espèces : on le prend en entier, une
@@ -157,7 +151,19 @@ export class CatalogueDistant implements Catalogue {
   }
 }
 
-/** Le forum de la page, lu dans le fil d'Ariane.
+/** Le forum de la page : son gabarit s'il le dit, son fil d'Ariane
+ *  sinon.
+ *
+ *  ── LE GABARIT LE DIT, DEPUIS LE 22 OCTOBRE ─────────────────────────
+ *
+ *  `viewforum_body` porte `{FORUM_ID}` — le gabarit d'origine s'en sert
+ *  déjà pour son menu « Plus ! ». Notre `viewforum_body.nouveau.html`
+ *  le recopie dans `data-wm-forum`, et c'est une source exacte là où le
+ *  fil d'Ariane est une lecture.
+ *
+ *  LE REPLI RESTE, ET IL SERT TOUS LES JOURS : les pages de sujet
+ *  (`viewtopic_body`) n'ont pas cet attribut, et c'est là que la barre
+ *  d'actions et le module de bilan travaillent.
  *
  *  RELEVÉ SUR LE FORUM le 3 octobre : `.sub-header-path` porte la suite
  *  des forums parents, du plus général au plus précis. **Le DERNIER est
@@ -165,6 +171,9 @@ export class CatalogueDistant implements Catalogue {
  *  Prendre le premier donnerait le forum de palier, qui n'est pas une
  *  zone, et la barre ne se poserait jamais. */
 export function forumDeLaPage(doc: Document): number | null {
+  const dit = doc.querySelector<HTMLElement>("[data-wm-forum]")?.dataset.wmForum ?? "";
+  if (/^\d+$/.test(dit)) return Number(dit);
+
   const liens = Array.from(
     doc.querySelectorAll<HTMLAnchorElement>(".sub-header-path a[href]"),
   );

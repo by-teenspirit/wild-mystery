@@ -223,52 +223,12 @@
   line-height: 1.45;
 }
 
-/* ── la rangée « chercher », avec son menu de lieux ───────────────── */
+/*  ── LE MENU « OÙ » EST PARTI, LE 15 OCTOBRE ─────────────────────
+    Il y avait une quatrième règle ici : une rangée `--lieu`, une
+    étiquette, un menu des quinze lieux. Callista, en regardant la barre
+    sur `t996` : « on est déjà dans une zone sauvage, avec un palier,
+    donc y'a pas d'autres zones à rajouter. »
 
-/*  Une zone a une quinzaine de lieux : un bouton par lieu ferait quinze
-    boutons. Un menu et un bouton en font deux, et le menu dit lesquels
-    existent — le joueur ne tape pas un nom, donc la clé écrite dans le
-    bloc est forcément valable côté serveur. */
-
-#modernbb .wm-barre__rangee--lieu {
-  align-items: center;
-  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
-}
-
-#modernbb .wm-barre__etiquette {
-  flex: none;
-  color: var(--wm-texte-doux, #6e5749);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-weight: 700;
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  text-transform: uppercase;
-}
-
-/*  `flex: 1 1 200px` et pas une largeur fixe : un nom de lieu va de
-    « Berge Est » à « Lisière de Samaragd », et une largeur choisie pour
-    l'un coupe l'autre. */
-#modernbb .wm-barre__menu {
-  flex: 1 1 200px;
-  min-width: 0;
-  min-height: var(--wm-cible-tactile, 44px);
-  padding: 10px 12px;
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-encre, #2e2018);
-
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-normal, 13.5px);
-}
-
-#modernbb .wm-barre__menu:focus-visible {
-  outline: 2px solid var(--wm-accent-primaire, #275e7a);
-  outline-offset: 2px;
-}
-
-/*  Le bouton de cette rangée ne s'étire pas comme les deux autres : il
-    suit le menu, il ne partage pas la largeur avec lui. */
-#modernbb .wm-barre__rangee--lieu .wm-barre__bouton {
-  flex: 0 0 auto;
-}
+    Les déclarations sont retirées plutôt que laissées en place : une
+    feuille qui habille un élément que plus personne ne pose fait croire,
+    à la lecture, qu'il existe encore. */

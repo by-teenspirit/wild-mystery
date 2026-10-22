@@ -29,11 +29,18 @@ Deno.test("LE VRAI FICHIER DU DÉPÔT SE LIT", async () => {
   const fossiles = await table.fossiles();
   assertEquals(fossiles.length, 11);
   assertEquals(fossiles[0].clef, "racine");
-  assertEquals(await table.regles(), {
-    morceauxParFossile: 3,
-    chanceDeMorceau: 0.06,
-    chanceDEntier: 0.008,
-  });
+  //  LE NOMBRE SE LIT DANS LE FICHIER, il n'est plus recopié ici. Il
+  //  l'était — avec `chanceDeMorceau: 0.06` et `chanceDEntier: 0.008` —
+  //  et le 15 octobre, quand Callista a réglé les chances à 10 % et
+  //  0,2 %, ce test est tombé en annonçant une régression qui n'existait
+  //  pas. Un test qui recopie une valeur de jeu refuse qu'elle change.
+  //
+  //  LES DEUX CHANCES NE SONT PLUS LUES ICI DU TOUT : elles sont parties
+  //  dans la table de butin, avec les autres parts d'une fouille. Le
+  //  fichier les porte toujours — c'est là qu'on les règle — et c'est
+  //  `outils/butin.py` qui les y lit.
+  const brut = JSON.parse(VRAI) as Record<string, number>;
+  assertEquals(await table.regles(), { morceauxParFossile: brut.morceauxParFossile });
 });
 
 Deno.test("un JSON illisible rend une table vide, il ne lève pas", () => {

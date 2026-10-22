@@ -14,25 +14,24 @@
 //  aucun fichier, et un test qui demande `--allow-read` ici casserait la
 //  règle que la couverture fait respecter.
 //
-//  **Et qu'elle soit INDÉPENDANTE des Pokédollars.** Les deux partent du
-//  numéro du message ; si elles partageaient la suite, les grosses
-//  fouilles donneraient toujours des fossiles, ou jamais.
+//  **Et que l'ESPÈCE soit indépendante de la tranche tirée.** C'est
+//  `fouille.ts` qui décide s'il y a un fossile, depuis le 15 octobre ;
+//  ici on ne choisit plus que lequel des onze. Les deux partent du
+//  numéro du message : si elles partageaient la suite, les fossiles
+//  entiers et les morceaux ne seraient jamais les mêmes espèces.
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals } from "@std/assert";
 import {
   assembler,
-  fossileDeLaFouille,
   fossilesDepuis,
+  quelFossile,
   REGLES_PAR_DEFAUT,
   reglesDepuis,
 } from "./fossile.ts";
-import { fouiller } from "./fouille.ts";
 
 const TABLE = {
   morceauxParFossile: 3,
-  chanceDeMorceau: 0.06,
-  chanceDEntier: 0.008,
   fossiles: [
     {
       clef: "racine",
@@ -134,21 +133,21 @@ Deno.test("une table illisible rend une liste vide, elle ne lève pas", () => {
 // ── les réglages ────────────────────────────────────────────────────
 
 Deno.test("les réglages se lisent avec la table", () => {
-  assertEquals(reglesDepuis(TABLE), {
-    morceauxParFossile: 3,
-    chanceDeMorceau: 0.06,
-    chanceDEntier: 0.008,
-  });
+  //  IL Y EN AVAIT TROIS JUSQU'AU 15 OCTOBRE. `chanceDeMorceau` et
+  //  `chanceDEntier` sont parties dans la table de butin, où elles se
+  //  lisent contre les autres parts d'une fouille. `data/fossiles.json`
+  //  les porte toujours — c'est là qu'on les règle — mais c'est
+  //  `outils/butin.py` qui les y lit, pas ce code.
+  assertEquals(reglesDepuis(TABLE), { morceauxParFossile: 3 });
 });
 
-Deno.test("UNE CHANCE DE 0 OU DE 1 EST REFUSÉE", () => {
-  //  Zéro éteindrait la trouvaille en silence, un la rendrait certaine.
-  //  Les deux sont plus probablement une faute de frappe qu'une
-  //  intention.
-  const r = reglesDepuis({ chanceDeMorceau: 0, chanceDEntier: 1, morceauxParFossile: 1 });
-  assertEquals(r.chanceDeMorceau, REGLES_PAR_DEFAUT.chanceDeMorceau);
-  assertEquals(r.chanceDEntier, REGLES_PAR_DEFAUT.chanceDEntier);
-  assertEquals(r.morceauxParFossile, 3, "« un morceau par fossile » n'a pas de sens");
+Deno.test("« UN MORCEAU PAR FOSSILE » N'A PAS DE SENS", () => {
+  //  Ça voudrait dire qu'il n'y a pas de morceaux du tout : un morceau
+  //  ramassé serait aussitôt un fossile entier, et l'assemblage
+  //  n'existerait plus.
+  assertEquals(reglesDepuis({ morceauxParFossile: 1 }).morceauxParFossile, 3);
+  assertEquals(reglesDepuis({ morceauxParFossile: 0 }).morceauxParFossile, 3);
+  assertEquals(reglesDepuis({ morceauxParFossile: 5 }).morceauxParFossile, 5);
 });
 
 Deno.test("des réglages absents rendent ceux par défaut", () => {
@@ -156,46 +155,20 @@ Deno.test("des réglages absents rendent ceux par défaut", () => {
   assertEquals(reglesDepuis({}), REGLES_PAR_DEFAUT);
 });
 
-// ── le tirage ───────────────────────────────────────────────────────
+// ── le tirage de l'espèce ───────────────────────────────────────────
 
-Deno.test("MÊME MESSAGE, MÊME TROUVAILLE", () => {
+Deno.test("MÊME MESSAGE, MÊME FOSSILE", () => {
   for (const g of [1, 977, 123456]) {
-    assertEquals(fossileDeLaFouille(g, TROIS), fossileDeLaFouille(g, TROIS));
+    assertEquals(quelFossile(g, TROIS, true), quelFossile(g, TROIS, true));
+    assertEquals(quelFossile(g, TROIS, false), quelFossile(g, TROIS, false));
   }
 });
 
 Deno.test("sans table, on ne trouve rien — et ça ne lève pas", () => {
-  assertEquals(fossileDeLaFouille(42, []), null);
-});
-
-Deno.test("bredouille est le cas NORMAL", () => {
-  let trouves = 0;
-  for (let g = 0; g < 2000; g++) if (fossileDeLaFouille(g, TROIS) !== null) trouves++;
-  //  6,8 % attendus sur 2000 tirages : on borne large, le test protège
-  //  l'ordre de grandeur, pas la décimale.
-  assert(trouves > 60 && trouves < 220, `${trouves} trouvailles sur 2000`);
-});
-
-Deno.test("l'entier est bien plus rare que le morceau", () => {
-  let entiers = 0, morceaux = 0;
-  for (let g = 0; g < 20000; g++) {
-    const t = fossileDeLaFouille(g, TROIS);
-    if (t?.genre === "entier") entiers++;
-    if (t?.genre === "morceau") morceaux++;
-  }
-  assert(entiers > 0, "jamais d'entier : la borne est inatteignable");
-  assert(morceaux > entiers * 3, `${morceaux} morceaux pour ${entiers} entiers`);
-});
-
-Deno.test("L'ENTIER RESTE ATTEIGNABLE QUAND LE MORCEAU EST PLUS PROBABLE", () => {
-  //  C'est le piège de l'ordre des bornes : tirer le morceau d'abord
-  //  rendrait l'entier impossible dès que sa chance est la plus petite.
-  const regles = { morceauxParFossile: 3, chanceDeMorceau: 0.5, chanceDEntier: 0.1 };
-  let entiers = 0;
-  for (let g = 0; g < 500; g++) {
-    if (fossileDeLaFouille(g, TROIS, regles)?.genre === "entier") entiers++;
-  }
-  assert(entiers > 20, `${entiers} entiers sur 500`);
+  //  Le fichier des fossiles peut être injoignable : la fouille a dit
+  //  « fossile », il n'y en a aucun à donner, et la relève continue.
+  assertEquals(quelFossile(42, [], true), null);
+  assertEquals(quelFossile(42, [], false), null);
 });
 
 Deno.test("LE GENRE DIT QUEL OBJET ENTRE DANS LE SAC", () => {
@@ -203,13 +176,11 @@ Deno.test("LE GENRE DIT QUEL OBJET ENTRE DANS LE SAC", () => {
   //  et un `objetId` qu'on assemble ailleurs peuvent se contredire, et
   //  personne ne s'en apercevrait avant qu'un joueur ait un morceau
   //  dans son sac à la place d'un fossile.
-  let entier = null, morceau = null;
-  for (let g = 0; g < 20000 && (entier === null || morceau === null); g++) {
-    const t = fossileDeLaFouille(g, TROIS);
-    if (t?.genre === "entier") entier ??= t;
-    if (t?.genre === "morceau") morceau ??= t;
-  }
-  assert(entier !== null && morceau !== null, "les deux genres doivent sortir");
+  const entier = quelFossile(7, TROIS, true);
+  const morceau = quelFossile(7, TROIS, false);
+  assert(entier !== null && morceau !== null);
+  assertEquals(entier.genre, "entier");
+  assertEquals(morceau.genre, "morceau");
   assertEquals(entier.objetId, entier.fossile.id, "un entier met LE FOSSILE dans le sac");
   assertEquals(
     morceau.objetId,
@@ -219,28 +190,36 @@ Deno.test("LE GENRE DIT QUEL OBJET ENTRE DANS LE SAC", () => {
   assert(entier.fossile.id !== entier.fossile.morceauId, "et les deux ne sont jamais le même");
 });
 
+Deno.test("l'espèce ne dépend PAS du genre", () => {
+  //  Même message, même espèce, qu'on ait tiré un entier ou un morceau.
+  //  Sinon les joueurs apprendraient qu'un morceau de Ptéra annonce un
+  //  Ptéra entier — une corrélation que personne n'a décidée.
+  for (const g of [1, 2, 3, 500, 9999]) {
+    assertEquals(
+      quelFossile(g, TROIS, true)?.fossile.clef,
+      quelFossile(g, TROIS, false)?.fossile.clef,
+    );
+  }
+});
+
 Deno.test("toutes les espèces de la table sortent", () => {
   const vues = new Set<string>();
-  for (let g = 0; g < 20000; g++) {
-    const t = fossileDeLaFouille(g, TROIS);
+  for (let g = 0; g < 2000; g++) {
+    const t = quelFossile(g, TROIS, false);
     if (t !== null) vues.add(t.fossile.clef);
   }
   assertEquals([...vues].sort(), ["ambre", "dome", "racine"]);
 });
 
-Deno.test("LE FOSSILE NE SUIT PAS LES POKÉDOLLARS", () => {
-  //  Les deux partent du numéro du message. S'ils partageaient la
-  //  suite, les grosses fouilles donneraient toujours des fossiles — ou
-  //  jamais. On vérifie qu'un fossile tombe aussi bien sur une petite
-  //  fouille que sur une grosse.
-  const avec: number[] = [];
-  for (let g = 0; g < 4000; g++) {
-    if (fossileDeLaFouille(g, TROIS) !== null) avec.push(fouiller(g, 2).pokedollars);
-  }
-  assert(avec.length > 100, `trop peu de cas : ${avec.length}`);
-  assert(avec.some((p) => p === 0), "jamais sur une bredouille");
-  assert(avec.some((p) => p >= 100), "jamais sur une grosse fouille");
-});
+//  IL Y AVAIT UN TEST ICI : « LE FOSSILE NE SUIT PAS LES POKÉDOLLARS ».
+//  Il vérifiait qu'un fossile tombe aussi bien sur une bredouille que
+//  sur une grosse fouille, parce que les deux tirages étaient
+//  indépendants. Depuis le 15 octobre ils ne peuvent plus l'être : une
+//  fouille rend UNE chose, donc un fossile EXCLUT les Pokédollars. La
+//  garantie qu'il protégeait — pas de corrélation cachée — est
+//  maintenant celle du test ci-dessus, « l'espèce ne dépend PAS du
+//  genre », et celle de `fouille.test.ts`, « une fouille ne rend qu'une
+//  chose ».
 
 // ── l'assemblage ────────────────────────────────────────────────────
 

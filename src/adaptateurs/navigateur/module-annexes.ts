@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-annexes.ts
 //
+//  COUVERT PAR : outils/contraste.mjs — le sommaire posé sur chaque page collée, dans les deux thèmes.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  Le sommaire des annexes, posé dans le trou que la page lui laisse.
 //
 //  ── CE QUE LA PAGE COLLÉE CONTIENT ──────────────────────────────────

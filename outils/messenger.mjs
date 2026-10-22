@@ -399,7 +399,11 @@ dire("elle revient quand on la remplit", escamote.apres === "flex", escamote.apr
 
 // ── EN THÈME SOMBRE ────────────────────────────────────────────────
 console.log("\n── EN THÈME SOMBRE ────────────────────────────────────");
-await p.evaluate(() => document.documentElement.setAttribute("data-wm-theme", "sombre"));
+//  `body.wm-sombre`, ET PAS `data-wm-theme` : cet attribut n'est un
+//  sélecteur nulle part dans la charte. Ce harnais a donc mesuré le
+//  thème CLAIR pendant deux semaines, en annonçant le sombre — cinq
+//  rapports de contraste justes, pour le mauvais thème.
+await p.evaluate(() => document.body.classList.add("wm-sombre"));
 await p.waitForTimeout(120);
 const sombre = await p.evaluate(() => {
   const lire = (s, p) => {

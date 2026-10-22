@@ -1249,7 +1249,18 @@ html#min-width {
     capitales suivies »). Ce n'est pas un pis-aller : c'est le
     traitement, et la photo prendra sa place au même endroit, aux
     mêmes dimensions. */
-#modernbb ul.topiclist li.header dl.icon {
+/*  ── ET LA PAGE D'UNE ZONE PARTAGE CETTE BANDE ────────────────────
+
+    `templates/viewforum_body.nouveau.html` pose sa propre bande de
+    section au-dessus de la liste des sujets — la maquette `301:13` la
+    veut « identique à l'index ». Un second jeu de déclarations serait
+    deux endroits à tenir d'accord : c'est le même sélecteur qui les
+    sert, et elles ne peuvent donc pas diverger.
+
+    Ce qui la distingue — le rang, les filets, le titre — est au § 11
+    de `04`, parce que c'est son balisage à elle. */
+#modernbb ul.topiclist li.header dl.icon,
+#modernbb .wm-forum__bande {
   display: flex;
   min-height: 74px;
   align-items: center;
@@ -3210,6 +3221,293 @@ html#min-width {
   margin: var(--wm-espace-18, 18px) 0;
 }
 
+/* ── 8 · le bandeau d'une zone (maquettes 301:13 et 301:26) ───────── */
+
+/*  ── CE BANDEAU REMPLACE LA BANNIÈRE DU SITE, IL NE S'Y AJOUTE PAS ──
+
+    « Sachant que cette partie ne sert que lorsque je suis dans un lieu
+    […] sinon, on affiche le haut du forum comme d'habitude », 16
+    octobre. Donc : dans une zone, la photo de la zone ; partout
+    ailleurs, la bannière de 620 px que `02` § 9 a mise en place.
+
+    Les deux gestes — retirer la bannière, retirer le titre devenu
+    double — sont sous `#modernbb.wm-zone-posee`, une classe que
+    `module-zone.ts` ne pose QUE s'il a réussi à accrocher le bandeau.
+    Si la donnée manque ou si le JavaScript ne charge pas, la page
+    garde sa bannière et son titre : on perd l'allure, pas le haut de
+    la page. */
+#modernbb.wm-zone-posee .headerbar,
+#modernbb.wm-zone-posee h1.page-title {
+  display: none;
+}
+
+/*  300 px, comme la maquette. `overflow` caché parce que la photo est
+    plus haute que le bandeau et qu'elle est cadrée par le bas — c'est
+    là que sont les crêtes. */
+#modernbb .wm-zone {
+  position: relative;
+  overflow: hidden;
+  height: 300px;
+  /*  LA COULEUR PLEINE EN DESSOUS, et pour la même raison qu'au § 2 de
+      `03` : le harnais de contraste lit une couleur de fond, pas une
+      photo. Sans elle, il annoncerait « crème sur crème » pour un
+      titre qui est en fait crème sur une photo sombre. Elle sert aussi
+      le temps que l'image arrive, et le jour où elle n'arrive pas. */
+  background-color: var(--wm-fond-nuit, #3a2a22);
+}
+
+#modernbb .wm-zone__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /*  Le bas de l'image, pas son milieu : une photo de paysage a son
+      sujet en bas et son ciel en haut, et c'est le ciel qu'on coupe. */
+  object-position: center 65%;
+}
+
+/*  Le voile, qui fait tenir le texte blanc sur n'importe quelle photo.
+    Trois arrêts et pas deux : un dégradé droit du transparent au noir
+    assombrit le milieu autant que le bas, et la photo disparaît. */
+#modernbb .wm-zone__voile {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgb(26 18 16 / 10%) 0%,
+    rgb(26 18 16 / 40%) 42%,
+    rgb(26 18 16 / 92%) 100%
+  );
+}
+
+/*  Le fondu vers la page, 86 px en bas : c'est lui qui fait que le
+    bandeau ne se termine pas par une ligne droite. Il prend la couleur
+    de la page, donc il suit le thème sans qu'on y pense. */
+#modernbb .wm-zone__fondu {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 86px;
+  background: linear-gradient(180deg, transparent 0%, var(--wm-fond-page, #eecfb5) 100%);
+}
+
+/*  La légende : collée en bas à gauche, à 92 px du bord comme dans la
+    maquette, et au-dessus du fondu. */
+#modernbb .wm-zone__legende {
+  position: absolute;
+  bottom: 86px;
+  left: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+  max-width: min(640px, calc(100% - 184px));
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-zone__surtitre {
+  margin: 0;
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-surtitre, 1.4);
+  text-transform: none;
+}
+
+/*  Le titre est en Fraunces 40, la seule occurrence de cette taille
+    hors de la page d'accueil. Il descend à 28 sous 760 px : à 40, « Le
+    Volcan Nuageux » passait à la ligne et poussait la phrase hors du
+    bandeau. */
+#modernbb .wm-zone__titre {
+  margin: 0;
+  color: inherit;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 40px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-zone__phrase {
+  margin: 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  opacity: 0.82;
+}
+
+@media (width <= 760px) {
+  #modernbb .wm-zone {
+    height: 220px;
+  }
+
+  #modernbb .wm-zone__legende {
+    bottom: 64px;
+    left: var(--wm-espace-18, 18px);
+    max-width: calc(100% - var(--wm-espace-32, 32px));
+  }
+
+  #modernbb .wm-zone__titre {
+    font-size: 28px;
+  }
+}
+
+/* ── 9 · l'état d'un sujet, en rond ───────────────────────────────── */
+
+/*  ── POURQUOI UN ROND ET PAS L'ICÔNE DE FORUMACTIF ────────────────
+
+    La maquette remplace les dix icônes de dossier par trois ronds, et
+    le dit elle-même en légende : « ces trois états sont natifs ». On
+    ne redessine donc rien en JavaScript — `module-zone.ts` se contente
+    de LIRE l'adresse de l'icône, parce qu'elle est en style en ligne
+    et qu'aucun sélecteur ne l'atteint, et d'écrire `data-wm-etat`.
+    Tout ce qui suit est du CSS.
+
+    L'icône elle-même part : elle est posée en `background-image` sur
+    le `<dl>` par le gabarit, et le rond prend sa place exacte. */
+#modernbb ul.topics li.row[data-wm-etat] dl.icon {
+  position: relative;
+  background-image: none;
+}
+
+/*  Le rond d'icône posé par `module-categories.ts` fait doublon avec le
+    nôtre dès qu'une ligne a son état : deux ronds côte à côte, l'un
+    avec l'image de dossier, l'autre avec le glyphe. On garde le
+    nôtre — c'est lui que la maquette dessine. */
+#modernbb ul.topics li.row[data-wm-etat] dl.icon > .wm-pastille {
+  display: none;
+}
+
+#modernbb ul.topics li.row[data-wm-etat] dl.icon::before {
+  position: absolute;
+  top: var(--wm-espace-14, 14px);
+  left: var(--wm-espace-6, 6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
+#modernbb ul.topics li.row[data-wm-etat="neuf"] dl.icon::before {
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  content: "●";
+}
+
+#modernbb ul.topics li.row[data-wm-etat="lu"] dl.icon::before {
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-pale, #69564c);
+  content: "○";
+}
+
+#modernbb ul.topics li.row[data-wm-etat="verrouille"] dl.icon::before {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  content: "✕";
+}
+
+/* ── 10 · les étiquettes d'un titre de sujet ──────────────────────── */
+
+/*  ── ON NE REDESSINE PAS LA PASTILLE, ELLE EXISTE ─────────────────
+
+    `13-composants.css` § 4 porte « Libre, PV, -16, Terminé » depuis le
+    11 octobre, contrastes mesurés compris. `module-zone.ts` pose donc
+    `.wm-sujet`, `.wm-sujet--pv`, `.wm-sujet--16` et `.wm-sujet--termine`,
+    et il ne reste ici que ce qui regarde la LIGNE DE SUJET : la place
+    de l'étiquette devant le titre.
+
+    Les couleurs de la maquette `301:13` n'ont pas été reprises pour
+    autant : elle écrit les quatre en encre sombre sur un fond plein,
+    ce qui tombe à 3,3 sur le vert. La charte a tranché autrement, et
+    elle a été mesurée. */
+#modernbb ul.topics .wm-sujet {
+  flex: none;
+  margin-right: var(--wm-espace-8, 8px);
+}
+
+/*  Le conteneur du titre passe en flex pour que l'étiquette et le
+    titre tiennent sur la même ligne, l'étiquette gardant sa taille. */
+#modernbb ul.topics .topic-title-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-2, 2px) 0;
+}
+
+/* ── 11 · la bande de section, et l'en-tête de colonnes ───────────── */
+
+/*  ── DEUX RANGS, ET ILS NE SE RESSEMBLENT PAS ─────────────────────
+
+    La maquette `301:13` empile une bande SOMBRE — « 01 │ LES SUJETS »
+    — puis un rang CLAIR qui nomme les colonnes : SUJET, RÉPONSES,
+    VUES, DERNIER MESSAGE.
+
+    Sur le forum, il n'y a qu'un rang : le `li.header` du gabarit, qui
+    porte les colonnes. Et comme `03` § 2 habille TOUS les `li.header`
+    en bandeau photo de 74 px, les colonnes d'une liste de sujets
+    arrivaient en crème sur une photo sombre.
+
+    Donc : la bande sombre vient du gabarit (`.wm-forum__bande`,
+    déclarée avec celle de l'index au § 2 de `03` — une seule règle,
+    deux sélecteurs, elles ne peuvent pas diverger), et le `li.header`
+    d'une liste de sujets redevient ce que la maquette en fait, un rang
+    clair d'étiquettes. */
+#modernbb ul.topics li.header dl.icon {
+  min-height: 0;
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-20, 20px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  background-image: none;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Le rang et les filets de notre bande. Le titre, lui, est déjà
+    habillé par la règle de `03` qu'on partage. */
+#modernbb .wm-forum__rang {
+  flex: none;
+  width: 22px;
+  color: var(--wm-chiffre-sur-nuit, #d99e80);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1;
+}
+
+#modernbb .wm-forum__filet {
+  flex: 1 1 auto;
+  min-width: 1px;
+  height: 1px;
+}
+
+#modernbb .wm-forum__bande-titre {
+  flex: none;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.21em;
+}
+
+/*  La bande et la liste ne font qu'un bloc : la bande arrondit le haut,
+    le panneau garde le bas. */
+#modernbb .wm-forum__bande {
+  border-radius: var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px) 0 0;
+}
+
+#modernbb .wm-forum__section .forumbg {
+  margin-top: 0;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 05 · Un sujet
 
@@ -5137,9 +5435,15 @@ html#min-width {
   gap: var(--wm-espace-4, 4px);
 }
 
-/*  44 px de haut : c'est la taille de cible tactile qu'on tient
-    partout ailleurs (barre d'actions, bouton de clôture), et il y a
-    soixante-huit de ces boutons sur la page. */
+/*  32 px, ET LE COMMENTAIRE DISAIT 44 JUSQU'AU 16 OCTOBRE — il annonçait
+    « la taille de cible tactile qu'on tient partout ailleurs » juste
+    au-dessus d'une règle qui en donne 32. `outils/boutique.mjs` mesure
+    32, donc c'est le commentaire qui mentait.
+
+    32 est un arbitrage, et il se défend : il y a SOIXANTE-HUIT de ces
+    boutons sur la page, et 44 ferait du catalogue une colonne de
+    boutons. Le bouton « Commander », lui, garde ses 44 — il n'y en a
+    qu'un, et c'est celui qui compte. */
 #modernbb .wm-boutique__pas {
   display: inline-flex;
   align-items: center;
@@ -5470,55 +5774,15 @@ html#min-width {
   line-height: 1.45;
 }
 
-/* ── la rangée « chercher », avec son menu de lieux ───────────────── */
+/*  ── LE MENU « OÙ » EST PARTI, LE 15 OCTOBRE ─────────────────────
+    Il y avait une quatrième règle ici : une rangée `--lieu`, une
+    étiquette, un menu des quinze lieux. Callista, en regardant la barre
+    sur `t996` : « on est déjà dans une zone sauvage, avec un palier,
+    donc y'a pas d'autres zones à rajouter. »
 
-/*  Une zone a une quinzaine de lieux : un bouton par lieu ferait quinze
-    boutons. Un menu et un bouton en font deux, et le menu dit lesquels
-    existent — le joueur ne tape pas un nom, donc la clé écrite dans le
-    bloc est forcément valable côté serveur. */
-
-#modernbb .wm-barre__rangee--lieu {
-  align-items: center;
-  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
-}
-
-#modernbb .wm-barre__etiquette {
-  flex: none;
-  color: var(--wm-texte-doux, #6e5749);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-weight: 700;
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  text-transform: uppercase;
-}
-
-/*  `flex: 1 1 200px` et pas une largeur fixe : un nom de lieu va de
-    « Berge Est » à « Lisière de Samaragd », et une largeur choisie pour
-    l'un coupe l'autre. */
-#modernbb .wm-barre__menu {
-  flex: 1 1 200px;
-  min-width: 0;
-  min-height: var(--wm-cible-tactile, 44px);
-  padding: 10px 12px;
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-encre, #2e2018);
-
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-normal, 13.5px);
-}
-
-#modernbb .wm-barre__menu:focus-visible {
-  outline: 2px solid var(--wm-accent-primaire, #275e7a);
-  outline-offset: 2px;
-}
-
-/*  Le bouton de cette rangée ne s'étire pas comme les deux autres : il
-    suit le menu, il ne partage pas la largeur avec lui. */
-#modernbb .wm-barre__rangee--lieu .wm-barre__bouton {
-  flex: 0 0 auto;
-}
+    Les déclarations sont retirées plutôt que laissées en place : une
+    feuille qui habille un élément que plus personne ne pose fait croire,
+    à la lecture, qu'il existe encore. */
 
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 11 · La navigation

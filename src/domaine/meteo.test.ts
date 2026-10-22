@@ -1,5 +1,5 @@
 import { assert, assertEquals, assertFalse, assertThrows } from "@std/assert";
-import { conditionDuLieu, estLaNuit, JourInvalide, tempsDuJour } from "./meteo.ts";
+import { conditionDeLaZone, estLaNuit, JourInvalide, tempsDuJour } from "./meteo.ts";
 
 // ── le temps du jour ────────────────────────────────────────────────
 
@@ -56,38 +56,38 @@ const JOUR_NUIT = ["jour", "nuit"];
 const AVEC_PLUIE = ["jour", "nuit", "pluie"];
 
 Deno.test("par temps calme, c'est jour ou nuit, même là où il peut pleuvoir", () => {
-  assertEquals(conditionDuLieu("calme", false, AVEC_PLUIE), "jour");
-  assertEquals(conditionDuLieu("calme", true, AVEC_PLUIE), "nuit");
+  assertEquals(conditionDeLaZone("calme", false, AVEC_PLUIE), "jour");
+  assertEquals(conditionDeLaZone("calme", true, AVEC_PLUIE), "nuit");
 });
 
 Deno.test("par temps agité, la météo prime — mais seulement là où le lieu la connaît", () => {
   // C'est la règle qui sort des données : un lieu sur quinze a une table
   // de pluie. Inventer une table pour les quatorze autres serait écrire
   // une règle de jeu depuis le code.
-  assertEquals(conditionDuLieu("agité", false, AVEC_PLUIE), "pluie");
-  assertEquals(conditionDuLieu("agité", false, JOUR_NUIT), "jour");
-  assertEquals(conditionDuLieu("agité", true, JOUR_NUIT), "nuit");
+  assertEquals(conditionDeLaZone("agité", false, AVEC_PLUIE), "pluie");
+  assertEquals(conditionDeLaZone("agité", false, JOUR_NUIT), "jour");
+  assertEquals(conditionDeLaZone("agité", true, JOUR_NUIT), "nuit");
 });
 
 Deno.test("un lieu à deux météos en choisit une de façon stable", () => {
   // Les Steppes Arides portent « tempête de sable » et « soleil écrasant ».
   const steppes = ["jour", "nuit", "tempête de sable", "soleil écrasant"];
-  assertEquals(conditionDuLieu("agité", false, steppes), "tempête de sable");
-  assertEquals(conditionDuLieu("agité", true, steppes), "soleil écrasant");
+  assertEquals(conditionDeLaZone("agité", false, steppes), "tempête de sable");
+  assertEquals(conditionDeLaZone("agité", true, steppes), "soleil écrasant");
   // Stable : deux appels identiques donnent le même résultat.
   assertEquals(
-    conditionDuLieu("agité", false, steppes),
-    conditionDuLieu("agité", false, steppes),
+    conditionDeLaZone("agité", false, steppes),
+    conditionDeLaZone("agité", false, steppes),
   );
 });
 
 Deno.test("un lieu sans table de nuit se joue de jour plutôt que de rendre une page vide", () => {
-  assertEquals(conditionDuLieu("calme", true, ["jour"]), "jour");
+  assertEquals(conditionDeLaZone("calme", true, ["jour"]), "jour");
 });
 
 Deno.test("un lieu aux conditions inattendues rend quand même quelque chose", () => {
   // La donnée est validée au chargement, mais un lieu qui n'aurait que
   // « pluie » ne doit pas faire tomber la relève pour autant.
-  assertEquals(conditionDuLieu("calme", false, ["pluie"]), "pluie");
-  assertEquals(conditionDuLieu("calme", false, []), "jour");
+  assertEquals(conditionDeLaZone("calme", false, ["pluie"]), "pluie");
+  assertEquals(conditionDeLaZone("calme", false, []), "jour");
 });

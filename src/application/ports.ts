@@ -14,6 +14,7 @@
 import type { Effets, Evenement, LigneRegistre } from "../domaine/cloture.ts";
 import type { EntreeDeTable } from "../domaine/rencontre.ts";
 import type { Fossile, ReglesDeFossile } from "../domaine/fossile.ts";
+import type { LigneDeButin, TauxDeFouille } from "../domaine/fouille.ts";
 import type { Action } from "../domaine/action.ts";
 import type { LecturePanier, LignePanier } from "../domaine/panier.ts";
 
@@ -170,9 +171,6 @@ export type ZoneSauvage = {
   readonly aUneFaune: boolean;
 };
 
-/** La faune, telle que les annexes la décrivent vraiment : une zone n'a
- *  pas UNE table, elle a une quinzaine de lieux, et chaque lieu a ses
- *  tables par condition (jour, nuit, et parfois une météo). */
 /** Ce que la relève a besoin de savoir des fossiles.
  *
  *  La table vit dans `data/fossiles.json`, comme les zones et les
@@ -183,25 +181,53 @@ export type ZoneSauvage = {
  *  UNE TABLE VIDE EST UNE RÉPONSE VALIDE, pas une panne : le domaine
  *  rend alors `null` à chaque fouille, ce qui est le cas normal et de
  *  très loin le plus fréquent. */
+/** La table de butin : ce qu'une fouille donne, et avec quelles parts.
+ *
+ *  ELLE VIT DANS `data/butin.json`, comme les zones et les fossiles :
+ *  c'est de la donnée de jeu, elle change par un `git push` et pas par
+ *  un déploiement. Le fichier est écrit par `outils/butin.py`, qui dit
+ *  en en-tête ses quatre règles et d'où chacune vient, et le garde-fou
+ *  n° 23 vérifie qu'il correspond encore à ses sources.
+ *
+ *  LES TAUX SONT GLOBAUX, LA LISTE EST PAR ZONE. Les cinq parts d'une
+ *  fouille — bredouille, fossile, morceau, objet, Pokédollars — sont les
+ *  mêmes partout ; ce qui change d'une zone à l'autre, c'est QUELS
+ *  objets, et avec quel poids. */
+export interface TableDeButin {
+  taux(): Promise<TauxDeFouille>;
+  /** Les objets d'une zone. Vide pour une zone sans butin — et la part
+   *  « objet » doit alors valoir zéro, ce que le domaine vérifie. */
+  butinDe(forumId: number): Promise<readonly LigneDeButin[]>;
+}
+
 export interface TableDesFossiles {
   fossiles(): Promise<readonly Fossile[]>;
   regles(): Promise<ReglesDeFossile>;
 }
 
+/** La faune : **une table par zone et par condition.**
+ *
+ *  ── IL Y AVAIT UN NIVEAU DE PLUS, JUSQU'AU 15 OCTOBRE ───────────────
+ *
+ *  Une zone avait une quinzaine de LIEUX, et chaque lieu ses tables par
+ *  condition : 145 lieux, 298 tables, écrits à la main par Callista pour
+ *  les dix zones de la V1. Elle a tranché en regardant la barre
+ *  d'actions sur `t996` : « enlève tous les petits lieux. On a 3
+ *  paliers, 17 zones sauvages, et tu répartis le pokédex comme ça. »
+ *
+ *  La zone EST le lieu, donc, et sa table vient du Pokédex de Rhode
+ *  (planche 39). Les tables de la V1 sont gardées dans `data/faune-v1/`
+ *  — elles sont de sa main, et le découpage par lieu peut revenir. */
 export interface Faune {
   /** Les dix-sept zones sauvages. Ailleurs, rien ne se joue. */
   zonesSauvages(): Promise<readonly ZoneSauvage[]>;
-  /** Les lieux d'une zone. Vide pour une zone sans faune. */
-  lieuxDe(forumId: number): Promise<readonly string[]>;
-  /** Les conditions disponibles pour un lieu : « jour », « nuit », et
-   *  selon les lieux « orage », « blizzard », « tempête de sable »… */
-  conditionsDe(forumId: number, lieu: string): Promise<readonly string[]>;
-  /** La table d'un lieu, pour une condition. Déjà vérifiée par le domaine. */
-  tableDe(
-    forumId: number,
-    lieu: string,
-    condition: string,
-  ): Promise<readonly EntreeDeTable[]>;
+  /** Les conditions d'une zone : « jour » et « nuit » aujourd'hui, et
+   *  une météo quand elle sera décidée (voir `domaine/meteo.ts`).
+   *  Vide pour une zone sans faune. */
+  conditionsDe(forumId: number): Promise<readonly string[]>;
+  /** La table d'une zone, pour une condition. Déjà vérifiée par le
+   *  domaine au chargement. */
+  tableDe(forumId: number, condition: string): Promise<readonly EntreeDeTable[]>;
 }
 
 // ── la trace des passages de la relève ──────────────────────────────

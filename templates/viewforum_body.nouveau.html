@@ -1,0 +1,154 @@
+<!--
+  ════════════════════════════════════════════════════════════════════
+   viewforum_body — la page d'une zone (maquettes 301:13 et 301:26)
+   Panneau d'administration > Affichage > Templates > Général
+
+   Relevé : forumactif/77-la-page-d-une-zone-le-releve.md
+   Gabarit d'origine : Etana/template, src/modernbb/viewforum_body.tpl
+
+   ── CE QUI CHANGE PAR RAPPORT AU GABARIT D'ORIGINE ──────────────────
+
+   1. `data-wm-forum="{FORUM_ID}"` sur le corps de page. La maquette
+      disait « overall_header n'a pas {FORUM_ID} : rien ne peut venir
+      du template ». C'est vrai d'overall_header — pas d'ici : le
+      gabarit d'origine s'en sert déjà pour son menu « Plus ! ». Le
+      script lit donc l'identifiant de la zone au lieu de le deviner
+      dans l'adresse, et il ne se trompe plus sur /f34p50-….
+
+   2. **Les quatre raccourcis deviennent quatre liens.** Ils existent
+      déjà, mais dans un menu déroulant monté en JavaScript par
+      `insert_plus_menu_new`. La maquette les veut à plat, alignés à
+      droite. Ce sont les recherches natives de Forumactif, aucun
+      filtre maison.
+
+   3. **La bande de section**, comme à l'index. Elle n'existe pas sur
+      une page de forum : le gabarit sert la liste de sujets nue, et
+      son unique rang — `li.header` — porte les noms de colonnes.
+      `.wm-forum__bande` reprend exactement la bande de l'index : c'est
+      la même règle CSS, au § 2 de `css/03-index.css`.
+
+   4. **La légende passe de dix entrées à trois** : nouveaux messages,
+      pas de nouveaux messages, verrouillé. C'est ce que la maquette
+      dessine, et le bloc `switch_legend` servait aussi le populaire,
+      l'annonce, le post-it et l'annonce globale — quatre états que le
+      forum n'emploie pas.
+
+   5. **Le champ de recherche de l'en-tête part.** Notre barre de
+      navigation en porte un, en haut de toutes les pages.
+
+   ── CE QUI NE CHANGE PAS, ET POURQUOI ───────────────────────────────
+
+   · `{BOARD_INDEX}` reste, en premier : c'est lui qui afficherait les
+     sous-forums d'une zone. Aucune zone n'en a aujourd'hui — planche
+     44 — donc il ne rend rien, et c'est très bien. Le retirer casserait
+     la page le jour où une zone en reçoit un.
+   · `{TOPICS_LIST_BOX}`, `{PAGINATION}`, `{S_WATCH_FORUM}`,
+     `{LOGGED_IN_USER_LIST}`, `{MODERATORS}`, `{S_AUTH_LIST}` et le
+     saut de forum restent : ce sont les seules sources de ces
+     informations.
+   · Le `<script>` du menu « Plus ! » reste aussi. Il ne dessine plus
+     rien chez nous, mais il pose les variables de session que
+     Forumactif relit ailleurs.
+
+   ── SANS JAVASCRIPT ─────────────────────────────────────────────────
+
+   Cette page reste entière : le titre, le fil d'Ariane, la liste des
+   sujets, la pagination, les modérateurs, les permissions. Ce que le
+   script ajoute — le bandeau photo, le rond d'état, les pastilles —
+   est du décor posé par-dessus une page qui se lit déjà.
+  ════════════════════════════════════════════════════════════════════
+-->
+{BOARD_INDEX}
+
+<div class="wm-forum" data-wm-forum="{FORUM_ID}">
+
+	<div class="sub-header">
+		<div class="sub-header-info">
+			<h1 class="page-title">
+				<a href="{U_VIEW_FORUM}">{FORUM_NAME}</a>
+			</h1>
+			<div class="sub-header-path">
+				<a class="nav" href="{U_INDEX}"><span>{L_INDEX}</span></a>
+				{NAV_CAT_DESC}
+			</div>
+		</div>
+	</div>
+
+	<div class="topic-actions wm-forum__actions">
+		<!-- BEGIN switch_user_authpost -->
+			<a href="{U_POST_NEW_TOPIC}" accesskey="n" rel="nofollow" class="button1 wm-forum__nouveau">{L_POST_NEW_TOPIC}</a>
+		<!-- END switch_user_authpost -->
+
+		<div class="topic-actions-buttons wm-forum__raccourcis">
+			<a href="/search?search_id=newposts">Nouveaux messages</a>
+			<a href="/search?search_id=egosearch">Mes messages</a>
+			<a href="/search?search_id=unanswered">Sans réponse</a>
+			<a href="/search?search_id=activetopics">Actifs du jour</a>
+		</div>
+
+		<!-- BEGIN show_plus_menu -->
+		<script type="text/javascript">//<![CDATA[
+			var url_newposts = '{U_NEWPOSTS_JS_PLUS_MENU}';
+			var url_egosearch = '{U_EGOSEARCH_JS_PLUS_MENU}';
+			var url_unanswered = '{U_UNANSWERED_JS_PLUS_MENU}';
+			var url_watchsearch = '{U_WATCHSEARCH_JS_PLUS_MENU}';
+		//]]>
+		</script>
+		<!-- END show_plus_menu -->
+	</div>
+
+	<div class="wm-forum__section">
+		<div class="wm-forum__bande">
+			<span class="wm-forum__rang">01</span>
+			<span class="wm-forum__filet"></span>
+			<span class="wm-forum__bande-titre">LES SUJETS</span>
+			<span class="wm-forum__filet"></span>
+		</div>
+		{TOPICS_LIST_BOX}
+	</div>
+
+	<!-- BEGIN switch_legend -->
+		<ul id="picture_legend" class="wm-legende">
+			<li><img src="{FOLDER_NEW_IMG}" alt="" />{L_FOLDER_NEW_IMG}</li>
+			<li><img src="{FOLDER_IMG}" alt="" />{L_FOLDER_IMG}</li>
+			<li><img src="{FOLDER_LOCKED_IMG}" alt="" />{L_FOLDER_LOCKED_IMG}</li>
+		</ul>
+	<!-- END switch_legend -->
+
+	<div class="topic-actions bottom">
+		<div class="pagination">
+			{PAGINATION}
+		</div>
+
+		<div class="topic-actions-buttons">
+			{S_WATCH_FORUM}
+			<a href="{U_MARK_READ}">{L_MARK_TOPICS_READ}</a>
+		</div>
+	</div>
+
+	<div id="info_open" class="wm-forum__bas">
+		<div class="block">
+			<div class="h3">Qui parcourt cette zone</div>
+			<p>{LOGGED_IN_USER_LIST}</p>
+		</div>
+
+		<div class="block">
+			<div class="h3">{L_MODERATOR}</div>
+			<p>{MODERATORS}</p>
+		</div>
+
+		<div class="block">
+			<div class="h3">{L_TABS_PERMISSIONS}</div>
+			<p>{S_AUTH_LIST}</p>
+		</div>
+	</div>
+
+	<form action="{S_JUMPBOX_ACTION}" method="get" name="jumpbox" onsubmit="if(document.jumpbox.f.value == -1){return false;}">
+		<fieldset class="vf_jumpbox jumpbox">
+			<label>{L_JUMP_TO}:</label>
+			{S_JUMPBOX_SELECT}
+			<input class="button2" type="submit" value="{L_GO}" />
+		</fieldset>
+	</form>
+
+</div>

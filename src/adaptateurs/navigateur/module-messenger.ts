@@ -1,6 +1,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-messenger.ts
 //
+//  COUVERT PAR : outils/messenger.mjs — le tiroir du greffon FAM, servi dans l'ordre réel de la cascade.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  Habille le bouton du tchat : une bulle ronde en bas à GAUCHE.
 //
 //  ── CE QUE CE MODULE FAISAIT AVANT, ET POURQUOI IL NE LE FAIT PLUS ──

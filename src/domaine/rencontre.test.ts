@@ -13,7 +13,6 @@ import {
   TableInvalide,
   tirerEtTracer,
   tirerUneRencontre,
-  tirerUnLieu,
 } from "./rencontre.ts";
 
 const FORET: readonly EntreeDeTable[] = [
@@ -147,67 +146,4 @@ Deno.test("tirerEtTracer garde la graine en clair à côté du résultat", () =>
   const t = tirerEtTracer(FORET, "message:8001");
   assertEquals(t.graine, "message:8001");
   assertEquals(t.rencontre, tirerUneRencontre(FORET, "message:8001"));
-});
-
-// ── le lieu, tiré par le serveur ────────────────────────────────────
-
-Deno.test("sans lieu, pas de tirage : la liste vide rend null", () => {
-  //  Une zone sans faune. L'appelant nomme déjà ce cas dans son message
-  //  d'erreur ; ici on se contente de ne pas lever.
-  assertEquals(tirerUnLieu([], "15001"), null);
-});
-
-Deno.test("un seul lieu est toujours celui-là", () => {
-  for (const graine of ["1", "15001", "999999"]) {
-    assertEquals(tirerUnLieu(["etang-vaseux"], graine), "etang-vaseux");
-  }
-});
-
-Deno.test("LE LIEU TIRÉ EST REPRODUCTIBLE", () => {
-  //  C'est la garantie qui compte : le même message donne toujours le
-  //  même lieu, donc un tirage contesté se rejoue des années plus tard.
-  const lieux = ["berge-est", "etang-vaseux", "tourbiere-basse", "meandres"];
-  const premier = tirerUnLieu(lieux, "15001");
-  for (let i = 0; i < 20; i++) assertEquals(tirerUnLieu(lieux, "15001"), premier);
-});
-
-Deno.test("TOUS LES LIEUX SONT ATTEIGNABLES", () => {
-  //  Sans ce cas, une borne fausse ferait tirer toujours le premier — ou
-  //  jamais le dernier — et la zone perdrait des espèces en silence, sans
-  //  qu'aucune erreur ne soit levée.
-  const lieux = ["a", "b", "c", "d", "e"];
-  const vus = new Set<string>();
-  for (let m = 1; m <= 400; m++) {
-    const l = tirerUnLieu(lieux, String(m));
-    if (l !== null) vus.add(l);
-  }
-  assertEquals([...vus].sort(), lieux);
-});
-
-Deno.test("LE LIEU ET L'ESPÈCE NE PARTAGENT PAS LE TIRAGE", () => {
-  //  Les deux partent du même numéro de message. Sans préfixe distinct
-  //  dans la graine, ils liraient la MÊME première valeur de la suite :
-  //  le lieu déciderait de l'espèce, et deux zones aux tables de même
-  //  longueur donneraient des résultats jumelés.
-  //
-  //  On le mesure plutôt que de le croire : sur deux cents messages, le
-  //  rang du lieu tiré et celui de l'espèce ne doivent pas coïncider
-  //  partout.
-  const lieux = ["a", "b", "c", "d", "e"];
-  const table = [1, 2, 3, 4, 5].map((especeId) => ({
-    especeId,
-    pourcentage: 20,
-    niveauMin: 5,
-    niveauMax: 9,
-    rarete: "commun" as const,
-  }));
-  let coincidences = 0;
-  for (let m = 1; m <= 200; m++) {
-    const rangDuLieu = lieux.indexOf(tirerUnLieu(lieux, String(m)) ?? "a");
-    const espece = tirerUneRencontre(table, String(m)).especeId;
-    if (rangDuLieu === espece - 1) coincidences++;
-  }
-  //  Au hasard on attendrait un cinquième, soit 40. Ce qu'on refuse,
-  //  c'est 200 — la signature d'une graine partagée.
-  assertEquals(coincidences < 200, true, `${coincidences} coïncidences sur 200`);
 });

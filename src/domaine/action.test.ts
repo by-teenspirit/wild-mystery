@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 import { actionDe, ecrireUneAction, sansActions, VERBES } from "./action.ts";
 
-const CHERCHER = { type: "chercher", lieu: "clairiere-aux-lucioles" } as const;
+const CHERCHER = { type: "chercher" } as const;
 const FOUILLER = { type: "fouiller" } as const;
 
 Deno.test("ce que le bouton écrit, le serveur le relit", () => {
@@ -15,35 +15,28 @@ Deno.test("ce que le bouton écrit, le serveur le relit", () => {
   assertEquals([...VERBES].sort(), ["chercher", "fouiller"]);
 });
 
-Deno.test("« CHERCHER » SANS LIEU EST LA FORME NORMALE", () => {
-  // CE TEST DISAIT L'INVERSE JUSQU'AU 15 OCTOBRE : « on ne devine pas ».
-  // Il encodait une décision, et la décision a changé — Callista :
-  // « on est déjà dans une zone sauvage, avec un palier, donc y'a pas
-  // d'autres zones à rajouter. » Le joueur ne choisit plus de lieu ;
-  // c'est le serveur qui le tire, avec la graine du message.
-  //
-  // Le raisonnement d'avant n'était pas faux : il FAUT savoir où. Mais
-  // ce n'est pas au joueur de le dire, et c'est ce glissement qui avait
-  // mis un menu déroulant dans la barre d'actions.
+Deno.test("« CHERCHER » N'A PLUS DE LIEU DU TOUT", () => {
+  // CE TEST A CHANGÉ DEUX FOIS LE 15 OCTOBRE, et ça valait la peine de
+  // le noter : le matin il exigeait un lieu (« on ne devine pas »), à
+  // midi il acceptait les deux formes, et le soir il n'y a plus de lieu
+  // — Callista : « enlève tous les petits lieux. On a 3 paliers, 17
+  // zones sauvages, et tu répartis le pokédex comme ça. »
   assertEquals(actionDe("[[WM-ACTION:chercher]]"), { type: "chercher" });
-  // Et c'est bien ce que le bouton écrit maintenant.
   assertEquals(ecrireUneAction({ type: "chercher" }), "[[WM-ACTION:chercher]]");
 });
 
-Deno.test("UN LIEU ÉCRIT À LA MAIN EST ENCORE LU", () => {
+Deno.test("UN LIEU ÉCRIT À LA MAIN EST ENCORE LU, ET IGNORÉ", () => {
   // La compatibilité, et elle n'est pas théorique : un message portant
   // `[[WM-ACTION:chercher:etang-vaseux]]` est posté sur `t976` depuis le
   // 3 octobre. **Un message posté ne change pas de sens parce qu'on a
-  // changé le bouton.**
-  assertEquals(actionDe("[[WM-ACTION:chercher:etang-vaseux]]"), {
-    type: "chercher",
-    lieu: "etang-vaseux",
-  });
-  // Les deux formes cohabitent dans un même texte, et la PREMIÈRE
-  // l'emporte — une seule action par message, règle inchangée.
+  // changé la donnée.** Il demande toujours un Pokémon ; le lieu, lui,
+  // ne désigne plus rien — la table est celle de la zone.
+  assertEquals(actionDe("[[WM-ACTION:chercher:etang-vaseux]]"), { type: "chercher" });
+  // Et refuser ces messages serait pire que les lire : ce serait effacer
+  // ce qu'un joueur a demandé.
   assertEquals(
     actionDe("[[WM-ACTION:chercher:berge-est]] puis [[WM-ACTION:chercher]]"),
-    { type: "chercher", lieu: "berge-est" },
+    { type: "chercher" },
   );
 });
 
@@ -53,12 +46,9 @@ Deno.test("« fouiller » avec un lieu dit quelque chose qu'on ne sait pas honor
   assertEquals(actionDe("[[WM-ACTION:fouiller:clairiere-aux-lucioles]]"), null);
 });
 
-Deno.test("la clé de lieu traverse le bloc telle quelle", () => {
+Deno.test("n'importe quelle ancienne clé de lieu se lit encore", () => {
   for (const cle of ["lisiere-de-samaragd", "berge-est", "grotte-n-2", "meandres"]) {
-    assertEquals(actionDe(ecrireUneAction({ type: "chercher", lieu: cle })), {
-      type: "chercher",
-      lieu: cle,
-    });
+    assertEquals(actionDe(`[[WM-ACTION:chercher:${cle}]]`), { type: "chercher" });
   }
 });
 

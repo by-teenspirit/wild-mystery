@@ -1,0 +1,672 @@
+// ════════════════════════════════════════════════════════════════════
+//  outils/zone.mjs — la page d'une zone, dans un vrai navigateur, et À
+//  PARTIR DES GABARITS EUX-MÊMES.
+//
+//  Couvre `src/adaptateurs/navigateur/module-zone.ts` et la section 8-10
+//  de `css/04-forum.css`. Maquettes `301:13` et `301:26`, relevé dans
+//  `forumactif/77-la-page-d-une-zone-le-releve.md`.
+//
+//  ── LA RÈGLE GÉNÉRALE QU'IL MESURE ──────────────────────────────────
+//
+//  **Tout ce que le script ajoute doit pouvoir manquer.** C'est la
+//  règle que ce module doit tenir, et c'est celle qui se perd le plus
+//  vite : il suffit d'un titre masqué en CSS « parce que le bandeau le
+//  réécrit » pour qu'une page sans JavaScript perde son titre.
+//
+//  Le harnais sert donc CHAQUE page deux fois — avec et sans le script
+//  — et exige qu'elle reste lisible dans les deux cas : un titre, un
+//  fil d'Ariane, des sujets cliquables dont le texte n'a pas été
+//  amputé.
+//
+//  ── ET LA DEUXIÈME, QUI A COÛTÉ UN DÉFAUT AILLEURS ──────────────────
+//
+//  **Une pastille est une couleur sur une surface, donc un contraste.**
+//  Figma écrit les quatre pastilles en encre sombre ; sur le vert
+//  paisible ça tombe à 3,3 pour du 10 px. On mesure ici, dans le
+//  navigateur, les quatre tons contre leur fond réel.
+// ════════════════════════════════════════════════════════════════════
+
+import { readFileSync } from "node:fs";
+import { chromium } from "npm:playwright@1.49.1";
+
+const CHROME = [
+  "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
+  "/opt/pw-browsers/chromium/chrome-linux64/chrome",
+].find((c) => {
+  try {
+    readFileSync(c);
+    return true;
+  } catch {
+    return false;
+  }
+});
+
+const R = new URL("..", import.meta.url).pathname;
+const PIXEL =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAD0lEQVR4nGP4z8DAxIAEAB0GAwMBHe4bAAAAAElFTkSuQmCC";
+
+// ── résoudre les gabarits ───────────────────────────────────────────
+
+/** Retire un bloc Forumactif AVEC son contenu. */
+function sansBloc(s, nom) {
+  const re = new RegExp(`<!--\\s*BEGIN ${nom}\\s*-->[\\s\\S]*?<!--\\s*END ${nom}\\s*-->`, "g");
+  return s.replace(re, "");
+}
+
+/** Garde le contenu d'un bloc et retire ses marqueurs. */
+function gardeBloc(s, nom) {
+  const re = new RegExp(`<!--\\s*BEGIN ${nom}\\s*-->([\\s\\S]*?)<!--\\s*END ${nom}\\s*-->`, "g");
+  return s.replace(re, "$1");
+}
+
+/** Le contenu d'un bloc, seul. */
+function fragment(s, nom) {
+  const re = new RegExp(`<!--\\s*BEGIN ${nom}\\s*-->([\\s\\S]*?)<!--\\s*END ${nom}\\s*-->`);
+  const m = re.exec(s);
+  if (m === null) throw new Error(`bloc introuvable : ${nom}`);
+  return m[1];
+}
+
+/** Retire les commentaires de documentation du gabarit — ceux qui ne
+ *  portent aucun marqueur de bloc.
+ *
+ *  ── LE DÉFAUT QUE ÇA A COÛTÉ, ET IL EST CLASSIQUE ───────────────────
+ *
+ *  L'en-tête de `viewforum_body.nouveau.html` CITE `{TOPICS_LIST_BOX}`
+ *  en expliquant pourquoi on le garde. La première occurrence de la
+ *  variable dans le fichier est donc dans un commentaire, et c'est elle
+ *  que le remplacement attrapait : la liste des sujets était montée…
+ *  à l'intérieur d'un commentaire HTML. Le harnais annonçait « zéro
+ *  ligne » sans que rien ne soit faux dans le code mesuré.
+ *
+ *  Le même piège est écrit dans l'en-tête de `outils/barre.mjs`, pour
+ *  une chaîne citée dans un commentaire de CSS. Deux fois le même, à
+ *  deux semaines d'écart. */
+function sansCommentaires(s) {
+  return s.replace(/<!--([\s\S]*?)-->/g, (tout, dedans) => /\b(BEGIN|END) \w/.test(dedans) ? tout : "");
+}
+
+/** Remplace les variables ; ce qui reste rend le vide, comme Forumactif. */
+const vars = (s, table) => s.replace(/\{([\w.]+)\}/g, (_, n) => table[n] ?? "");
+
+//  ── LES CINQ SUJETS DE LA MAQUETTE ─────────────────────────────────
+//
+//  Repris tels quels de `301:13`, étiquettes comprises : c'est le jeu
+//  de données qui dit si la découpe des titres marche sur les cas que
+//  Callista a dessinés, et pas sur des cas que j'aurais choisis.
+const SUJETS = [
+  {
+    titre: "[LIBRE] La descente par le versant nord",
+    auteur: "Calliste Vanne",
+    reponses: "12",
+    vues: "148",
+    dernier: "par Nael",
+    quand: "aujourd'hui · 14h20",
+    icone: "folder_new.png",
+    attendu: { etat: "neuf", pastilles: ["LIBRE"], titre: "La descente par le versant nord" },
+  },
+  {
+    titre: "[PV] Ce qu'on a laissé à la borne douze",
+    auteur: "Iseult",
+    reponses: "4",
+    vues: "61",
+    dernier: "par Iseult",
+    quand: "aujourd'hui · 09h05",
+    icone: "folder_new.png",
+    attendu: { etat: "neuf", pastilles: ["PV"], titre: "Ce qu'on a laissé à la borne douze" },
+  },
+  {
+    titre: "[LIBRE] Le feu ne prend pas ici",
+    auteur: "Orion",
+    reponses: "23",
+    vues: "390",
+    dernier: "par Maëlis",
+    quand: "hier · 22h48",
+    icone: "folder.png",
+    attendu: { etat: "lu", pastilles: ["LIBRE"], titre: "Le feu ne prend pas ici" },
+  },
+  {
+    titre: "[-16] Première montée, première peur",
+    auteur: "Sido",
+    reponses: "7",
+    vues: "102",
+    dernier: "par Tancrède",
+    quand: "hier · 18h12",
+    icone: "folder.png",
+    attendu: { etat: "lu", pastilles: ["-16"], titre: "Première montée, première peur" },
+  },
+  {
+    titre: "[TERMINÉ] La nuit où la crête a fondu",
+    auteur: "Ombeline",
+    reponses: "41",
+    vues: "806",
+    dernier: "par Orion",
+    quand: "27 sept · 20h30",
+    icone: "folder_locked.png",
+    attendu: {
+      etat: "verrouille",
+      pastilles: ["TERMINÉ"],
+      titre: "La nuit où la crête a fondu",
+    },
+  },
+];
+
+/** La liste des sujets, montée depuis `templates/topics_list_box.html`.
+ *
+ *  On n'emploie pas le résolveur générique : le bloc `row` du gabarit
+ *  contient à la fois l'en-tête, les lignes et le pied, et Forumactif
+ *  le parcourt en servant un bloc intérieur différent à chaque tour.
+ *  Le répéter cinq fois donnerait cinq en-têtes. On prend donc les
+ *  trois morceaux et on assemble comme le moteur le ferait. */
+function listeDesSujets() {
+  const brut = sansCommentaires(readFileSync(R + "templates/topics_list_box.html", "utf8"));
+
+  let entete = fragment(brut, "header_table");
+  entete = sansBloc(entete, "multi_selection");
+  entete = vars(entete, {
+    "topics_list_box.row.L_TITLE": "SUJET",
+    "topics_list_box.row.L_REPLIES": "RÉPONSES",
+    "topics_list_box.row.L_VIEWS": "VUES",
+    "topics_list_box.row.L_LASTPOST": "DERNIER MESSAGE",
+  });
+
+  let modele = fragment(brut, "topic");
+  modele = sansBloc(modele, "table_sticky");
+  modele = sansBloc(modele, "multi_selection");
+  modele = sansBloc(modele, "single_selection");
+  modele = sansBloc(modele, "switch_description");
+  modele = sansBloc(modele, "nav_tree");
+  modele = sansBloc(modele, "line_sticky");
+  modele = gardeBloc(modele, "avatar");
+
+  const lignes = SUJETS.map((s, i) =>
+    vars(modele, {
+      "topics_list_box.row.ROW_ALT_CLASS": i % 2 === 0 ? "row1" : "row2",
+      "topics_list_box.row.TOPIC_FOLDER_IMG": `https://illiweb.com/fa/empty/${s.icone}`,
+      "topics_list_box.row.L_TOPIC_FOLDER_ALT": "Pas de nouveaux messages",
+      "topics_list_box.row.U_VIEW_TOPIC": `/t${900 + i}-un-sujet`,
+      "topics_list_box.row.TOPIC_TITLE": s.titre,
+      "topics_list_box.row.L_BY": "par",
+      "topics_list_box.row.TOPIC_AUTHOR": s.auteur,
+      "topics_list_box.row.REPLIES": s.reponses,
+      "topics_list_box.row.VIEWS": s.vues,
+      "topics_list_box.row.topic.avatar.LAST_POST_AVATAR": `<img src="${PIXEL}" alt="" />`,
+      "topics_list_box.row.LAST_POST_AUTHOR": s.dernier,
+      "topics_list_box.row.LAST_POST_TIME": s.quand,
+      L_REPLIES: "Réponses",
+      L_VIEWS: "Vues",
+      L_LASTPOST: "Dernier message",
+    })
+  ).join("\n");
+
+  return entete + lignes + fragment(brut, "bottom");
+}
+
+/** La page d'une zone, montée depuis `viewforum_body.nouveau.html`.
+ *
+ *  `forumId` est ce que le gabarit écrit dans `data-wm-forum`. Le fil
+ *  d'Ariane, lui, ne nomme QUE le palier : c'est ainsi qu'on vérifie
+ *  que le script lit l'attribut et ne devine pas. */
+function pageDeZone({ forumId = 34, legende = true } = {}) {
+  let t = sansCommentaires(readFileSync(R + "templates/viewforum_body.nouveau.html", "utf8"));
+  t = gardeBloc(t, "switch_user_authpost");
+  t = gardeBloc(t, "show_plus_menu");
+  t = legende ? gardeBloc(t, "switch_legend") : sansBloc(t, "switch_legend");
+  t = t.replace(/\{TOPICS_LIST_BOX\}/, () => listeDesSujets());
+  t = vars(t, {
+    BOARD_INDEX: "",
+    FORUM_ID: String(forumId),
+    U_VIEW_FORUM: `/f${forumId}-une-zone`,
+    FORUM_NAME: "Montagnes Embrumées",
+    U_INDEX: "/",
+    L_INDEX: "Accueil",
+    NAV_CAT_DESC: '<span>›</span> <a href="/f96-zones-palier-1">Zones Palier 1</a>',
+    U_POST_NEW_TOPIC: "/post?f=34&mode=newtopic",
+    L_POST_NEW_TOPIC: "Nouveau sujet",
+    PAGINATION: '<span>Page <strong>1</strong> sur 6</span> <a href="/f34p25-">2</a>',
+    S_WATCH_FORUM: "",
+    U_MARK_READ: "/f34-une-zone?mark=forums",
+    L_MARK_TOPICS_READ: "Marquer comme lus",
+    LOGGED_IN_USER_LIST: "7 dresseurs et 2 invités : Nael, Iseult, Orion",
+    L_MODERATOR: "Modérateurs",
+    MODERATORS: "Ines Kervadec, Elijah Smithson",
+    L_TABS_PERMISSIONS: "Ce que tu peux faire ici",
+    S_AUTH_LIST: "Vous pouvez poster de nouveaux sujets dans ce forum",
+    FOLDER_NEW_IMG: PIXEL,
+    L_FOLDER_NEW_IMG: "Nouveaux messages",
+    FOLDER_IMG: PIXEL,
+    L_FOLDER_IMG: "Pas de nouveaux messages",
+    FOLDER_LOCKED_IMG: PIXEL,
+    L_FOLDER_LOCKED_IMG: "Sujet verrouillé",
+    S_JUMPBOX_ACTION: "/",
+    L_JUMP_TO: "Aller à",
+    S_JUMPBOX_SELECT: '<select name="f"><option value="-1">—</option></select>',
+    L_GO: "Ok",
+  });
+  return t;
+}
+
+//  La bannière du site, celle que le bandeau de zone doit remplacer.
+const BANNIERE = `<div id="headerbar-top"><div class="wrap">
+  <div class="headerbar"><a id="logo" href="/"><img src="${PIXEL}" alt="Wild Mystery" /></a></div>
+</div></div>`;
+
+const BASE_MODERNBB = `dl.icon { background-size: 33px 33px !important; }`;
+
+const page = (corps) =>
+  `<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<style>${BASE_MODERNBB}</style>
+<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
+<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
+<style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
+</head><body id="modernbb">
+<div class="conteneur_minwidth_IE modern-resp">
+${BANNIERE}
+<div id="page-body">${corps}</div>
+</div>
+</body></html>`;
+
+// ── le navigateur ───────────────────────────────────────────────────
+
+const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
+const soucis = [];
+
+function dire(nom, ok, detail = "") {
+  console.log(`  ${ok ? "ok  " : "DÉFAUT"} ${nom}${detail === "" ? "" : " — " + detail}`);
+  if (!ok) soucis.push(nom + (detail === "" ? "" : " — " + detail));
+}
+
+/** Une page montée. `script: false` sert la même page sans notre
+ *  JavaScript — c'est la moitié du harnais. */
+async function monter({ corps, script = true, largeur = 1440 } = {}) {
+  const p = await nav.newPage({ viewport: { width: largeur, height: 1000 } });
+  p.on("pageerror", (e) => {
+    soucis.push("erreur JS : " + e.message);
+    console.log("  ERREUR JS :", e.message);
+  });
+  await p.route("**/*", (r) => {
+    const u = new URL(r.request().url());
+    const chemin = u.pathname;
+    if (chemin === "/js/wild-mystery.js") {
+      return r.fulfill({
+        contentType: "text/javascript",
+        body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+      });
+    }
+    if (chemin.startsWith("/data/")) {
+      try {
+        return r.fulfill({
+          contentType: "application/json",
+          body: readFileSync(R + chemin.slice(1), "utf8"),
+        });
+      } catch {
+        return r.fulfill({ status: 404, body: "" });
+      }
+    }
+    //  Les photos de zone sont servies depuis GitHub Pages : on rend un
+    //  pixel plutôt que d'aller sur le réseau.
+    if (/\.(jpg|png)$/.test(chemin)) {
+      return r.fulfill({
+        contentType: "image/png",
+        body: Buffer.from(PIXEL.split(",")[1], "base64"),
+      });
+    }
+    return r.fulfill({ contentType: "text/html; charset=utf-8", body: page(corps) });
+  });
+  await p.goto("http://wild-mystery.test/f34-montagnes-embrumees");
+  if (script) {
+    await p.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+    await p.waitForTimeout(500);
+  }
+  return p;
+}
+
+/** Le contraste d'un élément contre son propre fond. Même méthode que
+ *  `outils/contraste.mjs` : on lit les couleurs calculées. */
+const CONTRASTE = (sel) => `(() => {
+  const e = document.querySelector(${JSON.stringify(sel)});
+  if (e === null) return null;
+  const lire = (c) => {
+    const n = c.match(/[\\d.]+/g).map(Number);
+    const v = n.slice(0, 3).map((x) => {
+      const s = x / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  };
+  const s = getComputedStyle(e);
+  const a = lire(s.color), b = lire(s.backgroundColor);
+  const [h, l] = a > b ? [a, b] : [b, a];
+  return Math.round(((h + 0.05) / (l + 0.05)) * 100) / 100;
+})()`;
+
+// ════════════════════════════════════════════════════════════════════
+//  1 · LE BANDEAU
+// ════════════════════════════════════════════════════════════════════
+
+console.log("\n── le bandeau de la zone ──");
+
+const zones = JSON.parse(readFileSync(R + "data/zones.json", "utf8")).zones;
+const LA_ZONE = zones.find((z) => z.forumId === 34);
+
+const p1 = await monter({ corps: pageDeZone() });
+
+//  LE DÉCOR D'ABORD. Un harnais qui dit « le bandeau manque » sans dire
+//  si la page avait seulement une liste de sujets fait chercher au
+//  mauvais endroit.
+const decor = await p1.evaluate(() => ({
+  lignes: document.querySelectorAll("ul.topics li.row").length,
+  forum: document.querySelector("[data-wm-forum]")?.getAttribute("data-wm-forum") ?? null,
+  script: typeof globalThis.WM_CHARGE,
+}));
+dire("le décor porte les cinq lignes", decor.lignes === 5, JSON.stringify(decor));
+dire("et le gabarit dit son forum", decor.forum === "34", JSON.stringify(decor));
+
+const bandeau = await p1.evaluate(() => {
+  const b = document.querySelector(".wm-zone");
+  if (b === null) return null;
+  const r = b.getBoundingClientRect();
+  const titre = b.querySelector(".wm-zone__titre");
+  const st = getComputedStyle(titre);
+  return {
+    hauteur: Math.round(r.height),
+    largeur: Math.round(r.width),
+    forum: b.dataset.wmZone,
+    photo: b.querySelector(".wm-zone__photo")?.getAttribute("src") ?? null,
+    surtitre: b.querySelector(".wm-zone__surtitre")?.textContent ?? null,
+    titre: titre?.textContent ?? null,
+    titreTaille: st.fontSize,
+    titrePolice: st.fontFamily,
+    phrase: b.querySelector(".wm-zone__phrase")?.textContent ?? null,
+    voile: b.querySelector(".wm-zone__voile") !== null,
+    fondu: b.querySelector(".wm-zone__fondu") !== null,
+    classe: document.querySelector("#modernbb").classList.contains("wm-zone-posee"),
+    banniere: getComputedStyle(document.querySelector(".headerbar")).display,
+    titrePage: getComputedStyle(document.querySelector("h1.page-title")).display,
+    ariane: document.querySelector(".sub-header-path")?.textContent?.trim() ?? "",
+  };
+});
+
+dire("le bandeau est posé", bandeau !== null);
+if (bandeau !== null) {
+  dire("il fait 300 px de haut", bandeau.hauteur === 300, `${bandeau.hauteur} px`);
+  dire("il prend toute la largeur", bandeau.largeur === 1440, `${bandeau.largeur} px`);
+  dire(
+    "IL A LU data-wm-forum, PAS LE FIL D'ARIANE",
+    bandeau.forum === "34" && !bandeau.ariane.includes("Montagnes"),
+    `zone ${bandeau.forum} · ariane « ${bandeau.ariane} »`,
+  );
+  dire("la photo est celle de la zone", bandeau.photo === LA_ZONE.image, `${bandeau.photo}`);
+  dire(
+    "le surtitre dit le palier et les niveaux",
+    bandeau.surtitre === "PALIER 1 · NIVEAUX 1 À 20",
+    `« ${bandeau.surtitre} »`,
+  );
+  dire("le titre est le nom de la zone", bandeau.titre === LA_ZONE.nom, `« ${bandeau.titre} »`);
+  dire("il est en Fraunces 40", bandeau.titreTaille === "40px" &&
+    bandeau.titrePolice.includes("Fraunces"), `${bandeau.titreTaille} ${bandeau.titrePolice}`);
+  dire(
+    "la phrase est celle de la carte",
+    bandeau.phrase === LA_ZONE.description,
+    `« ${bandeau.phrase} »`,
+  );
+  dire("le voile et le fondu sont là", bandeau.voile && bandeau.fondu);
+  dire(
+    "LA BANNIÈRE DU SITE A LAISSÉ LA PLACE",
+    bandeau.banniere === "none",
+    `.headerbar : ${bandeau.banniere}`,
+  );
+  dire(
+    "et le titre n'est pas écrit deux fois",
+    bandeau.titrePage === "none",
+    `h1.page-title : ${bandeau.titrePage}`,
+  );
+  dire("le fil d'Ariane reste visible", bandeau.ariane.includes("Accueil"), bandeau.ariane);
+  dire("la classe de page est posée", bandeau.classe === true);
+}
+
+const lisible = await p1.evaluate(() => {
+  const t = document.querySelector(".wm-zone__titre");
+  if (t === null) return { dans: false, gauche: -1 };
+  const r = t.getBoundingClientRect();
+  const b = document.querySelector(".wm-zone").getBoundingClientRect();
+  return { dans: r.top >= b.top && r.bottom <= b.bottom, gauche: Math.round(r.left) };
+});
+dire("le titre tient dans le bandeau", lisible.dans, JSON.stringify(lisible));
+dire("il est à 92 px du bord, comme la maquette", lisible.gauche === 92, `${lisible.gauche} px`);
+
+// ════════════════════════════════════════════════════════════════════
+//  2 · LES LIGNES DE SUJET
+// ════════════════════════════════════════════════════════════════════
+
+console.log("\n── les lignes de sujet ──");
+
+const lignes = await p1.evaluate(() =>
+  Array.from(document.querySelectorAll("ul.topics li.row")).map((li) => {
+    const a = li.querySelector("a.topictitle");
+    const icone = li.querySelector("dl.icon");
+    const avant = getComputedStyle(icone, "::before");
+    return {
+      etat: li.dataset.wmEtat ?? null,
+      titre: a?.textContent?.trim() ?? "",
+      href: a?.getAttribute("href") ?? "",
+      pastilles: Array.from(li.querySelectorAll(".wm-sujet")).map((p) => ({
+        texte: p.textContent,
+        classe: p.className,
+      })),
+      fond: getComputedStyle(icone).backgroundImage,
+      rond: {
+        contenu: avant.content,
+        largeur: avant.width,
+        rayon: avant.borderRadius,
+      },
+    };
+  })
+);
+
+dire("les cinq lignes sont traitées", lignes.length === 5, `${lignes.length}`);
+for (const [i, attendu] of SUJETS.map((s) => s.attendu).entries()) {
+  const l = lignes[i];
+  if (l === undefined) continue;
+  dire(`ligne ${i + 1} · l'état est « ${attendu.etat} »`, l.etat === attendu.etat, `${l.etat}`);
+  dire(
+    `ligne ${i + 1} · le titre est débarrassé de son étiquette`,
+    l.titre === attendu.titre,
+    `« ${l.titre} »`,
+  );
+  dire(
+    `ligne ${i + 1} · la pastille dit « ${attendu.pastilles[0]} »`,
+    l.pastilles.length === attendu.pastilles.length &&
+      l.pastilles.every((p, k) => p.texte === attendu.pastilles[k]),
+    JSON.stringify(l.pastilles.map((p) => p.texte)),
+  );
+  dire(
+    `ligne ${i + 1} · le lien du sujet n'a pas bougé`,
+    l.href === `/t${900 + i}-un-sujet`,
+    l.href,
+  );
+}
+
+dire(
+  "L'ICÔNE DE DOSSIER A LAISSÉ LA PLACE AU ROND",
+  lignes.every((l) => l.fond === "none"),
+  lignes.map((l) => l.fond).join(" · "),
+);
+dire(
+  "les ronds font 34 px et sont ronds",
+  lignes.every((l) => l.rond.largeur === "34px" && l.rond.rayon === "999px"),
+  JSON.stringify(lignes[0]?.rond),
+);
+dire(
+  "les trois glyphes sont ceux de la légende",
+  lignes[0].rond.contenu.includes("●") && lignes[2].rond.contenu.includes("○") &&
+    lignes[4].rond.contenu.includes("✕"),
+  lignes.map((l) => l.rond.contenu).join(" "),
+);
+
+const tons = await p1.evaluate(() =>
+  Array.from(document.querySelectorAll(".wm-sujet")).map((p) =>
+    p.className
+  )
+);
+dire(
+  "CHAQUE ÉTIQUETTE PREND LE COMPOSANT DE LA CHARTE",
+  JSON.stringify(tons) === JSON.stringify([
+    "wm-sujet",
+    "wm-sujet wm-sujet--pv",
+    "wm-sujet",
+    "wm-sujet wm-sujet--16",
+    "wm-sujet wm-sujet--termine",
+  ]),
+  tons.join(" · "),
+);
+
+// ── le contraste des quatre pastilles ───────────────────────────────
+
+for (const ton of ["", "--pv", "--16", "--termine"]) {
+  const r = await p1.evaluate(CONTRASTE(`.wm-sujet${ton}`));
+  dire(`la pastille « .wm-sujet${ton} » se lit (≥ 4,5)`, r !== null && r >= 4.5, `${r}`);
+}
+
+// ── l'idempotence ───────────────────────────────────────────────────
+
+const deuxFois = await p1.evaluate(() => {
+  const avant = document.querySelectorAll(".wm-sujet").length;
+  //  On rappelle le module comme le ferait un second chargement.
+  document.dispatchEvent(new Event("DOMContentLoaded"));
+  return { avant, apres: document.querySelectorAll(".wm-sujet").length };
+});
+dire(
+  "rappelé, le module ne double pas les pastilles",
+  deuxFois.avant === deuxFois.apres,
+  JSON.stringify(deuxFois),
+);
+
+// ════════════════════════════════════════════════════════════════════
+//  3 · CE QUE LE GABARIT DOIT PORTER
+// ════════════════════════════════════════════════════════════════════
+
+console.log("\n── le gabarit ──");
+
+const gabarit = await p1.evaluate(() => ({
+  raccourcis: Array.from(document.querySelectorAll(".wm-forum__raccourcis a")).map((a) => ({
+    texte: a.textContent.trim(),
+    href: a.getAttribute("href"),
+  })),
+  nouveau: document.querySelector(".wm-forum__nouveau")?.textContent?.trim() ?? null,
+  section: document.querySelector(".wm-forum__bande-titre")?.textContent ?? null,
+  rang: document.querySelector(".wm-forum__rang")?.textContent ?? null,
+  legende: Array.from(document.querySelectorAll("#picture_legend li")).map((l) =>
+    l.textContent.trim()
+  ),
+  blocs: Array.from(document.querySelectorAll("#info_open .block .h3")).map((b) =>
+    b.textContent.trim()
+  ),
+  pagination: document.querySelector(".pagination")?.textContent?.trim() ?? "",
+}));
+
+dire(
+  "les quatre raccourcis sont des liens natifs",
+  gabarit.raccourcis.length === 4 &&
+    gabarit.raccourcis.every((r) => /^\/search\?search_id=\w+$/.test(r.href)),
+  gabarit.raccourcis.map((r) => r.href).join(" · "),
+);
+dire("« Nouveau sujet » est là", gabarit.nouveau === "Nouveau sujet", `${gabarit.nouveau}`);
+dire(
+  "la bande de section porte son rang et son titre",
+  gabarit.rang === "01" && gabarit.section === "LES SUJETS",
+  `${gabarit.rang} / ${gabarit.section}`,
+);
+dire(
+  "LA LÉGENDE EST À TROIS ENTRÉES, PAS DIX",
+  gabarit.legende.length === 3,
+  gabarit.legende.join(" · "),
+);
+dire("les trois blocs du bas sont là", gabarit.blocs.length === 3, gabarit.blocs.join(" · "));
+dire("la pagination est servie", gabarit.pagination.includes("Page"), gabarit.pagination);
+
+// ════════════════════════════════════════════════════════════════════
+//  4 · SANS JAVASCRIPT, LA PAGE RESTE ENTIÈRE
+// ════════════════════════════════════════════════════════════════════
+
+console.log("\n── sans le script ──");
+
+const p2 = await monter({ corps: pageDeZone(), script: false });
+const nu = await p2.evaluate(() => ({
+  bandeau: document.querySelector(".wm-zone") !== null,
+  banniere: getComputedStyle(document.querySelector(".headerbar")).display,
+  titre: document.querySelector("h1.page-title")?.textContent?.trim() ?? "",
+  titreVu: getComputedStyle(document.querySelector("h1.page-title")).display,
+  sujets: Array.from(document.querySelectorAll("a.topictitle")).map((a) => a.textContent.trim()),
+  ariane: document.querySelector(".sub-header-path")?.textContent?.trim() ?? "",
+}));
+
+dire("pas de bandeau, et c'est normal", nu.bandeau === false);
+dire("LA BANNIÈRE DU SITE EST RESTÉE", nu.banniere !== "none", `.headerbar : ${nu.banniere}`);
+dire(
+  "LE TITRE DU FORUM EST LÀ, ET VISIBLE",
+  nu.titre === "Montagnes Embrumées" && nu.titreVu !== "none",
+  `« ${nu.titre} » (${nu.titreVu})`,
+);
+dire("le fil d'Ariane est là", nu.ariane.includes("Accueil"), nu.ariane);
+dire(
+  "LES CINQ TITRES SONT ENTIERS, ÉTIQUETTE COMPRISE",
+  nu.sujets.length === 5 && nu.sujets.every((t, i) => t === SUJETS[i].titre),
+  nu.sujets.join(" | "),
+);
+await p2.close();
+
+// ════════════════════════════════════════════════════════════════════
+//  5 · AILLEURS QUE DANS UNE ZONE
+// ════════════════════════════════════════════════════════════════════
+
+console.log("\n── un forum qui n'est pas une zone ──");
+
+const p3 = await monter({ corps: pageDeZone({ forumId: 3 }) });
+const ville = await p3.evaluate(() => ({
+  bandeau: document.querySelector(".wm-zone") !== null,
+  banniere: getComputedStyle(document.querySelector(".headerbar")).display,
+  pastilles: document.querySelectorAll(".wm-sujet").length,
+  etats: document.querySelectorAll("li.row[data-wm-etat]").length,
+}));
+dire("pas de bandeau hors des dix-sept zones", ville.bandeau === false);
+dire("et la bannière du site reste", ville.banniere !== "none", `${ville.banniere}`);
+dire(
+  "mais les pastilles et les ronds sont posés partout",
+  ville.pastilles === 5 && ville.etats === 5,
+  `${ville.pastilles} pastilles · ${ville.etats} ronds`,
+);
+await p3.close();
+
+// ════════════════════════════════════════════════════════════════════
+//  6 · LA PAGE NE DÉBORDE PAS
+// ════════════════════════════════════════════════════════════════════
+
+console.log("\n── les largeurs ──");
+
+for (const l of [1440, 1024, 760]) {
+  const p = await monter({ corps: pageDeZone(), largeur: l });
+  const d = await p.evaluate(() => ({
+    deborde: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    large: document.documentElement.scrollWidth,
+    cadre: document.documentElement.clientWidth,
+    titre: Math.round(
+      document.querySelector(".wm-zone__titre").getBoundingClientRect().width,
+    ),
+    bandeau: Math.round(document.querySelector(".wm-zone").getBoundingClientRect().height),
+  }));
+  dire(`à ${l} px, la page ne déborde pas`, d.deborde === false, `${d.large} / ${d.cadre}`);
+  dire(`à ${l} px, le titre a une largeur`, d.titre > 0, `${d.titre} px`);
+  dire(
+    `à ${l} px, le bandeau garde une hauteur`,
+    d.bandeau >= 200,
+    `${d.bandeau} px`,
+  );
+  await p.close();
+}
+
+await p1.close();
+await nav.close();
+if (soucis.length > 0) for (const s of soucis) console.log("  · " + s);
+console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
+Deno.exit(soucis.length === 0 ? 0 : 1);

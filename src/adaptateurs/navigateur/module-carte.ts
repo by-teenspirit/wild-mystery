@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-carte.ts
 //
+//  COUVERT PAR : outils/carte.mjs — la carte, ses formes, ses comptages et ses deux fonds.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  La carte interactive des territoires de Rhode.
 //
 //  Demandée le 8 octobre : « une carte interactive avec toutes les

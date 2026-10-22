@@ -274,6 +274,37 @@ jobs:
 
       - name: La navigation, dans un navigateur
         run: deno task navigation
+      #  ── LES SIX AUTRES HARNAIS, QUI NE TOURNAIENT NULLE PART ───────
+      #
+      #  Le 15 octobre, le garde-fou n° 22 a trouvé ça : sept harnais
+      #  dans `outils/`, UN SEUL lancé par ce travail (`navigation`) et
+      #  un autre par « Contraste des pages ». Les cinq autres ne
+      #  tournaient que sur ma machine — donc ils ne gardaient rien :
+      #  un harnais qu'on lance à la main est un harnais qu'on oublie de
+      #  lancer le jour où il aurait trouvé quelque chose.
+      #
+      #  Ils sont en étapes SÉPARÉES et pas dans une boucle : quand l'un
+      #  tombe, le nom de l'étape dit lequel, sans ouvrir le journal.
+      #  Chacun coûte une dizaine de secondes, le navigateur est déjà
+      #  installé et mis en cache.
+      - name: L'accueil
+        run: deno task accueil
+      - name: La carte
+        run: deno task carte
+      - name: Le confort et le coin d'outils
+        run: deno task confort
+      - name: Les membres en ligne
+        run: deno task enligne
+      - name: Les categories
+        run: deno task categories
+      - name: Le messenger
+        run: deno task messenger
+      - name: La barre d'actions
+        run: deno task barre
+      - name: La boutique
+        run: deno task boutique
+      - name: La page d'une zone
+        run: deno task zone
 
       #  LA VÉRIFICATION QUI COMPTE. jsDelivr sert `js/wild-mystery.js`
       #  depuis le dépôt, pas depuis une étape de construction : si le

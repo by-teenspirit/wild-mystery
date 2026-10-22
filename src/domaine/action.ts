@@ -30,29 +30,26 @@
  *  (`attaquer`, `ball`, `objet`, `fuir`), et pas avant : une action que
  *  le serveur ne sait pas honorer n'a rien à faire dans un bouton. */
 export type Action =
-  /** Le lieu est une CLÉ, pas un nom : voir `lieu.ts`.
+  /** « Fais apparaître un Pokémon. » Sans argument : la zone entière.
    *
-   *  IL EST OPTIONNEL DEPUIS LE 15 OCTOBRE, et ce n'est pas un
-   *  relâchement — c'est une décision de Callista : « on est déjà dans
-   *  une zone sauvage, avec un palier (fleuve paisible etc.), donc y'a
-   *  pas d'autres zones à rajouter. » Le joueur ne choisit donc JAMAIS
-   *  de lieu. C'est le serveur qui le tire parmi ceux de la zone, avec
-   *  la graine du message — donc reproductible, et rejouable des années
-   *  plus tard pour trancher une contestation.
+   *  ── IL Y AVAIT UN LIEU ICI ─────────────────────────────────────────
    *
-   *  CE QUE CETTE NOTE DISAIT AVANT : « il est obligatoire, parce qu'une
-   *  zone a quinze lieux et qu'on ne tire pas une rencontre sans savoir
-   *  où. » Le raisonnement était juste et la conclusion fausse : il faut
-   *  savoir où, mais ce n'est pas au joueur de le dire. C'est ce
-   *  glissement qui avait mis un menu déroulant dans la barre — un menu
-   *  qui ne faisait rien au clic, et qui a coûté un essai sur le forum.
+   *  `[[WM-ACTION:chercher:etang-vaseux]]` : une zone avait une
+   *  quinzaine de lieux, et le joueur en choisissait un dans un menu.
+   *  Callista a retiré le menu le 15 octobre au matin — « on est déjà
+   *  dans une zone sauvage, avec un palier » — puis les lieux eux-mêmes
+   *  l'après-midi : « enlève tous les petits lieux. On a 3 paliers, 17
+   *  zones sauvages, et tu répartis le pokédex comme ça. »
    *
-   *  ON CONTINUE DE LE LIRE QUAND IL EST LÀ. Des messages portant
-   *  `[[WM-ACTION:chercher:etang-vaseux]]` sont déjà postés — un sur
+   *  LA FORME À DEUX PARTIES SE LIT ENCORE, et c'est volontaire : des
+   *  messages en portent un, postés avant ce changement, dont un sur
    *  `t976`. **Un message posté ne change pas de sens parce qu'on a
-   *  changé le bouton.** Le lieu écrit à la main l'emporte donc sur le
-   *  tirage, et c'est la seule façon de ne pas réécrire le passé. */
-  | { readonly type: "chercher"; readonly lieu?: string }
+   *  changé la donnée.** Il dit « fais apparaître un Pokémon » — ce
+   *  qu'il a toujours dit — et le lieu est maintenant ignoré, puisque la
+   *  table est celle de la zone. On ne lève pas, et on ne refuse pas :
+   *  refuser ces messages, ce serait effacer ce que des joueurs ont
+   *  demandé. */
+  | { readonly type: "chercher" }
   /** Sans argument : fouiller vaut pour la zone entière, et le butin suit
    *  son palier (`fouille.ts`). */
   | { readonly type: "fouiller" };
@@ -78,13 +75,7 @@ function estUnVerbe(valeur: string): valeur is Verbe {
 }
 
 export function ecrireUneAction(action: Action): string {
-  //  Le bouton n'écrit plus de lieu. La forme à deux parties reste
-  //  écrivable — et c'est utile pour rejouer un ancien message à
-  //  l'identique — mais plus personne ne la produit depuis l'interface.
-  if (action.type !== "chercher") return `[[WM-ACTION:${action.type}]]`;
-  return action.lieu === undefined
-    ? "[[WM-ACTION:chercher]]"
-    : `[[WM-ACTION:chercher:${action.lieu}]]`;
+  return `[[WM-ACTION:${action.type}]]`;
 }
 
 /**
@@ -102,13 +93,12 @@ export function actionDe(texte: string): Action | null {
     const verbe = trouve[1];
     const argument = trouve[2];
     if (!estUnVerbe(verbe)) continue;
-    //  « chercher » SE LIT DES DEUX FAÇONS : avec un lieu, parce que des
-    //  messages en portent déjà un, et sans, parce que c'est ce que le
-    //  bouton écrit depuis le 15 octobre. Les deux disent « fais
-    //  apparaître un Pokémon » ; seul le tirage du lieu change de main.
-    if (verbe === "chercher") {
-      return argument ? { type: "chercher", lieu: argument } : { type: "chercher" };
-    }
+    //  « chercher » SE LIT DES DEUX FAÇONS, et rend la même chose : avec
+    //  un lieu, parce que des messages en portent déjà un, et sans,
+    //  parce que c'est ce que le bouton écrit depuis le 15 octobre. Le
+    //  lieu est lu puis laissé de côté — il n'y a plus de table par
+    //  lieu. Le message, lui, garde son texte : c'est la trace.
+    if (verbe === "chercher") return { type: "chercher" };
     //  « fouiller » AVEC un lieu, en revanche, dit quelque chose qu'on ne
     //  sait pas honorer : fouiller vaut pour la zone entière. On passe,
     //  plutôt que de deviner ce que le joueur voulait.

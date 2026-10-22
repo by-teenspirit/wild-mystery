@@ -30,6 +30,7 @@ import {
 import type {
   DemandeDeClotureLue,
   LecteurDeDemandes,
+  TableDeButin,
   TableDesFossiles,
   ZoneSauvage,
 } from "./ports.ts";
@@ -48,6 +49,16 @@ import { ParcourirLesZones, TACHE } from "./parcourir-les-zones.ts";
 const sansFossiles: TableDesFossiles = {
   fossiles: () => Promise.resolve([]),
   regles: () => Promise.resolve(REGLES_PAR_DEFAUT),
+};
+
+/** UNE FOUILLE QUI REND TOUJOURS DES POKÉDOLLARS : cette suite teste le
+ *  parcours des zones, pas le butin. Les quatre autres parts à zéro, et
+ *  rien à tirer dans la table d'objets — le décor le plus silencieux, et
+ *  les lignes écrites restent celles que ces tests attendent. */
+const butinMuet: TableDeButin = {
+  taux: () =>
+    Promise.resolve({ bredouille: 0, fossileEntier: 0, morceauDeFossile: 0, objet: 0 }),
+  butinDe: () => Promise.resolve([]),
 };
 
 const ANNA = "11111111-1111-1111-1111-111111111111";
@@ -112,6 +123,7 @@ function monter(
     { maintenant: () => new Date("2026-10-03T12:00:00Z") },
     new SignataireDeTest(),
     sansFossiles,
+    butinMuet,
   );
 
   const tache = new ParcourirLesZones(

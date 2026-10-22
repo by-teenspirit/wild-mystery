@@ -42,6 +42,7 @@ import {
 } from "../../../src/adaptateurs/forumactif/publication.ts";
 import { FauneEnFichiers, lecteurHttp } from "../../../src/adaptateurs/faune/fichiers.ts";
 import { FossilesEnFichiers } from "../../../src/adaptateurs/faune/fossiles.ts";
+import { ButinEnFichiers } from "../../../src/adaptateurs/faune/butin.ts";
 import { ComptoirsEnFichiers } from "../../../src/adaptateurs/faune/comptoirs.ts";
 import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
 import { FossilesSupabase } from "../../../src/adaptateurs/supabase/fossile.ts";
@@ -193,6 +194,12 @@ function assembler(reglages: Reglages): Montage {
   //  endroit, et une racine de plus serait une occasion de les
   //  désaccorder.
   const fossiles = new FossilesEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES);
+  //  LA TABLE DE BUTIN, servie depuis le dépôt comme les zones et les
+  //  fossiles. Elle porte les cinq parts d'une fouille et, par zone, les
+  //  objets qu'on y trouve. Contrairement aux fossiles, elle REFUSE
+  //  d'être illisible : sans elle on ne sait plus ce qu'une fouille rend
+  //  (voir son en-tête).
+  const butin = new ButinEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES);
   const jeu = new EtatDuJeuSupabase(appeler);
   const registre = new RegistreSupabase(appeler);
   const signataire = new SignataireHmac(reglages.WM_SECRET_SIGNATURE);
@@ -209,6 +216,7 @@ function assembler(reglages: Reglages): Montage {
     { maintenant: () => new Date() },
     signataire,
     fossiles,
+    butin,
   );
 
   const parcourir = new ParcourirLesZones(

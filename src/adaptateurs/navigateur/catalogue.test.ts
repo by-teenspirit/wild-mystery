@@ -65,18 +65,21 @@ Deno.test("les zones ne sont demandées qu'une fois", () => {
   });
 });
 
-Deno.test("chaque zone a son fichier de lieux, mis en cache séparément", async () => {
+Deno.test("LE NAVIGATEUR NE DEMANDE PLUS AUCUN FICHIER DE FAUNE", async () => {
+  //  Il en demandait un par zone visitée, pour le menu des lieux : 7 à
+  //  28 Ko au chargement de chaque sujet de zone. Les lieux ont disparu
+  //  le 15 octobre, et ce cas garde l'économie — c'est le genre de
+  //  requête qui revient toute seule en recopiant un module.
   const demandes: string[] = [];
   const c = new CatalogueDistant("https://exemple.fr/data/", (url) => {
     demandes.push(url);
-    return Promise.resolve({ lieux: { "Berge Est": {} } });
+    return Promise.resolve({ zones: [], especes: {} });
   });
-  await c.lieuxDe(9);
-  await c.lieuxDe(9);
-  await c.lieuxDe(34);
+  await c.zones();
+  await c.nomEspece(16);
   assertEquals(demandes, [
-    "https://exemple.fr/data/faune/9.json",
-    "https://exemple.fr/data/faune/34.json",
+    "https://exemple.fr/data/zones.json",
+    "https://exemple.fr/data/especes.json",
   ]);
 });
 
@@ -87,7 +90,6 @@ Deno.test("un réseau coupé rend une liste vide, il ne lève pas", async () => 
     return Promise.reject(new TypeError("Failed to fetch"));
   });
   assertEquals(await c.zones(), []);
-  assertEquals(await c.lieuxDe(9), []);
   assertEquals(await c.nomEspece(16), null);
 });
 

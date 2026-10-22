@@ -6,8 +6,16 @@
 //  1. Avec un faux lecteur et des fichiers écrits à la main : chaque
 //     refus a son test, y compris ceux qu'on espère ne jamais voir.
 //  2. Avec les VRAIS fichiers du dépôt : la seule façon de savoir que
-//     les 298 tables relevées le 2 octobre passent encore. Un test qui
-//     ne lirait que des fixtures ne dirait rien des données livrées.
+//     les 34 tables des dix-sept zones passent encore. Un test qui ne
+//     lirait que des fixtures ne dirait rien des données livrées.
+//
+//  CE FICHIER A PERDU UN NIVEAU LE 15 OCTOBRE. Il vérifiait des lieux —
+//  « un lieu inconnu nomme les lieux connus », « une condition absente
+//  de CE lieu » — parce qu'une zone avait quinze tables. Callista :
+//  « enlève tous les petits lieux. On a 3 paliers, 17 zones sauvages, et
+//  tu répartis le pokédex comme ça. » Une zone a maintenant une table
+//  par condition, et les cas de lieu sont remplacés par un seul : un
+//  fichier d'avant est REFUSÉ, pas lu de travers.
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals, assertRejects, assertThrows } from "@std/assert";
@@ -17,7 +25,6 @@ import {
   FauneEnFichiers,
   lecteurDeno,
   type LecteurDeTexte,
-  LieuInconnu,
   reduire,
   ZoneInconnue,
   ZoneSansFaune,
@@ -61,9 +68,13 @@ const ZONE_SIMPLE = {
 const FAUNE_SIMPLE = JSON.stringify({
   forumId: 9,
   zone: "Forêt Marécageuse",
-  lieux: {
-    "Lisière de Samaragd": { jour: [UNE_ENTREE], nuit: [UNE_ENTREE] },
-    "Clairière aux Lucioles": { nuit: [UNE_ENTREE] },
+  conditions: {
+    jour: [UNE_ENTREE],
+    nuit: [UNE_ENTREE],
+    //  Une météo, que plus aucune zone ne porte aujourd'hui mais que le
+    //  code sait servir : voir `domaine/meteo.ts`. Le jour où une table
+    //  de météo de zone sera écrite, ce cas garantit qu'elle passe.
+    "Pluie Battante": [UNE_ENTREE],
   },
 });
 
@@ -84,14 +95,16 @@ function fauneSimple(): FauneEnFichiers {
 // ── la réduction des noms ───────────────────────────────────────────
 
 Deno.test("reduire · enlève accents, casse et espaces en trop", () => {
-  assertEquals(reduire("Lisière de Samaragd"), "lisiere de samaragd");
-  assertEquals(reduire("  CLAIRIÈRE   aux Lucioles  "), "clairiere aux lucioles");
+  assertEquals(reduire("Pluie Battante"), "pluie battante");
+  assertEquals(reduire("  TEMPÊTE   de Sable  "), "tempete de sable");
   assertEquals(reduire("Tempête de Sable"), "tempete de sable");
 });
 
-Deno.test("un lieu se retrouve même sans accents ni casse", async () => {
+Deno.test("une condition se retrouve même sans accents ni casse", async () => {
+  //  Le nom vient d'un fichier écrit à la main, et il traversera un jour
+  //  un clavier sans accents.
   const f = fauneSimple();
-  const table = await f.tableDe(9, "lisiere de samaragd", "JOUR");
+  const table = await f.tableDe(9, "PLUIE battante");
   assertEquals(table.length, 1);
   assertEquals(table[0].especeId, 16);
 });
@@ -118,57 +131,40 @@ Deno.test("zones.json n'est lu qu'une fois, même pour trois questions", async (
   });
   const f = new FauneEnFichiers(lire);
   await f.zonesSauvages();
-  await f.lieuxDe(9);
-  await f.tableDe(9, "Lisière de Samaragd", "jour");
+  await f.conditionsDe(9);
+  await f.tableDe(9, "jour");
   assertEquals(demandes.filter((d) => d === "data/zones.json").length, 1);
   assertEquals(demandes.filter((d) => d === "data/faune/9.json").length, 1);
 });
 
 Deno.test("un forum qui n'est pas une zone est refusé, pas deviné", async () => {
-  await assertRejects(() => fauneSimple().tableDe(12, "Pyrite", "jour"), ZoneInconnue);
-  await assertRejects(() => fauneSimple().lieuxDe(65), ZoneInconnue);
+  await assertRejects(() => fauneSimple().tableDe(12, "jour"), ZoneInconnue);
+  await assertRejects(() => fauneSimple().conditionsDe(65), ZoneInconnue);
 });
 
-Deno.test("une zone sans faune a zéro lieu, et refuse un tirage", async () => {
+Deno.test("une zone sans faune a zéro condition, et refuse un tirage", async () => {
   const f = fauneSimple();
-  assertEquals(await f.lieuxDe(31), []);
-  const e = await assertRejects(() => f.tableDe(31, "Grand Hall", "nuit"), ZoneSansFaune);
+  assertEquals(await f.conditionsDe(31), []);
+  const e = await assertRejects(() => f.tableDe(31, "nuit"), ZoneSansFaune);
   assert(e.message.includes("Manoir Barjok"), e.message);
 });
 
-// ── les lieux et les conditions ─────────────────────────────────────
+// ── les conditions ──────────────────────────────────────────────────
 
-Deno.test("lieuxDe · rend les noms affichables, pas les formes réduites", async () => {
-  assertEquals(await fauneSimple().lieuxDe(9), [
-    "Lisière de Samaragd",
-    "Clairière aux Lucioles",
-  ]);
+Deno.test("conditionsDe · rend les noms écrits, dans l'ordre du fichier", async () => {
+  //  Les noms affichables, pas les formes réduites : c'est `meteo.ts` qui
+  //  choisit parmi eux, et il les rend tels quels.
+  assertEquals(await fauneSimple().conditionsDe(9), ["jour", "nuit", "Pluie Battante"]);
 });
 
-Deno.test("conditionsDe · rend ce que le lieu a, pas une liste fixe", async () => {
-  const f = fauneSimple();
-  assertEquals(await f.conditionsDe(9, "Lisière de Samaragd"), ["jour", "nuit"]);
-  assertEquals(await f.conditionsDe(9, "Clairière aux Lucioles"), ["nuit"]);
-});
-
-Deno.test("un lieu inconnu nomme les lieux connus", async () => {
+Deno.test("une condition inconnue nomme celles qui existent", async () => {
   const e = await assertRejects(
-    () => fauneSimple().tableDe(9, "Caverne Imaginaire", "jour"),
-    LieuInconnu,
-  );
-  assert(e.message.includes("Lisière de Samaragd"), e.message);
-});
-
-Deno.test("conditionsDe refuse aussi un lieu inconnu", async () => {
-  await assertRejects(() => fauneSimple().conditionsDe(9, "Nulle Part"), LieuInconnu);
-});
-
-Deno.test("une condition absente de CE lieu est refusée", async () => {
-  const e = await assertRejects(
-    () => fauneSimple().tableDe(9, "Clairière aux Lucioles", "jour"),
+    () => fauneSimple().tableDe(9, "blizzard"),
     ConditionInconnue,
   );
-  assert(e.message.includes("nuit"), e.message);
+  assert(e.message.includes("Pluie Battante"), e.message);
+  //  Et elle nomme la ZONE, pas un lieu : il n'y en a plus.
+  assert(e.message.includes("Forêt Marécageuse"), e.message);
 });
 
 // ── les refus de chargement ─────────────────────────────────────────
@@ -176,11 +172,26 @@ Deno.test("une condition absente de CE lieu est refusée", async () => {
 async function echoue(fichiers: Record<string, string>, extrait: string): Promise<void> {
   const { lire } = lecteurFeint(fichiers);
   const e = await assertRejects(
-    () => new FauneEnFichiers(lire).tableDe(9, "Lisière de Samaragd", "jour"),
+    () => new FauneEnFichiers(lire).tableDe(9, "jour"),
     DonneesIllisibles,
   );
   assert(e.message.includes(extrait), `attendu « ${extrait} », reçu « ${e.message} »`);
 }
+
+Deno.test("UN FICHIER D'AVANT LE 15 OCTOBRE EST REFUSÉ", async () => {
+  //  LE CAS QUI COMPTE LE PLUS DE CE FICHIER. Les anciens fichiers
+  //  portent « lieux », avec une table par lieu. Lus comme des fichiers
+  //  neufs, ils donneraient une zone sans aucune condition — donc aucune
+  //  rencontre — et le joueur ne verrait qu'un silence. On refuse, et le
+  //  message dit où sont partis les anciens.
+  await echoue({
+    "data/zones.json": zonesFeintes(ZONE_SIMPLE),
+    "data/faune/9.json": JSON.stringify({
+      forumId: 9,
+      lieux: { "Lisière de Samaragd": { jour: [UNE_ENTREE] } },
+    }),
+  }, "data/faune-v1/");
+});
 
 Deno.test("du JSON cassé est refusé en nommant le fichier", async () => {
   await echoue({ "data/zones.json": "{ pas du json" }, "data/zones.json");
@@ -206,7 +217,7 @@ Deno.test("un fichier de faune qui annonce un autre forum est refusé", async ()
     "data/zones.json": zonesFeintes(ZONE_SIMPLE),
     "data/faune/9.json": JSON.stringify({
       forumId: 34,
-      lieux: { "Lisière de Samaragd": { jour: [UNE_ENTREE] } },
+      conditions: { jour: [UNE_ENTREE] },
     }),
   }, "annonce le forum 34");
 });
@@ -216,11 +227,7 @@ Deno.test("une rareté inventée est refusée", async () => {
     "data/zones.json": zonesFeintes(ZONE_SIMPLE),
     "data/faune/9.json": JSON.stringify({
       forumId: 9,
-      lieux: {
-        "Lisière de Samaragd": {
-          jour: [{ ...UNE_ENTREE, rarete: "légendaire" }],
-        },
-      },
+      conditions: { jour: [{ ...UNE_ENTREE, rarete: "légendaire" }] },
     }),
   }, "légendaire");
 });
@@ -231,10 +238,8 @@ Deno.test("une table dont les pourcentages ne font pas 100 casse AU CHARGEMENT",
     "data/zones.json": zonesFeintes(ZONE_SIMPLE),
     "data/faune/9.json": JSON.stringify({
       forumId: 9,
-      lieux: {
-        "Lisière de Samaragd": {
-          jour: [{ ...UNE_ENTREE, pct: 60 }, { ...UNE_ENTREE, espece: 19, pct: 30 }],
-        },
+      conditions: {
+        jour: [{ ...UNE_ENTREE, pct: 60 }, { ...UNE_ENTREE, espece: 19, pct: 30 }],
       },
     }),
   }, "font 90");
@@ -245,7 +250,7 @@ Deno.test("un niveau au-delà de 100 casse au chargement", async () => {
     "data/zones.json": zonesFeintes(ZONE_SIMPLE),
     "data/faune/9.json": JSON.stringify({
       forumId: 9,
-      lieux: { "Lisière de Samaragd": { jour: [{ ...UNE_ENTREE, max: 101 }] } },
+      conditions: { jour: [{ ...UNE_ENTREE, max: 101 }] },
     }),
   }, "2..101");
 });
@@ -255,31 +260,28 @@ Deno.test("une entrée amputée est refusée", async () => {
     "data/zones.json": zonesFeintes(ZONE_SIMPLE),
     "data/faune/9.json": JSON.stringify({
       forumId: 9,
-      lieux: { "Lisière de Samaragd": { jour: [{ espece: 16, pct: 100 }] } },
+      conditions: { jour: [{ espece: 16, pct: 100 }] },
     }),
   }, "incomplète");
 });
 
-Deno.test("un lieu sans aucune condition est refusé", async () => {
+Deno.test("une zone sans aucune condition est refusée", async () => {
   await echoue({
     "data/zones.json": zonesFeintes(ZONE_SIMPLE),
-    "data/faune/9.json": JSON.stringify({
-      forumId: 9,
-      lieux: { "Lisière de Samaragd": {} },
-    }),
+    "data/faune/9.json": JSON.stringify({ forumId: 9, conditions: {} }),
   }, "aucune condition");
 });
 
-Deno.test("deux lieux qui se réduisent au même nom sont refusés", async () => {
-  // « Berge Est » et « berge  est » tireraient dans la même table sans
-  // qu'on sache laquelle : mieux vaut refuser le fichier.
+Deno.test("deux conditions qui se réduisent au même nom sont refusées", async () => {
+  // « Pluie Battante » et « pluie  battante » tireraient dans la même
+  // table sans qu'on sache laquelle : mieux vaut refuser le fichier.
   await echoue({
     "data/zones.json": zonesFeintes(ZONE_SIMPLE),
     "data/faune/9.json": JSON.stringify({
       forumId: 9,
-      lieux: {
-        "Lisière de Samaragd": { jour: [UNE_ENTREE] },
-        "lisiere  de  samaragd": { jour: [UNE_ENTREE] },
+      conditions: {
+        "Pluie Battante": [UNE_ENTREE],
+        "pluie  battante": [UNE_ENTREE],
       },
     }),
   }, "se réduisent");
@@ -288,7 +290,7 @@ Deno.test("deux lieux qui se réduisent au même nom sont refusés", async () =>
 Deno.test("un fichier de faune introuvable remonte l'erreur du lecteur", async () => {
   const { lire } = lecteurFeint({ "data/zones.json": zonesFeintes(ZONE_SIMPLE) });
   await assertRejects(
-    () => new FauneEnFichiers(lire).lieuxDe(9),
+    () => new FauneEnFichiers(lire).conditionsDe(9),
     Error,
     "absent : data/faune/9.json",
   );
@@ -300,7 +302,7 @@ Deno.test("la racine est préfixée à chaque chemin", async () => {
     [racine + "data/zones.json"]: zonesFeintes(ZONE_SIMPLE),
     [racine + "data/faune/9.json"]: FAUNE_SIMPLE,
   });
-  await new FauneEnFichiers(lire, racine).tableDe(9, "Lisière de Samaragd", "jour");
+  await new FauneEnFichiers(lire, racine).tableDe(9, "jour");
   assertEquals(demandes, [racine + "data/zones.json", racine + "data/faune/9.json"]);
 });
 
@@ -317,69 +319,71 @@ function vraieFaune(): FauneEnFichiers {
 }
 
 Deno.test("les vrais fichiers · dix-sept zones, TOUTES avec une faune", async () => {
-  //  Il y en avait dix le 4 octobre. Les sept dernières — Manoir Barjok,
-  //  Usine Désaffectée, Libra Échoué, Oasis Perdue, Planque Snatch,
-  //  Relique Sacrée, Volcan Sombre — sont arrivées le 5, générées par
-  //  `outils/zones-neuves.py` depuis la planche 39.
-  //
-  //  **Elles n'ont qu'UN lieu chacune**, et c'est assumé : la V1 ne les
-  //  avait pas, elles n'ont donc aucun lieu d'origine. Ce test le fige
-  //  pour qu'un découpage futur se voie.
   const zones = await vraieFaune().zonesSauvages();
   assertEquals(zones.length, 17);
   assertEquals(zones.filter((z) => z.aUneFaune).length, 17);
   assertEquals(zones.filter((z) => !z.aUneFaune).map((z) => z.forumId), []);
 });
 
-Deno.test("les vrais fichiers · les sept zones neuves n'ont qu'un lieu", async () => {
+Deno.test("les vrais fichiers · les 34 tables se chargent et sont jouables", async () => {
+  //  Il y en avait 312, réparties sur 152 lieux. Les lieux sont partis le
+  //  15 octobre : dix-sept zones, deux conditions chacune, 34 tables, et
+  //  les 933 espèces du Pokédex de Rhode dedans.
   const f = vraieFaune();
-  for (const forumId of [31, 35, 33, 101, 102, 46, 105]) {
-    const lieux = await f.lieuxDe(forumId);
-    assertEquals(lieux.length, 1, `le forum ${forumId} n'a plus un seul lieu`);
-  }
-});
-
-Deno.test("les vrais fichiers · les 312 tables se chargent et sont jouables", async () => {
-  const f = vraieFaune();
-  let lieux = 0;
   let tables = 0;
+  let especes = 0;
   for (const zone of await f.zonesSauvages()) {
     if (!zone.aUneFaune) continue;
-    const nomsDeLieux = await f.lieuxDe(zone.forumId);
-    assert(nomsDeLieux.length > 0, `${zone.nom} annonce une faune mais n'a aucun lieu`);
-    lieux += nomsDeLieux.length;
-    for (const lieu of nomsDeLieux) {
-      const conditions = await f.conditionsDe(zone.forumId, lieu);
-      assert(conditions.length > 0, `${zone.nom} / ${lieu} : aucune condition`);
-      for (const condition of conditions) {
-        const table = await f.tableDe(zone.forumId, lieu, condition);
-        verifieTable(table);
-        tables++;
-      }
+    const conditions = await f.conditionsDe(zone.forumId);
+    assert(conditions.length > 0, `${zone.nom} annonce une faune mais n'a aucune condition`);
+    for (const condition of conditions) {
+      const table = await f.tableDe(zone.forumId, condition);
+      verifieTable(table);
+      tables++;
+      if (condition === "jour") especes += table.length;
     }
   }
-  assertEquals(lieux, 152);
-  assertEquals(tables, 312);
+  assertEquals(tables, 34);
+  assertEquals(especes, 933);
 });
 
 Deno.test("les vrais fichiers · jour et nuit existent partout", async () => {
   const f = vraieFaune();
   for (const zone of await f.zonesSauvages()) {
     if (!zone.aUneFaune) continue;
-    for (const lieu of await f.lieuxDe(zone.forumId)) {
-      const c = await f.conditionsDe(zone.forumId, lieu);
-      assert(c.includes("jour"), `${zone.nom} / ${lieu} : pas de jour`);
-      assert(c.includes("nuit"), `${zone.nom} / ${lieu} : pas de nuit`);
+    const c = await f.conditionsDe(zone.forumId);
+    assert(c.includes("jour"), `${zone.nom} : pas de jour`);
+    assert(c.includes("nuit"), `${zone.nom} : pas de nuit`);
+  }
+});
+
+Deno.test("les vrais fichiers · AUCUNE ESPÈCE N'EST DANS DEUX ZONES", async () => {
+  //  Le Pokédex de Rhode répartit les 933 espèces, il ne les partage pas :
+  //  le sujet d'origine avait trois doublons, la planche 39 les a retirés.
+  //  Une espèce dans deux zones, c'est une rareté qui double sans que
+  //  personne l'ait décidé.
+  const f = vraieFaune();
+  const ou = new Map<number, string>();
+  for (const zone of await f.zonesSauvages()) {
+    for (const entree of await f.tableDe(zone.forumId, "jour")) {
+      const autre = ou.get(entree.especeId);
+      assertEquals(
+        autre,
+        undefined,
+        `l'espèce ${entree.especeId} est en ${autre} et ${zone.nom}`,
+      );
+      ou.set(entree.especeId, zone.nom);
     }
   }
+  assertEquals(ou.size, 933);
 });
 
 Deno.test("les vrais fichiers · un tirage réel est reproductible", async () => {
   // Valeur figée volontairement : si elle change, le tirage a changé de
   // comportement et tous les anciens codes de vérification deviennent faux.
-  const table = await vraieFaune().tableDe(9, "Lisière de Samaragd", "jour");
-  const premier = tirerUneRencontre(table, "message:8001|Lisière de Samaragd");
-  const second = tirerUneRencontre(table, "message:8001|Lisière de Samaragd");
+  const table = await vraieFaune().tableDe(9, "jour");
+  const premier = tirerUneRencontre(table, "message:8001");
+  const second = tirerUneRencontre(table, "message:8001");
   assertEquals(premier, second);
   assertThrows(() => verifieTable([]));
 });

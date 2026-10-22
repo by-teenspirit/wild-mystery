@@ -17,23 +17,57 @@
 //  `adaptateurs/navigateur/`.
 // ════════════════════════════════════════════════════════════════════
 
-import { cleDeLieu } from "../domaine/lieu.ts";
-
 /** Une zone sauvage, telle que `data/zones.json` la décrit. On ne reprend
  *  que ce dont le navigateur se sert : le reste du fichier est pour le
- *  serveur. */
+ *  serveur.
+ *
+ *  ── LES TROIS CHAMPS DU BANDEAU SONT FACULTATIFS ────────────────────
+ *
+ *  `niveau`, `description` et `image` sont recopiés de `data/carte.json`
+ *  par `outils/zones.py`. Ils servent AU BANDEAU de la page d'une zone,
+ *  et à rien d'autre : la barre d'actions et le module de bilan n'en
+ *  ont jamais besoin.
+ *
+ *  Ils sont donc facultatifs, et c'est une décision, pas un oubli. Le
+ *  jour où une zone nouvelle arrive dans `zones.json` sans être encore
+ *  sur la carte, ce qui compte — savoir que ce forum EST une zone —
+ *  doit continuer de marcher. On perd le bandeau, pas la fouille. */
 export type ZoneDuNavigateur = {
   readonly forumId: number;
   readonly nom: string;
   readonly palier: 1 | 2 | 3;
+  /** « Niveaux 1 à 20 ». La légende du bandeau. */
+  readonly niveau?: string;
+  /** La phrase d'ambiance, sous le titre. */
+  readonly description?: string;
+  /** L'adresse absolue de la photo, servie à côté du dépôt. */
+  readonly image?: string;
 };
 
-/** Un lieu, prêt pour un menu : son nom tel qu'on l'écrit, et la clé que
- *  le bloc d'action portera. */
-export type LieuChoisissable = {
-  readonly nom: string;
-  readonly cle: string;
-};
+/** Une chaîne non vide, ou `undefined`. Les trois champs du bandeau sont
+ *  du texte affiché tel quel : une valeur d'un autre type est ignorée
+ *  comme le reste du fichier, pas convertie. */
+function texte(valeur: unknown): string | undefined {
+  return typeof valeur === "string" && valeur.trim() !== "" ? valeur.trim() : undefined;
+}
+
+/** La légende du bandeau : « PALIER 1 · NIVEAUX 1 À 20 ».
+ *
+ *  La maquette `301:26` écrit « MONTAGNES EMBRUMÉES · NIVEAUX 14 À 28 »
+ *  parce qu'elle dessinait la page d'un LIEU, dont la zone était le
+ *  parent. Sur la page d'une zone, le nom est déjà le titre juste en
+ *  dessous : le répéter en surtitre ne dirait rien. Le palier, lui, ne
+ *  se lit nulle part ailleurs sur la page.
+ *
+ *  Les capitales sont faites ici et pas en CSS : `text-transform` ne
+ *  change pas le texte copié, et un joueur qui copie la légende doit
+ *  obtenir ce qu'il voit. */
+export function legendeDeZone(zone: ZoneDuNavigateur): string {
+  const palier = `PALIER ${zone.palier}`;
+  return zone.niveau === undefined
+    ? palier
+    : `${palier} · ${zone.niveau.toLocaleUpperCase("fr")}`;
+}
 
 function estUnPalier(v: unknown): v is 1 | 2 | 3 {
   return v === 1 || v === 2 || v === 3;
@@ -59,7 +93,17 @@ export function zonesDepuis(donnees: unknown): readonly ZoneDuNavigateur[] {
     if (typeof z.forumId !== "number" || !Number.isInteger(z.forumId)) continue;
     if (typeof z.nom !== "string" || z.nom === "") continue;
     if (!estUnPalier(z.palier)) continue;
-    zones.push({ forumId: z.forumId, nom: z.nom, palier: z.palier });
+    //  LES TROIS CHAMPS FACULTATIFS NE SONT POSÉS QUE S'ILS EXISTENT,
+    //  au lieu d'être posés à `undefined` : une zone sans bandeau rend
+    //  alors exactement l'objet qu'elle rendait avant le 22 octobre.
+    //  C'est ce qui permet de comparer une zone à une autre, et c'est ce
+    //  que font les tests de ce fichier.
+    const bandeau: Record<string, string> = {};
+    for (const champ of ["niveau", "description", "image"] as const) {
+      const valeur = texte(z[champ]);
+      if (valeur !== undefined) bandeau[champ] = valeur;
+    }
+    zones.push({ forumId: z.forumId, nom: z.nom, palier: z.palier, ...bandeau });
   }
   return zones;
 }
@@ -75,33 +119,13 @@ export function zoneDe(
   return zones.find((z) => z.forumId === forumId) ?? null;
 }
 
-/**
- * Les lieux d'une zone, lus dans `data/faune/<forumId>.json`, triés et
- * prêts pour un menu.
- *
- * **Triés par nom, et pas dans l'ordre du fichier.** L'ordre du fichier
- * est celui des annexes, qui suit la géographie ; un joueur qui cherche
- * « Berge Est » dans une liste de quinze entrées la trouve plus vite par
- * ordre alphabétique. On trie avec `localeCompare` : sans lui, « Étang »
- * passe après « Zone ».
- *
- * Deux lieux de la même zone n'ont jamais la même clé — vérifié sur les
- * 145 lieux le 2 octobre. Si ça arrivait quand même, on garde le premier
- * plutôt que d'offrir deux entrées indistinguables.
- */
-export function lieuxDepuis(donnees: unknown): readonly LieuChoisissable[] {
-  if (typeof donnees !== "object" || donnees === null) return [];
-  const lieux = (donnees as Record<string, unknown>).lieux;
-  if (typeof lieux !== "object" || lieux === null || Array.isArray(lieux)) return [];
-
-  const vus = new Set<string>();
-  const sortie: LieuChoisissable[] = [];
-  for (const nom of Object.keys(lieux)) {
-    if (nom === "") continue;
-    const cle = cleDeLieu(nom);
-    if (cle === "" || vus.has(cle)) continue;
-    vus.add(cle);
-    sortie.push({ nom, cle });
-  }
-  return sortie.sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
-}
+//  ── IL Y AVAIT `lieuxDepuis` ICI ────────────────────────────────────
+//
+//  Elle lisait les quinze lieux d'une zone dans son fichier de faune,
+//  triés par nom, pour le menu « Où » de la barre d'actions. Le menu est
+//  parti le 15 octobre au matin ; les lieux eux-mêmes l'après-midi :
+//  « enlève tous les petits lieux. On a 3 paliers, 17 zones sauvages, et
+//  tu répartis le pokédex comme ça. »
+//
+//  Une zone a maintenant une table par condition, et aucun nom de lieu.
+//  `LieuChoisissable` et `domaine/lieu.ts` sont partis avec.

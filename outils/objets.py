@@ -184,9 +184,15 @@ def en_forum(objets: list[dict]) -> str:
         '<div class="wm-boutique">',
         "<h2>La Boutique Générale de Rhode</h2>",
         "<p>Tout ce qui s'achète à Rhode est ici. Les prix sont en Pokédollars.</p>",
+        #  « Commander » ET PAS « Valider » : c'est le mot que le bouton
+        #  porte vraiment (`navigateur/boutique.ts`, `etatDuBouton`). Le
+        #  message disait « Valider » depuis le 9 octobre — un libellé
+        #  dans un mode d'emploi qui ne correspond pas au bouton, c'est
+        #  un joueur qui cherche un bouton qui n'existe pas.
         "<p><b>Pour commander :</b> cliquez sur les <b>+</b> pour remplir votre panier, "
-        "puis sur <b>Valider</b>. Le bouton remplit la réponse rapide — "
-        "<b>rien ne part sans vous</b>, vous pouvez ajouter un mot avant d'envoyer.</p>",
+        "puis sur <b>Commander</b>. Les <b>+</b> ne touchent pas à votre texte ; "
+        "le bouton remplit la réponse rapide — <b>rien ne part sans vous</b>, "
+        "vous pouvez ajouter un mot avant d'envoyer.</p>",
         "<p>Sans JavaScript, la liste reste lisible : recopiez ce que vous voulez "
         "dans votre réponse, le staff s'en occupera.</p>",
     ]

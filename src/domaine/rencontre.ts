@@ -120,47 +120,22 @@ export function tirerEtTracer(
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  LE LIEU, TIRÉ PAR LE SERVEUR
+//  IL Y AVAIT UN TIRAGE DE LIEU ICI, PENDANT HUIT HEURES
 //
-//  Décidé le 15 octobre, par Callista : « on est déjà dans une zone
-//  sauvage, avec un palier (fleuve paisible etc.), donc y'a pas d'autres
-//  zones à rajouter. » Le joueur ne choisit plus de lieu — le menu « Où »
-//  de la barre d'actions disparaît.
+//  Le 15 octobre au matin, Callista retirait le menu « Où » de la barre
+//  d'actions : « on est déjà dans une zone sauvage, avec un palier. » Le
+//  joueur ne choisissait plus de lieu, mais les tables vivaient encore
+//  par lieu — quinze par zone — donc le serveur en tirait un,
+//  `tirerUnLieu`, avec la graine du message.
 //
-//  POURQUOI LE SERVEUR DOIT QUAND MÊME EN CHOISIR UN. Les tables de
-//  rencontre vivent PAR LIEU : `data/faune/9.json` porte quinze lieux,
-//  chacun avec ses tables jour / nuit / pluie. Magicarpe est à 10 % à
-//  l'Étang Vaseux et absent de la Tourbière. Supprimer le lieu du tirage
-//  voudrait dire fondre quinze tables en une — donc réécrire la rareté
-//  que les annexes de la V1 ont dessinée. On garde les tables, et on tire
-//  le lieu.
+//  Le même jour, elle est allée au bout : « enlève tous les petits
+//  lieux. On a 3 paliers, 17 zones sauvages, et tu répartis le pokédex
+//  comme ça. » Une zone a maintenant UNE table par condition, et il n'y
+//  a plus rien à tirer : `tirerUnLieu` et `domaine/lieu.ts` sont partis
+//  avec leurs tests.
 //
-//  UNIFORME, ET C'EST UN CHOIX QU'IL FAUT DIRE. Rien dans les données ne
-//  dit qu'un lieu est plus probable qu'un autre, donc on ne l'invente
-//  pas. Conséquence à assumer : une espèce qui ne vit qu'à un lieu sur
-//  quinze devient quinze fois plus rare qu'au temps où le joueur pouvait
-//  y aller tout droit.
-//
-//  LA GRAINE EST CELLE DU MESSAGE, et c'est ce qui rend le tirage
-//  rejouable : le lieu tiré se recalcule des années plus tard pour
-//  trancher une contestation, comme l'espèce. Un lieu tiré à l'horloge
-//  aurait cassé cette garantie, qui est la raison d'être de la graine.
+//  Ce qui reste de ce passage, et qui valait le détour : la graine de
+//  l'espèce ne porte plus de suffixe. Elle en portait un (`|lieu`) pour
+//  ne pas partager la première valeur de la suite avec le tirage du
+//  lieu. Plus de second tirage, plus de partage, plus de suffixe.
 // ════════════════════════════════════════════════════════════════════
-
-/** Le lieu où la rencontre a lieu, tiré parmi ceux de la zone.
- *
- *  Rend `null` sur une liste vide — une zone sans faune, cas que
- *  l'appelant nomme déjà. On ne lève pas : une zone sans table est un
- *  défaut de données, pas une panne. */
-export function tirerUnLieu(
-  lieux: readonly string[],
-  graine: string,
-): string | null {
-  if (lieux.length === 0) return null;
-  //  `|lieu` dans la graine de l'espèce, `|ou` ici : deux tirages
-  //  différents à partir du même message. Sans ce préfixe, le lieu et
-  //  l'espèce partageraient la première valeur de la suite, et le choix
-  //  du lieu déciderait de l'espèce.
-  const tirage = suiteAleatoire(graineDepuis(`${graine}|ou`));
-  return lieux[entreBornes(tirage(), 0, lieux.length - 1)];
-}

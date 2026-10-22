@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-enligne.ts
 //
+//  COUVERT PAR : outils/enligne.mjs — la bande des membres en ligne.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  « Qui est en ligne ? », maquette `390:3387`.
 //
 //  ── TROIS COLONNES, ET TROIS SOURCES ────────────────────────────────

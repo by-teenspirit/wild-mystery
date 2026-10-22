@@ -91,7 +91,18 @@
     capitales suivies »). Ce n'est pas un pis-aller : c'est le
     traitement, et la photo prendra sa place au même endroit, aux
     mêmes dimensions. */
-#modernbb ul.topiclist li.header dl.icon {
+/*  ── ET LA PAGE D'UNE ZONE PARTAGE CETTE BANDE ────────────────────
+
+    `templates/viewforum_body.nouveau.html` pose sa propre bande de
+    section au-dessus de la liste des sujets — la maquette `301:13` la
+    veut « identique à l'index ». Un second jeu de déclarations serait
+    deux endroits à tenir d'accord : c'est le même sélecteur qui les
+    sert, et elles ne peuvent donc pas diverger.
+
+    Ce qui la distingue — le rang, les filets, le titre — est au § 11
+    de `04`, parce que c'est son balisage à elle. */
+#modernbb ul.topiclist li.header dl.icon,
+#modernbb .wm-forum__bande {
   display: flex;
   min-height: 74px;
   align-items: center;

@@ -1,5 +1,5 @@
 import { assertEquals } from "@std/assert";
-import { lieuxDepuis, zoneDe, type ZoneDuNavigateur, zonesDepuis } from "./zone.ts";
+import { legendeDeZone, zoneDe, type ZoneDuNavigateur, zonesDepuis } from "./zone.ts";
 
 const FORET: ZoneDuNavigateur = { forumId: 9, nom: "Forêt Marécageuse", palier: 1 };
 
@@ -66,40 +66,49 @@ Deno.test("un forum qui n'est pas une zone rend null, et c'est le cas normal", (
   assertEquals(zoneDe(null, [FORET]), null);
 });
 
-// ── lire les lieux d'une zone ───────────────────────────────────────
+// ── le bandeau de la page d'une zone (22 octobre) ───────────────────
 
-Deno.test("les lieux sortent triés par nom, avec leur clé", () => {
-  const lieux = lieuxDepuis({
-    forumId: 9,
-    lieux: {
-      "Marais aux Brumes": { jour: [] },
-      "Berge Est": { jour: [], nuit: [] },
-      "Lisière de Samaragd": { jour: [] },
-    },
-  });
-  assertEquals(lieux, [
-    { nom: "Berge Est", cle: "berge-est" },
-    { nom: "Lisière de Samaragd", cle: "lisiere-de-samaragd" },
-    { nom: "Marais aux Brumes", cle: "marais-aux-brumes" },
-  ]);
+Deno.test("LES TROIS CHAMPS DU BANDEAU SONT LUS QUAND ILS SONT LÀ", () => {
+  const brut = {
+    zones: [{
+      forumId: 34,
+      nom: "Montagnes Embrumées",
+      palier: 1,
+      niveau: "Niveaux 1 à 20",
+      description: "Des crêtes qui disparaissent dans le brouillard.",
+      image: "https://exemple/montagnes-embrumees.jpg",
+    }],
+  };
+  assertEquals(zonesDepuis(brut), [{
+    forumId: 34,
+    nom: "Montagnes Embrumées",
+    palier: 1,
+    niveau: "Niveaux 1 à 20",
+    description: "Des crêtes qui disparaissent dans le brouillard.",
+    image: "https://exemple/montagnes-embrumees.jpg",
+  }]);
 });
 
-Deno.test("le tri respecte les accents", () => {
-  //  Sans `localeCompare`, « Étang » passerait après « Zone » : le code
-  //  des caractères accentués est au-dessus de celui de « Z ».
-  const lieux = lieuxDepuis({ lieux: { "Zone Humide": {}, "Étang Clair": {}, "Allée": {} } });
-  assertEquals(lieux.map((l) => l.nom), ["Allée", "Étang Clair", "Zone Humide"]);
+Deno.test("UNE ZONE SANS BANDEAU RESTE UNE ZONE", () => {
+  //  C'est ce qui compte : savoir que ce forum est une zone décide de
+  //  la barre d'actions et du module de bilan. Le bandeau n'est qu'un
+  //  décor, et une zone neuve, pas encore sur la carte, doit pouvoir
+  //  se fouiller.
+  const brut = { zones: [{ forumId: 9, nom: "Forêt Marécageuse", palier: 1, niveau: "  " }] };
+  assertEquals(zonesDepuis(brut), [FORET]);
 });
 
-Deno.test("deux lieux de même clé ne donnent qu'une entrée", () => {
-  //  Vérifié sur les 145 lieux le 2 octobre : ça n'arrive pas. Mais deux
-  //  entrées de menu indistinguables seraient pires qu'une seule.
-  const lieux = lieuxDepuis({ lieux: { "Berge Est": {}, "berge  est": {} } });
-  assertEquals(lieux.length, 1);
+Deno.test("un champ de bandeau qui n'est pas du texte est ignoré, pas converti", () => {
+  const brut = { zones: [{ forumId: 9, nom: "Forêt Marécageuse", palier: 1, image: 404 }] };
+  assertEquals(zonesDepuis(brut), [FORET]);
 });
 
-Deno.test("un fichier de faune illisible rend une liste vide", () => {
-  for (const rien of [null, undefined, 42, { lieux: [] }, { lieux: null }, {}]) {
-    assertEquals(lieuxDepuis(rien), [], JSON.stringify(rien));
-  }
+Deno.test("la légende dit le palier, et les niveaux s'il y en a", () => {
+  assertEquals(
+    legendeDeZone({ ...FORET, niveau: "Niveaux 1 à 20" }),
+    "PALIER 1 · NIVEAUX 1 À 20",
+  );
+  //  Sans niveau, on écrit ce qu'on sait plutôt qu'un séparateur qui
+  //  pend dans le vide.
+  assertEquals(legendeDeZone(FORET), "PALIER 1");
 });

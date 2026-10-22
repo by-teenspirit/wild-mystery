@@ -3,6 +3,12 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-boutique.ts
 //
+//  COUVERT PAR : outils/boutique.mjs — le catalogue réel du dépôt monté
+//  dans un navigateur, avec une réponse rapide, et ce que les soixante-huit
+//  boutons font au message.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  Le panier, posé par-dessus le catalogue écrit dans le message.
 //
 //  ── ON RECONNAÎT LA BOUTIQUE À SON BALISAGE, PAS À SON NUMÉRO ────────
@@ -30,6 +36,24 @@
 //  dessus. C'est lui qui envoie. Même règle que le bouton de clôture, et
 //  même raison : il n'existe aucune API d'écriture chez Forumactif, et
 //  c'est très bien.
+//
+//  ── LES « + » NE TOUCHENT PLUS AU MESSAGE, DEPUIS LE 15 OCTOBRE ──────
+//
+//  Callista, après avoir essayé la barre d'actions : « je n'aime pas le
+//  fait que ça ajoute une balise dans mon texte, je veux que ce soit
+//  automatique quand je clique […] pareil pour le panier. »
+//
+//  Le panier s'écrivait à CHAQUE clic, et le commentaire au-dessus de
+//  `ecrire` défendait ça : « le joueur voit son bloc se construire
+//  pendant qu'il remplit ». L'intention était bonne et le résultat
+//  mauvais : on remplit un panier en vingt clics, et pendant ces vingt
+//  clics un bloc de syntaxe grossit au milieu de ce qu'on écrit.
+//
+//  Le panier vit donc dans la PAGE — compteurs, lignes surlignées,
+//  total sur le bouton — et le bloc s'écrit à deux moments seulement :
+//  au clic sur « Commander », et à l'envoi du formulaire. Le second
+//  rattrape le cas qui coûterait une commande : remplir le panier,
+//  écrire un mot, et envoyer sans avoir cliqué « Commander ».
 // ════════════════════════════════════════════════════════════════════
 
 import {
@@ -38,6 +62,7 @@ import {
   combien,
   etatDuBouton,
   lignesDuPanier,
+  nombreDArticles,
   type Panier,
   PANIER_VIDE,
   pokedollars,
@@ -137,12 +162,11 @@ export function poserLaBoutique({ doc, brouillon }: Dependances): boolean {
     for (const c of compteurs) c();
   };
 
-  /** Écrit le panier dans le brouillon. Appelé à CHAQUE changement.
+  /** Écrit le panier dans le brouillon. Appelé à DEUX moments : au clic
+   *  sur « Commander », et à l'envoi du formulaire — voir l'en-tête.
    *
-   *  Écrire en continu plutôt qu'au clic sur « Commander » : le joueur
-   *  voit son bloc se construire pendant qu'il remplit, et il peut
-   *  l'effacer à la main s'il change d'avis — ce que le bouton de
-   *  clôture lui permet déjà. */
+   *  `poserLePanier` REMPLACE le bloc présent au lieu de l'empiler :
+   *  écrire deux fois ne commande pas deux fois. */
   const ecrire = () => {
     brouillon.ecrire(poserLePanier(brouillon.lire(), lignesDuPanier(panier, catalogue)));
   };
@@ -164,8 +188,10 @@ export function poserLaBoutique({ doc, brouillon }: Dependances): boolean {
       //  trente-quatre paires sur la page, toutes identiques.
       b.setAttribute("aria-label", `${quoi} un ${article.nom}`);
       b.addEventListener("click", () => {
+        //  PAS DE `ecrire()` ICI. Un clic change le panier, et le panier
+        //  est dans la page : compteur, ligne surlignée, total sur le
+        //  bouton. Le message du joueur n'est pas touché.
         panier = ajuster(panier, objetId, delta);
-        ecrire();
         rafraichir();
       });
       return b;
@@ -201,6 +227,24 @@ export function poserLaBoutique({ doc, brouillon }: Dependances): boolean {
   //  ne porte que des identifiants et des quantités, et reconstruire un
   //  panier à partir de lui donnerait l'illusion d'un état partagé qui
   //  n'existe pas. Le panier vit dans la page, le temps de la page.
+  //  L'ENVOI, PAR LES DEUX CHEMINS, comme la barre d'actions : un
+  //  `form.submit()` appelé en JavaScript n'émet pas `submit`, et
+  //  Forumactif en appelle. La phase de capture passe avant les scripts
+  //  du forum, dont l'un pourrait arrêter la propagation.
+  //
+  //  On n'écrit QUE si le panier n'est pas vide : un message sans
+  //  commande ne doit pas partir avec un bloc de panier vide.
+  const formulaire = doc.querySelector("#quick_reply") ?? doc.querySelector("form[name=post]");
+  if (formulaire !== null) {
+    const aLenvoi = () => {
+      if (nombreDArticles(panier) > 0) ecrire();
+    };
+    formulaire.addEventListener("submit", aLenvoi, { capture: true });
+    for (const envoi of formulaire.querySelectorAll('[type="submit"]')) {
+      envoi.addEventListener("click", aLenvoi, { capture: true });
+    }
+  }
+
   brouillon.surChangement(rafraichir);
   rafraichir();
   return true;

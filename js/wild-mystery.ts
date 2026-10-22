@@ -65,6 +65,10 @@ import {
   poserLaCarte,
 } from "../src/adaptateurs/navigateur/module-carte.ts";
 import { poserLeSwitcheroo } from "../src/adaptateurs/navigateur/module-switcheroo.ts";
+import {
+  poserLeBandeauDeZone,
+  poserLesSujets,
+} from "../src/adaptateurs/navigateur/module-zone.ts";
 import { accueilDepuis } from "../src/navigateur/accueil.ts";
 import { sourceDAvatar } from "../src/navigateur/navigation.ts";
 import {
@@ -293,6 +297,25 @@ async function poserLeModule(): Promise<void> {
   });
 }
 
+/** Le bandeau d'une zone, maquettes `301:13` et `301:26`.
+ *
+ *  **La porte d'entrée est la liste de sujets**, et pas l'adresse : on
+ *  ne demande `zones.json` que si la page porte un `ul.topics`, c'est-
+ *  à-dire sur les pages de forum et nulle part ailleurs. Sur les
+ *  centaines d'autres pages, c'est une requête de moins.
+ *
+ *  Et `zoneDe` tranche ensuite : une ville, une arène, le flood n'ont
+ *  pas de bandeau. Même règle que la barre d'actions et le module de
+ *  bilan, et c'est la même ligne de données qui la porte. */
+async function poserLaZone(): Promise<void> {
+  if (RACINE === null) return;
+  if (document.querySelector("ul.topics") === null) return;
+  const catalogue = new CatalogueDistant(RACINE);
+  const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
+  if (zone === null) return;
+  poserLeBandeauDeZone({ doc: document, zone });
+}
+
 /** La carte des territoires, sur l'index seulement.
  *
  *  ── L'ORDRE EST LA MOITIÉ DU TRAVAIL ────────────────────────────────
@@ -449,11 +472,25 @@ desQueLeCorpsEstLa(() => {
   //  qui défile et pas le titre au-dessus. Après les sous-forums :
   //  c'est leur rang qui lui sert de frontière.
   envelopperLesDescriptions(document);
+  //  ET LES LIGNES DE SUJET REÇOIVENT LEUR ROND ET LEURS ÉTIQUETTES.
+  //  Sans réseau : l'état est dans le style en ligne du gabarit, les
+  //  étiquettes dans le titre. Sur toutes les pages de forum, pas
+  //  seulement les zones — « [LIBRE] » s'écrit aussi en ville.
+  //
+  //  AVANT `poserLesPastilles`, ET CE N'EST PAS UN DÉTAIL D'ORDRE :
+  //  elle passe sur les mêmes `li.row dl.icon`, en sort l'image et
+  //  EFFACE le fond en ligne. Après elle, l'état d'un sujet ne se lit
+  //  plus — tous les sujets paraissaient lus. Le module sait se
+  //  rattraper sur l'image, mais l'ordre juste est celui-ci.
+  poserLesSujets(document);
   //  ET L'IMAGE DU FORUM SORT DE SON STYLE EN LIGNE pour entrer dans
   //  le rond de la maquette. Elle est posée par Forumactif en
   //  `background` sur le `<dl>`, position comprise : aucune règle ne
   //  la bat, il faut la déplacer.
   poserLesPastilles(document);
+  //  Le bandeau, lui, demande `zones.json` et ne part que si le forum
+  //  EST une zone.
+  poserLaZone().catch(() => {});
   //  ET LA CARTE DES TERRITOIRES, sur l'index seulement. Elle s'AJOUTE
   //  au-dessus des catégories, elle ne les remplace pas : sans
   //  JavaScript on garde la liste entière, et avec, on a les deux.

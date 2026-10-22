@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/stockage.ts
 //
+//  COUVERT PAR : outils/confort.mjs — la clé `wm.confort` relue dans `localStorage` après un clic.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  `localStorage` derrière le port `Stockage`.
 //
 //  Il ne rattrape rien : c'est `Preferences` qui décide quoi faire d'une

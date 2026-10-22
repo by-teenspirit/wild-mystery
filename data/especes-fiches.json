@@ -38,6 +38,14 @@
    "pv": 39,
    "forme": null
   },
+  "5": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 58,
+   "forme": null
+  },
   "6": {
    "types": [
     "feu",
@@ -61,6 +69,14 @@
    ],
    "stade": 2,
    "pv": 59,
+   "forme": null
+  },
+  "9": {
+   "types": [
+    "eau"
+   ],
+   "stade": 3,
+   "pv": 79,
    "forme": null
   },
   "10": {
@@ -133,6 +149,15 @@
    "pv": 63,
    "forme": null
   },
+  "18": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 3,
+   "pv": 83,
+   "forme": null
+  },
   "19": {
    "types": [
     "normal"
@@ -156,6 +181,15 @@
    ],
    "stade": 1,
    "pv": 40,
+   "forme": null
+  },
+  "22": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 65,
    "forme": null
   },
   "23": {
@@ -196,6 +230,14 @@
    ],
    "stade": 1,
    "pv": 50,
+   "forme": null
+  },
+  "28": {
+   "types": [
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 75,
    "forme": null
   },
   "29": {
@@ -270,6 +312,14 @@
    ],
    "stade": 1,
    "pv": 38,
+   "forme": null
+  },
+  "38": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 73,
    "forme": null
   },
   "39": {
@@ -379,6 +429,14 @@
    "pv": 10,
    "forme": null
   },
+  "51": {
+   "types": [
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 35,
+   "forme": null
+  },
   "52": {
    "types": [
     "normal"
@@ -419,12 +477,28 @@
    "pv": 40,
    "forme": null
   },
+  "57": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
   "58": {
    "types": [
     "feu"
    ],
    "stade": 1,
    "pv": 55,
+   "forme": null
+  },
+  "59": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 90,
    "forme": null
   },
   "60": {
@@ -441,6 +515,15 @@
    ],
    "stade": 2,
    "pv": 65,
+   "forme": null
+  },
+  "62": {
+   "types": [
+    "eau",
+    "combat"
+   ],
+   "stade": 3,
+   "pv": 90,
    "forme": null
   },
   "63": {
@@ -571,6 +654,14 @@
    "pv": 50,
    "forme": null
   },
+  "78": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
   "79": {
    "types": [
     "eau",
@@ -623,6 +714,15 @@
    ],
    "stade": 1,
    "pv": 35,
+   "forme": null
+  },
+  "85": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 60,
    "forme": null
   },
   "86": {
@@ -782,6 +882,30 @@
     "sol"
    ],
    "stade": 1,
+   "pv": 50,
+   "forme": null
+  },
+  "105": {
+   "types": [
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
+  "106": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 50,
+   "forme": null
+  },
+  "107": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
    "pv": 50,
    "forme": null
   },
@@ -967,6 +1091,15 @@
    "pv": 20,
    "forme": null
   },
+  "130": {
+   "types": [
+    "eau",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 95,
+   "forme": null
+  },
   "131": {
    "types": [
     "eau",
@@ -990,6 +1123,14 @@
    ],
    "stade": 1,
    "pv": 55,
+   "forme": null
+  },
+  "134": {
+   "types": [
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 130,
    "forme": null
   },
   "135": {
@@ -1108,6 +1249,14 @@
    "pv": 39,
    "forme": null
   },
+  "156": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 58,
+   "forme": null
+  },
   "157": {
    "types": [
     "feu"
@@ -1130,6 +1279,14 @@
    ],
    "stade": 2,
    "pv": 65,
+   "forme": null
+  },
+  "160": {
+   "types": [
+    "eau"
+   ],
+   "stade": 3,
+   "pv": 85,
    "forme": null
   },
   "161": {
@@ -1155,6 +1312,15 @@
    ],
    "stade": 1,
    "pv": 60,
+   "forme": null
+  },
+  "164": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 100,
    "forme": null
   },
   "165": {
@@ -1193,6 +1359,15 @@
    "pv": 70,
    "forme": null
   },
+  "169": {
+   "types": [
+    "poison",
+    "vol"
+   ],
+   "stade": 3,
+   "pv": 85,
+   "forme": null
+  },
   "170": {
    "types": [
     "eau",
@@ -1209,6 +1384,39 @@
    ],
    "stade": 2,
    "pv": 125,
+   "forme": null
+  },
+  "172": {
+   "types": [
+    "electrik"
+   ],
+   "stade": 1,
+   "pv": 20,
+   "forme": null
+  },
+  "173": {
+   "types": [
+    "fee"
+   ],
+   "stade": 1,
+   "pv": 50,
+   "forme": null
+  },
+  "174": {
+   "types": [
+    "normal",
+    "fee"
+   ],
+   "stade": 1,
+   "pv": 90,
+   "forme": null
+  },
+  "175": {
+   "types": [
+    "fee"
+   ],
+   "stade": 1,
+   "pv": 35,
    "forme": null
   },
   "176": {
@@ -1254,6 +1462,14 @@
    "pv": 70,
    "forme": null
   },
+  "181": {
+   "types": [
+    "electrik"
+   ],
+   "stade": 3,
+   "pv": 90,
+   "forme": null
+  },
   "182": {
    "types": [
     "plante"
@@ -1271,12 +1487,29 @@
    "pv": 70,
    "forme": null
   },
+  "184": {
+   "types": [
+    "eau",
+    "fee"
+   ],
+   "stade": 3,
+   "pv": 100,
+   "forme": null
+  },
   "185": {
    "types": [
     "roche"
    ],
    "stade": 2,
    "pv": 70,
+   "forme": null
+  },
+  "186": {
+   "types": [
+    "eau"
+   ],
+   "stade": 3,
+   "pv": 90,
    "forme": null
   },
   "187": {
@@ -1357,6 +1590,14 @@
    "pv": 95,
    "forme": null
   },
+  "196": {
+   "types": [
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
   "197": {
    "types": [
     "tenebres"
@@ -1372,6 +1613,15 @@
    ],
    "stade": 1,
    "pv": 60,
+   "forme": null
+  },
+  "199": {
+   "types": [
+    "eau",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 95,
    "forme": null
   },
   "200": {
@@ -1458,6 +1708,14 @@
    "pv": 60,
    "forme": null
   },
+  "210": {
+   "types": [
+    "fee"
+   ],
+   "stade": 2,
+   "pv": 90,
+   "forme": null
+  },
   "211": {
    "types": [
     "eau",
@@ -1525,6 +1783,15 @@
    ],
    "stade": 1,
    "pv": 40,
+   "forme": null
+  },
+  "219": {
+   "types": [
+    "feu",
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 60,
    "forme": null
   },
   "220": {
@@ -1606,11 +1873,37 @@
    "pv": 45,
    "forme": null
   },
+  "229": {
+   "types": [
+    "tenebres",
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 75,
+   "forme": null
+  },
+  "230": {
+   "types": [
+    "eau",
+    "dragon"
+   ],
+   "stade": 3,
+   "pv": 75,
+   "forme": null
+  },
   "231": {
    "types": [
     "sol"
    ],
    "stade": 1,
+   "pv": 90,
+   "forme": null
+  },
+  "232": {
+   "types": [
+    "sol"
+   ],
+   "stade": 2,
    "pv": 90,
    "forme": null
   },
@@ -1636,6 +1929,47 @@
    ],
    "stade": 1,
    "pv": 55,
+   "forme": null
+  },
+  "236": {
+   "types": [
+    "combat"
+   ],
+   "stade": 1,
+   "pv": 35,
+   "forme": null
+  },
+  "237": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 50,
+   "forme": null
+  },
+  "238": {
+   "types": [
+    "glace",
+    "psy"
+   ],
+   "stade": 1,
+   "pv": 45,
+   "forme": null
+  },
+  "239": {
+   "types": [
+    "electrik"
+   ],
+   "stade": 1,
+   "pv": 45,
+   "forme": null
+  },
+  "240": {
+   "types": [
+    "feu"
+   ],
+   "stade": 1,
+   "pv": 45,
    "forme": null
   },
   "241": {
@@ -1713,6 +2047,15 @@
    "pv": 45,
    "forme": null
   },
+  "256": {
+   "types": [
+    "feu",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
   "257": {
    "types": [
     "feu",
@@ -1739,12 +2082,29 @@
    "pv": 70,
    "forme": null
   },
+  "260": {
+   "types": [
+    "eau",
+    "sol"
+   ],
+   "stade": 3,
+   "pv": 100,
+   "forme": null
+  },
   "261": {
    "types": [
     "tenebres"
    ],
    "stade": 1,
    "pv": 35,
+   "forme": null
+  },
+  "262": {
+   "types": [
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 70,
    "forme": null
   },
   "263": {
@@ -1823,6 +2183,15 @@
    "pv": 60,
    "forme": null
   },
+  "272": {
+   "types": [
+    "eau",
+    "plante"
+   ],
+   "stade": 3,
+   "pv": 80,
+   "forme": null
+  },
   "273": {
    "types": [
     "plante"
@@ -1858,6 +2227,15 @@
    "pv": 40,
    "forme": null
   },
+  "277": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
   "278": {
    "types": [
     "eau",
@@ -1865,6 +2243,15 @@
    ],
    "stade": 1,
    "pv": 40,
+   "forme": null
+  },
+  "279": {
+   "types": [
+    "eau",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 60,
    "forme": null
   },
   "280": {
@@ -1917,6 +2304,15 @@
     "plante"
    ],
    "stade": 1,
+   "pv": 60,
+   "forme": null
+  },
+  "286": {
+   "types": [
+    "plante",
+    "combat"
+   ],
+   "stade": 2,
    "pv": 60,
    "forme": null
   },
@@ -2003,6 +2399,23 @@
    "pv": 72,
    "forme": null
   },
+  "297": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 144,
+   "forme": null
+  },
+  "298": {
+   "types": [
+    "normal",
+    "fee"
+   ],
+   "stade": 1,
+   "pv": 50,
+   "forme": null
+  },
   "299": {
    "types": [
     "roche"
@@ -2063,6 +2476,15 @@
    "pv": 60,
    "forme": null
   },
+  "306": {
+   "types": [
+    "acier",
+    "roche"
+   ],
+   "stade": 3,
+   "pv": 70,
+   "forme": null
+  },
   "307": {
    "types": [
     "combat",
@@ -2070,6 +2492,15 @@
    ],
    "stade": 1,
    "pv": 30,
+   "forme": null
+  },
+  "308": {
+   "types": [
+    "combat",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 60,
    "forme": null
   },
   "309": {
@@ -2171,6 +2602,14 @@
    "pv": 130,
    "forme": null
   },
+  "321": {
+   "types": [
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 170,
+   "forme": null
+  },
   "322": {
    "types": [
     "feu",
@@ -2178,6 +2617,15 @@
    ],
    "stade": 1,
    "pv": 60,
+   "forme": null
+  },
+  "323": {
+   "types": [
+    "feu",
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 70,
    "forme": null
   },
   "324": {
@@ -2244,6 +2692,15 @@
    ],
    "stade": 1,
    "pv": 50,
+   "forme": null
+  },
+  "332": {
+   "types": [
+    "plante",
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 70,
    "forme": null
   },
   "333": {
@@ -2342,6 +2799,15 @@
    "pv": 40,
    "forme": null
   },
+  "344": {
+   "types": [
+    "sol",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
   "345": {
    "types": [
     "roche",
@@ -2366,6 +2832,14 @@
    ],
    "stade": 1,
    "pv": 20,
+   "forme": null
+  },
+  "350": {
+   "types": [
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 95,
    "forme": null
   },
   "351": {
@@ -2441,6 +2915,14 @@
    "pv": 65,
    "forme": null
   },
+  "360": {
+   "types": [
+    "psy"
+   ],
+   "stade": 1,
+   "pv": 95,
+   "forme": null
+  },
   "361": {
    "types": [
     "glace"
@@ -2475,6 +2957,15 @@
    "pv": 90,
    "forme": null
   },
+  "365": {
+   "types": [
+    "glace",
+    "eau"
+   ],
+   "stade": 3,
+   "pv": 110,
+   "forme": null
+  },
   "366": {
    "types": [
     "eau"
@@ -2484,6 +2975,14 @@
    "forme": null
   },
   "367": {
+   "types": [
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 55,
+   "forme": null
+  },
+  "368": {
    "types": [
     "eau"
    ],
@@ -2551,6 +3050,15 @@
    "pv": 60,
    "forme": null
   },
+  "376": {
+   "types": [
+    "acier",
+    "psy"
+   ],
+   "stade": 3,
+   "pv": 80,
+   "forme": null
+  },
   "387": {
    "types": [
     "plante"
@@ -2584,6 +3092,15 @@
    "pv": 44,
    "forme": null
   },
+  "391": {
+   "types": [
+    "feu",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 64,
+   "forme": null
+  },
   "392": {
    "types": [
     "feu",
@@ -2609,6 +3126,15 @@
    "pv": 64,
    "forme": null
   },
+  "395": {
+   "types": [
+    "eau",
+    "acier"
+   ],
+   "stade": 3,
+   "pv": 84,
+   "forme": null
+  },
   "396": {
    "types": [
     "normal",
@@ -2618,12 +3144,39 @@
    "pv": 40,
    "forme": null
   },
+  "397": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 55,
+   "forme": null
+  },
+  "398": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 3,
+   "pv": 85,
+   "forme": null
+  },
   "399": {
    "types": [
     "normal"
    ],
    "stade": 1,
    "pv": 59,
+   "forme": null
+  },
+  "400": {
+   "types": [
+    "normal",
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 79,
    "forme": null
   },
   "401": {
@@ -2656,6 +3209,23 @@
    ],
    "stade": 2,
    "pv": 60,
+   "forme": null
+  },
+  "405": {
+   "types": [
+    "electrik"
+   ],
+   "stade": 3,
+   "pv": 80,
+   "forme": null
+  },
+  "406": {
+   "types": [
+    "plante",
+    "poison"
+   ],
+   "stade": 1,
+   "pv": 40,
    "forme": null
   },
   "407": {
@@ -2785,6 +3355,14 @@
    "pv": 111,
    "forme": null
   },
+  "424": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 75,
+   "forme": null
+  },
   "425": {
    "types": [
     "spectre",
@@ -2809,6 +3387,14 @@
    ],
    "stade": 1,
    "pv": 55,
+   "forme": null
+  },
+  "428": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 65,
    "forme": null
   },
   "429": {
@@ -2842,6 +3428,14 @@
    ],
    "stade": 2,
    "pv": 71,
+   "forme": null
+  },
+  "433": {
+   "types": [
+    "psy"
+   ],
+   "stade": 1,
+   "pv": 45,
    "forme": null
   },
   "434": {
@@ -2878,6 +3472,31 @@
    ],
    "stade": 2,
    "pv": 67,
+   "forme": null
+  },
+  "438": {
+   "types": [
+    "roche"
+   ],
+   "stade": 1,
+   "pv": 50,
+   "forme": null
+  },
+  "439": {
+   "types": [
+    "psy",
+    "fee"
+   ],
+   "stade": 1,
+   "pv": 20,
+   "forme": null
+  },
+  "440": {
+   "types": [
+    "normal"
+   ],
+   "stade": 1,
+   "pv": 100,
    "forme": null
   },
   "441": {
@@ -2925,12 +3544,45 @@
    "pv": 108,
    "forme": null
   },
+  "446": {
+   "types": [
+    "normal"
+   ],
+   "stade": 1,
+   "pv": 135,
+   "forme": null
+  },
+  "447": {
+   "types": [
+    "combat"
+   ],
+   "stade": 1,
+   "pv": 40,
+   "forme": null
+  },
+  "448": {
+   "types": [
+    "combat",
+    "acier"
+   ],
+   "stade": 2,
+   "pv": 70,
+   "forme": null
+  },
   "449": {
    "types": [
     "sol"
    ],
    "stade": 1,
    "pv": 68,
+   "forme": null
+  },
+  "450": {
+   "types": [
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 108,
    "forme": null
   },
   "451": {
@@ -2960,6 +3612,15 @@
    "pv": 48,
    "forme": null
   },
+  "454": {
+   "types": [
+    "poison",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 83,
+   "forme": null
+  },
   "455": {
    "types": [
     "plante"
@@ -2984,6 +3645,15 @@
    "pv": 69,
    "forme": null
   },
+  "458": {
+   "types": [
+    "eau",
+    "vol"
+   ],
+   "stade": 1,
+   "pv": 45,
+   "forme": null
+  },
   "459": {
    "types": [
     "plante",
@@ -2991,6 +3661,15 @@
    ],
    "stade": 1,
    "pv": 60,
+   "forme": null
+  },
+  "460": {
+   "types": [
+    "plante",
+    "glace"
+   ],
+   "stade": 2,
+   "pv": 90,
    "forme": null
   },
   "461": {
@@ -3011,6 +3690,14 @@
    "pv": 70,
    "forme": null
   },
+  "463": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 110,
+   "forme": null
+  },
   "464": {
    "types": [
     "sol",
@@ -3028,12 +3715,29 @@
    "pv": 100,
    "forme": null
   },
+  "466": {
+   "types": [
+    "electrik"
+   ],
+   "stade": 3,
+   "pv": 75,
+   "forme": null
+  },
   "467": {
    "types": [
     "feu"
    ],
    "stade": 3,
    "pv": 75,
+   "forme": null
+  },
+  "468": {
+   "types": [
+    "fee",
+    "vol"
+   ],
+   "stade": 3,
+   "pv": 85,
    "forme": null
   },
   "469": {
@@ -3053,12 +3757,47 @@
    "pv": 65,
    "forme": null
   },
+  "471": {
+   "types": [
+    "glace"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
+  "472": {
+   "types": [
+    "sol",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 75,
+   "forme": null
+  },
+  "473": {
+   "types": [
+    "glace",
+    "sol"
+   ],
+   "stade": 3,
+   "pv": 110,
+   "forme": null
+  },
   "474": {
    "types": [
     "normal"
    ],
    "stade": 3,
    "pv": 85,
+   "forme": null
+  },
+  "475": {
+   "types": [
+    "psy",
+    "combat"
+   ],
+   "stade": 3,
+   "pv": 68,
    "forme": null
   },
   "476": {
@@ -3068,6 +3807,14 @@
    ],
    "stade": 2,
    "pv": 60,
+   "forme": null
+  },
+  "477": {
+   "types": [
+    "spectre"
+   ],
+   "stade": 3,
+   "pv": 45,
    "forme": null
   },
   "478": {
@@ -3096,6 +3843,14 @@
    "pv": 45,
    "forme": null
   },
+  "496": {
+   "types": [
+    "plante"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
   "497": {
    "types": [
     "plante"
@@ -3110,6 +3865,15 @@
    ],
    "stade": 1,
    "pv": 65,
+   "forme": null
+  },
+  "499": {
+   "types": [
+    "feu",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 90,
    "forme": null
   },
   "500": {
@@ -3137,6 +3901,14 @@
    "pv": 75,
    "forme": null
   },
+  "503": {
+   "types": [
+    "eau"
+   ],
+   "stade": 3,
+   "pv": 95,
+   "forme": null
+  },
   "504": {
    "types": [
     "normal"
@@ -3145,12 +3917,28 @@
    "pv": 45,
    "forme": null
   },
+  "505": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
   "506": {
    "types": [
     "normal"
    ],
    "stade": 1,
    "pv": 45,
+   "forme": null
+  },
+  "507": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 65,
    "forme": null
   },
   "508": {
@@ -3167,6 +3955,14 @@
    ],
    "stade": 1,
    "pv": 41,
+   "forme": null
+  },
+  "510": {
+   "types": [
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 64,
    "forme": null
   },
   "511": {
@@ -3191,6 +3987,14 @@
    ],
    "stade": 1,
    "pv": 50,
+   "forme": null
+  },
+  "514": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 75,
    "forme": null
   },
   "515": {
@@ -3234,6 +4038,24 @@
    "pv": 50,
    "forme": null
   },
+  "520": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 62,
+   "forme": null
+  },
+  "521": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 3,
+   "pv": 80,
+   "forme": null
+  },
   "522": {
    "types": [
     "electrik"
@@ -3256,6 +4078,14 @@
    ],
    "stade": 1,
    "pv": 55,
+   "forme": null
+  },
+  "525": {
+   "types": [
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 70,
    "forme": null
   },
   "526": {
@@ -3348,6 +4178,15 @@
    ],
    "stade": 2,
    "pv": 75,
+   "forme": null
+  },
+  "537": {
+   "types": [
+    "eau",
+    "sol"
+   ],
+   "stade": 3,
+   "pv": 105,
    "forme": null
   },
   "538": {
@@ -3471,6 +4310,15 @@
    "pv": 50,
    "forme": null
   },
+  "552": {
+   "types": [
+    "sol",
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
   "553": {
    "types": [
     "sol",
@@ -3486,6 +4334,14 @@
    ],
    "stade": 1,
    "pv": 70,
+   "forme": null
+  },
+  "555": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 105,
    "forme": null
   },
   "556": {
@@ -3505,6 +4361,15 @@
    "pv": 50,
    "forme": null
   },
+  "558": {
+   "types": [
+    "insecte",
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 70,
+   "forme": null
+  },
   "559": {
    "types": [
     "tenebres",
@@ -3512,6 +4377,15 @@
    ],
    "stade": 1,
    "pv": 50,
+   "forme": null
+  },
+  "560": {
+   "types": [
+    "tenebres",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 65,
    "forme": null
   },
   "561": {
@@ -3597,6 +4471,14 @@
    "pv": 55,
    "forme": null
   },
+  "573": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 75,
+   "forme": null
+  },
   "574": {
    "types": [
     "psy"
@@ -3605,12 +4487,44 @@
    "pv": 45,
    "forme": null
   },
+  "575": {
+   "types": [
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
+  "576": {
+   "types": [
+    "psy"
+   ],
+   "stade": 3,
+   "pv": 70,
+   "forme": null
+  },
   "577": {
    "types": [
     "psy"
    ],
    "stade": 1,
    "pv": 45,
+   "forme": null
+  },
+  "578": {
+   "types": [
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
+  "579": {
+   "types": [
+    "psy"
+   ],
+   "stade": 3,
+   "pv": 110,
    "forme": null
   },
   "580": {
@@ -3645,6 +4559,14 @@
    ],
    "stade": 2,
    "pv": 51,
+   "forme": null
+  },
+  "584": {
+   "types": [
+    "glace"
+   ],
+   "stade": 3,
+   "pv": 71,
    "forme": null
   },
   "585": {
@@ -3787,6 +4709,14 @@
    "pv": 60,
    "forme": null
   },
+  "601": {
+   "types": [
+    "acier"
+   ],
+   "stade": 3,
+   "pv": 60,
+   "forme": null
+  },
   "602": {
    "types": [
     "electrik"
@@ -3803,12 +4733,28 @@
    "pv": 65,
    "forme": null
   },
+  "604": {
+   "types": [
+    "electrik"
+   ],
+   "stade": 3,
+   "pv": 85,
+   "forme": null
+  },
   "605": {
    "types": [
     "psy"
    ],
    "stade": 1,
    "pv": 55,
+   "forme": null
+  },
+  "606": {
+   "types": [
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 75,
    "forme": null
   },
   "607": {
@@ -3919,6 +4865,14 @@
    "pv": 45,
    "forme": null
   },
+  "620": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
   "621": {
    "types": [
     "dragon"
@@ -3978,6 +4932,15 @@
    ],
    "stade": 1,
    "pv": 70,
+   "forme": null
+  },
+  "628": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 100,
    "forme": null
   },
   "629": {
@@ -4051,6 +5014,15 @@
    "pv": 55,
    "forme": null
   },
+  "637": {
+   "types": [
+    "insecte",
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 85,
+   "forme": null
+  },
   "650": {
    "types": [
     "plante"
@@ -4084,6 +5056,14 @@
    "pv": 40,
    "forme": null
   },
+  "654": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 59,
+   "forme": null
+  },
   "655": {
    "types": [
     "feu",
@@ -4109,12 +5089,30 @@
    "pv": 54,
    "forme": null
   },
+  "658": {
+   "types": [
+    "eau",
+    "tenebres"
+   ],
+   "stade": 3,
+   "pv": 72,
+   "forme": null
+  },
   "659": {
    "types": [
     "normal"
    ],
    "stade": 1,
    "pv": 38,
+   "forme": null
+  },
+  "660": {
+   "types": [
+    "normal",
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 85,
    "forme": null
   },
   "661": {
@@ -4124,6 +5122,15 @@
    ],
    "stade": 1,
    "pv": 45,
+   "forme": null
+  },
+  "662": {
+   "types": [
+    "feu",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 62,
    "forme": null
   },
   "663": {
@@ -4167,6 +5174,15 @@
    ],
    "stade": 1,
    "pv": 62,
+   "forme": null
+  },
+  "668": {
+   "types": [
+    "feu",
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 86,
    "forme": null
   },
   "669": {
@@ -4217,6 +5233,15 @@
    "pv": 67,
    "forme": null
   },
+  "675": {
+   "types": [
+    "combat",
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 95,
+   "forme": null
+  },
   "676": {
    "types": [
     "normal"
@@ -4231,6 +5256,14 @@
    ],
    "stade": 1,
    "pv": 62,
+   "forme": null
+  },
+  "678": {
+   "types": [
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 74,
    "forme": null
   },
   "679": {
@@ -4251,6 +5284,15 @@
    "pv": 59,
    "forme": null
   },
+  "681": {
+   "types": [
+    "acier",
+    "spectre"
+   ],
+   "stade": 3,
+   "pv": 60,
+   "forme": null
+  },
   "682": {
    "types": [
     "fee"
@@ -4259,12 +5301,28 @@
    "pv": 78,
    "forme": null
   },
+  "683": {
+   "types": [
+    "fee"
+   ],
+   "stade": 2,
+   "pv": 101,
+   "forme": null
+  },
   "684": {
    "types": [
     "fee"
    ],
    "stade": 1,
    "pv": 62,
+   "forme": null
+  },
+  "685": {
+   "types": [
+    "fee"
+   ],
+   "stade": 2,
+   "pv": 82,
    "forme": null
   },
   "686": {
@@ -4276,6 +5334,15 @@
    "pv": 53,
    "forme": null
   },
+  "687": {
+   "types": [
+    "tenebres",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 86,
+   "forme": null
+  },
   "688": {
    "types": [
     "roche",
@@ -4283,6 +5350,15 @@
    ],
    "stade": 1,
    "pv": 42,
+   "forme": null
+  },
+  "689": {
+   "types": [
+    "roche",
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 72,
    "forme": null
   },
   "690": {
@@ -4406,6 +5482,14 @@
    "pv": 68,
    "forme": null
   },
+  "706": {
+   "types": [
+    "dragon"
+   ],
+   "stade": 3,
+   "pv": 90,
+   "forme": null
+  },
   "707": {
    "types": [
     "acier",
@@ -4520,6 +5604,14 @@
    "pv": 45,
    "forme": null
   },
+  "726": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
   "727": {
    "types": [
     "feu",
@@ -4545,6 +5637,15 @@
    "pv": 60,
    "forme": null
   },
+  "730": {
+   "types": [
+    "eau",
+    "fee"
+   ],
+   "stade": 3,
+   "pv": 80,
+   "forme": null
+  },
   "731": {
    "types": [
     "normal",
@@ -4552,6 +5653,24 @@
    ],
    "stade": 1,
    "pv": 35,
+   "forme": null
+  },
+  "732": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 55,
+   "forme": null
+  },
+  "733": {
+   "types": [
+    "normal",
+    "vol"
+   ],
+   "stade": 3,
+   "pv": 80,
    "forme": null
   },
   "734": {
@@ -4562,12 +5681,29 @@
    "pv": 48,
    "forme": null
   },
+  "735": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 88,
+   "forme": null
+  },
   "736": {
    "types": [
     "insecte"
    ],
    "stade": 1,
    "pv": 47,
+   "forme": null
+  },
+  "737": {
+   "types": [
+    "insecte",
+    "electrik"
+   ],
+   "stade": 2,
+   "pv": 57,
    "forme": null
   },
   "738": {
@@ -4673,6 +5809,14 @@
    "pv": 70,
    "forme": null
   },
+  "750": {
+   "types": [
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 100,
+   "forme": null
+  },
   "751": {
    "types": [
     "eau",
@@ -4734,6 +5878,15 @@
    "pv": 48,
    "forme": null
   },
+  "758": {
+   "types": [
+    "poison",
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 68,
+   "forme": null
+  },
   "759": {
    "types": [
     "normal",
@@ -4741,6 +5894,15 @@
    ],
    "stade": 1,
    "pv": 70,
+   "forme": null
+  },
+  "760": {
+   "types": [
+    "normal",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 120,
    "forme": null
   },
   "761": {
@@ -4965,6 +6127,14 @@
    "pv": 50,
    "forme": null
   },
+  "814": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
   "815": {
    "types": [
     "feu"
@@ -4989,6 +6159,14 @@
    "pv": 65,
    "forme": null
   },
+  "818": {
+   "types": [
+    "eau"
+   ],
+   "stade": 3,
+   "pv": 70,
+   "forme": null
+  },
   "819": {
    "types": [
     "normal"
@@ -4997,12 +6175,37 @@
    "pv": 70,
    "forme": null
   },
+  "820": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 120,
+   "forme": null
+  },
   "821": {
    "types": [
     "vol"
    ],
    "stade": 1,
    "pv": 38,
+   "forme": null
+  },
+  "822": {
+   "types": [
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 68,
+   "forme": null
+  },
+  "823": {
+   "types": [
+    "vol",
+    "acier"
+   ],
+   "stade": 3,
+   "pv": 98,
    "forme": null
   },
   "824": {
@@ -5037,6 +6240,14 @@
    ],
    "stade": 1,
    "pv": 40,
+   "forme": null
+  },
+  "828": {
+   "types": [
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 70,
    "forme": null
   },
   "829": {
@@ -5079,6 +6290,15 @@
    "pv": 50,
    "forme": null
   },
+  "834": {
+   "types": [
+    "eau",
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 90,
+   "forme": null
+  },
   "835": {
    "types": [
     "electrik"
@@ -5101,6 +6321,15 @@
    ],
    "stade": 1,
    "pv": 30,
+   "forme": null
+  },
+  "838": {
+   "types": [
+    "roche",
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 80,
    "forme": null
   },
   "839": {
@@ -5130,12 +6359,29 @@
    "pv": 70,
    "forme": null
   },
+  "842": {
+   "types": [
+    "plante",
+    "dragon"
+   ],
+   "stade": 2,
+   "pv": 110,
+   "forme": null
+  },
   "843": {
    "types": [
     "sol"
    ],
    "stade": 1,
    "pv": 52,
+   "forme": null
+  },
+  "844": {
+   "types": [
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 72,
    "forme": null
   },
   "845": {
@@ -5163,6 +6409,15 @@
    "pv": 61,
    "forme": null
   },
+  "848": {
+   "types": [
+    "electrik",
+    "poison"
+   ],
+   "stade": 1,
+   "pv": 40,
+   "forme": null
+  },
   "849": {
    "types": [
     "electrik",
@@ -5181,12 +6436,29 @@
    "pv": 50,
    "forme": null
   },
+  "851": {
+   "types": [
+    "feu",
+    "insecte"
+   ],
+   "stade": 2,
+   "pv": 100,
+   "forme": null
+  },
   "852": {
    "types": [
     "combat"
    ],
    "stade": 1,
    "pv": 50,
+   "forme": null
+  },
+  "853": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 80,
    "forme": null
   },
   "854": {
@@ -5211,6 +6483,23 @@
    ],
    "stade": 1,
    "pv": 42,
+   "forme": null
+  },
+  "857": {
+   "types": [
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 57,
+   "forme": null
+  },
+  "858": {
+   "types": [
+    "psy",
+    "fee"
+   ],
+   "stade": 3,
+   "pv": 57,
    "forme": null
   },
   "859": {
@@ -5263,6 +6552,14 @@
    ],
    "stade": 2,
    "pv": 60,
+   "forme": null
+  },
+  "865": {
+   "types": [
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 62,
    "forme": null
   },
   "866": {
@@ -5322,6 +6619,15 @@
    ],
    "stade": 1,
    "pv": 30,
+   "forme": null
+  },
+  "873": {
+   "types": [
+    "glace",
+    "insecte"
+   ],
+   "stade": 2,
+   "pv": 70,
    "forme": null
   },
   "874": {
@@ -5437,6 +6743,33 @@
    "pv": 68,
    "forme": null
   },
+  "887": {
+   "types": [
+    "dragon",
+    "spectre"
+   ],
+   "stade": 3,
+   "pv": 88,
+   "forme": null
+  },
+  "899": {
+   "types": [
+    "normal",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 103,
+   "forme": null
+  },
+  "900": {
+   "types": [
+    "insecte",
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 70,
+   "forme": null
+  },
   "901": {
    "types": [
     "sol",
@@ -5453,6 +6786,15 @@
    ],
    "stade": 2,
    "pv": 120,
+   "forme": null
+  },
+  "903": {
+   "types": [
+    "combat",
+    "poison"
+   ],
+   "stade": 2,
+   "pv": 80,
    "forme": null
   },
   "904": {
@@ -5497,6 +6839,14 @@
    "pv": 67,
    "forme": null
   },
+  "910": {
+   "types": [
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 81,
+   "forme": null
+  },
   "911": {
    "types": [
     "feu",
@@ -5522,12 +6872,29 @@
    "pv": 70,
    "forme": null
   },
+  "914": {
+   "types": [
+    "eau",
+    "combat"
+   ],
+   "stade": 3,
+   "pv": 85,
+   "forme": null
+  },
   "915": {
    "types": [
     "normal"
    ],
    "stade": 1,
    "pv": 54,
+   "forme": null
+  },
+  "916": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 110,
    "forme": null
   },
   "917": {
@@ -5571,12 +6938,38 @@
    "pv": 45,
    "forme": null
   },
+  "922": {
+   "types": [
+    "electrik",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 60,
+   "forme": null
+  },
+  "923": {
+   "types": [
+    "electrik",
+    "combat"
+   ],
+   "stade": 3,
+   "pv": 70,
+   "forme": null
+  },
   "924": {
    "types": [
     "normal"
    ],
    "stade": 1,
    "pv": 50,
+   "forme": null
+  },
+  "925": {
+   "types": [
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 74,
    "forme": null
   },
   "926": {
@@ -5661,6 +7054,24 @@
    ],
    "stade": 1,
    "pv": 40,
+   "forme": null
+  },
+  "936": {
+   "types": [
+    "feu",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 85,
+   "forme": null
+  },
+  "937": {
+   "types": [
+    "feu",
+    "spectre"
+   ],
+   "stade": 2,
+   "pv": 75,
    "forme": null
   },
   "938": {
@@ -5783,6 +7194,15 @@
    "pv": 50,
    "forme": null
   },
+  "952": {
+   "types": [
+    "plante",
+    "feu"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": null
+  },
   "953": {
    "types": [
     "insecte"
@@ -5832,6 +7252,15 @@
    ],
    "stade": 2,
    "pv": 65,
+   "forme": null
+  },
+  "959": {
+   "types": [
+    "fee",
+    "acier"
+   ],
+   "stade": 3,
+   "pv": 85,
    "forme": null
   },
   "960": {
@@ -6004,6 +7433,24 @@
    "pv": 110,
    "forme": null
   },
+  "980": {
+   "types": [
+    "poison",
+    "sol"
+   ],
+   "stade": 2,
+   "pv": 130,
+   "forme": null
+  },
+  "981": {
+   "types": [
+    "normal",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 120,
+   "forme": null
+  },
   "982": {
    "types": [
     "normal"
@@ -6037,6 +7484,15 @@
    ],
    "stade": 2,
    "pv": 90,
+   "forme": null
+  },
+  "998": {
+   "types": [
+    "dragon",
+    "glace"
+   ],
+   "stade": 3,
+   "pv": 115,
    "forme": null
   },
   "999": {
@@ -6083,6 +7539,15 @@
    "pv": 71,
    "forme": null
   },
+  "1018": {
+   "types": [
+    "acier",
+    "dragon"
+   ],
+   "stade": 2,
+   "pv": 90,
+   "forme": null
+  },
   "1019": {
    "types": [
     "plante",
@@ -6101,6 +7566,15 @@
    "pv": 30,
    "forme": "alola"
   },
+  "10092": {
+   "types": [
+    "tenebres",
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 75,
+   "forme": "alola"
+  },
   "10100": {
    "types": [
     "electrik",
@@ -6108,6 +7582,15 @@
    ],
    "stade": 3,
    "pv": 60,
+   "forme": "alola"
+  },
+  "10101": {
+   "types": [
+    "glace",
+    "acier"
+   ],
+   "stade": 1,
+   "pv": 50,
    "forme": "alola"
   },
   "10102": {
@@ -6119,6 +7602,23 @@
    "pv": 75,
    "forme": "alola"
   },
+  "10103": {
+   "types": [
+    "glace"
+   ],
+   "stade": 1,
+   "pv": 38,
+   "forme": "alola"
+  },
+  "10105": {
+   "types": [
+    "sol",
+    "acier"
+   ],
+   "stade": 1,
+   "pv": 10,
+   "forme": "alola"
+  },
   "10106": {
    "types": [
     "sol",
@@ -6128,6 +7628,40 @@
    "pv": 35,
    "forme": "alola"
   },
+  "10107": {
+   "types": [
+    "tenebres"
+   ],
+   "stade": 1,
+   "pv": 40,
+   "forme": "alola"
+  },
+  "10108": {
+   "types": [
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": "alola"
+  },
+  "10109": {
+   "types": [
+    "roche",
+    "electrik"
+   ],
+   "stade": 1,
+   "pv": 40,
+   "forme": "alola"
+  },
+  "10110": {
+   "types": [
+    "roche",
+    "electrik"
+   ],
+   "stade": 2,
+   "pv": 55,
+   "forme": "alola"
+  },
   "10111": {
    "types": [
     "roche",
@@ -6135,6 +7669,24 @@
    ],
    "stade": 3,
    "pv": 80,
+   "forme": "alola"
+  },
+  "10112": {
+   "types": [
+    "poison",
+    "tenebres"
+   ],
+   "stade": 1,
+   "pv": 80,
+   "forme": "alola"
+  },
+  "10113": {
+   "types": [
+    "poison",
+    "tenebres"
+   ],
+   "stade": 2,
+   "pv": 105,
    "forme": "alola"
   },
   "10114": {
@@ -6154,6 +7706,65 @@
    "stade": 2,
    "pv": 60,
    "forme": "alola"
+  },
+  "10123": {
+   "types": [
+    "electrik",
+    "vol"
+   ],
+   "stade": 1,
+   "pv": 75,
+   "forme": null
+  },
+  "10124": {
+   "types": [
+    "psy",
+    "vol"
+   ],
+   "stade": 1,
+   "pv": 75,
+   "forme": null
+  },
+  "10125": {
+   "types": [
+    "spectre",
+    "vol"
+   ],
+   "stade": 1,
+   "pv": 75,
+   "forme": null
+  },
+  "10126": {
+   "types": [
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 85,
+   "forme": null
+  },
+  "10152": {
+   "types": [
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 75,
+   "forme": null
+  },
+  "10161": {
+   "types": [
+    "acier"
+   ],
+   "stade": 1,
+   "pv": 50,
+   "forme": "galar"
+  },
+  "10162": {
+   "types": [
+    "psy"
+   ],
+   "stade": 1,
+   "pv": 50,
+   "forme": "galar"
   },
   "10163": {
    "types": [
@@ -6181,6 +7792,75 @@
    "pv": 95,
    "forme": "galar"
   },
+  "10166": {
+   "types": [
+    "combat"
+   ],
+   "stade": 1,
+   "pv": 52,
+   "forme": "galar"
+  },
+  "10167": {
+   "types": [
+    "poison",
+    "fee"
+   ],
+   "stade": 2,
+   "pv": 65,
+   "forme": "galar"
+  },
+  "10168": {
+   "types": [
+    "glace",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 50,
+   "forme": "galar"
+  },
+  "10172": {
+   "types": [
+    "poison",
+    "psy"
+   ],
+   "stade": 2,
+   "pv": 95,
+   "forme": "galar"
+  },
+  "10173": {
+   "types": [
+    "spectre"
+   ],
+   "stade": 1,
+   "pv": 60,
+   "forme": "galar"
+  },
+  "10174": {
+   "types": [
+    "tenebres",
+    "normal"
+   ],
+   "stade": 1,
+   "pv": 38,
+   "forme": "galar"
+  },
+  "10175": {
+   "types": [
+    "tenebres",
+    "normal"
+   ],
+   "stade": 2,
+   "pv": 78,
+   "forme": "galar"
+  },
+  "10176": {
+   "types": [
+    "glace"
+   ],
+   "stade": 1,
+   "pv": 70,
+   "forme": "galar"
+  },
   "10177": {
    "types": [
     "glace"
@@ -6188,6 +7868,51 @@
    "stade": 2,
    "pv": 105,
    "forme": null
+  },
+  "10179": {
+   "types": [
+    "sol",
+    "spectre"
+   ],
+   "stade": 1,
+   "pv": 38,
+   "forme": "galar"
+  },
+  "10180": {
+   "types": [
+    "sol",
+    "acier"
+   ],
+   "stade": 1,
+   "pv": 109,
+   "forme": "galar"
+  },
+  "10229": {
+   "types": [
+    "feu",
+    "roche"
+   ],
+   "stade": 1,
+   "pv": 60,
+   "forme": "hisui"
+  },
+  "10230": {
+   "types": [
+    "feu",
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 95,
+   "forme": "hisui"
+  },
+  "10231": {
+   "types": [
+    "electrik",
+    "plante"
+   ],
+   "stade": 1,
+   "pv": 40,
+   "forme": "hisui"
   },
   "10232": {
    "types": [
@@ -6207,6 +7932,60 @@
    "pv": 73,
    "forme": "hisui"
   },
+  "10234": {
+   "types": [
+    "tenebres",
+    "poison"
+   ],
+   "stade": 1,
+   "pv": 65,
+   "forme": "hisui"
+  },
+  "10235": {
+   "types": [
+    "combat",
+    "poison"
+   ],
+   "stade": 1,
+   "pv": 55,
+   "forme": "hisui"
+  },
+  "10236": {
+   "types": [
+    "eau",
+    "tenebres"
+   ],
+   "stade": 3,
+   "pv": 90,
+   "forme": "hisui"
+  },
+  "10237": {
+   "types": [
+    "plante",
+    "combat"
+   ],
+   "stade": 2,
+   "pv": 70,
+   "forme": "hisui"
+  },
+  "10238": {
+   "types": [
+    "normal",
+    "spectre"
+   ],
+   "stade": 1,
+   "pv": 35,
+   "forme": "hisui"
+  },
+  "10239": {
+   "types": [
+    "normal",
+    "spectre"
+   ],
+   "stade": 2,
+   "pv": 55,
+   "forme": "hisui"
+  },
   "10240": {
    "types": [
     "psy",
@@ -6223,6 +8002,24 @@
    ],
    "stade": 2,
    "pv": 58,
+   "forme": "hisui"
+  },
+  "10242": {
+   "types": [
+    "acier",
+    "dragon"
+   ],
+   "stade": 3,
+   "pv": 80,
+   "forme": "hisui"
+  },
+  "10243": {
+   "types": [
+    "glace",
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 95,
    "forme": "hisui"
   },
   "10244": {

@@ -125,9 +125,15 @@
   gap: var(--wm-espace-4, 4px);
 }
 
-/*  44 px de haut : c'est la taille de cible tactile qu'on tient
-    partout ailleurs (barre d'actions, bouton de clôture), et il y a
-    soixante-huit de ces boutons sur la page. */
+/*  32 px, ET LE COMMENTAIRE DISAIT 44 JUSQU'AU 16 OCTOBRE — il annonçait
+    « la taille de cible tactile qu'on tient partout ailleurs » juste
+    au-dessus d'une règle qui en donne 32. `outils/boutique.mjs` mesure
+    32, donc c'est le commentaire qui mentait.
+
+    32 est un arbitrage, et il se défend : il y a SOIXANTE-HUIT de ces
+    boutons sur la page, et 44 ferait du catalogue une colonne de
+    boutons. Le bouton « Commander », lui, garde ses 44 — il n'y en a
+    qu'un, et c'est celui qui compte. */
 #modernbb .wm-boutique__pas {
   display: inline-flex;
   align-items: center;

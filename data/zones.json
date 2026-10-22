@@ -1,5 +1,5 @@
 {
- "_": "Les dix-sept zones sauvages de Rhode. C'est ce fichier qui décide où le module de bilan s'affiche : partout ailleurs, il ne se charge pas. Relevé sur le forum le 2 octobre 2026.",
+ "_": "Les dix-sept zones sauvages de Rhode. C'est ce fichier qui décide où le module de bilan s'affiche : partout ailleurs, il ne se charge pas. Relevé sur le forum le 2 octobre 2026. Le compte de lieux par zone a été retiré le 15 octobre : le niveau de lieu n'existe plus, une zone a une table par condition (data/faune/<forumId>.json).",
  "montBataille": {
   "forumId": 65,
   "nom": "Mont Bataille",
@@ -12,8 +12,10 @@
    "palier": 1,
    "parentId": 96,
    "parent": "Zones Palier 1",
-   "lieux": 15,
-   "faune": "data/faune/9.json"
+   "faune": "data/faune/9.json",
+   "niveau": "Niveaux 1 à 20",
+   "description": "Des racines dans l'eau noire et des passerelles qui tiennent mal. On ne quitte pas le sentier.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/foret-marecageuse.jpg"
   },
   {
    "forumId": 34,
@@ -21,8 +23,10 @@
    "palier": 1,
    "parentId": 96,
    "parent": "Zones Palier 1",
-   "lieux": 16,
-   "faune": "data/faune/34.json"
+   "faune": "data/faune/34.json",
+   "niveau": "Niveaux 1 à 20",
+   "description": "Des crêtes qui disparaissent dans le brouillard dès la mi-journée. On y monte au son, plus qu'à la vue.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/montagnes-embrumees.jpg"
   },
   {
    "forumId": 38,
@@ -30,8 +34,10 @@
    "palier": 1,
    "parentId": 96,
    "parent": "Zones Palier 1",
-   "lieux": 16,
-   "faune": "data/faune/38.json"
+   "faune": "data/faune/38.json",
+   "niveau": "Niveaux 1 à 20",
+   "description": "Des buissons jusqu'à la taille sur des kilomètres. Le vent y porte les cris de très loin.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/lande-broussailleuse.jpg"
   },
   {
    "forumId": 100,
@@ -39,8 +45,10 @@
    "palier": 1,
    "parentId": 96,
    "parent": "Zones Palier 1",
-   "lieux": 14,
-   "faune": "data/faune/100.json"
+   "faune": "data/faune/100.json",
+   "niveau": "Niveaux 1 à 20",
+   "description": "Large, lent, et bien plus profond qu'il n'en a l'air. Les barques s'y louent à la journée.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/fleuve-paisible.jpg"
   },
   {
    "forumId": 32,
@@ -48,8 +56,10 @@
    "palier": 1,
    "parentId": 96,
    "parent": "Zones Palier 1",
-   "lieux": 14,
-   "faune": "data/faune/32.json"
+   "faune": "data/faune/32.json",
+   "niveau": "Niveaux 1 à 20",
+   "description": "Du sable clair sur des kilomètres, et des coquillages que personne ne ramasse plus.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/plage-grain-de-sel.jpg"
   },
   {
    "forumId": 36,
@@ -57,8 +67,10 @@
    "palier": 1,
    "parentId": 96,
    "parent": "Zones Palier 1",
-   "lieux": 16,
-   "faune": "data/faune/36.json"
+   "faune": "data/faune/36.json",
+   "niveau": "Niveaux 1 à 20",
+   "description": "De l'herbe sèche à perte de vue. Rien pour se cacher, ni pour les dresseurs ni pour les pokémons.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/steppes-arides.jpg"
   },
   {
    "forumId": 31,
@@ -66,8 +78,10 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 1,
-   "faune": "data/faune/31.json"
+   "faune": "data/faune/31.json",
+   "niveau": "Niveaux 15 à 40",
+   "description": "Une bâtisse que personne ne revendique, et dont les portes ne grincent jamais dans le même sens.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/manoir-barjok.jpg"
   },
   {
    "forumId": 35,
@@ -75,8 +89,10 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 1,
-   "faune": "data/faune/35.json"
+   "faune": "data/faune/35.json",
+   "niveau": "Niveaux 15 à 40",
+   "description": "Des chaînes de montage arrêtées en plein travail. Le courant passe encore, on ne sait pas d'où.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/usine-desaffectee.jpg"
   },
   {
    "forumId": 39,
@@ -84,8 +100,10 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 14,
-   "faune": "data/faune/39.json"
+   "faune": "data/faune/39.json",
+   "niveau": "Niveaux 15 à 40",
+   "description": "Un cône toujours coiffé de vapeur. La roche reste tiède sous les semelles, même la nuit.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-nuageux.jpg"
   },
   {
    "forumId": 33,
@@ -93,8 +111,10 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 1,
-   "faune": "data/faune/33.json"
+   "faune": "data/faune/33.json",
+   "niveau": "Niveaux 15 à 40",
+   "description": "La carcasse d'un cargo couchée sur le flanc, mangée par le sel. On y entre par la cheminée.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/libra-echoue.jpg"
   },
   {
    "forumId": 37,
@@ -102,8 +122,10 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 14,
-   "faune": "data/faune/37.json"
+   "faune": "data/faune/37.json",
+   "niveau": "Niveaux 15 à 40",
+   "description": "Des parois de grès rouge et un fond qu'on n'atteint pas en une journée. L'écho y est trompeur.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/canyon-lekro.jpg"
   },
   {
    "forumId": 101,
@@ -111,8 +133,10 @@
    "palier": 2,
    "parentId": 97,
    "parent": "Zones Palier 2",
-   "lieux": 1,
-   "faune": "data/faune/101.json"
+   "faune": "data/faune/101.json",
+   "niveau": "Niveaux 15 à 40",
+   "description": "Quelques palmiers et une eau trop bleue, au milieu de rien. On la trouve rarement deux fois au même endroit.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/oasis-perdue.jpg"
   },
   {
    "forumId": 102,
@@ -120,8 +144,10 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 1,
-   "faune": "data/faune/102.json"
+   "faune": "data/faune/102.json",
+   "niveau": "Niveaux 35 et plus",
+   "description": "Une entrée dans la falaise, et rien d'écrit nulle part. Ceux qui savent n'en parlent pas.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/planque-snatch.jpg"
   },
   {
    "forumId": 103,
@@ -129,8 +155,10 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 13,
-   "faune": "data/faune/103.json"
+   "faune": "data/faune/103.json",
+   "niveau": "Niveaux 35 et plus",
+   "description": "Au-dessus de la limite des arbres. Le froid y est le vrai adversaire, bien avant les pokémons.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/monts-enneiges.jpg"
   },
   {
    "forumId": 46,
@@ -138,8 +166,10 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 1,
-   "faune": "data/faune/46.json"
+   "faune": "data/faune/46.json",
+   "niveau": "Niveaux 35 et plus",
+   "description": "Des pierres levées plus vieilles que Rhode. Les appareils photo y rendent des images vides.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/relique-sacree.jpg"
   },
   {
    "forumId": 104,
@@ -147,8 +177,10 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 13,
-   "faune": "data/faune/104.json"
+   "faune": "data/faune/104.json",
+   "niveau": "Niveaux 35 et plus",
+   "description": "Le large, au sud-est. Les cartes s'y arrêtent et les boussoles y tournent.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/ocean-mysterieux.jpg"
   },
   {
    "forumId": 105,
@@ -156,8 +188,10 @@
    "palier": 3,
    "parentId": 98,
    "parent": "Zones Palier 3",
-   "lieux": 1,
-   "faune": "data/faune/105.json"
+   "faune": "data/faune/105.json",
+   "niveau": "Niveaux 35 et plus",
+   "description": "Noir de la base au cratère. Rien n'y pousse, et le sol sonne creux.",
+   "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-sombre.jpg"
   }
  ]
 }

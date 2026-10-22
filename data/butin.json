@@ -1,0 +1,2044 @@
+{
+ "_": "Ce qu'une fouille donne, zone par zone. Écrit par outils/butin.py, qui dit en en-tête ses quatre règles et d'où chacune vient. Les objets et leurs prix sont ceux de data/objets.json ; les taux de fossile ceux de data/fossiles.json ; le type dominant de chaque zone est MESURÉ sur ses espèces. Seule la part « objet » (25 %) est un nombre neuf.",
+ "_aRelire": "Trois nombres sont des règles de jeu : la part objet (25 %), et les deux chances de fossile, qui sont marquées « arbitraires » dans fossiles.json depuis le 7 octobre. Les changer ici se fait en une ligne.",
+ "fouille": {
+  "bredouille": 20.0,
+  "fossileEntier": 0.2,
+  "morceauDeFossile": 10.0,
+  "objet": 25.0,
+  "pokedollars": 44.8
+ },
+ "pokedollarsParPalier": {
+  "1": [
+   20,
+   60
+  ],
+  "2": [
+   50,
+   120
+  ],
+  "3": [
+   100,
+   240
+  ]
+ },
+ "zones": [
+  {
+   "forumId": 9,
+   "zone": "Forêt Marécageuse",
+   "palier": 1,
+   "typesDominants": [
+    "plante",
+    "poison",
+    "spectre"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 4.0323
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 2.6882
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 8.0645
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 4.0323
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 3.2258
+    },
+    {
+     "objet": 990006,
+     "nom": "Faiblo Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8065
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8065
+    },
+    {
+     "objet": 990007,
+     "nom": "Sombre Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8065
+    },
+    {
+     "objet": 990083,
+     "nom": "Pierre Plante",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.2688
+    },
+    {
+     "objet": 990088,
+     "nom": "Pierre Nuit",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.2686
+    }
+   ]
+  },
+  {
+   "forumId": 34,
+   "zone": "Montagnes Embrumées",
+   "palier": 1,
+   "typesDominants": [
+    "electrik",
+    "acier",
+    "glace"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 4.1667
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 2.7778
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 8.3333
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 4.1667
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 3.3333
+    },
+    {
+     "objet": 990006,
+     "nom": "Faiblo Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8333
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8333
+    },
+    {
+     "objet": 990082,
+     "nom": "Pierre Foudre",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.2778
+    },
+    {
+     "objet": 990084,
+     "nom": "Pierre Glace",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.2778
+    }
+   ]
+  },
+  {
+   "forumId": 38,
+   "zone": "Lande Broussailleuse",
+   "palier": 1,
+   "typesDominants": [
+    "normal",
+    "vol",
+    "psy"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 4.2614
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 2.8409
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 8.5227
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 4.2614
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 3.4091
+    },
+    {
+     "objet": 990006,
+     "nom": "Faiblo Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8523
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8522
+    }
+   ]
+  },
+  {
+   "forumId": 100,
+   "zone": "Fleuve Paisible",
+   "palier": 1,
+   "typesDominants": [
+    "insecte",
+    "fee",
+    "combat"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 4.1209
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 2.7473
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 8.2418
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 4.1209
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 3.2967
+    },
+    {
+     "objet": 990006,
+     "nom": "Faiblo Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8242
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8242
+    },
+    {
+     "objet": 990004,
+     "nom": "Filet Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.824
+    }
+   ]
+  },
+  {
+   "forumId": 32,
+   "zone": "Plage Grain de Sel",
+   "palier": 1,
+   "typesDominants": [
+    "eau",
+    "vol",
+    "poison"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 4.0761
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 2.7174
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 8.1522
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 4.0761
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 3.2609
+    },
+    {
+     "objet": 990006,
+     "nom": "Faiblo Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8152
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8152
+    },
+    {
+     "objet": 990005,
+     "nom": "Scuba Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8152
+    },
+    {
+     "objet": 990081,
+     "nom": "Pierre Eau",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.2717
+    }
+   ]
+  },
+  {
+   "forumId": 36,
+   "zone": "Steppes Arides",
+   "palier": 1,
+   "typesDominants": [
+    "feu",
+    "sol",
+    "roche"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 4.2135
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 2.809
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 8.427
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 4.2135
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 3.3708
+    },
+    {
+     "objet": 990006,
+     "nom": "Faiblo Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8427
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.8427
+    },
+    {
+     "objet": 990080,
+     "nom": "Pierre Feu",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.2808
+    }
+   ]
+  },
+  {
+   "forumId": 31,
+   "zone": "Manoir Barjok",
+   "palier": 2,
+   "typesDominants": [
+    "plante",
+    "poison",
+    "normal"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.9232
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.9488
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.8463
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.9232
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3385
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.9744
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.8352
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3385
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3385
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.9744
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5846
+    },
+    {
+     "objet": 990083,
+     "nom": "Pierre Plante",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1948
+    }
+   ]
+  },
+  {
+   "forumId": 35,
+   "zone": "Usine Désaffectée",
+   "palier": 2,
+   "typesDominants": [
+    "acier",
+    "electrik",
+    "psy"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.9232
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.9488
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.8463
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.9232
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3385
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.9744
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.8352
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3385
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3385
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.9744
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5846
+    },
+    {
+     "objet": 990082,
+     "nom": "Pierre Foudre",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1949
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1948
+    }
+   ]
+  },
+  {
+   "forumId": 39,
+   "zone": "Volcan Nuageux",
+   "palier": 2,
+   "typesDominants": [
+    "feu",
+    "combat",
+    "tenebres"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.8348
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.8898
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.6695
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.8348
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2678
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.9449
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.8099
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2678
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2678
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.9449
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.567
+    },
+    {
+     "objet": 990007,
+     "nom": "Sombre Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.567
+    },
+    {
+     "objet": 990080,
+     "nom": "Pierre Feu",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.189
+    },
+    {
+     "objet": 990088,
+     "nom": "Pierre Nuit",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.189
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.189
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.189
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.189
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.189
+    }
+   ]
+  },
+  {
+   "forumId": 33,
+   "zone": "Libra Échoué",
+   "palier": 2,
+   "typesDominants": [
+    "insecte",
+    "spectre",
+    "dragon"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.7926
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.8617
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.5851
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.7926
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.234
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.9309
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.7979
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.234
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.234
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.9309
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5585
+    },
+    {
+     "objet": 990004,
+     "nom": "Filet Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5585
+    },
+    {
+     "objet": 990007,
+     "nom": "Sombre Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5585
+    },
+    {
+     "objet": 990088,
+     "nom": "Pierre Nuit",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1862
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1862
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1862
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1862
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.186
+    }
+   ]
+  },
+  {
+   "forumId": 37,
+   "zone": "Canyon Lekro",
+   "palier": 2,
+   "typesDominants": [
+    "normal",
+    "roche",
+    "sol"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.9461
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.9641
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.8923
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.9461
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3569
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.982
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.8418
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3569
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.3569
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.982
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5892
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1964
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1964
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1964
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1965
+    }
+   ]
+  },
+  {
+   "forumId": 101,
+   "zone": "Oasis Perdue",
+   "palier": 2,
+   "typesDominants": [
+    "eau",
+    "psy",
+    "fee"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.8564
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.9042
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.7127
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.8564
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2851
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.9521
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.8161
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2851
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2851
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.9521
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5713
+    },
+    {
+     "objet": 990005,
+     "nom": "Scuba Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5713
+    },
+    {
+     "objet": 990081,
+     "nom": "Pierre Eau",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1904
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1904
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1904
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1904
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1905
+    }
+   ]
+  },
+  {
+   "forumId": 102,
+   "zone": "Planque Snatch",
+   "palier": 3,
+   "typesDominants": [
+    "roche",
+    "sol",
+    "normal"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.7526
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.8351
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.5052
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.7526
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2021
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.9175
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.7865
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2021
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.2021
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.9175
+    },
+    {
+     "objet": 990003,
+     "nom": "Hyper Ball",
+     "famille": "ball",
+     "prix": 1200,
+     "pct": 0.4588
+    },
+    {
+     "objet": 990022,
+     "nom": "Hyper Potion",
+     "famille": "soin",
+     "prix": 1200,
+     "pct": 0.4588
+    },
+    {
+     "objet": 990060,
+     "nom": "Rappel",
+     "famille": "rappel",
+     "prix": 1500,
+     "pct": 0.367
+    },
+    {
+     "objet": 990023,
+     "nom": "Potion Max",
+     "famille": "soin",
+     "prix": 2500,
+     "pct": 0.2202
+    },
+    {
+     "objet": 990061,
+     "nom": "Rappel Max",
+     "famille": "rappel",
+     "prix": 4000,
+     "pct": 0.1376
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5505
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1835
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1835
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1835
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1833
+    }
+   ]
+  },
+  {
+   "forumId": 103,
+   "zone": "Monts Enneigés",
+   "palier": 3,
+   "typesDominants": [
+    "acier",
+    "glace",
+    "psy"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.7325
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.8217
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.465
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.7325
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.186
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.9108
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.7807
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.186
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.186
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.9108
+    },
+    {
+     "objet": 990003,
+     "nom": "Hyper Ball",
+     "famille": "ball",
+     "prix": 1200,
+     "pct": 0.4554
+    },
+    {
+     "objet": 990022,
+     "nom": "Hyper Potion",
+     "famille": "soin",
+     "prix": 1200,
+     "pct": 0.4554
+    },
+    {
+     "objet": 990060,
+     "nom": "Rappel",
+     "famille": "rappel",
+     "prix": 1500,
+     "pct": 0.3643
+    },
+    {
+     "objet": 990023,
+     "nom": "Potion Max",
+     "famille": "soin",
+     "prix": 2500,
+     "pct": 0.2186
+    },
+    {
+     "objet": 990061,
+     "nom": "Rappel Max",
+     "famille": "rappel",
+     "prix": 4000,
+     "pct": 0.1366
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5465
+    },
+    {
+     "objet": 990084,
+     "nom": "Pierre Glace",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1822
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1822
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1822
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1822
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1824
+    }
+   ]
+  },
+  {
+   "forumId": 46,
+   "zone": "Relique Sacrée",
+   "palier": 3,
+   "typesDominants": [
+    "plante",
+    "insecte",
+    "poison"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.6741
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.7827
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.3481
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.6741
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1393
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.8914
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.764
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1393
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1393
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.8914
+    },
+    {
+     "objet": 990003,
+     "nom": "Hyper Ball",
+     "famille": "ball",
+     "prix": 1200,
+     "pct": 0.4457
+    },
+    {
+     "objet": 990022,
+     "nom": "Hyper Potion",
+     "famille": "soin",
+     "prix": 1200,
+     "pct": 0.4457
+    },
+    {
+     "objet": 990060,
+     "nom": "Rappel",
+     "famille": "rappel",
+     "prix": 1500,
+     "pct": 0.3565
+    },
+    {
+     "objet": 990023,
+     "nom": "Potion Max",
+     "famille": "soin",
+     "prix": 2500,
+     "pct": 0.2139
+    },
+    {
+     "objet": 990061,
+     "nom": "Rappel Max",
+     "famille": "rappel",
+     "prix": 4000,
+     "pct": 0.1337
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5348
+    },
+    {
+     "objet": 990004,
+     "nom": "Filet Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5348
+    },
+    {
+     "objet": 990083,
+     "nom": "Pierre Plante",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.178
+    }
+   ]
+  },
+  {
+   "forumId": 104,
+   "zone": "Océan Mystérieux",
+   "palier": 3,
+   "typesDominants": [
+    "eau",
+    "fee",
+    "vol"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.6741
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.7827
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.3481
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.6741
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1393
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.8914
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.764
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1393
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1393
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.8914
+    },
+    {
+     "objet": 990003,
+     "nom": "Hyper Ball",
+     "famille": "ball",
+     "prix": 1200,
+     "pct": 0.4457
+    },
+    {
+     "objet": 990022,
+     "nom": "Hyper Potion",
+     "famille": "soin",
+     "prix": 1200,
+     "pct": 0.4457
+    },
+    {
+     "objet": 990060,
+     "nom": "Rappel",
+     "famille": "rappel",
+     "prix": 1500,
+     "pct": 0.3565
+    },
+    {
+     "objet": 990023,
+     "nom": "Potion Max",
+     "famille": "soin",
+     "prix": 2500,
+     "pct": 0.2139
+    },
+    {
+     "objet": 990061,
+     "nom": "Rappel Max",
+     "famille": "rappel",
+     "prix": 4000,
+     "pct": 0.1337
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5348
+    },
+    {
+     "objet": 990005,
+     "nom": "Scuba Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.5348
+    },
+    {
+     "objet": 990081,
+     "nom": "Pierre Eau",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1783
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.178
+    }
+   ]
+  },
+  {
+   "forumId": 105,
+   "zone": "Volcan Sombre",
+   "palier": 3,
+   "typesDominants": [
+    "feu",
+    "tenebres",
+    "dragon"
+   ],
+   "objets": [
+    {
+     "objet": 990001,
+     "nom": "Poké Ball",
+     "famille": "ball",
+     "prix": 200,
+     "pct": 2.6551
+    },
+    {
+     "objet": 990020,
+     "nom": "Potion",
+     "famille": "soin",
+     "prix": 300,
+     "pct": 1.7701
+    },
+    {
+     "objet": 990040,
+     "nom": "Antidote",
+     "famille": "statut",
+     "prix": 100,
+     "pct": 5.3103
+    },
+    {
+     "objet": 990044,
+     "nom": "Anti-Para",
+     "famille": "statut",
+     "prix": 200,
+     "pct": 2.6551
+    },
+    {
+     "objet": 990043,
+     "nom": "Réveil",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1241
+    },
+    {
+     "objet": 990002,
+     "nom": "Super Ball",
+     "famille": "ball",
+     "prix": 600,
+     "pct": 0.885
+    },
+    {
+     "objet": 990021,
+     "nom": "Super Potion",
+     "famille": "soin",
+     "prix": 700,
+     "pct": 0.7586
+    },
+    {
+     "objet": 990041,
+     "nom": "Anti-Brûle",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1241
+    },
+    {
+     "objet": 990042,
+     "nom": "Antigel",
+     "famille": "statut",
+     "prix": 250,
+     "pct": 2.1241
+    },
+    {
+     "objet": 990045,
+     "nom": "Total Soin",
+     "famille": "statut",
+     "prix": 600,
+     "pct": 0.885
+    },
+    {
+     "objet": 990003,
+     "nom": "Hyper Ball",
+     "famille": "ball",
+     "prix": 1200,
+     "pct": 0.4425
+    },
+    {
+     "objet": 990022,
+     "nom": "Hyper Potion",
+     "famille": "soin",
+     "prix": 1200,
+     "pct": 0.4425
+    },
+    {
+     "objet": 990060,
+     "nom": "Rappel",
+     "famille": "rappel",
+     "prix": 1500,
+     "pct": 0.354
+    },
+    {
+     "objet": 990023,
+     "nom": "Potion Max",
+     "famille": "soin",
+     "prix": 2500,
+     "pct": 0.2124
+    },
+    {
+     "objet": 990061,
+     "nom": "Rappel Max",
+     "famille": "rappel",
+     "prix": 4000,
+     "pct": 0.1328
+    },
+    {
+     "objet": 990008,
+     "nom": "Rapide Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.531
+    },
+    {
+     "objet": 990007,
+     "nom": "Sombre Ball",
+     "famille": "ball",
+     "prix": 1000,
+     "pct": 0.531
+    },
+    {
+     "objet": 990080,
+     "nom": "Pierre Feu",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.177
+    },
+    {
+     "objet": 990088,
+     "nom": "Pierre Nuit",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.177
+    },
+    {
+     "objet": 990085,
+     "nom": "Pierre Lune",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.177
+    },
+    {
+     "objet": 990086,
+     "nom": "Pierre Soleil",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.177
+    },
+    {
+     "objet": 990087,
+     "nom": "Pierre Éclat",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.177
+    },
+    {
+     "objet": 990089,
+     "nom": "Pierre Aube",
+     "famille": "evolution",
+     "prix": 3000,
+     "pct": 0.1773
+    }
+   ]
+  }
+ ]
+}

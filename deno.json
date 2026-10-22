@@ -27,7 +27,10 @@
     "carte": "deno run -A outils/carte.mjs",
     "enligne": "deno run -A outils/enligne.mjs",
     "categories": "deno run -A outils/categories.mjs",
-    "messenger": "deno run -A outils/messenger.mjs"
+    "messenger": "deno run -A outils/messenger.mjs",
+    "barre": "deno run -A outils/barre.mjs",
+    "boutique": "deno run -A outils/boutique.mjs",
+    "zone": "deno run -A outils/zone.mjs"
   },
   "fmt": {
     "include": [

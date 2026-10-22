@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-confort.ts
 //
+//  COUVERT PAR : outils/confort.mjs — le panneau de confort et ce qu'il retient dans `localStorage`.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  Deux choses sans maquette, faites au plus simple : les trois
 //  interrupteurs d'accessibilité, et l'encart de notifications.
 //

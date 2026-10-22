@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/coin-outils.ts
 //
+//  COUVERT PAR : outils/confort.mjs — le coin d'outils, ses boutons et leur état retenu.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  Le bloc fixé en bas à droite : la bascule de thème, et les deux
 //  flèches de défilement. Dessiné dans Figma (page Composants,
 //  « Bouton de thème » et « Flèches de défilement »).

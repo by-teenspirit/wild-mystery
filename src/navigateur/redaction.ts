@@ -57,8 +57,10 @@ export function basculer(texte: string, action: Action): string {
 }
 
 function memeAction(a: Action | null, b: Action): boolean {
-  if (a === null || a.type !== b.type) return false;
-  return a.type === "chercher" && b.type === "chercher" ? a.lieu === b.lieu : true;
+  //  Le type suffit depuis le 15 octobre : une action n'a plus d'argument
+  //  à comparer. Il y en avait un — le lieu de « chercher » — et deux
+  //  actions du même type pouvaient différer.
+  return a !== null && a.type === b.type;
 }
 
 // ── LA CLÔTURE ───────────────────────────────────────────────────────

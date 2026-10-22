@@ -49,14 +49,12 @@
 //    première a échoué serait une panne.
 // ════════════════════════════════════════════════════════════════════
 
-import type { Action } from "../domaine/action.ts";
 import type { Evenement } from "../domaine/cloture.ts";
 import { codeDepuisEmpreinte } from "../domaine/code.ts";
-import { fossileDeLaFouille } from "../domaine/fossile.ts";
+import { quelFossile } from "../domaine/fossile.ts";
 import { fouiller } from "../domaine/fouille.ts";
-import { lieuDepuisLaCle } from "../domaine/lieu.ts";
-import { conditionDuLieu, estLaNuit, tempsDuJour } from "../domaine/meteo.ts";
-import { tirerUneRencontre, tirerUnLieu } from "../domaine/rencontre.ts";
+import { conditionDeLaZone, estLaNuit, tempsDuJour } from "../domaine/meteo.ts";
+import { tirerUneRencontre } from "../domaine/rencontre.ts";
 import type {
   ActionLue,
   EtatDuJeu,
@@ -65,6 +63,7 @@ import type {
   LecteurDActions,
   Registre,
   Signataire,
+  TableDeButin,
   TableDesFossiles,
   ZoneSauvage,
 } from "./ports.ts";
@@ -111,6 +110,7 @@ export class LireLesNouveauxMessages {
     private readonly horloge: Horloge,
     private readonly signataire: Signataire,
     private readonly fossiles: TableDesFossiles,
+    private readonly butin: TableDeButin,
   ) {}
 
   /**
@@ -190,52 +190,80 @@ export class LireLesNouveauxMessages {
   ): Promise<readonly Evenement[]> {
     if (lue.action.type === "fouiller") return await this.resoudreUneFouille(lue, zone);
 
-    const un = await this.resoudreUneRecherche(zone, lue.action, lue, joueurId, erreurs);
+    //  `lue.action` n'est plus passée : une recherche n'a plus d'argument
+    //  à lire. Le type suffit, et il est déjà testé juste au-dessus.
+    const un = await this.resoudreUneRecherche(zone, lue, joueurId, erreurs);
     return un === null ? [] : [un];
   }
 
-  /** Une fouille rend des Pokédollars, et — rarement — un fossile.
+  /** Une fouille rend UNE chose : rien, des Pokédollars, un objet, un
+   *  morceau de fossile ou un fossile entier.
    *
-   *  LES DEUX SONT INDÉPENDANTS, et c'est voulu : `fossileDeLaFouille`
-   *  dérive sa propre graine (`<message>:fossile`) de celle des
-   *  Pokédollars. S'ils partageaient la suite, les grosses fouilles
-   *  donneraient toujours des fossiles — ou jamais. Un joueur
-   *  s'apercevrait de la corrélation avant nous.
+   *  LES CINQ PARTS VIENNENT DE LA DONNÉE (`data/butin.json`), et elles
+   *  font 100. Avant le 15 octobre, les Pokédollars et le fossile se
+   *  tiraient séparément : une fouille pouvait donner les deux, et les
+   *  deux chances de fossile vivaient dans `fossiles.json` sans que rien
+   *  ne les lise contre les autres parts.
    *
-   *  La règle est celle du 7 octobre : « n'importe où et n'importe
-   *  quand ». Ni palier, ni zone, ni lieu n'entrent dans le tirage du
-   *  fossile — seul le message. */
+   *  CE QUI RESTE DE LA RÈGLE DU 7 OCTOBRE : « n'importe où et n'importe
+   *  quand ». Ni palier ni zone n'entrent dans la chance d'un fossile —
+   *  les taux sont les mêmes partout. Le palier décide du montant des
+   *  Pokédollars, la zone décide de QUELS objets. */
   private async resoudreUneFouille(
     lue: ActionLue,
     zone: ZoneSauvage,
   ): Promise<readonly Evenement[]> {
-    const sortie: Evenement[] = [];
-
-    const { pokedollars } = fouiller(lue.messageId, zone.palier);
-    //  Bredouille : on n'inscrit pas une ligne à zéro. Elle ne dirait
-    //  rien au joueur et encombrerait le registre et le module.
-    if (pokedollars > 0) sortie.push({ type: "pokedollars", montant: pokedollars });
-
-    const trouvaille = fossileDeLaFouille(
+    //  UN SEUL TIRAGE, CINQ ISSUES. Avant le 15 octobre, les Pokédollars
+    //  et le fossile se tiraient séparément, donc une fouille pouvait
+    //  donner les deux. La table de butin porte maintenant les cinq
+    //  parts, et elles font 100.
+    const trouvaille = fouiller(
       lue.messageId,
-      await this.fossiles.fossiles(),
-      await this.fossiles.regles(),
+      zone.palier,
+      await this.butin.taux(),
+      await this.butin.butinDe(zone.forumId),
     );
-    //  `objet_trouve` et pas un type nouveau : un morceau comme un
-    //  fossile entier sont des objets du sac, et la clôture sait déjà
-    //  verser un objet trouvé. Le reste — trois morceaux font un
-    //  fossile — se passe en base, sur `sac`, et vaut donc aussi pour
-    //  un cadeau du staff ou un échange entre joueurs.
-    if (trouvaille !== null) {
-      sortie.push({ type: "objet_trouve", objetId: trouvaille.objetId, quantite: 1 });
-    }
 
-    return sortie;
+    switch (trouvaille.genre) {
+      //  Bredouille : on n'inscrit RIEN. Une ligne à zéro ne dirait rien
+      //  au joueur et encombrerait le registre et le module.
+      case "bredouille":
+        return [];
+
+      case "pokedollars":
+        return [{ type: "pokedollars", montant: trouvaille.montant }];
+
+      //  `objet_trouve` et pas un type nouveau : la clôture sait déjà
+      //  verser un objet dans un sac, et un objet de fouille n'est pas
+      //  d'une autre nature qu'un morceau de fossile.
+      case "objet":
+        return [{ type: "objet_trouve", objetId: trouvaille.objetId, quantite: 1 }];
+
+      case "fossile": {
+        const quel = quelFossile(
+          lue.messageId,
+          await this.fossiles.fossiles(),
+          trouvaille.entier,
+        );
+        //  TABLE DE FOSSILES VIDE : le tirage a dit « fossile » et il
+        //  n'y en a aucun à donner. On ne remplace pas par des
+        //  Pokédollars — ce serait inventer une issue que la table n'a
+        //  pas tirée — et on ne lève pas : le fichier des fossiles peut
+        //  être injoignable sans que la relève s'arrête (voir
+        //  `adaptateurs/faune/fossiles.ts`). La fouille est donc
+        //  bredouille, et le symptôme se voit : plus personne ne trouve
+        //  de fossile.
+        if (quel === null) return [];
+        //  Le reste — trois morceaux font un fossile — se passe en base,
+        //  sur `sac`, et vaut donc aussi pour un cadeau du staff ou un
+        //  échange entre joueurs.
+        return [{ type: "objet_trouve", objetId: quel.objetId, quantite: 1 }];
+      }
+    }
   }
 
   private async resoudreUneRecherche(
     zone: ZoneSauvage,
-    action: Extract<Action, { type: "chercher" }>,
     lue: ActionLue,
     joueurId: string,
     erreurs: string[],
@@ -247,56 +275,35 @@ export class LireLesNouveauxMessages {
       return null;
     }
 
-    const lieux = await this.faune.lieuxDe(zone.forumId);
-
-    //  ── LE LIEU EST TIRÉ, PLUS CHOISI ────────────────────────────────
+    //  ── PLUS DE LIEU DU TOUT, DEPUIS LE 15 OCTOBRE ───────────────────
     //
-    //  Décidé le 15 octobre par Callista, en montrant le menu « Où » de
-    //  la barre : « on est déjà dans une zone sauvage, avec un palier,
-    //  donc y'a pas d'autres zones à rajouter. »
+    //  Il y en avait un, et il a changé de main deux fois le même jour :
+    //  choisi par le joueur dans un menu, puis tiré par le serveur, puis
+    //  supprimé. Callista : « enlève tous les petits lieux. On a 3
+    //  paliers, 17 zones sauvages, et tu répartis le pokédex comme ça. »
     //
-    //  Les tables, elles, vivent toujours par lieu — Magicarpe est à
-    //  10 % à l'Étang Vaseux et absent de la Tourbière. On garde donc la
-    //  structure et on tire le lieu, avec la graine du message : le
-    //  résultat reste rejouable à l'identique.
-    //
-    //  ET ON CONTINUE D'HONORER UN LIEU ÉCRIT À LA MAIN. Des messages en
-    //  portent un, postés avant ce changement. Le contrôle
-    //  d'appartenance à la zone reste donc entier pour eux : sans lui, un
-    //  bloc recopié d'un autre sujet ferait tirer dans la table
-    //  d'ailleurs.
-    const lieu = action.lieu === undefined
-      ? tirerUnLieu(lieux, String(lue.messageId))
-      : lieuDepuisLaCle(action.lieu, lieux);
-
-    if (lieu === null) {
-      erreurs.push(
-        action.lieu === undefined
-          ? `message ${lue.messageId} : ${zone.nom} n'a aucun lieu où tirer`
-          : `message ${lue.messageId} : « ${action.lieu} » n'est pas un lieu de ${zone.nom}`,
-      );
-      return null;
-    }
-
-    const condition = conditionDuLieu(
+    //  La table est donc celle de la ZONE, et un ancien bloc portant un
+    //  lieu est lu comme un bloc sans lieu (`domaine/action.ts`).
+    const condition = conditionDeLaZone(
       tempsDuJour(jourDe(this.horloge.maintenant())),
       estLaNuit(await this.heures.heureLocaleDe(joueurId)),
-      await this.faune.conditionsDe(zone.forumId, lieu),
+      await this.faune.conditionsDe(zone.forumId),
     );
 
-    const table = await this.faune.tableDe(zone.forumId, lieu, condition);
+    const table = await this.faune.tableDe(zone.forumId, condition);
     if (table.length === 0) {
       erreurs.push(
-        `message ${lue.messageId} : ${zone.nom} / ${lieu} n'a pas de table « ${condition} »`,
+        `message ${lue.messageId} : ${zone.nom} n'a pas de table « ${condition} »`,
       );
       return null;
     }
 
-    //  La graine mêle le message et le lieu : deux lieux cherchés dans le
-    //  même message donneraient deux tirages différents. Ça n'arrive pas
-    //  aujourd'hui — une action par message — mais la graine n'a pas à
-    //  dépendre de cette règle-là pour être juste.
-    const rencontre = tirerUneRencontre(table, `${lue.messageId}|${lieu}`);
+    //  LA GRAINE EST LE NUMÉRO DU MESSAGE, SEUL. Elle portait un suffixe
+    //  `|lieu` pour que le lieu et l'espèce ne partagent pas la première
+    //  valeur de la suite ; sans second tirage, le suffixe n'a plus
+    //  d'objet. **Fixée à la seconde où le joueur poste, elle rend la
+    //  rencontre rejouable à l'identique des années plus tard.**
+    const rencontre = tirerUneRencontre(table, String(lue.messageId));
     return { type: "croise", especeId: rencontre.especeId };
   }
 }

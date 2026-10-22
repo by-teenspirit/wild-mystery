@@ -2,6 +2,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-switcheroo.ts
 //
+//  COUVERT PAR : outils/navigation.mjs — la bascule de compte, dans le même harnais que la barre.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  Le switcheroo : le gestionnaire de multicomptes de Forumactif, celui
 //  que la V1 utilisait déjà. C'est lui qui remplit « Mes personnages ».
 //

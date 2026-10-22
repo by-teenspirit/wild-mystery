@@ -681,13 +681,127 @@ echo "── 21. aucune mesure jetée dans les harnais ────────�
 #
 # Vérifié en le cassant : une variable inutilisée ajoutée à
 # `confort.mjs` la fait nommer, fichier et ligne.
-if ! deno lint --rules-tags= --rules-include=no-unused-vars outils/ >/tmp/wm-lint-outils 2>&1; then
+#  `deno` ABSENT SE DIT, il ne se confond pas avec une plainte du lint.
+#  Lancé depuis un shell sans deno — le pont vers le Mac, par exemple —
+#  cette règle grondait « un harnais relève une mesure qu'il n'utilise
+#  pas » alors qu'elle n'avait rien pu regarder. Un garde-fou qui accuse
+#  à faux est un garde-fou qu'on cesse de croire. Les règles 20 et 23
+#  font pareil avec python3.
+if ! command -v deno >/dev/null 2>&1; then
+  echo "   deno absent du PATH — harnais non vérifiés"
+elif ! deno lint --rules-tags= --rules-include=no-unused-vars outils/ >/tmp/wm-lint-outils 2>&1; then
   sed 's/^/   /' /tmp/wm-lint-outils
   gronde "un harnais relève une mesure qu'il n'utilise pas — assertion oubliée ou code mort"
 else
   echo "   harnais : $(ls outils/*.mjs | wc -l | tr -d ' ') fichiers, aucune mesure jetée"
 fi
 rm -f /tmp/wm-lint-outils
+
+echo "── 22. un module d'interface dit qui le monte ──────────────────"
+# LA RÈGLE 3 NE REGARDAIT QUE `src/domaine/`, `src/application/` et
+# `src/navigateur/`. `src/adaptateurs/` en était dehors, et c'est comme
+# ça que `barre-d-actions.ts` a vécu treize jours sans qu'aucun test ni
+# aucun harnais ne le monte. Callista l'a trouvé à la main, sur son
+# forum : « j'ai testé l'option "chercher", mais ça fait rien. »
+#
+# Un module d'interface n'a souvent pas de test unitaire, et c'est
+# légitime : son travail est de poser du DOM, et un faux DOM prouve peu.
+# Mais alors un harnais doit le monter, et ce harnais doit TOURNER —
+# d'où les trois vérifications d'un coup : le fichier existe, c'est une
+# tâche de `deno.json`, et le CI l'appelle.
+#
+# Trois façons d'être couvert, dans cet ordre :
+#   1. son propre `.test.ts` ;
+#   2. un test, n'importe où sous `src/`, qui l'importe (les doubles en
+#      mémoire et les clients Supabase sont dans ce cas) ;
+#   3. une ligne « COUVERT PAR : outils/<x>.mjs » dans son en-tête.
+#
+# Et une quatrième, qui n'est pas une couverture : « COUVERT PAR :
+# PERSONNE ». C'est une dette déclarée, elle est comptée, et le nombre
+# attendu ci-dessous ne peut que descendre.
+#  TOMBÉE À ZÉRO LE 16 OCTOBRE, avec `outils/boutique.mjs` : plus un seul
+#  module d'interface sans couverture. Le chiffre ne peut que descendre —
+#  si une dette réapparaît, la règle gronde.
+DETTE_ATTENDUE=0
+dette=0
+for f in "${SOURCE[@]}"; do
+  case "$f" in src/adaptateurs/*) ;; *) continue;; esac
+  [ -f "${f%.ts}.test.ts" ] && continue
+  if sans_execution "$f"; then
+    echo "   $f : types seuls, pas de test attendu"
+    continue
+  fi
+  base=$(basename "$f" .ts)
+  if grep -qlE "from \"[^\"]*${base}\.ts\"" "${TESTS[@]}" 2>/dev/null; then
+    continue
+  fi
+  if grep -q "COUVERT PAR : PERSONNE" "$f"; then
+    dette=$((dette + 1))
+    echo "   $f : DETTE DÉCLARÉE — aucun test, aucun harnais"
+    continue
+  fi
+  harnais=$(sed -n 's|^//  COUVERT PAR : \(outils/[a-z0-9-]*\.mjs\).*|\1|p' "$f" | head -1)
+  if [ -z "$harnais" ]; then
+    gronde "$f : ni test unitaire, ni test qui l'importe, ni « COUVERT PAR : outils/<x>.mjs »"
+    continue
+  fi
+  tache=$(basename "$harnais" .mjs)
+  [ -f "$harnais" ] || gronde "$f dit être couvert par $harnais, qui n'existe pas"
+  grep -q "\"$tache\": \"deno run -A $harnais\"" deno.json ||
+    gronde "$harnais n'est pas la tâche « $tache » de deno.json — rien ne le lance"
+  grep -q "deno task $tache" .github/workflows/ci.yml ||
+    gronde "le CI ne lance jamais « deno task $tache » — un harnais qui ne tourne pas ne garde rien"
+done
+if [ "$dette" -gt "$DETTE_ATTENDUE" ]; then
+  gronde "$dette module(s) d'interface sans aucune couverture, $DETTE_ATTENDUE attendu(s) — la dette grandit"
+elif [ "$dette" -lt "$DETTE_ATTENDUE" ]; then
+  gronde "la dette est tombée à $dette : descends DETTE_ATTENDUE à $dette dans ce fichier"
+else
+  echo "   dette inchangée : $dette module d'interface sans couverture"
+fi
+
+echo "── 23. les fichiers dérivés se dérivent, ils ne s'écrivent pas ─"
+# LE 15 OCTOBRE, LES DIX-SEPT TABLES ONT ÉTÉ REFAITES : Callista a retiré
+# le niveau de lieu — « enlève tous les petits lieux. On a 3 paliers, 17
+# zones sauvages, et tu répartis le pokédex comme ça. »
+#
+# Il y a donc maintenant une chaîne de trois fichiers dérivés, et chacun
+# peut se désaccorder du précédent par une modification à la main :
+#
+#   planche 39  →  data/pokedex-de-rhode.json   (933 noms, par zone)
+#               →  data/pokedex-ids.json        (nom → identifiant)
+#               →  data/faune/<forumId>.json    (les 34 tables)
+#
+# Et la table de butin, qui se dérive de trois fichiers à la fois :
+#
+#   objets.json + fossiles.json + les types mesurés des espèces
+#               →  data/butin.json              (ce qu'une fouille donne)
+#
+# Et le bandeau d'une zone, recopié de la carte depuis le 22 octobre :
+#
+#   data/carte.json  →  data/zones.json   (niveau, description, image)
+#
+# `zones.py --verifier` relit la recopie ET vérifie que chaque photo
+# existe vraiment dans `assets/zones/` : l'adresse est absolue et pointe
+# sur GitHub Pages, donc une faute de frappe ne se verrait qu'en ligne.
+#
+# Les trois scripts savent se vérifier sans réseau. C'est le même
+# principe que la règle 9 pour l'index des espèces : une donnée dérivée
+# qu'on ne vérifie pas est une donnée qui finit par mentir.
+#
+# `pokedex-ids.py --verifier` est le plus utile des trois : il refuse un
+# nom sans identifiant ET deux noms sur le même identifiant. C'est ce
+# second contrôle qui a trouvé « Lougaroc Crépusculaire » à 745, qui est
+# Lougaroc Diurne — deux espèces du Pokédex sur une seule ligne.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — chaîne du Pokédex non vérifiée"
+else
+  for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones; do
+    if ! python3 "outils/$outil.py" --verifier; then
+      gronde "outils/$outil.py --verifier refuse : un fichier dérivé a été modifié à la main"
+    fi
+  done
+fi
 
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then

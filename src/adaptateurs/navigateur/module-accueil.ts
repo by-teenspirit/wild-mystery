@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-accueil.ts
 //
+//  COUVERT PAR : outils/accueil.mjs — le bloc d'accueil, son repli et ses images.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  Le bloc d'accueil, maquette `390:3170` : contexte, liens rapides,
 //  partenaires, votes, staff, actualités, pré-liens, et la mascotte.
 //

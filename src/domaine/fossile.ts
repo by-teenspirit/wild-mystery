@@ -22,14 +22,19 @@
 //  ramasse un morceau SAIT ce qu'il prépare. Il peut viser, échanger,
 //  raconter. Un dé ne se raconte pas.
 //
-//  ── LE TIRAGE EST SÉPARÉ DE CELUI DES POKÉDOLLARS ───────────────────
+//  ── CE FICHIER NE DÉCIDE PLUS S'IL Y A UN FOSSILE ───────────────────
 //
-//  `fouille.ts` tire déjà sur la graine du message. Rejouer la même
-//  suite ici lierait le montant trouvé à la chance d'avoir un fossile :
-//  les grosses fouilles donneraient toujours des fossiles, ou jamais.
+//  Depuis le 15 octobre, c'est `fouille.ts` qui tranche : une fouille,
+//  un tirage, cinq issues qui s'excluent — bredouille, fossile entier,
+//  morceau, objet, Pokédollars. Les deux chances ont donc quitté ce
+//  fichier et `ReglesDeFossile` : elles sont dans la table de butin,
+//  qui porte TOUS les taux d'une fouille, et une part qui vit à deux
+//  endroits finit par y valoir deux choses.
 //
-//  On dérive donc une graine fille, `<graine>:fossile`. Elle reste
-//  reproductible — c'est tout l'intérêt — mais elle est indépendante.
+//  Ici reste la seule question que les fossiles savent trancher :
+//  **LEQUEL des onze**. Avec une graine fille, `<graine>:fossile`, parce
+//  que réutiliser la suite de la fouille ferait sortir toujours le même
+//  fossile au même endroit de la tranche.
 // ════════════════════════════════════════════════════════════════════
 
 import { entreBornes, graineDepuis, suiteAleatoire } from "./alea.ts";
@@ -72,17 +77,20 @@ export type TrouvailleDeFossile = {
 };
 
 /** Les réglages, lus avec la table plutôt que figés ici : ce sont des
- *  nombres de jeu, et ils appartiennent à la donnée. */
+ *  nombres de jeu, et ils appartiennent à la donnée.
+ *
+ *  IL Y EN AVAIT TROIS JUSQU'AU 15 OCTOBRE. `chanceDeMorceau` et
+ *  `chanceDEntier` sont parties dans la table de butin, avec les trois
+ *  autres taux d'une fouille : c'est là qu'elles se lisent les unes
+ *  contre les autres. `data/fossiles.json` les porte toujours — c'est
+ *  là que Callista les règle — et `outils/butin.py` les y lit pour
+ *  écrire la table. Une part, une source. */
 export type ReglesDeFossile = {
   readonly morceauxParFossile: number;
-  readonly chanceDeMorceau: number;
-  readonly chanceDEntier: number;
 };
 
 export const REGLES_PAR_DEFAUT: ReglesDeFossile = {
   morceauxParFossile: 3,
-  chanceDeMorceau: 0.06,
-  chanceDEntier: 0.008,
 };
 
 function texte(v: unknown): string {
@@ -91,13 +99,6 @@ function texte(v: unknown): string {
 
 function entier(v: unknown): number | null {
   return typeof v === "number" && Number.isInteger(v) && v > 0 ? v : null;
-}
-
-/** Une part entre 0 et 1, strictement. Une chance de 0 éteindrait la
- *  trouvaille en silence ; une chance de 1 la rendrait certaine. Les deux
- *  sont plus probablement une faute de frappe qu'une intention. */
-function part(v: unknown, defaut: number): number {
-  return typeof v === "number" && v > 0 && v < 1 ? v : defaut;
 }
 
 /**
@@ -148,45 +149,36 @@ export function reglesDepuis(donnees: unknown): ReglesDeFossile {
     //  Au moins deux : « un morceau par fossile » voudrait dire qu'il n'y
     //  a pas de morceaux du tout.
     morceauxParFossile: m !== null && m >= 2 ? m : REGLES_PAR_DEFAUT.morceauxParFossile,
-    chanceDeMorceau: part(d.chanceDeMorceau, REGLES_PAR_DEFAUT.chanceDeMorceau),
-    chanceDEntier: part(d.chanceDEntier, REGLES_PAR_DEFAUT.chanceDEntier),
   };
 }
 
 /**
- * Le fossile — ou le morceau — qu'une fouille donne, ou `null`.
+ * LEQUEL des fossiles, une fois que la fouille a décidé qu'il y en a un.
  *
- * `graine` est le numéro du message, comme pour les Pokédollars : même
- * message, même trouvaille, pour toujours.
+ * `graine` est le numéro du message, comme pour le reste : même message,
+ * même fossile, pour toujours. `entier` vient de `fouiller` — c'est elle
+ * qui a tiré la tranche.
  *
- * **L'entier est tiré AVANT le morceau**, et c'est l'ordre qui compte :
- * l'inverse rendrait la chance d'un entier inatteignable dès que celle
- * d'un morceau la dépasse.
+ * Rend `null` sur une table vide : un fichier de fossiles illisible ne
+ * doit pas arrêter la relève, et l'appelant nomme déjà ce cas.
  */
-export function fossileDeLaFouille(
+export function quelFossile(
   graine: number,
   fossiles: readonly Fossile[],
-  regles: ReglesDeFossile = REGLES_PAR_DEFAUT,
+  entier: boolean,
 ): TrouvailleDeFossile | null {
   if (fossiles.length === 0) return null;
 
+  //  LA GRAINE FILLE : `<graine>:fossile`. La fouille a déjà consommé sa
+  //  propre suite pour choisir la tranche ; repartir de la même ici
+  //  ferait dépendre l'espèce de la position dans la tranche, donc les
+  //  fossiles entiers et les morceaux ne seraient pas les mêmes espèces.
   const suite = suiteAleatoire(graineDepuis(`${graine}:fossile`));
-  const sort = suite();
-  const genre: "entier" | "morceau" | null = sort < regles.chanceDEntier
-    ? "entier"
-    : sort < regles.chanceDEntier + regles.chanceDeMorceau
-    ? "morceau"
-    : null;
-  if (genre === null) return null;
-
-  //  Un second tirage pour l'espèce : réutiliser `sort`, qui est déjà
-  //  borné par la rareté, donnerait toujours les mêmes fossiles.
-  const i = entreBornes(suite(), 0, fossiles.length - 1);
-  const fossile = fossiles[i];
+  const fossile = fossiles[entreBornes(suite(), 0, fossiles.length - 1)];
   return {
-    genre,
+    genre: entier ? "entier" : "morceau",
     fossile,
-    objetId: genre === "entier" ? fossile.id : fossile.morceauId,
+    objetId: entier ? fossile.id : fossile.morceauId,
   };
 }
 

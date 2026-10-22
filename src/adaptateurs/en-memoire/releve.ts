@@ -22,19 +22,11 @@ export class FauneEnMemoire implements Faune {
     return Promise.resolve(this.zones);
   }
 
-  lieuxDe(_forumId: number): Promise<readonly string[]> {
+  conditionsDe(_forumId: number): Promise<readonly string[]> {
     return Promise.resolve([]);
   }
 
-  conditionsDe(_forumId: number, _lieu: string): Promise<readonly string[]> {
-    return Promise.resolve([]);
-  }
-
-  tableDe(
-    _forumId: number,
-    _lieu: string,
-    _condition: string,
-  ): Promise<readonly EntreeDeTable[]> {
+  tableDe(_forumId: number, _condition: string): Promise<readonly EntreeDeTable[]> {
     return Promise.resolve([]);
   }
 }

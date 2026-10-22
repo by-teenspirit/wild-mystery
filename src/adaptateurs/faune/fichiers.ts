@@ -42,25 +42,22 @@ export class ZoneSansFaune extends Error {
   }
 }
 
-export class LieuInconnu extends Error {
-  constructor(lieu: string, zone: string, connus: readonly string[]) {
-    super(`« ${lieu} » n'est pas un lieu de ${zone}. Connus : ${connus.join(", ")}.`);
-    this.name = "LieuInconnu";
-  }
-}
+//  `LieuInconnu` A DISPARU LE 15 OCTOBRE, avec le niveau de lieu
+//  lui-même : il n'y a plus de nom à ne pas reconnaître.
 
 export class ConditionInconnue extends Error {
-  constructor(condition: string, lieu: string, connues: readonly string[]) {
-    super(`« ${condition} » n'existe pas à ${lieu}. Connues : ${connues.join(", ")}.`);
+  constructor(condition: string, zone: string, connues: readonly string[]) {
+    super(`« ${condition} » n'existe pas en ${zone}. Connues : ${connues.join(", ")}.`);
     this.name = "ConditionInconnue";
   }
 }
 
 const RARETES: readonly string[] = ["commun", "peu commun", "rare"];
 
-/** Le nom d'un lieu traverse l'éditeur du forum, un copier-coller et
- *  parfois un clavier sans accents. On compare donc sur une forme
- *  réduite : sans accent, sans casse, sans espaces en trop. */
+/** Un nom de condition traverse un fichier de données écrit à la main.
+ *  On compare donc sur une forme réduite : sans accent, sans casse, sans
+ *  espaces en trop — « Tempête de Sable » et « tempete de sable » sont
+ *  la même condition. */
 export function reduire(nom: string): string {
   return nom
     .normalize("NFD")
@@ -133,12 +130,10 @@ function versDomaine(chemin: string, brut: unknown): EntreeDeTable {
 }
 
 type FauneChargee = {
-  /** forme réduite du lieu → nom affiché */
-  readonly noms: ReadonlyMap<string, string>;
-  /** forme réduite du lieu → (forme réduite de la condition → table) */
-  readonly tables: ReadonlyMap<string, ReadonlyMap<string, readonly EntreeDeTable[]>>;
-  /** forme réduite de la condition → nom affiché, par lieu réduit */
-  readonly conditions: ReadonlyMap<string, readonly string[]>;
+  /** forme réduite de la condition → table de la zone */
+  readonly tables: ReadonlyMap<string, readonly EntreeDeTable[]>;
+  /** les noms de condition tels que le fichier les écrit, dans l'ordre */
+  readonly conditions: readonly string[];
 };
 
 export class FauneEnFichiers implements Faune {
@@ -230,87 +225,54 @@ export class FauneEnFichiers implements Faune {
       chemin,
       `annonce le forum ${racine.forumId}, attendu ${zone.forumId}`,
     );
-    const lieux = objet(racine.lieux);
-    exige(lieux !== null, chemin, "la clé « lieux » n'est pas un objet");
+    //  LA CLÉ EST « conditions » DEPUIS LE 15 OCTOBRE, et c'était
+    //  « lieux ». Un ancien fichier doit être refusé, pas lu de travers :
+    //  ses tables par lieu n'ont pas la même forme, et les accepter en
+    //  silence donnerait une zone sans rencontre.
+    exige(
+      racine.lieux === undefined,
+      chemin,
+      "porte encore des « lieux » : c'est un fichier d'avant le 15 octobre " +
+        "(les anciens sont dans data/faune-v1/)",
+    );
+    const parCondition = objet(racine.conditions);
+    exige(parCondition !== null, chemin, "la clé « conditions » n'est pas un objet");
 
-    const noms = new Map<string, string>();
-    const tables = new Map<string, Map<string, readonly EntreeDeTable[]>>();
-    const conditions = new Map<string, string[]>();
-
-    for (const [lieu, brutParCondition] of Object.entries(lieux)) {
-      const parCondition = objet(brutParCondition);
-      exige(parCondition !== null, chemin, `le lieu « ${lieu} » n'est pas un objet`);
-      const cleLieu = reduire(lieu);
-      exige(!noms.has(cleLieu), chemin, `deux lieux se réduisent à « ${cleLieu} »`);
-      noms.set(cleLieu, lieu);
-
-      const parCle = new Map<string, readonly EntreeDeTable[]>();
-      const nomsConditions: string[] = [];
-      for (const [condition, brute] of Object.entries(parCondition)) {
-        exige(
-          Array.isArray(brute),
-          chemin,
-          `${lieu} / ${condition} n'est pas un tableau`,
-        );
-        const table = (brute as unknown[]).map((b) => versDomaine(chemin, b));
-        // Le domaine juge. Une table fausse doit casser au chargement,
-        // pas au premier joueur qui passe.
-        try {
-          verifieTable(table);
-        } catch (e) {
-          throw new DonneesIllisibles(
-            chemin,
-            `${lieu} / ${condition} : ${(e as Error).message}`,
-          );
-        }
-        parCle.set(reduire(condition), table);
-        nomsConditions.push(condition);
+    const tables = new Map<string, readonly EntreeDeTable[]>();
+    const conditions: string[] = [];
+    for (const [condition, brute] of Object.entries(parCondition)) {
+      exige(Array.isArray(brute), chemin, `la condition « ${condition} » n'est pas un tableau`);
+      const table = (brute as unknown[]).map((b) => versDomaine(chemin, b));
+      // Le domaine juge. Une table fausse doit casser au chargement,
+      // pas au premier joueur qui passe.
+      try {
+        verifieTable(table);
+      } catch (e) {
+        throw new DonneesIllisibles(chemin, `${condition} : ${(e as Error).message}`);
       }
-      exige(parCle.size > 0, chemin, `le lieu « ${lieu} » n'a aucune condition`);
-      tables.set(cleLieu, parCle);
-      conditions.set(cleLieu, nomsConditions);
+      const cle = reduire(condition);
+      exige(!tables.has(cle), chemin, `deux conditions se réduisent à « ${cle} »`);
+      tables.set(cle, table);
+      conditions.push(condition);
     }
-    exige(tables.size > 0, chemin, "aucun lieu");
-    return { noms, tables, conditions };
+    exige(tables.size > 0, chemin, "aucune condition");
+    return { tables, conditions };
   }
 
   // ── le port ────────────────────────────────────────────────────────
 
-  async lieuxDe(forumId: number): Promise<readonly string[]> {
+  async conditionsDe(forumId: number): Promise<readonly string[]> {
     const zone = await this.laZone(forumId);
     if (typeof zone.faune !== "string" || zone.faune.length === 0) return [];
-    return [...(await this.laFaune(zone)).noms.values()];
+    return (await this.laFaune(zone)).conditions;
   }
 
-  async conditionsDe(forumId: number, lieu: string): Promise<readonly string[]> {
+  async tableDe(forumId: number, condition: string): Promise<readonly EntreeDeTable[]> {
     const zone = await this.laZone(forumId);
     const faune = await this.laFaune(zone);
-    const cle = reduire(lieu);
-    const trouvees = faune.conditions.get(cle);
-    if (trouvees === undefined) {
-      throw new LieuInconnu(lieu, zone.nom, [...faune.noms.values()]);
-    }
-    return trouvees;
-  }
-
-  async tableDe(
-    forumId: number,
-    lieu: string,
-    condition: string,
-  ): Promise<readonly EntreeDeTable[]> {
-    const zone = await this.laZone(forumId);
-    const faune = await this.laFaune(zone);
-    const parCondition = faune.tables.get(reduire(lieu));
-    if (parCondition === undefined) {
-      throw new LieuInconnu(lieu, zone.nom, [...faune.noms.values()]);
-    }
-    const table = parCondition.get(reduire(condition));
+    const table = faune.tables.get(reduire(condition));
     if (table === undefined) {
-      throw new ConditionInconnue(
-        condition,
-        lieu,
-        faune.conditions.get(reduire(lieu)) ?? [],
-      );
+      throw new ConditionInconnue(condition, zone.nom, faune.conditions);
     }
     return table;
   }

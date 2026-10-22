@@ -3,6 +3,10 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-navigation.ts
 //
+//  COUVERT PAR : outils/navigation.mjs — la barre, le panneau latéral et le menu du compte.
+//  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
+//   quel harnais le monte, et ce harnais doit tourner dans le CI.)
+//
 //  La barre de navigation, le panneau latéral et le menu du compte.
 //  Maquettes `390:3142`, `390:3676` et `390:3636`.
 //
