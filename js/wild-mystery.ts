@@ -362,11 +362,11 @@ async function poserLesTerritoires(): Promise<void> {
 /** « Qui est en ligne ? », maquette `390:3387`.
  *
  *  Les compteurs et le dernier arrivé sont DANS la page — ModernBB
- *  les écrit en bas de l'index. Seul le clan du moment demande un
+ *  les écrit en bas de l'index. Seul le groupe du moment demande un
  *  fichier, et c'est pour lui qu'on va sur le réseau.
  *
- *  Le bloc se pose quand même si `clans.json` ne répond pas : on perd
- *  la carte du clan, pas les chiffres. */
+ *  Le bloc se pose quand même si `groupes.json` ne répond pas : on perd
+ *  la carte du groupe, pas les chiffres. */
 /** L'avatar d'un membre, lu sur sa page de profil, et retenu.
  *
  *  ── POURQUOI UNE REQUÊTE, ET POURQUOI UNE SEULE ─────────────────────
@@ -418,18 +418,18 @@ async function avatarDe(urlDuProfil: string): Promise<string | null> {
 async function poserLesPresents(): Promise<void> {
   if (RACINE === null) return;
   if (!estLIndex(location.pathname)) return;
-  const clans = await fetch(`${RACINE}clans.json`, { credentials: "omit" })
+  const groupes = await fetch(`${RACINE}groupes.json`, { credentials: "omit" })
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
-  //  Les vignettes des clans et le Sabelette vivent dans `assets/`,
+  //  Les vignettes des groupes et le Sabelette vivent dans `assets/`,
   //  à côté de `data/` : une seule coupe donne les deux racines, donc
   //  elles ne peuvent pas se désaccorder.
   const images = racineDesImages(adresseDuScript(document));
   poserQuiEstEnLigne({
     doc: document,
-    clans,
-    icone: (cle) => images === null ? null : `${images}clans/${cle}.png`,
-    mascotte: images === null ? null : `${images}clans/sabelette.png`,
+    groupes,
+    icone: (cle) => images === null ? null : `${images}groupes/${cle}.png`,
+    mascotte: images === null ? null : `${images}groupes/sabelette.png`,
     avatarDe,
   });
 }

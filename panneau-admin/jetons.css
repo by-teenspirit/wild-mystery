@@ -166,7 +166,7 @@
   --wm-pokemon-obscur-fond:    #4a3a63;
   --wm-pokemon-obscur-texte:   #fffbf7;
 
-  /*  ── LES SIX CLANS ─────────────────────────────────────────────
+  /*  ── LES SIX GROUPES ─────────────────────────────────────────────
 
       Callista a donné cinq teintes le 9 octobre : Reshiram C9902F,
       Deoxys 5B4BA6, Xerneas 3E8C5A, Zamazenta 2F6E9E, Mew C05A8A.
@@ -175,23 +175,23 @@
       CE SONT DES TEINTES, PAS DES PAIRES, et une carte a besoin des
       deux : le fond est la teinte à 18 % sur `fond-surface`, le texte
       la teinte assombrie juste assez pour tenir 4,5 dessus — mesuré
-      clan par clan, entre 4,53 et 5,16. Reshiram et Xerneas ont dû
+      groupe par groupe, entre 4,53 et 5,16. Reshiram et Xerneas ont dû
       descendre ; Deoxys passe tel quel.
 
       Si c'est le FOND que ces couleurs devaient remplir, c'est un
-      échange de deux lignes par clan — dis-le et je le fais. */
-  --wm-groupe-ho-oh-fond:      #f3d8c0;
-  --wm-groupe-ho-oh-texte:     #9a4f22;
-  --wm-groupe-reshiram-fond:   #f5e8d3;
-  --wm-groupe-reshiram-texte:  #896220;
-  --wm-groupe-deoxys-fond:     #e1dbe8;
-  --wm-groupe-deoxys-texte:    #5b4ba6;
-  --wm-groupe-xerneas-fond:    #dce7db;
-  --wm-groupe-xerneas-texte:   #327048;
-  --wm-groupe-zamazenta-fond:  #dae2e7;
-  --wm-groupe-zamazenta-texte: #2b6591;
-  --wm-groupe-mew-fond:        #f4dee3;
-  --wm-groupe-mew-texte:       #9a486e;
+      échange de deux lignes par groupe — dis-le et je le fais. */
+  --wm-groupe-hardi-fond:      #d4e4ed;
+  --wm-groupe-hardi-texte:     #21658c;
+  --wm-groupe-serieux-fond:   #ede6d4;
+  --wm-groupe-serieux-texte:  #7c611d;
+  --wm-groupe-malin-fond:     #e1d4ed;
+  --wm-groupe-malin-texte:    #5a218c;
+  --wm-groupe-doux-fond:    #d4edd4;
+  --wm-groupe-doux-texte:   #1b741b;
+  --wm-groupe-brave-fond:  #edd4e0;
+  --wm-groupe-brave-texte: #8c2157;
+  --wm-groupe-jovial-fond:        #d4ede8;
+  --wm-groupe-jovial-texte:       #1a705e;
 
   --wm-espace-2:   2px;
   --wm-espace-4:   4px;
@@ -305,18 +305,18 @@ body.wm-sombre {
   --wm-pokemon-obscur-fond:    #605080;
   --wm-pokemon-obscur-texte:   #f2e4d8;
 
-  --wm-groupe-ho-oh-fond:       #6b3a1e;
-  --wm-groupe-ho-oh-texte:      #e8a05c;
-  --wm-groupe-reshiram-fond:    #4c361c;
-  --wm-groupe-reshiram-texte:   #cf9d48;
-  --wm-groupe-deoxys-fond:      #312639;
-  --wm-groupe-deoxys-texte:     #968cc6;
-  --wm-groupe-xerneas-fond:     #2a3526;
-  --wm-groupe-xerneas-texte:    #6ca882;
-  --wm-groupe-zamazenta-fond:   #272e37;
-  --wm-groupe-zamazenta-texte:  #729cbd;
-  --wm-groupe-mew-fond:         #492932;
-  --wm-groupe-mew-texte:        #d288ab;
+  --wm-groupe-hardi-fond:       #1e2f38;
+  --wm-groupe-hardi-texte:      #59a4cf;
+  --wm-groupe-serieux-fond:    #38311e;
+  --wm-groupe-serieux-texte:   #cfad59;
+  --wm-groupe-malin-fond:      #2c1e38;
+  --wm-groupe-malin-texte:     #a975d7;
+  --wm-groupe-doux-fond:     #1e381e;
+  --wm-groupe-doux-texte:    #59cf59;
+  --wm-groupe-brave-fond:   #381e2b;
+  --wm-groupe-brave-texte:  #d56da1;
+  --wm-groupe-jovial-fond:         #1e3833;
+  --wm-groupe-jovial-texte:        #59cfb7;
 }
 
 /* ════════════════════════════════════════════════════════════════════

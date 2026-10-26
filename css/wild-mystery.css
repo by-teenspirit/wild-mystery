@@ -12648,19 +12648,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
      colonne 2   le dernier arrivé (carte de 86, avec un rond de 56),
                  surmonté du mot « Bienvenue » qui la chevauche ;
                  puis « Connectés dans les 24 dernières heures », 297
-     colonne 3   une bande de six sprites de 65, et la carte du clan
+     colonne 3   une bande de six sprites de 65, et la carte du groupe
                  sur 292, avec son encart d'avantage en bas
 
    On garde les PROPORTIONS et les espaces, pas les abscisses : la
    carte vaut 1172 dans le dessin et la colonne du forum va jusqu'à
    1400.
 
-   ── LA COULEUR DU CLAN VIENT DE SA CLÉ ──────────────────────────────
+   ── LA COULEUR DU GROUPE VIENT DE SA CLÉ ──────────────────────────────
 
-   Six clans, six paires de jetons déjà déclarées dans le panneau
-   d'administration — `--wm-groupe-ho-oh-fond` et `-texte`, et ainsi de
-   suite. La carte lit la paire qui correspond à son `data-wm-clan`.
-   Aucune couleur n'est écrite ici, et changer de clan du moment ne
+   Six groupes, six paires de jetons déjà déclarées dans le panneau
+   d'administration — `--wm-groupe-hardi-fond` et `-texte`, et ainsi de
+   suite. La carte lit la paire qui correspond à son `data-wm-groupe`.
+   Aucune couleur n'est écrite ici, et changer de groupe du moment ne
    demande donc pas une ligne de CSS.
    ════════════════════════════════════════════════════════════════════ */
 
@@ -12718,7 +12718,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   min-width: 0;
 }
 
-#modernbb .wm-enligne__colonne--clan {
+#modernbb .wm-enligne__colonne--groupe {
   flex: 368 1 0;
 }
 
@@ -12932,7 +12932,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     par le haut — c'est ce débordement qui fait qu'il décore au lieu
     d'illustrer. On le sort donc de 28 px, et le bloc ne coupe pas.
 
-    `pointer-events: none` : il couvre le coin de la carte du clan, et
+    `pointer-events: none` : il couvre le coin de la carte du groupe, et
     une image décorative n'a pas à voler un clic.
 
     IL S'EN VA SOUS 900 px. Sur un écran étroit les trois colonnes
@@ -12962,13 +12962,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     était très bien pour le reste des blocs. »
 
     J'avais essayé de lui RÉSERVER une bande de 282 px à droite du
-    panneau. Ça le sortait bien des clans, mais ça rétrécissait les
+    panneau. Ça le sortait bien des groupes, mais ça rétrécissait les
     trois colonnes — donc ça déplaçait tout le reste pour une image
     décorative. C'était payer trop cher.
 
     Il reprend donc sa place d'origine : en absolu, hors du flux, à
     -103 px du bord droit. Rien ne bouge autour de lui, et il mord un
-    peu moins sur la colonne des clans qu'avant parce qu'il part plus
+    peu moins sur la colonne des groupes qu'avant parce qu'il part plus
     à droite.
 
     Sous 1200 px il disparaît : il n'y a plus de marge où mordre, et
@@ -12994,9 +12994,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
-/* ── le clan du moment ────────────────────────────────────────────── */
+/* ── le groupe du moment ────────────────────────────────────────────── */
 
-#modernbb .wm-enligne__clan-bloc {
+#modernbb .wm-enligne__groupe-bloc {
   display: flex;
   flex: 1 1 auto;
   gap: 11px;
@@ -13006,7 +13006,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  ── LA BANDE DES SIX ONGLETS ─────────────────────────────────────
 
     Six cases de 65, espacées de 9 — la bande du dessin `390:3387`.
-    Elle porte un clan par case, et c'est elle qui ouvre sa carte.
+    Elle porte un groupe par case, et c'est elle qui ouvre sa carte.
 
     Ce sont des `<button>` : la feuille doit donc défaire ce qu'un
     navigateur met d'office sur un bouton — sa bordure, son fond, son
@@ -13040,6 +13040,49 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   object-fit: contain;
 }
 
+/*  ── LA VIGNETTE PREND LA COULEUR DE SON GROUPE ────────────────────
+
+    Les six images sont des pokémon DÉTOURÉS — fond transparent, et
+    rien derrière eux que ce que la feuille met. Elles tombent donc
+    sur la même paire de jetons que la carte, et les jetons portent
+    déjà leurs deux valeurs : `jetons.css` les redéclare en entier
+    sous le thème sombre. La bande suit le thème sans qu'une seule
+    couleur soit écrite ici.
+
+    LE FOND NEUTRE AU-DESSUS RESTE LE REPLI. Un groupe dont la clé
+    n'est dans aucune de ces six règles garde une case lisible, au
+    lieu d'un carré transparent où l'image flotte. */
+#modernbb button.wm-enligne__onglet[data-wm-groupe="hardi"] {
+  background: var(--wm-groupe-hardi-fond, #d4e4ed);
+}
+
+#modernbb button.wm-enligne__onglet[data-wm-groupe="serieux"] {
+  background: var(--wm-groupe-serieux-fond, #ede6d4);
+}
+
+#modernbb button.wm-enligne__onglet[data-wm-groupe="malin"] {
+  background: var(--wm-groupe-malin-fond, #e1d4ed);
+}
+
+#modernbb button.wm-enligne__onglet[data-wm-groupe="doux"] {
+  background: var(--wm-groupe-doux-fond, #d4edd4);
+}
+
+#modernbb button.wm-enligne__onglet[data-wm-groupe="brave"] {
+  background: var(--wm-groupe-brave-fond, #edd4e0);
+}
+
+#modernbb button.wm-enligne__onglet[data-wm-groupe="jovial"] {
+  background: var(--wm-groupe-jovial-fond, #d4ede8);
+}
+
+/*  L'IMAGE NE POSE PAS SON PROPRE FOND. Elle est détourée ; si une
+    règle plus large lui en donnait un, elle masquerait celui du
+    groupe et la bande redeviendrait six carrés identiques. */
+#modernbb button.wm-enligne__onglet img {
+  background: none;
+}
+
 /*  LE NOM EST LÀ POUR QUI ÉCOUTE LA PAGE. Une vignette seule ne dit
     rien à un lecteur d'écran, et un `aria-label` se perd à la
     traduction automatique. On écrit donc le nom, et on le sort de
@@ -13069,7 +13112,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  ── CELUI QU'ON NE REGARDE PAS S'EFFACE ───────────────────────────
 
     « Quand il n'est pas sélectionné, visibilité de 50 % », 9 octobre.
-    La bande montre six clans et on en lit un : les cinq autres sont là
+    La bande montre six groupes et on en lit un : les cinq autres sont là
     pour qu'on sache qu'ils existent, pas pour se disputer l'œil.
 
     AU SURVOL ET AU CLAVIER, IL REVIENT À PLEIN. Sans ça, un onglet
@@ -13085,7 +13128,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   opacity: 1;
 }
 
-/*  ── UN CLAN SANS TEXTE RESTE DANS LA BANDE ───────────────────────
+/*  ── UN GROUPE SANS TEXTE RESTE DANS LA BANDE ───────────────────────
     Cinq sur six au 9 octobre. Les retirer donnerait une bande d'une
     seule vignette, qui ne ressemble à rien et qui cacherait le
     travail qui reste. Ils sont éteints, et ils ne s'ouvrent pas.
@@ -13099,46 +13142,46 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /*  LA COULEUR VIENT DE LA CLÉ. Les six paires existent déjà dans le
-    panneau d'administration ; la carte prend celle de son clan. Les
-    replis sont ceux de Ho-Oh, qui est le clan du moment — c'est le
+    panneau d'administration ; la carte prend celle de son groupe. Les
+    replis sont ceux de Ho-Oh, qui est le groupe du moment — c'est le
     seul repli honnête : si les jetons ne sont pas servis, c'est bien
     cette carte-là qu'on verra. */
-#modernbb .wm-enligne__clan {
+#modernbb .wm-enligne__groupe {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   padding: 19px 16px 16px;
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-groupe-ho-oh-fond, #f3d8c0);
-  color: var(--wm-groupe-ho-oh-texte, #9a4f22);
+  background: var(--wm-groupe-hardi-fond, #d4e4ed);
+  color: var(--wm-groupe-hardi-texte, #21658c);
 }
 
-#modernbb .wm-enligne__clan[data-wm-clan="reshiram"] {
-  background: var(--wm-groupe-reshiram-fond, #f5e8d3);
-  color: var(--wm-groupe-reshiram-texte, #896220);
+#modernbb .wm-enligne__groupe[data-wm-groupe="serieux"] {
+  background: var(--wm-groupe-serieux-fond, #ede6d4);
+  color: var(--wm-groupe-serieux-texte, #7c611d);
 }
 
-#modernbb .wm-enligne__clan[data-wm-clan="deoxys"] {
-  background: var(--wm-groupe-deoxys-fond, #e1dbe8);
-  color: var(--wm-groupe-deoxys-texte, #5b4ba6);
+#modernbb .wm-enligne__groupe[data-wm-groupe="malin"] {
+  background: var(--wm-groupe-malin-fond, #e1d4ed);
+  color: var(--wm-groupe-malin-texte, #5a218c);
 }
 
-#modernbb .wm-enligne__clan[data-wm-clan="xerneas"] {
-  background: var(--wm-groupe-xerneas-fond, #dce7db);
-  color: var(--wm-groupe-xerneas-texte, #327048);
+#modernbb .wm-enligne__groupe[data-wm-groupe="doux"] {
+  background: var(--wm-groupe-doux-fond, #d4edd4);
+  color: var(--wm-groupe-doux-texte, #1b741b);
 }
 
-#modernbb .wm-enligne__clan[data-wm-clan="zamazenta"] {
-  background: var(--wm-groupe-zamazenta-fond, #dae2e7);
-  color: var(--wm-groupe-zamazenta-texte, #2b6591);
+#modernbb .wm-enligne__groupe[data-wm-groupe="brave"] {
+  background: var(--wm-groupe-brave-fond, #edd4e0);
+  color: var(--wm-groupe-brave-texte, #8c2157);
 }
 
-#modernbb .wm-enligne__clan[data-wm-clan="mew"] {
-  background: var(--wm-groupe-mew-fond, #f4dee3);
-  color: var(--wm-groupe-mew-texte, #9a486e);
+#modernbb .wm-enligne__groupe[data-wm-groupe="jovial"] {
+  background: var(--wm-groupe-jovial-fond, #d4ede8);
+  color: var(--wm-groupe-jovial-texte, #1a705e);
 }
 
-#modernbb .wm-enligne__clan-nom {
+#modernbb .wm-enligne__groupe-nom {
   margin: 0 0 var(--wm-espace-8, 8px);
   color: inherit;
   font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
@@ -13153,7 +13196,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     chevaucher le texte », 9 octobre.
 
     Il est à `right: -103px` et large de 250 : il couvre donc 147 px
-    du bord droit du bloc, et le haut de la carte du clan est
+    du bord droit du bloc, et le haut de la carte du groupe est
     justement là. On rend ces 147 px au décor — le texte s'arrête
     avant, le nom aussi.
 
@@ -13161,16 +13204,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     en bas, sous les 239 px du Sabelette, et rien ne l'y gêne. Lui
     retirer sa largeur serait payer pour un chevauchement qui n'existe
     pas. */
-#modernbb .wm-enligne__clan-nom,
-#modernbb .wm-enligne__clan-texte {
+#modernbb .wm-enligne__groupe-nom,
+#modernbb .wm-enligne__groupe-texte {
   padding-right: 100px;
 }
 
 @media (max-width: 1199px) {
   /*  Sous 1200 px le Sabelette disparaît : le texte reprend toute sa
       largeur, sinon on garderait un trou pour une image absente. */
-  #modernbb .wm-enligne__clan-nom,
-  #modernbb .wm-enligne__clan-texte {
+  #modernbb .wm-enligne__groupe-nom,
+  #modernbb .wm-enligne__groupe-texte {
     padding-right: 0;
   }
 }
@@ -13178,7 +13221,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LA TAILLE NORMALE, PAS LA PETITE. 11,5 px pour un paragraphe de
     quatre lignes qu'on lit vraiment, c'était la taille d'une légende
     appliquée à du texte courant. 13,5. */
-#modernbb .wm-enligne__clan-texte {
+#modernbb .wm-enligne__groupe-texte {
   margin: 0;
   color: inherit;
   font-size: var(--wm-taille-normal, 13.5px);
@@ -13193,8 +13236,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin-top: auto;
   padding: 12px 14px;
   border-radius: var(--wm-rayon-md, 8px);
-  /*  Un voile clair sur la couleur du clan, et pas une seconde teinte
-      à déclarer six fois : il suit le clan quel qu'il soit. */
+  /*  Un voile clair sur la couleur du groupe, et pas une seconde teinte
+      à déclarer six fois : il suit le groupe quel qu'il soit. */
   background: color-mix(in srgb, var(--wm-fond-surface, #fffbf7) 42%, transparent);
 }
 
@@ -13235,7 +13278,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 
   /*  La bande d'onglets se couche avec la carte. */
-  #modernbb .wm-enligne__clan-bloc {
+  #modernbb .wm-enligne__groupe-bloc {
     flex-direction: column;
   }
 

@@ -3,7 +3,7 @@
 //  sont dans le module, et c'est le harnais de navigateur qui les voit.
 //
 //  CE QUI EST TESTÉ ICI est ce qui se trompe en silence : un nombre
-//  écrit à la française qu'on lit de travers, et un clan qu'on affiche
+//  écrit à la française qu'on lit de travers, et un groupe qu'on affiche
 //  alors qu'on en demandait un autre.
 // ════════════════════════════════════════════════════════════════════
 
@@ -11,15 +11,15 @@ import { assertEquals } from "@std/assert";
 import {
   avatarParmi,
   type Chiffres,
-  clanDepuis,
-  clanDuMoment,
+  groupeDepuis,
+  groupeDuMoment,
   nombreEcrit,
-  ongletsDesClans,
+  ongletsDesGroupes,
   rienAMontrer,
 } from "./enligne.ts";
 
 const HO_OH = {
-  cle: "ho-oh",
+  cle: "hardi",
   nom: "Ho-Oh",
   description: "Ils sont venus ici, sur les terres de Rhode.",
   avantage: "+ 10 % d'XP dans les combats d'arène.",
@@ -45,66 +45,69 @@ Deno.test("et ce qui n'est pas un nombre n'en devient pas un", () => {
   assertEquals(nombreEcrit("-3"), null);
 });
 
-Deno.test("un clan complet se relit entier", () => {
-  const c = clanDepuis(HO_OH);
+Deno.test("un groupe complet se relit entier", () => {
+  const c = groupeDepuis(HO_OH);
   assertEquals(c?.nom, "Ho-Oh");
-  assertEquals(c?.cle, "ho-oh");
+  assertEquals(c?.cle, "hardi");
   assertEquals(c?.pokemons, [250, 230]);
 });
 
-Deno.test("UN CLAN SANS DESCRIPTION NE S'AFFICHE PAS", () => {
-  //  Cinq des six clans sont des trous en attendant leurs textes. Une
-  //  carte au nom d'un clan et au corps vide ferait croire à une
+Deno.test("UN GROUPE SANS DESCRIPTION NE S'AFFICHE PAS", () => {
+  //  Cinq des six groupes sont des trous en attendant leurs textes. Une
+  //  carte au nom d'un groupe et au corps vide ferait croire à une
   //  panne, et on chercherait le défaut dans le code.
-  assertEquals(clanDepuis({ ...HO_OH, description: "" }), null);
-  assertEquals(clanDepuis({ ...HO_OH, description: "   " }), null);
-  assertEquals(clanDepuis({ ...HO_OH, nom: "" }), null);
+  assertEquals(groupeDepuis({ ...HO_OH, description: "" }), null);
+  assertEquals(groupeDepuis({ ...HO_OH, description: "   " }), null);
+  assertEquals(groupeDepuis({ ...HO_OH, nom: "" }), null);
 });
 
 Deno.test("un avantage manquant, en revanche, ne l'empêche pas", () => {
   //  L'avantage est une règle de jeu qui peut se décider après le
-  //  texte de présentation. Le module masque l'encart, le clan reste.
-  assertEquals(clanDepuis({ ...HO_OH, avantage: "" })?.avantage, "");
+  //  texte de présentation. Le module masque l'encart, le groupe reste.
+  assertEquals(groupeDepuis({ ...HO_OH, avantage: "" })?.avantage, "");
 });
 
 Deno.test("les numéros de pokémon se filtrent", () => {
   //  Un zéro, un nombre à virgule ou une chaîne viendraient d'une
-  //  faute de saisie dans `data/clans.json` — et donneraient une case
+  //  faute de saisie dans `data/groupes.json` — et donneraient une case
   //  vide dans la bande de sprites.
-  assertEquals(clanDepuis({ ...HO_OH, pokemons: [250, 0, -1, 2.5, "151"] })?.pokemons, [250]);
-  assertEquals(clanDepuis({ ...HO_OH, pokemons: "250" })?.pokemons, []);
+  assertEquals(groupeDepuis({ ...HO_OH, pokemons: [250, 0, -1, 2.5, "151"] })?.pokemons, [250]);
+  assertEquals(groupeDepuis({ ...HO_OH, pokemons: "250" })?.pokemons, []);
 });
 
-Deno.test("`duMoment` désigne le clan, et lui seul", () => {
+Deno.test("`duMoment` désigne le groupe, et lui seul", () => {
   const fichier = {
-    duMoment: "ho-oh",
-    clans: [{ ...HO_OH, cle: "mew", nom: "Mew" }, HO_OH],
+    duMoment: "hardi",
+    groupes: [{ ...HO_OH, cle: "jovial", nom: "Mew" }, HO_OH],
   };
-  assertEquals(clanDuMoment(fichier)?.nom, "Ho-Oh");
+  assertEquals(groupeDuMoment(fichier)?.nom, "Ho-Oh");
 });
 
 Deno.test("UNE CLÉ QUI NE DÉSIGNE RIEN NE RETOMBE PAS SUR LE PREMIER", () => {
-  //  Afficher silencieusement un autre clan que celui demandé est pire
+  //  Afficher silencieusement un autre groupe que celui demandé est pire
   //  que de n'en afficher aucun : personne ne s'aperçoit de l'erreur,
   //  et le forum annonce le mauvais avantage pendant un mois.
-  assertEquals(clanDuMoment({ duMoment: "zapdos", clans: [HO_OH] }), null);
-  assertEquals(clanDuMoment({ duMoment: "", clans: [HO_OH] }), null);
-  assertEquals(clanDuMoment({ clans: [HO_OH] }), null);
+  assertEquals(groupeDuMoment({ duMoment: "zapdos", groupes: [HO_OH] }), null);
+  assertEquals(groupeDuMoment({ duMoment: "", groupes: [HO_OH] }), null);
+  assertEquals(groupeDuMoment({ groupes: [HO_OH] }), null);
 });
 
-Deno.test("et un clan encore vide ne se montre pas non plus", () => {
-  //  `duMoment` pointe un clan dont le texte n'est pas écrit : on ne
+Deno.test("et un groupe encore vide ne se montre pas non plus", () => {
+  //  `duMoment` pointe un groupe dont le texte n'est pas écrit : on ne
   //  montre pas une carte creuse.
   assertEquals(
-    clanDuMoment({ duMoment: "mew", clans: [{ cle: "mew", nom: "Mew", description: "" }] }),
+    groupeDuMoment({
+      duMoment: "jovial",
+      groupes: [{ cle: "jovial", nom: "Mew", description: "" }],
+    }),
     null,
   );
 });
 
 Deno.test("un fichier illisible ne fait pas tomber le bloc", () => {
-  assertEquals(clanDuMoment(null), null);
-  assertEquals(clanDuMoment("ho-oh"), null);
-  assertEquals(clanDuMoment({ duMoment: "ho-oh", clans: "non" }), null);
+  assertEquals(groupeDuMoment(null), null);
+  assertEquals(groupeDuMoment("hardi"), null);
+  assertEquals(groupeDuMoment({ duMoment: "hardi", groupes: "non" }), null);
 });
 
 Deno.test("SANS RIEN DU TOUT, LE BLOC NE SE POSE PAS", () => {
@@ -112,7 +115,7 @@ Deno.test("SANS RIEN DU TOUT, LE BLOC NE SE POSE PAS", () => {
   const vide: Chiffres = { messages: null, membres: null, dernierArrive: null };
   assertEquals(rienAMontrer(vide, null), true);
   assertEquals(rienAMontrer({ ...vide, messages: 0 }, null), false);
-  assertEquals(rienAMontrer(vide, clanDepuis(HO_OH)), false);
+  assertEquals(rienAMontrer(vide, groupeDepuis(HO_OH)), false);
 });
 
 Deno.test("et zéro message est une information, pas une absence", () => {
@@ -124,40 +127,40 @@ Deno.test("et zéro message est une information, pas une absence", () => {
 // ════════════════════════════════════════════════════════════════════
 //  La bande des six onglets, maquette `390:3387`.
 //
-//  CE QU'ELLE GARDE QUE `clanDuMoment` JETTE : un clan sans
+//  CE QU'ELLE GARDE QUE `groupeDuMoment` JETTE : un groupe sans
 //  description. Il a son icône dans la bande, et il n'est pas
 //  ouvrable. Cinq des six sont dans ce cas au 9 octobre.
 // ════════════════════════════════════════════════════════════════════
 
-Deno.test("la bande porte TOUS les clans, même ceux sans texte", () => {
-  const onglets = ongletsDesClans({
-    clans: [
-      { cle: "ho-oh", nom: "Ho-Oh", description: "Les conquérants.", avantage: "" },
-      { cle: "mew", nom: "Mew", description: "", avantage: "" },
+Deno.test("la bande porte TOUS les groupes, même ceux sans texte", () => {
+  const onglets = ongletsDesGroupes({
+    groupes: [
+      { cle: "hardi", nom: "Ho-Oh", description: "Les conquérants.", avantage: "" },
+      { cle: "jovial", nom: "Mew", description: "", avantage: "" },
     ],
   });
   assertEquals(onglets.length, 2);
-  assertEquals(onglets[0].cle, "ho-oh");
-  assertEquals(onglets[0].clan?.description, "Les conquérants.");
+  assertEquals(onglets[0].cle, "hardi");
+  assertEquals(onglets[0].groupe?.description, "Les conquérants.");
   //  Celui-là est dans la bande, et il n'est pas ouvrable.
   assertEquals(onglets[1].nom, "Mew");
-  assertEquals(onglets[1].clan, null);
+  assertEquals(onglets[1].groupe, null);
 });
 
 Deno.test("l'ordre est celui du fichier, pas un tri", () => {
-  const onglets = ongletsDesClans({
-    clans: [
-      { cle: "zamazenta", nom: "Zamazenta", description: "" },
-      { cle: "ho-oh", nom: "Ho-Oh", description: "x" },
+  const onglets = ongletsDesGroupes({
+    groupes: [
+      { cle: "brave", nom: "Zamazenta", description: "" },
+      { cle: "hardi", nom: "Ho-Oh", description: "x" },
     ],
   });
-  assertEquals(onglets.map((o) => o.cle), ["zamazenta", "ho-oh"]);
+  assertEquals(onglets.map((o) => o.cle), ["brave", "hardi"]);
 });
 
 Deno.test("une entrée sans clé ni nom n'est pas un onglet", () => {
-  assertEquals(ongletsDesClans({ clans: [{ description: "x" }, null, 3] }).length, 0);
-  assertEquals(ongletsDesClans(null).length, 0);
-  assertEquals(ongletsDesClans({}).length, 0);
+  assertEquals(ongletsDesGroupes({ groupes: [{ description: "x" }, null, 3] }).length, 0);
+  assertEquals(ongletsDesGroupes(null).length, 0);
+  assertEquals(ongletsDesGroupes({}).length, 0);
 });
 
 // ════════════════════════════════════════════════════════════════════

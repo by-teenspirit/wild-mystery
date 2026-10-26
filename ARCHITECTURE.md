@@ -229,8 +229,8 @@ tâches deviennent huit cas d'usage, et les décisions qu'ils contiennent remont
 `domaine/`. Le schéma SQL et les fonctions, eux, restent valables : ils étaient déjà à
 leur place.
 
-Une correction au passage : la colonne `joueur.clan` est devenue `joueur.groupe`. Ce sont
-des groupes, et une assertion pgTAP le vérifie (`hasnt_column('joueur','clan')`) pour que
+Une correction au passage : la colonne `joueur.groupe` est devenue `joueur.groupe`. Ce sont
+des groupes, et une assertion pgTAP le vérifie (`hasnt_column('joueur','groupe')`) pour que
 le mot ne revienne pas par la fenêtre.
 
 ---

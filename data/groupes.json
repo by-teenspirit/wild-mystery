@@ -1,0 +1,58 @@
+{
+  "_": "Les six natures de Rhode (planche 79). Le groupe ne dit ni le métier ni le camp : il dit ce qu'on choisit quand il faut choisir. LES DESCRIPTIONS SONT PROVISOIRES — une phrase chacune, à remplacer par le texte de l'annexe. Les avantages, eux, sont actés.",
+  "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module lit `duMoment` et dessine ce groupe. Changer de groupe, c'est changer ce mot. Les couleurs ne sont pas ici : chaque groupe a déjà sa paire de jetons `--wm-groupe-<clé>-fond` et `-texte` dans le panneau d'administration.",
+  "_pokemons": "Les numéros du Pokédex national. Le module les passe à la carte de couverture (`data/sprites-couverture.json`) pour en tirer une image ; un numéro qu'elle ne couvre pas ne donne pas de case vide, il ne donne rien.",
+  "duMoment": "hardi",
+  "groupes": [
+    {
+      "cle": "hardi",
+      "nom": "Hardi",
+      "description": "On se relève. Ce qui a échoué peut encore gagner.",
+      "avantage": "Si une fouille est bredouille dans le sujet, il peut relancer une fois pour avoir quelque chose.",
+      "pokemons": [],
+      "embleme": "Keldeo"
+    },
+    {
+      "cle": "serieux",
+      "nom": "Sérieux",
+      "description": "On dit ce qu'on a vu. On ne s'arrange pas avec la vérité.",
+      "avantage": "À chaque rencontre, la rareté est tirée deux fois et on garde la plus rare : environ 19 % de rares contre 10 % pour les autres.",
+      "pokemons": [],
+      "embleme": "Uxie"
+    },
+    {
+      "cle": "malin",
+      "nom": "Malin",
+      "description": "On change de méthode, pas d'avis.",
+      "avantage": "Avec six types différents dans son équipe, l'expérience versée à la clôture monte de 10 %.",
+      "pokemons": [],
+      "embleme": "Hoopa"
+    },
+    {
+      "cle": "doux",
+      "nom": "Doux",
+      "description": "On fait passer les autres devant.",
+      "avantage": "Dans un sujet à plusieurs, tout le monde gagne 15 % de pokédollars en plus à la clôture.",
+      "pokemons": [],
+      "embleme": "Shaymin"
+    },
+    {
+      "cle": "brave",
+      "nom": "Brave",
+      "description": "On se met devant, et on ne bouge pas.",
+      "avantage": "Une fois par sujet, un pokémon de son équipe mis K.O. tient un tour de plus.",
+      "pokemons": [],
+      "embleme": "Cresselia"
+    },
+    {
+      "cle": "jovial",
+      "nom": "Jovial",
+      "description": "On veut voir ce qu'il y a derrière.",
+      "avantage": "Ses chances de morceau de fossile passent de 10 à 20 %, et de fossile entier de 0,2 à 0,4 %.",
+      "pokemons": [],
+      "embleme": "Celebi"
+    }
+  ],
+  "_lorem": "LES CINQ GROUPES EN LOREM IPSUM, à la demande de Callista le 9 octobre : sans description, un onglet reste éteint, et on ne pouvait cliquer que sur Ho-Oh. À remplacer par les vrais textes — ils se repèrent au « Lorem ipsum » de l'avantage.",
+  "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires."
+}

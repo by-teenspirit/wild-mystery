@@ -13,14 +13,14 @@
 //
 //  À gauche, qui est connecté maintenant, et deux compteurs. Au
 //  milieu, le dernier arrivé et les connectés des vingt-quatre
-//  heures. À droite, le clan du moment, sa description et son
+//  heures. À droite, le groupe du moment, sa description et son
 //  avantage.
 //
 //  Ce qui vient d'où est écrit dans `src/navigateur/enligne.ts`, et ça
 //  vaut d'être relu avant de toucher à ce fichier : les compteurs et
 //  le dernier arrivé sont DANS la page, les listes de connectés n'y
 //  sont que si l'option est cochée dans le panneau d'administration,
-//  et le clan vient de `data/clans.json`.
+//  et le groupe vient de `data/groupes.json`.
 //
 //  ── CE QU'ON FAIT QUAND FORUMACTIF NE DIT RIEN ──────────────────────
 //
@@ -37,11 +37,11 @@
 
 import {
   type Chiffres,
-  type Clan,
-  clanDuMoment,
+  type Groupe,
+  groupeDuMoment,
   nombreEcrit,
   type Onglet,
-  ongletsDesClans,
+  ongletsDesGroupes,
   rienAMontrer,
 } from "../../navigateur/enligne.ts";
 import { estLIndex } from "./module-vie.ts";
@@ -318,38 +318,38 @@ function compteur(doc: Document, n: number | null, mot: string): HTMLElement {
   return c;
 }
 
-/** La carte d'un clan, seule.
+/** La carte d'un groupe, seule.
  *
- *  Elle porte sa clé en `data-wm-clan` : la feuille y prend la paire
+ *  Elle porte sa clé en `data-wm-groupe` : la feuille y prend la paire
  *  de jetons `--wm-groupe-<clé>-fond` et `-texte`, qui existe déjà
- *  pour les six clans. Aucune couleur n'est écrite ici. */
-function carteDuClan(doc: Document, clan: Clan): HTMLElement {
-  const c = el(doc, "section", "wm-enligne__clan");
-  c.dataset.wmClan = clan.cle;
-  c.appendChild(el(doc, "h3", "wm-enligne__clan-nom", clan.nom));
-  c.appendChild(el(doc, "p", "wm-enligne__clan-texte", clan.description));
-  if (clan.avantage !== "") {
+ *  pour les six groupes. Aucune couleur n'est écrite ici. */
+function carteDuGroupe(doc: Document, groupe: Groupe): HTMLElement {
+  const c = el(doc, "section", "wm-enligne__groupe");
+  c.dataset.wmGroupe = groupe.cle;
+  c.appendChild(el(doc, "h3", "wm-enligne__groupe-nom", groupe.nom));
+  c.appendChild(el(doc, "p", "wm-enligne__groupe-texte", groupe.description));
+  if (groupe.avantage !== "") {
     const av = el(doc, "div", "wm-enligne__avantage");
     av.appendChild(el(doc, "p", "wm-enligne__avantage-titre", "L'avantage"));
-    av.appendChild(el(doc, "p", "wm-enligne__avantage-texte", clan.avantage));
+    av.appendChild(el(doc, "p", "wm-enligne__avantage-texte", groupe.avantage));
     c.appendChild(av);
   }
   return c;
 }
 
-/** La bande des six clans, et la carte de celui qu'on a choisi.
+/** La bande des six groupes, et la carte de celui qu'on a choisi.
  *
  *  ── LES ONGLETS SONT LA BANDE DE GAUCHE DE LA MAQUETTE ──────────────
  *
  *  « Où sont les groupes en onglets ? », 9 octobre. `390:3387` dessine
- *  six vignettes carrées le long de la carte du clan, et ce sont elles :
- *  une par clan, et elle ouvre le sien. La version précédente montrait
- *  à cet endroit les pokémons emblématiques DU clan affiché — ça se
+ *  six vignettes carrées le long de la carte du groupe, et ce sont elles :
+ *  une par groupe, et elle ouvre le sien. La version précédente montrait
+ *  à cet endroit les pokémons emblématiques DU groupe affiché — ça se
  *  ressemble de loin, et ça ne fait rien.
  *
  *  ── UN ONGLET SANS TEXTE RESTE, ET NE S'OUVRE PAS ───────────────────
  *
- *  Cinq clans sur six n'ont pas encore leur description. Les retirer
+ *  Cinq groupes sur six n'ont pas encore leur description. Les retirer
  *  donnerait une bande d'une seule vignette, qui ne ressemble à rien et
  *  qui cacherait le travail qui reste. On les montre donc, éteints et
  *  `aria-disabled` : la bande est complète, et rien d'ouvrable n'est
@@ -363,25 +363,25 @@ function carteDuClan(doc: Document, clan: Clan): HTMLElement {
  *
  *  Sans JavaScript il n'y a ni bande ni carte — tout ce bloc est posé
  *  par le script. */
-function blocDesClans(
+function blocDesGroupes(
   doc: Document,
   onglets: readonly Onglet[],
-  actif: Clan,
+  actif: Groupe,
   icone: (cle: string) => string | null,
 ): HTMLElement {
-  const bloc = el(doc, "div", "wm-enligne__clan-bloc");
+  const bloc = el(doc, "div", "wm-enligne__groupe-bloc");
 
   const bande = el(doc, "div", "wm-enligne__onglets");
   bande.setAttribute("role", "tablist");
-  bande.setAttribute("aria-label", "Les clans de Rhode");
+  bande.setAttribute("aria-label", "Les groupes de Rhode");
   const boutons: HTMLButtonElement[] = [];
-  let carte = carteDuClan(doc, actif);
+  let carte = carteDuGroupe(doc, actif);
 
   for (const o of onglets) {
     const b = doc.createElement("button");
     b.type = "button";
     b.className = "wm-enligne__onglet";
-    b.dataset.wmClan = o.cle;
+    b.dataset.wmGroupe = o.cle;
     b.setAttribute("role", "tab");
     const url = icone(o.cle);
     if (url !== null) {
@@ -393,23 +393,23 @@ function blocDesClans(
       img.loading = "lazy";
       b.appendChild(img);
     }
-    //  Le nom du clan, lisible par un lecteur d'écran et masqué à
+    //  Le nom du groupe, lisible par un lecteur d'écran et masqué à
     //  l'œil par la feuille : une vignette seule ne dit rien.
     b.appendChild(el(doc, "span", "wm-enligne__onglet-nom", o.nom));
 
-    if (o.clan === null) {
+    if (o.groupe === null) {
       b.disabled = true;
       b.setAttribute("aria-disabled", "true");
-      b.title = `${o.nom} — ce clan n'a pas encore sa description`;
+      b.title = `${o.nom} — ce groupe n'a pas encore sa description`;
     } else {
-      const clan = o.clan;
-      b.setAttribute("aria-selected", String(clan.cle === actif.cle));
+      const groupe = o.groupe;
+      b.setAttribute("aria-selected", String(groupe.cle === actif.cle));
       b.addEventListener("click", () => {
-        const neuve = carteDuClan(doc, clan);
+        const neuve = carteDuGroupe(doc, groupe);
         carte.replaceWith(neuve);
         carte = neuve;
         for (const autre of boutons) {
-          autre.setAttribute("aria-selected", String(autre.dataset.wmClan === clan.cle));
+          autre.setAttribute("aria-selected", String(autre.dataset.wmGroupe === groupe.cle));
         }
       });
     }
@@ -424,9 +424,9 @@ function blocDesClans(
 
 export type Dependances = {
   readonly doc: Document;
-  /** Le contenu de `data/clans.json`, déjà décodé. */
-  readonly clans: unknown;
-  /** Rend l'adresse de la vignette d'un clan, ou `null`. Injecté,
+  /** Le contenu de `data/groupes.json`, déjà décodé. */
+  readonly groupes: unknown;
+  /** Rend l'adresse de la vignette d'un groupe, ou `null`. Injecté,
    *  comme tout ce qui est une adresse : ce module ne sait pas où le
    *  dépôt est servi, et il n'a pas à l'apprendre. */
   readonly icone?: (cle: string) => string | null;
@@ -444,7 +444,7 @@ export type Dependances = {
  *  de la maquette, et c'est aussi le bon ordre de lecture — les
  *  forums, ce qui s'y passe, puis qui l'habite. */
 export function poserQuiEstEnLigne(
-  { doc, clans, icone = () => null, mascotte = null, avatarDe }: Dependances,
+  { doc, groupes, icone = () => null, mascotte = null, avatarDe }: Dependances,
 ): boolean {
   if (!estLIndex(doc.location?.pathname ?? "")) return false;
 
@@ -455,8 +455,8 @@ export function poserQuiEstEnLigne(
   if (doc.getElementById(ANCRE) !== null) return false;
 
   const chiffres = chiffresDe(doc);
-  const clan = clanDuMoment(clans);
-  if (rienAMontrer(chiffres, clan)) return false;
+  const groupe = groupeDuMoment(groupes);
+  if (rienAMontrer(chiffres, groupe)) return false;
 
   //  ── OÙ LE PANNEAU SE POSE ───────────────────────────────────────
   //  À la place du bloc du gabarit quand il est là : c'est lui qui
@@ -566,10 +566,10 @@ export function poserQuiEstEnLigne(
   col2.appendChild(vingtQuatre);
   panneau.appendChild(col2);
 
-  // ── colonne 3 : la bande des clans, et celui du moment ───────────
-  if (clan !== null) {
-    const col3 = el(doc, "div", "wm-enligne__colonne wm-enligne__colonne--clan");
-    col3.appendChild(blocDesClans(doc, ongletsDesClans(clans), clan, icone));
+  // ── colonne 3 : la bande des groupes, et celui du moment ───────────
+  if (groupe !== null) {
+    const col3 = el(doc, "div", "wm-enligne__colonne wm-enligne__colonne--groupe");
+    col3.appendChild(blocDesGroupes(doc, ongletsDesGroupes(groupes), groupe, icone));
     panneau.appendChild(col3);
   }
 

@@ -12,7 +12,7 @@
 //      les sert, et disent « personne » quand il ne les sert pas —
 //      c'est le cas de Wild Mystery aujourd'hui, l'option n'est pas
 //      cochée ;
-//    · la carte du clan prend la couleur de SON clan, et un clan
+//    · la carte du groupe prend la couleur de SON groupe, et un groupe
 //      encore vide ne donne pas de carte creuse ;
 //    · rien ne déborde, à 1 440 comme à 390.
 //
@@ -117,15 +117,15 @@ const dire = (nom, ok, detail = "") => {
 };
 
 /** Ouvre une page avec le décor voulu et le paquet dessus. */
-async function ouvrir(corps, clans) {
+async function ouvrir(corps, groupes) {
   const p = await nav.newPage({ viewport: { width: 1440, height: 900 } });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   await p.route("**/*", (r) => {
     const u = r.request().url();
-    if (u.endsWith("/data/clans.json")) {
-      return clans === null
+    if (u.endsWith("/data/groupes.json")) {
+      return groupes === null
         ? r.fulfill({ status: 503, body: "" })
-        : r.fulfill({ contentType: "application/json", body: JSON.stringify(clans) });
+        : r.fulfill({ contentType: "application/json", body: JSON.stringify(groupes) });
     }
     if (u.endsWith("/js/wild-mystery.js")) {
       return r.fulfill({
@@ -162,10 +162,10 @@ async function ouvrir(corps, clans) {
   return p;
 }
 
-const CLANS = JSON.parse(readFileSync(R + "data/clans.json", "utf8"));
+const GROUPES = JSON.parse(readFileSync(R + "data/groupes.json", "utf8"));
 
 // ── 1 · le cas du forum réel : l'option n'est pas cochée ────────────
-const p = await ouvrir(page(statistiques("436", "3", "Compte de test"), ""), CLANS);
+const p = await ouvrir(page(statistiques("436", "3", "Compte de test"), ""), GROUPES);
 
 const pose = await p.evaluate(() => {
   const b = document.querySelector(".wm-enligne");
@@ -213,7 +213,7 @@ dire(
 // ── LES SIX ONGLETS, ET LE SABELETTE ───────────────────────────────
 //
 //  « Je vois le premier groupe mais je peux pas cliquer sur les autres
-//  onglets » : les cinq clans n'avaient pas de description, donc leurs
+//  onglets » : les cinq groupes n'avaient pas de description, donc leurs
 //  onglets étaient éteints — par construction, mais ça ne se devine
 //  pas. Le lorem ipsum du 9 octobre les allume, et ce cas le garde.
 //
@@ -258,7 +258,7 @@ const bande = await p.evaluate(() => {
         neDeplaceRien: JSON.stringify(avant) === JSON.stringify(apres),
         hautAligne: Math.abs(Math.round(r.top - bloc.top)) <= 2,
         //  Il mord à droite, c'est voulu — mais il ne doit pas aller
-        //  se poser sur le texte du clan.
+        //  se poser sur le texte du groupe.
         mordDe: Math.round(bloc.right - r.left),
       };
     })(),
@@ -281,65 +281,80 @@ dire(
   JSON.stringify(bande.mascotte),
 );
 
-//  ON CLIQUE VRAIMENT, et la carte doit changer de clan. Sans ça on
+//  ON CLIQUE VRAIMENT, et la carte doit changer de groupe. Sans ça on
 //  vérifierait qu'un bouton n'est pas grisé, pas qu'il sert à quelque
 //  chose.
 const bascule = await p.evaluate(async () => {
-  const avant = document.querySelector(".wm-enligne__clan")?.dataset.wmClan ?? null;
+  const avant = document.querySelector(".wm-enligne__groupe")?.dataset.wmGroupe ?? null;
   const autre = [...document.querySelectorAll(".wm-enligne__onglet")]
-    .find((o) => o.dataset.wmClan !== avant && !o.disabled);
+    .find((o) => o.dataset.wmGroupe !== avant && !o.disabled);
   if (autre === undefined) return { avant, apres: null, vise: null };
   autre.click();
   await new Promise((r) => setTimeout(r, 60));
-  const c = document.querySelector(".wm-enligne__clan");
+  const c = document.querySelector(".wm-enligne__groupe");
   return {
     avant,
-    apres: c?.dataset.wmClan ?? null,
-    vise: autre.dataset.wmClan,
-    nom: c?.querySelector(".wm-enligne__clan-nom")?.textContent.trim() ?? null,
-    texte: (c?.querySelector(".wm-enligne__clan-texte")?.textContent ?? "").length,
+    apres: c?.dataset.wmGroupe ?? null,
+    vise: autre.dataset.wmGroupe,
+    nom: c?.querySelector(".wm-enligne__groupe-nom")?.textContent.trim() ?? null,
+    texte: (c?.querySelector(".wm-enligne__groupe-texte")?.textContent ?? "").length,
     selectionne: autre.getAttribute("aria-selected"),
   };
 });
-//  ON REMET LE CLAN DU MOMENT. Les cas qui suivent mesurent la carte
+//  ON REMET LE GROUPE DU MOMENT. Les cas qui suivent mesurent la carte
 //  de Ho-Oh ; les laisser lire celle qu'on vient d'ouvrir ferait
 //  échouer un test juste à cause de l'ordre, et on chercherait le
 //  défaut dans la feuille.
 await p.evaluate(async () => {
   const o = [...document.querySelectorAll(".wm-enligne__onglet")]
-    .find((x) => x.dataset.wmClan === "ho-oh");
+    .find((x) => x.dataset.wmGroupe === "hardi");
   o?.click();
   await new Promise((r) => setTimeout(r, 60));
 });
 dire(
-  "CLIQUER SUR UN ONGLET OUVRE SON CLAN",
+  "CLIQUER SUR UN ONGLET OUVRE SON GROUPE",
   bascule.apres === bascule.vise && bascule.apres !== bascule.avant &&
-    bascule.selectionne === "true" && bascule.texte > 100,
+    bascule.selectionne === "true" && bascule.texte > 0,
   JSON.stringify(bascule),
 );
 
-const clan = await p.evaluate(() => {
-  const c = document.querySelector(".wm-enligne__clan");
+//  ── CE QU'ON COMPARE VIENT DU FICHIER, PAS D'ICI ──────────────────
+//
+//  Ces quatre contrôles comparaient à « Ho-Oh », à « + 10 % » et à des
+//  longueurs de texte recopiées de `data/groupes.json` au jour où il a
+//  été écrit. Le 26 octobre les six groupes sont devenus six natures :
+//  les quatre ont cassé d'un coup, sans qu'une seule ligne de code
+//  mesurée soit fausse. C'est exactement la leçon de `fossiles.test.ts`
+//  — un test qui recopie une valeur de jeu interdit à cette valeur de
+//  changer. On relit donc le fichier.
+const ATTENDU = GROUPES.groupes.find((c) => c.cle === GROUPES.duMoment);
+
+const groupe = await p.evaluate(() => {
+  const c = document.querySelector(".wm-enligne__groupe");
   if (c === null) return null;
   const s = getComputedStyle(c);
   return {
-    cle: c.dataset.wmClan,
-    nom: c.querySelector(".wm-enligne__clan-nom")?.textContent.trim(),
-    texte: (c.querySelector(".wm-enligne__clan-texte")?.textContent ?? "").length,
+    cle: c.dataset.wmGroupe,
+    nom: c.querySelector(".wm-enligne__groupe-nom")?.textContent.trim(),
+    texte: (c.querySelector(".wm-enligne__groupe-texte")?.textContent ?? "").length,
     avantage: c.querySelector(".wm-enligne__avantage-texte")?.textContent.trim(),
     fond: s.backgroundColor,
-    //  La couleur doit venir du JETON du clan, pas d'une valeur écrite
+    //  La couleur doit venir du JETON du groupe, pas d'une valeur écrite
     //  dans la feuille : on compare à ce que le panneau déclare.
-    jeton: getComputedStyle(document.documentElement).getPropertyValue("--wm-groupe-ho-oh-fond")
-      .trim(),
+    jeton: getComputedStyle(document.documentElement)
+      .getPropertyValue(`--wm-groupe-${c.dataset.wmGroupe}-fond`).trim(),
   };
 });
-dire("LA CARTE DU CLAN EST LÀ", clan !== null, JSON.stringify(clan));
-dire("elle nomme le clan du moment", clan?.cle === "ho-oh" && clan?.nom === "Ho-Oh");
+dire("LA CARTE DU GROUPE EST LÀ", groupe !== null, JSON.stringify(groupe));
+dire(
+  "elle nomme le groupe du moment",
+  groupe?.cle === GROUPES.duMoment && groupe?.nom === ATTENDU.nom,
+  `${groupe?.cle} · ${groupe?.nom}`,
+);
 dire(
   "elle porte sa description entière",
-  (clan?.texte ?? 0) > 200,
-  `${clan?.texte} caractères`,
+  groupe?.texte === ATTENDU.description.length,
+  `${groupe?.texte} caractères pour ${ATTENDU.description.length} dans le fichier`,
 );
 
 //  « La taille du texte en normal, pas en petit », 11 octobre : 11,5
@@ -347,8 +362,8 @@ dire(
 //  lignes qu'on lit vraiment. Et la griffe du Sabelette mord 100 px,
 //  plus 128.
 const lisible = await p.evaluate(() => {
-  const t = document.querySelector(".wm-enligne__clan-texte");
-  const n = document.querySelector(".wm-enligne__clan-nom");
+  const t = document.querySelector(".wm-enligne__groupe-texte");
+  const n = document.querySelector(".wm-enligne__groupe-nom");
   return t === null ? null : {
     taille: getComputedStyle(t).fontSize,
     reserveTexte: getComputedStyle(t).paddingRight,
@@ -356,7 +371,7 @@ const lisible = await p.evaluate(() => {
   };
 });
 dire(
-  "LE TEXTE DU CLAN EST À LA TAILLE NORMALE",
+  "LE TEXTE DU GROUPE EST À LA TAILLE NORMALE",
   lisible?.taille === "13.5px",
   JSON.stringify(lisible),
 );
@@ -366,22 +381,122 @@ dire(
   JSON.stringify(lisible),
 );
 dire(
-  "et son avantage",
-  (clan?.avantage ?? "").startsWith("+ 10 %"),
-  clan?.avantage,
+  "et son avantage, entier",
+  groupe?.avantage === ATTENDU.avantage,
+  groupe?.avantage,
 );
 dire(
-  "SA COULEUR VIENT DU JETON DE SON CLAN",
+  "SA COULEUR VIENT DU JETON DE SON GROUPE",
   //  `#f3d8c0` rendu en rgb : on compare les deux après conversion.
   (() => {
-    const j = clan?.jeton ?? "";
+    const j = groupe?.jeton ?? "";
     const m = j.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
     if (m === null) return false;
     const attendu = `rgb(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)})`;
-    return clan?.fond === attendu;
+    return groupe?.fond === attendu;
   })(),
-  JSON.stringify({ fond: clan?.fond, jeton: clan?.jeton }),
+  JSON.stringify({ fond: groupe?.fond, jeton: groupe?.jeton }),
 );
+
+//  ── LA BANDE DES SIX, UNE VIGNETTE À LA FOIS ───────────────────────
+//
+//  Le test du dessus passait alors que la carte n'avait PAS son
+//  `data-wm-groupe` : la règle sans attribut sert la couleur de hardi,
+//  qui est justement le groupe du moment. Une seule carte, une seule
+//  clé, et l'erreur se cache derrière la coïncidence.
+//
+//  Les six onglets ne peuvent pas coïncider tous les six. On lit donc
+//  la clé posée sur chaque bouton, le jeton qu'elle désigne et le fond
+//  que le navigateur calcule, et on exige les trois d'accord.
+const vignettes = await p.evaluate(() => {
+  const hex = (j) => {
+    const m = j.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    return m === null
+      ? null
+      : `rgb(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)})`;
+  };
+  //  Les douze jetons sombres sont déclarés sur `body.wm-sombre` et
+  //  non sur la racine : on les lit donc tels que le CORPS les voit,
+  //  ce qui donne la bonne valeur dans les deux modes.
+  const racine = getComputedStyle(document.body);
+  return [...document.querySelectorAll("button.wm-enligne__onglet")].map((b) => {
+    const cle = b.dataset.wmGroupe;
+    return {
+      cle,
+      fond: getComputedStyle(b).backgroundColor,
+      attendu: hex(racine.getPropertyValue(`--wm-groupe-${cle}-fond`).trim()),
+      image: b.querySelector("img")?.getAttribute("src") ?? null,
+    };
+  });
+});
+dire("LA BANDE PORTE SIX ONGLETS", vignettes.length === 6, `${vignettes.length}`);
+dire(
+  "chacun porte la clé de son groupe",
+  vignettes.every((o, i) => o.cle === GROUPES.groupes[i].cle),
+  vignettes.map((o) => o.cle).join(" · "),
+);
+dire(
+  "et chacun a le FOND de son groupe, pas celui du voisin",
+  vignettes.every((o) => o.attendu !== null && o.fond === o.attendu),
+  JSON.stringify(vignettes.map((o) => ({ c: o.cle, f: o.fond, a: o.attendu }))),
+);
+dire(
+  "six fonds différents : aucune case n'a hérité de la règle par défaut",
+  new Set(vignettes.map((o) => o.fond)).size === 6,
+  [...new Set(vignettes.map((o) => o.fond))].join(" · "),
+);
+dire(
+  "et chacun montre l'image de son groupe",
+  vignettes.every((o) => o.image !== null && o.image.endsWith(`groupes/${o.cle}.png`)),
+  vignettes.map((o) => o.image).join(" · "),
+);
+
+//  ── ET LA MÊME BANDE EN THÈME SOMBRE ───────────────────────────────
+//
+//  « Je te laisse mettre toi-même le fond pour qu'il soit dynamique en
+//  clair et en sombre », 26 octobre. Aucune couleur n'est écrite dans
+//  la feuille : les six règles pointent sur les jetons, et `jetons.css`
+//  redéclare les douze sous `body.wm-sombre`. Ce test est là pour que
+//  ça reste vrai — qu'une couleur en dur glissée plus tard dans
+//  `17-en-ligne.css` ne passe pas inaperçue parce qu'elle est jolie en
+//  clair.
+await p.evaluate(() => document.body.classList.add("wm-sombre"));
+const enSombre = await p.evaluate(() => {
+  const hex = (j) => {
+    const m = j.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    return m === null
+      ? null
+      : `rgb(${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)})`;
+  };
+  //  Les douze jetons sombres sont déclarés sur `body.wm-sombre` et
+  //  non sur la racine : on les lit donc tels que le CORPS les voit,
+  //  ce qui donne la bonne valeur dans les deux modes.
+  const racine = getComputedStyle(document.body);
+  return {
+    cases: [...document.querySelectorAll("button.wm-enligne__onglet")].map((b) => ({
+      cle: b.dataset.wmGroupe,
+      fond: getComputedStyle(b).backgroundColor,
+      attendu: hex(racine.getPropertyValue(`--wm-groupe-${b.dataset.wmGroupe}-fond`).trim()),
+    })),
+    carte: getComputedStyle(document.querySelector(".wm-enligne__groupe")).backgroundColor,
+  };
+});
+dire(
+  "EN SOMBRE, CHAQUE VIGNETTE BASCULE SUR LE JETON SOMBRE",
+  enSombre.cases.every((o) => o.attendu !== null && o.fond === o.attendu),
+  JSON.stringify(enSombre.cases),
+);
+dire(
+  "et aucune n'est restée sur sa couleur claire",
+  enSombre.cases.every((o, i) => o.fond !== vignettes[i].fond),
+  enSombre.cases.map((o) => `${o.cle} ${o.fond}`).join(" · "),
+);
+dire(
+  "la carte du groupe bascule avec elles",
+  enSombre.carte !== groupe.fond,
+  `${groupe.fond} → ${enSombre.carte}`,
+);
+await p.evaluate(() => document.body.classList.remove("wm-sombre"));
 
 // ── 2 · rien ne déborde ─────────────────────────────────────────────
 for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
@@ -389,17 +504,19 @@ for (const [l, h] of [[1440, 900], [900, 800], [390, 844]]) {
   await p.waitForTimeout(120);
   const d = await p.evaluate(() => ({
     debord: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-    clan: Math.round(document.querySelector(".wm-enligne__clan").getBoundingClientRect().width),
+    groupe: Math.round(
+      document.querySelector(".wm-enligne__groupe").getBoundingClientRect().width,
+    ),
   }));
   dire(`à ${l} px, rien ne déborde`, !d.debord, JSON.stringify(d));
-  dire(`à ${l} px, la carte du clan a une largeur`, d.clan > 0, `${d.clan} px`);
+  dire(`à ${l} px, la carte du groupe a une largeur`, d.groupe > 0, `${d.groupe} px`);
 }
 await p.close();
 
 // ── 3 · l'option cochée : les listes se remplissent ─────────────────
 const p2 = await ouvrir(
   page(statistiques("3&nbsp;214", "27", "Ines Kervadec"), enLigne),
-  CLANS,
+  GROUPES,
 );
 const avecListes = await p2.evaluate(() => {
   const b = document.querySelector(".wm-enligne");
@@ -431,45 +548,49 @@ dire(
 );
 await p2.close();
 
-// ── 4 · UN CLAN ENCORE VIDE NE DONNE PAS DE CARTE CREUSE ────────────
+// ── 4 · UN GROUPE ENCORE VIDE NE DONNE PAS DE CARTE CREUSE ────────────
 //
-//  Cinq des six clans n'ont pas encore leur texte. Si `duMoment` en
-//  désigne un, mieux vaut pas de carte qu'un cadre au nom d'un clan et
+//  Cinq des six groupes n'ont pas encore leur texte. Si `duMoment` en
+//  désigne un, mieux vaut pas de carte qu'un cadre au nom d'un groupe et
 //  au corps vide : celui-là ferait croire à une panne, et on
 //  chercherait le défaut dans le code.
-//  ON VIDE UN CLAN DANS LE DÉCOR, plutôt que de compter sur « mew » :
-//  les cinq clans ont reçu leur lorem ipsum le 9 octobre, donc aucun
-//  n'est plus vide dans `data/clans.json`. Un test qui dépend d'un
+//  ON VIDE UN GROUPE DANS LE DÉCOR, plutôt que de compter sur « mew » :
+//  les cinq groupes ont reçu leur lorem ipsum le 9 octobre, donc aucun
+//  n'est plus vide dans `data/groupes.json`. Un test qui dépend d'un
 //  trou dans les données meurt le jour où le trou est bouché, et ce
 //  jour-là c'est le test qu'on accuse. Ici le trou est explicite.
 const p3 = await ouvrir(
   page(statistiques("436", "3", "Compte de test"), ""),
   {
-    duMoment: "mew",
-    clans: CLANS.clans.map((c) =>
-      c.cle === "mew" ? { ...c, description: "", avantage: "" } : c
+    duMoment: "jovial",
+    groupes: GROUPES.groupes.map((c) =>
+      c.cle === "jovial" ? { ...c, description: "", avantage: "" } : c
     ),
   },
 );
 const vide = await p3.evaluate(() => ({
   bloc: document.querySelector(".wm-enligne") !== null,
-  clan: document.querySelector(".wm-enligne__clan") !== null,
+  groupe: document.querySelector(".wm-enligne__groupe") !== null,
   compteurs: document.querySelectorAll(".wm-enligne__compteur").length,
 }));
-dire("un clan encore vide ne donne pas de carte", vide.clan === false, JSON.stringify(vide));
+dire(
+  "un groupe encore vide ne donne pas de carte",
+  vide.groupe === false,
+  JSON.stringify(vide),
+);
 dire("mais le reste du bloc tient", vide.bloc && vide.compteurs === 2, JSON.stringify(vide));
 await p3.close();
 
-// ── 5 · SANS `clans.json`, LE BLOC TIENT QUAND MÊME ─────────────────
+// ── 5 · SANS `groupes.json`, LE BLOC TIENT QUAND MÊME ─────────────────
 const p4 = await ouvrir(page(statistiques("436", "3", "Compte de test"), ""), null);
 const sansFichier = await p4.evaluate(() => ({
   bloc: document.querySelector(".wm-enligne") !== null,
-  clan: document.querySelector(".wm-enligne__clan") !== null,
+  groupe: document.querySelector(".wm-enligne__groupe") !== null,
   messages: document.querySelector(".wm-enligne__compteur-n")?.textContent.trim(),
 }));
 dire(
-  "SANS LE FICHIER DES CLANS, ON PERD LA CARTE ET PAS LES CHIFFRES",
-  sansFichier.bloc && !sansFichier.clan && sansFichier.messages === "436",
+  "SANS LE FICHIER DES GROUPES, ON PERD LA CARTE ET PAS LES CHIFFRES",
+  sansFichier.bloc && !sansFichier.groupe && sansFichier.messages === "436",
   JSON.stringify(sansFichier),
 );
 await p4.close();
@@ -486,7 +607,7 @@ const anglais = `
   <div class="statistics-item">We have <strong>3</strong> registered users</div>
   <div class="statistics-item">The newest registered user is <strong><a href="/u4">Compte de test</a></strong></div>
 </div></div>`;
-const p5 = await ouvrir(page(anglais, ""), CLANS);
+const p5 = await ouvrir(page(anglais, ""), GROUPES);
 const enAnglais = await p5.evaluate(() => ({
   n: [...document.querySelectorAll(".wm-enligne__compteur-n")].map((e) => e.textContent.trim()),
   arrive: document.querySelector(".wm-enligne__arrive-nom")?.textContent.trim(),
@@ -503,7 +624,7 @@ await p5.close();
 //  « Pourquoi est-ce que j'en ai 2 qui s'affiche ? », 9 octobre. Le
 //  gabarit imprimait son bloc, le script en ajoutait un second. Ce cas
 //  est celui qui tombe en panne si la faute revient.
-const p6 = await ouvrir(page(statistiques("436", "3", "Compte de test"), source), CLANS);
+const p6 = await ouvrir(page(statistiques("436", "3", "Compte de test"), source), GROUPES);
 const unSeul = await p6.evaluate(() => {
   const b = document.querySelector(".wm-enligne");
   return {
@@ -661,7 +782,7 @@ dire(
 //  UNE PAGE SANS `.statistics` DU TOUT : le décor des autres cas en
 //  porte un, donc il ne prouvait rien — c'est ce qu'il m'a dit au
 //  premier essai, et il avait raison.
-const p6b = await ouvrir(page("", source), CLANS);
+const p6b = await ouvrir(page("", source), GROUPES);
 const duGabarit = await p6b.evaluate(() => ({
   statistics: document.querySelector(".statistics") !== null,
   compteurs: [...document.querySelectorAll(".wm-enligne__compteur")].map((c) => ({
@@ -712,7 +833,7 @@ await p6.close();
 //  n'a pas de `.forabg` : l'ancienne version se taisait, faute d'avoir
 //  où se poser. Avec le gabarit, elle a une place, et les noms ne
 //  peuvent venir QUE de la source.
-const p7 = await ouvrir(page(statistiques("436", "3", "Compte de test"), source, ""), CLANS);
+const p7 = await ouvrir(page(statistiques("436", "3", "Compte de test"), source, ""), GROUPES);
 const sansCategorie = await p7.evaluate(() => ({
   categories: document.querySelectorAll(".forabg").length,
   panneaux: document.querySelectorAll(".wm-enligne").length,

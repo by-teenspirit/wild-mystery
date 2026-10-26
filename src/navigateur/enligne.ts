@@ -16,8 +16,8 @@
 //      est cochée dans le panneau d'administration. Relevé le
 //      8 octobre sur Wild Mystery : elle ne l'est pas, et il n'y a
 //      donc aucune liste dans la page ;
-//    · le clan du moment, sa description et son avantage : à nous,
-//      dans `data/clans.json`.
+//    · le groupe du moment, sa description et son avantage : à nous,
+//      dans `data/groupes.json`.
 //
 //  ── POURQUOI ON NE LIT PAS LES PHRASES ──────────────────────────────
 //
@@ -41,8 +41,8 @@ export type Chiffres = {
   readonly dernierArrive: { readonly pseudo: string; readonly url: string } | null;
 };
 
-/** Un clan, tel que `data/clans.json` le décrit. */
-export type Clan = {
+/** Un groupe, tel que `data/groupes.json` le décrit. */
+export type Groupe = {
   /** La clé qui donne ses deux jetons de couleur, `--wm-groupe-<clé>-…`. */
   readonly cle: string;
   readonly nom: string;
@@ -70,15 +70,15 @@ export function nombreEcrit(brut: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Relit un clan. Rend `null` dès qu'il lui manque de quoi s'afficher.
+/** Relit un groupe. Rend `null` dès qu'il lui manque de quoi s'afficher.
  *
- *  ── UN CLAN SANS DESCRIPTION NE S'AFFICHE PAS ───────────────────────
+ *  ── UN GROUPE SANS DESCRIPTION NE S'AFFICHE PAS ───────────────────────
  *
- *  `data/clans.json` ne contient aujourd'hui qu'un clan rempli — les
+ *  `data/groupes.json` ne contient aujourd'hui qu'un groupe rempli — les
  *  cinq autres sont des trous, en attendant leurs textes. Un trou doit
- *  SE VOIR : une carte au nom d'un clan et au corps vide ferait croire
+ *  SE VOIR : une carte au nom d'un groupe et au corps vide ferait croire
  *  à une panne, et on chercherait le défaut dans le code. */
-export function clanDepuis(brut: unknown): Clan | null {
+export function groupeDepuis(brut: unknown): Groupe | null {
   if (brut === null || typeof brut !== "object") return null;
   const o = brut as Record<string, unknown>;
   const cle = texte(o.cle);
@@ -93,18 +93,18 @@ export function clanDepuis(brut: unknown): Clan | null {
   return { cle, nom, description, avantage: texte(o.avantage), pokemons };
 }
 
-/** Un onglet de la bande des clans.
+/** Un onglet de la bande des groupes.
  *
- *  ── POURQUOI IL N'EST PAS UN `Clan` ─────────────────────────────────
+ *  ── POURQUOI IL N'EST PAS UN `Groupe` ─────────────────────────────────
  *
  *  La maquette `390:3387` dessine SIX icônes à gauche de la carte,
- *  une par clan, et c'est la bande d'onglets. Elle en montre six même
- *  si un seul clan a son texte — c'est la carte des clans du forum,
+ *  une par groupe, et c'est la bande d'onglets. Elle en montre six même
+ *  si un seul groupe a son texte — c'est la carte des groupes du forum,
  *  pas la liste de ceux qui sont prêts.
  *
- *  Or `clanDepuis` refuse un clan sans description, et il a raison :
+ *  Or `groupeDepuis` refuse un groupe sans description, et il a raison :
  *  une carte vide ne vaut rien. Les deux besoins ne sont pas le même,
- *  donc l'onglet porte TOUJOURS sa clé et son nom, et son `clan` vaut
+ *  donc l'onglet porte TOUJOURS sa clé et son nom, et son `groupe` vaut
  *  `null` tant que le texte n'est pas écrit. Le module affiche alors
  *  l'icône sans la rendre cliquable : la bande est complète, et rien
  *  d'ouvrable n'est vide.
@@ -114,18 +114,18 @@ export type Onglet = {
   readonly cle: string;
   readonly nom: string;
   /** `null` tant que la description n'est pas écrite. */
-  readonly clan: Clan | null;
+  readonly groupe: Groupe | null;
 };
 
-/** La bande des clans, dans l'ordre de `data/clans.json`.
+/** La bande des groupes, dans l'ordre de `data/groupes.json`.
  *
  *  L'ORDRE EST CELUI DU FICHIER, et pas un tri : la maquette met
  *  Ho-Oh en haut, et c'est à Callista de décider de l'ordre en
  *  déplaçant les lignes. */
-export function ongletsDesClans(brut: unknown): readonly Onglet[] {
+export function ongletsDesGroupes(brut: unknown): readonly Onglet[] {
   if (brut === null || typeof brut !== "object") return [];
-  const liste = Array.isArray((brut as Record<string, unknown>).clans)
-    ? (brut as Record<string, unknown>).clans as unknown[]
+  const liste = Array.isArray((brut as Record<string, unknown>).groupes)
+    ? (brut as Record<string, unknown>).groupes as unknown[]
     : [];
   const sortie: Onglet[] = [];
   for (const c of liste) {
@@ -134,26 +134,26 @@ export function ongletsDesClans(brut: unknown): readonly Onglet[] {
     const cle = texte(o.cle);
     const nom = texte(o.nom);
     if (cle === "" || nom === "") continue;
-    sortie.push({ cle, nom, clan: clanDepuis(c) });
+    sortie.push({ cle, nom, groupe: groupeDepuis(c) });
   }
   return sortie;
 }
 
-/** Le clan à montrer, d'après `data/clans.json`.
+/** Le groupe à montrer, d'après `data/groupes.json`.
  *
- *  `duMoment` nomme une clé ; changer de clan, c'est changer ce mot.
- *  Si la clé ne désigne rien — un nom mal tapé, un clan encore vide —
+ *  `duMoment` nomme une clé ; changer de groupe, c'est changer ce mot.
+ *  Si la clé ne désigne rien — un nom mal tapé, un groupe encore vide —
  *  on ne RETOMBE PAS sur le premier venu : afficher silencieusement un
- *  autre clan que celui demandé est pire que de n'en afficher aucun,
+ *  autre groupe que celui demandé est pire que de n'en afficher aucun,
  *  parce que personne ne s'aperçoit de l'erreur. */
-export function clanDuMoment(brut: unknown): Clan | null {
+export function groupeDuMoment(brut: unknown): Groupe | null {
   if (brut === null || typeof brut !== "object") return null;
   const o = brut as Record<string, unknown>;
   const voulu = texte(o.duMoment);
   if (voulu === "") return null;
-  const liste = Array.isArray(o.clans) ? o.clans : [];
+  const liste = Array.isArray(o.groupes) ? o.groupes : [];
   for (const c of liste) {
-    const lu = clanDepuis(c);
+    const lu = groupeDepuis(c);
     if (lu !== null && lu.cle === voulu) return lu;
   }
   return null;
@@ -163,8 +163,9 @@ export function clanDuMoment(brut: unknown): Clan | null {
  *
  *  Le module s'arrête là : mieux vaut pas de bloc qu'un cadre avec
  *  trois tirets dedans. */
-export function rienAMontrer(c: Chiffres, clan: Clan | null): boolean {
-  return c.messages === null && c.membres === null && c.dernierArrive === null && clan === null;
+export function rienAMontrer(c: Chiffres, groupe: Groupe | null): boolean {
+  return c.messages === null && c.membres === null && c.dernierArrive === null &&
+    groupe === null;
 }
 
 // ── l'avatar du dernier arrivé ──────────────────────────────────────

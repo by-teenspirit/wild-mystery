@@ -17,7 +17,7 @@ mode Sombre sur `body.wm-sombre`. Le tableau ci-dessous donne la correspondance
 Figma → CSS, commune aux deux blocs.
 
 Le relevé du 3 octobre a corrigé une valeur du mode clair au passage :
-`groupe/mew/texte` valait `#5c3348` dans le CSS et `#7a4460` dans Figma. Figma
+`groupe/jovial/texte` valait `#5c3348` dans le CSS et `#7a4460` dans Figma. Figma
 fait foi.
 
 | Figma | CSS |
