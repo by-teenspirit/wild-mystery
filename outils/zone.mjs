@@ -818,6 +818,12 @@ const deux = await p1.evaluate(() => {
       : Math.round(basBoutons.querySelector("a").getBoundingClientRect().height),
     anglesLignes: lignes.map((l) => getComputedStyle(l).borderRadius),
     angleDerniere: derniere === undefined ? null : getComputedStyle(derniere).borderRadius,
+    blocDecoupe: (() => {
+      const b = document.querySelector(".wm-forum__section .forumbg");
+      if (b === null) return false;
+      const c = getComputedStyle(b);
+      return c.overflow === "hidden" && c.borderRadius !== "0px";
+    })(),
     pastilleY: pastille === null ? null : Math.round(pastille.getBoundingClientRect().y),
     titreSujetY: titre === null ? null : Math.round(titre.getBoundingClientRect().y),
     ligneY: lignes.length === 0 ? null : Math.round(lignes[0].getBoundingClientRect().y),
@@ -835,6 +841,34 @@ const deux = await p1.evaluate(() => {
         centre: Math.round(b.y + parseFloat(c.top) + parseFloat(c.height) / 2),
         top: c.top,
       };
+    })(),
+    retour: (() => {
+      const a = document.querySelector(".wm-zone__retour");
+      if (a === null) return null;
+      const b = a.getBoundingClientRect();
+      return {
+        x: Math.round(b.x),
+        y: Math.round(b.y),
+        href: a.getAttribute("href"),
+        label: a.getAttribute("aria-label"),
+        dansLeBandeau: document.querySelector(".wm-zone")?.contains(a) === true,
+      };
+    })(),
+    legendeX: (() => {
+      const l = document.querySelector(".wm-zone__legende");
+      return l === null ? null : Math.round(l.getBoundingClientRect().x);
+    })(),
+    nouveau: (() => {
+      const a = document.querySelector(".wm-forum__nouveau");
+      if (a === null) return null;
+      return {
+        fond: getComputedStyle(a).backgroundColor,
+        icone: getComputedStyle(a, "::before").content,
+      };
+    })(),
+    blocAngles: (() => {
+      const b = document.querySelector(".wm-forum__section .forumbg");
+      return b === null ? null : getComputedStyle(b).borderRadius;
     })(),
     centreTitre: titre === null ? null : (() => {
       const b = titre.getBoundingClientRect();
@@ -865,6 +899,28 @@ dire(
   `.sub-header : ${deux.coquilleVide} px`,
 );
 dire(
+  "LA FLÈCHE DE RETOUR EST DANS LE BANDEAU, ALIGNÉE AU TEXTE",
+  deux.retour !== null && deux.retour.dansLeBandeau &&
+    deux.retour.x === deux.legendeX,
+  `flèche à x=${deux.retour?.x}, légende à x=${deux.legendeX}`,
+);
+dire(
+  "et elle remonte d'un cran, pas à l'accueil ni dans l'historique",
+  deux.retour?.href?.endsWith("/f96-zones-palier-1") === true,
+  `${deux.retour?.href} · « ${deux.retour?.label} »`,
+);
+dire(
+  "LE BOUTON « NOUVEAU SUJET » EST EN COULEUR D'ACCENT, AVEC SON SIGNE",
+  deux.nouveau !== null && deux.nouveau.fond !== "rgba(0, 0, 0, 0)" &&
+    deux.nouveau.icone === '"✚"',
+  `${deux.nouveau?.fond} · ${deux.nouveau?.icone}`,
+);
+dire(
+  "LE BLOC DES SUJETS NE S'ARRONDIT QU'EN BAS, IL COLLE À LA BANDE",
+  deux.blocAngles === "0px 0px 10px 10px",
+  deux.blocAngles,
+);
+dire(
   "LES RACCOURCIS REMPLISSENT LEUR BARRE",
   deux.raccourciH !== null && deux.barreH !== null && deux.raccourciH >= 38 &&
     Math.abs(deux.raccourciH - deux.barreH) <= 2,
@@ -876,10 +932,13 @@ dire(
   `${deux.basEnBarre} · ${deux.basBoutonH} px`,
 );
 dire(
-  "AUCUNE LIGNE DE SUJET N'EST ARRONDIE, SAUF LA DERNIÈRE EN BAS",
-  deux.anglesLignes.slice(0, -1).every((a) => a === "0px") &&
-    deux.angleDerniere === "0px 0px 10px 10px",
-  `${deux.anglesLignes.join(" | ")}`,
+  "AUCUNE LIGNE DE SUJET N'EST ARRONDIE — LE BLOC DÉCOUPE",
+  //  Y COMPRIS LA DERNIÈRE. Le conteneur porte le rayon et
+  //  `overflow: hidden` ; un second angle posé par-dessus le sien se
+  //  voit, surtout sur la ligne « Aucun message » d'un forum vide, qui
+  //  est première et dernière à la fois.
+  deux.anglesLignes.every((a) => a === "0px") && deux.blocDecoupe,
+  `${deux.anglesLignes.join(" | ")} · bloc : ${deux.blocDecoupe}`,
 );
 dire(
   "LE ROND D'ÉTAT EST EN FACE DU TITRE, PAS AU MILIEU DE LA LIGNE",

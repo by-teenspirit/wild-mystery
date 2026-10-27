@@ -72,6 +72,7 @@ import {
 import {
   monterLeFilDAriane,
   poserLeBandeauDeZone,
+  poserLeRetour,
   poserLesSujets,
 } from "../src/adaptateurs/navigateur/module-zone.ts";
 import { accueilDepuis } from "../src/navigateur/accueil.ts";
@@ -323,6 +324,9 @@ async function poserLaZone(): Promise<void> {
   //  glissée entre les deux : le rapprocher par une marge ne marche
   //  pas, il faut le monter dedans.
   monterLeFilDAriane(document);
+  //  ET LA FLÈCHE DE RETOUR, APRÈS LUI : elle lit le fil pour savoir
+  //  où remonter, donc elle a besoin qu'il soit en place.
+  poserLeRetour(document);
 }
 
 /** La carte des territoires, sur l'index seulement.

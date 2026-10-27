@@ -886,6 +886,12 @@
 }
 
 #modernbb .wm-forum .topic-actions.bottom .topic-actions-buttons {
+  /*  COLLÉS À DROITE, demandé le 27 octobre. `space-between` les y
+      mettait tant que la pagination occupait la gauche ; sur un forum
+      d'une seule page elle est vide, et les deux boutons revenaient
+      se coller au bord gauche. Une marge automatique ne dépend, elle,
+      de rien d'autre. */
+  margin-left: auto;
   display: flex;
   gap: 0;
   align-items: stretch;
@@ -927,16 +933,24 @@
     bottom seulement. »
 
     ModernBB pose `0 0 3px 3px` sur la dernière ligne. Trois pixels
-    sous un conteneur qui en arrondit dix : l'angle du bloc et celui de
-    la ligne ne se superposaient pas, et c'est ce décalage qu'on voit
-    comme un arrondi raté. Les lignes n'ont plus d'angle du tout, et la
-    dernière épouse exactement celui du bloc. */
-#modernbb .wm-forum ul.topics li.row {
-  border-radius: 0;
-}
+    sous un conteneur qui en arrondit dix : les deux angles ne se
+    superposaient pas, et c'est ce décalage qu'on lit comme un arrondi
+    raté.
 
-#modernbb .wm-forum ul.topics li.row:last-child {
-  border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
+    AUCUNE LIGNE N'A PLUS D'ANGLE, PAS MÊME LA DERNIÈRE. Le conteneur
+    `.forumbg` porte déjà `border-radius: 10px` ET `overflow: hidden` :
+    c'est lui qui découpe, et il le fait au pixel près. Arrondir la
+    dernière ligne en plus, c'est dessiner un second angle par-dessus
+    le sien — celui que Callista voyait encore sur la ligne « Aucun
+    message », qui est seule et donc première et dernière à la fois.
+
+    La troisième ligne du sélecteur vise `ul.topiclist`, plus large que
+    `ul.topics` : la ligne « Aucun message » d'un forum vide n'a pas de
+    `dl.icon` et ne passe pas par les mêmes règles que les autres. */
+#modernbb .wm-forum ul.topics li.row,
+#modernbb .wm-forum ul.topics li.row:last-child,
+#modernbb .wm-forum ul.topiclist li.row:last-child {
+  border-radius: 0;
 }
 
 /*  ── 13.5 · LA PASTILLE EN FACE DU SUJET ──────────────────────────
@@ -956,4 +970,121 @@
 #modernbb .wm-forum ul.topics li.row .wm-pastille,
 #modernbb .wm-forum ul.topics li.row dd.dterm {
   align-self: start;
+}
+
+/* ── 14 · le troisième relevé du 27 octobre ───────────────────────── */
+
+/*  ── 14.1 · LE BLOC DES SUJETS COLLE À LA BANDE ───────────────────
+
+    « Tu n'as pas retiré l'arrondi ici — celui qui colle à la bande. »
+
+    C'était le HAUT du bloc, pas les lignes. `.forumbg` porte un rayon
+    sur ses quatre angles ; posé juste sous `.wm-forum__bande`, qui est
+    un rectangle plein, ses deux angles du haut creusaient un décroché
+    de part et d'autre.
+
+    La bande et le bloc ne font qu'un objet : seul le bas s'arrondit. */
+#modernbb .wm-forum__section .forumbg {
+  border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
+}
+
+/*  ── 14.2 · MOINS DE VIDE ENTRE LE BANDEAU ET LES SUJETS ──────────
+
+    « On peut réduire la hauteur entre le bandeau et les sujets ? »
+
+    Ce qui s'empile là : la publicité de Forumactif — 90 px qu'on ne
+    touche pas —, puis la rangée d'actions, avec 18 px au-dessus et 18
+    en dessous. Ce sont ces 36-là qu'on peut rendre, pas les 90.
+
+    La rangée garde de l'air au-dessus, pour ne pas coller à la pub, et
+    en perd en dessous : le bouton et la bande se lisent comme une
+    même tête de liste. */
+#modernbb .wm-forum .wm-forum__actions {
+  margin: var(--wm-espace-12, 12px) 0 var(--wm-espace-10, 10px);
+}
+
+/*  ── 14.3 · « POSTER UN NOUVEAU SUJET » DEVIENT UN VRAI BOUTON ────
+
+    « Mets-le plutôt en couleur d'accent en fond, avec une petite
+    icône. » Il portait la `button1` de ModernBB — un contour pâle qui
+    ne disait pas qu'il s'agit de l'action principale de la page.
+
+    L'icône est un caractère et pas une image : rien à charger, rien à
+    héberger, et elle suit la couleur du texte. `aria-hidden` ne se
+    pose pas sur un pseudo-élément, mais un `::before` décoratif n'est
+    de toute façon pas annoncé par les lecteurs d'écran. */
+#modernbb a.wm-forum__nouveau,
+#modernbb a.button1.wm-forum__nouveau {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: 0 var(--wm-espace-18, 18px);
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#modernbb a.wm-forum__nouveau::before {
+  content: "✚";
+  font-size: 12px;
+  font-weight: var(--wm-graisse-normale, 400);
+  line-height: 1;
+}
+
+#modernbb a.wm-forum__nouveau:hover {
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  ── 14.4 · LA FLÈCHE DE RETOUR ───────────────────────────────────
+
+    « Mets-la en haut à gauche, dans le bandeau, mais alignée au
+    texte. » Elle part donc du même bord que la légende — 92 px, la
+    marge du dessin — et pas du bord de la photo : une flèche collée à
+    l'angle flotterait toute seule dans l'image.
+
+    Elle est posée sur la photo, pas sur le fond de page : il lui faut
+    donc son propre contraste. Un disque sombre translucide tient aussi
+    bien sur un ciel clair que sur une roche sombre, et la bordure
+    claire le détache des deux. */
+#modernbb .wm-zone__retour {
+  position: absolute;
+  z-index: 2;
+  top: var(--wm-espace-24, 24px);
+  left: 92px;
+  display: flex;
+  width: 34px;
+  height: 34px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2px;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 999px;
+  background: rgb(26 18 16 / 34%);
+  color: rgb(255 255 255 / 88%);
+  font-size: 19px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+#modernbb .wm-zone__retour:hover {
+  border-color: rgb(255 255 255 / 60%);
+  background: rgb(26 18 16 / 60%);
+  color: rgb(255 255 255 / 100%);
+}
+
+/*  La légende descend de la hauteur de la flèche quand celle-ci est
+    là : sinon le fil d'Ariane lui passerait à travers sur un bandeau
+    court. Elle est ancrée en bas, donc c'est une marge du haut. */
+#modernbb .wm-zone__legende {
+  padding-top: 58px;
 }

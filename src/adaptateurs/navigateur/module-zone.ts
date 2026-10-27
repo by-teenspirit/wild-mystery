@@ -189,6 +189,46 @@ export function monterLeFilDAriane(doc: Document): boolean {
   return true;
 }
 
+/**
+ * Pose la flèche de retour dans le bandeau. Rend `true` si elle y est.
+ *
+ * ── OÙ ELLE MÈNE, ET POURQUOI PAS « PAGE PRÉCÉDENTE » ──────────────
+ *
+ * Elle remonte d'un cran dans le fil d'Ariane : depuis les Steppes
+ * Arides, vers « Zones Palier 1 ». C'est un retour de LIEU, pas un
+ * retour d'historique — `history.back()` aurait renvoyé sur un profil
+ * ou un résultat de recherche selon d'où l'on vient, et une flèche qui
+ * ne mène pas deux fois au même endroit n'est pas un repère.
+ *
+ * C'est donc un vrai lien : il s'ouvre dans un nouvel onglet au clic
+ * du milieu, il se copie, et il marche sans JavaScript une fois posé.
+ *
+ * Le dernier maillon est la page où l'on se trouve : on prend
+ * l'avant-dernier. S'il n'y en a qu'un, on prend celui-là — l'accueil.
+ *
+ * Idempotent : une flèche déjà posée est laissée en place.
+ */
+export function poserLeRetour(doc: Document): boolean {
+  const bandeau = doc.querySelector(".wm-zone");
+  if (bandeau === null) return false;
+  if (bandeau.querySelector(".wm-zone__retour") !== null) return true;
+
+  const maillons = [...doc.querySelectorAll(".sub-header-path a.nav")];
+  const parent = maillons.at(-2) ?? maillons.at(0);
+  if (parent === undefined) return false;
+
+  const lien = doc.createElement("a");
+  lien.className = "wm-zone__retour";
+  lien.href = parent.getAttribute("href") ?? "/";
+  //  LE GLYPHE EST DÉCORATIF, LE NOM EST DANS `aria-label`. Une flèche
+  //  seule annoncée « ‹ » ne dit rien à qui écoute la page ; « Retour
+  //  vers Zones Palier 1 » dit où elle mène.
+  lien.textContent = "‹";
+  lien.setAttribute("aria-label", `Retour vers ${parent.textContent?.trim() ?? "l'accueil"}`);
+  bandeau.appendChild(lien);
+  return true;
+}
+
 /** Le titre d'un sujet, tel que le gabarit le pose. */
 function titreDe(ligne: Element): HTMLAnchorElement | null {
   return ligne.querySelector<HTMLAnchorElement>("a.topictitle");

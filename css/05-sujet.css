@@ -63,8 +63,7 @@
     date du message sortait en corps au lieu de pâle. Sans le `div`, on
     retombe à (1,1,0) : ça bat toujours ModernBB (0,1,0), et les règles
     qui suivent ici gardent la main. */
-#modernbb [class*="post--"]
-  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+#modernbb [class*="post--"] :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
@@ -198,6 +197,45 @@
 /*  La colonne de gauche. C'est elle qui donne son caractère à un forum
     RP : on la traite comme une carte dans la carte, posée sur
     `surface-haute` pour se détacher du message sans l'écraser. */
+/*  ── LE TEXTE RESTE À DROITE DU PROFIL ─────────────────────────────
+
+    « Des fois dans les sujets, le texte se met en dessous du profil
+    qui est à gauche, donc ça fait un gros vide », 27 octobre. Mesuré
+    sur `/t10` : le profil à 211 px de large, le corps à 1035, dans un
+    message qui en fait 1246. 211 + 1035 = 1246 exactement.
+
+    `.post` est en `flex-wrap: wrap` — c'est ModernBB qui le pose. Deux
+    boîtes dont les largeurs font tout juste celle du parent tiennent
+    sur une ligne tant que RIEN ne s'ajoute : un pixel d'écart, une
+    bordure, une barre de défilement, et le corps passe à la ligne
+    suivante. C'est tout le « des fois ».
+
+    On arrête donc de compter sur une largeur juste : le profil garde
+    sa colonne fixe, le corps prend ce qui reste, quoi qu'il reste.
+    `min-width: 0` parce qu'un enfant de flex refuse par défaut de
+    descendre sous la largeur de son contenu — une image large ou un
+    mot long le ferait déborder, et on retomberait sur le retour à la
+    ligne qu'on vient d'enlever. */
+#modernbb .post .postprofile {
+  /*  211 px : la largeur que ModernBB donne déjà à cette colonne,
+      relevée sur `/t10`. En dur et pas en jeton — ce n'est pas une
+      couleur de charte, c'est la mesure d'un gabarit qu'on subit. */
+  flex: 0 0 211px;
+  max-width: 211px;
+}
+
+#modernbb .post .postbody {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/*  L'en-tête et le bloc des « j'aime » prennent la ligne entière :
+    sans ça, ils entreraient dans le calcul des deux colonnes. */
+#modernbb .post .post-head,
+#modernbb .post .fa_like_div {
+  flex: 1 1 100%;
+}
+
 #modernbb .postprofile {
   padding: var(--wm-espace-14, 14px);
   border-radius: var(--wm-rayon-md, 8px);
@@ -516,8 +554,7 @@
   color: var(--wm-texte-corps, #4e3b30);
 }
 
-#modernbb #forum_rules
-  :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
+#modernbb #forum_rules :where(p, div, span, strong, em, b, i, dfn, dd, dt, li, h2, h3, h4) {
   color: inherit;
 }
 
