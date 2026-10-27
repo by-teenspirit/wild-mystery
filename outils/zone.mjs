@@ -213,13 +213,37 @@ function listeDesSujets() {
  *  `forumId` est ce que le gabarit écrit dans `data-wm-forum`. Le fil
  *  d'Ariane, lui, ne nomme QUE le palier : c'est ainsi qu'on vérifie
  *  que le script lit l'attribut et ne devine pas. */
-function pageDeZone({ forumId = 34, legende = true } = {}) {
+/** Le préambule que Forumactif pose AVANT notre gabarit sur un forum
+ *  qui a des sous-forums. Relevé sur `/f18-station-service` le 27
+ *  octobre : `div.forabg` (les sous-forums), `ul.linklist.top`, puis un
+ *  `div.forumbg` qui répète la liste des sujets.
+ *
+ *  C'est du HTML de Forumactif, pas du nôtre : pas de classe `wm-`
+ *  là-dedans, nos modules n'ont pas encore tourné quand il arrive. */
+const PREAMBULE = () =>
+  `<div class="forabg">
+  <ul class="topiclist"><li class="header"><dl class="icon"><dt>Station Service</dt></dl></li></ul>
+  <ul class="topiclist forums">
+    <li class="row"><dl class="icon"><dt><h2 class="hierarchy"><a class="forumtitle" href="/f19-arene-feu">Arène Feu</a></h2></dt></dl></li>
+    <li class="row"><dl class="icon"><dt><h2 class="hierarchy"><a class="forumtitle" href="/f3-le-marche">Le Marché de Rhode</a></h2></dt></dl></li>
+  </ul>
+</div>
+<ul class="linklist top"><li><a href="/post?f=18&mode=newtopic">Nouveau sujet</a></li></ul>
+${listeDesSujets()}`;
+
+function pageDeZone({ forumId = 34, legende = true, prefixe = false, sansListe = false } = {}) {
   let t = sansCommentaires(readFileSync(R + "templates/viewforum_body.nouveau.html", "utf8"));
   t = gardeBloc(t, "switch_user_authpost");
   t = gardeBloc(t, "show_plus_menu");
   t = legende ? gardeBloc(t, "switch_legend") : sansBloc(t, "switch_legend");
-  t = t.replace(/\{TOPICS_LIST_BOX\}/, () => listeDesSujets());
+  t = t.replace(/\{TOPICS_LIST_BOX\}/, () => (sansListe ? "" : listeDesSujets()));
   t = vars(t, {
+    //  `{BOARD_INDEX}` NE REND RIEN SUR UNE PAGE DE FORUM, et ce n'est
+    //  pas une hypothèse : on l'a retiré du gabarit le 27 octobre, on a
+    //  publié, et `/f2` doublait exactement pareil. Ce qui double est le
+    //  préambule que Forumactif pose AVANT le gabarit — `PREAMBULE()`
+    //  ci-dessus le reproduit, et c'est lui qu'il faut ranger.
+    BOARD_INDEX: "",
     FORUM_ID: String(forumId),
     U_VIEW_FORUM: `/f${forumId}-une-zone`,
     FORUM_NAME: "Montagnes Embrumées",
@@ -248,7 +272,7 @@ function pageDeZone({ forumId = 34, legende = true } = {}) {
     S_JUMPBOX_SELECT: '<select name="f"><option value="-1">—</option></select>',
     L_GO: "Ok",
   });
-  return t;
+  return prefixe ? PREAMBULE() + "\n" + t : t;
 }
 
 //  La bannière du site, celle que le bandeau de zone doit remplacer.
@@ -282,36 +306,6 @@ ${BANNIERE}
 <div id="page-body">${corps}</div>
 </div>
 </body></html>`;
-
-// ── ce que le gabarit ne doit PLUS contenir ─────────────────────────
-//
-//  `{BOARD_INDEX}` écrivait le contenu du forum une seconde fois, hors
-//  de `.wm-forum` — deux listes de sujets identiques sur
-//  `/f2-notice-d-utilisation`, mesuré le 27 octobre.
-//
-//  CE HARNAIS L'AVAIT MANQUÉ PARCE QU'IL LE REMPLAÇAIT PAR "". Il ne
-//  mesurait pas la variable : il posait comme vraie l'hypothèse qu'elle
-//  ne rend rien, celle-là même qui était fausse. Un décor qui applique
-//  l'hypothèse qu'on veut vérifier ne vérifie rien.
-//
-//  On ne peut pas rendre `{BOARD_INDEX}` ici — ce que Forumactif en
-//  fait dépend de la place du forum dans son arborescence, et ça ne se
-//  simule pas. On vérifie donc ce qui est vérifiable : qu'il n'est plus
-//  dans le gabarit.
-{
-  const brut = readFileSync(R + "templates/viewforum_body.nouveau.html", "utf8");
-  const code = sansCommentaires(brut);
-  dire(
-    "LE GABARIT N'APPELLE PLUS {BOARD_INDEX}",
-    !code.includes("{BOARD_INDEX}"),
-    "il doublait la liste des sujets hors de .wm-forum",
-  );
-  dire(
-    "et il garde {TOPICS_LIST_BOX}, une seule fois",
-    (code.match(/\{TOPICS_LIST_BOX\}/g) ?? []).length === 1,
-    `${(code.match(/\{TOPICS_LIST_BOX\}/g) ?? []).length} appel(s)`,
-  );
-}
 
 // ── le navigateur ───────────────────────────────────────────────────
 
@@ -740,6 +734,99 @@ for (const l of [1440, 1024, 760]) {
 }
 
 await p1.close();
+// ════════════════════════════════════════════════════════════════════
+//  7 · LE PRÉAMBULE D'UN FORUM QUI A DES SOUS-FORUMS
+// ════════════════════════════════════════════════════════════════════
+//
+//  « Les catégories sont cassées et les sujets s'affichent en double »,
+//  27 octobre, sur `/f2-notice-d-utilisation`. Mesuré sur le forum :
+//  f2 et f18 ont des sous-forums et doublent ; f19, f36 et f56 n'en ont
+//  pas et ne doublent pas.
+//
+//  Le préambule ne vient PAS de notre gabarit — retirer `{BOARD_INDEX}`
+//  n'y a rien changé, vérifié après publication. C'est Forumactif qui
+//  le pose. On le range donc au navigateur.
+
+console.log("\n── un forum qui a des sous-forums ──");
+
+const p7 = await monter({ corps: pageDeZone({ forumId: 18, prefixe: true }) });
+const range = await p7.evaluate(() => {
+  const forum = document.querySelector(".wm-forum");
+  return {
+    forumbg: document.querySelectorAll(".forumbg").length,
+    forumbgDehors: [...document.querySelectorAll(".forumbg")].filter((b) => !forum.contains(b))
+      .length,
+    forabg: document.querySelectorAll(".forabg").length,
+    forabgDedans: [...document.querySelectorAll(".forabg")].filter((b) =>
+      forum.contains(b)
+    ).length,
+    linklist: document.querySelectorAll("ul.linklist").length,
+    titres: [...document.querySelectorAll("a.topictitle")].map((a) => a.textContent.trim()),
+    sousForums: [...document.querySelectorAll("a.forumtitle")].map((a) => a.textContent.trim()),
+    classe: document.querySelector("#modernbb").classList.contains("wm-forum-range"),
+  };
+});
+
+dire(
+  "LES SUJETS NE SONT PLUS ÉCRITS QU'UNE FOIS",
+  range.titres.length === 5,
+  `${range.titres.length} titre(s) pour 5 sujets`,
+);
+dire(
+  "et le bloc en double est parti, pas celui de la mise en page",
+  range.forumbg === 1 && range.forumbgDehors === 0,
+  `${range.forumbg} bloc(s), dont ${range.forumbgDehors} hors de .wm-forum`,
+);
+dire(
+  "LES SOUS-FORUMS SONT GARDÉS, ET REMONTÉS DANS LA MISE EN PAGE",
+  range.forabg === 1 && range.forabgDedans === 1 && range.sousForums.length === 2,
+  `${range.forabgDedans}/${range.forabg} dans .wm-forum · ${range.sousForums.join(" · ")}`,
+);
+dire(
+  "la barre de liens orpheline est partie",
+  range.linklist === 0,
+  `${range.linklist} liste(s)`,
+);
+dire("et la classe de corps le dit", range.classe === true);
+await p7.close();
+
+//  ── LA GARDE : ON NE JETTE PAS LA SEULE LISTE DE LA PAGE ───────────
+//
+//  Si le gabarit ne produit aucun bloc de sujets dans `.wm-forum` —
+//  parce qu'il a changé, ou qu'on est sur une page qu'on n'a pas
+//  prévue — le module ne doit RIEN retirer. Sans cette garde, il
+//  ferait disparaître la seule liste de sujets de la page.
+
+const p8 = await monter({
+  corps: pageDeZone({ forumId: 18, prefixe: true, sansListe: true }),
+});
+const garde = await p8.evaluate(() => ({
+  forumbg: document.querySelectorAll(".forumbg").length,
+  titres: document.querySelectorAll("a.topictitle").length,
+}));
+dire(
+  "SANS LISTE DANS LA MISE EN PAGE, ON NE RETIRE RIEN",
+  garde.forumbg === 1 && garde.titres === 5,
+  `${garde.forumbg} bloc(s) · ${garde.titres} sujet(s)`,
+);
+await p8.close();
+
+//  ── ET UN FORUM SANS SOUS-FORUM N'EST PAS TOUCHÉ ───────────────────
+
+const p9 = await monter({ corps: pageDeZone({ forumId: 56 }) });
+const intact = await p9.evaluate(() => ({
+  forumbg: document.querySelectorAll(".forumbg").length,
+  forabg: document.querySelectorAll(".forabg").length,
+  titres: document.querySelectorAll("a.topictitle").length,
+  classe: document.querySelector("#modernbb").classList.contains("wm-forum-range"),
+}));
+dire(
+  "un forum sans préambule garde sa page entière, et la classe n'est pas posée",
+  intact.forumbg === 1 && intact.forabg === 0 && intact.titres === 5 && intact.classe === false,
+  JSON.stringify(intact),
+);
+await p9.close();
+
 await nav.close();
 if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);

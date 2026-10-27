@@ -52,35 +52,42 @@
    sujets, la pagination, les modérateurs, les permissions. Ce que le
    script ajoute — le bandeau photo, le rond d'état, les pastilles —
    est du décor posé par-dessus une page qui se lit déjà.
-   ── 6. `{BOARD_INDEX}` EST PARTI, ET C'EST LE CORRECTIF DU 27 OCTOBRE
+   ── 6. LE PRÉAMBULE D'UN FORUM À SOUS-FORUMS, ET CE QUI LE RANGE ───
 
-   Il était en tête, et mon commentaire affirmait qu'il « afficherait
-   les sous-forums d'une zone » et qu'« aucune zone n'en a, donc il ne
-   rend rien ». C'était faux, et jamais vérifié sur le forum.
+   « Les catégories sont cassées et les sujets s'affichent en double »,
+   27 octobre, sur `/f2-notice-d-utilisation`.
 
-   Mesuré le 27 octobre sur `/f2-notice-d-utilisation` : la page
-   portait DEUX `div.forumbg.announcement` identiques, les mêmes sept
-   sujets écrits deux fois — l'un dans `div#main`, hors de notre mise
-   en page, l'autre à sa place dans `.wm-forum__section`. Le premier
-   venait de `{BOARD_INDEX}`.
+   J'ai d'abord accusé `{BOARD_INDEX}` et je l'ai retiré d'ici. Faux :
+   après publication, la page doublait exactement pareil. Il est donc
+   revenu, et cette section dit ce qui se passe vraiment.
 
-   Ce qu'il rend dépend de la place du forum dans l'arborescence : rien
-   sur une zone (`f9`, `f36`, qui sont des sous-forums de `f96`…), et
-   le contenu entier du forum — sous-forums ET liste des sujets — sur
-   un forum de premier niveau comme `f2` ou `f18`. Le gabarit d'origine
-   de ModernBB le garde en ligne 1, mais ce gabarit date de 2019 et
-   `viewforum_body` fait partie de ceux que Forumactif a changés depuis.
+   Mesuré sur le forum, connectée :
 
-   `{TOPICS_LIST_BOX}`, lui, rend la liste partout et il est DANS notre
-   section. C'est donc lui qu'on garde.
+     f2  Notice d'utilisation   sous-forums : oui   doublé : OUI
+     f18 Station Service        sous-forums : oui   doublé : OUI
+     f56 Les informations       sous-forums : non   doublé : non
+     f19 Arène Feu              sous-forums : non   doublé : non
+     f36 Steppes Arides         sous-forums : non   doublé : non
 
-   ⚠ CE QU'ON PERD, ET QU'IL FAUDRA RENDRE : les pages de ville
-   (`f18` Station Service, `f12` Pyrite…) n'affichent plus la liste de
-   leurs sous-forums — l'arène, le colosseum, le marché. Elle sortait
-   de `{BOARD_INDEX}`, hors de `.wm-forum`, donc non stylée. À refaire
-   proprement dans la section, et pas en remettant la variable.
+   **Un forum qui a des sous-forums reçoit, avant ce gabarit, un bloc
+   d'index complet posé par Forumactif** : `div.forabg` (les
+   sous-forums), `ul.linklist.top`, puis un `div.forumbg` qui répète la
+   liste des sujets. Rien de tout ça ne sort d'ici, et aucune variable
+   de ce gabarit ne le commande.
+
+   Il tombe hors de `.wm-forum`, d'où les deux symptômes : la copie des
+   sujets s'affiche sans style, et les sujets se lisent deux fois.
+
+   C'est donc `src/adaptateurs/navigateur/module-forum.ts` qui le range,
+   au navigateur : il retire la copie des sujets — seulement s'il en
+   reste une dans `.wm-forum` — et remonte la liste des sous-forums
+   dans la mise en page, parce qu'elle est la seule source de l'arène,
+   du colosseum et du marché sur une page de ville.
+
   ════════════════════════════════════════════════════════════════════
 -->
+{BOARD_INDEX}
+
 <div class="wm-forum" data-wm-forum="{FORUM_ID}">
   <div class="sub-header">
     <div class="sub-header-info">

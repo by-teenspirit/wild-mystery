@@ -65,6 +65,7 @@ import {
   poserLaCarte,
 } from "../src/adaptateurs/navigateur/module-carte.ts";
 import { poserLeSwitcheroo } from "../src/adaptateurs/navigateur/module-switcheroo.ts";
+import { rangerLePreambuleDuForum } from "../src/adaptateurs/navigateur/module-forum.ts";
 import {
   poserLeBandeauDeZone,
   poserLesSujets,
@@ -453,6 +454,18 @@ desQueLeCorpsEstLa(() => {
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
   poserLaVie().catch(() => {});
+  //  LE PRÉAMBULE DE FORUMACTIF EN PREMIER, AVANT TOUS LES AUTRES.
+  //
+  //  Sur un forum QUI A DES SOUS-FORUMS, Forumactif pose avant notre
+  //  gabarit un bloc d'index complet, qui répète la liste des sujets
+  //  hors de `.wm-forum`. Mesuré le 27 octobre sur `/f2` et `/f18` ;
+  //  les forums sans sous-forum ne l'ont pas.
+  //
+  //  Il passe d'abord parce que tous ceux d'en dessous travaillent sur
+  //  les mêmes nœuds : les laisser numéroter, recomposer et marquer un
+  //  bloc qu'on va jeter, c'est du travail perdu — et `poserLesSujets`
+  //  marquerait `data-wm-sujet` sur des lignes en double.
+  rangerLePreambuleDuForum(document);
   //  LES DEUX NOMBRES DES BANDES DE CATÉGORIE, tout de suite et sans
   //  réseau : ils se lisent dans la page. Rien n'en dépend — sans eux
   //  la bande garde son titre entre ses filets.
