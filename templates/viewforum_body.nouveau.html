@@ -38,10 +38,6 @@
 
    ── CE QUI NE CHANGE PAS, ET POURQUOI ───────────────────────────────
 
-   · `{BOARD_INDEX}` reste, en premier : c'est lui qui afficherait les
-     sous-forums d'une zone. Aucune zone n'en a aujourd'hui — planche
-     44 — donc il ne rend rien, et c'est très bien. Le retirer casserait
-     la page le jour où une zone en reçoit un.
    · `{TOPICS_LIST_BOX}`, `{PAGINATION}`, `{S_WATCH_FORUM}`,
      `{LOGGED_IN_USER_LIST}`, `{MODERATORS}`, `{S_AUTH_LIST}` et le
      saut de forum restent : ce sont les seules sources de ces
@@ -56,48 +52,74 @@
    sujets, la pagination, les modérateurs, les permissions. Ce que le
    script ajoute — le bandeau photo, le rond d'état, les pastilles —
    est du décor posé par-dessus une page qui se lit déjà.
+   ── 6. `{BOARD_INDEX}` EST PARTI, ET C'EST LE CORRECTIF DU 27 OCTOBRE
+
+   Il était en tête, et mon commentaire affirmait qu'il « afficherait
+   les sous-forums d'une zone » et qu'« aucune zone n'en a, donc il ne
+   rend rien ». C'était faux, et jamais vérifié sur le forum.
+
+   Mesuré le 27 octobre sur `/f2-notice-d-utilisation` : la page
+   portait DEUX `div.forumbg.announcement` identiques, les mêmes sept
+   sujets écrits deux fois — l'un dans `div#main`, hors de notre mise
+   en page, l'autre à sa place dans `.wm-forum__section`. Le premier
+   venait de `{BOARD_INDEX}`.
+
+   Ce qu'il rend dépend de la place du forum dans l'arborescence : rien
+   sur une zone (`f9`, `f36`, qui sont des sous-forums de `f96`…), et
+   le contenu entier du forum — sous-forums ET liste des sujets — sur
+   un forum de premier niveau comme `f2` ou `f18`. Le gabarit d'origine
+   de ModernBB le garde en ligne 1, mais ce gabarit date de 2019 et
+   `viewforum_body` fait partie de ceux que Forumactif a changés depuis.
+
+   `{TOPICS_LIST_BOX}`, lui, rend la liste partout et il est DANS notre
+   section. C'est donc lui qu'on garde.
+
+   ⚠ CE QU'ON PERD, ET QU'IL FAUDRA RENDRE : les pages de ville
+   (`f18` Station Service, `f12` Pyrite…) n'affichent plus la liste de
+   leurs sous-forums — l'arène, le colosseum, le marché. Elle sortait
+   de `{BOARD_INDEX}`, hors de `.wm-forum`, donc non stylée. À refaire
+   proprement dans la section, et pas en remettant la variable.
   ════════════════════════════════════════════════════════════════════
 -->
-{BOARD_INDEX}
-
 <div class="wm-forum" data-wm-forum="{FORUM_ID}">
-
-	<div class="sub-header">
-		<div class="sub-header-info">
-			<h1 class="page-title">
-				<a href="{U_VIEW_FORUM}">{FORUM_NAME}</a>
-			</h1>
-			<div class="sub-header-path">
+  <div class="sub-header">
+    <div class="sub-header-info">
+      <h1 class="page-title">
+        <a href="{U_VIEW_FORUM}">{FORUM_NAME}</a>
+      </h1>
+      <div class="sub-header-path">
 				<a class="nav" href="{U_INDEX}"><span>{L_INDEX}</span></a>
 				{NAV_CAT_DESC}
 			</div>
-		</div>
-	</div>
+    </div>
+  </div>
 
-	<div class="topic-actions wm-forum__actions">
-		<!-- BEGIN switch_user_authpost -->
-			<a href="{U_POST_NEW_TOPIC}" accesskey="n" rel="nofollow" class="button1 wm-forum__nouveau">{L_POST_NEW_TOPIC}</a>
-		<!-- END switch_user_authpost -->
+  <div class="topic-actions wm-forum__actions">
+    <!-- BEGIN switch_user_authpost -->
+    <a href="{U_POST_NEW_TOPIC}" accesskey="n" rel="nofollow"
+      class="button1 wm-forum__nouveau">{L_POST_NEW_TOPIC}</a>
+    <!-- END switch_user_authpost -->
 
-		<div class="topic-actions-buttons wm-forum__raccourcis">
-			<a href="/search?search_id=newposts">Nouveaux messages</a>
-			<a href="/search?search_id=egosearch">Mes messages</a>
-			<a href="/search?search_id=unanswered">Sans réponse</a>
-			<a href="/search?search_id=activetopics">Actifs du jour</a>
-		</div>
+    <div class="topic-actions-buttons wm-forum__raccourcis">
+      <a href="/search?search_id=newposts">Nouveaux messages</a>
+      <a href="/search?search_id=egosearch">Mes messages</a>
+      <a href="/search?search_id=unanswered">Sans réponse</a>
+      <a href="/search?search_id=activetopics">Actifs du jour</a>
+    </div>
 
-		<!-- BEGIN show_plus_menu -->
-		<script type="text/javascript">//<![CDATA[
-			var url_newposts = '{U_NEWPOSTS_JS_PLUS_MENU}';
-			var url_egosearch = '{U_EGOSEARCH_JS_PLUS_MENU}';
-			var url_unanswered = '{U_UNANSWERED_JS_PLUS_MENU}';
-			var url_watchsearch = '{U_WATCHSEARCH_JS_PLUS_MENU}';
-		//]]>
-		</script>
-		<!-- END show_plus_menu -->
-	</div>
+    <!-- BEGIN show_plus_menu -->
+    <script type="text/javascript">
+    //<![CDATA[
+    var url_newposts = "{U_NEWPOSTS_JS_PLUS_MENU}";
+    var url_egosearch = "{U_EGOSEARCH_JS_PLUS_MENU}";
+    var url_unanswered = "{U_UNANSWERED_JS_PLUS_MENU}";
+    var url_watchsearch = "{U_WATCHSEARCH_JS_PLUS_MENU}";
+    //]]>
+    </script>
+    <!-- END show_plus_menu -->
+  </div>
 
-	<div class="wm-forum__section">
+  <div class="wm-forum__section">
 		<div class="wm-forum__bande">
 			<span class="wm-forum__rang">01</span>
 			<span class="wm-forum__filet"></span>
@@ -107,48 +129,48 @@
 		{TOPICS_LIST_BOX}
 	</div>
 
-	<!-- BEGIN switch_legend -->
-		<ul id="picture_legend" class="wm-legende">
-			<li><img src="{FOLDER_NEW_IMG}" alt="" />{L_FOLDER_NEW_IMG}</li>
-			<li><img src="{FOLDER_IMG}" alt="" />{L_FOLDER_IMG}</li>
-			<li><img src="{FOLDER_LOCKED_IMG}" alt="" />{L_FOLDER_LOCKED_IMG}</li>
-		</ul>
-	<!-- END switch_legend -->
+  <!-- BEGIN switch_legend -->
+  <ul id="picture_legend" class="wm-legende">
+    <li><img src="{FOLDER_NEW_IMG}" alt="" />{L_FOLDER_NEW_IMG}</li>
+    <li><img src="{FOLDER_IMG}" alt="" />{L_FOLDER_IMG}</li>
+    <li><img src="{FOLDER_LOCKED_IMG}" alt="" />{L_FOLDER_LOCKED_IMG}</li>
+  </ul>
+  <!-- END switch_legend -->
 
-	<div class="topic-actions bottom">
-		<div class="pagination">
+  <div class="topic-actions bottom">
+    <div class="pagination">
 			{PAGINATION}
 		</div>
 
-		<div class="topic-actions-buttons">
+    <div class="topic-actions-buttons">
 			{S_WATCH_FORUM}
 			<a href="{U_MARK_READ}">{L_MARK_TOPICS_READ}</a>
 		</div>
-	</div>
+  </div>
 
-	<div id="info_open" class="wm-forum__bas">
-		<div class="block">
-			<div class="h3">Qui parcourt cette zone</div>
-			<p>{LOGGED_IN_USER_LIST}</p>
-		</div>
+  <div id="info_open" class="wm-forum__bas">
+    <div class="block">
+      <div class="h3">Qui parcourt cette zone</div>
+      <p>{LOGGED_IN_USER_LIST}</p>
+    </div>
 
-		<div class="block">
-			<div class="h3">{L_MODERATOR}</div>
-			<p>{MODERATORS}</p>
-		</div>
+    <div class="block">
+      <div class="h3">{L_MODERATOR}</div>
+      <p>{MODERATORS}</p>
+    </div>
 
-		<div class="block">
-			<div class="h3">{L_TABS_PERMISSIONS}</div>
-			<p>{S_AUTH_LIST}</p>
-		</div>
-	</div>
+    <div class="block">
+      <div class="h3">{L_TABS_PERMISSIONS}</div>
+      <p>{S_AUTH_LIST}</p>
+    </div>
+  </div>
 
-	<form action="{S_JUMPBOX_ACTION}" method="get" name="jumpbox" onsubmit="if(document.jumpbox.f.value == -1){return false;}">
-		<fieldset class="vf_jumpbox jumpbox">
+  <form action="{S_JUMPBOX_ACTION}" method="get" name="jumpbox"
+    onsubmit="if(document.jumpbox.f.value == -1){return false;}">
+    <fieldset class="vf_jumpbox jumpbox">
 			<label>{L_JUMP_TO}:</label>
 			{S_JUMPBOX_SELECT}
 			<input class="button2" type="submit" value="{L_GO}" />
 		</fieldset>
-	</form>
-
+  </form>
 </div>

@@ -220,7 +220,6 @@ function pageDeZone({ forumId = 34, legende = true } = {}) {
   t = legende ? gardeBloc(t, "switch_legend") : sansBloc(t, "switch_legend");
   t = t.replace(/\{TOPICS_LIST_BOX\}/, () => listeDesSujets());
   t = vars(t, {
-    BOARD_INDEX: "",
     FORUM_ID: String(forumId),
     U_VIEW_FORUM: `/f${forumId}-une-zone`,
     FORUM_NAME: "Montagnes Embrumées",
@@ -283,6 +282,36 @@ ${BANNIERE}
 <div id="page-body">${corps}</div>
 </div>
 </body></html>`;
+
+// ── ce que le gabarit ne doit PLUS contenir ─────────────────────────
+//
+//  `{BOARD_INDEX}` écrivait le contenu du forum une seconde fois, hors
+//  de `.wm-forum` — deux listes de sujets identiques sur
+//  `/f2-notice-d-utilisation`, mesuré le 27 octobre.
+//
+//  CE HARNAIS L'AVAIT MANQUÉ PARCE QU'IL LE REMPLAÇAIT PAR "". Il ne
+//  mesurait pas la variable : il posait comme vraie l'hypothèse qu'elle
+//  ne rend rien, celle-là même qui était fausse. Un décor qui applique
+//  l'hypothèse qu'on veut vérifier ne vérifie rien.
+//
+//  On ne peut pas rendre `{BOARD_INDEX}` ici — ce que Forumactif en
+//  fait dépend de la place du forum dans son arborescence, et ça ne se
+//  simule pas. On vérifie donc ce qui est vérifiable : qu'il n'est plus
+//  dans le gabarit.
+{
+  const brut = readFileSync(R + "templates/viewforum_body.nouveau.html", "utf8");
+  const code = sansCommentaires(brut);
+  dire(
+    "LE GABARIT N'APPELLE PLUS {BOARD_INDEX}",
+    !code.includes("{BOARD_INDEX}"),
+    "il doublait la liste des sujets hors de .wm-forum",
+  );
+  dire(
+    "et il garde {TOPICS_LIST_BOX}, une seule fois",
+    (code.match(/\{TOPICS_LIST_BOX\}/g) ?? []).length === 1,
+    `${(code.match(/\{TOPICS_LIST_BOX\}/g) ?? []).length} appel(s)`,
+  );
+}
 
 // ── le navigateur ───────────────────────────────────────────────────
 
