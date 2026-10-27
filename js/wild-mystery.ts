@@ -70,6 +70,7 @@ import {
   refaireLeFilDAriane,
 } from "../src/adaptateurs/navigateur/module-forum.ts";
 import {
+  monterLeFilDAriane,
   poserLeBandeauDeZone,
   poserLesSujets,
 } from "../src/adaptateurs/navigateur/module-zone.ts";
@@ -317,7 +318,11 @@ async function poserLaZone(): Promise<void> {
   const catalogue = new CatalogueDistant(RACINE);
   const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
   if (zone === null) return;
-  poserLeBandeauDeZone({ doc: document, zone });
+  if (!poserLeBandeauDeZone({ doc: document, zone })) return;
+  //  ET LE FIL D'ARIANE LE REJOINT. La publicité de Forumactif s'est
+  //  glissée entre les deux : le rapprocher par une marge ne marche
+  //  pas, il faut le monter dedans.
+  monterLeFilDAriane(document);
 }
 
 /** La carte des territoires, sur l'index seulement.

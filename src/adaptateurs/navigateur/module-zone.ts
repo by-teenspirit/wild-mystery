@@ -154,6 +154,41 @@ export function poserLeBandeauDeZone({ doc, zone }: DependancesDuBandeau): boole
   return true;
 }
 
+/** Posée sur `.wm-forum` quand le fil d'Ariane a rejoint le bandeau :
+ *  c'est elle qui retire la place que sa coquille vide garderait. */
+export const CLASSE_ARIANE_MONTEE = "wm-forum--ariane-montee";
+
+/**
+ * Monte le fil d'Ariane dans le bandeau, au-dessus du palier.
+ * Rend `true` s'il y est.
+ *
+ * ── POURQUOI DANS LE BANDEAU, ET PAS JUSTE EN DESSOUS ──────────────
+ *
+ * « C'est trop éloigné du bandeau en haut, on pourrait le mettre juste
+ * en dessous ? », 27 octobre. On ne peut pas : entre les deux,
+ * Forumactif glisse son bloc publicitaire — 90 px mesurés sur `/f36`.
+ * Aucune marge ne passe par-dessus un élément qui occupe la place.
+ *
+ * Il monte donc d'un cran, dans la légende du bandeau. Il est alors
+ * plus près du titre qu'aucune marge ne l'aurait mis, et c'est là
+ * qu'on cherche un fil d'Ariane : au-dessus du nom du lieu.
+ *
+ * Ne déplace RIEN si le bandeau n'est pas là — sur un forum qui n'est
+ * pas une zone, le fil reste à sa place sous le titre de page.
+ *
+ * Idempotent : un fil déjà monté est reconnu et laissé en place.
+ */
+export function monterLeFilDAriane(doc: Document): boolean {
+  const legende = doc.querySelector(".wm-zone__legende");
+  const fil = doc.querySelector(".sub-header-path");
+  if (legende === null || fil === null) return false;
+  if (legende.contains(fil)) return true;
+
+  legende.insertBefore(fil, legende.firstChild);
+  doc.querySelector(".wm-forum")?.classList.add(CLASSE_ARIANE_MONTEE);
+  return true;
+}
+
 /** Le titre d'un sujet, tel que le gabarit le pose. */
 function titreDe(ligne: Element): HTMLAnchorElement | null {
   return ligne.querySelector<HTMLAnchorElement>("a.topictitle");

@@ -307,7 +307,12 @@ function pageDeZone({ forumId = 34, prefixe = false, sansListe = false } = {}) {
 const BANNIERE = `<div class="headerbar">
   <div id="headerbar-top" class="responsive-headerbar w-toolbar"></div>
   <div class="wrap"><a id="logo" href="/"><img src="${PIXEL}" alt="Wild Mystery" /></a></div>
-</div>`;
+</div>
+<!--  LA PUBLICITÉ DE FORUMACTIF, 90 px, mesurée sur /f36 le 27 octobre.
+      Elle n'est pas décorative dans ce décor : c'est elle qui sépare le
+      bandeau du fil d'Ariane, et sans elle le test « le fil est près du
+      bandeau » passerait pour de mauvaises raisons. -->
+<div class="fa-pub" style="height:90px"></div>`;
 
 const BASE_MODERNBB = `dl.icon { background-size: 33px 33px !important; }`;
 
@@ -458,7 +463,7 @@ dire("le bandeau est posé", bandeau !== null);
 if (bandeau !== null) {
   dire(
     "IL EST VRAIMENT À L'ÉCRAN, pas seulement dans le document",
-    bandeau.affiche && bandeau.boite === 300,
+    bandeau.affiche && bandeau.boite === 360,
     `offsetParent ${bandeau.affiche ? "existe" : "est null"} · boîte ${bandeau.boite} px`,
   );
   dire(
@@ -466,7 +471,9 @@ if (bandeau !== null) {
     !bandeau.dansLaBanniere,
     bandeau.dansLaBanniere ? "il est DANS .headerbar" : "il est à côté de .headerbar",
   );
-  dire("il fait 300 px de haut", bandeau.hauteur === 300, `${bandeau.hauteur} px`);
+  //  360 depuis le 27 octobre : le fondu est passé à 170 px et mangeait
+  //  plus de la moitié d'un bandeau de 300.
+  dire("il fait 360 px de haut", bandeau.hauteur === 360, `${bandeau.hauteur} px`);
   dire("il prend toute la largeur", bandeau.largeur === 1440, `${bandeau.largeur} px`);
   dire(
     "IL A LU data-wm-forum, PAS LE FIL D'ARIANE",
@@ -755,11 +762,8 @@ dire(
   !releve.filTexte.includes("::") && releve.filSeparateurs === releve.filMaillons - 1,
   `« ${releve.filTexte} » · ${releve.filSeparateurs} séparateur(s) pour ${releve.filMaillons} maillons`,
 );
-dire(
-  "et il est remonté près du bandeau",
-  releve.filY !== null && releve.bandeauBas !== null && releve.filY - releve.bandeauBas < 20,
-  `${releve.filY - releve.bandeauBas} px sous le bandeau`,
-);
+//  Le rapprochement du fil est vérifié plus bas, au second relevé : il
+//  n'est plus « sous » le bandeau, il est DEDANS.
 dire(
   "LES RACCOURCIS ONT UNE BARRE, ILS NE FLOTTENT PLUS",
   releve.raccourcisFond !== "rgba(0, 0, 0, 0)",
@@ -777,6 +781,115 @@ dire(
   `bordure du titre : ${releve.bordureTitre}`,
 );
 dire("LA LÉGENDE N'EST PLUS DANS LA PAGE", releve.legende === 0, `${releve.legende} bloc(s)`);
+
+console.log("\n── le second relevé du 27 octobre ──");
+
+const deux = await p1.evaluate(() => {
+  const r = (s) => {
+    const e = document.querySelector(s);
+    if (e === null) return null;
+    const b = e.getBoundingClientRect();
+    return { x: Math.round(b.x), y: Math.round(b.y), h: Math.round(b.height) };
+  };
+  const lignes = [...document.querySelectorAll(".wm-forum ul.topics li.row")];
+  const derniere = lignes.at(-1);
+  //  LA PASTILLE DE LA PREMIÈRE LIGNE, prise DANS cette ligne : un
+  //  `querySelector` sur le document entier attrape la première du
+  //  document, qui n'est pas forcément dans la ligne qu'on mesure.
+  const premiere = lignes[0];
+  const pastille = premiere?.querySelector(".wm-pastille") ?? null;
+  const titre = premiere?.querySelector(".topic-title") ?? null;
+  const raccourci = document.querySelector(".wm-forum__raccourcis a");
+  const basBoutons = document.querySelector(".topic-actions.bottom .topic-actions-buttons");
+  return {
+    filDansLeBandeau: document.querySelector(".wm-zone__legende .sub-header-path") !== null,
+    filY: r(".sub-header-path")?.y ?? null,
+    surtitreY: r(".wm-zone__surtitre")?.y ?? null,
+    titreY: r(".wm-zone__titre")?.y ?? null,
+    pub: r(".fa-pub")?.h ?? null,
+    coquilleVide: r(".sub-header")?.h ?? null,
+    raccourciH: raccourci === null
+      ? null
+      : Math.round(raccourci.getBoundingClientRect().height),
+    barreH: r(".wm-forum__raccourcis")?.h ?? null,
+    basEnBarre: basBoutons === null ? null : getComputedStyle(basBoutons).backgroundColor,
+    basBoutonH: basBoutons === null
+      ? null
+      : Math.round(basBoutons.querySelector("a").getBoundingClientRect().height),
+    anglesLignes: lignes.map((l) => getComputedStyle(l).borderRadius),
+    angleDerniere: derniere === undefined ? null : getComputedStyle(derniere).borderRadius,
+    pastilleY: pastille === null ? null : Math.round(pastille.getBoundingClientRect().y),
+    titreSujetY: titre === null ? null : Math.round(titre.getBoundingClientRect().y),
+    ligneY: lignes.length === 0 ? null : Math.round(lignes[0].getBoundingClientRect().y),
+    ligneH: lignes.length === 0 ? null : Math.round(lignes[0].getBoundingClientRect().height),
+    //  LE ROND D'ÉTAT EST UN `::before` EN ABSOLU, pas la pastille :
+    //  celle-ci est masquée dès qu'une ligne porte son état (§ 7 de
+    //  cette feuille). On ne peut pas mesurer un pseudo-élément, alors
+    //  on calcule son centre depuis `top` et `height`.
+    rond: (() => {
+      const dl = premiere?.querySelector("dl.icon");
+      if (dl === undefined || dl === null) return null;
+      const c = getComputedStyle(dl, "::before");
+      const b = dl.getBoundingClientRect();
+      return {
+        centre: Math.round(b.y + parseFloat(c.top) + parseFloat(c.height) / 2),
+        top: c.top,
+      };
+    })(),
+    centreTitre: titre === null ? null : (() => {
+      const b = titre.getBoundingClientRect();
+      return Math.round(b.y + b.height / 2);
+    })(),
+  };
+});
+
+dire(
+  "LA PUB DE FORUMACTIF EST BIEN DANS LE DÉCOR, 90 px",
+  deux.pub === 90,
+  `${deux.pub} px — sans elle, le test du fil ne prouverait rien`,
+);
+dire(
+  "LE FIL D'ARIANE EST MONTÉ DANS LE BANDEAU",
+  deux.filDansLeBandeau === true,
+);
+dire(
+  "et il est la première ligne de la légende, juste au-dessus du palier",
+  deux.filY !== null && deux.surtitreY !== null && deux.titreY !== null &&
+    deux.filY < deux.surtitreY && deux.surtitreY < deux.titreY &&
+    deux.surtitreY - deux.filY <= 40,
+  `fil ${deux.filY} · palier ${deux.surtitreY} · titre ${deux.titreY}`,
+);
+dire(
+  "la coquille qu'il laisse ne garde pas de place",
+  deux.coquilleVide === 0,
+  `.sub-header : ${deux.coquilleVide} px`,
+);
+dire(
+  "LES RACCOURCIS REMPLISSENT LEUR BARRE",
+  deux.raccourciH !== null && deux.barreH !== null && deux.raccourciH >= 38 &&
+    Math.abs(deux.raccourciH - deux.barreH) <= 2,
+  `lien ${deux.raccourciH} px dans une barre de ${deux.barreH}`,
+);
+dire(
+  "LES DEUX ACTIONS DU BAS ONT LA MÊME BARRE",
+  deux.basEnBarre !== null && deux.basEnBarre !== "rgba(0, 0, 0, 0)" && deux.basBoutonH >= 38,
+  `${deux.basEnBarre} · ${deux.basBoutonH} px`,
+);
+dire(
+  "AUCUNE LIGNE DE SUJET N'EST ARRONDIE, SAUF LA DERNIÈRE EN BAS",
+  deux.anglesLignes.slice(0, -1).every((a) => a === "0px") &&
+    deux.angleDerniere === "0px 0px 10px 10px",
+  `${deux.anglesLignes.join(" | ")}`,
+);
+dire(
+  "LE ROND D'ÉTAT EST EN FACE DU TITRE, PAS AU MILIEU DE LA LIGNE",
+  //  Le rond est un `::before` en absolu : on ne peut pas prendre son
+  //  rectangle, on calcule son centre depuis `top` et `height`. Six
+  //  pixels de tolérance, c'est ce qu'on ne voit pas.
+  deux.rond !== null && deux.centreTitre !== null &&
+    Math.abs(deux.rond.centre - deux.centreTitre) <= 6,
+  `rond à ${deux.rond?.centre} (top ${deux.rond?.top}), titre à ${deux.centreTitre}`,
+);
 
 // ════════════════════════════════════════════════════════════════════
 //  4 · SANS JAVASCRIPT, LA PAGE RESTE ENTIÈRE

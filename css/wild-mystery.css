@@ -3163,6 +3163,14 @@ html#min-width {
 #modernbb .block .h3 {
   flex: none;
   padding: 0;
+  /*  LE TRAIT BLEU PART D'ICI, DONC DE PARTOUT. « Je vois un peu
+      partout la ligne bleue sur le forum », 27 octobre. C'est le
+      `border-bottom: 1px solid #3793ff` que ModernBB met sous tout
+      `.h3` — un bleu de thème par défaut, qui traîne sous « Qui est en
+      ligne », « Modérateurs », les encarts d'écriture, les règles d'un
+      forum. On le met à ZÉRO EN ÉPAISSEUR et pas seulement en couleur :
+      une bordure transparente de 1 px laisse quand même son pixel. */
+  border: 0;
   background: none;
   color: var(--wm-texte-doux, #6e5749);
 
@@ -3247,7 +3255,12 @@ html#min-width {
 #modernbb .wm-zone {
   position: relative;
   overflow: hidden;
-  height: 300px;
+  /*  300 DANS LA MAQUETTE, 360 DEPUIS LE 27 OCTOBRE. « Est-ce qu'on
+      peut augmenter la hauteur du bandeau ? » — et il le fallait : le
+      fondu est passé de 86 à 170 px, donc il mangeait plus de la
+      moitié de la photo. Les 60 px rendus vont à l'image, pas au
+      texte : la légende reste à la même distance du bas. */
+  height: 360px;
   /*  LA COULEUR PLEINE EN DESSOUS, et pour la même raison qu'au § 2 de
       `03` : le harnais de contraste lit une couleur de fond, pas une
       photo. Sans elle, il annoncerait « crème sur crème » pour un
@@ -3380,7 +3393,14 @@ html#min-width {
 
 #modernbb ul.topics li.row[data-wm-etat] dl.icon::before {
   position: absolute;
-  top: var(--wm-espace-14, 14px);
+  /*  32 ET PAS 14. « L'icône doit bien être en face du sujet », 27
+      octobre : le rond était 18 px trop haut, mesuré au harnais, et il
+      pointait le vide au-dessus du titre. Les 14 px dataient d'une
+      ligne plus courte ; depuis, le dernier message et son avatar rond
+      l'ont étirée, et l'identité s'aligne en haut de sa cellule.
+      32 met le centre du rond sur celui de la première ligne du titre,
+      et le harnais le vérifie à six pixels près. */
+  top: 32px;
   left: var(--wm-espace-6, 6px);
   display: flex;
   align-items: center;
@@ -3750,6 +3770,159 @@ html#min-width {
     `<br>` : sans cette règle, elles se collent. */
 #modernbb .wm-forum__bas .block p br {
   line-height: 2;
+}
+
+/* ── 13 · le second relevé du 27 octobre ──────────────────────────── */
+
+/*  ── 13.1 · LE FIL D'ARIANE ENTRE DANS LE BANDEAU ─────────────────
+
+    « On dirait pas un fil d'Ariane, il n'est pas joli. Et c'est trop
+    éloigné du bandeau en haut. »
+
+    Il l'était, et ce n'était pas une histoire de marges : entre le
+    bandeau et lui, Forumactif glisse son bloc publicitaire — 90 px
+    mesurés sur `/f36`. Aucune marge négative ne rattrape ça.
+
+    Alors il monte DANS le bandeau, au-dessus du palier : plus près du
+    titre qu'aucune marge ne l'aurait mis, et c'est là qu'on le cherche.
+    Sur la photo il prend le blanc du titre, en demi-ton.
+
+    Le déplacement est fait par le script, qui le pose dans la légende.
+    Cette règle ne s'applique donc que là, et le fil garde son allure
+    d'origine partout ailleurs sur le forum. */
+#modernbb .wm-zone__legende .sub-header-path {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: rgb(255 255 255 / 62%);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: 0.1em;
+}
+
+#modernbb .wm-zone__legende .sub-header-path a.nav {
+  color: inherit;
+}
+
+#modernbb .wm-zone__legende .sub-header-path a.nav:hover,
+#modernbb .wm-zone__legende .sub-header-path a.nav:last-child {
+  color: rgb(255 255 255 / 92%);
+}
+
+#modernbb .wm-zone__legende .wm-ariane__separateur {
+  color: rgb(255 255 255 / 32%);
+}
+
+/*  Le surtitre perd sa marge du haut : le fil d'Ariane est juste
+    au-dessus et jouait le même rôle d'espacement. */
+#modernbb .wm-zone__legende .sub-header-path + .wm-zone__surtitre {
+  margin-top: 0;
+}
+
+/*  Quand le fil est monté, la coquille qu'il laisse ne doit pas garder
+    sa place : `.sub-header` vide, c'est 60 px de rien entre la pub et
+    le bouton. La classe est posée par le script, pas devinée ici. */
+#modernbb .wm-forum--ariane-montee .sub-header {
+  margin: 0;
+}
+
+/*  ── 13.2 · LES RACCOURCIS DEVIENNENT DES BOUTONS ─────────────────
+
+    « Les mots ne semblent pas bien centrés et on dirait pas des
+    boutons. » Les deux tenaient à la même cause : le lien était une
+    boîte en ligne de 15 px de haut posée dans une barre de 53, donc
+    ni centré ni cliquable sur toute sa case. Il devient une cellule
+    qui prend toute la hauteur, avec de quoi respirer autour du mot. */
+#modernbb .wm-forum__raccourcis a {
+  align-self: stretch;
+  min-height: 38px;
+  padding: 0 var(--wm-espace-16, 16px);
+  line-height: 1;
+}
+
+/*  ── 13.3 · LES DEUX ACTIONS DU BAS, MÊME FAMILLE ─────────────────
+
+    « Surveiller les sujets » et « Marquer tous les sujets comme lus »
+    pendaient en texte nu sous la liste. Ce sont les mêmes gestes que
+    les raccourcis du haut : ils prennent la même barre, à droite, et
+    la pagination reste à gauche. */
+#modernbb .wm-forum .topic-actions.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-forum .topic-actions.bottom .topic-actions-buttons {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-forum .topic-actions.bottom .topic-actions-buttons a {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  padding: 0 var(--wm-espace-16, 16px);
+  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#modernbb .wm-forum .topic-actions.bottom .topic-actions-buttons a:first-child {
+  border-left: 0;
+}
+
+#modernbb .wm-forum .topic-actions.bottom .topic-actions-buttons a:hover {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+/*  ── 13.4 · LES COINS DES LIGNES DE SUJET ─────────────────────────
+
+    « Enlève l'arrondi ici. La dernière ligne peut être arrondie en
+    bottom seulement. »
+
+    ModernBB pose `0 0 3px 3px` sur la dernière ligne. Trois pixels
+    sous un conteneur qui en arrondit dix : l'angle du bloc et celui de
+    la ligne ne se superposaient pas, et c'est ce décalage qu'on voit
+    comme un arrondi raté. Les lignes n'ont plus d'angle du tout, et la
+    dernière épouse exactement celui du bloc. */
+#modernbb .wm-forum ul.topics li.row {
+  border-radius: 0;
+}
+
+#modernbb .wm-forum ul.topics li.row:last-child {
+  border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
+}
+
+/*  ── 13.5 · LA PASTILLE EN FACE DU SUJET ──────────────────────────
+
+    « L'icône doit bien être en face du sujet. »
+
+    La grille centre ses cellules sur la hauteur de la ligne. Celle-ci
+    fait 153 px — c'est le dernier message, son avatar rond et ses
+    trois lignes qui l'étirent —, alors que le titre tient dans les 18
+    premiers. Le rond se retrouvait donc à mi-hauteur, en face de rien.
+
+    Le rond ET l'identité s'alignent maintenant sur le HAUT de leur
+    cellule : ils partent du même bord, et comme le rond fait 48 px et
+    le bloc titre + auteur une quarantaine, l'un est bien en face de
+    l'autre. On ne touche pas aux autres cellules — les chiffres et le
+    dernier message gardent leur centrage, qui leur va. */
+#modernbb .wm-forum ul.topics li.row .wm-pastille,
+#modernbb .wm-forum ul.topics li.row dd.dterm {
+  align-self: start;
 }
 
 /* ════════════════════════════════════════════════════════════════════
