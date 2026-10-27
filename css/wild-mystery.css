@@ -3398,9 +3398,12 @@ html#min-width {
       pointait le vide au-dessus du titre. Les 14 px dataient d'une
       ligne plus courte ; depuis, le dernier message et son avatar rond
       l'ont étirée, et l'identité s'aligne en haut de sa cellule.
-      32 met le centre du rond sur celui de la première ligne du titre,
-      et le harnais le vérifie à six pixels près. */
-  top: 32px;
+      Puis 24, puis 17 : la valeur suit la hauteur de la ligne, qui a
+      baissé deux fois le 27 octobre. Elle est mesurée, pas choisie —
+      le harnais compare le centre du rond à celui du titre et refuse
+      plus de six pixels d'écart, donc elle ne peut pas dériver en
+      silence. */
+  top: 17px;
   left: var(--wm-espace-6, 6px);
   display: flex;
   align-items: center;
@@ -4054,6 +4057,145 @@ html#min-width {
     court. Elle est ancrée en bas, donc c'est une marge du haut. */
 #modernbb .wm-zone__legende {
   padding-top: 58px;
+}
+
+/*  ── 14.5 · LA BANDE RESSEMBLE À UNE BANDE DE CATÉGORIE ───────────
+
+    « Enlève le 01, et fais en sorte que "les sujets" s'affiche de la
+    même manière que "notice d'utilisation". »
+
+    Les deux partagent déjà leur règle de fond — même dégradé, même
+    hauteur, c'est le § 2 de `03`, un seul bloc à deux sélecteurs. Ce
+    qui les séparait tenait à trois nœuds du gabarit : un rang « 01 »
+    et deux filets qui poussaient le titre au centre par le vide, plus
+    un interlettrage de 0,21 em contre 0,018 em pour une catégorie.
+
+    Le rang et les filets sont partis du gabarit — on ne masque pas en
+    CSS ce qu'on peut ne pas écrire —, le titre se centre maintenant de
+    lui-même, et il prend l'interlettrage des catégories. */
+#modernbb .wm-forum__bande {
+  justify-content: center;
+}
+
+#modernbb .wm-forum__bande-titre {
+  /*  0,018 em : l'interlettrage que porte le titre d'une catégorie,
+      mesuré sur `/f2`. Une valeur de gabarit qu'on épouse, pas un
+      jeton de charte. */
+  letter-spacing: 0.018em;
+  text-transform: uppercase;
+}
+
+/*  ── 14.6 · DES LIGNES DE SUJET PLUS BASSES ET ALIGNÉES ───────────
+
+    « Les sujets en eux-mêmes sont bien trop hauts et ne sont pas
+    alignés. »
+
+    La hauteur venait de trois sources qui s'additionnaient : 92 px de
+    hauteur minimale, 22 de rembourrage haut et bas, et un avatar de
+    dernier message de 68. Une ligne pour un titre de trois mots
+    montait à 153 px.
+
+    Le désalignement, lui, vient d'ailleurs : ModernBB glisse un
+    `<strong>Note:</strong>` AVANT le `<h2>` dans le même conteneur,
+    sur les post-it et les annonces. Le `h2` est un bloc : le préfixe
+    partait sur sa propre ligne, et le titre tombait en dessous — donc
+    décalé par rapport aux lignes voisines, qui n'ont pas de préfixe.
+
+    Le conteneur devient une ligne souple, et le préfixe une étiquette
+    posée devant le titre. */
+#modernbb .wm-forum ul.topics li.row dl.icon {
+  /*  `min-height: 92px` ET DES RANGÉES `auto` NE FONT PAS BON MÉNAGE :
+      la grille répartit la hauteur minimale entre ses deux rangées au
+      lieu de les laisser mesurer leur contenu, et chacune se cale sur
+      52 px même quand il n'y a que 18 px de titre dedans. Mesuré au
+      harnais, ligne par ligne, avant d'y toucher.
+
+      On rend donc la hauteur minimale aux rangées — `min-content`,
+      chacune mesure ce qu'elle porte — et la ligne garde un plancher
+      qui l'empêche de se tasser sur un sujet sans réponse. */
+  min-height: 64px;
+  grid-template-rows: min-content min-content;
+  align-content: center;
+  padding-top: var(--wm-espace-14, 14px);
+  padding-bottom: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wm-forum ul.topics li.row .lastpost-avatar {
+  width: 44px;
+  height: 44px;
+}
+
+#modernbb .wm-forum ul.topics li.row .topic-title-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  align-items: baseline;
+}
+
+/*  ── 14.7 · « NOTE: », « POST-IT », « ANNONCE » ───────────────────
+
+    Le préfixe que ModernBB pose devant un titre épinglé. Il arrive en
+    `<strong>` nu, avec ses deux points, dans la même phrase que le
+    titre. On en fait une étiquette : petite, en capitales, de la
+    famille des pastilles de la charte — et les deux points partent,
+    une étiquette n'en a pas besoin. */
+#modernbb .wm-forum ul.topics li.row .topic-title-container > strong {
+  flex: none;
+  align-self: center;
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/*  LE DERNIER MESSAGE SE MET EN LIGNE. Mesuré au harnais : l'avatar
+    faisait 44 px, le texte 45, et la cellule 106 — ils s'empilaient.
+    Côte à côte, elle retombe à la hauteur du plus grand des deux, et
+    c'est quarante pixels rendus à chaque ligne de la liste. */
+#modernbb .wm-forum ul.topics li.row dd.lastpost {
+  display: flex;
+  gap: var(--wm-espace-10, 10px);
+  align-items: center;
+}
+
+#modernbb .wm-forum ul.topics li.row .lastpost-avatar {
+  flex: none;
+}
+
+#modernbb .wm-forum ul.topics li.row .lastpost-infos {
+  min-width: 0;
+}
+
+/*  LE CONTENEUR DU TITRE FAISAIT 55 PX POUR UN TITRE DE 18. Mesuré au
+    harnais : c'est lui qui fixait les deux rangées de la grille à
+    52 px chacune, donc la ligne entière à 134. ModernBB laisse ses
+    marges par défaut sur le `<h2>` et sur le conteneur ; on les remet
+    à zéro et le titre ne pèse plus que ce qu'il montre. */
+#modernbb .wm-forum ul.topics li.row .topic-title-container,
+#modernbb .wm-forum ul.topics li.row .topic-title {
+  margin: 0;
+  padding: 0;
+}
+
+#modernbb .wm-forum ul.topics li.row .topic-title {
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  ET LA CELLULE DU DERNIER MESSAGE CESSE DE TIRER LA LIGNE. Elle
+    portait `align-self: stretch` — hérité de l'index, où un filet
+    vertical doit courir sur toute la hauteur. Sur une liste de sujets
+    il n'y a pas de filet, et l'étirement faisait d'elle la cellule la
+    plus haute : les deux rangées de la grille se calaient sur 52 px
+    chacune, soit 134 px de ligne pour un titre de 18.
+
+    Centrée, elle ne mesure plus que son contenu. */
+#modernbb .wm-forum ul.topics li.row dd.lastpost {
+  align-self: center;
 }
 
 /* ════════════════════════════════════════════════════════════════════

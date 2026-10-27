@@ -191,6 +191,13 @@ function listeDesSujets() {
       "topics_list_box.row.TOPIC_FOLDER_IMG": `https://illiweb.com/fa/empty/${s.icone}`,
       "topics_list_box.row.L_TOPIC_FOLDER_ALT": "Pas de nouveaux messages",
       "topics_list_box.row.U_VIEW_TOPIC": `/t${900 + i}-un-sujet`,
+      //  LE PRÉFIXE DES SUJETS ÉPINGLÉS. ModernBB le sert dans
+      //  `{TOPIC_TYPE}`, en `<strong>` nu AVANT le `<h2>` du titre, et
+      //  c'est lui qui mettait le titre à la ligne — relevé sur `/f2`
+      //  le 27 octobre. Un seul sujet du décor le porte : s'ils en
+      //  avaient tous un, on ne verrait pas le désalignement entre
+      //  une ligne préfixée et ses voisines.
+      "topics_list_box.row.TOPIC_TYPE": i === 1 ? "<strong>Note:</strong> " : "",
       "topics_list_box.row.TOPIC_TITLE": s.titre,
       "topics_list_box.row.L_BY": "par",
       "topics_list_box.row.TOPIC_AUTHOR": s.auteur,
@@ -651,6 +658,7 @@ const gabarit = await p1.evaluate(() => ({
   nouveau: document.querySelector(".wm-forum__nouveau")?.textContent?.trim() ?? null,
   section: document.querySelector(".wm-forum__bande-titre")?.textContent ?? null,
   rang: document.querySelector(".wm-forum__rang")?.textContent ?? null,
+  filets: document.querySelectorAll(".wm-forum__filet").length,
   legende: document.querySelectorAll("#picture_legend").length,
   blocs: Array.from(document.querySelectorAll("#info_open .block .h3")).map((b) =>
     b.textContent.trim()
@@ -666,9 +674,13 @@ dire(
 );
 dire("« Nouveau sujet » est là", gabarit.nouveau === "Nouveau sujet", `${gabarit.nouveau}`);
 dire(
-  "la bande de section porte son rang et son titre",
-  gabarit.rang === "01" && gabarit.section === "LES SUJETS",
-  `${gabarit.rang} / ${gabarit.section}`,
+  "LA BANDE PORTE SON TITRE, ET PLUS DE RANG NI DE FILETS",
+  //  « Enlève le 01, et fais en sorte que "les sujets" s'affiche de la
+  //  même manière que "notice d'utilisation" », 27 octobre. Les trois
+  //  nœuds sont partis du gabarit, pas masqués en CSS.
+  gabarit.section === "LES SUJETS" && gabarit.rang === null &&
+    gabarit.filets === 0,
+  `titre « ${gabarit.section} » · rang ${gabarit.rang} · ${gabarit.filets} filet(s)`,
 );
 dire(
   "LA LÉGENDE N'EST PLUS SERVIE DU TOUT",
@@ -842,6 +854,45 @@ const deux = await p1.evaluate(() => {
         top: c.top,
       };
     })(),
+    hauteurs: (() => {
+      const l = document.querySelector(".wm-forum ul.topics li.row");
+      if (l === null) return null;
+      const h = (s) => {
+        const e = l.querySelector(s);
+        return e === null ? null : Math.round(e.getBoundingClientRect().height);
+      };
+      return {
+        ligne: Math.round(l.getBoundingClientRect().height),
+        dl: h("dl.icon"),
+        dterm: h("dd.dterm"),
+        lastpost: h("dd.lastpost"),
+        avatar: h(".lastpost-avatar"),
+        infos: h(".lastpost-infos"),
+        rangees: getComputedStyle(l.querySelector("dl.icon")).gridTemplateRows,
+        padDl: getComputedStyle(l.querySelector("dl.icon")).padding,
+        padDterm: getComputedStyle(l.querySelector("dd.dterm")).padding,
+        dtermEnfants: [...l.querySelector("dd.dterm").children].map((c) =>
+          c.tagName + ":" + Math.round(c.getBoundingClientRect().height)
+        ),
+        lastpostDisplay: getComputedStyle(l.querySelector("dd.lastpost")).display,
+      };
+    })(),
+    note: (() => {
+      const fort = document.querySelector(
+        ".wm-forum ul.topics li.row .topic-title-container > strong",
+      );
+      if (fort === null) return null;
+      const titre = fort.parentElement.querySelector(".topic-title");
+      const a = fort.getBoundingClientRect();
+      const b = titre.getBoundingClientRect();
+      return {
+        texte: fort.textContent.trim(),
+        prefixeX: Math.round(a.x),
+        prefixeY: Math.round(a.y),
+        titreX: Math.round(b.x),
+        titreY: Math.round(b.y),
+      };
+    })(),
     retour: (() => {
       const a = document.querySelector(".wm-zone__retour");
       if (a === null) return null;
@@ -897,6 +948,20 @@ dire(
   "la coquille qu'il laisse ne garde pas de place",
   deux.coquilleVide === 0,
   `.sub-header : ${deux.coquilleVide} px`,
+);
+dire(
+  "LES LIGNES DE SUJET SONT PLUS BASSES",
+  deux.ligneH !== null && deux.ligneH <= 100,
+  JSON.stringify(deux.hauteurs),
+);
+dire(
+  "ET LE PRÉFIXE « NOTE: » NE MET PLUS LE TITRE À LA LIGNE",
+  //  Même ordonnée pour le préfixe et le titre : ils sont sur la même
+  //  ligne. Et le titre préfixé part de la même hauteur que celui de
+  //  la ligne d'à côté, qui n'a pas de préfixe.
+  deux.note !== null && Math.abs(deux.note.prefixeY - deux.note.titreY) <= 10 &&
+    deux.note.prefixeX < deux.note.titreX,
+  JSON.stringify(deux.note),
 );
 dire(
   "LA FLÈCHE DE RETOUR EST DANS LE BANDEAU, ALIGNÉE AU TEXTE",
