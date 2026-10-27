@@ -55,7 +55,10 @@ function sansBloc(s, nom) {
 
 /** Garde le contenu d'un bloc et retire ses marqueurs. */
 function gardeBloc(s, nom) {
-  const re = new RegExp(`<!--\\s*BEGIN ${nom}\\s*-->([\\s\\S]*?)<!--\\s*END ${nom}\\s*-->`, "g");
+  const re = new RegExp(
+    `<!--\\s*BEGIN ${nom}\\s*-->([\\s\\S]*?)<!--\\s*END ${nom}\\s*-->`,
+    "g",
+  );
   return s.replace(re, "$1");
 }
 
@@ -83,7 +86,10 @@ function fragment(s, nom) {
  *  une chaîne citée dans un commentaire de CSS. Deux fois le même, à
  *  deux semaines d'écart. */
 function sansCommentaires(s) {
-  return s.replace(/<!--([\s\S]*?)-->/g, (tout, dedans) => /\b(BEGIN|END) \w/.test(dedans) ? tout : "");
+  return s.replace(
+    /<!--([\s\S]*?)-->/g,
+    (tout, dedans) => /\b(BEGIN|END) \w/.test(dedans) ? tout : "",
+  );
 }
 
 /** Remplace les variables ; ce qui reste rend le vide, comme Forumactif. */
@@ -247,9 +253,21 @@ function pageDeZone({ forumId = 34, legende = true } = {}) {
 }
 
 //  La bannière du site, celle que le bandeau de zone doit remplacer.
-const BANNIERE = `<div id="headerbar-top"><div class="wrap">
-  <div class="headerbar"><a id="logo" href="/"><img src="${PIXEL}" alt="Wild Mystery" /></a></div>
-</div></div>`;
+//
+//  ── CE DÉCOR ÉTAIT FAUX, ET IL A LAISSÉ PASSER UN BANDEAU INVISIBLE ─
+//
+//  Il imbriquait `#headerbar-top > .wrap > .headerbar`. Le forum réel
+//  fait l'inverse : `.headerbar > #headerbar-top` + `.wrap` — relevé
+//  sur `/f36-steppes-arides` le 27 octobre. Avec l'imbrication à
+//  l'envers, « insérer après `#headerbar-top` » tombait à côté de la
+//  bannière ici, et DEDANS sur le forum, où `wm-zone-posee` la masque.
+//  Le bandeau y mesurait 0 × 0 pendant que ce harnais lisait 300.
+//
+//  Un décor qui ne ressemble pas à la page ne teste que lui-même.
+const BANNIERE = `<div class="headerbar">
+  <div id="headerbar-top" class="responsive-headerbar w-toolbar"></div>
+  <div class="wrap"><a id="logo" href="/"><img src="${PIXEL}" alt="Wild Mystery" /></a></div>
+</div>`;
 
 const BASE_MODERNBB = `dl.icon { background-size: 33px 33px !important; }`;
 
@@ -323,7 +341,8 @@ async function monter({ corps, script = true, largeur = 1440 } = {}) {
 
 /** Le contraste d'un élément contre son propre fond. Même méthode que
  *  `outils/contraste.mjs` : on lit les couleurs calculées. */
-const CONTRASTE = (sel) => `(() => {
+const CONTRASTE = (sel) =>
+  `(() => {
   const e = document.querySelector(${JSON.stringify(sel)});
   if (e === null) return null;
   const lire = (c) => {
@@ -384,11 +403,29 @@ const bandeau = await p1.evaluate(() => {
     banniere: getComputedStyle(document.querySelector(".headerbar")).display,
     titrePage: getComputedStyle(document.querySelector("h1.page-title")).display,
     ariane: document.querySelector(".sub-header-path")?.textContent?.trim() ?? "",
+    //  LA MESURE QUI MANQUAIT. Une hauteur de 300 se lit même sur un
+    //  élément dont un ancêtre est en `display: none` — c'est le style
+    //  calculé, pas ce qu'on voit. `offsetParent` rend `null` dans ce
+    //  cas-là, et `closest` dit si on s'est enterré dans la bannière
+    //  qu'on vient justement de masquer.
+    affiche: b.offsetParent !== null,
+    dansLaBanniere: b.closest(".headerbar") !== null,
+    boite: Math.round(b.getBoundingClientRect().height),
   };
 });
 
 dire("le bandeau est posé", bandeau !== null);
 if (bandeau !== null) {
+  dire(
+    "IL EST VRAIMENT À L'ÉCRAN, pas seulement dans le document",
+    bandeau.affiche && bandeau.boite === 300,
+    `offsetParent ${bandeau.affiche ? "existe" : "est null"} · boîte ${bandeau.boite} px`,
+  );
+  dire(
+    "et il n'est pas enterré dans la bannière qu'on masque",
+    !bandeau.dansLaBanniere,
+    bandeau.dansLaBanniere ? "il est DANS .headerbar" : "il est à côté de .headerbar",
+  );
   dire("il fait 300 px de haut", bandeau.hauteur === 300, `${bandeau.hauteur} px`);
   dire("il prend toute la largeur", bandeau.largeur === 1440, `${bandeau.largeur} px`);
   dire(
@@ -403,8 +440,12 @@ if (bandeau !== null) {
     `« ${bandeau.surtitre} »`,
   );
   dire("le titre est le nom de la zone", bandeau.titre === LA_ZONE.nom, `« ${bandeau.titre} »`);
-  dire("il est en Fraunces 40", bandeau.titreTaille === "40px" &&
-    bandeau.titrePolice.includes("Fraunces"), `${bandeau.titreTaille} ${bandeau.titrePolice}`);
+  dire(
+    "il est en Fraunces 40",
+    bandeau.titreTaille === "40px" &&
+      bandeau.titrePolice.includes("Fraunces"),
+    `${bandeau.titreTaille} ${bandeau.titrePolice}`,
+  );
   dire(
     "la phrase est celle de la carte",
     bandeau.phrase === LA_ZONE.description,
@@ -433,7 +474,11 @@ const lisible = await p1.evaluate(() => {
   return { dans: r.top >= b.top && r.bottom <= b.bottom, gauche: Math.round(r.left) };
 });
 dire("le titre tient dans le bandeau", lisible.dans, JSON.stringify(lisible));
-dire("il est à 92 px du bord, comme la maquette", lisible.gauche === 92, `${lisible.gauche} px`);
+dire(
+  "il est à 92 px du bord, comme la maquette",
+  lisible.gauche === 92,
+  `${lisible.gauche} px`,
+);
 
 // ════════════════════════════════════════════════════════════════════
 //  2 · LES LIGNES DE SUJET
@@ -505,9 +550,7 @@ dire(
 );
 
 const tons = await p1.evaluate(() =>
-  Array.from(document.querySelectorAll(".wm-sujet")).map((p) =>
-    p.className
-  )
+  Array.from(document.querySelectorAll(".wm-sujet")).map((p) => p.className)
 );
 dire(
   "CHAQUE ÉTIQUETTE PREND LE COMPOSANT DE LA CHARTE",
@@ -597,7 +640,9 @@ const nu = await p2.evaluate(() => ({
   banniere: getComputedStyle(document.querySelector(".headerbar")).display,
   titre: document.querySelector("h1.page-title")?.textContent?.trim() ?? "",
   titreVu: getComputedStyle(document.querySelector("h1.page-title")).display,
-  sujets: Array.from(document.querySelectorAll("a.topictitle")).map((a) => a.textContent.trim()),
+  sujets: Array.from(document.querySelectorAll("a.topictitle")).map((a) =>
+    a.textContent.trim()
+  ),
   ariane: document.querySelector(".sub-header-path")?.textContent?.trim() ?? "",
 }));
 
@@ -667,6 +712,6 @@ for (const l of [1440, 1024, 760]) {
 
 await p1.close();
 await nav.close();
-if (soucis.length > 0) for (const s of soucis) console.log("  · " + s);
+if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
 Deno.exit(soucis.length === 0 ? 0 : 1);

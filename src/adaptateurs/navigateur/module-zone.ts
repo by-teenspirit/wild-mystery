@@ -68,9 +68,27 @@ function element(doc: Document, balise: string, classe: string, texte?: string):
  *
  *  Rend `null` plutôt que de poser le bandeau n'importe où : un
  *  bandeau de 300 px au milieu d'une liste de sujets serait plus
- *  déroutant que pas de bandeau du tout. */
+ *  déroutant que pas de bandeau du tout.
+ *
+ *  ── ON SORT DE `.headerbar`, ON N'ENTRE PAS DEDANS ─────────────────
+ *
+ *  Relevé sur `/f36-steppes-arides` le 27 octobre : le bandeau était
+ *  **construit** — photo, titre, surtitre — et mesurait 0 × 0.
+ *
+ *  Sur le forum réel, `#headerbar-top` n'est pas à côté de `.headerbar`,
+ *  il est **dedans** : `.headerbar > #headerbar-top` + `.wrap`. Insérer
+ *  « après `#headerbar-top` » posait donc le bandeau À L'INTÉRIEUR de
+ *  `.headerbar` — que `wm-zone-posee` passe en `display: none`, puisque
+ *  c'est elle, la bannière du site qu'on remplace. On se cachait
+ *  nous-mêmes.
+ *
+ *  `closest(".headerbar")` remonte au conteneur quand le repère est
+ *  dedans, et rend le repère lui-même quand il EST le conteneur. Le
+ *  bandeau est alors toujours posé après la bannière, jamais dans
+ *  elle. */
 function accrocher(doc: Document, bandeau: HTMLElement): boolean {
-  const apres = doc.querySelector("#headerbar-top") ?? doc.querySelector(".headerbar");
+  const repere = doc.querySelector("#headerbar-top") ?? doc.querySelector(".headerbar");
+  const apres = repere?.closest(".headerbar") ?? repere;
   if (apres !== null && apres.parentNode !== null) {
     apres.parentNode.insertBefore(bandeau, apres.nextSibling);
     return true;
