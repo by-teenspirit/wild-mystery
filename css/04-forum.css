@@ -540,3 +540,247 @@
 #modernbb .wm-forum__section .forumbg {
   margin-top: 0;
 }
+
+/* ── 12 · ce que le relevé du 27 octobre a demandé ─────────────────── */
+
+/*  Sept remarques de Callista sur la page d'une zone, le 27 octobre,
+    après la mise en ligne du bandeau. Elles tiennent toutes dans cette
+    section, sauf deux : la légende part du gabarit — on ne cache pas
+    ce qu'on peut ne pas écrire — et le fil d'Ariane a besoin du
+    JavaScript, parce que ses « :: » sont des nœuds de texte servis par
+    `{NAV_CAT_DESC}` qu'aucun sélecteur n'atteint. */
+
+/*  ── 12.1 · LE FONDU NE COUPE PLUS ────────────────────────────────
+
+    « La coupure entre l'image et le bandeau est trop forte. »
+
+    Deux fautes dans l'ancien dégradé, et la seconde était la vraie.
+
+    1. 86 px pour passer d'une photo à un aplat, c'est court.
+    2. Surtout : il partait de `transparent`, qui vaut `rgb(0 0 0 / 0)`.
+       Un dégradé interpole AUSSI les canaux de couleur, donc le milieu
+       de la transition tirait vers un noir à moitié translucide avant
+       de revenir au beige. C'est cette bande sale qu'on lisait comme
+       une coupure, pas la hauteur.
+
+    On part donc de la couleur de la page à opacité zéro — même teinte,
+    rien à traverser — et on étage les arrêts pour imiter une courbe
+    plutôt qu'une pente droite : l'œil voit une marche là où le dégradé
+    est linéaire. La couleur reste celle du jeton, donc le thème suit. */
+#modernbb .wm-zone__fondu {
+  height: 170px;
+  background: linear-gradient(
+    180deg,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 0%) 0%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 3%) 14%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 10%) 27%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 22%) 39%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 38%) 50%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 56%) 61%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 73%) 72%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 87%) 83%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 96%) 92%,
+    rgb(from var(--wm-fond-page, #eecfb5) r g b / 100%) 100%
+  );
+}
+
+/*  Le fondu a grandi de 84 px : la légende remonte d'autant pour ne
+    pas se retrouver dans la zone qui s'efface. */
+#modernbb .wm-zone-posee .wm-zone__legende,
+#modernbb.wm-zone-posee .wm-zone__legende {
+  bottom: 54px;
+}
+
+/*  ── 12.2 · LE FIL D'ARIANE REMONTE ───────────────────────────────
+
+    « Rapproche-le du titre en haut. » Le titre, c'est celui du bandeau
+    — `h1.page-title` est masqué quand le bandeau est posé. Les 24 px
+    du haut servaient à séparer le fil d'Ariane de la bannière du site ;
+    sans elle, ils laissent le fil flotter au milieu du vide. */
+#modernbb.wm-zone-posee .sub-header {
+  margin-top: calc(var(--wm-espace-12, 12px) * -1);
+  margin-bottom: var(--wm-espace-20, 20px);
+}
+
+/*  Il est petit, en capitales espacées : une ligne de repère, pas une
+    phrase. Le séparateur est posé par le script (§ 12.7 du module),
+    parce que « :: » arrive en nœud de texte. */
+#modernbb .sub-header-path {
+  gap: var(--wm-espace-8, 8px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#modernbb .sub-header-path a.nav {
+  color: inherit;
+  text-decoration: none;
+}
+
+#modernbb .sub-header-path a.nav:hover {
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+/*  Le dernier maillon est la page où l'on est : il ne se survole pas
+    et il porte la couleur forte, pour qu'on sache où on a atterri. */
+#modernbb .sub-header-path a.nav:last-child {
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-ariane__separateur {
+  color: var(--wm-bord-net, #d9c3b1);
+  font-weight: var(--wm-graisse-normale, 400);
+  user-select: none;
+}
+
+/*  ── 12.3 · LES QUATRE RACCOURCIS NE FLOTTENT PLUS ────────────────
+
+    « Je trouve que ça flotte, c'est pas beau. » Quatre liens nus à
+    droite d'un bouton plein : rien ne les tenait ensemble et rien ne
+    les posait sur la page. On leur donne une barre à eux, de la même
+    famille que le bouton d'en face — même hauteur, même rayon — et un
+    filet entre chaque, pour qu'on lise quatre choix et pas une phrase
+    coupée. */
+#modernbb .wm-forum__raccourcis {
+  gap: 0;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-forum__raccourcis a {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--wm-espace-14, 14px);
+  border-left: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#modernbb .wm-forum__raccourcis a:first-child {
+  border-left: 0;
+}
+
+#modernbb .wm-forum__raccourcis a:hover {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+/*  La rangée d'actions aligne maintenant deux objets de même hauteur,
+    pas un bouton et du texte en l'air. */
+#modernbb .wm-forum__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  align-items: center;
+  justify-content: space-between;
+}
+
+/*  ── 12.4 · « LES SUJETS », UNE SEULE FOIS ────────────────────────
+
+    « Y'a écrit "les sujets" et en dessous une redondance avec "sujets". »
+
+    C'est vrai, et c'est nous qui l'avons fabriqué : la maquette empile
+    une bande sombre et un rang d'étiquettes de colonnes, mais ModernBB
+    n'écrit qu'un mot dans ce rang — « Sujets » — et trois icônes. La
+    bande du gabarit dit déjà « LES SUJETS ».
+
+    Le rang part donc entièrement. Les icônes qu'il portait ne manquent
+    pas : le nombre de vues et celui de réponses portent leur propre mot
+    sur chaque ligne. */
+#modernbb .wm-forum ul.topics li.header {
+  display: none;
+}
+
+/*  ── 12.5 · LES VUES AU-DESSUS DES RÉPONSES ───────────────────────
+
+    « Le nombre de vues doit s'afficher au-dessus du nombre de réponses,
+    là il est complètement décalé. »
+
+    Il l'était : la grille de la ligne est celle de l'index — pastille,
+    identité, deux lignes de chiffres, dernier message — et l'index
+    nomme ses deux cellules `dd.topics` et `dd.posts`. Une liste de
+    SUJETS sert `dd.views` et `dd.posts` : `dd.posts` trouvait sa case,
+    `dd.views` n'en avait aucune et retombait dans la première libre,
+    tout à gauche, avant le titre.
+
+    Une ligne suffit : les vues prennent la case du haut, les réponses
+    gardent celle du bas. */
+#modernbb ul.topics li.row dd.views {
+  grid-area: sujets;
+}
+
+/*  ── 12.6 · LES TROIS BLOCS DU BAS ────────────────────────────────
+
+    « Qui parcourt cette zone, modérateurs et permissions : c'est pas
+    joli avec le fond vide, le gros trait bleu. »
+
+    Le trait bleu est le `border-bottom` que ModernBB met sous tout
+    `.h3` — un bleu de thème par défaut, qui n'a rien à faire ici. Les
+    blocs, eux, étaient trois pavés vides empilés sur 340 px de haut
+    pour trois lignes de texte.
+
+    Ils deviennent trois cartes côte à côte, de la même famille que le
+    reste de la page : une surface, un rayon, un titre en étiquette, et
+    le texte dessous. À l'étroit, elles repassent l'une sous l'autre. */
+#modernbb #info_open.wm-forum__bas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  align-items: stretch;
+}
+
+#modernbb .wm-forum__bas .block {
+  display: flex;
+  flex: 1 1 260px;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+  margin: 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  LE TRAIT BLEU PART ICI. `border: 0` et pas `border-color` : la
+    règle de ModernBB porte la couleur ET l'épaisseur, et une seule des
+    deux laisserait une ligne. */
+#modernbb .wm-forum__bas .block .h3 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: inherit;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Le troisième bloc enveloppe son titre dans un `<strong>` — c'est le
+    gabarit de Forumactif, pas nous — et il finit par deux points. */
+#modernbb .wm-forum__bas .block .h3 strong {
+  font-weight: inherit;
+}
+
+#modernbb .wm-forum__bas .block p {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  Le bloc des permissions sert ses quatre phrases séparées par des
+    `<br>` : sans cette règle, elles se collent. */
+#modernbb .wm-forum__bas .block p br {
+  line-height: 2;
+}

@@ -231,11 +231,10 @@ const PREAMBULE = () =>
 <ul class="linklist top"><li><a href="/post?f=18&mode=newtopic">Nouveau sujet</a></li></ul>
 ${listeDesSujets()}`;
 
-function pageDeZone({ forumId = 34, legende = true, prefixe = false, sansListe = false } = {}) {
+function pageDeZone({ forumId = 34, prefixe = false, sansListe = false } = {}) {
   let t = sansCommentaires(readFileSync(R + "templates/viewforum_body.nouveau.html", "utf8"));
   t = gardeBloc(t, "switch_user_authpost");
   t = gardeBloc(t, "show_plus_menu");
-  t = legende ? gardeBloc(t, "switch_legend") : sansBloc(t, "switch_legend");
   t = t.replace(/\{TOPICS_LIST_BOX\}/, () => (sansListe ? "" : listeDesSujets()));
   t = vars(t, {
     //  `{BOARD_INDEX}` NE REND RIEN SUR UNE PAGE DE FORUM, et ce n'est
@@ -248,8 +247,26 @@ function pageDeZone({ forumId = 34, legende = true, prefixe = false, sansListe =
     U_VIEW_FORUM: `/f${forumId}-une-zone`,
     FORUM_NAME: "Montagnes Embrumées",
     U_INDEX: "/",
-    L_INDEX: "Accueil",
-    NAV_CAT_DESC: '<span>›</span> <a href="/f96-zones-palier-1">Zones Palier 1</a>',
+    L_INDEX: "Wild Mystery",
+    //  ── CE DÉCOR SERVAIT DÉJÀ UN CHEVRON, DONC IL NE TESTAIT RIEN ──
+    //
+    //  Le forum écrit « WILD MYSTERY :: Zones Sauvages :: Zones Palier
+    //  1 :: Steppes Arides » — relevé sur `/f36` le 27 octobre. Les
+    //  « :: » sont des NŒUDS DE TEXTE entre les liens, et c'est tout le
+    //  problème : aucun sélecteur ne les atteint.
+    //
+    //  Tant que ce décor posait un `<span>›</span>` tout fait, le test
+    //  du fil d'Ariane vérifiait le décor et pas le code. Il sert
+    //  maintenant les trois maillons et leurs « :: », comme Forumactif.
+    //
+    //  SON DERNIER MAILLON NOMME UNE AUTRE ZONE QUE LE GABARIT. Le fil
+    //  dit « Steppes Arides », `data-wm-forum` dit 34 — les Montagnes
+    //  Embrumées. Un bandeau qui devine dans l'adresse se trahit donc
+    //  tout seul : il écrirait le mauvais nom.
+    NAV_CAT_DESC:
+      ' :: <a class="nav" href="/f95-zones-sauvages"><span>Zones Sauvages</span></a>' +
+      ' :: <a class="nav" href="/f96-zones-palier-1"><span>Zones Palier 1</span></a>' +
+      ' :: <a class="nav" href="/f36-steppes-arides"><span>Steppes Arides</span></a>',
     U_POST_NEW_TOPIC: "/post?f=34&mode=newtopic",
     L_POST_NEW_TOPIC: "Nouveau sujet",
     PAGINATION: '<span>Page <strong>1</strong> sur 6</span> <a href="/f34p25-">2</a>',
@@ -453,7 +470,8 @@ if (bandeau !== null) {
   dire("il prend toute la largeur", bandeau.largeur === 1440, `${bandeau.largeur} px`);
   dire(
     "IL A LU data-wm-forum, PAS LE FIL D'ARIANE",
-    bandeau.forum === "34" && !bandeau.ariane.includes("Montagnes"),
+    bandeau.forum === "34" && bandeau.titre === LA_ZONE.nom &&
+      bandeau.ariane.includes("Steppes"),
     `zone ${bandeau.forum} · ariane « ${bandeau.ariane} »`,
   );
   dire("la photo est celle de la zone", bandeau.photo === LA_ZONE.image, `${bandeau.photo}`);
@@ -485,7 +503,11 @@ if (bandeau !== null) {
     bandeau.titrePage === "none",
     `h1.page-title : ${bandeau.titrePage}`,
   );
-  dire("le fil d'Ariane reste visible", bandeau.ariane.includes("Accueil"), bandeau.ariane);
+  dire(
+    "le fil d'Ariane reste visible",
+    bandeau.ariane.includes("Wild Mystery"),
+    bandeau.ariane,
+  );
   dire("la classe de page est posée", bandeau.classe === true);
 }
 
@@ -622,9 +644,7 @@ const gabarit = await p1.evaluate(() => ({
   nouveau: document.querySelector(".wm-forum__nouveau")?.textContent?.trim() ?? null,
   section: document.querySelector(".wm-forum__bande-titre")?.textContent ?? null,
   rang: document.querySelector(".wm-forum__rang")?.textContent ?? null,
-  legende: Array.from(document.querySelectorAll("#picture_legend li")).map((l) =>
-    l.textContent.trim()
-  ),
+  legende: document.querySelectorAll("#picture_legend").length,
   blocs: Array.from(document.querySelectorAll("#info_open .block .h3")).map((b) =>
     b.textContent.trim()
   ),
@@ -644,12 +664,119 @@ dire(
   `${gabarit.rang} / ${gabarit.section}`,
 );
 dire(
-  "LA LÉGENDE EST À TROIS ENTRÉES, PAS DIX",
-  gabarit.legende.length === 3,
-  gabarit.legende.join(" · "),
+  "LA LÉGENDE N'EST PLUS SERVIE DU TOUT",
+  //  « On l'enlève, je veux pas l'afficher », 27 octobre. Elle part du
+  //  GABARIT, pas d'un `display: none` : on ne cache pas ce qu'on peut
+  //  ne pas écrire, et un bloc masqué finit toujours par revenir.
+  gabarit.legende === 0,
+  `${gabarit.legende} bloc(s) de légende`,
 );
 dire("les trois blocs du bas sont là", gabarit.blocs.length === 3, gabarit.blocs.join(" · "));
 dire("la pagination est servie", gabarit.pagination.includes("Page"), gabarit.pagination);
+
+// ════════════════════════════════════════════════════════════════════
+//  3 bis · LES SEPT REMARQUES DU 27 OCTOBRE
+// ════════════════════════════════════════════════════════════════════
+
+console.log("\n── le relevé du 27 octobre ──");
+
+const releve = await p1.evaluate(() => {
+  const r = (s) => {
+    const e = document.querySelector(s);
+    if (e === null) return null;
+    const b = e.getBoundingClientRect();
+    return {
+      x: Math.round(b.x),
+      y: Math.round(b.y),
+      l: Math.round(b.width),
+      h: Math.round(b.height),
+    };
+  };
+  const vues = document.querySelector("ul.topics li.row dd.views");
+  const reponses = document.querySelector("ul.topics li.row dd.posts");
+  const titre = document.querySelector("ul.topics li.row dd.dterm");
+  const bas = document.querySelector(".wm-forum__bas");
+  const blocs = [...document.querySelectorAll(".wm-forum__bas .block")];
+  const fil = document.querySelector(".sub-header-path");
+  return {
+    fondu: r(".wm-zone__fondu"),
+    //  Le fondu part de la couleur de la page à zéro d'opacité, jamais
+    //  de `transparent` : la bande sale au milieu venait de là.
+    fonduDepart: getComputedStyle(document.querySelector(".wm-zone__fondu")).backgroundImage
+      .slice(0, 160),
+    entete: document.querySelector(".wm-forum ul.topics li.header") === null
+      ? "absente"
+      : getComputedStyle(document.querySelector(".wm-forum ul.topics li.header")).display,
+    vues: vues === null ? null : r("ul.topics li.row dd.views"),
+    reponses: reponses === null ? null : r("ul.topics li.row dd.posts"),
+    titre: titre === null ? null : r("ul.topics li.row dd.dterm"),
+    filTexte: fil?.textContent.replace(/\s+/g, " ").trim() ?? "",
+    filSeparateurs: document.querySelectorAll(".wm-ariane__separateur").length,
+    filMaillons: document.querySelectorAll(".sub-header-path a.nav").length,
+    filY: r(".sub-header")?.y ?? null,
+    bandeauBas: (() => {
+      const b = document.querySelector(".wm-zone");
+      return b === null ? null : Math.round(b.getBoundingClientRect().bottom);
+    })(),
+    raccourcisFond: getComputedStyle(document.querySelector(".wm-forum__raccourcis"))
+      .backgroundColor,
+    basAffichage: bas === null ? null : getComputedStyle(bas).display,
+    blocsY: blocs.map((b) => Math.round(b.getBoundingClientRect().y)),
+    bordureTitre: blocs.length === 0
+      ? null
+      : getComputedStyle(blocs[0].querySelector(".h3")).borderBottomWidth,
+    legende: document.querySelectorAll("#picture_legend").length,
+  };
+});
+
+dire(
+  "LE FONDU EST PLUS LONG ET NE PART PAS DE `transparent`",
+  releve.fondu?.h === 170 && !releve.fonduDepart.includes("rgba(0, 0, 0, 0)"),
+  `${releve.fondu?.h} px · ${releve.fonduDepart.slice(0, 60)}…`,
+);
+dire(
+  "L'EN-TÊTE DE COLONNES EN DOUBLE NE S'AFFICHE PLUS",
+  releve.entete === "none" || releve.entete === "absente",
+  `li.header : ${releve.entete}`,
+);
+dire(
+  "LES VUES SONT AU-DESSUS DES RÉPONSES, DANS LA MÊME COLONNE",
+  releve.vues !== null && releve.reponses !== null &&
+    releve.vues.x === releve.reponses.x && releve.vues.y < releve.reponses.y,
+  `vues (${releve.vues?.x}, ${releve.vues?.y}) · réponses (${releve.reponses?.x}, ${releve.reponses?.y})`,
+);
+dire(
+  "et elles sont à DROITE du titre, plus à sa gauche",
+  releve.vues !== null && releve.titre !== null && releve.vues.x > releve.titre.x,
+  `titre à ${releve.titre?.x}, vues à ${releve.vues?.x}`,
+);
+dire(
+  "LE FIL D'ARIANE N'A PLUS DE « :: »",
+  !releve.filTexte.includes("::") && releve.filSeparateurs === releve.filMaillons - 1,
+  `« ${releve.filTexte} » · ${releve.filSeparateurs} séparateur(s) pour ${releve.filMaillons} maillons`,
+);
+dire(
+  "et il est remonté près du bandeau",
+  releve.filY !== null && releve.bandeauBas !== null && releve.filY - releve.bandeauBas < 20,
+  `${releve.filY - releve.bandeauBas} px sous le bandeau`,
+);
+dire(
+  "LES RACCOURCIS ONT UNE BARRE, ILS NE FLOTTENT PLUS",
+  releve.raccourcisFond !== "rgba(0, 0, 0, 0)",
+  releve.raccourcisFond,
+);
+dire(
+  "LES TROIS BLOCS DU BAS SONT CÔTE À CÔTE",
+  releve.basAffichage === "flex" && releve.blocsY.length === 3 &&
+    new Set(releve.blocsY).size === 1,
+  `${releve.basAffichage} · y = ${releve.blocsY.join(" / ")}`,
+);
+dire(
+  "et le gros trait bleu de ModernBB est parti",
+  releve.bordureTitre === "0px",
+  `bordure du titre : ${releve.bordureTitre}`,
+);
+dire("LA LÉGENDE N'EST PLUS DANS LA PAGE", releve.legende === 0, `${releve.legende} bloc(s)`);
 
 // ════════════════════════════════════════════════════════════════════
 //  4 · SANS JAVASCRIPT, LA PAGE RESTE ENTIÈRE
@@ -676,7 +803,7 @@ dire(
   nu.titre === "Montagnes Embrumées" && nu.titreVu !== "none",
   `« ${nu.titre} » (${nu.titreVu})`,
 );
-dire("le fil d'Ariane est là", nu.ariane.includes("Accueil"), nu.ariane);
+dire("le fil d'Ariane est là", nu.ariane.includes("Wild Mystery"), nu.ariane);
 dire(
   "LES CINQ TITRES SONT ENTIERS, ÉTIQUETTE COMPRISE",
   nu.sujets.length === 5 && nu.sujets.every((t, i) => t === SUJETS[i].titre),

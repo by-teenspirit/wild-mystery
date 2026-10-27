@@ -27,11 +27,13 @@
       `.wm-forum__bande` reprend exactement la bande de l'index : c'est
       la même règle CSS, au § 2 de `css/03-index.css`.
 
-   4. **La légende passe de dix entrées à trois** : nouveaux messages,
-      pas de nouveaux messages, verrouillé. C'est ce que la maquette
-      dessine, et le bloc `switch_legend` servait aussi le populaire,
-      l'annonce, le post-it et l'annonce globale — quatre états que le
-      forum n'emploie pas.
+   4. **La légende ne s'affiche plus du tout.** Elle est passée de dix
+      entrées à trois le 22 octobre, puis elle a sauté le 27 : « on
+      l'enlève, je veux pas l'afficher ». Les ronds d'état parlent
+      d'eux-mêmes, et une légende sous chaque liste de sujets est un
+      pavé qu'on ne lit qu'une fois. Le bloc `switch_legend` n'est donc
+      plus appelé — on ne masque pas en CSS ce qu'on peut ne pas
+      écrire.
 
    5. **Le champ de recherche de l'en-tête part.** Notre barre de
       navigation en porte un, en haut de toutes les pages.
@@ -135,14 +137,6 @@
 		</div>
 		{TOPICS_LIST_BOX}
 	</div>
-
-  <!-- BEGIN switch_legend -->
-  <ul id="picture_legend" class="wm-legende">
-    <li><img src="{FOLDER_NEW_IMG}" alt="" />{L_FOLDER_NEW_IMG}</li>
-    <li><img src="{FOLDER_IMG}" alt="" />{L_FOLDER_IMG}</li>
-    <li><img src="{FOLDER_LOCKED_IMG}" alt="" />{L_FOLDER_LOCKED_IMG}</li>
-  </ul>
-  <!-- END switch_legend -->
 
   <div class="topic-actions bottom">
     <div class="pagination">

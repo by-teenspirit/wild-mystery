@@ -125,3 +125,51 @@ export function rangerLePreambuleDuForum(doc: Document): Rangement {
   if (doublons > 0 || remontes > 0) corps?.classList.add(CLASSE_RANGEE);
   return { doublons, remontes };
 }
+
+/** Ce qu'on écrit entre deux maillons du fil d'Ariane. Un chevron fin,
+ *  pas le « :: » de ModernBB : deux points doublés, c'est une syntaxe
+ *  de code, et on lit un chemin. */
+export const SEPARATEUR = "›";
+
+/**
+ * Remplace les séparateurs du fil d'Ariane par un chevron à nous.
+ * Rend le nombre de séparateurs posés.
+ *
+ * ── POURQUOI CE N'EST PAS DU CSS ───────────────────────────────────
+ *
+ * « Améliore comment il est construit, je le trouve pas élégant », 27
+ * octobre. Le fil s'écrit « WILD MYSTERY :: Zones Sauvages :: Zones
+ * Palier 1 :: Steppes Arides ».
+ *
+ * Les « :: » ne sont ni des pseudo-éléments — vérifié sur le forum,
+ * `::before` et `::after` des `a.nav` valent `none` — ni des balises :
+ * ce sont des NŒUDS DE TEXTE, servis tels quels par `{NAV_CAT_DESC}`.
+ * Aucun sélecteur ne les atteint, donc aucune feuille ne peut les
+ * changer. Il faut les remplacer dans le document.
+ *
+ * Idempotent : un fil déjà refait ne contient plus de nœud de texte à
+ * remplacer, donc le second passage ne trouve rien à faire.
+ */
+export function refaireLeFilDAriane(doc: Document): number {
+  const fil = doc.querySelector(".sub-header-path");
+  if (fil === null) return 0;
+
+  let poses = 0;
+  //  On copie la liste avant de modifier : on remplace des enfants
+  //  pendant qu'on les parcourt, et `childNodes` est vivante.
+  for (const noeud of [...fil.childNodes]) {
+    if (noeud.nodeType !== 3) continue;
+    const texte = noeud.textContent ?? "";
+    //  Les blancs entre deux balises ne sont pas des séparateurs : on
+    //  ne touche qu'aux nœuds qui portent vraiment quelque chose.
+    if (texte.trim() === "") continue;
+
+    const span = doc.createElement("span");
+    span.className = "wm-ariane__separateur";
+    span.setAttribute("aria-hidden", "true");
+    span.textContent = SEPARATEUR;
+    noeud.parentNode?.replaceChild(span, noeud);
+    poses++;
+  }
+  return poses;
+}

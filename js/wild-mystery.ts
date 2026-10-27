@@ -65,7 +65,10 @@ import {
   poserLaCarte,
 } from "../src/adaptateurs/navigateur/module-carte.ts";
 import { poserLeSwitcheroo } from "../src/adaptateurs/navigateur/module-switcheroo.ts";
-import { rangerLePreambuleDuForum } from "../src/adaptateurs/navigateur/module-forum.ts";
+import {
+  rangerLePreambuleDuForum,
+  refaireLeFilDAriane,
+} from "../src/adaptateurs/navigateur/module-forum.ts";
 import {
   poserLeBandeauDeZone,
   poserLesSujets,
@@ -466,6 +469,9 @@ desQueLeCorpsEstLa(() => {
   //  bloc qu'on va jeter, c'est du travail perdu — et `poserLesSujets`
   //  marquerait `data-wm-sujet` sur des lignes en double.
   rangerLePreambuleDuForum(document);
+  //  ET LE FIL D'ARIANE PERD SES « :: ». Ce sont des nœuds de texte
+  //  servis par `{NAV_CAT_DESC}` : aucune feuille ne les atteint.
+  refaireLeFilDAriane(document);
   //  LES DEUX NOMBRES DES BANDES DE CATÉGORIE, tout de suite et sans
   //  réseau : ils se lisent dans la page. Rien n'en dépend — sans eux
   //  la bande garde son titre entre ses filets.
