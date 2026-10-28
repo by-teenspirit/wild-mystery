@@ -327,7 +327,18 @@ const BANNIERE = `<div class="headerbar">
       bandeau » passerait pour de mauvaises raisons. -->
 <div class="fa-pub" style="height:90px"></div>`;
 
-const BASE_MODERNBB = `dl.icon { background-size: 33px 33px !important; }`;
+//  CE QUE MODERNBB POSE ET QU'ON SUBIT. Le décor ne charge pas sa
+//  feuille entière — on y met ce qui a déjà piégé une mise en page.
+//
+//  · `dl.icon` et sa taille de fond en `!important` ;
+//  · LE CLEARFIX DE `.topic-actions`. Un `::after { content: "" }`,
+//    inoffensif tant que la rangée flottait. En flex c'est un enfant :
+//    largeur nulle, mais le `gap` s'applique avant lui, et les barres
+//    de liens s'arrêtaient douze pixels avant le bord — mesuré sur
+//    `/f2` le 28 octobre. Sans cette ligne, le harnais ne peut pas
+//    voir le défaut.
+const BASE_MODERNBB = `dl.icon { background-size: 33px 33px !important; }
+.topic-actions::after { content: ""; display: block; clear: both; }`;
 
 const page = (corps) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
@@ -853,11 +864,12 @@ const deux = await p1.evaluate(() => {
     rond: (() => {
       const dl = premiere?.querySelector("dl.icon");
       if (dl === undefined || dl === null) return null;
-      const c = getComputedStyle(dl, "::before");
+      //  `top: 50%` + `translateY(-50%)` : le centre du rond est à la
+      //  moitié de la hauteur de la cellule, quel que soit son contenu.
       const b = dl.getBoundingClientRect();
       return {
-        centre: Math.round(b.y + parseFloat(c.top) + parseFloat(c.height) / 2),
-        top: c.top,
+        centre: Math.round(b.y + b.height / 2),
+        top: getComputedStyle(dl, "::before").top,
       };
     })(),
     hauteurs: (() => {
@@ -943,6 +955,24 @@ const deux = await p1.evaluate(() => {
         })(),
       };
     })(),
+    //  LES TROIS BORDS DROITS. « Les liens nouveaux messages en haut et
+    //  surveiller les sujets en bas ne sont pas bien alignés à droite
+    //  avec les catégories », 28 octobre. On mesure le bord droit de
+    //  chacun : ils doivent tomber sur le même pixel.
+    bordsDroits: (() => {
+      const d = (s) => {
+        const e = document.querySelector(s);
+        return e === null ? null : Math.round(e.getBoundingClientRect().right);
+      };
+      return {
+        raccourcis: d(".wm-forum__raccourcis"),
+        bloc: d(".wm-forum__section .forumbg"),
+        bas: d(".topic-actions.bottom .topic-actions-buttons"),
+        bande: d(".wm-forum__bande"),
+      };
+    })(),
+    titresX: [...document.querySelectorAll(".wm-forum ul.topics li.row .topic-title")]
+      .map((t) => Math.round(t.getBoundingClientRect().x)),
     boutonH: (() => {
       const a = document.querySelector(".wm-forum__nouveau");
       return a === null ? null : Math.round(a.getBoundingClientRect().height);
@@ -975,8 +1005,13 @@ const deux = await p1.evaluate(() => {
       const b = document.querySelector(".wm-forum__section .forumbg");
       return b === null ? null : getComputedStyle(b).borderRadius;
     })(),
-    centreTitre: titre === null ? null : (() => {
-      const b = titre.getBoundingClientRect();
+    //  LE CENTRE DE L'IDENTITÉ, pas celui du titre : depuis que les
+    //  étiquettes sont passées au-dessus, le titre n'est plus au milieu
+    //  de sa cellule, et c'est la cellule que le rond doit regarder.
+    centreTitre: (() => {
+      const d = document.querySelector(".wm-forum ul.topics li.row dd.dterm");
+      if (d === null) return null;
+      const b = d.getBoundingClientRect();
       return Math.round(b.y + b.height / 2);
     })(),
   };
@@ -1009,12 +1044,12 @@ dire(
   JSON.stringify(deux.hauteurs),
 );
 dire(
-  "ET LE PRÉFIXE « NOTE: » NE MET PLUS LE TITRE À LA LIGNE",
-  //  Même ordonnée pour le préfixe et le titre : ils sont sur la même
-  //  ligne. Et le titre préfixé part de la même hauteur que celui de
-  //  la ligne d'à côté, qui n'a pas de préfixe.
-  deux.note !== null && Math.abs(deux.note.prefixeY - deux.note.titreY) <= 10 &&
-    deux.note.prefixeX < deux.note.titreX,
+  "ET LE PRÉFIXE « NOTE: » EST AU-DESSUS DU TITRE, PAS DEVANT",
+  //  AU-DESSUS, ET AU MÊME BORD. C'est ce qui permet aux titres de
+  //  toutes les lignes de partir du même x, quelle que soit la largeur
+  //  de l'étiquette — « Note: », « Post-it: », « LIBRE », « PV ».
+  deux.note !== null && deux.note.prefixeY < deux.note.titreY &&
+    deux.note.prefixeX === deux.note.titreX,
   JSON.stringify(deux.note),
 );
 dire(
@@ -1057,6 +1092,24 @@ dire(
   `${deux.ecarts?.bord} px du bord, ${deux.ecarts?.contenu} px du contenu`,
 );
 dire(
+  "TOUS LES TITRES DE SUJET PARTENT DU MÊME BORD",
+  //  Y COMPRIS CEUX QUI PORTENT UNE ÉTIQUETTE. Posée devant, elle
+  //  poussait le titre de sa propre largeur : sur `/f2`, les deux
+  //  sujets épinglés démarraient 52 px plus loin que les cinq autres.
+  deux.titresX !== null && new Set(deux.titresX).size === 1,
+  `x des titres : ${deux.titresX?.join(" · ")}`,
+);
+dire(
+  "LES TROIS BARRES TOMBENT SUR LE MÊME BORD DROIT QUE LA LISTE",
+  (() => {
+    const b = deux.bordsDroits;
+    return b.bloc !== null && b.raccourcis !== null && b.bas !== null &&
+      Math.abs(b.raccourcis - b.bloc) <= 1 && Math.abs(b.bas - b.bloc) <= 1 &&
+      Math.abs(b.bande - b.bloc) <= 1;
+  })(),
+  JSON.stringify(deux.bordsDroits),
+);
+dire(
   "LE BOUTON ET LA BARRE DES RACCOURCIS FONT LA MÊME HAUTEUR",
   //  « Les nouveaux messages etc. doivent avoir la même hauteur que
   //  poster un nouveau sujet », 27 octobre. Deux pixels d'écart se
@@ -1086,7 +1139,7 @@ dire(
   `${deux.anglesLignes.join(" | ")} · bloc : ${deux.blocDecoupe}`,
 );
 dire(
-  "LE ROND D'ÉTAT EST EN FACE DU TITRE, PAS AU MILIEU DE LA LIGNE",
+  "LE ROND D'ÉTAT EST EN FACE DE L'IDENTITÉ DU SUJET",
   //  Le rond est un `::before` en absolu : on ne peut pas prendre son
   //  rectangle, on calcule son centre depuis `top` et `height`. Six
   //  pixels de tolérance, c'est ce qu'on ne voit pas.

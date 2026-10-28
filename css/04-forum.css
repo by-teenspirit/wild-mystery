@@ -436,12 +436,14 @@
       pointait le vide au-dessus du titre. Les 14 px dataient d'une
       ligne plus courte ; depuis, le dernier message et son avatar rond
       l'ont étirée, et l'identité s'aligne en haut de sa cellule.
-      Puis 24, puis 17 : la valeur suit la hauteur de la ligne, qui a
-      baissé deux fois le 27 octobre. Elle est mesurée, pas choisie —
-      le harnais compare le centre du rond à celui du titre et refuse
-      plus de six pixels d'écart, donc elle ne peut pas dériver en
-      silence. */
-  top: 17px;
+      Puis 24, puis 17 — et à chaque fois il fallait y revenir, parce
+      qu'une valeur en dur suit la hauteur de la ligne, qui a changé
+      trois fois en deux jours. On arrête : le rond se centre sur la
+      CELLULE D'IDENTITÉ, celle qui porte l'étiquette, le titre et
+      l'auteur. Il reste en face d'elle quoi qu'elle contienne, et le
+      harnais compare les deux centres à six pixels près. */
+  top: 50%;
+  transform: translateY(-50%);
   left: var(--wm-espace-6, 6px);
   display: flex;
   align-items: center;
@@ -1183,6 +1185,20 @@
     famille des pastilles de la charte — et les deux points partent,
     une étiquette n'en a pas besoin. */
 #modernbb .wm-forum ul.topics li.row .topic-title-container > strong {
+  /*  ── ELLE PREND SA PROPRE LIGNE, ET VOICI POURQUOI ──────────────
+
+      Posée DEVANT le titre, l'étiquette poussait celui-ci vers la
+      droite — de toute sa largeur plus l'écart. Sur `/f2`, les deux
+      sujets épinglés commençaient donc 52 px plus loin que les cinq
+      autres : sept titres, deux alignements. « Améliore encore
+      l'alignement de la liste des sujets », 28 octobre.
+
+      Réserver une colonne fixe sur toutes les lignes aurait demandé
+      de deviner une largeur, et les préfixes de ModernBB n'ont pas
+      tous la même — « Note: », « Post-it: », « Annonce: ». Au-dessus
+      du titre, l'étiquette ne pousse plus rien : les sept titres
+      partent du même bord, et la largeur du préfixe n'a plus
+      d'importance. */
   flex: none;
   align-self: center;
   padding: 3px var(--wm-espace-8, 8px);
@@ -1320,4 +1336,72 @@
 
 #modernbb ul.topiclist li.row .lastpost-infos a > img {
   display: block;
+}
+
+/*  ── 15.4 · LES DOUZE PIXELS À DROITE ────────────────────────────
+
+    « Les liens nouveaux messages en haut et surveiller les sujets en
+    bas ne sont pas bien alignés à droite avec les catégories. »
+
+    Douze pixels, exactement. Mesurés sur `/f2` : la bande, le bloc des
+    sujets, la liste des sous-forums et les trois blocs du bas finissent
+    tous à 1334 ; les deux barres de liens s'arrêtent à 1322.
+
+    La cause est un `::after { content: "" }` que ModernBB pose sur
+    `.topic-actions` — un clearfix d'époque, du temps où la rangée
+    flottait. Dans un conteneur FLEX, un pseudo-élément est un enfant à
+    part entière : il ne mesure rien, mais le `gap: 12px` s'applique
+    entre lui et l'élément d'avant. D'où douze pixels de réserve à
+    droite, derrière un enfant invisible.
+
+    Le clearfix ne sert plus rien ici : la rangée est en flex, elle n'a
+    rien à dégager. */
+#modernbb .wm-forum .topic-actions::after,
+#modernbb .wm-forum .topic-actions::before {
+  display: none;
+}
+
+/*  ── 15.5 · TOUS LES TITRES PARTENT DU MÊME BORD ─────────────────
+
+    « Améliore encore l'alignement de la liste des sujets. »
+
+    Mesuré au harnais : cinq titres, cinq abscisses — 173, 159, 173,
+    160, 190. Chaque étiquette posée devant le titre le poussait de sa
+    propre largeur, et elles n'ont pas toutes la même : « LIBRE », « PV »,
+    « TERMINÉ » côté charte, « Note: », « Post-it: » côté ModernBB.
+
+    Réserver une colonne fixe aurait demandé de deviner la plus large.
+    On fait l'inverse : le TITRE prend la ligne entière, donc il passe
+    sous les étiquettes quelles qu'elles soient, et son bord gauche ne
+    dépend plus de ce qui le précède. Les étiquettes, elles, se
+    rangent toutes sur la ligne du dessus. */
+#modernbb .wm-forum ul.topics li.row .topic-title-container > h2 {
+  flex: 0 0 100%;
+}
+
+/*  ── 15.6 · LES RACCOURCIS, CENTRÉS DANS LEUR CASE ───────────────
+
+    « Les raccourcis sont mal centrés. » Ils l'étaient verticalement —
+    `align-items: center` — mais pas horizontalement : le mot restait
+    calé à gauche de sa case, entre deux rembourrages pourtant égaux.
+    Invisible sur une case ajustée au mot, voyant dès que deux cases
+    voisines n'ont pas la même longueur de texte. */
+#modernbb .wm-forum__raccourcis a,
+#modernbb .wm-forum .topic-actions.bottom .topic-actions-buttons a {
+  justify-content: center;
+  text-align: center;
+}
+
+/*  ── 15.7 · LA FLÈCHE DU SÉLECTEUR DE FORUM ──────────────────────
+
+    « Pour "sélectionner un forum", la flèche colle encore à droite. »
+
+    Le `<select>` du saut de forum porte la flèche que le système
+    dessine au bord de sa boîte. On lui rend un rembourrage à droite —
+    assez pour que la flèche respire — et on garde celle du système
+    plutôt que d'en dessiner une : elle suit le thème du poste et les
+    réglages d'accessibilité de qui la regarde. */
+#modernbb .jumpbox select,
+#modernbb .vf_jumpbox select {
+  padding-right: var(--wm-espace-14, 14px);
 }

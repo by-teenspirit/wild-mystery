@@ -924,7 +924,8 @@ html#min-width {
 
 /* ── 13 · la largeur du forum ─────────────────────────────────────── */
 
-/*  « Largeur totale du forum : essaye 1200 px partout », 27 octobre.
+/*  « Largeur totale du forum : essaye 1200 px partout », 27 octobre,
+    puis « passe le forum en 1000 px de large », le 28.
     ModernBB sert 1400.
 
     POURQUOI PAS LE RÉGLAGE DU PANNEAU. Il existe — Affichage > Général
@@ -938,5 +939,6 @@ html#min-width {
     ci-dessus, et le bandeau d'une zone aussi : il est posé après
     `.headerbar`, hors de tout `.wrap`. */
 #modernbb .wrap {
-  max-width: 1200px;
+  /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28. */
+  max-width: 1000px;
 }
