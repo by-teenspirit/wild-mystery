@@ -896,3 +896,22 @@ html#min-width {
 #modernbb #headerbar-top > .wrap > .menu-icon {
   display: none;
 }
+
+/* ── 12 · la largeur du forum ─────────────────────────────────────── */
+
+/*  « Largeur totale du forum : essaye 1200 px partout », 27 octobre.
+    ModernBB sert 1400.
+
+    POURQUOI PAS LE RÉGLAGE DU PANNEAU. Il existe — Affichage > Général
+    > largeur du forum — et ce serait la bonne porte si la largeur
+    valait pour tout. Mais il rétrécirait AUSSI la bannière, qui est
+    calée pleine largeur et dont l'image fait 1 280 : « l'en-tête est
+    parfaite, on change pas ». Une règle de feuille laisse choisir ce
+    qui suit la nouvelle largeur et ce qui n'y touche pas.
+
+    `#headerbar-top > .wrap` garde donc sa pleine largeur, au § 11
+    ci-dessus, et le bandeau d'une zone aussi : il est posé après
+    `.headerbar`, hors de tout `.wrap`. */
+#modernbb .wrap {
+  max-width: 1200px;
+}

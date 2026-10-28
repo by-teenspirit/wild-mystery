@@ -1156,6 +1156,25 @@ html#min-width {
   display: none;
 }
 
+/* ── 12 · la largeur du forum ─────────────────────────────────────── */
+
+/*  « Largeur totale du forum : essaye 1200 px partout », 27 octobre.
+    ModernBB sert 1400.
+
+    POURQUOI PAS LE RÉGLAGE DU PANNEAU. Il existe — Affichage > Général
+    > largeur du forum — et ce serait la bonne porte si la largeur
+    valait pour tout. Mais il rétrécirait AUSSI la bannière, qui est
+    calée pleine largeur et dont l'image fait 1 280 : « l'en-tête est
+    parfaite, on change pas ». Une règle de feuille laisse choisir ce
+    qui suit la nouvelle largeur et ce qui n'y touche pas.
+
+    `#headerbar-top > .wrap` garde donc sa pleine largeur, au § 11
+    ci-dessus, et le bandeau d'une zone aussi : il est posé après
+    `.headerbar`, hors de tout `.wrap`. */
+#modernbb .wrap {
+  max-width: 1200px;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 03 · L'index
 
@@ -3259,8 +3278,13 @@ html#min-width {
       peut augmenter la hauteur du bandeau ? » — et il le fallait : le
       fondu est passé de 86 à 170 px, donc il mangeait plus de la
       moitié de la photo. Les 60 px rendus vont à l'image, pas au
-      texte : la légende reste à la même distance du bas. */
-  height: 360px;
+      texte : la légende reste à la même distance du bas.
+
+      Puis 460 le même jour — « augmente encore, peut-être de 100 px ».
+      À cette hauteur la photo respire vraiment sous le fondu de 170,
+      et le fil d'Ariane, la flèche et le titre ont chacun leur étage
+      sans se serrer. */
+  height: 460px;
   /*  LA COULEUR PLEINE EN DESSOUS, et pour la même raison qu'au § 2 de
       `03` : le harnais de contraste lit une couleur de fond, pas une
       photo. Sans elle, il annoncerait « crème sur crème » pour un
@@ -3986,7 +4010,12 @@ html#min-width {
 #modernbb a.wm-forum__nouveau,
 #modernbb a.button1.wm-forum__nouveau {
   display: inline-flex;
-  min-height: 38px;
+  /*  40 ET PAS 38 : la barre des raccourcis d'en face mesure 38 px de
+      contenu PLUS ses deux bordures d'un pixel. À 38 le bouton était
+      deux pixels plus court qu'elle, ce qui se voit quand les deux
+      sont posés sur la même ligne. « Ils doivent avoir la même
+      hauteur », 27 octobre. */
+  min-height: 40px;
   align-items: center;
   gap: var(--wm-espace-8, 8px);
   padding: 0 var(--wm-espace-18, 18px);
@@ -4196,6 +4225,87 @@ html#min-width {
     Centrée, elle ne mesure plus que son contenu. */
 #modernbb .wm-forum ul.topics li.row dd.lastpost {
   align-self: center;
+}
+
+/* ── 15 · le quatrième relevé du 27 octobre ───────────────────────── */
+
+/*  ── 15.1 · LE ROND SE RAPPROCHE DU TITRE ────────────────────────
+
+    « L'icône est trop collée à gauche et beaucoup trop loin du lien
+    du sujet. » Les deux à la fois, et c'est la même cause.
+
+    La grille d'une ligne vient de l'index, où la première colonne —
+    48 px — porte le rond de la catégorie. Sur une liste de sujets ce
+    rond est posé AILLEURS : en `::before` absolu, à 6 px du bord. La
+    colonne de 48 reste donc vide, et elle s'ajoute aux 48 px de
+    rembourrage gauche : le titre démarrait à 130 px du bord pendant
+    que le rond s'écrasait contre lui.
+
+    On rend la colonne à zéro, on écarte le rond du bord, et le
+    rembourrage ne réserve plus que la place du rond et son air. */
+#modernbb .wm-forum ul.topics li.row dl.icon {
+  grid-template-columns: 0 minmax(0, 1fr) 104px 252px;
+  padding-left: 62px;
+}
+
+/*  ET LA MARGE DE 40 PX SUR L'IDENTITÉ PART AVEC LA COLONNE. Elle
+    écartait le texte du rond de catégorie, à l'index, où ce rond
+    occupe vraiment la première colonne. Ici la colonne est à zéro et
+    le rond est dans le rembourrage : la marge ne séparait plus rien,
+    elle ne faisait que pousser le titre de quarante pixels. */
+#modernbb .wm-forum ul.topics li.row dd.dterm {
+  margin-left: 0;
+}
+
+#modernbb .wm-forum ul.topics li.row[data-wm-etat] dl.icon::before {
+  left: 18px;
+}
+
+/*  ── 15.2 · LES DEUX ACTIONS DU BAS, VRAIMENT À DROITE ───────────
+
+    `margin-left: auto` ne suffisait pas : la rangée est en
+    `space-between`, qui répartit l'espace AVANT de regarder les
+    marges, et la pagination — vide sur un forum d'une page — gardait
+    sa part. On aligne la rangée à droite, et c'est la pagination qui
+    prend la marge automatique quand elle a quelque chose à dire. */
+#modernbb .wm-forum .topic-actions.bottom {
+  justify-content: flex-end;
+}
+
+#modernbb .wm-forum .topic-actions.bottom .pagination {
+  margin-right: auto;
+}
+
+/*  ── 15.3 · LA FLÈCHE RESTE À CÔTÉ DU NOM ────────────────────────
+
+    « Maître du Jeu et la flèche : elle va à droite de Maître du Jeu,
+    pas en dessous. »
+
+    Le lien qui porte l'image « Voir le dernier message » était en
+    `display: block` — mesuré sur le forum, 394 px de large pour une
+    icône de 12. Un bloc prend sa ligne : la flèche tombait sous le
+    pseudo, et la date passait encore en dessous.
+
+    Elle redevient ce qu'elle est : un bout de phrase, posé après le
+    nom, aligné sur le milieu du texte. */
+/*  LA RÈGLE À BATTRE EST AU § 12 DE `03` :
+    `.lastpost-infos a:not(.last-post-icon) { display: block }`. Elle
+    est juste pour le lien du pseudo, qui doit tenir sa ligne — mais
+    elle attrape aussi le lien de la flèche, qui ne contient qu'une
+    image et n'a pas la classe que l'exception attend.
+
+    On ne touche donc pas à la règle d'origine : on ajoute l'exception
+    qui lui manquait, reconnue au contenu — un lien qui ne porte qu'une
+    image n'est pas une ligne de texte. */
+#modernbb ul.topiclist li.row .lastpost-infos a:not(.last-post-icon):has(img) {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  vertical-align: middle;
+}
+
+#modernbb ul.topiclist li.row .lastpost-infos a > img {
+  display: block;
 }
 
 /* ════════════════════════════════════════════════════════════════════

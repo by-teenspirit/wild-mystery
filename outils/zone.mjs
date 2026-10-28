@@ -205,6 +205,12 @@ function listeDesSujets() {
       "topics_list_box.row.VIEWS": s.vues,
       "topics_list_box.row.topic.avatar.LAST_POST_AVATAR": `<img src="${PIXEL}" alt="" />`,
       "topics_list_box.row.LAST_POST_AUTHOR": s.dernier,
+      //  L'ICÔNE « VOIR LE DERNIER MESSAGE ». Forumactif la sert dans
+      //  `{LAST_POST_IMG}`, enveloppée d'un lien — et c'est ce lien
+      //  qui passait en `display: block` et poussait la flèche sous
+      //  le pseudo. Le décor l'ignorait, donc le harnais aussi.
+      "topics_list_box.row.LAST_POST_IMG":
+        `<a href="/t900-un-sujet#1"><img src="${PIXEL}" alt="Voir le dernier message" /></a>`,
       "topics_list_box.row.LAST_POST_TIME": s.quand,
       L_REPLIES: "Réponses",
       L_VIEWS: "Vues",
@@ -470,7 +476,7 @@ dire("le bandeau est posé", bandeau !== null);
 if (bandeau !== null) {
   dire(
     "IL EST VRAIMENT À L'ÉCRAN, pas seulement dans le document",
-    bandeau.affiche && bandeau.boite === 360,
+    bandeau.affiche && bandeau.boite === 460,
     `offsetParent ${bandeau.affiche ? "existe" : "est null"} · boîte ${bandeau.boite} px`,
   );
   dire(
@@ -478,9 +484,9 @@ if (bandeau !== null) {
     !bandeau.dansLaBanniere,
     bandeau.dansLaBanniere ? "il est DANS .headerbar" : "il est à côté de .headerbar",
   );
-  //  360 depuis le 27 octobre : le fondu est passé à 170 px et mangeait
-  //  plus de la moitié d'un bandeau de 300.
-  dire("il fait 360 px de haut", bandeau.hauteur === 360, `${bandeau.hauteur} px`);
+  //  460 depuis le 27 octobre, en deux fois : le fondu est passé à 170 px
+  //  et mangeait plus de la moitié d un bandeau de 300.
+  dire("il fait 460 px de haut", bandeau.hauteur === 460, `${bandeau.hauteur} px`);
   dire("il prend toute la largeur", bandeau.largeur === 1440, `${bandeau.largeur} px`);
   dire(
     "IL A LU data-wm-forum, PAS LE FIL D'ARIANE",
@@ -893,6 +899,54 @@ const deux = await p1.evaluate(() => {
         titreY: Math.round(b.y),
       };
     })(),
+    flecheDernier: (() => {
+      const l = document.querySelector(".wm-forum ul.topics li.row");
+      const infos = l?.querySelector(".lastpost-infos");
+      const a = infos?.querySelector("a[href] img")?.closest("a") ?? null;
+      if (a === null) return null;
+      const r = a.getBoundingClientRect();
+      return {
+        display: getComputedStyle(a).display,
+        largeur: Math.round(r.width),
+        largeurInfos: Math.round(infos.getBoundingClientRect().width),
+      };
+    })(),
+    ecarts: (() => {
+      const l = document.querySelector(".wm-forum ul.topics li.row");
+      const dl = l?.querySelector("dl.icon");
+      const t = l?.querySelector(".topic-title");
+      if (dl === undefined || dl === null || t === undefined || t === null) return null;
+      const c = getComputedStyle(dl, "::before");
+      const g = Math.round(dl.getBoundingClientRect().x);
+      const gauche = parseFloat(c.left);
+      const large = parseFloat(c.width);
+      return {
+        bord: Math.round(gauche),
+        contenu: Math.round(
+          l.querySelector("dd.dterm").getBoundingClientRect().x - g - gauche - large,
+        ),
+        colonnes: getComputedStyle(dl).gridTemplateColumns,
+        pad: getComputedStyle(dl).paddingLeft,
+        dlX: g,
+        dtermX: Math.round(l.querySelector("dd.dterm").getBoundingClientRect().x),
+        contX: Math.round(l.querySelector(".topic-title-container").getBoundingClientRect().x),
+        titreX: Math.round(t.getBoundingClientRect().x),
+        contenuDuConteneur: [...l.querySelector(".topic-title-container").childNodes].map((n) =>
+          n.nodeType === 3
+            ? "texte:" + JSON.stringify(n.textContent.slice(0, 12))
+            : n.tagName + "." + String(n.className) + ":" +
+              Math.round(n.getBoundingClientRect().width)
+        ),
+        dtermStyle: (() => {
+          const c = getComputedStyle(l.querySelector("dd.dterm"));
+          return c.marginLeft + "/" + c.paddingLeft + "/" + c.gridColumnStart;
+        })(),
+      };
+    })(),
+    boutonH: (() => {
+      const a = document.querySelector(".wm-forum__nouveau");
+      return a === null ? null : Math.round(a.getBoundingClientRect().height);
+    })(),
     retour: (() => {
       const a = document.querySelector(".wm-zone__retour");
       if (a === null) return null;
@@ -984,6 +1038,32 @@ dire(
   "LE BLOC DES SUJETS NE S'ARRONDIT QU'EN BAS, IL COLLE À LA BANDE",
   deux.blocAngles === "0px 0px 10px 10px",
   deux.blocAngles,
+);
+dire(
+  "LA FLÈCHE DU DERNIER MESSAGE RESTE À CÔTÉ DU NOM",
+  //  UN LIEN EN BLOC PREND TOUTE LA LARGEUR, et c'est ce qui poussait
+  //  la flèche sous le pseudo : 394 px pour une icône de 12, mesuré
+  //  sur le forum le 27 octobre. En ligne, il ne fait que son image.
+  deux.flecheDernier !== null &&
+    deux.flecheDernier.display.startsWith("inline") &&
+    deux.flecheDernier.largeur < deux.flecheDernier.largeurInfos / 2,
+  JSON.stringify(deux.flecheDernier),
+);
+dire(
+  "LE ROND EST ENTRE LE BORD ET LE TITRE, SANS COLLER NI L'UN NI L'AUTRE",
+  //  Jusqu'au DÉBUT DU CONTENU, pas jusqu'au titre : entre les deux
+  //  il y a l'étiquette « LIBRE », qui est voulue par la maquette.
+  deux.ecarts !== null && deux.ecarts.bord >= 12 && deux.ecarts.contenu <= 30,
+  `${deux.ecarts?.bord} px du bord, ${deux.ecarts?.contenu} px du contenu`,
+);
+dire(
+  "LE BOUTON ET LA BARRE DES RACCOURCIS FONT LA MÊME HAUTEUR",
+  //  « Les nouveaux messages etc. doivent avoir la même hauteur que
+  //  poster un nouveau sujet », 27 octobre. Deux pixels d'écart se
+  //  voient quand les deux objets sont sur la même ligne.
+  deux.boutonH !== null && deux.barreH !== null &&
+    Math.abs(deux.boutonH - deux.barreH) <= 1,
+  `bouton ${deux.boutonH} px · barre ${deux.barreH} px`,
 );
 dire(
   "LES RACCOURCIS REMPLISSENT LEUR BARRE",
