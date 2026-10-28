@@ -1203,6 +1203,17 @@ html#min-width {
     `#headerbar-top > .wrap` garde donc sa pleine largeur, au § 11
     ci-dessus, et le bandeau d'une zone aussi : il est posé après
     `.headerbar`, hors de tout `.wrap`. */
+/*  POURQUOI DEUX SÉLECTEURS. « Le forum ne fait pas 1000 px partout,
+    y'a plein d'endroits où il est bien trop large », 28 octobre.
+    Mesuré sur `/f2` : le conteneur restait à 1 356 px, et la laisse
+    venait de `15-ltr.css` — la feuille de ModernBB — qui écrit
+    `#wrap { max-width: 1400px }` ET `.wrap { max-width: 1400px }`.
+
+    Notre règle ne visait que la CLASSE. Un id bat une classe quelle que
+    soit l'ordre des feuilles : sur `div#wrap`, qui porte tout le centre
+    de la page, c'est le 1 400 de Forumactif qui gagnait. La règle était
+    juste et ne servait à rien. */
+#modernbb #wrap,
 #modernbb .wrap {
   /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28. */
   max-width: 1000px;
@@ -4476,6 +4487,58 @@ html#min-width {
   padding-right: var(--wm-espace-14, 14px);
 }
 
+/*  ── 15.8 · LE PSEUDO NE PREND PLUS TOUTE LA LIGNE ───────────────
+
+    « La flèche doit être à côté du nom du joueur, à droite », 28
+    octobre — redemandé après une première correction qui n'avait pas
+    pris. Elle n'avait pas pris parce que je visais le mauvais élément.
+
+    Mesuré sur `/f2` : le lien de la flèche était bien en
+    `inline-flex`, celui que j'avais corrigé. Mais le lien du PSEUDO,
+    `a.gensmall`, est en `display: block` et occupe les 162 px de la
+    cellule — c'est lui qui pousse tout ce qui suit à la ligne
+    suivante. La flèche tombait à y+20 du nom, quelle que soit sa
+    propre mise en forme.
+
+    La règle fautive est la nôtre, au § 12 de `03` : elle met en bloc
+    tout lien de cette cellule sauf `.last-post-icon`. Elle est juste
+    sur l'INDEX, où le pseudo doit tenir sa ligne au-dessus de la date.
+    Dans une liste de SUJETS, le nom et la flèche vont ensemble.
+
+    On ne touche donc pas à la règle d'origine : on la défait pour les
+    listes de sujets seulement. */
+#modernbb .wm-forum ul.topics li.row .lastpost-infos a:not(.last-post-icon) {
+  display: inline;
+}
+
+#modernbb .wm-forum ul.topics li.row .lastpost-infos a:not(.last-post-icon):has(img) {
+  display: inline-flex;
+  /*  Une icône de deux pixels posée sur la ligne de base flotte sept
+      pixels sous le pseudo. On la cale sur le milieu de la ligne. */
+  align-items: center;
+  vertical-align: middle;
+}
+
+/*  ── 16 · LE BANDEAU SUR LA PAGE D'UN SUJET ────────────────────────
+
+    « Le bandeau : actif que dans les zones sauvages, pas actif sur les
+    autres », 28 octobre. C'est déjà la règle, et elle n'a qu'une
+    source : les dix-sept entrées de `zones.json`. Une ville, une arène,
+    la notice n'y sont pas, donc elles n'ont de bandeau ni sur leur
+    liste de sujets ni sur leurs sujets.
+
+    Ce qui change ici, c'est la HAUTEUR. 460 px sur la page d'une zone :
+    on y arrive pour découvrir un lieu, la photo est le sujet. Sur la
+    page d'un sujet on vient lire des messages, et 460 px de photo
+    avant la première réplique, c'est un mur. La maquette `305:24`
+    donne 300 au bandeau intérieur — on les prend.
+
+    Le fondu garde ses 170 px : c'est lui qui raccorde la photo au fond
+    de page, et il ne dépend pas de la hauteur au-dessus de lui. */
+#modernbb .wm-zone--sujet {
+  height: 300px;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 05 · Un sujet
 
@@ -4695,11 +4758,12 @@ html#min-width {
     mot long le ferait déborder, et on retomberait sur le retour à la
     ligne qu'on vient d'enlever. */
 #modernbb .post .postprofile {
-  /*  211 px : la largeur que ModernBB donne déjà à cette colonne,
-      relevée sur `/t10`. En dur et pas en jeton — ce n'est pas une
-      couleur de charte, c'est la mesure d'un gabarit qu'on subit. */
-  flex: 0 0 211px;
-  max-width: 211px;
+  /*  236 px, la largeur de la maquette `305:24` — et plus les 211 de
+      ModernBB. Le relevé donne 236 pour le profil et 762 pour le corps,
+      soit 998 dans une page de 1 000. En dur et pas en jeton : ce n'est
+      pas une couleur de charte, c'est une mesure de maquette. */
+  flex: 0 0 236px;
+  max-width: 236px;
 }
 
 #modernbb .post .postbody {
@@ -5142,6 +5206,444 @@ html#min-width {
   #modernbb .postprofile-contact {
     display: none;
   }
+}
+
+/* ── 9 · la fiche du dresseur, d'après la maquette 305:24 ──────────── */
+
+/*  Ce que la maquette demande en plus de ce que ModernBB sert : la
+    colonne à 236 px (§ 3), des champs en clé/valeur reliés par un
+    ressort pointillé, un filet de part et d'autre, et la grille de
+    l'équipe.
+
+    POURQUOI LE GABARIT A DÛ CHANGER. Forumactif sert les champs de
+    profil À PLAT : une étiquette, une valeur, un `<br />`, sans rien
+    autour. Un ressort entre deux colonnes demande un conteneur par
+    champ — aucune feuille ne peut en créer un. `viewtopic_body` les
+    enveloppe donc dans `.wm-profil__champ`, et laisse tomber le
+    séparateur, qui ne servait qu'à passer à la ligne.
+
+    Les champs eux-mêmes viennent du panneau — « les champs viennent de
+    forumactif », 28 octobre : on ne décide pas ici lesquels s'affichent
+    ni dans quel ordre, seulement comment. */
+
+#modernbb .wm-profil__champ {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-profil__cle {
+  order: 0;
+  flex: 0 0 auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LE RESSORT. Un pseudo-élément entre les deux, et pas une bordure sur
+    la clé : la ligne doit s'arrêter là où la valeur commence, quelle que
+    soit la longueur des deux. `order` le place au milieu — un
+    pseudo-élément `::before` est le premier enfant, et sans `order` le
+    filet partirait avant l'étiquette.
+
+    `align-self: baseline` et pas `center` : le pointillé suit la ligne
+    d'écriture, sinon il coupe les deux textes à mi-hauteur. */
+#modernbb .wm-profil__champ::before {
+  content: "";
+  order: 1;
+  flex: 1 1 auto;
+  align-self: baseline;
+  min-width: var(--wm-espace-10, 10px);
+  border-bottom: 1px dotted var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-profil__valeur {
+  order: 2;
+  flex: 0 0 auto;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-align: right;
+}
+
+/*  ── L'ÉQUIPE ──────────────────────────────────────────────────────
+
+    Six cases de 56 px, trois par rang : 3 × 56 + 2 × 8 = 184, dans une
+    colonne qui offre 208 px de clair. Les cases restent VISIBLES quand
+    le joueur n'a aucun pokémon — « des cases vides quand il n'en a
+    aucun », 28 octobre — d'où le trait pointillé plutôt qu'un fond
+    plein : une case vide se lit comme une place à prendre, pas comme un
+    carré raté.
+
+    Le JS remplace le contenu d'une case par un sprite ; la case garde
+    sa taille, donc la colonne ne saute pas quand les sprites arrivent. */
+#modernbb .postprofile-equipe {
+  margin-top: var(--wm-espace-10, 10px);
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  text-align: left;
+}
+
+#modernbb .wm-profil__cases {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--wm-espace-8, 8px);
+  margin-top: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-profil__case {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  /*  56 px en dur : c'est la mesure de la maquette `305:24`, pas un
+      jeton de la charte — il n'en existe pas pour les sprites. */
+  width: 56px;
+  height: 56px;
+  border: 1px dashed var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-page, #eecfb5);
+}
+
+/*  Un sprite posé par le JS remplit sa case sans la déformer. */
+#modernbb .wm-profil__case img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/*  Une case occupée perd le pointillé : il ne reste que sur ce qui est
+    encore libre. */
+#modernbb .wm-profil__case:has(img) {
+  border-style: solid;
+}
+
+/* ── 10 · la colonne du corps et son bandeau ───────────────────────── */
+
+/*  « Continue aussi sur l'affichage d'un sujet », 28 octobre.
+    Maquette `305:24` : le corps d'un message s'ouvre sur un bandeau —
+    la date à gauche, un ressort, quatre actions à droite — puis les
+    paragraphes, un filet, la signature.
+
+    LE GABARIT A DÛ CHANGER POUR ÇA. ModernBB pose la tête, le corps et
+    les « j'aime » en FRÈRES du profil : trois enfants de flex qui
+    prennent chacun la ligne entière. `viewtopic_body` les empile
+    maintenant dans `.wm-post-corps`, et la ligne du message redevient
+    ce que la maquette dessine : deux colonnes, pas cinq rangées. */
+#modernbb .post .wm-post-corps {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  /*  Un enfant de flex refuse par défaut de descendre sous la largeur
+      de son contenu : une image large ou un mot long ferait déborder la
+      colonne, et le corps repasserait sous le profil. */
+  min-width: 0;
+}
+
+/*  Les trois rangées n'ont plus à réclamer la ligne entière : elles
+    sont dans leur colonne. La règle du § 3 qui leur donnait
+    `flex: 1 1 100%` ne s'applique plus qu'aux gabarits qu'on n'a pas
+    encore republiés — on la laisse, elle ne gêne pas ici. */
+#modernbb .post .wm-post-corps > .post-head,
+#modernbb .post .wm-post-corps > .postbody,
+#modernbb .post .wm-post-corps > .fa_like_div {
+  flex: 0 0 auto;
+}
+
+/*  LE BANDEAU. Le § 2 a déjà posé la tête en flex, son filet et ses
+    actions à droite : on ne le refait pas. Ce qui change ici est
+    l'ORDRE, parce que la maquette met la date EN PREMIER.
+
+    Le § 2 la met en deuxième, derrière le titre — c'était juste quand
+    la tête traversait toute la largeur du message. Dans la colonne du
+    corps, la maquette `305:24` montre la date seule à gauche, les
+    actions à droite, et le titre sur sa propre ligne en dessous. */
+#modernbb .post .wm-post-corps > .post-head {
+  align-items: center;
+}
+
+#modernbb .post .wm-post-corps > .post-head .topic-date {
+  order: 0;
+  flex: 0 0 auto;
+}
+
+/*  Le titre du sujet passe sur sa propre ligne, SOUS la date et les
+    actions. La maquette ne le répète pas sous chaque message — il est
+    dans la tête de la page — mais on ne le retire pas d'ici : il porte
+    le permalien du message, et c'est par lui qu'on cite un passage
+    précis.
+
+    `order: 3` le met après les actions, qui sont en 3 au § 2 : à ordre
+    égal, c'est l'ordre du document qui tranche, et dans le gabarit le
+    titre vient après `menu-wrap`. `flex: 1 1 100%` lui donne la ligne
+    entière, donc il passe en dessous. */
+#modernbb .post .wm-post-corps > .post-head .topic-title {
+  order: 3;
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+/*  ── LE FILET AVANT LA SIGNATURE ────────────────────────────────────
+    Maquette `305:24` : un trait sépare le message de la signature. */
+#modernbb .post .postbody .signature_div {
+  margin-top: var(--wm-espace-14, 14px);
+  padding-top: var(--wm-espace-14, 14px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/* ── 11 · la fiche aux cotes de la maquette 305:24 ─────────────────── */
+
+/*  Les cotes du relevé, dans une colonne de 236 : l'avatar est posé à
+    18 et fait 200 × 320, le pseudo est à 352, la pastille de groupe à
+    378, un filet à 413, les trois champs à 426, 448 et 470, un second
+    filet à 497, l'équipe à 510 et une dernière ligne à 661.
+
+    On ne pose PAS ces ordonnées : ce sont des positions absolues de
+    maquette, et la colonne doit rester une colonne — un joueur sans
+    pokémon, un pseudo sur deux lignes, et tout ce qui suit se décale.
+    On garde les ÉCARTS, qui eux sont la règle. */
+
+#modernbb .postprofile {
+  /*  18 de chaque côté, comme la maquette : 236 − 2 × 18 = 200, la
+      largeur de l'avatar, du filet et de la grille d'équipe. */
+  padding: var(--wm-espace-20, 20px) 18px;
+}
+
+/*  L'AVATAR EST UN PORTRAIT, 200 × 320. `object-fit: cover` le recadre
+    sans le déformer quand l'image fournie n'a pas ce rapport — et c'est
+    le cas général, Forumactif accepte n'importe quelle taille. */
+#modernbb .postprofile-avatar img {
+  width: 200px;
+  max-width: 100%;
+  height: 320px;
+  margin-bottom: var(--wm-espace-12, 12px);
+  object-fit: cover;
+}
+
+/*  LA PASTILLE DE GROUPE. ModernBB sert le rang en texte nu ; la
+    maquette en fait une pastille de 21 px de haut, centrée sous le
+    pseudo. Le groupe donne sa couleur en style inline — on ne la
+    touche pas (planche 59, § 8), on ne donne que la forme. */
+#modernbb .postprofile-rank {
+  display: inline-flex;
+  align-items: center;
+  height: 21px;
+  margin-top: var(--wm-espace-4, 4px);
+  margin-bottom: var(--wm-espace-14, 14px);
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LE SECOND FILET, celui qui sépare les champs de l'équipe. Le
+    premier est déjà sur `.postprofile-info` au § 3. */
+#modernbb .postprofile-info {
+  padding-bottom: var(--wm-espace-12, 12px);
+}
+
+/*  Les champs se suivent tous les 7 px — 15 de haut, 22 de pas. */
+#modernbb .wm-profil__champ + .wm-profil__champ {
+  margin-top: var(--wm-espace-6, 6px);
+}
+
+/*  L'ÉQUIPE : le libellé centré au-dessus de sa grille, et les cases
+    espacées de 8 — 3 × 56 + 2 × 8 = 184 dans les 200 utiles. */
+#modernbb .postprofile-equipe .wm-profil__cle {
+  display: block;
+  text-align: center;
+}
+
+#modernbb .wm-profil__cases {
+  gap: var(--wm-espace-8, 8px);
+}
+
+/* ── 12 · la section des messages ──────────────────────────────────── */
+
+/*  Le même bandeau qu'à l'index et sur la page d'une zone : la règle
+    vit au § 2 de `03`, et `viewtopic_body` sert le même balisage. On ne
+    pose ici que ce qui tient la section elle-même. */
+#modernbb .wm-sujet__section {
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+/*  Les messages forment un bloc continu sous le bandeau : un filet
+    entre eux, et les coins du bas arrondis comme la liste des sujets. */
+#modernbb .wm-sujet__section .post {
+  border-radius: 0;
+}
+
+#modernbb .wm-sujet__section .post + .post {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-sujet__section .post:last-of-type {
+  border-bottom-right-radius: var(--wm-rayon-lg, 10px);
+  border-bottom-left-radius: var(--wm-rayon-lg, 10px);
+}
+
+/* ── 13 · la barre d'actions du sujet ──────────────────────────────── */
+
+/*  Maquette `305:24`, bloc « actions » : deux boutons à gauche, un
+    ressort, « Page 1 sur 1 » et les pastilles de pagination à droite,
+    le tout sur 40 px.
+
+    `margin-left: auto` sur la pagination plutôt que `space-between` :
+    le bloc du milieu — le menu « Partager » de Forumactif — n'apparaît
+    pas toujours, et `space-between` le promènerait au centre les jours
+    où il est là. */
+#modernbb .wm-sujet__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  margin-bottom: var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-sujet__boutons {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+}
+
+/*  LA PAGINATION PASSE EN DERNIER. Le gabarit la sert AVANT le menu
+    « Partager » de Forumactif, qui reste dans la page même vide : avec
+    `margin-left: auto` seul, elle se collait contre ce menu et pas
+    contre le bord — relevé au harnais, `pagesADroite: false`.
+
+    `order` la met après lui, et le `auto` fait le reste. */
+#modernbb .wm-sujet__actions .pagination {
+  order: 3;
+  margin-left: auto;
+}
+
+#modernbb .wm-sujet__actions .topic-actions-buttons {
+  order: 2;
+}
+
+/*  Le clearfix de ModernBB est un enfant de flex : largeur nulle, mais
+    le `gap` s'applique avant lui et décale la pagination de dix pixels
+    du bord. Même piège qu'au § 13 de `04`. */
+#modernbb .wm-sujet__actions::after,
+#modernbb .wm-sujet__actions::before {
+  display: none;
+}
+
+/* ── 11 · la tête du sujet, maquette 305:24 ────────────────────────── */
+
+/*  Le relevé : fil d'Ariane à y = 24, puis la tête à y = 60 — les
+    pastilles, le titre, la méta. Le gabarit, lui, sert le titre
+    d'abord et le fil ensuite : c'est l'ordre de ModernBB, et aucun
+    déplacement de nœud n'est nécessaire pour le corriger.
+
+    `order` ET PAS UN DÉPLACEMENT EN JAVASCRIPT. Sur une page de zone,
+    `monterLeFilDAriane` déplace vraiment le fil — il va dans le
+    bandeau, qui est un autre parent. Ici il reste chez lui : seule sa
+    place dans la colonne change, et c'est exactement ce que `order`
+    fait sans toucher au document. Une page sans JavaScript a donc la
+    bonne tête elle aussi. */
+#modernbb .wm-sujet .sub-header-info,
+#modernbb .sub-header .sub-header-info:has(+ .wm-sujet__actions),
+#modernbb .sub-header:has(~ .wm-sujet__actions) .sub-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .sub-header:has(~ .wm-sujet__actions) h1.page-title {
+  order: 1;
+  margin: 0;
+}
+
+/*  LA MÉTA. `{POSTERS_LIST}` est la seule des quatre entrées de la
+    maquette que le gabarit porte vraiment — les trois autres (réponses,
+    vues, dernier message) n'existent pas dans `viewtopic_body`. On
+    style ce qu'on a et on n'invente pas le reste : une méta à moitié
+    vraie serait pire qu'une méta courte. */
+/*  `:not(.sub-header-path)` : le fil d'Ariane est lui aussi un frère
+    suivant du titre, et sans cette exclusion il repassait en ordre 2 —
+    la règle de la méta étant plus spécifique que la sienne. Le harnais
+    l'a dit : `ordreFil: 2` alors que la feuille écrivait 0. */
+#modernbb .sub-header:has(~ .wm-sujet__actions) .page-title ~ *:not(.sub-header-path) {
+  order: 2;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 12 · la fiche du dresseur : l'avatar et la pastille ───────────── */
+
+/*  L'AVATAR EST UN PORTRAIT DE 200 × 320, pas une vignette. C'est la
+    cote de la maquette — `305:115`, un rectangle arrondi — et c'est le
+    dessin du personnage : on vient le voir.
+
+    `height` EN DUR ET `object-fit: cover` : sans hauteur imposée, une
+    image carrée donnerait un avatar carré et la colonne sauterait d'un
+    message à l'autre. Avec, toutes les fiches ont la même tête, quelle
+    que soit l'image fournie. */
+#modernbb .wm-post-corps ~ * .postprofile-avatar img,
+#modernbb .post .postprofile-avatar img {
+  width: 200px;
+  height: 320px;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+/*  LA PASTILLE DE GROUPE. Maquette `305:119` : 77 × 21, arrondie, sous
+    le pseudo. ModernBB sert le rang dans `.postprofile-rank` ; on en
+    fait la pastille plutôt que d'en ajouter une — le texte est le même
+    et il est déjà à sa place. */
+#modernbb .post .postprofile-rank {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  min-height: 21px;
+  padding: 0 var(--wm-espace-10, 10px);
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/* ── 13 · le bas du sujet ──────────────────────────────────────────── */
+
+/*  Maquette `305:303` : trois blocs côte à côte, 322,67 chacun, 16
+    d'écart. Le gabarit n'en remplit qu'un — voir le commentaire du
+    template : les deux autres n'ont aucune variable dans
+    `viewtopic_body`. La règle les accueillerait si Forumactif les
+    servait un jour ; en attendant la carte seule prend sa largeur et
+    ne fait pas semblant d'être une rangée. */
+#modernbb #info_open.wm-sujet__bas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-16, 16px);
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+#modernbb #info_open.wm-sujet__bas > .block {
+  /*  322 : le tiers des 1 000 de la maquette, moins les deux écarts
+      de 16. En dur — c'est une cote de maquette, pas un jeton. */
+  flex: 1 1 322px;
+  min-width: 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb #info_open.wm-sujet__bas .h3 {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb #info_open.wm-sujet__bas p {
+  margin: 0;
+  font-size: var(--wm-taille-petit, 11.5px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

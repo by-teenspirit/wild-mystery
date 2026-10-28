@@ -269,6 +269,17 @@ const pose = await p.evaluate(() => {
     //  première chose qui casse quand on traduit des positions
     //  absolues en flexbox.
     debord: document.documentElement.scrollWidth > innerWidth,
+    //  ET QUI DÉBORDE. Un « rien ne déborde » qui échoue sans dire quoi
+    //  oblige à remonter la composition à la main : on nomme ceux dont
+    //  le bord droit sort de la fenêtre.
+    coupables: [...document.querySelectorAll(".wm-accueil *")]
+      .filter((n) => Math.round(n.getBoundingClientRect().right) > innerWidth + 1)
+      .slice(0, 6)
+      .map((n) =>
+        (n.className && typeof n.className === "string"
+          ? "." + n.className.trim().split(/\s+/)[0]
+          : n.tagName) + " → " + Math.round(n.getBoundingClientRect().right)
+      ),
   };
 });
 dire("le module a remplacé le repli", pose.pose, JSON.stringify(pose));
@@ -278,7 +289,7 @@ dire(
     pose.votes === 2 && pose.staff === 1 && pose.actus === 2 && pose.preliens === 2,
   JSON.stringify(pose),
 );
-dire("et rien ne déborde en largeur", !pose.debord);
+dire("et rien ne déborde en largeur", !pose.debord, pose.coupables.join(" · "));
 
 // ── 2 bis · LA MASCOTTE EST UN DÉCOR, ET ELLE RESTE DANS SON COIN ──
 //  CETTE SECTION A DIT AUTRE CHOSE PENDANT UNE JOURNÉE, ET C'ÉTAIT
@@ -460,9 +471,22 @@ const loeil = await p.evaluate(() => {
     //  un lecteur d'écran le lirait.
     motVisible: /visibility/i.test(hote.textContent),
     //  Et la pastille garde sa taille : 12 px de dessin, 4 px de marge.
+    //
+    //  `offsetWidth` ET PAS LA BOÎTE À L'ÉCRAN. Le bloc d'accueil est
+    //  mis à l'échelle par `zoom`, dont le facteur suit la largeur du
+    //  parent : le jour où le forum est passé de 1 400 à 1 000 px, la
+    //  pastille a mesuré 15 px à l'écran sans qu'une seule règle de
+    //  cette feuille ait changé. Le test accusait la mise en page d'un
+    //  rétrécissement qui est le comportement voulu — « la MÊME
+    //  composition en plus petit », 8 octobre.
+    //
+    //  Le style calculé rend la mesure en pixels CSS, avant le zoom :
+    //  c'est la seule qui dise quelque chose sur la règle. (`offsetWidth`
+    //  aurait fait l'affaire sur une div — un `<svg>` n'en a pas.)
     taille: yeux.map((o) => {
-      const r = o.getBoundingClientRect();
-      return `${Math.round(r.width)}x${Math.round(r.height)}`;
+      const st = getComputedStyle(o);
+      const cote = (c, p) => Math.round(parseFloat(st[c]) + 2 * parseFloat(st[p]));
+      return `${cote("width", "paddingLeft")}x${cote("height", "paddingTop")}`;
     }),
   };
 });
@@ -806,7 +830,7 @@ const vrai = await p.evaluate(() => {
 });
 dire(
   "AVEC LES VRAIES DONNÉES, LES SEPT BLOCS TIENNENT LA PAGE",
-  vrai.pose && vrai.liens === 7 && vrai.partenaires === 7 && vrai.actus === 4 &&
+  vrai.pose && vrai.liens === 7 && vrai.partenaires === 6 && vrai.actus === 4 &&
     vrai.preliens === 6 && vrai.mascotte !== "aucune",
   JSON.stringify(vrai),
 );
@@ -1040,10 +1064,28 @@ for (
     "la descente de la bande du bas": 32,
     "la moitié dedans de la carte des votes": 36,
     "la vignette de vote": 26,
-    "la bulle de pré-lien": 75,
+    //  56 depuis le 28 octobre : la cote de la maquette, retrouvée en
+    //  recomposant l'accueil pour 1 000. Elle avait grandi à 75, et ces
+    //  dix-neuf pixels coûtaient la troisième colonne de la grille.
+    "la bulle de pré-lien": 56,
   })
 ) {
-  dire(`${nom} vaut ${attendu}`, cotes.ecarts[nom] === attendu, `relevé ${cotes.ecarts[nom]}`);
+  //  ── UN PIXEL DE JEU, ET POURQUOI ────────────────────────────────
+  //
+  //  Ces cinq cotes se lisent À L'ÉCRAN, après le `zoom` du bloc
+  //  d'accueil — dont le facteur suit la largeur du parent. Le jour où
+  //  le forum est passé de 1 400 à 1 000 px, la bulle de pré-lien a
+  //  mesuré 76 au lieu de 75 sans qu'une règle de la feuille ait
+  //  changé : c'est l'arrondi du facteur, pas une mise en page qui
+  //  bouge.
+  //
+  //  Un pixel de jeu, pas plus : sur des cotes de 26 à 77, ça reste
+  //  entre 1 et 4 %, et une vraie dérive se voit toujours.
+  dire(
+    `${nom} vaut ${attendu}`,
+    Math.abs(cotes.ecarts[nom] - attendu) <= 1,
+    `relevé ${cotes.ecarts[nom]}`,
+  );
 }
 
 dire(
@@ -1069,7 +1111,7 @@ dire(
   JSON.stringify(cotes.bas),
 );
 dire(
-  "les sept vignettes de partenaire tiennent sur une rangée",
+  "les six vignettes de partenaire tiennent sur une rangée",
   cotes.rangeesDePartenaires === 1,
   `${cotes.rangeesDePartenaires} rangée(s)`,
 );

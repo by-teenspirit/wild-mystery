@@ -204,7 +204,11 @@ function listeDesSujets() {
       "topics_list_box.row.REPLIES": s.reponses,
       "topics_list_box.row.VIEWS": s.vues,
       "topics_list_box.row.topic.avatar.LAST_POST_AVATAR": `<img src="${PIXEL}" alt="" />`,
-      "topics_list_box.row.LAST_POST_AUTHOR": s.dernier,
+      //  LE PSEUDO EST UN LIEN, comme sur le forum — et c'est lui, en
+      //  `display: block`, qui poussait la flèche à la ligne suivante.
+      //  Servi en texte nu, le décor ne pouvait pas le montrer.
+      "topics_list_box.row.LAST_POST_AUTHOR":
+        `<a href="/u3" class="gensmall"><span class="group-2"><strong>${s.dernier}</strong></span></a>`,
       //  L'ICÔNE « VOIR LE DERNIER MESSAGE ». Forumactif la sert dans
       //  `{LAST_POST_IMG}`, enveloppée d'un lien — et c'est ce lien
       //  qui passait en `display: block` et poussait la flèche sous
@@ -342,15 +346,24 @@ const BANNIERE = `<div class="headerbar">
 //    de liens s'arrêtaient douze pixels avant le bord — mesuré sur
 //    `/f2` le 28 octobre. Sans cette ligne, le harnais ne peut pas
 //    voir le défaut.
+//  · `dfn { display: none }`. ModernBB cache ces étiquettes —
+//    « Dernier message », « Réponses », « Vues » — et les garde dans le
+//    gabarit pour les lecteurs d'écran. Le décor les laissait visibles :
+//    le `<dfn>` de la cellule du dernier message prenait 91 px, et le
+//    harnais voyait la flèche repoussée à la ligne quelle que soit la
+//    feuille. Il accusait notre CSS d'un défaut qui n'était que le sien
+//    — mesuré sur `/f2` le 28 octobre, où ce `dfn` vaut bien `none`.
 const BASE_MODERNBB = `dl.icon { background-size: 33px 33px !important; }
-.topic-actions::after { content: ""; display: block; clear: both; }`;
+.topic-actions::after { content: ""; display: block; clear: both; }
+dfn { display: none; }`;
 
-const page = (corps) =>
+const page = (corps, styleEnPlus = "") =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${BASE_MODERNBB}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 <style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
+<style>${styleEnPlus}</style>
 </head><body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
 ${BANNIERE}
@@ -370,7 +383,7 @@ function dire(nom, ok, detail = "") {
 
 /** Une page montée. `script: false` sert la même page sans notre
  *  JavaScript — c'est la moitié du harnais. */
-async function monter({ corps, script = true, largeur = 1440 } = {}) {
+async function monter({ corps, script = true, largeur = 1440, styleEnPlus = "" } = {}) {
   const p = await nav.newPage({ viewport: { width: largeur, height: 1000 } });
   p.on("pageerror", (e) => {
     soucis.push("erreur JS : " + e.message);
@@ -403,7 +416,10 @@ async function monter({ corps, script = true, largeur = 1440 } = {}) {
         body: Buffer.from(PIXEL.split(",")[1], "base64"),
       });
     }
-    return r.fulfill({ contentType: "text/html; charset=utf-8", body: page(corps) });
+    return r.fulfill({
+      contentType: "text/html; charset=utf-8",
+      body: page(corps, styleEnPlus),
+    });
   });
   await p.goto("http://wild-mystery.test/f34-montagnes-embrumees");
   if (script) {
@@ -916,6 +932,29 @@ const deux = await p1.evaluate(() => {
         titreY: Math.round(b.y),
       };
     })(),
+    pseudoEtFleche: (() => {
+      const l = document.querySelector(".wm-forum ul.topics li.row");
+      const infos = l?.querySelector(".lastpost-infos");
+      const nom = infos?.querySelector("a.gensmall") ?? null;
+      const fleche = infos?.querySelector("a[href] img")?.closest("a") ?? null;
+      if (infos === undefined || infos === null || nom === null || fleche === null) return null;
+      return {
+        nomY: Math.round(nom.getBoundingClientRect().y),
+        nomLargeur: Math.round(nom.getBoundingClientRect().width),
+        flecheY: Math.round(fleche.getBoundingClientRect().y),
+        celluleLargeur: Math.round(infos.getBoundingClientRect().width),
+        nomFin: Math.round(nom.getBoundingClientRect().right),
+        nomBas: Math.round(nom.getBoundingClientRect().bottom),
+        flecheX: Math.round(fleche.getBoundingClientRect().x),
+        enfants: [...infos.childNodes].map((n) =>
+          n.nodeType === 3
+            ? "texte:" + JSON.stringify(n.textContent.slice(0, 12))
+            : n.tagName + "." + getComputedStyle(n).display + " y=" +
+              Math.round(n.getBoundingClientRect().y) + " l=" +
+              Math.round(n.getBoundingClientRect().width)
+        ),
+      };
+    })(),
     flecheDernier: (() => {
       const l = document.querySelector(".wm-forum ul.topics li.row");
       const infos = l?.querySelector(".lastpost-infos");
@@ -1077,6 +1116,21 @@ dire(
   "LE BLOC DES SUJETS NE S'ARRONDIT QU'EN BAS, IL COLLE À LA BANDE",
   deux.blocAngles === "0px 0px 10px 10px",
   deux.blocAngles,
+);
+dire(
+  "LE PSEUDO ET LA FLÈCHE SONT SUR LA MÊME LIGNE",
+  //  Le lien du pseudo était en `display: block` et prenait les 162 px
+  //  de la cellule : la flèche tombait vingt pixels plus bas, quelle
+  //  que soit sa propre mise en forme. Mesuré sur `/f2` le 28 octobre.
+  deux.pseudoEtFleche !== null &&
+    //  À DROITE DU PSEUDO, et sur la même ligne que lui. On ne compare
+    //  pas les ordonnées : une icône de deux pixels alignée au milieu de
+    //  la ligne n'a pas le même haut qu'un texte de quatorze. Le bon
+    //  critère est que les deux boîtes se recouvrent verticalement.
+    deux.pseudoEtFleche.flecheX >= deux.pseudoEtFleche.nomFin &&
+    deux.pseudoEtFleche.flecheY < deux.pseudoEtFleche.nomBas &&
+    deux.pseudoEtFleche.nomLargeur < deux.pseudoEtFleche.celluleLargeur,
+  JSON.stringify(deux.pseudoEtFleche),
 );
 dire(
   "LA FLÈCHE DU DERNIER MESSAGE RESTE À CÔTÉ DU NOM",
@@ -1329,6 +1383,40 @@ dire(
   JSON.stringify(intact),
 );
 await p9.close();
+
+//  ── LA LARGEUR DU FORUM, CONTRE LA LAISSE DE MODERNBB ──────────────
+//
+//  « Le forum ne fait pas 1000 px partout, y'a plein d'endroits où il
+//  est bien trop large », 28 octobre.
+//
+//  Mesuré sur `/f2` : `15-ltr.css` — la feuille de ModernBB — écrit la
+//  largeur réglée dans le panneau DEUX FOIS, sur `#wrap` et sur
+//  `.wrap`. Notre règle ne visait que la classe, et un id bat une
+//  classe quel que soit l'ordre des feuilles : le conteneur restait à
+//  1 356 px. La règle était juste et ne servait à rien.
+//
+//  Le décor reproduit donc les deux déclarations de ModernBB, à sa
+//  valeur d'origine. Sans elles, ce test ne prouverait rien.
+//
+//  Elles sont injectées APRÈS notre feuille, alors que sur le forum
+//  elles viennent avant : c'est le cas le plus défavorable, et notre
+//  sélecteur doit gagner même là. Il le peut parce qu'il porte deux
+//  identifiants — `#modernbb #wrap` — contre un seul chez ModernBB.
+
+const p10 = await monter({
+  corps: `<div id="wrap"><div class="wm-sonde-largeur">du contenu</div></div>`,
+  styleEnPlus: "#wrap { max-width: 1400px; } .wrap { max-width: 1400px; }",
+});
+const laisse = await p10.evaluate(() => ({
+  wrap: getComputedStyle(document.getElementById("wrap")).maxWidth,
+  corps: Math.round(document.querySelector(".wm-sonde-largeur").getBoundingClientRect().width),
+}));
+dire(
+  "LE FORUM EST TENU À 1000 px, MÊME CONTRE L'ID DE MODERNBB",
+  laisse.wrap === "1000px" && laisse.corps <= 1000,
+  JSON.stringify(laisse),
+);
+await p10.close();
 
 await nav.close();
 if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }

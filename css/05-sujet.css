@@ -217,11 +217,12 @@
     mot long le ferait déborder, et on retomberait sur le retour à la
     ligne qu'on vient d'enlever. */
 #modernbb .post .postprofile {
-  /*  211 px : la largeur que ModernBB donne déjà à cette colonne,
-      relevée sur `/t10`. En dur et pas en jeton — ce n'est pas une
-      couleur de charte, c'est la mesure d'un gabarit qu'on subit. */
-  flex: 0 0 211px;
-  max-width: 211px;
+  /*  236 px, la largeur de la maquette `305:24` — et plus les 211 de
+      ModernBB. Le relevé donne 236 pour le profil et 762 pour le corps,
+      soit 998 dans une page de 1 000. En dur et pas en jeton : ce n'est
+      pas une couleur de charte, c'est une mesure de maquette. */
+  flex: 0 0 236px;
+  max-width: 236px;
 }
 
 #modernbb .post .postbody {
@@ -664,4 +665,191 @@
   #modernbb .postprofile-contact {
     display: none;
   }
+}
+
+/* ── 9 · la fiche du dresseur, d'après la maquette 305:24 ──────────── */
+
+/*  Ce que la maquette demande en plus de ce que ModernBB sert : la
+    colonne à 236 px (§ 3), des champs en clé/valeur reliés par un
+    ressort pointillé, un filet de part et d'autre, et la grille de
+    l'équipe.
+
+    POURQUOI LE GABARIT A DÛ CHANGER. Forumactif sert les champs de
+    profil À PLAT : une étiquette, une valeur, un `<br />`, sans rien
+    autour. Un ressort entre deux colonnes demande un conteneur par
+    champ — aucune feuille ne peut en créer un. `viewtopic_body` les
+    enveloppe donc dans `.wm-profil__champ`, et laisse tomber le
+    séparateur, qui ne servait qu'à passer à la ligne.
+
+    Les champs eux-mêmes viennent du panneau — « les champs viennent de
+    forumactif », 28 octobre : on ne décide pas ici lesquels s'affichent
+    ni dans quel ordre, seulement comment. */
+
+#modernbb .wm-profil__champ {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-profil__cle {
+  order: 0;
+  flex: 0 0 auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LE RESSORT. Un pseudo-élément entre les deux, et pas une bordure sur
+    la clé : la ligne doit s'arrêter là où la valeur commence, quelle que
+    soit la longueur des deux. `order` le place au milieu — un
+    pseudo-élément `::before` est le premier enfant, et sans `order` le
+    filet partirait avant l'étiquette.
+
+    `align-self: baseline` et pas `center` : le pointillé suit la ligne
+    d'écriture, sinon il coupe les deux textes à mi-hauteur. */
+#modernbb .wm-profil__champ::before {
+  content: "";
+  order: 1;
+  flex: 1 1 auto;
+  align-self: baseline;
+  min-width: var(--wm-espace-10, 10px);
+  border-bottom: 1px dotted var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-profil__valeur {
+  order: 2;
+  flex: 0 0 auto;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-align: right;
+}
+
+/*  ── L'ÉQUIPE ──────────────────────────────────────────────────────
+
+    Six cases de 56 px, trois par rang : 3 × 56 + 2 × 8 = 184, dans une
+    colonne qui offre 208 px de clair. Les cases restent VISIBLES quand
+    le joueur n'a aucun pokémon — « des cases vides quand il n'en a
+    aucun », 28 octobre — d'où le trait pointillé plutôt qu'un fond
+    plein : une case vide se lit comme une place à prendre, pas comme un
+    carré raté.
+
+    Le JS remplace le contenu d'une case par un sprite ; la case garde
+    sa taille, donc la colonne ne saute pas quand les sprites arrivent. */
+#modernbb .postprofile-equipe {
+  margin-top: var(--wm-espace-10, 10px);
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  text-align: left;
+}
+
+#modernbb .wm-profil__cases {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--wm-espace-8, 8px);
+  margin-top: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-profil__case {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  /*  56 px en dur : c'est la mesure de la maquette `305:24`, pas un
+      jeton de la charte — il n'en existe pas pour les sprites. */
+  width: 56px;
+  height: 56px;
+  border: 1px dashed var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-page, #eecfb5);
+}
+
+/*  Un sprite posé par le JS remplit sa case sans la déformer. */
+#modernbb .wm-profil__case img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/*  Une case occupée perd le pointillé : il ne reste que sur ce qui est
+    encore libre. */
+#modernbb .wm-profil__case:has(img) {
+  border-style: solid;
+}
+
+/* ── 10 · la colonne du corps et son bandeau ───────────────────────── */
+
+/*  « Continue aussi sur l'affichage d'un sujet », 28 octobre.
+    Maquette `305:24` : le corps d'un message s'ouvre sur un bandeau —
+    la date à gauche, un ressort, quatre actions à droite — puis les
+    paragraphes, un filet, la signature.
+
+    LE GABARIT A DÛ CHANGER POUR ÇA. ModernBB pose la tête, le corps et
+    les « j'aime » en FRÈRES du profil : trois enfants de flex qui
+    prennent chacun la ligne entière. `viewtopic_body` les empile
+    maintenant dans `.wm-post-corps`, et la ligne du message redevient
+    ce que la maquette dessine : deux colonnes, pas cinq rangées. */
+#modernbb .post .wm-post-corps {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  /*  Un enfant de flex refuse par défaut de descendre sous la largeur
+      de son contenu : une image large ou un mot long ferait déborder la
+      colonne, et le corps repasserait sous le profil. */
+  min-width: 0;
+}
+
+/*  Les trois rangées n'ont plus à réclamer la ligne entière : elles
+    sont dans leur colonne. La règle du § 3 qui leur donnait
+    `flex: 1 1 100%` ne s'applique plus qu'aux gabarits qu'on n'a pas
+    encore republiés — on la laisse, elle ne gêne pas ici. */
+#modernbb .post .wm-post-corps > .post-head,
+#modernbb .post .wm-post-corps > .postbody,
+#modernbb .post .wm-post-corps > .fa_like_div {
+  flex: 0 0 auto;
+}
+
+/*  LE BANDEAU. Le § 2 a déjà posé la tête en flex, son filet et ses
+    actions à droite : on ne le refait pas. Ce qui change ici est
+    l'ORDRE, parce que la maquette met la date EN PREMIER.
+
+    Le § 2 la met en deuxième, derrière le titre — c'était juste quand
+    la tête traversait toute la largeur du message. Dans la colonne du
+    corps, la maquette `305:24` montre la date seule à gauche, les
+    actions à droite, et le titre sur sa propre ligne en dessous. */
+#modernbb .post .wm-post-corps > .post-head {
+  align-items: center;
+}
+
+#modernbb .post .wm-post-corps > .post-head .topic-date {
+  order: 0;
+  flex: 0 0 auto;
+}
+
+/*  Le titre du sujet passe sur sa propre ligne, SOUS la date et les
+    actions. La maquette ne le répète pas sous chaque message — il est
+    dans la tête de la page — mais on ne le retire pas d'ici : il porte
+    le permalien du message, et c'est par lui qu'on cite un passage
+    précis.
+
+    `order: 3` le met après les actions, qui sont en 3 au § 2 : à ordre
+    égal, c'est l'ordre du document qui tranche, et dans le gabarit le
+    titre vient après `menu-wrap`. `flex: 1 1 100%` lui donne la ligne
+    entière, donc il passe en dessous. */
+#modernbb .post .wm-post-corps > .post-head .topic-title {
+  order: 3;
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+/*  ── LE FILET AVANT LA SIGNATURE ────────────────────────────────────
+    Maquette `305:24` : un trait sépare le message de la signature. */
+#modernbb .post .postbody .signature_div {
+  margin-top: var(--wm-espace-14, 14px);
+  padding-top: var(--wm-espace-14, 14px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }

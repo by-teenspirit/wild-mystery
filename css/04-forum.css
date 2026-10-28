@@ -1417,3 +1417,35 @@
 #modernbb .vf_jumpbox select {
   padding-right: var(--wm-espace-14, 14px);
 }
+
+/*  ── 15.8 · LE PSEUDO NE PREND PLUS TOUTE LA LIGNE ───────────────
+
+    « La flèche doit être à côté du nom du joueur, à droite », 28
+    octobre — redemandé après une première correction qui n'avait pas
+    pris. Elle n'avait pas pris parce que je visais le mauvais élément.
+
+    Mesuré sur `/f2` : le lien de la flèche était bien en
+    `inline-flex`, celui que j'avais corrigé. Mais le lien du PSEUDO,
+    `a.gensmall`, est en `display: block` et occupe les 162 px de la
+    cellule — c'est lui qui pousse tout ce qui suit à la ligne
+    suivante. La flèche tombait à y+20 du nom, quelle que soit sa
+    propre mise en forme.
+
+    La règle fautive est la nôtre, au § 12 de `03` : elle met en bloc
+    tout lien de cette cellule sauf `.last-post-icon`. Elle est juste
+    sur l'INDEX, où le pseudo doit tenir sa ligne au-dessus de la date.
+    Dans une liste de SUJETS, le nom et la flèche vont ensemble.
+
+    On ne touche donc pas à la règle d'origine : on la défait pour les
+    listes de sujets seulement. */
+#modernbb .wm-forum ul.topics li.row .lastpost-infos a:not(.last-post-icon) {
+  display: inline;
+}
+
+#modernbb .wm-forum ul.topics li.row .lastpost-infos a:not(.last-post-icon):has(img) {
+  display: inline-flex;
+  /*  Une icône de deux pixels posée sur la ligne de base flotte sept
+      pixels sous le pseudo. On la cale sur le milieu de la ligne. */
+  align-items: center;
+  vertical-align: middle;
+}

@@ -944,6 +944,17 @@ html#min-width {
     `#headerbar-top > .wrap` garde donc sa pleine largeur, au § 11
     ci-dessus, et le bandeau d'une zone aussi : il est posé après
     `.headerbar`, hors de tout `.wrap`. */
+/*  POURQUOI DEUX SÉLECTEURS. « Le forum ne fait pas 1000 px partout,
+    y'a plein d'endroits où il est bien trop large », 28 octobre.
+    Mesuré sur `/f2` : le conteneur restait à 1 356 px, et la laisse
+    venait de `15-ltr.css` — la feuille de ModernBB — qui écrit
+    `#wrap { max-width: 1400px }` ET `.wrap { max-width: 1400px }`.
+
+    Notre règle ne visait que la CLASSE. Un id bat une classe quelle que
+    soit l'ordre des feuilles : sur `div#wrap`, qui porte tout le centre
+    de la page, c'est le 1 400 de Forumactif qui gagnait. La règle était
+    juste et ne servait à rien. */
+#modernbb #wrap,
 #modernbb .wrap {
   /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28. */
   max-width: 1000px;

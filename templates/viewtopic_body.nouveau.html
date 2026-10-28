@@ -66,7 +66,19 @@ showHiddenMessage = function(id) {
 		</div>
 	</div>
 
-	<div class="sub-header-buttons">
+</div>
+
+<!--  LA BARRE D'ACTIONS, maquette 305:24 : les deux boutons à gauche,
+      un ressort, la pagination à droite.
+
+      LES BOUTONS VIENNENT D'EN HAUT. Le gabarit d'origine les pose
+      dans `.sub-header-buttons`, à côté du titre de page ; la maquette
+      les met sur leur propre ligne, avec la pagination. On les
+      descend ici plutôt que de les rapprocher en CSS : deux boîtes qui
+      doivent partager une ligne et un ressort ont tout intérêt à être
+      dans le même parent. -->
+<div class="topic-actions wm-sujet__actions">
+	<div class="wm-sujet__boutons">
 		<!-- BEGIN switch_user_authpost -->
 			<a href="{U_POST_NEW_TOPIC}" rel="nofollow" {S_POST_NEW_TOPIC} title="{T_POST_NEW_TOPIC}" class="ion-{I_POST_NEW_TOPIC} button1">{L_POST_NEW_TOPIC}</a>
 		<!-- END switch_user_authpost -->
@@ -80,9 +92,7 @@ showHiddenMessage = function(id) {
 			</a>
 		<!-- END switch_user_authnoreply -->
 	</div>
-</div>
 
-<div class="topic-actions">
 	<!-- BEGIN topicpagination -->
 		<div class="pagination">
 			{PAGINATION}
@@ -125,6 +135,14 @@ showHiddenMessage = function(id) {
 
 {POLL_DISPLAY}
 
+<!--  LA SECTION DES MESSAGES, maquette 305:24. Le même bandeau qu'à
+      l'index et sur la page d'une zone — c'est la règle du § 2 de
+      `css/03-index.css`, on ne la réécrit pas ici. -->
+<div class="wm-sujet__section">
+	<div class="wm-forum__bande">
+		<span class="wm-forum__bande-titre">LES MESSAGES</span>
+	</div>
+
 <!-- BEGIN postrow -->
 	<!-- BEGIN hidden -->
 		<div class="post {postrow.hidden.ROW_COUNT}">
@@ -154,11 +172,31 @@ showHiddenMessage = function(id) {
 					</dt>
 					<dd class="postprofile-info">
 						<!-- BEGIN profile_field -->
-							{postrow.displayed.profile_field.LABEL}
-							{postrow.displayed.profile_field.CONTENT}
-							{postrow.displayed.profile_field.SEPARATOR}
+							<div class="wm-profil__champ">
+								<span class="wm-profil__cle">{postrow.displayed.profile_field.LABEL}</span>
+								<span class="wm-profil__valeur">{postrow.displayed.profile_field.CONTENT}</span>
+							</div>
 						<!-- END profile_field -->
 						{postrow.displayed.POSTER_RPG}
+					</dd>
+
+					<!--  L'ÉQUIPE DU DRESSEUR. Une grille de six cases, vides
+					      par défaut : « des cases vides quand il n'en a
+					      aucun », 28 octobre. C'est mod-sujet qui les
+					      remplit depuis Supabase, après coup — les
+					      pokémon d'un joueur ne sont dans aucun champ de
+					      profil, donc dans aucune variable d'ici. Sans
+					      JavaScript, la grille reste vide et ne ment pas. -->
+					<dd class="postprofile-equipe wm-profil__equipe" data-wm-equipe="{postrow.displayed.POSTER_ID}">
+						<span class="wm-profil__cle">Équipe</span>
+						<div class="wm-profil__cases">
+							<span class="wm-profil__case"></span>
+							<span class="wm-profil__case"></span>
+							<span class="wm-profil__case"></span>
+							<span class="wm-profil__case"></span>
+							<span class="wm-profil__case"></span>
+							<span class="wm-profil__case"></span>
+						</div>
 					</dd>
 					<dd class="postprofile-contact">
 						{postrow.displayed.PROFILE_IMG}
@@ -171,6 +209,14 @@ showHiddenMessage = function(id) {
 				</dl>
 			</div>
 
+			<!--  LA COLONNE DU CORPS. Le gabarit d'origine pose la tête,
+			      le corps et les « j'aime » en FRÈRES du profil : trois
+			      enfants de flex qui prennent chacun la ligne entière,
+			      d'où le `flex: 1 1 100%` qu'il fallait leur donner pour
+			      que la mise en page tienne. La maquette 305:24 les veut
+			      EMPILÉS dans la colonne de droite, à côté du profil —
+			      c'est une colonne, donc on en fait une. -->
+			<div class="wm-post-corps">
 			<div class="post-head">
 				<div class="menu-wrap">
 					<div class="post-menu">+</div>
@@ -316,12 +362,14 @@ showHiddenMessage = function(id) {
 				<!-- END switch_dislike_list -->
 			</div>
 			<!-- END switch_likes_active -->
+			</div>
 		</div>
 		<!-- BEGIN first_post_br -->
 		<hr id="first-post-br" />
 		<!-- END first_post_br -->
 	<!-- END displayed -->
 <!-- END postrow -->
+</div>
 
 <a name="bottomtitle"></a>
 
@@ -427,10 +475,21 @@ showHiddenMessage = function(id) {
 <p class="right">{S_TOPIC_ADMIN}</p>
 <!-- END viewtopic_bottom -->
 
+<!--  LE BAS DU SUJET, maquette 305:303 : trois blocs côte à côte,
+      comme au bas d'une page de zone.
+
+      IL N'Y EN A QU'UN, ET C'EST DÉLIBÉRÉ. La maquette dessine trois
+      cartes ; viewtopic_body n'a de variable que pour les permissions.
+      LOGGED_IN_USER_LIST et MODERATORS existent sur viewforum_body,
+      pas ici — vérifié dans le gabarit d'origine. On sert donc la
+      seule carte qui dit quelque chose de vrai plutôt que deux
+      boîtes vides au format de la maquette. -->
 <!-- BEGIN show_permissions -->
-	<div class="block">
-		<div class="h3">{L_TABS_PERMISSIONS}</div>
-		{S_AUTH_LIST}
+	<div id="info_open" class="wm-sujet__bas">
+		<div class="block">
+			<div class="h3">{L_TABS_PERMISSIONS}</div>
+			<p>{S_AUTH_LIST}</p>
+		</div>
 	</div>
 <!-- END show_permissions -->
 
