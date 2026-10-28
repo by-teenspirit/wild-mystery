@@ -356,3 +356,50 @@
     flex: 1 1 auto;
   }
 }
+
+/* ── 9 · la page d'écriture, relevé du 28 octobre ─────────────────── */
+
+/*  « Améliore aussi l'affichage de cette page », `/post`.
+
+    Le formulaire n'avait aucune surface : les champs, la barre d'outils
+    et la boîte de smileys flottaient directement sur le fond de page,
+    sans rien qui dise où commence et où finit l'encart. Tous les autres
+    blocs du forum — le bas d'une page de forum, la carte d'un groupe,
+    la boîte de smileys elle-même — ont une surface, une bordure fine et
+    un rayon. Celui-ci ne les avait pas.
+
+    Et son titre portait le trait bleu de ModernBB, retiré au § 12 de
+    `02` ; il devient une étiquette comme les autres titres d'encart. */
+#modernbb #postingbox {
+  /*  22 px sur les côtés : le rembourrage des bandes de section, qui
+      aligne le formulaire sur le reste des encarts. Pas de jeton pour
+      cette valeur — c'est une mesure de gabarit, pas de charte. */
+  padding: var(--wm-espace-20, 20px) 22px 22px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb #postingbox .inner {
+  padding: 0;
+  background: none;
+}
+
+#modernbb #postingbox > .inner > .h3 {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Le `fieldset` de ModernBB porte encore des marges de formulaire
+    d'époque. L'encart lui en donne déjà autour. */
+#modernbb #postingbox fieldset.fields1 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}

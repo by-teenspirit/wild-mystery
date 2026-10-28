@@ -897,7 +897,32 @@ html#min-width {
   display: none;
 }
 
-/* ── 12 · la largeur du forum ─────────────────────────────────────── */
+/* ── 12 · le trait bleu de ModernBB, partout ──────────────────────── */
+
+/*  « Je vois un peu partout la ligne bleue sur le forum », 27 octobre.
+
+    ModernBB met `border-bottom: 1px solid #3793ff` sous TOUT `.h3`, et
+    `.h3` lui sert de titre à une douzaine d'encarts : « Qui est en
+    ligne », « Modérateurs », les permissions d'un forum, le cadre
+    d'écriture, les règles d'un forum, la prévisualisation.
+
+    On l'avait retiré au cas par cas — dans le bas d'une page de forum,
+    puis ailleurs — et il réapparaissait chaque fois qu'on ouvrait une
+    page qu'on n'avait pas encore visitée. Relevé une fois de plus sur
+    `/post` le 28 octobre, sous « POSTER UN NOUVEAU SUJET ».
+
+    La règle est donc posée UNE FOIS, ici, sur tous les `.h3`. Les
+    feuilles qui veulent vraiment un filet sous un titre le redéclarent
+    chez elles — c'est le cas de `.h3.forum-hideable`, au § 7 de `06`.
+
+    `border-bottom: 0` ET PAS UNE COULEUR TRANSPARENTE : une bordure
+    transparente d'un pixel occupe quand même son pixel, et décale tout
+    ce qui suit. */
+#modernbb .h3 {
+  border-bottom: 0;
+}
+
+/* ── 13 · la largeur du forum ─────────────────────────────────────── */
 
 /*  « Largeur totale du forum : essaye 1200 px partout », 27 octobre.
     ModernBB sert 1400.

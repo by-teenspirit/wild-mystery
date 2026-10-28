@@ -227,6 +227,22 @@
 #modernbb .post .postbody {
   flex: 1 1 0;
   min-width: 0;
+  /*  ── LE GROS VIDE À DROITE ─────────────────────────────────────
+
+      « Pourquoi y'a un gros vide à droite ici ? », 27 octobre.
+      Relevé dans `15-ltr.css`, la feuille de ModernBB :
+
+          .postbody { margin-right: 211px }
+
+      211 px — exactement la largeur de la colonne de profil. Cette
+      marge réserve la place d'un profil posé à DROITE du message,
+      une mise en page que ModernBB propose et que le forum n'utilise
+      pas : le profil est à gauche. La place restait réservée, vide,
+      sur toute la hauteur de chaque message.
+
+      Le profil étant une colonne de flex à côté du corps, il n'a plus
+      besoin qu'on lui garde quoi que ce soit. */
+  margin-right: 0;
 }
 
 /*  L'en-tête et le bloc des « j'aime » prennent la ligne entière :

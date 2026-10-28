@@ -1156,7 +1156,32 @@ html#min-width {
   display: none;
 }
 
-/* ── 12 · la largeur du forum ─────────────────────────────────────── */
+/* ── 12 · le trait bleu de ModernBB, partout ──────────────────────── */
+
+/*  « Je vois un peu partout la ligne bleue sur le forum », 27 octobre.
+
+    ModernBB met `border-bottom: 1px solid #3793ff` sous TOUT `.h3`, et
+    `.h3` lui sert de titre à une douzaine d'encarts : « Qui est en
+    ligne », « Modérateurs », les permissions d'un forum, le cadre
+    d'écriture, les règles d'un forum, la prévisualisation.
+
+    On l'avait retiré au cas par cas — dans le bas d'une page de forum,
+    puis ailleurs — et il réapparaissait chaque fois qu'on ouvrait une
+    page qu'on n'avait pas encore visitée. Relevé une fois de plus sur
+    `/post` le 28 octobre, sous « POSTER UN NOUVEAU SUJET ».
+
+    La règle est donc posée UNE FOIS, ici, sur tous les `.h3`. Les
+    feuilles qui veulent vraiment un filet sous un titre le redéclarent
+    chez elles — c'est le cas de `.h3.forum-hideable`, au § 7 de `06`.
+
+    `border-bottom: 0` ET PAS UNE COULEUR TRANSPARENTE : une bordure
+    transparente d'un pixel occupe quand même son pixel, et décale tout
+    ce qui suit. */
+#modernbb .h3 {
+  border-bottom: 0;
+}
+
+/* ── 13 · la largeur du forum ─────────────────────────────────────── */
 
 /*  « Largeur totale du forum : essaye 1200 px partout », 27 octobre.
     ModernBB sert 1400.
@@ -4537,6 +4562,22 @@ html#min-width {
 #modernbb .post .postbody {
   flex: 1 1 0;
   min-width: 0;
+  /*  ── LE GROS VIDE À DROITE ─────────────────────────────────────
+
+      « Pourquoi y'a un gros vide à droite ici ? », 27 octobre.
+      Relevé dans `15-ltr.css`, la feuille de ModernBB :
+
+          .postbody { margin-right: 211px }
+
+      211 px — exactement la largeur de la colonne de profil. Cette
+      marge réserve la place d'un profil posé à DROITE du message,
+      une mise en page que ModernBB propose et que le forum n'utilise
+      pas : le profil est à gauche. La place restait réservée, vide,
+      sur toute la hauteur de chaque message.
+
+      Le profil étant une colonne de flex à côté du corps, il n'a plus
+      besoin qu'on lui garde quoi que ce soit. */
+  margin-right: 0;
 }
 
 /*  L'en-tête et le bloc des « j'aime » prennent la ligne entière :
@@ -5317,6 +5358,53 @@ html#min-width {
   #modernbb .submit-buttons input {
     flex: 1 1 auto;
   }
+}
+
+/* ── 9 · la page d'écriture, relevé du 28 octobre ─────────────────── */
+
+/*  « Améliore aussi l'affichage de cette page », `/post`.
+
+    Le formulaire n'avait aucune surface : les champs, la barre d'outils
+    et la boîte de smileys flottaient directement sur le fond de page,
+    sans rien qui dise où commence et où finit l'encart. Tous les autres
+    blocs du forum — le bas d'une page de forum, la carte d'un groupe,
+    la boîte de smileys elle-même — ont une surface, une bordure fine et
+    un rayon. Celui-ci ne les avait pas.
+
+    Et son titre portait le trait bleu de ModernBB, retiré au § 12 de
+    `02` ; il devient une étiquette comme les autres titres d'encart. */
+#modernbb #postingbox {
+  /*  22 px sur les côtés : le rembourrage des bandes de section, qui
+      aligne le formulaire sur le reste des encarts. Pas de jeton pour
+      cette valeur — c'est une mesure de gabarit, pas de charte. */
+  padding: var(--wm-espace-20, 20px) 22px 22px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb #postingbox .inner {
+  padding: 0;
+  background: none;
+}
+
+#modernbb #postingbox > .inner > .h3 {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  Le `fieldset` de ModernBB porte encore des marges de formulaire
+    d'époque. L'encart lui en donne déjà autour. */
+#modernbb #postingbox fieldset.fields1 {
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════
