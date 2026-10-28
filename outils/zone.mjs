@@ -242,6 +242,11 @@ const PREAMBULE = () =>
   </ul>
 </div>
 <ul class="linklist top"><li><a href="/post?f=18&mode=newtopic">Nouveau sujet</a></li></ul>
+<!--  UNE LIGNE DE SOUS-FORUM NUE, hors de toute liste. Forumactif en
+      pose dans son préambule — relevé sur /f2 le 28 octobre — et c'est
+      ce qui restait du « doublon en haut des catégories » une fois les
+      blocs rangés. Sans elle ici, le harnais ne peut pas le voir. -->
+<dl class="icon"><dd class="dterm"><h2 class="hierarchy"><a class="forumtitle" href="/f48-fonctionnement">Fonctionnement du jeu</a></h2></dd></dl>
 ${listeDesSujets()}`;
 
 function pageDeZone({ forumId = 34, prefixe = false, sansListe = false } = {}) {
@@ -973,6 +978,12 @@ const deux = await p1.evaluate(() => {
     })(),
     titresX: [...document.querySelectorAll(".wm-forum ul.topics li.row .topic-title")]
       .map((t) => Math.round(t.getBoundingClientRect().x)),
+    reserve: (() => {
+      const sans = [...document.querySelectorAll(
+        ".wm-forum ul.topics li.row .topic-title-container",
+      )].find((c) => c.querySelector(":scope > strong") === null);
+      return sans === undefined ? null : getComputedStyle(sans, "::before").width;
+    })(),
     boutonH: (() => {
       const a = document.querySelector(".wm-forum__nouveau");
       return a === null ? null : Math.round(a.getBoundingClientRect().height);
@@ -1044,12 +1055,11 @@ dire(
   JSON.stringify(deux.hauteurs),
 );
 dire(
-  "ET LE PRÉFIXE « NOTE: » EST AU-DESSUS DU TITRE, PAS DEVANT",
-  //  AU-DESSUS, ET AU MÊME BORD. C'est ce qui permet aux titres de
-  //  toutes les lignes de partir du même x, quelle que soit la largeur
-  //  de l'étiquette — « Note: », « Post-it: », « LIBRE », « PV ».
-  deux.note !== null && deux.note.prefixeY < deux.note.titreY &&
-    deux.note.prefixeX === deux.note.titreX,
+  "LE PRÉFIXE « NOTE: » EST SUR LA LIGNE DU TITRE",
+  //  « Note doit être aligné avec le titre du sujet comme avant »,
+  //  28 octobre : même ligne, le préfixe à gauche.
+  deux.note !== null && Math.abs(deux.note.prefixeY - deux.note.titreY) <= 6 &&
+    deux.note.prefixeX < deux.note.titreX,
   JSON.stringify(deux.note),
 );
 dire(
@@ -1092,12 +1102,18 @@ dire(
   `${deux.ecarts?.bord} px du bord, ${deux.ecarts?.contenu} px du contenu`,
 );
 dire(
-  "TOUS LES TITRES DE SUJET PARTENT DU MÊME BORD",
-  //  Y COMPRIS CEUX QUI PORTENT UNE ÉTIQUETTE. Posée devant, elle
-  //  poussait le titre de sa propre largeur : sur `/f2`, les deux
-  //  sujets épinglés démarraient 52 px plus loin que les cinq autres.
-  deux.titresX !== null && new Set(deux.titresX).size === 1,
-  `x des titres : ${deux.titresX?.join(" · ")}`,
+  "UNE LIGNE SANS PRÉFIXE GARDE LA PLACE D'UN PRÉFIXE",
+  //  Sans cette réserve, le titre d'un sujet épinglé partait 64 px
+  //  plus loin que celui de la ligne d'en dessous — c'est ce que
+  //  Callista voyait sur `/f2`, où « Note: » est la seule étiquette.
+  //
+  //  LA RÉSERVE NE SUFFIT PAS À TOUT ALIGNER DANS UNE ZONE, et le
+  //  harnais le montre : les étiquettes de la charte — LIBRE, PV, 16,
+  //  TERMINÉ — n'ont pas la même largeur entre elles et décalent
+  //  encore les titres de quelques pixels. Les aligner demanderait de
+  //  leur donner à toutes la même largeur, ce qui n'a pas été demandé.
+  deux.reserve === "64px",
+  `réserve : ${deux.reserve}`,
 );
 dire(
   "LES TROIS BARRES TOMBENT SUR LE MÊME BORD DROIT QUE LA LISTE",
@@ -1258,6 +1274,8 @@ const range = await p7.evaluate(() => {
       forum.contains(b)
     ).length,
     linklist: document.querySelectorAll("ul.linklist").length,
+    nues: [...document.querySelectorAll("li.row, dl.icon")]
+      .filter((n) => !forum.contains(n) && n.closest("ul") === null).length,
     titres: [...document.querySelectorAll("a.topictitle")].map((a) => a.textContent.trim()),
     sousForums: [...document.querySelectorAll("a.forumtitle")].map((a) => a.textContent.trim()),
     classe: document.querySelector("#modernbb").classList.contains("wm-forum-range"),
@@ -1278,6 +1296,14 @@ dire(
   "LES SOUS-FORUMS SONT GARDÉS, ET REMONTÉS DANS LA MISE EN PAGE",
   range.forabg === 1 && range.forabgDedans === 1 && range.sousForums.length === 2,
   `${range.forabgDedans}/${range.forabg} dans .wm-forum · ${range.sousForums.join(" · ")}`,
+);
+dire(
+  "ET LA LIGNE DE SOUS-FORUM NUE AUSSI",
+  //  Un `dl.icon` hors de toute liste : les sous-forums une seconde
+  //  fois, sans leur `<ul>`. Il restait après que les blocs aient été
+  //  rangés, et c'est lui que Callista voyait encore en haut de `/f2`.
+  range.nues === 0,
+  `${range.nues} ligne(s) nue(s) hors de .wm-forum`,
 );
 dire(
   "la barre de liens orpheline est partie",

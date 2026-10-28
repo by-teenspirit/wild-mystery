@@ -112,6 +112,30 @@ export function rangerLePreambuleDuForum(doc: Document): Rangement {
     remontes++;
   }
 
+  //  ── LES LIGNES ORPHELINES ──────────────────────────────────────
+  //
+  //  « J'ai toujours un doublon en haut des catégories », 28 octobre,
+  //  sur `/f2`. Les sujets, eux, ne doublaient plus : ce qui restait
+  //  était un `dl.icon` et un `li.row` NUS, posés avant `.wm-forum`,
+  //  hors de toute liste — les sous-forums une seconde fois, sans
+  //  leur `<ul>`. Forumactif les sert ainsi dans son préambule, et
+  //  nos modules de catégories les avaient même habillés, ce qui les
+  //  rendait crédibles.
+  //
+  //  On ne les retire QUE si on a déjà rangé quelque chose : sur une
+  //  page qu'on n'a pas prévue, un `li.row` hors liste peut être tout
+  //  autre chose, et mieux vaut un doublon qu'un trou.
+  if (doublons > 0 || remontes > 0) {
+    for (const nu of doc.querySelectorAll("li.row, dl.icon")) {
+      if (forum.contains(nu)) continue;
+      //  Dans une liste, il est à sa place — c'est le cas de tout ce
+      //  qui vit dans un `.forabg` qu'on vient de remonter.
+      if (nu.closest("ul") !== null) continue;
+      nu.remove();
+      doublons++;
+    }
+  }
+
   //  La barre de liens que le préambule traîne derrière lui : elle
   //  répète « Nouveau sujet » et le fil d'Ariane, que notre gabarit
   //  pose déjà plus bas. On ne la retire que si elle est restée

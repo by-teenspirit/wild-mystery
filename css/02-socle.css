@@ -310,17 +310,22 @@ html,
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-/*  LA ZÉBRURE. ModernBB alterne `#ffffff` et `#f8f8f8` sur les lignes
-    elles-mêmes, ce qui l'emporte sur le fond de la liste : c'est ce qui
-    faisait disparaître les titres de sujets en mode sombre, à 1,17 de
-    contraste. On garde l'alternance — elle aide à suivre une ligne — en
-    la rejouant avec nos deux surfaces. */
-#modernbb li.row1 {
-  background: var(--wm-fond-surface, #fffbf7);
-}
+/*  LA ZÉBRURE, ET POURQUOI ELLE N'EST PLUS LÀ.
 
+    ModernBB alterne `#ffffff` et `#f8f8f8` sur les lignes elles-mêmes,
+    ce qui l'emporte sur le fond de la liste : c'est ce qui faisait
+    disparaître les titres de sujets en mode sombre, à 1,17 de
+    contraste. On l'avait rejouée avec nos deux surfaces pour garder
+    l'aide à la lecture tout en réglant le contraste.
+
+    « Enlève l'alternance de couleur que tu as rajouté », 28 octobre.
+    Les deux lignes prennent donc la même surface — ce qui laisse le
+    filet du § suivant séparer les lignes, et il suffit. On garde les
+    deux sélecteurs plutôt que de tout retirer : sans eux, la zébrure
+    de ModernBB reviendrait, et avec elle le contraste de 1,17. */
+#modernbb li.row1,
 #modernbb li.row2 {
-  background: var(--wm-fond-surface-haute, #fcf4ec);
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
 /*  Un filet entre deux lignes, et pas sur la dernière : sans lui les

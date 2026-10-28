@@ -569,17 +569,22 @@ html,
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-/*  LA ZÉBRURE. ModernBB alterne `#ffffff` et `#f8f8f8` sur les lignes
-    elles-mêmes, ce qui l'emporte sur le fond de la liste : c'est ce qui
-    faisait disparaître les titres de sujets en mode sombre, à 1,17 de
-    contraste. On garde l'alternance — elle aide à suivre une ligne — en
-    la rejouant avec nos deux surfaces. */
-#modernbb li.row1 {
-  background: var(--wm-fond-surface, #fffbf7);
-}
+/*  LA ZÉBRURE, ET POURQUOI ELLE N'EST PLUS LÀ.
 
+    ModernBB alterne `#ffffff` et `#f8f8f8` sur les lignes elles-mêmes,
+    ce qui l'emporte sur le fond de la liste : c'est ce qui faisait
+    disparaître les titres de sujets en mode sombre, à 1,17 de
+    contraste. On l'avait rejouée avec nos deux surfaces pour garder
+    l'aide à la lecture tout en réglant le contraste.
+
+    « Enlève l'alternance de couleur que tu as rajouté », 28 octobre.
+    Les deux lignes prennent donc la même surface — ce qui laisse le
+    filet du § suivant séparer les lignes, et il suffit. On garde les
+    deux sélecteurs plutôt que de tout retirer : sans eux, la zébrure
+    de ModernBB reviendrait, et avec elle le contraste de 1,17. */
+#modernbb li.row1,
 #modernbb li.row2 {
-  background: var(--wm-fond-surface-haute, #fcf4ec);
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
 /*  Un filet entre deux lignes, et pas sur la dernière : sans lui les
@@ -4428,8 +4433,28 @@ html#min-width {
     sous les étiquettes quelles qu'elles soient, et son bord gauche ne
     dépend plus de ce qui le précède. Les étiquettes, elles, se
     rangent toutes sur la ligne du dessus. */
-#modernbb .wm-forum ul.topics li.row .topic-title-container > h2 {
-  flex: 0 0 100%;
+/*  ── ET ELLE EST REVENUE À CÔTÉ DU TITRE ──────────────────────────
+
+    « Note doit être aligné avec le titre du sujet comme avant », 28
+    octobre. Le titre reprend donc sa place sur la ligne de l'étiquette.
+
+    Reste le défaut qui avait fait passer le titre dessous : une
+    étiquette plus large pousse son titre plus loin que celui de la
+    ligne d'en dessous. On lui donne une largeur PLANCHER, et une
+    réserve de la même largeur aux lignes qui n'en ont pas — mais
+    seulement quand la liste en contient au moins une, sinon on
+    creuserait un vide inutile dans une liste sans préfixe.
+
+    C'est `:has()` qui permet de poser la question « cette liste
+    contient-elle un préfixe ? » sans JavaScript. */
+#modernbb .wm-forum ul.topics li.row .topic-title-container > strong {
+  min-width: 64px;
+}
+
+#modernbb .wm-forum ul.topics:has(.topic-title-container > strong) li.row .topic-title-container:not(:has(> strong))::before {
+  flex: none;
+  width: 64px;
+  content: "";
 }
 
 /*  ── 15.6 · LES RACCOURCIS, CENTRÉS DANS LEUR CASE ───────────────
