@@ -4433,29 +4433,21 @@ html#min-width {
     sous les étiquettes quelles qu'elles soient, et son bord gauche ne
     dépend plus de ce qui le précède. Les étiquettes, elles, se
     rangent toutes sur la ligne du dessus. */
-/*  ── ET ELLE EST REVENUE À CÔTÉ DU TITRE ──────────────────────────
+/*  ── ET ELLE EST REVENUE À CÔTÉ DU TITRE, SANS RIEN RÉSERVER ─────
 
-    « Note doit être aligné avec le titre du sujet comme avant », 28
-    octobre. Le titre reprend donc sa place sur la ligne de l'étiquette.
+    « Note doit être aligné avec le titre du sujet comme avant », puis
+    « pas de min-width ici, ça fait un vide », 28 octobre.
 
-    Reste le défaut qui avait fait passer le titre dessous : une
-    étiquette plus large pousse son titre plus loin que celui de la
-    ligne d'en dessous. On lui donne une largeur PLANCHER, et une
-    réserve de la même largeur aux lignes qui n'en ont pas — mais
-    seulement quand la liste en contient au moins une, sinon on
-    creuserait un vide inutile dans une liste sans préfixe.
+    J'avais donné au préfixe une largeur plancher de 64 px, et la même
+    réserve aux lignes qui n'en ont pas, pour que tous les titres
+    partent du même bord. Les deux se voient : le préfixe étiré laisse
+    du blanc après son mot, et la réserve décale les titres sans
+    préfixe vers la droite pour rien.
 
-    C'est `:has()` qui permet de poser la question « cette liste
-    contient-elle un préfixe ? » sans JavaScript. */
-#modernbb .wm-forum ul.topics li.row .topic-title-container > strong {
-  min-width: 64px;
-}
-
-#modernbb .wm-forum ul.topics:has(.topic-title-container > strong) li.row .topic-title-container:not(:has(> strong))::before {
-  flex: none;
-  width: 64px;
-  content: "";
-}
+    On renonce donc à l'alignement parfait des titres : l'étiquette
+    fait la largeur de son mot, le titre suit, et une ligne préfixée
+    commence un peu plus loin que sa voisine. C'est le choix de
+    Callista, et c'est le moins visible des deux défauts. */
 
 /*  ── 15.6 · LES RACCOURCIS, CENTRÉS DANS LEUR CASE ───────────────
 

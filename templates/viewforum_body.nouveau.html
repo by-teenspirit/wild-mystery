@@ -8,8 +8,8 @@
 
    ── CE QUI CHANGE PAR RAPPORT AU GABARIT D'ORIGINE ──────────────────
 
-   1. `data-wm-forum="{FORUM_ID}"` sur le corps de page. La maquette
-      disait « overall_header n'a pas {FORUM_ID} : rien ne peut venir
+   1. `data-wm-forum="FORUM_ID"` sur le corps de page. La maquette
+      disait « overall_header n'a pas FORUM_ID : rien ne peut venir
       du template ». C'est vrai d'overall_header — pas d'ici : le
       gabarit d'origine s'en sert déjà pour son menu « Plus ! ». Le
       script lit donc l'identifiant de la zone au lieu de le deviner
@@ -40,8 +40,8 @@
 
    ── CE QUI NE CHANGE PAS, ET POURQUOI ───────────────────────────────
 
-   · `{TOPICS_LIST_BOX}`, `{PAGINATION}`, `{S_WATCH_FORUM}`,
-     `{LOGGED_IN_USER_LIST}`, `{MODERATORS}`, `{S_AUTH_LIST}` et le
+   · `TOPICS_LIST_BOX`, `PAGINATION`, `S_WATCH_FORUM`,
+     `LOGGED_IN_USER_LIST`, `MODERATORS`, `S_AUTH_LIST` et le
      saut de forum restent : ce sont les seules sources de ces
      informations.
    · Le `<script>` du menu « Plus ! » reste aussi. Il ne dessine plus
@@ -59,7 +59,7 @@
    « Les catégories sont cassées et les sujets s'affichent en double »,
    27 octobre, sur `/f2-notice-d-utilisation`.
 
-   J'ai d'abord accusé `{BOARD_INDEX}` et je l'ai retiré d'ici. Faux :
+   J'ai d'abord accusé `BOARD_INDEX` et je l'ai retiré d'ici. Faux :
    après publication, la page doublait exactement pareil. Il est donc
    revenu, et cette section dit ce qui se passe vraiment.
 
@@ -87,7 +87,25 @@
    du colosseum et du marché sur une page de ville.
 
   ════════════════════════════════════════════════════════════════════
--->
+
+   ── ⚠ AUCUN NOM DE VARIABLE ENTRE ACCOLADES DANS CE COMMENTAIRE ────
+
+   FORUMACTIF REMPLACE SES VARIABLES PARTOUT, Y COMPRIS À L'INTÉRIEUR
+   D'UN COMMENTAIRE HTML. Ce commentaire citait BOARD_INDEX et
+   TOPICS_LIST_BOX entre accolades pour expliquer ce qu'on en faisait :
+   le moteur les a donc rendues ici même. Le HTML injecté a refermé le
+   commentaire, et la suite du texte s'est affichée en clair en haut de
+   la page — « et je l'ai retiré d'ici. Faux : … », relevé sur /f2 le
+   28 octobre.
+
+   C'est aussi d'où venait le « doublon » : BOARD_INDEX, rendu dans le
+   commentaire, écrivait les sous-forums et la liste des sujets une
+   seconde fois, hors de la mise en page.
+
+   Les noms de variables s'écrivent donc SANS ACCOLADES dans tout ce
+   bloc. Le même piège est noté dans `outils/barre.mjs` depuis
+   septembre, pour le harnais : il valait aussi pour le forum.
+  -->
 {BOARD_INDEX}
 
 <div class="wm-forum" data-wm-forum="{FORUM_ID}">

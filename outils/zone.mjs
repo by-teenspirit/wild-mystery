@@ -978,12 +978,6 @@ const deux = await p1.evaluate(() => {
     })(),
     titresX: [...document.querySelectorAll(".wm-forum ul.topics li.row .topic-title")]
       .map((t) => Math.round(t.getBoundingClientRect().x)),
-    reserve: (() => {
-      const sans = [...document.querySelectorAll(
-        ".wm-forum ul.topics li.row .topic-title-container",
-      )].find((c) => c.querySelector(":scope > strong") === null);
-      return sans === undefined ? null : getComputedStyle(sans, "::before").width;
-    })(),
     boutonH: (() => {
       const a = document.querySelector(".wm-forum__nouveau");
       return a === null ? null : Math.round(a.getBoundingClientRect().height);
@@ -1100,20 +1094,6 @@ dire(
   //  il y a l'étiquette « LIBRE », qui est voulue par la maquette.
   deux.ecarts !== null && deux.ecarts.bord >= 12 && deux.ecarts.contenu <= 30,
   `${deux.ecarts?.bord} px du bord, ${deux.ecarts?.contenu} px du contenu`,
-);
-dire(
-  "UNE LIGNE SANS PRÉFIXE GARDE LA PLACE D'UN PRÉFIXE",
-  //  Sans cette réserve, le titre d'un sujet épinglé partait 64 px
-  //  plus loin que celui de la ligne d'en dessous — c'est ce que
-  //  Callista voyait sur `/f2`, où « Note: » est la seule étiquette.
-  //
-  //  LA RÉSERVE NE SUFFIT PAS À TOUT ALIGNER DANS UNE ZONE, et le
-  //  harnais le montre : les étiquettes de la charte — LIBRE, PV, 16,
-  //  TERMINÉ — n'ont pas la même largeur entre elles et décalent
-  //  encore les titres de quelques pixels. Les aligner demanderait de
-  //  leur donner à toutes la même largeur, ce qui n'a pas été demandé.
-  deux.reserve === "64px",
-  `réserve : ${deux.reserve}`,
 );
 dire(
   "LES TROIS BARRES TOMBENT SUR LE MÊME BORD DROIT QUE LA LISTE",
