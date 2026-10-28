@@ -30,7 +30,8 @@
     "messenger": "deno run -A outils/messenger.mjs",
     "barre": "deno run -A outils/barre.mjs",
     "boutique": "deno run -A outils/boutique.mjs",
-    "zone": "deno run -A outils/zone.mjs"
+    "zone": "deno run -A outils/zone.mjs",
+    "sujet": "deno run -A outils/sujet.mjs"
   },
   "fmt": {
     "include": [
