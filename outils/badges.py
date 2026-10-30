@@ -233,13 +233,13 @@ def badge(nom: str, titre: str, type_: str, famille: str) -> str:
     )
     cle = f"r-{famille}-{nom}"
 
-    #  LE DOUBLE LISERÉ DES COLOSSEUMS, dessiné en dessous : l'encre
-    #  d'abord, le métal par-dessus. Dans l'autre sens, le trait
-    #  d'encre — plus large — recouvrait entièrement le métal.
+    #  LE DOUBLE LISERÉ DES COLOSSEUMS, dessiné en dessous. Il portait
+    #  un trait d'encre pour se détacher ; depuis le 30 octobre le
+    #  badge n'en a plus nulle part — « enlève le contour noir qui suit
+    #  tout le badge ». C'est le ton sombre du métal qui cerne, et il
+    #  suffit : un liseré d'argent patiné se voit sur les deux thèmes.
     aura = (
-        f'<path d="{forme}" fill="none" stroke="{ENCRE}" stroke-width="30"'
-        f' stroke-linejoin="round"/>'
-        f'<path d="{forme}" fill="none" stroke="{sombre}" stroke-width="24"'
+        f'<path d="{forme}" fill="none" stroke="{sombre}" stroke-width="26"'
         f' stroke-linejoin="round"/>'
         f'<path d="{forme}" fill="none" stroke="{metal}" stroke-width="20"'
         f' stroke-linejoin="round"/>'
@@ -253,9 +253,9 @@ def badge(nom: str, titre: str, type_: str, famille: str) -> str:
     #  pour que l'œil lise un biseau à 48 px, trop peu pour qu'on voie
     #  trois traits à 96.
     ciselure = (
-        f'<g stroke-width="8" stroke-linejoin="round" fill="none">'
-        f'<path d="{forme}" stroke="{sombre}" transform="translate(1.5 1.5)"/>'
-        f'<path d="{forme}" stroke="{clair}" transform="translate(-1.5 -1.5)"/>'
+        f'<g stroke-width="12" stroke-linejoin="round" fill="none">'
+        f'<path d="{forme}" stroke="{sombre}" transform="translate(2 2)"/>'
+        f'<path d="{forme}" stroke="{clair}" transform="translate(-2 -2)"/>'
         f'<path d="{forme}" stroke="{metal}"/>'
         f"</g>"
     )
@@ -264,8 +264,6 @@ def badge(nom: str, titre: str, type_: str, famille: str) -> str:
      width="96" height="96" role="img" aria-label="{titre}">
   <title>{titre}</title>
   {aura}
-  <path d="{forme}" fill="none" stroke="{ENCRE}" stroke-width="13"
-        stroke-linejoin="round"/>
   {ciselure}
   <path d="{forme}" fill="{champ}" fill-rule="evenodd"/>
   {reflet(forme, cle)}
