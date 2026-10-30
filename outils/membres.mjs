@@ -206,13 +206,35 @@ function pageDesMembres({ groupe = true, point = false, mp = true } = {}) {
     S_MODE_ACTION: "/memberlist",
     L_USER_SELECT: "Chercher un membre",
     L_USER_SELECT_VALUE: "",
-    L_ORDER_OR_SELECT: "Trier par",
+    //  La vraie phrase de Forumactif, pas le mot que j'avais inventé.
+    L_ORDER_OR_SELECT: "Rechercher un utilisateur ou modifier l'ordre d'affichage",
     L_SELECT_SORT_METHOD: "Méthode de tri",
     L_ORDER: "Ordre",
-    L_SUBMIT: "Ok",
+    L_SUBMIT: "OK",
     S_HIDDEN_SID: "",
-    S_MODE_SELECT: '<select name="mode"><option>Date d\'inscription</option>' +
-      "<option>Nom d'utilisateur</option></select>",
+    //  ── LES VRAIES OPTIONS, RELEVÉES SUR LA PAGE LE 30 OCTOBRE ────
+    //
+    //  `{S_MODE_SELECT}` n'est pas une liste de deux mots : il
+    //  énumère TOUS les champs de profil du forum, renommés compris.
+    //  Mon décor en servait deux, courts. Résultat : la rangée tenait
+    //  au harnais et débordait sur la vraie page.
+    //
+    //  Une liste déroulante est large de sa plus longue option. C'est
+    //  « Messages postés » et « OKÉDOLLARS » qui décident de sa
+    //  largeur, pas « Ordre ».
+    S_MODE_SELECT: '<select name="mode">' +
+      [
+        "Dernière visite",
+        "Date d'inscription",
+        "Nom d'utilisateur",
+        "Faceclaim",
+        "Messages postés",
+        "PRÉSENTATION",
+        "Groupes",
+        "\u20BDOKÉDOLLARS",
+      ]
+        .map((o) => "<option>" + o + "</option>").join("") +
+      "</select>",
     S_ORDER_SELECT: '<select name="order"><option>Croissant</option>' +
       "<option>Décroissant</option></select>",
     L_USERNAME: "Dresseur",
@@ -437,8 +459,21 @@ const outils = await p.evaluate(() => {
     adresses: [...modes.querySelectorAll("a")].map((a) => a.getAttribute("href")),
     modesADroite: Math.round(r(modes).right) >= Math.round(r(barre).right) - 1,
     champAGauche: Math.round(r(champ).x) <= Math.round(r(barre).x) + 1,
-    memeLigne: Math.abs(milieu(champ) - milieu(modes)) <= 2 &&
-      Math.abs(milieu(champ) - milieu(tri)) <= 2,
+    //  LA RECHERCHE ET LES ONGLETS sur la même ligne…
+    memeLigne: Math.abs(milieu(champ) - milieu(modes)) <= 2,
+    //  …et le tri EN DESSOUS, poussé à droite.
+    triDessous: Math.round(r(tri).top) >= Math.round(r(champ).bottom) - 1,
+    triADroite: Math.round(r(tri).right) >= Math.round(r(barre).right) - 1,
+    //  RIEN NE SORT DE LA RANGÉE. Une liste large de sa plus longue
+    //  option déborde sans faire grandir son parent : c'est le défaut
+    //  du 30 octobre, invisible à toute mesure de hauteur.
+    deborde: Math.max(
+      0,
+      ...[...barre.querySelectorAll("*")].map((e) =>
+        Math.round(e.getBoundingClientRect().right) -
+        Math.round(r(barre).right)
+      ),
+    ),
     //  LES ÉTIQUETTES DES DEUX LISTES SONT LÀ POUR QUI ÉCOUTE LA PAGE :
     //  hors de l'écran, pas hors de l'arbre.
     etiquettes: [...tri.querySelectorAll(".wm-membres__tri-nom")].map((e) => ({
@@ -450,10 +485,28 @@ const outils = await p.evaluate(() => {
 });
 
 dire(
-  "LA RECHERCHE EST À GAUCHE, LES TROIS MODES À DROITE, SUR UNE LIGNE",
+  "LA RECHERCHE ET LES ONGLETS PARTAGENT LA PREMIÈRE LIGNE",
+  //  ── CE CONTRÔLE A CHANGÉ D'INTENTION LE 30 OCTOBRE ─────────────
+  //
+  //  Il demandait les TROIS blocs sur une ligne. Ils n'y tiennent
+  //  pas : les deux listes de tri énumèrent les champs de profil du
+  //  forum, et une liste est large de sa plus longue option. Ce
+  //  n'était pas la feuille qui cassait, c'était la demande qui était
+  //  intenable — et mon décor ne la contredisait pas, parce qu'il
+  //  servait deux options de deux mots.
   outils !== null && outils.champAGauche && outils.modesADroite &&
     outils.memeLigne && outils.champ.h === 40,
   JSON.stringify(outils),
+);
+dire(
+  "LE TRI EST SUR SA PROPRE LIGNE, POUSSÉ À DROITE",
+  outils !== null && outils.triDessous && outils.triADroite,
+  JSON.stringify({ dessous: outils?.triDessous, droite: outils?.triADroite }),
+);
+dire(
+  "ET LA RANGÉE D'OUTILS NE DÉBORDE PAS, MÊME AVEC LES VRAIES OPTIONS",
+  outils !== null && outils.deborde <= 1,
+  `débordement : ${outils?.deborde} px`,
 );
 
 dire(
@@ -544,6 +597,42 @@ dire(
   coupe.desaccord !== true && coupe.combien === 5 && coupe.pire <= 1 &&
     coupe.remplit,
   JSON.stringify(coupe),
+);
+
+// ── SUR UN ÉCRAN ÉTROIT ────────────────────────────────────────────
+//
+//  La borne de largeur des listes ne servait à rien à 1 280 : la
+//  seconde ligne leur laisse toute la place. Elle sert à 980 — un
+//  portable, ou une fenêtre qu'on n'a pas mise en plein écran — et
+//  c'est là qu'il faut la mesurer, sinon c'est une règle qu'on croit
+//  utile sans jamais l'avoir vue agir.
+//
+//  Au-dessus de 740 : on reste dans la mise en page large, celle qui
+//  a les deux lignes. Le repli du téléphone est une autre histoire.
+
+const etroit = await nav.newPage({ viewport: { width: 980, height: 1000 } });
+await etroit.setContent(page(pageDesMembres()), { waitUntil: "load" });
+const serre = await etroit.evaluate(() => {
+  const barre = document.querySelector(".wm-membres__outils");
+  const bord = Math.round(barre.getBoundingClientRect().right);
+  return {
+    deborde: Math.max(
+      0,
+      ...[...barre.querySelectorAll("*")].map((e) =>
+        Math.round(e.getBoundingClientRect().right) - bord
+      ),
+    ),
+    listes: [...barre.querySelectorAll("select")].map((e) =>
+      Math.round(e.getBoundingClientRect().width)
+    ),
+  };
+});
+await etroit.close();
+
+dire(
+  "À 980 DE LARGE, LES LISTES RESTENT BORNÉES ET RIEN NE DÉBORDE",
+  serre.deborde <= 1 && serre.listes.every((l) => l <= 170),
+  JSON.stringify(serre),
 );
 
 // ── LE DÉCOR HOSTILE ───────────────────────────────────────────────

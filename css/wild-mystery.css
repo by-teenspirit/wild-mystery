@@ -6958,12 +6958,40 @@ html#min-width {
 
     `flex-wrap` parce que trois blocs dont un porte deux listes
     déroulantes ne tiennent pas sur 1 000 px à toutes les langues. */
+/*  ── DEUX RANGÉES, ET PAS UNE ──────────────────────────────────────
+
+    « Les champs du tableau sont trop longs donc ça dépasse », 30
+    octobre, en regardant la vraie page. Ils dépassaient, et mon décor
+    ne pouvait pas le voir : il servait deux listes de deux options
+    courtes. Le forum en sert huit, dont « Messages postés »,
+    « PRÉSENTATION » et « ₽OKÉDOLLARS » — ce sont les champs de profil
+    de Callista, et `{S_MODE_SELECT}` les énumère TOUS.
+
+    Une liste déroulante est large de sa plus longue option. Deux de
+    ces listes, plus une recherche, plus trois onglets, ne tiennent sur
+    aucune largeur raisonnable.
+
+    On sépare donc : ce qu'on utilise tout le temps sur la première
+    ligne — chercher, et changer d'onglet — et le tri sur la seconde,
+    poussé à droite. Ce n'est plus un formulaire à faire tenir, c'est
+    deux intentions différentes. */
 #modernbb .wm-membres__outils {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--wm-espace-12, 12px);
   margin: 0 0 var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-membres__recherche { order: 0; }
+#modernbb .wm-membres__modes     { order: 1; margin-left: auto; }
+
+/*  LE TRI PREND SA LIGNE ENTIÈRE, et se range à droite : on y touche
+    une fois, pas à chaque visite. */
+#modernbb .wm-membres__tri {
+  order: 2;
+  flex: 1 1 100%;
+  justify-content: flex-end;
 }
 
 /*  ── LA RECHERCHE SE VOIT ──────────────────────────────────────────
@@ -7056,18 +7084,25 @@ html#min-width {
     porte quelque chose vaut mieux que du vide. */
 #modernbb .wm-membres__tri {
   display: flex;
-  flex: 1 1 auto;
   align-items: center;
-  justify-content: center;
   gap: var(--wm-espace-6, 6px);
 }
 
+/*  `{L_ORDER_OR_SELECT}` N'EST PAS UN TITRE, C'EST UNE PHRASE :
+    « Rechercher un utilisateur ou modifier l'ordre d'affichage ».
+    Quarante-neuf signes en capitales au milieu d'une rangée, ça ne
+    titre rien et ça pousse tout le reste.
+
+    Elle sort de l'écran et reste dans l'arbre : elle décrit bien le
+    formulaire pour qui l'écoute, et les deux listes gardent par
+    ailleurs leur propre étiquette. */
 #modernbb .wm-membres__tri-mot {
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-weight: var(--wm-graisse-gras, 700);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  text-transform: uppercase;
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /*  L'ÉTIQUETTE D'UNE LISTE EST LÀ POUR QUI ÉCOUTE LA PAGE. Sortie de
@@ -7098,7 +7133,11 @@ html#min-width {
   height: 32px;
   padding: 0 var(--wm-espace-12, 12px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: 999px;
+  /*  `rayon-md` ET PAS 999. « Le bouton ok est trop oval » : sur un
+      mot de deux lettres, un arrondi complet fait une gélule. Les
+      pastilles rondes sont pour ce qui est long — les onglets, la
+      pagination, les rangs. */
+  border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
   cursor: pointer;
@@ -7108,8 +7147,23 @@ html#min-width {
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 
+/*  UNE LISTE EST LARGE DE SA PLUS LONGUE OPTION, et celles-ci
+    énumèrent les champs de profil du forum. On les borne : le
+    navigateur coupe l'option affichée, le menu déroulé reste entier.
+
+    GARDE-FOU ASSUMÉ, ET NON MESURÉ. Avec les options relevées le 30
+    octobre, les deux listes font 142 et 111 — la borne ne sert jamais,
+    même à 980 de large, et retirer cette règle ne fait tomber aucun
+    contrôle. Je l'ai vérifié.
+
+    Elle reste parce que ce qu'elle protège est hors de portée du
+    harnais : le jour où un champ est renommé en quelque chose de long,
+    le décor ne le saura pas et la vraie page débordera. C'est le seul
+    endroit de cette feuille où une règle n'est pas démontrée — et
+    c'est écrit plutôt que caché. */
 #modernbb .wm-membres__tri select {
-  max-width: 150px;
+  max-width: 170px;
+  text-overflow: ellipsis;
 }
 
 #modernbb .wm-membres__tri select:hover,
@@ -7156,12 +7210,22 @@ html#min-width {
   gap: var(--wm-espace-8, 8px);
 }
 
+/*  ── LES TROIS ONGLETS ONT L'AIR DE BOUTONS ────────────────────────
+
+    « Les boutons tous, posteurs, tu ne les as pas améliorés », 30
+    octobre. Ils étaient transparents et sans bordure : trois mots
+    posés côte à côte, qu'on ne lisait pas comme des choses à cliquer.
+
+    Ils prennent une surface et un filet. C'est la différence entre
+    un lien dans une phrase et un bouton dans une barre d'outils —
+    ici ce sont des boutons. */
 #modernbb .wm-membres__modes a {
   display: inline-flex;
   align-items: center;
   height: 32px;
   padding: 0 var(--wm-espace-14, 14px);
-  border: 1px solid transparent;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface, #fffbf7);
   border-radius: 999px;
   color: var(--wm-texte-doux, #6e5749);
   text-decoration: none;
