@@ -51,8 +51,19 @@ CLAIR = "#fffbf7"
 #  LES DEUX MÉTAUX, qui disent l'épreuve. L'or des arènes et l'argent
 #  des colosseums : c'est tout ce qui les sépare maintenant que la
 #  silhouette appartient au type.
+#  DEUX TONS PAR MÉTAL, et c'est eux qui font le prestige. Un badge
+#  d'insigne n'est pas brillant : il est CISELÉ. Le biseau se dessine
+#  avec deux copies du liseré, l'une décalée vers le haut à gauche dans
+#  le ton clair, l'autre vers le bas à droite dans le ton sombre — en
+#  aplats, sans un seul dégradé. C'est ce qui manquait aux premières
+#  versions, et qu'aucune photo de bijou n'aurait donné.
 OR = "#c9a24a"
+OR_CLAIR = "#f0d89a"
+OR_SOMBRE = "#8a6520"
+
 ARGENT = "#aab4bd"
+ARGENT_CLAIR = "#e4eaef"
+ARGENT_SOMBRE = "#6d7880"
 
 #  ── LES GLYPHES ────────────────────────────────────────────────────
 #
@@ -215,23 +226,38 @@ def badge(nom: str, titre: str, type_: str, famille: str) -> str:
     """
     champ, ombre = TEINTES[type_]
     forme = SILHOUETTES[type_]
-    metal = OR if famille == "arene" else ARGENT
+    metal, clair, sombre = (
+        (OR, OR_CLAIR, OR_SOMBRE)
+        if famille == "arene"
+        else (ARGENT, ARGENT_CLAIR, ARGENT_SOMBRE)
+    )
     cle = f"r-{famille}-{nom}"
 
-    #  LE DOUBLE LISERÉ EST DESSINÉ EN DESSOUS, en trait très épais :
-    #  le même chemin élargi donne une aura de la même forme, ce qu'un
-    #  contour décalé à la main ne saurait pas faire sur une courbe.
+    #  LE DOUBLE LISERÉ DES COLOSSEUMS, dessiné en dessous : l'encre
+    #  d'abord, le métal par-dessus. Dans l'autre sens, le trait
+    #  d'encre — plus large — recouvrait entièrement le métal.
     aura = (
-        #  L'ENCRE D'ABORD, LE MÉTAL PAR-DESSUS. Dessinés dans
-        #  l'autre sens, le trait d'encre — plus large — recouvrait
-        #  entièrement l'argent et les colosseums avaient le même
-        #  liseré que les arènes.
         f'<path d="{forme}" fill="none" stroke="{ENCRE}" stroke-width="30"'
         f' stroke-linejoin="round"/>'
-        f'<path d="{forme}" fill="none" stroke="{metal}" stroke-width="22"'
+        f'<path d="{forme}" fill="none" stroke="{sombre}" stroke-width="24"'
+        f' stroke-linejoin="round"/>'
+        f'<path d="{forme}" fill="none" stroke="{metal}" stroke-width="20"'
         f' stroke-linejoin="round"/>'
         if famille == "colosseum"
         else ""
+    )
+
+    #  LA CISELURE. Trois passes du même contour : le ton sombre décalé
+    #  vers le bas à droite, le ton clair vers le haut à gauche, et le
+    #  métal au milieu. Les décalages sont d'une unité et demie — assez
+    #  pour que l'œil lise un biseau à 48 px, trop peu pour qu'on voie
+    #  trois traits à 96.
+    ciselure = (
+        f'<g stroke-width="8" stroke-linejoin="round" fill="none">'
+        f'<path d="{forme}" stroke="{sombre}" transform="translate(1.5 1.5)"/>'
+        f'<path d="{forme}" stroke="{clair}" transform="translate(-1.5 -1.5)"/>'
+        f'<path d="{forme}" stroke="{metal}"/>'
+        f"</g>"
     )
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100"
@@ -240,12 +266,11 @@ def badge(nom: str, titre: str, type_: str, famille: str) -> str:
   {aura}
   <path d="{forme}" fill="none" stroke="{ENCRE}" stroke-width="13"
         stroke-linejoin="round"/>
-  <path d="{forme}" fill="none" stroke="{metal}" stroke-width="8"
-        stroke-linejoin="round"/>
+  {ciselure}
   <path d="{forme}" fill="{champ}" fill-rule="evenodd"/>
   {reflet(forme, cle)}
-  <path d="{forme}" fill="none" stroke="{ombre}" stroke-width="2"
-        stroke-linejoin="round" fill-rule="evenodd" opacity=".5"/>
+  <path d="{forme}" fill="none" stroke="{ombre}" stroke-width="2.5"
+        stroke-linejoin="round" fill-rule="evenodd" opacity=".55"/>
 </svg>
 """
 
