@@ -16,14 +16,19 @@
 #  « Visuellement, les arènes et les colosseums ne doivent pas être
 #  pareils », 30 octobre.
 #
-#  · ARÈNE — un ÉCUSSON. Sept pour Rhode, à conquérir dans l'ordre :
-#    la forme est celle d'un blason qu'on accroche, pointe en bas.
-#  · COLOSSEUM — un DISQUE CRANTÉ. Quatre, et on y combat à deux contre
-#    deux : la forme est celle de l'arène elle-même, vue du dessus, et
-#    son anneau intérieur se referme sur le glyphe.
+#  LA SILHOUETTE EST LE SYMBOLE — « je préfèrerais que le badge ait la
+#  forme du type », 30 octobre. Pas de cadre : la flamme est la flamme,
+#  la feuille est la feuille. La première série posait le symbole dans
+#  un écusson ou un disque, et donnait onze badges de même silhouette
+#  qui ne se distinguaient qu'à la couleur.
 #
-#  Les deux se distinguent à la silhouette, de loin et en petit — c'est
-#  le test d'un badge, qui ne sera jamais vu plus grand que 48 px.
+#  · ARÈNE — liseré simple, à l'or.
+#  · COLOSSEUM — second liseré par-dessous, à l'argent : on y combat à
+#    deux contre deux, et le badge le dit sans déformer le symbole.
+#
+#  Les deux se distinguent à 48 px — l'un a un trait, l'autre en a
+#  deux. C'est le seul test qui compte : un badge ne sera jamais vu
+#  plus grand.
 #
 #  ── LES COULEURS ───────────────────────────────────────────────────
 #
@@ -33,6 +38,7 @@
 #  et c'est le contour qui le garantit.
 # ════════════════════════════════════════════════════════════════════
 
+import re
 from pathlib import Path
 
 RACINE = Path(__file__).resolve().parent.parent
@@ -41,6 +47,12 @@ SORTIE = RACINE / "img" / "badges"
 #  La charte, pour le contour et les reflets.
 ENCRE = "#2e2018"
 CLAIR = "#fffbf7"
+
+#  LES DEUX MÉTAUX, qui disent l'épreuve. L'or des arènes et l'argent
+#  des colosseums : c'est tout ce qui les sépare maintenant que la
+#  silhouette appartient au type.
+OR = "#c9a24a"
+ARGENT = "#aab4bd"
 
 #  ── LES GLYPHES ────────────────────────────────────────────────────
 #
@@ -64,35 +76,65 @@ GLYPHES = {
     #  ACIER — un écrou hexagonal percé.
     "acier": "M0-15 13-7.5 13 7.5 0 15-13 7.5-13-7.5Z"
              "M0-7 6-3.5 6 3.5 0 7-6 3.5-6-3.5Z",
-    #  ROCHE — un bloc anguleux, d'un seul tenant. La facette
-    #  intérieure de la première version était un trou : à 48 px, le
-    #  bloc avait l'air percé.
-    "roche": "M-14 3-6-13H7L14 1 6 14H-8Z",
+    #  ROCHE — un bloc IRRÉGULIER. Le précédent était un hexagone
+    #  presque régulier : posé à côté de l'écrou de l'acier, on ne
+    #  distinguait plus les deux badges.
+    "roche": "M-15 1-9-12 1-15 11-9 15 3 7 15-6 14Z",
     #  VOL — une aile à trois plumes, pointée vers le haut. La
     #  première version était un simple arc : posée dans un écusson,
     #  elle se lisait comme un sourire.
     "vol": "M14-14C2-13-7-7-12 3L-7 2-10 9-4 7-6 13C2 8 9 0 14-14Z"
            "M-4 2 2-3M-1 7 6-1",
-    #  TÉNÈBRES — un croissant, rentré dans la boîte : la première
-    #  version faisait 29 de haut et touchait le bord de l'écusson.
-    "tenebres": "M3-12C-3-12-9-6-9 0-9 6-3 12 3 12 5 12 8 11 9 10"
-                "3 9-1 5-1 0-1-5 3-9 9-10 8-11 5-12 3-12Z",
+    #  TÉNÈBRES — un croissant d'UN SEUL contour fermé. Trois
+    #  tentatives avant celle-ci, et la leçon vaut pour toute la
+    #  série : un trou intérieur reçoit lui aussi le liseré, donc un
+    #  disque percé devient un anneau, et un trou qui déborde devient
+    #  une virgule. Le creux doit faire partie du tracé, pas être un
+    #  second sous-chemin.
+    "tenebres": "M0-15C-8.3-15-15-8.3-15 0-15 8.3-8.3 15 0 15"
+                " 3 15 6 14 8 13 1 11-4 6-4 0-4-6 1-11 8-13"
+                " 6-14 3-15 0-15Z",
     #  FÉE — une étoile à quatre branches.
     "fee": "M0-15C1-6 6-1 15 0 6 1 1 6 0 15-1 6-6 1-15 0-6-1-1-6 0-15Z",
     #  SPECTRE — une silhouette ondulée.
     "spectre": "M0-14C7-14 12-9 12-2V14L7 9 3 14-1 9-5 14-9 9-12 14V-2"
                "C-12-9-7-14 0-14Z"
-               "M-5-5A2.5 2.5 0 1 0-5 0 2.5 2.5 0 1 0-5-5Z"
-               "M5-5A2.5 2.5 0 1 0 5 0 2.5 2.5 0 1 0 5-5Z",
+               "M-5-6C-3.6-6-2.5-4.7-2.5-3-2.5-1.3-3.6 0-5 0"
+               "-6.4 0-7.5-1.3-7.5-3-7.5-4.7-6.4-6-5-6Z"
+               "M5-6C6.4-6 7.5-4.7 7.5-3 7.5-1.3 6.4 0 5 0"
+               " 3.6 0 2.5-1.3 2.5-3 2.5-4.7 3.6-6 5-6Z",
     #  ÉLECTRIK — un éclair.
     "electrik": "M4-15-12 3H-2L-4 15 12-4H2Z",
-    #  DRAGON — trois griffes écartées et recourbées. La première
-    #  version les tenait serrées et pointe en haut : ça faisait une
-    #  couronne.
-    "dragon": "M-15-9C-11-2-9 4-10 12-7 9-5 7-3 6-6 1-9-4-15-9Z"
-              "M0-15C2-6 2 2 0 12-2 2-2-6 0-15Z"
-              "M15-9C9-4 6 1 3 6 5 7 7 9 10 12 9 4 11-2 15-9Z",
+    #  DRAGON — deux chevrons, les écailles dorsales. La griffe à
+    #  trois pointes faisait une couronne, celle à deux une aile — et
+    #  l'aile appartient au type Vol. Le chevron double ne ressemble à
+    #  aucun des dix autres, c'est ce qu'on lui demande.
+    "dragon": "M-15 0 0-15 15 0 7 0 0-7-7 0Z"
+              "M-15 15 0 0 15 15 7 15 0 8-7 15Z",
 }
+
+#  ── LES SILHOUETTES ───────────────────────────────────────────────
+#
+#  Les glyphes sont dessinés dans une boîte de 32 ; le badge en fait
+#  100. On les agrandit d'un facteur unique plutôt que de les redessiner
+#  — c'est la même forme, et une seule constante à changer si le cadrage
+#  doit respirer davantage.
+#
+#  Aucun chemin n'utilise d'arc (`A`) : ses deux derniers drapeaux
+#  valent 0 ou 1 et ne doivent PAS être mis à l'échelle. Les yeux du
+#  spectre, qui en avaient, ont été repassés en courbes pour cette
+#  raison.
+ECHELLE = 2.55
+
+_NOMBRE = re.compile(r"-?\d*\.?\d+")
+
+
+def _agrandir(chemin: str) -> str:
+    return _NOMBRE.sub(lambda m: f"{float(m.group()) * ECHELLE:.1f}", chemin)
+
+
+SILHOUETTES = {nom: _agrandir(d) for nom, d in GLYPHES.items()}
+
 
 #  ── LES TEINTES ────────────────────────────────────────────────────
 #
@@ -135,78 +177,106 @@ COLOSSEUMS = [
 ]
 
 
-def ecusson(champ: str, ombre: str) -> str:
-    """Le blason des arènes : épaules droites, pointe en bas.
+def reflet(forme: str, cle: str) -> str:
+    """Le reflet, découpé dans la silhouette.
 
-    Le chanfrein des deux coins hauts évite l'angle vif, qui
-    s'escalierait à 48 px."""
+    Une bande claire en haut à gauche, limitée à la forme par un
+    `clipPath` : sans découpe elle déborderait du symbole et le badge
+    aurait l'air posé derrière une vitre."""
     return (
-        f'<path d="M-34-38H34A4 4 0 0 1 38-34V2C38 22 20 34 0 40'
-        f'-20 34-38 22-38 2V-34A4 4 0 0 1-34-38Z" fill="{champ}"/>'
-        #  L'OMBRE SUIT LA FORME. Elle coupait l'écusson d'un trait
-        #  horizontal à mi-hauteur : on ne lisait pas un relief, on
-        #  lisait deux couleurs. Elle prend maintenant le flanc droit,
-        #  comme si la lumière venait de la gauche, et épouse la
-        #  pointe.
-        #  `stroke="none"` : le groupe qui enveloppe la forme pose un
-        #  contour à l'encre sur CHACUN de ses chemins. L'ombre en
-        #  héritait et se retrouvait cernée d'un trait vertical au
-        #  milieu du badge — on lisait une bande, pas un flanc.
-        f'<path d="M4-38H34A4 4 0 0 1 38-34V2C38 22 20 34 0 40Z"'
-        f' fill="{ombre}" opacity=".55" stroke="none"/>'
-    )
-
-
-def disque(champ: str, ombre: str) -> str:
-    """L'arène des colosseums, vue du dessus : un disque à douze crans.
-
-    Les crans sont des trapèzes posés sur le cercle, et pas une étoile
-    à pointes : une pointe fine disparaît en petit, un cran tient."""
-    import math
-
-    crans = []
-    for i in range(12):
-        a = math.radians(i * 30)
-        #  Chaque cran : deux points sur le cercle, deux plus loin.
-        p = []
-        for da, r in ((-7, 34), (-5, 42), (5, 42), (7, 34)):
-            t = a + math.radians(da)
-            p.append(f"{math.cos(t) * r:.1f} {math.sin(t) * r:.1f}")
-        crans.append("M" + "L".join(p) + "Z")
-    return (
-        f'<path d="{"".join(crans)}" fill="{ombre}"/>'
-        f'<circle r="35" fill="{champ}"/>'
-        #  Le même parti que l'écusson : le flanc droit dans l'ombre,
-        #  et pas la moitié basse coupée net.
-        f'<path d="M0-35A35 35 0 0 1 0 35Z" fill="{ombre}" opacity=".55"'
-        f' stroke="none"/>'
-        #  L'anneau intérieur, qui enferme le glyphe.
-        f'<circle r="24" fill="none" stroke="{ENCRE}" stroke-width="3"'
-        f' opacity=".45"/>'
+        f'<clipPath id="{cle}"><path d="{forme}"/></clipPath>'
+        f'<path d="M-50-50H10L-50 20Z" fill="{CLAIR}" opacity=".22"'
+        f' clip-path="url(#{cle})"/>'
     )
 
 
 def badge(nom: str, titre: str, type_: str, famille: str) -> str:
+    """Un badge : la forme du type, et rien d'autre.
+
+    ── LA SILHOUETTE EST LE SYMBOLE ────────────────────────────────
+
+    « Je préfèrerais que le badge ait la forme du type », 30 octobre.
+    La première série posait le symbole DANS un écusson ou un disque :
+    onze badges de même silhouette, qui ne se distinguaient qu'à la
+    couleur. Celle-ci n'a plus de cadre du tout — la flamme est la
+    flamme, la feuille est la feuille.
+
+    ── ALORS COMMENT DISTINGUER LES DEUX ÉPREUVES ? ────────────────
+
+    Plus par la forme, puisqu'elle appartient au type. Par ce qui
+    l'entoure :
+
+    · ARÈNE — un liseré simple, à l'or.
+    · COLOSSEUM — un second liseré par-dessous, à l'argent, qui double
+      le contour à six pixels de distance. On y combat à deux contre
+      deux, et le badge le dit sans déformer le symbole.
+
+    Les deux se lisent à 48 px : l'un a un trait, l'autre en a deux.
+    """
     champ, ombre = TEINTES[type_]
-    forme = ecusson(champ, ombre) if famille == "arene" else disque(champ, ombre)
-    #  LE CONTOUR EST DESSINÉ DEUX FOIS : une fois en dessous, épais,
-    #  pour cerner la silhouette entière ; une fois au-dessus du glyphe,
-    #  pour que le clair du glyphe ne bave pas sur le champ.
+    forme = SILHOUETTES[type_]
+    metal = OR if famille == "arene" else ARGENT
+    cle = f"r-{famille}-{nom}"
+
+    #  LE DOUBLE LISERÉ EST DESSINÉ EN DESSOUS, en trait très épais :
+    #  le même chemin élargi donne une aura de la même forme, ce qu'un
+    #  contour décalé à la main ne saurait pas faire sur une courbe.
+    aura = (
+        #  L'ENCRE D'ABORD, LE MÉTAL PAR-DESSUS. Dessinés dans
+        #  l'autre sens, le trait d'encre — plus large — recouvrait
+        #  entièrement l'argent et les colosseums avaient le même
+        #  liseré que les arènes.
+        f'<path d="{forme}" fill="none" stroke="{ENCRE}" stroke-width="30"'
+        f' stroke-linejoin="round"/>'
+        f'<path d="{forme}" fill="none" stroke="{metal}" stroke-width="22"'
+        f' stroke-linejoin="round"/>'
+        if famille == "colosseum"
+        else ""
+    )
+
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="-50 -50 100 100"
      width="96" height="96" role="img" aria-label="{titre}">
   <title>{titre}</title>
-  <g stroke="{ENCRE}" stroke-width="5" stroke-linejoin="round">
-    {forme}
-  </g>
-  <g fill="{CLAIR}" stroke="{ENCRE}" stroke-width="2.5"
-     stroke-linejoin="round" stroke-linecap="round" fill-rule="evenodd">
-    <path d="{GLYPHES[type_]}"/>
-  </g>
+  {aura}
+  <path d="{forme}" fill="none" stroke="{ENCRE}" stroke-width="13"
+        stroke-linejoin="round"/>
+  <path d="{forme}" fill="none" stroke="{metal}" stroke-width="8"
+        stroke-linejoin="round"/>
+  <path d="{forme}" fill="{champ}" fill-rule="evenodd"/>
+  {reflet(forme, cle)}
+  <path d="{forme}" fill="none" stroke="{ombre}" stroke-width="2"
+        stroke-linejoin="round" fill-rule="evenodd" opacity=".5"/>
 </svg>
 """
 
 
+def verifier() -> None:
+    """Chaque courbe doit avoir un multiple de six nombres.
+
+    ── DEUX CHEMINS CASSÉS PAR UN ESPACE MANQUANT ──────────────────
+
+    Les chemins sont écrits sur plusieurs lignes et Python les colle
+    bout à bout : une ligne qui finit par « 0 15 » suivie d'une qui
+    commence par « 3 » donne « 0 153 ». Le croissant et le second œil
+    du spectre y sont passés — le premier dessinait une forme deux
+    fois trop grande, et on ne l'a vu qu'à l'image.
+
+    Un contrôle d'arithmétique suffit à les attraper : une courbe de
+    Bézier prend ses points par six, une ligne par deux.
+    """
+    fautes = []
+    for nom, d in GLYPHES.items():
+        for lettre, par in (("C", 6), ("L", 2)):
+            for bloc in re.findall(rf"{lettre}([^A-Za-z]*)", d):
+                n = len(re.findall(r"-?\d*\.?\d+", bloc))
+                if n % par:
+                    fautes.append(f"{nom} : un {lettre} de {n} nombres")
+    if fautes:
+        raise SystemExit("chemins mal formés —\n  " + "\n  ".join(fautes))
+
+
 def main() -> None:
+    verifier()
     SORTIE.mkdir(parents=True, exist_ok=True)
     faits = []
     for famille, liste in (("arene", ARENES), ("colosseum", COLOSSEUMS)):
@@ -239,9 +309,9 @@ def main() -> None:
   small {{ display: block; opacity: .6; }}
 </style></head><body>
 <section class="clair">
-  <h2>Les sept arènes — écusson</h2>
+  <h2>Les sept arènes — or, liseré simple</h2>
   <div class="grille">{"".join(lignes[:7])}</div>
-  <h2 style="margin-top:28px">Les quatre colosseums — disque</h2>
+  <h2 style="margin-top:28px">Les quatre colosseums — argent, double liseré</h2>
   <div class="grille">{"".join(lignes[7:])}</div>
 </section>
 <section class="sombre">
