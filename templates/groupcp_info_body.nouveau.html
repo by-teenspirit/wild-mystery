@@ -1,0 +1,209 @@
+<!--  ════════════════════════════════════════════════════════════════
+      groupcp_info_body — la page d'UN groupe
+
+      CE N'EST PAS LA LISTE DES GROUPES. Celle-ci est servie par
+      `groupcp_user_body` (« Groupes d'utilisateurs » dans le panneau).
+      Ce gabarit-ci est la page qu'on atteint en cliquant un groupe —
+      `/g1-nom` — et c'est celle vers laquelle pointe la colonne RANG
+      de la liste des membres.
+
+      CE QU'IL Y AVAIT : un `<table class="table1">` qui rendait CHAQUE
+      membre DEUX FOIS — des `<td class="mobile-hidden">` pour l'écran
+      large, et un bloc `mobile-visible` qui répétait les mêmes champs
+      pour le téléphone. Deux rendus à tenir d'accord, et le mobile
+      n'était qu'un `display: none` posé sur l'autre. Même défaut que
+      `memberlist_body` avant le 2 octobre, même réponse : une seule
+      grille de cartes, qui se replie toute seule.
+
+      ET LE GABARIT D'ORIGINE AVAIT UN BOGUE. Dans le bloc
+      `member_row`, les quatre lignes du rendu mobile lisaient
+      `{memberrow.POSTS}`, `{memberrow.INTERESTS}`,
+      `{memberrow.EMAIL_IMG}` et `{memberrow.WWW_IMG}` — sans le
+      souligné, donc la boucle de `memberlist_body` et pas celle-ci.
+      Elles ne rendaient rien du tout. Le rendu mobile était vide
+      depuis toujours et personne ne l'a vu, parce qu'il fallait un
+      téléphone pour le voir.
+
+      ON NE TOUCHE PAS : les deux formulaires et leurs `{S_HIDDEN_FIELDS}`,
+      les cases `members[]` qui portent `{member_row.USER_ID}`, et le
+      bloc `switch_mod_option` — c'est par lui qu'un modérateur ajoute
+      et retire des membres.
+      ════════════════════════════════════════════════════════════════ -->
+
+<!-- BEGIN switch_user_logged_in --><p class="right rightside">{LAST_VISIT_DATE}</p><!-- END switch_user_logged_in -->
+<p>{CURRENT_TIME}</p>
+
+<h1 class="page-title solo">{GROUP_NAME}</h1>
+
+<!--  LA FICHE DU GROUPE, dans une carte à elle : le nom, la
+      description, l'adhésion et le compte. Les `<dl>` d'origine
+      deviennent des champs clé/valeur de la même famille que ceux de
+      la fiche de personnage. -->
+<div class="wm-groupe">
+	<form action="{S_GROUPCP_ACTION}" method="post" class="wm-groupe__fiche">
+		<fieldset class="wm-groupe__champs">
+			<div class="wm-groupe__champ">
+				<span class="wm-groupe__cle">{L_GROUP_NAME}</span>
+				<span class="wm-groupe__valeur"><strong>{GROUP_NAME}</strong></span>
+			</div>
+			<div class="wm-groupe__champ wm-groupe__champ--large">
+				<span class="wm-groupe__cle">{L_GROUP_DESC}</span>
+				<span class="wm-groupe__valeur">{GROUP_DESC}</span>
+			</div>
+			<div class="wm-groupe__champ">
+				<span class="wm-groupe__cle">{L_GROUP_MEMBERSHIP}</span>
+				<span class="wm-groupe__valeur">
+					{GROUP_DETAILS}
+					<!-- BEGIN switch_subscribe_group_input -->
+					<input class="button2" type="submit" name="joingroup" value="{L_JOIN_GROUP}" />
+					<!-- END switch_subscribe_group_input -->
+					<!-- BEGIN switch_unsubscribe_group_input -->
+					<input class="button2" type="submit" name="unsub" value="{L_UNSUBSCRIBE_GROUP}" />
+					<!-- END switch_unsubscribe_group_input -->
+				</span>
+			</div>
+			<!-- BEGIN switch_count_users_group -->
+			<div class="wm-groupe__champ">
+				<span class="wm-groupe__cle">{switch_count_users_group.L_GROUP_COUNT}</span>
+				<span class="wm-groupe__valeur">{switch_count_users_group.GROUP_COUNT}</span>
+			</div>
+			<!-- END switch_count_users_group -->
+			<!-- BEGIN switch_mod_option -->
+			<div class="wm-groupe__champ wm-groupe__champ--large">
+				<span class="wm-groupe__cle">{L_GROUP_TYPE}</span>
+				<span class="wm-groupe__valeur wm-groupe__type">
+					<label><input type="radio" name="group_type" value="{S_GROUP_OPEN_TYPE}" {S_GROUP_OPEN_CHECKED} {S_GROUP_OPEN_DISABLED} /> {L_GROUP_OPEN}</label>
+					<label><input type="radio" name="group_type" value="{S_GROUP_CLOSED_TYPE}" {S_GROUP_CLOSED_CHECKED} /> {L_GROUP_CLOSED}</label>
+					<label><input type="radio" name="group_type" value="{S_GROUP_HIDDEN_TYPE}" {S_GROUP_HIDDEN_CHECKED} /> {L_GROUP_HIDDEN}</label>
+					<input class="button2" type="submit" name="groupstatus" value="{L_UPDATE}" />
+				</span>
+			</div>
+			<!-- END switch_mod_option -->
+			{S_HIDDEN_FIELDS}
+		</fieldset>
+	</form>
+</div>
+
+<form action="{S_GROUPCP_ACTION}" method="post" name="post">
+	<div class="wm-forum__section wm-groupe__section">
+		<div class="wm-forum__bande">
+			<span class="wm-forum__filet"></span>
+			<span class="wm-forum__bande-titre">{L_GROUP_MEMBERS}</span>
+			<span class="wm-forum__filet"></span>
+		</div>
+
+		<div class="wm-groupe__gens">
+			<!--  LE MODÉRATEUR EN PREMIER, dans une carte marquée : c'est
+			      le seul membre dont le rôle change quelque chose, et le
+			      gabarit d'origine le signalait par une ligne de titre
+			      en travers du tableau. Une carte le dit mieux. -->
+			<p class="wm-groupe__role">{L_GROUP_MODERATOR}</p>
+			<ul class="wm-groupe__grille">
+				<li class="wm-groupe__carte wm-groupe__carte--mod">
+					<a class="wm-groupe__nom" href="{U_MOD_VIEWPROFILE}">{MOD_USERNAME}</a>
+					<span class="wm-groupe__ligne">
+						<span class="wm-groupe__cle">{L_POSTS}</span>
+						<span class="wm-groupe__valeur">{MOD_POSTS}</span>
+					</span>
+					<span class="wm-groupe__ligne">
+						<span class="wm-groupe__cle">{L_FROM}</span>
+						<span class="wm-groupe__valeur">{MOD_FROM}</span>
+					</span>
+					<span class="wm-groupe__liens">
+						<!-- BEGIN switch_anonymous_auth -->
+						{MOD_PM_IMG}
+						{MOD_EMAIL_IMG}
+						<!-- END switch_anonymous_auth -->
+						{MOD_WWW_IMG}
+					</span>
+				</li>
+			</ul>
+
+			<p class="wm-groupe__role">{L_GROUP_MEMBERS}</p>
+			<ul class="wm-groupe__grille">
+				<!-- BEGIN member_row -->
+				<li class="wm-groupe__carte {member_row.ROW_CLASS}">
+					<a class="wm-groupe__nom" href="{member_row.U_VIEWPROFILE}">{member_row.USERNAME}</a>
+					<span class="wm-groupe__ligne">
+						<span class="wm-groupe__cle">{L_POSTS}</span>
+						<span class="wm-groupe__valeur">{member_row.POSTS}</span>
+					</span>
+					<span class="wm-groupe__ligne">
+						<span class="wm-groupe__cle">{L_FROM}</span>
+						<span class="wm-groupe__valeur">{member_row.FROM}</span>
+					</span>
+					<span class="wm-groupe__liens">
+						<!-- BEGIN switch_anonymous_auth -->
+						{member_row.PM_IMG}
+						{member_row.EMAIL_IMG}
+						<!-- END switch_anonymous_auth -->
+						{member_row.WWW_IMG}
+					</span>
+					<!--  LA CASE DE SÉLECTION reste : c'est par elle qu'un
+					      modérateur retire quelqu'un du groupe. -->
+					<!-- BEGIN switch_mod_option -->
+					<label class="wm-groupe__choix">
+						<input type="checkbox" name="members[]" value="{member_row.USER_ID}" />
+						{L_SELECT}
+					</label>
+					<!-- END switch_mod_option -->
+				</li>
+				<!-- END member_row -->
+			</ul>
+
+			<!-- BEGIN switch_no_members -->
+			<p class="wm-groupe__vide">{L_NO_MEMBERS}</p>
+			<!-- END switch_no_members -->
+			<!-- BEGIN switch_hidden_group -->
+			<p class="wm-groupe__vide">{L_HIDDEN_MEMBERS}</p>
+			<!-- END switch_hidden_group -->
+		</div>
+	</div>
+
+	<!-- BEGIN switch_mod_option -->
+	<div class="wm-groupe wm-groupe--moderation">
+		<!-- BEGIN switch_grp_admin -->
+		<p class="wm-groupe__note"><strong>{L_ADMIN_GRP_EXPLAIN}</strong></p>
+		<!-- END switch_grp_admin -->
+		<div class="wm-groupe__outils">
+			<input class="inputbox tiny" type="text" id="username" name="username" />
+			<input class="button2" type="submit" name="add" value="{L_ADD_MEMBER}" />
+			<input class="button2" type="button" id="find_user" value="{L_FIND_USERNAME}" />
+			<input class="button2 wm-groupe__retirer" type="submit" name="remove" value="{L_REMOVE_SELECTED}" />
+			{S_HIDDEN_FIELDS}
+		</div>
+	</div>
+	<!-- END switch_mod_option -->
+
+	<p class="pagination">{PAGINATION}</p>
+	{PENDING_USER_BOX}
+</form>
+
+<form action="{S_JUMPBOX_ACTION}" method="get" name="jumpbox" onsubmit="if(document.jumpbox.f.value == -1){return false;}">
+	<p class="right">{L_JUMP_TO}:&nbsp;{S_JUMPBOX_SELECT}&nbsp;<input class="button2" type="submit" value="{L_GO}" /></p>
+</form>
+
+<!-- BEGIN switch_mod_option -->
+<div id="find_username" class="jqmWindow"></div>
+
+<script src="{JQUERY_DIR}jqmodal/jqmodal.js" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+	$(document).ready(function(){
+		function find_username(fieldname) {
+			$.get('{U_SEARCH_USER}&fieldname=' + fieldname + '&time=' + timestamp(), '',
+				function(data){
+					$('#find_username').html(data).jqmShow();
+					$('.jqmOverlay').bgiframe();
+					$('#find_username').bgiframe();
+				});
+			return false;
+		}
+		$('#find_user').click(function(){
+			return find_username('username');
+		});
+		$('#find_username').jqm({toTop: true});
+	});
+//]]>
+</script>
+<!-- END switch_mod_option -->

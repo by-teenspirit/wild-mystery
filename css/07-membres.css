@@ -857,3 +857,273 @@
     justify-content: flex-start;
   }
 }
+
+/* ── 8 · la page d'un groupe ──────────────────────────────────────── */
+
+/*  `groupcp_info_body`, réécrit le 30 octobre. Ce N'EST PAS la liste
+    des groupes — celle-là est servie par `groupcp_user_body` — mais la
+    page d'UN groupe, celle vers laquelle pointe la colonne RANG de la
+    liste des membres.
+
+    Elle était en `<table class="table1">`, et elle rendait chaque
+    membre DEUX FOIS : des cellules pour l'écran large, un bloc
+    `mobile-visible` pour le téléphone. Une seule grille de cartes la
+    remplace, et elle se replie toute seule.
+
+    « Tout mettre dans un bloc blanc », « une grille et des petites
+    cards » : la fiche du groupe est une carte, les membres en sont
+    autant de petites. */
+
+#modernbb .wm-groupe {
+  margin: 0 0 var(--wm-espace-20, 20px);
+  padding: var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LES CHAMPS DU GROUPE EN GRILLE : deux par rangée quand il y a la
+    place, un seul pour la description et le type, qui sont longs.
+    `auto-fit` et pas `auto-fill` — à l'étroit, la seule colonne prend
+    toute la largeur au lieu de laisser une colonne vide à côté. */
+#modernbb .wm-groupe__champs {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  gap: var(--wm-espace-14, 14px) var(--wm-espace-24, 24px);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+#modernbb .wm-groupe__champ--large {
+  grid-column: 1 / -1;
+}
+
+#modernbb .wm-groupe__champ {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-groupe__cle {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-groupe__valeur {
+  min-width: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  Les trois boutons radio du type de groupe tiennent sur une ligne,
+    et se replient ensemble. */
+#modernbb .wm-groupe__type {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-groupe__type label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+}
+
+/*  ── LES MEMBRES EN GRILLE DE CARTES ───────────────────────────────
+
+    La carte est la même famille que celles du reste du forum :
+    `fond-surface-haute` pour se détacher du bloc qui les porte, sans
+    rivaliser avec lui.
+
+    `minmax(200px, 1fr)` : quatre cartes sur une page de 1 200, deux
+    sur une tablette, une sur un téléphone — et c'est la grille qui
+    décide, pas un point de rupture à tenir. */
+#modernbb .wm-groupe__gens {
+  padding: var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-top: 0;
+  border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-groupe__role {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-groupe__grille + .wm-groupe__role {
+  margin-top: var(--wm-espace-24, 24px);
+  padding-top: var(--wm-espace-20, 20px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-groupe__grille {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  list-style: none;
+}
+
+#modernbb .wm-groupe__carte {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  LE MODÉRATEUR SE DISTINGUE. Le gabarit d'origine le signalait par
+    une ligne de titre en travers du tableau ; ici son filet suffit —
+    une couleur de fond de plus ferait trois surfaces empilées. */
+#modernbb .wm-groupe__carte--mod {
+  border-color: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .wm-groupe__nom {
+  overflow: hidden;
+  color: var(--wm-texte-corps, #4e3b30);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-groupe__nom:hover {
+  text-decoration: underline;
+}
+
+/*  Une ligne de la carte : la clé à gauche, la valeur à droite, et le
+    même ressort pointillé que la fiche de personnage — c'est le même
+    objet, une paire clé/valeur dans une colonne étroite. */
+#modernbb .wm-groupe__ligne {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-groupe__ligne::before {
+  content: "";
+  order: 1;
+  flex: 1 1 auto;
+  align-self: baseline;
+  min-width: var(--wm-espace-10, 10px);
+  border-bottom: 1px dotted var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-groupe__ligne > .wm-groupe__cle { order: 0; flex: none; }
+
+#modernbb .wm-groupe__ligne > .wm-groupe__valeur {
+  order: 2;
+  flex: none;
+  overflow: hidden;
+  max-width: 60%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-groupe__liens {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  margin-top: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-groupe__liens img {
+  display: block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+#modernbb .wm-groupe__liens a {
+  color: var(--wm-texte-doux, #6e5749);
+  text-decoration: none;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-groupe__liens a:hover {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: underline;
+}
+
+/*  LA CASE DE SÉLECTION du modérateur. Elle n'apparaît que pour lui —
+    `switch_mod_option` — et elle se met au bas de la carte, séparée :
+    c'est une action, pas un renseignement. */
+#modernbb .wm-groupe__choix {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  margin-top: var(--wm-espace-6, 6px);
+  padding-top: var(--wm-espace-8, 8px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-size: var(--wm-taille-etiquette, 10px);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-groupe__vide {
+  margin: 0;
+  padding: var(--wm-espace-20, 20px) 0;
+  color: var(--wm-texte-doux, #6e5749);
+  text-align: center;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LES OUTILS DE MODÉRATION, en une rangée qui se replie. */
+#modernbb .wm-groupe--moderation {
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-groupe__note {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-groupe__outils {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-groupe__outils .inputbox {
+  flex: 1 1 200px;
+  min-width: 0;
+  height: var(--wm-cible-tactile, 44px);
+  padding: 0 var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  « Retirer les sélectionnés » part à droite : c'est la seule action
+    destructrice de la rangée, et elle ne doit pas se cliquer en
+    visant « Ajouter ». */
+#modernbb .wm-groupe__retirer {
+  margin-left: auto;
+}

@@ -924,6 +924,186 @@ dire(
   `débordement maximal : ${deborde} px`,
 );
 
+// ── LA PAGE D'UN GROUPE ────────────────────────────────────────────
+//
+//  `groupcp_info_body`, réécrit le 30 octobre. Il mérite son harnais
+//  ici plutôt qu'un fichier à lui : c'est la page vers laquelle pointe
+//  la colonne RANG de la liste des membres, et les deux partagent le
+//  vocabulaire des cartes.
+
+function pageDuGroupe({ moderation = false, membres = 5 } = {}) {
+  let t = readFileSync(R + "templates/groupcp_info_body.nouveau.html", "utf8");
+  for (
+    const [nom, servi] of [
+      ["switch_user_logged_in", true],
+      ["switch_count_users_group", true],
+      ["switch_anonymous_auth", true],
+      ["switch_subscribe_group_input", true],
+      ["switch_unsubscribe_group_input", false],
+      ["switch_mod_option", moderation],
+      ["switch_grp_admin", moderation],
+      ["switch_no_members", false],
+      ["switch_hidden_group", false],
+    ]
+  ) t = servi ? gardeBloc(t, nom) : sansBloc(t, nom);
+
+  t = repeteBloc(t, "member_row", membres);
+  const GENS = [
+    "Calliste Vanne",
+    "Nael",
+    "Ines Kervadec",
+    "Iseult",
+    "Elijah Smithson de la Roche-aux-Fées",
+  ];
+  let i = 0;
+  t = t.replace(/\{member_row\.(\w+)\}/g, (_, nom) => {
+    if (nom === "ROW_CLASS") return i % 2 === 0 ? "row1" : "row2";
+    if (nom === "USERNAME") return GENS[i % GENS.length];
+    if (nom === "U_VIEWPROFILE") return `/u${i + 3}`;
+    if (nom === "POSTS") return ["148", "1 204", "61", "2 118", "806"][i % 5];
+    //  `FROM` est « Humeur » en français — un champ libre, donc
+    //  potentiellement long. C'est lui qui ferait grandir une carte.
+    if (nom === "FROM") {
+      return i % 3 === 0 ? "Quelque part entre Pyrite et la Tour Titanite" : "Rhode";
+    }
+    if (nom === "PM_IMG") return `<img src="${PIXEL}" alt="MP" />`;
+    if (nom === "EMAIL_IMG") return `<img src="${PIXEL}" alt="E-mail" />`;
+    if (nom === "WWW_IMG") {
+      const v = `<img src="${PIXEL}" alt="Site" />`;
+      i++;
+      return v;
+    }
+    if (nom === "USER_ID") return String(i + 3);
+    return "";
+  });
+
+  t = t.replace(/<script[\s\S]*?<\/script>/g, "");
+  const g = {
+    GROUP_NAME: "Deoxys",
+    GROUP_DESC: "Les scientifiques, archéologues, paléontologues et " +
+      "professeurs — étudiants compris dès la première année.",
+    GROUP_DETAILS: "Groupe ouvert",
+    L_GROUP_NAME: "Nom du groupe",
+    L_GROUP_DESC: "Description",
+    L_GROUP_MEMBERSHIP: "Adhésion",
+    L_GROUP_TYPE: "Type de groupe",
+    L_GROUP_OPEN: "Ouvert",
+    L_GROUP_CLOSED: "Fermé",
+    L_GROUP_HIDDEN: "Caché",
+    L_GROUP_MODERATOR: "Modérateur du groupe",
+    L_GROUP_MEMBERS: "Membres du groupe",
+    L_POSTS: "Messages",
+    L_FROM: "Humeur",
+    L_SELECT: "Choisir",
+    L_UPDATE: "Mettre à jour",
+    L_JOIN_GROUP: "Rejoindre",
+    L_ADD_MEMBER: "Ajouter",
+    L_FIND_USERNAME: "Chercher",
+    L_REMOVE_SELECTED: "Retirer les sélectionnés",
+    L_ADMIN_GRP_EXPLAIN: "Vous modérez ce groupe.",
+    MOD_USERNAME: "Maître du Jeu",
+    U_MOD_VIEWPROFILE: "/u3",
+    MOD_POSTS: "2 118",
+    MOD_FROM: "Rhode",
+    MOD_PM_IMG: `<img src="${PIXEL}" alt="MP" />`,
+    MOD_EMAIL_IMG: `<img src="${PIXEL}" alt="E-mail" />`,
+    MOD_WWW_IMG: `<img src="${PIXEL}" alt="Site" />`,
+    "switch_count_users_group.L_GROUP_COUNT": "Membres",
+    "switch_count_users_group.GROUP_COUNT": "12",
+    PAGINATION: "<span>Page <strong>1</strong> sur 1</span>",
+  };
+  return t.replace(/\{([\w.]+)\}/g, (_, n) => g[n] ?? "");
+}
+
+const grp = await nav.newPage({ viewport: { width: 1280, height: 1200 } });
+await grp.setContent(page(pageDuGroupe({ moderation: true })), {
+  waitUntil: "load",
+});
+
+const groupe = await grp.evaluate(() => {
+  const fiche = document.querySelector(".wm-groupe");
+  const gens = document.querySelector(".wm-groupe__gens");
+  const cartes = [...document.querySelectorAll(".wm-groupe__carte")];
+  if (fiche === null || gens === null) return null;
+  const st = getComputedStyle(fiche);
+  const h = (e) => Math.round(e.getBoundingClientRect().height);
+  return {
+    //  PLUS AUCUN TABLEAU, c'est la règle de la planche 49.
+    tableaux: document.querySelectorAll("table").length,
+    //  ET PLUS DE DOUBLE RENDU : le gabarit d'origine écrivait chaque
+    //  membre deux fois, une fois pour l'écran et une fois pour le
+    //  téléphone.
+    doubleRendu: document.querySelectorAll(".mobile-visible, .mobile-hidden")
+      .length,
+    //  LA FICHE EST UN BLOC BLANC.
+    fond: st.backgroundColor,
+    fondPage: getComputedStyle(document.body).backgroundColor,
+    filet: st.borderTopWidth,
+    rayon: st.borderTopLeftRadius,
+    //  LES MEMBRES SONT UNE GRILLE DE CARTES, sur plusieurs colonnes.
+    cartes: cartes.length,
+    colonnes: new Set(
+      cartes.map((c) => Math.round(c.getBoundingClientRect().x)),
+    ).size,
+    //  ── MÊME HAUTEUR DANS UNE MÊME GRILLE ────────────────────
+    //
+    //  Première version : toutes les cartes de la page. Elle tombait,
+    //  et elle avait tort — la carte du modérateur n'a pas de case de
+    //  sélection, donc elle est plus courte, et c'est juste.
+    //
+    //  Ce qui compte est qu'une carte ne grandisse pas TOUTE SEULE à
+    //  côté de ses voisines : une humeur longue ne doit pas faire une
+    //  rangée en escalier. On mesure donc par grille.
+    hauteurs: [...document.querySelectorAll(".wm-groupe__grille")].map((
+      g,
+    ) => [...new Set([...g.children].map(h))]),
+    //  LE MODÉRATEUR SE DISTINGUE.
+    modMarque: getComputedStyle(
+      document.querySelector(".wm-groupe__carte--mod"),
+    ).borderTopColor !==
+      getComputedStyle(cartes[cartes.length - 1]).borderTopColor,
+    //  RIEN NE DÉBORDE.
+    deborde: Math.max(
+      0,
+      ...cartes.map((c) => c.scrollWidth - c.clientWidth),
+    ),
+    //  ET CE QUI SERT À MODÉRER EST TOUJOURS LÀ.
+    cases: document.querySelectorAll('input[name="members[]"]').length,
+    retirer: document.querySelector(".wm-groupe__retirer") !== null,
+  };
+});
+await grp.close();
+
+dire(
+  "LA PAGE D'UN GROUPE N'A PLUS DE TABLEAU NI DE DOUBLE RENDU",
+  groupe !== null && groupe.tableaux === 0 && groupe.doubleRendu === 0,
+  JSON.stringify({
+    tableaux: groupe?.tableaux,
+    doubleRendu: groupe?.doubleRendu,
+  }),
+);
+dire(
+  "LA FICHE DU GROUPE EST UN BLOC BLANC",
+  groupe !== null && groupe.fond !== groupe.fondPage &&
+    groupe.filet === "1px" && groupe.rayon === "10px",
+  JSON.stringify({ fond: groupe?.fond, filet: groupe?.filet }),
+);
+dire(
+  "LES MEMBRES SONT UNE GRILLE DE CARTES DE MÊME HAUTEUR",
+  groupe !== null && groupe.cartes === 6 && groupe.colonnes >= 3 &&
+    groupe.hauteurs.every((g) => g.length === 1) && groupe.deborde <= 1,
+  JSON.stringify(groupe),
+);
+dire(
+  "LE MODÉRATEUR SE DISTINGUE, ET LA MODÉRATION GARDE SES OUTILS",
+  groupe !== null && groupe.modMarque && groupe.cases === 5 &&
+    groupe.retirer,
+  JSON.stringify({
+    marque: groupe?.modMarque,
+    cases: groupe?.cases,
+  }),
+);
+
 await p.close();
 await nav.close();
 
