@@ -5724,6 +5724,183 @@ html#min-width {
   position: absolute !important;
 }
 
+/* ── 15 · le dossier à onglets du profil ───────────────────────────── */
+
+/*  « Fais des onglets pour que tout ne soit pas affiché d'un seul
+    coup, avec une hauteur spécifique, un overflow auto, mais on doit
+    tout le temps voir l'équipe », 30 octobre.
+
+    POURQUOI DES ONGLETS. La colonne porte maintenant quatre choses :
+    la feuille de personnage, les champs du panneau, les badges et
+    l'équipe. Empilées, elles font une colonne deux fois plus haute que
+    le message qu'elle accompagne — le défaut qu'on corrigeait déjà au
+    § 3 en serrant les champs, sauf qu'avec les badges il n'y a plus de
+    serrage possible.
+
+    TROIS ONGLETS, PAS QUATRE. L'équipe est DEHORS : elle est au-dessus
+    du dossier, toujours visible, parce qu'elle a été demandée comme
+    telle. Les trois autres se partagent un seul panneau.
+
+    SANS JAVASCRIPT. Trois boutons radio, trois étiquettes, et la
+    feuille montre le panneau dont le bouton est coché. Trois raisons
+    de préférer ça à un gestionnaire de clic :
+
+      · le clavier marche tout seul — flèches entre les onglets,
+        c'est le comportement natif d'un groupe de radios ;
+      · un message cité, prévisualisé ou chargé par la réponse rapide
+        garde ses onglets, alors qu'un script qui ne s'exécute qu'au
+        chargement de la page les laisserait morts ;
+      · si le JS du forum casse — et sur Forumactif il casse — la
+        colonne reste lisible.
+
+    Le `name` des radios porte `U_POST_ID` : une page de sujet sert
+    vingt messages, et sans ça les vingt dossiers n'auraient qu'un
+    seul groupe — cliquer « Badges » dans le troisième message
+    décocherait tout le reste. */
+
+#modernbb .wm-profil__dossier {
+  margin-top: var(--wm-espace-14, 14px);
+  padding-top: var(--wm-espace-14, 14px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  text-align: left;
+}
+
+/*  LES BOUTONS RADIO RESTENT DANS LA PAGE, invisibles mais focalisables.
+
+    Ni `display: none` ni `visibility: hidden` : les deux retirent
+    l'élément de l'ordre de tabulation, et on perdrait justement ce
+    qu'on était venu chercher — la navigation au clavier. On le sort du
+    flux et on le rend transparent, ce qui le laisse focalisable. */
+#modernbb .wm-profil__radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*  LA RANGÉE D'ONGLETS. Trois parts égales : les trois mots sont
+    courts et de longueurs différentes, et des onglets de largeurs
+    inégales se lisent comme un défaut d'alignement. */
+#modernbb .wm-profil__onglets {
+  display: flex;
+  gap: var(--wm-espace-4, 4px);
+  margin-bottom: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-profil__onglets label {
+  flex: 1 1 0;
+  /*  Un enfant de flex garde la largeur de son contenu : sans ça,
+      « Badges » prendrait plus de place que « Fiche ». */
+  min-width: 0;
+  padding: var(--wm-espace-6, 6px) 0;
+  border-radius: var(--wm-rayon-sm, 6px);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  text-align: center;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  /*  La couleur de fond est la seule chose qui bouge d'un onglet à
+      l'autre : on la fait glisser plutôt que sauter. */
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+#modernbb .wm-profil__onglets label:hover {
+  /*  `fond-terre` et pas `fond-page` : le fond de page de la charte
+      tire au brun (#eecfb5), et un onglet survolé s'y lirait comme
+      l'onglet actif. */
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/*  L'ONGLET COCHÉ. `nth-of-type` sur les radios, pas une classe : rien
+    ne pose de classe ici, c'est tout l'intérêt du montage. Les trois
+    radios sont les trois premiers enfants du dossier, donc le premier
+    commande la première étiquette. */
+#modernbb .wm-profil__radio:nth-of-type(1):checked ~ .wm-profil__onglets label:nth-child(1),
+#modernbb .wm-profil__radio:nth-of-type(2):checked ~ .wm-profil__onglets label:nth-child(2),
+#modernbb .wm-profil__radio:nth-of-type(3):checked ~ .wm-profil__onglets label:nth-child(3) {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  LE FOCUS SE VOIT. Le bouton est transparent : si on ne reportait
+    pas son anneau sur l'étiquette, un visiteur au clavier ne saurait
+    plus où il est. */
+#modernbb .wm-profil__radio:nth-of-type(1):focus-visible ~ .wm-profil__onglets label:nth-child(1),
+#modernbb .wm-profil__radio:nth-of-type(2):focus-visible ~ .wm-profil__onglets label:nth-child(2),
+#modernbb .wm-profil__radio:nth-of-type(3):focus-visible ~ .wm-profil__onglets label:nth-child(3) {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  LE PANNEAU. « Une hauteur spécifique, un overflow auto. »
+
+    170 px, et la même pour les trois : une hauteur qui suit le contenu
+    ferait sauter la colonne — et avec elle le message entier, puisque
+    les deux sont les colonnes d'une même rangée en flex — à chaque
+    changement d'onglet.
+
+    `height` et pas `max-height` : avec un maximum, le panneau des
+    badges d'un joueur qui n'en a aucun serait haut de zéro, et les
+    onglets danseraient quand même. */
+#modernbb .wm-profil__panneau {
+  display: none;
+  overflow-y: auto;
+  height: 170px;
+  /*  La place de la barre de défilement, pour que le texte ne vienne
+      pas la toucher quand elle apparaît. */
+  padding-right: var(--wm-espace-6, 6px);
+  text-align: left;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  /*  Une barre fine et dans les tons de la charte : la barre système
+      est large de 15 px sur une colonne qui en fait 208. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--wm-bord-fin, #eadacd) transparent;
+}
+
+#modernbb .wm-profil__radio:nth-of-type(1):checked ~ .wm-profil__panneau--1,
+#modernbb .wm-profil__radio:nth-of-type(2):checked ~ .wm-profil__panneau--2,
+#modernbb .wm-profil__radio:nth-of-type(3):checked ~ .wm-profil__panneau--3 {
+  display: block;
+}
+
+/*  LES CHAMPS PERDENT LEUR FILET ET LEUR MARGE dans le panneau. Le § 3
+    et le § 11 leur donnaient un bord haut et une marge basse quand ils
+    étaient le seul bloc de la colonne ; ici le dossier porte déjà le
+    filet, et deux traits à dix pixels l'un de l'autre font
+    l'accordéon qu'on évitait déjà au § 3. */
+#modernbb .wm-profil__panneau.postprofile-info {
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top: 0;
+}
+
+/*  LES BADGES. Forumactif sert les récompenses en vignettes dans
+    `.dd_award` ; la maquette les pose en grille serrée. `award_more`
+    est le bouton « voir plus » du forum : il n'a plus de raison d'être
+    dans un panneau qui défile. */
+#modernbb .wm-profil__panneau--3 .dd_award {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+#modernbb .wm-profil__panneau--3 .award_more {
+  display: none;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 

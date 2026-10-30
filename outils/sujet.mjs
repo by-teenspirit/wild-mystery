@@ -244,7 +244,41 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
     if (nom === "U_POST_ID") return String(15500 + i);
     if (nom === "POSTER_ID") return "3";
     if (nom === "POST_URL") return "/t10-un-sujet#15500";
-    if (nom === "POSTER_RPG") return "";
+    //  ── LA FEUILLE DE PERSONNAGE ET LES RÉCOMPENSES ──────────────
+    //
+    //  CE QUI EST SÛR : les deux arrivent en UNE variable chacune,
+    //  déjà mise en forme par Forumactif, et le gabarit les pose dans
+    //  des conteneurs à nous (`.wm-profil__panneau`) et dans ceux de
+    //  ModernBB (`.dd_award`, `.award_more`) — c'est le gabarit qui le
+    //  dit, pas une supposition.
+    //
+    //  CE QUI NE L'EST PAS : le balisage DEDANS. Forumactif sert la
+    //  feuille en paires étiquette/valeur à plat, et les récompenses
+    //  en vignettes ; les classes intermédiaires n'ont pas été
+    //  relevées sur le forum — Chrome ne répond plus depuis le 29.
+    //  Le décor en sert donc une forme plausible, et la feuille ne
+    //  vise QUE les conteneurs sûrs et `img`. À revérifier sur
+    //  `/t976` quand le navigateur revient.
+    if (nom === "POSTER_RPG") {
+      return [
+        `<span class="label">Palier :</span> 2<br />`,
+        `<span class="label">Clan :</span> Deoxys<br />`,
+        `<span class="label">Starter :</span> Ouisticram<br />`,
+        `<span class="label">Métier :</span> paléontologue au musée de Pyrite<br />`,
+        `<span class="label">Âge :</span> 24 ans<br />`,
+        `<span class="label">Caractère :</span> têtue, patiente, mauvaise perdante<br />`,
+      ].join("");
+    }
+    if (nom === "AWARDS") {
+      //  Onze badges : les sept arènes et les quatre colosseums. Assez
+      //  pour que le panneau déborde — c'est tout l'objet du test.
+      return Array.from(
+        { length: 11 },
+        (_, n) => `<a href="#"><img src="${PIXEL}" alt="badge ${n + 1}" /></a>`,
+      ).join("");
+    }
+    if (nom === "AWARDS_SHOW") return "";
+    if (nom === "PROFILE_POSITION") return "left";
     return "";
   });
 
@@ -505,6 +539,19 @@ dire(
 );
 
 //  ── LA FICHE DU DRESSEUR, D'APRÈS LA MAQUETTE 305:24 ───────────────
+//
+//  LES CHAMPS SONT DANS UN ONGLET depuis le 30 octobre, et l'onglet
+//  ouvert au chargement est « Fiche ». Un élément dans un panneau en
+//  `display: none` n'a aucune boîte : toutes les mesures qui suivent
+//  rendraient zéro, et le ressort pointillé passerait pour cassé.
+//
+//  On clique donc « Infos » — un VRAI clic, par le navigateur. Poser
+//  `checked` en JavaScript change bien l'état du bouton, mais Blink
+//  ne recalcule pas le style des frères-descendants : l'étiquette de
+//  l'onglet gardait son fond d'avant. Un test qui ment dans ce sens
+//  est pire que pas de test.
+const ONGLET = (n) => `.post .postprofile .wm-profil__onglets label:nth-child(${n})`;
+await p.click(ONGLET(2));
 
 const fiche = await p.evaluate(() => {
   //  LE PREMIER MESSAGE SEULEMENT. Le décor en monte deux, et compter
@@ -640,6 +687,11 @@ const equipe = await p.evaluate(() => {
   const b = cases.map(boite).filter((e) => e.l > 0);
   const rangs = [...new Set(b.map((e) => e.y))];
   const parRang = rangs.map((y) => b.filter((e) => e.y === y));
+  //  AUCUNE CASE VISIBLE : l'équipe est cachée quelque part, dans un
+  //  onglet replié par exemple. On le dit au lieu de lever une erreur
+  //  sur une rangée vide — un harnais qui plante ne dit pas lequel de
+  //  ses contrôles tombe.
+  if (parRang.length === 0) return { affichees: 0, cachee: true };
   const conteneur = document.querySelector(".post .wm-profil__cases").getBoundingClientRect();
   const dernier = parRang[parRang.length - 1];
   const milieuDuRang = (r) => (r[0].x + r[r.length - 1].x + r[r.length - 1].l) / 2;
@@ -677,8 +729,8 @@ dire(
 
 dire(
   "UNE CASE OCCUPÉE N'A PLUS DE FILET, UNE CASE VIDE GARDE SON POINTILLÉ",
-  equipe !== null && equipe.occupee.bordure === "rgba(0, 0, 0, 0)" &&
-    equipe.vide.style === "dashed" && equipe.vide.visible,
+  equipe?.occupee?.bordure === "rgba(0, 0, 0, 0)" &&
+    equipe?.vide?.style === "dashed" && equipe?.vide?.visible === true,
   JSON.stringify({ occupee: equipe?.occupee, vide: equipe?.vide }),
 );
 
@@ -822,6 +874,145 @@ dire(
   actions !== null && actions.boutonsAGauche && actions.pagesADroite &&
     actions.memeLigne,
   JSON.stringify(actions),
+);
+
+//  ── LE DOSSIER À ONGLETS DU PROFIL ─────────────────────────────────
+//
+//  « Fais des onglets pour que tout ne soit pas affiché d'un seul
+//  coup, avec une hauteur spécifique, un overflow auto, mais on doit
+//  tout le temps voir l'équipe », 30 octobre.
+//
+//  Quatre choses à prouver, et la dernière est la plus importante :
+//  l'équipe doit être DEHORS, visible quel que soit l'onglet coché.
+
+const dossier = await p.evaluate(() => {
+  const profil = document.querySelector(".post .postprofile");
+  const d = profil?.querySelector(".wm-profil__dossier") ?? null;
+  const equipe = profil?.querySelector(".wm-profil__equipe") ?? null;
+  if (d === null || equipe === null) return null;
+  return {
+    radios: d.querySelectorAll(".wm-profil__radio").length,
+    etiquettes: [...d.querySelectorAll(".wm-profil__onglets label")]
+      .map((e) => e.textContent.trim()),
+    panneaux: d.querySelectorAll(".wm-profil__panneau").length,
+    //  L'ÉQUIPE EST AU-DESSUS DU DOSSIER, et pas dedans — c'est ce qui
+    //  la rend indépendante de l'onglet coché.
+    equipeDehors: d.contains(equipe) === false,
+    equipeAuDessus: Math.round(equipe.getBoundingClientRect().bottom) <=
+      Math.round(d.getBoundingClientRect().top) + 1,
+    //  Et la pastille de groupe ne porte plus les récompenses : elles
+    //  ont leur onglet.
+    rangSansBadge: profil.querySelector(".postprofile-rank .dd_award") === null,
+  };
+});
+
+//  UN ONGLET APRÈS L'AUTRE, PAR UN VRAI CLIC. Chaque tour mesure ce
+//  que le visiteur voit : un seul panneau, le bon, l'équipe toujours
+//  là, l'étiquette active distincte des deux autres, et le panneau
+//  borné en hauteur.
+const parOnglet = [];
+for (let n = 1; n <= 3; n++) {
+  await p.click(ONGLET(n));
+  //  ET ON RETIRE LA SOURIS. Playwright la laisse sur l'étiquette
+  //  qu'elle vient de cliquer : `:hover` la colore, et le contrôle
+  //  « l'étiquette ouverte se distingue » passait tout seul, même
+  //  sans la règle de l'onglet coché. Un test que son décor fait
+  //  réussir ne teste rien.
+  await p.mouse.move(0, 0);
+  //  LE FONDU DE L'ÉTIQUETTE FAIT 120 ms. Mesuré tout de suite après
+  //  le clic, on attrape une couleur à mi-chemin : le test passait,
+  //  mais sur une valeur qui n'existe que pendant un dixième de
+  //  seconde. On laisse la transition finir.
+  await p.waitForTimeout(220);
+  parOnglet.push(
+    await p.evaluate((n) => {
+      const d = document.querySelector(".post .postprofile .wm-profil__dossier");
+      const equipe = document.querySelector(
+        ".post .postprofile .wm-profil__equipe",
+      );
+      const etiquettes = [...d.querySelectorAll(".wm-profil__onglets label")];
+      const panneaux = [...d.querySelectorAll(".wm-profil__panneau")];
+      const vu = (e) => e.offsetParent !== null && e.getBoundingClientRect().height > 0;
+      const ouvert = panneaux[n - 1];
+      const st = getComputedStyle(ouvert);
+      return {
+        onglet: etiquettes[n - 1].textContent.trim(),
+        visibles: panneaux.filter(vu).length,
+        leBon: vu(ouvert),
+        equipe: vu(equipe),
+        //  L'ÉTIQUETTE ACTIVE SE DISTINGUE. Sans ça, trois onglets
+        //  identiques : on ne sait plus lequel on regarde.
+        active: getComputedStyle(etiquettes[n - 1]).backgroundColor,
+        autres: etiquettes.filter((_, i) => i !== n - 1)
+          .map((e) => getComputedStyle(e).backgroundColor),
+        //  LA HAUTEUR EST BORNÉE, LA MÊME POUR LES TROIS, ET LE PANNEAU
+        //  DÉFILE. La même pour les trois parce qu'une colonne qui
+        //  change de haut en changeant d'onglet ferait sauter le
+        //  message entier : les deux sont les colonnes d'une rangée.
+        hauteur: Math.round(ouvert.getBoundingClientRect().height),
+        debordement: st.overflowY,
+        contenu: Math.round(ouvert.scrollHeight),
+      };
+    }, n),
+  );
+}
+
+//  On remet « Fiche », l'onglet du chargement.
+await p.click(ONGLET(1));
+
+//  LE CONTENU DES TROIS PANNEAUX. Il se lit sans ouvrir les onglets :
+//  `display: none` cache la boîte, pas le texte ni les nœuds — et ici
+//  c'est bien la présence qu'on vérifie, pas la mise en page.
+const contenus = await p.evaluate(() => {
+  const d = document.querySelector(".post .postprofile .wm-profil__dossier");
+  if (d === null) return null;
+  const pan = [...d.querySelectorAll(".wm-profil__panneau")];
+  return {
+    fiche: pan[0].textContent.includes("paléontologue"),
+    champs: pan[1].querySelectorAll(".wm-profil__champ").length,
+    badges: pan[2].querySelectorAll("img").length,
+  };
+});
+
+dire(
+  "LE PROFIL A TROIS ONGLETS ET TROIS PANNEAUX",
+  dossier !== null && dossier.radios === 3 && dossier.panneaux === 3 &&
+    dossier.etiquettes.join("/") === "Fiche/Infos/Badges",
+  JSON.stringify(dossier),
+);
+dire(
+  "UN SEUL PANNEAU À LA FOIS, ET C'EST CELUI DE L'ONGLET CLIQUÉ",
+  parOnglet.length === 3 &&
+    parOnglet.every((o) => o.visibles === 1 && o.leBon),
+  JSON.stringify(parOnglet.map((o) => [o.onglet, o.visibles, o.leBon])),
+);
+dire(
+  "L'ÉTIQUETTE DE L'ONGLET OUVERT SE DISTINGUE DES DEUX AUTRES",
+  parOnglet.length === 3 &&
+    parOnglet.every((o) => o.autres.every((f) => f !== o.active)),
+  JSON.stringify(parOnglet.map((o) => [o.onglet, o.active, ...o.autres])),
+);
+dire(
+  "LES TROIS PANNEAUX ONT LA MÊME HAUTEUR BORNÉE, ET ILS DÉFILENT",
+  parOnglet.length === 3 &&
+    parOnglet.every((o) => o.hauteur === 170 && o.debordement === "auto") &&
+    //  ET LE DÉBORDEMENT EXISTE POUR DE VRAI quelque part : onze badges
+    //  de 48 px dans une colonne de 208 ne tiennent pas en 170 de haut.
+    //  Sans ça, `overflow: auto` serait une règle que rien n'exerce.
+    parOnglet.some((o) => o.contenu > o.hauteur),
+  JSON.stringify(parOnglet.map((o) => [o.onglet, o.hauteur, o.contenu])),
+);
+dire(
+  "L'ÉQUIPE RESTE VISIBLE SUR LES TROIS ONGLETS, HORS DU DOSSIER",
+  dossier !== null && dossier.equipeDehors && dossier.equipeAuDessus &&
+    parOnglet.length === 3 && parOnglet.every((o) => o.equipe),
+  JSON.stringify({ dossier, equipes: parOnglet.map((o) => o.equipe) }),
+);
+dire(
+  "RIEN NE S'EST PERDU : FICHE, CHAMPS ET BADGES SONT CHACUN DANS LE LEUR",
+  contenus !== null && contenus.fiche && contenus.champs === 3 &&
+    contenus.badges === 11 && dossier?.rangSansBadge === true,
+  JSON.stringify(contenus),
 );
 
 //  ── LE BANDEAU, ET SEULEMENT DANS LES ZONES SAUVAGES ───────────────

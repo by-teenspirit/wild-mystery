@@ -164,29 +164,15 @@ showHiddenMessage = function(id) {
 						</div>
 						<div class="postprofile-rank">
 							{postrow.displayed.POSTER_RANK_NEW}{postrow.displayed.RANK_IMAGE}
-							<div {postrow.displayed.AWARDS_SHOW} class="dd_award {postrow.displayed.PROFILE_POSITION}">
-                                {postrow.displayed.AWARDS}
-							</div>
-							<div class="award_more"></div>
 						</div>
 					</dt>
-					<dd class="postprofile-info">
-						<!-- BEGIN profile_field -->
-							<div class="wm-profil__champ">
-								<span class="wm-profil__cle">{postrow.displayed.profile_field.LABEL}</span>
-								<span class="wm-profil__valeur">{postrow.displayed.profile_field.CONTENT}</span>
-							</div>
-						<!-- END profile_field -->
-						{postrow.displayed.POSTER_RPG}
-					</dd>
+					<!--  L'ÉQUIPE RESTE VISIBLE, TOUJOURS. « On doit tout le
+					      temps voir l'équipe », 30 octobre : elle est donc
+					      au-dessus du dossier à onglets, et jamais dedans.
 
-					<!--  L'ÉQUIPE DU DRESSEUR. Une grille de six cases, vides
-					      par défaut : « des cases vides quand il n'en a
-					      aucun », 28 octobre. C'est mod-sujet qui les
-					      remplit depuis Supabase, après coup — les
-					      pokémon d'un joueur ne sont dans aucun champ de
-					      profil, donc dans aucune variable d'ici. Sans
-					      JavaScript, la grille reste vide et ne ment pas. -->
+					      Six cases, vides par défaut — « des cases vides
+					      quand il n'en a aucun », 28 octobre. La feuille
+					      efface les vides dès qu'une case est occupée. -->
 					<dd class="postprofile-equipe wm-profil__equipe" data-wm-equipe="{postrow.displayed.POSTER_ID}">
 						<span class="wm-profil__cle">Équipe</span>
 						<div class="wm-profil__cases">
@@ -198,6 +184,65 @@ showHiddenMessage = function(id) {
 							<span class="wm-profil__case"></span>
 						</div>
 					</dd>
+
+					<!--  ── LE DOSSIER À TROIS ONGLETS ──────────────────────
+					      « Fais des onglets pour que tout ne soit pas
+					      affiché d'un seul coup », 30 octobre. Trois
+					      sources, trois onglets :
+
+					      · FICHE   — POSTER_RPG, la feuille de personnage ;
+					      · INFOS   — la boucle profile_field, les champs ;
+					      · BADGES  — AWARDS, les récompenses.
+
+					      SANS UNE LIGNE DE JAVASCRIPT. Trois boutons radio
+					      et leurs étiquettes : la feuille montre le panneau
+					      dont le bouton est coché. Ça marche au clavier, ça
+					      marche sans script, et ça marche dans un message
+					      cité ou prévisualisé — ce qu'un onglet en JS ne
+					      fait pas toujours.
+
+					      Le `name` porte l'identifiant du message : sans
+					      lui, les trois boutons du deuxième message
+					      décocheraient ceux du premier, toute la page
+					      n'ayant qu'un seul groupe. -->
+					<dd class="postprofile-dossier wm-profil__dossier">
+						<input type="radio" class="wm-profil__radio"
+						       name="wm-onglets-{postrow.displayed.U_POST_ID}"
+						       id="wm-o1-{postrow.displayed.U_POST_ID}" checked="checked" />
+						<input type="radio" class="wm-profil__radio"
+						       name="wm-onglets-{postrow.displayed.U_POST_ID}"
+						       id="wm-o2-{postrow.displayed.U_POST_ID}" />
+						<input type="radio" class="wm-profil__radio"
+						       name="wm-onglets-{postrow.displayed.U_POST_ID}"
+						       id="wm-o3-{postrow.displayed.U_POST_ID}" />
+
+						<div class="wm-profil__onglets">
+							<label for="wm-o1-{postrow.displayed.U_POST_ID}">Fiche</label>
+							<label for="wm-o2-{postrow.displayed.U_POST_ID}">Infos</label>
+							<label for="wm-o3-{postrow.displayed.U_POST_ID}">Badges</label>
+						</div>
+
+						<div class="wm-profil__panneau wm-profil__panneau--1">
+							{postrow.displayed.POSTER_RPG}
+						</div>
+
+						<div class="wm-profil__panneau wm-profil__panneau--2 postprofile-info">
+							<!-- BEGIN profile_field -->
+								<div class="wm-profil__champ">
+									<span class="wm-profil__cle">{postrow.displayed.profile_field.LABEL}</span>
+									<span class="wm-profil__valeur">{postrow.displayed.profile_field.CONTENT}</span>
+								</div>
+							<!-- END profile_field -->
+						</div>
+
+						<div class="wm-profil__panneau wm-profil__panneau--3">
+							<div {postrow.displayed.AWARDS_SHOW} class="dd_award {postrow.displayed.PROFILE_POSITION}">
+								{postrow.displayed.AWARDS}
+							</div>
+							<div class="award_more"></div>
+						</div>
+					</dd>
+
 					<dd class="postprofile-contact">
 						{postrow.displayed.PROFILE_IMG}
 						{postrow.displayed.PM_IMG}
