@@ -30,8 +30,24 @@
       et retire des membres.
       ════════════════════════════════════════════════════════════════ -->
 
-<!-- BEGIN switch_user_logged_in --><p class="right rightside">{LAST_VISIT_DATE}</p><!-- END switch_user_logged_in -->
-<p>{CURRENT_TIME}</p>
+<!--  LA DATE DU JOUR ET LA DERNIÈRE VISITE SONT RETIRÉES.
+
+      Le gabarit d'origine ouvrait la page par deux lignes :
+
+          <p class="right rightside">{LAST_VISIT_DATE}</p>
+          <p>{CURRENT_TIME}</p>
+
+      « La date/heure actuelle est… », « Dernière visite le… », en
+      haut de chaque page. Demandé le 30 octobre : on les retire.
+
+      CE N'EST PAS UN MASQUAGE EN CSS. Les deux variables sont
+      décoratives — aucun script de Forumactif ne les lit, rien n'en
+      dépend — alors on ne les sert pas du tout plutôt que de les
+      servir pour les cacher. Une page qui n'écrit pas ce qu'elle
+      n'affiche pas est une page plus courte à lire pour tout le
+      monde, y compris un lecteur d'écran.
+
+      Si elles devaient revenir, c'est ici. -->
 
 <h1 class="page-title solo">{GROUP_NAME}</h1>
 

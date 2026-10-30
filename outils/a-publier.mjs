@@ -72,6 +72,24 @@ for (const reste of pile) fautes.push(`BEGIN ${reste} jamais fermé`);
 //  scripts, ses permaliens ou sa multi-citation. On vérifie qu'elles
 //  ont survécu au nettoyage — un commentaire mal fermé dans la source
 //  pourrait en emporter une avec lui.
+//  ── CE QUI NE DOIT PLUS JAMAIS REVENIR ────────────────────────────
+//
+//  « La date/heure actuelle est… » et « Dernière visite le… » en haut
+//  de chaque page, retirées le 30 octobre. Elles sont décoratives, et
+//  le gabarit d'origine de CHAQUE page les porte : à la prochaine
+//  réécriture, on les recopiera sans y penser.
+//
+//  Le contrôle porte sur le fichier À PUBLIER, pas sur la source : les
+//  commentaires du dépôt ont le droit de les nommer pour expliquer
+//  pourquoi elles sont parties.
+const BANNIES = [
+  ["{CURRENT_TIME}", "la date du jour, retirée le 30 octobre"],
+  ["{LAST_VISIT_DATE}", "la dernière visite, retirée le 30 octobre"],
+];
+for (const [v, pourquoi] of BANNIES) {
+  if (sortie.includes(v)) fautes.push(`${v} est revenu — ${pourquoi}`);
+}
+
 const INDISPENSABLES = [
   "{PROTECT_FOOTER}",
   "{TOPIC_ID}",

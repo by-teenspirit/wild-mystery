@@ -1,0 +1,115 @@
+<!--  ════════════════════════════════════════════════════════════════
+      groupcp_user_body — la liste des groupes, `/groups`
+
+      CE QUE FORUMACTIF SERT VRAIMENT, et c'est peu : la boucle
+      `group_details` donne par groupe son adresse, son nom, sa
+      couleur en style inline, une icône, un statut et un nombre de
+      membres. PAS DE DESCRIPTION — elle n'existe que sur la page du
+      groupe. Une carte ne peut donc pas en porter, et on n'en invente
+      pas.
+
+      CE QU'IL Y AVAIT : quatre `.panel` empilés, chacun avec ses
+      `<dl>`, et la liste des groupes en `<ul>` séparée par des `<hr>`.
+      Les trois premiers panneaux sont des formulaires — mes groupes,
+      mes demandes en attente, en rejoindre un — et le quatrième est la
+      vraie liste.
+
+      ON RÉUNIT LES TROIS FORMULAIRES dans une carte, et on fait de la
+      liste une grille de cartes. Les `<hr>` partent avec le reste :
+      un filet entre deux cartes ne sépare plus rien.
+
+      ON NE TOUCHE PAS aux `{…_SELECT_NEW}` ni à `{GROUP_LIST_SELECT}` :
+      Forumactif les rend tout faits, et c'est par eux qu'on rejoint un
+      groupe. Ni au `{GROUP_STYLE}`, qui porte la couleur du groupe en
+      style inline (planche 59, § 8).
+      ════════════════════════════════════════════════════════════════ -->
+
+<!--  LA DATE DU JOUR ET LA DERNIÈRE VISITE SONT RETIRÉES.
+
+      Le gabarit d'origine ouvrait la page par deux lignes :
+
+          <p class="right rightside">{LAST_VISIT_DATE}</p>
+          <p>{CURRENT_TIME}</p>
+
+      « La date/heure actuelle est… », « Dernière visite le… », en
+      haut de chaque page. Demandé le 30 octobre : on les retire.
+
+      CE N'EST PAS UN MASQUAGE EN CSS. Les deux variables sont
+      décoratives — aucun script de Forumactif ne les lit, rien n'en
+      dépend — alors on ne les sert pas du tout plutôt que de les
+      servir pour les cacher. Une page qui n'écrit pas ce qu'elle
+      n'affiche pas est une page plus courte à lire pour tout le
+      monde, y compris un lecteur d'écran.
+
+      Si elles devaient revenir, c'est ici. -->
+
+<h1 class="page-title solo">{L_USERGROUPS}</h1>
+
+<!--  LES TROIS FORMULAIRES, dans une carte. Chacun ne sort que si
+      Forumactif le sert : un visiteur sans groupe n'a ni « mes
+      groupes » ni « en attente », et la carte se réduit au seul
+      « rejoindre ». -->
+<div class="wm-groupes__outils">
+	<!-- BEGIN switch_groups_joined -->
+	<!-- BEGIN switch_groups_member -->
+	<div class="wm-groupes__champ">
+		<span class="wm-groupes__cle">{L_YOU_BELONG_GROUPS}</span>
+		<span class="wm-groupes__valeur">{GROUP_MEMBER_SELECT_NEW}</span>
+	</div>
+	<!-- END switch_groups_member -->
+	<!-- BEGIN switch_groups_pending -->
+	<div class="wm-groupes__champ">
+		<span class="wm-groupes__cle">{L_PENDING_GROUPS}</span>
+		<span class="wm-groupes__valeur">{GROUP_PENDING_SELECT_NEW}</span>
+	</div>
+	<!-- END switch_groups_pending -->
+	<!-- END switch_groups_joined -->
+
+	<!-- BEGIN switch_groups_remaining -->
+	<form action="{U_USERGROUP_ACTION}" method="get" class="wm-groupes__champ">
+		<span class="wm-groupes__cle">{L_SELECT_A_GROUP}</span>
+		<span class="wm-groupes__valeur">
+			{GROUP_LIST_SELECT}
+			<input class="button2" type="submit" value="{L_VIEW_INFORMATION}" />
+			{S_HIDDEN_FIELDS}
+		</span>
+	</form>
+	<!-- END switch_groups_remaining -->
+</div>
+
+<!-- BEGIN switch_display_groups_all -->
+<!--  LA LISTE, EN SECTION. Même bandeau que l'index, la liste des
+      sujets et celle des membres. -->
+<div class="wm-forum__section wm-groupes__section">
+	<div class="wm-forum__bande">
+		<span class="wm-forum__filet"></span>
+		<span class="wm-forum__bande-titre">{switch_display_groups_all.L_ALL_GROUPS}</span>
+		<span class="wm-forum__filet"></span>
+	</div>
+
+	<div class="wm-groupes">
+		<ul class="wm-groupes__grille">
+			<!-- BEGIN group_details -->
+			<li class="wm-groupes__carte">
+				<!--  LE LIEN COUVRE LA CARTE ENTIÈRE. Un nom cliquable
+				      de trois lettres dans une carte de 240 est une
+				      cible qu'on rate ; `::after` étend la zone sans
+				      imbriquer un second lien dedans. -->
+				<a class="wm-groupes__nom usr_grp_clr"
+				   href="{switch_display_groups_all.group_details.U_GROUP}"
+				   {switch_display_groups_all.group_details.GROUP_STYLE}>{switch_display_groups_all.group_details.GROUP_NAME}</a>
+				<span class="wm-groupes__icone">{switch_display_groups_all.group_details.GROUP_ICON}</span>
+				<span class="wm-groupes__pied">
+					<span class="wm-groupes__statut">{switch_display_groups_all.group_details.GROUP_STATUS}</span>
+					<span class="wm-groupes__combien">{switch_display_groups_all.group_details.NB_GROUP_MEMBERS}</span>
+				</span>
+			</li>
+			<!-- END group_details -->
+		</ul>
+	</div>
+</div>
+<!-- END switch_display_groups_all -->
+
+<form action="{S_JUMPBOX_ACTION}" method="get" name="jumpbox" onsubmit="if(document.jumpbox.f.value == -1){return false;}">
+	<p class="right">{L_JUMP_TO}:&nbsp;{S_JUMPBOX_SELECT}&nbsp;<input class="button2" type="submit" value="{L_GO}" /></p>
+</form>

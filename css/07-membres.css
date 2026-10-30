@@ -1108,3 +1108,169 @@
 #modernbb .wm-groupe__retirer {
   margin-left: auto;
 }
+
+/* ── 9 · la liste des groupes ─────────────────────────────────────── */
+
+/*  `groupcp_user_body`, `/groups`. « Tout mettre dans un bloc blanc »,
+    « une grille et des petites cards », 30 octobre.
+
+    CE QUE FORUMACTIF DONNE PAR GROUPE, et c'est tout : un nom, une
+    couleur en style inline, une icône, un statut et un nombre de
+    membres. Pas de description — elle n'existe que sur la page du
+    groupe. La carte porte donc ce qu'il y a, et rien de plus.
+
+    LES TROIS FORMULAIRES D'AVANT — mes groupes, mes demandes en
+    attente, en rejoindre un — étaient trois `.panel` empilés. Ils
+    n'en font plus qu'un : ce sont trois lignes d'un même sujet, et
+    trois cartes pour trois listes déroulantes, c'était trois fois la
+    même boîte. */
+
+#modernbb .wm-groupes__outils {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--wm-espace-16, 16px) var(--wm-espace-24, 24px);
+  margin: 0 0 var(--wm-espace-20, 20px);
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-groupes__champ {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 240px;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+  margin: 0;
+}
+
+#modernbb .wm-groupes__cle {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  La liste et son bouton sur une ligne, et la liste prend la place —
+    elle porte des noms de groupes, lui porte deux mots. */
+#modernbb .wm-groupes__valeur {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-groupes__valeur select {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--wm-cible-tactile, 44px);
+}
+
+#modernbb .wm-groupes__valeur .button2 {
+  flex: 0 0 auto;
+  height: var(--wm-cible-tactile, 44px);
+  padding: 0 var(--wm-espace-14, 14px);
+}
+
+/*  ── LA GRILLE DES GROUPES ─────────────────────────────────────────
+
+    `minmax(220px, 1fr)` : quatre cartes sur une page de 1 200, deux
+    sur une tablette, une sur un téléphone — et c'est la grille qui
+    décide, pas un point de rupture à tenir d'accord. */
+#modernbb .wm-groupes {
+  padding: var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-top: 0;
+  border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-groupes__grille {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  list-style: none;
+}
+
+/*  `relative` pour que le lien puisse couvrir la carte entière. */
+#modernbb .wm-groupes__carte {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+#modernbb .wm-groupes__carte:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/*  LE NOM GARDE LA COULEUR DE SON GROUPE : Forumactif la pose en style
+    inline sur ce lien, et c'est la seule chose qui distingue un groupe
+    d'un autre ici. On ne la touche pas (planche 59, § 8). */
+#modernbb .wm-groupes__nom {
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+/*  LE LIEN COUVRE LA CARTE. Un nom de trois lettres dans une carte de
+    220 est une cible qu'on rate. `::after` étend la zone cliquable
+    sans imbriquer un second lien — ce qui serait du HTML invalide et
+    ferait deux arrêts au clavier pour une seule destination. */
+#modernbb .wm-groupes__nom::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-groupes__nom:focus-visible::after {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+#modernbb .wm-groupes__nom:hover {
+  text-decoration: underline;
+}
+
+#modernbb .wm-groupes__icone img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/*  LE PIED DE LA CARTE : le statut à gauche, le compte à droite, et
+    `margin-top: auto` les colle au bas — sans lui, une carte dont le
+    nom tient sur une ligne a son pied plus haut que sa voisine. */
+#modernbb .wm-groupes__pied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--wm-espace-8, 8px);
+  margin-top: auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-groupes__combien {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-demi, 600);
+}
