@@ -491,9 +491,26 @@ showHiddenMessage = function(id) {
 </div>
 <!-- END switch_forum_rules -->
 
+<!--  LA RÉPONSE RAPIDE, maquette 330:94. Elle a son bandeau de
+      section, comme « LES MESSAGES » — c'est le même composant, et
+      c'est la règle du § 2 de `css/03-index.css` qui le dessine.
+
+      LE FORMULAIRE LUI-MÊME VIENT DE FORUMACTIF : `{QUICK_REPLY_FORM}`
+      est servi tout fait, barre d'outils comprise, et il n'apparaît
+      que si le panneau l'a activé. On ne le reconstruit pas — on
+      l'entoure.
+
+      `switch_user_logged_in` garde le bandeau avec lui : un visiteur
+      déconnecté n'a pas de réponse rapide, et un bandeau de section
+      au-dessus de rien se lirait comme un bloc cassé. -->
 <!-- BEGIN switch_user_logged_in -->
-	<a name="quickreply"></a>
-	{QUICK_REPLY_FORM}
+	<div class="wm-sujet__section wm-sujet__reponse">
+		<div class="wm-forum__bande">
+			<span class="wm-forum__bande-titre">LA RÉPONSE RAPIDE</span>
+		</div>
+		<a name="quickreply"></a>
+		{QUICK_REPLY_FORM}
+	</div>
 <!-- END switch_user_logged_in -->
 
 <form action="{S_JUMPBOX_ACTION}" method="get" onsubmit="if(document.jumpbox.f.value == -1){return false;}">
