@@ -761,7 +761,11 @@ dire(
 //  l'onglet gardait son fond d'avant. Un test qui ment dans ce sens
 //  est pire que pas de test.
 const ONGLET = (n) => `.post .postprofile .wm-profil__onglets label:nth-child(${n})`;
-await p.click(ONGLET(2));
+//  « Infos » est le PREMIER onglet depuis le 30 octobre, et celui qui
+//  s'ouvre au chargement. On clique quand même : ça garantit que le
+//  panneau est déplié au moment où on mesure, quel que soit l'onglet
+//  coché par défaut demain.
+await p.click(ONGLET(1));
 
 const fiche = await p.evaluate(() => {
   //  LE PREMIER MESSAGE SEULEMENT. Le décor en monte deux, et compter
@@ -1529,8 +1533,11 @@ const contenus = await p.evaluate(() => {
   if (d === null) return null;
   const pan = [...d.querySelectorAll(".wm-profil__panneau")];
   return {
-    fiche: pan[0].textContent.includes("paléontologue"),
-    champs: pan[1].querySelectorAll(".wm-profil__champ").length,
+    //  L'ORDRE DES PANNEAUX SUIT CELUI DES ONGLETS : infos, fiche,
+    //  badges. Le numéro de classe suit la POSITION, pas le contenu —
+    //  c'est lui que la feuille relie au bouton radio.
+    champs: pan[0].querySelectorAll(".wm-profil__champ").length,
+    fiche: pan[1].textContent.includes("paléontologue"),
     badges: pan[2].querySelectorAll("img").length,
   };
 });
@@ -1538,7 +1545,7 @@ const contenus = await p.evaluate(() => {
 dire(
   "LE PROFIL A TROIS ONGLETS ET TROIS PANNEAUX",
   dossier !== null && dossier.radios === 3 && dossier.panneaux === 3 &&
-    dossier.etiquettes.join("/") === "Fiche/Infos/Badges",
+    dossier.etiquettes.join("/") === "Infos/Fiche/Badges",
   JSON.stringify(dossier),
 );
 dire(

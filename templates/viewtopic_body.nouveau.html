@@ -205,9 +205,14 @@ showHiddenMessage = function(id) {
 					      affiché d'un seul coup », 30 octobre. Trois
 					      sources, trois onglets :
 
-					      · FICHE   — POSTER_RPG, la feuille de personnage ;
 					      · INFOS   — la boucle profile_field, les champs ;
+					      · FICHE   — POSTER_RPG, la feuille de personnage ;
 					      · BADGES  — AWARDS, les récompenses.
+
+					      INFOS EN PREMIER, demandé le 30 octobre : c'est
+					      l'onglet ouvert au chargement, et les chiffres
+					      sont ce qu'on vient lire en premier sur une
+					      fiche de dresseur.
 
 					      SANS UNE LIGNE DE JAVASCRIPT. Trois boutons radio
 					      et leurs étiquettes : la feuille montre le panneau
@@ -232,22 +237,22 @@ showHiddenMessage = function(id) {
 						       id="wm-o3-{postrow.displayed.U_POST_ID}" />
 
 						<div class="wm-profil__onglets">
-							<label for="wm-o1-{postrow.displayed.U_POST_ID}">Fiche</label>
-							<label for="wm-o2-{postrow.displayed.U_POST_ID}">Infos</label>
+							<label for="wm-o1-{postrow.displayed.U_POST_ID}">Infos</label>
+							<label for="wm-o2-{postrow.displayed.U_POST_ID}">Fiche</label>
 							<label for="wm-o3-{postrow.displayed.U_POST_ID}">Badges</label>
 						</div>
 
-						<div class="wm-profil__panneau wm-profil__panneau--1">
-							{postrow.displayed.POSTER_RPG}
-						</div>
-
-						<div class="wm-profil__panneau wm-profil__panneau--2 postprofile-info">
+						<div class="wm-profil__panneau wm-profil__panneau--1 postprofile-info">
 							<!-- BEGIN profile_field -->
 								<div class="wm-profil__champ">
 									<span class="wm-profil__cle">{postrow.displayed.profile_field.LABEL}</span>
 									<span class="wm-profil__valeur">{postrow.displayed.profile_field.CONTENT}</span>
 								</div>
 							<!-- END profile_field -->
+						</div>
+
+						<div class="wm-profil__panneau wm-profil__panneau--2">
+							{postrow.displayed.POSTER_RPG}
 						</div>
 
 						<div class="wm-profil__panneau wm-profil__panneau--3">
