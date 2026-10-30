@@ -170,12 +170,43 @@ export class CatalogueDistant implements Catalogue {
  *  celui du sujet** — « Zones Palier 1 » puis « Forêt Marécageuse ».
  *  Prendre le premier donnerait le forum de palier, qui n'est pas une
  *  zone, et la barre ne se poserait jamais. */
+/** Les deux endroits où le fil d'Ariane peut vivre.
+ *
+ *  `.sub-header-path` est celui de ModernBB, en haut de page. Le
+ *  30 octobre au soir, `viewtopic_body` l'a descendu tout en bas dans
+ *  `.wm-sujet__ariane` — « en bas, le fil d'Ariane ».
+ *
+ *  LES DEUX SONT LUS, ET CE N'EST PAS DE LA PRUDENCE : les autres
+ *  pages — un forum, une zone, une recherche — gardent celui de
+ *  ModernBB, et seul le sujet a le nôtre. Un seul sélecteur voudrait
+ *  dire choisir laquelle des deux familles de pages perd sa bannière.
+ *
+ *  LE HARNAIS L'A ATTRAPÉ : après le déplacement, le bandeau de zone
+ *  ne se posait plus du tout sur une page de sujet, parce que le
+ *  module ne trouvait plus de quel forum il parlait. */
+const LES_DEUX_FILS = [".sub-header-path", ".wm-sujet__ariane"];
+
+/** Le sélecteur du fil d'Ariane, avec ce qu'on cherche dedans.
+ *
+ *  UNE FONCTION ET PAS UNE CHAÎNE, et c'est un bug payé : la première
+ *  version était `".sub-header-path, .wm-sujet__ariane"`, et les
+ *  appelants écrivaient `FIL + " a.nav"`. Collé ainsi, le sélecteur
+ *  devient `.sub-header-path, .wm-sujet__ariane a.nav` — le suffixe
+ *  ne s'applique qu'à la DERNIÈRE branche, et la première rend le
+ *  conteneur au lieu de ses liens. La flèche de retour d'une zone
+ *  pointait donc sur le fil entier. Le harnais l'a vu tout de suite. */
+export const FIL_D_ARIANE = ".sub-header-path, .wm-sujet__ariane";
+
+export function filDAriane(dedans = ""): string {
+  return LES_DEUX_FILS.map((s) => (dedans === "" ? s : `${s} ${dedans}`)).join(", ");
+}
+
 export function forumDeLaPage(doc: Document): number | null {
   const dit = doc.querySelector<HTMLElement>("[data-wm-forum]")?.dataset.wmForum ?? "";
   if (/^\d+$/.test(dit)) return Number(dit);
 
   const liens = Array.from(
-    doc.querySelectorAll<HTMLAnchorElement>(".sub-header-path a[href]"),
+    doc.querySelectorAll<HTMLAnchorElement>(filDAriane("a[href]")),
   );
   for (let i = liens.length - 1; i >= 0; i--) {
     const trouve = /^\/f(\d+)-/.exec(liens[i].getAttribute("href") ?? "");

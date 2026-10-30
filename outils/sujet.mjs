@@ -164,6 +164,10 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
   t = gardeBloc(t, "switch_signature");
   t = gardeBloc(t, "switch_user_logged_in");
   t = gardeBloc(t, "switch_user_authreply");
+  //  ET « NOUVEAU », depuis le 30 octobre au soir : « je veux juste
+  //  Nouveau, Répondre ». Le décor n'en servait qu'un, donc un
+  //  contrôle qui compte deux boutons n'aurait jamais pu passer.
+  t = gardeBloc(t, "switch_user_authpost");
   t = gardeBloc(t, "topicpagination");
   //  LE BAS DU SUJET. On le gardait hors du décor, et le § 13 de la
   //  feuille n'était donc testé par rien — relevé le 30 octobre, en
@@ -209,7 +213,6 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
       "show_permissions",
       "viewtopic_bottom",
       "switch_user_authnoreply",
-      "switch_user_authpost",
     ]
   ) t = sansBloc(t, b);
 
@@ -698,18 +701,32 @@ const tete = await p.evaluate(() => {
   const avatar = document.querySelector(".post .postprofile-avatar img");
   const rang = document.querySelector(".post .postprofile-rank");
   return {
-    ariane: r(".sub-header-path"),
-    diag: (() => {
-      const info = document.querySelector(".sub-header-info");
-      const sh = document.querySelector(".sub-header");
+    //  LE FIL D'ARIANE EST EN BAS DEPUIS LE 30 OCTOBRE AU SOIR.
+    //  « En bas, le fil d'Ariane » : il n'est plus sous le titre, et
+    //  `.sub-header-path` n'existe plus du tout — le premier jet de
+    //  ce contrôle le cherchait encore et faisait tomber tout le
+    //  harnais sur un `getComputedStyle(null)`.
+    ariane: r(".wm-sujet__ariane"),
+    dernierMessage: (() => {
+      const posts = [...document.querySelectorAll(".post")];
+      if (posts.length === 0) return null;
+      const b = posts[posts.length - 1].getBoundingClientRect();
+      return { bas: Math.round(b.bottom) };
+    })(),
+    //  LA BARRE DU HAUT NE PORTE PLUS QUE DEUX BOUTONS.
+    barre: (() => {
+      const barre = document.querySelector(".wm-sujet__actions");
+      if (barre === null) return null;
       return {
-        display: info === null ? null : getComputedStyle(info).display,
-        ordreFil: getComputedStyle(document.querySelector(".sub-header-path")).order,
-        ordreTitre: getComputedStyle(document.querySelector("h1.page-title")).order,
-        freres: sh === null
-          ? null
-          : [...sh.parentElement.children].map((e) => e.className.split(/\s+/)[0]).slice(0, 6),
+        boutons: barre.querySelectorAll(".wm-sujet__boutons a").length,
+        partagez: barre.querySelector(".topic-actions-buttons") !== null,
+        titre: document.querySelector(".wm-sujet__tete h1") !== null,
       };
+    })(),
+    //  ET LE BANDEAU DE SECTION PORTE LE TITRE DU SUJET.
+    bandeau: (() => {
+      const t = document.querySelector(".wm-sujet__section .wm-forum__bande-titre");
+      return t === null ? null : t.textContent.trim();
     })(),
     titre: r("h1.page-title"),
     avatar: avatar === null ? null : {
@@ -725,14 +742,27 @@ const tete = await p.evaluate(() => {
 });
 
 dire(
-  "LE FIL D'ARIANE EST AU-DESSUS DU TITRE, COMME LA MAQUETTE",
-  //  Le gabarit sert le titre d'abord et le fil ensuite ; la maquette
-  //  met le fil à y = 24 et la tête à y = 60. C'est `order` qui
-  //  corrige, sans déplacer un seul nœud — une page sans JavaScript a
-  //  donc la même tête.
-  tete.ariane !== null && tete.titre !== null &&
-    tete.ariane.y < tete.titre.y,
-  JSON.stringify({ ariane: tete.ariane, titre: tete.titre, diag: tete.diag }),
+  "le fil d'Ariane est en bas de page, sous le dernier message",
+  tete.ariane !== null && tete.dernierMessage !== null &&
+    tete.ariane.y > tete.dernierMessage.bas,
+  JSON.stringify({ ariane: tete.ariane, dernier: tete.dernierMessage }),
+);
+
+dire(
+  "la barre du haut ne porte que Nouveau et Répondre",
+  //  « Je veux juste : Nouveau, Répondre. Pas de Partagez, pas de
+  //  plus. » Et plus de titre là-haut : il est descendu sur le
+  //  bandeau de section.
+  tete.barre !== null && tete.barre.boutons === 2 &&
+    tete.barre.partagez === false && tete.barre.titre === false,
+  JSON.stringify(tete.barre),
+);
+
+dire(
+  "le bandeau de section porte le titre du sujet, et plus « LES MESSAGES »",
+  tete.bandeau !== null && tete.bandeau.length > 0 &&
+    tete.bandeau.toUpperCase().includes("LES MESSAGES") === false,
+  JSON.stringify({ bandeau: tete.bandeau }),
 );
 
 dire(
@@ -785,10 +815,14 @@ const fiche = await p.evaluate(() => {
     const b = val.getBoundingClientRect();
     const st = getComputedStyle(ch, "::before");
     return {
-      //  LE RESSORT. Il doit exister, être pointillé, et OCCUPER l'écart
-      //  entre les deux — c'est tout l'intérêt : sans lui, la valeur
-      //  collerait à l'étiquette ou flotterait sans lien avec elle.
-      style: st.borderBottomStyle,
+      //  PLUS DE RESSORT. « Pas de ..... », 30 octobre au soir.
+      //
+      //  ON LIT `content`, PAS LA BORDURE. Un pseudo-élément annulé
+      //  par `content: none` n'a aucune boîte, mais `getComputedStyle`
+      //  rend quand même sa bordure déclarée : le premier jet de ce
+      //  contrôle lisait `borderBottomStyle`, voyait « dotted » et
+      //  accusait une règle qui marchait.
+      style: st.content === "none" ? "none" : st.borderBottomStyle,
       ecart: Math.round(b.x - a.right),
       //  Les deux sur la même ligne, et la valeur à droite.
       memeLigne: Math.abs(Math.round(a.y) - Math.round(b.y)) <= 4,
@@ -1017,9 +1051,13 @@ dire(
 
 for (const [i, ch] of fiche.champs.entries()) {
   dire(
-    `LE CHAMP ${i + 1} A SON RESSORT POINTILLÉ, TENDU D'UN BORD À L'AUTRE`,
-    ch !== null && ch.style === "dotted" && ch.memeLigne &&
-      ch.valeurADroite && ch.colleADroite && ch.ecart >= 10,
+    //  PLUS DE RESSORT POINTILLÉ. « Pas de ..... », 30 octobre au
+    //  soir : sur sept champs d'affilée dans 208 px, sept lignes de
+    //  points sont tout ce que l'œil lit. Ce qui reste à tenir, c'est
+    //  la clé à gauche, la valeur collée à droite, sur la même ligne.
+    `LE CHAMP ${i + 1} : clé à gauche, valeur à droite, sans pointillé`,
+    ch !== null && ch.style === "none" && ch.memeLigne &&
+      ch.valeurADroite && ch.colleADroite,
     JSON.stringify(ch),
   );
 }
@@ -1074,8 +1112,12 @@ dire(
   JSON.stringify(fiche2.rang),
 );
 dire(
-  "LA SECTION PORTE SON BANDEAU « LES MESSAGES »",
-  fiche2.bande === "LES MESSAGES",
+  "LA SECTION PORTE LE TITRE DU SUJET",
+  //  « À la place de "les messages", le titre du sujet », 30 octobre
+  //  au soir. Le bandeau annonçait ce qu'on voit déjà ; le titre dit
+  //  de quoi on parle.
+  typeof fiche2.bande === "string" && fiche2.bande.length > 0 &&
+    fiche2.bande !== "LES MESSAGES",
   JSON.stringify(fiche2.bande),
 );
 dire(
@@ -1127,8 +1169,12 @@ const enLigne = await p.evaluate(() => {
   const absent = messages.find((m) => m.classList.contains("online") === false);
   if (connecte === undefined || absent === undefined) return null;
   const fiche = (m) => m.querySelector(".postprofile");
-  const st = getComputedStyle(fiche(connecte), "::before");
-  const sansPastille = getComputedStyle(fiche(absent), "::before");
+  //  LE JETON EST SUR LE MESSAGE, PLUS SUR LA FICHE. « Le coller à
+  //  l'extérieur, le coller au fond blanc à gauche », 30 octobre au
+  //  soir : il sort de la colonne et se pose contre le bord du
+  //  message. La gouttière de 20 px rendue à la fiche repasse à 14.
+  const st = getComputedStyle(connecte, "::before");
+  const sansPastille = getComputedStyle(absent, "::before");
   const r = fiche(connecte).getBoundingClientRect();
   return {
     //  LA PASTILLE EXISTE SUR LE MESSAGE EN LIGNE, et seulement là.
@@ -1136,8 +1182,19 @@ const enLigne = await p.evaluate(() => {
     chezLAbsent: sansPastille.content,
     //  VERTICALE, et dans le bon sens.
     sens: st.writingMode,
-    //  À GAUCHE, dans la gouttière.
-    aGauche: parseFloat(st.left) < 12,
+    //  COLLÉ AU BORD GAUCHE DU MESSAGE, pas dans une gouttière.
+    aGauche: parseFloat(st.left) === 0,
+    //  VERT, et c'est demandé : « un jeton vert avec une petite
+    //  pastille ».
+    vert: (() => {
+      const m = st.backgroundColor.match(/\d+/g);
+      if (m === null) return false;
+      const [r, v, b] = m.map(Number);
+      return v > r && v > b;
+    })(),
+    //  ET SA PETITE PASTILLE, qui est le second pseudo-élément.
+    pastille: getComputedStyle(connecte, "::after").content,
+    pastilleRonde: getComputedStyle(connecte, "::after").borderTopLeftRadius,
     //  ET LA GOUTTIÈRE EST LA MÊME POUR LES DEUX : sinon la colonne
     //  saute d'un message à l'autre et on lit qui est connecté à la
     //  façon dont la page tremble.
@@ -1160,9 +1217,10 @@ dire(
   JSON.stringify(enLigne),
 );
 dire(
-  "elle est verticale, à gauche, et la colonne ne saute pas sans elle",
+  "c'est un jeton vert, debout, collé au bord, avec sa pastille",
   enLigne !== null && enLigne.sens.startsWith("vertical") &&
-    enLigne.aGauche && enLigne.memeLargeur &&
+    enLigne.aGauche && enLigne.vert && enLigne.memeLargeur &&
+    enLigne.pastille !== "none" && enLigne.pastilleRonde === "999px" &&
     enLigne.gouttiere === enLigne.gouttiereAbsent && enLigne.avatar === 200,
   JSON.stringify(enLigne),
 );
@@ -1250,8 +1308,7 @@ const carteDeTete = await p.evaluate(() => {
 dire(
   "LA TÊTE DU SUJET EST UNE CARTE, PAS UN BLOC DANS LE VIDE",
   carteDeTete !== null && carteDeTete.seDetache &&
-    carteDeTete.bordure === "1px" && carteDeTete.rayon === "10px" &&
-    carteDeTete.contient,
+    carteDeTete.bordure === "1px" && carteDeTete.rayon === "10px",
   JSON.stringify(carteDeTete),
 );
 dire(
@@ -1259,16 +1316,14 @@ dire(
   carteDeTete !== null && carteDeTete.commeLeBas === true,
   JSON.stringify({ commeLeBas: carteDeTete?.commeLeBas }),
 );
-dire(
-  "LE FIL, LE TITRE ET LA BARRE SONT EMPILÉS DANS CET ORDRE",
-  carteDeTete !== null && carteDeTete.ordre !== null &&
-    carteDeTete.ordre[0] < carteDeTete.ordre[1] &&
-    carteDeTete.ordre[1] < carteDeTete.ordre[2] &&
-    //  Le filet qui sépare la barre, et pas de seconde marge dedans.
-    carteDeTete.filetBarre === "1px" && carteDeTete.margeBarre === "0px" &&
-    carteDeTete.filDansLaCarte,
-  JSON.stringify(carteDeTete),
-);
+
+/*  LE FIL ET LE TITRE NE SONT PLUS DANS LA TÊTE, et le contrôle qui
+    vérifiait qu'ils y étaient empilés dans l'ordre a été retiré, pas
+    affaibli : il mesurait une mise en page qui n'existe plus. « Je
+    veux juste : Nouveau, Répondre. Et en bas, le fil d'Ariane »,
+    30 octobre au soir. Ce qui les remplace est plus haut — « la barre
+    du haut ne porte que Nouveau et Répondre » et « le fil d'Ariane est
+    en bas de page, sous le dernier message ». */
 
 //  ── LES « J'AIME », EN HAUT À DROITE ───────────────────────────────
 //
@@ -1419,7 +1474,12 @@ const ressorts = await p.evaluate(() => {
     };
   };
   return {
-    ariane: mesure(".sub-header-path", "::after"),
+    //  LE FIL N'A PLUS DE RESSORT. Il est descendu en bas de page
+    //  dans `.wm-sujet__fil`, qui est une carte à deux bouts —
+    //  `justify-content: space-between` fait le même travail qu'un
+    //  ressort, sans filet à dessiner. Le contrôle devient : le fil
+    //  est là, et la veille du sujet est à l'autre bout.
+    ariane: null,
     //  ET LA PAGINATION RESTE COLLÉE À DROITE : c'est le piège de la
     //  première tentative, où le ressort l'avait décollée du bord.
     barre: mesure(".wm-sujet__actions", "::after"),
@@ -1433,14 +1493,32 @@ const ressorts = await p.evaluate(() => {
   };
 });
 
+const filDuBas = await p.evaluate(() => {
+  const carte = document.querySelector(".wm-sujet__fil");
+  if (carte === null) return null;
+  const fil = carte.querySelector(".wm-sujet__ariane");
+  const veille = carte.querySelector(".wm-sujet__veille");
+  const r = (e) => e.getBoundingClientRect();
+  return {
+    maillons: fil === null ? 0 : fil.querySelectorAll("a").length,
+    //  LA CARTE EST LA MÊME QUE PARTOUT AILLEURS.
+    fond: getComputedStyle(carte).backgroundColor,
+    bordure: getComputedStyle(carte).borderTopWidth,
+    rayon: getComputedStyle(carte).borderTopLeftRadius,
+    //  LE FIL À GAUCHE, LA VEILLE À DROITE, et rien entre les deux
+    //  qu'un ressort de flex.
+    veilleADroite: veille === null ? null : Math.round(r(carte).right - r(veille).right) <= 20,
+  };
+});
+
 dire(
-  "LE FIL D'ARIANE SE TERMINE PAR UN RESSORT TENDU JUSQU'AU BORD",
-  ressorts.ariane !== null && ressorts.ariane.style === "dotted" &&
-    //  TENDU, pas juste présent : un ressort de dix pixels passerait
-    //  un test de simple existence et ne relierait rien.
-    ressorts.ariane.largeur > ressorts.ariane.bloc / 3,
-  JSON.stringify(ressorts.ariane),
+  "le fil du bas est une carte, le fil à gauche et la veille à droite",
+  filDuBas !== null && filDuBas.maillons >= 1 &&
+    filDuBas.bordure === "1px" && filDuBas.rayon === "10px" &&
+    filDuBas.veilleADroite !== false,
+  JSON.stringify(filDuBas),
 );
+
 dire(
   "LA BARRE D'ACTIONS A SON RESSORT, ET LA PAGINATION RESTE AU BORD",
   ressorts.barre !== null && ressorts.barre.style === "dotted" &&
@@ -1449,31 +1527,33 @@ dire(
   JSON.stringify(ressorts),
 );
 
-//  ── LA RÉPONSE RAPIDE EST UNE SECTION, maquette 330:94 ─────────────
+//  ── LA RÉPONSE RAPIDE N'A PLUS DE BANDEAU ─────────────────────────
+//
+//  « Enlever le texte "réponse rapide" qui traîne », et « ne pas
+//  espacer le bloc de réponse rapide et le contenu d'édition, y'a un
+//  grand vide entre les deux », 30 octobre au soir. Forumactif écrit
+//  déjà son propre titre dans `{QUICK_REPLY_FORM}` ; le nôtre faisait
+//  le second, et le vide était la marge qu'il laissait derrière lui.
 
 const reponse = await p.evaluate(() => {
   const sec = document.querySelector(".wm-sujet__reponse");
   if (sec === null) return null;
-  const bande = sec.querySelector(".wm-forum__bande");
   const form = sec.querySelector("#quick_reply");
-  if (bande === null || form === null) return null;
-  const a = bande.getBoundingClientRect();
-  const b = form.getBoundingClientRect();
+  if (form === null) return null;
   return {
-    titre: bande.textContent.trim(),
-    //  LE FORMULAIRE EST COLLÉ SOUS SON BANDEAU. Le § 8 lui donnait
-    //  24 px de marge haute, qui n'ont plus lieu d'être une fois le
-    //  bandeau posé : les deux doivent se lire comme un seul bloc.
-    ecart: Math.round(b.top - a.bottom),
-    //  ET LE BANDEAU EST BIEN AU-DESSUS, pas à côté.
-    dessus: Math.round(a.bottom) <= Math.round(b.top) + 1,
+    //  PLUS DE BANDEAU DE SECTION DANS CE BLOC.
+    bande: sec.querySelector(".wm-forum__bande") !== null,
+    //  ET LE FORMULAIRE COMMENCE TOUT DE SUITE : pas plus que le
+    //  rembourrage de la carte entre son bord et lui.
+    ecart: Math.round(
+      form.getBoundingClientRect().top - sec.getBoundingClientRect().top,
+    ),
   };
 });
 
 dire(
-  "LA RÉPONSE RAPIDE A SON BANDEAU DE SECTION, ET S'Y COLLE",
-  reponse !== null && reponse.titre === "LA RÉPONSE RAPIDE" &&
-    reponse.dessus && reponse.ecart === 0,
+  "la réponse rapide n'a plus de bandeau, et son éditeur commence tout de suite",
+  reponse !== null && reponse.bande === false && reponse.ecart <= 24,
   JSON.stringify(reponse),
 );
 

@@ -66,31 +66,28 @@ showHiddenMessage = function(id) {
       ferait deux boîtes avec un trait entre les deux. On les met donc
       dans la même, ici et pas en CSS — une bordure ne peut pas
       entourer deux frères. -->
+<!--  LA BARRE DU HAUT : DEUX BOUTONS, ET RIEN D'AUTRE.
+
+      « Je veux juste : Nouveau, Répondre. Et en bas, le fil d'Ariane.
+      Pas de lignes, pas de Partagez, pas de plus », 30 octobre.
+
+      CE QUI EST PARTI, ET OÙ :
+        · le titre du sujet descend sur le bandeau de section, à la
+          place de « LES MESSAGES » — demandé le même jour ;
+        · le fil d'Ariane descend tout en bas de la page ;
+        · `{POSTERS_LIST}`, la liste des participants, part avec la
+          tête : elle n'est dans aucune maquette et personne ne l'a
+          demandée ;
+        · `switch_plus_menu` — le bouton « Partagez » et son menu —
+          part entier, script compris. Il ne sert qu'à lui-même ;
+        · les trois liens « sujet précédent / aller en bas / sujet
+          suivant » partent aussi : « je veux JUSTE Nouveau,
+          Répondre ».
+
+      LA PAGINATION RESTE. Elle n'est pas dans la liste de ce qu'il
+      faut retirer, et sans elle un sujet de dix pages n'a plus de
+      seconde page. -->
 <div class="wm-sujet__tete">
-<div class="sub-header">
-	<div class="sub-header-info">
-		<h1 class="page-title">
-			<a href="{TOPIC_URL}">{TOPIC_TITLE}</a>
-			<!-- BEGIN switch_push_direct_send -->&nbsp;<span id="push-bell" style="color:goldenrod;" title="{switch_push_direct_send.L_PUSH_SEND}" class="ion-android-notifications"></span><!-- END switch_push_direct_send -->
-		</h1>
-        {POSTERS_LIST}
-		<div class="sub-header-path">
-			<a class="nav" href="{U_INDEX}"><span>{L_INDEX}</span></a>
-			{NAV_CAT_DESC}
-		</div>
-	</div>
-
-</div>
-
-<!--  LA BARRE D'ACTIONS, maquette 305:24 : les deux boutons à gauche,
-      un ressort, la pagination à droite.
-
-      LES BOUTONS VIENNENT D'EN HAUT. Le gabarit d'origine les pose
-      dans `.sub-header-buttons`, à côté du titre de page ; la maquette
-      les met sur leur propre ligne, avec la pagination. On les
-      descend ici plutôt que de les rapprocher en CSS : deux boîtes qui
-      doivent partager une ligne et un ressort ont tout intérêt à être
-      dans le même parent. -->
 <div class="topic-actions wm-sujet__actions">
 	<div class="wm-sujet__boutons">
 		<!-- BEGIN switch_user_authpost -->
@@ -112,41 +109,10 @@ showHiddenMessage = function(id) {
 			{PAGINATION}
 		</div>
 	<!-- END topicpagination -->
-	<div class="topic-actions-buttons">
-		<!-- BEGIN switch_plus_menu -->
-		<div id="addthis-toolbar" style="display: inline-block; margin-bottom:5px;">
-			<div class="btn-floating-left" tabindex="100">
-                {L_SHARE}
-			</div>
-			<div class="addthis-toolbar-btn" style="display:none;">
-                {switch_plus_menu.SOCIAL_BUTTONS}
-			</div>
-		</div>
-        {switch_plus_menu.JS_SOCIAL_BUTTONS}
-		<script type="text/javascript">//<![CDATA[
-
-			var url_favourite = '{U_FAVOURITE_JS_PLUS_MENU}';
-			var url_newposts = '{U_NEWPOSTS_JS_PLUS_MENU}';
-			var url_egosearch = '{U_EGOSEARCH_JS_PLUS_MENU}';
-			var url_unanswered = '{U_UNANSWERED_JS_PLUS_MENU}';
-			var url_watchsearch = '{U_WATCHSEARCH_JS_PLUS_MENU}';
-			insert_plus_menu_new('f{FORUM_ID}&amp;t={TOPIC_ID}','{JS_SESSION_ID}', {JS_AUTH_FAVOURITES});
-		//]]>
-		</script>
-		<!-- END switch_plus_menu -->
-	</div>
 </div>
 </div><!-- /wm-sujet__tete -->
 
-<div class="quick-nav-topics">
-    <!-- BEGIN switch_isconnect -->
-	<a href="{U_VIEW_OLDER_TOPIC}">{L_VIEW_PREVIOUS_TOPIC}</a>
-    <!-- END switch_isconnect -->
-    <a href="#bottom">{L_GOTO_DOWN}</a>
-    <!-- BEGIN switch_isconnect -->
-	<a href="{U_VIEW_NEWER_TOPIC}">{L_VIEW_NEXT_TOPIC}</a>
-    <!-- END switch_isconnect -->
-</div>
+
 
 {POLL_DISPLAY}
 
@@ -155,7 +121,12 @@ showHiddenMessage = function(id) {
       `css/03-index.css`, on ne la réécrit pas ici. -->
 <div class="wm-sujet__section">
 	<div class="wm-forum__bande">
-		<span class="wm-forum__bande-titre">LES MESSAGES</span>
+		<!--  LE TITRE DU SUJET, et plus « LES MESSAGES ». Demandé le
+		      30 octobre, et c'est plus juste : le bandeau annonçait ce
+		      qu'on voit déjà — une page de sujet contient des messages
+		      — là où le titre dit DE QUOI on parle. Il n'est plus en
+		      haut de page, il est ici. -->
+		<span class="wm-forum__bande-titre">{TOPIC_TITLE}</span>
 	</div>
 
 <!-- BEGIN postrow -->
@@ -284,13 +255,13 @@ showHiddenMessage = function(id) {
 			<div class="wm-post-corps">
 			<div class="post-head">
 				<div class="menu-wrap">
-					<div class="post-menu">+</div>
 					<ul class="profile-icons">
-						<li class="btn-thank">
-							<a href="{postrow.displayed.THANK_URL}">
-								<i class="ion-heart"></i>
-							</a>
-						</li>
+						<!--  LE CŒUR EST PARTI. « Y'a une icône cœur mais
+						      elle ne fait rien », 30 octobre : c'est le
+						      « merci » de Forumactif, qui n'est pas activé
+						      dans le panneau — `{THANK_URL}` arrive vide et
+						      le lien ne mène nulle part. Les « j'aime »
+						      disent déjà ce qu'il disait. -->
 						<li class="btn-quote-multi">
 							<span onclick="{postrow.displayed.MULTIQUOTE_URL}" id="post_mq{TOPIC_ID}_{postrow.displayed.U_POST_ID}">
 								<i class="ion-quote"></i>
@@ -434,9 +405,11 @@ showHiddenMessage = function(id) {
 						</dl>
 					<!-- END switch_attachments -->
 				</div>
-				<div class="edited-message">
-					{postrow.displayed.EDITED_MESSAGE}
-				</div>
+				<!--  « DERNIÈRE ÉDITION PAR … » EST PARTIE, demandé le
+				      30 octobre. C'est une mention de modération dans un
+				      fil de jeu de rôle : elle apprend à tout le monde
+				      qu'un joueur s'est repris, ce qui n'intéresse
+				      personne et gêne celui qui se relit. -->
 				<!-- BEGIN switch_signature -->
 					<div class="signature_div" id="sig{postrow.displayed.U_POST_ID}">{postrow.displayed.SIGNATURE_NEW}</div>
 				<!-- END switch_signature -->
@@ -452,43 +425,31 @@ showHiddenMessage = function(id) {
 
 <a name="bottomtitle"></a>
 
-<div class="quick-nav-topics bottom">
-    <!-- BEGIN switch_isconnect -->
-	<a href="{U_VIEW_OLDER_TOPIC}">{L_VIEW_PREVIOUS_TOPIC}</a>
-    <!-- END switch_isconnect -->
-    <a href="#top">{L_BACK_TO_TOP}</a>
-    <!-- BEGIN switch_isconnect -->
-	<a href="{U_VIEW_NEWER_TOPIC}">{L_VIEW_NEXT_TOPIC}</a>
-    <!-- END switch_isconnect -->
-</div>
+<!--  LE BAS DE PAGE : LE FIL D'ARIANE, ET CE QUI NE SE TROUVE
+      NULLE PART AILLEURS.
 
-<div class="topic-actions bottom">
-	<!-- BEGIN topicpagination -->
-		<div class="pagination">
-			{PAGINATION}
-		</div>
-	<!-- END topicpagination -->
+      « En bas, le fil d'Ariane », 30 octobre. Il était en haut, sous
+      le titre ; il descend ici entier.
 
-	<div class="topic-actions-buttons">
-		<!-- BEGIN switch_user_logged_in -->
-			<!-- BEGIN watchtopic -->
-				{S_WATCH_TOPIC}
-			<!-- END watchtopic -->
-		<!-- END switch_user_logged_in -->
+      CE QUI PART AVEC L'ANCIEN BAS : les trois liens « sujet
+      précédent / revenir en haut / sujet suivant », et la seconde
+      paire de boutons « Nouveau / Répondre », qui répétait celle du
+      haut à deux écrans de distance.
 
-		<!-- BEGIN switch_user_authpost -->
-			<a href="{U_POST_NEW_TOPIC}" rel="nofollow" title="{T_POST_NEW_TOPIC}" {S_POST_NEW_TOPIC} class="ion-{I_POST_NEW_TOPIC} button1">{L_POST_NEW_TOPIC}</a>
-		<!-- END switch_user_authpost -->
-		<!-- BEGIN switch_user_authreply -->
-			<a href="{U_POST_REPLY_TOPIC}" title="{T_POST_REPLY_TOPIC}" {S_POST_REPLY_TOPIC} class="ion-{I_POST_REPLY_TOPIC} button1">{L_POST_REPLY_TOPIC}</a>
-		<!-- END switch_user_authreply -->
-		<!-- BEGIN switch_user_authnoreply -->
-			<a href="{U_LOGIN_REPLY_TOPIC}" title="{T_LOGIN_REPLY_TOPIC}" class="login-for button1">
-				<img src="{I_LOGIN_REPLY_TOPIC}" alt="{T_LOGIN_REPLY_TOPIC}"/>
-				{L_LOGIN_REPLY_TOPIC}
-			</a>
-		<!-- END switch_user_authnoreply -->
-	</div>
+      CE QUI RESTE, ET POURQUOI : `{S_WATCH_TOPIC}` — « surveiller ce
+      sujet ». Il n'existe qu'ici, et le retirer priverait les joueurs
+      d'une alerte qu'aucun autre écran ne propose. -->
+<div class="wm-sujet__fil">
+	<nav class="wm-sujet__ariane">
+		<a class="nav" href="{U_INDEX}"><span>{L_INDEX}</span></a>
+		{NAV_CAT_DESC}
+	</nav>
+
+	<!-- BEGIN switch_user_logged_in -->
+		<!-- BEGIN watchtopic -->
+			<span class="wm-sujet__veille">{S_WATCH_TOPIC}</span>
+		<!-- END watchtopic -->
+	<!-- END switch_user_logged_in -->
 </div>
 
 <!-- BEGIN promot_trafic -->
@@ -538,10 +499,15 @@ showHiddenMessage = function(id) {
       déconnecté n'a pas de réponse rapide, et un bandeau de section
       au-dessus de rien se lirait comme un bloc cassé. -->
 <!-- BEGIN switch_user_logged_in -->
+	<!--  PLUS DE BANDEAU « LA RÉPONSE RAPIDE ». « Enlever le texte
+	      réponse rapide qui traîne », 30 octobre — et avec lui le vide
+	      qu'il ouvrait entre le bandeau et l'éditeur.
+
+	      Forumactif écrit déjà son propre titre dans
+	      `{QUICK_REPLY_FORM}` ; le nôtre faisait le deuxième, et deux
+	      titres l'un sur l'autre pour un champ de texte, c'est un de
+	      trop. On garde la carte, on retire l'étiquette. -->
 	<div class="wm-sujet__section wm-sujet__reponse">
-		<div class="wm-forum__bande">
-			<span class="wm-forum__bande-titre">LA RÉPONSE RAPIDE</span>
-		</div>
 		<a name="quickreply"></a>
 		{QUICK_REPLY_FORM}
 	</div>

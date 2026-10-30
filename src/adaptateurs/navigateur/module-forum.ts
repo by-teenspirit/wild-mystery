@@ -1,3 +1,4 @@
+import { FIL_D_ARIANE } from "./catalogue.ts";
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 // ════════════════════════════════════════════════════════════════════
@@ -175,7 +176,7 @@ export const SEPARATEUR = "›";
  * remplacer, donc le second passage ne trouve rien à faire.
  */
 export function refaireLeFilDAriane(doc: Document): number {
-  const fil = doc.querySelector(".sub-header-path");
+  const fil = doc.querySelector(FIL_D_ARIANE);
   if (fil === null) return 0;
 
   let poses = 0;

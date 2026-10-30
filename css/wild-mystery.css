@@ -6513,6 +6513,506 @@ html#min-width {
   line-height: 1;
 }
 
+/* ── 24 · les retours du 30 octobre, au soir ───────────────────────── */
+
+/*  Un lot entier, relevé sur le forum en direct. Il touche la colonne
+    de profil, le bandeau de message et les « j'aime ». Ce qui est une
+    CORRECTION d'une règle d'une section précédente est écrit ici
+    plutôt que là-bas quand la règle d'origine reste juste pour ce
+    qu'elle visait — le reste est modifié sur place. */
+
+/*  ── « EN LIGNE » SORT DE LA FICHE ────────────────────────────────
+
+    « Le coller à l'extérieur, le coller au fond blanc à gauche »,
+    et « un jeton vert avec une petite pastille ».
+
+    Au § 23 la pastille vivait DANS la fiche, dans une gouttière de
+    20 px prise sur elle. Elle sort : elle se pose contre le bord
+    gauche du message — le fond blanc —, et la fiche récupère ses
+    20 px.
+
+    LE VERT EST CELUI DE LA CHARTE, emprunté à `--wm-danger-paisible`
+    — la zone sans danger. C'est un emprunt, pas un jeton « en
+    ligne », et il est assumé : la charte n'a qu'un vert, il est
+    validé dans les deux thèmes, et en inventer un second ici ferait
+    deux verts qui dérivent. Le jour où « en ligne » a besoin du
+    sien, c'est un jeton à ajouter, pas une couleur à écrire ici. */
+#modernbb .post .postprofile {
+  padding-left: var(--wm-espace-14, 14px);
+}
+
+#modernbb .post.online .postprofile::before {
+  content: none;
+}
+
+#modernbb .post {
+  position: relative;
+}
+
+/*  LE JETON. Debout contre le bord gauche, à cheval sur rien : il est
+    DANS le message, collé au bord, pas posé dessus. `vertical-rl` +
+    `rotate(180deg)` le fait lire de bas en haut — dans l'autre sens
+    il faut pencher la tête à droite, et l'œil occidental penche à
+    gauche. */
+#modernbb .post.online::before {
+  content: "EN LIGNE";
+  position: absolute;
+  z-index: 1;
+  top: var(--wm-espace-20, 20px);
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-10, 10px) 3px;
+  border-radius: 0 999px 999px 0;
+  background: var(--wm-danger-paisible, #4f7a52);
+  color: var(--wm-texte-inverse, #fffbf7);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1;
+}
+
+/*  LA PETITE PASTILLE, demandée avec le jeton. Elle est posée par un
+    second pseudo-élément parce que le premier porte déjà le mot :
+    deux contenus générés sur le même élément n'existent pas.
+
+    `rotate(180deg)` est sur le jeton, donc le bas de l'écran est le
+    HAUT du pseudo-élément : la pastille se place en `bottom` pour
+    apparaître au-dessus du mot. */
+#modernbb .post.online::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  bottom: calc(var(--wm-espace-20, 20px) + var(--wm-espace-8, 8px));
+  left: auto;
+  top: calc(var(--wm-espace-20, 20px) + var(--wm-espace-8, 8px));
+  left: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  TOUT MARQUEUR « EN LIGNE » DE MODERNBB EST ÉTEINT. « Tout à
+    droite, y'a un bouton vert quand on est en ligne, enlève-le »,
+    30 octobre. Je ne sais pas lequel c'est — le forum est injoignable
+    depuis ici — donc la règle vise ce que ModernBB est connu pour
+    poser : `.online2`, le rond vert sur l'avatar, et toute image ou
+    pastille dont la classe contient « online ». La nôtre est un
+    pseudo-élément, elle n'est pas touchée.
+
+    SI ÇA RESTE, c'est un élément que je n'ai pas deviné, et il faudra
+    son HTML. Cette règle ne cache rien d'autre que des marqueurs de
+    présence. */
+#modernbb .post .online2,
+#modernbb .post .postprofile img[src*="online"],
+#modernbb .post-head [class*="online"],
+#modernbb .post-head img[src*="online"] {
+  display: none;
+}
+
+/*  ── LES TROIS ESPACES DE LA COLONNE ──────────────────────────────
+
+    « Ajouter un espace entre la barre et "équipe" », « un autre entre
+    l'équipe et la barre », « un autre entre la barre et les
+    onglets ». Les filets existaient, les espaces non : le texte
+    touchait le trait au-dessus et au-dessous de lui. */
+#modernbb .postprofile-equipe {
+  margin-top: var(--wm-espace-16, 16px);
+  padding-bottom: var(--wm-espace-16, 16px);
+}
+
+#modernbb .postprofile-dossier {
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+/*  ── CHAQUE ONGLET PREND CE QU'IL PEUT ────────────────────────────
+
+    « Chaque onglet doit prendre la largeur qu'il peut prendre. » Ils
+    étaient déjà en `flex: 1 1 0`, donc à parts égales — mais la
+    rangée ne remplissait pas la colonne, parce que le dossier hérite
+    du rembourrage droit du panneau. La rangée s'étend. */
+#modernbb .wm-profil__onglets {
+  width: 100%;
+}
+
+/*  ── DANS LES PANNEAUX : PLUS PETIT, ALIGNÉ À DROITE, SANS POINTILLÉ
+
+    « Réduis la taille du texte, en face à droite le contenu des
+    champs, pas de ....., ni d'overflow horizontal. »
+
+    LE RESSORT POINTILLÉ S'EN VA. Il reliait la clé à la valeur comme
+    dans un sommaire ; sur sept champs d'affilée dans 208 px, ça fait
+    sept lignes de points et le regard ne lit plus que ça. */
+#modernbb .wm-profil__champ::before {
+  content: none;
+}
+
+#modernbb .wm-profil__panneau {
+  /*  AUCUN DÉBORDEMENT LATÉRAL. Un champ de profil peut contenir une
+      adresse ou un mot d'un seul tenant plus long que la colonne ;
+      sans ça il pousse une barre de défilement horizontale sous le
+      panneau. `anywhere` coupe là où il faut, `hidden` tient la
+      promesse même si un enfant insiste. */
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-legende, 1.45);
+}
+
+#modernbb .wm-profil__champ {
+  align-items: baseline;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-profil__cle {
+  flex: 0 0 auto;
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  LA VALEUR EST POUSSÉE À DROITE, et c'est elle qui prend ce qui
+    reste : une clé courte ne doit pas rogner une valeur longue. */
+#modernbb .wm-profil__valeur {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--wm-taille-etiquette, 10px);
+  text-align: right;
+}
+
+/*  ── LA FEUILLE DE PERSONNAGE ─────────────────────────────────────
+
+    « Mets en forme la feuille de personnage », « enlève le
+    texte/lien Feuille de personnage ».
+
+    CE QUE FORUMACTIF SERT — relevé le 30 octobre, collé par Callista
+    depuis l'inspecteur, pas supposé :
+
+      <br><a href="/u1rpgsheet">Feuille de personnage</a><br>
+      <span class="gen">Âge</span>: <span class="gen" id="rpg-Âge">…</span>
+      <br><span class="gen">Alignement</span>: <span class="gen" id="rpg-alignement">…</span>
+      …
+
+    Des `<span>` à plat, séparés par des `<br>`, avec un « : » qui est
+    un NŒUD DE TEXTE NU entre les deux — ni balise ni classe.
+
+    TROIS CHOSES À RÉGLER, ET UNE SEULE MÉCANIQUE.
+
+    1 · Distinguer la clé de la valeur. Les deux sont `.gen` ; seule
+        la valeur porte un `id`. `:not([id])` suffit, et c'est le
+        gabarit de Forumactif qui le garantit, pas nous.
+    2 · Faire des lignes. En flex, un `<br>` devient un élément ; avec
+        `flex-basis: 100%` il force le retour à la ligne, et chaque
+        paire prend la sienne. C'est le seul moyen sans JavaScript.
+    3 · Faire disparaître le « : ». Un nœud de texte nu ne se cible
+        pas. `font-size: 0` sur le conteneur le réduit à rien, et
+        chaque `<span>` reprend sa taille — la même technique que
+        pour les virgules du dégraissage. */
+/*  PAS DE `display` ICI, ET C'EST UN BUG RATTRAPÉ PAR LE HARNAIS.
+    Le premier jet posait `display: flex` sur le panneau lui-même ;
+    comme cette section vient après le § 15, elle battait son
+    `display: none` à spécificité égale et l'onglet « Fiche » restait
+    ouvert par-dessus les deux autres. Le `flex` ne se donne qu'à
+    l'onglet coché, plus bas. */
+#modernbb .wm-profil__panneau--2 {
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--wm-espace-8, 8px);
+  row-gap: var(--wm-espace-6, 6px);
+  font-size: 0;
+}
+
+#modernbb .wm-profil__panneau--2 > br {
+  flex: 0 0 100%;
+  height: 0;
+}
+
+/*  LE LIEN « FEUILLE DE PERSONNAGE » ET SES DEUX SAUTS DE LIGNE. Il
+    mène à la fiche complète du membre, qui est déjà accessible par
+    son pseudo et par l'icône de profil en bas de la colonne. Trois
+    chemins vers la même page dans 208 px de large. */
+#modernbb .wm-profil__panneau--2 > a,
+#modernbb .wm-profil__panneau--2 > br:first-child,
+#modernbb .wm-profil__panneau--2 > a + br {
+  display: none;
+}
+
+#modernbb .wm-profil__panneau--2 .gen {
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-legende, 1.45);
+}
+
+/*  LA CLÉ : celle des deux qui n'a pas d'`id`. */
+#modernbb .wm-profil__panneau--2 .gen:not([id]) {
+  flex: 0 0 auto;
+  color: var(--wm-texte-pale, #69564c);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LA VALEUR : poussée à droite, comme dans l'onglet d'à côté. Les
+    deux panneaux montrent la même sorte de chose, ils se lisent de la
+    même façon. */
+#modernbb .wm-profil__panneau--2 .gen[id] {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  text-align: right;
+}
+
+/*  ── LES BADGES, SANS LE BLEU NI LE CADRE ─────────────────────────
+
+    « Améliore l'affichage des badges en enlevant le bleu », « y'a
+    aussi un contour et un fond avec un box shadow qui traîne ».
+
+    Les récompenses sont servies par Forumactif dans `.dd_award`, avec
+    son propre habillage : un cadre, un fond et une ombre, hérités
+    d'un thème qui n'est pas le nôtre, et des liens au bleu de
+    navigateur. Les images se suffisent. */
+#modernbb .wm-profil__panneau--3 .dd_award,
+#modernbb .wm-profil__panneau--3 .award_more {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+#modernbb .wm-profil__panneau--3 {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--wm-espace-8, 8px);
+}
+
+/*  LE `display` DES DEUX PANNEAUX EN FLEX, posé sur l'onglet coché et
+    nulle part ailleurs — même sélecteur que le § 15, pour que la
+    cascade les départage par l'ordre et pas par la spécificité. */
+#modernbb .wm-profil__radio:nth-of-type(2):checked ~ .wm-profil__panneau--2,
+#modernbb .wm-profil__radio:nth-of-type(3):checked ~ .wm-profil__panneau--3 {
+  display: flex;
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--wm-espace-8, 8px);
+}
+
+/*  LE BLEU PART DES LIENS, et de tout ce qu'ils portent. Une
+    récompense est une image, pas un lien de texte : le soulignement
+    et la couleur d'ancre n'ont rien à y faire. */
+#modernbb .wm-profil__panneau--3 a,
+#modernbb .wm-profil__panneau--3 a:visited {
+  border: 0;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+#modernbb .wm-profil__panneau--3 img {
+  display: block;
+  border: 0;
+  border-radius: var(--wm-rayon-xs, 4px);
+  box-shadow: none;
+}
+
+/*  ── LE FILET DE SIGNATURE N'EXISTE QUE S'IL Y A UNE SIGNATURE ────
+
+    « Si y'a pas de signature, ne pas afficher la ligne de séparation
+    entre la dernière édition et le contenu du message posté. »
+
+    Le filet était posé sur le BAS du corps, donc il se dessinait même
+    quand rien ne suivait. Il passe sur le HAUT de la signature : pas
+    de signature, pas de filet, sans une seule condition à écrire. */
+#modernbb .postbody > .content {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+#modernbb .postbody .signature_div {
+  margin-top: var(--wm-espace-16, 16px);
+  padding-top: var(--wm-espace-16, 16px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  ── LES ICÔNES, BIEN AU BORD ─────────────────────────────────────
+
+    « Aligner bien à droite les icônes. » Le dernier élément de la
+    liste portait le rembourrage que ModernBB met sur chaque `li`, et
+    les sept icônes s'arrêtaient donc avant le bord du bandeau. */
+#modernbb .post-head .profile-icons {
+  margin: 0;
+  padding: 0;
+}
+
+#modernbb .post-head .profile-icons > li:last-child {
+  margin-right: 0;
+  padding-right: 0;
+}
+
+/*  ── LE « J'AIME » EST UN BOUTON, ET SON CŒUR EST ROSE ────────────
+
+    « Il faut que le j'aime s'affiche de manière plus propre pour
+    savoir que c'est un bouton différent », « le cœur doit être
+    rouge/rose », « quand on passe la souris dessus, on voit qui a
+    liké le message ».
+
+    AU REPOS IL A DÉJÀ L'AIR D'UN BOUTON. Il était transparent et sans
+    bord — un texte parmi six icônes. Il prend un fond et un cadre :
+    c'est la seule action du bandeau qui change l'état du message, les
+    six autres mènent ailleurs. */
+#modernbb .post-head .fa_like_div .rep-button {
+  position: relative;
+  border-color: var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .post-head .fa_like_div .rep-button > i {
+  color: #c2567a;
+}
+
+#modernbb .post-head .fa_like_div .rep-button:hover {
+  border-color: #c2567a;
+  background: color-mix(in srgb, #c2567a 10%, transparent);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  DÉJÀ AIMÉ : le cœur est plein, le bouton est rose. Le rose est
+    écrit en dur, comme le dégradé du bandeau de dresseur : c'est une
+    couleur d'objet — celle d'un cœur — et pas une couleur de la
+    charte. Lui donner un jeton l'exposerait à bouger avec le thème,
+    ce qu'un cœur ne fait pas. */
+#modernbb .post-head .fa_like_div .rep-button.voted {
+  border-color: #c2567a;
+  background: color-mix(in srgb, #c2567a 16%, transparent);
+  color: #a33f61;
+}
+
+#modernbb .post-head .fa_like_div .rep-button.voted > i {
+  color: #a33f61;
+}
+
+/*  ── QUI A AIMÉ, AU SURVOL ────────────────────────────────────────
+
+    Forumactif sert la liste dans le même bloc. Elle était posée sous
+    le bandeau, sur sa propre ligne, et prenait de la place en
+    permanence pour une information qu'on consulte rarement.
+
+    Elle devient une bulle au survol du bloc, sur le même principe
+    que l'infobulle d'un Pokémon : `visibility` et non `display`,
+    pour que la transition existe ; `pointer-events: none`, pour
+    qu'elle ne vole pas le survol au bouton qui l'ouvre.
+
+    POSÉE À DROITE ET VERS LE BAS, parce que le bloc est en haut à
+    droite du message : une bulle vers le haut sortirait de la page
+    sur le premier message. */
+#modernbb .post-head .fa_like_div {
+  position: relative;
+}
+
+#modernbb .post-head .fa_like_div .list_like,
+#modernbb .post-head .fa_like_div .list_dislike {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + var(--wm-espace-6, 6px));
+  right: 0;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 280px;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-doux, #6e5749);
+  pointer-events: none;
+  opacity: 0;
+  text-align: left;
+  visibility: hidden;
+  transition: opacity 120ms ease-out, visibility 0s linear 120ms;
+}
+
+#modernbb .post-head .fa_like_div:hover .list_like,
+#modernbb .post-head .fa_like_div:hover .list_dislike,
+#modernbb .post-head .fa_like_div:focus-within .list_like,
+#modernbb .post-head .fa_like_div:focus-within .list_dislike {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #modernbb .post-head .fa_like_div .list_like,
+  #modernbb .post-head .fa_like_div .list_dislike {
+    transition: none;
+  }
+}
+
+/*  ── LE FIL D'ARIANE, EN BAS ──────────────────────────────────────
+
+    « En bas, le fil d'Ariane. » Il était sous le titre, en haut ; le
+    gabarit l'a descendu. Ici il prend la même carte que le reste de
+    la page — tout y est en cartes depuis le 30 octobre. */
+#modernbb .wm-sujet__fil {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  margin: var(--wm-espace-18, 18px) 0;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-18, 18px);
+  gap: var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-sujet__ariane {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  flex: 1 1 auto;
+  gap: var(--wm-espace-6, 6px);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-sujet__ariane a {
+  color: var(--wm-texte-doux, #6e5749);
+  text-decoration: none;
+}
+
+#modernbb .wm-sujet__ariane a:hover {
+  color: var(--wm-accent-primaire, #275e7a);
+  text-decoration: underline;
+}
+
+#modernbb .wm-sujet__veille {
+  flex: 0 0 auto;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  ── LA RÉPONSE RAPIDE SE COLLE À SON ÉDITEUR ─────────────────────
+
+    « Ne pas espacer le bloc de réponse rapide et le contenu
+    d'édition, y'a un grand vide entre les deux. » Le vide était la
+    marge que le bandeau de section laissait derrière lui ; le bandeau
+    est parti avec le gabarit, la marge reste à retirer. */
+#modernbb .wm-sujet__reponse > a[name="quickreply"] {
+  display: block;
+  height: 0;
+}
+
+#modernbb .wm-sujet__reponse > form,
+#modernbb .wm-sujet__reponse > div {
+  margin-top: 0;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 

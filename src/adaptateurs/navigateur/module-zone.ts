@@ -1,3 +1,4 @@
+import { FIL_D_ARIANE, filDAriane } from "./catalogue.ts";
 /// <reference lib="dom" />
 /// <reference lib="dom.iterable" />
 // ════════════════════════════════════════════════════════════════════
@@ -93,10 +94,25 @@ function accrocher(doc: Document, bandeau: HTMLElement): boolean {
     apres.parentNode.insertBefore(bandeau, apres.nextSibling);
     return true;
   }
-  const avant = doc.querySelector(".sub-header");
-  if (avant !== null && avant.parentNode !== null) {
-    avant.parentNode.insertBefore(bandeau, avant);
-    return true;
+  //  LE REPLI, ET POURQUOI IL EN A DEUX MAINTENANT.
+  //
+  //  `.sub-header` était le seul : c'est le bloc titre + fil d'Ariane
+  //  de ModernBB. Le 30 octobre au soir, `viewtopic_body` l'a retiré
+  //  entier — « je veux juste : Nouveau, Répondre » — et le bandeau
+  //  de zone a cessé d'exister sur les pages de sujet, sans bruit.
+  //  Le harnais l'a vu : « DANS UNE ZONE SAUVAGE, LE SUJET A SON
+  //  BANDEAU — null ».
+  //
+  //  On vise donc aussi notre propre barre d'actions, qui est ce qui
+  //  reste en haut d'une page de sujet. L'ordre compte : `.sub-header`
+  //  d'abord, parce que les pages qui l'ont encore — un forum, une
+  //  recherche — le veulent toujours au-dessus de lui.
+  for (const sel of [".sub-header", ".wm-sujet__tete"]) {
+    const avant = doc.querySelector(sel);
+    if (avant !== null && avant.parentNode !== null) {
+      avant.parentNode.insertBefore(bandeau, avant);
+      return true;
+    }
   }
   return false;
 }
@@ -104,7 +120,13 @@ function accrocher(doc: Document, bandeau: HTMLElement): boolean {
 export type DependancesDuBandeau = {
   readonly doc: Document;
   readonly zone: ZoneDuNavigateur;
+  /** `true` sur la page d'un sujet. Le bandeau y est plus court : on
+   *  vient lire des messages, pas découvrir un lieu. */
+  readonly surUnSujet?: boolean;
 };
+
+/** Posée sur le bandeau quand il coiffe un sujet et non une liste. */
+export const CLASSE_SUJET = "wm-zone--sujet";
 
 /**
  * Pose le bandeau de la zone. Rend `true` s'il est là.
@@ -113,11 +135,14 @@ export type DependancesDuBandeau = {
  * oblige aujourd'hui, mais un module qui se double est un module qu'on
  * n'ose plus rappeler.
  */
-export function poserLeBandeauDeZone({ doc, zone }: DependancesDuBandeau): boolean {
+export function poserLeBandeauDeZone(
+  { doc, zone, surUnSujet = false }: DependancesDuBandeau,
+): boolean {
   if (doc.querySelector(".wm-zone") !== null) return true;
 
   const bandeau = element(doc, "header", "wm-zone");
   bandeau.dataset.wmZone = String(zone.forumId);
+  if (surUnSujet) bandeau.classList.add(CLASSE_SUJET);
 
   //  LA PHOTO EST UNE `<img>` ET PAS UN FOND, pour deux raisons : le
   //  navigateur la charge en priorité basse si elle est hors écran, et
@@ -180,7 +205,7 @@ export const CLASSE_ARIANE_MONTEE = "wm-forum--ariane-montee";
  */
 export function monterLeFilDAriane(doc: Document): boolean {
   const legende = doc.querySelector(".wm-zone__legende");
-  const fil = doc.querySelector(".sub-header-path");
+  const fil = doc.querySelector(FIL_D_ARIANE);
   if (legende === null || fil === null) return false;
   if (legende.contains(fil)) return true;
 
@@ -213,7 +238,7 @@ export function poserLeRetour(doc: Document): boolean {
   if (bandeau === null) return false;
   if (bandeau.querySelector(".wm-zone__retour") !== null) return true;
 
-  const maillons = [...doc.querySelectorAll(".sub-header-path a.nav")];
+  const maillons = [...doc.querySelectorAll(filDAriane("a.nav"))];
   const parent = maillons.at(-2) ?? maillons.at(0);
   if (parent === undefined) return false;
 
