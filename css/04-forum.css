@@ -289,13 +289,31 @@
 
 /* ── 7 · le saut vers un autre forum ──────────────────────────────── */
 
-#modernbb .jumpbox {
+/*  DEUX FORMES POUR LE MÊME BLOC, et une seule était habillée.
+
+    `viewtopic_body` sert un `<fieldset class="jumpbox">`. Les pages de
+    groupes, elles, servent un `<form name="jumpbox">` avec un
+    `<p class="right">` dedans — aucune classe, donc aucune de nos
+    règles ne l'attrapait. Il se collait à la carte au-dessus de lui :
+    « la liste des groupes est trop collée à sauter vers », 30 octobre.
+
+    On vise les deux, et on écarte par le HAUT. 24 et pas 18 : ce qui
+    précède est maintenant une carte, et un bloc nu posé à dix-huit
+    pixels d'un bord dessiné a l'air de lui appartenir. */
+#modernbb .jumpbox,
+#modernbb form[name="jumpbox"] > p.right {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: var(--wm-espace-8, 8px);
-  margin: var(--wm-espace-18, 18px) 0;
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-18, 18px);
+}
+
+/*  Le formulaire lui-même ne porte rien : c'est son paragraphe qui est
+    la rangée. Sans ça, sa marge par défaut s'ajouterait à la nôtre. */
+#modernbb form[name="jumpbox"] {
+  margin: 0;
 }
 
 /* ── 8 · le bandeau d'une zone (maquettes 301:13 et 301:26) ───────── */

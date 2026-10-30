@@ -1261,6 +1261,20 @@ for (const liens of [true, false]) {
           parseFloat(getComputedStyle(outils).paddingRight) - 1,
       mienDessus: rejoindre === undefined ||
         Math.round(r(mien).bottom) <= Math.round(r(rejoindre).top) + 1,
+      //  ── LE SAUT VERS UN FORUM RESPIRE ──────────────────────
+      //
+      //  « La liste des groupes est trop collée à sauter vers »,
+      //  30 octobre. Deux formes pour ce bloc et une seule était
+      //  habillée : `viewtopic_body` sert un `<fieldset
+      //  class="jumpbox">`, les pages de groupes un `<form
+      //  name="jumpbox">` sans aucune classe.
+      ecartDuSaut: (() => {
+        const saut = document.querySelector('form[name="jumpbox"] > p.right');
+        const avant = document.querySelector(".wm-groupes__section") ??
+          document.querySelector(".wm-groupe__section");
+        if (saut === null || avant === null) return null;
+        return Math.round(r(saut).top - r(avant).bottom);
+      })(),
       //  ET RIEN NE DÉBORDE, quelle que soit la forme servie.
       deborde: Math.max(
         0,
@@ -1282,11 +1296,14 @@ for (const liens of [true, false]) {
   dire(
     `et « mes groupes » prend sa ligne, sans déborder (${forme})`,
     liste !== null && liste.mienPleineLigne && liste.mienDessus &&
-      liste.deborde <= 1,
+      liste.deborde <= 1 &&
+      //  Le saut vers un forum ne colle plus à la carte au-dessus.
+      liste.ecartDuSaut >= 24,
     JSON.stringify({
       pleine: liste?.mienPleineLigne,
       dessus: liste?.mienDessus,
       deborde: liste?.deborde,
+      ecartDuSaut: liste?.ecartDuSaut,
     }),
   );
 }
