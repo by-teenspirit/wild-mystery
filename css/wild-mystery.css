@@ -10564,42 +10564,32 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  ── L'ACCUEIL SORT DE LA LAISSE DU FORUM ──────────────────────────
 
     « Pourquoi la page d'accueil a changé ? Remets comme avant »,
-    30 octobre.
+    puis « elle est toujours trop grande », 30 octobre.
 
     Elle n'avait pas changé de règle : elle changeait de TAILLE. La
-    composition est dessinée pour 1 292 px et `module-accueil.ts` la
+    composition était dessinée pour 1 292 px et `module-accueil.ts` la
     met à l'échelle sur la place que son parent lui laisse. Tant que le
     forum valait les 1 400 de ModernBB, la place suffisait et le
-    facteur valait 1. À 1 000 il est tombé à 0,774, à 1 200 il est
-    remonté à 0,93 — l'accueil rétrécissait et regrossissait à chaque
-    fois qu'on touchait à la largeur du forum, ailleurs.
+    facteur valait 1. À 1 000 il est tombé à 0,774, à 1 200 à 0,93 —
+    l'accueil rétrécissait et regrossissait à chaque fois qu'on
+    touchait à une largeur qui ne le concerne pas.
 
-    On le sort donc de la laisse, comme la bannière et le bandeau d'une
-    zone : il garde ses 1 292 et déborde à égalité des deux côtés. Le
-    forum reste à 1 200 pour tout le reste, et l'accueil ne dépend plus
-    d'un réglage qui ne le concerne pas.
+    PREMIÈRE RÉPONSE, ÉCARTÉE : le sortir de la laisse. Il gardait ses
+    1 292 et débordait de quarante-six pixels de chaque côté d'un forum
+    à 1 200. Il avait retrouvé sa taille, mais il était devenu plus
+    large que le forum — « toujours trop grande ».
 
-    SEULEMENT QUAND IL Y A LA PLACE. Sous 1 340 px de fenêtre, le
-    débordement sortirait de l'écran : en dessous, l'accueil reprend la
-    largeur qu'on lui donne et le facteur fait son travail, comme avant.
-    C'est la même bascule que la version mobile, qu'on ne touche pas.
+    CE QU'IL FALLAIT FAIRE, et que je n'avais pas vérifié : dessiner la
+    composition POUR 1 200. J'avais écarté cette valeur en croyant
+    qu'il faudrait recomposer les bandes, parce que c'était vrai à
+    1 000. Le calcul dit l'inverse à 1 200 : la bande du haut demande
+    635 + 474 + 31 d'écart, soit 1 140, et un forum de 1 200 en offre
+    1 152 une fois le retrait du panneau ôté. La bande du bas en
+    demande 1 119. Les deux tiennent, et pas une cote de cette feuille
+    n'a bougé.
 
-    C'EST LE PARENT QU'ON ÉLARGIT, PAS L'HÔTE. `module-accueil.ts`
-    calcule le facteur sur la boîte du parent de l'hôte : élargir
-    l'hôte ne change donc rien au calcul. Essayé d'abord, et le
-    harnais l'a dit — facteur toujours 0,9288. `:has(> #wm-accueil)`
-    atteint le bon élément quel que soit son nom, qui appartient à
-    Forumactif et peut changer. */
-@media (min-width: 1340px) {
-  #modernbb *:has(> #wm-accueil) {
-    width: var(--wm-accueil-largeur, 1292px);
-    max-width: none;
-    /*  Le débordement se partage entre les deux bords : la composition
-        reste centrée sur la colonne du forum. */
-    margin-right: calc((100% - var(--wm-accueil-largeur, 1292px)) / 2);
-    margin-left: calc((100% - var(--wm-accueil-largeur, 1292px)) / 2);
-  }
-}
+    Le facteur vaut donc 1 parce que la place suffit — pas parce qu'on
+    l'a prise ailleurs. */
 
 #modernbb .wm-accueil--pose {
   align-items: flex-end;
@@ -10628,7 +10618,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       parent. Sans JavaScript, il vaut 1 et le bloc de repli — qui,
       lui, est fluide — reste en place : on ne sert jamais une page de
       1 292 dans un écran de 390. */
-  width: var(--wm-accueil-largeur, 1292px);
+  width: var(--wm-accueil-largeur, 1200px);
   zoom: var(--wm-accueil-echelle, 1);
 }
 
@@ -10739,17 +10729,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   align-items: stretch;
 }
 
-/*  Haut : 635 à gauche, 474 à droite. */
+/*  ── `min-width: 0` SUR LES QUATRE BLOCS DES BANDES ────────────────
+
+    Sans cette ligne, un enfant de flex refuse de descendre sous la
+    largeur minimale de son contenu — et la rangée du bas en contient
+    qui ont leur propre cote : 123 de retrait, 284 pour la carte des
+    partenaires, 46 d'écart, 308 pour les pré-liens, soit 761 pour les
+    699 que le dessin lui donne. Elle ne pouvait donc pas tenir, et la
+    bande se repliait : les actualités partaient sur une seconde ligne
+    où, remontées de 109 px, elles avaient l'air « mal placées ».
+
+    Le contexte et les liens rapides avaient déjà cette ligne depuis le
+    8 octobre ; les quatre blocs des bandes, non.
+
+    Haut : 635 à gauche, 474 à droite. */
 #modernbb .wm-accueil__bande > .wm-accueil__rangee {
+  min-width: 0;
   flex: 635 1 635px;
 }
 
 #modernbb .wm-accueil__bande > .wm-accueil__staff {
+  min-width: 0;
   flex: 474 1 474px;
 }
 
 /*  Bas : 699 à gauche, 396 à droite. */
 #modernbb .wm-accueil__bande--bas > .wm-accueil__rangee--bas {
+  min-width: 0;
   flex: 699 1 699px;
 }
 
@@ -10771,6 +10777,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     boîtes, elles, l'étaient. */
 #modernbb .wm-accueil__bande--bas > .wm-accueil__actus {
   display: flex;
+  min-width: 0;
   flex: 396 1 396px;
   flex-direction: column;
 }
@@ -11653,6 +11660,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     seul à deux puis à une. */
 #modernbb .wm-accueil__preliens-liste {
   display: grid;
+  /*  SANS CETTE LIGNE, LA GRILLE NE CÈDE RIEN. Un enfant de flex garde
+      la largeur minimale de son contenu, et pour une grille en
+      `auto-fill` de 75 px, ce minimum est ses trois colonnes. Le bloc
+      des pré-liens rétrécissait bien, et la grille, elle, débordait
+      par la droite : son titre vertical finissait SOUS la carte des
+      actualités. Avec `0`, `auto-fill` fait ce qu'il promet et retombe
+      à deux colonnes. */
+  min-width: 0;
   margin: 0;
   padding: 0;
   flex: 1 1 auto;

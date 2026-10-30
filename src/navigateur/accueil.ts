@@ -376,12 +376,27 @@ export function lignesDUnPrelien(p: Prelien): readonly { cle: string; valeur: st
 
 /** La largeur pour laquelle la composition est dessinée.
  *
+ *  ── 1200 DEPUIS LE 30 OCTOBRE ──────────────────────────────────────
+ *
+ *  « La page d'accueil est toujours trop grande. » Elle faisait 1 292
+ *  dans un forum de 1 200 : quarante-six pixels de débordement de
+ *  chaque côté.
+ *
+ *  J'avais écarté cette valeur sans la vérifier, en croyant qu'il
+ *  faudrait recomposer. Le calcul dit le contraire : la bande du haut
+ *  demande 635 + 474 + 31 d'écart, soit 1 140, et un forum de 1 200
+ *  offre 1 152 une fois le retrait du panneau retiré. Les deux bandes
+ *  tiennent sans se replier, et aucune cote de la feuille 14 ne bouge.
+ *
+ *  C'est à 1 000 que la recomposition devenait nécessaire — pas à
+ *  1 200.
+ *
  *  Relevée sur le forum le 8 octobre : à 1 440 px de fenêtre, le bloc
  *  d'accueil fait 1 292. C'est la largeur que la maquette `390:3170`
  *  suppose, et toutes les cotes de la feuille 14 en dépendent — les
  *  474 du staff, les 396 des actualités, les 46 entre les pré-liens et
  *  les partenaires. */
-export const LARGEUR_COMPOSITION = 1292;
+export const LARGEUR_COMPOSITION = 1200;
 
 /** En deçà, on ne réduit plus. */
 export const ECHELLE_MIN = 0.1;

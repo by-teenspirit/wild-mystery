@@ -306,9 +306,37 @@ const horsLaisse = await p.evaluate(() => {
     debord: document.documentElement.scrollWidth > innerWidth,
   };
 });
+//  ── LE TITRE DES PRÉ-LIENS NE PASSE PAS SOUS LES ACTUALITÉS ───────
+//
+//  Il y est passé deux fois, et aucun test ne le voyait : la grille
+//  des pré-liens garde la largeur de ses trois colonnes tant qu'on ne
+//  lui donne pas `min-width: 0`, et elle déborde de son bloc par la
+//  droite — juste là où commence la carte des actualités.
+//
+//  On ne mesure pas la grille mais le TITRE, qui est ce qui disparaît
+//  et ce qu'on voit disparaître.
+
+const chevauche = await p.evaluate(() => {
+  const titre = document.querySelector(".wm-accueil__preliens .wm-accueil__titre-cote");
+  const carte = document.querySelector(".wm-accueil__actus");
+  if (titre === null || carte === null) return null;
+  const a = titre.getBoundingClientRect();
+  const b = carte.getBoundingClientRect();
+  return {
+    titreFinit: Math.round(a.right),
+    carteCommence: Math.round(b.x),
+    marge: Math.round(b.x - a.right),
+  };
+});
 dire(
-  "AU LARGE, L'ACCUEIL GARDE SA TAILLE ET LE FORUM LA SIENNE",
-  horsLaisse.facteur === "1" && horsLaisse.bloc === 1292 &&
+  "LE TITRE DES PRÉ-LIENS RESTE À GAUCHE DE LA CARTE DES ACTUALITÉS",
+  chevauche !== null && chevauche.marge >= 0,
+  JSON.stringify(chevauche),
+);
+
+dire(
+  "L'ACCUEIL FAIT LA LARGEUR DU FORUM, SANS MISE À L'ÉCHELLE",
+  horsLaisse.facteur === "1" && horsLaisse.bloc === 1200 &&
     horsLaisse.forum === 1200 && !horsLaisse.debord,
   JSON.stringify(horsLaisse),
 );
@@ -735,7 +763,12 @@ for (const largeur of [900, 520, 390, 320]) {
   );
   dire(
     `à ${largeur} px, le pont couvre le vide entre les deux`,
-    bec.pont >= bec.vide,
+    //  UN CENTIÈME DE JEU. Les deux cotes sortent du même calcul —
+    //  huit pixels mis à l'échelle par le `zoom` du bloc — et à 320 px
+    //  le facteur vaut 0,27 : le pont mesurait 2,12 pour un vide de
+    //  2,13. C'est l'arithmétique flottante, pas un trou par lequel la
+    //  souris pourrait passer.
+    bec.pont >= bec.vide - 0.05,
     JSON.stringify(bec),
   );
   await p.keyboard.press("Escape");
