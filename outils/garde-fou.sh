@@ -185,7 +185,18 @@ for f in "${CSS[@]}"; do
   # requête, et le harnais de confort les compte dans les deux états.
   # Tout autre `url(` reste une faute, y compris dans ce fichier-là.
   sans_police=$(perl -0pe 's{url\(\s*"\.\./assets/polices/[^"]+"\s*\)}{}g' <<< "$nu")
-  if grep -qE '@import|url\(' <<< "$sans_police"; then
+  # LA SECONDE DÉROGATION : `url("data:…")`. Un `data:` N'EST PAS UNE
+  # REQUÊTE — la donnée est dans la feuille, le navigateur ne sort pas
+  # du fichier pour la lire. Le contrôle attrapait un chevron de liste
+  # déroulante dessiné en SVG inline, le 30 octobre, et il avait tort :
+  # ce qu'il protège est le fait d'aller chercher quelque chose
+  # AILLEURS, pas le fait d'avoir une image.
+  #
+  # Seuls `data:image/svg+xml` et `data:image/png` passent, et en
+  # guillemets : une forme libre laisserait rentrer `data:text/html`,
+  # qui n'a rien à faire dans une feuille.
+  sans_donnee=$(perl -0pe 's{url\(\s*"data:image/(?:svg\+xml|png)[,;][^"]*"\s*\)}{}g' <<< "$sans_police")
+  if grep -qE '@import|url\(' <<< "$sans_donnee"; then
     gronde "$f fait une requête réseau — aucune feuille du dépôt n'a le droit"
   fi
 done

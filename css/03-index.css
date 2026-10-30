@@ -1656,31 +1656,6 @@
   padding-left: 0;
 }
 
-/*  ── ET LE BLOC EST REMPLI ──────────────────────────────────────────
-
-    « Dans l'index, la chatbox, tu peux remplir le bloc avec du
-    blanc ? », 30 octobre. Il était transparent : la chatbox flottait
-    sur le fond brun de la page, seule de son espèce au milieu d'une
-    colonne de cartes.
-
-    Même recette que les catégories et le QEEL — `fond-surface`, un
-    filet de `bord-fin`, `rayon-lg`. Une carte qui se distingue des
-    autres se lit comme une erreur.
-
-    LE REMBOURRAGE HORIZONTAL RESTE À ZÉRO, et c'est voulu : la
-    décision du 8 octobre était que la chatbox commence et finisse où
-    commencent et finissent les catégories. Le bord de la carte est
-    maintenant visible, donc l'alignement se voit — c'est exactement
-    ce qu'on cherchait alors sans pouvoir le montrer.
-
-    `overflow: hidden` pour que la chatbox, qui a son propre cadre,
-    ne dépasse pas des coins arrondis. */
-#modernbb .panel:has(> #chatbox_top) {
-  overflow: hidden;
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
-}
 
 /*  ════════════════════════════════════════════════════════════════
     LES DEUX BARRES DE LIENS DE L'INDEX

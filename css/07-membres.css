@@ -111,7 +111,12 @@
 #modernbb .wm-membres__outils {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  /*  `flex-end` ET PAS `center` : le champ de recherche porte une
+      étiquette au-dessus depuis le 30 octobre, donc il est plus haut
+      que les listes. Centrés, ils flottaient au milieu de sa hauteur
+      totale, étiquette comprise — « à la même hauteur » veut dire
+      alignés sur le CHAMP, pas sur le bloc. */
+  align-items: flex-end;
   gap: var(--wm-espace-12, 12px);
   margin: 0 0 var(--wm-espace-20, 20px);
   padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
@@ -132,7 +137,13 @@
     pas un réglage de la recherche, ce sont trois pages. Les coller à
     la recherche laissait croire qu'ils la filtraient. */
 #modernbb .wm-membres__recherche { order: 0; }
-#modernbb .wm-membres__tri       { order: 1; margin-left: auto; }
+
+/*  LE TRI COLLE À LA RECHERCHE. Il avait `margin-left: auto`, donc il
+    partait au bord droit et les deux listes se retrouvaient loin du
+    champ auquel elles s'appliquent. « Dernière visite et décroissant
+    doivent être rapprochés de la recherche, à la même hauteur »,
+    30 octobre. */
+#modernbb .wm-membres__tri { order: 1; }
 
 #modernbb .wm-membres__modes {
   order: 2;
@@ -165,16 +176,29 @@
 #modernbb .wm-membres__recherche {
   position: relative;
   display: flex;
-  flex: 1 1 280px;
-  align-items: center;
-  max-width: 420px;
+  flex: 0 1 300px;
+  flex-direction: column;
+  max-width: 360px;
+}
+
+#modernbb .wm-membres__recherche-nom {
+  margin-bottom: var(--wm-espace-6, 6px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
 }
 
 /*  LA LOUPE. Un pseudo-élément plutôt qu'une image : rien à charger,
     rien à maintenir, et elle suit la couleur du texte. */
+/*  LA LOUPE SE POSE SUR LE CHAMP, pas sur le bloc : l'étiquette est
+    au-dessus, donc un centrage vertical sur le bloc la mettrait dans
+    le mot. On l'ancre depuis le BAS, où le champ est. */
 #modernbb .wm-membres__recherche::before {
   content: "";
   position: absolute;
+  bottom: 14px;
   left: 15px;
   width: 11px;
   height: 11px;
@@ -186,8 +210,8 @@
 #modernbb .wm-membres__recherche::after {
   content: "";
   position: absolute;
+  bottom: 13px;
   left: 25px;
-  top: 25px;
   width: 6px;
   height: 1.5px;
   transform: rotate(45deg);
@@ -233,10 +257,23 @@
 /*  LE TRI PREND LE RESSORT. C'est lui qui s'étire entre la recherche et
     les modes : le ressort de la maquette est du vide, et du vide qui
     porte quelque chose vaut mieux que du vide. */
+/*  `flex-end` ET PAS `center` : le « OK » de ModernBB arrive avec une
+    marge à lui — 44 px de haut mesurés pour 32 de contrôle — et il
+    emportait la rangée. Centrées dedans, les deux listes finissaient
+    six pixels au-dessus du champ de recherche.
+
+    On aligne par le bas, et on retire la marge. Les deux ensemble :
+    l'alignement tient même si ModernBB change son rembourrage, et la
+    rangée ne fait plus 44 pour rien. */
 #modernbb .wm-membres__tri {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-membres__tri select,
+#modernbb .wm-membres__tri .button2 {
+  margin: 0;
 }
 
 /*  `{L_ORDER_OR_SELECT}` N'EST PAS UN TITRE, C'EST UNE PHRASE :
@@ -302,13 +339,28 @@
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 
-/*  LA FLÈCHE A SA PLACE. 28 px à droite : 12 de rembourrage comme à
-    gauche, plus les 16 que le navigateur prend pour dessiner le
-    chevron. Sans ça, « Dernière visite » et « Décroissant » — les deux
-    options les plus longues, donc celles qui décident de la largeur —
-    venaient buter dedans. */
+/*  ── LA FLÈCHE EST À NOUS, PARCE QUE CELLE DU SYSTÈME NE BOUGE PAS ─
+
+    Premier essai : `padding-right: 28px`. Ça écarte le TEXTE, pas la
+    flèche — macOS la dessine collée au bord droit du contrôle, et
+    aucun rembourrage ne l'en décolle. « Il manque un padding à droite
+    de la flèche, toujours », 30 octobre, après ce premier essai.
+
+    On éteint donc l'apparence native et on dessine le chevron
+    soi-même, en fond : `right 12px center` lui donne les mêmes 12 px
+    que le texte a de l'autre côté.
+
+    Le SVG est une donnée, pas une image allée chercher ailleurs — le
+    garde-fou n° 10 interdit à une feuille d'aller chercher un fichier,
+    et un `data:` n'en est pas un. `currentColor` ne marche pas dans un
+    `data:`, donc la couleur est écrite : c'est `texte-doux`, et elle
+    vaut pour les deux thèmes. */
 #modernbb .wm-membres__tri select {
-  padding-right: 28px;
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236e5749' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
 }
 
 /*  UNE LISTE EST LARGE DE SA PLUS LONGUE OPTION, et celles-ci

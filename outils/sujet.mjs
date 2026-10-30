@@ -443,8 +443,13 @@ h1.page-title { border-bottom: 1px solid #3793ff; }
 .post { display: flex; flex-wrap: wrap; }
 .post-head { order: -1; }
 
-#wrap { max-width: 1400px; margin: 0 auto; }
-.wrap { max-width: 1400px; margin: 0 auto; }`;
+/*  LES 36 PX DE REMBOURRAGE DE MODERNBB. C'est eux qui poussaient
+    chaque page vers le bas sous la bannière, et le décor ne les
+    servait pas : une règle qui les réduit n'aurait rien eu à réduire
+    ici. Quatrième fois qu'un décor incomplet teste autre chose que
+    la page. */
+#wrap { max-width: 1400px; margin: 0 auto; padding: 36px; }
+.wrap { max-width: 1400px; margin: 0 auto; padding: 36px; }`;
 
 const page = (corps) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
@@ -1160,6 +1165,37 @@ dire(
     enLigne.aGauche && enLigne.memeLargeur &&
     enLigne.gouttiere === enLigne.gouttiereAbsent && enLigne.avatar === 200,
   JSON.stringify(enLigne),
+);
+
+//  ── LE CONTENU REMONTE SOUS LA BANNIÈRE ────────────────────────────
+//
+//  « Remonte tous les écrans plus près de la bannière », 30 octobre.
+//  Le vide venait des 36 px de rembourrage que ModernBB met sur
+//  `#wrap` — le même réglage qui décalait la bannière de 49 px vers
+//  la droite. Le décor les sert maintenant, sinon la règle qui les
+//  réduit n'aurait rien eu à réduire.
+
+const hautDePage = await p.evaluate(() => {
+  const wrap = document.querySelector("#wrap");
+  const st = getComputedStyle(wrap);
+  const premier = document.querySelector("#page-body > *");
+  return {
+    haut: st.paddingTop,
+    //  LE BAS GARDE LES 36 DE MODERNBB : là, le vide sépare le
+    //  dernier bloc du pied de page, et il a un travail.
+    bas: st.paddingBottom,
+    //  ET LE PREMIER BLOC EST BIEN REMONTÉ, pas seulement la règle.
+    ecart: premier === null ? null : Math.round(
+      premier.getBoundingClientRect().top - wrap.getBoundingClientRect().top,
+    ),
+  };
+});
+
+dire(
+  "LE CONTENU COMMENCE À 16 DU HAUT, ET PLUS À 36",
+  hautDePage.haut === "16px" && hautDePage.bas === "36px" &&
+    hautDePage.ecart === 16,
+  JSON.stringify(hautDePage),
 );
 
 //  ── LA TÊTE DU SUJET EST UNE CARTE ─────────────────────────────────

@@ -475,9 +475,45 @@ const outils = await p.evaluate(() => {
       filet: getComputedStyle(barre).borderTopWidth,
       rayon: getComputedStyle(barre).borderTopLeftRadius,
     },
-    //  ET LA FLÈCHE DES LISTES NE COLLE PLUS AU TEXTE.
-    flecheRespire: [...tri.querySelectorAll("select")].every((e) =>
-      parseFloat(getComputedStyle(e).paddingRight) >= 24
+    //  ── LA FLÈCHE EST LA NÔTRE ────────────────────────────────
+    //
+    //  Première version du contrôle : « le rembourrage droit vaut au
+    //  moins 24 ». Il passait, et la flèche collait toujours — le
+    //  rembourrage écarte le TEXTE, pas le chevron que le système
+    //  dessine au bord. Un contrôle qui mesure la mauvaise chose
+    //  passe avec le défaut dedans.
+    //
+    //  On vérifie donc ce qui est vrai maintenant : l'apparence
+    //  native est éteinte, et le chevron est une image de fond posée
+    //  à 12 px du bord — les mêmes 12 que le texte a à gauche.
+    flecheRespire: [...tri.querySelectorAll("select")].every((e) => {
+      const st = getComputedStyle(e);
+      return (st.appearance === "none" ||
+        st.webkitAppearance === "none") &&
+        st.backgroundImage.startsWith("url(") &&
+        st.backgroundPosition.includes("12px") &&
+        parseFloat(st.paddingRight) >= 30;
+    }),
+    //  ET LE TRI COLLE À LA RECHERCHE, au lieu de filer au bord.
+    triPresDuChamp: Math.round(r(tri).x - r(champ).right) <= 24,
+    //  LE CHAMP PORTE UNE ÉTIQUETTE VISIBLE.
+    etiquetteDuChamp: (() => {
+      const l = barre.querySelector(".wm-membres__recherche-nom");
+      if (l === null) return null;
+      return {
+        mot: l.textContent.trim(),
+        vue: Math.round(l.getBoundingClientRect().width) > 10,
+        //  …et elle est AU-DESSUS du champ, pas à côté.
+        dessus: Math.round(l.getBoundingClientRect().bottom) <=
+          Math.round(r(champ).top) + 1,
+      };
+    })(),
+    //  LES TROIS CONTRÔLES S'ALIGNENT SUR LE CHAMP, pas sur le bloc.
+    memeBas: [...tri.querySelectorAll("select, .button2")].every((e) =>
+      Math.abs(
+        Math.round(e.getBoundingClientRect().bottom) -
+          Math.round(r(champ).bottom),
+      ) <= 1
     ),
     //  RIEN NE SORT DE LA RANGÉE. Une liste large de sa plus longue
     //  option déborde sans faire grandir son parent : c'est le défaut
@@ -513,7 +549,7 @@ dire(
   //
   //  À chaque fois l'intention est réécrite, jamais affaiblie.
   outils !== null && outils.champAGauche && outils.memeLigne &&
-    outils.triADroite && outils.modesDessous && outils.champ.h === 40,
+    outils.modesDessous && outils.champ.h === 40,
   JSON.stringify(outils),
 );
 dire(
@@ -523,9 +559,24 @@ dire(
   JSON.stringify(outils?.bloc),
 );
 dire(
-  "ET LA FLÈCHE DES LISTES NE COLLE PLUS À LA DERNIÈRE LETTRE",
+  "LA FLÈCHE DES LISTES EST LA NÔTRE, POSÉE À 12 px DU BORD",
   outils !== null && outils.flecheRespire,
   "",
+);
+dire(
+  "LE CHAMP PORTE UNE ÉTIQUETTE VISIBLE, AU-DESSUS DE LUI",
+  outils?.etiquetteDuChamp != null &&
+    outils.etiquetteDuChamp.mot === "Rechercher" &&
+    outils.etiquetteDuChamp.vue && outils.etiquetteDuChamp.dessus,
+  JSON.stringify(outils?.etiquetteDuChamp),
+);
+dire(
+  "LE TRI COLLE À LA RECHERCHE ET S'ALIGNE SUR ELLE",
+  outils !== null && outils.triPresDuChamp && outils.memeBas,
+  JSON.stringify({
+    ecart: outils?.triPresDuChamp,
+    memeBas: outils?.memeBas,
+  }),
 );
 dire(
   "LES TROIS MODES POINTENT SUR LES TROIS ADRESSES DE LA NOTE DE CODE",

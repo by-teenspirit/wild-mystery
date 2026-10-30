@@ -95,6 +95,26 @@ html,
   background: var(--wm-fond-page, #eecfb5);
 }
 
+/*  ── LE CONTENU REMONTE SOUS LA BANNIÈRE ───────────────────────────
+
+    « Tu pourrais remonter tous les écrans plus près de la bannière ? À
+    chaque fois, je trouve qu'ils sont très bas », 30 octobre.
+
+    Le vide vient de ModernBB : `#wrap` est rembourré de 36 px, et
+    c'est ce rembourrage qui pousse CHAQUE page vers le bas — l'index,
+    un sujet, la liste des membres, toutes. C'est le même réglage qui
+    décalait la bannière de 49 px vers la droite (§ 9).
+
+    36 px sous une bannière de 620 de haut, c'est un vide qui ne
+    sépare rien : la bannière EST la séparation. On garde 16 — de quoi
+    que le premier bloc ne colle pas, pas de quoi faire un palier.
+
+    LE BAS GARDE SES 36 : là, le vide sépare le dernier bloc du pied de
+    page, et il a un travail. */
+#modernbb #wrap {
+  padding-top: var(--wm-espace-16, 16px);
+}
+
 /*  La bannière du haut. ModernBB la veut sombre dans les deux modes, et
     c'est aussi ce que dit la charte : `fond/nuit` est fait pour ça. La
     reprendre permet au titre qu'elle porte d'avoir une couleur sûre. */

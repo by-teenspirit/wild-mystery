@@ -36,7 +36,10 @@
       celui qui tourne, le 30 octobre.
       ════════════════════════════════════════════════════════════════ -->
 
-<h1 class="page-title solo">{PAGE_TITLE}</h1>
+<!--  « Liste des membres » et pas `{PAGE_TITLE}`, demandé le 30
+      octobre. Forumactif y met son propre mot, qui change avec le
+      mode ; ici le titre dit ce qu'est la page, dans les trois cas. -->
+<h1 class="page-title solo">Liste des membres</h1>
 
 <!--  LA RANGÉE D'OUTILS, maquette 307:346 : la recherche à gauche, un
       ressort, les trois modes à droite.
@@ -49,8 +52,13 @@
       aucun bloc pour eux : ce sont trois adresses, données par la note
       de code. Des liens et pas des boutons — on change de page. -->
 <form action="{S_MODE_ACTION}" method="get" class="wm-membres__outils">
+	<!--  LE CHAMP PORTE SON ÉTIQUETTE, visible cette fois — demandé le
+	      30 octobre. Le `placeholder` disparaît dès qu'on tape : un
+	      champ dont le seul nom est son texte d'invite devient muet
+	      au premier caractère. -->
 	<div class="wm-membres__recherche">
-		<input type="text" name="username" maxlength="25"
+		<label class="wm-membres__recherche-nom" for="wm-chercher">Rechercher</label>
+		<input id="wm-chercher" type="text" name="username" maxlength="25"
 		       value="{L_USER_SELECT_VALUE}" placeholder="{L_USER_SELECT}" />
 	</div>
 

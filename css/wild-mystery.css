@@ -354,6 +354,26 @@ html,
   background: var(--wm-fond-page, #eecfb5);
 }
 
+/*  ── LE CONTENU REMONTE SOUS LA BANNIÈRE ───────────────────────────
+
+    « Tu pourrais remonter tous les écrans plus près de la bannière ? À
+    chaque fois, je trouve qu'ils sont très bas », 30 octobre.
+
+    Le vide vient de ModernBB : `#wrap` est rembourré de 36 px, et
+    c'est ce rembourrage qui pousse CHAQUE page vers le bas — l'index,
+    un sujet, la liste des membres, toutes. C'est le même réglage qui
+    décalait la bannière de 49 px vers la droite (§ 9).
+
+    36 px sous une bannière de 620 de haut, c'est un vide qui ne
+    sépare rien : la bannière EST la séparation. On garde 16 — de quoi
+    que le premier bloc ne colle pas, pas de quoi faire un palier.
+
+    LE BAS GARDE SES 36 : là, le vide sépare le dernier bloc du pied de
+    page, et il a un travail. */
+#modernbb #wrap {
+  padding-top: var(--wm-espace-16, 16px);
+}
+
 /*  La bannière du haut. ModernBB la veut sombre dans les deux modes, et
     c'est aussi ce que dit la charte : `fond/nuit` est fait pour ça. La
     reprendre permet au titre qu'elle porte d'avoir une couleur sûre. */
@@ -2918,31 +2938,6 @@ html#min-width {
   padding-left: 0;
 }
 
-/*  ── ET LE BLOC EST REMPLI ──────────────────────────────────────────
-
-    « Dans l'index, la chatbox, tu peux remplir le bloc avec du
-    blanc ? », 30 octobre. Il était transparent : la chatbox flottait
-    sur le fond brun de la page, seule de son espèce au milieu d'une
-    colonne de cartes.
-
-    Même recette que les catégories et le QEEL — `fond-surface`, un
-    filet de `bord-fin`, `rayon-lg`. Une carte qui se distingue des
-    autres se lit comme une erreur.
-
-    LE REMBOURRAGE HORIZONTAL RESTE À ZÉRO, et c'est voulu : la
-    décision du 8 octobre était que la chatbox commence et finisse où
-    commencent et finissent les catégories. Le bord de la carte est
-    maintenant visible, donc l'alignement se voit — c'est exactement
-    ce qu'on cherchait alors sans pouvoir le montrer.
-
-    `overflow: hidden` pour que la chatbox, qui a son propre cadre,
-    ne dépasse pas des coins arrondis. */
-#modernbb .panel:has(> #chatbox_top) {
-  overflow: hidden;
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
-}
 
 /*  ════════════════════════════════════════════════════════════════
     LES DEUX BARRES DE LIENS DE L'INDEX
@@ -7014,7 +7009,12 @@ html#min-width {
 #modernbb .wm-membres__outils {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  /*  `flex-end` ET PAS `center` : le champ de recherche porte une
+      étiquette au-dessus depuis le 30 octobre, donc il est plus haut
+      que les listes. Centrés, ils flottaient au milieu de sa hauteur
+      totale, étiquette comprise — « à la même hauteur » veut dire
+      alignés sur le CHAMP, pas sur le bloc. */
+  align-items: flex-end;
   gap: var(--wm-espace-12, 12px);
   margin: 0 0 var(--wm-espace-20, 20px);
   padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
@@ -7035,7 +7035,13 @@ html#min-width {
     pas un réglage de la recherche, ce sont trois pages. Les coller à
     la recherche laissait croire qu'ils la filtraient. */
 #modernbb .wm-membres__recherche { order: 0; }
-#modernbb .wm-membres__tri       { order: 1; margin-left: auto; }
+
+/*  LE TRI COLLE À LA RECHERCHE. Il avait `margin-left: auto`, donc il
+    partait au bord droit et les deux listes se retrouvaient loin du
+    champ auquel elles s'appliquent. « Dernière visite et décroissant
+    doivent être rapprochés de la recherche, à la même hauteur »,
+    30 octobre. */
+#modernbb .wm-membres__tri { order: 1; }
 
 #modernbb .wm-membres__modes {
   order: 2;
@@ -7068,16 +7074,29 @@ html#min-width {
 #modernbb .wm-membres__recherche {
   position: relative;
   display: flex;
-  flex: 1 1 280px;
-  align-items: center;
-  max-width: 420px;
+  flex: 0 1 300px;
+  flex-direction: column;
+  max-width: 360px;
+}
+
+#modernbb .wm-membres__recherche-nom {
+  margin-bottom: var(--wm-espace-6, 6px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
 }
 
 /*  LA LOUPE. Un pseudo-élément plutôt qu'une image : rien à charger,
     rien à maintenir, et elle suit la couleur du texte. */
+/*  LA LOUPE SE POSE SUR LE CHAMP, pas sur le bloc : l'étiquette est
+    au-dessus, donc un centrage vertical sur le bloc la mettrait dans
+    le mot. On l'ancre depuis le BAS, où le champ est. */
 #modernbb .wm-membres__recherche::before {
   content: "";
   position: absolute;
+  bottom: 14px;
   left: 15px;
   width: 11px;
   height: 11px;
@@ -7089,8 +7108,8 @@ html#min-width {
 #modernbb .wm-membres__recherche::after {
   content: "";
   position: absolute;
+  bottom: 13px;
   left: 25px;
-  top: 25px;
   width: 6px;
   height: 1.5px;
   transform: rotate(45deg);
@@ -7136,10 +7155,23 @@ html#min-width {
 /*  LE TRI PREND LE RESSORT. C'est lui qui s'étire entre la recherche et
     les modes : le ressort de la maquette est du vide, et du vide qui
     porte quelque chose vaut mieux que du vide. */
+/*  `flex-end` ET PAS `center` : le « OK » de ModernBB arrive avec une
+    marge à lui — 44 px de haut mesurés pour 32 de contrôle — et il
+    emportait la rangée. Centrées dedans, les deux listes finissaient
+    six pixels au-dessus du champ de recherche.
+
+    On aligne par le bas, et on retire la marge. Les deux ensemble :
+    l'alignement tient même si ModernBB change son rembourrage, et la
+    rangée ne fait plus 44 pour rien. */
 #modernbb .wm-membres__tri {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-membres__tri select,
+#modernbb .wm-membres__tri .button2 {
+  margin: 0;
 }
 
 /*  `{L_ORDER_OR_SELECT}` N'EST PAS UN TITRE, C'EST UNE PHRASE :
@@ -7205,13 +7237,28 @@ html#min-width {
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 
-/*  LA FLÈCHE A SA PLACE. 28 px à droite : 12 de rembourrage comme à
-    gauche, plus les 16 que le navigateur prend pour dessiner le
-    chevron. Sans ça, « Dernière visite » et « Décroissant » — les deux
-    options les plus longues, donc celles qui décident de la largeur —
-    venaient buter dedans. */
+/*  ── LA FLÈCHE EST À NOUS, PARCE QUE CELLE DU SYSTÈME NE BOUGE PAS ─
+
+    Premier essai : `padding-right: 28px`. Ça écarte le TEXTE, pas la
+    flèche — macOS la dessine collée au bord droit du contrôle, et
+    aucun rembourrage ne l'en décolle. « Il manque un padding à droite
+    de la flèche, toujours », 30 octobre, après ce premier essai.
+
+    On éteint donc l'apparence native et on dessine le chevron
+    soi-même, en fond : `right 12px center` lui donne les mêmes 12 px
+    que le texte a de l'autre côté.
+
+    Le SVG est une donnée, pas une image allée chercher ailleurs — le
+    garde-fou n° 10 interdit à une feuille d'aller chercher un fichier,
+    et un `data:` n'en est pas un. `currentColor` ne marche pas dans un
+    `data:`, donc la couleur est écrite : c'est `texte-doux`, et elle
+    vaut pour les deux thèmes. */
 #modernbb .wm-membres__tri select {
-  padding-right: 28px;
+  appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236e5749' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
 }
 
 /*  UNE LISTE EST LARGE DE SA PLUS LONGUE OPTION, et celles-ci
