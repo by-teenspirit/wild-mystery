@@ -646,6 +646,43 @@ html,
   resize: vertical;
 }
 
+/*  ── LA FLÈCHE D'UNE LISTE DÉROULANTE EST À NOUS ───────────────────
+
+    « Pourquoi sur chacun des champs de sélection il manque un padding
+    à droite de la flèche ? », 30 octobre. Sur CHACUN : ce n'est pas un
+    défaut de la liste des membres, c'est celui de la règle ci-dessus.
+
+    Elle donne à chaque `select` un filet, un arrondi et une surface —
+    et laisse le navigateur dessiner sa flèche, qu'il colle au bord
+    droit du contrôle. Sans bordure, personne ne le remarque ; avec la
+    nôtre, le chevron vient buter dedans.
+
+    LE REMBOURRAGE N'Y PEUT RIEN, et c'est ce que j'ai essayé d'abord
+    sur la liste des membres : `padding-right` écarte le TEXTE, pas le
+    chevron du système. Il faut éteindre l'apparence native et le
+    dessiner soi-même.
+
+    `right 12px center` lui donne les mêmes 12 px que le texte a de
+    l'autre côté, et les 34 de rembourrage lui laissent la place sans
+    que la dernière lettre passe dessous.
+
+    LE SVG EST UNE DONNÉE, PAS UN FICHIER. Le garde-fou n° 7 interdit à
+    une feuille d'aller chercher quelque chose ailleurs ; un `data:`
+    n'est pas une requête, et le garde-fou l'a appris le même jour.
+    `currentColor` n'est pas lisible dans un `data:`, donc la couleur
+    est écrite — `texte-doux`, qui tient dans les deux thèmes.
+
+    `[multiple]` ET `[size]` SONT EXCLUS : ce ne sont pas des listes
+    déroulantes mais des boîtes à choix, elles n'ont aucune flèche à
+    remplacer et l'image se répéterait dans leur coin. */
+#modernbb select:not([multiple]):not([size]) {
+  appearance: none;
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236e5749' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
 #modernbb ::placeholder {
   color: var(--wm-texte-pale, #69564c);
   opacity: 1; /* Firefox le descend à 0.54 sans ça, et ça passe sous 4,5:1 */

@@ -1011,6 +1011,13 @@ function pageDuGroupe({ moderation = false, membres = 5 } = {}) {
     "switch_count_users_group.L_GROUP_COUNT": "Membres",
     "switch_count_users_group.GROUP_COUNT": "12",
     PAGINATION: "<span>Page <strong>1</strong> sur 1</span>",
+    L_JUMP_TO: "Aller à",
+    L_GO: "Ok",
+    //  LE SAUT DE FORUM : une liste déroulante qui n'est dans AUCUNE
+    //  de nos rangées d'outils. C'est elle qui prouve que la flèche
+    //  est traitée au socle et pas page par page.
+    S_JUMPBOX_SELECT: '<select name="f"><option>Zones Palier 1</option>' +
+      "<option>Montagnes Embrumées</option></select>",
   };
   return t.replace(/\{([\w.]+)\}/g, (_, n) => g[n] ?? "");
 }
@@ -1070,6 +1077,25 @@ const groupe = await grp.evaluate(() => {
     //  ET CE QUI SERT À MODÉRER EST TOUJOURS LÀ.
     cases: document.querySelectorAll('input[name="members[]"]').length,
     retirer: document.querySelector(".wm-groupe__retirer") !== null,
+    //  ── LA FLÈCHE EST TRAITÉE AU SOCLE ────────────────────────
+    //
+    //  « Sur CHACUN des champs de sélection il manque un padding à
+    //  droite de la flèche », 30 octobre. Le défaut n'était pas dans
+    //  la liste des membres mais dans la règle des formulaires du
+    //  socle, qui habille tous les `select` et laissait le navigateur
+    //  coller sa flèche au bord.
+    //
+    //  Cette page porte le saut de forum — une liste qui n'est dans
+    //  AUCUNE de nos rangées d'outils. Si elle a la flèche, c'est que
+    //  le socle la donne à toutes.
+    flecheAuSocle: [...document.querySelectorAll("select")].every((e) => {
+      const st = getComputedStyle(e);
+      return (st.appearance === "none" || st.webkitAppearance === "none") &&
+        st.backgroundImage.startsWith("url(") &&
+        st.backgroundPosition.includes("12px") &&
+        parseFloat(st.paddingRight) >= 30;
+    }),
+    listes: document.querySelectorAll("select").length,
   };
 });
 await grp.close();
@@ -1093,6 +1119,11 @@ dire(
   groupe !== null && groupe.cartes === 6 && groupe.colonnes >= 3 &&
     groupe.hauteurs.every((g) => g.length === 1) && groupe.deborde <= 1,
   JSON.stringify(groupe),
+);
+dire(
+  "TOUTE LISTE DU FORUM A NOTRE FLÈCHE, PAS SEULEMENT CELLES DU TRI",
+  groupe !== null && groupe.listes >= 1 && groupe.flecheAuSocle,
+  `${groupe?.listes} liste(s) sur cette page`,
 );
 dire(
   "LE MODÉRATEUR SE DISTINGUE, ET LA MODÉRATION GARDE SES OUTILS",

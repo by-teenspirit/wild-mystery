@@ -27,6 +27,10 @@ set -u
 RACINE="https://by-teenspirit.github.io/wild-mystery"
 BRANCHE="socle-v2"
 FICHIERS=("css/wild-mystery.css" "js/wild-mystery.js")
+#  La page du forum qu'on interroge pour savoir OÙ il va chercher sa
+#  feuille. N'importe laquelle ferait l'affaire : l'adresse est dans
+#  overall_header, donc sur toutes.
+FORUM="https://mysteryinrhode.forumactif.com/"
 
 cd "$(dirname "$0")/.." || exit 1
 
@@ -116,6 +120,51 @@ photo () {
       gris "ici $locale · servi $servie"; printf '\n'
       souci=1
     fi
+  done
+
+  # ── 5 · le forum va-t-il le chercher au bon endroit ? ────────────
+  #
+  #  LE TROU QUE CE SCRIPT AVAIT. Il vérifiait que Pages sert le bon
+  #  fichier, jamais que le FORUM le demande. Le 30 octobre, il a
+  #  annoncé « tout est en ligne » pendant que rien ne changeait sur
+  #  le forum — et c'est exactement ce qu'il ne savait pas voir.
+  #
+  #  Le piège a un nom : jsDelivr fige la résolution d'une branche
+  #  (voir templates/OU-POINTER-LE-CDN.md). Tant qu'overall_header
+  #  pointe sur `@socle-v2`, Pages peut être parfait, le forum sert du
+  #  vieux.
+  local page adresses
+  page=$(curl -sS --max-time 25 "$FORUM" 2>/dev/null)
+  printf '  '
+  if [ -z "$page" ]; then
+    gris "· le forum ne répond pas d'ici, on ne peut pas savoir où il pointe"
+    printf '\n'
+    return $souci
+  fi
+
+  #  On ne lit que les adresses qui portent notre nom de dépôt.
+  adresses=$(grep -oE '(https?:)?//[^"'"'"' ]*wild-mystery[^"'"'"' ]*\.(css|js)' <<< "$page" | sort -u)
+  if [ -z "$adresses" ]; then
+    rouge "✗"; printf ' le forum ne charge NI la feuille NI le script\n'
+    return 1
+  fi
+
+  local a
+  for a in $adresses; do
+    printf '  '
+    case "$a" in
+      *by-teenspirit.github.io*)
+        vert "✓"; printf ' le forum lit Pages  '; gris "$a"; printf '\n' ;;
+      *jsdelivr*@"$BRANCHE"*)
+        rouge "✗"; printf ' le forum lit jsDelivr SUR UNE BRANCHE — '
+        printf 'cette adresse se fige et aucune purge ne la refait\n'
+        gris "        $a"; printf '\n'
+        gris "        à remplacer dans overall_header par $RACINE/…"; printf '\n'
+        souci=1 ;;
+      *)
+        jaune "•"; printf ' adresse inattendue  '; gris "$a"; printf '\n'
+        souci=1 ;;
+    esac
   done
 
   return $souci
