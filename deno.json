@@ -36,7 +36,8 @@
     "etat": "bash outils/etat.sh",
     "apercu": "deno run -A outils/sujet.mjs --apercu",
     "a-publier": "deno run -A outils/a-publier.mjs",
-    "membres": "deno run -A outils/membres.mjs"
+    "membres": "deno run -A outils/membres.mjs",
+    "tcard": "deno run -A outils/tcard.mjs"
   },
   "fmt": {
     "include": [

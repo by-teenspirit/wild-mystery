@@ -1,0 +1,144 @@
+<!-- ══════════════════════════════════════════════════════════════════
+     LA CARTE DRESSEUR — le code à coller dans un message
+
+     Ce fichier n'est PAS un gabarit Forumactif : il ne va pas dans
+     Affichage > Templates. C'est le code qu'un joueur copie dans son
+     message, et que tu postes dans « Code des fiches ».
+
+     ── CE QUE LE JOUEUR REMPLIT, ET CE QUI SE REMPLIT TOUT SEUL ─────
+
+     À LA MAIN, trois choses, et rien d'autre :
+       · l'adresse de son avatar,
+       · son nom de personnage,
+       · son numéro de dresseur.
+
+     PAR NOTRE CODE, quand `mod-tcard` sera en ligne :
+       · le palier, qui est son groupe sur le forum,
+       · les pokédollars, qui sont un champ de son profil,
+       · les badges obtenus, qui sont ses récompenses Forumactif,
+       · l'équipe, qui vient de Supabase.
+
+     Les valeurs écrites ici sont donc des valeurs d'attente : elles
+     s'affichent tant que le script ne tourne pas, et il les remplace
+     dès qu'il tourne. Une carte collée aujourd'hui marchera demain
+     sans que personne n'y retouche.
+
+     ── CE QU'IL NE FAUT PAS ENLEVER ────────────────────────────────
+
+     Les attributs `data-wm-…`. Ce sont eux que le script cherche ;
+     une carte sans eux reste jolie et reste fausse.
+
+     ── AUCUNE ADRESSE D'IMAGE DANS LES BADGES, ET C'EST VOULU ──────
+
+     Un code collé dans un message y reste pour toujours. Si les sept
+     badges portaient une adresse en dur, changer d'hébergeur voudrait
+     dire réécrire tous les messages de tous les joueurs. Le badge ne
+     porte donc que son nom (`data-wm-badge`) ; l'image est posée par
+     notre script, dont l'adresse, elle, se change en un endroit.
+
+     ── SEPT BADGES, PAS HUIT ───────────────────────────────────────
+
+     La planche « Mon jeu » en dessine huit, avec des noms qui ne sont
+     pas ceux de Rhode (Portevent, Orion…). Les arènes réelles, celles
+     des annexes et du dossier `img/badges/`, sont sept : Station
+     Service, Samaragd, Port-Amarée, Suerebe, Pyrite, Tour Titanite et
+     Île Ténèbra. Les quatre colosseums ne comptent pas pour la Ligue.
+
+     ── POUR MARQUER UN BADGE COMME OBTENU, À LA MAIN ───────────────
+
+     Enlever `wm-tcard__badge--agagner` de sa ligne. C'est tout.
+     ══════════════════════════════════════════════════════════════════ -->
+
+<!-- ▼▼▼ DÉBUT DU CODE À COPIER ▼▼▼ -->
+<div class="wm-tcard" data-wm-tcard>
+
+  <div class="wm-dresseur">
+    <img class="wm-dresseur__avatar" src="ADRESSE DE TON AVATAR" alt="" />
+
+    <div class="wm-dresseur__infos">
+      <p class="wm-dresseur__identite">
+        <span class="wm-dresseur__nom">TON PERSONNAGE</span>
+        <span class="wm-dresseur__numero">Dresseur nº 0000</span>
+      </p>
+    </div>
+
+    <ul class="wm-tcard__compteurs">
+      <li class="wm-tcard__compteur">
+        <span class="wm-tcard__chiffre" data-wm-tcard-palier>1</span>
+        <span class="wm-tcard__libelle">palier</span>
+      </li>
+      <li class="wm-tcard__compteur">
+        <span class="wm-tcard__chiffre" data-wm-tcard-argent>0</span>
+        <span class="wm-tcard__libelle">pokédollars</span>
+      </li>
+      <li class="wm-tcard__compteur">
+        <span class="wm-tcard__chiffre" data-wm-tcard-compte>0 / 7</span>
+        <span class="wm-tcard__libelle">badges</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="wm-tcard__corps">
+
+    <section class="wm-tcard__bloc">
+      <h4 class="wm-tcard__titre">Mon équipe</h4>
+      <ul class="wm-tcard__equipe" data-wm-tcard-equipe>
+        <li class="wm-tcard__pkmn wm-tcard__pkmn--libre">
+          <span class="wm-tcard__sprite"></span>
+          <p class="wm-tcard__libre">Place libre</p>
+        </li>
+        <li class="wm-tcard__pkmn wm-tcard__pkmn--libre">
+          <span class="wm-tcard__sprite"></span>
+          <p class="wm-tcard__libre">Place libre</p>
+        </li>
+        <li class="wm-tcard__pkmn wm-tcard__pkmn--libre">
+          <span class="wm-tcard__sprite"></span>
+          <p class="wm-tcard__libre">Place libre</p>
+        </li>
+        <li class="wm-tcard__pkmn wm-tcard__pkmn--libre">
+          <span class="wm-tcard__sprite"></span>
+          <p class="wm-tcard__libre">Place libre</p>
+        </li>
+        <li class="wm-tcard__pkmn wm-tcard__pkmn--libre">
+          <span class="wm-tcard__sprite"></span>
+          <p class="wm-tcard__libre">Place libre</p>
+        </li>
+        <li class="wm-tcard__pkmn wm-tcard__pkmn--libre">
+          <span class="wm-tcard__sprite"></span>
+          <p class="wm-tcard__libre">Place libre</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="wm-tcard__bloc">
+      <h4 class="wm-tcard__titre">Mes badges</h4>
+      <ul class="wm-tcard__badges" data-wm-tcard-badges>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-station-service" title="Station Service"></li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-samaragd" title="Samaragd"></li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-port-amaree" title="Port-Amarée"></li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-suerebe" title="Suerebe"></li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-pyrite" title="Pyrite"></li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-tour-titanite" title="Tour Titanite"></li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-ile-tenebra" title="Île Ténèbra"></li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+<!-- ▲▲▲ FIN DU CODE À COPIER ▲▲▲ -->
+
+<!-- ══════════════════════════════════════════════════════════════════
+     UNE CASE D'ÉQUIPE REMPLIE, pour le joueur qui veut la tenir à la
+     main en attendant le script. À mettre à la place d'une
+     « Place libre ». Le type s'écrit en minuscules sans accent dans
+     la classe (`wm-type--eau`), et en toutes lettres dans le texte —
+     le nom est toujours écrit, jamais remplacé par la couleur.
+
+<li class="wm-tcard__pkmn">
+  <img class="wm-tcard__sprite" src="ADRESSE DU SPRITE" alt="" />
+  <p class="wm-tcard__nom">Galopa</p>
+  <p class="wm-tcard__niveau">niv. 22</p>
+  <span class="wm-type wm-type--feu">Feu</span>
+</li>
+
+     ══════════════════════════════════════════════════════════════════ -->

@@ -1,0 +1,339 @@
+/* ════════════════════════════════════════════════════════════════════
+   18 · LA CARTE DRESSEUR
+
+   « On n'a pas fait la trainer card mais j'aimerai en faire une »,
+   30 octobre. Elle n'est dans aucune planche : la maquette dessine
+   « 25 · Le carnet de bord · Mon jeu », qui est une PAGE — une carte
+   d'identité, une équipe et des badges dans trois blocs séparés, avec
+   la colonne du carnet autour. Ici il faut la même matière dans UN
+   bloc, collé dans un message, large de ce que le message laisse.
+
+   Ce qu'elle montre, décidé le 30 : identité, avatar, palier,
+   pokédollars, badges obtenus, équipe. **Pas les RP en cours** — c'est
+   le seul compteur de la maquette qui a été retiré.
+
+   ── CE QU'ELLE NE RÉINVENTE PAS ───────────────────────────────────
+
+   L'en-tête est `.wm-dresseur`, le bandeau d'identité déjà écrit en
+   `13-composants.css` §14 : avatar, nom, numéro. Le redessiner ici
+   ferait deux bandes d'identité à tenir d'accord, et la seconde
+   dériverait. Cette feuille n'ajoute que ce que le bandeau n'a pas :
+   les trois compteurs à sa droite.
+
+   Les pastilles de type sont `.wm-type` (§2). Les cases d'équipe
+   reprennent la mesure de `.wm-profil__case` — 56 px, le relevé de la
+   maquette `305:24` — plutôt qu'une troisième taille de sprite.
+
+   ── OÙ ELLE VIT ───────────────────────────────────────────────────
+
+   Dans `.postbody`, qui fait 714 px sur la page d'un sujet. Tout est
+   en `flex: 1 1 0` ou en retour à la ligne : la carte est aussi
+   collable dans une signature, un message privé ou une annexe, qui
+   n'ont pas cette largeur.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la carte ─────────────────────────────────────────────────── */
+
+/*  `overflow: hidden` porte le rayon sur l'en-tête : le bandeau est à
+    fond perdu contre les bords, il n'a pas de rayon à lui. */
+#modernbb .wm-tcard {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  margin: var(--wm-espace-18, 18px) 0;
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+}
+
+/*  LE BANDEAU SE REPLIE SUR LA LARGEUR DU CONTENEUR, pas sur celle
+    de l'écran. Une requête de média aurait regardé la fenêtre ; or la
+    carte est collable dans une signature ou un message privé, qui
+    sont étroits sur un écran large. `flex-wrap` ici et sur les
+    compteurs suffit : les trois chiffres prennent leur ligne dès que
+    le nom et eux ne tiennent plus ensemble, où que ce soit.
+
+    IL N'Y A RIEN D'AUTRE ICI. Un `width: auto` avait été posé pour
+    rattraper le `width: 100%` que `.wm-dresseur` porte depuis le
+    carnet — sur la supposition qu'avec la bordure de la carte il
+    dépassait d'un pixel. Il ne dépassait pas : retirée, la règle ne
+    faisait tomber aucun contrôle. `box-sizing: border-box` suffit. */
+#modernbb .wm-tcard > .wm-dresseur {
+  flex-wrap: wrap;
+}
+
+/* ── 2 · les trois compteurs ──────────────────────────────────────── */
+
+/*  Ils vivent DANS le bandeau, à droite de `.wm-dresseur__infos` qui
+    est en `flex: 1 1 auto` — c'est lui le ressort, il n'y en a pas à
+    ajouter.
+
+    La maquette de « Mon jeu » en pose trois de cette forme exacte :
+    un chiffre en serif, une étiquette en capitales dessous. On garde
+    la forme et on change le troisième : « RP en cours » sort, les
+    badges prennent sa place. */
+#modernbb .wm-tcard__compteurs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-20, 20px);
+  list-style: none;
+}
+
+#modernbb .wm-tcard__compteur {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-2, 2px);
+  text-align: center;
+}
+
+/*  UN FILET ENTRE LES COMPTEURS, ET PAS DE GAP DOUBLÉ. Le séparateur
+    est une bordure gauche portée par les suivants : trois chiffres
+    côte à côte sans rien entre eux se lisent comme un seul nombre. */
+#modernbb .wm-tcard__compteur + .wm-tcard__compteur {
+  padding-left: var(--wm-espace-20, 20px);
+  border-left: 1px solid color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 20%, transparent);
+}
+
+#modernbb .wm-tcard__chiffre {
+  display: block;
+  margin: 0;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-chiffre, 20px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-chiffre, 1.15);
+  white-space: nowrap;
+}
+
+/*  L'étiquette est à 78 % et pas à 100 : sur le dégradé sombre, deux
+    blancs pleins l'un sous l'autre se disputent la ligne. C'est le
+    même arbitrage que `.wm-dresseur__xp`, qui est à 85 — plus bas
+    ici parce que le texte est plus petit et en capitales. */
+#modernbb .wm-tcard__libelle {
+  display: block;
+  margin: 0;
+  opacity: 0.78;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── 3 · le corps et ses sections ─────────────────────────────────── */
+
+#modernbb .wm-tcard__corps {
+  display: flex;
+  flex-direction: column;
+  padding: var(--wm-espace-18, 18px);
+  gap: var(--wm-espace-18, 18px);
+}
+
+/*  UN FILET ENTRE DEUX SECTIONS, JAMAIS AU-DESSUS DE LA PREMIÈRE.
+    `+` et pas `:not(:first-child)` : si un jour une section est
+    masquée, le filet suit la section visible qui la précède. */
+#modernbb .wm-tcard__bloc + .wm-tcard__bloc {
+  padding-top: var(--wm-espace-18, 18px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-tcard__titre {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-surtitre, 1.4);
+  text-transform: uppercase;
+}
+
+/* ── 4 · l'équipe ─────────────────────────────────────────────────── */
+
+/*  SIX CASES, TOUJOURS SERVIES. Même raison que la colonne de profil
+    d'un sujet : une carte sans JavaScript montre une équipe vide, ce
+    qui est vrai, plutôt qu'un bloc absent.
+
+    `flex: 1 1 0` et pas une largeur : la carte est collable dans une
+    signature ou un message privé, qui ne font pas 714 px. Les six se
+    partagent ce qu'il y a, et passent à la ligne sous 96 px chacune. */
+#modernbb .wm-tcard__equipe {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+#modernbb .wm-tcard__pkmn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  flex: 1 1 0;
+  min-width: 96px;
+  padding: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-4, 4px);
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  LA CASE LIBRE SE RECONNAÎT À SON CADRE, pas à sa teinte. Trois
+    crèmes voisines ne se distinguent pas — c'est la règle qui tient
+    déjà les trois états du Pokédex (§11) et les cases du profil. */
+#modernbb .wm-tcard__pkmn--libre {
+  justify-content: center;
+  border: 1px dashed var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  56 px, la mesure de la maquette `305:24` pour un sprite dans un
+    message. `pixelated` : ce sont des sprites, un lissage les rend
+    flous. */
+#modernbb .wm-tcard__sprite {
+  display: block;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/*  La case libre garde la hauteur d'une case pleine : sans ça, une
+    équipe de deux donnerait une rangée en dents de scie. */
+#modernbb .wm-tcard__pkmn--libre .wm-tcard__sprite {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-bord-net, #d9c3b1) 55%, transparent);
+  transform: scale(0.32);
+}
+
+#modernbb .wm-tcard__nom {
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modernbb .wm-tcard__niveau {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
+/*  LA PASTILLE DE TYPE RÉTRÉCIT, et seulement ici. `.wm-type` est
+    dessinée pour une fiche ; six d'affilée dans 96 px de large
+    déborderaient. On ne touche qu'aux mesures — les paires
+    fond/texte, validées à 4,5:1, restent celles du composant. */
+#modernbb .wm-tcard__pkmn .wm-type {
+  padding: 3px var(--wm-espace-8, 8px) 3px var(--wm-espace-6, 6px);
+  gap: 4px;
+  font-size: 9px;
+}
+
+#modernbb .wm-tcard__pkmn .wm-type::before {
+  width: 7px;
+  height: 7px;
+}
+
+/*  LE MOT D'UNE CASE LIBRE. Il remplace le nom et le niveau, donc il
+    doit tenir la même place : sans lui, une case libre serait plus
+    courte que ses voisines et la rangée se décalerait. */
+#modernbb .wm-tcard__libre {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-align: center;
+}
+
+/* ── 5 · les badges ───────────────────────────────────────────────── */
+
+/*  HUIT, OBTENUS ET À GAGNER. Montrer seulement les trois obtenus
+    dirait « trois badges » ; montrer les huit dit « trois sur huit »,
+    qui est l'information. C'est aussi ce que fait la maquette.
+
+    Les colosseums ne sont pas là : « Les huit ouvrent la Ligue — les
+    colosseums, eux, ne comptent pas », planche 25. */
+#modernbb .wm-tcard__badges {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  list-style: none;
+}
+
+#modernbb .wm-tcard__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-tcard__badge img {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/*  UN BADGE À GAGNER N'EST PAS UN BADGE PÂLE : c'est un creux. Le
+    pointillé et le fond de page le disent avant la couleur, pour les
+    mêmes raisons que la case libre. Le `grayscale` vient en plus,
+    jamais à la place. */
+#modernbb .wm-tcard__badge--agagner {
+  border: 1px dashed var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-tcard__badge--agagner img {
+  opacity: 0.26;
+  filter: grayscale(1);
+}
+
+/* ── 6 · à l'étroit ───────────────────────────────────────────────── */
+
+/*  LE REPLI EST DÉJÀ FAIT PLUS HAUT, par `flex-wrap`, et il vaut pour
+    une colonne étroite sur un grand écran — c'est le cas d'une
+    signature. Il ne reste ici que ce qui dépend vraiment de la taille
+    de l'écran : sur un téléphone, les 18 px de rembourrage du corps
+    mangent une part visible de la largeur.
+
+    « On touche à rien pour la version mobile » vaut pour les gabarits
+    mobiles de Forumactif, qui sont d'autres fichiers ; celui-ci est
+    la même carte, servie plus serrée. */
+@media (max-width: 760px) {
+  #modernbb .wm-tcard__corps {
+    padding: var(--wm-espace-14, 14px);
+    gap: var(--wm-espace-14, 14px);
+  }
+}
