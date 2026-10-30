@@ -1135,6 +1135,162 @@ dire(
   }),
 );
 
+// ── LA LISTE DES GROUPES ───────────────────────────────────────────
+//
+//  `groupcp_user_body`, `/groups`. Le décor sert les deux formes
+//  possibles de « mes groupes » : Forumactif rend
+//  `{GROUP_MEMBER_SELECT_NEW}` tout fait, et son suffixe `_NEW`
+//  annonce qu'il a changé de forme depuis l'ancien — ce peut être une
+//  liste déroulante, ce peut être une liste de liens. Le forum n'a pas
+//  pu être relevé, le proxy le bloque. Une règle qui ne tiendrait que
+//  pour une des deux ne tiendrait pour aucune.
+
+function pageDesGroupes({ liens = true } = {}) {
+  let t = readFileSync(R + "templates/groupcp_user_body.nouveau.html", "utf8");
+  for (
+    const nom of [
+      "switch_groups_joined",
+      "switch_groups_member",
+      "switch_groups_pending",
+      "switch_groups_remaining",
+      "switch_display_groups_all",
+    ]
+  ) t = gardeBloc(t, nom);
+
+  const GROUPES = [
+    ["Ho-Oh", "#B56A45", "Ouvert", "14 membres"],
+    ["Reshiram", "#A37341", "Fermé", "6 membres"],
+    ["Deoxys", "#46849C", "Ouvert", "12 membres"],
+    ["Xerneas", "#4C8A52", "Ouvert", "9 membres"],
+    ["Zamazenta", "#B06692", "Caché", "4 membres"],
+    ["Mew", "#6F79B8", "Ouvert", "21 membres"],
+  ];
+  t = repeteBloc(t, "group_details", GROUPES.length);
+  let i = 0;
+  t = t.replace(
+    /\{switch_display_groups_all\.group_details\.(\w+)\}/g,
+    (_, nom) => {
+      const [n, c, st] = GROUPES[i % GROUPES.length];
+      if (nom === "U_GROUP") return `/g${i + 1}`;
+      if (nom === "GROUP_STYLE") return `style="color:${c}"`;
+      if (nom === "GROUP_NAME") return n;
+      if (nom === "GROUP_ICON") return "";
+      if (nom === "GROUP_STATUS") return st;
+      if (nom === "NB_GROUP_MEMBERS") {
+        const v = GROUPES[i % GROUPES.length][3];
+        i++;
+        return v;
+      }
+      return "";
+    },
+  );
+
+  //  LES DEUX FORMES DE « MES GROUPES ». Des liens d'un côté, une
+  //  liste déroulante de l'autre — et on monte la page deux fois.
+  const miens = liens
+    ? '<ul class="noList"><li><a class="usr_grp_clr" href="/g1" ' +
+      'style="color:#B56A45">Ho-Oh</a></li>' +
+      '<li><a class="usr_grp_clr" href="/g3" style="color:#46849C">' +
+      "Deoxys</a></li></ul>"
+    : '<select name="g"><option>Ho-Oh</option><option>Deoxys</option></select>';
+  const attente = liens
+    ? '<ul class="noList"><li><a href="/g2">Reshiram</a></li></ul>'
+    : '<select name="p"><option>Reshiram</option></select>';
+
+  t = t.replace(/<script[\s\S]*?<\/script>/g, "");
+  const g = {
+    L_USERGROUPS: "Groupes d'utilisateurs",
+    L_YOU_BELONG_GROUPS: "Vous appartenez à ces groupes",
+    L_PENDING_GROUPS: "Demandes en attente",
+    L_SELECT_A_GROUP: "Rejoindre un groupe",
+    L_VIEW_INFORMATION: "Voir",
+    GROUP_MEMBER_SELECT_NEW: miens,
+    GROUP_PENDING_SELECT_NEW: attente,
+    GROUP_LIST_SELECT: '<select name="g"><option>Xerneas</option><option>Mew</option></select>',
+    U_USERGROUP_ACTION: "/groups",
+    S_HIDDEN_FIELDS: "",
+    "switch_display_groups_all.L_ALL_GROUPS": "TOUS LES GROUPES",
+    L_JUMP_TO: "Aller à",
+    L_GO: "Ok",
+    S_JUMPBOX_SELECT: '<select name="f"><option>Zones Palier 1</option></select>',
+  };
+  return t.replace(/\{([\w.]+)\}/g, (_, n) => g[n] ?? "");
+}
+
+for (const liens of [true, false]) {
+  const lst = await nav.newPage({ viewport: { width: 1280, height: 1200 } });
+  await lst.setContent(page(pageDesGroupes({ liens })), { waitUntil: "load" });
+  const forme = liens ? "en liens" : "en liste déroulante";
+
+  const liste = await lst.evaluate(() => {
+    const outils = document.querySelector(".wm-groupes__outils");
+    const cartes = [...document.querySelectorAll(".wm-groupes__carte")];
+    const mien = document.querySelector(".wm-groupes__champ--mien");
+    if (outils === null || mien === null) return null;
+    const r = (e) => e.getBoundingClientRect();
+    const h = (e) => Math.round(r(e).height);
+    const rejoindre = [...outils.querySelectorAll(".wm-groupes__champ")]
+      .find((e) => e.classList.contains("wm-groupes__champ--mien") === false);
+    return {
+      //  LA GRILLE DE CARTES.
+      cartes: cartes.length,
+      colonnes: new Set(cartes.map((c) => Math.round(r(c).x))).size,
+      hauteurs: [...new Set(cartes.map(h))],
+      //  LE NOM GARDE LA COULEUR DE SON GROUPE.
+      couleurs: [
+        ...new Set(
+          cartes.map((c) => getComputedStyle(c.querySelector(".wm-groupes__nom")).color),
+        ),
+      ].length,
+      //  LE LIEN COUVRE LA CARTE : sa zone cliquable fait la carte.
+      zoneCliquable: (() => {
+        const c = cartes[0];
+        const a = c.querySelector(".wm-groupes__nom");
+        const z = getComputedStyle(a, "::after");
+        return z.position === "absolute" && z.content !== "none";
+      })(),
+      //  MES GROUPES PRENNENT LA LIGNE ENTIÈRE, au-dessus de
+      //  « rejoindre », qui est une action et pas un renseignement.
+      //  `clientWidth` ET PAS `getBoundingClientRect().width` : le
+      //  second compte les bordures, et la carte en a une de chaque
+      //  côté. Mesuré 1 158 pour 1 160 attendus — deux pixels, les
+      //  deux filets, et le contrôle criait au loup.
+      mienPleineLigne: Math.round(r(mien).width) >=
+        outils.clientWidth -
+          parseFloat(getComputedStyle(outils).paddingLeft) -
+          parseFloat(getComputedStyle(outils).paddingRight) - 1,
+      mienDessus: rejoindre === undefined ||
+        Math.round(r(mien).bottom) <= Math.round(r(rejoindre).top) + 1,
+      //  ET RIEN NE DÉBORDE, quelle que soit la forme servie.
+      deborde: Math.max(
+        0,
+        ...[...outils.querySelectorAll("*")].map((e) =>
+          Math.round(r(e).right) - Math.round(r(outils).right)
+        ),
+      ),
+    };
+  });
+  await lst.close();
+
+  dire(
+    `LES GROUPES SONT UNE GRILLE DE CARTES (${forme})`,
+    liste !== null && liste.cartes === 6 && liste.colonnes >= 3 &&
+      liste.hauteurs.length === 1 && liste.couleurs === 6 &&
+      liste.zoneCliquable,
+    JSON.stringify(liste),
+  );
+  dire(
+    `et « mes groupes » prend sa ligne, sans déborder (${forme})`,
+    liste !== null && liste.mienPleineLigne && liste.mienDessus &&
+      liste.deborde <= 1,
+    JSON.stringify({
+      pleine: liste?.mienPleineLigne,
+      dessus: liste?.mienDessus,
+      deborde: liste?.deborde,
+    }),
+  );
+}
+
 await p.close();
 await nav.close();
 

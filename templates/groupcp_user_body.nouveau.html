@@ -51,14 +51,24 @@
       « rejoindre ». -->
 <div class="wm-groupes__outils">
 	<!-- BEGIN switch_groups_joined -->
+	<!--  MES GROUPES ET MES DEMANDES EN ATTENTE prennent la ligne
+	      entière, au-dessus de « rejoindre un groupe » : ce sont des
+	      RENSEIGNEMENTS — voilà où j'en suis — tandis que le troisième
+	      est une ACTION. Les mettre côte à côte les faisait passer
+	      pour trois réglages du même formulaire.
+
+	      `--mien` les marque pour la feuille : elle y traite aussi
+	      bien une liste de liens qu'une liste déroulante, parce que
+	      `{GROUP_MEMBER_SELECT_NEW}` arrive tout fait de Forumactif et
+	      qu'on ne décide pas de sa forme. -->
 	<!-- BEGIN switch_groups_member -->
-	<div class="wm-groupes__champ">
+	<div class="wm-groupes__champ wm-groupes__champ--mien">
 		<span class="wm-groupes__cle">{L_YOU_BELONG_GROUPS}</span>
 		<span class="wm-groupes__valeur">{GROUP_MEMBER_SELECT_NEW}</span>
 	</div>
 	<!-- END switch_groups_member -->
 	<!-- BEGIN switch_groups_pending -->
-	<div class="wm-groupes__champ">
+	<div class="wm-groupes__champ wm-groupes__champ--mien wm-groupes__champ--attente">
 		<span class="wm-groupes__cle">{L_PENDING_GROUPS}</span>
 		<span class="wm-groupes__valeur">{GROUP_PENDING_SELECT_NEW}</span>
 	</div>
