@@ -1121,7 +1121,13 @@ for (
     "la descente de la bande du bas": 32,
     "la moitié dedans de la carte des votes": 36,
     "la vignette de vote": 26,
-    "la bulle de pré-lien": 75,
+    //  56, LA COTE DU DESSIN — revenue le 30 octobre. Le 75 du 8
+    //  octobre n'était pas une cote mais un remplissage : il existait
+    //  pour qu'une rangée de bulles fasse la hauteur de la carte
+    //  voisine, et dès qu'il y avait plus de six personnages le bloc
+    //  débordait. « Réduis la taille des icônes des pré-liens pour
+    //  qu'elles tiennent sur deux lignes », trois par ligne.
+    "la bulle de pré-lien": 56,
   })
 ) {
   //  ── UN PIXEL DE JEU, ET POURQUOI ────────────────────────────────

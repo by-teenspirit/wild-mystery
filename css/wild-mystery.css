@@ -12948,20 +12948,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     retombe à deux colonnes puis à une, au lieu de déborder. Et
     au-delà de six personnages elle s'allonge vers le bas, ce qui est
     ce qu'on veut — Callista en associe jusqu'à dix. */
-/*  ── 75 ET PLUS 56, PARCE QUE LA HAUTEUR A CHANGÉ ──────────────────
+/*  ── 56, ET ON REVIENT À LA MAQUETTE ───────────────────────────────
 
-    Les bulles valaient les 55,86 de la maquette. Mais le bloc s'aligne
-    maintenant sur la carte des actualités, et deux rangées de 56 y
-    laissaient 38 px de vide en bas : « si tu augmentes la taille des
-    cercles de pré-liens au passage pour que ça corresponde bien ».
+    Trois états successifs, et le dernier est le premier :
 
-    Le chiffre se déduit, il ne se choisit pas : deux rangées et un
-    écart de 15 doivent faire la hauteur de la bande, relevée à 165 sur
-    le forum. (165 − 15) / 2 = 75.
+      · 55,86, la cote du dessin, arrondie à 56 ;
+      · 75 le 8 octobre, « si tu augmentes la taille des cercles de
+        pré-liens au passage pour que ça corresponde bien » — le bloc
+        s'alignait sur la carte des actualités, et deux rangées de 56
+        y laissaient 38 px de vide. Le chiffre se déduisait de la
+        bande : (165 − 15) / 2 = 75 ;
+      · 56 de nouveau le 30 octobre : « réduis la taille des icônes
+        des pré-liens pour qu'elles tiennent sur deux lignes », et
+        trois par ligne.
 
-    `max-width` borne la grille à trois colonnes — 3 × 75 + 2 × 15 =
-    255 — là où `auto-fill` en mettrait quatre dès qu'il y a la place,
-    et la maquette en dessine trois. En dessous, `auto-fill` retombe
+    Le 75 n'était pas une cote, c'était un remplissage : il existait
+    pour qu'une rangée de bulles fasse la hauteur d'une carte voisine.
+    Dès qu'il y a plus de six personnages, deux rangées de 75 ne
+    suffisent plus et le bloc déborde — c'est ce qui se voit
+    aujourd'hui.
+
+    On remet donc la cote du dessin, et c'est la BANDE qui suivra, pas
+    l'inverse. Un bloc dont la taille est dictée par son voisin finit
+    toujours par se faire déborder par son contenu.
+
+    `max-width` borne la grille à trois colonnes — 3 × 56 + 2 × 15 =
+    198, la largeur de la maquette — là où `auto-fill` en mettrait
+    davantage dès qu'il y a la place. En dessous, `auto-fill` retombe
     seul à deux puis à une. */
 #modernbb .wm-accueil__preliens-liste {
   display: grid;
@@ -12976,13 +12989,29 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin: 0;
   padding: 0;
   flex: 1 1 auto;
-  grid-template-columns: repeat(auto-fill, 75px);
-  max-width: 255px;
-  /*  `start` ET PAS `space-between` : la grille est étirée par la
-      bande, et `space-between` répartissait le surplus ENTRE LES
-      RANGÉES — 15 px entre les colonnes, davantage entre les lignes.
-      « Le gap entre les pré-liens doit être égal partout ». */
-  align-content: start;
+  grid-template-columns: repeat(auto-fill, 56px);
+  max-width: 198px;
+  /*  ── NI `start` NI `space-between` : `center` ──────────────────
+
+      `space-between` a été écarté le 8 octobre — la grille est étirée
+      par la bande, et il répartissait le surplus ENTRE LES RANGÉES :
+      15 px entre les colonnes, davantage entre les lignes. « Le gap
+      entre les pré-liens doit être égal partout. »
+
+      `start` l'a remplacé, et c'était juste tant que les bulles de 75
+      remplissaient la bande à elles seules. Avec les 56 du dessin,
+      deux rangées font 127 dans une bande de 188 : 61 px de vide, tout
+      en bas, sous les bulles.
+
+      `center` partage ce reste en haut et en bas. L'écart entre les
+      rangées ne bouge pas — c'est ce que `space-between` ne savait pas
+      faire — et le vide cesse de pendre d'un seul côté.
+
+      Ce n'est pas la réponse complète : la bande est haute parce que
+      la carte des actualités la fait haute, et c'est elle qu'il
+      faudra reprendre. En attendant, le bloc ne se lit plus comme
+      tombé en haut de sa place. */
+  align-content: center;
   justify-content: start;
   gap: 15px;
   list-style: none;
@@ -13017,10 +13046,10 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-accueil__prelien-avatar {
   display: block;
   overflow: hidden;
-  /*  63 + 2 × 5 de retrait + 2 × 1 de filet = 75, la bulle. Les trois
+  /*  44 + 2 × 5 de retrait + 2 × 1 de filet = 56, la bulle. Les trois
       nombres bougent ensemble ou pas du tout. */
-  width: 63px;
-  height: 63px;
+  width: 44px;
+  height: 44px;
   border-radius: 999px;
   background: var(--wm-fond-douce, #f3e1d2);
 }
