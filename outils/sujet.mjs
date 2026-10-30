@@ -24,7 +24,7 @@
 //  comme `zone.mjs` sert `wild-mystery.js`.
 // ════════════════════════════════════════════════════════════════════
 
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "npm:playwright@1.49.1";
 
 //  LE MÊME CHROMIUM QUE LES AUTRES HARNAIS, et la même façon de le
@@ -433,6 +433,97 @@ const page = (corps) =>
 <div id="wrap"><div id="page-body">${corps}</div></div>
 </div>
 </body></html>`;
+
+// ── l'aperçu, pour juger le rendu sans le forum ─────────────────────
+//
+//  « Montre-moi ici à quoi ressemble l'affichage d'un sujet pour qu'on
+//  avance plus vite », 30 octobre.
+//
+//      deno task apercu
+//
+//  écrit `apercu-sujet.html`, une page autonome : le gabarit monté, la
+//  feuille entière, les données du harnais. On l'ouvre et on juge.
+//
+//  ELLE VIT DANS CE FICHIER-CI, et pas à côté. Un second script aurait
+//  recopié tout le décor — les deux auraient divergé dès la première
+//  correction, et l'aperçu aurait fini par montrer autre chose que ce
+//  que le harnais mesure. C'est exactement le défaut qu'on a déjà payé
+//  trois fois cette semaine.
+
+if (Deno.args.includes("--apercu")) {
+  //  LES ICÔNES, EN GLYPHES. Le harnais leur pose un carré de 14 px —
+  //  il mesure la place, pas la forme. Pour l'œil, un carré gris ne
+  //  dit rien : on met un caractère à la place. Ce ne sont PAS les
+  //  icônes du forum, qui viennent d'Ionicons.
+  const GLYPHES = `
+.ion-thumbsup::before { content: "\\2191"; }
+.ion-thumbsdown::before { content: "\\2193"; }
+.ion-heart::before { content: "\\2665"; }
+.ion-quote::before { content: "\\275D"; }
+.ion-ios-plus-empty::before { content: "+"; }
+.ion-edit::before { content: "\\270E"; }
+.ion-trash-a::before { content: "\\2421"; }
+.ion-ios-information::before { content: "i"; }
+.ion-email::before { content: "\\2709"; }
+.ion-link::before { content: "\\26AD"; }
+[class^="ion-"], [class*=" ion-"] {
+  background: none; border-radius: 0; opacity: 1;
+  font-style: normal; font-size: 13px; line-height: 14px; text-align: center;
+}`;
+
+  const POLICES = '<link rel="preconnect" href="https://fonts.googleapis.com">' +
+    '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?' +
+    "family=Fraunces:opsz,wght@9..144,400..700&" +
+    "family=Nunito+Sans:opsz,wght@6..12,300..800&" +
+    'family=Cormorant+Garamond:wght@400;600&display=swap">';
+
+  const NOTE = `<div class="wm-apercu-note">
+  <strong>Aperçu du gabarit, pas le forum.</strong> Les données sont celles du
+  harnais : deux messages inventés, un avatar en dégradé, trois champs de
+  profil, onze badges, une équipe vide. <strong>Les icônes sont des
+  doublures</strong> — le forum charge Ionicons, qu'une page autonome ne va pas
+  chercher. Les onglets du profil et les boutons marchent : clique.
+</div>
+<style>.wm-apercu-note{max-width:1200px;margin:0 auto 18px;padding:14px 18px;
+border:1px dashed var(--wm-bord-net,#d9c3b1);border-radius:10px;
+background:var(--wm-fond-surface,#fffbf7);color:var(--wm-texte-doux,#6e5749);
+font:13px/1.5 var(--wm-police-corps,"Nunito Sans",system-ui,sans-serif)}
+.wm-apercu-note strong{color:var(--wm-texte-corps,#4e3b30)}</style>`;
+
+  const brut = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Un sujet — Wild Mystery</title>
+${POLICES}
+<style>${BASE_MODERNBB}${GLYPHES}</style>
+<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
+<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
+<style>html,body{margin:0}
+body{background:var(--wm-fond-page);padding:18px 16px 40px}</style>
+</head><body id="modernbb">
+${NOTE}
+<div class="conteneur_minwidth_IE modern-resp">
+<div id="wrap"><div id="page-body">${pageDeSujet()}</div></div>
+</div>
+</body></html>`;
+
+  //  UNE PAGE AUTONOME NE VA RIEN CHERCHER DEHORS. Le gabarit de
+  //  ModernBB tire une feuille de highlight.js depuis un CDN et laisse
+  //  des images de Forumactif derrière ses variables : le navigateur du
+  //  lecteur les refuse, et la page se dessine de travers. On les
+  //  retire plutôt que de montrer un faux rendu. Les polices de Google
+  //  restent — sans elles, le rendu serait faux aussi.
+  const propre = brut
+    .replace(
+      /<link(?![^>]*fonts\.(?:googleapis|gstatic)\.com)[^>]*href=["']?(?:https?:)?\/\/[^>]*>/g,
+      "",
+    )
+    .replace(/<img[^>]*src=["']?(?:https?:)?\/\/[^>]*>/g, "");
+
+  writeFileSync(R + "apercu-sujet.html", propre);
+  console.log(`  apercu-sujet.html — ${propre.length} octets`);
+  Deno.exit(0);
+}
 
 // ── le navigateur ───────────────────────────────────────────────────
 

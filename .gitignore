@@ -30,3 +30,4 @@ livraison.zip
 # cartes illisible expres.
 css/99-essai-contraste.css
 apercu-sujet.html
+templates/*.a-publier.html

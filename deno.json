@@ -33,7 +33,9 @@
     "zone": "deno run -A outils/zone.mjs",
     "sujet": "deno run -A outils/sujet.mjs",
     "poster": "deno run -A outils/poster.mjs",
-    "etat": "bash outils/etat.sh"
+    "etat": "bash outils/etat.sh",
+    "apercu": "deno run -A outils/sujet.mjs --apercu",
+    "a-publier": "deno run -A outils/a-publier.mjs"
   },
   "fmt": {
     "include": [
