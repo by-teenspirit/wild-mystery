@@ -12392,6 +12392,216 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: var(--wm-interligne-section, 1.2);
 }
 
+/* ── 17 · l'infobulle d'un Pokémon ────────────────────────────────── */
+
+/*  Planche 39, « L'infobulle et le trigger warning ». Elle sert
+    partout où un nom de Pokémon apparaît : dans un sujet, dans le
+    bilan, dans le Pokédex de l'annexe, et depuis le 30 octobre sur
+    une case d'équipe de la carte dresseur.
+
+    ── LE FOND DIT TOUT ──────────────────────────────────────────────
+
+    Vert pour un Pokémon pur, violet pour un obscur. C'est la note de
+    la planche, mot pour mot : « pas de texte à lire pour le savoir ».
+    Mais la couleur ne porte jamais seule — les étoiles du bas sont
+    légendées, et c'est le libellé qui dit laquelle des deux échelles
+    on lit : BONHEUR chez un pur, PURIFICATION chez un obscur. « C'est
+    le même rang, pas la même chose. »
+
+    ── TOUT EST FACULTATIF ───────────────────────────────────────────
+
+    Une infobulle posée par le serveur a le nom, le niveau, les types,
+    les PV, quatre attaques et un rang. Une infobulle écrite à la main
+    dans une carte collée n'a souvent que les trois premiers — on n'a
+    aucune table d'attaques dans le dépôt, et le joueur ne va pas les
+    recopier. Chaque bloc se retire donc sans laisser de trou : les
+    écarts viennent de `gap`, jamais d'une marge sur un voisin. */
+#modernbb .wm-infobulle {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 212px;
+  padding: var(--wm-espace-14, 14px);
+  gap: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-pokemon-pur-fond, #3c6b47);
+  color: var(--wm-pokemon-pur-texte, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  text-align: left;
+}
+
+#modernbb .wm-infobulle--obscur {
+  background: var(--wm-pokemon-obscur-fond, #4a3a63);
+  color: var(--wm-pokemon-obscur-texte, #fffbf7);
+}
+
+/*  ── LE HAUT : LE NOM, ET LE NIVEAU À DROITE ─────────────────────── */
+
+#modernbb .wm-infobulle__tete {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-infobulle__nom {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: inherit;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 17px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*  LE NIVEAU EST UNE PASTILLE TRANSLUCIDE, pas une couleur de plus :
+    elle doit tenir sur le vert ET sur le violet sans être redéclarée.
+    `color-mix` sur la couleur du texte fait les deux d'un coup. */
+#modernbb .wm-infobulle__niveau {
+  flex: 0 0 auto;
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: color-mix(in srgb, currentcolor 18%, transparent);
+  color: inherit;
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.3;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/*  ── LES TYPES ───────────────────────────────────────────────────── */
+
+/*  CE NE SONT PAS LES PASTILLES `.wm-type`. Les dix-huit paires
+    fond/texte du composant sont validées à 4,5:1 sur les fonds de la
+    charte — crème et nuit. Sur le vert ou le violet de l'infobulle,
+    aucune de ces paires n'a été mesurée, et poser un fond Électrik
+    jaune sur du vert serait une couleur inventée.
+
+    Ici le type n'a donc pas sa couleur : il a son NOM, sur une
+    pastille translucide comme le niveau. La planche les dessine
+    exactement ainsi. Le nom reste écrit, ce qui est la règle. */
+#modernbb .wm-infobulle__types {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+#modernbb .wm-infobulle__type {
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: color-mix(in srgb, currentcolor 15%, transparent);
+  font-size: 10px;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1.3;
+}
+
+/*  ── LES PV ──────────────────────────────────────────────────────── */
+
+#modernbb .wm-infobulle__pv {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-infobulle__jauge {
+  flex: 1 1 auto;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 22%, transparent);
+}
+
+#modernbb .wm-infobulle__jauge > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: currentcolor;
+}
+
+#modernbb .wm-infobulle__chiffre {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/*  ── LES ATTAQUES ────────────────────────────────────────────────── */
+
+#modernbb .wm-infobulle__surtitre {
+  margin: 0;
+  opacity: 0.72;
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-infobulle__attaques {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: 3px;
+  list-style: none;
+}
+
+/*  Un ressort entre le nom et la puissance : les quatre nombres
+    s'alignent à droite quels que soient les noms. */
+#modernbb .wm-infobulle__attaque {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--wm-espace-8, 8px);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#modernbb .wm-infobulle__attaque > span:last-child {
+  flex: 0 0 auto;
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+/*  ── LE RANG, ET CE QU'IL MESURE ─────────────────────────────────── */
+
+#modernbb .wm-infobulle__rang {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-espace-8, 8px);
+}
+
+/*  LES ÉTOILES SONT DU TEXTE, pas cinq images : cinq requêtes pour un
+    rang sur cinq serait absurde, et un lecteur d'écran doit pouvoir
+    le lire. Le libellé à droite dit de quelle échelle il s'agit, et
+    c'est lui qui évite que la couleur porte seule l'information. */
+#modernbb .wm-infobulle__etoiles {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+#modernbb .wm-infobulle__echelle {
+  flex: 0 0 auto;
+  opacity: 0.72;
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
 /*  ── PLUS AUCUN `@media` DANS CETTE FEUILLE, ET C'EST VOULU ────────
 
     Il y en avait cinq : les sept blocs passaient en colonne sous
@@ -17004,15 +17214,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 1 · la carte ─────────────────────────────────────────────────── */
 
-/*  `overflow: hidden` porte le rayon sur l'en-tête : le bandeau est à
-    fond perdu contre les bords, il n'a pas de rayon à lui. */
+/*  PAS D'`overflow: hidden`, ET C'EST UN CHANGEMENT. Il portait le
+    rayon sur l'en-tête à fond perdu, ce qui était commode — mais il
+    découpait aussi l'infobulle d'un Pokémon, qui doit sortir par le
+    haut. Le bandeau arrondit donc ses deux coins lui-même (§ 1 bis),
+    et la carte laisse passer. */
 #modernbb .wm-tcard {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   width: 100%;
   margin: var(--wm-espace-18, 18px) 0;
-  overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -17033,6 +17245,10 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     faisait tomber aucun contrôle. `box-sizing: border-box` suffit. */
 #modernbb .wm-tcard > .wm-dresseur {
   flex-wrap: wrap;
+  /*  LE RAYON QUE LA CARTE NE DÉCOUPE PLUS. Moins un pixel : le
+      bandeau est à l'intérieur de la bordure, et deux rayons égaux
+      laissent un croissant clair dans l'angle. */
+  border-radius: calc(var(--wm-rayon-lg, 10px) - 1px) calc(var(--wm-rayon-lg, 10px) - 1px) 0 0;
 }
 
 /* ── 2 · les trois compteurs ──────────────────────────────────────── */
@@ -17236,6 +17452,95 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
   text-align: center;
+}
+
+/* ── 4 bis · l'infobulle au survol d'un Pokémon ───────────────────── */
+
+/*  « Ce qui serait pas mal, ce serait de créer l'infobulle quand on
+    passe la souris sur le pokémon », 30 octobre. Le composant est
+    `.wm-infobulle`, planche 39, écrit en `13-composants.css` §17 ;
+    ici on ne fait que le placer et décider quand il se montre.
+
+    ── AUCUN JAVASCRIPT, ET C'EST LA RAISON PRINCIPALE ──────────────
+
+    Aucun script ne s'exécute dans le corps d'un message : tout ce qui
+    bouge y est injecté après coup. Une infobulle qui attendrait
+    `mod-tcard` ne marcherait pas le jour où la carte est collée, et
+    pas du tout si le script tombe. En CSS, elle marche tout de suite.
+
+    ── ELLE S'OUVRE AUSSI AU DOIGT ET AU CLAVIER ────────────────────
+
+    « Le survol n'existe pas au doigt : l'infobulle s'ouvre et se
+    referme au clic », planche 39. `:focus-within` fait exactement ça
+    sur une case rendue focalisable (`tabindex="0"` dans le gabarit) :
+    on touche, elle s'ouvre ; on touche ailleurs, elle se ferme. Et la
+    même règle la rend atteignable au clavier, ce qu'un `:hover` seul
+    n'aurait jamais permis.
+
+    ── POURQUOI ELLE EST CENTRÉE SUR LA LISTE, PAS SUR LA CASE ──────
+
+    **C'est la LISTE qui porte `position: relative`, et la case qui ne
+    la porte pas.** Les deux sont des décisions, pas un oubli : c'est
+    ce choix-là qui décide contre quoi la bulle se place.
+
+    Centrée sur la case, elle sort de la carte dès que la place
+    manque — relevé en donnant `position: relative` à la case et en
+    survolant le deuxième emplacement dans une colonne de 320 px :
+    **19 px dehors à droite**. Et les rattrapages `:first-child` /
+    `:last-child` qu'on poserait contre ça ne tiennent plus dès que
+    les cases passent à la ligne, puisque la première d'une rangée
+    n'est plus la première de la liste.
+
+    Posée contre la liste, `left: 0; right: 0; margin-inline: auto` la
+    centre sur l'équipe entière : elle ne peut plus sortir, à aucune
+    largeur, sans une ligne de JavaScript. La planche ne dessine pas
+    de flèche vers la case, donc rien ne se perd à ne pas pointer. */
+#modernbb .wm-tcard__equipe {
+  position: relative;
+}
+
+#modernbb .wm-tcard__pkmn .wm-infobulle {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: calc(100% + var(--wm-espace-8, 8px));
+  left: 0;
+  max-width: 100%;
+  margin-inline: auto;
+  /*  ELLE NE PREND PAS LE SURVOL. Sans ça, la bulle qui s'ouvre passe
+      sous la souris, la case perd le survol, la bulle se ferme, la
+      case le regagne — un clignotement sans fin. */
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 6px 20px rgb(46 32 24 / 18%);
+  /*  `visibility` et pas `display`, pour que la transition existe ;
+      et pas `opacity` seule, qui laisserait une bulle invisible
+      capter le survol au-dessus des autres cases. */
+  visibility: hidden;
+  transition: opacity 120ms ease-out, visibility 0s linear 120ms;
+}
+
+#modernbb .wm-tcard__pkmn:hover .wm-infobulle,
+#modernbb .wm-tcard__pkmn:focus-within .wm-infobulle {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms ease-out;
+}
+
+/*  Une case focalisable doit le dire. Le contour du système est gardé
+    tel quel : le redessiner, c'est risquer de le rendre invisible sur
+    un des deux thèmes. */
+#modernbb .wm-tcard__pkmn:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  QUI NE VEUT PAS D'ANIMATION N'EN A PAS. C'est la même règle que
+    pour les sprites animés. */
+@media (prefers-reduced-motion: reduce) {
+  #modernbb .wm-tcard__pkmn .wm-infobulle {
+    transition: none;
+  }
 }
 
 /* ── 5 · les badges ───────────────────────────────────────────────── */

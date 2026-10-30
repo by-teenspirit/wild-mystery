@@ -1216,3 +1216,213 @@
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   line-height: var(--wm-interligne-section, 1.2);
 }
+
+/* ── 17 · l'infobulle d'un Pokémon ────────────────────────────────── */
+
+/*  Planche 39, « L'infobulle et le trigger warning ». Elle sert
+    partout où un nom de Pokémon apparaît : dans un sujet, dans le
+    bilan, dans le Pokédex de l'annexe, et depuis le 30 octobre sur
+    une case d'équipe de la carte dresseur.
+
+    ── LE FOND DIT TOUT ──────────────────────────────────────────────
+
+    Vert pour un Pokémon pur, violet pour un obscur. C'est la note de
+    la planche, mot pour mot : « pas de texte à lire pour le savoir ».
+    Mais la couleur ne porte jamais seule — les étoiles du bas sont
+    légendées, et c'est le libellé qui dit laquelle des deux échelles
+    on lit : BONHEUR chez un pur, PURIFICATION chez un obscur. « C'est
+    le même rang, pas la même chose. »
+
+    ── TOUT EST FACULTATIF ───────────────────────────────────────────
+
+    Une infobulle posée par le serveur a le nom, le niveau, les types,
+    les PV, quatre attaques et un rang. Une infobulle écrite à la main
+    dans une carte collée n'a souvent que les trois premiers — on n'a
+    aucune table d'attaques dans le dépôt, et le joueur ne va pas les
+    recopier. Chaque bloc se retire donc sans laisser de trou : les
+    écarts viennent de `gap`, jamais d'une marge sur un voisin. */
+#modernbb .wm-infobulle {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 212px;
+  padding: var(--wm-espace-14, 14px);
+  gap: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-pokemon-pur-fond, #3c6b47);
+  color: var(--wm-pokemon-pur-texte, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  text-align: left;
+}
+
+#modernbb .wm-infobulle--obscur {
+  background: var(--wm-pokemon-obscur-fond, #4a3a63);
+  color: var(--wm-pokemon-obscur-texte, #fffbf7);
+}
+
+/*  ── LE HAUT : LE NOM, ET LE NIVEAU À DROITE ─────────────────────── */
+
+#modernbb .wm-infobulle__tete {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-infobulle__nom {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: inherit;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 17px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*  LE NIVEAU EST UNE PASTILLE TRANSLUCIDE, pas une couleur de plus :
+    elle doit tenir sur le vert ET sur le violet sans être redéclarée.
+    `color-mix` sur la couleur du texte fait les deux d'un coup. */
+#modernbb .wm-infobulle__niveau {
+  flex: 0 0 auto;
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: color-mix(in srgb, currentcolor 18%, transparent);
+  color: inherit;
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.3;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/*  ── LES TYPES ───────────────────────────────────────────────────── */
+
+/*  CE NE SONT PAS LES PASTILLES `.wm-type`. Les dix-huit paires
+    fond/texte du composant sont validées à 4,5:1 sur les fonds de la
+    charte — crème et nuit. Sur le vert ou le violet de l'infobulle,
+    aucune de ces paires n'a été mesurée, et poser un fond Électrik
+    jaune sur du vert serait une couleur inventée.
+
+    Ici le type n'a donc pas sa couleur : il a son NOM, sur une
+    pastille translucide comme le niveau. La planche les dessine
+    exactement ainsi. Le nom reste écrit, ce qui est la règle. */
+#modernbb .wm-infobulle__types {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+#modernbb .wm-infobulle__type {
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: color-mix(in srgb, currentcolor 15%, transparent);
+  font-size: 10px;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1.3;
+}
+
+/*  ── LES PV ──────────────────────────────────────────────────────── */
+
+#modernbb .wm-infobulle__pv {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-infobulle__jauge {
+  flex: 1 1 auto;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 22%, transparent);
+}
+
+#modernbb .wm-infobulle__jauge > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: currentcolor;
+}
+
+#modernbb .wm-infobulle__chiffre {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/*  ── LES ATTAQUES ────────────────────────────────────────────────── */
+
+#modernbb .wm-infobulle__surtitre {
+  margin: 0;
+  opacity: 0.72;
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-infobulle__attaques {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: 3px;
+  list-style: none;
+}
+
+/*  Un ressort entre le nom et la puissance : les quatre nombres
+    s'alignent à droite quels que soient les noms. */
+#modernbb .wm-infobulle__attaque {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--wm-espace-8, 8px);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+#modernbb .wm-infobulle__attaque > span:last-child {
+  flex: 0 0 auto;
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+/*  ── LE RANG, ET CE QU'IL MESURE ─────────────────────────────────── */
+
+#modernbb .wm-infobulle__rang {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-espace-8, 8px);
+}
+
+/*  LES ÉTOILES SONT DU TEXTE, pas cinq images : cinq requêtes pour un
+    rang sur cinq serait absurde, et un lecteur d'écran doit pouvoir
+    le lire. Le libellé à droite dit de quelle échelle il s'agit, et
+    c'est lui qui évite que la couleur porte seule l'information. */
+#modernbb .wm-infobulle__etoiles {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+#modernbb .wm-infobulle__echelle {
+  flex: 0 0 auto;
+  opacity: 0.72;
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.3;
+  text-transform: uppercase;
+}

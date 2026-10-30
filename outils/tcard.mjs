@@ -56,6 +56,24 @@ const PIXEL =
     une carte que personne ne colle — et les deux dériveraient au
     premier ajustement. On lit donc le fichier et on en extrait le
     bloc entre les deux marqueurs, qui est exactement ce qui part. */
+/*  LA CARTE DU COMPTE DE TEST, telle que `equipe-de-test.py` la
+    produit. C'est elle qui porte les infobulles : six Pokémon réels
+    de Rhode, un obscur parmi eux, des mono-types et des doubles. Le
+    harnais ne s'en fabrique pas une version à lui — celle-là est
+    celle que Callista colle sur le forum. */
+function carteDuCompteDeTest() {
+  const brut = readFileSync(
+    R + "templates/carte-dresseur.compte-de-test.html",
+    "utf8",
+  );
+  return brut
+    .replace(/<!--[\s\S]*?-->/g, "")
+    //  Les sprites de PokéAPI ne sont pas joignables depuis le
+    //  harnais, et ne sont pas ce qu'on mesure.
+    .replace(/src="https:\/\/[^"]*"/g, `src="${PIXEL}"`)
+    .replace(/<div class="wm-tcard"/, '<div id="test" class="wm-tcard"');
+}
+
 function carteACoprier() {
   const brut = readFileSync(R + "templates/carte-dresseur.a-coller.html", "utf8");
   const m = brut.match(
@@ -400,6 +418,211 @@ dire(
   JSON.stringify(badges),
 );
 
+// ── 7 · l'infobulle d'un Pokémon ────────────────────────────────────
+
+//  « Ce qui serait pas mal, ce serait de créer l'infobulle quand on
+//  passe la souris sur le pokémon », 30 octobre. Planche 39.
+await p.setContent(page(dansUnMessage(carteDuCompteDeTest())), {
+  waitUntil: "load",
+});
+
+/*  LA SOURIS D'ABORD RANGÉE. Playwright la laisse où elle a cliqué,
+    et un `:hover` qui traîne a déjà fait passer un contrôle pour la
+    mauvaise raison le 30 octobre. On la met hors de la carte avant
+    de mesurer l'état de repos. */
+await p.mouse.move(0, 0);
+
+const auRepos = await p.evaluate(() => {
+  const bulles = [...document.querySelectorAll("#test .wm-infobulle")];
+  if (bulles.length === 0) return null;
+  return {
+    combien: bulles.length,
+    toutesCachees: bulles.every((b) => {
+      const st = getComputedStyle(b);
+      return st.visibility === "hidden" && st.opacity === "0";
+    }),
+    //  ET AUCUNE NE PREND LE SURVOL. Sans ça, la bulle qui s'ouvre
+    //  passe sous la souris, la case perd le survol, la bulle se
+    //  ferme, la case le regagne — un clignotement sans fin.
+    transparentesAuPointeur: bulles.every((b) => getComputedStyle(b).pointerEvents === "none"),
+  };
+});
+
+dire(
+  "au repos, les six infobulles sont fermées et ne prennent pas le survol",
+  auRepos !== null && auRepos.combien === 6 && auRepos.toutesCachees &&
+    auRepos.transparentesAuPointeur,
+  JSON.stringify(auRepos),
+);
+
+// ── elle s'ouvre au survol, et elle ne sort pas de la carte ─────────
+
+await p.hover("#test .wm-tcard__pkmn:nth-child(3)");
+
+const auSurvol = await p.evaluate(() => {
+  const cases = [...document.querySelectorAll("#test .wm-tcard__pkmn")];
+  const carte = document.querySelector("#test");
+  const ouvertes = cases.filter((c) => {
+    const b = c.querySelector(".wm-infobulle");
+    return b !== null && getComputedStyle(b).visibility === "visible";
+  });
+  if (ouvertes.length !== 1) return { ouvertes: ouvertes.length };
+  const b = ouvertes[0].querySelector(".wm-infobulle");
+  const rb = b.getBoundingClientRect(), rc = carte.getBoundingClientRect();
+  return {
+    ouvertes: 1,
+    //  LA TROISIÈME, et pas une autre.
+    laBonne: cases.indexOf(ouvertes[0]) === 2,
+    //  Elle sort de la carte par le HAUT — c'est voulu, la carte n'a
+    //  plus d'`overflow: hidden` pour ça — mais jamais par les côtés.
+    debordeGauche: Math.round(rc.left - rb.left),
+    debordeDroite: Math.round(rb.right - rc.right),
+    //  Et elle est au-dessus de sa case, pas dessous.
+    auDessus: Math.round(rb.bottom) <= Math.round(ouvertes[0].getBoundingClientRect().top),
+  };
+});
+
+dire(
+  "au survol, une seule s'ouvre, au-dessus de sa case et dans la carte",
+  auSurvol.ouvertes === 1 && auSurvol.laBonne && auSurvol.auDessus &&
+    auSurvol.debordeGauche <= 0 && auSurvol.debordeDroite <= 0,
+  JSON.stringify(auSurvol),
+);
+
+// ── et au clavier, ce qui la rend aussi utilisable au doigt ─────────
+
+//  « Le survol n'existe pas au doigt : l'infobulle s'ouvre et se
+//  referme au clic », planche 39. `:focus-within` sur une case
+//  focalisable fait les deux — le doigt ET le clavier.
+await p.mouse.move(0, 0);
+const focalisables = await p.evaluate(() =>
+  [...document.querySelectorAll("#test .wm-tcard__pkmn")]
+    .filter((c) => c.getAttribute("tabindex") === "0").length
+);
+
+const lire = () =>
+  p.evaluate(() =>
+    getComputedStyle(
+      document.querySelector("#test .wm-tcard__pkmn:nth-child(1) .wm-infobulle"),
+    ).visibility
+  );
+
+await p.focus("#test .wm-tcard__pkmn:nth-child(1)");
+const ouverteAuFocus = await lire() === "visible";
+
+/*  ON ATTEND AVANT DE RELIRE. La fermeture porte
+    `transition: visibility 0s linear 120ms` — le retard est ce qui
+    laisse la bulle disparaître en fondu au lieu de sauter. Lu tout de
+    suite après le `blur`, `visibility` vaut encore « visible », et le
+    premier jet de ce contrôle accusait la règle au lieu de son propre
+    empressement. */
+await p.evaluate(() => document.querySelector("#test .wm-tcard__pkmn").blur());
+await p.waitForFunction(
+  () =>
+    getComputedStyle(
+      document.querySelector("#test .wm-tcard__pkmn:nth-child(1) .wm-infobulle"),
+    ).visibility === "hidden",
+  null,
+  { timeout: 1000 },
+).catch(() => {});
+const refermeeApres = await lire() === "hidden";
+
+const auClavier = { focalisables, ouverteAuFocus, refermeeApres };
+
+dire(
+  "elle s'ouvre au clavier et se referme en partant",
+  auClavier.focalisables === 6 && auClavier.ouverteAuFocus &&
+    auClavier.refermeeApres,
+  JSON.stringify(auClavier),
+);
+
+// ── le fond dit tout, mais jamais tout seul ─────────────────────────
+
+const purEtObscur = await p.evaluate(() => {
+  const bulles = [...document.querySelectorAll("#test .wm-infobulle")];
+  const obscurs = bulles.filter((b) => b.classList.contains("wm-infobulle--obscur"));
+  const purs = bulles.filter((b) => !b.classList.contains("wm-infobulle--obscur"));
+  const fond = (b) => getComputedStyle(b).backgroundColor;
+  const echelle = (b) => b.querySelector(".wm-infobulle__echelle")?.textContent.trim();
+  return {
+    obscurs: obscurs.length,
+    purs: purs.length,
+    //  Deux fonds différents — c'est la note de la planche.
+    fondsDifferents: new Set(bulles.map(fond)).size === 2,
+    //  MAIS LA COULEUR NE PORTE PAS SEULE. Le libellé des étoiles dit
+    //  laquelle des deux échelles on lit : « c'est le même rang, pas
+    //  la même chose ».
+    echellesDifferentes: obscurs.every((b) => echelle(b) === "Purification") &&
+      purs.every((b) => echelle(b) === "Bonheur"),
+  };
+});
+
+dire(
+  "un obscur a son fond ET son échelle à lui, la couleur ne porte pas seule",
+  purEtObscur.obscurs === 1 && purEtObscur.purs === 5 &&
+    purEtObscur.fondsDifferents && purEtObscur.echellesDifferentes,
+  JSON.stringify(purEtObscur),
+);
+
+// ── les deux types d'un double sont écrits ──────────────────────────
+
+const types = await p.evaluate(() => {
+  const bulles = [...document.querySelectorAll("#test .wm-infobulle")];
+  const comptes = bulles.map((b) => b.querySelectorAll(".wm-infobulle__type").length);
+  return {
+    comptes,
+    //  Le jeu de test doit contenir au moins un double type, sinon
+    //  ce contrôle ne mesure rien.
+    unDoubleAuMoins: comptes.some((n) => n === 2),
+    tousNommes: bulles.every((b) =>
+      [...b.querySelectorAll(".wm-infobulle__type")]
+        .every((t) => t.textContent.trim().length > 2)
+    ),
+    //  La case, elle, n'en porte qu'un : elle fait moins de cent
+    //  pixels et deux pastilles y passeraient à la ligne.
+    surLaCase: [...document.querySelectorAll("#test .wm-tcard__pkmn .wm-type")].length,
+  };
+});
+
+dire(
+  "l'infobulle écrit les deux types d'un double, la case n'en montre qu'un",
+  types.unDoubleAuMoins && types.tousNommes && types.surLaCase === 6,
+  JSON.stringify(types),
+);
+
+// ── et elle tient aussi dans une colonne étroite ────────────────────
+
+await p.setContent(
+  page(dansUnMessage(`<div style="width:320px">${carteDuCompteDeTest()}</div>`)),
+  { waitUntil: "load" },
+);
+await p.hover("#test .wm-tcard__pkmn:nth-child(2)");
+
+const bulleEtroite = await p.evaluate(() => {
+  const carte = document.querySelector("#test");
+  const b = carte.querySelector(".wm-tcard__pkmn:nth-child(2) .wm-infobulle");
+  const rb = b.getBoundingClientRect(), rc = carte.getBoundingClientRect();
+  return {
+    largeur: Math.round(rb.width),
+    debordeGauche: Math.round(rc.left - rb.left),
+    debordeDroite: Math.round(rb.right - rc.right),
+    barre: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  };
+});
+
+dire(
+  "dans 320 px l'infobulle reste dans la carte",
+  bulleEtroite.debordeGauche <= 0 && bulleEtroite.debordeDroite <= 0 &&
+    bulleEtroite.barre <= 0,
+  JSON.stringify(bulleEtroite),
+);
+
+await p.setContent(
+  page(dansUnMessage(carteACoprier() + carteRemplie())),
+  { waitUntil: "load" },
+);
+await p.mouse.move(0, 0);
+
 // ── 7 · dans une colonne étroite ────────────────────────────────────
 
 /*  La carte est aussi collable dans une signature, un message privé
@@ -461,10 +684,12 @@ dire(
 
 if (Deno.args.includes("--apercu")) {
   const NOTE = `<div class="wm-apercu-note">
-<strong>La carte dresseur.</strong> À gauche telle qu'un joueur la colle —
-valeurs d'attente, six places libres, sept badges à gagner. À droite telle
-que <code>mod-tcard</code> la laissera. Les images sont des pixels gris :
-ce qui est jugé ici est la mise en page, pas les dessins.
+<strong>La carte dresseur.</strong> En haut celle du compte de test, tirée
+au sort dans les vraies tables de rencontre — <em>passe la souris sur un
+Pokémon</em>, ou tabule jusqu'à lui. L'un des six est obscur : fond violet,
+étoiles de purification. En dessous, à gauche la carte telle qu'un joueur la
+colle, à droite telle que <code>mod-tcard</code> la laissera. Les sprites
+sont des pixels gris : ce qui est jugé ici est la mise en page.
 </div>
 <style>.wm-apercu-note{max-width:1200px;margin:0 auto 18px;padding:14px 18px;
 border:1px solid var(--wm-bord-fin,#eadacd);border-radius:10px;
@@ -472,7 +697,11 @@ background:var(--wm-fond-surface,#fffbf7);color:var(--wm-texte-doux,#6e5749);
 font:400 13px/1.5 "Nunito Sans",system-ui,sans-serif}
 .wm-apercu-note strong{color:var(--wm-texte-corps,#4e3b30)}</style>`;
 
-  const html = page(NOTE + dansUnMessage(carteACoprier() + carteRemplie()));
+  const html = page(
+    NOTE +
+      dansUnMessage(carteDuCompteDeTest()) +
+      dansUnMessage(carteACoprier() + carteRemplie()),
+  );
   writeFileSync(R + "apercu-tcard.html", html);
   console.log(`\n  apercu-tcard.html — ${html.length} octets`);
 }
