@@ -6842,28 +6842,53 @@ html#min-width {
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 07 · La liste des membres
 
-   Elle accompagne le `memberlist_body` réécrit : le `<table#memberlist>`
-   est devenu une `<ul>`, une ligne par membre (`49-…` §2, priorité
-   haute).
+   Maquette `307:295`, note de code `307:503`. Relevée et réécrite le
+   30 octobre.
 
-   ── POURQUOI LE TABLEAU DEVAIT PARTIR ─────────────────────────────────
+   ── CE QUE LA MAQUETTE DESSINE ───────────────────────────────────────
 
-   Ce n'était pas une question de pureté. Le template rendait **deux
-   fois** chaque membre : une série de `<td class="mobile-hidden">` pour
-   l'écran large, et un bloc `<div class="mobile-visible">` qui répétait
-   les mêmes quatre champs pour le téléphone. Deux rendus à tenir
-   d'accord, et la version mobile n'était qu'un `display: none` posé sur
-   l'autre.
+   Cinq colonnes, dans un contenu de 1 000 — le bandeau de section
+   au-dessus, le même qu'à l'index et sur la liste des sujets :
 
-   Une seule rangée en flex se replie toute seule. Il reste un rendu, et
-   les colonnes ne disparaissent plus sur un petit écran — elles passent
-   à la ligne.
+     | colonne          |  x  | largeur |
+     |------------------|----:|--------:|
+     | DRESSEUR         |  22 |     376 |
+     | RANG             | 398 |     170 |
+     | MESSAGES         | 568 |     100 |
+     | INSCRIT LE       | 668 |     144 |
+     | DERNIÈRE VISITE  | 812 |     166 |
+
+   Rangée de 61 de haut, en-tête de 37, filet entre chaque. L'avatar est
+   un ROND de 34, le pseudo à 46 de son bord gauche, et sous lui une
+   seconde ligne de 15.
+
+   ── POURQUOI LES LARGEURS SONT EN PARTS ET PAS EN PIXELS ─────────────
+
+   Parce que trois colonnes sont FACULTATIVES. `switch_td_group`,
+   `switch_td_point` et `switch_td_pm` ne sont servis que si le panneau
+   d'administration les a activés, et ils peuvent être coupés un par
+   un. Cinq largeurs en dur donneraient une ligne qui ne remplit plus sa
+   carte le jour où Callista coupe une colonne — et un en-tête qui ne
+   tombe plus en face de ses valeurs.
+
+   Les parts gardent les proportions de la maquette quand les cinq sont
+   là, et se referment proprement quand il en manque.
+
+   ── LE TABLEAU ÉTAIT DÉJÀ PARTI ──────────────────────────────────────
+
+   Le `<table#memberlist>` d'origine rendait DEUX FOIS chaque membre :
+   des `<td class="mobile-hidden">` pour l'écran large, et un bloc
+   `mobile-visible` qui répétait les mêmes champs pour le téléphone. La
+   réécriture du 2 octobre en avait fait une `<ul>` ; celle-ci reprend
+   la même `<ul>` et lui donne les colonnes de la maquette.
 
    ── CE QUE LA FEUILLE N'A PAS À FAIRE ────────────────────────────────
 
    Les `<li>` portent `{memberrow.ROW_CLASS}`, donc `row1`/`row2` : la
    zébrure et les surfaces viennent de `02`, et avec elles la couleur du
-   texte. On ne redit rien de tout ça ici.
+   texte. On ne redit rien de tout ça ici. Le bandeau de section vient
+   du § 2 de `03`. La couleur d'un rang vient du groupe, en style
+   inline : on ne la touche pas (planche 59, § 8).
    ════════════════════════════════════════════════════════════════════ */
 
 /* ── 1 · le tri, en haut ──────────────────────────────────────────── */
@@ -6887,138 +6912,193 @@ html#min-width {
 /*  Le template séparait ses trois champs par des suites de six `&nbsp;`
     et les poussait à droite avec un `text-align` en style inline. Un
     `gap` fait le travail, et il se replie. */
-#modernbb .memberlist-tri {
+
+/* ── 2 · la rangée d'outils ───────────────────────────────────────── */
+
+/*  Maquette `307:346` : la recherche à gauche sur 280 × 40, un ressort,
+    les trois modes à droite. Le tri de Forumactif — ses deux listes et
+    son bouton — n'est pas dans le dessin, et il n'a nulle part ailleurs
+    où aller : il se glisse au milieu, discret.
+
+    `flex-wrap` parce que trois blocs dont un porte deux listes
+    déroulantes ne tiennent pas sur 1 000 px à toutes les langues. */
+#modernbb .wm-membres__outils {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--wm-espace-12, 12px) var(--wm-espace-18, 18px);
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+  margin: 0 0 var(--wm-espace-20, 20px);
 }
 
-#modernbb .memberlist-tri__champ {
+#modernbb .wm-membres__recherche {
+  flex: 0 1 280px;
+}
+
+#modernbb .wm-membres__recherche input {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-membres__recherche input:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  LE TRI PREND LE RESSORT. C'est lui qui s'étire entre la recherche et
+    les modes : le ressort de la maquette est du vide, et du vide qui
+    porte quelque chose vaut mieux que du vide. */
+#modernbb .wm-membres__tri {
   display: flex;
-  flex-direction: column;
-  gap: var(--wm-espace-4, 4px);
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wm-espace-6, 6px);
 }
 
-#modernbb .memberlist-tri .label {
-  color: var(--wm-texte-doux, #6e5749);
+#modernbb .wm-membres__tri-mot {
+  color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-transform: uppercase;
 }
 
-/*  Le bouton part à droite, seul de son côté : c'est l'action, pas un
-    champ de plus. */
-#modernbb .memberlist-tri .button2 {
-  margin-left: auto;
-}
-
-/* ── 2 · la liste ─────────────────────────────────────────────────── */
-
-#modernbb ul.memberlist {
-  margin: 0;
-  padding: 0;
+/*  L'ÉTIQUETTE D'UNE LISTE EST LÀ POUR QUI ÉCOUTE LA PAGE. Sortie de
+    l'écran, pas de l'arbre : `display: none` la retirerait des deux. */
+#modernbb .wm-membres__tri-nom {
+  position: absolute;
   overflow: hidden;
-  border-radius: var(--wm-rayon-lg, 10px);
-  list-style: none;
-}
-
-#modernbb .memberlist-membre {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--wm-espace-12, 12px) var(--wm-espace-18, 18px);
-  padding: var(--wm-espace-14, 14px) var(--wm-espace-18, 18px);
-}
-
-#modernbb .memberlist-membre + .memberlist-membre {
-  border-top: 1px solid var(--wm-bord-fin, #eadacd);
-}
-
-/* ── 3 · qui c'est ────────────────────────────────────────────────── */
-
-/*  Le rang, l'avatar et le pseudo forment un seul lien : toute la carte
-    d'identité mène au profil, pas seulement les six lettres du pseudo. */
-#modernbb .memberlist-qui {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: var(--wm-espace-10, 10px);
-  min-width: 220px;
-  color: inherit;
-  text-decoration: none;
-}
-
-/*  Le survol change la COULEUR et rien d'autre (9 octobre). Le nom
-    n'en avait pas de seconde : il prend l'accent fort, comme tous les
-    liens survolés du forum. */
-#modernbb .memberlist-qui:hover .memberlist-nom {
-  color: var(--wm-accent-fort, #1f5470);
-}
-
-/*  Le numéro de ligne. Il compte peu, il prend donc peu de place — mais
-    il reste aligné d'une ligne à l'autre, d'où la largeur fixe. */
-#modernbb .memberlist-rang {
-  flex: 0 0 2.2em;
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-legende, 10.5px);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-#modernbb .memberlist-qui img {
-  flex: none;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--wm-rayon-sm, 6px);
-  object-fit: cover;
-}
-
-#modernbb .memberlist-nom {
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
-  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
-  font-size: var(--wm-taille-titre-carte, 16px);
-  font-weight: var(--wm-graisse-demi, 600);
-  line-height: var(--wm-interligne-carte, 1.25);
-}
-
-/* ── 4 · les champs ───────────────────────────────────────────────── */
-
-/*  Ils prennent la place qui reste et se replient. Chaque champ porte
-    son étiquette : sans en-tête de tableau, c'est elle qui dit ce que
-    le chiffre veut dire — et elle le dit aussi sur un téléphone, ce que
-    l'en-tête ne faisait pas. */
-#modernbb .memberlist-champs {
-  display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  gap: var(--wm-espace-8, 8px) var(--wm-espace-18, 18px);
-  min-width: 0;
-}
-
-#modernbb .memberlist-champ {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-  font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-courant, 1.5);
-}
-
-/*  Les centres d'intérêt sont du texte libre : ils prennent ce qui
-    reste et se tronquent plutôt que de pousser le reste dehors. */
-#modernbb .memberlist-champ--long {
-  flex: 1 1 180px;
-}
-
-#modernbb .memberlist-champ--long .memberlist-valeur {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
-#modernbb .memberlist-champ .label {
+#modernbb .wm-membres__tri select {
+  max-width: 140px;
+  height: 30px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font: inherit;
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  ── LES TROIS MODES ────────────────────────────────────────────────
+
+    Des onglets, et le mot est juste : on change de page, pas de
+    panneau. Ce sont donc des liens, et ils en ont l'air au clavier —
+    `:focus-visible` les cerne comme tout le reste.
+
+    AUCUN N'EST MARQUÉ « COURANT ». Le gabarit ne dit pas quelle page
+    on regarde — il n'y a ni variable ni classe pour ça — et le marquer
+    au hasard serait pire que ne rien marquer. Le module le fera, en
+    lisant l'adresse. */
+#modernbb .wm-membres__modes {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-membres__modes a {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 var(--wm-espace-14, 14px);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--wm-texte-doux, #6e5749);
+  text-decoration: none;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  transition: background-color 120ms ease, color 120ms ease,
+    border-color 120ms ease;
+}
+
+#modernbb .wm-membres__modes a:hover {
+  border-color: var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-membres__modes a[aria-current="page"] {
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-membres__modes a:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/* ── 3 · la carte et ses colonnes ─────────────────────────────────── */
+
+/*  La bande arrondit le haut, la liste garde le bas — comme la liste
+    des sujets. */
+#modernbb .wm-membres {
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-top: 0;
+  border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LA GRAMMAIRE DE COLONNES, posée une fois et héritée par l'en-tête
+    comme par les lignes. C'est elle qui garantit qu'une valeur tombe
+    sous son titre : les deux rangées sont le MÊME flex, avec les
+    MÊMES parts, et rien ne peut les désaccorder. */
+#modernbb .wm-membres__entete,
+#modernbb .wm-membres__ligne {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+  padding: 0 20px 0 22px;
+}
+
+#modernbb .wm-membres__col {
+  min-width: 0;
+}
+
+/*  Les parts viennent de la maquette : 376 · 170 · 100 · 144 · 166 sur
+    les 956 utiles d'une ligne de 998. */
+#modernbb .wm-membres__col--qui     { flex: 376 1 0; }
+#modernbb .wm-membres__col--rang    { flex: 170 1 0; }
+#modernbb .wm-membres__col--chiffre { flex: 100 1 0; }
+#modernbb .wm-membres__col--date    { flex: 144 1 0; }
+/*  « Dernière visite » fait 166 et pas 144 : c'est le titre le plus
+    long. Une CLASSE et pas `:last-of-type` — ce pseudo vise le dernier
+    SPAN de la rangée, donc la colonne des liens, et les deux colonnes
+    de date restaient à égalité sans que rien ne le dise. */
+#modernbb .wm-membres__col--vue { flex: 166 1 0; }
+
+/*  ── LA COLONNE DES LIENS A UNE LARGEUR, ET C'EST OBLIGATOIRE ───────
+
+    Elle était en `flex: 0 0 auto`, donc large de son contenu : « MP ·
+    Site » dans l'en-tête, deux images de 18 dans une ligne. Deux
+    largeurs différentes, et tout ce qui précède se décale pour
+    compenser — les cinq autres colonnes ne tombaient plus en face,
+    de 5 px.
+
+    Mesuré au harnais, par le seul contrôle qui compte sur une liste
+    en colonnes. Une base FIXE, et les deux rangées réservent la même
+    place quoi qu'elles portent. */
+#modernbb .wm-membres__col--liens { flex: 0 0 64px; }
+
+/* ── 4 · l'en-tête de colonnes ────────────────────────────────────── */
+
+#modernbb .wm-membres__entete {
+  min-height: 37px;
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -7026,51 +7106,195 @@ html#min-width {
   text-transform: uppercase;
 }
 
-/* ── 5 · les deux liens de droite ─────────────────────────────────── */
+/* ── 5 · une ligne ────────────────────────────────────────────────── */
 
-#modernbb .memberlist-liens {
+#modernbb .wm-membres__ligne {
+  min-height: 61px;
+}
+
+#modernbb .wm-membres__ligne + .wm-membres__ligne {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  LA COLONNE DU DRESSEUR est elle-même une rangée : le numéro,
+    l'avatar, puis le pseudo et sa seconde ligne empilés. */
+#modernbb .wm-membres__col--qui {
   display: flex;
-  flex: 0 0 auto;
   align-items: center;
+  gap: var(--wm-espace-12, 12px);
+}
+
+/*  Le numéro de rang. Pâle et en chasse fixe : deux numéros l'un sous
+    l'autre doivent s'aligner, et `9` ne doit pas être plus étroit
+    que `10`. */
+#modernbb .wm-membres__numero {
+  flex: none;
+  min-width: 18px;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/*  L'AVATAR EST UN ROND DE 34. Forumactif sert une image sans
+    dimensions, parfois plus haute que large : `cover` la cadre sans la
+    déformer, et `overflow` la taille au cercle. */
+#modernbb .wm-membres__avatar {
+  display: block;
+  overflow: hidden;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-membres__avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#modernbb .wm-membres__qui {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+#modernbb .wm-membres__nom {
+  overflow: hidden;
+  color: var(--wm-texte-corps, #4e3b30);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-membres__nom:hover {
+  text-decoration: underline;
+}
+
+/*  LA SECONDE LIGNE — « niveau 14 · 2 badges ». Elle arrive de
+    Supabase, par le module, en UNE requête pour les vingt membres de
+    la page. Vide, elle ne prend aucune place : une ligne de 61 doit
+    faire 61 que le serveur réponde ou non. */
+#modernbb .wm-membres__sous:not(:empty) {
+  margin-top: 2px;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  LE RANG est centré dans sa colonne, comme la maquette le pose. La
+    pastille elle-même est celle de la fiche de personnage — même
+    forme, même hauteur, pour que le même mot se lise pareil aux deux
+    endroits. */
+#modernbb .wm-membres__col--rang {
+  display: flex;
+  justify-content: center;
+}
+
+#modernbb .wm-membres__col--rang > span,
+#modernbb .wm-membres__col--rang > a {
+  display: inline-flex;
+  min-height: 21px;
+  align-items: center;
+  padding: 0 var(--wm-espace-10, 10px);
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  text-decoration: none;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-membres__col--chiffre {
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-membres__col--date {
+  overflow: hidden;
+  color: var(--wm-texte-doux, #6e5749);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-membres__col--liens {
+  display: flex;
   gap: var(--wm-espace-6, 6px);
-  margin-left: auto;
 }
 
-#modernbb .memberlist-liens img {
-  width: 20px;
-  height: 20px;
+#modernbb .wm-membres__col--liens img {
+  display: block;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
-/* ── 6 · aucun membre ─────────────────────────────────────────────── */
+/* ── 6 · aucun membre, et le pied ─────────────────────────────────── */
 
-#modernbb .memberlist-vide {
-  padding: var(--wm-espace-24, 24px) var(--wm-espace-18, 18px);
+#modernbb .wm-membres__vide {
+  padding: var(--wm-espace-24, 24px) 22px;
   color: var(--wm-texte-doux, #6e5749);
   text-align: center;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-membres__pied {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: var(--wm-espace-20, 20px);
 }
 
 /* ── 7 · sous 740 px ──────────────────────────────────────────────── */
 
-/*  C'est ici que le tableau perdait ses colonnes. En flex, il n'y a
-    rien à cacher : la carte d'identité prend la largeur, les champs
-    passent dessous, et les liens restent au bout. */
+/*  « On touche à rien pour la version mobile » vaut pour ce qui EXISTE.
+    Ici la rangée est neuve, et sans ce repli cinq colonnes sur un
+    téléphone donnent cinq colonnes de deux lettres.
+
+    LES COLONNES DEVIENNENT DES LIGNES, et chacune reprend son titre —
+    sinon « 148 » et « 12 mars 2026 » se suivent sans qu'on sache ce
+    qu'ils sont. L'en-tête, lui, disparaît : il ne titre plus rien. */
 @media (max-width: 740px) {
-  #modernbb .memberlist-qui {
-    flex: 1 1 100%;
-    min-width: 0;
+  #modernbb .wm-membres__entete {
+    display: none;
   }
 
-  #modernbb .memberlist-champs {
+  #modernbb .wm-membres__ligne {
+    flex-wrap: wrap;
+    padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  }
+
+  #modernbb .wm-membres__col--qui {
     flex: 1 1 100%;
   }
 
-  #modernbb .memberlist-champ--long {
-    flex: 1 1 100%;
+  #modernbb .wm-membres__col--rang {
+    justify-content: flex-start;
   }
 
-  #modernbb .memberlist-tri .button2 {
-    margin-left: 0;
-    width: 100%;
+  #modernbb .wm-membres__col--rang,
+  #modernbb .wm-membres__col--chiffre,
+  #modernbb .wm-membres__col--date,
+  #modernbb .wm-membres__col--liens {
+    flex: 0 0 auto;
+  }
+
+  #modernbb .wm-membres__outils {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #modernbb .wm-membres__tri,
+  #modernbb .wm-membres__modes {
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
 

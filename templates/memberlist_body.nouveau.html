@@ -1,84 +1,164 @@
+<!--  ════════════════════════════════════════════════════════════════
+      memberlist_body — la liste des membres, maquette 307:295
+
+      UN SEUL GABARIT POUR TROIS PAGES. `/memberlist`,
+      `?mode=overall_posters` et `?mode=today_posters` servent le même
+      fichier ; seul le paramètre change. C'est la note de code
+      `307:503`, et c'est vrai : il n'y a aucun bloc par mode.
+
+      CE QUE LA MAQUETTE DEMANDE ET QUE FORUMACTIF NE SERT PAS — relevé
+      le 30 octobre contre le gabarit d'origine ET contre celui qui
+      tourne :
+
+        · le TRI PAR COLONNE. La note le dit « natif : ce sont des
+          liens, on les habille ». Il n'y en a aucun. Le tri est dans
+          deux listes déroulantes — `{S_MODE_SELECT}` et
+          `{S_ORDER_SELECT}` — et c'est tout ce qui existe. On les
+          garde : les retirer enlèverait la seule façon de trier ;
+        · « 142 COMPTES · 41 ACTIFS CE MOIS-CI » au-dessus du titre ;
+        · « PAGE 1 SUR 8 » au bout du bandeau ;
+        · « 142 dresseurs · 20 par page » sous la liste ;
+        · le titre en deux teintes — `{PAGE_TITLE}` arrive d'un bloc,
+          et aucune règle CSS ne colore la moitié d'un texte.
+
+      Aucune de ces cinq n'a de source. On ne les dessine pas plutôt
+      que de les inventer — une page qui annonce « 142 comptes » quand
+      il y en a 38 est pire qu'une page qui ne l'annonce pas.
+
+      CE QU'ON LAISSE TOMBER, ET C'EST LE SEUL : `{memberrow.INTERESTS}`.
+      La maquette n'a pas de colonne pour lui, et une sixième colonne
+      de texte libre ferait sauter les cinq autres.
+      ════════════════════════════════════════════════════════════════ -->
+
 <h1 class="page-title solo">{PAGE_TITLE}</h1>
 
-<form action="{S_MODE_ACTION}" method="get">
-<div class="panel">
-	<h2 class="h3">{L_ORDER_OR_SELECT}</h2>
-	<div class="memberlist-tri">
-		<label class="memberlist-tri__champ">
-			<span class="label">{L_USER_SELECT}</span>
-			<input type="text" class="inputbox tiny" name="username" maxlength="25" size="20" value="{L_USER_SELECT_VALUE}" />
-		</label>
-		<label class="memberlist-tri__champ">
-			<span class="label">{L_SELECT_SORT_METHOD}</span>
-			{S_MODE_SELECT}
-		</label>
-		<label class="memberlist-tri__champ">
-			<span class="label">{L_ORDER}</span>
-			{S_ORDER_SELECT}
-		</label>
+<!--  LA RANGÉE D'OUTILS, maquette 307:346 : la recherche à gauche, un
+      ressort, les trois modes à droite.
+
+      LA RECHERCHE EST UN VRAI CHAMP DE FORUMACTIF — `username`, le
+      même que la liste déroulante utilise. On ne le réinvente pas, on
+      le sort de son tableau.
+
+      LES TROIS MODES SONT DES LIENS ÉCRITS À LA MAIN. Le gabarit n'a
+      aucun bloc pour eux : ce sont trois adresses, données par la note
+      de code. Des liens et pas des boutons — on change de page. -->
+<form action="{S_MODE_ACTION}" method="get" class="wm-membres__outils">
+	<div class="wm-membres__recherche">
+		<input type="text" name="username" maxlength="25"
+		       value="{L_USER_SELECT_VALUE}" placeholder="{L_USER_SELECT}" />
+	</div>
+
+	<!--  LE TRI. Deux listes et un bouton, parce que c'est tout ce que
+	      Forumactif donne. Elles sont discrètes mais présentes. -->
+	<div class="wm-membres__tri">
+		<span class="wm-membres__tri-mot">{L_ORDER_OR_SELECT}</span>
+		<!--  LES DEUX LISTES GARDENT LEUR ÉTIQUETTE. Elle ne se voit
+		      pas — la rangée est serrée et le mot au-dessus suffit à
+		      l'œil — mais elle reste dans l'arbre : une liste
+		      déroulante sans nom s'annonce « liste, un sur six » à un
+		      lecteur d'écran, et on ne sait pas de quoi elle parle. -->
+		<label class="wm-membres__tri-nom">{L_SELECT_SORT_METHOD}</label>
+		{S_MODE_SELECT}
+		<label class="wm-membres__tri-nom">{L_ORDER}</label>
+		{S_ORDER_SELECT}
 		{S_HIDDEN_SID}
 		<input class="button2" type="submit" name="submit" value="{L_SUBMIT}" />
 	</div>
-</div>
+
+	<div class="wm-membres__modes">
+		<a href="/memberlist">Tous</a>
+		<a href="/memberlist?mode=overall_posters">Top 20 des posteurs</a>
+		<a href="/memberlist?mode=today_posters">Posteurs du jour</a>
+	</div>
 </form>
 
-<div class="forumbg forumbg-table">
-	<ul class="memberlist" id="memberlist">
-		<!-- BEGIN memberrow -->
-		<li class="memberlist-membre {memberrow.ROW_CLASS}">
-			<a class="memberlist-qui" href="{memberrow.U_VIEWPROFILE}">
-				<span class="memberlist-rang">{memberrow.ROW_NUMBER}</span>
-				{memberrow.AVATAR_IMG}
-				<span class="memberlist-nom">{memberrow.USERNAME}</span>
-			</a>
+<!--  LA SECTION. Le même bandeau que l'index et la liste des sujets —
+      c'est la règle du § 2 de `css/03-index.css`, on ne la réécrit
+      pas. Le rang « 01 » est décoratif : il n'y a qu'une section ici. -->
+<div class="wm-forum__section wm-membres__section">
+	<div class="wm-forum__bande">
+		<span class="wm-forum__rang">01</span>
+		<span class="wm-forum__filet"></span>
+		<span class="wm-forum__bande-titre">LES MEMBRES</span>
+		<span class="wm-forum__filet"></span>
+	</div>
 
-			<div class="memberlist-champs">
+	<div class="wm-membres">
+		<!--  L'EN-TÊTE DE COLONNES. Les blocs `switch_th_*` répondent
+		      aux `switch_td_*` des lignes : si le panneau coupe la
+		      colonne des groupes, les deux disparaissent ensemble et
+		      les largeurs se referment. C'est pour ça qu'on ne fixe
+		      aucune colonne en pixels. -->
+		<div class="wm-membres__entete">
+			<span class="wm-membres__col wm-membres__col--qui">{L_USERNAME}</span>
+			<!-- BEGIN switch_th_group -->
+			<span class="wm-membres__col wm-membres__col--rang">{L_GROUPS}</span>
+			<!-- END switch_th_group -->
+			<!-- BEGIN switch_th_point -->
+			<span class="wm-membres__col wm-membres__col--chiffre">{L_POINT}</span>
+			<!-- END switch_th_point -->
+			<span class="wm-membres__col wm-membres__col--chiffre">{L_POSTS}</span>
+			<span class="wm-membres__col wm-membres__col--date">{L_JOINED}</span>
+			<span class="wm-membres__col wm-membres__col--date wm-membres__col--vue">{L_VISITED}</span>
+			<!-- BEGIN switch_th_pm -->
+			<span class="wm-membres__col wm-membres__col--liens">{L_PM} · {L_WEBSITE}</span>
+			<!-- END switch_th_pm -->
+		</div>
+
+		<ul class="wm-membres__liste" id="memberlist">
+			<!-- BEGIN memberrow -->
+			<li class="wm-membres__ligne {memberrow.ROW_CLASS}">
+				<!--  LA COLONNE DU DRESSEUR : l'avatar rond, le pseudo,
+				      et sous lui une ligne que le JS remplira.
+
+				      `data-wm-profil` PORTE L'ADRESSE DU PROFIL et pas
+				      un identifiant : le gabarit n'offre pas l'id du
+				      membre, seulement son lien — `/uN`. Le module en
+				      tire le numéro, et demande les vingt niveaux de la
+				      page en UNE requête groupée. Jamais une par
+				      ligne : vingt appels pour afficher une liste, ce
+				      serait la page la plus lente du forum. -->
+				<span class="wm-membres__col wm-membres__col--qui">
+					<!--  LE NUMÉRO DE RANG. La maquette ne le dessine pas,
+					      et sur `/memberlist` il ne dit rien. Mais sur
+					      « Top 20 des posteurs » il EST le classement —
+					      une liste de vingt noms sans leur position
+					      n'est plus un classement. Le même gabarit sert
+					      les trois pages : on le garde, discret. -->
+					<span class="wm-membres__numero">{memberrow.ROW_NUMBER}</span>
+					<span class="wm-membres__avatar">{memberrow.AVATAR_IMG}</span>
+					<span class="wm-membres__qui">
+						<a class="wm-membres__nom" href="{memberrow.U_VIEWPROFILE}">{memberrow.USERNAME}</a>
+						<span class="wm-membres__sous" data-wm-profil="{memberrow.U_VIEWPROFILE}"></span>
+					</span>
+				</span>
+
 				<!-- BEGIN switch_td_group -->
-				<div class="memberlist-champ">
-					<span class="label">{L_GROUPS}</span>
-					<span class="memberlist-valeur">{memberrow.GROUPS}</span>
-				</div>
+				<span class="wm-membres__col wm-membres__col--rang">{memberrow.GROUPS}</span>
 				<!-- END switch_td_group -->
 				<!-- BEGIN switch_td_point -->
-				<div class="memberlist-champ">
-					<span class="label">{L_POINT}</span>
-					<span class="memberlist-valeur">{memberrow.POINTS}</span>
-				</div>
+				<span class="wm-membres__col wm-membres__col--chiffre">{memberrow.POINTS}</span>
 				<!-- END switch_td_point -->
-				<div class="memberlist-champ">
-					<span class="label">{L_POSTS}</span>
-					<span class="memberlist-valeur">{memberrow.POSTS}</span>
-				</div>
-				<div class="memberlist-champ">
-					<span class="label">{L_JOINED}</span>
-					<span class="memberlist-valeur">{memberrow.JOINED}</span>
-				</div>
-				<div class="memberlist-champ">
-					<span class="label">{L_VISITED}</span>
-					<span class="memberlist-valeur">{memberrow.LASTVISIT}</span>
-				</div>
-				<div class="memberlist-champ memberlist-champ--long">
-					<span class="label">{L_INTERESTS}</span>
-					<span class="memberlist-valeur">{memberrow.INTERESTS}</span>
-				</div>
-			</div>
-
-			<div class="memberlist-liens">
+				<span class="wm-membres__col wm-membres__col--chiffre">{memberrow.POSTS}</span>
+				<span class="wm-membres__col wm-membres__col--date">{memberrow.JOINED}</span>
+				<span class="wm-membres__col wm-membres__col--date wm-membres__col--vue">{memberrow.LASTVISIT}</span>
 				<!-- BEGIN switch_td_pm -->
-				{memberrow.PM_IMG}
+				<span class="wm-membres__col wm-membres__col--liens">
+					{memberrow.PM_IMG}
+					{memberrow.WWW_IMG}
+				</span>
 				<!-- END switch_td_pm -->
-				{memberrow.WWW_IMG}
-			</div>
-		</li>
-		<!-- END memberrow -->
-		<!-- BEGIN switch_no_user -->
-		<li class="memberlist-vide">{switch_no_user.L_NO_USER}</li>
-		<!-- END switch_no_user -->
-	</ul>
+			</li>
+			<!-- END memberrow -->
+			<!-- BEGIN switch_no_user -->
+			<li class="wm-membres__vide">{switch_no_user.L_NO_USER}</li>
+			<!-- END switch_no_user -->
+		</ul>
+	</div>
 </div>
 
-<div class="pagination">
+<div class="wm-membres__pied">
 	<!-- BEGIN switch_pagination -->
-	{PAGINATION}
+	<div class="pagination">{PAGINATION}</div>
 	<!-- END switch_pagination -->
 </div>

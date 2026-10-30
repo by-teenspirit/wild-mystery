@@ -35,7 +35,8 @@
     "poster": "deno run -A outils/poster.mjs",
     "etat": "bash outils/etat.sh",
     "apercu": "deno run -A outils/sujet.mjs --apercu",
-    "a-publier": "deno run -A outils/a-publier.mjs"
+    "a-publier": "deno run -A outils/a-publier.mjs",
+    "membres": "deno run -A outils/membres.mjs"
   },
   "fmt": {
     "include": [
