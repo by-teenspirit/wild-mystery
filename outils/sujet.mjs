@@ -610,6 +610,78 @@ dire(
   JSON.stringify(bandeau),
 );
 
+//  ── UNE ÉQUIPE DE QUATRE, COMME LA MAQUETTE ───────────────────────
+//
+//  Le décor sert six cases vides : c'est le cas décidé le 28 octobre,
+//  et il est déjà testé. Mais la maquette `305:142` dessine QUATRE
+//  pokémon, et son quatrième est centré sous le deuxième — la dernière
+//  rangée incomplète se centre. On pose donc quatre sprites à la main,
+//  comme `mod-sujet` le fera, et on mesure ce que le dessin promet.
+
+const equipe = await p.evaluate(() => {
+  const cases = [...document.querySelectorAll(".post .wm-profil__case")].slice(0, 6);
+  if (cases.length < 6) return null;
+  //  Un pixel transparent suffit : on mesure des boîtes, pas des images.
+  const pixel =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+  for (const c of cases.slice(0, 4)) {
+    const img = document.createElement("img");
+    img.src = pixel;
+    img.alt = "";
+    c.appendChild(img);
+  }
+  const boite = (e) => {
+    const r = e.getBoundingClientRect();
+    return { x: Math.round(r.x), y: Math.round(r.y), l: Math.round(r.width) };
+  };
+  //  SEULEMENT CE QUI SE VOIT. Les cases vides en trop passent en
+  //  `display: none` dès qu'une case est occupée : les compter
+  //  donnerait trois rangées là où l'œil en voit deux.
+  const b = cases.map(boite).filter((e) => e.l > 0);
+  const rangs = [...new Set(b.map((e) => e.y))];
+  const parRang = rangs.map((y) => b.filter((e) => e.y === y));
+  const conteneur = document.querySelector(".post .wm-profil__cases").getBoundingClientRect();
+  const dernier = parRang[parRang.length - 1];
+  const milieuDuRang = (r) => (r[0].x + r[r.length - 1].x + r[r.length - 1].l) / 2;
+  return {
+    affichees: b.length,
+    rangs: rangs.length,
+    tailles: parRang.map((r) => r.length),
+    //  CENTRÉ : le milieu de la dernière rangée tombe sur celui du bloc.
+    ecartAuCentre: Math.round(
+      Math.abs(milieuDuRang(dernier) - (conteneur.x + conteneur.width / 2)),
+    ),
+    occupee: (() => {
+      const c = cases[0];
+      const st = getComputedStyle(c);
+      return { bordure: st.borderTopColor, fond: st.backgroundColor };
+    })(),
+    //  Pour la case vide, on regarde un message SANS équipe : dans
+    //  celui-ci, les vides ont disparu, c'est tout l'objet de la règle.
+    vide: (() => {
+      const c = document.querySelectorAll(".post")[1]
+        ?.querySelector(".wm-profil__case") ?? cases[5];
+      const st = getComputedStyle(c);
+      return { style: st.borderTopStyle, visible: st.borderTopColor !== "rgba(0, 0, 0, 0)" };
+    })(),
+  };
+});
+
+dire(
+  "UNE ÉQUIPE DE QUATRE CENTRE SA DERNIÈRE RANGÉE",
+  equipe !== null && equipe.affichees === 4 && equipe.rangs === 2 &&
+    equipe.tailles[0] === 3 && equipe.tailles[1] === 1 &&
+    equipe.ecartAuCentre <= 2,
+  JSON.stringify(equipe),
+);
+
+dire(
+  "UNE CASE OCCUPÉE N'A PLUS DE FILET, UNE CASE VIDE GARDE SON POINTILLÉ",
+  equipe !== null && equipe.occupee.bordure === "rgba(0, 0, 0, 0)" &&
+    equipe.vide.style === "dashed" && equipe.vide.visible,
+  JSON.stringify({ occupee: equipe?.occupee, vide: equipe?.vide }),
+);
+
 //  ── LE BAS DU SUJET ───────────────────────────────────────────────
 
 const bas = await p.evaluate(() => {

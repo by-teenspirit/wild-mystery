@@ -5279,12 +5279,30 @@ html#min-width {
     carré raté.
 
     Le JS remplace le contenu d'une case par un sprite ; la case garde
-    sa taille, donc la colonne ne saute pas quand les sprites arrivent. */
+    sa taille, donc la colonne ne saute pas quand les sprites arrivent.
+
+    ── 30 OCTOBRE : « AFFICHE PLUS PROPREMENT LES POKÉMONS » ─────────
+
+    Trois écarts avec le dessin, relevés sur la maquette `305:142` :
+    les cases y sont des carrés beige doux SANS bordure, le libellé
+    « SON ÉQUIPE » est centré au-dessus, et la dernière rangée
+    incomplète est centrée — le quatrième pokémon est sous le
+    deuxième, pas sous le premier.
+
+    Le pointillé ne reste donc que sur une case VIDE, où il dit encore
+    ce qu'il disait : une place à prendre. Dès qu'un sprite arrive, la
+    case devient le carré plein du dessin. */
 #modernbb .postprofile-equipe {
-  margin-top: var(--wm-espace-10, 10px);
-  padding-top: var(--wm-espace-10, 10px);
+  margin-top: var(--wm-espace-14, 14px);
+  padding-top: var(--wm-espace-14, 14px);
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
-  text-align: left;
+  /*  Centré, comme le libellé de la maquette — et comme le pseudo et
+      la pastille juste au-dessus. */
+  text-align: center;
+}
+
+#modernbb .postprofile-equipe > .wm-profil__cle {
+  display: block;
 }
 
 #modernbb .wm-profil__cases {
@@ -5297,6 +5315,7 @@ html#min-width {
 
 #modernbb .wm-profil__case {
   display: flex;
+  overflow: hidden;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
@@ -5305,8 +5324,12 @@ html#min-width {
   width: 56px;
   height: 56px;
   border: 1px dashed var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-sm, 6px);
-  background: var(--wm-fond-page, #eecfb5);
+  border-radius: var(--wm-rayon-md, 8px);
+  /*  `fond-douce` et plus `fond-page` : la maquette pose des carrés
+      beige clair, un ton au-dessus du fond. Sur `surface-haute`, le
+      fond de page tirait au brun et les cases se lisaient comme des
+      trous. */
+  background: var(--wm-fond-douce, #f3e1d2);
 }
 
 /*  Un sprite posé par le JS remplit sa case sans la déformer. */
@@ -5318,10 +5341,32 @@ html#min-width {
   image-rendering: pixelated;
 }
 
-/*  Une case occupée perd le pointillé : il ne reste que sur ce qui est
-    encore libre. */
+/*  ── LES CASES EN TROP DISPARAISSENT DÈS QU'IL Y A UNE ÉQUIPE ──────
+
+    « Des cases vides quand il n'en a AUCUN », 28 octobre. La maquette
+    `305:142` montre un joueur à quatre pokémon : quatre cases, la
+    dernière centrée sous la deuxième — pas quatre sprites suivis de
+    deux trous.
+
+    Les deux tiennent ensemble avec `:has` : tant qu'aucune case n'a de
+    sprite, les six restent et disent la place à prendre ; dès qu'une
+    seule est occupée, les vides s'effacent et la grille se referme sur
+    l'équipe réelle. Aucun JavaScript pour ça — `mod-sujet` n'aura qu'à
+    poser les sprites.
+
+    Le gabarit sert donc six cases en dur, et c'est voulu : une page
+    sans JavaScript montre une équipe vide, ce qui est vrai, plutôt
+    qu'un bloc absent. */
+#modernbb .wm-profil__cases:has(img) .wm-profil__case:not(:has(img)) {
+  display: none;
+}
+
+/*  UNE CASE OCCUPÉE N'A PLUS DE BORDURE DU TOUT. La maquette ne
+    dessine aucun filet autour des sprites : le carré de couleur suffit
+    à les tenir ensemble. Le pointillé ne reste que sur ce qui est
+    encore libre — c'est là qu'il veut dire quelque chose. */
 #modernbb .wm-profil__case:has(img) {
-  border-style: solid;
+  border-color: transparent;
 }
 
 /* ── 10 · la colonne du corps et son bandeau ───────────────────────── */
