@@ -10561,6 +10561,46 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex-direction: column;
 }
 
+/*  ── L'ACCUEIL SORT DE LA LAISSE DU FORUM ──────────────────────────
+
+    « Pourquoi la page d'accueil a changé ? Remets comme avant »,
+    30 octobre.
+
+    Elle n'avait pas changé de règle : elle changeait de TAILLE. La
+    composition est dessinée pour 1 292 px et `module-accueil.ts` la
+    met à l'échelle sur la place que son parent lui laisse. Tant que le
+    forum valait les 1 400 de ModernBB, la place suffisait et le
+    facteur valait 1. À 1 000 il est tombé à 0,774, à 1 200 il est
+    remonté à 0,93 — l'accueil rétrécissait et regrossissait à chaque
+    fois qu'on touchait à la largeur du forum, ailleurs.
+
+    On le sort donc de la laisse, comme la bannière et le bandeau d'une
+    zone : il garde ses 1 292 et déborde à égalité des deux côtés. Le
+    forum reste à 1 200 pour tout le reste, et l'accueil ne dépend plus
+    d'un réglage qui ne le concerne pas.
+
+    SEULEMENT QUAND IL Y A LA PLACE. Sous 1 340 px de fenêtre, le
+    débordement sortirait de l'écran : en dessous, l'accueil reprend la
+    largeur qu'on lui donne et le facteur fait son travail, comme avant.
+    C'est la même bascule que la version mobile, qu'on ne touche pas.
+
+    C'EST LE PARENT QU'ON ÉLARGIT, PAS L'HÔTE. `module-accueil.ts`
+    calcule le facteur sur la boîte du parent de l'hôte : élargir
+    l'hôte ne change donc rien au calcul. Essayé d'abord, et le
+    harnais l'a dit — facteur toujours 0,9288. `:has(> #wm-accueil)`
+    atteint le bon élément quel que soit son nom, qui appartient à
+    Forumactif et peut changer. */
+@media (min-width: 1340px) {
+  #modernbb *:has(> #wm-accueil) {
+    width: var(--wm-accueil-largeur, 1292px);
+    max-width: none;
+    /*  Le débordement se partage entre les deux bords : la composition
+        reste centrée sur la colonne du forum. */
+    margin-right: calc((100% - var(--wm-accueil-largeur, 1292px)) / 2);
+    margin-left: calc((100% - var(--wm-accueil-largeur, 1292px)) / 2);
+  }
+}
+
 #modernbb .wm-accueil--pose {
   align-items: flex-end;
   margin-bottom: calc(93px + var(--wm-espace-24, 24px));

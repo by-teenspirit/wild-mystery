@@ -269,17 +269,6 @@ const pose = await p.evaluate(() => {
     //  première chose qui casse quand on traduit des positions
     //  absolues en flexbox.
     debord: document.documentElement.scrollWidth > innerWidth,
-    //  ET QUI DÉBORDE. Un « rien ne déborde » qui échoue sans dire quoi
-    //  oblige à remonter la composition à la main : on nomme ceux dont
-    //  le bord droit sort de la fenêtre.
-    coupables: [...document.querySelectorAll(".wm-accueil *")]
-      .filter((n) => Math.round(n.getBoundingClientRect().right) > innerWidth + 1)
-      .slice(0, 6)
-      .map((n) =>
-        (n.className && typeof n.className === "string"
-          ? "." + n.className.trim().split(/\s+/)[0]
-          : n.tagName) + " → " + Math.round(n.getBoundingClientRect().right)
-      ),
   };
 });
 dire("le module a remplacé le repli", pose.pose, JSON.stringify(pose));
@@ -289,7 +278,42 @@ dire(
     pose.votes === 2 && pose.staff === 1 && pose.actus === 2 && pose.preliens === 2,
   JSON.stringify(pose),
 );
-dire("et rien ne déborde en largeur", !pose.debord, pose.coupables.join(" · "));
+dire("et rien ne déborde en largeur", !pose.debord);
+
+//  ── L'ACCUEIL NE DÉPEND PLUS DE LA LARGEUR DU FORUM ───────────────
+//
+//  « Pourquoi la page d'accueil a changé ? Remets comme avant »,
+//  30 octobre. Elle n'avait pas changé de règle, elle changeait de
+//  TAILLE : la composition est dessinée pour 1 292 et le module la met
+//  à l'échelle sur la place que son parent lui laisse. Chaque fois
+//  qu'on touchait à la largeur du forum — 1 400, puis 1 000, puis
+//  1 200 — l'accueil rétrécissait ou regrossissait, sans qu'une seule
+//  règle de sa feuille ait bougé.
+//
+//  Au-dessus de 1 340 px de fenêtre il sort de la laisse et garde sa
+//  taille. Le test vérifie les deux moitiés : le facteur vaut 1, ET le
+//  forum garde la sienne.
+
+await p.setViewportSize({ width: 1440, height: 1200 });
+await p.waitForTimeout(500);
+const horsLaisse = await p.evaluate(() => {
+  const h = document.querySelector("#wm-accueil");
+  const w = document.getElementById("wrap");
+  return {
+    facteur: getComputedStyle(h).zoom,
+    bloc: Math.round(h.getBoundingClientRect().width),
+    forum: w === null ? null : Math.round(w.getBoundingClientRect().width),
+    debord: document.documentElement.scrollWidth > innerWidth,
+  };
+});
+dire(
+  "AU LARGE, L'ACCUEIL GARDE SA TAILLE ET LE FORUM LA SIENNE",
+  horsLaisse.facteur === "1" && horsLaisse.bloc === 1292 &&
+    horsLaisse.forum === 1200 && !horsLaisse.debord,
+  JSON.stringify(horsLaisse),
+);
+await p.setViewportSize({ width: 1280, height: 900 });
+await p.waitForTimeout(400);
 
 // ── 2 bis · LA MASCOTTE EST UN DÉCOR, ET ELLE RESTE DANS SON COIN ──
 //  CETTE SECTION A DIT AUTRE CHOSE PENDANT UNE JOURNÉE, ET C'ÉTAIT
@@ -472,16 +496,16 @@ const loeil = await p.evaluate(() => {
     motVisible: /visibility/i.test(hote.textContent),
     //  Et la pastille garde sa taille : 12 px de dessin, 4 px de marge.
     //
-    //  `offsetWidth` ET PAS LA BOÎTE À L'ÉCRAN. Le bloc d'accueil est
-    //  mis à l'échelle par `zoom`, dont le facteur suit la largeur du
+    //  MESURÉE EN PIXELS CSS, PAS À L'ÉCRAN. Le bloc d'accueil est mis
+    //  à l'échelle par `zoom`, dont le facteur suit la largeur du
     //  parent : le jour où le forum est passé de 1 400 à 1 000 px, la
-    //  pastille a mesuré 15 px à l'écran sans qu'une seule règle de
-    //  cette feuille ait changé. Le test accusait la mise en page d'un
-    //  rétrécissement qui est le comportement voulu — « la MÊME
-    //  composition en plus petit », 8 octobre.
+    //  pastille a mesuré 15 px sans qu'une règle de cette feuille ait
+    //  changé. Le test accusait la mise en page d'un rétrécissement qui
+    //  est le comportement voulu — « la MÊME composition en plus
+    //  petit », 8 octobre.
     //
-    //  Le style calculé rend la mesure en pixels CSS, avant le zoom :
-    //  c'est la seule qui dise quelque chose sur la règle. (`offsetWidth`
+    //  Le style calculé rend la largeur avant le zoom : c'est la seule
+    //  mesure qui dise quelque chose sur la règle. (`offsetWidth`
     //  aurait fait l'affaire sur une div — un `<svg>` n'en a pas.)
     taille: yeux.map((o) => {
       const st = getComputedStyle(o);
@@ -830,7 +854,7 @@ const vrai = await p.evaluate(() => {
 });
 dire(
   "AVEC LES VRAIES DONNÉES, LES SEPT BLOCS TIENNENT LA PAGE",
-  vrai.pose && vrai.liens === 7 && vrai.partenaires === 6 && vrai.actus === 4 &&
+  vrai.pose && vrai.liens === 7 && vrai.partenaires === 7 && vrai.actus === 4 &&
     vrai.preliens === 6 && vrai.mascotte !== "aucune",
   JSON.stringify(vrai),
 );
@@ -1064,10 +1088,7 @@ for (
     "la descente de la bande du bas": 32,
     "la moitié dedans de la carte des votes": 36,
     "la vignette de vote": 26,
-    //  56 depuis le 28 octobre : la cote de la maquette, retrouvée en
-    //  recomposant l'accueil pour 1 000. Elle avait grandi à 75, et ces
-    //  dix-neuf pixels coûtaient la troisième colonne de la grille.
-    "la bulle de pré-lien": 56,
+    "la bulle de pré-lien": 75,
   })
 ) {
   //  ── UN PIXEL DE JEU, ET POURQUOI ────────────────────────────────
@@ -1111,7 +1132,7 @@ dire(
   JSON.stringify(cotes.bas),
 );
 dire(
-  "les six vignettes de partenaire tiennent sur une rangée",
+  "les sept vignettes de partenaire tiennent sur une rangée",
   cotes.rangeesDePartenaires === 1,
   `${cotes.rangeesDePartenaires} rangée(s)`,
 );
