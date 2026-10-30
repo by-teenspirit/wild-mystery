@@ -148,31 +148,67 @@
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
+/*  ── VUE SUR PAGE RÉELLE LE 30 OCTOBRE ─────────────────────────────
+
+    « Le 1 2 3, ils sont pas assez jolis. » Trois défauts, dont deux
+    que le commentaire ci-dessus annonçait en disant qu'on n'avait
+    rien vérifié :
+
+      1 · LE `span` PRENAIT LA PASTILLE. Forumactif enveloppe le texte
+          « Page 1 sur 8 » dans un `<span>`, et la règle en faisait un
+          carré de 32 avec une phrase dedans. On ne met en pastille
+          que ce qui est cliquable — les liens — et ce qui est la page
+          courante ;
+      2 · 6 px d'arrondi là où tout le reste de la page est à 999.
+          Deux grammaires de coins sur une même page se remarquent ;
+      3 · rien ne distinguait un numéro de la flèche « suivant », et
+          aucun des deux ne bougeait au clavier. */
 #modernbb .pagination a,
-#modernbb .pagination strong,
-#modernbb .pagination span {
+#modernbb .pagination strong {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
   min-width: 32px;
   min-height: 32px;
-  padding: 0 var(--wm-espace-8, 8px);
-  border-radius: var(--wm-rayon-sm, 6px);
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--wm-espace-10, 10px);
+  border-radius: 999px;
   text-decoration: none;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  font-variant-numeric: tabular-nums;
+  transition: background-color 120ms ease, border-color 120ms ease,
+    color 120ms ease;
+}
+
+/*  LE TEXTE QUI N'EST PAS UN NUMÉRO reste du texte : « Page 1 sur 8 »
+    n'est pas un bouton et ne doit pas en avoir l'air. */
+#modernbb .pagination > span {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
 }
 
 #modernbb .pagination a {
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  color: var(--wm-accent-primaire, #275e7a);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
 }
 
 #modernbb .pagination a:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
   background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb .pagination a:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
 }
 
 /*  La page courante : pleine, comme le bouton d'action principal. Elle
-    n'est pas un lien, donc elle ne doit pas en avoir l'air. */
+    n'est pas un lien, donc elle ne doit pas en avoir l'air — ni
+    bordure, ni survol, ni curseur de main. */
 #modernbb .pagination strong {
+  border: 1px solid transparent;
   background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
 }
@@ -1448,4 +1484,24 @@
       pixels sous le pseudo. On la cale sur le milieu de la ligne. */
   align-items: center;
   vertical-align: middle;
+}
+
+/*  ── 16 · LE BANDEAU SUR LA PAGE D'UN SUJET ────────────────────────
+
+    « Le bandeau : actif que dans les zones sauvages, pas actif sur les
+    autres », 28 octobre. C'est déjà la règle, et elle n'a qu'une
+    source : les dix-sept entrées de `zones.json`. Une ville, une arène,
+    la notice n'y sont pas, donc elles n'ont de bandeau ni sur leur
+    liste de sujets ni sur leurs sujets.
+
+    Ce qui change ici, c'est la HAUTEUR. 460 px sur la page d'une zone :
+    on y arrive pour découvrir un lieu, la photo est le sujet. Sur la
+    page d'un sujet on vient lire des messages, et 460 px de photo
+    avant la première réplique, c'est un mur. La maquette `305:24`
+    donne 300 au bandeau intérieur — on les prend.
+
+    Le fondu garde ses 170 px : c'est lui qui raccorde la photo au fond
+    de page, et il ne dépend pas de la hauteur au-dessus de lui. */
+#modernbb .wm-zone--sujet {
+  height: 300px;
 }

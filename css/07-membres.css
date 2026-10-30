@@ -89,20 +89,84 @@
   margin: 0 0 var(--wm-espace-20, 20px);
 }
 
+/*  ── LA RECHERCHE SE VOIT ──────────────────────────────────────────
+
+    « Faudrait mieux l'afficher », 30 octobre.
+
+    Trois choses manquaient. Le champ ne disait pas qu'il cherchait :
+    son `placeholder` vient de `{L_USER_SELECT}`, et Forumactif y met
+    « Sélectionner un utilisateur » — une phrase d'administration, pas
+    une invitation. On pose donc une LOUPE devant, le seul signe
+    qu'aucune langue n'a besoin de traduire.
+
+    Il n'avait pas non plus d'état : rien ne changeait au survol ni à
+    la saisie, et un champ qui ne réagit pas a l'air décoratif. Et il
+    partageait sa ligne avec deux listes déroulantes, donc il se
+    serrait le premier.
+
+    `flex: 1 1 280px` au lieu de `0 1 280px` : il prend la place qui
+    reste plutôt que de la céder. C'est lui qu'on utilise. */
 #modernbb .wm-membres__recherche {
-  flex: 0 1 280px;
+  position: relative;
+  display: flex;
+  flex: 1 1 280px;
+  align-items: center;
+  max-width: 420px;
+}
+
+/*  LA LOUPE. Un pseudo-élément plutôt qu'une image : rien à charger,
+    rien à maintenir, et elle suit la couleur du texte. */
+#modernbb .wm-membres__recherche::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid var(--wm-texte-pale, #69564c);
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+#modernbb .wm-membres__recherche::after {
+  content: "";
+  position: absolute;
+  left: 25px;
+  top: 25px;
+  width: 6px;
+  height: 1.5px;
+  transform: rotate(45deg);
+  transform-origin: left center;
+  background: var(--wm-texte-pale, #69564c);
+  pointer-events: none;
 }
 
 #modernbb .wm-membres__recherche input {
   width: 100%;
   height: 40px;
-  padding: 0 var(--wm-espace-16, 16px);
+  /*  38 à gauche : la loupe est à 15, large de 11, et il lui faut de
+      l'air avant le premier caractère. */
+  padding: 0 var(--wm-espace-16, 16px) 0 38px;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-lg, 10px);
+  border-radius: 999px;
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
   font: inherit;
   font-size: var(--wm-taille-petit, 11.5px);
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+#modernbb .wm-membres__recherche input::placeholder {
+  color: var(--wm-texte-pale, #69564c);
+  /*  Le libellé de Forumactif peut être long — « Sélectionner un
+      utilisateur ». Coupé vaut mieux que débordant. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#modernbb .wm-membres__recherche:hover input,
+#modernbb .wm-membres__recherche input:focus {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
 #modernbb .wm-membres__recherche input:focus-visible {
@@ -140,15 +204,62 @@
   white-space: nowrap;
 }
 
-#modernbb .wm-membres__tri select {
-  max-width: 140px;
-  height: 30px;
+/*  ── LES BOUTONS ───────────────────────────────────────────────────
+
+    « Améliore l'affichage des boutons aussi », 30 octobre.
+
+    Les listes et le « Ok » de Forumactif arrivaient avec leur mise en
+    forme de navigateur : hauteurs différentes, coins différents,
+    bordures différentes. Trois objets de la même rangée qui ne se
+    ressemblent pas.
+
+    On les met tous les trois à 32 de haut, arrondis pareil, dans la
+    même famille que les trois onglets de droite. La rangée devient un
+    jeu de pastilles et plus un formulaire. */
+#modernbb .wm-membres__tri select,
+#modernbb .wm-membres__tri .button2 {
+  height: 32px;
+  padding: 0 var(--wm-espace-12, 12px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-sm, 6px);
+  border-radius: 999px;
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
+  cursor: pointer;
   font: inherit;
-  font-size: var(--wm-taille-etiquette, 10px);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+#modernbb .wm-membres__tri select {
+  max-width: 150px;
+}
+
+#modernbb .wm-membres__tri select:hover,
+#modernbb .wm-membres__tri .button2:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/*  LE « OK » EST L'ACTION DE LA RANGÉE : il se remplit, comme la page
+    courante de la pagination. Les deux listes ne font que choisir ;
+    lui envoie. */
+#modernbb .wm-membres__tri .button2 {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-membres__tri .button2:hover {
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-membres__tri select:focus-visible,
+#modernbb .wm-membres__tri .button2:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
 }
 
 /*  ── LES TROIS MODES ────────────────────────────────────────────────
@@ -308,10 +419,14 @@
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
+/*  FORUMACTIF SERT L'AVATAR AVEC SES PROPRES DIMENSIONS, parfois
+    200 × 320. Sans ces deux lignes l'image impose sa taille au rond
+    et la ligne fait 320 de haut. */
 #modernbb .wm-membres__avatar img {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
   object-fit: cover;
 }
 
@@ -339,10 +454,24 @@
     Supabase, par le module, en UNE requête pour les vingt membres de
     la page. Vide, elle ne prend aucune place : une ligne de 61 doit
     faire 61 que le serveur réponde ou non. */
-#modernbb .wm-membres__sous:not(:empty) {
-  margin-top: 2px;
+#modernbb .wm-membres__sous {
+  overflow: hidden;
   color: var(--wm-texte-pale, #69564c);
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  ELLE NE PREND AUCUNE PLACE QUAND ELLE EST VIDE. Un membre sans
+    faceclaim et sans niveau doit tenir sur la même ligne de 61 qu'un
+    membre qui a les deux — sinon la liste ondule.
+
+    `:has` plutôt que `:not(:empty)` : la ligne porte maintenant un
+    `<span>` de faceclaim, donc elle n'est jamais vide au sens de
+    `:empty`, même quand ce span ne contient rien. */
+#modernbb .wm-membres__sous:has(.wm-membres__fc:not(:empty)),
+#modernbb .wm-membres__sous:not(:has(.wm-membres__fc)) {
+  margin-top: 2px;
 }
 
 /*  LE RANG est centré dans sa colonne, comme la maquette le pose. La
@@ -362,25 +491,66 @@
   padding: 0 var(--wm-espace-10, 10px);
   border-radius: 999px;
   background: var(--wm-fond-douce, #f3e1d2);
+  overflow: hidden;
+  max-width: 100%;
   text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-transform: uppercase;
 }
 
+/*  ── UNE SEULE TAILLE POUR TOUTES LES VALEURS ──────────────────────
+
+    « Y'a des tailles différentes pour les messages postés, date
+    d'inscription etc. », 30 octobre. Il y en avait : le compteur en
+    13,5 et les dates en 11,5, parce que la maquette dessine le
+    nombre plus gros.
+
+    Sur le dessin ça marche — il y a trois colonnes. Sur la vraie page
+    il y en a jusqu'à sept, et sept valeurs de deux tailles sur une
+    même ligne se lisent comme un défaut d'alignement. La hiérarchie
+    reste, mais par la GRAISSE et la couleur, pas par la taille : le
+    compteur est sombre et demi-gras, les dates sont douces. */
 #modernbb .wm-membres__col--chiffre {
-  font-size: var(--wm-taille-normal, 13.5px);
   font-variant-numeric: tabular-nums;
   font-weight: var(--wm-graisse-demi, 600);
 }
 
 #modernbb .wm-membres__col--date {
-  overflow: hidden;
   color: var(--wm-texte-doux, #6e5749);
+}
+
+/*  ── AUCUNE CELLULE NE PASSE SUR DEUX LIGNES ───────────────────────
+
+    « Ça passe souvent sur deux lignes », 30 octobre.
+
+    La rangée, elle, ne se replie jamais — `flex-wrap` n'est posé que
+    sous 740 px. Ce qui passait à la ligne, c'est le CONTENU d'une
+    cellule : un en-tête de deux mots, une pastille de rang un peu
+    longue, et surtout `{memberrow.GROUPS}`, qui rend AUTANT DE LIENS
+    QUE LE MEMBRE A DE GROUPES, séparés par des virgules. Mon décor
+    n'en servait qu'un ; le forum en sert trois.
+
+    Une ligne dont la hauteur dépend du membre le plus décoré n'est
+    plus une liste. On coupe, partout et en une règle : la valeur
+    tronquée reste lisible au survol par son `title`, et la ligne
+    garde ses 61. */
+#modernbb .wm-membres__entete > .wm-membres__col,
+#modernbb .wm-membres__ligne > .wm-membres__col {
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  La colonne du dresseur est une rangée en flex : `overflow: hidden`
+    y couperait l'avatar. C'est le pseudo qui se coupe, et il a déjà
+    sa règle. */
+#modernbb .wm-membres__ligne > .wm-membres__col--qui {
+  overflow: visible;
 }
 
 #modernbb .wm-membres__col--liens {

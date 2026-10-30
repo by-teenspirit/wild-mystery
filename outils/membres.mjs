@@ -76,44 +76,50 @@ const MEMBRES = [
     nom: "Calliste Vanne",
     rang: "Dresseuse",
     messages: "148",
-    inscrit: "12 mars 2026",
-    vu: "aujourd'hui",
+    inscrit: "Jeu 12 Mar 2026 - 14:03",
+    vu: "Aujourd'hui à 9:41",
   },
   {
     nom: "Nael",
     rang: "Dresseur",
     messages: "390",
-    inscrit: "04 janvier 2026",
-    vu: "aujourd'hui",
+    inscrit: "Dim 4 Jan 2026 - 21:55",
+    vu: "Aujourd'hui à 11:08",
   },
   {
     nom: "Ines Kervadec",
     rang: "Personnel",
     messages: "1 204",
-    inscrit: "02 janvier 2026",
-    vu: "hier",
+    inscrit: "Ven 2 Jan 2026 - 8:12",
+    vu: "Hier à 23:47",
   },
-  { nom: "Iseult", rang: "Dresseuse", messages: "61", inscrit: "28 août 2026", vu: "hier" },
+  {
+    nom: "Iseult",
+    rang: "Dresseuse",
+    messages: "61",
+    inscrit: "Ven 28 Aoû 2026 - 17:30",
+    vu: "Hier à 18:02",
+  },
   {
     nom: "Orion",
     rang: "Champion d'arène",
     messages: "806",
-    inscrit: "15 février 2026",
-    vu: "27 sept",
+    inscrit: "Dim 15 Fév 2026 - 12:00",
+    vu: "Dim 27 Sep 2026 - 10:21",
   },
   {
     nom: "Maëlis",
     rang: "Dresseuse",
     messages: "102",
-    inscrit: "03 septembre 2026",
-    vu: "26 sept",
+    inscrit: "Jeu 3 Sep 2026 - 6:45",
+    vu: "Sam 26 Sep 2026 - 19:13",
   },
   {
     nom: "Elijah Smithson",
     rang: "Personnel",
     messages: "2 118",
-    inscrit: "02 janvier 2026",
-    vu: "aujourd'hui",
+    inscrit: "Ven 2 Jan 2026 - 9:00",
+    vu: "Aujourd'hui à 7:55",
   },
 ];
 
@@ -176,6 +182,15 @@ function pageDesMembres({ groupe = true, point = false, mp = true } = {}) {
     if (nom === "LASTVISIT") {
       i++;
       return m.vu;
+    }
+    //  LE FACECLAIM arrive par le champ « Intérêts » — le seul champ
+    //  de profil libre que Forumactif expose sur cette page. Le décor
+    //  en sert un long et un vide : la ligne doit tenir dans les deux
+    //  cas, et surtout garder sa hauteur quand il n'y en a pas.
+    if (nom === "INTERESTS") {
+      return i % 3 === 2
+        ? ""
+        : ["Florence Pugh", "Dev Patel", "Anya Taylor-Joy", "Idris Elba", "Jodie Comer"][i % 5];
     }
     if (nom === "PM_IMG") return `<img src="${PIXEL}" alt="MP" />`;
     if (nom === "WWW_IMG") return `<img src="${PIXEL}" alt="Site" />`;
@@ -529,6 +544,183 @@ dire(
   coupe.desaccord !== true && coupe.combien === 5 && coupe.pire <= 1 &&
     coupe.remplit,
   JSON.stringify(coupe),
+);
+
+// ── LE DÉCOR HOSTILE ───────────────────────────────────────────────
+//
+//  « Ça passe souvent sur deux lignes », 30 octobre. Pas dans mon
+//  décor — et c'est bien le problème : un décor poli ne trouve rien.
+//
+//  Celui-ci sert ce que le forum sert vraiment et que je n'avais pas
+//  reproduit : un membre dans TROIS groupes — `{memberrow.GROUPS}`
+//  rend un lien par groupe, séparés par des virgules — un pseudo très
+//  long, un avatar aux dimensions de Forumactif (200 × 320, pas 34),
+//  et une date complète. Tout ce qui peut faire grandir une cellule,
+//  sur la même ligne.
+//
+//  LA PAGE EST MONTÉE À 1 200, la largeur du forum depuis le 30
+//  octobre, et pas à la largeur de la fenêtre : c'est là que ça se
+//  joue.
+
+const dur = await nav.newPage({ viewport: { width: 1280, height: 1200 } });
+await dur.setContent(
+  page(pageDesMembres({ groupe: true, point: true, mp: true }))
+    .replace(
+      /<a href="\/g\d+" style="color:#46849C">[^<]*<\/a>/,
+      '<a href="/g1" style="color:#46849C">Champion d\'arène</a>, ' +
+        '<a href="/g2" style="color:#46849C">Conseil des Quatre</a>, ' +
+        '<a href="/g3" style="color:#46849C">Modération</a>',
+    )
+    .replace(
+      /<span class="usr_grp_clr" style="color:#B56A45">Calliste Vanne<\/span>/,
+      '<span class="usr_grp_clr" style="color:#B56A45">' +
+        "Calliste Vanne de la Roche-aux-Fées</span>",
+    )
+    //  L'AVATAR TEL QUE FORUMACTIF LE SERT : avec ses dimensions à
+    //  lui, qui sont celles du profil et pas celles d'une liste.
+    .replace(/width="34" height="34"/g, 'width="200" height="320"'),
+  { waitUntil: "load" },
+);
+
+const resiste = await dur.evaluate(() => {
+  const lignes = [...document.querySelectorAll(".wm-membres__ligne")];
+  const entete = document.querySelector(".wm-membres__entete");
+  const h = (e) => Math.round(e.getBoundingClientRect().height);
+  const rond = lignes[0].querySelector(".wm-membres__avatar img");
+  return {
+    entete: h(entete),
+    //  TOUTES les lignes, pas la première : c'est celle qui porte les
+    //  trois groupes qui casserait.
+    hauteurs: [...new Set(lignes.map(h))],
+    avatar: [
+      Math.round(rond.getBoundingClientRect().width),
+      Math.round(rond.getBoundingClientRect().height),
+    ],
+    //  ET LES COLONNES TOMBENT TOUJOURS EN FACE.
+    pire: (() => {
+      const cols = (r) => [...r.querySelectorAll(":scope > .wm-membres__col")];
+      const x = (e) => Math.round(e.getBoundingClientRect().x);
+      const t = cols(entete);
+      let pire = 0;
+      for (const l of lignes) {
+        const v = cols(l);
+        for (let n = 0; n < t.length; n++) {
+          pire = Math.max(pire, Math.abs(x(t[n]) - x(v[n])));
+        }
+      }
+      return pire;
+    })(),
+  };
+});
+await dur.close();
+
+dire(
+  "TROIS GROUPES, UN PSEUDO LONG ET UN AVATAR DE PROFIL NE CASSENT RIEN",
+  //  Une seule hauteur pour sept lignes : aucune n'a grandi.
+  resiste.hauteurs.length === 1 && resiste.hauteurs[0] === 61 &&
+    resiste.entete === 37 && resiste.pire <= 1 &&
+    //  L'avatar garde son rond : Forumactif sert ses dimensions à lui.
+    resiste.avatar[0] === 34 && resiste.avatar[1] === 34,
+  JSON.stringify(resiste),
+);
+
+//  ── CE QUI EST VRAIMENT TESTABLE, ET CE QUI NE L'EST PAS ───────────
+//
+//  « Les valeurs ont toutes la même taille » a été écrit d'abord comme
+//  un contrôle. Ça n'en était pas un : la règle qui les unifie porte
+//  deux classes, celles des colonnes n'en portent qu'une, donc elle
+//  gagne quoi qu'on remette. Retirer la règle testée ne faisait pas
+//  tomber le contrôle — il passait par construction.
+//
+//  On garde la mesure, mais contre une VALEUR : 11,5, le jeton
+//  `taille-petit`. Si quelqu'un unifie un jour sur une autre taille,
+//  ou gagne en spécificité, le contrôle le dira.
+
+const tailles = await p.evaluate(() => {
+  const vals = [...document.querySelectorAll(
+    ".wm-membres__ligne > .wm-membres__col--chiffre," +
+      ".wm-membres__ligne > .wm-membres__col--date",
+  )];
+  return {
+    combien: vals.length,
+    distinctes: [...new Set(vals.map((e) => getComputedStyle(e).fontSize))],
+  };
+});
+
+dire(
+  "LES VALEURS ONT TOUTES LA MÊME TAILLE, CELLE DU JETON `taille-petit`",
+  tailles.combien >= 10 && tailles.distinctes.length === 1 &&
+    tailles.distinctes[0] === "11.5px",
+  JSON.stringify(tailles),
+);
+
+//  ── RIEN NE DÉBORDE DE SA LIGNE ────────────────────────────────────
+//
+//  C'est LUI, le contrôle que « sans la coupe des cellules » devait
+//  faire tomber. La hauteur ne bougeait pas — la colonne des rangs
+//  est en flex, donc trois groupes débordent sur le côté au lieu de
+//  passer à la ligne — mais ils SORTAIENT de la carte. Une hauteur
+//  juste et du texte qui dépasse, c'est pire qu'une ligne haute :
+//  on ne le voit pas en mesurant.
+
+const deborde = await p.evaluate(() => {
+  const lignes = [
+    document.querySelector(".wm-membres__entete"),
+    ...document.querySelectorAll(".wm-membres__ligne"),
+  ];
+  let pires = [];
+  for (const l of lignes) {
+    const bord = Math.round(l.getBoundingClientRect().right);
+    for (const c of l.querySelectorAll(":scope > .wm-membres__col")) {
+      //  Deux débordements possibles : la cellule sort de la ligne, ou
+      //  son contenu sort de la cellule.
+      const hors = Math.round(c.getBoundingClientRect().right) - bord;
+      const dedans = c.scrollWidth - c.clientWidth;
+      pires.push(Math.max(hors, dedans));
+    }
+  }
+  return Math.max(...pires);
+});
+
+//  ── LE FACECLAIM SOUS LE PSEUDO ────────────────────────────────────
+//
+//  « On peut afficher aussi son faceclaim en dessous du pseudo ? »,
+//  30 octobre. Oui, par `{memberrow.INTERESTS}` — le seul champ de
+//  profil libre que Forumactif expose ici. Le décor en sert un sur
+//  trois à vide : c'est le cas qui ferait onduler la liste.
+
+const faceclaims = await p.evaluate(() => {
+  const lignes = [...document.querySelectorAll(".wm-membres__ligne")];
+  const h = (e) => Math.round(e.getBoundingClientRect().height);
+  return {
+    remplis: lignes.filter((l) =>
+      (l.querySelector(".wm-membres__fc")?.textContent.trim() ?? "") !== ""
+    ).length,
+    vides: lignes.filter((l) =>
+      (l.querySelector(".wm-membres__fc")?.textContent.trim() ?? "") === ""
+    ).length,
+    //  UNE SEULE HAUTEUR : avec ou sans faceclaim, la ligne fait 61.
+    hauteurs: [...new Set(lignes.map(h))],
+    //  ET IL SE COUPE au lieu de pousser la colonne.
+    coupe: lignes.every((l) => {
+      const e = l.querySelector(".wm-membres__sous");
+      return e === null || getComputedStyle(e).textOverflow === "ellipsis";
+    }),
+  };
+});
+
+dire(
+  "LE FACECLAIM S'AFFICHE SOUS LE PSEUDO, ET SON ABSENCE NE CREUSE RIEN",
+  faceclaims.remplis >= 4 && faceclaims.vides >= 2 &&
+    faceclaims.hauteurs.length === 1 && faceclaims.hauteurs[0] === 61 &&
+    faceclaims.coupe,
+  JSON.stringify(faceclaims),
+);
+
+dire(
+  "AUCUNE CELLULE NE DÉBORDE DE SA LIGNE",
+  deborde <= 1,
+  `débordement maximal : ${deborde} px`,
 );
 
 await p.close();

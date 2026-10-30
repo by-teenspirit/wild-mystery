@@ -25,9 +25,15 @@
       que de les inventer — une page qui annonce « 142 comptes » quand
       il y en a 38 est pire qu'une page qui ne l'annonce pas.
 
-      CE QU'ON LAISSE TOMBER, ET C'EST LE SEUL : `{memberrow.INTERESTS}`.
-      La maquette n'a pas de colonne pour lui, et une sixième colonne
-      de texte libre ferait sauter les cinq autres.
+      `{memberrow.INTERESTS}` N'EST PLUS JETÉ. Il n'a pas de colonne —
+      la maquette n'en prévoit pas, et une sixième colonne de texte
+      libre ferait sauter les cinq autres — mais il passe SOUS le
+      pseudo, là où la maquette met « niveau 14 · 2 badges ».
+
+      C'est le seul champ de profil libre que Forumactif expose sur
+      cette page. Le rang, la feuille de personnage et les autres
+      champs n'y sont pas : vérifié contre le gabarit amont et contre
+      celui qui tourne, le 30 octobre.
       ════════════════════════════════════════════════════════════════ -->
 
 <h1 class="page-title solo">{PAGE_TITLE}</h1>
@@ -74,10 +80,10 @@
 
 <!--  LA SECTION. Le même bandeau que l'index et la liste des sujets —
       c'est la règle du § 2 de `css/03-index.css`, on ne la réécrit
-      pas. Le rang « 01 » est décoratif : il n'y a qu'une section ici. -->
+      pas. Sans numéro de rang — il n'y a
+      qu'une section ici, et « 01 » ne comptait rien. -->
 <div class="wm-forum__section wm-membres__section">
 	<div class="wm-forum__bande">
-		<span class="wm-forum__rang">01</span>
 		<span class="wm-forum__filet"></span>
 		<span class="wm-forum__bande-titre">LES MEMBRES</span>
 		<span class="wm-forum__filet"></span>
@@ -129,7 +135,21 @@
 					<span class="wm-membres__avatar">{memberrow.AVATAR_IMG}</span>
 					<span class="wm-membres__qui">
 						<a class="wm-membres__nom" href="{memberrow.U_VIEWPROFILE}">{memberrow.USERNAME}</a>
-						<span class="wm-membres__sous" data-wm-profil="{memberrow.U_VIEWPROFILE}"></span>
+						<span class="wm-membres__sous" data-wm-profil="{memberrow.U_VIEWPROFILE}">
+							<!--  LE FACECLAIM, demandé le 30 octobre.
+
+							      `{memberrow.INTERESTS}` est le SEUL champ de
+							      profil libre que Forumactif expose sur cette
+							      page — il n'y a ni rang, ni feuille de
+							      personnage, ni les autres champs. Ce qui
+							      s'affiche ici est donc le contenu du champ
+							      « Intérêts » du panneau, quel qu'il soit.
+
+							      Si Callista y met le faceclaim, il s'affiche.
+							      Sinon on verra ce qu'il y a, et c'est honnête :
+							      la feuille n'invente pas un libellé. -->
+							<span class="wm-membres__fc">{memberrow.INTERESTS}</span>
+						</span>
 					</span>
 				</span>
 
