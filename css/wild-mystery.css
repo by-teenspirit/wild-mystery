@@ -10383,16 +10383,60 @@ html#min-width {
   text-align: left;
 }
 
+/*  ── LES LIGNES, REVUES LE 30 OCTOBRE AU SOIR ────────────────────
+
+    « Ça dépasse à droite quand le texte est trop long », « y'a une
+    barre qui traîne », « elles sont trop collées », « le texte est
+    affiché en plus gros ».
+
+    LE DÉBORDEMENT. Leur feuille met le texte sur une seule ligne ;
+    un pseudo long plus un titre de sujet long sortaient du panneau
+    par la droite. Il passe sur deux lignes et se coupe à la
+    troisième — un panneau de notifications n'est pas l'endroit où
+    lire un titre entier, on clique pour ça.
+
+    LA BARRE QUI TRAÎNE, c'est ce filet-ci, que je posais entre deux
+    lignes. Avec de l'espace entre elles il ne sert plus à rien :
+    deux blocs séparés n'ont pas besoin qu'on dise où l'un finit. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  position: relative;
   width: auto;
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  margin: 0;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-24, 24px)
+    var(--wm-espace-10, 10px) var(--wm-espace-10, 10px);
+  border: 0;
   border-radius: var(--wm-rayon-md, 8px);
   color: var(--wm-texte-corps, #4e3b30);
-  line-height: var(--wm-interligne-courant, 1.5);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-legende, 1.45);
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li {
-  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  margin-top: var(--wm-espace-4, 4px);
+  border-top: 0;
+}
+
+/*  DEUX LIGNES, PUIS ON COUPE.
+
+    PAS DE `-webkit-line-clamp`, ET C'EST UNE DÉCISION PRISE APRÈS
+    MESURE. Le premier jet posait `display: -webkit-box` plus
+    `-webkit-line-clamp: 2`. La propriété s'appliquait bien — relevé
+    `clamp: "2"` — mais le `display` se calculait en `flow-root` et le
+    texte tenait sur trois lignes. Deux tentatives pour comprendre
+    d'où venait la blockification n'ont rien donné.
+
+    UNE BORNE DE HAUTEUR FAIT LE MÊME TRAVAIL, sans boîte vendeur ni
+    comportement à deviner : deux interlignes, et ce qui dépasse est
+    coupé. On perd les trois points de l'ellipse ; on gagne une règle
+    qui se comprend en la lisant. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li > a {
+  display: block;
+  float: none;
+  max-height: calc(2 * var(--wm-interligne-legende, 1.45) * 1em);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 /*  Leur feuille met un `!important` sur la couleur des liens de la
@@ -10436,13 +10480,42 @@ html#min-width {
         se lit comme un pied de page qu'on n'a pas demandé.
       · le rembourrage de 12 × 18 est GARDÉ, c'est lui qui en fait une
         vraie cible. */
+/*  REPRIS LE 30 OCTOBRE AU SOIR : « améliore le bouton voir toutes
+    les notifications ». C'était une bande beige alignée à gauche,
+    qui se lisait comme une ligne de plus dans la liste. C'en est un
+    BOUTON : il se sépare par un filet, se centre, et prend la couleur
+    pleine de l'action principale.
+
+    Il est aussi le seul élément de la liste qui garde une seule
+    ligne : son texte est à nous, il n'a pas de raison de déborder. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all {
-  margin-top: var(--wm-espace-4, 4px);
+  display: block;
+  margin-top: var(--wm-espace-10, 10px);
+  padding: 0;
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 0;
+  background-color: transparent;
+  text-align: center;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all a {
+  display: block;
+  box-sizing: border-box;
+  min-height: var(--wm-cible-tactile, 44px);
   padding: var(--wm-espace-12, 12px) var(--wm-espace-18, 18px);
-  background-color: var(--wm-fond-douce, #f3e1d2);
-  color: var(--wm-accent-primaire, #275e7a);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7) !important;
+  font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  text-align: left;
+  -webkit-line-clamp: none;
+  line-clamp: none;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all a:hover {
+  background: var(--wm-accent-fort, #1f5470);
+  text-decoration: none !important;
 }
 
 /*  Les apparitions en direct : elles sortaient à `right: 47px` par

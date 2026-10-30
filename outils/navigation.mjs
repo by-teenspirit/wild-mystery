@@ -224,7 +224,8 @@ a#logo img{max-width:100%}</style>
   <div id="fa_menu"><span id="fa_welcome">Bienvenue Compte de test</span><ul><li>un menu</li></ul></div>
   <a id="fa_notifications" class="rightHeaderLink unread">Notifications<span id="notif_unread">2</span></a>
   <ul id="notif_list">
-    <li><span class="contentText"><a href="/t1-un-sujet">Quelqu'un a repondu dans un sujet au titre tres long</a></span></li>
+    <li><span class="contentText"><a href="/t1-un-sujet">Un pseudo tres long a repondu dans un sujet dont le titre ne tient sur aucune ligne raisonnable et continue encore</a></span></li>
+    <li><span class="contentText"><a href="/t2-court">Court</a></span></li>
     <li class="see_all"><a href="/profile?mode=editprofile&amp;page_profil=notifications">Voir toutes les notifications</a></li>
   </ul>
   <div id="live_notif"></div>
@@ -1736,6 +1737,88 @@ dire(
   "les deux prennent tout l'écran : à cette largeur, c'est un écran",
   etroit.largeurTiroir === 390 && etroit.largeurPanneau === 390,
   JSON.stringify({ tiroir: etroit.largeurTiroir, panneau: etroit.largeurPanneau }),
+);
+
+// ── le panneau de notifications ─────────────────────────────────────
+
+/*  « Ça dépasse à droite quand le texte est trop long », « y'a une
+    barre qui traîne », « elles sont trop collées », « le texte est
+    affiché en plus gros », « améliore le bouton voir toutes les
+    notifications », 30 octobre au soir.
+
+    Le décor sert une notification volontairement interminable : sans
+    elle, rien ne déborde et le contrôle ne mesurerait rien. Et il
+    faut OUVRIR le panneau — Forumactif le montre par une classe sur
+    `#fa_right`, et fermé il n'a aucune boîte à mesurer. */
+await p.evaluate(() => {
+  document.querySelector("#fa_right")?.classList.add("notification");
+});
+
+const notifs = await p.evaluate(() => {
+  const liste = document.querySelector("#notif_list");
+  if (liste === null) return null;
+  const lignes = [...liste.querySelectorAll("li:not(.see_all)")];
+  const voirTout = liste.querySelector("li.see_all");
+  if (lignes.length < 2) return null;
+  const r = (e) => e.getBoundingClientRect();
+  const longue = lignes[0];
+  return {
+    combien: lignes.length,
+    //  RIEN NE SORT DU PANNEAU PAR LA DROITE.
+    deborde: Math.round(
+      Math.max(0, ...lignes.map((l) => r(l).right - r(liste).right)),
+    ),
+    //  LA PLUS LONGUE TIENT SUR DEUX LIGNES, pas une ni quatre.
+    lignesDuTexte: (() => {
+      const t = longue.querySelector(".contentText") ?? longue;
+      const st = getComputedStyle(t);
+      return {
+        hauteur: Math.round(r(t).height),
+        interligne: st.lineHeight,
+        display: st.display,
+        clamp: st.webkitLineClamp,
+        overflow: st.overflow,
+        lignes: Math.round(r(t).height / parseFloat(st.lineHeight)),
+      };
+    })(),
+    //  PLUS DE FILET ENTRE DEUX LIGNES — « la barre qui traîne » —
+    //  mais de l'espace à la place.
+    filetEntre: parseFloat(getComputedStyle(lignes[1]).borderTopWidth),
+    ecartEntre: Math.round(r(lignes[1]).top - r(lignes[0]).bottom),
+    //  LE TEXTE A RAPETISSÉ.
+    taille: parseFloat(getComputedStyle(lignes[0]).fontSize),
+    //  ET « VOIR TOUTES LES NOTIFICATIONS » EST UN BOUTON.
+    bouton: voirTout === null ? null : (() => {
+      const a = voirTout.querySelector("a");
+      return {
+        hauteur: Math.round(r(a).height),
+        plein: getComputedStyle(a).backgroundColor !== "rgba(0, 0, 0, 0)",
+        centre: getComputedStyle(voirTout).textAlign === "center",
+        separe: parseFloat(getComputedStyle(voirTout).borderTopWidth) >= 1,
+      };
+    })(),
+  };
+});
+
+dire(
+  "une notification trop longue passe sur deux lignes au lieu de déborder",
+  notifs !== null && notifs.deborde <= 0 && notifs.lignesDuTexte.lignes === 2,
+  JSON.stringify(notifs),
+);
+
+dire(
+  "les lignes sont espacées, sans filet entre elles, et le texte a rapetissé",
+  notifs !== null && notifs.filetEntre === 0 && notifs.ecartEntre >= 4 &&
+    notifs.taille <= 11,
+  JSON.stringify(notifs),
+);
+
+dire(
+  "« voir toutes les notifications » est un vrai bouton, séparé de la liste",
+  notifs !== null && notifs.bouton !== null && notifs.bouton.plein &&
+    notifs.bouton.centre && notifs.bouton.separe &&
+    notifs.bouton.hauteur >= 40,
+  JSON.stringify(notifs?.bouton),
 );
 
 await nav.close();
