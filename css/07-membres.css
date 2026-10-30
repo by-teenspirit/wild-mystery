@@ -98,23 +98,51 @@
     ligne — chercher, et changer d'onglet — et le tri sur la seconde,
     poussé à droite. Ce n'est plus un formulaire à faire tenir, c'est
     deux intentions différentes. */
+/*  ── LA RANGÉE EST UN BLOC ─────────────────────────────────────────
+
+    « Si tu peux mettre tout ça dans un bloc pour que ça ne paraisse
+    pas tout seul », 30 octobre. Elle flottait entre le titre et la
+    carte des membres, sans rien autour : trois contrôles posés sur le
+    fond de page au milieu d'une page faite de cartes.
+
+    Même recette que les autres — `fond-surface`, un filet, `rayon-lg`
+    — parce qu'une carte qui se distingue des autres se lit comme une
+    erreur et pas comme une intention. */
 #modernbb .wm-membres__outils {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--wm-espace-12, 12px);
   margin: 0 0 var(--wm-espace-20, 20px);
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
-#modernbb .wm-membres__recherche { order: 0; }
-#modernbb .wm-membres__modes     { order: 1; margin-left: auto; }
+/*  ── L'ORDRE A CHANGÉ LE 30 OCTOBRE, APRÈS COUP ────────────────────
 
-/*  LE TRI PREND SA LIGNE ENTIÈRE, et se range à droite : on y touche
-    une fois, pas à chaque visite. */
-#modernbb .wm-membres__tri {
+    J'avais mis la recherche et les onglets ensemble, le tri dessous.
+    Callista a demandé l'inverse : « la recherche de membres doit être
+    alignée — nom d'utilisateur, dernière visite, par ordre croissant
+    ou décroissant et ok — et en dessous les autres liens ».
+
+    Elle a raison, et la raison est dans la phrase : chercher et trier
+    sont la MÊME action, menée au même moment. Les trois modes ne sont
+    pas un réglage de la recherche, ce sont trois pages. Les coller à
+    la recherche laissait croire qu'ils la filtraient. */
+#modernbb .wm-membres__recherche { order: 0; }
+#modernbb .wm-membres__tri       { order: 1; margin-left: auto; }
+
+#modernbb .wm-membres__modes {
   order: 2;
   flex: 1 1 100%;
-  justify-content: flex-end;
+  /*  Le filet les sépare de la ligne du dessus sans faire une
+      deuxième boîte : ils sont dans le même bloc, ils ne disent pas
+      la même chose. */
+  margin-top: var(--wm-espace-4, 4px);
+  padding-top: var(--wm-espace-12, 12px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
 /*  ── LA RECHERCHE SE VOIT ──────────────────────────────────────────
@@ -255,6 +283,10 @@
 #modernbb .wm-membres__tri .button2 {
   height: 32px;
   padding: 0 var(--wm-espace-12, 12px);
+  /*  « À droite de dernière visite et décroissant, la flèche colle
+      trop. » Le rembourrage vaut pour les deux bords, et la flèche du
+      navigateur se pose DANS le bord droit : elle touchait le dernier
+      caractère. La règle qui suit rouvre ce bord-là. */
   border: 1px solid var(--wm-bord-fin, #eadacd);
   /*  `rayon-md` ET PAS 999. « Le bouton ok est trop oval » : sur un
       mot de deux lettres, un arrondi complet fait une gélule. Les
@@ -268,6 +300,15 @@
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: 1;
   transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+/*  LA FLÈCHE A SA PLACE. 28 px à droite : 12 de rembourrage comme à
+    gauche, plus les 16 que le navigateur prend pour dessiner le
+    chevron. Sans ça, « Dernière visite » et « Décroissant » — les deux
+    options les plus longues, donc celles qui décident de la largeur —
+    venaient buter dedans. */
+#modernbb .wm-membres__tri select {
+  padding-right: 28px;
 }
 
 /*  UNE LISTE EST LARGE DE SA PLUS LONGUE OPTION, et celles-ci
@@ -326,9 +367,15 @@
     on regarde — il n'y a ni variable ni classe pour ça — et le marquer
     au hasard serait pire que ne rien marquer. Le module le fera, en
     lisant l'adresse. */
+/*  `flex` N'EST PAS REDIT ICI. Il est posé plus haut, avec l'ordre des
+    trois blocs : cette règle-ci venait après et remettait
+    `flex: 0 0 auto`, donc les modes restaient sur la première ligne au
+    lieu de prendre la leur. Mesuré au harnais — `modesDessous: false`
+    pendant que la feuille écrivait `flex: 1 1 100%` dix règles plus
+    haut. Deux endroits pour une même propriété, et c'est le dernier
+    qui gagne. */
 #modernbb .wm-membres__modes {
   display: flex;
-  flex: 0 0 auto;
   align-items: center;
   gap: var(--wm-espace-8, 8px);
 }
@@ -425,7 +472,36 @@
     Mesuré au harnais, par le seul contrôle qui compte sur une liste
     en colonnes. Une base FIXE, et les deux rangées réservent la même
     place quoi qu'elles portent. */
-#modernbb .wm-membres__col--liens { flex: 0 0 64px; }
+/*  ── LA COLONNE DES LIENS ──────────────────────────────────────────
+
+    « Pourquoi est-ce que ça dépasse ? » Parce que 64 px suffisaient
+    aux deux icônes et pas à ce que Forumactif peut y mettre : selon
+    le réglage du panneau, `{PM_IMG}` et `{WWW_IMG}` rendent une image
+    OU un lien en toutes lettres — « Message privé », « Site web ».
+
+    92 px, et le texte est traité comme les icônes : petit, en
+    capitales, coupé s'il dépasse. Les deux formes tiennent dans la
+    même colonne, et la largeur reste FIXE — c'est elle qui garantit
+    que l'en-tête tombe en face des valeurs. */
+#modernbb .wm-membres__col--liens { flex: 0 0 92px; }
+
+#modernbb .wm-membres__col--liens a {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--wm-texte-doux, #6e5749);
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-membres__col--liens a:hover {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: underline;
+}
 
 /* ── 4 · l'en-tête de colonnes ────────────────────────────────────── */
 

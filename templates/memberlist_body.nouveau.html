@@ -71,6 +71,10 @@
 		<input class="button2" type="submit" name="submit" value="{L_SUBMIT}" />
 	</div>
 
+	<!--  LES TROIS MODES SOUS LA RECHERCHE ET LE TRI. Demandé le 30
+	      octobre : « la recherche de membres doit être alignée […] et
+	      en dessous les autres liens ». Ils sont donc les derniers
+	      dans le document aussi, et pas seulement à l'écran. -->
 	<div class="wm-membres__modes">
 		<a href="/memberlist">Tous</a>
 		<a href="/memberlist?mode=overall_posters">Top 20 des posteurs</a>
@@ -103,11 +107,19 @@
 			<!-- BEGIN switch_th_point -->
 			<span class="wm-membres__col wm-membres__col--chiffre">{L_POINT}</span>
 			<!-- END switch_th_point -->
-			<span class="wm-membres__col wm-membres__col--chiffre">{L_POSTS}</span>
+			<!--  « Messages » et pas `{L_POSTS}` : Forumactif y met
+			      « Messages postés », et deux mots dans une colonne de
+			      100 px mangent la place des chiffres. Demandé le 30
+			      octobre. On perd la traduction automatique — le forum
+			      est en français et le restera. -->
+			<span class="wm-membres__col wm-membres__col--chiffre">Messages</span>
 			<span class="wm-membres__col wm-membres__col--date">{L_JOINED}</span>
 			<span class="wm-membres__col wm-membres__col--date wm-membres__col--vue">{L_VISITED}</span>
 			<!-- BEGIN switch_th_pm -->
-			<span class="wm-membres__col wm-membres__col--liens">{L_PM} · {L_WEBSITE}</span>
+			<!--  « Liens » plutôt que `{L_PM} · {L_WEBSITE}`, qui donne
+			      « Message privé · Site web » dans une colonne faite
+			      pour deux icônes. -->
+			<span class="wm-membres__col wm-membres__col--liens">Liens</span>
 			<!-- END switch_th_pm -->
 		</div>
 

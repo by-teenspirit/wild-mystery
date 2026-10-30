@@ -458,12 +458,27 @@ const outils = await p.evaluate(() => {
     liens: [...modes.querySelectorAll("a")].map((a) => a.textContent.trim()),
     adresses: [...modes.querySelectorAll("a")].map((a) => a.getAttribute("href")),
     modesADroite: Math.round(r(modes).right) >= Math.round(r(barre).right) - 1,
-    champAGauche: Math.round(r(champ).x) <= Math.round(r(barre).x) + 1,
-    //  LA RECHERCHE ET LES ONGLETS sur la même ligne…
-    memeLigne: Math.abs(milieu(champ) - milieu(modes)) <= 2,
-    //  …et le tri EN DESSOUS, poussé à droite.
-    triDessous: Math.round(r(tri).top) >= Math.round(r(champ).bottom) - 1,
-    triADroite: Math.round(r(tri).right) >= Math.round(r(barre).right) - 1,
+    //  Le bloc a un rembourrage depuis le 30 octobre : la recherche
+    //  est à gauche DU CONTENU, pas du bord de la carte.
+    champAGauche: Math.round(r(champ).x) <=
+      Math.round(r(barre).x + parseFloat(getComputedStyle(barre).paddingLeft)) + 1,
+    //  LA RECHERCHE ET LE TRI sur la même ligne, le tri à droite…
+    memeLigne: Math.abs(milieu(champ) - milieu(tri)) <= 2,
+    triADroite: Math.round(r(tri).right) <=
+      Math.round(r(barre).right - parseFloat(getComputedStyle(barre).paddingRight)) + 1,
+    //  …et les trois modes EN DESSOUS.
+    modesDessous: Math.round(r(modes).top) >= Math.round(r(champ).bottom) - 1,
+    //  LA RANGÉE EST UN BLOC : une surface à elle, un filet, un rayon.
+    bloc: {
+      fond: getComputedStyle(barre).backgroundColor,
+      fondPage: getComputedStyle(document.body).backgroundColor,
+      filet: getComputedStyle(barre).borderTopWidth,
+      rayon: getComputedStyle(barre).borderTopLeftRadius,
+    },
+    //  ET LA FLÈCHE DES LISTES NE COLLE PLUS AU TEXTE.
+    flecheRespire: [...tri.querySelectorAll("select")].every((e) =>
+      parseFloat(getComputedStyle(e).paddingRight) >= 24
+    ),
     //  RIEN NE SORT DE LA RANGÉE. Une liste large de sa plus longue
     //  option déborde sans faire grandir son parent : c'est le défaut
     //  du 30 octobre, invisible à toute mesure de hauteur.
@@ -485,30 +500,33 @@ const outils = await p.evaluate(() => {
 });
 
 dire(
-  "LA RECHERCHE ET LES ONGLETS PARTAGENT LA PREMIÈRE LIGNE",
-  //  ── CE CONTRÔLE A CHANGÉ D'INTENTION LE 30 OCTOBRE ─────────────
+  "LA RECHERCHE ET LE TRI PARTAGENT LA PREMIÈRE LIGNE, LES MODES SONT DESSOUS",
+  //  ── CE CONTRÔLE A CHANGÉ D'INTENTION DEUX FOIS LE 30 OCTOBRE ───
   //
-  //  Il demandait les TROIS blocs sur une ligne. Ils n'y tiennent
-  //  pas : les deux listes de tri énumèrent les champs de profil du
-  //  forum, et une liste est large de sa plus longue option. Ce
-  //  n'était pas la feuille qui cassait, c'était la demande qui était
-  //  intenable — et mon décor ne la contredisait pas, parce qu'il
-  //  servait deux options de deux mots.
-  outils !== null && outils.champAGauche && outils.modesADroite &&
-    outils.memeLigne && outils.champ.h === 40,
+  //  1 · les trois blocs sur une ligne — intenable, les listes de tri
+  //      énumèrent les champs de profil du forum ;
+  //  2 · recherche et onglets ensemble, tri dessous — mon choix ;
+  //  3 · recherche et TRI ensemble, onglets dessous — celui de
+  //      Callista, et il est meilleur : chercher et trier sont la même
+  //      action au même moment, tandis que les trois modes sont trois
+  //      PAGES. Collés à la recherche, ils avaient l'air de la filtrer.
+  //
+  //  À chaque fois l'intention est réécrite, jamais affaiblie.
+  outils !== null && outils.champAGauche && outils.memeLigne &&
+    outils.triADroite && outils.modesDessous && outils.champ.h === 40,
   JSON.stringify(outils),
 );
 dire(
-  "LE TRI EST SUR SA PROPRE LIGNE, POUSSÉ À DROITE",
-  outils !== null && outils.triDessous && outils.triADroite,
-  JSON.stringify({ dessous: outils?.triDessous, droite: outils?.triADroite }),
+  "LA RANGÉE D'OUTILS EST UN BLOC, PAS TROIS CONTRÔLES DANS LE VIDE",
+  outils !== null && outils.bloc.fond !== outils.bloc.fondPage &&
+    outils.bloc.filet === "1px" && outils.bloc.rayon === "10px",
+  JSON.stringify(outils?.bloc),
 );
 dire(
-  "ET LA RANGÉE D'OUTILS NE DÉBORDE PAS, MÊME AVEC LES VRAIES OPTIONS",
-  outils !== null && outils.deborde <= 1,
-  `débordement : ${outils?.deborde} px`,
+  "ET LA FLÈCHE DES LISTES NE COLLE PLUS À LA DERNIÈRE LETTRE",
+  outils !== null && outils.flecheRespire,
+  "",
 );
-
 dire(
   "LES TROIS MODES POINTENT SUR LES TROIS ADRESSES DE LA NOTE DE CODE",
   outils !== null &&
