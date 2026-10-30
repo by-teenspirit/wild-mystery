@@ -24,6 +24,7 @@
      · css/16-carte.css
      · css/17-en-ligne.css
      · css/18-carte-dresseur.css
+     · css/19-pages-de-message.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -1281,42 +1282,7 @@ html#min-width {
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
 
-/*  Forumactif s'en sert pour tout ce qu'il a à dire entre deux pages :
-    « votre message a bien été posté », « le sujet que vous recherchez
-    n'existe pas », « vous n'avez pas les droits ». On la traverse
-    souvent et on ne la regarde jamais — c'est pour ça qu'elle était
-    restée nue : un titre, un trait bleu, une phrase, rien autour.
 
-    Relevée le 28 octobre sur `/t999999-sujet-inexistant`, qui la
-    produit sans rien écrire sur le forum.
-
-    Elle prend la même carte que les autres encarts. Le titre passe de
-    25 à 21 px : « Informations » n'est pas le titre de la page, c'est
-    l'en-tête d'un message — le vrai sujet de la page est la phrase en
-    dessous. */
-#modernbb .panel.msgdie-panel {
-  padding: 22px;
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface-haute, #fcf4ec);
-}
-
-#modernbb .panel.msgdie-panel .inner {
-  padding: 0;
-  background: none;
-}
-
-#modernbb .panel.msgdie-panel h1.page-title {
-  margin: 0 0 var(--wm-espace-10, 10px);
-  font-size: var(--wm-taille-chapo, 21px);
-}
-
-#modernbb .panel.msgdie-panel p {
-  margin: 0;
-  color: var(--wm-texte-corps, #4e3b30);
-  font-size: var(--wm-taille-normal, 13.5px);
-  line-height: var(--wm-interligne-courant, 1.5);
-}
 
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 03 · L'index
@@ -17611,5 +17577,134 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     padding: var(--wm-espace-14, 14px);
     gap: var(--wm-espace-14, 14px);
   }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   19 · LES PAGES QUI NE DISENT QU'UNE PHRASE
+
+   Deux pages de Forumactif tiennent en un titre, un paragraphe, et
+   parfois deux boutons :
+
+     · **Informations** — « ce sujet n'existe pas », « vous n'avez pas
+       les permissions ». Relevée le 28 octobre sur
+       `/t999999-sujet-inexistant`, qui la produit sans rien écrire
+       sur le forum.
+     · **Êtes-vous sûr ?** — la confirmation avant de supprimer.
+
+   Les deux servent le MÊME `<div class="panel"><div class="inner">` —
+   relevé dans `message_body.tpl` et `confirm_body.tpl` amont. Leur
+   seule différence est que Forumactif ajoute `msgdie-panel` à la
+   première et rien du tout à la seconde.
+
+   ── POURQUOI UNE FEUILLE, ET POURQUOI CELLE-CI ────────────────────
+
+   Ces règles vivaient dans `02-socle.css`. La carte y marchait, mais
+   la rangée de boutons non : `06-ecrire.css` pose
+   `#modernbb .submit-buttons { padding: 0 108px 0 0 }` pour réserver
+   la place du coin d'outils sur la page d'écriture, et à spécificité
+   égale c'est la feuille la plus tardive qui gagne. Les 108 px de
+   vide décalaient les deux boutons vers le milieu de la carte.
+
+   Le tri des feuilles est fait exactement pour ça — « une feuille 05
+   doit pouvoir corriger une règle de 02 sans surenchérir en
+   sélecteurs ». On corrige donc par le NUMÉRO, en 19, et pas en
+   empilant des sélecteurs pour forcer le passage.
+
+   ── LA MÊME CARTE, DÉCLARÉE UNE FOIS ──────────────────────────────
+
+   « Fais comme la page informations et mets le fond blanc »,
+   30 octobre. Deux cartes qui doivent se ressembler et qui sont
+   écrites deux fois finissent par ne plus se ressembler : elles
+   partagent donc leur déclaration, elles ne la recopient pas.
+
+   ── ON NE REND PAS SON FOND À `.panel` ────────────────────────────
+
+   `.panel` est transparent depuis le 8 octobre, et c'était une
+   décision : c'est le conteneur du bloc d'accueil, et lui donner un
+   fond posait une carte crème derrière un panneau qui a déjà la
+   sienne — on voyait deux cartes empilées. Réparer le 30 en défaisant
+   le 8 aurait rendu la mascotte à son cadre.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la carte, pour les deux pages ────────────────────────────── */
+
+#modernbb .panel.msgdie-panel,
+#modernbb .panel.wm-confirmer {
+  padding: 22px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .panel.msgdie-panel .inner,
+#modernbb .panel.wm-confirmer .inner {
+  padding: 0;
+  background: none;
+}
+
+/*  Le titre passe de 25 à 21 px : « Informations » n'est pas le titre
+    de la page, c'est l'en-tête d'un message — le vrai sujet de la
+    page est la phrase en dessous. Même chose pour « Confirmation ». */
+#modernbb .panel.msgdie-panel h1.page-title,
+#modernbb .panel.wm-confirmer h1.page-title {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  font-size: var(--wm-taille-chapo, 21px);
+}
+
+#modernbb .panel.msgdie-panel p,
+#modernbb .wm-confirmer__texte {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/* ── 2 · les deux boutons de la confirmation ──────────────────────── */
+
+/*  `#modernbb .submit-buttons` (feuille 06) fait déjà le gros du
+    travail sur ce fieldset : flex, retour à la ligne, ressort à
+    droite, gap, bordure retirée. Cette classe-ci n'en redit rien.
+
+    PREMIER JET : elle redisait tout, et les sept déclarations
+    recopiées passaient les contrôles aussi bien sans elles. Mais la
+    mesure qui le disait était fausse — elle était prise à 700 px de
+    large, parce que le contrôle de débordement juste avant rétrécit
+    la fenêtre et ne la rend jamais. Sous `@media (max-width: 760px)`,
+    `.submit-buttons` passe en `padding-right: 0` tout seul : on
+    prouvait que la règle était morte dans le seul état où quelqu'un
+    d'autre la posait déjà. */
+#modernbb .wm-confirmer__actions {
+  /*  LES 108 PX DE REMBOURRAGE À DROITE S'EN VONT. Sur la page
+      d'écriture ils réservent la place du coin d'outils, qui flotte
+      par-dessus les boutons — « Envoyer » disparaissait sous
+      « CLAIR ». Ici la carte est courte et haute dans la page, le
+      coin ne l'atteint pas, et ce vide décalait les deux boutons de
+      131 px vers le milieu. */
+  padding: 0;
+
+  /*  Ils se détachent du texte qu'ils confirment. */
+  margin: var(--wm-espace-18, 18px) 0 0;
+
+  /*  ModernBB peint ce fieldset comme un groupe de champs.
+      `.submit-buttons` lui retire la bordure, mais pas le fond. */
+  background: none;
+}
+
+/*  « OUI » EST LE BOUTON PLEIN, « NON » LE BOUTON NU. Le nom de
+    l'`input` suffit à les distinguer — c'est par lui que Forumactif
+    sait lequel a été cliqué, donc il ne peut pas changer sans que la
+    page cesse de marcher. Aucune classe à poser dans le gabarit.
+
+    Plein contre nu, et pas deux teintes : la différence se voit même
+    quand la couleur ne se voit pas. */
+#modernbb .wm-confirmer__actions input[name="confirm"] {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-confirmer__actions input[name="confirm"]:hover {
+  border-color: var(--wm-accent-fort, #1f5470);
+  background: var(--wm-accent-fort, #1f5470);
 }
 

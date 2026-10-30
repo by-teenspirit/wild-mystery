@@ -184,6 +184,10 @@ const BASE_MODERNBB = `
 *, ::before, ::after { box-sizing: border-box; }
 .panel { background: #f0f0f0; border: 1px solid #ccc; padding: 10px; }
 #postingbox fieldset.fields1 { margin: 1em 0; padding: 0.5em; border: 1px solid #ddd; }
+/*  LE FIELDSET DES BOUTONS, tel que ModernBB le peint : une bordure,
+    un fond et un rembourrage de groupe de champs. Sans lui ici, la
+    regle qui les retire n'aurait rien a retirer. */
+fieldset.submit-buttons { margin: 1em 0; padding: 8px; border: 1px solid #ccc; background: #f5f5f5; }
 .h3 { border-bottom: 1px solid #ccc; padding-bottom: 4px; }`;
 
 const page = (corps) =>
@@ -360,6 +364,127 @@ for (const largeur of [1440, 700]) {
     JSON.stringify(mesure),
   );
 }
+
+// ── la page « Êtes-vous sûr ? » ─────────────────────────────────────
+
+/*  « Quand je veux supprimer un sujet, la page "êtes-vous sûr" le fond
+    est vide, est-ce que tu peux faire comme la page "informations" ? »,
+    30 octobre.
+
+    Les deux pages sont le MÊME `<div class="panel">` nu — relevé dans
+    `confirm_body.tpl` et `message_body.tpl` amont. La seule différence
+    est que Forumactif ajoute `msgdie-panel` à l'une. Le harnais monte
+    donc les deux côte à côte, plus un `.panel` nu : si la carte de la
+    confirmation ne tenait qu'au prix de rendre son fond à tous les
+    `.panel`, le troisième le dirait tout de suite. */
+const confirmation = readFileSync(
+  R + "templates/confirm_body.a-publier.html",
+  "utf8",
+)
+  .replace(/\{MESSAGE_TITLE\}/g, "Confirmation")
+  .replace(/\{MESSAGE_TEXT\}/g, "Êtes-vous sûr de vouloir supprimer ce sujet ?")
+  .replace(/\{L_YES\}/g, "Oui")
+  .replace(/\{L_NO\}/g, "Non")
+  .replace(/\{[\w.]+\}/g, "");
+
+const informations = `<div class="panel msgdie-panel"><div class="inner">
+    <h1 class="page-title">Informations</h1>
+    <p>Ce sujet n'existe pas.</p>
+  </div></div>`;
+
+/*  ON REVIENT À 1 440 PX, ET C'EST TOUT L'ENJEU. Le contrôle du
+    débordement juste au-dessus rétrécit la fenêtre à 700 et ne la
+    rend jamais. Les premières mesures de cette page-ci tournaient
+    donc sous `@media (max-width: 760px)`, où `.submit-buttons` passe
+    en `justify-content: stretch` et `padding-right: 0` — c'est-à-dire
+    dans un état où la règle qu'on croyait prouver était déjà posée
+    par quelqu'un d'autre. Trois déclarations ont été déclarées mortes
+    sur cette mesure-là ; elles ne l'étaient pas. */
+await p.setViewportSize({ width: 1440, height: 1000 });
+
+await p.setContent(
+  page(confirmation + informations + '<div class="panel" id="nu">rien</div>'),
+  { waitUntil: "load" },
+);
+
+const cartes = await p.evaluate(() => {
+  const conf = document.querySelector(".wm-confirmer");
+  const info = document.querySelector(".msgdie-panel");
+  const nu = document.querySelector("#nu");
+  if (conf === null || info === null) return null;
+  const st = (e) => getComputedStyle(e);
+  return {
+    //  LA MÊME CARTE QUE « INFORMATIONS », à la lettre : même fond,
+    //  même bordure, même rayon. C'est ce qui a été demandé.
+    memeFond: st(conf).backgroundColor === st(info).backgroundColor,
+    memeBordure: st(conf).borderTopColor === st(info).borderTopColor &&
+      st(conf).borderTopWidth === st(info).borderTopWidth,
+    memeRayon: st(conf).borderTopLeftRadius === st(info).borderTopLeftRadius,
+    //  ET SURTOUT : elle a VRAIMENT un fond. Deux transparents se
+    //  ressemblent aussi.
+    fondPlein: st(conf).backgroundColor !== "rgba(0, 0, 0, 0)",
+    //  ET LE `.panel` NU RESTE TRANSPARENT. La règle du 8 octobre —
+    //  le bloc d'accueil ne veut pas de deuxième carte derrière lui —
+    //  ne doit pas avoir été défaite pour arranger celle-ci.
+    nuTransparent: st(nu).backgroundColor === "rgba(0, 0, 0, 0)",
+  };
+});
+
+dire(
+  "la page de confirmation prend la carte de « Informations »",
+  cartes !== null && cartes.memeFond && cartes.memeBordure &&
+    cartes.memeRayon && cartes.fondPlein && cartes.nuTransparent,
+  JSON.stringify(cartes),
+);
+
+const boutons = await p.evaluate(() => {
+  const champ = document.querySelector(".wm-confirmer__actions");
+  const oui = document.querySelector('.wm-confirmer input[name="confirm"]');
+  const non = document.querySelector('.wm-confirmer input[name="cancel"]');
+  if (champ === null || oui === null || non === null) return null;
+  const st = (e) => getComputedStyle(e);
+  const r = (e) => e.getBoundingClientRect();
+  const carte = document.querySelector(".wm-confirmer");
+  return {
+    //  LES DEUX NOMS SONT LÀ — c'est le `return null` plus haut qui
+    //  le dit, puisque les deux sélecteurs les cherchent par `name`.
+    //  C'est par eux que Forumactif sait lequel a été cliqué : une
+    //  page qui les perd ne confirme plus rien. Un champ
+    //  `lesDeuxNoms: true` écrit en dur ne mesurait rien de plus.
+    surUneLigne: Math.round(r(oui).top) === Math.round(r(non).top),
+    //  Poussés à droite, comme partout ailleurs.
+    aDroite: Math.round(r(carte).right - r(non).right) <= 24,
+    //  « Oui » est plein, « Non » ne l'est pas — ils ne se
+    //  distinguent pas qu'à la teinte, mais au remplissage.
+    ouiPlein: st(oui).backgroundColor !== st(non).backgroundColor &&
+      st(oui).backgroundColor !== "rgba(0, 0, 0, 0)",
+    //  Le fieldset a perdu la bordure ET LE FOND de formulaire de
+    //  ModernBB. Le fond était le trou du premier jet : seule la
+    //  bordure était mesurée, et `background: none` passait donc pour
+    //  une règle morte alors qu'elle retient le gris du décor.
+    sansBordureDeChamp: parseFloat(st(champ).borderTopWidth) === 0,
+    sansFondDeChamp: st(champ).backgroundColor === "rgba(0, 0, 0, 0)",
+    //  Et chacun garde la cible tactile du socle.
+    cible: Math.min(Math.round(r(oui).height), Math.round(r(non).height)),
+    rembourrageDroit: st(champ).paddingRight,
+    //  LES BOUTONS SE DÉTACHENT DU TEXTE QU'ILS CONFIRMENT.
+    //  `.submit-buttons` pose `margin: 0`, qui les collait sous la
+    //  phrase : on lit « supprimer ce sujet ? Oui Non » d'un trait.
+    ecartAuTexte: Math.round(
+      r(champ).top - r(document.querySelector(".wm-confirmer__texte")).bottom,
+    ),
+    ecartDroite: Math.round(r(carte).right - r(non).right),
+  };
+});
+
+dire(
+  "« Oui » et « Non » sont à droite, sur une ligne, et gardent leurs noms",
+  boutons !== null && boutons.surUneLigne && boutons.aDroite &&
+    boutons.ouiPlein && boutons.sansBordureDeChamp &&
+    boutons.sansFondDeChamp && boutons.cible >= 36 &&
+    boutons.ecartAuTexte >= 16,
+  JSON.stringify(boutons),
+);
 
 await p.close();
 await nav.close();

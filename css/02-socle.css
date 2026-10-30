@@ -1021,39 +1021,4 @@ html#min-width {
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
 
-/*  Forumactif s'en sert pour tout ce qu'il a à dire entre deux pages :
-    « votre message a bien été posté », « le sujet que vous recherchez
-    n'existe pas », « vous n'avez pas les droits ». On la traverse
-    souvent et on ne la regarde jamais — c'est pour ça qu'elle était
-    restée nue : un titre, un trait bleu, une phrase, rien autour.
 
-    Relevée le 28 octobre sur `/t999999-sujet-inexistant`, qui la
-    produit sans rien écrire sur le forum.
-
-    Elle prend la même carte que les autres encarts. Le titre passe de
-    25 à 21 px : « Informations » n'est pas le titre de la page, c'est
-    l'en-tête d'un message — le vrai sujet de la page est la phrase en
-    dessous. */
-#modernbb .panel.msgdie-panel {
-  padding: 22px;
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface-haute, #fcf4ec);
-}
-
-#modernbb .panel.msgdie-panel .inner {
-  padding: 0;
-  background: none;
-}
-
-#modernbb .panel.msgdie-panel h1.page-title {
-  margin: 0 0 var(--wm-espace-10, 10px);
-  font-size: var(--wm-taille-chapo, 21px);
-}
-
-#modernbb .panel.msgdie-panel p {
-  margin: 0;
-  color: var(--wm-texte-corps, #4e3b30);
-  font-size: var(--wm-taille-normal, 13.5px);
-  line-height: var(--wm-interligne-courant, 1.5);
-}

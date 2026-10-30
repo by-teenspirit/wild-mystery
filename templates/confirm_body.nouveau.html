@@ -1,0 +1,72 @@
+<!--  ════════════════════════════════════════════════════════════════
+      confirm_body — « Êtes-vous sûr ? »
+
+      Affichage > Templates > Général > confirm_body.
+
+      ── POURQUOI CE GABARIT EXISTE ─────────────────────────────────
+
+      « Quand je veux supprimer un sujet, la page "êtes-vous sûr" le
+      fond est vide, est-ce que tu peux faire comme la page
+      "informations" et mettre le fond blanc ? », 30 octobre.
+
+      Le gabarit d'origine sert un `<div class="panel">` nu. Or chez
+      nous `.panel` est TRANSPARENT depuis le 8 octobre, décidé en
+      connaissance de cause : c'est le conteneur du bloc d'accueil, et
+      lui donner un fond posait une carte crème derrière un panneau
+      qui a déjà la sienne — on voyait deux cartes empilées.
+
+      La page « Informations » n'a pas ce problème parce que
+      Forumactif lui ajoute `msgdie-panel`, et que la feuille lui rend
+      sa carte sur cette classe-là. Celle-ci n'a aucune classe à elle.
+
+      ON NE REND DONC PAS SON FOND À `.panel` — ce serait défaire le
+      8 octobre pour réparer le 30. On donne une classe à cette
+      page-ci, et la feuille l'habille comme l'autre.
+
+      ── CE QUI EST RETIRÉ ──────────────────────────────────────────
+
+      `{CURRENT_TIME}` et `{LAST_VISIT_DATE}`, et avec eux le bloc
+      `switch_user_logged_in` qui ne portait que la seconde. « Pourquoi
+      j'ai partout : la date/heure actuelle est… tu pourrais le
+      retirer ? », 30 octobre. `outils/a-publier.mjs` refuse désormais
+      un gabarit où l'une des deux revient.
+
+      ── CE QUI NE BOUGE PAS ────────────────────────────────────────
+
+      `{S_CONFIRM_ACTION}`, `{S_HIDDEN_FIELDS}`, les deux boutons et
+      leurs `name="confirm"` / `name="cancel"` : c'est par ces noms
+      que Forumactif sait lequel a été cliqué. `{OPTIONAL_BAN_NEW}`
+      est le bloc de bannissement de la modération ; il n'apparaît que
+      là, et le retirer priverait le staff d'un écran entier.
+
+      Les deux `<span class="corners-…">` d'origine sont partis : ce
+      sont les coins arrondis en images de phpBB2, que le rayon CSS
+      remplace depuis longtemps.
+      ════════════════════════════════════════════════════════════════ -->
+
+<div class="panel wm-confirmer">
+	<div class="inner">
+		<h1 class="page-title">{MESSAGE_TITLE}</h1>
+
+		<form action="{S_CONFIRM_ACTION}" method="post" class="wm-confirmer__forme">
+			<p class="wm-confirmer__texte">{MESSAGE_TEXT}</p>
+
+			{OPTIONAL_BAN_NEW}
+
+			<!--  LE RESSORT POUSSE LES DEUX BOUTONS À DROITE, comme
+			      partout ailleurs chez nous — et « Oui » est le
+			      dernier, donc le plus près du pouce et du curseur.
+
+			      L'ORDRE EST CELUI DU GABARIT D'ORIGINE, oui puis
+			      non. On ne l'inverse pas : sur une page de
+			      confirmation, l'habitude du clic compte plus que
+			      notre goût de la mise en page, et quelqu'un qui a
+			      déjà supprimé dix sujets clique sans lire. -->
+			<fieldset class="submit-buttons wm-confirmer__actions">
+				{S_HIDDEN_FIELDS}
+				<input class="button2" type="submit" name="confirm" value="{L_YES}" />
+				<input class="button2" type="submit" name="cancel" value="{L_NO}" />
+			</fieldset>
+		</form>
+	</div>
+</div>
