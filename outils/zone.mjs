@@ -353,7 +353,13 @@ const BANNIERE = `<div class="headerbar">
 //    harnais voyait la flèche repoussée à la ligne quelle que soit la
 //    feuille. Il accusait notre CSS d'un défaut qui n'était que le sien
 //    — mesuré sur `/f2` le 28 octobre, où ce `dfn` vaut bien `none`.
-const BASE_MODERNBB = `dl.icon { background-size: 33px 33px !important; }
+const BASE_MODERNBB = `
+/*  BORDER-BOX PARTOUT, comme ModernBB : sa feuille le pose sur
+    l'universel, verifie sur le forum le 30 octobre. Sans cette ligne
+    le decor mesure en content-box, et toute cote qui additionne une
+    largeur et un rembourrage est fausse. */
+*, ::before, ::after { box-sizing: border-box; }
+dl.icon { background-size: 33px 33px !important; }
 .topic-actions::after { content: ""; display: block; clear: both; }
 dfn { display: none; }`;
 
@@ -1412,8 +1418,11 @@ const laisse = await p10.evaluate(() => ({
   corps: Math.round(document.querySelector(".wm-sonde-largeur").getBoundingClientRect().width),
 }));
 dire(
-  "LE FORUM EST TENU À 1000 px, MÊME CONTRE L'ID DE MODERNBB",
-  laisse.wrap === "1000px" && laisse.corps <= 1000,
+  "LE FORUM EST TENU À 1200 px, MÊME CONTRE L'ID DE MODERNBB",
+  //  1 200 depuis le 30 octobre ; 1 000 les deux jours d'avant. Le
+  //  chiffre bouge, pas ce que le test prouve : c'est NOTRE valeur qui
+  //  s'applique, et pas les 1 400 que ModernBB écrit sur l'id.
+  laisse.wrap === "1200px" && laisse.corps <= 1200,
   JSON.stringify(laisse),
 );
 await p10.close();

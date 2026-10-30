@@ -285,7 +285,9 @@ const BASE_MODERNBB = `
 h1.page-title { border-bottom: 1px solid #3793ff; }
 .post { display: flex; flex-wrap: wrap; }
 .post-head { order: -1; }
-`;
+
+#wrap { max-width: 1400px; margin: 0 auto; }
+.wrap { max-width: 1400px; margin: 0 auto; }`;
 
 const page = (corps) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
@@ -295,7 +297,7 @@ const page = (corps) =>
 <style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
 </head><body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
-<div id="page-body"><div class="wrap">${corps}</div></div>
+<div id="wrap"><div id="page-body">${corps}</div></div>
 </div>
 </body></html>`;
 
@@ -390,6 +392,45 @@ dire(
   "AUCUN TRAIT BLEU DE MODERNBB NE SURVIT",
   releve.traits.every((t) => t === "0px"),
   `${releve.traits.length} titre(s) : ${[...new Set(releve.traits)].join(" · ")}`,
+);
+
+//  ── RIEN NE SE PERD ENTRE LE PROFIL ET LE CORPS ───────────────────
+//
+//  Le 28 octobre j'avais écrit un test « profil + corps = largeur
+//  utile » et je l'ai retiré : il manquait 39 px que je ne savais pas
+//  expliquer, et garder un chiffre qu'on ne comprend pas, c'est garder
+//  un test qui ment. Le 30, la mesure a donné la réponse — l'ancre de
+//  permalien, un enfant de flex d'un pixel qui prenait en plus un
+//  écart entier. Le § 14 de la feuille la sort du flux, et le compte
+//  tombe juste. Le test revient donc, et cette fois il s'explique.
+
+const compte = await p.evaluate(() => {
+  const post = document.querySelector(".post");
+  const prof = post.querySelector(".postprofile");
+  const col = post.querySelector(".wm-post-corps");
+  if (prof === null || col === null) return null;
+  const st = getComputedStyle(post);
+  const l = (e) => e.getBoundingClientRect().width;
+  const interieur = l(post) - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight);
+  const ecart = parseFloat(st.columnGap);
+  return {
+    interieur: Math.round(interieur),
+    profil: Math.round(l(prof)),
+    corps: Math.round(l(col)),
+    ecart: Math.round(ecart),
+    reste: Math.round(interieur - l(prof) - ecart - l(col)),
+    //  L'ancre doit être hors du flux, sinon elle reprend son écart.
+    ancre: (() => {
+      const a = post.querySelector('div[style*="width: 1px"]:not([class])');
+      return a === null ? "absente" : getComputedStyle(a).position;
+    })(),
+  };
+});
+
+dire(
+  "RIEN NE SE PERD ENTRE LE PROFIL ET LE CORPS",
+  compte !== null && Math.abs(compte.reste) <= 2 && compte.ancre === "absolute",
+  JSON.stringify(compte),
 );
 
 //  ── LA TÊTE DU SUJET, MAQUETTE 305:24 ─────────────────────────────

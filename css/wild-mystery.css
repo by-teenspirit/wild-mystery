@@ -1215,8 +1215,10 @@ html#min-width {
     juste et ne servait à rien. */
 #modernbb #wrap,
 #modernbb .wrap {
-  /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28. */
-  max-width: 1000px;
+  /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28, 1 200 le
+      30. Une seule valeur à changer ici : tout le forum la suit, sauf
+      l'en-tête et le bandeau d'une zone, qui sont hors de `#wrap`. */
+  max-width: 1200px;
 }
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
@@ -5644,6 +5646,37 @@ html#min-width {
 #modernbb #info_open.wm-sujet__bas p {
   margin: 0;
   font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 14 · l'ancre de permalien ne prend plus de place ──────────────── */
+
+/*  Le gabarit ouvre chaque message par une ancre :
+
+      <div style="position: relative; top: -30px; width: 1px"
+           id="{postrow.displayed.U_POST_ID}"></div>
+
+    Elle sert à décaler le défilement quand on arrive sur `#15500` —
+    trente pixels, pour que le message ne colle pas au haut de la
+    fenêtre. Elle est invisible et large d'un pixel.
+
+    MAIS C'EST UN ENFANT DE FLEX. Le message est une rangée en
+    `display: flex` avec 18 px de `gap` : l'ancre coûte donc son pixel
+    ET un écart entier. Dix-neuf pixels pris au corps du message, pour
+    un élément qu'on ne voit pas. Mesuré au harnais le 30 octobre :
+    profil 236 + corps 889 dans un intérieur de 1 164, et 39 px
+    introuvables.
+
+    `position: absolute` la sort du flux — un élément positionné
+    absolument n'est plus un item de flex, donc ni largeur ni écart. Le
+    décalage de défilement, lui, continue de marcher : il vient de
+    `top`, que la position absolue respecte aussi.
+
+    `!important` PARCE QUE LE STYLE EST INLINE, et c'est le seul cas où
+    la charte l'autorise. Le sélecteur vise la forme exacte de l'ancre
+    — un enfant direct du message, sans classe, large d'un pixel — pour
+    ne pas attraper autre chose un jour. */
+#modernbb .post > div[style*="width: 1px"]:not([class]) {
+  position: absolute !important;
 }
 
 /* ════════════════════════════════════════════════════════════════════

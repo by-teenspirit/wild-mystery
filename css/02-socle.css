@@ -956,8 +956,10 @@ html#min-width {
     juste et ne servait à rien. */
 #modernbb #wrap,
 #modernbb .wrap {
-  /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28. */
-  max-width: 1000px;
+  /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28, 1 200 le
+      30. Une seule valeur à changer ici : tout le forum la suit, sauf
+      l'en-tête et le bandeau d'une zone, qui sont hors de `#wrap`. */
+  max-width: 1200px;
 }
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */

@@ -31,7 +31,8 @@
     "barre": "deno run -A outils/barre.mjs",
     "boutique": "deno run -A outils/boutique.mjs",
     "zone": "deno run -A outils/zone.mjs",
-    "sujet": "deno run -A outils/sujet.mjs"
+    "sujet": "deno run -A outils/sujet.mjs",
+    "poster": "deno run -A outils/poster.mjs"
   },
   "fmt": {
     "include": [
