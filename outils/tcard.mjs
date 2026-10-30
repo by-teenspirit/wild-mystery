@@ -680,6 +680,56 @@ dire(
   JSON.stringify(etroit),
 );
 
+// ── 8 · le code dégraissé dit la même chose ─────────────────────────
+
+/*  « Donne-moi le code sans commentaire et minimisé », 30 octobre.
+    `outils/minifier-le-code.py` produit les `.min.html` à côté des
+    fichiers lisibles. Un dégraissage qui change le rendu ne se voit
+    pas en relisant une ligne de 7 000 caractères : c'est le
+    navigateur qui doit le dire.
+
+    On monte donc les deux versions et on compare ce qui compte — la
+    suite des balises, la suite des classes, et le texte. Les blancs
+    entre balises ne sont pas comparés : les retirer est précisément
+    ce que l'outil fait. */
+for (const nom of ["a-coller", "compte-de-test"]) {
+  const lisible = readFileSync(R + `templates/carte-dresseur.${nom}.html`, "utf8");
+  const serre = readFileSync(R + `templates/carte-dresseur.${nom}.min.html`, "utf8");
+
+  const pareil = await p.evaluate(([a, b]) => {
+    const lire = (html) => {
+      const d = document.createElement("div");
+      d.innerHTML = html;
+      const els = [...d.querySelectorAll("*")];
+      return {
+        balises: els.map((e) => e.tagName).join(","),
+        classes: els.map((e) => e.className).join("|"),
+        //  Le texte, blancs de bordure retirés : « Place libre » doit
+        //  rester « Place libre », pas devenir « Placelibre ».
+        texte: (d.textContent ?? "").split(/\s+/).filter(Boolean).join(" "),
+        attributs: els.map((e) =>
+          [...e.attributes].map((at) => `${at.name}=${at.value}`).sort().join(";")
+        ).join("|"),
+      };
+    };
+    const x = lire(a), y = lire(b);
+    return {
+      memesBalises: x.balises === y.balises,
+      memesClasses: x.classes === y.classes,
+      memeTexte: x.texte === y.texte,
+      memesAttributs: x.attributs === y.attributs,
+      elements: x.balises.split(",").length,
+    };
+  }, [lisible, serre]);
+
+  dire(
+    `le code dégraissé dit la même chose que le lisible (${nom})`,
+    pareil.memesBalises && pareil.memesClasses && pareil.memeTexte &&
+      pareil.memesAttributs && pareil.elements > 20,
+    JSON.stringify(pareil),
+  );
+}
+
 // ── l'aperçu ────────────────────────────────────────────────────────
 
 if (Deno.args.includes("--apercu")) {
