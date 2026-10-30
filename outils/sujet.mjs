@@ -146,6 +146,10 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
   t = gardeBloc(t, "switch_user_logged_in");
   t = gardeBloc(t, "switch_user_authreply");
   t = gardeBloc(t, "topicpagination");
+  //  LE BAS DU SUJET. On le gardait hors du décor, et le § 13 de la
+  //  feuille n'était donc testé par rien — relevé le 30 octobre, en
+  //  faisant le point sur la maquette : zéro bloc monté.
+  t = gardeBloc(t, "show_permissions");
   t = gardeBloc(t, "watchtopic");
   t = gardeBloc(t, "first_post_br");
 
@@ -604,6 +608,38 @@ dire(
   bandeau !== null && bandeau.memeLigne && bandeau.dateAGauche &&
     bandeau.actionsADroite && bandeau.titreDessous,
   JSON.stringify(bandeau),
+);
+
+//  ── LE BAS DU SUJET ───────────────────────────────────────────────
+
+const bas = await p.evaluate(() => {
+  const b = document.querySelector("#info_open.wm-sujet__bas");
+  if (b === null) return null;
+  const carte = b.querySelector(".block");
+  const titre = b.querySelector(".h3");
+  if (carte === null || titre === null) return { blocs: 0 };
+  const c = getComputedStyle(carte);
+  return {
+    blocs: b.querySelectorAll(".block").length,
+    fond: c.backgroundColor,
+    fondPage: getComputedStyle(document.body).backgroundColor,
+    bordure: c.borderTopWidth,
+    rayon: c.borderTopLeftRadius,
+    titreCasse: getComputedStyle(titre).textTransform,
+    titreFilet: getComputedStyle(titre).borderBottomWidth,
+  };
+});
+
+dire(
+  "LE BAS DU SUJET EST UNE CARTE, PAS UN BLOC NU",
+  //  Maquette `305:303`. Elle en dessine trois ; `viewtopic_body` n'a
+  //  de variable que pour les permissions, donc il n'y en a qu'un —
+  //  c'est dit dans le gabarit. Ce qui se teste, c'est qu'il ait la
+  //  surface des autres encarts et son titre en étiquette.
+  bas !== null && bas.blocs === 1 && bas.fond !== bas.fondPage &&
+    parseFloat(bas.bordure) >= 1 && parseFloat(bas.rayon) >= 8 &&
+    bas.titreCasse === "uppercase" && bas.titreFilet === "0px",
+  JSON.stringify(bas),
 );
 
 dire(
