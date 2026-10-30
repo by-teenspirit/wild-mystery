@@ -63,6 +63,18 @@
     carnet — sur la supposition qu'avec la bordure de la carte il
     dépassait d'un pixel. Il ne dépassait pas : retirée, la règle ne
     faisait tomber aucun contrôle. `box-sizing: border-box` suffit. */
+/*  L'AVATAR EST CARRÉ SUR LA CARTE DRESSEUR. « Affiche-le en carré »,
+    30 octobre au soir. Le bandeau du carnet le veut en portrait
+    54 × 86, parce qu'il y est seul en haut d'une page ; ici il est
+    posé à côté d'un nom et de trois chiffres, et un portrait haut
+    creuse la bande sans rien montrer de plus. */
+#modernbb .wm-tcard .wm-dresseur__avatar {
+  flex: 0 0 72px;
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+}
+
 #modernbb .wm-tcard > .wm-dresseur {
   flex-wrap: wrap;
   /*  LE RAYON QUE LA CARTE NE DÉCOUPE PLUS. Moins un pixel : le
@@ -203,6 +215,27 @@
   background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
+/*  ── UN POKÉMON OBSCUR SE VOIT SANS SURVOLER ──────────────────────
+
+    « Est-ce qu'on peut avoir un fond direct, sans infobulle, pour
+    avoir une indication tout de suite si le pokémon est obscur ou
+    non ? », 30 octobre au soir.
+
+    L'infobulle le disait déjà — fond violet, étoiles de purification
+    — mais il fallait passer la souris sur chacun des six. La case
+    elle-même prend donc la teinte, en fond très clair : assez pour
+    repérer d'un coup d'œil, pas assez pour écraser le sprite.
+
+    ET PAS SEULEMENT LA COULEUR. Un liseré à gauche, dans le violet
+    plein, parce que six crèmes et un lilas ne se distinguent pas pour
+    tout le monde — c'est la même règle qui tient les trois états du
+    Pokédex et les badges à gagner. */
+#modernbb .wm-tcard__pkmn--obscur {
+  border-color: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 35%, transparent);
+  background: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 10%, var(--wm-fond-surface, #fffbf7));
+  box-shadow: inset 3px 0 0 0 var(--wm-pokemon-obscur-fond, #4a3a63);
+}
+
 /*  LA CASE LIBRE SE RECONNAÎT À SON CADRE, pas à sa teinte. Trois
     crèmes voisines ne se distinguent pas — c'est la règle qui tient
     déjà les trois états du Pokédex (§11) et les cases du profil. */
@@ -232,7 +265,18 @@
   display: block;
   width: 56px;
   height: 56px;
-  object-fit: contain;
+  /*  `scale-down` ET PAS `contain`. « Pourquoi certains comme
+      Couaneton sont plus gros ? » — parce que les gifs de PokéAPI
+      sont ROGNÉS au plus près de la bête : un petit Pokémon arrive
+      dans une image de 40 px, un grand dans une de 96. `contain`
+      ramène les deux à 56, donc AGRANDIT le petit : Couaneton
+      devenait aussi haut qu'un Lokhlass, et flou par-dessus le
+      marché.
+
+      `scale-down` ne réduit que ce qui dépasse et ne grossit jamais.
+      Les tailles relatives redeviennent celles des jeux, et un sprite
+      de 40 px s'affiche à 40. */
+  object-fit: scale-down;
   object-position: bottom;
   image-rendering: pixelated;
 }
@@ -276,7 +320,30 @@
   font-size: 11px;
 }
 
-#modernbb .wm-tcard__pkmn .wm-type::before {
+/*  ── LE GLYPHE EST SUR LA CASE AUSSI ──────────────────────────────
+
+    « Tu as bien affiché les types dans l'infobulle mais pas dans le
+    perso », 30 octobre au soir.
+
+    La pastille de type porte déjà un POINT, posé par `.wm-type` (§ 2
+    de `13-composants.css`) : c'est lui qui prend la couleur du type.
+    Le glyphe le remplace ici — deux ronds l'un à côté de l'autre
+    pour la même information, ce serait un de trop.
+
+    L'image vient de `20-icones.css`, la même règle que pour
+    l'infobulle : `[data-wm-type]::before`. La pastille de la case
+    porte donc maintenant l'attribut, et le gabarit le pose. */
+#modernbb .wm-tcard__pkmn .wm-type[data-wm-type]::before {
+  width: 13px;
+  height: 13px;
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+#modernbb .wm-tcard__pkmn .wm-type:not([data-wm-type])::before {
   width: 8px;
   height: 8px;
 }
@@ -338,14 +405,45 @@
   position: relative;
 }
 
+/*  ── ELLE SE POSE AU-DESSUS DE SON POKÉMON ───────────────────────
+
+    « Bien afficher l'infobulle au-dessus du pokémon », 30 octobre au
+    soir. Elle était centrée sur la LISTE : jamais dehors, mais jamais
+    au-dessus de la bonne case non plus.
+
+    LE CALCUL, ET POURQUOI IL N'A PAS BESOIN DE JAVASCRIPT. Les six
+    cases se partagent la liste à parts égales (`flex: 1 1 0`), donc
+    le centre de la n-ième est à (2n − 1) / 12 de la largeur. On pose
+    la bulle à ce centre, moins la moitié de sa largeur.
+
+    `clamp` FAIT LE RESTE. Posée telle quelle, la bulle de la première
+    case sortirait par la gauche et celle de la sixième par la droite
+    — mesuré : 19 px dehors dans une colonne de 320. `clamp` la borne
+    entre le bord gauche et le bord droit de la liste : elle glisse le
+    long du bord au lieu de sortir, et reste au-dessus de sa case
+    partout ailleurs.
+
+    C'est aussi ce qui la tient quand les cases passent à la ligne :
+    le centre calculé n'est alors plus le bon, mais la borne, elle,
+    reste vraie. */
 #modernbb .wm-tcard__pkmn .wm-infobulle {
+  /*  SANS LE PRÉFIXE `--wm-`, ET C'EST LE GARDE-FOU N° 7 QUI L'A DIT :
+      « le dépôt se SERT des jetons, il ne les déclare pas ». Un
+      `--wm-` est un jeton de la charte, déclaré une seule fois dans
+      `jetons.css` et collé dans le panneau. Ces trois-là ne sont pas
+      des jetons : ce sont deux mesures et un compteur, locaux à ce
+      calcul, qui n'ont de sens nulle part ailleurs. */
+  --largeur-bulle: 212px;
+  --centre-case: calc((2 * var(--rang-case, 1) - 1) / 12 * 100%);
   position: absolute;
   z-index: 3;
-  right: 0;
   bottom: calc(100% + var(--wm-espace-8, 8px));
-  left: 0;
+  left: clamp(
+    0px,
+    calc(var(--centre-case) - var(--largeur-bulle) / 2),
+    calc(100% - var(--largeur-bulle))
+  );
   max-width: 100%;
-  margin-inline: auto;
   /*  ELLE NE PREND PAS LE SURVOL. Sans ça, la bulle qui s'ouvre passe
       sous la souris, la case perd le survol, la bulle se ferme, la
       case le regagne — un clignotement sans fin. */
@@ -369,6 +467,16 @@
 /*  Une case focalisable doit le dire. Le contour du système est gardé
     tel quel : le redessiner, c'est risquer de le rendre invisible sur
     un des deux thèmes. */
+/*  LE RANG DE CHAQUE CASE, d'où son centre se déduit. Six règles et
+    pas une boucle : le CSS n'en a pas, et six lignes explicites se
+    relisent mieux qu'un calcul sur `nth-child` qui n'existe pas. */
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(1) { --rang-case: 1; }
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(2) { --rang-case: 2; }
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(3) { --rang-case: 3; }
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(4) { --rang-case: 4; }
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(5) { --rang-case: 5; }
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(6) { --rang-case: 6; }
+
 #modernbb .wm-tcard__pkmn:focus-visible {
   outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 2px;
@@ -451,6 +559,102 @@
 }
 
 
+
+/* ── 5 bis · l'infobulle d'un badge ───────────────────────────────── */
+
+/*  « Fais une infobulle pour donner l'information : Badge de l'Arène
+    Feu - obtenu (non obtenu) », « avec la date d'obtention si on
+    peut », 30 octobre au soir.
+
+    PAS `.wm-infobulle` : celle-là est verte ou violette, c'est l'état
+    d'un Pokémon. Un badge n'a pas d'état de ce genre — il est obtenu
+    ou il ne l'est pas, et c'est écrit. Carte neutre, donc, comme
+    toutes les autres surfaces du forum.
+
+    LE TEXTE EST DANS LE GABARIT, pas dans la feuille : le nom d'une
+    arène et la date d'un badge sont des données. Le CSS ne fait que
+    les montrer. */
+#modernbb .wm-tcard__badges {
+  position: relative;
+}
+
+#modernbb .wm-tcard__badge {
+  position: static;
+}
+
+#modernbb .wm-tcard__bulle {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(100% + var(--wm-espace-8, 8px));
+  left: 0;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 100%;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 20px rgb(46 32 24 / 18%);
+  pointer-events: none;
+  opacity: 0;
+  text-align: left;
+  visibility: hidden;
+  transition: opacity 120ms ease-out, visibility 0s linear 120ms;
+}
+
+#modernbb .wm-tcard__badge:hover .wm-tcard__bulle,
+#modernbb .wm-tcard__badge:focus-within .wm-tcard__bulle {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms ease-out;
+}
+
+#modernbb .wm-tcard__bulle-nom {
+  display: block;
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+/*  L'ÉTAT SE DIT EN TOUTES LETTRES. Le cadre en pointillé le disait
+    déjà sur le badge lui-même, mais une infobulle qui s'ouvre doit
+    répondre à la question qu'on lui pose, pas renvoyer au dessin. */
+#modernbb .wm-tcard__bulle-etat {
+  display: block;
+  margin-top: 2px;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-tcard__badge:not(.wm-tcard__badge--agagner) .wm-tcard__bulle-etat {
+  color: var(--wm-danger-paisible, #4f7a52);
+}
+
+#modernbb .wm-tcard__bulle-date {
+  display: block;
+  margin-top: 2px;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+/*  LA BULLE NE DOIT PAS ÊTRE GRISÉE AVEC SON BADGE. `opacity` et
+    `filter` d'un badge à gagner s'appliquent à tout ce qu'il
+    contient, bulle comprise — elle devenait illisible au moment
+    précis où on la consulte. Elle sort donc du grisage : le filtre
+    ne porte que sur le fond dessiné. */
+#modernbb .wm-tcard__badge--agagner[data-wm-badge] {
+  opacity: 1;
+  filter: none;
+  background-blend-mode: luminosity;
+  background-color: color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 72%, transparent);
+}
 
 /* ── 6 · à l'étroit ───────────────────────────────────────────────── */
 

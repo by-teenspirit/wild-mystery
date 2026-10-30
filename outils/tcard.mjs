@@ -709,6 +709,147 @@ dire(
   JSON.stringify(glyphes),
 );
 
+const casesDuTest = await p.evaluate(() => {
+  const cases = [...document.querySelectorAll("#test .wm-tcard__pkmn")];
+  const obscurs = cases.filter((c) => c.classList.contains("wm-tcard__pkmn--obscur"));
+  const r = (e) => e.getBoundingClientRect();
+  const fond = (e) => getComputedStyle(e).backgroundColor;
+  return {
+    //  LE GLYPHE EST SUR LA CASE AUSSI, pas seulement dans la bulle.
+    pastillesAvecGlyphe: cases.filter((c) => {
+      const p = c.querySelector(".wm-type[data-wm-type]");
+      return p !== null &&
+        getComputedStyle(p, "::before").backgroundImage.startsWith("url(");
+    }).length,
+    //  UN OBSCUR SE VOIT SANS SURVOLER : fond différent ET un liseré,
+    //  parce que la couleur ne porte jamais seule.
+    obscurs: obscurs.length,
+    fondDifferent: obscurs.length > 0 &&
+      fond(obscurs[0]) !== fond(cases.find((c) => !obscurs.includes(c))),
+    liseré: obscurs.length > 0 &&
+      getComputedStyle(obscurs[0]).boxShadow.includes("inset"),
+    //  ET LES SPRITES NE SONT PLUS AGRANDIS. « Pourquoi certains comme
+    //  Couaneton sont plus gros ? » — `scale-down` ne grossit jamais.
+    jamaisAgrandi: cases.every((c) => {
+      const img = c.querySelector("img");
+      if (img === null) return true;
+      const b = r(img);
+      return getComputedStyle(img).objectFit === "scale-down" &&
+        b.width >= img.naturalWidth - 1;
+    }),
+  };
+});
+
+dire(
+  "la case porte son glyphe de type, et un obscur se voit sans survoler",
+  casesDuTest.pastillesAvecGlyphe === 6 && casesDuTest.obscurs === 1 &&
+    casesDuTest.fondDifferent && casesDuTest.liseré &&
+    casesDuTest.jamaisAgrandi,
+  JSON.stringify(casesDuTest),
+);
+
+// ── l'infobulle se pose au-dessus de SA case ────────────────────────
+
+/*  « Bien afficher l'infobulle au-dessus du pokémon. » Elle était
+    centrée sur la liste : jamais dehors, jamais au-dessus de la bonne
+    case non plus. On survole la troisième et on regarde si elle la
+    recouvre. */
+await p.hover("#test .wm-tcard__pkmn:nth-child(3)");
+
+const auDessusDeLaCase = await p.evaluate(() => {
+  const cases = [...document.querySelectorAll("#test .wm-tcard__pkmn")];
+  const carte = document.querySelector("#test");
+  const r = (e) => e.getBoundingClientRect();
+  const bulle = r(cases[2].querySelector(".wm-infobulle"));
+  const sien = r(cases[2]);
+  return {
+    //  LES CENTRES SE RÉPONDENT, à quelques pixels près.
+    ecartDesCentres: Math.round(
+      Math.abs((bulle.left + bulle.right) / 2 - (sien.left + sien.right) / 2),
+    ),
+    //  ET ELLE RESTE DANS LA CARTE.
+    debordeGauche: Math.round(r(carte).left - bulle.left),
+    debordeDroite: Math.round(bulle.right - r(carte).right),
+  };
+});
+
+dire(
+  "l'infobulle se pose au-dessus de la case survolée, sans sortir",
+  auDessusDeLaCase.ecartDesCentres <= 4 &&
+    auDessusDeLaCase.debordeGauche <= 0 &&
+    auDessusDeLaCase.debordeDroite <= 0,
+  JSON.stringify(auDessusDeLaCase),
+);
+
+// ── et celles des bords glissent au lieu de sortir ──────────────────
+
+for (const rang of [1, 6]) {
+  await p.hover(`#test .wm-tcard__pkmn:nth-child(${rang})`);
+  const bord = await p.evaluate((n) => {
+    const c = document.querySelector(`#test .wm-tcard__pkmn:nth-child(${n})`);
+    const carte = document.querySelector("#test");
+    const b = c.querySelector(".wm-infobulle").getBoundingClientRect();
+    const rc = carte.getBoundingClientRect();
+    return {
+      debordeGauche: Math.round(rc.left - b.left),
+      debordeDroite: Math.round(b.right - rc.right),
+    };
+  }, rang);
+  dire(
+    `la bulle de la case ${rang} glisse le long du bord au lieu d'en sortir`,
+    bord.debordeGauche <= 0 && bord.debordeDroite <= 0,
+    JSON.stringify(bord),
+  );
+}
+
+await p.mouse.move(0, 0);
+
+// ── chaque badge dit son nom, son état, et sa date ──────────────────
+
+const bullesDeBadge = await p.evaluate(() => {
+  const tous = [...document.querySelectorAll("#test .wm-tcard__badge")];
+  const bulles = tous.map((b) => b.querySelector(".wm-tcard__bulle"));
+  const obtenus = tous.filter((b) => !b.classList.contains("wm-tcard__badge--agagner"));
+  return {
+    combien: tous.length,
+    toutesPresentes: bulles.every((b) => b !== null),
+    toutesFermees: bulles.every((b) =>
+      b !== null && getComputedStyle(b).visibility === "hidden"
+    ),
+    //  LE NOM DE L'ARÈNE Y EST ÉCRIT, pas seulement en `title`.
+    nomsEcrits: bulles.every((b) =>
+      b !== null &&
+      (b.querySelector(".wm-tcard__bulle-nom")?.textContent ?? "").includes("Arène")
+    ),
+    //  ET L'ÉTAT, EN TOUTES LETTRES.
+    etats: new Set(
+      bulles.map((b) => b?.querySelector(".wm-tcard__bulle-etat")?.textContent.trim()),
+    ).size,
+    //  LA DATE N'EST QUE SUR CEUX QUI SONT OBTENUS.
+    datesSurObtenus: obtenus.every((b) => b.querySelector(".wm-tcard__bulle-date") !== null),
+    datesAilleurs: tous.filter((b) =>
+      b.classList.contains("wm-tcard__badge--agagner") &&
+      b.querySelector(".wm-tcard__bulle-date") !== null
+    ).length,
+    //  ET UNE BULLE OUVERTE N'EST PAS GRISÉE AVEC SON BADGE : le
+    //  `filter` d'un parent ne se défait pas sur un enfant, c'est
+    //  pour ça que le grisage est passé en fond mélangé.
+    bullesLisibles: tous.every((b) =>
+      getComputedStyle(b).filter === "none" &&
+      Number(getComputedStyle(b).opacity) === 1
+    ),
+  };
+});
+
+dire(
+  "chaque badge dit son nom, son état et sa date, sans être grisé",
+  bullesDeBadge.combien === 7 && bullesDeBadge.toutesPresentes &&
+    bullesDeBadge.toutesFermees && bullesDeBadge.nomsEcrits &&
+    bullesDeBadge.etats === 2 && bullesDeBadge.datesSurObtenus &&
+    bullesDeBadge.datesAilleurs === 0 && bullesDeBadge.bullesLisibles,
+  JSON.stringify(bullesDeBadge),
+);
+
 dire(
   "l'infobulle écrit les deux types d'un double, la case n'en montre qu'un",
   types.unDoubleAuMoins && types.tousNommes && types.surLaCase === 6,

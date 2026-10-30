@@ -403,3 +403,110 @@
   padding: 0;
   border: 0;
 }
+
+
+/* ── 10 · l'éditeur, relevé du 30 octobre au soir ──────────────────── */
+
+/*  « Pourquoi est-ce que le fond est beige ? Passe en marron. Et à
+    l'intérieur, pourquoi c'est gris ? Normalement, on écrit dans un
+    bloc blanc. »
+
+    ── POURQUOI LA RÉPONSE RAPIDE N'ÉTAIT PAS HABILLÉE ──────────────
+
+    Tout le § 3 est écrit sous `#message-box`, qui n'existe que sur la
+    page de rédaction complète. Sur la réponse rapide, il n'y a aucune
+    instance sceditor : `#text_editor_textarea` est visible et c'est
+    LUI l'éditeur — relevé le 2 octobre, planche 58. L'éditeur de la
+    réponse rapide n'avait donc jamais reçu une seule de nos règles,
+    et montrait le gris de ModernBB.
+
+    Les règles d'ici visent les deux formes. */
+
+/*  LA BARRE D'OUTILS PASSE EN MARRON. Elle était en crème, un ton
+    au-dessus du fond de page — d'où le « beige ». */
+#modernbb .sceditor-toolbar {
+  border-bottom-color: color-mix(in srgb, var(--wm-encre, #2e2018) 25%, transparent) !important;
+  background: var(--wm-accent-terre, #8b4725) !important;
+}
+
+/*  ET LES ICÔNES S'INVERSENT POUR RESTER LISIBLES. Le sprite de
+    sceditor est fait de glyphes SOMBRES sur transparent : posés tels
+    quels sur du marron, ils disparaissent.
+
+    `invert` sur une image qu'on ne possède pas est un pari, et il est
+    assumé : le sprite est monochrome, donc l'inversion le rend clair
+    sans le colorer. Si un jour il devient couleur, c'est cette ligne
+    qu'il faut retirer — et rien d'autre. */
+#modernbb .sceditor-button > div,
+#modernbb .sceditor-button > div > div {
+  filter: invert(1) brightness(1.7);
+}
+
+#modernbb .sceditor-button:hover,
+#modernbb .sceditor-button:focus-visible {
+  background: color-mix(in srgb, #fffbf7 22%, transparent);
+}
+
+/*  ON ÉCRIT DANS DU BLANC. `fond-surface`, la surface la plus claire
+    de la charte — la même que celle d'une carte. Les deux formes de
+    l'éditeur sont visées, et `!important` reste réservé à ce que
+    sceditor stampe lui-même. */
+#modernbb .sceditor-container,
+#modernbb .sceditor-container textarea,
+#modernbb #quick_reply textarea,
+#modernbb #text_editor_textarea {
+  background: var(--wm-fond-surface, #fffbf7) !important;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  LA BOÎTE DE LA RÉPONSE RAPIDE N'A PAS DE CONTENEUR SCEDITOR : son
+    `textarea` doit porter lui-même le cadre que `#message-box` donne
+    à l'autre. */
+#modernbb #quick_reply textarea,
+#modernbb #text_editor_textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-message, 16px);
+  line-height: var(--wm-interligne-message, 1.75);
+}
+
+/* ── 11 · « Prévisualiser » et « Envoyer » ─────────────────────────── */
+
+/*  « Prévisualiser : l'écrire en marron. Envoyer : fond bleu,
+    écriture blanche », 30 octobre au soir.
+
+    « Envoyer » l'était déjà au § 5, mais seulement sous
+    `.submit-buttons` : la réponse rapide sert ses boutons ailleurs, et
+    ils y restaient gris. On vise l'`input` par son nom — `post` et
+    `preview` sont ceux de Forumactif, et c'est par eux que le serveur
+    sait ce qu'on lui demande : ils ne peuvent pas changer sans que la
+    page cesse de marcher. */
+#modernbb input[name="post"],
+#modernbb .submit-buttons .button1 {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb input[name="post"]:hover,
+#modernbb .submit-buttons .button1:hover {
+  background: var(--wm-accent-fort, #1f5470);
+}
+
+/*  « PRÉVISUALISER » RESTE UN BOUTON SECOND : du texte marron sur un
+    fond clair. Deux boutons pleins côte à côte ne disent plus lequel
+    est l'action de la page. */
+#modernbb input[name="preview"] {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+#modernbb input[name="preview"]:hover {
+  border-color: var(--wm-accent-terre, #8b4725);
+  background: var(--wm-fond-terre, #f8eae1);
+}

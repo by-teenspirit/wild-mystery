@@ -37,6 +37,34 @@
 
 /* ── 1 · le bouton ────────────────────────────────────────────────── */
 
+/*  AUCUNE OMBRE SUR UN BOUTON, NULLE PART. « Pas de box shadow sur ces
+    boutons : à appliquer partout sur le forum », 30 octobre au soir.
+
+    Aucune de nos feuilles n'en posait — relevé, pas supposé : les
+    quatorze `box-shadow` du dépôt sont sur des cartes, des panneaux et
+    des bulles, aucun sur un bouton. Celles qu'on voit viennent du CSS
+    de ModernBB, qui en met sur `.button1`, `.button2` et les `input`
+    d'envoi.
+
+    La règle est donc là pour DÉFAIRE, et elle liste les formes que
+    ModernBB sert. `:where` garde sa spécificité à zéro sur les
+    sélecteurs listés : la règle ne gêne jamais une de nos feuilles qui
+    voudrait poser une ombre sur un bouton précis, elle n'écrase que ce
+    qui n'a pas d'avis. */
+#modernbb :where(
+    button,
+    input[type="submit"],
+    input[type="button"],
+    input[type="reset"],
+    .button1,
+    .button2,
+    .wm-btn,
+    .mainoption,
+    .liteoption
+  ) {
+  box-shadow: none;
+}
+
 /*  Trois rôles, et un seul geste de lecture : le primaire porte l'action
     de la page, le secondaire la double, le discret range.
 

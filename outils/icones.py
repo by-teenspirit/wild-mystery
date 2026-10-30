@@ -175,7 +175,14 @@ def main() -> None:
         poids += len(octets)
         b64 = base64.b64encode(octets).decode()
         regles.append(
-            f'#modernbb .wm-infobulle__type[data-wm-type="{cle}"]::before {{\n'
+            #  LE SÉLECTEUR NE NOMME PLUS L'INFOBULLE. Le glyphe sert
+            #  aussi à la pastille d'une case d'équipe depuis le
+            #  30 octobre au soir — « tu as bien affiché les types
+            #  dans l'infobulle mais pas dans le perso ». Deux jeux de
+            #  dix-huit règles pour les mêmes images seraient deux
+            #  jeux à tenir d'accord. C'est l'attribut qui décide, et
+            #  il est à nous.
+            f'#modernbb [data-wm-type="{cle}"]::before {{\n'
             f'  background-image: url("data:image/png;base64,{b64}");\n'
             f"}}"
         )

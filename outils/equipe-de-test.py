@@ -117,11 +117,11 @@ def case(b: dict, obscur: bool) -> str:
     part = round(100 * b["pv"] / b["pv_max"])
     etoiles = "★" * b["rang"] + "☆" * (5 - b["rang"])
     echelle = "Purification" if obscur else "Bonheur"
-    return f"""        <li class="wm-tcard__pkmn" tabindex="0">
+    return f"""        <li class="wm-tcard__pkmn{" wm-tcard__pkmn--obscur" if obscur else ""}" tabindex="0">
           <img class="wm-tcard__sprite" src="{sprite}" alt="" />
           <p class="wm-tcard__nom">{b["nom"]}</p>
           <p class="wm-tcard__niveau">niv. {b["niveau"]}</p>
-          <span class="wm-type wm-type--{premier}">{en_titre(premier)}</span>
+          <span class="wm-type wm-type--{premier}" data-wm-type="{premier}">{en_titre(premier)}</span>
           <div class="wm-infobulle{" wm-infobulle--obscur" if obscur else ""}" role="tooltip">
             <div class="wm-infobulle__tete">
               <p class="wm-infobulle__nom">{b["nom"]}</p>
@@ -153,10 +153,26 @@ def badges(de: random.Random) -> str:
     combien = de.randint(2, 4)
     lignes = []
     for i, (cle, nom) in enumerate(LES_SEPT):
-        a_gagner = "" if i < combien else " wm-tcard__badge--agagner"
+        obtenu = i < combien
+        a_gagner = "" if obtenu else " wm-tcard__badge--agagner"
+        #  LA DATE EST TIRÉE, comme le reste des valeurs de test. Rien
+        #  dans le dépôt ne sait quand un badge a été gagné : c'est une
+        #  récompense Forumactif, et sa date vit dans le panneau.
+        date = (
+            f'<span class="wm-tcard__bulle-date">Obtenu le '
+            f'{de.randint(1, 28)}/{de.randint(1, 10):02}/2026</span>'
+            if obtenu else ""
+        )
+        etat = "Obtenu" if obtenu else "Non obtenu"
         lignes.append(
             f'        <li class="wm-tcard__badge{a_gagner}" '
-            f'data-wm-badge="{cle}" title="{nom}"></li>'
+            f'data-wm-badge="{cle}" tabindex="0">\n'
+            f'          <span class="wm-tcard__bulle">\n'
+            f'            <span class="wm-tcard__bulle-nom">Badge de l\'Arène {nom}</span>\n'
+            f'            <span class="wm-tcard__bulle-etat">{etat}</span>\n'
+            f'            {date}\n'
+            f'          </span>\n'
+            f"        </li>"
         )
     return "\n".join(lignes), combien
 
