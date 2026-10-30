@@ -32,7 +32,8 @@
     "boutique": "deno run -A outils/boutique.mjs",
     "zone": "deno run -A outils/zone.mjs",
     "sujet": "deno run -A outils/sujet.mjs",
-    "poster": "deno run -A outils/poster.mjs"
+    "poster": "deno run -A outils/poster.mjs",
+    "etat": "bash outils/etat.sh"
   },
   "fmt": {
     "include": [

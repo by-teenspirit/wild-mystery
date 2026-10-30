@@ -303,6 +303,40 @@ showHiddenMessage = function(id) {
 					</ul>
 				</div>
 
+				<!--  LES « J'AIME » MONTENT DANS LE BANDEAU, en haut à
+				      droite — demandé le 30 octobre, et c'est aussi ce
+				      que la maquette `305:24` dessine : son bandeau de
+				      message porte un NOMBRE (`305:155`, large de 14 px)
+				      juste avant les trois actions.
+
+				      Ils étaient sous le message, derrière un filet, au
+				      bout de deux écrans de RP : personne ne les voyait.
+				      Le gabarit les déplace ici plutôt que la feuille,
+				      parce qu'un bloc remonté par `order` seul resterait
+				      après le message dans l'ordre de lecture — au
+				      clavier et au lecteur d'écran, on tomberait sur le
+				      bouton bien après ce qu'il note. -->
+				<!-- BEGIN switch_likes_active -->
+				<div class="fa_like_div">
+					<button class="rep-button {postrow.displayed.switch_likes_active.C_VOTE_LIKE}" title="{postrow.displayed.switch_likes_active.L_LIKE}" data-href="{postrow.displayed.switch_likes_active.U_VOTE_LIKE}" data-href-rm="{postrow.displayed.switch_likes_active.U_VOTE_RM_LIKE}">
+						<i class="ion-thumbsup"></i>
+						<span>{postrow.displayed.switch_likes_active.L_LIKE}</span>{postrow.displayed.switch_likes_active.COUNT_VOTE_LIKE}
+					</button>
+						<!-- BEGIN switch_dislike_button -->
+					<button class="rep-button {postrow.displayed.switch_likes_active.switch_dislike_button.C_VOTE_DISLIKE}" title="{postrow.displayed.switch_likes_active.switch_dislike_button.L_DISLIKE}" data-href="{postrow.displayed.switch_likes_active.switch_dislike_button.U_VOTE_DISLIKE}" data-href-rm="{postrow.displayed.switch_likes_active.switch_dislike_button.U_VOTE_RM_LIKE}">
+						<i class="ion-thumbsdown"></i>
+						<span>{postrow.displayed.switch_likes_active.switch_dislike_button.L_DISLIKE}</span>{postrow.displayed.switch_likes_active.switch_dislike_button.COUNT_VOTE_DISLIKE}
+					</button>
+						<!-- END switch_dislike_button -->
+						<!-- BEGIN switch_like_list -->
+					{postrow.displayed.switch_likes_active.switch_like_list.D_LIKE_LIST}
+						<!-- END switch_like_list -->
+						<!-- BEGIN switch_dislike_list -->
+					{postrow.displayed.switch_likes_active.switch_dislike_list.D_DISLIKE_LIST}
+						<!-- END switch_dislike_list -->
+				</div>
+					<!-- END switch_likes_active -->
+
 				<h2 class="topic-title">{postrow.displayed.ICON} <a href="{postrow.displayed.POST_URL}">{postrow.displayed.POST_SUBJECT}</a></h2>
 				<div class="topic-date">
 					{postrow.displayed.POST_DATE_NEW}
@@ -387,26 +421,6 @@ showHiddenMessage = function(id) {
 					<div class="signature_div" id="sig{postrow.displayed.U_POST_ID}">{postrow.displayed.SIGNATURE_NEW}</div>
 				<!-- END switch_signature -->
 			</div>
-			<!-- BEGIN switch_likes_active -->
-			<div class="fa_like_div">
-				<button class="rep-button {postrow.displayed.switch_likes_active.C_VOTE_LIKE}"  data-href="{postrow.displayed.switch_likes_active.U_VOTE_LIKE}" data-href-rm="{postrow.displayed.switch_likes_active.U_VOTE_RM_LIKE}">
-					<i class="ion-thumbsup"></i>
-					<span>{postrow.displayed.switch_likes_active.L_LIKE}</span>{postrow.displayed.switch_likes_active.COUNT_VOTE_LIKE}
-				</button>
-				<!-- BEGIN switch_dislike_button -->
-				<button class="rep-button {postrow.displayed.switch_likes_active.switch_dislike_button.C_VOTE_DISLIKE}" data-href="{postrow.displayed.switch_likes_active.switch_dislike_button.U_VOTE_DISLIKE}" data-href-rm="{postrow.displayed.switch_likes_active.switch_dislike_button.U_VOTE_RM_LIKE}">
-					<i class="ion-thumbsdown"></i>
-					<span>{postrow.displayed.switch_likes_active.switch_dislike_button.L_DISLIKE}</span>{postrow.displayed.switch_likes_active.switch_dislike_button.COUNT_VOTE_DISLIKE}
-				</button>
-				<!-- END switch_dislike_button -->
-				<!-- BEGIN switch_like_list -->
-				{postrow.displayed.switch_likes_active.switch_like_list.D_LIKE_LIST}
-				<!-- END switch_like_list -->
-				<!-- BEGIN switch_dislike_list -->
-				{postrow.displayed.switch_likes_active.switch_dislike_list.D_DISLIKE_LIST}
-				<!-- END switch_dislike_list -->
-			</div>
-			<!-- END switch_likes_active -->
 			</div>
 		</div>
 		<!-- BEGIN first_post_br -->

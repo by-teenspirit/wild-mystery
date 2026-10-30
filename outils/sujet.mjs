@@ -150,6 +150,14 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
   //  feuille n'était donc testé par rien — relevé le 30 octobre, en
   //  faisant le point sur la maquette : zéro bloc monté.
   t = gardeBloc(t, "show_permissions");
+  //  LES « J'AIME ». Montés depuis le 30 octobre : ils sont dans le
+  //  bandeau maintenant, et une règle qui les y place ne se vérifie pas
+  //  sur un bloc absent. Le bouton « je n'aime pas » monte avec : deux
+  //  pastilles côte à côte sont le cas qui serre le plus le bandeau.
+  t = gardeBloc(t, "switch_likes_active");
+  t = gardeBloc(t, "switch_dislike_button");
+  //  LES LIENS DU BAS DU PROFIL, gardés depuis le 30 octobre.
+  t = gardeBloc(t, "contact_field");
   t = gardeBloc(t, "watchtopic");
   t = gardeBloc(t, "first_post_br");
 
@@ -162,9 +170,7 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
       "switch_vote_active",
       "switch_vote_plus",
       "switch_vote_minus",
-      "switch_likes_active",
       "switch_like_list",
-      "switch_dislike_button",
       "switch_dislike_list",
       "switch_no_comment",
       "switch_attachments",
@@ -181,7 +187,6 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
       "switch_no_bar",
       "promot_trafic",
       "link",
-      "contact_field",
       "show_permissions",
       "viewtopic_bottom",
       "switch_user_authnoreply",
@@ -219,6 +224,47 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
       if (nom === "SEPARATOR") return "<br />";
       c++;
       return champ.valeur;
+    },
+  );
+
+  //  LE CHAMP DE CONTACT : un seul, servi une fois par message. Il
+  //  arrive en HTML tout fait, comme les trois autres liens.
+  while (/<!--\s*BEGIN contact_field\s*-->/.test(t)) {
+    t = repeteBloc(t, "contact_field", 1);
+  }
+  t = t.replace(
+    /\{postrow\.displayed\.contact_field\.CONTENT\}/g,
+    `<a href="https://exemple.test/site"><i class="ion-link" title="Site"></i></a>`,
+  );
+
+  //  ── LES « J'AIME » ────────────────────────────────────────────────
+  //
+  //  Leurs variables sont IMBRIQUÉES — `postrow.displayed.
+  //  switch_likes_active.L_LIKE` — et la passe générale ne lit que les
+  //  noms d'un seul segment. Elles ont donc leur tour, avant.
+  //
+  //  Le compteur suit les messages dans l'ordre du document : le bloc
+  //  des « j'aime » est dans le bandeau, donc une fois par message et
+  //  avant son texte. Le PREMIER message est voté, le second non : les
+  //  deux états du bouton sont ainsi mesurés sur la même page.
+  let j = -1;
+  t = t.replace(
+    /\{postrow\.displayed\.switch_likes_active\.(?:switch_dislike_button\.)?([\w]+)\}/g,
+    (_, nom) => {
+      //  `C_VOTE_LIKE` ouvre le bloc d'un message : c'est lui qui fait
+      //  avancer le compteur.
+      if (nom === "C_VOTE_LIKE") {
+        j++;
+        return j === 0 ? "voted" : "";
+      }
+      if (nom === "L_LIKE") return "J'aime";
+      if (nom === "L_DISLIKE") return "Je n'aime pas";
+      if (nom === "COUNT_VOTE_LIKE") return j === 0 ? "3" : "0";
+      if (nom === "COUNT_VOTE_DISLIKE") return "0";
+      if (nom === "C_VOTE_DISLIKE") return "";
+      //  Les URL de vote : le harnais ne clique pas, mais un attribut
+      //  vide se lit mal dans une capture.
+      return "/post?p=1&mode=vote";
     },
   );
 
@@ -278,6 +324,26 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
       ).join("");
     }
     if (nom === "AWARDS_SHOW") return "";
+    //  ── LES LIENS DU BAS DU PROFIL ────────────────────────────────
+    //
+    //  CE QU'ON NE SAIT PAS : sous quelle forme Forumactif les sert.
+    //  ModernBB rend tantôt une icône de fonte (`<i class="ion-…">`),
+    //  tantôt une petite image — ça dépend du réglage « icônes ou
+    //  texte » du panneau, et le forum n'a pas pu être relevé depuis
+    //  le 29, Chrome ne répondant plus.
+    //
+    //  Le décor sert donc LES DEUX FORMES dans la même colonne : la
+    //  règle doit tenir pour l'une comme pour l'autre, sinon elle ne
+    //  tient pour aucune des deux.
+    if (nom === "PROFILE_IMG") {
+      return `<a href="/u3" rel="nofollow"><img src="${PIXEL}" alt="Voir le profil" /></a>`;
+    }
+    if (nom === "PM_IMG") {
+      return `<a href="/privmsg?mode=post&u=3"><i class="ion-email" title="Message privé"></i></a>`;
+    }
+    //  L'e-mail est souvent coupé au panneau : la colonne doit tenir
+    //  avec un lien en moins.
+    if (nom === "EMAIL_IMG") return "";
     if (nom === "PROFILE_POSITION") return "left";
     return "";
   });
@@ -303,6 +369,16 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
     U_VIEW_OLDER_TOPIC: "/t9-x",
     U_VIEW_NEWER_TOPIC: "/t11-x",
     L_GO: "Ok",
+    //  ── LA RÉPONSE RAPIDE ──────────────────────────────────────────
+    //
+    //  `{QUICK_REPLY_FORM}` arrive TOUT FAIT de Forumactif, barre
+    //  d'outils comprise, et seulement si le panneau l'a activée. Le
+    //  décor en sert la seule chose dont la mise en page dépend :
+    //  l'enveloppe `#quick_reply`, que la feuille recolle au bandeau
+    //  de section. Ce qu'il y a dedans ne change rien à la jointure.
+    QUICK_REPLY_FORM: `<form id="quick_reply" method="post"><fieldset>` +
+      `<textarea rows="8" cols="60"></textarea>` +
+      `<input type="submit" value="Envoyer" /></fieldset></form>`,
   });
 }
 
@@ -318,6 +394,25 @@ const BASE_MODERNBB = `
     rembourrages — et le harnais accusait notre regle au lieu de son
     propre decor. */
 *, *::before, *::after { box-sizing: border-box; }
+
+/*  ── LES ICONES DE MODERNBB, EN DOUBLURE ─────────────────────────
+    ModernBB charge Ionicons et dessine chaque action avec. Le harnais
+    ne charge aucune fonte : les <i class="ion-..."> y faisaient zero
+    pixel, et la pastille des « j'aime » se reduisait a son nombre. Un
+    decor qui ne reproduit pas ce que ModernBB sert ne teste que
+    lui-meme — c'est la troisieme fois.
+
+    On pose donc un carre de 14 a la place du glyphe. Ce qui est
+    mesure ici, c'est la PLACE que l'icone prend, pas sa forme : le
+    harnais ne sait rien du dessin d'Ionicons et ne pretend pas le
+    savoir. */
+[class^="ion-"], [class*=" ion-"] {
+  display: inline-block;
+  width: 14px; height: 14px;
+  background: currentColor;
+  border-radius: 2px;
+  opacity: .55;
+}
 .postbody { margin-right: 211px; padding: 12px 18px 18px; }
 .h3 { border-bottom: 1px solid #3793ff; }
 h1.page-title { border-bottom: 1px solid #3793ff; }
@@ -874,6 +969,208 @@ dire(
   actions !== null && actions.boutonsAGauche && actions.pagesADroite &&
     actions.memeLigne,
   JSON.stringify(actions),
+);
+
+//  ── LES « J'AIME », EN HAUT À DROITE ───────────────────────────────
+//
+//  « Améliore le "j'aime" visuellement et mets-le en haut à droite
+//  plutôt », 30 octobre — et c'est aussi ce que la maquette `305:24`
+//  dessine : son bandeau de message porte un nombre juste avant les
+//  trois actions.
+
+const bande = await p.evaluate(() => {
+  const tete = document.querySelector(".post .wm-post-corps > .post-head");
+  const icones = tete?.querySelector(".menu-wrap") ?? null;
+  const date = tete?.querySelector(".topic-date") ?? null;
+  if (icones === null || date === null) return null;
+  const r = (e) => e.getBoundingClientRect();
+  //  COMBIEN DE LIGNES. On compare les MILIEUX, pas les ordonnées
+  //  hautes : la bande est centrée verticalement, donc trois blocs de
+  //  hauteurs différentes sur une même ligne ont trois `y` différents.
+  //  Première version du contrôle, qui comptait les `y` : elle
+  //  annonçait trois lignes là où il n'y en avait qu'une.
+  //
+  //  Le titre est mis à part — il a sa propre ligne, et c'est voulu.
+  const milieux = [...tete.children]
+    .filter((e) => e.classList.contains("topic-title") === false)
+    .map((e) => Math.round(r(e).y + r(e).height / 2));
+  return {
+    milieux,
+    lignes: new Set(milieux.map((y) => Math.round(y / 8))).size,
+    //  ET LES ICÔNES SONT UNE RANGÉE, pas une colonne : le « + »
+    //  au-dessus de la liste faisait 70 px de haut.
+    hauteurIcones: Math.round(r(icones).height),
+    affichage: getComputedStyle(icones).display,
+  };
+});
+
+const jaime = await p.evaluate(() => {
+  const tete = document.querySelector(".post .wm-post-corps > .post-head");
+  const bloc = tete?.querySelector(".fa_like_div") ?? null;
+  const icones = tete?.querySelector(".menu-wrap") ?? null;
+  if (tete === null || bloc === null || icones === null) return null;
+  const boutons = [...bloc.querySelectorAll(".rep-button")];
+  const r = (e) => e.getBoundingClientRect();
+  const st = getComputedStyle(boutons[0]);
+  const mot = boutons[0].querySelector("span");
+  const stMot = getComputedStyle(mot);
+  //  LE SECOND MESSAGE N'A PAS VOTÉ : son bouton doit se distinguer de
+  //  celui du premier, qui porte `voted`.
+  const second = document.querySelectorAll(".post")[1]
+    ?.querySelector(".post-head .rep-button") ?? null;
+  return {
+    //  DANS LE BANDEAU, ET DANS L'ORDRE DU DOCUMENT — pas remonté par
+    //  `order` seul : au clavier on doit tomber dessus là où il est vu.
+    dansLaTete: true,
+    avantLeTitre: bloc.compareDocumentPosition(
+      tete.querySelector(".topic-title"),
+    ) === Node.DOCUMENT_POSITION_FOLLOWING,
+    //  À DROITE, et collé devant les icônes d'action.
+    aDroite: Math.round(r(bloc).x) > Math.round(r(tete).x + r(tete).width / 2),
+    avantLesIcones: Math.round(r(bloc).right) <= Math.round(r(icones).x) + 1,
+    //  SUR LA MÊME LIGNE que la date : un bandeau, pas deux.
+    memeLigne: Math.abs(
+      Math.round(r(bloc).y + r(bloc).height / 2) -
+        Math.round(
+          r(tete.querySelector(".topic-date")).y +
+            r(tete.querySelector(".topic-date")).height / 2,
+        ),
+    ) <= 8,
+    boutons: boutons.length,
+    //  UNE PASTILLE, pas un bouton gris de navigateur.
+    rayon: st.borderRadius,
+    hauteur: Math.round(r(boutons[0]).height),
+    //  LE MOT EST CACHÉ À L'ŒIL MAIS PAS AU LECTEUR D'ÉCRAN : il garde
+    //  une boîte, il n'est pas en `display: none`.
+    motLu: mot.textContent.trim(),
+    motCache: Math.round(r(mot).width) <= 1,
+    motAffiche: stMot.display,
+    //  ET LE COMPTE RESTE VISIBLE : c'est tout ce qu'on garde du texte.
+    compte: boutons[0].textContent.replace(mot.textContent, "").trim(),
+    //  LES DEUX ÉTATS SE DISTINGUENT.
+    fondVote: st.backgroundColor,
+    fondNonVote: second === null ? null : getComputedStyle(second).backgroundColor,
+    //  ET LE BANDEAU TIENT TOUJOURS SUR UNE LIGNE : la date à gauche,
+    //  les icônes au bord droit.
+    iconesAuBord: Math.round(r(icones).right) >= Math.round(r(tete).right) - 1,
+  };
+});
+
+dire(
+  "LES « J'AIME » SONT DANS LE BANDEAU, À DROITE, DEVANT LES ICÔNES",
+  jaime !== null && jaime.dansLaTete && jaime.aDroite &&
+    jaime.avantLesIcones && jaime.memeLigne && jaime.iconesAuBord,
+  JSON.stringify(jaime),
+);
+dire(
+  "et ils y sont dans l'ordre du document, pas remontés par `order`",
+  //  Remonter un bloc par `order` seul laisse le clavier et le lecteur
+  //  d'écran tomber dessus APRÈS le message qu'il note.
+  jaime !== null && jaime.avantLeTitre,
+  JSON.stringify({ avantLeTitre: jaime?.avantLeTitre }),
+);
+dire(
+  "LE BOUTON EST UNE PASTILLE, LE MOT CACHÉ À L'ŒIL MAIS PAS AU LECTEUR",
+  jaime !== null && jaime.boutons === 2 && jaime.rayon === "999px" &&
+    jaime.hauteur === 26 && jaime.motLu === "J'aime" && jaime.motCache &&
+    //  `display: none` le rendrait muet : « bouton, 3 ».
+    jaime.motAffiche !== "none" && jaime.compte === "3",
+  JSON.stringify(jaime),
+);
+dire(
+  "LE BANDEAU DU MESSAGE TIENT SUR UNE LIGNE",
+  //  Trouvé en regardant une capture, pas par un contrôle : le « + »
+  //  de ModernBB était seul sur sa ligne, les sept icônes en dessous.
+  //  Une bande de deux lignes passait tous les contrôles de position.
+  bande !== null && bande.lignes === 1 && bande.hauteurIcones <= 34,
+  JSON.stringify(bande),
+);
+dire(
+  "UN VOTE DÉJÀ DONNÉ SE VOIT",
+  jaime !== null && jaime.fondNonVote !== null &&
+    jaime.fondVote !== jaime.fondNonVote,
+  JSON.stringify({ vote: jaime?.fondVote, nonVote: jaime?.fondNonVote }),
+);
+
+//  ── LES DEUX RESSORTS, ET LA SECTION DE LA RÉPONSE RAPIDE ──────────
+//
+//  Maquette `305:24` : un filet d'un pixel au bout du fil d'Ariane
+//  (`305:72`, de x = 497 à 1000) et un autre dans la barre d'actions
+//  (`305:95`, de x = 238 à 806). Ils relient deux bouts de ligne que
+//  du vide séparerait — même raison que le ressort des champs.
+
+const ressorts = await p.evaluate(() => {
+  const mesure = (sel, pseudo) => {
+    const e = document.querySelector(sel);
+    if (e === null) return null;
+    const st = getComputedStyle(e, pseudo);
+    //  LA LARGEUR D'UN PSEUDO NE SE LIT PAS AU `getBoundingClientRect`
+    //  — il n'a pas de nœud. `width` calculée suffit : le conteneur est
+    //  en flex, donc elle est déjà résolue en pixels.
+    return {
+      style: st.borderBottomStyle,
+      largeur: Math.round(parseFloat(st.width) || 0),
+      affichage: st.display,
+      bloc: Math.round(e.getBoundingClientRect().width),
+    };
+  };
+  return {
+    ariane: mesure(".sub-header-path", "::after"),
+    //  ET LA PAGINATION RESTE COLLÉE À DROITE : c'est le piège de la
+    //  première tentative, où le ressort l'avait décollée du bord.
+    barre: mesure(".wm-sujet__actions", "::after"),
+    pagination: (() => {
+      const b = document.querySelector(".wm-sujet__actions");
+      const g = b?.querySelector(".pagination");
+      if (b == null || g == null) return null;
+      return Math.round(g.getBoundingClientRect().right) >=
+        Math.round(b.getBoundingClientRect().right) - 1;
+    })(),
+  };
+});
+
+dire(
+  "LE FIL D'ARIANE SE TERMINE PAR UN RESSORT TENDU JUSQU'AU BORD",
+  ressorts.ariane !== null && ressorts.ariane.style === "dotted" &&
+    //  TENDU, pas juste présent : un ressort de dix pixels passerait
+    //  un test de simple existence et ne relierait rien.
+    ressorts.ariane.largeur > ressorts.ariane.bloc / 3,
+  JSON.stringify(ressorts.ariane),
+);
+dire(
+  "LA BARRE D'ACTIONS A SON RESSORT, ET LA PAGINATION RESTE AU BORD",
+  ressorts.barre !== null && ressorts.barre.style === "dotted" &&
+    ressorts.barre.affichage !== "none" &&
+    ressorts.barre.largeur > 100 && ressorts.pagination === true,
+  JSON.stringify(ressorts),
+);
+
+//  ── LA RÉPONSE RAPIDE EST UNE SECTION, maquette 330:94 ─────────────
+
+const reponse = await p.evaluate(() => {
+  const sec = document.querySelector(".wm-sujet__reponse");
+  if (sec === null) return null;
+  const bande = sec.querySelector(".wm-forum__bande");
+  const form = sec.querySelector("#quick_reply");
+  if (bande === null || form === null) return null;
+  const a = bande.getBoundingClientRect();
+  const b = form.getBoundingClientRect();
+  return {
+    titre: bande.textContent.trim(),
+    //  LE FORMULAIRE EST COLLÉ SOUS SON BANDEAU. Le § 8 lui donnait
+    //  24 px de marge haute, qui n'ont plus lieu d'être une fois le
+    //  bandeau posé : les deux doivent se lire comme un seul bloc.
+    ecart: Math.round(b.top - a.bottom),
+    //  ET LE BANDEAU EST BIEN AU-DESSUS, pas à côté.
+    dessus: Math.round(a.bottom) <= Math.round(b.top) + 1,
+  };
+});
+
+dire(
+  "LA RÉPONSE RAPIDE A SON BANDEAU DE SECTION, ET S'Y COLLE",
+  reponse !== null && reponse.titre === "LA RÉPONSE RAPIDE" &&
+    reponse.dessus && reponse.ecart === 0,
+  JSON.stringify(reponse),
 );
 
 //  ── LE DOSSIER À ONGLETS DU PROFIL ─────────────────────────────────

@@ -1357,3 +1357,319 @@
 #modernbb .wm-profil__panneau--3 .award_more {
   display: none;
 }
+
+/* ── 16 · les deux ressorts de la maquette ─────────────────────────── */
+
+/*  Maquette `305:24`, deux filets d'un pixel qu'on avait laissés de
+    côté parce qu'ils ne portent rien :
+
+      · `305:72` — au bout du fil d'Ariane, de x = 497 à 1000 ;
+      · `305:95` — dans la barre d'actions, entre les boutons et la
+        pagination, de x = 238 à 806.
+
+    Ils ne sont pas décoratifs. Les deux lignes portent du texte aux
+    deux bouts et du vide au milieu — le même problème que les champs
+    du profil, réglé de la même façon : un trait relie ce qui va
+    ensemble, sinon l'œil lit deux blocs sans rapport.
+
+    UN PSEUDO-ÉLÉMENT, PAS UNE BOÎTE : rien à ajouter au gabarit, et
+    rien à maintenir le jour où Forumactif change le contenu. */
+
+#modernbb .sub-header-path::after {
+  content: "";
+  flex: 1 1 auto;
+  align-self: center;
+  min-width: var(--wm-espace-10, 10px);
+  margin-left: var(--wm-espace-10, 10px);
+  border-bottom: 1px dotted var(--wm-bord-fin, #eadacd);
+}
+
+/*  LE FIL D'ARIANE DOIT ÊTRE EN FLEX pour que le ressort s'étire.
+    ModernBB le sert en ligne de texte ; `inline` ne s'étire pas. */
+#modernbb .sub-header-path {
+  display: flex;
+  align-items: center;
+}
+
+/*  DANS LA BARRE D'ACTIONS, le ressort se fait avec le clearfix.
+
+    Les deux pseudo-éléments de la barre sont déjà pris : le § 13 les
+    éteint tous les deux parce que ModernBB y met son clearfix, et un
+    clearfix dans une rangée de flex ne fait que décaler la pagination
+    de dix pixels. On en rallume UN SEUL, `::after`, et on lui donne
+    le travail du ressort — le dégager ne coûte rien, puisque le
+    dégagement de flottants n'a aucun sens dans un conteneur en flex.
+
+    `order: 1` le place entre les boutons (0 par défaut) et le menu
+    « Partager » (2 au § 13). La pagination reste en 3, collée à
+    droite : `margin-left: auto` n'a plus rien à pousser une fois le
+    ressort étiré, et c'est exactement ce qu'on veut.
+
+    PREMIÈRE TENTATIVE, ET POURQUOI ELLE ÉTAIT FAUSSE : j'avais pris
+    `::before` et remis la pagination en 2. Le § 13 éteignait toujours
+    `::before`, donc aucun ressort ; et la pagination passée devant le
+    menu « Partager » décollait du bord. Le harnais l'a dit tout de
+    suite — `pagesADroite: false`, le contrôle même que le § 13 avait
+    écrit pour ça. */
+#modernbb .wm-sujet__actions::after {
+  content: "";
+  display: block;
+  order: 1;
+  flex: 1 1 auto;
+  align-self: center;
+  min-width: var(--wm-espace-10, 10px);
+  height: 0;
+  margin: 0 var(--wm-espace-4, 4px);
+  border-bottom: 1px dotted var(--wm-bord-fin, #eadacd);
+}
+
+/* ── 17 · la réponse rapide a son bandeau de section ───────────────── */
+
+/*  Maquette `330:94` : la réponse rapide est une section comme « LES
+    MESSAGES », avec le même bandeau. Le gabarit l'entoure ; ici on ne
+    fait que recoller le formulaire au bandeau, que ModernBB laisse
+    flotter avec sa marge haute du § 8. */
+#modernbb .wm-sujet__reponse #quick_reply {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* ── 18 · les « j'aime », en haut à droite du message ──────────────── */
+
+/*  « Améliore le "j'aime" visuellement et mets-le en haut à droite
+    plutôt », 30 octobre.
+
+    Le gabarit les a remontés dans le bandeau (voir son commentaire) ;
+    ici on leur donne leur forme. Trois choses à régler :
+
+      1 · les mettre à DROITE, devant les icônes d'action ;
+      2 · défaire ce que les § 3, 5 et 10 leur donnaient quand ils
+          étaient un bloc sous le message ;
+      3 · en faire des pastilles lisibles sans être tapageuses.
+
+    ── 1 · À DROITE ────────────────────────────────────────────────
+
+    Le § 2 pousse `menu-wrap` à droite par un `margin-left: auto`. Deux
+    `auto` dans une même rangée se partagent la place, donc on déplace
+    la poussée : elle passe sur les « j'aime », qui les emmènent à
+    droite, et les icônes viennent se coller derrière. */
+#modernbb .post-head .fa_like_div {
+  order: 2;
+  margin-left: auto;
+}
+
+/*  ET ON LA RETIRE AUX ICÔNES. `:not(:first-child)` ne marchait pas :
+    dans le gabarit, `menu-wrap` est le PREMIER enfant du bandeau et
+    les « j'aime » viennent après lui. Les deux gardaient donc leur
+    `auto`, et deux marges automatiques dans une rangée se PARTAGENT
+    la place libre — les « j'aime » s'arrêtaient au tiers, les icônes
+    au bord. Mesuré au harnais : `aDroite: false`.
+
+    `:has` vise la vraie condition : un bandeau qui porte des
+    « j'aime ». Là où le bloc n'existe pas — un invité, ou les votes
+    coupés au panneau — les icônes gardent leur `auto` et rien ne
+    bouge. */
+#modernbb .post-head:has(.fa_like_div) .menu-wrap {
+  margin-left: 0;
+}
+
+/*  ── 2 · DÉFAIRE LE BLOC D'AVANT ────────────────────────────────
+
+    `flex: 1 1 100%` (§ 3), le filet et la marge haute (§ 5) : tout ça
+    valait pour un bloc qui prenait la ligne entière sous le message.
+    Dans un bandeau, la même règle le ferait passer à la ligne et y
+    traîner un trait. */
+#modernbb .post-head .fa_like_div {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+/*  ── 3 · LA PASTILLE ────────────────────────────────────────────
+
+    ModernBB sert un `<button>` nu, en gris, avec le libellé en toutes
+    lettres : « J'aime 3 ». À côté de six icônes de 32 px, deux
+    libellés entiers — « J'aime » et « Je n'aime pas » — doublent la
+    longueur du bandeau et noient les actions.
+
+    On garde donc l'icône et le nombre, et on CACHE le mot. Mais on le
+    cache à l'œil seulement : le bouton n'a pas d'autre texte, et un
+    `display: none` le rendrait muet au lecteur d'écran — « bouton, 3 ».
+    La technique classique le sort de l'écran sans le sortir de
+    l'arbre d'accessibilité. */
+#modernbb .post-head .fa_like_div .rep-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  height: 26px;
+  padding: 0 var(--wm-espace-10, 10px);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1;
+  transition: background-color 120ms ease, color 120ms ease,
+    border-color 120ms ease;
+}
+
+#modernbb .post-head .fa_like_div .rep-button > span {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+#modernbb .post-head .fa_like_div .rep-button > i {
+  font-size: 14px;
+  line-height: 1;
+}
+
+#modernbb .post-head .fa_like_div .rep-button:hover {
+  border-color: var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .post-head .fa_like_div .rep-button:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  LE VOTE DÉJÀ DONNÉ. ModernBB pose `voted` sur le bouton quand le
+    lecteur a déjà cliqué — c'est le seul état qu'il distingue, et il
+    le distingue en gris foncé. On le remplit : un bouton qu'on a déjà
+    pressé doit se voir d'un coup d'œil, sinon on reclique pour
+    vérifier et on retire son vote. */
+#modernbb .post-head .fa_like_div .rep-button.voted {
+  border-color: var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+/*  LA LISTE DE CEUX QUI ONT AIMÉ. Forumactif la sert dans le même
+    bloc, et elle peut être longue : dans un bandeau d'une ligne, elle
+    pousserait les icônes hors du message. On la laisse exister — elle
+    porte une vraie information — mais elle passe sous le bandeau,
+    sur sa propre ligne, en petit.
+
+    `order: 4` la met après le titre du sujet (3 au § 10), donc en
+    dernier ; `flex: 1 1 100%` lui donne sa ligne. */
+#modernbb .post-head .fa_like_div .list_like,
+#modernbb .post-head .fa_like_div .list_dislike {
+  order: 4;
+  flex: 1 1 100%;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: var(--wm-interligne-legende, 1.45);
+}
+
+/* ── 19 · le bandeau tient sur une ligne ───────────────────────────── */
+
+/*  TROUVÉ EN REGARDANT LA CAPTURE, le 30 octobre, et non par un
+    contrôle : le « + » de ModernBB était SEUL sur sa ligne, les sept
+    icônes d'action en dessous. Le bandeau faisait deux lignes depuis
+    le début, et aucun de mes contrôles ne le voyait — ils mesuraient
+    des positions, jamais la hauteur de la bande.
+
+    La cause : `menu-wrap` n'est pas un conteneur en flex. Le « + »
+    est en `inline-flex` (§ 1) et la liste d'icônes en `flex` (§ 2) —
+    un élément de niveau bloc, qui prend donc sa propre ligne. */
+#modernbb .post-head .menu-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+}
+
+/* ── 20 · les liens du bas du profil ───────────────────────────────── */
+
+/*  « J'aimerais bien améliorer l'affichage des liens dans le profil en
+    bas », 30 octobre.
+
+    CE QUE SONT CES LIENS : « voir le profil », « message privé »,
+    l'e-mail, et les champs de contact du panneau. Forumactif les sert
+    à plat dans un `<dd>`, les uns derrière les autres, séparés par
+    rien — des icônes de fonte ou de petites images selon le réglage
+    « icônes ou texte » du panneau.
+
+    DEUX FORMES, UNE SEULE RÈGLE. On ne sait pas laquelle le forum
+    sert — il n'a pas pu être relevé depuis le 29. La feuille vise
+    donc le LIEN, pas son contenu : c'est lui qui devient la pastille,
+    et ce qu'il porte — glyphe ou image — se range au centre. Le
+    harnais sert les deux formes côte à côte pour qu'aucune ne passe
+    au travers.
+
+    LA FORME : des pastilles rondes de 30, centrées, dans le ton de la
+    colonne. Pas les carrés arrondis du bandeau de message : là-haut
+    les actions sont alignées contre un bord et le carré les tient ;
+    ici elles sont seules au milieu d'une colonne de 208, et le rond
+    se lit mieux isolé. Le filet au-dessus les sépare de l'équipe,
+    comme chaque bloc du profil est séparé du précédent. */
+#modernbb .postprofile-contact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--wm-espace-8, 8px);
+  margin-top: var(--wm-espace-14, 14px);
+  padding-top: var(--wm-espace-14, 14px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .postprofile-contact a {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease,
+    border-color 120ms ease;
+}
+
+#modernbb .postprofile-contact a:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb .postprofile-contact a:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  LE CONTENU DU LIEN, quelle que soit sa forme. Une image servie par
+    Forumactif arrive sans dimensions : sans ça elle sort de sa
+    pastille, et c'est le cas que la maquette ne prévoyait pas. */
+#modernbb .postprofile-contact a > img {
+  display: block;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+#modernbb .postprofile-contact a > i {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/*  LA COLONNE NE GARDE PAS DE PLACE POUR UN BLOC VIDE. L'e-mail et les
+    champs de contact se coupent au panneau : un `<dd>` sans aucun lien
+    laisserait son filet et ses 28 px de marge au bas du profil, un
+    trait qui ne sépare rien. */
+#modernbb .postprofile-contact:not(:has(a)) {
+  display: none;
+}
