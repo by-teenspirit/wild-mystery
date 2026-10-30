@@ -49,6 +49,16 @@ const R = new URL("..", import.meta.url).pathname;
 const PIXEL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAD0lEQVR4nGP4z8DAxIAEAB0GAwMBHe4bAAAAAElFTkSuQmCC";
 
+/*  DEUX SPRITES DE PROPORTIONS DIFFÉRENTES, et c'est tout l'enjeu de
+    l'alignement. Les sprites de PokéAPI ne sont pas carrés : un
+    Lokhlass est large et bas, un Nostenfer haut et étroit. Un décor
+    qui n'en sert qu'un seul, carré, ne peut pas voir qu'ils flottent
+    à des hauteurs différentes dans leur case. */
+const SPRITE_CARRE =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFklEQVR42mOsiHL7z4AHMDEQAMNDAQArJAInSSM6hgAAAABJRU5ErkJggg==";
+const SPRITE_LARGE =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAFCAYAAABM6GxJAAAAFklEQVR42mOsiHL7z0ABYGKgEAwDAwCo9QIh5Jy3JwAAAABJRU5ErkJggg==";
+
 /*  ── LA CARTE VIENT DU FICHIER, PAS D'ICI ─────────────────────────
 
     `templates/carte-dresseur.a-coller.html` est ce que les joueurs
@@ -103,9 +113,11 @@ function carteRemplie() {
     ["Flagadoss", 21, "eau", "Eau"],
   ];
   const cases = equipe
-    .map(([nom, niv, cle, type]) =>
+    .map(([nom, niv, cle, type], i) =>
       `<li class="wm-tcard__pkmn">
-        <img class="wm-tcard__sprite" src="${PIXEL}" alt="" />
+        <img class="wm-tcard__sprite" src="${
+        i % 2 === 0 ? SPRITE_CARRE : SPRITE_LARGE
+      }" alt="" />
         <p class="wm-tcard__nom">${nom}</p>
         <p class="wm-tcard__niveau">niv. ${niv}</p>
         <span class="wm-type wm-type--${cle}">${type}</span>
@@ -134,8 +146,11 @@ function carteRemplie() {
   ];
   const badges = BADGES
     .map(([cle, nom, obtenu]) =>
+      //  AUCUNE `<img>` : le dessin vient de `20-icones.css`, par
+      //  `data-wm-badge`. Le harnais sert donc exactement ce que le
+      //  code collé contient.
       `<li class="wm-tcard__badge${obtenu ? "" : " wm-tcard__badge--agagner"}"
-          data-wm-badge="${cle}" title="${nom}"><img src="${PIXEL}" alt="" /></li>`
+          data-wm-badge="${cle}" title="${nom}"></li>`
     )
     .join("");
 
@@ -418,6 +433,76 @@ dire(
   JSON.stringify(badges),
 );
 
+// ── 6 bis · les sept badges portent leur dessin ─────────────────────
+
+/*  « Les badges ne s'affichent pas dans la trainer card »,
+    30 octobre. Ils ne s'affichaient pas parce que rien ne les
+    affichait : le code collé ne porte que le NOM du badge, et
+    j'avais laissé l'image à un script qui n'existe pas. La feuille
+    produite `20-icones.css` les porte maintenant en `data:`. */
+const dessins = await p.evaluate(() => {
+  const tous = [...document.querySelectorAll("#remplie .wm-tcard__badge")];
+  const fond = (e) => getComputedStyle(e, null).backgroundImage;
+  return {
+    combien: tous.length,
+    tousDessines: tous.every((e) => fond(e).startsWith("url(")),
+    //  ET À LA BONNE TAILLE. `background-image` seule laisse le SVG
+    //  à sa taille naturelle, qui déborde de la pastille de 44 : le
+    //  premier jet ne mesurait que la présence de l'image, et
+    //  retirer `background-size` ne faisait donc rien tomber.
+    bonneTaille: tous.every((e) => getComputedStyle(e).backgroundSize === "32px 32px"),
+    //  SEPT DESSINS DIFFÉRENTS, et pas sept fois le même : une seule
+    //  règle mal nommée les mettrait tous d'accord sur une image.
+    distincts: new Set(tous.map(fond)).size,
+    //  AUCUNE `<img>`, parce que le code collé n'en porte pas.
+    sansImg: tous.every((e) => e.querySelector("img") === null),
+  };
+});
+
+dire(
+  "les sept badges portent chacun son dessin, sans aucune image à charger",
+  dessins.combien === 7 && dessins.tousDessines && dessins.distincts === 7 &&
+    dessins.sansImg && dessins.bonneTaille,
+  JSON.stringify(dessins),
+);
+
+// ── 6 ter · les six Pokémon reposent sur la même ligne ──────────────
+
+/*  « Il faudrait aligner les pokémons », 30 octobre. Le harnais sert
+    exprès deux proportions de sprite : sans ça, `object-position`
+    n'aurait rien à corriger et le contrôle passerait tout seul. */
+const alignement = await p.evaluate(() => {
+  const imgs = [...document.querySelectorAll("#remplie .wm-tcard__pkmn img")];
+  if (imgs.length < 2) return null;
+  const bas = imgs.map((e) => {
+    //  LE BAS DU DESSIN, pas celui de la boîte : `object-fit` laisse
+    //  la boîte pleine et ne bouge que le contenu. On recalcule donc
+    //  où le dessin tombe, à partir de ses proportions.
+    const r = e.getBoundingClientRect();
+    const ratio = e.naturalWidth / e.naturalHeight;
+    const hauteurRendue = Math.min(r.height, r.width / ratio);
+    const marge = r.height - hauteurRendue;
+    //  `object-position: bottom` se CALCULE en « 50% 100% » : le mot
+    //  « bottom » n'est plus dans la valeur résolue, et chercher le
+    //  mot faisait tomber la mesure sur le cas centré. On lit donc le
+    //  pourcentage vertical, qui est la seconde valeur.
+    const vertical = parseFloat(
+      getComputedStyle(e).objectPosition.split(/\s+/)[1] ?? "50",
+    );
+    return Math.round(r.top + marge * (vertical / 100) + hauteurRendue);
+  });
+  return {
+    formes: new Set(imgs.map((e) => e.naturalWidth / e.naturalHeight)).size,
+    ecart: Math.max(...bas) - Math.min(...bas),
+  };
+});
+
+dire(
+  "les Pokémon de proportions différentes reposent sur la même ligne",
+  alignement !== null && alignement.formes >= 2 && alignement.ecart <= 1,
+  JSON.stringify(alignement),
+);
+
 // ── 7 · l'infobulle d'un Pokémon ────────────────────────────────────
 
 //  « Ce qui serait pas mal, ce serait de créer l'infobulle quand on
@@ -583,6 +668,46 @@ const types = await p.evaluate(() => {
     surLaCase: [...document.querySelectorAll("#test .wm-tcard__pkmn .wm-type")].length,
   };
 });
+
+// ── le glyphe de type vient de PokéAPI, et le nom reste écrit ───────
+
+const glyphes = await p.evaluate(() => {
+  const pastilles = [...document.querySelectorAll("#test .wm-infobulle__type")];
+  if (pastilles.length === 0) return null;
+  const avant = (e) => getComputedStyle(e, "::before").backgroundImage;
+  return {
+    combien: pastilles.length,
+    //  `content` ET PAS SEULEMENT `background-image`. Sans `content`,
+    //  le pseudo-élément n'existe pas et l'image ne se dessine nulle
+    //  part — mais `getComputedStyle` rend quand même la valeur
+    //  déclarée, si bien que le premier jet passait avec un glyphe
+    //  invisible. C'est `content: none` qui le dit.
+    toutesOntLeurGlyphe: pastilles.every((e) =>
+      e.hasAttribute("data-wm-type") &&
+      avant(e).startsWith("url(") &&
+      getComputedStyle(e, "::before").content !== "none"
+    ),
+    //  DES GLYPHES DIFFÉRENTS pour des types différents.
+    distincts: new Set(pastilles.map(avant)).size,
+    typesDistincts: new Set(
+      pastilles.map((e) => e.getAttribute("data-wm-type")),
+    ).size,
+    //  LE DESSIN VIENT EN PLUS DU NOM, JAMAIS À LA PLACE. C'est la
+    //  règle des pastilles de type depuis le début, et un glyphe n'y
+    //  change rien — d'autant que celui de PokéAPI, pris entier,
+    //  aurait écrit « WATER » en anglais.
+    tousNommes: pastilles.every((e) => e.textContent.trim().length > 2),
+    //  Et aucune requête réseau : tout est en `data:`.
+    toutesEnData: pastilles.every((e) => avant(e).includes("data:image")),
+  };
+});
+
+dire(
+  "chaque type porte son glyphe de PokéAPI, en plus de son nom et sans requête",
+  glyphes !== null && glyphes.toutesOntLeurGlyphe && glyphes.tousNommes &&
+    glyphes.toutesEnData && glyphes.distincts === glyphes.typesDistincts,
+  JSON.stringify(glyphes),
+);
 
 dire(
   "l'infobulle écrit les deux types d'un double, la case n'en montre qu'un",

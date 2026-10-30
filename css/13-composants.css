@@ -1321,12 +1321,51 @@
 }
 
 #modernbb .wm-infobulle__type {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
   padding: 3px var(--wm-espace-8, 8px);
   border-radius: var(--wm-rayon-xs, 4px);
   background: color-mix(in srgb, currentcolor 15%, transparent);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: var(--wm-graisse-demi, 600);
   line-height: 1.3;
+}
+
+/*  ── LE GLYPHE DU TYPE, DÉCOUPÉ DANS POKÉAPI ──────────────────────
+
+    « Dans l'infobulle, affiche le sprite des types pris de l'api »,
+    30 octobre.
+
+    LE DÉPÔT N'A PAS D'ICÔNE SEULE. Ses cinq jeux de types — x-y,
+    platinum, black-white, sun-moon, sword-shield, scarlet-violet —
+    gravent tous le nom EN ANGLAIS dans l'image. Poser « WATER » dans
+    une infobulle française n'était pas une option, et la planche 39
+    écrit le nom sur la pastille. On garde donc notre pastille et son
+    nom, et on ne prend de l'image que le glyphe : `outils/icones.py`
+    le découpe et le masque en rond.
+
+    LE DESSIN VIENT EN PLUS DU NOM, JAMAIS À LA PLACE. C'est la règle
+    des pastilles de type depuis le début — dix-huit teintes dont
+    plusieurs voisines ne se distinguent pas — et elle vaut pour un
+    glyphe autant que pour une couleur.
+
+    L'IMAGE EST DANS `20-icones.css`, en `data:`, une règle par type.
+    Ici on ne déclare que la place : sans `content`, un
+    pseudo-élément n'existe pas et ces images ne peindraient rien. */
+#modernbb .wm-infobulle__type[data-wm-type] {
+  padding-left: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-infobulle__type[data-wm-type]::before {
+  content: "";
+  display: block;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 /*  ── LES PV ──────────────────────────────────────────────────────── */

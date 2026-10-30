@@ -107,7 +107,8 @@ def case(b: dict, obscur: bool) -> str:
     """Une case d'équipe, avec son infobulle."""
     sprite = f'{COUVERTURE["base"]}/{STYLE_DU_FORUM}/{b["id"]}.gif'
     types_pastille = "".join(
-        f'<li class="wm-infobulle__type">{en_titre(t)}</li>' for t in b["types"]
+        f'<li class="wm-infobulle__type" data-wm-type="{t}">{en_titre(t)}</li>'
+        for t in b["types"]
     )
     #  La pastille de la case ne porte QUE le premier type : la case
     #  fait moins de cent pixels, et un double type y tiendrait sur
@@ -165,6 +166,12 @@ def main() -> None:
     ap.add_argument("--graine", type=int, default=4, help="pour retirer la même équipe")
     ap.add_argument("--zone", type=int, default=None, help="l'identifiant d'une zone")
     ap.add_argument("--combien", type=int, default=6, help="de 1 à 6")
+    #  L'AVATAR N'EST PAS DEVINABLE. Le forum est injoignable depuis
+    #  ici — le proxy le bloque —, et une adresse inventée donnerait
+    #  une image cassée qui a l'air d'un bug du code. Sans l'option,
+    #  on ne met aucun `src` : la case garde le dégradé que
+    #  `.wm-dresseur__avatar` lui donne, ce qui a l'air voulu.
+    ap.add_argument("--avatar", default=None, help="l'adresse de l'avatar")
     args = ap.parse_args()
 
     de = random.Random(args.graine)
@@ -193,6 +200,12 @@ def main() -> None:
     argent_ecrit = f"{argent:,}".replace(",", "\u202f")
     palier = 1 if combien_badges < 4 else 2
 
+    avatar = (
+        f'<img class="wm-dresseur__avatar" src="{args.avatar}" alt="" />'
+        if args.avatar
+        else '<span class="wm-dresseur__avatar"></span>'
+    )
+
     sortie = f"""<!-- ══════════════════════════════════════════════════════════════════
      LA CARTE DRESSEUR DU COMPTE DE TEST — tirée au sort
 
@@ -217,7 +230,7 @@ def main() -> None:
 <div class="wm-tcard" data-wm-tcard>
 
   <div class="wm-dresseur">
-    <img class="wm-dresseur__avatar" src="https://i.imgur.com/0000000.png" alt="" />
+    {avatar}
     <div class="wm-dresseur__infos">
       <p class="wm-dresseur__identite">
         <span class="wm-dresseur__nom">Compte de test</span>
