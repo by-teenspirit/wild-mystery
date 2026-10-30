@@ -135,7 +135,26 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
   //  fiche du dresseur de la maquette `305:24` — les champs enveloppés,
   //  la grille de l'équipe — et c'est lui qui part sur le forum.
   let t = sansCommentaires(
-    readFileSync(R + "templates/viewtopic_body.nouveau.html", "utf8"),
+    //  ── QUEL FICHIER ON MONTE ────────────────────────────────────
+    //
+    //  Le commenté par défaut, celui du dépôt. Mais ce qu'on COLLE
+    //  dans le panneau est sa version nettoyée (`deno task a-publier`),
+    //  et un harnais qui ne mesure pas ce qu'on met en ligne ne
+    //  mesure rien — c'est déjà pour ça qu'il était passé de
+    //  `viewtopic_body.html` à `.nouveau.html` le 29 octobre.
+    //
+    //      deno task sujet --publiable
+    //
+    //  monte le fichier nettoyé. Les deux doivent passer : si le
+    //  nettoyage casse quelque chose, c'est ici qu'on le voit, et pas
+    //  sur le forum.
+    readFileSync(
+      R +
+        (Deno.args.includes("--publiable")
+          ? "templates/viewtopic_body.a-publier.html"
+          : "templates/viewtopic_body.nouveau.html"),
+      "utf8",
+    ),
   );
 
   //  Ce qu'on garde : la boucle des messages, la signature, la
@@ -287,6 +306,11 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
       //  les dimensions que Forumactif y met.
       return `<img src="${PIXEL}" alt="avatar" style="max-width:200px;max-height:320px" />`;
     }
+    //  EN LIGNE OU NON. Forumactif rend une CLASSE, collée à celles
+    //  du message : ` online` quand le posteur est connecté, vide
+    //  sinon. Le décor met le premier en ligne et laisse le second
+    //  hors ligne — la pastille doit tenir dans les deux cas.
+    if (nom === "ONLINE_IMG_NEW") return i === 0 ? " online" : "";
     if (nom === "U_POST_ID") return String(15500 + i);
     if (nom === "POSTER_ID") return "3";
     if (nom === "POST_URL") return "/t10-un-sujet#15500";
@@ -822,10 +846,20 @@ const bandeau = await p.evaluate(() => {
       Math.round(r(date).y + r(date).height / 2),
       Math.round(r(actions).y + r(actions).height / 2),
     ],
-    actionsADroite: Math.round(r(actions).right) >= Math.round(r(tete).right) - 1,
     dateAGauche: Math.round(r(date).x) <= Math.round(r(tete).x) + 1,
-    //  ET LE TITRE EN DESSOUS, pas coincé entre les deux.
-    titreDessous: Math.round(r(titre).y) >= Math.round(r(date).bottom),
+    //  LA RANGÉE SE TERMINE AU BORD. Le dernier bloc du bandeau, quel
+    //  qu'il soit, touche le bord droit : sinon la bande a un vide à
+    //  droite et les icônes flottent au milieu.
+    finitAuBord: (() => {
+      const dedans = [...tete.children].filter((e) => e.getBoundingClientRect().width > 0);
+      const bout = Math.max(
+        ...dedans.map((e) => Math.round(e.getBoundingClientRect().right)),
+      );
+      return bout >= Math.round(r(tete).right) - 1;
+    })(),
+    //  ET LE TITRE RÉPÉTÉ N'EST PLUS LÀ — retiré le 30 octobre.
+    titreRetire: titre === null ||
+      getComputedStyle(titre).display === "none",
     filet: getComputedStyle(tete).borderBottomWidth,
   };
 });
@@ -837,9 +871,23 @@ dire(
   JSON.stringify(bandeau),
 );
 dire(
-  "LA DATE EST À GAUCHE, LES ACTIONS À DROITE, SUR LA MÊME LIGNE",
+  "LA DATE EST À GAUCHE, LE RESTE À DROITE, SUR LA MÊME LIGNE",
+  //  ── CE CONTRÔLE A CHANGÉ D'INTENTION LE 30 OCTOBRE ─────────────
+  //
+  //  Il demandait `actionsADroite` — les icônes collées au bord — et
+  //  `titreDessous`. Les deux sont tombés le même jour, et pas parce
+  //  que la feuille a cassé :
+  //
+  //    · les votes passent APRÈS les icônes (« le like est placé
+  //      bizarrement »), donc ce sont eux qui touchent le bord ;
+  //    · le titre répété sous chaque message est retiré, donc il n'y
+  //      a plus rien à mettre en dessous.
+  //
+  //  On réécrit l'intention au lieu d'affaiblir le contrôle : ce qui
+  //  compte est que la date soit seule à gauche et que la rangée se
+  //  termine AU BORD — par quoi que ce soit.
   bandeau !== null && bandeau.memeLigne && bandeau.dateAGauche &&
-    bandeau.actionsADroite && bandeau.titreDessous,
+    bandeau.finitAuBord && bandeau.titreRetire,
   JSON.stringify(bandeau),
 );
 
@@ -1062,6 +1110,126 @@ dire(
   JSON.stringify(actions),
 );
 
+//  ── « EN LIGNE », UNE PASTILLE VERTICALE À GAUCHE ──────────────────
+
+const enLigne = await p.evaluate(() => {
+  const messages = [...document.querySelectorAll(".post")];
+  const connecte = messages.find((m) => m.classList.contains("online"));
+  const absent = messages.find((m) => m.classList.contains("online") === false);
+  if (connecte === undefined || absent === undefined) return null;
+  const fiche = (m) => m.querySelector(".postprofile");
+  const st = getComputedStyle(fiche(connecte), "::before");
+  const sansPastille = getComputedStyle(fiche(absent), "::before");
+  const r = fiche(connecte).getBoundingClientRect();
+  return {
+    //  LA PASTILLE EXISTE SUR LE MESSAGE EN LIGNE, et seulement là.
+    mot: st.content,
+    chezLAbsent: sansPastille.content,
+    //  VERTICALE, et dans le bon sens.
+    sens: st.writingMode,
+    //  À GAUCHE, dans la gouttière.
+    aGauche: parseFloat(st.left) < 12,
+    //  ET LA GOUTTIÈRE EST LA MÊME POUR LES DEUX : sinon la colonne
+    //  saute d'un message à l'autre et on lit qui est connecté à la
+    //  façon dont la page tremble.
+    gouttiere: getComputedStyle(fiche(connecte)).paddingLeft,
+    gouttiereAbsent: getComputedStyle(fiche(absent)).paddingLeft,
+    memeLargeur: Math.round(r.width) ===
+      Math.round(fiche(absent).getBoundingClientRect().width),
+    //  L'AVATAR N'EST PAS RÉTRÉCI PAR LA GOUTTIÈRE.
+    avatar: Math.round(
+      connecte.querySelector(".postprofile-avatar img")
+        .getBoundingClientRect().width,
+    ),
+  };
+});
+
+dire(
+  "UN POSTEUR EN LIGNE PORTE SA PASTILLE, LES AUTRES NON",
+  enLigne !== null && enLigne.mot.includes("EN LIGNE") &&
+    enLigne.chezLAbsent === "none",
+  JSON.stringify(enLigne),
+);
+dire(
+  "elle est verticale, à gauche, et la colonne ne saute pas sans elle",
+  enLigne !== null && enLigne.sens.startsWith("vertical") &&
+    enLigne.aGauche && enLigne.memeLargeur &&
+    enLigne.gouttiere === enLigne.gouttiereAbsent && enLigne.avatar === 200,
+  JSON.stringify(enLigne),
+);
+
+//  ── LA TÊTE DU SUJET EST UNE CARTE ─────────────────────────────────
+//
+//  « J'aimerais bien que la partie du haut soit encadrée quand même
+//  avec un fond, pas seulement dans le vide », 30 octobre. Écart
+//  assumé avec la maquette, qui la pose à plat.
+
+const carteDeTete = await p.evaluate(() => {
+  const carte = document.querySelector(".wm-sujet__tete");
+  if (carte === null) return null;
+  const st = getComputedStyle(carte);
+  const page = getComputedStyle(document.body).backgroundColor;
+  const ariane = carte.querySelector(".sub-header-path");
+  const titre = carte.querySelector("h1.page-title");
+  const barre = carte.querySelector(".wm-sujet__actions");
+  const bas = document.querySelector("#info_open.wm-sujet__bas > .block");
+  const r = (e) => e.getBoundingClientRect();
+  return {
+    //  UNE CARTE : un fond À ELLE, un filet, un rayon.
+    fond: st.backgroundColor,
+    fondPage: page,
+    seDetache: st.backgroundColor !== page,
+    bordure: st.borderTopWidth,
+    rayon: st.borderTopLeftRadius,
+    //  LA MÊME RECETTE QUE LES AUTRES CARTES. Une carte qui se
+    //  distingue des autres se lit comme une erreur.
+    commeLeBas: bas === null ? null : (() => {
+      const b = getComputedStyle(bas);
+      return b.backgroundColor === st.backgroundColor &&
+        b.borderTopWidth === st.borderTopWidth &&
+        b.borderTopLeftRadius === st.borderTopLeftRadius;
+    })(),
+    //  LES TROIS BLOCS SONT DEDANS, et dans l'ordre de la maquette.
+    contient: [ariane, titre, barre].every((e) => e !== null),
+    ordre: ariane === null || titre === null || barre === null ? null : [
+      Math.round(r(ariane).y),
+      Math.round(r(titre).y),
+      Math.round(r(barre).y),
+    ],
+    //  LA BARRE EST SÉPARÉE DU TITRE PAR UN FILET, et ne traîne pas
+    //  une seconde marge à l'intérieur de la carte.
+    filetBarre: barre === null ? null : getComputedStyle(barre).borderTopWidth,
+    margeBarre: barre === null ? null : getComputedStyle(barre).marginBottom,
+    //  ET LE RESSORT DU FIL S'ARRÊTE AU BORD DE LA CARTE, pas de la
+    //  page : il doit rentrer dans le rembourrage.
+    filDansLaCarte: ariane === null ? null : Math.round(r(ariane).right) <=
+      Math.round(r(carte).right) - 1,
+  };
+});
+
+dire(
+  "LA TÊTE DU SUJET EST UNE CARTE, PAS UN BLOC DANS LE VIDE",
+  carteDeTete !== null && carteDeTete.seDetache &&
+    carteDeTete.bordure === "1px" && carteDeTete.rayon === "10px" &&
+    carteDeTete.contient,
+  JSON.stringify(carteDeTete),
+);
+dire(
+  "et c'est la MÊME carte que celle du bas, pas une recette à elle",
+  carteDeTete !== null && carteDeTete.commeLeBas === true,
+  JSON.stringify({ commeLeBas: carteDeTete?.commeLeBas }),
+);
+dire(
+  "LE FIL, LE TITRE ET LA BARRE SONT EMPILÉS DANS CET ORDRE",
+  carteDeTete !== null && carteDeTete.ordre !== null &&
+    carteDeTete.ordre[0] < carteDeTete.ordre[1] &&
+    carteDeTete.ordre[1] < carteDeTete.ordre[2] &&
+    //  Le filet qui sépare la barre, et pas de seconde marge dedans.
+    carteDeTete.filetBarre === "1px" && carteDeTete.margeBarre === "0px" &&
+    carteDeTete.filDansLaCarte,
+  JSON.stringify(carteDeTete),
+);
+
 //  ── LES « J'AIME », EN HAUT À DROITE ───────────────────────────────
 //
 //  « Améliore le "j'aime" visuellement et mets-le en haut à droite
@@ -1118,7 +1286,12 @@ const jaime = await p.evaluate(() => {
     ) === Node.DOCUMENT_POSITION_FOLLOWING,
     //  À DROITE, et collé devant les icônes d'action.
     aDroite: Math.round(r(bloc).x) > Math.round(r(tete).x + r(tete).width / 2),
-    avantLesIcones: Math.round(r(bloc).right) <= Math.round(r(icones).x) + 1,
+    //  APRÈS LES ICÔNES, depuis le 30 octobre : « le like est placé
+    //  bizarrement ». Coincé entre la date et les icônes, il se
+    //  lisait comme une septième action ; c'est un compteur, et un
+    //  compteur se met au bout.
+    apresLesIcones: Math.round(r(bloc).x) >= Math.round(r(icones).right) - 1,
+    auBord: Math.round(r(bloc).right) >= Math.round(r(tete).right) - 1,
     //  SUR LA MÊME LIGNE que la date : un bandeau, pas deux.
     memeLigne: Math.abs(
       Math.round(r(bloc).y + r(bloc).height / 2) -
@@ -1148,9 +1321,9 @@ const jaime = await p.evaluate(() => {
 });
 
 dire(
-  "LES « J'AIME » SONT DANS LE BANDEAU, À DROITE, DEVANT LES ICÔNES",
+  "LES « J'AIME » SONT AU BOUT DU BANDEAU, APRÈS LES ICÔNES",
   jaime !== null && jaime.dansLaTete && jaime.aDroite &&
-    jaime.avantLesIcones && jaime.memeLigne && jaime.iconesAuBord,
+    jaime.apresLesIcones && jaime.memeLigne && jaime.auBord,
   JSON.stringify(jaime),
 );
 dire(

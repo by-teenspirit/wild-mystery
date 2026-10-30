@@ -6217,6 +6217,222 @@ html#min-width {
   display: none;
 }
 
+/* ── 21 · la tête du sujet est une carte ───────────────────────────── */
+
+/*  « J'aimerais bien que la partie du haut soit encadrée quand même
+    avec un fond, pas seulement dans le vide », 30 octobre.
+
+    ÉCART ASSUMÉ AVEC LA MAQUETTE. `305:24` pose le fil d'Ariane, le
+    titre et la barre d'actions à plat sur le fond de page. Mais tout
+    le reste de la page a fini en cartes — les messages, le bas, la
+    réponse rapide — et la tête restait le seul bloc dans le vide.
+
+    MÊME RECETTE QUE LES AUTRES CARTES : `fond-surface`, un filet de
+    `bord-fin`, `rayon-lg`. Pas une recette à elle : une carte qui se
+    distingue des autres se lit comme une erreur, pas comme une
+    intention. */
+#modernbb .wm-sujet__tete {
+  margin-bottom: var(--wm-espace-20, 20px);
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LA BARRE D'ACTIONS PERD SA MARGE BASSE. Elle l'avait parce qu'elle
+    était le dernier bloc avant les messages ; c'est la carte qui tient
+    cet écart maintenant, et la marge en ajouterait un second, à
+    l'intérieur. */
+#modernbb .wm-sujet__tete .wm-sujet__actions {
+  margin-bottom: 0;
+}
+
+/*  ET ELLE EST SÉPARÉE DU TITRE PAR UN FILET. Sans lui, la barre
+    flotte au milieu de la carte : deux rangées sans rapport dans une
+    même boîte. Le trait dit qu'elles en font partie toutes les deux
+    et qu'elles ne disent pas la même chose — c'est le même filet que
+    sous le bandeau d'un message. */
+#modernbb .wm-sujet__tete .wm-sujet__actions {
+  margin-top: var(--wm-espace-16, 16px);
+  padding-top: var(--wm-espace-16, 16px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  LE RESSORT DU FIL D'ARIANE S'ARRÊTE AU BORD DE LA CARTE, et plus au
+    bord de la page : il n'y a rien à faire pour ça — il est en
+    `flex: 1 1 auto` dans un parent qui a rétréci. On le note parce
+    qu'on aurait pu croire le contraire et aller le corriger. */
+
+/* ── 22 · les retours du 30 octobre, sur l'aperçu ──────────────────── */
+
+/*  ── 1 · « L'ÉQUIPE EST TROP COLLÉE AUX ONGLETS » ───────────────────
+
+    Juste : la dernière rangée de cases tombait à 14 px du filet du
+    dossier, soit moins que l'écart entre deux cases. Deux blocs qui
+    ne se touchent pas doivent respirer PLUS que les morceaux d'un
+    même bloc — sinon l'œil les lit comme un seul. */
+#modernbb .wm-profil__dossier {
+  margin-top: var(--wm-espace-24, 24px);
+  padding-top: var(--wm-espace-20, 20px);
+}
+
+/*  ── 2 · « IL FAUT UN AFFICHAGE DIFFÉRENT DU NOM ET DU CONTENU » ────
+
+    Avant : la clé en 10 px gras majuscules, la valeur en 11,5
+    ordinaire. Deux styles différents, oui, mais le PLUS fort allait
+    au mot qu'on ne lit pas. On regarde « 24 », pas « NIVEAU ».
+
+    On inverse le poids : la clé devient une étiquette discrète, la
+    valeur prend le gras et la couleur du texte courant. */
+#modernbb .wm-profil__panneau .wm-profil__cle {
+  color: var(--wm-texte-pale, #69564c);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-profil__panneau .wm-profil__valeur {
+  color: var(--wm-texte-corps, #4e3b30);
+  /*  `taille-normal` et pas un `corps` inventé : la charte n'a pas de
+      jeton de ce nom, et un repli qui ne correspond à rien devient la
+      seule valeur qui s'applique — le garde-fou 15 l'a dit. */
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+/*  ── 3 · LE SURVOL D'UN BADGE ───────────────────────────────────────
+
+    « Le passage de la souris sur le badge, c'est pas ouf non plus. »
+    Il n'y en avait aucun de notre côté : ce qu'on voyait était celui
+    de ModernBB, qui change l'opacité de l'image. Une image qui pâlit
+    se lit comme désactivée, pas comme survolée.
+
+    On enveloppe donc chaque badge dans sa case, et c'est la CASE qui
+    réagit : l'image ne bouge pas, le fond apparaît derrière elle. */
+#modernbb .wm-profil__panneau--3 .dd_award a,
+#modernbb .wm-profil__panneau--3 .dd_award > img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--wm-espace-4, 4px);
+  border: 1px solid transparent;
+  border-radius: var(--wm-rayon-md, 8px);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award a:hover,
+#modernbb .wm-profil__panneau--3 .dd_award > img:hover {
+  border-color: var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  ET L'IMAGE GARDE SON OPACITÉ. ModernBB la fait pâlir au survol ;
+    `!important` parce que sa règle est elle aussi sur `:hover` et
+    qu'on ne gagne pas au poids sans elle. */
+#modernbb .wm-profil__panneau--3 .dd_award img,
+#modernbb .wm-profil__panneau--3 .dd_award a:hover img {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/*  ── 4 · LE « + » DE MODERNBB S'EN VA ───────────────────────────────
+
+    « Et le "+" correspond à quoi ? » À `.post-menu` : chez ModernBB,
+    les actions d'un message sont CACHÉES et le « + » les déplie.
+    Notre feuille les affiche en permanence depuis le § 2 — le bouton
+    ne déplie donc plus rien, il occupe 32 px et pose une question à
+    chaque lecteur. */
+#modernbb .post-head .post-menu {
+  display: none;
+}
+
+/*  ── 5 · LE TITRE RÉPÉTÉ SOUS CHAQUE MESSAGE S'EN VA ────────────────
+
+    Le gabarit répète le titre du sujet dans chaque message. Sur une
+    page de vingt messages, c'est vingt fois la même phrase sous un
+    titre déjà écrit en haut.
+
+    CE QU'ON PERD, ET C'EST ASSUMÉ : ce titre portait le lien vers
+    l'ancre du message — le permalien. Il reste atteignable par le
+    bouton de citation et par l'adresse `#p<numéro>`, mais plus d'un
+    clic. Demandé le 30 octobre.
+
+    `visibility` et pas `display: none` : l'élément garde sa place
+    dans l'arbre, donc le lien reste lisible par un lecteur d'écran…
+    non. Un lecteur d'écran saute `visibility: hidden` comme
+    `display: none`, et un élément caché qui occupe encore sa boîte
+    casserait la rangée. On retire franchement. */
+#modernbb .post .wm-post-corps > .post-head .topic-title {
+  display: none;
+}
+
+/*  ── 6 · LES VOTES PASSENT APRÈS LES ACTIONS ────────────────────────
+
+    « Le like est placé bizarrement. » Il l'était : coincé entre la
+    date et la rangée d'icônes, il se lisait comme une septième
+    action. Ce n'en est pas une — c'est un compteur, et un compteur se
+    met au bout.
+
+    `order: 4` le pousse derrière `menu-wrap` (3 au § 2), et le
+    `margin-left: auto` revient aux icônes, qui redeviennent le bloc
+    qu'on pousse à droite. */
+#modernbb .post-head .fa_like_div {
+  order: 4;
+  margin-left: var(--wm-espace-12, 12px);
+}
+
+#modernbb .post-head:has(.fa_like_div) .menu-wrap {
+  margin-left: auto;
+}
+
+/* ── 23 · « en ligne », une pastille verticale à gauche ────────────── */
+
+/*  « Il faudrait afficher en plus propre que la personne est en ligne
+    et l'afficher plutôt à gauche, peut-être en vertical ? une jolie
+    pastille », 30 octobre.
+
+    CE QUE FORUMACTIF DONNE : `{ONLINE_IMG_NEW}` ne rend pas une image
+    malgré son nom — c'est une CLASSE, collée à celles du message :
+    ` online` quand le posteur est connecté, rien sinon. ModernBB s'en
+    sert pour un rond vert posé sur l'avatar (`.online2`, laissé en
+    commentaire dans le gabarit). On ne le réveille pas : un rond vert
+    sur un portrait, c'est une pastille de messagerie sur une fiche de
+    personnage.
+
+    LA GOUTTIÈRE EST PERMANENTE, LA PASTILLE NON. Le rembourrage gauche
+    de la fiche passe de 14 à 20 pour TOUS les messages — si seuls les
+    messages en ligne l'avaient, la colonne sauterait de deux pixels
+    d'un message à l'autre, et on verrait qui est connecté à la façon
+    dont la page tremble. L'avatar tient toujours : 236 − 20 − 14 = 202
+    de clair pour ses 200. */
+#modernbb .post .postprofile {
+  position: relative;
+  padding-left: var(--wm-espace-20, 20px);
+}
+
+/*  LA PASTILLE. Un mot debout dans la gouttière, le long du bord
+    gauche de la fiche. `vertical-rl` + `rotate(180deg)` le fait lire
+    de bas en haut — dans l'autre sens, il faut pencher la tête à
+    droite, et l'œil occidental penche à gauche.
+
+    Elle ne porte PAS de point vert : le mot dit déjà ce qu'il dit, et
+    un point vert en plus, c'est le vocabulaire des messageries. */
+#modernbb .post.online .postprofile::before {
+  content: "EN LIGNE";
+  position: absolute;
+  top: var(--wm-espace-20, 20px);
+  left: var(--wm-espace-6, 6px);
+  display: block;
+  padding: var(--wm-espace-8, 8px) 2px;
+  border-radius: 999px;
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 

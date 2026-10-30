@@ -53,6 +53,20 @@ showHiddenMessage = function(id) {
 </script>
 <!-- END switch_push_direct_send -->
 
+<!--  LA TÊTE DU SUJET EST UNE CARTE — demandé le 30 octobre :
+      « j'aimerais bien que la partie du haut soit encadrée quand même
+      avec un fond, pas seulement dans le vide ».
+
+      La maquette `305:24` la laisse à plat sur le fond de page. C'est
+      un écart assumé : tout le reste de la page est en cartes, et la
+      tête restait le seul bloc posé dans le vide.
+
+      UN SEUL PARENT POUR LES DEUX. Le fil d'Ariane, le titre et la
+      barre d'actions sont trois frères ; les encadrer séparément
+      ferait deux boîtes avec un trait entre les deux. On les met donc
+      dans la même, ici et pas en CSS — une bordure ne peut pas
+      entourer deux frères. -->
+<div class="wm-sujet__tete">
 <div class="sub-header">
 	<div class="sub-header-info">
 		<h1 class="page-title">
@@ -122,6 +136,7 @@ showHiddenMessage = function(id) {
 		<!-- END switch_plus_menu -->
 	</div>
 </div>
+</div><!-- /wm-sujet__tete -->
 
 <div class="quick-nav-topics">
     <!-- BEGIN switch_isconnect -->
