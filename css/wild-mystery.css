@@ -7041,7 +7041,7 @@ html#min-width {
     champ auquel elles s'appliquent. « Dernière visite et décroissant
     doivent être rapprochés de la recherche, à la même hauteur »,
     30 octobre. */
-#modernbb .wm-membres__tri { order: 1; }
+#modernbb .wm-membres__tri { order: 1; flex: 3 1 0; min-width: 0; }
 
 #modernbb .wm-membres__modes {
   order: 2;
@@ -7071,12 +7071,28 @@ html#min-width {
 
     `flex: 1 1 280px` au lieu de `0 1 280px` : il prend la place qui
     reste plutôt que de la céder. C'est lui qu'on utilise. */
+/*  ── LA RANGÉE PREND TOUTE LA LARGEUR ──────────────────────────────
+
+    « Fais en sorte que champ de recherche, dernière visite et
+    décroissant et ok fassent la même taille et que ça prenne toute la
+    largeur du bloc », 30 octobre.
+
+    Les quatre contrôles étaient dimensionnés chacun pour soi — 300
+    pour le champ, 170 au plus pour une liste, le bouton large de son
+    mot — et la rangée s'arrêtait au milieu de la carte. Maintenant ils
+    se partagent la largeur : le champ en prend deux parts, chaque
+    liste une, et le « OK » reste large de son mot, parce qu'un bouton
+    de validation étiré sur un quart de carte ressemble à une bannière.
+
+    `flex: … 0` et pas `auto` : avec `auto`, la base est le contenu, et
+    une liste dont la plus longue option est « ₽OKÉDOLLARS » partirait
+    déjà plus large que sa voisine. À `0`, les parts décident seules. */
 #modernbb .wm-membres__recherche {
   position: relative;
   display: flex;
-  flex: 0 1 300px;
+  flex: 2 1 0;
   flex-direction: column;
-  max-width: 360px;
+  min-width: 0;
 }
 
 #modernbb .wm-membres__recherche-nom {
@@ -7096,7 +7112,9 @@ html#min-width {
 #modernbb .wm-membres__recherche::before {
   content: "";
   position: absolute;
-  bottom: 14px;
+  /*  Le cercle fait 11 plus deux filets de 1,5, donc 14 : centré dans
+      un champ de 44, il est à 15 du bas. */
+  bottom: 15px;
   left: 15px;
   width: 11px;
   height: 11px;
@@ -7120,7 +7138,9 @@ html#min-width {
 
 #modernbb .wm-membres__recherche input {
   width: 100%;
-  height: 40px;
+  /*  44 comme les trois autres : voir le § des listes, c'est la cible
+      tactile du socle qui fixe la hauteur de la rangée. */
+  height: var(--wm-cible-tactile, 44px);
   /*  38 à gauche : la loupe est à 15, large de 11, et il lui faut de
       l'air avant le premier caractère. */
   padding: 0 var(--wm-espace-16, 16px) 0 38px;
@@ -7214,9 +7234,26 @@ html#min-width {
     On les met tous les trois à 32 de haut, arrondis pareil, dans la
     même famille que les trois onglets de droite. La rangée devient un
     jeu de pastilles et plus un formulaire. */
+/*  ── 44, ET C'EST LE BOUTON QUI DONNE LE TON ───────────────────────
+
+    « Qu'ils fassent la même taille » : quatre contrôles d'une même
+    rangée de hauteurs différentes se lisent comme un défaut
+    d'alignement.
+
+    J'ai d'abord mis 40, la hauteur du champ de recherche. Le bouton
+    restait à 44 et le harnais l'a dit. La cause n'est pas un accident :
+    le socle (`02`, § des formulaires) donne `min-height:
+    var(--wm-cible-tactile, 44px)` à tout ce qui se soumet — c'est la
+    taille minimale d'une cible tactile, et elle est là pour qu'on
+    puisse viser un bouton avec un pouce.
+
+    On ne descend donc pas le bouton à 40 : c'est le champ et les
+    listes qui montent à 44. Aligner en rognant une cible tactile,
+    c'est régler un défaut visible en en créant un qui ne se voit
+    pas. */
 #modernbb .wm-membres__tri select,
 #modernbb .wm-membres__tri .button2 {
-  height: 32px;
+  height: var(--wm-cible-tactile, 44px);
   padding: 0 var(--wm-espace-12, 12px);
   /*  « À droite de dernière visite et décroissant, la flèche colle
       trop. » Le rembourrage vaut pour les deux bords, et la flèche du
@@ -7261,23 +7298,25 @@ html#min-width {
   background-position: right 12px center;
 }
 
-/*  UNE LISTE EST LARGE DE SA PLUS LONGUE OPTION, et celles-ci
-    énumèrent les champs de profil du forum. On les borne : le
-    navigateur coupe l'option affichée, le menu déroulé reste entier.
+/*  LES DEUX LISTES SE PARTAGENT LA PLACE DU TRI, à parts égales.
 
-    GARDE-FOU ASSUMÉ, ET NON MESURÉ. Avec les options relevées le 30
-    octobre, les deux listes font 142 et 111 — la borne ne sert jamais,
-    même à 980 de large, et retirer cette règle ne fait tomber aucun
-    contrôle. Je l'ai vérifié.
-
-    Elle reste parce que ce qu'elle protège est hors de portée du
-    harnais : le jour où un champ est renommé en quelque chose de long,
-    le décor ne le saura pas et la vraie page débordera. C'est le seul
-    endroit de cette feuille où une règle n'est pas démontrée — et
-    c'est écrit plutôt que caché. */
+    LE `max-width: 170px` A SAUTÉ. Il était posé le 30 octobre comme
+    garde-fou contre un champ renommé en quelque chose de long, et
+    noté comme non démontré. Il est maintenant FAUX : une borne et une
+    part se contredisent, et la borne gagnerait — les listes
+    s'arrêteraient à 170 au lieu de remplir la carte. Ce qu'il
+    protégeait est protégé autrement : à `flex-basis: 0`, la longueur
+    des options ne décide plus de rien. */
 #modernbb .wm-membres__tri select {
-  max-width: 170px;
+  flex: 1 1 0;
+  min-width: 0;
   text-overflow: ellipsis;
+}
+
+/*  LE BOUTON RESTE LARGE DE SON MOT. Étiré sur un quart de carte, un
+    « OK » ressemble à une bannière. */
+#modernbb .wm-membres__tri .button2 {
+  flex: 0 0 auto;
 }
 
 #modernbb .wm-membres__tri select:hover,

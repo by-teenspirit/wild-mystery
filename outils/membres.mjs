@@ -515,6 +515,26 @@ const outils = await p.evaluate(() => {
           Math.round(r(champ).bottom),
       ) <= 1
     ),
+    //  ── ET ILS FONT TOUS LA MÊME HAUTEUR ──────────────────────────
+    //
+    //  « Qu'ils fassent la même taille. » Quatre contrôles d'une même
+    //  rangée de hauteurs différentes se lisent comme un défaut
+    //  d'alignement.
+    hauteurs: [
+      ...new Set(
+        [champ, ...tri.querySelectorAll("select, .button2")].map((e) =>
+          Math.round(e.getBoundingClientRect().height)
+        ),
+      ),
+    ],
+    //  ── LA RANGÉE REMPLIT LA CARTE ────────────────────────────────
+    //
+    //  Ce qui reste entre le dernier contrôle et le bord du contenu :
+    //  c'est ça, « que ça prenne toute la largeur du bloc ».
+    resteADroite: Math.round(
+      r(barre).right - parseFloat(getComputedStyle(barre).paddingRight) -
+        r(tri).right,
+    ),
     //  RIEN NE SORT DE LA RANGÉE. Une liste large de sa plus longue
     //  option déborde sans faire grandir son parent : c'est le défaut
     //  du 30 octobre, invisible à toute mesure de hauteur.
@@ -549,7 +569,7 @@ dire(
   //
   //  À chaque fois l'intention est réécrite, jamais affaiblie.
   outils !== null && outils.champAGauche && outils.memeLigne &&
-    outils.modesDessous && outils.champ.h === 40,
+    outils.modesDessous && outils.champ.h === 44,
   JSON.stringify(outils),
 );
 dire(
@@ -576,6 +596,20 @@ dire(
   JSON.stringify({
     ecart: outils?.triPresDuChamp,
     memeBas: outils?.memeBas,
+  }),
+);
+dire(
+  "LES QUATRE CONTRÔLES FONT LA MÊME HAUTEUR, ET LA RANGÉE REMPLIT LA CARTE",
+  outils !== null && outils.hauteurs.length === 1 &&
+    //  44, LA CIBLE TACTILE DU SOCLE — et pas 40, la hauteur que
+    //  j'avais choisie. Le bouton de soumission porte
+    //  `min-height: var(--wm-cible-tactile)`, et aligner les quatre
+    //  en rognant une cible tactile serait régler un défaut visible
+    //  en en créant un qui ne se voit pas.
+    outils.hauteurs[0] === 44 && Math.abs(outils.resteADroite) <= 1,
+  JSON.stringify({
+    hauteurs: outils?.hauteurs,
+    resteADroite: outils?.resteADroite,
   }),
 );
 dire(
@@ -699,8 +733,17 @@ const serre = await etroit.evaluate(() => {
 await etroit.close();
 
 dire(
-  "À 980 DE LARGE, LES LISTES RESTENT BORNÉES ET RIEN NE DÉBORDE",
-  serre.deborde <= 1 && serre.listes.every((l) => l <= 170),
+  "À 980 DE LARGE, LA RANGÉE REMPLIT ENCORE SA CARTE SANS DÉBORDER",
+  //  ── CE CONTRÔLE A CHANGÉ D'INTENTION LE 30 OCTOBRE ─────────────
+  //
+  //  Il demandait des listes BORNÉES à 170. La borne a sauté : les
+  //  quatre contrôles se partagent maintenant la largeur de la carte,
+  //  et une borne contredirait une part — les listes s'arrêteraient à
+  //  170 au lieu de remplir. Ce qui compte à 980 n'est plus la borne
+  //  mais son résultat : rien ne déborde, et les deux listes font la
+  //  même largeur.
+  serre.deborde <= 1 && serre.listes[0] === serre.listes[1] &&
+    serre.listes.every((l) => l > 0),
   JSON.stringify(serre),
 );
 
