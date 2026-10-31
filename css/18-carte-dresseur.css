@@ -281,7 +281,17 @@
 #modernbb .wm-tcard__sprite {
   display: block;
   width: 56px;
-  height: 56px;
+  /*  `!important`, ET C'EST MESURÉ, pas une précaution : ModernBB
+      force `height: auto !important` sur les images d'un message —
+      la règle responsive de son thème. Notre hauteur était donc
+      MORTE sur le forum depuis le début, et c'est pour ça que les
+      sprites y faisaient 83, 44, 60 et 50 au lieu de 56, et que les
+      noms flottaient chacun à sa hauteur.
+
+      Vérifié dans le navigateur sur `/t1001` : la même déclaration
+      sans `!important` ne change rien, avec `!important` la case
+      revient à 56. */
+  height: 56px !important;
   /*  `scale-down` ET PAS `contain`. « Pourquoi certains comme
       Couaneton sont plus gros ? » — parce que les gifs de PokéAPI
       sont ROGNÉS au plus près de la bête : un petit Pokémon arrive
@@ -889,5 +899,69 @@
     flex-wrap: nowrap;
     max-width: none;
     margin-inline: 0;
+  }
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 9 · L'AVATAR, LES CASES ET LES DEUX COLONNES, 31 OCTOBRE SOIR
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  L'AVATAR DE LA CARTE EST CARRÉ. Mesuré sur le forum : 72 × 115,
+    parce que le bandeau d'identité partagé avec la page d'un sujet y
+    dessine un portrait de 54 × 86 — et que ModernBB impose
+    `height: auto` aux images d'un message, si bien que la hauteur
+    suivait l'image au lieu du dessin.
+
+    SEULE RÈGLE DE CES DEUX LOTS QUE LE HARNAIS NE RETIENT PAS, et je
+    l'écris plutôt que de la laisser croire tenue : dans le harnais
+    l'avatar sort carré même sans elle, pour une raison que je n'ai
+    pas trouvée en trois mesures. Le défaut, lui, est relevé sur le
+    forum, bulle ouverte dans Chrome : 72 × 115. À reprendre le jour
+    où l'avatar bougera encore. */
+#modernbb .wm-tcard .wm-dresseur__avatar {
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/*  LE NOM ET LE NIVEAU S'ALIGNENT COMME LES TYPES.
+
+    Mesuré : les types tombaient tous à 162 du haut de leur case, les
+    noms à 96, 57 et 73. La raison : `margin-top: auto` était posé
+    sur le NOM, donc chaque nom se plaçait juste sous son sprite, et
+    un sprite de 83 ne laisse pas la même place qu'un de 44. Seul le
+    type, qui portait son propre `auto`, finissait aligné.
+
+    C'est le SPRITE qui doit absorber la différence, pas les lignes
+    de texte : une seule marge automatique, sous lui, et les trois
+    lignes forment un bloc solide collé au bas de la case. */
+/*  AUCUNE MARGE AUTOMATIQUE À AJOUTER ICI, et j'en avais écrit deux.
+    Une fois la case de sprite ramenée à 56 pour tout le monde, les
+    trois lignes d'une case se placent d'elles-mêmes à la même
+    hauteur d'une case à l'autre : les `margin-top: auto` du § 7
+    suffisent. Vérifié en retirant mes deux règles — aucun contrôle
+    ne tombe. Une règle qu'on peut enlever sans rien casser n'a rien
+    à faire dans la feuille. */
+
+/*  LES DEUX COLONNES PARTENT DE LA MÊME LIGNE. Mesuré : le
+    sous-titre « Arènes » faisait 51 de haut à y=666, celui des
+    colosseums 35 à y=682 — les cases de la grille s'étiraient, et
+    les deux mots flottaient chacun à sa hauteur. On aligne sur le
+    haut, et les deux sous-titres portent la même marge. */
+@container (min-width: 560px) {
+  /*  `align-items: start` a été écrit ici puis retiré : une fois le
+      filet parti, les deux sous-titres font la même hauteur et
+      l'étirement par défaut donne exactement le même résultat.
+      Vérifié en l'enlevant. */
+
+  /*  LE FILET ENTRE LES DEUX LISTES DISPARAÎT. Il sépare deux
+      familles EMPILÉES, et c'est lui qu'on voyait traîner à gauche
+      du mot « Colosseums » : mesuré, le second sous-titre faisait
+      35 de haut contre 18 au premier — un filet, 16 de rembourrage
+      et deux lignes au lieu d'une. Côte à côte, les deux colonnes
+      se séparent toutes seules. */
+  #modernbb .wm-tcard__badges + .wm-tcard__soustitre {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 }

@@ -3112,3 +3112,125 @@
       les lettres dès le premier cran. */
   line-height: 1.565;
 }
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 29 · LE LOT DU 31 AU SOIR, SECONDE PASSE
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  LE RUBAN « EN LIGNE » EST ARRONDI DU CÔTÉ QUI DÉPASSE. Il était
+    arrondi côté message et carré côté extérieur : l'inverse de ce
+    qu'on voit. Le ruban sort du bloc blanc, c'est donc son bord
+    LIBRE qui s'arrondit, et son bord collé qui reste droit. */
+#modernbb .post.online::before {
+  border-radius: 0 var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px) 0;
+}
+
+/*  MOINS D'AIR SOUS LE RANG. Mesuré : 14 de marge basse sur le rang,
+    plus 16 de marge haute et 16 de rembourrage sur l'équipe — 46 en
+    tout entre la pastille de groupe et le mot « équipe ». La
+    maquette en dessine 26 : pastille, 14, filet, 12, contenu. On
+    garde donc les 14 du rang, le filet reste la bordure haute de
+    l'équipe, et les deux autres tombent à 12. */
+#modernbb .postprofile dd.postprofile-equipe {
+  margin-top: 0;
+  padding-top: var(--wm-espace-12, 12px);
+}
+
+/*  DE L'AIR AU-DESSUS DE L'AVATAR. Le `dt` qui le porte héritait du
+    remise à zéro des `dl`/`dt`/`dd`, donc l'avatar touchait le haut
+    de la colonne. */
+#modernbb .postprofile > dl > dt {
+  padding-top: var(--wm-espace-18, 18px);
+}
+
+/*  UNE ESPACE FINE AVANT LE « : » DE LA FICHE.
+
+    Le « : » est un nœud de texte nu que Forumactif colle à
+    l'étiquette, et on ne peut pas écrire dans un nœud qu'on ne
+    possède pas. On ajoute donc l'espace APRÈS la clé.
+
+    LES CLÉS SE RECONNAISSENT À L'ABSENCE D'IDENTIFIANT : relevé sur
+    le forum, Forumactif sert `<span class="gen">Âge</span>` pour la
+    clé et `<span class="gen" id="rpg-Âge">` pour la valeur. C'est la
+    seule différence entre les deux, et elle est stable. */
+#modernbb .wm-profil__panneau--2 span.gen:not([id])::after {
+  content: "\2009";
+}
+
+/*  ── LES BADGES DU PROFIL, TROISIÈME PASSE ────────────────────────
+
+    « Un des badges a disparu » — il n'avait pas disparu, la rangée
+    du bas était coupée. Deux causes mesurées :
+
+    · `.award` porte 3 px de marge de chaque côté, donc une vignette
+      occupe 50 et pas 44 : trois ne tenaient plus dans les 152 de la
+      borne, et il n'en restait que deux par rangée ;
+    · `.dd_award` a une hauteur fixe de 60 et `overflow: hidden`,
+      donc la seconde rangée était rognée net.
+
+    « AJOUTE UN FOND DERRIÈRE CHAQUE BADGE » : un disque clair, comme
+    les cases de la carte dresseur. Le rembourrage lui donne sa
+    respiration — `background-origin` part de la boîte de
+    rembourrage, donc le dessin se pose à l'intérieur du disque et
+    pas dessus. */
+#modernbb .wm-profil__panneau--3 .award {
+  margin: 0;
+  padding: var(--wm-espace-4, 4px);
+  /*  999 et pas un jeton : il n'y a pas de jeton de rond dans
+      `jetons.css`, et c'est la même valeur en dur que les pastilles
+      du bandeau d'un message. */
+  border-radius: 999px;
+  background-color: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award {
+  height: auto;
+  overflow: visible;
+}
+
+/*  ── L'INFOBULLE D'UNE RÉCOMPENSE EST DÉPLACÉE DANS LE `BODY` ─────
+
+    « L'infobulle, y'a toujours du bleu. » Trois corrections avaient
+    échoué, et la raison n'était pas la spécificité : **au survol,
+    Forumactif SORT la bulle de son badge et la recolle à la racine
+    du `body`.** Vu dans le navigateur, bulle ouverte :
+    `body > span.award_tooltiptext`. Tous nos sélecteurs exigeaient
+    `.wm-profil__panneau--3` comme ancêtre — un ancêtre qu'elle n'a
+    plus au moment où elle s'affiche.
+
+    Le sélecteur ne garde donc que `#modernbb`, qui est le `body`
+    lui-même et reste vrai dans les deux endroits. Vérifié sur le
+    forum, bulle ouverte : fond sombre, texte clair, plus de bleu. */
+#modernbb .award_tooltiptext {
+  border: 0;
+  border-radius: var(--wm-rayon-xs, 4px);
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-8, 8px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  box-shadow: none;
+}
+
+#modernbb .award_tooltiptext .award_tooltiptext_title {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  LA FLÈCHE EST FAITE DE BORDURES, et c'est là que restait le
+    dernier bleu : `border-left-color: #3793ff` sur le `::after`. */
+#modernbb .award_tooltiptext::after {
+  border-left-color: var(--wm-fond-nuit, #3a2a22);
+  border-right-color: var(--wm-fond-nuit, #3a2a22);
+}
+
+/*  LE J'AIME EST CENTRÉ DANS SA RANGÉE, et ce n'était pas
+    `align-items` — qui vaut déjà `center` depuis le § 12.
+
+    Mesuré : **ModernBB met `margin: 6px 6px 0 0` sur `.rep-button`.**
+    Six pixels en haut, zéro en bas : le bouton de 26 descend de
+    trois dans sa boîte de 32, et son milieu tombe trois pixels sous
+    celui des icônes. « Comme il est plus gros, je vois que y'a pas
+    de align items center » — le symptôme était le bon, la cause
+    était une marge. */
+#modernbb .post-head .fa_like_div .rep-button {
+  margin: 0;
+}

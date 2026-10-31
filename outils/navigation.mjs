@@ -1797,7 +1797,25 @@ const notifs = await p.evaluate(() => {
     })(),
     //  PLUS DE FILET ENTRE DEUX LIGNES — « la barre qui traîne » —
     //  mais de l'espace à la place.
-    filetEntre: parseFloat(getComputedStyle(lignes[1]).borderTopWidth),
+    //  LE FILET ENTRE DEUX LIGNES EST UN `::before`, pas une bordure :
+    //  il doit aller d'un bord à l'autre de la liste, donc il déborde
+    //  du rembourrage de la ligne par deux marges négatives, ce qu'une
+    //  bordure ne sait pas faire. On mesure donc le pseudo.
+    filetEntre: (() => {
+      const st = getComputedStyle(lignes[1], "::before");
+      if (st.content === "none") return null;
+      return {
+        epaisseur: Math.round(parseFloat(st.height)),
+        //  ET IL VA JUSQU'AUX BORDS : plus large que la ligne elle-même.
+        pleineLargeur: parseFloat(st.width) >=
+          lignes[1].getBoundingClientRect().width,
+        teinte: st.backgroundColor,
+      };
+    })(),
+    //  ET PAS DE FILET AU-DESSUS DU BOUTON DU BAS, qui est déjà détaché.
+    filetAvantLeBouton: voirTout === null
+      ? null
+      : getComputedStyle(voirTout, "::before").content !== "none",
     ecartEntre: Math.round(r(lignes[1]).top - r(lignes[0]).bottom),
     //  LE TEXTE A RAPETISSÉ.
     taille: parseFloat(getComputedStyle(lignes[0]).fontSize),
@@ -1829,7 +1847,16 @@ const notifs = await p.evaluate(() => {
       const st = getComputedStyle(a);
       return {
         presente: st.display !== "none" && st.visibility !== "hidden",
-        discrete: Number(st.opacity) === 0,
+        //  VISIBLE SANS SURVOL depuis le 31 au soir : une action qui
+        //  n'apparaît qu'au survol n'existe pas pour qui ne survole
+        //  pas. Elle se fait discrète par sa teinte, pas par son
+        //  absence.
+        toujoursVisible: Number(st.opacity) === 1,
+        //  ET À GAUCHE, loin du point rouge du non-lu qui est à droite :
+        //  les deux se chevauchaient.
+        aGauche: Math.round(a.getBoundingClientRect().left) <
+          Math.round(lignes[0].getBoundingClientRect().left) +
+            Math.round(lignes[0].getBoundingClientRect().width / 2),
         cible: Math.round(a.getBoundingClientRect().width),
       };
     })(),
@@ -1853,9 +1880,15 @@ dire(
 );
 
 dire(
-  "les lignes sont espacées, sans filet entre elles, et le texte a rapetissé",
-  notifs !== null && notifs.filetEntre === 0 && notifs.ecartEntre >= 4 &&
-    notifs.taille <= 11,
+  "un filet complet entre deux notifications, et le texte assez grand pour se lire",
+  //  Les deux sont des retours en arrière assumés : le filet avait
+  //  été retiré (« deux blocs séparés n'ont pas besoin qu'on dise où
+  //  l'un finit ») et le texte posé à 10. À l'usage, les blocs se
+  //  touchaient et le texte était trop petit.
+  notifs !== null && notifs.filetEntre !== null &&
+    notifs.filetEntre.epaisseur === 1 && notifs.filetEntre.pleineLargeur &&
+    notifs.filetAvantLeBouton === false &&
+    notifs.taille >= 11.5,
   JSON.stringify(notifs),
 );
 
@@ -1867,10 +1900,10 @@ dire(
 );
 
 dire(
-  "la date ne s'affiche plus, et la suppression se montre au survol",
+  "la date ne s'affiche plus, et la suppression se voit, à gauche",
   notifs !== null && notifs.dateCachee && notifs.suppression !== null &&
-    notifs.suppression.presente && notifs.suppression.discrete &&
-    notifs.suppression.cible >= 20,
+    notifs.suppression.presente && notifs.suppression.toujoursVisible &&
+    notifs.suppression.aGauche && notifs.suppression.cible >= 20,
   JSON.stringify({ date: notifs?.dateCachee, suppression: notifs?.suppression }),
 );
 
@@ -1895,20 +1928,29 @@ dire(
 //  faute que les trois classes inventées.
 const phrases = await p.evaluate(() => {
   const lignes = [...document.querySelectorAll("#notif_list li .contentText")];
-  return lignes.map((e) => ({
-    nœuds: [...e.childNodes].filter((n) =>
-      n.nodeType !== 3 || (n.textContent ?? "").trim() !== ""
-    ).length,
-    texte: e.textContent.replace(/\s+/g, " ").trim(),
-  }));
+  return lignes.map((e) => {
+    const etui = e.querySelector(".wm-notifs__liaison");
+    return {
+      enveloppee: etui !== null,
+      phrase: etui === null ? null : etui.textContent.replace(/\s+/g, " "),
+      //  ELLE SE FAIT DISCRÈTE PAR SA TEINTE, et c'est tout l'objet :
+      //  elle doit être plus pâle que les deux noms qui l'entourent.
+      palie: etui === null ? null : getComputedStyle(etui).color !== getComputedStyle(e).color,
+      texte: e.textContent.replace(/\s+/g, " ").trim(),
+    };
+  });
 });
 
 dire(
-  "la phrase de liaison saute, et la notification d'un seul morceau reste entière",
+  "la phrase de liaison reste lisible mais s'efface, et l'autre notification n'est pas touchée",
+  //  Retour en arrière assumé : elle était remplacée par un point
+  //  médian, et « du coup la notification ne veut plus rien dire ».
+  //  La demande visait le bruit, pas le sens.
   phrases.length >= 2 &&
-    phrases[0].nœuds === 3 &&
-    !/a ecrit un message/i.test(phrases[0].texte) &&
-    phrases[0].texte.includes("·") &&
+    phrases[0].enveloppee && phrases[0].palie &&
+    /a ecrit un message/i.test(phrases[0].phrase) &&
+    /a ecrit un message/i.test(phrases[0].texte) &&
+    phrases[1].enveloppee === false &&
     phrases[1].texte.startsWith("Felicitations"),
   JSON.stringify(phrases),
 );

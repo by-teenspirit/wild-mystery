@@ -7747,6 +7747,128 @@ html#min-width {
   line-height: 1.565;
 }
 
+/*  ══════════════════════════════════════════════════════════════════
+    § 29 · LE LOT DU 31 AU SOIR, SECONDE PASSE
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  LE RUBAN « EN LIGNE » EST ARRONDI DU CÔTÉ QUI DÉPASSE. Il était
+    arrondi côté message et carré côté extérieur : l'inverse de ce
+    qu'on voit. Le ruban sort du bloc blanc, c'est donc son bord
+    LIBRE qui s'arrondit, et son bord collé qui reste droit. */
+#modernbb .post.online::before {
+  border-radius: 0 var(--wm-rayon-md, 8px) var(--wm-rayon-md, 8px) 0;
+}
+
+/*  MOINS D'AIR SOUS LE RANG. Mesuré : 14 de marge basse sur le rang,
+    plus 16 de marge haute et 16 de rembourrage sur l'équipe — 46 en
+    tout entre la pastille de groupe et le mot « équipe ». La
+    maquette en dessine 26 : pastille, 14, filet, 12, contenu. On
+    garde donc les 14 du rang, le filet reste la bordure haute de
+    l'équipe, et les deux autres tombent à 12. */
+#modernbb .postprofile dd.postprofile-equipe {
+  margin-top: 0;
+  padding-top: var(--wm-espace-12, 12px);
+}
+
+/*  DE L'AIR AU-DESSUS DE L'AVATAR. Le `dt` qui le porte héritait du
+    remise à zéro des `dl`/`dt`/`dd`, donc l'avatar touchait le haut
+    de la colonne. */
+#modernbb .postprofile > dl > dt {
+  padding-top: var(--wm-espace-18, 18px);
+}
+
+/*  UNE ESPACE FINE AVANT LE « : » DE LA FICHE.
+
+    Le « : » est un nœud de texte nu que Forumactif colle à
+    l'étiquette, et on ne peut pas écrire dans un nœud qu'on ne
+    possède pas. On ajoute donc l'espace APRÈS la clé.
+
+    LES CLÉS SE RECONNAISSENT À L'ABSENCE D'IDENTIFIANT : relevé sur
+    le forum, Forumactif sert `<span class="gen">Âge</span>` pour la
+    clé et `<span class="gen" id="rpg-Âge">` pour la valeur. C'est la
+    seule différence entre les deux, et elle est stable. */
+#modernbb .wm-profil__panneau--2 span.gen:not([id])::after {
+  content: "\2009";
+}
+
+/*  ── LES BADGES DU PROFIL, TROISIÈME PASSE ────────────────────────
+
+    « Un des badges a disparu » — il n'avait pas disparu, la rangée
+    du bas était coupée. Deux causes mesurées :
+
+    · `.award` porte 3 px de marge de chaque côté, donc une vignette
+      occupe 50 et pas 44 : trois ne tenaient plus dans les 152 de la
+      borne, et il n'en restait que deux par rangée ;
+    · `.dd_award` a une hauteur fixe de 60 et `overflow: hidden`,
+      donc la seconde rangée était rognée net.
+
+    « AJOUTE UN FOND DERRIÈRE CHAQUE BADGE » : un disque clair, comme
+    les cases de la carte dresseur. Le rembourrage lui donne sa
+    respiration — `background-origin` part de la boîte de
+    rembourrage, donc le dessin se pose à l'intérieur du disque et
+    pas dessus. */
+#modernbb .wm-profil__panneau--3 .award {
+  margin: 0;
+  padding: var(--wm-espace-4, 4px);
+  /*  999 et pas un jeton : il n'y a pas de jeton de rond dans
+      `jetons.css`, et c'est la même valeur en dur que les pastilles
+      du bandeau d'un message. */
+  border-radius: 999px;
+  background-color: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award {
+  height: auto;
+  overflow: visible;
+}
+
+/*  ── L'INFOBULLE D'UNE RÉCOMPENSE EST DÉPLACÉE DANS LE `BODY` ─────
+
+    « L'infobulle, y'a toujours du bleu. » Trois corrections avaient
+    échoué, et la raison n'était pas la spécificité : **au survol,
+    Forumactif SORT la bulle de son badge et la recolle à la racine
+    du `body`.** Vu dans le navigateur, bulle ouverte :
+    `body > span.award_tooltiptext`. Tous nos sélecteurs exigeaient
+    `.wm-profil__panneau--3` comme ancêtre — un ancêtre qu'elle n'a
+    plus au moment où elle s'affiche.
+
+    Le sélecteur ne garde donc que `#modernbb`, qui est le `body`
+    lui-même et reste vrai dans les deux endroits. Vérifié sur le
+    forum, bulle ouverte : fond sombre, texte clair, plus de bleu. */
+#modernbb .award_tooltiptext {
+  border: 0;
+  border-radius: var(--wm-rayon-xs, 4px);
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-8, 8px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  box-shadow: none;
+}
+
+#modernbb .award_tooltiptext .award_tooltiptext_title {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  LA FLÈCHE EST FAITE DE BORDURES, et c'est là que restait le
+    dernier bleu : `border-left-color: #3793ff` sur le `::after`. */
+#modernbb .award_tooltiptext::after {
+  border-left-color: var(--wm-fond-nuit, #3a2a22);
+  border-right-color: var(--wm-fond-nuit, #3a2a22);
+}
+
+/*  LE J'AIME EST CENTRÉ DANS SA RANGÉE, et ce n'était pas
+    `align-items` — qui vaut déjà `center` depuis le § 12.
+
+    Mesuré : **ModernBB met `margin: 6px 6px 0 0` sur `.rep-button`.**
+    Six pixels en haut, zéro en bas : le bouton de 26 descend de
+    trois dans sa boîte de 32, et son milieu tombe trois pixels sous
+    celui des icônes. « Comme il est plus gros, je vois que y'a pas
+    de align items center » — le symptôme était le bon, la cause
+    était une marge. */
+#modernbb .post-head .fa_like_div .rep-button {
+  margin: 0;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 
@@ -12227,6 +12349,104 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
 #modernbb #page-body:focus,
 #modernbb #content-main:focus {
   outline: none;
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § LES NOTIFICATIONS, TROISIÈME PASSE — 31 OCTOBRE AU SOIR
+
+    Quatre reprises, et trois annulent des choix de la passe
+    précédente. Je note lesquels : ce sont des décisions revenues sur
+    mesure, pas des oublis.
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  ÉCRITES PLUS GRAND. Elles étaient à 10 px, la taille d'une
+    étiquette — et une notification, ça se lit, ça ne s'étiquette
+    pas. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  UNE BARRE ENTRE TOUTES LES NOTIFICATIONS.
+
+    J'avais retiré le filet en écrivant que « deux blocs séparés n'ont
+    pas besoin qu'on dise où l'un finit ». C'était faux à l'usage :
+    sur deux lignes de texte chacune, les blocs se touchent à l'œil.
+    Le filet revient, et il va d'un bord à l'autre — les marges
+    négatives rattrapent le rembourrage de la ligne, sinon il
+    s'arrête avant le bord et donne l'air inachevé que Callista
+    décrit. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li {
+  margin-top: 0;
+  padding-top: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--wm-espace-8, 8px));
+  left: calc(-1 * var(--wm-espace-8, 8px));
+  height: 1px;
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+/*  PAS DE FILET AVANT LE BOUTON DU BAS : il est déjà détaché. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all::before {
+  content: none;
+}
+
+/*  LA SUPPRESSION PASSE À GAUCHE, ET SE VOIT TOUJOURS.
+
+    Elle était à droite, à deux pixels du bord — et le point rouge du
+    non-lu est à dix. Les deux se chevauchaient : on ne pouvait plus
+    lire s'il restait quelque chose à lire. Elle change de côté, et
+    le texte lui laisse sa place.
+
+    TOUJOURS VISIBLE, et j'avais argumenté le contraire : « dix croix
+    avant le texte qu'on vient lire ». Callista a tranché dans
+    l'autre sens, et elle a raison sur un point que je n'avais pas
+    pesé — une action qui n'apparaît qu'au survol n'existe pas pour
+    qui ne survole pas. Elle reste discrète par sa couleur, pas par
+    son absence. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  padding-right: var(--wm-espace-24, 24px);
+  padding-left: var(--wm-espace-24, 24px);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
+  right: auto;
+  left: 0;
+  opacity: 1;
+  color: var(--wm-texte-pale, #69564c);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete:hover,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete:focus-visible {
+  opacity: 1;
+  color: var(--wm-danger-interdite, #a64430);
+}
+
+/*  LE BOUTON DU BAS N'A PAS DE CROIX, donc pas de retrait à gauche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all {
+  padding-right: var(--wm-espace-10, 10px);
+  padding-left: var(--wm-espace-10, 10px);
+}
+
+/*  ── LA PHRASE REVIENT, EN RETRAIT ────────────────────────────────
+
+    « Tu as supprimé la phrase, du coup la notification ne veut plus
+    rien dire. » C'est juste : « Compte de test · Boutique de Rhode »
+    ne dit pas ce qui s'est passé.
+
+    La demande d'origine — « ni le "a écrit un message" » — visait le
+    bruit, pas le sens. On garde donc la phrase et on la fait taire :
+    `module-navigation` l'enveloppe maintenant dans un
+    `.wm-notifs__liaison` au lieu de la remplacer, et elle passe en
+    teinte pâle. Les deux noms restent les seules choses qui
+    sautent aux yeux, et la phrase se lit si on la cherche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list .wm-notifs__liaison {
+  color: var(--wm-texte-pale, #69564c);
+  font-weight: var(--wm-graisse-normale, 400);
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -19119,7 +19339,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-tcard__sprite {
   display: block;
   width: 56px;
-  height: 56px;
+  /*  `!important`, ET C'EST MESURÉ, pas une précaution : ModernBB
+      force `height: auto !important` sur les images d'un message —
+      la règle responsive de son thème. Notre hauteur était donc
+      MORTE sur le forum depuis le début, et c'est pour ça que les
+      sprites y faisaient 83, 44, 60 et 50 au lieu de 56, et que les
+      noms flottaient chacun à sa hauteur.
+
+      Vérifié dans le navigateur sur `/t1001` : la même déclaration
+      sans `!important` ne change rien, avec `!important` la case
+      revient à 56. */
+  height: 56px !important;
   /*  `scale-down` ET PAS `contain`. « Pourquoi certains comme
       Couaneton sont plus gros ? » — parce que les gifs de PokéAPI
       sont ROGNÉS au plus près de la bête : un petit Pokémon arrive
@@ -19727,6 +19957,70 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     flex-wrap: nowrap;
     max-width: none;
     margin-inline: 0;
+  }
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 9 · L'AVATAR, LES CASES ET LES DEUX COLONNES, 31 OCTOBRE SOIR
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  L'AVATAR DE LA CARTE EST CARRÉ. Mesuré sur le forum : 72 × 115,
+    parce que le bandeau d'identité partagé avec la page d'un sujet y
+    dessine un portrait de 54 × 86 — et que ModernBB impose
+    `height: auto` aux images d'un message, si bien que la hauteur
+    suivait l'image au lieu du dessin.
+
+    SEULE RÈGLE DE CES DEUX LOTS QUE LE HARNAIS NE RETIENT PAS, et je
+    l'écris plutôt que de la laisser croire tenue : dans le harnais
+    l'avatar sort carré même sans elle, pour une raison que je n'ai
+    pas trouvée en trois mesures. Le défaut, lui, est relevé sur le
+    forum, bulle ouverte dans Chrome : 72 × 115. À reprendre le jour
+    où l'avatar bougera encore. */
+#modernbb .wm-tcard .wm-dresseur__avatar {
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/*  LE NOM ET LE NIVEAU S'ALIGNENT COMME LES TYPES.
+
+    Mesuré : les types tombaient tous à 162 du haut de leur case, les
+    noms à 96, 57 et 73. La raison : `margin-top: auto` était posé
+    sur le NOM, donc chaque nom se plaçait juste sous son sprite, et
+    un sprite de 83 ne laisse pas la même place qu'un de 44. Seul le
+    type, qui portait son propre `auto`, finissait aligné.
+
+    C'est le SPRITE qui doit absorber la différence, pas les lignes
+    de texte : une seule marge automatique, sous lui, et les trois
+    lignes forment un bloc solide collé au bas de la case. */
+/*  AUCUNE MARGE AUTOMATIQUE À AJOUTER ICI, et j'en avais écrit deux.
+    Une fois la case de sprite ramenée à 56 pour tout le monde, les
+    trois lignes d'une case se placent d'elles-mêmes à la même
+    hauteur d'une case à l'autre : les `margin-top: auto` du § 7
+    suffisent. Vérifié en retirant mes deux règles — aucun contrôle
+    ne tombe. Une règle qu'on peut enlever sans rien casser n'a rien
+    à faire dans la feuille. */
+
+/*  LES DEUX COLONNES PARTENT DE LA MÊME LIGNE. Mesuré : le
+    sous-titre « Arènes » faisait 51 de haut à y=666, celui des
+    colosseums 35 à y=682 — les cases de la grille s'étiraient, et
+    les deux mots flottaient chacun à sa hauteur. On aligne sur le
+    haut, et les deux sous-titres portent la même marge. */
+@container (min-width: 560px) {
+  /*  `align-items: start` a été écrit ici puis retiré : une fois le
+      filet parti, les deux sous-titres font la même hauteur et
+      l'étirement par défaut donne exactement le même résultat.
+      Vérifié en l'enlevant. */
+
+  /*  LE FILET ENTRE LES DEUX LISTES DISPARAÎT. Il sépare deux
+      familles EMPILÉES, et c'est lui qu'on voyait traîner à gauche
+      du mot « Colosseums » : mesuré, le second sous-titre faisait
+      35 de haut contre 18 au premier — un filet, 16 de rembourrage
+      et deux lignes au lieu d'une. Côte à côte, les deux colonnes
+      se séparent toutes seules. */
+  #modernbb .wm-tcard__badges + .wm-tcard__soustitre {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
   }
 }
 

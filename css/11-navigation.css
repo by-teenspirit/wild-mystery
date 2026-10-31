@@ -1428,3 +1428,101 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
 #modernbb #content-main:focus {
   outline: none;
 }
+
+/*  ══════════════════════════════════════════════════════════════════
+    § LES NOTIFICATIONS, TROISIÈME PASSE — 31 OCTOBRE AU SOIR
+
+    Quatre reprises, et trois annulent des choix de la passe
+    précédente. Je note lesquels : ce sont des décisions revenues sur
+    mesure, pas des oublis.
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  ÉCRITES PLUS GRAND. Elles étaient à 10 px, la taille d'une
+    étiquette — et une notification, ça se lit, ça ne s'étiquette
+    pas. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  UNE BARRE ENTRE TOUTES LES NOTIFICATIONS.
+
+    J'avais retiré le filet en écrivant que « deux blocs séparés n'ont
+    pas besoin qu'on dise où l'un finit ». C'était faux à l'usage :
+    sur deux lignes de texte chacune, les blocs se touchent à l'œil.
+    Le filet revient, et il va d'un bord à l'autre — les marges
+    négatives rattrapent le rembourrage de la ligne, sinon il
+    s'arrête avant le bord et donne l'air inachevé que Callista
+    décrit. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li {
+  margin-top: 0;
+  padding-top: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--wm-espace-8, 8px));
+  left: calc(-1 * var(--wm-espace-8, 8px));
+  height: 1px;
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+/*  PAS DE FILET AVANT LE BOUTON DU BAS : il est déjà détaché. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all::before {
+  content: none;
+}
+
+/*  LA SUPPRESSION PASSE À GAUCHE, ET SE VOIT TOUJOURS.
+
+    Elle était à droite, à deux pixels du bord — et le point rouge du
+    non-lu est à dix. Les deux se chevauchaient : on ne pouvait plus
+    lire s'il restait quelque chose à lire. Elle change de côté, et
+    le texte lui laisse sa place.
+
+    TOUJOURS VISIBLE, et j'avais argumenté le contraire : « dix croix
+    avant le texte qu'on vient lire ». Callista a tranché dans
+    l'autre sens, et elle a raison sur un point que je n'avais pas
+    pesé — une action qui n'apparaît qu'au survol n'existe pas pour
+    qui ne survole pas. Elle reste discrète par sa couleur, pas par
+    son absence. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  padding-right: var(--wm-espace-24, 24px);
+  padding-left: var(--wm-espace-24, 24px);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
+  right: auto;
+  left: 0;
+  opacity: 1;
+  color: var(--wm-texte-pale, #69564c);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete:hover,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete:focus-visible {
+  opacity: 1;
+  color: var(--wm-danger-interdite, #a64430);
+}
+
+/*  LE BOUTON DU BAS N'A PAS DE CROIX, donc pas de retrait à gauche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all {
+  padding-right: var(--wm-espace-10, 10px);
+  padding-left: var(--wm-espace-10, 10px);
+}
+
+/*  ── LA PHRASE REVIENT, EN RETRAIT ────────────────────────────────
+
+    « Tu as supprimé la phrase, du coup la notification ne veut plus
+    rien dire. » C'est juste : « Compte de test · Boutique de Rhode »
+    ne dit pas ce qui s'est passé.
+
+    La demande d'origine — « ni le "a écrit un message" » — visait le
+    bruit, pas le sens. On garde donc la phrase et on la fait taire :
+    `module-navigation` l'enveloppe maintenant dans un
+    `.wm-notifs__liaison` au lieu de la remplacer, et elle passe en
+    teinte pâle. Les deux noms restent les seules choses qui
+    sautent aux yeux, et la phrase se lit si on la cherche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list .wm-notifs__liaison {
+  color: var(--wm-texte-pale, #69564c);
+  font-weight: var(--wm-graisse-normale, 400);
+}

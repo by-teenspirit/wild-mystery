@@ -1222,9 +1222,22 @@ export function poserLaNavigation(
  *
  * On ne regarde donc PAS ce que la phrase dit, on regarde la FORME :
  * lien, texte, lien. Dans ce cas et dans ce cas seulement, le texte du
- * milieu devient une virgule typographique. Une notification d'une
- * seule pièce — « Félicitations, tu as gagné le badge de l'arène
- * Feu ! » — n'a pas cette forme et n'est pas touchée.
+ * milieu est enveloppé. Une notification d'une seule pièce —
+ * « Félicitations, tu as gagné le badge de l'arène Feu ! » — n'a pas
+ * cette forme et n'est pas touchée.
+ *
+ * ── ON L'ENVELOPPE, ON NE LA REMPLACE PLUS ──────────────────────────
+ *
+ * Premier jet : le texte devenait « · ». « Du coup la notification ne
+ * veut plus rien dire » — « Compte de test · Boutique de Rhode » ne
+ * dit pas ce qui s'est passé, et c'était juste. La demande visait le
+ * bruit, pas le sens.
+ *
+ * La phrase reste donc, dans un étui que la feuille passe en teinte
+ * pâle. Les deux noms sont les seules choses qui sautent aux yeux, et
+ * la phrase se lit si on la cherche. Un étui plutôt qu'un
+ * `::before` : on ne peut pas styler un nœud de texte, et c'est tout
+ * le problème depuis le début.
  *
  * ── ET ELLES ARRIVENT APRÈS ─────────────────────────────────────────
  *
@@ -1232,6 +1245,8 @@ export function poserLaNavigation(
  * verrait que celles déjà là, et la phrase reviendrait à la première
  * notification reçue. L'observateur coûte un objet et règle ça.
  */
+const CLASSE_LIAISON = "wm-notifs__liaison";
+
 export function raccourcirLesNotifications(liste: HTMLElement | null): void {
   if (liste === null) return;
 
@@ -1247,8 +1262,11 @@ export function raccourcirLesNotifications(liste: HTMLElement | null): void {
         milieu.nodeType !== Node.TEXT_NODE
       ) continue;
       //  Déjà passée : on ne refait pas le travail à chaque mutation.
-      if ((milieu.textContent ?? "").trim() === "·") continue;
-      milieu.textContent = " · ";
+      if (milieu.parentElement?.classList.contains(CLASSE_LIAISON)) continue;
+      const etui = texte.ownerDocument.createElement("span");
+      etui.className = CLASSE_LIAISON;
+      milieu.replaceWith(etui);
+      etui.appendChild(milieu);
     }
   };
 

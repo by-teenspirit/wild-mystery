@@ -498,13 +498,29 @@ label { margin-right: 18px; }
     zero sous la reponse rapide ne retenait rien.
     (Toujours aucun guillemet oblique ici : voir plus haut.) */
 .h3 { margin: 0 0 8px; }
+/*  LA MARGE DE MODERNBB SUR LE BOUTON J'AIME : six en haut, zero en
+    bas. Relevee le 31 au soir. C'est elle qui faisait descendre le
+    bouton de trois pixels sous les icones, et pas un defaut
+    d'alignement du conteneur. */
+.rep-button { margin: 6px 6px 0 0; }
 /*  LE BLEU DES RÉCOMPENSES, relevé le 31 octobre : ModernBB met un
     cadre de deux pixels en #3793ff sur la vignette ET sur son
     infobulle. Sans lui dans le décor, la règle du § 28 qui l'enlève
     ne retiendrait rien — c'est exactement ce qui a coûté onze
     passes. */
 .award, .award_tooltiptext { border: 2px solid #3793ff; }
-.award { width: 50px; height: 50px; }
+/*  TROIS PIXELS DE MARGE ET UNE HAUTEUR FIXE, releves le 31 au soir :
+    c'est ce couple qui faisait disparaitre un badge. La marge porte
+    une vignette de 44 a 50, donc trois ne tenaient plus dans la borne
+    de 152 ; la hauteur fixe et le debordement cache rognaient net la
+    seconde rangee. */
+.award { width: 50px; height: 50px; margin: 3px; }
+.dd_award { height: 60px; overflow: hidden; }
+/*  LA FLECHE DE LA BULLE EST FAITE DE BORDURES, et c'est la que
+    restait le dernier bleu : border-left-color #3793ff. Relevee le
+    31 au soir, bulle ouverte. */
+.award_tooltiptext::after { content: ""; position: absolute;
+  border: 6px solid transparent; border-left-color: #3793ff; }
 .award_tooltiptext { position: absolute; visibility: collapse;
   border-radius: 6px; background: #fefefe; }
 .profile-icons { display: flex; list-style: none; }
@@ -1831,6 +1847,136 @@ const basDePage = await p.evaluate(() => {
     taille: ligne === null ? null : g(ligne).fontSize,
   };
 });
+
+//  ── LE LOT DU 31 AU SOIR, SECONDE PASSE ──────────────────────────
+
+const secondePasse = await p.evaluate(() => {
+  const g = (e, p) => getComputedStyle(e, p || null);
+  const r = (e) => e.getBoundingClientRect();
+  const post = document.querySelector(".post.online");
+  const radios = [...post.querySelectorAll(".wm-profil__radio")];
+  const montrer = (n) => {
+    radios[n].checked = true;
+    radios[n].dispatchEvent(new Event("change", { bubbles: true }));
+  };
+
+  //  LE RUBAN EST ARRONDI DU CÔTÉ LIBRE. Il sort du bloc blanc par la
+  //  gauche : c'est donc son bord gauche qui s'arrondit.
+  const ruban = g(post, "::before");
+
+  //  DE L'AIR AU-DESSUS DE L'AVATAR, et moins sous le rang.
+  const dt = post.querySelector(".postprofile > dl > dt");
+  const avatar = post.querySelector(".postprofile-avatar");
+  const rang = post.querySelector(".postprofile-rank");
+  const equipe = post.querySelector(".postprofile-equipe");
+
+  montrer(1);
+  //  UNE ESPACE FINE AVANT LE « : » DE LA FICHE : elle est posée en
+  //  `content` sur la clé, donc on la lit sur le pseudo-élément.
+  const premiereCle = post.querySelector(
+    ".wm-profil__panneau--2 span.gen:not([id])",
+  );
+  const espaceAvantDeuxPoints = g(premiereCle, "::after").content;
+
+  montrer(2);
+  const panneau = post.querySelector(".wm-profil__panneau--3");
+  const dd = panneau.querySelector(".dd_award");
+  const vignettes = [...panneau.querySelectorAll(".award")];
+  const rangs = new Map();
+  for (const v of vignettes) {
+    const y = Math.round(r(v).top);
+    rangs.set(y, (rangs.get(y) ?? 0) + 1);
+  }
+  //  TOUTES LES VIGNETTES SONT DANS LA BOÎTE, aucune rognée.
+  const derniere = vignettes.at(-1);
+  const tienneDedans = Math.round(r(derniere).bottom) <=
+    Math.round(r(dd).bottom) + 1;
+
+  const icones = post.querySelector(".profile-icons");
+  const jaime = post.querySelector(".fa_like_div");
+  const bouton = jaime.querySelector(".rep-button");
+
+  return {
+    rubanRayon: ruban.borderTopLeftRadius + " " + ruban.borderTopRightRadius,
+    airSurLAvatar: Math.round(r(avatar).top - r(dt).top),
+    //  DU BAS DE LA PASTILLE DE GROUPE AU MOT « ÉQUIPE » : la maquette
+    //  en dessine 26 — 14, le filet, puis 12.
+    //  ON MESURE JUSQU'À LA BOÎTE DE CONTENU de l'équipe, et pas
+    //  jusqu'au rectangle du mot : une étiquette de 10 px en
+    //  `line-height: normal` porte deux pixels de blanc au-dessus de
+    //  ses lettres, et les compter ferait dire 31 à un espace de 27.
+    airSousLeRang: Math.round(r(equipe).top - r(rang).bottom) +
+      Math.round(parseFloat(g(equipe).borderTopWidth)) +
+      Math.round(parseFloat(g(equipe).paddingTop)),
+    espaceAvantDeuxPoints,
+    badgesParRang: [...rangs.values()],
+    tienneDedans,
+    fondDeVignette: g(vignettes[0]).backgroundColor,
+    margeDeVignette: g(vignettes[0]).marginLeft,
+    //  LE J'AIME EST CENTRÉ SUR LES ICÔNES : on compare les milieux,
+    //  parce que les deux boîtes n'ont pas la même hauteur de contenu.
+    milieuJaime: Math.round(r(bouton).top + r(bouton).height / 2),
+    milieuIcones: Math.round(r(icones).top + r(icones).height / 2),
+  };
+});
+
+//  ── LA BULLE D'UNE RÉCOMPENSE, DÉMÉNAGÉE DANS LE `BODY` ──────────
+//
+//  Au survol, Forumactif SORT la bulle de son badge et la recolle à la
+//  racine du document. Trois corrections avaient échoué là-dessus,
+//  parce que tous nos sélecteurs exigeaient `.wm-profil__panneau--3`
+//  comme ancêtre — un ancêtre qu'elle n'a plus au moment où elle
+//  s'affiche. On reproduit donc le déménagement ici : la règle doit
+//  l'atteindre aux DEUX endroits.
+const bulleDeplacee = await p.evaluate(() => {
+  const dedans = document.querySelector(
+    ".wm-profil__panneau--3 .award_tooltiptext",
+  );
+  const copie = dedans.cloneNode(true);
+  document.body.appendChild(copie);
+  const g = (e, p) => getComputedStyle(e, p || null);
+  const lire = (e) => ({
+    bord: g(e).borderTopWidth,
+    fond: g(e).backgroundColor,
+    couleur: g(e).color,
+    fleche: g(e, "::after").borderLeftColor,
+  });
+  const vu = { dansLePanneau: lire(dedans), dansLeBody: lire(copie) };
+  copie.remove();
+  return vu;
+});
+
+dire(
+  "la bulle d'une récompense est habillée AUSSI quand Forumactif la déplace dans le body",
+  bulleDeplacee.dansLeBody.bord === "0px" &&
+    bulleDeplacee.dansLeBody.fond === bulleDeplacee.dansLePanneau.fond &&
+    bulleDeplacee.dansLeBody.couleur === bulleDeplacee.dansLePanneau.couleur &&
+    bulleDeplacee.dansLeBody.fleche === bulleDeplacee.dansLePanneau.fleche &&
+    //  ET LE BLEU DE MODERNBB N'Y EST PLUS, ni sur le cadre ni sur la
+    //  flèche, qui est faite de bordures.
+    !/55, 147, 255/.test(JSON.stringify(bulleDeplacee)),
+  JSON.stringify(bulleDeplacee),
+);
+
+dire(
+  "le ruban, l'avatar, le rang, la fiche, les badges et le j'aime",
+  secondePasse.rubanRayon === "0px 8px" &&
+    secondePasse.airSurLAvatar >= 16 &&
+    //  LA MAQUETTE EN DESSINE 26 — 14, le filet, 12 — et on mesure 31 :
+    //  les cinq qui restent sont le blanc des boîtes de ligne, au-dessus
+    //  de la pastille et au-dessus de l'étiquette, que la maquette a
+    //  aussi. Avant la correction il y en avait 47. On borne à 32 : un
+    //  pixel de plus voudrait dire qu'une des trois marges est revenue.
+    secondePasse.airSousLeRang <= 32 &&
+    secondePasse.espaceAvantDeuxPoints !== "none" &&
+    secondePasse.badgesParRang.every((n) => n <= 3) &&
+    secondePasse.badgesParRang.filter((n) => n === 3).length >= 3 &&
+    secondePasse.tienneDedans &&
+    secondePasse.margeDeVignette === "0px" &&
+    secondePasse.fondDeVignette !== "rgba(0, 0, 0, 0)" &&
+    Math.abs(secondePasse.milieuJaime - secondePasse.milieuIcones) <= 1,
+  JSON.stringify(secondePasse),
+);
 
 dire(
   "le bas de la page est à la cote de la maquette",

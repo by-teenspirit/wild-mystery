@@ -191,7 +191,12 @@ function carteRemplie() {
 
   return `<div class="wm-tcard" data-wm-tcard id="remplie">
   <div class="wm-dresseur">
-    <img class="wm-dresseur__avatar" src="${PIXEL}" alt="" />
+    <!-- UN AVATAR QUI N'EST PAS CARRE, et c'est tout l'objet : sur le
+         forum celui du compte de test fait 72 x 115, parce que
+         l'image est plus haute que large et que ModernBB impose
+         height: auto. Avec un pixel carre, la regle qui le rend
+         carre ne retiendrait rien. -->
+    <img class="wm-dresseur__avatar" src="${SPRITE_LARGE}" alt="" />
     <div class="wm-dresseur__infos">
       <p class="wm-dresseur__identite">
         <span class="wm-dresseur__nom">Eliott Vanner</span>
@@ -234,6 +239,13 @@ function carteRemplie() {
     `.postbody` serait mesurée dans 1328 px au lieu de 714, et toutes
     les rangées tiendraient. */
 const BASE_MODERNBB = `
+/*  LA REGLE RESPONSIVE DE MODERNBB SUR LES IMAGES D'UN MESSAGE.
+    Relevee le 31 octobre en la combattant sur le forum : une
+    declaration de hauteur sans !important ne passe pas, avec
+    !important oui. C'est elle qui rendait nos sprites inegaux.
+    (Pas de guillemet oblique ici : on est dans un gabarit de chaine.) */
+.post img, .postbody img { height: auto !important; }
+
 *, *::before, *::after { box-sizing: border-box; }
 .postbody { margin-right: 211px; padding: 12px 18px 18px; }
 .post { display: flex; flex-wrap: wrap; }
@@ -551,6 +563,74 @@ const badges = await p.evaluate(() => {
     ronds: tous.every((e) => parseFloat(getComputedStyle(e).borderRadius) >= r(e).width / 2),
   };
 });
+
+const secondePasse = await p.evaluate(() => {
+  const g = (e) => getComputedStyle(e);
+  const r = (e) => e.getBoundingClientRect();
+  const carte = document.querySelector("#remplie");
+  const av = carte.querySelector(".wm-dresseur__avatar");
+  const cases = [...carte.querySelectorAll(".wm-tcard__pkmn")]
+    .filter((e) => e.querySelector(".wm-tcard__nom") !== null);
+  const bas = (sel) =>
+    cases.map((c) => {
+      const e = c.querySelector(sel);
+      return e === null ? null : Math.round(r(e).bottom - r(c).bottom);
+    });
+  const st = [...carte.querySelectorAll(".wm-tcard__soustitre")];
+  return {
+    //  L'AVATAR DE LA CARTE EST CARRÉ : le bandeau d'identité est
+    //  partagé avec la page d'un sujet, où il dessine un portrait.
+    avatar: Math.round(r(av).width) + "x" + Math.round(r(av).height),
+    //  NOM, NIVEAU ET TYPE SONT CHACUN À LA MÊME HAUTEUR D'UNE CASE À
+    //  L'AUTRE. On mesure depuis le BAS de la case : c'est là qu'ils
+    //  sont ancrés, et c'est ce que « alignés comme les types » veut
+    //  dire. Un sprite plus grand ne doit plus les pousser.
+    nomsAlignes: new Set(bas(".wm-tcard__nom")).size,
+    niveauxAlignes: new Set(bas(".wm-tcard__niveau")).size,
+    typesAlignes: new Set(bas(".wm-type")).size,
+    //  ET TOUTES LES CASES DE SPRITE FONT 56, quelles que soient les
+    //  proportions de l'image. C'est la vraie correction : ModernBB
+    //  force `height: auto !important` sur les images d'un message,
+    //  nos cases suivaient donc l'image — 83, 44, 60, 50 sur le
+    //  forum — et c'est ça qui décalait les noms.
+    //
+    //  Le décor sert la règle de ModernBB et deux images de
+    //  proportions différentes : sans elles, ce contrôle passerait
+    //  sans rien prouver.
+    hauteursDeSprite: [
+      ...new Set(
+        cases.map((c) => Math.round(r(c.querySelector(".wm-tcard__sprite")).height)),
+      ),
+    ],
+    proportionsDesImages: new Set(
+      cases.map((c) => {
+        const i = c.querySelector(".wm-tcard__sprite");
+        return i.naturalWidth + "x" + i.naturalHeight;
+      }),
+    ).size,
+    //  LES DEUX SOUS-TITRES PARTENT DE LA MÊME LIGNE, et celui des
+    //  colosseums n'a plus le filet qui sépare deux familles
+    //  EMPILÉES — c'est lui qu'on voyait traîner à sa gauche.
+    soustitresSurUneLigne: st.length === 2 &&
+      Math.abs(Math.round(r(st[0]).top) - Math.round(r(st[1]).top)) <= 1,
+    filetDuSecond: st.length === 2 ? g(st[1]).borderTopWidth : null,
+    memeHauteur: st.length === 2 &&
+      Math.round(r(st[0]).height) === Math.round(r(st[1]).height),
+  };
+});
+
+dire(
+  "l'avatar est carré, les trois lignes d'une case sont alignées, les deux colonnes aussi",
+  secondePasse.avatar.split("x")[0] === secondePasse.avatar.split("x")[1] &&
+    secondePasse.nomsAlignes === 1 && secondePasse.niveauxAlignes === 1 &&
+    secondePasse.typesAlignes === 1 &&
+    secondePasse.hauteursDeSprite.length === 1 &&
+    secondePasse.hauteursDeSprite[0] === 56 &&
+    secondePasse.proportionsDesImages > 1 &&
+    secondePasse.soustitresSurUneLigne &&
+    secondePasse.filetDuSecond === "0px" && secondePasse.memeHauteur,
+  JSON.stringify(secondePasse),
+);
 
 dire(
   "les arènes en colonne, les colosseums en colonne, le tout sur une ligne",
