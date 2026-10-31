@@ -75,6 +75,22 @@
   object-fit: cover;
 }
 
+/*  L'AVATAR QUI N'EN EST PAS UN. Tant qu'aucune adresse n'est
+    fournie, la case porte les initiales du dresseur : un carré vide
+    se lit comme une image cassée, deux lettres se lisent comme un
+    choix. Le dégradé de `.wm-dresseur__avatar` reste le fond. */
+#modernbb .wm-tcard .wm-dresseur__avatar--vide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 22px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: 0.04em;
+}
+
 #modernbb .wm-tcard > .wm-dresseur {
   flex-wrap: wrap;
   /*  LE RAYON QUE LA CARTE NE DÉCOUPE PLUS. Moins un pixel : le

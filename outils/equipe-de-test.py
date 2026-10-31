@@ -216,10 +216,15 @@ def main() -> None:
     argent_ecrit = f"{argent:,}".replace(",", "\u202f")
     palier = 1 if combien_badges < 4 else 2
 
+    #  SANS ADRESSE, ON ÉCRIT LES INITIALES plutôt que de laisser un
+    #  carré vide. Un carré vide a l'air d'une image cassée — c'est
+    #  d'ailleurs ce qui avait été signalé — alors que deux lettres
+    #  dans un carré ont l'air voulues, et disent de qui c'est la
+    #  carte même quand personne n'a encore fourni d'avatar.
     avatar = (
         f'<img class="wm-dresseur__avatar" src="{args.avatar}" alt="" />'
         if args.avatar
-        else '<span class="wm-dresseur__avatar"></span>'
+        else '<span class="wm-dresseur__avatar wm-dresseur__avatar--vide">CT</span>'
     )
 
     sortie = f"""<!-- ══════════════════════════════════════════════════════════════════

@@ -1,4 +1,4 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Carte dresseur</title><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700&display=swap">
 <style>
 *, *::before, *::after { box-sizing: border-box; }
 .postbody { margin-right: 211px; padding: 12px 18px 18px; }
@@ -10865,16 +10865,60 @@ html#min-width {
   text-align: left;
 }
 
+/*  ── LES LIGNES, REVUES LE 30 OCTOBRE AU SOIR ────────────────────
+
+    « Ça dépasse à droite quand le texte est trop long », « y'a une
+    barre qui traîne », « elles sont trop collées », « le texte est
+    affiché en plus gros ».
+
+    LE DÉBORDEMENT. Leur feuille met le texte sur une seule ligne ;
+    un pseudo long plus un titre de sujet long sortaient du panneau
+    par la droite. Il passe sur deux lignes et se coupe à la
+    troisième — un panneau de notifications n'est pas l'endroit où
+    lire un titre entier, on clique pour ça.
+
+    LA BARRE QUI TRAÎNE, c'est ce filet-ci, que je posais entre deux
+    lignes. Avec de l'espace entre elles il ne sert plus à rien :
+    deux blocs séparés n'ont pas besoin qu'on dise où l'un finit. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  position: relative;
   width: auto;
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  margin: 0;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-24, 24px)
+    var(--wm-espace-10, 10px) var(--wm-espace-10, 10px);
+  border: 0;
   border-radius: var(--wm-rayon-md, 8px);
   color: var(--wm-texte-corps, #4e3b30);
-  line-height: var(--wm-interligne-courant, 1.5);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-legende, 1.45);
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li + li {
-  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  margin-top: var(--wm-espace-4, 4px);
+  border-top: 0;
+}
+
+/*  DEUX LIGNES, PUIS ON COUPE.
+
+    PAS DE `-webkit-line-clamp`, ET C'EST UNE DÉCISION PRISE APRÈS
+    MESURE. Le premier jet posait `display: -webkit-box` plus
+    `-webkit-line-clamp: 2`. La propriété s'appliquait bien — relevé
+    `clamp: "2"` — mais le `display` se calculait en `flow-root` et le
+    texte tenait sur trois lignes. Deux tentatives pour comprendre
+    d'où venait la blockification n'ont rien donné.
+
+    UNE BORNE DE HAUTEUR FAIT LE MÊME TRAVAIL, sans boîte vendeur ni
+    comportement à deviner : deux interlignes, et ce qui dépasse est
+    coupé. On perd les trois points de l'ellipse ; on gagne une règle
+    qui se comprend en la lisant. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li > a {
+  display: block;
+  float: none;
+  max-height: calc(2 * var(--wm-interligne-legende, 1.45) * 1em);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 /*  Leur feuille met un `!important` sur la couleur des liens de la
@@ -10918,13 +10962,42 @@ html#min-width {
         se lit comme un pied de page qu'on n'a pas demandé.
       · le rembourrage de 12 × 18 est GARDÉ, c'est lui qui en fait une
         vraie cible. */
+/*  REPRIS LE 30 OCTOBRE AU SOIR : « améliore le bouton voir toutes
+    les notifications ». C'était une bande beige alignée à gauche,
+    qui se lisait comme une ligne de plus dans la liste. C'en est un
+    BOUTON : il se sépare par un filet, se centre, et prend la couleur
+    pleine de l'action principale.
+
+    Il est aussi le seul élément de la liste qui garde une seule
+    ligne : son texte est à nous, il n'a pas de raison de déborder. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all {
-  margin-top: var(--wm-espace-4, 4px);
+  display: block;
+  margin-top: var(--wm-espace-10, 10px);
+  padding: 0;
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 0;
+  background-color: transparent;
+  text-align: center;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all a {
+  display: block;
+  box-sizing: border-box;
+  min-height: var(--wm-cible-tactile, 44px);
   padding: var(--wm-espace-12, 12px) var(--wm-espace-18, 18px);
-  background-color: var(--wm-fond-douce, #f3e1d2);
-  color: var(--wm-accent-primaire, #275e7a);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7) !important;
+  font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  text-align: left;
+  -webkit-line-clamp: none;
+  line-clamp: none;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all a:hover {
+  background: var(--wm-accent-fort, #1f5470);
+  text-decoration: none !important;
 }
 
 /*  Les apparitions en direct : elles sortaient à `right: 47px` par
@@ -18378,6 +18451,22 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   object-fit: cover;
 }
 
+/*  L'AVATAR QUI N'EN EST PAS UN. Tant qu'aucune adresse n'est
+    fournie, la case porte les initiales du dresseur : un carré vide
+    se lit comme une image cassée, deux lettres se lisent comme un
+    choix. Le dégradé de `.wm-dresseur__avatar` reste le fond. */
+#modernbb .wm-tcard .wm-dresseur__avatar--vide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: 22px;
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: 0.04em;
+}
+
 #modernbb .wm-tcard > .wm-dresseur {
   flex-wrap: wrap;
   /*  LE RAYON QUE LA CARTE NE DÉCOUPE PLUS. Moins un pixel : le
@@ -19244,7 +19333,7 @@ font:400 13px/1.5 "Nunito Sans",system-ui,sans-serif}
 <div id="test" class="wm-tcard" data-wm-tcard>
 
   <div class="wm-dresseur">
-    <span class="wm-dresseur__avatar"></span>
+    <span class="wm-dresseur__avatar wm-dresseur__avatar--vide">CT</span>
     <div class="wm-dresseur__infos">
       <p class="wm-dresseur__identite">
         <span class="wm-dresseur__nom">Compte de test</span>
@@ -19568,22 +19657,22 @@ font:400 13px/1.5 "Nunito Sans",system-ui,sans-serif}
     <section class="wm-tcard__bloc">
       <h4 class="wm-tcard__titre">Mon équipe</h4>
       <ul class="wm-tcard__equipe" data-wm-tcard-equipe><li class="wm-tcard__pkmn">
-        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFklEQVR42mOsiHL7z4AHMDEQAMNDAQArJAInSSM6hgAAAABJRU5ErkJggg==" alt="" />
+        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAARklEQVR42u3PAQ0AIAgAMCScIUxie2jBxvY3+PnvViyWsZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAnAaMVAJ3bk41lgAAAABJRU5ErkJggg==" alt="" />
         <p class="wm-tcard__nom">Grolem</p>
         <p class="wm-tcard__niveau">niv. 26</p>
         <span class="wm-type wm-type--roche">Roche</span>
       </li><li class="wm-tcard__pkmn">
-        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAFCAYAAABM6GxJAAAAFklEQVR42mOsiHL7z0ABYGKgEAwDAwCo9QIh5Jy3JwAAAABJRU5ErkJggg==" alt="" />
+        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAAOCAYAAAB6pd+uAAAALUlEQVR42u3PAQ0AIAgAMCScIUxie4jBxv4GP//disUylhMUFBQUFBQUFBSc0msgAjPOwJRTAAAAAElFTkSuQmCC" alt="" />
         <p class="wm-tcard__nom">Nostenfer</p>
         <p class="wm-tcard__niveau">niv. 24</p>
         <span class="wm-type wm-type--vol">Vol</span>
       </li><li class="wm-tcard__pkmn">
-        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFklEQVR42mOsiHL7z4AHMDEQAMNDAQArJAInSSM6hgAAAABJRU5ErkJggg==" alt="" />
+        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAARklEQVR42u3PAQ0AIAgAMCScIUxie2jBxvY3+PnvViyWsZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAnAaMVAJ3bk41lgAAAABJRU5ErkJggg==" alt="" />
         <p class="wm-tcard__nom">Ronflex-de-la-Combe-aux-Loups</p>
         <p class="wm-tcard__niveau">niv. 22</p>
         <span class="wm-type wm-type--normal">Normal</span>
       </li><li class="wm-tcard__pkmn">
-        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAFCAYAAABM6GxJAAAAFklEQVR42mOsiHL7z0ABYGKgEAwDAwCo9QIh5Jy3JwAAAABJRU5ErkJggg==" alt="" />
+        <img class="wm-tcard__sprite" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAAOCAYAAAB6pd+uAAAALUlEQVR42u3PAQ0AIAgAMCScIUxie4jBxv4GP//disUylhMUFBQUFBQUFBSc0msgAjPOwJRTAAAAAElFTkSuQmCC" alt="" />
         <p class="wm-tcard__nom">Flagadoss</p>
         <p class="wm-tcard__niveau">niv. 21</p>
         <span class="wm-type wm-type--eau">Eau</span>

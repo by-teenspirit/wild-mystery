@@ -49,15 +49,22 @@ const R = new URL("..", import.meta.url).pathname;
 const PIXEL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAD0lEQVR4nGP4z8DAxIAEAB0GAwMBHe4bAAAAAElFTkSuQmCC";
 
-/*  DEUX SPRITES DE PROPORTIONS DIFFÉRENTES, et c'est tout l'enjeu de
-    l'alignement. Les sprites de PokéAPI ne sont pas carrés : un
+/*  DEUX SPRITES DE PROPORTIONS TRÈS DIFFÉRENTES — 48 × 48 et 56 × 14
+    — et c'est tout l'enjeu de l'alignement.
+
+    LES PREMIERS FAISAIENT 8 × 8 ET 16 × 5, et c'était trop peu : une
+    fois centrés dans une case de 56, leurs bas tombaient à 32 et 31
+    px, soit un pixel d'écart — juste sous la tolérance du contrôle,
+    qui passait donc même sans `object-position: bottom`. Une règle
+    qu'on croyait tenue ne l'était pas. Avec 48 et 14 de haut, l'écart
+    centré est de dix-sept pixels : la règle a de quoi se prouver. Les sprites de PokéAPI ne sont pas carrés : un
     Lokhlass est large et bas, un Nostenfer haut et étroit. Un décor
     qui n'en sert qu'un seul, carré, ne peut pas voir qu'ils flottent
     à des hauteurs différentes dans leur case. */
 const SPRITE_CARRE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAFklEQVR42mOsiHL7z4AHMDEQAMNDAQArJAInSSM6hgAAAABJRU5ErkJggg==";
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAARklEQVR42u3PAQ0AIAgAMCScIUxie2jBxvY3+PnvViyWsZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAnAaMVAJ3bk41lgAAAABJRU5ErkJggg==";
 const SPRITE_LARGE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAFCAYAAABM6GxJAAAAFklEQVR42mOsiHL7z0ABYGKgEAwDAwCo9QIh5Jy3JwAAAABJRU5ErkJggg==";
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAAOCAYAAAB6pd+uAAAALUlEQVR42u3PAQ0AIAgAMCScIUxie4jBxv4GP//disUylhMUFBQUFBQUFBSc0msgAjPOwJRTAAAAAElFTkSuQmCC";
 
 /*  ── LA CARTE VIENT DU FICHIER, PAS D'ICI ─────────────────────────
 
@@ -480,7 +487,16 @@ const alignement = await p.evaluate(() => {
     //  où le dessin tombe, à partir de ses proportions.
     const r = e.getBoundingClientRect();
     const ratio = e.naturalWidth / e.naturalHeight;
-    const hauteurRendue = Math.min(r.height, r.width / ratio);
+    //  `scale-down` ET PAS `contain` DEPUIS LE 30 OCTOBRE AU SOIR, et
+    //  la formule devait suivre. `contain` remplit toujours la boîte
+    //  dans un sens ; `scale-down` prend le PLUS PETIT entre la taille
+    //  naturelle et ce que `contain` donnerait. Calculée à l'ancienne,
+    //  la hauteur rendue d'un petit sprite était surestimée, et ce
+    //  contrôle aurait déclaré alignés des sprites qui ne le sont pas.
+    const commeContain = Math.min(r.height, r.width / ratio);
+    const hauteurRendue = getComputedStyle(e).objectFit === "scale-down"
+      ? Math.min(commeContain, e.naturalHeight)
+      : commeContain;
     const marge = r.height - hauteurRendue;
     //  `object-position: bottom` se CALCULE en « 50% 100% » : le mot
     //  « bottom » n'est plus dans la valeur résolue, et chercher le
