@@ -142,10 +142,10 @@
   background-color: var(--wm-fond-douce, #f3e1d2);
   background-image:
     radial-gradient(
-      120% 120% at 18% 12%,
-      color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 16%, transparent) 0%,
-      transparent 58%
-    );
+    120% 120% at 18% 12%,
+    color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 16%, transparent) 0%,
+    transparent 58%
+  );
   cursor: grab;
   touch-action: none;
 }
@@ -182,7 +182,8 @@
     de la côte, deux paliers voisins doivent rester distincts du
     continent, qui est juste à côté ; au large, on peut s'étaler. */
 #modernbb .wm-carte__mer-fond {
-  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 58%, var(--wm-fond-douce, #f3e1d2));
+  fill: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 58%, var(--wm-fond-douce,
+    #f3e1d2));
 }
 
 /*  UNE SEULE RÈGLE POUR TOUTES LES BANDES. Le taux de mélange est
@@ -400,20 +401,17 @@
 }
 
 #modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier1"]:hover .wm-carte__forme,
-#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier1"]:focus-visible
-  .wm-carte__forme {
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier1"]:focus-visible .wm-carte__forme {
   fill: color-mix(in srgb, var(--wm-palier-1, #3f7d52) 22%, transparent);
 }
 
 #modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier2"]:hover .wm-carte__forme,
-#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier2"]:focus-visible
-  .wm-carte__forme {
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier2"]:focus-visible .wm-carte__forme {
   fill: color-mix(in srgb, var(--wm-palier-2, #a05e18) 22%, transparent);
 }
 
 #modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier3"]:hover .wm-carte__forme,
-#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier3"]:focus-visible
-  .wm-carte__forme {
+#modernbb .wm-carte--peinte .wm-carte__lieu[data-wm-famille="palier3"]:focus-visible .wm-carte__forme {
   fill: color-mix(in srgb, var(--wm-palier-3, #b1402f) 22%, transparent);
 }
 
@@ -557,16 +555,16 @@
   background-color: var(--wm-fond-nuit, #3a2a22);
   background-image:
     linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 58%, transparent) 0%,
-      color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 86%, transparent) 100%
-    ),
+    160deg,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 58%, transparent) 0%,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 86%, transparent) 100%
+  ),
     var(--wm-carte-image, var(--wm-bandeau-categorie, none)),
     linear-gradient(
-      160deg,
-      var(--wm-fond-nuit, #3a2a22) 0%,
-      color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 58%, var(--wm-accent-terre, #8b4725)) 100%
-    );
+    160deg,
+    var(--wm-fond-nuit, #3a2a22) 0%,
+    color-mix(in srgb, var(--wm-fond-nuit, #3a2a22) 58%, var(--wm-accent-terre, #8b4725)) 100%
+  );
   background-position: center;
   background-size: cover;
   color: var(--wm-texte-sur-nuit, #fffbf7);

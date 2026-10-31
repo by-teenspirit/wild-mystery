@@ -63,15 +63,15 @@
       rien d'autre ne bouge. */
   background:
     radial-gradient(
-      120% 90% at 85% 100%,
-      color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
-      transparent 60%
-    ),
+    120% 90% at 85% 100%,
+    color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
+    transparent 60%
+  ),
     linear-gradient(
-      180deg,
-      var(--wm-fond-douce, #f3e1d2) 0%,
-      var(--wm-fond-page, #eecfb5) 55%
-    );
+    180deg,
+    var(--wm-fond-douce, #f3e1d2) 0%,
+    var(--wm-fond-page, #eecfb5) 55%
+  );
 }
 
 /*  768 px pour les huit annexes : c'est la largeur des cartes dans la
@@ -462,7 +462,8 @@
     porte la composition déjà faite. */
 #modernbb .wm-encart--paisible {
   background: #e3e6dd;
-  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, var(--wm-fond-surface, #fffbf7));
+  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 16%, var(--wm-fond-surface,
+    #fffbf7));
 }
 
 #modernbb .wm-encart__etiquette {

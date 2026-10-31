@@ -140,38 +140,39 @@ function carteRemplie() {
     </li>`,
   ).join("");
 
-  //  TROIS OBTENUS SUR SEPT, comme la maquette montre trois sur huit :
-  //  c'est le mélange qui compte, pas le nombre.
-  //  ONZE ARÈNES, NOMMÉES PAR TYPE. Relevé le 31 octobre dans le
-  //  forum : ses récompenses s'appellent « Badge - Arène Feu ». Les
-  //  sept noms de ville des annexes n'étaient pas les bonnes.
+  //  SEPT ARÈNES, DANS L'ORDRE IMPOSÉ, et quatre colosseums.
+  //
+  //  Troisième état de cette liste. Les deux premiers étaient faux, et
+  //  la vérité était déjà écrite dans `forumactif/36` et `/82` :
+  //  l'ordre des arènes est celui dans lequel on doit les affronter —
+  //  on ne peut pas les faire dans le désordre — et les quatre
+  //  colosseums sont Fée, Spectre, Électrik et Dragon, confirmés par
+  //  la description de `f22-colosseum-de-titanite` sur le forum.
+  //
+  //  Le harnais sert donc cet ordre-là, et un contrôle plus bas le
+  //  vérifie : si quelqu'un réarrange la liste du code collé, il
+  //  tombe.
   const BADGES = [
-    ["acier", "Acier", true],
-    ["combat", "Combat", true],
-    ["eau", "Eau", true],
-    ["electrik", "Électrik", false],
-    ["fee", "Fée", false],
-    ["feu", "Feu", false],
-    ["plante", "Plante", false],
-    ["sol", "Sol", false],
-    ["spectre", "Spectre", false],
-    ["tenebres", "Ténèbres", false],
+    ["feu", "Feu", true],
+    ["plante", "Plante", true],
+    ["eau", "Eau", false],
+    ["acier", "Acier", false],
+    ["roche", "Roche", false],
     ["vol", "Vol", false],
+    ["tenebres", "Ténèbres", false],
   ];
-  //  LES QUATRE COLOSSEUMS, séparés des arènes depuis le 31 octobre :
-  //  ce ne sont pas les mêmes épreuves, et les colosseums ne comptent
-  //  pas pour la Ligue.
-  const colosseums = [
-    ["colosseum-rhode", "Rhode", true],
-    ["colosseum-phenacit", "Phenacit", false],
-    ["colosseum-targare", "Targare", false],
-    ["colosseum-titanite", "Titanite", false],
-  ]
-    .map(([cle, nom, obtenu]) =>
+  const COLOSSEUMS = [
+    ["fee", "Fée", "Rhode", true],
+    ["spectre", "Spectre", "Phenacit", false],
+    ["electrik", "Électrik", "Targare", false],
+    ["dragon", "Dragon", "Titanite", false],
+  ];
+  const colosseums = COLOSSEUMS
+    .map(([cle, _type, lieu, obtenu]) =>
       `<li class="wm-tcard__badge${obtenu ? "" : " wm-tcard__badge--agagner"}"
           data-wm-badge="${cle}" tabindex="0">
         <span class="wm-tcard__bulle">
-          <span class="wm-tcard__bulle-nom">Badge - Colosseum ${nom}</span>
+          <span class="wm-tcard__bulle-nom">Badge - Colosseum de ${lieu}</span>
           <span class="wm-tcard__bulle-etat">${obtenu ? "Obtenu" : "Non obtenu"}</span>
         </span>
       </li>`
@@ -207,7 +208,7 @@ function carteRemplie() {
         <span class="wm-tcard__libelle">pokédollars</span>
       </li>
       <li class="wm-tcard__compteur">
-        <span class="wm-tcard__chiffre" data-wm-tcard-compte>3 / 7</span>
+        <span class="wm-tcard__chiffre" data-wm-tcard-compte>3 / 11</span>
         <span class="wm-tcard__libelle">badges</span>
       </li>
     </ul>
@@ -444,6 +445,37 @@ dire(
 
 // ── 6 · les badges ──────────────────────────────────────────────────
 
+const ordre = await p.evaluate(() => {
+  //  LA PREMIÈRE CARTE SEULEMENT : la page du harnais en pose deux,
+  //  la lisible et la dégraissée, et sans cette racine les deux listes
+  //  reviennent collées bout à bout.
+  const carte = document.querySelector(".wm-tcard");
+  const lire = (s) =>
+    [...carte.querySelectorAll(s + " .wm-tcard__badge")].map((e) => e.dataset.wmBadge);
+  return {
+    arenes: lire("[data-wm-tcard-badges]"),
+    //  LE SECOND `ul` est celui des colosseums : il n'a pas d'attribut
+    //  de données, parce que le script ne le remplit pas depuis les
+    //  récompenses d'arène.
+    colosseums: lire(".wm-tcard__badges:not([data-wm-tcard-badges])"),
+  };
+});
+
+//  L'ORDRE DES ARÈNES EST IMPOSÉ PAR LE JEU, pas par le dessin : on
+//  ne peut pas affronter les arènes dans le désordre
+//  (`forumactif/36`). Un contrôle le retient, sinon le prochain qui
+//  trouve plus joli de les ranger par couleur casse la règle sans le
+//  savoir.
+const ORDRE_ATTENDU = ["feu", "plante", "eau", "acier", "roche", "vol", "tenebres"];
+const COLOSSEUMS_ATTENDUS = ["fee", "spectre", "electrik", "dragon"];
+
+dire(
+  "les sept arènes sont dans l'ordre imposé, les quatre colosseums à part",
+  ordre.arenes.join(",") === ORDRE_ATTENDU.join(",") &&
+    ordre.colosseums.join(",") === COLOSSEUMS_ATTENDUS.join(","),
+  JSON.stringify(ordre),
+);
+
 const badges = await p.evaluate(() => {
   const tous = [...document.querySelectorAll("#remplie .wm-tcard__badge")];
   if (tous.length === 0) return null;
@@ -489,12 +521,12 @@ const badges = await p.evaluate(() => {
 });
 
 dire(
-  "onze arènes puis quatre colosseums, trois par rang, les manquants au pointillé",
-  badges !== null && badges.combien === 15 && badges.groupes === 2 &&
+  "sept arènes puis quatre colosseums, trois par rang, les manquants au pointillé",
+  badges !== null && badges.combien === 11 && badges.groupes === 2 &&
     badges.cadreDifferent && badges.ronds &&
     badges.soustitres === 2 &&
     //  AU MOINS DEUX RANGÉES PLEINES, sinon « trois par rang » ne
-    //  veut rien dire : sans la borne de largeur, les onze arènes
+    //  veut rien dire : sans la borne de largeur, les sept arènes
     //  tenaient sur une seule ligne et le contrôle passait sur un
     //  tableau vide.
     badges.parRang.length >= 3 &&
@@ -529,8 +561,8 @@ const dessins = await p.evaluate(() => {
 });
 
 dire(
-  "les quinze badges portent chacun son dessin, sans aucune image à charger",
-  dessins.combien === 15 && dessins.tousDessines && dessins.distincts === 15 &&
+  "les onze badges portent chacun son dessin, sans aucune image à charger",
+  dessins.combien === 11 && dessins.tousDessines && dessins.distincts === 11 &&
     dessins.sansImg && dessins.bonneTaille,
   JSON.stringify(dessins),
 );
@@ -941,7 +973,7 @@ const bullesDeBadge = await p.evaluate(() => {
 
 dire(
   "chaque badge dit son nom, et RIEN D'AUTRE à l'œil",
-  bullesDeBadge.combien === 15 && bullesDeBadge.toutesPresentes &&
+  bullesDeBadge.combien === 11 && bullesDeBadge.toutesPresentes &&
     bullesDeBadge.toutesFermees && bullesDeBadge.nomsEcrits &&
     bullesDeBadge.etatCache && bullesDeBadge.sansContour &&
     bullesDeBadge.bullesLisibles,

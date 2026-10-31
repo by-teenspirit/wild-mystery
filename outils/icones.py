@@ -116,18 +116,55 @@ def rond(im: Image.Image) -> Image.Image:
     return sortie
 
 
+#  ── LES ONZE BADGES : SEPT ARÈNES ET QUATRE COLOSSEUMS ─────────────
+#
+#  TROISIÈME ÉTAT DE CETTE LISTE, et les deux premiers étaient faux.
+#  La planche « Mon jeu » en dessinait huit avec des noms inventés ;
+#  j'ai ensuite écrit onze arènes nommées par type, en croyant que
+#  les onze images de Callista étaient onze arènes.
+#
+#  La vérité était déjà écrite dans `forumactif/36` et dans
+#  `forumactif/82`, et l'arborescence du forum la confirme :
+#  **sept arènes, quatre colosseums.** Les quatre colosseums sont
+#  Fée, Spectre, Électrik et Dragon — Callista l'a dit, et la
+#  description de `f22-colosseum-de-titanite` sur le forum le
+#  confirme pour le dragon : « le champion de type dragon. Dernier de
+#  la liste ».
+#
+#  Deux images portaient donc un nom faux : `combat.png` est le
+#  double chevron bleu roi sur argent, c'est le DRAGON ; `sol.png`
+#  est le rocher facetté ocre sur or, c'est la ROCHE. Renommées.
+#
+#  L'ORDRE COMPTE, et il est imposé : on ne peut pas faire les arènes
+#  dans le désordre (`forumactif/36`). C'est l'ordre de cette liste,
+#  et c'est aussi celui dans lequel la carte dresseur les affiche.
+#
+#  On distingue les deux familles à l'œil sans rien lire : or jaune
+#  et liseré simple pour les arènes, argent patiné et double liseré
+#  pour les colosseums, où l'on combat à deux contre deux.
+#
+#  LES CLÉS SONT DES TYPES, pas des lieux. Les onze types sont tous
+#  distincts, donc aucun préfixe n'est nécessaire, et un colosseum
+#  qui déménagerait de ville ne casserait rien.
+LES_SEPT_ARENES = [
+    ("feu", "Feu", "Station Service"),
+    ("plante", "Plante", "Samaragd"),
+    ("eau", "Eau", "Port-Amarée"),
+    ("acier", "Acier", "Suerebe"),
+    ("roche", "Roche", "Pyrite"),
+    ("vol", "Vol", "Tour Titanite"),
+    ("tenebres", "Ténèbres", "Île Ténèbra"),
+]
+LES_QUATRE_COLOSSEUMS = [
+    ("fee", "Fée", "Rhode"),
+    ("spectre", "Spectre", "Phenacit"),
+    ("electrik", "Électrik", "Targare"),
+    ("dragon", "Dragon", "Titanite"),
+]
+
+
 def badges() -> str:
-    """Les onze badges d'arène, en PNG encodé.
-
-    ── CE QU'ILS SONT VRAIMENT, RELEVÉ LE 31 OCTOBRE ────────────────
-
-    Les sept premiers badges du dépôt portaient des noms de LIEU —
-    `arene-station-service`, `arene-samaragd`, `arene-port-amaree` —
-    pris des annexes de 2026. Le forum, lu dans le navigateur de
-    Callista, dit autre chose : ses récompenses s'appellent
-    « Badge - Arène Feu », « Badge - Arène Plante », « Badge - Arène
-    Eau », « Badge - Arène Acier ». **Les arènes sont nommées par
-    TYPE, pas par ville**, et il y en a onze, pas sept.
+    """Les onze badges, en PNG encodé.
 
     Les images sont celles du forum, envoyées par Callista. Elles
     sont rognées au dessin puis recentrées dans un carré : les onze
@@ -136,37 +173,17 @@ def badges() -> str:
 
     EN PNG ET PAS EN SVG, parce que ce sont des PNG : ce sont des
     dessins peints, pas des formes vectorielles, et les revectoriser
-    serait les redessiner.
+    serait les redessiner. Les quatre SVG de colosseum du dépôt — mes
+    dessins — ne servent plus : Callista a donné les siens.
     """
-    LES_ONZE = [
-        ("acier", "Acier"), ("combat", "Combat"), ("eau", "Eau"),
-        ("electrik", "Électrik"), ("fee", "Fée"), ("feu", "Feu"),
-        ("plante", "Plante"), ("sol", "Sol"), ("spectre", "Spectre"),
-        ("tenebres", "Ténèbres"), ("vol", "Vol"),
-    ]
-    #  LES QUATRE COLOSSEUMS, en SVG — ce sont nos dessins, ceux du
-    #  dépôt. Callista n'a envoyé que les onze arènes ; le jour où
-    #  elle donne les siens, ils rejoignent `img/badges/arenes/`.
-    LES_QUATRE = ["rhode", "phenacit", "targare", "titanite"]
     regles = ["""
-/* ── LES BADGES : ONZE ARÈNES, QUATRE COLOSSEUMS ──────────────────── */"""]
-    for cle, _ in LES_ONZE:
+/* ── LES BADGES : SEPT ARÈNES, QUATRE COLOSSEUMS ──────────────────── */"""]
+    for cle, _, _lieu in LES_SEPT_ARENES + LES_QUATRE_COLOSSEUMS:
         octets = (R / f"img/badges/arenes/{cle}.png").read_bytes()
         b64 = base64.b64encode(octets).decode()
         regles.append(
             f'#modernbb [data-wm-badge="{cle}"] {{\n'
             f'  background-image: url("data:image/png;base64,{b64}");\n'
-            f"}}"
-        )
-    for cle in LES_QUATRE:
-        svg = " ".join((R / f"img/badges/colosseum-{cle}.svg").read_text().split())
-        for avant, apres in (
-            ("%", "%25"), ("#", "%23"), ('"', "'"), ("<", "%3C"), (">", "%3E"),
-        ):
-            svg = svg.replace(avant, apres)
-        regles.append(
-            f'#modernbb [data-wm-badge="colosseum-{cle}"] {{\n'
-            f'  background-image: url("data:image/svg+xml,{svg}");\n'
             f"}}"
         )
     return "\n\n".join(regles) + "\n"
