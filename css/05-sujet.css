@@ -3296,12 +3296,35 @@
 
     La borne de la rangée suit — trois cases de 48 et deux
     gouttières —, sinon elle casserait à deux. */
+/*  ── LE REMBOURRAGE D'UNE VIGNETTE NE SERVAIT À RIEN ─────────────
+
+    « Tu as beau en rajouter, l'image n'est pas plus petite, le cadre
+    n'est pas plus grand. »
+
+    C'était vrai, et la raison est `background-origin: padding-box` —
+    la valeur par défaut. Elle place le dessin à partir du bord
+    INTÉRIEUR DE LA BORDURE, pas à partir du contenu : le
+    rembourrage ne lui enlève donc rien. Trois passes à l'augmenter
+    n'ont rien changé parce qu'il ne pouvait rien changer.
+    `content-box` est la seule valeur qui le fasse compter.
+
+    ET LA RANGÉE REMPLIT LA COLONNE. « Pas une grande marge à droite
+    ni à gauche » : la rangée était bornée à trois vignettes de 48 et
+    deux gouttières, soit 164 dans 198 — dix-sept de chaque côté,
+    laissés par le centrage. Les vignettes passent à 58 et la
+    gouttière à 12 : trois font 198, la largeur exacte de la colonne,
+    et il ne reste rien à centrer.
+
+    Le dessin y gagne deux fois : 58 moins deux fois 12 lui laissent
+    34, contre 28 avant — plus grand ET mieux entouré. */
 #modernbb .wm-profil__panneau--3 .award {
-  width: 48px;
-  height: 48px;
-  padding: var(--wm-espace-10, 10px);
+  width: 58px;
+  height: 58px;
+  padding: var(--wm-espace-12, 12px);
+  background-origin: content-box;
 }
 
 #modernbb .wm-profil__panneau--3 .dd_award {
-  max-width: calc(3 * 48px + 2 * var(--wm-espace-10, 10px));
+  max-width: calc(3 * 58px + 2 * var(--wm-espace-12, 12px));
+  gap: var(--wm-espace-12, 12px);
 }

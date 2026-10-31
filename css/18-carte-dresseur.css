@@ -690,7 +690,13 @@
   opacity: 1;
   filter: none;
   background-blend-mode: luminosity;
-  background-color: color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 72%, transparent);
+  /*  92 et plus 72, le 31 octobre au soir : « réduire l'opacité et
+      enlever la couleur quand on ne l'a pas encore — actuellement
+      c'est pas encore hyper clair ». Le gris y était déjà ; c'est
+      la quantité de fondu qui manquait. À 92 % le dessin n'est plus
+      qu'une empreinte dans la teinte de l'encadré, et la vignette
+      obtenue, elle, est posée sur la surface la plus claire. */
+  background-color: color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 92%, transparent);
 }
 
 /* ── 6 · à l'étroit ───────────────────────────────────────────────── */
@@ -1010,3 +1016,46 @@
   padding: var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-md, 8px);
 }
+
+/*  ── LES DEUX ÉTATS D'UN BADGE SE LISENT D'UN COUP D'ŒIL ──────────
+
+    « Je veux un fond pour ces blocs, donc faudra adapter le fond des
+    badges obtenus ou non obtenu pour que ça soit lisible. Ce serait
+    bien de réduire l'opacité et d'enlever la couleur, de passer en
+    noir et blanc quand on ne l'a pas encore. Actuellement, c'est pas
+    encore hyper clair. »
+
+    Le gris et l'opacité y étaient déjà. Ce qui manquait, c'est le
+    CONTRASTE ENTRE LES TROIS SURFACES : l'encadré, la vignette
+    obtenue et la vignette à gagner portaient trois crèmes voisines,
+    et trois crèmes voisines ne se distinguent pas.
+
+    On les écarte : l'encadré prend la teinte la plus profonde, la
+    vignette obtenue la plus claire — elle ressort de la boîte —, et
+    la vignette à gagner n'a plus de fond du tout. Elle devient un
+    trou dans l'encadré, en pointillé, et son dessin reste gris et
+    effacé. Trois surfaces, trois rôles.
+
+    SAUF AU SURVOL, où la couleur revient : l'opacité est posée sur
+    la vignette entière, et une infobulle à 30 % ne se lirait pas. */
+#modernbb .wm-tcard__famille {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  RIEN À ÉCRIRE POUR LA VIGNETTE OBTENUE : elle porte déjà la
+    surface haute du § 6, qui est plus claire que la teinte de
+    l'encadré. Les trois surfaces se distinguent donc sans elle —
+    vérifié en retirant la règle que j'avais ajoutée ici, aucun
+    contrôle ne tombe. */
+
+/*  RIEN DE PLUS SUR L'ÉTAT « À GAGNER » ICI, et j'ai écrit deux
+    règles avant de m'en rendre compte : un `background: none` qui
+    effaçait le dessin avec le fond — la raccourcie remet l'image à
+    zéro, et le dessin d'un badge EST une image de fond — puis un
+    `:hover` qui rendait la couleur, pour une infobulle que le § 6
+    protège déjà bien mieux.
+
+    Ce § 6 fond le dessin en `luminosity` plutôt que de poser un
+    `filter` sur la vignette : le gris ne touche que le fond dessiné
+    et laisse l'infobulle lisible. C'est sa teinte de fondu qu'on
+    pousse, juste en dessous, et rien d'autre. */

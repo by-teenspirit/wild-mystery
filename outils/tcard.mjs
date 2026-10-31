@@ -641,9 +641,44 @@ const badges = await p.evaluate(() => {
       if (casePkmn === null) return false;
       const a = getComputedStyle(casePkmn);
       const b = getComputedStyle(tous[0]);
+      //  LA FORME, PAS LA TEINTE. « Le même que pour les pokémons »
+      //  visait le cadre ; la teinte, elle, a dû s'en écarter pour
+      //  que les deux états d'un badge se lisent sur le fond de
+      //  l'encadré — trois crèmes voisines ne se distinguent pas.
       return a.borderTopLeftRadius === b.borderTopLeftRadius &&
-        a.backgroundColor === b.backgroundColor &&
         a.borderTopColor === b.borderTopColor;
+    })(),
+    //  TROIS SURFACES DISTINCTES : l'encadré, la vignette obtenue,
+    //  la vignette à gagner. C'est ce qui rend les deux états
+    //  lisibles, et ça ne tient que si les trois diffèrent.
+    troisSurfaces: (() => {
+      const boite = document.querySelector("#remplie .wm-tcard__famille");
+      const eu = document.querySelector(
+        "#remplie .wm-tcard__badge:not(.wm-tcard__badge--agagner)",
+      );
+      const aEu = document.querySelector("#remplie .wm-tcard__badge--agagner");
+      if (boite === null || eu === null || aEu === null) return null;
+      const f = (e) => getComputedStyle(e).backgroundColor;
+      return {
+        encadre: f(boite),
+        obtenu: f(eu),
+        aGagner: f(aEu),
+        distinctes: new Set([f(boite), f(eu), f(aEu)]).size === 3,
+        //  ET LE DESSIN D'UN BADGE À GAGNER EST GRIS ET EFFACÉ —
+        //  par un FONDU et pas par un `filter`, pour que
+        //  l'infobulle, qui vit dans la vignette, reste lisible au
+        //  moment précis où on la consulte.
+        gris: getComputedStyle(aEu).backgroundBlendMode === "luminosity",
+        efface: (() => {
+          const m = getComputedStyle(aEu).backgroundColor.match(
+            /([\d.]+)\s*\)$/,
+          );
+          //  Le fondu se mesure à l'opacité de la teinte qu'on pose
+          //  par-dessus : plus elle est opaque, plus le dessin
+          //  s'efface. En dessous de 0,85 il se voyait encore.
+          return m !== null && Number(m[1]) >= 0.85;
+        })(),
+      };
     })(),
     //  ET LE DESSIN NE TOUCHE PAS SON FOND.
     airDansLaVignette: Math.round(parseFloat(getComputedStyle(tous[0]).paddingTop)),
@@ -722,6 +757,8 @@ dire(
   "deux encadrés côte à côte, chacun sur une ligne, tout collé à gauche",
   badges !== null && badges.combien === 11 && badges.groupes === 2 &&
     badges.cadreDifferent && badges.memeFormeQueLesCases &&
+    badges.troisSurfaces !== null && badges.troisSurfaces.distinctes &&
+    badges.troisSurfaces.gris && badges.troisSurfaces.efface &&
     badges.airDansLaVignette >= 10 &&
     badges.soustitres === 2 &&
     //  LARGE : les deux encadrés côte à côte, de MÊME largeur — c'est

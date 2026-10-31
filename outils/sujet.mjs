@@ -1980,6 +1980,8 @@ const secondePasse = await p.evaluate(() => {
     rayonDeVignette: Math.round(parseFloat(g(vignettes[0]).borderTopLeftRadius)),
     airDansLaVignette: Math.round(parseFloat(g(vignettes[0]).paddingTop)),
     tailleDeVignette: Math.round(r(vignettes[0]).width),
+    origineDuDessin: g(vignettes[0]).backgroundOrigin,
+    margeDeLaRangee: Math.round(r(dd).left - r(panneau).left),
     //  ET LA BULLE N'A QU'UNE FLÈCHE. Elle est faite de quatre
     //  bordures dont une seule est teintée ; en teinter deux en
     //  dessine deux, ce qui est arrivé.
@@ -2055,7 +2057,15 @@ dire(
     //  que le fond du badge et le badge ne soient pas trop collés ».
     //  La case passe à 48 pour que le dessin garde ses 28.
     secondePasse.airDansLaVignette >= 10 &&
-    secondePasse.tailleDeVignette === 48 &&
+    secondePasse.tailleDeVignette === 58 &&
+    //  ET LE REMBOURRAGE COMPTE VRAIMENT. `background-origin` vaut
+    //  `padding-box` par défaut, ce qui place le dessin au bord
+    //  intérieur de la BORDURE : le rembourrage ne lui enlève rien,
+    //  et trois passes à l'augmenter n'ont rien changé. Seule
+    //  `content-box` le fait compter, et c'est ça qu'on mesure.
+    secondePasse.origineDuDessin === "content-box" &&
+    //  LA RANGÉE REMPLIT LA COLONNE : plus de marge de centrage.
+    secondePasse.margeDeLaRangee <= 2 &&
     secondePasse.cotesTeintesDeLaFleche === 1 &&
     Math.abs(secondePasse.milieuJaime - secondePasse.milieuIcones) <= 1,
   JSON.stringify(secondePasse),

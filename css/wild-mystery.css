@@ -7930,14 +7930,37 @@ html#min-width {
 
     La borne de la rangée suit — trois cases de 48 et deux
     gouttières —, sinon elle casserait à deux. */
+/*  ── LE REMBOURRAGE D'UNE VIGNETTE NE SERVAIT À RIEN ─────────────
+
+    « Tu as beau en rajouter, l'image n'est pas plus petite, le cadre
+    n'est pas plus grand. »
+
+    C'était vrai, et la raison est `background-origin: padding-box` —
+    la valeur par défaut. Elle place le dessin à partir du bord
+    INTÉRIEUR DE LA BORDURE, pas à partir du contenu : le
+    rembourrage ne lui enlève donc rien. Trois passes à l'augmenter
+    n'ont rien changé parce qu'il ne pouvait rien changer.
+    `content-box` est la seule valeur qui le fasse compter.
+
+    ET LA RANGÉE REMPLIT LA COLONNE. « Pas une grande marge à droite
+    ni à gauche » : la rangée était bornée à trois vignettes de 48 et
+    deux gouttières, soit 164 dans 198 — dix-sept de chaque côté,
+    laissés par le centrage. Les vignettes passent à 58 et la
+    gouttière à 12 : trois font 198, la largeur exacte de la colonne,
+    et il ne reste rien à centrer.
+
+    Le dessin y gagne deux fois : 58 moins deux fois 12 lui laissent
+    34, contre 28 avant — plus grand ET mieux entouré. */
 #modernbb .wm-profil__panneau--3 .award {
-  width: 48px;
-  height: 48px;
-  padding: var(--wm-espace-10, 10px);
+  width: 58px;
+  height: 58px;
+  padding: var(--wm-espace-12, 12px);
+  background-origin: content-box;
 }
 
 #modernbb .wm-profil__panneau--3 .dd_award {
-  max-width: calc(3 * 48px + 2 * var(--wm-espace-10, 10px));
+  max-width: calc(3 * 58px + 2 * var(--wm-espace-12, 12px));
+  gap: var(--wm-espace-12, 12px);
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -12545,6 +12568,13 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   display: flex;
   align-items: flex-start;
   gap: var(--wm-espace-8, 8px);
+  /*  LA LARGEUR DE MODERNBB EST SUR `.content` AUSSI, pas seulement
+      sur `.contentText` : mesuré, 345 px dans une ligne de 302.
+      J'avais libéré le texte et laissé son conteneur contraint, donc
+      les notifications longues débordaient toujours. */
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
@@ -12567,8 +12597,11 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
 }
 
 /*  LA CROIX EST DANS LE FLUX : la ligne n'a plus à lui réserver de
-    place à gauche. */
+    place, ni à gauche où elle était, ni à droite où elle a été. Les
+    vingt-quatre pixels de droite étaient le dernier reste de sa
+    position d'origine. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  padding-right: var(--wm-espace-10, 10px);
   padding-left: var(--wm-espace-10, 10px);
 }
 
@@ -19896,7 +19929,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   opacity: 1;
   filter: none;
   background-blend-mode: luminosity;
-  background-color: color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 72%, transparent);
+  /*  92 et plus 72, le 31 octobre au soir : « réduire l'opacité et
+      enlever la couleur quand on ne l'a pas encore — actuellement
+      c'est pas encore hyper clair ». Le gris y était déjà ; c'est
+      la quantité de fondu qui manquait. À 92 % le dessin n'est plus
+      qu'une empreinte dans la teinte de l'encadré, et la vignette
+      obtenue, elle, est posée sur la surface la plus claire. */
+  background-color: color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 92%, transparent);
 }
 
 /* ── 6 · à l'étroit ───────────────────────────────────────────────── */
@@ -20216,6 +20255,49 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   padding: var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-md, 8px);
 }
+
+/*  ── LES DEUX ÉTATS D'UN BADGE SE LISENT D'UN COUP D'ŒIL ──────────
+
+    « Je veux un fond pour ces blocs, donc faudra adapter le fond des
+    badges obtenus ou non obtenu pour que ça soit lisible. Ce serait
+    bien de réduire l'opacité et d'enlever la couleur, de passer en
+    noir et blanc quand on ne l'a pas encore. Actuellement, c'est pas
+    encore hyper clair. »
+
+    Le gris et l'opacité y étaient déjà. Ce qui manquait, c'est le
+    CONTRASTE ENTRE LES TROIS SURFACES : l'encadré, la vignette
+    obtenue et la vignette à gagner portaient trois crèmes voisines,
+    et trois crèmes voisines ne se distinguent pas.
+
+    On les écarte : l'encadré prend la teinte la plus profonde, la
+    vignette obtenue la plus claire — elle ressort de la boîte —, et
+    la vignette à gagner n'a plus de fond du tout. Elle devient un
+    trou dans l'encadré, en pointillé, et son dessin reste gris et
+    effacé. Trois surfaces, trois rôles.
+
+    SAUF AU SURVOL, où la couleur revient : l'opacité est posée sur
+    la vignette entière, et une infobulle à 30 % ne se lirait pas. */
+#modernbb .wm-tcard__famille {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  RIEN À ÉCRIRE POUR LA VIGNETTE OBTENUE : elle porte déjà la
+    surface haute du § 6, qui est plus claire que la teinte de
+    l'encadré. Les trois surfaces se distinguent donc sans elle —
+    vérifié en retirant la règle que j'avais ajoutée ici, aucun
+    contrôle ne tombe. */
+
+/*  RIEN DE PLUS SUR L'ÉTAT « À GAGNER » ICI, et j'ai écrit deux
+    règles avant de m'en rendre compte : un `background: none` qui
+    effaçait le dessin avec le fond — la raccourcie remet l'image à
+    zéro, et le dessin d'un badge EST une image de fond — puis un
+    `:hover` qui rendait la couleur, pour une infobulle que le § 6
+    protège déjà bien mieux.
+
+    Ce § 6 fond le dessin en `luminosity` plutôt que de poser un
+    `filter` sur la vignette : le gris ne touche que le fond dessiné
+    et laisse l'infobulle lisible. C'est sa teinte de fondu qu'on
+    pousse, juste en dessous, et rien d'autre. */
 
 /* ════════════════════════════════════════════════════════════════════
    19 · LES PAGES QUI NE DISENT QU'UNE PHRASE

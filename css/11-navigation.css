@@ -1552,6 +1552,13 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   display: flex;
   align-items: flex-start;
   gap: var(--wm-espace-8, 8px);
+  /*  LA LARGEUR DE MODERNBB EST SUR `.content` AUSSI, pas seulement
+      sur `.contentText` : mesuré, 345 px dans une ligne de 302.
+      J'avais libéré le texte et laissé son conteneur contraint, donc
+      les notifications longues débordaient toujours. */
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
@@ -1574,8 +1581,11 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
 }
 
 /*  LA CROIX EST DANS LE FLUX : la ligne n'a plus à lui réserver de
-    place à gauche. */
+    place, ni à gauche où elle était, ni à droite où elle a été. Les
+    vingt-quatre pixels de droite étaient le dernier reste de sa
+    position d'origine. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  padding-right: var(--wm-espace-10, 10px);
   padding-left: var(--wm-espace-10, 10px);
 }
 
