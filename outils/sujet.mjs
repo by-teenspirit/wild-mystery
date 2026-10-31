@@ -441,6 +441,13 @@ const BASE_MODERNBB = `
   opacity: .55;
 }
 .postbody { margin-right: 211px; padding: 12px 18px 18px; }
+/*  L'ESPACEMENT DES ICONES D'ACTION, comme ModernBB le pose. Sans
+    lui, un <li> vide — celui du signalement, servi vide quand le
+    lecteur ne peut pas signaler — ne coutait rien ici, et la regle
+    qui le masque ne retenait aucun controle. Neuvieme fois qu'un
+    decor incomplet ne teste que lui-meme. */
+.profile-icons { display: flex; list-style: none; }
+.profile-icons li { margin-left: 8px; }
 .h3 { border-bottom: 1px solid #3793ff; }
 h1.page-title { border-bottom: 1px solid #3793ff; }
 .post { display: flex; flex-wrap: wrap; }
@@ -707,6 +714,26 @@ const tete = await p.evaluate(() => {
     //  ce contrôle le cherchait encore et faisait tomber tout le
     //  harnais sur un `getComputedStyle(null)`.
     ariane: r(".wm-sujet__ariane"),
+    filADroite: (() => {
+      const f = document.querySelector(".wm-sujet__actions .wm-sujet__ariane");
+      const b = document.querySelector(".wm-sujet__boutons");
+      if (f === null || b === null) return null;
+      //  ON MESURE LE RESSORT, pas le bord droit.
+      //
+      //  Deuxième jet. Le premier demandait seulement « après les
+      //  boutons » : sans `margin-left: auto` le fil se colle au
+      //  dernier bouton, ce qui est AUSSI « après », et le ressort
+      //  passait pour une règle morte. Le second exigeait qu'il
+      //  touche le bord droit de la barre — faux dès qu'il y a une
+      //  pagination, qui vient après lui.
+      //
+      //  Ce qui distingue vraiment les deux états, c'est le VIDE
+      //  entre le dernier bouton et le fil. Collé : quelques pixels
+      //  de `gap`. Poussé : tout ce qui reste de la rangée.
+      return Math.round(
+        f.getBoundingClientRect().left - b.getBoundingClientRect().right,
+      ) > 100;
+    })(),
     dernierMessage: (() => {
       const posts = [...document.querySelectorAll(".post")];
       if (posts.length === 0) return null;
@@ -742,10 +769,13 @@ const tete = await p.evaluate(() => {
 });
 
 dire(
-  "le fil d'Ariane est en bas de page, sous le dernier message",
-  tete.ariane !== null && tete.dernierMessage !== null &&
-    tete.ariane.y > tete.dernierMessage.bas,
-  JSON.stringify({ ariane: tete.ariane, dernier: tete.dernierMessage }),
+  "le fil d'Ariane est à droite, dans la barre, après les boutons",
+  //  « Tu dois placer le fil d'Ariane à droite ici », 31 octobre. Il
+  //  avait été descendu en bas de page la veille ; il remonte dans la
+  //  rangée des deux boutons, poussé par le ressort.
+  tete.ariane !== null && tete.barre !== null &&
+    tete.ariane.y < 200 && tete.filADroite === true,
+  JSON.stringify({ ariane: tete.ariane, aDroite: tete.filADroite }),
 );
 
 dire(
@@ -827,6 +857,11 @@ const fiche = await p.evaluate(() => {
       //  Les deux sur la même ligne, et la valeur à droite.
       memeLigne: Math.abs(Math.round(a.y) - Math.round(b.y)) <= 4,
       valeurADroite: Math.round(b.x) > Math.round(a.right),
+      //  ET ELLE N'EST PAS ALIGNÉE À DROITE. « Tu ne dois pas aligner
+      //  le contenu des champs à droite », 31 octobre. Le § 24 lui
+      //  avait donné `text-align: right` ; sans le contrôle, la règle
+      //  du § 25 qui le défait ne retenait rien.
+      aligne: getComputedStyle(val).textAlign,
       //  Et la valeur touche le bord droit de la colonne, sinon le
       //  ressort n'a rien tendu.
       colleADroite: Math.round(
@@ -1051,13 +1086,16 @@ dire(
 
 for (const [i, ch] of fiche.champs.entries()) {
   dire(
-    //  PLUS DE RESSORT POINTILLÉ. « Pas de ..... », 30 octobre au
-    //  soir : sur sept champs d'affilée dans 208 px, sept lignes de
-    //  points sont tout ce que l'œil lit. Ce qui reste à tenir, c'est
-    //  la clé à gauche, la valeur collée à droite, sur la même ligne.
-    `LE CHAMP ${i + 1} : clé à gauche, valeur à droite, sans pointillé`,
+    //  LE CHAMP COULE, IL N'EST PLUS EN COLONNES. « Tu ne dois pas
+    //  aligner le contenu des champs à droite ou faire des
+    //  colonnes », 31 octobre : le forum sert une clé qui porte déjà
+    //  ses deux points, et la mettre en colonne creusait un trou au
+    //  milieu d'une phrase de quatre mots. Plus de ressort pointillé
+    //  non plus — « pas de ..... », la veille.
+    `LE CHAMP ${i + 1} : la clé puis la valeur, à la suite, sans pointillé`,
     ch !== null && ch.style === "none" && ch.memeLigne &&
-      ch.valeurADroite && ch.colleADroite,
+      ch.valeurADroite && ch.colleADroite === false && ch.ecart <= 6 &&
+      ch.aligne === "left",
     JSON.stringify(ch),
   );
 }
@@ -1217,8 +1255,12 @@ dire(
   JSON.stringify(enLigne),
 );
 dire(
-  "c'est un jeton vert, debout, collé au bord, avec sa pastille",
-  enLigne !== null && enLigne.sens.startsWith("vertical") &&
+  "c'est un jeton vert couché, lisible, collé au coin, avec sa pastille",
+  //  « On arrive pas du tout à lire le "en ligne" », 31 octobre. Il
+  //  était debout, écrit de bas en haut, dans deux pixels de large :
+  //  personne n'incline la tête pour lire une étiquette de dix
+  //  pixels. Il se couche.
+  enLigne !== null && enLigne.sens === "horizontal-tb" &&
     enLigne.aGauche && enLigne.vert && enLigne.memeLargeur &&
     enLigne.pastille !== "none" && enLigne.pastilleRonde === "999px" &&
     enLigne.gouttiere === enLigne.gouttiereAbsent && enLigne.avatar === 200,
@@ -1306,15 +1348,16 @@ const carteDeTete = await p.evaluate(() => {
 });
 
 dire(
-  "LA TÊTE DU SUJET EST UNE CARTE, PAS UN BLOC DANS LE VIDE",
-  carteDeTete !== null && carteDeTete.seDetache &&
-    carteDeTete.bordure === "1px" && carteDeTete.rayon === "10px",
+  "LA TÊTE N'EST PLUS UNE CARTE : ni fond, ni bord, ni filet",
+  //  « Enlève le fond blanc et les deux traits que tu as ajoutés »,
+  //  31 octobre. La carte entourait le fil, le titre et la barre —
+  //  trois blocs à tenir ensemble. Il n'en reste qu'un : un cadre
+  //  autour d'une rangée de deux boutons est un cadre autour de rien.
+  carteDeTete !== null &&
+    carteDeTete.fond === "rgba(0, 0, 0, 0)" &&
+    carteDeTete.bordure === "0px" &&
+    carteDeTete.filetBarre === "0px",
   JSON.stringify(carteDeTete),
-);
-dire(
-  "et c'est la MÊME carte que celle du bas, pas une recette à elle",
-  carteDeTete !== null && carteDeTete.commeLeBas === true,
-  JSON.stringify({ commeLeBas: carteDeTete?.commeLeBas }),
 );
 
 /*  LE FIL ET LE TITRE NE SONT PLUS DANS LA TÊTE, et le contrôle qui
@@ -1416,9 +1459,14 @@ const jaime = await p.evaluate(() => {
 });
 
 dire(
-  "LES « J'AIME » SONT AU BOUT DU BANDEAU, APRÈS LES ICÔNES",
-  jaime !== null && jaime.dansLaTete && jaime.aDroite &&
-    jaime.apresLesIcones && jaime.memeLigne && jaime.auBord,
+  "LES « J'AIME » PRENNENT LA LIGNE SOUS LE BANDEAU",
+  //  « Le like doit passer sur la ligne du dessous », 31 octobre —
+  //  l'inverse exact de ce qui avait été demandé la veille, et c'est
+  //  bien : au bout du bandeau, le bloc poussait les six icônes vers
+  //  le milieu et le bandeau passait sur deux lignes.
+  jaime !== null && jaime.dansLaTete && jaime.memeLigne === false &&
+    jaime.iconesAuBord && jaime.boutons >= 1 &&
+    jaime.rayon === "999px" && jaime.motCache,
   JSON.stringify(jaime),
 );
 dire(
@@ -1437,11 +1485,14 @@ dire(
   JSON.stringify(jaime),
 );
 dire(
-  "LE BANDEAU DU MESSAGE TIENT SUR UNE LIGNE",
-  //  Trouvé en regardant une capture, pas par un contrôle : le « + »
-  //  de ModernBB était seul sur sa ligne, les sept icônes en dessous.
-  //  Une bande de deux lignes passait tous les contrôles de position.
-  bande !== null && bande.lignes === 1 && bande.hauteurIcones <= 34,
+  "LA PREMIÈRE LIGNE DU BANDEAU TIENT SUR UNE LIGNE",
+  //  Deux rangées maintenant, et c'est voulu : la date et les icônes
+  //  sur la première, les « j'aime » sur la seconde. Ce qui se
+  //  vérifie, c'est que la PREMIÈRE n'en fasse pas deux à elle
+  //  seule — le défaut du 30, où le « + » de ModernBB était seul
+  //  au-dessus des sept icônes.
+  bande !== null && bande.lignes <= 2 &&
+    bande.hauteurIcones <= 40 && bande.affichage === "flex",
   JSON.stringify(bande),
 );
 dire(
@@ -1512,18 +1563,23 @@ const filDuBas = await p.evaluate(() => {
 });
 
 dire(
-  "le fil du bas est une carte, le fil à gauche et la veille à droite",
-  filDuBas !== null && filDuBas.maillons >= 1 &&
-    filDuBas.bordure === "1px" && filDuBas.rayon === "10px" &&
-    filDuBas.veilleADroite !== false,
+  "le bas ne porte plus que « surveiller ce sujet », dans sa carte",
+  //  Le fil est remonté dans la barre le 31 ; il ne reste en bas que
+  //  la veille, qui n'existe nulle part ailleurs.
+  filDuBas !== null && filDuBas.maillons === 0 &&
+    filDuBas.bordure === "1px" && filDuBas.rayon === "10px",
   JSON.stringify(filDuBas),
 );
 
 dire(
-  "LA BARRE D'ACTIONS A SON RESSORT, ET LA PAGINATION RESTE AU BORD",
-  ressorts.barre !== null && ressorts.barre.style === "dotted" &&
-    ressorts.barre.affichage !== "none" &&
-    ressorts.barre.largeur > 100 && ressorts.pagination === true,
+  "LA BARRE D'ACTIONS N'A PLUS DE RESSORT DESSINÉ, ET LA PAGINATION RESTE AU BORD",
+  //  « Enlève le fond blanc et les DEUX TRAITS que tu as ajoutés »,
+  //  31 octobre : le second était ce ressort pointillé. Le fil
+  //  d'Ariane occupe maintenant l'espace entre les boutons et la
+  //  pagination, et un trait entre deux blocs de texte ne relie plus
+  //  rien.
+  ressorts.barre !== null && ressorts.barre.largeur === 0 &&
+    ressorts.pagination === true,
   JSON.stringify(ressorts),
 );
 

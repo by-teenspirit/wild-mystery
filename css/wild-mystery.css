@@ -7013,6 +7013,285 @@ html#min-width {
   margin-top: 0;
 }
 
+
+/* ── 25 · les retours du 31 octobre ────────────────────────────────── */
+
+/*  Relevés dans le forum lui-même, cette fois : Callista a collé le
+    HTML servi, et plusieurs règles du 30 visaient des classes que
+    ModernBB n'emploie pas. Ce qui suit corrige ce qui précède. */
+
+/*  ── LA TÊTE N'EST PLUS UNE CARTE ─────────────────────────────────
+
+    « Enlève le fond blanc et les deux traits que tu as ajoutés. » La
+    carte du § 21 entourait le fil, le titre et la barre — trois blocs
+    qui avaient besoin d'être tenus ensemble. Il n'en reste qu'un : la
+    barre. Une carte autour d'une rangée de deux boutons, c'est un
+    cadre autour de rien. */
+#modernbb .wm-sujet__tete {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+#modernbb .wm-sujet__tete .wm-sujet__actions {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: 0;
+  border: 0;
+}
+
+/*  Le ressort du § 16 dessinait un filet pointillé dans la barre.
+    C'est le second des « deux traits ». */
+#modernbb .wm-sujet__actions::after,
+#modernbb .wm-sujet__actions::before {
+  content: none;
+}
+
+/*  ── LE FIL D'ARIANE, À DROITE DE LA BARRE ────────────────────────
+
+    Le ressort est sur lui : les boutons restent à gauche, il part à
+    droite, et la pagination vient se coller derrière. */
+#modernbb .wm-sujet__actions .wm-sujet__ariane {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /*  `0 1 auto` ET PAS `1 1 auto` : le § 24 le faisait grandir, pour
+      un fil qui était alors seul dans sa carte en bas de page. Ici
+      il partage la rangée — étiré, il mesurait 931 px et son bord
+      droit ne touchait plus rien, `margin-left: auto` n'ayant plus
+      de vide à pousser. */
+  flex: 0 1 auto;
+  margin-left: auto;
+  gap: var(--wm-espace-6, 6px);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-align: right;
+}
+
+#modernbb .wm-sujet__actions .wm-sujet__ariane a {
+  color: var(--wm-texte-doux, #6e5749);
+  text-decoration: none;
+}
+
+#modernbb .wm-sujet__actions .wm-sujet__ariane a:hover {
+  color: var(--wm-accent-primaire, #275e7a);
+  text-decoration: underline;
+}
+
+/*  ── « NOUVEAU » EST L'ACTION, « RÉPONDRE » LA SECONDE ────────────
+
+    « Le bouton Nouveau doit être de fond bleu et blanc. Le bouton
+    répondre doit ressembler au bouton secondaire. »
+
+    ModernBB donne la même classe `button1` aux deux ; le gabarit en
+    ajoute une par rôle, parce qu'une différence de rôle ne se lit pas
+    dans l'ordre des nœuds. */
+#modernbb .wm-sujet__boutons .wm-sujet__nouveau {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-sujet__boutons .wm-sujet__nouveau:hover {
+  background: var(--wm-accent-fort, #1f5470);
+}
+
+#modernbb .wm-sujet__boutons .wm-sujet__repondre {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-sujet__boutons .wm-sujet__repondre:hover {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/*  ── « SUJET : » DEVANT LE TITRE ──────────────────────────────────
+
+    Le mot est plus pâle et plus petit que le titre : c'est une
+    étiquette, pas une partie du nom du sujet. */
+#modernbb .wm-forum__bande-titre .wm-sujet__mot {
+  opacity: 0.7;
+  font-weight: var(--wm-graisse-normale, 400);
+}
+
+/*  ── « EN LIGNE » SE LIT ──────────────────────────────────────────
+
+    « On arrive pas du tout à lire le "en ligne". » Le jeton était
+    DEBOUT, écrit de bas en haut, dans deux pixels de large contre le
+    bord du message. L'idée venait de la demande du 30 — « peut-être
+    en vertical ? » — mais à dix pixels de haut et pivoté, c'est
+    illisible, et personne n'incline la tête pour lire une étiquette.
+
+    Il se couche. En haut à gauche du message, horizontal, avec sa
+    pastille devant. */
+#modernbb .post.online::before {
+  top: 0;
+  left: 0;
+  padding: 4px var(--wm-espace-10, 10px) 4px var(--wm-espace-8, 8px);
+  border-radius: 0 0 var(--wm-rayon-md, 8px) 0;
+  writing-mode: horizontal-tb;
+  transform: none;
+}
+
+#modernbb .post.online::after {
+  top: 11px;
+  bottom: auto;
+  left: var(--wm-espace-8, 8px);
+}
+
+/*  La fiche n'a plus de gouttière à réserver : le jeton est au-dessus
+    d'elle, pas à côté. */
+#modernbb .post .postprofile {
+  padding-top: var(--wm-espace-24, 24px);
+}
+
+/*  ── L'ÉQUIPE RESPIRE ─────────────────────────────────────────────
+
+    « Ajoute un padding haut et bas. » Le § 24 lui donnait une marge
+    haute et un rembourrage bas ; il manquait le haut, et la marge se
+    faisait manger par le filet du bloc au-dessus. */
+#modernbb .postprofile-equipe {
+  padding-top: var(--wm-espace-16, 16px);
+}
+
+/*  ── LES CHAMPS NE SONT PLUS EN DEUX COLONNES ─────────────────────
+
+    « Ici, tu ne dois pas aligner le contenu des champs à droite ou
+    faire des colonnes. »
+
+    CE QUE LE FORUM SERT VRAIMENT, relevé le 31 :
+
+      <span class="wm-profil__cle">
+        <span class="label"><span style="color:#444">Rythme de rp</span> : </span>
+      </span>
+      <span class="wm-profil__valeur">uc</span>
+
+    La clé PORTE DÉJÀ ses deux points, et une couleur en style inline
+    posée par le panneau. Mise en colonne, elle donnait « Rythme de
+    rp :        uc » avec un trou au milieu — deux colonnes pour une
+    phrase de quatre mots.
+
+    Le champ redevient donc du texte qui coule : la clé, ses deux
+    points, la valeur à la suite. */
+#modernbb .wm-profil__champ {
+  display: block;
+  text-align: left;
+}
+
+#modernbb .wm-profil__cle,
+#modernbb .wm-profil__valeur {
+  display: inline;
+  flex: none;
+  text-align: left;
+}
+
+/*  La couleur en style inline du panneau est battue par un
+    `!important` — c'est la règle de la planche 59 sur les styles
+    inline, et le gris #444 du panneau ignore le thème sombre. */
+#modernbb .wm-profil__champ .label span[style] {
+  color: var(--wm-texte-pale, #69564c) !important;
+}
+
+/*  ── LES « J'AIME » PASSENT SOUS LE BANDEAU ───────────────────────
+
+    « Le like doit passer sur la ligne du dessous », et « comme ça,
+    ceci est collé à droite » pour les icônes.
+
+    LE BLOC PREND SA LIGNE, les icônes gardent la première et
+    retrouvent leur ressort — c'est l'inverse exact de ce que le § 18
+    avait fait le 30, et c'est ce qui est demandé maintenant. */
+#modernbb .post-head .fa_like_div {
+  order: 5;
+  flex: 1 1 100%;
+  margin-top: var(--wm-espace-8, 8px);
+  margin-left: 0;
+}
+
+#modernbb .post-head:has(.fa_like_div) .menu-wrap {
+  margin-left: auto;
+}
+
+/*  ── CE QUE FORUMACTIF SERT VRAIMENT DANS LE BLOC « J'AIME » ──────
+
+    Relevé le 31, et deux de mes classes étaient fausses :
+
+      · le bouton voté porte `fa_liked`, PAS `voted` ;
+      · la liste est `p.fa_like_list`, PAS `.list_like`.
+
+    Les règles du § 18 et du § 24 qui les nommaient ne touchaient donc
+    rien. Elles sont réécrites ici avec les vrais noms. */
+#modernbb .post-head .fa_like_div .rep-button.fa_liked {
+  border-color: #c2567a;
+  background: color-mix(in srgb, #c2567a 16%, transparent);
+  color: #a33f61;
+}
+
+#modernbb .post-head .fa_like_div .rep-button.fa_liked > i {
+  color: #a33f61;
+}
+
+/*  LE NOMBRE A SA PASTILLE. `span.rep-nb` est servi à côté du
+    libellé caché ; sans règle, il se collait au cœur. */
+#modernbb .post-head .fa_like_div .rep-nb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 16%, transparent);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
+/*  « Arceus aime ce message », au survol du bloc. */
+#modernbb .post-head .fa_like_div .fa_like_list {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + var(--wm-espace-6, 6px));
+  left: 0;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 280px;
+  margin: 0;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-doux, #6e5749);
+  pointer-events: none;
+  opacity: 0;
+  font-size: var(--wm-taille-etiquette, 10px);
+  text-align: left;
+  visibility: hidden;
+  transition: opacity 120ms ease-out, visibility 0s linear 120ms;
+}
+
+#modernbb .post-head .fa_like_div:hover .fa_like_list,
+#modernbb .post-head .fa_like_div:focus-within .fa_like_list {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms ease-out;
+}
+
+/*  ── LES ICÔNES, COLLÉES AU BORD ──────────────────────────────────
+
+    `li.btn-report` est servi VIDE quand le lecteur ne peut pas
+    signaler — relevé le 31. Vide mais présent, il gardait sa place et
+    les six autres icônes s'arrêtaient avant le bord. */
+#modernbb .post-head .profile-icons > li:empty {
+  display: none;
+}
+
+#modernbb .post-head .profile-icons {
+  margin-right: 0;
+  padding-right: 0;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 

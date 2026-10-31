@@ -91,10 +91,10 @@ showHiddenMessage = function(id) {
 <div class="topic-actions wm-sujet__actions">
 	<div class="wm-sujet__boutons">
 		<!-- BEGIN switch_user_authpost -->
-			<a href="{U_POST_NEW_TOPIC}" rel="nofollow" {S_POST_NEW_TOPIC} title="{T_POST_NEW_TOPIC}" class="ion-{I_POST_NEW_TOPIC} button1">{L_POST_NEW_TOPIC}</a>
+			<a href="{U_POST_NEW_TOPIC}" rel="nofollow" {S_POST_NEW_TOPIC} title="{T_POST_NEW_TOPIC}" class="ion-{I_POST_NEW_TOPIC} button1 wm-sujet__nouveau">Nouveau</a>
 		<!-- END switch_user_authpost -->
 		<!-- BEGIN switch_user_authreply -->
-			<a href="{U_POST_REPLY_TOPIC}" {S_POST_REPLY_TOPIC} title="{T_POST_REPLY_TOPIC}" class="ion-{I_POST_REPLY_TOPIC} button1">{L_POST_REPLY_TOPIC}</a>
+			<a href="{U_POST_REPLY_TOPIC}" {S_POST_REPLY_TOPIC} title="{T_POST_REPLY_TOPIC}" class="ion-{I_POST_REPLY_TOPIC} button1 wm-sujet__repondre">Répondre</a>
 		<!-- END switch_user_authreply -->
 		<!-- BEGIN switch_user_authnoreply -->
 			<a href="{U_LOGIN_REPLY_TOPIC}" title="{T_LOGIN_REPLY_TOPIC}" class="login-for button1">
@@ -103,6 +103,15 @@ showHiddenMessage = function(id) {
 			</a>
 		<!-- END switch_user_authnoreply -->
 	</div>
+
+	<!--  LE FIL D'ARIANE EST ICI, À DROITE DE LA BARRE. Il avait été
+	      descendu en bas de page le 30 au soir ; « tu dois placer le
+	      fil d'Ariane à droite ici », 31 octobre. Il remonte, dans la
+	      même rangée que les deux boutons, poussé par le ressort. -->
+	<nav class="wm-sujet__ariane">
+		<a class="nav" href="{U_INDEX}"><span>{L_INDEX}</span></a>
+		{NAV_CAT_DESC}
+	</nav>
 
 	<!-- BEGIN topicpagination -->
 		<div class="pagination">
@@ -126,7 +135,7 @@ showHiddenMessage = function(id) {
 		      qu'on voit déjà — une page de sujet contient des messages
 		      — là où le titre dit DE QUOI on parle. Il n'est plus en
 		      haut de page, il est ici. -->
-		<span class="wm-forum__bande-titre">{TOPIC_TITLE}</span>
+		<span class="wm-forum__bande-titre"><span class="wm-sujet__mot">Sujet :</span> {TOPIC_TITLE}</span>
 	</div>
 
 <!-- BEGIN postrow -->
@@ -310,7 +319,7 @@ showHiddenMessage = function(id) {
 				<!-- BEGIN switch_likes_active -->
 				<div class="fa_like_div">
 					<button class="rep-button {postrow.displayed.switch_likes_active.C_VOTE_LIKE}" title="{postrow.displayed.switch_likes_active.L_LIKE}" data-href="{postrow.displayed.switch_likes_active.U_VOTE_LIKE}" data-href-rm="{postrow.displayed.switch_likes_active.U_VOTE_RM_LIKE}">
-						<i class="ion-thumbsup"></i>
+						<i class="ion-heart"></i>
 						<span>{postrow.displayed.switch_likes_active.L_LIKE}</span>{postrow.displayed.switch_likes_active.COUNT_VOTE_LIKE}
 					</button>
 						<!-- BEGIN switch_dislike_button -->
@@ -439,18 +448,16 @@ showHiddenMessage = function(id) {
       CE QUI RESTE, ET POURQUOI : `{S_WATCH_TOPIC}` — « surveiller ce
       sujet ». Il n'existe qu'ici, et le retirer priverait les joueurs
       d'une alerte qu'aucun autre écran ne propose. -->
-<div class="wm-sujet__fil">
-	<nav class="wm-sujet__ariane">
-		<a class="nav" href="{U_INDEX}"><span>{L_INDEX}</span></a>
-		{NAV_CAT_DESC}
-	</nav>
-
-	<!-- BEGIN switch_user_logged_in -->
-		<!-- BEGIN watchtopic -->
+<!--  LE FIL EST REMONTÉ DANS LA BARRE le 31 octobre. Il ne reste
+      ici que « surveiller ce sujet », qui n'existe nulle part
+      ailleurs. -->
+<!-- BEGIN switch_user_logged_in -->
+	<!-- BEGIN watchtopic -->
+		<div class="wm-sujet__fil">
 			<span class="wm-sujet__veille">{S_WATCH_TOPIC}</span>
-		<!-- END watchtopic -->
-	<!-- END switch_user_logged_in -->
-</div>
+		</div>
+	<!-- END watchtopic -->
+<!-- END switch_user_logged_in -->
 
 <!-- BEGIN promot_trafic -->
 	<div class="block" id="ptrafic_close" style="display: none;">
