@@ -6176,7 +6176,20 @@ html#min-width {
     border-color 120ms ease;
 }
 
-#modernbb .post-head .fa_like_div .rep-button > span {
+/*  `:not(.rep-nb)` ET C'EST TOUTE L'HISTOIRE DU NOMBRE INVISIBLE.
+
+    Cette règle cache le mot « J'aime » pour ne laisser que le cœur.
+    Elle visait `> span` — et Forumactif sert le compteur dans un
+    span lui aussi : `<span class="rep-nb">1</span>`. Le nombre était
+    donc caché par la règle censée cacher le libellé, et TROIS
+    corrections de sa pastille — contraste, taille, hauteur — ont
+    porté sur un élément réduit à un pixel sur un.
+
+    Mesuré sur le forum avant d'être corrigé : `height: 1px`,
+    `clip-path: inset(50%)`, `position: absolute`. La pastille était
+    parfaite et invisible. Le contrôle lisait `textContent`, qui
+    existe sous un `clip-path` : il mesure sa boîte maintenant. */
+#modernbb .post-head .fa_like_div .rep-button > span:not(.rep-nb) {
   position: absolute;
   overflow: hidden;
   width: 1px;
@@ -7809,11 +7822,15 @@ html#min-width {
     pas dessus. */
 #modernbb .wm-profil__panneau--3 .award {
   margin: 0;
-  padding: var(--wm-espace-4, 4px);
-  /*  999 et pas un jeton : il n'y a pas de jeton de rond dans
-      `jetons.css`, et c'est la même valeur en dur que les pastilles
-      du bandeau d'un message. */
-  border-radius: 999px;
+  /*  « Les badges sont trop collés au bord de leur fond » : quatre
+      pixels sur une case de 44 laissaient 36 au dessin, qui touchait
+      presque le cercle. Huit lui en laissent 28.
+
+      ET UN CARRÉ ARRONDI, PAS UN ROND : « border-radius carré
+      arrondi, pas rond ». C'est le rayon moyen de la charte, celui
+      des cases de la carte dresseur. */
+  padding: var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-md, 8px);
   background-color: var(--wm-fond-douce, #f3e1d2);
 }
 
@@ -7850,10 +7867,17 @@ html#min-width {
 }
 
 /*  LA FLÈCHE EST FAITE DE BORDURES, et c'est là que restait le
-    dernier bleu : `border-left-color: #3793ff` sur le `::after`. */
+    dernier bleu : `border-left-color: #3793ff` sur le `::after`.
+
+    UNE SEULE FLÈCHE, ET J'EN AVAIS FABRIQUÉ DEUX. En teintant la
+    gauche ET la droite pour être sûr d'attraper la bonne, j'ai rendu
+    visible le triangle opposé, qui était transparent : « j'ai deux
+    petites flèches, y'en a une de trop ». On remet donc les quatre
+    côtés à transparent et on ne teinte que celui que ModernBB
+    teinte. */
 #modernbb .award_tooltiptext::after {
+  border-color: transparent;
   border-left-color: var(--wm-fond-nuit, #3a2a22);
-  border-right-color: var(--wm-fond-nuit, #3a2a22);
 }
 
 /*  LE J'AIME EST CENTRÉ DANS SA RANGÉE, et ce n'était pas
@@ -19906,60 +19930,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     chaque élément où il va, sans toucher au code que les joueuses
     collent dans leur message.
     ══════════════════════════════════════════════════════════════════ */
-/*  EN CONTENEUR, PAS EN MÉDIA. La carte est collée dans un message,
-    et la largeur d'un message n'est pas celle de l'écran : une
-    colonne de 320 px sur un grand écran existe, et la grille à deux
-    colonnes y débordait de 139 px — mesuré. La carte se mesure donc
-    elle-même, et les deux familles ne se mettent côte à côte que
-    quand la place y est : sept badges de 44 plus six gouttières de
-    10, puis quatre de 44 plus trois gouttières, plus les 24 du
-    milieu — 538, arrondi à 560. En dessous, elles s'empilent comme
-    avant, sans un mot de plus à écrire. */
-#modernbb .wm-tcard {
-  container-type: inline-size;
-}
-
-@container (min-width: 560px) {
-  #modernbb .wm-tcard__bloc:has(.wm-tcard__badges) {
-    display: grid;
-    grid-template-areas:
-      "titre titre"
-      "sta stc"
-      "ara col";
-    grid-template-columns: auto auto;
-    justify-content: center;
-    gap: 0 var(--wm-espace-24, 24px);
-  }
-
-  #modernbb .wm-tcard__bloc:has(.wm-tcard__badges) > .wm-tcard__titre {
-    grid-area: titre;
-  }
-
-  #modernbb .wm-tcard__bloc > .wm-tcard__soustitre:nth-of-type(1) {
-    grid-area: sta;
-  }
-
-  #modernbb .wm-tcard__bloc > .wm-tcard__soustitre:nth-of-type(2) {
-    grid-area: stc;
-  }
-
-  #modernbb .wm-tcard__bloc > .wm-tcard__badges:nth-of-type(1) {
-    grid-area: ara;
-  }
-
-  #modernbb .wm-tcard__bloc > .wm-tcard__badges:nth-of-type(2) {
-    grid-area: col;
-  }
-
-  /*  LA BORNE DE TROIS SAUTE, et le retour à la ligne avec : sept
-      badges d'un côté, quatre de l'autre, chacun sur sa ligne. */
-  #modernbb .wm-tcard__bloc > .wm-tcard__badges {
-    flex-wrap: nowrap;
-    max-width: none;
-    margin-inline: 0;
-  }
-}
-
 /*  ══════════════════════════════════════════════════════════════════
     § 9 · L'AVATAR, LES CASES ET LES DEUX COLONNES, 31 OCTOBRE SOIR
     ══════════════════════════════════════════════════════════════════ */
@@ -20005,23 +19975,83 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     colosseums 35 à y=682 — les cases de la grille s'étiraient, et
     les deux mots flottaient chacun à sa hauteur. On aligne sur le
     haut, et les deux sous-titres portent la même marge. */
-@container (min-width: 560px) {
-  /*  `align-items: start` a été écrit ici puis retiré : une fois le
-      filet parti, les deux sous-titres font la même hauteur et
-      l'étirement par défaut donne exactement le même résultat.
-      Vérifié en l'enlevant. */
 
-  /*  LE FILET ENTRE LES DEUX LISTES DISPARAÎT. Il sépare deux
-      familles EMPILÉES, et c'est lui qu'on voyait traîner à gauche
-      du mot « Colosseums » : mesuré, le second sous-titre faisait
-      35 de haut contre 18 au premier — un filet, 16 de rembourrage
-      et deux lignes au lieu d'une. Côte à côte, les deux colonnes
-      se séparent toutes seules. */
-  #modernbb .wm-tcard__badges + .wm-tcard__soustitre {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
+/*  ══════════════════════════════════════════════════════════════════
+    § 10 · LES BADGES EN DEUX ENCADRÉS — 31 OCTOBRE, DERNIÈRE PASSE
+
+    « Peut-être faire deux encadrés pour les arènes et pour les
+    colosseums, coller "mes badges" tout à gauche. Dans les deux
+    encadrés, le texte collé à gauche, et les deux encadrés doivent
+    prendre toute la largeur dispo. »
+
+    LE BALISAGE A CHANGÉ, et c'est pour ça que la carte est à
+    recoller : chaque famille vit maintenant dans un
+    `.wm-tcard__famille`. On ne pouvait pas encadrer deux groupes
+    dans un balisage plat — un titre, une liste, un titre, une liste
+    — autrement qu'en posant des demi-bordures sur le sous-titre et
+    sur la liste, ce qui laisse une couture entre les deux dès que
+    l'un des deux change de hauteur.
+
+    Ça remplace aussi la grille à zones nommées du § 8, qui existait
+    uniquement pour ranger ce balisage plat en deux colonnes. Deux
+    boîtes se rangent toutes seules.
+    ══════════════════════════════════════════════════════════════════ */
+/*  LA CARTE SE MESURE ELLE-MÊME. C'est ce qui rend le `@container`
+    possible plus bas, et c'est la seule ligne que j'ai gardée du
+    § 8 en le supprimant : une carte est collée dans un message, et
+    la largeur d'un message n'est pas celle de l'écran. */
+#modernbb .wm-tcard {
+  container-type: inline-size;
+}
+
+#modernbb .wm-tcard__familles {
+  display: grid;
+  /*  DEUX COLONNES ÉGALES QUI PRENNENT TOUT : `1fr 1fr` et pas
+      `auto auto`, qui donnait à chaque colonne la largeur de ses
+      badges — sept d'un côté, quatre de l'autre, deux boîtes de
+      tailles différentes. */
+  grid-template-columns: 1fr 1fr;
+  gap: var(--wm-espace-16, 16px);
+}
+
+/*  EN DESSOUS DE 480, LES DEUX BOÎTES S'EMPILENT. En conteneur et
+    pas en média : la carte est collée dans un message, et la largeur
+    d'un message n'est pas celle de l'écran. */
+@container (max-width: 480px) {
+  #modernbb .wm-tcard__familles {
+    grid-template-columns: 1fr;
   }
+}
+
+#modernbb .wm-tcard__famille {
+  min-width: 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px)
+    var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  TOUT EST COLLÉ À GAUCHE dans les deux encadrés : le sous-titre
+    était centré, et les badges aussi. */
+#modernbb .wm-tcard__famille .wm-tcard__soustitre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  padding-top: 0;
+  border-top: 0;
+  text-align: left;
+}
+
+#modernbb .wm-tcard__famille .wm-tcard__badges {
+  max-width: none;
+  margin-inline: 0;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+/*  ET « MES BADGES » TOUT À GAUCHE. Le titre du bloc n'a plus la
+    grille centrée au-dessus de lui, donc il part du bord. */
+#modernbb .wm-tcard__bloc > .wm-tcard__titre {
+  text-align: left;
 }
 
 /* ════════════════════════════════════════════════════════════════════

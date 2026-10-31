@@ -1542,7 +1542,20 @@
     border-color 120ms ease;
 }
 
-#modernbb .post-head .fa_like_div .rep-button > span {
+/*  `:not(.rep-nb)` ET C'EST TOUTE L'HISTOIRE DU NOMBRE INVISIBLE.
+
+    Cette règle cache le mot « J'aime » pour ne laisser que le cœur.
+    Elle visait `> span` — et Forumactif sert le compteur dans un
+    span lui aussi : `<span class="rep-nb">1</span>`. Le nombre était
+    donc caché par la règle censée cacher le libellé, et TROIS
+    corrections de sa pastille — contraste, taille, hauteur — ont
+    porté sur un élément réduit à un pixel sur un.
+
+    Mesuré sur le forum avant d'être corrigé : `height: 1px`,
+    `clip-path: inset(50%)`, `position: absolute`. La pastille était
+    parfaite et invisible. Le contrôle lisait `textContent`, qui
+    existe sous un `clip-path` : il mesure sa boîte maintenant. */
+#modernbb .post-head .fa_like_div .rep-button > span:not(.rep-nb) {
   position: absolute;
   overflow: hidden;
   width: 1px;
@@ -3175,11 +3188,15 @@
     pas dessus. */
 #modernbb .wm-profil__panneau--3 .award {
   margin: 0;
-  padding: var(--wm-espace-4, 4px);
-  /*  999 et pas un jeton : il n'y a pas de jeton de rond dans
-      `jetons.css`, et c'est la même valeur en dur que les pastilles
-      du bandeau d'un message. */
-  border-radius: 999px;
+  /*  « Les badges sont trop collés au bord de leur fond » : quatre
+      pixels sur une case de 44 laissaient 36 au dessin, qui touchait
+      presque le cercle. Huit lui en laissent 28.
+
+      ET UN CARRÉ ARRONDI, PAS UN ROND : « border-radius carré
+      arrondi, pas rond ». C'est le rayon moyen de la charte, celui
+      des cases de la carte dresseur. */
+  padding: var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-md, 8px);
   background-color: var(--wm-fond-douce, #f3e1d2);
 }
 
@@ -3216,10 +3233,17 @@
 }
 
 /*  LA FLÈCHE EST FAITE DE BORDURES, et c'est là que restait le
-    dernier bleu : `border-left-color: #3793ff` sur le `::after`. */
+    dernier bleu : `border-left-color: #3793ff` sur le `::after`.
+
+    UNE SEULE FLÈCHE, ET J'EN AVAIS FABRIQUÉ DEUX. En teintant la
+    gauche ET la droite pour être sûr d'attraper la bonne, j'ai rendu
+    visible le triangle opposé, qui était transparent : « j'ai deux
+    petites flèches, y'en a une de trop ». On remet donc les quatre
+    côtés à transparent et on ne teinte que celui que ModernBB
+    teinte. */
 #modernbb .award_tooltiptext::after {
+  border-color: transparent;
   border-left-color: var(--wm-fond-nuit, #3a2a22);
-  border-right-color: var(--wm-fond-nuit, #3a2a22);
 }
 
 /*  LE J'AIME EST CENTRÉ DANS SA RANGÉE, et ce n'était pas

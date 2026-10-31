@@ -1635,8 +1635,26 @@ const jaime = await p.evaluate(() => {
     motLu: mot.textContent.trim(),
     motCache: Math.round(r(mot).width) <= 1,
     motAffiche: stMot.display,
-    //  ET LE COMPTE RESTE VISIBLE : c'est tout ce qu'on garde du texte.
+    //  ET LE COMPTE EST VRAIMENT VISIBLE — mesuré, pas lu.
+    //
+    //  L'ancienne version lisait `textContent` et le trouvait
+    //  toujours : un texte existe même sous `clip-path: inset(50%)`.
+    //  Le nombre était caché depuis le début par la règle qui cache
+    //  le mot « J'aime », parce que Forumactif le sert dans un span
+    //  lui aussi — et trois corrections de sa pastille ont porté sur
+    //  un élément réduit à un pixel sur un. On mesure donc sa BOÎTE.
     compte: boutons[0].textContent.replace(mot.textContent, "").trim(),
+    pastilleDuNombre: (() => {
+      const nb = boutons[0].querySelector(".rep-nb");
+      if (nb === null) return null;
+      const st = getComputedStyle(nb);
+      return {
+        hauteur: Math.round(r(nb).height),
+        largeur: Math.round(r(nb).width),
+        rogne: st.clipPath !== "none",
+        dansLeFlux: st.position !== "absolute",
+      };
+    })(),
     //  LES DEUX ÉTATS SE DISTINGUENT.
     fondVote: st.backgroundColor,
     fondNonVote: second === null ? null : getComputedStyle(second).backgroundColor,
@@ -1673,6 +1691,11 @@ dire(
   "LE BOUTON EST UNE PASTILLE, LE MOT CACHÉ À L'ŒIL MAIS PAS AU LECTEUR",
   jaime !== null && jaime.boutons === 2 && jaime.rayon === "999px" &&
     jaime.hauteur === 26 && jaime.motLu === "J'aime" && jaime.motCache &&
+    jaime.pastilleDuNombre !== null &&
+    jaime.pastilleDuNombre.hauteur >= 16 &&
+    jaime.pastilleDuNombre.largeur >= 16 &&
+    jaime.pastilleDuNombre.rogne === false &&
+    jaime.pastilleDuNombre.dansLeFlux &&
     //  `display: none` le rendrait muet : « bouton, 3 ».
     jaime.motAffiche !== "none" && jaime.compte === "3",
   JSON.stringify(jaime),
@@ -1913,6 +1936,19 @@ const secondePasse = await p.evaluate(() => {
     tienneDedans,
     fondDeVignette: g(vignettes[0]).backgroundColor,
     margeDeVignette: g(vignettes[0]).marginLeft,
+    //  UN CARRÉ ARRONDI, PAS UN ROND, et le dessin ne touche pas le
+    //  bord de son fond.
+    rayonDeVignette: Math.round(parseFloat(g(vignettes[0]).borderTopLeftRadius)),
+    airDansLaVignette: Math.round(parseFloat(g(vignettes[0]).paddingTop)),
+    //  ET LA BULLE N'A QU'UNE FLÈCHE. Elle est faite de quatre
+    //  bordures dont une seule est teintée ; en teinter deux en
+    //  dessine deux, ce qui est arrivé.
+    cotesTeintesDeLaFleche: (() => {
+      const st = g(panneau.querySelector(".award_tooltiptext"), "::after");
+      return ["Top", "Right", "Bottom", "Left"]
+        .filter((c) => !/, 0\)$|transparent/.test(st["border" + c + "Color"]))
+        .length;
+    })(),
     //  LE J'AIME EST CENTRÉ SUR LES ICÔNES : on compare les milieux,
     //  parce que les deux boîtes n'ont pas la même hauteur de contenu.
     milieuJaime: Math.round(r(bouton).top + r(bouton).height / 2),
@@ -1974,6 +2010,9 @@ dire(
     secondePasse.tienneDedans &&
     secondePasse.margeDeVignette === "0px" &&
     secondePasse.fondDeVignette !== "rgba(0, 0, 0, 0)" &&
+    secondePasse.rayonDeVignette > 0 && secondePasse.rayonDeVignette <= 12 &&
+    secondePasse.airDansLaVignette >= 8 &&
+    secondePasse.cotesTeintesDeLaFleche === 1 &&
     Math.abs(secondePasse.milieuJaime - secondePasse.milieuIcones) <= 1,
   JSON.stringify(secondePasse),
 );

@@ -186,14 +186,24 @@ def badges(de: random.Random) -> tuple[str, int]:
     obtenues = set(de.sample(range(len(ARENES)), combien))
     colos = set(de.sample(range(len(COLOSSEUMS)), de.randint(0, 2)))
     return (
-        '<span class="wm-tcard__soustitre">Arènes</span>\n'
-        '      <ul class="wm-tcard__badges" data-wm-tcard-badges>\n'
+        #  DEUX ENCADRÉS depuis le 31 au soir, un par famille : le
+        #  balisage plat ne permettait pas de les encadrer, et
+        #  simuler deux boîtes avec des bordures sur le sous-titre
+        #  et sur la liste aurait laissé une couture entre les deux.
+        '<div class="wm-tcard__familles">\n'
+        + '        <div class="wm-tcard__famille">\n'
+        + '          <span class="wm-tcard__soustitre">Arènes</span>\n'
+        + '          <ul class="wm-tcard__badges" data-wm-tcard-badges>\n'
         + liste(ARENES, "Arène", obtenues) + "\n"
-        + "      </ul>\n"
-        + '      <span class="wm-tcard__soustitre">Colosseums</span>\n'
-        + '      <ul class="wm-tcard__badges">\n'
+        + "          </ul>\n"
+        + "        </div>\n"
+        + '        <div class="wm-tcard__famille">\n'
+        + '          <span class="wm-tcard__soustitre">Colosseums</span>\n'
+        + '          <ul class="wm-tcard__badges">\n'
         + liste(COLOSSEUMS, "Colosseum", colos) + "\n"
-        + "      </ul>",
+        + "          </ul>\n"
+        + "        </div>\n"
+        + "      </div>",
         combien,
     )
 

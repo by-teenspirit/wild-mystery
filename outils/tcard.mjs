@@ -225,10 +225,16 @@ function carteRemplie() {
     </section>
     <section class="wm-tcard__bloc">
       <h4 class="wm-tcard__titre">Mes badges</h4>
-      <span class="wm-tcard__soustitre">Arènes</span>
-      <ul class="wm-tcard__badges" data-wm-tcard-badges>${badges}</ul>
-      <span class="wm-tcard__soustitre">Colosseums</span>
-      <ul class="wm-tcard__badges">${colosseums}</ul>
+      <div class="wm-tcard__familles">
+        <div class="wm-tcard__famille">
+          <span class="wm-tcard__soustitre">Arènes</span>
+          <ul class="wm-tcard__badges" data-wm-tcard-badges>${badges}</ul>
+        </div>
+        <div class="wm-tcard__famille">
+          <span class="wm-tcard__soustitre">Colosseums</span>
+          <ul class="wm-tcard__badges">${colosseums}</ul>
+        </div>
+      </div>
     </section>
   </div>
 </div>`;
@@ -526,10 +532,47 @@ const badges = await p.evaluate(() => {
     //  « une colonne pour les arènes et une colonne pour les
     //  colosseums, et tu me mets tout sur une ligne », 31 octobre.
     deuxColonnes: (() => {
-      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__badges");
+      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__famille");
       if (b === undefined) return false;
       return Math.abs(Math.round(r(a).top) - Math.round(r(b).top)) <= 1 &&
         Math.round(r(a).right) <= Math.round(r(b).left);
+    })(),
+    //  ET CE SONT DE VRAIS ENCADRÉS : un filet, un fond, un arrondi.
+    //  Sans ça « deux encadrés » ne voudrait dire que « deux
+    //  colonnes », et la règle qui les dessine ne retiendrait rien.
+    encadre: (() => {
+      const b = document.querySelector("#remplie .wm-tcard__famille");
+      const st = getComputedStyle(b);
+      return {
+        filet: Math.round(parseFloat(st.borderTopWidth)),
+        arrondi: Math.round(parseFloat(st.borderTopLeftRadius)),
+        air: Math.round(parseFloat(st.paddingTop)),
+        fond: st.backgroundColor,
+      };
+    })(),
+    //  DEUX ENCADRÉS DE MÊME LARGEUR, qui remplissent la rangée.
+    encadresEgaux: (() => {
+      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__famille");
+      if (b === undefined) return false;
+      return Math.abs(Math.round(r(a).width) - Math.round(r(b).width)) <= 1;
+    })(),
+    encadresPrennentTout: (() => {
+      const f = document.querySelector("#remplie .wm-tcard__familles");
+      const [a, b] = f.querySelectorAll(".wm-tcard__famille");
+      if (b === undefined) return false;
+      return Math.round(r(a).left) === Math.round(r(f).left) &&
+        Math.round(r(b).right) === Math.round(r(f).right);
+    })(),
+    //  TOUT À GAUCHE DANS L'ENCADRÉ : le sous-titre et les badges
+    //  partent du même bord, celui du rembourrage de la boîte.
+    touteLaGauche: (() => {
+      const boite = document.querySelector("#remplie .wm-tcard__famille");
+      const st = boite.querySelector(".wm-tcard__soustitre");
+      const premier = boite.querySelector(".wm-tcard__badge");
+      const bord = Math.round(r(boite).left) +
+        Math.round(parseFloat(getComputedStyle(boite).paddingLeft));
+      return getComputedStyle(st).textAlign === "left" &&
+        Math.abs(Math.round(r(premier).left) - bord) <= 1;
     })(),
     //  ET ELLES S'EMPILENT QUAND LA CARTE EST ÉTROITE. La carte est
     //  collée dans un message, dont la largeur n'est pas celle de
@@ -541,7 +584,7 @@ const badges = await p.evaluate(() => {
       const avant = carte.style.width;
       carte.style.width = "360px";
       void carte.offsetWidth;
-      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__badges");
+      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__famille");
       const empile = Math.round(r(b).top) > Math.round(r(a).top);
       const parRang = (() => {
         const lignes = {};
@@ -633,20 +676,24 @@ dire(
 );
 
 dire(
-  "les arènes en colonne, les colosseums en colonne, le tout sur une ligne",
+  "deux encadrés égaux, côte à côte, tout collé à gauche dedans",
   badges !== null && badges.combien === 11 && badges.groupes === 2 &&
     badges.cadreDifferent && badges.ronds &&
     badges.soustitres === 2 &&
-    //  LARGE : une seule rangée de sept, et les quatre colosseums à
-    //  sa droite, à la même hauteur.
-    badges.parRang.length === 1 && badges.parRang[0] === 7 &&
-    badges.rangees === 1 && badges.deuxColonnes &&
-    //  ÉTROIT : les deux familles s'empilent et les arènes repassent
-    //  à trois par rangée. Sans ce second cas, le `@container` ne
-    //  retiendrait rien.
-    badges.empileSiEtroit.empile &&
-    badges.empileSiEtroit.parRang.every((n) => n <= 3) &&
-    badges.empileSiEtroit.parRang.filter((n) => n === 3).length >= 2,
+    //  LARGE : les deux encadrés côte à côte, de MÊME largeur — c'est
+    //  `1fr 1fr` et pas `auto auto`, qui taillait chaque boîte sur
+    //  ses badges : sept d'un côté, quatre de l'autre.
+    badges.deuxColonnes && badges.encadresEgaux &&
+    badges.encadresPrennentTout &&
+    badges.encadre.filet >= 1 && badges.encadre.arrondi >= 8 &&
+    badges.encadre.air >= 12 &&
+    badges.encadre.fond !== "rgba(0, 0, 0, 0)" &&
+    //  ET TOUT EST COLLÉ À GAUCHE DEDANS : le sous-titre comme la
+    //  première rangée de badges.
+    badges.touteLaGauche &&
+    //  ÉTROIT : les deux encadrés s'empilent. Sans ce second cas, le
+    //  `@container` ne retiendrait rien.
+    badges.empileSiEtroit.empile,
   JSON.stringify(badges),
 );
 
