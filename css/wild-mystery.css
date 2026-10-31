@@ -7951,15 +7951,28 @@ html#min-width {
 
     Le dessin y gagne deux fois : 58 moins deux fois 12 lui laissent
     34, contre 28 avant — plus grand ET mieux entouré. */
+/*  TROIS PAR RANGÉE, ET LA LARGEUR SE CALCULE AU LIEU DE S'ÉCRIRE.
+
+    J'avais posé 58 px pour que trois tiennent dans les 198 de la
+    colonne. Mesuré ensuite : la rangée n'en fait que 190, parce que
+    le panneau défile et que sa barre en prend huit. Trois de 58 plus
+    deux gouttières en demandent 198 — il n'en passait que deux.
+
+    Une largeur en pourcentage de la rangée n'a pas ce problème :
+    trois tiennent quelle que soit la place, barre de défilement
+    comprise, et ils la remplissent exactement. Plus de borne à
+    tenir à jour, plus de marge de centrage. */
 #modernbb .wm-profil__panneau--3 .award {
-  width: 58px;
-  height: 58px;
+  width: calc((100% - 2 * var(--wm-espace-12, 12px)) / 3);
+  height: auto;
+  aspect-ratio: 1;
   padding: var(--wm-espace-12, 12px);
   background-origin: content-box;
 }
 
 #modernbb .wm-profil__panneau--3 .dd_award {
-  max-width: calc(3 * 58px + 2 * var(--wm-espace-12, 12px));
+  max-width: none;
+  margin-inline: 0;
   gap: var(--wm-espace-12, 12px);
 }
 
@@ -12581,12 +12594,25 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   order: -1;
   position: static;
   flex: 0 0 auto;
+  /*  UN REMBOURRAGE ÉGAL DE TOUS LES CÔTÉS. « Quand je survole la
+      croix, le fond colle à la croix » : la cible faisait 22 de
+      large et la hauteur d'une ligne, donc le fond du survol
+      épousait le glyphe d'un côté et pas de l'autre. Carré, il
+      entoure la croix pareil partout. */
+  box-sizing: border-box;
+  width: calc(var(--wm-interligne-legende, 1.45) * 1em + 2 *
+    var(--wm-espace-4, 4px));
+  padding: var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-xs, 4px);
   /*  LA HAUTEUR D'UNE LIGNE DE TEXTE, pas une valeur à soi : c'est
       ce qui met la croix au milieu de la PREMIÈRE ligne, et elle y
       reste quand la notification en prend deux. */
   display: flex;
   align-items: center;
-  height: calc(var(--wm-interligne-legende, 1.45) * 1em);
+  justify-content: center;
+  height: calc(var(--wm-interligne-legende, 1.45) * 1em + 2 *
+    var(--wm-espace-4, 4px));
+  margin-top: calc(-1 * var(--wm-espace-4, 4px));
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText {
@@ -19850,19 +19876,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     LE TEXTE EST DANS LE GABARIT, pas dans la feuille : le nom d'une
     arène et la date d'un badge sont des données. Le CSS ne fait que
     les montrer. */
+/*  L'INFOBULLE SUIT SON BADGE, depuis le 31 au soir. Elle était
+    ancrée à la RANGÉE, avec `left: 0` : elle s'ouvrait donc toujours
+    au même endroit, au bord gauche, quel que soit le badge survolé —
+    « l'infobulle reste collée, est-ce que tu peux faire en sorte que
+    ça suive chacun des badges ? »
+
+    La rangée servait d'ancre parce que le badge porte
+    `overflow: hidden` et aurait rogné sa propre bulle. Mais cet
+    `overflow` ne sert à rien ici : le dessin est une image de FOND,
+    et un fond est déjà découpé par le rayon de la bordure. On le
+    rend donc visible, le badge devient l'ancre, et la bulle se
+    centre au-dessus de lui. */
 #modernbb .wm-tcard__badges {
-  position: relative;
+  position: static;
 }
 
 #modernbb .wm-tcard__badge {
-  position: static;
+  position: relative;
+  overflow: visible;
 }
 
 #modernbb .wm-tcard__bulle {
   position: absolute;
   z-index: 3;
   bottom: calc(100% + var(--wm-espace-8, 8px));
-  left: 0;
+  left: 50%;
+  translate: -50%;
   box-sizing: border-box;
   width: max-content;
   max-width: 100%;
@@ -20277,8 +20317,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     SAUF AU SURVOL, où la couleur revient : l'opacité est posée sur
     la vignette entière, et une infobulle à 30 % ne se lirait pas. */
+/*  L'ENCADRÉ PORTE LA MÊME SURFACE QU'UNE CASE DE POKÉMON — « le
+    fond ici doit être le même que ici ». Les deux vignettes s'en
+    écartent alors dans les deux sens : l'obtenue vers le clair,
+    celle à gagner vers la teinte profonde de son fondu. Trois
+    surfaces, et aucune n'est celle de sa voisine. */
 #modernbb .wm-tcard__famille {
-  background: var(--wm-fond-douce, #f3e1d2);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-tcard__badge:not(.wm-tcard__badge--agagner) {
+  background-color: var(--wm-fond-surface, #fffbf7);
 }
 
 /*  RIEN À ÉCRIRE POUR LA VIGNETTE OBTENUE : elle porte déjà la
@@ -20298,6 +20347,99 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     `filter` sur la vignette : le gris ne touche que le fond dessiné
     et laisse l'infobulle lisible. C'est sa teinte de fondu qu'on
     pousse, juste en dessous, et rien d'autre. */
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 11 · LE BANDEAU PORTE LA NATURE DU DRESSEUR — 31 OCTOBRE
+
+    « Tu peux mettre en image de fond le pokémon et la couleur du
+    groupe de la personne ? »
+
+    Les six natures de la planche 79 ont chacune leur légendaire :
+    Hardi · Keldeo, Sérieux · Uxie, Malin · Hoopa, Doux · Shaymin,
+    Brave · Cresselia, Jovial · Celebi. Et les douze jetons
+    `--wm-groupe-…` portent déjà leurs couleurs.
+
+    LA CARTE DIT SA NATURE PAR UN ATTRIBUT, `data-wm-nature`, et rien
+    d'autre. Le code collé ne connaît pas le groupe Forumactif de
+    celle qui le colle ; c'est `mod-tcard` qui le lira, comme il lira
+    le palier — le groupe est la même source pour les deux. En
+    attendant, une joueuse peut l'écrire à la main.
+
+    SANS ATTRIBUT, LE BANDEAU NE CHANGE PAS : le dégradé d'origine
+    reste le repli, et une carte collée avant aujourd'hui garde
+    exactement la tête qu'elle avait.
+
+    LES IMAGES NE SONT PAS EN `data:` comme les badges. Les badges
+    pèsent deux kilos chacun et vivent dans la feuille ; ces six-là
+    en pèsent quatre-vingts, et les mettre dans la feuille
+    ajouterait un demi-mégaoctet que tout le monde téléchargerait
+    pour en voir une. L'adresse est relative à la feuille, donc elle
+    suit le dépôt sans nommer d'hébergeur.
+    ══════════════════════════════════════════════════════════════════ */
+/*  LE BANDEAU NE CHANGE QUE SI LA CARTE DIT SA NATURE. Sans
+    l'attribut, aucune de ces règles ne s'applique et le dégradé de
+    `13-composants.css` reste intact — une carte collée hier garde
+    exactement la tête qu'elle avait. Les deux variables sont
+    locales à la carte, pas des jetons : pas de préfixe `--wm-`,
+    pas de repli non plus — chaque nature les écrit toutes les
+    deux, et `jetons.css` n'a rien à en dire. */
+#modernbb .wm-tcard[data-wm-nature] .wm-dresseur {
+  background-image:
+    /*  LE VOILE, posé PAR-DESSUS la mascotte : les trois compteurs
+        vivent à droite, et sans lui « 1 240 » et « 3 / 11 » se
+        perdaient dans le légendaire dès que la carte rétrécissait.
+        Il ne touche que le fond ; le texte, qui est du DOM, passe
+        au-dessus de tout. */
+    linear-gradient(to right, transparent 50%, rgba(27, 19, 48, 0.62) 92%),
+    var(--tcard-mascotte),
+    linear-gradient(
+      to right,
+      #1b1330 0%,
+      color-mix(in srgb, var(--tcard-teinte) 45%, #1b1330) 55%,
+      var(--tcard-teinte) 100%
+    );
+  background-repeat: no-repeat;
+  /*  LA MASCOTTE EST UN FILIGRANE, PAS UNE ILLUSTRATION. Posée nette
+      à droite, elle passait sous les trois compteurs et on ne lisait
+      plus ni l'argent ni le nombre de badges. Elle sort donc large
+      par la droite et par le bas, et elle se FOND dans le dégradé —
+      `soft-light` garde sa silhouette sans ramener son contraste. Le
+      même raisonnement que les badges à gagner : un fondu plutôt
+      qu'un `filter`, qui aurait aussi délavé le texte par-dessus. */
+  background-position: center, right -70px bottom -45px, center;
+  background-size: cover, auto 185%, cover;
+  background-blend-mode: normal, soft-light, normal;
+}
+
+#modernbb .wm-tcard[data-wm-nature="hardi"] {
+  --tcard-mascotte: url("../img/natures/keldeo.png");
+  --tcard-teinte: var(--wm-groupe-hardi-texte);
+}
+
+#modernbb .wm-tcard[data-wm-nature="serieux"] {
+  --tcard-mascotte: url("../img/natures/uxie.png");
+  --tcard-teinte: var(--wm-groupe-serieux-texte);
+}
+
+#modernbb .wm-tcard[data-wm-nature="malin"] {
+  --tcard-mascotte: url("../img/natures/hoopa.png");
+  --tcard-teinte: var(--wm-groupe-malin-texte);
+}
+
+#modernbb .wm-tcard[data-wm-nature="doux"] {
+  --tcard-mascotte: url("../img/natures/shaymin.png");
+  --tcard-teinte: var(--wm-groupe-doux-texte);
+}
+
+#modernbb .wm-tcard[data-wm-nature="brave"] {
+  --tcard-mascotte: url("../img/natures/cresselia.png");
+  --tcard-teinte: var(--wm-groupe-brave-texte);
+}
+
+#modernbb .wm-tcard[data-wm-nature="jovial"] {
+  --tcard-mascotte: url("../img/natures/celebi.png");
+  --tcard-teinte: var(--wm-groupe-jovial-texte);
+}
 
 /* ════════════════════════════════════════════════════════════════════
    19 · LES PAGES QUI NE DISENT QU'UNE PHRASE

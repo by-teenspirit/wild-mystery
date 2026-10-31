@@ -287,7 +287,7 @@ def main() -> None:
      au survol d'un Pokémon.
      ══════════════════════════════════════════════════════════════════ -->
 
-<div class="wm-tcard" data-wm-tcard>
+<div class="wm-tcard" data-wm-tcard data-wm-nature="brave">
 
   <div class="wm-dresseur">
     {avatar}

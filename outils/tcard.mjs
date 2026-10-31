@@ -189,7 +189,7 @@ function carteRemplie() {
     )
     .join("");
 
-  return `<div class="wm-tcard" data-wm-tcard id="remplie">
+  return `<div class="wm-tcard" data-wm-tcard data-wm-nature="brave" id="remplie">
   <div class="wm-dresseur">
     <!-- UN AVATAR QUI N'EST PAS CARRE, et c'est tout l'objet : sur le
          forum celui du compte de test fait 72 x 115, parce que
@@ -261,7 +261,22 @@ const page = (corps) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${BASE_MODERNBB}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
-<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
+<style>${
+  //  LES ADRESSES D'IMAGES SONT RELATIVES À LA FEUILLE, pas à la
+  //  page. Sur le forum la feuille est servie depuis `/css/`, donc
+  //  `../img/…` tombe juste. Ici elle est recopiée DANS une page
+  //  montée par `setContent`, dont l'origine est `about:blank` :
+  //  aucune adresse relative ni `file://` n'y charge quoi que ce
+  //  soit. On lit donc le fichier sur le disque et on le met en
+  //  `data:` — s'il n'existe pas, `readFileSync` jette ici, et si
+  //  l'adresse est fausse, le `naturalWidth` plus bas tombe. Relire
+  //  l'adresse déclarée n'aurait rien prouvé.
+  readFileSync(R + "css/wild-mystery.css", "utf8").replaceAll(
+    /url\("\.\.\/img\/([^"]+)"\)/g,
+    (_, f) =>
+      `url("data:image/png;base64,${readFileSync(R + "img/" + f).toString("base64")}")`,
+  )
+}</style>
 <style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
 </head><body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
@@ -664,6 +679,12 @@ const badges = await p.evaluate(() => {
         obtenu: f(eu),
         aGagner: f(aEu),
         distinctes: new Set([f(boite), f(eu), f(aEu)]).size === 3,
+        //  ET L'ENCADRÉ PORTE LA SURFACE D'UNE CASE DE POKÉMON —
+        //  « le fond ici doit être le même que ici ».
+        memeFondQueLeCas: (() => {
+          const cas = document.querySelector("#remplie .wm-tcard__pkmn");
+          return cas !== null && f(cas) === f(boite);
+        })(),
         //  ET LE DESSIN D'UN BADGE À GAGNER EST GRIS ET EFFACÉ —
         //  par un FONDU et pas par un `filter`, pour que
         //  l'infobulle, qui vit dans la vignette, reste lisible au
@@ -753,11 +774,157 @@ dire(
   JSON.stringify(secondePasse),
 );
 
+//  ── CHAQUE BULLE SUIT SON BADGE ──────────────────────────────────
+//
+//  Elle était ancrée à la RANGÉE, avec `left: 0` : elle s'ouvrait
+//  toujours au bord gauche, quel que soit le badge survolé. On
+//  mesure donc que deux bulles de deux badges différents ne se
+//  posent pas au même endroit, et que chacune est centrée sur le
+//  sien.
+const bulles = await p.evaluate(() => {
+  const r = (e) => e.getBoundingClientRect();
+  //  CELLES QUI PORTENT UNE BULLE : le décor sert les arènes en
+  //  forme courte, sans infobulle, et les colosseums avec. C'est
+  //  voulu — le code collé par une joueuse peut faire les deux.
+  const vignettes = [...document.querySelectorAll("#remplie .wm-tcard__badge")]
+    .filter((v) => v.querySelector(".wm-tcard__bulle") !== null);
+  const lire = (v) => {
+    const b = v.querySelector(".wm-tcard__bulle");
+    if (b === null) return null;
+    return {
+      milieuBulle: Math.round(r(b).left + r(b).width / 2),
+      milieuBadge: Math.round(r(v).left + r(v).width / 2),
+      auDessus: Math.round(r(b).bottom) <= Math.round(r(v).top),
+    };
+  };
+  const a = lire(vignettes[0]);
+  const z = lire(vignettes.at(-1));
+  return { a, z };
+});
+
+dire(
+  "chaque bulle de badge est centrée sur SON badge, pas sur la rangée",
+  bulles.a !== null && bulles.z !== null &&
+    Math.abs(bulles.a.milieuBulle - bulles.a.milieuBadge) <= 1 &&
+    Math.abs(bulles.z.milieuBulle - bulles.z.milieuBadge) <= 1 &&
+    bulles.a.milieuBulle !== bulles.z.milieuBulle &&
+    bulles.a.auDessus && bulles.z.auDessus,
+  JSON.stringify(bulles),
+);
+
+//  ══════════════════════════════════════════════════════════════════
+//  LE BANDEAU PORTE LA NATURE
+//
+//  « Tu peux mettre en image de fond le pokémon et la couleur du
+//  groupe de la personne ? » Deux choses à prouver : avec l'attribut,
+//  le légendaire est là ET la teinte est celle du groupe ; sans
+//  l'attribut, le dégradé d'origine est intact. La seconde moitié
+//  compte autant : une carte déjà collée ne doit pas changer de tête.
+//  ══════════════════════════════════════════════════════════════════
+//  LA TAILLE DU FICHIER SUR LE DISQUE, lue dans l'en-tête PNG :
+//  c'est elle qui dit, dans la page, QUELLE mascotte est affichée —
+//  l'adresse y est devenue un `data:` et ne porte plus de nom.
+const taillePng = (chemin) => {
+  const o = readFileSync(chemin);
+  return [o.readUInt32BE(16), o.readUInt32BE(20)];
+};
+const CRESSELIA = taillePng(R + "img/natures/cresselia.png");
+
+const nature = await p.evaluate(async (attendue) => {
+  const carte = document.querySelector("#remplie");
+  const bandeau = carte?.querySelector(".wm-dresseur");
+  if (carte === null || bandeau == null) return null;
+  const lire = () => getComputedStyle(bandeau).backgroundImage;
+  const avec = lire();
+  const adresse = avec.match(/url\("([^"]+)"\)/)?.[1] ?? "";
+  const dessinee = adresse === "" ? null : await new Promise((ok) => {
+    const i = new Image();
+    i.onload = () => ok([i.naturalWidth, i.naturalHeight]);
+    i.onerror = () => ok(null);
+    i.src = adresse;
+  });
+  //  LA TEINTE DU GROUPE BRAVE, telle que `jetons.css` la donne —
+  //  mesurée et pas recopiée, pour qu'un changement de jeton se voie.
+  const teinte = getComputedStyle(carte).getPropertyValue("--tcard-teinte")
+    .trim();
+  carte.removeAttribute("data-wm-nature");
+  const sans = lire();
+  carte.setAttribute("data-wm-nature", "brave");
+  return {
+    //  L'IMAGE EXISTE ET SE CHARGE. Relire l'adresse déclarée ne
+    //  prouvait rien : une adresse fausse se lit aussi bien qu'une
+    //  bonne, et le bandeau restait nu.
+    mascotte: dessinee !== null && dessinee[0] === attendue[0] &&
+      dessinee[1] === attendue[1],
+    dessinee,
+    //  LA TEINTE ARRIVE BIEN AU DERNIER ARRÊT DU DÉGRADÉ. Le
+    //  navigateur résout le jeton en `rgb()`, donc on compare à la
+    //  forme résolue, déduite du jeton et pas recopiée : changer
+    //  `--wm-groupe-brave-texte` dans jetons.css laisse passer, le
+    //  débrancher du dégradé fait tomber.
+    teinteDansLeDegrade: /^#[0-9a-f]{6}$/i.test(teinte) &&
+      avec.includes(
+        "rgb(" + [1, 3, 5].map((i) => parseInt(teinte.slice(i, i + 2), 16))
+          .join(", ") + ")",
+      ),
+    teinte,
+    //  ET LE LÉGENDAIRE EST UN FOND À FOND PERDU, PAS UNE MOSAÏQUE :
+    //  sans `no-repeat` ni la taille, le bandeau se carrelait de
+    //  petites Cresselia.
+    cadree: getComputedStyle(bandeau).backgroundRepeat.startsWith("no-repeat") &&
+      getComputedStyle(bandeau).backgroundSize.includes("auto 185%"),
+    //  ET ELLE EST FONDUE, pas posée nette : sans ça elle passait
+    //  par-dessus les trois compteurs.
+    fondue: getComputedStyle(bandeau).backgroundBlendMode ===
+      "normal, soft-light, normal",
+    //  ET ELLE TIENT DANS LA MOITIÉ DROITE, DÉBORDANT PAR LE BAS.
+    //  Calculé sur les mesures et pas relu dans la déclaration : on
+    //  part de la hauteur réelle du bandeau et de la taille réelle
+    //  du fichier. Sans cadrage, le légendaire se posait en haut à
+    //  gauche, en plein sur le nom du dresseur.
+    aDroiteEtDebordante: (() => {
+      if (dessinee === null) return null;
+      const st = getComputedStyle(bandeau);
+      const boite = bandeau.getBoundingClientRect();
+      const px = (v) => {
+        const m = v.split(", ")[1].match(/calc\(100% \+ ([\d.]+)px\)/);
+        return m === null ? null : Number(m[1]);
+      };
+      const deborde = px(st.backgroundPositionX);
+      const dessous = px(st.backgroundPositionY);
+      if (deborde === null || dessous === null) return null;
+      const haut = boite.height * 1.85;
+      const large = haut * (dessinee[0] / dessinee[1]);
+      return {
+        //  bord gauche du dessin, dans le repère du bandeau
+        gauche: Math.round(boite.width + deborde - large),
+        milieu: Math.round(boite.width / 2),
+        dessous,
+      };
+    })(),
+    sansAttribut: sans,
+    //  SANS L'ATTRIBUT : un seul dégradé, aucune image, et la couleur
+    //  de droite est celle d'origine.
+    replieIntact: !sans.includes("url(") && sans.includes("117, 64, 66"),
+  };
+}, CRESSELIA);
+
+dire(
+  "le bandeau porte le légendaire de la nature et la couleur du groupe",
+  nature !== null && nature.mascotte && nature.teinteDansLeDegrade &&
+    nature.cadree && nature.fondue && nature.replieIntact &&
+    nature.aDroiteEtDebordante !== null &&
+    nature.aDroiteEtDebordante.gauche > nature.aDroiteEtDebordante.milieu &&
+    nature.aDroiteEtDebordante.dessous > 0,
+  JSON.stringify(nature),
+);
+
 dire(
   "deux encadrés côte à côte, chacun sur une ligne, tout collé à gauche",
   badges !== null && badges.combien === 11 && badges.groupes === 2 &&
     badges.cadreDifferent && badges.memeFormeQueLesCases &&
     badges.troisSurfaces !== null && badges.troisSurfaces.distinctes &&
+    badges.troisSurfaces.memeFondQueLeCas &&
     badges.troisSurfaces.gris && badges.troisSurfaces.efface &&
     badges.airDansLaVignette >= 10 &&
     badges.soustitres === 2 &&

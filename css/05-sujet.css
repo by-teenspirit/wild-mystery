@@ -3317,14 +3317,27 @@
 
     Le dessin y gagne deux fois : 58 moins deux fois 12 lui laissent
     34, contre 28 avant — plus grand ET mieux entouré. */
+/*  TROIS PAR RANGÉE, ET LA LARGEUR SE CALCULE AU LIEU DE S'ÉCRIRE.
+
+    J'avais posé 58 px pour que trois tiennent dans les 198 de la
+    colonne. Mesuré ensuite : la rangée n'en fait que 190, parce que
+    le panneau défile et que sa barre en prend huit. Trois de 58 plus
+    deux gouttières en demandent 198 — il n'en passait que deux.
+
+    Une largeur en pourcentage de la rangée n'a pas ce problème :
+    trois tiennent quelle que soit la place, barre de défilement
+    comprise, et ils la remplissent exactement. Plus de borne à
+    tenir à jour, plus de marge de centrage. */
 #modernbb .wm-profil__panneau--3 .award {
-  width: 58px;
-  height: 58px;
+  width: calc((100% - 2 * var(--wm-espace-12, 12px)) / 3);
+  height: auto;
+  aspect-ratio: 1;
   padding: var(--wm-espace-12, 12px);
   background-origin: content-box;
 }
 
 #modernbb .wm-profil__panneau--3 .dd_award {
-  max-width: calc(3 * 58px + 2 * var(--wm-espace-12, 12px));
+  max-width: none;
+  margin-inline: 0;
   gap: var(--wm-espace-12, 12px);
 }

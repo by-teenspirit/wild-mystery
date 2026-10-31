@@ -196,7 +196,31 @@ for f in "${CSS[@]}"; do
   # guillemets : une forme libre laisserait rentrer `data:text/html`,
   # qui n'a rien à faire dans une feuille.
   sans_donnee=$(perl -0pe 's{url\(\s*"data:image/(?:svg\+xml|png)[,;][^"]*"\s*\)}{}g' <<< "$sans_police")
-  if grep -qE '@import|url\(' <<< "$sans_donnee"; then
+  # LA TROISIÈME DÉROGATION, posée le 31 octobre : les six légendaires
+  # de `img/natures`. Elle repose sur les deux mêmes appuis que les
+  # polices.
+  #
+  # D'ABORD, CE N'EST PAS « AILLEURS ». Ce que la règle protège, elle
+  # le dit plus haut : aller chercher quelque chose hors du dépôt. Ces
+  # six fichiers sont DANS le dépôt, servis par la même Pages que la
+  # feuille, et l'adresse est relative — elle suit le dépôt sans
+  # nommer d'hébergeur. Rien à révoquer, rien à voir expirer.
+  #
+  # ENSUITE, ELLES NE COÛTENT RIEN TANT QU'ON NE LES AFFICHE PAS. Une
+  # image de fond n'est demandée que si une règle s'applique à un
+  # élément rendu, et celles-ci tiennent à `[data-wm-nature]`. Une
+  # page sans carte dresseur n'en charge aucune ; une page avec une
+  # carte en charge UNE.
+  #
+  # ENFIN, LES METTRE EN `data:` SERAIT PIRE. Les onze badges y sont
+  # parce qu'ils pèsent deux kilos pièce. Ces six-là en pèsent
+  # quatre-vingts : un demi-mégaoctet ajouté à la feuille, téléchargé
+  # par tout le monde sur toutes les pages, pour en montrer une.
+  #
+  # Le chemin est écrit en entier : `../img/natures/<nom>.png`. Tout
+  # autre dossier, toute autre extension, reste une faute.
+  sans_nature=$(perl -0pe 's{url\(\s*"\.\./img/natures/[\w-]+\.png"\s*\)}{}g' <<< "$sans_donnee")
+  if grep -qE '@import|url\(' <<< "$sans_nature"; then
     gronde "$f fait une requête réseau — aucune feuille du dépôt n'a le droit"
   fi
 done

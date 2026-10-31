@@ -1565,12 +1565,25 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   order: -1;
   position: static;
   flex: 0 0 auto;
+  /*  UN REMBOURRAGE ÉGAL DE TOUS LES CÔTÉS. « Quand je survole la
+      croix, le fond colle à la croix » : la cible faisait 22 de
+      large et la hauteur d'une ligne, donc le fond du survol
+      épousait le glyphe d'un côté et pas de l'autre. Carré, il
+      entoure la croix pareil partout. */
+  box-sizing: border-box;
+  width: calc(var(--wm-interligne-legende, 1.45) * 1em + 2 *
+    var(--wm-espace-4, 4px));
+  padding: var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-xs, 4px);
   /*  LA HAUTEUR D'UNE LIGNE DE TEXTE, pas une valeur à soi : c'est
       ce qui met la croix au milieu de la PREMIÈRE ligne, et elle y
       reste quand la notification en prend deux. */
   display: flex;
   align-items: center;
-  height: calc(var(--wm-interligne-legende, 1.45) * 1em);
+  justify-content: center;
+  height: calc(var(--wm-interligne-legende, 1.45) * 1em + 2 *
+    var(--wm-espace-4, 4px));
+  margin-top: calc(-1 * var(--wm-espace-4, 4px));
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText {
