@@ -1812,6 +1812,28 @@ const notifs = await p.evaluate(() => {
         teinte: st.backgroundColor,
       };
     })(),
+    //  LE TEXTE NE DÉBORDE PAS DE LA LISTE. ModernBB pose
+    //  `width: 27em` sur `.contentText` — 345 px dans une ligne de
+    //  302, mesuré, 58 dehors. Il est maintenant un élément de
+    //  rangée et prend ce qui reste.
+    texteDansLaBoite: (() => {
+      const t = lignes[0].querySelector(".contentText");
+      if (t === null) return null;
+      return Math.round(t.getBoundingClientRect().right) <=
+        Math.round(liste.getBoundingClientRect().right);
+    })(),
+    //  ET LA CROIX EST AU MILIEU DE LA PREMIÈRE LIGNE DE TEXTE, pas
+    //  posée en absolu six pixels plus bas.
+    croixSurLaLigne: (() => {
+      const t = lignes[0].querySelector(".contentText");
+      const x = lignes[0].querySelector("a.delete");
+      if (t === null || x === null) return null;
+      const rt = t.getBoundingClientRect();
+      const rx = x.getBoundingClientRect();
+      const ligneUne = rt.top +
+        parseFloat(getComputedStyle(t).lineHeight) / 2;
+      return Math.abs((rx.top + rx.height / 2) - ligneUne) <= 2;
+    })(),
     //  ET PAS DE FILET AU-DESSUS DU BOUTON DU BAS, qui est déjà détaché.
     filetAvantLeBouton: voirTout === null
       ? null
@@ -1868,6 +1890,23 @@ const notifs = await p.evaluate(() => {
         plein: getComputedStyle(a).backgroundColor !== "rgba(0, 0, 0, 0)",
         centre: getComputedStyle(voirTout).textAlign === "center",
         separe: parseFloat(getComputedStyle(voirTout).borderTopWidth) >= 1,
+        //  LE TEXTE EST CENTRÉ DANS LA HAUTEUR DU BOUTON. « Un
+        //  espace trop grand en dessous » : le `min-height` de 44
+        //  ajoute trois pixels à des parties qui en font 41, et dans
+        //  une boîte en bloc ils tombent tous en bas.
+        //
+        //  On mesure le TEXTE lui-même, par un `Range` : un nœud de
+        //  texte n'a pas de boîte, et comparer des rembourrages
+        //  n'aurait rien dit de ce qu'on voit.
+        decalageDuTexte: (() => {
+          const plage = document.createRange();
+          plage.selectNodeContents(a);
+          const rt = plage.getBoundingClientRect();
+          const ra = r(a);
+          return Math.round(
+            (rt.top - ra.top) - (ra.bottom - rt.bottom),
+          );
+        })(),
       };
     })(),
   };
@@ -1888,7 +1927,8 @@ dire(
   notifs !== null && notifs.filetEntre !== null &&
     notifs.filetEntre.epaisseur === 1 && notifs.filetEntre.pleineLargeur &&
     notifs.filetAvantLeBouton === false &&
-    notifs.taille >= 11.5,
+    notifs.taille >= 11.5 &&
+    notifs.texteDansLaBoite === true && notifs.croixSurLaLigne === true,
   JSON.stringify(notifs),
 );
 
@@ -1911,7 +1951,8 @@ dire(
   "« voir toutes les notifications » est un vrai bouton, séparé de la liste",
   notifs !== null && notifs.bouton !== null && notifs.bouton.plein &&
     notifs.bouton.centre && notifs.bouton.separe &&
-    notifs.bouton.hauteur >= 40,
+    notifs.bouton.hauteur >= 40 &&
+    Math.abs(notifs.bouton.decalageDuTexte) <= 1,
   JSON.stringify(notifs?.bouton),
 );
 

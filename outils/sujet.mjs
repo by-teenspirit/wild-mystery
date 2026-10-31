@@ -1216,10 +1216,36 @@ const petitNombre = await p.evaluate(() => {
     });
     return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
   };
-  const a = lum(st.color), b = lum(st.backgroundColor);
+  //  LE FOND EFFECTIF, COMPOSÉ. Depuis le 31 au soir le nombre n'a
+  //  plus de pastille à lui — « enlève le gros fond rose » — et le
+  //  bouton, lui, est teinté à 16 % : mesurer contre une couleur
+  //  translucide donne un rapport qui ne veut rien dire. On remonte
+  //  donc les parents en empilant les couches jusqu'à la première
+  //  opaque, comme le navigateur les peint.
+  const couches = [];
+  for (let e = n; e !== null; e = e.parentElement) {
+    const c = getComputedStyle(e).backgroundColor;
+    const v = (c.match(/[\d.]+/g) || []).map(Number);
+    if (v.length < 3) continue;
+    const alpha = v.length > 3 ? v[3] : 1;
+    if (alpha === 0) continue;
+    //  `color(srgb …)` donne des canaux de 0 à 1, `rgb()` de 0 à 255.
+    const ech = c.startsWith("color(") ? 255 : 1;
+    couches.unshift([v[0] * ech, v[1] * ech, v[2] * ech, alpha]);
+    if (alpha === 1) break;
+  }
+  const fondCompose = couches.reduce(
+    (dessous, [r2, v2, b2, al]) =>
+      dessous === null
+        ? [r2, v2, b2]
+        : dessous.map((x, i) => x * (1 - al) + [r2, v2, b2][i] * al),
+    null,
+  ) ?? [255, 255, 255];
+  const fond = "rgb(" + fondCompose.map(Math.round).join(", ") + ")";
+  const a = lum(st.color), b = lum(fond);
   return {
     texte: st.color,
-    fond: st.backgroundColor,
+    fond,
     rapport: Math.round(((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)) * 100) / 100,
   };
 });
@@ -1630,11 +1656,18 @@ const jaime = await p.evaluate(() => {
     //  UNE PASTILLE, pas un bouton gris de navigateur.
     rayon: st.borderRadius,
     hauteur: Math.round(r(boutons[0]).height),
-    //  LE MOT EST CACHÉ À L'ŒIL MAIS PAS AU LECTEUR D'ÉCRAN : il garde
-    //  une boîte, il n'est pas en `display: none`.
+    //  LE MOT SE LIT, depuis le 31 au soir : « je veux juste " 1
+    //  like" à côté du cœur ». Il était escamoté pour ne laisser que
+    //  l'icône ; « 1 » tout seul ne disait pas de quoi on parlait.
     motLu: mot.textContent.trim(),
-    motCache: Math.round(r(mot).width) <= 1,
+    motVisible: Math.round(r(mot).width) > 20,
     motAffiche: stMot.display,
+    //  LE NOMBRE EST DEVANT LE MOT, et le gabarit les sert dans
+    //  l'autre sens : c'est `order` qui les échange.
+    nombreAvantLeMot: (() => {
+      const nb = boutons[0].querySelector(".rep-nb");
+      return nb !== null && Math.round(r(nb).left) < Math.round(r(mot).left);
+    })(),
     //  ET LE COMPTE EST VRAIMENT VISIBLE — mesuré, pas lu.
     //
     //  L'ancienne version lisait `textContent` et le trouvait
@@ -1653,6 +1686,10 @@ const jaime = await p.evaluate(() => {
         largeur: Math.round(r(nb).width),
         rogne: st.clipPath !== "none",
         dansLeFlux: st.position !== "absolute",
+        //  PLUS DE PASTILLE : « enlève le gros fond rose du 1 ».
+        sansFond: st.backgroundColor === "rgba(0, 0, 0, 0)",
+        //  ET IL A LA TAILLE DU TEXTE QUI L'ENTOURE, pas la sienne.
+        memeTaille: st.fontSize === getComputedStyle(boutons[0]).fontSize,
       };
     })(),
     //  LES DEUX ÉTATS SE DISTINGUENT.
@@ -1677,7 +1714,7 @@ dire(
   jaime !== null && jaime.dansLaTete && jaime.memeLigne &&
     jaime.aDroite && jaime.auBord && jaime.iconesAvantLeJaime &&
     jaime.boutons >= 1 &&
-    jaime.rayon === "999px" && jaime.motCache,
+    jaime.rayon === "999px" && jaime.motVisible,
   JSON.stringify(jaime),
 );
 dire(
@@ -1688,14 +1725,16 @@ dire(
   JSON.stringify({ avantLeTitre: jaime?.avantLeTitre }),
 );
 dire(
-  "LE BOUTON EST UNE PASTILLE, LE MOT CACHÉ À L'ŒIL MAIS PAS AU LECTEUR",
+  "LE BOUTON DIT « 1 J'AIME » : le nombre devant le mot, sans pastille",
   jaime !== null && jaime.boutons === 2 && jaime.rayon === "999px" &&
-    jaime.hauteur === 26 && jaime.motLu === "J'aime" && jaime.motCache &&
+    jaime.hauteur === 26 && jaime.motLu === "J'aime" && jaime.motVisible &&
+    jaime.nombreAvantLeMot &&
     jaime.pastilleDuNombre !== null &&
-    jaime.pastilleDuNombre.hauteur >= 16 &&
-    jaime.pastilleDuNombre.largeur >= 16 &&
+    jaime.pastilleDuNombre.hauteur >= 10 &&
     jaime.pastilleDuNombre.rogne === false &&
     jaime.pastilleDuNombre.dansLeFlux &&
+    jaime.pastilleDuNombre.sansFond &&
+    jaime.pastilleDuNombre.memeTaille &&
     //  `display: none` le rendrait muet : « bouton, 3 ».
     jaime.motAffiche !== "none" && jaime.compte === "3",
   JSON.stringify(jaime),
@@ -1940,6 +1979,7 @@ const secondePasse = await p.evaluate(() => {
     //  bord de son fond.
     rayonDeVignette: Math.round(parseFloat(g(vignettes[0]).borderTopLeftRadius)),
     airDansLaVignette: Math.round(parseFloat(g(vignettes[0]).paddingTop)),
+    tailleDeVignette: Math.round(r(vignettes[0]).width),
     //  ET LA BULLE N'A QU'UNE FLÈCHE. Elle est faite de quatre
     //  bordures dont une seule est teintée ; en teinter deux en
     //  dessine deux, ce qui est arrivé.
@@ -2011,7 +2051,11 @@ dire(
     secondePasse.margeDeVignette === "0px" &&
     secondePasse.fondDeVignette !== "rgba(0, 0, 0, 0)" &&
     secondePasse.rayonDeVignette > 0 && secondePasse.rayonDeVignette <= 12 &&
-    secondePasse.airDansLaVignette >= 8 &&
+    //  DIX, PAS HUIT : « mets plus de padding autour des badges, pour
+    //  que le fond du badge et le badge ne soient pas trop collés ».
+    //  La case passe à 48 pour que le dessin garde ses 28.
+    secondePasse.airDansLaVignette >= 10 &&
+    secondePasse.tailleDeVignette === 48 &&
     secondePasse.cotesTeintesDeLaFleche === 1 &&
     Math.abs(secondePasse.milieuJaime - secondePasse.milieuIcones) <= 1,
   JSON.stringify(secondePasse),

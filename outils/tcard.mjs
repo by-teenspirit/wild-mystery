@@ -580,8 +580,18 @@ const badges = await p.evaluate(() => {
       const f = document.querySelector("#remplie .wm-tcard__familles");
       const [a, b] = f.querySelectorAll(".wm-tcard__famille");
       if (b === undefined) return false;
+      //  ET LA RANGÉE ELLE-MÊME PREND TOUTE LA SECTION. Sans cette
+      //  seconde mesure, deux boîtes bien étalées dans un conteneur
+      //  étroit passeraient le contrôle : c'est exactement ce qui
+      //  arrivait quand la section était encore une grille centrée.
+      const section = f.closest(".wm-tcard__bloc");
+      const st = getComputedStyle(section);
+      const utile = Math.round(r(section).width) -
+        Math.round(parseFloat(st.paddingLeft)) -
+        Math.round(parseFloat(st.paddingRight));
       return Math.round(r(a).left) === Math.round(r(f).left) &&
-        Math.round(r(b).right) === Math.round(r(f).right);
+        Math.round(r(b).right) === Math.round(r(f).right) &&
+        Math.abs(Math.round(r(f).width) - utile) <= 1;
     })(),
     //  TOUT À GAUCHE DANS L'ENCADRÉ : le sous-titre et les badges
     //  partent du même bord, celui du rembourrage de la boîte.
@@ -622,8 +632,21 @@ const badges = await p.evaluate(() => {
     //  qui tient déjà les trois états du Pokédex.
     cadreDifferent: agagner.every((e) => getComputedStyle(e).borderLeftStyle === "dashed") &&
       obtenu.every((e) => getComputedStyle(e).borderLeftStyle === "solid"),
-    //  Ronds, pas carrés.
-    ronds: tous.every((e) => parseFloat(getComputedStyle(e).borderRadius) >= r(e).width / 2),
+    //  DES CARRÉS ARRONDIS, PAS DES RONDS — et le même rayon que les
+    //  cases de pokémon : « le même que pour les pokémons », 31
+    //  octobre au soir. C'était un disque, et c'est la forme qui les
+    //  séparait des cases, pas la couleur.
+    memeFormeQueLesCases: (() => {
+      const casePkmn = document.querySelector("#remplie .wm-tcard__pkmn");
+      if (casePkmn === null) return false;
+      const a = getComputedStyle(casePkmn);
+      const b = getComputedStyle(tous[0]);
+      return a.borderTopLeftRadius === b.borderTopLeftRadius &&
+        a.backgroundColor === b.backgroundColor &&
+        a.borderTopColor === b.borderTopColor;
+    })(),
+    //  ET LE DESSIN NE TOUCHE PAS SON FOND.
+    airDansLaVignette: Math.round(parseFloat(getComputedStyle(tous[0]).paddingTop)),
   };
 });
 
@@ -698,7 +721,8 @@ dire(
 dire(
   "deux encadrés côte à côte, chacun sur une ligne, tout collé à gauche",
   badges !== null && badges.combien === 11 && badges.groupes === 2 &&
-    badges.cadreDifferent && badges.ronds &&
+    badges.cadreDifferent && badges.memeFormeQueLesCases &&
+    badges.airDansLaVignette >= 10 &&
     badges.soustitres === 2 &&
     //  LARGE : les deux encadrés côte à côte, de MÊME largeur — c'est
     //  `1fr 1fr` et pas `auto auto`, qui taillait chaque boîte sur

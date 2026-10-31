@@ -6176,27 +6176,15 @@ html#min-width {
     border-color 120ms ease;
 }
 
-/*  `:not(.rep-nb)` ET C'EST TOUTE L'HISTOIRE DU NOMBRE INVISIBLE.
+/*  PLUS AUCUNE RÈGLE NE CACHE LE LIBELLÉ, et c'est le § 30 qui l'a
+    décidé : « je veux juste " 1 like" à côté du cœur ».
 
-    Cette règle cache le mot « J'aime » pour ne laisser que le cœur.
-    Elle visait `> span` — et Forumactif sert le compteur dans un
-    span lui aussi : `<span class="rep-nb">1</span>`. Le nombre était
-    donc caché par la règle censée cacher le libellé, et TROIS
-    corrections de sa pastille — contraste, taille, hauteur — ont
-    porté sur un élément réduit à un pixel sur un.
-
-    Mesuré sur le forum avant d'être corrigé : `height: 1px`,
-    `clip-path: inset(50%)`, `position: absolute`. La pastille était
-    parfaite et invisible. Le contrôle lisait `textContent`, qui
-    existe sous un `clip-path` : il mesure sa boîte maintenant. */
-#modernbb .post-head .fa_like_div .rep-button > span:not(.rep-nb) {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
+    Il y en a eu deux ici. La première cachait tous les `> span` — et
+    Forumactif sert le compteur dans un span lui aussi, si bien que
+    le nombre était escamoté avec le libellé, un pixel sur un sous un
+    `clip-path`. La seconde, écrite pour réparer ça, épargnait
+    `.rep-nb`. Les deux tombent : le bouton montre maintenant son
+    nombre ET son mot. */
 
 #modernbb .post-head .fa_like_div .rep-button > i {
   font-size: 14px;
@@ -7891,6 +7879,65 @@ html#min-width {
     était une marge. */
 #modernbb .post-head .fa_like_div .rep-button {
   margin: 0;
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 30 · LE 31 AU SOIR, DERNIÈRE PASSE
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  ── « 1 J'AIME » À CÔTÉ DU CŒUR, ET PLUS DE PASTILLE ─────────────
+
+    « Le 1 est trop gros, enlève le gros fond rose, je veux juste
+    " 1 like" à côté du cœur, c'est tout. »
+
+    Tout ce qui précède sur ce compteur tombe : la pastille ronde, sa
+    couleur, sa taille minimale, et surtout la règle qui cachait le
+    libellé. Ce bouton redevient une icône suivie de deux mots.
+
+    LE LIBELLÉ REVIENT PARCE QU'IL EST SERVI. « 1 » tout seul ne dit
+    pas de quoi on parle, et écrire « like » en dur serait inventer
+    un mot que le forum ne sert pas : Forumactif donne « J'aime » et
+    « Je n'aime pas », dans la langue du forum. On les montre, et on
+    place le nombre devant par `order` — le gabarit les sert dans
+    l'autre sens. */
+#modernbb .post-head .fa_like_div .rep-nb {
+  order: -1;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: inherit;
+}
+
+#modernbb .post-head .fa_like_div .rep-button:not(.fa_liked) .rep-nb {
+  background: none;
+}
+
+#modernbb .post-head .fa_like_div .rep-button {
+  gap: var(--wm-espace-4, 4px);
+}
+
+/*  ── LES VIGNETTES DU PROFIL RESPIRENT, ET SONT DES CARRÉS ────────
+
+    « Mets plus de padding autour des badges, pour que le fond du
+    badge et le badge ne soient pas trop collés. » Huit sur une case
+    de 44 laissaient 28 au dessin. La case passe à 48 et l'air à 10 :
+    le dessin garde ses 28 et le fond se voit autour.
+
+    La borne de la rangée suit — trois cases de 48 et deux
+    gouttières —, sinon elle casserait à deux. */
+#modernbb .wm-profil__panneau--3 .award {
+  width: 48px;
+  height: 48px;
+  padding: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award {
+  max-width: calc(3 * 48px + 2 * var(--wm-espace-10, 10px));
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -12471,6 +12518,83 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list .wm-notifs__liaison {
   color: var(--wm-texte-pale, #69564c);
   font-weight: var(--wm-graisse-normale, 400);
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § LES NOTIFICATIONS, QUATRIÈME PASSE — 31 OCTOBRE, TARD
+
+    Ces règles ont d'abord été écrites dans `05-sujet.css`, où elles
+    ne pouvaient rien : cette feuille-ci passe APRÈS dans le paquet,
+    et c'est elle qui porte déjà tout le panneau. Une règle de
+    notification n'a rien à faire ailleurs qu'ici.
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  ── LES NOTIFICATIONS : LA CROIX DANS LE FLUX ────────────────────
+
+    Deux défauts, une seule cause. « Le texte dépasse à droite du
+    bloc » : ModernBB pose `width: 27em` sur `.contentText`, soit 345
+    px dans une ligne de 302 — mesuré, 58 px dehors. « Le texte n'est
+    pas centré par rapport à la croix » : la croix était posée en
+    absolu, à six pixels du milieu du texte.
+
+    Les deux tombent si la croix cesse de flotter au-dessus de la
+    ligne pour en devenir le premier élément. `.content` passe en
+    rangée, la croix prend sa place à gauche par `order`, et le texte
+    occupe ce qui reste — une largeur qu'il n'a plus à deviner. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
+  order: -1;
+  position: static;
+  flex: 0 0 auto;
+  /*  LA HAUTEUR D'UNE LIGNE DE TEXTE, pas une valeur à soi : c'est
+      ce qui met la croix au milieu de la PREMIÈRE ligne, et elle y
+      reste quand la notification en prend deux. */
+  display: flex;
+  align-items: center;
+  height: calc(var(--wm-interligne-legende, 1.45) * 1em);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText {
+  float: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+/*  LA CROIX EST DANS LE FLUX : la ligne n'a plus à lui réserver de
+    place à gauche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  padding-left: var(--wm-espace-10, 10px);
+}
+
+/*  LE TEXTE DU BOUTON DU BAS EST CENTRÉ DANS SA HAUTEUR.
+
+    « Un espace trop grand en dessous du texte du bouton. » Ce n'est
+    ni un rembourrage ni un `inline-block` — deux pistes essayées et
+    fausses. Le lien porte `min-height: 44px` pour rester une cible
+    tactile, et ses parties n'en font que 41 : douze de rembourrage,
+    seize de ligne, douze de rembourrage. Les trois qui manquent sont
+    ajoutés par le `min-height`, et dans une boîte en bloc ils
+    tombent tous SOUS le texte.
+
+    Centré, ils se partagent — et on ne les voit plus. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all a {
+  /*  ON SUPPRIME LE JEU PLUTÔT QUE DE LE RÉPARTIR. Deux tentatives
+      avant celle-ci — repasser en `block`, puis centrer en flex — et
+      les deux ont échoué parce que le lien se calcule en
+      `inline-block` malgré nos règles, pour une raison que je n'ai
+      pas tranchée.
+
+      Mesuré : 12 de rembourrage, 14 de texte, 12 de rembourrage, et
+      44 de hauteur imposée — quatre de plus en bas qu'en haut. En
+      donnant à la ligne exactement les vingt pixels qui manquent,
+      la somme fait 44 et il n'y a plus rien à répartir. */
+  line-height: 20px;
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -20073,6 +20197,24 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     grille centrée au-dessus de lui, donc il part du bord. */
 #modernbb .wm-tcard__bloc > .wm-tcard__titre {
   text-align: left;
+}
+
+/*  ── LE MÊME FOND QUE LES POKÉMON, 31 OCTOBRE AU SOIR ─────────────
+
+    « Mets un fond pour les badges d'arènes et de colosseums, le même
+    que pour les pokémons. »
+
+    Le fond y était déjà — même teinte, même filet que `.wm-tcard__pkmn`
+    — mais en DISQUE pendant que les cases de pokémon sont des carrés
+    arrondis. C'est la forme qui les séparait, pas la couleur. Même
+    rayon, et le même rembourrage proportionnel : une case de pokémon
+    donne huit pixels d'air à un sprite de 56, une vignette en donne
+    dix à un dessin de 28. */
+#modernbb .wm-tcard__badge {
+  width: 48px;
+  height: 48px;
+  padding: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

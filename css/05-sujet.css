@@ -1542,27 +1542,15 @@
     border-color 120ms ease;
 }
 
-/*  `:not(.rep-nb)` ET C'EST TOUTE L'HISTOIRE DU NOMBRE INVISIBLE.
+/*  PLUS AUCUNE RÈGLE NE CACHE LE LIBELLÉ, et c'est le § 30 qui l'a
+    décidé : « je veux juste " 1 like" à côté du cœur ».
 
-    Cette règle cache le mot « J'aime » pour ne laisser que le cœur.
-    Elle visait `> span` — et Forumactif sert le compteur dans un
-    span lui aussi : `<span class="rep-nb">1</span>`. Le nombre était
-    donc caché par la règle censée cacher le libellé, et TROIS
-    corrections de sa pastille — contraste, taille, hauteur — ont
-    porté sur un élément réduit à un pixel sur un.
-
-    Mesuré sur le forum avant d'être corrigé : `height: 1px`,
-    `clip-path: inset(50%)`, `position: absolute`. La pastille était
-    parfaite et invisible. Le contrôle lisait `textContent`, qui
-    existe sous un `clip-path` : il mesure sa boîte maintenant. */
-#modernbb .post-head .fa_like_div .rep-button > span:not(.rep-nb) {
-  position: absolute;
-  overflow: hidden;
-  width: 1px;
-  height: 1px;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
+    Il y en a eu deux ici. La première cachait tous les `> span` — et
+    Forumactif sert le compteur dans un span lui aussi, si bien que
+    le nombre était escamoté avec le libellé, un pixel sur un sous un
+    `clip-path`. La seconde, écrite pour réparer ça, épargnait
+    `.rep-nb`. Les deux tombent : le bouton montre maintenant son
+    nombre ET son mot. */
 
 #modernbb .post-head .fa_like_div .rep-button > i {
   font-size: 14px;
@@ -3257,4 +3245,63 @@
     était une marge. */
 #modernbb .post-head .fa_like_div .rep-button {
   margin: 0;
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 30 · LE 31 AU SOIR, DERNIÈRE PASSE
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  ── « 1 J'AIME » À CÔTÉ DU CŒUR, ET PLUS DE PASTILLE ─────────────
+
+    « Le 1 est trop gros, enlève le gros fond rose, je veux juste
+    " 1 like" à côté du cœur, c'est tout. »
+
+    Tout ce qui précède sur ce compteur tombe : la pastille ronde, sa
+    couleur, sa taille minimale, et surtout la règle qui cachait le
+    libellé. Ce bouton redevient une icône suivie de deux mots.
+
+    LE LIBELLÉ REVIENT PARCE QU'IL EST SERVI. « 1 » tout seul ne dit
+    pas de quoi on parle, et écrire « like » en dur serait inventer
+    un mot que le forum ne sert pas : Forumactif donne « J'aime » et
+    « Je n'aime pas », dans la langue du forum. On les montre, et on
+    place le nombre devant par `order` — le gabarit les sert dans
+    l'autre sens. */
+#modernbb .post-head .fa_like_div .rep-nb {
+  order: -1;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: inherit;
+}
+
+#modernbb .post-head .fa_like_div .rep-button:not(.fa_liked) .rep-nb {
+  background: none;
+}
+
+#modernbb .post-head .fa_like_div .rep-button {
+  gap: var(--wm-espace-4, 4px);
+}
+
+/*  ── LES VIGNETTES DU PROFIL RESPIRENT, ET SONT DES CARRÉS ────────
+
+    « Mets plus de padding autour des badges, pour que le fond du
+    badge et le badge ne soient pas trop collés. » Huit sur une case
+    de 44 laissaient 28 au dessin. La case passe à 48 et l'air à 10 :
+    le dessin garde ses 28 et le fond se voit autour.
+
+    La borne de la rangée suit — trois cases de 48 et deux
+    gouttières —, sinon elle casserait à deux. */
+#modernbb .wm-profil__panneau--3 .award {
+  width: 48px;
+  height: 48px;
+  padding: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award {
+  max-width: calc(3 * 48px + 2 * var(--wm-espace-10, 10px));
 }

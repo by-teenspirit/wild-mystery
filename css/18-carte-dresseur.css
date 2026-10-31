@@ -992,3 +992,21 @@
 #modernbb .wm-tcard__bloc > .wm-tcard__titre {
   text-align: left;
 }
+
+/*  ── LE MÊME FOND QUE LES POKÉMON, 31 OCTOBRE AU SOIR ─────────────
+
+    « Mets un fond pour les badges d'arènes et de colosseums, le même
+    que pour les pokémons. »
+
+    Le fond y était déjà — même teinte, même filet que `.wm-tcard__pkmn`
+    — mais en DISQUE pendant que les cases de pokémon sont des carrés
+    arrondis. C'est la forme qui les séparait, pas la couleur. Même
+    rayon, et le même rembourrage proportionnel : une case de pokémon
+    donne huit pixels d'air à un sprite de 56, une vignette en donne
+    dix à un dessin de 28. */
+#modernbb .wm-tcard__badge {
+  width: 48px;
+  height: 48px;
+  padding: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+}

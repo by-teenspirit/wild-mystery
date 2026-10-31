@@ -1526,3 +1526,80 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   color: var(--wm-texte-pale, #69564c);
   font-weight: var(--wm-graisse-normale, 400);
 }
+
+/*  ══════════════════════════════════════════════════════════════════
+    § LES NOTIFICATIONS, QUATRIÈME PASSE — 31 OCTOBRE, TARD
+
+    Ces règles ont d'abord été écrites dans `05-sujet.css`, où elles
+    ne pouvaient rien : cette feuille-ci passe APRÈS dans le paquet,
+    et c'est elle qui porte déjà tout le panneau. Une règle de
+    notification n'a rien à faire ailleurs qu'ici.
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  ── LES NOTIFICATIONS : LA CROIX DANS LE FLUX ────────────────────
+
+    Deux défauts, une seule cause. « Le texte dépasse à droite du
+    bloc » : ModernBB pose `width: 27em` sur `.contentText`, soit 345
+    px dans une ligne de 302 — mesuré, 58 px dehors. « Le texte n'est
+    pas centré par rapport à la croix » : la croix était posée en
+    absolu, à six pixels du milieu du texte.
+
+    Les deux tombent si la croix cesse de flotter au-dessus de la
+    ligne pour en devenir le premier élément. `.content` passe en
+    rangée, la croix prend sa place à gauche par `order`, et le texte
+    occupe ce qui reste — une largeur qu'il n'a plus à deviner. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
+  order: -1;
+  position: static;
+  flex: 0 0 auto;
+  /*  LA HAUTEUR D'UNE LIGNE DE TEXTE, pas une valeur à soi : c'est
+      ce qui met la croix au milieu de la PREMIÈRE ligne, et elle y
+      reste quand la notification en prend deux. */
+  display: flex;
+  align-items: center;
+  height: calc(var(--wm-interligne-legende, 1.45) * 1em);
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText {
+  float: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+/*  LA CROIX EST DANS LE FLUX : la ligne n'a plus à lui réserver de
+    place à gauche. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li {
+  padding-left: var(--wm-espace-10, 10px);
+}
+
+/*  LE TEXTE DU BOUTON DU BAS EST CENTRÉ DANS SA HAUTEUR.
+
+    « Un espace trop grand en dessous du texte du bouton. » Ce n'est
+    ni un rembourrage ni un `inline-block` — deux pistes essayées et
+    fausses. Le lien porte `min-height: 44px` pour rester une cible
+    tactile, et ses parties n'en font que 41 : douze de rembourrage,
+    seize de ligne, douze de rembourrage. Les trois qui manquent sont
+    ajoutés par le `min-height`, et dans une boîte en bloc ils
+    tombent tous SOUS le texte.
+
+    Centré, ils se partagent — et on ne les voit plus. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all a {
+  /*  ON SUPPRIME LE JEU PLUTÔT QUE DE LE RÉPARTIR. Deux tentatives
+      avant celle-ci — repasser en `block`, puis centrer en flex — et
+      les deux ont échoué parce que le lien se calcule en
+      `inline-block` malgré nos règles, pour une raison que je n'ai
+      pas tranchée.
+
+      Mesuré : 12 de rembourrage, 14 de texte, 12 de rembourrage, et
+      44 de hauteur imposée — quatre de plus en bas qu'en haut. En
+      donnant à la ligne exactement les vingt pixels qui manquent,
+      la somme fait 44 et il n'y a plus rien à répartir. */
+  line-height: 20px;
+}
