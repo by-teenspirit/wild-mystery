@@ -268,6 +268,28 @@
   padding: 0;
 }
 
+/*  ── ET L'ÉQUIPE REPREND SON ESPACE, JUSTE APRÈS ──────────────────
+
+    La remise à zéro ci-dessus est en (1,1,1) ; le rembourrage que le
+    § 24 donnait à l'équipe était en (1,1,0), et perdait. Mesuré dans
+    la page de Callista : zéro partout, trois fois signalé, alors que
+    la règle existait bel et bien.
+
+    PREMIER CORRECTIF, ABANDONNÉ : un `:not(.postprofile-equipe)` sur
+    la remise à zéro. Il rendait aussi la MARGE par défaut du `dd` —
+    quarante pixels à gauche chez tous les navigateurs — et la grille
+    de l'équipe passait de trois cases par rang à deux. Une remise à
+    zéro qu'on perce rend tout ce qu'elle retenait, pas seulement ce
+    qu'on visait.
+
+    ICI, EN (1,1,2), juste sous la règle qu'il corrige : on lit les
+    deux d'affilée, et aucune des deux ne surprend l'autre. */
+#modernbb .postprofile dd.postprofile-equipe {
+  margin-top: var(--wm-espace-16, 16px);
+  padding-top: var(--wm-espace-16, 16px);
+  padding-bottom: var(--wm-espace-16, 16px);
+}
+
 /*  L'avatar. La charte lui donne 200 × 320 — un portrait, pas une
     vignette : c'est le dessin du personnage, et c'est ce qu'on vient
     voir. `object-fit` l'empêche de se déformer quand l'image fournie
@@ -1748,11 +1770,16 @@
 
 #modernbb .wm-profil__panneau .wm-profil__valeur {
   color: var(--wm-texte-corps, #4e3b30);
-  /*  `taille-normal` et pas un `corps` inventé : la charte n'a pas de
-      jeton de ce nom, et un repli qui ne correspond à rien devient la
-      seule valeur qui s'applique — le garde-fou 15 l'a dit. */
-  font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: var(--wm-graisse-demi, 600);
+  /*  ÉTIQUETTE ET MAIGRE, depuis le 31 octobre. « Le contenu du champ
+      est trop gros par rapport au champ en lui-même et ne doit pas
+      être en gras » : il était à 13,5 px et en 600, la clé à 10 — la
+      valeur criait plus fort que ce qu'elle nomme.
+
+      C'EST CORRIGÉ ICI ET PAS AILLEURS. Un correctif plus spécifique
+      ajouté plus bas aurait laissé deux règles se contredire, et la
+      prochaine lecture aurait trouvé la mauvaise en premier. */
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-normale, 400);
 }
 
 /*  ── 3 · LE SURVOL D'UN BADGE ───────────────────────────────────────
@@ -2667,4 +2694,61 @@
 #modernbb .post-head .profile-icons {
   margin-right: 0;
   padding-right: 0;
+}
+
+/* ── 26 · relevé dans la page, le 31 octobre au soir ───────────────── */
+
+/*  Mesuré dans le navigateur de Callista, pas supposé. Et d'abord une
+    chose qui n'est pas un défaut de code :
+
+    ── LA MOITIÉ DE CE QU'ELLE NE VOYAIT PAS ÉTAIT DU CACHE ─────────
+
+    GitHub Pages sert la feuille avec `Cache-Control: max-age=600`.
+    Sa page affichait donc une feuille vieille de quelques minutes
+    pendant que le fichier en ligne était à jour — vérifié en
+    rechargeant la feuille avec un paramètre : le jeton « en ligne »
+    est passé de `vertical-rl` à `horizontal-tb` sur-le-champ, sans
+    qu'une ligne de CSS change. Ce qui suit ne corrige donc QUE ce qui
+    restait faux une fois la feuille fraîche. */
+
+/*  ── LE « J'AIME » REVIENT À CÔTÉ DES ICÔNES ──────────────────────
+
+    « Remets ce bouton à côté des autres, ici à droite. » Il était
+    passé sous le bandeau ce matin, à la demande de la veille ; il
+    remonte dans la rangée, juste avant les six icônes.
+
+    C'est le troisième placement en deux jours, et c'est normal : on
+    le voit à l'écran, on en juge, on bouge. Ce qui compte est que la
+    règle dise à chaque fois ce qui est voulu MAINTENANT, et pas
+    qu'elle empile les trois. */
+#modernbb .post-head .fa_like_div {
+  order: 1;
+  flex: 0 0 auto;
+  margin-top: 0;
+  margin-left: auto;
+}
+
+#modernbb .post-head:has(.fa_like_div) .menu-wrap {
+  order: 2;
+  margin-left: var(--wm-espace-8, 8px);
+}
+
+/*  ── LE PETIT « 1 » SE LIT ────────────────────────────────────────
+
+    « Le petit 1 n'est pas lisible. » Sa pastille prenait 16 % de la
+    couleur du texte — sur un bouton déjà teinté de rose à 16 %, le
+    contraste tombait sous le seuil. Elle prend maintenant la couleur
+    pleine du cœur et le chiffre passe en clair : du blanc sur rose,
+    qui se lit dans les deux thèmes parce que les deux valeurs sont
+    écrites, pas mélangées. */
+#modernbb .post-head .fa_like_div .rep-nb {
+  min-width: 17px;
+  height: 17px;
+  background: #c2567a;
+  color: #fff;
+  font-size: 10px;
+}
+
+#modernbb .post-head .fa_like_div .rep-button:not(.fa_liked) .rep-nb {
+  background: var(--wm-texte-pale, #69564c);
 }

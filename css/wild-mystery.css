@@ -1388,7 +1388,14 @@ html#min-width {
 
     Ce qui la distingue — le rang, les filets, le titre — est au § 11
     de `04`, parce que c'est son balisage à elle. */
+/*  `.wm-sujet__reponse .h3` EST DANS LA LISTE depuis le 31 octobre.
+    « La réponse rapide doit s'afficher comme le titre des sujets. »
+    Forumactif sert son propre `<div class="h3">Réponse rapide:</div>`
+    dans `{QUICK_REPLY_FORM}` ; plutôt que de lui écrire un bandeau à
+    lui — qui dériverait de celui-ci au premier ajustement — on
+    l'ajoute au sélecteur qui porte déjà la recette. */
 #modernbb ul.topiclist li.header dl.icon,
+#modernbb .wm-sujet__reponse .h3,
 #modernbb .wm-forum__bande {
   display: flex;
   min-height: 74px;
@@ -4273,6 +4280,10 @@ html#min-width {
   justify-content: center;
 }
 
+/*  Et le `.h3` de la réponse rapide porte son propre texte : il est
+    à la fois la bande et le titre, là où les autres ont un `<span>`
+    dedans. Les deux sélecteurs voyagent ensemble. */
+#modernbb .wm-sujet__reponse .h3,
 #modernbb .wm-forum__bande-titre {
   /*  0,018 em : l'interlettrage que porte le titre d'une catégorie,
       mesuré sur `/f2`. Une valeur de gabarit qu'on épouse, pas un
@@ -4889,6 +4900,28 @@ html#min-width {
 #modernbb .postprofile dd {
   margin: 0;
   padding: 0;
+}
+
+/*  ── ET L'ÉQUIPE REPREND SON ESPACE, JUSTE APRÈS ──────────────────
+
+    La remise à zéro ci-dessus est en (1,1,1) ; le rembourrage que le
+    § 24 donnait à l'équipe était en (1,1,0), et perdait. Mesuré dans
+    la page de Callista : zéro partout, trois fois signalé, alors que
+    la règle existait bel et bien.
+
+    PREMIER CORRECTIF, ABANDONNÉ : un `:not(.postprofile-equipe)` sur
+    la remise à zéro. Il rendait aussi la MARGE par défaut du `dd` —
+    quarante pixels à gauche chez tous les navigateurs — et la grille
+    de l'équipe passait de trois cases par rang à deux. Une remise à
+    zéro qu'on perce rend tout ce qu'elle retenait, pas seulement ce
+    qu'on visait.
+
+    ICI, EN (1,1,2), juste sous la règle qu'il corrige : on lit les
+    deux d'affilée, et aucune des deux ne surprend l'autre. */
+#modernbb .postprofile dd.postprofile-equipe {
+  margin-top: var(--wm-espace-16, 16px);
+  padding-top: var(--wm-espace-16, 16px);
+  padding-bottom: var(--wm-espace-16, 16px);
 }
 
 /*  L'avatar. La charte lui donne 200 × 320 — un portrait, pas une
@@ -6371,11 +6404,16 @@ html#min-width {
 
 #modernbb .wm-profil__panneau .wm-profil__valeur {
   color: var(--wm-texte-corps, #4e3b30);
-  /*  `taille-normal` et pas un `corps` inventé : la charte n'a pas de
-      jeton de ce nom, et un repli qui ne correspond à rien devient la
-      seule valeur qui s'applique — le garde-fou 15 l'a dit. */
-  font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: var(--wm-graisse-demi, 600);
+  /*  ÉTIQUETTE ET MAIGRE, depuis le 31 octobre. « Le contenu du champ
+      est trop gros par rapport au champ en lui-même et ne doit pas
+      être en gras » : il était à 13,5 px et en 600, la clé à 10 — la
+      valeur criait plus fort que ce qu'elle nomme.
+
+      C'EST CORRIGÉ ICI ET PAS AILLEURS. Un correctif plus spécifique
+      ajouté plus bas aurait laissé deux règles se contredire, et la
+      prochaine lecture aurait trouvé la mauvaise en premier. */
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-normale, 400);
 }
 
 /*  ── 3 · LE SURVOL D'UN BADGE ───────────────────────────────────────
@@ -7292,6 +7330,63 @@ html#min-width {
   padding-right: 0;
 }
 
+/* ── 26 · relevé dans la page, le 31 octobre au soir ───────────────── */
+
+/*  Mesuré dans le navigateur de Callista, pas supposé. Et d'abord une
+    chose qui n'est pas un défaut de code :
+
+    ── LA MOITIÉ DE CE QU'ELLE NE VOYAIT PAS ÉTAIT DU CACHE ─────────
+
+    GitHub Pages sert la feuille avec `Cache-Control: max-age=600`.
+    Sa page affichait donc une feuille vieille de quelques minutes
+    pendant que le fichier en ligne était à jour — vérifié en
+    rechargeant la feuille avec un paramètre : le jeton « en ligne »
+    est passé de `vertical-rl` à `horizontal-tb` sur-le-champ, sans
+    qu'une ligne de CSS change. Ce qui suit ne corrige donc QUE ce qui
+    restait faux une fois la feuille fraîche. */
+
+/*  ── LE « J'AIME » REVIENT À CÔTÉ DES ICÔNES ──────────────────────
+
+    « Remets ce bouton à côté des autres, ici à droite. » Il était
+    passé sous le bandeau ce matin, à la demande de la veille ; il
+    remonte dans la rangée, juste avant les six icônes.
+
+    C'est le troisième placement en deux jours, et c'est normal : on
+    le voit à l'écran, on en juge, on bouge. Ce qui compte est que la
+    règle dise à chaque fois ce qui est voulu MAINTENANT, et pas
+    qu'elle empile les trois. */
+#modernbb .post-head .fa_like_div {
+  order: 1;
+  flex: 0 0 auto;
+  margin-top: 0;
+  margin-left: auto;
+}
+
+#modernbb .post-head:has(.fa_like_div) .menu-wrap {
+  order: 2;
+  margin-left: var(--wm-espace-8, 8px);
+}
+
+/*  ── LE PETIT « 1 » SE LIT ────────────────────────────────────────
+
+    « Le petit 1 n'est pas lisible. » Sa pastille prenait 16 % de la
+    couleur du texte — sur un bouton déjà teinté de rose à 16 %, le
+    contraste tombait sous le seuil. Elle prend maintenant la couleur
+    pleine du cœur et le chiffre passe en clair : du blanc sur rose,
+    qui se lit dans les deux thèmes parce que les deux valeurs sont
+    écrites, pas mélangées. */
+#modernbb .post-head .fa_like_div .rep-nb {
+  min-width: 17px;
+  height: 17px;
+  background: #c2567a;
+  color: #fff;
+  font-size: 10px;
+}
+
+#modernbb .post-head .fa_like_div .rep-button:not(.fa_liked) .rep-nb {
+  background: var(--wm-texte-pale, #69564c);
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 
@@ -7716,30 +7811,17 @@ html#min-width {
 
     Les règles d'ici visent les deux formes. */
 
-/*  LA BARRE D'OUTILS PASSE EN MARRON. Elle était en crème, un ton
-    au-dessus du fond de page — d'où le « beige ». */
-#modernbb .sceditor-toolbar {
-  border-bottom-color: color-mix(in srgb, var(--wm-encre, #2e2018) 25%, transparent) !important;
-  background: var(--wm-accent-terre, #8b4725) !important;
-}
+/*  LA BARRE D'OUTILS REDEVIENT CLAIRE. « Enlève le style que tu as
+    rajouté dans le bloc d'édition », 31 octobre.
 
-/*  ET LES ICÔNES S'INVERSENT POUR RESTER LISIBLES. Le sprite de
-    sceditor est fait de glyphes SOMBRES sur transparent : posés tels
-    quels sur du marron, ils disparaissent.
+    Le marron était une réponse à « pourquoi est-ce que le fond est
+    beige ? » — mais le beige dont il s'agissait n'était pas la barre.
+    Et l'inversion des icônes était un pari sur un sprite qu'on ne
+    possède pas : le HTML relevé montre `<a class="sceditor-button">
+    <div>Gras</div></a>`, un libellé en texte masqué derrière une
+    image de fond. Inverser l'un inversait l'autre.
 
-    `invert` sur une image qu'on ne possède pas est un pari, et il est
-    assumé : le sprite est monochrome, donc l'inversion le rend clair
-    sans le colorer. Si un jour il devient couleur, c'est cette ligne
-    qu'il faut retirer — et rien d'autre. */
-#modernbb .sceditor-button > div,
-#modernbb .sceditor-button > div > div {
-  filter: invert(1) brightness(1.7);
-}
-
-#modernbb .sceditor-button:hover,
-#modernbb .sceditor-button:focus-visible {
-  background: color-mix(in srgb, #fffbf7 22%, transparent);
-}
+    Les deux partent. La barre garde ce que le § 3 lui donnait. */
 
 /*  ON ÉCRIT DANS DU BLANC. `fond-surface`, la surface la plus claire
     de la charte — la même que celle d'une carte. Les deux formes de
@@ -7803,6 +7885,69 @@ html#min-width {
 #modernbb input[name="preview"]:hover {
   border-color: var(--wm-accent-terre, #8b4725);
   background: var(--wm-fond-terre, #f8eae1);
+}
+
+/* ── 12 · l'éditeur, relevé dans le HTML servi le 31 octobre ───────── */
+
+/*  Callista a collé ce que Forumactif rend. Trois styles EN LIGNE,
+    posés par leur script sur le nœud, et un style en ligne bat tous
+    les sélecteurs — c'est le seul cas où `!important` est la réponse,
+    la même règle qu'au § 3 pour les `!important` de sceditor.
+
+      <div id="textarea_content" style="width: 50%; clear: both;
+           margin-left: auto; margin-right: auto; text-align: center">
+      <div class="sceditor-container" style="width: 100%; height: auto">
+      <textarea style="width: 1052px; height: 82px">
+
+    LA MOITIÉ DE LA LARGEUR, CENTRÉE. Voilà pourquoi l'éditeur était
+    étroit et tout ce qu'il contient centré : ce n'est pas une de nos
+    règles, c'est leur `width: 50%`. */
+#modernbb #textarea_content {
+  width: 100% !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+/*  LE CHAMP PREND TOUTE LA LARGEUR ET RESPIRE. Leur script lui écrit
+    une largeur en pixels calculée sur les 50 % d'avant, et 82 px de
+    haut — trois lignes pour écrire un RP. */
+#modernbb #textarea_content textarea,
+#modernbb .sceditor-container textarea,
+#modernbb #quick_reply textarea,
+#modernbb #text_editor_textarea {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-height: 240px;
+}
+
+#modernbb #textarea_content .sceditor-container {
+  width: 100% !important;
+  box-shadow: none;
+}
+
+/*  AUCUNE OMBRE SUR LE BLOC D'ÉDITION, ni sur ce qu'il contient.
+    Elles viennent de la feuille de ModernBB. */
+#modernbb #textarea_content,
+#modernbb #textarea_content *,
+#modernbb #quick_reply,
+#modernbb #quick_reply * {
+  box-shadow: none;
+}
+
+/*  « Caractères : 0 Mots : 0 » revient à gauche avec le reste. */
+#modernbb #textarea_content .word-count {
+  text-align: left;
+}
+
+/* ── 13 · « Réponse rapide : » prend le bandeau de section ─────────── */
+
+/*  Le bandeau lui-même est posé par `03-index.css` et `04-forum.css`,
+    qui ont ajouté `.wm-sujet__reponse .h3` à leurs sélecteurs : la
+    recette est écrite une fois, pas deux. Il ne reste ici que ce qui
+    lui est propre — les marges que ModernBB met sur un `.h3`. */
+#modernbb .wm-sujet__reponse .h3 {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  border: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════

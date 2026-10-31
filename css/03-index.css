@@ -101,7 +101,14 @@
 
     Ce qui la distingue — le rang, les filets, le titre — est au § 11
     de `04`, parce que c'est son balisage à elle. */
+/*  `.wm-sujet__reponse .h3` EST DANS LA LISTE depuis le 31 octobre.
+    « La réponse rapide doit s'afficher comme le titre des sujets. »
+    Forumactif sert son propre `<div class="h3">Réponse rapide:</div>`
+    dans `{QUICK_REPLY_FORM}` ; plutôt que de lui écrire un bandeau à
+    lui — qui dériverait de celui-ci au premier ajustement — on
+    l'ajoute au sélecteur qui porte déjà la recette. */
 #modernbb ul.topiclist li.header dl.icon,
+#modernbb .wm-sujet__reponse .h3,
 #modernbb .wm-forum__bande {
   display: flex;
   min-height: 74px;

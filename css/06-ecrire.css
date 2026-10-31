@@ -422,30 +422,17 @@
 
     Les règles d'ici visent les deux formes. */
 
-/*  LA BARRE D'OUTILS PASSE EN MARRON. Elle était en crème, un ton
-    au-dessus du fond de page — d'où le « beige ». */
-#modernbb .sceditor-toolbar {
-  border-bottom-color: color-mix(in srgb, var(--wm-encre, #2e2018) 25%, transparent) !important;
-  background: var(--wm-accent-terre, #8b4725) !important;
-}
+/*  LA BARRE D'OUTILS REDEVIENT CLAIRE. « Enlève le style que tu as
+    rajouté dans le bloc d'édition », 31 octobre.
 
-/*  ET LES ICÔNES S'INVERSENT POUR RESTER LISIBLES. Le sprite de
-    sceditor est fait de glyphes SOMBRES sur transparent : posés tels
-    quels sur du marron, ils disparaissent.
+    Le marron était une réponse à « pourquoi est-ce que le fond est
+    beige ? » — mais le beige dont il s'agissait n'était pas la barre.
+    Et l'inversion des icônes était un pari sur un sprite qu'on ne
+    possède pas : le HTML relevé montre `<a class="sceditor-button">
+    <div>Gras</div></a>`, un libellé en texte masqué derrière une
+    image de fond. Inverser l'un inversait l'autre.
 
-    `invert` sur une image qu'on ne possède pas est un pari, et il est
-    assumé : le sprite est monochrome, donc l'inversion le rend clair
-    sans le colorer. Si un jour il devient couleur, c'est cette ligne
-    qu'il faut retirer — et rien d'autre. */
-#modernbb .sceditor-button > div,
-#modernbb .sceditor-button > div > div {
-  filter: invert(1) brightness(1.7);
-}
-
-#modernbb .sceditor-button:hover,
-#modernbb .sceditor-button:focus-visible {
-  background: color-mix(in srgb, #fffbf7 22%, transparent);
-}
+    Les deux partent. La barre garde ce que le § 3 lui donnait. */
 
 /*  ON ÉCRIT DANS DU BLANC. `fond-surface`, la surface la plus claire
     de la charte — la même que celle d'une carte. Les deux formes de
@@ -509,4 +496,67 @@
 #modernbb input[name="preview"]:hover {
   border-color: var(--wm-accent-terre, #8b4725);
   background: var(--wm-fond-terre, #f8eae1);
+}
+
+/* ── 12 · l'éditeur, relevé dans le HTML servi le 31 octobre ───────── */
+
+/*  Callista a collé ce que Forumactif rend. Trois styles EN LIGNE,
+    posés par leur script sur le nœud, et un style en ligne bat tous
+    les sélecteurs — c'est le seul cas où `!important` est la réponse,
+    la même règle qu'au § 3 pour les `!important` de sceditor.
+
+      <div id="textarea_content" style="width: 50%; clear: both;
+           margin-left: auto; margin-right: auto; text-align: center">
+      <div class="sceditor-container" style="width: 100%; height: auto">
+      <textarea style="width: 1052px; height: 82px">
+
+    LA MOITIÉ DE LA LARGEUR, CENTRÉE. Voilà pourquoi l'éditeur était
+    étroit et tout ce qu'il contient centré : ce n'est pas une de nos
+    règles, c'est leur `width: 50%`. */
+#modernbb #textarea_content {
+  width: 100% !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+/*  LE CHAMP PREND TOUTE LA LARGEUR ET RESPIRE. Leur script lui écrit
+    une largeur en pixels calculée sur les 50 % d'avant, et 82 px de
+    haut — trois lignes pour écrire un RP. */
+#modernbb #textarea_content textarea,
+#modernbb .sceditor-container textarea,
+#modernbb #quick_reply textarea,
+#modernbb #text_editor_textarea {
+  box-sizing: border-box;
+  width: 100% !important;
+  min-height: 240px;
+}
+
+#modernbb #textarea_content .sceditor-container {
+  width: 100% !important;
+  box-shadow: none;
+}
+
+/*  AUCUNE OMBRE SUR LE BLOC D'ÉDITION, ni sur ce qu'il contient.
+    Elles viennent de la feuille de ModernBB. */
+#modernbb #textarea_content,
+#modernbb #textarea_content *,
+#modernbb #quick_reply,
+#modernbb #quick_reply * {
+  box-shadow: none;
+}
+
+/*  « Caractères : 0 Mots : 0 » revient à gauche avec le reste. */
+#modernbb #textarea_content .word-count {
+  text-align: left;
+}
+
+/* ── 13 · « Réponse rapide : » prend le bandeau de section ─────────── */
+
+/*  Le bandeau lui-même est posé par `03-index.css` et `04-forum.css`,
+    qui ont ajouté `.wm-sujet__reponse .h3` à leurs sélecteurs : la
+    recette est écrite une fois, pas deux. Il ne reste ici que ce qui
+    lui est propre — les marges que ModernBB met sur un `.h3`. */
+#modernbb .wm-sujet__reponse .h3 {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  border: 0;
 }

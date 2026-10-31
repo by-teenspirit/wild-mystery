@@ -1176,6 +1176,10 @@
   justify-content: center;
 }
 
+/*  Et le `.h3` de la réponse rapide porte son propre texte : il est
+    à la fois la bande et le titre, là où les autres ont un `<span>`
+    dedans. Les deux sélecteurs voyagent ensemble. */
+#modernbb .wm-sujet__reponse .h3,
 #modernbb .wm-forum__bande-titre {
   /*  0,018 em : l'interlettrage que porte le titre d'une catégorie,
       mesuré sur `/f2`. Une valeur de gabarit qu'on épouse, pas un

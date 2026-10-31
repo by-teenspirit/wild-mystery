@@ -281,7 +281,14 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
       }
       if (nom === "L_LIKE") return "J'aime";
       if (nom === "L_DISLIKE") return "Je n'aime pas";
-      if (nom === "COUNT_VOTE_LIKE") return j === 0 ? "3" : "0";
+      //  LE NOMBRE ARRIVE DANS SA PROPRE PASTILLE. Relevé le
+      //  31 octobre : Forumactif sert `<span class="rep-nb">1</span>`,
+      //  pas un nombre nu. Le décor servait le nombre nu, et la règle
+      //  qui habille la pastille ne retenait donc aucun contrôle —
+      //  dixième fois qu'un décor incomplet ne teste que lui-même.
+      if (nom === "COUNT_VOTE_LIKE") {
+        return `<span class="rep-nb">${j === 0 ? "3" : "0"}</span>`;
+      }
       if (nom === "COUNT_VOTE_DISLIKE") return "0";
       if (nom === "C_VOTE_DISLIKE") return "";
       //  Les URL de vote : le harnais ne clique pas, mais un attribut
@@ -1100,6 +1107,68 @@ for (const [i, ch] of fiche.champs.entries()) {
   );
 }
 
+const equipeEtValeur = await p.evaluate(() => {
+  const eq = document.querySelector(".postprofile-equipe");
+  const cle = document.querySelector(".wm-profil__champ .wm-profil__cle");
+  const val = document.querySelector(".wm-profil__champ .wm-profil__valeur");
+  if (eq === null || cle === null || val === null) return null;
+  const se = getComputedStyle(eq), sc = getComputedStyle(cle), sv = getComputedStyle(val);
+  return {
+    //  L'ÉQUIPE RESPIRE EN HAUT ET EN BAS. Trois fois signalé, et
+    //  trois fois la règle existait sans gagner : la remise à zéro
+    //  des `dd` de `.postprofile` est en (1,1,1), elle était en
+    //  (1,1,0).
+    haut: Math.round(parseFloat(se.paddingTop)),
+    bas: Math.round(parseFloat(se.paddingBottom)),
+    //  ET LA MARGE GAUCHE PAR DÉFAUT DU `dd` RESTE À ZÉRO : un
+    //  premier correctif l'avait rendue en perçant la remise à zéro,
+    //  et la grille passait de trois cases par rang à deux.
+    gauche: Math.round(parseFloat(se.marginLeft)),
+    //  LA VALEUR N'EST PAS PLUS GROSSE NI PLUS GRASSE QUE SA CLÉ.
+    tailleCle: parseFloat(sc.fontSize),
+    tailleValeur: parseFloat(sv.fontSize),
+    graisseValeur: Number(sv.fontWeight),
+  };
+});
+
+const petitNombre = await p.evaluate(() => {
+  const n = document.querySelector(".fa_like_div .rep-nb");
+  if (n === null) return null;
+  const st = getComputedStyle(n);
+  //  LE CONTRASTE, CALCULÉ COMME LA NORME LE DIT. « Le petit 1 n'est
+  //  pas lisible » : sa pastille prenait 16 % de la couleur du texte
+  //  sur un bouton déjà teinté à 16 %, et le rapport tombait sous le
+  //  seuil. On le mesure au lieu de le juger à l'œil.
+  const lum = (c) => {
+    const v = (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number).map((x) => {
+      const u = x / 255;
+      return u <= 0.03928 ? u / 12.92 : Math.pow((u + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  };
+  const a = lum(st.color), b = lum(st.backgroundColor);
+  return {
+    texte: st.color,
+    fond: st.backgroundColor,
+    rapport: Math.round(((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)) * 100) / 100,
+  };
+});
+
+dire(
+  "le petit nombre des « j'aime » se lit — 4,5:1 au moins",
+  petitNombre !== null && petitNombre.rapport >= 4.5,
+  JSON.stringify(petitNombre),
+);
+
+dire(
+  "l'équipe respire, et la valeur d'un champ n'écrase pas sa clé",
+  equipeEtValeur !== null && equipeEtValeur.haut >= 12 &&
+    equipeEtValeur.bas >= 12 && equipeEtValeur.gauche === 0 &&
+    equipeEtValeur.tailleValeur <= equipeEtValeur.tailleCle &&
+    equipeEtValeur.graisseValeur < 600,
+  JSON.stringify(equipeEtValeur),
+);
+
 dire(
   "L'ÉQUIPE MONTRE SIX CASES VIDES DE 56 px, TROIS PAR RANG",
   //  « Des cases vides quand il n'en a aucun », 28 octobre. Le décor ne
@@ -1459,13 +1528,14 @@ const jaime = await p.evaluate(() => {
 });
 
 dire(
-  "LES « J'AIME » PRENNENT LA LIGNE SOUS LE BANDEAU",
-  //  « Le like doit passer sur la ligne du dessous », 31 octobre —
-  //  l'inverse exact de ce qui avait été demandé la veille, et c'est
-  //  bien : au bout du bandeau, le bloc poussait les six icônes vers
-  //  le milieu et le bandeau passait sur deux lignes.
-  jaime !== null && jaime.dansLaTete && jaime.memeLigne === false &&
-    jaime.iconesAuBord && jaime.boutons >= 1 &&
+  "LES « J'AIME » SONT DANS LA RANGÉE, JUSTE AVANT LES ICÔNES",
+  //  « Remets ce bouton à côté des autres, ici à droite »,
+  //  31 octobre au soir. Troisième placement en deux jours : au bout
+  //  du bandeau le 30, sous le bandeau le 31 au matin, dans la
+  //  rangée le 31 au soir. Le contrôle dit ce qui est voulu
+  //  maintenant, il n'empile pas les trois.
+  jaime !== null && jaime.dansLaTete && jaime.memeLigne &&
+    jaime.aDroite && jaime.iconesAuBord && jaime.boutons >= 1 &&
     jaime.rayon === "999px" && jaime.motCache,
   JSON.stringify(jaime),
 );
