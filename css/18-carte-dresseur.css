@@ -689,3 +689,124 @@
     gap: var(--wm-espace-14, 14px);
   }
 }
+
+
+/* ── 7 · le 31 octobre, tard ───────────────────────────────────────── */
+
+/*  ── LES BADGES, TROIS PAR RANG ET CENTRÉS ───────────────────────
+
+    « Fais en sorte qu'on les aligne 3 par 3 et que ça soit bien
+    centré. » Ils se rangeaient à la file et se coupaient où la
+    largeur finissait — onze badges donnaient une dernière rangée de
+    deux, décalée à gauche.
+
+    UNE GRILLE, PAS UN FLEX. Trois colonnes fixes et la grille
+    centrée dans son bloc : c'est la seule façon d'avoir trois par
+    rang ET la dernière rangée centrée sous les autres. En flex, la
+    dernière rangée se colle à gauche, et `justify-content: center`
+    centrerait AUSSI les rangées pleines, qui n'en ont pas besoin. */
+/*  PREMIER JET : UNE GRILLE DE TROIS COLONNES. Elle donnait bien
+    trois par rang, mais la DERNIÈRE rangée restait calée à gauche —
+    deux badges dans les colonnes 1 et 2, la 3 vide. Une grille ne
+    centre pas une rangée incomplète.
+
+    Le flex le fait, à une condition : borner la liste à la largeur
+    exacte de trois badges — 3 × 44 + 2 × 10 — pour qu'elle casse au
+    troisième. Les rangées pleines remplissent cette largeur, donc le
+    centrage ne les bouge pas ; la dernière, plus courte, se centre. */
+#modernbb .wm-tcard__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  box-sizing: content-box;
+  max-width: calc(3 * 44px + 2 * var(--wm-espace-10, 10px));
+  margin-inline: auto;
+  gap: var(--wm-espace-10, 10px);
+}
+
+/*  ── LES ARÈNES ET LES COLOSSEUMS NE SE MÉLANGENT PAS ────────────
+
+    « Il faut séparer les badges d'arènes des badges de colosseums. »
+    Ce ne sont pas les mêmes épreuves : les onze arènes ouvrent la
+    Ligue, les quatre colosseums n'y comptent pas (planche 25). Deux
+    listes, deux surtitres, un filet entre les deux. */
+#modernbb .wm-tcard__badges + .wm-tcard__soustitre {
+  margin-top: var(--wm-espace-16, 16px);
+  padding-top: var(--wm-espace-16, 16px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-tcard__soustitre {
+  display: block;
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/*  ── PLUS AUCUN BLEU SUR UN BADGE NI SUR SA BULLE ────────────────
+
+    « Pas de contour bleu, et améliore aussi l'infobulle qui possède
+    des contours bleu. » Le bleu vient du contour de focus que le
+    navigateur dessine sur un élément `tabindex` — nécessaire au
+    clavier, déplacé à l'œil quand il suffit de survoler.
+
+    ON NE LE SUPPRIME PAS, ON LE REMPLACE : `:focus-visible` ne se
+    déclenche qu'au clavier, et il prend la couleur de la charte. Un
+    badge atteint à la souris n'a plus de cadre ; atteint au clavier,
+    il en a un. */
+#modernbb .wm-tcard__badge:focus {
+  outline: none;
+}
+
+#modernbb .wm-tcard__badge:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+#modernbb .wm-tcard__bulle {
+  outline: none;
+  box-shadow: 0 6px 20px rgb(46 32 24 / 18%);
+}
+
+/*  ── LA BULLE D'UN BADGE NE DIT QUE SON NOM ──────────────────────
+
+    « Je veux pas date d'obtention et le nom du badge, c'est tout. »
+    L'état et la date sortent. Le cadre en pointillé continue de dire
+    ce qui manque — c'est lui qui portait déjà l'information, la
+    bulle ne faisait que la répéter. */
+#modernbb .wm-tcard__bulle-etat,
+#modernbb .wm-tcard__bulle-date {
+  display: none;
+}
+
+/*  ── LES TYPES S'ALIGNENT, SEUL LE SPRITE VARIE ──────────────────
+
+    « Le grand vide que tu laisses en bas, je ne veux pas : les types
+    doivent être alignés, les niveaux et les noms aussi, c'est
+    surtout le sprite qui varie. »
+
+    Les six cases ont la même hauteur — c'est `align-items: stretch`
+    sur la liste. Le contenu, lui, était calé en haut : une case dont
+    le nom tient sur une ligne laissait le vide en bas, sous sa
+    pastille de type.
+
+    `margin-top: auto` sur la pastille la pousse au BAS de sa case.
+    Les six pastilles se retrouvent donc sur une ligne, quelle que
+    soit la hauteur du sprite au-dessus — ce qui est exactement ce
+    qui est demandé, et ce qui fait disparaître le vide : il passe
+    au-dessus du nom, là où le sprite varie. */
+#modernbb .wm-tcard__pkmn .wm-type {
+  margin-top: auto;
+}
+
+#modernbb .wm-tcard__nom {
+  margin-top: auto;
+}
+
+#modernbb .wm-tcard__niveau {
+  margin-top: 0;
+}

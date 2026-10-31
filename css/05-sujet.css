@@ -2752,3 +2752,186 @@
 #modernbb .post-head .fa_like_div .rep-button:not(.fa_liked) .rep-nb {
   background: var(--wm-texte-pale, #69564c);
 }
+
+/* ── 27 · le 31 octobre, tard ──────────────────────────────────────── */
+
+/*  ── LES ONGLETS : C'ÉTAIT `label { margin-right: 18px }` ─────────
+
+    Trouvé par Callista dans l'inspecteur, après que j'ai cherché
+    sans succès. ModernBB met dix-huit pixels de marge droite sur
+    TOUT `label` de la page. Trois labels, cinquante-quatre pixels —
+    exactement les cinquante-cinq que je n'arrivais pas à placer : le
+    conteneur fait 204, les trois labels 47 chacun, 3 × 47 + 2 × 4 de
+    `gap` + 3 × 18 de marge = 203.
+
+    POURQUOI MES ESSAIS N'ONT RIEN MONTRÉ. Je forçais `flex-grow` et
+    `width` en ligne, et je regardais la largeur : elle ne bougeait
+    pas, ce qui est normal — la marge n'est pas dans la largeur. Un
+    conteneur flex tout neuf créé à côté se comportait pareil, et
+    j'en ai conclu que le défaut n'était pas dans ma règle. Il l'était
+    quand même : ma règle ne disait rien de la marge.
+
+    LA LEÇON : quand trois éléments ne remplissent pas leur ligne, la
+    largeur est une des deux réponses possibles. J'ai regardé l'une
+    pendant une heure sans jamais mesurer l'autre. */
+#modernbb .wm-profil__onglets label {
+  margin-right: 0;
+}
+
+/*  « Rajoute un margin-top ici » : le dossier à onglets commence sous
+    un filet, et la rangée le touchait. */
+#modernbb .wm-profil__onglets {
+  margin-top: var(--wm-espace-14, 14px);
+}
+
+/*  ── LA FEUILLE DE PERSONNAGE SE LIT COMME « INFOS » ──────────────
+
+    « Faut faire pareil et ne pas aligner le contenu des champs à
+    droite mais faire comme dans Infos. » Le § 24 l'avait mise en
+    deux colonnes, le § 25 a défait les colonnes de l'onglet Infos
+    mais pas celles-ci. Le même traitement : la clé, ses deux points,
+    la valeur à la suite.
+
+    LES `<br>` REDEVIENNENT DES `<br>`. Ils étaient des éléments de
+    flex à qui `flex-basis: 100%` servait de retour à la ligne ; sans
+    flex, ils font leur travail tout seuls. */
+/*  PAS DE `display` ICI — DEUXIÈME FOIS. Posé sur le panneau, il bat
+    le `display: none` du § 15 à spécificité égale et l'onglet
+    « Fiche » reste ouvert par-dessus les deux autres. Le harnais
+    l'avait déjà attrapé le 30 octobre ; je viens de le refaire. Le
+    `display` ne se donne qu'à l'onglet coché, juste en dessous. */
+#modernbb .wm-profil__panneau--2 {
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+#modernbb .wm-profil__radio:nth-of-type(2):checked ~ .wm-profil__panneau--2 {
+  display: block;
+}
+
+#modernbb .wm-profil__panneau--2 > br {
+  flex: none;
+  height: auto;
+}
+
+#modernbb .wm-profil__panneau--2 .gen,
+#modernbb .wm-profil__panneau--2 .gen[id] {
+  display: inline;
+  flex: none;
+  text-align: left;
+}
+
+#modernbb .wm-profil__panneau--2 .gen[id] {
+  color: var(--wm-texte-corps, #4e3b30);
+  font-weight: var(--wm-graisse-normale, 400);
+}
+
+/*  ── LE « J'AIME » NE PREND QUE SA PLACE ──────────────────────────
+
+    « Ce bouton a trop de marge, il doit juste être placé à côté des
+    autres sans prendre davantage de place que la taille qu'il
+    fait. » Le bloc portait encore `margin-left: auto` du § 26 : il
+    poussait, donc il occupait tout le vide de la rangée. C'est la
+    rangée d'icônes qui pousse, pas lui. */
+#modernbb .post-head .fa_like_div {
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+#modernbb .post-head:has(.fa_like_div) .menu-wrap {
+  margin-left: var(--wm-espace-8, 8px);
+}
+
+/*  LE RESSORT REVIENT SUR LE PREMIER DES DEUX, pour que la paire
+    parte à droite d'un bloc. */
+#modernbb .post-head .topic-date {
+  margin-right: auto;
+}
+
+/*  ── LE NOMBRE SE LIT, POUR DE BON ────────────────────────────────
+
+    Deuxième tentative. La première posait du blanc sur le rose du
+    cœur — 6,9:1, mesuré, et pourtant « on ne lit toujours pas ». Le
+    défaut n'était pas le contraste : la pastille faisait dix-sept
+    pixels pour un chiffre de dix, et le chiffre y était à l'étroit.
+    Elle s'élargit, le chiffre grandit. */
+#modernbb .post-head .fa_like_div .rep-nb {
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 18px;
+}
+
+/*  ── « EN LIGNE » : DEBOUT, MAIS DEHORS ───────────────────────────
+
+    « Tourne-le en vertical et colle-le à l'extérieur de ce bloc. »
+    Troisième forme : debout dans la gouttière (30), couché dans le
+    coin (31 matin), debout DEHORS maintenant.
+
+    `right: 100%` le sort du message par la gauche. Il n'est plus
+    dedans, donc il ne rogne plus rien, et il a toute la hauteur du
+    message pour se lire. */
+#modernbb .post.online::before {
+  top: var(--wm-espace-16, 16px);
+  right: 100%;
+  left: auto;
+  padding: var(--wm-espace-12, 12px) 5px;
+  border-radius: var(--wm-rayon-md, 8px) 0 0 var(--wm-rayon-md, 8px);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .post.online::after {
+  top: auto;
+  right: calc(100% + 7px);
+  bottom: auto;
+  left: auto;
+  margin-top: var(--wm-espace-16, 16px);
+  width: 7px;
+  height: 7px;
+}
+
+/*  La fiche n'a plus rien à réserver : le jeton est hors du message. */
+#modernbb .post .postprofile {
+  padding-top: 0;
+}
+
+/*  ── LA RÉPONSE RAPIDE ────────────────────────────────────────────
+
+    « Centre le texte, enlève les deux points, arrondi en haut
+    seulement, et colle au bloc d'édition. »
+
+    LES DEUX POINTS SONT DANS LE TEXTE DE FORUMACTIF — « Réponse
+    rapide: » — et un nœud de texte ne se coupe pas en CSS. On éteint
+    la taille du conteneur, ce qui le rend invisible sans le retirer
+    de l'arbre, et on écrit le titre dans un `::before` à nous. C'est
+    la même mécanique que pour le « : » des champs de profil. */
+#modernbb .wm-sujet__reponse .h3 {
+  justify-content: center;
+  margin: 0;
+  border-radius: var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px) 0 0;
+  font-size: 0;
+  text-align: center;
+}
+
+#modernbb .wm-sujet__reponse .h3::before {
+  content: "Réponse rapide";
+  font-size: var(--wm-taille-titre-section, 19px);
+}
+
+/*  LE `<br>` QUE FORUMACTIF MET ENTRE LE TITRE ET LE FORMULAIRE.
+    C'est lui, le vide : un saut de ligne en dur dans leur gabarit. */
+#modernbb .wm-sujet__reponse > br {
+  display: none;
+}
+
+#modernbb .wm-sujet__reponse #quick_reply {
+  margin: 0;
+  padding: var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-top: 0;
+  border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}

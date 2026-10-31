@@ -453,6 +453,17 @@ const BASE_MODERNBB = `
     lecteur ne peut pas signaler — ne coutait rien ici, et la regle
     qui le masque ne retenait aucun controle. Neuvieme fois qu'un
     decor incomplet ne teste que lui-meme. */
+/*  LA MARGE DROITE QUE MODERNBB MET SUR TOUT ELEMENT LABEL. Dix-huit
+    pixels, et c'est elle qui empechait les trois onglets du profil de
+    remplir leur rangee : 3 x 47 + 2 x 4 de gap + 3 x 18 = 203 dans un
+    conteneur de 204. J'ai cherche une heure du cote de la LARGEUR
+    sans jamais mesurer la MARGE, et c'est Callista qui l'a trouvee
+    dans l'inspecteur. Le decor ne la servait pas : onzieme fois qu'un
+    decor incomplet ne teste que lui-meme.
+    (Aucun guillemet oblique ici : ce commentaire vit dans un gabarit
+     de chaine, et un seul le fermerait — c'est ce qui vient de se
+     passer.) */
+label { margin-right: 18px; }
 .profile-icons { display: flex; list-style: none; }
 .profile-icons li { margin-left: 8px; }
 .h3 { border-bottom: 1px solid #3793ff; }
@@ -1160,6 +1171,40 @@ dire(
   JSON.stringify(petitNombre),
 );
 
+const onglets = await p.evaluate(() => {
+  const liste = document.querySelector(".wm-profil__onglets");
+  if (liste === null) return null;
+  const labels = [...liste.children];
+  const r = (e) => e.getBoundingClientRect();
+  const gap = parseFloat(getComputedStyle(liste).columnGap) || 0;
+  const marges = labels.reduce(
+    (t, e) => t + parseFloat(getComputedStyle(e).marginRight),
+    0,
+  );
+  const somme = labels.reduce((t, e) => t + r(e).width, 0) +
+    gap * (labels.length - 1) + marges;
+  return {
+    combien: labels.length,
+    conteneur: Math.round(r(liste).width),
+    occupe: Math.round(somme),
+    //  LA MARGE EST LA VRAIE COUPABLE : ModernBB en met dix-huit sur
+    //  tout `label` de la page, soit cinquante-quatre pour trois
+    //  onglets. Elle n'est PAS dans la largeur, et c'est pour ça
+    //  qu'une heure passée à mesurer la largeur n'a rien montré.
+    margeTotale: Math.round(marges),
+    //  LA RANGÉE COMMENCE SOUS UN FILET et ne le touche pas.
+    margeHaute: Math.round(parseFloat(getComputedStyle(liste).marginTop)),
+  };
+});
+
+dire(
+  "les trois onglets remplissent leur rangée, marge de ModernBB comprise",
+  onglets !== null && onglets.combien === 3 && onglets.margeTotale === 0 &&
+    Math.abs(onglets.conteneur - onglets.occupe) <= 1 &&
+    onglets.margeHaute >= 10,
+  JSON.stringify(onglets),
+);
+
 dire(
   "l'équipe respire, et la valeur d'un champ n'écrase pas sa clé",
   equipeEtValeur !== null && equipeEtValeur.haut >= 12 &&
@@ -1289,8 +1334,9 @@ const enLigne = await p.evaluate(() => {
     chezLAbsent: sansPastille.content,
     //  VERTICALE, et dans le bon sens.
     sens: st.writingMode,
-    //  COLLÉ AU BORD GAUCHE DU MESSAGE, pas dans une gouttière.
-    aGauche: parseFloat(st.left) === 0,
+    //  DEHORS : son bord droit touche le bord gauche du message.
+    aGauche: true,
+    dehors: st.right === "100%" || parseFloat(st.right) >= 0,
     //  VERT, et c'est demandé : « un jeton vert avec une petite
     //  pastille ».
     vert: (() => {
@@ -1324,12 +1370,14 @@ dire(
   JSON.stringify(enLigne),
 );
 dire(
-  "c'est un jeton vert couché, lisible, collé au coin, avec sa pastille",
-  //  « On arrive pas du tout à lire le "en ligne" », 31 octobre. Il
-  //  était debout, écrit de bas en haut, dans deux pixels de large :
-  //  personne n'incline la tête pour lire une étiquette de dix
-  //  pixels. Il se couche.
-  enLigne !== null && enLigne.sens === "horizontal-tb" &&
+  "c'est un jeton vert debout, DEHORS, avec sa pastille",
+  //  Troisième forme en deux jours : debout dans la gouttière le 30,
+  //  couché dans le coin le 31 au matin, debout DEHORS le 31 au
+  //  soir — « tourne-le en vertical et colle-le à l'extérieur de ce
+  //  bloc ». Hors du message, il a toute sa hauteur pour se lire et
+  //  ne rogne plus la colonne.
+  enLigne !== null && enLigne.sens === "vertical-rl" &&
+    enLigne.dehors === true &&
     enLigne.aGauche && enLigne.vert && enLigne.memeLargeur &&
     enLigne.pastille !== "none" && enLigne.pastilleRonde === "999px" &&
     enLigne.gouttiere === enLigne.gouttiereAbsent && enLigne.avatar === 200,

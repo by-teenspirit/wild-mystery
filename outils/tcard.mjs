@@ -158,6 +158,26 @@ function carteRemplie() {
     ["tenebres", "Ténèbres", false],
     ["vol", "Vol", false],
   ];
+  //  LES QUATRE COLOSSEUMS, séparés des arènes depuis le 31 octobre :
+  //  ce ne sont pas les mêmes épreuves, et les colosseums ne comptent
+  //  pas pour la Ligue.
+  const colosseums = [
+    ["colosseum-rhode", "Rhode", true],
+    ["colosseum-phenacit", "Phenacit", false],
+    ["colosseum-targare", "Targare", false],
+    ["colosseum-titanite", "Titanite", false],
+  ]
+    .map(([cle, nom, obtenu]) =>
+      `<li class="wm-tcard__badge${obtenu ? "" : " wm-tcard__badge--agagner"}"
+          data-wm-badge="${cle}" tabindex="0">
+        <span class="wm-tcard__bulle">
+          <span class="wm-tcard__bulle-nom">Badge - Colosseum ${nom}</span>
+          <span class="wm-tcard__bulle-etat">${obtenu ? "Obtenu" : "Non obtenu"}</span>
+        </span>
+      </li>`
+    )
+    .join("");
+
   const badges = BADGES
     .map(([cle, nom, obtenu]) =>
       //  AUCUNE `<img>` : le dessin vient de `20-icones.css`, par
@@ -199,7 +219,10 @@ function carteRemplie() {
     </section>
     <section class="wm-tcard__bloc">
       <h4 class="wm-tcard__titre">Mes badges</h4>
+      <span class="wm-tcard__soustitre">Arènes</span>
       <ul class="wm-tcard__badges" data-wm-tcard-badges>${badges}</ul>
+      <span class="wm-tcard__soustitre">Colosseums</span>
+      <ul class="wm-tcard__badges">${colosseums}</ul>
     </section>
   </div>
 </div>`;
@@ -429,6 +452,31 @@ const badges = await p.evaluate(() => {
   const obtenu = tous.filter((e) => !e.classList.contains("wm-tcard__badge--agagner"));
   return {
     combien: tous.length,
+    //  DEUX LISTES, deux surtitres : « il faut séparer les badges
+    //  d'arènes des badges de colosseums », 31 octobre.
+    groupes: document.querySelectorAll("#remplie .wm-tcard__badges").length,
+    soustitres: document.querySelectorAll("#remplie .wm-tcard__soustitre").length,
+    //  TROIS PAR RANG, ET LA DERNIÈRE RANGÉE CENTRÉE SOUS LES AUTRES.
+    parRang: (() => {
+      const premiere = document.querySelector("#remplie .wm-tcard__badges");
+      const lignes = {};
+      for (const e of premiere.children) {
+        const y = Math.round(r(e).top);
+        lignes[y] = (lignes[y] ?? 0) + 1;
+      }
+      return Object.values(lignes);
+    })(),
+    centre: (() => {
+      const liste = document.querySelector("#remplie .wm-tcard__badges");
+      const enfants = [...liste.children];
+      const rl = r(liste);
+      const derniere = enfants.filter((e) =>
+        Math.round(r(e).top) === Math.round(r(enfants.at(-1)).top)
+      );
+      const g = Math.round(r(derniere[0]).left - rl.left);
+      const d = Math.round(rl.right - r(derniere.at(-1)).right);
+      return Math.abs(g - d) <= 2;
+    })(),
     rangees: new Set(tous.map((e) => Math.round(r(e).top))).size,
     //  UN BADGE À GAGNER SE RECONNAÎT À SON CADRE, pas à sa teinte :
     //  deux crèmes voisines ne se distinguent pas, et c'est la règle
@@ -441,9 +489,16 @@ const badges = await p.evaluate(() => {
 });
 
 dire(
-  "les onze badges, les manquants reconnaissables à leur cadre",
-  badges !== null && badges.combien === 11 &&
-    badges.cadreDifferent && badges.ronds,
+  "onze arènes puis quatre colosseums, trois par rang, les manquants au pointillé",
+  badges !== null && badges.combien === 15 && badges.groupes === 2 &&
+    badges.cadreDifferent && badges.ronds &&
+    badges.soustitres === 2 &&
+    //  AU MOINS DEUX RANGÉES PLEINES, sinon « trois par rang » ne
+    //  veut rien dire : sans la borne de largeur, les onze arènes
+    //  tenaient sur une seule ligne et le contrôle passait sur un
+    //  tableau vide.
+    badges.parRang.length >= 3 &&
+    badges.parRang.slice(0, -1).every((n) => n === 3) && badges.centre,
   JSON.stringify(badges),
 );
 
@@ -474,8 +529,8 @@ const dessins = await p.evaluate(() => {
 });
 
 dire(
-  "les onze badges portent chacun son dessin, sans aucune image à charger",
-  dessins.combien === 11 && dessins.tousDessines && dessins.distincts === 11 &&
+  "les quinze badges portent chacun son dessin, sans aucune image à charger",
+  dessins.combien === 15 && dessins.tousDessines && dessins.distincts === 15 &&
     dessins.sansImg && dessins.bonneTaille,
   JSON.stringify(dessins),
 );
@@ -839,11 +894,31 @@ const bullesDeBadge = await p.evaluate(() => {
     toutesFermees: bulles.every((b) =>
       b !== null && getComputedStyle(b).visibility === "hidden"
     ),
-    //  LE NOM DE L'ARÈNE Y EST ÉCRIT, pas seulement en `title`.
+    //  LE NOM Y EST ÉCRIT, pas seulement en `title`.
     nomsEcrits: bulles.every((b) =>
       b !== null &&
-      (b.querySelector(".wm-tcard__bulle-nom")?.textContent ?? "").includes("Arène")
+      /Arène|Colosseum/.test(b.querySelector(".wm-tcard__bulle-nom")?.textContent ?? "")
     ),
+    //  ET L'ÉTAT N'EST PLUS MONTRÉ. « Je veux pas date d'obtention et
+    //  le nom du badge, c'est tout », 31 octobre. Il reste dans le
+    //  balisage pour qui écoute la page — le cadre en pointillé le
+    //  dit déjà à l'œil.
+    etatCache: tous.every((b) => {
+      const e = b.querySelector(".wm-tcard__bulle-etat");
+      return e === null || getComputedStyle(e).display === "none";
+    }),
+    //  AUCUN CONTOUR BLEU, ET ON LE MESURE SUR UN BADGE QUI A LE
+    //  FOCUS. Le premier jet lisait `outlineStyle` sur des badges au
+    //  repos : aucun n'en a, donc il passait même sans la règle.
+    sansContour: (() => {
+      tous[0].focus();
+      const st = getComputedStyle(tous[0]).outlineColor;
+      const m = (st.match(/\d+/g) || []).map(Number);
+      tous[0].blur();
+      //  Pas de bleu de navigateur : soit aucun contour, soit le
+      //  nôtre, qui n'est jamais plus bleu que rouge+vert.
+      return m.length < 3 || !(m[2] > m[0] + 40 && m[2] > m[1] + 40);
+    })(),
     //  ET L'ÉTAT, EN TOUTES LETTRES.
     etats: new Set(
       bulles.map((b) => b?.querySelector(".wm-tcard__bulle-etat")?.textContent.trim()),
@@ -865,11 +940,11 @@ const bullesDeBadge = await p.evaluate(() => {
 });
 
 dire(
-  "chaque badge dit son nom, son état et sa date, sans être grisé",
-  bullesDeBadge.combien === 11 && bullesDeBadge.toutesPresentes &&
+  "chaque badge dit son nom, et RIEN D'AUTRE à l'œil",
+  bullesDeBadge.combien === 15 && bullesDeBadge.toutesPresentes &&
     bullesDeBadge.toutesFermees && bullesDeBadge.nomsEcrits &&
-    bullesDeBadge.etats === 2 && bullesDeBadge.datesSurObtenus &&
-    bullesDeBadge.datesAilleurs === 0 && bullesDeBadge.bullesLisibles,
+    bullesDeBadge.etatCache && bullesDeBadge.sansContour &&
+    bullesDeBadge.bullesLisibles,
   JSON.stringify(bullesDeBadge),
 );
 

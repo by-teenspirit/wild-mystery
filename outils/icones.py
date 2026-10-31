@@ -144,14 +144,29 @@ def badges() -> str:
         ("plante", "Plante"), ("sol", "Sol"), ("spectre", "Spectre"),
         ("tenebres", "Ténèbres"), ("vol", "Vol"),
     ]
+    #  LES QUATRE COLOSSEUMS, en SVG — ce sont nos dessins, ceux du
+    #  dépôt. Callista n'a envoyé que les onze arènes ; le jour où
+    #  elle donne les siens, ils rejoignent `img/badges/arenes/`.
+    LES_QUATRE = ["rhode", "phenacit", "targare", "titanite"]
     regles = ["""
-/* ── LES ONZE BADGES D'ARÈNE ──────────────────────────────────────── */"""]
+/* ── LES BADGES : ONZE ARÈNES, QUATRE COLOSSEUMS ──────────────────── */"""]
     for cle, _ in LES_ONZE:
         octets = (R / f"img/badges/arenes/{cle}.png").read_bytes()
         b64 = base64.b64encode(octets).decode()
         regles.append(
             f'#modernbb [data-wm-badge="{cle}"] {{\n'
             f'  background-image: url("data:image/png;base64,{b64}");\n'
+            f"}}"
+        )
+    for cle in LES_QUATRE:
+        svg = " ".join((R / f"img/badges/colosseum-{cle}.svg").read_text().split())
+        for avant, apres in (
+            ("%", "%25"), ("#", "%23"), ('"', "'"), ("<", "%3C"), (">", "%3E"),
+        ):
+            svg = svg.replace(avant, apres)
+        regles.append(
+            f'#modernbb [data-wm-badge="colosseum-{cle}"] {{\n'
+            f'  background-image: url("data:image/svg+xml,{svg}");\n'
             f"}}"
         )
     return "\n\n".join(regles) + "\n"

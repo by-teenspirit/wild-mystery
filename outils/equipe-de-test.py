@@ -141,46 +141,62 @@ def case(b: dict, obscur: bool) -> str:
 
 
 def badges(de: random.Random) -> tuple[str, int]:
-    """Les onze badges d'arène, et combien sont obtenus.
+    """Les onze arènes et les quatre colosseums, en deux listes.
 
-    ONZE ET PAS SEPT, ET PAR TYPE ET PAS PAR LIEU. Relevé le
-    31 octobre dans le navigateur de Callista : les récompenses du
-    forum s'appellent « Badge - Arène Feu », « Badge - Arène
-    Plante ». Les noms de ville des annexes — Station Service,
-    Samaragd, Port-Amarée — ne sont pas ceux des arènes.
+    SÉPARÉS, demandé le 31 octobre : ce ne sont pas les mêmes
+    épreuves. Les onze arènes ouvrent la Ligue, les quatre
+    colosseums n'y comptent pas — planche 25.
+
+    LA BULLE NE DIT QUE LE NOM. « Je veux pas date d'obtention et le
+    nom du badge, c'est tout. » L'état reste dans le balisage pour
+    qui écoute la page : la feuille le masque à l'œil, parce que le
+    cadre en pointillé le dit déjà.
     """
-    LES_ONZE = [
+    ARENES = [
         ("acier", "Acier"), ("combat", "Combat"), ("eau", "Eau"),
         ("electrik", "Électrik"), ("fee", "Fée"), ("feu", "Feu"),
         ("plante", "Plante"), ("sol", "Sol"), ("spectre", "Spectre"),
         ("tenebres", "Ténèbres"), ("vol", "Vol"),
     ]
+    COLOSSEUMS = [
+        ("colosseum-rhode", "Rhode"), ("colosseum-phenacit", "Phenacit"),
+        ("colosseum-targare", "Targare"), ("colosseum-titanite", "Titanite"),
+    ]
+
+    def liste(entrees, quoi, obtenus):
+        out = []
+        for i, (cle, nom) in enumerate(entrees):
+            a_gagner = "" if i in obtenus else " wm-tcard__badge--agagner"
+            etat = "Obtenu" if i in obtenus else "Non obtenu"
+            out.append(
+                f'        <li class="wm-tcard__badge{a_gagner}" '
+                f'data-wm-badge="{cle}" tabindex="0">\n'
+                f'          <span class="wm-tcard__bulle">\n'
+                f'            <span class="wm-tcard__bulle-nom">Badge - {quoi} {nom}</span>\n'
+                f'            <span class="wm-tcard__bulle-etat">{etat}</span>\n'
+                f"          </span>\n"
+                f"        </li>"
+            )
+        return "\n".join(out)
+
     combien = de.randint(3, 6)
-    obtenus = set(de.sample(range(len(LES_ONZE)), combien))
-    lignes = []
-    for i, (cle, nom) in enumerate(LES_ONZE):
-        obtenu = i in obtenus
-        a_gagner = "" if obtenu else " wm-tcard__badge--agagner"
-        #  LA DATE EST TIRÉE, comme le reste des valeurs de test : elle
-        #  vit dans le panneau, avec la récompense, et rien dans le
-        #  dépôt ne la connaît.
-        date = (
-            f'<span class="wm-tcard__bulle-date">Obtenu le '
-            f'{de.randint(1, 28)}/{de.randint(1, 10):02}/2026</span>'
-            if obtenu else ""
-        )
-        etat = "Obtenu" if obtenu else "Non obtenu"
-        lignes.append(
-            f'        <li class="wm-tcard__badge{a_gagner}" '
-            f'data-wm-badge="{cle}" tabindex="0">\n'
-            f'          <span class="wm-tcard__bulle">\n'
-            f'            <span class="wm-tcard__bulle-nom">Badge - Arène {nom}</span>\n'
-            f'            <span class="wm-tcard__bulle-etat">{etat}</span>\n'
-            f'            {date}\n'
-            f'          </span>\n'
-            f"        </li>"
-        )
-    return "\n".join(lignes), combien
+    obtenues = set(de.sample(range(len(ARENES)), combien))
+    colos = set(de.sample(range(len(COLOSSEUMS)), de.randint(0, 2)))
+    bloc = (
+        '        <span class="wm-tcard__soustitre">Arènes</span>\n'
+        '      </span>\n' if False else ""
+    )
+    return (
+        '<span class="wm-tcard__soustitre">Arènes</span>\n'
+        '      <ul class="wm-tcard__badges" data-wm-tcard-badges>\n'
+        + liste(ARENES, "Arène", obtenues) + "\n"
+        + "      </ul>\n"
+        + '      <span class="wm-tcard__soustitre">Colosseums</span>\n'
+        + '      <ul class="wm-tcard__badges">\n'
+        + liste(COLOSSEUMS, "Colosseum", colos) + "\n"
+        + "      </ul>",
+        combien,
+    )
 
 
 def main() -> None:
@@ -300,9 +316,7 @@ def main() -> None:
 
     <section class="wm-tcard__bloc">
       <h4 class="wm-tcard__titre">Mes badges</h4>
-      <ul class="wm-tcard__badges" data-wm-tcard-badges>
-{liste_badges}
-      </ul>
+      {liste_badges}
     </section>
 
   </div>

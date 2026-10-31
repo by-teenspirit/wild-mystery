@@ -560,3 +560,34 @@
   margin: 0 0 var(--wm-espace-16, 16px);
   border: 0;
 }
+
+
+/* ── 14 · la réponse rapide prend toute sa largeur ─────────────────── */
+
+/*  « Tu peux centrer les éléments ? Ou fais en sorte que ça prenne
+    toute la largeur ? »
+
+    Les deux, et chacun là où il convient : l'éditeur prend toute la
+    largeur — c'est le § 12 — et la rangée des deux boutons se centre,
+    parce que Forumactif les sert déjà dans un bloc
+    `style="text-align: center"`. On épouse ce qu'ils font plutôt que
+    de le défaire : deux boutons centrés sous un champ pleine largeur,
+    c'est la forme d'un formulaire d'envoi partout ailleurs. */
+#modernbb #quick_reply > div[style*="center"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wm-espace-10, 10px);
+  margin-top: var(--wm-espace-18, 18px) !important;
+}
+
+/*  L'espace insécable que Forumactif met entre les deux boutons
+    doublerait le `gap`. */
+#modernbb #quick_reply > div[style*="center"] {
+  font-size: 0;
+}
+
+#modernbb #quick_reply > div[style*="center"] input {
+  font-size: var(--wm-taille-normal, 13.5px);
+}
