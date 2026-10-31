@@ -542,7 +542,7 @@
     « Les badges ne s'affichent pas dans la trainer card »,
     30 octobre. Ils ne s'affichaient pas parce que rien ne les
     affichait : le code collé ne porte que
-    `data-wm-badge="arene-pyrite"` — volontairement, pour qu'aucune
+    `data-wm-badge="feu"` — volontairement, pour qu'aucune
     adresse ne soit figée dans un message — et j'avais laissé l'image
     à un script qui n'existe pas encore. Une case vide en attendant.
 

@@ -224,8 +224,8 @@ a#logo img{max-width:100%}</style>
   <div id="fa_menu"><span id="fa_welcome">Bienvenue Compte de test</span><ul><li>un menu</li></ul></div>
   <a id="fa_notifications" class="rightHeaderLink unread">Notifications<span id="notif_unread">2</span></a>
   <ul id="notif_list">
-    <li><span class="contentText"><a href="/t1-un-sujet">Un pseudo tres long a repondu dans un sujet dont le titre ne tient sur aucune ligne raisonnable et continue encore</a></span></li>
-    <li><span class="contentText"><a href="/t2-court">Court</a></span></li>
+    <li class="unread"><div class="content"><a href="/u4"><strong>Compte de test</strong></a> a ecrit un message dans un sujet dont le titre ne tient sur aucune ligne raisonnable et continue encore</div><hr><a class="delete" href="#">x</a><div class="contentTime">Jeu 15 Oct 2026 - 9:42</div></li>
+    <li><div class="content">Court</div><hr><a class="delete" href="#">x</a><div class="contentTime">Hier a 15:57</div></li>
     <li class="see_all"><a href="/profile?mode=editprofile&amp;page_profil=notifications">Voir toutes les notifications</a></li>
   </ul>
   <div id="live_notif"></div>
@@ -1770,7 +1770,8 @@ const notifs = await p.evaluate(() => {
     ),
     //  LA PLUS LONGUE TIENT SUR DEUX LIGNES, pas une ni quatre.
     lignesDuTexte: (() => {
-      const t = longue.querySelector(".contentText") ?? longue;
+      const t = longue.querySelector(".content") ??
+        longue.querySelector(".contentText") ?? longue;
       const st = getComputedStyle(t);
       return {
         hauteur: Math.round(r(t).height),
@@ -1787,6 +1788,38 @@ const notifs = await p.evaluate(() => {
     ecartEntre: Math.round(r(lignes[1]).top - r(lignes[0]).bottom),
     //  LE TEXTE A RAPETISSÉ.
     taille: parseFloat(getComputedStyle(lignes[0]).fontSize),
+    //  ── CE QUE LE FORUM SERT VRAIMENT, relevé le 31 octobre ────
+    //
+    //  LE NON-LU EST UN POINT ROUGE, PAS UN FOND.
+    nonLuSansFond: getComputedStyle(lignes[0]).backgroundColor === "rgba(0, 0, 0, 0)",
+    point: (() => {
+      const st = getComputedStyle(lignes[0], "::after");
+      const lu = getComputedStyle(lignes[1], "::after");
+      const m = (st.backgroundColor.match(/\d+/g) || []).map(Number);
+      return {
+        surLeNonLu: st.content !== "none" && m.length >= 3 && m[0] > m[1] + 40,
+        pasSurLeLu: lu.content === "none",
+        rond: st.borderTopLeftRadius === "999px",
+      };
+    })(),
+    //  LA BARRE QUI TRAÎNE EST UN VRAI `<hr>`, un par notification.
+    hrCache: [...liste.querySelectorAll("hr")]
+      .every((h) => getComputedStyle(h).display === "none"),
+    //  LA DATE NE S'AFFICHE PLUS.
+    dateCachee: [...liste.querySelectorAll(".contentTime")]
+      .every((d) => getComputedStyle(d).display === "none"),
+    //  ET LA SUPPRESSION SE MONTRE AU SURVOL, sans jamais quitter
+    //  l'arbre : `opacity`, pas `display`.
+    suppression: (() => {
+      const a = lignes[0].querySelector("a.delete");
+      if (a === null) return null;
+      const st = getComputedStyle(a);
+      return {
+        presente: st.display !== "none" && st.visibility !== "hidden",
+        discrete: Number(st.opacity) === 0,
+        cible: Math.round(a.getBoundingClientRect().width),
+      };
+    })(),
     //  ET « VOIR TOUTES LES NOTIFICATIONS » EST UN BOUTON.
     bouton: voirTout === null ? null : (() => {
       const a = voirTout.querySelector("a");
@@ -1811,6 +1844,21 @@ dire(
   notifs !== null && notifs.filetEntre === 0 && notifs.ecartEntre >= 4 &&
     notifs.taille <= 11,
   JSON.stringify(notifs),
+);
+
+dire(
+  "le non-lu est un point rouge, pas un fond, et le `<hr>` a disparu",
+  notifs !== null && notifs.nonLuSansFond && notifs.point.surLeNonLu &&
+    notifs.point.pasSurLeLu && notifs.point.rond && notifs.hrCache,
+  JSON.stringify({ fond: notifs?.nonLuSansFond, point: notifs?.point, hr: notifs?.hrCache }),
+);
+
+dire(
+  "la date ne s'affiche plus, et la suppression se montre au survol",
+  notifs !== null && notifs.dateCachee && notifs.suppression !== null &&
+    notifs.suppression.presente && notifs.suppression.discrete &&
+    notifs.suppression.cible >= 20,
+  JSON.stringify({ date: notifs?.dateCachee, suppression: notifs?.suppression }),
 );
 
 dire(

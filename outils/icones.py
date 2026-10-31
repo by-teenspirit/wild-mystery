@@ -117,35 +117,41 @@ def rond(im: Image.Image) -> Image.Image:
 
 
 def badges() -> str:
-    """Les sept badges d'arène, en SVG encodé dans l'adresse.
+    """Les onze badges d'arène, en PNG encodé.
 
-    PAS EN BASE64. Un SVG est du texte : l'encodage par pourcentage le
-    laisse lisible dans la feuille, et pèse moins que base64, qui
-    gonfle de 33 %. Seuls les caractères qui casseraient l'adresse ou
-    la chaîne CSS sont échappés.
+    ── CE QU'ILS SONT VRAIMENT, RELEVÉ LE 31 OCTOBRE ────────────────
 
-    Les quatre colosseums ne sont pas ici : ils existent en image mais
-    ne comptent pas pour la Ligue, et la carte dresseur ne montre que
-    les sept arènes.
+    Les sept premiers badges du dépôt portaient des noms de LIEU —
+    `arene-station-service`, `arene-samaragd`, `arene-port-amaree` —
+    pris des annexes de 2026. Le forum, lu dans le navigateur de
+    Callista, dit autre chose : ses récompenses s'appellent
+    « Badge - Arène Feu », « Badge - Arène Plante », « Badge - Arène
+    Eau », « Badge - Arène Acier ». **Les arènes sont nommées par
+    TYPE, pas par ville**, et il y en a onze, pas sept.
+
+    Les images sont celles du forum, envoyées par Callista. Elles
+    sont rognées au dessin puis recentrées dans un carré : les onze
+    n'ont pas les mêmes marges transparentes, et sans ce recadrage un
+    badge paraîtrait plus petit que son voisin dans la même case.
+
+    EN PNG ET PAS EN SVG, parce que ce sont des PNG : ce sont des
+    dessins peints, pas des formes vectorielles, et les revectoriser
+    serait les redessiner.
     """
-    LES_SEPT = [
-        "arene-station-service", "arene-samaragd", "arene-port-amaree",
-        "arene-suerebe", "arene-pyrite", "arene-tour-titanite",
-        "arene-ile-tenebra",
+    LES_ONZE = [
+        ("acier", "Acier"), ("combat", "Combat"), ("eau", "Eau"),
+        ("electrik", "Électrik"), ("fee", "Fée"), ("feu", "Feu"),
+        ("plante", "Plante"), ("sol", "Sol"), ("spectre", "Spectre"),
+        ("tenebres", "Ténèbres"), ("vol", "Vol"),
     ]
     regles = ["""
-/* ── LES SEPT BADGES D'ARÈNE ──────────────────────────────────────── */"""]
-    for cle in LES_SEPT:
-        svg = (R / f"img/badges/{cle}.svg").read_text()
-        svg = " ".join(svg.split())
-        for avant, apres in (
-            ("%", "%25"), ("#", "%23"), ('"', "'"), ("<", "%3C"), (">", "%3E"),
-            ("\n", ""),
-        ):
-            svg = svg.replace(avant, apres)
+/* ── LES ONZE BADGES D'ARÈNE ──────────────────────────────────────── */"""]
+    for cle, _ in LES_ONZE:
+        octets = (R / f"img/badges/arenes/{cle}.png").read_bytes()
+        b64 = base64.b64encode(octets).decode()
         regles.append(
-            f'#modernbb .wm-tcard__badge[data-wm-badge="{cle}"] {{\n'
-            f'  background-image: url("data:image/svg+xml,{svg}");\n'
+            f'#modernbb [data-wm-badge="{cle}"] {{\n'
+            f'  background-image: url("data:image/png;base64,{b64}");\n'
             f"}}"
         )
     return "\n\n".join(regles) + "\n"

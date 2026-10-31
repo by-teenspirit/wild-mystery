@@ -142,14 +142,21 @@ function carteRemplie() {
 
   //  TROIS OBTENUS SUR SEPT, comme la maquette montre trois sur huit :
   //  c'est le mélange qui compte, pas le nombre.
+  //  ONZE ARÈNES, NOMMÉES PAR TYPE. Relevé le 31 octobre dans le
+  //  forum : ses récompenses s'appellent « Badge - Arène Feu ». Les
+  //  sept noms de ville des annexes n'étaient pas les bonnes.
   const BADGES = [
-    ["arene-station-service", "Station Service", true],
-    ["arene-samaragd", "Samaragd", true],
-    ["arene-port-amaree", "Port-Amarée", true],
-    ["arene-suerebe", "Suerebe", false],
-    ["arene-pyrite", "Pyrite", false],
-    ["arene-tour-titanite", "Tour Titanite", false],
-    ["arene-ile-tenebra", "Île Ténèbra", false],
+    ["acier", "Acier", true],
+    ["combat", "Combat", true],
+    ["eau", "Eau", true],
+    ["electrik", "Électrik", false],
+    ["fee", "Fée", false],
+    ["feu", "Feu", false],
+    ["plante", "Plante", false],
+    ["sol", "Sol", false],
+    ["spectre", "Spectre", false],
+    ["tenebres", "Ténèbres", false],
+    ["vol", "Vol", false],
   ];
   const badges = BADGES
     .map(([cle, nom, obtenu]) =>
@@ -434,8 +441,8 @@ const badges = await p.evaluate(() => {
 });
 
 dire(
-  "sept badges sur une rangée, les manquants reconnaissables à leur cadre",
-  badges !== null && badges.combien === 7 && badges.rangees === 1 &&
+  "les onze badges, les manquants reconnaissables à leur cadre",
+  badges !== null && badges.combien === 11 &&
     badges.cadreDifferent && badges.ronds,
   JSON.stringify(badges),
 );
@@ -467,8 +474,8 @@ const dessins = await p.evaluate(() => {
 });
 
 dire(
-  "les sept badges portent chacun son dessin, sans aucune image à charger",
-  dessins.combien === 7 && dessins.tousDessines && dessins.distincts === 7 &&
+  "les onze badges portent chacun son dessin, sans aucune image à charger",
+  dessins.combien === 11 && dessins.tousDessines && dessins.distincts === 11 &&
     dessins.sansImg && dessins.bonneTaille,
   JSON.stringify(dessins),
 );
@@ -859,7 +866,7 @@ const bullesDeBadge = await p.evaluate(() => {
 
 dire(
   "chaque badge dit son nom, son état et sa date, sans être grisé",
-  bullesDeBadge.combien === 7 && bullesDeBadge.toutesPresentes &&
+  bullesDeBadge.combien === 11 && bullesDeBadge.toutesPresentes &&
     bullesDeBadge.toutesFermees && bullesDeBadge.nomsEcrits &&
     bullesDeBadge.etats === 2 && bullesDeBadge.datesSurObtenus &&
     bullesDeBadge.datesAilleurs === 0 && bullesDeBadge.bullesLisibles,

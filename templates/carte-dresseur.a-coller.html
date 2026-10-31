@@ -36,17 +36,26 @@
      porte donc que son nom (`data-wm-badge`) ; l'image est posée par
      notre script, dont l'adresse, elle, se change en un endroit.
 
-     ── SEPT BADGES, PAS HUIT ───────────────────────────────────────
+     ── ONZE BADGES, ET NOMMÉS PAR TYPE ─────────────────────────────
 
-     La planche « Mon jeu » en dessine huit, avec des noms qui ne sont
-     pas ceux de Rhode (Portevent, Orion…). Les arènes réelles, celles
-     des annexes et du dossier `img/badges/`, sont sept : Station
-     Service, Samaragd, Port-Amarée, Suerebe, Pyrite, Tour Titanite et
-     Île Ténèbra. Les quatre colosseums ne comptent pas pour la Ligue.
+     Relevé le 31 octobre dans le forum lui-même, et pas déduit : les
+     récompenses s'appellent « Badge - Arène Feu », « Badge - Arène
+     Plante », « Badge - Arène Eau », « Badge - Arène Acier ». Les
+     arènes sont donc nommées par TYPE et elles sont ONZE.
+
+     Les deux états précédents de ce fichier étaient faux : la planche
+     « Mon jeu » en dessine huit avec des noms inventés (Portevent,
+     Orion), et j'en avais ensuite écrit sept avec les noms de ville
+     des annexes — Station Service, Samaragd, Port-Amarée. Aucun des
+     deux n'était ce que le forum sert. Les images sont celles du
+     forum.
 
      ── POUR MARQUER UN BADGE COMME OBTENU, À LA MAIN ───────────────
 
-     Enlever `wm-tcard__badge--agagner` de sa ligne. C'est tout.
+     Enlever `wm-tcard__badge--agagner` de sa ligne, et remplacer
+     « Non obtenu » par « Obtenu ». Une date se glisse dessous :
+
+       <span class="wm-tcard__bulle-date">Obtenu le 12/08/2026</span>
      ══════════════════════════════════════════════════════════════════ -->
 
 <!-- ▼▼▼ DÉBUT DU CODE À COPIER ▼▼▼ -->
@@ -72,7 +81,7 @@
         <span class="wm-tcard__libelle">pokédollars</span>
       </li>
       <li class="wm-tcard__compteur">
-        <span class="wm-tcard__chiffre" data-wm-tcard-compte>0 / 7</span>
+        <span class="wm-tcard__chiffre" data-wm-tcard-compte>0 / 11</span>
         <span class="wm-tcard__libelle">badges</span>
       </li>
     </ul>
@@ -113,13 +122,72 @@
     <section class="wm-tcard__bloc">
       <h4 class="wm-tcard__titre">Mes badges</h4>
       <ul class="wm-tcard__badges" data-wm-tcard-badges>
-        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-station-service" title="Station Service"></li>
-        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-samaragd" title="Samaragd"></li>
-        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-port-amaree" title="Port-Amarée"></li>
-        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-suerebe" title="Suerebe"></li>
-        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-pyrite" title="Pyrite"></li>
-        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-tour-titanite" title="Tour Titanite"></li>
-        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="arene-ile-tenebra" title="Île Ténèbra"></li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="acier" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Acier</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="combat" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Combat</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="eau" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Eau</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="electrik" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Électrik</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="fee" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Fée</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="feu" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Feu</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="plante" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Plante</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="sol" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Sol</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="spectre" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Spectre</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="tenebres" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Ténèbres</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
+        <li class="wm-tcard__badge wm-tcard__badge--agagner" data-wm-badge="vol" tabindex="0">
+          <span class="wm-tcard__bulle">
+            <span class="wm-tcard__bulle-nom">Badge - Arène Vol</span>
+            <span class="wm-tcard__bulle-etat">Non obtenu</span>
+          </span>
+        </li>
       </ul>
     </section>
 

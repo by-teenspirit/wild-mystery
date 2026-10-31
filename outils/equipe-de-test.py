@@ -140,24 +140,30 @@ def case(b: dict, obscur: bool) -> str:
         </li>"""
 
 
-def badges(de: random.Random) -> str:
-    LES_SEPT = [
-        ("arene-station-service", "Station Service"),
-        ("arene-samaragd", "Samaragd"),
-        ("arene-port-amaree", "Port-Amarée"),
-        ("arene-suerebe", "Suerebe"),
-        ("arene-pyrite", "Pyrite"),
-        ("arene-tour-titanite", "Tour Titanite"),
-        ("arene-ile-tenebra", "Île Ténèbra"),
+def badges(de: random.Random) -> tuple[str, int]:
+    """Les onze badges d'arène, et combien sont obtenus.
+
+    ONZE ET PAS SEPT, ET PAR TYPE ET PAS PAR LIEU. Relevé le
+    31 octobre dans le navigateur de Callista : les récompenses du
+    forum s'appellent « Badge - Arène Feu », « Badge - Arène
+    Plante ». Les noms de ville des annexes — Station Service,
+    Samaragd, Port-Amarée — ne sont pas ceux des arènes.
+    """
+    LES_ONZE = [
+        ("acier", "Acier"), ("combat", "Combat"), ("eau", "Eau"),
+        ("electrik", "Électrik"), ("fee", "Fée"), ("feu", "Feu"),
+        ("plante", "Plante"), ("sol", "Sol"), ("spectre", "Spectre"),
+        ("tenebres", "Ténèbres"), ("vol", "Vol"),
     ]
-    combien = de.randint(2, 4)
+    combien = de.randint(3, 6)
+    obtenus = set(de.sample(range(len(LES_ONZE)), combien))
     lignes = []
-    for i, (cle, nom) in enumerate(LES_SEPT):
-        obtenu = i < combien
+    for i, (cle, nom) in enumerate(LES_ONZE):
+        obtenu = i in obtenus
         a_gagner = "" if obtenu else " wm-tcard__badge--agagner"
-        #  LA DATE EST TIRÉE, comme le reste des valeurs de test. Rien
-        #  dans le dépôt ne sait quand un badge a été gagné : c'est une
-        #  récompense Forumactif, et sa date vit dans le panneau.
+        #  LA DATE EST TIRÉE, comme le reste des valeurs de test : elle
+        #  vit dans le panneau, avec la récompense, et rien dans le
+        #  dépôt ne la connaît.
         date = (
             f'<span class="wm-tcard__bulle-date">Obtenu le '
             f'{de.randint(1, 28)}/{de.randint(1, 10):02}/2026</span>'
@@ -168,7 +174,7 @@ def badges(de: random.Random) -> str:
             f'        <li class="wm-tcard__badge{a_gagner}" '
             f'data-wm-badge="{cle}" tabindex="0">\n'
             f'          <span class="wm-tcard__bulle">\n'
-            f'            <span class="wm-tcard__bulle-nom">Badge de l\'Arène {nom}</span>\n'
+            f'            <span class="wm-tcard__bulle-nom">Badge - Arène {nom}</span>\n'
             f'            <span class="wm-tcard__bulle-etat">{etat}</span>\n'
             f'            {date}\n'
             f'          </span>\n'
@@ -187,7 +193,15 @@ def main() -> None:
     #  une image cassée qui a l'air d'un bug du code. Sans l'option,
     #  on ne met aucun `src` : la case garde le dégradé que
     #  `.wm-dresseur__avatar` lui donne, ce qui a l'air voulu.
-    ap.add_argument("--avatar", default=None, help="l'adresse de l'avatar")
+    #  RELEVÉ SUR LE FORUM le 31 octobre, dans le navigateur de
+    #  Callista : c'est l'avatar du Compte de test. Il était
+    #  introuvable d'ici — le proxy bloque le forum pour mon
+    #  conteneur, pas pour son navigateur, et je n'avais pas essayé.
+    ap.add_argument(
+        "--avatar",
+        default="https://i.postimg.cc/9Fm2krB6/invite-mystere.gif",
+        help="l'adresse de l'avatar",
+    )
     args = ap.parse_args()
 
     de = random.Random(args.graine)
@@ -268,7 +282,7 @@ def main() -> None:
         <span class="wm-tcard__libelle">pokédollars</span>
       </li>
       <li class="wm-tcard__compteur">
-        <span class="wm-tcard__chiffre" data-wm-tcard-compte>{combien_badges} / 7</span>
+        <span class="wm-tcard__chiffre" data-wm-tcard-compte>{combien_badges} / 11</span>
         <span class="wm-tcard__libelle">badges</span>
       </li>
     </ul>
@@ -306,7 +320,7 @@ def main() -> None:
             f"{'/'.join(en_titre(t) for t in b['types']):<18} "
             f"{b['pv']}/{b['pv_max']} PV{marque}"
         )
-    print(f"   {combien_badges} badges sur 7, palier {palier}, {argent} ₽")
+    print(f"   {combien_badges} badges sur 11, palier {palier}, {argent} ₽")
 
 
 if __name__ == "__main__":

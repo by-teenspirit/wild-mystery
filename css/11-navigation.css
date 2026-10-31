@@ -471,6 +471,14 @@
     comportement à deviner : deux interlignes, et ce qui dépasse est
     coupé. On perd les trois points de l'ellipse ; on gagne une règle
     qui se comprend en la lisant. */
+/*  `.content` EN PREMIER, et c'est celui que le forum sert vraiment.
+    La règle ne nommait que `.contentText` — un nom pris dans la
+    feuille de ModernBB, jamais vérifié. Relevé le 31 octobre dans le
+    navigateur de Callista : le texte d'une notification est dans
+    `div.content`. La borne ne s'appliquait donc à rien, et la ligne
+    faisait quatre lignes de haut. Les deux autres sélecteurs restent
+    pour les formes que Forumactif sert ailleurs. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .content,
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentText,
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li > a {
   display: block;
@@ -558,6 +566,100 @@
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.see_all a:hover {
   background: var(--wm-accent-fort, #1f5470);
   text-decoration: none !important;
+}
+
+/*  ── CE QUE FORUMACTIF SERT VRAIMENT DANS UNE NOTIFICATION ───────
+
+    Relevé le 31 octobre dans le navigateur de Callista — le proxy
+    bloque le forum pour mon conteneur, pas pour son Chrome, et je ne
+    l'avais pas essayé. Structure d'un `li` :
+
+      li.unread                     ← le non-lu, c'est cette classe
+        div.content                 ← le texte, « X a écrit un … »
+        hr                          ← un filet, à chaque ligne
+        a.delete                    ← la suppression
+        div.contentTime             ← la date
+        div.notif_award             ← pour une récompense
+
+    ── LE NON-LU : UN POINT, PAS UN FOND ────────────────────────────
+
+    « Le fond bleu gris ne correspond pas à la maquette… je préfère
+    encore avoir un petit point rouge à droite », « le mieux ce serait
+    d'enlever le fond et garder le point rouge ».
+
+    Le point est posé en `::after` dans le rembourrage droit que la
+    ligne réserve déjà — c'est pour lui que `padding-right` vaut 24. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.unread {
+  background: none;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li.unread::after {
+  content: "";
+  position: absolute;
+  top: var(--wm-espace-12, 12px);
+  right: var(--wm-espace-10, 10px);
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--wm-danger-interdite, #a64430);
+}
+
+/*  LA BARRE QUI TRAÎNE, C'ÉTAIT UN VRAI `<hr>`. Un par notification,
+    servi par Forumactif. Je croyais que c'était mon filet entre deux
+    lignes — je l'avais retiré, et la barre restait. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li hr {
+  display: none;
+}
+
+/*  LA DATE ET LE « A ÉCRIT UN MESSAGE » S'EN VONT. « La date, ne pas
+    la mettre en vrai, ni le "a écrit un message" ».
+
+    La date est un élément à elle, donc elle se cache. Le « a écrit un
+    message » est du TEXTE NU dans `div.content`, à côté du pseudo et
+    du lien : aucun sélecteur ne l'atteint, et le cacher voudrait dire
+    cacher la notification entière. Il reste. C'est la seule des huit
+    demandes du 30 octobre que le CSS ne peut pas tenir : il faudrait
+    une ligne de JavaScript dans `module-confort`, à faire si ça gêne
+    encore une fois la mécanique vue. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li .contentTime {
+  display: none;
+}
+
+/*  ── ON VOIT QU'ON PEUT SUPPRIMER ─────────────────────────────────
+
+    « On voit pas non plus qu'on peut supprimer une notification. »
+    Leur `a.delete` est un lien nu, de la taille de son glyphe, noyé
+    dans le texte. Il devient une vraie cible dans le coin, sous le
+    point rouge, et il se montre au survol de sa ligne — visible en
+    permanence sur dix notifications, ce serait dix croix avant le
+    texte qu'on vient lire.
+
+    AU CLAVIER IL EXISTE TOUJOURS : `:focus-visible` l'affiche aussi,
+    et il n'est jamais retiré de l'arbre — seulement transparent. */
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  color: var(--wm-texte-pale, #69564c) !important;
+  opacity: 0;
+  text-align: center;
+  transition: opacity 120ms ease, background-color 120ms ease;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li:hover a.delete,
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete:focus-visible {
+  opacity: 1;
+}
+
+#modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete:hover {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-danger-interdite, #a64430) !important;
 }
 
 /*  Les apparitions en direct : elles sortaient à `right: 47px` par
