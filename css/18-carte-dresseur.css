@@ -248,7 +248,8 @@
     Pokédex et les badges à gagner. */
 #modernbb .wm-tcard__pkmn--obscur {
   border-color: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 35%, transparent);
-  background: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 10%, var(--wm-fond-surface, #fffbf7));
+  background: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 10%,
+    var(--wm-fond-surface, #fffbf7));
   box-shadow: inset 3px 0 0 0 var(--wm-pokemon-obscur-fond, #4a3a63);
 }
 
@@ -486,12 +487,24 @@
 /*  LE RANG DE CHAQUE CASE, d'où son centre se déduit. Six règles et
     pas une boucle : le CSS n'en a pas, et six lignes explicites se
     relisent mieux qu'un calcul sur `nth-child` qui n'existe pas. */
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(1) { --rang-case: 1; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(2) { --rang-case: 2; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(3) { --rang-case: 3; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(4) { --rang-case: 4; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(5) { --rang-case: 5; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(6) { --rang-case: 6; }
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(1) {
+  --rang-case: 1;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(2) {
+  --rang-case: 2;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(3) {
+  --rang-case: 3;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(4) {
+  --rang-case: 4;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(5) {
+  --rang-case: 5;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(6) {
+  --rang-case: 6;
+}
 
 #modernbb .wm-tcard__pkmn:focus-visible {
   outline: 2px solid var(--wm-accent-primaire, #275e7a);
@@ -573,8 +586,6 @@
   border: 1px dashed var(--wm-bord-net, #d9c3b1);
   background: var(--wm-fond-douce, #f3e1d2);
 }
-
-
 
 /* ── 5 bis · l'infobulle d'un badge ───────────────────────────────── */
 
@@ -689,7 +700,6 @@
     gap: var(--wm-espace-14, 14px);
   }
 }
-
 
 /* ── 7 · le 31 octobre, tard ───────────────────────────────────────── */
 
@@ -809,4 +819,75 @@
 
 #modernbb .wm-tcard__niveau {
   margin-top: 0;
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 8 · LES DEUX FAMILLES CÔTE À CÔTE, 31 OCTOBRE
+
+    « Une colonne pour les badges d'arènes et une colonne pour les
+    badges de colosseums, et tu me mets tout sur une ligne. »
+
+    Le § 7 bornait la rangée à trois badges pour les empiler trois
+    par trois. Ici c'est l'inverse : chaque famille tient sur UNE
+    ligne, et les deux lignes se posent côte à côte.
+
+    EN GRILLE, et pas en flex, parce que le balisage est plat — un
+    titre, un sous-titre, une liste, un sous-titre, une liste — et
+    qu'un flex les prendrait dans l'ordre du DOM : sous-titre,
+    liste, sous-titre, liste. La grille nomme ses cases et range
+    chaque élément où il va, sans toucher au code que les joueuses
+    collent dans leur message.
+    ══════════════════════════════════════════════════════════════════ */
+/*  EN CONTENEUR, PAS EN MÉDIA. La carte est collée dans un message,
+    et la largeur d'un message n'est pas celle de l'écran : une
+    colonne de 320 px sur un grand écran existe, et la grille à deux
+    colonnes y débordait de 139 px — mesuré. La carte se mesure donc
+    elle-même, et les deux familles ne se mettent côte à côte que
+    quand la place y est : sept badges de 44 plus six gouttières de
+    10, puis quatre de 44 plus trois gouttières, plus les 24 du
+    milieu — 538, arrondi à 560. En dessous, elles s'empilent comme
+    avant, sans un mot de plus à écrire. */
+#modernbb .wm-tcard {
+  container-type: inline-size;
+}
+
+@container (min-width: 560px) {
+  #modernbb .wm-tcard__bloc:has(.wm-tcard__badges) {
+    display: grid;
+    grid-template-areas:
+      "titre titre"
+      "sta stc"
+      "ara col";
+    grid-template-columns: auto auto;
+    justify-content: center;
+    gap: 0 var(--wm-espace-24, 24px);
+  }
+
+  #modernbb .wm-tcard__bloc:has(.wm-tcard__badges) > .wm-tcard__titre {
+    grid-area: titre;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__soustitre:nth-of-type(1) {
+    grid-area: sta;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__soustitre:nth-of-type(2) {
+    grid-area: stc;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__badges:nth-of-type(1) {
+    grid-area: ara;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__badges:nth-of-type(2) {
+    grid-area: col;
+  }
+
+  /*  LA BORNE DE TROIS SAUTE, et le retour à la ligne avec : sept
+      badges d'un côté, quatre de l'autre, chacun sur sa ligne. */
+  #modernbb .wm-tcard__bloc > .wm-tcard__badges {
+    flex-wrap: nowrap;
+    max-width: none;
+    margin-inline: 0;
+  }
 }

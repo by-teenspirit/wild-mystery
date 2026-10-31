@@ -332,29 +332,46 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
     //  ModernBB (`.dd_award`, `.award_more`) — c'est le gabarit qui le
     //  dit, pas une supposition.
     //
-    //  CE QUI NE L'EST PAS : le balisage DEDANS. Forumactif sert la
-    //  feuille en paires étiquette/valeur à plat, et les récompenses
-    //  en vignettes ; les classes intermédiaires n'ont pas été
-    //  relevées sur le forum — Chrome ne répond plus depuis le 29.
-    //  Le décor en sert donc une forme plausible, et la feuille ne
-    //  vise QUE les conteneurs sûrs et `img`. À revérifier sur
-    //  `/t976` quand le navigateur revient.
+    //  LE BALISAGE DEDANS A ÉTÉ RELEVÉ le 31 octobre sur `/t1001`,
+    //  dans Chrome, et il n'est pas celui que ce décor servait. Les
+    //  deux formes supposées étaient fausses, et les règles écrites
+    //  dessus ne touchaient donc rien — trois classes inventées de
+    //  plus, après `voted`, `list_like` et `contentText`.
+    //
+    //  LA FEUILLE : un ruban plat, des `<span class="gen">` et des
+    //  `<br>`, et le « : » est un NŒUD DE TEXTE NU entre les deux
+    //  spans — pas dans l'étiquette. C'est lui qui fait que la clé et
+    //  la valeur ne peuvent pas être deux boîtes qu'on espace : d'où
+    //  l'interligne du § 28 plutôt qu'une marge.
     if (nom === "POSTER_RPG") {
       return [
-        `<span class="label">Palier :</span> 2<br />`,
-        `<span class="label">Clan :</span> Deoxys<br />`,
-        `<span class="label">Starter :</span> Ouisticram<br />`,
-        `<span class="label">Métier :</span> paléontologue au musée de Pyrite<br />`,
-        `<span class="label">Âge :</span> 24 ans<br />`,
-        `<span class="label">Caractère :</span> têtue, patiente, mauvaise perdante<br />`,
+        `<br /><a href="/u1rpgsheet">Feuille de personnage</a><br />`,
+        ...[
+          ["Palier", "2"],
+          ["Clan", "Deoxys"],
+          ["Starter", "Ouisticram"],
+          ["Métier", "paléontologue au musée de Pyrite"],
+          ["Âge", "24 ans"],
+          ["Caractère", "têtue, patiente, mauvaise perdante"],
+        ].map(([cle, valeur]) =>
+          `<span class="gen">${cle}</span>: ` +
+          `<span class="gen" id="rpg-${cle}">${valeur}</span><br />`
+        ),
       ].join("");
     }
+    //  LES RÉCOMPENSES : des `div.award` de 50 × 50 qui portent le
+    //  dessin EN FOND — aucune `<img>`, aucun `<a>`. L'infobulle est
+    //  un `span.award_tooltiptext` qui contient un
+    //  `div.award_tooltiptext_title`. Onze, pour que le panneau
+    //  déborde : c'est tout l'objet du test.
     if (nom === "AWARDS") {
-      //  Onze badges : les sept arènes et les quatre colosseums. Assez
-      //  pour que le panneau déborde — c'est tout l'objet du test.
       return Array.from(
         { length: 11 },
-        (_, n) => `<a href="#"><img src="${PIXEL}" alt="badge ${n + 1}" /></a>`,
+        (_, n) =>
+          `<div class="award" style="background-image: url(${PIXEL})">` +
+          `<span class="award_tooltiptext">` +
+          `<div class="award_tooltiptext_title">Badge - Arène ${n + 1}</div>` +
+          `</span></div>`,
       ).join("");
     }
     if (nom === "AWARDS_SHOW") return "";
@@ -406,12 +423,23 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
     //  ── LA RÉPONSE RAPIDE ──────────────────────────────────────────
     //
     //  `{QUICK_REPLY_FORM}` arrive TOUT FAIT de Forumactif, barre
-    //  d'outils comprise, et seulement si le panneau l'a activée. Le
-    //  décor en sert la seule chose dont la mise en page dépend :
-    //  l'enveloppe `#quick_reply`, que la feuille recolle au bandeau
-    //  de section. Ce qu'il y a dedans ne change rien à la jointure.
-    QUICK_REPLY_FORM: `<form id="quick_reply" method="post"><fieldset>` +
-      `<textarea rows="8" cols="60"></textarea>` +
+    //  d'outils comprise, et seulement si le panneau l'a activée.
+    //
+    //  RELEVÉ LE 31 OCTOBRE, parce que le décor n'en servait que le
+    //  formulaire : Forumactif pose AUSSI son propre titre, un
+    //  `div.h3` qui dit « Réponse rapide: », précédé d'une ancre vide
+    //  et suivi d'un `<br>`. Les règles du § 27 qui habillent ce
+    //  titre — le texte recentré, le « : » tué, l'arrondi du haut —
+    //  ne touchaient donc rien dans le harnais. C'est la même faute
+    //  que les trois classes inventées : un décor qui ne sert pas ce
+    //  que ModernBB sert ne teste que lui-même.
+    QUICK_REPLY_FORM: `<a name="quickreply"></a>` +
+      `<div class="h3">Réponse rapide:</div><br />` +
+      `<form id="quick_reply" method="post"><fieldset>` +
+      `<div class="sceditor-toolbar"><div class="sceditor-group">` +
+      `<a class="sceditor-button" title="Gras"><div>Gras</div></a>` +
+      `</div></div>` +
+      `<textarea id="text_editor_textarea" rows="8" cols="60"></textarea>` +
       `<input type="submit" value="Envoyer" /></fieldset></form>`,
   });
 }
@@ -464,6 +492,21 @@ const BASE_MODERNBB = `
      de chaine, et un seul le fermerait — c'est ce qui vient de se
      passer.) */
 label { margin-right: 18px; }
+/*  LA MARGE BASSE D'UN .h3, relevee le 31 octobre sur « Permission
+    de ce forum », un titre que notre feuille ne touche pas : huit
+    pixels. Sans elle ici, la regle de 06-ecrire.css qui la remet a
+    zero sous la reponse rapide ne retenait rien.
+    (Toujours aucun guillemet oblique ici : voir plus haut.) */
+.h3 { margin: 0 0 8px; }
+/*  LE BLEU DES RÉCOMPENSES, relevé le 31 octobre : ModernBB met un
+    cadre de deux pixels en #3793ff sur la vignette ET sur son
+    infobulle. Sans lui dans le décor, la règle du § 28 qui l'enlève
+    ne retiendrait rien — c'est exactement ce qui a coûté onze
+    passes. */
+.award, .award_tooltiptext { border: 2px solid #3793ff; }
+.award { width: 50px; height: 50px; }
+.award_tooltiptext { position: absolute; visibility: collapse;
+  border-radius: 6px; background: #fefefe; }
 .profile-icons { display: flex; list-style: none; }
 .profile-icons li { margin-left: 8px; }
 .h3 { border-bottom: 1px solid #3793ff; }
@@ -1345,9 +1388,20 @@ const enLigne = await p.evaluate(() => {
       const [r, v, b] = m.map(Number);
       return v > r && v > b;
     })(),
-    //  ET SA PETITE PASTILLE, qui est le second pseudo-élément.
-    pastille: getComputedStyle(connecte, "::after").content,
-    pastilleRonde: getComputedStyle(connecte, "::after").borderTopLeftRadius,
+    //  ET SA PETITE PASTILLE, QUI EST DANS LE CONTENU du même
+    //  pseudo-élément, plus dans un second posé à côté. Deux
+    //  pseudo-éléments se sont désalignés deux fois de suite, parce
+    //  que l'un se plaçait d'après la largeur de l'autre, qui dépend
+    //  de la police. Un seul élément ne peut pas glisser par rapport
+    //  à lui-même.
+    pastilleDansLeMot: st.content.includes("●"),
+    pasDeSecond: getComputedStyle(connecte, "::after").content === "none",
+    //  LA BOÎTE SUIT SON CONTENU. C'est la correction du 31 au soir :
+    //  elle était fixée à 10 × 24 pour huit lettres debout, donc le
+    //  mot se cassait. Mesuré en hauteur, parce qu'en vertical c'est
+    //  la hauteur qui porte la longueur du mot.
+    hauteurDuRuban: Math.round(parseFloat(st.height)),
+    sansRetour: st.whiteSpace === "nowrap",
     //  ET LA GOUTTIÈRE EST LA MÊME POUR LES DEUX : sinon la colonne
     //  saute d'un message à l'autre et on lit qui est connecté à la
     //  façon dont la page tremble.
@@ -1379,7 +1433,8 @@ dire(
   enLigne !== null && enLigne.sens === "vertical-rl" &&
     enLigne.dehors === true &&
     enLigne.aGauche && enLigne.vert && enLigne.memeLargeur &&
-    enLigne.pastille !== "none" && enLigne.pastilleRonde === "999px" &&
+    enLigne.pastilleDansLeMot && enLigne.pasDeSecond &&
+    enLigne.sansRetour && enLigne.hauteurDuRuban >= 60 &&
     enLigne.gouttiere === enLigne.gouttiereAbsent && enLigne.avatar === 200,
   JSON.stringify(enLigne),
 );
@@ -1570,20 +1625,24 @@ const jaime = await p.evaluate(() => {
     fondVote: st.backgroundColor,
     fondNonVote: second === null ? null : getComputedStyle(second).backgroundColor,
     //  ET LE BANDEAU TIENT TOUJOURS SUR UNE LIGNE : la date à gauche,
-    //  les icônes au bord droit.
-    iconesAuBord: Math.round(r(icones).right) >= Math.round(r(tete).right) - 1,
+    //  les icônes, puis le j'aime au bord droit. L'ordre a basculé le
+    //  31 au soir — « les likes doivent être à droite de
+    //  `.profile-icons`, là elle est à gauche » — donc c'est le
+    //  j'aime qui touche le bord, et plus les icônes.
+    iconesAvantLeJaime: Math.round(r(icones).right) <= Math.round(r(bloc).x) + 1,
   };
 });
 
 dire(
-  "LES « J'AIME » SONT DANS LA RANGÉE, JUSTE AVANT LES ICÔNES",
+  "LES « J'AIME » SONT DANS LA RANGÉE, JUSTE APRÈS LES ICÔNES",
   //  « Remets ce bouton à côté des autres, ici à droite »,
   //  31 octobre au soir. Troisième placement en deux jours : au bout
   //  du bandeau le 30, sous le bandeau le 31 au matin, dans la
   //  rangée le 31 au soir. Le contrôle dit ce qui est voulu
   //  maintenant, il n'empile pas les trois.
   jaime !== null && jaime.dansLaTete && jaime.memeLigne &&
-    jaime.aDroite && jaime.iconesAuBord && jaime.boutons >= 1 &&
+    jaime.aDroite && jaime.auBord && jaime.iconesAvantLeJaime &&
+    jaime.boutons >= 1 &&
     jaime.rayon === "999px" && jaime.motCache,
   JSON.stringify(jaime),
 );
@@ -1717,17 +1776,48 @@ const reponse = await p.evaluate(() => {
   return {
     //  PLUS DE BANDEAU DE SECTION DANS CE BLOC.
     bande: sec.querySelector(".wm-forum__bande") !== null,
-    //  ET LE FORMULAIRE COMMENCE TOUT DE SUITE : pas plus que le
-    //  rembourrage de la carte entre son bord et lui.
+    //  ET LE FORMULAIRE COLLE À LA BANDE QUI LE COIFFE. On ne mesure
+    //  plus depuis le haut de la section : depuis que le décor sert
+    //  le vrai `div.h3` de Forumactif, cette distance contient la
+    //  bande elle-même, haute de 74. Ce qu'on veut savoir, c'est s'il
+    //  reste du vide ENTRE les deux — et il n'en faut aucun, la bande
+    //  est la coiffe du bloc, pas un titre posé au-dessus.
     ecart: Math.round(
-      form.getBoundingClientRect().top - sec.getBoundingClientRect().top,
+      form.getBoundingClientRect().top -
+        sec.querySelector(".h3").getBoundingClientRect().bottom,
     ),
   };
 });
 
+const editeur = await p.evaluate(() => {
+  const barre = document.querySelector(".sceditor-toolbar");
+  const champ = document.querySelector("#text_editor_textarea");
+  if (barre === null || champ === null) return null;
+  const g = (e) => getComputedStyle(e);
+  return {
+    //  UN PETIT CONTOUR SUR LA BARRE D'OUTILS : « mets un petit
+    //  contour ici », 31 octobre. Posée sur un fond de la même
+    //  famille, elle ne se détachait pas du champ.
+    contourBarre: g(barre).borderTopWidth,
+    //  ET LE CHAMP N'EST PAS ARRONDI EN HAUT : il se glisse sous la
+    //  barre, et deux arrondis face à face laissent voir le fond
+    //  entre les deux.
+    hautDuChamp: g(champ).borderTopLeftRadius + " " + g(champ).borderTopRightRadius,
+    basDuChamp: g(champ).borderBottomLeftRadius,
+  };
+});
+
 dire(
-  "la réponse rapide n'a plus de bandeau, et son éditeur commence tout de suite",
-  reponse !== null && reponse.bande === false && reponse.ecart <= 24,
+  "la barre d'outils a son filet, et le champ n'est plus arrondi en haut",
+  editeur !== null && parseFloat(editeur.contourBarre) >= 1 &&
+    editeur.hautDuChamp === "0px 0px" &&
+    parseFloat(editeur.basDuChamp) > 0,
+  JSON.stringify(editeur),
+);
+
+dire(
+  "la réponse rapide n'a plus de second bandeau, et son éditeur colle au premier",
+  reponse !== null && reponse.bande === false && reponse.ecart === 0,
   JSON.stringify(reponse),
 );
 
@@ -1828,7 +1918,9 @@ const contenus = await p.evaluate(() => {
     //  c'est lui que la feuille relie au bouton radio.
     champs: pan[0].querySelectorAll(".wm-profil__champ").length,
     fiche: pan[1].textContent.includes("paléontologue"),
-    badges: pan[2].querySelectorAll("img").length,
+    //  `.award`, PAS `img` : Forumactif ne sert aucune image ici, le
+    //  dessin est un fond sur la vignette. Relevé le 31 octobre.
+    badges: pan[2].querySelectorAll(".award").length,
   };
 });
 
@@ -1866,6 +1958,104 @@ dire(
     parOnglet.length === 3 && parOnglet.every((o) => o.equipe),
   JSON.stringify({ dossier, equipes: parOnglet.map((o) => o.equipe) }),
 );
+//  ── LE LOT DU 31 AU SOIR ───────────────────────────────────────────
+
+const lotDuSoir = await p.evaluate(() => {
+  const g = (e) => getComputedStyle(e);
+  const r = (e) => e.getBoundingClientRect();
+  const radios = [...document.querySelectorAll(".wm-profil__radio")];
+  const montrer = (n) => {
+    radios[n].checked = true;
+    radios[n].dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  //  LE PAS D'UN PANNEAU : la distance entre deux lignes, mesurée sur
+  //  ce qui porte réellement le texte. « Infos » empile des boîtes,
+  //  « fiche » coule un ruban — les deux doivent respirer pareil.
+  const pas = (sel, quoi) => {
+    const liste = [...document.querySelectorAll(sel + " " + quoi)];
+    const ys = liste.slice(0, 4).map((e) => Math.round(r(e).top));
+    const ecarts = ys.slice(1).map((v, i) => v - ys[i]).filter((v) => v > 0);
+    return ecarts.length === 0 ? 0 : Math.min(...ecarts);
+  };
+  montrer(0);
+  const infos = pas(".wm-profil__panneau--1", ".wm-profil__champ");
+  montrer(1);
+  const fiche = pas(".wm-profil__panneau--2", "span.gen");
+  montrer(2);
+  //  LE PREMIER PROFIL SEULEMENT : la page en monte deux, et celui du
+  //  second message a son dossier replié, donc ses onze vignettes se
+  //  superposent sur une seule ligne et feraient croire à une rangée
+  //  de onze.
+  const panneau = document.querySelector(".wm-profil__panneau--3");
+  const dd = panneau.querySelector(".dd_award");
+  const vignettes = [...panneau.querySelectorAll(".award")];
+  const bulle = panneau.querySelector(".award_tooltiptext");
+  const rangs = new Map();
+  for (const v of vignettes) {
+    const y = Math.round(r(v).top);
+    rangs.set(y, (rangs.get(y) ?? 0) + 1);
+  }
+  const h3 = document.querySelector(".wm-sujet__reponse .h3");
+  return {
+    pasInfos: infos,
+    pasFiche: fiche,
+    //  SANS CADRE BLEU, ni sur la vignette ni sur l'infobulle.
+    bordVignette: vignettes.length === 0 ? null : g(vignettes[0]).borderTopWidth,
+    bordBulle: bulle === null ? null : g(bulle).borderTopWidth,
+    //  TROIS PAR RANGÉE, et la dernière rangée centrée comme les
+    //  autres : une grille ne sait pas le faire, un flex borné si.
+    parRang: [...rangs.values()],
+    //  CENTRÉ DANS LA BOÎTE DE CONTENU, pas dans la boîte de bordure.
+    //  Le panneau défile (`overflow: auto`), et sa barre de
+    //  défilement mange six pixels à droite À L'INTÉRIEUR du cadre :
+    //  mesuré contre `getBoundingClientRect`, un bloc parfaitement
+    //  centré paraissait décalé de six. `clientLeft` et `clientWidth`
+    //  donnent la zone où les enfants vivent vraiment.
+    centre: dd === null ? null : (() => {
+      const pa = dd.parentElement;
+      const gauche = r(pa).left + pa.clientLeft +
+        parseFloat(getComputedStyle(pa).paddingLeft);
+      const droite = gauche + pa.clientWidth -
+        parseFloat(getComputedStyle(pa).paddingLeft) -
+        parseFloat(getComputedStyle(pa).paddingRight);
+      return Math.abs((r(dd).left - gauche) - (droite - r(dd).right)) <= 2;
+    })(),
+    //  ET ENCORE TROIS QUAND LA COLONNE S'ÉLARGIT. C'est la borne
+    //  qui doit tenir, pas la largeur du panneau : dans 204 px, trois
+    //  par rangée arrive tout seul, et une règle qu'on ne pourrait
+    //  pas faire tomber ne prouverait rien. On double la colonne et
+    //  on recompte.
+    parRangLarge: (() => {
+      const avant = panneau.style.width;
+      panneau.style.width = "420px";
+      void panneau.offsetWidth;
+      const y = new Map();
+      for (const v of panneau.querySelectorAll(".award")) {
+        const t = Math.round(r(v).top);
+        y.set(t, (y.get(t) ?? 0) + 1);
+      }
+      panneau.style.width = avant;
+      return [...y.values()];
+    })(),
+    //  LA BANDE DE RÉPONSE RAPIDE COLLE AU BLOC D'ÉDITION.
+    margeBasseH3: h3 === null ? null : g(h3).marginBottom,
+    bordH3: h3 === null ? null : g(h3).borderTopWidth,
+  };
+});
+
+dire(
+  "la fiche respire comme les infos, et les badges du profil n'ont plus de bleu",
+  lotDuSoir.pasInfos > 0 && lotDuSoir.pasFiche > 0 &&
+    Math.abs(lotDuSoir.pasInfos - lotDuSoir.pasFiche) <= 1 &&
+    lotDuSoir.bordVignette === "0px" && lotDuSoir.bordBulle === "0px" &&
+    lotDuSoir.parRang.every((n) => n <= 3) &&
+    lotDuSoir.parRang.filter((n) => n === 3).length >= 3 &&
+    lotDuSoir.parRangLarge.every((n) => n <= 3) &&
+    lotDuSoir.centre === true &&
+    lotDuSoir.margeBasseH3 === "0px" && lotDuSoir.bordH3 === "0px",
+  JSON.stringify(lotDuSoir),
+);
+
 dire(
   "RIEN NE S'EST PERDU : FICHE, CHAMPS ET BADGES SONT CHACUN DANS LE LEUR",
   contenus !== null && contenus.fiche && contenus.champs === 3 &&
@@ -1900,6 +2090,20 @@ async function monterAvecScript(ariane) {
       } catch {
         return route.fulfill({ status: 404, body: "" });
       }
+    }
+    //  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se
+    //  charge aussi pour une visiteuse déconnectée, donc ces deux
+    //  scripts partent maintenant sur toutes les pages, celle-ci
+    //  comprise. Sans route, le serveur du harnais rendait la page
+    //  de sujet en réponse, et le navigateur essayait de l'exécuter
+    //  comme du JavaScript : « Unexpected token < », quatre fois.
+    //  Ce harnais ne mesure pas le switcheroo — c'est le travail de
+    //  `navigation.mjs`, qui en charge le vrai depuis sa source.
+    if (/(monomer|switcheroo)\.js$/.test(chemin)) {
+      return route.fulfill({
+        contentType: "text/javascript; charset=utf-8",
+        body: "",
+      });
     }
     //  Les photos de zone vivent sur GitHub Pages : un pixel suffit, ce
     //  n'est pas l'image qu'on mesure.

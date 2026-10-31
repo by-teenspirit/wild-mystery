@@ -242,9 +242,9 @@ function identifiantDuCompte(): number | null {
     : null;
 }
 
-function estConnectee(): boolean {
-  return identifiantDuCompte() !== null;
-}
+//  `estConnectee()` a disparu le 31 octobre avec son seul appelant :
+//  le switcheroo tourne maintenant aussi pour un visiteur déconnecté.
+//  `identifiantDuCompte()` reste, lui — il sert ailleurs.
 
 /** Le sommaire des douze annexes, posé dans le trou que la page laisse.
  *
@@ -303,23 +303,35 @@ async function poserLeModule(): Promise<void> {
   });
 }
 
-/** Le bandeau d'une zone, maquettes `301:13` et `301:26`.
+/** Le bandeau d'une zone, maquettes `301:13` et `301:26`, et la page
+ *  d'un sujet, maquette `305:24`.
  *
- *  **La porte d'entrée est la liste de sujets**, et pas l'adresse : on
- *  ne demande `zones.json` que si la page porte un `ul.topics`, c'est-
- *  à-dire sur les pages de forum et nulle part ailleurs. Sur les
- *  centaines d'autres pages, c'est une requête de moins.
+ *  **LA PORTE D'ENTRÉE EST LA PAGE ELLE-MÊME**, et pas l'adresse : on
+ *  ne demande `zones.json` que si la page porte une liste de sujets ou
+ *  des messages — les pages de forum et de sujet, et nulle part
+ *  ailleurs. Sur les centaines d'autres pages, c'est une requête de
+ *  moins.
  *
- *  Et `zoneDe` tranche ensuite : une ville, une arène, le flood n'ont
- *  pas de bandeau. Même règle que la barre d'actions et le module de
- *  bilan, et c'est la même ligne de données qui la porte. */
+ *  ── « ACTIF QUE DANS LES ZONES SAUVAGES », 28 OCTOBRE ──────────────
+ *
+ *  C'est `zoneDe` qui tranche, et il n'a qu'une source : les dix-sept
+ *  entrées de `zones.json`, toutes sous « Zones Palier 1, 2 et 3 ». Une
+ *  ville, une arène, un colosseum, la notice, le flood n'y sont pas, et
+ *  n'ont donc pas de bandeau — ni leur liste de sujets, ni leurs
+ *  sujets. La règle est la même pour la barre d'actions et le module de
+ *  bilan, et c'est la même ligne de données qui la porte.
+ *
+ *  Sur un sujet, le forum ne vient pas d'un attribut du gabarit mais du
+ *  fil d'Ariane, que `forumDeLaPage` sait déjà lire : le dernier
+ *  maillon en `/fN-` est le forum du sujet. */
 async function poserLaZone(): Promise<void> {
   if (RACINE === null) return;
-  if (document.querySelector("ul.topics") === null) return;
+  const surUnSujet = document.querySelector("ul.topics") === null;
+  if (surUnSujet && document.querySelector(".post .postbody") === null) return;
   const catalogue = new CatalogueDistant(RACINE);
   const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
   if (zone === null) return;
-  if (!poserLeBandeauDeZone({ doc: document, zone })) return;
+  if (!poserLeBandeauDeZone({ doc: document, zone, surUnSujet })) return;
   //  ET LE FIL D'ARIANE LE REJOINT. La publicité de Forumactif s'est
   //  glissée entre les deux : le rapprocher par une marge ne marche
   //  pas, il faut le monter dedans.
@@ -546,7 +558,7 @@ desQueLeCorpsEstLa(() => {
   //  **On relit le panneau quand il a fini de se dessiner.** Il arrive
   //  après la barre, et un panneau déjà ouvert à ce moment-là — ou laissé
   //  ouvert d'un clic rapide — montrerait une section vide.
-  poserLeSwitcheroo(document, estConnectee())
+  poserLeSwitcheroo(document)
     .then((pose) => {
       const panneau = document.querySelector("#wm-panneau");
       if (pose && panneau !== null) remplirLesPersonnages(document, panneau);

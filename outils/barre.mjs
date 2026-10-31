@@ -134,6 +134,15 @@ async function monter({ quick = true, texte = "", largeur = 1440, forum } = {}) 
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   await p.route("**/*", (r) => {
     const u = new URL(r.request().url()).pathname;
+    //  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se charge
+    //  aussi pour une visiteuse déconnectée, donc ces deux scripts
+    //  partent sur toutes les pages. Sans route, le serveur du harnais
+    //  rendait la page HTML en réponse et le navigateur essayait de
+    //  l'exécuter : « Unexpected token < ». Seul `navigation.mjs`
+    //  charge le vrai switcheroo, depuis sa source.
+    if (/(monomer|switcheroo)\.js/.test(u)) {
+      return r.fulfill({ contentType: "text/javascript", body: "" });
+    }
     if (u === "/js/wild-mystery.js") {
       return r.fulfill({
         contentType: "text/javascript",
@@ -282,7 +291,8 @@ dire(
 );
 dire(
   "et la phrase dit ce qui va partir, en français",
-  etat.note === "Quand tu enverras ce message, tu fais apparaître un Pokémon. Reclique pour annuler.",
+  etat.note ===
+    "Quand tu enverras ce message, tu fais apparaître un Pokémon. Reclique pour annuler.",
   etat.note,
 );
 

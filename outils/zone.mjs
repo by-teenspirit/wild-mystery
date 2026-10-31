@@ -398,6 +398,15 @@ async function monter({ corps, script = true, largeur = 1440, styleEnPlus = "" }
   await p.route("**/*", (r) => {
     const u = new URL(r.request().url());
     const chemin = u.pathname;
+    //  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se charge
+    //  aussi pour une visiteuse déconnectée, donc ces deux scripts
+    //  partent sur toutes les pages. Sans route, le serveur du harnais
+    //  rendait la page HTML en réponse et le navigateur essayait de
+    //  l'exécuter : « Unexpected token < ». Seul `navigation.mjs`
+    //  charge le vrai switcheroo, depuis sa source.
+    if (/(monomer|switcheroo)\.js$/.test(chemin)) {
+      return r.fulfill({ contentType: "text/javascript", body: "" });
+    }
     if (chemin === "/js/wild-mystery.js") {
       return r.fulfill({
         contentType: "text/javascript",

@@ -106,6 +106,15 @@ async function monter({ avecFormulaire = true, largeur = 1440 } = {}) {
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   await p.route("**/*", (r) => {
     const u = new URL(r.request().url()).pathname;
+    //  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se charge
+    //  aussi pour une visiteuse déconnectée, donc ces deux scripts
+    //  partent sur toutes les pages. Sans route, le serveur du harnais
+    //  rendait la page HTML en réponse et le navigateur essayait de
+    //  l'exécuter : « Unexpected token < ». Seul `navigation.mjs`
+    //  charge le vrai switcheroo, depuis sa source.
+    if (/(monomer|switcheroo)\.js/.test(u)) {
+      return r.fulfill({ contentType: "text/javascript", body: "" });
+    }
     if (u === "/js/wild-mystery.js") {
       return r.fulfill({
         contentType: "text/javascript",
@@ -151,7 +160,8 @@ const pas = (p, objetId, signe, n = 1) =>
     if (b === undefined) throw new Error("pas de bouton " + s);
     for (let i = 0; i < combien; i++) b.click();
   }, [objetId, signe, n]);
-const commander = (p) => p.evaluate(() => document.querySelector(".wm-boutique__valider").click());
+const commander = (p) =>
+  p.evaluate(() => document.querySelector(".wm-boutique__valider").click());
 const envoyer = (p, nom = "post") =>
   p.evaluate((n) => document.querySelector(`input[name="${n}"]`).click(), nom);
 const bouton = (p) =>
@@ -181,7 +191,11 @@ const pose = await p.evaluate(() => {
   };
 });
 dire("le bloc est équipé", pose !== null);
-dire("TRENTE-QUATRE LIGNES, SOIXANTE-HUIT BOUTONS", pose?.lignes === 34 && pose?.paires === 68, JSON.stringify({ lignes: pose?.lignes, boutons: pose?.paires }));
+dire(
+  "TRENTE-QUATRE LIGNES, SOIXANTE-HUIT BOUTONS",
+  pose?.lignes === 34 && pose?.paires === 68,
+  JSON.stringify({ lignes: pose?.lignes, boutons: pose?.paires }),
+);
 dire("un compteur par ligne", pose?.comptes === 34, `${pose?.comptes}`);
 dire("la barre de validation est à la fin du bloc", pose?.barreALaFin === true);
 dire(
@@ -266,12 +280,19 @@ dire(
   vide.eteint === true && vide.libelle === "Panier vide",
   JSON.stringify(vide),
 );
-dire("et il reste VISIBLE, pas caché", await p.evaluate(() => {
-  const b = document.querySelector(".wm-boutique__valider");
-  return b.getClientRects().length > 0 && getComputedStyle(b).display !== "none";
-}));
+dire(
+  "et il reste VISIBLE, pas caché",
+  await p.evaluate(() => {
+    const b = document.querySelector(".wm-boutique__valider");
+    return b.getClientRects().length > 0 && getComputedStyle(b).display !== "none";
+  }),
+);
 await commander(p);
-dire("cliquer un bouton éteint n'écrit rien", (await lire(p)) === "", JSON.stringify(await lire(p)));
+dire(
+  "cliquer un bouton éteint n'écrit rien",
+  (await lire(p)) === "",
+  JSON.stringify(await lire(p)),
+);
 
 // ── 5 · LE CAS QUI COÛTERAIT UNE COMMANDE ──────────────────────────
 console.log("\n── ENVOYER SANS AVOIR CLIQUÉ « COMMANDER » ────────────");
@@ -372,22 +393,34 @@ const oeil = await p.evaluate(() => {
       li.querySelector(".wm-boutique__nom").getBoundingClientRect().left,
     contrastes: [
       ["pas", rapport(getComputedStyle(pasBouton).color, fond(pasBouton))],
-      ["nom", rapport(
-        getComputedStyle(li.querySelector(".wm-boutique__nom")).color,
-        fond(li),
-      )],
-      ["prix", rapport(
-        getComputedStyle(li.querySelector(".wm-boutique__prix")).color,
-        fond(li),
-      )],
-      ["compte", rapport(
-        getComputedStyle(li.querySelector(".wm-boutique__compte")).color,
-        fond(li),
-      )],
-      ["note", rapport(
-        getComputedStyle(document.querySelector(".wm-boutique__note")).color,
-        fond(document.querySelector(".wm-boutique__note")),
-      )],
+      [
+        "nom",
+        rapport(
+          getComputedStyle(li.querySelector(".wm-boutique__nom")).color,
+          fond(li),
+        ),
+      ],
+      [
+        "prix",
+        rapport(
+          getComputedStyle(li.querySelector(".wm-boutique__prix")).color,
+          fond(li),
+        ),
+      ],
+      [
+        "compte",
+        rapport(
+          getComputedStyle(li.querySelector(".wm-boutique__compte")).color,
+          fond(li),
+        ),
+      ],
+      [
+        "note",
+        rapport(
+          getComputedStyle(document.querySelector(".wm-boutique__note")).color,
+          fond(document.querySelector(".wm-boutique__note")),
+        ),
+      ],
     ],
   };
 });
@@ -396,13 +429,25 @@ const oeil = await p.evaluate(() => {
 //  ailleurs ferait du catalogue une colonne de boutons. Le commentaire
 //  de `css/09-boutique.css` annonçait 44 alors que la feuille donne 32 —
 //  il a été corrigé le 16 octobre, pas la cote.
-dire("LES PAS FONT 32 PX, l'arbitrage assumé de la feuille", oeil.pas.h === 32 && oeil.pas.l === 32, JSON.stringify(oeil.pas));
-dire("le bouton « Commander » garde ses 44", oeil.valider.h >= 44, JSON.stringify(oeil.valider));
+dire(
+  "LES PAS FONT 32 PX, l'arbitrage assumé de la feuille",
+  oeil.pas.h === 32 && oeil.pas.l === 32,
+  JSON.stringify(oeil.pas),
+);
+dire(
+  "le bouton « Commander » garde ses 44",
+  oeil.valider.h >= 44,
+  JSON.stringify(oeil.valider),
+);
 dire("les commandes sont à gauche du nom", oeil.commandesAvantLeNom === true);
 dire(
   "tout tient dans le bloc",
   oeil.valider.d <= oeil.bloc.d && oeil.pas.x >= oeil.bloc.x,
-  JSON.stringify({ valider: oeil.valider.d, pas: oeil.pas.x, bloc: [oeil.bloc.x, oeil.bloc.d] }),
+  JSON.stringify({
+    valider: oeil.valider.d,
+    pas: oeil.pas.x,
+    bloc: [oeil.bloc.x, oeil.bloc.d],
+  }),
 );
 for (const [quoi, r] of oeil.contrastes) {
   dire(`${quoi} : ${r} contre son fond`, r >= 4.5, `${r}`);

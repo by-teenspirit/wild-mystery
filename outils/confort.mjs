@@ -73,6 +73,16 @@ await p.route("**/*", (r) => {
   }
   return r.fulfill({ contentType: "text/html; charset=utf-8", body: page });
 });
+//  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se charge
+//  aussi pour une visiteuse déconnectée, donc ces deux scripts
+//  partent sur toutes les pages. Sans route, le serveur du harnais
+//  rendait la page HTML en réponse et le navigateur essayait de
+//  l'exécuter : « Unexpected token < ». Seul `navigation.mjs` charge
+//  le vrai switcheroo, depuis sa source.
+await p.route(
+  /(monomer|switcheroo)\.js/,
+  (route) => route.fulfill({ contentType: "text/javascript", body: "" }),
+);
 await p.goto("https://exemple.test/");
 await p.addScriptTag({ content: readFileSync(R + "js/wild-mystery.js", "utf8") });
 await p.waitForTimeout(250);

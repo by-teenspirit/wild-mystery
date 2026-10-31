@@ -7051,7 +7051,6 @@ html#min-width {
   margin-top: 0;
 }
 
-
 /* ── 25 · les retours du 31 octobre ────────────────────────────────── */
 
 /*  Relevés dans le forum lui-même, cette fois : Callista a collé le
@@ -7570,6 +7569,149 @@ html#min-width {
   background: var(--wm-fond-surface, #fffbf7);
 }
 
+/*  ══════════════════════════════════════════════════════════════════
+    § 28 · LE LOT DU 31 OCTOBRE, FIN DE JOURNÉE
+
+    Cinq corrections, toutes relevées dans le navigateur sur le forum
+    en ligne avant d'être écrites. Les trois premières portent sur des
+    classes que SERT FORUMACTIF, pas sur les nôtres : c'est la
+    troisième fois qu'une règle écrite sur un nom supposé ne touchait
+    rien, et c'est pour ça qu'aucune ligne ici n'est écrite de tête.
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  ── 1 · LE J'AIME À DROITE DES ICÔNES ────────────────────────────
+
+    « Les likes doivent être à droite de `.profile-icons`. Là, elle
+    est à gauche. »
+
+    `.post-head` est une rangée flex, et ses quatre enfants portent
+    déjà un `order` : `.menu-wrap` 2, `.fa_like_div` 1. Mesuré : le
+    j'aime tombe à 966 et les icônes à 1031. Un seul `order` suffit,
+    et il vaut mieux que réordonner le gabarit — Forumactif réécrit
+    ce bloc à chaque mise à jour, pas notre feuille. */
+#modernbb .post-head .fa_like_div {
+  order: 3;
+}
+
+/*  ── 2 · LE « EN LIGNE », TROISIÈME ESSAI ─────────────────────────
+
+    « Il s'affiche encore bizarrement, regarde le before et le after
+    ainsi que le width et le height. »
+
+    Elle visait juste. Mesuré : `width: 10px` et `height: 24px` pour
+    huit lettres écrites verticalement, avec `white-space: normal`.
+    Le texte ne tenait donc pas et se cassait dans une colonne de dix
+    pixels. Le tourner ne servait à rien tant que la boîte était
+    fixée.
+
+    La boîte suit maintenant son contenu — ni largeur ni hauteur
+    écrites — et `nowrap` l'empêche de se casser. C'est le padding
+    qui donne l'épaisseur du ruban, et la longueur du mot qui donne
+    sa hauteur.
+
+    LA PASTILLE PASSE DANS LE CONTENU, et le `::after` disparaît.
+    Deux pseudo-éléments posés chacun de son côté finissaient
+    toujours par se décaler l'un par rapport à l'autre — ils l'ont
+    fait deux fois — parce que leur alignement dépendait de la
+    largeur du ruban, qui dépend elle-même de la police. Un seul
+    élément ne peut pas se désaligner de lui-même. */
+#modernbb .post.online::before {
+  top: var(--wm-espace-16, 16px);
+  right: 100%;
+  bottom: auto;
+  left: auto;
+  width: auto;
+  height: auto;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-md, 8px) 0 0 var(--wm-rayon-md, 8px);
+  content: "● EN LIGNE";
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  letter-spacing: 0.08em;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1;
+}
+
+#modernbb .post.online::after {
+  content: none;
+}
+
+/*  ── 3 · LA FICHE RESPIRE COMME LES INFOS ─────────────────────────
+
+    « L'interlignage du contenu de l'onglet fiches doit être le même
+    que infos. »
+
+    Mesuré, et les deux panneaux ne se construisent pas pareil :
+    « infos » est une suite de `.wm-profil__champ`, chacun haut de 15
+    et séparé du suivant par 6 — un pas de 21. « Fiche » est un ruban
+    plat de `<span class="gen">` coupé par des `<br>`, donc son pas
+    est son interligne, 14,5.
+
+    On ne peut pas donner de marge à une ligne qui n'existe pas comme
+    boîte. C'est donc l'interligne qui reprend le pas de l'autre
+    panneau, écrit avec les deux mêmes valeurs pour qu'un changement
+    de l'un suive dans l'autre. */
+#modernbb .wm-profil__panneau--2 {
+  line-height: calc(
+    var(--wm-interligne-legende, 1.45) * 1em + var(--wm-espace-6, 6px)
+  );
+}
+
+/*  ── 4 · LES BADGES DU PROFIL : LE BLEU ÉTAIT AILLEURS ────────────
+
+    « J'ai encore un contour bleu avec l'infobulle bleue, et ils
+    doivent être en 3 colonnes centrées. »
+
+    Le § 22 visait `.dd_award`, ses `a` et ses `img`. Le bleu n'était
+    sur aucun des trois : mesuré, il est sur `.award` et sur
+    `.award_tooltiptext`, en `2px solid rgb(55, 147, 255)`. Et il n'y
+    a aucune `<img>` — la récompense est un fond sur un `div.award`
+    de 50 × 50.
+
+    Trois par rangée et centrés par un flex borné, la même recette
+    qu'en `18-carte-dresseur.css` et les mêmes 44 px : les deux
+    familles de badges se ressemblent, elles doivent se mesurer
+    pareil. `content-box` parce que la borne compte des cases, pas
+    des bordures. */
+#modernbb .wm-profil__panneau--3 .award,
+#modernbb .wm-profil__panneau--3 .award_tooltiptext {
+  border: 0;
+  box-shadow: none;
+}
+
+#modernbb .wm-profil__panneau--3 .award {
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+#modernbb .wm-profil__panneau--3 .dd_award {
+  box-sizing: content-box;
+  max-width: calc(3 * 44px + 2 * var(--wm-espace-10, 10px));
+  margin-inline: auto;
+  justify-content: center;
+  gap: var(--wm-espace-10, 10px);
+}
+
+/*  L'INFOBULLE REPREND CELLE DE LA CARTE DRESSEUR : fond sombre,
+    texte clair, pas de cadre. Elle est servie par Forumactif, donc
+    elle arrive avec son propre habillage ; on ne lui laisse que sa
+    mécanique de survol. */
+#modernbb .wm-profil__panneau--3 .award_tooltiptext {
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  text-align: center;
+  white-space: nowrap;
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: 1.3;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 
@@ -7736,8 +7878,12 @@ html#min-width {
   gap: var(--wm-espace-2, 2px) var(--wm-espace-10, 10px);
 
   padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
-  border: 0 !important;
-  border-bottom: 1px solid #eadacd !important;
+  /*  LE FILET FAIT LE TOUR depuis le 31 octobre au soir — « mets un
+      petit contour ici ». Il n'était qu'en bas, et la barre, posée
+      sur un fond de la même famille, ne se détachait pas du champ.
+      `!important` parce que sceditor pose ses propres bordures. */
+  border: 1px solid #eadacd !important;
+  border-radius: var(--wm-rayon-xs, 4px) var(--wm-rayon-xs, 4px) 0 0 !important;
   background: #fcf4ec !important;
 }
 
@@ -7976,7 +8122,6 @@ html#min-width {
   border: 0;
 }
 
-
 /* ── 10 · l'éditeur, relevé du 30 octobre au soir ──────────────────── */
 
 /*  « Pourquoi est-ce que le fond est beige ? Passe en marron. Et à
@@ -8124,15 +8269,19 @@ html#min-width {
 
 /* ── 13 · « Réponse rapide : » prend le bandeau de section ─────────── */
 
-/*  Le bandeau lui-même est posé par `03-index.css` et `04-forum.css`,
-    qui ont ajouté `.wm-sujet__reponse .h3` à leurs sélecteurs : la
-    recette est écrite une fois, pas deux. Il ne reste ici que ce qui
-    lui est propre — les marges que ModernBB met sur un `.h3`. */
-#modernbb .wm-sujet__reponse .h3 {
-  margin: 0 0 var(--wm-espace-16, 16px);
-  border: 0;
-}
+/*  LE BANDEAU DE LA RÉPONSE RAPIDE N'A PLUS DE RÈGLE ICI.
 
+    Il en avait une — `margin: 0 0 16px` et `border: 0` — et c'est
+    elle que Callista a pointée le 31 au soir, la ligne barrée dans
+    son message. En la retirant j'ai découvert qu'elle ne faisait
+    plus que nuire : `05-sujet.css` § 27 met déjà `margin: 0` sur ce
+    titre, et la recette partagée de `03-index.css` lui enlève déjà
+    le trait bleu de ModernBB. Les seize pixels n'étaient donc qu'un
+    reste, et c'est lui qui décollait la bande de son bloc.
+
+    Vérifié en la supprimant : aucun contrôle ne tombe. Une règle
+    qu'on peut enlever sans rien casser n'a rien à faire dans la
+    feuille. */
 
 /* ── 14 · la réponse rapide prend toute sa largeur ─────────────────── */
 
@@ -8162,6 +8311,26 @@ html#min-width {
 
 #modernbb #quick_reply > div[style*="center"] input {
   font-size: var(--wm-taille-normal, 13.5px);
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 15 · LA BARRE D'OUTILS ET LE HAUT DU CHAMP, 31 OCTOBRE
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  PAS D'ARRONDI EN HAUT DU CHAMP : il se glisse sous la barre
+    d'outils, et deux arrondis face à face laissent voir le fond
+    entre les deux.
+
+    LES TROIS SÉLECTEURS SONT NÉCESSAIRES, et le premier surtout :
+    `#modernbb #quick_reply textarea` porte deux identifiants ET un
+    type, donc il bat `#modernbb #text_editor_textarea` qui n'a que
+    les deux identifiants. Sans lui la règle s'écrivait dans le vide
+    sur la réponse rapide — mesuré, l'arrondi restait à 8. */
+#modernbb #quick_reply textarea,
+#modernbb #text_editor_textarea,
+#modernbb .sceditor-container textarea {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -18882,7 +19051,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Pokédex et les badges à gagner. */
 #modernbb .wm-tcard__pkmn--obscur {
   border-color: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 35%, transparent);
-  background: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 10%, var(--wm-fond-surface, #fffbf7));
+  background: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 10%,
+    var(--wm-fond-surface, #fffbf7));
   box-shadow: inset 3px 0 0 0 var(--wm-pokemon-obscur-fond, #4a3a63);
 }
 
@@ -19120,12 +19290,24 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LE RANG DE CHAQUE CASE, d'où son centre se déduit. Six règles et
     pas une boucle : le CSS n'en a pas, et six lignes explicites se
     relisent mieux qu'un calcul sur `nth-child` qui n'existe pas. */
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(1) { --rang-case: 1; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(2) { --rang-case: 2; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(3) { --rang-case: 3; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(4) { --rang-case: 4; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(5) { --rang-case: 5; }
-#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(6) { --rang-case: 6; }
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(1) {
+  --rang-case: 1;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(2) {
+  --rang-case: 2;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(3) {
+  --rang-case: 3;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(4) {
+  --rang-case: 4;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(5) {
+  --rang-case: 5;
+}
+#modernbb .wm-tcard__equipe > .wm-tcard__pkmn:nth-child(6) {
+  --rang-case: 6;
+}
 
 #modernbb .wm-tcard__pkmn:focus-visible {
   outline: 2px solid var(--wm-accent-primaire, #275e7a);
@@ -19207,8 +19389,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border: 1px dashed var(--wm-bord-net, #d9c3b1);
   background: var(--wm-fond-douce, #f3e1d2);
 }
-
-
 
 /* ── 5 bis · l'infobulle d'un badge ───────────────────────────────── */
 
@@ -19323,7 +19503,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     gap: var(--wm-espace-14, 14px);
   }
 }
-
 
 /* ── 7 · le 31 octobre, tard ───────────────────────────────────────── */
 
@@ -19443,6 +19622,77 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wm-tcard__niveau {
   margin-top: 0;
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 8 · LES DEUX FAMILLES CÔTE À CÔTE, 31 OCTOBRE
+
+    « Une colonne pour les badges d'arènes et une colonne pour les
+    badges de colosseums, et tu me mets tout sur une ligne. »
+
+    Le § 7 bornait la rangée à trois badges pour les empiler trois
+    par trois. Ici c'est l'inverse : chaque famille tient sur UNE
+    ligne, et les deux lignes se posent côte à côte.
+
+    EN GRILLE, et pas en flex, parce que le balisage est plat — un
+    titre, un sous-titre, une liste, un sous-titre, une liste — et
+    qu'un flex les prendrait dans l'ordre du DOM : sous-titre,
+    liste, sous-titre, liste. La grille nomme ses cases et range
+    chaque élément où il va, sans toucher au code que les joueuses
+    collent dans leur message.
+    ══════════════════════════════════════════════════════════════════ */
+/*  EN CONTENEUR, PAS EN MÉDIA. La carte est collée dans un message,
+    et la largeur d'un message n'est pas celle de l'écran : une
+    colonne de 320 px sur un grand écran existe, et la grille à deux
+    colonnes y débordait de 139 px — mesuré. La carte se mesure donc
+    elle-même, et les deux familles ne se mettent côte à côte que
+    quand la place y est : sept badges de 44 plus six gouttières de
+    10, puis quatre de 44 plus trois gouttières, plus les 24 du
+    milieu — 538, arrondi à 560. En dessous, elles s'empilent comme
+    avant, sans un mot de plus à écrire. */
+#modernbb .wm-tcard {
+  container-type: inline-size;
+}
+
+@container (min-width: 560px) {
+  #modernbb .wm-tcard__bloc:has(.wm-tcard__badges) {
+    display: grid;
+    grid-template-areas:
+      "titre titre"
+      "sta stc"
+      "ara col";
+    grid-template-columns: auto auto;
+    justify-content: center;
+    gap: 0 var(--wm-espace-24, 24px);
+  }
+
+  #modernbb .wm-tcard__bloc:has(.wm-tcard__badges) > .wm-tcard__titre {
+    grid-area: titre;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__soustitre:nth-of-type(1) {
+    grid-area: sta;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__soustitre:nth-of-type(2) {
+    grid-area: stc;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__badges:nth-of-type(1) {
+    grid-area: ara;
+  }
+
+  #modernbb .wm-tcard__bloc > .wm-tcard__badges:nth-of-type(2) {
+    grid-area: col;
+  }
+
+  /*  LA BORNE DE TROIS SAUTE, et le retour à la ligne avec : sept
+      badges d'un côté, quatre de l'autre, chacun sur sa ligne. */
+  #modernbb .wm-tcard__bloc > .wm-tcard__badges {
+    flex-wrap: nowrap;
+    max-width: none;
+    margin-inline: 0;
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════

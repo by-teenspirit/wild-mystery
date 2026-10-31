@@ -164,8 +164,12 @@
   gap: var(--wm-espace-2, 2px) var(--wm-espace-10, 10px);
 
   padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
-  border: 0 !important;
-  border-bottom: 1px solid #eadacd !important;
+  /*  LE FILET FAIT LE TOUR depuis le 31 octobre au soir — « mets un
+      petit contour ici ». Il n'était qu'en bas, et la barre, posée
+      sur un fond de la même famille, ne se détachait pas du champ.
+      `!important` parce que sceditor pose ses propres bordures. */
+  border: 1px solid #eadacd !important;
+  border-radius: var(--wm-rayon-xs, 4px) var(--wm-rayon-xs, 4px) 0 0 !important;
   background: #fcf4ec !important;
 }
 
@@ -404,7 +408,6 @@
   border: 0;
 }
 
-
 /* ── 10 · l'éditeur, relevé du 30 octobre au soir ──────────────────── */
 
 /*  « Pourquoi est-ce que le fond est beige ? Passe en marron. Et à
@@ -552,15 +555,19 @@
 
 /* ── 13 · « Réponse rapide : » prend le bandeau de section ─────────── */
 
-/*  Le bandeau lui-même est posé par `03-index.css` et `04-forum.css`,
-    qui ont ajouté `.wm-sujet__reponse .h3` à leurs sélecteurs : la
-    recette est écrite une fois, pas deux. Il ne reste ici que ce qui
-    lui est propre — les marges que ModernBB met sur un `.h3`. */
-#modernbb .wm-sujet__reponse .h3 {
-  margin: 0 0 var(--wm-espace-16, 16px);
-  border: 0;
-}
+/*  LE BANDEAU DE LA RÉPONSE RAPIDE N'A PLUS DE RÈGLE ICI.
 
+    Il en avait une — `margin: 0 0 16px` et `border: 0` — et c'est
+    elle que Callista a pointée le 31 au soir, la ligne barrée dans
+    son message. En la retirant j'ai découvert qu'elle ne faisait
+    plus que nuire : `05-sujet.css` § 27 met déjà `margin: 0` sur ce
+    titre, et la recette partagée de `03-index.css` lui enlève déjà
+    le trait bleu de ModernBB. Les seize pixels n'étaient donc qu'un
+    reste, et c'est lui qui décollait la bande de son bloc.
+
+    Vérifié en la supprimant : aucun contrôle ne tombe. Une règle
+    qu'on peut enlever sans rien casser n'a rien à faire dans la
+    feuille. */
 
 /* ── 14 · la réponse rapide prend toute sa largeur ─────────────────── */
 
@@ -590,4 +597,24 @@
 
 #modernbb #quick_reply > div[style*="center"] input {
   font-size: var(--wm-taille-normal, 13.5px);
+}
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 15 · LA BARRE D'OUTILS ET LE HAUT DU CHAMP, 31 OCTOBRE
+    ══════════════════════════════════════════════════════════════════ */
+
+/*  PAS D'ARRONDI EN HAUT DU CHAMP : il se glisse sous la barre
+    d'outils, et deux arrondis face à face laissent voir le fond
+    entre les deux.
+
+    LES TROIS SÉLECTEURS SONT NÉCESSAIRES, et le premier surtout :
+    `#modernbb #quick_reply textarea` porte deux identifiants ET un
+    type, donc il bat `#modernbb #text_editor_textarea` qui n'a que
+    les deux identifiants. Sans lui la règle s'écrivait dans le vide
+    sur la réponse rapide — mesuré, l'arrondi restait à 8. */
+#modernbb #quick_reply textarea,
+#modernbb #text_editor_textarea,
+#modernbb .sceditor-container textarea {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }

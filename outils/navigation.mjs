@@ -1198,7 +1198,13 @@ dire(
   JSON.stringify(invite),
 );
 dire("et il n'y a pas de menu de compte", !invite.compte);
-dire("ni de switcheroo : rien à gérer", !invite.switcheroo);
+//  LE SWITCHEROO TOURNE AUSSI DÉCONNECTÉE, depuis le 31 octobre.
+//  « Pourquoi y'a pas le switcheroo quand on est déconnecté ? » — il
+//  était fermé, sur l'idée qu'un visiteur déconnecté n'a rien à
+//  gérer. C'était faux : ses comptes vivent dans le `localStorage`
+//  du navigateur, pas dans la session du forum, et se déconnecter ne
+//  les efface pas. C'est même le moment où il sert.
+dire("et le switcheroo est là quand même : ses comptes lui survivent", invite.switcheroo);
 dire("la toolbar est rangée là aussi", invite.toolbar === "none", invite.toolbar);
 
 // ── 11 · DIX PERSONNAGES DOIVENT TENIR ──────────────────────────────

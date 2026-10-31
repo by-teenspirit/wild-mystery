@@ -71,14 +71,25 @@ type FabriqueDeSwitcheroo = new (
 /**
  * Pose le switcheroo, et rend `true` s'il a démarré.
  *
- * Ne fait rien pour un visiteur déconnecté : il n'a pas de comptes à
- * gérer, et le conteneur resterait vide.
+ * IL TOURNE AUSSI POUR UN VISITEUR DÉCONNECTÉ, depuis le 31 octobre.
+ *
+ * « Pourquoi y'a pas le switcheroo quand on est déconnecté ? » — parce
+ * que je l'avais fermé, en écrivant qu'un visiteur déconnecté « n'a pas
+ * de comptes à gérer ». C'était faux : les comptes du switcheroo vivent
+ * dans le `localStorage` du navigateur, pas dans la session du forum.
+ * Se déconnecter ne les efface pas, et c'est exactement le moment où
+ * l'outil sert — revenir d'un clic sur un autre personnage au lieu de
+ * retaper un identifiant.
+ *
+ * CE QUE ÇA CHANGE, ET IL FAUT LE SAVOIR : sur un navigateur partagé,
+ * les personnages enregistrés deviennent accessibles sans être connecté
+ * à aucun compte. C'est le même risque que celui déjà accepté en
+ * installant le switcheroo — il garde les mots de passe en clair, à un
+ * XOR près dont la clé est dans son propre JS — mais il s'ouvre à qui
+ * s'assoit devant la machine, pas seulement à qui est déjà connecté.
+ * Une ligne à remettre si ça ne convient pas.
  */
-export async function poserLeSwitcheroo(
-  doc: Document,
-  connectee: boolean,
-): Promise<boolean> {
-  if (!connectee) return false;
+export async function poserLeSwitcheroo(doc: Document): Promise<boolean> {
   if (doc.querySelector("#switcheroo") !== null) return true;
 
   const conteneur = doc.createElement("nav");

@@ -510,6 +510,38 @@ const badges = await p.evaluate(() => {
       return Math.abs(g - d) <= 2;
     })(),
     rangees: new Set(tous.map((e) => Math.round(r(e).top))).size,
+    //  LES DEUX FAMILLES CÔTE À CÔTE, et sur la MÊME ligne :
+    //  « une colonne pour les arènes et une colonne pour les
+    //  colosseums, et tu me mets tout sur une ligne », 31 octobre.
+    deuxColonnes: (() => {
+      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__badges");
+      if (b === undefined) return false;
+      return Math.abs(Math.round(r(a).top) - Math.round(r(b).top)) <= 1 &&
+        Math.round(r(a).right) <= Math.round(r(b).left);
+    })(),
+    //  ET ELLES S'EMPILENT QUAND LA CARTE EST ÉTROITE. La carte est
+    //  collée dans un message, dont la largeur n'est pas celle de
+    //  l'écran : c'est elle qu'on rétrécit, pas la fenêtre, et c'est
+    //  tout l'objet du `@container`. Sans lui, la grille débordait
+    //  de 139 px dans une colonne de 320 — mesuré.
+    empileSiEtroit: (() => {
+      const carte = document.querySelector("#remplie");
+      const avant = carte.style.width;
+      carte.style.width = "360px";
+      void carte.offsetWidth;
+      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__badges");
+      const empile = Math.round(r(b).top) > Math.round(r(a).top);
+      const parRang = (() => {
+        const lignes = {};
+        for (const e of a.children) {
+          const y = Math.round(r(e).top);
+          lignes[y] = (lignes[y] ?? 0) + 1;
+        }
+        return Object.values(lignes);
+      })();
+      carte.style.width = avant;
+      return { empile, parRang };
+    })(),
     //  UN BADGE À GAGNER SE RECONNAÎT À SON CADRE, pas à sa teinte :
     //  deux crèmes voisines ne se distinguent pas, et c'est la règle
     //  qui tient déjà les trois états du Pokédex.
@@ -521,16 +553,20 @@ const badges = await p.evaluate(() => {
 });
 
 dire(
-  "sept arènes puis quatre colosseums, trois par rang, les manquants au pointillé",
+  "les arènes en colonne, les colosseums en colonne, le tout sur une ligne",
   badges !== null && badges.combien === 11 && badges.groupes === 2 &&
     badges.cadreDifferent && badges.ronds &&
     badges.soustitres === 2 &&
-    //  AU MOINS DEUX RANGÉES PLEINES, sinon « trois par rang » ne
-    //  veut rien dire : sans la borne de largeur, les sept arènes
-    //  tenaient sur une seule ligne et le contrôle passait sur un
-    //  tableau vide.
-    badges.parRang.length >= 3 &&
-    badges.parRang.slice(0, -1).every((n) => n === 3) && badges.centre,
+    //  LARGE : une seule rangée de sept, et les quatre colosseums à
+    //  sa droite, à la même hauteur.
+    badges.parRang.length === 1 && badges.parRang[0] === 7 &&
+    badges.rangees === 1 && badges.deuxColonnes &&
+    //  ÉTROIT : les deux familles s'empilent et les arènes repassent
+    //  à trois par rangée. Sans ce second cas, le `@container` ne
+    //  retiendrait rien.
+    badges.empileSiEtroit.empile &&
+    badges.empileSiEtroit.parRang.every((n) => n <= 3) &&
+    badges.empileSiEtroit.parRang.filter((n) => n === 3).length >= 2,
   JSON.stringify(badges),
 );
 
