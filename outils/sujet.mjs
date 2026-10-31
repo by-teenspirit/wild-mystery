@@ -1807,6 +1807,39 @@ const editeur = await p.evaluate(() => {
   };
 });
 
+//  ── LE BAS DE LA PAGE, À LA COTE ──────────────────────────────────
+//
+//  La maquette `305:303` dessine trois cartes égales ; le gabarit de
+//  ModernBB n'en sert qu'une, `show_permissions`, et c'est vérifié
+//  dans son code par défaut et pas supposé. On mesure donc celle-là,
+//  et le conteneur qui accueillera les autres si elles s'allument.
+const basDePage = await p.evaluate(() => {
+  const bas = document.querySelector("#info_open");
+  if (bas === null) return null;
+  const bloc = bas.querySelector(".block");
+  if (bloc === null) return null;
+  const g = (e) => getComputedStyle(e);
+  const ligne = bloc.querySelector("p");
+  return {
+    //  UNE RANGÉE, prête pour une deuxième carte.
+    rangee: g(bas).display === "flex" && g(bas).flexWrap === "wrap",
+    ecart: g(bas).gap,
+    //  LA CARTE À LA COTE DE LA MAQUETTE : 16 en haut, 18 ailleurs.
+    rembourrage: g(bloc).padding,
+    //  ET SES LIGNES À 18 PX D'INTERLIGNE sur un texte de 11,5.
+    interligne: ligne === null ? null : Math.round(parseFloat(g(ligne).lineHeight)),
+    taille: ligne === null ? null : g(ligne).fontSize,
+  };
+});
+
+dire(
+  "le bas de la page est à la cote de la maquette",
+  basDePage !== null && basDePage.rangee &&
+    basDePage.rembourrage === "16px 18px 18px" &&
+    basDePage.interligne === 18 && basDePage.taille === "11.5px",
+  JSON.stringify(basDePage),
+);
+
 dire(
   "la barre d'outils a son filet, et le champ n'est plus arrondi en haut",
   editeur !== null && parseFloat(editeur.contourBarre) >= 1 &&

@@ -7712,6 +7712,41 @@ html#min-width {
   line-height: 1.3;
 }
 
+/*  ── LE BAS DE LA PAGE, À LA COTE DE LA MAQUETTE ──────────────────
+
+    « Afficher les sujets similaires comme sur la maquette », 31
+    octobre. La maquette `305:303` dessine TROIS cartes égales :
+    SUJETS SIMILAIRES, QUI LIT CE SUJET, PERMISSIONS.
+
+    LE FORUM N'EN SERT QU'UNE, ET CE N'EST PAS UN OUBLI DE NOTRE
+    CÔTÉ. Vérifié dans le gabarit `viewtopic_body` par défaut de
+    ModernBB, récupéré chez Etana : le seul bloc de bas de page qu'il
+    connaisse est `show_permissions`. Ni les sujets similaires ni les
+    lecteurs d'un sujet n'ont de variable. Les premiers sont injectés
+    hors gabarit quand l'option est allumée dans le panneau ; les
+    seconds n'existent pas sur une page de sujet chez Forumactif —
+    « qui parcourt » est une donnée de forum, pas de sujet.
+
+    On met donc la carte qui existe exactement à la cote, et le
+    conteneur est déjà une rangée : le jour où les sujets similaires
+    s'allument, la deuxième carte se range d'elle-même. */
+#modernbb #info_open.wm-sujet__bas > .block {
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px)
+    var(--wm-espace-18, 18px);
+}
+
+#modernbb #info_open.wm-sujet__bas p {
+  /*  1,565 — la maquette dessine 18 px d'interligne sur un texte de
+      11,5. Aucun jeton ne tombe dessus : le plus proche donne 16,7
+      dans le thème clair. C'est une cote de maquette, comme les 322
+      de la carte juste au-dessus, et pas un jeton qui manquerait.
+
+      SANS UNITÉ, et pas « 18px » : les trois réglages de confort
+      agrandissent le texte, et une hauteur de ligne figée écraserait
+      les lettres dès le premier cran. */
+  line-height: 1.565;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 

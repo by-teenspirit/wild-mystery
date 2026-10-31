@@ -163,6 +163,55 @@ LES_QUATRE_COLOSSEUMS = [
 ]
 
 
+def planche() -> str:
+    """La planche de jugement : les onze à deux tailles, deux fonds.
+
+    Elle existait, écrite par `outils/badges.py`, et elle est partie
+    avec lui — elle nommait des fichiers qui n'existent plus. Elle
+    revient ici parce que c'est le seul endroit qui connaît les onze
+    clés : une planche écrite à la main dériverait de la liste au
+    premier badge ajouté.
+
+    Son objet n'a pas changé : « la lisibilité à 48 px. Réduire
+    l'image à la taille d'un ongle — si le symbole devient une tache,
+    l'émail est trop détaillé. C'est la seule taille à laquelle ces
+    badges seront vus. »
+    """
+    def rangee(taille: int) -> str:
+        return "".join(
+            f'<figure><img src="../img/badges/{cle}.png" width="{taille}" '
+            f'height="{taille}" alt="{nom}" /><figcaption>{nom}</figcaption>'
+            f"</figure>"
+            for cle, nom, _ in LES_SEPT_ARENES + LES_QUATRE_COLOSSEUMS
+        )
+
+    return (
+        "<!doctype html>\n<html lang=\"fr\"><meta charset=\"utf-8\" />\n"
+        "<title>Les onze badges de Rhode</title>\n"
+        "<style>\n"
+        "  body { margin: 0; font: 13px/1.5 system-ui, sans-serif; }\n"
+        "  section { padding: 28px; }\n"
+        "  .clair { background: #f6ece2; color: #4e3b30; }\n"
+        "  .sombre { background: #1b1411; color: #f2e4d8; }\n"
+        "  h2 { margin: 0 0 18px; font-size: 14px; letter-spacing: .08em;\n"
+        "       text-transform: uppercase; opacity: .7; }\n"
+        "  .rangee { display: flex; flex-wrap: wrap; gap: 20px;\n"
+        "            align-items: flex-end; margin-bottom: 28px; }\n"
+        "  figure { margin: 0; text-align: center; }\n"
+        "  figcaption { margin-top: 6px; font-size: 11px; opacity: .65; }\n"
+        "</style>\n"
+        '<section class="clair"><h2>Sur fond clair — 48 px</h2>\n'
+        f'<div class="rangee">{rangee(48)}</div>\n'
+        "<h2>Sur fond clair — 96 px</h2>\n"
+        f'<div class="rangee">{rangee(96)}</div></section>\n'
+        '<section class="sombre"><h2>Sur fond sombre — 48 px</h2>\n'
+        f'<div class="rangee">{rangee(48)}</div>\n'
+        "<h2>Sur fond sombre — 96 px</h2>\n"
+        f'<div class="rangee">{rangee(96)}</div></section>\n'
+        "</html>\n"
+    )
+
+
 def badges() -> str:
     """Les onze badges, en PNG encodé.
 
@@ -173,13 +222,23 @@ def badges() -> str:
 
     EN PNG ET PAS EN SVG, parce que ce sont des PNG : ce sont des
     dessins peints, pas des formes vectorielles, et les revectoriser
-    serait les redessiner. Les quatre SVG de colosseum du dépôt — mes
-    dessins — ne servent plus : Callista a donné les siens.
+    serait les redessiner.
+
+    LES VINGT-DEUX FICHIERS QUI TRAÎNAIENT SONT PARTIS le 31 octobre.
+    `img/badges/` portait encore mes sept arènes nommées par ville et
+    mes quatre colosseums, en PNG et en SVG, plus `outils/badges.py`
+    qui les redessinait. Ils étaient décrits comme « le repli si une
+    image venait à manquer » : ils ne pouvaient plus l'être, puisque
+    pas un seul ne porte une des onze clés d'aujourd'hui. Un repli
+    qui ne répond pas est un fichier qui ment.
+
+    Et le dossier `arenes/` a disparu avec eux : il contenait quatre
+    colosseums.
     """
     regles = ["""
 /* ── LES BADGES : SEPT ARÈNES, QUATRE COLOSSEUMS ──────────────────── */"""]
     for cle, _, _lieu in LES_SEPT_ARENES + LES_QUATRE_COLOSSEUMS:
-        octets = (R / f"img/badges/arenes/{cle}.png").read_bytes()
+        octets = (R / f"img/badges/{cle}.png").read_bytes()
         b64 = base64.b64encode(octets).decode()
         regles.append(
             f'#modernbb [data-wm-badge="{cle}"] {{\n'
@@ -258,8 +317,15 @@ def main() -> None:
 
     feuille += badges()
     (R / "css/20-icones.css").write_text(feuille)
+    planche_html = planche()
+    (R / "outils/planche-des-badges.html").write_text(planche_html)
     print(f"   img/types/ — {len(TYPES)} icônes, {poids} octets au total")
     print(f"   css/20-icones.css — {len(feuille)} octets")
+    print(
+        f"   outils/planche-des-badges.html — "
+        f"{len(LES_SEPT_ARENES) + len(LES_QUATRE_COLOSSEUMS)} badges, "
+        f"deux tailles, deux fonds"
+    )
 
 
 if __name__ == "__main__":

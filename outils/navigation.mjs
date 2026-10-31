@@ -224,8 +224,15 @@ a#logo img{max-width:100%}</style>
   <div id="fa_menu"><span id="fa_welcome">Bienvenue Compte de test</span><ul><li>un menu</li></ul></div>
   <a id="fa_notifications" class="rightHeaderLink unread">Notifications<span id="notif_unread">2</span></a>
   <ul id="notif_list">
-    <li class="unread"><div class="content"><a href="/u4"><strong>Compte de test</strong></a> a ecrit un message dans un sujet dont le titre ne tient sur aucune ligne raisonnable et continue encore</div><hr><a class="delete" href="#">x</a><div class="contentTime">Jeu 15 Oct 2026 - 9:42</div></li>
-    <li><div class="content">Court</div><hr><a class="delete" href="#">x</a><div class="contentTime">Hier a 15:57</div></li>
+    <!-- LA VRAIE FORME, relevee le 31 octobre sur le forum : .content
+         porte un .contentText, le lien de suppression et la date. Et
+         .contentText est fait de TROIS noeuds — lien, texte nu, lien.
+         Le decor servait un .content nu : les regles ecrites sur
+         .contentText ne touchaient donc rien. -->
+    <li class="unread"><div class="content"><div class="contentText ellipsis"><a href="/u4"><strong>Compte de test</strong></a> a ecrit un message dans <a href="/t9">un sujet dont le titre ne tient sur aucune ligne raisonnable et continue encore</a></div><hr><a class="delete" href="#">x</a><div class="contentTime">Jeu 15 Oct 2026 - 9:42</div></li>
+    <!-- ET UNE NOTIFICATION D'UN SEUL MORCEAU, qui n'a pas la forme
+         lien-texte-lien et ne doit donc PAS etre raccourcie. -->
+    <li><div class="content"><div class="contentText ellipsis">Felicitations, tu as gagne le badge de l'arene Feu !</div><hr><a class="delete" href="#">x</a><div class="contentTime">Hier a 15:57</div></li>
     <li class="see_all"><a href="/profile?mode=editprofile&amp;page_profil=notifications">Voir toutes les notifications</a></li>
   </ul>
   <div id="live_notif"></div>
@@ -1873,6 +1880,37 @@ dire(
     notifs.bouton.centre && notifs.bouton.separe &&
     notifs.bouton.hauteur >= 40,
   JSON.stringify(notifs?.bouton),
+);
+
+//  ── LA PHRASE DE LIAISON D'UNE NOTIFICATION ───────────────────────
+//
+//  « La date, ne pas la mettre en vrai, ni le "a écrit un message" »,
+//  31 octobre. La date est partie en CSS ; la phrase est un nœud de
+//  texte nu, qu'aucune feuille ne sait retirer.
+//
+//  Ce qu'on vérifie, c'est que la règle est STRUCTURELLE et pas
+//  lexicale : la ligne faite de trois nœuds — lien, texte, lien —
+//  perd son texte du milieu, et celle d'un seul morceau n'est pas
+//  touchée. Une liste de phrases françaises à couper serait la même
+//  faute que les trois classes inventées.
+const phrases = await p.evaluate(() => {
+  const lignes = [...document.querySelectorAll("#notif_list li .contentText")];
+  return lignes.map((e) => ({
+    nœuds: [...e.childNodes].filter((n) =>
+      n.nodeType !== 3 || (n.textContent ?? "").trim() !== ""
+    ).length,
+    texte: e.textContent.replace(/\s+/g, " ").trim(),
+  }));
+});
+
+dire(
+  "la phrase de liaison saute, et la notification d'un seul morceau reste entière",
+  phrases.length >= 2 &&
+    phrases[0].nœuds === 3 &&
+    !/a ecrit un message/i.test(phrases[0].texte) &&
+    phrases[0].texte.includes("·") &&
+    phrases[1].texte.startsWith("Felicitations"),
+  JSON.stringify(phrases),
 );
 
 await nav.close();

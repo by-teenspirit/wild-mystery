@@ -30,6 +30,9 @@
 #  carte de TEST. Le fichier le dit en en-tête, en toutes lettres.
 # ════════════════════════════════════════════════════════════════════
 
+#  LES ONZE BADGES SONT DÉCRITS UNE SEULE FOIS, dans `icones.py`.
+from icones import LES_QUATRE_COLOSSEUMS, LES_SEPT_ARENES
+
 import argparse
 import json
 import pathlib
@@ -141,27 +144,27 @@ def case(b: dict, obscur: bool) -> str:
 
 
 def badges(de: random.Random) -> tuple[str, int]:
-    """Les onze arènes et les quatre colosseums, en deux listes.
+    """Les sept arènes et les quatre colosseums, en deux listes.
 
     SÉPARÉS, demandé le 31 octobre : ce ne sont pas les mêmes
-    épreuves. Les onze arènes ouvrent la Ligue, les quatre
-    colosseums n'y comptent pas — planche 25.
+    épreuves. Les sept arènes ouvrent la Ligue, les quatre
+    colosseums n'y comptent pas — planche 25. L'ordre des arènes est
+    imposé par le jeu et c'est celui d'`icones.py`.
 
     LA BULLE NE DIT QUE LE NOM. « Je veux pas date d'obtention et le
     nom du badge, c'est tout. » L'état reste dans le balisage pour
     qui écoute la page : la feuille le masque à l'œil, parce que le
     cadre en pointillé le dit déjà.
     """
-    ARENES = [
-        ("acier", "Acier"), ("combat", "Combat"), ("eau", "Eau"),
-        ("electrik", "Électrik"), ("fee", "Fée"), ("feu", "Feu"),
-        ("plante", "Plante"), ("sol", "Sol"), ("spectre", "Spectre"),
-        ("tenebres", "Ténèbres"), ("vol", "Vol"),
-    ]
-    COLOSSEUMS = [
-        ("colosseum-rhode", "Rhode"), ("colosseum-phenacit", "Phenacit"),
-        ("colosseum-targare", "Targare"), ("colosseum-titanite", "Titanite"),
-    ]
+    #  LES DEUX LISTES VIENNENT D'`icones.py`, et ne sont pas
+    #  recopiées ici. Elles l'étaient, et elles y étaient fausses :
+    #  onze arènes dont « combat » et « sol », des colosseums nommés
+    #  par ville. Le 31 octobre `icones.py` a été corrigé et pas
+    #  celui-ci, donc relancer cet outil aurait tout remis en arrière.
+    #  Une liste écrite deux fois est une liste qui finit par dire
+    #  deux choses.
+    ARENES = [(cle, nom) for cle, nom, _ in LES_SEPT_ARENES]
+    COLOSSEUMS = [(cle, lieu) for cle, _, lieu in LES_QUATRE_COLOSSEUMS]
 
     def liste(entrees, quoi, obtenus):
         out = []
@@ -182,10 +185,6 @@ def badges(de: random.Random) -> tuple[str, int]:
     combien = de.randint(3, 6)
     obtenues = set(de.sample(range(len(ARENES)), combien))
     colos = set(de.sample(range(len(COLOSSEUMS)), de.randint(0, 2)))
-    bloc = (
-        '        <span class="wm-tcard__soustitre">Arènes</span>\n'
-        '      </span>\n' if False else ""
-    )
     return (
         '<span class="wm-tcard__soustitre">Arènes</span>\n'
         '      <ul class="wm-tcard__badges" data-wm-tcard-badges>\n'

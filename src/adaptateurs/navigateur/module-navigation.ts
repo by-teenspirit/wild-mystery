@@ -987,6 +987,8 @@ function habillerLaToolbar(toolbar: HTMLElement): void {
     ]);
   }
 
+  raccourcirLesNotifications(liste);
+
   const direct = toolbar.querySelector<HTMLElement>("#live_notif");
   if (direct !== null) {
     poser(direct, [
@@ -1200,4 +1202,59 @@ export function poserLaNavigation(
     }, 10_000);
   }
   return true;
+}
+
+/**
+ * Enlève la phrase de liaison d'une notification, et rien d'autre.
+ *
+ * « La date, ne pas la mettre en vrai, ni le "a écrit un message" »,
+ * 31 octobre. La date est partie en CSS ; la phrase, non : c'est un
+ * NŒUD DE TEXTE NU, et aucune feuille ne sait en retirer un.
+ *
+ * ── POURQUOI ON NE CHERCHE PAS LA PHRASE ────────────────────────────
+ *
+ * Relevé sur le forum : une ligne de notification est faite de trois
+ * nœuds — le lien de l'auteur, le texte « a écrit un message dans »,
+ * le lien du sujet. Forumactif en sert d'autres selon l'évènement, et
+ * dans la langue du forum. Écrire la liste des phrases à couper, ce
+ * serait la même faute que les trois classes inventées : une
+ * supposition qui marche le jour où on la pose.
+ *
+ * On ne regarde donc PAS ce que la phrase dit, on regarde la FORME :
+ * lien, texte, lien. Dans ce cas et dans ce cas seulement, le texte du
+ * milieu devient une virgule typographique. Une notification d'une
+ * seule pièce — « Félicitations, tu as gagné le badge de l'arène
+ * Feu ! » — n'a pas cette forme et n'est pas touchée.
+ *
+ * ── ET ELLES ARRIVENT APRÈS ─────────────────────────────────────────
+ *
+ * Forumactif recharge cette liste tout seul. Une passe unique ne
+ * verrait que celles déjà là, et la phrase reviendrait à la première
+ * notification reçue. L'observateur coûte un objet et règle ça.
+ */
+export function raccourcirLesNotifications(liste: HTMLElement | null): void {
+  if (liste === null) return;
+
+  const passer = () => {
+    for (const texte of liste.querySelectorAll(".contentText")) {
+      const noeuds = [...texte.childNodes].filter((n) =>
+        n.nodeType !== Node.TEXT_NODE || (n.textContent ?? "").trim() !== ""
+      );
+      if (noeuds.length !== 3) continue;
+      const [avant, milieu, apres] = noeuds;
+      if (
+        avant.nodeName !== "A" || apres.nodeName !== "A" ||
+        milieu.nodeType !== Node.TEXT_NODE
+      ) continue;
+      //  Déjà passée : on ne refait pas le travail à chaque mutation.
+      if ((milieu.textContent ?? "").trim() === "·") continue;
+      milieu.textContent = " · ";
+    }
+  };
+
+  passer();
+  new MutationObserver(passer).observe(liste, {
+    childList: true,
+    subtree: true,
+  });
 }
