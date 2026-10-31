@@ -177,6 +177,11 @@ body{font-size:10px;margin:0;height:100%;display:flex;flex-direction:column;back
     tout va bien.  */
 #fa_toolbar #fa_right #notif_list{display:none;position:absolute;top:42px;right:0;left:41px;z-index:10000;font-size:1.3rem}
 #fa_toolbar #fa_right.notification #notif_list{display:block}
+/*  LE CONTENEUR D'UNE LIGNE EST TAILLE PAR MODERNBB, releve le 31
+    octobre (overflow hidden sur .content) : c'est
+    cette coupe qui rognait le haut du fond de la croix, laquelle
+    remonte de quatre pixels pour se centrer sur la premiere ligne. */
+#fa_toolbar #fa_right #notif_list li .content{overflow:hidden}
 #fa_toolbar #fa_right #notif_list li .contentText{float:left;width:27em;overflow:hidden}
 #fa_toolbar #fa_right #notif_list li .contentText a{color:rgb(0,86,156) !important;text-decoration:none !important}
 #fa_toolbar #fa_right #fa_notifications{line-height:30px;padding:0 5px;color:#fff}
@@ -1880,6 +1885,28 @@ const notifs = await p.evaluate(() => {
           Math.round(lignes[0].getBoundingClientRect().left) +
             Math.round(lignes[0].getBoundingClientRect().width / 2),
         cible: Math.round(a.getBoundingClientRect().width),
+        //  ET SON FOND N'EST ROGNÉ PAR AUCUN ANCÊTRE. « Au survol,
+        //  le haut du fond de la croix est coupé » : on remonte la
+        //  chaîne jusqu'à la ligne en intersectant les boîtes de
+        //  ceux qui coupent, et on exige que la croix tienne
+        //  entière dedans. Lire `overflow` aurait relu la règle ;
+        //  ceci mesure ce qu'on en voit.
+        entiere: (() => {
+          const b = a.getBoundingClientRect();
+          let h = -1e9, bas = 1e9, e = a.parentElement;
+          const li = a.closest("li");
+          while (e !== null) {
+            if (getComputedStyle(e).overflow !== "visible") {
+              const q = e.getBoundingClientRect();
+              h = Math.max(h, q.top);
+              bas = Math.min(bas, q.bottom);
+            }
+            if (e === li) break;
+            e = e.parentElement;
+          }
+          return Math.round(b.top) >= Math.round(h) &&
+            Math.round(b.bottom) <= Math.round(bas);
+        })(),
       };
     })(),
     //  ET « VOIR TOUTES LES NOTIFICATIONS » EST UN BOUTON.
@@ -1928,7 +1955,8 @@ dire(
     notifs.filetEntre.epaisseur === 1 && notifs.filetEntre.pleineLargeur &&
     notifs.filetAvantLeBouton === false &&
     notifs.taille >= 11.5 &&
-    notifs.texteDansLaBoite === true && notifs.croixSurLaLigne === true,
+    notifs.texteDansLaBoite === true && notifs.croixSurLaLigne === true &&
+    notifs.suppression?.entiere === true,
   JSON.stringify(notifs),
 );
 

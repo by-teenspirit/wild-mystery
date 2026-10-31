@@ -1329,9 +1329,27 @@
   display: none;
   overflow-y: auto;
   height: 170px;
-  /*  La place de la barre de défilement, pour que le texte ne vienne
-      pas la toucher quand elle apparaît. */
-  padding-right: var(--wm-espace-6, 6px);
+  /*  LA PLACE DE LA BARRE DE DÉFILEMENT, RÉSERVÉE PAR LE NAVIGATEUR
+      ET PLUS À LA MAIN. « Pourquoi y'a une marge à droite ici ? » —
+      six pixels de rembourrage, posés pour que le texte ne touche
+      pas la barre. Sur un Mac la barre FLOTTE au-dessus du contenu
+      et ne prend aucune place : les six pixels y étaient du vide,
+      mesurés tels quels dans le panneau des badges.
+
+      `scrollbar-gutter: stable` dit exactement la chose qu'on
+      voulait dire : réserve la place d'une barre là où une barre en
+      prend, et rien là où elle n'en prend pas. Zéro sur Mac,
+      l'épaisseur réelle ailleurs, et stable — le contenu ne saute
+      plus quand la barre apparaît.
+
+      CE QUI SE MESURE ICI, C'EST LE ZÉRO, pas la réserve : le
+      harnais tourne lui aussi sur des barres flottantes, et retirer
+      cette ligne n'y change rien. La règle qui tombe est celle
+      d'à-côté — la rangée touche les deux bords de sa boîte — et
+      c'est elle que Callista voyait. La réserve sur les systèmes à
+      barre pleine n'est pas prouvée ici ; elle est la raison d'être
+      de la propriété, pas une promesse que je peux vérifier. */
+  scrollbar-gutter: stable;
   text-align: left;
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
@@ -3337,6 +3355,10 @@
 }
 
 #modernbb .wm-profil__panneau--3 .dd_award {
+  /*  ET LA RANGÉE PREND TOUTE LA LARGEUR. ModernBB lui met `96%` et
+      la centrait ; en lui retirant sa marge automatique, les quatre
+      pour cent restants tombaient tous du même côté. */
+  width: 100%;
   max-width: none;
   margin-inline: 0;
   gap: var(--wm-espace-12, 12px);

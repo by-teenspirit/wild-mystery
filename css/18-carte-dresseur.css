@@ -640,7 +640,14 @@
   translate: -50%;
   box-sizing: border-box;
   width: max-content;
-  max-width: 100%;
+  /*  « Les infobulles doivent être plus larges, de façon à ce que ça
+      tienne sur une ligne, max 2 si le texte est plus long. »
+      `100 %` se lisait sur LA VIGNETTE, large de cinquante-six
+      pixels : « Badge - Arène Feu » y tombait sur quatre lignes. La
+      largeur d'une bulle se mesure en texte, pas en vignette —
+      vingt-quatre cadratins tiennent le plus long des onze noms sur
+      une ligne, et en donnent deux à un nom plus long. */
+  max-width: 24ch;
   padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
@@ -1115,9 +1122,20 @@
     l'attribut, aucune de ces règles ne s'applique et le dégradé de
     `13-composants.css` reste intact — une carte collée hier garde
     exactement la tête qu'elle avait. Les deux variables sont
-    locales à la carte, pas des jetons : pas de préfixe `--wm-`,
-    pas de repli non plus — chaque nature les écrit toutes les
-    deux, et `jetons.css` n'a rien à en dire. */
+    locales à la carte, pas des jetons : pas de préfixe `--wm-`, et
+    `jetons.css` n'a rien à en dire.
+
+    MAIS LA TEINTE, ELLE, VIENT D'UN JETON, ET IL LUI FAUT UN REPLI.
+    « Je ne vois pas le fond des cartes dresseur » : le panneau
+    d'administration sert un `jetons.css` antérieur aux six groupes,
+    donc `--wm-groupe-brave-texte` était VIDE sur le forum. Une
+    variable vide au milieu d'un `color-mix` rend toute la
+    déclaration invalide, et `background-image` retombait à `none` —
+    le dégradé d'origine avec. Un jeton manquant n'effaçait pas la
+    couleur : il effaçait le bandeau entier.
+
+    Le repli porte la valeur de `jetons.css`, et le garde-fou n° 15
+    relit les deux : l'adresse ne peut pas vieillir en silence. */
 #modernbb .wm-tcard[data-wm-nature] .wm-dresseur {
   background-image:
     /*  LE VOILE, posé PAR-DESSUS la mascotte : les trois compteurs
@@ -1128,11 +1146,11 @@
     linear-gradient(to right, transparent 50%, rgba(27, 19, 48, 0.62) 92%),
     var(--tcard-mascotte),
     linear-gradient(
-      to right,
-      #1b1330 0%,
-      color-mix(in srgb, var(--tcard-teinte) 45%, #1b1330) 55%,
-      var(--tcard-teinte) 100%
-    );
+    to right,
+    #1b1330 0%,
+    color-mix(in srgb, var(--tcard-teinte) 45%, #1b1330) 55%,
+    var(--tcard-teinte) 100%
+  );
   background-repeat: no-repeat;
   /*  LA MASCOTTE EST UN FILIGRANE, PAS UNE ILLUSTRATION. Posée nette
       à droite, elle passait sous les trois compteurs et on ne lisait
@@ -1148,30 +1166,48 @@
 
 #modernbb .wm-tcard[data-wm-nature="hardi"] {
   --tcard-mascotte: url("../img/natures/keldeo.png");
-  --tcard-teinte: var(--wm-groupe-hardi-texte);
+  --tcard-teinte: var(--wm-groupe-hardi-texte, #21658c);
 }
 
 #modernbb .wm-tcard[data-wm-nature="serieux"] {
   --tcard-mascotte: url("../img/natures/uxie.png");
-  --tcard-teinte: var(--wm-groupe-serieux-texte);
+  --tcard-teinte: var(--wm-groupe-serieux-texte, #7c611d);
 }
 
 #modernbb .wm-tcard[data-wm-nature="malin"] {
   --tcard-mascotte: url("../img/natures/hoopa.png");
-  --tcard-teinte: var(--wm-groupe-malin-texte);
+  --tcard-teinte: var(--wm-groupe-malin-texte, #5a218c);
 }
 
 #modernbb .wm-tcard[data-wm-nature="doux"] {
   --tcard-mascotte: url("../img/natures/shaymin.png");
-  --tcard-teinte: var(--wm-groupe-doux-texte);
+  --tcard-teinte: var(--wm-groupe-doux-texte, #1b741b);
 }
 
 #modernbb .wm-tcard[data-wm-nature="brave"] {
   --tcard-mascotte: url("../img/natures/cresselia.png");
-  --tcard-teinte: var(--wm-groupe-brave-texte);
+  --tcard-teinte: var(--wm-groupe-brave-texte, #8c2157);
 }
 
 #modernbb .wm-tcard[data-wm-nature="jovial"] {
   --tcard-mascotte: url("../img/natures/celebi.png");
-  --tcard-teinte: var(--wm-groupe-jovial-texte);
+  --tcard-teinte: var(--wm-groupe-jovial-texte, #1a705e);
+}
+
+/*  LES BULLES DES DEUX BOUTS S'ALIGNENT SUR LEUR BORD, pas sur leur
+    milieu. Élargies, celle du premier badge sortait de quatre pixels
+    à gauche de la carte et celle du dernier de cinq à droite. Les
+    neuf autres restent centrées sur leur vignette ; ces deux-là
+    collent leur bord au bord du badge, ce qui les ramène dans la
+    carte sans toucher aux autres. */
+#modernbb .wm-tcard__badges > .wm-tcard__badge:first-child .wm-tcard__bulle {
+  right: auto;
+  left: 0;
+  translate: none;
+}
+
+#modernbb .wm-tcard__badges > .wm-tcard__badge:last-child .wm-tcard__bulle {
+  right: 0;
+  left: auto;
+  translate: none;
 }

@@ -786,31 +786,85 @@ const bulles = await p.evaluate(() => {
   //  CELLES QUI PORTENT UNE BULLE : le décor sert les arènes en
   //  forme courte, sans infobulle, et les colosseums avec. C'est
   //  voulu — le code collé par une joueuse peut faire les deux.
-  const vignettes = [...document.querySelectorAll("#remplie .wm-tcard__badge")]
-    .filter((v) => v.querySelector(".wm-tcard__bulle") !== null);
-  const lire = (v) => {
+  const liste = [...document.querySelectorAll("#remplie .wm-tcard__badges")]
+    .flatMap((u) => {
+      const v = [...u.children].filter((e) =>
+        e.querySelector(".wm-tcard__bulle") !== null
+      );
+      return v.map((e, i) => ({
+        v: e,
+        bout: e === u.firstElementChild
+          ? "gauche"
+          : e === u.lastElementChild
+          ? "droite"
+          : "milieu",
+        i,
+      }));
+    });
+  const carte = r(document.querySelector("#remplie"));
+  return liste.map(({ v, bout }) => {
     const b = v.querySelector(".wm-tcard__bulle");
-    if (b === null) return null;
+    const bb = r(b), vb = r(v);
+    const nom = b.querySelector(".wm-tcard__bulle-nom");
+    const lh = parseFloat(getComputedStyle(nom).lineHeight);
     return {
-      milieuBulle: Math.round(r(b).left + r(b).width / 2),
-      milieuBadge: Math.round(r(v).left + r(v).width / 2),
-      auDessus: Math.round(r(b).bottom) <= Math.round(r(v).top),
+      bout,
+      //  UN SEUL PLI pour les onze noms d'aujourd'hui, et deux au
+      //  plus si un nom s'allonge — c'est ce que `24ch` promet.
+      lignes: Math.round(r(nom).height / lh),
+      auDessus: Math.round(bb.bottom) <= Math.round(vb.top),
+      //  DANS LA CARTE, des deux côtés.
+      dedans: Math.round(bb.left) >= Math.round(carte.left) &&
+        Math.round(bb.right) <= Math.round(carte.right),
+      //  ET ACCROCHÉE À SON BADGE : par le milieu au milieu de la
+      //  rangée, par le bord aux deux bouts — élargies, celles des
+      //  extrémités sortaient de la carte.
+      accrochee: bout === "milieu"
+        ? Math.abs((bb.left + bb.right) / 2 - (vb.left + vb.right) / 2) <= 1
+        : bout === "gauche"
+        ? Math.abs(bb.left - vb.left) <= 1
+        : Math.abs(bb.right - vb.right) <= 1,
     };
+  });
+});
+
+//  ET UN NOM PLUS LONG SE PLIE AU LIEU DE S'ÉTALER. Les onze noms
+//  d'aujourd'hui tiennent tous sur une ligne sans qu'on borne rien ;
+//  la borne est là pour celui qui viendra. « Max 2 si le texte de
+//  l'infobulle est plus long » : on en écrit un, et on compte.
+const bulleLongue = await p.evaluate(() => {
+  const nom = document.querySelector("#remplie .wm-tcard__bulle-nom");
+  const avant = nom.textContent;
+  nom.textContent = "Badge - Colosseum de la Tour de Titanite et des Cimes";
+  const b = nom.closest(".wm-tcard__bulle");
+  const lh = parseFloat(getComputedStyle(nom).lineHeight);
+  const carte = document.querySelector("#remplie").getBoundingClientRect();
+  const r = b.getBoundingClientRect();
+  const sortie = {
+    lignes: Math.round(nom.getBoundingClientRect().height / lh),
+    dedans: Math.round(r.left) >= Math.round(carte.left) &&
+      Math.round(r.right) <= Math.round(carte.right),
   };
-  const a = lire(vignettes[0]);
-  const z = lire(vignettes.at(-1));
-  return { a, z };
+  nom.textContent = avant;
+  return sortie;
 });
 
 dire(
-  "chaque bulle de badge est centrée sur SON badge, pas sur la rangée",
-  bulles.a !== null && bulles.z !== null &&
-    Math.abs(bulles.a.milieuBulle - bulles.a.milieuBadge) <= 1 &&
-    Math.abs(bulles.z.milieuBulle - bulles.z.milieuBadge) <= 1 &&
-    bulles.a.milieuBulle !== bulles.z.milieuBulle &&
-    bulles.a.auDessus && bulles.z.auDessus,
+  "un nom plus long se plie en deux lignes au lieu d'élargir la bulle",
+  bulleLongue.lignes === 2 && bulleLongue.dedans,
+  JSON.stringify(bulleLongue),
+);
+
+dire(
+  "chaque bulle tient sur une ligne, dans la carte, accrochée à SON badge",
+  bulles.length >= 4 &&
+    bulles.every((b) => b.lignes === 1 && b.auDessus && b.dedans && b.accrochee) &&
+    //  Et les trois façons de s'accrocher sont toutes exercées.
+    new Set(bulles.map((b) => b.bout)).size === 3,
   JSON.stringify(bulles),
 );
+
+
 
 //  ══════════════════════════════════════════════════════════════════
 //  LE BANDEAU PORTE LA NATURE
@@ -902,6 +956,21 @@ const nature = await p.evaluate(async (attendue) => {
         dessous,
       };
     })(),
+    //  ET LE BANDEAU SURVIT À UN JETON MANQUANT. Le panneau
+    //  d'administration peut servir un `jetons.css` antérieur aux
+    //  six groupes ; c'est arrivé, et le bandeau entier avait
+    //  disparu. On met le jeton à la valeur invalide garantie, ce
+    //  qui est EXACTEMENT ce que le navigateur voit quand il
+    //  n'existe pas, et on exige les trois couches intactes.
+    sansJeton: (() => {
+      carte.style.setProperty("--wm-groupe-brave-texte", "initial");
+      const q = lire();
+      carte.style.removeProperty("--wm-groupe-brave-texte");
+      return {
+        couches: q.split("), ").length,
+        garde: q.includes("url(") && q.includes("color-mix") === false,
+      };
+    })(),
     sansAttribut: sans,
     //  SANS L'ATTRIBUT : un seul dégradé, aucune image, et la couleur
     //  de droite est celle d'origine.
@@ -913,6 +982,7 @@ dire(
   "le bandeau porte le légendaire de la nature et la couleur du groupe",
   nature !== null && nature.mascotte && nature.teinteDansLeDegrade &&
     nature.cadree && nature.fondue && nature.replieIntact &&
+    nature.sansJeton.couches === 3 && nature.sansJeton.garde &&
     nature.aDroiteEtDebordante !== null &&
     nature.aDroiteEtDebordante.gauche > nature.aDroiteEtDebordante.milieu &&
     nature.aDroiteEtDebordante.dessous > 0,

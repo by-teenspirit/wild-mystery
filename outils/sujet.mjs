@@ -515,7 +515,10 @@ label { margin-right: 18px; }
     de 152 ; la hauteur fixe et le debordement cache rognaient net la
     seconde rangee. */
 .award { width: 50px; height: 50px; margin: 3px; }
-.dd_award { height: 60px; overflow: hidden; }
+/*  ET LA RANGEE NE FAIT QUE 96 % : releve le 31 octobre sur le
+    forum. C'est ce qui laissait quatre pour cent de vide, tous du
+    meme cote depuis qu'on lui avait retire sa marge automatique. */
+.dd_award { width: 96%; height: 60px; overflow: hidden; }
 /*  LA FLECHE DE LA BULLE EST FAITE DE BORDURES, et c'est la que
     restait le dernier bleu : border-left-color #3793ff. Relevee le
     31 au soir, bulle ouverte. */
@@ -1980,6 +1983,14 @@ const secondePasse = await p.evaluate(() => {
     rayonDeVignette: Math.round(parseFloat(g(vignettes[0]).borderTopLeftRadius)),
     airDansLaVignette: Math.round(parseFloat(g(vignettes[0]).paddingTop)),
     tailleDeVignette: Math.round(r(vignettes[0]).width),
+    //  TROIS VIGNETTES ET DEUX ÉCARTS REMPLISSENT LA RANGÉE. Le
+    //  chiffre exact dépendait de l'épaisseur d'une barre de
+    //  défilement, qui n'est pas la même d'un système à l'autre :
+    //  un littéral ne mesurait pas la règle, il mesurait Chromium.
+    troisRemplissentLaRangee: (() => {
+      const e = parseFloat(g(dd).columnGap) || 0;
+      return Math.abs(3 * r(vignettes[0]).width + 2 * e - r(dd).width) <= 1;
+    })(),
     origineDuDessin: g(vignettes[0]).backgroundOrigin,
     margeDeLaRangee: Math.round(r(dd).left - r(panneau).left),
     //  ET LA BULLE N'A QU'UNE FLÈCHE. Elle est faite de quatre
@@ -2057,7 +2068,7 @@ dire(
     //  que le fond du badge et le badge ne soient pas trop collés ».
     //  La case passe à 48 pour que le dessin garde ses 28.
     secondePasse.airDansLaVignette >= 10 &&
-    secondePasse.tailleDeVignette === 58 &&
+    secondePasse.troisRemplissentLaRangee &&
     //  ET LE REMBOURRAGE COMPTE VRAIMENT. `background-origin` vaut
     //  `padding-box` par défaut, ce qui place le dessin au bord
     //  intérieur de la BORDURE : le rembourrage ne lui enlève rien,
@@ -2277,6 +2288,22 @@ const lotDuSoir = await p.evaluate(() => {
     //  TROIS PAR RANGÉE, et la dernière rangée centrée comme les
     //  autres : une grille ne sait pas le faire, un flex borné si.
     parRang: [...rangs.values()],
+    //  ET LA RANGÉE REMPLIT LA BOÎTE DE CONTENU, des deux côtés.
+    //  « Pourquoi y'a une marge à droite ici ? » : deux causes
+    //  additionnées, les `96 %` de ModernBB et les six pixels de
+    //  gouttière qu'on réservait à la main pour une barre de
+    //  défilement qui, sur un Mac, flotte et ne prend rien.
+    toutePlace: dd === null ? null : (() => {
+      const pa = dd.parentElement;
+      const g = getComputedStyle(pa);
+      const gauche = r(pa).left + pa.clientLeft + parseFloat(g.paddingLeft);
+      const droite = gauche + pa.clientWidth -
+        parseFloat(g.paddingLeft) - parseFloat(g.paddingRight);
+      return {
+        aGauche: Math.round(r(dd).left - gauche),
+        aDroite: Math.round(droite - r(dd).right),
+      };
+    })(),
     //  CENTRÉ DANS LA BOÎTE DE CONTENU, pas dans la boîte de bordure.
     //  Le panneau défile (`overflow: auto`), et sa barre de
     //  défilement mange six pixels à droite À L'INTÉRIEUR du cadre :
@@ -2324,6 +2351,8 @@ dire(
     lotDuSoir.parRang.filter((n) => n === 3).length >= 3 &&
     lotDuSoir.parRangLarge.every((n) => n <= 3) &&
     lotDuSoir.centre === true &&
+    lotDuSoir.toutePlace !== null &&
+    lotDuSoir.toutePlace.aGauche === 0 && lotDuSoir.toutePlace.aDroite === 0 &&
     lotDuSoir.margeBasseH3 === "0px" && lotDuSoir.bordH3 === "0px",
   JSON.stringify(lotDuSoir),
 );

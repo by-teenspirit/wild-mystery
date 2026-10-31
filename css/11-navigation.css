@@ -1559,6 +1559,14 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   width: auto;
   min-width: 0;
   max-width: 100%;
+  /*  ET RIEN N'EST ROGNÉ EN HAUT. « Quand je survole la croix, le
+      haut du fond est coupé » : la croix remonte de quatre pixels
+      pour se centrer sur la première ligne, et `.content` — que
+      ModernBB taille en `overflow: hidden` — lui coupait ces quatre
+      pixels dès qu'elle avait un fond. Le débordement latéral, lui,
+      était déjà tenu par le `min-width: 0` du texte, mesuré avant
+      et après : la coupe ne retenait rien d'autre. */
+  overflow: visible;
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {

@@ -5963,9 +5963,27 @@ html#min-width {
   display: none;
   overflow-y: auto;
   height: 170px;
-  /*  La place de la barre de défilement, pour que le texte ne vienne
-      pas la toucher quand elle apparaît. */
-  padding-right: var(--wm-espace-6, 6px);
+  /*  LA PLACE DE LA BARRE DE DÉFILEMENT, RÉSERVÉE PAR LE NAVIGATEUR
+      ET PLUS À LA MAIN. « Pourquoi y'a une marge à droite ici ? » —
+      six pixels de rembourrage, posés pour que le texte ne touche
+      pas la barre. Sur un Mac la barre FLOTTE au-dessus du contenu
+      et ne prend aucune place : les six pixels y étaient du vide,
+      mesurés tels quels dans le panneau des badges.
+
+      `scrollbar-gutter: stable` dit exactement la chose qu'on
+      voulait dire : réserve la place d'une barre là où une barre en
+      prend, et rien là où elle n'en prend pas. Zéro sur Mac,
+      l'épaisseur réelle ailleurs, et stable — le contenu ne saute
+      plus quand la barre apparaît.
+
+      CE QUI SE MESURE ICI, C'EST LE ZÉRO, pas la réserve : le
+      harnais tourne lui aussi sur des barres flottantes, et retirer
+      cette ligne n'y change rien. La règle qui tombe est celle
+      d'à-côté — la rangée touche les deux bords de sa boîte — et
+      c'est elle que Callista voyait. La réserve sur les systèmes à
+      barre pleine n'est pas prouvée ici ; elle est la raison d'être
+      de la propriété, pas une promesse que je peux vérifier. */
+  scrollbar-gutter: stable;
   text-align: left;
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
@@ -7971,6 +7989,10 @@ html#min-width {
 }
 
 #modernbb .wm-profil__panneau--3 .dd_award {
+  /*  ET LA RANGÉE PREND TOUTE LA LARGEUR. ModernBB lui met `96%` et
+      la centrait ; en lui retirant sa marge automatique, les quatre
+      pour cent restants tombaient tous du même côté. */
+  width: 100%;
   max-width: none;
   margin-inline: 0;
   gap: var(--wm-espace-12, 12px);
@@ -12588,6 +12610,14 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   width: auto;
   min-width: 0;
   max-width: 100%;
+  /*  ET RIEN N'EST ROGNÉ EN HAUT. « Quand je survole la croix, le
+      haut du fond est coupé » : la croix remonte de quatre pixels
+      pour se centrer sur la première ligne, et `.content` — que
+      ModernBB taille en `overflow: hidden` — lui coupait ces quatre
+      pixels dès qu'elle avait un fond. Le débordement latéral, lui,
+      était déjà tenu par le `min-width: 0` du texte, mesuré avant
+      et après : la coupe ne retenait rien d'autre. */
+  overflow: visible;
 }
 
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_list li a.delete {
@@ -19905,7 +19935,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   translate: -50%;
   box-sizing: border-box;
   width: max-content;
-  max-width: 100%;
+  /*  « Les infobulles doivent être plus larges, de façon à ce que ça
+      tienne sur une ligne, max 2 si le texte est plus long. »
+      `100 %` se lisait sur LA VIGNETTE, large de cinquante-six
+      pixels : « Badge - Arène Feu » y tombait sur quatre lignes. La
+      largeur d'une bulle se mesure en texte, pas en vignette —
+      vingt-quatre cadratins tiennent le plus long des onze noms sur
+      une ligne, et en donnent deux à un nom plus long. */
+  max-width: 24ch;
   padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
@@ -20380,9 +20417,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     l'attribut, aucune de ces règles ne s'applique et le dégradé de
     `13-composants.css` reste intact — une carte collée hier garde
     exactement la tête qu'elle avait. Les deux variables sont
-    locales à la carte, pas des jetons : pas de préfixe `--wm-`,
-    pas de repli non plus — chaque nature les écrit toutes les
-    deux, et `jetons.css` n'a rien à en dire. */
+    locales à la carte, pas des jetons : pas de préfixe `--wm-`, et
+    `jetons.css` n'a rien à en dire.
+
+    MAIS LA TEINTE, ELLE, VIENT D'UN JETON, ET IL LUI FAUT UN REPLI.
+    « Je ne vois pas le fond des cartes dresseur » : le panneau
+    d'administration sert un `jetons.css` antérieur aux six groupes,
+    donc `--wm-groupe-brave-texte` était VIDE sur le forum. Une
+    variable vide au milieu d'un `color-mix` rend toute la
+    déclaration invalide, et `background-image` retombait à `none` —
+    le dégradé d'origine avec. Un jeton manquant n'effaçait pas la
+    couleur : il effaçait le bandeau entier.
+
+    Le repli porte la valeur de `jetons.css`, et le garde-fou n° 15
+    relit les deux : l'adresse ne peut pas vieillir en silence. */
 #modernbb .wm-tcard[data-wm-nature] .wm-dresseur {
   background-image:
     /*  LE VOILE, posé PAR-DESSUS la mascotte : les trois compteurs
@@ -20393,11 +20441,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     linear-gradient(to right, transparent 50%, rgba(27, 19, 48, 0.62) 92%),
     var(--tcard-mascotte),
     linear-gradient(
-      to right,
-      #1b1330 0%,
-      color-mix(in srgb, var(--tcard-teinte) 45%, #1b1330) 55%,
-      var(--tcard-teinte) 100%
-    );
+    to right,
+    #1b1330 0%,
+    color-mix(in srgb, var(--tcard-teinte) 45%, #1b1330) 55%,
+    var(--tcard-teinte) 100%
+  );
   background-repeat: no-repeat;
   /*  LA MASCOTTE EST UN FILIGRANE, PAS UNE ILLUSTRATION. Posée nette
       à droite, elle passait sous les trois compteurs et on ne lisait
@@ -20413,32 +20461,50 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wm-tcard[data-wm-nature="hardi"] {
   --tcard-mascotte: url("../img/natures/keldeo.png");
-  --tcard-teinte: var(--wm-groupe-hardi-texte);
+  --tcard-teinte: var(--wm-groupe-hardi-texte, #21658c);
 }
 
 #modernbb .wm-tcard[data-wm-nature="serieux"] {
   --tcard-mascotte: url("../img/natures/uxie.png");
-  --tcard-teinte: var(--wm-groupe-serieux-texte);
+  --tcard-teinte: var(--wm-groupe-serieux-texte, #7c611d);
 }
 
 #modernbb .wm-tcard[data-wm-nature="malin"] {
   --tcard-mascotte: url("../img/natures/hoopa.png");
-  --tcard-teinte: var(--wm-groupe-malin-texte);
+  --tcard-teinte: var(--wm-groupe-malin-texte, #5a218c);
 }
 
 #modernbb .wm-tcard[data-wm-nature="doux"] {
   --tcard-mascotte: url("../img/natures/shaymin.png");
-  --tcard-teinte: var(--wm-groupe-doux-texte);
+  --tcard-teinte: var(--wm-groupe-doux-texte, #1b741b);
 }
 
 #modernbb .wm-tcard[data-wm-nature="brave"] {
   --tcard-mascotte: url("../img/natures/cresselia.png");
-  --tcard-teinte: var(--wm-groupe-brave-texte);
+  --tcard-teinte: var(--wm-groupe-brave-texte, #8c2157);
 }
 
 #modernbb .wm-tcard[data-wm-nature="jovial"] {
   --tcard-mascotte: url("../img/natures/celebi.png");
-  --tcard-teinte: var(--wm-groupe-jovial-texte);
+  --tcard-teinte: var(--wm-groupe-jovial-texte, #1a705e);
+}
+
+/*  LES BULLES DES DEUX BOUTS S'ALIGNENT SUR LEUR BORD, pas sur leur
+    milieu. Élargies, celle du premier badge sortait de quatre pixels
+    à gauche de la carte et celle du dernier de cinq à droite. Les
+    neuf autres restent centrées sur leur vignette ; ces deux-là
+    collent leur bord au bord du badge, ce qui les ramène dans la
+    carte sans toucher aux autres. */
+#modernbb .wm-tcard__badges > .wm-tcard__badge:first-child .wm-tcard__bulle {
+  right: auto;
+  left: 0;
+  translate: none;
+}
+
+#modernbb .wm-tcard__badges > .wm-tcard__badge:last-child .wm-tcard__bulle {
+  right: 0;
+  left: auto;
+  translate: none;
 }
 
 /* ════════════════════════════════════════════════════════════════════
