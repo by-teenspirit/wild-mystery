@@ -20004,27 +20004,35 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   container-type: inline-size;
 }
 
+/*  EN FLEX, ET PAS EN GRILLE À DEUX COLONNES ÉGALES.
+
+    « Les badges doivent tenir sur une ligne. » Deux colonnes égales
+    ne le permettent pas : sur une carte de 800, chaque boîte fait
+    370, moins 36 de rembourrage il reste 334 — et sept badges de 44
+    avec six gouttières de 10 en demandent 368. Les arènes passaient
+    donc à deux rangées pendant que les colosseums laissaient du vide.
+
+    En flex, chaque boîte part de la largeur de SES badges — c'est sa
+    taille minimale, puisque la rangée ne se coupe plus — et
+    `flex-grow` se partage ce qui reste. Les deux tiennent sur une
+    ligne chacune, et ensemble elles prennent toute la largeur. Sans
+    écrire sept ni quatre nulle part : le jour où une douzième arène
+    arrive, la boîte s'élargit toute seule.
+
+    ET ELLES S'EMPILENT QUAND LA CARTE EST TROP ÉTROITE, par le
+    `flex-wrap` et rien d'autre — plus besoin d'une requête de
+    conteneur avec un seuil choisi à la main. */
 #modernbb .wm-tcard__familles {
-  display: grid;
-  /*  DEUX COLONNES ÉGALES QUI PRENNENT TOUT : `1fr 1fr` et pas
-      `auto auto`, qui donnait à chaque colonne la largeur de ses
-      badges — sept d'un côté, quatre de l'autre, deux boîtes de
-      tailles différentes. */
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--wm-espace-16, 16px);
 }
 
-/*  EN DESSOUS DE 480, LES DEUX BOÎTES S'EMPILENT. En conteneur et
-    pas en média : la carte est collée dans un message, et la largeur
-    d'un message n'est pas celle de l'écran. */
-@container (max-width: 480px) {
-  #modernbb .wm-tcard__familles {
-    grid-template-columns: 1fr;
-  }
-}
-
 #modernbb .wm-tcard__famille {
-  min-width: 0;
+  /*  Pas de `min-width: 0` : la largeur minimale d'une boîte DOIT
+      rester celle de sa rangée de badges, sinon elle se laisse
+      écraser et la rangée déborde. */
+  flex: 1 1 auto;
   padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px)
     var(--wm-espace-18, 18px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
@@ -20047,6 +20055,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex-wrap: wrap;
   justify-content: flex-start;
 }
+
+/*  PAS DE `nowrap` SUR LA RANGÉE, ET C'EST MESURÉ.
+
+    J'en avais posé un, puis sous condition de largeur quand il a
+    fait déborder la carte de 105 px dans une colonne de 320. Il ne
+    servait à rien dans les deux cas : `flex: 1 1 auto` prend pour
+    base la taille du CONTENU, et le contenu d'une rangée qui peut
+    se couper reste large de toute sa rangée. La place des sept
+    badges est donc déjà réservée, et quand elle manque vraiment les
+    boîtes rétrécissent et la rangée se coupe — ce qu'on veut.
+
+    Vérifié en le retirant : aucun contrôle ne tombe, y compris
+    celui qui mesure sur une carte serrée à 760. */
 
 /*  ET « MES BADGES » TOUT À GAUCHE. Le titre du bloc n'a plus la
     grille centrée au-dessus de lui, donc il part du bord. */

@@ -550,12 +550,32 @@ const badges = await p.evaluate(() => {
         fond: st.backgroundColor,
       };
     })(),
-    //  DEUX ENCADRÉS DE MÊME LARGEUR, qui remplissent la rangée.
-    encadresEgaux: (() => {
-      const [a, b] = document.querySelectorAll("#remplie .wm-tcard__famille");
-      if (b === undefined) return false;
-      return Math.abs(Math.round(r(a).width) - Math.round(r(b).width)) <= 1;
+    //  CHAQUE FAMILLE TIENT SUR UNE LIGNE. C'est la demande, et c'est
+    //  elle qui décide de la largeur des boîtes : elles ne sont donc
+    //  PAS égales — celle des sept arènes est plus large que celle
+    //  des quatre colosseums, et c'est voulu. Une version
+    //  précédente les voulait égales, et les arènes passaient à deux
+    //  rangées pendant que les colosseums laissaient du vide.
+    //  ET ON LE MESURE SUR UNE CARTE SERRÉE, à 760. Sur une carte
+    //  large, deux boîtes qui se partagent la place à égalité ont
+    //  chacune assez pour sept badges, et le contrôle passerait sans
+    //  rien prouver. À 760, la moitié fait 352 et les arènes en
+    //  demandent 404 : c'est `nowrap` qui réserve la place, et sans
+    //  lui elles repassent à deux rangées.
+    badgesSurUneLigneSerre: (() => {
+      const c = document.querySelector("#remplie");
+      const avant = c.style.width;
+      c.style.width = "760px";
+      void c.offsetWidth;
+      const ok = [...c.querySelectorAll(".wm-tcard__badges")].every((u) =>
+        new Set([...u.children].map((x) => Math.round(r(x).top))).size === 1
+      );
+      c.style.width = avant;
+      return ok;
     })(),
+    badgesSurUneLigne: [
+      ...document.querySelectorAll("#remplie .wm-tcard__badges"),
+    ].every((u) => new Set([...u.children].map((c) => Math.round(r(c).top))).size === 1),
     encadresPrennentTout: (() => {
       const f = document.querySelector("#remplie .wm-tcard__familles");
       const [a, b] = f.querySelectorAll(".wm-tcard__famille");
@@ -676,14 +696,15 @@ dire(
 );
 
 dire(
-  "deux encadrés égaux, côte à côte, tout collé à gauche dedans",
+  "deux encadrés côte à côte, chacun sur une ligne, tout collé à gauche",
   badges !== null && badges.combien === 11 && badges.groupes === 2 &&
     badges.cadreDifferent && badges.ronds &&
     badges.soustitres === 2 &&
     //  LARGE : les deux encadrés côte à côte, de MÊME largeur — c'est
     //  `1fr 1fr` et pas `auto auto`, qui taillait chaque boîte sur
     //  ses badges : sept d'un côté, quatre de l'autre.
-    badges.deuxColonnes && badges.encadresEgaux &&
+    badges.deuxColonnes && badges.badgesSurUneLigne &&
+    badges.badgesSurUneLigneSerre &&
     badges.encadresPrennentTout &&
     badges.encadre.filet >= 1 && badges.encadre.arrondi >= 8 &&
     badges.encadre.air >= 12 &&
