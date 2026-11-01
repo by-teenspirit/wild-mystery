@@ -71,9 +71,29 @@ const doc = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
     pleine largeur et declarait bonne une annexe qui, sur le forum,
     arrivait en panneau de 1128 flottant au milieu. Un decor qui ne
     reproduit pas ce que ModernBB sert ne teste que lui-meme. */
-.wm-boite-forum{max-width:1200px;margin:0 auto;padding:24px 36px;box-sizing:border-box}</style></head>
-<body><div id="modernbb"><div class="wm-boite-forum"><div id="page-body">${
-  readFileSync(R + cible, "utf8")
+.wm-boite-forum{max-width:1200px;margin:0 auto;padding:24px 36px;box-sizing:border-box}
+/*  ET LA BARRE DE NAVIGATION, relevee en meme temps : sticky, 56 de
+    haut, posee a zero. Sans elle, un sommaire colle a zero paraissait
+    bon ici et glissait derriere la barre sur le forum. */
+.wm-barre-forum{position:sticky;top:0;z-index:70;height:56px;background:var(--wm-fond-nuit,#3a2a22)}</style></head>
+<body><div id="modernbb"><div class="wm-barre-forum"></div><div class="wm-boite-forum"><div id="page-body">${
+  //  LES IMAGES DE DECOR SONT RAPATRIEES SUR LE DISQUE. La page colle
+  //  des adresses completes vers GitHub Pages — elle le doit, elle vit
+  //  sur forumactif.com — et cette page-ci est montee par
+  //  `setContent`, donc sans origine : rien ne s'y charge. On lit le
+  //  fichier du depot et on le met en `data:`. C'est la seule facon de
+  //  mesurer la taille REELLE de la photo, donc son agrandissement.
+  readFileSync(R + cible, "utf8").replace(
+    /url\('https:\/\/by-teenspirit\.github\.io\/wild-mystery\/([^']+)'\)/g,
+    (tout, f) => {
+      try {
+        const o = readFileSync(R + f);
+        return `url('data:image/jpeg;base64,${o.toString("base64")}')`;
+      } catch {
+        return tout;
+      }
+    },
+  )
 }</div></div></div></body></html>`;
 
 const navigateur = await chromium.launch(
@@ -267,7 +287,11 @@ const voile = await p.evaluate(() => {
   //  elle contient des `rgb(...)` et des `color-mix(...)`, donc une
   //  expression qui s'arrete a la premiere parenthese fermante lit le
   //  `0px` du premier arret au lieu du dernier.
-  const degrade = getComputedStyle(corps).backgroundImage;
+  //  LE VOILE VIT SUR `::after` depuis que la photo est passee sur
+  //  `::before` pour pouvoir etre floutee : un `filter` s'applique a
+  //  l'element entier, et pose dans le fond du corps il aurait
+  //  emporte le texte.
+  const degrade = getComputedStyle(corps, "::after").backgroundImage;
   const depart = degrade.indexOf("linear-gradient(to right");
   let couche = null;
   if (depart !== -1) {
@@ -321,6 +345,111 @@ if (voile === null || voile.photo === false) {
     `photo de fond : le voile tient jusqu'a ${voile.limite}, ` +
       `le texte s'arrete a ${voile.pire.droite} (« ${voile.pire.mot} »)`,
   );
+}
+
+//  ── LE SOMMAIRE SE COLLE SOUS LA BARRE, PAS DERRIERE ──────────────
+//
+//  Les deux sont `sticky`. Un sommaire a `top: 0` se range au meme
+//  endroit que la barre, qui porte un z-index de 70 : ses premieres
+//  entrees passaient dessous. On fait defiler pour de vrai et on
+//  regarde ou il s'arrete.
+//  UNE FENETRE PLUS HAUTE QUE LE SOMMAIRE, et plus basse que la page.
+//  A 1400 la page tenait presque en entier et il n'y avait rien a
+//  faire defiler ; a 620 le sommaire, haut de 855, ne tient pas dans
+//  la fenetre et `sticky` le laisse partir — c'est le comportement
+//  normal, pas un defaut. Entre les deux, il colle.
+await p.setViewportSize({ width: 1280, height: 1000 });
+await p.evaluate(() => globalThis.scrollTo(0, 400));
+await p.waitForTimeout(250);
+const sousLaBarre = await p.evaluate(() => {
+  const s = document.querySelector(".wm-annexe__sommaire");
+  const b = document.querySelector(".wm-barre-forum");
+  if (s === null || b === null) return null;
+  return {
+    defile: Math.round(globalThis.scrollY),
+    sommaire: Math.round(s.getBoundingClientRect().top),
+    basDeLaBarre: Math.round(b.getBoundingClientRect().bottom),
+  };
+});
+await p.evaluate(() => globalThis.scrollTo(0, 0));
+await p.setViewportSize({ width: 1280, height: 1400 });
+await p.waitForTimeout(150);
+if (sousLaBarre !== null) {
+  const bon = sousLaBarre.sommaire >= sousLaBarre.basDeLaBarre;
+  console.log(
+    `defile de ${sousLaBarre.defile} : sommaire a ${sousLaBarre.sommaire}, ` +
+      `bas de la barre a ${sousLaBarre.basDeLaBarre}` +
+      (bon ? "" : " — DEFAUT, il passe dessous"),
+  );
+  if (!bon) fautes++;
+}
+
+//  ── UNE PHOTO TROP ETIREE DOIT ETRE FLOUTEE ───────────────────────
+//
+//  « Le fond est trop pixellise. » Les photos de zone sont des
+//  bandeaux de 1280 x 300 ; etirees en `cover` sur une annexe, elles
+//  montent a sept fois leur hauteur et les blocs de compression se
+//  voient. On mesure l'agrandissement reel, et au-dela de deux fois on
+//  exige un flou — pas un chiffre arbitraire : en dessous, un
+//  agrandissement ne se voit pas, au-dessus il se voit toujours.
+const etirement = await p.evaluate(async () => {
+  const c = document.querySelector(".wm-annexe__corps");
+  if (c === null) return null;
+  const st = getComputedStyle(c, "::before");
+  const adresse = st.backgroundImage.match(/url\("([^"]+)"\)/)?.[1];
+  if (adresse === undefined) return { photo: false };
+  const d = await new Promise((ok) => {
+    const i = new Image();
+    i.onload = () => ok([i.naturalWidth, i.naturalHeight]);
+    i.onerror = () => ok(null);
+    i.src = adresse;
+  });
+  if (d === null) return { photo: true, chargee: false };
+  const b = c.getBoundingClientRect();
+  //  `cover` : l'echelle est le plus grand des deux rapports.
+  const echelle = Math.max(b.width / d[0], b.height / d[1]);
+  return {
+    photo: true,
+    chargee: true,
+    echelle: Math.round(echelle * 10) / 10,
+    flou: /blur\(([\d.]+)px\)/.exec(st.filter)?.[1] ?? null,
+  };
+});
+if (etirement !== null && etirement.photo && etirement.chargee) {
+  const bon = etirement.echelle <= 2 || Number(etirement.flou) >= 4;
+  console.log(
+    `photo : agrandie ${etirement.echelle} fois, flou ${etirement.flou ?? "aucun"}` +
+      (bon ? "" : " — DEFAUT, a cette echelle elle se pixellise"),
+  );
+  if (!bon) fautes++;
+}
+
+//  ── AUCUNE AUTRE FEUILLE NE GAGNE SUR UNE BRIQUE D'ANNEXE ─────────
+//
+//  Le titre d'une brique `carte` sortait a 25 px, encre et graisse
+//  700, alors que cette feuille lui donne 19, accent et 600 : une
+//  autre feuille du paquet stylait la meme classe pour une autre
+//  chose, et passait apres. On compare donc la valeur RENDUE a celle
+//  que le jeton annonce — un ecart signale que quelqu'un d'autre a
+//  mis la main sur la brique.
+const briques = await p.evaluate(() => {
+  const t = document.querySelector(".wm-annexe__carte-titre");
+  if (t === null) return null;
+  const s = getComputedStyle(t);
+  const attendu = s.getPropertyValue("--wm-taille-titre-section").trim();
+  return {
+    rendu: s.fontSize,
+    attendu,
+    graisse: s.fontWeight,
+    accord: attendu !== "" && parseFloat(s.fontSize) === parseFloat(attendu),
+  };
+});
+if (briques !== null) {
+  console.log(
+    `brique carte : titre rendu a ${briques.rendu}, jeton a ${briques.attendu}` +
+      (briques.accord ? "" : " — DEFAUT, une autre feuille gagne"),
+  );
+  if (!briques.accord) fautes++;
 }
 
 //  ── UN `<b>` EN TETE DE TIRET RESTE DANS SA PHRASE ────────────────
@@ -392,18 +521,24 @@ for (const l of [1864, 1280]) {
 const lavis = await p.evaluate(() => {
   const c = document.querySelector(".wm-annexe__corps");
   if (c === null) return null;
-  const img = getComputedStyle(c).backgroundImage;
+  const img = getComputedStyle(c, "::after").backgroundImage;
   const d = img.indexOf("linear-gradient(to right");
   if (d === -1) return null;
   let n = 0, couche = "";
   for (let i = img.indexOf("(", d); i < img.length; i++) {
     if (img[i] === "(") n++;
-    else if (img[i] === ")" && --n === 0) { couche = img.slice(d, i + 1); break; }
+    else if (img[i] === ")" && --n === 0) {
+      couche = img.slice(d, i + 1);
+      break;
+    }
   }
   //  Chromium rend les couleurs translucides en `color(srgb … / a)`.
   const alphas = [...couche.matchAll(/\/\s*([\d.]+)\s*\)/g)].map((m) => Number(m[1]));
-  return { arrets: alphas.length, deuxDerniersEgaux: alphas.length >= 2 &&
-    alphas.at(-1) === alphas.at(-2) };
+  return {
+    arrets: alphas.length,
+    deuxDerniersEgaux: alphas.length >= 2 &&
+      alphas.at(-1) === alphas.at(-2),
+  };
 });
 if (lavis !== null) {
   console.log(
@@ -449,7 +584,12 @@ for (const l of [1280, 900, 520, 390]) {
   if (l < 900) {
     const decor = await p.evaluate(() => {
       const c = document.querySelector(".wm-annexe__corps");
-      return c === null ? null : getComputedStyle(c).backgroundImage.includes("url(");
+      if (c === null) return null;
+      //  Les deux couches de decor sont des pseudo-elements depuis que
+      //  la photo est floutee : c'est la qu'il faut regarder.
+      return ["::before", "::after"].some((q) =>
+        getComputedStyle(c, q).backgroundImage.includes("url(")
+      );
     });
     if (decor === true) {
       console.log(`        ${l}px : le decor est encore charge — defaut`);

@@ -135,8 +135,8 @@ GABARIT = """<!-- ════════════════════�
 
       <div class="wm-annexe__blocs">
 
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Le premier bloc</h2>
+        <div class="wm-annexe__carte">
+          <h2 class="wm-annexe__carte-titre">Le premier bloc</h2>
           <ul class="wm-tirets">
             <li><b>Une liste à tirets</b> pour ce qui s'énumère : des étapes, des
               conditions, des cas. Le tiret est posé par la feuille — ne pas le
@@ -148,8 +148,8 @@ GABARIT = """<!-- ════════════════════�
         </div>
 
         <div class="wm-paire">
-          <div class="wm-carte">
-            <h2 class="wm-carte__titre">Deux cartes côte à côte</h2>
+          <div class="wm-annexe__carte">
+            <h2 class="wm-annexe__carte-titre">Deux cartes côte à côte</h2>
             <div class="wm-paras">
               <p>La brique <b>paire</b> pose deux cartes de même largeur. Elle sert quand
                 deux choses se répondent — avant et après, ce qu'on gagne et ce qu'on
@@ -157,8 +157,8 @@ GABARIT = """<!-- ════════════════════�
               <p>Sous 900 pixels, elles s'empilent toutes seules.</p>
             </div>
           </div>
-          <div class="wm-carte">
-            <h2 class="wm-carte__titre">Et du texte suivi</h2>
+          <div class="wm-annexe__carte">
+            <h2 class="wm-annexe__carte-titre">Et du texte suivi</h2>
             <div class="wm-paras">
               <p>La brique <b>paras</b> est le texte courant : des paragraphes, sans puce
                 ni numéro. C'est elle qu'on emploie quand une idée ne se découpe pas.</p>
@@ -166,8 +166,8 @@ GABARIT = """<!-- ════════════════════�
           </div>
         </div>
 
-        <div class="wm-carte">
-          <h2 class="wm-carte__titre">Un tableau</h2>
+        <div class="wm-annexe__carte">
+          <h2 class="wm-annexe__carte-titre">Un tableau</h2>
           <div class="wm-table">
             <div class="wm-table__ligne wm-table__ligne--entete">
               <span class="wm-table__cellule wm-table__cellule--nom">Ce qu'on nomme</span>

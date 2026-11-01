@@ -10064,6 +10064,23 @@ body:has(#modernbb .wm-annexe) {
   align-items: stretch;
   width: 100vw;
   margin-inline: calc(50% - 50vw);
+  /*  LA BANDE SOMBRE DU SOMMAIRE EST PEINTE ICI, pas sur le sommaire.
+      « La barre latérale doit prendre toute la hauteur » : le
+      sommaire est `sticky`, donc haut comme son contenu — 855 px
+      dans une page de 1409 — et sous lui le fond de page
+      reparaissait. L'étirer le rendrait aussi haut que la page, et
+      un élément aussi haut que son conteneur n'a plus de place pour
+      coller : on perdrait le sommaire qui suit la lecture.
+
+      La page peint donc la bande sur toute sa hauteur, et le
+      sommaire se contente de vivre dessus, transparent. Les deux
+      promesses tiennent, et aucune ne coûte l'autre. */
+  background-image: linear-gradient(
+    to right,
+    var(--wm-fond-nuit, #3a2a22) 0,
+    var(--wm-fond-nuit, #3a2a22) 252px,
+    transparent 252px
+  );
 }
 
 #modernbb .wm-annexe__corps {
@@ -10100,7 +10117,61 @@ body:has(#modernbb .wm-annexe) {
       La couleur de fond reste dessous : une page sans photo garde
       le dégradé d'origine, et rien ne bouge pour les pages déjà
       collées. */
+  position: relative;
+  isolation: isolate;
+  /*  LE DÉBORD DU FLOU EST COUPÉ ICI. Le `scale: 1.04` de la photo
+      la fait sortir de trente pixels à droite, et la page posait une
+      barre horizontale. `clip` et pas `hidden` : on ne veut pas
+      créer de conteneur de défilement. */
+  overflow: clip;
   background-color: var(--wm-fond-page, #eecfb5);
+  background-image: linear-gradient(
+    180deg,
+    var(--wm-fond-douce, #f3e1d2) 0%,
+    var(--wm-fond-page, #eecfb5) 55%
+  );
+}
+
+/*  ── LA PHOTO EST FLOUE, ET CE N'EST PAS UN EFFET ──────────────────
+    « Le fond est trop pixellisé. » Les photos de zone sont des
+    BANDEAUX de 1280 × 300 — c'est leur emploi d'origine, en tête de
+    forum. Étirées en `cover` sur une annexe de 1612 × 1400, sur un
+    écran qui double chaque pixel, elles montent à sept fois leur
+    hauteur : on voyait les blocs de compression.
+
+    Trois sorties possibles, et une seule tenait aujourd'hui :
+    attendre les vraies images d'annexe (`img/annexes/<n>.jpg`, que
+    la planche 46 réclame depuis un mois) ; n'afficher qu'une bande
+    à sa taille, et laisser le reste nu ; ou assumer le flou. La
+    maquette montre d'ailleurs un fond NET-FLOU, défocalisé derrière
+    la colonne — donc le flou n'est pas un pansement, c'est ce que la
+    planche demandait.
+
+    Elle vit sur un pseudo-élément parce qu'un `filter` s'applique à
+    l'élément entier : posée dans `background-image`, elle aurait
+    emporté le texte avec elle. Le `scale` mange les bords délavés
+    que le flou crée en bordure. */
+#modernbb .wm-annexe__corps::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background-image: var(--annexe-fond, none);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  filter: blur(7px);
+  scale: 1.04;
+  content: "";
+}
+
+/*  LE VOILE ET LE RENDU PASSENT AU-DESSUS DE LA PHOTO, et sous le
+    texte. Même empilement qu'avant, à ceci près qu'il est maintenant
+    porté par une couche à lui : le flou de la photo ne doit toucher
+    ni le lavis ni le pokémon, qui sont nets. */
+#modernbb .wm-annexe__corps::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
   background-image:
     var(--annexe-rendu, none),
     radial-gradient(
@@ -10112,40 +10183,27 @@ body:has(#modernbb .wm-annexe) {
     to right,
     var(--wm-fond-douce, #f3e1d2) 0%,
     /*  824 PIXELS, PAS UN POURCENTAGE : c'est le bord droit de la
-        colonne de lecture — 48 de marge plus 768 de colonne — et il
-        ne bouge pas quand la fenêtre bouge. En pourcentage, la
-        dernière ligne du chapô finissait sur la mer.
+          colonne de lecture — 48 de marge plus 768 de colonne — et
+          il ne bouge pas quand la fenêtre bouge. En pourcentage, la
+          dernière ligne du chapô finissait sur la mer.
 
-        ET LE HARNAIS DE CONTRASTE NE VOIT PAS LA PHOTO : il mesure
-        chaque texte sur sa couleur de fond, pas sur les pixels
-        d'une image. Son « zéro défaut » ne couvre donc PAS un texte
-        posé sur le décor. C'est la géométrie qui tient la promesse
-        ici, pas la mesure : le texte ne touche jamais la photo. */
+          ET LE HARNAIS DE CONTRASTE NE VOIT PAS LA PHOTO : il mesure
+          chaque texte sur sa couleur de fond, pas sur les pixels
+          d'une image. Son « zéro défaut » ne couvre donc PAS un
+          texte posé sur le décor. C'est la géométrie qui tient la
+          promesse ici, pas la mesure. */
     var(--wm-fond-douce, #f3e1d2) 824px,
-    /*  ET IL CESSE DE S'ÉCLAIRCIR À 1200. En finissant le fondu sur
-        la largeur de la boîte, un écran de 1864 donnait huit cents
-        pixels de dégradé et une photo de plein format sur la moitié
-        droite : plus une annexe, une affiche. Deux arrêts en pixels
-        tiennent la proportion de la maquette à toutes les largeurs —
-        un fondu de 376, puis un lavis constant jusqu'au bord. */
+    /*  ET IL CESSE DE S'ÉCLAIRCIR À 1200. En finissant le fondu
+          sur la largeur de la boîte, un écran de 1864 donnait huit
+          cents pixels de dégradé et une photo de plein format sur
+          la moitié droite : plus une annexe, une affiche. */
     color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 34%, transparent) 1200px,
     color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 34%, transparent) 100%
-  ),
-    var(--annexe-fond, none),
-    linear-gradient(
-    180deg,
-    var(--wm-fond-douce, #f3e1d2) 0%,
-    var(--wm-fond-page, #eecfb5) 55%
   );
   background-repeat: no-repeat;
-  background-position: right -24px bottom 0, center, center, center, center;
-  /*  LE RENDU SE MESURE SUR LA LARGEUR, PAS SUR LA HAUTEUR. Une
-      hauteur en pourcentage se lit sur la PAGE entière, qui fait
-      mille deux cents pixels : le pokémon montait à neuf cents de
-      haut et traversait la colonne de lecture. La maquette le pose à
-      446 ; en dessous de cette largeur de page, il rétrécit avec elle
-      au lieu de manger la lecture. */
-  background-size: min(446px, 40%) auto, cover, cover, cover, cover;
+  background-position: right -24px bottom 0, center, center;
+  background-size: min(446px, 40%) auto, cover, cover;
+  content: "";
 }
 
 /*  768 px pour les huit annexes : c'est la largeur des cartes dans la
@@ -10153,6 +10211,7 @@ body:has(#modernbb .wm-annexe) {
     Les quatre pages de la région portent `--large` — elles ont des
     grilles que 768 ne tiennent pas. */
 #modernbb .wm-annexe__colonne {
+  position: relative;
   max-width: 768px;
 }
 
@@ -10169,12 +10228,20 @@ body:has(#modernbb .wm-annexe) {
     premier défilement ne sert à rien. Il se décroche sous 900 px. */
 #modernbb .wm-annexe__sommaire {
   position: sticky;
-  top: 0;
+  /*  SOUS LA BARRE DE NAVIGATION, PAS DESSOUS. Elle est `sticky` elle
+      aussi, haute de 56 et posée à zéro : un sommaire collé à zéro
+      glissait derrière elle et ses premières entrées disparaissaient.
+      Relevé sur le forum le 1er novembre ; le chiffre est celui de la
+      barre. Le 56 est écrit en clair comme dans `11-navigation.css`
+      — ce n'est pas une couleur de charte, c'est la hauteur d'un
+      bloc, et `jetons.css` n'a pas à la connaître. */
+  top: 56px;
   align-self: flex-start;
   flex: 0 0 252px;
   width: 252px;
   padding: 0 0 var(--wm-espace-24, 24px);
-  background: var(--wm-fond-nuit, #3a2a22);
+  /*  Le fond est peint par `.wm-annexe`, pour courir sur toute la
+      hauteur de la page sans empêcher ce bloc de coller. */
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
@@ -10269,23 +10336,14 @@ body:has(#modernbb .wm-annexe) {
 }
 
 /*  Une page pas encore créée. La maquette ne montre pas cet état — chez
-    elle les douze existent. On le garde quand même : une entrée qui ne
-    répond pas et qui ressemble à un lien est pire qu'une entrée pâlie. */
+    elle les douze existent. L'entrée reste PÂLIE, et elle n'est pas un
+    lien : ni focus, ni curseur de la main. Le mot « à venir » qui
+    l'accompagnait est parti le 1er novembre — il revenait quatorze
+    fois dans une colonne de 252 px, plus long que la moitié des
+    titres qu'il commentait. */
 #modernbb .wm-annexe__entree--a-venir .wm-annexe__lien {
   opacity: 0.58;
   cursor: default;
-}
-
-#modernbb .wm-annexe__a-venir {
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-style: italic;
-  letter-spacing: 0;
-  text-transform: none;
-  white-space: nowrap;
-}
-
-#modernbb .wm-annexe__a-venir::before {
-  content: " · ";
 }
 
 /* ── 3 · la tête de la colonne de lecture ─────────────────────────── */
@@ -10345,13 +10403,30 @@ body:has(#modernbb .wm-annexe) {
 
 /* ── 4 · brique « carte » ─────────────────────────────────────────── */
 
-#modernbb .wm-carte {
+/*  ELLE S'APPELLE `wm-annexe__carte`, ET PAS `wm-carte`. Les deux
+    feuilles parlaient français et voulaient dire deux choses : ici une
+    CARTE au sens de fiche, dans `16-carte.css` la CARTE des
+    territoires. La seconde vient après dans le paquet, et son titre de
+    panneau — `--wm-taille-titre-page`, 25 px, encre, graisse 700 —
+    gagnait sur le titre de brique d'ici — 19 px, accent, graisse 600.
+
+    Relevé le 1er novembre sur la première annexe en ligne : « les
+    annexes sont trop grosses au niveau du texte ». Ce n'était pas une
+    question de goût, c'était un titre de carte interactive posé sur
+    une fiche d'annexe.
+
+    `16-carte.css` possède soixante-cinq classes en `wm-carte*` : c'est
+    elle qui tient le préfixe. L'annexe n'en avait que deux, et elles
+    passent sous le nom de leur page, comme tout le reste de cette
+    feuille. */
+
+#modernbb .wm-annexe__carte {
   padding: var(--wm-espace-18, 18px) var(--wm-espace-24, 24px) var(--wm-espace-20, 20px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-#modernbb .wm-carte__titre {
+#modernbb .wm-annexe__carte-titre {
   margin: 0 0 var(--wm-espace-12, 12px);
   color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
@@ -10360,7 +10435,7 @@ body:has(#modernbb .wm-annexe) {
   line-height: var(--wm-interligne-carte, 1.25);
 }
 
-#modernbb .wm-carte > :last-child {
+#modernbb .wm-annexe__carte > :last-child {
   margin-bottom: 0;
 }
 
@@ -10648,14 +10723,29 @@ body:has(#modernbb .wm-annexe) {
 
   #modernbb .wm-annexe__corps {
     padding: var(--wm-espace-24, 24px) var(--wm-espace-16, 16px);
-    /*  LA PHOTO ET LE RENDU S'EN VONT. Le sommaire est passé
-        au-dessus, la colonne prend toute la largeur, et il n'y a
-        plus un pouce où poser un décor sans mettre du texte
-        dessus. Le voile de 824 px couvrirait bien toute la boîte,
-        mais alors la photo ne se verrait plus nulle part : autant
-        ne pas la faire télécharger. */
-    background-image: none;
     background-color: var(--wm-fond-douce, #f3e1d2);
+    background-image: none;
+  }
+
+  /*  LA PHOTO ET LE RENDU S'EN VONT. Le sommaire est passé au-dessus,
+      la colonne prend toute la largeur, et il n'y a plus un pouce où
+      poser un décor sans mettre du texte dessus. Le voile couvrirait
+      bien toute la boîte, mais alors la photo ne se verrait plus
+      nulle part : autant ne pas la faire télécharger. */
+  #modernbb .wm-annexe__corps::before,
+  #modernbb .wm-annexe__corps::after {
+    background-image: none;
+    content: none;
+  }
+
+  /*  Et la bande sombre du sommaire ne court plus le long du bord :
+      le sommaire est passé en pleine largeur au-dessus du texte. */
+  #modernbb .wm-annexe {
+    background-image: none;
+  }
+
+  #modernbb .wm-annexe__sommaire {
+    background: var(--wm-fond-nuit, #3a2a22);
   }
 
   #modernbb .wm-annexe__colonne {

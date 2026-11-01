@@ -74,9 +74,6 @@
     if (cliquable && e.adresse !== null) corps.href = e.adresse;
     if (e.active) corps.setAttribute("aria-current", "page");
     corps.appendChild(doc.createTextNode(e.numero === "" ? e.titre : `${e.numero} \xB7 ${e.titre}`));
-    if (e.aVenir) {
-      corps.appendChild(element(doc, "span", "wm-annexe__a-venir", "\xE0 venir"));
-    }
     li.appendChild(corps);
     return li;
   }

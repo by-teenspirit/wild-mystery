@@ -78,12 +78,13 @@ function entreeEnDOM(doc: Document, e: EntreeAffichee): HTMLElement {
   corps.appendChild(
     doc.createTextNode(e.numero === "" ? e.titre : `${e.numero} · ${e.titre}`),
   );
-  //  « à venir » est écrit, pas seulement pâli : un gris ne se lit pas à
-  //  haute voix, et il ne dit pas pourquoi l'entrée ne répond pas. La
-  //  maquette n'a pas cet état — chez elle les douze pages existent.
-  if (e.aVenir) {
-    corps.appendChild(element(doc, "span", "wm-annexe__a-venir", "à venir"));
-  }
+  //  « À VENIR » NE S'ÉCRIT PLUS, retiré le 1er novembre à la demande
+  //  de Callista. J'avais défendu l'inverse — un gris ne se lit pas à
+  //  haute voix, et il ne dit pas pourquoi l'entrée ne répond pas —
+  //  mais le sommaire portait quatorze fois le même mot, et ce mot
+  //  est plus long que la moitié des titres. L'entrée reste
+  //  reconnaissable : elle est pâlie, et ce n'est PAS un lien, donc
+  //  elle ne reçoit ni le focus ni le curseur de la main.
 
   li.appendChild(corps);
   return li;
