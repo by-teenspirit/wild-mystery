@@ -1,27 +1,60 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      Annexe 04 · Créer son personnage — à coller dans une page HTML.
 
-     REPRIS SUR LA MAQUETTE `247:1786`, le 6 octobre. Ma première version
-     était une recomposition des planches 41 et 42 ; la maquette dit
-     autre chose, et porte des règles que ces planches n'ont pas :
+     ÉCRITE PAR `outils/annexes.py`. Ne pas corriger ce fichier à la
+     main : la correction serait perdue à la prochaine génération, et
+     elle ne toucherait qu'une des quatorze pages. Le gabarit est dans
+     l'outil, la liste dans `data/annexes.json`.
 
-       · LE CAMP — Team Ombre, Parti de soutien, Clan de la Nuit, ou
-         aucun. Une notion qui n'apparaît dans aucune autre planche ;
-       · L'AVANTAGE DE CHAQUE GROUPE — six bonus de jeu chiffrés, qui
-         n'existent nulle part ailleurs non plus ;
-       · LE STARTER EST CHOISI, ou tiré au sort si on préfère la
-         surprise.
+     ── CRÉER LA PAGE SUR LE FORUM ─────────────────────────────────
 
-     TROIS CONTRADICTIONS À TRANCHER, signalées plutôt que décidées :
-       1. la maquette dit « groupe », la planche 40 §8 dit « groupe » ;
-       2. le starter est CHOISI ici, et TIRÉ par le serveur à l'annexe 03
-          (« tu ne lances rien toi-même ») ;
-       3. « pas de personnage canon » à l'annexe 03, alors que la
-          planche 42 dit qu'on peut jouer Red ou Serena.
+     Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
+     MODE AVANCÉ, et surtout :
 
-     Les mots de la maquette sont gardés tels quels en attendant.
+       · « Utiliser le header et footer du forum » = **NON**. La page
+         est un document complet : elle charge elle-même les polices,
+         `jetons.css`, la feuille et `js/annexes.js`. Avec la case à
+         OUI, on aurait deux en-têtes et deux pieds l'un dans l'autre.
+       · L'adresse doit finir par **creer-son-personnage** — c'est ce bout que le
+         sommaire reconnaît pour se surligner, et pas le numéro `hN`,
+         qui dépend de l'ordre de création chez Forumactif.
+       · Reporter l'adresse obtenue dans `data/annexes.json`, champ
+         `adresse` : le lien apparaît alors dans les quatorze
+         sommaires d'un coup.
+
+     ── LE TEXTE EST UN REMPLISSAGE ────────────────────────────────
+
+     Les sept briques sont montrées une fois chacune, avec des phrases
+     neutres. Remplacer bloc par bloc ; supprimer les briques dont la
+     page n'a pas besoin. Ce qui ne doit PAS changer : les classes, et
+     le `<nav data-wm-sommaire>` qui reçoit le sommaire.
      ═══════════════════════════════════════════════════════════════════ -->
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Annexe 04 · Créer son personnage — Wild Mystery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Nunito+Sans:opsz,wght@6..12,300..800&amp;family=Cormorant+Garamond:wght@400;600&amp;display=swap"
+  />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/panneau-admin/jetons.css" />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/css/wild-mystery.css" />
+</head>
+<body>
+<div id="modernbb">
+    <nav class="wm-retour" aria-label="Retour au forum">
+      <a class="wm-retour__nom" href="/">Wild Mystery</a>
+      <a class="wm-retour__lien" href="/search">Rechercher</a>
+      <a class="wm-retour__lien" href="/memberlist">Personnages</a>
+      <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
+    </nav>
+
+<!-- ▼▼▼ DÉBUT DU CORPS — c'est la seule partie qu'on rédige ▼▼▼ -->
 <div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/fleuve-paisible.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/132.png')">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
@@ -132,3 +165,13 @@
     </div>
   </div>
 </div>
+<!-- ▲▲▲ FIN DU CORPS ▲▲▲ -->
+
+    <footer class="wm-pied-annexe">
+      Wild Mystery — forum créé avec
+      <a href="https://www.forumactif.com/">Forumactif</a>
+    </footer>
+</div>
+<script src="https://by-teenspirit.github.io/wild-mystery/js/annexes.js"></script>
+</body>
+</html>

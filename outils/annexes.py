@@ -44,11 +44,6 @@ import pathlib
 R = pathlib.Path(__file__).resolve().parent.parent
 
 PAGES = "https://by-teenspirit.github.io/wild-mystery"
-#  LA LIGNE QUI DIT QU'UNE PAGE EST ÉCRITE PAR CET OUTIL. C'est elle
-#  qui autorise à l'écraser ; une page qui ne la porte pas a été rédigée
-#  à la main et n'est jamais touchée.
-MARQUEUR = "ÉCRITE PAR `outils/annexes.py`"
-
 ARTWORK = (
     "https://raw.githubusercontent.com/PokeAPI/sprites"
     "/bfb75391935310368065096fa08c51e8970bc43e"
@@ -88,6 +83,47 @@ def lire_le_sommaire():
 #  Les sept briques de la planche 61, une fois chacune, dans l'ordre où
 #  une annexe les emploie : carte + tirets, paire, paras, table, encarts,
 #  suivante. Une huitième se discute avant de s'écrire.
+#  ── CE QUE LA PAGE CHARGE ELLE-MÊME ────────────────────────────────
+#
+#  Sans l'en-tête du forum, elle ne reçoit RIEN : ni les polices, ni
+#  `jetons.css` (qui vit dans le panneau d'administration mais que
+#  Pages sert aussi, depuis le dépôt), ni la feuille, ni aucun script.
+#  Elle les demande donc en clair.
+TETE = """  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Annexe {numero} · {titre} — Wild Mystery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Nunito+Sans:opsz,wght@6..12,300..800&amp;family=Cormorant+Garamond:wght@400;600&amp;display=swap"
+  />
+  <link rel="stylesheet" href="{pages}/panneau-admin/jetons.css" />
+  <link rel="stylesheet" href="{pages}/css/wild-mystery.css" />"""
+
+#  ── LA BARRE DU HAUT ───────────────────────────────────────────────
+#
+#  « Juste une barre de navigation en haut pour retourner au forum. »
+#  Le nom du forum EST le retour : c'est le geste que tout le monde
+#  connaît, et ça évite une entrée « Accueil » juste à côté qui mènerait
+#  au même endroit. Les trois autres liens sont ceux de la vraie barre,
+#  pour qu'on ne se croie pas ailleurs.
+BARRE = """    <nav class="wm-retour" aria-label="Retour au forum">
+      <a class="wm-retour__nom" href="/">Wild Mystery</a>
+      <a class="wm-retour__lien" href="/search">Rechercher</a>
+      <a class="wm-retour__lien" href="/memberlist">Personnages</a>
+      <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
+    </nav>"""
+
+#  ── LE PIED ────────────────────────────────────────────────────────
+#
+#  Le lien vers Forumactif est OBLIGATOIRE sur une page sans en-tête,
+#  et on ne le retire jamais. C'est la contrepartie de l'hébergement.
+PIED = """    <footer class="wm-pied-annexe">
+      Wild Mystery — forum créé avec
+      <a href="https://www.forumactif.com/">Forumactif</a>
+    </footer>"""
+
 GABARIT = """<!-- ═══════════════════════════════════════════════════════════════════
      Annexe {numero} · {titre} — à coller dans une page HTML.
 
@@ -101,9 +137,10 @@ GABARIT = """<!-- ════════════════════�
      Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
      MODE AVANCÉ, et surtout :
 
-       · « Utiliser le header et footer du forum » = **OUI**. Sans
-         cette case, la page ne reçoit ni la feuille ni le script : le
-         sommaire reste vide et rien n'est habillé.
+       · « Utiliser le header et footer du forum » = **NON**. La page
+         est un document complet : elle charge elle-même les polices,
+         `jetons.css`, la feuille et `js/annexes.js`. Avec la case à
+         OUI, on aurait deux en-têtes et deux pieds l'un dans l'autre.
        · L'adresse doit finir par **{slug}** — c'est ce bout que le
          sommaire reconnaît pour se surligner, et pas le numéro `hN`,
          qui dépend de l'ordre de création chez Forumactif.
@@ -119,6 +156,16 @@ GABARIT = """<!-- ════════════════════�
      le `<nav data-wm-sommaire>` qui reçoit le sommaire.
      ═══════════════════════════════════════════════════════════════════ -->
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+{tete}
+</head>
+<body>
+<div id="modernbb">
+{barre}
+
+<!-- ▼▼▼ DÉBUT DU CORPS — c'est la seule partie qu'on rédige ▼▼▼ -->
 <div class="wm-annexe" style="--annexe-fond: url('{fond}'); --annexe-rendu: url('{rendu}')">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
@@ -217,7 +264,33 @@ GABARIT = """<!-- ════════════════════�
     </div>
   </div>
 </div>
+<!-- ▲▲▲ FIN DU CORPS ▲▲▲ -->
+
+{pied}
+</div>
+<script src="{pages}/js/annexes.js"></script>
+</body>
+</html>
 """
+
+
+DEBUT = "<!-- ▼▼▼ DÉBUT DU CORPS"
+FIN = "<!-- ▲▲▲ FIN DU CORPS ▲▲▲ -->"
+
+
+def entre_les_bornes(page):
+    """Le corps d'une page, bornes comprises — ou None si elle n'en a pas."""
+    i = page.find(DEBUT)
+    j = page.find(FIN)
+    if i == -1 or j == -1 or j < i:
+        return None
+    return page[i:j + len(FIN)]
+
+
+def remplacer_le_corps(page, corps):
+    i = page.find(DEBUT)
+    j = page.find(FIN)
+    return page[:i] + corps + page[j + len(FIN):]
 
 
 def titre_en_h1(titre):
@@ -245,7 +318,7 @@ def main():
             raise SystemExit(f"assets/zones/{photo}.jpg n'existe pas ({slug})")
 
     dossier = R / "pages"
-    ecrits, laissees = [], []
+    ecrits, reprises = [], []
     for i, e in enumerate(entrees):
         photo, numero_national, lieu = DECORS[e["slug"]]
         #  LA PAGE SUIVANTE EST CELLE D'APRÈS DANS LE SOMMAIRE, et la
@@ -253,6 +326,10 @@ def main():
         #  ne mène nulle part est un bouton mort.
         suite = entrees[(i + 1) % len(entrees)]
         page = GABARIT.format(
+            tete=TETE.format(numero=e["numero"], titre=e["titre"], pages=PAGES),
+            barre=BARRE,
+            pied=PIED,
+            pages=PAGES,
             numero=e["numero"],
             titre=e["titre"],
             titre_h1=titre_en_h1(e["titre"]),
@@ -266,6 +343,35 @@ def main():
             #  dit déjà « à venir » pour la même raison.
             suivante_lien=suite["adresse"] or "#",
         )
+        chemin = dossier / f"annexe-{e['numero']}-{e['slug']}.html"
+
+        #  ── LE CORPS DÉJÀ RÉDIGÉ EST REPRIS, L'ENVELOPPE REFAITE ──
+        #
+        #  Avant, une page rédigée était simplement laissée de côté :
+        #  elle ne recevait donc aucune correction d'enveloppe, et le
+        #  jour où les annexes sont passées en pages autonomes, les
+        #  deux pages écrites sont restées des fragments sans tête.
+        #
+        #  La page porte donc deux bornes autour de son corps. Ce qui
+        #  est entre elles est à la rédaction et n'est jamais touché ;
+        #  tout le reste — la tête, la barre, le pied, le script —
+        #  appartient à cet outil et se refait à chaque passage.
+        if chemin.exists():
+            ancien = chemin.read_text(encoding="utf-8")
+            corps = entre_les_bornes(ancien)
+            #  SANS CONDITION. La première version ne reprenait le
+            #  corps que si la page ne portait pas la signature de cet
+            #  outil — or il la pose lui-même, donc au second passage
+            #  elle était là et le corps rédigé repartait. Un piège
+            #  qui se serait déclenché la fois d'après, en silence.
+            if corps is not None:
+                #  On ne le SIGNALE que s'il a vraiment été rédigé :
+                #  sinon les quatorze lignes disent la même chose et
+                #  la seule qui compte se perd dedans.
+                if corps != entre_les_bornes(page):
+                    reprises.append(chemin.name)
+                page = remplacer_le_corps(page, corps)
+
         #  ── AUCUN NOM DE BALISE ÉCHAPPÉ DANS LE TEXTE ─────────────
         #
         #  Relevé le 1er novembre sur `/h1-par-ou-commencer` : le
@@ -285,35 +391,23 @@ def main():
                 "Forumactif la décode en vraie balise en enregistrant la page, "
                 "et tout ce qui suit tombe dedans. Écrire le mot, pas la balise."
             )
-        chemin = dossier / f"annexe-{e['numero']}-{e['slug']}.html"
-        #  UNE PAGE DÉJÀ RÉDIGÉE N'EST PAS ÉCRASÉE. Le marqueur est la
-        #  ligne que ce fichier écrit lui-même en tête : une page qui ne
-        #  la porte pas a été écrite à la main, et la régénérer
-        #  détruirait du texte. C'est arrivé une fois, le 1er novembre,
-        #  sur le règlement qui était en ligne.
-        if chemin.exists() and MARQUEUR not in chemin.read_text(encoding="utf-8"):
-            laissees.append(chemin.name)
-            continue
         chemin.write_text(page, encoding="utf-8")
         ecrits.append((chemin.name, len(page)))
 
     #  LES ANCIENNES PAGES S'EN VONT : un fichier `pages/annexe-04-…`
     #  resté d'une liste précédente serait collé un jour par erreur.
+    #  ON NE SUPPRIME PLUS RIEN. Toutes les pages portent maintenant la
+    #  signature de cet outil, y compris celles dont le corps est
+    #  rédigé : s'en servir pour décider d'un effacement reviendrait à
+    #  effacer du texte. Une page qui quitte le sommaire est une
+    #  décision, pas un nettoyage — on la signale et on la laisse.
     gardees = {f"annexe-{e['numero']}-{e['slug']}.html" for e in entrees}
-    for f in dossier.glob("annexe-*.html"):
-        if f.name in gardees:
-            continue
-        if MARQUEUR not in f.read_text(encoding="utf-8"):
-            #  Même règle : on ne supprime pas du texte écrit à la main.
-            #  Une page rédigée qui n'est plus au sommaire est une
-            #  décision, pas un nettoyage.
-            print(f"  ⚠ {f.name} est rédigée mais n'est plus au sommaire — laissée")
-            continue
-        f.unlink()
-        print(f"  retiré   {f.name}")
+    for f in sorted(dossier.glob("annexe-*.html")):
+        if f.name not in gardees:
+            print(f"  ⚠ {f.name} n'est plus au sommaire — laissée, à retirer à la main")
 
-    for n in laissees:
-        print(f"  gardée   {n} — déjà rédigée, pas écrasée")
+    for n in reprises:
+        print(f"  reprise  {n} — corps rédigé conservé, enveloppe refaite")
     if not ecrits:
         print("  aucune page à écrire")
         return

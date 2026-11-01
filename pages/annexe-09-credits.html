@@ -11,9 +11,10 @@
      Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
      MODE AVANCÉ, et surtout :
 
-       · « Utiliser le header et footer du forum » = **OUI**. Sans
-         cette case, la page ne reçoit ni la feuille ni le script : le
-         sommaire reste vide et rien n'est habillé.
+       · « Utiliser le header et footer du forum » = **NON**. La page
+         est un document complet : elle charge elle-même les polices,
+         `jetons.css`, la feuille et `js/annexes.js`. Avec la case à
+         OUI, on aurait deux en-têtes et deux pieds l'un dans l'autre.
        · L'adresse doit finir par **credits** — c'est ce bout que le
          sommaire reconnaît pour se surligner, et pas le numéro `hN`,
          qui dépend de l'ordre de création chez Forumactif.
@@ -29,6 +30,31 @@
      le `<nav data-wm-sommaire>` qui reçoit le sommaire.
      ═══════════════════════════════════════════════════════════════════ -->
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Annexe 09 · Les crédits — Wild Mystery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Nunito+Sans:opsz,wght@6..12,300..800&amp;family=Cormorant+Garamond:wght@400;600&amp;display=swap"
+  />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/panneau-admin/jetons.css" />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/css/wild-mystery.css" />
+</head>
+<body>
+<div id="modernbb">
+    <nav class="wm-retour" aria-label="Retour au forum">
+      <a class="wm-retour__nom" href="/">Wild Mystery</a>
+      <a class="wm-retour__lien" href="/search">Rechercher</a>
+      <a class="wm-retour__lien" href="/memberlist">Personnages</a>
+      <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
+    </nav>
+
+<!-- ▼▼▼ DÉBUT DU CORPS — c'est la seule partie qu'on rédige ▼▼▼ -->
 <div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/oasis-perdue.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/151.png')">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
@@ -127,3 +153,13 @@
     </div>
   </div>
 </div>
+<!-- ▲▲▲ FIN DU CORPS ▲▲▲ -->
+
+    <footer class="wm-pied-annexe">
+      Wild Mystery — forum créé avec
+      <a href="https://www.forumactif.com/">Forumactif</a>
+    </footer>
+</div>
+<script src="https://by-teenspirit.github.io/wild-mystery/js/annexes.js"></script>
+</body>
+</html>

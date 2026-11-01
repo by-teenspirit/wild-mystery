@@ -10021,14 +10021,100 @@ html#min-width {
    (planche 49) : un vrai tableau ne se replie pas sur téléphone.
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── 1 · la page en deux colonnes ──────────────────────────────────── */
-
 /*  Le sommaire ne rétrécit pas, le contenu prend le reste. `min-width: 0`
     sur le contenu : sans lui, une longue ligne de table pousse la mise en
     page au-delà de la fenêtre et écrase le sommaire.
 
     Pas d'écart entre les deux : dans la maquette ils se touchent, le
     sommaire étant un pan de couleur et non une carte. */
+/* ── 0 · la page autonome ─────────────────────────────────────────── */
+
+/*  « J'aimerai ne pas avoir le haut et le bas. Est-ce que tu peux
+    recréer juste une barre de navigation en haut pour retourner au
+    forum ? »
+
+    LES ANNEXES SONT DONC CRÉÉES SANS L'EN-TÊTE DU FORUM. Ce que la
+    page perd : la bannière, le bandeau publicitaire de Forumactif,
+    le rail, le pied — et aussi jQuery, `_userdata`, tous les scripts
+    de la Gestion des codes JS, et le bouton de thème sombre, qui vit
+    dans la barre d'outils. Ce qu'elle gagne : elle ne porte plus que
+    ce qu'on y met.
+
+    ELLE CHARGE DONC ELLE-MÊME ce que l'en-tête lui donnait : les
+    polices, `jetons.css`, la feuille, et `js/annexes.js` — qui pose
+    le sommaire et rien d'autre. Le gros paquet n'est PAS chargé :
+    il réécrit une barre d'outils qui n'existe pas ici, et il monte
+    le switcheroo, qui écrit des mots de passe dans le navigateur.
+
+    ET LE LIEN VERS FORUMACTIF RESTE, en pied : il est obligatoire sur
+    une page sans en-tête, et on ne le retire jamais.
+
+    Le `#modernbb` est posé à la main par la page : toutes les règles
+    du dépôt sont sous cet identifiant (garde-fou n° 16), et sans lui
+    rien ne s'applique. */
+#modernbb .wm-retour {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-24, 24px);
+  box-sizing: border-box;
+  height: 56px;
+  padding: 0 var(--wm-espace-24, 24px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+}
+
+/*  LE NOM DU FORUM EST LE RETOUR. C'est le geste que tout le monde
+    connaît, et il évite une seconde entrée « Accueil » juste à côté
+    qui mènerait au même endroit. */
+#modernbb a.wm-retour__nom {
+  margin-right: auto;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+#modernbb a.wm-retour__lien {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: 0 var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-normal, 13.5px);
+  text-decoration: none;
+}
+
+#modernbb a.wm-retour__nom:hover,
+#modernbb a.wm-retour__nom:focus-visible,
+#modernbb a.wm-retour__lien:hover,
+#modernbb a.wm-retour__lien:focus-visible {
+  text-decoration: underline;
+}
+
+/*  LE PIED PORTE LE LIEN OBLIGATOIRE, et rien de plus : une page
+    d'annexe n'a pas de blocs de pied à recopier. */
+#modernbb .wm-pied-annexe {
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-24, 24px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-align: center;
+}
+
+#modernbb .wm-pied-annexe a {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/* ── 1 · la page en deux colonnes ─────────────────────────────────── */
+
 /*  ELLE SORT DU CONTENEUR CENTRÉ DU FORUM. « Si j'utilise le haut et
     le bas du forum ça ne ressemble pas du tout au forum » : ModernBB
     sert la page dans sa boîte de 1200 px centrée, et l'annexe y
@@ -10710,6 +10796,29 @@ body:has(#modernbb .wm-annexe) {
     252 px collé en haut d'un écran de téléphone mangerait la moitié de
     la page à chaque défilement. */
 @media (max-width: 900px) {
+  /*  LA BARRE SE PLIE. Quatre liens et un nom ne tiennent pas dans
+      390 px sur une seule ligne : le harnais l'a vue sortir de
+      soixante-sept pixels. Elle passe sur deux lignes, et cesse
+      d'être collée — une barre de deux lignes collée en haut d'un
+      téléphone mange le tiers de l'écran à chaque défilement. */
+  #modernbb .wm-retour {
+    position: static;
+    flex-wrap: wrap;
+    height: auto;
+    padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+    gap: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+  }
+
+  #modernbb a.wm-retour__nom {
+    flex: 1 0 100%;
+    margin-right: 0;
+  }
+
+  #modernbb a.wm-retour__lien {
+    min-height: 0;
+    padding: 0;
+  }
+
   #modernbb .wm-annexe {
     flex-direction: column;
   }

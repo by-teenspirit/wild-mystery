@@ -263,26 +263,33 @@ echo "── 8. le paquet livré est celui des sources ────────�
 # protège plus rien. Le CI, lui, a Deno — c'est là qu'elle mord. Si Deno
 # venait à manquer AU CI, `deno task verif` serait tombé bien avant
 # d'arriver ici.
-if [ -f js/wild-mystery.ts ]; then
+# IL Y EN A DEUX DEPUIS LE 1er NOVEMBRE. Les annexes sont des pages
+# autonomes : créées sans l'en-tête du forum, elles ne reçoivent aucun
+# script et chargent le leur. `js/annexes.js` ne pose que le sommaire,
+# et surtout il NE CHARGE PAS le switcheroo ni la réécriture de barre
+# que porte l'autre paquet. Les deux se vérifient pareil.
+for src in js/wild-mystery.ts js/annexes.ts; do
+  [ -f "$src" ] || continue
+  livre="${src%.ts}.js"
   if ! command -v deno > /dev/null 2>&1; then
-    echo "   js/wild-mystery.js : non vérifié, deno n'est pas sur ce poste"
-  elif [ ! -f js/wild-mystery.js ]; then
-    gronde "js/wild-mystery.js manque — lance « deno task construire »"
+    echo "   $livre : non vérifié, deno n'est pas sur ce poste"
+  elif [ ! -f "$livre" ]; then
+    gronde "$livre manque — lance « deno task construire »"
   else
     paquet=$(mktemp -d)
     if deno bundle --platform browser --format iife --minify \
-      -o "$paquet/w.js" js/wild-mystery.ts > /dev/null 2>&1; then
-      if ! cmp -s js/wild-mystery.js "$paquet/w.js"; then
-        gronde "js/wild-mystery.js ne correspond pas aux sources — relance « deno task construire » et commite"
+      -o "$paquet/w.js" "$src" > /dev/null 2>&1; then
+      if ! cmp -s "$livre" "$paquet/w.js"; then
+        gronde "$livre ne correspond pas aux sources — relance « deno task construire » et commite"
       else
-        echo "   js/wild-mystery.js : à jour"
+        echo "   $livre : à jour"
       fi
     else
-      gronde "la construction du paquet a échoué"
+      gronde "la construction de $livre a échoué"
     fi
     rm -rf "$paquet"
   fi
-fi
+done
 
 echo "── 9. l'index des espèces suit les tables ──────────────────────"
 

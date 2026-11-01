@@ -17,7 +17,7 @@
     "test:adaptateurs": "deno test --allow-read src/adaptateurs/",
     "test:tout": "deno test --allow-env --allow-read --allow-net --allow-run src/",
     "css": "bash outils/css.sh",
-    "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts",
+    "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts && deno bundle --platform browser --format iife --minify -o js/annexes.js js/annexes.ts",
     "test:navigateur": "deno test --allow-env --allow-read=data/accueil.json,img/accueil src/navigateur/",
     "harnais": "deno bundle --platform browser --format iife -o js/harnais-sommaire.js js/harnais-sommaire.ts",
     "contraste": "deno run -A outils/contraste.mjs",
@@ -55,6 +55,7 @@
       "src/adaptateurs/forumactif/fixtures/",
       "vendoreur/",
       "js/wild-mystery.js",
+      "js/annexes.js",
       "js/harnais-sommaire.js"
     ]
   },
@@ -78,6 +79,7 @@
     "exclude": [
       "vendoreur/",
       "js/wild-mystery.js",
+      "js/annexes.js",
       "js/harnais-sommaire.js"
     ]
   },

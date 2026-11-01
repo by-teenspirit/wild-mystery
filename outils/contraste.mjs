@@ -61,40 +61,55 @@ if (cible === undefined) {
   console.error("Usage : node outils/contraste.mjs pages/<une-page>.html");
   process.exit(2);
 }
-const doc = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
-<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
-<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
-<style>body{font-size:10px;margin:0;background:var(--wm-fond-page,#f2e4d8)}
-/*  LA BOITE CENTREE DE MODERNBB, relevee le 1er novembre sur la
-    premiere annexe en ligne : 1200 px, centree, 36 de padding
-    lateral. Sans elle, ce harnais montait la page dans une boite
-    pleine largeur et declarait bonne une annexe qui, sur le forum,
-    arrivait en panneau de 1128 flottant au milieu. Un decor qui ne
-    reproduit pas ce que ModernBB sert ne teste que lui-meme. */
-.wm-boite-forum{max-width:1200px;margin:0 auto;padding:24px 36px;box-sizing:border-box}
-/*  ET LA BARRE DE NAVIGATION, relevee en meme temps : sticky, 56 de
-    haut, posee a zero. Sans elle, un sommaire colle a zero paraissait
-    bon ici et glissait derriere la barre sur le forum. */
-.wm-barre-forum{position:sticky;top:0;z-index:70;height:56px;background:var(--wm-fond-nuit,#3a2a22)}</style></head>
-<body><div id="modernbb"><div class="wm-barre-forum"></div><div class="wm-boite-forum"><div id="page-body">${
-  //  LES IMAGES DE DECOR SONT RAPATRIEES SUR LE DISQUE. La page colle
-  //  des adresses completes vers GitHub Pages — elle le doit, elle vit
-  //  sur forumactif.com — et cette page-ci est montee par
-  //  `setContent`, donc sans origine : rien ne s'y charge. On lit le
-  //  fichier du depot et on le met en `data:`. C'est la seule facon de
-  //  mesurer la taille REELLE de la photo, donc son agrandissement.
-  readFileSync(R + cible, "utf8").replace(
-    /url\('https:\/\/by-teenspirit\.github\.io\/wild-mystery\/([^']+)'\)/g,
+//  ── LA PAGE EST UN DOCUMENT ENTIER, ET ON LA SERT TELLE QUELLE ─────
+//
+//  Depuis le 1er novembre, une annexe est creee SANS l'en-tete du
+//  forum : elle porte son propre `<!DOCTYPE>`, sa tete, sa barre, son
+//  pied et son script. Ce harnais l'enveloppait dans un document a
+//  lui — il mesurait donc une page qui n'existe plus.
+//
+//  Trois substitutions, et seulement trois :
+//
+//    · LES DEUX FEUILLES DISTANTES deviennent le contenu du disque.
+//      Le conteneur n'atteint pas GitHub Pages, et surtout on veut
+//      mesurer la feuille DU DEPOT, pas celle qui est deployee.
+//    · LES IMAGES deviennent des `data:`. Une page montee par
+//      `setContent` n'a pas d'origine : rien ne s'y charge. C'est
+//      aussi la seule facon de connaitre la taille REELLE de la
+//      photo, donc son agrandissement.
+//    · LE SCRIPT S'EN VA. Le sommaire est pose plus bas par le
+//      module lui-meme, depuis `data/annexes.json` du depot.
+const enLocal = (f) => {
+  const o = readFileSync(R + f);
+  const type = f.endsWith(".jpg") ? "jpeg" : "png";
+  return `data:image/${type};base64,${o.toString("base64")}`;
+};
+
+const doc = readFileSync(R + cible, "utf8")
+  .replace(
+    /<link rel="stylesheet" href="https:\/\/by-teenspirit\.github\.io\/wild-mystery\/([^"]+)"\s*\/?>/g,
     (tout, f) => {
       try {
-        const o = readFileSync(R + f);
-        return `url('data:image/jpeg;base64,${o.toString("base64")}')`;
+        return `<style>${readFileSync(R + f, "utf8")}</style>`;
       } catch {
         return tout;
       }
     },
   )
-}</div></div></div></body></html>`;
+  .replace(
+    /url\('https:\/\/by-teenspirit\.github\.io\/wild-mystery\/([^']+)'\)/g,
+    (tout, f) => {
+      try {
+        return `url('${enLocal(f)}')`;
+      } catch {
+        return tout;
+      }
+    },
+  )
+  .replace(
+    /<script src="https:\/\/by-teenspirit\.github\.io\/wild-mystery\/[^"]+"><\/script>/g,
+    "",
+  );
 
 const navigateur = await chromium.launch(
   CHROME === undefined ? {} : { executablePath: CHROME },
@@ -351,7 +366,9 @@ if (voile === null || voile.photo === false) {
 //
 //  Les deux sont `sticky`. Un sommaire a `top: 0` se range au meme
 //  endroit que la barre, qui porte un z-index de 70 : ses premieres
-//  entrees passaient dessous. On fait defiler pour de vrai et on
+//  entrees passaient dessous. La barre est celle de la page depuis
+//  que les annexes sont autonomes — avant, c'etait celle du forum,
+//  et le decor devait la reproduire. On fait defiler pour de vrai et on
 //  regarde ou il s'arrete.
 //  UNE FENETRE PLUS HAUTE QUE LE SOMMAIRE, et plus basse que la page.
 //  A 1400 la page tenait presque en entier et il n'y avait rien a
@@ -363,11 +380,15 @@ await p.evaluate(() => globalThis.scrollTo(0, 400));
 await p.waitForTimeout(250);
 const sousLaBarre = await p.evaluate(() => {
   const s = document.querySelector(".wm-annexe__sommaire");
-  const b = document.querySelector(".wm-barre-forum");
+  const b = document.querySelector(".wm-retour");
   if (s === null || b === null) return null;
   return {
     defile: Math.round(globalThis.scrollY),
     sommaire: Math.round(s.getBoundingClientRect().top),
+    //  LA BARRE RESTE, ELLE AUSSI. C'est le seul retour vers le forum
+    //  sur une page sans en-tete : si elle part avec le defilement,
+    //  il faut remonter une annexe entiere pour en sortir.
+    hautDeLaBarre: Math.round(b.getBoundingClientRect().top),
     basDeLaBarre: Math.round(b.getBoundingClientRect().bottom),
   };
 });
@@ -375,10 +396,12 @@ await p.evaluate(() => globalThis.scrollTo(0, 0));
 await p.setViewportSize({ width: 1280, height: 1400 });
 await p.waitForTimeout(150);
 if (sousLaBarre !== null) {
-  const bon = sousLaBarre.sommaire >= sousLaBarre.basDeLaBarre;
+  const bon = sousLaBarre.sommaire >= sousLaBarre.basDeLaBarre &&
+    sousLaBarre.hautDeLaBarre === 0;
   console.log(
-    `defile de ${sousLaBarre.defile} : sommaire a ${sousLaBarre.sommaire}, ` +
-      `bas de la barre a ${sousLaBarre.basDeLaBarre}` +
+    `defile de ${sousLaBarre.defile} : barre a ${sousLaBarre.hautDeLaBarre}, ` +
+      `sommaire a ${sousLaBarre.sommaire}, bas de la barre a ` +
+      `${sousLaBarre.basDeLaBarre}` +
       (bon ? "" : " — DEFAUT, il passe dessous"),
   );
   if (!bon) fautes++;
