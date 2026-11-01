@@ -1,6 +1,7 @@
 {
-  "_": "Le sommaire des annexes, en UN seul endroit. Les douze pages le portent toutes, et aucune ne le recopie : `module-annexes.ts` le pose dans `[data-wm-sommaire]`. Ajouter une annexe ou changer un titre est donc une modification de ce fichier, pas de douze pages collées à la main. Relevé des pages HTML réellement en ligne : 6 octobre 2026.",
-  "_adresse": "null = la page n'existe pas encore. Le sommaire l'affiche quand même, SANS lien : douze entrées dont les créées sont cliquables dit la vérité, là où douze liens dont la plupart morts ne la dit pas. Dès que tu crées une page, mets son adresse ici et le lien apparaît dans les douze sommaires d'un coup.",
+  "_": "Le sommaire des annexes, en UN seul endroit. Les quatorze pages le portent toutes, et aucune ne le recopie : `module-annexes.ts` le pose dans `[data-wm-sommaire]`. Ajouter une annexe ou changer un titre est donc une modification de ce fichier, pas de quatorze pages collées à la main.",
+  "_liste": "Liste arrêtée par Callista le 1er novembre 2026, dans SON ordre. Elle remplace les huit annexes + quatre pages de région de la maquette 354:501, qui dataient du 6 octobre. Les quatre pages de région ont disparu en tant que telles : la carte, les zones sauvages et le pokédex sont réunis dans l'annexe 06, les fossiles et la pension dans l'annexe 13.",
+  "_adresse": "null = la page n'existe pas encore. Le sommaire l'affiche quand même, SANS lien : quatorze entrées dont les créées sont cliquables dit la vérité, là où quatorze liens dont la plupart morts ne la dit pas. Dès que tu crées une page, mets son adresse ici et le lien apparaît dans les quatorze sommaires d'un coup.",
   "_entete": "Une page HTML Forumactif ne reçoit notre CSS et notre JS QUE si elle est créée avec « utiliser le header et footer du forum » = OUI. Les pages de la V1 étaient toutes en NON ; /h3-reglement est en OUI, et ça marche.",
   "_slug": "Le slug est la fin de l'adresse : /h3-reglement donne « reglement ». C'est lui que le sommaire reconnaît pour se surligner, et PAS le numéro de page — h3 dépend de l'ordre de création chez Forumactif, le slug est celui qu'on a choisi.",
   "sections": [
@@ -34,36 +35,43 @@
         },
         {
           "numero": "06",
-          "slug": "la-carte-et-les-zones",
-          "titre": "La carte et les zones",
+          "slug": "la-region-et-ses-zones",
+          "titre": "La région et ses zones",
           "adresse": null
         },
         {
           "numero": "07",
           "slug": "arenes-et-ligue",
-          "titre": "Arènes et Ligue",
+          "titre": "Arènes, colosseums et Ligue",
           "adresse": null
         },
-        { "numero": "08", "slug": "les-chiffres", "titre": "Les chiffres", "adresse": null }
-      ]
-    },
-    {
-      "titre": "Les pages de la région",
-      "entrees": [
+        { "numero": "08", "slug": "les-groupes", "titre": "Les groupes", "adresse": null },
+        { "numero": "09", "slug": "credits", "titre": "Les crédits", "adresse": null },
+        { "numero": "10", "slug": "le-staff", "titre": "Le staff", "adresse": null },
         {
-          "numero": "09",
-          "slug": "la-carte-de-rhode",
-          "titre": "La carte de Rhode",
+          "numero": "11",
+          "slug": "celebrites-de-rhode",
+          "titre": "Célébrités de Rhode",
           "adresse": null
         },
         {
-          "numero": "10",
-          "slug": "la-faune-de-rhode",
-          "titre": "La Faune de Rhode",
+          "numero": "12",
+          "slug": "monnaie-et-missions",
+          "titre": "Monnaie, médailles et missions",
           "adresse": null
         },
-        { "numero": "11", "slug": "la-pension", "titre": "La pension", "adresse": null },
-        { "numero": "12", "slug": "les-fossiles", "titre": "Les fossiles", "adresse": null }
+        {
+          "numero": "13",
+          "slug": "combat-et-progression",
+          "titre": "Combat et progression",
+          "adresse": null
+        },
+        {
+          "numero": "14",
+          "slug": "allegeances",
+          "titre": "Allégeances et Team Ombre",
+          "adresse": null
+        }
       ]
     }
   ]

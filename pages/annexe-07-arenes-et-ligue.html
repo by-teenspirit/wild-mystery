@@ -1,0 +1,129 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     Annexe 07 · Arènes, colosseums et Ligue — à coller dans une page HTML.
+
+     ÉCRITE PAR `outils/annexes.py`. Ne pas corriger ce fichier à la
+     main : la correction serait perdue à la prochaine génération, et
+     elle ne toucherait qu'une des quatorze pages. Le gabarit est dans
+     l'outil, la liste dans `data/annexes.json`.
+
+     ── CRÉER LA PAGE SUR LE FORUM ─────────────────────────────────
+
+     Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
+     MODE AVANCÉ, et surtout :
+
+       · « Utiliser le header et footer du forum » = **OUI**. Sans
+         cette case, la page ne reçoit ni la feuille ni le script : le
+         sommaire reste vide et rien n'est habillé.
+       · L'adresse doit finir par **arenes-et-ligue** — c'est ce bout que le
+         sommaire reconnaît pour se surligner, et pas le numéro `hN`,
+         qui dépend de l'ordre de création chez Forumactif.
+       · Reporter l'adresse obtenue dans `data/annexes.json`, champ
+         `adresse` : le lien apparaît alors dans les quatorze
+         sommaires d'un coup.
+
+     ── LE TEXTE EST UN REMPLISSAGE ────────────────────────────────
+
+     Les sept briques sont montrées une fois chacune, avec des phrases
+     neutres. Remplacer bloc par bloc ; supprimer les briques dont la
+     page n'a pas besoin. Ce qui ne doit PAS changer : les classes, et
+     le `<nav data-wm-sommaire>` qui reçoit le sommaire.
+     ═══════════════════════════════════════════════════════════════════ -->
+
+<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-sombre.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/6.png')">
+
+  <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
+
+  <div class="wm-annexe__corps">
+    <div class="wm-annexe__colonne">
+
+      <p class="wm-annexe__surtitre">Annexe 07</p>
+      <h1 class="wm-annexe__titre">Arènes, colosseums et <em>Ligue</em></h1>
+      <p class="wm-annexe__chapo">
+        Une phrase ou deux pour dire à quoi sert cette page, et ce qu'on y trouvera.
+        Elle se lit avant tout le reste : autant qu'elle serve à décider si on continue.
+      </p>
+
+      <div class="wm-annexe__blocs">
+
+        <div class="wm-carte">
+          <h2 class="wm-carte__titre">Le premier bloc</h2>
+          <ul class="wm-tirets">
+            <li><b>Une liste à tirets</b> pour ce qui s'énumère : des étapes, des
+              conditions, des cas. Le tiret est posé par la feuille — ne pas le
+              réécrire ici.</li>
+            <li><b>Le mot en gras ouvre la ligne</b>, et la suite l'explique. C'est ce qui
+              rend la liste lisible en diagonale.</li>
+            <li>Une ligne peut aussi n'être qu'une phrase, sans mot en tête.</li>
+          </ul>
+        </div>
+
+        <div class="wm-paire">
+          <div class="wm-carte">
+            <h2 class="wm-carte__titre">Deux cartes côte à côte</h2>
+            <div class="wm-paras">
+              <p>La brique <b>paire</b> pose deux cartes de même largeur. Elle sert quand
+                deux choses se répondent — avant et après, ce qu'on gagne et ce qu'on
+                risque.</p>
+              <p>Sous 900 pixels, elles s'empilent toutes seules.</p>
+            </div>
+          </div>
+          <div class="wm-carte">
+            <h2 class="wm-carte__titre">Et du texte suivi</h2>
+            <div class="wm-paras">
+              <p>La brique <b>paras</b> est le texte courant : des paragraphes, sans puce
+                ni numéro. C'est elle qu'on emploie quand une idée ne se découpe pas.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="wm-carte">
+          <h2 class="wm-carte__titre">Un tableau</h2>
+          <div class="wm-table">
+            <div class="wm-table__ligne wm-table__ligne--entete">
+              <span class="wm-table__cellule wm-table__cellule--nom">Ce qu'on nomme</span>
+              <span class="wm-table__cellule">Ce que c'est</span>
+              <span class="wm-table__cellule wm-table__cellule--chiffre">Combien</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Première ligne</span>
+              <span class="wm-table__cellule">La colonne du milieu porte l'explication.</span>
+              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
+            </div>
+            <div class="wm-table__ligne">
+              <span class="wm-table__cellule wm-table__cellule--nom">Deuxième ligne</span>
+              <span class="wm-table__cellule">Le tableau est en flexbox, pas en
+                &lt;table&gt; : sur téléphone chaque ligne s'empile et l'en-tête
+                disparaît.</span>
+              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wm-encarts">
+          <div class="wm-encart wm-encart--terre">
+            <span class="wm-encart__etiquette">À retenir</span>
+            <p>L'encart terre souligne ce qu'il ne faut pas manquer. Deux ou trois lignes,
+              pas plus : un encart long n'est plus un encart.</p>
+          </div>
+          <div class="wm-encart wm-encart--paisible">
+            <span class="wm-encart__etiquette">Bon à savoir</span>
+            <p>L'encart vert dit ce qui rassure, ou ce qui se fait tout seul. Les deux vont
+              par paire et se répondent.</p>
+          </div>
+        </div>
+
+        <div class="wm-suivante">
+          <a class="wm-suivante__bouton" href="#">
+            <span class="wm-suivante__etiquette">Annexe suivante</span>
+            Les groupes →
+          </a>
+          <span class="wm-lieu">
+            Le Volcan Sombre
+            <b>une question sans réponse ici ? écris au staff</b>
+          </span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

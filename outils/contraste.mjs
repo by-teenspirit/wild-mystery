@@ -236,6 +236,115 @@ console.log(
   "dont des liens :",
   await p.evaluate(() => document.querySelectorAll("a.wm-annexe__lien").length),
 );
+//  ── LE TEXTE NE TOUCHE JAMAIS LA PHOTO DE FOND ────────────────────
+//
+//  CE HARNAIS NE VOIT PAS LES IMAGES. Il mesure chaque texte sur sa
+//  COULEUR de fond ; une photo posee derriere lui est invisible pour
+//  le calcul, et un « zero defaut » ne dirait rien d'un paragraphe
+//  ecrit sur la mer. La promesse tient donc par la geometrie : le
+//  voile de `08-annexes.css` est opaque jusqu'au bord droit de la
+//  colonne de lecture, et aucun texte ne depasse ce bord.
+//
+//  On le mesure au lieu de le croire, et seulement quand la page
+//  porte vraiment une photo — une page sans `--annexe-fond` n'a rien
+//  a prouver.
+const voile = await p.evaluate(() => {
+  const a = document.querySelector(".wm-annexe");
+  const corps = document.querySelector(".wm-annexe__corps");
+  if (a === null || corps === null) return null;
+  if (getComputedStyle(a).getPropertyValue("--annexe-fond").trim() === "") {
+    return { photo: false };
+  }
+  //  L'arret opaque du voile, lu dans la regle plutot que recopie :
+  //  changer 824 dans la feuille doit changer la mesure, pas la casser.
+  //  La couche « to right » est decoupee en comptant les parentheses :
+  //  elle contient des `rgb(...)` et des `color-mix(...)`, donc une
+  //  expression qui s'arrete a la premiere parenthese fermante lit le
+  //  `0px` du premier arret au lieu du dernier.
+  const degrade = getComputedStyle(corps).backgroundImage;
+  const depart = degrade.indexOf("linear-gradient(to right");
+  let couche = null;
+  if (depart !== -1) {
+    let n = 0;
+    for (let i = degrade.indexOf("(", depart); i < degrade.length; i++) {
+      if (degrade[i] === "(") n++;
+      else if (degrade[i] === ")" && --n === 0) {
+        couche = degrade.slice(depart, i + 1);
+        break;
+      }
+    }
+  }
+  const pixels = (couche ?? "").match(/(\d+(?:\.\d+)?)px/g) ?? [];
+  if (pixels.length === 0) return { photo: true, arret: null };
+  const arret = Math.max(...pixels.map(parseFloat));
+  const limite = corps.getBoundingClientRect().left + arret;
+  let pire = null;
+  for (const el of corps.querySelectorAll("*")) {
+    if (el.children.length > 0) continue;
+    const t = (el.textContent ?? "").trim();
+    if (t === "") continue;
+    const b = el.getBoundingClientRect();
+    if (b.width === 0) continue;
+    if (pire === null || b.right > pire.droite) {
+      pire = { droite: Math.round(b.right), mot: t.slice(0, 32) };
+    }
+  }
+  return {
+    photo: true,
+    arret,
+    limite: Math.round(limite),
+    pire,
+    dedans: pire === null || pire.droite <= Math.round(limite),
+  };
+});
+if (voile === null || voile.photo === false) {
+  console.log("photo de fond : aucune — rien a verifier de ce cote");
+} else if (voile.arret === null || voile.dedans !== true) {
+  console.log(
+    `TEXTE SUR LA PHOTO — defaut : ${JSON.stringify(voile)}`,
+  );
+  fautes++;
+} else {
+  console.log(
+    `photo de fond : le voile tient jusqu'a ${voile.limite}, ` +
+      `le texte s'arrete a ${voile.pire.droite} (« ${voile.pire.mot} »)`,
+  );
+}
+
+//  ── UN `<b>` EN TETE DE TIRET RESTE DANS SA PHRASE ────────────────
+//
+//  La ligne a tirets etait en `flex` avec un ecart de dix pixels :
+//  chaque enfant devenait une colonne, et un mot en gras se detachait
+//  de la suite de sa propre phrase. On mesure l'ecart reel entre la
+//  fin du gras et le premier mot qui suit — une espace fait trois
+//  pixels, une colonne en fait dix.
+const tiret = await p.evaluate(() => {
+  for (const li of document.querySelectorAll(".wm-tirets > li")) {
+    const b = li.querySelector("b, strong");
+    if (b === null || b.nextSibling === null) continue;
+    const t = b.nextSibling;
+    if (t.nodeType !== 3 || t.textContent.trim() === "") continue;
+    const r = document.createRange();
+    //  On saute l'espace : c'est le premier caractere VISIBLE qu'on veut.
+    const i = t.textContent.search(/\S/);
+    r.setStart(t, i);
+    r.setEnd(t, i + 1);
+    return {
+      ecart: Math.round(r.getBoundingClientRect().left - b.getBoundingClientRect().right),
+      mot: b.textContent.slice(0, 24),
+    };
+  }
+  return null;
+});
+if (tiret !== null) {
+  const colle = tiret.ecart >= 0 && tiret.ecart <= 6;
+  console.log(
+    `tiret : le gras « ${tiret.mot} » est a ${tiret.ecart}px de sa phrase` +
+      (colle ? "" : " — DEFAUT, c'est une colonne et pas une espace"),
+  );
+  if (!colle) fautes++;
+}
+
 for (const l of [1280, 900, 520, 390]) {
   await p.setViewportSize({ width: l, height: 900 });
   //  Et QUI deborde. « Il y a un debordement » envoie chercher a la main
@@ -265,6 +374,20 @@ for (const l of [1280, 900, 520, 390]) {
     return { trop, coupables: [...new Set(coupables)].slice(0, 6) };
   });
   console.log(`${l}px : debordement horizontal ${bilan.trop ? "OUI — defaut" : "non"}`);
+  //  ET SOUS 900, AUCUNE IMAGE DE DECOR N'EST DEMANDEE. Le sommaire
+  //  est passe au-dessus, la colonne prend toute la largeur : le
+  //  voile couvrirait la photo entiere, et la faire telecharger sur
+  //  un telephone serait soixante-dix kilos pour rien.
+  if (l < 900) {
+    const decor = await p.evaluate(() => {
+      const c = document.querySelector(".wm-annexe__corps");
+      return c === null ? null : getComputedStyle(c).backgroundImage.includes("url(");
+    });
+    if (decor === true) {
+      console.log(`        ${l}px : le decor est encore charge — defaut`);
+      fautes++;
+    }
+  }
   for (const c of bilan.coupables ?? []) console.log(`        ${c}`);
   if (bilan.trop) fautes++;
 }

@@ -10039,22 +10039,74 @@ html#min-width {
   min-width: 0;
   /*  40 en haut, 48 sur les côtés, 36 en bas (maquette). */
   padding: var(--wm-espace-40, 40px) var(--wm-espace-48, 48px) var(--wm-espace-32, 32px);
-  /*  LA PHOTO DE FOND MANQUE ENCORE (planche 46). En attendant, un
-      dégradé vers le fond de page tient la place : c'est exactement le
-      voile que la maquette pose SUR la photo, servi seul. Le jour où
-      l'image arrive, elle se glisse en premier plan de `background` et
-      rien d'autre ne bouge. */
-  background:
+  /*  LA PHOTO ET LE RENDU VIENNENT DE LA PAGE, PAS D'ICI. Chaque
+      annexe a les siens — « tu changes juste le fond et le pokémon
+      affiché » — et une feuille qui les connaîtrait porterait
+      quatorze règles qu'il faudrait rouvrir à chaque page ajoutée.
+      La page pose deux variables sur `.wm-annexe` et cette règle
+      les empile. Elles ne portent pas le préfixe `--wm-` : ce ne
+      sont pas des jetons de charte, `jetons.css` n'a rien à en
+      dire, et le garde-fou qui interdit aux feuilles de déclarer
+      un jeton reste entier. Sans elles, sans elles, `none` et le repli ci-dessous tient
+      exactement la place qu'il tenait avant.
+
+      ET LES ADRESSES SONT ABSOLUES, CÔTÉ PAGE. Une page collée vit
+      sur forumactif.com et la feuille sur Pages : une adresse
+      relative écrite dans la page y chercherait l'image sur le
+      forum. C'est la même raison qui fait que `zones.json` écrit
+      ses bandeaux en entier.
+
+      QUATRE COUCHES, DE LA PLUS HAUTE À LA PLUS BASSE :
+
+        1. le rendu pokémon, net, posé en bas à droite ;
+        2. le voile de terre dans le coin bas-droit (maquette) ;
+        3. le lavis qui va de la gauche opaque vers la droite
+           claire — c'est lui qui rend la colonne de lecture
+           lisible tout en laissant voir la photo à côté du rendu ;
+        4. la photo du lieu, cadrée en `cover`.
+
+      La couleur de fond reste dessous : une page sans photo garde
+      le dégradé d'origine, et rien ne bouge pour les pages déjà
+      collées. */
+  background-color: var(--wm-fond-page, #eecfb5);
+  background-image:
+    var(--annexe-rendu, none),
     radial-gradient(
     120% 90% at 85% 100%,
     color-mix(in srgb, var(--wm-accent-terre, #8b4725) 14%, transparent),
     transparent 60%
   ),
     linear-gradient(
+    to right,
+    var(--wm-fond-douce, #f3e1d2) 0%,
+    /*  824 PIXELS, PAS UN POURCENTAGE : c'est le bord droit de la
+        colonne de lecture — 48 de marge plus 768 de colonne — et il
+        ne bouge pas quand la fenêtre bouge. En pourcentage, la
+        dernière ligne du chapô finissait sur la mer.
+
+        ET LE HARNAIS DE CONTRASTE NE VOIT PAS LA PHOTO : il mesure
+        chaque texte sur sa couleur de fond, pas sur les pixels
+        d'une image. Son « zéro défaut » ne couvre donc PAS un texte
+        posé sur le décor. C'est la géométrie qui tient la promesse
+        ici, pas la mesure : le texte ne touche jamais la photo. */
+    var(--wm-fond-douce, #f3e1d2) 824px,
+    color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 22%, transparent) 100%
+  ),
+    var(--annexe-fond, none),
+    linear-gradient(
     180deg,
     var(--wm-fond-douce, #f3e1d2) 0%,
     var(--wm-fond-page, #eecfb5) 55%
   );
+  background-repeat: no-repeat;
+  background-position: right -24px bottom 0, center, center, center, center;
+  /*  LE RENDU SE MESURE SUR LA LARGEUR, PAS SUR LA HAUTEUR. Une
+      hauteur en pourcentage se lit sur la PAGE entière, qui fait
+      mille deux cents pixels : le pokémon montait à neuf cents de
+      haut et traversait la colonne de lecture. La maquette le pose à
+      446 ; en dessous de cette largeur de page, il rétrécit avec elle
+      au lieu de manger la lecture. */
+  background-size: min(446px, 40%) auto, cover, cover, cover, cover;
 }
 
 /*  768 px pour les huit annexes : c'est la largeur des cartes dans la
@@ -10287,16 +10339,30 @@ html#min-width {
   list-style: none;
 }
 
+/*  LE TIRET PEND DANS LA MARGE, il ne fait pas colonne. En `flex`,
+    chaque enfant de la ligne devenait une colonne séparée par
+    l'écart : un `<b>` en tête de phrase se détachait de la suite de
+    dix pixels, et on lisait « Une liste à tirets    — pour ce qui
+    s'énumère » au lieu d'une phrase. Un retrait négatif fait pendre
+    le tiret et laisse le texte couler d'un seul tenant.
+
+    CE QUI EST MESURÉ ET CE QUI NE L'EST PAS : le harnais mesure
+    l'écart entre le gras et son premier mot — trois pixels d'espace
+    contre dix de colonne — et c'est `display: block` qui le tient.
+    Le retrait négatif, lui, n'aligne que la ligne qui se replie, et
+    je n'ai pas su le faire tomber par une mesure : il est gardé sur
+    la foi de l'écran, pas d'un test. */
 #modernbb .wm-tirets > li {
-  display: flex;
-  gap: var(--wm-espace-10, 10px);
+  display: block;
+  padding-left: 24px;
+  text-indent: -24px;
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-normal, 1.65);
 }
 
 #modernbb .wm-tirets > li::before {
-  flex: 0 0 auto;
+  margin-right: var(--wm-espace-10, 10px);
   color: var(--wm-accent-primaire, #275e7a);
   content: "—";
 }
@@ -10543,6 +10609,14 @@ html#min-width {
 
   #modernbb .wm-annexe__corps {
     padding: var(--wm-espace-24, 24px) var(--wm-espace-16, 16px);
+    /*  LA PHOTO ET LE RENDU S'EN VONT. Le sommaire est passé
+        au-dessus, la colonne prend toute la largeur, et il n'y a
+        plus un pouce où poser un décor sans mettre du texte
+        dessus. Le voile de 824 px couvrirait bien toute la boîte,
+        mais alors la photo ne se verrait plus nulle part : autant
+        ne pas la faire télécharger. */
+    background-image: none;
+    background-color: var(--wm-fond-douce, #f3e1d2);
   }
 
   #modernbb .wm-annexe__colonne {
