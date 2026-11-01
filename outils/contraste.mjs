@@ -346,19 +346,28 @@ const voile = await p.evaluate(() => {
     limite: Math.round(limite),
     pire,
     dedans: pire === null || pire.droite <= Math.round(limite),
+    //  ET L'ARRET COLLE A LA COLONNE. Les deux nombres doivent bouger
+    //  ensemble : un voile qui s'arrete loin derriere la colonne
+    //  cache de la photo pour rien, et la bande de droite maigrit
+    //  sans qu'on l'ait demande. Deux fois deja j'ai elargi l'un en
+    //  oubliant l'autre.
+    jeu: pire === null ? null : Math.round(limite) - pire.droite,
   };
 });
 if (voile === null || voile.photo === false) {
   console.log("photo de fond : aucune — rien a verifier de ce cote");
-} else if (voile.arret === null || voile.dedans !== true) {
+} else if (
+  voile.arret === null || voile.dedans !== true ||
+  voile.jeu === null || voile.jeu > 16
+) {
   console.log(
     `TEXTE SUR LA PHOTO — defaut : ${JSON.stringify(voile)}`,
   );
   fautes++;
 } else {
   console.log(
-    `photo de fond : le voile tient jusqu'a ${voile.limite}, ` +
-      `le texte s'arrete a ${voile.pire.droite} (« ${voile.pire.mot} »)`,
+    `photo de fond : le voile tient jusqu'a ${voile.limite}, la colonne ` +
+      `s'arrete a ${voile.pire.droite} — ${voile.jeu}px de jeu`,
   );
 }
 
@@ -447,6 +456,35 @@ if (etirement !== null && etirement.photo && etirement.chargee) {
   if (!bon) fautes++;
 }
 
+//  ── LE TEXTE COURANT PORTE LA POLICE DE LA CHARTE ─────────────────
+//
+//  « Il faut reimporter la typo. » Les polices etaient chargees, mais
+//  rien ne les POSAIT : sur le forum, `body` recoit sa famille de
+//  ModernBB, et une page autonome n'a que ce qu'on lui donne. Tout ce
+//  qui ne declare pas la sienne tombait sur le Times du navigateur.
+//  On compare la famille rendue au jeton, sur les blocs qui
+//  N'ECRIVENT PAS la leur — ce sont eux qui tombent en premier.
+const polices = await p.evaluate(() => {
+  const attendu = getComputedStyle(document.documentElement)
+    .getPropertyValue("--wm-police-corps").trim().split(",")[0].replace(/["']/g, "");
+  const lire = (s) => {
+    const e = document.querySelector(s);
+    if (e === null) return null;
+    return [s, getComputedStyle(e).fontFamily.split(",")[0].replace(/["']/g, "")];
+  };
+  const vus = [".wm-paras p", ".wm-tirets li", ".wm-annexe__lien", ".wm-table__cellule"]
+    .map(lire).filter((v) => v !== null);
+  return { attendu, vus, tous: vus.every(([, f]) => f === attendu) };
+});
+if (polices !== null && polices.attendu !== "") {
+  console.log(
+    `police courante : ${polices.attendu} attendu, ` +
+      polices.vus.map(([s, f]) => `${s.slice(0, 18)}=${f}`).join(", ") +
+      (polices.tous ? "" : " — DEFAUT, une police de secours est servie"),
+  );
+  if (!polices.tous) fautes++;
+}
+
 //  ── AUCUNE AUTRE FEUILLE NE GAGNE SUR UNE BRIQUE D'ANNEXE ─────────
 //
 //  Le titre d'une brique `carte` sortait a 25 px, encre et graisse
@@ -521,16 +559,27 @@ for (const l of [1864, 1280]) {
     if (a === null) return null;
     const b = a.getBoundingClientRect();
     const r = document.documentElement;
+    //  LA BARRE AUSSI. Elle est pleine largeur par nature, donc un
+    //  decalage chez elle ne vient jamais d'elle : il vient de la
+    //  marge de huit pixels que tout navigateur met sur `body` et
+    //  qu'une page autonome doit retirer elle-meme. C'est ce que
+    //  Callista voyait — « un petit decalage, comme un padding ».
+    const n = document.querySelector(".wm-retour");
+    const nb = n === null ? null : n.getBoundingClientRect();
     return {
       gauche: Math.round(b.left),
       droite: Math.round(r.clientWidth - b.right),
+      barreGauche: nb === null ? 0 : Math.round(nb.left),
+      barreHaut: nb === null ? 0 : Math.round(nb.top),
       barre: r.scrollWidth > r.clientWidth + 1,
     };
   });
   if (bord === null) continue;
-  const plein = bord.gauche === 0 && bord.droite === 0 && !bord.barre;
+  const plein = bord.gauche === 0 && bord.droite === 0 && !bord.barre &&
+    bord.barreGauche === 0 && bord.barreHaut === 0;
   console.log(
-    `${l}px : l'annexe touche les bords (${bord.gauche} / ${bord.droite})` +
+    `${l}px : l'annexe touche les bords (${bord.gauche} / ${bord.droite}), ` +
+      `barre a (${bord.barreGauche}, ${bord.barreHaut})` +
       (bord.barre ? ", MAIS une barre horizontale est apparue" : "") +
       (plein ? "" : " — DEFAUT"),
   );

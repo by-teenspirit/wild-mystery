@@ -69,6 +69,31 @@
     Le `#modernbb` est posé à la main par la page : toutes les règles
     du dépôt sont sous cet identifiant (garde-fou n° 16), et sans lui
     rien ne s'applique. */
+/*  LA MARGE DU NAVIGATEUR S'EN VA. « Les bandeaux ont un petit
+    décalage, comme un padding ou un margin » : ce sont les huit
+    pixels que tout navigateur met sur `body` depuis toujours. Sur le
+    forum, la feuille de ModernBB les enlevait ; une page autonome n'a
+    que ce qu'on lui donne. */
+body:has(#modernbb .wm-annexe) {
+  margin: 0;
+}
+
+/*  ET LA POLICE DE BASE AUSSI. « Il faut réimporter la typo » : les
+    polices étaient bien chargées — `document.fonts.check` les
+    trouvait toutes les deux — mais rien ne les POSAIT. Sur le forum,
+    `body` reçoit sa famille de ModernBB ; ici il n'y avait personne,
+    donc tout ce qui ne déclare pas la sienne tombait sur le Times du
+    navigateur. Les titres allaient bien, le reste était en serif.
+
+    On la pose sur les trois blocs de la page et pas sur `#modernbb`,
+    qui existe aussi sur le forum et n'a aucune raison de changer. */
+#modernbb .wm-annexe,
+#modernbb .wm-retour,
+#modernbb .wm-pied-annexe {
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
 #modernbb .wm-retour {
   position: sticky;
   top: 0;
@@ -286,7 +311,8 @@ body:has(#modernbb .wm-annexe) {
     to right,
     var(--wm-fond-douce, #f3e1d2) 0%,
     /*  824 PIXELS, PAS UN POURCENTAGE : c'est le bord droit de la
-          colonne de lecture — 48 de marge plus 768 de colonne — et
+          colonne de lecture — 48 de marge, 880 de colonne et 8 de
+          marge d'erreur — et
           il ne bouge pas quand la fenêtre bouge. En pourcentage, la
           dernière ligne du chapô finissait sur la mer.
 
@@ -295,12 +321,12 @@ body:has(#modernbb .wm-annexe) {
           d'une image. Son « zéro défaut » ne couvre donc PAS un
           texte posé sur le décor. C'est la géométrie qui tient la
           promesse ici, pas la mesure. */
-    var(--wm-fond-douce, #f3e1d2) 824px,
+    var(--wm-fond-douce, #f3e1d2) 936px,
     /*  ET IL CESSE DE S'ÉCLAIRCIR À 1200. En finissant le fondu
           sur la largeur de la boîte, un écran de 1864 donnait huit
           cents pixels de dégradé et une photo de plein format sur
           la moitié droite : plus une annexe, une affiche. */
-    color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 34%, transparent) 1200px,
+    color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 34%, transparent) 1290px,
     color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 34%, transparent) 100%
   );
   background-repeat: no-repeat;
@@ -309,13 +335,23 @@ body:has(#modernbb .wm-annexe) {
   content: "";
 }
 
-/*  768 px pour les huit annexes : c'est la largeur des cartes dans la
-    maquette, et la place qui reste à droite est celle du rendu pokémon.
-    Les quatre pages de la région portent `--large` — elles ont des
-    grilles que 768 ne tiennent pas. */
+/*  880 PIXELS, ET PLUS 768. La maquette en donnait 768 sur un écran
+    de 1280 : la bande de photo qui restait à droite faisait 276, et
+    le rendu pokémon la remplissait. Sur un écran plus large, la même
+    colonne laissait quatre cents pixels de photo floue — « les blocs
+    pourraient prendre plus d'espace ou alors il faut ajouter quelque
+    chose à droite pour remplir ».
+
+    On élargit plutôt que d'ajouter : la bande redescend à ce que la
+    maquette montrait, les tableaux gagnent une colonne de confort, et
+    on n'invente pas un bloc de décor dont personne n'a besoin. Au-delà,
+    la ligne de texte deviendrait trop longue pour se lire d'un trait.
+
+    Les quatre pages de la région portaient `--large` ; elles ont
+    disparu du sommaire, la classe reste pour qui en aura besoin. */
 #modernbb .wm-annexe__colonne {
   position: relative;
-  max-width: 768px;
+  max-width: 880px;
 }
 
 #modernbb .wm-annexe__colonne--large {
