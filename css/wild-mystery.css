@@ -10029,9 +10029,41 @@ html#min-width {
 
     Pas d'écart entre les deux : dans la maquette ils se touchent, le
     sommaire étant un pan de couleur et non une carte. */
+/*  ELLE SORT DU CONTENEUR CENTRÉ DU FORUM. « Si j'utilise le haut et
+    le bas du forum ça ne ressemble pas du tout au forum » : ModernBB
+    sert la page dans sa boîte de 1200 px centrée, et l'annexe y
+    devenait un panneau de 1128 posé au milieu, avec son sommaire
+    sombre flottant dans le vide. La planche 17 le disait déjà —
+    c'est la SEULE famille de pages qui n'est pas centrée.
+
+    LA SORTIE SE FAIT PAR LES MARGES, pas par une position. Une marge
+    négative de « la moitié de la fenêtre moins la moitié de la
+    boîte » ramène le bord gauche à zéro quelle que soit la largeur,
+    sans rien savoir du conteneur.
+
+    ET `overflow-x: clip` SUR LE CORPS DE PAGE, pas `hidden` : `100vw`
+    compte la barre de défilement verticale là où elle prend de la
+    place, donc la page dépasserait d'une quinzaine de pixels et le
+    navigateur poserait une barre horizontale. `clip` coupe ce
+    débord ; `hidden` l'aurait coupé aussi, mais en créant un
+    conteneur de défilement qui aurait décollé le sommaire `sticky`.
+    Le `:has()` le limite aux pages qui portent une annexe.
+
+    CELLE-CI N'EST PAS PROUVÉE PAR LE HARNAIS, et il faut le dire :
+    Chromium sans tête pose des barres FLOTTANTES, qui ne prennent
+    aucune place, donc `100vw` y vaut exactement la largeur utile et
+    le débord qu'on coupe n'existe jamais. La ligne sert les
+    systèmes à barre pleine, que je ne peux pas reproduire ici. La
+    règle d'à-côté, elle, tombe : l'annexe touche les deux bords. */
+body:has(#modernbb .wm-annexe) {
+  overflow-x: clip;
+}
+
 #modernbb .wm-annexe {
   display: flex;
   align-items: stretch;
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
 }
 
 #modernbb .wm-annexe__corps {
@@ -10090,7 +10122,14 @@ html#min-width {
         posé sur le décor. C'est la géométrie qui tient la promesse
         ici, pas la mesure : le texte ne touche jamais la photo. */
     var(--wm-fond-douce, #f3e1d2) 824px,
-    color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 22%, transparent) 100%
+    /*  ET IL CESSE DE S'ÉCLAIRCIR À 1200. En finissant le fondu sur
+        la largeur de la boîte, un écran de 1864 donnait huit cents
+        pixels de dégradé et une photo de plein format sur la moitié
+        droite : plus une annexe, une affiche. Deux arrêts en pixels
+        tiennent la proportion de la maquette à toutes les largeurs —
+        un fondu de 376, puis un lavis constant jusqu'au bord. */
+    color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 34%, transparent) 1200px,
+    color-mix(in srgb, var(--wm-fond-douce, #f3e1d2) 34%, transparent) 100%
   ),
     var(--annexe-fond, none),
     linear-gradient(

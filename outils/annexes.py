@@ -181,8 +181,8 @@ GABARIT = """<!-- ════════════════════�
             </div>
             <div class="wm-table__ligne">
               <span class="wm-table__cellule wm-table__cellule--nom">Deuxième ligne</span>
-              <span class="wm-table__cellule">Le tableau est en flexbox, pas en
-                &lt;table&gt; : sur téléphone chaque ligne s'empile et l'en-tête
+              <span class="wm-table__cellule">Le tableau est en flexbox, pas une
+                vraie table : sur téléphone chaque ligne s'empile et l'en-tête
                 disparaît.</span>
               <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
             </div>
@@ -266,6 +266,25 @@ def main():
             #  dit déjà « à venir » pour la même raison.
             suivante_lien=suite["adresse"] or "#",
         )
+        #  ── AUCUN NOM DE BALISE ÉCHAPPÉ DANS LE TEXTE ─────────────
+        #
+        #  Relevé le 1er novembre sur `/h1-par-ou-commencer` : le
+        #  `&lt;table&gt;` d'une phrase du gabarit est revenu de
+        #  Forumactif en VRAIE balise `<table>`, posée au milieu
+        #  d'une cellule — et tout ce qui suivait, les deux encarts,
+        #  le bouton et jusqu'au pied de Forumactif, s'est retrouvé
+        #  dedans. C'est la même famille de pièges que le `$` qui
+        #  devient `&#36;` : l'éditeur de pages HTML décode les
+        #  entités en enregistrant.
+        #
+        #  On ne contourne pas, on n'en écrit plus. Une page ne doit
+        #  nommer aucune balise, même échappée.
+        if "&lt;" in page or "&gt;" in page:
+            raise SystemExit(
+                f"{e['slug']} : le texte contient une entité `&lt;` ou `&gt;`. "
+                "Forumactif la décode en vraie balise en enregistrant la page, "
+                "et tout ce qui suit tombe dedans. Écrire le mot, pas la balise."
+            )
         chemin = dossier / f"annexe-{e['numero']}-{e['slug']}.html"
         #  UNE PAGE DÉJÀ RÉDIGÉE N'EST PAS ÉCRASÉE. Le marqueur est la
         #  ligne que ce fichier écrit lui-même en tête : une page qui ne

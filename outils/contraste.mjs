@@ -65,10 +65,16 @@ const doc = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 <style>body{font-size:10px;margin:0;background:var(--wm-fond-page,#f2e4d8)}
-#modernbb{padding:24px}</style></head>
-<body><div id="modernbb"><div id="page-body">${
+/*  LA BOITE CENTREE DE MODERNBB, relevee le 1er novembre sur la
+    premiere annexe en ligne : 1200 px, centree, 36 de padding
+    lateral. Sans elle, ce harnais montait la page dans une boite
+    pleine largeur et declarait bonne une annexe qui, sur le forum,
+    arrivait en panneau de 1128 flottant au milieu. Un decor qui ne
+    reproduit pas ce que ModernBB sert ne teste que lui-meme. */
+.wm-boite-forum{max-width:1200px;margin:0 auto;padding:24px 36px;box-sizing:border-box}</style></head>
+<body><div id="modernbb"><div class="wm-boite-forum"><div id="page-body">${
   readFileSync(R + cible, "utf8")
-}</div></div></body></html>`;
+}</div></div></div></body></html>`;
 
 const navigateur = await chromium.launch(
   CHROME === undefined ? {} : { executablePath: CHROME },
@@ -274,9 +280,15 @@ const voile = await p.evaluate(() => {
       }
     }
   }
-  const pixels = (couche ?? "").match(/(\d+(?:\.\d+)?)px/g) ?? [];
+  //  LE PLUS PETIT ARRET EN PIXELS, pas le plus grand : c'est la fin
+  //  de la partie OPAQUE du voile. Les arrets suivants decrivent le
+  //  lavis, qui laisse passer la photo — un texte pose dessus serait
+  //  sur la photo. Avec le maximum, le controle laissait passer
+  //  trois cent soixante-seize pixels de fondu.
+  const pixels = ((couche ?? "").match(/(\d+(?:\.\d+)?)px/g) ?? [])
+    .map(parseFloat).filter((v) => v > 0);
   if (pixels.length === 0) return { photo: true, arret: null };
-  const arret = Math.max(...pixels.map(parseFloat));
+  const arret = Math.min(...pixels);
   const limite = corps.getBoundingClientRect().left + arret;
   let pire = null;
   for (const el of corps.querySelectorAll("*")) {
@@ -343,6 +355,62 @@ if (tiret !== null) {
       (colle ? "" : " — DEFAUT, c'est une colonne et pas une espace"),
   );
   if (!colle) fautes++;
+}
+
+//  ── L'ANNEXE SORT DE LA BOITE DU FORUM ────────────────────────────
+//
+//  Elle est la seule famille de pages a le faire. On mesure qu'elle
+//  touche les deux bords de la fenetre, a tous les formats, et qu'on
+//  ne paie pas ce debord par une barre de defilement horizontale.
+for (const l of [1864, 1280]) {
+  await p.setViewportSize({ width: l, height: 900 });
+  const bord = await p.evaluate(() => {
+    const a = document.querySelector(".wm-annexe");
+    if (a === null) return null;
+    const b = a.getBoundingClientRect();
+    const r = document.documentElement;
+    return {
+      gauche: Math.round(b.left),
+      droite: Math.round(r.clientWidth - b.right),
+      barre: r.scrollWidth > r.clientWidth + 1,
+    };
+  });
+  if (bord === null) continue;
+  const plein = bord.gauche === 0 && bord.droite === 0 && !bord.barre;
+  console.log(
+    `${l}px : l'annexe touche les bords (${bord.gauche} / ${bord.droite})` +
+      (bord.barre ? ", MAIS une barre horizontale est apparue" : "") +
+      (plein ? "" : " — DEFAUT"),
+  );
+  if (!plein) fautes++;
+}
+
+//  ET LE LAVIS NE S'ECLAIRCIT PLUS PASSE 1200 : sur un grand ecran, un
+//  fondu qui irait jusqu'au bord donnerait une photo pleine page a
+//  droite. On compare l'opacite du dernier arret a celle de
+//  l'avant-dernier : elles doivent etre egales.
+const lavis = await p.evaluate(() => {
+  const c = document.querySelector(".wm-annexe__corps");
+  if (c === null) return null;
+  const img = getComputedStyle(c).backgroundImage;
+  const d = img.indexOf("linear-gradient(to right");
+  if (d === -1) return null;
+  let n = 0, couche = "";
+  for (let i = img.indexOf("(", d); i < img.length; i++) {
+    if (img[i] === "(") n++;
+    else if (img[i] === ")" && --n === 0) { couche = img.slice(d, i + 1); break; }
+  }
+  //  Chromium rend les couleurs translucides en `color(srgb … / a)`.
+  const alphas = [...couche.matchAll(/\/\s*([\d.]+)\s*\)/g)].map((m) => Number(m[1]));
+  return { arrets: alphas.length, deuxDerniersEgaux: alphas.length >= 2 &&
+    alphas.at(-1) === alphas.at(-2) };
+});
+if (lavis !== null) {
+  console.log(
+    `lavis : ${lavis.arrets} arret(s) translucide(s), les deux derniers ` +
+      (lavis.deuxDerniersEgaux ? "sont egaux" : "DIFFERENT — le fondu va jusqu'au bord"),
+  );
+  if (!lavis.deuxDerniersEgaux) fautes++;
 }
 
 for (const l of [1280, 900, 520, 390]) {
