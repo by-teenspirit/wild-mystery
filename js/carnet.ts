@@ -84,11 +84,12 @@ async function lire(nom: string): Promise<unknown> {
 }
 
 async function decorDuCarnet(): Promise<Decor> {
-  const [especes, objets, arenes, dex] = await Promise.all([
+  const [especes, objets, arenes, dex, groupes] = await Promise.all([
     lire("especes.json"),
     lire("objets.json"),
     lire("arenes.json"),
     lire("pokedex-carnet.json"),
+    lire("groupes.json"),
   ]);
   const liste = (d: unknown, clef: string): unknown[] => {
     if (typeof d !== "object" || d === null) return [];
@@ -101,6 +102,7 @@ async function decorDuCarnet(): Promise<Decor> {
     arenes: liste(arenes, "arenes") as Decor["arenes"],
     pokedex: liste(dex, "especes") as Decor["pokedex"],
     zones: liste(dex, "zones") as Decor["zones"],
+    groupes: liste(groupes, "groupes") as Decor["groupes"],
     images: IMAGES,
   };
 }
@@ -150,14 +152,14 @@ async function ouvrirLeCarnet(cle: string): Promise<void> {
 
   const carnet = brut as Carnet;
   const decor = await decorDuCarnet();
-  poserLaBarre(document, carnet, "mon-jeu");
+  poserLaBarre(document, carnet, "mon-jeu", decor);
   poserMonJeu(document, carnet, decor);
   poserMonSac(document, carnet, decor);
   poserMonPokedex(document, carnet, decor);
   poserLEtat(document, "pret");
   //  LA BARRE SUIT L'ONGLET OUVERT, et elle ne pouvait pas le faire
   //  avant d'avoir le dresseur à écrire dedans.
-  poserLesOnglets(document, (actif) => poserLaBarre(document, carnet, actif));
+  poserLesOnglets(document, (actif) => poserLaBarre(document, carnet, actif, decor));
 }
 
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que

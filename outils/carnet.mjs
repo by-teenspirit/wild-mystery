@@ -84,7 +84,7 @@ const CARNET = {
     joueurId: "eeee0000-0000-0000-0000-000000000001",
     forumUserId: 4,
     pseudo: "Eliott Vanner",
-    groupe: "mew",
+    groupe: "hardi",
     palier: 2,
     pokedollars: 1240,
     lieLe: "2026-06-12T09:00:00Z",
@@ -281,6 +281,21 @@ const { q: p, appels } = await monter({ cleGardee: CLE });
     barre: document.querySelector("[data-wm-carnet-etat]")?.textContent?.trim() ?? "",
     actif: document.querySelector("[aria-current='page']")?.textContent?.trim() ?? null,
   }));
+  const vuEmbleme = await p.evaluate(() => {
+    const e = document.querySelector("[data-wm-carnet-embleme]");
+    return {
+      visible: e !== null && e.hidden === false,
+      image: e?.querySelector("img")?.getAttribute("src") ?? null,
+      mot: e?.querySelector("span")?.textContent?.trim() ?? null,
+    };
+  });
+  dire(
+    "la barre porte l'emblème de la nature du joueur, nommé",
+    vuEmbleme.visible && /\/assets\/groupes\/hardi\.png$/.test(vuEmbleme.image ?? "") &&
+      vuEmbleme.mot === "Hardi",
+    JSON.stringify(vuEmbleme),
+  );
+
   dire(
     "une clé gardée ouvre le carnet d'un seul appel, sur « Mon jeu »",
     vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.actif === "Mon jeu" &&
@@ -494,6 +509,32 @@ const { q: p, appels } = await monter({ cleGardee: CLE });
     !vu.lignes.includes("Où") && !vu.lignes.includes("Niveaux") && vu.lien === false,
     JSON.stringify(vu),
   );
+}
+
+//  UN JOUEUR QUI N'A PAS ENCORE CHOISI SA NATURE. `groupe` est
+//  nullable en base, et c'est un état normal : lié avant d'avoir
+//  choisi. Sans garde, la barre posait une image `groupes/.png` —
+//  cassée, et visible.
+{
+  const sansNature = {
+    ...CARNET,
+    dresseur: { ...CARNET.dresseur, groupe: null },
+  };
+  const { q } = await monter({ cleGardee: CLE, reponse: sansNature });
+  const vu = await q.evaluate(() => {
+    const e = document.querySelector("[data-wm-carnet-embleme]");
+    return {
+      cache: e?.hidden ?? null,
+      images: e?.querySelectorAll("img").length ?? null,
+      nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
+    };
+  });
+  dire(
+    "sans nature choisie, la barre ne pose pas d'emblème cassé",
+    vu.cache === true && vu.images === 0 && vu.nom === "Eliott Vanner",
+    JSON.stringify(vu),
+  );
+  await q.close();
 }
 
 // ── 4 · la mise en page ─────────────────────────────────────────────

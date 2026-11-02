@@ -58,6 +58,8 @@ export interface Decor {
   arenes: Arene[];
   pokedex: EspeceDeRhode[];
   zones: { forumId: number; nom: string; palier: number }[];
+  /** Les six natures, telles que `data/groupes.json` les range. */
+  groupes: { cle: string; nom: string }[];
   /** `null` quand on ne sait pas d'où viennent les images : on pose
    *  alors les cases vides plutôt que des images cassées. */
   images: string | null;
@@ -88,7 +90,12 @@ function sprite(doc: Document, images: string | null, id: number, classe: string
 
 /* ── la barre latérale ────────────────────────────────────────────── */
 
-export function poserLaBarre(doc: Document, c: Carnet, actif: ClefDOnglet): void {
+export function poserLaBarre(
+  doc: Document,
+  c: Carnet,
+  actif: ClefDOnglet,
+  decor?: Decor,
+): void {
   const d = c.dresseur;
   const nom = doc.querySelector("[data-wm-carnet-nom]");
   if (nom !== null) nom.textContent = d?.pseudo ?? "—";
@@ -98,6 +105,27 @@ export function poserLaBarre(doc: Document, c: Carnet, actif: ClefDOnglet): void
     etat.textContent = d === null
       ? ""
       : `Palier ${d.palier ?? "—"} · ${chiffre(d.pokedollars)} pokédollars`;
+  }
+
+  //  L'EMBLÈME DE SA NATURE, et c'est la seule image qu'on puisse
+  //  poser ici. L'avatar du forum est hors de portée — une page sans
+  //  en-tête n'a pas `_userdata` — mais le groupe est dans la réponse
+  //  et son image est dans le dépôt. Un joueur qui n'a pas encore
+  //  choisi n'a pas d'emblème : on ne met rien, pas un trou gris.
+  const embleme = doc.querySelector("[data-wm-carnet-embleme]");
+  if (embleme instanceof HTMLElement) {
+    const cle = d?.groupe ?? "";
+    const connu = decor?.groupes.find((g) => g.cle === cle) ?? null;
+    if (connu === null || decor?.images == null) {
+      embleme.replaceChildren();
+      embleme.hidden = true;
+    } else {
+      embleme.hidden = false;
+      const img = el(doc, "img", "wm-carnet__embleme-image");
+      img.src = `${decor.images}groupes/${connu.cle}.png`;
+      img.alt = "";
+      embleme.replaceChildren(img, el(doc, "span", "", connu.nom));
+    }
   }
 
   for (const o of doc.querySelectorAll<HTMLAnchorElement>("[data-wm-carnet-onglet]")) {

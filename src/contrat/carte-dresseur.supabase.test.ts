@@ -92,10 +92,12 @@ async function decor(url: string): Promise<void> {
        values ('objet-de-carte', 'Objet de carte', 'soin', 100, true)
        on conflict (slug) do nothing;
 
-     --  'mew' est l'une des six maisons : \`joueur_groupe_check\` n'accepte
-     --  qu'elles, et 'Dresseur' s'y est cassé le nez au premier essai.
+     --  'hardi' est l'une des six NATURES : \`joueur_groupe_check\`
+     --  n'accepte qu'elles depuis la migration 0022. 'Dresseur' s'y
+     --  était cassé le nez au premier essai, et 'mew' s'y casserait
+     --  maintenant — les légendaires étaient les groupes d'avant.
      insert into joueur (id, forum_user_id, pseudo, groupe, palier, pokedollars)
-       values ('${ELIOTT}', ${COMPTE_ELIOTT}, 'Eliott Vanner', 'mew', 2, 1240);`,
+       values ('${ELIOTT}', ${COMPTE_ELIOTT}, 'Eliott Vanner', 'hardi', 2, 1240);`,
   );
 }
 

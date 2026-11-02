@@ -21301,6 +21301,30 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-align: center;
 }
 
+/*  L'EMBLÈME DE SA NATURE. C'est la seule image qu'on puisse poser
+    dans cette barre : l'avatar du forum est hors de portée d'une page
+    sans en-tête, le groupe non. Les six images sont dans le dépôt,
+    `assets/groupes/<cle>.png`, et ce sont celles du « qui est en
+    ligne » — pas une seconde série à produire. */
+#modernbb .wm-carnet__embleme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carnet__embleme-image {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
 #modernbb .wm-carnet__nom {
   margin: 0;
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
