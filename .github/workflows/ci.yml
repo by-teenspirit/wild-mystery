@@ -309,6 +309,9 @@ jobs:
       - name: La page d'un sujet
         run: deno task sujet
 
+      - name: Le carnet de bord
+        run: deno task carnet
+
       - name: La liste des membres
         run: deno task membres
 
