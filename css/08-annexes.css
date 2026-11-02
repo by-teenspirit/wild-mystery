@@ -133,6 +133,21 @@ body:has(#modernbb .wm-annexe) {
   cursor: pointer;
 }
 
+/*  L'ICÔNE DU BOUTON DE THÈME. Sans taille, un `svg` sans largeur ni
+    hauteur se dessine à 300 × 150 et pousse la barre. Et c'est elle
+    qui distingue le bouton des trois liens d'à côté — « je vois pas
+    le dark mode » : il était là, mais il ressemblait à une quatrième
+    page. */
+#modernbb .wm-retour__theme {
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-retour__theme svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
 #modernbb a.wm-retour__lien,
 #modernbb button.wm-retour__lien {
   display: inline-flex;

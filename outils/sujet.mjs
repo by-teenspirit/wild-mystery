@@ -301,7 +301,16 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
   let i = 0;
   t = t.replace(/\{postrow\.displayed\.([\w]+)\}/g, (_, nom) => {
     const m = MESSAGES[Math.min(i, MESSAGES.length - 1)];
-    if (nom === "POSTER_NAME") return m.auteur;
+    if (nom === "POSTER_NAME") {
+      //  CE QUE FORUMACTIF MET VRAIMENT DERRIERE `POSTER_NAME`, releve
+      //  le 2 novembre : un lien vers le profil, et dedans un `span`
+      //  qui porte la COULEUR du groupe — `usr_grp_clr` ne nomme pas
+      //  le groupe, il colore le membre. Le decor servait le nom nu,
+      //  et le bouton « @ » n'avait donc rien a quoi s'accrocher ici.
+      const id = m.auteur === "Maître du Jeu" ? 3 : 4;
+      return `<a href="/u${id}"><span class="group-${id} usr_grp_clr" ` +
+        `style="color:#808080"><strong>${m.auteur}</strong></span></a>`;
+    }
     if (nom === "POST_DATE_NEW") return m.date;
     if (nom === "MESSAGE") {
       const html = m.corps;
@@ -2428,6 +2437,47 @@ async function monterAvecScript(ariane) {
   await q.waitForTimeout(900);
   return q;
 }
+
+//  ══════════════════════════════════════════════════════════════════
+//  LE « @ » À CÔTÉ DE CHAQUE AUTEUR
+//
+//  « Un script qui permet de rajouter un @ ici, et quand je clique
+//  dessus ça tag directement la personne dans le bloc de réponse
+//  rapide. » On clique pour de vrai et on lit le brouillon : poser le
+//  bouton ne dit pas qu'il écrit, et la forme compte — Forumactif
+//  relit `@"Maître du Jeu"`, guillemets droits compris, et c'est
+//  cette forme-là qui déclenche la notification.
+//  ══════════════════════════════════════════════════════════════════
+const avecScript = await monterAvecScript(ARIANE_ZONE);
+const mention = await avecScript.evaluate(() => {
+  const boutons = [...document.querySelectorAll("button.wm-mentionner")];
+  if (boutons.length === 0) return { combien: 0 };
+  const b = boutons[0];
+  const nom = b.previousElementSibling?.textContent?.trim() ?? "";
+  const r = b.getBoundingClientRect();
+  //  LA CIBLE TACTILE, qui est un `::after` plus grand que le glyphe.
+  const cible = getComputedStyle(b, "::after").width;
+  b.click();
+  const zone = document.querySelector("#text_editor_textarea");
+  return {
+    combien: boutons.length,
+    nom,
+    //  Il se pose À CÔTÉ du lien, pas dedans : dans un `<a>`, le clic
+    //  suivrait le lien vers le profil au lieu d'écrire.
+    horsDuLien: b.closest("a") === null,
+    visible: r.width > 0 && r.height > 0,
+    cible: Math.round(parseFloat(cible)),
+    brouillon: zone === null ? null : zone.value,
+  };
+});
+dire(
+  "chaque auteur porte un « @ » qui écrit la mention dans la réponse rapide",
+  mention.combien >= 2 && mention.horsDuLien === true && mention.visible &&
+    mention.cible >= 44 &&
+    mention.brouillon === `@"${mention.nom}" `,
+  JSON.stringify(mention),
+);
+await avecScript.close();
 
 const dansUneZone = await monterAvecScript(ARIANE_ZONE);
 const leBandeau = await dansUneZone.evaluate(() => {

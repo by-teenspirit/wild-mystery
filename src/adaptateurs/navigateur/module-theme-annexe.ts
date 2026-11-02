@@ -39,6 +39,7 @@ import {
   themeApplique,
 } from "../../navigateur/theme.ts";
 import { Preferences } from "../../navigateur/preferences.ts";
+import { lune, soleil } from "./coin-outils.ts";
 
 const CLASSE_BOUTON = "wm-retour__theme";
 
@@ -71,11 +72,29 @@ export function poserLeTheme(doc: Document, prefs: Preferences): boolean {
   const bouton = doc.createElement("button");
   bouton.type = "button";
   bouton.className = `wm-retour__lien ${CLASSE_BOUTON}`;
-  bouton.textContent = libelle(rendre());
+
+  //  IL PORTE UNE ICÔNE, ET C'EST POUR ÇA QU'ON LE VOIT. « Je vois pas
+  //  le dark mode » : le bouton était là depuis le début, posé entre
+  //  Personnages et Messagerie, et il ne disait rien d'autre que
+  //  « Sombre » dans la même police et la même couleur que les trois
+  //  liens d'à côté. On le lisait comme une quatrième page.
+  //
+  //  La lune et le soleil viennent du coin d'outils du forum : c'est
+  //  le même bouton pour le joueur, il n'a pas à apprendre deux
+  //  dessins pour le même geste.
+  const habiller = () => {
+    const t = rendre();
+    const mot = libelle(t);
+    bouton.textContent = "";
+    bouton.appendChild(destination(t) === "sombre" ? lune(doc) : soleil(doc));
+    bouton.appendChild(doc.createTextNode(mot));
+    bouton.setAttribute("aria-label", `Passer en thème ${mot.toLowerCase()}`);
+  };
+  habiller();
 
   bouton.addEventListener("click", () => {
     prefs.poserTheme(choixApresClic(prefs.theme(), systemeEstSombre()));
-    bouton.textContent = libelle(rendre());
+    habiller();
   });
 
   barre.appendChild(bouton);

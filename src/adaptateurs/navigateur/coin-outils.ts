@@ -41,7 +41,7 @@ function svg(enfants: (doc: Document) => SVGElement[], doc: Document): SVGSVGEle
   return racine;
 }
 
-function lune(doc: Document): SVGSVGElement {
+export function lune(doc: Document): SVGSVGElement {
   return svg((d) => {
     const p = d.createElementNS(SVG, "path");
     //  Un disque dont on a mordu un second disque, écrit en une courbe.
@@ -51,7 +51,7 @@ function lune(doc: Document): SVGSVGElement {
   }, doc);
 }
 
-function soleil(doc: Document): SVGSVGElement {
+export function soleil(doc: Document): SVGSVGElement {
   return svg((d) => {
     const coeur = d.createElementNS(SVG, "circle");
     coeur.setAttribute("cx", "8");

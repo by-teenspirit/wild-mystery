@@ -51,6 +51,10 @@ import {
   recomposerLesDerniersMessages,
 } from "../src/adaptateurs/navigateur/module-categories.ts";
 import { habillerLeMessenger } from "../src/adaptateurs/navigateur/module-messenger.ts";
+import {
+  guetterLEditeur,
+  poserLesMentions,
+} from "../src/adaptateurs/navigateur/module-mention.ts";
 import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import {
   attendreLaToolbar,
@@ -542,6 +546,14 @@ desQueLeCorpsEstLa(() => {
   //  FAM l'a posé. Sans réseau de notre côté : on guette un nœud, on le
   //  nomme, on s'arrête. L'allure, elle, est en CSS.
   habillerLeMessenger(document);
+  //  LE « @ » À CÔTÉ DE CHAQUE AUTEUR, et la touche `@` branchée sur
+  //  le panneau de mentions du forum. Les deux sortent tout de suite
+  //  sur une page qui n'a ni message ni éditeur.
+  poserLesMentions(document);
+  //  L'ÉDITEUR ARRIVE APRÈS NOUS. `sceditor` est monté par le script
+  //  de Forumactif, et son iframe n'existe pas encore quand on passe :
+  //  on guette son arrivée au lieu de deviner un délai.
+  guetterLEditeur(document);
   poserLesAnnexes().catch(() => {});
   //  LE COMPTEUR SE LIT AVANT QUE LA BARRE SOIT RÉÉCRITE. Forumactif le
   //  pose dans le lien « Messagerie », et `poserLaNav` remplace le

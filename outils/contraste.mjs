@@ -490,28 +490,45 @@ if (etirement !== null && etirement.photo && etirement.chargee) {
 //  de vrai : verifier qu'il existe ne dirait pas qu'il fait quelque
 //  chose, et son mot doit changer avec lui — il annonce sa
 //  destination, pas l'etat courant.
-const theme = await p.evaluate(async () => {
-  const b = document.querySelector(".wm-retour__theme");
-  if (b === null) return null;
-  //  ON REPART DE ZERO. Les mesures de contraste viennent de passer la
-  //  page en sombre a la main : sans ce nettoyage on testerait le
-  //  bouton depuis un etat que personne n'a jamais.
+await p.evaluate(() => {
+  //  ON REPART DE ZERO, ET ON REPOSE LE BOUTON. Les mesures de
+  //  contraste viennent de passer la page en sombre a la main : sans
+  //  ce nettoyage on testerait le bouton depuis un etat que personne
+  //  n'a jamais. Le reecrire a la main ne marche pas non plus — lui
+  //  rendre son mot effacerait son icone, qui est justement ce qu'on
+  //  vient verifier. On le retire et on le laisse se reposer.
   try {
     localStorage.removeItem("wm.theme");
   } catch { /* origine opaque : le bouton ne retiendra rien, c'est tout */ }
   document.body.classList.remove("wm-sombre");
-  b.textContent = "Sombre";
+  document.querySelector(".wm-retour__theme")?.remove();
+  globalThis.wmPoserLeTheme();
+});
+const theme = await p.evaluate(async () => {
+  const b = document.querySelector(".wm-retour__theme");
+  if (b === null) return null;
   const etat = () => ({
     sombre: document.body.classList.contains("wm-sombre"),
     mot: b.textContent.trim(),
   });
+  //  ET IL PORTE UNE ICONE. « Je vois pas le dark mode » : le bouton
+  //  etait la depuis le debut, mais ecrit comme les trois liens d'a
+  //  cote, dans la meme police et la meme couleur. On le lisait comme
+  //  une quatrieme page. Un `svg` sans taille se dessine d'ailleurs a
+  //  300 x 150 et pousse la barre, donc on mesure sa boite.
+  const icone = (() => {
+    const i = b.querySelector("svg");
+    if (i === null) return null;
+    const r = i.getBoundingClientRect();
+    return [Math.round(r.width), Math.round(r.height)];
+  })();
   const avant = etat();
   b.click();
   await new Promise((r) => requestAnimationFrame(r));
   const apres = etat();
   b.click();
   await new Promise((r) => requestAnimationFrame(r));
-  return { avant, apres, revenu: etat() };
+  return { avant, apres, revenu: etat(), icone };
 });
 if (theme === null) {
   console.log("bouton de theme : ABSENT — defaut");
@@ -519,10 +536,13 @@ if (theme === null) {
 } else {
   const bascule = theme.avant.sombre !== theme.apres.sombre &&
     theme.avant.mot !== theme.apres.mot &&
-    theme.revenu.sombre === theme.avant.sombre;
+    theme.revenu.sombre === theme.avant.sombre &&
+    theme.icone !== null && theme.icone[0] > 8 && theme.icone[0] <= 24 &&
+    theme.icone[1] > 8 && theme.icone[1] <= 24;
   console.log(
     `bouton de theme : « ${theme.avant.mot} » → « ${theme.apres.mot} », ` +
-      `sombre ${theme.avant.sombre} → ${theme.apres.sombre}` +
+      `sombre ${theme.avant.sombre} → ${theme.apres.sombre}, ` +
+      `icone ${JSON.stringify(theme.icone)}` +
       (bascule ? "" : " — DEFAUT, il ne bascule pas"),
   );
   if (!bascule) fautes++;

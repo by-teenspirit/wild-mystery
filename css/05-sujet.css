@@ -3363,3 +3363,58 @@
   margin-inline: 0;
   gap: var(--wm-espace-12, 12px);
 }
+
+/*  ══════════════════════════════════════════════════════════════════
+    § 31 · LE « @ » À CÔTÉ DE L'AUTEUR — 2 NOVEMBRE
+
+    « Un script qui permet de rajouter un @ ici, et quand je clique
+    dessus ça tag directement la personne dans le bloc de réponse
+    rapide. »
+
+    IL EST DISCRET PAR SA TAILLE, PAS PAR SON ABSENCE. Il vit à côté
+    d'un nom, répété autant de fois qu'il y a de messages : un bouton
+    de pleine taille ferait une colonne de @ avant le texte qu'on
+    vient lire. Il ne se révèle pas au survol pour autant — c'est la
+    faute qu'on a déjà corrigée sur la croix des notifications, une
+    action qui n'apparaît qu'au survol n'existe pas pour qui ne
+    survole pas.
+
+    SA CIBLE TACTILE EST PLUS GRANDE QUE LUI, par un `::after` qui
+    déborde : vingt-quatre pixels de carré autour d'un glyphe de
+    douze. Agrandir le bouton lui-même aurait écarté le nom.
+    ══════════════════════════════════════════════════════════════════ */
+#modernbb button.wm-mentionner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--wm-espace-4, 4px);
+  padding: 0 var(--wm-espace-4, 4px);
+  border: 0;
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: none;
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+  vertical-align: baseline;
+  cursor: pointer;
+}
+
+/*  LA CIBLE, invisible et centrée sur le glyphe. */
+#modernbb button.wm-mentionner::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--wm-cible-tactile, 44px);
+  height: var(--wm-cible-tactile, 44px);
+  translate: -50% -50%;
+  content: "";
+}
+
+#modernbb button.wm-mentionner:hover,
+#modernbb button.wm-mentionner:focus-visible {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-accent-fort, #1f5470);
+}

@@ -149,6 +149,49 @@
     return destination(themeApplique(choix, systemeEstSombre2));
   }
 
+  // src/adaptateurs/navigateur/coin-outils.ts
+  var SVG = "http://www.w3.org/2000/svg";
+  function svg(enfants, doc) {
+    const racine = doc.createElementNS(SVG, "svg");
+    racine.setAttribute("viewBox", "0 0 16 16");
+    racine.setAttribute("aria-hidden", "true");
+    racine.setAttribute("focusable", "false");
+    for (const e of enfants(doc)) racine.appendChild(e);
+    return racine;
+  }
+  function lune(doc) {
+    return svg((d) => {
+      const p = d.createElementNS(SVG, "path");
+      p.setAttribute("d", "M13 9.3A5.6 5.6 0 0 1 6.2 2.6a5.8 5.8 0 1 0 6.8 6.7z");
+      p.setAttribute("fill", "currentColor");
+      return [
+        p
+      ];
+    }, doc);
+  }
+  function soleil(doc) {
+    return svg((d) => {
+      const coeur = d.createElementNS(SVG, "circle");
+      coeur.setAttribute("cx", "8");
+      coeur.setAttribute("cy", "8");
+      coeur.setAttribute("r", "3.1");
+      coeur.setAttribute("fill", "currentColor");
+      const rayons = d.createElementNS(SVG, "circle");
+      rayons.setAttribute("cx", "8");
+      rayons.setAttribute("cy", "8");
+      rayons.setAttribute("r", "6.2");
+      rayons.setAttribute("fill", "none");
+      rayons.setAttribute("stroke", "currentColor");
+      rayons.setAttribute("stroke-width", "1.7");
+      rayons.setAttribute("stroke-linecap", "round");
+      rayons.setAttribute("stroke-dasharray", "1.2 3.67");
+      return [
+        coeur,
+        rayons
+      ];
+    }, doc);
+  }
+
   // src/adaptateurs/navigateur/module-theme-annexe.ts
   var CLASSE_BOUTON = "wm-retour__theme";
   function systemeEstSombre() {
@@ -172,10 +215,18 @@
     const bouton = doc.createElement("button");
     bouton.type = "button";
     bouton.className = `wm-retour__lien ${CLASSE_BOUTON}`;
-    bouton.textContent = libelle(rendre());
+    const habiller = () => {
+      const t = rendre();
+      const mot = libelle(t);
+      bouton.textContent = "";
+      bouton.appendChild(destination(t) === "sombre" ? lune(doc) : soleil(doc));
+      bouton.appendChild(doc.createTextNode(mot));
+      bouton.setAttribute("aria-label", `Passer en th\xE8me ${mot.toLowerCase()}`);
+    };
+    habiller();
     bouton.addEventListener("click", () => {
       prefs.poserTheme(choixApresClic(prefs.theme(), systemeEstSombre()));
-      bouton.textContent = libelle(rendre());
+      habiller();
     });
     barre.appendChild(bouton);
     return true;
