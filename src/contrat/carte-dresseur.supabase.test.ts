@@ -301,3 +301,49 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
   );
   assertEquals(pourAnon.split("\n").pop()?.trim(), "null");
 });
+
+// ── la publication des cartes, migration 0024 ──────────────────────
+
+essai("les joueurs sans carte sortent, les plus anciens d'abord", async (url) => {
+  await psql(
+    url,
+    `insert into joueur (forum_user_id, pseudo, cree_le)
+       values (777301, 'Plus ancienne', '2026-01-01'),
+              (777302, 'Plus récente',  '2026-06-01');`,
+  );
+  const lu = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":50}'::jsonb)::text;`));
+  const miens = lu.filter((j: { forumUserId: number }) =>
+    j.forumUserId === 777301 || j.forumUserId === 777302
+  );
+  assertEquals(miens.map((j: { pseudo: string }) => j.pseudo), ["Plus ancienne", "Plus récente"]);
+  await psql(url, `delete from joueur where forum_user_id in (777301, 777302);`);
+});
+
+essai("UN SUJET DÉJÀ NOTÉ NE SE REMPLACE PAS", async (url) => {
+  //  Si deux passages se chevauchaient — le verrou l'interdit, mais le
+  //  verrou est du code —, le second ferait oublier le premier sujet,
+  //  qui resterait sur le forum sans que rien ne le relie à personne.
+  const j = await psql(url, `select id from joueur where forum_user_id = ${COMPTE_ELIOTT};`);
+  assertEquals(
+    await psql(url, `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',4001));`),
+    "t",
+  );
+  assertEquals(
+    await psql(url, `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',9999));`),
+    "f",
+  );
+  assertEquals(
+    await psql(url, `select carte_sujet_id from joueur where id = '${j}';`),
+    "4001",
+  );
+});
+
+essai("un joueur qui a sa carte ne ressort plus de la file", async (url) => {
+  const j = await psql(url, `select id from joueur where forum_user_id = ${COMPTE_ELIOTT};`);
+  await psql(url, `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',4002));`);
+  const lu = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":50}'::jsonb)::text;`));
+  assertEquals(
+    lu.filter((x: { forumUserId: number }) => x.forumUserId === COMPTE_ELIOTT).length,
+    0,
+  );
+});

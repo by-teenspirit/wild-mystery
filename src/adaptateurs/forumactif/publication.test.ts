@@ -31,6 +31,9 @@ import {
   type Reponse,
   type Requete,
   type Transport,
+  lireLeFormulaireDeSujet,
+  champsDuSujet,
+  idDuSujetCree,
 } from "./publication.ts";
 
 const COMPTE = { compte: "Maître du Jeu", motDePasse: "ceci-est-un-faux" };
@@ -685,4 +688,60 @@ Deno.test("un mot de passe expiré est nommé, avec son remède", async () => {
   );
   assert(e.message.includes("FORUM_MOTDEPASSE"), e.message);
   assert(e.message.includes("Rien à corriger dans le code"), e.message);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  CRÉER UN SUJET — « Arceus poste toutes les trainer card dans une
+//  catégorie, pour chaque joueur », 2 novembre.
+// ════════════════════════════════════════════════════════════════════
+
+const FORMULAIRE_DE_SUJET = `
+  <form action="/post" method="post">
+    <input type="hidden" name="auth[]" value="aaaa1111aaaa1111aaaa1111aaaa1111" />
+    <input type="hidden" name="auth[]" value="bbbb2222bbbb2222bbbb2222bbbb2222" />
+    <input type="hidden" name="mode" value="newtopic" />
+    <input type="hidden" name="f" value="45" />
+    <input type="text" name="subject" value="" />
+  </form>`;
+
+Deno.test("le formulaire de création se lit, et son mode est vérifié", () => {
+  const f = lireLeFormulaireDeSujet(FORMULAIRE_DE_SUJET);
+  assertEquals(f.forumId, 45);
+  assertEquals(f.auth.length, 2);
+});
+
+Deno.test("UN FORMULAIRE DE RÉPONSE N'EST PAS UN FORMULAIRE DE CRÉATION", () => {
+  //  Les deux se ressemblent assez pour qu'on poste une réponse là où
+  //  on croyait créer — le message partirait dans un sujet au hasard.
+  assertThrows(
+    () => lireLeFormulaireDeSujet(FORMULAIRE_DE_SUJET.replace("newtopic", "reply")),
+    FormulaireIntrouvable,
+    "newtopic",
+  );
+  assertThrows(
+    () => lireLeFormulaireDeSujet(FORMULAIRE_DE_SUJET.replace('name="f"', 'name="t"')),
+    FormulaireIntrouvable,
+    "champ f",
+  );
+});
+
+Deno.test("les champs d'une création portent le titre, le forum et newtopic", () => {
+  const champs = champsDuSujet(lireLeFormulaireDeSujet(FORMULAIRE_DE_SUJET), "Carte — Eliott", "le corps");
+  const par = (nom: string) => champs.filter(([n]) => n === nom).map(([, v]) => v);
+  assertEquals(par("subject"), ["Carte — Eliott"]);
+  assertEquals(par("mode"), ["newtopic"]);
+  assertEquals(par("f"), ["45"]);
+  assertEquals(par("auth[]").length, 2);
+  //  ET PAS DE `t` : il désignerait un sujet existant, et le forum
+  //  répondrait dedans au lieu d'en créer un.
+  assertEquals(par("t"), []);
+});
+
+Deno.test("l'identifiant lu après une création est celui du SUJET", () => {
+  //  PAS CELUI DU MESSAGE. Les deux sont dans le même `Location`, et
+  //  noter le mauvais en base ferait pointer la carte sur rien.
+  assertEquals(idDuSujetCree("/t1003-carte-eliott-vanner#15601"), 1003);
+  assertEquals(idDuMessagePoste("/t1003-carte-eliott-vanner#15601"), 15601);
+  assertEquals(idDuSujetCree("/post?mode=newtopic"), null);
+  assertEquals(idDuSujetCree(null), null);
 });

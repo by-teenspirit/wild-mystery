@@ -26,6 +26,7 @@
 # ════════════════════════════════════════════════════════════════════
 
 import argparse
+import sys
 import pathlib
 import re
 
@@ -85,6 +86,38 @@ def main() -> None:
             f"({len(brut)} au départ, −{gain} %)"
         )
 
+        #  LE CODE À COLLER EST AUSSI UNE DONNÉE, depuis le 2 novembre.
+        #  La relève publie la carte de chaque joueur dans son sujet, et
+        #  elle a donc besoin du même gabarit — servi par GitHub Pages,
+        #  comme tout ce qu'elle lit. Une copie dans `data/`, dérivée,
+        #  plutôt qu'un second gabarit écrit en TypeScript : deux
+        #  markups à tenir d'accord, c'est un markup qui dérive.
+        if f.name == "carte-dresseur.a-coller.html":
+            copie = R / "data" / "carte-a-coller.html"
+            copie.write_text(serre + "\n")
+            print(f"   {copie.relative_to(R)} — la même, pour la relève")
+
+
+def verifier() -> int:
+    """Relit la copie de `data/` sans rien écrire. Rend 1 si elle a dérivé."""
+    source = R / "templates" / "carte-dresseur.a-coller.html"
+    copie = R / "data" / "carte-a-coller.html"
+    if not copie.exists():
+        print(f"{copie.name} : absent.", file=sys.stderr)
+        return 1
+    attendu = degraisser(source.read_text()) + "\n"
+    if copie.read_text() != attendu:
+        print(
+            f"{copie.name} : ne correspond plus au gabarit — relance "
+            f"« python3 outils/minifier-le-code.py --tout » et commite.",
+            file=sys.stderr,
+        )
+        return 1
+    print(f"{copie.name} : {len(attendu)} octets, d'accord avec le gabarit.")
+    return 0
+
 
 if __name__ == "__main__":
+    if "--verifier" in sys.argv:
+        raise SystemExit(verifier())
     main()

@@ -228,6 +228,75 @@ export function champsDeLaReponse(
   ];
 }
 
+// ── créer un sujet, et pas seulement répondre ───────────────────────
+//
+//  « Arceus poste toutes les trainer card dans une catégorie, pour
+//  chaque joueur », 2 novembre. C'est le même formulaire que la
+//  réponse, à trois différences près : `mode` vaut `newtopic`, il n'y
+//  a pas de `t` ni de `lt` mais un `f`, et `subject` n'est plus vide.
+
+export type FormulaireDeSujet = {
+  readonly auth: readonly [string, string];
+  readonly forumId: number;
+};
+
+export function lireLeFormulaireDeSujet(html: string): FormulaireDeSujet {
+  const auth: string[] = [];
+  let f: number | null = null;
+  let mode: string | null = null;
+
+  for (const balise of html.match(CHAMP_CACHE) ?? []) {
+    let nom = "";
+    let valeur = "";
+    for (const a of balise.matchAll(ATTRIBUT)) {
+      if (a[1].toLowerCase() === "name") nom = a[2];
+      if (a[1].toLowerCase() === "value") valeur = a[2];
+    }
+    if (nom === "auth[]") auth.push(valeur);
+    else if (nom === "f") f = Number(valeur);
+    else if (nom === "mode") mode = valeur;
+  }
+
+  if (mode !== "newtopic") {
+    throw new FormulaireIntrouvable(`mode attendu « newtopic », trouvé ${JSON.stringify(mode)}`);
+  }
+  if (auth.length !== 2) {
+    throw new FormulaireIntrouvable(`${auth.length} champ(s) auth[] au lieu de deux`);
+  }
+  if (f === null || !Number.isInteger(f)) throw new FormulaireIntrouvable("pas de champ f");
+
+  return { auth: [auth[0], auth[1]], forumId: f };
+}
+
+export function champsDuSujet(
+  formulaire: FormulaireDeSujet,
+  titre: string,
+  message: string,
+): readonly Champ[] {
+  return [
+    ["subject", titre],
+    ["message", message],
+    ["auth[]", formulaire.auth[0]],
+    ["auth[]", formulaire.auth[1]],
+    ["mode", "newtopic"],
+    ["f", String(formulaire.forumId)],
+    ["post", "Envoyer"],
+  ];
+}
+
+/** L'identifiant du SUJET créé, lu dans le Location (`/t1003-…`).
+ *
+ *  Pas le même que celui du message : une création rend `/t<sujet>-…`,
+ *  et c'est le sujet qu'on note en base. Les lire avec la même
+ *  expression donnerait le numéro de message, qui ne sert à rien ici. */
+export function idDuSujetCree(emplacement: string | null): number | null {
+  if (emplacement === null) return null;
+  const m = emplacement.match(/\/t(\d+)-/);
+  if (m === null) return null;
+  const id = Number(m[1]);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
 const ANCRE_DE_MESSAGE = /[?&#]p=?(\d+)|#(\d+)/;
 
 /** L'identifiant du message qui vient d'être posté, lu dans le Location
@@ -484,6 +553,90 @@ export class ForumactifEnPublication implements PosteurSurForum {
    * certain qu'il y en a exactement un : le filet contre le double envoi
    * ne peut plus être inerte par oubli.
    */
+  /** Le formulaire de création, frais. Même raison que pour la
+   *  réponse : `auth[]` vieillit. */
+  private async formulaireDeSujet(forumId: number): Promise<FormulaireDeSujet> {
+    const chemin = `/post?f=${forumId}&mode=newtopic`;
+    let reponse = await this.transport({ chemin, methode: "GET", cookie: this.bocal.entete() });
+    if (/mot de passe a expir/i.test(reponse.corps)) {
+      this.bocal.oublier();
+      throw new MotDePasseExpire();
+    }
+    if (estLaPageDeConnexion(reponse.corps)) {
+      await this.seConnecter();
+      reponse = await this.transport({ chemin, methode: "GET", cookie: this.bocal.entete() });
+      if (estLaPageDeConnexion(reponse.corps)) {
+        throw new ConnexionRefusee("session perdue juste après la connexion");
+      }
+    }
+    this.bocal.avaler(reponse.cookies);
+    return lireLeFormulaireDeSujet(reponse.corps);
+  }
+
+  /** Le sujet de ce forum qui porte exactement ce titre, s'il existe.
+   *
+   *  LE FILET ANTI-DOUBLON D'UNE CRÉATION, et il ne peut pas être le
+   *  même que celui d'une réponse. Pour une réponse, on relit le sujet
+   *  et on y cherche le marqueur. Pour une création, il n'y a pas
+   *  encore de sujet à relire : on cherche donc dans la LISTE du
+   *  forum, par le titre.
+   *
+   *  C'est moins solide qu'un marqueur — deux joueurs homonymes
+   *  auraient le même titre — et c'est pour ça que l'appelant note le
+   *  sujet en base dès qu'il l'a. Le filet ne sert qu'au cas où le
+   *  réseau lâche entre l'envoi et cette note. */
+  private async sujetPortantLeTitre(forumId: number, titre: string): Promise<number | null> {
+    const reponse = await this.lirePage(`/f${forumId}-`);
+    const cherche = titre.trim().toLowerCase();
+    for (const m of reponse.corps.matchAll(/<a[^>]+href="\/t(\d+)-[^"]*"[^>]*>([^<]*)<\/a>/gi)) {
+      const lu = m[2].replace(/&amp;/g, "&").replace(/&#039;/g, "'").trim().toLowerCase();
+      if (lu === cherche) return Number(m[1]);
+    }
+    return null;
+  }
+
+  /**
+   * Crée un sujet et rend SON identifiant — pas celui du message.
+   *
+   * ON REGARDE AVANT D'ÉCRIRE, comme pour une réponse, et pour la même
+   * raison : la tâche qui appelle est faite pour reprendre après une
+   * coupure, et un sujet créé deux fois ne se répare pas tout seul.
+   */
+  async creerUnSujet(forumId: number, titre: string, corps: string): Promise<number> {
+    await this.assurerLaSession();
+
+    const deja = await this.sujetPortantLeTitre(forumId, titre);
+    if (deja !== null) return deja;
+
+    const formulaire = await this.formulaireDeSujet(forumId);
+
+    let reponse: Reponse;
+    try {
+      reponse = await this.transport({
+        chemin: "/post",
+        methode: "POST",
+        cookie: this.bocal.entete(),
+        corps: { encodage: "multipart", champs: champsDuSujet(formulaire, titre, corps) },
+      });
+    } catch (e) {
+      //  Le réseau a lâché. Le sujet est peut-être parti : on regarde.
+      const retrouve = await this.sujetPortantLeTitre(forumId, titre);
+      if (retrouve !== null) return retrouve;
+      throw new PublicationIncertaine(forumId, (e as Error).message);
+    }
+
+    this.bocal.avaler(reponse.cookies);
+
+    const id = idDuSujetCree(reponse.emplacement);
+    if (id !== null) return id;
+
+    const retrouve = await this.sujetPortantLeTitre(forumId, titre);
+    if (retrouve !== null) return retrouve;
+    throw new PublicationRefusee(
+      `statut ${reponse.statut}, et le sujet « ${titre} » n'est pas dans le forum ${forumId}`,
+    );
+  }
+
   async repondre(
     sujetId: number,
     mentionne: string,

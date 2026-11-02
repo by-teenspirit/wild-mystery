@@ -843,7 +843,8 @@ echo "── 23. les fichiers dérivés se dérivent, ils ne s'écrivent pas ─
 if ! command -v python3 >/dev/null 2>&1; then
   echo "   python3 absent du PATH — chaîne du Pokédex non vérifiée"
 else
-  for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones pokedex-carnet; do
+  for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones pokedex-carnet \
+               minifier-le-code; do
     if ! python3 "outils/$outil.py" --verifier; then
       gronde "outils/$outil.py --verifier refuse : un fichier dérivé a été modifié à la main"
     fi

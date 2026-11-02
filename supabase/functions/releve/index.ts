@@ -32,6 +32,7 @@ import {
 import {
   JournalSupabase,
   PokedexSupabase,
+  CartesSupabase,
   ReclamationsSupabase,
   SuiviSupabase,
   VerrouSupabase,
@@ -47,6 +48,7 @@ import { ButinEnFichiers } from "../../../src/adaptateurs/faune/butin.ts";
 import { ComptoirsEnFichiers } from "../../../src/adaptateurs/faune/comptoirs.ts";
 import { SujetDuCarnetEnFichier } from "../../../src/adaptateurs/faune/sujet-du-carnet.ts";
 import { ReconnaitreUnCarnet } from "../../../src/application/reconnaitre-un-carnet.ts";
+import { PublierLesCartes } from "../../../src/application/publier-les-cartes.ts";
 import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
 import { FossilesSupabase } from "../../../src/adaptateurs/supabase/fossile.ts";
 import { MenageSupabase, PaliersSupabase } from "../../../src/adaptateurs/supabase/services.ts";
@@ -147,6 +149,7 @@ type Montage = {
   readonly comptoirs: ComptoirsEnFichiers;
   readonly carnet: ReconnaitreUnCarnet;
   readonly sujetDuCarnet: SujetDuCarnetEnFichier;
+  readonly cartes: PublierLesCartes;
   /** Tâche 5 : le laboratoire. Les analyses de fossiles sont tranchées
    *  et annoncées. **Aucun réglage** : chaque analyse porte son sujet,
    *  donc la réponse part là où la demande a été faite. */
@@ -282,6 +285,20 @@ function assembler(reglages: Reglages): Montage {
       new JournalSupabase(appeler),
     ),
     sujetDuCarnet: new SujetDuCarnetEnFichier(lecteurHttp(), reglages.WM_RACINE_DONNEES),
+    //  Tâche 11 : un sujet de carte dresseur par joueur. Elle POSTE,
+    //  donc elle passe tard — avec les tâches qui écrivent sur le
+    //  forum — et elle ne poste qu'une fois par joueur, pour toujours :
+    //  la carte se remplit toute seule ensuite.
+    //
+    //  Le gabarit est celui que les joueurs collent à la main, servi
+    //  dans `data/` par `outils/minifier-le-code.py`. Un second
+    //  gabarit écrit ici dériverait du premier au premier changement.
+    cartes: new PublierLesCartes(
+      new CartesSupabase(appeler),
+      forumEnEcriture,
+      new JournalSupabase(appeler),
+      () => lecteurHttp()(reglages.WM_RACINE_DONNEES + "carte-a-coller.html"),
+    ),
     //  Tâche 5 : le laboratoire. Même forme que `PosterLesBilans` — une
     //  file en base, et un message par ligne — et pour la même raison :
     //  rendre un fossile est le point de non-retour, l'annoncer se
@@ -341,6 +358,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     comptoirs,
     carnet,
     sujetDuCarnet,
+    cartes,
     fossilesARendre,
     pokedex,
     palier,
@@ -438,6 +456,12 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     //  plutôt qu'au milieu de ce qui touche au jeu.
     const carnets = await carnet.executer(await sujetDuCarnet.sujet());
 
+    //  LES CARTES APRÈS LES CARNETS, et ce n'est pas indifférent : un
+    //  joueur qui vient d'ouvrir son carnet n'existe en base que
+    //  depuis la ligne du dessus. Dans cet ordre, il a sa carte au
+    //  même passage plutôt qu'au suivant.
+    const cartesPosees = await cartes.executer(await sujetDuCarnet.forumDesCartes());
+
     //  LE MÉNAGE EN DERNIER, parce qu'il EFFACE. Même raisonnement que
     //  pour la boutique, qui passe tard parce qu'elle débite : un passage
     //  qui meurt avant lui n'a rien effacé, et tout ce qui précède a
@@ -455,6 +479,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       issues: bilan.issues,
       erreurs: bilan.erreurs,
       carnetsOuverts: carnets.liees,
+      cartesPubliees: cartesPosees.publiees,
       bilans_publies: repris.publies.length,
       bilans_en_echec: repris.erreurs,
       commandes_servies: achats.servies,

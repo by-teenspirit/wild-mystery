@@ -132,6 +132,29 @@ export interface Reclamations {
   enregistrer(r: ReclamationDeCarnetLue): Promise<boolean>;
 }
 
+/** Un joueur qui n'a pas encore sa carte publiée. */
+export type JoueurSansCarte = {
+  readonly joueurId: string;
+  readonly forumUserId: number;
+  readonly pseudo: string;
+};
+
+export interface CartesDresseur {
+  /** Les joueurs sans sujet de carte, les plus anciens d'abord. */
+  aPublier(): Promise<readonly JoueurSansCarte[]>;
+  /** Note le sujet créé. Rend `false` s'il y en avait déjà un — un
+   *  sujet déjà noté ne se remplace pas, sinon le premier resterait
+   *  sur le forum sans que rien ne le relie à personne. */
+  publiee(joueurId: string, sujetId: number): Promise<boolean>;
+}
+
+/** Créer un sujet, et pas seulement répondre dedans. Port séparé de
+ *  `PosteurSurForum` : la tâche des cartes ne répond jamais, et celles
+ *  qui répondent ne créent jamais. */
+export interface CreateurDeSujet {
+  creerUnSujet(forumId: number, titre: string, corps: string): Promise<number>;
+}
+
 export interface PosteurSurForum {
   /**
    * Publie une réponse dans un sujet, et rend l'identifiant du message.

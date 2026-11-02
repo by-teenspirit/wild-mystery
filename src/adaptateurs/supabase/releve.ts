@@ -19,6 +19,8 @@ import type {
   Verrou,
   Reclamations,
   ReclamationDeCarnetLue,
+  CartesDresseur,
+  JoueurSansCarte,
 } from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
@@ -146,6 +148,43 @@ export class ReclamationsSupabase implements Reclamations {
     //  `true` = l'empreinte était neuve, `false` = quelqu'un l'avait
     //  déjà postée. Les deux sont des réponses valides ; tout le reste
     //  veut dire que la fonction a changé sous nos pieds.
+    if (typeof recu !== "boolean") {
+      throw new AppelEchoue(nom, `booléen attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    return recu;
+  }
+}
+
+/** Qui attend sa carte, et où elle a été posée.
+ *
+ *  Les deux fonctions de la migration `0024`, et rien de plus : la
+ *  tâche ne lit ni n'écrit la table `joueur` directement. */
+export class CartesSupabase implements CartesDresseur {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async aPublier(): Promise<readonly JoueurSansCarte[]> {
+    const nom = "cartes_a_publier";
+    const recu = await this.appeler(nom, {});
+    if (!Array.isArray(recu)) {
+      throw new AppelEchoue(nom, `tableau attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    return recu.map((l) => {
+      const r = l as Record<string, unknown>;
+      if (
+        typeof r.joueurId !== "string" || typeof r.forumUserId !== "number" ||
+        typeof r.pseudo !== "string"
+      ) {
+        throw new AppelEchoue(nom, `ligne illisible : ${JSON.stringify(l)}`);
+      }
+      return { joueurId: r.joueurId, forumUserId: r.forumUserId, pseudo: r.pseudo };
+    });
+  }
+
+  async publiee(joueurId: string, sujetId: number): Promise<boolean> {
+    const nom = "carte_publiee";
+    const recu = await this.appeler(nom, { joueurId, sujetId });
+    //  `false` veut dire « un sujet était déjà noté », ce qui est une
+    //  réponse valide — pas une panne. Tout le reste en est une.
     if (typeof recu !== "boolean") {
       throw new AppelEchoue(nom, `booléen attendu, reçu ${JSON.stringify(recu)}`);
     }

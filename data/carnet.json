@@ -2,5 +2,7 @@
   "_": "Le sujet où les joueurs ouvrent leur carnet. La page y pré-remplit une réponse avec leur empreinte ; la tâche 10 de la relève le lit et lie chaque empreinte au compte qui l'a postée. Personne n'a de clé à envoyer.",
   "_sujet": "`sujet` est l'identifiant du sujet, le nombre de son adresse : /t512-ouvrir-mon-carnet donne 512. Tant qu'il vaut null, la tâche ne lit rien et le note — elle ne plante pas, parce qu'une relève entière ne doit pas échouer sur une ligne de configuration manquante.",
   "_leSujet": "À créer dans un forum que les joueurs peuvent lire ET où ils peuvent répondre. Le message d'ouverture n'a rien à contenir de particulier : c'est la page du carnet qui remplit la réponse.",
-  "sujet": 1002
+  "sujet": 1002,
+  "_forumDesCartes": "`forumDesCartes` est le forum où la relève publie un sujet par joueur, avec sa carte dresseur dedans — /f45-cartes-dresseur donne 45. Un seul message par joueur, pour toujours : la carte se remplit toute seule à chaque affichage, donc il n'y a jamais rien à rééditer. `null` : la tâche ne poste rien et le note.",
+  "forumDesCartes": 45
 }
