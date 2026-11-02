@@ -57,19 +57,19 @@ ARTWORK = (
 #  qu'une image de décor ne soit pas qu'une image de décor.
 DECORS = {
     "par-ou-commencer": ("plage-grain-de-sel", 150, "La plage du Grain de Sel"),
-    "le-contexte": ("relique-sacree", 249, "La Relique Sacrée"),
+    "contexte": ("relique-sacree", 249, "La Relique Sacrée"),
     "reglement": ("monts-enneiges", 379, "Les Monts Enneigés"),
     "creer-son-personnage": ("fleuve-paisible", 132, "Le Fleuve Paisible"),
-    "le-guide-du-dresseur": ("lande-broussailleuse", 448, "La Lande Broussailleuse"),
+    "guide-du-dresseur": ("lande-broussailleuse", 448, "La Lande Broussailleuse"),
     "la-region-et-ses-zones": ("steppes-arides", 330, "Les Steppes Arides"),
-    "arenes-et-ligue": ("volcan-sombre", 6, "Le Volcan Sombre"),
-    "les-groupes": ("montagnes-embrumees", 250, "Les Montagnes Embrumées"),
+    "arenes-colosseums-ligues": ("volcan-sombre", 6, "Le Volcan Sombre"),
+    "groupes": ("montagnes-embrumees", 250, "Les Montagnes Embrumées"),
     "credits": ("oasis-perdue", 151, "L'Oasis Perdue"),
-    "le-staff": ("canyon-lekro", 65, "Le Canyon Lékro"),
+    "staff": ("canyon-lekro", 65, "Le Canyon Lékro"),
     "celebrites-de-rhode": ("manoir-barjok", 571, "Le Manoir Barjok"),
     "monnaie-et-missions": ("usine-desaffectee", 52, "L'Usine Désaffectée"),
     "combat-et-progression": ("volcan-nuageux", 68, "Le Volcan Nuageux"),
-    "allegeances": ("ile-tenebra", 197, "L'Île Ténèbra"),
+    "allegeance-et-team-ombre": ("ile-tenebra", 197, "L'Île Ténèbra"),
 }
 
 
@@ -293,6 +293,23 @@ def remplacer_le_corps(page, corps):
     return page[:i] + corps + page[j + len(FIN):]
 
 
+def sans_le_pied(corps):
+    """Le corps, moins le bloc « annexe suivante ».
+
+    CE BLOC EST À L'OUTIL, PAS À LA RÉDACTION, et il tombe pourtant
+    entre les bornes : il est dans la mise en page, à la fin de la
+    colonne. Son lien change dès qu'une adresse est reportée dans
+    `annexes.json`, donc une page intacte paraissait rédigée et son
+    corps était gelé à la première génération — elle n'aurait plus
+    jamais reçu une amélioration du gabarit.
+
+    On le retire des deux côtés avant de comparer. Ce qui reste est le
+    texte, et lui seul décide si quelqu'un a écrit.
+    """
+    i = corps.find('<div class="wm-suivante">')
+    return corps if i == -1 else corps[:i]
+
+
 def titre_en_h1(titre):
     """Le dernier mot passe en `em` : c'est l'accent bleu de la maquette."""
     mots = titre.split(" ")
@@ -368,7 +385,7 @@ def main():
                 #  On ne le SIGNALE que s'il a vraiment été rédigé :
                 #  sinon les quatorze lignes disent la même chose et
                 #  la seule qui compte se perd dedans.
-                if corps != entre_les_bornes(page):
+                if sans_le_pied(corps) != sans_le_pied(entre_les_bornes(page)):
                     reprises.append(chemin.name)
                 page = remplacer_le_corps(page, corps)
 
