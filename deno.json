@@ -17,7 +17,7 @@
     "test:adaptateurs": "deno test --allow-read src/adaptateurs/",
     "test:tout": "deno test --allow-env --allow-read --allow-net --allow-run src/",
     "css": "bash outils/css.sh",
-    "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts && deno bundle --platform browser --format iife --minify -o js/annexes.js js/annexes.ts",
+    "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts && deno bundle --platform browser --format iife --minify -o js/annexes.js js/annexes.ts && deno bundle --platform browser --format iife --minify -o js/carnet.js js/carnet.ts",
     "test:navigateur": "deno test --allow-env --allow-read=data/accueil.json,img/accueil src/navigateur/",
     "harnais": "deno bundle --platform browser --format iife -o js/harnais-sommaire.js js/harnais-sommaire.ts",
     "contraste": "deno run -A outils/contraste.mjs",
@@ -38,7 +38,8 @@
     "apercu": "deno run -A outils/sujet.mjs --apercu",
     "a-publier": "deno run -A outils/a-publier.mjs",
     "membres": "deno run -A outils/membres.mjs",
-    "tcard": "deno run -A outils/tcard.mjs"
+    "tcard": "deno run -A outils/tcard.mjs",
+    "carnet": "deno run -A outils/carnet.mjs"
   },
   "fmt": {
     "include": [

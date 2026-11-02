@@ -74,7 +74,14 @@
     pixels que tout navigateur met sur `body` depuis toujours. Sur le
     forum, la feuille de ModernBB les enlevait ; une page autonome n'a
     que ce qu'on lui donne. */
-body:has(#modernbb .wm-annexe) {
+/*  LE CARNET EST LA SECONDE PAGE AUTONOME, depuis le 2 novembre, et
+    il est créé de la même façon : sans en-tête ni pied de forum. Tout
+    ce que ce § 0 règle le concerne mot pour mot — la marge du
+    navigateur, la police de base, la barre collante, le pied. Le
+    dupliquer dans `21-carnet.css` aurait fait deux réglages à tenir
+    d'accord, et le second aurait dérivé. */
+body:has(#modernbb .wm-annexe),
+body:has(#modernbb .wm-carnet) {
   margin: 0;
 }
 
@@ -88,6 +95,7 @@ body:has(#modernbb .wm-annexe) {
     On la pose sur les trois blocs de la page et pas sur `#modernbb`,
     qui existe aussi sur le forum et n'a aucune raison de changer. */
 #modernbb .wm-annexe,
+#modernbb .wm-carnet,
 #modernbb .wm-retour,
 #modernbb .wm-pied-annexe {
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
@@ -213,7 +221,8 @@ body:has(#modernbb .wm-annexe) {
     le débord qu'on coupe n'existe jamais. La ligne sert les
     systèmes à barre pleine, que je ne peux pas reproduire ici. La
     règle d'à-côté, elle, tombe : l'annexe touche les deux bords. */
-body:has(#modernbb .wm-annexe) {
+body:has(#modernbb .wm-annexe),
+body:has(#modernbb .wm-carnet) {
   overflow-x: clip;
 }
 

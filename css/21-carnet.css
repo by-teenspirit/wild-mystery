@@ -1,0 +1,815 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 21 · Le carnet de bord
+
+   Relevé le 2 novembre sur les planches « Mon jeu » (369:578), « Mon
+   sac » (387:1105) et « Mon Pokédex » (389:677), et sur la note du
+   carnet (371:688).
+
+   ── CE QUE CETTE FEUILLE NE REFAIT PAS ────────────────────────────────
+
+   **La page autonome est réglée au § 0 de `08-annexes.css`** : la marge
+   du navigateur, la police de base, la barre collante de 56 px et le
+   pied Forumactif. Le carnet est la seconde page créée sans en-tête, et
+   ces réglages le concernent mot pour mot. Les redire ici aurait fait
+   deux endroits à tenir d'accord.
+
+   **Les pastilles de type sont `.wm-type`** (`13-composants.css` § 2) et
+   les sprites des cases reprennent la mesure de `.wm-profil__case`.
+
+   ── LA BARRE LATÉRALE EST UN PAN, PAS UNE CARTE ───────────────────────
+
+   Même parti que le sommaire des annexes : elle touche le bord gauche,
+   elle va du haut au bas de la page, elle n'a pas d'arrondi. « La barre
+   latérale doit prendre toute la hauteur », 2 novembre — la même
+   remarque qu'elle avait faite pour les annexes, et c'est la même
+   réponse : `align-items: stretch` sur le conteneur, et la page en
+   pleine largeur par des marges négatives plutôt que par une position.
+
+   ── LE FOND EST UNE PHOTO, ET ELLE EST FLOUTÉE DANS UN ::before ───────
+
+   `filter` s'applique à l'élément entier, ses enfants compris : flouter
+   `.wm-carnet` aurait flouté le texte. La photo vit donc dans un
+   `::before` à elle, et le voile dans un `::after`, la colonne étant
+   `position: relative` pour passer devant les deux.
+
+   ── CE QUI RESTE EN LECTURE SEULE ─────────────────────────────────────
+
+   Tout, sur ces trois onglets. Aucun bouton n'agit sur les données :
+   « on ne soigne pas, on n'échange pas, on ne vend pas depuis le
+   carnet » (note 371:710). Les seuls éléments cliquables sont des liens
+   vers le forum et les filtres du Pokédex, qui ne font que montrer et
+   cacher.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la page ──────────────────────────────────────────────────── */
+
+#modernbb .wm-carnet {
+  display: flex;
+  align-items: stretch;
+  width: 100vw;
+  min-height: calc(100vh - 56px);
+  margin-inline: calc(50% - 50vw);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/* ── 2 · la barre latérale ────────────────────────────────────────── */
+
+#modernbb .wm-carnet__barre {
+  display: flex;
+  flex: 0 0 236px;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 236px;
+  padding: var(--wm-espace-32, 32px) 0 var(--wm-espace-24, 24px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-carnet__moi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 var(--wm-espace-18, 18px);
+  text-align: center;
+}
+
+#modernbb .wm-carnet__nom {
+  margin: 0;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carnet__etat {
+  margin: var(--wm-espace-4, 4px) 0 0;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  opacity: 0.72;
+  text-transform: uppercase;
+}
+
+/*  LE FILET DE 4 PX sous l'identité, celui des annexes : c'est le
+    même geste, et l'entrée active s'en décale de la même épaisseur. */
+#modernbb .wm-carnet__filet {
+  height: 4px;
+  margin: var(--wm-espace-20, 20px) 0 var(--wm-espace-16, 16px);
+  background: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .wm-carnet__onglets {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-carnet__titre-groupe {
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-8, 8px);
+  padding: 0 var(--wm-espace-18, 18px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carnet__onglet {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 var(--wm-espace-18, 18px);
+  border: 0;
+  background: none;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-align: left;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#modernbb .wm-carnet__onglet:hover,
+#modernbb .wm-carnet__onglet:focus-visible {
+  background: rgb(255 251 247 / 8%);
+}
+
+/*  L'ONGLET OUVERT PORTE L'ACCENT PLEIN et se décale de 4 px —
+    l'épaisseur du filet. Même règle que l'entrée active du sommaire
+    des annexes, pour que les deux pages se lisent pareil. */
+#modernbb .wm-carnet__onglet[aria-current="page"] {
+  padding-left: calc(var(--wm-espace-18, 18px) + 4px);
+  background: var(--wm-accent-primaire, #275e7a);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/* ── 3 · la colonne de contenu, sur sa photo ──────────────────────── */
+
+#modernbb .wm-carnet__corps {
+  position: relative;
+  isolation: isolate;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--wm-espace-40, 40px) var(--wm-espace-48, 48px) var(--wm-espace-48, 48px);
+  overflow: clip;
+}
+
+/*  LA PHOTO, FLOUTÉE. `scale` la fait déborder du cadre pour que le
+    flou ne laisse pas de bord pâle sur les quatre côtés. */
+#modernbb .wm-carnet__corps::before {
+  position: absolute;
+  z-index: -2;
+  background-image: var(--carnet-fond, none);
+  background-position: center;
+  background-size: cover;
+  content: "";
+  filter: blur(7px);
+  inset: 0;
+  scale: 1.04;
+}
+
+/*  LE VOILE. Sans lui, le texte passe sur la photo et rien ne se lit.
+    Il part opaque à gauche, sous la colonne, et s'éclaircit vers la
+    droite où il n'y a que du vide. */
+#modernbb .wm-carnet__corps::after {
+  position: absolute;
+  z-index: -1;
+  background: linear-gradient(
+    100deg,
+    var(--wm-fond-page, #eecfb5) 0,
+    var(--wm-fond-page, #eecfb5) 58%,
+    rgb(238 207 181 / 72%) 100%
+  );
+  content: "";
+  inset: 0;
+}
+
+#modernbb .wm-carnet__entete {
+  max-width: 820px;
+  margin-bottom: var(--wm-espace-32, 32px);
+}
+
+#modernbb .wm-carnet__surtitre {
+  margin: 0 0 var(--wm-espace-6, 6px);
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carnet__titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-display, 44px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1.05;
+}
+
+/*  LE DERNIER MOT EN ACCENT, comme sur les huit écrans de la
+    maquette : « Mon **jeu** », « Mon **sac** », « Mon **Pokédex** ». */
+#modernbb .wm-carnet__titre b {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-weight: inherit;
+}
+
+#modernbb .wm-carnet__chapo {
+  margin: var(--wm-espace-10, 10px) 0 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-chapo, "Cormorant Garamond", Garamond, Georgia, serif);
+  font-size: var(--wm-taille-chapo, 21px);
+  font-style: italic;
+  line-height: 1.35;
+}
+
+/* ── 4 · les blocs ────────────────────────────────────────────────── */
+
+#modernbb .wm-carnet__bloc {
+  box-sizing: border-box;
+  margin-bottom: var(--wm-espace-20, 20px);
+  padding: var(--wm-espace-24, 24px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-carnet__bloc-tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--wm-espace-12, 12px);
+  margin-bottom: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-carnet__bloc-titre {
+  margin: 0;
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-carnet__bloc-dit {
+  flex: 1 1 100%;
+  margin: calc(-1 * var(--wm-espace-8, 8px)) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LE LIEN DE COIN — « Mes boîtes → », « La boutique », « Le sujet de
+    la pension ». Il mène au forum, il n'agit pas. */
+#modernbb a.wm-carnet__ailleurs {
+  margin-left: auto;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#modernbb a.wm-carnet__ailleurs:hover,
+#modernbb a.wm-carnet__ailleurs:focus-visible {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/* ── 5 · Mon jeu : l'identité et ses trois chiffres ───────────────── */
+
+#modernbb .wm-carnet__chiffres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-24, 24px);
+  margin-left: auto;
+}
+
+#modernbb .wm-carnet__chiffre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-2, 2px);
+}
+
+#modernbb .wm-carnet__chiffre b {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-chiffre, 20px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-carnet__chiffre span {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  LA JAUGE EN CLAIR : la barre ET son chiffre, côte à côte, posés par
+    le même appel. « Une barre sans chiffre n'est lisible ni au lecteur
+    d'écran ni à l'œil qui compare deux jours » (note 371:719). */
+#modernbb .wm-carnet__jauge {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+  width: 100%;
+}
+
+#modernbb .wm-carnet__jauge-piste {
+  flex: 1 1 0;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-carnet__jauge-piste i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .wm-carnet__jauge-mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── 6 · l'équipe, la pension, les badges ─────────────────────────── */
+
+#modernbb .wm-carnet__equipe {
+  display: grid;
+  gap: var(--wm-espace-12, 12px);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-carnet__pkmn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  text-align: center;
+}
+
+#modernbb .wm-carnet__pkmn--libre {
+  border-style: dashed;
+  color: var(--wm-texte-pale, #69564c);
+}
+
+#modernbb .wm-carnet__sprite {
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+  object-fit: contain;
+  object-position: bottom;
+}
+
+#modernbb .wm-carnet__pkmn-nom {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+#modernbb .wm-carnet__pkmn-niveau {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  EN PENSION : le pokémon RESTE À SA PLACE, en transparence. La
+    décision est dans la base — `enPension` se lit dans `pension` et
+    jamais dans `emplacement` — et c'est ici qu'elle se voit. */
+#modernbb .wm-carnet__pkmn--pension {
+  opacity: 0.62;
+}
+
+#modernbb .wm-carnet__pension {
+  display: grid;
+  gap: var(--wm-espace-12, 12px);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-carnet__depot {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-12, 12px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .wm-carnet__depot img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+#modernbb .wm-carnet__badges {
+  display: grid;
+  gap: var(--wm-espace-12, 12px);
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-carnet__badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  font-size: var(--wm-taille-etiquette, 10px);
+  text-align: center;
+}
+
+#modernbb .wm-carnet__badge img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/*  UN BADGE À GAGNER EST PÂLE ET POINTILLÉ, et son image est éteinte
+    par un filtre — pas remplacée par une seconde image à produire.
+    Même économie que les silhouettes du Pokédex. */
+#modernbb .wm-carnet__badge--agagner {
+  border-style: dashed;
+  color: var(--wm-texte-pale, #69564c);
+}
+
+#modernbb .wm-carnet__badge--agagner img {
+  filter: grayscale(1);
+  opacity: 0.35;
+}
+
+/* ── 7 · le dernier jet ───────────────────────────────────────────── */
+
+#modernbb .wm-carnet__jet {
+  display: grid;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-20, 20px);
+  grid-template-columns: max-content 1fr;
+  padding: var(--wm-espace-16, 16px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .wm-carnet__jet dt {
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carnet__jet dd {
+  margin: 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LE CODE DE VÉRIFICATION EN CHASSE FIXE : il se recopie dans un
+    message pour être rejoué, donc chaque caractère doit se distinguer
+    — un l d'un 1, un O d'un 0. */
+#modernbb .wm-carnet__code {
+  font-family: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.04em;
+}
+
+/* ── 8 · Mon sac ──────────────────────────────────────────────────── */
+
+#modernbb .wm-carnet__famille {
+  margin: var(--wm-espace-20, 20px) 0 var(--wm-espace-8, 8px);
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carnet__objets {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-carnet__objet {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-14, 14px);
+  padding: var(--wm-espace-10, 10px) 0;
+}
+
+#modernbb .wm-carnet__objet + .wm-carnet__objet {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-carnet__objet img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+#modernbb .wm-carnet__objet-nom {
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  LA QUANTITÉ EST UNE ÉTIQUETTE, pas une colonne : le sac n'a pas de
+    limite de place, donc rien à aligner au pixel. */
+#modernbb .wm-carnet__quantite {
+  padding: var(--wm-espace-2, 2px) var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carnet__objet-dit {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 9 · Mon Pokédex ──────────────────────────────────────────────── */
+
+#modernbb .wm-carnet__filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  margin-bottom: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-carnet__filtre {
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  cursor: pointer;
+}
+
+#modernbb .wm-carnet__filtre[aria-pressed="true"] {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carnet__dex {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-carnet__grille {
+  display: grid;
+  flex: 1 1 0;
+  gap: var(--wm-espace-8, 8px);
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-carnet__case {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+  aspect-ratio: 1;
+  cursor: pointer;
+}
+
+#modernbb .wm-carnet__case img {
+  width: 76%;
+  height: 76%;
+  object-fit: contain;
+}
+
+/*  LA SILHOUETTE EST LE MÊME SPRITE, éteint par un filtre. « Pas de
+    deuxième image à produire, et ça marche sur les neuf cent
+    trente-trois d'un coup » (note 389:1146). */
+#modernbb .wm-carnet__case--croise img {
+  filter: brightness(0) opacity(0.28);
+}
+
+/*  UNE ESPÈCE INCONNUE NE MONTRE PAS SON SPRITE DU TOUT, même éteint :
+    une silhouette reconnaissable dirait ce que le joueur n'a pas
+    encore croisé. Elle montre un point d'interrogation. */
+#modernbb .wm-carnet__case--inconnu {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-carnet__case[aria-pressed="true"] {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-carnet__fiche {
+  flex: 0 0 292px;
+  box-sizing: border-box;
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-carnet__fiche-sprite {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto var(--wm-espace-12, 12px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  object-fit: contain;
+}
+
+#modernbb .wm-carnet__fiche-no {
+  margin: 0;
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carnet__fiche-nom {
+  margin: var(--wm-espace-2, 2px) 0 var(--wm-espace-8, 8px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-align: center;
+}
+
+#modernbb .wm-carnet__fiche-types {
+  display: flex;
+  justify-content: center;
+  gap: var(--wm-espace-6, 6px);
+  margin-bottom: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-carnet__fiche dl {
+  display: grid;
+  gap: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  grid-template-columns: max-content 1fr;
+  margin: 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-carnet__fiche dt {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-carnet__fiche dd {
+  margin: 0;
+}
+
+/* ── 10 · la clé, et les états de la page ─────────────────────────── */
+
+/*  LA PAGE NE MONTRE QU'UN ÉTAT À LA FOIS. Trois existent : il faut
+    une clé, ça charge, c'est chargé. Les cacher par une classe sur la
+    racine plutôt que par du JavaScript qui les retire garde la page
+    lisible si le script s'arrête en route. */
+#modernbb .wm-carnet:not([data-wm-etat="cle"]) .wm-carnet__cle,
+#modernbb .wm-carnet:not([data-wm-etat="charge"]) .wm-carnet__charge,
+#modernbb .wm-carnet:not([data-wm-etat="pret"]) .wm-carnet__onglet-page {
+  display: none;
+}
+
+#modernbb .wm-carnet__cle {
+  max-width: 520px;
+}
+
+#modernbb .wm-carnet__cle label {
+  display: block;
+  margin-bottom: var(--wm-espace-6, 6px);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carnet__cle input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font-family: ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .wm-carnet__cle button {
+  margin-top: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: inherit;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  cursor: pointer;
+}
+
+#modernbb .wm-carnet__souci {
+  margin-top: var(--wm-espace-12, 12px);
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-carnet__souci:empty {
+  display: none;
+}
+
+/* ── 11 · sous 760 px ─────────────────────────────────────────────── */
+
+/*  « La barre latérale devient une rangée d'onglets qui défile
+    horizontalement, l'équipe passe à deux colonnes, les badges à
+    quatre » (note 371:722). Le Pokédex et les boîtes à cinq colonnes
+    (relevé des huit notes). */
+@media (width <= 760px) {
+  #modernbb .wm-carnet {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-carnet__barre {
+    flex: 0 0 auto;
+    width: 100%;
+    padding: var(--wm-espace-16, 16px) 0 0;
+  }
+
+  #modernbb .wm-carnet__onglets {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  #modernbb .wm-carnet__onglet {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  #modernbb .wm-carnet__titre-groupe {
+    display: none;
+  }
+
+  #modernbb .wm-carnet__corps {
+    padding: var(--wm-espace-24, 24px) var(--wm-espace-16, 16px);
+  }
+
+  #modernbb .wm-carnet__equipe {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #modernbb .wm-carnet__badges {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  #modernbb .wm-carnet__grille {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  /*  LE DÉTAIL S'OUVRE SOUS LA GRILLE (note 389:1155), pas à côté :
+      292 px de fiche à droite d'une grille de cinq colonnes ne
+      tiennent pas dans un téléphone. */
+  #modernbb .wm-carnet__dex {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-carnet__fiche {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}

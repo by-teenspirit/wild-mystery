@@ -365,7 +365,7 @@ export function compteDuPokedex(cases: CaseDePokedex[]): CompteDuPokedex {
  *  sinon le nom de son espèce. */
 export function nomAffiche(
   p: { surnom: string | null; especeId: number },
-  especes: Map<number, string>,
+  especes: ReadonlyMap<number, string>,
 ): string {
   const surnom = p.surnom?.trim() ?? "";
   if (surnom !== "") return surnom;
