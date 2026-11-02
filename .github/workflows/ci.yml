@@ -306,6 +306,18 @@ jobs:
       - name: La page d'une zone
         run: deno task zone
 
+      - name: La page d'un sujet
+        run: deno task sujet
+
+      - name: La liste des membres
+        run: deno task membres
+
+      - name: Le bloc de réponse
+        run: deno task poster
+
+      - name: La carte dresseur
+        run: deno task tcard
+
       #  LA VÉRIFICATION QUI COMPTE. jsDelivr sert `js/wild-mystery.js`
       #  depuis le dépôt, pas depuis une étape de construction : si le
       #  fichier commité ne correspond pas aux sources, les joueurs
