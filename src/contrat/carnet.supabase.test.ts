@@ -31,6 +31,21 @@
 //  maquette (387:1075), et les deux auraient pu être écrites autrement
 //  sans que rien ne crie.
 //
+//  ── LA BASE D'ESSAI DOIT RESSEMBLER À SUPABASE ──────────────────────
+//
+//  `pgcrypto` DANS LE SCHÉMA `extensions`, pas dans `public` :
+//
+//      create schema if not exists extensions;
+//      create extension pgcrypto schema extensions;
+//
+//  C'est là que Supabase l'installe, et la différence n'est pas un
+//  détail : le 2 novembre, `carnet_nouvelle_cle()` a levé
+//  `gen_random_bytes does not exist` au premier appel réel pendant que
+//  ce fichier passait au vert, parce que la base d'essai avait
+//  l'extension dans `public`. Une base d'essai qui ne reproduit pas
+//  l'hôte ne teste qu'elle-même — c'est la règle des décors de
+//  harnais, et elle vaut ici aussi. Corrigé par la migration `0021`.
+//
 //  Comme les autres contrats, il ne tourne que si on le lui demande :
 //      CONTRAT_CIBLE=postgres CONTRAT_PGURL=postgres://…
 //  Sans ça il s'annonce ignoré, à voix haute.
