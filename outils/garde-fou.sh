@@ -850,6 +850,37 @@ else
   done
 fi
 
+echo "── 24. le code à coller et data/arenes.json disent les mêmes badges ─"
+# LES DEUX LISTES EXISTENT, ET C'EST VOULU. Le code collé dans un
+# message doit être lisible AVANT que notre script tourne : il porte
+# donc ses onze cases en dur, dans l'ordre imposé. `data/arenes.json`
+# est la liste que le script lit pour savoir laquelle est gagnée.
+#
+# Deux listes, donc deux occasions de dériver — et la dérive serait
+# silencieuse : un badge obtenu ne retrouverait pas sa case, et la
+# carte dirait « non obtenu » sur une arène gagnée. Ici on vérifie
+# qu'elles portent les mêmes slugs, dans le même ordre.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — les deux listes de badges non comparées"
+else
+  if ! python3 - <<'PY'
+import json, re, sys
+from pathlib import Path
+gabarit = Path("templates/carte-dresseur.a-coller.html").read_text(encoding="utf-8")
+colles = re.findall(r'data-wm-badge="([a-z]+)"', gabarit)
+fichier = [a["slug"] for a in json.loads(
+    Path("data/arenes.json").read_text(encoding="utf-8"))["arenes"]]
+if colles != fichier:
+    print(f"   collé  : {colles}")
+    print(f"   fichier: {fichier}")
+    sys.exit(1)
+print(f"   badges : {len(colles)} slugs, mêmes noms et même ordre des deux côtés")
+PY
+  then
+    gronde "le code à coller et data/arenes.json ne listent pas les mêmes badges"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

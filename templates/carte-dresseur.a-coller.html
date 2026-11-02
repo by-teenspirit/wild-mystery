@@ -12,7 +12,7 @@
        · son nom de personnage,
        · son numéro de dresseur.
 
-     PAR NOTRE CODE, quand `mod-tcard` sera en ligne :
+     PAR NOTRE CODE, et `mod-tcard` est en ligne depuis le 2 novembre :
        · le palier, qui est son groupe sur le forum,
        · les pokédollars, qui sont un champ de son profil,
        · les badges obtenus, qui sont ses récompenses Forumactif,
@@ -22,6 +22,17 @@
      s'affichent tant que le script ne tourne pas, et il les remplace
      dès qu'il tourne. Une carte collée aujourd'hui marchera demain
      sans que personne n'y retouche.
+
+     LA CARTE APPARTIENT À L'AUTEUR DU MESSAGE où elle est collée : le
+     script remonte de la carte au `.post`, puis au lien `/uN` du
+     profil. Rien à recopier, donc rien à recopier faux. Pour poser une
+     carte hors d'un message — une annexe, une page du staff — écrire
+     le numéro dans l'attribut : `data-wm-tcard="42"`.
+
+     SANS COMPTE DE JEU, la carte garde ses valeurs d'attente et le dit
+     par `data-wm-tcard-sans-compte`. Même chose si Supabase ne répond
+     pas : une carte vidée par une panne serait pire qu'une carte
+     périmée.
 
      ── CE QU'IL NE FAUT PAS ENLEVER ────────────────────────────────
 
