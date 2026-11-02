@@ -307,9 +307,9 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
 essai("les joueurs sans carte sortent, les plus anciens d'abord", async (url) => {
   await psql(
     url,
-    `insert into joueur (forum_user_id, pseudo, cree_le)
-       values (777301, 'Plus ancienne', '2026-01-01'),
-              (777302, 'Plus récente',  '2026-06-01');`,
+    `insert into joueur (forum_user_id, pseudo, groupe, cree_le)
+       values (777301, 'Plus ancienne', 'doux',  '2026-01-01'),
+              (777302, 'Plus récente',  'brave', '2026-06-01');`,
   );
   const lu = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":50}'::jsonb)::text;`));
   const miens = lu.filter((j: { forumUserId: number }) =>
@@ -345,5 +345,60 @@ essai("un joueur qui a sa carte ne ressort plus de la file", async (url) => {
   assertEquals(
     lu.filter((x: { forumUserId: number }) => x.forumUserId === COMPTE_ELIOTT).length,
     0,
+  );
+});
+
+// ── la validation ouvre la file, migration 0025 ────────────────────
+
+essai("UN JOUEUR SANS MAISON N'EST PAS DANS LA FILE", async (url) => {
+  //  « Il faut que ça se mette en place seulement quand une personne
+  //  est validée. » `carnet_reclamer` crée la ligne dès qu'on ouvre
+  //  son carnet, donc bien avant toute validation : sans ce garde, la
+  //  relève publierait un sujet pour quiconque a cliqué.
+  await psql(url, `insert into joueur (forum_user_id, pseudo) values (777501, 'En attente');`);
+  const avant = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":99}'::jsonb)::text;`));
+  assertEquals(avant.filter((j: { forumUserId: number }) => j.forumUserId === 777501).length, 0);
+
+  await psql(url, `select valider_le_personnage('{"forumUserId":777501,"groupe":"doux"}'::jsonb);`);
+  const apres = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":99}'::jsonb)::text;`));
+  assertEquals(apres.filter((j: { forumUserId: number }) => j.forumUserId === 777501).length, 1);
+  await psql(url, `delete from joueur where forum_user_id = 777501;`);
+});
+
+essai("valider crée la ligne quand elle n'existe pas encore", async (url) => {
+  //  L'ordre normal est : on valide, PUIS la personne découvre son
+  //  carnet. Sans création ici, sa carte n'arriverait qu'au jour où
+  //  elle ouvre la page elle-même.
+  await psql(url, `delete from joueur where forum_user_id = 777502;`);
+  const r = JSON.parse(
+    await psql(
+      url,
+      `select valider_le_personnage(
+         '{"forumUserId":777502,"pseudo":"Toute neuve","groupe":"brave"}'::jsonb)::text;`,
+    ),
+  );
+  assertEquals(r.creee, true);
+  assertEquals(r.groupe, "brave");
+  assertEquals(await psql(url, `select pseudo from joueur where forum_user_id = 777502;`), "Toute neuve");
+  await psql(url, `delete from joueur where forum_user_id = 777502;`);
+});
+
+essai("une maison inventée est refusée par son nom", async (url) => {
+  //  Et pas par une violation de contrainte : le message doit dire
+  //  quoi corriger sans qu'on aille lire le schéma.
+  assertMatch(
+    await erreurDe(
+      url,
+      `select valider_le_personnage('{"forumUserId":${COMPTE_ELIOTT},"groupe":"mew"}'::jsonb);`,
+    ),
+    /GROUPE_INCONNU/,
+  );
+  //  Et un inconnu sans pseudo ne se crée pas à moitié.
+  assertMatch(
+    await erreurDe(
+      url,
+      `select valider_le_personnage('{"forumUserId":777503,"groupe":"doux"}'::jsonb);`,
+    ),
+    /PSEUDO_MANQUANT/,
   );
 });
