@@ -151,13 +151,58 @@ console.log("\n── le carnet de bord ──");
     absolues vers GitHub Pages — on les détourne vers les fichiers du
     dépôt, on ne les réécrit pas. Une page dont on aurait corrigé les
     adresses pour le harnais ne serait plus la page qu'on colle. */
-async function monter({ reponse = CARNET, cleGardee = null, refus = null } = {}) {
+/*  L'EMPREINTE DU SECRET D'ESSAI, CALCULÉE PAR POSTGRESQL.
+
+    Relevée le 2 novembre en lançant, sur une base montée des
+    vingt-trois migrations :
+
+      set search_path = public, extensions;
+      select left(encode(digest('abcdef0123456789abcdef0123456789',
+                                'sha256'), 'hex'), 48);
+
+    C'est LE contrôle qui compte dans tout ce montage : si le
+    navigateur et la base ne calculent pas la même empreinte, rien ne
+    se lie jamais — et ça ne se verrait qu'au premier vrai joueur,
+    parce que les deux moitiés marchent très bien séparément. */
+const SECRET_DESSAI = "abcdef0123456789abcdef0123456789";
+const EMPREINTE_DE_POSTGRES = "bc3737d2f139bea32fde0e80eb7bbc34e929151720a3b322";
+
+async function monter(
+  { reponse = CARNET, cleGardee = null, refus = null, sujetDOuverture = null, reclamation = null } =
+    {},
+) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
   const appels = [];
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 
   await q.route("**/*", (route) => {
     const u = new URL(route.request().url());
+
+    if (u.pathname.endsWith("/rest/v1/rpc/carnet_reclamer")) {
+      appels.push(JSON.parse(route.request().postData() ?? "{}"));
+      if (reclamation === null) {
+        return route.fulfill({
+          status: 400,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "RECLAMATION_INCONNUE" }),
+        });
+      }
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(reclamation),
+      });
+    }
+
+    //  LE SUJET D'OUVERTURE : le fichier du dépôt porte `null`, donc
+    //  on le remplace quand le cas en a besoin. Servir le vrai fichier
+    //  le reste du temps est ce qui fait tomber le contrôle « sans
+    //  sujet, pas de code à poster » si quelqu'un le câble en dur.
+    if (sujetDOuverture !== null && u.pathname.endsWith("/data/carnet.json")) {
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ sujet: sujetDOuverture }),
+      });
+    }
 
     if (u.pathname.endsWith("/rest/v1/rpc/carnet")) {
       appels.push(JSON.parse(route.request().postData() ?? "{}"));
@@ -237,6 +282,114 @@ async function monter({ reponse = CARNET, cleGardee = null, refus = null } = {})
   await q.close();
 }
 
+// ── 1 bis · ouvrir son carnet en postant ────────────────────────────
+
+{
+  //  SANS SUJET CONFIGURÉ, PAS DE CODE À POSTER. `data/carnet.json`
+  //  porte `null` dans le dépôt : un code sans dire où le poster
+  //  ferait perdre dix minutes à chaque joueur.
+  const { q } = await monter();
+  const vu = await q.evaluate(() => ({
+    cache: document.querySelector("[data-wm-carnet-ouvrir]")?.hidden ?? null,
+    cleQuandMeme: document.querySelector("[data-wm-carnet-formulaire] input") !== null,
+  }));
+  dire(
+    "sans sujet d'ouverture, la page ne montre pas de code à poster",
+    vu.cache === true && vu.cleQuandMeme === true,
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  const { q } = await monter({ sujetDOuverture: 512 });
+  const vu = await q.evaluate(() => ({
+    visible: document.querySelector("[data-wm-carnet-ouvrir]")?.hidden === false,
+    code: document.querySelector("[data-wm-carnet-empreinte]")?.textContent?.trim() ?? "",
+    lien: document.querySelector("[data-wm-carnet-poster]")?.getAttribute("href") ?? "",
+    //  LE SECRET EST GARDÉ : le joueur poste, ferme l'onglet, revient
+    //  dix minutes plus tard. Un secret tiré à chaque chargement ne
+    //  retrouverait jamais sa réclamation.
+    secret: localStorage.getItem("wm.carnet.secret"),
+  }));
+  const empreinte = (vu.code.match(/\[\[WM-CARNET:([0-9a-f]{48})\]\]/) ?? [])[1] ?? null;
+  dire(
+    "avec un sujet, la page donne le code et le lien qui pré-remplit la réponse",
+    vu.visible && empreinte !== null &&
+      /^[0-9a-f]{32}$/.test(vu.secret ?? "") &&
+      vu.lien.startsWith("/post?t=512&mode=reply&message=") &&
+      decodeURIComponent(vu.lien.split("message=")[1]) === vu.code,
+    JSON.stringify({ ...vu, empreinte }),
+  );
+  await q.close();
+}
+
+{
+  //  LE CONTRÔLE QUI COMPTE : le navigateur et PostgreSQL doivent
+  //  calculer la MÊME empreinte. Les deux moitiés marchent très bien
+  //  séparément, et leur désaccord ne se verrait qu'au premier vrai
+  //  joueur — rien ne se lierait, jamais, sans message d'erreur.
+  const { q } = await monter({ sujetDOuverture: 512 });
+  const calculee = await q.evaluate(async (secret) => {
+    const somme = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
+    return [...new Uint8Array(somme)].map((o) => o.toString(16).padStart(2, "0"))
+      .join("").slice(0, 48);
+  }, SECRET_DESSAI);
+  dire(
+    "le navigateur calcule la même empreinte que PostgreSQL",
+    calculee === EMPREINTE_DE_POSTGRES,
+    JSON.stringify({ calculee, attendue: EMPREINTE_DE_POSTGRES }),
+  );
+  await q.close();
+}
+
+{
+  //  « J'AI POSTÉ » TROP TÔT. La relève passe toutes les cinq minutes :
+  //  le message doit parler de ça, pas rendre `RECLAMATION_INCONNUE`.
+  const { q, appels } = await monter({ sujetDOuverture: 512 });
+  await q.click("[data-wm-carnet-jai-poste]");
+  await q.waitForTimeout(400);
+  const vu = await q.evaluate(() => ({
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+  }));
+  dire(
+    "« j'ai posté » trop tôt renvoie vers la relève, pas vers un code d'erreur",
+    /relève/.test(vu.souci) && !vu.souci.includes("RECLAMATION") && vu.etat === "cle" &&
+      appels.length === 1 && /^[0-9a-f]{32}$/.test(appels[0]?.p?.secret ?? ""),
+    JSON.stringify({ ...vu, appels: appels.length }),
+  );
+  await q.close();
+}
+
+{
+  //  LA RÉCLAMATION ABOUTIT. La clé est gardée, le dresseur reconnu
+  //  est NOMMÉ — c'est la seule parade au cas du copieur plus rapide,
+  //  que la base ne peut pas distinguer — et le carnet s'ouvre.
+  const { q } = await monter({
+    sujetDOuverture: 512,
+    reclamation: { cle: CLE, pseudo: "Eliott Vanner", forumUserId: 4 },
+  });
+  await q.click("[data-wm-carnet-jai-poste]");
+  await q.waitForTimeout(900);
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
+    reconnu: document.querySelector("[data-wm-carnet-confirmer]")?.textContent?.trim() ?? "",
+    cle: localStorage.getItem("wm.carnet.cle"),
+    //  LE SECRET EST OUBLIÉ UNE FOIS SERVI : il ne vaut plus rien, la
+    //  réclamation est consommée en base.
+    secret: localStorage.getItem("wm.carnet.secret"),
+  }));
+  dire(
+    "la réclamation aboutie ouvre le carnet, garde la clé et nomme le dresseur reconnu",
+    vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.cle === CLE &&
+      vu.secret === null && vu.reconnu.includes("Eliott Vanner"),
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
 // ── 2 · une clé refusée ─────────────────────────────────────────────
 
 {
@@ -258,6 +411,10 @@ async function monter({ reponse = CARNET, cleGardee = null, refus = null } = {})
   //  LA CLÉ N'EST PAS GARDÉE TANT QU'ELLE N'A PAS SERVI : on en colle
   //  une fausse à la main, et le stockage doit rester vide.
   const { q } = await monter({ refus: "CLE_INVALIDE" });
+  //  LA CLÉ DU STAFF EST REPLIÉE depuis le 2 novembre : c'est la voie
+  //  de secours, l'ouverture normale est de poster. On déplie, comme
+  //  le ferait quelqu'un à qui le staff a donné une clé.
+  await q.click(".wm-carnet__repli summary");
   await q.fill("[data-wm-carnet-formulaire] input", "ffffffffffffffffffffffffffffffff");
   await q.click("[data-wm-carnet-formulaire] button");
   await q.waitForTimeout(500);

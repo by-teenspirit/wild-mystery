@@ -23,13 +23,20 @@ import type {
   DemandeDeClotureLue,
   LecteurDActions,
   LecteurDeCommandes,
+  LecteurDeReclamations,
   LecteurDeDemandes,
   LecteurDeForum,
   MessageDuForum,
   SujetRemue,
+  ReclamationDeCarnetLue,
 } from "../../application/ports.ts";
 import { type Marqueur, marqueursDe } from "./marqueur.ts";
-import { actionsDemandees, demandesDeCloture, paniersPoses } from "./demandes.ts";
+import {
+  actionsDemandees,
+  demandesDeCloture,
+  paniersPoses,
+  reclamationsDeCarnet,
+} from "./demandes.ts";
 
 export class PageIllisible extends Error {
   constructor(quoi: string) {
@@ -180,7 +187,12 @@ export type Recuperateur = (chemin: string) => Promise<string>;
  *  racine de composition, pas ici : comme ça ce fichier se teste sur des
  *  pages enregistrées, sans réseau. */
 export class ForumactifEnLecture
-  implements LecteurDeForum, LecteurDeDemandes, LecteurDActions, LecteurDeCommandes {
+  implements
+    LecteurDeForum,
+    LecteurDeDemandes,
+    LecteurDActions,
+    LecteurDeCommandes,
+    LecteurDeReclamations {
   constructor(private readonly recuperer: Recuperateur) {}
 
   /** Les demandes de clôture d'un sujet, depuis un message donné.
@@ -222,6 +234,19 @@ export class ForumactifEnLecture
     const html = await this.recuperer(`/t${sujetId}-`);
     const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
     return paniersPoses(nouveaux).map((p) => ({ sujetId, ...p }));
+  }
+
+  /** Les ouvertures de carnet réclamées dans un sujet.
+   *
+   *  Même page, même découpage, même frontière : le HTML s'arrête ici,
+   *  et la couche application ne reçoit qu'une empreinte et un auteur. */
+  async reclamationsDuSujet(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly ReclamationDeCarnetLue[]> {
+    const html = await this.recuperer(`/t${sujetId}-`);
+    const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    return reclamationsDeCarnet(nouveaux);
   }
 
   async messagesDuSujet(

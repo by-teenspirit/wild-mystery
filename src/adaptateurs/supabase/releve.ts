@@ -17,6 +17,8 @@ import type {
   Pokedex,
   SuiviDesForums,
   Verrou,
+  Reclamations,
+  ReclamationDeCarnetLue,
 } from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
@@ -120,5 +122,33 @@ export class PokedexSupabase implements Pokedex {
       );
     }
     return corrigees;
+  }
+}
+
+/** Où la relève dépose les empreintes de carnet qu'elle a lues.
+ *
+ *  **ELLE NE FABRIQUE AUCUNE CLÉ.** Elle lie une empreinte publique à
+ *  un compte de forum, et c'est tout : la clé naît dans
+ *  `carnet_reclamer()`, quand la page prouve qu'elle connaît le secret.
+ *  Si la relève la fabriquait, il faudrait la transporter jusqu'au
+ *  navigateur, et le seul chemin serait le sujet — qui est public. */
+export class ReclamationsSupabase implements Reclamations {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async enregistrer(r: ReclamationDeCarnetLue): Promise<boolean> {
+    const nom = "carnet_enregistrer_reclamation";
+    const recu = await this.appeler(nom, {
+      empreinte: r.empreinte,
+      forumUserId: r.auteurId,
+      pseudo: r.auteurPseudo,
+      messageId: r.messageId,
+    });
+    //  `true` = l'empreinte était neuve, `false` = quelqu'un l'avait
+    //  déjà postée. Les deux sont des réponses valides ; tout le reste
+    //  veut dire que la fonction a changé sous nos pieds.
+    if (typeof recu !== "boolean") {
+      throw new AppelEchoue(nom, `booléen attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    return recu;
   }
 }

@@ -105,6 +105,33 @@ export interface LecteurDActions {
   ): Promise<readonly ActionLue[]>;
 }
 
+/** Une empreinte de carnet réclamée, telle qu'un joueur l'a postée. */
+export type ReclamationDeCarnetLue = {
+  readonly messageId: number;
+  readonly auteurId: number;
+  readonly auteurPseudo: string;
+  readonly empreinte: string;
+};
+
+/** Lire les ouvertures de carnet. Port à part, comme les trois autres
+ *  lecteurs : un outil qui rejoue un tirage n'a aucune raison de savoir
+ *  reconnaître une réclamation, et surtout le sujet d'ouverture n'est
+ *  pas parcouru au même moment que les zones. */
+export interface LecteurDeReclamations {
+  reclamationsDuSujet(
+    sujetId: number,
+    depuisMessageId: number,
+  ): Promise<readonly ReclamationDeCarnetLue[]>;
+}
+
+/** Où la relève dépose ce qu'elle a lu. */
+export interface Reclamations {
+  /** Rend `true` si l'empreinte était neuve. Une empreinte déjà liée
+   *  n'est PAS écrasée : la première réclamation gagne, et un copieur
+   *  n'obtient rien. */
+  enregistrer(r: ReclamationDeCarnetLue): Promise<boolean>;
+}
+
 export interface PosteurSurForum {
   /**
    * Publie une réponse dans un sujet, et rend l'identifiant du message.

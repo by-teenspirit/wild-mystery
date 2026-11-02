@@ -32,6 +32,7 @@ import {
 import {
   JournalSupabase,
   PokedexSupabase,
+  ReclamationsSupabase,
   SuiviSupabase,
   VerrouSupabase,
 } from "../../../src/adaptateurs/supabase/releve.ts";
@@ -44,6 +45,8 @@ import { FauneEnFichiers, lecteurHttp } from "../../../src/adaptateurs/faune/fic
 import { FossilesEnFichiers } from "../../../src/adaptateurs/faune/fossiles.ts";
 import { ButinEnFichiers } from "../../../src/adaptateurs/faune/butin.ts";
 import { ComptoirsEnFichiers } from "../../../src/adaptateurs/faune/comptoirs.ts";
+import { SujetDuCarnetEnFichier } from "../../../src/adaptateurs/faune/sujet-du-carnet.ts";
+import { ReconnaitreUnCarnet } from "../../../src/application/reconnaitre-un-carnet.ts";
 import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
 import { FossilesSupabase } from "../../../src/adaptateurs/supabase/fossile.ts";
 import { MenageSupabase, PaliersSupabase } from "../../../src/adaptateurs/supabase/services.ts";
@@ -142,6 +145,8 @@ type Montage = {
    *  deviennent des commandes servies, et chacune reçoit son reçu. */
   readonly boutique: ServirUneCommande;
   readonly comptoirs: ComptoirsEnFichiers;
+  readonly carnet: ReconnaitreUnCarnet;
+  readonly sujetDuCarnet: SujetDuCarnetEnFichier;
   /** Tâche 5 : le laboratoire. Les analyses de fossiles sont tranchées
    *  et annoncées. **Aucun réglage** : chaque analyse porte son sujet,
    *  donc la réponse part là où la demande a été faite. */
@@ -266,6 +271,17 @@ function assembler(reglages: Reglages): Montage {
       new JournalSupabase(appeler),
     ),
     comptoirs: new ComptoirsEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES),
+    //  Tâche 10 : l'ouverture d'un carnet. Elle lit UN sujet et
+    //  n'écrit rien sur le forum — elle lie une empreinte publique au
+    //  compte qui l'a postée, et la clé naît ailleurs, quand la page
+    //  prouve qu'elle connaît le secret.
+    carnet: new ReconnaitreUnCarnet(
+      forumEnLecture,
+      new ReclamationsSupabase(appeler),
+      new SuiviSupabase(appeler),
+      new JournalSupabase(appeler),
+    ),
+    sujetDuCarnet: new SujetDuCarnetEnFichier(lecteurHttp(), reglages.WM_RACINE_DONNEES),
     //  Tâche 5 : le laboratoire. Même forme que `PosterLesBilans` — une
     //  file en base, et un message par ligne — et pour la même raison :
     //  rendre un fossile est le point de non-retour, l'annoncer se
@@ -323,6 +339,8 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     bilans,
     boutique,
     comptoirs,
+    carnet,
+    sujetDuCarnet,
     fossilesARendre,
     pokedex,
     palier,
@@ -412,6 +430,14 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     //  jamais.
     const paliers = await palier.executer();
 
+    //  ── L'OUVERTURE DES CARNETS, AVEC LES TÂCHES QUI N'ÉCRIVENT PAS ──
+    //
+    //  Elle lit un sujet et dépose des liens en base. Elle ne dépend
+    //  d'aucune des autres et aucune ne dépend d'elle, donc sa place
+    //  est parmi celles de la fin — avec le pokédex et le palier —
+    //  plutôt qu'au milieu de ce qui touche au jeu.
+    const carnets = await carnet.executer(await sujetDuCarnet.sujet());
+
     //  LE MÉNAGE EN DERNIER, parce qu'il EFFACE. Même raisonnement que
     //  pour la boutique, qui passe tard parce qu'elle débite : un passage
     //  qui meurt avant lui n'a rien effacé, et tout ce qui précède a
@@ -428,6 +454,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       traitees: bilan.traitees,
       issues: bilan.issues,
       erreurs: bilan.erreurs,
+      carnetsOuverts: carnets.liees,
       bilans_publies: repris.publies.length,
       bilans_en_echec: repris.erreurs,
       commandes_servies: achats.servies,

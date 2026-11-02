@@ -26,6 +26,7 @@
 
 import { type Action, actionDe } from "../../domaine/action.ts";
 import { type LecturePanier, panierDe } from "../../domaine/panier.ts";
+import { empreinteReclamee } from "../../domaine/reclamation.ts";
 
 /** `[cloture]`, avec ou sans accent, avec ou sans espaces, en n'importe
  *  quelle casse. Un joueur tape ce qu'il tape, et l'éditeur de Forumactif
@@ -80,6 +81,48 @@ export function demandesDeCloture(
     auteurId: premiere.auteurId,
     auteurPseudo: premiere.auteurPseudo,
   }];
+}
+
+// ── l'ouverture d'un carnet ─────────────────────────────────────────
+
+/** Une empreinte réclamée, rattachée à son message et à son auteur.
+ *
+ *  `auteurId` est tout l'intérêt du montage : c'est Forumactif qui dit
+ *  qui a posté, pas le navigateur. C'est la seule chose qu'on ne sait
+ *  pas obtenir autrement sur une page HTML sans en-tête. */
+export type ReclamationLue = {
+  readonly messageId: number;
+  readonly auteurId: number;
+  readonly auteurPseudo: string;
+  readonly empreinte: string;
+};
+
+/**
+ * Les empreintes réclamées dans une liste de messages, dans l'ordre où
+ * elles ont été postées.
+ *
+ * **UNE PAR MESSAGE AU PLUS**, et c'est `empreinteReclamee` qui s'en
+ * charge : coller le bloc dix fois dans un message ne lie rien dix
+ * fois. Les messages sont rendus dans l'ordre des identifiants parce
+ * que la PREMIÈRE réclamation d'une empreinte est celle qui gagne, et
+ * que ce choix se fait en base — encore faut-il les lui présenter dans
+ * le bon ordre.
+ */
+export function reclamationsDeCarnet(
+  messages: readonly MessageAvecCorps[],
+): readonly ReclamationLue[] {
+  return [...messages]
+    .sort((a, b) => a.id - b.id)
+    .flatMap((m) => {
+      const empreinte = empreinteReclamee(m.corps);
+      if (empreinte === null) return [];
+      return [{
+        messageId: m.id,
+        auteurId: m.auteurId,
+        auteurPseudo: m.auteurPseudo,
+        empreinte,
+      }];
+    });
 }
 
 // ── les actions ─────────────────────────────────────────────────────

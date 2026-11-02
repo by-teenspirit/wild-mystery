@@ -47,6 +47,12 @@ import {
 import { appeler, RefusSupabase } from "../src/adaptateurs/navigateur/supabase.ts";
 import { configDepuis } from "../src/adaptateurs/navigateur/registre.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
+import { blocDeReclamation, secretBienForme } from "../src/domaine/reclamation.ts";
+import {
+  adresseDeReponse,
+  empreinteDuSecret,
+  tirerUnSecret,
+} from "../src/adaptateurs/navigateur/reclamation.ts";
 
 const RACINE = racineDesDonnees(adresseDuScript(document));
 const IMAGES = racineDesImages(adresseDuScript(document));
@@ -166,6 +172,103 @@ async function ouvrirLeCarnet(cle: string): Promise<void> {
 //  ça charge, sinon la page a l'air morte.
 poserLesOnglets(document, () => {});
 
+/* ── ouvrir son carnet en postant ─────────────────────────────────── */
+
+const CLE_DU_SECRET = "wm.carnet.secret";
+
+/** Le secret de cette page : celui qui traîne, ou un neuf.
+ *
+ *  ON LE GARDE ENTRE DEUX VISITES, et c'est indispensable : le joueur
+ *  poste, ferme l'onglet, revient dix minutes plus tard. Un secret
+ *  tiré à chaque chargement ne retrouverait jamais sa réclamation. */
+function secretDeLaPage(): string {
+  try {
+    const garde = localStorage.getItem(CLE_DU_SECRET);
+    if (garde !== null && secretBienForme(garde)) return garde;
+  } catch { /* stockage refusé : on en tire un pour cette visite */ }
+  const neuf = tirerUnSecret();
+  try {
+    localStorage.setItem(CLE_DU_SECRET, neuf);
+  } catch { /* idem */ }
+  return neuf;
+}
+
+function oublierLeSecret(): void {
+  try {
+    localStorage.removeItem(CLE_DU_SECRET);
+  } catch { /* idem */ }
+}
+
+async function poserLOuverture(): Promise<void> {
+  const bloc = document.querySelector<HTMLElement>("[data-wm-carnet-ouvrir]");
+  if (bloc === null) return;
+
+  const config = await lire("carnet.json");
+  const sujet = (config as { sujet?: unknown } | null)?.sujet;
+  //  SANS SUJET CONFIGURÉ, ON NE MONTRE RIEN. Un code à poster sans
+  //  dire où le poster ferait perdre dix minutes à chaque joueur.
+  if (typeof sujet !== "number") return;
+
+  const secret = secretDeLaPage();
+  const empreinte = await empreinteDuSecret(secret);
+  const code = blocDeReclamation(empreinte);
+
+  const vue = document.querySelector("[data-wm-carnet-empreinte]");
+  if (vue !== null) vue.textContent = code;
+  const lien = document.querySelector<HTMLAnchorElement>("[data-wm-carnet-poster]");
+  if (lien !== null) lien.href = adresseDeReponse(sujet, code);
+  bloc.hidden = false;
+
+  document.querySelector("[data-wm-carnet-jai-poste]")?.addEventListener("click", () => {
+    reclamer(secret).catch(() => direLeSouci(document, motDuRefus(null)));
+  });
+}
+
+/** Échange le secret contre la clé — et demande confirmation du nom.
+ *
+ *  POURQUOI DEMANDER. L'empreinte est publique : quelqu'un pourrait la
+ *  recopier et la poster avant le joueur. La base garde alors la
+ *  PREMIÈRE, donc celle du copieur, et le joueur recevrait une clé qui
+ *  ouvre le carnet de l'autre. En base les deux messages sont
+ *  identiques — rien ne les distingue là-bas. Ici, le nom se lit. */
+async function reclamer(secret: string): Promise<void> {
+  direLeSouci(document, "");
+  const config = configDepuis(await lire("supabase.json"));
+  if (config === null) {
+    direLeSouci(document, "Le carnet n'a pas pu joindre le serveur de jeu.");
+    return;
+  }
+
+  let recu: unknown;
+  try {
+    recu = await appeler(config, "carnet_reclamer", { secret });
+  } catch (e) {
+    direLeSouci(
+      document,
+      e instanceof RefusSupabase && e.code === "RECLAMATION_INCONNUE"
+        ? "Je ne vois pas encore ton message. La relève passe toutes les cinq " +
+          "minutes : laisse-lui un instant, puis reclique."
+        : motDuRefus(e),
+    );
+    return;
+  }
+
+  const r = recu as { cle?: unknown; pseudo?: unknown };
+  if (typeof r?.cle !== "string" || typeof r?.pseudo !== "string") {
+    direLeSouci(document, motDuRefus(null));
+    return;
+  }
+
+  const dit = document.querySelector<HTMLElement>("[data-wm-carnet-confirmer]");
+  if (dit !== null) {
+    dit.hidden = false;
+    dit.textContent = `Reconnu : ${r.pseudo}. Si ce n'est pas toi, ne garde pas ce carnet ` +
+      `et préviens le staff.`;
+  }
+  oublierLeSecret();
+  await ouvrirLeCarnet(r.cle);
+}
+
 const formulaire = document.querySelector<HTMLFormElement>("[data-wm-carnet-formulaire]");
 formulaire?.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -182,11 +285,16 @@ document.querySelector("[data-wm-carnet-oublier]")?.addEventListener("click", ()
   oublierLaCle();
   poserLEtat(document, "cle");
   direLeSouci(document, "Clé oubliée sur cet ordinateur.");
+  poserLOuverture().catch(() => {});
 });
 
 const gardee = lireLaCle();
-if (gardee === null) poserLEtat(document, "cle");
-else ouvrirLeCarnet(gardee).catch(() => {
+if (gardee === null) {
+  poserLEtat(document, "cle");
+  poserLOuverture().catch(() => {});
+}
+else {ouvrirLeCarnet(gardee).catch(() => {
   direLeSouci(document, motDuRefus(null));
   poserLEtat(document, "cle");
-});
+  poserLOuverture().catch(() => {});
+});}

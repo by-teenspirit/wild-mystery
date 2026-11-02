@@ -269,6 +269,15 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
   //  `definer` pour casser une récursion de politique. Elle rend
   //  l'identifiant du joueur dont la session est ouverte — donc `null`
   //  pour `anon`, vérifié ci-dessous : elle ne montre rien de personne.
+  //
+  //  `carnet_reclamer` s'y est ajoutée le 2 novembre (`0023`), et ce
+  //  cas a sauté en la voyant arriver — c'est précisément son travail.
+  //  Elle est ouverte parce qu'une page qui ouvre un carnet n'a encore
+  //  AUCUN secret : c'est le geste qui en donne un. Ce qui la protège
+  //  est le secret de 128 bits passé en argument, dont l'empreinte a
+  //  dû être postée par le compte de forum concerné, et qu'elle
+  //  consomme en servant. Trois conditions, et la troisième interdit
+  //  de rejouer.
   const vu = await psql(
     url,
     `select p.proname
@@ -281,6 +290,7 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
   );
   assertEquals(vu.split("\n").map((l) => l.trim()).filter((l) => l !== ""), [
     "carnet",
+    "carnet_reclamer",
     "carte_dresseur",
     "joueur_courant",
   ]);
