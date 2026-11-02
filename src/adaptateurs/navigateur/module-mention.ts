@@ -2,7 +2,8 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/module-mention.ts
 //
-//  COUVERT PAR : outils/sujet.mjs — le bouton posé sur chaque message.
+//  COUVERT PAR : outils/sujet.mjs — le bouton posé sur chaque message,
+//  l'écriture par l'instance et le repli sur le textarea nu.
 //
 //  MENTIONNER QUELQU'UN EN UN CLIC.
 //
@@ -10,29 +11,49 @@
 //
 //  Forumactif a son propre système de mentions, et il est actif sur ce
 //  forum : l'éditeur porte un bouton « Mentionner un membre » qui ouvre
-//  un champ de recherche et une liste de membres avec leurs avatars,
-//  liste qui se resserre à chaque lettre. Relevé le 2 novembre.
+//  un panneau avec la liste des membres et un champ de recherche qui
+//  prend le focus tout seul, si bien que les lettres suivantes
+//  resserrent la liste sans qu'on ait une ligne à écrire pour ça.
+//  Relevé le 2 novembre.
 //
 //  Ce qu'il insère, mot pour mot : `@"Maître du Jeu"` — le nom entre
 //  guillemets droits dès qu'il contient une espace. C'est cette forme
 //  qu'on reproduit, parce que c'est elle que le forum sait relire pour
 //  envoyer la notification.
 //
-//  ── LES DEUX CHOSES QUI MANQUAIENT ──────────────────────────────────
+//  ── LA SURFACE D'ÉCRITURE N'EST PAS CELLE QU'ON CROIT ───────────────
 //
-//  1. **Mentionner l'auteur d'un message d'un seul clic.** Le nom est
-//     déjà là, en haut de son message ; aller rouvrir un panneau pour
-//     y retaper ce nom est un détour. Un `@` discret se pose à côté.
+//  SCEditor a DEUX surfaces : un iframe `contenteditable` en mode
+//  WYSIWYG, et un `<textarea>` nu en mode source. Le réglage est celui
+//  du membre, pas du forum — le compte Arceus est en mode source.
 //
-//  2. **Taper `@` ouvre la liste.** Le panneau existe, mais il
-//     s'ouvre par un bouton de barre d'outils qu'on ne trouve pas si
-//     on ne le cherche pas. Frapper `@` est le geste que tout le monde
-//     a appris ailleurs ; on le branche sur le MÊME panneau plutôt que
-//     d'en écrire un second, qui aurait sa propre liste de membres à
-//     tenir à jour et son propre désaccord avec le forum.
+//  Les deux existent dans le DOM en même temps ; seule l'une est
+//  vivante. Écrire dans l'iframe pendant que le mode source est actif
+//  remplit une surface que personne ne voit et que l'envoi ignore :
+//  c'est le bug du 2 novembre, « quand je clique dessus, ça ne tag pas
+//  la personne ». `document.execCommand` rendait `false` et je ne le
+//  lisais pas.
+//
+//  Donc on ne choisit plus la surface : on demande à l'instance
+//  SCEditor d'écrire, et c'est elle qui sait laquelle est vivante.
+//  Elle n'est atteignable que par le magasin `data` de jQuery — ni
+//  propriété sur le textarea, ni variable globale. Relevé le
+//  2 novembre.
 // ════════════════════════════════════════════════════════════════════
 
 const CLASSE = "wm-mentionner";
+const SELECTEUR_BOUTON = ".sceditor-button-mention";
+const SELECTEUR_PANNEAU = ".sceditor-dropdown.sceditor-mention";
+
+/** Ce que ce module demande à l'éditeur du forum, et rien de plus. */
+interface InstanceEditeur {
+  focus(): void;
+  insertText(texte: string): void;
+  val(): string;
+  bind(nom: string, fn: (e: Event) => void): void;
+}
+
+type MagasinJquery = (cible: Element) => { data(clef: string): unknown };
 
 /** La forme que Forumactif relit : guillemets droits dès qu'il y a une
  *  espace. Un nom qui en contient déjà est laissé tel quel — le forum
@@ -44,48 +65,53 @@ export function mentionDe(nom: string): string {
   return /\s/.test(propre) ? `@"${propre}"` : `@${propre}`;
 }
 
-/** L'éditeur de la réponse rapide, dans ses deux états : `sceditor`
- *  monté (un iframe `contenteditable`) ou le `<textarea>` nu, qui est
- *  ce qu'on a tant que le script de Forumactif n'a pas fini. */
-function editeur(doc: Document): { ecrire: (texte: string) => void } | null {
-  const cadre = doc.querySelector<HTMLIFrameElement>(".sceditor-container iframe");
-  const corps = cadre?.contentDocument?.body;
-  if (corps !== undefined && corps !== null && corps.isContentEditable) {
-    return {
-      ecrire: (texte) => {
-        corps.focus();
-        const d = corps.ownerDocument;
-        //  AU POINT D'INSERTION S'IL EST DANS L'ÉDITEUR, à la fin
-        //  sinon : on ne déplace pas le curseur de quelqu'un qui
-        //  était en train d'écrire au milieu de sa phrase.
-        const sel = d.getSelection();
-        const dedans = sel !== null && sel.rangeCount > 0 &&
-          corps.contains(sel.getRangeAt(0).commonAncestorContainer);
-        if (!dedans) {
-          const r = d.createRange();
-          r.selectNodeContents(corps);
-          r.collapse(false);
-          sel?.removeAllRanges();
-          sel?.addRange(r);
-        }
-        d.execCommand("insertText", false, texte);
-      },
-    };
-  }
-  const zone = doc.querySelector<HTMLTextAreaElement>("#text_editor_textarea");
+/** L'instance SCEditor, ou `null` tant qu'elle n'est pas montée.
+ *
+ *  On vérifie les quatre méthodes qu'on utilise plutôt que de faire
+ *  confiance au nom de la clef : une version de SCEditor qui ne les
+ *  aurait pas doit nous faire tomber sur le repli, pas lancer. */
+export function instanceEditeur(doc: Document): InstanceEditeur | null {
+  const jq = (globalThis as { jQuery?: MagasinJquery }).jQuery;
+  if (typeof jq !== "function") return null;
+  const zone = doc.querySelector("#text_editor_textarea");
   if (zone === null) return null;
-  return {
-    ecrire: (texte) => {
-      zone.focus();
-      const i = zone.selectionEnd ?? zone.value.length;
-      zone.value = zone.value.slice(0, i) + texte + zone.value.slice(i);
-      zone.selectionStart = zone.selectionEnd = i + texte.length;
-      zone.dispatchEvent(new Event("input", { bubbles: true }));
-    },
-  };
+  let trouve: unknown;
+  try {
+    trouve = jq(zone).data("sceditor");
+  } catch {
+    return null;
+  }
+  if (typeof trouve !== "object" || trouve === null) return null;
+  const c = trouve as Partial<InstanceEditeur>;
+  const complet = typeof c.focus === "function" && typeof c.insertText === "function" &&
+    typeof c.val === "function" && typeof c.bind === "function";
+  return complet ? (trouve as InstanceEditeur) : null;
 }
 
-/** Pose un `@` à côté du nom de chaque auteur. Rend le nombre posés. */
+/** Écrit dans la réponse rapide. Rend `false` s'il n'y a pas d'éditeur.
+ *
+ *  LE REPLI N'EST PAS L'IFRAME. L'iframe n'existe que si SCEditor est
+ *  monté, et s'il est monté l'instance est atteignable et sait mieux
+ *  que nous où écrire. Ce qui reste à couvrir, c'est le moment AVANT
+ *  qu'il soit monté : là, le textarea nu est bien la surface. */
+function ecrire(doc: Document, texte: string): boolean {
+  const inst = instanceEditeur(doc);
+  if (inst !== null) {
+    inst.focus();
+    inst.insertText(texte);
+    return true;
+  }
+  const zone = doc.querySelector<HTMLTextAreaElement>("#text_editor_textarea");
+  if (zone === null) return false;
+  zone.focus();
+  const i = zone.selectionEnd ?? zone.value.length;
+  zone.value = zone.value.slice(0, i) + texte + zone.value.slice(i);
+  zone.selectionStart = zone.selectionEnd = i + texte.length;
+  zone.dispatchEvent(new Event("input", { bubbles: true }));
+  return true;
+}
+
+/** Pose un `@` devant le nom de chaque auteur. Rend le nombre posés. */
 export function poserLesMentions(doc: Document): number {
   //  LE NOM DE L'AUTEUR EST DANS `.usr_grp_clr` : c'est la teinte de
   //  son groupe qui est portée là, pas le nom du groupe. Relevé le
@@ -98,8 +124,9 @@ export function poserLesMentions(doc: Document): number {
     //  Le bouton se pose à côté du LIEN qui porte le nom, pas dans
     //  lui : dans un `<a>`, un clic suivrait le lien vers le profil.
     const hote = n.closest("a") ?? n;
-    const apres = hote.nextElementSibling;
-    if (apres !== null && apres.classList.contains(CLASSE)) continue;
+    //  À GAUCHE DU NOM. « le tag : le placer à gauche par contre ».
+    const avant = hote.previousElementSibling;
+    if (avant !== null && avant.classList.contains(CLASSE)) continue;
 
     const bouton = doc.createElement("button");
     bouton.type = "button";
@@ -109,17 +136,45 @@ export function poserLesMentions(doc: Document): number {
     bouton.setAttribute("aria-label", `Mentionner ${nom}`);
     bouton.addEventListener("click", (e) => {
       e.preventDefault();
-      const ed = editeur(doc);
       //  SANS ÉDITEUR, ON NE FAIT RIEN ET ON NE DIT RIEN. Un invité
       //  n'a pas de réponse rapide ; lui écrire une erreur serait lui
       //  reprocher de ne pas être connecté.
-      if (ed === null) return;
-      ed.ecrire(`${mentionDe(nom)} `);
+      ecrire(doc, `${mentionDe(nom)} `);
     });
-    hote.insertAdjacentElement("afterend", bouton);
+    hote.insertAdjacentElement("beforebegin", bouton);
     poses += 1;
   }
   return poses;
+}
+
+/** Rend la touche avalée si le panneau se ferme sans qu'on ait choisi.
+ *
+ *  Sinon, frapper `@` puis changer d'avis effacerait un caractère que
+ *  la joueuse a bien tapé. Échap ne ferme pas le panneau de Forumactif
+ *  (relevé le 2 novembre) : c'est le clic à côté qui le ferme, donc
+ *  c'est sa disparition qu'on guette et pas une touche. */
+function rendreLArobaseSiRien(doc: Document, inst: InstanceEditeur, avant: string): void {
+  //  LE CLIC N'A RIEN OUVERT : on rend le « @ » tout de suite, et
+  //  surtout on n'attache pas d'observateur à un panneau qui n'existe
+  //  pas — il attendrait une mutation qui peut ne jamais venir.
+  //
+  //  NON PROUVÉE PAR LE HARNAIS, et je le dis plutôt que de la faire
+  //  passer pour mesurée : en retirant cette sortie, le contrôle
+  //  « si le panneau ne s'ouvre pas » passe quand même, parce qu'une
+  //  mutation sans rapport réveille l'observateur et rend le « @ »
+  //  à sa place. Ce qui reste vrai sans elle, c'est la fuite.
+  if (doc.querySelector(SELECTEUR_PANNEAU) === null) {
+    ecrire(doc, "@");
+    return;
+  }
+  const corps = doc.body;
+  if (corps === null) return;
+  const obs = new MutationObserver(() => {
+    if (doc.querySelector(SELECTEUR_PANNEAU) !== null) return;
+    obs.disconnect();
+    if (inst.val() === avant) ecrire(doc, "@");
+  });
+  obs.observe(corps, { childList: true, subtree: true });
 }
 
 /** Fait de `@` la touche qui ouvre le panneau de Forumactif.
@@ -129,34 +184,54 @@ export function poserLesMentions(doc: Document): number {
  *  propre source à tenir à jour, et le jour où elles divergeraient
  *  c'est la nôtre qui aurait tort. On clique son bouton, c'est tout.
  *
- *  LE `@` RESTE TAPÉ. Le panneau insère la mention complète par-dessus
- *  ce qu'on écrit ; l'effacer d'avance supposerait qu'on va choisir
- *  quelqu'un, et quitter le panneau laisserait un trou.
+ *  ON ÉCOUTE L'INSTANCE, PAS UNE SURFACE. `bind` reçoit la frappe dans
+ *  les deux modes et survit au basculement de l'un à l'autre ; écouter
+ *  l'iframe ne voyait rien de ce qui était tapé en mode source, et
+ *  c'est pourquoi « quand je mets @ dans le bloc d'édition, j'ai
+ *  personne qui s'affiche ».
+ *
+ *  ET ON ÉCOUTE `keydown`, PAS `keyup`. Deux raisons mesurées le
+ *  2 novembre : `keyup` arrive après que le caractère est écrit, donc
+ *  trop tard pour l'empêcher ; et SCEditor appelle l'écouteur de
+ *  `keyup` DEUX FOIS pour un seul appui, là où `keydown` n'arrive
+ *  qu'une fois.
  */
 export function poserLOuvertureAuArobase(doc: Document): boolean {
-  const bouton = doc.querySelector<HTMLElement>(".sceditor-button-mention");
-  const cadre = doc.querySelector<HTMLIFrameElement>(".sceditor-container iframe");
-  const corps = cadre?.contentDocument?.body;
-  if (bouton === null || corps === undefined || corps === null) return false;
-  if (corps.dataset.wmArobase === "1") return false;
-  corps.dataset.wmArobase = "1";
+  const inst = instanceEditeur(doc);
+  if (inst === null) return false;
+  const marque = inst as InstanceEditeur & { wmArobase?: boolean };
+  if (marque.wmArobase === true) return false;
+  marque.wmArobase = true;
 
-  corps.addEventListener("keyup", (e) => {
-    if ((e as KeyboardEvent).key !== "@") return;
+  inst.bind("keydown", (e: Event) => {
+    const touche = e as KeyboardEvent;
+    if (touche.key !== "@") return;
+
+    const bouton = doc.querySelector<HTMLElement>(SELECTEUR_BOUTON);
+    //  PAS DE PANNEAU, PAS DE DÉTOURNEMENT : on laisse le « @ »
+    //  s'écrire normalement plutôt que d'avaler la touche pour rien.
+    if (bouton === null) return;
+
+    //  LE « @ » NE S'ÉCRIT PAS. Le panneau insère la mention entière,
+    //  `@"Nom"` : en laissant la frappe passer on obtenait
+    //  `@ @"Nom"`. Relevé le 2 novembre sur le forum.
+    touche.preventDefault();
+    const avant = inst.val();
     bouton.click();
+    rendreLArobaseSiRien(doc, inst, avant);
   });
   return true;
 }
 
-/** Attend que `sceditor` soit monté, puis branche la touche `@`.
+/** Attend que l'instance SCEditor soit montée, puis branche `@`.
  *
- *  IL ARRIVE APRÈS NOUS. Le script de Forumactif construit l'éditeur
+ *  ELLE ARRIVE APRÈS NOUS. Le script de Forumactif construit l'éditeur
  *  bien après que le nôtre a fini : brancher tout de suite ne trouve
  *  rien, et attendre un délai au hasard marche sur une machine et pas
- *  sur l'autre. On observe le document, on branche dès que l'iframe
- *  est là, et on s'arrête — y compris si elle n'arrive jamais, parce
- *  qu'un invité n'a pas d'éditeur et qu'un observateur qui tourne pour
- *  rien est une fuite.
+ *  sur l'autre. On observe le document, on branche dès qu'elle est là,
+ *  et on s'arrête — y compris si elle n'arrive jamais, parce qu'un
+ *  invité n'a pas d'éditeur et qu'un observateur qui tourne pour rien
+ *  est une fuite.
  */
 export function guetterLEditeur(doc: Document, limiteMs = 15000): void {
   if (poserLOuvertureAuArobase(doc)) return;

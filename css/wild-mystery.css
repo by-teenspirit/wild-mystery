@@ -8022,7 +8022,7 @@ html#min-width {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: var(--wm-espace-4, 4px);
+  margin-right: var(--wm-espace-4, 4px);
   padding: 0 var(--wm-espace-4, 4px);
   border: 0;
   border-radius: var(--wm-rayon-xs, 4px);

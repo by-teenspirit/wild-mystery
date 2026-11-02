@@ -127,6 +127,90 @@ const ARIANE_ZONE = '<a class="nav" href="/c2-zones-sauvages"><span>Zones Sauvag
 const ARIANE_HORS_ZONE = '<a class="nav" href="/c1-le-forum"><span>Le forum</span></a>' +
   ' :: <a class="nav" href="/f2-notice-d-utilisation"><span>Notice d\'utilisation</span></a>';
 
+/*  UN FAUX SCEDITOR, RÉGLÉ COMME CELUI DU FORUM.
+
+    Ce n'est pas un bouchon pour notre code : c'est l'hôte. Tout ce
+    qu'il fait a été mesuré sur mysteryinrhode le 2 novembre, et c'est
+    précisément ce que le décor ne servait pas :
+
+    1. L'instance n'est atteignable QUE par le magasin « data » de
+       jQuery. Ni propriété sur le textarea, ni variable globale : les
+       deux ont été cherchées et ne sont pas là.
+    2. En mode source, la surface vivante est le textarea nu du
+       conteneur. L'iframe existe mais n'est pas servi — écrire dedans
+       remplit une surface que l'envoi ignore.
+    3. « bind » appelle l'écouteur de « keyup » DEUX FOIS pour un seul
+       appui — « keydown » n'arrive qu'une fois. C'est reproduit ici
+       pour que revenir à « keyup » se paie : le caractère est déjà
+       écrit à ce moment-là, et il est écrit deux fois.
+    4. Le bouton de mention ouvre un panneau, le champ de recherche
+       prend le focus tout seul, un clic sur un membre insère
+       « @"Nom" » précédé d'une espace, et Échap ne ferme rien : c'est
+       le clic à côté qui ferme.
+
+    Les deux noms viennent du forum : Maître du Jeu et Compte de test. */
+const FAUX_SCEDITOR = `<script>
+(function () {
+  var conteneur = document.querySelector(".sceditor-container");
+  var source = conteneur.querySelector("textarea");
+  var original = document.getElementById("text_editor_textarea");
+  var bouton = conteneur.querySelector(".sceditor-button-mention");
+  var NOMS = ["Maître du Jeu", "Compte de test"];
+  var inst = {
+    focus: function () { source.focus(); },
+    inSourceMode: function () { return true; },
+    val: function (v) {
+      if (v === undefined) return source.value;
+      source.value = v;
+    },
+    insertText: function (t) {
+      var i = source.selectionEnd == null ? source.value.length : source.selectionEnd;
+      source.value = source.value.slice(0, i) + t + source.value.slice(i);
+      source.selectionStart = source.selectionEnd = i + t.length;
+    },
+    bind: function (nom, fn) {
+      source.addEventListener(nom, function (e) {
+        fn(e);
+        if (nom === "keyup") fn(e);
+      });
+    }
+  };
+  var magasin = new WeakMap();
+  magasin.set(original, inst);
+  window.jQuery = function (cible) {
+    var el = cible instanceof Element ? cible : document.querySelector(cible);
+    return { data: function (clef) {
+      return clef === "sceditor" ? magasin.get(el) : undefined;
+    } };
+  };
+  bouton.addEventListener("click", function () {
+    if (document.querySelector(".sceditor-dropdown.sceditor-mention") !== null) return;
+    var dd = document.createElement("div");
+    dd.className = "sceditor-dropdown sceditor-mention";
+    var champ = document.createElement("input");
+    dd.appendChild(champ);
+    NOMS.forEach(function (n) {
+      var u = document.createElement("div");
+      u.className = "sceditor-mention-user";
+      u.textContent = n;
+      u.addEventListener("click", function () {
+        inst.insertText(' @"' + n + '" ');
+        dd.remove();
+      });
+      dd.appendChild(u);
+    });
+    document.body.appendChild(dd);
+    champ.focus();
+  });
+  document.addEventListener("click", function (e) {
+    var dd = document.querySelector(".sceditor-dropdown.sceditor-mention");
+    if (dd === null) return;
+    if (dd.contains(e.target) || bouton.contains(e.target)) return;
+    dd.remove();
+  });
+})();
+</script>`;
+
 function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
   //  ON MONTE LE GABARIT QU'ON VA PUBLIER, pas celui qui tourne.
   //  `viewtopic_body.html` est le code actuel du forum : il sert de
@@ -442,14 +526,31 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
     //  ne touchaient donc rien dans le harnais. C'est la même faute
     //  que les trois classes inventées : un décor qui ne sert pas ce
     //  que ModernBB sert ne teste que lui-même.
+    //  L'ÉDITEUR EST SERVI EN MODE SOURCE, comme celui de Callista.
+    //  Relevé le 2 novembre : SCEditor a deux surfaces, un iframe en
+    //  WYSIWYG et un textarea nu en mode source, le réglage est celui
+    //  du membre, et les deux coexistent dans le DOM. Le décor n'en
+    //  servait qu'une — le textarea d'origine, celui que le forum
+    //  cache — donc il ne pouvait pas voir le bouton écrire dans une
+    //  surface morte, qui est exactement ce qui s'est passé.
     QUICK_REPLY_FORM: `<a name="quickreply"></a>` +
       `<div class="h3">Réponse rapide:</div><br />` +
       `<form id="quick_reply" method="post"><fieldset>` +
+      `<div id="textarea_content">` +
+      `<textarea id="text_editor_textarea" name="message" rows="8" cols="60" ` +
+      `style="display:none"></textarea>` +
+      `<div class="sceditor-container ltr sourceMode">` +
       `<div class="sceditor-toolbar"><div class="sceditor-group">` +
-      `<a class="sceditor-button" title="Gras"><div>Gras</div></a>` +
+      `<a class="sceditor-button sceditor-button-bold" title="Gras"><div>Gras</div></a>` +
+      `<a class="sceditor-button sceditor-button-mention" ` +
+      `data-sceditor-command="mention" title="Mentionner un membre">` +
+      `<div>Mentionner un membre</div></a>` +
       `</div></div>` +
-      `<textarea id="text_editor_textarea" rows="8" cols="60"></textarea>` +
-      `<input type="submit" value="Envoyer" /></fieldset></form>`,
+      `<iframe title="editeur"></iframe>` +
+      `<textarea rows="8" cols="60"></textarea>` +
+      `</div></div>` +
+      `<input type="submit" value="Envoyer" /></fieldset></form>` +
+      FAUX_SCEDITOR,
   });
 }
 
@@ -2449,33 +2550,171 @@ async function monterAvecScript(ariane) {
 //  cette forme-là qui déclenche la notification.
 //  ══════════════════════════════════════════════════════════════════
 const avecScript = await monterAvecScript(ARIANE_ZONE);
+
+//  ON LIT LA SURFACE VIVANTE, pas le textarea d'origine. En mode
+//  source, SCEditor écrit dans son propre textarea et ne reporte dans
+//  celui du formulaire qu'à l'envoi : lire l'original rendait "" alors
+//  que la mention était bien écrite, et aurait rendu "" tout pareil si
+//  elle ne l'avait pas été. C'est ce que le harnais lisait.
 const mention = await avecScript.evaluate(() => {
   const boutons = [...document.querySelectorAll("button.wm-mentionner")];
   if (boutons.length === 0) return { combien: 0 };
   const b = boutons[0];
-  const nom = b.previousElementSibling?.textContent?.trim() ?? "";
+  //  LE NOM EST APRÈS LE BOUTON : « le tag : le placer à gauche ».
+  const suivant = b.nextElementSibling;
+  const nom = suivant?.textContent?.trim() ?? "";
   const r = b.getBoundingClientRect();
   //  LA CIBLE TACTILE, qui est un `::after` plus grand que le glyphe.
   const cible = getComputedStyle(b, "::after").width;
+  const porteurDuNom = suivant?.querySelector(".usr_grp_clr") ?? suivant;
   b.click();
-  const zone = document.querySelector("#text_editor_textarea");
   return {
     combien: boutons.length,
     nom,
     //  Il se pose À CÔTÉ du lien, pas dedans : dans un `<a>`, le clic
     //  suivrait le lien vers le profil au lieu d'écrire.
     horsDuLien: b.closest("a") === null,
+    //  À GAUCHE pour de vrai : le bouton commence avant le nom.
+    aGauche: porteurDuNom !== null &&
+      b.getBoundingClientRect().left < porteurDuNom.getBoundingClientRect().left,
     visible: r.width > 0 && r.height > 0,
     cible: Math.round(parseFloat(cible)),
-    brouillon: zone === null ? null : zone.value,
+    brouillon: document.querySelector(".sceditor-container > textarea").value,
   };
 });
 dire(
-  "chaque auteur porte un « @ » qui écrit la mention dans la réponse rapide",
+  "chaque auteur porte un « @ », à GAUCHE de son nom, qui écrit la mention",
   mention.combien >= 2 && mention.horsDuLien === true && mention.visible &&
-    mention.cible >= 44 &&
+    mention.aGauche === true && mention.cible >= 44 &&
     mention.brouillon === `@"${mention.nom}" `,
   JSON.stringify(mention),
+);
+
+//  ── LA TOUCHE « @ » OUVRE LE PANNEAU DU FORUM ──────────────────────
+//
+//  « quand je mets @ dans le bloc d'édition de réponse rapide, j'ai
+//  personne qui s'affiche ». On frappe la touche POUR DE VRAI, par le
+//  clavier de Playwright : un événement fabriqué à la main n'écrit
+//  aucun caractère, donc il ne pourrait pas prouver que le nôtre est
+//  bien avalé — et c'est ce caractère en trop qui donnait « @ @"Nom" ».
+await avecScript.evaluate(() => {
+  document.querySelector(".sceditor-container > textarea").value = "";
+});
+await avecScript.click(".sceditor-container > textarea");
+await avecScript.keyboard.type("@");
+await avecScript.waitForTimeout(150);
+const panneau = await avecScript.evaluate(() => ({
+  ouvert: document.querySelector(".sceditor-dropdown.sceditor-mention") !== null,
+  //  UN SEUL panneau : « bind » appelle deux fois, et sans le garde
+  //  d'anti-rebond on ouvrait, fermait, et rendait le « @ » deux fois.
+  combien: document.querySelectorAll(".sceditor-dropdown.sceditor-mention").length,
+  membres: [...document.querySelectorAll(".sceditor-mention-user")]
+    .map((e) => e.textContent.trim()),
+  //  LE CHAMP DE RECHERCHE A LE FOCUS : c'est lui qui resserre la
+  //  liste à chaque lettre, et c'est pour ça qu'on n'écrit pas de
+  //  seconde liste.
+  focusSurLaRecherche: document.activeElement ===
+    document.querySelector(".sceditor-dropdown.sceditor-mention input"),
+  //  ET LA RECHERCHE PART DE RIEN. C'est là qu'atterrit le caractère
+  //  si on ne l'avale pas : le champ prend le focus pendant la frappe,
+  //  et la liste s'ouvre déjà filtrée sur un « @ » que personne ne
+  //  cherche. Première lettre tapée, plus aucun membre.
+  rechercheVide: (document.querySelector(
+    ".sceditor-dropdown.sceditor-mention input",
+  )?.value ?? null) === "",
+  brouillon: document.querySelector(".sceditor-container > textarea").value,
+}));
+dire(
+  "frapper « @ » ouvre la liste des membres sans écrire le caractère",
+  panneau.ouvert && panneau.combien === 1 && panneau.membres.length >= 2 &&
+    panneau.focusSurLaRecherche === true && panneau.rechercheVide === true &&
+    panneau.brouillon === "",
+  JSON.stringify(panneau),
+);
+
+const choisi = await avecScript.evaluate(() => {
+  const dd = document.querySelector(".sceditor-dropdown.sceditor-mention");
+  const u = [...dd.querySelectorAll(".sceditor-mention-user")][0];
+  const nom = u.textContent.trim();
+  u.click();
+  return { nom, brouillon: document.querySelector(".sceditor-container > textarea").value };
+});
+dire(
+  "choisir dans la liste écrit la mention, et une seule fois",
+  choisi.brouillon.includes(`@"${choisi.nom}"`) &&
+    choisi.brouillon.split("@").length === 2,
+  JSON.stringify(choisi),
+);
+
+//  ── RENONCER REND LA TOUCHE ────────────────────────────────────────
+//
+//  Échap ne ferme pas le panneau de Forumactif : c'est le clic à côté.
+//  Et comme on a avalé la frappe pour éviter le doublon, il faut la
+//  rendre — sinon changer d'avis efface un caractère bien tapé.
+await avecScript.evaluate(() => {
+  document.querySelector(".sceditor-container > textarea").value = "";
+});
+await avecScript.click(".sceditor-container > textarea");
+await avecScript.keyboard.type("@");
+await avecScript.waitForTimeout(150);
+//  UN CLIC LOIN DE TOUT : le décor n'habille pas la barre d'outils de
+//  l'hôte, donc ses boutons se chevauchent et Playwright refuse de
+//  cliquer dessus. Ce qu'on veut dire, c'est « ailleurs ».
+await avecScript.mouse.click(8, 8);
+await avecScript.waitForTimeout(200);
+const renonce = await avecScript.evaluate(() => ({
+  panneauFerme: document.querySelector(".sceditor-dropdown.sceditor-mention") === null,
+  brouillon: document.querySelector(".sceditor-container > textarea").value,
+}));
+dire(
+  "renoncer au panneau rend le « @ » qu'on avait avalé, une seule fois",
+  renonce.panneauFerme && renonce.brouillon === "@",
+  JSON.stringify(renonce),
+);
+
+//  ── ET SI LE PANNEAU NE S'OUVRE PAS ────────────────────────────────
+//
+//  Le bouton de mention est là mais son clic ne donne rien : ça arrive
+//  quand la liste du forum n'a pas chargé. On a déjà avalé la frappe à
+//  ce moment-là ; il faut la rendre TOUT DE SUITE et ne pas laisser un
+//  observateur attendre la fermeture d'un panneau qui n'existe pas.
+await avecScript.evaluate(() => {
+  const b = document.querySelector(".sceditor-button-mention");
+  //  On remplace le bouton par son clone : mêmes classes, plus
+  //  d'écouteur. L'hôte est muet, le bouton est toujours visible.
+  b.replaceWith(b.cloneNode(true));
+  document.querySelector(".sceditor-container > textarea").value = "";
+});
+await avecScript.click(".sceditor-container > textarea");
+await avecScript.keyboard.type("@");
+await avecScript.waitForTimeout(150);
+const muet = await avecScript.evaluate(() => ({
+  panneau: document.querySelector(".sceditor-dropdown.sceditor-mention") !== null,
+  brouillon: document.querySelector(".sceditor-container > textarea").value,
+}));
+dire(
+  "si le panneau ne s'ouvre pas, le « @ » revient tout de suite",
+  muet.panneau === false && muet.brouillon === "@",
+  JSON.stringify(muet),
+);
+
+//  ── ET AVANT QUE SCEDITOR SOIT MONTÉ ───────────────────────────────
+//
+//  Là, le textarea nu du formulaire est bien la surface. On retire
+//  l'hôte et on reclique : le bouton doit encore écrire, sans erreur.
+const repli = await avecScript.evaluate(() => {
+  delete window.jQuery;
+  const zone = document.querySelector("#text_editor_textarea");
+  zone.value = "";
+  const b = document.querySelector("button.wm-mentionner");
+  const nom = b.nextElementSibling?.textContent?.trim() ?? "";
+  b.click();
+  return { nom, brouillon: zone.value };
+});
+dire(
+  "sans instance SCEditor, le « @ » écrit dans le textarea du formulaire",
+  repli.brouillon === `@"${repli.nom}" `,
+  JSON.stringify(repli),
 );
 await avecScript.close();
 
