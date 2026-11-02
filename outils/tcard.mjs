@@ -297,9 +297,18 @@ const page = (corps) =>
     place d'un profil à DROITE que ModernBB réserve et que le forum
     n'utilise pas. On ne l'enlève pas pour arranger la mesure — c'est
     ce que la feuille sert. */
-const dansUnMessage = (cartes) =>
-  `<div class="post">
+/*  LE MESSAGE PORTE SON AUTEUR, et c'est ce qui rend la carte
+    remplissable : `mod-tcard` remonte de la carte à `.post`, puis au
+    premier `a[href^="/u"]`. Relevé le 2 novembre sur le forum —
+    `div#p15587.post` → `a[href="/u1"]` → `span.usr_grp_clr`. Le décor
+    n'avait que la colonne de gauche en texte brut : il ne pouvait pas
+    voir le module chercher un auteur et n'en trouver aucun. */
+const dansUnMessage = (cartes, auteur = 4, nom = "Compte de test") =>
+  `<div class="post" id="p15587">
     <div class="postprofile">
+      <div class="postprofile-name">
+        <a href="/u${auteur}"><span class="group-2 usr_grp_clr"><strong>${nom}</strong></span></a>
+      </div>
       <dl><dd class="postprofile-info">la colonne de gauche</dd></dl>
     </div>
     <div class="wm-post-corps"><div class="postbody">${cartes}</div></div>
@@ -1606,6 +1615,233 @@ for (const nom of ["a-coller", "compte-de-test"]) {
       pareil.memesAttributs && pareil.elements > 20,
     JSON.stringify(pareil),
   );
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  LE MARQUEUR SE REMPLIT TOUT SEUL
+//
+//  « Si on change son équipe, la trainer card doit être actualisée […]
+//  le mieux ce serait que ce soit automatique », 2 novembre.
+//
+//  Tout ce qui précède mesure une carte DÉJÀ écrite. Ici on monte le
+//  vrai paquet sur un vrai message, on répond à sa place de Supabase,
+//  et on regarde ce qu'il fait du code collé. C'est la seule partie qui
+//  peut voir une carte rester sur ses valeurs d'attente.
+// ════════════════════════════════════════════════════════════════════
+
+const REPONSE_CARTE = {
+  forumUserId: 4,
+  pseudo: "Compte de test",
+  groupe: "Dresseur",
+  palier: 2,
+  pokedollars: 1240,
+  badges: [
+    { arene: "Arène Feu", obtenuLe: "2026-08-12T10:00:00Z" },
+    { arene: "Arène Plante", obtenuLe: "2026-09-03T10:00:00Z" },
+    { arene: "Colosseum de Rhode", obtenuLe: "2026-09-20T10:00:00Z" },
+  ],
+  equipe: [
+    { especeId: 95, surnom: null, niveau: 26, sexe: "M", obscur: false, place: 1, enPension: false },
+    { especeId: 25, surnom: "Pika", niveau: 24, sexe: "F", obscur: false, place: 2, enPension: true },
+    { especeId: 7, surnom: null, niveau: 21, sexe: "M", obscur: true, place: 4, enPension: false },
+  ],
+};
+
+async function monterLaPage({ corps, reponse = REPONSE_CARTE }) {
+  const q = await nav.newPage({ viewport: { width: 1440, height: 1200 } });
+  const appels = [];
+  q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
+  await q.route("**/*", (route) => {
+    const u = new URL(route.request().url());
+    //  L'APPEL À SUPABASE, INTERCEPTÉ. L'adresse vient de
+    //  `data/supabase.json`, donc du vrai fichier : si quelqu'un change
+    //  l'hôte, ce harnais suit sans qu'on le touche.
+    if (u.pathname.endsWith("/rest/v1/rpc/carte_dresseur")) {
+      appels.push(JSON.parse(route.request().postData() ?? "{}"));
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(reponse),
+      });
+    }
+    if (u.pathname === "/js/wild-mystery.js") {
+      return route.fulfill({
+        contentType: "text/javascript; charset=utf-8",
+        body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+      });
+    }
+    if (u.pathname.startsWith("/data/")) {
+      try {
+        return route.fulfill({
+          contentType: "application/json",
+          body: readFileSync(R + u.pathname.slice(1), "utf8"),
+        });
+      } catch {
+        return route.fulfill({ status: 404, body: "" });
+      }
+    }
+    //  Le switcheroo part sur toutes les pages depuis le 31 octobre ;
+    //  servi vide, il ne fait rien et ne crie pas.
+    if (/(monomer|switcheroo)\.js$/.test(u.pathname)) {
+      return route.fulfill({ contentType: "text/javascript; charset=utf-8", body: "" });
+    }
+    if (/\.(png|jpe?g|gif|webp|svg)$/.test(u.pathname)) {
+      return route.fulfill({
+        contentType: "image/svg+xml",
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"></svg>',
+      });
+    }
+    return route.fulfill({ contentType: "text/html; charset=utf-8", body: page(corps) });
+  });
+  await q.goto("https://exemple.test/t10-un-sujet");
+  await q.evaluate(() => {
+    const s = document.createElement("script");
+    s.src = "https://exemple.test/js/wild-mystery.js";
+    document.body.appendChild(s);
+  });
+  await q.waitForTimeout(1200);
+  return { q, appels };
+}
+
+{
+  const { q, appels } = await monterLaPage({ corps: dansUnMessage(carteACoprier()) });
+
+  const releve = await q.evaluate(() => {
+    const c = document.querySelector("[data-wm-tcard]");
+    if (c === null) return null;
+    const cases = [...c.querySelectorAll(".wm-tcard__pkmn")];
+    const badge = (slug) => {
+      const li = c.querySelector(`[data-wm-badge="${slug}"]`);
+      return li === null ? null : {
+        aGagner: li.classList.contains("wm-tcard__badge--agagner"),
+        etat: li.querySelector(".wm-tcard__bulle-etat")?.textContent?.trim() ?? null,
+        date: li.querySelector(".wm-tcard__bulle-date")?.textContent?.trim() ?? null,
+      };
+    };
+    return {
+      remplie: c.hasAttribute("data-wm-tcard-remplie"),
+      palier: c.querySelector("[data-wm-tcard-palier]")?.textContent?.trim() ?? null,
+      argent: c.querySelector("[data-wm-tcard-argent]")?.textContent?.trim() ?? null,
+      compte: c.querySelector("[data-wm-tcard-compte]")?.textContent?.trim() ?? null,
+      cases: cases.length,
+      libres: cases.filter((e) => e.classList.contains("wm-tcard__pkmn--libre")).length,
+      obscurs: cases.filter((e) => e.classList.contains("wm-tcard__pkmn--obscur")).length,
+      //  UNE CASE LIBRE N'A PAS DE `.wm-tcard__nom` mais un
+      //  `.wm-tcard__libre` : les lire tous les deux, sinon « Place
+      //  libre » ressemble à un nom manquant.
+      noms: cases.map((e) =>
+        (e.querySelector(".wm-tcard__nom") ?? e.querySelector(".wm-tcard__libre"))
+          ?.textContent?.trim() ?? ""
+      ),
+      niveaux: cases.map((e) => e.querySelector(".wm-tcard__niveau")?.textContent?.trim() ?? ""),
+      feu: badge("feu"),
+      eau: badge("eau"),
+      fee: badge("fee"),
+      //  LES SPRITES VIENNENT DU DÉPÔT, jamais d'un CDN tiers.
+      sprites: [...c.querySelectorAll("img.wm-tcard__sprite")].map((i) => i.getAttribute("src")),
+    };
+  });
+
+  dire(
+    "le marqueur est rempli : palier, pokédollars et compteur viennent de la base",
+    releve !== null && releve.remplie && releve.palier === "2" &&
+      releve.argent === "1 240" && releve.compte === "3 / 11",
+    JSON.stringify(releve && {
+      remplie: releve.remplie,
+      palier: releve.palier,
+      argent: releve.argent,
+      compte: releve.compte,
+    }),
+  );
+
+  dire(
+    "l'équipe garde ses six places, à la bonne place, et dit la pension",
+    releve !== null && releve.cases === 6 && releve.libres === 3 &&
+      releve.noms[0] !== "" && releve.noms[1] === "Pika" && releve.noms[2] === "Place libre" &&
+      releve.niveaux[1] === "niv. 24 · en pension" && releve.obscurs === 1,
+    JSON.stringify(releve && { noms: releve.noms, niveaux: releve.niveaux, obscurs: releve.obscurs }),
+  );
+
+  dire(
+    "un badge gagné s'allume avec sa date, un badge manqué reste à gagner",
+    releve !== null && releve.feu?.aGagner === false && releve.feu?.etat === "Obtenu" &&
+      releve.feu?.date === "Obtenu le 12/08/2026" &&
+      releve.eau?.aGagner === true && releve.eau?.etat === "Non obtenu" &&
+      releve.eau?.date === null && releve.fee?.aGagner === false,
+    JSON.stringify(releve && { feu: releve.feu, eau: releve.eau, fee: releve.fee }),
+  );
+
+  dire(
+    "les sprites viennent du dépôt, pas du CDN d'un autre projet",
+    releve !== null && releve.sprites.length === 3 &&
+      releve.sprites.every((s) => /\/assets\/pokemon\/\d+\.png$/.test(s ?? "")),
+    JSON.stringify(releve && releve.sprites),
+  );
+
+  dire(
+    "une seule demande, et elle porte l'auteur du message",
+    appels.length === 1 && appels[0]?.p?.forumUserId === 4,
+    JSON.stringify(appels),
+  );
+  await q.close();
+}
+
+//  DEUX CARTES, UN SEUL AUTEUR : un sujet où le même joueur a répondu
+//  deux fois ne doit pas demander deux fois la même chose.
+{
+  const { q, appels } = await monterLaPage({
+    corps: dansUnMessage(carteACoprier()) + dansUnMessage(carteACoprier()),
+  });
+  const remplies = await q.evaluate(() =>
+    document.querySelectorAll("[data-wm-tcard-remplie]").length
+  );
+  dire(
+    "deux cartes du même auteur se remplissent en une seule demande",
+    remplies === 2 && appels.length === 1,
+    JSON.stringify({ remplies, appels: appels.length }),
+  );
+  await q.close();
+}
+
+//  LA PANNE, ET C'EST LE CONTRÔLE QUI COMPTE LE PLUS. Une carte vidée
+//  par un réseau coupé serait pire que la carte périmée qu'on remplace.
+{
+  const { q } = await monterLaPage({ corps: dansUnMessage(carteACoprier()), reponse: null });
+  const releve = await q.evaluate(() => {
+    const c = document.querySelector("[data-wm-tcard]");
+    return {
+      remplie: c?.hasAttribute("data-wm-tcard-remplie") ?? null,
+      //  LE REFUS EST DIT, et c'est ce qui distingue « on a regardé, il
+      //  n'y a pas de compte » d'une exception avalée plus haut. Sans
+      //  cette marque, le contrôle passait même quand le module
+      //  plantait au lieu de refuser proprement.
+      sansCompte: c?.hasAttribute("data-wm-tcard-sans-compte") ?? null,
+      palier: c?.querySelector("[data-wm-tcard-palier]")?.textContent?.trim() ?? null,
+      libres: c?.querySelectorAll(".wm-tcard__pkmn--libre").length ?? null,
+      badgesAGagner: c?.querySelectorAll(".wm-tcard__badge--agagner").length ?? null,
+    };
+  });
+  dire(
+    "sans compte de jeu, la carte garde ce qui a été collé au lieu de se vider",
+    releve.remplie === false && releve.sansCompte === true && releve.palier === "1" &&
+      releve.libres === 6 && releve.badgesAGagner === 11,
+    JSON.stringify(releve),
+  );
+  await q.close();
+}
+
+//  SANS CARTE, PAS UN SEUL APPEL. Le module tourne sur toutes les pages
+//  du forum : s'il demandait quoi que ce soit en l'absence de marqueur,
+//  chaque page paierait une requête pour rien.
+{
+  const { q, appels } = await monterLaPage({
+    corps: `<div class="post" id="p1"><div class="postbody">un message ordinaire</div></div>`,
+  });
+  dire(
+    "une page sans carte ne demande rien à Supabase",
+    appels.length === 0,
+    JSON.stringify(appels),
+  );
+  await q.close();
 }
 
 // ── l'aperçu ────────────────────────────────────────────────────────

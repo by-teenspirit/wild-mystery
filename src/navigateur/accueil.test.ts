@@ -325,14 +325,21 @@ Deno.test("à sa largeur de dessin, la composition ne bouge pas", () => {
   assertEquals(echelleDeLAccueil(LARGEUR_COMPOSITION), 1);
 });
 
+//  CES DEUX-LÀ RECOPIAIENT 1 292, LA LARGEUR DE COMPOSITION D'ALORS.
+//  Elle vaut 1 200 depuis, et les deux tests sont restés rouges sans
+//  que rien d'autre ne bouge : ils mesuraient une constante au lieu de
+//  mesurer la règle. Ils la prennent donc à la source maintenant — une
+//  moitié reste une moitié quelle que soit la largeur de dessin.
 Deno.test("plus étroit, elle rétrécit dans la bonne proportion", () => {
-  //  390 est la largeur de téléphone de la maquette mobile.
-  assertEquals(Math.round(echelleDeLAccueil(362) * 1000) / 1000, 0.28);
-  assertEquals(echelleDeLAccueil(646), 0.5);
+  assertEquals(echelleDeLAccueil(LARGEUR_COMPOSITION / 2), 0.5);
+  //  Un téléphone : la composition rentre au quart, et pas au plancher.
+  const surTelephone = echelleDeLAccueil(390);
+  assertEquals(Math.round(surTelephone * 1000) / 1000, 0.325);
+  assert(surTelephone > ECHELLE_MIN);
 });
 
 Deno.test("plus large, elle grandit — « pareil » vaut dans les deux sens", () => {
-  assertEquals(echelleDeLAccueil(1938), 1.5);
+  assertEquals(echelleDeLAccueil(LARGEUR_COMPOSITION * 1.5), 1.5);
 });
 
 Deno.test("et elle est bornée des deux côtés", () => {

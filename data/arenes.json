@@ -1,0 +1,21 @@
+{
+  "_": "Les sept arènes et les quatre colosseums de Rhode. UN SEUL endroit : l'onglet « Mon jeu » du carnet, la carte dresseur et le code à coller en tirent leurs cases, et le compteur de la Ligue compte les arènes de cette liste.",
+  "_nom": "`nom` est la valeur écrite dans `badge.arene` en base — relevée dans src/contrat/services.supabase.test.ts (« Arène Feu », « Arène Roche », « Arène Vol ») et confirmée par les noms de forums (f19-arene-feu). Les deux doivent coïncider mot pour mot, sinon un badge obtenu ne retrouve pas sa case.",
+  "_slug": "`slug` est la valeur de `data-wm-badge` dans le code collé, et le nom de l'image : img/badges/<slug>.png.",
+  "_ordre": "L'ORDRE DES ARÈNES EST IMPOSÉ — « on ne peut pas les faire dans le désordre » (planche 36). C'est celui-ci : Feu, Plante, Eau, Acier, Roche, Vol, Ténèbres. Ne pas le changer.",
+  "_colosseums": "Ils ne sont pas des arènes : on y combat en 2 contre 2 (planche 36). La planche 36 dit qu'il faut les sept badges d'arène « ainsi que les Colosseums » pour la Ligue, pendant que la maquette de Mon jeu écrit « les colosseums, eux, ne comptent pas ». Le code compte les ARÈNES et montre les colosseums à part : c'est ce que fait `paliers_a_revoir()`, dont le seuil est 7.",
+  "_source": "Relevé le 2 novembre des planches 36 (les règles de progression) et 44 (l'arborescence réelle), et de templates/carte-dresseur.a-coller.html.",
+  "arenes": [
+    { "nom": "Arène Feu", "slug": "feu", "type": "feu", "ville": "Station Service", "genre": "arene" },
+    { "nom": "Arène Plante", "slug": "plante", "type": "plante", "ville": "Samaragd", "genre": "arene" },
+    { "nom": "Arène Eau", "slug": "eau", "type": "eau", "ville": "Port-Amarée", "genre": "arene" },
+    { "nom": "Arène Acier", "slug": "acier", "type": "acier", "ville": "Suerebe", "genre": "arene" },
+    { "nom": "Arène Roche", "slug": "roche", "type": "roche", "ville": "Pyrite", "genre": "arene" },
+    { "nom": "Arène Vol", "slug": "vol", "type": "vol", "ville": "Tour Titanite", "genre": "arene" },
+    { "nom": "Arène Ténèbres", "slug": "tenebres", "type": "tenebres", "ville": "Île Ténèbra", "genre": "arene" },
+    { "nom": "Colosseum de Rhode", "slug": "fee", "type": "fee", "ville": "Port-Amarée", "genre": "colosseum" },
+    { "nom": "Colosseum de Phenacit", "slug": "spectre", "type": "spectre", "ville": "Phenacit", "genre": "colosseum" },
+    { "nom": "Colosseum de Targare", "slug": "electrik", "type": "electrik", "ville": "Suerebe", "genre": "colosseum" },
+    { "nom": "Colosseum de Titanite", "slug": "dragon", "type": "dragon", "ville": "Tour Titanite", "genre": "colosseum" }
+  ]
+}

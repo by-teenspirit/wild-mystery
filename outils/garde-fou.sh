@@ -814,6 +814,11 @@ echo "── 23. les fichiers dérivés se dérivent, ils ne s'écrivent pas ─
 #               →  data/pokedex-ids.json        (nom → identifiant)
 #               →  data/faune/<forumId>.json    (les 34 tables)
 #
+# Et depuis le 2 novembre, la fusion que lit l'onglet Pokédex du carnet,
+# qui dépend des trois ci-dessus PLUS les types des fiches d'espèces :
+#
+#   les quatre →  data/pokedex-carnet.json      (933 espèces, un fetch)
+#
 # Et la table de butin, qui se dérive de trois fichiers à la fois :
 #
 #   objets.json + fossiles.json + les types mesurés des espèces
@@ -838,7 +843,7 @@ echo "── 23. les fichiers dérivés se dérivent, ils ne s'écrivent pas ─
 if ! command -v python3 >/dev/null 2>&1; then
   echo "   python3 absent du PATH — chaîne du Pokédex non vérifiée"
 else
-  for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones; do
+  for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones pokedex-carnet; do
     if ! python3 "outils/$outil.py" --verifier; then
       gronde "outils/$outil.py --verifier refuse : un fichier dérivé a été modifié à la main"
     fi

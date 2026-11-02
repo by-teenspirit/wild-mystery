@@ -86,6 +86,7 @@ import {
   poserLAccessibilite,
   poserLesNotifications,
 } from "../src/adaptateurs/navigateur/module-confort.ts";
+import { poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -94,6 +95,11 @@ const coin = new CoinOutils(document, prefs);
 //  renseigné que pendant l'exécution initiale du script. Après le premier
 //  `await` il vaut null, et la racine des données serait introuvable.
 const RACINE = racineDesDonnees(adresseDuScript(document));
+//  MÊME RAISON, MÊME MOMENT. `assets/` se déduit de la même adresse, et
+//  la chercher après un `await` passait par le repli qui relit les
+//  balises `<script>` de la page — il marche, mais il n'y a aucune
+//  raison de s'en remettre à lui alors que la vraie valeur est là.
+const IMAGES = racineDesImages(adresseDuScript(document));
 
 //  LA BARRE FORUMACTIF EST RETENUE TOUT DE SUITE, et pas dans
 //  `desQueLeCorpsEstLa` : son avatar clignotait en haut de l'écran le
@@ -444,6 +450,24 @@ async function avatarDe(urlDuProfil: string): Promise<string | null> {
   }
 }
 
+/** Les cartes dresseur collées dans les messages de la page.
+ *
+ *  ELLE NE COÛTE RIEN QUAND IL N'Y A PAS DE CARTE : `poserLesCartes`
+ *  sort avant tout chargement si la page n'en porte aucune, et c'est le
+ *  cas de presque tout le forum. La configuration Supabase, elle, est
+ *  déjà lue par le module de bilan — on ne la relit pas pour rien.
+ *
+ *  ELLE NE DEMANDE PAS LA CLÉ DU CARNET, et c'est le point : une carte
+ *  est lue par les AUTRES. `carte_dresseur()` est publique et étroite
+ *  (migration 0020), là où `carnet()` exige le secret du joueur. */
+async function poserLaCarteDresseur(): Promise<void> {
+  if (RACINE === null) return;
+  if (document.querySelector("[data-wm-tcard]") === null) return;
+  const config = await configSupabase();
+  if (config === null) return;
+  await poserLesCartes(document, config, RACINE, IMAGES);
+}
+
 async function poserLesPresents(): Promise<void> {
   if (RACINE === null) return;
   if (!estLIndex(location.pathname)) return;
@@ -453,7 +477,7 @@ async function poserLesPresents(): Promise<void> {
   //  Les vignettes des groupes et le Sabelette vivent dans `assets/`,
   //  à côté de `data/` : une seule coupe donne les deux racines, donc
   //  elles ne peuvent pas se désaccorder.
-  const images = racineDesImages(adresseDuScript(document));
+  const images = IMAGES;
   poserQuiEstEnLigne({
     doc: document,
     groupes,
@@ -542,6 +566,11 @@ desQueLeCorpsEstLa(() => {
   //  ET « QUI EST EN LIGNE », tout en bas de l'index : les forums, ce
   //  qui s'y passe, puis qui l'habite.
   poserLesPresents().catch(() => {});
+  //  ET LES CARTES DRESSEUR COLLÉES DANS LES MESSAGES se remplissent.
+  //  Elles sont lisibles avant qu'on y touche — ce sont les valeurs
+  //  collées — donc elles passent après tout ce qui manquerait sans
+  //  nous, et une panne ne les vide pas, elle les laisse vieilles.
+  poserLaCarteDresseur().catch(() => {});
   //  ET LE BOUTON DU TCHAT DEVIENT UNE BULLE EN BAS À GAUCHE, dès que
   //  FAM l'a posé. Sans réseau de notre côté : on guette un nœud, on le
   //  nomme, on s'arrête. L'allure, elle, est en CSS.

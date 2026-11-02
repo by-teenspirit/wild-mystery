@@ -92,9 +92,15 @@ export function racineDesImages(adresseDuScript: string | null): string | null {
 export function adresseDuScript(doc: Document): string | null {
   const courant = doc.currentScript;
   if (courant instanceof HTMLScriptElement && courant.src !== "") return courant.src;
-  //  Repli : le dernier script de la page qui porte notre nom.
+  //  Repli : le dernier script de la page qui porte un de nos noms.
+  //  LES TROIS, depuis le 2 novembre : les pages autonomes chargent
+  //  `annexes.js` ou `carnet.js`, pas `wild-mystery.js`, et le repli ne
+  //  les trouvait pas. Il ne sert que si `currentScript` est nul, ce
+  //  qui n'arrive pas avec un paquet IIFE — mais un repli qui ne peut
+  //  pas réussir sur deux pages sur trois n'est pas un repli.
+  const NOTRES = ["/js/wild-mystery.js", "/js/annexes.js", "/js/carnet.js"];
   const notres = Array.from(doc.querySelectorAll<HTMLScriptElement>("script[src]"))
-    .filter((s) => s.src.includes("/js/wild-mystery.js"));
+    .filter((s) => NOTRES.some((n) => s.src.includes(n)));
   return notres.length > 0 ? notres[notres.length - 1].src : null;
 }
 
