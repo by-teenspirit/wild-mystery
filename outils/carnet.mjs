@@ -193,14 +193,17 @@ async function monter(
       });
     }
 
-    //  LE SUJET D'OUVERTURE : le fichier du dépôt porte `null`, donc
-    //  on le remplace quand le cas en a besoin. Servir le vrai fichier
-    //  le reste du temps est ce qui fait tomber le contrôle « sans
-    //  sujet, pas de code à poster » si quelqu'un le câble en dur.
+    //  LE SUJET D'OUVERTURE EST SERVI PAR LE DÉCOR, DANS LES DEUX
+    //  SENS. Les deux cas — configuré et pas configuré — étaient
+    //  d'abord lus dans `data/carnet.json`, et le jour où Callista y a
+    //  mis le vrai numéro, le contrôle « sans sujet, pas de code à
+    //  poster » est tombé. Il ne mesurait pas la règle, il mesurait la
+    //  configuration du jour. Un harnais ne doit pas changer d'avis
+    //  parce qu'une donnée de jeu a changé.
     if (sujetDOuverture !== null && u.pathname.endsWith("/data/carnet.json")) {
       return route.fulfill({
         contentType: "application/json",
-        body: JSON.stringify({ sujet: sujetDOuverture }),
+        body: JSON.stringify({ sujet: sujetDOuverture === "aucun" ? null : sujetDOuverture }),
       });
     }
 
@@ -288,7 +291,7 @@ async function monter(
   //  SANS SUJET CONFIGURÉ, PAS DE CODE À POSTER. `data/carnet.json`
   //  porte `null` dans le dépôt : un code sans dire où le poster
   //  ferait perdre dix minutes à chaque joueur.
-  const { q } = await monter();
+  const { q } = await monter({ sujetDOuverture: "aucun" });
   const vu = await q.evaluate(() => ({
     cache: document.querySelector("[data-wm-carnet-ouvrir]")?.hidden ?? null,
     cleQuandMeme: document.querySelector("[data-wm-carnet-formulaire] input") !== null,
