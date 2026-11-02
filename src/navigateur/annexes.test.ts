@@ -196,3 +196,28 @@ Deno.test("un sommaire vide rend un affichage vide", () => {
   const vide: Sommaire = { sections: [] };
   assertEquals(sommaireAffiche(vide, "le-reglement").length, 0);
 });
+
+Deno.test("l'entrée de la page qu'on lit n'est jamais « à venir »", () => {
+  //  Relevé le 2 novembre : une page créée sur le forum mais dont
+  //  l'adresse n'est pas encore reportée dans `annexes.json` cumulait
+  //  le fond de l'entrée courante et la pâleur de l'entrée absente.
+  //  Elle tombait à 3,47 de contraste, sur chacune des douze pages pas
+  //  encore reportées. L'adresse dit si quelqu'un l'a notée ; elle ne
+  //  dit pas si la page existe, et quand on la lit, la question est
+  //  tranchée.
+  const sections = sommaireAffiche(
+    {
+      sections: [{
+        titre: "Les annexes",
+        entrees: [
+          { numero: "01", slug: "ici", titre: "Ici", adresse: null },
+          { numero: "02", slug: "ailleurs", titre: "Ailleurs", adresse: null },
+        ],
+      }],
+    },
+    "ici",
+  );
+  const [ici, ailleurs] = sections[0].entrees;
+  assertEquals([ici.active, ici.aVenir], [true, false]);
+  assertEquals([ailleurs.active, ailleurs.aVenir], [false, true]);
+});

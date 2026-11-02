@@ -115,11 +115,37 @@ const navigateur = await chromium.launch(
   CHROME === undefined ? {} : { executablePath: CHROME },
 );
 const p = await navigateur.newPage({ viewport: { width: 1280, height: 1400 } });
-await p.setContent(doc);
+//  ── LA PAGE EST SERVIE A SON ADRESSE, PAS SUR `about:blank` ───────
+//
+//  `setContent` monte la page sans origine. Trois choses en
+//  dependaient et tombaient en silence :
+//
+//    · `location.pathname` etait vide, donc le module ne savait pas
+//      QUELLE annexe il habillait : aucune entree active, aucun bouton
+//      « suivante » a recalculer ;
+//    · `localStorage` jette sur une origine opaque, donc le bouton de
+//      theme ne pouvait pas retenir un choix ;
+//    · les adresses relatives de la barre ne menaient nulle part.
+//
+//  On intercepte tout le reseau et on sert ce document a l'adresse que
+//  la page aura vraiment. Le numero `hN` est inconnu ici et ne compte
+//  pas : Forumactif sert la page par son numero et le sommaire la
+//  reconnait par son slug (releve le 2 novembre, `/h1-nimportequoi`
+//  rend bien la premiere annexe).
+const slugDeLaCible = /annexe-\d+-([a-z0-9-]+)\.html$/.exec(cible)?.[1] ?? "x";
+const ADRESSE = `https://mysteryinrhode.forumactif.com/h1-${slugDeLaCible}`;
+await p.route("**/*", (route) =>
+  route.request().url() === ADRESSE
+    ? route.fulfill({ contentType: "text/html; charset=utf-8", body: doc })
+    : route.fulfill({ status: 204, body: "" }));
+await p.goto(ADRESSE);
 
 // Le sommaire, pose par le vrai module : on ne mesure pas un balisage
 // qu'on aurait recopie a la main dans le harnais.
 await p.addScriptTag({ path: R + "js/harnais-sommaire.js" });
+//  LE BOUTON DE THEME EN PREMIER : il n'attend aucun fichier, et c'est
+//  dans cet ordre qu'il arrive sur la vraie page.
+await p.evaluate(() => globalThis.wmPoserLeTheme());
 await p.evaluate(
   (d) => globalThis.wmPoserLeSommaire(d),
   JSON.parse(readFileSync(R + "data/annexes.json", "utf8")),
@@ -454,6 +480,77 @@ if (etirement !== null && etirement.photo && etirement.chargee) {
       (bon ? "" : " — DEFAUT, a cette echelle elle se pixellise"),
   );
   if (!bon) fautes++;
+}
+
+//  ── LE BOUTON DE THEME EST LA, ET IL BASCULE ──────────────────────
+//
+//  « Est-ce que tu peux effectivement rajouter le dark mode. » Sur le
+//  forum il vit dans le coin d'outils ; une annexe n'a pas ce coin, et
+//  le bouton est donc pose dans la barre par le script. On clique pour
+//  de vrai : verifier qu'il existe ne dirait pas qu'il fait quelque
+//  chose, et son mot doit changer avec lui — il annonce sa
+//  destination, pas l'etat courant.
+const theme = await p.evaluate(async () => {
+  const b = document.querySelector(".wm-retour__theme");
+  if (b === null) return null;
+  //  ON REPART DE ZERO. Les mesures de contraste viennent de passer la
+  //  page en sombre a la main : sans ce nettoyage on testerait le
+  //  bouton depuis un etat que personne n'a jamais.
+  try {
+    localStorage.removeItem("wm.theme");
+  } catch { /* origine opaque : le bouton ne retiendra rien, c'est tout */ }
+  document.body.classList.remove("wm-sombre");
+  b.textContent = "Sombre";
+  const etat = () => ({
+    sombre: document.body.classList.contains("wm-sombre"),
+    mot: b.textContent.trim(),
+  });
+  const avant = etat();
+  b.click();
+  await new Promise((r) => requestAnimationFrame(r));
+  const apres = etat();
+  b.click();
+  await new Promise((r) => requestAnimationFrame(r));
+  return { avant, apres, revenu: etat() };
+});
+if (theme === null) {
+  console.log("bouton de theme : ABSENT — defaut");
+  fautes++;
+} else {
+  const bascule = theme.avant.sombre !== theme.apres.sombre &&
+    theme.avant.mot !== theme.apres.mot &&
+    theme.revenu.sombre === theme.avant.sombre;
+  console.log(
+    `bouton de theme : « ${theme.avant.mot} » → « ${theme.apres.mot} », ` +
+      `sombre ${theme.avant.sombre} → ${theme.apres.sombre}` +
+      (bascule ? "" : " — DEFAUT, il ne bascule pas"),
+  );
+  if (!bascule) fautes++;
+}
+
+//  ── LE BOUTON « SUIVANTE » MENE QUELQUE PART ──────────────────────
+//
+//  Ecrit a la construction, il pointait sur `#` tant que la page
+//  d'apres n'existait pas : treize boutons morts sur quatorze. Il est
+//  refait a l'affichage et saute les pages absentes.
+const suivante = await p.evaluate(() => {
+  const b = document.querySelector("a.wm-suivante__bouton");
+  //  Retire quand aucune autre page n'existe : c'est le bon cas, pas
+  //  un defaut. Un bouton qu'on ne peut pas suivre ment sur l'etat du
+  //  forum.
+  if (b === null) return { absent: true };
+  return { absent: false, vers: b.getAttribute("href"), mot: b.textContent.trim() };
+});
+if (suivante.absent) {
+  console.log("bouton suivante : retire, aucune autre page n'est en ligne");
+} else {
+  const vivant = suivante.vers !== null && suivante.vers !== "#" &&
+    suivante.vers.startsWith("/");
+  console.log(
+    `bouton suivante : ${suivante.vers}` +
+      (vivant ? "" : " — DEFAUT, il ne mene nulle part"),
+  );
+  if (!vivant) fautes++;
 }
 
 //  ── LE TEXTE COURANT PORTE LA POLICE DE LA CHARTE ─────────────────

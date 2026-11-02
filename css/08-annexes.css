@@ -122,13 +122,26 @@ body:has(#modernbb .wm-annexe) {
   text-decoration: none;
 }
 
-#modernbb a.wm-retour__lien {
+/*  LE BOUTON DE THÈME PREND L'ALLURE D'UN LIEN. C'en est un pour
+    l'œil et un bouton pour le clavier : il agit sur la page au lieu
+    d'y mener, donc `<button>`. Il faut lui retirer ce qu'un navigateur
+    met d'office — fond gris, cadre, police système — que les `<a>`
+    d'à côté n'ont pas. */
+#modernbb button.wm-retour__lien {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+#modernbb a.wm-retour__lien,
+#modernbb button.wm-retour__lien {
   display: inline-flex;
   align-items: center;
   min-height: var(--wm-cible-tactile, 44px);
   padding: 0 var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-md, 8px);
   color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: inherit;
   font-size: var(--wm-taille-normal, 13.5px);
   text-decoration: none;
 }
@@ -136,7 +149,9 @@ body:has(#modernbb .wm-annexe) {
 #modernbb a.wm-retour__nom:hover,
 #modernbb a.wm-retour__nom:focus-visible,
 #modernbb a.wm-retour__lien:hover,
-#modernbb a.wm-retour__lien:focus-visible {
+#modernbb a.wm-retour__lien:focus-visible,
+#modernbb button.wm-retour__lien:hover,
+#modernbb button.wm-retour__lien:focus-visible {
   text-decoration: underline;
 }
 
@@ -448,9 +463,26 @@ body:has(#modernbb .wm-annexe) {
   border-left: 4px solid transparent;
 }
 
+/*  L'ENTRÉE COURANTE PORTE `texte-inverse`, ET PAS `texte-sur-nuit`.
+    Les deux se valent en clair — bleu foncé, texte crème — mais en
+    sombre l'accent devient un bleu PÂLE, et le texte crème y tombait
+    à 1,58 contre 4,5 exigés : l'entrée de la page qu'on lit était la
+    seule illisible du sommaire.
+
+    `texte-inverse` est le jeton fait pour ça, et c'est celui qu'emploie
+    tout le reste du dépôt sur un fond d'accent — la pagination, les
+    boutons, les puces. Il suit l'accent dans les deux thèmes.
+
+    Le harnais ne l'avait jamais vu parce qu'il montait la page sans
+    adresse : aucune entrée n'était active, donc cette règle n'était
+    mesurée nulle part. */
 #modernbb .wm-annexe__entree--active {
   border-left-color: var(--wm-accent-fort, #1f5470);
   background: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .wm-annexe__entree--active .wm-annexe__lien {
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /*  39 px de haut, texte à 22 du bord, en capitales (maquette). Le numéro
@@ -867,7 +899,8 @@ body:has(#modernbb .wm-annexe) {
     margin-right: 0;
   }
 
-  #modernbb a.wm-retour__lien {
+  #modernbb a.wm-retour__lien,
+  #modernbb button.wm-retour__lien {
     min-height: 0;
     padding: 0;
   }

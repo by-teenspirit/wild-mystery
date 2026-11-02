@@ -138,10 +138,20 @@ export function sommaireAffiche(
 ): readonly SectionAffichee[] {
   return sommaire.sections.map((s) => ({
     titre: s.titre,
-    entrees: s.entrees.map((e) => ({
-      ...e,
-      active: slugCourant !== null && e.slug === slugCourant,
-      aVenir: e.adresse === null,
-    })),
+    entrees: s.entrees.map((e) => {
+      const active = slugCourant !== null && e.slug === slugCourant;
+      return {
+        ...e,
+        active,
+        //  UNE PAGE QU'ON EST EN TRAIN DE LIRE N'EST PAS « À VENIR ».
+        //  `adresse` dit seulement si quelqu'un l'a reportée dans
+        //  `annexes.json` ; la page, elle, est sous les yeux. Sans
+        //  cette ligne, son entrée cumulait le fond d'accent de
+        //  l'entrée courante et la pâleur de l'entrée absente, et
+        //  tombait à 3,47 de contraste — la seule illisible du
+        //  sommaire, sur chacune des pages pas encore reportées.
+        aVenir: e.adresse === null && !active,
+      };
+    }),
   }));
 }

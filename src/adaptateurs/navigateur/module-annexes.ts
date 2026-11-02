@@ -144,3 +144,56 @@ export function poserLeSommaire({ doc, donnees }: Dependances): boolean {
   sections.forEach((s, i) => trou.appendChild(sectionEnDOM(doc, s, i === 0)));
   return true;
 }
+
+/**
+ * Rebranche le bouton « Annexe suivante » sur une page qui existe.
+ *
+ * LE GÉNÉRATEUR L'ÉCRIT AU MOMENT DE LA CONSTRUCTION, donc avec les
+ * adresses connues CE JOUR-LÀ. Tant qu'une page n'était pas créée, son
+ * voisin pointait sur `#` — un bouton mort, et il fallait recoller la
+ * page pour le réveiller. Relevé le 2 novembre : treize boutons sur
+ * quatorze ne menaient nulle part.
+ *
+ * ON LE REFAIT DONC À L'AFFICHAGE, depuis le même fichier que le
+ * sommaire. Remplir une adresse dans `data/annexes.json` et pousser
+ * suffit alors : le sommaire ET le bouton se réveillent sur les
+ * quatorze pages, sans en recoller une seule.
+ *
+ * IL SAUTE LES PAGES QUI N'EXISTENT PAS. Avec deux annexes en ligne,
+ * « suivante » depuis la première doit mener à la seule autre, pas à la
+ * deuxième du sommaire qui n'est pas encore née. Et s'il n'y en a
+ * aucune, le bouton disparaît : un bouton qu'on ne peut pas suivre ment
+ * sur l'état du forum.
+ */
+export function poserLaSuivante({ doc, donnees }: Dependances): boolean {
+  const bouton = doc.querySelector("a.wm-suivante__bouton");
+  if (bouton === null) return false;
+
+  const sections = sommaireAffiche(
+    sommaireDepuis(donnees),
+    slugDepuisAdresse(doc.location?.pathname ?? ""),
+  );
+  const toutes = sections.flatMap((s) => s.entrees);
+  const ici = toutes.findIndex((e) => e.active);
+  if (ici === -1) return false;
+
+  //  On tourne : la dernière annexe renvoie à la première.
+  const suite = toutes
+    .slice(ici + 1)
+    .concat(toutes.slice(0, ici))
+    .find((e) => e.adresse !== null && !e.aVenir);
+
+  if (suite === undefined || suite.adresse === null) {
+    bouton.remove();
+    return false;
+  }
+
+  bouton.setAttribute("href", suite.adresse);
+  //  L'étiquette reste, le titre change : la page suivante n'est plus
+  //  forcément celle que le générateur avait écrite.
+  const etiquette = bouton.querySelector(".wm-suivante__etiquette");
+  bouton.textContent = "";
+  if (etiquette !== null) bouton.appendChild(etiquette);
+  bouton.appendChild(doc.createTextNode(` ${suite.titre} →`));
+  return true;
+}

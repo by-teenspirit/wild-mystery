@@ -27,7 +27,13 @@
 //  endroit, et une adresse écrite en dur ici devrait être corrigée le
 //  jour d'un déménagement.
 // ════════════════════════════════════════════════════════════════════
-import { poserLeSommaire } from "../src/adaptateurs/navigateur/module-annexes.ts";
+import {
+  poserLaSuivante,
+  poserLeSommaire,
+} from "../src/adaptateurs/navigateur/module-annexes.ts";
+import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
+import { Preferences } from "../src/navigateur/preferences.ts";
+import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
 import { adresseDuScript, racineDesDonnees } from "../src/adaptateurs/navigateur/catalogue.ts";
 
 const RACINE = racineDesDonnees(adresseDuScript(document));
@@ -39,7 +45,17 @@ async function poser(): Promise<void> {
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
   poserLeSommaire({ doc: document, donnees });
+  //  LE BOUTON « SUIVANTE » VIENT DU MÊME FICHIER. Écrit à la
+  //  construction, il pointait sur `#` tant que la page d'après
+  //  n'existait pas ; refait ici, il saute les pages absentes et se
+  //  réveille dès qu'une adresse est remplie — sans recoller.
+  poserLaSuivante({ doc: document, donnees });
 }
+
+//  LE THÈME NE DÉPEND D'AUCUN FICHIER, donc il est posé tout de suite
+//  et pas après la requête : attendre le sommaire pour habiller la page
+//  la ferait clignoter du clair au sombre sous les yeux du joueur.
+poserLeTheme(document, new Preferences(new StockageLocal()));
 
 //  LA PAGE RESTE LISIBLE SANS CE SCRIPT. Le texte est dans la page, en
 //  vrai HTML ; sans sommaire il manque une navigation, pas le contenu.
