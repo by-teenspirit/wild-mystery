@@ -13,7 +13,7 @@
 
   "_utiles": "Les sept liens du panneau latéral. `icone` est un nom de Material Symbols — la police est déjà chargée par le forum, on n'en ajoute pas. Deux adresses sont MESURÉES sur le forum ; les cinq autres sont des pages qui n'existent pas encore.",
   "utiles": [
-    { "icone": "menu_book", "titre": "Mon Carnet de Bord", "adresse": null },
+    { "icone": "menu_book", "titre": "Mon Carnet de Bord", "adresse": "/h15-mon-carnet" },
     { "icone": "list_alt", "titre": "Annexes", "adresse": null },
     { "icone": "map", "titre": "Carte de Rhode", "adresse": null },
     { "icone": "storefront", "titre": "Marché de Rhode", "adresse": "/f3-le-marche-de-rhode" },
@@ -26,7 +26,7 @@
   "compte": [
     { "icone": "visibility", "titre": "Voir mon profil", "modele": "/u{id}" },
     { "icone": "edit", "titre": "Éditer mon profil", "modele": "/profile?mode=editprofile" },
-    { "icone": "menu_book", "titre": "Mon carnet de bord", "modele": null },
+    { "icone": "menu_book", "titre": "Mon carnet de bord", "modele": "/h15-mon-carnet" },
     { "icone": "forum", "titre": "Mes sujets", "modele": "/search?search_id=egosearch" },
     { "icone": "mail", "titre": "Mes messages", "modele": "/privmsg" }
   ]

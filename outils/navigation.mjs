@@ -582,6 +582,37 @@ dire(
   String(panneau.ajout),
 );
 
+//  3 ter · LE CARNET DE BORD MÈNE AU CARNET, DES DEUX CÔTÉS
+//
+//  « Mets l'accès au carnet de bord partout : dans la barre latérale et
+//  dans "mon carnet de bord (à venir)" dans le profil », 3 novembre.
+//  Les deux entrées étaient des « à venir » depuis le 6 octobre.
+//
+//  ON LIT L'ADRESSE SERVIE, pas le fichier de configuration : c'est le
+//  chemin entier — `data/navigation.json`, le domaine, le DOM — qu'on
+//  veut tenir, et une entrée peut très bien exister sans son lien.
+//  C'est d'ailleurs l'état dont on sort : la mention « à venir »
+//  s'écrivait à la place du lien.
+const carnetDuPanneau = await p.evaluate(() => {
+  const e = [...document.querySelectorAll(".wm-panneau__entree")]
+    .find((li) => /carnet/i.test(li.textContent ?? ""));
+  if (e === undefined) return null;
+  const a = e.querySelector("a.wm-panneau__lien");
+  return {
+    adresse: a === null ? null : new URL(a.href).pathname,
+    aVenir: e.classList.contains("wm-panneau__entree--a-venir"),
+    //  Le mot « à venir » doit avoir disparu AVEC le lien : le garder
+    //  à côté d'une adresse qui marche serait un mensonge affiché.
+    motAVenir: e.querySelector(".wm-panneau__a-venir") !== null,
+  };
+});
+dire(
+  "DANS LA BARRE LATÉRALE, LE CARNET EST UN LIEN VERS SA PAGE",
+  carnetDuPanneau !== null && carnetDuPanneau.adresse === "/h15-mon-carnet" &&
+    carnetDuPanneau.aVenir === false && carnetDuPanneau.motAVenir === false,
+  JSON.stringify(carnetDuPanneau),
+);
+
 //  3 bis · LE « + » EST CENTRÉ, ET LA CARTE SE LIT SUR LE PANNEAU SOMBRE
 //
 //  Les deux défauts du 7 octobre. Le « + » se posait en haut à gauche :
@@ -816,6 +847,25 @@ if (menu !== null) {
     "ET LE CARNET S'AFFICHE COMME LES AUTRES",
     icones.carnet.fond === icones.autre.fond && icones.carnet.icone === icones.autre.icone,
     JSON.stringify(icones),
+  );
+
+  //  ET IL MÈNE QUELQUE PART. Le menu du compte sert des `modele`, pas
+  //  des adresses : celui du carnet n'a pas de `{id}` à remplacer, donc
+  //  il doit arriver tel quel. Mesuré ici plutôt que déduit, parce que
+  //  `adresseDeCompte` pourrait rendre `null` sans que rien ne le dise
+  //  — c'est ce qu'elle faisait jusqu'au 3 novembre.
+  const carnetDuMenu = await p.evaluate(() => {
+    const e = [...document.querySelectorAll(".wm-compte__entree")]
+      .find((li) => /carnet/i.test(li.textContent ?? ""));
+    if (e === undefined) return null;
+    const a = e.querySelector("a");
+    return { estUnLien: a !== null, adresse: a === null ? null : new URL(a.href).pathname };
+  });
+  dire(
+    "DANS LE MENU DU PROFIL AUSSI, LE CARNET EST UN LIEN",
+    carnetDuMenu !== null && carnetDuMenu.estUnLien &&
+      carnetDuMenu.adresse === "/h15-mon-carnet",
+    JSON.stringify(carnetDuMenu),
   );
 }
 
