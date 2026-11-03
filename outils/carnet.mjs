@@ -157,17 +157,15 @@ console.log("\n── le carnet de bord ──");
 //  sur la page d'édition de profil du membre — son numéro de compte et
 //  sa clé de liaison, que le staff y a posée.
 //
-//  LA FORME EST CELLE DU FORUM, relevée le 3 novembre sur le vrai
-//  formulaire : un `<dl>` dans un `<fieldset>`, l'étiquette dans un
-//  `<dt>`, le champ dans le `<dd>` qui suit, et `class="inputbox"` sur
-//  l'`<input>`. Le chemin complet est
-//  `form > div.panel > div.inner > fieldset > dl > dd > input.inputbox`.
+//  LE PROFIL NE SERT PLUS QU'À DIRE QUI REGARDE. La clé du champ a
+//  vécu huit heures : depuis la 0029 la preuve vient de Supabase Auth,
+//  parce qu'un champ réservé au staff n'apparaît pas sur la page de son
+//  propriétaire — mesuré le 3 novembre en compte de test, seize champs
+//  au lieu de vingt-et-un.
 //
-//  SERVIR UN `<input>` NU NE PROUVERAIT RIEN : c'est la position de
-//  l'étiquette qui est fragile, pas la lecture d'une valeur. Un décor
-//  qui mettrait l'étiquette dans un `<label for>` passerait avec un
-//  code qui échouerait sur le forum.
-function pageDeProfil({ compte, cle, etiquette = "clé de liaison :" }) {
+//  On garde la forme réelle du formulaire quand même : la page y lit
+//  `_userdata`, et c'est ce que Forumactif sert.
+function pageDeProfil({ compte }) {
   const tete = compte === "invite"
     ? '_userdata["session_logged_in"] = 0;_userdata["username"] = "Anonymous";' +
       '_userdata["user_id"] = -1;'
@@ -175,20 +173,12 @@ function pageDeProfil({ compte, cle, etiquette = "clé de liaison :" }) {
       `_userdata["username"] = "${compte.pseudo}";` +
       `_userdata["user_id"] = ${compte.id};`;
 
-  //  Un invité n'a pas de formulaire de profil du tout.
   const champs = compte === "invite" ? "" : `
     <form method="post"><div class="panel"><div class="inner"><fieldset><dl>
       <dt>Pseudo :</dt>
       <dd><input class="inputbox" type="text" name="profile_field_13_8" value="Callista" /></dd>
       <dt>Discord * :</dt>
       <dd><input class="inputbox" type="text" name="profile_field_13_1" value="callidesign" /></dd>
-      <dt>${etiquette}</dt>
-      <dd><input class="inputbox" type="text" name="profile_field_13_2"
-                 maxlength="15000" value="${cle ?? ""}" /></dd>
-      <dt>CARNET DE BORD :</dt>
-      <dd><input class="inputbox" type="text" name="profile_field_3_14" value="" /></dd>
-      <dt>Date de naissance :</dt>
-      <dd><select name="profile_field_4_-12[]"><option>1</option></select></dd>
     </dl></fieldset></div></div></form>`;
 
   return `<html><head><script>var _userdata = new Object();${tete}</script></head>` +
@@ -196,35 +186,86 @@ function pageDeProfil({ compte, cle, etiquette = "clé de liaison :" }) {
 }
 
 const MEMBRE = { id: 42, pseudo: "Eliott Vanner" };
-const CLE = "a1b2c3d4e5f60718293a4b5c6d7e8f90";
+
+//  LES JETONS DU DÉCOR. Ce ne sont pas des JWT : la page ne les lit pas,
+//  elle les recopie dans un en-tête. Ce qui est mesuré est le TRAJET.
+const JETON = "jeton-de-decor";
+const JETON_NEUF = "jeton-rafraichi";
+const RAFRAICHIR = "rafraichir-de-decor";
+
+/*  LE RETOUR DU MAIL, dans la forme du flot implicite de Supabase. */
+const RETOUR_OK = `#access_token=${JETON}&expires_in=3600` +
+  `&refresh_token=${RAFRAICHIR}&token_type=bearer&type=magiclink`;
+const RETOUR_MORT = "#error=access_denied&error_code=otp_expired";
 
 async function monter(
   {
     reponse = CARNET,
     compte = MEMBRE,
-    cle = CLE,
-    etiquette = undefined,
-    refus = null,
+    laissez = "bon",
+    fragment = "",
     forumMuet = false,
+    refus = null,
+    otp = "ok",
+    rafraichissement = "ok",
   } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
   const appels = [];
   const demandes = [];
+  const jetonsVus = [];
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 
   await q.route("**/*", (route) => {
     const u = new URL(route.request().url());
+    const entetes = route.request().headers();
 
-    if (u.pathname.endsWith("/rest/v1/rpc/carnet")) {
-      appels.push(JSON.parse(route.request().postData() ?? "{}"));
-      if (refus !== null) {
+    //  L'ENVOI DU LIEN.
+    if (u.pathname === "/auth/v1/otp") {
+      appels.push({ ou: "otp", corps: JSON.parse(route.request().postData() ?? "{}") });
+      if (otp === "trop-vite") return route.fulfill({ status: 429, body: "{}" });
+      if (otp === "refus") {
         return route.fulfill({
           status: 400,
           contentType: "application/json",
-          body: JSON.stringify({ message: refus }),
+          body: JSON.stringify({ error_code: "validation_failed" }),
         });
       }
+      return route.fulfill({ contentType: "application/json", body: "{}" });
+    }
+
+    //  LE RAFRAÎCHISSEMENT.
+    if (u.pathname === "/auth/v1/token") {
+      appels.push({ ou: "token", corps: JSON.parse(route.request().postData() ?? "{}") });
+      if (rafraichissement === "refus") return route.fulfill({ status: 400, body: "{}" });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          access_token: JETON_NEUF,
+          refresh_token: RAFRAICHIR,
+          expires_in: 3600,
+        }),
+      });
+    }
+
+    if (u.pathname.endsWith("/rest/v1/rpc/lier_mon_personnage")) {
+      appels.push({ ou: "lier", jeton: (entetes.authorization ?? "").replace("Bearer ", "") });
+      if (refus === "RIEN_A_LIER") return route.fulfill({ status: 400, body: "{}" });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ lies: 1, personnages: [] }),
+      });
+    }
+
+    if (u.pathname.endsWith("/rest/v1/rpc/carnet_de_la_session")) {
+      const jeton = (entetes.authorization ?? "").replace("Bearer ", "");
+      jetonsVus.push(jeton);
+      appels.push({
+        ou: "carnet",
+        jeton,
+        corps: JSON.parse(route.request().postData() ?? "{}"),
+      });
+      if (refus === "panne") return route.fulfill({ status: 500, body: "{}" });
       return route.fulfill({
         contentType: "application/json",
         body: JSON.stringify(reponse),
@@ -244,9 +285,6 @@ async function monter(
           : "application/octet-stream";
         return route.fulfill({ contentType: type, body: octets });
       } catch {
-        //  LES IMAGES NE SONT PAS DANS LE DÉPÔT ICI — ni les sprites,
-        //  ni les photos de zone. Un pixel suffit : ce qui est jugé,
-        //  c'est la mise en page, pas l'image.
         return route.fulfill({
           contentType: "image/svg+xml",
           body: '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"></svg>',
@@ -254,188 +292,261 @@ async function monter(
       }
     }
 
-    //  Les polices de Google : on ne les charge pas, elles ne changent
-    //  rien de mesurable ici et elles coûtent une seconde par page.
     if (u.hostname.endsWith("googleapis.com") || u.hostname.endsWith("gstatic.com")) {
       return route.fulfill({ contentType: "text/css", body: "" });
     }
 
-    if (u.href === ADRESSE) {
+    if (u.pathname === "/profile") {
+      demandes.push(u.pathname + u.search);
+      if (forumMuet) return route.fulfill({ status: 503, body: "" });
+      return route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: pageDeProfil({ compte }),
+      });
+    }
+
+    if (u.href.split("#")[0] === ADRESSE) {
       return route.fulfill({
         contentType: "text/html; charset=utf-8",
         body: readFileSync(R + "pages/carnet.html", "utf8"),
       });
     }
 
-    //  La page où le numéro ET la clé se lisent.
-    if (u.pathname === "/profile") {
-      demandes.push(u.pathname + u.search);
-      if (forumMuet) return route.fulfill({ status: 503, body: "" });
-      return route.fulfill({
-        contentType: "text/html; charset=utf-8",
-        body: pageDeProfil({ compte, cle, ...(etiquette === undefined ? {} : { etiquette }) }),
-      });
-    }
-
     return route.fulfill({ status: 404, body: "" });
   });
 
-  await q.goto(ADRESSE, { waitUntil: "load" });
+  //  LE LAISSEZ-PASSER DÉJÀ RANGÉ, s'il y en a un. `"perime"` est le cas
+  //  de la visite du lendemain : le jeton est mort, celui de
+  //  rafraîchissement est bon, et la page doit le remplacer sans rien
+  //  demander à la joueuse.
+  if (laissez !== null) {
+    const expireLe = laissez === "perime" ? Date.now() - 1000 : Date.now() + 3_600_000;
+    await q.addInitScript(
+      (v) => localStorage.setItem("wm.carnet.laissez", v),
+      JSON.stringify({ jeton: JETON, rafraichir: RAFRAICHIR, expireLe }),
+    );
+  }
+
+  await q.goto(ADRESSE + fragment, { waitUntil: "load" });
   await q.waitForTimeout(900);
-  return { q, appels, demandes };
+  return { q, appels, demandes, jetonsVus };
 }
 
-// ── 1 · le carnet s'ouvre tout seul ────────────────────────────────
+// ── 1 · la liaison, une fois ────────────────────────────────────────
 
 {
-  //  LE CAS NORMAL, ET IL N'Y A PLUS DE GESTE DEDANS. « En principe, ça
-  //  devrait être automatique. Pas de sujet d'ouverture ou quoi »,
-  //  3 novembre.
-  const { q, appels, demandes } = await monter();
+  //  LA PREMIÈRE VISITE. « C'est la première chose à faire quand on
+  //  arrive dans le carnet de bord. » Rien n'est demandé au jeu : sans
+  //  laissez-passer il n'y a rien à demander.
+  const { q, appels } = await monter({ laissez: null });
   const vu = await q.evaluate(() => ({
     etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-    nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
-    pokedexCache: document.querySelector("[data-wm-carnet-page='mon-pokedex']")?.hidden ?? null,
+    lierOuvert: document.querySelector("[data-wm-carnet-lier]")?.hidden === false,
+    champ: document.querySelector("[data-wm-carnet-liaison] input") !== null,
   }));
   dire(
-    "SANS UN GESTE, LE CARNET S'OUVRE SUR « MON JEU »",
-    vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.pokedexCache === true,
-    JSON.stringify(vu),
-  );
-  //  LA CLÉ ENVOYÉE EST CELLE DU PROFIL, et c'est ce qu'on veut
-  //  prouver : pas une valeur par défaut qui aurait eu de la chance,
-  //  pas le numéro de compte tout nu de la veille.
-  dire(
-    "et la clé envoyée est celle du profil, en un seul appel",
-    demandes.length === 1 && appels.length === 1 && appels[0]?.p?.cle === CLE,
-    JSON.stringify({ demandes, appels }),
-  );
-  await q.close();
-}
-
-{
-  //  UN INVITÉ N'EST PAS UNE PANNE. Il se connecte, et c'est tout —
-  //  mais surtout on ne demande RIEN à la base pour lui : un appel
-  //  avec `-1` serait un aller-retour pour rien, et un carnet
-  //  introuvable ressemblerait à un défaut.
-  const { q, appels } = await monter({ compte: "invite" });
-  const vu = await q.evaluate(() => ({
-    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
-  }));
-  dire(
-    "UN INVITÉ S'ENTEND DIRE DE SE CONNECTER, ET RIEN N'EST DEMANDÉ À LA BASE",
-    vu.etat === "dehors" && /connecte-toi/i.test(vu.souci) && appels.length === 0,
+    "SANS LIAISON, LA PAGE PROPOSE DE LIER ET NE DEMANDE RIEN AU JEU",
+    vu.etat === "dehors" && vu.lierOuvert && vu.champ && appels.length === 0,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
   await q.close();
 }
 
 {
-  //  LE FORUM MUET NE DOIT PAS DIRE « CONNECTE-TOI ». C'est le piège de
-  //  ce mécanisme : les deux refus se ressemblent dans le code et pas
-  //  du tout pour la lectrice. Envoyer se connecter quelqu'un qui l'est
-  //  déjà, c'est lui faire chercher une faute qui n'est pas la sienne.
-  const { q, appels } = await monter({ forumMuet: true });
+  //  LE FORMULAIRE ENVOIE LE LIEN, et l'adresse de retour est celle de
+  //  la page — Supabase exige qu'elle soit déclarée dans la
+  //  configuration du projet, donc une adresse inventée ferait refuser
+  //  l'envoi sans qu'on sache pourquoi.
+  const { q, appels } = await monter({ laissez: null });
+  await q.fill("[data-wm-carnet-liaison] input", "callie+1@exemple.fr");
+  await q.click("[data-wm-carnet-liaison] button");
+  await q.waitForTimeout(300);
+  const dit = await q.evaluate(() =>
+    document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim() ?? ""
+  );
+  const envoi = appels.find((a) => a.ou === "otp");
+  dire(
+    "LE FORMULAIRE ENVOIE LE LIEN, AVEC L'ADRESSE DE RETOUR DE LA PAGE",
+    envoi !== undefined && envoi.corps.email === "callie+1@exemple.fr" &&
+      envoi.corps.options?.email_redirect_to === ADRESSE &&
+      /bo[îi]te/i.test(dit),
+    JSON.stringify({ envoi, dit }),
+  );
+  await q.close();
+}
+
+{
+  //  LE DÉBIT BRIDÉ A SON PROPRE MOT. Le service de mail par défaut de
+  //  Supabase ne passe que quelques messages par heure : dire « lien
+  //  envoyé » ferait attendre un mail qui ne viendra pas.
+  const { q } = await monter({ laissez: null, otp: "trop-vite" });
+  await q.fill("[data-wm-carnet-liaison] input", "callie@exemple.fr");
+  await q.click("[data-wm-carnet-liaison] button");
+  await q.waitForTimeout(300);
+  const dit = await q.evaluate(() =>
+    document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "TROP DE DEMANDES SE DIT AUTREMENT QU'UN LIEN ENVOYÉ",
+    /attends/i.test(dit) && !/bo[îi]te/i.test(dit),
+    JSON.stringify({ dit }),
+  );
+  await q.close();
+}
+
+{
+  //  LE RETOUR DU MAIL. On lie, puis on ouvre, et le fragment DISPARAÎT
+  //  de l'adresse : il ne part jamais au serveur, mais il reste dans la
+  //  barre, dans l'historique et dans le lien qu'on copie pour demander
+  //  de l'aide — et celui-là ouvre le carnet.
+  const { q, appels } = await monter({ laissez: null, fragment: RETOUR_OK });
   const vu = await q.evaluate(() => ({
     etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+    nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
+    adresse: location.href,
+    garde: JSON.parse(localStorage.getItem("wm.carnet.laissez") ?? "null")?.jeton ?? null,
+  }));
+  const lie = appels.find((a) => a.ou === "lier");
+  const carnet = appels.find((a) => a.ou === "carnet");
+  dire(
+    "AU RETOUR DU MAIL, ON LIE PUIS ON OUVRE, ET LE JETON QUITTE L'ADRESSE",
+    vu.etat === "pret" && vu.nom === "Eliott Vanner" &&
+      !vu.adresse.includes("access_token") && vu.garde === JETON &&
+      lie?.jeton === JETON && carnet?.jeton === JETON,
+    JSON.stringify({ ...vu, lie, carnet }),
+  );
+  await q.close();
+}
+
+{
+  //  UN LIEN MORT SE DIT, et ce n'est pas une panne : cliquer celui du
+  //  mail précédent arrive tout le temps.
+  const { q, appels } = await monter({ laissez: null, fragment: RETOUR_MORT });
+  const vu = await q.evaluate(() => ({
+    lierOuvert: document.querySelector("[data-wm-carnet-lier]")?.hidden === false,
+    dit: document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim() ?? "",
+    adresse: location.href,
   }));
   dire(
-    "LE FORUM MUET SE DIT AUTREMENT QU'UN INVITÉ",
-    vu.etat === "dehors" && vu.souci.length > 20 && !/connecte-toi/i.test(vu.souci) &&
+    "UN LIEN MORT LE DIT, ET LA PAGE REPROPOSE LA LIAISON",
+    vu.lierOuvert && /plus valable/i.test(vu.dit) && !vu.adresse.includes("error") &&
       appels.length === 0,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
   await q.close();
 }
 
+// ── 2 · la session ouvre le carnet ──────────────────────────────────
+
 {
-  //  CONNECTÉ, MAIS LE STAFF N'A PAS POSÉ LA CLÉ. C'est l'état normal
-  //  d'un compte pas encore validé, et la page doit le dire sans
-  //  parler de panne — en nommant le compte, pour que la personne voie
-  //  tout de suite si elle s'est trompée de compte. Et RIEN n'est
-  //  demandé à la base : sans clé, il n'y a rien à demander.
-  const { q, appels } = await monter({ cle: null });
+  //  LA VISITE SUIVANTE : le laissez-passer est rangé, la page s'ouvre
+  //  sans rien demander. C'est le « une seule fois » tenu.
+  const { q, appels, jetonsVus } = await monter();
   const vu = await q.evaluate(() => ({
     etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+    nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
+    lierCache: document.querySelector("[data-wm-carnet-lier]")?.hidden === true,
+  }));
+  const carnet = appels.find((a) => a.ou === "carnet");
+  dire(
+    "AVEC UNE SESSION, LE CARNET S'OUVRE SANS RIEN DEMANDER",
+    vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.lierCache &&
+      appels.filter((a) => a.ou === "lier").length === 0 &&
+      carnet?.corps?.p?.forumUserId === MEMBRE.id,
+    JSON.stringify({ ...vu, carnet }),
+  );
+  //  LE JETON PART DANS L'EN-TÊTE, et c'est lui qui fait voir
+  //  `authenticated` à PostgreSQL : sans ça la base nous prendrait pour
+  //  un visiteur et `auth_courant()` rendrait null.
+  dire(
+    "et c'est le jeton du joueur qui part, pas la clé publiable",
+    jetonsVus.length === 1 && jetonsVus[0] === JETON,
+    JSON.stringify(jetonsVus),
+  );
+  await q.close();
+}
+
+{
+  //  LE JETON PÉRIMÉ SE REMPLACE TOUT SEUL. C'est la visite du
+  //  lendemain : un jeton vaut une heure, et la personne ne doit pas se
+  //  relier pour autant.
+  const { q, appels } = await monter({ laissez: "perime" });
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    garde: JSON.parse(localStorage.getItem("wm.carnet.laissez") ?? "null")?.jeton ?? null,
+  }));
+  const carnet = appels.find((a) => a.ou === "carnet");
+  dire(
+    "UN JETON PÉRIMÉ SE RAFRAÎCHIT SANS RIEN DEMANDER",
+    vu.etat === "pret" && vu.garde === JETON_NEUF &&
+      appels.some((a) => a.ou === "token") && carnet?.jeton === JETON_NEUF,
+    JSON.stringify({ ...vu, carnet }),
+  );
+  await q.close();
+}
+
+{
+  //  ET UN RAFRAÎCHISSEMENT REFUSÉ RENVOIE À LA LIAISON, en effaçant le
+  //  laissez-passer mort : le garder ferait réessayer en boucle.
+  const { q } = await monter({ laissez: "perime", rafraichissement: "refus" });
+  const vu = await q.evaluate(() => ({
+    lierOuvert: document.querySelector("[data-wm-carnet-lier]")?.hidden === false,
+    garde: localStorage.getItem("wm.carnet.laissez"),
   }));
   dire(
-    "SANS CLÉ DANS LE PROFIL, LA PAGE LE DIT ET N'APPELLE RIEN",
-    vu.etat === "dehors" && /cl[ée] de liaison/i.test(vu.souci) &&
-      vu.souci.includes("Eliott Vanner") && appels.length === 0,
+    "un rafraîchissement refusé efface le laissez-passer et repropose la liaison",
+    vu.lierOuvert && vu.garde === null,
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  UN PERSONNAGE QUI N'EST PAS DERRIÈRE CETTE CONNEXION. Le cas de
+  //  quelqu'un qui a deux adresses — `carnet_de_la_session` rend `null`
+  //  — et celui d'un personnage pas encore validé. Le geste qui répare
+  //  est le même : se relier avec la bonne adresse.
+  const { q } = await monter({ reponse: null });
+  const vu = await q.evaluate(() => ({
+    lierOuvert: document.querySelector("[data-wm-carnet-lier]")?.hidden === false,
+    dit: document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "UN PERSONNAGE HORS DE CETTE CONNEXION LE DIT, ET NOMME LE COMPTE",
+    vu.lierOuvert && vu.dit.includes("Eliott Vanner") && /autre adresse/i.test(vu.dit),
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  UN INVITÉ DU FORUM N'EST PAS UN PROBLÈME DE LIAISON. Il n'a rien à
+  //  lier : il a à se connecter au forum, et c'est tout autre chose.
+  const { q, appels } = await monter({ compte: "invite" });
+  const vu = await q.evaluate(() => ({
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+    lierCache: document.querySelector("[data-wm-carnet-lier]")?.hidden === true,
+  }));
+  dire(
+    "UN INVITÉ S'ENTEND DIRE DE SE CONNECTER AU FORUM, PAS DE SE LIER",
+    /connecte-toi/i.test(vu.souci) && vu.lierCache && appels.length === 0,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
   await q.close();
 }
 
 {
-  //  UNE CLÉ MAL FORMÉE EST TRAITÉE COMME ABSENTE. Les douze
-  //  caractères qui traînaient dans le champ d'Arceus le 3 novembre :
-  //  une clé de carnet en fait trente-deux, et partir en base avec
-  //  autre chose ne ferait qu'un aller-retour pour un refus.
-  const { q, appels } = await monter({ cle: "WM-7K2P-9QX" });
+  //  LE FORUM MUET NE DOIT PAS DIRE « CONNECTE-TOI » : envoyer se
+  //  connecter quelqu'un qui l'est déjà, c'est lui faire chercher une
+  //  faute qui n'est pas la sienne.
+  const { q, appels } = await monter({ forumMuet: true });
   const vu = await q.evaluate(() =>
     document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? ""
   );
   dire(
-    "une clé mal formée ne part pas en base",
-    /cl[ée] de liaison/i.test(vu) && appels.length === 0,
-    JSON.stringify({ souci: vu, appels: appels.length }),
-  );
-  await q.close();
-}
-
-{
-  //  ET LE CHAMP EST TROUVÉ PAR SON ÉTIQUETTE, pas par son numéro.
-  //  `profile_field_13_2` est une ligne dans la base de Forumactif :
-  //  supprimer le champ et le recréer en donne un autre. L'étiquette,
-  //  elle, est tapée par Callista — donc on tolère la casse et les
-  //  accents, et on refuse un champ qui n'est pas celui-là.
-  const { q: bonneCasse, appels: a1 } = await monter({ etiquette: "CLE DE LIAISON" });
-  const { q: autreChamp, appels: a2 } = await monter({ etiquette: "CARNET DE BORD :" });
-  const etat = async (p) =>
-    await p.evaluate(() => document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat"));
-  dire(
-    "LE CHAMP EST TROUVÉ PAR SON ÉTIQUETTE, SANS SA CASSE NI SES ACCENTS",
-    (await etat(bonneCasse)) === "pret" && a1.length === 1 &&
-      (await etat(autreChamp)) === "dehors" && a2.length === 0,
-    JSON.stringify({ bonneCasse: a1.length, autreChamp: a2.length }),
-  );
-  await bonneCasse.close();
-  await autreChamp.close();
-}
-
-{
-  //  UNE CLÉ QUE LA BASE NE CONNAÎT PAS SE DIT AUTREMENT QU'UNE PANNE :
-  //  le geste qui répare n'est pas le même — il faut que le staff la
-  //  repose, et recharger la page n'y changera jamais rien.
-  const { q } = await monter({ refus: "CLE_INVALIDE" });
-  const vu = await q.evaluate(() =>
-    document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? ""
-  );
-  dire(
-    "une clé que la base refuse renvoie vers le staff, pas vers un rechargement",
-    /staff/i.test(vu) && !/r[ée]essaie/i.test(vu) && !vu.includes("CLE_INVALIDE"),
+    "le forum muet se dit autrement qu'un invité",
+    vu.length > 20 && !/connecte-toi/i.test(vu) && appels.length === 0,
     JSON.stringify({ souci: vu }),
-  );
-  await q.close();
-}
-
-{
-  //  ET UN REFUS DE LA BASE PARLE FRANÇAIS, sans recopier le code de
-  //  PostgreSQL dans une page de jeu.
-  const { q } = await monter({ refus: "QUELQUE_CHOSE_DE_TECHNIQUE" });
-  const vu = await q.evaluate(() => ({
-    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
-  }));
-  dire(
-    "un refus de la base parle français",
-    vu.etat === "dehors" && vu.souci.length > 20 &&
-      !vu.souci.includes("QUELQUE_CHOSE_DE_TECHNIQUE"),
-    JSON.stringify(vu),
   );
   await q.close();
 }
@@ -470,7 +581,7 @@ const { q: p, appels } = await monter();
     "le carnet s'ouvre d'un seul appel, sur « Mon jeu »",
     vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.actif === "Mon jeu" &&
       vu.barre.includes("1 240") && appels.length === 1 &&
-      appels[0]?.p?.cle === CLE,
+      appels[0]?.corps?.p?.forumUserId === MEMBRE.id,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
 }
@@ -739,15 +850,20 @@ const { q: p, appels } = await monter();
   //  téléphone, et cette page en a trois qui s'y prêteraient.
   const vu = await p.evaluate(() => ({
     tableaux: document.querySelectorAll("table").length,
-    //  ET PLUS AUCUN FORMULAIRE. Depuis le 3 novembre la page ne
-    //  demande plus rien : ni clé, ni code. Un champ qui réapparaîtrait
-    //  ici serait le signe qu'un des deux chemins est revenu.
-    formulaires: document.querySelectorAll("form").length,
-    champs: document.querySelectorAll("input, textarea").length,
+    //  UN SEUL FORMULAIRE SUR LA PAGE, et c'est celui de la liaison —
+    //  une fois dans la vie d'un personnage. Un second champ qui
+    //  apparaîtrait ici serait le signe qu'un des chemins écartés est
+    //  revenu : la clé à coller, ou le code à poster.
+    formulaires: [...document.querySelectorAll("form")]
+      .map((f) => f.hasAttribute("data-wm-carnet-liaison") ? "liaison" : "AUTRE"),
+    //  ET IL EST CACHÉ quand le carnet est ouvert : la liaison ne se
+    //  montre que si la page n'a pas de session.
+    liaisonCachee: document.querySelector("[data-wm-carnet-lier]")?.hidden === true,
   }));
   dire(
-    "AUCUN TABLEAU, ET PLUS RIEN À REMPLIR : le carnet montre, il ne demande pas",
-    vu.tableaux === 0 && vu.formulaires === 0 && vu.champs === 0,
+    "AUCUN TABLEAU, ET LE SEUL FORMULAIRE EST CELUI DE LA LIAISON, CACHÉ",
+    vu.tableaux === 0 && vu.formulaires.length === 1 &&
+      vu.formulaires[0] === "liaison" && vu.liaisonCachee,
     JSON.stringify(vu),
   );
 }

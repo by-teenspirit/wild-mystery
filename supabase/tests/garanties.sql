@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(172);
+select plan(175);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -926,20 +926,21 @@ insert into joueur (id, forum_user_id, pseudo, groupe, courriel) values
   ('aaaa0029-0000-0000-0000-000000000002', 990292, 'Deux-deux', 'doux', 'deux@exemple.fr'),
   ('aaaa0029-0000-0000-0000-000000000003', 990293, 'Pas-a-moi', 'brave', 'autre@exemple.fr');
 
-set local request.jwt.claims = '{"sub":"aaaa0029-9999-0000-0000-000000000009"}';
+set local request.jwt.claims =
+  '{"sub":"aaaa0029-9999-0000-0000-000000000009","email":" DEUX@exemple.fr "}';
 
 select is((select count(*)::int from mes_joueurs()), 0,
   'avant liaison, la session ne porte aucun personnage');
 
 select is(
-  (lier_mon_personnage('{"courriel":" DEUX@exemple.fr "}'::jsonb)->>'lies')::int, 2,
-  'LA LIAISON PREND LES DEUX PERSONNAGES DE L''ADRESSE, casse et espaces compris');
+  (lier_mon_personnage()->>'lies')::int, 2,
+  'LA LIAISON PREND LES DEUX PERSONNAGES DE L''ADRESSE DU JETON, casse comprise');
 
 select is((select count(*)::int from mes_joueurs()), 2,
   'et la session les porte tous les deux');
 
 select is(
-  (lier_mon_personnage('{"courriel":"deux@exemple.fr"}'::jsonb)->>'lies')::int, 2,
+  (lier_mon_personnage()->>'lies')::int, 2,
   'REJOUER NE CASSE RIEN : un lien cliqué deux fois rend ce qui est déjà vrai');
 
 select is(
@@ -968,14 +969,35 @@ insert into joueur (id, forum_user_id, pseudo, groupe, courriel) values
   ('aaaa0030-0000-0000-0000-000000000002', 990302, 'Plus-deux', 'doux', 'troi+1@exemple.fr'),
   ('aaaa0030-0000-0000-0000-000000000003', 990303, 'Plus-trois', 'brave', 'TROI+2@Exemple.FR');
 
-set local request.jwt.claims = '{"sub":"aaaa0030-9999-0000-0000-000000000009"}';
+set local request.jwt.claims =
+  '{"sub":"aaaa0030-9999-0000-0000-000000000009","email":"troi+1@exemple.fr"}';
 
 select is(
-  (lier_mon_personnage('{"courriel":"troi+1@exemple.fr"}'::jsonb)->>'lies')::int, 3,
+  (lier_mon_personnage()->>'lies')::int, 3,
   'UNE SEULE CONNEXION PREND LES TROIS PERSONNAGES DE LA BOÎTE');
 
 select is((select count(*)::int from mes_joueurs()), 3,
   'et la session les porte tous les trois');
+
+-- ── L'ADRESSE VIENT DU JETON, PAS DE L'APPELANT ─────────────────────
+--
+--  LE DÉFAUT DE LA 0029, trouvé une heure après l'avoir écrite :
+--  l'adresse était un argument, donc n'importe qui de connecté pouvait
+--  réclamer les personnages d'une autre boîte. Se connecter est ouvert
+--  à tous — c'est le principe d'un lien par mail — donc l'argument
+--  était une porte grande ouverte.
+select is(courriel_courant(), 'troi+1@exemple.fr',
+  'l''adresse du jeton se lit');
+
+select hasnt_function('lier_mon_personnage', array['jsonb'],
+  'LA VERSION QUI PRENAIT L''ADRESSE EN ARGUMENT N''EXISTE PLUS');
+
+--  ET SANS ADRESSE DANS LE JETON, ELLE LÈVE au lieu de lier n'importe
+--  quoi : un compte créé autrement qu'avec un mail n'a aucun
+--  personnage à réclamer.
+set local request.jwt.claims = '{"sub":"aaaa0031-0000-0000-0000-000000000001"}';
+select throws_ok('select lier_mon_personnage()', 'P0001', 'JETON_SANS_ADRESSE',
+  'un jeton sans adresse ne lie rien');
 
 select * from finish();
 rollback;

@@ -744,6 +744,48 @@
   max-width: 520px;
 }
 
+/*  ── LIER SON COMPTE ───────────────────────────────────────────────
+
+    Le seul formulaire de la page, et il ne sert qu'une fois dans la vie
+    d'un personnage. Il est donc écrit sobrement : un champ, un bouton,
+    une phrase de réponse. Rien qui ressemble à une étape de jeu. */
+#modernbb .wm-carnet__lier {
+  margin-top: var(--wm-espace-24, 24px);
+  padding-top: var(--wm-espace-20, 20px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-carnet__lier label {
+  display: block;
+  margin-bottom: var(--wm-espace-6, 6px);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carnet__lier input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font-family: inherit;
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .wm-carnet__lier button {
+  margin-top: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: inherit;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  cursor: pointer;
+}
+
 
 #modernbb .wm-carnet__souci {
   margin-top: var(--wm-espace-12, 12px);

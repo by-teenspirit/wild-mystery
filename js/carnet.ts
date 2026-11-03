@@ -28,21 +28,25 @@
 //     requête de jeu.
 //  4. Un seul appel, puis les trois vues peintes d'un coup.
 //
-//  ── LA CLÉ EST DANS LE PROFIL, ET LA PAGE VA LA CHERCHER ────────────
+//  ── LA LIAISON, UNE FOIS, ET LA SESSION ENSUITE ─────────────────────
 //
-//  « La clé n'est pas censée être visible, l'admin la met au tout
-//  début, et une fois mise, quand le joueur est validé, ça
-//  fonctionne », 3 novembre.
+//  « On va mettre en place le process de lier mon compte, c'est la
+//  première chose à faire quand on arrive dans le carnet de bord » ·
+//  « la personne ne doit le faire qu'une seule fois », 3 novembre.
 //
-//  La page ne demande donc rien à personne et ne garde rien : elle lit
-//  la page d'édition de profil du membre — qui ne se charge qu'avec SA
-//  session — y trouve son numéro de compte et sa clé, et ouvre son
-//  carnet. Rien à coller, rien à retenir, et la clé prouve l'identité.
+//  Quatrième version de cette ouverture en deux jours, et la dernière :
+//  les trois d'avant ont toutes buté sur le même mur, qu'une page sans
+//  serveur ne peut rien PROUVER à la base. Un code posté dans un sujet,
+//  le numéro de compte tout nu, la clé dans le profil — aucune ne
+//  tenait les trois exigences à la fois.
 //
-//  C'est la troisième version de cette ouverture en deux jours. Les
-//  deux premières sont dans l'historique : un code à poster dans un
-//  sujet, puis le numéro de compte tout nu. Celle-ci est à la fois
-//  plus simple pour la joueuse et plus sûre que les deux.
+//  Ici la preuve vient d'ailleurs : la personne relève une boîte, et
+//  c'est Supabase Auth qui le vérifie. Ensuite son laissez-passer parle
+//  pour elle, et `carnet_de_la_session` ne rend que SES personnages.
+//
+//  Le prix : une étape, une fois dans la vie d'un personnage. Après
+//  ça, la page s'ouvre toute seule — sur tous ses personnages et sur
+//  tous ses navigateurs, puisque la boîte est la même partout.
 // ════════════════════════════════════════════════════════════════════
 import {
   type Decor,
@@ -63,8 +67,24 @@ import {
   racineDesDonnees,
   racineDesImages,
 } from "../src/adaptateurs/navigateur/catalogue.ts";
-import { appeler, RefusSupabase } from "../src/adaptateurs/navigateur/supabase.ts";
-import { configDepuis } from "../src/adaptateurs/navigateur/registre.ts";
+import {
+  appelerAvecLeJeton,
+  envoyerLeLien,
+  rafraichir,
+} from "../src/adaptateurs/navigateur/auth-supabase.ts";
+import {
+  garderLeLaissez,
+  lireLeLaissez,
+  oublierLeLaissez,
+} from "../src/adaptateurs/navigateur/laissez-garde.ts";
+import {
+  adresseSansJeton,
+  encoreBon,
+  type Laissez,
+  laissezDuFragment,
+  refusDuFragment,
+} from "../src/navigateur/session-de-jeu.ts";
+import { configDepuis, type ConfigSupabase } from "../src/adaptateurs/navigateur/registre.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
 import {
   demandeurDuNavigateur,
@@ -111,32 +131,85 @@ async function decorDuCarnet(): Promise<Decor> {
  *
  *  ON NE RECOPIE PAS LE MESSAGE DE POSTGRESQL : un texte technique dans
  *  une page de jeu fait peur pour rien. */
-function motDuRefus(e?: unknown): string {
-  //  UNE CLÉ QUE LA BASE NE CONNAÎT PAS N'EST PAS UNE PANNE, et le
-  //  geste qui la répare n'est pas le même : il faut que le staff la
-  //  repose. Le dire évite d'envoyer recharger la page à quelqu'un
-  //  pour qui ça ne changera jamais rien.
-  if (e instanceof RefusSupabase && e.code === "CLE_INVALIDE") {
-    return "La clé posée dans ton profil n'est pas reconnue. Préviens le staff : " +
-      "il faut la reposer.";
-  }
+function motDuRefus(): string {
   return "Le carnet n'a pas pu être chargé. Réessaie dans un moment.";
+}
+
+function direLaLiaison(mot: string): void {
+  const e = document.querySelector("[data-wm-carnet-lier-dit]");
+  if (e !== null) e.textContent = mot;
+}
+
+/** Montre ou cache le bloc « Lier mon compte ». */
+function montrerLaLiaison(ouvert: boolean): void {
+  const bloc = document.querySelector<HTMLElement>("[data-wm-carnet-lier]");
+  if (bloc !== null) bloc.hidden = !ouvert;
+}
+
+/** Le laissez-passer utilisable, rafraîchi si besoin.
+ *
+ *  `null` S'IL N'Y EN A PAS OU S'IL EST MORT, et dans les deux cas la
+ *  page redemande la liaison. On ne distingue pas : le geste est le
+ *  même, et personne n'a envie de lire « ton jeton de rafraîchissement
+ *  a été révoqué ». */
+async function laissezUtilisable(acces: ConfigSupabase): Promise<Laissez | null> {
+  const garde = lireLeLaissez();
+  if (garde === null) return null;
+  if (encoreBon(garde, Date.now())) return garde;
+  const neuf = await rafraichir(acces, garde.rafraichir, Date.now()).catch(() => null);
+  if (neuf === null) {
+    oublierLeLaissez();
+    return null;
+  }
+  garderLeLaissez(neuf);
+  return neuf;
+}
+
+/** Le retour du mail : on prend les jetons du fragment, on les range,
+ *  et on efface l'adresse.
+ *
+ *  REND `true` SI UN RETOUR A ÉTÉ TRAITÉ, pour que l'appelant sache
+ *  qu'il vient de se passer quelque chose et le dise.
+ *
+ *  L'EFFACEMENT DE L'ADRESSE N'EST PAS DU CONFORT : le fragment ne part
+ *  jamais au serveur, mais il reste dans la barre, dans l'historique et
+ *  dans le lien qu'on copie pour demander de l'aide — et celui-là ouvre
+ *  le carnet. */
+function ramasserLeRetour(): "lie" | "refuse" | null {
+  const fragment = location.hash;
+  const refus = refusDuFragment(fragment);
+  const neuf = laissezDuFragment(fragment, Date.now());
+  if (refus === null && neuf === null) return null;
+
+  const propre = adresseSansJeton(location.href, fragment);
+  try {
+    history.replaceState(null, "", propre);
+  } catch { /* un navigateur qui refuse : l'adresse reste, le reste marche */ }
+
+  if (neuf === null) return "refuse";
+  garderLeLaissez(neuf);
+  return "lie";
 }
 
 /** Le carnet du membre connecté, ou le mot qui dit pourquoi non.
  *
- *  QUATRE REFUS, ET ILS NE DISENT PAS LA MÊME CHOSE :
+ *  LES REFUS NE DISENT PAS LA MÊME CHOSE, et c'est tout le soin de
+ *  cette fonction :
  *
  *    · le forum ne répond pas — on ne sait pas qui regarde, et dire
  *      « connecte-toi » à quelqu'un de connecté serait faux ;
- *    · invité — il suffit de se connecter, et c'est tout ;
- *    · connecté, mais le staff n'a pas posé sa clé — rien à faire de
- *      son côté, et surtout rien à coller ;
- *    · la base refuse — la clé ne correspond à rien, ou la panne.
+ *    · invité sur le forum — il suffit de s'y connecter ;
+ *    · connecté au forum, pas encore lié — on montre la liaison ;
+ *    · lié, mais ce personnage-là n'est pas derrière cette boîte —
+ *      le cas de quelqu'un qui a deux adresses, et il faut le dire ;
+ *    · la base refuse — la panne.
  */
 async function ouvrirLeCarnet(): Promise<void> {
   poserLEtat(document, "charge");
   direLeSouci(document, "");
+  montrerLaLiaison(false);
+
+  const retour = ramasserLeRetour();
 
   let profil;
   try {
@@ -155,20 +228,7 @@ async function ouvrirLeCarnet(): Promise<void> {
     );
     return;
   }
-
-  //  PAS DE CLÉ, PAS DE REQUÊTE. Le staff la pose dans le profil au
-  //  moment de la validation ; tant qu'elle n'y est pas, il n'y a rien
-  //  à demander et rien que la joueuse puisse faire.
-  if (profil.cle === null) {
-    poserLEtat(document, "dehors");
-    direLeSouci(
-      document,
-      `Connectée en tant que ${profil.compte.pseudo || "ce compte"}, mais ta clé de ` +
-        `liaison n'est pas encore posée dans ton profil. C'est le staff qui l'y met, ` +
-        `à la validation de ton personnage.`,
-    );
-    return;
-  }
+  const compte = profil.compte;
 
   const config = configDepuis(await lire("supabase.json"));
   if (config === null) {
@@ -177,41 +237,85 @@ async function ouvrirLeCarnet(): Promise<void> {
     return;
   }
 
-  let brut: unknown;
-  try {
-    brut = await appeler(config, "carnet", { cle: profil.cle });
-  } catch (e) {
-    //  LA RAISON PART DANS LA CONSOLE, et pas à l'écran. « Le carnet
-    //  n'a pas pu être chargé » est ce qu'il faut dire à une joueuse,
-    //  et c'est aussi ce qui a coûté un aller-retour le 3 novembre : la
-    //  migration 0026 n'était pas passée, la base répondait « cette
-    //  fonction n'existe pas », et le message ne le disait pas. Qui
-    //  ouvre les outils du navigateur doit pouvoir le lire.
-    console.error(
-      "wm/carnet : la base a refusé —",
-      e instanceof RefusSupabase ? `${e.code} (HTTP ${e.statut})` : e,
-    );
+  if (retour === "refuse") {
     poserLEtat(document, "dehors");
-    direLeSouci(document, motDuRefus(e));
+    montrerLaLiaison(true);
+    direLaLiaison(
+      "Ce lien n'est plus valable — ils expirent vite, et celui du mail " +
+        "précédent ne marche plus. Demandes-en un autre.",
+    );
+    brancherLaLiaison(config);
     return;
   }
 
-  if (typeof brut !== "object" || brut === null) {
+  const laissez = await laissezUtilisable(config);
+  if (laissez === null) {
+    poserLEtat(document, "dehors");
+    montrerLaLiaison(true);
+    direLaLiaison("");
+    brancherLaLiaison(config);
+    return;
+  }
+
+  //  AU RETOUR DU MAIL, ON LIE AVANT DE LIRE. La fonction attache tous
+  //  les personnages de la boîte d'un coup, et elle ne prend aucun
+  //  argument : l'adresse vient du jeton (migration 0031).
+  if (retour === "lie") {
+    const r = await appelerAvecLeJeton(config, laissez.jeton, "lier_mon_personnage", {});
+    if (!r.ok) {
+      console.error("wm/carnet : la liaison a échoué —", r.status);
+      poserLEtat(document, "dehors");
+      montrerLaLiaison(true);
+      direLaLiaison(
+        "La connexion a marché, mais aucun personnage n'est rattaché à cette " +
+          "adresse. Vérifie auprès du staff l'adresse qu'il a notée.",
+      );
+      brancherLaLiaison(config);
+      return;
+    }
+  }
+
+  const reponse = await appelerAvecLeJeton(
+    config,
+    laissez.jeton,
+    "carnet_de_la_session",
+    { forumUserId: compte.id },
+  );
+  if (!reponse.ok) {
+    console.error("wm/carnet : la base a refusé —", reponse.status);
+    poserLEtat(document, "dehors");
+    direLeSouci(document, motDuRefus());
+    return;
+  }
+  const brut = await reponse.json().catch(() => null);
+
+  //  `null` : CE PERSONNAGE N'EST PAS DERRIÈRE CETTE CONNEXION. Soit il
+  //  n'est pas encore validé, soit il relève d'une autre boîte — le cas
+  //  de quelqu'un qui a deux adresses. On propose la liaison, qui est
+  //  le geste qui répare les deux.
+  if (brut === null) {
+    poserLEtat(document, "dehors");
+    montrerLaLiaison(true);
+    direLaLiaison(
+      `Connectée en tant que ${compte.pseudo || "ce compte"}, mais ce personnage n'est ` +
+        `pas rattaché à cette connexion. S'il a une autre adresse, relie-toi avec ` +
+        `celle-là ; sinon, c'est qu'il n'est pas encore validé.`,
+    );
+    brancherLaLiaison(config);
+    return;
+  }
+
+  if (typeof brut !== "object") {
     poserLEtat(document, "dehors");
     direLeSouci(document, motDuRefus());
     return;
   }
 
-  //  LE DESSIN A SON PROPRE FILET, et il est séparé exprès. Jusqu'ici
-  //  une donnée inattendue — une espèce absente du catalogue, un objet
-  //  retiré — plantait ici et la page disait « Le carnet n'a pas pu
-  //  être chargé », le même mot que pour une panne de réseau. On
-  //  cherchait alors du côté de la base, qui avait très bien répondu.
-  //
-  //  La phrase reste la même pour la joueuse : elle n'y peut rien de
-  //  toute façon. Mais la console dit LAQUELLE des deux moitiés a
-  //  lâché, et c'est la seule chose qui manquait pour chercher au bon
-  //  endroit.
+  //  LE DESSIN A SON PROPRE FILET, et il est séparé exprès. Une donnée
+  //  inattendue — une espèce absente du catalogue, un objet retiré —
+  //  plantait au même endroit qu'une panne de réseau, et la page disait
+  //  le même mot. On cherchait alors du côté de la base, qui avait très
+  //  bien répondu.
   const carnet = brut as Carnet;
   try {
     const decor = await decorDuCarnet();
@@ -228,6 +332,48 @@ async function ouvrirLeCarnet(): Promise<void> {
     poserLEtat(document, "dehors");
     direLeSouci(document, motDuRefus());
   }
+}
+
+/** Branche le formulaire de liaison, une seule fois.
+ *
+ *  L'ADRESSE DE RETOUR EST CELLE DE LA PAGE, fragment retiré : Supabase
+ *  exige qu'elle soit déclarée dans la configuration du projet, et elle
+ *  doit ramener ici et nulle part ailleurs. */
+function brancherLaLiaison(acces: ConfigSupabase): void {
+  const f = document.querySelector<HTMLFormElement>("[data-wm-carnet-liaison]");
+  if (f === null || f.dataset.wmBranche === "oui") return;
+  f.dataset.wmBranche = "oui";
+
+  f.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const champ = f.querySelector<HTMLInputElement>("input");
+    const courriel = (champ?.value ?? "").trim();
+    if (courriel === "" || !courriel.includes("@")) {
+      direLaLiaison("Il faut une adresse e-mail pour recevoir le lien.");
+      return;
+    }
+    direLaLiaison("Un instant…");
+    envoyerLeLien(acces, courriel, adresseSansJeton(location.href, location.hash))
+      .then((r) => {
+        if (r.etat === "parti") {
+          direLaLiaison(
+            "Regarde ta boîte : le lien part tout de suite et il ne vaut " +
+              "qu'un quart d'heure. Il te ramènera ici.",
+          );
+          return;
+        }
+        if (r.etat === "trop-vite") {
+          direLaLiaison(
+            "Trop de demandes d'un coup. Attends quelques minutes avant de " +
+              "réessayer — c'est une limite du service de mail, pas du jeu.",
+          );
+          return;
+        }
+        console.error("wm/carnet : l'envoi du lien a été refusé —", r.code);
+        direLaLiaison("Le lien n'a pas pu partir. Réessaie dans un moment.");
+      })
+      .catch(() => direLaLiaison("Le lien n'a pas pu partir. Réessaie dans un moment."));
+  });
 }
 
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que

@@ -106,6 +106,27 @@
           </p>
         </header>
         <p class="wm-carnet__souci" data-wm-carnet-souci role="status"></p>
+
+        <!--  LIER SON COMPTE, UNE SEULE FOIS DANS LA VIE DU
+              PERSONNAGE. Le bloc est caché par défaut : il ne s'ouvre
+              que si la page n'a pas de laissez-passer valable. Le
+              script remplit tout le reste.  -->
+        <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
+          <h2 class="wm-carnet__bloc-titre">Lier mon compte</h2>
+          <p>
+            Une fois, et jamais plus : tape l'adresse que le staff a
+            notée pour ce personnage. Tu recevras un lien à cliquer, et
+            ton carnet s'ouvrira tout seul ensuite — sur tous tes
+            personnages, sur tous tes navigateurs.
+          </p>
+          <form data-wm-carnet-liaison>
+            <label for="wm-courriel">Ton adresse e-mail</label>
+            <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
+                   spellcheck="false" required placeholder="celle de ton inscription" />
+            <button type="submit">Recevoir mon lien</button>
+          </form>
+          <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+        </div>
       </div>
 
       <!-- ── ça charge ───────────────────────────────────────────── -->
