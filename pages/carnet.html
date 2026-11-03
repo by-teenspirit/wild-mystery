@@ -377,5 +377,45 @@
   </footer>
 </div>
 <script src="https://by-teenspirit.github.io/wild-mystery/js/carnet.js"></script>
+
+<!--  LE FILET DE DÉSACCORD.
+
+      Cette page et `js/carnet.js` sont publiés séparément : la page se
+      recolle à la main dans le panneau d'administration, le script part
+      par GitHub Pages. Le 3 novembre ils ne sont pas arrivés ensemble —
+      page neuve, script de la veille. Le script cherchait un bloc que la
+      page avait, la page attendait un script qui ne savait pas le
+      remplir : écran vide, pas une phrase, aucune trace.
+
+      Le filet est ICI et pas dans le script, exprès : un script trop
+      vieux ne peut pas se plaindre lui-même. La page, elle, est toujours
+      la dernière collée.
+
+      Il tourne tout de suite après le script, sans attente : la balise
+      au-dessus est bloquante, donc le haut de `carnet.js` a déjà tourné —
+      c'est là qu'il annonce son numéro, avant le moindre `fetch`.  -->
+<script>
+  (function () {
+    var attendu = 1;
+    var vu = window.wmCarnetVersion;
+    if (vu === attendu) return;
+
+    var carnet = document.querySelector("[data-wm-etat]");
+    var dit = document.querySelector("[data-wm-carnet-souci]");
+    //  SORTIR DE « ça charge » OU LE MOT RESTE CACHÉ DESSOUS. Sans ça
+    //  on remplace un écran vide par un écran vide qui tourne.
+    if (carnet) carnet.setAttribute("data-wm-etat", "dehors");
+    if (dit) {
+      dit.textContent = vu === undefined
+        ? "Le carnet n'a pas pu démarrer : son script ne s'est pas chargé. " +
+          "Recharge la page, et si ça recommence, préviens le staff."
+        : "Cette page et le script du carnet ne sont pas de la même version. " +
+          "Préviens le staff : il doit republier l'un des deux.";
+    }
+    if (window.console && console.error) {
+      console.error("wm/carnet : contrat attendu " + attendu + ", script " + vu);
+    }
+  })();
+</script>
 </body>
 </html>

@@ -208,6 +208,7 @@ async function monter(
     refus = null,
     otp = "ok",
     rafraichissement = "ok",
+    script = "neuf",
   } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
@@ -274,6 +275,16 @@ async function monter(
 
     if (u.href.startsWith(BASE)) {
       const dans = u.href.slice(BASE.length);
+      //  LE PAQUET D'À CÔTÉ. `"vieux"` est le 3 novembre : un script
+      //  d'avant le contrat, qui n'annonce aucun numéro. `"absent"` est
+      //  la panne de réseau, et `"autre"` la page restée en arrière.
+      if (dans === "js/carnet.js" && script !== "neuf") {
+        if (script === "absent") return route.fulfill({ status: 404, body: "" });
+        return route.fulfill({
+          contentType: "text/javascript; charset=utf-8",
+          body: script === "autre" ? "window.wmCarnetVersion = 99;" : "/* d'avant */",
+        });
+      }
       try {
         const octets = readFileSync(R + dans);
         const type = dans.endsWith(".css")
@@ -333,6 +344,52 @@ async function monter(
 }
 
 // ── 1 · la liaison, une fois ────────────────────────────────────────
+
+{
+  //  ── LE FILET DE DÉSACCORD ─────────────────────────────────────────
+  //
+  //  Le 3 novembre : page neuve collée sur le forum, script de la
+  //  veille servi par Pages. Le script ne savait pas ouvrir le bloc que
+  //  la page avait — écran vide, pas une phrase, et une demi-heure à
+  //  chercher une panne qui n'existait pas. Ces trois mesures sont
+  //  là pour que ça ne se reproduise plus en silence.
+  //
+  //  CELLE-CI D'ABORD : LE FILET NE DOIT PAS SE DÉCLENCHER À TORT. Un
+  //  filet qui parle quand tout va bien est pire que pas de filet.
+  const { q } = await monter();
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "QUAND LES DEUX SONT D'ACCORD, LE FILET SE TAIT",
+    vu.etat === "pret" && vu.souci === "",
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
+  "absent",
+  /ne s'est pas charg/i,
+], ["autre", /pas de la m[êe]me version/i]]) {
+  //  ET QUAND ILS NE LE SONT PAS, LA PAGE LE DIT. Trois façons de ne
+  //  pas l'être : le script d'avant le contrat, le script qui ne
+  //  descend pas du tout, et celui d'une version qu'on ne connaît pas.
+  //  Les deux premières se disent pareil — pour la personne qui lit,
+  //  c'est le même geste : recharger, puis prévenir le staff.
+  const { q } = await monter({ script: cas });
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    `UN SCRIPT « ${cas.toUpperCase()} » NE LAISSE PAS UN ÉCRAN VIDE`,
+    vu.etat === "dehors" && attendu.test(vu.souci),
+    JSON.stringify({ cas, ...vu }),
+  );
+  await q.close();
+}
 
 {
   //  LA PREMIÈRE VISITE. « C'est la première chose à faire quand on

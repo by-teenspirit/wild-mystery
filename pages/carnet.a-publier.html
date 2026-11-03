@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mon carnet — Wild Mystery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&amp;family=Nunito+Sans:opsz,wght@6..12,300..800&amp;family=Cormorant+Garamond:wght@400;600&amp;display=swap"
+  />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/panneau-admin/jetons.css" />
+  <link rel="stylesheet" href="https://by-teenspirit.github.io/wild-mystery/css/wild-mystery.css" />
+</head>
+<body>
+<div id="modernbb">
+
+  <nav class="wm-retour" aria-label="Retour au forum">
+    <a class="wm-retour__nom" href="/">Wild Mystery</a>
+    <a class="wm-retour__lien" href="/search">Rechercher</a>
+    <a class="wm-retour__lien" href="/memberlist">Personnages</a>
+    <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
+  </nav>
+
+  <div class="wm-carnet" data-wm-etat="charge"
+       style="--carnet-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/montagnes-embrumees.jpg')">
+
+    <aside class="wm-carnet__barre">
+
+      <div class="wm-carnet__moi">
+        <p class="wm-carnet__embleme" data-wm-carnet-embleme hidden></p>
+        <p class="wm-carnet__nom" data-wm-carnet-nom>Mon carnet</p>
+        <p class="wm-carnet__etat" data-wm-carnet-etat></p>
+      </div>
+
+      <div class="wm-carnet__filet"></div>
+
+      <nav aria-label="Les onglets du carnet">
+        <ul class="wm-carnet__onglets">
+          <li><a class="wm-carnet__onglet" href="#mes-rp" data-wm-carnet-onglet="mes-rp">Mes RP</a></li>
+          <li><a class="wm-carnet__onglet" href="#ecrire" data-wm-carnet-onglet="ecrire">Écrire</a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-histoire" data-wm-carnet-onglet="mon-histoire">Mon histoire</a></li>
+          <li><a class="wm-carnet__onglet" href="#mes-liens" data-wm-carnet-onglet="mes-liens">Mes liens</a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-jeu" data-wm-carnet-onglet="mon-jeu">Mon jeu</a></li>
+          <li><a class="wm-carnet__onglet" href="#mes-boites" data-wm-carnet-onglet="mes-boites">Mes boîtes</a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-sac" data-wm-carnet-onglet="mon-sac">Mon sac</a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-pokedex" data-wm-carnet-onglet="mon-pokedex">Mon Pokédex</a></li>
+        </ul>
+      </nav>
+
+      <p class="wm-carnet__titre-groupe">Ailleurs sur le forum</p>
+      <ul class="wm-carnet__onglets">
+        <li><a class="wm-carnet__onglet" href="/h1-par-ou-commencer">Les annexes</a></li>
+      </ul>
+    </aside>
+
+    <div class="wm-carnet__corps">
+
+      <div class="wm-carnet__dehors">
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Ton <b>carnet</b></h1>
+          <p class="wm-carnet__chapo">
+            Il montre ce que le serveur sait de toi : ton équipe, ton sac,
+            ton Pokédex. Il s'ouvre tout seul, du moment que tu es
+            connectée au forum.
+          </p>
+        </header>
+        <p class="wm-carnet__souci" data-wm-carnet-souci role="status"></p>
+
+        <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
+          <h2 class="wm-carnet__bloc-titre">Lier mon compte</h2>
+          <p>
+            Une fois, et jamais plus : tape l'adresse que le staff a
+            notée pour ce personnage. Tu recevras un lien à cliquer, et
+            ton carnet s'ouvrira tout seul ensuite — sur tous tes
+            personnages, sur tous tes navigateurs.
+          </p>
+          <form data-wm-carnet-liaison>
+            <label for="wm-courriel">Ton adresse e-mail</label>
+            <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
+                   spellcheck="false" required placeholder="celle de ton inscription" />
+            <button type="submit">Recevoir mon lien</button>
+          </form>
+          <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+        </div>
+      </div>
+
+      <div class="wm-carnet__charge">
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Un <b>instant</b></h1>
+          <p class="wm-carnet__chapo">On va chercher ta partie.</p>
+        </header>
+      </div>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mon-jeu" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Mon <b>jeu</b></h1>
+          <p class="wm-carnet__chapo">
+            Tout ce que le serveur sait de toi, au même endroit, en lecture
+            seule. Rien ne se modifie ici : ça bouge quand tu écris, quand tu
+            clôtures une scène, quand tu passes à la boutique ou à la pension.
+          </p>
+        </header>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre" data-wm-carnet-jeu-nom>—</h2>
+            <div class="wm-carnet__chiffres">
+              <span class="wm-carnet__chiffre"><b data-wm-carnet-argent>—</b><span>pokédollars</span></span>
+              <span class="wm-carnet__chiffre"><b data-wm-carnet-palier>—</b><span>palier</span></span>
+              <span class="wm-carnet__chiffre"><b data-wm-carnet-badges-compte>—</b><span>badges d'arène</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Mon équipe</h2>
+            <a class="wm-carnet__ailleurs" href="#mes-boites">Mes boîtes →</a>
+            <p class="wm-carnet__bloc-dit">
+              <span data-wm-carnet-equipe-compte>—</span> places prises sur six.
+              Un pokémon en pension garde la sienne.
+            </p>
+          </div>
+          <ul class="wm-carnet__equipe" data-wm-carnet-equipe></ul>
+        </div>
+
+        <div class="wm-carnet__bloc" data-wm-carnet-pension-bloc hidden>
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">En pension</h2>
+            <a class="wm-carnet__ailleurs" href="/f18-station-service">Le sujet de la pension →</a>
+            <p class="wm-carnet__bloc-dit">
+              Ils gagnent un niveau tous les dix jours. Tu les récupères quand
+              tu veux, en répondant au sujet de la pension.
+            </p>
+          </div>
+          <ul class="wm-carnet__pension" data-wm-carnet-pension></ul>
+        </div>
+
+        <div class="wm-carnet__bloc" data-wm-carnet-badges-bloc>
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Mes badges d'arène</h2>
+            <p class="wm-carnet__bloc-dit">
+              Les sept badges d'arène ouvrent la Ligue. L'ordre est imposé :
+              on ne peut pas les affronter dans le désordre.
+            </p>
+          </div>
+          <ul class="wm-carnet__badges" data-wm-carnet-badges="arene"></ul>
+        </div>
+
+        <div class="wm-carnet__bloc" data-wm-carnet-badges-bloc>
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Mes colosseums</h2>
+            <p class="wm-carnet__bloc-dit">
+              On y combat en deux contre deux. Ils ne comptent pas dans les
+              sept badges de la Ligue.
+            </p>
+          </div>
+          <ul class="wm-carnet__badges" data-wm-carnet-badges="colosseum"></ul>
+        </div>
+
+        <div class="wm-carnet__bloc" data-wm-carnet-jet-bloc hidden>
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Le dernier jet</h2>
+            <p class="wm-carnet__bloc-dit">
+              Chaque tirage du serveur laisse une trace vérifiable. Si un
+              résultat te paraît étrange, colle son code dans « vérifier un
+              jet » et le serveur rejoue le calcul devant toi.
+            </p>
+          </div>
+          <dl class="wm-carnet__jet" data-wm-carnet-jet></dl>
+        </div>
+      </section>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mon-sac" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Mon <b>sac</b></h1>
+          <p class="wm-carnet__chapo">
+            Ce que tu transportes. On n'utilise rien depuis ici : un objet se
+            sort en RP, dans le message où tu t'en sers.
+          </p>
+        </header>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">L'inventaire</h2>
+            <a class="wm-carnet__ailleurs" href="/f3-la-boutique">La boutique →</a>
+            <p class="wm-carnet__bloc-dit" data-wm-carnet-sac-dit></p>
+          </div>
+          <div data-wm-carnet-sac></div>
+        </div>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Comment on s'en sert</h2>
+          </div>
+          <ul class="wm-tirets">
+            <li><b>Tu l'écris dans ton message.</b> « Elle décrocha une Super Ball
+              de sa ceinture et la lança. » Le serveur lit la scène et retire l'objet.</li>
+            <li><b>Rien ne se clique ici.</b> Un bouton « utiliser » ferait du jeu
+              une feuille de calcul. Le sac montre ce que tu as, la scène décide
+              de ce que tu en fais.</li>
+            <li><b>Ce qui est retiré est tracé.</b> Chaque objet consommé laisse une
+              ligne avec le message qui l'a sorti. En cas de doute, ça se relit.</li>
+            <li><b>Les fossiles ne s'utilisent pas.</b> Ils se portent au laboratoire
+              de Samaragd, dans son sujet.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mon-pokedex" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Mon <b>Pokédex</b></h1>
+          <p class="wm-carnet__chapo">
+            Ce que tu as croisé et ce que tu as attrapé, sur les espèces de
+            Rhode. Il se remplit tout seul : croiser suffit à débloquer une
+            silhouette.
+          </p>
+        </header>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">
+              <span data-wm-carnet-dex-compte>—</span> espèces attrapées
+            </h2>
+            <div class="wm-carnet__chiffres">
+              <span class="wm-carnet__chiffre"><b data-wm-carnet-dex-croisees>—</b><span>croisées</span></span>
+              <span class="wm-carnet__chiffre"><b data-wm-carnet-dex-total>—</b><span>en tout</span></span>
+            </div>
+            <p class="wm-carnet__bloc-dit">
+              La barre foncée, ce sont les captures ; la barre pâle, ce que tu
+              as seulement croisé.
+            </p>
+          </div>
+          <div class="wm-carnet__jauge">
+            <span class="wm-carnet__jauge-piste">
+              <i data-wm-carnet-dex-barre="croisees" style="width: 0; opacity: .45"></i>
+            </span>
+          </div>
+          <div class="wm-carnet__jauge" style="margin-top: 6px">
+            <span class="wm-carnet__jauge-piste">
+              <i data-wm-carnet-dex-barre="attrapees" style="width: 0"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Les espèces de Rhode</h2>
+            <p class="wm-carnet__bloc-dit">
+              Dans l'ordre du Pokédex régional. Une silhouette grise veut dire
+              « croisé, pas attrapé ». Clique une case pour sa fiche.
+            </p>
+          </div>
+          <div class="wm-carnet__filtres" data-wm-carnet-filtres></div>
+          <div class="wm-carnet__dex">
+            <ul class="wm-carnet__grille" data-wm-carnet-grille></ul>
+            <aside class="wm-carnet__fiche" data-wm-carnet-fiche hidden></aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-rp" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Mes <b>RP</b></h1>
+          <p class="wm-carnet__chapo">
+            Le tableau de tes scènes — prévues, en cours, terminées — rempli
+            tout seul par le serveur. Il arrive bientôt.
+          </p>
+        </header>
+      </section>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="ecrire" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre"><b>Écrire</b></h1>
+          <p class="wm-carnet__chapo">
+            Tes brouillons, le compteur de mots et le mode focus. Il arrive
+            bientôt.
+          </p>
+        </header>
+      </section>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mon-histoire" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Mon <b>histoire</b></h1>
+          <p class="wm-carnet__chapo">
+            Ta fiche de personnage, celle qui fabrique ta fiche de liens. Elle
+            arrive bientôt.
+          </p>
+        </header>
+      </section>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-liens" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Mes <b>liens</b></h1>
+          <p class="wm-carnet__chapo">
+            Tes liens, et la fiche que le carnet écrit pour toi. Ils arrivent
+            bientôt.
+          </p>
+        </header>
+      </section>
+
+      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-boites" hidden>
+        <header class="wm-carnet__entete">
+          <p class="wm-carnet__surtitre">Le carnet de bord</p>
+          <h1 class="wm-carnet__titre">Mes <b>boîtes</b></h1>
+          <p class="wm-carnet__chapo">
+            Trois boîtes pour ranger ce qui n'est pas dans ton équipe. Elles
+            arrivent bientôt.
+          </p>
+        </header>
+      </section>
+
+    </div>
+  </div>
+
+  <footer class="wm-pied-annexe">
+    Wild Mystery — forum créé avec
+    <a href="https://www.forumactif.com/">Forumactif</a>
+  </footer>
+</div>
+<script src="https://by-teenspirit.github.io/wild-mystery/js/carnet.js"></script>
+
+<script>
+  (function () {
+    var attendu = 1;
+    var vu = window.wmCarnetVersion;
+    if (vu === attendu) return;
+
+    var carnet = document.querySelector("[data-wm-etat]");
+    var dit = document.querySelector("[data-wm-carnet-souci]");
+    //  SORTIR DE « ça charge » OU LE MOT RESTE CACHÉ DESSOUS. Sans ça
+    //  on remplace un écran vide par un écran vide qui tourne.
+    if (carnet) carnet.setAttribute("data-wm-etat", "dehors");
+    if (dit) {
+      dit.textContent = vu === undefined
+        ? "Le carnet n'a pas pu démarrer : son script ne s'est pas chargé. " +
+          "Recharge la page, et si ça recommence, préviens le staff."
+        : "Cette page et le script du carnet ne sont pas de la même version. " +
+          "Préviens le staff : il doit republier l'un des deux.";
+    }
+    if (window.console && console.error) {
+      console.error("wm/carnet : contrat attendu " + attendu + ", script " + vu);
+    }
+  })();
+</script>
+</body>
+</html>
