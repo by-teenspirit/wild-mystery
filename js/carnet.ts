@@ -202,25 +202,45 @@ async function ouvrirLeCarnet(): Promise<void> {
     return;
   }
 
+  //  LE DESSIN A SON PROPRE FILET, et il est séparé exprès. Jusqu'ici
+  //  une donnée inattendue — une espèce absente du catalogue, un objet
+  //  retiré — plantait ici et la page disait « Le carnet n'a pas pu
+  //  être chargé », le même mot que pour une panne de réseau. On
+  //  cherchait alors du côté de la base, qui avait très bien répondu.
+  //
+  //  La phrase reste la même pour la joueuse : elle n'y peut rien de
+  //  toute façon. Mais la console dit LAQUELLE des deux moitiés a
+  //  lâché, et c'est la seule chose qui manquait pour chercher au bon
+  //  endroit.
   const carnet = brut as Carnet;
-  const decor = await decorDuCarnet();
-  poserLaBarre(document, carnet, "mon-jeu", decor);
-  poserMonJeu(document, carnet, decor);
-  poserMonSac(document, carnet, decor);
-  poserMonPokedex(document, carnet, decor);
-  poserLEtat(document, "pret");
-  //  LA BARRE SUIT L'ONGLET OUVERT, et elle ne pouvait pas le faire
-  //  avant d'avoir le dresseur à écrire dedans.
-  poserLesOnglets(document, (actif) => poserLaBarre(document, carnet, actif, decor));
+  try {
+    const decor = await decorDuCarnet();
+    poserLaBarre(document, carnet, "mon-jeu", decor);
+    poserMonJeu(document, carnet, decor);
+    poserMonSac(document, carnet, decor);
+    poserMonPokedex(document, carnet, decor);
+    poserLEtat(document, "pret");
+    //  LA BARRE SUIT L'ONGLET OUVERT, et elle ne pouvait pas le faire
+    //  avant d'avoir le dresseur à écrire dedans.
+    poserLesOnglets(document, (actif) => poserLaBarre(document, carnet, actif, decor));
+  } catch (e) {
+    console.error("wm/carnet : la base a répondu, c'est le dessin qui a lâché —", e);
+    poserLEtat(document, "dehors");
+    direLeSouci(document, motDuRefus());
+  }
 }
 
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que
 //  ça charge, sinon la page a l'air morte.
 poserLesOnglets(document, () => {});
 
-//  ET ON OUVRE. Sans bouton, sans champ, sans clé : la page sait aller
-//  chercher qui la regarde.
-ouvrirLeCarnet().catch(() => {
+//  ET ON OUVRE. Sans bouton, sans champ, sans clé : la page va chercher
+//  qui la regarde et la clé que le staff lui a posée.
+ouvrirLeCarnet().catch((e) => {
+  //  CE FILET NE DEVRAIT PLUS RIEN ATTRAPER : les deux moitiés ont le
+  //  leur. S'il attrape quelque chose, c'est un chemin qu'on n'a pas
+  //  prévu — donc exactement ce qu'on veut lire dans la console.
+  console.error("wm/carnet : rien n'a prévu ça —", e);
   poserLEtat(document, "dehors");
   direLeSouci(document, motDuRefus());
 });
