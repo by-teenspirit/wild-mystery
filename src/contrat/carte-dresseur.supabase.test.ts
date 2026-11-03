@@ -425,6 +425,42 @@ essai("valider crée la ligne quand elle n'existe pas encore", async (url) => {
   await psql(url, `delete from joueur where forum_user_id = 777502;`);
 });
 
+essai("VALIDER REND LA CLÉ À COLLER, ET NE LA REFAIT PAS DEUX FOIS", async (url) => {
+  //  Le geste du staff est en UN appel : la maison, la ligne au besoin,
+  //  et la clé de liaison à coller dans le profil du membre.
+  //
+  //  ET SURTOUT elle ne change pas à la seconde validation. On corrige
+  //  un pseudo, on change une maison — une clé neuve à chaque fois
+  //  casserait le carnet d'un joueur qui jouait très bien, et celle de
+  //  son profil ne vaudrait plus rien sans que personne le remarque.
+  await psql(url, `delete from joueur where forum_user_id = 777903;`);
+  const un = JSON.parse(
+    await psql(
+      url,
+      `select valider_le_personnage('{"forumUserId":777903,"pseudo":"Clé neuve","groupe":"brave"}'::jsonb)::text;`,
+    ),
+  );
+  assertEquals(un.creee, true);
+  assertEquals(/^[0-9a-f]{32}$/.test(un.cle), true, `clé mal formée : ${un.cle}`);
+
+  const deux = JSON.parse(
+    await psql(
+      url,
+      `select valider_le_personnage('{"forumUserId":777903,"groupe":"jovial"}'::jsonb)::text;`,
+    ),
+  );
+  assertEquals(deux.cle, un.cle);
+  assertEquals(deux.groupe, "jovial");
+
+  //  ET ELLE OUVRE VRAIMENT LE CARNET : une clé rendue qui ne servirait
+  //  à rien serait pire que pas de clé du tout.
+  const lu = await psql(
+    url,
+    `select carnet(jsonb_build_object('cle','${un.cle}')) -> 'dresseur' ->> 'pseudo';`,
+  );
+  assertEquals(lu, "Clé neuve");
+});
+
 essai("une maison inventée est refusée par son nom", async (url) => {
   //  Et pas par une violation de contrainte : le message doit dire
   //  quoi corriger sans qu'on aille lire le schéma.
