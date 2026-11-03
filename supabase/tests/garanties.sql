@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(175);
+select plan(188);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -998,6 +998,119 @@ select hasnt_function('lier_mon_personnage', array['jsonb'],
 set local request.jwt.claims = '{"sub":"aaaa0031-0000-0000-0000-000000000001"}';
 select throws_ok('select lier_mon_personnage()', 'P0001', 'JETON_SANS_ADRESSE',
   'un jeton sans adresse ne lie rien');
+
+-- ════════════════════════════════════════════════════════════════════
+--  LES BROUILLONS (0032) — LA PREMIÈRE TABLE OÙ LE JOUEUR ÉCRIT
+--
+--  « RLS : chacun ne voit que les siens, et personne d'autre — pas même
+--  le staff. » C'est la promesse la plus forte du carnet : quelqu'un
+--  écrit un texte en croyant qu'il n'est qu'à lui. Elle se mesure, elle
+--  ne se commente pas.
+-- ════════════════════════════════════════════════════════════════════
+
+select has_table('brouillon', 'la table des brouillons existe');
+
+select is(
+  (select relforcerowsecurity from pg_class where relname = 'brouillon'),
+  true,
+  'FORCE ROW LEVEL SECURITY : même le propriétaire de la table passe par les politiques');
+
+--  Deux auteurs, deux connexions distinctes.
+insert into joueur (id, forum_user_id, pseudo, auth_id, courriel) values
+  ('bbbb0032-0000-0000-0000-00000000000a', 32001, 'Plume',
+   'aaaa0032-0000-0000-0000-00000000000a', 'plume@exemple.fr'),
+  ('bbbb0032-0000-0000-0000-00000000000b', 32002, 'Encre',
+   'aaaa0032-0000-0000-0000-00000000000b', 'encre@exemple.fr');
+
+insert into brouillon (joueur_id, place, sujet_id, titre, corps, mots) values
+  ('bbbb0032-0000-0000-0000-00000000000a', 1, 1002, '', 'le texte de Plume', 4),
+  ('bbbb0032-0000-0000-0000-00000000000b', 1, 1002, '', 'le secret d''Encre', 4);
+
+--  ── LES TROIS PLACES SONT TENUES PAR LA BASE ──────────────────────
+--
+--  Pas par un comptage avant insertion : deux onglets ouverts au même
+--  instant passeraient tous les deux un comptage, et on aurait quatre
+--  brouillons.
+select throws_ok(
+  $$insert into brouillon (joueur_id, place) values
+      ('bbbb0032-0000-0000-0000-00000000000a', 4)$$,
+  '23514',
+  null,
+  'UNE QUATRIÈME PLACE EST REFUSÉE PAR LA CONTRAINTE, pas par un comptage');
+
+select throws_ok(
+  $$insert into brouillon (joueur_id, place) values
+      ('bbbb0032-0000-0000-0000-00000000000a', 1)$$,
+  '23505',
+  null,
+  'et une place déjà prise est refusée par la clé primaire');
+
+--  ── UN BROUILLON DE TRENTE-DEUX JOURS N'EST PLUS LÀ ───────────────
+insert into brouillon (joueur_id, place, corps, modifie_le) values
+  ('bbbb0032-0000-0000-0000-00000000000a', 3, 'oublié depuis longtemps',
+   now() - interval '32 days');
+
+create temporary table brouillon_vu (quoi text primary key, valeur text);
+grant insert on brouillon_vu to authenticated;
+
+do $$
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0032-0000-0000-0000-00000000000a","email":"plume@exemple.fr"}', true);
+
+  insert into brouillon_vu values
+    ('lignes',   (select count(*)::text from brouillon)),
+    ('corps',    (select coalesce(string_agg(corps, ' | ' order by place), '(rien)')
+                    from brouillon)),
+    ('secret',   (select count(*)::text from brouillon
+                   where corps like '%secret%'));
+
+  --  On tente de réécrire le brouillon de l'autre : la politique ne le
+  --  rend pas visible, donc l'UPDATE ne touche aucune ligne — et il ne
+  --  lève pas, ce qui est exactement pourquoi il faut le compter.
+  update brouillon set corps = 'volé'
+   where joueur_id = 'bbbb0032-0000-0000-0000-00000000000b';
+  insert into brouillon_vu values ('voles', (select count(*)::text from brouillon
+    where corps = 'volé'));
+
+  update brouillon set corps = 'relu' where place = 1;
+  insert into brouillon_vu values ('relus', (select count(*)::text from brouillon
+    where corps = 'relu'));
+
+  reset role;
+end $$;
+
+select is((select valeur from brouillon_vu where quoi = 'lignes'), '1',
+  'PLUME NE VOIT QU''UN BROUILLON : le sien, et pas celui de trente-deux jours');
+
+select is((select valeur from brouillon_vu where quoi = 'secret'), '0',
+  'LE TEXTE D''ENCRE N''EXISTE PAS POUR PLUME');
+
+select ok(
+  (select valeur from brouillon_vu where quoi = 'corps') not like '%secret%',
+  'et il n''apparaît pas davantage en lisant la colonne entière');
+
+select is((select valeur from brouillon_vu where quoi = 'voles'), '0',
+  'RÉÉCRIRE LE BROUILLON D''UN AUTRE NE TOUCHE AUCUNE LIGNE — et ne lève pas');
+
+select is((select valeur from brouillon_vu where quoi = 'relus'), '1',
+  'mais son propre brouillon, il le réécrit');
+
+--  ── NI L'INVITÉ NI LE STAFF N'ONT DE PORTE ────────────────────────
+select ok(not has_table_privilege('anon', 'brouillon', 'select'),
+  'UN VISITEUR NON CONNECTÉ N''A AUCUN DROIT DE LECTURE SUR LA TABLE');
+
+select ok(not has_function_privilege('authenticated', 'purger_les_brouillons()', 'execute'),
+  'et la purge n''est pas à la portée d''un joueur');
+
+--  ── LA PURGE REND LA PLACE ────────────────────────────────────────
+select is(purger_les_brouillons(), 1,
+  'la purge enlève le brouillon de trente-deux jours, et lui seul');
+
+select is((select count(*)::int from brouillon), 2,
+  'les deux autres sont intacts');
+
 
 select * from finish();
 rollback;
