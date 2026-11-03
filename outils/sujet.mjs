@@ -651,6 +651,25 @@ h1.page-title { border-bottom: 1px solid #3793ff; }
 #wrap { max-width: 1400px; margin: 0 auto; padding: 36px; }
 .wrap { max-width: 1400px; margin: 0 auto; padding: 36px; }`;
 
+/*  LE PANNEAU DES NOTIFICATIONS, TEL QUE FORUMACTIF LE SERT.
+    Relevé le 3 novembre sur la page `/t1002-…` : quatre noms de
+    membres, chacun dans un `span.usr_grp_clr` — la MÊME classe que
+    l'auteur d'un message. Il est replié, mais il est dans le document.
+
+    SANS LUI, LE DÉCOR NE PEUT PAS VOIR LE BUG. « Le @ tu l'as mis
+    partout sur le forum » : le sélecteur ramenait ces noms-là aussi, et
+    un harnais qui ne sert que des messages n'avait rien à ramener de
+    trop. Treizième fois qu'un décor incomplet ne teste que lui-même. */
+const PANNEAU_DES_NOTIFICATIONS = `
+<div id="notif_panel" style="display:none"><ul>
+<li id="n1"><div class="content"><div class="contentText ellipsis">
+<a href="/u3"><span class="group-3 usr_grp_clr">Maître du Jeu</span></a>
+a répondu à un sujet</div></div></li>
+<li id="n2" class="unread"><div class="content"><div class="contentText ellipsis">
+<a href="/u1"><span class="group-1 usr_grp_clr">Arceus</span></a>
+a répondu à un sujet</div></div></li>
+</ul></div>`;
+
 const page = (corps) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${BASE_MODERNBB}</style>
@@ -659,6 +678,7 @@ const page = (corps) =>
 <style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
 </head><body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
+${PANNEAU_DES_NOTIFICATIONS}
 <div id="wrap"><div id="page-body">${corps}</div></div>
 </div>
 </body></html>`;
@@ -2481,7 +2501,11 @@ dire(
 //  données : c'est `zones.json` qui décide, et une règle qu'on
 //  vérifierait sur un décor inventé ne prouverait rien.
 
-async function monterAvecScript(ariane) {
+/*  `adresse` EST UN PARAMÈTRE, et ce n'est pas un détail de confort :
+    depuis le 3 novembre, le « @ » ne se pose que sur l'affichage d'un
+    sujet, et c'est l'ADRESSE qui le dit. Monter toujours la page à
+    `/t10-un-sujet` rendrait la barrière invisible au harnais. */
+async function monterAvecScript(ariane, adresse = "https://exemple.test/t10-un-sujet") {
   const q = await nav.newPage({ viewport: { width: 1440, height: 900 } });
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   await q.route("**/*", (route) => {
@@ -2529,7 +2553,7 @@ async function monterAvecScript(ariane) {
       body: page(pageDeSujet({ ariane })),
     });
   });
-  await q.goto("https://exemple.test/t10-un-sujet");
+  await q.goto(adresse);
   await q.evaluate(() => {
     const s = document.createElement("script");
     s.src = "https://exemple.test/js/wild-mystery.js";
@@ -2716,7 +2740,67 @@ dire(
   repli.brouillon === `@"${repli.nom}" `,
   JSON.stringify(repli),
 );
+//  ── ET IL NE SORT PAS DU MESSAGE ───────────────────────────────────
+//
+//  Le panneau des notifications porte les mêmes `usr_grp_clr` que
+//  l'auteur d'un message. Il arrive après nous sur le vrai forum, donc
+//  aujourd'hui il échappe au passage — mais c'est une course, pas une
+//  règle, et le jour où il arriverait plus tôt chaque notification
+//  recevrait son « @ ».
+const horsDuMessage = await avecScript.evaluate(() => {
+  const tous = [...document.querySelectorAll("button.wm-mentionner")];
+  return {
+    //  LE DÉCOR SERT BIEN LES NOMS DU PANNEAU : sans ce compte, un
+    //  panneau perdu en route ferait passer la règle pour rien.
+    nomsDuPanneau: document.querySelectorAll("#notif_panel .usr_grp_clr").length,
+    dansUnMessage: tous.filter((b) => b.closest(".post") !== null).length,
+    ailleurs: tous.filter((b) => b.closest(".post") === null).length,
+  };
+});
+dire(
+  "LE « @ » RESTE DANS LE MESSAGE : rien dans le panneau des notifications",
+  horsDuMessage.nomsDuPanneau === 2 && horsDuMessage.ailleurs === 0 &&
+    horsDuMessage.dansUnMessage >= 2,
+  JSON.stringify(horsDuMessage),
+);
 await avecScript.close();
+
+//  ══════════════════════════════════════════════════════════════════
+//  HORS D'UN SUJET, PAS DE « @ » DU TOUT
+//
+//  « Le @ tu l'as mis partout sur le forum, moi je le veux que dans
+//  l'affichage d'un sujet », 3 novembre. Relevé le même jour sur
+//  l'index du forum : deux boutons posés à côté des auteurs de la
+//  colonne « dernier message ».
+//
+//  ON SERT LE MÊME DÉCOR À UNE AUTRE ADRESSE, et c'est tout le propos :
+//  une liste de sujets et un sujet portent du balisage identique, donc
+//  seule l'adresse peut les séparer. Si la barrière tombait, ce décor
+//  poserait ses boutons ici aussi.
+//  ══════════════════════════════════════════════════════════════════
+const surLIndex = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/");
+const indexNu = await surLIndex.evaluate(() => {
+  const avant = document.querySelectorAll(".sceditor-dropdown.sceditor-mention").length;
+  const source = document.querySelector(".sceditor-container > textarea");
+  source.dispatchEvent(new KeyboardEvent("keydown", { key: "@", bubbles: true }));
+  return {
+    boutons: document.querySelectorAll("button.wm-mentionner").length,
+    //  LES NOMS SONT LÀ, eux : la page n'est pas vide, elle est juste
+    //  laissée tranquille.
+    noms: document.querySelectorAll(".usr_grp_clr").length,
+    //  ET LA TOUCHE « @ » N'OUVRE RIEN : la barrière tient aussi sur
+    //  l'éditeur, pas seulement sur le bouton.
+    panneauAvant: avant,
+    panneauApres: document.querySelectorAll(".sceditor-dropdown.sceditor-mention").length,
+  };
+});
+dire(
+  "HORS D'UN SUJET, AUCUN « @ » POSÉ ET LA TOUCHE N'OUVRE RIEN",
+  indexNu.boutons === 0 && indexNu.noms >= 4 && indexNu.panneauAvant === 0 &&
+    indexNu.panneauApres === 0,
+  JSON.stringify(indexNu),
+);
+await surLIndex.close();
 
 const dansUneZone = await monterAvecScript(ARIANE_ZONE);
 const leBandeau = await dansUneZone.evaluate(() => {

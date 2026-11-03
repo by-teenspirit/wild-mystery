@@ -39,6 +39,26 @@
 //  Elle n'est atteignable que par le magasin `data` de jQuery — ni
 //  propriété sur le textarea, ni variable globale. Relevé le
 //  2 novembre.
+//
+//  ── DANS UN SUJET, ET NULLE PART AILLEURS ───────────────────────────
+//
+//  « Le @ tu l'as mis partout sur le forum, moi je le veux que dans
+//  l'affichage d'un sujet », 3 novembre. Et c'était vrai : relevé sur
+//  l'index le même jour, deux boutons posés à côté des auteurs de la
+//  colonne « dernier message ». `usr_grp_clr` ne dit pas « auteur d'un
+//  message » — il dit « membre coloré par son groupe », et Forumactif
+//  s'en sert partout : la liste des sujets, la liste des membres, le
+//  panneau des notifications, les profils.
+//
+//  DEUX BARRIÈRES, ET CHACUNE ARRÊTE AUTRE CHOSE :
+//
+//  1. L'ADRESSE. Elle seule distingue un sujet d'une liste de sujets,
+//     parce que les deux pages portent du balisage identique. C'est le
+//     même constat que pour `estLIndex` dans `module-vie.ts`.
+//  2. LE MESSAGE. Sur la page d'un sujet, le panneau des notifications
+//     porte lui aussi des `usr_grp_clr` — quatre, relevés le
+//     3 novembre. Il arrive après nous, donc aujourd'hui il échappe au
+//     passage ; compter sur ce retard serait compter sur une course.
 // ════════════════════════════════════════════════════════════════════
 
 const CLASSE = "wm-mentionner";
@@ -54,6 +74,23 @@ interface InstanceEditeur {
 }
 
 type MagasinJquery = (cible: Element) => { data(clef: string): unknown };
+
+/** Les adresses d'un sujet affiché, et elles seules.
+ *
+ *  Forumactif sert un sujet sur `/t10-le-titre`, sur `/t10p25-le-titre`
+ *  à partir de la deuxième page, et sur `/viewtopic.php?t=10` quand le
+ *  lien vient d'un ancien message. Une liste de sujets (`/f45-…`), un
+ *  profil (`/u4`), la liste des membres ou une page HTML (`/h15-…`)
+ *  n'en sont pas — et toutes portent des noms de membres.
+ *
+ *  LA PAGE DE RÉPONSE COMPLÈTE (`/post?t=10&mode=reply`) N'EN EST PAS
+ *  NON PLUS, même si elle montre les messages du sujet sous l'éditeur :
+ *  ce qu'on a demandé, c'est l'affichage d'un sujet. Le bouton
+ *  « Mentionner un membre » de Forumactif y reste, lui. */
+export function estLAffichageDUnSujet(chemin: string): boolean {
+  return /^\/t\d+(p\d+)?(-|$)/.test(chemin) ||
+    /^\/viewtopic\.(php|forum)$/.test(chemin);
+}
 
 /** La forme que Forumactif relit : guillemets droits dès qu'il y a une
  *  espace. Un nom qui en contient déjà est laissé tel quel — le forum
@@ -113,10 +150,14 @@ function ecrire(doc: Document, texte: string): boolean {
 
 /** Pose un `@` devant le nom de chaque auteur. Rend le nombre posés. */
 export function poserLesMentions(doc: Document): number {
+  if (!estLAffichageDUnSujet(doc.location?.pathname ?? "")) return 0;
   //  LE NOM DE L'AUTEUR EST DANS `.usr_grp_clr` : c'est la teinte de
   //  son groupe qui est portée là, pas le nom du groupe. Relevé le
   //  2 novembre — j'ai failli brancher le bouton sur un nom de groupe.
-  const noms = [...doc.querySelectorAll<HTMLElement>(".usr_grp_clr")];
+  //
+  //  DANS UN MESSAGE. Sans `.post` devant, le même sélecteur ramène
+  //  aussi les noms du panneau des notifications, qui est sur la page.
+  const noms = [...doc.querySelectorAll<HTMLElement>(".post .usr_grp_clr")];
   let poses = 0;
   for (const n of noms) {
     const nom = n.textContent?.trim() ?? "";
@@ -234,6 +275,12 @@ export function poserLOuvertureAuArobase(doc: Document): boolean {
  *  est une fuite.
  */
 export function guetterLEditeur(doc: Document, limiteMs = 15000): void {
+  //  LA MÊME BARRIÈRE QUE POUR LE BOUTON, et posée AVANT l'observateur
+  //  plutôt que dans `poserLOuvertureAuArobase` : ailleurs que dans un
+  //  sujet, il n'y a pas seulement rien à brancher, il n'y a rien à
+  //  guetter — un observateur qui tourne quinze secondes sur chaque
+  //  page pour ne jamais rien trouver est une fuite.
+  if (!estLAffichageDUnSujet(doc.location?.pathname ?? "")) return;
   if (poserLOuvertureAuArobase(doc)) return;
   const racine = doc.documentElement;
   if (racine === null) return;
