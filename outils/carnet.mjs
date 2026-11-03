@@ -222,9 +222,31 @@ async function monter(
     const entetes = route.request().headers();
 
     //  L'ENVOI DU LIEN.
+    //
+    //  CE DÉCOR IGNORE LES CHAMPS QU'IL NE CONNAÎT PAS, comme GoTrue :
+    //  le `POST /otp` ne lit que `email` et `create_user`, et un champ
+    //  de plus dans le corps part à la poubelle sans un mot. C'est
+    //  exactement ce qui a caché la faute du 3 novembre, alors le décor
+    //  NOTE la destination qu'il a vraiment reçue — en paramètre d'URL,
+    //  là où le client officiel la pose — et la mesure vérifie les deux
+    //  côtés : le paramètre présent, et le corps sans `options`.
     if (u.pathname === "/auth/v1/otp") {
-      appels.push({ ou: "otp", corps: JSON.parse(route.request().postData() ?? "{}") });
+      appels.push({
+        ou: "otp",
+        corps: JSON.parse(route.request().postData() ?? "{}"),
+        retour: u.searchParams.get("redirect_to"),
+      });
       if (otp === "trop-vite") return route.fulfill({ status: 429, body: "{}" });
+      if (otp === "non-autorisee") {
+        //  LE SERVICE DE MAIL PAR DÉFAUT DE SUPABASE ne livre qu'aux
+        //  adresses de l'équipe du projet. Ce refus-là n'est pas une
+        //  panne : c'est un réglage qui manque, et il se dit autrement.
+        return route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ error_code: "email_address_not_authorized" }),
+        });
+      }
       if (otp === "refus") {
         return route.fulfill({
           status: 400,
@@ -423,11 +445,58 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
   );
   const envoi = appels.find((a) => a.ou === "otp");
   dire(
-    "LE FORMULAIRE ENVOIE LE LIEN, AVEC L'ADRESSE DE RETOUR DE LA PAGE",
+    "LE FORMULAIRE ENVOIE LE LIEN, AVEC L'ADRESSE DE RETOUR EN PARAMÈTRE D'URL",
     envoi !== undefined && envoi.corps.email === "callie+1@exemple.fr" &&
-      envoi.corps.options?.email_redirect_to === ADRESSE &&
+      envoi.corps.create_user === true &&
+      envoi.retour === ADRESSE &&
       /bo[îi]te/i.test(dit),
     JSON.stringify({ envoi, dit }),
+  );
+  dire(
+    "et le corps ne porte QUE ce que l'API lit — un champ de plus serait jeté en silence",
+    envoi !== undefined && Object.keys(envoi.corps).sort().join() === "create_user,email",
+    JSON.stringify(Object.keys(envoi?.corps ?? {})),
+  );
+  await q.close();
+}
+
+{
+  //  UNE ADRESSE QUE LE SERVICE DE MAIL REFUSE N'EST PAS UNE PANNE DU
+  //  JEU. Le service par défaut de Supabase ne livre qu'aux adresses de
+  //  l'équipe du projet : tant qu'un SMTP n'est pas branché, une
+  //  joueuse recevrait « réessaie dans un moment » pour un réglage qui
+  //  ne se réparera jamais tout seul.
+  const { q } = await monter({ laissez: null, otp: "non-autorisee" });
+  await q.fill("[data-wm-carnet-liaison] input", "joueuse@exemple.fr");
+  await q.click("[data-wm-carnet-liaison] button");
+  await q.waitForTimeout(300);
+  const dit = await q.evaluate(() =>
+    document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "UNE ADRESSE REFUSÉE PAR LE SERVICE DE MAIL ENVOIE VERS LE STAFF",
+    /staff/i.test(dit) && !/r[ée]essaie/i.test(dit),
+    JSON.stringify({ dit }),
+  );
+  await q.close();
+}
+
+{
+  //  ET UN AUTRE REFUS PORTE SON CODE DANS LA PAGE. Celle qui tient le
+  //  forum n'ouvre pas la console avant de dire « ça ne marche pas » :
+  //  sans le code, la réponse est un aller-retour de plus. C'est la
+  //  leçon de ce matin, écrite en mesure.
+  const { q } = await monter({ laissez: null, otp: "refus" });
+  await q.fill("[data-wm-carnet-liaison] input", "joueuse@exemple.fr");
+  await q.click("[data-wm-carnet-liaison] button");
+  await q.waitForTimeout(300);
+  const dit = await q.evaluate(() =>
+    document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "UN REFUS INATTENDU DIT SON CODE, PAS SEULEMENT « RÉESSAIE »",
+    /400/.test(dit) && /validation_failed/.test(dit),
+    JSON.stringify({ dit }),
   );
   await q.close();
 }

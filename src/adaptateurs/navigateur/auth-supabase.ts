@@ -40,7 +40,7 @@ import { type Laissez, laissezDuFragment } from "../../navigateur/session-de-jeu
 export type EnvoiDuLien =
   | { readonly etat: "parti" }
   | { readonly etat: "trop-vite" }
-  | { readonly etat: "refus"; readonly code: string };
+  | { readonly etat: "refus"; readonly code: string; readonly statut: number };
 
 /** Demande à Supabase d'envoyer le lien de connexion.
  *
@@ -61,18 +61,31 @@ export async function envoyerLeLien(
   courriel: string,
   retour: string,
 ): Promise<EnvoiDuLien> {
-  const reponse = await fetch(`${acces.url}/auth/v1/otp`, {
+  //  ── L'ADRESSE DE RETOUR VA DANS L'ADRESSE, PAS DANS LE CORPS ──────
+  //
+  //  Premier envoi branché pour de vrai, 3 novembre : refus. J'avais
+  //  écrit `options: { email_redirect_to }` dans le corps — c'est la
+  //  forme du client JS `signInWithOtp`, pas celle de l'API. Le `POST
+  //  /auth/v1/otp` ne connaît que `email` et `create_user` ; le client
+  //  officiel, lui, pose la destination en paramètre `redirect_to` de
+  //  l'URL. Un champ inconnu dans le corps est ignoré en silence : le
+  //  lien serait parti vers la Site URL du projet, donc ailleurs.
+  //
+  //  ET LE DÉCOR L'A LAISSÉ PASSER, parce que je l'avais écrit pour
+  //  attendre ma propre invention. Troisième fois que ça se paie dans
+  //  ce projet : un décor qui ne reproduit pas ce que l'hôte sert ne
+  //  mesure que lui-même. Le harnais vérifie maintenant le paramètre
+  //  d'URL, et refuse un corps qui porterait `options`.
+  const adresse = new URL(`${acces.url}/auth/v1/otp`);
+  adresse.searchParams.set("redirect_to", retour);
+  const reponse = await fetch(adresse.toString(), {
     method: "POST",
     credentials: "omit",
     headers: {
       "apikey": acces.clePubliable,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      email: courriel,
-      create_user: true,
-      options: { email_redirect_to: retour },
-    }),
+    body: JSON.stringify({ email: courriel, create_user: true }),
   });
   if (reponse.ok) return { etat: "parti" };
   if (reponse.status === 429) return { etat: "trop-vite" };
@@ -80,7 +93,7 @@ export async function envoyerLeLien(
   const code = typeof corps === "object" && corps !== null
     ? String((corps as { error_code?: unknown }).error_code ?? reponse.status)
     : String(reponse.status);
-  return { etat: "refus", code };
+  return { etat: "refus", code, statut: reponse.status };
 }
 
 /** Échange le jeton de rafraîchissement contre un laissez-passer neuf.
