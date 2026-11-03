@@ -199,7 +199,15 @@
 
 /*  LE VOILE. Sans lui, le texte passe sur la photo et rien ne se lit.
     Il part opaque à gauche, sous la colonne, et s'éclaircit vers la
-    droite où il n'y a que du vide. */
+    droite où il n'y a que du vide.
+
+    LES TROIS ARRÊTS VIENNENT DU JETON, le dernier compris. Il était
+    écrit en dur — `rgb(238 207 181 / 72%)`, la pêche du thème clair —
+    et en sombre il reposait donc un voile clair sous un texte devenu
+    clair : quatre défauts de contraste sur l'écran d'attente, relevés
+    par `deno task contraste` le 3 novembre. 1,25 pour « Un instant ».
+    Un littéral de couleur dans cette feuille ne peut pas suivre la
+    palette ; c'est aussi ce que dit le garde-fou n° 2. */
 #modernbb .wm-carnet__corps::after {
   position: absolute;
   z-index: -1;
@@ -207,7 +215,7 @@
     100deg,
     var(--wm-fond-page, #eecfb5) 0,
     var(--wm-fond-page, #eecfb5) 58%,
-    rgb(238 207 181 / 72%) 100%
+    color-mix(in srgb, var(--wm-fond-page, #eecfb5) 72%, transparent) 100%
   );
   content: "";
   inset: 0;

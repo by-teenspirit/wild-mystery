@@ -90,7 +90,22 @@ body#modernbb {
     avant de livrer. D'où la liste ci-dessous : toutes les surfaces que
     ModernBB peint sur une page de forum, relevées d'un coup le 3 octobre,
     plutôt qu'une par une au fil des découvertes. */
-html,
+/*  ET C'EST `body` QUI LE PORTE, PAS `html`. Relevé le 3 novembre sur
+    `pages/carnet.html` : en sombre, le fond de page restait pêche et le
+    texte, devenu clair, tombait à **1,25 de contraste**.
+
+    La raison est dans la cascade des jetons : `body.wm-sombre`
+    redéfinit la palette sur le CORPS, donc `html`, qui est son parent,
+    garde la palette claire. Un fond posé sur `html` ne peut pas suivre
+    le thème — il est déclaré au-dessus de l'endroit où le thème existe.
+
+    Posé sur `body`, il suit, et le navigateur le propage quand même au
+    fond de la fenêtre puisque `html` n'en a plus. Les pages du forum ne
+    changent pas d'allure : `#wrap` les recouvrait déjà.
+
+    C'est le même défaut qu'en octobre, à un étage près, et cette
+    fois-ci il s'est vu sur la seule page qui n'a pas de `#wrap`. */
+body,
 #modernbb #wrap {
   background: var(--wm-fond-page, #eecfb5);
 }

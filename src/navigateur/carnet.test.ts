@@ -20,11 +20,11 @@ import {
   jauge,
   type LignePokedex,
   nomAffiche,
+  type ObjetDuCatalogue,
   ONGLET_PAR_DEFAUT,
   ongletDeLAdresse,
-  type ObjetDuCatalogue,
-  type PokemonDuCarnet,
   pokedexAffiche,
+  type PokemonDuCarnet,
   sacRange,
 } from "./carnet.ts";
 
@@ -69,7 +69,10 @@ Deno.test("l'équipe a toujours six places, trous compris", () => {
 });
 
 Deno.test("un pokémon sans place comble une case libre au lieu de disparaître", () => {
-  const places = equipeAffichee([pok({ id: "a", place: 1 }), pok({ id: "sansPlace", place: null })]);
+  const places = equipeAffichee([
+    pok({ id: "a", place: 1 }),
+    pok({ id: "sansPlace", place: null }),
+  ]);
   assertEquals(places[0].pokemon?.id, "a");
   assertEquals(places[1].pokemon?.id, "sansPlace");
 });
@@ -77,7 +80,13 @@ Deno.test("un pokémon sans place comble une case libre au lieu de disparaître"
 const ARENES: Arene[] = [
   { nom: "Arène Feu", slug: "feu", type: "feu", ville: "Station Service", genre: "arene" },
   { nom: "Arène Plante", slug: "plante", type: "plante", ville: "Samaragd", genre: "arene" },
-  { nom: "Colosseum de Rhode", slug: "fee", type: "fee", ville: "Port-Amarée", genre: "colosseum" },
+  {
+    nom: "Colosseum de Rhode",
+    slug: "fee",
+    type: "fee",
+    ville: "Port-Amarée",
+    genre: "colosseum",
+  },
 ];
 
 Deno.test("sans la liste, on ne dessine que les badges obtenus", () => {
@@ -111,7 +120,11 @@ Deno.test("les colosseums ont leurs propres cases et ne comptent pas pour la Lig
 Deno.test("un badge que la liste ne connaît pas ne disparaît pas de l'écran", () => {
   //  Une arène ajoutée en base avant d'être ajoutée au fichier : elle
   //  sort dans les cases du genre vide plutôt que de n'être nulle part.
-  const cases = badgesAffiches([{ arene: "Arène Fantôme", obtenuLe: "2026-10-01" }], [], "arene");
+  const cases = badgesAffiches(
+    [{ arene: "Arène Fantôme", obtenuLe: "2026-10-01" }],
+    [],
+    "arene",
+  );
   assertEquals(cases.map((c) => c.arene), ["Arène Fantôme"]);
 });
 

@@ -13,14 +13,14 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type {
-  JournalDeReleve,
-  Pokedex,
-  SuiviDesForums,
-  Verrou,
-  Reclamations,
-  ReclamationDeCarnetLue,
   CartesDresseur,
   JoueurSansCarte,
+  JournalDeReleve,
+  Pokedex,
+  ReclamationDeCarnetLue,
+  Reclamations,
+  SuiviDesForums,
+  Verrou,
 } from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 

@@ -38,7 +38,7 @@
 //  `npm:playwright` plutôt qu'un `node_modules` : le dépôt est en Deno,
 //  et un harnais ne mérite pas un gestionnaire de paquets de plus.
 import { readFileSync } from "node:fs";
-import { chromium } from "npm:playwright@1.49.1";
+import { chromium } from "npm:playwright@1.56.0";
 
 //  Le Chromium du bac à sable n'a pas toujours le numéro que Playwright
 //  attend. On prend celui qui est là plutôt que d'en télécharger un.
@@ -530,7 +530,26 @@ const theme = await p.evaluate(async () => {
   await new Promise((r) => requestAnimationFrame(r));
   return { avant, apres, revenu: etat(), icone };
 });
-if (theme === null) {
+//  ── QUI DOIT EN AVOIR UN, ET QUI N'A RIEN A EN FAIRE ──────────────
+//
+//  Le bouton appartient aux pages AUTONOMES : les annexes et le
+//  carnet, celles qu'on colle comme page HTML de Forumactif et qui
+//  n'ont donc ni en-tete ni pied de forum pour en porter un. Ce sont
+//  les deux memes familles que la feuille nomme dans
+//  `body:has(#modernbb .wm-annexe), body:has(#modernbb .wm-carnet)`.
+//
+//  `accueil-repli.html` et `composants.html` ne sont pas de celles-la :
+//  le premier est le bloc de repli qu'on pose DANS l'index, le second
+//  une planche de composants. Le reglage sombre leur vient du forum,
+//  et leur reclamer un bouton a elles faisait tomber le travail de
+//  contraste entier — releve le 3 novembre, sur le premier tag depuis
+//  que ce controle existe.
+const autonome = await p.evaluate(() =>
+  document.querySelector("#modernbb .wm-annexe, #modernbb .wm-carnet") !== null
+);
+if (theme === null && !autonome) {
+  console.log("bouton de theme : sans objet — cette page se colle dans le forum");
+} else if (theme === null) {
   console.log("bouton de theme : ABSENT — defaut");
   fautes++;
 } else {

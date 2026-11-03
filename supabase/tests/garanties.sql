@@ -9,12 +9,18 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(158);
+select plan(161);
 
 -- ── le décor ────────────────────────────────────────────────────────
+--  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
+--  migration 0022 a remplacé les six groupes le 2 novembre et
+--  `joueur_groupe_check` refuse désormais « deoxys » : ce décor
+--  faisait tomber les 158 contrôles d'un coup, sans en lancer un
+--  seul, et personne ne l'a vu parce que cette suite ne tourne qu'au
+--  tag. C'est la liste de la contrainte, et c'est la seule qui passe.
 insert into joueur (id, forum_user_id, pseudo, groupe, palier, pokedollars)
-values ('11111111-1111-1111-1111-111111111111', 101, 'Callista', 'deoxys', 1, 500),
-       ('22222222-2222-2222-2222-222222222222', 102, 'Plumtys',  'mew',    1, 0);
+values ('11111111-1111-1111-1111-111111111111', 101, 'Callista', 'hardi', 1, 500),
+       ('22222222-2222-2222-2222-222222222222', 102, 'Plumtys',  'doux',  1, 0);
 
 insert into espece (id, nom_fr, types, stade, pv_base)
 values (37, 'Goupix', array['feu'], 1, 38)
@@ -879,6 +885,30 @@ select throws_ok(
 select throws_ok(
   $$select rendre_fossile('{}'::jsonb)$$,
   null, null, 'et un appel sans analyseId aussi');
+
+-- ── LES SIX MAISONS, ET RIEN D'AUTRE ────────────────────────────────
+--
+--  Ces trois contrôles existent parce que le décor de cette suite a
+--  gardé « deoxys » et « mew » pendant tout le temps où les groupes
+--  changeaient. La contrainte avait raison, le décor avait tort, et
+--  rien ne le disait : la suite tombait d'un bloc, en annonçant un
+--  plan de 158 contrôles et en n'en lançant aucun.
+--
+--  Nommer la liste ICI veut dire qu'un septième groupe, ou un groupe
+--  renommé, se verra dans un échec qui le dit — et pas dans un décor
+--  qui refuse de se monter.
+select lives_ok($$
+  insert into joueur (id, forum_user_id, pseudo, groupe)
+  values ('99999999-0000-0000-0000-000000000006', 906, 'Les six', 'jovial')
+$$, 'une nature de la liste est acceptée');
+select throws_ok($$
+  insert into joueur (id, forum_user_id, pseudo, groupe)
+  values ('99999999-0000-0000-0000-000000000007', 907, 'Le septième', 'deoxys')
+$$, '23514', null, 'un légendaire est refusé par la contrainte');
+select lives_ok($$
+  insert into joueur (id, forum_user_id, pseudo, groupe)
+  values ('99999999-0000-0000-0000-000000000008', 908, 'Sans maison', null)
+$$, 'ET L''ABSENCE DE MAISON EST PERMISE : c''est l''état de qui attend sa validation');
 
 select * from finish();
 rollback;

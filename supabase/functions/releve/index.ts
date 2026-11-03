@@ -30,9 +30,9 @@ import {
   HeuresSupabase,
 } from "../../../src/adaptateurs/supabase/jeu.ts";
 import {
+  CartesSupabase,
   JournalSupabase,
   PokedexSupabase,
-  CartesSupabase,
   ReclamationsSupabase,
   SuiviSupabase,
   VerrouSupabase,

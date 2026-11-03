@@ -29,7 +29,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { readFileSync } from "node:fs";
-import { chromium } from "npm:playwright@1.49.1";
+import { chromium } from "npm:playwright@1.56.0";
 
 const R = new URL("..", import.meta.url).pathname;
 const ADRESSE = "https://mysteryinrhode.forumactif.com/h15-mon-carnet";

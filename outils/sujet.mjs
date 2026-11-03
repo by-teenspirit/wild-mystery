@@ -25,7 +25,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { chromium } from "npm:playwright@1.49.1";
+import { chromium } from "npm:playwright@1.56.0";
 
 //  LE MÊME CHROMIUM QUE LES AUTRES HARNAIS, et la même façon de le
 //  trouver : le garde-fou n° 20 vérifie qu'il n'y en a qu'un.

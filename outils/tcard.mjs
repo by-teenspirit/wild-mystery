@@ -31,7 +31,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { chromium } from "npm:playwright@1.49.1";
+import { chromium } from "npm:playwright@1.56.0";
 
 const CHROME = [
   "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",

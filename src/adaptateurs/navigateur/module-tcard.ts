@@ -43,7 +43,7 @@
 //  vieilles mais plausibles. Une carte vidée par une panne de réseau
 //  serait pire que la carte périmée qu'on remplace.
 // ════════════════════════════════════════════════════════════════════
-import { appeler, type Acces } from "./supabase.ts";
+import { type Acces, appeler } from "./supabase.ts";
 import { especesDepuis } from "./catalogue.ts";
 import { type Arene, type Badge, chiffre } from "../../navigateur/carnet.ts";
 

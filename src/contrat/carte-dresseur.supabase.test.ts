@@ -311,11 +311,16 @@ essai("les joueurs sans carte sortent, les plus anciens d'abord", async (url) =>
        values (777301, 'Plus ancienne', 'doux',  '2026-01-01'),
               (777302, 'Plus récente',  'brave', '2026-06-01');`,
   );
-  const lu = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":50}'::jsonb)::text;`));
+  const lu = JSON.parse(
+    await psql(url, `select cartes_a_publier('{"limite":50}'::jsonb)::text;`),
+  );
   const miens = lu.filter((j: { forumUserId: number }) =>
     j.forumUserId === 777301 || j.forumUserId === 777302
   );
-  assertEquals(miens.map((j: { pseudo: string }) => j.pseudo), ["Plus ancienne", "Plus récente"]);
+  assertEquals(miens.map((j: { pseudo: string }) => j.pseudo), [
+    "Plus ancienne",
+    "Plus récente",
+  ]);
   await psql(url, `delete from joueur where forum_user_id in (777301, 777302);`);
 });
 
@@ -325,11 +330,17 @@ essai("UN SUJET DÉJÀ NOTÉ NE SE REMPLACE PAS", async (url) => {
   //  qui resterait sur le forum sans que rien ne le relie à personne.
   const j = await psql(url, `select id from joueur where forum_user_id = ${COMPTE_ELIOTT};`);
   assertEquals(
-    await psql(url, `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',4001));`),
+    await psql(
+      url,
+      `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',4001));`,
+    ),
     "t",
   );
   assertEquals(
-    await psql(url, `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',9999));`),
+    await psql(
+      url,
+      `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',9999));`,
+    ),
     "f",
   );
   assertEquals(
@@ -340,8 +351,13 @@ essai("UN SUJET DÉJÀ NOTÉ NE SE REMPLACE PAS", async (url) => {
 
 essai("un joueur qui a sa carte ne ressort plus de la file", async (url) => {
   const j = await psql(url, `select id from joueur where forum_user_id = ${COMPTE_ELIOTT};`);
-  await psql(url, `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',4002));`);
-  const lu = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":50}'::jsonb)::text;`));
+  await psql(
+    url,
+    `select carte_publiee(jsonb_build_object('joueurId','${j}','sujetId',4002));`,
+  );
+  const lu = JSON.parse(
+    await psql(url, `select cartes_a_publier('{"limite":50}'::jsonb)::text;`),
+  );
   assertEquals(
     lu.filter((x: { forumUserId: number }) => x.forumUserId === COMPTE_ELIOTT).length,
     0,
@@ -356,12 +372,25 @@ essai("UN JOUEUR SANS MAISON N'EST PAS DANS LA FILE", async (url) => {
   //  son carnet, donc bien avant toute validation : sans ce garde, la
   //  relève publierait un sujet pour quiconque a cliqué.
   await psql(url, `insert into joueur (forum_user_id, pseudo) values (777501, 'En attente');`);
-  const avant = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":99}'::jsonb)::text;`));
-  assertEquals(avant.filter((j: { forumUserId: number }) => j.forumUserId === 777501).length, 0);
+  const avant = JSON.parse(
+    await psql(url, `select cartes_a_publier('{"limite":99}'::jsonb)::text;`),
+  );
+  assertEquals(
+    avant.filter((j: { forumUserId: number }) => j.forumUserId === 777501).length,
+    0,
+  );
 
-  await psql(url, `select valider_le_personnage('{"forumUserId":777501,"groupe":"doux"}'::jsonb);`);
-  const apres = JSON.parse(await psql(url, `select cartes_a_publier('{"limite":99}'::jsonb)::text;`));
-  assertEquals(apres.filter((j: { forumUserId: number }) => j.forumUserId === 777501).length, 1);
+  await psql(
+    url,
+    `select valider_le_personnage('{"forumUserId":777501,"groupe":"doux"}'::jsonb);`,
+  );
+  const apres = JSON.parse(
+    await psql(url, `select cartes_a_publier('{"limite":99}'::jsonb)::text;`),
+  );
+  assertEquals(
+    apres.filter((j: { forumUserId: number }) => j.forumUserId === 777501).length,
+    1,
+  );
   await psql(url, `delete from joueur where forum_user_id = 777501;`);
 });
 
@@ -379,7 +408,10 @@ essai("valider crée la ligne quand elle n'existe pas encore", async (url) => {
   );
   assertEquals(r.creee, true);
   assertEquals(r.groupe, "brave");
-  assertEquals(await psql(url, `select pseudo from joueur where forum_user_id = 777502;`), "Toute neuve");
+  assertEquals(
+    await psql(url, `select pseudo from joueur where forum_user_id = 777502;`),
+    "Toute neuve",
+  );
   await psql(url, `delete from joueur where forum_user_id = 777502;`);
 });
 

@@ -258,7 +258,9 @@ export function lireLeFormulaireDeSujet(html: string): FormulaireDeSujet {
   }
 
   if (mode !== "newtopic") {
-    throw new FormulaireIntrouvable(`mode attendu « newtopic », trouvé ${JSON.stringify(mode)}`);
+    throw new FormulaireIntrouvable(
+      `mode attendu « newtopic », trouvé ${JSON.stringify(mode)}`,
+    );
   }
   if (auth.length !== 2) {
     throw new FormulaireIntrouvable(`${auth.length} champ(s) auth[] au lieu de deux`);
@@ -588,7 +590,9 @@ export class ForumactifEnPublication implements PosteurSurForum {
   private async sujetPortantLeTitre(forumId: number, titre: string): Promise<number | null> {
     const reponse = await this.lirePage(`/f${forumId}-`);
     const cherche = titre.trim().toLowerCase();
-    for (const m of reponse.corps.matchAll(/<a[^>]+href="\/t(\d+)-[^"]*"[^>]*>([^<]*)<\/a>/gi)) {
+    for (
+      const m of reponse.corps.matchAll(/<a[^>]+href="\/t(\d+)-[^"]*"[^>]*>([^<]*)<\/a>/gi)
+    ) {
       const lu = m[2].replace(/&amp;/g, "&").replace(/&#039;/g, "'").trim().toLowerCase();
       if (lu === cherche) return Number(m[1]);
     }

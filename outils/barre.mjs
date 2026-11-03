@@ -33,7 +33,7 @@
 //  Lancé par `deno task barre`.
 // ════════════════════════════════════════════════════════════════════
 
-import { chromium } from "npm:playwright@1.49.1";
+import { chromium } from "npm:playwright@1.56.0";
 import { readFileSync } from "node:fs";
 
 const R = new URL("..", import.meta.url).pathname;

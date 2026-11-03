@@ -29,8 +29,8 @@ import {
   type Decor,
   direLeSouci,
   poserLaBarre,
-  poserLEtat,
   poserLesOnglets,
+  poserLEtat,
   poserMonJeu,
   poserMonPokedex,
   poserMonSac,
@@ -292,9 +292,8 @@ const gardee = lireLaCle();
 if (gardee === null) {
   poserLEtat(document, "cle");
   poserLOuverture().catch(() => {});
-}
-else {ouvrirLeCarnet(gardee).catch(() => {
-  direLeSouci(document, motDuRefus(null));
-  poserLEtat(document, "cle");
-  poserLOuverture().catch(() => {});
-});}
+} else {ouvrirLeCarnet(gardee).catch(() => {
+    direLeSouci(document, motDuRefus(null));
+    poserLEtat(document, "cle");
+    poserLOuverture().catch(() => {});
+  });}
