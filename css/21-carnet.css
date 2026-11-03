@@ -860,3 +860,293 @@
 
 /* ── 12 · ouvrir son carnet en postant ────────────────────────────── */
 
+
+/* ── 13 · Écrire ──────────────────────────────────────────────────── */
+/*
+    LE MODE FOCUS N'EST PAS UNE PAGE, c'est `data-wm-focus` sur la
+    section. Le plein écran vient de l'API du navigateur ; cette feuille
+    ne fait que cacher ce qui n'est pas le texte. L'adresse ne change
+    pas, le brouillon ne bouge pas, et Échap en sort — c'est le
+    navigateur qui s'en charge, pas nous.
+
+    ET LE FOCUS SUIT LE THÈME, il n'impose pas le sien : aucune couleur
+    n'est écrite en dur ici, tout passe par les jetons, qui sont
+    redéfinis par `body.wm-sombre`. « Un mode sombre imposé à quelqu'un
+    qui a choisi Aube, c'est une préférence qu'on lui reprend. »
+*/
+
+#modernbb .wm-ecrire__cadre {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  margin-bottom: 18px;
+  background: var(--wm-fond-surface);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-lg, 10px);
+}
+
+#modernbb .wm-ecrire__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#modernbb .wm-ecrire__etat {
+  margin: 0;
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-ecrire__sujet {
+  margin: 0;
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  color: var(--wm-texte-corps);
+}
+
+#modernbb .wm-ecrire__outils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+#modernbb .wm-ecrire__outil {
+  min-width: 30px;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  cursor: pointer;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-xs, 4px);
+}
+
+#modernbb .wm-ecrire__outil:hover,
+#modernbb .wm-ecrire__outil:focus-visible {
+  background: var(--wm-fond-douce);
+}
+
+#modernbb .wm-ecrire__corps {
+  width: 100%;
+  min-height: 260px;
+  padding: 14px;
+  font-family: var(--wm-police-corps);
+  font-size: var(--wm-taille-message, 16px);
+  line-height: 1.65;
+  color: var(--wm-texte-corps);
+  resize: vertical;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-ecrire__pied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+#modernbb .wm-ecrire__compte {
+  margin: 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-ecrire__compte b {
+  font-size: var(--wm-taille-chiffre, 20px);
+  font-weight: var(--wm-graisse-gras, 700);
+  color: var(--wm-texte-corps);
+}
+
+/*  « Le chiffre est affiché comme une estimation » — et elle est écrite
+    à côté, pas dans une infobulle qu'on ne survole jamais. */
+#modernbb .wm-ecrire__estimation {
+  display: block;
+  font-size: var(--wm-taille-legende, 10.5px);
+  font-style: italic;
+  color: var(--wm-texte-pale);
+}
+
+#modernbb .wm-ecrire__boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#modernbb .wm-ecrire__tiroir {
+  padding: 12px 14px;
+  font-size: var(--wm-taille-normal, 13.5px);
+  background: var(--wm-fond-terre);
+  border-left: 3px solid var(--wm-accent-terre);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-ecrire__tiroir-tete {
+  margin: 0 0 6px;
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-ecrire__tiroir-corps {
+  max-height: 200px;
+  overflow-y: auto;
+  line-height: 1.6;
+  color: var(--wm-texte-corps);
+}
+
+/* ── les durées de session ───────────────────────────────────────── */
+
+#modernbb .wm-ecrire__durees {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+#modernbb .wm-ecrire__duree {
+  padding: 7px 14px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  cursor: pointer;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: 999px;
+}
+
+#modernbb .wm-ecrire__duree[aria-pressed="true"] {
+  color: var(--wm-texte-inverse);
+  background: var(--wm-accent-primaire);
+  border-color: var(--wm-accent-fort);
+}
+
+/*  LA FIN DE SESSION EST EN BAS DE L'ÉCRAN, JAMAIS EN FENÊTRE MODALE,
+    et sans aucun son : « couper quelqu'un au milieu d'une phrase, c'est
+    exactement ce qu'on cherchait à éviter en faisant le focus ». */
+#modernbb .wm-ecrire__en-cours {
+  margin: 10px 0 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-corps);
+}
+
+/* ── les trois places ────────────────────────────────────────────── */
+
+#modernbb .wm-ecrire__places {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-ecrire__place {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-ecrire__place[aria-current="true"] {
+  border-color: var(--wm-accent-primaire);
+}
+
+#modernbb .wm-ecrire__place-nom {
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-corps);
+}
+
+#modernbb .wm-ecrire__place-dit {
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-ecrire__place--vide .wm-ecrire__place-nom {
+  font-style: italic;
+  color: var(--wm-texte-pale);
+}
+
+#modernbb .wm-ecrire__regles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: 1.55;
+  color: var(--wm-texte-doux);
+  list-style: none;
+}
+
+#modernbb .wm-ecrire__regles b {
+  display: block;
+  color: var(--wm-texte-corps);
+}
+
+#modernbb .wm-ecrire__invisible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── le focus : la même page, moins tout le reste ────────────────── */
+
+#modernbb .wm-ecrire[data-wm-focus] .wm-ecrire__entete,
+#modernbb .wm-ecrire[data-wm-focus] .wm-carnet__bloc {
+  display: none;
+}
+
+#modernbb .wm-ecrire[data-wm-focus] .wm-ecrire__cadre {
+  max-width: 44rem;
+  margin: 0 auto;
+  border: 0;
+}
+
+#modernbb .wm-ecrire[data-wm-focus] .wm-ecrire__corps {
+  min-height: 62vh;
+  border-color: transparent;
+}
+
+/*  LE FOCUS CACHE AUSSI LA BARRE ET LES ONGLETS. La classe vit sur le
+    carnet entier parce que la barre latérale n'est pas dans la section. */
+#modernbb .wm-carnet[data-wm-focus] .wm-carnet__barre {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  /*  SOUS 760 PX LE FOCUS EST LE MODE PAR DÉFAUT : « l'écran est déjà
+      trop petit pour afficher autre chose que le texte ». On ne force
+      pas le plein écran — on réduit le cadre à ce qui sert. */
+  #modernbb .wm-ecrire__corps {
+    min-height: 50vh;
+  }
+
+  #modernbb .wm-ecrire__pied,
+  #modernbb .wm-ecrire__boutons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

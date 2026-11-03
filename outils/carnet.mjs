@@ -210,11 +210,14 @@ async function monter(
     rafraichissement = "ok",
     script = "neuf",
     valideeApres = false,
+    brouillons = [],
+    ecriture = "ok",
   } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
   const appels = [];
   let liaisonJouee = false;
+  let brouillonsVus = brouillons.map((b) => ({ ...b }));
   const demandes = [];
   const jetonsVus = [];
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
@@ -315,6 +318,34 @@ async function monter(
       });
     }
 
+    //  ── LA TABLE DES BROUILLONS, PAR POSTGREST ───────────────────
+    //
+    //  Ce n'est plus une fonction : c'est la table, et c'est la RLS qui
+    //  filtre. Le décor garde les lignes en mémoire pour que
+    //  l'enregistrement différé se mesure vraiment — qu'on puisse dire
+    //  « après deux secondes, la base a reçu ceci », et pas seulement
+    //  « une requête est partie ».
+    if (u.pathname.endsWith("/rest/v1/brouillon")) {
+      const jeton = (entetes.authorization ?? "").replace("Bearer ", "");
+      jetonsVus.push(jeton);
+      if (route.request().method() === "POST") {
+        const corps = JSON.parse(route.request().postData() ?? "{}");
+        appels.push({ ou: "ecrire", jeton, corps });
+        if (ecriture === "refus") return route.fulfill({ status: 500, body: "{}" });
+        brouillonsVus = [
+          ...brouillonsVus.filter((b) => b.place !== corps.place),
+          corps,
+        ].sort((a, b) => a.place - b.place);
+        return route.fulfill({ status: 201, body: "" });
+      }
+      appels.push({ ou: "brouillons", jeton });
+      if (ecriture === "muet") return route.fulfill({ status: 500, body: "{}" });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(brouillonsVus),
+      });
+    }
+
     if (u.pathname.endsWith("/rest/v1/rpc/carnet_de_la_session")) {
       const jeton = (entetes.authorization ?? "").replace("Bearer ", "");
       jetonsVus.push(jeton);
@@ -405,7 +436,7 @@ async function monter(
 
   await q.goto(ADRESSE + fragment, { waitUntil: "load" });
   await q.waitForTimeout(900);
-  return { q, appels, demandes, jetonsVus };
+  return { q, appels, demandes, jetonsVus, lesBrouillons: () => brouillonsVus };
 }
 
 // ── 1 · la liaison, une fois ────────────────────────────────────────
@@ -690,6 +721,228 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
   await q.close();
 }
 
+
+// ── 3 · Écrire ──────────────────────────────────────────────────────
+
+const TROIS = [
+  { place: 1, sujet_id: 1002, titre: "La brume ne lève pas", corps: "[b]Elle[/b] sortit la main",
+    mots: 4, modifie_le: new Date(Date.now() - 4 * 60_000).toISOString() },
+  { place: 2, sujet_id: null, titre: "", corps: "deux mots", mots: 2,
+    modifie_le: new Date(Date.now() - 86_400_000).toISOString() },
+];
+
+{
+  //  LES TROIS PLACES SONT TOUJOURS DESSINÉES, PLEINES OU VIDES. La
+  //  base tient la limite à trois (`unique (joueur_id, place)`, 0032) ;
+  //  l'écran la montre telle quelle, plutôt qu'une liste qui grandit et
+  //  un message quand elle déborde.
+  const { q } = await monter({ brouillons: TROIS });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.waitForTimeout(200);
+  const vu = await q.evaluate(() => ({
+    places: [...document.querySelectorAll(".wm-ecrire__place-nom")].map((e) =>
+      e.textContent.trim()
+    ),
+    outils: document.querySelectorAll(".wm-ecrire__outil").length,
+    corps: document.querySelector("[data-wm-ecrire-corps]")?.value ?? "",
+    mots: document.querySelector("[data-wm-ecrire-mots]")?.textContent ?? "",
+  }));
+  dire(
+    "TROIS PLACES DESSINÉES, LA PREMIÈRE OUVERTE, SEPT OUTILS",
+    vu.places.length === 3 && vu.places[2] === "Place libre" &&
+      vu.places[0] === "La brume ne lève pas" && vu.outils === 7 &&
+      vu.corps === "[b]Elle[/b] sortit la main" && vu.mots === "4",
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  ── UN SEUL APPEL AU CHARGEMENT, ET UN SEUL POUR LES BROUILLONS ──
+  //
+  //  La note dit « un seul appel au chargement » et « changer d'onglet
+  //  ne déclenche aucune requête ». Les brouillons tiennent la
+  //  première et s'écartent de la seconde : une requête la PREMIÈRE
+  //  fois qu'on ouvre Écrire, et plus jamais. Les prendre dans l'appel
+  //  du carnet ferait descendre trois textes de RP à quelqu'un qui
+  //  vient regarder son équipe.
+  const { q, appels } = await monter({ brouillons: TROIS });
+  const auChargement = appels.length;
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.waitForTimeout(250);
+  const apresEcrire = appels.length;
+  await q.click('[data-wm-carnet-onglet="mon-sac"]');
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.click('[data-wm-carnet-onglet="mon-pokedex"]');
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.waitForTimeout(250);
+  dire(
+    "UN SEUL APPEL AU CHARGEMENT, UN SEUL POUR LES BROUILLONS, ET PLUS RIEN",
+    auChargement === 1 && apresEcrire === 2 && appels.length === 2,
+    JSON.stringify({ auChargement, apresEcrire, total: appels.length }),
+  );
+  await q.close();
+}
+
+{
+  //  LE COMPTEUR NE COMPTE NI LES BALISES NI LES CITATIONS, et il le
+  //  fait DANS LA PAGE — la fonction pure est mesurée ailleurs, ici on
+  //  vérifie qu'elle est bien celle qui est branchée.
+  const { q } = await monter({ brouillons: TROIS });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.fill("[data-wm-ecrire-corps]", "[quote]tout ce qu'elle avait dit avant[/quote][b]trois petits mots[/b]");
+  await q.waitForTimeout(100);
+  const mots = await q.evaluate(() =>
+    document.querySelector("[data-wm-ecrire-mots]")?.textContent ?? ""
+  );
+  dire(
+    "LE COMPTEUR IGNORE LES CITATIONS ET LES BALISES",
+    mots === "3",
+    JSON.stringify({ mots }),
+  );
+  await q.close();
+}
+
+{
+  //  L'ENREGISTREMENT EST DIFFÉRÉ DE DEUX SECONDES, et le filet local
+  //  est immédiat. Les confondre ferait une requête par lettre ; ne
+  //  garder que le différé perdrait le texte si le réseau lâche entre
+  //  deux frappes.
+  const { q, appels } = await monter({ brouillons: TROIS });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.fill("[data-wm-ecrire-corps]", "un texte tout neuf");
+  await q.waitForTimeout(400);
+  const tot = {
+    ecrits: appels.filter((a) => a.ou === "ecrire").length,
+    local: await q.evaluate(() =>
+      JSON.parse(localStorage.getItem("wm.carnet.brouillon") ?? "null")?.corps ?? null
+    ),
+  };
+  await q.waitForTimeout(2200);
+  const apres = appels.filter((a) => a.ou === "ecrire");
+  dire(
+    "LE FILET LOCAL EST IMMÉDIAT, L'ENREGISTREMENT ATTEND DEUX SECONDES",
+    tot.ecrits === 0 && tot.local === "un texte tout neuf" &&
+      apres.length === 1 && apres[0].corps.corps === "un texte tout neuf" &&
+      apres[0].corps.mots === 4 && apres[0].corps.place === 1,
+    JSON.stringify({ ...tot, apres: apres.length, corps: apres[0]?.corps }),
+  );
+  await q.close();
+}
+
+{
+  //  ET IL PART AVEC LE JETON DU JOUEUR, pas avec la clé publiable. La
+  //  RLS ne protège rien si la requête n'est pas authentifiée.
+  const { q, appels, jetonsVus } = await monter({ brouillons: TROIS });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.fill("[data-wm-ecrire-corps]", "x");
+  await q.waitForTimeout(2300);
+  const ecrit = appels.find((a) => a.ou === "ecrire");
+  dire(
+    "l'écriture porte le jeton du joueur, et le joueur_id est le sien",
+    ecrit?.jeton === JETON &&
+      ecrit?.corps.joueur_id === "eeee0000-0000-0000-0000-000000000001" &&
+      jetonsVus.every((j) => j !== "" && !j.startsWith("sb_")),
+    JSON.stringify({ jeton: ecrit?.jeton, joueur: ecrit?.corps.joueur_id }),
+  );
+  await q.close();
+}
+
+{
+  //  UN ENREGISTREMENT REFUSÉ NE DIT PAS « ENREGISTRÉ ». C'est la
+  //  faute de la soirée du 3 novembre, en plus petit : annoncer un
+  //  succès qu'on n'a pas constaté. Et la phrase dit que le texte est
+  //  gardé, parce que c'est vrai et que c'est ce qui rassure.
+  const { q } = await monter({ brouillons: TROIS, ecriture: "refus" });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.fill("[data-wm-ecrire-corps]", "du texte qui ne passera pas");
+  await q.waitForTimeout(2300);
+  const etat = await q.evaluate(() =>
+    document.querySelector("[data-wm-ecrire-etat]")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "UN ENREGISTREMENT REFUSÉ LE DIT, ET RASSURE SUR LE TEXTE",
+    /pas enregistr/i.test(etat) && /gard/i.test(etat),
+    JSON.stringify({ etat }),
+  );
+  await q.close();
+}
+
+{
+  //  UN OUTIL ENTOURE LA SÉLECTION ET LA GARDE CHOISIE : sans ça,
+  //  enchaîner gras puis italique demande de re-sélectionner.
+  const { q } = await monter({ brouillons: TROIS });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.waitForTimeout(250);
+  await q.evaluate(() => {
+    const c = document.querySelector("[data-wm-ecrire-corps]");
+    c.value = "le mot juste";
+    c.setSelectionRange(3, 6);
+    c.focus();
+  });
+  await q.click('.wm-ecrire__outil[aria-label="gras"]');
+  await q.waitForTimeout(100);
+  const vu = await q.evaluate(() => {
+    const c = document.querySelector("[data-wm-ecrire-corps]");
+    return { texte: c.value, choisi: c.value.slice(c.selectionStart, c.selectionEnd) };
+  });
+  dire(
+    "UN OUTIL ÉCRIT DU BBCODE AUTOUR DE LA SÉLECTION, ET LA GARDE",
+    vu.texte === "le [b]mot[/b] juste" && vu.choisi === "mot",
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  LE FOCUS N'EST PAS UNE PAGE : l'adresse ne change pas, le texte ne
+  //  bouge pas, et ce qui n'est pas le texte disparaît.
+  const { q } = await monter({ brouillons: TROIS });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.fill("[data-wm-ecrire-corps]", "le texte de la session");
+  const avant = await q.evaluate(() => location.href);
+  await q.click("[data-wm-ecrire-focus]");
+  await q.waitForTimeout(200);
+  const vu = await q.evaluate(() => ({
+    pose: document.querySelector('[data-wm-carnet-page="ecrire"]')
+      ?.hasAttribute("data-wm-focus") ?? false,
+    blocsVisibles: [...document.querySelectorAll('[data-wm-carnet-page="ecrire"] .wm-carnet__bloc')]
+      .filter((e) => e.getBoundingClientRect().height > 0).length,
+    texte: document.querySelector("[data-wm-ecrire-corps]")?.value ?? "",
+    adresse: location.href,
+  }));
+  dire(
+    "LE MODE FOCUS CACHE TOUT SAUF LE TEXTE, SANS CHANGER L'ADRESSE",
+    vu.pose && vu.blocsVisibles === 0 && vu.texte === "le texte de la session" &&
+      vu.adresse === avant,
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  LA SESSION VIT DANS LE NAVIGATEUR, ET N'EN SORT PAS. « Une session
+  //  n'est pas une donnée de jeu et ne rapporte rien. »
+  const { q, appels } = await monter({ brouillons: TROIS });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  const avant = appels.length;
+  await q.click('.wm-ecrire__duree[data-minutes="25"]');
+  await q.waitForTimeout(200);
+  const vu = await q.evaluate(() => ({
+    dit: document.querySelector("[data-wm-ecrire-en-cours]")?.textContent?.trim() ?? "",
+    choisie: document.querySelector('.wm-ecrire__duree[data-minutes="25"]')
+      ?.getAttribute("aria-pressed"),
+    durees: document.querySelectorAll(".wm-ecrire__duree").length,
+  }));
+  dire(
+    "LANCER UNE SESSION N'ENVOIE RIEN AU SERVEUR",
+    appels.length === avant && /24:|25:/.test(vu.dit) && vu.choisie === "true" &&
+      vu.durees === 5,
+    JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),
+  );
+  await q.close();
+}
+
 // ── 2 · la session ouvre le carnet ──────────────────────────────────
 
 {
@@ -842,12 +1095,24 @@ const { q: p, appels } = await monter();
 
 {
   //  LE CŒUR DE LA NOTE 371:707. On visite les huit onglets et on
-  //  recompte les appels : il doit toujours y en avoir UN.
+  //  recompte les appels.
+  //
+  //  UN DE PLUS DEPUIS L'ONGLET ÉCRIRE, et c'est le seul : la première
+  //  ouverture va chercher les brouillons, parce que trois textes de RP
+  //  n'ont rien à faire dans l'appel du carnet de quelqu'un qui vient
+  //  regarder son équipe. Le second passage sur Écrire, lui, ne demande
+  //  plus rien — c'est ce que la seconde visite mesure ici.
   const avant = appels.length;
   for (const clef of [
     "mon-sac", "mon-pokedex", "mes-rp", "ecrire", "mon-histoire", "mes-liens",
     "mes-boites", "mon-jeu",
   ]) {
+    await p.click(`[data-wm-carnet-onglet='${clef}']`);
+    await p.waitForTimeout(60);
+  }
+  const apresLePremierTour = appels.length;
+  //  Second tour : plus rien ne doit partir, Écrire compris.
+  for (const clef of ["ecrire", "mon-sac", "ecrire", "mon-jeu"]) {
     await p.click(`[data-wm-carnet-onglet='${clef}']`);
     await p.waitForTimeout(60);
   }
@@ -857,8 +1122,9 @@ const { q: p, appels } = await monter();
     adresse: location.hash,
   }));
   dire(
-    "changer d'onglet ne déclenche AUCUNE requête, et un seul onglet est visible",
-    appels.length === avant && vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
+    "changer d'onglet ne demande RIEN, sauf la première ouverture d'Écrire",
+    apresLePremierTour === avant + 1 && appels.length === apresLePremierTour &&
+      vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
       vu.adresse === "#mon-jeu",
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),
   );

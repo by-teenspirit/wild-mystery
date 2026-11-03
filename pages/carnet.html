@@ -324,15 +324,123 @@
         </header>
       </section>
 
-      <section class="wm-carnet__onglet-page" data-wm-carnet-page="ecrire" hidden>
-        <header class="wm-carnet__entete">
+      <!-- ══ ÉCRIRE ═══════════════════════════════════════════════════
+
+           Trois places, pas une liste : c'est la base qui tient la
+           limite (`unique (joueur_id, place)` depuis la 0032), et
+           l'écran le montre tel quel.
+
+           LE MODE FOCUS N'EST PAS UNE PAGE : c'est `data-wm-focus` sur
+           cette section. Le plein écran passe par l'API du navigateur,
+           l'adresse ne bouge pas, et le brouillon reste le même objet —
+           sortir du focus ne recharge rien.
+           ════════════════════════════════════════════════════════════ -->
+      <section class="wm-carnet__onglet-page wm-ecrire" data-wm-carnet-page="ecrire" hidden>
+        <header class="wm-carnet__entete wm-ecrire__entete">
           <p class="wm-carnet__surtitre">Le carnet de bord</p>
           <h1 class="wm-carnet__titre"><b>Écrire</b></h1>
           <p class="wm-carnet__chapo">
-            Tes brouillons, le compteur de mots et le mode focus. Il arrive
-            bientôt.
+            Un endroit pour garder un brouillon sans le perdre, un compteur de
+            mots pour te repérer, et de quoi lancer une session quand tu veux
+            écrire d'affilée.
           </p>
         </header>
+
+        <!-- ── l'éditeur ──────────────────────────────────────────── -->
+        <div class="wm-ecrire__cadre" data-wm-ecrire-cadre>
+          <div class="wm-ecrire__tete">
+            <p class="wm-ecrire__etat" data-wm-ecrire-etat role="status">Brouillon</p>
+            <p class="wm-ecrire__sujet" data-wm-ecrire-sujet>Sans sujet</p>
+          </div>
+
+          <div class="wm-ecrire__outils" role="toolbar"
+               aria-label="Mise en forme" data-wm-ecrire-outils></div>
+
+          <label class="wm-ecrire__invisible" for="wm-corps">Ton texte</label>
+          <textarea class="wm-ecrire__corps" id="wm-corps" data-wm-ecrire-corps
+                    spellcheck="true" rows="14"
+                    placeholder="Écris ici. Ça s'enregistre tout seul."></textarea>
+
+          <!--  LE TIROIR DE RELECTURE : le dernier message du sujet,
+                chargé en entrant en focus. « Répondre sans pouvoir
+                relire est le premier motif de sortie. »  -->
+          <div class="wm-ecrire__tiroir" data-wm-ecrire-tiroir hidden>
+            <p class="wm-ecrire__tiroir-tete" data-wm-ecrire-tiroir-tete></p>
+            <div class="wm-ecrire__tiroir-corps" data-wm-ecrire-tiroir-corps></div>
+          </div>
+
+          <div class="wm-ecrire__pied">
+            <p class="wm-ecrire__compte">
+              <b data-wm-ecrire-mots>0</b> mots
+              <span class="wm-ecrire__estimation">estimation : la relève fait foi</span>
+            </p>
+            <div class="wm-ecrire__boutons">
+              <button type="button" class="wm-carnet__bouton" data-wm-ecrire-focus>
+                Mode focus
+              </button>
+              <button type="button" class="wm-carnet__bouton" data-wm-ecrire-relire hidden>
+                Relire le dernier message
+              </button>
+              <button type="button" class="wm-carnet__bouton wm-carnet__bouton--plein"
+                      data-wm-ecrire-envoyer>
+                Envoyer dans le sujet →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── la session, qui ne sort pas du navigateur ──────────── -->
+        <div class="wm-carnet__bloc wm-ecrire__session" data-wm-ecrire-session>
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Une session d'écriture</h2>
+          </div>
+          <p class="wm-carnet__bloc-dit">
+            Tu choisis la durée, et le temps restant s'affiche dans l'éditeur.
+            Rien n'est envoyé au serveur, rien ne sonne, et aucune session ne
+            rapporte quoi que ce soit : c'est un outil pour toi.
+          </p>
+          <div class="wm-ecrire__durees" data-wm-ecrire-durees role="group"
+               aria-label="Durée de la session"></div>
+          <p class="wm-ecrire__en-cours" data-wm-ecrire-en-cours role="status" hidden></p>
+        </div>
+
+        <!-- ── les trois places ───────────────────────────────────── -->
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Mes brouillons</h2>
+          </div>
+          <p class="wm-carnet__bloc-dit">
+            Trois au maximum, et c'est la base qui tient le compte. Un brouillon
+            sans modification depuis trente jours s'efface tout seul.
+          </p>
+          <ul class="wm-ecrire__places" data-wm-ecrire-places></ul>
+        </div>
+
+        <!-- ── ce que le compteur compte ──────────────────────────── -->
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Ce que le compteur compte</h2>
+          </div>
+          <ul class="wm-ecrire__regles">
+            <li>
+              <b>Les mots de ton texte, et eux seuls.</b>
+              Les balises, les liens et les images ne comptent pas.
+            </li>
+            <li>
+              <b>Les citations ne comptent pas.</b>
+              Reprendre le message de quelqu'un d'autre n'est pas l'écrire.
+            </li>
+            <li>
+              <b>Le compteur ne donne aucune expérience.</b>
+              Elle vient des dégâts que tes Pokémon infligent, selon leur niveau.
+            </li>
+            <li>
+              <b>Le chiffre n'est lu par personne d'autre.</b>
+              Aucun calcul de jeu ne s'en sert, et la relève recompte le message
+              publié — un message édité après coup est recompté avec.
+            </li>
+          </ul>
+        </div>
       </section>
 
       <section class="wm-carnet__onglet-page" data-wm-carnet-page="mon-histoire" hidden>
@@ -396,7 +504,7 @@
       c'est là qu'il annonce son numéro, avant le moindre `fetch`.  -->
 <script>
   (function () {
-    var attendu = 1;
+    var attendu = 2;
     var vu = window.wmCarnetVersion;
     if (vu === attendu) return;
 

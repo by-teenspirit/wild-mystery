@@ -85,6 +85,7 @@ import {
   refusDuFragment,
 } from "../src/navigateur/session-de-jeu.ts";
 import { configDepuis, type ConfigSupabase } from "../src/adaptateurs/navigateur/registre.ts";
+import { poserEcrire } from "../src/adaptateurs/navigateur/ecrire.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
 import {
   demandeurDuNavigateur,
@@ -403,6 +404,17 @@ async function ouvrirLeCarnet(): Promise<void> {
     poserMonJeu(document, carnet, decor);
     poserMonSac(document, carnet, decor);
     poserMonPokedex(document, carnet, decor);
+    //  ÉCRIRE SE MONTE APRÈS LE DESSIN, et son échec ne doit pas
+    //  emporter le carnet : un onglet qui ne se branche pas est un
+    //  onglet vide, pas une page morte. Il le dit dans la console.
+    if (carnet.dresseur !== null) {
+      poserEcrire({
+        doc: document,
+        acces: config,
+        jeton: laissez.jeton,
+        joueurId: carnet.dresseur.joueurId,
+      });
+    }
     poserLEtat(document, "pret");
     //  LA BARRE SUIT L'ONGLET OUVERT, et elle ne pouvait pas le faire
     //  avant d'avoir le dresseur à écrire dedans.
@@ -487,7 +499,7 @@ function brancherLaLiaison(acces: ConfigSupabase): void {
 //
 //  LE FILET QUI LE LIT VIT DANS LA PAGE, pas ici, et c'est le fond de
 //  l'affaire : un script trop vieux ne peut pas se plaindre lui-même.
-export const VERSION_DU_CONTRAT = 1;
+export const VERSION_DU_CONTRAT = 2; //  2 : l'onglet Écrire (0032)
 (globalThis as Record<string, unknown>).wmCarnetVersion = VERSION_DU_CONTRAT;
 
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que
