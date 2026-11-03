@@ -1,5 +1,5 @@
 import { assert, assertEquals } from "@std/assert";
-import { estLAffichageDUnSujet, mentionDe } from "./module-mention.ts";
+import { estUnePageDeMention, mentionDe } from "./module-mention.ts";
 
 //  ════════════════════════════════════════════════════════════════════
 //  OÙ LE « @ » A LE DROIT D'EXISTER
@@ -11,31 +11,35 @@ import { estLAffichageDUnSujet, mentionDe } from "./module-mention.ts";
 //  ════════════════════════════════════════════════════════════════════
 
 Deno.test("un sujet, dans ses trois formes d'adresse", () => {
-  assert(estLAffichageDUnSujet("/t1002-compte-de-test-0001"));
+  assert(estUnePageDeMention("/t1002-compte-de-test-0001"));
   //  La deuxième page d'un sujet long.
-  assert(estLAffichageDUnSujet("/t1002p25-compte-de-test-0001"));
+  assert(estUnePageDeMention("/t1002p25-compte-de-test-0001"));
   //  Le lien nu, sans titre : il circule dans les anciens messages.
-  assert(estLAffichageDUnSujet("/t1002"));
-  assert(estLAffichageDUnSujet("/viewtopic.php"));
+  assert(estUnePageDeMention("/t1002"));
+  assert(estUnePageDeMention("/viewtopic.php"));
+});
+
+Deno.test("ET LA PAGE DE RÉPONSE COMPLÈTE, parce qu'elle montre le message cité", () => {
+  //  Rouverte le 3 novembre : relevé sur le forum, `/post` porte
+  //  l'éditeur, le bouton « Mentionner un membre » et le message auquel
+  //  on répond dans un `.post`. L'auteur cité y reçoit donc son « @ ».
+  assert(estUnePageDeMention("/post"));
 });
 
 Deno.test("LES PAGES QUI PORTENT DES NOMS DE MEMBRES SANS ÊTRE DES SUJETS", () => {
   //  Celle-ci est le bug : deux « @ » posés sur l'index, à côté des
   //  auteurs de la colonne « dernier message ».
-  assertEquals(estLAffichageDUnSujet("/"), false);
-  assertEquals(estLAffichageDUnSujet("/forum"), false);
+  assertEquals(estUnePageDeMention("/"), false);
+  assertEquals(estUnePageDeMention("/forum"), false);
   //  Une liste de sujets : même balisage qu'un sujet par endroits,
   //  c'est pour ça que l'adresse est le seul juge.
-  assertEquals(estLAffichageDUnSujet("/f45-cartes-dresseur"), false);
-  assertEquals(estLAffichageDUnSujet("/u4"), false);
-  assertEquals(estLAffichageDUnSujet("/memberlist"), false);
-  assertEquals(estLAffichageDUnSujet("/c2-zones-sauvages"), false);
+  assertEquals(estUnePageDeMention("/f45-cartes-dresseur"), false);
+  assertEquals(estUnePageDeMention("/u4"), false);
+  assertEquals(estUnePageDeMention("/memberlist"), false);
+  assertEquals(estUnePageDeMention("/c2-zones-sauvages"), false);
   //  Le carnet est une page HTML, et son adresse commence par un « h »
   //  suivi d'un nombre : la même forme qu'un sujet à une lettre près.
-  assertEquals(estLAffichageDUnSujet("/h15-mon-carnet"), false);
-  //  LA PAGE DE RÉPONSE COMPLÈTE. Elle montre les messages du sujet,
-  //  donc elle ressemble à un sujet — et ce n'en est pas un.
-  assertEquals(estLAffichageDUnSujet("/post"), false);
+  assertEquals(estUnePageDeMention("/h15-mon-carnet"), false);
 });
 
 Deno.test("la mention garde la forme que Forumactif relit", () => {

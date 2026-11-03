@@ -2802,6 +2802,40 @@ dire(
 );
 await surLIndex.close();
 
+//  ══════════════════════════════════════════════════════════════════
+//  MAIS LA PAGE DE RÉPONSE COMPLÈTE, ELLE, GARDE LE « @ »
+//
+//  Rouverte le 3 novembre, après l'avoir fermée le matin — et relevée
+//  sur le forum avant de l'être : `/post` porte le même éditeur, le
+//  même bouton « Mentionner un membre », ET le message auquel on répond
+//  dans un `.post`. L'auteur cité y reçoit donc son « @ », et c'est le
+//  geste le plus utile des deux.
+//
+//  LA PREUVE QUE LA BARRIÈRE N'EST PAS JUSTE TOMBÉE : l'index ci-dessus
+//  reste fermé. Si `estUnePageDeMention` disait oui à tout, ces deux
+//  contrôles ne pourraient pas passer ensemble.
+//  ══════════════════════════════════════════════════════════════════
+const surLaReponse = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/post");
+const surLaReponseLu = await surLaReponse.evaluate(() => {
+  const source = document.querySelector(".sceditor-container > textarea");
+  source.dispatchEvent(new KeyboardEvent("keydown", { key: "@", bubbles: true }));
+  return {
+    boutons: document.querySelectorAll("button.wm-mentionner").length,
+    //  Toujours rien dans le panneau des notifications : la seconde
+    //  barrière ne dépend pas de l'adresse.
+    ailleurs: [...document.querySelectorAll("button.wm-mentionner")]
+      .filter((b) => b.closest(".post") === null).length,
+    panneau: document.querySelectorAll(".sceditor-dropdown.sceditor-mention").length,
+  };
+});
+dire(
+  "SUR LA PAGE DE RÉPONSE, LE « @ » EST LÀ ET LA TOUCHE OUVRE LA LISTE",
+  surLaReponseLu.boutons >= 1 && surLaReponseLu.ailleurs === 0 &&
+    surLaReponseLu.panneau === 1,
+  JSON.stringify(surLaReponseLu),
+);
+await surLaReponse.close();
+
 const dansUneZone = await monterAvecScript(ARIANE_ZONE);
 const leBandeau = await dansUneZone.evaluate(() => {
   const b = document.querySelector(".wm-zone");

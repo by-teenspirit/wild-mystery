@@ -54,7 +54,9 @@
 //
 //  1. L'ADRESSE. Elle seule distingue un sujet d'une liste de sujets,
 //     parce que les deux pages portent du balisage identique. C'est le
-//     même constat que pour `estLIndex` dans `module-vie.ts`.
+//     même constat que pour `estLIndex` dans `module-vie.ts`. La page de
+//     réponse complète (`/post`) passe avec le sujet : elle a l'éditeur
+//     et le message cité, demandé le 3 novembre après coup.
 //  2. LE MESSAGE. Sur la page d'un sujet, le panneau des notifications
 //     porte lui aussi des `usr_grp_clr` — quatre, relevés le
 //     3 novembre. Il arrive après nous, donc aujourd'hui il échappe au
@@ -75,21 +77,27 @@ interface InstanceEditeur {
 
 type MagasinJquery = (cible: Element) => { data(clef: string): unknown };
 
-/** Les adresses d'un sujet affiché, et elles seules.
+/** Les deux endroits où l'on mentionne quelqu'un, et eux seuls.
  *
- *  Forumactif sert un sujet sur `/t10-le-titre`, sur `/t10p25-le-titre`
- *  à partir de la deuxième page, et sur `/viewtopic.php?t=10` quand le
- *  lien vient d'un ancien message. Une liste de sujets (`/f45-…`), un
- *  profil (`/u4`), la liste des membres ou une page HTML (`/h15-…`)
- *  n'en sont pas — et toutes portent des noms de membres.
+ *  LE SUJET AFFICHÉ. Forumactif le sert sur `/t10-le-titre`, sur
+ *  `/t10p25-le-titre` à partir de la deuxième page, et sur
+ *  `/viewtopic.php?t=10` quand le lien vient d'un ancien message.
  *
- *  LA PAGE DE RÉPONSE COMPLÈTE (`/post?t=10&mode=reply`) N'EN EST PAS
- *  NON PLUS, même si elle montre les messages du sujet sous l'éditeur :
- *  ce qu'on a demandé, c'est l'affichage d'un sujet. Le bouton
- *  « Mentionner un membre » de Forumactif y reste, lui. */
-export function estLAffichageDUnSujet(chemin: string): boolean {
+ *  ET LA PAGE DE RÉPONSE COMPLÈTE, `/post` — celle du bouton
+ *  « Répondre » plutôt que de la réponse rapide. Rouverte le
+ *  3 novembre, et relevée avant de l'être : elle porte le même éditeur,
+ *  le même bouton « Mentionner un membre », ET le message auquel on
+ *  répond, dans un `.post`. Donc l'auteur cité y reçoit son « @ » comme
+ *  dans un sujet, et c'est le geste le plus utile des deux.
+ *
+ *  Ce qui reste dehors, et qui est tout ce qu'on voulait fermer : une
+ *  liste de sujets (`/f45-…`), l'index, un profil (`/u4`), la liste des
+ *  membres, une page HTML (`/h15-…`). Toutes portent des noms de
+ *  membres, aucune n'a d'éditeur. */
+export function estUnePageDeMention(chemin: string): boolean {
   return /^\/t\d+(p\d+)?(-|$)/.test(chemin) ||
-    /^\/viewtopic\.(php|forum)$/.test(chemin);
+    /^\/viewtopic\.(php|forum)$/.test(chemin) ||
+    /^\/post(\.(php|forum))?$/.test(chemin);
 }
 
 /** La forme que Forumactif relit : guillemets droits dès qu'il y a une
@@ -150,7 +158,7 @@ function ecrire(doc: Document, texte: string): boolean {
 
 /** Pose un `@` devant le nom de chaque auteur. Rend le nombre posés. */
 export function poserLesMentions(doc: Document): number {
-  if (!estLAffichageDUnSujet(doc.location?.pathname ?? "")) return 0;
+  if (!estUnePageDeMention(doc.location?.pathname ?? "")) return 0;
   //  LE NOM DE L'AUTEUR EST DANS `.usr_grp_clr` : c'est la teinte de
   //  son groupe qui est portée là, pas le nom du groupe. Relevé le
   //  2 novembre — j'ai failli brancher le bouton sur un nom de groupe.
@@ -280,7 +288,7 @@ export function guetterLEditeur(doc: Document, limiteMs = 15000): void {
   //  sujet, il n'y a pas seulement rien à brancher, il n'y a rien à
   //  guetter — un observateur qui tourne quinze secondes sur chaque
   //  page pour ne jamais rien trouver est une fuite.
-  if (!estLAffichageDUnSujet(doc.location?.pathname ?? "")) return;
+  if (!estUnePageDeMention(doc.location?.pathname ?? "")) return;
   if (poserLOuvertureAuArobase(doc)) return;
   const racine = doc.documentElement;
   if (racine === null) return;
