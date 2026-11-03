@@ -288,21 +288,18 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
         and has_function_privilege('anon', p.oid, 'execute')
       order by p.proname;`,
   );
-  //  `carnet_du_compte` s'y ajoute le 3 novembre (`0026`), et ce cas a
-  //  sauté en la voyant arriver — pour la deuxième fois, et c'est bien
-  //  son travail. Elle est ouverte parce qu'il n'y a PLUS de secret :
-  //  « aucune clé, on fait confiance au forum », décidé ce jour-là en
-  //  connaissance de cause. Elle ne vérifie donc rien, et qui appelle
-  //  avec un numéro de compte obtient le carnet qui va avec. Le numéro
-  //  est public — il est dans l'adresse d'un profil.
+  //  `carnet_du_compte` EST PASSÉE PAR LÀ ET EN EST REPARTIE, le même
+  //  jour. Ouverte par `0026` faute de mieux — « aucune clé, on fait
+  //  confiance au forum » — puis refermée par `0027` quand Callista a
+  //  nommé le vrai mécanisme : la clé vit dans un champ de profil que
+  //  le staff remplit, et la page va la chercher sur une page qui ne
+  //  se charge qu'avec la session de son propriétaire.
   //
-  //  CE QUI LA REND ACCEPTABLE N'EST PAS UNE PROTECTION, c'est son
-  //  périmètre : elle LIT, et rien d'autre. Le jour où une fonction
-  //  d'écriture voudra s'ouvrir à `anon` au même prix, ce compteur
-  //  sautera encore, et la réponse devra être non.
+  //  Ce compteur a donc sauté DEUX FOIS en huit heures, dans les deux
+  //  sens. C'est exactement ce qu'on lui demande : il ne juge pas si
+  //  l'ouverture est bonne, il oblige à l'écrire.
   assertEquals(vu.split("\n").map((l) => l.trim()).filter((l) => l !== ""), [
     "carnet",
-    "carnet_du_compte",
     "carnet_reclamer",
     "carte_dresseur",
     "joueur_courant",

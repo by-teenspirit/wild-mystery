@@ -386,6 +386,20 @@ essai("un compte sans partie rend `null`, et ne lève pas", async (url) => {
   assertEquals(lu, "null");
 });
 
+essai(
+  "NI LE CORPS DU CARNET NI LA PORTE PAR LE NUMÉRO NE SONT OUVERTS À `anon`",
+  async (url) => {
+    //  `carnet_du_compte` a été ouverte huit heures par `0026`, puis
+    //  refermée par `0027` : la clé du profil est redevenue la preuve.
+    //  Ce contrôle est le seul endroit qui le dit à voix haute.
+    const parLeNumero = await psql(
+      url,
+      `select has_function_privilege('anon', 'carnet_du_compte(jsonb)', 'execute')::text;`,
+    );
+    assertEquals(parLeNumero, "false");
+  },
+);
+
 essai("LE CORPS DU CARNET N'EST PAS OUVERT À `anon`", async (url) => {
   //  `carnet_interieur` prend un identifiant de joueur et ne vérifie
   //  rien — c'est son rôle. Ouverte, elle laisserait lire n'importe

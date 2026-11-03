@@ -21,19 +21,28 @@
 //     éclair blanc chez quelqu'un en thème sombre.
 //  2. Les onglets, avant même d'avoir des données : la page doit
 //     répondre au clic pendant que ça charge.
-//  3. QUI REGARDE. La page est servie sans l'en-tête du forum, donc
-//     sans `_userdata` : on demande une page du forum sur la même
-//     origine et on y lit le membre connecté. Invité, on le dit et on
-//     s'arrête — aucune requête de jeu.
+//  3. QUI REGARDE, ET AVEC QUELLE CLÉ. La page est servie sans
+//     l'en-tête du forum, donc sans `_userdata` : on demande la page
+//     d'édition de profil sur la même origine, et elle donne les deux.
+//     Invité ou clé absente, on le dit et on s'arrête — aucune
+//     requête de jeu.
 //  4. Un seul appel, puis les trois vues peintes d'un coup.
 //
-//  ── IL N'Y A PLUS DE CLÉ ────────────────────────────────────────────
+//  ── LA CLÉ EST DANS LE PROFIL, ET LA PAGE VA LA CHERCHER ────────────
 //
-//  « En principe, ça devrait être automatique. Pas de sujet d'ouverture
-//  ou quoi », 3 novembre. La page ne demande plus rien et ne garde plus
-//  rien : elle lit le numéro de compte et l'envoie. Ce que ça coûte est
-//  écrit dans l'en-tête de la migration 0026, et ce n'est pas rien.
-//  La machinerie de la clé reste en base, inemployée.
+//  « La clé n'est pas censée être visible, l'admin la met au tout
+//  début, et une fois mise, quand le joueur est validé, ça
+//  fonctionne », 3 novembre.
+//
+//  La page ne demande donc rien à personne et ne garde rien : elle lit
+//  la page d'édition de profil du membre — qui ne se charge qu'avec SA
+//  session — y trouve son numéro de compte et sa clé, et ouvre son
+//  carnet. Rien à coller, rien à retenir, et la clé prouve l'identité.
+//
+//  C'est la troisième version de cette ouverture en deux jours. Les
+//  deux premières sont dans l'historique : un code à poster dans un
+//  sujet, puis le numéro de compte tout nu. Celle-ci est à la fois
+//  plus simple pour la joueuse et plus sûre que les deux.
 // ════════════════════════════════════════════════════════════════════
 import {
   type Decor,
@@ -58,8 +67,8 @@ import { appeler, RefusSupabase } from "../src/adaptateurs/navigateur/supabase.t
 import { configDepuis } from "../src/adaptateurs/navigateur/registre.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
 import {
-  compteQuiRegarde,
   demandeurDuNavigateur,
+  profilQuiRegarde,
 } from "../src/adaptateurs/navigateur/compte-du-forum.ts";
 
 const RACINE = racineDesDonnees(adresseDuScript(document));
@@ -102,38 +111,61 @@ async function decorDuCarnet(): Promise<Decor> {
  *
  *  ON NE RECOPIE PAS LE MESSAGE DE POSTGRESQL : un texte technique dans
  *  une page de jeu fait peur pour rien. */
-function motDuRefus(): string {
+function motDuRefus(e?: unknown): string {
+  //  UNE CLÉ QUE LA BASE NE CONNAÎT PAS N'EST PAS UNE PANNE, et le
+  //  geste qui la répare n'est pas le même : il faut que le staff la
+  //  repose. Le dire évite d'envoyer recharger la page à quelqu'un
+  //  pour qui ça ne changera jamais rien.
+  if (e instanceof RefusSupabase && e.code === "CLE_INVALIDE") {
+    return "La clé posée dans ton profil n'est pas reconnue. Préviens le staff : " +
+      "il faut la reposer.";
+  }
   return "Le carnet n'a pas pu être chargé. Réessaie dans un moment.";
 }
 
 /** Le carnet du membre connecté, ou le mot qui dit pourquoi non.
  *
- *  TROIS REFUS, ET ILS NE DISENT PAS LA MÊME CHOSE :
+ *  QUATRE REFUS, ET ILS NE DISENT PAS LA MÊME CHOSE :
  *
  *    · le forum ne répond pas — on ne sait pas qui regarde, et dire
  *      « connecte-toi » à quelqu'un de connecté serait faux ;
  *    · invité — il suffit de se connecter, et c'est tout ;
- *    · connecté mais sans carnet — le compte existe et n'a pas encore
- *      été validé. Rien à faire, et surtout rien à poster.
+ *    · connecté, mais le staff n'a pas posé sa clé — rien à faire de
+ *      son côté, et surtout rien à coller ;
+ *    · la base refuse — la clé ne correspond à rien, ou la panne.
  */
 async function ouvrirLeCarnet(): Promise<void> {
   poserLEtat(document, "charge");
   direLeSouci(document, "");
 
-  let qui;
+  let profil;
   try {
-    qui = await compteQuiRegarde(demandeurDuNavigateur());
+    profil = await profilQuiRegarde(demandeurDuNavigateur());
   } catch {
     poserLEtat(document, "dehors");
     direLeSouci(document, "Le forum n'a pas répondu. Recharge la page dans un moment.");
     return;
   }
 
-  if (qui === null) {
+  if (profil.compte === null) {
     poserLEtat(document, "dehors");
     direLeSouci(
       document,
       "Tu n'es pas connectée au forum. Connecte-toi, puis reviens sur cette page.",
+    );
+    return;
+  }
+
+  //  PAS DE CLÉ, PAS DE REQUÊTE. Le staff la pose dans le profil au
+  //  moment de la validation ; tant qu'elle n'y est pas, il n'y a rien
+  //  à demander et rien que la joueuse puisse faire.
+  if (profil.cle === null) {
+    poserLEtat(document, "dehors");
+    direLeSouci(
+      document,
+      `Connectée en tant que ${profil.compte.pseudo || "ce compte"}, mais ta clé de ` +
+        `liaison n'est pas encore posée dans ton profil. C'est le staff qui l'y met, ` +
+        `à la validation de ton personnage.`,
     );
     return;
   }
@@ -147,7 +179,7 @@ async function ouvrirLeCarnet(): Promise<void> {
 
   let brut: unknown;
   try {
-    brut = await appeler(config, "carnet_du_compte", { forumUserId: qui.id });
+    brut = await appeler(config, "carnet", { cle: profil.cle });
   } catch (e) {
     //  LA RAISON PART DANS LA CONSOLE, et pas à l'écran. « Le carnet
     //  n'a pas pu être chargé » est ce qu'il faut dire à une joueuse,
@@ -160,24 +192,11 @@ async function ouvrirLeCarnet(): Promise<void> {
       e instanceof RefusSupabase ? `${e.code} (HTTP ${e.statut})` : e,
     );
     poserLEtat(document, "dehors");
-    direLeSouci(document, motDuRefus());
+    direLeSouci(document, motDuRefus(e));
     return;
   }
 
-  //  `null` : LE COMPTE N'A PAS DE CARNET, et ce n'est pas une panne.
-  //  La fonction rend `null` pour un compte qu'elle ne connaît pas —
-  //  c'est le cas de qui n'a pas encore été validé.
-  if (brut === null) {
-    poserLEtat(document, "dehors");
-    direLeSouci(
-      document,
-      `Connectée en tant que ${qui.pseudo || "ce compte"}, mais ce compte n'a pas encore ` +
-        `de partie. Elle s'ouvre quand le staff valide ton personnage.`,
-    );
-    return;
-  }
-
-  if (typeof brut !== "object") {
+  if (typeof brut !== "object" || brut === null) {
     poserLEtat(document, "dehors");
     direLeSouci(document, motDuRefus());
     return;

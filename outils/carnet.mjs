@@ -150,34 +150,63 @@ console.log("\n── le carnet de bord ──");
     dépôt, on ne les réécrit pas. Une page dont on aurait corrigé les
     adresses pour le harnais ne serait plus la page qu'on colle. */
 
-//  ── LA PAGE DU FORUM EST SERVIE PAR LE DÉCOR ──────────────────────
+//  ── LA PAGE DE PROFIL EST SERVIE PAR LE DÉCOR ─────────────────────
 //
-//  C'est tout le mécanisme nouveau : `/h15-mon-carnet` n'a pas
-//  d'en-tête de forum, donc pas de `_userdata`, et la page va le
-//  chercher sur une AUTRE page du même domaine. Le décor sert donc
-//  cette page-là, dans la forme exacte où Forumactif l'écrit — relevée
-//  le 3 novembre sur le vrai forum.
+//  C'est tout le mécanisme : `/h15-mon-carnet` n'a pas d'en-tête de
+//  forum, donc pas de `_userdata`, et la page va chercher DEUX choses
+//  sur la page d'édition de profil du membre — son numéro de compte et
+//  sa clé de liaison, que le staff y a posée.
 //
-//  Ne pas la servir ferait tomber la page sur le 404 du décor, et la
-//  mesure dirait « le forum ne répond pas » pour toutes les visites :
-//  ce serait un harnais qui ne teste que son propre trou.
-function pageDuForum(compte) {
-  if (compte === "invite") {
-    return '<html><head><script>var _userdata = new Object();' +
-      '_userdata["session_logged_in"] = 0;_userdata["username"] = "Anonymous";' +
-      '_userdata["user_id"] = -1;</script></head><body>liste des membres</body></html>';
-  }
-  return '<html><head><script>var _userdata = new Object();' +
-    '_userdata["session_logged_in"] = 1;' +
-    `_userdata["username"] = "${compte.pseudo}";` +
-    `_userdata["user_id"] = ${compte.id};` +
-    '</script></head><body>liste des membres</body></html>';
+//  LA FORME EST CELLE DU FORUM, relevée le 3 novembre sur le vrai
+//  formulaire : un `<dl>` dans un `<fieldset>`, l'étiquette dans un
+//  `<dt>`, le champ dans le `<dd>` qui suit, et `class="inputbox"` sur
+//  l'`<input>`. Le chemin complet est
+//  `form > div.panel > div.inner > fieldset > dl > dd > input.inputbox`.
+//
+//  SERVIR UN `<input>` NU NE PROUVERAIT RIEN : c'est la position de
+//  l'étiquette qui est fragile, pas la lecture d'une valeur. Un décor
+//  qui mettrait l'étiquette dans un `<label for>` passerait avec un
+//  code qui échouerait sur le forum.
+function pageDeProfil({ compte, cle, etiquette = "clé de liaison :" }) {
+  const tete = compte === "invite"
+    ? '_userdata["session_logged_in"] = 0;_userdata["username"] = "Anonymous";' +
+      '_userdata["user_id"] = -1;'
+    : '_userdata["session_logged_in"] = 1;' +
+      `_userdata["username"] = "${compte.pseudo}";` +
+      `_userdata["user_id"] = ${compte.id};`;
+
+  //  Un invité n'a pas de formulaire de profil du tout.
+  const champs = compte === "invite" ? "" : `
+    <form method="post"><div class="panel"><div class="inner"><fieldset><dl>
+      <dt>Pseudo :</dt>
+      <dd><input class="inputbox" type="text" name="profile_field_13_8" value="Callista" /></dd>
+      <dt>Discord * :</dt>
+      <dd><input class="inputbox" type="text" name="profile_field_13_1" value="callidesign" /></dd>
+      <dt>${etiquette}</dt>
+      <dd><input class="inputbox" type="text" name="profile_field_13_2"
+                 maxlength="15000" value="${cle ?? ""}" /></dd>
+      <dt>CARNET DE BORD :</dt>
+      <dd><input class="inputbox" type="text" name="profile_field_3_14" value="" /></dd>
+      <dt>Date de naissance :</dt>
+      <dd><select name="profile_field_4_-12[]"><option>1</option></select></dd>
+    </dl></fieldset></div></div></form>`;
+
+  return `<html><head><script>var _userdata = new Object();${tete}</script></head>` +
+    `<body>${champs}</body></html>`;
 }
 
 const MEMBRE = { id: 42, pseudo: "Eliott Vanner" };
+const CLE = "a1b2c3d4e5f60718293a4b5c6d7e8f90";
 
 async function monter(
-  { reponse = CARNET, compte = MEMBRE, refus = null, forumMuet = false } = {},
+  {
+    reponse = CARNET,
+    compte = MEMBRE,
+    cle = CLE,
+    etiquette = undefined,
+    refus = null,
+    forumMuet = false,
+  } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
   const appels = [];
@@ -187,7 +216,7 @@ async function monter(
   await q.route("**/*", (route) => {
     const u = new URL(route.request().url());
 
-    if (u.pathname.endsWith("/rest/v1/rpc/carnet_du_compte")) {
+    if (u.pathname.endsWith("/rest/v1/rpc/carnet")) {
       appels.push(JSON.parse(route.request().postData() ?? "{}"));
       if (refus !== null) {
         return route.fulfill({
@@ -238,13 +267,13 @@ async function monter(
       });
     }
 
-    //  La page témoin, celle où le numéro du membre se lit.
-    if (u.pathname === "/memberlist") {
-      demandes.push(u.pathname);
+    //  La page où le numéro ET la clé se lisent.
+    if (u.pathname === "/profile") {
+      demandes.push(u.pathname + u.search);
       if (forumMuet) return route.fulfill({ status: 503, body: "" });
       return route.fulfill({
         contentType: "text/html; charset=utf-8",
-        body: pageDuForum(compte),
+        body: pageDeProfil({ compte, cle, ...(etiquette === undefined ? {} : { etiquette }) }),
       });
     }
 
@@ -273,11 +302,12 @@ async function monter(
     vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.pokedexCache === true,
     JSON.stringify(vu),
   );
-  //  LE NUMÉRO VIENT DE LA PAGE DU FORUM, et c'est ce qu'on veut
-  //  prouver : pas une valeur par défaut qui aurait eu de la chance.
+  //  LA CLÉ ENVOYÉE EST CELLE DU PROFIL, et c'est ce qu'on veut
+  //  prouver : pas une valeur par défaut qui aurait eu de la chance,
+  //  pas le numéro de compte tout nu de la veille.
   dire(
-    "et le numéro envoyé est celui lu sur le forum, en un seul appel",
-    demandes.length >= 1 && appels.length === 1 && appels[0]?.p?.forumUserId === MEMBRE.id,
+    "et la clé envoyée est celle du profil, en un seul appel",
+    demandes.length === 1 && appels.length === 1 && appels[0]?.p?.cle === CLE,
     JSON.stringify({ demandes, appels }),
   );
   await q.close();
@@ -321,20 +351,74 @@ async function monter(
 }
 
 {
-  //  CONNECTÉ, MAIS PAS ENCORE VALIDÉ. `carnet_du_compte` rend `null`
-  //  pour un compte qu'elle ne connaît pas, et la page doit le dire
-  //  sans parler de panne — et en nommant le compte, pour que la
-  //  personne voie tout de suite si elle s'est trompée de compte.
-  const { q, appels } = await monter({ reponse: null });
+  //  CONNECTÉ, MAIS LE STAFF N'A PAS POSÉ LA CLÉ. C'est l'état normal
+  //  d'un compte pas encore validé, et la page doit le dire sans
+  //  parler de panne — en nommant le compte, pour que la personne voie
+  //  tout de suite si elle s'est trompée de compte. Et RIEN n'est
+  //  demandé à la base : sans clé, il n'y a rien à demander.
+  const { q, appels } = await monter({ cle: null });
   const vu = await q.evaluate(() => ({
     etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
     souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
   }));
   dire(
-    "UN COMPTE SANS PARTIE S'ENTEND DIRE D'ATTENDRE SA VALIDATION",
-    vu.etat === "dehors" && /valide/i.test(vu.souci) && vu.souci.includes("Eliott Vanner") &&
-      appels.length === 1,
+    "SANS CLÉ DANS LE PROFIL, LA PAGE LE DIT ET N'APPELLE RIEN",
+    vu.etat === "dehors" && /cl[ée] de liaison/i.test(vu.souci) &&
+      vu.souci.includes("Eliott Vanner") && appels.length === 0,
     JSON.stringify({ ...vu, appels: appels.length }),
+  );
+  await q.close();
+}
+
+{
+  //  UNE CLÉ MAL FORMÉE EST TRAITÉE COMME ABSENTE. Les douze
+  //  caractères qui traînaient dans le champ d'Arceus le 3 novembre :
+  //  une clé de carnet en fait trente-deux, et partir en base avec
+  //  autre chose ne ferait qu'un aller-retour pour un refus.
+  const { q, appels } = await monter({ cle: "WM-7K2P-9QX" });
+  const vu = await q.evaluate(() =>
+    document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "une clé mal formée ne part pas en base",
+    /cl[ée] de liaison/i.test(vu) && appels.length === 0,
+    JSON.stringify({ souci: vu, appels: appels.length }),
+  );
+  await q.close();
+}
+
+{
+  //  ET LE CHAMP EST TROUVÉ PAR SON ÉTIQUETTE, pas par son numéro.
+  //  `profile_field_13_2` est une ligne dans la base de Forumactif :
+  //  supprimer le champ et le recréer en donne un autre. L'étiquette,
+  //  elle, est tapée par Callista — donc on tolère la casse et les
+  //  accents, et on refuse un champ qui n'est pas celui-là.
+  const { q: bonneCasse, appels: a1 } = await monter({ etiquette: "CLE DE LIAISON" });
+  const { q: autreChamp, appels: a2 } = await monter({ etiquette: "CARNET DE BORD :" });
+  const etat = async (p) =>
+    await p.evaluate(() => document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat"));
+  dire(
+    "LE CHAMP EST TROUVÉ PAR SON ÉTIQUETTE, SANS SA CASSE NI SES ACCENTS",
+    (await etat(bonneCasse)) === "pret" && a1.length === 1 &&
+      (await etat(autreChamp)) === "dehors" && a2.length === 0,
+    JSON.stringify({ bonneCasse: a1.length, autreChamp: a2.length }),
+  );
+  await bonneCasse.close();
+  await autreChamp.close();
+}
+
+{
+  //  UNE CLÉ QUE LA BASE NE CONNAÎT PAS SE DIT AUTREMENT QU'UNE PANNE :
+  //  le geste qui répare n'est pas le même — il faut que le staff la
+  //  repose, et recharger la page n'y changera jamais rien.
+  const { q } = await monter({ refus: "CLE_INVALIDE" });
+  const vu = await q.evaluate(() =>
+    document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "une clé que la base refuse renvoie vers le staff, pas vers un rechargement",
+    /staff/i.test(vu) && !/r[ée]essaie/i.test(vu) && !vu.includes("CLE_INVALIDE"),
+    JSON.stringify({ souci: vu }),
   );
   await q.close();
 }
@@ -386,7 +470,7 @@ const { q: p, appels } = await monter();
     "le carnet s'ouvre d'un seul appel, sur « Mon jeu »",
     vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.actif === "Mon jeu" &&
       vu.barre.includes("1 240") && appels.length === 1 &&
-      appels[0]?.p?.forumUserId === MEMBRE.id,
+      appels[0]?.p?.cle === CLE,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
 }
