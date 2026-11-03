@@ -655,6 +655,28 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
 }
 
 {
+  //  ── UN RATTRAPAGE QUI ÉCHOUE NE SE TAIT PAS ───────────────────────
+  //
+  //  Le trou qui a coûté la soirée du 3 novembre : le rattrapage
+  //  s'écrivait `if (r.ok) { … }` sans rien dans l'autre cas. Une
+  //  liaison qui lève — jeton sans adresse, fonction absente parce
+  //  qu'une migration manque — tombait dans le silence, et la page
+  //  affichait « ce personnage n'est pas rattaché à cette connexion ».
+  //  Un verdict sur la base, par-dessus une panne que j'avais cachée.
+  const { q } = await monter({ valideeApres: true, refus: "RIEN_A_LIER" });
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "UN RATTRAPAGE QUI ÉCHOUE DIT LA PANNE, PAS « PAS RATTACHÉ »",
+    vu.etat === "dehors" && /400/.test(vu.souci) && !/pas rattaché/i.test(vu.souci),
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
   //  ET ON NE REJOUE PAS LA LIAISON POUR RIEN. Une visite ordinaire qui
   //  trouve son carnet ne fait qu'un appel : la seconde chance est un
   //  rattrapage, pas une habitude.

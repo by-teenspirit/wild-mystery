@@ -159,6 +159,51 @@ async function lireLeCarnet(
   return brut as Carnet;
 }
 
+/** Rejoue la liaison : le nombre de personnages attachés, ou la panne.
+ *
+ *  ── POURQUOI CETTE FONCTION EXISTE ──────────────────────────────────
+ *
+ *  Le rattrapage écrivait `if (r.ok) { … }` sans rien dans l'autre cas.
+ *  Donc une liaison qui LÈVE — `JETON_SANS_ADRESSE`, une fonction
+ *  absente parce qu'une migration n'est pas passée — tombait dans le
+ *  silence, et la page affichait « ce personnage n'est pas rattaché à
+ *  cette connexion » : une phrase qui accuse la base de jeu alors que
+ *  l'appel n'a jamais abouti. Deuxième fois dans la soirée que j'écris
+ *  un verdict par-dessus une panne que j'ai moi-même cachée.
+ *
+ *  ET LE NOMBRE COMPTE. Zéro, c'est l'adresse du jeton qui n'est notée
+ *  sur aucun personnage — la seule situation qui mérite d'aller voir le
+ *  staff. Tout le reste est une panne, et doit se dire comme telle. */
+/** Le mot d'une liaison qui n'a pas abouti.
+ *
+ *  ON NE DIT PAS « ton personnage n'est pas rattaché » : la page n'en
+ *  sait rien, puisque la base ne lui a pas répondu. Le code part avec,
+ *  parce que c'est lui qui fait la différence entre un réglage et une
+ *  panne — et sans lui, chaque signalement coûte un aller-retour. */
+function motDeLaLiaisonCassee(code: string): string {
+  return `La connexion a marché, mais le jeu n'a pas pu enregistrer la liaison. ` +
+    `Préviens le staff. (code ${code})`;
+}
+
+async function jouerLaLiaison(
+  config: ConfigSupabase,
+  jeton: string,
+): Promise<{ lies: number } | { panne: string }> {
+  const r = await appelerAvecLeJeton(config, jeton, "lier_mon_personnage");
+  if (!r.ok) {
+    const dit = await r.text().catch(() => "");
+    console.error("wm/carnet : la liaison a échoué —", r.status, dit);
+    return { panne: String(r.status) };
+  }
+  const corps = await r.json().catch(() => null);
+  const lies = (corps as { lies?: unknown } | null)?.lies;
+  if (typeof lies !== "number") {
+    console.error("wm/carnet : la liaison a répondu sans compte —", corps);
+    return { panne: "réponse illisible" };
+  }
+  return { lies };
+}
+
 function direLaLiaison(mot: string): void {
   const e = document.querySelector("[data-wm-carnet-lier-dit]");
   if (e !== null) e.textContent = mot;
@@ -287,21 +332,12 @@ async function ouvrirLeCarnet(): Promise<void> {
   //  AUCUN ARGUMENT, ET C'EST LA FONCTION QUI LE DIT : l'adresse vient
   //  du jeton depuis la `0031`. Passer `{ p: … }` ferait chercher à
   //  PostgREST une fonction qui n'existe plus.
+  //  UN APPEL QUI ÉCHOUE N'EST PAS UN VERDICT SUR LES PERSONNAGES.
   if (retour === "lie") {
-    const r = await appelerAvecLeJeton(config, laissez.jeton, "lier_mon_personnage");
-    if (!r.ok) {
-      //  UN APPEL QUI ÉCHOUE N'EST PAS UN VERDICT SUR LES PERSONNAGES.
-      //  Cette branche disait « aucun personnage n'est rattaché à cette
-      //  adresse » — une phrase que la page n'avait aucun moyen de
-      //  savoir vraie, puisque la base ne l'avait même pas entendue.
-      //  Elle a envoyé chercher le staff pour un défaut de mon code.
-      console.error("wm/carnet : la liaison a échoué —", r.status);
+    const fait = await jouerLaLiaison(config, laissez.jeton);
+    if ("panne" in fait) {
       poserLEtat(document, "dehors");
-      direLeSouci(
-        document,
-        `La connexion a marché, mais le jeu n'a pas pu enregistrer la liaison. ` +
-          `Préviens le staff. (code ${r.status})`,
-      );
+      direLeSouci(document, motDeLaLiaisonCassee(fait.panne));
       return;
     }
   }
@@ -321,8 +357,16 @@ async function ouvrirLeCarnet(): Promise<void> {
   //  suffit maintenant.
   let lu = await lireLeCarnet(config, laissez.jeton, compte.id);
   if (lu === null && retour !== "lie") {
-    const r = await appelerAvecLeJeton(config, laissez.jeton, "lier_mon_personnage");
-    if (r.ok) lu = await lireLeCarnet(config, laissez.jeton, compte.id);
+    const fait = await jouerLaLiaison(config, laissez.jeton);
+    //  LE RATTRAPAGE NE SE TAIT PLUS. Il écrivait `if (r.ok) { … }` et
+    //  rien dans l'autre cas, alors une liaison qui lève tombait dans
+    //  le silence et la page accusait la base de ne connaître personne.
+    if ("panne" in fait) {
+      poserLEtat(document, "dehors");
+      direLeSouci(document, motDeLaLiaisonCassee(fait.panne));
+      return;
+    }
+    if (fait.lies > 0) lu = await lireLeCarnet(config, laissez.jeton, compte.id);
   }
 
   if (lu === "panne") {
