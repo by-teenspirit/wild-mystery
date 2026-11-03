@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(161);
+select plan(172);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -909,6 +909,73 @@ select lives_ok($$
   insert into joueur (id, forum_user_id, pseudo, groupe)
   values ('99999999-0000-0000-0000-000000000008', 908, 'Sans maison', null)
 $$, 'ET L''ABSENCE DE MAISON EST PERMISE : c''est l''état de qui attend sa validation');
+
+-- ── UNE CONNEXION, PLUSIEURS PERSONNAGES ────────────────────────────
+--
+--  « La personne n'a pas toujours la même adresse e-mail pour chacun de
+--  ses personnages », 3 novembre. Donc parfois la même, et une adresse
+--  ne fait qu'un compte chez Supabase Auth.
+--
+--  CE QUI EST TENU ICI, et qui est tombé en silence avant la 0029 :
+--  neuf politiques comparaient `joueur_id = joueur_courant()`, qui rend
+--  UN identifiant. Avec deux personnages derrière une connexion, elles
+--  en montraient un et cachaient l'autre, au hasard de l'ordre des
+--  lignes — et PostgreSQL ne lève pas pour ça.
+insert into joueur (id, forum_user_id, pseudo, groupe, courriel) values
+  ('aaaa0029-0000-0000-0000-000000000001', 990291, 'Deux-un', 'hardi', 'Deux@Exemple.FR'),
+  ('aaaa0029-0000-0000-0000-000000000002', 990292, 'Deux-deux', 'doux', 'deux@exemple.fr'),
+  ('aaaa0029-0000-0000-0000-000000000003', 990293, 'Pas-a-moi', 'brave', 'autre@exemple.fr');
+
+set local request.jwt.claims = '{"sub":"aaaa0029-9999-0000-0000-000000000009"}';
+
+select is((select count(*)::int from mes_joueurs()), 0,
+  'avant liaison, la session ne porte aucun personnage');
+
+select is(
+  (lier_mon_personnage('{"courriel":" DEUX@exemple.fr "}'::jsonb)->>'lies')::int, 2,
+  'LA LIAISON PREND LES DEUX PERSONNAGES DE L''ADRESSE, casse et espaces compris');
+
+select is((select count(*)::int from mes_joueurs()), 2,
+  'et la session les porte tous les deux');
+
+select is(
+  (lier_mon_personnage('{"courriel":"deux@exemple.fr"}'::jsonb)->>'lies')::int, 2,
+  'REJOUER NE CASSE RIEN : un lien cliqué deux fois rend ce qui est déjà vrai');
+
+select is(
+  carnet_de_la_session('{"forumUserId":990291}'::jsonb) -> 'dresseur' ->> 'pseudo',
+  'Deux-un', 'le carnet d''un de mes personnages s''ouvre par la session');
+
+select is(
+  carnet_de_la_session('{"forumUserId":990293}'::jsonb), null,
+  'ET CELUI D''UN AUTRE NE S''OUVRE PAS : c''est ce qui la distingue de carnet_du_compte');
+
+-- ── LE « +1 » EST LA MÊME BOÎTE ─────────────────────────────────────
+--
+--  « On ne peut pas créer un compte sur Forumactif avec la même adresse
+--  e-mail, sauf en rajoutant +1 », 3 novembre. Trois adresses pour une
+--  boîte, donc : sans la réduction de la 0030, cette personne aurait eu
+--  à se connecter trois fois.
+select is(boite_du_courriel('Callie+2@EXEMPLE.fr'), 'callie@exemple.fr',
+  'l''étiquette et la casse tombent, la boîte reste');
+select is(boite_du_courriel('  callie@exemple.fr  '), 'callie@exemple.fr',
+  'et les espaces du copier-coller aussi');
+select is(boite_du_courriel('nimportequoi'), null,
+  'une chaîne sans arobase n''est pas une boîte');
+
+insert into joueur (id, forum_user_id, pseudo, groupe, courriel) values
+  ('aaaa0030-0000-0000-0000-000000000001', 990301, 'Plus-un', 'hardi', 'troi@exemple.fr'),
+  ('aaaa0030-0000-0000-0000-000000000002', 990302, 'Plus-deux', 'doux', 'troi+1@exemple.fr'),
+  ('aaaa0030-0000-0000-0000-000000000003', 990303, 'Plus-trois', 'brave', 'TROI+2@Exemple.FR');
+
+set local request.jwt.claims = '{"sub":"aaaa0030-9999-0000-0000-000000000009"}';
+
+select is(
+  (lier_mon_personnage('{"courriel":"troi+1@exemple.fr"}'::jsonb)->>'lies')::int, 3,
+  'UNE SEULE CONNEXION PREND LES TROIS PERSONNAGES DE LA BOÎTE');
+
+select is((select count(*)::int from mes_joueurs()), 3,
+  'et la session les porte tous les trois');
 
 select * from finish();
 rollback;

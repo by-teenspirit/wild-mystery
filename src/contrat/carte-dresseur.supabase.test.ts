@@ -298,11 +298,21 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
   //  Ce compteur a donc sauté DEUX FOIS en huit heures, dans les deux
   //  sens. C'est exactement ce qu'on lui demande : il ne juge pas si
   //  l'ouverture est bonne, il oblige à l'écrire.
+  //  `mes_joueurs` s'y ajoute le 3 novembre (`0029`), et pour la même
+  //  raison que `joueur_courant` : les NEUF politiques de lecture
+  //  l'appellent, et une politique s'évalue avec les droits du rôle qui
+  //  interroge. Sans ce droit, `anon` ne pourrait rien lire du tout —
+  //  pas même le catalogue public, dont les politiques la traversent.
+  //
+  //  Elle ne montre rien de personne : elle rend les personnages
+  //  derrière le JETON de l'appelant, donc rien du tout pour `anon`,
+  //  ce qui est vérifié juste en dessous.
   assertEquals(vu.split("\n").map((l) => l.trim()).filter((l) => l !== ""), [
     "carnet",
     "carnet_reclamer",
     "carte_dresseur",
     "joueur_courant",
+    "mes_joueurs",
   ]);
 
   const pourAnon = await psql(
@@ -310,6 +320,16 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
     `set role anon; select coalesce(joueur_courant()::text, 'null');`,
   );
   assertEquals(pourAnon.split("\n").pop()?.trim(), "null");
+
+  //  ET `mes_joueurs` NE REND RIEN NON PLUS. C'est ce qui rend son
+  //  ouverture à `anon` sans conséquence : sans jeton, aucun
+  //  personnage. La compter sans vérifier ça serait prendre sa
+  //  signature pour une garantie.
+  const combienPourAnon = await psql(
+    url,
+    `set role anon; select count(*)::text from mes_joueurs();`,
+  );
+  assertEquals(combienPourAnon.split("\n").pop()?.trim(), "0");
 });
 
 // ── la publication des cartes, migration 0024 ──────────────────────
