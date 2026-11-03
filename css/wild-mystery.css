@@ -21977,46 +21977,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     une clé, ça charge, c'est chargé. Les cacher par une classe sur la
     racine plutôt que par du JavaScript qui les retire garde la page
     lisible si le script s'arrête en route. */
-#modernbb .wm-carnet:not([data-wm-etat="cle"]) .wm-carnet__cle,
+#modernbb .wm-carnet:not([data-wm-etat="dehors"]) .wm-carnet__dehors,
 #modernbb .wm-carnet:not([data-wm-etat="charge"]) .wm-carnet__charge,
 #modernbb .wm-carnet:not([data-wm-etat="pret"]) .wm-carnet__onglet-page {
   display: none;
 }
 
-#modernbb .wm-carnet__cle {
+#modernbb .wm-carnet__dehors {
   max-width: 520px;
 }
 
-#modernbb .wm-carnet__cle label {
-  display: block;
-  margin-bottom: var(--wm-espace-6, 6px);
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-}
-
-#modernbb .wm-carnet__cle input {
-  box-sizing: border-box;
-  width: 100%;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
-  font-family: ui-monospace, "SFMono-Regular", "Menlo", monospace;
-  font-size: var(--wm-taille-normal, 13.5px);
-}
-
-#modernbb .wm-carnet__cle button {
-  margin-top: var(--wm-espace-12, 12px);
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
-  border: 0;
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-accent-primaire, #275e7a);
-  color: var(--wm-texte-inverse, #fffbf7);
-  font-family: inherit;
-  font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-  cursor: pointer;
-}
 
 #modernbb .wm-carnet__souci {
   margin-top: var(--wm-espace-12, 12px);
@@ -22091,52 +22061,4 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /* ── 12 · ouvrir son carnet en postant ────────────────────────────── */
 
-/*  « Ce serait possible d'avoir un truc moins compliqué où j'ai pas
-    besoin de lui envoyer ? », 2 novembre. Le joueur poste une
-    empreinte, la relève la lie à son compte, la page récupère la clé.
-
-    L'EMPREINTE EST EN CHASSE FIXE ET SE SÉLECTIONNE D'UN COUP : elle
-    se recopie, donc chaque caractère doit se distinguer et un
-    double-clic doit la prendre entière. */
-#modernbb .wm-carnet__empreinte {
-  padding: var(--wm-espace-12, 12px);
-  border: 1px dashed var(--wm-bord-net, #d9c3b1);
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
-  font-size: var(--wm-taille-petit, 11.5px);
-  overflow-wrap: anywhere;
-  user-select: all;
-}
-
-#modernbb button.wm-carnet__bouton {
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
-  border: 0;
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-accent-primaire, #275e7a);
-  color: var(--wm-texte-inverse, #fffbf7);
-  font-family: inherit;
-  font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-  cursor: pointer;
-}
-
-/*  LA CLÉ DU STAFF EST REPLIÉE, pas supprimée. C'est la voie de
-    secours : elle dépanne si la relève tombe, et c'est elle qui
-    révoque. La mettre au même niveau que l'ouverture normale ferait
-    hésiter entre deux chemins pour la même chose. */
-#modernbb .wm-carnet__repli {
-  margin-top: var(--wm-espace-32, 32px);
-  padding-top: var(--wm-espace-16, 16px);
-  border-top: 1px solid var(--wm-bord-fin, #eadacd);
-}
-
-#modernbb .wm-carnet__repli summary {
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
-  cursor: pointer;
-}
-
-#modernbb .wm-carnet__repli form {
-  margin-top: var(--wm-espace-12, 12px);
-}
 

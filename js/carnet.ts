@@ -21,11 +21,21 @@
 //     éclair blanc chez quelqu'un en thème sombre.
 //  2. Les onglets, avant même d'avoir des données : la page doit
 //     répondre au clic pendant que ça charge.
-//  3. La clé. Pas de clé, pas de requête — on demande, et on s'arrête.
+//  3. QUI REGARDE. La page est servie sans l'en-tête du forum, donc
+//     sans `_userdata` : on demande une page du forum sur la même
+//     origine et on y lit le membre connecté. Invité, on le dit et on
+//     s'arrête — aucune requête de jeu.
 //  4. Un seul appel, puis les trois vues peintes d'un coup.
+//
+//  ── IL N'Y A PLUS DE CLÉ ────────────────────────────────────────────
+//
+//  « En principe, ça devrait être automatique. Pas de sujet d'ouverture
+//  ou quoi », 3 novembre. La page ne demande plus rien et ne garde plus
+//  rien : elle lit le numéro de compte et l'envoie. Ce que ça coûte est
+//  écrit dans l'en-tête de la migration 0026, et ce n'est pas rien.
+//  La machinerie de la clé reste en base, inemployée.
 // ════════════════════════════════════════════════════════════════════
 import {
-  CLE_DE_STOCKAGE,
   type Decor,
   direLeSouci,
   poserLaBarre,
@@ -44,43 +54,18 @@ import {
   racineDesDonnees,
   racineDesImages,
 } from "../src/adaptateurs/navigateur/catalogue.ts";
-import { appeler, RefusSupabase } from "../src/adaptateurs/navigateur/supabase.ts";
+import { appeler } from "../src/adaptateurs/navigateur/supabase.ts";
 import { configDepuis } from "../src/adaptateurs/navigateur/registre.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
-import { blocDeReclamation, secretBienForme } from "../src/domaine/reclamation.ts";
 import {
-  adresseDeReponse,
-  empreinteDuSecret,
-  tirerUnSecret,
-} from "../src/adaptateurs/navigateur/reclamation.ts";
+  compteQuiRegarde,
+  demandeurDuNavigateur,
+} from "../src/adaptateurs/navigateur/compte-du-forum.ts";
 
 const RACINE = racineDesDonnees(adresseDuScript(document));
 const IMAGES = racineDesImages(adresseDuScript(document));
 
 poserLeTheme(document, new Preferences(new StockageLocal()));
-
-function lireLaCle(): string | null {
-  try {
-    const v = localStorage.getItem(CLE_DE_STOCKAGE);
-    return v !== null && /^[0-9a-f]{32}$/.test(v) ? v : null;
-  } catch {
-    //  Navigation privée, stockage refusé : on demandera la clé à
-    //  chaque visite. C'est pénible, ce n'est pas cassé.
-    return null;
-  }
-}
-
-function garderLaCle(cle: string): void {
-  try {
-    localStorage.setItem(CLE_DE_STOCKAGE, cle);
-  } catch { /* voir ci-dessus */ }
-}
-
-function oublierLaCle(): void {
-  try {
-    localStorage.removeItem(CLE_DE_STOCKAGE);
-  } catch { /* idem */ }
-}
 
 async function lire(nom: string): Promise<unknown> {
   if (RACINE === null) return null;
@@ -113,48 +98,80 @@ async function decorDuCarnet(): Promise<Decor> {
   };
 }
 
-/** Le mot qu'on montre à la joueuse pour un refus de la base.
+/** Le mot qu'on montre pour un refus de la base.
  *
- *  ON NE RECOPIE PAS LE MESSAGE DE POSTGRESQL : `CLE_INVALIDE` ne veut
- *  rien dire pour qui vient de coller une clé, et un texte d'erreur
- *  technique dans une page de jeu fait peur pour rien. */
-function motDuRefus(e: unknown): string {
-  if (e instanceof RefusSupabase && e.code === "CLE_INVALIDE") {
-    return "Cette clé n'est pas reconnue. Vérifie que tu l'as collée en entier, " +
-      "ou demande au staff de t'en donner une nouvelle.";
-  }
+ *  ON NE RECOPIE PAS LE MESSAGE DE POSTGRESQL : un texte technique dans
+ *  une page de jeu fait peur pour rien. */
+function motDuRefus(): string {
   return "Le carnet n'a pas pu être chargé. Réessaie dans un moment.";
 }
 
-async function ouvrirLeCarnet(cle: string): Promise<void> {
+/** Le carnet du membre connecté, ou le mot qui dit pourquoi non.
+ *
+ *  TROIS REFUS, ET ILS NE DISENT PAS LA MÊME CHOSE :
+ *
+ *    · le forum ne répond pas — on ne sait pas qui regarde, et dire
+ *      « connecte-toi » à quelqu'un de connecté serait faux ;
+ *    · invité — il suffit de se connecter, et c'est tout ;
+ *    · connecté mais sans carnet — le compte existe et n'a pas encore
+ *      été validé. Rien à faire, et surtout rien à poster.
+ */
+async function ouvrirLeCarnet(): Promise<void> {
   poserLEtat(document, "charge");
   direLeSouci(document, "");
 
+  let qui;
+  try {
+    qui = await compteQuiRegarde(demandeurDuNavigateur());
+  } catch {
+    poserLEtat(document, "dehors");
+    direLeSouci(document, "Le forum n'a pas répondu. Recharge la page dans un moment.");
+    return;
+  }
+
+  if (qui === null) {
+    poserLEtat(document, "dehors");
+    direLeSouci(
+      document,
+      "Tu n'es pas connectée au forum. Connecte-toi, puis reviens sur cette page.",
+    );
+    return;
+  }
+
   const config = configDepuis(await lire("supabase.json"));
   if (config === null) {
+    poserLEtat(document, "dehors");
     direLeSouci(document, "Le carnet n'a pas pu joindre le serveur de jeu.");
-    poserLEtat(document, "cle");
     return;
   }
 
   let brut: unknown;
   try {
-    brut = await appeler(config, "carnet", { cle });
-  } catch (e) {
-    direLeSouci(document, motDuRefus(e));
-    poserLEtat(document, "cle");
-    return;
-  }
-  if (typeof brut !== "object" || brut === null) {
-    direLeSouci(document, motDuRefus(null));
-    poserLEtat(document, "cle");
+    brut = await appeler(config, "carnet_du_compte", { forumUserId: qui.id });
+  } catch {
+    poserLEtat(document, "dehors");
+    direLeSouci(document, motDuRefus());
     return;
   }
 
-  //  LA CLÉ N'EST GARDÉE QU'UNE FOIS QU'ELLE A SERVI. L'écrire avant
-  //  l'appel mettrait une clé fausse dans le navigateur, et la page
-  //  rouvrirait sur la même erreur à chaque visite.
-  garderLaCle(cle);
+  //  `null` : LE COMPTE N'A PAS DE CARNET, et ce n'est pas une panne.
+  //  La fonction rend `null` pour un compte qu'elle ne connaît pas —
+  //  c'est le cas de qui n'a pas encore été validé.
+  if (brut === null) {
+    poserLEtat(document, "dehors");
+    direLeSouci(
+      document,
+      `Connectée en tant que ${qui.pseudo || "ce compte"}, mais ce compte n'a pas encore ` +
+        `de partie. Elle s'ouvre quand le staff valide ton personnage.`,
+    );
+    return;
+  }
+
+  if (typeof brut !== "object") {
+    poserLEtat(document, "dehors");
+    direLeSouci(document, motDuRefus());
+    return;
+  }
 
   const carnet = brut as Carnet;
   const decor = await decorDuCarnet();
@@ -172,128 +189,9 @@ async function ouvrirLeCarnet(cle: string): Promise<void> {
 //  ça charge, sinon la page a l'air morte.
 poserLesOnglets(document, () => {});
 
-/* ── ouvrir son carnet en postant ─────────────────────────────────── */
-
-const CLE_DU_SECRET = "wm.carnet.secret";
-
-/** Le secret de cette page : celui qui traîne, ou un neuf.
- *
- *  ON LE GARDE ENTRE DEUX VISITES, et c'est indispensable : le joueur
- *  poste, ferme l'onglet, revient dix minutes plus tard. Un secret
- *  tiré à chaque chargement ne retrouverait jamais sa réclamation. */
-function secretDeLaPage(): string {
-  try {
-    const garde = localStorage.getItem(CLE_DU_SECRET);
-    if (garde !== null && secretBienForme(garde)) return garde;
-  } catch { /* stockage refusé : on en tire un pour cette visite */ }
-  const neuf = tirerUnSecret();
-  try {
-    localStorage.setItem(CLE_DU_SECRET, neuf);
-  } catch { /* idem */ }
-  return neuf;
-}
-
-function oublierLeSecret(): void {
-  try {
-    localStorage.removeItem(CLE_DU_SECRET);
-  } catch { /* idem */ }
-}
-
-async function poserLOuverture(): Promise<void> {
-  const bloc = document.querySelector<HTMLElement>("[data-wm-carnet-ouvrir]");
-  if (bloc === null) return;
-
-  const config = await lire("carnet.json");
-  const sujet = (config as { sujet?: unknown } | null)?.sujet;
-  //  SANS SUJET CONFIGURÉ, ON NE MONTRE RIEN. Un code à poster sans
-  //  dire où le poster ferait perdre dix minutes à chaque joueur.
-  if (typeof sujet !== "number") return;
-
-  const secret = secretDeLaPage();
-  const empreinte = await empreinteDuSecret(secret);
-  const code = blocDeReclamation(empreinte);
-
-  const vue = document.querySelector("[data-wm-carnet-empreinte]");
-  if (vue !== null) vue.textContent = code;
-  const lien = document.querySelector<HTMLAnchorElement>("[data-wm-carnet-poster]");
-  if (lien !== null) lien.href = adresseDeReponse(sujet, code);
-  bloc.hidden = false;
-
-  document.querySelector("[data-wm-carnet-jai-poste]")?.addEventListener("click", () => {
-    reclamer(secret).catch(() => direLeSouci(document, motDuRefus(null)));
-  });
-}
-
-/** Échange le secret contre la clé — et demande confirmation du nom.
- *
- *  POURQUOI DEMANDER. L'empreinte est publique : quelqu'un pourrait la
- *  recopier et la poster avant le joueur. La base garde alors la
- *  PREMIÈRE, donc celle du copieur, et le joueur recevrait une clé qui
- *  ouvre le carnet de l'autre. En base les deux messages sont
- *  identiques — rien ne les distingue là-bas. Ici, le nom se lit. */
-async function reclamer(secret: string): Promise<void> {
-  direLeSouci(document, "");
-  const config = configDepuis(await lire("supabase.json"));
-  if (config === null) {
-    direLeSouci(document, "Le carnet n'a pas pu joindre le serveur de jeu.");
-    return;
-  }
-
-  let recu: unknown;
-  try {
-    recu = await appeler(config, "carnet_reclamer", { secret });
-  } catch (e) {
-    direLeSouci(
-      document,
-      e instanceof RefusSupabase && e.code === "RECLAMATION_INCONNUE"
-        ? "Je ne vois pas encore ton message. La relève passe toutes les cinq " +
-          "minutes : laisse-lui un instant, puis reclique."
-        : motDuRefus(e),
-    );
-    return;
-  }
-
-  const r = recu as { cle?: unknown; pseudo?: unknown };
-  if (typeof r?.cle !== "string" || typeof r?.pseudo !== "string") {
-    direLeSouci(document, motDuRefus(null));
-    return;
-  }
-
-  const dit = document.querySelector<HTMLElement>("[data-wm-carnet-confirmer]");
-  if (dit !== null) {
-    dit.hidden = false;
-    dit.textContent = `Reconnu : ${r.pseudo}. Si ce n'est pas toi, ne garde pas ce carnet ` +
-      `et préviens le staff.`;
-  }
-  oublierLeSecret();
-  await ouvrirLeCarnet(r.cle);
-}
-
-const formulaire = document.querySelector<HTMLFormElement>("[data-wm-carnet-formulaire]");
-formulaire?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const champ = formulaire.querySelector<HTMLInputElement>("input");
-  const cle = (champ?.value ?? "").trim().toLowerCase();
-  if (!/^[0-9a-f]{32}$/.test(cle)) {
-    direLeSouci(document, "Une clé fait 32 caractères, des chiffres et les lettres a à f.");
-    return;
-  }
-  ouvrirLeCarnet(cle).catch(() => direLeSouci(document, motDuRefus(null)));
+//  ET ON OUVRE. Sans bouton, sans champ, sans clé : la page sait aller
+//  chercher qui la regarde.
+ouvrirLeCarnet().catch(() => {
+  poserLEtat(document, "dehors");
+  direLeSouci(document, motDuRefus());
 });
-
-document.querySelector("[data-wm-carnet-oublier]")?.addEventListener("click", () => {
-  oublierLaCle();
-  poserLEtat(document, "cle");
-  direLeSouci(document, "Clé oubliée sur cet ordinateur.");
-  poserLOuverture().catch(() => {});
-});
-
-const gardee = lireLaCle();
-if (gardee === null) {
-  poserLEtat(document, "cle");
-  poserLOuverture().catch(() => {});
-} else {ouvrirLeCarnet(gardee).catch(() => {
-    direLeSouci(document, motDuRefus(null));
-    poserLEtat(document, "cle");
-    poserLOuverture().catch(() => {});
-  });}

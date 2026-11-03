@@ -50,8 +50,6 @@ import {
   sacRange,
 } from "../../navigateur/carnet.ts";
 
-export const CLE_DE_STOCKAGE = "wm.carnet.cle";
-
 export interface Decor {
   especes: ReadonlyMap<number, string>;
   objets: ObjetDuCatalogue[];
@@ -496,7 +494,7 @@ export function poserLesOnglets(doc: Document, surChangement: (c: ClefDOnglet) =
 
 /* ── l'état de la page ────────────────────────────────────────────── */
 
-export function poserLEtat(doc: Document, etat: "cle" | "charge" | "pret"): void {
+export function poserLEtat(doc: Document, etat: "dehors" | "charge" | "pret"): void {
   const racine = doc.querySelector(".wm-carnet");
   if (racine !== null) racine.setAttribute("data-wm-etat", etat);
 }

@@ -288,8 +288,21 @@ essai("AUCUNE AUTRE FONCTION `SECURITY DEFINER` N'EST OUVERTE À `anon`", async 
         and has_function_privilege('anon', p.oid, 'execute')
       order by p.proname;`,
   );
+  //  `carnet_du_compte` s'y ajoute le 3 novembre (`0026`), et ce cas a
+  //  sauté en la voyant arriver — pour la deuxième fois, et c'est bien
+  //  son travail. Elle est ouverte parce qu'il n'y a PLUS de secret :
+  //  « aucune clé, on fait confiance au forum », décidé ce jour-là en
+  //  connaissance de cause. Elle ne vérifie donc rien, et qui appelle
+  //  avec un numéro de compte obtient le carnet qui va avec. Le numéro
+  //  est public — il est dans l'adresse d'un profil.
+  //
+  //  CE QUI LA REND ACCEPTABLE N'EST PAS UNE PROTECTION, c'est son
+  //  périmètre : elle LIT, et rien d'autre. Le jour où une fonction
+  //  d'écriture voudra s'ouvrir à `anon` au même prix, ce compteur
+  //  sautera encore, et la réponse devra être non.
   assertEquals(vu.split("\n").map((l) => l.trim()).filter((l) => l !== ""), [
     "carnet",
+    "carnet_du_compte",
     "carnet_reclamer",
     "carte_dresseur",
     "joueur_courant",

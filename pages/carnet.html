@@ -84,65 +84,28 @@
       <p class="wm-carnet__titre-groupe">Ailleurs sur le forum</p>
       <ul class="wm-carnet__onglets">
         <li><a class="wm-carnet__onglet" href="/h1-par-ou-commencer">Les annexes</a></li>
-        <li><button type="button" class="wm-carnet__onglet" data-wm-carnet-oublier>Oublier ma clé</button></li>
       </ul>
     </aside>
 
     <div class="wm-carnet__corps">
 
-      <!-- ── il faut une clé ─────────────────────────────────────── -->
-      <div class="wm-carnet__cle">
+      <!-- ── le carnet n'est pas ouvert, et on dit pourquoi ──────── -->
+      <!--  IL N'Y A PLUS RIEN À FAIRE ICI. Ni code à poster, ni clé à
+            coller : la page lit le membre connecté sur le forum. Ce
+            bloc ne sert donc plus qu'à dire pourquoi ça n'a pas
+            marché — pas connecté, personnage pas encore validé, ou
+            forum muet. Le mot vient du script.  -->
+      <div class="wm-carnet__dehors">
         <header class="wm-carnet__entete">
           <p class="wm-carnet__surtitre">Le carnet de bord</p>
-          <h1 class="wm-carnet__titre">Ta <b>clé</b></h1>
+          <h1 class="wm-carnet__titre">Ton <b>carnet</b></h1>
           <p class="wm-carnet__chapo">
-            Le carnet montre ce que le serveur sait de toi : ton équipe, ton
-            sac, ton Pokédex. Pour savoir que c'est bien toi, il lui faut
-            une clé — le staff te la donne une fois, ton navigateur la garde.
+            Il montre ce que le serveur sait de toi : ton équipe, ton sac,
+            ton Pokédex. Il s'ouvre tout seul, du moment que tu es
+            connectée au forum.
           </p>
         </header>
-
-        <!--  L'OUVERTURE SANS CLÉ, en trois gestes. Le bloc et le
-              bouton sont remplis par le script ; sans sujet configuré
-              dans `data/carnet.json`, tout ce bloc reste caché et il
-              ne reste que la clé à coller.  -->
-        <div class="wm-carnet__ouvrir" data-wm-carnet-ouvrir hidden>
-          <h2 class="wm-carnet__bloc-titre">Ouvrir mon carnet</h2>
-          <ol class="wm-tirets">
-            <li>Copie ce code — il ne veut rien dire pour les autres, il
-              sert juste à prouver que ce compte est le tien.</li>
-            <li>Poste-le dans le sujet d'ouverture. C'est Forumactif qui
-              dit qui tu es, pas nous.</li>
-            <li>Reviens ici dans cinq minutes et clique « J'ai posté ».</li>
-          </ol>
-          <p class="wm-carnet__code wm-carnet__empreinte" data-wm-carnet-empreinte></p>
-          <p>
-            <a class="wm-carnet__ailleurs" data-wm-carnet-poster href="#" target="_blank"
-               rel="noopener">Ouvrir le sujet avec le code déjà écrit →</a>
-          </p>
-          <p>
-            <button type="button" class="wm-carnet__bouton" data-wm-carnet-jai-poste>
-              J'ai posté
-            </button>
-          </p>
-          <p class="wm-carnet__bloc-dit" data-wm-carnet-confirmer hidden></p>
-        </div>
-
-        <details class="wm-carnet__repli">
-          <summary>J'ai reçu une clé du staff</summary>
-        <form data-wm-carnet-formulaire>
-          <label for="wm-cle">Colle ta clé ici</label>
-          <input id="wm-cle" type="text" inputmode="latin" autocomplete="off"
-                 spellcheck="false" maxlength="32"
-                 placeholder="32 caractères, chiffres et lettres a à f" />
-          <button type="submit">Ouvrir mon carnet</button>
-        </form>
-        </details>
         <p class="wm-carnet__souci" data-wm-carnet-souci role="status"></p>
-        <p class="wm-carnet__bloc-dit" style="margin-top: 20px">
-          Sur un ordinateur partagé, pense à « Oublier ma clé » en partant :
-          tant qu'elle est là, la personne suivante ouvre ton carnet.
-        </p>
       </div>
 
       <!-- ── ça charge ───────────────────────────────────────────── -->

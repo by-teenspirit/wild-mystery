@@ -357,3 +357,43 @@ essai("le carnet d'un joueur tout neuf est vide, mais bien formé", async (url) 
   assertEquals(lu.dresseur.palier, 2);
   assertEquals(lu.dresseur.pokedollars, 1500);
 });
+
+// ── le carnet par le compte du forum ────────────────────────────────
+//
+//  « En principe, ça devrait être automatique », 3 novembre. Il y a
+//  donc deux portes sur le même carnet : la clé, et le numéro de compte
+//  du forum. Ce qui compte ici, c'est qu'elles mènent au MÊME endroit —
+//  deux lectures qui divergeraient donneraient un carnet selon la porte
+//  empruntée, et personne ne le verrait avant un joueur.
+
+essai("LES DEUX PORTES RENDENT LE MÊME CARNET, AU CARACTÈRE PRÈS", async (url) => {
+  const cle = await poserUneCle(url);
+  const parLaCle = await lireLeCarnet(url, cle);
+  const parLeCompte = await psql(
+    url,
+    `select carnet_du_compte('{"forumUserId":${COMPTE_CALLIE}}'::jsonb)::text;`,
+  );
+  assertEquals(parLeCompte, parLaCle);
+});
+
+essai("un compte sans partie rend `null`, et ne lève pas", async (url) => {
+  //  C'est l'état de qui n'a pas encore été validé. La page lui dit
+  //  d'attendre ; une exception lui montrerait une panne.
+  const lu = await psql(
+    url,
+    `select coalesce(carnet_du_compte('{"forumUserId":99999901}'::jsonb)::text, 'null');`,
+  );
+  assertEquals(lu, "null");
+});
+
+essai("LE CORPS DU CARNET N'EST PAS OUVERT À `anon`", async (url) => {
+  //  `carnet_interieur` prend un identifiant de joueur et ne vérifie
+  //  rien — c'est son rôle. Ouverte, elle laisserait lire n'importe
+  //  quel carnet à qui devine un UUID, et ce serait la seule des trois
+  //  à ne pas même demander un numéro de compte.
+  const vu = await psql(
+    url,
+    `select has_function_privilege('anon', 'carnet_interieur(uuid)', 'execute')::text;`,
+  );
+  assertEquals(vu, "false");
+});

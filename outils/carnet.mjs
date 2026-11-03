@@ -68,8 +68,6 @@ if (CHROME === undefined) {
   Deno.exit(1);
 }
 
-const CLE = "a1b2c3d4e5f60718293a4b5c6d7e8f90";
-
 /*  LA RÉPONSE DE `carnet()`, dans la forme exacte que la migration
     0019 rend. Les identifiants d'espèce sont réels — Onix, Pikachu,
     Carapuce — parce que la page va chercher leurs noms dans le vrai
@@ -151,63 +149,45 @@ console.log("\n── le carnet de bord ──");
     absolues vers GitHub Pages — on les détourne vers les fichiers du
     dépôt, on ne les réécrit pas. Une page dont on aurait corrigé les
     adresses pour le harnais ne serait plus la page qu'on colle. */
-/*  L'EMPREINTE DU SECRET D'ESSAI, CALCULÉE PAR POSTGRESQL.
 
-    Relevée le 2 novembre en lançant, sur une base montée des
-    vingt-trois migrations :
+//  ── LA PAGE DU FORUM EST SERVIE PAR LE DÉCOR ──────────────────────
+//
+//  C'est tout le mécanisme nouveau : `/h15-mon-carnet` n'a pas
+//  d'en-tête de forum, donc pas de `_userdata`, et la page va le
+//  chercher sur une AUTRE page du même domaine. Le décor sert donc
+//  cette page-là, dans la forme exacte où Forumactif l'écrit — relevée
+//  le 3 novembre sur le vrai forum.
+//
+//  Ne pas la servir ferait tomber la page sur le 404 du décor, et la
+//  mesure dirait « le forum ne répond pas » pour toutes les visites :
+//  ce serait un harnais qui ne teste que son propre trou.
+function pageDuForum(compte) {
+  if (compte === "invite") {
+    return '<html><head><script>var _userdata = new Object();' +
+      '_userdata["session_logged_in"] = 0;_userdata["username"] = "Anonymous";' +
+      '_userdata["user_id"] = -1;</script></head><body>liste des membres</body></html>';
+  }
+  return '<html><head><script>var _userdata = new Object();' +
+    '_userdata["session_logged_in"] = 1;' +
+    `_userdata["username"] = "${compte.pseudo}";` +
+    `_userdata["user_id"] = ${compte.id};` +
+    '</script></head><body>liste des membres</body></html>';
+}
 
-      set search_path = public, extensions;
-      select left(encode(digest('abcdef0123456789abcdef0123456789',
-                                'sha256'), 'hex'), 48);
-
-    C'est LE contrôle qui compte dans tout ce montage : si le
-    navigateur et la base ne calculent pas la même empreinte, rien ne
-    se lie jamais — et ça ne se verrait qu'au premier vrai joueur,
-    parce que les deux moitiés marchent très bien séparément. */
-const SECRET_DESSAI = "abcdef0123456789abcdef0123456789";
-const EMPREINTE_DE_POSTGRES = "bc3737d2f139bea32fde0e80eb7bbc34e929151720a3b322";
+const MEMBRE = { id: 42, pseudo: "Eliott Vanner" };
 
 async function monter(
-  { reponse = CARNET, cleGardee = null, refus = null, sujetDOuverture = null, reclamation = null } =
-    {},
+  { reponse = CARNET, compte = MEMBRE, refus = null, forumMuet = false } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
   const appels = [];
+  const demandes = [];
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 
   await q.route("**/*", (route) => {
     const u = new URL(route.request().url());
 
-    if (u.pathname.endsWith("/rest/v1/rpc/carnet_reclamer")) {
-      appels.push(JSON.parse(route.request().postData() ?? "{}"));
-      if (reclamation === null) {
-        return route.fulfill({
-          status: 400,
-          contentType: "application/json",
-          body: JSON.stringify({ message: "RECLAMATION_INCONNUE" }),
-        });
-      }
-      return route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify(reclamation),
-      });
-    }
-
-    //  LE SUJET D'OUVERTURE EST SERVI PAR LE DÉCOR, DANS LES DEUX
-    //  SENS. Les deux cas — configuré et pas configuré — étaient
-    //  d'abord lus dans `data/carnet.json`, et le jour où Callista y a
-    //  mis le vrai numéro, le contrôle « sans sujet, pas de code à
-    //  poster » est tombé. Il ne mesurait pas la règle, il mesurait la
-    //  configuration du jour. Un harnais ne doit pas changer d'avis
-    //  parce qu'une donnée de jeu a changé.
-    if (sujetDOuverture !== null && u.pathname.endsWith("/data/carnet.json")) {
-      return route.fulfill({
-        contentType: "application/json",
-        body: JSON.stringify({ sujet: sujetDOuverture === "aucun" ? null : sujetDOuverture }),
-      });
-    }
-
-    if (u.pathname.endsWith("/rest/v1/rpc/carnet")) {
+    if (u.pathname.endsWith("/rest/v1/rpc/carnet_du_compte")) {
       appels.push(JSON.parse(route.request().postData() ?? "{}"));
       if (refus !== null) {
         return route.fulfill({
@@ -251,159 +231,108 @@ async function monter(
       return route.fulfill({ contentType: "text/css", body: "" });
     }
 
-    if (u.href.startsWith(ADRESSE)) {
+    if (u.href === ADRESSE) {
       return route.fulfill({
         contentType: "text/html; charset=utf-8",
         body: readFileSync(R + "pages/carnet.html", "utf8"),
       });
     }
+
+    //  La page témoin, celle où le numéro du membre se lit.
+    if (u.pathname === "/memberlist") {
+      demandes.push(u.pathname);
+      if (forumMuet) return route.fulfill({ status: 503, body: "" });
+      return route.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: pageDuForum(compte),
+      });
+    }
+
     return route.fulfill({ status: 404, body: "" });
   });
 
-  if (cleGardee !== null) {
-    await q.addInitScript((c) => localStorage.setItem("wm.carnet.cle", c), cleGardee);
-  }
   await q.goto(ADRESSE, { waitUntil: "load" });
   await q.waitForTimeout(900);
-  return { q, appels };
+  return { q, appels, demandes };
 }
 
-// ── 1 · sans clé ────────────────────────────────────────────────────
+// ── 1 · le carnet s'ouvre tout seul ────────────────────────────────
 
 {
-  const { q, appels } = await monter();
-  const vu = await q.evaluate(() => ({
-    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-    champVisible: document.querySelector("[data-wm-carnet-formulaire] input")?.offsetParent !== null,
-    pokedexCache: document.querySelector("[data-wm-carnet-page='mon-pokedex']")?.hidden ?? null,
-  }));
-  dire(
-    "sans clé, la page la demande et n'appelle RIEN",
-    vu.etat === "cle" && vu.champVisible === true && appels.length === 0,
-    JSON.stringify({ ...vu, appels: appels.length }),
-  );
-  await q.close();
-}
-
-// ── 1 bis · ouvrir son carnet en postant ────────────────────────────
-
-{
-  //  SANS SUJET CONFIGURÉ, PAS DE CODE À POSTER. `data/carnet.json`
-  //  porte `null` dans le dépôt : un code sans dire où le poster
-  //  ferait perdre dix minutes à chaque joueur.
-  const { q } = await monter({ sujetDOuverture: "aucun" });
-  const vu = await q.evaluate(() => ({
-    cache: document.querySelector("[data-wm-carnet-ouvrir]")?.hidden ?? null,
-    cleQuandMeme: document.querySelector("[data-wm-carnet-formulaire] input") !== null,
-  }));
-  dire(
-    "sans sujet d'ouverture, la page ne montre pas de code à poster",
-    vu.cache === true && vu.cleQuandMeme === true,
-    JSON.stringify(vu),
-  );
-  await q.close();
-}
-
-{
-  const { q } = await monter({ sujetDOuverture: 512 });
-  const vu = await q.evaluate(() => ({
-    visible: document.querySelector("[data-wm-carnet-ouvrir]")?.hidden === false,
-    code: document.querySelector("[data-wm-carnet-empreinte]")?.textContent?.trim() ?? "",
-    lien: document.querySelector("[data-wm-carnet-poster]")?.getAttribute("href") ?? "",
-    //  LE SECRET EST GARDÉ : le joueur poste, ferme l'onglet, revient
-    //  dix minutes plus tard. Un secret tiré à chaque chargement ne
-    //  retrouverait jamais sa réclamation.
-    secret: localStorage.getItem("wm.carnet.secret"),
-  }));
-  const empreinte = (vu.code.match(/\[\[WM-CARNET:([0-9a-f]{48})\]\]/) ?? [])[1] ?? null;
-  dire(
-    "avec un sujet, la page donne le code et le lien qui pré-remplit la réponse",
-    vu.visible && empreinte !== null &&
-      /^[0-9a-f]{32}$/.test(vu.secret ?? "") &&
-      vu.lien.startsWith("/post?t=512&mode=reply&message=") &&
-      decodeURIComponent(vu.lien.split("message=")[1]) === vu.code,
-    JSON.stringify({ ...vu, empreinte }),
-  );
-  await q.close();
-}
-
-{
-  //  LE CONTRÔLE QUI COMPTE : le navigateur et PostgreSQL doivent
-  //  calculer la MÊME empreinte. Les deux moitiés marchent très bien
-  //  séparément, et leur désaccord ne se verrait qu'au premier vrai
-  //  joueur — rien ne se lierait, jamais, sans message d'erreur.
-  const { q } = await monter({ sujetDOuverture: 512 });
-  const calculee = await q.evaluate(async (secret) => {
-    const somme = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
-    return [...new Uint8Array(somme)].map((o) => o.toString(16).padStart(2, "0"))
-      .join("").slice(0, 48);
-  }, SECRET_DESSAI);
-  dire(
-    "le navigateur calcule la même empreinte que PostgreSQL",
-    calculee === EMPREINTE_DE_POSTGRES,
-    JSON.stringify({ calculee, attendue: EMPREINTE_DE_POSTGRES }),
-  );
-  await q.close();
-}
-
-{
-  //  « J'AI POSTÉ » TROP TÔT. La relève passe toutes les cinq minutes :
-  //  le message doit parler de ça, pas rendre `RECLAMATION_INCONNUE`.
-  const { q, appels } = await monter({ sujetDOuverture: 512 });
-  await q.click("[data-wm-carnet-jai-poste]");
-  await q.waitForTimeout(400);
-  const vu = await q.evaluate(() => ({
-    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
-    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-  }));
-  dire(
-    "« j'ai posté » trop tôt renvoie vers la relève, pas vers un code d'erreur",
-    /relève/.test(vu.souci) && !vu.souci.includes("RECLAMATION") && vu.etat === "cle" &&
-      appels.length === 1 && /^[0-9a-f]{32}$/.test(appels[0]?.p?.secret ?? ""),
-    JSON.stringify({ ...vu, appels: appels.length }),
-  );
-  await q.close();
-}
-
-{
-  //  LA RÉCLAMATION ABOUTIT. La clé est gardée, le dresseur reconnu
-  //  est NOMMÉ — c'est la seule parade au cas du copieur plus rapide,
-  //  que la base ne peut pas distinguer — et le carnet s'ouvre.
-  const { q } = await monter({
-    sujetDOuverture: 512,
-    reclamation: { cle: CLE, pseudo: "Eliott Vanner", forumUserId: 4 },
-  });
-  await q.click("[data-wm-carnet-jai-poste]");
-  await q.waitForTimeout(900);
+  //  LE CAS NORMAL, ET IL N'Y A PLUS DE GESTE DEDANS. « En principe, ça
+  //  devrait être automatique. Pas de sujet d'ouverture ou quoi »,
+  //  3 novembre.
+  const { q, appels, demandes } = await monter();
   const vu = await q.evaluate(() => ({
     etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
     nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
-    reconnu: document.querySelector("[data-wm-carnet-confirmer]")?.textContent?.trim() ?? "",
-    cle: localStorage.getItem("wm.carnet.cle"),
-    //  LE SECRET EST OUBLIÉ UNE FOIS SERVI : il ne vaut plus rien, la
-    //  réclamation est consommée en base.
-    secret: localStorage.getItem("wm.carnet.secret"),
+    pokedexCache: document.querySelector("[data-wm-carnet-page='mon-pokedex']")?.hidden ?? null,
   }));
   dire(
-    "la réclamation aboutie ouvre le carnet, garde la clé et nomme le dresseur reconnu",
-    vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.cle === CLE &&
-      vu.secret === null && vu.reconnu.includes("Eliott Vanner"),
+    "SANS UN GESTE, LE CARNET S'OUVRE SUR « MON JEU »",
+    vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.pokedexCache === true,
     JSON.stringify(vu),
+  );
+  //  LE NUMÉRO VIENT DE LA PAGE DU FORUM, et c'est ce qu'on veut
+  //  prouver : pas une valeur par défaut qui aurait eu de la chance.
+  dire(
+    "et le numéro envoyé est celui lu sur le forum, en un seul appel",
+    demandes.length >= 1 && appels.length === 1 && appels[0]?.p?.forumUserId === MEMBRE.id,
+    JSON.stringify({ demandes, appels }),
   );
   await q.close();
 }
 
-// ── 2 · une clé refusée ─────────────────────────────────────────────
-
 {
-  const { q, appels } = await monter({ cleGardee: CLE, refus: "CLE_INVALIDE" });
+  //  UN INVITÉ N'EST PAS UNE PANNE. Il se connecte, et c'est tout —
+  //  mais surtout on ne demande RIEN à la base pour lui : un appel
+  //  avec `-1` serait un aller-retour pour rien, et un carnet
+  //  introuvable ressemblerait à un défaut.
+  const { q, appels } = await monter({ compte: "invite" });
   const vu = await q.evaluate(() => ({
     etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
     souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
   }));
   dire(
-    "une clé refusée parle français, et la page revient au formulaire",
-    vu.etat === "cle" && vu.souci.length > 20 && !vu.souci.includes("CLE_INVALIDE") &&
+    "UN INVITÉ S'ENTEND DIRE DE SE CONNECTER, ET RIEN N'EST DEMANDÉ À LA BASE",
+    vu.etat === "dehors" && /connecte-toi/i.test(vu.souci) && appels.length === 0,
+    JSON.stringify({ ...vu, appels: appels.length }),
+  );
+  await q.close();
+}
+
+{
+  //  LE FORUM MUET NE DOIT PAS DIRE « CONNECTE-TOI ». C'est le piège de
+  //  ce mécanisme : les deux refus se ressemblent dans le code et pas
+  //  du tout pour la lectrice. Envoyer se connecter quelqu'un qui l'est
+  //  déjà, c'est lui faire chercher une faute qui n'est pas la sienne.
+  const { q, appels } = await monter({ forumMuet: true });
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "LE FORUM MUET SE DIT AUTREMENT QU'UN INVITÉ",
+    vu.etat === "dehors" && vu.souci.length > 20 && !/connecte-toi/i.test(vu.souci) &&
+      appels.length === 0,
+    JSON.stringify({ ...vu, appels: appels.length }),
+  );
+  await q.close();
+}
+
+{
+  //  CONNECTÉ, MAIS PAS ENCORE VALIDÉ. `carnet_du_compte` rend `null`
+  //  pour un compte qu'elle ne connaît pas, et la page doit le dire
+  //  sans parler de panne — et en nommant le compte, pour que la
+  //  personne voie tout de suite si elle s'est trompée de compte.
+  const { q, appels } = await monter({ reponse: null });
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "UN COMPTE SANS PARTIE S'ENTEND DIRE D'ATTENDRE SA VALIDATION",
+    vu.etat === "dehors" && /valide/i.test(vu.souci) && vu.souci.includes("Eliott Vanner") &&
       appels.length === 1,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
@@ -411,28 +340,25 @@ async function monter(
 }
 
 {
-  //  LA CLÉ N'EST PAS GARDÉE TANT QU'ELLE N'A PAS SERVI : on en colle
-  //  une fausse à la main, et le stockage doit rester vide.
-  const { q } = await monter({ refus: "CLE_INVALIDE" });
-  //  LA CLÉ DU STAFF EST REPLIÉE depuis le 2 novembre : c'est la voie
-  //  de secours, l'ouverture normale est de poster. On déplie, comme
-  //  le ferait quelqu'un à qui le staff a donné une clé.
-  await q.click(".wm-carnet__repli summary");
-  await q.fill("[data-wm-carnet-formulaire] input", "ffffffffffffffffffffffffffffffff");
-  await q.click("[data-wm-carnet-formulaire] button");
-  await q.waitForTimeout(500);
-  const gardee = await q.evaluate(() => localStorage.getItem("wm.carnet.cle"));
+  //  ET UN REFUS DE LA BASE PARLE FRANÇAIS, sans recopier le code de
+  //  PostgreSQL dans une page de jeu.
+  const { q } = await monter({ refus: "QUELQUE_CHOSE_DE_TECHNIQUE" });
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+  }));
   dire(
-    "une clé refusée n'est pas gardée dans le navigateur",
-    gardee === null,
-    JSON.stringify({ gardee }),
+    "un refus de la base parle français",
+    vu.etat === "dehors" && vu.souci.length > 20 &&
+      !vu.souci.includes("QUELQUE_CHOSE_DE_TECHNIQUE"),
+    JSON.stringify(vu),
   );
   await q.close();
 }
 
 // ── 3 · le carnet ouvert ────────────────────────────────────────────
 
-const { q: p, appels } = await monter({ cleGardee: CLE });
+const { q: p, appels } = await monter();
 
 {
   const vu = await p.evaluate(() => ({
@@ -457,10 +383,10 @@ const { q: p, appels } = await monter({ cleGardee: CLE });
   );
 
   dire(
-    "une clé gardée ouvre le carnet d'un seul appel, sur « Mon jeu »",
+    "le carnet s'ouvre d'un seul appel, sur « Mon jeu »",
     vu.etat === "pret" && vu.nom === "Eliott Vanner" && vu.actif === "Mon jeu" &&
       vu.barre.includes("1 240") && appels.length === 1 &&
-      appels[0]?.p?.cle === CLE,
+      appels[0]?.p?.forumUserId === MEMBRE.id,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
 }
@@ -680,7 +606,7 @@ const { q: p, appels } = await monter({ cleGardee: CLE });
     ...CARNET,
     dresseur: { ...CARNET.dresseur, groupe: null },
   };
-  const { q } = await monter({ cleGardee: CLE, reponse: sansNature });
+  const { q } = await monter({ reponse: sansNature });
   const vu = await q.evaluate(() => {
     const e = document.querySelector("[data-wm-carnet-embleme]");
     return {
@@ -729,13 +655,15 @@ const { q: p, appels } = await monter({ cleGardee: CLE });
   //  téléphone, et cette page en a trois qui s'y prêteraient.
   const vu = await p.evaluate(() => ({
     tableaux: document.querySelectorAll("table").length,
-    //  Et aucun bouton n'écrit : le carnet montre, il ne change pas.
-    formulaires: [...document.querySelectorAll("form")]
-      .map((f) => f.getAttribute("data-wm-carnet-formulaire") === "" ? "cle" : "AUTRE"),
+    //  ET PLUS AUCUN FORMULAIRE. Depuis le 3 novembre la page ne
+    //  demande plus rien : ni clé, ni code. Un champ qui réapparaîtrait
+    //  ici serait le signe qu'un des deux chemins est revenu.
+    formulaires: document.querySelectorAll("form").length,
+    champs: document.querySelectorAll("input, textarea").length,
   }));
   dire(
-    "aucun tableau, et le seul formulaire de la page est celui de la clé",
-    vu.tableaux === 0 && vu.formulaires.length === 1 && vu.formulaires[0] === "cle",
+    "AUCUN TABLEAU, ET PLUS RIEN À REMPLIR : le carnet montre, il ne demande pas",
+    vu.tableaux === 0 && vu.formulaires === 0 && vu.champs === 0,
     JSON.stringify(vu),
   );
 }
@@ -783,28 +711,12 @@ const { q: p, appels } = await monter({ cleGardee: CLE });
   );
 }
 
-// ── 5 · oublier sa clé ──────────────────────────────────────────────
-
-{
-  await p.click("[data-wm-carnet-oublier]");
-  await p.waitForTimeout(200);
-  const vu = await p.evaluate(() => ({
-    gardee: localStorage.getItem("wm.carnet.cle"),
-    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
-  }));
-  dire(
-    "« oublier ma clé » la retire du navigateur et redemande le formulaire",
-    vu.gardee === null && vu.etat === "cle",
-    JSON.stringify(vu),
-  );
-}
-
 await p.close();
 
 // ── 6 · sous 760 px ─────────────────────────────────────────────────
 
 {
-  const { q } = await monter({ cleGardee: CLE });
+  const { q } = await monter();
   await q.setViewportSize({ width: 390, height: 844 });
   await q.waitForTimeout(200);
   const vu = await q.evaluate(() => {
