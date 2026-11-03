@@ -1,9 +1,5 @@
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
-import {
-  corpsDeLaCarte,
-  PublierLesCartes,
-  titreDeLaCarte,
-} from "./publier-les-cartes.ts";
+import { corpsDeLaCarte, PublierLesCartes, titreDeLaCarte } from "./publier-les-cartes.ts";
 import type { JoueurSansCarte } from "./ports.ts";
 
 /*  LE GABARIT RÉDUIT À CE QUI SE REMPLACE. Les quatre morceaux que
@@ -16,10 +12,17 @@ const GABARIT = '<div class="wm-tcard" data-wm-tcard> ' +
   '<span class="wm-dresseur__numero">Dresseur nº 0042</span> ' +
   '<ul class="wm-tcard__equipe" data-wm-tcard-equipe></ul></div>';
 
+type Montage = {
+  readonly tache: PublierLesCartes;
+  readonly crees: { forumId: number; titre: string; corps: string }[];
+  readonly notes: { joueurId: string; sujetId: number }[];
+  readonly journal: { traites: number; erreurs: readonly string[] }[];
+};
+
 function decor(
   attendent: JoueurSansCarte[],
   { echoue = new Set<string>() } = {},
-) {
+): Montage {
   const crees: { forumId: number; titre: string; corps: string }[] = [];
   const notes: { joueurId: string; sujetId: number }[] = [];
   const journal: { traites: number; erreurs: readonly string[] }[] = [];
@@ -79,7 +82,7 @@ Deno.test("L'AVATAR DEVIENT UNE CASE VIDE, PAS UNE IMAGE CASSÉE", () => {
   //  brisée dans trente sujets.
   const corps = corpsDeLaCarte(GABARIT, ELIOTT);
   assert(!corps.includes("ADRESSE DE TON AVATAR"));
-  assert(!corps.includes("<img class=\"wm-dresseur__avatar\""));
+  assert(!corps.includes('<img class="wm-dresseur__avatar"'));
   assertStringIncludes(corps, "wm-dresseur__avatar--vide");
 });
 

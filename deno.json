@@ -57,7 +57,8 @@
       "vendoreur/",
       "js/wild-mystery.js",
       "js/annexes.js",
-      "js/harnais-sommaire.js"
+      "js/harnais-sommaire.js",
+      "js/carnet.js"
     ]
   },
   "lint": {
@@ -81,7 +82,8 @@
       "vendoreur/",
       "js/wild-mystery.js",
       "js/annexes.js",
-      "js/harnais-sommaire.js"
+      "js/harnais-sommaire.js",
+      "js/carnet.js"
     ]
   },
   "test": {

@@ -2,11 +2,19 @@ import { assertEquals } from "@std/assert";
 import { ReconnaitreUnCarnet } from "./reconnaitre-un-carnet.ts";
 import type { ReclamationDeCarnetLue } from "./ports.ts";
 
+type Montage = {
+  readonly tache: ReconnaitreUnCarnet;
+  readonly enregistrees: ReclamationDeCarnetLue[];
+  readonly curseurs: Map<number, number>;
+  readonly notes: { tache: string; traites: number; erreurs: readonly string[] }[];
+  readonly lues: { sujetId: number; depuis: number }[];
+};
+
 //  LE DÉPÔT SE COMPORTE COMME LA BASE : `on conflict do nothing`, donc
 //  la PREMIÈRE empreinte gagne et les suivantes rendent `false`. Un
 //  dépôt qui dirait toujours « neuve » cacherait le cas du copieur,
 //  qui est précisément celui qu'on veut tenir.
-function decor(reclamations: ReclamationDeCarnetLue[]) {
+function decor(reclamations: ReclamationDeCarnetLue[]): Montage {
   const enregistrees: ReclamationDeCarnetLue[] = [];
   const deja = new Set<string>();
   const curseurs = new Map<number, number>();

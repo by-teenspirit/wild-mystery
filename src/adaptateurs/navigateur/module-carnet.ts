@@ -44,8 +44,8 @@ import {
   jauge,
   nomAffiche,
   type ObjetDuCatalogue,
-  ONGLETS,
   ongletDeLAdresse,
+  ONGLETS,
   pokedexAffiche,
   sacRange,
 } from "../../navigateur/carnet.ts";
@@ -116,7 +116,7 @@ export function poserLaBarre(
   if (embleme instanceof HTMLElement) {
     const cle = d?.groupe ?? "";
     const connu = decor?.groupes.find((g) => g.cle === cle) ?? null;
-    if (connu === null || decor?.images == null) {
+    if (connu === null || decor === undefined || decor.images === null) {
       embleme.replaceChildren();
       embleme.hidden = true;
     } else {
@@ -140,26 +140,31 @@ export function poserLaBarre(
 function poserLEquipe(doc: Document, c: Carnet, decor: Decor): void {
   const liste = doc.querySelector("[data-wm-carnet-equipe]");
   if (liste === null) return;
-  liste.replaceChildren(...equipeAffichee(c.pokemon).map(({ pokemon }) => {
-    const li = el(doc, "li", "wm-carnet__pkmn");
-    if (pokemon === null) {
-      li.classList.add("wm-carnet__pkmn--libre");
-      li.append(el(doc, "span", "wm-carnet__sprite"), el(doc, "p", "wm-carnet__pkmn-nom", "Place libre"));
+  liste.replaceChildren(
+    ...equipeAffichee(c.pokemon).map(({ pokemon }) => {
+      const li = el(doc, "li", "wm-carnet__pkmn");
+      if (pokemon === null) {
+        li.classList.add("wm-carnet__pkmn--libre");
+        li.append(
+          el(doc, "span", "wm-carnet__sprite"),
+          el(doc, "p", "wm-carnet__pkmn-nom", "Place libre"),
+        );
+        return li;
+      }
+      if (pokemon.enPension) li.classList.add("wm-carnet__pkmn--pension");
+      li.append(
+        sprite(doc, decor.images, pokemon.especeId, "wm-carnet__sprite"),
+        el(doc, "p", "wm-carnet__pkmn-nom", nomAffiche(pokemon, decor.especes)),
+        el(
+          doc,
+          "p",
+          "wm-carnet__pkmn-niveau",
+          pokemon.enPension ? `niv. ${pokemon.niveau} · en pension` : `niv. ${pokemon.niveau}`,
+        ),
+      );
       return li;
-    }
-    if (pokemon.enPension) li.classList.add("wm-carnet__pkmn--pension");
-    li.append(
-      sprite(doc, decor.images, pokemon.especeId, "wm-carnet__sprite"),
-      el(doc, "p", "wm-carnet__pkmn-nom", nomAffiche(pokemon, decor.especes)),
-      el(
-        doc,
-        "p",
-        "wm-carnet__pkmn-niveau",
-        pokemon.enPension ? `niv. ${pokemon.niveau} · en pension` : `niv. ${pokemon.niveau}`,
-      ),
-    );
-    return li;
-  }));
+    }),
+  );
 }
 
 function poserLaPension(doc: Document, c: Carnet, decor: Decor): void {
@@ -259,7 +264,9 @@ export function poserMonJeu(doc: Document, c: Carnet, decor: Decor): void {
   if (argent !== null) argent.textContent = d === null ? "—" : chiffre(d.pokedollars);
 
   const palier = doc.querySelector("[data-wm-carnet-palier]");
-  if (palier !== null) palier.textContent = d?.palier === null || d === null ? "—" : String(d.palier);
+  if (palier !== null) {
+    palier.textContent = d?.palier === null || d === null ? "—" : String(d.palier);
+  }
 
   const compte = doc.querySelector("[data-wm-carnet-equipe-compte]");
   if (compte !== null) {
@@ -381,7 +388,12 @@ export function poserMonPokedex(doc: Document, c: Carnet, decor: Decor): void {
   const total = doc.querySelector("[data-wm-carnet-dex-total]");
   if (total !== null) total.textContent = String(compte.enTout);
 
-  for (const [nom, j] of [["attrapees", jauge(compte.attrapees, compte.enTout)], ["croisees", jauge(compte.croisees, compte.enTout)]] as const) {
+  for (
+    const [nom, j] of [["attrapees", jauge(compte.attrapees, compte.enTout)], [
+      "croisees",
+      jauge(compte.croisees, compte.enTout),
+    ]] as const
+  ) {
     const barre = doc.querySelector<HTMLElement>(`[data-wm-carnet-dex-barre="${nom}"]`);
     if (barre !== null) barre.style.width = `${(j.part * 100).toFixed(2)}%`;
   }

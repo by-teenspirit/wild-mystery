@@ -17,13 +17,16 @@ import { assert, assertEquals, assertRejects, assertThrows } from "@std/assert";
 import {
   Bocal,
   champsDeLaReponse,
+  champsDuSujet,
   ConnexionRefusee,
   enClair,
   estLaPageDeConnexion,
   FormulaireIntrouvable,
   ForumactifEnPublication,
   idDuMessagePoste,
+  idDuSujetCree,
   lireLeFormulaireDeReponse,
+  lireLeFormulaireDeSujet,
   messageDuForum,
   MotDePasseExpire,
   PublicationIncertaine,
@@ -31,9 +34,6 @@ import {
   type Reponse,
   type Requete,
   type Transport,
-  lireLeFormulaireDeSujet,
-  champsDuSujet,
-  idDuSujetCree,
 } from "./publication.ts";
 
 const COMPTE = { compte: "Maître du Jeu", motDePasse: "ceci-est-un-faux" };
@@ -726,7 +726,11 @@ Deno.test("UN FORMULAIRE DE RÉPONSE N'EST PAS UN FORMULAIRE DE CRÉATION", () =
 });
 
 Deno.test("les champs d'une création portent le titre, le forum et newtopic", () => {
-  const champs = champsDuSujet(lireLeFormulaireDeSujet(FORMULAIRE_DE_SUJET), "Carte — Eliott", "le corps");
+  const champs = champsDuSujet(
+    lireLeFormulaireDeSujet(FORMULAIRE_DE_SUJET),
+    "Carte — Eliott",
+    "le corps",
+  );
   const par = (nom: string) => champs.filter(([n]) => n === nom).map(([, v]) => v);
   assertEquals(par("subject"), ["Carte — Eliott"]);
   assertEquals(par("mode"), ["newtopic"]);
