@@ -14,8 +14,8 @@
   "_utiles": "Les sept liens du panneau latéral. `icone` est un nom de Material Symbols — la police est déjà chargée par le forum, on n'en ajoute pas. Deux adresses sont MESURÉES sur le forum ; les cinq autres sont des pages qui n'existent pas encore.",
   "utiles": [
     { "icone": "menu_book", "titre": "Mon Carnet de Bord", "adresse": "/h15-mon-carnet" },
-    { "icone": "list_alt", "titre": "Annexes", "adresse": null },
-    { "icone": "map", "titre": "Carte de Rhode", "adresse": null },
+    { "icone": "list_alt", "titre": "Annexes", "adresse": "/h1-par-ou-commencer" },
+    { "icone": "map", "titre": "Carte de Rhode", "adresse": "/h6-la-region-et-ses-zones" },
     { "icone": "storefront", "titre": "Marché de Rhode", "adresse": "/f3-le-marche-de-rhode" },
     { "icone": "cottage", "titre": "Liste des pensions", "adresse": null },
     { "icone": "science", "titre": "Laboratoire fossile", "adresse": "/f25-laboratoire" },

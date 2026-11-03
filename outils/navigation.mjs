@@ -588,29 +588,47 @@ dire(
 //  dans "mon carnet de bord (à venir)" dans le profil », 3 novembre.
 //  Les deux entrées étaient des « à venir » depuis le 6 octobre.
 //
-//  ON LIT L'ADRESSE SERVIE, pas le fichier de configuration : c'est le
-//  chemin entier — `data/navigation.json`, le domaine, le DOM — qu'on
-//  veut tenir, et une entrée peut très bien exister sans son lien.
-//  C'est d'ailleurs l'état dont on sort : la mention « à venir »
-//  s'écrivait à la place du lien.
-const carnetDuPanneau = await p.evaluate(() => {
-  const e = [...document.querySelectorAll(".wm-panneau__entree")]
-    .find((li) => /carnet/i.test(li.textContent ?? ""));
-  if (e === undefined) return null;
-  const a = e.querySelector("a.wm-panneau__lien");
-  return {
-    adresse: a === null ? null : new URL(a.href).pathname,
-    aVenir: e.classList.contains("wm-panneau__entree--a-venir"),
-    //  Le mot « à venir » doit avoir disparu AVEC le lien : le garder
-    //  à côté d'une adresse qui marche serait un mensonge affiché.
-    motAVenir: e.querySelector(".wm-panneau__a-venir") !== null,
-  };
-});
+//  ON LIT LES ADRESSES SERVIES, pas le fichier de configuration : c'est
+//  le chemin entier — `data/navigation.json`, le domaine, le DOM —
+//  qu'on veut tenir, et une entrée peut très bien exister sans son
+//  lien. C'est d'ailleurs l'état dont on sort.
+//
+//  ET C'EST LA LISTE ENTIÈRE, pas la seule entrée du jour. Trois
+//  adresses ont été posées en deux demandes ; la quatrième viendra, et
+//  une table dit du même coup ce qui mène quelque part et ce qui attend
+//  encore. Un contrôle par entrée aurait dit la même chose en sept
+//  fois, et aurait laissé passer une entrée disparue.
+const ATTENDU = [
+  ["Mon Carnet de Bord", "/h15-mon-carnet"],
+  ["Annexes", "/h1-par-ou-commencer"],
+  ["Carte de Rhode", "/h6-la-region-et-ses-zones"],
+  ["Marché de Rhode", "/f3-le-marche-de-rhode"],
+  ["Liste des pensions", null],
+  ["Laboratoire fossile", "/f25-laboratoire"],
+  ["Liste des arènes", null],
+];
+const utiles = await p.evaluate(() =>
+  [...document.querySelectorAll(".wm-panneau__entree")].map((li) => {
+    const a = li.querySelector("a.wm-panneau__lien");
+    return {
+      titre: li.querySelector(".wm-panneau__titre")?.textContent ?? "",
+      adresse: a === null ? null : new URL(a.href).pathname,
+      //  Le mot « à venir » doit suivre l'adresse : écrit à côté d'un
+      //  lien qui marche, il mentirait ; absent d'une entrée muette,
+      //  elle ne dirait plus pourquoi elle ne répond pas.
+      motAVenir: li.querySelector(".wm-panneau__a-venir") !== null,
+    };
+  })
+);
+const lusEtAttendus = utiles.length === ATTENDU.length &&
+  ATTENDU.every(([titre, ou], i) =>
+    utiles[i].titre === titre && utiles[i].adresse === ou &&
+    utiles[i].motAVenir === (ou === null)
+  );
 dire(
-  "DANS LA BARRE LATÉRALE, LE CARNET EST UN LIEN VERS SA PAGE",
-  carnetDuPanneau !== null && carnetDuPanneau.adresse === "/h15-mon-carnet" &&
-    carnetDuPanneau.aVenir === false && carnetDuPanneau.motAVenir === false,
-  JSON.stringify(carnetDuPanneau),
+  "LA BARRE LATÉRALE MÈNE OÙ ELLE DIT, ET DIT CE QUI N'EXISTE PAS ENCORE",
+  lusEtAttendus,
+  JSON.stringify(utiles),
 );
 
 //  3 bis · LE « + » EST CENTRÉ, ET LA CARTE SE LIT SUR LE PANNEAU SOMBRE
