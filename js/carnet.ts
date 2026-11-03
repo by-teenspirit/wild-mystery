@@ -54,7 +54,7 @@ import {
   racineDesDonnees,
   racineDesImages,
 } from "../src/adaptateurs/navigateur/catalogue.ts";
-import { appeler } from "../src/adaptateurs/navigateur/supabase.ts";
+import { appeler, RefusSupabase } from "../src/adaptateurs/navigateur/supabase.ts";
 import { configDepuis } from "../src/adaptateurs/navigateur/registre.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
 import {
@@ -148,7 +148,17 @@ async function ouvrirLeCarnet(): Promise<void> {
   let brut: unknown;
   try {
     brut = await appeler(config, "carnet_du_compte", { forumUserId: qui.id });
-  } catch {
+  } catch (e) {
+    //  LA RAISON PART DANS LA CONSOLE, et pas à l'écran. « Le carnet
+    //  n'a pas pu être chargé » est ce qu'il faut dire à une joueuse,
+    //  et c'est aussi ce qui a coûté un aller-retour le 3 novembre : la
+    //  migration 0026 n'était pas passée, la base répondait « cette
+    //  fonction n'existe pas », et le message ne le disait pas. Qui
+    //  ouvre les outils du navigateur doit pouvoir le lire.
+    console.error(
+      "wm/carnet : la base a refusé —",
+      e instanceof RefusSupabase ? `${e.code} (HTTP ${e.statut})` : e,
+    );
     poserLEtat(document, "dehors");
     direLeSouci(document, motDuRefus());
     return;
