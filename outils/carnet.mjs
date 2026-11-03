@@ -209,10 +209,12 @@ async function monter(
     otp = "ok",
     rafraichissement = "ok",
     script = "neuf",
+    valideeApres = false,
   } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
   const appels = [];
+  let liaisonJouee = false;
   const demandes = [];
   const jetonsVus = [];
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
@@ -271,9 +273,42 @@ async function monter(
       });
     }
 
+    //  ── POSTGREST CHOISIT LA FONCTION PAR LE NOM DE SES ARGUMENTS ────
+    //
+    //  C'est le défaut du 3 novembre au soir : mon code envoyait
+    //  `{"p":{}}` à une fonction sans argument, et PostgREST répondait
+    //  `404 PGRST202` — il cherchait une fonction qui aurait un `p`. Le
+    //  décor acceptait n'importe quel corps, donc la mesure ne voyait
+    //  rien, et la page accusait le staff d'une faute de mon côté.
+    //
+    //  Le décor refuse maintenant comme PostgREST refuse, DANS LES DEUX
+    //  SENS : un `p` de trop sur la liaison, un `p` manquant sur le
+    //  carnet. Les deux erreurs sont symétriques et toutes deux muettes
+    //  si on ne les reproduit pas.
+    const pasLaBonneSignature = (attenduP) => {
+      const corps = JSON.parse(route.request().postData() ?? "{}");
+      const aP = Object.hasOwn(corps, "p");
+      if (aP === attenduP) return null;
+      return route.fulfill({
+        status: 404,
+        contentType: "application/json",
+        body: JSON.stringify({
+          code: "PGRST202",
+          details: `Searched for the function with parameter ${aP ? "p" : "none"}`,
+        }),
+      });
+    };
+
     if (u.pathname.endsWith("/rest/v1/rpc/lier_mon_personnage")) {
-      appels.push({ ou: "lier", jeton: (entetes.authorization ?? "").replace("Bearer ", "") });
+      appels.push({
+        ou: "lier",
+        jeton: (entetes.authorization ?? "").replace("Bearer ", ""),
+        corps: JSON.parse(route.request().postData() ?? "{}"),
+      });
+      const mauvais = pasLaBonneSignature(false);
+      if (mauvais) return mauvais;
       if (refus === "RIEN_A_LIER") return route.fulfill({ status: 400, body: "{}" });
+      liaisonJouee = true;
       return route.fulfill({
         contentType: "application/json",
         body: JSON.stringify({ lies: 1, personnages: [] }),
@@ -288,7 +323,15 @@ async function monter(
         jeton,
         corps: JSON.parse(route.request().postData() ?? "{}"),
       });
+      const mauvais = pasLaBonneSignature(true);
+      if (mauvais) return mauvais;
       if (refus === "panne") return route.fulfill({ status: 500, body: "{}" });
+      //  LE STAFF A POSÉ L'ADRESSE APRÈS LA LIAISON. Tant que la liaison
+      //  n'a pas été rejouée dans cette visite, la base ne connaît
+      //  personne derrière cette connexion.
+      if (valideeApres && !liaisonJouee) {
+        return route.fulfill({ contentType: "application/json", body: "null" });
+      }
       return route.fulfill({
         contentType: "application/json",
         body: JSON.stringify(reponse),
@@ -558,6 +601,69 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
     vu.lierOuvert && /plus valable/i.test(vu.dit) && !vu.adresse.includes("error") &&
       appels.length === 0,
     JSON.stringify({ ...vu, appels: appels.length }),
+  );
+  await q.close();
+}
+
+{
+  //  ── LA LIAISON S'APPELLE SANS ARGUMENT ────────────────────────────
+  //
+  //  PostgREST choisit la fonction par le nom de ses arguments : un
+  //  `{"p":{}}` envoyé à `lier_mon_personnage()` ne l'appelle pas, il
+  //  fait chercher une fonction qui aurait un `p`. Le 3 novembre au
+  //  soir, cet appel-là n'a jamais atteint la base, et la page a
+  //  pourtant annoncé « aucun personnage rattaché à cette adresse » —
+  //  un verdict qu'elle n'avait aucun moyen de rendre.
+  const { q, appels } = await monter({ laissez: null, fragment: RETOUR_OK });
+  const lie = appels.find((a) => a.ou === "lier");
+  const carnet = appels.find((a) => a.ou === "carnet");
+  const etat = await q.evaluate(() =>
+    document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null
+  );
+  dire(
+    "LA LIAISON N'ENVOIE AUCUN ARGUMENT, LE CARNET EN ENVOIE UN",
+    lie !== undefined && Object.keys(lie.corps).length === 0 &&
+      carnet !== undefined && carnet.corps.p?.forumUserId === 42 && etat === "pret",
+    JSON.stringify({ lier: lie?.corps, carnet: carnet?.corps, etat }),
+  );
+  await q.close();
+}
+
+{
+  //  ── LE STAFF VALIDE APRÈS LA LIAISON, ET UN RECHARGEMENT SUFFIT ───
+  //
+  //  C'est l'ordre naturel : on se lie en arrivant, on est validée
+  //  ensuite. La liaison ne tournait qu'au retour du mail, donc cette
+  //  personne restait sur « pas encore validée » à chaque visite, pour
+  //  toujours, sans savoir qu'il fallait redemander un lien.
+  //
+  //  Ici : session valable, PAS de retour de mail, et la base ne
+  //  connaît personne tant que la liaison n'a pas été rejouée.
+  const { q, appels } = await monter({ valideeApres: true });
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector(".wm-carnet")?.getAttribute("data-wm-etat") ?? null,
+    nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "VALIDÉE APRÈS S'ÊTRE LIÉE, LE CARNET S'OUVRE QUAND MÊME",
+    vu.etat === "pret" && vu.nom === "Eliott Vanner" &&
+      appels.filter((a) => a.ou === "lier").length === 1 &&
+      appels.filter((a) => a.ou === "carnet").length === 2,
+    JSON.stringify({ ...vu, appels: appels.map((a) => a.ou) }),
+  );
+  await q.close();
+}
+
+{
+  //  ET ON NE REJOUE PAS LA LIAISON POUR RIEN. Une visite ordinaire qui
+  //  trouve son carnet ne fait qu'un appel : la seconde chance est un
+  //  rattrapage, pas une habitude.
+  const { q, appels } = await monter();
+  dire(
+    "un carnet trouvé du premier coup ne rejoue pas la liaison",
+    appels.filter((a) => a.ou === "lier").length === 0 &&
+      appels.filter((a) => a.ou === "carnet").length === 1,
+    JSON.stringify(appels.map((a) => a.ou)),
   );
   await q.close();
 }

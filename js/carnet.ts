@@ -135,6 +135,30 @@ function motDuRefus(): string {
   return "Le carnet n'a pas pu être chargé. Réessaie dans un moment.";
 }
 
+/** Le carnet de la session : la panne, l'absence, ou le carnet.
+ *
+ *  TROIS RÉPONSES QU'IL FAUT TENIR SÉPARÉES. « La base n'a pas
+ *  répondu » et « la base a répondu : personne » appellent deux phrases
+ *  opposées — l'une dit de réessayer, l'autre d'aller voir le staff — et
+ *  les confondre envoie la personne au mauvais endroit. */
+async function lireLeCarnet(
+  config: ConfigSupabase,
+  jeton: string,
+  forumUserId: number,
+): Promise<Carnet | null | "panne"> {
+  const reponse = await appelerAvecLeJeton(config, jeton, "carnet_de_la_session", {
+    forumUserId,
+  });
+  if (!reponse.ok) {
+    console.error("wm/carnet : la base a refusé —", reponse.status);
+    return "panne";
+  }
+  const brut = await reponse.json().catch(() => "panne" as const);
+  if (brut === null) return null;
+  if (typeof brut !== "object") return "panne";
+  return brut as Carnet;
+}
+
 function direLaLiaison(mot: string): void {
   const e = document.querySelector("[data-wm-carnet-lier-dit]");
   if (e !== null) e.textContent = mot;
@@ -260,40 +284,58 @@ async function ouvrirLeCarnet(): Promise<void> {
   //  AU RETOUR DU MAIL, ON LIE AVANT DE LIRE. La fonction attache tous
   //  les personnages de la boîte d'un coup, et elle ne prend aucun
   //  argument : l'adresse vient du jeton (migration 0031).
+  //  AUCUN ARGUMENT, ET C'EST LA FONCTION QUI LE DIT : l'adresse vient
+  //  du jeton depuis la `0031`. Passer `{ p: … }` ferait chercher à
+  //  PostgREST une fonction qui n'existe plus.
   if (retour === "lie") {
-    const r = await appelerAvecLeJeton(config, laissez.jeton, "lier_mon_personnage", {});
+    const r = await appelerAvecLeJeton(config, laissez.jeton, "lier_mon_personnage");
     if (!r.ok) {
+      //  UN APPEL QUI ÉCHOUE N'EST PAS UN VERDICT SUR LES PERSONNAGES.
+      //  Cette branche disait « aucun personnage n'est rattaché à cette
+      //  adresse » — une phrase que la page n'avait aucun moyen de
+      //  savoir vraie, puisque la base ne l'avait même pas entendue.
+      //  Elle a envoyé chercher le staff pour un défaut de mon code.
       console.error("wm/carnet : la liaison a échoué —", r.status);
       poserLEtat(document, "dehors");
-      montrerLaLiaison(true);
-      direLaLiaison(
-        "La connexion a marché, mais aucun personnage n'est rattaché à cette " +
-          "adresse. Vérifie auprès du staff l'adresse qu'il a notée.",
+      direLeSouci(
+        document,
+        `La connexion a marché, mais le jeu n'a pas pu enregistrer la liaison. ` +
+          `Préviens le staff. (code ${r.status})`,
       );
-      brancherLaLiaison(config);
       return;
     }
   }
 
-  const reponse = await appelerAvecLeJeton(
-    config,
-    laissez.jeton,
-    "carnet_de_la_session",
-    { forumUserId: compte.id },
-  );
-  if (!reponse.ok) {
-    console.error("wm/carnet : la base a refusé —", reponse.status);
+  //  ── LE CARNET, ET UNE SECONDE CHANCE ───────────────────────────────
+  //
+  //  `null` veut dire « aucun personnage derrière cette connexion », et
+  //  il y a un cas où ce n'est pas définitif : LE STAFF POSE L'ADRESSE
+  //  APRÈS QUE LA PERSONNE S'EST LIÉE. C'est l'ordre naturel, même —
+  //  on se lie en arrivant, on est validée après.
+  //
+  //  La liaison ne tournait qu'au retour du mail. Donc cette personne
+  //  restait bloquée sur « pas encore validée » à chaque visite, pour
+  //  toujours, sans savoir qu'il fallait redemander un lien pour que ça
+  //  se débloque. On rejoue la liaison — elle est sans dommage, son
+  //  propre commentaire SQL le dit — et on relit. Un rechargement
+  //  suffit maintenant.
+  let lu = await lireLeCarnet(config, laissez.jeton, compte.id);
+  if (lu === null && retour !== "lie") {
+    const r = await appelerAvecLeJeton(config, laissez.jeton, "lier_mon_personnage");
+    if (r.ok) lu = await lireLeCarnet(config, laissez.jeton, compte.id);
+  }
+
+  if (lu === "panne") {
     poserLEtat(document, "dehors");
     direLeSouci(document, motDuRefus());
     return;
   }
-  const brut = await reponse.json().catch(() => null);
 
-  //  `null` : CE PERSONNAGE N'EST PAS DERRIÈRE CETTE CONNEXION. Soit il
-  //  n'est pas encore validé, soit il relève d'une autre boîte — le cas
-  //  de quelqu'un qui a deux adresses. On propose la liaison, qui est
-  //  le geste qui répare les deux.
-  if (brut === null) {
+  //  `null` APRÈS LA SECONDE CHANCE : soit le personnage n'est pas
+  //  validé, soit il relève d'une autre boîte — le cas de quelqu'un qui
+  //  a deux adresses. On propose la liaison, qui est le geste qui
+  //  répare les deux.
+  if (lu === null) {
     poserLEtat(document, "dehors");
     montrerLaLiaison(true);
     direLaLiaison(
@@ -305,18 +347,12 @@ async function ouvrirLeCarnet(): Promise<void> {
     return;
   }
 
-  if (typeof brut !== "object") {
-    poserLEtat(document, "dehors");
-    direLeSouci(document, motDuRefus());
-    return;
-  }
-
   //  LE DESSIN A SON PROPRE FILET, et il est séparé exprès. Une donnée
   //  inattendue — une espèce absente du catalogue, un objet retiré —
   //  plantait au même endroit qu'une panne de réseau, et la page disait
   //  le même mot. On cherchait alors du côté de la base, qui avait très
   //  bien répondu.
-  const carnet = brut as Carnet;
+  const carnet = lu;
   try {
     const decor = await decorDuCarnet();
     poserLaBarre(document, carnet, "mon-jeu", decor);

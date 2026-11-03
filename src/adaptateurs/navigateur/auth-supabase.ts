@@ -137,12 +137,25 @@ export async function rafraichir(
  *  `Authorization` : la clé publiable y devient le jeton du joueur,
  *  donc PostgreSQL voit `authenticated` et `auth_courant()` rend son
  *  identifiant. `apikey` reste la clé publiable — Supabase exige les
- *  deux, et c'est ce qui route la requête vers le bon projet. */
+ *  deux, et c'est ce qui route la requête vers le bon projet.
+ *
+ *  ── `p` EST FACULTATIF, ET CE N'EST PAS UN CONFORT ──────────────────
+ *
+ *  PostgREST choisit la fonction PAR LE NOM DE SES ARGUMENTS. Un corps
+ *  `{"p":{}}` envoyé à une fonction sans argument ne l'appelle pas avec
+ *  un `p` vide : il cherche une fonction qui aurait un paramètre `p`,
+ *  n'en trouve aucune, et répond `404 PGRST202`.
+ *
+ *  C'est ce qui est arrivé à `lier_mon_personnage()`, qui ne prend plus
+ *  d'argument depuis la `0031` : l'appel n'atteignait jamais la base, et
+ *  la page annonçait « aucun personnage rattaché » — un verdict qu'elle
+ *  n'avait aucun moyen de rendre. Omettre `p` envoie `{}`, qui est ce
+ *  que PostgREST attend d'une fonction sans argument. */
 export async function appelerAvecLeJeton(
   acces: ConfigSupabase,
   jeton: string,
   fonction: string,
-  p: Record<string, unknown>,
+  p?: Record<string, unknown>,
 ): Promise<Response> {
   return await fetch(`${acces.url}/rest/v1/rpc/${fonction}`, {
     method: "POST",
@@ -153,6 +166,6 @@ export async function appelerAvecLeJeton(
       "Content-Type": "application/json",
       "Accept": "application/json",
     },
-    body: JSON.stringify({ p }),
+    body: JSON.stringify(p === undefined ? {} : { p }),
   });
 }
