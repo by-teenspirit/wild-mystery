@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(200);
+select plan(215);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1257,6 +1257,143 @@ select throws_ok(
 
 select ok(not has_table_privilege('anon', 'fiche_champ', 'select'),
   'et un visiteur non connecté ne lit aucune fiche');
+
+-- ════════════════════════════════════════════════════════════════════
+--  LA FICHE PUBLIÉE (0034)
+--
+--  « Le carnet écrit la fiche, le joueur la publie. » La fabrique vit
+--  dans la base exprès : si c'était la page qui triait sur `affiche`,
+--  un défaut d'une ligne publierait ce que quelqu'un avait éteint.
+-- ════════════════════════════════════════════════════════════════════
+
+insert into joueur (id, forum_user_id, pseudo, auth_id, courriel) values
+  ('bbbb0034-0000-0000-0000-00000000000a', 34001, 'Ombre',
+   'aaaa0034-0000-0000-0000-00000000000a', 'ombre@exemple.fr');
+
+insert into fiche_champ (joueur_id, champ, valeur, affiche) values
+  ('bbbb0034-0000-0000-0000-00000000000a', 'Âge', '24 ans', true),
+  ('bbbb0034-0000-0000-0000-00000000000a', 'Orientation', 'lesbienne', false);
+
+insert into fiche_description (joueur_id, texte, affiche) values
+  ('bbbb0034-0000-0000-0000-00000000000a',
+   'Elle a écrit [color=red]rouge[/color] sans fermer [b', true);
+
+insert into fiche_moment (joueur_id, quand, titre, texte, auto, affiche) values
+  ('bbbb0034-0000-0000-0000-00000000000a', '2026-06-12', 'Arrivée',
+   'Descendue du bateau.', true, true),
+  ('bbbb0034-0000-0000-0000-00000000000a', '2026-07-01', 'Ce qu''elle tait',
+   'Rien de public.', false, false);
+
+insert into lien (joueur_id, cible_forum_id, cible_pseudo, court, ordre) values
+  ('bbbb0034-0000-0000-0000-00000000000a', 77, 'Pyrite', 'la dette', 0);
+
+--  ── 1 · CE QUI EST ÉTEINT NE PART PAS ─────────────────────────────
+--
+--  C'est la promesse entière de l'onglet « Mon histoire ». Elle se
+--  mesure ici, sur le texte qui partirait vraiment.
+select ok(
+  fiche_en_bbcode('bbbb0034-0000-0000-0000-00000000000a') like '%24 ans%',
+  'LA FICHE PORTE CE QUI EST ALLUMÉ');
+
+select ok(
+  fiche_en_bbcode('bbbb0034-0000-0000-0000-00000000000a') not like '%lesbienne%',
+  'ET PAS CE QUI EST ÉTEINT — un champ masqué ne sort pas de la base');
+
+select ok(
+  fiche_en_bbcode('bbbb0034-0000-0000-0000-00000000000a') not like '%Rien de public%',
+  'le moment masqué non plus, même écrit par le serveur');
+
+select ok(
+  fiche_en_bbcode('bbbb0034-0000-0000-0000-00000000000a') like '%Pyrite%',
+  'et les liens y sont, dans leur ordre');
+
+--  ── 2 · UNE BALISE DU JOUEUR NE S'OUVRE PAS ───────────────────────
+--
+--  « Une balise mal fermée dans une description casserait tout le
+--  message publié, et il faudrait le réparer à la main. »
+select ok(
+  fiche_en_bbcode('bbbb0034-0000-0000-0000-00000000000a') not like '%[color=red]%',
+  'UNE BALISE ÉCRITE PAR LE JOUEUR NE S''OUVRE PAS DANS LA FICHE');
+
+select ok(
+  fiche_en_bbcode('bbbb0034-0000-0000-0000-00000000000a') like '%&#91;color=red&#93;%',
+  'elle se lit telle qu''elle a été écrite, en entités');
+
+select ok(
+  fiche_en_bbcode('bbbb0034-0000-0000-0000-00000000000a') like '%[center]%',
+  'mais les balises de la fabrique, elles, sont bien des balises');
+
+--  ── 3 · L'EMPREINTE DIT QUE ÇA A CHANGÉ ───────────────────────────
+create temporary table publication_vu (quoi text primary key, valeur text);
+grant insert on publication_vu to authenticated;
+
+do $$
+declare v_a jsonb; v_b jsonb;
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0034-0000-0000-0000-00000000000a","email":"ombre@exemple.fr"}', true);
+
+  v_a := fiche_a_publier('{"forumUserId": 34001}');
+  insert into publication_vu values
+    ('publie_avant', coalesce((v_a ->> 'publieLe'), '(jamais)')),
+    ('a_change_avant', (v_a ->> 'aChange'));
+
+  perform fiche_est_publiee('{"forumUserId": 34001, "sujetId": 1500, "messageId": 9001}');
+  v_b := fiche_a_publier('{"forumUserId": 34001}');
+  insert into publication_vu values
+    ('a_change_apres', (v_b ->> 'aChange')),
+    ('sujet', (v_b ->> 'sujetId'));
+
+  reset role;
+end $$;
+
+--  Le texte change : on allume ce qui était éteint.
+update fiche_champ set affiche = true
+ where joueur_id = 'bbbb0034-0000-0000-0000-00000000000a' and champ = 'Orientation';
+
+do $$
+declare v jsonb;
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0034-0000-0000-0000-00000000000a","email":"ombre@exemple.fr"}', true);
+  v := fiche_a_publier('{"forumUserId": 34001}');
+  insert into publication_vu values ('a_change_apres_retouche', (v ->> 'aChange'));
+  reset role;
+end $$;
+
+select is((select valeur from publication_vu where quoi = 'publie_avant'), '(jamais)',
+  'une fiche jamais publiée n''a pas de date');
+
+select is((select valeur from publication_vu where quoi = 'a_change_avant'), 'false',
+  'et elle ne se dit pas « modifiée »');
+
+select is((select valeur from publication_vu where quoi = 'a_change_apres'), 'false',
+  'JUSTE APRÈS LA PUBLICATION, RIEN N''A CHANGÉ');
+
+select is((select valeur from publication_vu where quoi = 'sujet'), '1500',
+  'et le sujet où elle est partie est retenu');
+
+select is((select valeur from publication_vu where quoi = 'a_change_apres_retouche'), 'true',
+  'ALLUMER UN CHAMP REND LA FICHE DIFFÉRENTE DE CELLE QUI EST PUBLIÉE');
+
+--  ── 4 · ON NE DÉCLARE PAS « À JOUR » CE QUI NE L'EST PAS ──────────
+--
+--  L'empreinte est recalculée dans `fiche_est_publiee`, jamais reçue de
+--  la page : sinon n'importe qui figerait une fiche périmée, et le
+--  carnet cesserait de proposer la mise à jour.
+select ok(
+  (select count(*)::int from pg_policies
+    where tablename = 'fiche' and cmd in ('INSERT', 'UPDATE')) = 0,
+  'AUCUNE POLITIQUE N''OUVRE LA TABLE `fiche` À L''ÉCRITURE DIRECTE');
+
+select ok(not has_table_privilege('anon', 'lien', 'select'),
+  'et un visiteur non connecté ne lit pas les liens');
+
+--  ── 5 · LA FABRIQUE N'EST PAS UNE PORTE ───────────────────────────
+select ok(not has_function_privilege('anon', 'fiche_en_bbcode(uuid)', 'execute'),
+  'LA FABRIQUE N''EST PAS OUVERTE À `anon` : elle prend un joueur en argument');
 
 select * from finish();
 rollback;
