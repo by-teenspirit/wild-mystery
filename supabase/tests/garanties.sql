@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(188);
+select plan(200);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1111,6 +1111,152 @@ select is(purger_les_brouillons(), 1,
 select is((select count(*)::int from brouillon), 2,
   'les deux autres sont intacts');
 
+
+-- ════════════════════════════════════════════════════════════════════
+--  LA FICHE DU PERSONNAGE (0033)
+--
+--  « Chaque champ a son interrupteur, et rien ne fuit par défaut. »
+--  Trois règles que la base tient elle-même, donc trois règles qui se
+--  mesurent ici plutôt que de se répéter dans l'interface.
+-- ════════════════════════════════════════════════════════════════════
+
+insert into joueur (id, forum_user_id, pseudo, auth_id, courriel) values
+  ('bbbb0033-0000-0000-0000-00000000000a', 33001, 'Sylve',
+   'aaaa0033-0000-0000-0000-00000000000a', 'sylve@exemple.fr');
+
+--  ── 1 · UN CHAMP NEUF NAÎT MASQUÉ ─────────────────────────────────
+--
+--  « On montre sur décision, jamais par oubli. » Ce n'est pas une
+--  consigne d'interface : c'est la valeur par défaut, et elle tient
+--  même quand la ligne entre par un autre chemin que la page.
+insert into fiche_champ (joueur_id, champ, valeur)
+  values ('bbbb0033-0000-0000-0000-00000000000a', 'Âge', '19 ans');
+insert into fiche_description (joueur_id, texte)
+  values ('bbbb0033-0000-0000-0000-00000000000a', 'Elle parle peu.');
+insert into fiche_moment (joueur_id, quand, titre)
+  values ('bbbb0033-0000-0000-0000-00000000000a', '2026-03-01', 'Arrivée à Rhode');
+
+select is(
+  (select bool_or(affiche) from fiche_champ
+    where joueur_id = 'bbbb0033-0000-0000-0000-00000000000a'),
+  false,
+  'UN CHAMP NEUF NAÎT MASQUÉ, sans qu''on ait rien demandé');
+
+select is(
+  (select affiche from fiche_description
+    where joueur_id = 'bbbb0033-0000-0000-0000-00000000000a'),
+  false,
+  'la description aussi');
+
+select is(
+  (select carte_affiche from fiche_description
+    where joueur_id = 'bbbb0033-0000-0000-0000-00000000000a'),
+  false,
+  'et la trainer card, dont l''interrupteur vaut pour tout le bloc');
+
+--  ── 2 · UN MOMENT DU SERVEUR SE MASQUE, IL NE SE RÉÉCRIT PAS ──────
+insert into fiche_moment (joueur_id, quand, titre, texte, auto, affiche) values
+  ('bbbb0033-0000-0000-0000-00000000000a', '2026-04-02',
+   'Premier badge', 'Remporté à Aubelune', true, true);
+
+update fiche_moment
+   set titre = 'Je me suis donné dix badges',
+       texte = 'et la Ligue avec',
+       quand = '2020-01-01',
+       affiche = false
+ where auto;
+
+select results_eq(
+  $$select titre, texte, quand, affiche from fiche_moment where auto$$,
+  $$values ('Premier badge', 'Remporté à Aubelune', '2026-04-02'::date, false)$$,
+  'UN MOMENT DU SERVEUR : SEUL L''INTERRUPTEUR BOUGE — le titre, le texte et la date reviennent');
+
+--  ── 3 · ON NE S'ÉCRIT PAS UN MOMENT DU SERVEUR ────────────────────
+--
+--  Sans cette politique, n'importe qui se fabriquerait un « a remporté
+--  le badge de Rhode » que le jeu n'a jamais écrit.
+create temporary table fiche_vu (quoi text primary key, valeur text);
+grant insert on fiche_vu to authenticated;
+
+do $$
+declare v_refus text := 'passé';
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0033-0000-0000-0000-00000000000a","email":"sylve@exemple.fr"}', true);
+
+  begin
+    insert into fiche_moment (joueur_id, quand, titre, auto) values
+      ('bbbb0033-0000-0000-0000-00000000000a', '2026-05-05', 'Champion de Rhode', true);
+  exception when insufficient_privilege or check_violation then
+    v_refus := 'refusé';
+  end;
+  insert into fiche_vu values ('auto_insere', v_refus);
+
+  --  Et effacer un moment du serveur ne marche pas non plus : la note
+  --  dit « masquer », pas « supprimer ».
+  delete from fiche_moment where auto;
+  insert into fiche_vu values ('auto_restants',
+    (select count(*)::text from fiche_moment where auto));
+
+  --  Le joueur voit bien TOUTES ses lignes, masquées comprises : il lui
+  --  faut ses propres interrupteurs. C'est la FABRIQUE de la fiche qui
+  --  filtrera sur `affiche`, pas cette lecture-ci.
+  insert into fiche_vu values ('champs_vus',
+    (select count(*)::text from fiche_champ));
+
+  reset role;
+end $$;
+
+select is((select valeur from fiche_vu where quoi = 'auto_insere'), 'refusé',
+  'S''ÉCRIRE UN MOMENT DU SERVEUR EST REFUSÉ');
+
+select is((select valeur from fiche_vu where quoi = 'auto_restants'), '1',
+  'et l''effacer ne marche pas davantage : on masque, on ne supprime pas');
+
+select is((select valeur from fiche_vu where quoi = 'champs_vus'), '1',
+  'LE JOUEUR VOIT SES LIGNES MASQUÉES : ce sont ses interrupteurs');
+
+--  ── 4 · CE QUI NE RENTRE PAS DANS LA BASE ─────────────────────────
+select throws_ok(
+  $$insert into fiche_description (joueur_id, image_lien)
+      values ('bbbb0033-0000-0000-0000-00000000000a', 'javascript:alert(1)')$$,
+  '23514',
+  null,
+  'UNE ADRESSE D''IMAGE QUI N''EST PAS `https` EST REFUSÉE À L''ENTRÉE');
+
+select lives_ok(
+  $$update fiche_description set image_lien = 'https://exemple.test/a.gif'
+     where joueur_id = 'bbbb0033-0000-0000-0000-00000000000a'$$,
+  'et une adresse https passe');
+
+select throws_ok(
+  $$insert into fiche_champ (joueur_id, champ)
+      values ('bbbb0033-0000-0000-0000-00000000000a', '<b>Âge')$$,
+  '23514',
+  null,
+  'un intitulé qui ressemble à une balise est refusé');
+
+--  ── 5 · LE VOLUME EST BORNÉ ───────────────────────────────────────
+--
+--  Pas de la méfiance : une touche restée enfoncée dans un script, et
+--  la table porte dix mille lignes qu'on ira nettoyer à la main.
+do $$
+begin
+  for i in 1..12 loop
+    insert into fiche_trait (joueur_id, mot) values
+      ('bbbb0033-0000-0000-0000-00000000000a', 'mot' || i);
+  end loop;
+end $$;
+
+select throws_ok(
+  $$insert into fiche_trait (joueur_id, mot) values
+      ('bbbb0033-0000-0000-0000-00000000000a', 'le treizième')$$,
+  'TROP_DE_LIGNES',
+  'LES TRAITS SONT BORNÉS À DOUZE');
+
+select ok(not has_table_privilege('anon', 'fiche_champ', 'select'),
+  'et un visiteur non connecté ne lit aucune fiche');
 
 select * from finish();
 rollback;
