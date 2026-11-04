@@ -443,15 +443,133 @@
         </div>
       </section>
 
-      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mon-histoire" hidden>
+      <!-- ══ MON HISTOIRE ═════════════════════════════════════════════
+
+           « Chaque champ a son interrupteur, et rien ne fuit par
+           défaut. » L'interrupteur n'est pas du CSS : il écrit
+           `affiche` dans la base, et c'est la fabrique de la fiche qui
+           ne lira que les lignes vraies. Ici le joueur voit TOUT, y
+           compris ce qu'il masque — ce sont ses propres interrupteurs.
+           ════════════════════════════════════════════════════════════ -->
+      <section class="wm-carnet__onglet-page wm-histoire"
+               data-wm-carnet-page="mon-histoire" hidden>
         <header class="wm-carnet__entete">
           <p class="wm-carnet__surtitre">Le carnet de bord</p>
           <h1 class="wm-carnet__titre">Mon <b>histoire</b></h1>
           <p class="wm-carnet__chapo">
-            Ta fiche de personnage, celle qui fabrique ta fiche de liens. Elle
-            arrive bientôt.
+            Qui est ton personnage, et ce que tu veux bien en dire. Tout ce qui
+            est marqué « affiché » part dans la fiche de liens ; le reste ne
+            sort jamais du carnet.
           </p>
         </header>
+
+        <!-- ── l'identité ─────────────────────────────────────────── -->
+        <div class="wm-carnet__bloc wm-histoire__identite">
+          <div class="wm-histoire__image-cote">
+            <p class="wm-histoire__etiquette">Ton image</p>
+            <img class="wm-histoire__image" data-wm-histoire-image alt="" src="" hidden>
+            <p class="wm-histoire__image-vide" data-wm-histoire-image-vide>
+              Pas encore d'image.
+            </p>
+            <div class="wm-histoire__modes" role="group" aria-label="Quelle image">
+              <button type="button" class="wm-histoire__mode"
+                      data-wm-histoire-mode="avatar" aria-pressed="false">
+                Mon avatar
+              </button>
+              <button type="button" class="wm-histoire__mode"
+                      data-wm-histoire-mode="lien" aria-pressed="false">
+                Un gif
+              </button>
+            </div>
+            <p class="wm-histoire__aide" data-wm-histoire-aide-image>
+              L'avatar suit ton profil : si tu le changes là-bas, il change ici.
+            </p>
+            <label class="wm-ecrire__invisible" for="wm-histoire-lien">
+              Adresse du gif
+            </label>
+            <input class="wm-histoire__lien" id="wm-histoire-lien" type="url"
+                   data-wm-histoire-lien placeholder="https://…" hidden>
+          </div>
+
+          <div class="wm-histoire__identite-corps">
+            <h2 class="wm-histoire__nom" data-wm-histoire-nom></h2>
+            <p class="wm-histoire__aide">
+              Ton pseudo sur le forum. Pour le changer, c'est au staff qu'il
+              faut demander.
+            </p>
+
+            <div class="wm-histoire__presentation" data-wm-histoire-presentation>
+              <p class="wm-histoire__etiquette">La fiche de présentation</p>
+              <p class="wm-histoire__presentation-dit"
+                 data-wm-histoire-presentation-dit></p>
+            </div>
+
+            <p class="wm-histoire__etiquette">Ce que tu affiches</p>
+            <ul class="wm-histoire__champs" data-wm-histoire-champs></ul>
+            <button type="button" class="wm-carnet__bouton"
+                    data-wm-histoire-ajouter-champ>
+              Ajouter un champ
+            </button>
+          </div>
+        </div>
+
+        <!-- ── la description et les traits ───────────────────────── -->
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+            <h2 class="wm-carnet__bloc-titre">Ta description</h2>
+            <span class="wm-histoire__bascule-place"
+                  data-wm-histoire-description-bascule></span>
+          </div>
+          <p class="wm-carnet__bloc-dit">
+            Le texte qui ouvre la fiche. Personne ne le lira en entier, alors
+            commence par le meilleur.
+          </p>
+          <label class="wm-ecrire__invisible" for="wm-histoire-texte">
+            Ta description
+          </label>
+          <textarea class="wm-histoire__texte" id="wm-histoire-texte"
+                    data-wm-histoire-texte rows="8"
+                    placeholder="Qui est-elle, en quelques lignes."></textarea>
+
+          <p class="wm-histoire__etiquette">Mes traits</p>
+          <ul class="wm-histoire__traits" data-wm-histoire-traits></ul>
+          <button type="button" class="wm-carnet__bouton"
+                  data-wm-histoire-ajouter-trait>
+            + un trait
+          </button>
+        </div>
+
+        <!-- ── la trainer card : un seul interrupteur ──────────────── -->
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+            <h2 class="wm-carnet__bloc-titre">Ta trainer card</h2>
+            <span class="wm-histoire__bascule-place"
+                  data-wm-histoire-carte-bascule></span>
+          </div>
+          <p class="wm-carnet__bloc-dit">
+            Ça, c'est le jeu qui la remplit. Toi, tu choisis seulement de la
+            montrer ou non.
+          </p>
+          <ul class="wm-histoire__carte" data-wm-histoire-carte></ul>
+        </div>
+
+        <!-- ── la chronologie ─────────────────────────────────────── -->
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+            <h2 class="wm-carnet__bloc-titre" data-wm-histoire-depuis>
+              Ta chronologie
+            </h2>
+            <button type="button" class="wm-carnet__bouton"
+                    data-wm-histoire-ajouter-moment>
+              Ajouter un moment
+            </button>
+          </div>
+          <p class="wm-carnet__bloc-dit">
+            Les moments à point plein viennent du jeu : tu peux les masquer,
+            pas les réécrire. Les autres, tu les as écrits.
+          </p>
+          <ol class="wm-histoire__moments" data-wm-histoire-moments></ol>
+        </div>
       </section>
 
       <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-liens" hidden>
@@ -504,7 +622,7 @@
       c'est là qu'il annonce son numéro, avant le moindre `fetch`.  -->
 <script>
   (function () {
-    var attendu = 2;
+    var attendu = 3;
     var vu = window.wmCarnetVersion;
     if (vu === attendu) return;
 

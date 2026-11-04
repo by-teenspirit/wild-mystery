@@ -212,6 +212,7 @@ async function monter(
     valideeApres = false,
     brouillons = [],
     ecriture = "ok",
+    fiche = {},
   } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
@@ -316,6 +317,38 @@ async function monter(
         contentType: "application/json",
         body: JSON.stringify({ lies: 1, personnages: [] }),
       });
+    }
+
+    //  ── LES QUATRE TABLES DE LA FICHE ────────────────────────────
+    //
+    //  PostgREST, pas une fonction : c'est la RLS qui filtre. Le décor
+    //  garde les lignes pour que les interrupteurs se mesurent sur ce
+    //  qui est VRAIMENT parti — « affiché » décide si un texte intime
+    //  sort du carnet, et une bascule qui ne part pas est pire qu'une
+    //  bascule absente.
+    for (const t of ["fiche_champ", "fiche_description", "fiche_trait", "fiche_moment"]) {
+      if (!u.pathname.endsWith(`/rest/v1/${t}`)) continue;
+      const methode = route.request().method();
+      if (methode === "GET") {
+        appels.push({ ou: `lire-${t}` });
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(fiche[t] ?? []),
+        });
+      }
+      const corps = JSON.parse(route.request().postData() ?? "{}");
+      appels.push({ ou: `${methode}-${t}`, corps, ou_quoi: u.search });
+      //  LA BASE REFUSE UN MOMENT `auto` INSÉRÉ PAR UN JOUEUR (0033) :
+      //  le décor refuse pareil, sinon la mesure ne prouverait que ma
+      //  politesse.
+      if (t === "fiche_moment" && methode === "POST" && corps.auto === true) {
+        return route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ code: "42501", message: "new row violates row-level security policy" }),
+        });
+      }
+      return route.fulfill({ status: 204, body: "" });
     }
 
     //  ── LA TABLE DES BROUILLONS, PAR POSTGREST ───────────────────
@@ -943,6 +976,169 @@ const TROIS = [
   await q.close();
 }
 
+
+// ── 4 · Mon histoire ────────────────────────────────────────────────
+
+const FICHE = {
+  fiche_champ: [
+    { champ: "Âge", valeur: "24 ans", affiche: true, ordre: 0 },
+    { champ: "Statut marital", valeur: "séparée", affiche: false, ordre: 1 },
+  ],
+  fiche_description: [{
+    texte: "Elle est arrivée à Rhode avec un sac trop lourd.",
+    affiche: true, image_mode: "avatar", image_lien: "", carte_affiche: false,
+  }],
+  fiche_trait: [{ mot: "patiente", ordre: 0 }, { mot: "rancunière", ordre: 1 }],
+  fiche_moment: [
+    { id: "11111111-0000-0000-0000-000000000001", quand: "2026-06-12",
+      titre: "Arrivée à Portevent", texte: "Descendue du bateau.",
+      auto: true, affiche: true },
+    { id: "11111111-0000-0000-0000-000000000002", quand: "2026-08-16",
+      titre: "La nuit sans lune", texte: "La scène qui a tout changé.",
+      auto: false, affiche: true },
+  ],
+};
+
+{
+  //  LE JOUEUR VOIT TOUT, MASQUÉ COMPRIS. Ce sont ses interrupteurs : un
+  //  écran qui cacherait les lignes masquées serait un écran où l'on ne
+  //  peut plus rien rallumer. C'est la FABRIQUE de la fiche qui filtrera
+  //  sur `affiche`, et c'est un autre lot.
+  const { q } = await monter({ fiche: FICHE });
+  await q.click('[data-wm-carnet-onglet="mon-histoire"]');
+  await q.waitForTimeout(300);
+  const vu = await q.evaluate(() => ({
+    champs: [...document.querySelectorAll(".wm-histoire__champ-nom")]
+      .map((e) => e.textContent.trim()),
+    mots: [...document.querySelectorAll(".wm-histoire__champ .wm-histoire__bascule")]
+      .map((e) => e.textContent.trim()),
+    traits: [...document.querySelectorAll(".wm-histoire__trait")].length,
+    depuis: document.querySelector("[data-wm-histoire-depuis]")?.textContent?.trim(),
+  }));
+  dire(
+    "L'ÉCRAN MONTRE AUSSI CE QUI EST MASQUÉ, ET LE DIT EN TOUTES LETTRES",
+    vu.champs.length === 2 && vu.mots[0] === "affiché" && vu.mots[1] === "masqué" &&
+      vu.traits === 2 && vu.depuis === "Depuis le 12 juin",
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  UNE BASCULE ÉCRIT DANS LA BASE. « Un champ masqué n'est pas caché
+  //  en CSS : il ne sort pas de la base. » Si la bascule ne part pas,
+  //  l'interrupteur est un décor — et quelqu'un croira avoir éteint.
+  const { q, appels } = await monter({ fiche: FICHE });
+  await q.click('[data-wm-carnet-onglet="mon-histoire"]');
+  await q.waitForTimeout(300);
+  await q.click(".wm-histoire__champ:nth-child(2) .wm-histoire__bascule");
+  await q.waitForTimeout(250);
+  const ecrit = appels.find((a) => a.ou === "PATCH-fiche_champ");
+  const mot = await q.evaluate(() =>
+    document.querySelector(".wm-histoire__champ:nth-child(2) .wm-histoire__bascule")
+      ?.textContent?.trim()
+  );
+  dire(
+    "L'INTERRUPTEUR ÉCRIT `affiche` DANS LA BASE, IL NE CACHE PAS EN CSS",
+    ecrit !== undefined && ecrit.corps.affiche === true &&
+      /Statut/i.test(decodeURIComponent(ecrit.ou_quoi ?? "")) && mot === "affiché",
+    JSON.stringify({ corps: ecrit?.corps, ou: ecrit?.ou_quoi, mot }),
+  );
+  await q.close();
+}
+
+{
+  //  UN CHAMP NEUF NAÎT MASQUÉ, et l'écran ne demande même pas : c'est
+  //  le défaut de la colonne depuis la 0033. Ce qu'on mesure, c'est
+  //  qu'il n'envoie PAS `affiche: true` en douce.
+  const { q, appels } = await monter({ fiche: FICHE });
+  await q.evaluate(() => { globalThis.prompt = () => "Métier"; });
+  await q.click('[data-wm-carnet-onglet="mon-histoire"]');
+  await q.waitForTimeout(300);
+  await q.click("[data-wm-histoire-ajouter-champ]");
+  await q.waitForTimeout(250);
+  const pose = appels.find((a) => a.ou === "POST-fiche_champ");
+  const mots = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-histoire__champ .wm-histoire__bascule")]
+      .map((e) => e.textContent.trim())
+  );
+  dire(
+    "UN CHAMP NEUF NAÎT MASQUÉ, ET LA PAGE NE DEMANDE PAS LE CONTRAIRE",
+    pose !== undefined && pose.corps.champ === "Métier" &&
+      pose.corps.affiche === undefined && mots[2] === "masqué",
+    JSON.stringify({ corps: pose?.corps, mots }),
+  );
+  await q.close();
+}
+
+{
+  //  UN MOMENT ÉCRIT PAR LE JOUEUR NE SE DÉCLARE PAS `auto`. La base le
+  //  refuserait (politique `not auto`, 0033) ; la page ne doit même pas
+  //  essayer, sinon on découvre le refus en production.
+  const { q, appels } = await monter({ fiche: FICHE });
+  await q.evaluate(() => {
+    let n = 0;
+    globalThis.prompt = () => (++n === 1 ? "Le départ" : "2026-09-30");
+  });
+  await q.click('[data-wm-carnet-onglet="mon-histoire"]');
+  await q.waitForTimeout(300);
+  await q.click("[data-wm-histoire-ajouter-moment]");
+  await q.waitForTimeout(250);
+  const pose = appels.find((a) => a.ou === "POST-fiche_moment");
+  dire(
+    "UN MOMENT AJOUTÉ PAR LE JOUEUR NE SE DÉCLARE PAS DU JEU",
+    pose !== undefined && pose.corps.titre === "Le départ" &&
+      pose.corps.quand === "2026-09-30" && pose.corps.auto === undefined,
+    JSON.stringify({ corps: pose?.corps }),
+  );
+  await q.close();
+}
+
+{
+  //  ET LE POINT PLEIN DIT D'OÙ VIENT LE MOMENT. La légende l'explique
+  //  en mots, parce qu'une forme sans phrase ne s'apprend pas.
+  const { q } = await monter({ fiche: FICHE });
+  await q.click('[data-wm-carnet-onglet="mon-histoire"]');
+  await q.waitForTimeout(300);
+  const vu = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-histoire__moment")].map((e) => ({
+      mien: e.classList.contains("wm-histoire__moment--mien"),
+      quand: e.querySelector(".wm-histoire__moment-quand")?.textContent?.trim(),
+    }))
+  );
+  dire(
+    "le moment du jeu et celui du joueur ne se ressemblent pas",
+    vu.length === 2 && vu[0].mien === false && vu[1].mien === true &&
+      /écrit par toi/.test(vu[1].quand ?? ""),
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  UNE ADRESSE D'IMAGE QUI N'EST PAS `https` NE PART MÊME PAS. La base
+  //  la refuserait (0033) ; la refuser ici évite une requête qui
+  //  reviendrait en erreur sans un mot pour la personne.
+  const { q, appels } = await monter({ fiche: FICHE });
+  await q.click('[data-wm-carnet-onglet="mon-histoire"]');
+  await q.waitForTimeout(300);
+  await q.click('[data-wm-histoire-mode="lien"]');
+  await q.waitForTimeout(250);
+  const avant = appels.filter((a) => a.ou === "POST-fiche_description").length;
+  await q.fill("[data-wm-histoire-lien]", "javascript:alert(1)");
+  await q.evaluate(() =>
+    document.querySelector("[data-wm-histoire-lien]")
+      .dispatchEvent(new Event("change", { bubbles: true }))
+  );
+  await q.waitForTimeout(250);
+  dire(
+    "UNE ADRESSE D'IMAGE QUI N'EST PAS `https` NE PART PAS",
+    appels.filter((a) => a.ou === "POST-fiche_description").length === avant,
+    JSON.stringify({ avant, apres: appels.filter((a) => a.ou === "POST-fiche_description").length }),
+  );
+  await q.close();
+}
+
 // ── 2 · la session ouvre le carnet ──────────────────────────────────
 
 {
@@ -1097,11 +1293,16 @@ const { q: p, appels } = await monter();
   //  LE CŒUR DE LA NOTE 371:707. On visite les huit onglets et on
   //  recompte les appels.
   //
-  //  UN DE PLUS DEPUIS L'ONGLET ÉCRIRE, et c'est le seul : la première
-  //  ouverture va chercher les brouillons, parce que trois textes de RP
-  //  n'ont rien à faire dans l'appel du carnet de quelqu'un qui vient
-  //  regarder son équipe. Le second passage sur Écrire, lui, ne demande
-  //  plus rien — c'est ce que la seconde visite mesure ici.
+  //  DEUX ONGLETS DEMANDENT QUELQUE CHOSE À LEUR PREMIÈRE OUVERTURE, et
+  //  seulement à la première :
+  //
+  //  · Écrire, une requête — trois textes de RP n'ont rien à faire dans
+  //    l'appel du carnet de quelqu'un qui vient regarder son équipe ;
+  //  · Mon histoire, quatre — ses quatre tables, lancées ENSEMBLE, donc
+  //    un seul aller-retour dans le temps de la personne.
+  //
+  //  Le second passage ne demande plus rien, et c'est ce que la seconde
+  //  visite mesure ici.
   const avant = appels.length;
   for (const clef of [
     "mon-sac", "mon-pokedex", "mes-rp", "ecrire", "mon-histoire", "mes-liens",
@@ -1112,7 +1313,7 @@ const { q: p, appels } = await monter();
   }
   const apresLePremierTour = appels.length;
   //  Second tour : plus rien ne doit partir, Écrire compris.
-  for (const clef of ["ecrire", "mon-sac", "ecrire", "mon-jeu"]) {
+  for (const clef of ["ecrire", "mon-histoire", "mon-sac", "ecrire", "mon-histoire", "mon-jeu"]) {
     await p.click(`[data-wm-carnet-onglet='${clef}']`);
     await p.waitForTimeout(60);
   }
@@ -1122,8 +1323,8 @@ const { q: p, appels } = await monter();
     adresse: location.hash,
   }));
   dire(
-    "changer d'onglet ne demande RIEN, sauf la première ouverture d'Écrire",
-    apresLePremierTour === avant + 1 && appels.length === apresLePremierTour &&
+    "changer d'onglet ne demande RIEN, sauf la première ouverture d'Écrire et de Mon histoire",
+    apresLePremierTour === avant + 5 && appels.length === apresLePremierTour &&
       vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
       vu.adresse === "#mon-jeu",
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),

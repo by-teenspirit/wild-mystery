@@ -1150,3 +1150,340 @@
     align-items: stretch;
   }
 }
+
+/* ── 14 · Mon histoire ────────────────────────────────────────────── */
+/*
+    L'INTERRUPTEUR N'EST PAS UNE DÉCORATION : il écrit `affiche` dans la
+    base, et c'est la fabrique de la fiche qui ne lira que les lignes
+    vraies. Donc il doit se LIRE comme un état, pas comme un bouton —
+    le mot « affiché » ou « masqué » est à côté, écrit, parce qu'une
+    pastille seule ne dit rien à qui ne voit pas les couleurs.
+*/
+
+#modernbb .wm-histoire__identite {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+#modernbb .wm-histoire__image-cote {
+  display: flex;
+  flex: 0 0 200px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#modernbb .wm-histoire__image {
+  width: 100%;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-histoire__image-vide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  margin: 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-pale);
+  text-align: center;
+  background: var(--wm-fond-surface-haute);
+  border: 1px dashed var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-histoire__modes {
+  display: flex;
+  gap: 6px;
+}
+
+#modernbb .wm-histoire__mode {
+  flex: 1;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  cursor: pointer;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-histoire__mode[aria-pressed="true"] {
+  color: var(--wm-texte-inverse);
+  background: var(--wm-accent-primaire);
+  border-color: var(--wm-accent-fort);
+}
+
+#modernbb .wm-histoire__lien,
+#modernbb .wm-histoire__texte {
+  width: 100%;
+  padding: 10px 12px;
+  font-family: var(--wm-police-corps);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: 1.6;
+  color: var(--wm-texte-corps);
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-histoire__texte {
+  min-height: 160px;
+  margin-top: 8px;
+  resize: vertical;
+}
+
+#modernbb .wm-histoire__identite-corps {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+#modernbb .wm-histoire__nom {
+  margin: 0;
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-titre-page, 25px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-histoire__aide {
+  margin: 4px 0 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-histoire__etiquette {
+  margin: 18px 0 6px;
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-accent-terre);
+}
+
+#modernbb .wm-histoire__presentation {
+  padding: 10px 12px;
+  margin-top: 14px;
+  background: var(--wm-fond-terre);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-histoire__presentation .wm-histoire__etiquette {
+  margin-top: 0;
+}
+
+#modernbb .wm-histoire__presentation-dit {
+  margin: 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-corps);
+}
+
+/* ── les champs et leur interrupteur ─────────────────────────────── */
+
+#modernbb .wm-histoire__champs,
+#modernbb .wm-histoire__traits,
+#modernbb .wm-histoire__carte,
+#modernbb .wm-histoire__moments {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-histoire__champ {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-top: 1px solid var(--wm-fond-douce);
+}
+
+#modernbb .wm-histoire__champ-nom {
+  flex: 0 0 9rem;
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-histoire__champ-valeur {
+  flex: 1 1 10rem;
+  min-width: 0;
+  padding: 4px 6px;
+  font: inherit;
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-corps);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--wm-rayon-xs, 4px);
+}
+
+#modernbb .wm-histoire__champ-valeur:focus {
+  background: var(--wm-fond-surface-haute);
+  border-color: var(--wm-fond-douce);
+}
+
+/*  LE MOT EST À CÔTÉ DE LA PASTILLE, écrit en toutes lettres : une
+    couleur seule ne dit rien à qui ne la voit pas, et « affiché » est
+    précisément l'information qui décide si un texte intime sort du
+    carnet. Ce n'est pas l'endroit pour une subtilité visuelle. */
+#modernbb .wm-histoire__bascule {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+#modernbb .wm-histoire__bascule::before {
+  width: 30px;
+  height: 17px;
+  content: "";
+  background: var(--wm-fond-douce);
+  border-radius: 999px;
+  transition: background 120ms;
+}
+
+#modernbb .wm-histoire__bascule[aria-pressed="true"]::before {
+  background: var(--wm-accent-primaire);
+}
+
+#modernbb .wm-histoire__bascule[aria-pressed="true"] {
+  color: var(--wm-texte-corps);
+}
+
+#modernbb .wm-histoire__tete-a-bascule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── les traits ──────────────────────────────────────────────────── */
+
+#modernbb .wm-histoire__traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+#modernbb .wm-histoire__trait {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 5px 10px;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: 999px;
+}
+
+#modernbb .wm-histoire__trait button {
+  padding: 0;
+  font: inherit;
+  color: var(--wm-texte-pale);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+/* ── la trainer card ─────────────────────────────────────────────── */
+
+#modernbb .wm-histoire__carte {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 12px;
+}
+
+#modernbb .wm-histoire__carte li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#modernbb .wm-histoire__carte b {
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-chiffre, 20px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-histoire__carte span {
+  font-size: var(--wm-taille-legende, 10.5px);
+  color: var(--wm-texte-doux);
+}
+
+/* ── la chronologie ──────────────────────────────────────────────── */
+
+#modernbb .wm-histoire__moments {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+#modernbb .wm-histoire__moment {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/*  LE POINT PLEIN VIENT DU JEU, le point creux est du joueur — et la
+    légende du bloc le dit, parce qu'une forme sans phrase ne
+    s'apprend pas. */
+#modernbb .wm-histoire__point {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  margin-top: 6px;
+  background: var(--wm-accent-primaire);
+  border: 2px solid var(--wm-accent-primaire);
+  border-radius: 999px;
+}
+
+#modernbb .wm-histoire__moment--mien .wm-histoire__point {
+  background: transparent;
+}
+
+#modernbb .wm-histoire__moment-corps {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#modernbb .wm-histoire__moment-quand {
+  font-size: var(--wm-taille-legende, 10.5px);
+  color: var(--wm-accent-terre);
+}
+
+#modernbb .wm-histoire__moment-titre {
+  margin: 2px 0;
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-histoire__moment-texte {
+  margin: 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-doux);
+}
+
+@media (max-width: 760px) {
+  /*  « L'image passe au-dessus, les champs s'empilent avec leur
+      interrupteur à droite du libellé. » */
+  #modernbb .wm-histoire__image-cote {
+    flex: 1 1 100%;
+  }
+
+  #modernbb .wm-histoire__champ-nom {
+    flex: 1 1 100%;
+  }
+}

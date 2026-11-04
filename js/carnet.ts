@@ -86,6 +86,7 @@ import {
 } from "../src/navigateur/session-de-jeu.ts";
 import { configDepuis, type ConfigSupabase } from "../src/adaptateurs/navigateur/registre.ts";
 import { poserEcrire } from "../src/adaptateurs/navigateur/ecrire.ts";
+import { poserHistoire } from "../src/adaptateurs/navigateur/histoire.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
 import {
   demandeurDuNavigateur,
@@ -414,6 +415,26 @@ async function ouvrirLeCarnet(): Promise<void> {
         jeton: laissez.jeton,
         joueurId: carnet.dresseur.joueurId,
       });
+      //  LA TRAINER CARD EST REMPLIE PAR LE JEU, jamais saisie : ses
+      //  chiffres viennent du carnet qu'on vient de lire, pas d'un
+      //  champ que le joueur pourrait écrire.
+      poserHistoire({
+        doc: document,
+        acces: config,
+        jeton: laissez.jeton,
+        joueurId: carnet.dresseur.joueurId,
+        pseudo: carnet.dresseur.pseudo,
+        avatar: null,
+        carte: [
+          { chiffre: String(carnet.dresseur.palier ?? "—"), mot: "palier" },
+          {
+            chiffre: String(carnet.badges.filter((b) => b.obtenuLe !== null).length),
+            mot: "badges",
+          },
+          { chiffre: String(carnet.pokemon.length), mot: "Pokémon" },
+          { chiffre: String(carnet.pokedex.length), mot: "espèces vues" },
+        ],
+      });
     }
     poserLEtat(document, "pret");
     //  LA BARRE SUIT L'ONGLET OUVERT, et elle ne pouvait pas le faire
@@ -499,7 +520,7 @@ function brancherLaLiaison(acces: ConfigSupabase): void {
 //
 //  LE FILET QUI LE LIT VIT DANS LA PAGE, pas ici, et c'est le fond de
 //  l'affaire : un script trop vieux ne peut pas se plaindre lui-même.
-export const VERSION_DU_CONTRAT = 2; //  2 : l'onglet Écrire (0032)
+export const VERSION_DU_CONTRAT = 3; //  3 : Mon histoire (0033)
 (globalThis as Record<string, unknown>).wmCarnetVersion = VERSION_DU_CONTRAT;
 
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que
