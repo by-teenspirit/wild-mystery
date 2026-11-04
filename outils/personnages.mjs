@@ -271,16 +271,27 @@ for (const [cle, n] of Object.entries(ATTENDU)) {
 // ════════════════════════════════════════════════════════════════════
 //  4 · LES AVATARS
 // ════════════════════════════════════════════════════════════════════
-console.log("\n── les avatars : un GIF pour ceux qu'on joue, rien pour les PNJ ──");
+console.log("\n── les avatars : une image quand le fichier en donne une ──");
 {
   const vu = await p.evaluate(regarder);
   const attenduAvecGif = FICHES.filter((f) => f.avatar).map((f) => f.nom);
   const avecImage = vu.fiches.filter((f) => f.avatar).map((f) => f.nom);
 
+  //  C'EST LE FICHIER QUI DÉCIDE, PAS LE STATUT. La règle était
+  //  « aucun PNJ n'a d'avatar », et elle était vraie le matin du 4
+  //  novembre : il n'y avait de GIF que pour les jouables. Le soir,
+  //  Callista en a donné quatre pour des PNJ, et la règle a crié pour
+  //  une donnée parfaitement correcte. Ce qui doit tenir, c'est
+  //  qu'une fiche SANS adresse montre une silhouette plutôt qu'un
+  //  trou, et qu'une fiche qui en a une montre une image.
+  const sansAdresse = FICHES.filter((f) => !f.avatar).map((f) => f.nom);
+  const manquent = vu.fiches.filter((f) =>
+    sansAdresse.includes(f.nom) && !f.silhouette
+  );
   ok(
-    "aucun PNJ n'a d'avatar — on ne le joue pas",
-    vu.fiches.filter((f) => f.statut === "pnj").every((f) => f.silhouette && !f.avatar),
-    vu.fiches.filter((f) => f.statut === "pnj" && f.avatar).map((f) => f.nom),
+    `les ${sansAdresse.length} fiches sans adresse montrent une silhouette`,
+    manquent.length === 0,
+    manquent.map((f) => f.nom),
   );
   //  MOINS UNE : l'adresse morte a été remplacée par la silhouette,
   //  et c'est précisément ce qu'on vient voir.

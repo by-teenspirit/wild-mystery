@@ -1,7 +1,7 @@
 {
   "_": "Les personnages du jeu, les célébrités de Rhode et les champions. Source : le texte de Callista du 4 novembre 2026. La page pages/annexe-11-celebrites-de-rhode.html en est DÉRIVÉE par outils/annexe-personnages.py — on corrige ici, jamais dans la page.",
   "_statuts": "TROIS STATUTS, ET TROIS SEULEMENT, parce que ce sont les trois filtres de la page : `jouable` (le poste est libre), `joue` (quelqu'un le joue déjà) et `pnj` (le staff le tient, on ne le joue pas). Les mots du sujet d'origine — « Non jouable », « Célébrité » — disent tous la même chose côté lecteur : ils sont ramenés à `pnj`. Un quatrième mot écrit ici ne serait filtré par rien, et `outils/personnages.mjs` le refuse. AUCUNE FICHE N'EST `joue` aujourd'hui — Donozor l'a été quelques heures le 4 novembre, par erreur de ma part : son avatar disait « (pris) » dans le sujet du forum, ce qui parle du faceclaim, pas du personnage. Le bouton « Joué » n'apparaît donc pas, et il reviendra tout seul le jour où une fiche le portera.",
-  "_avatars": "`avatar` est le GIF du sujet « Personnages jouables » du forum, relevé le 4 novembre 2026. Il n'y en a QUE pour les personnages jouables ou joués : un PNJ n'a pas d'avatar à proposer puisqu'on ne le joue pas. DEUX ADRESSES NE RÉPONDENT PLUS (Vamper, chez narvii, et Donozor, chez workoutscheduleking) : elles sont gardées telles quelles, et la fiche retombe sur la silhouette quand l'image ne charge pas. Les FC sont de vraies personnes : on ne va pas chercher leur photo, le nom reste écrit comme ce qu'il est — une suggestion.",
+  "_avatars": "`avatar` est le GIF du personnage. Les six premiers viennent du sujet « Personnages jouables » du forum, relevés le 4 novembre ; les quatre suivants ont été donnés par Callista le même soir, pour des PNJ. CHAQUE ADRESSE A ÉTÉ CHARGÉE AVANT D'ÊTRE ÉCRITE ICI — Florent 540×540, Charlie 275×255, Malafid 540×500, Silas 600×338 — parce que deux des six premières étaient déjà mortes (Vamper chez narvii, et l'ancienne de Donozor). Les `.gifv` de tumblr répondent bien en `image/gif` : ils s'affichent dans une balise `img`, c'est vérifié. La fiche retombe sur la silhouette quand une image ne charge pas. Les FC sont de vraies personnes et on ne va pas chercher leur photo : le nom reste écrit comme ce qu'il est — une suggestion, et le choix de Callista.",
   "_dates": "LES ÂGES SONT CEUX DU TEXTE SOURCE, qui compte depuis 2021 : « il y a quinze ans » pour la chute de la Team Snatch et « il y a dix ans » pour celle de la Team Ombre. Le forum est en 2026, donc vingt et quinze. La planche 78 signalait déjà ce décalage de cinq ans. À trancher par Callista : on ne réécrit pas une chronologie depuis le code.",
   "celebrites": {
     "titre": "Célébrités de Rhode",
@@ -33,7 +33,8 @@
         "nom": "Michael",
         "origine": "Protagoniste de Pokémon Colosseum",
         "statut": "pnj",
-        "texte": "Aujourd'hui président de la région de Rhode. Il y a quinze ans, il a vaincu la Team Snatch ; dix ans plus tard, il a mis derrière les barreaux la plupart des leaders de la Team Ombre."
+        "texte": "Aujourd'hui président de la région de Rhode. Il y a quinze ans, il a vaincu la Team Snatch ; dix ans plus tard, il a mis derrière les barreaux la plupart des leaders de la Team Ombre.",
+        "fc": "Alexander Dreymon"
       },
       {
         "nom": "Émilie",
@@ -45,7 +46,8 @@
         "nom": "Florent",
         "origine": "Protagoniste de Pokémon XD",
         "statut": "pnj",
-        "texte": "Acclamé par toute la région lorsqu'il est parvenu à vaincre Malafid, l'ancien leader de la Team Ombre, il y a dix ans. C'est lui qui a purifié Lugia, le pokémon légendaire capturé par l'organisation. Il a ensuite quitté Rhode pour rendre à Lugia sa liberté ; après quelques années à Johto, on raconte qu'il réalise le tour de Pokémon Island pour s'améliorer."
+        "texte": "Acclamé par toute la région lorsqu'il est parvenu à vaincre Malafid, l'ancien leader de la Team Ombre, il y a dix ans. C'est lui qui a purifié Lugia, le pokémon légendaire capturé par l'organisation. Il a ensuite quitté Rhode pour rendre à Lugia sa liberté ; après quelques années à Johto, on raconte qu'il réalise le tour de Pokémon Island pour s'améliorer.",
+        "avatar": "https://64.media.tumblr.com/22abf8ebeac5eda51969fbbbab57ac35/2396853df4061972-f7/s540x810/9b19c3dc210ee71aa18d8f0337e34925c0a3a5eb.gifv"
       },
       {
         "nom": "Prof. Syrus",
@@ -57,7 +59,8 @@
         "nom": "Charlie Spinster",
         "origine": "Écurie Raikou",
         "statut": "pnj",
-        "texte": "Gagnante du Grand Prix de Rhode cinq années consécutives. Pilote de l'écurie Raikou, elle est pleine de vie, toujours de bonne humeur, et fortement appréciée des fans de courses automobiles."
+        "texte": "Gagnante du Grand Prix de Rhode cinq années consécutives. Pilote de l'écurie Raikou, elle est pleine de vie, toujours de bonne humeur, et fortement appréciée des fans de courses automobiles.",
+        "avatar": "https://i.pinimg.com/originals/b6/5e/84/b65e840f654d614cbb5b30755eb21b3e.gif"
       },
       {
         "nom": "Helgonza",
@@ -118,7 +121,7 @@
         "origine": "Antagoniste de Pokémon XD",
         "role": "Ex-Admin de la Team Ombre",
         "statut": "jouable",
-        "avatar": "https://workoutscheduleking.com/wp-content/uploads/2017/05/zac1-1200x675.jpg",
+        "avatar": "https://64.media.tumblr.com/22d30091fc980c3aef775ce7534136e0/2c811b364b4a7e54-ef/s640x960/64cf7fed6bc926c34e9cbb509b7872345b3535f4.gifv",
         "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Considéré comme une brute sans cœur, il a tenté de nombreuses fois de rejoindre la Team Ombre après sa dissolution — trois ans derrière les barreaux l'auront calmé. Depuis, il tente de reprendre sa vie en main, même si son côté sombre l'attire parfois encore vers le bas, sans rapport avec la Team Ombre.",
         "traits": [
           "brutal",
@@ -158,7 +161,8 @@
         "nom": "Malafid",
         "origine": "Antagoniste de Pokémon XD",
         "statut": "pnj",
-        "texte": "L'ancien boss de la Team Ombre, il y a dix ans. Après sa défaite contre Florent et la perte de XD001 — Lugia Obscur —, il s'est retrouvé complètement déchu et a été incarcéré avec les autres anciens leaders. Il est sous haute surveillance, et n'est pas près de sortir."
+        "texte": "L'ancien boss de la Team Ombre, il y a dix ans. Après sa défaite contre Florent et la perte de XD001 — Lugia Obscur —, il s'est retrouvé complètement déchu et a été incarcéré avec les autres anciens leaders. Il est sous haute surveillance, et n'est pas près de sortir.",
+        "avatar": "https://64.media.tumblr.com/41177f1da8082157ee9c21485dded641/fddde6b723ec5ce0-7c/s540x810/d3cbb046ad9feffa390a2d949ed00b2e6caef4ae.gif"
       }
     ]
   },
