@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(226);
+select plan(244);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1544,6 +1544,182 @@ select ok(not has_column_privilege('authenticated', 'pokemon', 'boite_no', 'upda
 
 select ok(not has_function_privilege('anon', 'ranger(jsonb)', 'execute'),
   'et un visiteur non connecté ne range rien');
+
+-- ════════════════════════════════════════════════════════════════════
+--  LA TABLE DES RP (0036)
+--
+--  « Mes RP n'est pas un onglet d'écriture : le joueur n'y contrôle que
+--  la colonne “prévus” et l'ordre. » Ce qui décrit le sujet est l'état
+--  du forum, pas une opinion — et ça se tient par le DROIT, pas par la
+--  politesse de la page.
+-- ════════════════════════════════════════════════════════════════════
+
+insert into joueur (id, forum_user_id, pseudo, auth_id, courriel) values
+  ('bbbb0036-0000-0000-0000-00000000000a', 36001, 'Scribe',
+   'aaaa0036-0000-0000-0000-00000000000a', 'scribe@exemple.fr');
+
+insert into rp (joueur_id, sujet_id, titre, forum_id, forum_nom, reponses,
+                dernier_le, dernier_auteur, dernier_message, extrait) values
+  ('bbbb0036-0000-0000-0000-00000000000a', 996, 'test', 36, 'Steppes Arides',
+   3, '2026-10-28T13:34:00Z', 'Arceus', 15582, 'Le vent se lève sur les steppes.'),
+  ('bbbb0036-0000-0000-0000-00000000000a', 977, 'Boutique de Rhode', 12,
+   'Les commerces', 1204, '2026-11-04T09:05:00Z', 'Scribe', 15573, '');
+
+insert into rp_participant (sujet_id, forum_user_id, pseudo) values
+  (996, 36001, 'Scribe'),
+  (996, 1, 'Arceus'),
+  (977, 36001, 'Scribe');
+
+create temporary table rp_vu (quoi text primary key, valeur text);
+grant insert on rp_vu to authenticated;
+
+do $$
+declare v text;
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0036-0000-0000-0000-00000000000a","email":"scribe@exemple.fr"}', true);
+
+  insert into rp_vu values ('lus', (select count(*)::text from rp));
+
+  --  ── CE QUI LUI APPARTIENT ─────────────────────────────────────
+  update rp set prevu = true, ordre = 5 where sujet_id = 996;
+  insert into rp_vu values ('prevu',
+    (select prevu::text || '/' || ordre::text from rp where sujet_id = 996));
+
+  --  ── ET CE QUI NE LUI APPARTIENT PAS ───────────────────────────
+  v := 'passé';
+  begin
+    update rp set titre = 'Je me réécris l''histoire' where sujet_id = 996;
+  exception when insufficient_privilege then v := 'refusé';
+  end;
+  insert into rp_vu values ('titre', v);
+
+  v := 'passé';
+  begin
+    update rp set dernier_le = now() where sujet_id = 996;
+  exception when insufficient_privilege then v := 'refusé';
+  end;
+  insert into rp_vu values ('date', v);
+
+  --  ── ON NE S'AJOUTE PAS UN RP ──────────────────────────────────
+  v := 'passé';
+  begin
+    insert into rp (joueur_id, sujet_id, titre)
+      values ('bbbb0036-0000-0000-0000-00000000000a', 1, 'Un RP que je n''ai pas joué');
+  exception when insufficient_privilege then v := 'refusé';
+  end;
+  insert into rp_vu values ('ajout', v);
+
+  --  ── LES PARTICIPANTS SONT AU SERVEUR ──────────────────────────
+  v := 'passé';
+  begin
+    perform count(*) from rp_participant;
+  exception when insufficient_privilege then v := 'refusé';
+  end;
+  insert into rp_vu values ('participants', v);
+
+  --  ── MAIS LES RP COMMUNS SE CALCULENT ──────────────────────────
+  insert into rp_vu values ('communs',
+    (rp_communs('{"forumUserId": 36001, "cibleForumId": 1}'))::text);
+  insert into rp_vu values ('communs_inconnu',
+    (rp_communs('{"forumUserId": 36001, "cibleForumId": 999}'))::text);
+  insert into rp_vu values ('communs_pas_le_sien',
+    (rp_communs('{"forumUserId": 1, "cibleForumId": 36001}'))::text);
+
+  reset role;
+end $$;
+
+select is((select valeur from rp_vu where quoi = 'lus'), '2',
+  'le joueur lit ses deux RP');
+
+select is((select valeur from rp_vu where quoi = 'prevu'), 'true/5',
+  '« PRÉVU » ET L''ORDRE LUI APPARTIENNENT : il les écrit');
+
+select is((select valeur from rp_vu where quoi = 'titre'), 'refusé',
+  'MAIS PAS LE TITRE — c''est l''état du forum, pas une opinion');
+
+select is((select valeur from rp_vu where quoi = 'date'), 'refusé',
+  'ni la date du dernier message');
+
+select is((select valeur from rp_vu where quoi = 'ajout'), 'refusé',
+  'ET ON NE S''AJOUTE PAS UN RP qu''on n''a pas joué');
+
+select is((select valeur from rp_vu where quoi = 'participants'), 'refusé',
+  'la table des participants est au serveur, pas au joueur');
+
+select ok(
+  (select valeur from rp_vu where quoi = 'communs') like '%996%',
+  'LES RP COMMUNS SE CALCULENT : le sujet où les deux ont écrit');
+
+select ok(
+  (select valeur from rp_vu where quoi = 'communs') not like '%977%',
+  'et celui où la cible n''a pas écrit n''en est pas');
+
+select is((select valeur from rp_vu where quoi = 'communs_inconnu'), '[]',
+  'une cible inconnue rend une liste vide');
+
+select is((select valeur from rp_vu where quoi = 'communs_pas_le_sien'), '[]',
+  'ET DEMANDER LES RP DE QUELQU''UN D''AUTRE REND VIDE, pas un refus : on ne renseigne pas sur l''existence d''un personnage');
+
+select ok(not has_table_privilege('anon', 'rp', 'select'),
+  'un visiteur non connecté ne lit pas les RP');
+
+--  ── CE QUE LA RELÈVE ÉCRIT, ET CE QU'ELLE NE TOUCHE PAS ───────────
+--
+--  Tout le contrat de la table tient là : le serveur décrit, le joueur
+--  annote. Une relève qui écrase « prévu » efface une note que
+--  personne ne sait reconstituer.
+
+update rp set prevu = true, ordre = 9 where sujet_id = 996;
+
+select is(
+  (relever_les_rp(jsonb_build_object(
+    'joueurId', 'bbbb0036-0000-0000-0000-00000000000a',
+    'sujets', jsonb_build_array(
+      jsonb_build_object('sujetId', 996, 'titre', 'test (renommé)',
+                         'reponses', 7, 'dernierLe', '2026-11-04T12:00:00Z',
+                         'dernierAuteur', 'Scribe', 'dernierMessage', 15999,
+                         'participants', jsonb_build_array(
+                           jsonb_build_object('id', 36001, 'pseudo', 'Scribe'),
+                           jsonb_build_object('id', 42, 'pseudo', 'Quelqu''un'))),
+      jsonb_build_object('sujetId', 1200, 'titre', 'Un sujet tout neuf')
+    )
+  )) ->> 'ecrits')::integer,
+  2,
+  'la relève écrit les deux sujets qu''elle a vus');
+
+select results_eq(
+  $$select titre, reponses, prevu, ordre from rp where sujet_id = 996$$,
+  $$values ('test (renommé)', 7, true, 9::smallint)$$,
+  'ELLE MET À JOUR CE QUI EST À ELLE, ET LAISSE « PRÉVU » ET L''ORDRE');
+
+select is(
+  (select count(*)::int from rp where joueur_id = 'bbbb0036-0000-0000-0000-00000000000a'),
+  2,
+  'LE SUJET QUI N''EST PLUS DANS LA RECHERCHE S''EN VA');
+
+select is(
+  (select count(*)::int from rp_participant where sujet_id = 996),
+  3,
+  'et les participants s''ajoutent sans écraser ceux d''avant');
+
+--  Un sujet marqué « prévu » ne part pas, même absent de la recherche.
+update rp set prevu = true where sujet_id = 1200;
+select lives_ok(
+  $$select relever_les_rp(jsonb_build_object(
+      'joueurId', 'bbbb0036-0000-0000-0000-00000000000a',
+      'sujets', '[]'::jsonb))$$,
+  'une relève qui ne trouve rien ne lève pas');
+
+select is(
+  (select count(*)::int from rp where joueur_id = 'bbbb0036-0000-0000-0000-00000000000a'),
+  2,
+  'UN SUJET MARQUÉ « PRÉVU » SURVIT À UNE RELÈVE QUI NE LE VOIT PAS');
+
+select ok(not has_function_privilege('authenticated', 'relever_les_rp(jsonb)', 'execute'),
+  'et un joueur ne relève pas ses propres RP : c''est le travail du serveur');
+
 
 select * from finish();
 rollback;
