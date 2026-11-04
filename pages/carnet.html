@@ -572,15 +572,100 @@
         </div>
       </section>
 
-      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-liens" hidden>
+      <!-- ══ MES LIENS ════════════════════════════════════════════════
+
+           « Le carnet écrit la fiche, le joueur la publie. » Le bouton
+           n'envoie rien : il copie le BBCode et ouvre le formulaire
+           natif — en création la première fois, en édition ensuite.
+           Le sujet appartient au joueur, il peut le retoucher à la
+           main, et personne ne poste à sa place.
+           ════════════════════════════════════════════════════════════ -->
+      <section class="wm-carnet__onglet-page wm-liens" data-wm-carnet-page="mes-liens" hidden>
         <header class="wm-carnet__entete">
           <p class="wm-carnet__surtitre">Le carnet de bord</p>
           <h1 class="wm-carnet__titre">Mes <b>liens</b></h1>
           <p class="wm-carnet__chapo">
-            Tes liens, et la fiche que le carnet écrit pour toi. Ils arrivent
-            bientôt.
+            Qui compte pour ton personnage, et pourquoi. Ce que tu remplis ici
+            fabrique ta fiche de liens — le sujet où les autres viennent te
+            proposer les leurs.
           </p>
         </header>
+
+        <!-- ── l'état de la fiche ─────────────────────────────────── -->
+        <div class="wm-liens__bandeau" data-wm-liens-bandeau>
+          <div class="wm-liens__bandeau-mot">
+            <p class="wm-liens__bandeau-titre" data-wm-liens-etat>
+              Ta fiche n'est pas encore publiée.
+            </p>
+            <p class="wm-liens__bandeau-dit" data-wm-liens-etat-dit></p>
+          </div>
+          <div class="wm-liens__bandeau-boutons">
+            <a class="wm-carnet__bouton" data-wm-liens-voir href="#" hidden>
+              Voir le sujet
+            </a>
+            <button type="button" class="wm-carnet__bouton wm-carnet__bouton--plein"
+                    data-wm-liens-publier>
+              Publier ma fiche
+            </button>
+          </div>
+        </div>
+
+        <!-- ── ajouter un lien ────────────────────────────────────── -->
+        <div class="wm-carnet__bloc">
+          <p class="wm-histoire__etiquette">Ajouter un lien</p>
+          <div class="wm-liens__ajout">
+            <label class="wm-liens__champ">
+              <span>La personne</span>
+              <input type="text" data-wm-liens-neuf-pseudo placeholder="Son pseudo">
+            </label>
+            <label class="wm-liens__champ">
+              <span>Son numéro de membre</span>
+              <input type="number" min="1" data-wm-liens-neuf-id placeholder="77">
+            </label>
+            <label class="wm-liens__champ">
+              <span>En quelques mots</span>
+              <input type="text" data-wm-liens-neuf-court placeholder="sœur adoptive, tendu">
+            </label>
+            <button type="button" class="wm-carnet__bouton wm-carnet__bouton--plein"
+                    data-wm-liens-ajouter>
+              Ajouter le lien
+            </button>
+          </div>
+          <p class="wm-histoire__aide">
+            La description longue s'ajoute après, sur la carte. Le numéro de
+            membre est celui de son profil — il tient le lien même si la
+            personne change de pseudo.
+          </p>
+        </div>
+
+        <!-- ── les liens ──────────────────────────────────────────── -->
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+            <h2 class="wm-carnet__bloc-titre">Mes liens</h2>
+            <span class="wm-liens__compte" data-wm-liens-compte></span>
+          </div>
+          <p class="wm-carnet__bloc-dit">
+            L'ordre de cette liste est celui de la fiche. Les flèches le
+            changent.
+          </p>
+          <ul class="wm-liens__cartes" data-wm-liens-cartes></ul>
+        </div>
+
+        <!-- ── ce que la relève apportera ─────────────────────────── -->
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">On te propose des liens</h2>
+          </div>
+          <!--  HONNÊTETÉ PLUTÔT QU'UN BLOC VIDE : les réponses à la fiche
+                et les RP communs viennent tous les deux de la table que
+                la relève doit remplir (tâche 9). Un bloc « deux en
+                attente » toujours à zéro ferait croire à une panne. -->
+          <p class="wm-carnet__bloc-dit">
+            Les réponses à ta fiche remonteront ici, avec les RP que tu as
+            joués avec chaque personne. Ça demande la relève des sujets, qui
+            n'est pas encore en place.
+          </p>
+        </div>
       </section>
 
       <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-boites" hidden>
@@ -622,7 +707,7 @@
       c'est là qu'il annonce son numéro, avant le moindre `fetch`.  -->
 <script>
   (function () {
-    var attendu = 3;
+    var attendu = 4;
     var vu = window.wmCarnetVersion;
     if (vu === attendu) return;
 

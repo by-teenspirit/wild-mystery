@@ -213,6 +213,8 @@ async function monter(
     brouillons = [],
     ecriture = "ok",
     fiche = {},
+    lesLiens = [],
+    etatDeLaFiche = null,
   } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
@@ -316,6 +318,43 @@ async function monter(
       return route.fulfill({
         contentType: "application/json",
         body: JSON.stringify({ lies: 1, personnages: [] }),
+      });
+    }
+
+    //  ── LES LIENS ET L'ÉTAT DE LA FICHE ──────────────────────────
+    if (u.pathname.endsWith("/rest/v1/lien")) {
+      const methode = route.request().method();
+      if (methode === "GET") {
+        appels.push({ ou: "lire-lien" });
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(lesLiens),
+        });
+      }
+      appels.push({
+        ou: `${methode}-lien`,
+        corps: JSON.parse(route.request().postData() ?? "{}"),
+        ou_quoi: u.search,
+      });
+      return route.fulfill({ status: 204, body: "" });
+    }
+
+    if (u.pathname.endsWith("/rest/v1/rpc/fiche_a_publier")) {
+      appels.push({ ou: "fiche-a-publier" });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(etatDeLaFiche),
+      });
+    }
+
+    if (u.pathname.endsWith("/rest/v1/rpc/fiche_est_publiee")) {
+      appels.push({
+        ou: "fiche-est-publiee",
+        corps: JSON.parse(route.request().postData() ?? "{}"),
+      });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ ok: true }),
       });
     }
 
@@ -1139,6 +1178,164 @@ const FICHE = {
   await q.close();
 }
 
+
+// ── 5 · Mes liens ───────────────────────────────────────────────────
+
+const LIENS = [
+  { cible_forum_id: 77, cible_pseudo: "Murphy", court: "sœur adoptive", long: "Elles ont grandi sous le même toit.", image: "", ordre: 0 },
+  { cible_forum_id: 88, cible_pseudo: "Salomé", court: "celle qui sait", long: "", image: "", ordre: 1 },
+];
+
+const PAS_PUBLIEE = {
+  texte: "[center][b]Eliott Vanner[/b][/center]", empreinte: "aaa",
+  sujetId: null, messageId: null, publieLe: null, aChange: false,
+};
+
+const PUBLIEE_ET_CHANGEE = {
+  texte: "[center][b]Eliott Vanner[/b][/center]", empreinte: "bbb",
+  sujetId: 1500, messageId: 9001, publieLe: "2026-09-24T10:00:00Z", aChange: true,
+};
+
+{
+  //  LE BANDEAU DIT L'ÉTAT RÉEL, et le bouton change de mot avec lui :
+  //  « Publier » n'est pas « Mettre à jour », et proposer de publier
+  //  une fiche déjà publiée ferait un second sujet.
+  const { q } = await monter({ lesLiens: LIENS, etatDeLaFiche: PAS_PUBLIEE });
+  await q.click('[data-wm-carnet-onglet="mes-liens"]');
+  await q.waitForTimeout(300);
+  const avant = await q.evaluate(() => ({
+    etat: document.querySelector("[data-wm-liens-etat]")?.textContent?.trim(),
+    bouton: document.querySelector("[data-wm-liens-publier]")?.textContent?.trim(),
+    voir: document.querySelector("[data-wm-liens-voir]")?.hidden,
+    cartes: document.querySelectorAll(".wm-liens__carte").length,
+    compte: document.querySelector("[data-wm-liens-compte]")?.textContent?.trim(),
+  }));
+  dire(
+    "UNE FICHE JAMAIS PUBLIÉE PROPOSE DE LA PUBLIER, ET NE MONTRE PAS DE SUJET",
+    /pas encore publiée/.test(avant.etat ?? "") && avant.bouton === "Publier ma fiche" &&
+      avant.voir === true && avant.cartes === 2 && avant.compte === "2 liens",
+    JSON.stringify(avant),
+  );
+  await q.close();
+}
+
+{
+  const { q } = await monter({ lesLiens: LIENS, etatDeLaFiche: PUBLIEE_ET_CHANGEE });
+  await q.click('[data-wm-carnet-onglet="mes-liens"]');
+  await q.waitForTimeout(300);
+  const vu = await q.evaluate(() => ({
+    etat: document.querySelector("[data-wm-liens-etat]")?.textContent?.trim(),
+    bouton: document.querySelector("[data-wm-liens-publier]")?.textContent?.trim(),
+    lien: document.querySelector("[data-wm-liens-voir]")?.getAttribute("href"),
+  }));
+  dire(
+    "UNE FICHE MODIFIÉE DEPUIS LE DIT, ET PROPOSE LA MISE À JOUR",
+    /a changé depuis/.test(vu.etat ?? "") && vu.bouton === "Mettre à jour ma fiche" &&
+      vu.lien === "/t1500",
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  LE BOUTON NE POSTE PAS. Il copie, ouvre le formulaire natif, et la
+  //  personne revient dire où c'est parti. « Il pourrait poster, il a
+  //  les identifiants. Mais la fiche serait signée d'un robot. »
+  const { q, appels } = await monter({ lesLiens: LIENS, etatDeLaFiche: PUBLIEE_ET_CHANGEE });
+  await q.evaluate(() => {
+    globalThis.ouvertures = [];
+    globalThis.open = (a) => { globalThis.ouvertures.push(a); return null; };
+    let n = 0;
+    globalThis.prompt = () => (++n === 1 ? "1500" : "9001");
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: (t) => { globalThis.colle = t; return Promise.resolve(); } },
+    });
+  });
+  await q.click('[data-wm-carnet-onglet="mes-liens"]');
+  await q.waitForTimeout(300);
+  await q.click("[data-wm-liens-publier]");
+  await q.waitForTimeout(400);
+  const vu = await q.evaluate(() => ({
+    ouvertures: globalThis.ouvertures,
+    colle: globalThis.colle,
+  }));
+  const dit = appels.find((a) => a.ou === "fiche-est-publiee");
+  dire(
+    "PUBLIER OUVRE L'ÉDITION DU MESSAGE EXISTANT, COPIE LE TEXTE, ET NE POSTE RIEN",
+    vu.ouvertures?.length === 1 && vu.ouvertures[0] === "/post?p=9001&mode=editpost" &&
+      vu.colle === PUBLIEE_ET_CHANGEE.texte &&
+      dit?.corps?.p?.sujetId === 1500 && dit?.corps?.p?.messageId === 9001,
+    JSON.stringify({ ...vu, dit: dit?.corps }),
+  );
+  await q.close();
+}
+
+{
+  //  ET LA PREMIÈRE FOIS, C'EST UN NOUVEAU SUJET — pas une réponse,
+  //  sinon la fiche se retrouve en morceaux au fil des mises à jour.
+  const { q } = await monter({ lesLiens: LIENS, etatDeLaFiche: PAS_PUBLIEE });
+  await q.evaluate(() => {
+    globalThis.ouvertures = [];
+    globalThis.open = (a) => { globalThis.ouvertures.push(a); return null; };
+    globalThis.prompt = () => null;
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: () => Promise.resolve() },
+    });
+  });
+  await q.click('[data-wm-carnet-onglet="mes-liens"]');
+  await q.waitForTimeout(300);
+  await q.click("[data-wm-liens-publier]");
+  await q.waitForTimeout(300);
+  const ouvertures = await q.evaluate(() => globalThis.ouvertures);
+  dire(
+    "la première publication ouvre un NOUVEAU SUJET",
+    ouvertures?.length === 1 && /mode=newtopic/.test(ouvertures[0]),
+    JSON.stringify({ ouvertures }),
+  );
+  await q.close();
+}
+
+{
+  //  L'ORDRE DE LA LISTE EST CELUI DE LA FICHE, et le changer écrit les
+  //  deux rangs échangés — pas la liste entière.
+  const { q, appels } = await monter({ lesLiens: LIENS, etatDeLaFiche: PAS_PUBLIEE });
+  await q.click('[data-wm-carnet-onglet="mes-liens"]');
+  await q.waitForTimeout(300);
+  await q.click('.wm-liens__carte:nth-child(2) .wm-liens__carte-outils button:first-child');
+  await q.waitForTimeout(300);
+  const noms = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-liens__carte-nom")].map((e) => e.textContent.trim())
+  );
+  const ecrits = appels.filter((a) => a.ou === "PATCH-lien");
+  dire(
+    "MONTER UN LIEN ÉCHANGE DEUX RANGS, ET DEUX SEULEMENT",
+    noms[0] === "Salomé" && noms[1] === "Murphy" && ecrits.length === 2 &&
+      ecrits.every((e) => typeof e.corps.ordre === "number"),
+    JSON.stringify({ noms, ecrits: ecrits.map((e) => [e.ou_quoi, e.corps]) }),
+  );
+  await q.close();
+}
+
+{
+  //  UN LIEN SANS NUMÉRO DE MEMBRE NE PART PAS : la clé primaire est
+  //  (joueur, cible), et une cible à zéro collerait tous les liens
+  //  les uns sur les autres.
+  const { q, appels } = await monter({ lesLiens: [], etatDeLaFiche: PAS_PUBLIEE });
+  await q.click('[data-wm-carnet-onglet="mes-liens"]');
+  await q.waitForTimeout(300);
+  await q.fill("[data-wm-liens-neuf-pseudo]", "Quelqu'un");
+  await q.click("[data-wm-liens-ajouter]");
+  await q.waitForTimeout(250);
+  dire(
+    "UN LIEN SANS NUMÉRO DE MEMBRE N'EST PAS ENVOYÉ",
+    appels.filter((a) => a.ou === "POST-lien").length === 0,
+    JSON.stringify({ envois: appels.filter((a) => a.ou === "POST-lien").length }),
+  );
+  await q.close();
+}
+
 // ── 2 · la session ouvre le carnet ──────────────────────────────────
 
 {
@@ -1299,7 +1496,8 @@ const { q: p, appels } = await monter();
   //  · Écrire, une requête — trois textes de RP n'ont rien à faire dans
   //    l'appel du carnet de quelqu'un qui vient regarder son équipe ;
   //  · Mon histoire, quatre — ses quatre tables, lancées ENSEMBLE, donc
-  //    un seul aller-retour dans le temps de la personne.
+  //    un seul aller-retour dans le temps de la personne ;
+  //  · Mes liens, deux — la liste, et l'état de la fiche publiée.
   //
   //  Le second passage ne demande plus rien, et c'est ce que la seconde
   //  visite mesure ici.
@@ -1313,7 +1511,12 @@ const { q: p, appels } = await monter();
   }
   const apresLePremierTour = appels.length;
   //  Second tour : plus rien ne doit partir, Écrire compris.
-  for (const clef of ["ecrire", "mon-histoire", "mon-sac", "ecrire", "mon-histoire", "mon-jeu"]) {
+  for (
+    const clef of [
+      "ecrire", "mon-histoire", "mes-liens", "mon-sac",
+      "ecrire", "mon-histoire", "mes-liens", "mon-jeu",
+    ]
+  ) {
     await p.click(`[data-wm-carnet-onglet='${clef}']`);
     await p.waitForTimeout(60);
   }
@@ -1323,8 +1526,8 @@ const { q: p, appels } = await monter();
     adresse: location.hash,
   }));
   dire(
-    "changer d'onglet ne demande RIEN, sauf la première ouverture d'Écrire et de Mon histoire",
-    apresLePremierTour === avant + 5 && appels.length === apresLePremierTour &&
+    "changer d'onglet ne demande RIEN, sauf la première ouverture des trois onglets qui écrivent",
+    apresLePremierTour === avant + 7 && appels.length === apresLePremierTour &&
       vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
       vu.adresse === "#mon-jeu",
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),

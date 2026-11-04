@@ -22731,3 +22731,194 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
+/* ── 15 · Mes liens ───────────────────────────────────────────────── */
+
+#modernbb .wm-liens__bandeau {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  background: var(--wm-fond-terre);
+  border: 1px solid var(--wm-accent-terre);
+  border-radius: var(--wm-rayon-lg, 10px);
+}
+
+#modernbb .wm-liens__bandeau-mot {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+#modernbb .wm-liens__bandeau-titre {
+  margin: 0;
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-liens__bandeau-dit {
+  margin: 4px 0 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-liens__bandeau-boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── le formulaire d'ajout ───────────────────────────────────────── */
+
+#modernbb .wm-liens__ajout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+#modernbb .wm-liens__champ {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+#modernbb .wm-liens__champ span {
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-liens__champ input {
+  width: 100%;
+  padding: 8px 10px;
+  font-family: var(--wm-police-corps);
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-corps);
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-liens__compte {
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+}
+
+/* ── les cartes ──────────────────────────────────────────────────── */
+
+#modernbb .wm-liens__cartes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-liens__carte {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 12px;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-liens__carte-image {
+  flex: 0 0 72px;
+  width: 72px;
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-liens__carte-corps {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#modernbb .wm-liens__carte-tete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+#modernbb .wm-liens__carte-nom {
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-liens__carte-court {
+  padding: 2px 8px;
+  font-size: var(--wm-taille-legende, 10.5px);
+  text-transform: uppercase;
+  background: var(--wm-fond-terre);
+  border-radius: 999px;
+}
+
+#modernbb .wm-liens__carte-long {
+  width: 100%;
+  min-height: 60px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  font-family: var(--wm-police-corps);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: 1.55;
+  color: var(--wm-texte-corps);
+  resize: vertical;
+  background: var(--wm-fond-surface);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-liens__carte-outils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+#modernbb .wm-liens__carte-outils button {
+  padding: 4px 10px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+  cursor: pointer;
+  background: var(--wm-fond-surface);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-xs, 4px);
+}
+
+#modernbb .wm-liens__vide {
+  margin: 12px 0 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-style: italic;
+  color: var(--wm-texte-pale);
+}
+
+@media (max-width: 760px) {
+  /*  « Les cartes de lien passent en colonne, image au-dessus ; les
+      champs d'ajout s'empilent. » */
+  #modernbb .wm-liens__carte {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-liens__carte-image {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 140px;
+  }
+
+  #modernbb .wm-liens__champ {
+    flex: 1 1 100%;
+  }
+}
+

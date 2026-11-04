@@ -87,6 +87,7 @@ import {
 import { configDepuis, type ConfigSupabase } from "../src/adaptateurs/navigateur/registre.ts";
 import { poserEcrire } from "../src/adaptateurs/navigateur/ecrire.ts";
 import { poserHistoire } from "../src/adaptateurs/navigateur/histoire.ts";
+import { poserLesLiens } from "../src/adaptateurs/navigateur/liens.ts";
 import type { Carnet } from "../src/navigateur/carnet.ts";
 import {
   demandeurDuNavigateur,
@@ -418,6 +419,13 @@ async function ouvrirLeCarnet(): Promise<void> {
       //  LA TRAINER CARD EST REMPLIE PAR LE JEU, jamais saisie : ses
       //  chiffres viennent du carnet qu'on vient de lire, pas d'un
       //  champ que le joueur pourrait écrire.
+      poserLesLiens({
+        doc: document,
+        acces: config,
+        jeton: laissez.jeton,
+        joueurId: carnet.dresseur.joueurId,
+        forumUserId: carnet.dresseur.forumUserId,
+      });
       poserHistoire({
         doc: document,
         acces: config,
@@ -520,7 +528,7 @@ function brancherLaLiaison(acces: ConfigSupabase): void {
 //
 //  LE FILET QUI LE LIT VIT DANS LA PAGE, pas ici, et c'est le fond de
 //  l'affaire : un script trop vieux ne peut pas se plaindre lui-même.
-export const VERSION_DU_CONTRAT = 3; //  3 : Mon histoire (0033)
+export const VERSION_DU_CONTRAT = 4; //  4 : Mes liens (0034)
 (globalThis as Record<string, unknown>).wmCarnetVersion = VERSION_DU_CONTRAT;
 
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que
