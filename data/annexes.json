@@ -1,6 +1,6 @@
 {
   "_": "Le sommaire des annexes, en UN seul endroit. Les quatorze pages le portent toutes, et aucune ne le recopie : `module-annexes.ts` le pose dans `[data-wm-sommaire]`. Ajouter une annexe ou changer un titre est donc une modification de ce fichier, pas de quatorze pages collées à la main.",
-  "_liste": "Liste arrêtée par Callista le 1er novembre 2026, dans SON ordre. Les quatorze pages ont été créées sur le forum le 2 novembre ; les slugs ci-dessous sont ceux de SES adresses, pas ceux que j'avais prévus — c'est le slug de l'adresse que le sommaire reconnaît, et renommer quatorze pages pour qu'elles collent à un fichier aurait été prendre le problème par le mauvais bout.",
+  "_liste": "Liste arrêtée par Callista le 1er novembre 2026, dans SON ordre. Les quatorze pages ont été créées sur le forum le 2 novembre ; les slugs ci-dessous sont ceux de SES adresses, pas ceux que j'avais prévus — c'est le slug de l'adresse que le sommaire reconnaît, et renommer quatorze pages pour qu'elles collent à un fichier aurait été prendre le problème par le mauvais bout. DEPUIS LE 4 NOVEMBRE ELLES SONT TREIZE : « dedans, on va expliquer comment créer son personnage » — l'annexe 04 est repliée dans la 01, et tout ce qui suivait a reculé d'un cran. Les ADRESSES, elles, n'ont pas bougé : le `hN` est le numéro de page de Forumactif, pas le nôtre.",
   "_adresse": "null = la page n'existe pas encore. Le sommaire l'affiche quand même, SANS lien : quatorze entrées dont les créées sont cliquables dit la vérité, là où quatorze liens dont la plupart morts ne la dit pas. Dès que tu crées une page, mets son adresse ici et le lien apparaît dans les quatorze sommaires d'un coup.",
   "_entete": "Une page HTML Forumactif ne reçoit notre CSS et notre JS QUE si elle est créée avec « utiliser le header et footer du forum » = OUI. Les pages de la V1 étaient toutes en NON ; /h3-reglement est en OUI, et ça marche.",
   "_slug": "Le slug est la fin de l'adresse : /h3-reglement donne « reglement ». C'est lui que le sommaire reconnaît pour se surligner, et PAS le numéro de page — h3 dépend de l'ordre de création chez Forumactif, le slug est celui qu'on a choisi.",
@@ -28,72 +28,69 @@
         },
         {
           "numero": "04",
-          "slug": "creer-son-personnage",
-          "titre": "Créer son personnage",
-          "adresse": "/h4-creer-son-personnage"
-        },
-        {
-          "numero": "05",
           "slug": "guide-du-dresseur",
           "titre": "Le guide du dresseur",
           "adresse": "/h5-guide-du-dresseur"
         },
         {
-          "numero": "06",
+          "numero": "05",
           "slug": "la-region-et-ses-zones",
           "titre": "La région et ses zones",
           "adresse": "/h6-la-region-et-ses-zones",
-          "scripts": ["js/carte.js"]
+          "scripts": [
+            "js/carte.js"
+          ]
         },
         {
-          "numero": "07",
+          "numero": "06",
           "slug": "arenes-colosseums-ligues",
           "titre": "Arènes, colosseums et Ligue",
           "adresse": "/h7-arenes-colosseums-ligues"
         },
         {
-          "numero": "08",
+          "numero": "07",
           "slug": "groupes",
           "titre": "Les groupes",
           "adresse": "/h8-groupes"
         },
         {
-          "numero": "09",
+          "numero": "08",
           "slug": "credits",
           "titre": "Les crédits",
           "adresse": "/h9-credits"
         },
         {
-          "numero": "10",
+          "numero": "09",
           "slug": "staff",
           "titre": "Le staff",
           "adresse": "/h10-staff"
         },
         {
-          "numero": "11",
+          "numero": "10",
           "slug": "celebrites-de-rhode",
-          "titre": "Personnages jouables, champions \u0026 célébrités",
+          "titre": "Personnages jouables, champions & célébrités",
           "adresse": "/h11-celebrites-de-rhode"
         },
         {
-          "numero": "12",
+          "numero": "11",
           "slug": "monnaie-et-missions",
           "titre": "Monnaie, médailles et missions",
           "adresse": "/h12-monnaie-et-missions"
         },
         {
-          "numero": "13",
+          "numero": "12",
           "slug": "combat-et-progression",
           "titre": "Combat et progression",
           "adresse": "/h13-combat-et-progression"
         },
         {
-          "numero": "14",
+          "numero": "13",
           "slug": "allegeance-et-team-ombre",
           "titre": "Allégeances et Team Ombre",
           "adresse": "/h14-allegeance-et-team-ombre"
         }
       ]
     }
-  ]
+  ],
+  "_numero": "Le numéro est celui du SOMMAIRE, et il se recalcule à chaque passe de `outils/annexes.py` : il n'est écrit nulle part ailleurs, ni dans un nom de fichier qu'on taperait, ni dans un générateur. Retirer une annexe ou en insérer une décale les suivantes toute seule — c'est arrivé le 4 novembre, et ça n'a coûté que ce fichier."
 }

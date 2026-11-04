@@ -39,6 +39,7 @@
 # ════════════════════════════════════════════════════════════════════
 
 import json
+import re
 import pathlib
 
 #  LE SUJET DES QUESTIONS, écrit UNE fois. Il est repris dans le pied
@@ -297,6 +298,50 @@ PIED_DE_PAGE = """        <div class="wm-suivante">
         </div>"""
 
 
+def numero_de(slug):
+    """Le numéro d'une annexe dans le sommaire, « 01 » à « 13 »."""
+    e = next((x for x in lire_le_sommaire() if x["slug"] == slug), None)
+    if e is None:
+        raise SystemExit(f"{slug} n'est pas dans data/annexes.json")
+    return e["numero"]
+
+
+def remplacer_le_surtitre(corps, numero):
+    """Le corps, son « Annexe NN » remis au numéro du sommaire.
+
+    LE SURTITRE EST DANS LE CORPS, et il n'y a rien de rédigé dedans :
+    c'est un rang, et il change dès qu'on retire une annexe. Le 4
+    novembre, « créer son personnage » s'est repliée dans « par où
+    commencer » et douze pages ont reculé d'un cran ; les deux dont le
+    corps était protégé ont gardé leur ancien numéro, et personne
+    n'aurait vu la différence avant de lire « Annexe 13 » sur la
+    douzième. Même traitement que le pied : ce qui se calcule se refait.
+    """
+    return re.sub(
+        r'(<p class="wm-annexe__surtitre">Annexe )\d+(</p>)',
+        lambda m: f"{m.group(1)}{numero}{m.group(2)}",
+        corps,
+        count=1,
+    )
+
+
+def chemin_de_la_page(slug):
+    """Le fichier d'une annexe, désignée par son SLUG.
+
+    PAS PAR SON NUMÉRO. Le numéro est un rang dans le sommaire : il
+    change dès qu'on retire une annexe ou qu'on en insère une — c'est
+    arrivé le 4 novembre, quand « créer son personnage » s'est repliée
+    dans « par où commencer » et que les douze suivantes ont reculé
+    d'un cran. Trois générateurs et deux harnais portaient le numéro
+    dans un chemin écrit à la main ; ils demandent maintenant.
+    """
+    entrees = lire_le_sommaire()
+    e = next((x for x in entrees if x["slug"] == slug), None)
+    if e is None:
+        raise SystemExit(f"{slug} n'est pas dans data/annexes.json")
+    return R / "pages" / f"annexe-{e['numero']}-{slug}.html"
+
+
 def pied_de_page(slug):
     """Le bloc du pied pour une annexe, désignée par son slug.
 
@@ -452,6 +497,7 @@ def main():
                     reprises.append(chemin.name)
                 #  LE PIED SE REFAIT, LE RESTE SE GARDE.
                 corps = remplacer_le_pied(corps, pied_de_page(e["slug"]))
+                corps = remplacer_le_surtitre(corps, e["numero"])
                 page = remplacer_le_corps(page, corps)
 
         #  ── AUCUN NOM DE BALISE ÉCHAPPÉ DANS LE TEXTE ─────────────

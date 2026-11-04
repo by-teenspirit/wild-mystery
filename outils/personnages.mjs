@@ -30,7 +30,7 @@
 //      silhouette ;
 //    · rien ne déborde à 390.
 //
-//  LE DÉCOR SERT LA VRAIE PAGE. `pages/annexe-11-…html` telle qu'elle
+//  LE DÉCOR SERT LA VRAIE PAGE. `la page de l'annexe` telle qu'elle
 //  sera collée, `js/annexes.js` tel qu'il sera servi, et
 //  `data/personnages.json` du dépôt. Un décor qui ne reproduit pas ce
 //  que l'hôte sert ne teste que lui-même.
@@ -55,7 +55,19 @@ const R = new URL("..", import.meta.url).pathname;
 const lire = (c) => readFileSync(R + c, "utf8");
 const json = (c) => JSON.parse(lire(c));
 
-const PAGE = lire("pages/annexe-11-celebrites-de-rhode.html");
+//  LA PAGE SE TROUVE PAR SON SLUG, pas par son numéro : le numéro
+//  est un rang dans le sommaire, et il a reculé d'un cran le 4
+//  novembre quand « créer son personnage » s'est repliée dans « par
+//  où commencer ». Un chemin écrit à la main aurait fait tomber le
+//  harnais sur un fichier absent.
+const CHEMIN = (() => {
+  const e = json("data/annexes.json").sections
+    .flatMap((s) => s.entrees)
+    .find((x) => x.slug === "celebrites-de-rhode");
+  if (e === undefined) throw new Error("celebrites-de-rhode n'est pas dans data/annexes.json");
+  return `pages/annexe-${e.numero}-${e.slug}.html`;
+})();
+const PAGE = lire(CHEMIN);
 const PERSOS = json("data/personnages.json");
 const FICHES = PERSOS.celebrites.fiches;
 

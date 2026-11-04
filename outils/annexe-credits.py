@@ -28,12 +28,14 @@ from annexes import (  # noqa: E402
     DEBUT,
     FIN,
     entre_les_bornes,
+    chemin_de_la_page,
+    numero_de,
     pied_de_page,
     remplacer_le_corps,
 )
 
 R = pathlib.Path(__file__).resolve().parent.parent
-PAGE = R / "pages" / "annexe-09-credits.html"
+PAGE = chemin_de_la_page("credits")
 PAGES = "https://by-teenspirit.github.io/wild-mystery"
 ARTWORK = (
     "https://raw.githubusercontent.com/PokeAPI/sprites/"
@@ -72,7 +74,8 @@ def corps():
     w('  <div class="wm-annexe__corps">')
     w('    <div class="wm-annexe__colonne">')
     w("")
-    w('      <p class="wm-annexe__surtitre">Annexe 09</p>')
+    w('      <p class="wm-annexe__surtitre">Annexe '
+      f'{numero_de("credits")}</p>')
     w('      <h1 class="wm-annexe__titre">Les <em>crédits</em></h1>')
     w(f'      <p class="wm-annexe__chapo">{riche(c["chapo"])}</p>')
     w("")

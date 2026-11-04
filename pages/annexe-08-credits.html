@@ -1,5 +1,5 @@
 <!-- ═══════════════════════════════════════════════════════════════════
-     Annexe 12 · Monnaie, médailles et missions — à coller dans une page HTML.
+     Annexe 08 · Les crédits — à coller dans une page HTML.
 
      ÉCRITE PAR `outils/annexes.py`. Ne pas corriger ce fichier à la
      main : la correction serait perdue à la prochaine génération, et
@@ -15,7 +15,7 @@
          est un document complet : elle charge elle-même les polices,
          `jetons.css`, la feuille et `js/annexes.js`. Avec la case à
          OUI, on aurait deux en-têtes et deux pieds l'un dans l'autre.
-       · L'adresse doit finir par **monnaie-et-missions** — c'est ce bout que le
+       · L'adresse doit finir par **credits** — c'est ce bout que le
          sommaire reconnaît pour se surligner, et pas le numéro `hN`,
          qui dépend de l'ordre de création chez Forumactif.
        · Reporter l'adresse obtenue dans `data/annexes.json`, champ
@@ -35,7 +35,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Annexe 12 · Monnaie, médailles et missions — Wild Mystery</title>
+  <title>Annexe 08 · Les crédits — Wild Mystery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -54,94 +54,71 @@
       <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
     </nav>
 
-<!-- ▼▼▼ DÉBUT DU CORPS — c'est la seule partie qu'on rédige ▼▼▼ -->
-<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/usine-desaffectee.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/52.png')">
+<!-- ▼▼▼ DÉBUT DU CORPS — écrit par `outils/annexe-credits.py` ▼▼▼ -->
+<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/relique-sacree.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/251.png')">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
 
   <div class="wm-annexe__corps">
     <div class="wm-annexe__colonne">
 
-      <p class="wm-annexe__surtitre">Annexe 12</p>
-      <h1 class="wm-annexe__titre">Monnaie, médailles et <em>missions</em></h1>
-      <p class="wm-annexe__chapo">
-        Une phrase ou deux pour dire à quoi sert cette page, et ce qu'on y trouvera.
-        Elle se lit avant tout le reste : autant qu'elle serve à décider si on continue.
-      </p>
+      <p class="wm-annexe__surtitre">Annexe 08</p>
+      <h1 class="wm-annexe__titre">Les <em>crédits</em></h1>
+      <p class="wm-annexe__chapo">Wild Mystery est un forum inspiré de la franchise Pokémon, et plus précisément des jeux Pokémon Colosseum et Pokémon XD : Le Souffle des Ténèbres. Merci à leurs créateurs, sans qui ce bébé n&#x27;aurait pas vu le jour.</p>
 
       <div class="wm-annexe__blocs">
 
         <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Le premier bloc</h2>
-          <ul class="wm-tirets">
-            <li><b>Une liste à tirets</b> pour ce qui s'énumère : des étapes, des
-              conditions, des cas. Le tiret est posé par la feuille — ne pas le
-              réécrire ici.</li>
-            <li><b>Le mot en gras ouvre la ligne</b>, et la suite l'explique. C'est ce qui
-              rend la liste lisible en diagonale.</li>
-            <li>Une ligne peut aussi n'être qu'une phrase, sans mot en tête.</li>
+          <h2 class="wm-annexe__carte-titre">Le code</h2>
+          <div class="wm-paras">
+            <p>Le forum a entièrement été codé par teenspirit.</p>
+          </div>
+          <ul class="wm-credits">
+            <li class="wm-credit">
+              <span class="wm-credit__quoi">Le forum</span>
+              <span class="wm-credit__qui">codé par <b>teenspirit</b></span>
+            </li>
+            <li class="wm-credit">
+              <span class="wm-credit__quoi">Le système automatisé</span>
+              <span class="wm-credit__qui">créé par <b>teenspirit</b></span>
+            </li>
+            <li class="wm-credit">
+              <span class="wm-credit__quoi">Le Messenger</span>
+              <span class="wm-credit__qui">créé par <b>Seth Clydesdale</b>, personnalisé par <b>teenspirit</b></span>
+            </li>
+            <li class="wm-credit">
+              <span class="wm-credit__quoi">Le Switcheroo</span>
+              <span class="wm-credit__qui">créé par <b>Monomer</b>, personnalisé par <b>teenspirit</b></span>
+            </li>
+            <li class="wm-credit">
+              <span class="wm-credit__quoi">Le carnet de bord</span>
+              <span class="wm-credit__qui">inspiré de l&#x27;outil <b>Airpéger</b>, créé par <b>teenspirit</b></span>
+            </li>
           </ul>
         </div>
 
-        <div class="wm-paire">
-          <div class="wm-annexe__carte">
-            <h2 class="wm-annexe__carte-titre">Deux cartes côte à côte</h2>
-            <div class="wm-paras">
-              <p>La brique <b>paire</b> pose deux cartes de même largeur. Elle sert quand
-                deux choses se répondent — avant et après, ce qu'on gagne et ce qu'on
-                risque.</p>
-              <p>Sous 900 pixels, elles s'empilent toutes seules.</p>
-            </div>
-          </div>
-          <div class="wm-annexe__carte">
-            <h2 class="wm-annexe__carte-titre">Et du texte suivi</h2>
-            <div class="wm-paras">
-              <p>La brique <b>paras</b> est le texte courant : des paragraphes, sans puce
-                ni numéro. C'est elle qu'on emploie quand une idée ne se découpe pas.</p>
-            </div>
-          </div>
-        </div>
-
         <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Un tableau</h2>
-          <div class="wm-table">
-            <div class="wm-table__ligne wm-table__ligne--entete">
-              <span class="wm-table__cellule wm-table__cellule--nom">Ce qu'on nomme</span>
-              <span class="wm-table__cellule">Ce que c'est</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">Combien</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Première ligne</span>
-              <span class="wm-table__cellule">La colonne du milieu porte l'explication.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Deuxième ligne</span>
-              <span class="wm-table__cellule">Le tableau est en flexbox, pas une
-                vraie table : sur téléphone chaque ligne s'empile et l'en-tête
-                disparaît.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
-            </div>
+          <h2 class="wm-annexe__carte-titre">Celles et ceux sans qui il n&#x27;existerait pas</h2>
+          <div class="wm-paras">
+            <p>Le forum est issu de la petite tête de <b>Plumtys</b>, ainsi que d&#x27;<b>HIPPOGRIFFE.</b>, sans qui il n&#x27;aurait pas pu voir le jour.</p>
+            <p>Merci à <b>Plumtys</b>, <b>HIPPOGRIFFE.</b> et <b>Ekko</b>, sans qui la nouvelle version du projet n&#x27;aurait pas vu le jour, et qui m&#x27;ont énormément soutenue dans cette refonte.</p>
+            <p>Merci à <b>Ekko</b> pour la version hiver 2027 du forum.</p>
+            <p>Merci à tous les <b>bêta-testeurs</b> : c&#x27;est grâce à eux que le système automatisé est sorti avec le moins de bugs possible.</p>
+            <p>Merci à tous les <b>anciens membres</b> qui ont fait vivre la V1, et aux <b>nouveaux</b> qui la font perpétuer.</p>
           </div>
         </div>
 
         <div class="wm-encarts">
           <div class="wm-encart wm-encart--terre">
-            <span class="wm-encart__etiquette">À retenir</span>
-            <p>L'encart terre souligne ce qu'il ne faut pas manquer. Deux ou trois lignes,
-              pas plus : un encart long n'est plus un encart.</p>
-          </div>
-          <div class="wm-encart wm-encart--paisible">
-            <span class="wm-encart__etiquette">Bon à savoir</span>
-            <p>L'encart vert dit ce qui rassure, ou ce qui se fait tout seul. Les deux vont
-              par paire et se répondent.</p>
+            <span class="wm-encart__etiquette">Copyright</span>
+            <p>Le forum se trouve sous copyright ©2020-2027. Merci de ne copier aucun contenu sans l&#x27;approbation de l&#x27;équipe administrative.</p>
           </div>
         </div>
 
         <div class="wm-suivante">
-          <a class="wm-suivante__bouton" href="/h13-combat-et-progression">
+          <a class="wm-suivante__bouton" href="/h10-staff">
             <span class="wm-suivante__etiquette">Annexe suivante</span>
-            Combat et progression →
+            Le staff →
           </a>
           <div class="wm-question">
             <span class="wm-question__mot">Une question ?</span>

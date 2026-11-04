@@ -23,7 +23,7 @@
 //    · rien ne déborde, à 1 440 comme à 390.
 //
 //  LE DÉCOR SERT LA VRAIE PAGE ET LES VRAIES DONNÉES. Pas un gabarit
-//  qui lui ressemble : `pages/annexe-06-…html` tel qu'il sera collé,
+//  qui lui ressemble : `la page de l'annexe` tel qu'il sera collé,
 //  `js/carte.js` tel qu'il sera servi, et les dix-sept fichiers de
 //  faune du dépôt. Un décor qui ne reproduit pas ce que l'hôte sert ne
 //  teste que lui-même — payé quatre fois sur ce projet.
@@ -48,7 +48,19 @@ const R = new URL("..", import.meta.url).pathname;
 const lire = (c) => readFileSync(R + c, "utf8");
 const json = (c) => JSON.parse(lire(c));
 
-const PAGE = lire("pages/annexe-06-la-region-et-ses-zones.html");
+//  LA PAGE SE TROUVE PAR SON SLUG, pas par son numéro : le numéro
+//  est un rang dans le sommaire, et il a reculé d'un cran le 4
+//  novembre quand « créer son personnage » s'est repliée dans « par
+//  où commencer ». Un chemin écrit à la main aurait fait tomber le
+//  harnais sur un fichier absent.
+const CHEMIN = (() => {
+  const e = json("data/annexes.json").sections
+    .flatMap((s) => s.entrees)
+    .find((x) => x.slug === "la-region-et-ses-zones");
+  if (e === undefined) throw new Error("la-region-et-ses-zones n'est pas dans data/annexes.json");
+  return `pages/annexe-${e.numero}-${e.slug}.html`;
+})();
+const PAGE = lire(CHEMIN);
 const CARTE = json("data/carte.json");
 const REGION = json("data/region.json");
 const BUTIN = json("data/butin.json");

@@ -1,5 +1,5 @@
 <!-- ═══════════════════════════════════════════════════════════════════
-     Annexe 07 · Arènes, colosseums et Ligue — à coller dans une page HTML.
+     Annexe 04 · Le guide du dresseur — à coller dans une page HTML.
 
      ÉCRITE PAR `outils/annexes.py`. Ne pas corriger ce fichier à la
      main : la correction serait perdue à la prochaine génération, et
@@ -15,7 +15,7 @@
          est un document complet : elle charge elle-même les polices,
          `jetons.css`, la feuille et `js/annexes.js`. Avec la case à
          OUI, on aurait deux en-têtes et deux pieds l'un dans l'autre.
-       · L'adresse doit finir par **arenes-colosseums-ligues** — c'est ce bout que le
+       · L'adresse doit finir par **guide-du-dresseur** — c'est ce bout que le
          sommaire reconnaît pour se surligner, et pas le numéro `hN`,
          qui dépend de l'ordre de création chez Forumactif.
        · Reporter l'adresse obtenue dans `data/annexes.json`, champ
@@ -35,7 +35,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Annexe 07 · Arènes, colosseums et Ligue — Wild Mystery</title>
+  <title>Annexe 04 · Le guide du dresseur — Wild Mystery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -55,15 +55,15 @@
     </nav>
 
 <!-- ▼▼▼ DÉBUT DU CORPS — c'est la seule partie qu'on rédige ▼▼▼ -->
-<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-sombre.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/6.png')">
+<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/lande-broussailleuse.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/448.png')">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
 
   <div class="wm-annexe__corps">
     <div class="wm-annexe__colonne">
 
-      <p class="wm-annexe__surtitre">Annexe 07</p>
-      <h1 class="wm-annexe__titre">Arènes, colosseums et <em>Ligue</em></h1>
+      <p class="wm-annexe__surtitre">Annexe 04</p>
+      <h1 class="wm-annexe__titre">Le guide du <em>dresseur</em></h1>
       <p class="wm-annexe__chapo">
         Une phrase ou deux pour dire à quoi sert cette page, et ce qu'on y trouvera.
         Elle se lit avant tout le reste : autant qu'elle serve à décider si on continue.
@@ -138,43 +138,10 @@
           </div>
         </div>
 
-        <!--  LE RENVOI VERS LES CHAMPIONS. Demandé le 4 novembre :
-              « dans l'annexe des arènes, trouve un endroit qui renvoie
-              aux différents champions jouables ». Il est en BAS et pas
-              en tête : on vient ici pour savoir qui défier et dans
-              quel ordre, pas pour postuler — et c'est en sortant qu'on
-              se demande qui tient la place.
-
-              Le reste de cette page est encore le remplissage du
-              gabarit. Ce bloc-ci est rédigé, donc `outils/annexes.py`
-              le conservera. -->
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Et qui tient ces arènes ?</h2>
-          <div class="wm-paras">
-            <p>Les onze postes de champion sont interprétables, et ils sont
-              tous vacants aujourd'hui. Chaque arène et chaque colosseum y a
-              sa ligne, avec son type et sa ville.</p>
-          </div>
-          <div class="wm-encarts">
-            <div class="wm-encart wm-encart--paisible">
-              <span class="wm-encart__etiquette">Un poste t'intéresse ?</span>
-              <p>Tu es libre de débarquer avec ton propre personnage pour
-                prendre la place. Tu partiras d'office avec le badge de ton
-                arène, mais tu construiras ton équipe comme tout le monde.</p>
-            </div>
-          </div>
-          <p class="wm-perso__liens">
-            <a class="wm-perso__lien" href="/h11-celebrites-de-rhode#les-champions">Les
-              onze postes de champion →</a>
-            <a class="wm-perso__lien" href="/h11-celebrites-de-rhode">Personnages
-              jouables, champions &amp; célébrités →</a>
-          </p>
-        </div>
-
         <div class="wm-suivante">
-          <a class="wm-suivante__bouton" href="/h8-groupes">
+          <a class="wm-suivante__bouton" href="/h6-la-region-et-ses-zones">
             <span class="wm-suivante__etiquette">Annexe suivante</span>
-            Les groupes →
+            La région et ses zones →
           </a>
           <div class="wm-question">
             <span class="wm-question__mot">Une question ?</span>

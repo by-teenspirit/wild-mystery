@@ -40,12 +40,14 @@ from annexes import (  # noqa: E402
     DEBUT,
     FIN,
     entre_les_bornes,
+    chemin_de_la_page,
+    numero_de,
     pied_de_page,
     remplacer_le_corps,
 )
 
 R = pathlib.Path(__file__).resolve().parent.parent
-PAGE = R / "pages" / "annexe-06-la-region-et-ses-zones.html"
+PAGE = chemin_de_la_page("la-region-et-ses-zones")
 
 PALIERS = {
     1: ("Palier 1", "Zones accessibles"),
@@ -115,7 +117,8 @@ def corps():
     w('  <div class="wm-annexe__corps">')
     w('    <div class="wm-annexe__colonne wm-annexe__colonne--large">')
     w("")
-    w('      <p class="wm-annexe__surtitre">Annexe 06</p>')
+    w('      <p class="wm-annexe__surtitre">Annexe '
+      f'{numero_de("la-region-et-ses-zones")}</p>')
     w('      <h1 class="wm-annexe__titre">La <em>région</em> et ses zones</h1>')
     w('      <p class="wm-annexe__chapo">')
     w(f"        Dix-sept zones sauvages, trois paliers, {total_especes(faunes)} lignes d'espèce.")
