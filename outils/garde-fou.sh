@@ -263,12 +263,18 @@ echo "── 8. le paquet livré est celui des sources ────────�
 # protège plus rien. Le CI, lui, a Deno — c'est là qu'elle mord. Si Deno
 # venait à manquer AU CI, `deno task verif` serait tombé bien avant
 # d'arriver ici.
-# IL Y EN A DEUX DEPUIS LE 1er NOVEMBRE. Les annexes sont des pages
-# autonomes : créées sans l'en-tête du forum, elles ne reçoivent aucun
+# IL Y EN A QUATRE. Les pages autonomes — annexes, carnet, annexe de la
+# carte — sont créées sans l'en-tête du forum : elles ne reçoivent aucun
 # script et chargent le leur. `js/annexes.js` ne pose que le sommaire,
 # et surtout il NE CHARGE PAS le switcheroo ni la réécriture de barre
-# que porte l'autre paquet. Les deux se vérifient pareil.
-for src in js/wild-mystery.ts js/annexes.ts; do
+# que porte `wild-mystery.js`. Tous se vérifient pareil.
+#
+# ET IL EN MANQUAIT DEUX, dont le carnet — le paquet dont une version
+# périmée a servi un écran vide pendant une journée entière le 3
+# novembre. La règle existait, elle ne regardait simplement pas ce
+# fichier-là. Une garde qui ne couvre pas le cas qui est déjà arrivé
+# n'est pas une garde.
+for src in js/wild-mystery.ts js/annexes.ts js/carnet.ts js/carte.ts; do
   [ -f "$src" ] || continue
   livre="${src%.ts}.js"
   if ! command -v deno > /dev/null 2>&1; then
@@ -843,8 +849,18 @@ echo "── 23. les fichiers dérivés se dérivent, ils ne s'écrivent pas ─
 if ! command -v python3 >/dev/null 2>&1; then
   echo "   python3 absent du PATH — chaîne du Pokédex non vérifiée"
 else
+  # ET DEPUIS LE 4 NOVEMBRE, UNE PAGE DÉRIVÉE, pas seulement un JSON :
+  #
+  #   carte.json + les 17 faune/*.json + butin.json
+  #               →  pages/annexe-06-la-region-et-ses-zones.html
+  #
+  # Elle porte les dix-sept zones, leurs niveaux, leur compte d'espèces
+  # et, dans son repli sans JavaScript, les 933 noms. Une table de faune
+  # qui bouge sans que la page suive, et la page ment — sans casser.
+  # C'est exactement le cas que la règle 9 décrit pour l'index des
+  # espèces, appliqué à du HTML.
   for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones pokedex-carnet \
-               minifier-le-code; do
+               minifier-le-code annexe-carte; do
     if ! python3 "outils/$outil.py" --verifier; then
       gronde "outils/$outil.py --verifier refuse : un fichier dérivé a été modifié à la main"
     fi
@@ -879,6 +895,65 @@ print(f"   badges : {len(colles)} slugs, mêmes noms et même ordre des deux cô
 PY
   then
     gronde "le code à coller et data/arenes.json ne listent pas les mêmes badges"
+  fi
+fi
+
+echo "── 25. chaque espèce des tables a un sprite ────────────────────"
+# TROUVÉ EN BRANCHANT L'ANNEXE DE LA CARTE, le 4 novembre.
+#
+# `data/sprites-couverture.json` a été écrit quand les dix-sept tables
+# portaient 734 espèces. Elles en portent 933 depuis que le Pokédex de
+# Rhode a été réparti par zone, et `outils/sprites.py` n'a pas été
+# rejoué : DEUX CENT DIX espèces n'ont donc aucune image, dans aucun
+# des trois styles.
+#
+# Ça ne casse rien — la page laisse une case vide plutôt qu'une image
+# morte — et c'est exactement pour ça que personne ne l'avait vu.
+#
+# LA DETTE EST CHIFFRÉE ICI, ET ELLE NE DOIT PAS GROSSIR. Faire échouer
+# le garde-fou pour un manque qui se répare avec le réseau et Pillow —
+# donc sur le Mac, pas ici — rendrait le rouge permanent, et un rouge
+# permanent est un rouge qu'on cesse de lire (voir la règle 8). On
+# compte, on compare, et on refuse que ça empire.
+#
+# POUR LA SOLDER : `python3 outils/sprites.py` sur le Mac, puis
+# commiter les images et la couverture. Le chiffre ci-dessous tombe
+# alors à zéro, et il faut le mettre à jour — c'est le seul moment où
+# cette ligne se touche.
+DETTE_SPRITES=210
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — couverture des sprites non vérifiée"
+else
+  if ! python3 - "$DETTE_SPRITES" <<'PY'
+import glob, json, sys
+from pathlib import Path
+dette = int(sys.argv[1])
+couverture = json.loads(Path("data/sprites-couverture.json").read_text(encoding="utf-8"))
+styles = couverture["styles"]
+especes = set()
+for f in glob.glob("data/faune/*.json"):
+    d = json.loads(Path(f).read_text(encoding="utf-8"))
+    for table in d["conditions"].values():
+        for e in table:
+            especes.add(str(e["espece"]))
+#  LES TROIS STYLES, pas seulement celui par défaut : un joueur qui a
+#  choisi « retro » doit voir les mêmes espèces que les autres.
+manques = {s: sorted(especes - set(v["especes"]), key=int) for s, v in styles.items()}
+pire = max(len(m) for m in manques.values())
+if pire > dette:
+    for s, m in manques.items():
+        print(f"   {s:8} {len(m)} espèce(s) sans sprite — ex. {m[:6]}")
+    print(f"   la dette était de {dette}, elle est de {pire}")
+    sys.exit(1)
+if pire < dette:
+    print(f"   sprites : {pire} sans image, la dette baisse (elle était de {dette}) — "
+          f"mets DETTE_SPRITES à {pire} dans outils/garde-fou.sh")
+else:
+    print(f"   sprites : {len(especes)} espèces dans les tables, {pire} sans image "
+          f"— dette inchangée, à solder avec « python3 outils/sprites.py »")
+PY
+  then
+    gronde "des espèces de plus n'ont pas de sprite — relance « python3 outils/sprites.py »"
   fi
 fi
 

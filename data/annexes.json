@@ -42,7 +42,8 @@
           "numero": "06",
           "slug": "la-region-et-ses-zones",
           "titre": "La région et ses zones",
-          "adresse": "/h6-la-region-et-ses-zones"
+          "adresse": "/h6-la-region-et-ses-zones",
+          "scripts": ["js/carte.js"]
         },
         {
           "numero": "07",

@@ -84,6 +84,18 @@ export function racineDesImages(adresseDuScript: string | null): string | null {
   return donnees === null ? null : donnees.replace(/data\/$/, "assets/");
 }
 
+/** L'adresse de la racine du dépôt servi.
+ *
+ *  Elle sert à une seule chose, et c'est `Sprites.adresse` : cette
+ *  classe rend soit une URL complète chez PokeAPI, soit un chemin
+ *  `assets/…` RELATIF À LA RACINE DU DÉPÔT, parce qu'elle ne sait pas —
+ *  et n'a pas à savoir — où le dépôt est servi. Le recollage se fait
+ *  ici, dans la couche qui connaît les adresses. */
+export function racineDuDepot(adresseDuScript: string | null): string | null {
+  const donnees = racineDesDonnees(adresseDuScript);
+  return donnees === null ? null : donnees.replace(/data\/$/, "");
+}
+
 /** L'adresse de notre propre script, telle que le navigateur la connaît.
  *
  *  `currentScript` n'est renseigné que pendant l'exécution initiale : on

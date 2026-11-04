@@ -268,7 +268,7 @@ GABARIT = """<!-- ════════════════════�
 
 {pied}
 </div>
-<script src="{pages}/js/annexes.js"></script>
+<script src="{pages}/js/annexes.js"></script>{scripts}
 </body>
 </html>
 """
@@ -359,6 +359,18 @@ def main():
             #  une adresse inventée serait un lien mort, et le sommaire
             #  dit déjà « à venir » pour la même raison.
             suivante_lien=suite["adresse"] or "#",
+            #  ── UN SECOND SCRIPT, POUR LES PAGES QUI EN ONT BESOIN ──
+            #
+            #  L'annexe de la carte porte la carte de l'index, qui pèse
+            #  un millier de lignes. Mise dans `annexes.js`, elle serait
+            #  téléchargée par les QUATORZE pages pour servir sur UNE.
+            #  Elle a donc son paquet, et c'est `data/annexes.json` qui
+            #  dit quelle page le charge — pas une exception écrite ici,
+            #  qui serait un second endroit à tenir d'accord avec le
+            #  premier.
+            scripts="".join(
+                f'\n<script src="{PAGES}/{s}"></script>' for s in e.get("scripts", [])
+            ),
         )
         chemin = dossier / f"annexe-{e['numero']}-{e['slug']}.html"
 

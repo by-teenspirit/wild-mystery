@@ -337,12 +337,49 @@ export function ancrerLaCarte(doc: Document, carte: Carte): HTMLElement | null {
 
 /** Pose la carte dans son hôte. Rend `null` si l'hôte ou la carte
  *  manquent — la page reste alors celle de ModernBB, entière. */
-export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
+export function poserLaCarte(
+  doc: Document,
+  donnees: unknown,
+  surChoix?: (forumId: number) => void,
+): Pose | null {
   const carte = carteDepuis(donnees);
   if (carte === null) return null;
   const hote = ancrerLaCarte(doc, carte);
   if (hote === null) return null;
+  return dessinerLaCarte(doc, hote, carte, surChoix);
+}
 
+/**
+ * La même carte, dans un hôte qu'on lui donne.
+ *
+ * **L'INDEX ET L'ANNEXE DOIVENT MONTRER LA MÊME CARTE**, et le seul
+ * moyen d'en être sûr est que ce soit le même code. Ce qui les
+ * distingue n'est pas le dessin, c'est l'ancrage : sur l'index la carte
+ * va chercher les blocs de catégorie qu'elle remplace, et sur une page
+ * HTML du portail il n'y en a aucun — `ancrerLaCarte` y rendrait `null`
+ * et la page resterait vide.
+ *
+ * Les comptages, eux, ne suivent pas : ils se lisent sur les lignes de
+ * l'index, qui n'existent pas non plus ici. Le panneau garde donc ses
+ * tirets, et c'est à l'appelant de dire autre chose s'il a mieux.
+ */
+export function poserLaCarteDans(
+  doc: Document,
+  hote: HTMLElement,
+  donnees: unknown,
+  surChoix?: (forumId: number) => void,
+): Pose | null {
+  const carte = carteDepuis(donnees);
+  if (carte === null) return null;
+  return dessinerLaCarte(doc, hote, carte, surChoix);
+}
+
+function dessinerLaCarte(
+  doc: Document,
+  hote: HTMLElement,
+  carte: Carte,
+  surChoix?: (forumId: number) => void,
+): Pose {
   const racine = el(doc, "section", "wm-carte");
   racine.setAttribute("aria-label", "La carte de Rhode");
 
@@ -813,6 +850,11 @@ export function poserLaCarte(doc: Document, donnees: unknown): Pose | null {
       }
     }
     remplirLePanneau(lieu);
+    //  L'APPELANT EST PRÉVENU EN DERNIER, et jamais avant que le
+    //  panneau soit à jour : l'annexe s'en sert pour aller chercher la
+    //  faune de la zone, et une erreur de réseau ne doit pas laisser la
+    //  carte à moitié allumée.
+    surChoix?.(forumId);
   };
 
   //  LE CLAVIER OUVRE LA FORME. Le clic à la souris, lui, ne passe

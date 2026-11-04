@@ -1,0 +1,316 @@
+/* ════════════════════════════════════════════════════════════════════
+   22-faune.css — l'annexe de la carte
+
+   Ce qui s'ajoute à la carte de l'index, qui garde sa feuille
+   (`16-carte.css`) : le panneau de faune qu'un clic remplit, et le
+   repli sans JavaScript.
+
+   ── LA CARTE N'EST PAS RESTYLÉE ICI ──────────────────────────────
+   Elle est la même que sur l'index, module et feuille compris. Lui
+   donner une seconde apparence sur cette page serait rouvrir le
+   problème qu'on vient de fermer en réutilisant son module.
+
+   ── LES RARETÉS REPRENNENT `wm-etiquette` ────────────────────────
+   Le composant existe depuis le 11 octobre, avec ses contrastes
+   mesurés. Trois étiquettes de plus auraient été trois occasions de
+   se tromper de jeton — et la règle `texte-pale` / `texte-doux` a
+   déjà été payée trois fois dans la même journée.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · l'hôte de la carte ───────────────────────────────────────── */
+
+/*  Un simple conteneur : la carte se pose dedans et porte sa propre
+    surface. Sans hauteur minimale, la page saute de huit cents pixels
+    au moment où le module arrive. */
+#modernbb .wm-plateau {
+  min-height: 420px;
+}
+
+/*  LE REPLI DISPARAÎT PAR CETTE CLASSE, QUE LE MODULE POSE, et jamais
+    par une règle qui viserait `.wm-faune-repli` tout court. Une règle
+    inconditionnelle le cacherait même quand le script tombe — et la
+    page n'aurait alors ni carte ni liste. */
+#modernbb .wm-faune-repli--remplace {
+  display: none;
+}
+
+/* ── 2 · le repli : les dix-sept zones en texte ───────────────────── */
+
+#modernbb .wm-faune-repli__palier {
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-faune-repli__zone {
+  margin-bottom: var(--wm-espace-20, 20px);
+  padding-bottom: var(--wm-espace-20, 20px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-faune-repli__nom {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-faune-repli__chiffres {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-faune-repli__dit {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  LES NEUF CENT TRENTE-TROIS NOMS, en une phrase par zone. C'est long,
+    et c'est voulu : sans JavaScript, c'est tout ce que la page a à
+    offrir, et une liste qu'on peut chercher au Ctrl+F vaut mieux qu'un
+    compte. */
+#modernbb .wm-faune-repli__especes {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/* ── 3 · le panneau de faune ──────────────────────────────────────── */
+
+#modernbb .wm-faune {
+  box-sizing: border-box;
+  margin-top: var(--wm-espace-24, 24px);
+  padding: var(--wm-espace-24, 24px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-faune__tete {
+  margin-bottom: var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-faune__titre {
+  margin: 0;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-faune__chiffres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  margin: var(--wm-espace-8, 8px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-faune__dit {
+  margin: var(--wm-espace-10, 10px) 0 0;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-faune__vide {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+/* ── 4 · les tranches de rareté ───────────────────────────────────── */
+
+#modernbb .wm-faune__tranche {
+  margin-top: var(--wm-espace-24, 24px);
+}
+
+#modernbb .wm-faune__tranche-tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--wm-espace-10, 10px);
+  margin: 0 0 var(--wm-espace-12, 12px);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+}
+
+#modernbb .wm-faune__tranche-mot {
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LA RARETÉ SE VOIT AUSSI EN COULEUR, mais jamais SEULEMENT en
+    couleur : le mot est écrit à côté. Les trois fonds viennent des
+    jetons déjà mesurés — pas d'une teinte inventée pour l'occasion. */
+#modernbb .wm-faune__tranche[data-wm-rarete="peu commun"] .wm-faune__tranche-mot {
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+#modernbb .wm-faune__tranche[data-wm-rarete="rare"] .wm-faune__tranche-mot {
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-faune__tranche-part {
+  color: var(--wm-texte-doux, #6e5749);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+/* ── 5 · la grille d'espèces ──────────────────────────────────────── */
+
+/*  ZÉRO TABLEAU, QUE DU FLEXBOX — règle du dépôt. `wrap` et une base
+    de 132 px : la grille se reflue toute seule de cinq colonnes à deux
+    sans un seul point de rupture. */
+#modernbb .wm-faune__especes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-faune__espece {
+  display: flex;
+  flex: 1 1 132px;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  max-width: 190px;
+  padding: var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  text-align: center;
+}
+
+#modernbb .wm-faune__sprite {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+/*  Une espèce hors couverture garde sa place : un trou dans la grille
+    se remarque, une grille qui saute une ligne non. */
+#modernbb .wm-faune__sprite--absent {
+  display: block;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-faune__nom {
+  margin-top: var(--wm-espace-8, 8px);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-faune__niveaux,
+#modernbb .wm-faune__sur {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-faune__chance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-faune__pct {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/* ── 6 · ce qu'on trouve au sol ───────────────────────────────────── */
+
+#modernbb .wm-faune__sol {
+  margin-top: var(--wm-espace-32, 32px);
+  padding-top: var(--wm-espace-24, 24px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-faune__sol-titre {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-faune__issues,
+#modernbb .wm-faune__objets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-10, 10px);
+  margin: var(--wm-espace-12, 12px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-faune__issue,
+#modernbb .wm-faune__objet {
+  display: flex;
+  flex: 1 1 180px;
+  box-sizing: border-box;
+  flex-direction: column;
+  max-width: 280px;
+  padding: var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-faune__issue-mot,
+#modernbb .wm-faune__objet-nom {
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-faune__issue-pct,
+#modernbb .wm-faune__objet-pct {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-faune__objet-famille {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/* ── 7 · le téléphone ─────────────────────────────────────────────── */
+
+/*  « On touche à rien pour la version mobile » vaut pour ce qui EXISTE.
+    Cette page est neuve, et la grille se reflue déjà toute seule : il
+    ne reste qu'à resserrer les marges et à rendre les sprites plus
+    petits, sinon deux colonnes de 96 px débordent sous 390 px. */
+@media (max-width: 760px) {
+  #modernbb .wm-faune {
+    padding: var(--wm-espace-16, 16px);
+  }
+
+  #modernbb .wm-faune__espece {
+    flex-basis: 96px;
+    padding: var(--wm-espace-8, 8px);
+  }
+
+  #modernbb .wm-faune__sprite,
+  #modernbb .wm-faune__sprite--absent {
+    width: 72px;
+    height: 72px;
+  }
+}

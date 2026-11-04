@@ -17,11 +17,12 @@
     "test:adaptateurs": "deno test --allow-read src/adaptateurs/",
     "test:tout": "deno test --allow-env --allow-read --allow-net --allow-run src/",
     "css": "bash outils/css.sh",
-    "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts && deno bundle --platform browser --format iife --minify -o js/annexes.js js/annexes.ts && deno bundle --platform browser --format iife --minify -o js/carnet.js js/carnet.ts",
+    "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts && deno bundle --platform browser --format iife --minify -o js/annexes.js js/annexes.ts && deno bundle --platform browser --format iife --minify -o js/carnet.js js/carnet.ts && deno bundle --platform browser --format iife --minify -o js/carte.js js/carte.ts",
     "test:navigateur": "deno test --allow-env --allow-read=data/accueil.json,img/accueil src/navigateur/",
     "harnais": "deno bundle --platform browser --format iife -o js/harnais-sommaire.js js/harnais-sommaire.ts",
     "contraste": "deno run -A outils/contraste.mjs",
-    "annexes": "python3 outils/annexes.py",
+    "annexes": "python3 outils/annexe-carte.py && python3 outils/annexes.py",
+    "annexe-carte": "python3 outils/annexe-carte.py",
     "navigation": "deno run -A outils/navigation.mjs",
     "confort": "deno run -A outils/confort.mjs",
     "accueil": "deno run -A outils/accueil.mjs",
@@ -40,6 +41,7 @@
     "membres": "deno run -A outils/membres.mjs",
     "tcard": "deno run -A outils/tcard.mjs",
     "carnet": "deno run -A outils/carnet.mjs",
+    "faune": "deno run -A outils/faune.mjs",
     "natures": "deno run --allow-read=. outils/natures.ts"
   },
   "fmt": {
@@ -59,7 +61,8 @@
       "js/wild-mystery.js",
       "js/annexes.js",
       "js/harnais-sommaire.js",
-      "js/carnet.js"
+      "js/carnet.js",
+      "js/carte.js"
     ]
   },
   "lint": {
@@ -84,7 +87,8 @@
       "js/wild-mystery.js",
       "js/annexes.js",
       "js/harnais-sommaire.js",
-      "js/carnet.js"
+      "js/carnet.js",
+      "js/carte.js"
     ]
   },
   "test": {
