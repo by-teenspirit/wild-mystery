@@ -13,6 +13,7 @@ import {
   partsDuSol,
   pourCent,
   RARETES,
+  typesDe,
   uneFoisSur,
 } from "./faune.ts";
 
@@ -253,4 +254,25 @@ Deno.test("et dès qu'une part diffère, chaque carte reprend la sienne", () => 
 Deno.test("une tranche d'une seule espèce est uniforme, et c'est juste", () => {
   assertEquals(parRarete([e({ pct: 5 })])[0].commune, 5);
   assertEquals(partCommune([]), null);
+});
+
+Deno.test("ON N'AFFICHE QUE LES TYPES QU'ON SAIT DESSINER", () => {
+  //  Les dix-huit noms sont ceux de `img/types/<type>.png`. Un type
+  //  inventé deviendrait une image cassée sur soixante-treize cartes.
+  const fiches = { "1": { types: ["plante", "poison"] }, "2": { types: ["lumiere"] } };
+  assertEquals(typesDe(fiches, 1), ["plante", "poison"]);
+  assertEquals(typesDe(fiches, 2), []);
+  assertEquals(typesDe(fiches, 999), []);
+});
+
+Deno.test("et jamais plus de deux", () => {
+  //  Un Pokémon en a un ou deux. On coupe plutôt que de laisser une
+  //  donnée inattendue casser la grille.
+  const fiches = { "3": { types: ["feu", "vol", "dragon"] } };
+  assertEquals(typesDe(fiches, 3), ["feu", "vol"]);
+});
+
+Deno.test("une fiche sans types ne casse rien", () => {
+  assertEquals(typesDe({ "4": {} }, 4), []);
+  assertEquals(typesDe({}, 4), []);
 });

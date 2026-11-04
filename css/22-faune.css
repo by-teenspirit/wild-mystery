@@ -215,11 +215,15 @@
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
-/* ── 5 · la grille d'espèces ──────────────────────────────────────── */
+/* ── 5 · la grille d'espèces ──────────────────────────────────────
 
-/*  ZÉRO TABLEAU, QUE DU FLEXBOX — règle du dépôt. `wrap` et une base
-    de 132 px : la grille se reflue toute seule de cinq colonnes à deux
-    sans un seul point de rupture. */
+   ZÉRO TABLEAU, QUE DU FLEXBOX — règle du dépôt. `wrap` et une base
+   de 150 px : la grille se reflue toute seule de cinq colonnes à deux
+   sans un seul point de rupture.
+
+   LA CARTE SE SUFFIT À ELLE-MÊME : sprite, nom, types, niveaux,
+   rareté, chance. Elle se relit hors de son groupe, et c'est ce qui
+   permettra un jour de la sortir d'une tranche sans la redessiner. */
 #modernbb .wm-faune__especes {
   display: flex;
   flex-wrap: wrap;
@@ -231,56 +235,168 @@
 
 #modernbb .wm-faune__espece {
   display: flex;
-  flex: 1 1 132px;
+  flex: 1 1 150px;
   box-sizing: border-box;
   flex-direction: column;
   align-items: center;
-  max-width: 190px;
-  padding: var(--wm-espace-12, 12px);
+  max-width: 200px;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-10, 10px) 0;
+  overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
   text-align: center;
 }
 
+/*  LE LISERÉ DIT LA RARETÉ AVANT QU'ON LISE. Il est en haut, sur toute
+    la largeur : à cinq colonnes, l'œil suit une ligne de couleur plus
+    vite qu'il ne lit trente-six fois le même mot. Le mot reste écrit
+    en pied de carte — un joueur sur douze ne distingue pas les
+    teintes. */
+#modernbb .wm-faune__espece::before {
+  content: "";
+  display: block;
+  width: calc(100% + var(--wm-espace-20, 20px));
+  height: 3px;
+  margin: calc(var(--wm-espace-10, 10px) * -1) calc(var(--wm-espace-10, 10px) * -1) 0;
+  background: var(--wm-palier-1, #3f7d52);
+}
+
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"]::before {
+  background: var(--wm-palier-2, #a05e18);
+}
+
+#modernbb .wm-faune__espece[data-wm-rarete="rare"]::before {
+  background: var(--wm-palier-3, #b1402f);
+}
+
+/*  ── LA BOÎTE EST FIXE, L'IMAGE NON ─────────────────────────────
+
+    Les sprites vont de 41 × 56 à 207 × 185. Leur imposer 96 × 96
+    agrandissait les petits — un Aspicot de 44 pixels étiré à 96 bave
+    — et écrasait les grands. La boîte garde la grille régulière ;
+    l'image n'a ni `width` ni `height`, donc elle reste à sa taille
+    tant qu'elle y tient et ne se RÉDUIT que si elle déborde. Jamais
+    d'agrandissement : c'est ce que Callista a demandé, et c'est de
+    toute façon la seule façon de ne pas abîmer un pixel art. */
+#modernbb .wm-faune__boite {
+  display: flex;
+  width: 100%;
+  height: 84px;
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--wm-espace-8, 8px);
+}
+
 #modernbb .wm-faune__sprite {
-  width: 96px;
-  height: 96px;
-  object-fit: contain;
-  image-rendering: pixelated;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
 }
 
 /*  Une espèce hors couverture garde sa place : un trou dans la grille
     se remarque, une grille qui saute une ligne non. */
-#modernbb .wm-faune__sprite--absent {
+#modernbb .wm-faune__boite--vide::after {
+  content: "";
   display: block;
+  width: 56px;
+  height: 56px;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
 #modernbb .wm-faune__nom {
-  margin-top: var(--wm-espace-8, 8px);
+  margin-top: var(--wm-espace-4, 4px);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
-#modernbb .wm-faune__niveaux,
-#modernbb .wm-faune__sur {
+/*  ── LES TYPES, ICÔNE ET MOT ────────────────────────────────────
+
+    Dix-huit pastilles rondes ne se distinguent pas à la couleur, et
+    une icône seule ne se lit pas à voix haute. Les deux ensemble se
+    reconnaissent d'un coup pour qui connaît, et se lisent pour qui
+    découvre. */
+#modernbb .wm-faune__types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px);
+  justify-content: center;
+  margin-top: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-faune__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-faune__type-icone {
+  width: 14px;
+  height: 14px;
+}
+
+#modernbb .wm-faune__niveaux {
+  margin-top: var(--wm-espace-4, 4px);
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
-#modernbb .wm-faune__chance {
+/*  LE PIED EST SUR LE FOND DE LA CARTE, bord à bord : il sépare ce
+    qu'on lit (le nom, les types) de ce qu'on compare (la rareté, la
+    chance), sans avoir besoin d'un trait. */
+#modernbb .wm-faune__pied {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: var(--wm-espace-4, 4px);
+  width: calc(100% + var(--wm-espace-20, 20px));
+  align-items: baseline;
+  justify-content: space-between;
+  /*  `margin-top: auto` COLLE LE PIED AU BAS, et c'est ce qui aligne
+      les pourcentages d'une rangée. Sans lui, une carte à deux types
+      est plus haute que sa voisine et son pied descend avec : la
+      colonne de chiffres qu'on vient comparer devenait un escalier. */
+  margin: auto calc(var(--wm-espace-10, 10px) * -1) 0;
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-faune__rarete {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-faune__espece[data-wm-rarete="commun"] .wm-faune__rarete {
+  color: var(--wm-palier-1, #3f7d52);
+}
+
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__rarete {
+  color: var(--wm-palier-2, #a05e18);
+}
+
+#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__rarete {
+  color: var(--wm-palier-3, #b1402f);
 }
 
 #modernbb .wm-faune__pct {
   color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-faune__sur {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
 }
 
 /* ── 6 · ce qu'on trouve au sol ───────────────────────────────────── */
@@ -414,13 +530,12 @@
   }
 
   #modernbb .wm-faune__espece {
-    flex-basis: 96px;
-    padding: var(--wm-espace-8, 8px);
+    flex-basis: 128px;
+    padding: var(--wm-espace-8, 8px) var(--wm-espace-8, 8px) 0;
   }
 
-  #modernbb .wm-faune__sprite,
-  #modernbb .wm-faune__sprite--absent {
-    width: 72px;
-    height: 72px;
+  /*  La boîte se resserre ; l'image, elle, ne grandit toujours pas. */
+  #modernbb .wm-faune__boite {
+    height: 68px;
   }
 }

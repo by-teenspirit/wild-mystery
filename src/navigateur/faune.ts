@@ -57,6 +57,44 @@ export type ObjetDeZone = {
   readonly pct: number;
 };
 
+/** Les dix-huit types, tels que `data/especes-fiches.json` les écrit et
+ *  tels que `img/types/<type>.png` les nomme. La liste est ici pour
+ *  qu'un type inventé ne devienne pas une image cassée : on n'affiche
+ *  que ce qu'on sait dessiner. */
+export const TYPES: readonly string[] = [
+  "acier",
+  "combat",
+  "dragon",
+  "eau",
+  "electrik",
+  "fee",
+  "feu",
+  "glace",
+  "insecte",
+  "normal",
+  "plante",
+  "poison",
+  "psy",
+  "roche",
+  "sol",
+  "spectre",
+  "tenebres",
+  "vol",
+];
+
+/** Les types d'une espèce, filtrés sur ceux qu'on sait dessiner.
+ *
+ *  UN POKÉMON EN A UN OU DEUX, jamais trois : on coupe à deux plutôt
+ *  que de laisser une donnée inattendue casser la mise en page d'une
+ *  grille de soixante-treize cartes. */
+export function typesDe(
+  fiches: Readonly<Record<string, { readonly types?: readonly string[] } | undefined>>,
+  especeId: number,
+): string[] {
+  const bruts = fiches[String(especeId)]?.types ?? [];
+  return bruts.filter((t) => TYPES.includes(t)).slice(0, 2);
+}
+
 /** L'ordre d'affichage des raretés : le plus courant d'abord, parce que
  *  c'est ce qu'on croisera le plus et que la liste se lit du haut. */
 export const RARETES: readonly Rarete[] = ["commun", "peu commun", "rare"];

@@ -47,6 +47,7 @@ import {
   parRarete,
   partsDuSol,
   pourCent,
+  typesDe,
 } from "../../navigateur/faune.ts";
 import type { TauxDeFouille } from "../../domaine/fouille.ts";
 import {
@@ -65,6 +66,10 @@ type FichierDeFaune = {
 };
 
 /** Ce que `data/zones.json` porte, pour ce qu'on en fait ici. */
+/** `data/especes-fiches.json`, réduit à ce qu'on en tire : les types.
+ *  Le reste — le stade, les PV, la forme — sert ailleurs. */
+type Fiches = Readonly<Record<string, { readonly types?: readonly string[] } | undefined>>;
+
 type ZoneDeListe = {
   readonly forumId: number;
   readonly especes?: number;
@@ -145,14 +150,25 @@ function carteDEspece(
   sprites: Sprites | null,
   depot: string,
   style: StyleDeSprite,
-  //  `false` quand la tranche porte le chiffre pour tout le monde :
-  //  le répéter trente-six fois noie le seul nombre qui distingue les
-  //  cartes, qui est le niveau.
-  avecLaChance: boolean,
+  types: readonly string[],
+  rarete: string,
 ): HTMLElement {
   const li = el(doc, "li", "wm-faune__espece");
   li.dataset.wmEspece = String(e.espece);
+  //  La rareté est sur la CARTE, pas seulement sur le titre de la
+  //  tranche : c'est elle qui colore le liseré et la pastille, et une
+  //  carte qui se suffit à elle-même se relit hors de son groupe.
+  li.dataset.wmRarete = rarete;
 
+  // ── le sprite, dans une boîte de hauteur fixe ──────────────────
+  //
+  //  LA BOÎTE EST FIXE, L'IMAGE NON. Les sprites vont de 41 × 56 à
+  //  207 × 185 : leur imposer 96 × 96 agrandissait les petits — un
+  //  Aspicot de 44 pixels étiré à 96 bave — et écrasait les grands.
+  //  On ne donne donc PAS de `width` ni de `height` : la feuille
+  //  borne la boîte, l'image garde sa taille tant qu'elle y tient, et
+  //  ne se réduit que si elle dépasse. Jamais d'agrandissement.
+  const boite = el(doc, "span", "wm-faune__boite");
   const adresse = adresseDuSprite(sprites, depot, e.espece, style);
   if (adresse !== null) {
     const image = doc.createElement("img");
@@ -164,25 +180,53 @@ function carteDEspece(
     //  SOIXANTE-DIX SPRITES PAR ZONE : sans `lazy`, le navigateur les
     //  demande tous au premier clic.
     image.loading = "lazy";
-    image.width = 96;
-    image.height = 96;
-    li.appendChild(image);
+    boite.appendChild(image);
   } else {
-    //  Une espèce hors couverture garde sa place : un trou dans la
-    //  grille se remarque, une grille qui saute une ligne non.
-    li.appendChild(el(doc, "span", "wm-faune__sprite wm-faune__sprite--absent"));
+    boite.classList.add("wm-faune__boite--vide");
+  }
+  li.appendChild(boite);
+
+  // ── le nom, puis les types ─────────────────────────────────────
+  li.appendChild(el(doc, "b", "wm-faune__nom", e.nom));
+
+  if (types.length > 0) {
+    const liste = el(doc, "span", "wm-faune__types");
+    for (const t of types) {
+      const chip = el(doc, "span", "wm-faune__type");
+      chip.dataset.wmType = t;
+      const icone = doc.createElement("img");
+      icone.className = "wm-faune__type-icone";
+      icone.src = `${depot}img/types/${t}.png`;
+      //  LE NOM DU TYPE EST ÉCRIT À CÔTÉ DE SON ICÔNE : dix-huit
+      //  pastilles rondes ne se distinguent pas à la couleur, et une
+      //  icône seule ne se lit pas à voix haute.
+      icone.alt = "";
+      icone.loading = "lazy";
+      icone.width = 14;
+      icone.height = 14;
+      chip.appendChild(icone);
+      chip.appendChild(el(doc, "span", "wm-faune__type-mot", t));
+      liste.appendChild(chip);
+    }
+    li.appendChild(liste);
   }
 
-  li.appendChild(el(doc, "b", "wm-faune__nom", e.nom));
   li.appendChild(el(doc, "span", "wm-faune__niveaux", `niv. ${e.min} à ${e.max}`));
 
-  if (avecLaChance) {
-    const chance = el(doc, "span", "wm-faune__chance");
-    chance.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
-    const mot = motDeLaChance(e.pct, "rencontre");
-    if (mot !== "") chance.appendChild(el(doc, "span", "wm-faune__sur", mot));
-    li.appendChild(chance);
-  }
+  // ── le pied : la rareté et la chance, sur une ligne ────────────
+  //
+  //  LES DEUX SONT SUR LA CARTE, et c'est ce que Callista a demandé :
+  //  « le nom, le pourcentage, la rareté et le type ». Le titre de la
+  //  tranche garde le total, qui lui ne se lit pas carte par carte.
+  const pied = el(doc, "span", "wm-faune__pied");
+  pied.appendChild(el(doc, "span", "wm-faune__rarete", rarete));
+  pied.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
+  li.appendChild(pied);
+
+  //  PAS DE « ENVIRON 1 SUR 50 » SUR CHAQUE CARTE. Elle est juste au
+  //  dessus, dans le titre de la tranche, et répétée trente-six fois
+  //  elle noyait le reste. Le pourcentage, lui, reste : il est court,
+  //  et c'est lui qu'on vient chercher.
   return li;
 }
 
@@ -193,6 +237,7 @@ function tranches(
   sprites: Sprites | null,
   depot: string,
   style: StyleDeSprite,
+  fiches: Fiches,
 ): HTMLElement {
   const hote = el(doc, "div", "wm-faune__tranches");
   for (const t of parRarete(table)) {
@@ -205,15 +250,17 @@ function tranches(
     //  l'autre. Trente lignes de pourcentages, non.
     const part = t.commune === null
       ? `${t.especes.length} espèces · ${pourCent(t.part)} en tout`
-      : `${t.especes.length} espèces · chacune ${pourCent(t.commune)}, ${
+      : `${t.especes.length} espèces · ${pourCent(t.part)} en tout · ${
         motDeLaChance(t.commune, "rencontre")
-      } · ${pourCent(t.part)} en tout`;
+      } chacune`;
     tete.appendChild(el(doc, "span", "wm-faune__tranche-part", part));
     section.appendChild(tete);
 
     const liste = el(doc, "ul", "wm-faune__especes");
     for (const e of t.especes) {
-      liste.appendChild(carteDEspece(doc, e, sprites, depot, style, t.commune === null));
+      liste.appendChild(
+        carteDEspece(doc, e, sprites, depot, style, typesDe(fiches, e.espece), t.rarete),
+      );
     }
     section.appendChild(liste);
     hote.appendChild(section);
@@ -363,6 +410,13 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
     if (typeof z.especes === "number") comptes.set(z.forumId, z.especes);
   }
 
+  //  LES TYPES VIENNENT DE `especes-fiches.json`, 95 Ko demandés une
+  //  fois au montage. Les recopier dans les dix-sept tables de faune
+  //  serait dix-sept endroits de plus à tenir d'accord avec un
+  //  dix-huitième.
+  const fiches = (await lire("especes-fiches.json") as { fiches?: Fiches } | null)
+    ?.fiches ?? {};
+
   const connues = new Map<number, FichierDeFaune>();
 
   const montrer = async (forumId: number): Promise<void> => {
@@ -406,7 +460,7 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
     panneau.dataset.wmFaune = String(forumId);
     panneau.replaceChildren(
       tete,
-      tranches(doc, table, sprites, r.depot, style),
+      tranches(doc, table, sprites, r.depot, style, fiches),
       sol(doc, taux, objetsParZone.get(forumId) ?? [], sprites),
     );
   };

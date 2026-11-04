@@ -52,13 +52,40 @@ const PAGE = lire("pages/annexe-06-la-region-et-ses-zones.html");
 const CARTE = json("data/carte.json");
 const BUTIN = json("data/butin.json");
 
-//  UN PNG DE 1×1, TRANSPARENT. Les 1 838 sprites ne sont pas dans ce
-//  bac à sable ; ce qu'on vérifie n'est pas l'image mais l'ADRESSE,
-//  qui est précisément ce qui était faux dans le carnet.
+//  UN PNG DE 1×1, TRANSPARENT, pour tout ce dont seule l'adresse
+//  compte.
 const PIXEL = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64",
 );
+
+//  ── DEUX SPRITES DE TAILLES CONNUES ─────────────────────────────
+//
+//  Les 1 838 images vivent sur le Mac, pas dans ce bac à sable, et un
+//  harnais ne touche pas au réseau. Mais « ne pas agrandir » ne se
+//  mesure pas sur un pixel de 1 × 1 : il faut une image PLUS PETITE
+//  que sa boîte et une PLUS GRANDE, pour voir que la première garde
+//  sa taille et que la seconde se réduit.
+//
+//  Les deux tailles sont celles des vrais extrêmes du dépôt, relevées
+//  le 4 novembre : 44 × 47 pour les plus petits, et jusqu'à 207 × 185
+//  pour les plus grands. Le pair prend le petit, l'impair le grand.
+const PETIT = {
+  octets: Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAACwAAAAvCAYAAACYECivAAAAzklEQVR42u3Z0Q3DIAwEULipMksn6QidpLN0q/a3qlJiJxgf6PybYD9ZJoqgFEVs1F6J7rfXu/X88dxqOvgIGYGvI6E94DUDegWObKw3N7Kx3hpgwHpqgQVrrQkmrKU2ymQBtu4eGcCIbVnmHgmm7v4zrbHpBI4AM87vnk0jIbDAAgtMAu51MhN9DKCRELgFZpzjX9P8I8HU5T0LrC8yYNf6SmR2uVUbZxdmYE0jMRJtqYVeiUZgXZsuEu3JvfYtUi/48Hu6M3jm/23Fd3wAAA1kUIP/qP8AAAAASUVORK5CYII=",
+    "base64",
+  ),
+  l: 44,
+  h: 47,
+};
+const GRAND = {
+  octets: Buffer.from(
+    "iVBORw0KGgoAAAANSUhEUgAAAKAAAACWCAYAAABZ7IOdAAAC1UlEQVR42u3ZwVHlOhRFUayoGBAYIRDYG5AVTKkCJmDpXOmuHUD3L/f6R7Lf05Mkde3yCH7v/fXl444/5/nt4TkDOBcZnABuAQ7IZgCrg+sO8oIORgCha4vxAg9EAMFrC/ECD0QAwWsL8QIPRADBawvxAg/EZAO+XlV7xsODgbD1EQxe7yN5wGcNWwKED8LIEQyeIzm2gPBZwxhA+CCMAYQPwhhA+CCMAYQPwhhA+CCMAYQPwhhA+CCMAYQPwhhA+CAs9xYsLQFo/axgDCB8EMYAwqf/GnAH1J53QOunOywM+JRE6AjWXkew9dOdNgZ8SiJ0BGuPI9j6aYYVC6j6C2j9NGsFLaBqL6D108wVtICqu4DWT7NX0AKq/luwtByg41crjmELqHoLaP20agUtoLyECECpBkD3P628B1pAOYIFoJQH6P6n1fdACyhHsACUABSAUgagN2Al3oQtoBzBAlACUABKAApACUABKAEoACUABaAEoACU7gX4/Pa4PA6t6Ks1CyhHsACUABSAUg6gN2GtfAO2gHIEC0CpDkD3QK26/1lAOYIFoFQLoHugVtz/LKDqHsFWULPXzwLKS4gA/NN0Sv89fi2g6h/BVlCz1s8Cao+XECuoGetnAbXHAlpBzVg/C6h9FtAKaoaRMfsvEHyOYJ1xBFtB3W1irP4LBZ8jWHsfwVZQdxkY6f8A9cV32xEMIXzugOp3B7SC1q/UAkIIX/wIhhC++B0QQvjiLyEQwhd/C4YQvihACOGLA4QQvjhACOGLA4QQvp+KgXh/ffnwz90XXmQBrSF8ZQBCCF/0CHYk94ZXYgGtoWc9PBj4HMGO5Lb/c5dfHBDPPlW2OfJAPPM6s92dC8Sz7tHbXvpBPOMFbvu3zu4Qd/9ycMxnj24QT/lkdeR3t1Mxnvid9PgPv7tjPP3jfLtfHqqD7PZrUPufvtIgu//86LfXBTj9xi1J+t4nENtlF5P4zigAAAAASUVORK5CYII=",
+    "base64",
+  ),
+  l: 160,
+  h: 150,
+};
 
 const ZONES = CARTE.lieux.filter((l) => l.type === "zone");
 const VILLE = CARTE.lieux.find((l) => l.type === "ville");
@@ -110,6 +137,11 @@ async function ouvrir(nav, { avecScript = true, largeur = 1440 } = {}) {
       } catch {
         return r.fulfill({ status: 404, body: "" });
       }
+    }
+    const sprite = /\/assets\/sprites-figes\/[^/]+\/(\d+)\.png$/.exec(u);
+    if (sprite !== null) {
+      const quel = Number(sprite[1]) % 2 === 0 ? PETIT : GRAND;
+      return r.fulfill({ contentType: "image/png", body: quel.octets });
     }
     if (/\.(png|jpe?g|gif)$/.test(u)) {
       return r.fulfill({ contentType: "image/png", body: PIXEL });
@@ -290,6 +322,20 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     { timeout: 15000 },
   );
 
+  //  LES IMAGES SONT `lazy` : on les décharge de leur paresse avant de
+  //  mesurer, sinon `naturalWidth` vaut zéro et le contrôle de taille
+  //  passe sur une liste vide.
+  await p.evaluate(() => {
+    for (const i of document.querySelectorAll(".wm-faune__sprite")) i.loading = "eager";
+  });
+  await p.waitForFunction(
+    () =>
+      Array.from(document.querySelectorAll(".wm-faune__sprite"))
+        .every((i) => i.complete && i.naturalWidth > 0),
+    undefined,
+    { timeout: 15000 },
+  );
+
   const vu = await p.evaluate(() => {
     const pct = (n) => Number((n ?? "").replace(/[^\d,]/g, "").replace(",", "."));
     const tranches = Array.from(document.querySelectorAll(".wm-faune__tranche")).map((t) => ({
@@ -298,7 +344,18 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
         id: Number(e.dataset.wmEspece),
         nom: e.querySelector(".wm-faune__nom")?.textContent ?? "",
         pct: pct(e.querySelector(".wm-faune__pct")?.textContent),
+        rarete: e.dataset.wmRarete ?? "",
+        types: Array.from(e.querySelectorAll(".wm-faune__type"))
+          .map((n) => n.dataset.wmType ?? ""),
         sprite: e.querySelector(".wm-faune__sprite")?.getAttribute("src") ?? "",
+        //  L'image NE DOIT PAS ÊTRE AGRANDIE : on compare la taille
+        //  rendue à la taille naturelle du fichier.
+        rendue: (() => {
+          const i = e.querySelector(".wm-faune__sprite");
+          return i === null
+            ? null
+            : { l: i.clientWidth, h: i.clientHeight, nl: i.naturalWidth, nh: i.naturalHeight };
+        })(),
       })),
     }));
     return {
@@ -382,23 +439,33 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
   const premiere = vu.tranches[0].especes;
   const decroissant = premiere.every((e, i) => i === 0 || premiere[i - 1].pct >= e.pct);
   ok("DANS UNE TRANCHE, LA PLUS PROBABLE PASSE DEVANT", decroissant);
-
-  //  ── LA PART UNIFORME SE DIT UNE FOIS ──────────────────────────
+  //  ── CHAQUE CARTE SE SUFFIT ────────────────────────────────────
   //
-  //  Les tables sont écrites à poids égal par rareté : les 36 communs
-  //  d'une zone sont tous à 2,02 %. L'écrire sur chaque carte noierait
-  //  le seul chiffre qui les distingue, qui est le niveau.
-  const uniforme =
-    new Set(TABLE.filter((x) => x.rarete === "commun").map((x) => x.pct)).size === 1;
+  //  « Le nom, le pourcentage, la rareté et le type. » Une carte qui
+  //  se relit hors de son groupe, c'est ce qui permettra de la sortir
+  //  d'une tranche un jour sans la redessiner.
   ok(
-    uniforme
-      ? "LA TRANCHE UNIFORME PORTE SON CHIFFRE, ET LES CARTES NON"
-      : "une tranche inégale laisse son chiffre à chaque carte",
-    uniforme ? premiere.every((e) => e.pct === 0) : premiere.every((e) => e.pct > 0),
+    "CHAQUE CARTE PORTE SON POURCENTAGE",
+    premiere.every((e) => e.pct > 0),
+    premiere.slice(0, 3).map((e) => e.pct),
   );
   ok(
-    "et le titre de la tranche le dit",
-    (vu.entetes[0] ?? "").includes(uniforme ? "chacune" : "en tout"),
+    "ET SA RARETÉ, écrite et pas seulement colorée",
+    premiere.every((e) => e.rarete === "commun"),
+    premiere.slice(0, 2).map((e) => e.rarete),
+  );
+  //  LES TYPES VIENNENT DES FICHES, pas d'une recopie : on relit la
+  //  source ici plutôt que d'écrire une constante, sinon le test ne
+  //  compare que deux fautes possibles.
+  const fichesDuDepot = json("data/especes-fiches.json").fiches;
+  const typesFaux = vu.tranches.flatMap((t) => t.especes).filter((e) => {
+    const attendus = (fichesDuDepot[String(e.id)]?.types ?? []).slice(0, 2);
+    return JSON.stringify(e.types) !== JSON.stringify(attendus);
+  });
+  ok("ET SES TYPES, ceux de la fiche", typesFaux.length === 0, typesFaux.slice(0, 3));
+  ok(
+    "le titre de la tranche garde le total",
+    (vu.entetes[0] ?? "").includes("en tout"),
     vu.entetes[0],
   );
 
@@ -425,6 +492,25 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
   //  la page en sautait une de plus, c'est ici qu'on l'apprendrait.
   const couverture = json("data/sprites-couverture.json").styles.forum.especes;
   const attendusVides = TABLE.filter((e) => couverture[String(e.espece)] === undefined).length;
+  //  ── AUCUN SPRITE AGRANDI ──────────────────────────────────────
+  //
+  //  `loading="lazy"` : hors de la vue, l'image n'est pas chargée et
+  //  `naturalWidth` vaut zéro. On les force à charger avant de
+  //  mesurer, sinon le contrôle passerait sur une liste vide — ce
+  //  qu'il a fait au premier essai.
+  //
+  //  Les sprites vont de 41 × 56 à 207 × 185 : imposer 96 × 96
+  //  agrandissait les petits et écrasait les grands. On mesure la
+  //  taille RENDUE contre la taille naturelle du fichier.
+  const rendues = vu.tranches.flatMap((t) => t.especes)
+    .map((e) => e.rendue).filter((r) => r !== null && r.nl > 0);
+  const agrandis = rendues.filter((r) => r.l > r.nl + 0.5 || r.h > r.nh + 0.5);
+  ok(
+    "AUCUN SPRITE N'EST AGRANDI",
+    rendues.length > 0 && agrandis.length === 0,
+    { mesurés: rendues.length, agrandis: agrandis.slice(0, 3) },
+  );
+
   ok(
     "une espèce sans sprite garde sa case, et on les compte",
     sprites.length - poses.length === attendusVides,
