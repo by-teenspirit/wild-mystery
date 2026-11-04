@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(246);
+select plan(257);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1737,6 +1737,168 @@ select is((select count(*)::int from rp where joueur_id = 'bbbb0036-0000-0000-00
 
 select ok(not has_function_privilege('authenticated', 'relever_les_rp(jsonb)', 'execute'),
   'et un joueur ne relève pas ses propres RP : c''est le travail du serveur');
+
+-- ════════════════════════════════════════════════════════════════════
+--  LES LIENS À PROPOSER (0038)
+--
+--  Le bloc « On te propose des liens » de l'onglet « Mes liens » n'a
+--  jamais rien montré, et la page disait pourquoi : « ça demande la
+--  relève des sujets ». Elle est là. Ce qui manquait était la question
+--  d'avant `rp_communs` — non pas « quels sujets avec cette personne »
+--  mais « avec qui ai-je joué ».
+-- ════════════════════════════════════════════════════════════════════
+
+--  SA PROPRE FIGURATION, ET C'EST UNE LEÇON PAYÉE ICI : le bloc de
+--  `0036` juste au-dessus fait tourner `relever_les_rp` avec une liste
+--  vide, qui EFFACE les sujets « en-cours ». Hériter de sa figuration
+--  faisait compter deux sujets partagés là où on en avait inséré trois,
+--  et le test accusait la fonction. Un jeu de données qu'un autre test
+--  remanie n'est pas une figuration, c'est un piège.
+insert into joueur (id, forum_user_id, pseudo, auth_id, courriel) values
+  ('bbbb0038-0000-0000-0000-00000000000a', 38001, 'Copiste',
+   'aaaa0038-0000-0000-0000-00000000000a', 'copiste@exemple.fr');
+
+--  ET UN SECOND JOUEUR QUI A, LUI AUSSI, UN CARNET ET DES RP.
+--
+--  Sans lui, « demander les partenaires de quelqu'un d'autre rend une
+--  liste vide » passait pour la MAUVAISE RAISON : le membre visé n'avait
+--  pas de ligne dans `joueur`, donc la fonction rendait `[]` même sans
+--  son filtre de session. Retirer le `mes_joueurs()` ne cassait aucun
+--  test — mesuré en le retirant exprès. Il faut un joueur dont il y
+--  aurait réellement quelque chose à voler.
+insert into joueur (id, forum_user_id, pseudo, auth_id, courriel) values
+  ('bbbb0038-0000-0000-0000-00000000000b', 38002, 'Enlumineur',
+   'aaaa0038-0000-0000-0000-00000000000b', 'enlumineur@exemple.fr');
+
+insert into rp (joueur_id, sujet_id, titre, forum_id, forum_nom, reponses,
+                dernier_le, dernier_auteur, dernier_message, extrait) values
+  ('bbbb0038-0000-0000-0000-00000000000a', 1996, 'La brume ne lève pas', 34,
+   'Montagnes Embrumées', 6, '2026-10-28T13:34:00Z', 'Arceus', 15600, ''),
+  ('bbbb0038-0000-0000-0000-00000000000a', 1997, 'Un café, deux silences', 36,
+   'Steppes Arides', 2, '2026-11-01T08:00:00Z', 'Copiste', 15601, ''),
+  ('bbbb0038-0000-0000-0000-00000000000a', 1998, 'Le vent se lève', 34,
+   'Montagnes Embrumées', 9, '2026-11-04T09:05:00Z', 'Lysandra', 15602, ''),
+  --  Le sujet de l'Enlumineur, avec un partenaire que le Copiste n'a
+  --  jamais croisé : c'est ce que le filtre de session doit refuser de
+  --  montrer au Copiste.
+  ('bbbb0038-0000-0000-0000-00000000000b', 1999, 'Les ors et les encres', 36,
+   'Steppes Arides', 4, '2026-11-02T10:00:00Z', 'Vélin', 15603, '');
+
+--  Arceus sur trois sujets, Lysandra sur deux, Murphy sur un.
+insert into rp_participant (sujet_id, forum_user_id, pseudo, vu_le) values
+  (1996, 38001, 'Copiste',  '2026-10-28T13:34:00Z'),
+  (1997, 38001, 'Copiste',  '2026-11-01T08:00:00Z'),
+  (1998, 38001, 'Copiste',  '2026-11-04T09:05:00Z'),
+  (1996, 1,     'Arceus',   '2026-10-28T13:34:00Z'),
+  (1997, 1,     'Arceus',   '2026-11-01T08:00:00Z'),
+  (1998, 1,     'Arceus',   '2026-11-04T09:05:00Z'),
+  (1996, 42,    'Murphy',   '2026-10-28T13:34:00Z'),
+  --  LE MÊME MEMBRE SOUS DEUX PSEUDOS : la relève a vu « Lysandre »
+  --  avant, « Lysandra » après. C'est le second qui doit sortir, et
+  --  `max(pseudo)` rendrait le premier — « L » vient avant « s ».
+  (1997, 77,    'Lysandre', '2026-10-01T08:00:00Z'),
+  (1998, 77,    'Lysandra', '2026-11-04T09:05:00Z'),
+  (1999, 38002, 'Enlumineur', '2026-11-02T10:00:00Z'),
+  (1999, 55,    'Vélin',      '2026-11-02T10:00:00Z');
+
+--  ET UNE CARTE DÉJÀ ÉCRITE : Murphy est lié, donc il n'est plus une
+--  proposition.
+insert into lien (joueur_id, cible_forum_id, cible_pseudo, court) values
+  ('bbbb0038-0000-0000-0000-00000000000a', 42, 'Murphy', 'On s''est croisés');
+
+create temporary table propose_vu (quoi text primary key, valeur text);
+grant insert on propose_vu to authenticated;
+
+do $$
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0038-0000-0000-0000-00000000000a","email":"copiste@exemple.fr"}', true);
+
+  insert into propose_vu values ('liste',
+    (liens_a_proposer('{"forumUserId": 38001}'))::text);
+  --  L'ENLUMINEUR A UN CARNET, DES RP ET UN PARTENAIRE. Demander SES
+  --  partenaires depuis la session du Copiste doit rendre une liste
+  --  vide — pas parce qu'il n'y a rien à voir, mais parce que la
+  --  fonction refuse.
+  insert into propose_vu values ('pas_le_sien',
+    (liens_a_proposer('{"forumUserId": 38002}'))::text);
+  insert into propose_vu values ('inconnu',
+    (liens_a_proposer('{"forumUserId": 999999}'))::text);
+
+  reset role;
+
+  --  ET LA MÊME QUESTION DEPUIS LA SESSION DE L'ENLUMINEUR, qui doit,
+  --  elle, rendre son partenaire. C'est ce qui prouve que le refus
+  --  ci-dessus est un refus, et pas un vide.
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0038-0000-0000-0000-00000000000b","email":"enlumineur@exemple.fr"}', true);
+  insert into propose_vu values ('chez_lui',
+    (liens_a_proposer('{"forumUserId": 38002}'))::text);
+  reset role;
+end $$;
+
+select is(
+  (select jsonb_array_length((select valeur from propose_vu where quoi = 'liste')::jsonb)),
+  2,
+  'ON PROPOSE ARCEUS ET LYSANDRA, PAS MURPHY : il a déjà sa carte de lien');
+
+select is(
+  (select p ->> 'pseudo' from jsonb_array_elements(
+     (select valeur from propose_vu where quoi = 'liste')::jsonb) p limit 1),
+  'Arceus',
+  'ET LE PLUS NOURRI PASSE DEVANT, PAS LE PLUS RÉCENT : trois sujets '
+  'partagés contre deux, alors que Lysandra a la date la plus fraîche');
+
+select is(
+  (select p ->> 'ensemble' from jsonb_array_elements(
+     (select valeur from propose_vu where quoi = 'liste')::jsonb) p
+    where p ->> 'pseudo' = 'Arceus'),
+  '3',
+  'le nombre de RP partagés est celui des sujets, pas des messages');
+
+select is(
+  (select count(*)::int from jsonb_array_elements(
+     (select valeur from propose_vu where quoi = 'liste')::jsonb) p
+    where (p ->> 'forumUserId')::int = 38001),
+  0,
+  'on ne se propose pas à soi-même');
+
+select is(
+  (select count(*)::int from jsonb_array_elements(
+     (select valeur from propose_vu where quoi = 'liste')::jsonb) p
+    where p ->> 'pseudo' = 'Lysandra'),
+  1,
+  'LE PSEUDO EST LE DERNIER VU, pas le plus grand par ordre alphabétique : '
+  '« Lysandra » a remplacé « Lysandre », et max(pseudo) aurait rendu l''ancien');
+
+select is((select valeur from propose_vu where quoi = 'pas_le_sien'), '[]',
+  'DEMANDER LES PARTENAIRES DE QUELQU''UN D''AUTRE REND UNE LISTE VIDE : '
+  'le `mes_joueurs()` est dans la fonction, pas dans la page — et '
+  'l''Enlumineur a bien un partenaire à voler, sinon ce test passerait '
+  'sans rien garantir');
+
+--  LA PREUVE QUE LE TEST CI-DESSUS MORD : il y a quelque chose à voir.
+select is(
+  (select (p ->> 'pseudo') from jsonb_array_elements(
+     (select valeur from propose_vu where quoi = 'chez_lui')::jsonb) p),
+  'Vélin',
+  'l''Enlumineur, lui, se voit bien proposer Vélin — donc le vide rendu '
+  'au Copiste est un REFUS, pas une absence');
+
+select is((select valeur from propose_vu where quoi = 'inconnu'), '[]',
+  'et un membre qui n''existe pas aussi');
+
+select is((select liens_proposes_au_plus()), 12,
+  'douze propositions au plus : au-delà ce n''est plus une proposition, '
+  'c''est le bottin');
+
+select ok(not has_function_privilege('anon', 'liens_a_proposer(jsonb)', 'execute'),
+  'un visiteur non connecté ne voit avec qui personne a joué');
+
+select ok(not has_table_privilege('authenticated', 'rp_participant', 'select'),
+  'ET LA TABLE RESTE FERMÉE : c''est la fonction qui ouvre, et elle filtre');
 
 
 select * from finish();
