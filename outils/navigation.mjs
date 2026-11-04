@@ -601,7 +601,7 @@ dire(
 const ATTENDU = [
   ["Mon Carnet de Bord", "/h15-mon-carnet"],
   ["Annexes", "/h1-par-ou-commencer"],
-  ["Carte de Rhode", "/h6-la-region-et-ses-zones"],
+  ["Carte de Rhode", "/h5-la-region-et-ses-zones"],
   ["Marché de Rhode", "/f3-le-marche-de-rhode"],
   ["Liste des pensions", null],
   ["Laboratoire fossile", "/f25-laboratoire"],

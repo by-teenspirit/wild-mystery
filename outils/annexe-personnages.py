@@ -301,7 +301,7 @@ def corps():
     w('            <p class="wm-perso__liens">')
     w(f'              <a class="wm-perso__lien" href="{e(ch["lien"])}">Le sujet des'
       " champions →</a>")
-    w('              <a class="wm-perso__lien" href="/h7-arenes-colosseums-ligues">'
+    w('              <a class="wm-perso__lien" href="/h6-arenes-colosseums-ligues">'
       "L'annexe des arènes, colosseums et Ligue →</a>")
     w("            </p>")
     w("          </section>")

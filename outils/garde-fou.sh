@@ -1052,6 +1052,98 @@ PY
   fi
 fi
 
+echo "── 27. aucune adresse de page écrite à côté du sommaire ───────"
+# TROUVÉ LE 4 NOVEMBRE, ET C'EST LA PANNE LA PLUS SILENCIEUSE DU LOT.
+#
+# Forumactif ne route QUE sur le numéro : `/h5-guide-du-dresseur` sert
+# la page de la RÉGION, parce que le slug est décoratif. Une adresse
+# dont le numéro a glissé ne tombe donc pas en 404 — elle mène
+# simplement ailleurs, et seul quelqu'un qui clique s'en aperçoit.
+#
+# Ce jour-là, « créer son personnage » s'est repliée dans « par où
+# commencer », les douze pages suivantes ont reculé d'un cran sur le
+# forum, et QUATRE adresses écrites hors du sommaire pointaient
+# ailleurs : la carte du menu de navigation, le renvoi des célébrités
+# vers les arènes, celui du carnet vers la région, et le lien « où »
+# d'une fiche d'espèce — qui visait `/h9-la-carte-de-rhode`, une page
+# de la V1 disparue depuis des semaines.
+#
+# `data/annexes.json` est le sommaire, donc la source. Toute autre
+# mention d'un `/hN-slug` doit dire la même chose que lui, ou être une
+# page qui n'est pas une annexe — le carnet, en `h15`.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — les adresses de page non comparées"
+else
+  if ! python3 - <<'PY'
+import json, re, sys
+from pathlib import Path
+
+sommaire = json.loads(Path("data/annexes.json").read_text(encoding="utf-8"))
+par_numero = {}
+for s in sommaire["sections"]:
+    for e in s["entrees"]:
+        if e["adresse"]:
+            m = re.fullmatch(r"/h(\d+)-([a-z0-9-]*)", e["adresse"])
+            if m is None:
+                print(f"   adresse mal formée dans data/annexes.json : {e['adresse']}")
+                sys.exit(1)
+            par_numero[m.group(1)] = m.group(2)
+
+#  LES PAGES QUI NE SONT PAS DES ANNEXES. Elles vivent sur le même
+#  forum et portent le même genre d'adresse ; les lister ici est plus
+#  honnête que d'exempter un fichier entier.
+AUTRES = {"15": "mon-carnet"}
+connues = {**par_numero, **AUTRES}
+
+#  Les fichiers où un `/hN-` est un EXEMPLE et pas une adresse : les
+#  tests du lecteur de sommaire, et les harnais qui servent une page
+#  sous une adresse fabriquée.
+EXEMPTS = {
+    #  Le module qui LIT ces adresses, et ses tests : leurs commentaires
+    #  et leurs cas sont pleins de `/h20-le-reglement` et de `/h20-x`,
+    #  qui sont des exemples de forme, pas des liens.
+    "src/navigateur/annexes.ts",
+    "src/navigateur/annexes.test.ts",
+    #  Le harnais de contraste sert chaque page sous une adresse
+    #  fabriquée, pour éprouver justement la lecture du slug.
+    "outils/contraste.mjs",
+    "outils/garde-fou.sh",
+}
+
+fautes = []
+racines = ["src", "js", "outils", "data", "pages", "templates", "panneau-admin"]
+for racine in racines:
+    for f in sorted(Path(racine).rglob("*")):
+        if not f.is_file() or f.suffix not in {
+            ".ts", ".js", ".mjs", ".py", ".json", ".html", ".css", ".sh", ".md"
+        }:
+            continue
+        if str(f) in EXEMPTS or "__pycache__" in str(f):
+            continue
+        texte = f.read_text(encoding="utf-8", errors="ignore")
+        for m in re.finditer(r"/h(\d+)-([a-z0-9-]+)", texte):
+            numero, slug = m.group(1), m.group(2)
+            attendu = connues.get(numero)
+            if attendu is None:
+                fautes.append(f"{f}: /h{numero}-{slug} — aucune page de ce numéro")
+            elif attendu != slug:
+                fautes.append(
+                    f"{f}: /h{numero}-{slug} — h{numero} est « {attendu} »"
+                )
+
+if fautes:
+    for faute in sorted(set(fautes))[:12]:
+        print(f"   {faute}")
+    sys.exit(1)
+
+print(f"   adresses : {len(par_numero)} annexes au sommaire, toutes les mentions "
+      "du dépôt d'accord avec lui")
+PY
+  then
+    gronde "une adresse de page ne dit pas la même chose que data/annexes.json"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

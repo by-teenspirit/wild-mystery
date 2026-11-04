@@ -840,14 +840,20 @@ body:has(#modernbb .wm-carnet) {
 
 /* ── 10 · le pied : le bouton, puis la pastille ───────────────────── */
 
-/*  Dans la maquette ils sont l'un SOUS l'autre, alignés à gauche — pas
-    sur une même ligne. Je les avais mis côte à côte. */
 /*  LE PIED SE LIT EN UNE LIGNE : où aller ensuite à gauche, à qui
     écrire à droite. Il était en colonne, avec une pastille qui ne
     faisait que nommer le lieu de la photo — un repère dont personne
-    n'avait besoin, là où il fallait deux boutons. */
+    n'avait besoin, là où il fallait deux boutons.
+
+    `flex-direction: row` EST ÉCRIT, alors que c'est la valeur par
+    défaut. La règle d'avant posait `column` : tant que la feuille
+    précédente reste dans le cache du navigateur — dix minutes chez
+    GitHub Pages — elle continue de fournir cette propriété-là, que la
+    nouvelle ne redéclarait pas. Mesuré le 4 novembre sur le forum :
+    les boutons étaient déjà stylés et le pied encore empilé. */
 #modernbb .wm-suivante {
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
   gap: var(--wm-espace-16, 16px);
   align-items: center;

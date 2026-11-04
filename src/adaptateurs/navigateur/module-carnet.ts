@@ -404,7 +404,13 @@ function poserLaFiche(doc: Document, k: CaseDePokedex, decor: Decor): void {
   ];
   if (k.etat !== "inconnu") {
     const lien = el(doc, "a", "wm-carnet__ailleurs", "Le voir sur la carte");
-    lien.href = `/h9-la-carte-de-rhode#zone-${k.espece.zone}`;
+    //  L'ANNEXE DE LA RÉGION, ET SON ADRESSE DU JOUR. Elle pointait sur
+    //  l'ancienne page de la V1 `h9`, qui n'existe plus :
+    //  `h9` sert « Le staff » depuis le 4 novembre, et Forumactif ne
+    //  route que sur le numéro — le lien ne tombait donc pas en 404, il
+    //  menait simplement ailleurs. La règle 27 du garde-fou relit tous
+    //  les `/hN-` du dépôt contre `data/annexes.json`.
+    lien.href = `/h5-la-region-et-ses-zones#zone-${k.espece.zone}`;
     enfants.push(lien);
   }
   fiche.replaceChildren(...enfants);

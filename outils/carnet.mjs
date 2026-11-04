@@ -32,6 +32,19 @@ import { readFileSync } from "node:fs";
 import { chromium } from "npm:playwright@1.56.0";
 
 const R = new URL("..", import.meta.url).pathname;
+//  L'ADRESSE DE L'ANNEXE DE LA RÉGION, LUE AU SOMMAIRE. Elle était
+//  écrite en dur ici et dans le module : le 4 novembre les pages du
+//  forum ont reculé d'un cran et `h9` est devenu « Le staff », sans
+//  qu'aucun 404 ne le dise — Forumactif ne route que sur le numéro.
+const ANNEXE_REGION = (() => {
+  const sommaire = JSON.parse(readFileSync(R + "data/annexes.json", "utf8"));
+  const e = sommaire.sections
+    .flatMap((s) => s.entrees)
+    .find((x) => x.slug === "la-region-et-ses-zones");
+  if (e?.adresse == null) throw new Error("l'annexe de la région n'a pas d'adresse");
+  return e.adresse;
+})();
+
 const ADRESSE = "https://mysteryinrhode.forumactif.com/h15-mon-carnet";
 const BASE = "https://by-teenspirit.github.io/wild-mystery/";
 
@@ -2201,7 +2214,7 @@ const { q: p, appels } = await monter();
     "cliquer une espèce attrapée ouvre sa fiche, avec son type nommé et le lien vers la carte",
     vu.ouverte && vu.nom !== "" && vu.types.length >= 1 && vu.types[0] !== "" &&
       vu.lignes.includes("Où") && vu.lignes.includes("Niveaux") &&
-      /^\/h9-la-carte-de-rhode#zone-\d+$/.test(vu.lien ?? ""),
+      new RegExp(`^${ANNEXE_REGION}#zone-\\d+$`).test(vu.lien ?? ""),
     JSON.stringify(vu),
   );
 }
