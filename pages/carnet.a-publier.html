@@ -578,15 +578,45 @@
         </div>
       </section>
 
-      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-boites" hidden>
+      <section class="wm-carnet__onglet-page wm-boites" data-wm-carnet-page="mes-boites" hidden>
         <header class="wm-carnet__entete">
           <p class="wm-carnet__surtitre">Le carnet de bord</p>
           <h1 class="wm-carnet__titre">Mes <b>boîtes</b></h1>
           <p class="wm-carnet__chapo">
-            Trois boîtes pour ranger ce qui n'est pas dans ton équipe. Elles
-            arrivent bientôt.
+            Tout ce que tu as attrapé et que tu n'emmènes pas. Trois boîtes de
+            trente places — c'est ici, et nulle part ailleurs, que tu changes
+            ton équipe.
           </p>
         </header>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+            <h2 class="wm-carnet__bloc-titre">L'équipe du moment</h2>
+            <span class="wm-liens__compte" data-wm-boites-compte></span>
+          </div>
+          <p class="wm-carnet__bloc-dit" data-wm-boites-equipe-dit></p>
+          <ul class="wm-boites__equipe" data-wm-boites-equipe></ul>
+        </div>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+            <h2 class="wm-carnet__bloc-titre">Les boîtes</h2>
+            <div class="wm-boites__onglets" role="group" aria-label="Quelle boîte">
+              <button type="button" class="wm-boites__onglet" data-wm-boites-onglet="1"
+                      aria-pressed="true">Boîte 1</button>
+              <button type="button" class="wm-boites__onglet" data-wm-boites-onglet="2"
+                      aria-pressed="false">Boîte 2</button>
+              <button type="button" class="wm-boites__onglet" data-wm-boites-onglet="3"
+                      aria-pressed="false">Boîte 3</button>
+            </div>
+          </div>
+          <p class="wm-carnet__bloc-dit" data-wm-boites-dit></p>
+
+          <div class="wm-boites__plan">
+            <ul class="wm-boites__grille" data-wm-boites-grille></ul>
+            <aside class="wm-boites__detail" data-wm-boites-detail aria-live="polite"></aside>
+          </div>
+        </div>
       </section>
 
     </div>
@@ -601,7 +631,7 @@
 
 <script>
   (function () {
-    var attendu = 4;
+    var attendu = 5;
     var vu = window.wmCarnetVersion;
     if (vu === attendu) return;
 

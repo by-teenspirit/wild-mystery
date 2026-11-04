@@ -47,6 +47,7 @@ import {
   ongletDeLAdresse,
   ONGLETS,
   pokedexAffiche,
+  PokemonDuCarnet,
   sacRange,
 } from "../../navigateur/carnet.ts";
 
@@ -502,4 +503,301 @@ export function poserLEtat(doc: Document, etat: "dehors" | "charge" | "pret"): v
 export function direLeSouci(doc: Document, mot: string): void {
   const e = doc.querySelector("[data-wm-carnet-souci]");
   if (e !== null) e.textContent = mot;
+}
+
+/* ── Mes boîtes ───────────────────────────────────────────────────── */
+/*
+    LE SEUL ONGLET QUI ÉCRIT DANS LE JEU — et il n'écrit pas lui-même :
+    `ranger()` est le seul chemin, parce que le navigateur n'a de droit
+    d'écriture ni sur `position` ni sur `boite_no` (0008, 0035).
+
+    CE QUI EST GRISÉ ICI EST UNE POLITESSE, PAS UNE SÉCURITÉ. La note le
+    dit : « le navigateur grise ce qu'il peut, mais c'est la fonction
+    ranger() qui refuse — un appel bricolé ne passe pas ». Donc on grise
+    pour que personne ne tente un geste qui échouera, et on ne compte
+    sur rien de tout ça pour protéger quoi que ce soit.
+*/
+
+export const CASES_PAR_BOITE = 30;
+
+/** Ce que l'onglet demande au serveur quand on range. */
+export type Rangeur = (
+  pokemonId: string,
+  vers: { emplacement: "equipe" | "boite"; boiteNo: number; position: number },
+) => Promise<boolean>;
+
+/** La première place libre de l'équipe, ou `null` si les six sont prises.
+ *
+ *  UNE PLACE OCCUPÉE PAR UN POKÉMON EN PENSION N'EST PAS LIBRE : il y
+ *  reste tant qu'on ne l'a pas récupéré, et `ranger()` refuserait. */
+export function placeLibreDeLEquipe(pokemon: readonly PokemonDuCarnet[]): number | null {
+  const prises = new Set(
+    pokemon.filter((p) => p.emplacement === "equipe").map((p) => p.place),
+  );
+  for (let i = 1; i <= 6; i++) if (!prises.has(i)) return i;
+  return null;
+}
+
+/** La première case libre d'une boîte, ou `null` si les trente sont prises. */
+export function caseLibreDeLaBoite(
+  pokemon: readonly PokemonDuCarnet[],
+  boite: number,
+): number | null {
+  const prises = new Set(
+    pokemon.filter((p) => p.emplacement === "boite" && p.boite === boite).map((p) => p.place),
+  );
+  for (let i = 1; i <= CASES_PAR_BOITE; i++) if (!prises.has(i)) return i;
+  return null;
+}
+
+export function poserMesBoites(
+  doc: Document,
+  c: Carnet,
+  decor: Decor,
+  ranger: Rangeur,
+): void {
+  const equipe = doc.querySelector("[data-wm-boites-equipe]");
+  const grille = doc.querySelector("[data-wm-boites-grille]");
+  const detail = doc.querySelector("[data-wm-boites-detail]");
+  if (equipe === null || grille === null || detail === null) return;
+
+  let boiteOuverte = 1;
+  let choisi: string | null = null;
+
+  const peindre = () => {
+    const dansLEquipe = c.pokemon.filter((p) => p.emplacement === "equipe");
+    const enPension = dansLEquipe.filter((p) => p.enPension).length;
+    const compte = doc.querySelector("[data-wm-boites-compte]");
+    if (compte !== null) compte.textContent = `${dansLEquipe.length} / 6`;
+
+    const dit = doc.querySelector("[data-wm-boites-equipe-dit]");
+    if (dit !== null) {
+      const avecToi = dansLEquipe.length - enPension;
+      const libres = 6 - dansLEquipe.length;
+      dit.textContent = `${avecToi} avec toi` +
+        (enPension > 0 ? `, ${enPension} en pension` : "") +
+        (libres > 0
+          ? `, ${libres} place${libres > 1 ? "s" : ""} libre${libres > 1 ? "s" : ""}`
+          : "") +
+        ".";
+    }
+
+    //  ── les six places ───────────────────────────────────────────
+    equipe.textContent = "";
+    for (let place = 1; place <= 6; place++) {
+      const p = dansLEquipe.find((x) => x.place === place);
+      const li = el(doc, "li");
+      const bouton = el(doc, "button", "wm-boites__place");
+      bouton.type = "button";
+      if (p === undefined) {
+        bouton.classList.add("wm-boites__place--vide");
+        bouton.append(
+          el(doc, "span", "wm-boites__nom", "libre"),
+          el(doc, "span", "wm-boites__sous", "—"),
+        );
+        //  UNE PLACE LIBRE REÇOIT CE QUI EST CHOISI DANS LA BOÎTE.
+        bouton.addEventListener("click", () => {
+          if (choisi === null) return;
+          void bouger(choisi, { emplacement: "equipe", boiteNo: 0, position: place });
+        });
+      } else {
+        if (p.enPension) bouton.classList.add("wm-boites__place--pension");
+        bouton.append(
+          sprite(doc, decor.images, p.especeId, ""),
+          el(doc, "span", "wm-boites__nom", nomAffiche(p, decor.especes)),
+          el(
+            doc,
+            "span",
+            "wm-boites__sous",
+            p.enPension ? "en pension" : `niv. ${p.niveau}`,
+          ),
+        );
+        bouton.disabled = p.enPension;
+        bouton.addEventListener("click", () => {
+          choisi = p.id;
+          peindre();
+        });
+      }
+      li.append(bouton);
+      equipe.append(li);
+    }
+
+    //  ── la boîte ouverte ─────────────────────────────────────────
+    const dedans = c.pokemon.filter(
+      (p) => p.emplacement === "boite" && p.boite === boiteOuverte,
+    );
+    const tous = c.pokemon.filter((p) => p.emplacement === "boite").length;
+    const ditBoite = doc.querySelector("[data-wm-boites-dit]");
+    if (ditBoite !== null) {
+      ditBoite.textContent = tous === 0
+        ? "Tes boîtes sont vides."
+        : `${tous} Pokémon rangé${tous > 1 ? "s" : ""} sur ${3 * CASES_PAR_BOITE} places.`;
+    }
+    for (const b of doc.querySelectorAll("[data-wm-boites-onglet]")) {
+      b.setAttribute(
+        "aria-pressed",
+        b.getAttribute("data-wm-boites-onglet") === String(boiteOuverte) ? "true" : "false",
+      );
+    }
+
+    grille.textContent = "";
+    for (let place = 1; place <= CASES_PAR_BOITE; place++) {
+      const p = dedans.find((x) => x.place === place);
+      const li = el(doc, "li");
+      const bouton = el(doc, "button", "wm-boites__case");
+      bouton.type = "button";
+      bouton.setAttribute(
+        "aria-current",
+        p !== undefined && p.id === choisi ? "true" : "false",
+      );
+      if (p === undefined) {
+        bouton.classList.add("wm-boites__case--vide");
+        bouton.setAttribute("aria-label", `Case ${place}, libre`);
+        bouton.addEventListener("click", () => {
+          if (choisi === null) return;
+          void bouger(choisi, {
+            emplacement: "boite",
+            boiteNo: boiteOuverte,
+            position: place,
+          });
+        });
+      } else {
+        bouton.append(sprite(doc, decor.images, p.especeId, ""));
+        bouton.setAttribute("aria-label", nomAffiche(p, decor.especes));
+        bouton.addEventListener("click", () => {
+          choisi = p.id;
+          peindre();
+        });
+      }
+      li.append(bouton);
+      grille.append(li);
+    }
+
+    peindreLeDetail();
+  };
+
+  const peindreLeDetail = () => {
+    detail.textContent = "";
+    const p = c.pokemon.find((x) => x.id === choisi);
+    if (p === undefined) {
+      detail.append(el(doc, "p", "wm-boites__dit", "Choisis un Pokémon pour le déplacer."));
+      return;
+    }
+    detail.append(
+      sprite(doc, decor.images, p.especeId, ""),
+      el(doc, "p", "wm-boites__detail-nom", nomAffiche(p, decor.especes)),
+    );
+
+    const faits = el(doc, "dl", "wm-boites__faits");
+    const fait = (mot: string, valeur: string) => {
+      const ligne = el(doc, "div");
+      ligne.append(el(doc, "dt", undefined, mot), el(doc, "dd", undefined, valeur));
+      faits.append(ligne);
+    };
+    fait("Niveau", String(p.niveau));
+    fait("Attrapé le", p.captureLe === null ? "—" : jour(p.captureLe));
+    //  LE LIEU DE CAPTURE N'EST PAS STOCKÉ : la base garde le SUJET
+    //  (`capture_dans`), pas la zone. La planche 72 l'avait relevé comme
+    //  une divergence ; tant qu'elle n'est pas comblée, on montre la
+    //  scène, qui est vraie, plutôt qu'un lieu qu'on devinerait.
+    if (p.captureDans !== null) {
+      const ligne = el(doc, "div");
+      const dd = el(doc, "dd");
+      const a = el(doc, "a", undefined, "la scène");
+      a.href = `/t${p.captureDans}`;
+      dd.append(a);
+      ligne.append(el(doc, "dt", undefined, "Dans"), dd);
+      faits.append(ligne);
+    }
+    detail.append(faits);
+
+    if (p.enPension) {
+      detail.append(el(
+        doc,
+        "p",
+        "wm-boites__dit",
+        "Il est en pension : il garde sa place dans l'équipe jusqu'à ce que tu le récupères.",
+      ));
+      return;
+    }
+
+    const bouton = el(doc, "button", "wm-carnet__bouton wm-carnet__bouton--plein");
+    bouton.type = "button";
+    bouton.setAttribute("data-wm-boites-bouger", "");
+    if (p.emplacement === "equipe") {
+      const libre = caseLibreDeLaBoite(c.pokemon, boiteOuverte);
+      bouton.textContent = `Ranger dans la boîte ${boiteOuverte} →`;
+      bouton.disabled = libre === null;
+      bouton.addEventListener("click", () => {
+        if (libre === null) return;
+        void bouger(p.id, { emplacement: "boite", boiteNo: boiteOuverte, position: libre });
+      });
+      detail.append(bouton);
+      detail.append(el(
+        doc,
+        "p",
+        "wm-boites__dit",
+        libre === null
+          ? `La boîte ${boiteOuverte} est pleine.`
+          : `Il ira à la case ${libre}. Tu peux aussi cliquer une case vide.`,
+      ));
+      return;
+    }
+
+    const libre = placeLibreDeLEquipe(c.pokemon);
+    bouton.textContent = "Mettre dans l'équipe →";
+    bouton.disabled = libre === null;
+    bouton.addEventListener("click", () => {
+      if (libre === null) return;
+      void bouger(p.id, { emplacement: "equipe", boiteNo: 0, position: libre });
+    });
+    detail.append(bouton);
+    detail.append(el(
+      doc,
+      "p",
+      "wm-boites__dit",
+      libre === null
+        ? "Ton équipe est au complet. Range-en un d'abord."
+        : "Une place est libre, tu peux la prendre tout de suite.",
+    ));
+  };
+
+  /** Le déplacement, et ce qu'on fait de l'état local après.
+   *
+   *  ON NE REPEINT QU'APRÈS LA RÉPONSE DU SERVEUR. Déplacer la case
+   *  tout de suite serait plus vif, et montrerait un rangement que la
+   *  base vient peut-être de refuser — « un appel bricolé ne passe
+   *  pas » vaut aussi pour un appel honnête qui arrive trop tard. */
+  const bouger: Rangeur = async (id, vers) => {
+    const fait = await ranger(id, vers);
+    if (!fait) return false;
+    const p = c.pokemon.find((x) => x.id === id);
+    const occupant = c.pokemon.find((x) =>
+      x.id !== id && x.emplacement === vers.emplacement &&
+      x.place === vers.position &&
+      (vers.emplacement !== "boite" || x.boite === vers.boiteNo)
+    );
+    if (p !== undefined) {
+      const avant = { emplacement: p.emplacement, boite: p.boite, place: p.place };
+      p.emplacement = vers.emplacement;
+      p.boite = vers.emplacement === "boite" ? vers.boiteNo : 0;
+      p.place = vers.position;
+      if (occupant !== undefined) {
+        occupant.emplacement = avant.emplacement;
+        occupant.boite = avant.boite;
+        occupant.place = avant.place;
+      }
+    }
+    peindre();
+    return true;
+  };
+
+  for (const b of doc.querySelectorAll("[data-wm-boites-onglet]")) {
+    b.addEventListener("click", () => {
+      boiteOuverte = Number(b.getAttribute("data-wm-boites-onglet")) || 1;
+      peindre();
+    });
+  }
+
+  peindre();
 }

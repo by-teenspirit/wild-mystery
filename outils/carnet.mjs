@@ -321,6 +321,29 @@ async function monter(
       });
     }
 
+    //  ── RANGER ───────────────────────────────────────────────────
+    //
+    //  Le décor REFUSE comme la base refuse : un Pokémon en pension ne
+    //  bouge pas (0035). Sinon la mesure ne prouverait que ma politesse
+    //  côté page — et c'est exactement le travers qui m'a coûté deux
+    //  soirées cette semaine.
+    if (u.pathname.endsWith("/rest/v1/rpc/ranger")) {
+      const corps = JSON.parse(route.request().postData() ?? "{}");
+      appels.push({ ou: "ranger", corps });
+      const vise = (CARNET.pokemon ?? []).find((k) => k.id === corps.p?.pokemonId);
+      if (vise?.enPension) {
+        return route.fulfill({
+          status: 400,
+          contentType: "application/json",
+          body: JSON.stringify({ code: "P0001", message: "EN_PENSION" }),
+        });
+      }
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({ range: true, echange: false }),
+      });
+    }
+
     //  ── LES LIENS ET L'ÉTAT DE LA FICHE ──────────────────────────
     if (u.pathname.endsWith("/rest/v1/lien")) {
       const methode = route.request().method();
@@ -1332,6 +1355,144 @@ const PUBLIEE_ET_CHANGEE = {
     "UN LIEN SANS NUMÉRO DE MEMBRE N'EST PAS ENVOYÉ",
     appels.filter((a) => a.ou === "POST-lien").length === 0,
     JSON.stringify({ envois: appels.filter((a) => a.ou === "POST-lien").length }),
+  );
+  await q.close();
+}
+
+
+// ── 6 · Mes boîtes ──────────────────────────────────────────────────
+
+{
+  //  L'ÉQUIPE A SIX PLACES, ET CELLE DU POKÉMON EN PENSION EN EST UNE.
+  //  « Il occupe la place tant qu'il n'est pas récupéré : c'est plus
+  //  clair que de le faire disparaître. »
+  const { q } = await monter();
+  await q.click('[data-wm-carnet-onglet="mes-boites"]');
+  await q.waitForTimeout(200);
+  const vu = await q.evaluate(() => ({
+    compte: document.querySelector("[data-wm-boites-compte]")?.textContent?.trim(),
+    dit: document.querySelector("[data-wm-boites-equipe-dit]")?.textContent?.trim(),
+    places: [...document.querySelectorAll(".wm-boites__place")].map((e) => ({
+      nom: e.querySelector(".wm-boites__nom")?.textContent?.trim(),
+      sous: e.querySelector(".wm-boites__sous")?.textContent?.trim(),
+      pension: e.classList.contains("wm-boites__place--pension"),
+      mort: e.disabled,
+    })),
+    cases: document.querySelectorAll(".wm-boites__case").length,
+  }));
+  dire(
+    "L'ÉQUIPE MONTRE SES SIX PLACES, ET CELUI EN PENSION GARDE LA SIENNE",
+    vu.compte === "3 / 6" && vu.places.length === 6 &&
+      vu.places[1].pension === true && vu.places[1].sous === "en pension" &&
+      vu.places[1].mort === true && vu.places[2].nom === "libre" &&
+      vu.cases === 30 && /en pension/.test(vu.dit ?? ""),
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  TRENTE CASES PAR BOÎTE, TROIS BOÎTES, et c'est la boîte 2 qui
+  //  porte le Pokémon rangé — changer d'onglet le montre.
+  const { q } = await monter();
+  await q.click('[data-wm-carnet-onglet="mes-boites"]');
+  await q.waitForTimeout(200);
+  const avant = await q.evaluate(() =>
+    document.querySelectorAll(".wm-boites__case:not(.wm-boites__case--vide)").length
+  );
+  await q.click('[data-wm-boites-onglet="2"]');
+  await q.waitForTimeout(150);
+  const apres = await q.evaluate(() => ({
+    pleines: document.querySelectorAll(".wm-boites__case:not(.wm-boites__case--vide)").length,
+    choisie: document.querySelector('[data-wm-boites-onglet="2"]')?.getAttribute("aria-pressed"),
+    dit: document.querySelector("[data-wm-boites-dit]")?.textContent?.trim(),
+  }));
+  dire(
+    "LA BOÎTE 1 EST VIDE, LA BOÎTE 2 PORTE LE POKÉMON RANGÉ",
+    avant === 0 && apres.pleines === 1 && apres.choisie === "true" &&
+      /1 Pokémon rangé sur 90 places/.test(apres.dit ?? ""),
+    JSON.stringify({ avant, ...apres }),
+  );
+  await q.close();
+}
+
+{
+  //  CHOISIR UN POKÉMON DE BOÎTE OUVRE SON DÉTAIL, et le bouton dit où
+  //  il irait — pas « déplacer », qui ne dit rien de la destination.
+  const { q } = await monter();
+  await q.click('[data-wm-carnet-onglet="mes-boites"]');
+  await q.click('[data-wm-boites-onglet="2"]');
+  await q.waitForTimeout(150);
+  await q.click(".wm-boites__case:not(.wm-boites__case--vide)");
+  await q.waitForTimeout(150);
+  const vu = await q.evaluate(() => ({
+    nom: document.querySelector(".wm-boites__detail-nom")?.textContent?.trim(),
+    bouton: document.querySelector("[data-wm-boites-bouger]")?.textContent?.trim(),
+    dit: document.querySelector(".wm-boites__detail .wm-boites__dit")?.textContent?.trim(),
+    scene: document.querySelector(".wm-boites__faits a")?.getAttribute("href"),
+  }));
+  dire(
+    "LE DÉTAIL DIT LE NIVEAU, LA SCÈNE, ET CE QUE LE BOUTON VA FAIRE",
+    vu.nom === "EnBoite" && vu.bouton === "Mettre dans l'équipe →" &&
+      vu.scene === "/t36" && /place est libre/.test(vu.dit ?? ""),
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  ET LE RANGEMENT PASSE PAR `ranger()`, avec la place libre trouvée
+  //  côté page — jamais par une écriture directe sur la table.
+  const { q, appels } = await monter();
+  await q.click('[data-wm-carnet-onglet="mes-boites"]');
+  await q.click('[data-wm-boites-onglet="2"]');
+  await q.waitForTimeout(150);
+  await q.click(".wm-boites__case:not(.wm-boites__case--vide)");
+  await q.click("[data-wm-boites-bouger]");
+  await q.waitForTimeout(300);
+  const appel = appels.find((a) => a.ou === "ranger");
+  const noms = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-boites__place .wm-boites__nom")]
+      .map((e) => e.textContent.trim())
+  );
+  dire(
+    "RANGER APPELLE LA FONCTION, ET VISE LA PREMIÈRE PLACE LIBRE",
+    appel?.corps?.p?.pokemonId === "p4" && appel?.corps?.p?.emplacement === "equipe" &&
+      appel?.corps?.p?.position === 3 && noms[2] === "EnBoite",
+    JSON.stringify({ corps: appel?.corps?.p, noms }),
+  );
+  await q.close();
+}
+
+{
+  //  UN REFUS DU SERVEUR NE DÉPLACE RIEN À L'ÉCRAN. « On ne repeint
+  //  qu'après la réponse » : montrer un rangement que la base vient de
+  //  refuser apprend à ne plus croire l'écran.
+  const { q } = await monter();
+  await q.click('[data-wm-carnet-onglet="mes-boites"]');
+  await q.waitForTimeout(200);
+  //  Le Pokémon en pension est à la place 2 : on le choisit par son
+  //  bouton, qui est désactivé — donc on appelle le rangement comme le
+  //  ferait un appel bricolé, et le décor refuse comme la base.
+  const refus = await q.evaluate(async () => {
+    const r = await fetch(
+      "https://ajhajteavsbygvkhipzt.supabase.co/rest/v1/rpc/ranger",
+      {
+        method: "POST",
+        headers: { apikey: "x", "Content-Type": "application/json" },
+        body: JSON.stringify({ p: { pokemonId: "p2", emplacement: "boite", boiteNo: 1, position: 1 } }),
+      },
+    );
+    return { statut: r.status, corps: await r.text() };
+  });
+  const places = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-boites__place .wm-boites__sous")]
+      .map((e) => e.textContent.trim())
+  );
+  dire(
+    "UN POKÉMON EN PENSION EST REFUSÉ PAR LA BASE, ET RESTE À SA PLACE",
+    refus.statut === 400 && /EN_PENSION/.test(refus.corps) && places[1] === "en pension",
+    JSON.stringify({ refus, places }),
   );
   await q.close();
 }

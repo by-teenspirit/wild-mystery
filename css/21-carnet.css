@@ -1013,7 +1013,8 @@
   margin-top: 10px;
 }
 
-#modernbb .wm-ecrire__duree {
+#modernbb .wm-ecrire__duree,
+#modernbb .wm-boites__onglet {
   padding: 7px 14px;
   font: inherit;
   font-size: var(--wm-taille-petit, 11.5px);
@@ -1024,7 +1025,8 @@
   border-radius: 999px;
 }
 
-#modernbb .wm-ecrire__duree[aria-pressed="true"] {
+#modernbb .wm-ecrire__duree[aria-pressed="true"],
+#modernbb .wm-boites__onglet[aria-pressed="true"] {
   color: var(--wm-texte-inverse);
   background: var(--wm-accent-primaire);
   border-color: var(--wm-accent-fort);
@@ -1675,6 +1677,196 @@
   }
 
   #modernbb .wm-liens__champ {
+    flex: 1 1 100%;
+  }
+}
+
+/* ── 16 · Mes boîtes ──────────────────────────────────────────────── */
+/*
+    LES CASES VIDES SONT DU CSS, PAS UNE IMAGE — la note le demande, et
+    c'est quatre-vingt-dix requêtes évitées sur une page qui en fait
+    déjà beaucoup.
+*/
+
+#modernbb .wm-boites__equipe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-boites__place {
+  display: flex;
+  flex: 1 1 8rem;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  padding: 12px 8px;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-boites__place--vide {
+  cursor: default;
+  background: transparent;
+  border-style: dashed;
+}
+
+/*  UN POKÉMON EN PENSION RESTE À SA PLACE, EN TRANSPARENCE : « il
+    occupe la place tant qu'il n'est pas récupéré, c'est plus clair que
+    de le faire disparaître ». Et la mention est écrite, pas seulement
+    suggérée par l'opacité. */
+#modernbb .wm-boites__place--pension {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+#modernbb .wm-boites__place img {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+}
+
+#modernbb .wm-boites__nom {
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-boites__sous {
+  font-size: var(--wm-taille-legende, 10.5px);
+  color: var(--wm-texte-doux);
+}
+
+/* ── la grille et le détail ──────────────────────────────────────── */
+
+#modernbb .wm-boites__onglets {
+  display: flex;
+  gap: 6px;
+}
+
+#modernbb .wm-boites__plan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+
+#modernbb .wm-boites__grille {
+  display: grid;
+  flex: 1 1 22rem;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-boites__case {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  aspect-ratio: 1;
+  cursor: pointer;
+  background: var(--wm-fond-terre);
+  border: 2px solid transparent;
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-boites__case--vide {
+  cursor: default;
+  background: var(--wm-fond-surface-haute);
+}
+
+#modernbb .wm-boites__case[aria-current="true"] {
+  border-color: var(--wm-accent-primaire);
+}
+
+#modernbb .wm-boites__case img {
+  width: 80%;
+  height: 80%;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+#modernbb .wm-boites__detail {
+  flex: 1 1 15rem;
+  padding: 16px;
+  text-align: center;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-boites__detail img {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+}
+
+#modernbb .wm-boites__detail-nom {
+  margin: 6px 0;
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-boites__faits {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 12px 0;
+  padding: 0;
+  text-align: left;
+}
+
+#modernbb .wm-boites__faits div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-top: 1px solid var(--wm-fond-douce);
+}
+
+#modernbb .wm-boites__faits dt {
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-boites__faits dd {
+  margin: 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  text-align: right;
+  color: var(--wm-texte-corps);
+}
+
+#modernbb .wm-boites__dit {
+  margin: 8px 0 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+}
+
+@media (max-width: 760px) {
+  /*  « Sous 760 px, la grille passe à cinq colonnes et le détail
+      s'ouvre en panneau sous la grille. » */
+  #modernbb .wm-boites__grille {
+    flex: 1 1 100%;
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  #modernbb .wm-boites__detail {
     flex: 1 1 100%;
   }
 }

@@ -54,6 +54,7 @@ import {
   poserLaBarre,
   poserLesOnglets,
   poserLEtat,
+  poserMesBoites,
   poserMonJeu,
   poserMonPokedex,
   poserMonSac,
@@ -406,6 +407,25 @@ async function ouvrirLeCarnet(): Promise<void> {
     poserMonJeu(document, carnet, decor);
     poserMonSac(document, carnet, decor);
     poserMonPokedex(document, carnet, decor);
+    //  RANGER PASSE PAR LA FONCTION, pas par la table : le navigateur
+    //  n'a de droit d'écriture ni sur `position` ni sur `boite_no`
+    //  (0008, 0035). Ce qui est grisé dans l'écran est une politesse,
+    //  ce qui refuse est dans la base.
+    poserMesBoites(document, carnet, decor, async (pokemonId, vers) => {
+      const r = await appelerAvecLeJeton(config, laissez.jeton, "ranger", {
+        pokemonId,
+        ...vers,
+      }).catch(() => null);
+      if (r === null || !r.ok) {
+        console.error("wm/carnet : le rangement a été refusé —", r?.status);
+        direLeSouci(
+          document,
+          "Ce rangement a été refusé. Recharge la page : ton carnet n'est peut-être plus à jour.",
+        );
+        return false;
+      }
+      return true;
+    });
     //  ÉCRIRE SE MONTE APRÈS LE DESSIN, et son échec ne doit pas
     //  emporter le carnet : un onglet qui ne se branche pas est un
     //  onglet vide, pas une page morte. Il le dit dans la console.
@@ -528,7 +548,7 @@ function brancherLaLiaison(acces: ConfigSupabase): void {
 //
 //  LE FILET QUI LE LIT VIT DANS LA PAGE, pas ici, et c'est le fond de
 //  l'affaire : un script trop vieux ne peut pas se plaindre lui-même.
-export const VERSION_DU_CONTRAT = 4; //  4 : Mes liens (0034)
+export const VERSION_DU_CONTRAT = 5; //  5 : Mes boîtes (0035)
 (globalThis as Record<string, unknown>).wmCarnetVersion = VERSION_DU_CONTRAT;
 
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que
