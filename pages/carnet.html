@@ -366,7 +366,14 @@
         <div class="wm-carnet__bloc">
           <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
             <h2 class="wm-carnet__bloc-titre">Mes RP</h2>
-            <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer">
+            <div class="wm-boites__onglets" role="group" aria-label="Comment montrer">
+              <button type="button" class="wm-boites__onglet" data-wm-rp-vue="tableau"
+                      aria-pressed="true">Tableau</button>
+              <button type="button" class="wm-boites__onglet" data-wm-rp-vue="liste"
+                      aria-pressed="false">Liste</button>
+            </div>
+            <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer"
+                 data-wm-rp-filtres>
               <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
                       aria-pressed="true">Tous</button>
               <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
@@ -378,7 +385,14 @@
             </div>
           </div>
           <p class="wm-carnet__bloc-dit" data-wm-rp-compte></p>
-          <ul class="wm-rp__liste" data-wm-rp-liste></ul>
+          <!--  DEUX VUES, UNE SEULE SOURCE. Le tableau sert à CHANGER
+                l'état — on dépose une carte dans une colonne — et la
+                liste à LIRE : elle montre l'extrait, la date et le
+                lieu, qu'une colonne étroite ne tient pas. Les deux
+                écrivent la même chose, et la liste marche au clavier
+                sans rien apprendre.  -->
+          <div class="wm-rp__tableau" data-wm-rp-tableau></div>
+          <ul class="wm-rp__liste" data-wm-rp-liste hidden></ul>
         </div>
 
         <!-- ── ce que les mots veulent dire ───────────────────────── -->

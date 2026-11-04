@@ -23269,3 +23269,91 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
+/* ── 17 bis · la vue tableau ──────────────────────────────────────── */
+/*
+    QUATRE COLONNES, ET CE SONT LES QUATRE ÉTATS QU'ON PEUT POSER.
+    Pas « à moi » et « à l'autre » : on ne décide pas de qui doit
+    écrire, ça se calcule. Déposer une carte dans une colonne change
+    donc toujours quelque chose — c'est ce qu'on attend d'un tableau.
+*/
+
+#modernbb .wm-rp__tableau {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+#modernbb .wm-rp__colonne {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 13rem;
+  padding: 10px;
+  background: var(--wm-fond-terre);
+  border: 1px solid transparent;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+/*  LA COLONNE SURVOLÉE SE VOIT. Sans ça, on lâche la carte sans savoir
+    où elle va — et on la retrouve dans la mauvaise colonne. */
+#modernbb .wm-rp__colonne[data-wm-survol] {
+  border-color: var(--wm-accent-primaire);
+}
+
+#modernbb .wm-rp__colonne-tete {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-rp__carte {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  cursor: grab;
+  background: var(--wm-fond-surface);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-rp__carte:active {
+  cursor: grabbing;
+}
+
+#modernbb .wm-rp__carte-titre {
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-rp__carte-pied {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#modernbb .wm-rp__colonne-vide {
+  margin: 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  color: var(--wm-texte-pale);
+}
+
+@media (max-width: 760px) {
+  /*  Les colonnes défilent du doigt plutôt que de s'écraser : une
+      colonne de six centimètres ne tient aucun titre. */
+  #modernbb .wm-rp__colonne {
+    flex: 0 0 72vw;
+  }
+}
+

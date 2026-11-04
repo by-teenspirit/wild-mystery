@@ -62,7 +62,7 @@ async function rest(
 
 export function poserLesRp(r: ReglagesRp): boolean {
   const doc = r.doc;
-  const liste = doc.querySelector("[data-wm-rp-liste]");
+  const liste = doc.querySelector<HTMLElement>("[data-wm-rp-liste]");
   const compte = doc.querySelector("[data-wm-rp-compte]");
   const dit = doc.querySelector("[data-wm-rp-dit]");
   if (liste === null || compte === null || dit === null) {
@@ -70,10 +70,124 @@ export function poserLesRp(r: ReglagesRp): boolean {
     return false;
   }
 
+  const tableau = doc.querySelector<HTMLElement>("[data-wm-rp-tableau]");
+  if (tableau === null) {
+    console.error("wm/rp : la page n'a pas le tableau");
+    return false;
+  }
+
   let lignes: LigneDeRp[] = [];
   let filtre = "tous";
+  let vue = "tableau";
+
+  /** Poser un état, d'où qu'il vienne — du menu ou d'un dépôt.
+   *
+   *  LE MÊME CHEMIN POUR LES DEUX : glisser est un raccourci, pas une
+   *  seconde façon d'écrire. Deux chemins qui écrivent la même chose
+   *  finissent par ne plus écrire la même chose. */
+  const poserLEtat = async (sujetId: number, etat: string): Promise<boolean> => {
+    const fait = await rest(r, `rp?sujet_id=eq.${sujetId}`, {
+      method: "PATCH",
+      headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ etat }),
+    });
+    if (!fait.ok) {
+      dit.textContent = "Cet état n'a pas pu être enregistré.";
+      return false;
+    }
+    lignes = lignes.map((x) => (x.sujetId === sujetId ? { ...x, etat } : x));
+    peindre();
+    return true;
+  };
+
+  const peindreLeTableau = (): void => {
+    tableau.textContent = "";
+    for (const colonne of ETATS) {
+      const dedans = rangerLesRp(lignes.filter((l) => l.etat === colonne.clef));
+      const bloc = doc.createElement("div");
+      bloc.className = "wm-rp__colonne";
+      bloc.setAttribute("data-wm-rp-colonne", colonne.clef);
+
+      const tete = doc.createElement("p");
+      tete.className = "wm-rp__colonne-tete";
+      const nom = doc.createElement("span");
+      nom.textContent = colonne.mot;
+      const nb = doc.createElement("span");
+      nb.textContent = String(dedans.length);
+      tete.append(nom, nb);
+      bloc.append(tete);
+
+      if (dedans.length === 0) {
+        const vide = doc.createElement("p");
+        vide.className = "wm-rp__colonne-vide";
+        vide.textContent = "—";
+        bloc.append(vide);
+      }
+
+      for (const l of dedans) {
+        const vu = etatVu(l, r.pseudo);
+        const carte = doc.createElement("article");
+        carte.className = "wm-rp__carte";
+        carte.draggable = true;
+        carte.setAttribute("data-wm-rp-carte", String(l.sujetId));
+        const titre = doc.createElement("span");
+        titre.className = "wm-rp__carte-titre";
+        titre.textContent = l.titre === "" ? `Sujet ${l.sujetId}` : l.titre;
+        const pied = doc.createElement("div");
+        pied.className = "wm-rp__carte-pied";
+        const etiquette = doc.createElement("span");
+        etiquette.className = "wm-rp__etat" +
+          (vu === "a-moi" || vu === "neuf" ? " wm-rp__etat--a-moi" : "");
+        etiquette.textContent = MOTS[vu];
+        const quand = doc.createElement("span");
+        quand.className = "wm-rp__quand";
+        quand.textContent = l.dernierLe === null
+          ? "—"
+          : new Date(l.dernierLe).toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "short",
+          });
+        pied.append(etiquette, quand);
+        carte.append(titre, pied);
+
+        carte.addEventListener("dragstart", (e) => {
+          (e as DragEvent).dataTransfer?.setData("text/plain", String(l.sujetId));
+        });
+        bloc.append(carte);
+      }
+
+      //  LE DÉPÔT EST UN RACCOURCI, ET LA LISTE RESTE LE CHEMIN SÛR :
+      //  glisser-déposer ne marche ni au clavier ni au lecteur
+      //  d'écran, et la maquette elle-même demandait « un menu monter
+      //  / descendre en repli ». Ici le repli est la vue liste, qui
+      //  porte le même menu d'état sur chaque ligne.
+      bloc.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        bloc.setAttribute("data-wm-survol", "");
+      });
+      bloc.addEventListener("dragleave", () => bloc.removeAttribute("data-wm-survol"));
+      bloc.addEventListener("drop", (e) => {
+        e.preventDefault();
+        bloc.removeAttribute("data-wm-survol");
+        const dit = (e as DragEvent).dataTransfer?.getData("text/plain") ?? "";
+        const sujetId = Number(dit);
+        if (!Number.isInteger(sujetId) || sujetId <= 0) return;
+        const avant = lignes.find((l) => l.sujetId === sujetId);
+        //  UN DÉPÔT DANS SA PROPRE COLONNE N'ÉCRIT RIEN : sans ce
+        //  test, lâcher une carte où on l'a prise ferait une requête
+        //  pour ne rien changer.
+        if (avant === undefined || avant.etat === colonne.clef) return;
+        void poserLEtat(sujetId, colonne.clef);
+      });
+
+      tableau.append(bloc);
+    }
+  };
 
   const peindre = (): void => {
+    tableau.hidden = vue !== "tableau";
+    liste.hidden = vue !== "liste";
+    if (vue === "tableau") peindreLeTableau();
     const vues = rangerLesRp(garderLesRp(lignes, filtre, r.pseudo));
     const aMoi = lignes.filter((l) => {
       const v = etatVu(l, r.pseudo);
@@ -178,6 +292,23 @@ export function poserLesRp(r: ReglagesRp): boolean {
       liste.append(li);
     }
   };
+
+  for (const b of doc.querySelectorAll("[data-wm-rp-vue]")) {
+    b.addEventListener("click", () => {
+      vue = b.getAttribute("data-wm-rp-vue") ?? "tableau";
+      for (const autre of doc.querySelectorAll("[data-wm-rp-vue]")) {
+        autre.setAttribute("aria-pressed", autre === b ? "true" : "false");
+      }
+      //  LES FILTRES NE SERVENT QU'À LA LISTE : le tableau montre déjà
+      //  tout, rangé par colonnes. Les laisser visibles donnerait des
+      //  colonnes à moitié vides sans qu'on comprenne pourquoi.
+      const filtres = doc.querySelector<HTMLElement>("[data-wm-rp-filtres]");
+      if (filtres !== null) filtres.hidden = vue === "tableau";
+      peindre();
+    });
+  }
+  const filtresAuDepart = doc.querySelector<HTMLElement>("[data-wm-rp-filtres]");
+  if (filtresAuDepart !== null) filtresAuDepart.hidden = true;
 
   for (const b of doc.querySelectorAll("[data-wm-rp-filtre]")) {
     b.addEventListener("click", () => {

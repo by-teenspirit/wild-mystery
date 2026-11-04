@@ -1672,6 +1672,115 @@ const RP = [
   await q.close();
 }
 
+
+{
+  //  LE TABLEAU EST LA VUE PAR DÉFAUT, et ses colonnes sont les
+  //  QUATRE ÉTATS QU'ON PEUT POSER. Pas « à moi » et « à l'autre » :
+  //  on ne décide pas de qui doit écrire, ça se calcule — et déposer
+  //  une carte dans une colonne qui ne change rien serait un geste
+  //  sans effet.
+  const { q } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  const vu = await q.evaluate(() => ({
+    colonnes: [...document.querySelectorAll(".wm-rp__colonne-tete span:first-child")]
+      .map((e) => e.textContent.trim()),
+    comptes: [...document.querySelectorAll(".wm-rp__colonne-tete span:last-child")]
+      .map((e) => e.textContent.trim()),
+    listeCachee: document.querySelector("[data-wm-rp-liste]")?.hidden,
+    filtresCaches: document.querySelector("[data-wm-rp-filtres]")?.hidden,
+    cartes: document.querySelectorAll(".wm-rp__carte").length,
+  }));
+  dire(
+    "LE TABLEAU A QUATRE COLONNES, CELLES DES ÉTATS QU'ON PEUT POSER",
+    vu.colonnes.join() === "en cours,prévu,en pause,clôturé" &&
+      vu.comptes.join() === "2,1,0,0" && vu.listeCachee === true &&
+      vu.filtresCaches === true && vu.cartes === 3,
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  DÉPOSER UNE CARTE ÉCRIT L'ÉTAT DE LA COLONNE, par le même chemin
+  //  que le menu de la liste : glisser est un raccourci, pas une
+  //  seconde façon d'écrire.
+  const { q, appels } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.evaluate(() => {
+    const carte = document.querySelector('[data-wm-rp-carte="996"]');
+    const cible = document.querySelector('[data-wm-rp-colonne="en-pause"]');
+    const dt = new DataTransfer();
+    carte.dispatchEvent(new DragEvent("dragstart", { dataTransfer: dt, bubbles: true }));
+    cible.dispatchEvent(new DragEvent("dragover", { dataTransfer: dt, bubbles: true }));
+    cible.dispatchEvent(new DragEvent("drop", { dataTransfer: dt, bubbles: true }));
+  });
+  await q.waitForTimeout(300);
+  const ecrit = appels.find((a) => a.ou === "PATCH-rp");
+  const comptes = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-rp__colonne-tete span:last-child")]
+      .map((e) => e.textContent.trim())
+  );
+  dire(
+    "DÉPOSER UNE CARTE DANS UNE COLONNE ÉCRIT SON ÉTAT",
+    ecrit?.corps?.etat === "en-pause" &&
+      decodeURIComponent(ecrit?.ou_quoi ?? "").includes("996") &&
+      comptes.join() === "1,1,1,0",
+    JSON.stringify({ corps: ecrit?.corps, comptes }),
+  );
+  await q.close();
+}
+
+{
+  //  UN DÉPÔT DANS SA PROPRE COLONNE N'ÉCRIT RIEN. Sans ce test,
+  //  lâcher une carte là où on l'a prise ferait une requête pour ne
+  //  rien changer — et sur un tableau, ça arrive tout le temps.
+  const { q, appels } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.evaluate(() => {
+    const carte = document.querySelector('[data-wm-rp-carte="996"]');
+    const cible = document.querySelector('[data-wm-rp-colonne="en-cours"]');
+    const dt = new DataTransfer();
+    carte.dispatchEvent(new DragEvent("dragstart", { dataTransfer: dt, bubbles: true }));
+    cible.dispatchEvent(new DragEvent("drop", { dataTransfer: dt, bubbles: true }));
+  });
+  await q.waitForTimeout(250);
+  dire(
+    "LÂCHER UNE CARTE OÙ ON L'A PRISE N'ÉCRIT RIEN",
+    appels.filter((a) => a.ou === "PATCH-rp").length === 0,
+    JSON.stringify({ patchs: appels.filter((a) => a.ou === "PATCH-rp").length }),
+  );
+  await q.close();
+}
+
+{
+  //  ET LA LISTE RESTE LE CHEMIN SÛR : glisser-déposer ne marche ni au
+  //  clavier ni au lecteur d'écran. Le menu d'état y est sur chaque
+  //  ligne, et il écrit la même chose.
+  const { q, appels } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.click('[data-wm-rp-vue="liste"]');
+  await q.waitForTimeout(200);
+  const vu = await q.evaluate(() => ({
+    tableauCache: document.querySelector("[data-wm-rp-tableau]")?.hidden,
+    filtres: document.querySelector("[data-wm-rp-filtres]")?.hidden,
+    menus: document.querySelectorAll(".wm-rp__outils select").length,
+  }));
+  await q.selectOption(".wm-rp__ligne:first-child select", "cloture");
+  await q.waitForTimeout(250);
+  const ecrit = appels.find((a) => a.ou === "PATCH-rp");
+  dire(
+    "LA VUE LISTE REVIENT, AVEC SES FILTRES ET SON MENU PAR LIGNE",
+    vu.tableauCache === true && vu.filtres === false && vu.menus === 3 &&
+      ecrit?.corps?.etat === "cloture",
+    JSON.stringify({ ...vu, corps: ecrit?.corps }),
+  );
+  await q.close();
+}
+
 // ── 2 · la session ouvre le carnet ──────────────────────────────────
 
 {
