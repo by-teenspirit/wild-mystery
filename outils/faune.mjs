@@ -50,6 +50,7 @@ const json = (c) => JSON.parse(lire(c));
 
 const PAGE = lire("pages/annexe-06-la-region-et-ses-zones.html");
 const CARTE = json("data/carte.json");
+const REGION = json("data/region.json");
 const BUTIN = json("data/butin.json");
 
 //  UN PNG DE 1×1, TRANSPARENT, pour tout ce dont seule l'adresse
@@ -197,14 +198,20 @@ console.log("\n── sans JavaScript, la page dit encore quelque chose ──")
     { vus: vu.noms, attendus },
   );
   ok("aucune carte dessinée sans le script", !vu.carteDessinee);
-  //  LES SOUS-ONGLETS NE CACHENT RIEN SANS LE SCRIPT : les trois
-  //  sections sont là, avec leurs titres, l'une sous l'autre.
+  //  LES SOUS-ONGLETS NE CACHENT RIEN SANS LE SCRIPT : les sections
+  //  sont là, avec leurs titres, l'une sous l'autre. Le compte n'est
+  //  pas écrit ici — il était à trois, il est passé à quatre le jour
+  //  où la région a eu son onglet, et un chiffre à la main aurait
+  //  fait croire à une faute.
   ok(
-    "LES TROIS EXPLICATIONS SONT VISIBLES, DÉPLIÉES",
-    vu.sections === 3 && vu.sectionsVisibles === 3 && vu.barre === 0,
+    `LES ${vu.sections} EXPLICATIONS SONT VISIBLES, DÉPLIÉES`,
+    vu.sections >= 3 && vu.sectionsVisibles === vu.sections && vu.barre === 0,
     vu,
   );
-  ok("et leurs titres aussi", vu.titresVisibles === 3, vu.titresVisibles);
+  ok("et leurs titres aussi", vu.titresVisibles === vu.sections, {
+    titres: vu.titresVisibles,
+    sections: vu.sections,
+  });
   ok("rien ne déborde", !vu.debord);
   await p.close();
 }
@@ -251,6 +258,7 @@ console.log("\n── les sous-onglets ──");
     const apres = ouvertes()[0]?.dataset.wmSousOnglet ?? "";
     return {
       boutons: boutons.map((b) => b.textContent ?? ""),
+      sections: document.querySelectorAll("[data-wm-sous-onglet]").length,
       uneSeule: ouvertes().length === 1,
       avant,
       apres,
@@ -263,7 +271,11 @@ console.log("\n── les sous-onglets ──");
       ).position === "absolute",
     };
   });
-  ok("une barre, un bouton par section", vu.boutons.length === 3, vu.boutons);
+  ok(
+    "une barre, un bouton par section",
+    vu.boutons.length === vu.sections,
+    { boutons: vu.boutons, sections: vu.sections },
+  );
   ok("UNE SEULE SECTION OUVERTE À LA FOIS", vu.uneSeule);
   ok("et le clic change bien de section", vu.avant !== vu.apres, [vu.avant, vu.apres]);
   ok(
@@ -648,6 +660,82 @@ console.log("\n── à 390 px ──");
   }));
   ok("rien ne déborde", !vu.debord, vu);
   ok("et une carte d'espèce tient dans l'écran", vu.espece > 0 && vu.espece <= 390, vu.espece);
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  LA RÉGION DE RHODE — l'onglet de présentation
+// ════════════════════════════════════════════════════════════════════
+console.log("\n── la région de Rhode est présentée, et sans JavaScript ──");
+{
+  const q = await ouvrir(nav, { avecScript: false });
+  const ev = REGION.evenements;
+  const gp = ev.blocs.find((b) => Array.isArray(b.ordre));
+  const vu = await q.evaluate(() => {
+    const sec = document.querySelector('[data-wm-sous-onglet="la-region"]');
+    if (sec === null) return null;
+    return {
+      titre: sec.querySelector(".wm-annexe__carte-titre")?.textContent?.trim() ?? "",
+      paras: Array.from(sec.querySelectorAll(".wm-paras p")).map((n) =>
+        (n.textContent ?? "").trim()
+      ),
+      blocs: Array.from(sec.querySelectorAll(".wm-region__nom")).map((n) =>
+        (n.textContent ?? "").trim()
+      ),
+      ordre: Array.from(sec.querySelectorAll(".wm-region__ordre li")).map((n) =>
+        (n.textContent ?? "").replace(/^\d+/, "").trim()
+      ),
+      ecuries: Array.from(sec.querySelectorAll(".wm-ecurie__nom")).map((n) =>
+        (n.textContent ?? "").trim()
+      ),
+      libres: sec.querySelectorAll(".wm-ecurie__libre").length,
+      pilotes: Array.from(sec.querySelectorAll("a.wm-ecurie__pilote")).map((a) => ({
+        nom: (a.textContent ?? "").trim(),
+        href: a.getAttribute("href"),
+      })),
+      vue: sec.getBoundingClientRect().height > 0,
+    };
+  });
+  ok("l'onglet « La région de Rhode » existe", vu !== null);
+  if (vu !== null) {
+    ok("et se lit sans le script", vu.vue);
+    ok("son titre est celui du fichier", vu.titre === REGION.titre, vu.titre);
+    //  LES TROIS PARAGRAPHES DE PRÉSENTATION SONT LÀ, MOT POUR MOT.
+    //  C'est le texte de Callista : un résumé à ma main serait une
+    //  réécriture silencieuse de l'histoire de la région.
+    ok(
+      "les trois paragraphes de présentation sont là, mot pour mot",
+      REGION.presentation.every((t) => vu.paras.includes(t)),
+      REGION.presentation.filter((t) => !vu.paras.includes(t)).map((t) => t.slice(0, 40)),
+    );
+    ok(
+      "les quatre évènements ont chacun leur cartouche",
+      vu.blocs.join("|") === ev.blocs.map((b) => b.nom).join("|"),
+      vu.blocs,
+    );
+    ok(
+      `les ${gp.ordre.length} Grand Prix sont dans l'ordre du fichier`,
+      vu.ordre.join("|") === gp.ordre.join("|"),
+      vu.ordre,
+    );
+    ok(
+      "les trois écuries sont là",
+      vu.ecuries.join("|") === gp.ecuries.map((e) => e.nom).join("|"),
+      vu.ecuries,
+    );
+    //  LE COMPTE DES PLACES LIBRES EST CELUI DU FICHIER. Cinq
+    //  aujourd'hui, quatre le jour où quelqu'un prend un baudrier :
+    //  une constante écrite ici mentirait dès ce jour-là.
+    const libres = gp.ecuries.flatMap((e) => e.pilotes).filter((x) => x.libre).length;
+    ok(`${libres} places libres, comme le fichier`, vu.libres === libres, vu.libres);
+    const pris = gp.ecuries.flatMap((e) => e.pilotes).filter((x) => x.lien);
+    ok(
+      "le pilote en place mène à son profil",
+      vu.pilotes.length === pris.length &&
+        pris.every((x) => vu.pilotes.some((v) => v.nom === x.nom && v.href === x.lien)),
+      vu.pilotes,
+    );
+  }
+  await q.close();
 }
 
 await p.close();

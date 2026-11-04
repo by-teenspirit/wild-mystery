@@ -66,6 +66,7 @@ def lire(chemin):
 
 def corps():
     carte = lire("data/carte.json")
+    region = lire("data/region.json")
     butin = lire("data/butin.json")
     f = butin["fouille"]
     reste = round(
@@ -158,11 +159,105 @@ def corps():
 
     # ── les explications, en sous-onglets ───────────────────────────
     #
-    #  TROIS MÉCANIQUES D'AFFILÉE FONT TROIS ÉCRANS, et on lit le
+    #  QUATRE SUJETS D'AFFILÉE FONT QUATRE ÉCRANS, et on lit le
     #  premier. Les sections restent dans la page avec leurs titres :
     #  sans JavaScript elles s'affichent à la suite, et le script les
     #  range derrière une barre d'onglets.
     w('        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>')
+    w("")
+
+    #  ── 0 · la région elle-même ───────────────────────────────────
+    #
+    #  ELLE PASSE APRÈS LA CARTE ET AVANT LES MÉCANIQUES. On vient ici
+    #  pour cliquer une zone — donc la carte reste en haut — mais le
+    #  texte de Rhode explique POURQUOI il y a des pokémon sauvages
+    #  dans ces zones, et ça se lit avant les taux de tirage.
+    r = region
+    w('          <section data-wm-sous-onglet="la-region">')
+    w(f'            <h2 class="wm-annexe__carte-titre">{e(r["titre"])}</h2>')
+    w('            <div class="wm-paras">')
+    for para in r["presentation"]:
+        w(f"              <p>{e(para)}</p>")
+    w("            </div>")
+
+    ev = r["evenements"]
+    w(f'            <h3 class="wm-region__section">{e(ev["titre"])}</h3>')
+    w('            <div class="wm-paras">')
+    for para in ev["intro"]:
+        w(f"              <p>{e(para)}</p>")
+    w("            </div>")
+
+    for bloc in ev["blocs"]:
+        w('            <div class="wm-region__bloc">')
+        w(f'              <h4 class="wm-region__nom">{e(bloc["nom"])}</h4>')
+        w('              <div class="wm-paras">')
+        for para in bloc["paragraphes"]:
+            w(f"                <p>{e(para)}</p>")
+        w("              </div>")
+
+        #  LE LIEN DE L'IMAGE SUIT LE PARAGRAPHE QUI DIT « RELATIVEMENT
+        #  FUTURISTES » : c'est là que Callista l'avait posé, sur le mot
+        #  lui-même. Posé plus bas, entre la liste des circuits et les
+        #  écuries, il flottait sans rien à quoi se rattacher.
+        if bloc.get("image"):
+            w('              <p class="wm-perso__liens">')
+            w('                <a class="wm-perso__lien" href="'
+              f'{e(bloc["image"]["lien"])}" rel="noopener noreferrer"'
+              f' target="_blank">{e(bloc["image"]["mot"])}</a>')
+            w("              </p>")
+
+        #  L'ORDRE DES NEUF GRAND PRIX. Il était dans une phrase, et
+        #  une phrase de neuf lieux ne se retient pas : on la lit deux
+        #  fois pour savoir lequel vient avant lequel.
+        if bloc.get("ordre"):
+            w('              <ol class="wm-region__ordre">')
+            for n, lieu in enumerate(bloc["ordre"], 1):
+                w(f'                <li><span class="wm-region__rang">{n}</span>'
+                  f"{e(lieu)}</li>")
+            w("              </ol>")
+            if bloc.get("ditDeLOrdre"):
+                w(f'              <p class="wm-region__dit">{e(bloc["ditDeLOrdre"])}</p>')
+
+        #  LES SIX BAUDRIERS, DONT CINQ LIBRES. « Place libre » porte la
+        #  même pastille verte que « poste vacant » chez les champions :
+        #  c'est la même information — tu peux la prendre.
+        if bloc.get("ecuries"):
+            w('              <ul class="wm-ecuries">')
+            for ec in bloc["ecuries"]:
+                w('                <li class="wm-ecurie">')
+                w(f'                  <b class="wm-ecurie__nom">{e(ec["nom"])}</b>')
+                w('                  <span class="wm-ecurie__pilotes">')
+                for pil in ec["pilotes"]:
+                    if pil.get("libre"):
+                        w('                    <span class="wm-ecurie__libre">place'
+                          " libre</span>")
+                    elif pil.get("lien"):
+                        w('                    <a class="wm-ecurie__pilote" href="'
+                          f'{e(pil["lien"])}">{e(pil["nom"])}</a>')
+                    else:
+                        w('                    <span class="wm-ecurie__pilote">'
+                          f'{e(pil["nom"])}</span>')
+                w("                  </span>")
+                w("                </li>")
+            w("              </ul>")
+
+        if bloc.get("dit"):
+            w(f'              <p class="wm-region__dit">{e(bloc["dit"])}</p>')
+        w("            </div>")
+
+    note = r["note"]
+    w('            <div class="wm-encarts wm-encarts--detachee">')
+    w('              <div class="wm-encart wm-encart--paisible">')
+    w('                <span class="wm-encart__etiquette">'
+      f'{e(note["etiquette"])}</span>')
+    w(f'                <p>{e(note["texte"])}</p>')
+    w("              </div>")
+    w("            </div>")
+    w('            <p class="wm-perso__liens">')
+    w(f'              <a class="wm-perso__lien" href="{e(note["lien"])}">'
+      f'{e(note["mot"])}</a>')
+    w("            </p>")
+    w("          </section>")
     w("")
 
     #  ── 1 · les tirages ───────────────────────────────────────────

@@ -983,6 +983,51 @@ PY
   fi
 fi
 
+echo "── 26. la région de Rhode se dit pareil des deux côtés ─────────"
+# LE TEXTE DE RHODE EXISTE À DEUX ENDROITS, et c'est voulu.
+#
+# L'annexe 06 le porte en entier, généré depuis `data/region.json`.
+# Le carnet, lui, n'est PAS généré — c'est une page écrite à la main —
+# et son onglet « Mon Pokédex » en reprend deux paragraphes : le
+# climat, et le naufrage du S.S Libra d'où viennent les pokémon
+# sauvages de Rhode.
+#
+# Deux copies, donc une occasion de dériver, et la dérive serait
+# muette : on lirait deux versions de la même histoire sans que rien
+# ne proteste. Ici on vérifie que les paragraphes désignés par
+# `pourLePokedex` sont bien dans la page du carnet, mot pour mot — au
+# pliage près, puisque la page va à la ligne où elle veut.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — le texte de Rhode non comparé"
+else
+  if ! python3 - <<'PY'
+import html, json, re, sys
+from pathlib import Path
+
+region = json.loads(Path("data/region.json").read_text(encoding="utf-8"))
+page = re.sub(r"\s+", " ", html.unescape(
+    Path("pages/carnet.html").read_text(encoding="utf-8")))
+
+manquants = []
+for i in region["pourLePokedex"]:
+    texte = re.sub(r"\s+", " ", region["presentation"][i]).strip()
+    if texte not in page:
+        manquants.append((i, texte))
+
+if manquants:
+    for i, texte in manquants:
+        print(f"   paragraphe {i} de data/region.json absent de pages/carnet.html :")
+        print(f"      « {texte[:88]}… »")
+    sys.exit(1)
+
+print(f"   région : {len(region['pourLePokedex'])} paragraphe(s) du texte de Rhode "
+      "repris dans le carnet, mot pour mot")
+PY
+  then
+    gronde "le texte de Rhode du carnet ne dit plus ce que data/region.json dit"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

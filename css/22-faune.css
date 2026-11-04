@@ -255,28 +255,40 @@
   text-align: center;
 }
 
-/*  LE LISERÉ DIT LA RARETÉ AVANT QU'ON LISE. Il est en haut, sur toute
-    la largeur : à cinq colonnes, l'œil suit une ligne de couleur plus
-    vite qu'il ne lit trente-six fois le même mot. Le mot reste écrit
-    en pied de carte — un joueur sur douze ne distingue pas les
-    teintes.
+/*  ── LA RARETÉ EST UN FOND, PLUS UN LISERÉ ──────────────────────
 
-    Il est en `border-top` et plus en `::before` : le pseudo-élément
-    demandait une marge négative calculée sur le padding, qui cassait
-    dès qu'on touchait au padding. Une bordure suit toute seule. */
-#modernbb .wm-faune__espece {
-  border-top: 3px solid var(--wm-palier-1, #3f7d52);
+    « Mets plutôt un fond de couleur qu'une border verte en haut. »
+
+    Un trait de trois pixels se voit mal à cinq colonnes ; un pied
+    teinté se voit de loin, et il porte déjà le mot. Les paires
+    fond / texte sont dans les jetons, mesurées à 4,5 dans les deux
+    thèmes — pas une teinte inventée ici.
+
+    LE MOT RESTE ÉCRIT DEDANS : un joueur sur douze ne distingue pas
+    le vert du rouge. */
+#modernbb .wm-faune__pied {
+  background: var(--wm-rarete-commun-fond, #dce4d9);
+  color: var(--wm-rarete-commun-texte, #316f44);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"],
-#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] {
-  border-top-color: var(--wm-palier-2, #a05e18);
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__pied,
+#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__pied {
+  background: var(--wm-rarete-peu-commun-fond, #eedfcf);
+  color: var(--wm-rarete-peu-commun-texte, #96540e);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="rare"],
-#modernbb .wm-faune__espece[data-wm-frequence="rare"],
-#modernbb .wm-faune__espece[data-wm-frequence="très rare"] {
-  border-top-color: var(--wm-palier-3, #b1402f);
+#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__pied,
+#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__pied {
+  background: var(--wm-rarete-rare-fond, #f1d9d3);
+  color: var(--wm-rarete-rare-texte, #ad3c2b);
+}
+
+/*  « Très rare » reprend la paire « rare », inversée : le fond prend
+    la teinte pleine. C'est la seule nuance qui n'a pas besoin d'une
+    quatrième couleur pour se distinguer. */
+#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__pied {
+  background: var(--wm-palier-3, #b1402f);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /*  ── LA BOÎTE EST FIXE, L'IMAGE NON ─────────────────────────────
@@ -360,8 +372,8 @@
 }
 
 #modernbb .wm-faune__type-icone {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 
 #modernbb .wm-faune__niveaux {
@@ -385,8 +397,11 @@
   justify-content: space-between;
   gap: var(--wm-espace-8, 8px);
   margin: var(--wm-espace-16, 16px) calc(var(--wm-espace-12, 12px) * -1) 0;
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
-  background: var(--wm-fond-douce, #f3e1d2);
+  /*  « Le commun et le pourcentage sont trop collés aux bords. »
+      Le pied déborde de la carte de 12 px de chaque côté : lui
+      redonner 12 px de marge intérieure ne laissait que le padding de
+      la carte, donc rien. Il lui faut les siens, et plus larges. */
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
 }
 
 #modernbb .wm-faune__rarete {
@@ -396,24 +411,8 @@
   text-transform: uppercase;
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="commun"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="fréquent"] .wm-faune__rarete {
-  color: var(--wm-palier-1, #3f7d52);
-}
-
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__rarete {
-  color: var(--wm-palier-2, #a05e18);
-}
-
-#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__rarete {
-  color: var(--wm-palier-3, #b1402f);
-}
-
 #modernbb .wm-faune__pct {
-  color: var(--wm-accent-primaire, #275e7a);
+  color: inherit;
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
@@ -495,4 +494,148 @@
   #modernbb .wm-faune__boite {
     height: 68px;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LA RÉGION DE RHODE — l'onglet de présentation de l'annexe 06
+   ════════════════════════════════════════════════════════════════════
+
+   « Dans la carte et le pokédex, on présente aussi la région de
+   Rhode. » Le texte est dans `data/region.json`, mot pour mot.
+
+   POURQUOI DES BLOCS ET PAS DU TEXTE SUIVI. Quatre évènements
+   d'affilée en paragraphes se lisent comme un seul : on ne retrouve
+   plus où commence le Festival du Soleil. Chaque évènement a son
+   cartouche, et son nom se voit. */
+#modernbb .wm-region__section {
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-4, 4px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-region__dit {
+  margin: var(--wm-espace-10, 10px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-region__bloc {
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-region__nom {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  LE LIEN DE L'IMAGE SUIT SON PARAGRAPHE. Les 24 px de marge du
+    renvoi d'annexe le détachaient ici, au milieu d'un cartouche. */
+#modernbb .wm-region__bloc .wm-perso__liens {
+  margin: var(--wm-espace-10, 10px) 0 0;
+}
+
+/*  LES NEUF GRAND PRIX, DANS L'ORDRE. C'était une phrase de neuf
+    lieux ; on la relisait pour savoir lequel vient avant lequel. Le
+    rang est écrit à la main dans une pastille et pas laissé au
+    compteur de la liste : le marqueur par défaut est hors de la boîte,
+    donc hors du cartouche, et il ne se style pas. */
+#modernbb .wm-region__ordre {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-region__ordre li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px) var(--wm-espace-4, 4px)
+    var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-region__rang {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/* ── les trois écuries ───────────────────────────────────────────── */
+
+#modernbb .wm-ecuries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-10, 10px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-ecurie {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-ecurie__nom {
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-ecurie__pilotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-ecurie__pilote {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  « PLACE LIBRE » PORTE LA PASTILLE VERTE DE « POSTE VACANT ». C'est
+    la même information que chez les champions — tu peux la prendre —
+    et deux couleurs pour une seule idée se paient en apprentissage. */
+#modernbb .wm-ecurie__libre {
+  align-self: flex-start;
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-rarete-commun-fond, #dce4d9);
+  color: var(--wm-rarete-commun-texte, #316f44);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
 }

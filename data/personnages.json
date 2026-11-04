@@ -1,207 +1,193 @@
 {
- "_": "Les personnages du jeu, les célébrités de Rhode et les champions. Source : le texte de Callista du 4 novembre 2026. La page pages/annexe-11-celebrites-de-rhode.html en est DÉRIVÉE par outils/annexe-personnages.py — on corrige ici, jamais dans la page.",
- "_avatars": "`avatar` est vide partout : il n'y a aucune image de ces personnages dans le dépôt, et les « FC » proposés sont de vraies personnes — on ne va pas chercher leur photo. Callista pose les adresses ici quand elle les a ; la carte montre une silhouette en attendant.",
- "_dates": "LES ÂGES SONT CEUX DU TEXTE SOURCE, qui compte depuis 2021 : « il y a quinze ans » pour la chute de la Team Snatch et « il y a dix ans » pour celle de la Team Ombre. Le forum est en 2026, donc vingt et quinze. La planche 78 signalait déjà ce décalage de cinq ans. À trancher par Callista : on ne réécrit pas une chronologie depuis le code.",
- "jouables": {
-  "titre": "Personnages du jeu",
-  "intro": [
-   "Sur Wild Mystery, tu peux jouer certains personnages des jeux de la franchise Pokémon. Tu as toujours rêvé d'interpréter Red, Blue ou Serena ? Ce n'est pas un problème — il faut seulement savoir que tu repartiras du début avec ton personnage, et qu'il n'aura pas forcément le même starter que dans les séries principales.",
-   "Rhode est une nouvelle région qu'ils n'ont pas forcément découverte, et tout y est nouveau. Alors n'hésite pas."
-  ],
-  "colosseum": {
-   "titre": "La franchise Colosseum & XD",
-   "paragraphes": [
-    "Les protagonistes et antagonistes principaux de Pokémon Colosseum et Pokémon XD : Le Souffle des Ténèbres ne sont pas jouables sur le forum, à quelques exceptions près. Ils sont considérés comme des célébrités à Rhode, qu'ils soient aimés ou détestés.",
-    "On demande une activité RP rigoureuse pour ces personnages, et une participation régulière aux évènements du forum. Ceux qui ne sont pas listés ici ne sont pas jouables, et jouer quelqu'un de leur famille est difficilement possible — contacte le staff.",
-    "Les avatars ne sont que des suggestions, mais tâche de respecter le physique du personnage du jeu le mieux possible."
-   ]
+  "_": "Les personnages du jeu, les célébrités de Rhode et les champions. Source : le texte de Callista du 4 novembre 2026. La page pages/annexe-11-celebrites-de-rhode.html en est DÉRIVÉE par outils/annexe-personnages.py — on corrige ici, jamais dans la page.",
+  "_statuts": "TROIS STATUTS, ET TROIS SEULEMENT, parce que ce sont les trois filtres de la page : `jouable` (le poste est libre), `joue` (quelqu'un le joue déjà) et `pnj` (le staff le tient, on ne le joue pas). Les mots du sujet d'origine — « Non jouable », « Célébrité » — disent tous la même chose côté lecteur : ils sont ramenés à `pnj`. Un quatrième mot écrit ici ne serait filtré par rien, et `outils/personnages.mjs` le refuse.",
+  "_avatars": "`avatar` est le GIF du sujet « Personnages jouables » du forum, relevé le 4 novembre 2026. Il n'y en a QUE pour les personnages jouables ou joués : un PNJ n'a pas d'avatar à proposer puisqu'on ne le joue pas. DEUX ADRESSES NE RÉPONDENT PLUS (Vamper, chez narvii, et Donozor, chez workoutscheduleking) : elles sont gardées telles quelles, et la fiche retombe sur la silhouette quand l'image ne charge pas. Les FC sont de vraies personnes : on ne va pas chercher leur photo, le nom reste écrit comme ce qu'il est — une suggestion.",
+  "_dates": "LES ÂGES SONT CEUX DU TEXTE SOURCE, qui compte depuis 2021 : « il y a quinze ans » pour la chute de la Team Snatch et « il y a dix ans » pour celle de la Team Ombre. Le forum est en 2026, donc vingt et quinze. La planche 78 signalait déjà ce décalage de cinq ans. À trancher par Callista : on ne réécrit pas une chronologie depuis le code.",
+  "celebrites": {
+    "titre": "Célébrités de Rhode",
+    "intro": [
+      "Les célébrités de Rhode sont les personnages connus dans la région. Tu peux demander à y être ajouté si ton personnage a accompli énormément de choses et qu'il est connu de tous. Une célébrité n'est pas obligée d'être aimée ou adulée : elle peut aussi être détestée.",
+      "Sur Wild Mystery, tu peux jouer certains personnages des jeux de la franchise Pokémon. Tu as toujours rêvé d'interpréter Red, Blue ou Serena ? Ce n'est pas un problème — il faut seulement savoir que tu repartiras du début avec ton personnage, et qu'il n'aura pas forcément le même starter que dans les séries principales.",
+      "Rhode est une nouvelle région qu'ils n'ont pas forcément découverte, et tout y est nouveau. Alors n'hésite pas."
+    ],
+    "colosseum": {
+      "titre": "La franchise Colosseum & XD",
+      "paragraphes": [
+        "Les protagonistes et antagonistes principaux de Pokémon Colosseum et Pokémon XD : Le Souffle des Ténèbres ne sont pas jouables sur le forum, à quelques exceptions près. Ils sont considérés comme des célébrités à Rhode, qu'ils soient aimés ou détestés.",
+        "On demande une activité RP rigoureuse pour ces personnages, et une participation régulière aux évènements du forum. Ceux qui ne sont pas listés ici ne sont pas jouables, et jouer quelqu'un de leur famille est difficilement possible — contacte le staff.",
+        "Les avatars ne sont que des suggestions, mais tâche de respecter le physique du personnage du jeu le mieux possible."
+      ]
+    },
+    "groupes": [
+      [
+        "Les ex-admins du Groupe Ombre",
+        "Les anciens admins du Groupe Ombre après son retour il y a dix ans. Avec Bodri et Tiziano, leurs seconds, ils ont terminé sous les barreaux et en sont sortis récemment. Reconvertis en dresseurs de Colosseums, ils laissent leur passé derrière eux et ne souhaitent plus rejoindre la Team Ombre, quand bien même elle se reformerait."
+      ],
+      [
+        "Les enfants de Malafid",
+        "Les enfants de Malafid, l'ancien boss de la Team Ombre il y a dix ans. Eudes a plutôt bien accepté la défaite et s'est reconverti en challenger ; ce n'est pas le cas d'Artus, créateur du Clan de la Nuit, qui prie encore et toujours le retour de la Team Ombre. Il ne sait pas qu'elle est réellement revenue : il le souhaite, simplement, et n'en fait pas partie."
+      ]
+    ],
+    "fiches": [
+      {
+        "nom": "Michael",
+        "origine": "Protagoniste de Pokémon Colosseum",
+        "statut": "pnj",
+        "texte": "Aujourd'hui président de la région de Rhode. Il y a quinze ans, il a vaincu la Team Snatch ; dix ans plus tard, il a mis derrière les barreaux la plupart des leaders de la Team Ombre."
+      },
+      {
+        "nom": "Émilie",
+        "origine": "Protagoniste de Pokémon Colosseum",
+        "statut": "pnj",
+        "texte": "Une jeune femme dotée de Clairvoyance, capable de reconnaître les Pokémon Obscurs à l'œil nu. Elle a été d'une aide non négligeable pour Michael il y a quinze ans, et l'a même épousé il y a huit ans. Incapable de rester dans la région, leur divorce a été prononcé il y a trois ans ; on raconte qu'elle habite désormais Alola, loin de l'agitation de Rhode."
+      },
+      {
+        "nom": "Florent",
+        "origine": "Protagoniste de Pokémon XD",
+        "statut": "pnj",
+        "texte": "Acclamé par toute la région lorsqu'il est parvenu à vaincre Malafid, l'ancien leader de la Team Ombre, il y a dix ans. C'est lui qui a purifié Lugia, le pokémon légendaire capturé par l'organisation. Il a ensuite quitté Rhode pour rendre à Lugia sa liberté ; après quelques années à Johto, on raconte qu'il réalise le tour de Pokémon Island pour s'améliorer."
+      },
+      {
+        "nom": "Prof. Syrus",
+        "origine": "Protagoniste de Pokémon XD",
+        "statut": "pnj",
+        "texte": "Le professeur pokémon de la région depuis plus d'une décennie. Il a aidé à mettre au point les parfums qui purifient les pokémon obscurs, et c'est dans son laboratoire de Samaragd qu'il faut se rendre pour en purifier un. C'est aussi lui qui offre son premier pokémon à qui est natif de la région — il en élève de nombreux dans son laboratoire."
+      },
+      {
+        "nom": "Charlie Spinster",
+        "origine": "Écurie Raikou",
+        "statut": "pnj",
+        "texte": "Gagnante du Grand Prix de Rhode cinq années consécutives. Pilote de l'écurie Raikou, elle est pleine de vie, toujours de bonne humeur, et fortement appréciée des fans de courses automobiles."
+      },
+      {
+        "nom": "Helgonza",
+        "origine": "Antagoniste de Pokémon Colosseum",
+        "role": "Ex-Boss de la Team Snatch",
+        "statut": "jouable",
+        "avatar": "https://media1.popsugar-assets.com/files/thumbor/N9JyIphbo7fdJRUK2o_woS2J6gM=/fit-in/268x268/filters:format_auto():upscale()/2016/05/11/906/n/1922283/3cc95444c7e0d3e1_tumblr_nrk5i9DkCX1qi1uh9o4_400.gif",
+        "texte": "Depuis quinze ans que la Team Snatch est déchue, Helgonza a eu le temps de se refaire une réputation. Après la destruction de la Team par Michael, il a passé cinq ans derrière les barreaux et en est sorti peu avant la nouvelle apparition de la Team Ombre. Désirant se racheter, il a prêté main-forte à Florent contre elle ; il est depuis le créateur du Parti de Soutien à Michael.",
+        "traits": [
+          "repenti",
+          "charismatique",
+          "déterminé"
+        ],
+        "fc": "Dwayne Johnson"
+      },
+      {
+        "nom": "Bouledisco, Dakim, Venus & Teck",
+        "origine": "Antagonistes de Pokémon Colosseum",
+        "statut": "pnj",
+        "texte": "Les anciens admins de la Team Ombre il y a quinze ans, avant la première défaite de l'organisation. Relativement bien organisés, ils ont tout de même été déchus par Michael et se trouvent tous derrière les barreaux — sauf Venus, qui s'est donné la mort il y a sept ans, et Bouledisco, qui semble avoir retourné sa veste mais reste sous haute surveillance."
+      },
+      {
+        "nom": "Jakylla & Nosfrat",
+        "origine": "Antagonistes de Pokémon Colosseum",
+        "statut": "pnj",
+        "texte": "Les anciens leaders de la Team Ombre il y a quinze ans. Jakylla était le directeur des opérations des sbires ; il se trouve désormais derrière les barreaux, tout comme Nosfrat, ancien maire de Phenacit sous une fausse identité, maintenu sous haute sécurité dans la prison de Rhode."
+      },
+      {
+        "nom": "Angéline",
+        "origine": "Antagoniste de Pokémon XD",
+        "role": "Ex-Admin de la Team Ombre",
+        "statut": "jouable",
+        "avatar": "https://i.pinimg.com/originals/82/c0/9f/82c09fdebd98d3622148b5ee7cddb374.gif",
+        "texte": "Devenue l'une des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Plutôt enjouée et peu défaitiste, c'est une bonne combattante, et elle a prouvé qu'elle méritait une deuxième chance après la chute de l'organisation. Elle n'a plus aucun contact avec ses anciens collègues et aspire à une vie sans problèmes — elle rêve de devenir championne.",
+        "traits": [
+          "enjouée",
+          "combative",
+          "tournée vers l'avenir"
+        ],
+        "fc": "Katy Perry"
+      },
+      {
+        "nom": "Vamper",
+        "origine": "Antagoniste de Pokémon XD",
+        "role": "Ex-Admin de la Team Ombre",
+        "statut": "jouable",
+        "avatar": "https://pm1.narvii.com/7642/d4426040400350db10ae8d6ce60f049c2e2ce8d8r1-736-920v2_128.jpg",
+        "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Scientifique de renom dans sa jeunesse, il a toujours rêvé d'accéder au poste de Gouverneur de Rhode, voire à celui de Président. Ambitieux et pragmatique, c'est un dresseur hors pair : ayant compris que les desseins de la Team Ombre ne lui apporteraient rien de bon, il a tout laissé tomber et travaille sa cote de popularité.",
+        "traits": [
+          "ambitieux",
+          "pragmatique",
+          "scientifique"
+        ],
+        "fc": "Hyun Bin"
+      },
+      {
+        "nom": "Silas Donozor",
+        "origine": "Antagoniste de Pokémon XD",
+        "role": "Ex-Admin de la Team Ombre",
+        "statut": "joue",
+        "avatar": "https://workoutscheduleking.com/wp-content/uploads/2017/05/zac1-1200x675.jpg",
+        "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Considéré comme une brute sans cœur, il a tenté de nombreuses fois de rejoindre la Team Ombre après sa dissolution — trois ans derrière les barreaux l'auront calmé. Depuis, il tente de reprendre sa vie en main, même si son côté sombre l'attire parfois encore vers le bas, sans rapport avec la Team Ombre.",
+        "traits": [
+          "brutal",
+          "en sursis",
+          "solitaire"
+        ]
+      },
+      {
+        "nom": "Eudes",
+        "origine": "Antagoniste de Pokémon XD",
+        "role": "Ex-Admin de la Team Ombre",
+        "statut": "jouable",
+        "avatar": "https://i.pinimg.com/originals/f4/61/a4/f461a4757466def22af3f5df6383288e.gif",
+        "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Enfant de Malafid, Eudes a toujours été réservé quant à son avenir dans l'organisation. Lors de la chute, il a su convaincre son père de se rendre — c'est certainement grâce à cela qu'il n'est pas allé en prison. Pardonné par Florent et Michael, il se concentre désormais sur les combats, et rêve de devenir un jour champion d'un Colosseum.",
+        "traits": [
+          "réservé",
+          "loyal",
+          "conciliant"
+        ],
+        "fc": "Sam Heughan"
+      },
+      {
+        "nom": "Artus",
+        "origine": "Antagoniste de Pokémon XD",
+        "role": "Ex-Admin de la Team Ombre",
+        "statut": "jouable",
+        "avatar": "https://i.pinimg.com/originals/66/d2/e6/66d2e6d8fd7c97a23be97ed6264fef1b.gif",
+        "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Enfant de Malafid et jumeau d'Eudes, Artus était, lui, prêt à tout pour la Team Ombre. En voyant son père se rendre, il s'est senti lâchement abandonné, et il leur en veut encore aujourd'hui à tous les deux. Rêvant de voir la Team Ombre reprendre le flambeau, il ne porte pas Michael dans son cœur : il est le créateur du Clan de la Nuit. Il n'en fait cependant pas partie et n'est au courant de rien.",
+        "traits": [
+          "rancunier",
+          "fanatique",
+          "intransigeant"
+        ],
+        "fc": "Ryan Gosling"
+      },
+      {
+        "nom": "Malafid",
+        "origine": "Antagoniste de Pokémon XD",
+        "statut": "pnj",
+        "texte": "L'ancien boss de la Team Ombre, il y a dix ans. Après sa défaite contre Florent et la perte de XD001 — Lugia Obscur —, il s'est retrouvé complètement déchu et a été incarcéré avec les autres anciens leaders. Il est sous haute surveillance, et n'est pas près de sortir."
+      }
+    ]
   },
-  "fiches": [
-   {
-    "nom": "Helgonza",
-    "role": "Ex-Boss de la Team Snatch",
-    "fc": "Dwayne Johnson",
-    "avatar": "",
-    "texte": "Depuis quinze ans que la Team Snatch est déchue, Helgonza a eu le temps de se refaire une réputation. Après la destruction de la Team par Michael, il a passé cinq ans derrière les barreaux et en est sorti peu avant la nouvelle apparition de la Team Ombre. Désirant se racheter, il a prêté main-forte à Florent contre elle ; il est depuis le créateur du Parti de Soutien à Michael.",
-    "traits": [
-     "repenti",
-     "charismatique",
-     "déterminé"
-    ]
-   },
-   {
-    "nom": "Angéline",
-    "role": "Ex-Admin de la Team Ombre",
-    "fc": "Katy Perry",
-    "avatar": "",
-    "texte": "Devenue l'une des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Plutôt enjouée et peu défaitiste, c'est une bonne combattante, et elle a prouvé qu'elle méritait une deuxième chance après la chute de l'organisation. Elle n'a plus aucun contact avec ses anciens collègues et aspire à une vie sans problèmes — elle rêve de devenir championne.",
-    "traits": [
-     "enjouée",
-     "combative",
-     "tournée vers l'avenir"
-    ]
-   },
-   {
-    "nom": "Vamper",
-    "role": "Ex-Admin de la Team Ombre",
-    "fc": "Hyun Bin",
-    "avatar": "",
-    "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Scientifique de renom dans sa jeunesse, il a toujours rêvé d'accéder au poste de Gouverneur de Rhode, voire à celui de Président. Ambitieux et pragmatique, c'est un dresseur hors pair : ayant compris que les desseins de la Team Ombre ne lui apporteraient rien de bon, il a tout laissé tomber et travaille sa cote de popularité.",
-    "traits": [
-     "ambitieux",
-     "pragmatique",
-     "scientifique"
-    ]
-   },
-   {
-    "nom": "Silas Donozor",
-    "role": "Ex-Admin de la Team Ombre",
-    "fc": "",
-    "avatar": "",
-    "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Considéré comme une brute sans cœur, il a tenté de nombreuses fois de rejoindre la Team Ombre après sa dissolution — trois ans derrière les barreaux l'auront calmé. Depuis, il tente de reprendre sa vie en main, même si son côté sombre l'attire parfois encore vers le bas, sans rapport avec la Team Ombre.",
-    "traits": [
-     "brutal",
-     "en sursis",
-     "solitaire"
-    ]
-   },
-   {
-    "nom": "Eudes",
-    "role": "Ex-Admin de la Team Ombre",
-    "fc": "Sam Heughan",
-    "avatar": "",
-    "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Enfant de Malafid, Eudes a toujours été réservé quant à son avenir dans l'organisation. Lors de la chute, il a su convaincre son père de se rendre — c'est certainement grâce à cela qu'il n'est pas allé en prison. Pardonné par Florent et Michael, il se concentre désormais sur les combats, et rêve de devenir un jour champion d'un Colosseum.",
-    "traits": [
-     "réservé",
-     "loyal",
-     "conciliant"
-    ]
-   },
-   {
-    "nom": "Artus",
-    "role": "Ex-Admin de la Team Ombre",
-    "fc": "Ryan Gosling",
-    "avatar": "",
-    "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Enfant de Malafid et jumeau d'Eudes, Artus était, lui, prêt à tout pour la Team Ombre. En voyant son père se rendre, il s'est senti lâchement abandonné, et il leur en veut encore aujourd'hui à tous les deux. Rêvant de voir la Team Ombre reprendre le flambeau, il ne porte pas Michael dans son cœur : il est le créateur du Clan de la Nuit. Il n'en fait cependant pas partie et n'est au courant de rien.",
-    "traits": [
-     "rancunier",
-     "fanatique",
-     "intransigeant"
-    ]
-   }
-  ]
- },
- "celebrites": {
-  "titre": "Célébrités de Rhode",
-  "intro": [
-   "Les célébrités de Rhode sont les personnages connus dans la région. Tu peux demander à y être ajouté si ton personnage a accompli énormément de choses et qu'il est connu de tous. Une célébrité n'est pas obligée d'être aimée ou adulée : elle peut aussi être détestée."
-  ],
-  "fiches": [
-   {
-    "nom": "Michael",
-    "origine": "Protagoniste de Pokémon Colosseum",
-    "statut": "PNJ",
-    "avatar": "",
-    "texte": "Aujourd'hui président de la région de Rhode. Il y a quinze ans, il a vaincu la Team Snatch ; dix ans plus tard, il a mis derrière les barreaux la plupart des leaders de la Team Ombre."
-   },
-   {
-    "nom": "Émilie",
-    "origine": "Protagoniste de Pokémon Colosseum",
-    "statut": "Non jouable",
-    "avatar": "",
-    "texte": "Une jeune femme dotée de Clairvoyance, capable de reconnaître les Pokémon Obscurs à l'œil nu. Elle a été d'une aide non négligeable pour Michael il y a quinze ans, et l'a même épousé il y a huit ans. Incapable de rester dans la région, leur divorce a été prononcé il y a trois ans ; on raconte qu'elle habite désormais Alola, loin de l'agitation de Rhode."
-   },
-   {
-    "nom": "Florent",
-    "origine": "Protagoniste de Pokémon XD",
-    "statut": "Non jouable",
-    "avatar": "",
-    "texte": "Acclamé par toute la région lorsqu'il est parvenu à vaincre Malafid, l'ancien leader de la Team Ombre, il y a dix ans. C'est lui qui a purifié Lugia, le pokémon légendaire capturé par l'organisation. Il a ensuite quitté Rhode pour rendre à Lugia sa liberté ; après quelques années à Johto, on raconte qu'il réalise le tour de Pokémon Island pour s'améliorer."
-   },
-   {
-    "nom": "Prof. Syrus",
-    "origine": "Protagoniste de Pokémon XD",
-    "statut": "PNJ",
-    "avatar": "",
-    "texte": "Le professeur pokémon de la région depuis plus d'une décennie. Il a aidé à mettre au point les parfums qui purifient les pokémon obscurs, et c'est dans son laboratoire de Samaragd qu'il faut se rendre pour en purifier un. C'est aussi lui qui offre son premier pokémon à qui est natif de la région — il en élève de nombreux dans son laboratoire."
-   },
-   {
-    "nom": "Charlie Spinster",
-    "origine": "Écurie Raikou",
-    "statut": "Célébrité",
-    "avatar": "",
-    "texte": "Gagnante du Grand Prix de Rhode cinq années consécutives. Pilote de l'écurie Raikou, elle est pleine de vie, toujours de bonne humeur, et fortement appréciée des fans de courses automobiles."
-   },
-   {
-    "nom": "Helgonza",
-    "origine": "Antagoniste de Pokémon Colosseum",
-    "statut": "Jouable",
-    "avatar": "",
-    "texte": "L'ancien boss de la Team Snatch. Déchu par Michael il y a quinze ans, il a passé quelques années derrière les barreaux avant d'être libéré il y a dix ans. Après avoir prêté main-forte à Florent contre la Team Ombre, il a regagné du respect : il est l'un des fondateurs du parti de soutien à Michael."
-   },
-   {
-    "nom": "Bouledisco, Dakim, Venus & Teck",
-    "origine": "Antagonistes de Pokémon Colosseum",
-    "statut": "Non jouables",
-    "avatar": "",
-    "texte": "Les anciens admins de la Team Ombre il y a quinze ans, avant la première défaite de l'organisation. Relativement bien organisés, ils ont tout de même été déchus par Michael et se trouvent tous derrière les barreaux — sauf Venus, qui s'est donné la mort il y a sept ans, et Bouledisco, qui semble avoir retourné sa veste mais reste sous haute surveillance."
-   },
-   {
-    "nom": "Jakylla & Nosfrat",
-    "origine": "Antagonistes de Pokémon Colosseum",
-    "statut": "Non jouables",
-    "avatar": "",
-    "texte": "Les anciens leaders de la Team Ombre il y a quinze ans. Jakylla était le directeur des opérations des sbires ; il se trouve désormais derrière les barreaux, tout comme Nosfrat, ancien maire de Phenacit sous une fausse identité, maintenu sous haute sécurité dans la prison de Rhode."
-   },
-   {
-    "nom": "Angéline, Vamper & Donozor",
-    "origine": "Antagonistes de Pokémon XD",
-    "statut": "Jouables",
-    "avatar": "",
-    "texte": "Les anciens admins du Groupe Ombre après son retour il y a dix ans. Avec Bodri et Tiziano, leurs seconds, ils ont terminé sous les barreaux et en sont sortis récemment. Reconvertis en dresseurs de Colosseums, ils laissent leur passé derrière eux et ne souhaitent plus rejoindre la Team Ombre, quand bien même elle se reformerait."
-   },
-   {
-    "nom": "Eudes & Artus",
-    "origine": "Antagonistes de Pokémon XD",
-    "statut": "Jouables",
-    "avatar": "",
-    "texte": "Les enfants de Malafid, l'ancien boss de la Team Ombre il y a dix ans. Eudes a plutôt bien accepté la défaite et s'est reconverti en challenger ; ce n'est pas le cas d'Artus, créateur du Clan de la Nuit, qui prie encore et toujours le retour de la Team Ombre. Il ne sait pas qu'elle est réellement revenue : il le souhaite, simplement, et n'en fait pas partie."
-   },
-   {
-    "nom": "Malafid",
-    "origine": "Antagoniste de Pokémon XD",
-    "statut": "Non jouable",
-    "avatar": "",
-    "texte": "L'ancien boss de la Team Ombre, il y a dix ans. Après sa défaite contre Florent et la perte de XD001 — Lugia Obscur —, il s'est retrouvé complètement déchu et a été incarcéré avec les autres anciens leaders. Il est sous haute surveillance, et n'est pas près de sortir."
-   }
-  ]
- },
- "champions": {
-  "titre": "Les champions",
-  "lien": "https://mysteryinrhode.forumactif.com/t1002-les-champions",
-  "lienJouables": "https://mysteryinrhode.forumactif.com/t29-personnages-jouables",
-  "intro": [
-   "Les champions de Rhode sont interprétables sous certaines conditions : ils sont importants pour le bon déroulement du forum et pour la progression des joueurs.",
-   "Tu es totalement libre de débarquer avec ton propre personnage pour prendre le poste. Si le personnage n'est pas encore joué, un PNJ vient le remplacer le temps du combat quand un joueur se lance dans son arène."
-  ],
-  "regles": [
-   [
-    "Une activité RP rigoureuse",
-    "C'est ce qu'on demande à un champion. Tu pourras bien entendu conquérir les autres arènes du jeu — mais tu pars d'office avec ton propre badge déjà acquis."
-   ],
-   [
-    "L'équipe du champion ne t'appartient pas",
-    "Tu ne peux ni l'entraîner, ni la vendre, ni l'utiliser : sa place est au sein du Colosseum. Elle peut être mentionnée en narration, jamais rejoindre ton équipe usuelle — elle appartient à l'arène. Tu constitues donc ta propre équipe en commençant sur le forum, sinon tu partirais avec un avantage considérable sur tout le monde."
-   ],
-   [
-    "Une affinité avec le type de l'arène",
-    "Chaque champion en possède une. L'affiliation à la Team Ombre est en revanche totalement libre — sauf pour le champion de l'Île Ténèbra, qui lui est affilié."
-   ],
-   [
-    "Le poste se rend",
-    "Au bout d'un certain temps, tu peux demander à ne plus être champion d'une arène et à passer le rôle à quelqu'un qui souhaite tenter sa chance."
-   ]
-  ],
-  "contact": "N'hésite pas à nous contacter si tu as la moindre question sur un poste vacant. Il est aussi possible de demander à lier ton personnage à l'un des champions."
- }
+  "champions": {
+    "titre": "Les champions",
+    "lien": "https://mysteryinrhode.forumactif.com/t1002-les-champions",
+    "lienJouables": "https://mysteryinrhode.forumactif.com/t29-personnages-jouables",
+    "intro": [
+      "Les champions de Rhode sont interprétables sous certaines conditions : ils sont importants pour le bon déroulement du forum et pour la progression des joueurs.",
+      "Tu es totalement libre de débarquer avec ton propre personnage pour prendre le poste. Si le personnage n'est pas encore joué, un PNJ vient le remplacer le temps du combat quand un joueur se lance dans son arène."
+    ],
+    "regles": [
+      [
+        "Une activité RP rigoureuse",
+        "C'est ce qu'on demande à un champion. Tu pourras bien entendu conquérir les autres arènes du jeu — mais tu pars d'office avec ton propre badge déjà acquis."
+      ],
+      [
+        "L'équipe du champion ne t'appartient pas",
+        "Tu ne peux ni l'entraîner, ni la vendre, ni l'utiliser : sa place est au sein du Colosseum. Elle peut être mentionnée en narration, jamais rejoindre ton équipe usuelle — elle appartient à l'arène. Tu constitues donc ta propre équipe en commençant sur le forum, sinon tu partirais avec un avantage considérable sur tout le monde."
+      ],
+      [
+        "Une affinité avec le type de l'arène",
+        "Chaque champion en possède une. L'affiliation à la Team Ombre est en revanche totalement libre — sauf pour le champion de l'Île Ténèbra, qui lui est affilié."
+      ],
+      [
+        "Le poste se rend",
+        "Au bout d'un certain temps, tu peux demander à ne plus être champion d'une arène et à passer le rôle à quelqu'un qui souhaite tenter sa chance."
+      ]
+    ],
+    "contact": "N'hésite pas à nous contacter si tu as la moindre question sur un poste vacant. Il est aussi possible de demander à lier ton personnage à l'un des champions."
+  }
 }

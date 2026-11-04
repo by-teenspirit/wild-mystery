@@ -23666,28 +23666,40 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-align: center;
 }
 
-/*  LE LISERÉ DIT LA RARETÉ AVANT QU'ON LISE. Il est en haut, sur toute
-    la largeur : à cinq colonnes, l'œil suit une ligne de couleur plus
-    vite qu'il ne lit trente-six fois le même mot. Le mot reste écrit
-    en pied de carte — un joueur sur douze ne distingue pas les
-    teintes.
+/*  ── LA RARETÉ EST UN FOND, PLUS UN LISERÉ ──────────────────────
 
-    Il est en `border-top` et plus en `::before` : le pseudo-élément
-    demandait une marge négative calculée sur le padding, qui cassait
-    dès qu'on touchait au padding. Une bordure suit toute seule. */
-#modernbb .wm-faune__espece {
-  border-top: 3px solid var(--wm-palier-1, #3f7d52);
+    « Mets plutôt un fond de couleur qu'une border verte en haut. »
+
+    Un trait de trois pixels se voit mal à cinq colonnes ; un pied
+    teinté se voit de loin, et il porte déjà le mot. Les paires
+    fond / texte sont dans les jetons, mesurées à 4,5 dans les deux
+    thèmes — pas une teinte inventée ici.
+
+    LE MOT RESTE ÉCRIT DEDANS : un joueur sur douze ne distingue pas
+    le vert du rouge. */
+#modernbb .wm-faune__pied {
+  background: var(--wm-rarete-commun-fond, #dce4d9);
+  color: var(--wm-rarete-commun-texte, #316f44);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"],
-#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] {
-  border-top-color: var(--wm-palier-2, #a05e18);
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__pied,
+#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__pied {
+  background: var(--wm-rarete-peu-commun-fond, #eedfcf);
+  color: var(--wm-rarete-peu-commun-texte, #96540e);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="rare"],
-#modernbb .wm-faune__espece[data-wm-frequence="rare"],
-#modernbb .wm-faune__espece[data-wm-frequence="très rare"] {
-  border-top-color: var(--wm-palier-3, #b1402f);
+#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__pied,
+#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__pied {
+  background: var(--wm-rarete-rare-fond, #f1d9d3);
+  color: var(--wm-rarete-rare-texte, #ad3c2b);
+}
+
+/*  « Très rare » reprend la paire « rare », inversée : le fond prend
+    la teinte pleine. C'est la seule nuance qui n'a pas besoin d'une
+    quatrième couleur pour se distinguer. */
+#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__pied {
+  background: var(--wm-palier-3, #b1402f);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /*  ── LA BOÎTE EST FIXE, L'IMAGE NON ─────────────────────────────
@@ -23771,8 +23783,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wm-faune__type-icone {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 
 #modernbb .wm-faune__niveaux {
@@ -23796,8 +23808,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   justify-content: space-between;
   gap: var(--wm-espace-8, 8px);
   margin: var(--wm-espace-16, 16px) calc(var(--wm-espace-12, 12px) * -1) 0;
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
-  background: var(--wm-fond-douce, #f3e1d2);
+  /*  « Le commun et le pourcentage sont trop collés aux bords. »
+      Le pied déborde de la carte de 12 px de chaque côté : lui
+      redonner 12 px de marge intérieure ne laissait que le padding de
+      la carte, donc rien. Il lui faut les siens, et plus larges. */
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
 }
 
 #modernbb .wm-faune__rarete {
@@ -23807,24 +23822,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-transform: uppercase;
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="commun"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="fréquent"] .wm-faune__rarete {
-  color: var(--wm-palier-1, #3f7d52);
-}
-
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__rarete {
-  color: var(--wm-palier-2, #a05e18);
-}
-
-#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__rarete,
-#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__rarete {
-  color: var(--wm-palier-3, #b1402f);
-}
-
 #modernbb .wm-faune__pct {
-  color: var(--wm-accent-primaire, #275e7a);
+  color: inherit;
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
@@ -23909,6 +23908,150 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   LA RÉGION DE RHODE — l'onglet de présentation de l'annexe 06
+   ════════════════════════════════════════════════════════════════════
+
+   « Dans la carte et le pokédex, on présente aussi la région de
+   Rhode. » Le texte est dans `data/region.json`, mot pour mot.
+
+   POURQUOI DES BLOCS ET PAS DU TEXTE SUIVI. Quatre évènements
+   d'affilée en paragraphes se lisent comme un seul : on ne retrouve
+   plus où commence le Festival du Soleil. Chaque évènement a son
+   cartouche, et son nom se voit. */
+#modernbb .wm-region__section {
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-4, 4px);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-region__dit {
+  margin: var(--wm-espace-10, 10px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-region__bloc {
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-region__nom {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  LE LIEN DE L'IMAGE SUIT SON PARAGRAPHE. Les 24 px de marge du
+    renvoi d'annexe le détachaient ici, au milieu d'un cartouche. */
+#modernbb .wm-region__bloc .wm-perso__liens {
+  margin: var(--wm-espace-10, 10px) 0 0;
+}
+
+/*  LES NEUF GRAND PRIX, DANS L'ORDRE. C'était une phrase de neuf
+    lieux ; on la relisait pour savoir lequel vient avant lequel. Le
+    rang est écrit à la main dans une pastille et pas laissé au
+    compteur de la liste : le marqueur par défaut est hors de la boîte,
+    donc hors du cartouche, et il ne se style pas. */
+#modernbb .wm-region__ordre {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-region__ordre li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px) var(--wm-espace-4, 4px)
+    var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-region__rang {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/* ── les trois écuries ───────────────────────────────────────────── */
+
+#modernbb .wm-ecuries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-10, 10px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-ecurie {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-ecurie__nom {
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-ecurie__pilotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-ecurie__pilote {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  « PLACE LIBRE » PORTE LA PASTILLE VERTE DE « POSTE VACANT ». C'est
+    la même information que chez les champions — tu peux la prendre —
+    et deux couleurs pour une seule idée se paient en apprentissage. */
+#modernbb .wm-ecurie__libre {
+  align-self: flex-start;
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-rarete-commun-fond, #dce4d9);
+  color: var(--wm-rarete-commun-texte, #316f44);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/* ════════════════════════════════════════════════════════════════════
    23-personnages.css — les fiches de personnage et les postes
 
    Trois listes qui partagent une seule carte : les personnages
@@ -23917,43 +24060,78 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
    « Pour ces blocs-là, on essaye d'en mettre deux côte à côte. »
    ════════════════════════════════════════════════════════════════════ */
 
-/* ── 1 · la grille, deux par rangée ───────────────────────────────── */
+/* ── 1 · la grille, deux par rangée ───────────────────────────────
 
-/*  ZÉRO TABLEAU, QUE DU FLEXBOX. Une base de 300 px et `wrap` : deux
-    colonnes dès qu'il y a la place, une seule quand il n'y en a plus,
-    sans un seul point de rupture à tenir. */
+   « Un ratio 200 × 320, une box de la même taille pour tout le monde
+   avec un overflow auto. »
+
+   TOUTES LES FICHES FONT LA MÊME HAUTEUR, et c'est ce qui change
+   tout : les textes vont de trois lignes pour Michael à dix pour
+   Bouledisco & co, donc une rangée sur deux était bancale. La fiche
+   est figée à 320 px, l'avatar occupe 200 px de large, et le texte
+   défile dans ce qui reste quand il est trop long.
+
+   UN TEXTE QUI DÉFILE DOIT SE VOIR. Le dégradé en bas de la colonne
+   dit qu'il reste quelque chose en dessous — sans lui, une fiche
+   coupée net ressemble à une fiche terminée. */
 #modernbb .wm-persos {
+  /*  ── LE RATIO EST DÉCLARÉ UNE FOIS, ET LA HAUTEUR S'EN DÉDUIT ──
+
+      « Garde un ratio 200 × 320, mais deux personnages par ligne. »
+
+      La colonne d'annexe fait 880 px : à deux par rangée, une fiche
+      en fait 406. Un avatar de 200 n'y laisserait que 166 px de
+      texte, soit une vingtaine de caractères par ligne. L'avatar
+      descend donc à 140, et sa hauteur suit le ratio — 140 × 320 /
+      200 = 224. La fiche prend exactement cette hauteur, ce qui fait
+      que l'avatar la remplit bord à bord.
+
+      LES DEUX NOMBRES SONT ÉCRITS, PAS CALCULÉS. Une variable locale
+      aurait tenu le ratio toute seule, mais une feuille de ce dépôt
+      ne DÉCLARE pas de `--wm-…` : les jetons se déclarent dans
+      `panneau-admin/jetons.css` et nulle part ailleurs (planche 48,
+      §8), et celui-ci n'a rien à faire dans un panneau — il est
+      calculé pour que deux fiches tiennent dans la colonne. Donc 140
+      et 224, avec le calcul écrit juste au-dessus : si l'un bouge,
+      l'autre se refait à la main, 140 × 320 / 200. */
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-12, 12px);
-  margin: var(--wm-espace-16, 16px) 0 0;
+  gap: var(--wm-espace-16, 16px);
+  margin: var(--wm-espace-24, 24px) 0 0;
   padding: 0;
   list-style: none;
 }
 
 #modernbb .wm-perso {
+  position: relative;
   display: flex;
-  flex: 1 1 300px;
+  flex: 1 1 380px;
   box-sizing: border-box;
-  align-items: flex-start;
-  gap: var(--wm-espace-12, 12px);
-  padding: var(--wm-espace-14, 14px);
+  height: 224px; /* 140 × 320 / 200 — le ratio demandé */
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-md, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
-/* ── 2 · l'avatar, ou sa place ────────────────────────────────────── */
+/* ── 2 · l'avatar, 200 × 320 ──────────────────────────────────────
 
-/*  UNE CARTE SANS IMAGE NE DOIT PAS ÊTRE PLUS COURTE QUE SA VOISINE :
-    la silhouette tient la grille droite. Et il n'y a aucun avatar
-    dans le dépôt aujourd'hui — les « FC » proposés sont de vraies
-    personnes, dont on ne va pas chercher la photo. */
+   UNE CARTE SANS IMAGE NE DOIT PAS ÊTRE PLUS COURTE QUE SA VOISINE :
+   la silhouette tient la grille droite. Et il n'y a aucun avatar dans
+   le dépôt aujourd'hui — les « FC » proposés sont de vraies
+   personnes, dont on ne va pas chercher la photo. */
+/*  `height: 100%` SUFFIT À TENIR LE RATIO, puisque la hauteur de la
+    fiche est calculée depuis la largeur de l'avatar. Pas
+    d'`aspect-ratio` à côté : deux règles qui disent la même chose
+    finissent par se contredire. */
 #modernbb .wm-perso__avatar {
-  width: 96px;
-  height: 96px;
-  flex: 0 0 96px;
-  border-radius: var(--wm-rayon-md, 8px);
+  width: 140px;
+  height: 100%;
+  flex: 0 0 140px;
+  border-radius: 0;
   object-fit: cover;
 }
 
@@ -23962,25 +24140,55 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-douce, #f3e1d2);
   background-image: radial-gradient(
       circle at 50% 36%,
-      var(--wm-bord-net, #d9c3b1) 17%,
-      transparent 18%
+      var(--wm-bord-net, #d9c3b1) 15%,
+      transparent 16%
     ),
     radial-gradient(
-      ellipse at 50% 100%,
-      var(--wm-bord-net, #d9c3b1) 38%,
-      transparent 39%
+      ellipse at 50% 104%,
+      var(--wm-bord-net, #d9c3b1) 34%,
+      transparent 35%
     );
 }
 
-/* ── 3 · le corps de la fiche ─────────────────────────────────────── */
+/* ── 3 · le corps, et ce qui défile ───────────────────────────────── */
 
 #modernbb .wm-perso__corps {
+  position: relative;
+  display: flex;
   min-width: 0;
   flex: 1 1 auto;
+  flex-direction: column;
+  padding: var(--wm-espace-14, 14px);
+  overflow-y: auto;
 }
 
+/*  LE DÉGRADÉ DIT QU'IL RESTE DU TEXTE — sans lui, une fiche coupée
+    net ressemble à une fiche terminée.
+
+    IL EST SUR LA FICHE, PAS DANS LA COLONNE QUI DÉFILE. Posé en
+    `sticky` à l'intérieur du texte, il partait avec lui ; en absolu
+    sur la fiche, il reste collé au bas quoi qu'il arrive.
+    `pointer-events: none` pour qu'il n'avale pas la molette. */
+#modernbb .wm-perso::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 140px; /* la largeur de l'avatar : le voile ne couvre que le texte */
+  height: var(--wm-espace-32, 32px);
+  background: linear-gradient(transparent, var(--wm-fond-surface-haute, #fcf4ec));
+  pointer-events: none;
+}
+
+/*  LE TITRE EST LE TITRE : il monte d'un cran et reste en haut quand
+    le texte défile, sinon on perd de qui on lit la fiche. */
 #modernbb .wm-perso__nom {
-  margin: 0;
+  position: sticky;
+  color: var(--wm-texte-corps, #4e3b30);
+  top: calc(var(--wm-espace-14, 14px) * -1);
+  margin: calc(var(--wm-espace-14, 14px) * -1) calc(var(--wm-espace-14, 14px) * -1) 0;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-14, 14px) var(--wm-espace-6, 6px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
   line-height: var(--wm-interligne-titre, 1.1);
@@ -23989,44 +24197,56 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-perso__etiquettes {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-4, 4px);
-  margin: var(--wm-espace-4, 4px) 0 var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-6, 6px);
+  margin: 0 0 var(--wm-espace-6, 6px);
 }
 
+/*  OÙ ON LE SITUE : du texte gris sur une ligne, pas une pastille.
+    « Protagoniste de Pokémon Colosseum » en capitales encadrées
+    prenait deux lignes et pesait plus que le nom. */
+#modernbb .wm-perso__situe {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1.35;
+}
+
+/*  LES ÉTIQUETTES SONT EN GRAS ET PLUS PETITES, avec de la marge :
+    même échange que les puces de type — à largeur donnée, une
+    étiquette respire en rapetissant son mot, pas en poussant ses
+    bords. */
 #modernbb .wm-perso__role,
 #modernbb .wm-perso__statut {
-  padding: 2px var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
-/*  LE STATUT PORTE LA SEULE COULEUR DE LA CARTE, parce que c'est la
+/*  LE STATUT PORTE LA SEULE COULEUR DE LA FICHE, parce que c'est la
     seule chose qu'on vient chercher en diagonale : est-ce que je peux
-    le jouer, oui ou non. Vert on y va, rouge non — le même barème que
-    les paliers et les raretés, déjà mesuré, plutôt qu'un troisième à
-    apprendre. Le mot reste écrit. */
-#modernbb .wm-perso__statut[data-wm-statut="jouable"],
-#modernbb .wm-perso__statut[data-wm-statut="jouables"] {
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-palier-1, #3f7d52);
-  box-shadow: inset 0 0 0 1px currentcolor;
+    le jouer, oui ou non. Les paires fond / texte sont celles des
+    raretés, déjà mesurées — une échelle de moins à apprendre.
+
+    DEUX COULEURS SUR TROIS STATUTS, ET C'EST VOULU. « Jouable » est
+    la seule ligne sur laquelle on peut agir : elle est verte. « Joué »
+    est pris, et le dire en orange suffit. Les PNJ sont huit fiches sur
+    quatorze : les peindre en rouge ferait de la majorité de la page un
+    avertissement, alors qu'il n'y a rien à signaler — ils gardent le
+    sable de l'étiquette ordinaire. */
+#modernbb .wm-perso__statut[data-wm-statut="jouable"] {
+  background: var(--wm-rarete-commun-fond, #dce4d9);
+  color: var(--wm-rarete-commun-texte, #316f44);
 }
 
-#modernbb .wm-perso__statut[data-wm-statut="pnj"] {
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-palier-2, #a05e18);
-  box-shadow: inset 0 0 0 1px currentcolor;
-}
-
-#modernbb .wm-perso__statut[data-wm-statut="non-jouable"],
-#modernbb .wm-perso__statut[data-wm-statut="non-jouables"] {
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-palier-3, #b1402f);
-  box-shadow: inset 0 0 0 1px currentcolor;
+#modernbb .wm-perso__statut[data-wm-statut="joue"] {
+  background: var(--wm-rarete-peu-commun-fond, #eedfcf);
+  color: var(--wm-rarete-peu-commun-texte, #96540e);
 }
 
 #modernbb .wm-perso__texte {
@@ -24037,12 +24257,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-perso__traits {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-4, 4px);
-  margin: var(--wm-espace-8, 8px) 0 0;
+  gap: var(--wm-espace-6, 6px);
+  margin: var(--wm-espace-12, 12px) 0 0;
 }
 
 #modernbb .wm-perso__trait {
-  padding: 2px var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
   color: var(--wm-texte-doux, #6e5749);
@@ -24052,13 +24272,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LE « FC » EST UNE SUGGESTION, et c'est écrit : ce sont de vraies
     personnes, et personne ne doit croire que le choix est imposé. */
 #modernbb .wm-perso__fc {
-  margin: var(--wm-espace-8, 8px) 0 0;
+  margin: var(--wm-espace-12, 12px) 0 0;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
+/*  LA COULEUR EST ÉCRITE, PAS HÉRITÉE. Mesuré le 4 novembre : sans
+    `color`, ces titres et ces liens prenaient une couleur de titre qui
+    ne bascule pas, et tombaient à 1,35 contre 1 sur le fond sombre —
+    noir sur brun, illisible, et invisible en clair où tout allait
+    bien. Un titre sans couleur déclarée n'est pas « neutre » : il est
+    à la merci de la première règle qui passe. */
 #modernbb .wm-perso__section {
-  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-4, 4px);
+  color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
 }
@@ -24070,38 +24297,68 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wm-perso__lien {
-  margin: var(--wm-espace-20, 20px) 0 0;
+  margin: var(--wm-espace-24, 24px) 0 0;
 }
 
-/* ── 4 · les onze postes ──────────────────────────────────────────── */
+/* ── 4 · les onze postes ──────────────────────────────────────────
 
-/*  Les mêmes deux colonnes, en plus serré : une ligne de poste porte
-    trois choses, pas un paragraphe. */
+   « Un lien qui mène à l'ancre de chaque champion. Améliore le tag
+   et la hiérarchie des infos. »
+
+   LA LIGNE ENTIÈRE EST LE LIEN, pas un « en savoir plus » au bout :
+   une cible de la largeur de la ligne se clique du premier coup, au
+   doigt comme à la souris. */
 #modernbb .wm-postes {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-8, 8px);
-  margin: var(--wm-espace-12, 12px) 0 0;
+  gap: var(--wm-espace-10, 10px);
+  margin: var(--wm-espace-16, 16px) 0 0;
   padding: 0;
   list-style: none;
 }
 
-#modernbb .wm-poste {
+#modernbb .wm-postes > li {
   display: flex;
-  flex: 1 1 300px;
+  flex: 1 1 340px;
+}
+
+#modernbb a.wm-poste {
+  display: flex;
+  width: 100%;
   box-sizing: border-box;
   align-items: center;
-  gap: var(--wm-espace-10, 10px);
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: inherit;
+  text-decoration: none;
+}
+
+#modernbb a.wm-poste:hover,
+#modernbb a.wm-poste:focus-visible {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LA VIGNETTE DE TYPE EST POSÉE SUR UN ROND : à 28 px sur un fond
+    beige, les dix-huit icônes se ressemblaient toutes. Le rond les
+    détache sans leur inventer de couleur. */
+#modernbb .wm-poste__vignette {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
 #modernbb .wm-poste__type {
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
+  width: 28px;
+  height: 28px;
 }
 
 #modernbb .wm-poste__mots {
@@ -24109,43 +24366,44 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   min-width: 0;
   flex: 1 1 auto;
   flex-direction: column;
+  gap: 2px;
 }
 
+/*  LE NOM DOMINE, LA VILLE SUIT. Avant, les deux étaient à la même
+    taille et on lisait « Arène Feu Station Service » comme une seule
+    chaîne. */
 #modernbb .wm-poste__nom {
-  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-titre, 1.1);
 }
 
 #modernbb .wm-poste__ville {
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
 }
 
-/*  « POSTE VACANT » EST UN ÉTAT, PAS UN MANQUE : tous les onze le
-    sont aujourd'hui, et le dire est plus utile que de laisser la
-    ligne muette. */
+/*  LE TAG REPREND LA PAIRE FOND / TEXTE DES RARETÉS, comme les
+    statuts de personnage : une échelle de moins à apprendre. Vacant
+    est une invitation, donc le vert. */
 #modernbb .wm-poste__etat {
-  padding: 2px var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-douce, #f3e1d2);
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  background: var(--wm-rarete-commun-fond, #dce4d9);
+  color: var(--wm-rarete-commun-texte, #316f44);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-transform: uppercase;
   white-space: nowrap;
 }
 
-/* ── 5 · le téléphone ─────────────────────────────────────────────── */
-
-@media (max-width: 760px) {
-  #modernbb .wm-perso {
-    padding: var(--wm-espace-10, 10px);
-  }
-
-  #modernbb .wm-perso__avatar {
-    width: 64px;
-    height: 64px;
-    flex-basis: 64px;
-  }
+#modernbb .wm-poste__fleche {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-weight: var(--wm-graisse-gras, 700);
 }
 
 /* ── 6 · les crédits ──────────────────────────────────────────────
@@ -24196,5 +24454,126 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   #modernbb .wm-credit__quoi {
     flex-basis: 100%;
   }
+}
+
+/* ── 7 · de l'air avant l'encart ──────────────────────────────────
+
+   « Ajoute un espace entre les colosseums et "un poste t'intéresse". »
+   Collé à la liste, l'encart avait l'air d'en être la onzième ligne. */
+#modernbb .wm-encarts--detachee {
+  margin-top: var(--wm-espace-32, 32px);
+}
+
+/* ── 8 · les deux renvois, côte à côte ────────────────────────────── */
+
+#modernbb .wm-perso__liens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-24, 24px);
+  margin: var(--wm-espace-24, 24px) 0 0;
+}
+
+/*  MÊME RAISON QUE LES TITRES : un lien sans couleur déclarée prenait
+    le bleu par défaut, qui ne bascule pas en sombre. */
+#modernbb .wm-perso__lien,
+#modernbb a.wm-perso__lien {
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LA BARRE DE FILTRES — jouable, joué, PNJ
+   ════════════════════════════════════════════════════════════════════
+
+   Quatorze fiches dans une seule liste : sans tri, celui qui cherche
+   un poste libre lit huit PNJ avant d'en trouver un. La barre est
+   posée par `module-personnages.ts` ; tout ce qui suit la décrit, et
+   ne s'applique donc que quand le script a tourné.
+
+   LA LÉGENDE, ELLE, EST DANS LA PAGE, au-dessus de la barre : c'est
+   elle qui dit ce que les trois mots veulent dire, et elle doit se
+   lire sans JavaScript. */
+#modernbb .wm-statuts-dits {
+  margin: var(--wm-espace-16, 16px) 0 0;
+}
+
+/*  L'ÉTIQUETTE DE LA LÉGENDE PORTE LE TIRET DE LA LISTE, donc on
+    reprend la pastille telle quelle et on la cale sur la ligne. */
+#modernbb .wm-statuts-dits .wm-perso__statut {
+  margin-right: var(--wm-espace-6, 6px);
+  vertical-align: 0.08em;
+}
+
+#modernbb .wm-filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  margin: var(--wm-espace-24, 24px) 0 0;
+}
+
+#modernbb .wm-filtre {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: inherit;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.2;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#modernbb .wm-filtre:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  LE BOUTON ACTIF EST PLEIN, PAS SEULEMENT PLUS FONCÉ. Un cerclage
+    un peu plus net ne se voit pas : on a besoin de savoir d'un coup
+    d'œil sur quoi la liste est triée, sinon on recompte les fiches. */
+#modernbb .wm-filtre--actif {
+  border-color: transparent;
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+/*  LE NOMBRE EST DANS UNE PASTILLE : « JOUABLE 5 » collé se lit comme
+    un seul mot, et le chiffre est justement ce qu'on vient compter. */
+#modernbb .wm-filtre__nombre {
+  min-width: 1.3em;
+  padding: 0 var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/*  SUR LE BOUTON ACTIF, la pastille passe à l'accent fort : un voile
+    blanc sur l'accent aurait donné un bleu délavé sous du texte blanc,
+    et le chiffre est justement ce qu'on vient lire. */
+#modernbb .wm-filtre--actif .wm-filtre__nombre {
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-filtres__compte {
+  margin: var(--wm-espace-10, 10px) 0 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  UNE FICHE FILTRÉE DISPARAÎT VRAIMENT. `hidden` ne suffit pas : la
+    fiche est en `display: flex`, et une déclaration d'affichage bat
+    l'attribut. C'est la faute classique, et elle laisse la liste
+    entière à l'écran en se croyant triée. */
+#modernbb .wm-perso[hidden],
+#modernbb .wm-perso--filtree {
+  display: none;
 }
 

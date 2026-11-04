@@ -32,6 +32,7 @@ import {
   poserLeSommaire,
   poserLesSousOnglets,
 } from "../src/adaptateurs/navigateur/module-annexes.ts";
+import { poserLesFiltres } from "../src/adaptateurs/navigateur/module-personnages.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
@@ -63,6 +64,12 @@ poserLeTheme(document, new Preferences(new StockageLocal()));
 //  requête du sommaire, pour que la page ne s'affiche pas dépliée une
 //  seconde avant de se replier sous les yeux du lecteur.
 poserLesSousOnglets(document);
+
+//  LES FILTRES DE L'ANNEXE 11, pour la même raison : les quatorze
+//  fiches sont dans la page, la barre qui les trie est posée ici. Sur
+//  les treize autres annexes, il n'y a pas de liste et la fonction ne
+//  fait rien.
+poserLesFiltres(document);
 
 //  LA PAGE RESTE LISIBLE SANS CE SCRIPT. Le texte est dans la page, en
 //  vrai HTML ; sans sommaire il manque une navigation, pas le contenu.

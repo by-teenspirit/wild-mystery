@@ -70,6 +70,25 @@
   --wm-palier-2:        #a05e18;
   --wm-palier-3:        #b1402f;
 
+  /*  ── LES TROIS RARETÉS, EN PAIRE FOND / TEXTE ──────────────────
+
+      « Mets plutôt un fond de couleur qu'une border verte en haut. »
+
+      CE SONT LES TEINTES DES PALIERS, pas de nouvelles : vert on y va,
+      rouge c'est rare, et le forum n'a donc qu'une échelle à
+      apprendre. Même recette que les six groupes : le fond est la
+      teinte à 18 % sur `fond-surface`, le texte la teinte poussée
+      juste assez pour tenir 4,5 dessus — mesuré, 4,63 / 4,51 / 4,51.
+
+      Elles servent AUSSI aux quatre fréquences du butin : « très
+      rare » reprend la paire « rare », en plein. */
+  --wm-rarete-commun-fond:      #dce4d9;
+  --wm-rarete-commun-texte:     #316f44;
+  --wm-rarete-peu-commun-fond:  #eedfcf;
+  --wm-rarete-peu-commun-texte: #96540e;
+  --wm-rarete-rare-fond:        #f1d9d3;
+  --wm-rarete-rare-texte:       #ad3c2b;
+
   /*  Le bleu du bord de la peinture de Rhode, relevé au pixel sur
       `planches/peinte/fond-forum.jpg` : #1a5380 sur tout le pourtour.
       Le cadre de la carte s'y fond, pour que la boîte aux lettres
@@ -234,6 +253,15 @@ body.wm-sombre {
   --wm-palier-1:              #7fb98f;
   --wm-palier-2:              #e3a05d;
   --wm-palier-3:              #e0786a;
+
+  /*  Les trois raretés, même recette sur fond sombre : 5,34 / 5,43 /
+      4,54. */
+  --wm-rarete-commun-fond:      #34372c;
+  --wm-rarete-commun-texte:     #7fb98f;
+  --wm-rarete-peu-commun-fond:  #463223;
+  --wm-rarete-peu-commun-texte: #e3a05d;
+  --wm-rarete-rare-fond:        #462b25;
+  --wm-rarete-rare-texte:       #e47c6e;
 
   /*  LA MÊME VALEUR QU'EN CLAIR : c'est la couleur d'une image. */
   --wm-carte-bord-peinte:     #1a5380;
