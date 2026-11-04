@@ -241,6 +241,7 @@ def construire() -> dict:
         for slug, pct in parts(slugs, cat):
             o = cat[slug]
             lignes.append({
+                "slug": o["slug"],
                 "objet": o["id"],
                 "nom": o["nom"],
                 "famille": o["famille"],

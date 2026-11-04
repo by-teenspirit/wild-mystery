@@ -46,7 +46,14 @@ export type EntreeDeCouverture = {
 
 export type CarteDeCouverture = {
   readonly base: string;
+  /** Le dossier des vignettes d'objet, dans le même dépôt épinglé. */
+  readonly baseObjets?: string;
   readonly commit: string;
+  /** Les objets dont la vignette existe au commit épinglé. */
+  readonly objets?: {
+    readonly slugs: readonly string[];
+    readonly manquants?: readonly string[];
+  };
   readonly styles: Readonly<
     Record<string, {
       readonly anime: boolean;
@@ -95,6 +102,24 @@ export class Sprites {
     //  Les images figées que nous produisons vivent dans NOTRE dépôt ; les
     //  autres chemins sont relatifs au dépôt des sprites. Le préfixe le dit.
     return chemin.startsWith("assets/") ? chemin : `${this.carte.base}/${chemin}`;
+  }
+
+  /** L'adresse de la vignette d'un objet, ou `null`.
+   *
+   *  LES OBJETS SONT DÉJÀ DES PNG FIXES chez PokeAPI : rien à figer,
+   *  rien à recopier chez nous. On ne garde que la carte de ce qui
+   *  existe — `outils/sprites.py` la relève —, pour la même raison que
+   *  pour les espèces : un repli `onerror` côté navigateur coûterait
+   *  une requête ratée et un clignotement par vignette absente, chez
+   *  chaque visiteur, à chaque page.
+   *
+   *  `sweet-apple` n'en a pas au commit épinglé, et c'est exactement le
+   *  cas que cette carte permet de traiter sans le découvrir à l'écran. */
+  adresseDObjet(slug: string): string | null {
+    const base = this.carte.baseObjets;
+    const connus = this.carte.objets?.slugs;
+    if (base === undefined || connus === undefined) return null;
+    return connus.includes(slug) ? `${base}/${slug}.png` : null;
   }
 
   /** Le numéro d'espèce porté par une adresse déjà écrite — c'est ce qui

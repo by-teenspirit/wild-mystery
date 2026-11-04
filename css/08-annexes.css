@@ -994,3 +994,53 @@ body:has(#modernbb .wm-carnet) {
     text-align: left;
   }
 }
+
+/* ── 8 · les sous-onglets ─────────────────────────────────────────
+
+   « Tu peux faire des sous-onglets pour faciliter la digestion des
+   explications. »
+
+   LA BARRE N'EXISTE QUE SI LE SCRIPT L'A POSÉE : c'est lui qui met
+   `--posee` sur le groupe. Sans script, les sections s'affichent à
+   la suite avec leurs titres, et il n'y a pas de rangée de boutons
+   morts au-dessus.
+
+   Le bouton réutilise `wm-onglet` de la charte, contrastes compris.
+   Trois états de plus auraient été trois occasions de se tromper de
+   jeton. */
+#modernbb .wm-sous-onglets__barre {
+  display: flex;
+  overflow-x: auto;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  margin-bottom: var(--wm-espace-16, 16px);
+}
+
+/*  LES SECTIONS GARDENT LEUR TITRE SANS LE SCRIPT, et le perdent avec :
+    une fois la barre posée, le titre est écrit sur le bouton, et le
+    répéter juste en dessous dit deux fois la même chose. */
+#modernbb .wm-sous-onglets--posee [data-wm-sous-onglet] > h2:first-child,
+#modernbb .wm-sous-onglets--posee [data-wm-sous-onglet] > h3:first-child {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*  Sous 760 px la barre défile plutôt que de s'empiler : quatre
+    onglets sur quatre lignes mangeraient l'écran avant le texte. */
+@media (max-width: 760px) {
+  #modernbb .wm-sous-onglets__barre {
+    flex-wrap: nowrap;
+    padding-bottom: var(--wm-espace-4, 4px);
+  }
+
+  #modernbb .wm-sous-onglets__barre .wm-onglet {
+    flex: 0 0 auto;
+  }
+}

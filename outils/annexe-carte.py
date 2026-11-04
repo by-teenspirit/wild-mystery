@@ -156,62 +156,91 @@ def corps():
     w("        </div>")
     w("")
 
-    # ── comment le serveur tire ──────────────────────────────────────
-    w('        <div class="wm-annexe__carte">')
-    w('          <h2 class="wm-annexe__carte-titre">Comment le serveur tire</h2>')
-    w('          <ul class="wm-tirets">')
-    w("            <li><b>Tout part du numéro de ton message.</b> Le même message donne")
-    w("              toujours le même résultat, aujourd'hui comme dans trois ans. C'est ce")
-    w("              qui permet de refaire un tirage contesté au lieu d'en discuter.</li>")
-    w("            <li><b>Deux tirages, dans cet ordre :</b> l'espèce d'abord, selon les")
-    w("              pourcentages de la zone ; son niveau ensuite, dans la fourchette de")
-    w("              cette espèce-là. Les inverser donnerait un autre résultat.</li>")
-    w("            <li><b>Les pourcentages d'une zone font exactement cent.</b> Le serveur")
-    w("              refuse de tirer dans une table qui ne tombe pas juste.</li>")
-    w("            <li><b>Rien n'est acquis avant la clôture</b>, et tout l'est d'un coup")
-    w("              à la clôture.</li>")
-    w("          </ul>")
-    w("        </div>")
+    # ── les explications, en sous-onglets ───────────────────────────
+    #
+    #  TROIS MÉCANIQUES D'AFFILÉE FONT TROIS ÉCRANS, et on lit le
+    #  premier. Les sections restent dans la page avec leurs titres :
+    #  sans JavaScript elles s'affichent à la suite, et le script les
+    #  range derrière une barre d'onglets.
+    w('        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>')
     w("")
 
-    # ── le jour, la nuit, le temps ───────────────────────────────────
-    w('        <div class="wm-annexe__carte">')
-    w('          <h2 class="wm-annexe__carte-titre">Le jour, la nuit, et le temps'
-      " qu'il fait</h2>")
-    w('          <div class="wm-paras">')
-    w("            <p>Le temps de Rhode est tiré <b>une fois par jour, pour tout le")
-    w("              monde</b> : calme, ou agité. Un jour sur quatre est agité. Même jour,")
-    w("              même temps pour tous — personne n'a son propre ciel.</p>")
-    w("            <p>La nuit va de <b>20 h à 6 h</b>, à <b>ton</b> heure : le fuseau que")
-    w("              tu as réglé, pas celui du serveur.</p>")
-    w("          </div>")
-    w('          <div class="wm-encarts">')
-    w('            <div class="wm-encart wm-encart--paisible">')
-    w('              <span class="wm-encart__etiquette">Aujourd\'hui</span>')
-    w("              <p>Les dix-sept zones montrent <b>la même faune le jour et la")
-    w("                nuit, et par tous les temps</b>. Le ciel change ce que tu")
-    w("                racontes, pas ce que tu croises.</p>")
+    #  ── 1 · les tirages ───────────────────────────────────────────
+    w('          <section data-wm-sous-onglet="les-tirages">')
+    w('            <h2 class="wm-annexe__carte-titre">Comment le serveur tire</h2>')
+    w('            <ul class="wm-tirets">')
+    w("              <li><b>Tout part du numéro de ton message.</b> Il sert de graine : le")
+    w("                même message donne toujours le même résultat, aujourd'hui comme dans")
+    w("                trois ans. C'est ce qui permet de refaire un tirage contesté au lieu")
+    w("                d'en discuter.</li>")
+    w("              <li><b>Deux tirages, dans cet ordre :</b> l'espèce d'abord, selon les")
+    w("                pourcentages de la zone ; son niveau ensuite, dans la fourchette de")
+    w("                cette espèce-là. Les inverser donnerait un autre résultat pour la")
+    w("                même graine, donc l'ordre ne bouge pas.</li>")
+    w("              <li><b>Les pourcentages d'une zone font exactement cent.</b> Le serveur")
+    w("                refuse de tirer dans une table qui ne tombe pas juste — mieux vaut")
+    w("                pas de rencontre qu'une rencontre faussée.</li>")
+    w("              <li><b>Rien n'est acquis avant la clôture</b>, et tout l'est d'un coup")
+    w("                à la clôture.</li>")
+    w("            </ul>")
+    w("          </section>")
+    w("")
+
+    #  ── 2 · la météo, expliquée pour de vrai ──────────────────────
+    w('          <section data-wm-sous-onglet="la-meteo">')
+    w('            <h2 class="wm-annexe__carte-titre">Le ciel, l\'heure, et ce qu\'ils'
+      " changent</h2>")
+    w('            <div class="wm-paras">')
+    w("              <p><b>Le temps de Rhode se calcule, il ne se décide pas.</b> Chaque")
+    w("                jour a sa graine — la date, et rien d'autre — et un seul tirage en")
+    w("                sort le temps du jour. Il n'y a donc rien à générer le matin, rien à")
+    w("                stocker, et rien qui puisse rater : ton navigateur trouve le même")
+    w("                temps que le serveur sans rien lui demander.</p>")
+    w("              <p><b>Deux états, un sur quatre.</b> Le jour est <b>calme</b> ou")
+    w("                <b>agité</b>, et il l'est pour tout le monde en même temps : il n'y a")
+    w("                pas un ciel par joueur ni un ciel par zone. Environ un jour sur")
+    w("                quatre est agité.</p>")
+    w("              <p><b>Un état global, une expression locale.</b> Un jour agité, chaque")
+    w("                zone montre le temps que SA donnée connaît — la pluie dans le marais,")
+    w("                le blizzard dans les monts, les cendres sur le volcan — et les zones")
+    w("                qui n'en ont pas restent au calme.</p>")
+    w("              <p><b>La nuit va de 20 h à 6 h, à ton heure.</b> C'est le fuseau que tu")
+    w("                as réglé qui décide, pas celui du serveur : quelqu'un qui joue depuis")
+    w("                l'autre bout du monde ne doit pas chasser de nuit à midi.</p>")
     w("            </div>")
-    w("          </div>")
-    w("        </div>")
+    w('            <div class="wm-encarts">')
+    w('              <div class="wm-encart wm-encart--paisible">')
+    w('                <span class="wm-encart__etiquette">Et aujourd\'hui, concrètement</span>')
+    w("                <p>Les dix-sept zones montrent <b>la même faune le jour et la nuit,")
+    w("                  et par tous les temps</b>. Le ciel change ce que tu racontes, pas")
+    w("                  ce que tu croises. Le jour où une zone aura sa propre table de")
+    w("                  météo, elle s'appliquera toute seule et cette page le dira.</p>")
+    w("              </div>")
+    w('              <div class="wm-encart wm-encart--terre">')
+    w('                <span class="wm-encart__etiquette">À retenir</span>')
+    w("                <p>Le temps et l'heure ne changent <b>jamais les niveaux</b>, et")
+    w("                  jamais tes gains. Au mieux, ils changent qui sort.</p>")
+    w("              </div>")
+    w("            </div>")
+    w("          </section>")
     w("")
 
-    # ── ce qu'on trouve au sol ───────────────────────────────────────
-    w('        <div class="wm-annexe__carte">')
-    w('          <h2 class="wm-annexe__carte-titre">Ce qu\'on trouve au sol</h2>')
-    w('          <div class="wm-paras">')
-    w("            <p>Fouiller donne <b>une</b> chose, jamais deux. Les cinq parts font")
-    w("              cent, et elles sont les mêmes dans les dix-sept zones — c'est la")
-    w("              liste des objets qui change, pas les chances de tomber dessus.</p>")
-    w("          </div>")
-    w('          <div class="wm-table">')
-    w('            <div class="wm-table__ligne wm-table__ligne--entete">')
-    w('              <span class="wm-table__cellule wm-table__cellule--nom">Ce qu\'on'
+    #  ── 3 · le sol ────────────────────────────────────────────────
+    w('          <section data-wm-sous-onglet="le-sol">')
+    w('            <h2 class="wm-annexe__carte-titre">Ce qu\'on trouve au sol</h2>')
+    w('            <div class="wm-paras">')
+    w("              <p>Fouiller donne <b>une</b> chose, jamais deux. Les cinq parts font")
+    w("                cent, et elles sont les mêmes dans les dix-sept zones — c'est la")
+    w("                liste des objets qui change, pas les chances de tomber dessus.</p>")
+    w("            </div>")
+    w('            <div class="wm-table">')
+    w('              <div class="wm-table__ligne wm-table__ligne--entete">')
+    w('                <span class="wm-table__cellule wm-table__cellule--nom">Ce qu\'on'
       " trouve</span>")
-    w('              <span class="wm-table__cellule">Ce que ça veut dire</span>')
-    w('              <span class="wm-table__cellule wm-table__cellule--chiffre">Chance'
+    w('                <span class="wm-table__cellule">Ce que ça veut dire</span>')
+    w('                <span class="wm-table__cellule wm-table__cellule--chiffre">Chance'
       "</span>")
-    w("            </div>")
+    w("              </div>")
     for mot, dit, pct in [
         ("Des pokédollars", "Le cas le plus courant. La somme monte avec le palier de la"
          " zone.", reste),
@@ -222,14 +251,21 @@ def corps():
          " distributeur, pas une fouille.", f["bredouille"]),
         ("Un fossile entier", "Le plus rare de Rhode.", f["fossileEntier"]),
     ]:
-        w('            <div class="wm-table__ligne">')
-        w(f'              <span class="wm-table__cellule wm-table__cellule--nom">{e(mot)}'
-          "</span>")
-        w(f'              <span class="wm-table__cellule">{e(dit)}</span>')
-        w('              <span class="wm-table__cellule wm-table__cellule--chiffre">'
+        w('              <div class="wm-table__ligne">')
+        w('                <span class="wm-table__cellule wm-table__cellule--nom">'
+          f"{e(mot)}</span>")
+        w(f'                <span class="wm-table__cellule">{e(dit)}</span>')
+        w('                <span class="wm-table__cellule wm-table__cellule--chiffre">'
           f'{e(f"{pct:.2f}".replace(".", ","))} %</span>')
-        w("            </div>")
-    w("          </div>")
+        w("              </div>")
+    w("            </div>")
+    w('            <div class="wm-paras">')
+    w("              <p>Sur la carte, chaque zone montre <b>sa</b> liste d'objets avec une")
+    w("                pastille de couleur : du vert au rouge, et le rouge plein pour ce")
+    w("                qu'on ne trouve presque jamais.</p>")
+    w("            </div>")
+    w("          </section>")
+    w("")
     w("        </div>")
     w("")
 

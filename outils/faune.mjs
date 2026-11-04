@@ -139,6 +139,12 @@ console.log("\n── sans JavaScript, la page dit encore quelque chose ──")
       noms: Array.from(document.querySelectorAll(".wm-faune-repli__especes"))
         .reduce((s, n) => s + (n.textContent ?? "").split(",").length, 0),
       carteDessinee: document.querySelector(".wm-carte") !== null,
+      sections: document.querySelectorAll("[data-wm-sous-onglet]").length,
+      sectionsVisibles: Array.from(document.querySelectorAll("[data-wm-sous-onglet]"))
+        .filter((n) => !n.hidden).length,
+      titresVisibles: Array.from(document.querySelectorAll("[data-wm-sous-onglet] > h2"))
+        .filter((n) => getComputedStyle(n).position !== "absolute").length,
+      barre: document.querySelectorAll(".wm-sous-onglets__barre").length,
       debord: document.documentElement.scrollWidth > window.innerWidth + 1,
     };
   });
@@ -159,6 +165,14 @@ console.log("\n── sans JavaScript, la page dit encore quelque chose ──")
     { vus: vu.noms, attendus },
   );
   ok("aucune carte dessinée sans le script", !vu.carteDessinee);
+  //  LES SOUS-ONGLETS NE CACHENT RIEN SANS LE SCRIPT : les trois
+  //  sections sont là, avec leurs titres, l'une sous l'autre.
+  ok(
+    "LES TROIS EXPLICATIONS SONT VISIBLES, DÉPLIÉES",
+    vu.sections === 3 && vu.sectionsVisibles === 3 && vu.barre === 0,
+    vu,
+  );
+  ok("et leurs titres aussi", vu.titresVisibles === 3, vu.titresVisibles);
   ok("rien ne déborde", !vu.debord);
   await p.close();
 }
@@ -187,6 +201,73 @@ await p.waitForSelector(".wm-carte", { timeout: 15000 });
   ok("elle dessine ses vingt-six lieux", vu.formes === CARTE.lieux.length, vu.formes);
   ok("LE REPLI S'EFFACE, ET PAR SA CLASSE", vu.repliCache && vu.parLaClasse);
   ok("la faune attend un clic", vu.panneauCache);
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  2 bis · LES SOUS-ONGLETS
+// ════════════════════════════════════════════════════════════════════
+console.log("\n── les sous-onglets ──");
+{
+  const vu = await p.evaluate(() => {
+    const ouvertes = () =>
+      Array.from(document.querySelectorAll("[data-wm-sous-onglet]")).filter((n) => !n.hidden);
+    const boutons = Array.from(
+      document.querySelectorAll(".wm-sous-onglets__barre .wm-onglet"),
+    );
+    const avant = ouvertes()[0]?.dataset.wmSousOnglet ?? "";
+    boutons[1]?.click();
+    const apres = ouvertes()[0]?.dataset.wmSousOnglet ?? "";
+    return {
+      boutons: boutons.map((b) => b.textContent ?? ""),
+      uneSeule: ouvertes().length === 1,
+      avant,
+      apres,
+      //  Un seul onglet dans l'ordre de tabulation : la flèche circule
+      //  entre eux, Tab sort du groupe.
+      tabindex: boutons.map((b) => b.tabIndex),
+      selected: boutons.map((b) => b.getAttribute("aria-selected")),
+      titreCache: getComputedStyle(
+        document.querySelector("[data-wm-sous-onglet] > h2"),
+      ).position === "absolute",
+    };
+  });
+  ok("une barre, un bouton par section", vu.boutons.length === 3, vu.boutons);
+  ok("UNE SEULE SECTION OUVERTE À LA FOIS", vu.uneSeule);
+  ok("et le clic change bien de section", vu.avant !== vu.apres, [vu.avant, vu.apres]);
+  ok(
+    "UN SEUL ONGLET DANS L'ORDRE DE TABULATION",
+    vu.tabindex.filter((t) => t === 0).length === 1,
+    vu.tabindex,
+  );
+  ok(
+    "et `aria-selected` suit",
+    vu.selected.filter((s) => s === "true").length === 1,
+    vu.selected,
+  );
+  ok("LE TITRE NE SE DIT PAS DEUX FOIS : il est sur le bouton", vu.titreCache);
+
+  //  ── LA FLÈCHE TOURNE ──────────────────────────────────────────
+  const vuClavier = await p.evaluate(() => {
+    const boutons = Array.from(
+      document.querySelectorAll(".wm-sous-onglets__barre .wm-onglet"),
+    );
+    boutons[0].click();
+    boutons[0].dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    const ouverte = Array.from(document.querySelectorAll("[data-wm-sous-onglet]"))
+      .find((n) => !n.hidden);
+    return ouverte?.dataset.wmSousOnglet ?? "";
+  });
+  ok(
+    "LA FLÈCHE GAUCHE DEPUIS LE PREMIER VA AU DERNIER",
+    vuClavier === "le-sol",
+    vuClavier,
+  );
+
+  //  On rouvre la météo pour la capture, et on laisse la page propre.
+  await p.evaluate(() => {
+    const b = Array.from(document.querySelectorAll(".wm-sous-onglets__barre .wm-onglet"));
+    b[0]?.click();
+  });
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -236,6 +317,8 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
       objets: Array.from(document.querySelectorAll(".wm-faune__objet")).map((n) => ({
         id: Number(n.dataset.wmObjet),
         pct: pct(n.querySelector(".wm-faune__objet-pct")?.textContent),
+        image: n.querySelector(".wm-faune__objet-image")?.getAttribute("src") ?? "",
+        tag: n.querySelector(".wm-faune__tag")?.textContent ?? "",
       })),
     };
   });
@@ -369,6 +452,27 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     vu.objets.length === attendusObjets.length,
     { vus: vu.objets.length, fichier: attendusObjets.length },
   );
+  //  ── LES VIGNETTES D'OBJET ─────────────────────────────────────
+  const vignettes = vu.objets.map((o) => o.image).filter((i) => i !== "");
+  ok(
+    "LES OBJETS ONT LEUR VIGNETTE, au commit épinglé",
+    vignettes.length > 0 && vignettes.every((i) => i.includes("/sprites/items/")),
+    vignettes[0],
+  );
+  const couvertureObjets = json("data/sprites-couverture.json").objets;
+  const attendusSans = attendusObjets
+    .filter((o) => !couvertureObjets.slugs.includes(o.slug)).length;
+  ok(
+    "et celui qui n'en a pas garde sa case",
+    vu.objets.length - vignettes.length === attendusSans,
+    { vides: vu.objets.length - vignettes.length, sansVignette: attendusSans },
+  );
+  ok(
+    "LA FRÉQUENCE EST UN TAG, et le mot est dedans",
+    vu.objets.every((o) => ["fréquent", "peu fréquent", "rare", "très rare"].includes(o.tag)),
+    vu.objets.map((o) => o.tag).slice(0, 4),
+  );
+
   ok(
     "et leur somme vaut la part « objet »",
     Math.abs(vu.objets.reduce((s, o) => s + o.pct, 0) - f.objet) < 0.05,

@@ -48,6 +48,9 @@ export type EspeceDeZone = {
  *  `data/butin.json` l'écrit. */
 export type ObjetDeZone = {
   readonly objet: number;
+  /** Le slug PokeAPI, recopié de `data/objets.json` par `butin.py` :
+   *  c'est lui qui retrouve la vignette. */
+  readonly slug?: string;
   readonly nom: string;
   readonly famille: string;
   readonly prix: number;

@@ -226,6 +226,7 @@ function sol(
   doc: Document,
   taux: TauxDeFouille | undefined,
   objets: readonly ObjetDeZone[],
+  sprites: Sprites | null,
 ): HTMLElement {
   const hote = el(doc, "section", "wm-faune__sol");
   hote.appendChild(el(doc, "h3", "wm-faune__sol-titre", "Ce qu'on trouve au sol"));
@@ -270,17 +271,39 @@ function sol(
     ),
   );
   const liste = el(doc, "ul", "wm-faune__objets");
-  //  PAS DE VIGNETTE D'OBJET, et ce n'est pas un oubli : il n'existe
-  //  aucune image d'objet dans le dépôt — ni `img/items/`, ni
-  //  `assets/items/`. Poser une balise `img` vers un fichier absent
-  //  donnerait trente-quatre icônes cassées ; la famille dit déjà de
-  //  quoi il s'agit.
   for (const o of parFrequence(objets)) {
     const li = el(doc, "li", "wm-faune__objet");
     li.dataset.wmObjet = String(o.objet);
-    li.appendChild(el(doc, "b", "wm-faune__objet-nom", o.nom));
-    li.appendChild(el(doc, "span", "wm-faune__objet-famille", o.famille));
-    li.appendChild(el(doc, "span", "wm-faune__objet-freq", motDeLaFrequence(o.pct)));
+
+    //  LA VIGNETTE VIENT DE LA CARTE, PAS D'UN `onerror`. Trente-trois
+    //  des trente-quatre objets en ont une au commit épinglé ; le
+    //  trente-quatrième garde sa place vide, comme une espèce hors
+    //  couverture.
+    const adresse = o.slug === undefined ? null : sprites?.adresseDObjet(o.slug) ?? null;
+    if (adresse !== null) {
+      const image = doc.createElement("img");
+      image.className = "wm-faune__objet-image";
+      image.src = adresse;
+      image.alt = "";
+      image.loading = "lazy";
+      image.width = 30;
+      image.height = 30;
+      li.appendChild(image);
+    } else {
+      li.appendChild(el(doc, "span", "wm-faune__objet-image wm-faune__objet-image--absent"));
+    }
+
+    const mots = el(doc, "span", "wm-faune__objet-mots");
+    mots.appendChild(el(doc, "b", "wm-faune__objet-nom", o.nom));
+    mots.appendChild(el(doc, "span", "wm-faune__objet-famille", o.famille));
+    li.appendChild(mots);
+
+    //  LA FRÉQUENCE EST UNE PASTILLE DE COULEUR, et le mot est dedans :
+    //  un joueur sur douze ne distingue pas quatre teintes, et une
+    //  couleur seule ne se lit pas à voix haute.
+    const freq = el(doc, "span", "wm-faune__tag", motDeLaFrequence(o.pct));
+    freq.dataset.wmFrequence = motDeLaFrequence(o.pct);
+    li.appendChild(freq);
     li.appendChild(el(doc, "span", "wm-faune__objet-pct", pourCent(o.pct)));
     liste.appendChild(li);
   }
@@ -384,7 +407,7 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
     panneau.replaceChildren(
       tete,
       tranches(doc, table, sprites, r.depot, style),
-      sol(doc, taux, objetsParZone.get(forumId) ?? []),
+      sol(doc, taux, objetsParZone.get(forumId) ?? [], sprites),
     );
   };
 

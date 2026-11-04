@@ -30,6 +30,7 @@
 import {
   poserLaSuivante,
   poserLeSommaire,
+  poserLesSousOnglets,
 } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
@@ -56,6 +57,12 @@ async function poser(): Promise<void> {
 //  et pas après la requête : attendre le sommaire pour habiller la page
 //  la ferait clignoter du clair au sombre sous les yeux du joueur.
 poserLeTheme(document, new Preferences(new StockageLocal()));
+
+//  LES SOUS-ONGLETS NE DÉPENDENT D'AUCUN FICHIER non plus : les
+//  sections sont dans la page. On les pose tout de suite, avant la
+//  requête du sommaire, pour que la page ne s'affiche pas dépliée une
+//  seconde avant de se replier sous les yeux du lecteur.
+poserLesSousOnglets(document);
 
 //  LA PAGE RESTE LISIBLE SANS CE SCRIPT. Le texte est dans la page, en
 //  vrai HTML ; sans sommaire il manque une navigation, pas le contenu.

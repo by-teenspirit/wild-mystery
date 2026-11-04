@@ -197,3 +197,103 @@ export function poserLaSuivante({ doc, donnees }: Dependances): boolean {
   bouton.appendChild(doc.createTextNode(` ${suite.titre} →`));
   return true;
 }
+
+// ════════════════════════════════════════════════════════════════════
+//  LES SOUS-ONGLETS
+//
+//  « Tu peux faire des sous-onglets pour faciliter la digestion des
+//  explications si besoin. »
+//
+//  ILS NE CACHENT RIEN QUI N'EXISTE AILLEURS. Les sections sont dans la
+//  page, en vrai HTML, avec leurs titres : sans ce script elles
+//  s'affichent à la suite et rien n'est perdu — ni pour un Ctrl+F, ni
+//  pour un moteur de recherche, ni pour qui n'a pas de JavaScript.
+//  C'est pour ça que la barre d'onglets est CONSTRUITE ICI plutôt
+//  qu'écrite dans la page : une barre en dur sans script serait une
+//  rangée de boutons morts.
+// ════════════════════════════════════════════════════════════════════
+
+import { ongletActif, slug, voisin } from "../../navigateur/sous-onglets.ts";
+
+/** Pose les groupes de sous-onglets. Rend combien ont été posés. */
+export function poserLesSousOnglets(doc: Document): number {
+  let poses = 0;
+  for (
+    const groupe of Array.from(doc.querySelectorAll<HTMLElement>("[data-wm-sous-onglets]"))
+  ) {
+    const sections = Array.from(
+      groupe.querySelectorAll<HTMLElement>("[data-wm-sous-onglet]"),
+    );
+    //  UN SEUL ONGLET N'EST PAS UN ONGLET : on laisse la section telle
+    //  quelle plutôt que de poser une barre à un bouton.
+    if (sections.length < 2) continue;
+
+    const clefs: string[] = [];
+    for (const s of sections) {
+      const titre = s.querySelector("h2, h3")?.textContent?.trim() ?? "";
+      const clef = s.dataset.wmSousOnglet || slug(titre);
+      s.dataset.wmSousOnglet = clef;
+      clefs.push(clef);
+    }
+
+    const barre = doc.createElement("div");
+    barre.className = "wm-sous-onglets__barre";
+    barre.setAttribute("role", "tablist");
+
+    const boutons = new Map<string, HTMLButtonElement>();
+    const montrer = (clef: string, deplacerLeFocus: boolean): void => {
+      for (const s of sections) s.hidden = s.dataset.wmSousOnglet !== clef;
+      for (const [k, b] of boutons) {
+        const sien = k === clef;
+        b.classList.toggle("wm-onglet--actif", sien);
+        b.setAttribute("aria-selected", String(sien));
+        //  UN SEUL ONGLET DANS L'ORDRE DE TABULATION : la flèche
+        //  circule entre eux, Tab sort du groupe. C'est ce que fait un
+        //  `tablist`, et c'est ce qu'attend quelqu'un au clavier.
+        b.tabIndex = sien ? 0 : -1;
+        if (sien && deplacerLeFocus) b.focus();
+      }
+    };
+
+    for (const [i, s] of sections.entries()) {
+      const clef = s.dataset.wmSousOnglet ?? "";
+      const titre = s.querySelector("h2, h3")?.textContent?.trim() ?? clef;
+      const bouton = doc.createElement("button");
+      bouton.type = "button";
+      bouton.className = "wm-onglet";
+      bouton.textContent = titre;
+      bouton.setAttribute("role", "tab");
+      bouton.id = `wm-onglet-${clef}`;
+      s.setAttribute("role", "tabpanel");
+      s.setAttribute("aria-labelledby", bouton.id);
+      bouton.addEventListener("click", () => {
+        montrer(clef, false);
+        //  L'ADRESSE SUIT, ET SANS AJOUTER UNE ENTRÉE À L'HISTORIQUE :
+        //  `pushState` obligerait à appuyer quatre fois sur « retour »
+        //  pour quitter une page où l'on a regardé trois onglets.
+        try {
+          globalThis.history?.replaceState(null, "", `#${clef}`);
+        } catch {
+          //  Un document sans origine (un harnais, un `srcdoc`) refuse
+          //  `replaceState`. L'onglet change quand même.
+        }
+      });
+      bouton.addEventListener("keydown", (e) => {
+        const k = (e as KeyboardEvent).key;
+        const pas = k === "ArrowRight" ? 1 : k === "ArrowLeft" ? -1 : 0;
+        if (pas === 0) return;
+        e.preventDefault();
+        montrer(voisin(clefs, clef, pas), true);
+      });
+      boutons.set(clef, bouton);
+      barre.appendChild(bouton);
+      if (i === 0) groupe.insertBefore(barre, s);
+    }
+
+    const voulu = ongletActif(globalThis.location?.hash ?? "", clefs);
+    if (voulu !== null) montrer(voulu, false);
+    groupe.classList.add("wm-sous-onglets--posee");
+    poses += 1;
+  }
+  return poses;
+}

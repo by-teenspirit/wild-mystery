@@ -192,80 +192,109 @@
           </section>
         </div>
 
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Comment le serveur tire</h2>
-          <ul class="wm-tirets">
-            <li><b>Tout part du numéro de ton message.</b> Le même message donne
-              toujours le même résultat, aujourd'hui comme dans trois ans. C'est ce
-              qui permet de refaire un tirage contesté au lieu d'en discuter.</li>
-            <li><b>Deux tirages, dans cet ordre :</b> l'espèce d'abord, selon les
-              pourcentages de la zone ; son niveau ensuite, dans la fourchette de
-              cette espèce-là. Les inverser donnerait un autre résultat.</li>
-            <li><b>Les pourcentages d'une zone font exactement cent.</b> Le serveur
-              refuse de tirer dans une table qui ne tombe pas juste.</li>
-            <li><b>Rien n'est acquis avant la clôture</b>, et tout l'est d'un coup
-              à la clôture.</li>
-          </ul>
-        </div>
+        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>
 
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Le jour, la nuit, et le temps qu'il fait</h2>
-          <div class="wm-paras">
-            <p>Le temps de Rhode est tiré <b>une fois par jour, pour tout le
-              monde</b> : calme, ou agité. Un jour sur quatre est agité. Même jour,
-              même temps pour tous — personne n'a son propre ciel.</p>
-            <p>La nuit va de <b>20 h à 6 h</b>, à <b>ton</b> heure : le fuseau que
-              tu as réglé, pas celui du serveur.</p>
-          </div>
-          <div class="wm-encarts">
-            <div class="wm-encart wm-encart--paisible">
-              <span class="wm-encart__etiquette">Aujourd'hui</span>
-              <p>Les dix-sept zones montrent <b>la même faune le jour et la
-                nuit, et par tous les temps</b>. Le ciel change ce que tu
-                racontes, pas ce que tu croises.</p>
-            </div>
-          </div>
-        </div>
+          <section data-wm-sous-onglet="les-tirages">
+            <h2 class="wm-annexe__carte-titre">Comment le serveur tire</h2>
+            <ul class="wm-tirets">
+              <li><b>Tout part du numéro de ton message.</b> Il sert de graine : le
+                même message donne toujours le même résultat, aujourd'hui comme dans
+                trois ans. C'est ce qui permet de refaire un tirage contesté au lieu
+                d'en discuter.</li>
+              <li><b>Deux tirages, dans cet ordre :</b> l'espèce d'abord, selon les
+                pourcentages de la zone ; son niveau ensuite, dans la fourchette de
+                cette espèce-là. Les inverser donnerait un autre résultat pour la
+                même graine, donc l'ordre ne bouge pas.</li>
+              <li><b>Les pourcentages d'une zone font exactement cent.</b> Le serveur
+                refuse de tirer dans une table qui ne tombe pas juste — mieux vaut
+                pas de rencontre qu'une rencontre faussée.</li>
+              <li><b>Rien n'est acquis avant la clôture</b>, et tout l'est d'un coup
+                à la clôture.</li>
+            </ul>
+          </section>
 
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Ce qu'on trouve au sol</h2>
-          <div class="wm-paras">
-            <p>Fouiller donne <b>une</b> chose, jamais deux. Les cinq parts font
-              cent, et elles sont les mêmes dans les dix-sept zones — c'est la
-              liste des objets qui change, pas les chances de tomber dessus.</p>
-          </div>
-          <div class="wm-table">
-            <div class="wm-table__ligne wm-table__ligne--entete">
-              <span class="wm-table__cellule wm-table__cellule--nom">Ce qu'on trouve</span>
-              <span class="wm-table__cellule">Ce que ça veut dire</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">Chance</span>
+          <section data-wm-sous-onglet="la-meteo">
+            <h2 class="wm-annexe__carte-titre">Le ciel, l'heure, et ce qu'ils changent</h2>
+            <div class="wm-paras">
+              <p><b>Le temps de Rhode se calcule, il ne se décide pas.</b> Chaque
+                jour a sa graine — la date, et rien d'autre — et un seul tirage en
+                sort le temps du jour. Il n'y a donc rien à générer le matin, rien à
+                stocker, et rien qui puisse rater : ton navigateur trouve le même
+                temps que le serveur sans rien lui demander.</p>
+              <p><b>Deux états, un sur quatre.</b> Le jour est <b>calme</b> ou
+                <b>agité</b>, et il l'est pour tout le monde en même temps : il n'y a
+                pas un ciel par joueur ni un ciel par zone. Environ un jour sur
+                quatre est agité.</p>
+              <p><b>Un état global, une expression locale.</b> Un jour agité, chaque
+                zone montre le temps que SA donnée connaît — la pluie dans le marais,
+                le blizzard dans les monts, les cendres sur le volcan — et les zones
+                qui n'en ont pas restent au calme.</p>
+              <p><b>La nuit va de 20 h à 6 h, à ton heure.</b> C'est le fuseau que tu
+                as réglé qui décide, pas celui du serveur : quelqu'un qui joue depuis
+                l'autre bout du monde ne doit pas chasser de nuit à midi.</p>
             </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Des pokédollars</span>
-              <span class="wm-table__cellule">Le cas le plus courant. La somme monte avec le palier de la zone.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">44,80 %</span>
+            <div class="wm-encarts">
+              <div class="wm-encart wm-encart--paisible">
+                <span class="wm-encart__etiquette">Et aujourd'hui, concrètement</span>
+                <p>Les dix-sept zones montrent <b>la même faune le jour et la nuit,
+                  et par tous les temps</b>. Le ciel change ce que tu racontes, pas
+                  ce que tu croises. Le jour où une zone aura sa propre table de
+                  météo, elle s'appliquera toute seule et cette page le dira.</p>
+              </div>
+              <div class="wm-encart wm-encart--terre">
+                <span class="wm-encart__etiquette">À retenir</span>
+                <p>Le temps et l'heure ne changent <b>jamais les niveaux</b>, et
+                  jamais tes gains. Au mieux, ils changent qui sort.</p>
+              </div>
             </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Un objet</span>
-              <span class="wm-table__cellule">Lequel dépend de la zone : chacune a sa liste.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">25,00 %</span>
+          </section>
+
+          <section data-wm-sous-onglet="le-sol">
+            <h2 class="wm-annexe__carte-titre">Ce qu'on trouve au sol</h2>
+            <div class="wm-paras">
+              <p>Fouiller donne <b>une</b> chose, jamais deux. Les cinq parts font
+                cent, et elles sont les mêmes dans les dix-sept zones — c'est la
+                liste des objets qui change, pas les chances de tomber dessus.</p>
             </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Un morceau de fossile</span>
-              <span class="wm-table__cellule">Trois morceaux font un fossile entier.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">10,00 %</span>
+            <div class="wm-table">
+              <div class="wm-table__ligne wm-table__ligne--entete">
+                <span class="wm-table__cellule wm-table__cellule--nom">Ce qu'on trouve</span>
+                <span class="wm-table__cellule">Ce que ça veut dire</span>
+                <span class="wm-table__cellule wm-table__cellule--chiffre">Chance</span>
+              </div>
+              <div class="wm-table__ligne">
+                <span class="wm-table__cellule wm-table__cellule--nom">Des pokédollars</span>
+                <span class="wm-table__cellule">Le cas le plus courant. La somme monte avec le palier de la zone.</span>
+                <span class="wm-table__cellule wm-table__cellule--chiffre">44,80 %</span>
+              </div>
+              <div class="wm-table__ligne">
+                <span class="wm-table__cellule wm-table__cellule--nom">Un objet</span>
+                <span class="wm-table__cellule">Lequel dépend de la zone : chacune a sa liste.</span>
+                <span class="wm-table__cellule wm-table__cellule--chiffre">25,00 %</span>
+              </div>
+              <div class="wm-table__ligne">
+                <span class="wm-table__cellule wm-table__cellule--nom">Un morceau de fossile</span>
+                <span class="wm-table__cellule">Trois morceaux font un fossile entier.</span>
+                <span class="wm-table__cellule wm-table__cellule--chiffre">10,00 %</span>
+              </div>
+              <div class="wm-table__ligne">
+                <span class="wm-table__cellule wm-table__cellule--nom">Rien du tout</span>
+                <span class="wm-table__cellule">Une fouille qui donne toujours quelque chose est un distributeur, pas une fouille.</span>
+                <span class="wm-table__cellule wm-table__cellule--chiffre">20,00 %</span>
+              </div>
+              <div class="wm-table__ligne">
+                <span class="wm-table__cellule wm-table__cellule--nom">Un fossile entier</span>
+                <span class="wm-table__cellule">Le plus rare de Rhode.</span>
+                <span class="wm-table__cellule wm-table__cellule--chiffre">0,20 %</span>
+              </div>
             </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Rien du tout</span>
-              <span class="wm-table__cellule">Une fouille qui donne toujours quelque chose est un distributeur, pas une fouille.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">20,00 %</span>
+            <div class="wm-paras">
+              <p>Sur la carte, chaque zone montre <b>sa</b> liste d'objets avec une
+                pastille de couleur : du vert au rouge, et le rouge plein pour ce
+                qu'on ne trouve presque jamais.</p>
             </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Un fossile entier</span>
-              <span class="wm-table__cellule">Le plus rare de Rhode.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">0,20 %</span>
-            </div>
-          </div>
+          </section>
+
         </div>
 
         <div class="wm-suivante">

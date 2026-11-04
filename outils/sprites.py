@@ -54,7 +54,16 @@ except ImportError:
 #  vaut autant pour un dépôt qu'on ne contrôle pas : jsDelivr sert une
 #  branche avec sept jours de cache navigateur. Relevé le 2 octobre 2026.
 COMMIT = "bfb75391935310368065096fa08c51e8970bc43e"
-BASE = f"https://raw.githubusercontent.com/PokeAPI/sprites/{COMMIT}/sprites/pokemon"
+DEPOT = f"https://raw.githubusercontent.com/PokeAPI/sprites/{COMMIT}/sprites"
+BASE = f"{DEPOT}/pokemon"
+
+#  LES OBJETS SONT DANS UN AUTRE DOSSIER DU MÊME DÉPÔT, et leurs images
+#  sont DÉJÀ des png fixes : rien à figer, rien à recopier chez nous. On
+#  ne garde que la carte de ce qui existe — exactement pour la même
+#  raison que pour les espèces : un repli `onerror` côté navigateur
+#  coûterait une requête ratée et un clignotement à chaque vignette
+#  absente, chez chaque visiteur, à chaque page.
+BASE_OBJETS = f"{DEPOT}/items"
 
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -135,6 +144,27 @@ def especes_de_rhode():
     return sorted(vues)
 
 
+def objets_du_catalogue():
+    """Les objets du catalogue, avec leur slug PokeAPI.
+
+    `data/objets.json` porte déjà le bon : « poke-ball », « great-ball ».
+    C'est la seule liste qui fasse foi — les objets d'évènement et les
+    morceaux de fossile en font partie, et ils se trouvent sans
+    s'acheter."""
+    chemin = os.path.join(RACINE, "data", "objets.json")
+    with open(chemin, encoding="utf-8") as f:
+        contenu = json.load(f)
+    liste = contenu["objets"] if isinstance(contenu, dict) else contenu
+    return sorted(
+        {o["slug"] for o in liste if isinstance(o.get("slug"), str) and o["slug"] != ""}
+    )
+
+
+def traiter_objet(slug):
+    """Vrai si l'image de cet objet existe chez PokeAPI."""
+    return slug, telecharger(f"{BASE_OBJETS}/{slug}.png") is not None
+
+
 def telecharger(url, essais=4):
     """Rend les octets, ou None si l'image n'existe pas.
 
@@ -211,13 +241,18 @@ def traiter(espece, style, reprendre=True):
 def main():
     arguments = argparse.ArgumentParser(description=__doc__)
     arguments.add_argument("--style", choices=list(STYLES), action="append")
+    arguments.add_argument(
+        "--objets-seulement",
+        action="store_true",
+        help="ne refait que la carte des objets — trente-quatre requêtes",
+    )
     options = arguments.parse_args()
-    styles = options.style or ["forum", "retro"]
+    styles = [] if options.objets_seulement else (options.style or ["forum", "retro"])
 
     especes = especes_de_rhode()
     print(f"{len(especes)} espèces dans les tables de faune de Rhode\n")
 
-    carte = {"commit": COMMIT, "base": BASE, "styles": {}}
+    carte = {"commit": COMMIT, "base": BASE, "baseObjets": BASE_OBJETS, "styles": {}}
     #  Relancer un seul style ne doit pas effacer la carte des autres.
     try:
         with open(os.path.join(RACINE, "data", "sprites-couverture.json"), encoding="utf-8") as f:
@@ -254,6 +289,22 @@ def main():
             total = sum(f["poids_fige"] for f in figes)
             print(f"   figés            {len(figes)} png · {total // 1024} Ko")
         print()
+
+    # ── les objets ──────────────────────────────────────────────────
+    print("── Les objets du catalogue ──────────────────────────")
+    slugs = objets_du_catalogue()
+    with cf.ThreadPoolExecutor(8) as groupe:
+        trouves = dict(groupe.map(traiter_objet, slugs))
+    absents = sorted(s for s, ok in trouves.items() if not ok)
+    carte["objets"] = {
+        "titre": "Objets du catalogue",
+        "slugs": sorted(s for s, ok in trouves.items() if ok),
+        "manquants": absents,
+    }
+    print(f"   trouvés          {len(slugs) - len(absents)}/{len(slugs)}")
+    if absents:
+        print(f"   introuvables     {absents}")
+    print()
 
     destination = os.path.join(RACINE, "data", "sprites-couverture.json")
     with open(destination, "w", encoding="utf-8") as f:

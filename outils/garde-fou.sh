@@ -916,11 +916,15 @@ echo "── 25. chaque espèce des tables a un sprite ────────�
 # permanent est un rouge qu'on cesse de lire (voir la règle 8). On
 # compte, on compare, et on refuse que ça empire.
 #
-# POUR LA SOLDER : `python3 outils/sprites.py` sur le Mac, puis
-# commiter les images et la couverture. Le chiffre ci-dessous tombe
-# alors à zéro, et il faut le mettre à jour — c'est le seul moment où
-# cette ligne se touche.
-DETTE_SPRITES=210
+# SOLDÉE LE 4 NOVEMBRE : `python3 outils/sprites.py` puis
+# `--style gba-ds` ont ramené les trois styles à 933 sur 933, et le
+# chiffre est passé à zéro. Il ne doit plus remonter : une espèce
+# ajoutée à une table sans repasser l'outil fera crier cette règle.
+#
+# La même passe cartographie les vignettes d'objet, qui sont déjà des
+# png fixes chez PokeAPI : on ne les recopie pas, on note lesquelles
+# existent. `sweet-apple` n'en a pas au commit épinglé.
+DETTE_SPRITES=0
 if ! command -v python3 >/dev/null 2>&1; then
   echo "   python3 absent du PATH — couverture des sprites non vérifiée"
 else
@@ -945,7 +949,18 @@ if pire > dette:
         print(f"   {s:8} {len(m)} espèce(s) sans sprite — ex. {m[:6]}")
     print(f"   la dette était de {dette}, elle est de {pire}")
     sys.exit(1)
-if pire < dette:
+objets = couverture.get("objets", {})
+absents = objets.get("manquants", [])
+mot_objets = (
+    f"les {len(objets.get('slugs', []))} objets ont leur vignette"
+    if not absents
+    else f"{len(absents)} objet(s) sans vignette : {absents}"
+)
+
+if pire == 0:
+    print(f"   sprites : les {len(especes)} espèces ont une image dans les "
+          f"{len(styles)} styles · {mot_objets}")
+elif pire < dette:
     print(f"   sprites : {pire} sans image, la dette baisse (elle était de {dette}) — "
           f"mets DETTE_SPRITES à {pire} dans outils/garde-fou.sh")
 else:

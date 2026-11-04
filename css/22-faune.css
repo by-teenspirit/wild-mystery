@@ -149,22 +149,70 @@
   text-transform: uppercase;
 }
 
-/*  LA RARETÉ SE VOIT AUSSI EN COULEUR, mais jamais SEULEMENT en
-    couleur : le mot est écrit à côté. Les trois fonds viennent des
-    jetons déjà mesurés — pas d'une teinte inventée pour l'occasion. */
-#modernbb .wm-faune__tranche[data-wm-rarete="peu commun"] .wm-faune__tranche-mot {
-  background: var(--wm-fond-terre, #f8eae1);
-  color: var(--wm-accent-terre, #8b4725);
-}
-
-#modernbb .wm-faune__tranche[data-wm-rarete="rare"] .wm-faune__tranche-mot {
-  background: var(--wm-accent-primaire, #275e7a);
-  color: var(--wm-texte-inverse, #fffbf7);
-}
-
 #modernbb .wm-faune__tranche-part {
   color: var(--wm-texte-doux, #6e5749);
   font-weight: var(--wm-graisse-demi, 600);
+}
+
+/* ── 4 bis · LE TAG DE RARETÉ, UNE COULEUR ET UN MOT ──────────────
+
+   « Fais-en des tags de couleur pour comprendre vite la rareté. »
+
+   LES TROIS TEINTES SONT CELLES DES PALIERS, déjà mesurées le
+   9 octobre : vert, on y va ; rouge, c'est rare. Réutiliser ce
+   barème plutôt qu'en inventer un second, c'est une échelle de
+   moins à apprendre sur le forum — et trois contrastes de moins à
+   vérifier.
+
+   LA QUATRIÈME NUANCE N'EST PAS UNE QUATRIÈME COULEUR. « Très
+   rare » prend le rouge PLEIN au lieu du rouge sur tilleul : une
+   pastille remplie saute aux yeux sans rien ajouter au code
+   couleur, et elle se lit même quand on ne distingue pas les
+   teintes. Mesurée : 5,60 en clair, 6,21 en sombre.
+
+   ET LE MOT EST DEDANS, toujours. Un joueur sur douze ne distingue
+   pas le vert du rouge, et une couleur seule ne se lit pas à voix
+   haute. */
+#modernbb .wm-faune__tag {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#modernbb .wm-faune__tag[data-wm-frequence="fréquent"],
+#modernbb .wm-faune__tranche[data-wm-rarete="commun"] .wm-faune__tranche-mot {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-palier-1, #3f7d52);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-faune__tag[data-wm-frequence="peu fréquent"],
+#modernbb .wm-faune__tranche[data-wm-rarete="peu commun"] .wm-faune__tranche-mot {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-palier-2, #a05e18);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-faune__tag[data-wm-frequence="rare"],
+#modernbb .wm-faune__tranche[data-wm-rarete="rare"] .wm-faune__tranche-mot {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-palier-3, #b1402f);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-faune__tag[data-wm-frequence="très rare"] {
+  background: var(--wm-palier-3, #b1402f);
+  box-shadow: none;
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /* ── 5 · la grille d'espèces ──────────────────────────────────────── */
@@ -283,6 +331,68 @@
   color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-titre-carte, 16px);
   font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  LA VIGNETTE EST À GAUCHE DU NOM, pas au-dessus : on parcourt une
+    colonne de trente-quatre objets à la verticale, et l'œil qui
+    descend ne veut pas sauter une image entre chaque ligne. */
+#modernbb .wm-faune__objet {
+  display: grid;
+  align-items: start;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  grid-template-areas:
+    "image mots pct"
+    "image tag  tag";
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+}
+
+#modernbb .wm-faune__objet-image {
+  width: 30px;
+  height: 30px;
+  grid-area: image;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+#modernbb .wm-faune__objet-image--absent {
+  display: block;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  `mots` empile le nom et sa famille. Sans ce conteneur, les deux
+    tombaient dans la même cellule de grille et se collaient —
+    « AntidoteSTATUT », vu à l'écran le 4 novembre. */
+#modernbb .wm-faune__objet-mots {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  grid-area: mots;
+}
+
+/*  Le tag et le chiffre sur une même ligne, sous le nom : la couleur
+    saute aux yeux, le pourcentage est là pour qui veut le chiffre.
+
+    LE CHIFFRE MONTE À CÔTÉ DU NOM, LE TAG PREND LA LIGNE DU DESSOUS.
+    Deux essais pour en arriver là, les deux vus à l'écran : dans la
+    même cellule ils se chevauchaient (« PEU FRÉQUE2,69 % ») ; côte à
+    côte sur une carte de 180 px, « PEU FRÉQUENT » débordait encore,
+    parce qu'un tag ne se coupe pas — son mot EST l'information. Sur sa
+    propre ligne, il a toute la largeur quoi qu'il arrive. */
+#modernbb .wm-faune__objet > .wm-faune__tag {
+  grid-area: tag;
+  align-self: center;
+  /*  `justify-self`, pas `align-self` : dans une grille, c'est l'axe
+      en ligne qui décide de la largeur, et sans lui le tag s'étirait
+      sur toute la carte — une pastille qui fait la largeur d'un bloc
+      n'est plus une pastille. */
+  justify-self: start;
+}
+
+#modernbb .wm-faune__objet > .wm-faune__objet-pct {
+  grid-area: pct;
+  justify-self: end;
+  align-self: start;
 }
 
 #modernbb .wm-faune__objet-famille {
