@@ -36,7 +36,13 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from annexes import DEBUT, FIN, entre_les_bornes, remplacer_le_corps  # noqa: E402
+from annexes import (  # noqa: E402
+    DEBUT,
+    FIN,
+    entre_les_bornes,
+    pied_de_page,
+    remplacer_le_corps,
+)
 
 R = pathlib.Path(__file__).resolve().parent.parent
 PAGE = R / "pages" / "annexe-06-la-region-et-ses-zones.html"
@@ -94,84 +100,46 @@ def corps():
     #  oublier produit une page qui n'a plus de corps du tout, et la
     #  fois suivante l'outil ne sait plus où écrire. Payé une fois.
     w(f"{DEBUT} — écrit par `outils/annexe-carte.py` \u25bc\u25bc\u25bc -->")
-    w('<div class="wm-annexe" style="--annexe-fond: url(\''
-      f'{PAGES}/assets/zones/montagnes-embrumees.jpg\'); '
-      f'--annexe-rendu: url(\'{ARTWORK}/249.png\')">')
+    #  ── NI PHOTO DE FOND, NI RENDU, ET TOUTE LA LARGEUR ───────────
+    #
+    #  « Enlève finalement le fond des annexes et hésite pas à prendre
+    #  la largeur dispo. En tout cas, sur cette annexe. » (4 novembre)
+    #
+    #  Les treize autres gardent leur photo : c'est celle-ci qui porte
+    #  une carte, et une carte dans 880 pixels avec un lavis par-dessus
+    #  se regarde mal. `--large` est une classe qui existait déjà.
+    w('<div class="wm-annexe wm-annexe--sans-fond">')
     w("")
     w('  <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>')
     w("")
     w('  <div class="wm-annexe__corps">')
-    w('    <div class="wm-annexe__colonne">')
+    w('    <div class="wm-annexe__colonne wm-annexe__colonne--large">')
     w("")
     w('      <p class="wm-annexe__surtitre">Annexe 06</p>')
     w('      <h1 class="wm-annexe__titre">La <em>région</em> et ses zones</h1>')
     w('      <p class="wm-annexe__chapo">')
     w(f"        Dix-sept zones sauvages, trois paliers, {total_especes(faunes)} lignes d'espèce.")
-    w("        Clique une zone sur la carte : tu verras tout ce qui y vit, avec quelle")
-    w("        chance, à quels niveaux, et ce que tu peux ramasser par terre. Les niveaux")
-    w("        sont des recommandations — c'est ton palier qui ouvre une zone, pas le")
-    w("        niveau de ton équipe.")
+    w("        Clique une zone sur la carte : tout ce qui y vit s'affiche dessous,")
+    w("        dans l'ordre du Pokédex, avec quelle chance et à quels niveaux — et ce")
+    w("        que tu peux ramasser par terre. Les niveaux sont des recommandations :")
+    w("        c'est ton palier qui ouvre une zone, pas le niveau de ton équipe.")
     w("      </p>")
     w("")
     w('      <div class="wm-annexe__blocs">')
     w("")
 
-    # ── la carte, et le panneau qu'elle remplit ──────────────────────
-    w("        <!-- LA CARTE EST CELLE DE L'INDEX : même module, même fichier.")
-    w("             Le trou se remplit par `js/carte.js`. -->")
-    w('        <div class="wm-plateau" data-wm-carte></div>')
-    w('        <section class="wm-faune" data-wm-faune hidden></section>')
-    w("")
 
-    # ── le repli ─────────────────────────────────────────────────────
-    w("        <!-- LE REPLI SANS JAVASCRIPT. `module-faune.ts` lui pose une")
-    w("             classe une fois la carte debout — en JavaScript, jamais")
-    w("             dans la feuille : une règle CSS le ferait disparaître même")
-    w("             quand le module tombe, et la page n'aurait alors ni carte")
-    w("             ni liste. -->")
-    w('        <div class="wm-faune-repli" data-wm-faune-repli>')
-    for palier in (1, 2, 3):
-        titre, sous = PALIERS[palier]
-        dedans = [z for z in zones if z["palier"] == palier]
-        if not dedans:
-            continue
-        w(f'          <h2 class="wm-faune-repli__palier">{e(titre)} · {e(sous)}</h2>')
-        for z in dedans:
-            faune = faunes[z["forumId"]]
-            table = (faune or {}).get("conditions", {}).get("jour", [])
-            w('          <section class="wm-faune-repli__zone">')
-            w('            <h3 class="wm-faune-repli__nom">'
-              f'<a href="/f{z["forumId"]}-">{e(z["nom"])}</a></h3>')
-            w(f'            <p class="wm-faune-repli__chiffres">{e(z.get("niveau", ""))}'
-              f" · {len(table)} espèces</p>")
-            if z.get("description"):
-                w(f'            <p class="wm-faune-repli__dit">{e(z["description"])}</p>')
-            if table:
-                #  LES NOMS SEULS. Les pourcentages, les niveaux et les
-                #  sprites feraient 250 Ko ; les noms en font seize, et
-                #  ils changent « il y a soixante-huit espèces ici » en
-                #  « lesquelles ».
-                noms = ", ".join(e(x["nom"]) for x in table)
-                w(f'            <p class="wm-faune-repli__especes">{noms}</p>')
-            w("          </section>")
-    w("        </div>")
-    w("")
-
-    # ── les explications, en sous-onglets ───────────────────────────
+    # ── DEUX ONGLETS, ET DEUX SEULEMENT ─────────────────────────────
     #
-    #  QUATRE SUJETS D'AFFILÉE FONT QUATRE ÉCRANS, et on lit le
-    #  premier. Les sections restent dans la page avec leurs titres :
-    #  sans JavaScript elles s'affichent à la suite, et le script les
-    #  range derrière une barre d'onglets.
+    #  « Dans l'annexe on a : un onglet pour la région de Rhode et un
+    #  onglet pour la carte, les pokémons etc. » (4 novembre)
+    #
+    #  Il y en avait quatre, et la carte flottait au-dessus d'eux, hors
+    #  de tout onglet. On lisait donc la page dans un ordre que
+    #  personne n'avait choisi : la carte, puis un onglet au hasard.
     w('        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>')
     w("")
 
-    #  ── 0 · la région elle-même ───────────────────────────────────
-    #
-    #  ELLE PASSE APRÈS LA CARTE ET AVANT LES MÉCANIQUES. On vient ici
-    #  pour cliquer une zone — donc la carte reste en haut — mais le
-    #  texte de Rhode explique POURQUOI il y a des pokémon sauvages
-    #  dans ces zones, et ça se lit avant les taux de tirage.
     r = region
     w('          <section data-wm-sous-onglet="la-region">')
     w(f'            <h2 class="wm-annexe__carte-titre">{e(r["titre"])}</h2>')
@@ -260,9 +228,54 @@ def corps():
     w("          </section>")
     w("")
 
+    #  ── 2 · la carte, la faune, et comment tout se tire ───────────
+    w('          <section data-wm-sous-onglet="la-carte">')
+    w('            <h2 class="wm-annexe__carte-titre">La carte et ses zones</h2>')
+    w("")
+
+    # ── la carte, et le panneau qu'elle remplit ──────────────────────
+    w("        <!-- LA CARTE EST CELLE DE L'INDEX : même module, même fichier.")
+    w("             Le trou se remplit par `js/carte.js`. -->")
+    w('        <div class="wm-plateau" data-wm-carte></div>')
+    w('        <section class="wm-faune" data-wm-faune hidden></section>')
+    w("")
+
+    # ── le repli ─────────────────────────────────────────────────────
+    w("        <!-- LE REPLI SANS JAVASCRIPT. `module-faune.ts` lui pose une")
+    w("             classe une fois la carte debout — en JavaScript, jamais")
+    w("             dans la feuille : une règle CSS le ferait disparaître même")
+    w("             quand le module tombe, et la page n'aurait alors ni carte")
+    w("             ni liste. -->")
+    w('        <div class="wm-faune-repli" data-wm-faune-repli>')
+    for palier in (1, 2, 3):
+        titre, sous = PALIERS[palier]
+        dedans = [z for z in zones if z["palier"] == palier]
+        if not dedans:
+            continue
+        w(f'          <h2 class="wm-faune-repli__palier">{e(titre)} · {e(sous)}</h2>')
+        for z in dedans:
+            faune = faunes[z["forumId"]]
+            table = (faune or {}).get("conditions", {}).get("jour", [])
+            w('          <section class="wm-faune-repli__zone">')
+            w('            <h3 class="wm-faune-repli__nom">'
+              f'<a href="/f{z["forumId"]}-">{e(z["nom"])}</a></h3>')
+            w(f'            <p class="wm-faune-repli__chiffres">{e(z.get("niveau", ""))}'
+              f" · {len(table)} espèces</p>")
+            if z.get("description"):
+                w(f'            <p class="wm-faune-repli__dit">{e(z["description"])}</p>')
+            if table:
+                #  LES NOMS SEULS. Les pourcentages, les niveaux et les
+                #  sprites feraient 250 Ko ; les noms en font seize, et
+                #  ils changent « il y a soixante-huit espèces ici » en
+                #  « lesquelles ».
+                noms = ", ".join(e(x["nom"]) for x in table)
+                w(f'            <p class="wm-faune-repli__especes">{noms}</p>')
+            w("          </section>")
+    w("        </div>")
+    w("")
     #  ── 1 · les tirages ───────────────────────────────────────────
-    w('          <section data-wm-sous-onglet="les-tirages">')
-    w('            <h2 class="wm-annexe__carte-titre">Comment le serveur tire</h2>')
+    w('          <section class="wm-faune__notice">')
+    w('            <h3 class="wm-region__section">Comment le serveur tire</h3>')
     w('            <ul class="wm-tirets">')
     w("              <li><b>Tout part du numéro de ton message.</b> Il sert de graine : le")
     w("                même message donne toujours le même résultat, aujourd'hui comme dans")
@@ -282,7 +295,7 @@ def corps():
     w("")
 
     #  ── 2 · la météo, expliquée pour de vrai ──────────────────────
-    w('          <section data-wm-sous-onglet="la-meteo">')
+    w('          <section class="wm-faune__notice">')
     w('            <h2 class="wm-annexe__carte-titre">Le ciel, l\'heure, et ce qu\'ils'
       " changent</h2>")
     w('            <div class="wm-paras">')
@@ -321,7 +334,7 @@ def corps():
     w("")
 
     #  ── 3 · le sol ────────────────────────────────────────────────
-    w('          <section data-wm-sous-onglet="le-sol">')
+    w('          <section class="wm-faune__notice">')
     w('            <h2 class="wm-annexe__carte-titre">Ce qu\'on trouve au sol</h2>')
     w('            <div class="wm-paras">')
     w("              <p>Fouiller donne <b>une</b> chose, jamais deux. Les cinq parts font")
@@ -361,20 +374,19 @@ def corps():
     w("            </div>")
     w("          </section>")
     w("")
+    w("          </section>")
+    w("")
     w("        </div>")
     w("")
 
+
     # ── le pied, celui du gabarit ────────────────────────────────────
-    w('        <div class="wm-suivante">')
-    w('          <a class="wm-suivante__bouton" href="/h7-arenes-colosseums-ligues">')
-    w('            <span class="wm-suivante__etiquette">Annexe suivante</span>')
-    w("            Arènes, colosseums et Ligue →")
-    w("          </a>")
-    w('          <span class="wm-lieu">')
-    w("            Les Montagnes Embrumées")
-    w("            <b>une question sans réponse ici ? écris au staff</b>")
-    w("          </span>")
-    w("        </div>")
+    #  LE PIED VIENT DE `annexes.py`, pas d'ici. Il porte la page
+    #  suivante et les deux boutons de contact : les mêmes sur les
+    #  quatorze annexes, et `annexes.py` les refait de toute façon à la
+    #  passe suivante. Deux versions du même bloc, c'est une version de
+    #  trop — et `--verifier` crierait au premier écart.
+    w(pied_de_page("la-region-et-ses-zones"))
     w("")
     w("      </div>")
     w("    </div>")

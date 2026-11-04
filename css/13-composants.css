@@ -388,12 +388,33 @@
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
-#modernbb a.wm-onglet:hover,
-#modernbb a.wm-onglet:focus-visible,
-#modernbb button.wm-onglet:hover,
-#modernbb button.wm-onglet:focus-visible {
+/*  LE SURVOL NE TOUCHE PAS L'ONGLET ACTIF.
+ *
+ *  MESURÉ LE 4 NOVEMBRE : il posait le sable clair en fond SANS
+ *  toucher à la couleur du texte, qui reste l'inverse sur un onglet
+ *  actif. Blanc cassé sur sable : 1,1 contre 1. Et ça arrivait au pire
+ *  moment — juste après un clic, le curseur est encore dessus, donc
+ *  l'onglet qu'on vient de choisir était le seul illisible de la
+ *  barre.
+ *
+ *  Le harnais de contraste ne pouvait pas le voir : il mesure une page
+ *  au repos, sans curseur et sans clic. C'est `outils/faune.mjs` qui
+ *  le surveille maintenant, après un vrai clic. */
+#modernbb a.wm-onglet:not(.wm-onglet--actif):hover,
+#modernbb a.wm-onglet:not(.wm-onglet--actif):focus-visible,
+#modernbb button.wm-onglet:not(.wm-onglet--actif):hover,
+#modernbb button.wm-onglet:not(.wm-onglet--actif):focus-visible {
   border-color: var(--wm-bord-net, #d9c3b1);
   background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  L'ACTIF SE FONCE AU LIEU DE S'ÉCLAIRCIR : il reste donc l'accent,
+    et le texte inverse reste lisible dessus. */
+#modernbb a.wm-onglet--actif:hover,
+#modernbb a.wm-onglet--actif:focus-visible,
+#modernbb button.wm-onglet--actif:hover,
+#modernbb button.wm-onglet--actif:focus-visible {
+  background: var(--wm-accent-fort, #1f5470);
 }
 
 /*  Sur téléphone la maquette le resserre : 14/13 de marge et un rayon de

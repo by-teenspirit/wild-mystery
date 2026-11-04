@@ -41,6 +41,11 @@
 import json
 import pathlib
 
+#  LE SUJET DES QUESTIONS, écrit UNE fois. Il est repris dans le pied
+#  des quatorze annexes et dans l'onglet de la région : une seconde
+#  copie dériverait au premier renommage de sujet.
+FAQ = "https://mysteryinrhode.forumactif.com/t997-faq-suggestions"
+
 R = pathlib.Path(__file__).resolve().parent.parent
 
 PAGES = "https://by-teenspirit.github.io/wild-mystery"
@@ -53,7 +58,8 @@ ARTWORK = (
 #  ── CE QUI CHANGE D'UNE PAGE À L'AUTRE, ET RIEN D'AUTRE ────────────
 #
 #  slug → (photo de zone, numéro national du pokémon, nom du lieu).
-#  Le lieu est le mot de la pastille du pied ; il nomme la photo, pour
+#  Le lieu nommait la pastille du pied, retirée le 4 novembre ; il
+#  reste pour nommer la photo, pour
 #  qu'une image de décor ne soit pas qu'une image de décor.
 DECORS = {
     "par-ou-commencer": ("plage-grain-de-sel", 150, "La plage du Grain de Sel"),
@@ -249,16 +255,7 @@ GABARIT = """<!-- ════════════════════�
           </div>
         </div>
 
-        <div class="wm-suivante">
-          <a class="wm-suivante__bouton" href="{suivante_lien}">
-            <span class="wm-suivante__etiquette">Annexe suivante</span>
-            {suivante_titre} →
-          </a>
-          <span class="wm-lieu">
-            {lieu}
-            <b>une question sans réponse ici ? écris au staff</b>
-          </span>
-        </div>
+{pied_de_page}
 
       </div>
     </div>
@@ -276,6 +273,63 @@ GABARIT = """<!-- ════════════════════�
 
 DEBUT = "<!-- ▼▼▼ DÉBUT DU CORPS"
 FIN = "<!-- ▲▲▲ FIN DU CORPS ▲▲▲ -->"
+
+
+#  ── LE PIED, ÉCRIT UNE FOIS POUR LES QUATORZE ───────────────────────
+#
+#  Il porte deux choses : où aller ensuite, et à qui écrire. Les deux
+#  sont les mêmes sur toutes les pages, et aucune des deux n'est du
+#  contenu rédigé — d'où une fonction, appelée aussi par les trois
+#  générateurs de corps, et un remplacement du pied dans les pages déjà
+#  écrites. Sans ce remplacement, le pied restait gelé à la première
+#  génération : changer le staff aurait demandé quatorze corrections à
+#  la main, donc n'aurait jamais été fait.
+PIED_DE_PAGE = """        <div class="wm-suivante">
+          <a class="wm-suivante__bouton" href="{lien}">
+            <span class="wm-suivante__etiquette">Annexe suivante</span>
+            {titre} →
+          </a>
+          <div class="wm-question">
+            <span class="wm-question__mot">Une question ?</span>
+            <a class="wm-question__bouton" href="/privmsg?mode=post">Écrire au staff</a>
+            <a class="wm-question__bouton" href="{faq}">Questions &amp; suggestions</a>
+          </div>
+        </div>"""
+
+
+def pied_de_page(slug):
+    """Le bloc du pied pour une annexe, désignée par son slug.
+
+    La page suivante est celle d'après dans `data/annexes.json`, et la
+    dernière renvoie à la première : un bouton « suivante » qui ne mène
+    nulle part est un bouton mort.
+    """
+    entrees = lire_le_sommaire()
+    i = next((n for n, e in enumerate(entrees) if e["slug"] == slug), None)
+    if i is None:
+        raise SystemExit(f"{slug} n'est pas dans data/annexes.json")
+    suite = entrees[(i + 1) % len(entrees)]
+    return PIED_DE_PAGE.format(
+        lien=suite["adresse"] or "#", titre=suite["titre"], faq=FAQ
+    )
+
+
+def remplacer_le_pied(corps, pied):
+    """Le corps, son bloc « annexe suivante » échangé contre `pied`.
+
+    LE CORPS EST SACRÉ, LE PIED NON. Tout ce qui est rédigé est gardé ;
+    seul le bloc généré est refait. S'il n'y en a pas, le corps revient
+    inchangé plutôt que d'en inventer un — une page sans pied est une
+    page qu'on regarde, pas qu'on répare en silence.
+    """
+    i = corps.find('<div class="wm-suivante">')
+    if i == -1:
+        return corps
+    i = corps.rfind("\n", 0, i) + 1
+    j = corps.find("\n        </div>", i)
+    if j == -1:
+        return corps
+    return corps[:i] + pied + corps[j + len("\n        </div>"):]
 
 
 def entre_les_bornes(page):
@@ -337,12 +391,12 @@ def main():
     dossier = R / "pages"
     ecrits, reprises = [], []
     for i, e in enumerate(entrees):
-        photo, numero_national, lieu = DECORS[e["slug"]]
+        photo, numero_national, _lieu = DECORS[e["slug"]]
         #  LA PAGE SUIVANTE EST CELLE D'APRÈS DANS LE SOMMAIRE, et la
         #  dernière renvoie à la première : un bouton « suivante » qui
         #  ne mène nulle part est un bouton mort.
-        suite = entrees[(i + 1) % len(entrees)]
         page = GABARIT.format(
+            pied_de_page=pied_de_page(e["slug"]),
             tete=TETE.format(numero=e["numero"], titre=e["titre"], pages=PAGES),
             barre=BARRE,
             pied=PIED,
@@ -353,12 +407,9 @@ def main():
             slug=e["slug"],
             fond=f"{PAGES}/assets/zones/{photo}.jpg",
             rendu=f"{ARTWORK}/{numero_national}.png",
-            lieu=lieu,
-            suivante_titre=suite["titre"],
             #  `#` tant que la page suivante n'existe pas : un lien vers
             #  une adresse inventée serait un lien mort, et le sommaire
             #  dit déjà « à venir » pour la même raison.
-            suivante_lien=suite["adresse"] or "#",
             #  ── UN SECOND SCRIPT, POUR LES PAGES QUI EN ONT BESOIN ──
             #
             #  L'annexe de la carte porte la carte de l'index, qui pèse
@@ -399,6 +450,8 @@ def main():
                 #  la seule qui compte se perd dedans.
                 if sans_le_pied(corps) != sans_le_pied(entre_les_bornes(page)):
                     reprises.append(chemin.name)
+                #  LE PIED SE REFAIT, LE RESTE SE GARDE.
+                corps = remplacer_le_pied(corps, pied_de_page(e["slug"]))
                 page = remplacer_le_corps(page, corps)
 
         #  ── AUCUN NOM DE BALISE ÉCHAPPÉ DANS LE TEXTE ─────────────

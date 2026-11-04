@@ -352,6 +352,22 @@ export type OptionsDeCarte = {
   /** La phrase du panneau avant le premier clic. Celle de l'index
    *  promet « son dernier sujet », qu'une annexe ne sait pas lire. */
   readonly invite?: string;
+  /** La carte prend toute la largeur, la colonne passe dessous.
+   *
+   *  C'EST UNE CLASSE, PAS UNE SECONDE CARTE. « Je trouve la carte
+   *  petite » (4 novembre) : sur l'annexe, le bandeau latéral mangeait
+   *  320 des 880 pixels. L'index, lui, garde sa colonne — d'où une
+   *  option, et tout le reste en CSS sous `.wm-carte--large`. */
+  readonly large?: boolean;
+  /** Les villes restent dessinées, mais ne sont ni cliquables ni
+   *  listées.
+   *
+   *  « Ne rends pas les villes cliquables, on en a pas besoin. » Sur
+   *  l'annexe, cliquer sert à voir la faune d'une zone ; une ville n'en
+   *  a pas, et son clic ne pouvait répondre que « aucune faune sauvage
+   *  ici ». Elles restent sur le dessin parce qu'elles situent les
+   *  zones les unes par rapport aux autres. */
+  readonly sansVilles?: boolean;
 };
 
 export function poserLaCarte(
@@ -398,6 +414,7 @@ function dessinerLaCarte(
   options: OptionsDeCarte,
 ): Pose {
   const racine = el(doc, "section", "wm-carte");
+  if (options.large === true) racine.classList.add("wm-carte--large");
   racine.setAttribute("aria-label", "La carte de Rhode");
 
   // ── le titre ─────────────────────────────────────────────────────
@@ -560,13 +577,20 @@ function dessinerLaCarte(
   //  l'ordre du document qui fait l'empilement, et `ordreDeDessin` est
   //  la seule chose qui empêche une tache de recouvrir le nom d'un
   //  point — c'est arrivé à « Mont Bataille », voir la fonction.
+  //  CE QU'ON PEUT CHOISIR. Avec `sansVilles`, une ville est dessinée
+  //  mais inerte : ni tabulation, ni rôle de bouton, ni clic. Un
+  //  élément qui s'annonce « bouton » et ne fait rien est pire qu'un
+  //  élément muet.
+  const choisissable = (lieu: Lieu): boolean =>
+    options.sansVilles !== true || lieu.type !== "ville";
+
   for (const lieu of ordreDeDessin(carte.lieux)) {
+    const vif = choisissable(lieu);
     const g = svg(doc, "g", {
       class: "wm-carte__lieu",
       "data-wm-forum": String(lieu.forumId),
       "data-wm-famille": cleDeFamille(lieu),
-      tabindex: "0",
-      role: "button",
+      ...(vif ? { tabindex: "0", role: "button" } : { "data-wm-inerte": "1" }),
       //  LE PALIER EST DANS LE NOM ACCESSIBLE, pas seulement dans la
       //  couleur. « Canyon Lekro, palier 2 » se lit ; une tache ocre,
       //  non.
@@ -618,10 +642,14 @@ function dessinerLaCarte(
 
   // ── la liste : groupée, et chaque entrée entre dans le forum ─────
   const bloc = el(doc, "div", "wm-carte__liste-cadre");
-  bloc.appendChild(legende(doc, carte));
+  bloc.appendChild(legende(doc, { ...carte, lieux: carte.lieux.filter(choisissable) }));
   const chiffresDesEntrees = new Map<number, HTMLElement>();
 
-  for (const groupe of grouper(carte.lieux)) {
+  //  LA LISTE NE REPREND QUE CE QU'ON PEUT CHOISIR. Avec `sansVilles`,
+  //  les huit villes restent sur le dessin et sortent de la liste :
+  //  « une liste des zones, en fonction des paliers et le nombre
+  //  d'espèce » — une ville n'est pas une zone et n'a pas d'espèce.
+  for (const groupe of grouper(carte.lieux.filter(choisissable))) {
     const section = el(doc, "section", "wm-carte__groupe");
     section.dataset.wmFamille = groupe.cle;
     const titre = el(doc, "h3", "wm-carte__groupe-titre");
@@ -972,6 +1000,10 @@ function dessinerLaCarte(
     vise = null;
     const cible = ev.target as Element | null;
     const forme = cible?.closest?.(".wm-carte__lieu") ?? null;
+    //  UNE FORME INERTE NE SE VISE PAS. Sans ce test, la ville restait
+    //  cliquable à la souris malgré son absence de rôle : le clic est
+    //  décidé ici, sur l'attribut, pas sur un écouteur posé par forme.
+    if (forme?.getAttribute("data-wm-inerte") === "1") return;
     const f = forme?.getAttribute("data-wm-forum");
     if (f !== null && f !== undefined) vise = Number(f);
     cadre.setPointerCapture(ev.pointerId);

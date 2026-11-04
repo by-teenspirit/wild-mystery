@@ -104,6 +104,22 @@ function ok(quoi, vrai, detail) {
 }
 
 /** La page, servie telle quelle, avec ou sans ses scripts. */
+/** Ouvre l'onglet qui porte la carte. Depuis le 4 novembre l'annexe en
+ *  a deux — « la région de Rhode » d'abord, « la carte » ensuite — et
+ *  le second est replié au chargement. */
+async function ouvrirLOngletDeLaCarte(p) {
+  await p.waitForSelector(".wm-sous-onglets__barre .wm-onglet", { timeout: 15000 });
+  const boutons = await p.$$(".wm-sous-onglets__barre .wm-onglet");
+  for (const b of boutons) {
+    const mot = (await b.textContent()) ?? "";
+    if (/carte/i.test(mot)) {
+      await b.click();
+      return;
+    }
+  }
+  throw new Error("aucun onglet de carte dans la barre");
+}
+
 async function ouvrir(nav, { avecScript = true, largeur = 1440 } = {}) {
   const p = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
@@ -205,7 +221,7 @@ console.log("\n── sans JavaScript, la page dit encore quelque chose ──")
   //  fait croire à une faute.
   ok(
     `LES ${vu.sections} EXPLICATIONS SONT VISIBLES, DÉPLIÉES`,
-    vu.sections >= 3 && vu.sectionsVisibles === vu.sections && vu.barre === 0,
+    vu.sections >= 2 && vu.sectionsVisibles === vu.sections && vu.barre === 0,
     vu,
   );
   ok("et leurs titres aussi", vu.titresVisibles === vu.sections, {
@@ -221,6 +237,7 @@ console.log("\n── sans JavaScript, la page dit encore quelque chose ──")
 // ════════════════════════════════════════════════════════════════════
 console.log("\n── avec le script : la carte, et le repli qui s'efface ──");
 const p = await ouvrir(nav);
+await ouvrirLOngletDeLaCarte(p);
 await p.waitForSelector(".wm-carte", { timeout: 15000 });
 {
   const vu = await p.evaluate(() => {
@@ -253,6 +270,10 @@ console.log("\n── les sous-onglets ──");
     const boutons = Array.from(
       document.querySelectorAll(".wm-sous-onglets__barre .wm-onglet"),
     );
+    //  ON PART DU PREMIER ONGLET, pas de celui qui se trouve ouvert :
+    //  le harnais a cliqué « la carte » plus haut pour la mesurer, et
+    //  cliquer le second depuis le second ne change rien.
+    boutons[0]?.click();
     const avant = ouvertes()[0]?.dataset.wmSousOnglet ?? "";
     boutons[1]?.click();
     const apres = ouvertes()[0]?.dataset.wmSousOnglet ?? "";
@@ -290,6 +311,44 @@ console.log("\n── les sous-onglets ──");
   );
   ok("LE TITRE NE SE DIT PAS DEUX FOIS : il est sur le bouton", vu.titreCache);
 
+  //  ── L'ONGLET QU'ON VIENT DE CLIQUER RESTE LISIBLE ────────────
+  //
+  //  TROUVÉ LE 4 NOVEMBRE. Le survol posait un fond sable clair sans
+  //  toucher la couleur du texte : sur l'onglet ACTIF, dont le texte
+  //  est l'inverse, ça donnait du blanc cassé sur du sable — 1,1
+  //  contre 1. Et ça arrivait juste après un clic, curseur encore
+  //  dessus : l'onglet qu'on venait de choisir était le seul
+  //  illisible de la barre.
+  //
+  //  LE HARNAIS DE CONTRASTE NE POUVAIT PAS LE VOIR : il mesure une
+  //  page au repos, sans curseur et sans clic. Celui-ci clique pour de
+  //  vrai, puis mesure.
+  const lisible = await p.evaluate(() => {
+    const lire = (c) => (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+    const lum = (rgb) => {
+      const [r, g, b] = rgb.map((v) => {
+        const x = v / 255;
+        return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const actif = document.querySelector(".wm-onglet--actif");
+    if (actif === null) return null;
+    const s = getComputedStyle(actif);
+    const a = lum(lire(s.color)) + 0.05;
+    const b = lum(lire(s.backgroundColor)) + 0.05;
+    return {
+      rapport: Math.round((Math.max(a, b) / Math.min(a, b)) * 100) / 100,
+      texte: s.color,
+      fond: s.backgroundColor,
+    };
+  });
+  ok(
+    "L'ONGLET ACTIF RESTE LISIBLE SOUS LE CURSEUR",
+    lisible !== null && lisible.rapport >= 4.5,
+    lisible,
+  );
+
   //  ── LA FLÈCHE TOURNE ──────────────────────────────────────────
   const vuClavier = await p.evaluate(() => {
     const boutons = Array.from(
@@ -301,10 +360,18 @@ console.log("\n── les sous-onglets ──");
       .find((n) => !n.hidden);
     return ouverte?.dataset.wmSousOnglet ?? "";
   });
+  //  LE DERNIER ONGLET SE LIT DE LA PAGE, pas d'une constante : il
+  //  était « le-sol » quand il y en avait quatre, il est « la-carte »
+  //  depuis qu'il n'y en a plus que deux, et un nom écrit ici aurait
+  //  fallu le corriger à la main.
+  const dernier = await p.evaluate(() => {
+    const tous = Array.from(document.querySelectorAll("[data-wm-sous-onglet]"));
+    return tous[tous.length - 1]?.dataset.wmSousOnglet ?? "";
+  });
   ok(
     "LA FLÈCHE GAUCHE DEPUIS LE PREMIER VA AU DERNIER",
-    vuClavier === "le-sol",
-    vuClavier,
+    vuClavier === dernier,
+    { vu: vuClavier, dernier },
   );
 
   //  On rouvre la météo pour la capture, et on laisse la page propre.
@@ -350,9 +417,11 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
 
   const vu = await p.evaluate(() => {
     const pct = (n) => Number((n ?? "").replace(/[^\d,]/g, "").replace(",", "."));
-    const tranches = Array.from(document.querySelectorAll(".wm-faune__tranche")).map((t) => ({
-      rarete: t.dataset.wmRarete,
-      especes: Array.from(t.querySelectorAll("[data-wm-espece]")).map((e) => ({
+    //  UNE SEULE LISTE DEPUIS LE 4 NOVEMBRE : « tu mets toutes les
+    //  espèces ensemble dans l'ordre, tu rajoutes un filtre ».
+    const tranches = [{
+      rarete: "toutes",
+      especes: Array.from(document.querySelectorAll("[data-wm-espece]")).map((e) => ({
         id: Number(e.dataset.wmEspece),
         nom: e.querySelector(".wm-faune__nom")?.textContent ?? "",
         pct: pct(e.querySelector(".wm-faune__pct")?.textContent),
@@ -369,11 +438,15 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
             : { l: i.clientWidth, h: i.clientHeight, nl: i.naturalWidth, nh: i.naturalHeight };
         })(),
       })),
-    }));
+    }];
     return {
       titre: document.querySelector(".wm-faune__titre")?.textContent ?? "",
-      entetes: Array.from(document.querySelectorAll(".wm-faune__tranche-part"))
-        .map((n) => n.textContent ?? ""),
+      filtres: Array.from(document.querySelectorAll(".wm-filtre")).map((b) => ({
+        cle: b.dataset.wmFiltre,
+        mot: b.querySelector(".wm-filtre__mot")?.textContent ?? "",
+        nombre: Number(b.querySelector(".wm-filtre__nombre")?.textContent ?? "-1"),
+      })),
+      nbObjets: document.querySelectorAll("[data-wm-objet]").length,
       chiffres: Array.from(document.querySelectorAll(".wm-faune__chiffre"))
         .map((n) => n.textContent ?? ""),
       dit: document.querySelector(".wm-faune__dit")?.textContent ?? "",
@@ -415,27 +488,66 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     vu.dit,
   );
 
-  const ordre = vu.tranches.map((t) => t.rarete);
+  //  ── L'ORDRE EST CELUI DU DEX ────────────────────────────────
+  //
+  //  « Pourquoi l'ordre et l'id des pokémons n'est pas le même que
+  //  dans le dépôt que je t'ai donné ou comme dans l'ordre des vrais
+  //  pokémons ? » (4 novembre) Les identifiants étaient justes ;
+  //  l'ordre, lui, était celui des raretés puis des probabilités.
+  //
+  //  L'ORDRE ATTENDU SE RECALCULE ICI, depuis la table et
+  //  `data/ordre-du-dex.json` : le comparer à une liste écrite à la
+  //  main ne comparerait que deux fautes possibles.
+  const BASES = json("data/ordre-du-dex.json").base;
+  const base = (id) => BASES[String(id)] ?? id;
+  const attenduDex = [...TABLE]
+    .sort((a, b) => base(a.espece) - base(b.espece) || a.espece - b.espece)
+    .map((e) => e.espece);
+  const vuDex = vu.tranches[0].especes.map((e) => e.id);
   ok(
-    "les tranches vont du plus courant au plus rare",
-    JSON.stringify(ordre) ===
-      JSON.stringify(
-        ["commun", "peu commun", "rare"].filter((r) => TABLE.some((e) => e.rarete === r)),
-      ),
-    ordre,
+    "LES ESPÈCES SONT DANS L'ORDRE DU DEX, formes derrière leur espèce",
+    JSON.stringify(vuDex) === JSON.stringify(attenduDex),
+    { vu: vuDex.slice(0, 8), attendu: attenduDex.slice(0, 8) },
+  );
+  //  Et la preuve que ce n'est pas un tri par identifiant : au moins
+  //  une forme régionale doit passer AVANT une espèce ordinaire.
+  const formeAvantOrdinaire = vuDex.some((id, i) =>
+    id > 10000 && vuDex.slice(i + 1).some((j) => j < 10000)
+  );
+  ok(
+    "une forme régionale passe avant l'espèce ordinaire qui la suit",
+    formeAvantOrdinaire,
+    vuDex.filter((i) => i > 10000).slice(0, 3),
   );
 
-  //  LES PARTS FONT CENT, et on les relit sur les titres de tranche —
-  //  « … · 72,73 % en tout » — parce que c'est là qu'elles sont écrites
-  //  depuis que la tranche uniforme porte le chiffre pour ses cartes.
-  const somme = vu.entetes.reduce((s, t) => {
-    const m = /·\s*([\d,]+)\s*%\s*en tout/.exec(t);
-    return s + (m === null ? 0 : Number(m[1].replace(",", ".")));
-  }, 0);
+  //  LES PARTS FONT CENT. Elles se relisent maintenant carte par
+  //  carte : il n'y a plus de titre de tranche pour porter le total.
+  const somme = vu.tranches[0].especes.reduce((s, e) => s + e.pct, 0);
   ok(
     "et toutes les parts font cent",
     Math.abs(somme - 100) < 0.6,
     Math.round(somme * 100) / 100,
+  );
+
+  //  ── LA BARRE DE TRI ─────────────────────────────────────────
+  const comptes = new Map();
+  for (const e of TABLE) comptes.set(e.rarete, (comptes.get(e.rarete) ?? 0) + 1);
+  if (vu.nbObjets > 0) comptes.set("objet", vu.nbObjets);
+  const attendus = ["tous", "commun", "peu commun", "rare", "objet"]
+    .filter((c) => c === "tous" || (comptes.get(c) ?? 0) > 0);
+  ok(
+    "la barre propose tous, les raretés présentes, et les objets",
+    JSON.stringify(vu.filtres.map((f) => f.cle)) === JSON.stringify(attendus),
+    vu.filtres.map((f) => f.cle),
+  );
+  const fauxComptes = vu.filtres.filter((f) =>
+    f.cle !== "tous" && f.nombre !== (comptes.get(f.cle) ?? 0)
+  );
+  ok(
+    "et chaque bouton annonce le compte du fichier",
+    fauxComptes.length === 0 &&
+      vu.filtres[0]?.nombre === TABLE.length + vu.nbObjets,
+    { boutons: vu.filtres, faux: fauxComptes },
   );
 
   //  LES CHIFFRES AFFICHÉS SONT CEUX DU FICHIER. On les relit ici au
@@ -451,23 +563,30 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
   });
   ok("chaque espèce affichée est celle de la table", faux.length === 0, faux.slice(0, 3));
 
-  const premiere = vu.tranches[0].especes;
-  const decroissant = premiere.every((e, i) => i === 0 || premiere[i - 1].pct >= e.pct);
-  ok("DANS UNE TRANCHE, LA PLUS PROBABLE PASSE DEVANT", decroissant);
   //  ── CHAQUE CARTE SE SUFFIT ────────────────────────────────────
   //
-  //  « Le nom, le pourcentage, la rareté et le type. » Une carte qui
-  //  se relit hors de son groupe, c'est ce qui permettra de la sortir
-  //  d'une tranche un jour sans la redessiner.
+  //  « Le nom, le pourcentage, la rareté et le type. » Elle doit se
+  //  relire seule — et depuis le 4 novembre elle n'a plus le choix :
+  //  il n'y a plus de groupe pour porter le chiffre à sa place.
+  const cartes = vu.tranches[0].especes;
   ok(
     "CHAQUE CARTE PORTE SON POURCENTAGE",
-    premiere.every((e) => e.pct > 0),
-    premiere.slice(0, 3).map((e) => e.pct),
+    cartes.length > 0 && cartes.every((e) => e.pct > 0),
+    cartes.slice(0, 3).map((e) => e.pct),
+  );
+  //  LA RARETÉ EST ÉCRITE SUR CHAQUE CARTE, et c'est celle du fichier.
+  //  Elle n'est plus donnée par le groupe : la liste est dans l'ordre
+  //  du dex, donc une carte doit se relire seule.
+  const rareteFausse = vu.tranches[0].especes.filter((e) =>
+    e.rarete !== parId.get(e.id)?.rarete
   );
   ok(
     "ET SA RARETÉ, écrite et pas seulement colorée",
-    premiere.every((e) => e.rarete === "commun"),
-    premiere.slice(0, 2).map((e) => e.rarete),
+    rareteFausse.length === 0 &&
+      vu.tranches[0].especes.every((e) =>
+        ["commun", "peu commun", "rare"].includes(e.rarete)
+      ),
+    rareteFausse.slice(0, 3),
   );
   //  LES TYPES VIENNENT DES FICHES, pas d'une recopie : on relit la
   //  source ici plutôt que d'écrire une constante, sinon le test ne
@@ -478,18 +597,44 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     return JSON.stringify(e.types) !== JSON.stringify(attendus);
   });
   ok("ET SES TYPES, ceux de la fiche", typesFaux.length === 0, typesFaux.slice(0, 3));
+  //  ── LES SPRITES BOUGENT ─────────────────────────────────────
+  //
+  //  « Ensuite, les sprites doivent bouger. » (4 novembre) Le style
+  //  « forum » a des GIF animés ; l'emplacement décide s'ils sont
+  //  servis, et celui de la zone a été ajouté ce jour-là. On compare
+  //  donc l'adresse rendue à la colonne `source` de la couverture, pas
+  //  à `fige`.
+  const styleForum = json("data/sprites-couverture.json").styles.forum;
+  const anime = styleForum.anime === true;
+  const animesFaux = vu.tranches[0].especes.filter((e) => {
+    const entree = styleForum.especes[String(e.id)];
+    if (entree === undefined || e.sprite === "") return false;
+    const attendu = anime ? entree.source : entree.fige;
+    return !e.sprite.endsWith(attendu.replace(/^assets\//, "assets/"));
+  });
   ok(
-    "le titre de la tranche garde le total",
-    (vu.entetes[0] ?? "").includes("en tout"),
-    vu.entetes[0],
+    anime
+      ? "LES SPRITES SONT CEUX QUI BOUGENT, pas les figés"
+      : "le style forum n'a pas d'animation : les figés sont les bons",
+    animesFaux.length === 0,
+    animesFaux.slice(0, 3).map((e) => ({ id: e.id, rendu: e.sprite })),
   );
 
   //  ── LE CONTRÔLE QUI A MOTIVÉ CE HARNAIS ───────────────────────
   const sprites = vu.tranches.flatMap((t) => t.especes).map((e) => e.sprite);
   const poses = sprites.filter((s) => s !== "");
+  //  LES SPRITES VIENNENT DE LA COUVERTURE, FIGÉS OU ANIMÉS.
+  //
+  //  C'était « ils pointent sur `assets/sprites-figes/` », et ça a
+  //  cessé d'être vrai le 4 novembre : un sprite qui bouge n'est pas
+  //  dans le dépôt, il est chez PokéAPI au commit épinglé — c'est la
+  //  colonne `source` de la couverture. Ce qui reste vrai, et c'est ce
+  //  qui compte, c'est qu'aucun ne sort de ces deux endroits-là.
+  const PINGLE = json("data/sprites-couverture.json").base;
   ok(
-    "LES SPRITES POINTENT SUR `assets/sprites-figes/`",
-    poses.length > 0 && poses.every((s) => s.includes("/assets/sprites-figes/")),
+    "LES SPRITES VIENNENT DU DÉPÔT OU DU COMMIT ÉPINGLÉ, pas d'ailleurs",
+    poses.length > 0 &&
+      poses.every((s) => s.includes("/assets/sprites-figes/") || s.startsWith(PINGLE)),
     poses[0],
   );
   ok(
@@ -641,6 +786,11 @@ console.log("\n── on change de zone, puis on clique une ville ──");
 console.log("\n── à 390 px ──");
 {
   await p.setViewportSize({ width: 390, height: 844 });
+  //  L'ONGLET DE LA CARTE EST REFERMÉ plus haut, pour la capture. Sans
+  //  le rouvrir, la liste est là mais repliée : toutes les largeurs
+  //  mesurées valent zéro, et le contrôle passerait pour une raison
+  //  qui n'a rien à voir avec 390 pixels.
+  await ouvrirLOngletDeLaCarte(p);
   await p.evaluate(
     (id) =>
       document.querySelector(`.wm-carte__lieu[data-wm-forum="${id}"]`)?.dispatchEvent(

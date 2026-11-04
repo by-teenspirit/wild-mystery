@@ -36,22 +36,27 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { poserLaCarteDans } from "./module-carte.ts";
+import { type BasesDeForme, basesDepuis, rangerDansLeDex } from "../../navigateur/dex.ts";
 import {
+  type ChoixDeFaune,
   type EspeceDeZone,
+  filtresDeFaune,
   fourchetteDeNiveaux,
   motDeLaChance,
   motDeLaFrequence,
   motDesConditions,
+  motDuCompteDeFaune,
   type ObjetDeZone,
   parFrequence,
-  parRarete,
   partsDuSol,
   pourCent,
   typesDe,
+  visibleDansLaFaune,
 } from "../../navigateur/faune.ts";
 import type { TauxDeFouille } from "../../domaine/fouille.ts";
 import {
   type CarteDeCouverture,
+  type Emplacement,
   Sprites,
   STYLE_PAR_DEFAUT,
   type StyleDeSprite,
@@ -97,6 +102,10 @@ export type ReglagesDeLaFaune = {
   /** `prefers-reduced-motion` : il fige tout, y compris ce qui est
    *  joli. */
   readonly mouvementRefuse?: boolean;
+  /** La carte prend toute la largeur, sa colonne passe dessous. */
+  readonly large?: boolean;
+  /** Les villes restent dessinées, mais ni cliquables ni listées. */
+  readonly sansVilles?: boolean;
   /** Injecté pour que le harnais serve ses propres fichiers. */
   readonly chercher?: typeof fetch;
 };
@@ -136,9 +145,19 @@ export function adresseDuSprite(
   depot: string,
   especeId: number,
   style: StyleDeSprite,
+  //  L'EMPLACEMENT EST UN ARGUMENT, ET IL A FAILLI NE PAS L'ÊTRE.
+  //
+  //  Il était écrit en dur à « pokedex ». Pour faire bouger les
+  //  sprites de la zone (4 novembre) je l'ai passé à « zone » — et le
+  //  carnet, qui appelle la MÊME fonction, s'est mis à servir 933 GIF
+  //  animés dans sa grille. Mesuré par `outils/carnet.mjs` dans la
+  //  minute : c'est exactement ce que le commentaire de `sprites.ts`
+  //  interdisait, et une constante partagée ne pouvait pas dire deux
+  //  choses à la fois.
+  ou: Emplacement = "pokedex",
 ): string | null {
   if (sprites === null) return null;
-  const chemin = sprites.adresse(especeId, style, "pokedex");
+  const chemin = sprites.adresse(especeId, style, ou);
   if (chemin === null) return null;
   return chemin.startsWith("http") ? chemin : `${depot}${chemin}`;
 }
@@ -159,6 +178,21 @@ function carteDEspece(
   //  tranche : c'est elle qui colore le liseré et la pastille, et une
   //  carte qui se suffit à elle-même se relit hors de son groupe.
   li.dataset.wmRarete = rarete;
+  //  CE QUE LIT LA BARRE DE TRI. Un seul attribut pour les espèces et
+  //  les objets, sinon le filtre devrait connaître deux vocabulaires.
+  li.dataset.wmTri = rarete;
+
+  // ── la tête : la rareté à gauche, la chance à droite ───────────
+  //
+  //  « Le tag commun en haut à gauche. Le pourcentage de le voir, en
+  //  haut à droite. » (4 novembre) C'était un pied, sous le nom et les
+  //  types ; les deux choses qu'on compare d'une carte à l'autre
+  //  étaient donc les dernières lues, et à des hauteurs différentes
+  //  selon qu'une espèce a un type ou deux.
+  const tete = el(doc, "span", "wm-faune__tete");
+  tete.appendChild(el(doc, "span", "wm-faune__rarete", rarete));
+  tete.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
+  li.appendChild(tete);
 
   // ── le sprite, dans une boîte de hauteur fixe ──────────────────
   //
@@ -169,7 +203,7 @@ function carteDEspece(
   //  borne la boîte, l'image garde sa taille tant qu'elle y tient, et
   //  ne se réduit que si elle dépasse. Jamais d'agrandissement.
   const boite = el(doc, "span", "wm-faune__boite");
-  const adresse = adresseDuSprite(sprites, depot, e.espece, style);
+  const adresse = adresseDuSprite(sprites, depot, e.espece, style, "zone");
   if (adresse !== null) {
     const image = doc.createElement("img");
     image.className = "wm-faune__sprite";
@@ -213,68 +247,153 @@ function carteDEspece(
 
   li.appendChild(el(doc, "span", "wm-faune__niveaux", `niv. ${e.min} à ${e.max}`));
 
-  // ── le pied : la rareté et la chance, sur une ligne ────────────
-  //
-  //  LES DEUX SONT SUR LA CARTE, et c'est ce que Callista a demandé :
-  //  « le nom, le pourcentage, la rareté et le type ». Le titre de la
-  //  tranche garde le total, qui lui ne se lit pas carte par carte.
-  const pied = el(doc, "span", "wm-faune__pied");
-  pied.appendChild(el(doc, "span", "wm-faune__rarete", rarete));
-  pied.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
-  li.appendChild(pied);
-
-  //  PAS DE « ENVIRON 1 SUR 50 » SUR CHAQUE CARTE. Elle est juste au
-  //  dessus, dans le titre de la tranche, et répétée trente-six fois
-  //  elle noyait le reste. Le pourcentage, lui, reste : il est court,
-  //  et c'est lui qu'on vient chercher.
+  //  PAS DE « ENVIRON 1 SUR 50 » SUR CHAQUE CARTE : répétée soixante
+  //  fois, elle noyait le reste. Le pourcentage, lui, est en tête — il
+  //  est court, et c'est lui qu'on vient chercher.
   return li;
 }
 
-/** Les tranches de rareté d'une zone. */
-function tranches(
+/** Une carte d'objet : même gabarit que l'espèce, autre contenu. */
+function carteDObjet(
+  doc: Document,
+  o: ObjetDeZone,
+  sprites: Sprites | null,
+): HTMLElement {
+  //  ── LA MÊME CARTE QUE POUR UNE ESPÈCE ────────────────────────
+  //
+  //  Elles sont maintenant dans LA MÊME LISTE : deux gabarits dans une
+  //  grille se verraient. L'objet reprend donc les classes de
+  //  l'espèce, et c'est `data-wm-frequence` qui le colore au lieu de
+  //  `data-wm-rarete`.
+  const li = el(doc, "li", "wm-faune__espece wm-faune__objet");
+  li.dataset.wmObjet = String(o.objet);
+  li.dataset.wmFrequence = motDeLaFrequence(o.pct);
+  li.dataset.wmTri = "objet";
+
+  const tete = el(doc, "span", "wm-faune__tete");
+  tete.appendChild(el(doc, "span", "wm-faune__rarete", motDeLaFrequence(o.pct)));
+  tete.appendChild(el(doc, "b", "wm-faune__pct", pourCent(o.pct)));
+  li.appendChild(tete);
+
+  //  LA VIGNETTE VIENT DE LA CARTE, PAS D'UN `onerror`. Trente-trois
+  //  des trente-quatre objets en ont une au commit épinglé ; le
+  //  trente-quatrième garde sa place vide, comme une espèce hors
+  //  couverture.
+  const boite = el(doc, "span", "wm-faune__boite wm-faune__boite--objet");
+  const adresse = o.slug === undefined ? null : sprites?.adresseDObjet(o.slug) ?? null;
+  if (adresse !== null) {
+    const image = doc.createElement("img");
+    image.className = "wm-faune__sprite";
+    image.src = adresse;
+    image.alt = "";
+    image.loading = "lazy";
+    boite.appendChild(image);
+  } else {
+    boite.classList.add("wm-faune__boite--vide");
+  }
+  li.appendChild(boite);
+
+  li.appendChild(el(doc, "b", "wm-faune__nom", o.nom));
+
+  const familles = el(doc, "span", "wm-faune__types");
+  familles.appendChild(el(doc, "span", "wm-faune__type", o.famille));
+  li.appendChild(familles);
+  return li;
+}
+
+/**
+ * LA LISTE D'UNE ZONE : toutes les espèces, puis les objets, dans une
+ * seule grille, avec la barre qui la trie.
+ *
+ * « Tu mets toutes les espèces ensemble dans l'ordre, tu rajoutes un
+ * filtre : commun, peu commun, rare, objet » (4 novembre).
+ *
+ * C'ÉTAIT TROIS TRANCHES ET UNE QUATRIÈME LISTE. Pour savoir si une
+ * espèce est dans la zone, il fallait deviner sa rareté avant de
+ * savoir où regarder — et les objets étaient ailleurs encore. Une
+ * grille, l'ordre du dex, et quatre boutons pour la réduire.
+ *
+ * L'ORDRE EST CELUI DU DEX NATIONAL, chaque forme régionale derrière
+ * l'espèce qu'elle décline. Voir `src/navigateur/dex.ts`.
+ */
+function listeDeLaZone(
   doc: Document,
   table: readonly EspeceDeZone[],
+  objets: readonly ObjetDeZone[],
   sprites: Sprites | null,
   depot: string,
   style: StyleDeSprite,
   fiches: Fiches,
+  bases: BasesDeForme,
 ): HTMLElement {
   const hote = el(doc, "div", "wm-faune__tranches");
-  for (const t of parRarete(table)) {
-    const section = el(doc, "section", "wm-faune__tranche");
-    section.dataset.wmRarete = t.rarete;
 
-    const tete = el(doc, "h3", "wm-faune__tranche-tete");
-    tete.appendChild(el(doc, "span", "wm-faune__tranche-mot", t.rarete));
-    //  LA PART DE LA TRANCHE EST LE CHIFFRE QUI SE COMPARE d'une zone à
-    //  l'autre. Trente lignes de pourcentages, non.
-    const part = t.commune === null
-      ? `${t.especes.length} espèces · ${pourCent(t.part)} en tout`
-      : `${t.especes.length} espèces · ${pourCent(t.part)} en tout · ${
-        motDeLaChance(t.commune, "rencontre")
-      } chacune`;
-    tete.appendChild(el(doc, "span", "wm-faune__tranche-part", part));
-    section.appendChild(tete);
-
-    const liste = el(doc, "ul", "wm-faune__especes");
-    for (const e of t.especes) {
-      liste.appendChild(
-        carteDEspece(doc, e, sprites, depot, style, typesDe(fiches, e.espece), t.rarete),
-      );
-    }
-    section.appendChild(liste);
-    hote.appendChild(section);
+  const liste = el(doc, "ul", "wm-faune__especes");
+  liste.dataset.wmListe = "";
+  for (const e of rangerDansLeDex(table, (x) => x.espece, bases)) {
+    liste.appendChild(
+      carteDEspece(doc, e, sprites, depot, style, typesDe(fiches, e.espece), e.rarete),
+    );
   }
+  //  LES OBJETS FERMENT LA MARCHE, par fréquence : ils n'ont pas de
+  //  numéro de dex, donc rien pour les ranger parmi les espèces.
+  for (const o of parFrequence(objets)) liste.appendChild(carteDObjet(doc, o, sprites));
+
+  //  ── LA BARRE EST POSÉE ICI, AVEC LA LISTE ────────────────────
+  //
+  //  Contrairement à celle de l'annexe 11, elle ne peut pas être posée
+  //  au chargement : la liste est refaite à chaque clic sur la carte,
+  //  et les comptes changent de zone en zone. Elle naît donc avec sa
+  //  liste, et meurt avec elle.
+  const filtres = filtresDeFaune(table, objets);
+  if (filtres.length > 0) {
+    const barre = el(doc, "div", "wm-filtres");
+    barre.setAttribute("role", "group");
+    barre.setAttribute("aria-label", "Trier la liste");
+
+    const annonce = el(doc, "p", "wm-filtres__compte");
+    annonce.setAttribute("role", "status");
+    annonce.setAttribute("aria-live", "polite");
+
+    const boutons = new Map<string, HTMLButtonElement>();
+    const montrer = (choix: ChoixDeFaune): void => {
+      let vues = 0;
+      for (const li of Array.from(liste.children) as HTMLElement[]) {
+        const oui = visibleDansLaFaune(li.dataset.wmTri ?? "", choix);
+        li.hidden = !oui;
+        if (oui) vues += 1;
+      }
+      for (const [k, b] of boutons) {
+        const sien = k === choix;
+        b.classList.toggle("wm-filtre--actif", sien);
+        b.setAttribute("aria-pressed", String(sien));
+      }
+      annonce.textContent = motDuCompteDeFaune(vues, choix);
+    };
+
+    for (const f of filtres) {
+      const bouton = doc.createElement("button");
+      bouton.type = "button";
+      bouton.className = "wm-filtre";
+      bouton.setAttribute("aria-pressed", "false");
+      bouton.dataset.wmFiltre = f.cle;
+      bouton.appendChild(el(doc, "span", "wm-filtre__mot", f.mot));
+      bouton.appendChild(el(doc, "span", "wm-filtre__nombre", String(f.nombre)));
+      bouton.addEventListener("click", () => montrer(f.cle));
+      boutons.set(f.cle, bouton);
+      barre.appendChild(bouton);
+    }
+    hote.appendChild(barre);
+    hote.appendChild(annonce);
+    montrer("tous");
+  }
+
+  hote.appendChild(liste);
   return hote;
 }
 
-/** Ce qu'on trouve au sol : les cinq issues, puis les objets de la zone. */
-function sol(
-  doc: Document,
-  taux: TauxDeFouille | undefined,
-  objets: readonly ObjetDeZone[],
-  sprites: Sprites | null,
-): HTMLElement {
+/** Ce qu'on trouve au sol : les cinq issues d'une fouille. */
+function sol(doc: Document, taux: TauxDeFouille | undefined): HTMLElement {
   const hote = el(doc, "section", "wm-faune__sol");
   hote.appendChild(el(doc, "h3", "wm-faune__sol-titre", "Ce qu'on trouve au sol"));
 
@@ -290,7 +409,9 @@ function sol(
       doc,
       "p",
       "wm-faune__dit",
-      "Une fouille donne UNE chose, jamais deux. Les cinq parts font cent.",
+      "Une fouille donne UNE chose, jamais deux. Les cinq parts font cent. " +
+        "Quand c'est un objet, le bouton « Objet » dit lequel, et avec " +
+        "quelle chance.",
     ),
   );
 
@@ -307,63 +428,6 @@ function sol(
     issues.appendChild(li);
   }
   hote.appendChild(issues);
-
-  if (objets.length === 0) return hote;
-
-  hote.appendChild(
-    el(
-      doc,
-      "p",
-      "wm-faune__dit",
-      "Et quand c'est un objet, voici lequel — les chances sont celles " +
-        "d'une fouille, pas d'une part de la tranche.",
-    ),
-  );
-  const liste = el(doc, "ul", "wm-faune__especes wm-faune__objets");
-  //  ── LA MÊME CARTE QUE POUR UNE ESPÈCE ────────────────────────
-  //
-  //  Deux grilles côte à côte sur la même page n'ont aucune raison de
-  //  ne pas se ressembler. L'objet reprend donc les classes de
-  //  l'espèce — la boîte d'image, le nom, la puce de famille, le pied
-  //  — et c'est `data-wm-frequence` qui colore son liseré au lieu de
-  //  `data-wm-rarete`. Un composant, deux emplois, une seule feuille à
-  //  tenir droite.
-  for (const o of parFrequence(objets)) {
-    const li = el(doc, "li", "wm-faune__espece wm-faune__objet");
-    li.dataset.wmObjet = String(o.objet);
-    li.dataset.wmFrequence = motDeLaFrequence(o.pct);
-
-    //  LA VIGNETTE VIENT DE LA CARTE, PAS D'UN `onerror`. Trente-trois
-    //  des trente-quatre objets en ont une au commit épinglé ; le
-    //  trente-quatrième garde sa place vide, comme une espèce hors
-    //  couverture.
-    const boite = el(doc, "span", "wm-faune__boite wm-faune__boite--objet");
-    const adresse = o.slug === undefined ? null : sprites?.adresseDObjet(o.slug) ?? null;
-    if (adresse !== null) {
-      const image = doc.createElement("img");
-      image.className = "wm-faune__sprite";
-      image.src = adresse;
-      image.alt = "";
-      image.loading = "lazy";
-      boite.appendChild(image);
-    } else {
-      boite.classList.add("wm-faune__boite--vide");
-    }
-    li.appendChild(boite);
-
-    li.appendChild(el(doc, "b", "wm-faune__nom", o.nom));
-
-    const familles = el(doc, "span", "wm-faune__types");
-    familles.appendChild(el(doc, "span", "wm-faune__type", o.famille));
-    li.appendChild(familles);
-
-    const pied = el(doc, "span", "wm-faune__pied");
-    pied.appendChild(el(doc, "span", "wm-faune__rarete", motDeLaFrequence(o.pct)));
-    pied.appendChild(el(doc, "b", "wm-faune__pct", pourCent(o.pct)));
-    li.appendChild(pied);
-    liste.appendChild(li);
-  }
-  hote.appendChild(liste);
   return hote;
 }
 
@@ -390,6 +454,11 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
 
   const carte = await lire("carte.json");
   if (carte === null) return false;
+
+  //  L'ORDRE DU DEX. Absent, `basesDepuis` rend un objet vide et les
+  //  formes régionales partent à la fin : la page reste lisible, elle
+  //  est seulement moins bien rangée.
+  const bases = basesDepuis(await lire("ordre-du-dex.json"));
 
   //  LA COUVERTURE DES SPRITES EST FACULTATIVE : si elle ne vient pas,
   //  la page montre les noms et les chances sans images, ce qui reste
@@ -467,10 +536,22 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
 
     panneau.hidden = false;
     panneau.dataset.wmFaune = String(forumId);
+    //  LE SOL AVANT LA LISTE : il explique ce que « objet » veut dire
+    //  dans la barre juste en dessous. L'inverse obligeait à redescendre
+    //  sous soixante cartes pour comprendre le quatrième bouton.
     panneau.replaceChildren(
       tete,
-      tranches(doc, table, sprites, r.depot, style, fiches),
-      sol(doc, taux, objetsParZone.get(forumId) ?? [], sprites),
+      sol(doc, taux),
+      listeDeLaZone(
+        doc,
+        table,
+        objetsParZone.get(forumId) ?? [],
+        sprites,
+        r.depot,
+        style,
+        fiches,
+        bases,
+      ),
     );
   };
 
@@ -485,6 +566,8 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
       const n = comptes.get(forumId);
       return n === undefined ? null : `${n} espèces`;
     },
+    large: r.large,
+    sansVilles: r.sansVilles,
     //  L'invite de l'index promet « son dernier sujet », que cette
     //  page ne sait pas lire : elle n'a aucune ligne de forum.
     invite: "Clique une zone sur la carte : tout ce qui y vit s'affiche " +

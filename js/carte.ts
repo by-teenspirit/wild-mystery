@@ -53,6 +53,14 @@ async function poser(): Promise<void> {
     depot: DEPOT,
     style: new Preferences(new StockageLocal()).styleDeSprite(),
     mouvementRefuse: mouvementRefuse(),
+    //  « Je trouve la carte petite » : sur l'annexe elle prend toute
+    //  la largeur, et sa colonne passe dessous. L'index, lui, garde sa
+    //  colonne à droite — c'est la même carte, pas la même page.
+    large: true,
+    //  « Ne rends pas les villes cliquables, on en a pas besoin » :
+    //  elles restent dessinées, parce qu'elles situent les zones, mais
+    //  un clic dessus ne pouvait répondre que « aucune faune ici ».
+    sansVilles: true,
   });
 }
 

@@ -266,19 +266,19 @@
 
     LE MOT RESTE ÉCRIT DEDANS : un joueur sur douze ne distingue pas
     le vert du rouge. */
-#modernbb .wm-faune__pied {
+#modernbb .wm-faune__tete {
   background: var(--wm-rarete-commun-fond, #dce4d9);
   color: var(--wm-rarete-commun-texte, #316f44);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__pied,
-#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__pied {
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__tete,
+#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__tete {
   background: var(--wm-rarete-peu-commun-fond, #eedfcf);
   color: var(--wm-rarete-peu-commun-texte, #96540e);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__pied,
-#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__pied {
+#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__tete,
+#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__tete {
   background: var(--wm-rarete-rare-fond, #f1d9d3);
   color: var(--wm-rarete-rare-texte, #ad3c2b);
 }
@@ -286,7 +286,7 @@
 /*  « Très rare » reprend la paire « rare », inversée : le fond prend
     la teinte pleine. C'est la seule nuance qui n'a pas besoin d'une
     quatrième couleur pour se distinguer. */
-#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__pied {
+#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__tete {
   background: var(--wm-palier-3, #b1402f);
   color: var(--wm-texte-inverse, #fffbf7);
 }
@@ -357,17 +357,22 @@
     À 8 px de marge intérieure, « POISON » et « VOL » passaient à la
     ligne sur une carte de 150 px, et une carte sur quatre était plus
     haute que ses voisines sans raison lisible. */
+/*  « Les types : écris en plus petit et en gras avec plus de
+    padding. » (4 novembre) Même échange que partout ailleurs sur cette
+    page : à largeur donnée, une étiquette respire en rapetissant son
+    mot, pas en poussant ses bords. */
 #modernbb .wm-faune__type {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px var(--wm-espace-4, 4px);
+  gap: var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  line-height: 1.5;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
@@ -386,22 +391,20 @@
     plutôt que `fond-surface` : entre deux beiges qui se ressemblent,
     la séparation ne se voyait pas, et le pied avait l'air posé là.
 
-    `margin-top: auto` LE COLLE AU BAS, et c'est ce qui aligne les
-    pourcentages d'une rangée. Sans lui, une carte à deux types est
-    plus haute que sa voisine et la colonne qu'on vient comparer
-    devenait un escalier. */
-#modernbb .wm-faune__pied {
+    ELLE EST EN TÊTE DEPUIS LE 4 NOVEMBRE. « Le tag commun en haut à
+    gauche. Le pourcentage de le voir, en haut à droite. » En pied,
+    les deux choses qu'on compare d'une carte à l'autre étaient les
+    dernières lues, et à une hauteur qui changeait selon qu'une espèce
+    a un type ou deux : la ligne de pourcentages faisait un escalier.
+    En tête, elles sont toutes sur la même ligne, par construction. */
+#modernbb .wm-faune__tete {
   display: flex;
   width: calc(100% + var(--wm-espace-24, 24px));
   align-items: baseline;
   justify-content: space-between;
   gap: var(--wm-espace-8, 8px);
-  margin: var(--wm-espace-16, 16px) calc(var(--wm-espace-12, 12px) * -1) 0;
-  /*  « Le commun et le pourcentage sont trop collés aux bords. »
-      Le pied déborde de la carte de 12 px de chaque côté : lui
-      redonner 12 px de marge intérieure ne laissait que le padding de
-      la carte, donc rien. Il lui faut les siens, et plus larges. */
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  margin: 0 calc(var(--wm-espace-12, 12px) * -1) var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
 }
 
 #modernbb .wm-faune__rarete {
@@ -638,4 +641,28 @@
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-transform: uppercase;
+}
+
+/*  LA CARTE COMMENCE PAR SA TÊTE, donc plus de `padding-top` nul en
+    haut : la bande teintée touche le bord, comme le faisait le pied. */
+#modernbb .wm-faune__espece {
+  padding-bottom: var(--wm-espace-12, 12px);
+}
+
+/*  UNE LIGNE FILTRÉE DISPARAÎT VRAIMENT. `hidden` ne suffit pas sur un
+    enfant en `display: flex` — la déclaration d'affichage bat
+    l'attribut. C'est la faute classique, mesurée une fois sur l'annexe
+    des célébrités. */
+#modernbb .wm-faune__espece[hidden] {
+  display: none;
+}
+
+/*  ── LES TROIS NOTICES, SOUS LA LISTE ────────────────────────────
+
+    Les tirages, la météo et le sol étaient trois onglets ; ils sont
+    maintenant trois parties de l'onglet de la carte, puisqu'il n'en
+    reste que deux (« un onglet pour la région de Rhode et un onglet
+    pour la carte, les pokémons etc. »). */
+#modernbb .wm-faune__notice {
+  margin-top: var(--wm-espace-32, 32px);
 }

@@ -27,11 +27,27 @@ export const STYLE_PAR_DEFAUT: StyleDeSprite = "forum";
 export type Emplacement =
   | "rencontre"
   | "fiche"
+  | "zone"
   | "trainer-card"
   | "boite"
   | "pokedex";
 
-const BOUGE: ReadonlySet<Emplacement> = new Set<Emplacement>(["rencontre", "fiche"]);
+/*  CE QUI BOUGE, ET POURQUOI PAS TOUT.
+ *
+ *  « Les sprites doivent bouger » (4 novembre) — pour la faune d'une
+ *  zone, qui en montre une soixantaine. D'où `zone`, ajouté ce jour-là.
+ *
+ *  `pokedex` reste figé, et ce n'est pas un oubli : la grille du carnet
+ *  en pose NEUF CENT TRENTE-TROIS d'un coup, et neuf cent trente-trois
+ *  GIF animés font ramer la page avant de l'avoir lue. Une silhouette
+ *  éteinte n'a d'ailleurs aucune raison de s'agiter.
+ *
+ *  `prefers-reduced-motion` passe avant tout ça : il fige partout. */
+const BOUGE: ReadonlySet<Emplacement> = new Set<Emplacement>([
+  "rencontre",
+  "fiche",
+  "zone",
+]);
 
 export function estUnStyleDeSprite(valeur: unknown): valeur is StyleDeSprite {
   return valeur === "forum" || valeur === "retro" || valeur === "gba-ds";

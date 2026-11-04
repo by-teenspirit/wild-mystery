@@ -347,3 +347,76 @@ export function motDeLaFrequence(pct: number): string {
 export function parFrequence(objets: readonly ObjetDeZone[]): ObjetDeZone[] {
   return [...objets].sort((a, b) => (b.pct - a.pct) || a.nom.localeCompare(b.nom, "fr"));
 }
+
+// ════════════════════════════════════════════════════════════════════
+//  LE TRI D'UNE ZONE — commun, peu commun, rare, objet
+//
+//  « Tu mets toutes les espèces ensemble dans l'ordre, tu rajoutes un
+//  filtre : commun, peu commun, rare, objet » (4 novembre).
+//
+//  Avant, la zone était découpée en trois tranches de rareté, et les
+//  objets vivaient dans une quatrième liste en bas. Trois listes
+//  séparées répondent mal à la seule question qu'on se pose devant une
+//  zone — « est-ce que X est ici ? » — parce qu'il faut deviner sa
+//  rareté pour savoir où regarder. Une liste dans l'ordre du dex, et
+//  quatre boutons pour la réduire.
+// ════════════════════════════════════════════════════════════════════
+
+/** Ce qu'un bouton de tri peut montrer. */
+export type ChoixDeFaune = "tous" | Rarete | "objet";
+
+export type FiltreDeFaune = {
+  readonly cle: ChoixDeFaune;
+  readonly mot: string;
+  readonly nombre: number;
+};
+
+const MOT_DU_TRI: Record<string, string> = {
+  "tous": "Tous",
+  "commun": "Commun",
+  "peu commun": "Peu commun",
+  "rare": "Rare",
+  "objet": "Objet",
+};
+
+/**
+ * Les boutons à poser pour une zone.
+ *
+ * UN TRI SANS LIGNE N'A PAS DE BOUTON, comme pour les statuts de
+ * l'annexe 11 : une zone sans espèce rare ne doit pas proposer un
+ * bouton « Rare » qui vide la liste. Et s'il ne reste qu'un seul tri,
+ * aucun bouton : « Tous » et lui montreraient la même chose.
+ */
+export function filtresDeFaune(
+  especes: readonly EspeceDeZone[],
+  objets: readonly ObjetDeZone[],
+): FiltreDeFaune[] {
+  const compte = new Map<string, number>();
+  for (const e of especes) compte.set(e.rarete, (compte.get(e.rarete) ?? 0) + 1);
+  if (objets.length > 0) compte.set("objet", objets.length);
+
+  const tenus = [...RARETES, "objet"].filter((c) => (compte.get(c) ?? 0) > 0);
+  if (tenus.length < 2) return [];
+
+  const total = especes.length + objets.length;
+  return [
+    { cle: "tous", mot: MOT_DU_TRI["tous"], nombre: total },
+    ...tenus.map((c) => ({
+      cle: c as ChoixDeFaune,
+      mot: MOT_DU_TRI[c] ?? c,
+      nombre: compte.get(c) ?? 0,
+    })),
+  ];
+}
+
+/** La clé de tri d'une ligne : sa rareté, ou « objet ». */
+export function visibleDansLaFaune(tri: string, choix: ChoixDeFaune): boolean {
+  return choix === "tous" || choix === tri;
+}
+
+/** Ce que l'annonce au lecteur d'écran dit après un clic. */
+export function motDuCompteDeFaune(nombre: number, choix: ChoixDeFaune): string {
+  const quoi = nombre === 1 ? "ligne" : "lignes";
+  if (choix === "tous") return `${nombre} ${quoi}`;
+  return `${nombre} ${quoi} — ${(MOT_DU_TRI[choix] ?? choix).toLowerCase()}`;
+}

@@ -10115,7 +10115,7 @@ html#min-width {
    ── SEPT BRIQUES ─────────────────────────────────────────────────────
 
    `wm-carte` · `wm-tirets` · `wm-paras` · `wm-table` · `wm-paire` ·
-   `wm-encarts` · `wm-suivante` (avec `wm-lieu`). Une huitième se discute
+   `wm-encarts` · `wm-suivante` (avec `wm-question`). Une huitième se discute
    avant de s'écrire, sinon le gabarit se dissout en douze pages
    différentes. **`wm-table` est en flexbox**, pas un `<table>`
    (planche 49) : un vrai tableau ne se replie pas sur téléphone.
@@ -10925,11 +10925,15 @@ body:has(#modernbb .wm-carnet) {
 
 /*  Dans la maquette ils sont l'un SOUS l'autre, alignés à gauche — pas
     sur une même ligne. Je les avais mis côte à côte. */
+/*  LE PIED SE LIT EN UNE LIGNE : où aller ensuite à gauche, à qui
+    écrire à droite. Il était en colonne, avec une pastille qui ne
+    faisait que nommer le lieu de la photo — un repère dont personne
+    n'avait besoin, là où il fallait deux boutons. */
 #modernbb .wm-suivante {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--wm-espace-10, 10px);
+  flex-wrap: wrap;
+  gap: var(--wm-espace-16, 16px);
+  align-items: center;
   margin-top: var(--wm-espace-24, 24px);
 }
 
@@ -10965,21 +10969,49 @@ body:has(#modernbb .wm-carnet) {
   text-transform: uppercase;
 }
 
-/*  La pastille : le lieu dont parle la page, et le mot du staff. Elle
-    n'est pas un lien — c'est un repère, pas une navigation. */
-#modernbb .wm-lieu {
-  display: inline-flex;
+/*  ── LES DEUX BOUTONS DE CONTACT ──────────────────────────────────
+
+    « Une question ? » n'est pas un titre : c'est la phrase qui donne
+    leur sens aux deux boutons, donc elle reste sur la même ligne
+    qu'eux. `margin-left: auto` les colle à droite, en face du bouton
+    de page suivante. */
+#modernbb .wm-question {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
   align-items: center;
-  gap: var(--wm-espace-10, 10px);
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
-  border-radius: 999px;
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  margin-left: auto;
 }
 
-#modernbb .wm-lieu b {
+#modernbb .wm-question__mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  DEUX BOUTONS SECONDAIRES, pas deux « annexe suivante ». Trois
+    boutons pleins sur une même ligne ne disent plus lequel est le
+    geste principal : celui de gauche est la lecture qui continue, ces
+    deux-là sont des sorties. */
+#modernbb a.wm-question__bouton {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-decoration: none;
+}
+
+#modernbb a.wm-question__bouton:hover,
+#modernbb a.wm-question__bouton:focus-visible {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-douce, #f3e1d2);
 }
 
 /* ── 11 · sur petit écran ─────────────────────────────────────────── */
@@ -11127,6 +11159,31 @@ body:has(#modernbb .wm-carnet) {
     flex: 0 0 auto;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   UNE ANNEXE SANS FOND
+   ════════════════════════════════════════════════════════════════════
+
+   « Enlève finalement le fond des annexes et hésite pas à prendre la
+   largeur dispo. En tout cas, sur cette annexe. » (4 novembre)
+
+   LES TREIZE AUTRES GARDENT LEUR PHOTO. C'est l'annexe 06 qui porte
+   une carte, et une carte à regarder sous un lavis et un pokémon en
+   filigrane se lit mal : les deux couches tirent l'œil là où il n'y a
+   rien à voir. Ailleurs le fond fait son travail — il situe la page.
+
+   Les deux pseudo-éléments s'en vont ensemble : la photo floutée
+   (`::before`) et le voile avec le rendu (`::after`). Il reste le fond
+   de page, et toute la largeur pour la carte. */
+#modernbb .wm-annexe--sans-fond .wm-annexe__corps::before,
+#modernbb .wm-annexe--sans-fond .wm-annexe__corps::after {
+  display: none;
+}
+
+/*  LE SABLE QUI RESTE EST LA COULEUR DE PAGE DU FORUM, pas un reste de
+    décor : `--wm-fond-page` vaut #eecfb5, et le corps la portait déjà
+    sous les deux couches. Il n'y a donc rien à retirer de plus —
+    vérifié à la mesure, pas à l'œil. */
 
 /* ═══════════════════════════════════════════════════════════════════
    09-boutique.css — le catalogue et son panier
@@ -14166,12 +14223,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
-#modernbb a.wm-onglet:hover,
-#modernbb a.wm-onglet:focus-visible,
-#modernbb button.wm-onglet:hover,
-#modernbb button.wm-onglet:focus-visible {
+/*  LE SURVOL NE TOUCHE PAS L'ONGLET ACTIF.
+ *
+ *  MESURÉ LE 4 NOVEMBRE : il posait le sable clair en fond SANS
+ *  toucher à la couleur du texte, qui reste l'inverse sur un onglet
+ *  actif. Blanc cassé sur sable : 1,1 contre 1. Et ça arrivait au pire
+ *  moment — juste après un clic, le curseur est encore dessus, donc
+ *  l'onglet qu'on vient de choisir était le seul illisible de la
+ *  barre.
+ *
+ *  Le harnais de contraste ne pouvait pas le voir : il mesure une page
+ *  au repos, sans curseur et sans clic. C'est `outils/faune.mjs` qui
+ *  le surveille maintenant, après un vrai clic. */
+#modernbb a.wm-onglet:not(.wm-onglet--actif):hover,
+#modernbb a.wm-onglet:not(.wm-onglet--actif):focus-visible,
+#modernbb button.wm-onglet:not(.wm-onglet--actif):hover,
+#modernbb button.wm-onglet:not(.wm-onglet--actif):focus-visible {
   border-color: var(--wm-bord-net, #d9c3b1);
   background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  L'ACTIF SE FONCE AU LIEU DE S'ÉCLAIRCIR : il reste donc l'accent,
+    et le texte inverse reste lisible dessus. */
+#modernbb a.wm-onglet--actif:hover,
+#modernbb a.wm-onglet--actif:focus-visible,
+#modernbb button.wm-onglet--actif:hover,
+#modernbb button.wm-onglet--actif:focus-visible {
+  background: var(--wm-accent-fort, #1f5470);
 }
 
 /*  Sur téléphone la maquette le resserre : 14/13 de marge et un rayon de
@@ -19224,6 +19302,102 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   LA CARTE EN LARGE — l'annexe, pas l'index
+   ════════════════════════════════════════════════════════════════════
+
+   « Je trouve la carte petite. […] Je pense que tu peux effacer le
+   bandeau latéral à droite de la carte pour qu'elle prenne plus de
+   place. » (4 novembre)
+
+   Le bandeau mangeait 320 des 880 pixels de la colonne d'annexe, soit
+   plus d'un tiers, pour une liste qu'on lit une fois. Il passe
+   DESSOUS, en rangée : le panneau de la zone choisie à gauche, la
+   liste des zones à droite — « il faut quand même une liste des
+   zones, en fonction des paliers et le nombre d'espèce ».
+
+   L'INDEX NE CHANGE PAS. Tout ce qui suit est sous `--large`, que
+   seule l'annexe demande. */
+#modernbb .wm-carte--large .wm-carte__corps {
+  height: auto;
+  flex-direction: column;
+}
+
+#modernbb .wm-carte--large .wm-carte__cadre {
+  height: var(--wm-carte-hauteur, 760px);
+  flex: none;
+  width: 100%;
+}
+
+/*  LA COLONNE DEVIENT UNE RANGÉE, et cesse de défiler : elle n'a plus
+    de hauteur à tenir, donc plus rien à faire déborder. */
+#modernbb .wm-carte--large .wm-carte__colonne {
+  flex: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: 100%;
+  height: auto;
+}
+
+#modernbb .wm-carte--large .wm-carte__panneau {
+  flex: 1 1 340px;
+  min-width: 0;
+}
+
+/*  PAS DE COMPTEURS SUR L'ANNEXE. « — sujets — messages » : ils se
+    lisent sur les lignes de l'index, qui n'existent pas ici, et deux
+    tirets ressemblent à une panne. La faune juste dessous dit le seul
+    chiffre que cette page connaisse — le nombre d'espèces. */
+#modernbb .wm-carte--large .wm-carte__chiffres {
+  display: none;
+}
+
+#modernbb .wm-carte--large .wm-carte__liste-cadre {
+  flex: 2 1 480px;
+  min-width: 0;
+  max-height: 420px;
+}
+
+/*  LES ZONES EN COLONNES. En bandeau latéral, les cinq groupes
+    s'empilaient dans 320 pixels de large ; sur toute la largeur, les
+    empiler ferait une colonne de dix-sept lignes et deux mètres de
+    blanc à droite. */
+#modernbb .wm-carte--large .wm-carte__liste-cadre {
+  columns: 2;
+  column-gap: var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-carte--large .wm-carte__groupe {
+  break-inside: avoid;
+}
+
+/*  LA LÉGENDE NE SE COUPE PAS EN DEUX COLONNES. */
+#modernbb .wm-carte--large .wm-carte__legende {
+  column-span: all;
+}
+
+/*  UNE VILLE INERTE N'EST PAS UN BOUTON : pas de curseur de clic, pas
+    de réaction au survol. Elle reste dessinée et nommée, parce qu'elle
+    situe les zones les unes par rapport aux autres. */
+#modernbb .wm-carte__lieu[data-wm-inerte] {
+  cursor: default;
+}
+
+#modernbb .wm-carte__lieu[data-wm-inerte] .wm-carte__epingle,
+#modernbb .wm-carte__lieu[data-wm-inerte] .wm-carte__forme {
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  /*  Sous 900, la rangée se replie : deux colonnes de zones dans 390
+      pixels donneraient des noms coupés. */
+  #modernbb .wm-carte--large .wm-carte__liste-cadre {
+    columns: 1;
+    max-height: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 17 · « Qui est en ligne ? », maquette `390:3387`
 
    ── LES COTES DU DESSIN ─────────────────────────────────────────────
@@ -23677,19 +23851,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     LE MOT RESTE ÉCRIT DEDANS : un joueur sur douze ne distingue pas
     le vert du rouge. */
-#modernbb .wm-faune__pied {
+#modernbb .wm-faune__tete {
   background: var(--wm-rarete-commun-fond, #dce4d9);
   color: var(--wm-rarete-commun-texte, #316f44);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__pied,
-#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__pied {
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__tete,
+#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__tete {
   background: var(--wm-rarete-peu-commun-fond, #eedfcf);
   color: var(--wm-rarete-peu-commun-texte, #96540e);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__pied,
-#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__pied {
+#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__tete,
+#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__tete {
   background: var(--wm-rarete-rare-fond, #f1d9d3);
   color: var(--wm-rarete-rare-texte, #ad3c2b);
 }
@@ -23697,7 +23871,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  « Très rare » reprend la paire « rare », inversée : le fond prend
     la teinte pleine. C'est la seule nuance qui n'a pas besoin d'une
     quatrième couleur pour se distinguer. */
-#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__pied {
+#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__tete {
   background: var(--wm-palier-3, #b1402f);
   color: var(--wm-texte-inverse, #fffbf7);
 }
@@ -23768,17 +23942,22 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     À 8 px de marge intérieure, « POISON » et « VOL » passaient à la
     ligne sur une carte de 150 px, et une carte sur quatre était plus
     haute que ses voisines sans raison lisible. */
+/*  « Les types : écris en plus petit et en gras avec plus de
+    padding. » (4 novembre) Même échange que partout ailleurs sur cette
+    page : à largeur donnée, une étiquette respire en rapetissant son
+    mot, pas en poussant ses bords. */
 #modernbb .wm-faune__type {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px var(--wm-espace-4, 4px);
+  gap: var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  line-height: 1.5;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
@@ -23797,22 +23976,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     plutôt que `fond-surface` : entre deux beiges qui se ressemblent,
     la séparation ne se voyait pas, et le pied avait l'air posé là.
 
-    `margin-top: auto` LE COLLE AU BAS, et c'est ce qui aligne les
-    pourcentages d'une rangée. Sans lui, une carte à deux types est
-    plus haute que sa voisine et la colonne qu'on vient comparer
-    devenait un escalier. */
-#modernbb .wm-faune__pied {
+    ELLE EST EN TÊTE DEPUIS LE 4 NOVEMBRE. « Le tag commun en haut à
+    gauche. Le pourcentage de le voir, en haut à droite. » En pied,
+    les deux choses qu'on compare d'une carte à l'autre étaient les
+    dernières lues, et à une hauteur qui changeait selon qu'une espèce
+    a un type ou deux : la ligne de pourcentages faisait un escalier.
+    En tête, elles sont toutes sur la même ligne, par construction. */
+#modernbb .wm-faune__tete {
   display: flex;
   width: calc(100% + var(--wm-espace-24, 24px));
   align-items: baseline;
   justify-content: space-between;
   gap: var(--wm-espace-8, 8px);
-  margin: var(--wm-espace-16, 16px) calc(var(--wm-espace-12, 12px) * -1) 0;
-  /*  « Le commun et le pourcentage sont trop collés aux bords. »
-      Le pied déborde de la carte de 12 px de chaque côté : lui
-      redonner 12 px de marge intérieure ne laissait que le padding de
-      la carte, donc rien. Il lui faut les siens, et plus larges. */
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  margin: 0 calc(var(--wm-espace-12, 12px) * -1) var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
 }
 
 #modernbb .wm-faune__rarete {
@@ -24049,6 +24226,30 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-transform: uppercase;
+}
+
+/*  LA CARTE COMMENCE PAR SA TÊTE, donc plus de `padding-top` nul en
+    haut : la bande teintée touche le bord, comme le faisait le pied. */
+#modernbb .wm-faune__espece {
+  padding-bottom: var(--wm-espace-12, 12px);
+}
+
+/*  UNE LIGNE FILTRÉE DISPARAÎT VRAIMENT. `hidden` ne suffit pas sur un
+    enfant en `display: flex` — la déclaration d'affichage bat
+    l'attribut. C'est la faute classique, mesurée une fois sur l'annexe
+    des célébrités. */
+#modernbb .wm-faune__espece[hidden] {
+  display: none;
+}
+
+/*  ── LES TROIS NOTICES, SOUS LA LISTE ────────────────────────────
+
+    Les tirages, la météo et le sol étaient trois onglets ; ils sont
+    maintenant trois parties de l'onglet de la carte, puisqu'il n'en
+    reste que deux (« un onglet pour la région de Rhode et un onglet
+    pour la carte, les pokémons etc. »). */
+#modernbb .wm-faune__notice {
+  margin-top: var(--wm-espace-32, 32px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

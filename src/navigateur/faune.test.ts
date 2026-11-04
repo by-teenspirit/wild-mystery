@@ -1,11 +1,13 @@
 import { assertEquals } from "@std/assert";
 import {
   type EspeceDeZone,
+  filtresDeFaune,
   fourchetteDeNiveaux,
   memeTable,
   motDeLaChance,
   motDeLaFrequence,
   motDesConditions,
+  motDuCompteDeFaune,
   type ObjetDeZone,
   parFrequence,
   parRarete,
@@ -15,6 +17,7 @@ import {
   RARETES,
   typesDe,
   uneFoisSur,
+  visibleDansLaFaune,
 } from "./faune.ts";
 
 function e(dessus: Partial<EspeceDeZone> = {}): EspeceDeZone {
@@ -275,4 +278,67 @@ Deno.test("et jamais plus de deux", () => {
 Deno.test("une fiche sans types ne casse rien", () => {
   assertEquals(typesDe({ "4": {} }, 4), []);
   assertEquals(typesDe({}, 4), []);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  LE TRI D'UNE ZONE. Même règle que les statuts de l'annexe 11 : un
+//  bouton n'existe que s'il a quelque chose à montrer.
+// ════════════════════════════════════════════════════════════════════
+
+const ESPECES: EspeceDeZone[] = [
+  { espece: 1, nom: "Bulbizarre", pct: 8, min: 2, max: 6, rarete: "commun" },
+  { espece: 25, nom: "Pikachu", pct: 8, min: 2, max: 6, rarete: "commun" },
+  { espece: 105, nom: "Ossatueur", pct: 3, min: 4, max: 9, rarete: "peu commun" },
+  { espece: 149, nom: "Dracolosse", pct: 0.4, min: 8, max: 12, rarete: "rare" },
+];
+
+const OBJETS: ObjetDeZone[] = [
+  { objet: 1, nom: "Potion", famille: "Pour soigner", pct: 4, prix: 300 },
+  { objet: 2, nom: "Antidote", famille: "Pour soigner", pct: 2, prix: 200 },
+];
+
+Deno.test("les cinq boutons d'une zone complète, avec leurs comptes", () => {
+  assertEquals(filtresDeFaune(ESPECES, OBJETS), [
+    { cle: "tous", mot: "Tous", nombre: 6 },
+    { cle: "commun", mot: "Commun", nombre: 2 },
+    { cle: "peu commun", mot: "Peu commun", nombre: 1 },
+    { cle: "rare", mot: "Rare", nombre: 1 },
+    { cle: "objet", mot: "Objet", nombre: 2 },
+  ]);
+});
+
+Deno.test("une rareté absente n'a pas de bouton", () => {
+  const sansRare = ESPECES.filter((e) => e.rarete !== "rare");
+  assertEquals(
+    filtresDeFaune(sansRare, OBJETS).map((f) => f.cle),
+    ["tous", "commun", "peu commun", "objet"],
+  );
+});
+
+Deno.test("une zone sans objet ne propose pas « Objet »", () => {
+  assertEquals(
+    filtresDeFaune(ESPECES, []).map((f) => f.cle),
+    ["tous", "commun", "peu commun", "rare"],
+  );
+});
+
+Deno.test("un seul tri : aucune barre", () => {
+  //  Rien à trier — « Tous » et « Commun » montreraient la même liste.
+  assertEquals(filtresDeFaune(ESPECES.filter((e) => e.rarete === "commun"), []), []);
+  assertEquals(filtresDeFaune([], []), []);
+});
+
+Deno.test("« tous » montre tout, un tri ne montre que le sien", () => {
+  assertEquals(visibleDansLaFaune("commun", "tous"), true);
+  assertEquals(visibleDansLaFaune("objet", "tous"), true);
+  assertEquals(visibleDansLaFaune("commun", "commun"), true);
+  assertEquals(visibleDansLaFaune("commun", "rare"), false);
+  assertEquals(visibleDansLaFaune("objet", "commun"), false);
+});
+
+Deno.test("l'annonce accorde le pluriel et dit sur quoi on a trié", () => {
+  assertEquals(motDuCompteDeFaune(6, "tous"), "6 lignes");
+  assertEquals(motDuCompteDeFaune(1, "rare"), "1 ligne — rare");
+  assertEquals(motDuCompteDeFaune(2, "peu commun"), "2 lignes — peu commun");
+  assertEquals(motDuCompteDeFaune(0, "objet"), "0 lignes — objet");
 });

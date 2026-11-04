@@ -112,7 +112,10 @@ def construire() -> dict:
 
             moments = rencontre["moments"]
             especes.append({
-                "no": len(especes) + 1,
+                #  Le numéro est posé plus bas, une fois la liste rangée :
+                #  il suit l'ordre d'affichage, pas l'ordre de lecture des
+                #  fichiers.
+                "no": 0,
                 "id": identifiant,
                 "nom": nom,
                 "types": fiche["types"],
@@ -130,9 +133,33 @@ def construire() -> dict:
             print(f"   … et {len(refus) - 20} autre(s)", file=sys.stderr)
         raise SystemExit(1)
 
+    #  ── L'ORDRE, ET LE NUMÉRO QUI LE SUIT ───────────────────────────
+    #
+    #  « Pourquoi l'ordre et l'id des pokémons n'est pas le même que dans
+    #  le dépôt que je t'ai donné ou comme dans l'ordre des vrais
+    #  pokémons ? » (4 novembre) — et, pour le carnet : « le même que
+    #  l'annexe ».
+    #
+    #  C'était l'ordre de la planche 39, zone par zone. C'est maintenant
+    #  l'ordre national, chaque forme régionale derrière l'espèce qu'elle
+    #  décline. Le même tri que `src/navigateur/dex.ts`, et le même
+    #  fichier de bases : deux ordres pour une seule liste, c'était déjà
+    #  un de trop.
+    bases = json.loads(
+        (RACINE / "data/ordre-du-dex.json").read_text(encoding="utf-8")
+    )["base"]
+
+    def rang(e):
+        return (bases.get(str(e["id"]), e["id"]), e["id"])
+
+    especes.sort(key=rang)
+    for n, e in enumerate(especes, 1):
+        e["no"] = n
+
     return {
         "_": (
-            "Les 933 espèces du Pokédex de Rhode, dans leur ordre régional, "
+            "Les 933 espèces du Pokédex de Rhode, dans l'ordre du dex "
+            "national (formes régionales derrière leur espèce), "
             "avec leur zone, leurs types, leur fourchette de niveaux et le "
             "moment de la rencontre. DÉRIVÉ par outils/pokedex-carnet.py de "
             "pokedex-de-rhode.json, pokedex-ids.json, especes-fiches.json et "
@@ -140,9 +167,12 @@ def construire() -> dict:
             "le garde-fou le relit."
         ),
         "_numero": (
-            "`no` est le numéro de Rhode : le rang dans l'enchaînement des "
-            "zones de la planche 39. Chaque espèce n'étant que dans une "
-            "zone, il est sans ambiguïté — mesuré le 2 novembre."
+            "`no` est le numéro de Rhode : le rang dans l'ordre d'affichage, "
+            "qui est celui du Pokédex national avec chaque forme régionale "
+            "derrière l'espèce qu'elle décline (voir data/ordre-du-dex.json "
+            "et src/navigateur/dex.ts). C'ÉTAIT l'ordre des zones de la "
+            "planche 39 jusqu'au 4 novembre ; l'annexe de la carte et le "
+            "carnet montraient alors deux ordres différents."
         ),
         "zones": zones,
         "especes": especes,

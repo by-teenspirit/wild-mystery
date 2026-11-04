@@ -32,7 +32,7 @@
    ── SEPT BRIQUES ─────────────────────────────────────────────────────
 
    `wm-carte` · `wm-tirets` · `wm-paras` · `wm-table` · `wm-paire` ·
-   `wm-encarts` · `wm-suivante` (avec `wm-lieu`). Une huitième se discute
+   `wm-encarts` · `wm-suivante` (avec `wm-question`). Une huitième se discute
    avant de s'écrire, sinon le gabarit se dissout en douze pages
    différentes. **`wm-table` est en flexbox**, pas un `<table>`
    (planche 49) : un vrai tableau ne se replie pas sur téléphone.
@@ -842,11 +842,15 @@ body:has(#modernbb .wm-carnet) {
 
 /*  Dans la maquette ils sont l'un SOUS l'autre, alignés à gauche — pas
     sur une même ligne. Je les avais mis côte à côte. */
+/*  LE PIED SE LIT EN UNE LIGNE : où aller ensuite à gauche, à qui
+    écrire à droite. Il était en colonne, avec une pastille qui ne
+    faisait que nommer le lieu de la photo — un repère dont personne
+    n'avait besoin, là où il fallait deux boutons. */
 #modernbb .wm-suivante {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--wm-espace-10, 10px);
+  flex-wrap: wrap;
+  gap: var(--wm-espace-16, 16px);
+  align-items: center;
   margin-top: var(--wm-espace-24, 24px);
 }
 
@@ -882,21 +886,49 @@ body:has(#modernbb .wm-carnet) {
   text-transform: uppercase;
 }
 
-/*  La pastille : le lieu dont parle la page, et le mot du staff. Elle
-    n'est pas un lien — c'est un repère, pas une navigation. */
-#modernbb .wm-lieu {
-  display: inline-flex;
+/*  ── LES DEUX BOUTONS DE CONTACT ──────────────────────────────────
+
+    « Une question ? » n'est pas un titre : c'est la phrase qui donne
+    leur sens aux deux boutons, donc elle reste sur la même ligne
+    qu'eux. `margin-left: auto` les colle à droite, en face du bouton
+    de page suivante. */
+#modernbb .wm-question {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
   align-items: center;
-  gap: var(--wm-espace-10, 10px);
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
-  border-radius: 999px;
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  margin-left: auto;
 }
 
-#modernbb .wm-lieu b {
+#modernbb .wm-question__mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  DEUX BOUTONS SECONDAIRES, pas deux « annexe suivante ». Trois
+    boutons pleins sur une même ligne ne disent plus lequel est le
+    geste principal : celui de gauche est la lecture qui continue, ces
+    deux-là sont des sorties. */
+#modernbb a.wm-question__bouton {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  text-decoration: none;
+}
+
+#modernbb a.wm-question__bouton:hover,
+#modernbb a.wm-question__bouton:focus-visible {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-douce, #f3e1d2);
 }
 
 /* ── 11 · sur petit écran ─────────────────────────────────────────── */
@@ -1044,3 +1076,28 @@ body:has(#modernbb .wm-carnet) {
     flex: 0 0 auto;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   UNE ANNEXE SANS FOND
+   ════════════════════════════════════════════════════════════════════
+
+   « Enlève finalement le fond des annexes et hésite pas à prendre la
+   largeur dispo. En tout cas, sur cette annexe. » (4 novembre)
+
+   LES TREIZE AUTRES GARDENT LEUR PHOTO. C'est l'annexe 06 qui porte
+   une carte, et une carte à regarder sous un lavis et un pokémon en
+   filigrane se lit mal : les deux couches tirent l'œil là où il n'y a
+   rien à voir. Ailleurs le fond fait son travail — il situe la page.
+
+   Les deux pseudo-éléments s'en vont ensemble : la photo floutée
+   (`::before`) et le voile avec le rendu (`::after`). Il reste le fond
+   de page, et toute la largeur pour la carte. */
+#modernbb .wm-annexe--sans-fond .wm-annexe__corps::before,
+#modernbb .wm-annexe--sans-fond .wm-annexe__corps::after {
+  display: none;
+}
+
+/*  LE SABLE QUI RESTE EST LA COULEUR DE PAGE DU FORUM, pas un reste de
+    décor : `--wm-fond-page` vaut #eecfb5, et le corps la portait déjà
+    sous les deux couches. Il n'y a donc rien à retirer de plus —
+    vérifié à la mesure, pas à l'œil. */

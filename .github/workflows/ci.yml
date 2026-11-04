@@ -321,17 +321,27 @@ jobs:
       - name: La carte dresseur
         run: deno task tcard
 
+      #  Ajoutés le 4 novembre, avec l'annexe de la carte et celle des
+      #  célébrités. Le garde-fou n° 22 refuse un harnais que le CI ne
+      #  lance pas : un harnais qu'on lance à la main ne garde rien.
+      - name: La faune, zone par zone
+        run: deno task faune
+
+      - name: Les célébrités et leurs filtres
+        run: deno task personnages
+
       #  LA VÉRIFICATION QUI COMPTE. jsDelivr sert `js/wild-mystery.js`
       #  depuis le dépôt, pas depuis une étape de construction : si le
       #  fichier commité ne correspond pas aux sources, les joueurs
       #  reçoivent du code que personne n'a relu.
-      - name: Le fichier livré est bien celui des sources
+      - name: Les fichiers livrés sont bien ceux des sources
         run: |
           deno task construire
-          if ! git diff --quiet -- js/wild-mystery.js; then
-            echo "::error::js/wild-mystery.js ne correspond pas aux sources."
+          paquets="js/wild-mystery.js js/annexes.js js/carnet.js js/carte.js"
+          if ! git diff --quiet -- $paquets; then
+            echo "::error::un paquet de js/ ne correspond pas aux sources."
             echo "::error::Relance « deno task construire » et commite le résultat."
-            git --no-pager diff --stat -- js/wild-mystery.js
+            git --no-pager diff --stat -- $paquets
             exit 1
           fi
 

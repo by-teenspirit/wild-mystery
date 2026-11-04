@@ -24,7 +24,13 @@ import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from annexes import DEBUT, FIN, entre_les_bornes, remplacer_le_corps  # noqa: E402
+from annexes import (  # noqa: E402
+    DEBUT,
+    FIN,
+    entre_les_bornes,
+    pied_de_page,
+    remplacer_le_corps,
+)
 
 R = pathlib.Path(__file__).resolve().parent.parent
 PAGE = R / "pages" / "annexe-09-credits.html"
@@ -108,16 +114,12 @@ def corps():
     w("          </div>")
     w("        </div>")
     w("")
-    w('        <div class="wm-suivante">')
-    w('          <a class="wm-suivante__bouton" href="/h10-staff">')
-    w('            <span class="wm-suivante__etiquette">Annexe suivante</span>')
-    w("            Le staff →")
-    w("          </a>")
-    w('          <span class="wm-lieu">')
-    w("            La Relique Sacrée")
-    w("            <b>une question sans réponse ici ? écris au staff</b>")
-    w("          </span>")
-    w("        </div>")
+    #  LE PIED VIENT DE `annexes.py`, pas d'ici. Il porte la page
+    #  suivante et les deux boutons de contact : les mêmes sur les
+    #  quatorze annexes, et `annexes.py` les refait de toute façon à la
+    #  passe suivante. Deux versions du même bloc, c'est une version de
+    #  trop — et `--verifier` crierait au premier écart.
+    w(pied_de_page("credits"))
     w("")
     w("      </div>")
     w("    </div>")

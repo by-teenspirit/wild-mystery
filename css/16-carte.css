@@ -1115,3 +1115,99 @@
     max-height: 320px;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   LA CARTE EN LARGE — l'annexe, pas l'index
+   ════════════════════════════════════════════════════════════════════
+
+   « Je trouve la carte petite. […] Je pense que tu peux effacer le
+   bandeau latéral à droite de la carte pour qu'elle prenne plus de
+   place. » (4 novembre)
+
+   Le bandeau mangeait 320 des 880 pixels de la colonne d'annexe, soit
+   plus d'un tiers, pour une liste qu'on lit une fois. Il passe
+   DESSOUS, en rangée : le panneau de la zone choisie à gauche, la
+   liste des zones à droite — « il faut quand même une liste des
+   zones, en fonction des paliers et le nombre d'espèce ».
+
+   L'INDEX NE CHANGE PAS. Tout ce qui suit est sous `--large`, que
+   seule l'annexe demande. */
+#modernbb .wm-carte--large .wm-carte__corps {
+  height: auto;
+  flex-direction: column;
+}
+
+#modernbb .wm-carte--large .wm-carte__cadre {
+  height: var(--wm-carte-hauteur, 760px);
+  flex: none;
+  width: 100%;
+}
+
+/*  LA COLONNE DEVIENT UNE RANGÉE, et cesse de défiler : elle n'a plus
+    de hauteur à tenir, donc plus rien à faire déborder. */
+#modernbb .wm-carte--large .wm-carte__colonne {
+  flex: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  width: 100%;
+  height: auto;
+}
+
+#modernbb .wm-carte--large .wm-carte__panneau {
+  flex: 1 1 340px;
+  min-width: 0;
+}
+
+/*  PAS DE COMPTEURS SUR L'ANNEXE. « — sujets — messages » : ils se
+    lisent sur les lignes de l'index, qui n'existent pas ici, et deux
+    tirets ressemblent à une panne. La faune juste dessous dit le seul
+    chiffre que cette page connaisse — le nombre d'espèces. */
+#modernbb .wm-carte--large .wm-carte__chiffres {
+  display: none;
+}
+
+#modernbb .wm-carte--large .wm-carte__liste-cadre {
+  flex: 2 1 480px;
+  min-width: 0;
+  max-height: 420px;
+}
+
+/*  LES ZONES EN COLONNES. En bandeau latéral, les cinq groupes
+    s'empilaient dans 320 pixels de large ; sur toute la largeur, les
+    empiler ferait une colonne de dix-sept lignes et deux mètres de
+    blanc à droite. */
+#modernbb .wm-carte--large .wm-carte__liste-cadre {
+  columns: 2;
+  column-gap: var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-carte--large .wm-carte__groupe {
+  break-inside: avoid;
+}
+
+/*  LA LÉGENDE NE SE COUPE PAS EN DEUX COLONNES. */
+#modernbb .wm-carte--large .wm-carte__legende {
+  column-span: all;
+}
+
+/*  UNE VILLE INERTE N'EST PAS UN BOUTON : pas de curseur de clic, pas
+    de réaction au survol. Elle reste dessinée et nommée, parce qu'elle
+    situe les zones les unes par rapport aux autres. */
+#modernbb .wm-carte__lieu[data-wm-inerte] {
+  cursor: default;
+}
+
+#modernbb .wm-carte__lieu[data-wm-inerte] .wm-carte__epingle,
+#modernbb .wm-carte__lieu[data-wm-inerte] .wm-carte__forme {
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  /*  Sous 900, la rangée se replie : deux colonnes de zones dans 390
+      pixels donneraient des noms coupés. */
+  #modernbb .wm-carte--large .wm-carte__liste-cadre {
+    columns: 1;
+    max-height: none;
+  }
+}
