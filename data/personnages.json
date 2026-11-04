@@ -1,6 +1,6 @@
 {
   "_": "Les personnages du jeu, les célébrités de Rhode et les champions. Source : le texte de Callista du 4 novembre 2026. La page pages/annexe-11-celebrites-de-rhode.html en est DÉRIVÉE par outils/annexe-personnages.py — on corrige ici, jamais dans la page.",
-  "_statuts": "TROIS STATUTS, ET TROIS SEULEMENT, parce que ce sont les trois filtres de la page : `jouable` (le poste est libre), `joue` (quelqu'un le joue déjà) et `pnj` (le staff le tient, on ne le joue pas). Les mots du sujet d'origine — « Non jouable », « Célébrité » — disent tous la même chose côté lecteur : ils sont ramenés à `pnj`. Un quatrième mot écrit ici ne serait filtré par rien, et `outils/personnages.mjs` le refuse.",
+  "_statuts": "TROIS STATUTS, ET TROIS SEULEMENT, parce que ce sont les trois filtres de la page : `jouable` (le poste est libre), `joue` (quelqu'un le joue déjà) et `pnj` (le staff le tient, on ne le joue pas). Les mots du sujet d'origine — « Non jouable », « Célébrité » — disent tous la même chose côté lecteur : ils sont ramenés à `pnj`. Un quatrième mot écrit ici ne serait filtré par rien, et `outils/personnages.mjs` le refuse. AUCUNE FICHE N'EST `joue` aujourd'hui — Donozor l'a été quelques heures le 4 novembre, par erreur de ma part : son avatar disait « (pris) » dans le sujet du forum, ce qui parle du faceclaim, pas du personnage. Le bouton « Joué » n'apparaît donc pas, et il reviendra tout seul le jour où une fiche le portera.",
   "_avatars": "`avatar` est le GIF du sujet « Personnages jouables » du forum, relevé le 4 novembre 2026. Il n'y en a QUE pour les personnages jouables ou joués : un PNJ n'a pas d'avatar à proposer puisqu'on ne le joue pas. DEUX ADRESSES NE RÉPONDENT PLUS (Vamper, chez narvii, et Donozor, chez workoutscheduleking) : elles sont gardées telles quelles, et la fiche retombe sur la silhouette quand l'image ne charge pas. Les FC sont de vraies personnes : on ne va pas chercher leur photo, le nom reste écrit comme ce qu'il est — une suggestion.",
   "_dates": "LES ÂGES SONT CEUX DU TEXTE SOURCE, qui compte depuis 2021 : « il y a quinze ans » pour la chute de la Team Snatch et « il y a dix ans » pour celle de la Team Ombre. Le forum est en 2026, donc vingt et quinze. La planche 78 signalait déjà ce décalage de cinq ans. À trancher par Callista : on ne réécrit pas une chronologie depuis le code.",
   "celebrites": {
@@ -117,7 +117,7 @@
         "nom": "Silas Donozor",
         "origine": "Antagoniste de Pokémon XD",
         "role": "Ex-Admin de la Team Ombre",
-        "statut": "joue",
+        "statut": "jouable",
         "avatar": "https://workoutscheduleking.com/wp-content/uploads/2017/05/zac1-1200x675.jpg",
         "texte": "Devenu l'un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Considéré comme une brute sans cœur, il a tenté de nombreuses fois de rejoindre la Team Ombre après sa dissolution — trois ans derrière les barreaux l'auront calmé. Depuis, il tente de reprendre sa vie en main, même si son côté sombre l'attire parfois encore vers le bas, sans rapport avec la Team Ombre.",
         "traits": [

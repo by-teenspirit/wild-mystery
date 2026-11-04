@@ -178,10 +178,17 @@ await p.waitForFunction(() => document.querySelectorAll(".wm-filtre").length > 0
   const vu = await p.evaluate(regarder);
   const parCle = Object.fromEntries(vu.boutons.map((b) => [b.cle, b]));
 
+  //  LES BOUTONS ATTENDUS SE DÉDUISENT DU FICHIER, pas d'une liste
+  //  écrite ici : un statut sans fiche n'a pas de bouton, et il y en
+  //  avait quatre le matin du 4 novembre et trois le soir — Donozor
+  //  est repassé « jouable ». Un compte en dur aurait crié pour une
+  //  donnée parfaitement correcte.
+  const attendus = ["tous", "jouable", "joue", "pnj"]
+    .filter((c) => c === "tous" || (ATTENDU[c] ?? 0) > 0);
   ok(
-    "quatre boutons : tous, puis les trois statuts tenus",
-    vu.boutons.map((b) => b.cle).join(",") === "tous,jouable,joue,pnj",
-    vu.boutons.map((b) => b.cle),
+    `${attendus.length} boutons : tous, puis les statuts tenus`,
+    vu.boutons.map((b) => b.cle).join(",") === attendus.join(","),
+    { vus: vu.boutons.map((b) => b.cle), attendus },
   );
   ok(
     `« Tous » annonce ${FICHES.length}`,
@@ -196,9 +203,15 @@ await p.waitForFunction(() => document.querySelectorAll(".wm-filtre").length > 0
   }
   //  LE PONT PYTHON ↔ TYPESCRIPT. Les mots des boutons viennent du
   //  module TypeScript, ceux de la légende du générateur Python.
+  //  LA LÉGENDE EXPLIQUE LES TROIS STATUTS, même ceux qu'aucune fiche
+  //  ne porte : c'est un lexique, pas un compte. On compare donc dans
+  //  ce sens-là — chaque BOUTON dit le mot de la légende — et pas
+  //  l'inverse.
   ok(
     "les mots des boutons sont ceux de la légende",
-    vu.legende.every((l) => parCle[l.cle]?.mot === l.mot),
+    vu.boutons.filter((b) => b.cle !== "tous").every((b) =>
+      vu.legende.some((l) => l.cle === b.cle && l.mot === b.mot)
+    ),
     { boutons: vu.boutons.map((b) => b.mot), legende: vu.legende.map((l) => l.mot) },
   );
   ok("« Tous » est actif au chargement", parCle.tous?.actif === true);
