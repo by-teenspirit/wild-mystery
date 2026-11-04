@@ -20,9 +20,12 @@
 
 import type {
   ChangementDePalier,
+  JoueurARelever,
   Menage,
   MenageFait,
   Paliers,
+  RegistreDesRp,
+  SujetDUnJoueur,
 } from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
@@ -138,5 +141,65 @@ export class MenageSupabase implements Menage {
       lignes: c.lignes as number,
       jours: c.jours as number,
     };
+  }
+}
+
+/* ── Les RP — tâche 9 ─────────────────────────────────────────────── */
+
+/*  DEUX APPELS, ET LA TRANSACTION EST DANS LA BASE. `relever_les_rp`
+    écrit les sujets, efface ceux qui ont disparu et note les
+    participants en une fois (0036) : trois appels PostgREST enchaînés
+    laisseraient, à la première panne de réseau, une liste à moitié
+    remplacée — et personne ne saurait laquelle.  */
+export class RpSupabase implements RegistreDesRp {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async joueursARelever(): Promise<readonly JoueurARelever[]> {
+    const nom = "joueurs_a_relever";
+    const recu = await this.appeler(nom, {});
+    if (!Array.isArray(recu)) {
+      throw new AppelEchoue(nom, `liste attendue, reçu ${JSON.stringify(recu)}`);
+    }
+    return recu.map((l) => {
+      const c = l as Record<string, unknown>;
+      if (typeof c.joueurId !== "string" || typeof c.pseudo !== "string") {
+        throw new AppelEchoue(nom, `ligne illisible : ${JSON.stringify(l)}`);
+      }
+      return {
+        joueurId: c.joueurId,
+        forumUserId: Number(c.forumUserId),
+        pseudo: c.pseudo,
+      };
+    });
+  }
+
+  async relever(
+    joueurId: string,
+    sujets: readonly SujetDUnJoueur[],
+  ): Promise<{ readonly ecrits: number; readonly effaces: number }> {
+    const nom = "relever_les_rp";
+    const recu = await this.appeler(nom, { joueurId, sujets });
+    if (typeof recu !== "object" || recu === null) {
+      throw new AppelEchoue(nom, `objet attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    const c = recu as Record<string, unknown>;
+    for (const champ of ["ecrits", "effaces"] as const) {
+      if (!entierPositif(c[champ])) {
+        throw new AppelEchoue(
+          nom,
+          `${champ} : entier positif ou nul attendu, reçu ${JSON.stringify(c[champ])}`,
+        );
+      }
+    }
+    //  PLUS D'ÉCRITS QUE DE SUJETS ENVOYÉS EST IMPOSSIBLE, et le
+    //  vérifier coûte une comparaison : c'est ce qui attraperait une
+    //  fonction qui écrirait pour quelqu'un d'autre.
+    if ((c.ecrits as number) > sujets.length) {
+      throw new AppelEchoue(
+        nom,
+        `${c.ecrits} écrits pour ${sujets.length} sujets envoyés : impossible`,
+      );
+    }
+    return { ecrits: c.ecrits as number, effaces: c.effaces as number };
   }
 }

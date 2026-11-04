@@ -51,7 +51,11 @@ import { ReconnaitreUnCarnet } from "../../../src/application/reconnaitre-un-car
 import { PublierLesCartes } from "../../../src/application/publier-les-cartes.ts";
 import { BoutiqueSupabase } from "../../../src/adaptateurs/supabase/boutique.ts";
 import { FossilesSupabase } from "../../../src/adaptateurs/supabase/fossile.ts";
-import { MenageSupabase, PaliersSupabase } from "../../../src/adaptateurs/supabase/services.ts";
+import {
+  MenageSupabase,
+  PaliersSupabase,
+  RpSupabase,
+} from "../../../src/adaptateurs/supabase/services.ts";
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
 import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
 import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouveaux-messages.ts";
@@ -62,6 +66,7 @@ import { RangerLePokedex } from "../../../src/application/ranger-le-pokedex.ts";
 import { RendreLesFossiles } from "../../../src/application/rendre-les-fossiles.ts";
 import { SynchroniserLePalier } from "../../../src/application/synchroniser-le-palier.ts";
 import { OublierLesAbandons } from "../../../src/application/oublier-les-abandons.ts";
+import { ReleverLesRp } from "../../../src/application/relever-les-rp.ts";
 
 /**
  * La version de ce déploiement, et elle sert à DEUX choses.
@@ -166,6 +171,7 @@ type Montage = {
    *  à chaque passage** : elle se limite elle-même à une fois par
    *  semaine, en lisant la date de son dernier passage dans le journal. */
   readonly menage: OublierLesAbandons;
+  readonly rp: ReleverLesRp;
   readonly verrou: VerrouSupabase;
 };
 
@@ -325,6 +331,17 @@ function assembler(reglages: Reglages): Montage {
       new JournalSupabase(appeler),
       { maintenant: () => new Date() },
     ),
+    //  TÂCHE 9 — le tableau des RP. Une page de recherche PAR
+    //  PERSONNAGE : à trente personnages, la faire à chaque passage
+    //  demanderait plus de huit mille pages par jour au forum, qui est
+    //  un hébergement partagé. Elle se limite elle-même à une fois par
+    //  heure, en lisant son dernier passage dans le journal.
+    rp: new ReleverLesRp(
+      forumEnLecture,
+      new RpSupabase(appeler),
+      new JournalSupabase(appeler),
+      { maintenant: () => new Date() },
+    ),
     verrou: new VerrouSupabase(appeler),
   };
 }
@@ -363,6 +380,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     pokedex,
     palier,
     menage,
+    rp,
     verrou,
   } = assembler(reglages);
 
@@ -467,6 +485,12 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     //  qui meurt avant lui n'a rien effacé, et tout ce qui précède a
     //  déjà été rendu. Et il n'efface que du registre de sujets
     //  abandonnés depuis deux mois — rien qui soit attendu aujourd'hui.
+    //  LE TABLEAU DES RP AVANT LE MÉNAGE, parce qu'il ne fait que
+    //  LIRE le forum et remplacer sa propre table. S'il tombe, rien
+    //  de ce qui précède n'est perdu, et son erreur se lit dans le
+    //  journal sous son propre nom.
+    const tableaux = await rp.executer();
+
     const nettoyage = await menage.executer();
 
     return json({
@@ -487,6 +511,12 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       boutique_en_echec: achats.erreurs,
       fossiles_rendus: labo.rendus.length,
       fossiles_refuses: labo.refuses.length,
+      //  Tourne une fois par heure : `rp_saute` à vrai est le cas
+      //  ordinaire, onze passages sur douze.
+      rp_saute: !tableaux.tourne,
+      rp_personnages: tableaux.joueurs,
+      rp_sujets: tableaux.sujets,
+      rp_en_echec: tableaux.erreurs,
       //  Attendu à ZÉRO. Un nombre non nul veut dire qu'il manque une
       //  ligne dans `fossile_espece` : le joueur n'a rien perdu, n'est
       //  pas prévenu, et sa demande repartira toute seule le jour où la

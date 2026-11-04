@@ -605,3 +605,51 @@ export type MenageFait = {
 export interface Menage {
   oublierLesAbandons(jours?: number): Promise<MenageFait>;
 }
+
+/* ── Les RP — tâche 9 ─────────────────────────────────────────────── */
+
+/** Un personnage dont la relève doit lister les sujets. */
+export type JoueurARelever = {
+  readonly joueurId: string;
+  readonly forumUserId: number;
+  readonly pseudo: string;
+};
+
+/** Qui a écrit dans un sujet, tel qu'on a pu l'apprendre. */
+export type ParticipantVu = {
+  readonly id: number;
+  readonly pseudo: string;
+};
+
+/** Un sujet d'un joueur, prêt à être rangé. */
+export type SujetDUnJoueur = {
+  readonly sujetId: number;
+  readonly titre: string;
+  readonly forumId: number;
+  readonly forumNom: string;
+  readonly reponses: number;
+  /** ISO, ou `null` quand la page n'a pas donné de date lisible. */
+  readonly dernierLe: string | null;
+  readonly dernierAuteur: string;
+  readonly dernierMessage: number | null;
+  readonly participants: readonly ParticipantVu[];
+};
+
+/** Lire les sujets où un membre a écrit.
+ *
+ *  PORT SÉPARÉ DE `LecteurDeForum` : celui-ci lit des MESSAGES dans un
+ *  sujet connu, celui-là cherche des SUJETS par auteur. Un outil qui
+ *  rejoue un tirage n'a aucune raison de savoir chercher. */
+export interface LecteurDesSujetsDUnMembre {
+  sujetsEcritsPar(pseudo: string): Promise<readonly SujetDUnJoueur[]>;
+}
+
+/** Ce que la relève écrit dans la table des RP. */
+export interface RegistreDesRp {
+  joueursARelever(): Promise<readonly JoueurARelever[]>;
+  /** Remplace les RP d'un joueur. Rend ce que la base dit avoir fait. */
+  relever(
+    joueurId: string,
+    sujets: readonly SujetDUnJoueur[],
+  ): Promise<{ readonly ecrits: number; readonly effaces: number }>;
+}

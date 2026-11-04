@@ -17,6 +17,7 @@
 //      <div class="postprofile-name">…<strong>Maître du Jeu</strong>
 // ════════════════════════════════════════════════════════════════════
 
+import { dateDuForum, sujetsDeLaRecherche } from "./recherche.ts";
 import type {
   ActionLue,
   CommandeLue,
@@ -26,8 +27,10 @@ import type {
   LecteurDeDemandes,
   LecteurDeForum,
   LecteurDeReclamations,
+  LecteurDesSujetsDUnMembre,
   MessageDuForum,
   ReclamationDeCarnetLue,
+  SujetDUnJoueur,
   SujetRemue,
 } from "../../application/ports.ts";
 import { type Marqueur, marqueursDe } from "./marqueur.ts";
@@ -192,7 +195,8 @@ export class ForumactifEnLecture
     LecteurDeDemandes,
     LecteurDActions,
     LecteurDeCommandes,
-    LecteurDeReclamations {
+    LecteurDeReclamations,
+    LecteurDesSujetsDUnMembre {
   constructor(private readonly recuperer: Recuperateur) {}
 
   /** Les demandes de clôture d'un sujet, depuis un message donné.
@@ -266,5 +270,47 @@ export class ForumactifEnLecture
       }
     }
     return [...tout].map(([sujetId, dernierMessageId]) => ({ sujetId, dernierMessageId }));
+  }
+
+  /** Les sujets où un membre a écrit, par la recherche native.
+   *
+   *  `show_results=topics` DONNE UN SUJET PAR LIGNE, et non un message
+   *  par ligne : sans lui, un joueur qui a posté quarante fois dans le
+   *  même RP le verrait quarante fois.
+   *
+   *  LE PSEUDO EST ÉCHAPPÉ, et pas par méfiance envers la personne :
+   *  les pseudos portent des espaces et des accents, et « Compte de
+   *  test » sans encodage rendrait une adresse coupée au premier
+   *  espace — donc une recherche sur « Compte ».
+   *
+   *  L'heure qui sert aux dates relatives (« Aujourd'hui à 9:05 ») est
+   *  passée ici plutôt que prise dans la fonction : c'est ce qui rend
+   *  la lecture mesurable deux fois de suite. */
+  async sujetsEcritsPar(
+    pseudo: string,
+    maintenant: Date = new Date(),
+  ): Promise<readonly SujetDUnJoueur[]> {
+    const html = await this.recuperer(
+      `/search?search_author=${encodeURIComponent(pseudo)}&show_results=topics`,
+    );
+    return sujetsDeLaRecherche(html).map((s) => ({
+      sujetId: s.sujetId,
+      titre: s.titre,
+      forumId: s.forumId,
+      forumNom: s.forumNom,
+      reponses: s.reponses,
+      dernierLe: dateDuForum(s.dernierLeBrut, maintenant),
+      dernierAuteur: s.dernierAuteurPseudo,
+      dernierMessage: s.dernierMessageId,
+      //  CEUX QUE LA PAGE NOMME : celui qui a ouvert et celui du
+      //  dernier message. Le personnage relevé s'ajoute par-dessus,
+      //  dans le cas d'usage — c'est lui qui sait de qui il s'agit.
+      participants: [
+        ...(s.ouvertParId === null ? [] : [{ id: s.ouvertParId, pseudo: "" }]),
+        ...(s.dernierAuteurId === null || s.dernierAuteurId === s.ouvertParId
+          ? []
+          : [{ id: s.dernierAuteurId, pseudo: s.dernierAuteurPseudo }]),
+      ],
+    }));
   }
 }
