@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(215);
+select plan(226);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1394,6 +1394,156 @@ select ok(not has_table_privilege('anon', 'lien', 'select'),
 --  ── 5 · LA FABRIQUE N'EST PAS UNE PORTE ───────────────────────────
 select ok(not has_function_privilege('anon', 'fiche_en_bbcode(uuid)', 'execute'),
   'LA FABRIQUE N''EST PAS OUVERTE À `anon` : elle prend un joueur en argument');
+
+-- ════════════════════════════════════════════════════════════════════
+--  RANGER (0035)
+--
+--  « Le navigateur grise ce qu'il peut, mais c'est la fonction
+--  ranger() qui refuse — un appel bricolé ne passe pas. » Donc c'est
+--  ici que ça se mesure, pas dans le harnais de la page.
+-- ════════════════════════════════════════════════════════════════════
+
+insert into joueur (id, forum_user_id, pseudo, auth_id, courriel) values
+  ('bbbb0035-0000-0000-0000-00000000000a', 35001, 'Rangeuse',
+   'aaaa0035-0000-0000-0000-00000000000a', 'rangeuse@exemple.fr'),
+  ('bbbb0035-0000-0000-0000-00000000000b', 35002, 'Voisine',
+   'aaaa0035-0000-0000-0000-00000000000b', 'voisine@exemple.fr');
+
+insert into pokemon (id, joueur_id, espece_id, emplacement, position, boite_no) values
+  ('cccc0035-0000-0000-0000-000000000001', 'bbbb0035-0000-0000-0000-00000000000a',
+   37, 'equipe', 1, 1),
+  ('cccc0035-0000-0000-0000-000000000002', 'bbbb0035-0000-0000-0000-00000000000a',
+   37, 'equipe', 2, 1),
+  ('cccc0035-0000-0000-0000-000000000003', 'bbbb0035-0000-0000-0000-00000000000a',
+   37, 'boite', 5, 2),
+  ('cccc0035-0000-0000-0000-000000000004', 'bbbb0035-0000-0000-0000-00000000000b',
+   37, 'equipe', 1, 1);
+
+--  Le troisième part en pension, à sa place dans l'équipe.
+insert into pokemon (id, joueur_id, espece_id, emplacement, position, boite_no) values
+  ('cccc0035-0000-0000-0000-000000000005', 'bbbb0035-0000-0000-0000-00000000000a',
+   37, 'equipe', 3, 1);
+insert into pension (joueur_id, pokemon_id, niveau_au_depot, tarif) values
+  ('bbbb0035-0000-0000-0000-00000000000a',
+   'cccc0035-0000-0000-0000-000000000005', 5, 100);
+
+create temporary table range_vu (quoi text primary key, valeur text);
+grant insert on range_vu to authenticated;
+
+do $$
+declare v text;
+begin
+  set local role authenticated;
+  perform set_config('request.jwt.claims',
+    '{"sub":"aaaa0035-0000-0000-0000-00000000000a","email":"rangeuse@exemple.fr"}', true);
+
+  --  ── UN DÉPLACEMENT ORDINAIRE ──────────────────────────────────
+  perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000003",
+                   "emplacement":"equipe","position":4}'::jsonb);
+  insert into range_vu values ('monte_en_equipe',
+    (select emplacement || ':' || position from pokemon
+      where id = 'cccc0035-0000-0000-0000-000000000003'));
+
+  --  ── UNE CASE PRISE : ON ÉCHANGE ───────────────────────────────
+  perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000001",
+                   "emplacement":"equipe","position":2}'::jsonb);
+  insert into range_vu values ('echange',
+    (select string_agg(id::text || '=' || position::text, ',' order by position)
+       from pokemon where id in ('cccc0035-0000-0000-0000-000000000001',
+                                 'cccc0035-0000-0000-0000-000000000002')));
+
+  --  ── CELUI EN PENSION NE BOUGE PAS ─────────────────────────────
+  v := 'passé';
+  begin
+    perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000005",
+                     "emplacement":"boite","boiteNo":1,"position":1}'::jsonb);
+  exception when others then v := SQLERRM;
+  end;
+  insert into range_vu values ('pension_deplace', v);
+
+  --  ── ET ON NE LE BOUSCULE PAS NON PLUS ─────────────────────────
+  v := 'passé';
+  begin
+    perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000003",
+                     "emplacement":"equipe","position":3}'::jsonb);
+  exception when others then v := SQLERRM;
+  end;
+  insert into range_vu values ('pension_bousculee', v);
+
+  --  ── LE POKÉMON DE QUELQU'UN D'AUTRE ───────────────────────────
+  v := 'passé';
+  begin
+    perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000004",
+                     "emplacement":"boite","boiteNo":1,"position":1}'::jsonb);
+  exception when others then v := SQLERRM;
+  end;
+  insert into range_vu values ('pas_le_sien', v);
+
+  --  ── DES DESTINATIONS QUI N'EXISTENT PAS ───────────────────────
+  v := 'passé';
+  begin
+    perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000003",
+                     "emplacement":"equipe","position":7}'::jsonb);
+  exception when others then v := SQLERRM;
+  end;
+  insert into range_vu values ('septieme_place', v);
+
+  v := 'passé';
+  begin
+    perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000003",
+                     "emplacement":"boite","boiteNo":9,"position":1}'::jsonb);
+  exception when others then v := SQLERRM;
+  end;
+  insert into range_vu values ('neuvieme_boite', v);
+
+  v := 'passé';
+  begin
+    perform ranger('{"pokemonId":"cccc0035-0000-0000-0000-000000000003",
+                     "emplacement":"pension","position":1}'::jsonb);
+  exception when others then v := SQLERRM;
+  end;
+  insert into range_vu values ('pension_a_la_main', v);
+
+  reset role;
+end $$;
+
+select is((select valeur from range_vu where quoi = 'monte_en_equipe'), 'equipe:4',
+  'UN POKÉMON DE BOÎTE MONTE DANS L''ÉQUIPE');
+
+select is((select valeur from range_vu where quoi = 'echange'),
+  'cccc0035-0000-0000-0000-000000000002=1,cccc0035-0000-0000-0000-000000000001=2',
+  'UNE CASE PRISE N''EST PAS UN REFUS : LES DEUX S''ÉCHANGENT');
+
+select matches((select valeur from range_vu where quoi = 'pension_deplace'), 'EN_PENSION',
+  'UN POKÉMON EN PENSION NE BOUGE PAS');
+
+select matches((select valeur from range_vu where quoi = 'pension_bousculee'), 'CASE_EN_PENSION',
+  'ET ON NE LE SORT PAS NON PLUS EN POSANT UN AUTRE SUR SA CASE');
+
+select matches((select valeur from range_vu where quoi = 'pas_le_sien'), 'PAS_TON_POKEMON',
+  'le Pokémon de quelqu''un d''autre ne se range pas');
+
+select matches((select valeur from range_vu where quoi = 'septieme_place'), 'PLACE_HORS_EQUIPE',
+  'il n''y a pas de septième place dans l''équipe');
+
+select matches((select valeur from range_vu where quoi = 'neuvieme_boite'), 'BOITE_INCONNUE',
+  'ni de neuvième boîte');
+
+select matches((select valeur from range_vu where quoi = 'pension_a_la_main'), 'DESTINATION_INCONNUE',
+  'ET ON NE SE MET PAS EN PENSION TOUT SEUL : ça se paie chez le gérant');
+
+--  ── LE NAVIGATEUR N'A TOUJOURS PAS LES COLONNES ───────────────────
+--
+--  C'est ce qui rend `ranger()` incontournable : sans ces deux refus,
+--  un appel PostgREST suffirait à se poser où l'on veut.
+select ok(not has_column_privilege('authenticated', 'pokemon', 'position', 'update'),
+  'LE NAVIGATEUR NE PEUT PAS ÉCRIRE `position` DIRECTEMENT');
+
+select ok(not has_column_privilege('authenticated', 'pokemon', 'boite_no', 'update'),
+  'ni `boite_no` — `ranger()` est le seul chemin');
+
+select ok(not has_function_privilege('anon', 'ranger(jsonb)', 'execute'),
+  'et un visiteur non connecté ne range rien');
 
 select * from finish();
 rollback;
