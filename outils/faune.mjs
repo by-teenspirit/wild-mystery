@@ -222,6 +222,8 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     }));
     return {
       titre: document.querySelector(".wm-faune__titre")?.textContent ?? "",
+      entetes: Array.from(document.querySelectorAll(".wm-faune__tranche-part"))
+        .map((n) => n.textContent ?? ""),
       chiffres: Array.from(document.querySelectorAll(".wm-faune__chiffre"))
         .map((n) => n.textContent ?? ""),
       dit: document.querySelector(".wm-faune__dit")?.textContent ?? "",
@@ -268,7 +270,13 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     ordre,
   );
 
-  const somme = vu.tranches.flatMap((t) => t.especes).reduce((s, e) => s + e.pct, 0);
+  //  LES PARTS FONT CENT, et on les relit sur les titres de tranche —
+  //  « … · 72,73 % en tout » — parce que c'est là qu'elles sont écrites
+  //  depuis que la tranche uniforme porte le chiffre pour ses cartes.
+  const somme = vu.entetes.reduce((s, t) => {
+    const m = /·\s*([\d,]+)\s*%\s*en tout/.exec(t);
+    return s + (m === null ? 0 : Number(m[1].replace(",", ".")));
+  }, 0);
   ok(
     "et toutes les parts font cent",
     Math.abs(somme - 100) < 0.6,
@@ -281,13 +289,35 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
   const parId = new Map(TABLE.map((e) => [e.espece, e]));
   const faux = vu.tranches.flatMap((t) => t.especes).filter((e) => {
     const vrai = parId.get(e.id);
-    return vrai === undefined || Math.abs(vrai.pct - e.pct) > 0.005 || vrai.nom !== e.nom;
+    //  `pct` vaut zéro quand la tranche porte le chiffre pour tout le
+    //  monde : on vérifie alors le nom, et le chiffre au titre.
+    return vrai === undefined || vrai.nom !== e.nom ||
+      (e.pct !== 0 && Math.abs(vrai.pct - e.pct) > 0.005);
   });
-  ok("chaque pourcentage affiché est celui de la table", faux.length === 0, faux.slice(0, 3));
+  ok("chaque espèce affichée est celle de la table", faux.length === 0, faux.slice(0, 3));
 
   const premiere = vu.tranches[0].especes;
   const decroissant = premiere.every((e, i) => i === 0 || premiere[i - 1].pct >= e.pct);
   ok("DANS UNE TRANCHE, LA PLUS PROBABLE PASSE DEVANT", decroissant);
+
+  //  ── LA PART UNIFORME SE DIT UNE FOIS ──────────────────────────
+  //
+  //  Les tables sont écrites à poids égal par rareté : les 36 communs
+  //  d'une zone sont tous à 2,02 %. L'écrire sur chaque carte noierait
+  //  le seul chiffre qui les distingue, qui est le niveau.
+  const uniforme =
+    new Set(TABLE.filter((x) => x.rarete === "commun").map((x) => x.pct)).size === 1;
+  ok(
+    uniforme
+      ? "LA TRANCHE UNIFORME PORTE SON CHIFFRE, ET LES CARTES NON"
+      : "une tranche inégale laisse son chiffre à chaque carte",
+    uniforme ? premiere.every((e) => e.pct === 0) : premiere.every((e) => e.pct > 0),
+  );
+  ok(
+    "et le titre de la tranche le dit",
+    (vu.entetes[0] ?? "").includes(uniforme ? "chacune" : "en tout"),
+    vu.entetes[0],
+  );
 
   //  ── LE CONTRÔLE QUI A MOTIVÉ CE HARNAIS ───────────────────────
   const sprites = vu.tranches.flatMap((t) => t.especes).map((e) => e.sprite);

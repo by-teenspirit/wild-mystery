@@ -9,6 +9,7 @@ import {
   type ObjetDeZone,
   parFrequence,
   parRarete,
+  partCommune,
   partsDuSol,
   pourCent,
   RARETES,
@@ -231,4 +232,25 @@ Deno.test("ET LES EX ÆQUO NE CHANGENT PAS D'ORDRE D'UN CHARGEMENT À L'AUTRE", 
     o({ nom: "Rapide Ball", pct: 0.8065 }),
   ]);
   assertEquals(rangés.map((x) => x.nom), ["Faiblo Ball", "Rapide Ball", "Sombre Ball"]);
+});
+
+Deno.test("UNE TRANCHE UNIFORME LE DIT UNE FOIS, PAS TRENTE-SIX", () => {
+  //  `outils/faune-par-zone.py` répartit à poids égal dans chaque
+  //  rareté : les trente-six communs d'une zone sont tous à la même
+  //  part. L'écrire sur chaque carte noierait le seul chiffre qui les
+  //  distingue, qui est le niveau.
+  const t = parRarete([e({ espece: 1, pct: 2.0202 }), e({ espece: 2, pct: 2.0202 })]);
+  assertEquals(t[0].commune, 2.0202);
+});
+
+Deno.test("et dès qu'une part diffère, chaque carte reprend la sienne", () => {
+  //  Le jour où une table sera écrite à la main, avec des parts
+  //  inégales, la page le dira sans qu'on y touche.
+  const t = parRarete([e({ espece: 1, pct: 2 }), e({ espece: 2, pct: 3 })]);
+  assertEquals(t[0].commune, null);
+});
+
+Deno.test("une tranche d'une seule espèce est uniforme, et c'est juste", () => {
+  assertEquals(parRarete([e({ pct: 5 })])[0].commune, 5);
+  assertEquals(partCommune([]), null);
 });

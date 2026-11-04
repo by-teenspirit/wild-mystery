@@ -112,7 +112,33 @@ export type TrancheDeRarete = {
    *  qui dit vraiment quelque chose : « 5 % de rare » se compare d'une
    *  zone à l'autre, une liste de trente lignes non. */
   readonly part: number;
+  /** La part que TOUTES les espèces de la tranche partagent, ou `null`
+   *  si elles diffèrent. */
+  readonly commune: number | null;
 };
+
+/**
+ * La part commune à toute une tranche, ou `null`.
+ *
+ * **ELLE EST PRESQUE TOUJOURS LA MÊME**, et c'est une conséquence de la
+ * donnée : `outils/faune-par-zone.py` répartit les espèces d'une zone à
+ * poids égal dans chaque rareté. Les trente-six communs de la Forêt
+ * Marécageuse sont donc tous à 2,02 %.
+ *
+ * Écrire « 2,02 % · environ 1 rencontre sur 50 » trente-six fois de
+ * suite n'apprend rien à la trente-sixième ligne, et noie le seul
+ * chiffre qui distingue les cartes : le niveau. Quand la tranche est
+ * uniforme, la page le dit une fois dans son titre.
+ *
+ * On le MESURE plutôt que de le supposer : le jour où une table sera
+ * écrite à la main, avec des parts inégales, chaque carte reprendra la
+ * sienne sans qu'on touche à rien.
+ */
+export function partCommune(especes: readonly EspeceDeZone[]): number | null {
+  if (especes.length === 0) return null;
+  const premiere = especes[0].pct;
+  return especes.every((e) => e.pct === premiere) ? premiere : null;
+}
 
 /**
  * Les espèces d'une zone, rangées par rareté.
@@ -138,6 +164,7 @@ export function parRarete(table: readonly EspeceDeZone[]): TrancheDeRarete[] {
       rarete,
       especes,
       part: especes.reduce((s, e) => s + e.pct, 0),
+      commune: partCommune(especes),
     });
   }
   return tranches;

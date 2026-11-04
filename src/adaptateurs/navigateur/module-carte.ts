@@ -337,16 +337,33 @@ export function ancrerLaCarte(doc: Document, carte: Carte): HTMLElement | null {
 
 /** Pose la carte dans son hôte. Rend `null` si l'hôte ou la carte
  *  manquent — la page reste alors celle de ModernBB, entière. */
+export type OptionsDeCarte = {
+  /** Prévenu après chaque choix, le panneau déjà rempli. */
+  readonly surChoix?: (forumId: number) => void;
+  /** Ce qu'on écrit à droite de chaque entrée de la liste, à la place
+   *  du nombre de sujets.
+   *
+   *  LES COMPTAGES SE LISENT SUR LES LIGNES DE L'INDEX, qui n'existent
+   *  que là. Sur une page d'annexe la colonne restait à « — » sur les
+   *  vingt-six entrées, ce qui ressemble à une panne et n'apprend
+   *  rien. L'annexe de la carte y met le nombre d'espèces, qu'elle est
+   *  seule à connaître. */
+  readonly chiffreDe?: (forumId: number) => string | null;
+  /** La phrase du panneau avant le premier clic. Celle de l'index
+   *  promet « son dernier sujet », qu'une annexe ne sait pas lire. */
+  readonly invite?: string;
+};
+
 export function poserLaCarte(
   doc: Document,
   donnees: unknown,
-  surChoix?: (forumId: number) => void,
+  options: OptionsDeCarte = {},
 ): Pose | null {
   const carte = carteDepuis(donnees);
   if (carte === null) return null;
   const hote = ancrerLaCarte(doc, carte);
   if (hote === null) return null;
-  return dessinerLaCarte(doc, hote, carte, surChoix);
+  return dessinerLaCarte(doc, hote, carte, options);
 }
 
 /**
@@ -367,18 +384,18 @@ export function poserLaCarteDans(
   doc: Document,
   hote: HTMLElement,
   donnees: unknown,
-  surChoix?: (forumId: number) => void,
+  options: OptionsDeCarte = {},
 ): Pose | null {
   const carte = carteDepuis(donnees);
   if (carte === null) return null;
-  return dessinerLaCarte(doc, hote, carte, surChoix);
+  return dessinerLaCarte(doc, hote, carte, options);
 }
 
 function dessinerLaCarte(
   doc: Document,
   hote: HTMLElement,
   carte: Carte,
-  surChoix?: (forumId: number) => void,
+  options: OptionsDeCarte,
 ): Pose {
   const racine = el(doc, "section", "wm-carte");
   racine.setAttribute("aria-label", "La carte de Rhode");
@@ -630,7 +647,12 @@ function dessinerLaCarte(
       entree.dataset.wmFamille = cleDeFamille(lieu);
       const nom = el(doc, "span", "wm-carte__entree-nom", lieu.nom);
       entree.appendChild(nom);
-      const chiffres = el(doc, "span", "wm-carte__entree-chiffres", "—");
+      const chiffres = el(
+        doc,
+        "span",
+        "wm-carte__entree-chiffres",
+        options.chiffreDe?.(lieu.forumId) ?? "—",
+      );
       entree.appendChild(chiffres);
       const fleche = el(doc, "span", "wm-carte__entree-fleche", "→");
       fleche.setAttribute("aria-hidden", "true");
@@ -689,8 +711,9 @@ function dessinerLaCarte(
         doc,
         "p",
         "wm-carte__invite",
-        "Cliquez un lieu sur la carte : son palier, ses niveaux, sa description " +
-          "et son dernier sujet s'affichent ici.",
+        options.invite ??
+          "Cliquez un lieu sur la carte : son palier, ses niveaux, sa description " +
+            "et son dernier sujet s'affichent ici.",
       ),
     );
   };
@@ -854,7 +877,7 @@ function dessinerLaCarte(
     //  panneau soit à jour : l'annexe s'en sert pour aller chercher la
     //  faune de la zone, et une erreur de réseau ne doit pas laisser la
     //  carte à moitié allumée.
-    surChoix?.(forumId);
+    options.surChoix?.(forumId);
   };
 
   //  LE CLAVIER OUVRE LA FORME. Le clic à la souris, lui, ne passe
@@ -1074,6 +1097,14 @@ function dessinerLaCarte(
     //  Les chiffres de la liste, posés au passage : c'est ce qui donne
     //  sa hiérarchie à la colonne. Un lieu sans relevé garde son tiret.
     for (const [id, n] of chiffresDesEntrees) {
+      //  LE CHIFFRE DONNÉ PAR L'APPELANT L'EMPORTE : il sait quelque
+      //  chose que les comptages ne disent pas, et il ne doit pas se
+      //  faire écraser par un relevé qui arrive après lui.
+      const sien = options.chiffreDe?.(id);
+      if (sien !== undefined && sien !== null) {
+        n.textContent = sien;
+        continue;
+      }
       const c = comptages.get(id);
       n.textContent = c === undefined ? "—" : dit(c.sujets, "sujet", "sujets");
     }

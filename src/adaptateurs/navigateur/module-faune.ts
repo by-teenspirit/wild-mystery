@@ -64,6 +64,12 @@ type FichierDeFaune = {
   readonly conditions?: Record<string, EspeceDeZone[]>;
 };
 
+/** Ce que `data/zones.json` porte, pour ce qu'on en fait ici. */
+type ZoneDeListe = {
+  readonly forumId: number;
+  readonly especes?: number;
+};
+
 type ZoneDeButin = {
   readonly forumId: number;
   readonly objets?: ObjetDeZone[];
@@ -139,6 +145,10 @@ function carteDEspece(
   sprites: Sprites | null,
   depot: string,
   style: StyleDeSprite,
+  //  `false` quand la tranche porte le chiffre pour tout le monde :
+  //  le répéter trente-six fois noie le seul nombre qui distingue les
+  //  cartes, qui est le niveau.
+  avecLaChance: boolean,
 ): HTMLElement {
   const li = el(doc, "li", "wm-faune__espece");
   li.dataset.wmEspece = String(e.espece);
@@ -166,11 +176,13 @@ function carteDEspece(
   li.appendChild(el(doc, "b", "wm-faune__nom", e.nom));
   li.appendChild(el(doc, "span", "wm-faune__niveaux", `niv. ${e.min} à ${e.max}`));
 
-  const chance = el(doc, "span", "wm-faune__chance");
-  chance.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
-  const mot = motDeLaChance(e.pct, "rencontre");
-  if (mot !== "") chance.appendChild(el(doc, "span", "wm-faune__sur", mot));
-  li.appendChild(chance);
+  if (avecLaChance) {
+    const chance = el(doc, "span", "wm-faune__chance");
+    chance.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
+    const mot = motDeLaChance(e.pct, "rencontre");
+    if (mot !== "") chance.appendChild(el(doc, "span", "wm-faune__sur", mot));
+    li.appendChild(chance);
+  }
   return li;
 }
 
@@ -191,19 +203,17 @@ function tranches(
     tete.appendChild(el(doc, "span", "wm-faune__tranche-mot", t.rarete));
     //  LA PART DE LA TRANCHE EST LE CHIFFRE QUI SE COMPARE d'une zone à
     //  l'autre. Trente lignes de pourcentages, non.
-    tete.appendChild(
-      el(
-        doc,
-        "span",
-        "wm-faune__tranche-part",
-        `${t.especes.length} espèces · ${pourCent(t.part)}`,
-      ),
-    );
+    const part = t.commune === null
+      ? `${t.especes.length} espèces · ${pourCent(t.part)} en tout`
+      : `${t.especes.length} espèces · chacune ${pourCent(t.commune)}, ${
+        motDeLaChance(t.commune, "rencontre")
+      } · ${pourCent(t.part)} en tout`;
+    tete.appendChild(el(doc, "span", "wm-faune__tranche-part", part));
     section.appendChild(tete);
 
     const liste = el(doc, "ul", "wm-faune__especes");
     for (const e of t.especes) {
-      liste.appendChild(carteDEspece(doc, e, sprites, depot, style));
+      liste.appendChild(carteDEspece(doc, e, sprites, depot, style, t.commune === null));
     }
     section.appendChild(liste);
     hote.appendChild(section);
@@ -320,6 +330,16 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
   const objetsParZone = new Map<number, ObjetDeZone[]>();
   for (const z of butin?.zones ?? []) objetsParZone.set(z.forumId, z.objets ?? []);
 
+  //  `zones.json` fait 3 Ko et porte le compte d'espèces des dix-sept
+  //  zones. Sans lui, la liste de la carte montrerait vingt-six tirets
+  //  en attendant un clic — les comptages de l'index se lisent sur des
+  //  lignes de forum, qui n'existent pas sur une page du portail.
+  const liste = await lire("zones.json") as { zones?: ZoneDeListe[] } | null;
+  const comptes = new Map<number, number>();
+  for (const z of liste?.zones ?? []) {
+    if (typeof z.especes === "number") comptes.set(z.forumId, z.especes);
+  }
+
   const connues = new Map<number, FichierDeFaune>();
 
   const montrer = async (forumId: number): Promise<void> => {
@@ -368,11 +388,21 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
     );
   };
 
-  const pose = poserLaCarteDans(doc, hote, carte, (forumId) => {
+  const pose = poserLaCarteDans(doc, hote, carte, {
     //  LE CLIC NE DOIT PAS ATTENDRE LE RÉSEAU. `montrer` est lancée et
     //  on rend la main : la carte s'allume tout de suite, la faune
     //  arrive derrière. Une erreur ne casse pas la carte.
-    montrer(forumId).catch(() => {});
+    surChoix: (forumId) => void montrer(forumId).catch(() => {}),
+    //  Une ville n'a pas d'espèces, et `null` lui rend son tiret —
+    //  écrire « 0 espèce » dirait qu'on a compté et trouvé zéro.
+    chiffreDe: (forumId) => {
+      const n = comptes.get(forumId);
+      return n === undefined ? null : `${n} espèces`;
+    },
+    //  L'invite de l'index promet « son dernier sujet », que cette
+    //  page ne sait pas lire : elle n'a aucune ligne de forum.
+    invite: "Clique une zone sur la carte : tout ce qui y vit s'affiche " +
+      "en dessous, avec les chances de le croiser.",
   });
   if (pose === null) return false;
 

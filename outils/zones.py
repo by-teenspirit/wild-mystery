@@ -105,6 +105,29 @@ def construire() -> tuple[dict, list[str]]:
             if not fichier.exists():
                 defauts.append(f"f{fid} {nom} : {fichier.name} n'est pas dans assets/zones/")
 
+        #  ── LE COMPTE D'ESPÈCES, RECOPIÉ DE LA TABLE ──────────────
+        #
+        #  Il n'est pas dans `carte.json` : il se compte dans
+        #  `data/faune/<forumId>.json`, et il tient ici pour une raison
+        #  précise. L'annexe de la carte affiche les dix-sept zones AVANT
+        #  d'en avoir chargé une seule — la faune se demande au clic.
+        #  Sans ce nombre, sa liste montrerait vingt-six tirets, ce qui
+        #  ressemble à une panne ; avec lui, elle paie un fichier de
+        #  3 Ko qu'elle demande déjà.
+        #
+        #  C'est une recopie, donc une occasion de diverger : c'est tout
+        #  l'objet de `--verifier`, et du garde-fou n° 23.
+        table = RACINE / f"data/faune/{fid}.json"
+        if not table.exists():
+            defauts.append(f"f{fid} {nom} : data/faune/{fid}.json n'existe pas")
+        else:
+            conditions = lire(table).get("conditions", {})
+            jour = conditions.get("jour")
+            if not isinstance(jour, list) or len(jour) == 0:
+                defauts.append(f"f{fid} {nom} : sa table de jour est vide")
+            else:
+                zone["especes"] = len(jour)
+
     return sortie, defauts
 
 
