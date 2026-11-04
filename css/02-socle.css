@@ -177,6 +177,33 @@ body,
   background: transparent;
 }
 
+/*  ── SAUF LES BLOCS QUI NE CONTIENNENT RIEN DE NOUS ─────────────────
+
+    « Il faut un fond blanc ici aussi », 4 novembre, à propos du bloc
+    de la ChatBox :
+
+        <div class="block"><div class="h3">…ChatBox…</div>
+          Il y a actuellement <strong>0</strong> utilisateur(s)…</div>
+
+    La règle du 8 octobre a enlevé le fond de `.block` par ricochet :
+    ce qu'on visait était `.panel`, qui enveloppe le bloc d'accueil et
+    posait une surface derrière une surface. Les trois autres ont
+    suivi « parce qu'ils portent le même rôle » — ils ne le portent
+    pas. Un `.block` de ModernBB enveloppe un WIDGET : la ChatBox, les
+    derniers sujets, qui est en ligne. Sans fond, ils flottent sur
+    l'image de fond de la page.
+
+    LA CONDITION FAIT EXACTEMENT CE QUE LE 8 OCTOBRE VOULAIT, et rien
+    de plus : un bloc qui contient déjà une de nos surfaces reste
+    transparent — on ne réempile pas deux cartes — et les autres
+    retrouvent la leur. Écrire la condition plutôt que de parier sur
+    la structure, c'est ce qui permet de rendre le fond sans rouvrir
+    le défaut d'octobre. */
+#modernbb .block:not(:has(.panel)):not(:has([class^="wm-"])) {
+  padding: var(--wm-espace-16, 16px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
 /*  ── ET LE RESTE DE CE QUE MODERNBB POSE SUR `.panel` ───────────────
 
     Son CSS de base lui met un fond, une ombre, `color: #444` et un

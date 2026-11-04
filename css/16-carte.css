@@ -34,11 +34,40 @@
    C'est le même partage que les lignes de forum de la feuille 03.
    ════════════════════════════════════════════════════════════════════ */
 
+/*  ── LA CARTE PORTE SA PROPRE SURFACE ──────────────────────────────
+
+    « Y'a plus de contour blanc autour de la carte de Rhode sur le
+    forum. » Mesuré le 4 novembre sur l'index : la carte est posée
+    directement dans `#main-content`, et tous ses ancêtres jusqu'à
+    `#container` sont transparents. Elle n'a jamais eu de surface à
+    elle — elle empruntait celle d'un conteneur de ModernBB, qui est
+    devenu transparent le 8 octobre quand `.block` et ses voisins ont
+    perdu leur fond.
+
+    UNE SURFACE EMPRUNTÉE EST UNE SURFACE QU'ON PERD. Elle déclare
+    donc la sienne, comme `.forabg`, `.forumbg` et le panneau
+    d'accueil le font déjà — c'est la règle posée en §surfaces de la
+    feuille 02 : « ce qui a besoin d'un fond le déclare pour lui ».
+
+    Et la marge intérieure vient avec, pour la raison qu'elle a
+    anticipée : sans elle, le dessin toucherait le bord blanc. */
 #modernbb .wm-carte {
   display: flex;
+  box-sizing: border-box;
+  padding: var(--wm-espace-24, 24px);
   margin: 0 0 var(--wm-espace-24, 24px);
+  background: var(--wm-fond-surface, #fffbf7);
+  border-radius: var(--wm-rayon-lg, 10px);
   flex-direction: column;
   gap: var(--wm-espace-16, 16px);
+}
+
+@media (max-width: 760px) {
+  /*  Sur un écran étroit, 24 px de chaque côté prennent un dixième de
+      la largeur — et c'est la carte qu'on vient regarder. */
+  #modernbb .wm-carte {
+    padding: var(--wm-espace-16, 16px);
+  }
 }
 
 /* ── 0 · le titre ─────────────────────────────────────────────────── */
