@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(244);
+select plan(246);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1583,9 +1583,9 @@ begin
   insert into rp_vu values ('lus', (select count(*)::text from rp));
 
   --  ── CE QUI LUI APPARTIENT ─────────────────────────────────────
-  update rp set prevu = true, ordre = 5 where sujet_id = 996;
+  update rp set etat = 'en-pause', ordre = 5 where sujet_id = 996;
   insert into rp_vu values ('prevu',
-    (select prevu::text || '/' || ordre::text from rp where sujet_id = 996));
+    (select etat || '/' || ordre::text from rp where sujet_id = 996));
 
   --  ── ET CE QUI NE LUI APPARTIENT PAS ───────────────────────────
   v := 'passé';
@@ -1603,13 +1603,24 @@ begin
   insert into rp_vu values ('date', v);
 
   --  ── ON NE S'AJOUTE PAS UN RP ──────────────────────────────────
+  --  ── ON AJOUTE UNE CARTE « PRÉVUE », ET RIEN D'AUTRE ───────────
   v := 'passé';
   begin
-    insert into rp (joueur_id, sujet_id, titre)
-      values ('bbbb0036-0000-0000-0000-00000000000a', 1, 'Un RP que je n''ai pas joué');
-  exception when insufficient_privilege then v := 'refusé';
+    insert into rp (joueur_id, sujet_id, titre, etat)
+      values ('bbbb0036-0000-0000-0000-00000000000a', 1, 'Un RP que je n''ai pas joué',
+              'en-cours');
+  exception when insufficient_privilege or check_violation then v := 'refusé';
   end;
   insert into rp_vu values ('ajout', v);
+
+  v := 'refusé';
+  begin
+    insert into rp (joueur_id, sujet_id, titre, etat)
+      values ('bbbb0036-0000-0000-0000-00000000000a', 2, 'Un RP convenu', 'prevu');
+    v := 'passé';
+  exception when insufficient_privilege or check_violation then v := 'refusé';
+  end;
+  insert into rp_vu values ('ajout_prevu', v);
 
   --  ── LES PARTICIPANTS SONT AU SERVEUR ──────────────────────────
   v := 'passé';
@@ -1633,8 +1644,8 @@ end $$;
 select is((select valeur from rp_vu where quoi = 'lus'), '2',
   'le joueur lit ses deux RP');
 
-select is((select valeur from rp_vu where quoi = 'prevu'), 'true/5',
-  '« PRÉVU » ET L''ORDRE LUI APPARTIENNENT : il les écrit');
+select is((select valeur from rp_vu where quoi = 'prevu'), 'en-pause/5',
+  'L''ÉTAT ET L''ORDRE LUI APPARTIENNENT : il les écrit');
 
 select is((select valeur from rp_vu where quoi = 'titre'), 'refusé',
   'MAIS PAS LE TITRE — c''est l''état du forum, pas une opinion');
@@ -1643,7 +1654,10 @@ select is((select valeur from rp_vu where quoi = 'date'), 'refusé',
   'ni la date du dernier message');
 
 select is((select valeur from rp_vu where quoi = 'ajout'), 'refusé',
-  'ET ON NE S''AJOUTE PAS UN RP qu''on n''a pas joué');
+  'ON NE S''AJOUTE PAS UN RP « EN COURS » qu''on n''a pas joué');
+
+select is((select valeur from rp_vu where quoi = 'ajout_prevu'), 'passé',
+  'MAIS ON AJOUTE UNE CARTE « PRÉVUE » : une intention, pas une affirmation');
 
 select is((select valeur from rp_vu where quoi = 'participants'), 'refusé',
   'la table des participants est au serveur, pas au joueur');
@@ -1671,7 +1685,7 @@ select ok(not has_table_privilege('anon', 'rp', 'select'),
 --  annote. Une relève qui écrase « prévu » efface une note que
 --  personne ne sait reconstituer.
 
-update rp set prevu = true, ordre = 9 where sujet_id = 996;
+update rp set etat = 'en-pause', ordre = 9 where sujet_id = 996;
 
 select is(
   (relever_les_rp(jsonb_build_object(
@@ -1690,14 +1704,14 @@ select is(
   'la relève écrit les deux sujets qu''elle a vus');
 
 select results_eq(
-  $$select titre, reponses, prevu, ordre from rp where sujet_id = 996$$,
-  $$values ('test (renommé)', 7, true, 9::smallint)$$,
-  'ELLE MET À JOUR CE QUI EST À ELLE, ET LAISSE « PRÉVU » ET L''ORDRE');
+  $$select titre, reponses, etat, ordre from rp where sujet_id = 996$$,
+  $$values ('test (renommé)', 7, 'en-pause', 9::smallint)$$,
+  'ELLE MET À JOUR CE QUI EST À ELLE, ET LAISSE L''ÉTAT ET L''ORDRE');
 
 select is(
   (select count(*)::int from rp where joueur_id = 'bbbb0036-0000-0000-0000-00000000000a'),
-  2,
-  'LE SUJET QUI N''EST PLUS DANS LA RECHERCHE S''EN VA');
+  3,
+  'LE SUJET QUI N''EST PLUS DANS LA RECHERCHE S''EN VA — restent les deux vus et la carte prévue');
 
 select is(
   (select count(*)::int from rp_participant where sujet_id = 996),
@@ -1705,7 +1719,7 @@ select is(
   'et les participants s''ajoutent sans écraser ceux d''avant');
 
 --  Un sujet marqué « prévu » ne part pas, même absent de la recherche.
-update rp set prevu = true where sujet_id = 1200;
+update rp set etat = 'prevu' where sujet_id = 1200;
 select lives_ok(
   $$select relever_les_rp(jsonb_build_object(
       'joueurId', 'bbbb0036-0000-0000-0000-00000000000a',
@@ -1714,8 +1728,12 @@ select lives_ok(
 
 select is(
   (select count(*)::int from rp where joueur_id = 'bbbb0036-0000-0000-0000-00000000000a'),
-  2,
+  3,
   'UN SUJET MARQUÉ « PRÉVU » SURVIT À UNE RELÈVE QUI NE LE VOIT PAS');
+
+select is((select count(*)::int from rp where joueur_id = 'bbbb0036-0000-0000-0000-00000000000a' and etat = 'en-pause'),
+  1,
+  'et celui qu''elle a mis en pause aussi : la relève ne connaît pas ces mots-là');
 
 select ok(not has_function_privilege('authenticated', 'relever_les_rp(jsonb)', 'execute'),
   'et un joueur ne relève pas ses propres RP : c''est le travail du serveur');

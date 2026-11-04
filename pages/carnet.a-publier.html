@@ -268,15 +268,87 @@
         </div>
       </section>
 
-      <section class="wm-carnet__onglet-page" data-wm-carnet-page="mes-rp" hidden>
+      <section class="wm-carnet__onglet-page wm-rp" data-wm-carnet-page="mes-rp" hidden>
         <header class="wm-carnet__entete">
           <p class="wm-carnet__surtitre">Le carnet de bord</p>
           <h1 class="wm-carnet__titre">Mes <b>RP</b></h1>
           <p class="wm-carnet__chapo">
-            Le tableau de tes scènes — prévues, en cours, terminées — rempli
-            tout seul par le serveur. Il arrive bientôt.
+            Ton tableau. Il se remplit tout seul depuis le forum : le titre, le
+            lieu, qui joue avec toi et à qui c'est d'écrire. Tu peux ajouter un
+            RP convenu qui n'a pas encore commencé, et dire où en est chacun.
           </p>
         </header>
+
+        <div class="wm-carnet__bloc">
+          <p class="wm-histoire__etiquette">Ajouter un RP prévu</p>
+          <div class="wm-liens__ajout">
+            <label class="wm-liens__champ">
+              <span>L'adresse du sujet</span>
+              <input type="text" data-wm-rp-neuf-adresse
+                     placeholder="https://mysteryinrhode.forumactif.com/t996-…">
+            </label>
+            <label class="wm-liens__champ">
+              <span>Ou juste un titre</span>
+              <input type="text" data-wm-rp-neuf-titre placeholder="Un café, deux silences">
+            </label>
+            <button type="button" class="wm-carnet__bouton wm-carnet__bouton--plein"
+                    data-wm-rp-ajouter>
+              Ajouter
+            </button>
+          </div>
+          <p class="wm-histoire__aide">
+            Une carte ajoutée ici est « prévue » : un RP convenu où tu n'as pas
+            encore écrit. Dès que tu y postes, la relève la remplit avec le
+            vrai titre et le dernier message.
+          </p>
+          <p class="wm-histoire__aide" data-wm-rp-dit role="status"></p>
+        </div>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+            <h2 class="wm-carnet__bloc-titre">Mes RP</h2>
+            <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer">
+              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
+                      aria-pressed="true">Tous</button>
+              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
+                      aria-pressed="false">À moi d'écrire</button>
+              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="prevu"
+                      aria-pressed="false">Prévus</button>
+              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
+                      aria-pressed="false">Clôturés</button>
+            </div>
+          </div>
+          <p class="wm-carnet__bloc-dit" data-wm-rp-compte></p>
+          <ul class="wm-rp__liste" data-wm-rp-liste></ul>
+        </div>
+
+        <div class="wm-carnet__bloc">
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Ce que change chaque état</h2>
+          </div>
+          <ul class="wm-ecrire__regles">
+            <li>
+              <b>À toi, à moi.</b>
+              Ce n'est pas un état que tu poses : le carnet regarde qui a écrit
+              le dernier message. Il change tout seul.
+            </li>
+            <li>
+              <b>Prévu.</b>
+              Un RP convenu où personne n'a encore écrit. C'est le seul que tu
+              peux ajouter et retirer toi-même.
+            </li>
+            <li>
+              <b>En pause.</b>
+              Il reste dans le tableau, mais il ne compte plus dans « à moi
+              d'écrire ». Rien d'autre ne change.
+            </li>
+            <li>
+              <b>Clôturé.</b>
+              Tu le mets de côté. Le forum continue de le relever — si quelqu'un
+              y répond, la date bouge, mais l'état reste le tien.
+            </li>
+          </ul>
+        </div>
       </section>
 
       <section class="wm-carnet__onglet-page wm-ecrire" data-wm-carnet-page="ecrire" hidden>
@@ -631,7 +703,7 @@
 
 <script>
   (function () {
-    var attendu = 5;
+    var attendu = 6;
     var vu = window.wmCarnetVersion;
     if (vu === attendu) return;
 

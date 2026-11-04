@@ -214,6 +214,7 @@ async function monter(
     ecriture = "ok",
     fiche = {},
     lesLiens = [],
+    lesRp = [],
     etatDeLaFiche = null,
   } = {},
 ) {
@@ -342,6 +343,32 @@ async function monter(
         contentType: "application/json",
         body: JSON.stringify({ range: true, echange: false }),
       });
+    }
+
+    //  ── LE TABLEAU DES RP ────────────────────────────────────────
+    //
+    //  Le décor REFUSE comme la base refuse : on n'ajoute qu'une carte
+    //  « prévue » (0037). Sinon la mesure ne prouverait que ma
+    //  politesse côté page.
+    if (u.pathname.endsWith("/rest/v1/rp")) {
+      const methode = route.request().method();
+      if (methode === "GET") {
+        appels.push({ ou: "lire-rp" });
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(lesRp),
+        });
+      }
+      const corps = JSON.parse(route.request().postData() ?? "{}");
+      appels.push({ ou: `${methode}-rp`, corps, ou_quoi: u.search });
+      if (methode === "POST" && corps.etat !== "prevu") {
+        return route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ code: "42501" }),
+        });
+      }
+      return route.fulfill({ status: 204, body: "" });
     }
 
     //  ── LES LIENS ET L'ÉTAT DE LA FICHE ──────────────────────────
@@ -1020,6 +1047,11 @@ const TROIS = [
   //  n'est pas une donnée de jeu et ne rapporte rien. »
   const { q, appels } = await monter({ brouillons: TROIS });
   await q.click('[data-wm-carnet-onglet="ecrire"]');
+  //  ON ATTEND QUE L'ONGLET AIT FINI DE CHARGER AVANT DE COMPTER :
+  //  sans ça, la requête des brouillons atterrit parfois pendant la
+  //  mesure et la fait échouer une fois sur dix. Un test qui tombe au
+  //  hasard est un test qu'on apprend à relancer sans le lire.
+  await q.waitForTimeout(300);
   const avant = appels.length;
   await q.click('.wm-ecrire__duree[data-minutes="25"]');
   await q.waitForTimeout(200);
@@ -1033,7 +1065,7 @@ const TROIS = [
     "LANCER UNE SESSION N'ENVOIE RIEN AU SERVEUR",
     appels.length === avant && /24:|25:/.test(vu.dit) && vu.choisie === "true" &&
       vu.durees === 5,
-    JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),
+    JSON.stringify({ ...vu, enPlus: appels.slice(avant).map((a) => a.ou) }),
   );
   await q.close();
 }
@@ -1497,6 +1529,149 @@ const PUBLIEE_ET_CHANGEE = {
   await q.close();
 }
 
+
+// ── 7 · Mes RP ──────────────────────────────────────────────────────
+
+const RP = [
+  { sujet_id: 996, titre: "La brume ne lève pas", forum_nom: "Montagnes Embrumées",
+    reponses: 3, dernier_le: "2026-10-28T13:34:00Z", dernier_auteur: "Murphy",
+    dernier_message: 15582, extrait: "Le vent se lève.", etat: "en-cours", ordre: 0 },
+  { sujet_id: 977, titre: "Un café, deux silences", forum_nom: "Portevent",
+    reponses: 8, dernier_le: "2026-11-01T09:00:00Z", dernier_auteur: "Eliott Vanner",
+    dernier_message: 15600, extrait: "", etat: "en-cours", ordre: 0 },
+  { sujet_id: 1200, titre: "Ce qui vient après", forum_nom: "",
+    reponses: 0, dernier_le: null, dernier_auteur: "", dernier_message: null,
+    extrait: "", etat: "prevu", ordre: 0 },
+];
+
+{
+  //  « À MOI D'ÉCRIRE » SE CALCULE, il n'est rangé nulle part : le
+  //  carnet regarde qui a écrit le dernier message. Et ce que la
+  //  personne a posé — prévu, en pause — passe avant le calcul.
+  const { q } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  const vu = await q.evaluate(() => ({
+    etats: [...document.querySelectorAll(".wm-rp__etat")].map((e) => e.textContent.trim()),
+    compte: document.querySelector("[data-wm-rp-compte]")?.textContent?.trim(),
+    liens: [...document.querySelectorAll(".wm-rp__titre")].map((a) => a.getAttribute("href")),
+  }));
+  dire(
+    "« À MOI » SE CALCULE DEPUIS LE DERNIER AUTEUR, ET CE QU'ELLE A POSÉ PASSE AVANT",
+    vu.etats[0] === "à l'autre" && vu.etats[1] === "à moi d'écrire" &&
+      vu.etats[2] === "prévu" && /1 où c'est à toi/.test(vu.compte ?? "") &&
+      vu.liens[1] === "/t996#15582",
+    JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  LE LIEN VA AU DERNIER MESSAGE : relire quarante réponses pour
+  //  retrouver où on en était est le geste qu'on vient éviter.
+  const { q } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.click('[data-wm-rp-filtre="a-moi"]');
+  await q.waitForTimeout(150);
+  const titres = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-rp__titre")].map((a) => a.textContent.trim())
+  );
+  dire(
+    "LE FILTRE « À MOI » NE GARDE QUE CEUX QUI ATTENDENT",
+    titres.length === 1 && titres[0] === "La brume ne lève pas",
+    JSON.stringify({ titres }),
+  );
+  await q.close();
+}
+
+{
+  //  POSER UN ÉTAT L'ÉCRIT DANS LA BASE, et seulement lui : un PATCH
+  //  sur le titre serait refusé par le droit PostgreSQL (0037).
+  const { q, appels } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.selectOption(".wm-rp__ligne:first-child select", "en-pause");
+  await q.waitForTimeout(250);
+  const ecrit = appels.find((a) => a.ou === "PATCH-rp");
+  const etat = await q.evaluate(() =>
+    document.querySelector(".wm-rp__ligne:first-child .wm-rp__etat")?.textContent?.trim()
+  );
+  dire(
+    "POSER UN ÉTAT N'ÉCRIT QUE L'ÉTAT",
+    ecrit !== undefined && Object.keys(ecrit.corps).join() === "etat" &&
+      ecrit.corps.etat === "en-pause" && etat === "en pause",
+    JSON.stringify({ corps: ecrit?.corps, etat }),
+  );
+  await q.close();
+}
+
+{
+  //  ON N'AJOUTE QU'UNE CARTE « PRÉVUE ». La base l'exige (0037) ; la
+  //  page ne doit même pas essayer autre chose.
+  const { q, appels } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.fill("[data-wm-rp-neuf-adresse]", "https://mysteryinrhode.forumactif.com/t1450-le-pont");
+  await q.fill("[data-wm-rp-neuf-titre]", "Le pont");
+  await q.click("[data-wm-rp-ajouter]");
+  await q.waitForTimeout(250);
+  const pose = appels.find((a) => a.ou === "POST-rp");
+  const dit = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-dit]")?.textContent?.trim()
+  );
+  dire(
+    "UNE CARTE AJOUTÉE EST « PRÉVUE », ET SON SUJET SORT DE L'ADRESSE COLLÉE",
+    pose?.corps?.etat === "prevu" && pose?.corps?.sujet_id === 1450 &&
+      pose?.corps?.titre === "Le pont" && /Ajouté/.test(dit ?? ""),
+    JSON.stringify({ corps: pose?.corps, dit }),
+  );
+  await q.close();
+}
+
+{
+  //  ET UNE ADRESSE QUI N'EN EST PAS UNE NE PART PAS : la clé est
+  //  (joueur, sujet), un titre seul n'en fait pas une carte. On le dit
+  //  plutôt que de laisser la base répondre par une erreur muette.
+  const { q, appels } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.fill("[data-wm-rp-neuf-titre]", "Juste un titre");
+  await q.click("[data-wm-rp-ajouter]");
+  await q.waitForTimeout(250);
+  const dit = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-dit]")?.textContent?.trim()
+  );
+  dire(
+    "SANS ADRESSE DE SUJET, RIEN NE PART, ET LA PAGE DIT CE QU'IL MANQUE",
+    appels.filter((a) => a.ou === "POST-rp").length === 0 && /adresse du sujet/i.test(dit ?? ""),
+    JSON.stringify({ dit }),
+  );
+  await q.close();
+}
+
+{
+  //  ON NE PROPOSE PAS DE RETIRER CE QU'ON NE PEUT PAS RETIRER. La
+  //  base n'efface qu'une carte prévue (0037) : offrir le bouton
+  //  ailleurs apprendrait à se méfier de l'écran.
+  const { q } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  const boutons = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-rp__ligne")].map((e) => ({
+      etat: e.querySelector(".wm-rp__etat")?.textContent?.trim(),
+      retirable: e.querySelector(".wm-rp__outils button") !== null,
+    }))
+  );
+  dire(
+    "SEULE UNE CARTE PRÉVUE SE RETIRE",
+    boutons.filter((b) => b.retirable).length === 1 &&
+      boutons.find((b) => b.retirable)?.etat === "prévu",
+    JSON.stringify(boutons),
+  );
+  await q.close();
+}
+
 // ── 2 · la session ouvre le carnet ──────────────────────────────────
 
 {
@@ -1658,7 +1833,8 @@ const { q: p, appels } = await monter();
   //    l'appel du carnet de quelqu'un qui vient regarder son équipe ;
   //  · Mon histoire, quatre — ses quatre tables, lancées ENSEMBLE, donc
   //    un seul aller-retour dans le temps de la personne ;
-  //  · Mes liens, deux — la liste, et l'état de la fiche publiée.
+  //  · Mes liens, deux — la liste, et l'état de la fiche publiée ;
+  //  · Mes RP, une — le tableau que la relève a rempli.
   //
   //  Le second passage ne demande plus rien, et c'est ce que la seconde
   //  visite mesure ici.
@@ -1674,8 +1850,8 @@ const { q: p, appels } = await monter();
   //  Second tour : plus rien ne doit partir, Écrire compris.
   for (
     const clef of [
-      "ecrire", "mon-histoire", "mes-liens", "mon-sac",
-      "ecrire", "mon-histoire", "mes-liens", "mon-jeu",
+      "ecrire", "mon-histoire", "mes-liens", "mes-rp", "mon-sac",
+      "ecrire", "mon-histoire", "mes-liens", "mes-rp", "mon-jeu",
     ]
   ) {
     await p.click(`[data-wm-carnet-onglet='${clef}']`);
@@ -1687,8 +1863,8 @@ const { q: p, appels } = await monter();
     adresse: location.hash,
   }));
   dire(
-    "changer d'onglet ne demande RIEN, sauf la première ouverture des trois onglets qui écrivent",
-    apresLePremierTour === avant + 7 && appels.length === apresLePremierTour &&
+    "changer d'onglet ne demande RIEN, sauf la première ouverture des quatre onglets qui écrivent",
+    apresLePremierTour === avant + 8 && appels.length === apresLePremierTour &&
       vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
       vu.adresse === "#mon-jeu",
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),

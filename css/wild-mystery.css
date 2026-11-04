@@ -23170,3 +23170,102 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
+/* ── 17 · Mes RP ──────────────────────────────────────────────────── */
+
+#modernbb .wm-rp__liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-rp__ligne {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+#modernbb .wm-rp__mot {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+#modernbb .wm-rp__titre {
+  display: block;
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-rp__lieu {
+  font-size: var(--wm-taille-legende, 10.5px);
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-rp__extrait {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  color: var(--wm-texte-pale);
+}
+
+/*  L'ÉTIQUETTE PORTE UN MOT, PAS UNE COULEUR SEULE. « À moi d'écrire »
+    est l'information qu'on vient chercher : elle doit se lire sans
+    avoir appris un code. */
+#modernbb .wm-rp__etat {
+  padding: 3px 10px;
+  font-size: var(--wm-taille-legende, 10.5px);
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-radius: 999px;
+  background: var(--wm-fond-terre);
+  color: var(--wm-texte-corps);
+}
+
+#modernbb .wm-rp__etat--a-moi {
+  background: var(--wm-accent-primaire);
+  color: var(--wm-texte-inverse);
+}
+
+#modernbb .wm-rp__quand {
+  flex: 0 0 auto;
+  font-size: var(--wm-taille-legende, 10.5px);
+  color: var(--wm-texte-doux);
+}
+
+#modernbb .wm-rp__outils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+#modernbb .wm-rp__outils select,
+#modernbb .wm-rp__outils button {
+  padding: 4px 8px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  cursor: pointer;
+  background: var(--wm-fond-surface);
+  border: 1px solid var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-xs, 4px);
+}
+
+@media (max-width: 760px) {
+  #modernbb .wm-rp__ligne {
+    align-items: flex-start;
+  }
+
+  #modernbb .wm-rp__mot {
+    flex: 1 1 100%;
+  }
+}
+
