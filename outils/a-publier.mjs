@@ -28,9 +28,22 @@ import { readFileSync, writeFileSync } from "node:fs";
 //  connaissances du projet (`forumactif/01-templates-reference.md`).
 const LIMITE = 65535;
 
-const chemin = Deno.args[0];
+//  ── `--verifier` : LA COPIE À COLLER SUIT-ELLE SA SOURCE ? ────────
+//
+//  TROUVÉ LE 4 NOVEMBRE, EN AJOUTANT LA RÉGION DE RHODE AU CARNET.
+//  `pages/carnet.html` a été modifié, `pages/carnet.a-publier.html`
+//  est resté tel quel, et rien ne l'a dit : c'est un fichier dérivé
+//  que personne ne vérifiait. La copie à coller aurait été collée
+//  sans le bloc, et la page en ligne aurait menti sans casser — le cas
+//  exact de la règle 9, appliqué à une page.
+//
+//  Avec le drapeau, on refait la sortie en mémoire et on la compare à
+//  celle du disque, sans rien écrire. C'est la règle 23 du garde-fou
+//  qui l'appelle.
+const verifier = Deno.args.includes("--verifier");
+const chemin = Deno.args.find((a) => a !== "--verifier");
 if (chemin === undefined) {
-  console.error("  usage : deno task a-publier <chemin du gabarit>");
+  console.error("  usage : deno task a-publier <chemin du gabarit> [--verifier]");
   Deno.exit(2);
 }
 
@@ -104,6 +117,26 @@ for (const v of INDISPENSABLES) {
 }
 
 const destination = chemin.replace(/(\.nouveau)?\.html$/, ".a-publier.html");
+
+if (verifier) {
+  let ancien = null;
+  try {
+    ancien = readFileSync(destination, "utf8");
+  } catch {
+    console.error(`  ${destination} n'existe pas — lance « deno task a-publier ${chemin} »`);
+    Deno.exit(1);
+  }
+  if (ancien !== sortie) {
+    console.error(
+      `  ${destination} ne correspond plus à ${chemin} — ` +
+        `lance « deno task a-publier ${chemin} »`,
+    );
+    Deno.exit(1);
+  }
+  console.log(`  ${destination} : à jour (${sortie.length} caractères).`);
+  Deno.exit(0);
+}
+
 writeFileSync(destination, sortie);
 
 const gagne = source.length - sortie.length;

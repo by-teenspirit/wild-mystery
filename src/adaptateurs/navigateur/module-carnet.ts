@@ -30,6 +30,8 @@
 //  le staff peut la renouveler — `carnet_nouvelle_cle` invalide
 //  l'ancienne, c'est la seule façon de révoquer.
 // ════════════════════════════════════════════════════════════════════
+import { adresseDuSprite } from "./module-faune.ts";
+import { Sprites, type StyleDeSprite } from "../../navigateur/sprites.ts";
 import {
   type Arene,
   badgesAffiches,
@@ -62,6 +64,17 @@ export interface Decor {
   /** `null` quand on ne sait pas d'où viennent les images : on pose
    *  alors les cases vides plutôt que des images cassées. */
   images: string | null;
+  /** La racine du dépôt servi — `assets/` et `img/` sont dedans.
+   *
+   *  ELLE EST DISTINCTE DE `images`, qui pointe sur `assets/`. Les
+   *  badges vivent dans `img/badges/`, pas dans `assets/`, et le
+   *  carnet leur demandait `assets/badges/` : onze 404 silencieux. */
+  depot: string | null;
+  /** La carte de couverture des sprites, ou `null` si elle n'a pas pu
+   *  être lue. Sans elle, cases vides plutôt qu'images cassées. */
+  sprites: Sprites | null;
+  /** Le style choisi par le joueur : forum, rétro ou GBA/DS. */
+  style: StyleDeSprite;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -76,10 +89,26 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return e;
 }
 
-function sprite(doc: Document, images: string | null, id: number, classe: string): HTMLElement {
-  if (images === null) return el(doc, "span", classe);
+/*  UN SPRITE D'ESPÈCE.
+ *
+ *  IL ÉCRIVAIT `assets/pokemon/<id>.png` À LA MAIN. Ce dossier est
+ *  VIDE dans le dépôt — zéro fichier suivi — donc les neuf cent
+ *  trente-trois sprites du carnet étaient en 404 : la boîte, le sac,
+ *  l'équipe, la pension et le Pokédex, tous muets. Les images
+ *  existent, 1 838 dans `assets/sprites-figes/` et trois styles, et
+ *  `Sprites` est écrite depuis des semaines pour les trouver. C'est
+ *  la même fonction que l'annexe de la carte appelle depuis le 4
+ *  novembre ; il fallait l'appeler ici aussi.
+ *
+ *  Quand l'espèce n'est pas couverte, on rend une case vide : une
+ *  silhouette manquante se voit moins qu'une image cassée. */
+function sprite(doc: Document, decor: Decor, id: number, classe: string): HTMLElement {
+  const adresse = decor.depot === null
+    ? null
+    : adresseDuSprite(decor.sprites, decor.depot, id, decor.style);
+  if (adresse === null) return el(doc, "span", classe);
   const img = el(doc, "img", classe);
-  img.src = `${images}pokemon/${id}.png`;
+  img.src = adresse;
   img.alt = "";
   //  NEUF CENT TRENTE-TROIS SPRITES SUR LE POKÉDEX : sans `lazy`, le
   //  navigateur les demande tous à l'ouverture de la page.
@@ -152,7 +181,7 @@ function poserLEquipe(doc: Document, c: Carnet, decor: Decor): void {
       }
       if (pokemon.enPension) li.classList.add("wm-carnet__pkmn--pension");
       li.append(
-        sprite(doc, decor.images, pokemon.especeId, "wm-carnet__sprite"),
+        sprite(doc, decor, pokemon.especeId, "wm-carnet__sprite"),
         el(doc, "p", "wm-carnet__pkmn-nom", nomAffiche(pokemon, decor.especes)),
         el(
           doc,
@@ -178,7 +207,7 @@ function poserLaPension(doc: Document, c: Carnet, decor: Decor): void {
   liste.replaceChildren(...c.pension.map((s) => {
     const p = parId.get(s.pokemonId);
     const li = el(doc, "li", "wm-carnet__depot");
-    if (p !== undefined) li.append(sprite(doc, decor.images, p.especeId, ""));
+    if (p !== undefined) li.append(sprite(doc, decor, p.especeId, ""));
     const bloc = el(doc, "div");
     bloc.append(
       el(doc, "p", "wm-carnet__pkmn-nom", p === undefined ? "—" : nomAffiche(p, decor.especes)),
@@ -217,9 +246,11 @@ function poserLesBadges(doc: Document, c: Carnet, decor: Decor): void {
     liste.replaceChildren(...cases.map((b) => {
       const li = el(doc, "li", "wm-carnet__badge");
       if (b.obtenuLe === null) li.classList.add("wm-carnet__badge--agagner");
-      if (b.slug !== null && decor.images !== null) {
+      if (b.slug !== null && decor.depot !== null) {
         const img = el(doc, "img");
-        img.src = `${decor.images}badges/${b.slug}.png`;
+        //  `img/badges/`, PAS `assets/badges/` : ce dernier n'existe
+        //  pas, et les onze badges étaient en 404.
+        img.src = `${decor.depot}img/badges/${b.slug}.png`;
         img.alt = "";
         img.loading = "lazy";
         li.append(img);
@@ -301,9 +332,14 @@ export function poserMonSac(doc: Document, c: Carnet, decor: Decor): void {
     const liste = el(doc, "ul", "wm-carnet__objets");
     liste.append(...s.lignes.map(({ objet, quantite }) => {
       const li = el(doc, "li", "wm-carnet__objet");
-      if (decor.images !== null && objet.slug !== "") {
+      const vignette = objet.slug === ""
+        ? null
+        : decor.sprites?.adresseDObjet(objet.slug) ?? null;
+      if (vignette !== null) {
         const img = el(doc, "img");
-        img.src = `${decor.images}items/${objet.slug}.png`;
+        //  LA VIGNETTE VIENT DE LA COUVERTURE, pas d'un dossier
+        //  `assets/items/` qui n'existe pas non plus.
+        img.src = vignette;
         img.alt = "";
         img.loading = "lazy";
         li.append(img);
@@ -360,7 +396,7 @@ function poserLaFiche(doc: Document, k: CaseDePokedex, decor: Decor): void {
   }
 
   const enfants: Node[] = [
-    sprite(doc, decor.images, k.espece.id, "wm-carnet__fiche-sprite"),
+    sprite(doc, decor, k.espece.id, "wm-carnet__fiche-sprite"),
     titre,
     nom,
     types,
@@ -410,7 +446,7 @@ export function poserMonPokedex(doc: Document, c: Carnet, decor: Decor): void {
       //  fiche : on ne nomme pas ce qui n'a pas été croisé.
       bouton.setAttribute("aria-label", `Espèce n° ${k.espece.no}, pas encore croisée`);
     } else {
-      bouton.append(sprite(doc, decor.images, k.espece.id, ""));
+      bouton.append(sprite(doc, decor, k.espece.id, ""));
       bouton.setAttribute(
         "aria-label",
         `${k.espece.nom}, ${k.etat === "attrape" ? "attrapée" : "croisée"}`,
@@ -603,7 +639,7 @@ export function poserMesBoites(
       } else {
         if (p.enPension) bouton.classList.add("wm-boites__place--pension");
         bouton.append(
-          sprite(doc, decor.images, p.especeId, ""),
+          sprite(doc, decor, p.especeId, ""),
           el(doc, "span", "wm-boites__nom", nomAffiche(p, decor.especes)),
           el(
             doc,
@@ -662,7 +698,7 @@ export function poserMesBoites(
           });
         });
       } else {
-        bouton.append(sprite(doc, decor.images, p.especeId, ""));
+        bouton.append(sprite(doc, decor, p.especeId, ""));
         bouton.setAttribute("aria-label", nomAffiche(p, decor.especes));
         bouton.addEventListener("click", () => {
           choisi = p.id;
@@ -684,7 +720,7 @@ export function poserMesBoites(
       return;
     }
     detail.append(
-      sprite(doc, decor.images, p.especeId, ""),
+      sprite(doc, decor, p.especeId, ""),
       el(doc, "p", "wm-boites__detail-nom", nomAffiche(p, decor.especes)),
     );
 

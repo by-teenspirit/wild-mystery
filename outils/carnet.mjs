@@ -2081,6 +2081,75 @@ const { q: p, appels } = await monter();
 }
 
 {
+  //  ── OÙ POINTENT LES IMAGES ──────────────────────────────────────
+  //
+  //  TROUVÉ LE 4 NOVEMBRE, APRÈS L'ANNEXE DE LA CARTE. Le carnet
+  //  écrivait `assets/pokemon/<id>.png`, `assets/badges/<slug>.png` et
+  //  `assets/items/<slug>.png` à la main. AUCUN de ces trois dossiers
+  //  n'existe dans le dépôt : neuf cent trente-trois sprites, onze
+  //  badges et toutes les vignettes d'objet étaient en 404, sans que
+  //  rien ne le dise — la page restait debout, avec des trous.
+  //
+  //  CE HARNAIS NE L'AVAIT PAS VU PARCE QU'IL SERVAIT UN CARRÉ VIDE à
+  //  la place de tout fichier manquant. On ne peut pas vérifier que
+  //  les fichiers existent — les 1 838 sprites vivent sur le Mac, pas
+  //  dans ce bac à sable — mais on peut vérifier OÙ ON LES DEMANDE, et
+  //  c'est ce qui aurait suffi.
+  const vu = await p.evaluate(() => {
+    const src = (s) => [...document.querySelectorAll(s)].map((i) => i.getAttribute("src") ?? "");
+    return {
+      dex: src("[data-wm-carnet-grille] img").slice(0, 40),
+      combien: document.querySelectorAll("[data-wm-carnet-grille] img").length,
+    };
+  });
+  dire(
+    "les sprites du Pokédex vont chercher `assets/sprites-figes/`, pas un dossier vide",
+    vu.combien > 0 && vu.dex.every((u) => /\/assets\/sprites-figes\/[^/]+\/\d+\.(png|gif)$/.test(u)),
+    JSON.stringify({ combien: vu.combien, premier: vu.dex[0], mauvais: vu.dex.filter((u) => !/sprites-figes/.test(u)).slice(0, 3) }),
+  );
+}
+
+{
+  await p.click("[data-wm-carnet-onglet='mon-jeu']");
+  await p.waitForTimeout(200);
+  const vu = await p.evaluate(() => ({
+    badges: [...document.querySelectorAll("[data-wm-carnet-badges] img")]
+      .map((i) => i.getAttribute("src") ?? ""),
+    equipe: [...document.querySelectorAll("[data-wm-carnet-equipe] img")]
+      .map((i) => i.getAttribute("src") ?? ""),
+  }));
+  dire(
+    "les badges vont chercher `img/badges/`, pas `assets/badges/` qui n'existe pas",
+    vu.badges.length > 0 && vu.badges.every((u) => /\/img\/badges\/[a-z]+\.png$/.test(u)),
+    JSON.stringify(vu.badges.slice(0, 3)),
+  );
+  dire(
+    "et les sprites de l'équipe aussi viennent de `assets/sprites-figes/`",
+    vu.equipe.length > 0 && vu.equipe.every((u) => /sprites-figes/.test(u)),
+    JSON.stringify(vu.equipe.slice(0, 3)),
+  );
+}
+
+{
+  await p.click("[data-wm-carnet-onglet='mon-sac']");
+  await p.waitForTimeout(200);
+  const vu = await p.evaluate(() => ({
+    objets: [...document.querySelectorAll("[data-wm-carnet-sac] img, .wm-carnet__objet img")]
+      .map((i) => i.getAttribute("src") ?? ""),
+  }));
+  //  LES VIGNETTES D'OBJET SONT CHEZ POKEAPI, à un commit épinglé :
+  //  on ne les recopie pas dans le dépôt, la couverture dit lesquelles
+  //  existent. Un objet sans vignette ne doit PAS poser d'image.
+  dire(
+    "les vignettes d'objet viennent de la couverture, jamais d'un `assets/items/` inexistant",
+    vu.objets.every((u) => u !== "" && !/\/assets\/items\//.test(u)),
+    JSON.stringify(vu.objets.slice(0, 3)),
+  );
+  await p.click("[data-wm-carnet-onglet='mon-pokedex']");
+  await p.waitForTimeout(200);
+}
+
+{
   //  LES FILTRES CACHENT ET MONTRENT, ILS NE RECHARGENT RIEN.
   const avant = appels.length;
   await p.click("[data-wm-filtre='attrape']");

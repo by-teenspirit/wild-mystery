@@ -876,6 +876,30 @@ else
       gronde "outils/$outil.py --verifier refuse : un fichier dérivé a été modifié à la main"
     fi
   done
+
+  # ET LES COPIES À COLLER, qui sont dérivées elles aussi.
+  #
+  # TROUVÉ LE 4 NOVEMBRE, en ajoutant la région de Rhode au carnet :
+  # `pages/carnet.html` modifié, `pages/carnet.a-publier.html` resté
+  # tel quel, et rien ne l'a dit. C'est la copie qu'on colle dans le
+  # panneau — donc celle qui part en ligne.
+  #
+  # SEULEMENT LES COPIES SUIVIES PAR GIT. Celles des gabarits
+  # (`templates/*.a-publier.html`) sont ignorées par `.gitignore` : ce
+  # sont des fichiers de travail, elles n'existent pas chez tout le
+  # monde, et crier dessus rendrait le garde-fou rouge en permanence —
+  # un rouge permanent est un rouge qu'on cesse de lire (règle 8).
+  if command -v deno >/dev/null 2>&1; then
+    for gabarit in pages/carnet.html; do
+      if [ -f "${gabarit%.html}.a-publier.html" ]; then
+        if ! deno run -A outils/a-publier.mjs "$gabarit" --verifier; then
+          gronde "la copie à coller de $gabarit ne suit plus sa source"
+        fi
+      fi
+    done
+  else
+    echo "   deno absent du PATH — les copies à coller non vérifiées"
+  fi
 fi
 
 echo "── 24. le code à coller et data/arenes.json disent les mêmes badges ─"

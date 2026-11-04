@@ -67,7 +67,9 @@ import {
   especesDepuis,
   racineDesDonnees,
   racineDesImages,
+  racineDuDepot,
 } from "../src/adaptateurs/navigateur/catalogue.ts";
+import { type CarteDeCouverture, Sprites } from "../src/navigateur/sprites.ts";
 import {
   appelerAvecLeJeton,
   envoyerLeLien,
@@ -98,6 +100,21 @@ import {
 
 const RACINE = racineDesDonnees(adresseDuScript(document));
 const IMAGES = racineDesImages(adresseDuScript(document));
+//  LA RACINE DU DÉPÔT, en plus de `assets/` : les badges vivent dans
+//  `img/badges/` et les sprites dans `assets/sprites-figes/`, que
+//  `Sprites` rend en chemin relatif à la racine. Le recollage se fait
+//  ici, dans la couche qui connaît les adresses.
+const DEPOT = racineDuDepot(adresseDuScript(document));
+
+/** `prefers-reduced-motion`, lu une fois : il décide entre le sprite
+ *  animé et le sprite figé. */
+function mouvementRefuse(): boolean {
+  try {
+    return globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+  } catch {
+    return false;
+  }
+}
 
 poserLeTheme(document, new Preferences(new StockageLocal()));
 
@@ -109,12 +126,13 @@ async function lire(nom: string): Promise<unknown> {
 }
 
 async function decorDuCarnet(): Promise<Decor> {
-  const [especes, objets, arenes, dex, groupes] = await Promise.all([
+  const [especes, objets, arenes, dex, groupes, couverture] = await Promise.all([
     lire("especes.json"),
     lire("objets.json"),
     lire("arenes.json"),
     lire("pokedex-carnet.json"),
     lire("groupes.json"),
+    lire("sprites-couverture.json"),
   ]);
   const liste = (d: unknown, clef: string): unknown[] => {
     if (typeof d !== "object" || d === null) return [];
@@ -129,6 +147,11 @@ async function decorDuCarnet(): Promise<Decor> {
     zones: liste(dex, "zones") as Decor["zones"],
     groupes: liste(groupes, "groupes") as Decor["groupes"],
     images: IMAGES,
+    depot: DEPOT,
+    sprites: couverture === null
+      ? null
+      : new Sprites(couverture as CarteDeCouverture, mouvementRefuse()),
+    style: new Preferences(new StockageLocal()).styleDeSprite(),
   };
 }
 
