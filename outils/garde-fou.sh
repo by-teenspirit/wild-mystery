@@ -853,6 +853,17 @@ else
   #
   #   carte.json + les 17 faune/*.json + butin.json
   #               →  pages/annexe-06-la-region-et-ses-zones.html
+  #   personnages.json + arenes.json
+  #               →  pages/annexe-11-celebrites-de-rhode.html
+  #   credits.json →  pages/annexe-09-credits.html
+  #
+  # Les crédits portent des NOMS DE PERSONNES, et un nom mal écrit se
+  # corrige à un seul endroit ou jamais.
+  #
+  # Pour l'annexe 11, la raison tient en une ligne : LES ONZE CHAMPIONS
+  # SONT LES ONZE ARÈNES. Écrits une seconde fois à la main dans une
+  # page, ils auraient dérivé au premier renommage — c'est exactement ce
+  # que la règle 24 empêche pour les badges.
   #
   # Elle porte les dix-sept zones, leurs niveaux, leur compte d'espèces
   # et, dans son repli sans JavaScript, les 933 noms. Une table de faune
@@ -860,7 +871,7 @@ else
   # C'est exactement le cas que la règle 9 décrit pour l'index des
   # espèces, appliqué à du HTML.
   for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones pokedex-carnet \
-               minifier-le-code annexe-carte; do
+               minifier-le-code annexe-carte annexe-personnages annexe-credits; do
     if ! python3 "outils/$outil.py" --verifier; then
       gronde "outils/$outil.py --verifier refuse : un fichier dérivé a été modifié à la main"
     fi

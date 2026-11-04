@@ -298,8 +298,10 @@ function sol(
   for (const i of partsDuSol(taux)) {
     const li = el(doc, "li", "wm-faune__issue");
     li.dataset.wmIssue = i.clef;
-    li.appendChild(el(doc, "span", "wm-faune__issue-mot", i.mot));
+    //  LE CHIFFRE D'ABORD : c'est ce qu'on vient chercher dans un
+    //  tableau de cinq lignes, et le mot l'explique.
     li.appendChild(el(doc, "b", "wm-faune__issue-pct", pourCent(i.pct)));
+    li.appendChild(el(doc, "span", "wm-faune__issue-mot", i.mot));
     const sur = motDeLaChance(i.pct, "fouille");
     if (sur !== "") li.appendChild(el(doc, "span", "wm-faune__sur", sur));
     issues.appendChild(li);
@@ -317,41 +319,48 @@ function sol(
         "d'une fouille, pas d'une part de la tranche.",
     ),
   );
-  const liste = el(doc, "ul", "wm-faune__objets");
+  const liste = el(doc, "ul", "wm-faune__especes wm-faune__objets");
+  //  ── LA MÊME CARTE QUE POUR UNE ESPÈCE ────────────────────────
+  //
+  //  Deux grilles côte à côte sur la même page n'ont aucune raison de
+  //  ne pas se ressembler. L'objet reprend donc les classes de
+  //  l'espèce — la boîte d'image, le nom, la puce de famille, le pied
+  //  — et c'est `data-wm-frequence` qui colore son liseré au lieu de
+  //  `data-wm-rarete`. Un composant, deux emplois, une seule feuille à
+  //  tenir droite.
   for (const o of parFrequence(objets)) {
-    const li = el(doc, "li", "wm-faune__objet");
+    const li = el(doc, "li", "wm-faune__espece wm-faune__objet");
     li.dataset.wmObjet = String(o.objet);
+    li.dataset.wmFrequence = motDeLaFrequence(o.pct);
 
     //  LA VIGNETTE VIENT DE LA CARTE, PAS D'UN `onerror`. Trente-trois
     //  des trente-quatre objets en ont une au commit épinglé ; le
     //  trente-quatrième garde sa place vide, comme une espèce hors
     //  couverture.
+    const boite = el(doc, "span", "wm-faune__boite wm-faune__boite--objet");
     const adresse = o.slug === undefined ? null : sprites?.adresseDObjet(o.slug) ?? null;
     if (adresse !== null) {
       const image = doc.createElement("img");
-      image.className = "wm-faune__objet-image";
+      image.className = "wm-faune__sprite";
       image.src = adresse;
       image.alt = "";
       image.loading = "lazy";
-      image.width = 30;
-      image.height = 30;
-      li.appendChild(image);
+      boite.appendChild(image);
     } else {
-      li.appendChild(el(doc, "span", "wm-faune__objet-image wm-faune__objet-image--absent"));
+      boite.classList.add("wm-faune__boite--vide");
     }
+    li.appendChild(boite);
 
-    const mots = el(doc, "span", "wm-faune__objet-mots");
-    mots.appendChild(el(doc, "b", "wm-faune__objet-nom", o.nom));
-    mots.appendChild(el(doc, "span", "wm-faune__objet-famille", o.famille));
-    li.appendChild(mots);
+    li.appendChild(el(doc, "b", "wm-faune__nom", o.nom));
 
-    //  LA FRÉQUENCE EST UNE PASTILLE DE COULEUR, et le mot est dedans :
-    //  un joueur sur douze ne distingue pas quatre teintes, et une
-    //  couleur seule ne se lit pas à voix haute.
-    const freq = el(doc, "span", "wm-faune__tag", motDeLaFrequence(o.pct));
-    freq.dataset.wmFrequence = motDeLaFrequence(o.pct);
-    li.appendChild(freq);
-    li.appendChild(el(doc, "span", "wm-faune__objet-pct", pourCent(o.pct)));
+    const familles = el(doc, "span", "wm-faune__types");
+    familles.appendChild(el(doc, "span", "wm-faune__type", o.famille));
+    li.appendChild(familles);
+
+    const pied = el(doc, "span", "wm-faune__pied");
+    pied.appendChild(el(doc, "span", "wm-faune__rarete", motDeLaFrequence(o.pct)));
+    pied.appendChild(el(doc, "b", "wm-faune__pct", pourCent(o.pct)));
+    li.appendChild(pied);
     liste.appendChild(li);
   }
   hote.appendChild(liste);

@@ -317,7 +317,7 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     ZONE.forumId,
   );
   await p.waitForFunction(
-    () => document.querySelectorAll(".wm-faune__espece").length > 0,
+    () => document.querySelectorAll("[data-wm-espece]").length > 0,
     undefined,
     { timeout: 15000 },
   );
@@ -340,7 +340,7 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     const pct = (n) => Number((n ?? "").replace(/[^\d,]/g, "").replace(",", "."));
     const tranches = Array.from(document.querySelectorAll(".wm-faune__tranche")).map((t) => ({
       rarete: t.dataset.wmRarete,
-      especes: Array.from(t.querySelectorAll(".wm-faune__espece")).map((e) => ({
+      especes: Array.from(t.querySelectorAll("[data-wm-espece]")).map((e) => ({
         id: Number(e.dataset.wmEspece),
         nom: e.querySelector(".wm-faune__nom")?.textContent ?? "",
         pct: pct(e.querySelector(".wm-faune__pct")?.textContent),
@@ -366,16 +366,19 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
         .map((n) => n.textContent ?? ""),
       dit: document.querySelector(".wm-faune__dit")?.textContent ?? "",
       tranches,
-      total: document.querySelectorAll(".wm-faune__espece").length,
+      total: document.querySelectorAll("[data-wm-espece]").length,
       issues: Array.from(document.querySelectorAll(".wm-faune__issue")).map((n) => ({
         clef: n.dataset.wmIssue,
         pct: pct(n.querySelector(".wm-faune__issue-pct")?.textContent),
       })),
       objets: Array.from(document.querySelectorAll(".wm-faune__objet")).map((n) => ({
         id: Number(n.dataset.wmObjet),
-        pct: pct(n.querySelector(".wm-faune__objet-pct")?.textContent),
-        image: n.querySelector(".wm-faune__objet-image")?.getAttribute("src") ?? "",
-        tag: n.querySelector(".wm-faune__tag")?.textContent ?? "",
+        pct: pct(n.querySelector(".wm-faune__pct")?.textContent),
+        image: n.querySelector(".wm-faune__sprite")?.getAttribute("src") ?? "",
+        tag: n.querySelector(".wm-faune__rarete")?.textContent ?? "",
+        //  L'OBJET REPREND LA CARTE DE L'ESPÈCE : même classe, même
+        //  pied, et c'est `data-wm-frequence` qui colore son liseré.
+        memeCarte: n.classList.contains("wm-faune__espece"),
       })),
     };
   });
@@ -554,7 +557,11 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     { vides: vu.objets.length - vignettes.length, sansVignette: attendusSans },
   );
   ok(
-    "LA FRÉQUENCE EST UN TAG, et le mot est dedans",
+    "UN OBJET EST LA MÊME CARTE QU'UNE ESPÈCE",
+    vu.objets.every((o) => o.memeCarte),
+  );
+  ok(
+    "LA FRÉQUENCE EST ÉCRITE EN PIED, pas seulement colorée",
     vu.objets.every((o) => ["fréquent", "peu fréquent", "rare", "très rare"].includes(o.tag)),
     vu.objets.map((o) => o.tag).slice(0, 4),
   );
@@ -585,7 +592,7 @@ console.log("\n── on change de zone, puis on clique une ville ──");
     autre.nom,
     { timeout: 15000 },
   );
-  const compte = await p.evaluate(() => document.querySelectorAll(".wm-faune__espece").length);
+  const compte = await p.evaluate(() => document.querySelectorAll("[data-wm-espece]").length);
   ok(
     "LA FAUNE EST REMPLACÉE, PAS AJOUTÉE",
     compte === sienne.length,
@@ -606,7 +613,7 @@ console.log("\n── on change de zone, puis on clique une ville ──");
   );
   const vu = await p.evaluate(() => ({
     mot: document.querySelector(".wm-faune__vide")?.textContent ?? "",
-    especes: document.querySelectorAll(".wm-faune__espece").length,
+    especes: document.querySelectorAll("[data-wm-espece]").length,
   }));
   ok("une ville le dit", vu.mot.includes("Aucune faune"), vu.mot);
   ok(
@@ -630,14 +637,14 @@ console.log("\n── à 390 px ──");
     ZONE.forumId,
   );
   await p.waitForFunction(
-    () => document.querySelectorAll(".wm-faune__espece").length > 0,
+    () => document.querySelectorAll("[data-wm-espece]").length > 0,
     undefined,
     { timeout: 15000 },
   );
   const vu = await p.evaluate(() => ({
     debord: document.documentElement.scrollWidth > window.innerWidth + 1,
     large: document.documentElement.scrollWidth,
-    espece: document.querySelector(".wm-faune__espece")?.getBoundingClientRect().width ?? 0,
+    espece: document.querySelector("[data-wm-espece]")?.getBoundingClientRect().width ?? 0,
   }));
   ok("rien ne déborde", !vu.debord, vu);
   ok("et une carte d'espèce tient dans l'écran", vu.espece > 0 && vu.espece <= 390, vu.espece);

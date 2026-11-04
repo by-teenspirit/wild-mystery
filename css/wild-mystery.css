@@ -28,6 +28,7 @@
      · css/20-icones.css
      · css/21-carnet.css
      · css/22-faune.css
+     · css/23-personnages.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -23625,32 +23626,39 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-texte-inverse, #fffbf7);
 }
 
-/* ── 5 · la grille d'espèces ──────────────────────────────────────
+/* ── 5 · la carte, une pour les espèces et les objets ─────────────
 
    ZÉRO TABLEAU, QUE DU FLEXBOX — règle du dépôt. `wrap` et une base
    de 150 px : la grille se reflue toute seule de cinq colonnes à deux
    sans un seul point de rupture.
 
-   LA CARTE SE SUFFIT À ELLE-MÊME : sprite, nom, types, niveaux,
-   rareté, chance. Elle se relit hors de son groupe, et c'est ce qui
-   permettra un jour de la sortir d'une tranche sans la redessiner. */
+   UNE SEULE CARTE POUR LES DEUX GRILLES. Deux listes côte à côte sur
+   la même page n'ont aucune raison de ne pas se ressembler : l'objet
+   reprend les classes de l'espèce, et c'est `data-wm-frequence` qui
+   colore son liseré au lieu de `data-wm-rarete`.
+
+   ── L'ESPACEMENT SUIT UNE SEULE ÉCHELLE ───────────────────────────
+   6 · 10 · 16 · 24, et rien entre. Le premier jet mettait 4 px
+   partout : le nom, les types et les niveaux se touchaient tous
+   pareil, donc rien ne se détachait et la carte n'avait pas de
+   hiérarchie. Trois distances valent mieux qu'une. */
 #modernbb .wm-faune__especes {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-12, 12px);
-  margin: 0;
+  margin: var(--wm-espace-16, 16px) 0 0;
   padding: 0;
   list-style: none;
 }
 
 #modernbb .wm-faune__espece {
   display: flex;
-  flex: 1 1 150px;
+  flex: 1 1 168px;
   box-sizing: border-box;
   flex-direction: column;
   align-items: center;
-  max-width: 200px;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-10, 10px) 0;
+  max-width: 220px;
+  padding: 0 var(--wm-espace-12, 12px);
   overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
@@ -23662,22 +23670,24 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     la largeur : à cinq colonnes, l'œil suit une ligne de couleur plus
     vite qu'il ne lit trente-six fois le même mot. Le mot reste écrit
     en pied de carte — un joueur sur douze ne distingue pas les
-    teintes. */
-#modernbb .wm-faune__espece::before {
-  content: "";
-  display: block;
-  width: calc(100% + var(--wm-espace-20, 20px));
-  height: 3px;
-  margin: calc(var(--wm-espace-10, 10px) * -1) calc(var(--wm-espace-10, 10px) * -1) 0;
-  background: var(--wm-palier-1, #3f7d52);
+    teintes.
+
+    Il est en `border-top` et plus en `::before` : le pseudo-élément
+    demandait une marge négative calculée sur le padding, qui cassait
+    dès qu'on touchait au padding. Une bordure suit toute seule. */
+#modernbb .wm-faune__espece {
+  border-top: 3px solid var(--wm-palier-1, #3f7d52);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"]::before {
-  background: var(--wm-palier-2, #a05e18);
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"],
+#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] {
+  border-top-color: var(--wm-palier-2, #a05e18);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="rare"]::before {
-  background: var(--wm-palier-3, #b1402f);
+#modernbb .wm-faune__espece[data-wm-rarete="rare"],
+#modernbb .wm-faune__espece[data-wm-frequence="rare"],
+#modernbb .wm-faune__espece[data-wm-frequence="très rare"] {
+  border-top-color: var(--wm-palier-3, #b1402f);
 }
 
 /*  ── LA BOÎTE EST FIXE, L'IMAGE NON ─────────────────────────────
@@ -23687,15 +23697,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     — et écrasait les grands. La boîte garde la grille régulière ;
     l'image n'a ni `width` ni `height`, donc elle reste à sa taille
     tant qu'elle y tient et ne se RÉDUIT que si elle déborde. Jamais
-    d'agrandissement : c'est ce que Callista a demandé, et c'est de
-    toute façon la seule façon de ne pas abîmer un pixel art. */
+    d'agrandissement. */
 #modernbb .wm-faune__boite {
   display: flex;
   width: 100%;
-  height: 84px;
+  height: 80px;
   align-items: center;
   justify-content: center;
-  margin-top: var(--wm-espace-8, 8px);
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+/*  Une vignette d'objet fait 30 px : lui garder 80 px de boîte
+    creuserait un trou au milieu de la carte. */
+#modernbb .wm-faune__boite--objet {
+  height: 48px;
 }
 
 #modernbb .wm-faune__sprite {
@@ -23710,14 +23725,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-faune__boite--vide::after {
   content: "";
   display: block;
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
 #modernbb .wm-faune__nom {
-  margin-top: var(--wm-espace-4, 4px);
+  margin-top: var(--wm-espace-16, 16px);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
@@ -23734,9 +23749,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex-wrap: wrap;
   gap: var(--wm-espace-4, 4px);
   justify-content: center;
-  margin-top: var(--wm-espace-4, 4px);
+  margin-top: var(--wm-espace-10, 10px);
 }
 
+/*  LA PUCE EST SERRÉE EXPRÈS : deux types doivent tenir sur UNE ligne.
+    À 8 px de marge intérieure, « POISON » et « VOL » passaient à la
+    ligne sur une carte de 150 px, et une carte sur quatre était plus
+    haute que ses voisines sans raison lisible. */
 #modernbb .wm-faune__type {
   display: inline-flex;
   align-items: center;
@@ -23747,6 +23766,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.5;
   text-transform: uppercase;
 }
 
@@ -23756,27 +23776,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 #modernbb .wm-faune__niveaux {
-  margin-top: var(--wm-espace-4, 4px);
+  margin-top: var(--wm-espace-10, 10px);
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
 }
 
-/*  LE PIED EST SUR LE FOND DE LA CARTE, bord à bord : il sépare ce
-    qu'on lit (le nom, les types) de ce qu'on compare (la rareté, la
-    chance), sans avoir besoin d'un trait. */
+/*  LE PIED EST SUR LE FOND DE LA CARTE, bord à bord et sur `fond-douce`
+    plutôt que `fond-surface` : entre deux beiges qui se ressemblent,
+    la séparation ne se voyait pas, et le pied avait l'air posé là.
+
+    `margin-top: auto` LE COLLE AU BAS, et c'est ce qui aligne les
+    pourcentages d'une rangée. Sans lui, une carte à deux types est
+    plus haute que sa voisine et la colonne qu'on vient comparer
+    devenait un escalier. */
 #modernbb .wm-faune__pied {
   display: flex;
-  width: calc(100% + var(--wm-espace-20, 20px));
+  width: calc(100% + var(--wm-espace-24, 24px));
   align-items: baseline;
   justify-content: space-between;
-  /*  `margin-top: auto` COLLE LE PIED AU BAS, et c'est ce qui aligne
-      les pourcentages d'une rangée. Sans lui, une carte à deux types
-      est plus haute que sa voisine et son pied descend avec : la
-      colonne de chiffres qu'on vient comparer devenait un escalier. */
-  margin: auto calc(var(--wm-espace-10, 10px) * -1) 0;
-  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
-  border-top: 1px solid var(--wm-bord-fin, #eadacd);
-  background: var(--wm-fond-surface, #fffbf7);
+  gap: var(--wm-espace-8, 8px);
+  margin: var(--wm-espace-16, 16px) calc(var(--wm-espace-12, 12px) * -1) 0;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  background: var(--wm-fond-douce, #f3e1d2);
 }
 
 #modernbb .wm-faune__rarete {
@@ -23786,15 +23807,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-transform: uppercase;
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="commun"] .wm-faune__rarete {
+#modernbb .wm-faune__espece[data-wm-rarete="commun"] .wm-faune__rarete,
+#modernbb .wm-faune__espece[data-wm-frequence="fréquent"] .wm-faune__rarete {
   color: var(--wm-palier-1, #3f7d52);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__rarete {
+#modernbb .wm-faune__espece[data-wm-rarete="peu commun"] .wm-faune__rarete,
+#modernbb .wm-faune__espece[data-wm-frequence="peu fréquent"] .wm-faune__rarete {
   color: var(--wm-palier-2, #a05e18);
 }
 
-#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__rarete {
+#modernbb .wm-faune__espece[data-wm-rarete="rare"] .wm-faune__rarete,
+#modernbb .wm-faune__espece[data-wm-frequence="rare"] .wm-faune__rarete,
+#modernbb .wm-faune__espece[data-wm-frequence="très rare"] .wm-faune__rarete {
   color: var(--wm-palier-3, #b1402f);
 }
 
@@ -23802,6 +23827,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
+  white-space: nowrap;
 }
 
 #modernbb .wm-faune__sur {
@@ -23812,7 +23838,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /* ── 6 · ce qu'on trouve au sol ───────────────────────────────────── */
 
 #modernbb .wm-faune__sol {
-  margin-top: var(--wm-espace-32, 32px);
+  margin-top: var(--wm-espace-40, 40px);
   padding-top: var(--wm-espace-24, 24px);
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
@@ -23823,109 +23849,41 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-size: var(--wm-taille-titre-carte, 16px);
 }
 
-#modernbb .wm-faune__issues,
-#modernbb .wm-faune__objets {
+/*  LES CINQ ISSUES NE SONT PAS DES CARTES D'OBJET : elles n'ont pas
+    d'image, et ce qu'on en retient est le chiffre. Une rangée large,
+    le pourcentage en gros, le mot en dessous. */
+#modernbb .wm-faune__issues {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-10, 10px);
-  margin: var(--wm-espace-12, 12px) 0 0;
+  margin: var(--wm-espace-16, 16px) 0 0;
   padding: 0;
   list-style: none;
 }
 
-#modernbb .wm-faune__issue,
-#modernbb .wm-faune__objet {
+#modernbb .wm-faune__issue {
   display: flex;
-  flex: 1 1 180px;
+  flex: 1 1 160px;
   box-sizing: border-box;
   flex-direction: column;
-  max-width: 280px;
+  gap: var(--wm-espace-4, 4px);
+  max-width: 260px;
   padding: var(--wm-espace-12, 12px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
-#modernbb .wm-faune__issue-mot,
-#modernbb .wm-faune__objet-nom {
-  font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-}
-
-#modernbb .wm-faune__issue-pct,
-#modernbb .wm-faune__objet-pct {
+#modernbb .wm-faune__issue-pct {
   color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-titre-carte, 16px);
   font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1.1;
 }
 
-/*  LA VIGNETTE EST À GAUCHE DU NOM, pas au-dessus : on parcourt une
-    colonne de trente-quatre objets à la verticale, et l'œil qui
-    descend ne veut pas sauter une image entre chaque ligne. */
-#modernbb .wm-faune__objet {
-  display: grid;
-  align-items: start;
-  gap: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
-  grid-template-areas:
-    "image mots pct"
-    "image tag  tag";
-  grid-template-columns: 30px minmax(0, 1fr) auto;
-}
-
-#modernbb .wm-faune__objet-image {
-  width: 30px;
-  height: 30px;
-  grid-area: image;
-  object-fit: contain;
-  image-rendering: pixelated;
-}
-
-#modernbb .wm-faune__objet-image--absent {
-  display: block;
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-douce, #f3e1d2);
-}
-
-/*  `mots` empile le nom et sa famille. Sans ce conteneur, les deux
-    tombaient dans la même cellule de grille et se collaient —
-    « AntidoteSTATUT », vu à l'écran le 4 novembre. */
-#modernbb .wm-faune__objet-mots {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  grid-area: mots;
-}
-
-/*  Le tag et le chiffre sur une même ligne, sous le nom : la couleur
-    saute aux yeux, le pourcentage est là pour qui veut le chiffre.
-
-    LE CHIFFRE MONTE À CÔTÉ DU NOM, LE TAG PREND LA LIGNE DU DESSOUS.
-    Deux essais pour en arriver là, les deux vus à l'écran : dans la
-    même cellule ils se chevauchaient (« PEU FRÉQUE2,69 % ») ; côte à
-    côte sur une carte de 180 px, « PEU FRÉQUENT » débordait encore,
-    parce qu'un tag ne se coupe pas — son mot EST l'information. Sur sa
-    propre ligne, il a toute la largeur quoi qu'il arrive. */
-#modernbb .wm-faune__objet > .wm-faune__tag {
-  grid-area: tag;
-  align-self: center;
-  /*  `justify-self`, pas `align-self` : dans une grille, c'est l'axe
-      en ligne qui décide de la largeur, et sans lui le tag s'étirait
-      sur toute la carte — une pastille qui fait la largeur d'un bloc
-      n'est plus une pastille. */
-  justify-self: start;
-}
-
-#modernbb .wm-faune__objet > .wm-faune__objet-pct {
-  grid-area: pct;
-  justify-self: end;
-  align-self: start;
-}
-
-#modernbb .wm-faune__objet-famille {
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  text-transform: uppercase;
+#modernbb .wm-faune__issue-mot {
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
 }
 
 /* ── 7 · le téléphone ─────────────────────────────────────────────── */
@@ -23947,6 +23905,296 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   /*  La boîte se resserre ; l'image, elle, ne grandit toujours pas. */
   #modernbb .wm-faune__boite {
     height: 68px;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   23-personnages.css — les fiches de personnage et les postes
+
+   Trois listes qui partagent une seule carte : les personnages
+   jouables, les célébrités de Rhode, et les onze postes de champion.
+
+   « Pour ces blocs-là, on essaye d'en mettre deux côte à côte. »
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la grille, deux par rangée ───────────────────────────────── */
+
+/*  ZÉRO TABLEAU, QUE DU FLEXBOX. Une base de 300 px et `wrap` : deux
+    colonnes dès qu'il y a la place, une seule quand il n'y en a plus,
+    sans un seul point de rupture à tenir. */
+#modernbb .wm-persos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-perso {
+  display: flex;
+  flex: 1 1 300px;
+  box-sizing: border-box;
+  align-items: flex-start;
+  gap: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/* ── 2 · l'avatar, ou sa place ────────────────────────────────────── */
+
+/*  UNE CARTE SANS IMAGE NE DOIT PAS ÊTRE PLUS COURTE QUE SA VOISINE :
+    la silhouette tient la grille droite. Et il n'y a aucun avatar
+    dans le dépôt aujourd'hui — les « FC » proposés sont de vraies
+    personnes, dont on ne va pas chercher la photo. */
+#modernbb .wm-perso__avatar {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  border-radius: var(--wm-rayon-md, 8px);
+  object-fit: cover;
+}
+
+#modernbb .wm-perso__avatar--vide {
+  display: block;
+  background: var(--wm-fond-douce, #f3e1d2);
+  background-image: radial-gradient(
+      circle at 50% 36%,
+      var(--wm-bord-net, #d9c3b1) 17%,
+      transparent 18%
+    ),
+    radial-gradient(
+      ellipse at 50% 100%,
+      var(--wm-bord-net, #d9c3b1) 38%,
+      transparent 39%
+    );
+}
+
+/* ── 3 · le corps de la fiche ─────────────────────────────────────── */
+
+#modernbb .wm-perso__corps {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+#modernbb .wm-perso__nom {
+  margin: 0;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-perso__etiquettes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-4, 4px) 0 var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-perso__role,
+#modernbb .wm-perso__statut {
+  padding: 2px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LE STATUT PORTE LA SEULE COULEUR DE LA CARTE, parce que c'est la
+    seule chose qu'on vient chercher en diagonale : est-ce que je peux
+    le jouer, oui ou non. Vert on y va, rouge non — le même barème que
+    les paliers et les raretés, déjà mesuré, plutôt qu'un troisième à
+    apprendre. Le mot reste écrit. */
+#modernbb .wm-perso__statut[data-wm-statut="jouable"],
+#modernbb .wm-perso__statut[data-wm-statut="jouables"] {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-palier-1, #3f7d52);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-perso__statut[data-wm-statut="pnj"] {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-palier-2, #a05e18);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-perso__statut[data-wm-statut="non-jouable"],
+#modernbb .wm-perso__statut[data-wm-statut="non-jouables"] {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-palier-3, #b1402f);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-perso__texte {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-perso__traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-8, 8px) 0 0;
+}
+
+#modernbb .wm-perso__trait {
+  padding: 2px var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LE « FC » EST UNE SUGGESTION, et c'est écrit : ce sont de vraies
+    personnes, et personne ne doit croire que le choix est imposé. */
+#modernbb .wm-perso__fc {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-perso__section {
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-4, 4px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-perso__dit {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-perso__lien {
+  margin: var(--wm-espace-20, 20px) 0 0;
+}
+
+/* ── 4 · les onze postes ──────────────────────────────────────────── */
+
+/*  Les mêmes deux colonnes, en plus serré : une ligne de poste porte
+    trois choses, pas un paragraphe. */
+#modernbb .wm-postes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  margin: var(--wm-espace-12, 12px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-poste {
+  display: flex;
+  flex: 1 1 300px;
+  box-sizing: border-box;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-poste__type {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+
+#modernbb .wm-poste__mots {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+#modernbb .wm-poste__nom {
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .wm-poste__ville {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  « POSTE VACANT » EST UN ÉTAT, PAS UN MANQUE : tous les onze le
+    sont aujourd'hui, et le dire est plus utile que de laisser la
+    ligne muette. */
+#modernbb .wm-poste__etat {
+  padding: 2px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── 5 · le téléphone ─────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  #modernbb .wm-perso {
+    padding: var(--wm-espace-10, 10px);
+  }
+
+  #modernbb .wm-perso__avatar {
+    width: 64px;
+    height: 64px;
+    flex-basis: 64px;
+  }
+}
+
+/* ── 6 · les crédits ──────────────────────────────────────────────
+
+   « Mets en avant correctement les personnes concernées. »
+
+   UNE LIGNE PAR PIÈCE, l'auteur toujours à la même place. En
+   paragraphe, « créé par Seth Clydesdale et personnalisé par
+   teenspirit » se perdait au milieu d'une phrase ; en lignes, l'œil
+   descend une colonne de noms, ce qui est exactement ce qu'on vient
+   faire sur une page de crédits. */
+#modernbb .wm-credits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-12, 12px);
+  padding-bottom: var(--wm-espace-8, 8px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-credit:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+#modernbb .wm-credit__quoi {
+  flex: 0 0 180px;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-credit__qui {
+  flex: 1 1 200px;
+}
+
+@media (max-width: 760px) {
+  #modernbb .wm-credit__quoi {
+    flex-basis: 100%;
   }
 }
 

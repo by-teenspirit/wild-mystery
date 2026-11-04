@@ -1,0 +1,289 @@
+/* ════════════════════════════════════════════════════════════════════
+   23-personnages.css — les fiches de personnage et les postes
+
+   Trois listes qui partagent une seule carte : les personnages
+   jouables, les célébrités de Rhode, et les onze postes de champion.
+
+   « Pour ces blocs-là, on essaye d'en mettre deux côte à côte. »
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la grille, deux par rangée ───────────────────────────────── */
+
+/*  ZÉRO TABLEAU, QUE DU FLEXBOX. Une base de 300 px et `wrap` : deux
+    colonnes dès qu'il y a la place, une seule quand il n'y en a plus,
+    sans un seul point de rupture à tenir. */
+#modernbb .wm-persos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-perso {
+  display: flex;
+  flex: 1 1 300px;
+  box-sizing: border-box;
+  align-items: flex-start;
+  gap: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/* ── 2 · l'avatar, ou sa place ────────────────────────────────────── */
+
+/*  UNE CARTE SANS IMAGE NE DOIT PAS ÊTRE PLUS COURTE QUE SA VOISINE :
+    la silhouette tient la grille droite. Et il n'y a aucun avatar
+    dans le dépôt aujourd'hui — les « FC » proposés sont de vraies
+    personnes, dont on ne va pas chercher la photo. */
+#modernbb .wm-perso__avatar {
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  border-radius: var(--wm-rayon-md, 8px);
+  object-fit: cover;
+}
+
+#modernbb .wm-perso__avatar--vide {
+  display: block;
+  background: var(--wm-fond-douce, #f3e1d2);
+  background-image: radial-gradient(
+      circle at 50% 36%,
+      var(--wm-bord-net, #d9c3b1) 17%,
+      transparent 18%
+    ),
+    radial-gradient(
+      ellipse at 50% 100%,
+      var(--wm-bord-net, #d9c3b1) 38%,
+      transparent 39%
+    );
+}
+
+/* ── 3 · le corps de la fiche ─────────────────────────────────────── */
+
+#modernbb .wm-perso__corps {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+#modernbb .wm-perso__nom {
+  margin: 0;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-perso__etiquettes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-4, 4px) 0 var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-perso__role,
+#modernbb .wm-perso__statut {
+  padding: 2px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LE STATUT PORTE LA SEULE COULEUR DE LA CARTE, parce que c'est la
+    seule chose qu'on vient chercher en diagonale : est-ce que je peux
+    le jouer, oui ou non. Vert on y va, rouge non — le même barème que
+    les paliers et les raretés, déjà mesuré, plutôt qu'un troisième à
+    apprendre. Le mot reste écrit. */
+#modernbb .wm-perso__statut[data-wm-statut="jouable"],
+#modernbb .wm-perso__statut[data-wm-statut="jouables"] {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-palier-1, #3f7d52);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-perso__statut[data-wm-statut="pnj"] {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-palier-2, #a05e18);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-perso__statut[data-wm-statut="non-jouable"],
+#modernbb .wm-perso__statut[data-wm-statut="non-jouables"] {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-palier-3, #b1402f);
+  box-shadow: inset 0 0 0 1px currentcolor;
+}
+
+#modernbb .wm-perso__texte {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-perso__traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-8, 8px) 0 0;
+}
+
+#modernbb .wm-perso__trait {
+  padding: 2px var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LE « FC » EST UNE SUGGESTION, et c'est écrit : ce sont de vraies
+    personnes, et personne ne doit croire que le choix est imposé. */
+#modernbb .wm-perso__fc {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-perso__section {
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-4, 4px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-perso__dit {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-perso__lien {
+  margin: var(--wm-espace-20, 20px) 0 0;
+}
+
+/* ── 4 · les onze postes ──────────────────────────────────────────── */
+
+/*  Les mêmes deux colonnes, en plus serré : une ligne de poste porte
+    trois choses, pas un paragraphe. */
+#modernbb .wm-postes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  margin: var(--wm-espace-12, 12px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-poste {
+  display: flex;
+  flex: 1 1 300px;
+  box-sizing: border-box;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-poste__type {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+}
+
+#modernbb .wm-poste__mots {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+#modernbb .wm-poste__nom {
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .wm-poste__ville {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  « POSTE VACANT » EST UN ÉTAT, PAS UN MANQUE : tous les onze le
+    sont aujourd'hui, et le dire est plus utile que de laisser la
+    ligne muette. */
+#modernbb .wm-poste__etat {
+  padding: 2px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── 5 · le téléphone ─────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  #modernbb .wm-perso {
+    padding: var(--wm-espace-10, 10px);
+  }
+
+  #modernbb .wm-perso__avatar {
+    width: 64px;
+    height: 64px;
+    flex-basis: 64px;
+  }
+}
+
+/* ── 6 · les crédits ──────────────────────────────────────────────
+
+   « Mets en avant correctement les personnes concernées. »
+
+   UNE LIGNE PAR PIÈCE, l'auteur toujours à la même place. En
+   paragraphe, « créé par Seth Clydesdale et personnalisé par
+   teenspirit » se perdait au milieu d'une phrase ; en lignes, l'œil
+   descend une colonne de noms, ce qui est exactement ce qu'on vient
+   faire sur une page de crédits. */
+#modernbb .wm-credits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-12, 12px);
+  padding-bottom: var(--wm-espace-8, 8px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-credit:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+#modernbb .wm-credit__quoi {
+  flex: 0 0 180px;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-credit__qui {
+  flex: 1 1 200px;
+}
+
+@media (max-width: 760px) {
+  #modernbb .wm-credit__quoi {
+    flex-basis: 100%;
+  }
+}

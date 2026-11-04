@@ -54,8 +54,8 @@
       <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
     </nav>
 
-<!-- ▼▼▼ DÉBUT DU CORPS — c'est la seule partie qu'on rédige ▼▼▼ -->
-<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/manoir-barjok.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/571.png')">
+<!-- ▼▼▼ DÉBUT DU CORPS — écrit par `outils/annexe-personnages.py` ▼▼▼ -->
+<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/libra-echoue.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/249.png')">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
 
@@ -65,86 +65,386 @@
       <p class="wm-annexe__surtitre">Annexe 11</p>
       <h1 class="wm-annexe__titre">Célébrités de <em>Rhode</em></h1>
       <p class="wm-annexe__chapo">
-        Une phrase ou deux pour dire à quoi sert cette page, et ce qu'on y trouvera.
-        Elle se lit avant tout le reste : autant qu'elle serve à décider si on continue.
+        Qui on peut jouer, qui tout le monde connaît, et qui tient les
+        onze arènes. Trois listes qui se répondent : une célébrité peut
+        être jouable, un champion peut devenir une célébrité.
       </p>
 
       <div class="wm-annexe__blocs">
+        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>
 
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Le premier bloc</h2>
-          <ul class="wm-tirets">
-            <li><b>Une liste à tirets</b> pour ce qui s'énumère : des étapes, des
-              conditions, des cas. Le tiret est posé par la feuille — ne pas le
-              réécrire ici.</li>
-            <li><b>Le mot en gras ouvre la ligne</b>, et la suite l'explique. C'est ce qui
-              rend la liste lisible en diagonale.</li>
-            <li>Une ligne peut aussi n'être qu'une phrase, sans mot en tête.</li>
-          </ul>
-        </div>
-
-        <div class="wm-paire">
-          <div class="wm-annexe__carte">
-            <h2 class="wm-annexe__carte-titre">Deux cartes côte à côte</h2>
+          <section data-wm-sous-onglet="personnages-du-jeu">
+            <h2 class="wm-annexe__carte-titre">Personnages du jeu</h2>
             <div class="wm-paras">
-              <p>La brique <b>paire</b> pose deux cartes de même largeur. Elle sert quand
-                deux choses se répondent — avant et après, ce qu'on gagne et ce qu'on
-                risque.</p>
-              <p>Sous 900 pixels, elles s'empilent toutes seules.</p>
+              <p>Sur Wild Mystery, tu peux jouer certains personnages des jeux de la franchise Pokémon. Tu as toujours rêvé d&#x27;interpréter Red, Blue ou Serena ? Ce n&#x27;est pas un problème — il faut seulement savoir que tu repartiras du début avec ton personnage, et qu&#x27;il n&#x27;aura pas forcément le même starter que dans les séries principales.</p>
+              <p>Rhode est une nouvelle région qu&#x27;ils n&#x27;ont pas forcément découverte, et tout y est nouveau. Alors n&#x27;hésite pas.</p>
             </div>
-          </div>
-          <div class="wm-annexe__carte">
-            <h2 class="wm-annexe__carte-titre">Et du texte suivi</h2>
+            <h3 class="wm-perso__section">La franchise Colosseum &amp; XD</h3>
             <div class="wm-paras">
-              <p>La brique <b>paras</b> est le texte courant : des paragraphes, sans puce
-                ni numéro. C'est elle qu'on emploie quand une idée ne se découpe pas.</p>
+              <p>Les protagonistes et antagonistes principaux de Pokémon Colosseum et Pokémon XD : Le Souffle des Ténèbres ne sont pas jouables sur le forum, à quelques exceptions près. Ils sont considérés comme des célébrités à Rhode, qu&#x27;ils soient aimés ou détestés.</p>
+              <p>On demande une activité RP rigoureuse pour ces personnages, et une participation régulière aux évènements du forum. Ceux qui ne sont pas listés ici ne sont pas jouables, et jouer quelqu&#x27;un de leur famille est difficilement possible — contacte le staff.</p>
+              <p>Les avatars ne sont que des suggestions, mais tâche de respecter le physique du personnage du jeu le mieux possible.</p>
             </div>
-          </div>
-        </div>
+            <ul class="wm-persos">
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Helgonza</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="ex-boss-de-la-team-snatch">Ex-Boss de la Team Snatch</span>
+                  </p>
+                  <p class="wm-perso__texte">Depuis quinze ans que la Team Snatch est déchue, Helgonza a eu le temps de se refaire une réputation. Après la destruction de la Team par Michael, il a passé cinq ans derrière les barreaux et en est sorti peu avant la nouvelle apparition de la Team Ombre. Désirant se racheter, il a prêté main-forte à Florent contre elle ; il est depuis le créateur du Parti de Soutien à Michael.</p>
+                  <p class="wm-perso__traits">
+                    <span class="wm-perso__trait">repenti</span>
+                    <span class="wm-perso__trait">charismatique</span>
+                    <span class="wm-perso__trait">déterminé</span>
+                  </p>
+                  <p class="wm-perso__fc">Suggestion d'avatar : <b>Dwayne Johnson</b></p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Angéline</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="ex-admin-de-la-team-ombre">Ex-Admin de la Team Ombre</span>
+                  </p>
+                  <p class="wm-perso__texte">Devenue l&#x27;une des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Plutôt enjouée et peu défaitiste, c&#x27;est une bonne combattante, et elle a prouvé qu&#x27;elle méritait une deuxième chance après la chute de l&#x27;organisation. Elle n&#x27;a plus aucun contact avec ses anciens collègues et aspire à une vie sans problèmes — elle rêve de devenir championne.</p>
+                  <p class="wm-perso__traits">
+                    <span class="wm-perso__trait">enjouée</span>
+                    <span class="wm-perso__trait">combative</span>
+                    <span class="wm-perso__trait">tournée vers l&#x27;avenir</span>
+                  </p>
+                  <p class="wm-perso__fc">Suggestion d'avatar : <b>Katy Perry</b></p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Vamper</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="ex-admin-de-la-team-ombre">Ex-Admin de la Team Ombre</span>
+                  </p>
+                  <p class="wm-perso__texte">Devenu l&#x27;un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Scientifique de renom dans sa jeunesse, il a toujours rêvé d&#x27;accéder au poste de Gouverneur de Rhode, voire à celui de Président. Ambitieux et pragmatique, c&#x27;est un dresseur hors pair : ayant compris que les desseins de la Team Ombre ne lui apporteraient rien de bon, il a tout laissé tomber et travaille sa cote de popularité.</p>
+                  <p class="wm-perso__traits">
+                    <span class="wm-perso__trait">ambitieux</span>
+                    <span class="wm-perso__trait">pragmatique</span>
+                    <span class="wm-perso__trait">scientifique</span>
+                  </p>
+                  <p class="wm-perso__fc">Suggestion d'avatar : <b>Hyun Bin</b></p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Silas Donozor</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="ex-admin-de-la-team-ombre">Ex-Admin de la Team Ombre</span>
+                  </p>
+                  <p class="wm-perso__texte">Devenu l&#x27;un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Considéré comme une brute sans cœur, il a tenté de nombreuses fois de rejoindre la Team Ombre après sa dissolution — trois ans derrière les barreaux l&#x27;auront calmé. Depuis, il tente de reprendre sa vie en main, même si son côté sombre l&#x27;attire parfois encore vers le bas, sans rapport avec la Team Ombre.</p>
+                  <p class="wm-perso__traits">
+                    <span class="wm-perso__trait">brutal</span>
+                    <span class="wm-perso__trait">en sursis</span>
+                    <span class="wm-perso__trait">solitaire</span>
+                  </p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Eudes</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="ex-admin-de-la-team-ombre">Ex-Admin de la Team Ombre</span>
+                  </p>
+                  <p class="wm-perso__texte">Devenu l&#x27;un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Enfant de Malafid, Eudes a toujours été réservé quant à son avenir dans l&#x27;organisation. Lors de la chute, il a su convaincre son père de se rendre — c&#x27;est certainement grâce à cela qu&#x27;il n&#x27;est pas allé en prison. Pardonné par Florent et Michael, il se concentre désormais sur les combats, et rêve de devenir un jour champion d&#x27;un Colosseum.</p>
+                  <p class="wm-perso__traits">
+                    <span class="wm-perso__trait">réservé</span>
+                    <span class="wm-perso__trait">loyal</span>
+                    <span class="wm-perso__trait">conciliant</span>
+                  </p>
+                  <p class="wm-perso__fc">Suggestion d'avatar : <b>Sam Heughan</b></p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Artus</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="ex-admin-de-la-team-ombre">Ex-Admin de la Team Ombre</span>
+                  </p>
+                  <p class="wm-perso__texte">Devenu l&#x27;un des cinq admins lors du renouveau de la Team Ombre il y a dix ans, sous le règne de Malafid. Enfant de Malafid et jumeau d&#x27;Eudes, Artus était, lui, prêt à tout pour la Team Ombre. En voyant son père se rendre, il s&#x27;est senti lâchement abandonné, et il leur en veut encore aujourd&#x27;hui à tous les deux. Rêvant de voir la Team Ombre reprendre le flambeau, il ne porte pas Michael dans son cœur : il est le créateur du Clan de la Nuit. Il n&#x27;en fait cependant pas partie et n&#x27;est au courant de rien.</p>
+                  <p class="wm-perso__traits">
+                    <span class="wm-perso__trait">rancunier</span>
+                    <span class="wm-perso__trait">fanatique</span>
+                    <span class="wm-perso__trait">intransigeant</span>
+                  </p>
+                  <p class="wm-perso__fc">Suggestion d'avatar : <b>Ryan Gosling</b></p>
+                </div>
+              </li>
+            </ul>
+            <p class="wm-perso__lien">
+              <a href="https://mysteryinrhode.forumactif.com/t29-personnages-jouables">Le sujet des personnages jouables →</a>
+            </p>
+          </section>
 
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Un tableau</h2>
-          <div class="wm-table">
-            <div class="wm-table__ligne wm-table__ligne--entete">
-              <span class="wm-table__cellule wm-table__cellule--nom">Ce qu'on nomme</span>
-              <span class="wm-table__cellule">Ce que c'est</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">Combien</span>
+          <section data-wm-sous-onglet="celebrites">
+            <h2 class="wm-annexe__carte-titre">Célébrités de Rhode</h2>
+            <div class="wm-paras">
+              <p>Les célébrités de Rhode sont les personnages connus dans la région. Tu peux demander à y être ajouté si ton personnage a accompli énormément de choses et qu&#x27;il est connu de tous. Une célébrité n&#x27;est pas obligée d&#x27;être aimée ou adulée : elle peut aussi être détestée.</p>
             </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Première ligne</span>
-              <span class="wm-table__cellule">La colonne du milieu porte l'explication.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Deuxième ligne</span>
-              <span class="wm-table__cellule">Le tableau est en flexbox, pas une
-                vraie table : sur téléphone chaque ligne s'empile et l'en-tête
-                disparaît.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
-            </div>
-          </div>
-        </div>
+            <ul class="wm-persos">
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Michael</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="protagoniste-de-pokemon-colosseum">Protagoniste de Pokémon Colosseum</span>
+                    <span class="wm-perso__statut" data-wm-statut="pnj">PNJ</span>
+                  </p>
+                  <p class="wm-perso__texte">Aujourd&#x27;hui président de la région de Rhode. Il y a quinze ans, il a vaincu la Team Snatch ; dix ans plus tard, il a mis derrière les barreaux la plupart des leaders de la Team Ombre.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Émilie</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="protagoniste-de-pokemon-colosseum">Protagoniste de Pokémon Colosseum</span>
+                    <span class="wm-perso__statut" data-wm-statut="non-jouable">Non jouable</span>
+                  </p>
+                  <p class="wm-perso__texte">Une jeune femme dotée de Clairvoyance, capable de reconnaître les Pokémon Obscurs à l&#x27;œil nu. Elle a été d&#x27;une aide non négligeable pour Michael il y a quinze ans, et l&#x27;a même épousé il y a huit ans. Incapable de rester dans la région, leur divorce a été prononcé il y a trois ans ; on raconte qu&#x27;elle habite désormais Alola, loin de l&#x27;agitation de Rhode.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Florent</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="protagoniste-de-pokemon-xd">Protagoniste de Pokémon XD</span>
+                    <span class="wm-perso__statut" data-wm-statut="non-jouable">Non jouable</span>
+                  </p>
+                  <p class="wm-perso__texte">Acclamé par toute la région lorsqu&#x27;il est parvenu à vaincre Malafid, l&#x27;ancien leader de la Team Ombre, il y a dix ans. C&#x27;est lui qui a purifié Lugia, le pokémon légendaire capturé par l&#x27;organisation. Il a ensuite quitté Rhode pour rendre à Lugia sa liberté ; après quelques années à Johto, on raconte qu&#x27;il réalise le tour de Pokémon Island pour s&#x27;améliorer.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Prof. Syrus</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="protagoniste-de-pokemon-xd">Protagoniste de Pokémon XD</span>
+                    <span class="wm-perso__statut" data-wm-statut="pnj">PNJ</span>
+                  </p>
+                  <p class="wm-perso__texte">Le professeur pokémon de la région depuis plus d&#x27;une décennie. Il a aidé à mettre au point les parfums qui purifient les pokémon obscurs, et c&#x27;est dans son laboratoire de Samaragd qu&#x27;il faut se rendre pour en purifier un. C&#x27;est aussi lui qui offre son premier pokémon à qui est natif de la région — il en élève de nombreux dans son laboratoire.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Charlie Spinster</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="ecurie-raikou">Écurie Raikou</span>
+                    <span class="wm-perso__statut" data-wm-statut="celebrite">Célébrité</span>
+                  </p>
+                  <p class="wm-perso__texte">Gagnante du Grand Prix de Rhode cinq années consécutives. Pilote de l&#x27;écurie Raikou, elle est pleine de vie, toujours de bonne humeur, et fortement appréciée des fans de courses automobiles.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Helgonza</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="antagoniste-de-pokemon-colosseum">Antagoniste de Pokémon Colosseum</span>
+                    <span class="wm-perso__statut" data-wm-statut="jouable">Jouable</span>
+                  </p>
+                  <p class="wm-perso__texte">L&#x27;ancien boss de la Team Snatch. Déchu par Michael il y a quinze ans, il a passé quelques années derrière les barreaux avant d&#x27;être libéré il y a dix ans. Après avoir prêté main-forte à Florent contre la Team Ombre, il a regagné du respect : il est l&#x27;un des fondateurs du parti de soutien à Michael.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Bouledisco, Dakim, Venus &amp; Teck</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="antagonistes-de-pokemon-colosseum">Antagonistes de Pokémon Colosseum</span>
+                    <span class="wm-perso__statut" data-wm-statut="non-jouables">Non jouables</span>
+                  </p>
+                  <p class="wm-perso__texte">Les anciens admins de la Team Ombre il y a quinze ans, avant la première défaite de l&#x27;organisation. Relativement bien organisés, ils ont tout de même été déchus par Michael et se trouvent tous derrière les barreaux — sauf Venus, qui s&#x27;est donné la mort il y a sept ans, et Bouledisco, qui semble avoir retourné sa veste mais reste sous haute surveillance.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Jakylla &amp; Nosfrat</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="antagonistes-de-pokemon-colosseum">Antagonistes de Pokémon Colosseum</span>
+                    <span class="wm-perso__statut" data-wm-statut="non-jouables">Non jouables</span>
+                  </p>
+                  <p class="wm-perso__texte">Les anciens leaders de la Team Ombre il y a quinze ans. Jakylla était le directeur des opérations des sbires ; il se trouve désormais derrière les barreaux, tout comme Nosfrat, ancien maire de Phenacit sous une fausse identité, maintenu sous haute sécurité dans la prison de Rhode.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Angéline, Vamper &amp; Donozor</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="antagonistes-de-pokemon-xd">Antagonistes de Pokémon XD</span>
+                    <span class="wm-perso__statut" data-wm-statut="jouables">Jouables</span>
+                  </p>
+                  <p class="wm-perso__texte">Les anciens admins du Groupe Ombre après son retour il y a dix ans. Avec Bodri et Tiziano, leurs seconds, ils ont terminé sous les barreaux et en sont sortis récemment. Reconvertis en dresseurs de Colosseums, ils laissent leur passé derrière eux et ne souhaitent plus rejoindre la Team Ombre, quand bien même elle se reformerait.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Eudes &amp; Artus</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="antagonistes-de-pokemon-xd">Antagonistes de Pokémon XD</span>
+                    <span class="wm-perso__statut" data-wm-statut="jouables">Jouables</span>
+                  </p>
+                  <p class="wm-perso__texte">Les enfants de Malafid, l&#x27;ancien boss de la Team Ombre il y a dix ans. Eudes a plutôt bien accepté la défaite et s&#x27;est reconverti en challenger ; ce n&#x27;est pas le cas d&#x27;Artus, créateur du Clan de la Nuit, qui prie encore et toujours le retour de la Team Ombre. Il ne sait pas qu&#x27;elle est réellement revenue : il le souhaite, simplement, et n&#x27;en fait pas partie.</p>
+                </div>
+              </li>
+              <li class="wm-perso">
+                <span class="wm-perso__avatar wm-perso__avatar--vide" aria-hidden="true"></span>
+                <div class="wm-perso__corps">
+                  <h3 class="wm-perso__nom">Malafid</h3>
+                  <p class="wm-perso__etiquettes">
+                    <span class="wm-perso__role" data-wm-statut="antagoniste-de-pokemon-xd">Antagoniste de Pokémon XD</span>
+                    <span class="wm-perso__statut" data-wm-statut="non-jouable">Non jouable</span>
+                  </p>
+                  <p class="wm-perso__texte">L&#x27;ancien boss de la Team Ombre, il y a dix ans. Après sa défaite contre Florent et la perte de XD001 — Lugia Obscur —, il s&#x27;est retrouvé complètement déchu et a été incarcéré avec les autres anciens leaders. Il est sous haute surveillance, et n&#x27;est pas près de sortir.</p>
+                </div>
+              </li>
+            </ul>
+          </section>
 
-        <div class="wm-encarts">
-          <div class="wm-encart wm-encart--terre">
-            <span class="wm-encart__etiquette">À retenir</span>
-            <p>L'encart terre souligne ce qu'il ne faut pas manquer. Deux ou trois lignes,
-              pas plus : un encart long n'est plus un encart.</p>
-          </div>
-          <div class="wm-encart wm-encart--paisible">
-            <span class="wm-encart__etiquette">Bon à savoir</span>
-            <p>L'encart vert dit ce qui rassure, ou ce qui se fait tout seul. Les deux vont
-              par paire et se répondent.</p>
-          </div>
+          <section data-wm-sous-onglet="les-champions">
+            <h2 class="wm-annexe__carte-titre">Les champions</h2>
+            <div class="wm-paras">
+              <p>Les champions de Rhode sont interprétables sous certaines conditions : ils sont importants pour le bon déroulement du forum et pour la progression des joueurs.</p>
+              <p>Tu es totalement libre de débarquer avec ton propre personnage pour prendre le poste. Si le personnage n&#x27;est pas encore joué, un PNJ vient le remplacer le temps du combat quand un joueur se lance dans son arène.</p>
+            </div>
+            <ul class="wm-tirets">
+              <li><b>Une activité RP rigoureuse.</b> C&#x27;est ce qu&#x27;on demande à un champion. Tu pourras bien entendu conquérir les autres arènes du jeu — mais tu pars d&#x27;office avec ton propre badge déjà acquis.</li>
+              <li><b>L&#x27;équipe du champion ne t&#x27;appartient pas.</b> Tu ne peux ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : sa place est au sein du Colosseum. Elle peut être mentionnée en narration, jamais rejoindre ton équipe usuelle — elle appartient à l&#x27;arène. Tu constitues donc ta propre équipe en commençant sur le forum, sinon tu partirais avec un avantage considérable sur tout le monde.</li>
+              <li><b>Une affinité avec le type de l&#x27;arène.</b> Chaque champion en possède une. L&#x27;affiliation à la Team Ombre est en revanche totalement libre — sauf pour le champion de l&#x27;Île Ténèbra, qui lui est affilié.</li>
+              <li><b>Le poste se rend.</b> Au bout d&#x27;un certain temps, tu peux demander à ne plus être champion d&#x27;une arène et à passer le rôle à quelqu&#x27;un qui souhaite tenter sa chance.</li>
+            </ul>
+            <h3 class="wm-perso__section">Les sept arènes</h3>
+            <p class="wm-perso__dit">Chaque arène a son type, sa ville, et son badge.</p>
+            <ul class="wm-postes">
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/feu.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Arène Feu</b>
+                  <span class="wm-poste__ville">Station Service</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/plante.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Arène Plante</b>
+                  <span class="wm-poste__ville">Samaragd</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/eau.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Arène Eau</b>
+                  <span class="wm-poste__ville">Port-Amarée</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/acier.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Arène Acier</b>
+                  <span class="wm-poste__ville">Suerebe</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/roche.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Arène Roche</b>
+                  <span class="wm-poste__ville">Pyrite</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/vol.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Arène Vol</b>
+                  <span class="wm-poste__ville">Tour Titanite</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/tenebres.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Arène Ténèbres</b>
+                  <span class="wm-poste__ville">Île Ténèbra</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+            </ul>
+            <h3 class="wm-perso__section">Les quatre colosseums</h3>
+            <p class="wm-perso__dit">On y combat en 2 contre 2.</p>
+            <ul class="wm-postes">
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/fee.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Colosseum de Rhode</b>
+                  <span class="wm-poste__ville">Port-Amarée</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/spectre.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Colosseum de Phenacit</b>
+                  <span class="wm-poste__ville">Phenacit</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/electrik.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Colosseum de Targare</b>
+                  <span class="wm-poste__ville">Suerebe</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+              <li class="wm-poste">
+                <img class="wm-poste__type" src="https://by-teenspirit.github.io/wild-mystery/img/types/dragon.png" alt="" loading="lazy" width="24" height="24" />
+                <span class="wm-poste__mots">
+                  <b class="wm-poste__nom">Colosseum de Titanite</b>
+                  <span class="wm-poste__ville">Tour Titanite</span>
+                </span>
+                <span class="wm-poste__etat">poste vacant</span>
+              </li>
+            </ul>
+            <div class="wm-encarts">
+              <div class="wm-encart wm-encart--paisible">
+                <span class="wm-encart__etiquette">Un poste t'intéresse ?</span>
+                <p>N&#x27;hésite pas à nous contacter si tu as la moindre question sur un poste vacant. Il est aussi possible de demander à lier ton personnage à l&#x27;un des champions.</p>
+              </div>
+            </div>
+            <p class="wm-perso__lien">
+              <a href="https://mysteryinrhode.forumactif.com/t1002-les-champions">Le sujet des champions →</a>
+            </p>
+          </section>
+
         </div>
 
         <div class="wm-suivante">
-          <a class="wm-suivante__bouton" href="#">
+          <a class="wm-suivante__bouton" href="/h12-monnaie-et-missions">
             <span class="wm-suivante__etiquette">Annexe suivante</span>
             Monnaie, médailles et missions →
           </a>
           <span class="wm-lieu">
-            Le Manoir Barjok
+            Le Libra Échoué
             <b>une question sans réponse ici ? écris au staff</b>
           </span>
         </div>

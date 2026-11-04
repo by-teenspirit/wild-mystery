@@ -1,0 +1,47 @@
+{
+ "_": "Les crédits du forum. Source : le texte de Callista du 4 novembre 2026. pages/annexe-09-credits.html en est DÉRIVÉE par outils/annexe-credits.py — on corrige ici, jamais dans la page.",
+ "_nom": "ATTENTION : le texte source écrit « Plumyts » une fois et « Plumtys » une autre. C'est le nom de quelqu'un, donc on ne le devine pas : la valeur ci-dessous attend la confirmation de Callista, et elle n'est écrite qu'UNE fois pour qu'une correction suffise.",
+ "_forumactif": "LE LIEN ET LE COPYRIGHT FORUMACTIF NE SE RETIRENT JAMAIS. Ils sont dans le pied de page du gabarit, posé par outils/annexes.py.",
+ "fondatrice": "Plumtys",
+ "chapo": "Wild Mystery est un forum inspiré de la franchise Pokémon, et plus précisément des jeux Pokémon Colosseum et Pokémon XD : Le Souffle des Ténèbres. Merci à leurs créateurs, sans qui ce bébé n'aurait pas vu le jour.",
+ "blocs": [
+  {
+   "titre": "Le code",
+   "dit": "Le forum a entièrement été codé par teenspirit.",
+   "lignes": [
+    [
+     "Le forum",
+     "codé par <b>teenspirit</b>"
+    ],
+    [
+     "Le système automatisé",
+     "créé par <b>teenspirit</b>"
+    ],
+    [
+     "Le Messenger",
+     "créé par <b>Seth Clydesdale</b>, personnalisé par <b>teenspirit</b>"
+    ],
+    [
+     "Le Switcheroo",
+     "créé par <b>Monomer</b>, personnalisé par <b>teenspirit</b>"
+    ],
+    [
+     "Le carnet de bord",
+     "inspiré de l'outil <b>Airpéger</b>, créé par <b>teenspirit</b>"
+    ]
+   ]
+  },
+  {
+   "titre": "Celles et ceux sans qui il n'existerait pas",
+   "dit": "",
+   "paragraphes": [
+    "Le forum est issu de la petite tête de <b>{fondatrice}</b>, ainsi que d'<b>HIPPOGRIFFE.</b>, sans qui il n'aurait pas pu voir le jour.",
+    "Merci à <b>{fondatrice}</b>, <b>HIPPOGRIFFE.</b> et <b>Ekko</b>, sans qui la nouvelle version du projet n'aurait pas vu le jour, et qui m'ont énormément soutenue dans cette refonte.",
+    "Merci à <b>Ekko</b> pour la version hiver 2027 du forum.",
+    "Merci à tous les <b>bêta-testeurs</b> : c'est grâce à eux que le système automatisé est sorti avec le moins de bugs possible.",
+    "Merci à tous les <b>anciens membres</b> qui ont fait vivre la V1, et aux <b>nouveaux</b> qui la font perpétuer."
+   ]
+  }
+ ],
+ "copyright": "Le forum se trouve sous copyright ©2020-2027. Merci de ne copier aucun contenu sans l'approbation de l'équipe administrative."
+}
