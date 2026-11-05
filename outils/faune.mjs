@@ -1093,6 +1093,72 @@ console.log("\n── les étiquettes de rareté se lisent, « très rare » com
       ? [...new Set(lu.map((x) => `${x.mot} ${x.contraste}:1`))].sort()
       : [...new Set(illisibles.map((x) => `${x.mot} ${x.contraste}:1`))],
   );
+  //  ── TOUTES LES CARTES ONT LA MÊME LARGEUR ───────────────────
+  //
+  //  « Pourquoi en fin de ligne la card est plus grande ? » (5
+  //  novembre.) Parce que la liste était une rangée `flex` et que les
+  //  cartes avaient le droit de grandir : sur le dernier rang, celles
+  //  qui restaient se partageaient toute la place et butaient sur leur
+  //  `max-width`. 189,6 px sur un rang plein, 220 sur le dernier.
+  //
+  //  C'est une grille depuis, et une grille répartit par COLONNE : la
+  //  dernière rangée garde la largeur des autres. On le vérifie aux
+  //  quatre largeurs, parce que le nombre de colonnes change et que
+  //  c'est justement le reste de la division qui faisait le défaut.
+  for (const largeur of [1440, 1100, 760, 390]) {
+    const q = await ouvrir(nav, { largeur });
+    await ouvrirLOngletDeLaCarte(q);
+    await q.waitForSelector(".wm-carte__dessin", { timeout: 15000 });
+    await q.evaluate(
+      (id) =>
+        document.querySelector(`.wm-carte__lieu[data-wm-forum="${id}"]`)?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+        ),
+      ZONE.forumId,
+    );
+    await q.waitForFunction(
+      () => document.querySelectorAll("[data-wm-espece]").length > 0,
+      undefined,
+      { timeout: 15000 },
+    );
+    const vu = await q.evaluate(() => {
+      const mesurer = (liste) => {
+        if (liste === null) return null;
+        const rangs = new Map();
+        for (const c of Array.from(liste.children)) {
+          const r = c.getBoundingClientRect();
+          if (r.width === 0) continue;
+          const y = Math.round(r.top);
+          if (!rangs.has(y)) rangs.set(y, []);
+          rangs.get(y).push(Math.round(r.width * 10) / 10);
+        }
+        const toutes = [...rangs.values()].flat();
+        return {
+          rangs: rangs.size,
+          largeurs: [...new Set(toutes)],
+          dernier: [...rangs.values()].at(-1) ?? [],
+          premier: [...rangs.values()][0] ?? [],
+        };
+      };
+      return {
+        especes: mesurer(document.querySelector('[data-wm-liste="especes"]')),
+        objets: mesurer(document.querySelector('[data-wm-liste="objets"]')),
+      };
+    });
+
+    for (const [quoi, m] of Object.entries(vu)) {
+      if (m === null || m.rangs < 2) continue;
+      ok(
+        `à ${largeur} px, les cartes « ${quoi} » font toutes la même largeur`,
+        m.largeurs.length === 1,
+        m.largeurs.length === 1
+          ? `${m.rangs} rangs, ${m.largeurs[0]} px`
+          : { largeurs: m.largeurs, premier: m.premier, dernier: m.dernier },
+      );
+    }
+    await q.close();
+  }
+
   //  ── LE RUBAN NE DÉBORDE PAS DE SA CARTE ─────────────────────
   //
   //  Il déborde EXPRÈS du rembourrage de la carte — sa largeur est

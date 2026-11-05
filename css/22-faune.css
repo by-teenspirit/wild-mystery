@@ -449,22 +449,58 @@
    partout : le nom, les types et les niveaux se touchaient tous
    pareil, donc rien ne se détachait et la carte n'avait pas de
    hiérarchie. Trois distances valent mieux qu'une. */
+/*  ── « POURQUOI EN FIN DE LIGNE LA CARD EST PLUS GRANDE ? » ─────
+
+    (5 novembre.) Parce que c'était une rangée `flex`, et que les
+    cartes avaient `flex: 1 1 168px` — donc le droit de GRANDIR pour
+    remplir ce qui reste.
+
+    Sur un rang plein, les cinq cartes se partagent le reste à parts
+    égales et font 189,6 px. Sur le DERNIER rang, les deux qui restent
+    se partagent la même place à elles seules et butent sur leur
+    `max-width` : 220 px. Mesuré aux quatre largeurs, et c'est pire
+    quand il reste peu de cartes — à 1100 px, un rang plein donne trois
+    cartes de 210,7 et la dernière, seule, fait 220.
+
+    Flex ne sait pas faire autrement : il répartit PAR RANG, et un rang
+    ne sait rien de ses voisins. Les contournements connus sont des
+    cartes fantômes invisibles en fin de liste, ou un nombre de colonnes
+    écrit en dur par palier de largeur — l'un ajoute des nœuds qui ne
+    disent rien, l'autre remet à la main ce que `flex-basis` calculait.
+
+    UNE GRILLE RÉPARTIT PAR COLONNE, et toutes les rangées partagent
+    les mêmes colonnes. `auto-fill` en pose autant qu'il en tient à
+    partir de 168 px, et la dernière rangée garde la largeur des
+    autres — il n'y a plus de « dernier rang » du point de vue du
+    calcul.
+
+    `auto-fill` ET PAS `auto-fit` : avec `auto-fit`, les colonnes vides
+    s'effondrent, et une zone qui ne porterait que deux espèces les
+    étirerait sur toute la largeur. C'est exactement le défaut qu'on
+    corrige, en plus rare.
+
+    (La charte dit « pas de tableau, que du flexbox » : elle parle du
+    balisage `<table>` de la V1. Le dépôt compte déjà treize grilles
+    CSS, dont la même ligne dans la liste des membres.) */
 #modernbb .wm-faune__especes {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
   gap: var(--wm-espace-12, 12px);
   margin: var(--wm-espace-16, 16px) 0 0;
   padding: 0;
   list-style: none;
 }
 
+/*  LA CARTE NE DIT PLUS SA LARGEUR : c'est sa colonne qui la donne,
+    et elle est la même partout. `flex: 1 1 168px` et `max-width:
+    220px` sont partis avec la rangée — ensemble, ils étaient la cause
+    du dernier rang plus large. La carte reste un `flex` pour ce
+    qu'elle contient : sa colonne de ruban, sprite, nom, types. */
 #modernbb .wm-faune__espece {
   display: flex;
-  flex: 1 1 168px;
   box-sizing: border-box;
   flex-direction: column;
   align-items: center;
-  max-width: 220px;
   padding: 0 var(--wm-espace-12, 12px);
   overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
@@ -850,8 +886,14 @@
     padding: var(--wm-espace-16, 16px);
   }
 
+  /*  LA COLONNE SE RESSERRE, et c'est la grille qui le dit maintenant :
+      sous 760, 168 px ne laisserait qu'une colonne à 390 et une carte
+      pleine largeur. 128 en laisse deux, comme avant. */
+  #modernbb .wm-faune__especes {
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  }
+
   #modernbb .wm-faune__espece {
-    flex-basis: 128px;
     padding: var(--wm-espace-8, 8px) var(--wm-espace-8, 8px) 0;
   }
 
