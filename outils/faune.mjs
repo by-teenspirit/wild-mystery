@@ -1093,6 +1093,82 @@ console.log("\n── les étiquettes de rareté se lisent, « très rare » com
       ? [...new Set(lu.map((x) => `${x.mot} ${x.contraste}:1`))].sort()
       : [...new Set(illisibles.map((x) => `${x.mot} ${x.contraste}:1`))],
   );
+  //  ── LE RUBAN NE DÉBORDE PAS DE SA CARTE ─────────────────────
+  //
+  //  Il déborde EXPRÈS du rembourrage de la carte — sa largeur est
+  //  `100% + 2 × 12` et des marges négatives le recalent — pour toucher
+  //  les deux bords. Deux façons de rater ça, et les deux sont
+  //  arrivées le 5 novembre :
+  //
+  //    · `box-sizing` manquait, donc son propre rembourrage s'AJOUTAIT
+  //      à cette largeur. Trouvé en le desserrant : le débord est passé
+  //      de 11 à 15 pixels. Une largeur calculée qui suit le padding
+  //      n'est pas une largeur calculée ;
+  //    · les 12 pixels sont ceux de la carte EN BUREAU, et la requête
+  //      média la passe à 8 : trois pixels de débord de plus sous 760.
+  //
+  //  PERSONNE NE VOYAIT NI L'UN NI L'AUTRE : `overflow: hidden` sur la
+  //  carte rognait le surplus. Le ruban avait l'air juste, et son
+  //  rembourrage de droite ne valait pas ce que la feuille disait.
+  //
+  //  AUX DEUX LARGEURS, DONC. Le premier contrôle écrit ne tournait
+  //  qu'à 390 — la page courante en était restée là — et aurait donc
+  //  laissé passer le défaut de `box-sizing`, qui est celui du bureau.
+  for (const largeur of [1440, 390]) {
+    const q = await ouvrir(nav, { largeur });
+    await ouvrirLOngletDeLaCarte(q);
+    await q.waitForSelector(".wm-carte__dessin", { timeout: 15000 });
+    await q.evaluate(
+      (id) =>
+        document.querySelector(`.wm-carte__lieu[data-wm-forum="${id}"]`)?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+        ),
+      ZONE.forumId,
+    );
+    await q.waitForFunction(
+      () => document.querySelectorAll("[data-wm-espece]").length > 0,
+      undefined,
+      { timeout: 15000 },
+    );
+    const vu = await q.evaluate(() => {
+      const cartes = Array.from(document.querySelectorAll("[data-wm-espece]")).slice(0, 12);
+      const debord = cartes.map((c) => {
+        const b = c.querySelector(".wm-faune__tete");
+        if (b === null) return 0;
+        const rc = c.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        //  Positif = le ruban sort de la carte. Un pixel de chaque côté
+        //  est la bordure de la carte, et c'est juste.
+        return Math.round(Math.max(rc.left - rb.left, rb.right - rc.right));
+      });
+      const carte = cartes[0];
+      const bande = carte?.querySelector(".wm-faune__tete");
+      return {
+        debord,
+        //  LES DEUX CÔTÉS DOIVENT ÊTRE SYMÉTRIQUES : un ruban qui
+        //  touche à gauche et pas à droite est le signe exact d'une
+        //  largeur et d'une marge qui ne parlent plus de la même carte.
+        gauche: bande === null
+          ? 0
+          : Math.round(bande.getBoundingClientRect().left - carte.getBoundingClientRect().left),
+        droite: bande === null
+          ? 0
+          : Math.round(carte.getBoundingClientRect().right - bande.getBoundingClientRect().right),
+        rembourrage: carte === undefined ? "" : getComputedStyle(carte).paddingLeft,
+      };
+    });
+    const pires = vu.debord.filter((d) => d > 1);
+    ok(
+      `à ${largeur} px, LE RUBAN TIENT DANS SA CARTE`,
+      pires.length === 0 && vu.gauche === vu.droite,
+      pires.length === 0 && vu.gauche === vu.droite
+        ? `débord max ${Math.max(...vu.debord)} px, ${vu.gauche} de chaque côté, ` +
+          `carte rembourrée à ${vu.rembourrage}`
+        : { pires, gauche: vu.gauche, droite: vu.droite },
+    );
+    await q.close();
+  }
+
   //  « Écris plus petit et ajoute des paddings » : on mesure le rendu.
   ok(
     "l'étiquette est plus petite que le corps du texte",

@@ -643,16 +643,36 @@
     En tête, elles sont toutes sur la même ligne, par construction. */
 #modernbb .wm-faune__tete {
   display: flex;
+  /*  ── `border-box`, ET ÇA MANQUAIT ──────────────────────────────
+
+      Le ruban déborde de la carte exprès : il fait sa largeur plus les
+      deux fois douze pixels de son rembourrage, et des marges
+      négatives le recalent. Mais sans `border-box`, son propre padding
+      s'AJOUTAIT à cette largeur — il dépassait donc de 12 pixels de
+      plus de chaque côté, et c'est `overflow: hidden` sur la carte qui
+      le rognait sans rien dire.
+
+      Mesuré à −11 avec un padding de 12, à −15 avec 16 : le débord
+      suivait le padding, ce qu'une largeur calculée ne devrait jamais
+      faire. Tant que le padding était petit, personne ne le voyait. */
+  box-sizing: border-box;
   width: calc(100% + var(--wm-espace-24, 24px));
   align-items: baseline;
   justify-content: space-between;
   gap: var(--wm-espace-8, 8px);
   margin: 0 calc(var(--wm-espace-12, 12px) * -1) var(--wm-espace-8, 8px);
-  /*  « Ajoute des paddings » : 10 sur 12 au lieu de 8 sur 16. Plus haut
-      parce que les deux étiquettes ont rétréci et que la bande
-      s'écrasait avec elles ; moins large parce qu'une pastille a son
-      propre fond maintenant, et qu'elle doit arriver près du bord. */
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  /*  ── DEUX PASSES, ET LA SECONDE EST LA BONNE ─────────────────
+
+      Première passe : 10 sur 12, au lieu de 8 sur 16. Je l'avais
+      resserrée en largeur en me disant qu'une pastille avec son propre
+      fond doit arriver près du bord — « il manque encore un margin
+      entre le tag de rareté, le pourcentage et le fond » (5 novembre).
+
+      C'était le contraire. Une pastille qui porte un fond a besoin de
+      PLUS d'air autour d'elle qu'un mot nu, pas moins : deux fonds
+      qui se touchent se lisent comme un seul bloc, et on ne voit plus
+      la pastille. 14 sur 16, mesuré au rendu. */
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
 }
 
 /*  ── « EN TRÈS RARE, ON NE VOIT PAS LE MOT » ────────────────────
@@ -679,7 +699,10 @@
     tient dans la bande sans l'épaissir. */
 #modernbb .wm-faune__rarete {
   border-radius: var(--wm-rayon-sm, 6px);
-  padding: 2px var(--wm-espace-6, 6px);
+  /*  LE MOT RESPIRE DANS SA PASTILLE, lui aussi : à 2 sur 6 il la
+      remplissait d'un bord à l'autre et la pastille ne se voyait plus
+      comme telle. */
+  padding: 4px var(--wm-espace-8, 8px);
   background: color-mix(in srgb, currentColor 14%, transparent);
   color: inherit;
   /*  PLUS PETIT : « pour le "peu commun" et le taux d'apparition,
@@ -830,6 +853,25 @@
   #modernbb .wm-faune__espece {
     flex-basis: 128px;
     padding: var(--wm-espace-8, 8px) var(--wm-espace-8, 8px) 0;
+  }
+
+  /*  ── LE RUBAN SUIT LE REMBOURRAGE DE SA CARTE ─────────────────
+
+      Il déborde exprès du rembourrage pour toucher les deux bords :
+      sa largeur est `100% + 2 × 12` et des marges de −12 le recalent.
+      Ces 12 sont ceux de la carte en bureau — ici elle passe à 8, et
+      le ruban dépassait donc de 3 pixels de chaque côté.
+
+      PERSONNE NE LE VOYAIT : `overflow: hidden` sur la carte rognait
+      le surplus, et le ruban avait l'air juste. Mais son rembourrage
+      de droite valait 13 au lieu de 16, et le harnais ne pouvait pas
+      affirmer que le ruban tient dans sa carte sans mentir. Trouvé le
+      5 novembre, en desserrant ce rembourrage.
+
+      Rien ne bouge à l'écran : le rectangle visible est le même. */
+  #modernbb .wm-faune__tete {
+    width: calc(100% + var(--wm-espace-16, 16px));
+    margin: 0 calc(var(--wm-espace-8, 8px) * -1) var(--wm-espace-8, 8px);
   }
 
   /*  La boîte se resserre ; l'image, elle, ne grandit toujours pas. */
