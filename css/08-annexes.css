@@ -397,30 +397,32 @@ body:has(#modernbb .wm-carnet) {
   max-width: none;
 }
 
-/*  ── UN ONGLET QUI REPREND LA MESURE DE LECTURE ─────────────────────
+/*  ── LA COLONNE DE L'ANNEXE DE LA CARTE ────────────────────────────
 
-    « Pour la région de Rhode, j'aimerai que ce soit moins large, que ça
-    ressemble aux autres maquettes. » (5 novembre)
+    Trois tours de vis en deux jours, et c'est le troisième qui tient.
 
-    L'annexe de la carte porte `--large` sur sa colonne : c'est ce qui
-    laisse respirer la carte et ses soixante cartes d'espèce. Mais elle
-    a deux onglets, et le premier est du TEXTE — la présentation de
-    Rhode, ses évènements, ses écuries. Une ligne de mille pixels ne se
-    lit pas d'un trait, et c'est précisément pour ça que les treize
-    autres annexes sont bornées à 880.
+    4 nov : « prends la largeur dispo, en tout cas sur cette annexe » —
+    `--large`, donc `max-width: none`.
 
-    ON BORNE DONC LE BLOC, PAS LA COLONNE. La classe se pose sur ce qui
-    en a besoin — l'en-tête de la page, et le `<section
-    data-wm-sous-onglet>` qui porte du texte — et la carte garde sa
-    largeur dans l'onglet d'à côté.
+    5 nov matin : « que ce soit moins large, que ça ressemble aux autres
+    maquettes » — une classe `--mesure` bornait le TEXTE à 880 dans une
+    colonne restée sans borne.
 
-    ET ELLE NE CENTRE PAS. Première version centrée : le texte partait
-    à 565 pixels du bord pendant que la barre d'onglets restait collée
-    à gauche, et les deux ne s'alignaient sur rien. Bornée à gauche,
-    tout ce qui se lit part du même bord — le titre, les onglets, les
-    paragraphes — et la carte est la seule chose qui déborde. */
-#modernbb .wm-annexe__onglet--mesure {
-  max-width: 880px;
+    5 nov soir : « ça fait bizarre que ce soit centré à gauche avec un
+    gros vide à droite ». Évidemment. Border le texte dans une colonne
+    large, c'est FABRIQUER le vide : la colonne faisait 1092, le texte
+    880, il restait 212 pixels de rien. Centré, le vide se serait
+    seulement coupé en deux.
+
+    LA COLONNE SE BORNE, DONC, ET LE TEXTE LA REMPLIT. 980 pixels : un
+    cran au-dessus des 880 des douze autres annexes — « elle serait
+    légèrement plus large à cause de la map et des lieux gardés à
+    droite » — et pas un de plus. Il n'y a plus rien à border, donc
+    plus de vide.
+
+    La classe `--mesure` est partie avec le vide qu'elle créait. */
+#modernbb .wm-annexe__colonne--carte {
+  max-width: 980px;
 }
 
 /* ── 2 · le sommaire ──────────────────────────────────────────────── */

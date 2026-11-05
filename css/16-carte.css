@@ -1147,6 +1147,81 @@
    La seule chose qui tienne encore de l'annexe est juste en dessous,
    et elle ne parle pas de largeur. */
 
+/*  ── DANS UNE ANNEXE, LA CARTE NE SE REMBOURRE PAS DEUX FOIS ───────
+
+    « Enlever les grosses marges autour du bloc de map » (5 novembre).
+
+    Mesuré : entre la colonne de l'annexe et le dessin, 96 pixels de
+    rembourrage. Quarante-huit posés par `.wm-annexe__carte`, qui est
+    la boîte blanche des sous-onglets, et quarante-huit de plus par
+    `.wm-carte`, qui se croit sur l'index — où elle est seule, sans
+    boîte autour, et où ses 24 pixels sont justes.
+
+    Deux boîtes blanches l'une dans l'autre ne font pas deux bords :
+    elles font un bord et une marge perdue. La carte enlève donc les
+    siens quand elle est dans une annexe, et l'index ne change pas.
+
+    LE BAS RESTE : il sépare la carte de la faune qui la suit. */
+#modernbb .wm-annexe .wm-carte {
+  padding: 0 0 var(--wm-espace-8, 8px);
+  margin-bottom: 0;
+  background: none;
+  border-radius: 0;
+}
+
+/*  ── ET ELLE NE LAISSE PLUS D'EAU EN HAUT ET EN BAS ────────────────
+
+    « Réduire la largeur de la map, y'a de la place autour » (5 nov).
+
+    La place perdue n'était pas où on la cherchait. Le `viewBox` est
+    serré — mesuré, 96 % du repère. C'était le CADRE qui ne tenait pas
+    le rapport du dessin : 656 de large pour 762 de haut, pour un
+    dessin CARRÉ. Le SVG s'ajuste au plus petit côté, donc il se
+    peignait en 656 × 656 et laissait 106 pixels de bleu — 53 en haut,
+    53 en bas — qu'on prenait pour de la mer.
+
+    Le cadre prend donc `aspect-ratio: 1`, qui est le rapport de
+    `data/carte.json`, et le corps le laisse faire.
+
+    ── ET C'EST SOUS `.wm-annexe`, CE QUI A COÛTÉ UN ALLER-RETOUR ──
+
+    Premier jet : les trois règles étaient globales. L'index s'est
+    retrouvé avec un cadre carré de 1024 de haut, une colonne de 1243
+    qui ne défilait plus, et un débord horizontal à 390 px. Trois
+    défauts attrapés par `deno task carte` dans la minute.
+
+    Et c'est juste : l'index garde son panneau de détail, donc une
+    colonne qui doit défiler, donc une hauteur à tenir. L'annexe n'a
+    plus de panneau — elle n'a que la liste — et rien ne l'oblige à
+    faire 760 de haut. Ce sont deux pages, pas deux versions d'une
+    même. */
+@media (min-width: 761px) {
+  #modernbb .wm-annexe .wm-carte__corps {
+    height: auto;
+    align-items: flex-start;
+  }
+
+  #modernbb .wm-annexe .wm-carte__cadre {
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  /*  `align-self: stretch` ET PAS `height: 100%` : le corps ne porte
+      plus de hauteur ici, donc 100 % ne vaudrait rien. La colonne
+      s'étire sur la hauteur de la rangée, c'est-à-dire sur celle du
+      cadre.
+
+      Et 300 au lieu de 320 : vingt pixels rendus au cadre. La liste
+      tient toujours — son entrée la plus longue est « Lande
+      Broussailleuse », et elle tenait déjà dans 320 avec un chiffre à
+      droite. */
+  #modernbb .wm-annexe .wm-carte__colonne {
+    flex-basis: 300px;
+    align-self: stretch;
+    height: auto;
+  }
+}
+
 /*  UNE VILLE INERTE N'EST PAS UN BOUTON : pas de curseur de clic, pas
     de réaction au survol. Elle reste dessinée et nommée, parce qu'elle
     situe les zones les unes par rapport aux autres. */

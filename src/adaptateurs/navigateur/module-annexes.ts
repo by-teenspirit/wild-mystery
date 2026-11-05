@@ -221,9 +221,21 @@ export function poserLesSousOnglets(doc: Document): number {
   for (
     const groupe of Array.from(doc.querySelectorAll<HTMLElement>("[data-wm-sous-onglets]"))
   ) {
+    //  ── UN GROUPE NE PREND QUE SES PROPRES SECTIONS ────────────────
+    //
+    //  `querySelectorAll` cherche dans TOUTE la descendance. Tant qu'il
+    //  n'y avait qu'un groupe par page, ça revenait au même ; le jour
+    //  où un groupe en contient un autre — les quatre évènements de
+    //  Rhode dans l'onglet de la région, 5 novembre — le groupe du
+    //  dessus ramassait les six sections et posait six boutons, dont
+    //  quatre qui cachaient la page entière.
+    //
+    //  On garde donc les sections dont le groupe le plus proche est
+    //  CELUI-CI. Deux lignes, et les groupes s'imbriquent sans que
+    //  l'un sache que l'autre existe.
     const sections = Array.from(
       groupe.querySelectorAll<HTMLElement>("[data-wm-sous-onglet]"),
-    );
+    ).filter((s) => s.closest("[data-wm-sous-onglets]") === groupe);
     //  UN SEUL ONGLET N'EST PAS UN ONGLET : on laisse la section telle
     //  quelle plutôt que de poser une barre à un bouton.
     if (sections.length < 2) continue;
@@ -257,11 +269,36 @@ export function poserLesSousOnglets(doc: Document): number {
 
     for (const [i, s] of sections.entries()) {
       const clef = s.dataset.wmSousOnglet ?? "";
-      const titre = s.querySelector("h2, h3")?.textContent?.trim() ?? clef;
+      //  ── LE TITRE ET SON ICÔNE VIENNENT DU MÊME NŒUD ──────────────
+      //
+      //  Il y avait deux recherches séparées, et la seconde a menti.
+      //  `s.querySelector("h2 > svg, h3 > svg")` descend dans TOUTE la
+      //  section : l'onglet « La région de Rhode », dont le titre est
+      //  un `h2` sans dessin, allait donc chercher le drapeau du
+      //  premier évènement imbriqué plus bas. Vu au rendu le
+      //  5 novembre, la région portait l'icône des courses.
+      //
+      //  On prend la tête UNE fois, et on ne cherche l'icône que
+      //  dedans. Les deux ne peuvent plus se désaccorder.
+      const tete = s.querySelector("h2, h3");
+      const titre = tete?.textContent?.trim() ?? clef;
       const bouton = doc.createElement("button");
       bouton.type = "button";
       bouton.className = "wm-onglet";
-      bouton.textContent = titre;
+      //  ── L'ICÔNE EST COPIÉE DU TITRE, PAS ÉCRITE ICI ──────────────
+      //
+      //  « Rajouter des icônes pour chacune » (5 novembre). Elle vit
+      //  dans le titre de la section, en SVG, dans la page : sans
+      //  JavaScript on la voit quand même, à côté du titre, et le
+      //  bouton n'en est qu'une copie. L'inverse — un dessin écrit
+      //  dans ce module — mettrait les icônes dans le code et les
+      //  ferait disparaître pour qui n'a pas de script.
+      //
+      //  `textContent` du titre ne ramasse PAS le SVG, donc le nom de
+      //  l'onglet reste le nom, sans espace parasite.
+      const icone = tete?.querySelector(":scope > svg") ?? null;
+      if (icone !== null) bouton.appendChild(icone.cloneNode(true));
+      bouton.appendChild(element(doc, "span", "wm-onglet__mot", titre));
       bouton.setAttribute("role", "tab");
       bouton.id = `wm-onglet-${clef}`;
       s.setAttribute("role", "tabpanel");

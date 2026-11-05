@@ -3,7 +3,13 @@
   "_dates": "LES DATES SONT CELLES DU TEXTE SOURCE, qui compte depuis 2021 : « jusqu'en 2005 » pour la Team Snatch, « il y a dix ans » pour le naufrage du S.S Libra, « depuis 2015 » pour les courses, « L'édition 2021 ». Le forum, lui, est en 2026 : il manque cinq ans partout, et « l'édition 2021 » se lira comme une vieille nouvelle. RIEN N'A ÉTÉ DÉCALÉ ICI — décaler des dates sans qu'on me le demande serait réécrire l'histoire de la région. Même arbitrage en attente que dans `data/personnages.json` et sur la planche 78.",
   "_soutien": "Le texte source écrit « Parti de Soutient à Michael ». Gardé en « Soutien », comme dans `data/personnages.json` : le reste du dépôt l'écrit déjà comme ça, et deux orthographes dans deux annexes se verraient.",
   "titre": "La région de Rhode",
-  "chapo": "Pourquoi il fait si sec, pourquoi il n'y avait aucun pokémon sauvage ici il y a dix ans, et pourquoi il y en a aujourd'hui de toutes les régions.",
+  "chapo": [
+    "17 zones sauvages, 3 paliers et 933 lignes d'espèce.",
+    "Tu peux cliquer une zone sur la carte : tout ce qui y vit s'affiche dessous,",
+    "dans l'ordre du Pokédex, avec quelle chance et à quels niveaux et ce",
+    "que tu peux ramasser par terre. Les niveaux sont des recommandations :",
+    "c'est ton palier qui ouvre une zone, pas le niveau de ton équipe."
+  ],
   "presentation": [
     "La région de Rhode est connue pour être peu accueillante en terme de climat. Particulièrement aride du fait de son immense désert, elle est cependant vallonnée au Nord-Ouest grâce aux montagnes et à la forêt, ainsi qu'à son volcan endormi depuis des décennies. Les villes ne sont pas nombreuses à Rhode, principalement à cause du climat, mais en dix ans, Michael a su faire changer les choses. Des routes ont vu le jour, liant les villes entre elles et même un passage souterrain pour relier Suerebe à Pyrite ou à l'Embarcadère. Seule l'Île Ténèbra semble avoir été oubliée du président, certainement du fait de sa dangerosité, mais les choses peuvent toujours changer.",
     "Tout au long de son existence, Rhode a souffert d'un fort climat d'insécurité, provoquant sa réputation de région mal famée et attirant alors peu de nouveaux habitants et de touristes, n'ayant, de plus, aucun pokémon sauvage. Jusqu'en 2005 existait la Team Snatch, une organisation dont le rôle était de voler des pokémons à leur dresseur au moyen d'un snatcheur, appareil servant à transformer n'importe quelle ball en Snatchball et permettant alors de dérober un pokémon à son dresseur. Jusque là membre de la Team Snatch, Michael les a trahi en apprenant leur alliance avec la Team Ombre, avant de détruire leur usine et de leur voler le Snatcheur, qui est aujourd'hui gardé précieusement dans un endroit secret. Suite à sa défaite contre Michael, la Team Snatch n'a plus jamais fait parler d'elle et a totalement disparue de la surface de Rhode.",
@@ -79,32 +85,48 @@
           }
         ],
         "dit": "L'édition 2021 a une fois encore été remportée par l'écurie Raikou.",
-        "ditDeLOrdre": "L'Île Ténèbra termine le Grand Prix : c'est le circuit le plus difficile."
+        "ditDeLOrdre": "L'Île Ténèbra termine le Grand Prix : c'est le circuit le plus difficile.",
+        "icone": "drapeau"
       },
       {
         "nom": "Le Festival du Soleil",
         "paragraphes": [
           "C'est au courant de l'été de Rhode que se déroule le Festival du Soleil. Grand événement apprécié des habitants, il célèbre la chute de la Team Ombre et l'élection de Michael en tant que président de la région. Principalement situé au sein du Désert, entre Phenacit et Pyrite, le Festival réunit un grand nombre d'habitants autour de stands de jeux, fêtes foraines, marchés nocturnes et grandes célébrations. Une statue de Lugia est érigée chaque année, et de nombreuses danses sont exécutées pour honorer le pokémon légendaire."
-        ]
+        ],
+        "icone": "soleil"
       },
       {
         "nom": "Le Clan de la Nuit",
         "paragraphes": [
           "Cette organisation, que l'on pourrait qualifier de petite secte, prône depuis deux années le retour de la Team Ombre. Ils ne sont pas liés à l'organisation d'une quelconque manière, ce sont simplement des fanatiques qui rêveraient de voir les pokémons obscurs et la Team Ombre revenir au grand jour. Massivement surveillés par Michael et les forces de l'ordre, les partisans de cette petite secte se reconnaissent par leur tatouage d'un petit Lugia noir à l'intérieur du poignet. Ils n'ont aujourd'hui fait aucune action hors la loi, se réunissant simplement parfois dans certaines villes de la région, afin de proclamer leur amour des pokémons obscurs."
-        ]
+        ],
+        "icone": "lune"
       },
       {
         "nom": "Le Parti de Soutien à Michael",
         "paragraphes": [
           "Créé il y a bientôt dix ans, cette organisation pacifiste vante les bienfaits de Michael et tout ce qu'il a œuvré pour le bien de la région. Ils le soutiennent dans toutes les opérations réalisées pour améliorer la vie à Rhode, et organisent parfois des campagnes afin que le président reste à la tête de la région et qu'il puisse continuer à améliorer la vie de la région. Ils sont à l'origine du Festival du Soleil, et accueillir de nouveaux membres est toujours un plaisir."
-        ]
+        ],
+        "icone": "main"
       }
     ]
   },
   "note": {
     "etiquette": "Une idée d'évènement ?",
-    "texte": "Tu es libre de proposer des évènements qui viendraient alimenter le forum et la richesse de la région de Rhode. N'hésite pas à poster dans le sujet des suggestions, ou à venir nous en parler.",
-    "lien": "https://mysteryinrhode.forumactif.com/t997-faq-suggestions",
-    "mot": "FAQ & suggestions →"
-  }
+    "texte": "Tu es libre de proposer des évènements qui viendraient alimenter le forum et la richesse de la région de Rhode. N'hésite pas à poster dans le sujet des suggestions, ou à venir nous en parler."
+  },
+  "encartsDeLaCarte": [
+    {
+      "ton": "paisible",
+      "etiquette": "La météo et l'heure",
+      "texte": "Pour le moment, la météo et l'heure n'ont aucun effet sur les pokémons que tu peux rencontrer. Cela pourra être amené à changer s'il y a des demandes des membres."
+    },
+    {
+      "ton": "terre",
+      "etiquette": "Validation d'un pokémon.",
+      "texte": "Un pokémon se retrouve dans ta boîte une fois le sujet clôturé et pas avant. De même pour les objets trouvés."
+    }
+  ],
+  "_encarts": "encartsDeLaCarte : les deux encarts du bas de l'onglet de la carte. Écrits par Callista le 5 novembre, en remplacement de deux sections d'explication du tirage et de la météo qu'elle a jugées de trop. `ton` vaut paisible ou terre, comme la classe wm-encart--*.",
+  "_icones": "icone : le nom d'un dessin de outils/icones.py, posé dans le titre de l'évènement et recopié dans son onglet par module-annexes.ts."
 }

@@ -210,8 +210,21 @@ console.log("\n── sans JavaScript, la page dit encore quelque chose ──")
       sections: document.querySelectorAll("[data-wm-sous-onglet]").length,
       sectionsVisibles: Array.from(document.querySelectorAll("[data-wm-sous-onglet]"))
         .filter((n) => !n.hidden).length,
-      titresVisibles: Array.from(document.querySelectorAll("[data-wm-sous-onglet] > h2"))
-        .filter((n) => getComputedStyle(n).position !== "absolute").length,
+      //  `h2` OU `h3` : les deux onglets du dessus portent un `h2`, les
+      //  quatre évènements imbriqués un `h3` — c'est ce que
+      //  `module-annexes.ts` lit pour nommer un onglet, et il accepte
+      //  les deux. Ne compter que les `h2` faisait dire au harnais que
+      //  quatre titres manquaient alors qu'ils étaient là.
+      //  LES SECTIONS QUI ONT UN TITRE VISIBLE, pas le nombre de
+      //  titres : la section de la région en porte DEUX — son `h2` et
+      //  le `h3` « Les évènements de Rhode » qui ouvre le groupe
+      //  imbriqué. Compter les titres donnait sept pour six sections,
+      //  ce qui ressemblait à une faute et n'en était pas une.
+      titresVisibles: Array.from(document.querySelectorAll("[data-wm-sous-onglet]"))
+        .filter((n) => {
+          const t = n.querySelector(":scope > h2, :scope > h3");
+          return t !== null && getComputedStyle(t).position !== "absolute";
+        }).length,
       barre: document.querySelectorAll(".wm-sous-onglets__barre").length,
       debord: document.documentElement.scrollWidth > window.innerWidth + 1,
     };
@@ -283,50 +296,114 @@ await p.waitForSelector(".wm-carte", { timeout: 15000 });
 // ════════════════════════════════════════════════════════════════════
 console.log("\n── les sous-onglets ──");
 {
-  const vu = await p.evaluate(() => {
-    const ouvertes = () =>
-      Array.from(document.querySelectorAll("[data-wm-sous-onglet]")).filter((n) => !n.hidden);
-    const boutons = Array.from(
-      document.querySelectorAll(".wm-sous-onglets__barre .wm-onglet"),
-    );
-    //  ON PART DU PREMIER ONGLET, pas de celui qui se trouve ouvert :
-    //  le harnais a cliqué « la carte » plus haut pour la mesurer, et
-    //  cliquer le second depuis le second ne change rien.
-    boutons[0]?.click();
-    const avant = ouvertes()[0]?.dataset.wmSousOnglet ?? "";
-    boutons[1]?.click();
-    const apres = ouvertes()[0]?.dataset.wmSousOnglet ?? "";
+  //  ── DEUX GROUPES DEPUIS LE 5 NOVEMBRE, ET IMBRIQUÉS ──────────
+  //
+  //  « Tu peux rajouter des onglets plutôt pour les différents
+  //  évènements » : les quatre évènements de Rhode forment un second
+  //  groupe, DANS l'onglet de la région.
+  //
+  //  Le contrôle d'avant comptait les sections et les boutons de toute
+  //  la page, et il passait tant qu'il n'y avait qu'un groupe. Avec
+  //  deux, il réclamait une seule section ouverte sur les six — alors
+  //  qu'il en faut exactement une PAR GROUPE, donc deux. On mesure
+  //  maintenant groupe par groupe, ce qui est ce qu'on voulait dire
+  //  depuis le début.
+  const groupes = await p.evaluate(() => {
+    const lire = () =>
+      Array.from(document.querySelectorAll("[data-wm-sous-onglets]")).map((g) => {
+        //  LES SECTIONS DU GROUPE, pas de sa descendance : c'est la
+        //  règle que `module-annexes.ts` applique, et le harnais doit
+        //  l'appliquer aussi, sinon il ne mesure pas la même chose.
+        const sections = Array.from(g.querySelectorAll("[data-wm-sous-onglet]"))
+          .filter((n) => n.closest("[data-wm-sous-onglets]") === g);
+        const barre = g.querySelector(":scope > .wm-sous-onglets__barre");
+        const boutons = barre === null
+          ? []
+          : Array.from(barre.querySelectorAll(":scope > .wm-onglet"));
+        return {
+          clefs: sections.map((n) => n.dataset.wmSousOnglet ?? ""),
+          //  `hidden` SUR UNE SECTION D'UN GROUPE CACHÉ reste `hidden` :
+          //  on regarde l'attribut, pas la visibilité réelle, parce que
+          //  le groupe imbriqué vit dans un onglet fermé la moitié du
+          //  temps.
+          ouvertes: sections.filter((n) => !n.hidden).map((n) => n.dataset.wmSousOnglet),
+          boutons: boutons.map((b) => b.textContent ?? ""),
+          icones: boutons.map((b) => b.querySelector(".wm-onglet__icone") !== null),
+          tabindex: boutons.map((b) => b.tabIndex),
+          selected: boutons.map((b) => b.getAttribute("aria-selected")),
+        };
+      });
+
+    //  On ouvre le premier onglet de chaque groupe avant de mesurer :
+    //  le harnais a cliqué « la carte » plus haut, et un groupe
+    //  imbriqué dans un onglet fermé ne se mesure pas.
+    for (const g of document.querySelectorAll("[data-wm-sous-onglets]")) {
+      g.querySelector(":scope > .wm-sous-onglets__barre > .wm-onglet")?.click();
+    }
+    const avant = lire();
+    //  Puis le second du premier groupe, pour vérifier que ça bouge.
+    const premier = document.querySelector("[data-wm-sous-onglets]");
+    premier?.querySelectorAll(":scope > .wm-sous-onglets__barre > .wm-onglet")[1]?.click();
+    const apres = lire();
     return {
-      boutons: boutons.map((b) => b.textContent ?? ""),
-      sections: document.querySelectorAll("[data-wm-sous-onglet]").length,
-      uneSeule: ouvertes().length === 1,
       avant,
       apres,
-      //  Un seul onglet dans l'ordre de tabulation : la flèche circule
-      //  entre eux, Tab sort du groupe.
-      tabindex: boutons.map((b) => b.tabIndex),
-      selected: boutons.map((b) => b.getAttribute("aria-selected")),
       titreCache: getComputedStyle(
         document.querySelector("[data-wm-sous-onglet] > h2"),
       ).position === "absolute",
     };
   });
+  const vu = { titreCache: groupes.titreCache };
+
   ok(
-    "une barre, un bouton par section",
-    vu.boutons.length === vu.sections,
-    { boutons: vu.boutons, sections: vu.sections },
+    "DEUX GROUPES D'ONGLETS, et le second est imbriqué dans le premier",
+    groupes.avant.length === 2,
+    groupes.avant.map((g) => g.clefs),
   );
-  ok("UNE SEULE SECTION OUVERTE À LA FOIS", vu.uneSeule);
-  ok("et le clic change bien de section", vu.avant !== vu.apres, [vu.avant, vu.apres]);
+  for (const [i, g] of groupes.avant.entries()) {
+    ok(
+      `groupe ${i + 1} : une barre, un bouton par section`,
+      g.boutons.length === g.clefs.length && g.clefs.length >= 2,
+      { boutons: g.boutons, clefs: g.clefs },
+    );
+    ok(
+      `groupe ${i + 1} : UNE SEULE SECTION OUVERTE À LA FOIS`,
+      g.ouvertes.length === 1,
+      g.ouvertes,
+    );
+    ok(
+      `groupe ${i + 1} : UN SEUL ONGLET DANS L'ORDRE DE TABULATION`,
+      g.tabindex.filter((t) => t === 0).length === 1,
+      g.tabindex,
+    );
+    ok(
+      `groupe ${i + 1} : \`aria-selected\` suit`,
+      g.selected.filter((x) => x === "true").length === 1,
+      g.selected,
+    );
+  }
+  //  ── LES ICÔNES DES ÉVÈNEMENTS ────────────────────────────────
+  //
+  //  « Rajouter des icônes pour chacune » (5 novembre), sur les
+  //  évènements — et sur eux SEULEMENT. Le premier jet cherchait
+  //  l'icône dans toute la section : l'onglet « La région de Rhode »,
+  //  dont le titre n'en porte pas, allait prendre le drapeau du
+  //  premier évènement imbriqué plus bas. Vu au rendu.
   ok(
-    "UN SEUL ONGLET DANS L'ORDRE DE TABULATION",
-    vu.tabindex.filter((t) => t === 0).length === 1,
-    vu.tabindex,
+    "les quatre évènements ont chacun leur icône",
+    groupes.avant[1]?.icones.every((x) => x) === true &&
+      groupes.avant[1]?.icones.length === 4,
+    groupes.avant[1]?.icones,
   );
   ok(
-    "et `aria-selected` suit",
-    vu.selected.filter((s) => s === "true").length === 1,
-    vu.selected,
+    "ET LES DEUX ONGLETS DU DESSUS N'EN ONT PAS VOLÉ",
+    groupes.avant[0]?.icones.every((x) => !x) === true,
+    groupes.avant[0]?.icones,
+  );
+  ok(
+    "et le clic change bien de section",
+    groupes.avant[0]?.ouvertes[0] !== groupes.apres[0]?.ouvertes[0],
+    [groupes.avant[0]?.ouvertes[0], groupes.apres[0]?.ouvertes[0]],
   );
   ok("LE TITRE NE SE DIT PAS DEUX FOIS : il est sur le bouton", vu.titreCache);
 
@@ -375,7 +452,14 @@ console.log("\n── les sous-onglets ──");
     );
     boutons[0].click();
     boutons[0].dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
-    const ouverte = Array.from(document.querySelectorAll("[data-wm-sous-onglet]"))
+    //  L'OUVERTE DU PREMIER GROUPE, et pas la première ouverte du
+    //  document. Une section d'un groupe imbriqué garde `hidden =
+    //  false` quand l'onglet qui la contient se ferme — c'est le
+    //  parent qui est caché, pas elle — donc la première non cachée du
+    //  document était un évènement, qui n'appartient pas à cette barre.
+    const g = document.querySelector("[data-wm-sous-onglets]");
+    const ouverte = Array.from(g?.querySelectorAll("[data-wm-sous-onglet]") ?? [])
+      .filter((n) => n.closest("[data-wm-sous-onglets]") === g)
       .find((n) => !n.hidden);
     return ouverte?.dataset.wmSousOnglet ?? "";
   });
@@ -383,9 +467,17 @@ console.log("\n── les sous-onglets ──");
   //  était « le-sol » quand il y en avait quatre, il est « la-carte »
   //  depuis qu'il n'y en a plus que deux, et un nom écrit ici aurait
   //  fallu le corriger à la main.
+  //
+  //  ET IL SE LIT DANS SON GROUPE. Depuis le 5 novembre la page en
+  //  porte deux, et le dernier `[data-wm-sous-onglet]` du document est
+  //  un ÉVÈNEMENT, qui est dans l'autre groupe : la flèche gauche du
+  //  premier groupe ne peut pas y aller, et n'a pas à y aller. Une
+  //  flèche circule dans sa barre.
   const dernier = await p.evaluate(() => {
-    const tous = Array.from(document.querySelectorAll("[data-wm-sous-onglet]"));
-    return tous[tous.length - 1]?.dataset.wmSousOnglet ?? "";
+    const g = document.querySelector("[data-wm-sous-onglets]");
+    const siennes = Array.from(g?.querySelectorAll("[data-wm-sous-onglet]") ?? [])
+      .filter((n) => n.closest("[data-wm-sous-onglets]") === g);
+    return siennes[siennes.length - 1]?.dataset.wmSousOnglet ?? "";
   });
   ok(
     "LA FLÈCHE GAUCHE DEPUIS LE PREMIER VA AU DERNIER",
@@ -1419,36 +1511,58 @@ console.log("\n── la région de Rhode est présentée, et sans JavaScript �
       vue: sec.getBoundingClientRect().height > 0,
     };
   });
-  //  ── LA MESURE DE LECTURE ────────────────────────────────────
+  //  ── LA LARGEUR DE LA COLONNE ────────────────────────────────
   //
-  //  « Pour la région de Rhode, j'aimerai que ce soit moins large, que
-  //  ça ressemble aux autres maquettes » (5 novembre). La colonne de
-  //  cette annexe est en `--large` pour la carte ; le TEXTE, lui,
-  //  reprend les 880 pixels des treize autres pages.
+  //  Trois tours de vis en deux jours. Le 4, la colonne était sans
+  //  borne ; le 5 au matin, on bornait le TEXTE à 880 dedans ; le 5 au
+  //  soir, « ça fait bizarre que ce soit centré à gauche avec un gros
+  //  vide à droite » — forcément, border le texte dans une colonne
+  //  large fabrique le vide.
+  //
+  //  C'est la COLONNE qui se borne maintenant, et le texte la remplit.
+  //  Deux choses à tenir : qu'elle reste un cran au-dessus des 880 des
+  //  douze autres annexes (« légèrement plus large à cause de la map
+  //  et des lieux gardés à droite »), et qu'il ne reste PLUS de vide —
+  //  c'est-à-dire que le texte fasse la largeur de sa boîte.
   {
     const mesures = await q.evaluate(() => {
-      const region = document.querySelector('[data-wm-sous-onglet="la-region"]');
-      const tete = document.querySelector(".wm-annexe__titre")?.parentElement;
-      const colonne = document.querySelector(".wm-annexe__colonne");
       const l = (n) => (n === null ? -1 : Math.round(n.getBoundingClientRect().width));
-      return { region: l(region), tete: l(tete), colonne: l(colonne) };
+      const region = document.querySelector('[data-wm-sous-onglet="la-region"]');
+      return {
+        colonne: l(document.querySelector(".wm-annexe__colonne")),
+        //  LA LARGEUR DE CONTENU DE LA BOÎTE, rembourrage déduit :
+        //  `.wm-annexe__carte` en pose 24 de chaque côté, et c'est
+        //  dedans que la section vit. Comparer à sa largeur de bordure
+        //  réclamait 48 pixels que la section ne peut pas occuper.
+        boite: (() => {
+          const n = document.querySelector(".wm-annexe__carte");
+          if (n === null) return -1;
+          const c = getComputedStyle(n);
+          return Math.round(
+            n.getBoundingClientRect().width -
+              Number.parseFloat(c.paddingLeft) - Number.parseFloat(c.paddingRight),
+          );
+        })(),
+        region: l(region),
+        chapo: l(document.querySelector(".wm-annexe__chapo")),
+      };
     });
     ok(
-      "le texte de la région reprend la mesure des autres annexes",
-      mesures.region > 0 && mesures.region <= 880,
+      "la colonne est bornée, et un cran au-dessus des autres annexes",
+      mesures.colonne > 880 && mesures.colonne <= 1000,
+      mesures,
+    );
+    //  LE TEXTE REMPLIT SA BOÎTE : c'est ça, « plus de vide à droite ».
+    //  On compare à la boîte blanche des onglets, pas à la colonne, qui
+    //  porte en plus le rembourrage de cette boîte.
+    ok(
+      "ET LE TEXTE DE LA RÉGION REMPLIT SA BOÎTE : plus de vide à droite",
+      mesures.region === mesures.boite,
       mesures,
     );
     ok(
-      "l'en-tête de la page aussi",
-      mesures.tete > 0 && mesures.tete <= 880,
-      mesures,
-    );
-    //  ET LA COLONNE RESTE LARGE : c'est elle qui laisse la place à la
-    //  carte dans l'onglet d'à côté. Si elle se bornait aussi, on
-    //  aurait rendu la carte petite en voulant resserrer le texte.
-    ok(
-      "MAIS LA COLONNE RESTE LARGE, pour la carte",
-      mesures.colonne > 880,
+      "le chapô aussi remplit la colonne",
+      mesures.chapo === mesures.colonne,
       mesures,
     );
   }

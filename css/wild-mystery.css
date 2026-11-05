@@ -10480,30 +10480,32 @@ body:has(#modernbb .wm-carnet) {
   max-width: none;
 }
 
-/*  ── UN ONGLET QUI REPREND LA MESURE DE LECTURE ─────────────────────
+/*  ── LA COLONNE DE L'ANNEXE DE LA CARTE ────────────────────────────
 
-    « Pour la région de Rhode, j'aimerai que ce soit moins large, que ça
-    ressemble aux autres maquettes. » (5 novembre)
+    Trois tours de vis en deux jours, et c'est le troisième qui tient.
 
-    L'annexe de la carte porte `--large` sur sa colonne : c'est ce qui
-    laisse respirer la carte et ses soixante cartes d'espèce. Mais elle
-    a deux onglets, et le premier est du TEXTE — la présentation de
-    Rhode, ses évènements, ses écuries. Une ligne de mille pixels ne se
-    lit pas d'un trait, et c'est précisément pour ça que les treize
-    autres annexes sont bornées à 880.
+    4 nov : « prends la largeur dispo, en tout cas sur cette annexe » —
+    `--large`, donc `max-width: none`.
 
-    ON BORNE DONC LE BLOC, PAS LA COLONNE. La classe se pose sur ce qui
-    en a besoin — l'en-tête de la page, et le `<section
-    data-wm-sous-onglet>` qui porte du texte — et la carte garde sa
-    largeur dans l'onglet d'à côté.
+    5 nov matin : « que ce soit moins large, que ça ressemble aux autres
+    maquettes » — une classe `--mesure` bornait le TEXTE à 880 dans une
+    colonne restée sans borne.
 
-    ET ELLE NE CENTRE PAS. Première version centrée : le texte partait
-    à 565 pixels du bord pendant que la barre d'onglets restait collée
-    à gauche, et les deux ne s'alignaient sur rien. Bornée à gauche,
-    tout ce qui se lit part du même bord — le titre, les onglets, les
-    paragraphes — et la carte est la seule chose qui déborde. */
-#modernbb .wm-annexe__onglet--mesure {
-  max-width: 880px;
+    5 nov soir : « ça fait bizarre que ce soit centré à gauche avec un
+    gros vide à droite ». Évidemment. Border le texte dans une colonne
+    large, c'est FABRIQUER le vide : la colonne faisait 1092, le texte
+    880, il restait 212 pixels de rien. Centré, le vide se serait
+    seulement coupé en deux.
+
+    LA COLONNE SE BORNE, DONC, ET LE TEXTE LA REMPLIT. 980 pixels : un
+    cran au-dessus des 880 des douze autres annexes — « elle serait
+    légèrement plus large à cause de la map et des lieux gardés à
+    droite » — et pas un de plus. Il n'y a plus rien à border, donc
+    plus de vide.
+
+    La classe `--mesure` est partie avec le vide qu'elle créait. */
+#modernbb .wm-annexe__colonne--carte {
+  max-width: 980px;
 }
 
 /* ── 2 · le sommaire ──────────────────────────────────────────────── */
@@ -14230,6 +14232,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-onglet {
   display: inline-flex;
   align-items: flex-start;
+  gap: var(--wm-espace-8, 8px);
   box-sizing: border-box;
   padding: var(--wm-espace-18, 18px) var(--wm-espace-20, 20px);
   overflow: hidden;
@@ -14244,6 +14247,36 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: var(--wm-interligne-etiquette, 1.3);
   text-decoration: none;
   white-space: nowrap;
+}
+
+/*  ── L'ICÔNE D'UN ONGLET ───────────────────────────────────────────
+
+    « Rajouter des icônes pour chacune » (5 novembre), sur les quatre
+    évènements de Rhode.
+
+    Elle est en `currentColor`, donc elle suit la couleur du bouton —
+    y compris quand il devient actif et passe en texte inverse, et y
+    compris en thème sombre. C'est ce qu'on gagne à dessiner en SVG
+    plutôt qu'à poser une image : rien à redéclarer, rien à décliner.
+
+    `flex: none` PARCE QU'ELLE SE SERAIT ÉCRASÉE : dans une barre qui
+    se replie, un enfant souple rétrécit avant le texte, et une icône
+    de 16 × 12 n'est plus une icône. */
+#modernbb .wm-onglet__icone {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  /*  Le trait est dessiné pour 24 unités ; à 16 pixels il tombe sous
+      le pixel entier et bave. On l'épaissit d'un cran à l'affichage
+      plutôt que de redessiner quatre icônes pour une seule taille. */
+  stroke-width: 1.8;
+}
+
+/*  LE MOT EST DANS UN `span` depuis que l'icône existe : sans lui, le
+    `gap` du bouton s'appliquerait entre chaque nœud de texte. */
+#modernbb .wm-onglet__mot {
+  display: block;
 }
 
 /*  L'actif n'a PAS de contour dans la maquette. On garde quand même un
@@ -19363,6 +19396,81 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
    La seule chose qui tienne encore de l'annexe est juste en dessous,
    et elle ne parle pas de largeur. */
+
+/*  ── DANS UNE ANNEXE, LA CARTE NE SE REMBOURRE PAS DEUX FOIS ───────
+
+    « Enlever les grosses marges autour du bloc de map » (5 novembre).
+
+    Mesuré : entre la colonne de l'annexe et le dessin, 96 pixels de
+    rembourrage. Quarante-huit posés par `.wm-annexe__carte`, qui est
+    la boîte blanche des sous-onglets, et quarante-huit de plus par
+    `.wm-carte`, qui se croit sur l'index — où elle est seule, sans
+    boîte autour, et où ses 24 pixels sont justes.
+
+    Deux boîtes blanches l'une dans l'autre ne font pas deux bords :
+    elles font un bord et une marge perdue. La carte enlève donc les
+    siens quand elle est dans une annexe, et l'index ne change pas.
+
+    LE BAS RESTE : il sépare la carte de la faune qui la suit. */
+#modernbb .wm-annexe .wm-carte {
+  padding: 0 0 var(--wm-espace-8, 8px);
+  margin-bottom: 0;
+  background: none;
+  border-radius: 0;
+}
+
+/*  ── ET ELLE NE LAISSE PLUS D'EAU EN HAUT ET EN BAS ────────────────
+
+    « Réduire la largeur de la map, y'a de la place autour » (5 nov).
+
+    La place perdue n'était pas où on la cherchait. Le `viewBox` est
+    serré — mesuré, 96 % du repère. C'était le CADRE qui ne tenait pas
+    le rapport du dessin : 656 de large pour 762 de haut, pour un
+    dessin CARRÉ. Le SVG s'ajuste au plus petit côté, donc il se
+    peignait en 656 × 656 et laissait 106 pixels de bleu — 53 en haut,
+    53 en bas — qu'on prenait pour de la mer.
+
+    Le cadre prend donc `aspect-ratio: 1`, qui est le rapport de
+    `data/carte.json`, et le corps le laisse faire.
+
+    ── ET C'EST SOUS `.wm-annexe`, CE QUI A COÛTÉ UN ALLER-RETOUR ──
+
+    Premier jet : les trois règles étaient globales. L'index s'est
+    retrouvé avec un cadre carré de 1024 de haut, une colonne de 1243
+    qui ne défilait plus, et un débord horizontal à 390 px. Trois
+    défauts attrapés par `deno task carte` dans la minute.
+
+    Et c'est juste : l'index garde son panneau de détail, donc une
+    colonne qui doit défiler, donc une hauteur à tenir. L'annexe n'a
+    plus de panneau — elle n'a que la liste — et rien ne l'oblige à
+    faire 760 de haut. Ce sont deux pages, pas deux versions d'une
+    même. */
+@media (min-width: 761px) {
+  #modernbb .wm-annexe .wm-carte__corps {
+    height: auto;
+    align-items: flex-start;
+  }
+
+  #modernbb .wm-annexe .wm-carte__cadre {
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  /*  `align-self: stretch` ET PAS `height: 100%` : le corps ne porte
+      plus de hauteur ici, donc 100 % ne vaudrait rien. La colonne
+      s'étire sur la hauteur de la rangée, c'est-à-dire sur celle du
+      cadre.
+
+      Et 300 au lieu de 320 : vingt pixels rendus au cadre. La liste
+      tient toujours — son entrée la plus longue est « Lande
+      Broussailleuse », et elle tenait déjà dans 320 avec un chiffre à
+      droite. */
+  #modernbb .wm-annexe .wm-carte__colonne {
+    flex-basis: 300px;
+    align-self: stretch;
+    height: auto;
+  }
+}
 
 /*  UNE VILLE INERTE N'EST PAS UN BOUTON : pas de curseur de clic, pas
     de réaction au survol. Elle reste dessinée et nommée, parce qu'elle
@@ -24739,6 +24847,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     teintées deviendraient illisibles. */
 #modernbb .wm-faune__espece[data-wm-dex="attrape"] {
   box-shadow: inset 2px 0 0 var(--wm-palier-1, #3f7d52);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LES QUATRE ÉVÈNEMENTS DE RHODE, EN ONGLETS
+   ════════════════════════════════════════════════════════════════════
+
+   « Tu peux rajouter des onglets plutôt pour les différents évènements
+   et rajouter des icônes pour chacune ? » (5 novembre)
+
+   C'est un groupe de sous-onglets DANS le groupe de la page, et c'est
+   la première fois qu'on en imbrique : `module-annexes.ts` ne garde
+   plus que les sections dont il est le groupe le plus proche, sinon
+   celui du dessus se serait mis six boutons.
+
+   RIEN À POSER SUR LA BARRE : `.wm-sous-onglets__barre` et `.wm-onglet`
+   valent pour les deux niveaux. Ce bloc ne sert qu'à séparer le groupe
+   du texte qui le précède, et à rendre au bloc d'évènement les marges
+   que son titre masqué lui prenait. */
+#modernbb .wm-region__evenements {
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+/*  LE BLOC N'A PLUS DE TITRE VISIBLE une fois les onglets posés — il
+    est sur le bouton — donc il n'a plus besoin du retrait qui faisait
+    sa place. Sans ça, chaque évènement s'ouvrait sur un blanc. */
+#modernbb .wm-sous-onglets--posee .wm-region__bloc {
+  margin-top: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════

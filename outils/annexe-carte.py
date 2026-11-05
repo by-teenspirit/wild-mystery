@@ -36,6 +36,7 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
+from icones import icone  # noqa: E402
 from annexes import (  # noqa: E402
     DEBUT,
     FIN,
@@ -44,6 +45,7 @@ from annexes import (  # noqa: E402
     numero_de,
     pied_de_page,
     remplacer_le_corps,
+    slug,
 )
 
 R = pathlib.Path(__file__).resolve().parent.parent
@@ -54,6 +56,8 @@ PALIERS = {
     2: ("Palier 2", "Zones expérimentées"),
     3: ("Palier 3", "Zones ultimes"),
 }
+
+
 
 
 def e(t):
@@ -101,42 +105,58 @@ def corps():
     #  oublier produit une page qui n'a plus de corps du tout, et la
     #  fois suivante l'outil ne sait plus où écrire. Payé une fois.
     w(f"{DEBUT} — écrit par `outils/annexe-carte.py` \u25bc\u25bc\u25bc -->")
-    #  ── NI PHOTO DE FOND, NI RENDU, ET TOUTE LA LARGEUR ───────────
+    #  ── COMME LES AUTRES ANNEXES, À PEINE PLUS LARGE ─────────────
     #
-    #  « Enlève finalement le fond des annexes et hésite pas à prendre
-    #  la largeur dispo. En tout cas, sur cette annexe. » (4 novembre)
+    #  Trois tours de vis en deux jours, et le troisième est le bon.
     #
-    #  Les treize autres gardent leur photo : c'est celle-ci qui porte
-    #  une carte, et une carte dans 880 pixels avec un lavis par-dessus
-    #  se regarde mal. `--large` est une classe qui existait déjà.
-    w('<div class="wm-annexe wm-annexe--sans-fond">')
+    #  4 nov : « enlève le fond des annexes et prends la largeur dispo,
+    #  en tout cas sur cette annexe » — photo et rendu retirés, colonne
+    #  sans borne.
+    #
+    #  5 nov, matin : « que ce soit moins large, que ça ressemble aux
+    #  autres maquettes » — on borne le TEXTE à 880 dans une colonne
+    #  restée large.
+    #
+    #  5 nov, soir : « ça fait bizarre que ce soit centré à gauche avec
+    #  un gros vide à droite ». Évidemment : borner le texte dans une
+    #  colonne large, c'est fabriquer le vide. « On peut essayer de
+    #  réduire la largeur de la map (y'a de la place autour) et
+    #  d'enlever les grosses marges autour du bloc de map ? Du coup tu
+    #  viendrais afficher comme les autres annexes, un fond et un
+    #  pokémon, mais elle serait légèrement plus large à cause de la map
+    #  et des lieux gardés à droite. »
+    #
+    #  C'est ce qui est écrit ici. La photo et le rendu reviennent,
+    #  la colonne est BORNÉE — un cran au-dessus des 880 des autres,
+    #  pas sans limite — et le texte la remplit. Plus de vide, parce
+    #  qu'il n'y a plus rien à border.
+    #
+    #  Ce qui paie la facture est ailleurs : la carte rendait 106 px
+    #  d'eau en haut et en bas (dessin carré, cadre de 656 × 762) et
+    #  96 px de rembourrage doublé entre la colonne et elle. Voir
+    #  `css/16-carte.css`.
+    w('<div class="wm-annexe">')
     w("")
     w('  <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>')
     w("")
     w('  <div class="wm-annexe__corps">')
-    w('    <div class="wm-annexe__colonne wm-annexe__colonne--large">')
+    w('    <div class="wm-annexe__colonne wm-annexe__colonne--carte">')
     w("")
-    #  L'EN-TÊTE PREND LA MESURE DES AUTRES PAGES, lui aussi. La
-    #  colonne est en `--large` pour la carte, mais un titre et un
-    #  chapô de 1500 pixels de large sont exactement ce que « que ça
-    #  ressemble aux autres maquettes » demande d'éviter. Seule la
-    #  carte déborde.
-    w('      <div class="wm-annexe__onglet--mesure">')
     w('      <p class="wm-annexe__surtitre">Annexe '
       f'{numero_de("la-region-et-ses-zones")}</p>')
     w('      <h1 class="wm-annexe__titre">La <em>région</em> et ses zones</h1>')
     w('      <p class="wm-annexe__chapo">')
-    w(f"        Dix-sept zones sauvages, trois paliers, {total_especes(faunes)} lignes d'espèce.")
-    w("        Clique une zone sur la carte : tout ce qui y vit s'affiche dessous,")
-    w("        dans l'ordre du Pokédex, avec quelle chance et à quels niveaux — et ce")
-    w("        que tu peux ramasser par terre. Les niveaux sont des recommandations :")
-    w("        c'est ton palier qui ouvre une zone, pas le niveau de ton équipe.")
+    #  LE CHAPÔ EST DANS `data/region.json` DEPUIS LE 5 NOVEMBRE.
+    #  Callista l'a réécrit à la main dans la page ; une correction
+    #  faite là est perdue à la génération suivante, donc elle remonte
+    #  à la source. Le nombre d'espèces, lui, reste calculé : c'est le
+    #  seul chiffre de la phrase qui bouge tout seul.
+    for ligne in region["chapo"]:
+        w(f"        {e(ligne).replace('933', str(total_especes(faunes)))}")
     w("      </p>")
-    w("      </div>")
     w("")
     w('      <div class="wm-annexe__blocs">')
     w("")
-
 
     # ── DEUX ONGLETS, ET DEUX SEULEMENT ─────────────────────────────
     #
@@ -149,23 +169,8 @@ def corps():
     w('        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>')
     w("")
 
-    #  ── LA RÉGION SE RESSERRE, LA CARTE GARDE LA LARGEUR ──────────
-    #
-    #  « Pour la région de Rhode, j'aimerai que ce soit moins large, que
-    #  ça ressemble aux autres maquettes. » (5 novembre)
-    #
-    #  La colonne de cette annexe est en `--large`, donc sans borne :
-    #  c'est ce qui laisse respirer la carte et ses soixante cartes
-    #  d'espèce. Mais la région est du TEXTE, et une ligne de mille
-    #  pixels ne se lit pas d'un trait — les treize autres annexes sont
-    #  à 880 pour cette raison exactement.
-    #
-    #  On borne donc l'onglet, pas la colonne : `--mesure` rend à ce
-    #  texte-là la largeur de lecture des autres pages, centrée, et la
-    #  carte garde la sienne juste à côté.
     r = region
-    w('          <section data-wm-sous-onglet="la-region"'
-      ' class="wm-annexe__onglet--mesure">')
+    w('          <section data-wm-sous-onglet="la-region">')
     w(f'            <h2 class="wm-annexe__carte-titre">{e(r["titre"])}</h2>')
     w('            <div class="wm-paras">')
     for para in r["presentation"]:
@@ -179,9 +184,33 @@ def corps():
         w(f"              <p>{e(para)}</p>")
     w("            </div>")
 
+    #  ── LES QUATRE ÉVÈNEMENTS EN ONGLETS ─────────────────────────
+    #
+    #  « Tu peux rajouter des onglets plutôt pour les différents
+    #  évènements et rajouter des icônes pour chacune ? » (5 novembre)
+    #
+    #  C'est un groupe de sous-onglets DANS le groupe de la page, et
+    #  c'est ce que ça a coûté : `module-annexes.ts` ramassait toute sa
+    #  descendance, donc le groupe du dessus se serait mis six boutons.
+    #  Il ne garde plus que les sections dont il est le groupe le plus
+    #  proche.
+    #
+    #  SANS JAVASCRIPT, RIEN N'EST PERDU : les quatre sections
+    #  s'affichent à la suite avec leurs titres et leurs icônes, comme
+    #  avant. La barre d'onglets est construite au chargement, jamais
+    #  écrite ici — une barre en dur sans script serait une rangée de
+    #  boutons morts.
+    #
+    #  Le titre passe de `h4` à `h3` parce que c'est ce que le module
+    #  lit pour nommer un onglet, et l'icône est DANS le titre : le
+    #  bouton n'en reçoit qu'une copie.
+    w('            <div class="wm-region__evenements wm-sous-onglets"'
+      " data-wm-sous-onglets>")
     for bloc in ev["blocs"]:
-        w('            <div class="wm-region__bloc">')
-        w(f'              <h4 class="wm-region__nom">{e(bloc["nom"])}</h4>')
+        w('            <div class="wm-region__bloc" data-wm-sous-onglet="'
+          f'{slug(bloc["nom"])}">')
+        w(f'              <h3 class="wm-region__nom">{icone(bloc.get("icone", ""))}'
+          f'{e(bloc["nom"])}</h3>')
         w('              <div class="wm-paras">')
         for para in bloc["paragraphes"]:
             w(f"                <p>{e(para)}</p>")
@@ -236,6 +265,7 @@ def corps():
         if bloc.get("dit"):
             w(f'              <p class="wm-region__dit">{e(bloc["dit"])}</p>')
         w("            </div>")
+    w("            </div>")
 
     note = r["note"]
     w('            <div class="wm-encarts wm-encarts--detachee">')
@@ -245,10 +275,11 @@ def corps():
     w(f'                <p>{e(note["texte"])}</p>')
     w("              </div>")
     w("            </div>")
-    w('            <p class="wm-perso__liens">')
-    w(f'              <a class="wm-perso__lien" href="{e(note["lien"])}">'
-      f'{e(note["mot"])}</a>')
-    w("            </p>")
+    #  LE LIEN « FAQ & SUGGESTIONS → » QUI SUIVAIT EST PARTI. Retiré par
+    #  Callista le 5 novembre, et elle a raison : le pied de page porte
+    #  déjà un bouton « Questions & suggestions » vers le même sujet, à
+    #  deux écrans de là. Deux liens vers le même endroit sur une page
+    #  ne donnent pas deux fois plus envie d'y aller.
     w("          </section>")
     w("")
 
@@ -297,62 +328,33 @@ def corps():
             w("          </section>")
     w("        </div>")
     w("")
-    #  ── 1 · les tirages ───────────────────────────────────────────
+    #  ── LES DEUX SECTIONS D'EXPLICATION SONT PARTIES ─────────────
+    #
+    #  Retirées par Callista le 5 novembre, et remplacées par deux
+    #  encarts de trois lignes qu'elle a écrits elle-même.
+    #
+    #  Il y avait « Comment le serveur tire » — la graine, l'ordre des
+    #  deux tirages, les cent pour cent — et « Le ciel, l'heure, et ce
+    #  qu'ils changent », quatre paragraphes sur une météo qui
+    #  aujourd'hui ne change rien : les dix-sept zones portent des
+    #  tables `jour` et `nuit` IDENTIQUES, et aucune n'a de météo.
+    #
+    #  Les deux disaient vrai, et les deux expliquaient longuement une
+    #  mécanique qu'un joueur ne voit pas. Ses deux encarts disent ce
+    #  qu'il a besoin de savoir : que ça ne change rien pour l'instant,
+    #  et qu'un pokémon n'est à lui qu'à la clôture.
+    #
+    #  CE QUI EST PERDU EST DANS LE CODE : `src/domaine/meteo.ts` et
+    #  `src/domaine/rencontre.ts` portent les mêmes explications en
+    #  commentaire d'en-tête, et elles y sont à leur place.
     w('          <section class="wm-faune__notice">')
-    w('            <h3 class="wm-region__section">Comment le serveur tire</h3>')
-    w('            <ul class="wm-tirets">')
-    w("              <li><b>Tout part du numéro de ton message.</b> Il sert de graine : le")
-    w("                même message donne toujours le même résultat, aujourd'hui comme dans")
-    w("                trois ans. C'est ce qui permet de refaire un tirage contesté au lieu")
-    w("                d'en discuter.</li>")
-    w("              <li><b>Deux tirages, dans cet ordre :</b> l'espèce d'abord, selon les")
-    w("                pourcentages de la zone ; son niveau ensuite, dans la fourchette de")
-    w("                cette espèce-là. Les inverser donnerait un autre résultat pour la")
-    w("                même graine, donc l'ordre ne bouge pas.</li>")
-    w("              <li><b>Les pourcentages d'une zone font exactement cent.</b> Le serveur")
-    w("                refuse de tirer dans une table qui ne tombe pas juste — mieux vaut")
-    w("                pas de rencontre qu'une rencontre faussée.</li>")
-    w("              <li><b>Rien n'est acquis avant la clôture</b>, et tout l'est d'un coup")
-    w("                à la clôture.</li>")
-    w("            </ul>")
-    w("          </section>")
-    w("")
-
-    #  ── 2 · la météo, expliquée pour de vrai ──────────────────────
-    w('          <section class="wm-faune__notice">')
-    w('            <h2 class="wm-annexe__carte-titre">Le ciel, l\'heure, et ce qu\'ils'
-      " changent</h2>")
-    w('            <div class="wm-paras">')
-    w("              <p><b>Le temps de Rhode se calcule, il ne se décide pas.</b> Chaque")
-    w("                jour a sa graine — la date, et rien d'autre — et un seul tirage en")
-    w("                sort le temps du jour. Il n'y a donc rien à générer le matin, rien à")
-    w("                stocker, et rien qui puisse rater : ton navigateur trouve le même")
-    w("                temps que le serveur sans rien lui demander.</p>")
-    w("              <p><b>Deux états, un sur quatre.</b> Le jour est <b>calme</b> ou")
-    w("                <b>agité</b>, et il l'est pour tout le monde en même temps : il n'y a")
-    w("                pas un ciel par joueur ni un ciel par zone. Environ un jour sur")
-    w("                quatre est agité.</p>")
-    w("              <p><b>Un état global, une expression locale.</b> Un jour agité, chaque")
-    w("                zone montre le temps que SA donnée connaît — la pluie dans le marais,")
-    w("                le blizzard dans les monts, les cendres sur le volcan — et les zones")
-    w("                qui n'en ont pas restent au calme.</p>")
-    w("              <p><b>La nuit va de 20 h à 6 h, à ton heure.</b> C'est le fuseau que tu")
-    w("                as réglé qui décide, pas celui du serveur : quelqu'un qui joue depuis")
-    w("                l'autre bout du monde ne doit pas chasser de nuit à midi.</p>")
-    w("            </div>")
     w('            <div class="wm-encarts">')
-    w('              <div class="wm-encart wm-encart--paisible">')
-    w('                <span class="wm-encart__etiquette">Et aujourd\'hui, concrètement</span>')
-    w("                <p>Les dix-sept zones montrent <b>la même faune le jour et la nuit,")
-    w("                  et par tous les temps</b>. Le ciel change ce que tu racontes, pas")
-    w("                  ce que tu croises. Le jour où une zone aura sa propre table de")
-    w("                  météo, elle s'appliquera toute seule et cette page le dira.</p>")
-    w("              </div>")
-    w('              <div class="wm-encart wm-encart--terre">')
-    w('                <span class="wm-encart__etiquette">À retenir</span>')
-    w("                <p>Le temps et l'heure ne changent <b>jamais les niveaux</b>, et")
-    w("                  jamais tes gains. Au mieux, ils changent qui sort.</p>")
-    w("              </div>")
+    for enc in r["encartsDeLaCarte"]:
+        w(f'              <div class="wm-encart wm-encart--{e(enc["ton"])}">')
+        w('                <span class="wm-encart__etiquette">'
+          f'{e(enc["etiquette"])}</span>')
+        w(f'                <p>{e(enc["texte"])}</p>')
+        w("              </div>")
     w("            </div>")
     w("          </section>")
     w("")

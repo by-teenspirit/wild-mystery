@@ -1170,6 +1170,90 @@ else
   fi
 fi
 
+echo "── 29. les clés d'onglet et les icônes ────────────────────────"
+# DEUX FONCTIONS `slug()` POUR LA MÊME CLÉ, dans deux langages.
+#
+# `outils/annexe-carte.py` écrit `data-wm-sous-onglet="les-courses-gpr1"`
+# dans la page ; `src/navigateur/sous-onglets.ts` compare cette clé à ce
+# que porte l'adresse, et c'est lui qui décide quel onglet s'ouvre. Si
+# les deux ne s'accordent pas, un lien « #les-courses-gpr1 » n'ouvre
+# rien — et rien ne crie, l'onglet se rabat simplement sur le premier.
+#
+# On ne compare pas les deux CODES, on les fait tourner sur les vrais
+# noms d'évènements : c'est la seule comparaison qui vaille.
+#
+# ET LES ICÔNES. Chaque évènement nomme un dessin de `outils/icones.py`.
+# Un nom inconnu rend une chaîne vide — la page s'écrit quand même, et
+# l'onglet sort sans icône. C'est ici que ça doit se voir.
+if ! command -v python3 >/dev/null 2>&1 || ! command -v deno >/dev/null 2>&1; then
+  echo "   python3 ou deno absent du PATH — clés et icônes non comparées"
+else
+  attendues=$(python3 -I - <<'PY'
+import json, pathlib, sys
+sys.path.insert(0, "outils")
+from annexes import slug          # noqa: E402
+region = json.loads(pathlib.Path("data/region.json").read_text(encoding="utf-8"))
+for b in region["evenements"]["blocs"]:
+    print(f'{b["nom"]}\t{slug(b["nom"])}\t{b.get("icone", "")}')
+PY
+) || attendues=""
+
+  if [ -z "$attendues" ]; then
+    gronde "les clés d'onglet n'ont pas pu être calculées côté Python"
+  else
+    #  LE MÊME CALCUL, CÔTÉ TYPESCRIPT, sur les mêmes noms.
+    vues=$(printf '%s\n' "$attendues" | cut -f1 | deno eval --ext=ts '
+      import { slug } from "./src/navigateur/sous-onglets.ts";
+      const dedans = new TextDecoder().decode(
+        await new Response(Deno.stdin.readable).arrayBuffer(),
+      );
+      for (const n of dedans.split("\n")) {
+        if (n.trim() !== "") console.log(slug(n));
+      }
+    ' 2>/dev/null) || vues=""
+
+    if [ "$(printf '%s\n' "$attendues" | cut -f2)" != "$vues" ]; then
+      gronde "slug() ne dit pas la même chose en Python et en TypeScript"
+      printf '%s\n' "$attendues" | cut -f2 | head -4 | sed 's/^/   python : /'
+      printf '%s\n' "$vues" | head -4 | sed 's/^/   deno   : /'
+    else
+      n=$(printf '%s\n' "$attendues" | wc -l | tr -d " ")
+      echo "   clés : les $n évènements ont la même clé des deux côtés"
+    fi
+
+    #  LES ICÔNES, ET QU'ELLES ARRIVENT DANS LA PAGE.
+    if ! python3 -I - <<'TS'
+import json, pathlib, sys
+sys.path.insert(0, "outils")
+from icones import noms
+region = json.loads(pathlib.Path("data/region.json").read_text(encoding="utf-8"))
+page = pathlib.Path("pages/annexe-05-la-region-et-ses-zones.html").read_text(encoding="utf-8")
+connus = set(noms())
+fautes = []
+for b in region["evenements"]["blocs"]:
+    i = b.get("icone", "")
+    if i not in connus:
+        fautes.append(f"{b['nom']} : icône « {i} » inconnue de outils/icones.py")
+#  ET DANS LA PAGE : un `<svg class="wm-onglet__icone">` par évènement.
+combien = page.count('class="wm-onglet__icone"')
+if combien != len(region["evenements"]["blocs"]):
+    fautes.append(
+        f"{combien} icône(s) dans la page pour "
+        f"{len(region['evenements']['blocs'])} évènement(s)"
+    )
+if fautes:
+    for f in fautes:
+        print(f"   {f}")
+    sys.exit(1)
+print(f"   icônes : {len(connus)} dessins, les "
+      f"{len(region['evenements']['blocs'])} évènements en portent un, et la page aussi")
+TS
+    then
+      gronde "une icône d'évènement manque ou n'existe pas"
+    fi
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

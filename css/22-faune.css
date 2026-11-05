@@ -1168,3 +1168,30 @@
 #modernbb .wm-faune__espece[data-wm-dex="attrape"] {
   box-shadow: inset 2px 0 0 var(--wm-palier-1, #3f7d52);
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   LES QUATRE ÉVÈNEMENTS DE RHODE, EN ONGLETS
+   ════════════════════════════════════════════════════════════════════
+
+   « Tu peux rajouter des onglets plutôt pour les différents évènements
+   et rajouter des icônes pour chacune ? » (5 novembre)
+
+   C'est un groupe de sous-onglets DANS le groupe de la page, et c'est
+   la première fois qu'on en imbrique : `module-annexes.ts` ne garde
+   plus que les sections dont il est le groupe le plus proche, sinon
+   celui du dessus se serait mis six boutons.
+
+   RIEN À POSER SUR LA BARRE : `.wm-sous-onglets__barre` et `.wm-onglet`
+   valent pour les deux niveaux. Ce bloc ne sert qu'à séparer le groupe
+   du texte qui le précède, et à rendre au bloc d'évènement les marges
+   que son titre masqué lui prenait. */
+#modernbb .wm-region__evenements {
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+/*  LE BLOC N'A PLUS DE TITRE VISIBLE une fois les onglets posés — il
+    est sur le bouton — donc il n'a plus besoin du retrait qui faisait
+    sa place. Sans ça, chaque évènement s'ouvrait sur un blanc. */
+#modernbb .wm-sous-onglets--posee .wm-region__bloc {
+  margin-top: 0;
+}

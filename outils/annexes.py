@@ -41,6 +41,32 @@
 import json
 import re
 import pathlib
+import unicodedata
+import re
+
+def slug(titre):
+    """La clé d'un onglet, dans l'adresse et dans l'attribut.
+
+    JUMEAU DE `slug()` DANS `src/navigateur/sous-onglets.ts`, et il
+    faut que ce soit vrai : le module lit l'attribut qu'on écrit ici,
+    et c'est lui qui le compare à ce que porte l'adresse. Deux
+    fonctions qui ne s'accordent pas donneraient un lien
+    « #les-courses-gpr1 » qui n'ouvrirait rien.
+
+    LES LIGATURES D'ABORD, NFD ENSUITE : `œ` et `æ` ne se décomposent
+    pas en NFD — « Cœur » sortirait en `c-ur`. La leçon vient de
+    `src/domaine/lieu.ts`, elle a été payée une fois là-bas.
+
+    Le garde-fou (règle 29) compare les deux fonctions sur les noms
+    réels des évènements, plutôt que de faire confiance à ce
+    commentaire.
+    """
+    t = titre.strip().lower().replace("œ", "oe").replace("æ", "ae")
+    t = unicodedata.normalize("NFD", t)
+    t = "".join(c for c in t if unicodedata.category(c) != "Mn")
+    t = re.sub(r"[^a-z0-9]+", "-", t)
+    return t.strip("-")
+
 
 #  LE SUJET DES QUESTIONS, écrit UNE fois. Il est repris dans le pied
 #  des quatorze annexes et dans l'onglet de la région : une seconde

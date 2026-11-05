@@ -55,30 +55,28 @@
     </nav>
 
 <!-- ▼▼▼ DÉBUT DU CORPS — écrit par `outils/annexe-carte.py` ▼▼▼ -->
-<div class="wm-annexe wm-annexe--sans-fond">
+<div class="wm-annexe">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
 
   <div class="wm-annexe__corps">
-    <div class="wm-annexe__colonne wm-annexe__colonne--large">
+    <div class="wm-annexe__colonne wm-annexe__colonne--carte">
 
-      <div class="wm-annexe__onglet--mesure">
       <p class="wm-annexe__surtitre">Annexe 05</p>
       <h1 class="wm-annexe__titre">La <em>région</em> et ses zones</h1>
       <p class="wm-annexe__chapo">
-        Dix-sept zones sauvages, trois paliers, 933 lignes d'espèce.
-        Clique une zone sur la carte : tout ce qui y vit s'affiche dessous,
-        dans l'ordre du Pokédex, avec quelle chance et à quels niveaux — et ce
+        17 zones sauvages, 3 paliers et 933 lignes d&#x27;espèce.
+        Tu peux cliquer une zone sur la carte : tout ce qui y vit s&#x27;affiche dessous,
+        dans l&#x27;ordre du Pokédex, avec quelle chance et à quels niveaux et ce
         que tu peux ramasser par terre. Les niveaux sont des recommandations :
-        c'est ton palier qui ouvre une zone, pas le niveau de ton équipe.
+        c&#x27;est ton palier qui ouvre une zone, pas le niveau de ton équipe.
       </p>
-      </div>
 
       <div class="wm-annexe__blocs">
 
         <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>
 
-          <section data-wm-sous-onglet="la-region" class="wm-annexe__onglet--mesure">
+          <section data-wm-sous-onglet="la-region">
             <h2 class="wm-annexe__carte-titre">La région de Rhode</h2>
             <div class="wm-paras">
               <p>La région de Rhode est connue pour être peu accueillante en terme de climat. Particulièrement aride du fait de son immense désert, elle est cependant vallonnée au Nord-Ouest grâce aux montagnes et à la forêt, ainsi qu&#x27;à son volcan endormi depuis des décennies. Les villes ne sont pas nombreuses à Rhode, principalement à cause du climat, mais en dix ans, Michael a su faire changer les choses. Des routes ont vu le jour, liant les villes entre elles et même un passage souterrain pour relier Suerebe à Pyrite ou à l&#x27;Embarcadère. Seule l&#x27;Île Ténèbra semble avoir été oubliée du président, certainement du fait de sa dangerosité, mais les choses peuvent toujours changer.</p>
@@ -89,8 +87,9 @@
             <div class="wm-paras">
               <p>La vie au sein de Rhode peut être assez mouvementée. Les tempêtes de sable sont assez communes et touchent principalement les villes de Pyrite, Phenacit, la Tour Titanite ainsi que la Station Service. Les maisons et les villes sont étudiées pour y résister, aussi les problèmes sont relativement rares malgré les tempêtes parfois un peu fortes. Le Pokémon Légendaire emblématique de la région est Lugia, les habitants honorant le pokémon un jour capturé et torturé par la Team Ombre, afin qu&#x27;il les protège depuis que sa liberté lui a été rendue par Michael et Florent.</p>
             </div>
-            <div class="wm-region__bloc">
-              <h4 class="wm-region__nom">Les Courses GPR1</h4>
+            <div class="wm-region__evenements wm-sous-onglets" data-wm-sous-onglets>
+            <div class="wm-region__bloc" data-wm-sous-onglet="les-courses-gpr1">
+              <h3 class="wm-region__nom"><svg class="wm-onglet__icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18" /><path d="M5 4.5c3.5-2 6.5 2 10 0v8c-3.5 2-6.5-2-10 0z" /><path d="M5 4.5c1.7-1 3.3-.4 5 .4v4c-1.7-.8-3.3-1.4-5-.4z" fill="currentColor" stroke="none" /><path d="M10 8.9c1.7.8 3.3 1.4 5-.4v4c-1.7 1.8-3.3 1.2-5 .4z" fill="currentColor" stroke="none" /></svg>Les Courses GPR1</h3>
               <div class="wm-paras">
                 <p>L&#x27;un des plus gros événements annuel de Rhode sont les courses automobiles. Relativement futuristes, les monoplaces se réunissent autour d&#x27;un Grand Prix à partir du mois de juin jusqu&#x27;à mi-novembre, à raison d&#x27;une course toutes les deux semaines, toujours dans le même ordre.</p>
                 <p>Les GPR1 (Grand Prix Rhode 1) accueillent de nombreux pilotes, il existe aujourd&#x27;hui trois écuries différentes, chacune comptant deux pilotes. Les courses GPR1 existent à Rhode depuis 2015. Si la première année, c&#x27;est l&#x27;écurie Entei qui s&#x27;était démarquée en remportant le championnat de justesse, depuis 2016 Raikou rafle toutes les mises, étant champion consécutif grâce à sa pilote, Charlie Spinster.</p>
@@ -135,23 +134,24 @@
               </ul>
               <p class="wm-region__dit">L&#x27;édition 2021 a une fois encore été remportée par l&#x27;écurie Raikou.</p>
             </div>
-            <div class="wm-region__bloc">
-              <h4 class="wm-region__nom">Le Festival du Soleil</h4>
+            <div class="wm-region__bloc" data-wm-sous-onglet="le-festival-du-soleil">
+              <h3 class="wm-region__nom"><svg class="wm-onglet__icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.4v2.4M12 19.2v2.4M4.2 12H1.8M22.2 12h-2.4" /><path d="M6.5 6.5 4.8 4.8M19.2 19.2l-1.7-1.7M17.5 6.5l1.7-1.7M4.8 19.2l1.7-1.7" /></svg>Le Festival du Soleil</h3>
               <div class="wm-paras">
                 <p>C&#x27;est au courant de l&#x27;été de Rhode que se déroule le Festival du Soleil. Grand événement apprécié des habitants, il célèbre la chute de la Team Ombre et l&#x27;élection de Michael en tant que président de la région. Principalement situé au sein du Désert, entre Phenacit et Pyrite, le Festival réunit un grand nombre d&#x27;habitants autour de stands de jeux, fêtes foraines, marchés nocturnes et grandes célébrations. Une statue de Lugia est érigée chaque année, et de nombreuses danses sont exécutées pour honorer le pokémon légendaire.</p>
               </div>
             </div>
-            <div class="wm-region__bloc">
-              <h4 class="wm-region__nom">Le Clan de la Nuit</h4>
+            <div class="wm-region__bloc" data-wm-sous-onglet="le-clan-de-la-nuit">
+              <h3 class="wm-region__nom"><svg class="wm-onglet__icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.2A8.2 8.2 0 1 1 10.6 4a6.6 6.6 0 0 0 9.4 10.2z" /><path d="M17.4 3.2v2.6M18.7 4.5h-2.6" /><path d="M21 8.4v1.8M21.9 9.3h-1.8" /></svg>Le Clan de la Nuit</h3>
               <div class="wm-paras">
                 <p>Cette organisation, que l&#x27;on pourrait qualifier de petite secte, prône depuis deux années le retour de la Team Ombre. Ils ne sont pas liés à l&#x27;organisation d&#x27;une quelconque manière, ce sont simplement des fanatiques qui rêveraient de voir les pokémons obscurs et la Team Ombre revenir au grand jour. Massivement surveillés par Michael et les forces de l&#x27;ordre, les partisans de cette petite secte se reconnaissent par leur tatouage d&#x27;un petit Lugia noir à l&#x27;intérieur du poignet. Ils n&#x27;ont aujourd&#x27;hui fait aucune action hors la loi, se réunissant simplement parfois dans certaines villes de la région, afin de proclamer leur amour des pokémons obscurs.</p>
               </div>
             </div>
-            <div class="wm-region__bloc">
-              <h4 class="wm-region__nom">Le Parti de Soutien à Michael</h4>
+            <div class="wm-region__bloc" data-wm-sous-onglet="le-parti-de-soutien-a-michael">
+              <h3 class="wm-region__nom"><svg class="wm-onglet__icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11.5V5.2a1.4 1.4 0 0 1 2.8 0v5.6" /><path d="M11.8 10.4V4.3a1.4 1.4 0 0 1 2.8 0v6.4" /><path d="M14.6 10.9V6.1a1.4 1.4 0 0 1 2.8 0v7.6" /><path d="M9 11.5V9.1a1.4 1.4 0 0 0-2.8 0v5.4c0 3.3 2.4 5.8 5.6 5.8h1.2c3 0 4.4-2.1 4.4-5.1v-1.5" /></svg>Le Parti de Soutien à Michael</h3>
               <div class="wm-paras">
                 <p>Créé il y a bientôt dix ans, cette organisation pacifiste vante les bienfaits de Michael et tout ce qu&#x27;il a œuvré pour le bien de la région. Ils le soutiennent dans toutes les opérations réalisées pour améliorer la vie à Rhode, et organisent parfois des campagnes afin que le président reste à la tête de la région et qu&#x27;il puisse continuer à améliorer la vie de la région. Ils sont à l&#x27;origine du Festival du Soleil, et accueillir de nouveaux membres est toujours un plaisir.</p>
               </div>
+            </div>
             </div>
             <div class="wm-encarts wm-encarts--detachee">
               <div class="wm-encart wm-encart--paisible">
@@ -159,9 +159,6 @@
                 <p>Tu es libre de proposer des évènements qui viendraient alimenter le forum et la richesse de la région de Rhode. N&#x27;hésite pas à poster dans le sujet des suggestions, ou à venir nous en parler.</p>
               </div>
             </div>
-            <p class="wm-perso__liens">
-              <a class="wm-perso__lien" href="https://mysteryinrhode.forumactif.com/t997-faq-suggestions">FAQ &amp; suggestions →</a>
-            </p>
           </section>
 
           <section data-wm-sous-onglet="la-carte">
@@ -286,56 +283,14 @@
         </div>
 
           <section class="wm-faune__notice">
-            <h3 class="wm-region__section">Comment le serveur tire</h3>
-            <ul class="wm-tirets">
-              <li><b>Tout part du numéro de ton message.</b> Il sert de graine : le
-                même message donne toujours le même résultat, aujourd'hui comme dans
-                trois ans. C'est ce qui permet de refaire un tirage contesté au lieu
-                d'en discuter.</li>
-              <li><b>Deux tirages, dans cet ordre :</b> l'espèce d'abord, selon les
-                pourcentages de la zone ; son niveau ensuite, dans la fourchette de
-                cette espèce-là. Les inverser donnerait un autre résultat pour la
-                même graine, donc l'ordre ne bouge pas.</li>
-              <li><b>Les pourcentages d'une zone font exactement cent.</b> Le serveur
-                refuse de tirer dans une table qui ne tombe pas juste — mieux vaut
-                pas de rencontre qu'une rencontre faussée.</li>
-              <li><b>Rien n'est acquis avant la clôture</b>, et tout l'est d'un coup
-                à la clôture.</li>
-            </ul>
-          </section>
-
-          <section class="wm-faune__notice">
-            <h2 class="wm-annexe__carte-titre">Le ciel, l'heure, et ce qu'ils changent</h2>
-            <div class="wm-paras">
-              <p><b>Le temps de Rhode se calcule, il ne se décide pas.</b> Chaque
-                jour a sa graine — la date, et rien d'autre — et un seul tirage en
-                sort le temps du jour. Il n'y a donc rien à générer le matin, rien à
-                stocker, et rien qui puisse rater : ton navigateur trouve le même
-                temps que le serveur sans rien lui demander.</p>
-              <p><b>Deux états, un sur quatre.</b> Le jour est <b>calme</b> ou
-                <b>agité</b>, et il l'est pour tout le monde en même temps : il n'y a
-                pas un ciel par joueur ni un ciel par zone. Environ un jour sur
-                quatre est agité.</p>
-              <p><b>Un état global, une expression locale.</b> Un jour agité, chaque
-                zone montre le temps que SA donnée connaît — la pluie dans le marais,
-                le blizzard dans les monts, les cendres sur le volcan — et les zones
-                qui n'en ont pas restent au calme.</p>
-              <p><b>La nuit va de 20 h à 6 h, à ton heure.</b> C'est le fuseau que tu
-                as réglé qui décide, pas celui du serveur : quelqu'un qui joue depuis
-                l'autre bout du monde ne doit pas chasser de nuit à midi.</p>
-            </div>
             <div class="wm-encarts">
               <div class="wm-encart wm-encart--paisible">
-                <span class="wm-encart__etiquette">Et aujourd'hui, concrètement</span>
-                <p>Les dix-sept zones montrent <b>la même faune le jour et la nuit,
-                  et par tous les temps</b>. Le ciel change ce que tu racontes, pas
-                  ce que tu croises. Le jour où une zone aura sa propre table de
-                  météo, elle s'appliquera toute seule et cette page le dira.</p>
+                <span class="wm-encart__etiquette">La météo et l&#x27;heure</span>
+                <p>Pour le moment, la météo et l&#x27;heure n&#x27;ont aucun effet sur les pokémons que tu peux rencontrer. Cela pourra être amené à changer s&#x27;il y a des demandes des membres.</p>
               </div>
               <div class="wm-encart wm-encart--terre">
-                <span class="wm-encart__etiquette">À retenir</span>
-                <p>Le temps et l'heure ne changent <b>jamais les niveaux</b>, et
-                  jamais tes gains. Au mieux, ils changent qui sort.</p>
+                <span class="wm-encart__etiquette">Validation d&#x27;un pokémon.</span>
+                <p>Un pokémon se retrouve dans ta boîte une fois le sujet clôturé et pas avant. De même pour les objets trouvés.</p>
               </div>
             </div>
           </section>
