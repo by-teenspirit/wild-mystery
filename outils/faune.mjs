@@ -1547,6 +1547,48 @@ console.log("\n── la région de Rhode est présentée, et sans JavaScript �
         chapo: l(document.querySelector(".wm-annexe__chapo")),
       };
     });
+    //  ── LE LAVIS COUVRE-T-IL TOUTE LA COLONNE ? ───────────────
+    //
+    //  Le décor de l'annexe est une photo de zone floutée, et un lavis
+    //  opaque la couvre jusqu'au bord droit de la colonne de lecture.
+    //  Ce bord était écrit en dur dans le dégradé — 936 pixels, soit
+    //  48 de marge + 880 de colonne + 8 — et personne ne l'avait relié
+    //  à la largeur de la colonne : tant qu'elle valait 880, les deux
+    //  s'accordaient par hasard.
+    //
+    //  Le 5 novembre la colonne est passée à 980, et les 92 derniers
+    //  pixels de chaque ligne se sont retrouvés sur la photo.
+    //
+    //  `outils/contraste.mjs` NE PEUT PAS VOIR ÇA : il mesure un texte
+    //  sur sa couleur de fond, jamais sur les pixels d'une image. Son
+    //  « zéro défaut » ne dit rien d'un texte posé sur un décor. C'est
+    //  la géométrie qui tient la promesse, donc c'est la géométrie
+    //  qu'on mesure.
+    {
+      const lavis = await q.evaluate(() => {
+        const corps = document.querySelector(".wm-annexe__corps");
+        const col = document.querySelector(".wm-annexe__colonne");
+        if (corps === null || col === null) return null;
+        const apres = getComputedStyle(corps, "::after").backgroundImage;
+        //  Le premier arrêt en pixels du dégradé horizontal : c'est là
+        //  que le lavis cesse d'être opaque.
+        const arrets = (apres.match(/(\d+(?:\.\d+)?)px/g) ?? []).map(Number.parseFloat);
+        return {
+          bordDuTexte: Math.round(
+            col.getBoundingClientRect().right - corps.getBoundingClientRect().left,
+          ),
+          finDuLavis: arrets.length === 0 ? -1 : Math.round(arrets[0]),
+          mesure: getComputedStyle(document.querySelector(".wm-annexe"))
+            .getPropertyValue("--annexe-mesure").trim(),
+        };
+      });
+      ok(
+        "LE LAVIS COUVRE LA COLONNE ENTIÈRE : aucun texte sur la photo",
+        lavis !== null && lavis.finDuLavis >= lavis.bordDuTexte,
+        lavis,
+      );
+    }
+
     ok(
       "la colonne est bornée, et un cran au-dessus des autres annexes",
       mesures.colonne > 880 && mesures.colonne <= 1000,

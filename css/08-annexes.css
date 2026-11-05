@@ -349,18 +349,21 @@ body:has(#modernbb .wm-carnet) {
     linear-gradient(
     to right,
     var(--wm-fond-douce, #f3e1d2) 0%,
-    /*  824 PIXELS, PAS UN POURCENTAGE : c'est le bord droit de la
-          colonne de lecture — 48 de marge, 880 de colonne et 8 de
-          marge d'erreur — et
-          il ne bouge pas quand la fenêtre bouge. En pourcentage, la
-          dernière ligne du chapô finissait sur la mer.
+    /*  LE BORD DROIT DE LA COLONNE DE LECTURE, calculé et pas
+          recopié : 48 de marge, la mesure de la page, et 8 de marge
+          d'erreur. En pourcentage, la dernière ligne du chapô
+          finissait sur la mer ; en nombre écrit à la main — 936, ce
+          qu'il valait — il cessait d'être juste le jour où une annexe
+          changeait de largeur. C'est arrivé le 5 novembre : colonne à
+          980, lavis toujours à 936, quatre-vingt-douze pixels de
+          texte sur la photo.
 
           ET LE HARNAIS DE CONTRASTE NE VOIT PAS LA PHOTO : il mesure
           chaque texte sur sa couleur de fond, pas sur les pixels
           d'une image. Son « zéro défaut » ne couvre donc PAS un
           texte posé sur le décor. C'est la géométrie qui tient la
           promesse ici, pas la mesure. */
-    var(--wm-fond-douce, #f3e1d2) 936px,
+    var(--wm-fond-douce, #f3e1d2) calc(48px + var(--annexe-mesure, 880px) + 8px),
     /*  ET IL CESSE DE S'ÉCLAIRCIR À 1200. En finissant le fondu
           sur la largeur de la boîte, un écran de 1864 donnait huit
           cents pixels de dégradé et une photo de plein format sur
@@ -390,16 +393,17 @@ body:has(#modernbb .wm-carnet) {
     disparu du sommaire, la classe reste pour qui en aura besoin. */
 #modernbb .wm-annexe__colonne {
   position: relative;
-  max-width: 880px;
+  max-width: var(--annexe-mesure, 880px);
 }
 
 #modernbb .wm-annexe__colonne--large {
   max-width: none;
 }
 
-/*  ── LA COLONNE DE L'ANNEXE DE LA CARTE ────────────────────────────
+/*  ── LA MESURE EST UN NOMBRE, ET DEUX RÈGLES LE LISENT ─────────────
 
-    Trois tours de vis en deux jours, et c'est le troisième qui tient.
+    Trois tours de vis en deux jours sur la largeur de cette page, et
+    un quatrième défaut en dessous, qu'aucun des trois n'avait montré.
 
     4 nov : « prends la largeur dispo, en tout cas sur cette annexe » —
     `--large`, donc `max-width: none`.
@@ -409,20 +413,35 @@ body:has(#modernbb .wm-carnet) {
     colonne restée sans borne.
 
     5 nov soir : « ça fait bizarre que ce soit centré à gauche avec un
-    gros vide à droite ». Évidemment. Border le texte dans une colonne
-    large, c'est FABRIQUER le vide : la colonne faisait 1092, le texte
-    880, il restait 212 pixels de rien. Centré, le vide se serait
-    seulement coupé en deux.
+    gros vide à droite ». Évidemment : border le texte dans une colonne
+    large, c'est FABRIQUER le vide. La colonne se borne donc à 980 — un
+    cran au-dessus des 880 des douze autres — et le texte la remplit.
 
-    LA COLONNE SE BORNE, DONC, ET LE TEXTE LA REMPLIT. 980 pixels : un
-    cran au-dessus des 880 des douze autres annexes — « elle serait
-    légèrement plus large à cause de la map et des lieux gardés à
-    droite » — et pas un de plus. Il n'y a plus rien à border, donc
-    plus de vide.
+    ── ET LE DÉGRADÉ NE SUIVAIT PAS ──────────────────────────────────
 
-    La classe `--mesure` est partie avec le vide qu'elle créait. */
-#modernbb .wm-annexe__colonne--carte {
-  max-width: 980px;
+    Le lavis qui couvre la photo derrière le texte s'arrête net à
+    936 pixels : 48 de marge, 880 de colonne et 8 d'erreur. C'est écrit
+    dans son propre commentaire, et personne ne l'avait relié à la
+    largeur de la colonne — tant qu'elle valait 880, les deux nombres
+    s'accordaient par hasard.
+
+    Avec une colonne de 980, le bord droit du texte tombe à 1028 : les
+    quatre-vingt-douze derniers pixels de chaque ligne sont posés sur
+    la photo qui commence à transparaître. Mesuré, pas deviné — et le
+    harnais de contraste ne pouvait pas le voir, il mesure un texte sur
+    sa COULEUR de fond, jamais sur les pixels d'une image.
+
+    `--annexe-mesure` est donc le seul endroit où la largeur se décide,
+    et les deux règles la lisent. Le jour où une annexe en demande une
+    troisième, le lavis suivra tout seul. */
+#modernbb .wm-annexe {
+  --annexe-mesure: 880px;
+}
+
+/*  L'annexe de la carte, et elle seule : « elle serait légèrement plus
+    large à cause de la map et des lieux gardés à droite ». */
+#modernbb .wm-annexe--carte {
+  --annexe-mesure: 980px;
 }
 
 /* ── 2 · le sommaire ──────────────────────────────────────────────── */

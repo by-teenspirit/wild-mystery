@@ -83,12 +83,29 @@
 
 /* ── 3 · le panneau de faune ──────────────────────────────────────── */
 
+/*  ── NI REMBOURRAGE, NI FOND : LA MÊME FAUTE QUE LA CARTE ──────────
+
+    « Enlève le padding de cette section » (5 novembre), sur le bloc de
+    la zone cliquée.
+
+    Il portait 24 pixels de rembourrage, un fond `--wm-fond-surface` et
+    un arrondi — c'est-à-dire une boîte blanche. Or il vit DANS
+    `.wm-annexe__carte`, qui est déjà une boîte blanche arrondie avec
+    ses propres 24 pixels. Deux boîtes de la même couleur l'une dans
+    l'autre ne font pas deux bords : elles font un bord, 48 pixels de
+    marge, et un arrondi que personne ne voit puisqu'il est posé sur la
+    même teinte.
+
+    Exactement ce qui était arrivé à `.wm-carte` le même jour, deux
+    rangs plus haut. Une fois, c'est une étourderie ; deux fois dans la
+    même page, c'est que `.wm-faune` et `.wm-carte` ont été écrites pour
+    vivre seules et qu'on les a mises sous un toit sans le leur dire.
+
+    `margin-top` RESTE : il sépare le bloc de la zone de la carte qui
+    est au-dessus, et ça, c'est son travail. */
 #modernbb .wm-faune {
   box-sizing: border-box;
   margin-top: var(--wm-espace-24, 24px);
-  padding: var(--wm-espace-24, 24px);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -882,9 +899,10 @@
     ne reste qu'à resserrer les marges et à rendre les sprites plus
     petits, sinon deux colonnes de 96 px débordent sous 390 px. */
 @media (max-width: 760px) {
-  #modernbb .wm-faune {
-    padding: var(--wm-espace-16, 16px);
-  }
+  /*  LA RÈGLE MOBILE QUI ÉTAIT ICI RESSERRAIT CE REMBOURRAGE à 16.
+      Il n'y en a plus du tout, donc il n'y a plus rien à resserrer. Le
+      rembourrage de la page est celui de `.wm-annexe__carte`, qui a
+      déjà sa propre règle mobile. */
 
   /*  LA COLONNE SE RESSERRE, et c'est la grille qui le dit maintenant :
       sous 760, 168 px ne laisserait qu'une colonne à 390 et une carte

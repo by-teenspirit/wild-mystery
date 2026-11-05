@@ -46,6 +46,24 @@ from annexes import (  # noqa: E402
     pied_de_page,
     remplacer_le_corps,
     slug,
+    #  ── LE DÉCOR VIENT DU MÊME ENDROIT QUE CELUI DES AUTRES ──────
+    #
+    #  « Y'a plus de pokémons et plus de fond d'une zone à droite ? »
+    #  (5 novembre) — non, et c'était ma faute.
+    #
+    #  Chaque annexe porte sa photo de zone et son rendu pokémon en
+    #  variables sur son `<div class="wm-annexe">`. `annexes.py` les
+    #  tire de sa table `DECORS`, qui a TOUJOURS eu sa ligne pour cette
+    #  page : les Steppes Arides, et le pokémon 330. En réécrivant
+    #  l'en-tête pour retirer `--sans-fond`, j'ai écrit un `<div>` nu
+    #  et oublié les deux variables — donc un fond vide et pas de rendu.
+    #
+    #  On lit la table plutôt que de recopier les deux adresses : deux
+    #  endroits qui décident du décor d'une même page finiraient par
+    #  n'être plus d'accord, et personne ne regarde un fond.
+    ARTWORK,
+    DECORS,
+    PAGES,
 )
 
 R = pathlib.Path(__file__).resolve().parent.parent
@@ -135,12 +153,15 @@ def corps():
     #  d'eau en haut et en bas (dessin carré, cadre de 656 × 762) et
     #  96 px de rembourrage doublé entre la colonne et elle. Voir
     #  `css/16-carte.css`.
-    w('<div class="wm-annexe">')
+    photo, espece, _lieu = DECORS["la-region-et-ses-zones"]
+    w(f"""<div class="wm-annexe wm-annexe--carte" style="--annexe-fond: """
+      f"""url('{PAGES}/assets/zones/{photo}.jpg'); """
+      f"""--annexe-rendu: url('{ARTWORK}/{espece}.png')">""")
     w("")
     w('  <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>')
     w("")
     w('  <div class="wm-annexe__corps">')
-    w('    <div class="wm-annexe__colonne wm-annexe__colonne--carte">')
+    w('    <div class="wm-annexe__colonne">')
     w("")
     w('      <p class="wm-annexe__surtitre">Annexe '
       f'{numero_de("la-region-et-ses-zones")}</p>')
@@ -406,13 +427,6 @@ def total_especes(faunes):
     return sum(
         len((f or {}).get("conditions", {}).get("jour", [])) for f in faunes.values()
     )
-
-
-PAGES = "https://by-teenspirit.github.io/wild-mystery"
-ARTWORK = (
-    "https://raw.githubusercontent.com/PokeAPI/sprites/"
-    "bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork"
-)
 
 
 def main():
