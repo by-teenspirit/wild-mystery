@@ -1545,3 +1545,95 @@
   line-height: 1.3;
   text-transform: uppercase;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   LES RENVOIS — « va voir là-bas »
+   ════════════════════════════════════════════════════════════════════
+
+   « Est-ce que tu peux afficher de manière plus jolie ces boutons ? »
+   (5 novembre), sur les deux liens de fin de section de l'annexe des
+   célébrités.
+
+   C'ÉTAIT DEUX LIENS SOULIGNÉS, et rien d'autre : pas de fond, pas de
+   bord, pas de rembourrage, 13,5 px en graisse normale. Mesuré sur le
+   forum. Ils ne ressemblaient pas à des boutons et ils ne disaient pas
+   où ils menaient — « Le sujet des champions → » et « L'annexe des
+   arènes → » partent vers deux endroits de nature différente, un sujet
+   du forum et une autre page d'annexe, et rien ne le signalait.
+
+   LE SURTITRE PORTE CETTE DIFFÉRENCE. « Sujet du forum », « Annexe
+   06 » : on sait ce qu'on va trouver avant de cliquer, et le numéro
+   vient du sommaire, donc il est juste même après un remaniement.
+
+   ── LE VOCABULAIRE EST CELUI DE LA MAISON ──────────────────────────
+
+   Bord fin, fond de surface, rayon large, accent fort pour le mot : ce
+   sont les jetons de `.wm-question__bouton` et de
+   `.wm-suivante__bouton`, qui sont déjà les deux boutons-liens de la
+   charte. Un troisième dessin aurait fait trois façons de dire « va
+   là-bas » sur la même page. */
+#modernbb .wm-renvois {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  margin: var(--wm-espace-24, 24px) 0 0;
+}
+
+/*  `flex: 1 1 260px` : les deux font la même largeur et se partagent la
+    ligne, ce qui les fait lire comme une paire. Seuls, ils prennent
+    toute la largeur — un bouton unique qui ferait 260 px au milieu
+    d'une colonne de 880 aurait l'air perdu. */
+#modernbb a.wm-renvoi {
+  position: relative;
+  display: flex;
+  flex: 1 1 260px;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: 2px;
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-40, 40px)
+    var(--wm-espace-12, 12px) var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  text-decoration: none;
+}
+
+#modernbb a.wm-renvoi:hover,
+#modernbb a.wm-renvoi:focus-visible {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-renvoi__quoi {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-renvoi__mot {
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-carte, 1.25);
+}
+
+/*  LA FLÈCHE EST CALÉE À DROITE ET CENTRÉE EN HAUTEUR, pas posée après
+    le mot : un titre sur deux lignes la laissait pendre au milieu de la
+    seconde. Le rembourrage droit du bouton lui réserve sa place. */
+#modernbb .wm-renvoi__fleche {
+  position: absolute;
+  top: 50%;
+  right: var(--wm-espace-16, 16px);
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-normal, 13.5px);
+  translate: 0 -50%;
+  transition: translate 120ms ease;
+}
+
+#modernbb a.wm-renvoi:hover .wm-renvoi__fleche,
+#modernbb a.wm-renvoi:focus-visible .wm-renvoi__fleche {
+  translate: 3px -50%;
+}

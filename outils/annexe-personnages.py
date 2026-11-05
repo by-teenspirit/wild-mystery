@@ -48,6 +48,7 @@ from annexes import (  # noqa: E402
     numero_de,
     pied_de_page,
     remplacer_le_corps,
+    renvoi_vers,
 )
 
 R = pathlib.Path(__file__).resolve().parent.parent
@@ -72,6 +73,27 @@ DIT_DU_STATUT = {
     "joue": "quelqu'un le joue déjà sur le forum",
     "pnj": "le staff le tient — on ne le joue pas",
 }
+
+
+
+def renvoi(adresse, quoi, mot):
+    """Un bouton de renvoi : ce que c'est, où ça mène, et une flèche.
+
+    DEUX LIGNES PLUTÔT QU'UNE. « Le sujet des champions → » disait où
+    on allait sans dire QUOI on allait trouver : un sujet du forum, une
+    annexe, une page extérieure ? La surtitre le dit, et le nom reste
+    lisible seul.
+
+    LA FLÈCHE EST DÉCORATIVE : c'est le nom qui porte le lien, et un
+    lecteur d'écran qui annonce « flèche vers la droite » après chaque
+    renvoi fatigue pour rien.
+    """
+    return (
+        f'              <a class="wm-renvoi" href="{e(adresse)}">'
+        f'<span class="wm-renvoi__quoi">{e(quoi)}</span>'
+        f'<span class="wm-renvoi__mot">{e(mot)}</span>'
+        '<span class="wm-renvoi__fleche" aria-hidden="true">→</span></a>'
+    )
 
 
 def e(t):
@@ -224,10 +246,9 @@ def corps():
     for f in c["fiches"]:
         fiche(w, f, 14)
     w("            </ul>")
-    w('            <p class="wm-perso__liens">')
-    w('              <a class="wm-perso__lien" href="'
-      f'{e(p["champions"]["lienJouables"])}">Le sujet des personnages'
-      " jouables →</a>")
+    w('            <p class="wm-renvois">')
+    w(renvoi(p["champions"]["lienJouables"], "Sujet du forum",
+             "Les personnages jouables"))
     w("            </p>")
     w("          </section>")
     w("")
@@ -298,11 +319,28 @@ def corps():
     w(f"                <p>{e(ch['contact'])}</p>")
     w("              </div>")
     w("            </div>")
-    w('            <p class="wm-perso__liens">')
-    w(f'              <a class="wm-perso__lien" href="{e(ch["lien"])}">Le sujet des'
-      " champions →</a>")
-    w('              <a class="wm-perso__lien" href="/h6-arenes-colosseums-ligues">'
-      "L'annexe des arènes, colosseums et Ligue →</a>")
+    #  ── DEUX RENVOIS, ET L'ADRESSE VIENT DU SOMMAIRE ───────────
+    #
+    #  « Est-ce que tu peux afficher de manière plus jolie ces
+    #  boutons ? » (5 novembre) — deux liens soulignés en fin de
+    #  section, qui ne ressemblaient à rien et ne disaient pas où ils
+    #  menaient : un sujet du forum ou une autre annexe ?
+    #
+    #  Le second écrivait son adresse À LA MAIN, numéro compris. Ça
+    #  marchait, et ça ne garantissait rien : Forumactif ne route que
+    #  sur le numéro, et une adresse dont le numéro a glissé mène
+    #  ailleurs sans tomber en 404. `renvoi_vers` la prend au sommaire,
+    #  le numéro avec.
+    #
+    #  (Et le garde-fou a crié sur la première version de ce
+    #  commentaire, où j'avais recopié l'adresse pour l'exemple, coupée
+    #  en deux lignes. Il a eu raison deux fois : une adresse écrite
+    #  hors du sommaire est une adresse de trop, même dans un
+    #  commentaire.)
+    adresse, numero, titre = renvoi_vers("arenes-colosseums-ligues")
+    w('            <p class="wm-renvois">')
+    w(renvoi(ch["lien"], "Sujet du forum", "Les champions"))
+    w(renvoi(adresse, f"Annexe {numero}", titre))
     w("            </p>")
     w("          </section>")
     w("")

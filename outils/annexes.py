@@ -332,6 +332,34 @@ def numero_de(slug):
     return e["numero"]
 
 
+def renvoi_vers(slug):
+    """L'adresse, le numéro et le titre d'une annexe, pour y renvoyer.
+
+    ── POURQUOI ÇA NE S'ÉCRIT PAS À LA MAIN ────────────────────────
+
+    L'annexe des célébrités renvoyait vers celle des arènes avec un
+    `/h6-arenes-colosseums-ligues` tapé dans le générateur. Ça marchait,
+    et ça ne garantissait rien : Forumactif ne route QUE sur le numéro,
+    le slug est décoratif, et une adresse dont le numéro a glissé ne
+    tombe pas en 404 — elle mène ailleurs, en silence. C'est la leçon
+    du 4 novembre et la raison d'être de la règle 27 du garde-fou.
+
+    Le sommaire est la source. On y prend aussi le NUMÉRO, parce qu'un
+    renvoi qui annonce « Annexe 06 » doit dire le rang d'aujourd'hui et
+    pas celui du jour où on a écrit la phrase.
+
+    Lève si l'annexe n'a pas encore d'adresse : un renvoi vers une page
+    qui n'existe pas est un lien mort, et le sommaire dit déjà « à
+    venir » pour la même raison.
+    """
+    e = next((x for x in lire_le_sommaire() if x["slug"] == slug), None)
+    if e is None:
+        raise SystemExit(f"{slug} n'est pas dans data/annexes.json")
+    if not e["adresse"]:
+        raise SystemExit(f"{slug} n'a pas encore d'adresse dans data/annexes.json")
+    return e["adresse"], e["numero"], e["titre"]
+
+
 def remplacer_le_surtitre(corps, numero):
     """Le corps, son « Annexe NN » remis au numéro du sommaire.
 

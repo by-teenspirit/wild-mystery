@@ -353,6 +353,99 @@ console.log("\n── un lien peut ouvrir la page déjà filtrée ──");
 // ════════════════════════════════════════════════════════════════════
 //  6 · 390 PIXELS
 // ════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════
+//  LES RENVOIS DE FIN DE SECTION
+//
+//  « Est-ce que tu peux afficher de manière plus jolie ces boutons ? »
+//  (5 novembre) — deux liens soulignés sans fond, sans bord et sans
+//  rembourrage, qui ne disaient pas non plus où ils menaient.
+//
+//  CE QU'ON VÉRIFIE N'EST PAS QU'ILS SONT JOLIS, c'est ce qu'on ne
+//  pourrait pas voir à l'œil :
+//
+//    · l'adresse de l'annexe vient du SOMMAIRE, pas du générateur.
+//      Forumactif ne route que sur le numéro, et une adresse dont le
+//      numéro a glissé mène ailleurs sans tomber en 404 ;
+//    · le numéro annoncé est celui d'aujourd'hui ;
+//    · ils ont vraiment la forme d'un bouton — un fond, un bord, du
+//      rembourrage, une cible tactile.
+// ════════════════════════════════════════════════════════════════════
+console.log("\n── les renvois de fin de section ──");
+{
+  const sommaire = json("data/annexes.json");
+  const arenes = sommaire.sections.flatMap((x) => x.entrees)
+    .find((e) => e.slug === "arenes-colosseums-ligues");
+
+  const vu = await p.evaluate(() =>
+    Array.from(document.querySelectorAll("a.wm-renvoi")).map((a) => {
+      const c = getComputedStyle(a);
+      const r = a.getBoundingClientRect();
+      return {
+        href: a.getAttribute("href"),
+        quoi: a.querySelector(".wm-renvoi__quoi")?.textContent ?? "",
+        mot: a.querySelector(".wm-renvoi__mot")?.textContent ?? "",
+        fleche: a.querySelector(".wm-renvoi__fleche")?.getAttribute("aria-hidden"),
+        //  UN BOUTON A UN FOND, UN BORD ET DU REMBOURRAGE. C'est
+        //  précisément ce que les anciens liens n'avaient pas.
+        fond: c.backgroundColor,
+        bord: Number.parseFloat(c.borderTopWidth),
+        padding: Number.parseFloat(c.paddingLeft),
+        souligne: c.textDecorationLine,
+        haut: Math.round(r.height),
+        //  UN RENVOI DANS UN ONGLET FERMÉ N'A PAS DE HAUTEUR. Les
+        //  trois vivent dans deux sections différentes, et une seule
+        //  est ouverte : mesurer la cible tactile des autres
+        //  demanderait 44 pixels à un élément que le navigateur ne
+        //  dessine pas. Leur FORME, elle, se mesure quand même — le
+        //  fond, le bord et le rembourrage sont calculés qu'on les
+        //  voie ou non.
+        visible: a.offsetParent !== null,
+      };
+    })
+  );
+
+  ok("il y a des renvois, et ce sont des liens", vu.length >= 2, vu.length);
+  ok(
+    "chacun dit CE QUE C'EST avant de dire où ça mène",
+    vu.every((r) => r.quoi.trim() !== "" && r.mot.trim() !== ""),
+    vu.map((r) => `${r.quoi} · ${r.mot}`),
+  );
+  ok(
+    "ILS ONT LA FORME D'UN BOUTON : fond, bord, rembourrage, cible tactile",
+    vu.every((r) =>
+      r.fond !== "rgba(0, 0, 0, 0)" && r.bord >= 1 && r.padding >= 12 &&
+      r.souligne === "none" && (!r.visible || r.haut >= 44)
+    ) && vu.some((r) => r.visible),
+    vu.map((r) => ({
+      fond: r.fond,
+      bord: r.bord,
+      padding: r.padding,
+      haut: r.haut,
+      visible: r.visible,
+    })),
+  );
+  //  LA FLÈCHE NE SE LIT PAS À VOIX HAUTE : c'est le mot qui porte le
+  //  lien, et « flèche vers la droite » après chaque renvoi fatigue.
+  ok(
+    "la flèche est décorative",
+    vu.every((r) => r.fleche === "true"),
+    vu.map((r) => r.fleche),
+  );
+
+  //  ── L'ADRESSE VIENT DU SOMMAIRE ──────────────────────────────
+  const versArenes = vu.find((r) => (r.href ?? "").startsWith("/h"));
+  ok(
+    "LE RENVOI VERS UNE ANNEXE PREND SON ADRESSE AU SOMMAIRE",
+    versArenes !== undefined && versArenes.href === arenes.adresse,
+    { vu: versArenes?.href, sommaire: arenes.adresse },
+  );
+  ok(
+    "et le numéro qu'il annonce est celui d'aujourd'hui",
+    versArenes !== undefined && versArenes.quoi.includes(arenes.numero),
+    { vu: versArenes?.quoi, sommaire: arenes.numero },
+  );
+}
+
 console.log("\n── à 390 pixels ──");
 {
   const q = await ouvrir(nav, { largeur: 390 });
