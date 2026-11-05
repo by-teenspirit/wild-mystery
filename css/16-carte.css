@@ -1196,28 +1196,62 @@
     faire 760 de haut. Ce sont deux pages, pas deux versions d'une
     même. */
 @media (min-width: 761px) {
+  /*  ── C'EST LA CARTE QUI DÉCIDE DE LA HAUTEUR ───────────────────
+
+      « La carte est trop petite, augmente sa taille de façon à ce
+      qu'elle soit aussi grande que les paliers — ou alors tu mets un
+      scroll sur les paliers. » (5 novembre)
+
+      Les deux, et de façon STRUCTURELLE plutôt que par chance.
+
+      Le premier essai mettait la colonne de la carte à 280 et la page
+      à 1060 : le dessin passait de 612 à 712, et la liste des paliers
+      tombait à 710 de haut. Deux pixels d'écart. Ça marchait, et ça ne
+      voulait rien dire — un nom de zone plus long, une police qui
+      charge autrement, et la liste repoussait la rangée.
+
+      Le vrai problème était que la rangée faisait la hauteur du PLUS
+      GRAND des deux. Donc la liste pouvait grandir la rangée sans que
+      le dessin grandisse avec elle — il tient sa hauteur de sa largeur,
+      pas de sa rangée.
+
+      La colonne sort donc du flux : `absolute`, calée du haut au bas du
+      corps, et le corps lui réserve sa place en rembourrage à droite.
+      Elle ne pèse plus rien dans le calcul de la hauteur. Le cadre
+      prend toute la largeur restante, son rapport lui donne sa hauteur,
+      et la colonne vient se tendre dessus — exactement aussi haute,
+      toujours. La liste, elle, défile si son contenu déborde : elle a
+      déjà `overflow-y: auto` et `min-height: 0` pour ça.
+
+      L'INDEX NE CHANGE PAS. Il garde son panneau de détail, donc une
+      colonne qui doit défiler sur une hauteur fixe de 760. Ce sont
+      deux pages, et on l'a déjà payé une fois aujourd'hui en écrivant
+      ces règles sans les enfermer. */
   #modernbb .wm-annexe .wm-carte__corps {
+    position: relative;
+    box-sizing: border-box;
     height: auto;
+    /*  280 de colonne et 20 de gouttière, réservés en rembourrage :
+        c'est la place que la colonne absolue viendra occuper. */
+    padding-right: 300px;
     align-items: flex-start;
   }
 
   #modernbb .wm-annexe .wm-carte__cadre {
     height: auto;
+    /*  LE RAPPORT DU REPÈRE DE `data/carte.json`, et pas une hauteur :
+        le dessin est carré, et un cadre qui ne l'est pas laisse de
+        l'eau sur deux côtés. */
     aspect-ratio: 1;
   }
 
-  /*  `align-self: stretch` ET PAS `height: 100%` : le corps ne porte
-      plus de hauteur ici, donc 100 % ne vaudrait rien. La colonne
-      s'étire sur la hauteur de la rangée, c'est-à-dire sur celle du
-      cadre.
-
-      Et 300 au lieu de 320 : vingt pixels rendus au cadre. La liste
-      tient toujours — son entrée la plus longue est « Lande
-      Broussailleuse », et elle tenait déjà dans 320 avec un chiffre à
-      droite. */
   #modernbb .wm-annexe .wm-carte__colonne {
-    flex-basis: 300px;
-    align-self: stretch;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    flex-basis: auto;
+    width: 280px;
     height: auto;
   }
 }

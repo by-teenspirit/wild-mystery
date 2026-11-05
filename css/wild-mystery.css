@@ -10445,7 +10445,22 @@ body:has(#modernbb .wm-carnet) {
           chaque texte sur sa couleur de fond, pas sur les pixels
           d'une image. Son « zéro défaut » ne couvre donc PAS un
           texte posé sur le décor. C'est la géométrie qui tient la
-          promesse ici, pas la mesure. */
+          promesse ici, pas la mesure.
+
+          ── ET LE `min()` N'EST PAS DU LUXE ─────────────────────
+
+          La mesure est un MAXIMUM : sous une certaine largeur de
+          fenêtre, la colonne vaut moins que ça, et l'arrêt calculé sur
+          le maximum couvrait alors de la photo pour rien. Mesuré à
+          1280 pixels, avec une page à 1060 : colonne à 932, arrêt à
+          1116 — cent trente-six pixels de bande droite mangés sans
+          qu'on l'ait demandé. C'est exactement ce que
+          `outils/contraste.mjs` refuse, et il a raison.
+
+          Le second terme est le bord droit du contenu du corps : sa
+          largeur moins son rembourrage de droite, plus les huit
+          pixels d'erreur. Le plus petit des deux gagne, donc l'arrêt
+          colle à la colonne dans les deux cas. */
     var(--wm-fond-douce, #f3e1d2) calc(48px + var(--annexe-mesure, 880px) + 8px),
     /*  ET IL CESSE DE S'ÉCLAIRCIR À 1200. En finissant le fondu
           sur la largeur de la boîte, un écran de 1864 donnait huit
@@ -10521,10 +10536,38 @@ body:has(#modernbb .wm-carnet) {
   --annexe-mesure: 880px;
 }
 
-/*  L'annexe de la carte, et elle seule : « elle serait légèrement plus
-    large à cause de la map et des lieux gardés à droite ». */
+/*  ── L'ANNEXE DE LA CARTE, ET SA MESURE QUI RESPIRE ────────────────
+
+    « La carte est trop petite » (5 novembre). Elle tient sa taille de
+    la largeur qui lui reste une fois la colonne des paliers déduite :
+    plus la page est large, plus le dessin est grand.
+
+    MAIS LA PAGE ET LE DÉCOR SE DISPUTENT LA MÊME LARGEUR, et c'est
+    `outils/contraste.mjs` qui l'a dit, pas moi. Sur un écran de 1280,
+    une fois la bande du sommaire et les rembourrages déduits, il reste
+    1 092 pixels. Une page de 1 060 les prend presque tous : la photo
+    de fond se réduit à un liseré, et le lavis qui la couvre déborde de
+    cent trente-six pixels dans ce qui restait de bande. Le contrôle le
+    refuse, et il a raison — il n'y a plus de décor à montrer.
+
+    La mesure suit donc l'écran. 880 comme les douze autres annexes
+    tant qu'il n'y a pas la place, 1 060 au-dessus de 1 420 — où les
+    deux tiennent, le dessin passe de 532 à 712, et la bande de photo
+    reste.
+
+    1 420 N'EST PAS CHOISI AU HASARD : 1 060 de page, 96 de rembourrage
+    et 252 de sommaire font 1 408. En dessous, la colonne serait bornée
+    par la fenêtre et plus par sa mesure — et le lavis, lui, est calculé
+    sur la mesure. Les deux ne diraient plus la même chose, ce qui est
+    exactement le défaut qu'on vient de corriger. */
 #modernbb .wm-annexe--carte {
-  --annexe-mesure: 980px;
+  --annexe-mesure: 880px;
+}
+
+@media (min-width: 1420px) {
+  #modernbb .wm-annexe--carte {
+    --annexe-mesure: 1060px;
+  }
 }
 
 /* ── 2 · le sommaire ──────────────────────────────────────────────── */
@@ -19465,28 +19508,62 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     faire 760 de haut. Ce sont deux pages, pas deux versions d'une
     même. */
 @media (min-width: 761px) {
+  /*  ── C'EST LA CARTE QUI DÉCIDE DE LA HAUTEUR ───────────────────
+
+      « La carte est trop petite, augmente sa taille de façon à ce
+      qu'elle soit aussi grande que les paliers — ou alors tu mets un
+      scroll sur les paliers. » (5 novembre)
+
+      Les deux, et de façon STRUCTURELLE plutôt que par chance.
+
+      Le premier essai mettait la colonne de la carte à 280 et la page
+      à 1060 : le dessin passait de 612 à 712, et la liste des paliers
+      tombait à 710 de haut. Deux pixels d'écart. Ça marchait, et ça ne
+      voulait rien dire — un nom de zone plus long, une police qui
+      charge autrement, et la liste repoussait la rangée.
+
+      Le vrai problème était que la rangée faisait la hauteur du PLUS
+      GRAND des deux. Donc la liste pouvait grandir la rangée sans que
+      le dessin grandisse avec elle — il tient sa hauteur de sa largeur,
+      pas de sa rangée.
+
+      La colonne sort donc du flux : `absolute`, calée du haut au bas du
+      corps, et le corps lui réserve sa place en rembourrage à droite.
+      Elle ne pèse plus rien dans le calcul de la hauteur. Le cadre
+      prend toute la largeur restante, son rapport lui donne sa hauteur,
+      et la colonne vient se tendre dessus — exactement aussi haute,
+      toujours. La liste, elle, défile si son contenu déborde : elle a
+      déjà `overflow-y: auto` et `min-height: 0` pour ça.
+
+      L'INDEX NE CHANGE PAS. Il garde son panneau de détail, donc une
+      colonne qui doit défiler sur une hauteur fixe de 760. Ce sont
+      deux pages, et on l'a déjà payé une fois aujourd'hui en écrivant
+      ces règles sans les enfermer. */
   #modernbb .wm-annexe .wm-carte__corps {
+    position: relative;
+    box-sizing: border-box;
     height: auto;
+    /*  280 de colonne et 20 de gouttière, réservés en rembourrage :
+        c'est la place que la colonne absolue viendra occuper. */
+    padding-right: 300px;
     align-items: flex-start;
   }
 
   #modernbb .wm-annexe .wm-carte__cadre {
     height: auto;
+    /*  LE RAPPORT DU REPÈRE DE `data/carte.json`, et pas une hauteur :
+        le dessin est carré, et un cadre qui ne l'est pas laisse de
+        l'eau sur deux côtés. */
     aspect-ratio: 1;
   }
 
-  /*  `align-self: stretch` ET PAS `height: 100%` : le corps ne porte
-      plus de hauteur ici, donc 100 % ne vaudrait rien. La colonne
-      s'étire sur la hauteur de la rangée, c'est-à-dire sur celle du
-      cadre.
-
-      Et 300 au lieu de 320 : vingt pixels rendus au cadre. La liste
-      tient toujours — son entrée la plus longue est « Lande
-      Broussailleuse », et elle tenait déjà dans 320 avec un chiffre à
-      droite. */
   #modernbb .wm-annexe .wm-carte__colonne {
-    flex-basis: 300px;
-    align-self: stretch;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    flex-basis: auto;
+    width: 280px;
     height: auto;
   }
 }

@@ -1479,6 +1479,85 @@ for (const theme of ["light", "dark"]) {
 }
 
 // ════════════════════════════════════════════════════════════════════
+//  LA CARTE DÉCIDE DE LA HAUTEUR, PAS LA LISTE DES PALIERS
+//
+//  « La carte est trop petite, augmente sa taille de façon à ce qu'elle
+//  soit aussi grande que les paliers — ou alors tu mets un scroll sur
+//  les paliers. » (5 novembre)
+//
+//  Les deux, et structurellement. Le premier essai y arrivait par
+//  chance : carte de 712, liste de 710. Deux pixels d'écart, et rien
+//  qui l'oblige — un nom de zone plus long et la liste repoussait la
+//  rangée en laissant le dessin derrière elle, puisqu'il tient sa
+//  hauteur de sa largeur et pas de sa rangée.
+//
+//  La colonne est sortie du flux depuis. On le vérifie en GONFLANT la
+//  liste : le dessin ne doit pas bouger d'un pixel, et la liste doit se
+//  mettre à défiler.
+// ════════════════════════════════════════════════════════════════════
+console.log("\n── la carte et la liste des paliers ──");
+{
+  const q = await ouvrir(nav);
+  await ouvrirLOngletDeLaCarte(q);
+  await q.waitForSelector(".wm-carte__dessin", { timeout: 15000 });
+  const hauteurs = await q.evaluate(() => {
+    const l = (s) => Math.round(document.querySelector(s)?.getBoundingClientRect().width ?? -1);
+    const h = (s) => Math.round(document.querySelector(s)?.getBoundingClientRect().height ?? -1);
+    const liste = document.querySelector(".wm-carte__liste-cadre");
+    if (liste === null) return null;
+    const lire = () => ({
+      large: l(".wm-carte__cadre"),
+      haut: h(".wm-carte__cadre"),
+      colonne: h(".wm-carte__colonne"),
+      defile: liste.scrollHeight > liste.clientHeight + 1,
+    });
+    const avant = lire();
+    const faux = document.createElement("div");
+    faux.style.height = "600px";
+    liste.appendChild(faux);
+    const apres = lire();
+    faux.remove();
+    return { avant, apres };
+  });
+
+  ok(
+    "LA CARTE ET LA LISTE FONT LA MÊME HAUTEUR",
+    hauteurs !== null && hauteurs.avant.colonne === hauteurs.avant.haut,
+    hauteurs?.avant,
+  );
+  ok(
+    "ET C'EST LA CARTE QUI DÉCIDE : une liste plus longue défile, elle ne la pousse pas",
+    hauteurs !== null && hauteurs.avant.haut === hauteurs.apres.haut &&
+      hauteurs.avant.large === hauteurs.apres.large && hauteurs.apres.defile,
+    hauteurs,
+  );
+  //  ELLE EST CARRÉE, comme son repère : un cadre qui ne l'est pas
+  //  laisse de l'eau sur deux côtés — le défaut du matin.
+  ok(
+    "et elle est carrée, comme le repère de data/carte.json",
+    hauteurs !== null && hauteurs.avant.large === hauteurs.avant.haut,
+    hauteurs?.avant,
+  );
+  //  ET ELLE A GRANDI. 612 le matin, 712 le soir : c'est la demande.
+  //  Le nombre n'est pas écrit en dur — on vérifie qu'elle prend bien
+  //  ce que la page lui laisse, colonne des paliers déduite.
+  const reste = await q.evaluate(() => {
+    const corps = document.querySelector(".wm-carte__corps");
+    if (corps === null) return -1;
+    const c = getComputedStyle(corps);
+    return Math.round(
+      corps.getBoundingClientRect().width - Number.parseFloat(c.paddingRight),
+    );
+  });
+  ok(
+    "et elle prend toute la largeur que la page lui laisse",
+    hauteurs !== null && Math.abs(hauteurs.avant.large - reste) <= 1,
+    { carte: hauteurs?.avant.large, disponible: reste },
+  );
+  await q.close();
+}
+
+// ════════════════════════════════════════════════════════════════════
 //  LA RÉGION DE RHODE — l'onglet de présentation
 // ════════════════════════════════════════════════════════════════════
 console.log("\n── la région de Rhode est présentée, et sans JavaScript ──");
@@ -1589,9 +1668,21 @@ console.log("\n── la région de Rhode est présentée, et sans JavaScript �
       );
     }
 
+    //  ── LA BORNE, ET POURQUOI ELLE A MONTÉ ───────────────────
+    //
+    //  980 d'abord, puis 1060 le soir même : « la carte est trop
+    //  petite » — elle tient sa taille de la largeur qui lui reste,
+    //  une fois la colonne des paliers déduite. 1060 lui donne 712 de
+    //  côté au lieu de 612.
+    //
+    //  LA BORNE HAUTE EST LÀ POUR UNE RAISON : au-delà, les lignes de
+    //  l'onglet de la région deviennent trop longues pour se lire d'un
+    //  trait, et c'est la demande du matin — « que ça ressemble aux
+    //  autres maquettes ». Elle se discute ; elle ne se franchit pas
+    //  par accident.
     ok(
       "la colonne est bornée, et un cran au-dessus des autres annexes",
-      mesures.colonne > 880 && mesures.colonne <= 1000,
+      mesures.colonne > 880 && mesures.colonne <= 1100,
       mesures,
     );
     //  LE TEXTE REMPLIT SA BOÎTE : c'est ça, « plus de vide à droite ».

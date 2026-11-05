@@ -362,7 +362,22 @@ body:has(#modernbb .wm-carnet) {
           chaque texte sur sa couleur de fond, pas sur les pixels
           d'une image. Son « zéro défaut » ne couvre donc PAS un
           texte posé sur le décor. C'est la géométrie qui tient la
-          promesse ici, pas la mesure. */
+          promesse ici, pas la mesure.
+
+          ── ET LE `min()` N'EST PAS DU LUXE ─────────────────────
+
+          La mesure est un MAXIMUM : sous une certaine largeur de
+          fenêtre, la colonne vaut moins que ça, et l'arrêt calculé sur
+          le maximum couvrait alors de la photo pour rien. Mesuré à
+          1280 pixels, avec une page à 1060 : colonne à 932, arrêt à
+          1116 — cent trente-six pixels de bande droite mangés sans
+          qu'on l'ait demandé. C'est exactement ce que
+          `outils/contraste.mjs` refuse, et il a raison.
+
+          Le second terme est le bord droit du contenu du corps : sa
+          largeur moins son rembourrage de droite, plus les huit
+          pixels d'erreur. Le plus petit des deux gagne, donc l'arrêt
+          colle à la colonne dans les deux cas. */
     var(--wm-fond-douce, #f3e1d2) calc(48px + var(--annexe-mesure, 880px) + 8px),
     /*  ET IL CESSE DE S'ÉCLAIRCIR À 1200. En finissant le fondu
           sur la largeur de la boîte, un écran de 1864 donnait huit
@@ -438,10 +453,38 @@ body:has(#modernbb .wm-carnet) {
   --annexe-mesure: 880px;
 }
 
-/*  L'annexe de la carte, et elle seule : « elle serait légèrement plus
-    large à cause de la map et des lieux gardés à droite ». */
+/*  ── L'ANNEXE DE LA CARTE, ET SA MESURE QUI RESPIRE ────────────────
+
+    « La carte est trop petite » (5 novembre). Elle tient sa taille de
+    la largeur qui lui reste une fois la colonne des paliers déduite :
+    plus la page est large, plus le dessin est grand.
+
+    MAIS LA PAGE ET LE DÉCOR SE DISPUTENT LA MÊME LARGEUR, et c'est
+    `outils/contraste.mjs` qui l'a dit, pas moi. Sur un écran de 1280,
+    une fois la bande du sommaire et les rembourrages déduits, il reste
+    1 092 pixels. Une page de 1 060 les prend presque tous : la photo
+    de fond se réduit à un liseré, et le lavis qui la couvre déborde de
+    cent trente-six pixels dans ce qui restait de bande. Le contrôle le
+    refuse, et il a raison — il n'y a plus de décor à montrer.
+
+    La mesure suit donc l'écran. 880 comme les douze autres annexes
+    tant qu'il n'y a pas la place, 1 060 au-dessus de 1 420 — où les
+    deux tiennent, le dessin passe de 532 à 712, et la bande de photo
+    reste.
+
+    1 420 N'EST PAS CHOISI AU HASARD : 1 060 de page, 96 de rembourrage
+    et 252 de sommaire font 1 408. En dessous, la colonne serait bornée
+    par la fenêtre et plus par sa mesure — et le lavis, lui, est calculé
+    sur la mesure. Les deux ne diraient plus la même chose, ce qui est
+    exactement le défaut qu'on vient de corriger. */
 #modernbb .wm-annexe--carte {
-  --annexe-mesure: 980px;
+  --annexe-mesure: 880px;
+}
+
+@media (min-width: 1420px) {
+  #modernbb .wm-annexe--carte {
+    --annexe-mesure: 1060px;
+  }
 }
 
 /* ── 2 · le sommaire ──────────────────────────────────────────────── */
