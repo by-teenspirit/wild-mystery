@@ -32,6 +32,7 @@
 
 import type { Rarete } from "../domaine/rencontre.ts";
 import type { TauxDeFouille } from "../domaine/fouille.ts";
+import type { EtatDEspece } from "./carnet.ts";
 
 /** Une ligne de la table de rencontre d'une zone, telle que
  *  `data/faune/<forumId>.json` l'écrit. */
@@ -349,7 +350,7 @@ export function parFrequence(objets: readonly ObjetDeZone[]): ObjetDeZone[] {
 }
 
 // ════════════════════════════════════════════════════════════════════
-//  LE TRI D'UNE ZONE — commun, peu commun, rare, objet
+//  LE TRI D'UNE ZONE — commun, peu commun, rare
 //
 //  « Tu mets toutes les espèces ensemble dans l'ordre, tu rajoutes un
 //  filtre : commun, peu commun, rare, objet » (4 novembre).
@@ -360,6 +361,18 @@ export function parFrequence(objets: readonly ObjetDeZone[]): ObjetDeZone[] {
 //  zone — « est-ce que X est ici ? » — parce qu'il faut deviner sa
 //  rareté pour savoir où regarder. Une liste dans l'ordre du dex, et
 //  quatre boutons pour la réduire.
+//
+//  ── LE QUATRIÈME BOUTON A VÉCU UN JOUR ──────────────────────────────
+//
+//  « Il faudrait séparer davantage les objets trouvables et les
+//  pokémons » (5 novembre). Les objets sont repartis dans leur bloc, et
+//  le bouton « Objet » avec eux.
+//
+//  LA FONCTION N'A PAS CHANGÉ POUR AUTANT, et c'est voulu : elle
+//  n'ajoute le bouton que si on lui donne des objets. L'annexe ne lui
+//  en donne plus. Garder le chemin plutôt que l'arracher coûte six
+//  lignes et laisse la porte ouverte — une page qui voudrait les deux
+//  dans une grille (l'index, un jour) n'a rien à réécrire.
 // ════════════════════════════════════════════════════════════════════
 
 /** Ce qu'un bouton de tri peut montrer. */
@@ -414,9 +427,99 @@ export function visibleDansLaFaune(tri: string, choix: ChoixDeFaune): boolean {
   return choix === "tous" || choix === tri;
 }
 
-/** Ce que l'annonce au lecteur d'écran dit après un clic. */
+/** Ce que l'annonce au lecteur d'écran dit après un clic.
+ *
+ *  « ESPÈCES » ET PLUS « LIGNES ». La liste mélangeait les espèces et
+ *  les objets du sol, et « lignes » était le seul mot qui valait pour
+ *  les deux. Les objets ont leur bloc depuis le 5 novembre : ce qui
+ *  reste ici n'est que des espèces, et les compter en « lignes »
+ *  donnait une annonce plus vague que ce qu'on sait. */
 export function motDuCompteDeFaune(nombre: number, choix: ChoixDeFaune): string {
-  const quoi = nombre === 1 ? "ligne" : "lignes";
+  const quoi = nombre === 1 ? "espèce" : "espèces";
   if (choix === "tous") return `${nombre} ${quoi}`;
   return `${nombre} ${quoi} — ${(MOT_DU_TRI[choix] ?? choix).toLowerCase()}`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  LE NUMÉRO ET LA MARQUE — « on l'a vu ? on l'a eu ? »
+//
+//  « Affiche le numéro du pokémon + une icône si on l'a déjà vu ou si
+//  on l'a dans notre pokedex, c'est possible ça ? » (5 novembre)
+//
+//  ── LE NUMÉRO EST CELUI DE RHODE, PAS CELUI DU NATIONAL ─────────────
+//
+//  Les tables de faune portent l'identifiant national — 757 pour
+//  Tritox, 10115 pour Ossatueur d'Alola. Ce n'est pas un numéro de
+//  dex : c'est une clé, et les formes régionales sont à dix mille.
+//
+//  Le numéro qu'on affiche est le rang dans le Pokédex de Rhode, de 1
+//  à 933, celui que le carnet du joueur montre déjà sur ses propres
+//  cases. Deux pages qui comptent la même collection doivent la
+//  numéroter pareil, sinon « j'en ai 312 sur 933 » ne veut plus rien
+//  dire. Il vient de `data/dex-numeros.json`.
+//
+//  ── ET LA MARQUE NE PARLE QUE SI ELLE SAIT ──────────────────────────
+//
+//  Trois réponses possibles, et la troisième est la plus importante :
+//  attrapé, croisé, et « on ne sait pas ». Un invité, ou quelqu'un qui
+//  n'a pas lié son carnet, tombe dans le troisième cas — et une carte
+//  muette est juste, là où une carte marquée « jamais vu » serait un
+//  mensonge sur une collection qu'on n'a pas lue.
+// ════════════════════════════════════════════════════════════════════
+
+/** Le numéro de dex écrit pour l'œil : « N° 007 ».
+ *
+ *  TROIS CHIFFRES, TOUJOURS. Les 933 numéros s'alignent en colonne sur
+ *  la grille des cartes, et « N° 7 » à côté de « N° 412 » casse
+ *  l'alignement à chaque ligne. */
+export function numeroDuDex(no: number): string {
+  return `N° ${String(no).padStart(3, "0")}`;
+}
+
+/** Ce qu'une marque montre : son signe, et ce qu'elle dit à voix haute.
+ *
+ *  LE SIGNE N'EST PAS SEUL À PORTER LE SENS. Un point et un disque
+ *  plein ne se distinguent pas pour tout le monde, et aucun des deux ne
+ *  se lit à voix haute : le `mot` part dans un `title` et dans
+ *  l'étiquette accessible. */
+export type Marque = {
+  readonly etat: Exclude<EtatDEspece, "inconnu">;
+  readonly signe: string;
+  readonly mot: string;
+};
+
+const MARQUES: Readonly<Record<Exclude<EtatDEspece, "inconnu">, Marque>> = {
+  //  LA POKÉ BALL POUR LA CAPTURE, L'ŒIL POUR LA RENCONTRE. Les deux
+  //  caractères sont dans les polices de système partout où le forum
+  //  est lu — testé le 5 novembre — et ils disent la différence sans
+  //  qu'on l'explique.
+  attrape: { etat: "attrape", signe: "◉", mot: "dans ton Pokédex" },
+  croise: { etat: "croise", signe: "◌", mot: "déjà croisé" },
+};
+
+/** La marque d'un état, ou `null` pour `inconnu` et pour l'absence de
+ *  carnet — les deux cas où la carte ne doit rien montrer. */
+export function marqueDuDex(etat: EtatDEspece | undefined): Marque | null {
+  if (etat === undefined || etat === "inconnu") return null;
+  return MARQUES[etat];
+}
+
+/** Les numéros tels qu'on les lit dans `data/dex-numeros.json`.
+ *
+ *  ON ÉCARTE CE QUI N'EST PAS UN RANG. Un numéro hors de 1..933, ou qui
+ *  n'est pas entier, ferait écrire « N° 0 » ou « N° 1200 » sur une
+ *  carte — et personne ne saurait d'où ça vient. */
+export function numerosDepuis(donnees: unknown): ReadonlyMap<number, number> {
+  const table = new Map<number, number>();
+  if (donnees === null || typeof donnees !== "object") return table;
+  const brut = (donnees as Record<string, unknown>).numeros;
+  if (brut === null || typeof brut !== "object") return table;
+  for (const [clef, valeur] of Object.entries(brut as Record<string, unknown>)) {
+    const id = Number(clef);
+    if (!Number.isInteger(id) || id <= 0) continue;
+    if (typeof valeur !== "number" || !Number.isInteger(valeur)) continue;
+    if (valeur < 1 || valeur > 933) continue;
+    table.set(id, valeur);
+  }
+  return table;
 }

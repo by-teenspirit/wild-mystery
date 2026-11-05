@@ -75,11 +75,10 @@ def lire(chemin):
 def corps():
     carte = lire("data/carte.json")
     region = lire("data/region.json")
-    butin = lire("data/butin.json")
-    f = butin["fouille"]
-    reste = round(
-        100 - f["bredouille"] - f["fossileEntier"] - f["morceauDeFossile"] - f["objet"], 4
-    )
+    #  `data/butin.json` N'EST PLUS LU ICI, et c'est le but : les cinq
+    #  parts d'une fouille ne sont écrites qu'à un endroit, le bloc de
+    #  la zone, en JavaScript. Le tableau qui les recopiait dans cette
+    #  page est parti le 5 novembre — voir plus bas.
 
     zones = [l for l in carte["lieux"] if l["type"] == "zone"]
     #  L'ORDRE EST CELUI DU PALIER, PUIS DU NOM. `carte.json` range ses
@@ -117,6 +116,12 @@ def corps():
     w('  <div class="wm-annexe__corps">')
     w('    <div class="wm-annexe__colonne wm-annexe__colonne--large">')
     w("")
+    #  L'EN-TÊTE PREND LA MESURE DES AUTRES PAGES, lui aussi. La
+    #  colonne est en `--large` pour la carte, mais un titre et un
+    #  chapô de 1500 pixels de large sont exactement ce que « que ça
+    #  ressemble aux autres maquettes » demande d'éviter. Seule la
+    #  carte déborde.
+    w('      <div class="wm-annexe__onglet--mesure">')
     w('      <p class="wm-annexe__surtitre">Annexe '
       f'{numero_de("la-region-et-ses-zones")}</p>')
     w('      <h1 class="wm-annexe__titre">La <em>région</em> et ses zones</h1>')
@@ -127,6 +132,7 @@ def corps():
     w("        que tu peux ramasser par terre. Les niveaux sont des recommandations :")
     w("        c'est ton palier qui ouvre une zone, pas le niveau de ton équipe.")
     w("      </p>")
+    w("      </div>")
     w("")
     w('      <div class="wm-annexe__blocs">')
     w("")
@@ -143,8 +149,23 @@ def corps():
     w('        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>')
     w("")
 
+    #  ── LA RÉGION SE RESSERRE, LA CARTE GARDE LA LARGEUR ──────────
+    #
+    #  « Pour la région de Rhode, j'aimerai que ce soit moins large, que
+    #  ça ressemble aux autres maquettes. » (5 novembre)
+    #
+    #  La colonne de cette annexe est en `--large`, donc sans borne :
+    #  c'est ce qui laisse respirer la carte et ses soixante cartes
+    #  d'espèce. Mais la région est du TEXTE, et une ligne de mille
+    #  pixels ne se lit pas d'un trait — les treize autres annexes sont
+    #  à 880 pour cette raison exactement.
+    #
+    #  On borne donc l'onglet, pas la colonne : `--mesure` rend à ce
+    #  texte-là la largeur de lecture des autres pages, centrée, et la
+    #  carte garde la sienne juste à côté.
     r = region
-    w('          <section data-wm-sous-onglet="la-region">')
+    w('          <section data-wm-sous-onglet="la-region"'
+      ' class="wm-annexe__onglet--mesure">')
     w(f'            <h2 class="wm-annexe__carte-titre">{e(r["titre"])}</h2>')
     w('            <div class="wm-paras">')
     for para in r["presentation"]:
@@ -336,46 +357,26 @@ def corps():
     w("          </section>")
     w("")
 
-    #  ── 3 · le sol ────────────────────────────────────────────────
-    w('          <section class="wm-faune__notice">')
-    w('            <h2 class="wm-annexe__carte-titre">Ce qu\'on trouve au sol</h2>')
-    w('            <div class="wm-paras">')
-    w("              <p>Fouiller donne <b>une</b> chose, jamais deux. Les cinq parts font")
-    w("                cent, et elles sont les mêmes dans les dix-sept zones — c'est la")
-    w("                liste des objets qui change, pas les chances de tomber dessus.</p>")
-    w("            </div>")
-    w('            <div class="wm-table">')
-    w('              <div class="wm-table__ligne wm-table__ligne--entete">')
-    w('                <span class="wm-table__cellule wm-table__cellule--nom">Ce qu\'on'
-      " trouve</span>")
-    w('                <span class="wm-table__cellule">Ce que ça veut dire</span>')
-    w('                <span class="wm-table__cellule wm-table__cellule--chiffre">Chance'
-      "</span>")
-    w("              </div>")
-    for mot, dit, pct in [
-        ("Des pokédollars", "Le cas le plus courant. La somme monte avec le palier de la"
-         " zone.", reste),
-        ("Un objet", "Lequel dépend de la zone : chacune a sa liste.", f["objet"]),
-        ("Un morceau de fossile", "Trois morceaux font un fossile entier.",
-         f["morceauDeFossile"]),
-        ("Rien du tout", "Une fouille qui donne toujours quelque chose est un"
-         " distributeur, pas une fouille.", f["bredouille"]),
-        ("Un fossile entier", "Le plus rare de Rhode.", f["fossileEntier"]),
-    ]:
-        w('              <div class="wm-table__ligne">')
-        w('                <span class="wm-table__cellule wm-table__cellule--nom">'
-          f"{e(mot)}</span>")
-        w(f'                <span class="wm-table__cellule">{e(dit)}</span>')
-        w('                <span class="wm-table__cellule wm-table__cellule--chiffre">'
-          f'{e(f"{pct:.2f}".replace(".", ","))} %</span>')
-        w("              </div>")
-    w("            </div>")
-    w('            <div class="wm-paras">')
-    w("              <p>Sur la carte, chaque zone montre <b>sa</b> liste d'objets avec une")
-    w("                pastille de couleur : du vert au rouge, et le rouge plein pour ce")
-    w("                qu'on ne trouve presque jamais.</p>")
-    w("            </div>")
-    w("          </section>")
+    #  ── LA SECTION « CE QU'ON TROUVE AU SOL » EST PARTIE ──────────
+    #
+    #  « Tu peux enlever ça vu que tu le redis en haut » (5 novembre),
+    #  et c'était vrai deux fois.
+    #
+    #  Elle portait un tableau des cinq parts d'une fouille — 44,80 %
+    #  de pokédollars, 25 % d'un objet, 0,20 % d'un fossile entier. Les
+    #  MÊMES cinq parts que `blocDuSol` écrit sous chaque zone, avec les
+    #  mêmes chiffres, puisque les deux les lisent dans
+    #  `data/butin.json`. Deux fois la même table sur une page, et la
+    #  seconde arrivait après soixante cartes d'espèce.
+    #
+    #  Son dernier paragraphe promettait en plus « une pastille de
+    #  couleur, du vert au rouge » sur la liste d'objets de chaque zone
+    #  — ce que la carte d'objet fait d'elle-même, et qu'elle n'a pas
+    #  besoin qu'on annonce trois écrans plus haut.
+    #
+    #  CE QUI EN RESTE EST DANS LE BLOC DE LA ZONE, et c'est le bon
+    #  endroit : les cinq parts sont les mêmes partout, mais la liste
+    #  d'objets, elle, change de zone en zone.
     w("")
     w("          </section>")
     w("")

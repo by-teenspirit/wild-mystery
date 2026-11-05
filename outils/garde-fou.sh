@@ -1144,6 +1144,32 @@ PY
   fi
 fi
 
+echo "── 28. les numéros du dex disent la même chose que le Pokédex ─"
+# POSÉE LE 5 NOVEMBRE, avec `data/dex-numeros.json`.
+#
+# « Affiche le numéro du pokémon » : celui de Rhode, de 1 à 933, le même
+# que sur les cases du carnet. Les tables de faune ne portent que
+# l'identifiant national — 757 pour Tritox, 10115 pour Ossatueur
+# d'Alola, qui n'est pas un numéro de dex.
+#
+# `data/pokedex-carnet.json` DÉCIDE de l'ordre et des rangs ;
+# `data/dex-numeros.json` les recopie, en quinze kilo-octets au lieu de
+# cent cinquante. Deux fichiers pour la même numérotation : si l'un
+# bouge sans l'autre, le joueur voit deux numéros pour un même pokémon
+# — celui de l'annexe et celui de son carnet — et rien ne crie.
+#
+# `--verifier` RECONSTRUIT LE FICHIER EN MÉMOIRE et le compare. Il ne
+# relit pas sa propre sortie : c'est la source qui tranche.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — les numéros du dex non comparés"
+else
+  if ! python3 -I outils/dex-numeros.py --verifier >/dev/null 2>&1; then
+    gronde "data/dex-numeros.json ne correspond plus à data/pokedex-carnet.json"
+  else
+    echo "   numéros : les 933 rangs d'accord avec data/pokedex-carnet.json"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

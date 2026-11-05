@@ -1117,79 +1117,35 @@
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   LA CARTE EN LARGE — l'annexe, pas l'index
+   L'ANNEXE : LA MÊME CARTE, SANS PANNEAU
    ════════════════════════════════════════════════════════════════════
 
-   « Je trouve la carte petite. […] Je pense que tu peux effacer le
-   bandeau latéral à droite de la carte pour qu'elle prenne plus de
-   place. » (4 novembre)
+   IL Y AVAIT ICI UNE « CARTE EN LARGE », ET ELLE A VÉCU UN JOUR.
 
-   Le bandeau mangeait 320 des 880 pixels de la colonne d'annexe, soit
-   plus d'un tiers, pour une liste qu'on lit une fois. Il passe
-   DESSOUS, en rangée : le panneau de la zone choisie à gauche, la
-   liste des zones à droite — « il faut quand même une liste des
-   zones, en fonction des paliers et le nombre d'espèce ».
+   Le 4 novembre : « je trouve la carte petite […] tu peux effacer le
+   bandeau latéral à droite pour qu'elle prenne plus de place ». On
+   avait couché la colonne sous le dessin, mis le cadre à 100 % et
+   coupé la liste en deux colonnes — une soixantaine de lignes de
+   feuille sous `--large`.
 
-   L'INDEX NE CHANGE PAS. Tout ce qui suit est sous `--large`, que
-   seule l'annexe demande. */
-#modernbb .wm-carte--large .wm-carte__corps {
-  height: auto;
-  flex-direction: column;
-}
+   Le 5 : « garde-la à gauche et pas au centre comme avant, ne réduis
+   pas sa taille, remets la liste des lieux à droite ».
 
-#modernbb .wm-carte--large .wm-carte__cadre {
-  height: var(--wm-carte-hauteur, 760px);
-  flex: none;
-  width: 100%;
-}
+   LES DEUX DEMANDES DISENT LA MÊME CHOSE, et c'est ce qu'on avait mal
+   lu. La carte n'était pas petite parce que la liste était à côté
+   d'elle : elle était petite parce que la page faisait 880 pixels et
+   que le panneau de détail en prenait 320 de plus. L'annexe est passée
+   en pleine largeur (`--sans-fond`, `--large` sur sa colonne) et le
+   panneau a disparu du DOM — le cadre a donc gagné trois cents pixels
+   avec la disposition de l'index, inchangée.
 
-/*  LA COLONNE DEVIENT UNE RANGÉE, et cesse de défiler : elle n'a plus
-    de hauteur à tenir, donc plus rien à faire déborder. */
-#modernbb .wm-carte--large .wm-carte__colonne {
-  flex: none;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  width: 100%;
-  height: auto;
-}
+   Il ne reste donc RIEN à écrire pour l'annexe : `.wm-carte__corps`
+   est déjà une rangée, le cadre prend déjà ce qui reste, et la colonne
+   garde ses 320 px parce que c'est la même liste qu'ailleurs. Une
+   classe de moins, soixante lignes de moins.
 
-#modernbb .wm-carte--large .wm-carte__panneau {
-  flex: 1 1 340px;
-  min-width: 0;
-}
-
-/*  PAS DE COMPTEURS SUR L'ANNEXE. « — sujets — messages » : ils se
-    lisent sur les lignes de l'index, qui n'existent pas ici, et deux
-    tirets ressemblent à une panne. La faune juste dessous dit le seul
-    chiffre que cette page connaisse — le nombre d'espèces. */
-#modernbb .wm-carte--large .wm-carte__chiffres {
-  display: none;
-}
-
-#modernbb .wm-carte--large .wm-carte__liste-cadre {
-  flex: 2 1 480px;
-  min-width: 0;
-  max-height: 420px;
-}
-
-/*  LES ZONES EN COLONNES. En bandeau latéral, les cinq groupes
-    s'empilaient dans 320 pixels de large ; sur toute la largeur, les
-    empiler ferait une colonne de dix-sept lignes et deux mètres de
-    blanc à droite. */
-#modernbb .wm-carte--large .wm-carte__liste-cadre {
-  columns: 2;
-  column-gap: var(--wm-espace-20, 20px);
-}
-
-#modernbb .wm-carte--large .wm-carte__groupe {
-  break-inside: avoid;
-}
-
-/*  LA LÉGENDE NE SE COUPE PAS EN DEUX COLONNES. */
-#modernbb .wm-carte--large .wm-carte__legende {
-  column-span: all;
-}
+   La seule chose qui tienne encore de l'annexe est juste en dessous,
+   et elle ne parle pas de largeur. */
 
 /*  UNE VILLE INERTE N'EST PAS UN BOUTON : pas de curseur de clic, pas
     de réaction au survol. Elle reste dessinée et nommée, parce qu'elle
@@ -1203,11 +1159,10 @@
   pointer-events: none;
 }
 
-@media (max-width: 900px) {
-  /*  Sous 900, la rangée se replie : deux colonnes de zones dans 390
-      pixels donneraient des noms coupés. */
-  #modernbb .wm-carte--large .wm-carte__liste-cadre {
-    columns: 1;
-    max-height: none;
-  }
-}
+/*  LA REQUÊTE MÉDIA QUI ÉTAIT ICI EST PARTIE AVEC `--large`. Elle
+    remettait la liste des zones sur une colonne sous 900 pixels, pour
+    défaire les deux colonnes que l'annexe demandait au-dessus. Sans ces
+    deux colonnes, elle n'a plus rien à défaire — et la classe qu'elle
+    visait n'est plus posée par personne. Le mobile ne change pas : il
+    tombe sur la requête de la ligne 1097, qui couche le corps et borne
+    la liste, exactement comme avant. */

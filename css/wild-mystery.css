@@ -10480,6 +10480,32 @@ body:has(#modernbb .wm-carnet) {
   max-width: none;
 }
 
+/*  ── UN ONGLET QUI REPREND LA MESURE DE LECTURE ─────────────────────
+
+    « Pour la région de Rhode, j'aimerai que ce soit moins large, que ça
+    ressemble aux autres maquettes. » (5 novembre)
+
+    L'annexe de la carte porte `--large` sur sa colonne : c'est ce qui
+    laisse respirer la carte et ses soixante cartes d'espèce. Mais elle
+    a deux onglets, et le premier est du TEXTE — la présentation de
+    Rhode, ses évènements, ses écuries. Une ligne de mille pixels ne se
+    lit pas d'un trait, et c'est précisément pour ça que les treize
+    autres annexes sont bornées à 880.
+
+    ON BORNE DONC LE BLOC, PAS LA COLONNE. La classe se pose sur ce qui
+    en a besoin — l'en-tête de la page, et le `<section
+    data-wm-sous-onglet>` qui porte du texte — et la carte garde sa
+    largeur dans l'onglet d'à côté.
+
+    ET ELLE NE CENTRE PAS. Première version centrée : le texte partait
+    à 565 pixels du bord pendant que la barre d'onglets restait collée
+    à gauche, et les deux ne s'alignaient sur rien. Bornée à gauche,
+    tout ce qui se lit part du même bord — le titre, les onglets, les
+    paragraphes — et la carte est la seule chose qui déborde. */
+#modernbb .wm-annexe__onglet--mesure {
+  max-width: 880px;
+}
+
 /* ── 2 · le sommaire ──────────────────────────────────────────────── */
 
 /*  Posé par `module-annexes.ts` depuis `data/annexes.json`. La page n'en
@@ -19308,79 +19334,35 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   LA CARTE EN LARGE — l'annexe, pas l'index
+   L'ANNEXE : LA MÊME CARTE, SANS PANNEAU
    ════════════════════════════════════════════════════════════════════
 
-   « Je trouve la carte petite. […] Je pense que tu peux effacer le
-   bandeau latéral à droite de la carte pour qu'elle prenne plus de
-   place. » (4 novembre)
+   IL Y AVAIT ICI UNE « CARTE EN LARGE », ET ELLE A VÉCU UN JOUR.
 
-   Le bandeau mangeait 320 des 880 pixels de la colonne d'annexe, soit
-   plus d'un tiers, pour une liste qu'on lit une fois. Il passe
-   DESSOUS, en rangée : le panneau de la zone choisie à gauche, la
-   liste des zones à droite — « il faut quand même une liste des
-   zones, en fonction des paliers et le nombre d'espèce ».
+   Le 4 novembre : « je trouve la carte petite […] tu peux effacer le
+   bandeau latéral à droite pour qu'elle prenne plus de place ». On
+   avait couché la colonne sous le dessin, mis le cadre à 100 % et
+   coupé la liste en deux colonnes — une soixantaine de lignes de
+   feuille sous `--large`.
 
-   L'INDEX NE CHANGE PAS. Tout ce qui suit est sous `--large`, que
-   seule l'annexe demande. */
-#modernbb .wm-carte--large .wm-carte__corps {
-  height: auto;
-  flex-direction: column;
-}
+   Le 5 : « garde-la à gauche et pas au centre comme avant, ne réduis
+   pas sa taille, remets la liste des lieux à droite ».
 
-#modernbb .wm-carte--large .wm-carte__cadre {
-  height: var(--wm-carte-hauteur, 760px);
-  flex: none;
-  width: 100%;
-}
+   LES DEUX DEMANDES DISENT LA MÊME CHOSE, et c'est ce qu'on avait mal
+   lu. La carte n'était pas petite parce que la liste était à côté
+   d'elle : elle était petite parce que la page faisait 880 pixels et
+   que le panneau de détail en prenait 320 de plus. L'annexe est passée
+   en pleine largeur (`--sans-fond`, `--large` sur sa colonne) et le
+   panneau a disparu du DOM — le cadre a donc gagné trois cents pixels
+   avec la disposition de l'index, inchangée.
 
-/*  LA COLONNE DEVIENT UNE RANGÉE, et cesse de défiler : elle n'a plus
-    de hauteur à tenir, donc plus rien à faire déborder. */
-#modernbb .wm-carte--large .wm-carte__colonne {
-  flex: none;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  width: 100%;
-  height: auto;
-}
+   Il ne reste donc RIEN à écrire pour l'annexe : `.wm-carte__corps`
+   est déjà une rangée, le cadre prend déjà ce qui reste, et la colonne
+   garde ses 320 px parce que c'est la même liste qu'ailleurs. Une
+   classe de moins, soixante lignes de moins.
 
-#modernbb .wm-carte--large .wm-carte__panneau {
-  flex: 1 1 340px;
-  min-width: 0;
-}
-
-/*  PAS DE COMPTEURS SUR L'ANNEXE. « — sujets — messages » : ils se
-    lisent sur les lignes de l'index, qui n'existent pas ici, et deux
-    tirets ressemblent à une panne. La faune juste dessous dit le seul
-    chiffre que cette page connaisse — le nombre d'espèces. */
-#modernbb .wm-carte--large .wm-carte__chiffres {
-  display: none;
-}
-
-#modernbb .wm-carte--large .wm-carte__liste-cadre {
-  flex: 2 1 480px;
-  min-width: 0;
-  max-height: 420px;
-}
-
-/*  LES ZONES EN COLONNES. En bandeau latéral, les cinq groupes
-    s'empilaient dans 320 pixels de large ; sur toute la largeur, les
-    empiler ferait une colonne de dix-sept lignes et deux mètres de
-    blanc à droite. */
-#modernbb .wm-carte--large .wm-carte__liste-cadre {
-  columns: 2;
-  column-gap: var(--wm-espace-20, 20px);
-}
-
-#modernbb .wm-carte--large .wm-carte__groupe {
-  break-inside: avoid;
-}
-
-/*  LA LÉGENDE NE SE COUPE PAS EN DEUX COLONNES. */
-#modernbb .wm-carte--large .wm-carte__legende {
-  column-span: all;
-}
+   La seule chose qui tienne encore de l'annexe est juste en dessous,
+   et elle ne parle pas de largeur. */
 
 /*  UNE VILLE INERTE N'EST PAS UN BOUTON : pas de curseur de clic, pas
     de réaction au survol. Elle reste dessinée et nommée, parce qu'elle
@@ -19394,14 +19376,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   pointer-events: none;
 }
 
-@media (max-width: 900px) {
-  /*  Sous 900, la rangée se replie : deux colonnes de zones dans 390
-      pixels donneraient des noms coupés. */
-  #modernbb .wm-carte--large .wm-carte__liste-cadre {
-    columns: 1;
-    max-height: none;
-  }
-}
+/*  LA REQUÊTE MÉDIA QUI ÉTAIT ICI EST PARTIE AVEC `--large`. Elle
+    remettait la liste des zones sur une colonne sous 900 pixels, pour
+    défaire les deux colonnes que l'annexe demandait au-dessus. Sans ces
+    deux colonnes, elle n'a plus rien à défaire — et la classe qu'elle
+    visait n'est plus posée par personne. Le mobile ne change pas : il
+    tombe sur la requête de la ligne 1097, qui couche le corps et borne
+    la liste, exactement comme avant. */
 
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 17 · « Qui est en ligne ? », maquette `390:3387`
@@ -23682,8 +23663,238 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-#modernbb .wm-faune__tete {
-  margin-bottom: var(--wm-espace-20, 20px);
+/* ════════════════════════════════════════════════════════════════════
+   LA CARTE DE VISITE DE LA ZONE
+   ════════════════════════════════════════════════════════════════════
+
+   « En dessous, il faudrait afficher une image avec le nom de la zone,
+   le nombre d'espèces et une description. Fais ça de manière jolie, pas
+   juste un bloc comme ça. » (5 novembre)
+
+   IL Y AVAIT UN `.wm-faune__tete` ICI, ET IL A FAIT DU DÉGÂT. La classe
+   est aussi celle de la bande de rareté d'une carte d'espèce, et deux
+   règles plus bas ne la qualifiaient pas : l'en-tête de la zone
+   recevait le fond vert du « commun » et des marges négatives de 12
+   pixels. C'était un titre déguisé en étiquette, et personne n'avait de
+   raison de le soupçonner en lisant l'un ou l'autre des deux endroits.
+
+   L'en-tête s'appelle maintenant `.wm-faune__visite` : une image
+   pleine largeur avec le nom dessus, et un pied qui porte les
+   chiffres, la description et le lien vers le forum. */
+#modernbb .wm-faune__visite {
+  display: block;
+  margin: 0 0 var(--wm-espace-32, 32px);
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  ── L'IMAGE ET LE NOM DESSUS ───────────────────────────────────
+
+    `aspect-ratio` ET PAS UNE HAUTEUR : les dix-sept photos n'ont pas
+    le même format, et une hauteur fixe en recadrerait certaines à la
+    bande. 21:9 tient dans la page sans pousser la faune sous la
+    ligne de flottaison.
+
+    Le dégradé sous le texte n'est pas une décoration : les photos
+    sont claires en bas sur six des dix-sept, et un nom blanc dessus
+    disparaît. */
+#modernbb .wm-faune__visite-image {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  /*  ── UNE HAUTEUR, ET PAS UN RAPPORT ───────────────────────────
+
+      Deux mesures, deux leçons, le même après-midi.
+
+      `aspect-ratio: 21/9` seul donnait 445 pixels de haut dans la
+      colonne large : un demi-écran de photo avant la première espèce.
+
+      `aspect-ratio` AVEC `max-height` a fait pire, et c'est le piège :
+      le rapport marche dans les deux sens. La hauteur bornée à 240 lui
+      a fait calculer une LARGEUR de 560 — le bandeau s'est arrêté au
+      milieu de la carte, et le fond de la page se voyait à droite.
+
+      Une hauteur bornée à la fenêtre, donc, et `width: 100%` pour que
+      personne ne la recalcule. Entre 150 et 240 pixels : assez pour
+      voir où on est, pas assez pour pousser la faune sous la ligne de
+      flottaison. */
+  width: 100%;
+  height: clamp(150px, 20vw, 240px);
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-24, 24px);
+  background-color: var(--wm-palier-1, #3f7d52);
+  /*  `--wm-faune-image` EST UNE VARIABLE LOCALE, PAS UN JETON : le
+      module la pose en ligne sur cet élément, avec l'adresse de la
+      photo de la zone — même usage que `--wm-carte-image` sur le
+      bandeau du panneau. Son repli `none` est la bonne valeur quand il
+      n'y a pas de photo, et pas un jeton oublié. La déclaration est
+      juste en dessous, avec les lueurs qui tiennent le fond nu. */
+  background-position: center;
+  background-size: cover;
+}
+
+/*  ── CINQ ZONES SUR DIX-NEUF N'ONT PAS DE PHOTO ─────────────────
+
+    Relevé le 5 novembre : `assets/zones/` porte dix-neuf fichiers, et
+    cinq font ZÉRO octet — forêt marécageuse, lac souterrain, Libra
+    échoué, océan mystérieux, planque Snatch. Le navigateur n'arrive
+    pas à les décoder, donc `background-image` ne peint rien et c'est la
+    couleur du palier qui reste.
+
+    Un aplat de couleur sur 240 pixels de haut a l'air d'une image qui
+    n'a pas chargé. On lui donne donc une matière : deux lueurs en
+    diagonale, à peine visibles, qui font un fond VOULU. Elles passent
+    sous la photo quand il y en a une, donc rien à désactiver. */
+#modernbb .wm-faune__visite-image {
+  background-image:
+    var(--wm-faune-image, none),
+    radial-gradient(
+      ellipse 70% 120% at 18% 110%,
+      rgb(255 255 255 / 16%) 0%,
+      rgb(255 255 255 / 0%) 70%
+    ),
+    radial-gradient(
+      ellipse 90% 140% at 88% -20%,
+      rgb(255 255 255 / 12%) 0%,
+      rgb(255 255 255 / 0%) 72%
+    );
+}
+
+#modernbb .wm-faune__visite-image::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgb(26 18 12 / 78%) 0%,
+    rgb(26 18 12 / 38%) 46%,
+    rgb(26 18 12 / 6%) 100%
+  );
+  content: "";
+}
+
+/*  SANS IMAGE, LA TEINTE DU PALIER SUFFIT. `data-wm-famille` est posé
+    sur la carte de visite par le module : c'est le même attribut que
+    sur les taches de la carte et sur les groupes de la liste. */
+#modernbb .wm-faune__visite[data-wm-famille="palier2"] .wm-faune__visite-image {
+  background-color: var(--wm-palier-2, #a05e18);
+}
+
+#modernbb .wm-faune__visite[data-wm-famille="palier3"] .wm-faune__visite-image {
+  background-color: var(--wm-palier-3, #b1402f);
+}
+
+#modernbb .wm-faune__visite-dessus {
+  position: relative;
+  z-index: 1;
+}
+
+#modernbb .wm-faune__visite-sur {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  /*  SUR-NUIT, ET PAS INVERSE : `--wm-texte-inverse` vaut #1a1210 en
+      thème sombre, donc noir sur le voile noir de la photo. */
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+  opacity: 0.86;
+}
+
+#modernbb .wm-faune__visite .wm-faune__titre {
+  /*  SUR-NUIT, ET PAS INVERSE : `--wm-texte-inverse` vaut #1a1210 en
+      thème sombre, donc noir sur le voile noir de la photo. */
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-titre-page, 25px);
+  text-shadow: 0 1px 10px rgb(26 18 12 / 45%);
+}
+
+#modernbb .wm-faune__visite-corps {
+  padding: var(--wm-espace-20, 20px) var(--wm-espace-24, 24px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  ── LES CHIFFRES, EN GROS ──────────────────────────────────────
+
+    Le nombre d'espèces est la raison d'être de cette carte : c'est la
+    réponse qu'on vient chercher en cliquant une zone. Il est donc
+    écrit en chiffre lisible avec son mot dessous, et pas noyé dans une
+    ligne d'étiquettes en petites capitales. */
+#modernbb .wm-faune__chiffres {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--wm-espace-24, 24px);
+  margin: 0;
+}
+
+#modernbb .wm-faune__chiffre {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-faune__chiffre-nombre {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
+#modernbb .wm-faune__chiffre-mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LE LIEN PART À DROITE : il ferme la ligne des chiffres, et il est
+    la seule chose cliquable de la carte de visite. */
+#modernbb .wm-faune__visite-lien {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  margin-left: auto;
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-faune__visite-lien:hover,
+#modernbb .wm-faune__visite-lien:focus-visible {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: underline;
+}
+
+#modernbb .wm-faune__visite-fleche {
+  transition: transform 120ms ease;
+}
+
+#modernbb .wm-faune__visite-lien:hover .wm-faune__visite-fleche {
+  transform: translateX(3px);
+}
+
+#modernbb .wm-faune__visite-dit {
+  margin: var(--wm-espace-14, 14px) 0 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  LA LIGNE DES NIVEAUX EST UNE NOTE, pas une phrase du décor : elle
+    dit une règle du jeu, et elle doit se distinguer de la description
+    littéraire juste au-dessus. */
+#modernbb .wm-faune__visite-note {
+  margin: var(--wm-espace-10, 10px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-legende, 1.45);
 }
 
 #modernbb .wm-faune__titre {
@@ -23691,18 +23902,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-section, 19px);
   line-height: var(--wm-interligne-titre, 1.1);
-}
-
-#modernbb .wm-faune__chiffres {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--wm-espace-12, 12px);
-  margin: var(--wm-espace-8, 8px) 0 0;
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  text-transform: uppercase;
 }
 
 #modernbb .wm-faune__dit {
@@ -23857,7 +24056,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     LE MOT RESTE ÉCRIT DEDANS : un joueur sur douze ne distingue pas
     le vert du rouge. */
-#modernbb .wm-faune__tete {
+/*  QUALIFIÉE PAR `.wm-faune__espece`, ET C'ÉTAIT UN DÉFAUT. Cette
+    règle n'avait pas de parent : elle attrapait aussi le
+    `<header class="wm-faune__tete">` de l'en-tête de zone, qui portait
+    la même classe depuis que le pied des cartes est devenu une tête. Le
+    titre « Forêt Marécageuse » et ses chiffres recevaient donc le fond
+    vert du « commun » et, plus bas, des marges négatives. C'est ça, « le
+    gros bloc » du 5 novembre — il était laid parce qu'il portait le
+    costume d'une carte d'espèce. L'en-tête est maintenant une carte de
+    visite, `.wm-faune__visite`, et cette règle ne sort plus d'une
+    carte. */
+#modernbb .wm-faune__espece .wm-faune__tete {
   background: var(--wm-rarete-commun-fond, #dce4d9);
   color: var(--wm-rarete-commun-texte, #316f44);
 }
@@ -23891,6 +24100,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     tant qu'elle y tient et ne se RÉDUIT que si elle déborde. Jamais
     d'agrandissement. */
 #modernbb .wm-faune__boite {
+  /*  `relative` POUR LA MARQUE DU CARNET, qui se pose dans son coin
+      haut-droit. Je l'avais annoncée « déjà relative plus haut » dans un
+      commentaire sans vérifier : elle ne l'était pas, et la pastille
+      serait partie se coller au coin de la page. */
+  position: relative;
   display: flex;
   width: 100%;
   height: 80px;
@@ -23923,8 +24137,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
+/*  ── LE NOM AUSSI ÉTAIT EN NOIR PUR ────────────────────────────
+
+    1,35:1 en thème sombre, sur CHAQUE carte d'espèce — soixante-sept
+    noms illisibles dans une zone. Aussi vieux que la grille, et jamais
+    vu : `contraste.mjs` lit la page servie, et cette grille est
+    construite au clic.
+
+    `--wm-encre` plutôt que `--wm-texte-corps` : c'est le nom de
+    l'espèce, la ligne la plus forte de la carte, et il doit porter
+    plus que les niveaux en dessous. */
 #modernbb .wm-faune__nom {
   margin-top: var(--wm-espace-16, 16px);
+  color: var(--wm-encre, #2e2018);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
@@ -23994,20 +24219,61 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   align-items: baseline;
   justify-content: space-between;
   gap: var(--wm-espace-8, 8px);
-  margin: 0 calc(var(--wm-espace-12, 12px) * -1) var(--wm-espace-4, 4px);
-  padding: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+  margin: 0 calc(var(--wm-espace-12, 12px) * -1) var(--wm-espace-8, 8px);
+  /*  « Ajoute des paddings » : 10 sur 12 au lieu de 8 sur 16. Plus haut
+      parce que les deux étiquettes ont rétréci et que la bande
+      s'écrasait avec elles ; moins large parce qu'une pastille a son
+      propre fond maintenant, et qu'elle doit arriver près du bord. */
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
 }
 
+/*  ── « EN TRÈS RARE, ON NE VOIT PAS LE MOT » ────────────────────
+
+    Relevé le 5 novembre, et la cause est sur la ligne qui suivait :
+    `color: var(--wm-texte-doux)`.
+
+    La bande de rareté choisit une PAIRE fond / texte — vert sur vert
+    pâle, brun sur crème, et pour « très rare » du blanc sur le rouge
+    plein du palier 3. Le mot, lui, redéclarait sa couleur par-dessus :
+    il était donc brun #6e5749 dans les quatre cas. Lisible sur trois
+    fonds pâles par chance, et INVISIBLE sur le rouge — 1,6:1, mesuré.
+
+    `inherit` rend le mot à sa paire. Il n'y a pas d'autre couleur à
+    choisir ici : celles des jetons sont déjà mesurées à 4,5 contre leur
+    propre fond, dans les deux thèmes.
+
+    ── ET IL DEVIENT UN VRAI TAG ──────────────────────────────────
+
+    « Fais en sorte que "commun" ressemble plutôt à un tag. » Le mot
+    flottait dans la bande, sans bord ni fond propre. Il prend
+    maintenant la teinte PLEINE de sa rareté sur un fond translucide
+    tiré de la même paire : une pastille qui se lit comme telle, et qui
+    tient dans la bande sans l'épaissir. */
 #modernbb .wm-faune__rarete {
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  padding: 2px var(--wm-espace-6, 6px);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  color: inherit;
+  /*  PLUS PETIT : « pour le "peu commun" et le taux d'apparition,
+      écris plus petit et ajoute des paddings ». Le pas en dessous de
+      `--wm-taille-petit`, et il n'y a pas de jeton pour ça — c'est une
+      valeur locale, assumée, et pas un jeton inventé dans une feuille
+      (planche 48 §8). */
+  font-size: 10px;
+  font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
+/*  LE TAUX SUIT LE MÊME PAS QUE LA RARETÉ : il descend de 13,5 à 12,
+    et il prend du padding pour ne pas coller au bord de la bande. Il
+    reste le plus gros des deux — c'est lui qu'on vient comparer d'une
+    carte à l'autre. */
 #modernbb .wm-faune__pct {
+  padding: 2px 0;
   color: inherit;
-  font-size: var(--wm-taille-normal, 13.5px);
+  font-size: 12px;
   font-weight: var(--wm-graisse-gras, 700);
   white-space: nowrap;
 }
@@ -24025,10 +24291,61 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
+/*  ── DEUX BLOCS, ET LE TITRE EST LA SÉPARATION ──────────────────
+
+    « Il faudrait séparer davantage les objets trouvables et les
+    pokémons » · « je pense que tu devrais faire un truc avec "ce qu'on
+    trouve au sol" et les pokémons que l'on peut rencontrer »
+    (5 novembre).
+
+    La veille, les objets étaient DANS la grille des espèces, derrière
+    un quatrième bouton de tri — c'était la réponse à la question
+    d'alors, « est-ce que X est dans cette zone ». Mais un objet ne se
+    rencontre pas : il n'a ni niveau, ni type, ni numéro de dex, et sa
+    chance ne se compare pas à celle d'un pokémon. Les pourcentages des
+    espèces font cent à eux seuls ; ceux des objets se partagent les
+    25 % de la part « un objet ». Deux échelles dans une grille, c'est
+    une grille qui mentait.
+
+    Le titre porte donc la séparation, et il la porte deux fois : un
+    filet au-dessus, et un trait de couleur sous le mot. */
+/*  ── LA COULEUR EST ÉCRITE, ET C'EST UN DÉFAUT CORRIGÉ ──────────
+
+    Mesuré le 5 novembre en thème sombre : `rgb(0, 0, 0)` sur
+    `rgb(36, 26, 22)`, soit 1,23:1. Du noir pur, donc AUCUNE couleur
+    déclarée nulle part — le navigateur était retombé sur sa valeur
+    initiale, et le titre disparaissait dans le fond.
+
+    L'outil `contraste.mjs` ne pouvait pas l'attraper : il lit la page
+    SERVIE, et ces titres sont écrits par `module-faune.ts` au clic sur
+    une zone. Le harnais les mesure maintenant, dans les deux thèmes. */
 #modernbb .wm-faune__sol-titre {
   margin: 0 0 var(--wm-espace-10, 10px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  Le titre des espèces n'a pas le filet du sol : il ouvre la page de
+    la zone, juste sous la carte de visite, et un filet de plus là ferait
+    deux traits à quatre pixels l'un de l'autre. */
+#modernbb .wm-faune__sol-titre--especes {
+  margin-bottom: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wm-faune__sol-sous {
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-6, 6px);
+  color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+/*  LES OBJETS GARDENT LA GRILLE DES ESPÈCES, et c'est voulu : les
+    cartes sont du même gabarit, seul leur contenu change. Ils prennent
+    seulement l'air qui les sépare des cinq parts au-dessus. */
+#modernbb .wm-faune__especes--objets {
+  margin-top: var(--wm-espace-12, 12px);
 }
 
 /*  LES CINQ ISSUES NE SONT PAS DES CARTES D'OBJET : elles n'ont pas
@@ -24063,7 +24380,10 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: 1.1;
 }
 
+/*  TROISIÈME TEXTE SANS COULEUR DÉCLARÉE, trouvé par le même contrôle :
+    1,35:1 en thème sombre, sur les cinq parts d'une fouille. */
 #modernbb .wm-faune__issue-mot {
+  color: var(--wm-encre, #2e2018);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
 }
@@ -24256,6 +24576,85 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     pour la carte, les pokémons etc. »). */
 #modernbb .wm-faune__notice {
   margin-top: var(--wm-espace-32, 32px);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LE NUMÉRO DE RHODE, ET LA MARQUE DU CARNET
+   ════════════════════════════════════════════════════════════════════
+
+   « Affiche le numéro du pokémon + une icône si on l'a déjà vu ou si on
+   l'a dans notre pokedex, c'est possible ça ? » (5 novembre) */
+
+/*  LE NUMÉRO EST UNE RÉFÉRENCE, PAS UN TITRE : petit, en chiffres
+    tabulaires pour que les 933 s'alignent en colonne d'une carte à
+    l'autre, et au-dessus du nom parce que c'est l'ordre d'un dex. */
+#modernbb .wm-faune__no {
+  display: block;
+  margin-bottom: 1px;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: 10px;
+  font-weight: var(--wm-graisse-gras, 700);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+}
+
+/*  ── LA MARQUE, DANS LE COIN DU SPRITE ──────────────────────────
+
+    C'est là qu'on cherche « je l'ai » dans une collection : sur
+    l'image, pas dans une légende. Et la bande du haut est déjà prise
+    par la rareté et le pourcentage.
+
+    `position: absolute` DANS LA BOÎTE, qui porte `position: relative`
+    pour ça. */
+#modernbb .wm-faune__marque {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  display: flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 1px 4px rgb(26 18 12 / 22%);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: 11px;
+  line-height: 1;
+}
+
+/*  ATTRAPÉ : la pastille se remplit. Vu seulement : elle reste claire
+    avec un bord. LA FORME DIFFÈRE AUSSI (le signe est « ◉ » ou « ◌ »)
+    parce qu'un plein et un vide de la même teinte ne se distinguent pas
+    pour tout le monde. */
+#modernbb .wm-faune__espece[data-wm-dex="attrape"] .wm-faune__marque {
+  background: var(--wm-palier-1, #3f7d52);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-faune__espece[data-wm-dex="croise"] .wm-faune__marque {
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  LE MOT PART DANS LE FLUX DE LECTURE, PAS À LA POUBELLE. `display:
+    none` le retirerait aussi des lecteurs d'écran, et la pastille ne
+    dirait alors plus rien à voix haute. */
+#modernbb .wm-faune__marque-mot {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*  UNE CARTE DÉJÀ ATTRAPÉE SE REPÈRE DANS LA GRILLE, et sans crier :
+    un liseré vert à gauche, pas un fond. Soixante cartes dont vingt
+    teintées deviendraient illisibles. */
+#modernbb .wm-faune__espece[data-wm-dex="attrape"] {
+  box-shadow: inset 2px 0 0 var(--wm-palier-1, #3f7d52);
 }
 
 /* ════════════════════════════════════════════════════════════════════

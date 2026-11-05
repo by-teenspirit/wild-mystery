@@ -37,15 +37,21 @@
 
 import { poserLaCarteDans } from "./module-carte.ts";
 import { type BasesDeForme, basesDepuis, rangerDansLeDex } from "../../navigateur/dex.ts";
+import { carteDepuis, type Lieu } from "../../navigateur/carte.ts";
+import type { EtatDEspece } from "../../navigateur/carnet.ts";
 import {
   type ChoixDeFaune,
   type EspeceDeZone,
   filtresDeFaune,
   fourchetteDeNiveaux,
+  type Marque,
+  marqueDuDex,
   motDeLaChance,
   motDeLaFrequence,
   motDesConditions,
   motDuCompteDeFaune,
+  numeroDuDex,
+  numerosDepuis,
   type ObjetDeZone,
   parFrequence,
   partsDuSol,
@@ -102,10 +108,17 @@ export type ReglagesDeLaFaune = {
   /** `prefers-reduced-motion` : il fige tout, y compris ce qui est
    *  joli. */
   readonly mouvementRefuse?: boolean;
-  /** La carte prend toute la largeur, sa colonne passe dessous. */
-  readonly large?: boolean;
   /** Les villes restent dessinées, mais ni cliquables ni listées. */
   readonly sansVilles?: boolean;
+  /** Le carnet du joueur, s'il est lié : chaque espèce porte alors sa
+   *  marque « vu » ou « attrapé ».
+   *
+   *  C'EST UNE FONCTION, ET ELLE EST FACULTATIVE. La carte doit
+   *  s'afficher sans attendre une réponse de Supabase, et un invité ne
+   *  doit déclencher aucun appel. L'annexe la passe, le harnais ne la
+   *  passe pas, et dans les deux cas la page est la même à la marque
+   *  près. */
+  readonly dexDuJoueur?: () => Promise<ReadonlyMap<number, EtatDEspece> | null>;
   /** Injecté pour que le harnais serve ses propres fichiers. */
   readonly chercher?: typeof fetch;
 };
@@ -162,7 +175,44 @@ export function adresseDuSprite(
   return chemin.startsWith("http") ? chemin : `${depot}${chemin}`;
 }
 
-/** Une carte d'espèce : le sprite, le nom, les niveaux, la chance. */
+/** La marque « vu » / « attrapé » posée sur une carte, ou retirée.
+ *
+ *  ELLE SE POSE ET SE REPOSE, et c'est pour ça qu'elle est à part : le
+ *  carnet du joueur arrive par le réseau, souvent après le premier
+ *  clic sur la carte. Les cartes naissent donc sans marque et la
+ *  reçoivent ensuite, sans être reconstruites. */
+function poserLaMarque(doc: Document, li: HTMLElement, marque: Marque | null): void {
+  const ancienne = li.querySelector(".wm-faune__marque");
+  ancienne?.remove();
+  if (marque === null) {
+    delete li.dataset.wmDex;
+    return;
+  }
+  //  L'ÉTAT EST SUR LA CARTE ENTIÈRE, pas seulement sur la pastille :
+  //  c'est lui qui fait le liseré, et une carte déjà attrapée doit se
+  //  repérer d'un coup d'œil dans une grille de soixante.
+  li.dataset.wmDex = marque.etat;
+  const pastille = el(doc, "span", "wm-faune__marque");
+  const signe = el(doc, "span", "wm-faune__marque-signe", marque.signe);
+  signe.setAttribute("aria-hidden", "true");
+  pastille.appendChild(signe);
+  //  LE MOT N'EST PAS SEULEMENT DANS UN `title` : un `title` ne se lit
+  //  ni au doigt ni au clavier. Il est écrit, et la feuille le réduit à
+  //  rien de visible sans le retirer du flux de lecture.
+  pastille.appendChild(el(doc, "span", "wm-faune__marque-mot", marque.mot));
+  pastille.title = marque.mot;
+  //  ELLE SE POSE SUR LE SPRITE, dans son coin. C'est là qu'on la
+  //  cherche — une collection se marque sur l'image, pas dans une
+  //  légende — et la bande du haut est déjà prise par la rareté et le
+  //  pourcentage, qui sont les deux choses qu'on compare d'une carte à
+  //  l'autre.
+  const boite = li.querySelector(".wm-faune__boite");
+  if (boite !== null) boite.appendChild(pastille);
+  else li.appendChild(pastille);
+}
+
+/** Une carte d'espèce : le numéro, le sprite, le nom, les niveaux, la
+ *  chance — et la marque du carnet si on la connaît. */
 function carteDEspece(
   doc: Document,
   e: EspeceDeZone,
@@ -171,6 +221,8 @@ function carteDEspece(
   style: StyleDeSprite,
   types: readonly string[],
   rarete: string,
+  no: number | undefined,
+  marque: Marque | null,
 ): HTMLElement {
   const li = el(doc, "li", "wm-faune__espece");
   li.dataset.wmEspece = String(e.espece);
@@ -220,6 +272,21 @@ function carteDEspece(
   }
   li.appendChild(boite);
 
+  //  ── LE NUMÉRO DU DEX DE RHODE ───────────────────────────────────
+  //
+  //  « Affiche le numéro du pokémon » (5 novembre). Celui de Rhode, de
+  //  1 à 933 — le même que sur les cases du carnet. L'identifiant des
+  //  tables (757, 10115) n'est pas un numéro de dex : voir
+  //  `numeroDuDex` dans `src/navigateur/faune.ts`.
+  //
+  //  ABSENT, ON N'ÉCRIT RIEN. `data/dex-numeros.json` peut ne pas
+  //  arriver, et une espèce peut sortir du dex de Rhode en restant dans
+  //  une table de zone : « N° 000 » serait un faux numéro, et un faux
+  //  numéro circule — on le recopie dans un RP, on le cherche.
+  if (no !== undefined) {
+    li.appendChild(el(doc, "span", "wm-faune__no", numeroDuDex(no)));
+  }
+
   // ── le nom, puis les types ─────────────────────────────────────
   li.appendChild(el(doc, "b", "wm-faune__nom", e.nom));
 
@@ -250,6 +317,7 @@ function carteDEspece(
   //  PAS DE « ENVIRON 1 SUR 50 » SUR CHAQUE CARTE : répétée soixante
   //  fois, elle noyait le reste. Le pourcentage, lui, est en tête — il
   //  est court, et c'est lui qu'on vient chercher.
+  poserLaMarque(doc, li, marque);
   return li;
 }
 
@@ -319,33 +387,47 @@ function carteDObjet(
 function listeDeLaZone(
   doc: Document,
   table: readonly EspeceDeZone[],
-  objets: readonly ObjetDeZone[],
   sprites: Sprites | null,
   depot: string,
   style: StyleDeSprite,
   fiches: Fiches,
   bases: BasesDeForme,
+  numeros: ReadonlyMap<number, number>,
+  dex: ReadonlyMap<number, EtatDEspece> | null,
 ): HTMLElement {
   const hote = el(doc, "div", "wm-faune__tranches");
 
   const liste = el(doc, "ul", "wm-faune__especes");
-  liste.dataset.wmListe = "";
+  liste.dataset.wmListe = "especes";
   for (const e of rangerDansLeDex(table, (x) => x.espece, bases)) {
     liste.appendChild(
-      carteDEspece(doc, e, sprites, depot, style, typesDe(fiches, e.espece), e.rarete),
+      carteDEspece(
+        doc,
+        e,
+        sprites,
+        depot,
+        style,
+        typesDe(fiches, e.espece),
+        e.rarete,
+        numeros.get(e.espece),
+        marqueDuDex(dex?.get(e.espece)),
+      ),
     );
   }
-  //  LES OBJETS FERMENT LA MARCHE, par fréquence : ils n'ont pas de
-  //  numéro de dex, donc rien pour les ranger parmi les espèces.
-  for (const o of parFrequence(objets)) liste.appendChild(carteDObjet(doc, o, sprites));
 
   //  ── LA BARRE EST POSÉE ICI, AVEC LA LISTE ────────────────────
   //
-  //  Contrairement à celle de l'annexe 11, elle ne peut pas être posée
+  //  Contrairement à celle de l'annexe 10, elle ne peut pas être posée
   //  au chargement : la liste est refaite à chaque clic sur la carte,
   //  et les comptes changent de zone en zone. Elle naît donc avec sa
   //  liste, et meurt avec elle.
-  const filtres = filtresDeFaune(table, objets);
+  //
+  //  ET ELLE N'A PLUS DE BOUTON « OBJET ». Les objets ont leur bloc à
+  //  eux depuis le 5 novembre — « il faudrait séparer davantage les
+  //  objets trouvables et les pokémons » — donc rien à filtrer ici qui
+  //  n'en soit pas une espèce. `filtresDeFaune` n'ajoute le bouton que
+  //  s'il reçoit des objets : on ne lui en donne plus.
+  const filtres = filtresDeFaune(table, []);
   if (filtres.length > 0) {
     const barre = el(doc, "div", "wm-filtres");
     barre.setAttribute("role", "group");
@@ -392,8 +474,34 @@ function listeDeLaZone(
   return hote;
 }
 
-/** Ce qu'on trouve au sol : les cinq issues d'une fouille. */
-function sol(doc: Document, taux: TauxDeFouille | undefined): HTMLElement {
+/**
+ * CE QU'ON TROUVE AU SOL : les cinq parts d'une fouille, puis la liste
+ * d'objets de cette zone-là.
+ *
+ * ── POURQUOI C'EST UN BLOC, ET PLUS UN BOUTON ─────────────────────────
+ *
+ * « Il faudrait séparer davantage les objets trouvables et les
+ * pokémons » · « je pense que tu devrais faire un truc avec "ce qu'on
+ * trouve au sol" et les pokémons que l'on peut rencontrer »
+ * (5 novembre).
+ *
+ * La veille, les objets étaient DANS la grille des espèces, derrière un
+ * quatrième bouton de tri. C'était la bonne réponse à la question
+ * d'alors — « est-ce que X est dans cette zone ? » — et la mauvaise à
+ * celle-ci : un objet ne se rencontre pas, il se ramasse. Il n'a ni
+ * niveau, ni type, ni numéro de dex, et sa chance ne se compare pas à
+ * celle d'un pokémon — les 25 % d'« un objet » se partagent entre les
+ * objets de la zone, les pourcentages des espèces font cent à eux
+ * seuls. Deux échelles dans une grille, c'était une grille qui mentait.
+ *
+ * Les deux blocs portent donc un titre, et le titre est la séparation.
+ */
+function blocDuSol(
+  doc: Document,
+  taux: TauxDeFouille | undefined,
+  objets: readonly ObjetDeZone[],
+  sprites: Sprites | null,
+): HTMLElement {
   const hote = el(doc, "section", "wm-faune__sol");
   hote.appendChild(el(doc, "h3", "wm-faune__sol-titre", "Ce qu'on trouve au sol"));
 
@@ -404,14 +512,17 @@ function sol(doc: Document, taux: TauxDeFouille | undefined): HTMLElement {
     return hote;
   }
 
+  //  LA PHRASE NE RENVOIE PLUS À UN BOUTON QUI N'EXISTE PLUS. Elle
+  //  disait « le bouton "Objet" dit lequel » ; les objets sont
+  //  maintenant sous elle, dans le même bloc.
   hote.appendChild(
     el(
       doc,
       "p",
       "wm-faune__dit",
-      "Une fouille donne UNE chose, jamais deux. Les cinq parts font cent. " +
-        "Quand c'est un objet, le bouton « Objet » dit lequel, et avec " +
-        "quelle chance.",
+      "Une fouille donne UNE chose, jamais deux, et les cinq parts font cent. " +
+        "Elles sont les mêmes dans les dix-sept zones — c'est la liste d'objets " +
+        "qui change, pas les chances de tomber dessus.",
     ),
   );
 
@@ -428,7 +539,159 @@ function sol(doc: Document, taux: TauxDeFouille | undefined): HTMLElement {
     issues.appendChild(li);
   }
   hote.appendChild(issues);
+
+  //  ── LES OBJETS DE CETTE ZONE ────────────────────────────────────
+  //
+  //  Ils ferment le bloc, par fréquence : c'est le seul ordre qu'ils
+  //  ont, n'ayant pas de numéro de dex.
+  if (objets.length > 0) {
+    hote.appendChild(
+      el(
+        doc,
+        "h4",
+        "wm-faune__sol-sous",
+        objets.length === 1
+          ? "Le seul objet de cette zone"
+          : `Les ${objets.length} objets de cette zone`,
+      ),
+    );
+    hote.appendChild(
+      el(
+        doc,
+        "p",
+        "wm-faune__dit",
+        "Le pourcentage est celui de l'objet DANS la fouille, pas dans les 25 % " +
+          "ci-dessus : c'est la chance qu'une fouille de cette zone te le donne.",
+      ),
+    );
+    const liste = el(doc, "ul", "wm-faune__especes wm-faune__especes--objets");
+    liste.dataset.wmListe = "objets";
+    for (const o of parFrequence(objets)) liste.appendChild(carteDObjet(doc, o, sprites));
+    hote.appendChild(liste);
+  }
   return hote;
+}
+
+/**
+ * LA CARTE DE VISITE DE LA ZONE : son image, son nom, ce qu'on y
+ * trouve, et ce qu'elle est.
+ *
+ * ── CE QU'ELLE REMPLACE ───────────────────────────────────────────────
+ *
+ * « Au clic, tu n'affiches plus le gros bloc : celui-ci est inutile. En
+ * dessous, par contre, il faudrait afficher une image avec le nom de la
+ * zone, le nombre d'espèces et une description. Fais ça de manière
+ * jolie, pas juste un bloc comme ça. » (5 novembre)
+ *
+ * Le panneau latéral disait tout ça, et trois choses de plus dont
+ * l'annexe n'a rien à faire : le nombre de sujets, le nombre de
+ * messages et le dernier message, qui se lisent sur les lignes de
+ * l'index et valaient donc « — sujets » ici. Il est parti du DOM — voir
+ * `sansPanneau` dans `module-carte.ts`.
+ *
+ * ── ET C'ÉTAIT LE MÊME EN-TÊTE, EN PLUS LAID ──────────────────────────
+ *
+ * Ce bloc remplace aussi un `<header class="wm-faune__tete">` qui
+ * portait le nom et les chiffres en texte nu. Cette classe est celle de
+ * la bande de rareté d'une carte d'espèce, et deux règles de la feuille
+ * 22 ne la qualifiaient pas : l'en-tête de la zone recevait donc le
+ * fond vert du « commun » et des marges négatives. Trouvé le
+ * 5 novembre en cherchant pourquoi « le gros bloc » était si laid — il
+ * l'était parce qu'il portait un costume qui n'était pas le sien.
+ */
+function carteDeVisite(
+  doc: Document,
+  nom: string,
+  lieu: Lieu | undefined,
+  especes: number,
+  niveaux: { readonly min: number; readonly max: number } | null,
+  phrase: string,
+): HTMLElement {
+  const hote = el(doc, "header", "wm-faune__visite");
+  //  LA COULEUR DU PALIER, PRISE À LA CARTE. C'est le même code couleur
+  //  que les taches du dessin et que les groupes de la liste : trois
+  //  endroits, une seule famille d'attributs.
+  if (lieu?.palier !== undefined) hote.dataset.wmFamille = `palier${lieu.palier}`;
+
+  //  ── L'IMAGE ─────────────────────────────────────────────────────
+  //
+  //  En `background-image` sur une variable, comme le bandeau du
+  //  panneau d'avant : les dix-sept photos sont décoratives, le nom est
+  //  écrit par-dessus en texte, et une image qui ne charge pas laisse
+  //  un dégradé de palier au lieu d'un cadre vide.
+  const image = el(doc, "div", "wm-faune__visite-image");
+  if (lieu?.image !== undefined && lieu.image !== "") {
+    image.style.setProperty("--wm-faune-image", `url("${lieu.image}")`);
+  } else {
+    image.classList.add("wm-faune__visite-image--vide");
+  }
+
+  const dessus = el(doc, "div", "wm-faune__visite-dessus");
+  dessus.appendChild(el(doc, "p", "wm-faune__visite-sur", motDuPalier(lieu)));
+  dessus.appendChild(el(doc, "h2", "wm-faune__titre", nom));
+  image.appendChild(dessus);
+  hote.appendChild(image);
+
+  //  ── LE PIED : LES CHIFFRES, PUIS CE QUE LA ZONE EST ─────────────
+  const corps = el(doc, "div", "wm-faune__visite-corps");
+
+  const chiffres = el(doc, "p", "wm-faune__chiffres");
+  const compte = el(doc, "span", "wm-faune__chiffre");
+  compte.appendChild(el(doc, "b", "wm-faune__chiffre-nombre", String(especes)));
+  compte.appendChild(
+    el(doc, "span", "wm-faune__chiffre-mot", especes === 1 ? "espèce" : "espèces"),
+  );
+  chiffres.appendChild(compte);
+  if (niveaux !== null) {
+    const n = el(doc, "span", "wm-faune__chiffre");
+    n.appendChild(
+      el(doc, "b", "wm-faune__chiffre-nombre", `${niveaux.min}–${niveaux.max}`),
+    );
+    n.appendChild(el(doc, "span", "wm-faune__chiffre-mot", "niveaux croisés"));
+    chiffres.appendChild(n);
+  }
+  //  LE LIEN VERS LE FORUM EST DANS LES CHIFFRES, pas en gros bouton :
+  //  on vient ici pour la faune, et on part dans la zone après.
+  if (lieu !== undefined) {
+    const a = doc.createElement("a");
+    a.className = "wm-faune__visite-lien";
+    a.href = `/f${lieu.forumId}-`;
+    a.appendChild(el(doc, "span", "wm-faune__visite-lien-mot", "Entrer dans la zone"));
+    const fleche = el(doc, "span", "wm-faune__visite-fleche", "→");
+    fleche.setAttribute("aria-hidden", "true");
+    a.appendChild(fleche);
+    chiffres.appendChild(a);
+  }
+  corps.appendChild(chiffres);
+
+  //  LA DESCRIPTION VIENT DE `data/carte.json`, où elle est écrite une
+  //  fois pour les vingt-six lieux. Les tables de faune n'en portent
+  //  pas, et les recopier ici ferait un second endroit à tenir.
+  if (lieu?.description !== undefined && lieu.description !== "") {
+    corps.appendChild(el(doc, "p", "wm-faune__visite-dit", lieu.description));
+  }
+  if (lieu?.niveau !== undefined && lieu.niveau !== "") {
+    corps.appendChild(
+      el(
+        doc,
+        "p",
+        "wm-faune__visite-note",
+        `${lieu.niveau} — une recommandation : c'est ton palier qui ouvre une ` +
+          `zone, pas le niveau de ton équipe.`,
+      ),
+    );
+  }
+  if (phrase !== "") corps.appendChild(el(doc, "p", "wm-faune__dit", phrase));
+  hote.appendChild(corps);
+  return hote;
+}
+
+/** Le surtitre de la carte de visite : le palier, ou ce que le lieu est
+ *  quand il n'en a pas. */
+function motDuPalier(lieu: Lieu | undefined): string {
+  if (lieu === undefined) return "Zone sauvage";
+  if (lieu.palier !== undefined) return `Palier ${lieu.palier}`;
+  return lieu.type === "ville" ? "Ville" : "Ligue";
 }
 
 /**
@@ -455,10 +718,22 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
   const carte = await lire("carte.json");
   if (carte === null) return false;
 
+  //  LES LIEUX, RANGÉS PAR IDENTIFIANT. La carte de visite y prend
+  //  l'image, la description et le palier de la zone cliquée : le
+  //  fichier de faune ne porte aucun des trois, et les y recopier
+  //  ferait dix-sept endroits de plus à tenir d'accord.
+  const lieux = new Map<number, Lieu>();
+  for (const l of carteDepuis(carte)?.lieux ?? []) lieux.set(l.forumId, l);
+
   //  L'ORDRE DU DEX. Absent, `basesDepuis` rend un objet vide et les
   //  formes régionales partent à la fin : la page reste lisible, elle
   //  est seulement moins bien rangée.
   const bases = basesDepuis(await lire("ordre-du-dex.json"));
+
+  //  LES NUMÉROS DE RHODE, 15 Ko. Absents, les cartes n'écrivent aucun
+  //  numéro — jamais « N° 000 », qui serait un faux numéro, et un faux
+  //  numéro se recopie dans un RP.
+  const numeros = numerosDepuis(await lire("dex-numeros.json"));
 
   //  LA COUVERTURE DES SPRITES EST FACULTATIVE : si elle ne vient pas,
   //  la page montre les noms et les chances sans images, ce qui reste
@@ -497,6 +772,46 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
 
   const connues = new Map<number, FichierDeFaune>();
 
+  //  ── LE CARNET DU JOUEUR ARRIVE QUAND IL ARRIVE ──────────────────
+  //
+  //  « Affiche une icône si on l'a déjà vu ou si on l'a dans notre
+  //  pokedex, c'est possible ça ? » (5 novembre) — oui, et sans faire
+  //  attendre la carte.
+  //
+  //  La lecture demande au forum qui regarde, puis à Supabase son
+  //  carnet : deux allers-retours, et elle peut échouer ou ne rien
+  //  rendre du tout pour un invité. On ne l'attend donc PAS : la carte
+  //  se pose, les zones se cliquent, et les marques se posent sur les
+  //  cartes déjà construites dès que le relevé est là.
+  //
+  //  `null` VEUT DIRE « ON NE SAIT PAS », et une carte ne montre alors
+  //  aucune marque — ni « vu », ni « jamais vu ». Voir
+  //  `dex-du-joueur.ts`.
+  let dex: ReadonlyMap<number, EtatDEspece> | null = null;
+  let zoneAffichee: number | null = null;
+
+  /** Repose les marques sur la zone à l'écran, sans la reconstruire. */
+  const remarquerLaZone = (): void => {
+    if (dex === null || zoneAffichee === null) return;
+    const liste = panneau.querySelector('[data-wm-liste="especes"]');
+    if (liste === null) return;
+    for (const li of Array.from(liste.children) as HTMLElement[]) {
+      const id = Number(li.dataset.wmEspece ?? "");
+      if (!Number.isFinite(id)) continue;
+      poserLaMarque(doc, li, marqueDuDex(dex.get(id)));
+    }
+  };
+
+  //  `void` ET PAS `await` : c'est tout l'objet de cette lecture. Un
+  //  `await` ici ferait attendre la CARTE — deux allers-retours réseau
+  //  avant le premier pixel — pour une pastille.
+  void r.dexDuJoueur?.()
+    .then((lu) => {
+      dex = lu;
+      remarquerLaZone();
+    })
+    .catch(() => {});
+
   const montrer = async (forumId: number): Promise<void> => {
     let faune = connues.get(forumId);
     if (faune === undefined) {
@@ -508,6 +823,7 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
       if (brut === null) {
         panneau.hidden = false;
         panneau.dataset.wmFaune = "sans";
+        zoneAffichee = null;
         panneau.replaceChildren(
           el(doc, "p", "wm-faune__vide", "Aucune faune sauvage ici."),
         );
@@ -522,36 +838,36 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
     const vu = motDesConditions(conditions);
     const niveaux = fourchetteDeNiveaux(table);
 
-    const tete = el(doc, "header", "wm-faune__tete");
-    tete.appendChild(el(doc, "h2", "wm-faune__titre", faune.zone ?? ""));
-    const chiffres = el(doc, "p", "wm-faune__chiffres");
-    chiffres.appendChild(el(doc, "span", "wm-faune__chiffre", `${table.length} espèces`));
-    if (niveaux !== null) {
-      chiffres.appendChild(
-        el(doc, "span", "wm-faune__chiffre", `niveaux ${niveaux.min} à ${niveaux.max}`),
-      );
-    }
-    tete.appendChild(chiffres);
-    if (vu.phrase !== "") tete.appendChild(el(doc, "p", "wm-faune__dit", vu.phrase));
+    const visite = carteDeVisite(
+      doc,
+      faune.zone ?? lieux.get(forumId)?.nom ?? "",
+      lieux.get(forumId),
+      table.length,
+      niveaux,
+      vu.phrase,
+    );
 
     panneau.hidden = false;
     panneau.dataset.wmFaune = String(forumId);
-    //  LE SOL AVANT LA LISTE : il explique ce que « objet » veut dire
-    //  dans la barre juste en dessous. L'inverse obligeait à redescendre
-    //  sous soixante cartes pour comprendre le quatrième bouton.
+    zoneAffichee = forumId;
+    //  ── L'ORDRE A CHANGÉ LE 5 NOVEMBRE ────────────────────────────
+    //
+    //  Le sol passait AVANT la liste, pour expliquer ce que le bouton
+    //  « Objet » voulait dire juste en dessous. Ce bouton n'existe
+    //  plus : les objets ont leur bloc, et le bloc porte son titre.
+    //
+    //  Donc l'ordre de ce qu'on vient chercher : la zone, ses pokémon,
+    //  puis ce qui traîne par terre.
     panneau.replaceChildren(
-      tete,
-      sol(doc, taux),
-      listeDeLaZone(
+      visite,
+      el(
         doc,
-        table,
-        objetsParZone.get(forumId) ?? [],
-        sprites,
-        r.depot,
-        style,
-        fiches,
-        bases,
+        "h3",
+        "wm-faune__sol-titre wm-faune__sol-titre--especes",
+        "Les Pokémon qu'on peut rencontrer",
       ),
+      listeDeLaZone(doc, table, sprites, r.depot, style, fiches, bases, numeros, dex),
+      blocDuSol(doc, taux, objetsParZone.get(forumId) ?? [], sprites),
     );
   };
 
@@ -566,12 +882,12 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
       const n = comptes.get(forumId);
       return n === undefined ? null : `${n} espèces`;
     },
-    large: r.large,
     sansVilles: r.sansVilles,
-    //  L'invite de l'index promet « son dernier sujet », que cette
-    //  page ne sait pas lire : elle n'a aucune ligne de forum.
-    invite: "Clique une zone sur la carte : tout ce qui y vit s'affiche " +
-      "en dessous, avec les chances de le croiser.",
+    //  PLUS DE PANNEAU, DONC PLUS D'INVITE. Elle était la phrase que le
+    //  panneau montrait avant le premier clic ; sans panneau, elle n'a
+    //  plus d'endroit, et le chapô de l'annexe dit déjà la même chose
+    //  au-dessus de la carte.
+    sansPanneau: true,
   });
   if (pose === null) return false;
 

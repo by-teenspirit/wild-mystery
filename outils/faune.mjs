@@ -132,8 +132,15 @@ async function ouvrirLOngletDeLaCarte(p) {
   throw new Error("aucun onglet de carte dans la barre");
 }
 
-async function ouvrir(nav, { avecScript = true, largeur = 1440 } = {}) {
-  const p = await nav.newPage({ viewport: { width: largeur, height: 900 } });
+async function ouvrir(nav, { avecScript = true, largeur = 1440, theme } = {}) {
+  const p = await nav.newPage({
+    viewport: { width: largeur, height: 900 },
+    //  LE THÈME EST UN RÉGLAGE DE LA PAGE, et il lui est donné à la
+    //  naissance : `prefers-color-scheme` ne se change pas après coup
+    //  sans recharger, et une feuille lue en clair ne repasse pas en
+    //  sombre toute seule.
+    ...(theme === undefined ? {} : { colorScheme: theme }),
+  });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 
   await p.route("**/*", (r) => {
@@ -459,8 +466,17 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
         nombre: Number(b.querySelector(".wm-filtre__nombre")?.textContent ?? "-1"),
       })),
       nbObjets: document.querySelectorAll("[data-wm-objet]").length,
+      //  LE CHIFFRE ET SON MOT SONT DEUX NŒUDS, et `textContent` les
+      //  recolle sans espace — « 73espèces ». On les lit séparément : ce
+      //  qui compte est que le nombre soit juste et que le mot
+      //  s'accorde, pas la façon dont le DOM les concatène.
       chiffres: Array.from(document.querySelectorAll(".wm-faune__chiffre"))
-        .map((n) => n.textContent ?? ""),
+        .map((n) =>
+          [
+            n.querySelector(".wm-faune__chiffre-nombre")?.textContent ?? "",
+            n.querySelector(".wm-faune__chiffre-mot")?.textContent ?? "",
+          ].join(" ").trim()
+        ),
       dit: document.querySelector(".wm-faune__dit")?.textContent ?? "",
       tranches,
       total: document.querySelectorAll("[data-wm-espece]").length,
@@ -485,6 +501,9 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     vues: vu.total,
     fichier: TABLE.length,
   });
+  //  LE COMPTE N'EST PLUS UNE PHRASE, C'EST UN CHIFFRE ET SON MOT. La
+  //  carte de visite l'écrit en gros, parce que c'est la réponse qu'on
+  //  vient chercher en cliquant une zone.
   ok(
     "et le compte affiché dit la même chose",
     vu.chiffres.some((c) => c === `${TABLE.length} espèces`),
@@ -542,14 +561,23 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
   );
 
   //  ── LA BARRE DE TRI ─────────────────────────────────────────
+  //
+  //  PLUS DE BOUTON « OBJET », ET C'EST LE POINT. « Il faudrait séparer
+  //  davantage les objets trouvables et les pokémons » (5 novembre) :
+  //  les objets ont leur bloc, donc la barre ne trie que des espèces.
+  //  Un bouton « Objet » ici viderait la grille.
   const comptes = new Map();
   for (const e of TABLE) comptes.set(e.rarete, (comptes.get(e.rarete) ?? 0) + 1);
-  if (vu.nbObjets > 0) comptes.set("objet", vu.nbObjets);
-  const attendus = ["tous", "commun", "peu commun", "rare", "objet"]
+  const attendus = ["tous", "commun", "peu commun", "rare"]
     .filter((c) => c === "tous" || (comptes.get(c) ?? 0) > 0);
   ok(
-    "la barre propose tous, les raretés présentes, et les objets",
+    "la barre propose tous et les raretés présentes, et rien de plus",
     JSON.stringify(vu.filtres.map((f) => f.cle)) === JSON.stringify(attendus),
+    vu.filtres.map((f) => f.cle),
+  );
+  ok(
+    "ET AUCUN BOUTON « OBJET » : les objets ne sont plus dans cette grille",
+    !vu.filtres.some((f) => f.cle === "objet"),
     vu.filtres.map((f) => f.cle),
   );
   const fauxComptes = vu.filtres.filter((f) =>
@@ -557,8 +585,7 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
   );
   ok(
     "et chaque bouton annonce le compte du fichier",
-    fauxComptes.length === 0 &&
-      vu.filtres[0]?.nombre === TABLE.length + vu.nbObjets,
+    fauxComptes.length === 0 && vu.filtres[0]?.nombre === TABLE.length,
     { boutons: vu.filtres, faux: fauxComptes },
   );
 
@@ -825,6 +852,399 @@ console.log("\n── à 390 px ──");
 }
 
 // ════════════════════════════════════════════════════════════════════
+//  LE 5 NOVEMBRE — la carte de visite, les deux blocs, le numéro
+//
+//  Quatre demandes, et chacune défait quelque chose de la veille :
+//
+//    · « au clic, tu n'affiches plus le gros bloc » — le panneau de
+//      détail quitte le DOM ;
+//    · « en dessous, une image avec le nom de la zone, le nombre
+//      d'espèces et une description » — la carte de visite ;
+//    · « il faudrait séparer davantage les objets trouvables et les
+//      pokémons » — deux blocs titrés au lieu d'un filtre ;
+//    · « affiche le numéro du pokémon + une icône si on l'a déjà vu ».
+//
+//  LA DERNIÈRE SE VÉRIFIE PAR SON ABSENCE ICI. Le harnais n'a pas de
+//  laissez-passer, donc pas de carnet : AUCUNE carte ne doit porter de
+//  marque. C'est le contrôle qui compte le plus — une marque qui
+//  apparaîtrait sans carnet serait un verdict inventé sur le pokédex de
+//  quelqu'un.
+// ════════════════════════════════════════════════════════════════════
+console.log("\n── la carte de visite, et ce qui a remplacé le gros bloc ──");
+{
+  const visite = await p.evaluate(() => {
+    const v = document.querySelector(".wm-faune__visite");
+    const img = v?.querySelector(".wm-faune__visite-image");
+    return {
+      existe: v !== null,
+      //  LE PANNEAU DE LA CARTE N'EST PAS CACHÉ : il n'est pas là. Une
+      //  règle CSS le laisserait se remplir à chaque clic.
+      panneauDansLeDom: document.querySelectorAll(".wm-carte__panneau").length,
+      famille: v?.dataset.wmFamille ?? "",
+      surtitre: v?.querySelector(".wm-faune__visite-sur")?.textContent ?? "",
+      nom: v?.querySelector(".wm-faune__titre")?.textContent ?? "",
+      image: img === null ? "" : getComputedStyle(img).backgroundImage,
+      description: v?.querySelector(".wm-faune__visite-dit")?.textContent ?? "",
+      note: v?.querySelector(".wm-faune__visite-note")?.textContent ?? "",
+      lien: v?.querySelector(".wm-faune__visite-lien")?.getAttribute("href") ?? "",
+      //  LA CARTE DE VISITE EST AVANT LA GRILLE, pas après : c'est elle
+      //  qui dit où on est.
+      avantLaGrille: (() => {
+        const g = document.querySelector('[data-wm-liste="especes"]');
+        return v !== null && g !== null &&
+          (v.compareDocumentPosition(g) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+      })(),
+    };
+  });
+
+  ok("la carte de visite remplace le gros bloc", visite.existe);
+  ok(
+    "ET LE PANNEAU DE DÉTAIL N'EST PAS DANS LE DOM, pas seulement caché",
+    visite.panneauDansLeDom === 0,
+    visite.panneauDansLeDom,
+  );
+  ok("elle porte le nom de la zone", visite.nom === ZONE.nom, visite.nom);
+  ok(
+    "et le palier en surtitre, pris à la carte",
+    visite.surtitre === `Palier ${ZONE.palier}`,
+    visite.surtitre,
+  );
+  ok(
+    "la couleur du palier est posée comme sur la carte",
+    visite.famille === `palier${ZONE.palier}`,
+    visite.famille,
+  );
+  //  L'IMAGE EST CELLE DE `data/carte.json`, pas une adresse devinée.
+  ok(
+    "la photo de la zone est celle du fichier",
+    ZONE.image === undefined || visite.image.includes(ZONE.image),
+    { vue: visite.image.slice(0, 120), fichier: ZONE.image },
+  );
+  ok(
+    "la description vient de data/carte.json, mot pour mot",
+    visite.description === (ZONE.description ?? ""),
+    { vue: visite.description, fichier: ZONE.description },
+  );
+  ok(
+    "les niveaux recommandés sont dits, et dits comme une recommandation",
+    visite.note.includes(ZONE.niveau) && visite.note.includes("recommandation"),
+    visite.note,
+  );
+  ok(
+    "le lien mène au forum de la zone",
+    visite.lien === `/f${ZONE.forumId}-`,
+    visite.lien,
+  );
+  ok("et elle est AVANT la grille des espèces", visite.avantLaGrille);
+}
+
+console.log("\n── deux blocs titrés, les pokémon puis le sol ──");
+{
+  const blocs = await p.evaluate(() => {
+    const titres = Array.from(document.querySelectorAll(".wm-faune__sol-titre"))
+      .map((n) => n.textContent ?? "");
+    const especes = document.querySelector('[data-wm-liste="especes"]');
+    const objets = document.querySelector('[data-wm-liste="objets"]');
+    return {
+      titres,
+      //  LES DEUX LISTES SONT DEUX LISTES, et pas une liste filtrée.
+      deuxListes: especes !== null && objets !== null && especes !== objets,
+      //  AUCUN OBJET DANS LA GRILLE DES ESPÈCES : c'est le mélange que
+      //  le 5 novembre a défait.
+      objetsChezLesEspeces: especes === null
+        ? -1
+        : especes.querySelectorAll("[data-wm-objet]").length,
+      especesChezLesObjets: objets === null
+        ? -1
+        : objets.querySelectorAll("[data-wm-espece]:not([data-wm-objet])").length,
+      //  LE SOL EST SOUS LES ESPÈCES.
+      solApres: (() => {
+        const sol = document.querySelector(".wm-faune__sol");
+        return especes !== null && sol !== null &&
+          (especes.compareDocumentPosition(sol) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+      })(),
+      //  ET LE TABLEAU DES CINQ PARTS N'EST PLUS ÉCRIT DEUX FOIS SUR LA
+      //  PAGE : « tu peux enlever ça vu que tu le redis en haut ».
+      tablesDesParts: document.querySelectorAll(".wm-faune__issues").length,
+      titreEnDur: Array.from(document.querySelectorAll(".wm-annexe__carte-titre"))
+        .map((n) => n.textContent ?? "")
+        .filter((t) => t.includes("Ce qu'on trouve au sol")).length,
+    };
+  });
+
+  ok(
+    "un titre pour les pokémon, un pour le sol",
+    blocs.titres.some((t) => t.includes("Pokémon")) &&
+      blocs.titres.some((t) => t.includes("au sol")),
+    blocs.titres,
+  );
+  ok("et ce sont deux listes, pas une liste filtrée", blocs.deuxListes);
+  ok(
+    "AUCUN OBJET DANS LA GRILLE DES ESPÈCES",
+    blocs.objetsChezLesEspeces === 0,
+    blocs.objetsChezLesEspeces,
+  );
+  ok(
+    "ni l'inverse",
+    blocs.especesChezLesObjets === 0,
+    blocs.especesChezLesObjets,
+  );
+  ok("le sol vient après les pokémon", blocs.solApres);
+  ok(
+    "LES CINQ PARTS NE SONT PLUS ÉCRITES DEUX FOIS SUR LA PAGE",
+    blocs.tablesDesParts === 1 && blocs.titreEnDur === 0,
+    { listes: blocs.tablesDesParts, sectionEnDur: blocs.titreEnDur },
+  );
+}
+
+console.log("\n── le numéro du dex, et la marque qui doit se taire ──");
+{
+  const numeros = json("data/dex-numeros.json").numeros;
+  const marques = await p.evaluate(() => ({
+    nos: Array.from(document.querySelectorAll('[data-wm-liste="especes"] [data-wm-espece]'))
+      .map((e) => ({
+        id: Number(e.dataset.wmEspece),
+        no: e.querySelector(".wm-faune__no")?.textContent ?? "",
+      })),
+    //  SANS CARNET, AUCUNE MARQUE. Le harnais ne passe pas
+    //  `dexDuJoueur` : il n'y a ni laissez-passer ni Supabase, donc rien
+    //  à dire sur le pokédex de personne.
+    marquees: document.querySelectorAll(".wm-faune__marque").length,
+    etats: document.querySelectorAll("[data-wm-dex]").length,
+    //  ET LES OBJETS N'ONT PAS DE NUMÉRO : ils ne sont pas dans le dex.
+    nosChezLesObjets: document.querySelectorAll("[data-wm-objet] .wm-faune__no").length,
+  }));
+
+  const faux = marques.nos.filter((e) => {
+    const attendu = numeros[String(e.id)];
+    if (attendu === undefined) return e.no !== "";
+    return e.no !== `N° ${String(attendu).padStart(3, "0")}`;
+  });
+  ok(
+    "chaque espèce porte son numéro de Rhode, celui du fichier",
+    marques.nos.length === TABLE.length && faux.length === 0,
+    { vus: marques.nos.length, faux: faux.slice(0, 4) },
+  );
+  //  TROIS CHIFFRES, TOUJOURS : c'est ce qui aligne la colonne des noms
+  //  d'une carte à l'autre.
+  ok(
+    "et il est écrit sur trois chiffres",
+    marques.nos.every((e) => /^N° \d{3}$/.test(e.no)),
+    marques.nos.slice(0, 3).map((e) => e.no),
+  );
+  ok(
+    "SANS CARNET, AUCUNE CARTE NE PORTE DE MARQUE",
+    marques.marquees === 0 && marques.etats === 0,
+    { marques: marques.marquees, etats: marques.etats },
+  );
+  ok(
+    "et un objet n'a pas de numéro de dex",
+    marques.nosChezLesObjets === 0,
+    marques.nosChezLesObjets,
+  );
+}
+
+console.log("\n── les étiquettes de rareté se lisent, « très rare » comprise ──");
+{
+  //  ── LE DÉFAUT DU 5 NOVEMBRE ───────────────────────────────────
+  //
+  //  « Pour les objets, en très rare, on ne voit pas le mot "très
+  //  rare". » La bande de rareté choisit une paire fond / texte, et le
+  //  mot redéclarait `color: var(--wm-texte-doux)` par-dessus : brun
+  //  #6e5749 sur le rouge plein du palier 3, soit 1,6:1.
+  //
+  //  On mesure le contraste rendu, pas la règle : c'est la seule façon
+  //  de savoir qui gagne dans la cascade.
+  const lu = await p.evaluate(() => {
+    const lum = (c) => {
+      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map((v) => {
+        const x = v / 255;
+        return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const rapport = (a, b) => {
+      const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+      return (x + 0.05) / (y + 0.05);
+    };
+    return Array.from(document.querySelectorAll(".wm-faune__rarete")).map((n) => {
+      const bande = n.closest(".wm-faune__tete");
+      return {
+        mot: n.textContent ?? "",
+        //  LE FOND EST CELUI DE LA BANDE : la pastille du mot est
+        //  translucide par-dessus, donc c'est la bande qui porte la
+        //  couleur de référence.
+        contraste: Math.round(
+          rapport(getComputedStyle(n).color, getComputedStyle(bande).backgroundColor) * 100,
+        ) / 100,
+        taille: Number.parseFloat(getComputedStyle(n).fontSize),
+        padding: getComputedStyle(n).paddingLeft,
+      };
+    });
+  });
+
+  const mots = [...new Set(lu.map((x) => x.mot))].sort();
+  ok("les quatre mots de rareté et de fréquence sont écrits", mots.length >= 2, mots);
+  const illisibles = lu.filter((x) => x.contraste < 4.5);
+  ok(
+    "CHAQUE MOT SE LIT SUR SA BANDE, « TRÈS RARE » COMPRISE",
+    illisibles.length === 0,
+    illisibles.length === 0
+      ? [...new Set(lu.map((x) => `${x.mot} ${x.contraste}:1`))].sort()
+      : [...new Set(illisibles.map((x) => `${x.mot} ${x.contraste}:1`))],
+  );
+  //  « Écris plus petit et ajoute des paddings » : on mesure le rendu.
+  ok(
+    "l'étiquette est plus petite que le corps du texte",
+    lu.every((x) => x.taille <= 11),
+    [...new Set(lu.map((x) => x.taille))],
+  );
+  ok(
+    "et elle a du padding, donc elle ressemble à un tag",
+    lu.every((x) => Number.parseFloat(x.padding) >= 4),
+    [...new Set(lu.map((x) => x.padding))],
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  LE TEXTE ÉCRIT PAR LE SCRIPT SE LIT — DANS LES DEUX THÈMES
+//
+//  ── POURQUOI CE CONTRÔLE N'EXISTAIT PAS, ET AURAIT DÛ ────────────────
+//
+//  `outils/contraste.mjs` mesure 176 textes sur cette annexe et n'en
+//  trouve aucun en défaut. Il lit la page SERVIE : le titre, le chapô,
+//  les notices, le repli sans JavaScript.
+//
+//  La grille d'espèces, elle, est construite au clic sur une zone. Elle
+//  n'a donc JAMAIS été mesurée — et le 5 novembre, en regardant un
+//  rendu en thème sombre, deux textes se sont révélés en `rgb(0, 0, 0)`
+//  faute de couleur déclarée : le titre des deux blocs à 1,23:1, et le
+//  NOM DE CHAQUE ESPÈCE à 1,35:1. Soixante-sept noms illisibles par
+//  zone, aussi vieux que la grille.
+//
+//  Le défaut n'était pas dans la feuille — il était dans ce qu'on
+//  mesurait. On mesure maintenant ce que le script écrit.
+// ════════════════════════════════════════════════════════════════════
+for (const theme of ["light", "dark"]) {
+  console.log(`\n── ce que le script écrit se lit (thème ${theme === "dark" ? "sombre" : "clair"}) ──`);
+  const q = await ouvrir(nav, { theme });
+  await ouvrirLOngletDeLaCarte(q);
+  await q.waitForSelector(".wm-carte__dessin", { timeout: 15000 });
+  await q.evaluate(
+    (id) =>
+      document.querySelector(`.wm-carte__lieu[data-wm-forum="${id}"]`)?.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      ),
+    ZONE.forumId,
+  );
+  await q.waitForFunction(() => document.querySelectorAll("[data-wm-espece]").length > 0, undefined, {
+    timeout: 15000,
+  });
+
+  const mesures = await q.evaluate(() => {
+    const lum = (c) => {
+      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map((v) => {
+        const x = v / 255;
+        return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    //  LE FOND EST CELUI QU'ON VOIT, pas celui de l'élément : un texte
+    //  sur un conteneur transparent prend le fond de son parent, et
+    //  c'est contre CELUI-LÀ qu'il se lit.
+    //
+    //  ── ET LE VOILE DE LA CARTE DE VISITE SE COMPOSE ──────────────
+    //
+    //  Première version : elle a crié sur le nom de la zone et son
+    //  surtitre, à 1,83:1. C'ÉTAIT LA MESURE QUI AVAIT TORT. Ces deux-là
+    //  sont écrits sur une photo recouverte d'un voile sombre — un
+    //  `::after` en dégradé — et remonter les parents ne trouve que la
+    //  couleur de palier SOUS le voile.
+    //
+    //  On compose donc le voile sur ce qu'on a trouvé. On prend son
+    //  arrêt du bas, 78 % de rgb(26 18 12), parce que le texte est
+    //  justement en bas. La photo, elle, reste invisible à la mesure :
+    //  c'est le cas SANS photo qu'on vérifie, et c'est le pire des
+    //  deux — cinq zones sur dix-neuf sont dans ce cas.
+    const VOILE = { r: 26, g: 18, b: 12, a: 0.78 };
+    const composer = (c) => {
+      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number);
+      const m = (sous, dessus) => Math.round(dessus * VOILE.a + sous * (1 - VOILE.a));
+      return `rgb(${m(r, VOILE.r)}, ${m(g, VOILE.g)}, ${m(b, VOILE.b)})`;
+    };
+    const fond = (n) => {
+      const sousLeVoile = n.closest(".wm-faune__visite-image") !== null;
+      let e = n;
+      while (e !== null) {
+        const c = getComputedStyle(e).backgroundColor;
+        if (c !== "rgba(0, 0, 0, 0)" && !/, 0\)$/.test(c)) {
+          return sousLeVoile ? composer(c) : c;
+        }
+        e = e.parentElement;
+      }
+      return "rgb(255, 255, 255)";
+    };
+    const rapport = (n) => {
+      const [x, y] = [lum(getComputedStyle(n).color), lum(fond(n))].sort((a, b) => b - a);
+      return Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100;
+    };
+    //  TOUT CE QUE `module-faune.ts` ÉCRIT ET QUI PORTE DU TEXTE. La
+    //  liste se tient à la main exprès : un sélecteur générique
+    //  attraperait les pastilles de type, qui sont des étiquettes
+    //  colorées et se mesurent autrement.
+    const quoi = [
+      ".wm-faune__sol-titre",
+      ".wm-faune__sol-sous",
+      ".wm-faune__titre",
+      ".wm-faune__no",
+      ".wm-faune__nom",
+      ".wm-faune__niveaux",
+      ".wm-faune__dit",
+      ".wm-faune__visite-sur",
+      ".wm-faune__visite-dit",
+      ".wm-faune__visite-note",
+      ".wm-faune__visite-lien",
+      ".wm-faune__chiffre-nombre",
+      ".wm-faune__chiffre-mot",
+      ".wm-faune__issue-pct",
+      ".wm-faune__issue-mot",
+      ".wm-faune__sur",
+      ".wm-filtre__mot",
+      ".wm-filtres__compte",
+    ];
+    const out = [];
+    for (const s of quoi) {
+      for (const n of Array.from(document.querySelectorAll(s)).slice(0, 3)) {
+        if ((n.textContent ?? "").trim() === "") continue;
+        out.push({ quoi: s, contraste: rapport(n), couleur: getComputedStyle(n).color });
+      }
+    }
+    return out;
+  });
+
+  //  LE NOIR PUR EST SA PROPRE ALERTE. `rgb(0, 0, 0)` sur cette page
+  //  ne vient d'aucun jeton : il veut dire qu'aucune couleur n'est
+  //  déclarée et que le navigateur est retombé sur sa valeur initiale.
+  //  Le dire à part du contraste, parce que c'est une AUTRE faute —
+  //  elle passe inaperçue en thème clair, où le noir se lit très bien.
+  const nus = [...new Set(mesures.filter((m) => m.couleur === "rgb(0, 0, 0)").map((m) => m.quoi))];
+  ok(
+    "AUCUN TEXTE SANS COULEUR DÉCLARÉE",
+    nus.length === 0,
+    nus,
+  );
+  const sombres = [...new Set(
+    mesures.filter((m) => m.contraste < 4.5).map((m) => `${m.quoi} ${m.contraste}:1`),
+  )];
+  ok(
+    `les ${mesures.length} textes du script tiennent 4,5:1`,
+    sombres.length === 0,
+    sombres.length === 0 ? `le plus faible : ${Math.min(...mesures.map((m) => m.contraste))}:1` : sombres,
+  );
+  await q.close();
+}
+
+// ════════════════════════════════════════════════════════════════════
 //  LA RÉGION DE RHODE — l'onglet de présentation
 // ════════════════════════════════════════════════════════════════════
 console.log("\n── la région de Rhode est présentée, et sans JavaScript ──");
@@ -857,6 +1277,40 @@ console.log("\n── la région de Rhode est présentée, et sans JavaScript �
       vue: sec.getBoundingClientRect().height > 0,
     };
   });
+  //  ── LA MESURE DE LECTURE ────────────────────────────────────
+  //
+  //  « Pour la région de Rhode, j'aimerai que ce soit moins large, que
+  //  ça ressemble aux autres maquettes » (5 novembre). La colonne de
+  //  cette annexe est en `--large` pour la carte ; le TEXTE, lui,
+  //  reprend les 880 pixels des treize autres pages.
+  {
+    const mesures = await q.evaluate(() => {
+      const region = document.querySelector('[data-wm-sous-onglet="la-region"]');
+      const tete = document.querySelector(".wm-annexe__titre")?.parentElement;
+      const colonne = document.querySelector(".wm-annexe__colonne");
+      const l = (n) => (n === null ? -1 : Math.round(n.getBoundingClientRect().width));
+      return { region: l(region), tete: l(tete), colonne: l(colonne) };
+    });
+    ok(
+      "le texte de la région reprend la mesure des autres annexes",
+      mesures.region > 0 && mesures.region <= 880,
+      mesures,
+    );
+    ok(
+      "l'en-tête de la page aussi",
+      mesures.tete > 0 && mesures.tete <= 880,
+      mesures,
+    );
+    //  ET LA COLONNE RESTE LARGE : c'est elle qui laisse la place à la
+    //  carte dans l'onglet d'à côté. Si elle se bornait aussi, on
+    //  aurait rendu la carte petite en voulant resserrer le texte.
+    ok(
+      "MAIS LA COLONNE RESTE LARGE, pour la carte",
+      mesures.colonne > 880,
+      mesures,
+    );
+  }
+
   ok("l'onglet « La région de Rhode » existe", vu !== null);
   if (vu !== null) {
     ok("et se lit sans le script", vu.vue);

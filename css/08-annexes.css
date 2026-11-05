@@ -397,6 +397,32 @@ body:has(#modernbb .wm-carnet) {
   max-width: none;
 }
 
+/*  ── UN ONGLET QUI REPREND LA MESURE DE LECTURE ─────────────────────
+
+    « Pour la région de Rhode, j'aimerai que ce soit moins large, que ça
+    ressemble aux autres maquettes. » (5 novembre)
+
+    L'annexe de la carte porte `--large` sur sa colonne : c'est ce qui
+    laisse respirer la carte et ses soixante cartes d'espèce. Mais elle
+    a deux onglets, et le premier est du TEXTE — la présentation de
+    Rhode, ses évènements, ses écuries. Une ligne de mille pixels ne se
+    lit pas d'un trait, et c'est précisément pour ça que les treize
+    autres annexes sont bornées à 880.
+
+    ON BORNE DONC LE BLOC, PAS LA COLONNE. La classe se pose sur ce qui
+    en a besoin — l'en-tête de la page, et le `<section
+    data-wm-sous-onglet>` qui porte du texte — et la carte garde sa
+    largeur dans l'onglet d'à côté.
+
+    ET ELLE NE CENTRE PAS. Première version centrée : le texte partait
+    à 565 pixels du bord pendant que la barre d'onglets restait collée
+    à gauche, et les deux ne s'alignaient sur rien. Bornée à gauche,
+    tout ce qui se lit part du même bord — le titre, les onglets, les
+    paragraphes — et la carte est la seule chose qui déborde. */
+#modernbb .wm-annexe__onglet--mesure {
+  max-width: 880px;
+}
+
 /* ── 2 · le sommaire ──────────────────────────────────────────────── */
 
 /*  Posé par `module-annexes.ts` depuis `data/annexes.json`. La page n'en

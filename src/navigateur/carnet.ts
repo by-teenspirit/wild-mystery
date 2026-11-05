@@ -300,6 +300,53 @@ export interface EspeceDeRhode {
 
 export type EtatDEspece = "inconnu" | "croise" | "attrape";
 
+/** L'état que dit UNE ligne de pokédex, ou `inconnu` s'il n'y en a pas.
+ *
+ *  TROIS ÉTATS, PAS QUATRE, et `attrape_le` l'emporte sur `croise_le` :
+ *  on n'attrape pas sans croiser, et montrer les deux ferait une
+ *  quatrième case que la note interdit.
+ *
+ *  LA RÈGLE EST ICI, ET NULLE PART AILLEURS. Elle servait au seul
+ *  Pokédex du carnet ; depuis le 5 novembre l'annexe des zones la
+ *  demande aussi — « affiche le numéro du pokémon + une icône si on
+ *  l'a déjà vu ou si on l'a dans notre pokédex ». Deux pages qui
+ *  décident séparément de la même chose finissent par en décider
+ *  deux. */
+export function etatDeLaLigne(
+  l: { croiseLe: string | null; attrapeLe: string | null } | undefined,
+): EtatDEspece {
+  if (l === undefined || (l.croiseLe === null && l.attrapeLe === null)) return "inconnu";
+  return l.attrapeLe !== null ? "attrape" : "croise";
+}
+
+/** Les états du joueur, rangés par identifiant d'espèce.
+ *
+ *  ON NE REND QUE CE QUE LA BASE A DIT. Les espèces absentes du relevé
+ *  n'entrent pas dans la table : l'appelant trouvera `undefined`, qui
+ *  veut dire « jamais rencontrée » — et une table de 933 entrées dont
+ *  900 disent `inconnu` serait la même information en vingt fois plus
+ *  gros.
+ *
+ *  LES LIGNES À ZÉRO SONT ÉCARTÉES AUSSI : une ligne qui existe avec
+ *  ses deux dates vides est une ligne qui ne dit rien, et la laisser
+ *  entrer ferait porter une marque « inconnu » à une carte. */
+export function etatsParEspece(
+  lignes: readonly LignePokedex[],
+): ReadonlyMap<number, EtatDEspece> {
+  const table = new Map<number, EtatDEspece>();
+  for (const l of lignes) {
+    const etat = etatDeLaLigne(l);
+    if (etat === "inconnu") continue;
+    //  UNE ESPÈCE DEUX FOIS DANS LE RELEVÉ : la plus avancée gagne.
+    //  La base a une clé unique dessus, donc ça ne doit pas arriver —
+    //  mais si ça arrive, perdre une capture serait le pire des deux
+    //  résultats possibles.
+    if (table.get(l.especeId) === "attrape") continue;
+    table.set(l.especeId, etat);
+  }
+  return table;
+}
+
 export interface CaseDePokedex {
   espece: EspeceDeRhode;
   etat: EtatDEspece;
@@ -325,11 +372,7 @@ export function pokedexAffiche(
   const parEspece = new Map(lignes.map((l) => [l.especeId, l]));
   return catalogue.map((espece) => {
     const l = parEspece.get(espece.id);
-    const etat: EtatDEspece = l === undefined || (l.croiseLe === null && l.attrapeLe === null)
-      ? "inconnu"
-      : l.attrapeLe !== null
-      ? "attrape"
-      : "croise";
+    const etat = etatDeLaLigne(l);
     return {
       espece,
       etat,

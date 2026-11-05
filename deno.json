@@ -23,6 +23,7 @@
     "contraste": "deno run -A outils/contraste.mjs",
     "annexes": "python3 outils/annexe-carte.py && python3 outils/annexe-personnages.py && python3 outils/annexe-credits.py && python3 outils/annexes.py",
     "annexe-carte": "python3 outils/annexe-carte.py",
+    "dex-numeros": "python3 outils/dex-numeros.py",
     "annexe-personnages": "python3 outils/annexe-personnages.py",
     "annexe-credits": "python3 outils/annexe-credits.py",
     "navigation": "deno run -A outils/navigation.mjs",

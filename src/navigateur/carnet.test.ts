@@ -17,6 +17,8 @@ import {
   compteDuPokedex,
   equipeAffichee,
   type EspeceDeRhode,
+  etatDeLaLigne,
+  etatsParEspece,
   jauge,
   type LignePokedex,
   nomAffiche,
@@ -210,4 +212,64 @@ Deno.test("une jauge sort toujours avec son texte, et ne déborde jamais", () =>
   assertEquals(jauge(-5, 10).part, 0);
   assertEquals(jauge(5, 0).part, 0);
   assertEquals(jauge(5, 0).texte, "5 / 0");
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  L'ÉTAT D'UNE ESPÈCE, LU PAR DEUX PAGES
+//
+//  La règle servait au seul Pokédex du carnet. Depuis le 5 novembre,
+//  l'annexe des zones la demande aussi — « affiche une icône si on l'a
+//  déjà vu ou si on l'a dans notre pokedex ». Deux pages qui décident
+//  séparément du même état finissent par en décider deux.
+// ════════════════════════════════════════════════════════════════════
+
+Deno.test("l'état d'une ligne : attrapé l'emporte sur croisé", () => {
+  //  ON N'ATTRAPE PAS SANS CROISER, donc une ligne qui porte les deux
+  //  dates est « attrapé » — afficher les deux ferait une quatrième
+  //  case que la maquette interdit.
+  assertEquals(etatDeLaLigne({ croiseLe: "2026-01-01", attrapeLe: "2026-02-01" }), "attrape");
+  assertEquals(etatDeLaLigne({ croiseLe: null, attrapeLe: "2026-02-01" }), "attrape");
+  assertEquals(etatDeLaLigne({ croiseLe: "2026-01-01", attrapeLe: null }), "croise");
+});
+
+Deno.test("UNE LIGNE SANS DATE NE DIT RIEN, et ne vaut pas « jamais vu »", () => {
+  //  La base peut porter une ligne vide ; la traiter comme « croisé »
+  //  donnerait une marque à une espèce jamais rencontrée.
+  assertEquals(etatDeLaLigne({ croiseLe: null, attrapeLe: null }), "inconnu");
+  assertEquals(etatDeLaLigne(undefined), "inconnu");
+});
+
+Deno.test("les états se rangent par espèce, et les muets n'entrent pas", () => {
+  const table = etatsParEspece([
+    { especeId: 25, croiseLe: "2026-01-01", attrapeLe: "2026-01-02", fois: 3 },
+    { especeId: 1, croiseLe: "2026-01-01", attrapeLe: null, fois: 1 },
+    //  CELLE-LÀ NE DOIT PAS ENTRER : une table où 900 espèces disent
+    //  « inconnu » est la même information en vingt fois plus gros, et
+    //  l'appelant lit déjà `undefined` comme « jamais rencontrée ».
+    { especeId: 4, croiseLe: null, attrapeLe: null, fois: 0 },
+  ]);
+  assertEquals(table.get(25), "attrape");
+  assertEquals(table.get(1), "croise");
+  assertEquals(table.get(4), undefined);
+  assertEquals(table.size, 2);
+});
+
+Deno.test("UNE ESPÈCE EN DOUBLE : LA PLUS AVANCÉE GAGNE", () => {
+  //  La base a une clé unique dessus, donc ça ne doit pas arriver — mais
+  //  si ça arrive, perdre une capture est le pire des deux résultats
+  //  possibles. Les deux ordres donnent « attrapé ».
+  const avant = etatsParEspece([
+    { especeId: 7, croiseLe: "2026-01-01", attrapeLe: "2026-01-02", fois: 1 },
+    { especeId: 7, croiseLe: "2026-01-01", attrapeLe: null, fois: 1 },
+  ]);
+  const apres = etatsParEspece([
+    { especeId: 7, croiseLe: "2026-01-01", attrapeLe: null, fois: 1 },
+    { especeId: 7, croiseLe: "2026-01-01", attrapeLe: "2026-01-02", fois: 1 },
+  ]);
+  assertEquals(avant.get(7), "attrape");
+  assertEquals(apres.get(7), "attrape");
+});
+
+Deno.test("un relevé vide donne une table vide, pas une exception", () => {
+  assertEquals(etatsParEspece([]).size, 0);
 });

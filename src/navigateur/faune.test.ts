@@ -3,11 +3,14 @@ import {
   type EspeceDeZone,
   filtresDeFaune,
   fourchetteDeNiveaux,
+  marqueDuDex,
   memeTable,
   motDeLaChance,
   motDeLaFrequence,
   motDesConditions,
   motDuCompteDeFaune,
+  numeroDuDex,
+  numerosDepuis,
   type ObjetDeZone,
   parFrequence,
   parRarete,
@@ -337,8 +340,90 @@ Deno.test("« tous » montre tout, un tri ne montre que le sien", () => {
 });
 
 Deno.test("l'annonce accorde le pluriel et dit sur quoi on a trié", () => {
-  assertEquals(motDuCompteDeFaune(6, "tous"), "6 lignes");
-  assertEquals(motDuCompteDeFaune(1, "rare"), "1 ligne — rare");
-  assertEquals(motDuCompteDeFaune(2, "peu commun"), "2 lignes — peu commun");
-  assertEquals(motDuCompteDeFaune(0, "objet"), "0 lignes — objet");
+  //  « ESPÈCES » ET PLUS « LIGNES » : la liste mélangeait les espèces et
+  //  les objets du sol, et « lignes » était le seul mot qui valait pour
+  //  les deux. Les objets ont leur bloc depuis le 5 novembre.
+  assertEquals(motDuCompteDeFaune(6, "tous"), "6 espèces");
+  assertEquals(motDuCompteDeFaune(1, "rare"), "1 espèce — rare");
+  assertEquals(motDuCompteDeFaune(2, "peu commun"), "2 espèces — peu commun");
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  LE NUMÉRO DE RHODE, ET LA MARQUE DU CARNET
+// ════════════════════════════════════════════════════════════════════
+
+Deno.test("le numéro du dex s'écrit sur trois chiffres, toujours", () => {
+  //  L'ALIGNEMENT EST LA RAISON : les 933 numéros se lisent en colonne
+  //  d'une carte à l'autre, et « N° 7 » à côté de « N° 412 » décale la
+  //  ligne du nom en dessous.
+  assertEquals(numeroDuDex(1), "N° 001");
+  assertEquals(numeroDuDex(7), "N° 007");
+  assertEquals(numeroDuDex(131), "N° 131");
+  assertEquals(numeroDuDex(933), "N° 933");
+});
+
+Deno.test("la marque se tait quand on ne sait pas", () => {
+  //  LES DEUX SILENCES SONT DIFFÉRENTS ET DONNENT LA MÊME CARTE :
+  //  `undefined` est « cette espèce n'est pas dans le relevé » et
+  //  `inconnu` est « elle y est, sans date ». Dans les deux cas la
+  //  carte ne montre RIEN — jamais « jamais vu », qui serait un verdict
+  //  sur un pokédex qu'on n'a peut-être pas réussi à lire.
+  assertEquals(marqueDuDex(undefined), null);
+  assertEquals(marqueDuDex("inconnu"), null);
+});
+
+Deno.test("la marque dit l'état en signe ET en mots", () => {
+  const attrape = marqueDuDex("attrape");
+  const croise = marqueDuDex("croise");
+  assertEquals(attrape?.etat, "attrape");
+  assertEquals(croise?.etat, "croise");
+  //  DEUX SIGNES DIFFÉRENTS, et pas la même couleur sur le même signe :
+  //  un plein et un vide de la même teinte ne se distinguent pas pour
+  //  tout le monde.
+  assertEquals(attrape?.signe === croise?.signe, false);
+  //  ET UN MOT, parce qu'un signe ne se lit pas à voix haute.
+  assertEquals((attrape?.mot ?? "").length > 0, true);
+  assertEquals((croise?.mot ?? "").length > 0, true);
+  assertEquals(attrape?.mot === croise?.mot, false);
+});
+
+Deno.test("les numéros se lisent dans le fichier, et le faux est écarté", () => {
+  assertEquals(numerosDepuis({ numeros: { "105": 131, "10115": 132 } }).get(105), 131);
+  assertEquals(numerosDepuis({ numeros: { "10115": 132 } }).get(10115), 132);
+
+  //  UN RANG HORS DU DEX N'EST PAS UN RANG. Écrire « N° 000 » ou
+  //  « N° 1200 » sur une carte produirait un numéro qui n'existe pas —
+  //  et un faux numéro circule : on le recopie dans un RP, on le
+  //  cherche.
+  const sale = numerosDepuis({
+    numeros: { "1": 0, "2": 934, "3": -4, "4": 12.5, "5": "131", "6": null },
+  });
+  assertEquals(sale.size, 0);
+
+  //  Une clé qui n'est pas un identifiant non plus.
+  assertEquals(numerosDepuis({ numeros: { "abc": 12, "0": 12 } }).size, 0);
+
+  //  ET UN FICHIER ABSENT DONNE UNE TABLE VIDE, pas une exception : les
+  //  cartes n'écrivent alors aucun numéro, et la page reste entière.
+  assertEquals(numerosDepuis(null).size, 0);
+  assertEquals(numerosDepuis({}).size, 0);
+  assertEquals(numerosDepuis("rien").size, 0);
+  assertEquals(numerosDepuis({ numeros: 12 }).size, 0);
+});
+
+Deno.test("LE FILTRE NE PROPOSE PLUS « OBJET » SI ON NE LUI EN DONNE PAS", () => {
+  //  C'est comme ça que les objets sont sortis de la grille des espèces
+  //  le 5 novembre : la fonction n'a pas changé, l'annexe ne lui passe
+  //  plus d'objets.
+  const table = [
+    { espece: 1, nom: "Bulbizarre", pct: 50, min: 1, max: 5, rarete: "commun" },
+    { espece: 4, nom: "Salamèche", pct: 50, min: 1, max: 5, rarete: "rare" },
+  ] as const;
+  const avec = filtresDeFaune(table, [o()]);
+  const sans = filtresDeFaune(table, []);
+  assertEquals(avec.some((f) => f.cle === "objet"), true);
+  assertEquals(sans.some((f) => f.cle === "objet"), false);
+  //  ET LE TOTAL DE « TOUS » SUIT : il comptait les objets avec les
+  //  espèces, ce qui annoncerait trois lignes pour deux cartes.
+  assertEquals(sans.find((f) => f.cle === "tous")?.nombre, 2);
 });

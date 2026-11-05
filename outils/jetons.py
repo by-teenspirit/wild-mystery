@@ -90,6 +90,14 @@ HORS_CHARTE = {
     #  `module-carte.ts` depuis `data/carte.json`. Elle n'existe nulle
     #  part en feuille : son repli est le bandeau des catégories.
     "--wm-carte-image",
+    #  La photo de la zone sur sa carte de visite, posée EN LIGNE par
+    #  `module-faune.ts` depuis `data/carte.json`. Même usage que
+    #  `--wm-carte-image` juste au-dessus : le panneau de la carte est
+    #  parti le 5 novembre, et le bandeau qu'il portait a été refait
+    #  sous la carte, dans la feuille 22. Son repli `none` est la bonne
+    #  valeur quand une zone n'a pas de photo — la teinte du palier
+    #  prend alors le relais.
+    "--wm-faune-image",
 }
 
 #  ── CEUX DONT LE REPLI NE PEUT PAS DIRE LA VÉRITÉ ───────────────────

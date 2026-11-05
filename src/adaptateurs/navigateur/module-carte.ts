@@ -352,13 +352,26 @@ export type OptionsDeCarte = {
   /** La phrase du panneau avant le premier clic. Celle de l'index
    *  promet « son dernier sujet », qu'une annexe ne sait pas lire. */
   readonly invite?: string;
-  /** La carte prend toute la largeur, la colonne passe dessous.
+  /** Pas de panneau de détail au clic : la colonne ne porte que la
+   *  liste des lieux.
    *
-   *  C'EST UNE CLASSE, PAS UNE SECONDE CARTE. « Je trouve la carte
-   *  petite » (4 novembre) : sur l'annexe, le bandeau latéral mangeait
-   *  320 des 880 pixels. L'index, lui, garde sa colonne — d'où une
-   *  option, et tout le reste en CSS sous `.wm-carte--large`. */
-  readonly large?: boolean;
+   *  ── POURQUOI UNE OPTION, ET PAS UNE RÈGLE CSS ─────────────────────
+   *
+   *  « Au clic, tu n'affiches plus le gros bloc : celui-ci est
+   *  inutile » (5 novembre). Il l'est sur l'annexe, et il ne l'est pas
+   *  sur l'index : là, c'est lui qui porte les sous-forums, le nombre
+   *  de sujets et le dernier message — tout ce qu'on vient chercher en
+   *  cliquant une catégorie.
+   *
+   *  Le cacher en CSS l'aurait laissé se remplir à chaque clic : vingt
+   *  nœuds construits, un relevé de comptages parcouru, pour un bloc
+   *  que personne ne voit. Ici il n'est pas créé du tout, et les deux
+   *  fonctions qui l'écrivent rendent la main tout de suite.
+   *
+   *  CE QUI PRENAIT SA PLACE EST ARRIVÉ ENSUITE : l'annexe montre sous
+   *  la carte une carte de visite de la zone — son image, son nom, son
+   *  compte d'espèces et sa description. Voir `module-faune.ts`. */
+  readonly sansPanneau?: boolean;
   /** Les villes restent dessinées, mais ne sont ni cliquables ni
    *  listées.
    *
@@ -414,7 +427,20 @@ function dessinerLaCarte(
   options: OptionsDeCarte,
 ): Pose {
   const racine = el(doc, "section", "wm-carte");
-  if (options.large === true) racine.classList.add("wm-carte--large");
+  //  ── IL N'Y A PLUS DE « CARTE EN LARGE » ─────────────────────────
+  //
+  //  Elle a vécu une journée. Le 4 novembre, « je trouve la carte
+  //  petite » : on avait répondu en couchant la colonne sous le dessin,
+  //  pour que le cadre prenne les 880 pixels entiers. Le 5, « garde-la
+  //  à gauche et pas au centre comme avant, ne réduis pas sa taille,
+  //  remets la liste des lieux à droite ».
+  //
+  //  Les deux demandes ne se contredisent pas, et c'est la leçon : la
+  //  carte n'était pas petite parce que la colonne était à côté, elle
+  //  était petite parce que la PAGE faisait 880. L'annexe est passée en
+  //  pleine largeur depuis, et le panneau a disparu — le cadre a donc
+  //  gagné trois cents pixels sans qu'on touche à la disposition, qui
+  //  est redevenue celle de l'index. Une classe de moins à tenir.
   racine.setAttribute("aria-label", "La carte de Rhode");
 
   // ── le titre ─────────────────────────────────────────────────────
@@ -634,11 +660,16 @@ function dessinerLaCarte(
   //  reste en défilant.
   const colonne = el(doc, "div", "wm-carte__colonne");
 
-  const panneau = el(doc, "div", "wm-carte__panneau");
-  //  `polite` et pas `assertive` : le panneau se remplit au clic, donc
-  //  l'utilisateur sait déjà qu'il vient de se passer quelque chose.
-  panneau.setAttribute("aria-live", "polite");
-  colonne.appendChild(panneau);
+  //  `null` SUR L'ANNEXE, et il n'est alors pas construit du tout :
+  //  voir `sansPanneau`. Les deux fonctions qui l'écrivent rendent la
+  //  main sur ce `null`, plus bas.
+  const panneau = options.sansPanneau === true ? null : el(doc, "div", "wm-carte__panneau");
+  if (panneau !== null) {
+    //  `polite` et pas `assertive` : le panneau se remplit au clic, donc
+    //  l'utilisateur sait déjà qu'il vient de se passer quelque chose.
+    panneau.setAttribute("aria-live", "polite");
+    colonne.appendChild(panneau);
+  }
 
   // ── la liste : groupée, et chaque entrée entre dans le forum ─────
   const bloc = el(doc, "div", "wm-carte__liste-cadre");
@@ -732,6 +763,7 @@ function dessinerLaCarte(
    *  hauteur de la colonne : le laisser vide ferait un trou, et un trou
    *  ne dit pas quoi faire. */
   const inviterLePanneau = (): void => {
+    if (panneau === null) return;
     panneau.replaceChildren();
     panneau.classList.add("wm-carte__panneau--vide");
     panneau.appendChild(
@@ -747,6 +779,10 @@ function dessinerLaCarte(
   };
 
   const remplirLePanneau = (lieu: Lieu): void => {
+    //  RIEN À REMPLIR, ET RIEN À CALCULER NON PLUS. L'ancien bloc se
+    //  construisait puis se cachait en CSS : vingt nœuds et un relevé
+    //  de comptages par clic, pour personne.
+    if (panneau === null) return;
     const c = comptages.get(lieu.forumId);
     panneau.replaceChildren();
     panneau.classList.remove("wm-carte__panneau--vide");
