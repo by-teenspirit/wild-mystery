@@ -100,15 +100,21 @@ function ok(quoi, vrai, detail) {
   }
 }
 
-async function ouvrir(nav, { avecScript = true, largeur = 1440, fragment = "" } = {}) {
-  const p = await nav.newPage({ viewport: { width: largeur, height: 900 } });
+async function ouvrir(
+  nav,
+  { avecScript = true, largeur = 1440, fragment = "", page = PAGE, theme = undefined } = {},
+) {
+  const p = await nav.newPage({
+    viewport: { width: largeur, height: 900 },
+    ...(theme === undefined ? {} : { colorScheme: theme }),
+  });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 
   await p.route("**/*", (r) => {
     const u = r.request().url();
     const rendre = (type, corps) => r.fulfill({ contentType: type, body: corps });
 
-    if (/\/annexe-11/.test(u)) return rendre("text/html; charset=utf-8", PAGE);
+    if (/\/annexe-11/.test(u)) return rendre("text/html; charset=utf-8", page);
     if (/jetons\.css$/.test(u)) return rendre("text/css", lire("panneau-admin/jetons.css"));
     if (/wild-mystery\.css$/.test(u)) return rendre("text/css", lire("css/wild-mystery.css"));
     if (/\/js\/annexes\.js$/.test(u)) {
@@ -444,6 +450,433 @@ console.log("\n── les renvois de fin de section ──");
     versArenes !== undefined && versArenes.quoi.includes(arenes.numero),
     { vu: versArenes?.quoi, sommaire: arenes.numero },
   );
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  LES FICHES DE PRÉ-LIEN DE CHAMPION
+// ════════════════════════════════════════════════════════════════════
+//
+//  LE FICHIER N'EN PORTE AUCUNE, et c'est voulu : aucun champion n'est
+//  écrit. Une mise en page qu'on ne voit jamais remplie est une mise en
+//  page qu'on n'a pas vérifiée — alors on en remplit une ici.
+//
+//  ET ON LA REMPLIT PAR LE VRAI GÉNÉRATEUR. Le harnais écrit un
+//  `personnages.json` d'essai, lance `outils/annexe-personnages.py`
+//  dessus, et mesure la page qui en sort. Même lecture des arènes,
+//  même rendu, même feuille, même pied : d'autres données, c'est tout.
+//  Un gabarit HTML écrit à la main ici mesurerait le gabarit.
+console.log("\n── les fiches de pré-lien de champion ──");
+
+const ARENES = json("data/arenes.json").arenes;
+const PAR_SLUG = Object.fromEntries(ARENES.map((a) => [a.slug, a]));
+
+//  DEUX FICHES, ET LA SECONDE EST DÉPOUILLÉE : pas de portrait, pas de
+//  texte, pas de rivalités. C'est l'état qu'on oublie de regarder, et
+//  c'est celui où un cadre vide ou une image cassée se voit.
+const ESSAI = {
+  pleine: {
+    arene: "eau",
+    nom: "Fiche d'essai du harnais",
+    age: "25 – 30 ans",
+    image: "https://exemple.test/portrait.png",
+    traits: ["premier trait", "deuxième trait", "troisième trait"],
+    texte: "Un paragraphe de présentation, écrit par le harnais.",
+    affinites: [["Quelqu'un", "ce qui les lie"], ["Quelqu'un d'autre", "et pourquoi"]],
+    rivalites: [["Un troisième", "ce qui les oppose"]],
+    ditRivalites: "Une note sous le cadre.",
+  },
+  nue: { arene: "dragon", nom: "Fiche nue du harnais", traits: [], affinites: [] },
+};
+
+/** Lance le générateur sur des données d'essai et rend la page. */
+function engendrer(fiches) {
+  const sous = `${Deno.makeTempDirSync()}/`;
+  const d = json("data/personnages.json");
+  d.champions.fiches = fiches;
+  Deno.writeTextFileSync(`${sous}personnages.json`, JSON.stringify(d));
+  const r = new Deno.Command("python3", {
+    args: ["outils/annexe-personnages.py", "--sortie", `${sous}page.html`],
+    cwd: R,
+    env: { WM_PERSONNAGES: `${sous}personnages.json` },
+    stdout: "piped",
+    stderr: "piped",
+  }).outputSync();
+  const erreur = new TextDecoder().decode(r.stderr) + new TextDecoder().decode(r.stdout);
+  if (!r.success) return { ok: false, erreur };
+  return { ok: true, page: Deno.readTextFileSync(`${sous}page.html`) };
+}
+
+//  ── LE GÉNÉRATEUR REFUSE CE QU'IL NE PEUT PAS RENDRE ──────────────
+//
+//  Une arène inconnue ferait un lien mort — et sur Forumactif un lien
+//  mort ne tombe pas en 404, il mène ailleurs en silence. Une fiche
+//  sans nom ne serait pas un pré-lien : le poste vacant est déjà dans
+//  la liste des onze postes.
+{
+  const sansArene = engendrer([{ ...ESSAI.pleine, arene: "arene-qui-n-existe-pas" }]);
+  ok(
+    "une arène inconnue arrête la génération",
+    !sansArene.ok && /inconnue/.test(sansArene.erreur),
+    sansArene.ok ? "la page est sortie quand même" : sansArene.erreur.slice(0, 120),
+  );
+  const sansNom = engendrer([{ ...ESSAI.pleine, nom: "" }]);
+  ok(
+    "une fiche sans nom aussi",
+    !sansNom.ok && /sans `nom`/.test(sansNom.erreur),
+    sansNom.ok ? "la page est sortie quand même" : sansNom.erreur.slice(0, 120),
+  );
+  //  ET SANS FICHE, PAS DE SECTION : la page ne promet rien qu'elle
+  //  n'a pas. C'est l'état du dépôt aujourd'hui.
+  const vide = engendrer([]);
+  ok(
+    "aucune fiche dans le fichier, aucune section dans la page",
+    vide.ok && !vide.page.includes("wm-champions") &&
+      !vide.page.includes("pré-liens de champion"),
+    vide.ok ? "la section est là sans fiche" : vide.erreur.slice(0, 120),
+  );
+  //  … et les onze postes disent alors tous « poste vacant ».
+  //  LE COMPTE PORTE SUR L'ÉTAT DES POSTES, pas sur les mots de la
+  //  page : « poste vacant » est aussi dans la phrase de contact
+  //  (« la moindre question sur un poste vacant »), et compter les
+  //  occurrences donnait douze pour onze postes.
+  ok(
+    "et les onze postes restent vacants",
+    vide.ok &&
+      (vide.page.match(/wm-poste__etat">poste vacant/g) ?? []).length === ARENES.length,
+    (vide.page?.match(/wm-poste__etat">[^<]*/g) ?? []),
+  );
+}
+
+const ENGENDREE = engendrer([ESSAI.pleine, ESSAI.nue]);
+ok("la page d'essai sort du générateur", ENGENDREE.ok, ENGENDREE.erreur?.slice(0, 200));
+
+/** Ce que porte chaque fiche de champion, à l'écran. */
+const regarderLesChampions = () =>
+  Array.from(document.querySelectorAll(".wm-champion")).map((f) => {
+    const r = f.getBoundingClientRect();
+    const cadres = Array.from(f.querySelectorAll(".wm-relation")).map((c) => ({
+      variante: c.className.replace(/.*wm-relation--/, "").split(" ")[0],
+      etiquette: c.querySelector(".wm-relation__etiquette")?.textContent?.trim() ?? "",
+      liens: Array.from(c.querySelectorAll(".wm-relation__ligne")).map((l) => ({
+        qui: l.querySelector(".wm-relation__qui")?.textContent?.trim() ?? "",
+        quoi: l.querySelector(".wm-relation__quoi")?.textContent?.trim() ?? "",
+      })),
+      dit: c.querySelector(".wm-relation__dit")?.textContent?.trim() ?? "",
+      haut: Math.round(c.getBoundingClientRect().top),
+      gauche: Math.round(c.getBoundingClientRect().left),
+      large: Math.round(c.getBoundingClientRect().width),
+    }));
+    const tag = (s) => {
+      const n = f.querySelector(s);
+      if (n === null) return null;
+      const st = getComputedStyle(n);
+      return {
+        mot: n.textContent?.trim() ?? "",
+        gauche: parseFloat(st.paddingLeft),
+        haut: parseFloat(st.paddingTop),
+        rond: parseFloat(st.borderTopLeftRadius),
+        bord: st.borderTopStyle !== "none" && parseFloat(st.borderTopWidth) > 0,
+        fond: st.backgroundColor,
+      };
+    };
+    return {
+      arene: f.dataset.wmArene,
+      ou: f.querySelector(".wm-champion__ou")?.textContent?.trim() ?? "",
+      badge: f.querySelector(".wm-champion__badge")?.getAttribute("src") ?? "",
+      nom: f.querySelector(".wm-champion__nom")?.textContent?.trim() ?? "",
+      age: tag(".wm-champion__age"),
+      niveau: tag(".wm-champion__niveau"),
+      traits: Array.from(f.querySelectorAll(".wm-champion__trait")).map((t) => {
+        const st = getComputedStyle(t);
+        return {
+          mot: t.textContent?.trim() ?? "",
+          gauche: parseFloat(st.paddingLeft),
+          bord: parseFloat(st.borderTopWidth),
+        };
+      }),
+      texte: f.querySelector(".wm-champion__texte")?.textContent?.trim() ?? "",
+      portrait: f.querySelector("img.wm-champion__portrait") !== null,
+      silhouette: f.querySelector(".wm-champion__portrait--vide") !== null,
+      portraitCarre: (() => {
+        const n = f.querySelector(".wm-champion__portrait");
+        if (n === null) return null;
+        const b = n.getBoundingClientRect();
+        return { large: Math.round(b.width), haut: Math.round(b.height) };
+      })(),
+      cadres,
+      renvois: Array.from(f.querySelectorAll("a.wm-renvoi")).map((a) => ({
+        href: a.getAttribute("href"),
+        quoi: a.querySelector(".wm-renvoi__quoi")?.textContent?.trim() ?? "",
+        mot: a.querySelector(".wm-renvoi__mot")?.textContent?.trim() ?? "",
+      })),
+      large: Math.round(r.width),
+      debord: f.scrollWidth > Math.ceil(r.width) + 1,
+    };
+  });
+
+//  LES FICHES SONT DANS LE SOUS-ONGLET DES CHAMPIONS, qui est fermé à
+//  l'arrivée : le premier onglet est celui des célébrités. Mesurer la
+//  géométrie sans l'ouvrir donnait ZÉRO PARTOUT — et zéro passe toutes
+//  les comparaisons « tient dans l'écran ». Le fragment l'ouvre, comme
+//  le ferait un lien, et on attend que l'onglet soit actif.
+async function ouvrirLesChampions(options = {}) {
+  const p = await ouvrir(nav, { page: ENGENDREE.page, fragment: "#les-champions", ...options });
+  await p.waitForFunction(
+    () => {
+      const s = document.querySelector('[data-wm-sous-onglet="les-champions"]');
+      return s !== null && s.getBoundingClientRect().height > 0;
+    },
+    undefined,
+    { timeout: 15000 },
+  );
+  return p;
+}
+
+if (ENGENDREE.ok) {
+  const p = await ouvrirLesChampions();
+  const vu = await p.evaluate(regarderLesChampions);
+  const [pleine, nue] = vu;
+  const eau = PAR_SLUG[ESSAI.pleine.arene];
+  const dragon = PAR_SLUG[ESSAI.nue.arene];
+
+  ok("les deux fiches sont rendues", vu.length === 2, vu.length);
+
+  //  ── L'ARÈNE À LAQUELLE LE PRÉ-LIEN APPARTIENT ──────────────────
+  //
+  //  Le nom et la ville sont RELUS DANS `data/arenes.json`, pas
+  //  recopiés ici : c'est toute la raison d'avoir un générateur.
+  ok(
+    "chaque fiche dit son arène et sa ville",
+    pleine?.ou === `${eau.nom} · ${eau.ville}` && nue?.ou === `${dragon.nom} · ${dragon.ville}`,
+    { pleine: pleine?.ou, nue: nue?.ou },
+  );
+  ok(
+    "et montre le badge à gagner",
+    pleine?.badge.endsWith(`/img/badges/${eau.slug}.png`),
+    pleine?.badge,
+  );
+  ok("le nom est celui de la fiche", pleine?.nom === ESSAI.pleine.nom, pleine?.nom);
+
+  //  ── LES TAGS : l'âge, le niveau, le caractère ───────────────────
+  ok("la tranche d'âge s'affiche", pleine?.age?.mot === ESSAI.pleine.age, pleine?.age);
+  ok(
+    "le niveau vient de l'arène, pas de la fiche",
+    pleine?.niveau?.mot === `niveau ${eau.niveau}` && nue?.niveau?.mot === `niveau ${dragon.niveau}`,
+    { pleine: pleine?.niveau?.mot, nue: nue?.niveau?.mot, attendu: eau.niveau },
+  );
+  ok(
+    "les traits sont là, un par mot du fichier",
+    pleine?.traits.length === ESSAI.pleine.traits.length &&
+      pleine.traits.every((t, i) => t.mot === ESSAI.pleine.traits[i]),
+    pleine?.traits.map((t) => t.mot),
+  );
+  //  « SOUS FORME DE TAG » : du rembourrage, un coin rond, et un bord
+  //  ou un fond. Sans ça, c'est une liste de mots séparés par des
+  //  espaces — ce que ces trois mots étaient avant.
+  ok(
+    "et ils ressemblent à des tags — rembourrés, arrondis, cernés",
+    pleine?.traits.every((t) => t.gauche >= 8 && t.bord > 0) &&
+      pleine.age.rond >= 6 && pleine.age.haut >= 3 &&
+      pleine.niveau.rond >= 6 && pleine.niveau.gauche >= 8,
+    { trait: pleine?.traits[0], age: pleine?.age, niveau: pleine?.niveau },
+  );
+  //  TROIS DESSINS POUR TROIS CHOSES : l'âge, le niveau et un trait ne
+  //  doivent pas se confondre. Deux fonds identiques, et « 25 – 30
+  //  ans » se relit comme un trait de caractère de plus.
+  ok(
+    "l'âge, le niveau et un trait ne se confondent pas",
+    new Set([pleine?.age?.fond, pleine?.niveau?.fond, "cerné"]).size === 3 &&
+      pleine?.traits[0].bord > 0,
+    { age: pleine?.age?.fond, niveau: pleine?.niveau?.fond },
+  );
+
+  //  ── LE PORTRAIT, CARRÉ, ET SA PLACE TENUE SANS IMAGE ───────────
+  ok("la fiche pleine a son portrait", pleine?.portrait === true, pleine?.portrait);
+  ok(
+    "la fiche nue montre la silhouette, pas une image cassée",
+    nue?.silhouette === true && nue?.portrait === false,
+    { silhouette: nue?.silhouette, image: nue?.portrait },
+  );
+  ok(
+    "et les deux portraits sont carrés, de la même taille",
+    pleine?.portraitCarre?.large === pleine?.portraitCarre?.haut &&
+      pleine?.portraitCarre?.large === nue?.portraitCarre?.large,
+    { pleine: pleine?.portraitCarre, nue: nue?.portraitCarre },
+  );
+
+  //  ── LES DEUX CADRES, FACE À FACE ───────────────────────────────
+  ok(
+    "la fiche pleine a ses deux cadres",
+    pleine?.cadres.length === 2 &&
+      pleine.cadres.map((c) => c.variante).join(",") === "affinite,rivalite",
+    pleine?.cadres.map((c) => c.variante),
+  );
+  //  LA COULEUR NE PORTE RIEN : c'est l'étiquette qui dit lequel est
+  //  lequel. Un joueur sur douze ne distingue pas le vert du rouge.
+  ok(
+    "et chacun dit en mots ce qu'il est",
+    pleine?.cadres[0].etiquette.toLowerCase().startsWith("affinit") &&
+      pleine?.cadres[1].etiquette.toLowerCase().startsWith("rivalit"),
+    pleine?.cadres.map((c) => c.etiquette),
+  );
+  ok(
+    "ils sont côte à côte, à la même hauteur et de la même largeur",
+    pleine?.cadres.length === 2 &&
+      pleine.cadres[0].haut === pleine.cadres[1].haut &&
+      pleine.cadres[0].gauche < pleine.cadres[1].gauche &&
+      Math.abs(pleine.cadres[0].large - pleine.cadres[1].large) <= 1,
+    pleine?.cadres.map((c) => ({ haut: c.haut, gauche: c.gauche, large: c.large })),
+  );
+  ok(
+    "les liens portent qui et pourquoi",
+    pleine?.cadres[0].liens.length === ESSAI.pleine.affinites.length &&
+      pleine.cadres[0].liens[0].qui === ESSAI.pleine.affinites[0][0] &&
+      pleine.cadres[0].liens[0].quoi === ESSAI.pleine.affinites[0][1],
+    pleine?.cadres[0].liens,
+  );
+  ok(
+    "la note sous un cadre s'affiche quand il y en a une",
+    pleine?.cadres[1].dit === ESSAI.pleine.ditRivalites &&
+      pleine?.cadres[0].dit === "",
+    { rivalites: pleine?.cadres[1].dit, affinites: pleine?.cadres[0].dit },
+  );
+  //  UN CADRE VIDE NE S'AFFICHE PAS. « Rivalités : néant » encadré
+  //  prend la place d'une information sans en être une.
+  ok(
+    "une fiche sans relations n'affiche aucun cadre",
+    nue?.cadres.length === 0,
+    nue?.cadres.map((c) => c.variante),
+  );
+
+  //  ── OÙ ÇA MÈNE ────────────────────────────────────────────────
+  //
+  //  L'adresse du forum vient de `data/arenes.json`, celle de l'annexe
+  //  du sommaire — numéro compris. Forumactif ne route que sur le
+  //  numéro : une adresse écrite à la main mène ailleurs en silence le
+  //  jour où le numéro glisse.
+  const sommaire = json("data/annexes.json").sections
+    .flatMap((s) => s.entrees)
+    .find((x) => x.slug === "arenes-colosseums-ligues");
+  ok(
+    "chaque fiche mène à son arène, à l'adresse du fichier",
+    pleine?.renvois[0]?.href === eau.forum && nue?.renvois[0]?.href === dragon.forum,
+    { pleine: pleine?.renvois[0]?.href, attendu: eau.forum },
+  );
+  ok(
+    "et le bouton porte le nom de l'arène",
+    pleine?.renvois[0]?.mot === eau.nom,
+    pleine?.renvois[0],
+  );
+  ok(
+    "puis à l'annexe des arènes, prise au sommaire",
+    pleine?.renvois[1]?.href === sommaire?.adresse &&
+      pleine?.renvois[1]?.quoi.includes(sommaire?.numero),
+    { vu: pleine?.renvois[1], sommaire },
+  );
+
+  //  ── LE CONTRASTE, DANS LES DEUX THÈMES ────────────────────────
+  //
+  //  `outils/contraste.mjs` ne verra JAMAIS ces textes : il mesure la
+  //  page du dépôt, où la section n'existe pas. C'est ici ou nulle
+  //  part. Et le noir pur est sa propre alerte — il veut dire qu'aucune
+  //  couleur n'est déclarée, ce qui se lit très bien en thème clair et
+  //  disparaît en sombre. La leçon du 4 novembre, sur ces fiches-là.
+  const MOTS = [
+    ".wm-champion__ou",
+    ".wm-champion__nom",
+    ".wm-champion__age",
+    ".wm-champion__niveau",
+    ".wm-champion__trait",
+    ".wm-champion__texte",
+    ".wm-relation__etiquette",
+    ".wm-relation__qui",
+    ".wm-relation__quoi",
+    ".wm-relation__dit",
+  ];
+  for (const theme of ["light", "dark"]) {
+    const q = await ouvrirLesChampions({ theme });
+    const lu = await q.evaluate((quoi) => {
+      //  ── LIRE UNE COULEUR, ET PAS SEULEMENT UN `rgb()` ───────────
+      //
+      //  CHROMIUM REND UN `color-mix` EN `color(srgb 0.91 0.92 0.89)`,
+      //  en fractions de 1 — pas en 0-255. Le lecteur naïf divisait
+      //  0,91 par 255 et lisait du noir : les deux cadres, dont le
+      //  fond EST un `color-mix`, sortaient à 1,33 contre 1 en thème
+      //  clair alors que le texte y est à onze.
+      //
+      //  La leçon était déjà payée dans `outils/contraste.mjs`, qui
+      //  lit les deux formes depuis le début — elle n'avait pas été
+      //  reportée ici ni dans `outils/faune.mjs`.
+      const canaux = (c) => {
+        const n = (c.match(/-?\d*\.?\d+/g) ?? []).map(Number);
+        return /^color\(/.test(c) ? n.slice(0, 3).map((v) => v * 255) : n.slice(0, 3);
+      };
+      const lum = (c) => {
+        const [r, g, b] = canaux(c).map((v) => {
+          const x = v / 255;
+          return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const fond = (n) => {
+        let e = n;
+        while (e !== null) {
+          const c = getComputedStyle(e).backgroundColor;
+          if (c !== "rgba(0, 0, 0, 0)" && !/, 0\)$/.test(c)) return c;
+          e = e.parentElement;
+        }
+        return "rgb(255, 255, 255)";
+      };
+      const out = [];
+      for (const s of quoi) {
+        for (const n of Array.from(document.querySelectorAll(s)).slice(0, 2)) {
+          if ((n.textContent ?? "").trim() === "") continue;
+          const [x, y] = [lum(getComputedStyle(n).color), lum(fond(n))].sort((a, b) => b - a);
+          out.push({
+            quoi: s,
+            couleur: getComputedStyle(n).color,
+            rapport: Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100,
+          });
+        }
+      }
+      return out;
+    }, MOTS);
+    await q.close();
+    const nus = [...new Set(lu.filter((m) => m.couleur === "rgb(0, 0, 0)").map((m) => m.quoi))];
+    ok(`${theme} · aucun texte sans couleur déclarée`, nus.length === 0, nus);
+    const bas = lu.filter((m) => m.rapport < 4.5);
+    ok(
+      `${theme} · les ${lu.length} textes de la fiche tiennent 4,5:1`,
+      bas.length === 0,
+      bas.map((m) => `${m.quoi} ${m.rapport}:1`),
+    );
+  }
+
+  //  ── ET À 390 ─────────────────────────────────────────────────
+  {
+    const q = await ouvrirLesChampions({ largeur: 390 });
+    const etroit = await q.evaluate(regarderLesChampions);
+    const debordPage = await q.evaluate(() =>
+      document.documentElement.scrollWidth > window.innerWidth + 1
+    );
+    await q.close();
+    ok("à 390, rien ne déborde de la page", !debordPage);
+    ok(
+      "aucune fiche ne déborde d'elle-même",
+      etroit.every((f) => !f.debord && f.large <= 390),
+      etroit.map((f) => ({ large: f.large, debord: f.debord })),
+    );
+    //  LES DEUX CADRES PASSENT L'UN SOUS L'AUTRE. Côte à côte dans 320
+    //  pixels, ils tenaient trois mots par ligne.
+    ok(
+      "et les deux cadres passent l'un sous l'autre",
+      etroit[0]?.cadres.length === 2 &&
+        etroit[0].cadres[0].haut < etroit[0].cadres[1].haut &&
+        etroit[0].cadres[0].gauche === etroit[0].cadres[1].gauche,
+      etroit[0]?.cadres.map((c) => ({ haut: c.haut, gauche: c.gauche })),
+    );
+  }
+  await p.close();
 }
 
 console.log("\n── à 390 pixels ──");

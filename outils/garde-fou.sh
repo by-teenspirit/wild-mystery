@@ -1254,6 +1254,91 @@ TS
   fi
 fi
 
+echo "── 30. les niveaux, les paliers et les adresses des onze défis ─"
+# TROIS CHAMPS ARRIVÉS LE 6 NOVEMBRE, et aucun n'était gardé.
+#
+# `niveau` décide désormais l'ORDRE DES ONZE DÉFIS : deux arènes au
+# même niveau, et l'ordre devient celui du hasard du tri. `palier` dit
+# à quel palier le défi s'ouvre, et il est déduit des niveaux — un
+# palier qui redescend quand le niveau monte est une faute de frappe.
+#
+# `forum` est l'adresse du forum du défi, relevée sur l'index. Et
+# FORUMACTIF NE ROUTE QUE SUR LE NUMÉRO : une adresse dont le numéro a
+# glissé ne tombe pas en 404, elle mène ailleurs en silence. C'est ce
+# qui est arrivé le 5 novembre à `/h7-arenes-colosseums-ligues`, qui
+# sert « Annexe 08 · Les groupes ». On ne peut pas vérifier le numéro
+# sans réseau, mais on peut vérifier que la FIN de l'adresse est bien
+# le nom de l'arène : c'est ce qui attrape la ligne recopiée de travers.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — les onze défis non vérifiés"
+else
+  if ! python3 - <<'PY'
+import json, re, sys
+from pathlib import Path
+sys.path.insert(0, "outils")
+from annexes import slug
+
+d = json.loads(Path("data/arenes.json").read_text(encoding="utf-8"))
+arenes, ligue = d["arenes"], d["ligue"]
+fautes = []
+
+#  Les onze niveaux sont distincts — sinon il n'y a plus d'ordre.
+niveaux = [a["niveau"] for a in arenes]
+for n in sorted(set(niveaux)):
+    if niveaux.count(n) > 1:
+        qui = ", ".join(a["nom"] for a in arenes if a["niveau"] == n)
+        fautes.append(f"niveau {n} porté par deux défis : {qui}")
+
+#  Le palier ne redescend jamais quand le niveau monte.
+precedent = None
+for a in sorted(arenes, key=lambda a: a["niveau"]):
+    if a["palier"] not in (1, 2, 3):
+        fautes.append(f"{a['nom']} : palier {a['palier']} — attendu 1, 2 ou 3")
+    elif precedent is not None and a["palier"] < precedent[1]:
+        fautes.append(
+            f"{a['nom']} (niveau {a['niveau']}) est au palier {a['palier']} "
+            f"alors que {precedent[0]} est déjà au palier {precedent[1]}"
+        )
+    precedent = (f"{a['nom']} (niveau {a['niveau']})", a["palier"])
+
+#  LA LIGUE EST AU-DESSUS DES ONZE. Elle est le dernier défi : un
+#  niveau sous une arène ferait une Ligue qu'on bat avant son arène.
+if ligue["niveau"] <= max(niveaux):
+    fautes.append(
+        f"la Ligue est à {ligue['niveau']}, sous ou à égalité avec "
+        f"{max(niveaux)} — elle est le dernier défi"
+    )
+
+#  L'adresse : `/f<numéro>-<nom de l'arène>`, numéros distincts.
+vus = {}
+for a in arenes:
+    m = re.fullmatch(r"/f(\d+)-([a-z0-9-]+)", a["forum"])
+    if m is None:
+        fautes.append(f"{a['nom']} : adresse « {a['forum']} » hors de la forme /fN-nom")
+        continue
+    numero, fin = m.group(1), m.group(2)
+    attendu = slug(a["nom"])
+    if fin != attendu:
+        fautes.append(
+            f"{a['nom']} : l'adresse finit par « {fin} » là où le nom donne "
+            f"« {attendu} » — adresse recopiée sur la mauvaise ligne ?"
+        )
+    if numero in vus:
+        fautes.append(f"le forum f{numero} est écrit deux fois : {vus[numero]} et {a['nom']}")
+    vus[numero] = a["nom"]
+
+if fautes:
+    for f in fautes:
+        print(f"   {f}")
+    sys.exit(1)
+print(f"   défis : {len(arenes)} niveaux distincts, paliers d'accord avec eux, "
+      f"Ligue à {ligue['niveau']}, {len(vus)} adresses de forum bien formées")
+PY
+  then
+    gronde "les niveaux, les paliers ou les adresses des onze défis ne tiennent pas"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

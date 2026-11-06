@@ -192,6 +192,8 @@
         "Au bout d'un certain temps, tu peux demander à ne plus être champion d'une arène et à passer le rôle à quelqu'un qui souhaite tenter sa chance."
       ]
     ],
-    "contact": "N'hésite pas à nous contacter si tu as la moindre question sur un poste vacant. Il est aussi possible de demander à lier ton personnage à l'un des champions."
+    "contact": "N'hésite pas à nous contacter si tu as la moindre question sur un poste vacant. Il est aussi possible de demander à lier ton personnage à l'un des champions.",
+    "_fiches": "LES PRÉ-LIENS DE CHAMPION. Un champion déjà écrit, qu'un joueur peut prendre tel qu'il est. Chaque fiche porte : `arene` (le slug de data/arenes.json — l'arène, sa ville, son type, son niveau, son badge et l'adresse de son forum en sont tirés, jamais recopiés ici), `nom`, `age` (une tranche : « 25 – 30 ans »), `image` (un portrait carré, chargé avant d'être écrit ici), `traits` (trois mots de caractère, affichés en tags), `affinites` et `rivalites` (des paires [qui, ce qui les lie], affichées dans deux cadres face à face), `ditAffinites` / `ditRivalites` (une note sous un cadre, facultative) et `texte` (un paragraphe, facultatif).\nLA LISTE EST VIDE AUJOURD'HUI, et c'est voulu : aucun champion n'est écrit, et inventer un titulaire serait inventer un personnage. La section n'apparaît donc pas sur la page. Un poste sans pré-lien reste dans la liste des onze postes, qui dit « poste vacant » ; une fiche sans `nom` arrête la génération.",
+    "fiches": []
   }
 }

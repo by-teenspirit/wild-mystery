@@ -1148,8 +1148,21 @@ console.log("\n── les étiquettes de rareté se lisent, « très rare » com
   //  On mesure le contraste rendu, pas la règle : c'est la seule façon
   //  de savoir qui gagne dans la cascade.
   const lu = await p.evaluate(() => {
+    //  ── LIRE UNE COULEUR, ET PAS SEULEMENT UN `rgb()` ────────────
+    //
+    //  CHROMIUM REND UN `color-mix` EN `color(srgb 0.91 0.92 0.89)`, en
+    //  fractions de 1 — pas en 0-255. Le lecteur naïf divisait 0,91 par
+    //  255 et lisait du noir. Et la pastille du mot de rareté EST un
+    //  `color-mix` : `currentColor` à 14 % sur du transparent.
+    //
+    //  `outils/contraste.mjs` lit les deux formes depuis le début (voir
+    //  son en-tête) ; la leçon n'avait pas été reportée ici.
+    const canaux = (c) => {
+      const n = (c.match(/-?\d*\.?\d+/g) ?? []).map(Number);
+      return /^color\(/.test(c) ? n.slice(0, 3).map((v) => v * 255) : n.slice(0, 3);
+    };
     const lum = (c) => {
-      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map((v) => {
+      const [r, g, b] = canaux(c).map((v) => {
         const x = v / 255;
         return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
       });
@@ -1376,8 +1389,21 @@ for (const theme of ["light", "dark"]) {
   });
 
   const mesures = await q.evaluate(() => {
+    //  ── LIRE UNE COULEUR, ET PAS SEULEMENT UN `rgb()` ────────────
+    //
+    //  CHROMIUM REND UN `color-mix` EN `color(srgb 0.91 0.92 0.89)`, en
+    //  fractions de 1 — pas en 0-255. Le lecteur naïf divisait 0,91 par
+    //  255 et lisait du noir. Et la pastille du mot de rareté EST un
+    //  `color-mix` : `currentColor` à 14 % sur du transparent.
+    //
+    //  `outils/contraste.mjs` lit les deux formes depuis le début (voir
+    //  son en-tête) ; la leçon n'avait pas été reportée ici.
+    const canaux = (c) => {
+      const n = (c.match(/-?\d*\.?\d+/g) ?? []).map(Number);
+      return /^color\(/.test(c) ? n.slice(0, 3).map((v) => v * 255) : n.slice(0, 3);
+    };
     const lum = (c) => {
-      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number).map((v) => {
+      const [r, g, b] = canaux(c).map((v) => {
         const x = v / 255;
         return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
       });
@@ -1402,7 +1428,7 @@ for (const theme of ["light", "dark"]) {
     //  deux — cinq zones sur dix-neuf sont dans ce cas.
     const VOILE = { r: 26, g: 18, b: 12, a: 0.78 };
     const composer = (c) => {
-      const [r, g, b] = c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number);
+      const [r, g, b] = canaux(c);
       const m = (sous, dessus) => Math.round(dessus * VOILE.a + sous * (1 - VOILE.a));
       return `rgb(${m(r, VOILE.r)}, ${m(g, VOILE.g)}, ${m(b, VOILE.b)})`;
     };

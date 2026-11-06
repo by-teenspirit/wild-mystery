@@ -36,6 +36,7 @@
 
 import html
 import json
+import os
 import pathlib
 import sys
 
@@ -53,6 +54,19 @@ from annexes import (  # noqa: E402
 
 R = pathlib.Path(__file__).resolve().parent.parent
 PAGE = chemin_de_la_page("celebrites-de-rhode")
+
+#  DEUX COUTURES POUR LA MESURE, et deux seulement.
+#
+#  Le harnais doit pouvoir rendre une fiche REMPLIE : aujourd'hui le
+#  fichier n'en porte aucune, et une mise en page qu'on ne voit jamais
+#  remplie est une mise en page qu'on n'a pas vérifiée. Il écrit donc un
+#  fichier de données d'essai, lance CE générateur dessus, et mesure la
+#  page qui en sort.
+#
+#  C'est la vraie chaîne — même lecture, même rendu, même feuille — avec
+#  d'autres données. Un gabarit HTML écrit à la main dans le harnais
+#  mesurerait le gabarit, pas le générateur.
+DONNEES = pathlib.Path(os.environ.get("WM_PERSONNAGES", R / "data/personnages.json"))
 PAGES = "https://by-teenspirit.github.io/wild-mystery"
 ARTWORK = (
     "https://raw.githubusercontent.com/PokeAPI/sprites/"
@@ -168,8 +182,150 @@ def fiche(w, f, indent):
     w(f"{i}</li>")
 
 
+def cadre_de_liens(w, i, variante, etiquette, dit, liens):
+    """Un cadre de relations : les affinités, ou les rivalités.
+
+    DEUX CADRES CÔTE À CÔTE, et la couleur ne porte rien. Le vert et le
+    rouge disent vite lequel est lequel, mais un joueur sur douze ne
+    distingue pas les deux : l'étiquette le dit en mots, en capitales,
+    et c'est elle qui fait foi. C'est la même règle que les trois
+    teintes d'encart — « un sens porté par la seule couleur ne se lit
+    pas ».
+
+    UN CADRE VIDE NE S'AFFICHE PAS. Un « Rivalités : néant » encadré
+    occupe la place d'une information sans en être une ; et quand les
+    deux manquent, la rangée disparaît avec eux.
+    """
+    if not liens:
+        return
+    w(f'{i}<div class="wm-relation wm-relation--{e(variante)}">')
+    w(f'{i}  <span class="wm-relation__etiquette">{e(etiquette)}</span>')
+    w(f'{i}  <ul class="wm-relation__liste">')
+    for qui, quoi in liens:
+        w(f'{i}    <li class="wm-relation__ligne">'
+          f'<b class="wm-relation__qui">{e(qui)}</b> '
+          f'<span class="wm-relation__quoi">{e(quoi)}</span></li>')
+    w(f"{i}  </ul>")
+    #  LE MOT SOUS LA LISTE, pas au-dessus : c'est une note de lecture,
+    #  elle ne doit pas se lire avant ce qu'elle annote.
+    if dit:
+        w(f'{i}  <p class="wm-relation__dit">{e(dit)}</p>')
+    w(f"{i}</div>")
+
+
+def champion(w, f, par_slug, adresse_annexe, numero_annexe, titre_annexe, indent):
+    """Une fiche de pré-lien de champion.
+
+    CE QU'ELLE PORTE, dans cet ordre : l'arène à laquelle le pré-lien
+    appartient, le nom, le portrait, la tranche d'âge, les traits en
+    tags, ses affinités et ses rivalités face à face, et deux liens —
+    son arène sur le forum, et l'annexe des arènes.
+
+    L'ARÈNE EST LUE DANS `data/arenes.json`, jamais recopiée ici : le
+    nom, la ville, le type, le niveau et l'adresse du forum viennent de
+    la liste qui sert déjà au code à coller de la carte dresseur. Un
+    slug inconnu arrête la génération — une fiche accrochée à une arène
+    qui n'existe pas serait un lien mort, et un lien mort sur
+    Forumactif ne tombe pas en 404 : il mène ailleurs en silence.
+
+    PAS DE FICHE SANS NOM. Un poste vacant n'est pas un pré-lien : il
+    est déjà dans la liste des onze postes au-dessus, qui dit « poste
+    vacant » et mène à son ancre. Une fiche vide ici ferait une
+    deuxième liste des mêmes onze postes, et deux listes finissent par
+    diverger.
+    """
+    i = " " * indent
+    nom = (f.get("nom") or "").strip()
+    if not nom:
+        raise SystemExit(
+            "une fiche de champion sans `nom` — un poste vacant reste dans la "
+            "liste des onze postes (voir `_fiches` dans data/personnages.json)"
+        )
+    slug = f.get("arene")
+    if slug not in par_slug:
+        raise SystemExit(
+            f"{nom} : arène « {slug} » inconnue — attendu l'un des slugs de "
+            f"data/arenes.json ({', '.join(par_slug)})"
+        )
+    a = par_slug[slug]
+
+    w(f'{i}<li class="wm-champion" data-wm-arene="{e(slug)}">')
+
+    #  ── LA TÊTE : le portrait, puis qui c'est ──────────────────────
+    w(f'{i}  <div class="wm-champion__tete">')
+    #  LE PORTRAIT EST CARRÉ, et sa place est tenue même sans image :
+    #  une fiche sans portrait ne doit pas décaler le texte de sa
+    #  voisine. Pas de `width`/`height` sur la balise — ces images font
+    #  de 275 à 600 pixels de côté et c'est la feuille qui les cadre.
+    if f.get("image"):
+        w(f'{i}    <img class="wm-champion__portrait" src="{e(f["image"])}"'
+          ' alt="" loading="lazy" />')
+    else:
+        w(f'{i}    <span class="wm-champion__portrait wm-champion__portrait--vide"'
+          ' aria-hidden="true"></span>')
+
+    w(f'{i}    <div class="wm-champion__identite">')
+    #  L'ARÈNE AVANT LE NOM, et en petit : on arrive sur cette fiche
+    #  parce qu'on cherche un poste, pas parce qu'on cherche quelqu'un.
+    #  Le badge de l'arène tient la vignette ; son image est celle de la
+    #  grille de la carte dresseur, img/badges/<slug>.png.
+    w(f'{i}      <p class="wm-champion__arene">')
+    w(f'{i}        <img class="wm-champion__badge" src="'
+      f'{PAGES}/img/badges/{e(a["slug"])}.png" alt="" loading="lazy"'
+      ' width="22" height="22" />')
+    w(f'{i}        <span class="wm-champion__ou">{e(a["nom"])}'
+      f' · {e(a["ville"])}</span>')
+    w(f'{i}      </p>')
+    w(f'{i}      <h4 class="wm-champion__nom">{e(nom)}</h4>')
+
+    #  ── LES TAGS : l'âge d'abord, puis le caractère ────────────────
+    #
+    #  L'ÂGE EST UN TAG À PART, pas un trait. C'est une donnée de fiche
+    #  — on la compare, on l'utilise pour choisir — là où un trait est
+    #  une impression. Mélangés dans la même rangée de pastilles
+    #  identiques, « 25 – 30 ans » se lisait comme un trait de
+    #  caractère de plus.
+    w(f'{i}      <p class="wm-champion__tags">')
+    if f.get("age"):
+        w(f'{i}        <span class="wm-champion__age">{e(f["age"])}</span>')
+    w(f'{i}        <span class="wm-champion__niveau">niveau'
+      f' {e(a["niveau"])}</span>')
+    for t in f.get("traits") or []:
+        w(f'{i}        <span class="wm-champion__trait">{e(t)}</span>')
+    w(f'{i}      </p>')
+    w(f"{i}    </div>")
+    w(f"{i}  </div>")
+
+    if f.get("texte"):
+        w(f'{i}  <p class="wm-champion__texte">{e(f["texte"])}</p>')
+
+    #  ── LES DEUX CADRES, FACE À FACE ───────────────────────────────
+    affinites = [tuple(x) for x in (f.get("affinites") or [])]
+    rivalites = [tuple(x) for x in (f.get("rivalites") or [])]
+    if affinites or rivalites:
+        w(f'{i}  <div class="wm-champion__relations">')
+        cadre_de_liens(w, i + "    ", "affinite", "Affinités",
+                       f.get("ditAffinites"), affinites)
+        cadre_de_liens(w, i + "    ", "rivalite", "Rivalités",
+                       f.get("ditRivalites"), rivalites)
+        w(f"{i}  </div>")
+
+    #  ── OÙ ÇA MÈNE : son arène, puis l'annexe des arènes ───────────
+    #
+    #  L'ADRESSE DU FORUM EST RELEVÉE, PAS DEVINÉE — elle vient de
+    #  `data/arenes.json`, où elle a été recopiée des liens que le forum
+    #  écrit lui-même. Celle de l'annexe vient du sommaire, numéro
+    #  compris, par `renvoi_vers`.
+    w(f'{i}  <p class="wm-renvois">')
+    w(f"{i}    " + renvoi(a["forum"], "Forum du jeu", a["nom"]).strip())
+    w(f"{i}    " + renvoi(adresse_annexe, f"Annexe {numero_annexe}",
+                          titre_annexe).strip())
+    w(f"{i}  </p>")
+    w(f"{i}</li>")
+
+
 def corps():
-    p = lire("data/personnages.json")
+    p = lire(DONNEES)
     arenes = lire("data/arenes.json")["arenes"]
 
     out = []
@@ -266,19 +422,39 @@ def corps():
         w(f"              <li><b>{e(titre)}.</b> {e(texte)}</li>")
     w("            </ul>")
 
+    #  L'ARÈNE PAR SLUG, une fois : la liste des postes et les fiches
+    #  de pré-lien y puisent toutes les deux.
+    par_slug = {a["slug"]: a for a in arenes}
+    fiches = ch.get("fiches") or []
+    avec_fiche = {f.get("arene") for f in fiches}
+    adresse, numero, titre_annexe = renvoi_vers("arenes-colosseums-ligues")
+
     #  ── LES ONZE POSTES, TIRÉS DE `data/arenes.json` ──────────────
     #
-    #  Sept arènes et quatre colosseums, dans l'ordre du fichier, qui
-    #  est l'ordre imposé des badges. Les recopier ici serait une
-    #  seconde liste, et la planche 24 du garde-fou existe précisément
+    #  Sept arènes et quatre colosseums. Les recopier ici serait une
+    #  seconde liste, et la règle 24 du garde-fou existe précisément
     #  parce que deux listes finissent par diverger.
+    #
+    #  ── ET ELLES SONT TRIÉES PAR NIVEAU ───────────────────────────
+    #
+    #  C'est l'ordre des défis depuis le 6 novembre : l'Arène Eau à 10
+    #  passe devant l'Arène Feu à 15, là où l'ordre « imposé » de la
+    #  planche 36 la mettait troisième. Le tri est fait ICI, sur
+    #  `niveau`, et pas en rangeant le fichier : la position dans
+    #  `data/arenes.json` tient la grille de badges de la carte
+    #  dresseur, dont les onze cases sont en dur dans le code à coller.
     for genre, titre, dit in [
         ("arene", "Les sept arènes",
-         "Chaque arène a son type, sa ville et son badge. L'ordre est imposé."),
+         "Un type, une ville, un badge et un niveau chacune. "
+         "On les fait dans l'ordre des niveaux."),
         ("colosseum", "Les quatre colosseums",
-         "On y combat en 2 contre 2."),
+         "On y combat en 2 contre 2. Ils s'intercalent entre les arènes, "
+         "au niveau qui est le leur."),
     ]:
-        dedans = [a for a in arenes if a.get("genre") == genre]
+        dedans = sorted(
+            (a for a in arenes if a.get("genre") == genre),
+            key=lambda a: a["niveau"],
+        )
         w(f'            <h3 class="wm-perso__section">{e(titre)}</h3>')
         w(f'            <p class="wm-perso__dit">{e(dit)}</p>')
         w('            <ul class="wm-postes">')
@@ -300,15 +476,37 @@ def corps():
             w('                  <span class="wm-poste__mots">')
             w(f'                    <b class="wm-poste__nom">{e(a["nom"])}</b>')
             w('                    <span class="wm-poste__ville">'
-              f'{e(a["ville"])} · type {e(a["type"])}</span>')
+              f'{e(a["ville"])} · type {e(a["type"])} · niveau '
+              f'{e(a["niveau"])} · palier {e(a["palier"])}</span>')
             w("                  </span>")
-            #  « POSTE VACANT » TANT QUE PERSONNE N'EST ÉCRIT. Le
+            #  « POSTE VACANT » TANT QUE PERSONNE N'EST ÉCRIT, et
+            #  « pré-lien écrit » dès qu'une fiche porte ce slug. Le
             #  fichier ne porte aucun nom de champion aujourd'hui ;
             #  inventer un titulaire serait inventer un personnage.
-            w('                  <span class="wm-poste__etat">poste vacant</span>')
+            etat = "pré-lien écrit" if a["slug"] in avec_fiche else "poste vacant"
+            w(f'                  <span class="wm-poste__etat">{e(etat)}</span>')
             w('                  <span class="wm-poste__fleche" aria-hidden="true">→</span>')
             w("                </a>")
             w("              </li>")
+        w("            </ul>")
+
+    #  ── LES PRÉ-LIENS DE CHAMPION ─────────────────────────────────
+    #
+    #  UNE FICHE PAR PRÉ-LIEN ÉCRIT, et rien quand il n'y en a aucun.
+    #  La liste des onze postes au-dessus dit déjà quels postes
+    #  existent et lesquels sont libres ; une fiche vide par poste
+    #  vacant en ferait une seconde liste des mêmes onze lignes.
+    #
+    #  Aujourd'hui `champions.fiches` est vide : la section n'apparaît
+    #  pas, et la page ne promet rien qu'elle n'a pas.
+    if fiches:
+        w('            <h3 class="wm-perso__section">Les pré-liens de champion</h3>')
+        w('            <p class="wm-perso__dit">Des champions déjà écrits, '
+          'avec leur caractère et leurs liens. Prendre le pré-lien, c\'est '
+          'prendre le personnage tel qu\'il est.</p>')
+        w('            <ul class="wm-champions">')
+        for f in fiches:
+            champion(w, f, par_slug, adresse, numero, titre_annexe, 14)
         w("            </ul>")
 
     #  DE L'AIR AVANT L'ENCART : collé aux colosseums, il avait l'air
@@ -337,10 +535,11 @@ def corps():
     #  en deux lignes. Il a eu raison deux fois : une adresse écrite
     #  hors du sommaire est une adresse de trop, même dans un
     #  commentaire.)
-    adresse, numero, titre = renvoi_vers("arenes-colosseums-ligues")
+    #  (Les trois valeurs sont prises plus haut, une fois : les fiches
+    #  de pré-lien renvoient vers la même annexe.)
     w('            <p class="wm-renvois">')
     w(renvoi(ch["lien"], "Sujet du forum", "Les champions"))
-    w(renvoi(adresse, f"Annexe {numero}", titre))
+    w(renvoi(adresse, f"Annexe {numero}", titre_annexe))
     w("            </p>")
     w("          </section>")
     w("")
@@ -365,6 +564,15 @@ def corps():
 
 def main():
     verifier = "--verifier" in sys.argv
+    #  `--sortie CHEMIN` écrit la page AILLEURS. Le gabarit lu reste
+    #  celui du dépôt — mêmes bornes, même pied, même décor — seule la
+    #  destination change. C'est ce qui permet au harnais de rendre une
+    #  page de données d'essai sans écrire dans `pages/`.
+    sortie = PAGE
+    if "--sortie" in sys.argv:
+        sortie = pathlib.Path(sys.argv[sys.argv.index("--sortie") + 1])
+        if verifier:
+            raise SystemExit("--sortie et --verifier ne vont pas ensemble")
     if not PAGE.exists():
         raise SystemExit(f"{PAGE} n'existe pas — lance d'abord « deno task annexes »")
 
@@ -383,8 +591,9 @@ def main():
         print(f"annexe-11 : à jour ({len(ancien)} caractères).")
         return
 
-    PAGE.write_text(neuf, encoding="utf-8")
-    print(f"annexe-11 écrite : {len(neuf)} caractères (limite Forumactif : 128 000).")
+    sortie.write_text(neuf, encoding="utf-8")
+    print(f"{sortie.name} écrite : {len(neuf)} caractères "
+          "(limite Forumactif : 128 000).")
 
 
 if __name__ == "__main__":

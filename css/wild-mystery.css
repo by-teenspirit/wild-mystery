@@ -25608,3 +25608,297 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   display: none;
 }
 
+/* ── 9 · les fiches de pré-lien de champion ────────────────────────
+
+   « Afficher le nom et l'arène à laquelle le pré-lien appartient. Une
+   petite image ronde ou carrée. Ses traits de caractère sous forme de
+   tag. Sa tranche d'âge. Un cadre pour ses affinités et un bloc en
+   face avec ses rivalités. Un lien vers son arène et l'annexe. »
+   (6 novembre.)
+
+   UNE FICHE PAR RANGÉE, pas deux comme les célébrités. Les deux cadres
+   de relations se lisent face à face : à deux fiches par rangée, ils
+   tombaient l'un sous l'autre dès 1000 px et la paire ne se voyait
+   plus. Et une fiche de pré-lien se lit, elle ne se survole pas — on
+   vient y chercher s'il est pour nous. */
+#modernbb .wm-champions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-16, 16px);
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-champion {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  gap: var(--wm-espace-14, 14px);
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/* ── le portrait, et qui c'est ─────────────────────────────────────── */
+
+#modernbb .wm-champion__tete {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wm-espace-16, 16px);
+}
+
+/*  CARRÉ À COINS DOUX, pas rond : ces portraits sont des gifs de
+    tournage, cadrés large, et un masque rond leur mange le menton.
+    88 px parce que c'est la hauteur des trois lignes qui sont à côté —
+    l'arène, le nom, les tags — et qu'un portrait plus haut que son
+    texte laisse un trou sous le nom.
+
+    `flex: 0 0 88px` ET `width` : le premier tient la place dans la
+    rangée, le second vaut pour la silhouette, qui n'est pas une image
+    et n'a donc pas de taille propre. */
+#modernbb .wm-champion__portrait {
+  display: block;
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  object-fit: cover;
+}
+
+/*  LA MÊME SILHOUETTE QUE LES CÉLÉBRITÉS : une tête et des épaules en
+    deux cercles. Une fiche sans portrait ne doit pas être plus courte
+    que sa voisine. */
+#modernbb .wm-champion__portrait--vide {
+  background-image: radial-gradient(
+      circle at 50% 34%,
+      var(--wm-bord-net, #d9c3b1) 17%,
+      transparent 18%
+    ),
+    radial-gradient(
+      ellipse at 50% 106%,
+      var(--wm-bord-net, #d9c3b1) 36%,
+      transparent 37%
+    );
+}
+
+#modernbb .wm-champion__identite {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+}
+
+/*  L'ARÈNE AVANT LE NOM. On arrive sur cette fiche parce qu'on cherche
+    un poste, pas parce qu'on cherche quelqu'un : le surtitre dit
+    laquelle, et le badge à gagner tient la vignette. */
+#modernbb .wm-champion__arene {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  margin: 0;
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-champion__badge {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/*  LA COULEUR EST ÉCRITE, PAS HÉRITÉE — la leçon du 4 novembre, prise
+    sur ces mêmes fiches : un titre sans `color` tombait à 1,35 contre
+    1 sur le fond sombre. */
+#modernbb .wm-champion__nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+/* ── les tags : l'âge, le niveau, puis le caractère ───────────────────
+
+   TROIS DESSINS, PARCE QUE CE SONT TROIS CHOSES. L'âge et le niveau
+   sont des données de fiche — on les compare, on choisit avec — là où
+   un trait est une impression. Tous en pastilles identiques, « 25 – 30
+   ans » se lisait comme un trait de caractère de plus. */
+#modernbb .wm-champion__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  margin: 0;
+}
+
+#modernbb .wm-champion__age,
+#modernbb .wm-champion__niveau,
+#modernbb .wm-champion__trait {
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-champion__age {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  LE NIVEAU EST LA SEULE DONNÉE DE JEU DE LA FICHE : c'est lui qu'on
+    vient vérifier avant de défier. Il prend l'accent, et des chiffres
+    à largeur fixe pour que onze fiches alignent leurs nombres.
+
+    LA TEINTE EST POSÉE SUR DU CRÈME, PAS SUR DU TRANSPARENT — sinon sa
+    couleur réelle dépend de ce qu'il y a derrière, et elle se casse le
+    jour où le fond bouge. C'est la leçon de l'encart paisible, reprise
+    telle quelle. Le repli ne peut pas être translucide pour la même
+    raison : il porte la composition déjà faite. */
+#modernbb .wm-champion__niveau {
+  background: #e4eef3;
+  background: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 14%,
+    var(--wm-fond-surface, #fffbf7));
+  color: var(--wm-accent-fort, #1f5470);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-champion__trait {
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-champion__texte {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/* ── les deux cadres, face à face ─────────────────────────────────────
+
+   LA COULEUR NE PORTE RIEN. Le vert et le rouge disent vite lequel est
+   lequel, mais un joueur sur douze ne distingue pas les deux : c'est
+   l'étiquette en capitales qui dit « AFFINITÉS » ou « RIVALITÉS », et
+   c'est elle qui fait foi. Même règle que les trois teintes d'encart —
+   un sens porté par la seule couleur ne se lit pas.
+
+   `flex: 1 1 260px` : les deux font la même largeur et se lisent comme
+   une paire. Seul, un cadre prend toute la largeur.
+
+   ── ET ÇA S'APPELLE `wm-relation`, PAS `wm-liens` ──────────────────
+
+   `wm-liens` était le premier nom, et il est DÉJÀ PRIS : c'est
+   l'onglet « Mes liens » du carnet, dix-huit classes dans
+   `css/21-carnet.css`. Aucun de ses noms d'élément ne heurtait les
+   miens par chance — mais c'est exactement comme ça que
+   `wm-faune__tete` a pris le fond vert de la bande de rareté : deux
+   composants différents sous un même nom de bloc, et la collision
+   n'arrive que le jour où l'un des deux gagne un élément. */
+#modernbb .wm-champion__relations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-relation {
+  display: flex;
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 1 1 260px;
+  flex-direction: column;
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
+  border-left: 3px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-relation--affinite {
+  border-left-color: var(--wm-danger-paisible, #4f7a52);
+  background: #e3e6dd;
+  background: color-mix(in srgb, var(--wm-danger-paisible, #4f7a52) 12%,
+    var(--wm-fond-surface, #fffbf7));
+}
+
+#modernbb .wm-relation--rivalite {
+  border-left-color: var(--wm-danger-interdite, #a64430);
+  background: #f3e0da;
+  background: color-mix(in srgb, var(--wm-danger-interdite, #a64430) 12%,
+    var(--wm-fond-surface, #fffbf7));
+}
+
+/*  L'ÉTIQUETTE EST À L'ENCRE, pas à la teinte du cadre. En vert sur du
+    vert pâle, dix pixels de capitales gras passaient sous la barre de
+    contraste du petit texte ; et la couleur ne lui servait à rien,
+    puisque le filet à gauche la porte déjà. */
+#modernbb .wm-relation__etiquette {
+  display: block;
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-relation__liste {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*  LE QUI ET LE QUOI SUR LA MÊME LIGNE, et le quoi passe à la ligne
+    tout seul quand il est long : un nom seul sur sa ligne avec sa
+    raison en dessous donnait l'air de deux liens au lieu d'un. */
+#modernbb .wm-relation__ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--wm-espace-6, 6px);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .wm-relation__qui {
+  color: var(--wm-encre, #2e2018);
+}
+
+#modernbb .wm-relation__quoi {
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-relation__dit {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LES RENVOIS SONT DÉJÀ ESPACÉS PAR LA FICHE. Leur marge de 24 px
+    s'ajoutait au `gap` de 14 et détachait les deux boutons du reste. */
+#modernbb .wm-champion .wm-renvois {
+  margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  /*  LE PORTRAIT RÉTRÉCIT, il ne disparaît pas : c'est la seule image
+      de la fiche, et c'est ce qu'on regarde en premier. */
+  #modernbb .wm-champion__portrait {
+    width: 64px;
+    height: 64px;
+    flex-basis: 64px;
+  }
+
+  /*  LES DEUX CADRES L'UN SOUS L'AUTRE. Côte à côte dans 320 px, ils
+      tenaient trois mots par ligne. */
+  #modernbb .wm-relation {
+    flex-basis: 100%;
+  }
+}
+

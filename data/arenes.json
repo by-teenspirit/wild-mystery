@@ -2,20 +2,31 @@
   "_": "Les sept arènes et les quatre colosseums de Rhode. UN SEUL endroit : l'onglet « Mon jeu » du carnet, la carte dresseur et le code à coller en tirent leurs cases, et le compteur de la Ligue compte les arènes de cette liste.",
   "_nom": "`nom` est la valeur écrite dans `badge.arene` en base — relevée dans src/contrat/services.supabase.test.ts (« Arène Feu », « Arène Roche », « Arène Vol ») et confirmée par les noms de forums (f19-arene-feu). Les deux doivent coïncider mot pour mot, sinon un badge obtenu ne retrouve pas sa case.",
   "_slug": "`slug` est la valeur de `data-wm-badge` dans le code collé, et le nom de l'image : img/badges/<slug>.png.",
-  "_ordre": "L'ORDRE DES ARÈNES EST IMPOSÉ — « on ne peut pas les faire dans le désordre » (planche 36). C'est celui-ci : Feu, Plante, Eau, Acier, Roche, Vol, Ténèbres. Ne pas le changer.",
+  "_ordre": "L'ORDRE DES ONZE DÉFIS EST CELUI DES NIVEAUX, et c'est `niveau` qui le dit — pas la position dans ce tableau. Tranché par Callista le 6 novembre : Eau 10, Feu 15, Targare 18, Plante 20, Roche 25, Acier 30, Phenacit 35, Rhode 40, Vol 50, Ténèbres 60, Titanite 70. Ça REMPLACE l'ordre « imposé » de la planche 36 (Feu, Plante, Eau, Acier, Roche, Vol, Ténèbres), qui n'avait pas de niveaux et mettait l'Eau en troisième.",
+  "_tableau": "LE TABLEAU, LUI, RESTE GROUPÉ : les sept arènes puis les quatre colosseums. Ce n'est pas l'ordre du jeu, c'est l'ordre de la GRILLE DE BADGES de la carte dresseur, qui est groupée dans la maquette et dont les onze cases sont en dur dans templates/carte-dresseur.a-coller.html — la règle 24 du garde-fou compare les deux listes case par case. Trier ce tableau par niveau obligerait à refondre la grille en une seule liste et à recoller la carte dresseur de tout le monde. Qui veut l'ordre du jeu trie sur `niveau` ; personne ne lit la position dans ce fichier.",
+  "_niveau": "`niveau` est le niveau de l'équipe du champion, donné par Callista le 6 novembre. `palier` est le palier auquel le défi s'ouvre, déduit des trois groupes qu'elle a séparés : 10 à 20 au palier 1, 25 à 40 au palier 2, 50 à 70 au palier 3. LA LIGUE EST À PART, à 80 — voir la clé `ligue`.",
+  "_forum": "`forum` est l'adresse du forum du défi, RELEVÉE SUR L'INDEX DU FORUM le 6 novembre, en lisant les liens que le forum écrit lui-même. Forumactif ne route que sur le numéro — le reste de l'adresse est décoratif — donc une adresse dont le numéro a glissé ne tombe pas en 404, elle mène ailleurs en silence. On ne la réécrit pas de mémoire : on la relève.",
   "_colosseums": "Ils ne sont pas des arènes : on y combat en 2 contre 2 (planche 36). La planche 36 dit qu'il faut les sept badges d'arène « ainsi que les Colosseums » pour la Ligue, pendant que la maquette de Mon jeu écrit « les colosseums, eux, ne comptent pas ». Le code compte les ARÈNES et montre les colosseums à part : c'est ce que fait `paliers_a_revoir()`, dont le seuil est 7.",
-  "_source": "Relevé le 2 novembre des planches 36 (les règles de progression) et 44 (l'arborescence réelle), et de templates/carte-dresseur.a-coller.html.",
+  "_source": "Relevé le 2 novembre des planches 36 (les règles de progression) et 44 (l'arborescence réelle), et de templates/carte-dresseur.a-coller.html. Niveaux, ordre et Ligue : Callista, le 6 novembre. Adresses de forum : l'index du forum, le 6 novembre.",
+  "_eau": "« Phenacit lvl 10 (eau) » dans la liste du 6 novembre était un lapsus, confirmé par Callista : L'ARÈNE EAU RESTE À PORT-AMARÉE (f23, sous f13). Phenacit est la seule ville sans arène et ne porte que son colosseum Spectre, à 35. Port-Amarée porte donc deux défis — l'Arène Eau à 10 et le Colosseum de Rhode à 40 — comme Suerebe (Acier 30, Targare 18) et la Tour Titanite (Vol 50, Titanite 70).",
   "arenes": [
-    { "nom": "Arène Feu", "slug": "feu", "type": "feu", "ville": "Station Service", "genre": "arene" },
-    { "nom": "Arène Plante", "slug": "plante", "type": "plante", "ville": "Samaragd", "genre": "arene" },
-    { "nom": "Arène Eau", "slug": "eau", "type": "eau", "ville": "Port-Amarée", "genre": "arene" },
-    { "nom": "Arène Acier", "slug": "acier", "type": "acier", "ville": "Suerebe", "genre": "arene" },
-    { "nom": "Arène Roche", "slug": "roche", "type": "roche", "ville": "Pyrite", "genre": "arene" },
-    { "nom": "Arène Vol", "slug": "vol", "type": "vol", "ville": "Tour Titanite", "genre": "arene" },
-    { "nom": "Arène Ténèbres", "slug": "tenebres", "type": "tenebres", "ville": "Île Ténèbra", "genre": "arene" },
-    { "nom": "Colosseum de Rhode", "slug": "fee", "type": "fee", "ville": "Port-Amarée", "genre": "colosseum" },
-    { "nom": "Colosseum de Phenacit", "slug": "spectre", "type": "spectre", "ville": "Phenacit", "genre": "colosseum" },
-    { "nom": "Colosseum de Targare", "slug": "electrik", "type": "electrik", "ville": "Suerebe", "genre": "colosseum" },
-    { "nom": "Colosseum de Titanite", "slug": "dragon", "type": "dragon", "ville": "Tour Titanite", "genre": "colosseum" }
-  ]
+    { "nom": "Arène Feu", "slug": "feu", "type": "feu", "ville": "Station Service", "genre": "arene", "niveau": 15, "palier": 1, "forum": "/f19-arene-feu" },
+    { "nom": "Arène Plante", "slug": "plante", "type": "plante", "ville": "Samaragd", "genre": "arene", "niveau": 20, "palier": 1, "forum": "/f26-arene-plante" },
+    { "nom": "Arène Eau", "slug": "eau", "type": "eau", "ville": "Port-Amarée", "genre": "arene", "niveau": 10, "palier": 1, "forum": "/f23-arene-eau" },
+    { "nom": "Arène Acier", "slug": "acier", "type": "acier", "ville": "Suerebe", "genre": "arene", "niveau": 30, "palier": 2, "forum": "/f27-arene-acier" },
+    { "nom": "Arène Roche", "slug": "roche", "type": "roche", "ville": "Pyrite", "genre": "arene", "niveau": 25, "palier": 2, "forum": "/f29-arene-roche" },
+    { "nom": "Arène Vol", "slug": "vol", "type": "vol", "ville": "Tour Titanite", "genre": "arene", "niveau": 50, "palier": 3, "forum": "/f21-arene-vol" },
+    { "nom": "Arène Ténèbres", "slug": "tenebres", "type": "tenebres", "ville": "Île Ténèbra", "genre": "arene", "niveau": 60, "palier": 3, "forum": "/f20-arene-tenebres" },
+    { "nom": "Colosseum de Rhode", "slug": "fee", "type": "fee", "ville": "Port-Amarée", "genre": "colosseum", "niveau": 40, "palier": 2, "forum": "/f24-colosseum-de-rhode" },
+    { "nom": "Colosseum de Phenacit", "slug": "spectre", "type": "spectre", "ville": "Phenacit", "genre": "colosseum", "niveau": 35, "palier": 2, "forum": "/f30-colosseum-de-phenacit" },
+    { "nom": "Colosseum de Targare", "slug": "electrik", "type": "electrik", "ville": "Suerebe", "genre": "colosseum", "niveau": 18, "palier": 1, "forum": "/f28-colosseum-de-targare" },
+    { "nom": "Colosseum de Titanite", "slug": "dragon", "type": "dragon", "ville": "Tour Titanite", "genre": "colosseum", "niveau": 70, "palier": 3, "forum": "/f22-colosseum-de-titanite" }
+  ],
+  "ligue": {
+    "nom": "La Ligue",
+    "ville": "Mont Bataille",
+    "niveau": 80,
+    "tenuePar": "Michael",
+    "_": "Le douzième défi, et le dernier. Il n'est PAS dans `arenes` : il n'a ni badge, ni type, ni case dans la grille de la carte dresseur, et le compteur de la Ligue compte les arènes — il ne se compterait pas lui-même. Michael le tient : c'est la fiche `Michael` de data/personnages.json, aujourd'hui président de la région."
+  }
 }
