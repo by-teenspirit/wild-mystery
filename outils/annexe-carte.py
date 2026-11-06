@@ -36,7 +36,7 @@ import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
-from icones import icone  # noqa: E402
+from dessins import icone  # noqa: E402
 from annexes import (  # noqa: E402
     DEBUT,
     FIN,

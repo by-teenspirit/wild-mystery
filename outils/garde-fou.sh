@@ -1182,7 +1182,7 @@ echo "── 29. les clés d'onglet et les icônes ─────────�
 # On ne compare pas les deux CODES, on les fait tourner sur les vrais
 # noms d'évènements : c'est la seule comparaison qui vaille.
 #
-# ET LES ICÔNES. Chaque évènement nomme un dessin de `outils/icones.py`.
+# ET LES ICÔNES. Chaque évènement nomme un dessin de `outils/dessins.py`.
 # Un nom inconnu rend une chaîne vide — la page s'écrit quand même, et
 # l'onglet sort sans icône. C'est ici que ça doit se voir.
 if ! command -v python3 >/dev/null 2>&1 || ! command -v deno >/dev/null 2>&1; then
@@ -1225,7 +1225,7 @@ PY
     if ! python3 -I - <<'TS'
 import json, pathlib, sys
 sys.path.insert(0, "outils")
-from icones import noms
+from dessins import noms
 region = json.loads(pathlib.Path("data/region.json").read_text(encoding="utf-8"))
 page = pathlib.Path("pages/annexe-05-la-region-et-ses-zones.html").read_text(encoding="utf-8")
 connus = set(noms())
@@ -1233,7 +1233,7 @@ fautes = []
 for b in region["evenements"]["blocs"]:
     i = b.get("icone", "")
     if i not in connus:
-        fautes.append(f"{b['nom']} : icône « {i} » inconnue de outils/icones.py")
+        fautes.append(f"{b['nom']} : icône « {i} » inconnue de outils/dessins.py")
 #  ET DANS LA PAGE : un `<svg class="wm-onglet__icone">` par évènement.
 combien = page.count('class="wm-onglet__icone"')
 if combien != len(region["evenements"]["blocs"]):
@@ -1336,6 +1336,84 @@ print(f"   défis : {len(arenes)} niveaux distincts, paliers d'accord avec eux, 
 PY
   then
     gronde "les niveaux, les paliers ou les adresses des onze défis ne tiennent pas"
+  fi
+fi
+
+echo "── 31. les outils s'importent encore les uns les autres ───────"
+# CETTE RÈGLE EXISTE PARCE QUE J'AI DÉTRUIT UN FICHIER.
+#
+# Le 5 novembre, le commit 8bca5e5 a écrasé `outils/icones.py` — 332
+# lignes qui fabriquaient les pastilles de type et les onze badges,
+# et qui portaient `LES_SEPT_ARENES` et `LES_QUATRE_COLOSSEUMS` — par
+# quatre dessins SVG d'évènement, sous le même nom.
+#
+# PERSONNE N'A CRIÉ PENDANT DEUX JOURS. `outils/equipe-de-test.py`
+# importait deux noms disparus, mais aucune tâche ne le lance, le
+# garde-fou ne l'ouvrait pas, et `deno check` ne regarde pas le
+# Python. Il a fallu vouloir s'en servir pour le découvrir.
+#
+# Alors on vérifie ce qui est vérifiable sans rien exécuter : chaque
+# `from <voisin> import <noms>` d'un outil doit nommer des choses que
+# le voisin définit vraiment. On lit les arbres, on ne lance rien —
+# un outil qui télécharge ou qui écrit ne doit pas tourner ici.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — imports des outils non vérifiés"
+else
+  if ! python3 - <<'PY'
+import ast, pathlib, sys
+
+outils = pathlib.Path("outils")
+fichiers = sorted(p for p in outils.glob("*.py") if p.name != "__init__.py")
+
+#  Ce que chaque module définit au premier niveau.
+offre = {}
+for p in fichiers:
+    try:
+        arbre = ast.parse(p.read_text(encoding="utf-8"), filename=str(p))
+    except SyntaxError as e:
+        print(f"   {p} ne se lit pas : ligne {e.lineno}, {e.msg}")
+        sys.exit(1)
+    noms = set()
+    for n in arbre.body:
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            noms.add(n.name)
+        elif isinstance(n, ast.Assign):
+            for c in n.targets:
+                if isinstance(c, ast.Name):
+                    noms.add(c.id)
+        elif isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name):
+            noms.add(n.target.id)
+        elif isinstance(n, (ast.Import, ast.ImportFrom)):
+            for a in n.names:
+                noms.add(a.asname or a.name.split(".")[0])
+    offre[p.stem] = noms
+
+fautes, liens = [], 0
+for p in fichiers:
+    arbre = ast.parse(p.read_text(encoding="utf-8"), filename=str(p))
+    for n in ast.walk(arbre):
+        if not isinstance(n, ast.ImportFrom) or n.level or n.module is None:
+            continue
+        #  On ne juge que les voisins : le reste, c'est la bibliothèque.
+        if n.module not in offre:
+            continue
+        liens += 1
+        for a in n.names:
+            if a.name != "*" and a.name not in offre[n.module]:
+                fautes.append(
+                    f"{p.name} importe « {a.name} » de {n.module}.py, "
+                    f"qui ne le définit pas"
+                )
+
+if fautes:
+    for f in fautes:
+        print(f"   {f}")
+    sys.exit(1)
+print(f"   outils : {len(fichiers)} fichiers, {liens} imports entre voisins, "
+      "tous les noms existent")
+PY
+  then
+    gronde "un outil importe un nom qu'un autre ne définit plus"
   fi
 fi
 
