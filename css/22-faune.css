@@ -1331,3 +1331,20 @@
     min-width: 0;
   }
 }
+
+/*  LES CARTES D'UNE BRÈCHE REPRENNENT LA GRILLE D'UNE ZONE — c'est le
+    même `wm-faune__especes`, posé par le même constructeur. Rien à
+    styler ici : si la carte d'une zone change, celle d'une brèche
+    change avec elle, et c'est tout l'intérêt.
+
+    Ce qui est ici, c'est seulement le REPLI : la liste de noms que le
+    module remplace dès qu'il a posé ses cartes. Elle reste visible
+    sans JavaScript, et c'est la même classe de masquage que la liste
+    des zones. */
+#modernbb .wm-breche__cartes:empty {
+  display: none;
+}
+
+#modernbb .wm-breche__liste.wm-faune-repli--remplace {
+  display: none;
+}

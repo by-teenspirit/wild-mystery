@@ -448,7 +448,29 @@ def corps():
         w(f'                  <span class="wm-breche__region">{e(nom_region)}</span>')
         w(f'                  <span class="wm-breche__compte">{len(dedans)} formes</span>')
         w("                </h3>")
-        w('                <ul class="wm-breche__liste">')
+        #  ── LE TROU QUE LE MODULE REMPLIT ─────────────────────────
+        #
+        #  « Affiche les pokémons comme dans les zones sauvages »
+        #  (6 novembre). Les cartes sont donc construites par
+        #  `module-faune.ts`, le MÊME constructeur que la liste d'une
+        #  zone — et pas recopiées ici.
+        #
+        #  Elles ne peuvent pas l'être : l'adresse d'un sprite dépend
+        #  du style choisi par le joueur (forum, rétro, GBA) et d'un
+        #  fichier de couverture. C'est une décision du navigateur,
+        #  pas de la génération.
+        #
+        #  LA MARQUE DE RÉGION EST LE SUFFIXE DU NOM, en français :
+        #  le module filtre là-dessus, comme ici.
+        w(f'                <div class="wm-breche__cartes" data-wm-breche-liste'
+          f' data-wm-breche="{e(marque)}"></div>')
+        #  ── ET LE REPLI, SANS JAVASCRIPT ──────────────────────────
+        #
+        #  Même règle que la liste d'une zone : si le module tombe, la
+        #  page doit dire quelque chose. Une liste de noms vaut mieux
+        #  qu'un trou, et le module la cache dès qu'il a posé ses
+        #  cartes.
+        w('                <ul class="wm-breche__liste" data-wm-breche-repli>')
         for x in dedans:
             w('                  <li class="wm-breche__forme">')
             w('                    <span class="wm-breche__no">N°'

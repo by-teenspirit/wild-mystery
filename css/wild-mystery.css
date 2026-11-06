@@ -11286,6 +11286,21 @@ body:has(#modernbb .wm-carnet) {
     sous les deux couches. Il n'y a donc rien à retirer de plus —
     vérifié à la mesure, pas à l'œil. */
 
+/*  LE TITRE D'UNE CARTE, EN GRAND — le cran du dessus dans l'échelle,
+    `titre-page`, 25 px au lieu de 19.
+
+    POSÉ PAR UN MODIFICATEUR, pas en changeant `.wm-annexe__carte-titre`
+    qui coiffe les cartes des quatorze annexes : une chronologie ouvre
+    une page, un « Un tableau » ne l'ouvre pas. Dis-moi si tu veux que
+    TOUTES grossissent — c'est une ligne, mais c'est une autre
+    décision.
+
+    Mon premier essai mettait `titre-section` et ne changeait RIEN : le
+    titre de carte était déjà à cette taille. Je l'avais cru à 16. */
+#modernbb .wm-annexe__carte-titre--grand {
+  font-size: var(--wm-taille-titre-page, 25px);
+}
+
 /* ── wm-chrono · une suite de moments ──────────────────────────────
 
    « À gauche, la date ; entre les deux, un point et un trait qui relie
@@ -11319,8 +11334,8 @@ body:has(#modernbb .wm-carnet) {
       « NOVEMBRE 2011 » — la plus longue — se coupait en deux. Une date
       sur deux lignes décale son texte sans décaler son point, et la
       rangée part de travers. Le harnais refuse qu'une date se coupe. */
-  --chrono-date: 132px;
-  --chrono-ecart: 32px;
+  --chrono-date: 150px;
+  --chrono-ecart: 48px;
   --chrono-point: 14px;
   /*  LA HAUTEUR DU POINT, ÉCRITE UNE FOIS. Elle centre le point sur la
       PREMIÈRE LIGNE du texte : 13,5 px à 1,5 d'interligne font 20,25
@@ -11459,7 +11474,7 @@ body:has(#modernbb .wm-carnet) {
 #modernbb .wm-chrono__quand {
   flex: 0 0 var(--chrono-date);
   color: var(--wm-encre, #2e2018);
-  font-size: var(--wm-taille-normal, 13.5px);
+  font-size: var(--wm-taille-titre-carte, 16px);
   font-variant-numeric: tabular-nums;
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -11492,8 +11507,8 @@ body:has(#modernbb .wm-carnet) {
       est tout l'intérêt du dessin. 76 px tiennent « Novembre 2011 »
       sur deux lignes, ce qui va : c'est la date la plus longue. */
   #modernbb .wm-chrono {
-    --chrono-date: 84px;
-    --chrono-ecart: 22px;
+    --chrono-date: 96px;
+    --chrono-ecart: 26px;
     --chrono-saut: var(--wm-espace-32, 32px);
   }
 
@@ -25422,6 +25437,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   #modernbb .wm-breche__no {
     min-width: 0;
   }
+}
+
+/*  LES CARTES D'UNE BRÈCHE REPRENNENT LA GRILLE D'UNE ZONE — c'est le
+    même `wm-faune__especes`, posé par le même constructeur. Rien à
+    styler ici : si la carte d'une zone change, celle d'une brèche
+    change avec elle, et c'est tout l'intérêt.
+
+    Ce qui est ici, c'est seulement le REPLI : la liste de noms que le
+    module remplace dès qu'il a posé ses cartes. Elle reste visible
+    sans JavaScript, et c'est la même classe de masquage que la liste
+    des zones. */
+#modernbb .wm-breche__cartes:empty {
+  display: none;
+}
+
+#modernbb .wm-breche__liste.wm-faune-repli--remplace {
+  display: none;
 }
 
 /* ════════════════════════════════════════════════════════════════════

@@ -215,7 +215,13 @@ function poserLaMarque(doc: Document, li: HTMLElement, marque: Marque | null): v
  *  chance — et la marque du carnet si on la connaît. */
 function carteDEspece(
   doc: Document,
-  e: EspeceDeZone,
+  //  CE QUE LA CARTE LIT VRAIMENT, et rien de plus. Elle prenait un
+  //  `EspeceDeZone` entier alors qu'elle n'en touche que cinq champs —
+  //  et surtout pas `rarete`, qu'elle reçoit à part. Une brèche n'a ni
+  //  rareté ni chance : avec l'ancien type, il fallait lui en inventer
+  //  une pour passer le contrôle de types, donc écrire « commun » sur
+  //  une forme qu'on ne rencontre nulle part.
+  e: { espece: number; nom: string; pct: number; min: number; max: number },
   sprites: Sprites | null,
   depot: string,
   style: StyleDeSprite,
@@ -223,6 +229,18 @@ function carteDEspece(
   rarete: string,
   no: number | undefined,
   marque: Marque | null,
+  //  ── SANS CHANCE NI NIVEAUX ───────────────────────────────────
+  //
+  //  Les brèches interdimensionnelles montrent les mêmes cartes que
+  //  les zones — « affiche les pokémons comme dans les zones
+  //  sauvages » (6 novembre) — mais une forme d'Alola n'a ni rareté,
+  //  ni pourcentage, ni fourchette de niveaux : on ne la rencontre
+  //  dans AUCUNE zone. Afficher « commun · 2 % · niv. 1 à 6 » serait
+  //  inventer trois chiffres.
+  //
+  //  Le constructeur reste le même. Deux gabarits de carte dans deux
+  //  fonctions finiraient par ne plus se ressembler.
+  sansChance = false,
 ): HTMLElement {
   const li = el(doc, "li", "wm-faune__espece");
   li.dataset.wmEspece = String(e.espece);
@@ -241,10 +259,12 @@ function carteDEspece(
   //  types ; les deux choses qu'on compare d'une carte à l'autre
   //  étaient donc les dernières lues, et à des hauteurs différentes
   //  selon qu'une espèce a un type ou deux.
-  const tete = el(doc, "span", "wm-faune__tete");
-  tete.appendChild(el(doc, "span", "wm-faune__rarete", rarete));
-  tete.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
-  li.appendChild(tete);
+  if (!sansChance) {
+    const tete = el(doc, "span", "wm-faune__tete");
+    tete.appendChild(el(doc, "span", "wm-faune__rarete", rarete));
+    tete.appendChild(el(doc, "b", "wm-faune__pct", pourCent(e.pct)));
+    li.appendChild(tete);
+  }
 
   // ── le sprite, dans une boîte de hauteur fixe ──────────────────
   //
@@ -312,7 +332,9 @@ function carteDEspece(
     li.appendChild(liste);
   }
 
-  li.appendChild(el(doc, "span", "wm-faune__niveaux", `niv. ${e.min} à ${e.max}`));
+  if (!sansChance) {
+    li.appendChild(el(doc, "span", "wm-faune__niveaux", `niv. ${e.min} à ${e.max}`));
+  }
 
   //  PAS DE « ENVIRON 1 SUR 50 » SUR CHAQUE CARTE : répétée soixante
   //  fois, elle noyait le reste. Le pourcentage, lui, est en tête — il
@@ -384,6 +406,67 @@ function carteDObjet(
  * L'ORDRE EST CELUI DU DEX NATIONAL, chaque forme régionale derrière
  * l'espèce qu'elle décline. Voir `src/navigateur/dex.ts`.
  */
+/** Les formes régionales d'une brèche, en cartes d'espèce.
+ *
+ *  « Affiche les pokémons comme dans les zones sauvages » (6
+ *  novembre). Alors ce sont LES MÊMES CARTES, par le même
+ *  constructeur : si la carte d'une zone change, celle d'une brèche
+ *  change avec elle. Une copie du gabarit aurait divergé au premier
+ *  ajustement — c'est déjà arrivé ailleurs dans ce dépôt.
+ *
+ *  SANS RARETÉ, SANS POURCENTAGE, SANS NIVEAUX : une forme d'Alola ne
+ *  se rencontre dans aucune zone, et les trois chiffres n'existent
+ *  pas. La carte sait se passer d'eux depuis aujourd'hui.
+ *
+ *  LE REPLI SANS JAVASCRIPT RESTE SOUS LA LISTE tant qu'on n'a rien
+ *  posé : la page doit dire quelque chose même quand le module tombe,
+ *  et une liste de noms vaut mieux qu'un trou. */
+export function poserLesBreches(
+  doc: Document,
+  formes: readonly { id: number; nom: string }[],
+  sprites: Sprites | null,
+  depot: string,
+  style: StyleDeSprite,
+  fiches: Fiches,
+  bases: BasesDeForme,
+  numeros: ReadonlyMap<number, number>,
+  dex: ReadonlyMap<number, EtatDEspece> | null,
+): number {
+  let posees = 0;
+  for (const hote of Array.from(doc.querySelectorAll<HTMLElement>("[data-wm-breche-liste]"))) {
+    const marque = hote.dataset.wmBreche ?? "";
+    const dedans = formes.filter((f) => f.nom.endsWith(marque));
+    if (marque === "" || dedans.length === 0) continue;
+
+    const liste = el(doc, "ul", "wm-faune__especes");
+    liste.dataset.wmListe = "especes";
+    for (const f of rangerDansLeDex(dedans, (x) => x.id, bases)) {
+      liste.appendChild(
+        carteDEspece(
+          doc,
+          //  La carte attend une espèce de zone ; une forme de brèche
+          //  n'en a ni la chance ni les niveaux, et `sansChance` fait
+          //  que ces trois champs ne sont jamais lus.
+          { espece: f.id, nom: f.nom, pct: 0, min: 0, max: 0 },
+          sprites,
+          depot,
+          style,
+          typesDe(fiches, f.id),
+          "",
+          numeros.get(f.id),
+          marqueDuDex(dex?.get(f.id)),
+          true,
+        ),
+      );
+    }
+    hote.replaceChildren(liste);
+    const repli = hote.parentElement?.querySelector("[data-wm-breche-repli]");
+    if (repli instanceof HTMLElement) repli.classList.add(CLASSE_REPLI_CACHE);
+    posees += dedans.length;
+  }
+  return posees;
+}
+
 function listeDeLaZone(
   doc: Document,
   table: readonly EspeceDeZone[],
@@ -718,6 +801,10 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
   const carte = await lire("carte.json");
   if (carte === null) return false;
 
+  //  Gardées pour re-marquer les cartes quand le carnet du joueur
+  //  arrive : les brèches sont posées avant lui.
+  let brechesDeLaPage: readonly { id: number; nom: string }[] = [];
+
   //  LES LIEUX, RANGÉS PAR IDENTIFIANT. La carte de visite y prend
   //  l'image, la description et le palier de la zone cliquée : le
   //  fichier de faune ne porte aucun des trois, et les y recopier
@@ -770,6 +857,32 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
   const fiches = (await lire("especes-fiches.json") as { fiches?: Fiches } | null)
     ?.fiches ?? {};
 
+  //  ── LES BRÈCHES, S'IL Y EN A SUR LA PAGE ────────────────────────
+  //
+  //  Un seul fichier de plus, et seulement quand la page porte des
+  //  conteneurs de brèche : l'index n'en a pas, il ne paie rien.
+  //
+  //  Le carnet du joueur n'est pas encore là à ce moment — il arrive
+  //  plus bas, en différé. Les marques des brèches se posent donc à ce
+  //  moment-là aussi, comme celles d'une zone affichée.
+  if (doc.querySelector("[data-wm-breche-liste]") !== null) {
+    const brut = await lire("hors-nature.json") as
+      | { especes?: { id: number; nom: string; origine: string }[] }
+      | null;
+    brechesDeLaPage = (brut?.especes ?? []).filter((x) => x.origine === "breche");
+    poserLesBreches(
+      doc,
+      brechesDeLaPage,
+      sprites,
+      r.depot,
+      style,
+      fiches,
+      bases,
+      numeros,
+      null,
+    );
+  }
+
   const connues = new Map<number, FichierDeFaune>();
 
   //  ── LE CARNET DU JOUEUR ARRIVE QUAND IL ARRIVE ──────────────────
@@ -805,10 +918,30 @@ export async function poserLAnnexeDeLaCarte(r: ReglagesDeLaFaune): Promise<boole
   //  `void` ET PAS `await` : c'est tout l'objet de cette lecture. Un
   //  `await` ici ferait attendre la CARTE — deux allers-retours réseau
   //  avant le premier pixel — pour une pastille.
+  /** Repose les marques sur les cartes des brèches. Même raison que
+   *  `remarquerLaZone` : elles sont posées avant que le carnet du
+   *  joueur arrive, et c'est voulu — la liste ne doit pas attendre. */
+  const remarquerLesBreches = (): void => {
+    if (dex === null || brechesDeLaPage.length === 0) return;
+    for (
+      const li of Array.from(
+        doc.querySelectorAll<HTMLElement>("[data-wm-breche-liste] .wm-faune__espece"),
+      )
+    ) {
+      const id = Number(li.dataset.wmEspece ?? "");
+      if (!Number.isFinite(id)) continue;
+      poserLaMarque(doc, li, marqueDuDex(dex.get(id)));
+    }
+  };
+
+  //  `void` ET PAS `await` : c'est tout l'objet de cette lecture. Un
+  //  `await` ici ferait attendre la CARTE — deux allers-retours réseau
+  //  avant le premier pixel — pour une pastille.
   void r.dexDuJoueur?.()
     .then((lu) => {
       dex = lu;
       remarquerLaZone();
+      remarquerLesBreches();
     })
     .catch(() => {});
 
