@@ -11557,85 +11557,95 @@ body:has(#modernbb .wm-carnet) {
     faits d'un défi sont un `<dl>` en flexbox : la relation
     terme/valeur est dans le balisage, la mise en page dans la feuille. */
 
-#modernbb .wm-defi__titre {
-  margin: 0;
-  color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
-  font-size: var(--wm-taille-titre-section, 19px);
-  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
-  font-weight: var(--wm-graisse-demi, 600);
-  line-height: var(--wm-interligne-section, 1.2);
-}
+/*  ── LA TÊTE : LE BADGE, LE NOM, PUIS LA VILLE ───────────────────
 
-#modernbb .wm-defi__lieu {
-  margin: var(--wm-espace-4, 4px) 0 0;
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-etiquette, 10px);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  line-height: var(--wm-interligne-etiquette, 1.3);
-  text-transform: uppercase;
-}
+    TROIS NIVEAUX DE LECTURE, et c'est ce qui manquait. Avant : un nom,
+    une ville, puis une liste de définitions à deux colonnes où tout
+    pesait pareil. « Pas joli, manque de hiérarchie » (6 novembre).
 
-/*  ── LA TÊTE : LE BADGE À GAUCHE, LES TROIS FAITS À DROITE ────────
-
-    `align-items: flex-start` et pas `center` : le badge fait 72 px de
-    haut, la pile des faits en fait le double selon le nombre de types
-    conseillés. Centré, le badge flotterait au milieu d'une colonne de
-    texte sans rien à quoi s'aligner. */
+    Maintenant le badge et le nom forment une ligne qu'on ne peut pas
+    rater, la ville passe dessous en étiquette, et les trois faits
+    deviennent trois cartes. L'œil entre par le badge, descend au nom,
+    et trouve les chiffres rangés. */
 #modernbb .wm-defi__tete {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  margin-top: var(--wm-espace-20, 20px);
-  gap: var(--wm-espace-24, 24px);
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+  padding-bottom: var(--wm-espace-16, 16px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
-#modernbb .wm-defi__badge {
+#modernbb .wm-defi__titre {
   display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
   align-items: center;
   margin: 0;
-  gap: var(--wm-espace-6, 6px);
+  gap: var(--wm-espace-16, 16px);
 }
 
-/*  LA BOÎTE EST BORNÉE, L'IMAGE NON — même règle que les sprites
-    d'une zone. Les onze badges sont dessinés à des tailles qui ne se
-    ressemblent pas ; leur imposer 72 × 72 agrandirait les petits. */
-#modernbb .wm-defi__badge img {
+/*  LE BADGE EST DANS LE TITRE — c'est ce qui le met aussi sur le
+    bouton d'onglet, que le module remplit en recopiant l'image de la
+    tête de section. La boîte est bornée, l'image non : les onze badges
+    ne sont pas dessinés à la même taille, et leur imposer un carré
+    agrandirait les petits. */
+#modernbb .wm-defi__badge {
   width: auto;
-  max-width: 72px;
+  max-width: 64px;
   height: auto;
-  max-height: 72px;
+  max-height: 64px;
+  flex: 0 0 auto;
 }
 
-#modernbb .wm-defi__badge figcaption {
+#modernbb .wm-defi__nom {
+  min-width: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-page, 25px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  LA VILLE S'ALIGNE SOUS LE NOM, pas sous le badge : elle complète le
+    nom, elle ne commente pas l'image. Le décalage vaut le badge plus
+    son écart — une seule valeur, écrite une fois. */
+#modernbb .wm-defi__lieu {
+  margin: 0;
+  padding-left: calc(64px + var(--wm-espace-16, 16px));
   color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-etiquette, 10px);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   line-height: var(--wm-interligne-etiquette, 1.3);
-  text-align: center;
   text-transform: uppercase;
 }
 
+/*  ── LES TROIS FAITS, EN CARTES ──────────────────────────────────
+
+    Étiquette au-dessus, valeur en dessous. C'est l'inverse de la liste
+    à deux colonnes d'avant : la valeur est ce qu'on lit, l'étiquette
+    n'est là que pour la nommer. Elles tiennent sur une ligne à partir
+    de 660 px et s'empilent en dessous, sans media query — trois
+    `flex: 1 1 200px` suffisent. */
 #modernbb .wm-defi__faits {
   display: flex;
-  min-width: 0;
-  flex: 1 1 260px;
-  flex-direction: column;
-  margin: 0;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-16, 16px) 0 0;
   gap: var(--wm-espace-12, 12px);
 }
 
 #modernbb .wm-defi__fait {
   display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 1 1 200px;
+  flex-direction: column;
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
   gap: var(--wm-espace-8, 8px);
 }
 
-#modernbb .wm-defi__fait dt {
-  flex: 0 0 140px;
+#modernbb .wm-defi__mot {
   color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-etiquette, 10px);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -11643,10 +11653,9 @@ body:has(#modernbb .wm-carnet) {
   text-transform: uppercase;
 }
 
-#modernbb .wm-defi__fait dd {
+#modernbb .wm-defi__valeur {
   display: flex;
   min-width: 0;
-  flex: 1 1 auto;
   flex-wrap: wrap;
   align-items: center;
   margin: 0;
@@ -11654,6 +11663,18 @@ body:has(#modernbb .wm-carnet) {
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LE NIVEAU EST UN CHIFFRE, DONC IL EN A LA TAILLE. C'est la seule
+    valeur des trois qu'on compare d'un défi à l'autre ; en 13,5 px au
+    milieu de deux pastilles, elle se perdait. */
+#modernbb .wm-defi__chiffre {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-chiffre, 20px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-chiffre, 1.15);
 }
 
 /*  LE FACTEUR EST ÉCRIT À CÔTÉ DU TYPE, pas à sa place : « Glace »
@@ -11676,11 +11697,6 @@ body:has(#modernbb .wm-carnet) {
   text-transform: uppercase;
 }
 
-/*  ── LES RENVOIS ──────────────────────────────────────────────────
-
-    Trois choses sur une ligne qui passe à la ligne : défier, le
-    pré-lien, l'état du poste. Le dernier n'est pas un bouton — c'est
-    une phrase avec un lien dedans. */
 #modernbb .wm-defi__liens {
   display: flex;
   flex-wrap: wrap;
@@ -11695,30 +11711,6 @@ body:has(#modernbb .wm-carnet) {
     pour « Défier » et « Le pré-lien du champion ». */
 #modernbb .wm-defi__liens > .wm-renvoi {
   flex: 0 0 auto;
-}
-
-/*  L'ÉTAT DU POSTE EST UNE PHRASE, PAS UN TROISIÈME BOUTON. Le lien
-    qu'elle contient reste un lien : souligné, à la taille du texte
-    autour, et sans le cadre d'un renvoi. Avec le cadre, « poste
-    vacant » pesait autant que « Défier », qui est l'action de la
-    page. */
-#modernbb .wm-defi__etat {
-  flex: 0 0 auto;
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-etiquette, 1.3);
-}
-
-#modernbb .wm-defi__etat .wm-renvoi {
-  display: inline;
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  box-shadow: none;
-  color: var(--wm-accent-primaire, #275e7a);
-  font-size: inherit;
-  text-decoration: underline;
 }
 
 #modernbb .wm-defi__sous-titre {
@@ -11975,6 +11967,25 @@ body:has(#modernbb .wm-carnet) {
   gap: var(--wm-espace-8, 8px);
 }
 
+/*  LE LIEN D'UN DÉFI PREND LA COULEUR DU TEXTE, PAS CELLE DE
+    L'ACCENT. `--wm-accent-primaire` est un bleu dessiné pour le fond
+    crème ; sur le fond sombre d'une carte il tombe à 1,81 de
+    contraste — mesuré sur onze liens que l'œil ne pouvait pas
+    attraper en thème clair. Le soulignement dit que c'est un lien, et
+    il le dit dans les deux thèmes. */
+#modernbb .wm-palier__lien {
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-decoration: underline;
+}
+
+#modernbb .wm-palier__lien:hover,
+#modernbb .wm-palier__lien:focus-visible {
+  color: var(--wm-encre, #2e2018);
+}
+
 #modernbb .wm-palier__niveau {
   flex: 0 0 auto;
   color: var(--wm-texte-pale, #69564c);
@@ -11994,20 +12005,21 @@ body:has(#modernbb .wm-carnet) {
 }
 
 @media (max-width: 760px) {
-  /*  LA TÊTE PASSE EN COLONNE : le badge au-dessus des faits plutôt
-      qu'à côté. À 360 px, le `flex: 1 1 260px` des faits les pousse à
-      la ligne de toute façon — autant que le badge s'aligne à gauche
-      avec eux au lieu de rester centré tout seul. */
+  /*  LE BADGE RÉTRÉCIT AVEC LE NOM. À 390 px, 64 px de badge plus
+      25 px de titre ne tiennent plus sur une ligne : « Colosseum de
+      Phenacit » passerait sur trois. Le décalage de la ville suit la
+      même valeur, sinon elle ne s'aligne plus sous le nom. */
   #modernbb .wm-defi__badge {
-    align-items: flex-start;
+    max-width: 44px;
+    max-height: 44px;
   }
 
-  #modernbb .wm-defi__badge figcaption {
-    text-align: left;
+  #modernbb .wm-defi__nom {
+    font-size: var(--wm-taille-titre-section, 19px);
   }
 
-  #modernbb .wm-defi__fait dt {
-    flex: 1 1 100%;
+  #modernbb .wm-defi__lieu {
+    padding-left: calc(44px + var(--wm-espace-16, 16px));
   }
 
   /*  TROIS CASES PAR RANGÉE, et pas six à 50 px de large. Le sprite y
@@ -12020,6 +12032,20 @@ body:has(#modernbb .wm-carnet) {
   #modernbb .wm-equipe__pkmn {
     flex: 1 1 calc((100% - var(--wm-espace-12, 12px) * 2) / 3 - 1px);
   }
+}
+
+/*  ── LE BADGE SUR LE BOUTON D'ONGLET ───────────────────────────────
+
+    « Dans chaque onglet, tu affiches le badge » (6 novembre). Le module
+    recopie l'image de la tête de section sur le bouton ; ici on ne fait
+    que lui donner sa taille. Vingt pixels : assez pour reconnaître le
+    badge, pas assez pour que le bouton change de hauteur. */
+#modernbb .wm-onglet > img {
+  width: auto;
+  max-width: 20px;
+  height: auto;
+  max-height: 20px;
+  flex: 0 0 auto;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

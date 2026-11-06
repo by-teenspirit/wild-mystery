@@ -296,8 +296,31 @@ export function poserLesSousOnglets(doc: Document): number {
       //
       //  `textContent` du titre ne ramasse PAS le SVG, donc le nom de
       //  l'onglet reste le nom, sans espace parasite.
-      const icone = tete?.querySelector(":scope > svg") ?? null;
-      if (icone !== null) bouton.appendChild(icone.cloneNode(true));
+      //  ── ET UNE IMAGE COMPTE AUTANT QU'UN DESSIN ──────────────────
+      //
+      //  « Dans chaque onglet, tu affiches le badge » (6 novembre). Un
+      //  badge d'arène est un png du dépôt, pas un SVG écrit à la
+      //  main : la recherche ne prenait que `svg` et le badge restait
+      //  dans la section sans monter sur le bouton.
+      //
+      //  La règle ne change pas pour autant — l'image vit dans le
+      //  TITRE, dans la page, et le bouton n'en reçoit qu'une copie.
+      //  Sans script on voit le badge à côté du titre ; avec, on le
+      //  voit aussi sur l'onglet. Un dessin écrit dans ce module
+      //  disparaîtrait pour qui n'a pas de JavaScript.
+      //
+      //  `textContent` ne ramasse ni l'un ni l'autre, donc le nom de
+      //  l'onglet reste le nom.
+      const icone = tete?.querySelector(":scope > svg, :scope > img") ?? null;
+      if (icone !== null) {
+        const copie = icone.cloneNode(true) as HTMLElement;
+        //  LA COPIE N'EST PAS RELUE À VOIX HAUTE. Le nom de l'onglet
+        //  est juste à côté, en toutes lettres ; une image décorative
+        //  qui porterait le même mot le ferait dire deux fois.
+        copie.setAttribute("alt", "");
+        copie.setAttribute("aria-hidden", "true");
+        bouton.appendChild(copie);
+      }
       bouton.appendChild(element(doc, "span", "wm-onglet__mot", titre));
       bouton.setAttribute("role", "tab");
       bouton.id = `wm-onglet-${clef}`;

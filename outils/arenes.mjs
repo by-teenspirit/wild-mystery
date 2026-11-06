@@ -138,6 +138,24 @@ const nav = await chromium.launch(
       JSON.stringify([...sept].sort((x, y) => x.niveau - y.niveau).map((a) => a.nom)),
     imbriques[0],
   );
+  //  ── LE BADGE EST MONTÉ SUR LE BOUTON ───────────────────────────
+  //
+  //  « Dans chaque onglet, tu affiches le badge » (6 novembre). Le
+  //  module recopie l'image de la tête de section ; il ne cherchait
+  //  que des SVG jusqu'à aujourd'hui, et un badge est un png. Si la
+  //  recherche se referme sur les SVG, les onze boutons perdent leur
+  //  badge sans que rien d'autre ne bouge.
+  const badgesSurLesOnglets = await p.evaluate(() =>
+    Array.from(document.querySelectorAll(".wm-defis > .wm-sous-onglets__barre"))
+      .flatMap((b) => Array.from(b.querySelectorAll(":scope > .wm-onglet")))
+      .map((b) => b.querySelector(":scope > img") !== null)
+  );
+  ok(
+    "les onze boutons de défi portent leur badge",
+    badgesSurLesOnglets.length === 11 && badgesSurLesOnglets.every(Boolean),
+    badgesSurLesOnglets,
+  );
+
   ok(
     "les colosseums sont dans l'ordre des niveaux",
     JSON.stringify(imbriques[1]) ===
@@ -208,8 +226,12 @@ const nav = await chromium.launch(
         //  LA HAUTEUR DES CASES, toutes égales : une case sans sprite
         //  plus courte que ses voisines décale la rangée.
         hauteurs: [...new Set(cases.map((c) => Math.round(c.getBoundingClientRect().height)))],
+        //  LE BADGE EST L'IMAGE DU TITRE depuis le 6 novembre — c'est
+        //  ce qui le met aussi sur le bouton d'onglet. Chercher
+        //  « .wm-defi__badge img » revenait à chercher une image dans
+        //  une image.
         badge: (() => {
-          const i = section.querySelector(".wm-defi__badge img");
+          const i = section.querySelector("h3 > img.wm-defi__badge");
           return i !== null && i.naturalWidth > 0;
         })(),
         typeArene: section.querySelector(".wm-defi__fait dd .wm-type")?.dataset.wmType ?? null,

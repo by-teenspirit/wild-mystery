@@ -127,6 +127,26 @@ def adresse_du_sprite(couverture, espece_id):
     return chemin if chemin.startswith("http") else f'{couverture["base"]}/{chemin}'
 
 
+def renvoi(quoi, mot, adresse):
+    """Un renvoi, avec sa surtitre et son nom.
+
+    LE COMPOSANT S'EMPLOIE ENTIER. `a.wm-renvoi` ne déclare aucune
+    couleur de texte — ce sont `__quoi` et `__mot` qui la portent. Du
+    texte nu dedans prend la couleur du lien ordinaire sur le fond
+    d'une carte : 1,81 de contraste en thème sombre, invisible en thème
+    clair. Même balisage que `outils/annexe-personnages.py`, et c'est
+    la raison : deux façons d'écrire le même composant divergent.
+
+    LA FLÈCHE EST DÉCORATIVE : c'est le nom qui porte le lien.
+    """
+    return (
+        f'<a class="wm-renvoi" href="{e(adresse)}">'
+        f'<span class="wm-renvoi__quoi">{e(quoi)}</span>'
+        f'<span class="wm-renvoi__mot">{e(mot)}</span>'
+        '<span class="wm-renvoi__fleche" aria-hidden="true">→</span></a>'
+    )
+
+
 def pastille(cle, classe="wm-type"):
     """Une pastille de type. La CLÉ est sans accent — ce sont les classes
     de `css/13-composants.css` — et le NOM affiché la retrouve.
@@ -204,31 +224,52 @@ def defi(w, a, equipe, textes, couverture, fiche_du_poste, renvoi_personnages):
     """Un sous-onglet : un défi, son badge, ses types, ses liens, son équipe."""
     i = "              "
     w(f'{i}<section class="wm-defi" data-wm-sous-onglet="{e(slug(a["nom"]))}">')
-    #  LE TITRE EST CE QUE LE MODULE LIT pour nommer le bouton d'onglet
-    #  — `h2, h3`, premier trouvé dans la section. C'est donc un `h3`, et
-    #  il ne contient que le nom : la ville va dans la ligne d'après.
-    w(f'{i}  <h3 class="wm-defi__titre">{e(a["nom"])}</h3>')
-    w(f'{i}  <p class="wm-defi__lieu">{e(a["ville"])}</p>')
+    # ── LA TÊTE : LE BADGE ET LE NOM, PUIS LA VILLE ─────────────────
+    #
+    #  LE BADGE EST DANS LE TITRE, et c'est ce qui le met sur l'onglet.
+    #  « Dans chaque onglet, tu affiches le badge » (6 novembre) :
+    #  `poserLesSousOnglets` recopie sur le bouton l'icône qui est dans
+    #  la tête de section — un SVG jusqu'ici, une image depuis
+    #  aujourd'hui. Écrit là, il se voit sans JavaScript ; écrit dans le
+    #  module, il disparaîtrait pour qui n'en a pas.
+    #
+    #  `img/badges/<slug>.png` : les mêmes images que la grille de la
+    #  carte dresseur et que la liste des postes de l'annexe 10. Une
+    #  seconde série finirait par ne plus ressembler à la première.
+    #
+    #  ET LE TITRE NE DIT QUE LE NOM. `textContent` ne ramasse pas
+    #  l'image, donc l'onglet s'appelle « Arène Eau » ; la ville et le
+    #  mot « badge » sont dans la ligne d'après, sinon ils entreraient
+    #  dans le nom du bouton.
+    w(f'{i}  <div class="wm-defi__tete">')
+    w(f'{i}    <h3 class="wm-defi__titre">')
+    w(f'{i}      <img class="wm-defi__badge" src="{PAGES}/img/badges/'
+      f'{e(a["slug"])}.png" alt="" loading="lazy" />')
+    w(f'{i}      <span class="wm-defi__nom">{e(a["nom"])}</span>')
+    w(f'{i}    </h3>')
+    w(f'{i}    <p class="wm-defi__lieu">{e(a["ville"])}'
+      f' · badge {e(en_titre(sans_accent(a["type"])))} à gagner</p>')
+    w(f'{i}  </div>')
     w("")
 
-    w(f'{i}  <div class="wm-defi__tete">')
-    #  ── LE BADGE À GAGNER ────────────────────────────────────────
+    # ── LES TROIS FAITS, EN CARTES ──────────────────────────────────
     #
-    #  `img/badges/<slug>.png`, les mêmes images que la grille de la
-    #  carte dresseur et que la liste des postes de l'annexe 10. Une
-    #  seconde série de badges finirait par ne plus ressembler à la
-    #  première.
-    w(f'{i}    <figure class="wm-defi__badge">')
-    w(f'{i}      <img src="{PAGES}/img/badges/{e(a["slug"])}.png" alt=""'
-      ' loading="lazy" />')
-    w(f'{i}      <figcaption>Badge à gagner</figcaption>')
-    w(f'{i}    </figure>')
-
-    w(f'{i}    <dl class="wm-defi__faits">')
-    w(f'{i}      <div class="wm-defi__fait">')
-    w(f'{i}        <dt>Type de l\'arène</dt>')
-    w(f'{i}        <dd>{pastille(a["type"])}</dd>')
-    w(f'{i}      </div>')
+    #  C'ÉTAIT UNE LISTE DE DÉFINITIONS À DEUX COLONNES, et ça ne
+    #  marchait pas : « pas joli, manque de hiérarchie » (6 novembre).
+    #  Une étiquette de 140 px en face d'une valeur, trois fois, fait un
+    #  formulaire — tout y pèse pareil, et l'œil ne sait pas par où
+    #  entrer.
+    #
+    #  Trois cartes, étiquette au-dessus et valeur en dessous : la
+    #  valeur est ce qu'on lit, l'étiquette ce qui l'explique. Le `<dl>`
+    #  reste — la relation terme/valeur est dans le balisage, pas
+    #  seulement dans la mise en page.
+    conseil = equipe["conseil"]
+    w(f'{i}  <dl class="wm-defi__faits">')
+    w(f'{i}    <div class="wm-defi__fait">')
+    w(f'{i}      <dt class="wm-defi__mot">Type de l\'arène</dt>')
+    w(f'{i}      <dd class="wm-defi__valeur">{pastille(a["type"])}</dd>')
+    w(f'{i}    </div>')
     #  ── LE TYPE CONSEILLÉ VIENT DE L'ÉQUIPE, PAS DU TYPE DU DÉFI ──
     #
     #  Calculé par `outils/equipes-de-champions.py` sur les six membres
@@ -236,43 +277,44 @@ def defi(w, a, equipe, textes, couverture, fiche_du_poste, renvoi_personnages):
     #  Dragon/Vol : « Électrik, super efficace contre Vol » se tromperait
     #  sur un tiers de l'équipe. Le chiffre est affiché avec, parce qu'un
     #  conseil sans son ampleur ne se compare pas d'un défi à l'autre.
-    conseil = equipe["conseil"]
-    w(f'{i}      <div class="wm-defi__fait">')
-    w(f'{i}        <dt>Type conseillé</dt>')
-    w(f'{i}        <dd>'
+    w(f'{i}    <div class="wm-defi__fait">')
+    w(f'{i}      <dt class="wm-defi__mot">Type conseillé</dt>')
+    w(f'{i}      <dd class="wm-defi__valeur">'
       + " ".join(pastille(t) for t in conseil["types"])
-      + f' <span class="wm-defi__facteur">×{conseil["facteur"]:g} '
-      'en moyenne sur l\'équipe</span></dd>')
-    w(f'{i}      </div>')
-    w(f'{i}      <div class="wm-defi__fait">')
-    w(f'{i}        <dt>Niveau de l\'équipe</dt>')
-    w(f'{i}        <dd>{a["niveau"]} <span class="wm-defi__palier">'
-      f'{e(PALIERS[a["palier"]])}</span></dd>')
-    w(f'{i}      </div>')
-    w(f'{i}    </dl>')
-    w(f'{i}  </div>')
+      + f'<span class="wm-defi__facteur">×{conseil["facteur"]:g} '
+      'en moyenne</span></dd>')
+    w(f'{i}    </div>')
+    w(f'{i}    <div class="wm-defi__fait">')
+    w(f'{i}      <dt class="wm-defi__mot">Niveau de l\'équipe</dt>')
+    w(f'{i}      <dd class="wm-defi__valeur">'
+      f'<b class="wm-defi__chiffre">{a["niveau"]}</b>'
+      f'<span class="wm-defi__palier">{e(PALIERS[a["palier"]])}</span>'
+      "</dd>")
+    w(f'{i}    </div>')
+    w(f'{i}  </dl>')
     w("")
 
     # ── les deux renvois ────────────────────────────────────────────
+    #
+    #  LE COMPOSANT S'EMPLOIE ENTIER, et il a fallu une mesure pour s'en
+    #  souvenir. `a.wm-renvoi` ne déclare AUCUNE couleur de texte : ce
+    #  sont ses deux enfants, `__quoi` et `__mot`, qui la portent. Avec
+    #  du texte nu dedans, la couleur venait du lien ordinaire, posée
+    #  sur le fond d'une carte — 1,81 de contraste en thème sombre,
+    #  trente-trois fois sur la page. Mesuré par `outils/contraste.mjs`,
+    #  invisible en thème clair.
     w(f'{i}  <p class="wm-defi__liens">')
-    w(f'{i}    <a class="wm-renvoi" href="{FORUM}{e(a["forum"])}">'
-      f'Défier · {e(a["nom"])}</a>')
+    w(f'{i}    {renvoi("Défier le champion", a["nom"], FORUM + a["forum"])}')
     #  L'ANCRE EST LE NUMÉRO DU MESSAGE, relevé dans le sujet. Elle
     #  ouvre le pré-lien du bon champion plutôt que le haut d'un sujet
     #  de douze messages.
-    w(f'{i}    <a class="wm-renvoi wm-renvoi--sec" '
-      f'href="{PRELIENS}#{equipe["message"]}">Le pré-lien du champion</a>')
+    ancre = f'{PRELIENS}#{equipe["message"]}'
+    w(f'{i}    {renvoi("Le pré-lien", "Le champion proposé", ancre)}')
+    adresse, numero, titre = renvoi_personnages
     if fiche_du_poste is None:
-        adresse, numero, titre = renvoi_personnages
-        w(f'{i}    <span class="wm-defi__etat">Poste vacant — '
-          f'<a class="wm-renvoi wm-renvoi--sec" href="{FORUM}{e(adresse)}">'
-          f'annexe {e(numero)} · {e(titre)}</a></span>')
+        w(f'{i}    {renvoi("Poste vacant", f"Annexe {numero} · {titre}", FORUM + adresse)}')
     else:
-        adresse, numero, titre = renvoi_personnages
-        w(f'{i}    <span class="wm-defi__etat">Tenue par '
-          f'<a class="wm-renvoi wm-renvoi--sec" '
-          f'href="{FORUM}{e(adresse)}#les-champions">'
-          f'{e(fiche_du_poste["nom"])}</a></span>')
+        w(f'{i}    {renvoi("Tenue par", fiche_du_poste["nom"], FORUM + adresse + "#les-champions")}')
     w(f'{i}  </p>')
     w("")
 
@@ -403,8 +445,13 @@ def corps():
         if dedans:
             w('                <ul class="wm-palier__defis">')
             for a in dedans:
+                #  UN LIEN SIMPLE, PAS UN `wm-renvoi`. Le composant
+                #  est une carte de 44 px de haut : onze d'affilée
+                #  feraient trois colonnes de boutons là où on veut
+                #  une liste. Et employé avec du texte nu, il perd sa
+                #  couleur — mesuré à 1,81 en thème sombre.
                 w('                  <li class="wm-palier__defi">'
-                  f'<a class="wm-renvoi wm-renvoi--sec" href="{FORUM}'
+                  f'<a class="wm-palier__lien" href="{FORUM}'
                   f'{e(a["forum"])}">{e(a["nom"])}</a>'
                   f'<span class="wm-palier__niveau">niv. {a["niveau"]}</span>'
                   "</li>")
@@ -457,8 +504,8 @@ def corps():
         ("Tenue par", ligue["tenuePar"]),
     ):
         w('              <div class="wm-defi__fait">')
-        w(f'                <dt>{e(mot)}</dt>')
-        w(f'                <dd>{e(valeur)}</dd>')
+        w(f'                <dt class="wm-defi__mot">{e(mot)}</dt>')
+        w(f'                <dd class="wm-defi__valeur">{e(valeur)}</dd>')
         w('              </div>')
     w('            </dl>')
     w("")

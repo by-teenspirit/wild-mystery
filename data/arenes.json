@@ -14,70 +14,212 @@
   "_textes": "LES QUATRE ONGLETS DE L'ANNEXE 06. « Un onglet de présentation de l'annexe, un onglet arènes, un onglet colosseums et un onglet ligue » (6 novembre). Le texte est un RAPPEL : l'annexe 04, le guide du dresseur, arrive avant et porte les règles elles-mêmes. Tout ce qui est écrit ici vient des planches 36 (paliers, arènes, colosseums, missions) et 37 (combats, 1 contre 1, 2 contre 2) — rien n'y est inventé. Ce qui se CALCULE n'est pas écrit ici : la liste des défis d'un palier, les niveaux, les types conseillés et les équipes sont dérivés.",
   "textes": {
     "chapo": [
-      "Onze défis, puis la Ligue. Sept arènes, quatre colosseums, et le Mont Bataille au bout.",
-      "Les règles de combat sont dans le guide du dresseur, juste avant : ce qui suit n'en est qu'un rappel."
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
     ],
     "presentation": {
-      "titre": "Comment on défie",
+      "titre": "Présentation",
       "paragraphes": [
-        "Pour défier un champion, on passe par le sujet obligatoire qui se trouve dans le sous-forum de l'arène ou du colosseum. C'est le PNJ Michael qui ouvre ensuite le sujet du combat. Le champion répond ; s'il n'y a pas encore de champion, un PNJ le remplace le temps du combat.",
-        "Un champion utilise toujours le dé d'attaque de ton palier, pas du sien : au palier 2, c'est « Attaque Palier 2 », quel que soit son propre palier.",
-        "On gagne un badge en postant un RP dans l'arène qu'on défie. L'ordre des onze défis est celui des niveaux — du plus faible au plus fort, et on ne saute pas une marche.",
-        "Les sept badges d'arène et les quatre colosseums ouvrent la Ligue. Le champion dont tu prends le poste part d'office avec son propre badge acquis."
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
       ],
       "acces": {
         "titre": "Ce qui s'ouvre à quel palier",
         "conditions": {
-          "1": "Il suffit d'être validé sur le forum.",
-          "2": "Les conditions dépendent de ton groupe : badges, Battle Points, missions, pokédex ou naissances selon le cas. Elles sont écrites dans l'annexe des groupes.",
-          "3": "Tous les badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe."
+          "1": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "2": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+          "3": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore."
         },
-        "note": "La liste des défis de chaque palier est tirée de la planche 36, et le niveau de chacun de la liste du 6 novembre. Les deux ne vont pas dans le même sens : un défi de palier 1 peut demander une équipe de niveau 40."
+        "note": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+        "_redige": {
+          "conditions": {
+            "1": "Il suffit d'être validé sur le forum.",
+            "2": "Les conditions dépendent de ton groupe : badges, Battle Points, missions, pokédex ou naissances selon le cas. Elles sont écrites dans l'annexe des groupes.",
+            "3": "Tous les badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe."
+          },
+          "note": "La liste des défis de chaque palier est tirée de la planche 36, et le niveau de chacun de la liste du 6 novembre. Les deux ne vont pas dans le même sens : un défi de palier 1 peut demander une équipe de niveau 40."
+        }
+      },
+      "_redige": {
+        "titre": "Comment on défie",
+        "paragraphes": [
+          "Pour défier un champion, on passe par le sujet obligatoire qui se trouve dans le sous-forum de l'arène ou du colosseum. C'est le PNJ Michael qui ouvre ensuite le sujet du combat. Le champion répond ; s'il n'y a pas encore de champion, un PNJ le remplace le temps du combat.",
+          "Un champion utilise toujours le dé d'attaque de ton palier, pas du sien : au palier 2, c'est « Attaque Palier 2 », quel que soit son propre palier.",
+          "On gagne un badge en postant un RP dans l'arène qu'on défie. L'ordre des onze défis est celui des niveaux — du plus faible au plus fort, et on ne saute pas une marche.",
+          "Les sept badges d'arène et les quatre colosseums ouvrent la Ligue. Le champion dont tu prends le poste part d'office avec son propre badge acquis."
+        ]
       }
     },
     "arenes": {
-      "titre": "Les sept arènes",
+      "titre": "Arènes",
       "paragraphes": [
-        "Un contre un, et les mêmes règles qu'un combat normal : un RP de cent mots au minimum, la situation posée, les attaques expliquées, l'état du personnage et de ses pokémon.",
-        "Utiliser un objet compte comme un tour — ce tour-là, pas d'attaque.",
-        "Le combat s'arrête quand tous les pokémon engagés d'un camp sont K.O. On demande ensuite la clôture dans le sujet prévu ; les pokémon sont soignés automatiquement après chaque aventure."
-      ]
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      ],
+      "_redige": {
+        "titre": "Les sept arènes",
+        "paragraphes": [
+          "Un contre un, et les mêmes règles qu'un combat normal : un RP de cent mots au minimum, la situation posée, les attaques expliquées, l'état du personnage et de ses pokémon.",
+          "Utiliser un objet compte comme un tour — ce tour-là, pas d'attaque.",
+          "Le combat s'arrête quand tous les pokémon engagés d'un camp sont K.O. On demande ensuite la clôture dans le sujet prévu ; les pokémon sont soignés automatiquement après chaque aventure."
+        ]
+      }
     },
     "colosseums": {
-      "titre": "Les quatre colosseums",
+      "titre": "Colosseums",
       "paragraphes": [
-        "Deux contre deux. Ce n'est pas plus difficile qu'une arène : c'est la façon de se battre qui change.",
-        "On vient avec deux pokémon au lieu d'un — les deux premiers de l'équipe — et on remplit le formulaire du forum avec leur infobulle. Il faut préciser quel pokémon adverse on attaque, et avec lequel des siens. On ne choisit le suivant que quand l'un des deux est K.O.",
-        "Les colosseums et la Ligue sont les seuls endroits du forum où le combat en duo est autorisé. L'expérience de fin de combat n'est pas partagée entre les deux pokémon : chacun a la sienne."
-      ]
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      ],
+      "_redige": {
+        "titre": "Les quatre colosseums",
+        "paragraphes": [
+          "Deux contre deux. Ce n'est pas plus difficile qu'une arène : c'est la façon de se battre qui change.",
+          "On vient avec deux pokémon au lieu d'un — les deux premiers de l'équipe — et on remplit le formulaire du forum avec leur infobulle. Il faut préciser quel pokémon adverse on attaque, et avec lequel des siens. On ne choisit le suivant que quand l'un des deux est K.O.",
+          "Les colosseums et la Ligue sont les seuls endroits du forum où le combat en duo est autorisé. L'expérience de fin de combat n'est pas partagée entre les deux pokémon : chacun a la sienne."
+        ]
+      }
     },
     "equipe": {
       "titre": "L'équipe du défi",
-      "note": "Cette équipe appartient à l'arène, pas au champion. Qui prend le poste ne peut ni l'entraîner, ni la vendre, ni l'utiliser : elle peut être mentionnée en narration, jamais rejoindre l'équipe usuelle du personnage.",
-      "dit": "Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d'avant les niveaux du 6 novembre."
+      "note": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      "dit": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      "_redige": {
+        "note": "Cette équipe appartient à l'arène, pas au champion. Qui prend le poste ne peut ni l'entraîner, ni la vendre, ni l'utiliser : elle peut être mentionnée en narration, jamais rejoindre l'équipe usuelle du personnage.",
+        "dit": "Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d'avant les niveaux du 6 novembre."
+      }
     },
     "ligue": {
-      "titre": "La Ligue",
+      "titre": "Ligue",
       "paragraphes": [
-        "Le douzième défi, et le dernier. Elle se tient au Mont Bataille et Michael la tient lui-même.",
-        "Il faut le palier 3 pour y entrer : l'intégralité des badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe. Le palier 3 ouvre en même temps la zone ultime de la région.",
-        "Comme dans un colosseum, on s'y bat en deux contre deux."
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       ],
-      "note": "L'équipe de Michael n'est pas publiée : le sujet des pré-liens n'en donne aucune. Elle s'affichera ici le jour où elle sera écrite."
-    }
+      "note": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+      "_redige": {
+        "titre": "La Ligue",
+        "paragraphes": [
+          "Le douzième défi, et le dernier. Elle se tient au Mont Bataille et Michael la tient lui-même.",
+          "Il faut le palier 3 pour y entrer : l'intégralité des badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe. Le palier 3 ouvre en même temps la zone ultime de la région.",
+          "Comme dans un colosseum, on s'y bat en deux contre deux."
+        ],
+        "note": "L'équipe de Michael n'est pas publiée : le sujet des pré-liens n'en donne aucune. Elle s'affichera ici le jour où elle sera écrite."
+      }
+    },
+    "_lorem": "LES TEXTES SONT DU LOREM IPSUM, DEMANDÉ LE 6 NOVEMBRE. Ce que j'avais tiré des planches 36 et 37 n'est pas perdu : il est gardé sous `_redige` dans chaque bloc, et il suffit de le remonter dans `paragraphes` pour le remettre. Les CHIFFRES, eux, ne sont jamais du remplissage : niveaux, paliers, types conseillés et équipes restent dérivés."
   },
   "arenes": [
-    { "nom": "Arène Feu", "slug": "feu", "type": "feu", "ville": "Station Service", "genre": "arene", "niveau": 15, "palier": 1, "forum": "/f19-arene-feu" },
-    { "nom": "Arène Plante", "slug": "plante", "type": "plante", "ville": "Samaragd", "genre": "arene", "niveau": 20, "palier": 1, "forum": "/f26-arene-plante" },
-    { "nom": "Arène Eau", "slug": "eau", "type": "eau", "ville": "Port-Amarée", "genre": "arene", "niveau": 10, "palier": 1, "forum": "/f23-arene-eau" },
-    { "nom": "Arène Acier", "slug": "acier", "type": "acier", "ville": "Suerebe", "genre": "arene", "niveau": 30, "palier": 2, "forum": "/f27-arene-acier" },
-    { "nom": "Arène Roche", "slug": "roche", "type": "roche", "ville": "Pyrite", "genre": "arene", "niveau": 25, "palier": 2, "forum": "/f29-arene-roche" },
-    { "nom": "Arène Vol", "slug": "vol", "type": "vol", "ville": "Tour Titanite", "genre": "arene", "niveau": 50, "palier": 2, "forum": "/f21-arene-vol" },
-    { "nom": "Arène Ténèbres", "slug": "tenebres", "type": "tenebres", "ville": "Île Ténèbra", "genre": "arene", "niveau": 60, "palier": 2, "forum": "/f20-arene-tenebres" },
-    { "nom": "Colosseum de Rhode", "slug": "fee", "type": "fee", "ville": "Port-Amarée", "genre": "colosseum", "niveau": 40, "palier": 1, "forum": "/f24-colosseum-de-rhode" },
-    { "nom": "Colosseum de Phenacit", "slug": "spectre", "type": "spectre", "ville": "Phenacit", "genre": "colosseum", "niveau": 35, "palier": 1, "forum": "/f30-colosseum-de-phenacit" },
-    { "nom": "Colosseum de Targare", "slug": "electrik", "type": "electrik", "ville": "Suerebe", "genre": "colosseum", "niveau": 18, "palier": 2, "forum": "/f28-colosseum-de-targare" },
-    { "nom": "Colosseum de Titanite", "slug": "dragon", "type": "dragon", "ville": "Tour Titanite", "genre": "colosseum", "niveau": 70, "palier": 2, "forum": "/f22-colosseum-de-titanite" }
+    {
+      "nom": "Arène Feu",
+      "slug": "feu",
+      "type": "feu",
+      "ville": "Station Service",
+      "genre": "arene",
+      "niveau": 15,
+      "palier": 1,
+      "forum": "/f19-arene-feu"
+    },
+    {
+      "nom": "Arène Plante",
+      "slug": "plante",
+      "type": "plante",
+      "ville": "Samaragd",
+      "genre": "arene",
+      "niveau": 20,
+      "palier": 1,
+      "forum": "/f26-arene-plante"
+    },
+    {
+      "nom": "Arène Eau",
+      "slug": "eau",
+      "type": "eau",
+      "ville": "Port-Amarée",
+      "genre": "arene",
+      "niveau": 10,
+      "palier": 1,
+      "forum": "/f23-arene-eau"
+    },
+    {
+      "nom": "Arène Acier",
+      "slug": "acier",
+      "type": "acier",
+      "ville": "Suerebe",
+      "genre": "arene",
+      "niveau": 30,
+      "palier": 2,
+      "forum": "/f27-arene-acier"
+    },
+    {
+      "nom": "Arène Roche",
+      "slug": "roche",
+      "type": "roche",
+      "ville": "Pyrite",
+      "genre": "arene",
+      "niveau": 25,
+      "palier": 2,
+      "forum": "/f29-arene-roche"
+    },
+    {
+      "nom": "Arène Vol",
+      "slug": "vol",
+      "type": "vol",
+      "ville": "Tour Titanite",
+      "genre": "arene",
+      "niveau": 50,
+      "palier": 2,
+      "forum": "/f21-arene-vol"
+    },
+    {
+      "nom": "Arène Ténèbres",
+      "slug": "tenebres",
+      "type": "tenebres",
+      "ville": "Île Ténèbra",
+      "genre": "arene",
+      "niveau": 60,
+      "palier": 2,
+      "forum": "/f20-arene-tenebres"
+    },
+    {
+      "nom": "Colosseum de Rhode",
+      "slug": "fee",
+      "type": "fee",
+      "ville": "Port-Amarée",
+      "genre": "colosseum",
+      "niveau": 40,
+      "palier": 1,
+      "forum": "/f24-colosseum-de-rhode"
+    },
+    {
+      "nom": "Colosseum de Phenacit",
+      "slug": "spectre",
+      "type": "spectre",
+      "ville": "Phenacit",
+      "genre": "colosseum",
+      "niveau": 35,
+      "palier": 1,
+      "forum": "/f30-colosseum-de-phenacit"
+    },
+    {
+      "nom": "Colosseum de Targare",
+      "slug": "electrik",
+      "type": "electrik",
+      "ville": "Suerebe",
+      "genre": "colosseum",
+      "niveau": 18,
+      "palier": 2,
+      "forum": "/f28-colosseum-de-targare"
+    },
+    {
+      "nom": "Colosseum de Titanite",
+      "slug": "dragon",
+      "type": "dragon",
+      "ville": "Tour Titanite",
+      "genre": "colosseum",
+      "niveau": 70,
+      "palier": 2,
+      "forum": "/f22-colosseum-de-titanite"
+    }
   ],
   "ligue": {
     "nom": "La Ligue",
