@@ -102,6 +102,11 @@
      "poids_fige": 2824,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/10103.gif"
     },
+    "10104": {
+     "fige": "assets/sprites-figes/forum/10104.png",
+     "poids_fige": 5903,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/10104.gif"
+    },
     "10105": {
      "fige": "assets/sprites-figes/forum/10105.png",
      "poids_fige": 1991,
@@ -562,10 +567,35 @@
      "poids_fige": 1936,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/137.gif"
     },
+    "138": {
+     "fige": "assets/sprites-figes/forum/138.png",
+     "poids_fige": 3145,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/138.gif"
+    },
+    "139": {
+     "fige": "assets/sprites-figes/forum/139.png",
+     "poids_fige": 5444,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/139.gif"
+    },
     "14": {
      "fige": "assets/sprites-figes/forum/14.png",
      "poids_fige": 2649,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/14.gif"
+    },
+    "140": {
+     "fige": "assets/sprites-figes/forum/140.png",
+     "poids_fige": 2165,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/140.gif"
+    },
+    "141": {
+     "fige": "assets/sprites-figes/forum/141.png",
+     "poids_fige": 4960,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/141.gif"
+    },
+    "142": {
+     "fige": "assets/sprites-figes/forum/142.png",
+     "poids_fige": 7239,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/142.gif"
     },
     "143": {
      "fige": "assets/sprites-figes/forum/143.png",
@@ -1632,6 +1662,26 @@
      "poids_fige": 6231,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/344.gif"
     },
+    "345": {
+     "fige": "assets/sprites-figes/forum/345.png",
+     "poids_fige": 4458,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/345.gif"
+    },
+    "346": {
+     "fige": "assets/sprites-figes/forum/346.png",
+     "poids_fige": 6617,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/346.gif"
+    },
+    "347": {
+     "fige": "assets/sprites-figes/forum/347.png",
+     "poids_fige": 1947,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/347.gif"
+    },
+    "348": {
+     "fige": "assets/sprites-figes/forum/348.png",
+     "poids_fige": 9815,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/348.gif"
+    },
     "349": {
      "fige": "assets/sprites-figes/forum/349.png",
      "poids_fige": 2273,
@@ -1912,10 +1962,30 @@
      "poids_fige": 4594,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/407.gif"
     },
+    "408": {
+     "fige": "assets/sprites-figes/forum/408.png",
+     "poids_fige": 4274,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/408.gif"
+    },
+    "409": {
+     "fige": "assets/sprites-figes/forum/409.png",
+     "poids_fige": 5090,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/409.gif"
+    },
     "41": {
      "fige": "assets/sprites-figes/forum/41.png",
      "poids_fige": 2708,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/41.gif"
+    },
+    "410": {
+     "fige": "assets/sprites-figes/forum/410.png",
+     "poids_fige": 2980,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/410.gif"
+    },
+    "411": {
+     "fige": "assets/sprites-figes/forum/411.png",
+     "poids_fige": 7393,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/411.gif"
     },
     "412": {
      "fige": "assets/sprites-figes/forum/412.png",
@@ -2682,6 +2752,26 @@
      "poids_fige": 9146,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/563.gif"
     },
+    "564": {
+     "fige": "assets/sprites-figes/forum/564.png",
+     "poids_fige": 3846,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/564.gif"
+    },
+    "565": {
+     "fige": "assets/sprites-figes/forum/565.png",
+     "poids_fige": 10215,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/565.gif"
+    },
+    "566": {
+     "fige": "assets/sprites-figes/forum/566.png",
+     "poids_fige": 4046,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/566.gif"
+    },
+    "567": {
+     "fige": "assets/sprites-figes/forum/567.png",
+     "poids_fige": 9501,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/567.gif"
+    },
     "568": {
      "fige": "assets/sprites-figes/forum/568.png",
      "poids_fige": 2901,
@@ -3331,6 +3421,26 @@
      "fige": "assets/sprites-figes/forum/695.png",
      "poids_fige": 4185,
      "source": "versions/generation-vii/ultra-sun-ultra-moon/695.gif"
+    },
+    "696": {
+     "fige": "assets/sprites-figes/forum/696.png",
+     "poids_fige": 5642,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/696.gif"
+    },
+    "697": {
+     "fige": "assets/sprites-figes/forum/697.png",
+     "poids_fige": 12200,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/697.gif"
+    },
+    "698": {
+     "fige": "assets/sprites-figes/forum/698.png",
+     "poids_fige": 3683,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/698.gif"
+    },
+    "699": {
+     "fige": "assets/sprites-figes/forum/699.png",
+     "poids_fige": 7190,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/699.gif"
     },
     "7": {
      "fige": "assets/sprites-figes/forum/7.png",
@@ -4770,6 +4880,11 @@
      "poids_fige": 1484,
      "source": "versions/generation-v/black-white/animated/10103.gif"
     },
+    "10104": {
+     "fige": "assets/sprites-figes/gba-ds/10104.png",
+     "poids_fige": 2980,
+     "source": "versions/generation-v/black-white/animated/10104.gif"
+    },
     "10105": {
      "fige": "assets/sprites-figes/gba-ds/10105.png",
      "poids_fige": 884,
@@ -5191,9 +5306,29 @@
      "fige": "versions/generation-iii/emerald/137.png",
      "source": "versions/generation-iii/emerald/137.png"
     },
+    "138": {
+     "fige": "versions/generation-iii/emerald/138.png",
+     "source": "versions/generation-iii/emerald/138.png"
+    },
+    "139": {
+     "fige": "versions/generation-iii/emerald/139.png",
+     "source": "versions/generation-iii/emerald/139.png"
+    },
     "14": {
      "fige": "versions/generation-iii/emerald/14.png",
      "source": "versions/generation-iii/emerald/14.png"
+    },
+    "140": {
+     "fige": "versions/generation-iii/emerald/140.png",
+     "source": "versions/generation-iii/emerald/140.png"
+    },
+    "141": {
+     "fige": "versions/generation-iii/emerald/141.png",
+     "source": "versions/generation-iii/emerald/141.png"
+    },
+    "142": {
+     "fige": "versions/generation-iii/emerald/142.png",
+     "source": "versions/generation-iii/emerald/142.png"
     },
     "143": {
      "fige": "versions/generation-iii/emerald/143.png",
@@ -6047,6 +6182,22 @@
      "fige": "versions/generation-iii/emerald/344.png",
      "source": "versions/generation-iii/emerald/344.png"
     },
+    "345": {
+     "fige": "versions/generation-iii/emerald/345.png",
+     "source": "versions/generation-iii/emerald/345.png"
+    },
+    "346": {
+     "fige": "versions/generation-iii/emerald/346.png",
+     "source": "versions/generation-iii/emerald/346.png"
+    },
+    "347": {
+     "fige": "versions/generation-iii/emerald/347.png",
+     "source": "versions/generation-iii/emerald/347.png"
+    },
+    "348": {
+     "fige": "versions/generation-iii/emerald/348.png",
+     "source": "versions/generation-iii/emerald/348.png"
+    },
     "349": {
      "fige": "versions/generation-iii/emerald/349.png",
      "source": "versions/generation-iii/emerald/349.png"
@@ -6271,9 +6422,25 @@
      "fige": "versions/generation-iv/platinum/407.png",
      "source": "versions/generation-iv/platinum/407.png"
     },
+    "408": {
+     "fige": "versions/generation-iv/platinum/408.png",
+     "source": "versions/generation-iv/platinum/408.png"
+    },
+    "409": {
+     "fige": "versions/generation-iv/platinum/409.png",
+     "source": "versions/generation-iv/platinum/409.png"
+    },
     "41": {
      "fige": "versions/generation-iii/emerald/41.png",
      "source": "versions/generation-iii/emerald/41.png"
+    },
+    "410": {
+     "fige": "versions/generation-iv/platinum/410.png",
+     "source": "versions/generation-iv/platinum/410.png"
+    },
+    "411": {
+     "fige": "versions/generation-iv/platinum/411.png",
+     "source": "versions/generation-iv/platinum/411.png"
     },
     "412": {
      "fige": "versions/generation-iv/platinum/412.png",
@@ -6956,6 +7123,26 @@
      "poids_fige": 2489,
      "source": "versions/generation-v/black-white/animated/563.gif"
     },
+    "564": {
+     "fige": "assets/sprites-figes/gba-ds/564.png",
+     "poids_fige": 1367,
+     "source": "versions/generation-v/black-white/animated/564.gif"
+    },
+    "565": {
+     "fige": "assets/sprites-figes/gba-ds/565.png",
+     "poids_fige": 2437,
+     "source": "versions/generation-v/black-white/animated/565.gif"
+    },
+    "566": {
+     "fige": "assets/sprites-figes/gba-ds/566.png",
+     "poids_fige": 1613,
+     "source": "versions/generation-v/black-white/animated/566.gif"
+    },
+    "567": {
+     "fige": "assets/sprites-figes/gba-ds/567.png",
+     "poids_fige": 3019,
+     "source": "versions/generation-v/black-white/animated/567.gif"
+    },
     "568": {
      "fige": "assets/sprites-figes/gba-ds/568.png",
      "poids_fige": 945,
@@ -7591,6 +7778,26 @@
      "fige": "assets/sprites-figes/gba-ds/695.png",
      "poids_fige": 2365,
      "source": "other/showdown/695.gif"
+    },
+    "696": {
+     "fige": "assets/sprites-figes/gba-ds/696.png",
+     "poids_fige": 1850,
+     "source": "versions/generation-v/black-white/animated/696.gif"
+    },
+    "697": {
+     "fige": "assets/sprites-figes/gba-ds/697.png",
+     "poids_fige": 3293,
+     "source": "versions/generation-v/black-white/animated/697.gif"
+    },
+    "698": {
+     "fige": "assets/sprites-figes/gba-ds/698.png",
+     "poids_fige": 1091,
+     "source": "versions/generation-v/black-white/animated/698.gif"
+    },
+    "699": {
+     "fige": "assets/sprites-figes/gba-ds/699.png",
+     "poids_fige": 3134,
+     "source": "other/showdown/699.gif"
     },
     "7": {
      "fige": "versions/generation-iii/emerald/7.png",
@@ -9001,6 +9208,11 @@
      "poids_fige": 1484,
      "source": "versions/generation-v/black-white/animated/10103.gif"
     },
+    "10104": {
+     "fige": "assets/sprites-figes/retro/10104.png",
+     "poids_fige": 2980,
+     "source": "versions/generation-v/black-white/animated/10104.gif"
+    },
     "10105": {
      "fige": "assets/sprites-figes/retro/10105.png",
      "poids_fige": 884,
@@ -9461,10 +9673,35 @@
      "poids_fige": 1039,
      "source": "versions/generation-v/black-white/animated/137.gif"
     },
+    "138": {
+     "fige": "assets/sprites-figes/retro/138.png",
+     "poids_fige": 1107,
+     "source": "versions/generation-v/black-white/animated/138.gif"
+    },
+    "139": {
+     "fige": "assets/sprites-figes/retro/139.png",
+     "poids_fige": 1723,
+     "source": "versions/generation-v/black-white/animated/139.gif"
+    },
     "14": {
      "fige": "assets/sprites-figes/retro/14.png",
      "poids_fige": 910,
      "source": "versions/generation-v/black-white/animated/14.gif"
+    },
+    "140": {
+     "fige": "assets/sprites-figes/retro/140.png",
+     "poids_fige": 659,
+     "source": "versions/generation-v/black-white/animated/140.gif"
+    },
+    "141": {
+     "fige": "assets/sprites-figes/retro/141.png",
+     "poids_fige": 1937,
+     "source": "versions/generation-v/black-white/animated/141.gif"
+    },
+    "142": {
+     "fige": "assets/sprites-figes/retro/142.png",
+     "poids_fige": 2283,
+     "source": "versions/generation-v/black-white/animated/142.gif"
     },
     "143": {
      "fige": "assets/sprites-figes/retro/143.png",
@@ -10531,6 +10768,26 @@
      "poids_fige": 2263,
      "source": "versions/generation-v/black-white/animated/344.gif"
     },
+    "345": {
+     "fige": "assets/sprites-figes/retro/345.png",
+     "poids_fige": 1637,
+     "source": "versions/generation-v/black-white/animated/345.gif"
+    },
+    "346": {
+     "fige": "assets/sprites-figes/retro/346.png",
+     "poids_fige": 2203,
+     "source": "versions/generation-v/black-white/animated/346.gif"
+    },
+    "347": {
+     "fige": "assets/sprites-figes/retro/347.png",
+     "poids_fige": 1456,
+     "source": "versions/generation-v/black-white/animated/347.gif"
+    },
+    "348": {
+     "fige": "assets/sprites-figes/retro/348.png",
+     "poids_fige": 3193,
+     "source": "versions/generation-v/black-white/animated/348.gif"
+    },
     "349": {
      "fige": "assets/sprites-figes/retro/349.png",
      "poids_fige": 1194,
@@ -10811,10 +11068,30 @@
      "poids_fige": 1961,
      "source": "versions/generation-v/black-white/animated/407.gif"
     },
+    "408": {
+     "fige": "assets/sprites-figes/retro/408.png",
+     "poids_fige": 1483,
+     "source": "versions/generation-v/black-white/animated/408.gif"
+    },
+    "409": {
+     "fige": "assets/sprites-figes/retro/409.png",
+     "poids_fige": 2518,
+     "source": "versions/generation-v/black-white/animated/409.gif"
+    },
     "41": {
      "fige": "assets/sprites-figes/retro/41.png",
      "poids_fige": 1107,
      "source": "versions/generation-v/black-white/animated/41.gif"
+    },
+    "410": {
+     "fige": "assets/sprites-figes/retro/410.png",
+     "poids_fige": 1081,
+     "source": "versions/generation-v/black-white/animated/410.gif"
+    },
+    "411": {
+     "fige": "assets/sprites-figes/retro/411.png",
+     "poids_fige": 2082,
+     "source": "versions/generation-v/black-white/animated/411.gif"
     },
     "412": {
      "fige": "assets/sprites-figes/retro/412.png",
@@ -11581,6 +11858,26 @@
      "poids_fige": 2489,
      "source": "versions/generation-v/black-white/animated/563.gif"
     },
+    "564": {
+     "fige": "assets/sprites-figes/retro/564.png",
+     "poids_fige": 1367,
+     "source": "versions/generation-v/black-white/animated/564.gif"
+    },
+    "565": {
+     "fige": "assets/sprites-figes/retro/565.png",
+     "poids_fige": 2437,
+     "source": "versions/generation-v/black-white/animated/565.gif"
+    },
+    "566": {
+     "fige": "assets/sprites-figes/retro/566.png",
+     "poids_fige": 1613,
+     "source": "versions/generation-v/black-white/animated/566.gif"
+    },
+    "567": {
+     "fige": "assets/sprites-figes/retro/567.png",
+     "poids_fige": 3019,
+     "source": "versions/generation-v/black-white/animated/567.gif"
+    },
     "568": {
      "fige": "assets/sprites-figes/retro/568.png",
      "poids_fige": 945,
@@ -12230,6 +12527,26 @@
      "fige": "assets/sprites-figes/retro/695.png",
      "poids_fige": 2365,
      "source": "other/showdown/695.gif"
+    },
+    "696": {
+     "fige": "assets/sprites-figes/retro/696.png",
+     "poids_fige": 1850,
+     "source": "versions/generation-v/black-white/animated/696.gif"
+    },
+    "697": {
+     "fige": "assets/sprites-figes/retro/697.png",
+     "poids_fige": 3293,
+     "source": "versions/generation-v/black-white/animated/697.gif"
+    },
+    "698": {
+     "fige": "assets/sprites-figes/retro/698.png",
+     "poids_fige": 1091,
+     "source": "versions/generation-v/black-white/animated/698.gif"
+    },
+    "699": {
+     "fige": "assets/sprites-figes/retro/699.png",
+     "poids_fige": 3134,
+     "source": "other/showdown/699.gif"
     },
     "7": {
      "fige": "assets/sprites-figes/retro/7.png",

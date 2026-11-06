@@ -31,3 +31,7 @@ livraison.zip
 css/99-essai-contraste.css
 apercu-sujet.html
 templates/*.a-publier.html
+
+# python
+__pycache__/
+*.pyc

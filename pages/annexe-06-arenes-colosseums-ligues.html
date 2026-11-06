@@ -54,8 +54,8 @@
       <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
     </nav>
 
-<!-- ▼▼▼ DÉBUT DU CORPS — c'est la seule partie qu'on rédige ▼▼▼ -->
-<div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-sombre.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/6.png')">
+<!-- ▼▼▼ DÉBUT DU CORPS — écrit par `outils/annexe-arenes.py` ▼▼▼ -->
+<div class="wm-annexe wm-annexe--arenes" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-sombre.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/6.png')">
 
   <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>
 
@@ -63,112 +63,599 @@
     <div class="wm-annexe__colonne">
 
       <p class="wm-annexe__surtitre">Annexe 06</p>
-      <h1 class="wm-annexe__titre">Arènes, colosseums et <em>Ligue</em></h1>
+      <h1 class="wm-annexe__titre">Arènes, <em>colosseums</em> et Ligue</h1>
       <p class="wm-annexe__chapo">
-        Une phrase ou deux pour dire à quoi sert cette page, et ce qu'on y trouvera.
-        Elle se lit avant tout le reste : autant qu'elle serve à décider si on continue.
+        Onze défis, puis la Ligue. Sept arènes, quatre colosseums, et le Mont Bataille au bout.
+        Les règles de combat sont dans le guide du dresseur, juste avant : ce qui suit n&#x27;en est qu&#x27;un rappel.
       </p>
 
       <div class="wm-annexe__blocs">
 
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Le premier bloc</h2>
-          <ul class="wm-tirets">
-            <li><b>Une liste à tirets</b> pour ce qui s'énumère : des étapes, des
-              conditions, des cas. Le tiret est posé par la feuille — ne pas le
-              réécrire ici.</li>
-            <li><b>Le mot en gras ouvre la ligne</b>, et la suite l'explique. C'est ce qui
-              rend la liste lisible en diagonale.</li>
-            <li>Une ligne peut aussi n'être qu'une phrase, sans mot en tête.</li>
-          </ul>
-        </div>
+        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>
 
-        <div class="wm-paire">
-          <div class="wm-annexe__carte">
-            <h2 class="wm-annexe__carte-titre">Deux cartes côte à côte</h2>
+          <section data-wm-sous-onglet="comment-on-defie">
+            <h2 class="wm-annexe__carte-titre">Comment on défie</h2>
             <div class="wm-paras">
-              <p>La brique <b>paire</b> pose deux cartes de même largeur. Elle sert quand
-                deux choses se répondent — avant et après, ce qu'on gagne et ce qu'on
-                risque.</p>
-              <p>Sous 900 pixels, elles s'empilent toutes seules.</p>
+              <p>Pour défier un champion, on passe par le sujet obligatoire qui se trouve dans le sous-forum de l&#x27;arène ou du colosseum. C&#x27;est le PNJ Michael qui ouvre ensuite le sujet du combat. Le champion répond ; s&#x27;il n&#x27;y a pas encore de champion, un PNJ le remplace le temps du combat.</p>
+              <p>Un champion utilise toujours le dé d&#x27;attaque de ton palier, pas du sien : au palier 2, c&#x27;est « Attaque Palier 2 », quel que soit son propre palier.</p>
+              <p>On gagne un badge en postant un RP dans l&#x27;arène qu&#x27;on défie. L&#x27;ordre des onze défis est celui des niveaux — du plus faible au plus fort, et on ne saute pas une marche.</p>
+              <p>Les sept badges d&#x27;arène et les quatre colosseums ouvrent la Ligue. Le champion dont tu prends le poste part d&#x27;office avec son propre badge acquis.</p>
             </div>
-          </div>
-          <div class="wm-annexe__carte">
-            <h2 class="wm-annexe__carte-titre">Et du texte suivi</h2>
+
+            <h3 class="wm-defi__sous-titre">Ce qui s&#x27;ouvre à quel palier</h3>
+            <ul class="wm-paliers">
+              <li class="wm-palier">
+                <h4 class="wm-palier__titre">Palier 1</h4>
+                <p class="wm-palier__condition">Il suffit d&#x27;être validé sur le forum.</p>
+                <ul class="wm-palier__defis">
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f23-arene-eau">Arène Eau</a><span class="wm-palier__niveau">niv. 10</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f19-arene-feu">Arène Feu</a><span class="wm-palier__niveau">niv. 15</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f26-arene-plante">Arène Plante</a><span class="wm-palier__niveau">niv. 20</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f30-colosseum-de-phenacit">Colosseum de Phenacit</a><span class="wm-palier__niveau">niv. 35</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f24-colosseum-de-rhode">Colosseum de Rhode</a><span class="wm-palier__niveau">niv. 40</span></li>
+                </ul>
+              </li>
+              <li class="wm-palier">
+                <h4 class="wm-palier__titre">Palier 2</h4>
+                <p class="wm-palier__condition">Les conditions dépendent de ton groupe : badges, Battle Points, missions, pokédex ou naissances selon le cas. Elles sont écrites dans l&#x27;annexe des groupes.</p>
+                <ul class="wm-palier__defis">
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f28-colosseum-de-targare">Colosseum de Targare</a><span class="wm-palier__niveau">niv. 18</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f29-arene-roche">Arène Roche</a><span class="wm-palier__niveau">niv. 25</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f27-arene-acier">Arène Acier</a><span class="wm-palier__niveau">niv. 30</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f21-arene-vol">Arène Vol</a><span class="wm-palier__niveau">niv. 50</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f20-arene-tenebres">Arène Ténèbres</a><span class="wm-palier__niveau">niv. 60</span></li>
+                  <li class="wm-palier__defi"><a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/f22-colosseum-de-titanite">Colosseum de Titanite</a><span class="wm-palier__niveau">niv. 70</span></li>
+                </ul>
+              </li>
+              <li class="wm-palier">
+                <h4 class="wm-palier__titre">Palier 3</h4>
+                <p class="wm-palier__condition">Tous les badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe.</p>
+                <p class="wm-palier__defis wm-palier__defis--vide">Aucune arène, aucun colosseum : seulement La Ligue, au niveau 80.</p>
+              </li>
+            </ul>
+            <p class="wm-defi__dit">La liste des défis de chaque palier est tirée de la planche 36, et le niveau de chacun de la liste du 6 novembre. Les deux ne vont pas dans le même sens : un défi de palier 1 peut demander une équipe de niveau 40.</p>
+
+          </section>
+
+          <section data-wm-sous-onglet="les-arenes">
+            <h2 class="wm-annexe__carte-titre">Les sept arènes</h2>
             <div class="wm-paras">
-              <p>La brique <b>paras</b> est le texte courant : des paragraphes, sans puce
-                ni numéro. C'est elle qu'on emploie quand une idée ne se découpe pas.</p>
+              <p>Un contre un, et les mêmes règles qu&#x27;un combat normal : un RP de cent mots au minimum, la situation posée, les attaques expliquées, l&#x27;état du personnage et de ses pokémon.</p>
+              <p>Utiliser un objet compte comme un tour — ce tour-là, pas d&#x27;attaque.</p>
+              <p>Le combat s&#x27;arrête quand tous les pokémon engagés d&#x27;un camp sont K.O. On demande ensuite la clôture dans le sujet prévu ; les pokémon sont soignés automatiquement après chaque aventure.</p>
             </div>
-          </div>
-        </div>
 
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Un tableau</h2>
-          <div class="wm-table">
-            <div class="wm-table__ligne wm-table__ligne--entete">
-              <span class="wm-table__cellule wm-table__cellule--nom">Ce qu'on nomme</span>
-              <span class="wm-table__cellule">Ce que c'est</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">Combien</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Première ligne</span>
-              <span class="wm-table__cellule">La colonne du milieu porte l'explication.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
-            </div>
-            <div class="wm-table__ligne">
-              <span class="wm-table__cellule wm-table__cellule--nom">Deuxième ligne</span>
-              <span class="wm-table__cellule">Le tableau est en flexbox, pas une
-                vraie table : sur téléphone chaque ligne s'empile et l'en-tête
-                disparaît.</span>
-              <span class="wm-table__cellule wm-table__cellule--chiffre">0</span>
-            </div>
-          </div>
-        </div>
+            <div class="wm-defis wm-sous-onglets" data-wm-sous-onglets>
 
-        <div class="wm-encarts">
-          <div class="wm-encart wm-encart--terre">
-            <span class="wm-encart__etiquette">À retenir</span>
-            <p>L'encart terre souligne ce qu'il ne faut pas manquer. Deux ou trois lignes,
-              pas plus : un encart long n'est plus un encart.</p>
-          </div>
-          <div class="wm-encart wm-encart--paisible">
-            <span class="wm-encart__etiquette">Bon à savoir</span>
-            <p>L'encart vert dit ce qui rassure, ou ce qui se fait tout seul. Les deux vont
-              par paire et se répondent.</p>
-          </div>
-        </div>
+              <section class="wm-defi" data-wm-sous-onglet="arene-eau">
+                <h3 class="wm-defi__titre">Arène Eau</h3>
+                <p class="wm-defi__lieu">Port-Amarée</p>
 
-        <!--  LE RENVOI VERS LES CHAMPIONS. Demandé le 4 novembre :
-              « dans l'annexe des arènes, trouve un endroit qui renvoie
-              aux différents champions jouables ». Il est en BAS et pas
-              en tête : on vient ici pour savoir qui défier et dans
-              quel ordre, pas pour postuler — et c'est en sortant qu'on
-              se demande qui tient la place.
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/eau.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span> <span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span> <span class="wm-defi__facteur">×2 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>10 <span class="wm-defi__palier">Palier 1</span></dd>
+                    </div>
+                  </dl>
+                </div>
 
-              Le reste de cette page est encore le remplissage du
-              gabarit. Ce bloc-ci est rédigé, donc `outils/annexes.py`
-              le conservera. -->
-        <div class="wm-annexe__carte">
-          <h2 class="wm-annexe__carte-titre">Et qui tient ces arènes ?</h2>
-          <div class="wm-paras">
-            <p>Les onze postes de champion sont interprétables, et ils sont
-              tous vacants aujourd'hui. Chaque arène et chaque colosseum y a
-              sa ligne, avec son type et sa ville.</p>
-          </div>
-          <div class="wm-encarts">
-            <div class="wm-encart wm-encart--paisible">
-              <span class="wm-encart__etiquette">Un poste t'intéresse ?</span>
-              <p>Tu es libre de débarquer avec ton propre personnage pour
-                prendre la place. Tu partiras d'office avec le badge de ton
-                arène, mais tu construiras ton équipe comme tout le monde.</p>
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f23-arene-eau">Défier · Arène Eau</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15598">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/516.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Flotoutan</p><p class="wm-equipe__niveau">niv. 8</p><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Flotoutan</p><span class="wm-infobulle__niveau">Niv. 8</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="eau">Eau</span></ul><p class="wm-equipe__chiffres">30 PV · 20 ATT · 15 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/186.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Tarpaud</p><p class="wm-equipe__niveau">niv. 8</p><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Tarpaud</p><span class="wm-infobulle__niveau">Niv. 8</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="eau">Eau</span></ul><p class="wm-equipe__chiffres">32 PV · 17 ATT · 17 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/419.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Mustéflott</p><p class="wm-equipe__niveau">niv. 9</p><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Mustéflott</p><span class="wm-infobulle__niveau">Niv. 9</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="eau">Eau</span></ul><p class="wm-equipe__chiffres">34 PV · 23 ATT · 14 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/62.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Tartard</p><p class="wm-equipe__niveau">niv. 9</p><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Tartard</p><span class="wm-infobulle__niveau">Niv. 9</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="eau">Eau</span><span class="wm-infobulle__type" data-wm-type="combat">Combat</span></ul><p class="wm-equipe__chiffres">35 PV · 22 ATT · 22 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/134.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Aquali</p><p class="wm-equipe__niveau">niv. 10</p><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Aquali</p><span class="wm-infobulle__niveau">Niv. 10</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="eau">Eau</span></ul><p class="wm-equipe__chiffres">46 PV · 18 ATT · 17 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/131.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Lokhlass</p><p class="wm-equipe__niveau">niv. 10</p><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Lokhlass</p><span class="wm-infobulle__niveau">Niv. 10</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="eau">Eau</span><span class="wm-infobulle__type" data-wm-type="glace">Glace</span></ul><p class="wm-equipe__chiffres">46 PV · 22 ATT · 21 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="arene-feu">
+                <h3 class="wm-defi__titre">Arène Feu</h3>
+                <p class="wm-defi__lieu">Station Service</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/feu.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span> <span class="wm-defi__facteur">×2.333 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>15 <span class="wm-defi__palier">Palier 1</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f19-arene-feu">Défier · Arène Feu</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15600">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/850.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Grillepattes</p><p class="wm-equipe__niveau">niv. 13</p><span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Grillepattes</p><span class="wm-infobulle__niveau">Niv. 13</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span><span class="wm-infobulle__type" data-wm-type="insecte">Insecte</span></ul><p class="wm-equipe__chiffres">36 PV · 21 ATT · 16 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/324.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Chartor</p><p class="wm-equipe__niveau">niv. 13</p><span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Chartor</p><span class="wm-infobulle__niveau">Niv. 13</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></ul><p class="wm-equipe__chiffres">41 PV · 27 ATT · 41 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/514.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Flamoutan</p><p class="wm-equipe__niveau">niv. 14</p><span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Flamoutan</p><span class="wm-infobulle__niveau">Niv. 14</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></ul><p class="wm-equipe__chiffres">45 PV · 32 ATT · 22 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/136.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Pyroli</p><p class="wm-equipe__niveau">niv. 14</p><span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Pyroli</p><span class="wm-infobulle__niveau">Niv. 14</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></ul><p class="wm-equipe__chiffres">42 PV · 41 ATT · 21 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/757.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Tritox</p><p class="wm-equipe__niveau">niv. 15</p><span class="wm-type wm-type--poison" data-wm-type="poison">Poison</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Tritox</p><span class="wm-infobulle__niveau">Niv. 15</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="poison">Poison</span><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></ul><p class="wm-equipe__chiffres">39 PV · 18 ATT · 17 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/668.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Némélios</p><p class="wm-equipe__niveau">niv. 15</p><span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Némélios</p><span class="wm-infobulle__niveau">Niv. 15</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span><span class="wm-infobulle__type" data-wm-type="normal">Normal</span></ul><p class="wm-equipe__chiffres">50 PV · 25 ATT · 26 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="arene-plante">
+                <h3 class="wm-defi__titre">Arène Plante</h3>
+                <p class="wm-defi__lieu">Samaragd</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/plante.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--vol" data-wm-type="vol">Vol</span> <span class="wm-defi__facteur">×2.333 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>20 <span class="wm-defi__palier">Palier 1</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f26-arene-plante">Défier · Arène Plante</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15599">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/830.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Blancoton</p><p class="wm-equipe__niveau">niv. 18</p><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Blancoton</p><span class="wm-infobulle__niveau">Niv. 18</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="plante">Plante</span></ul><p class="wm-equipe__chiffres">49 PV · 23 ATT · 37 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/407.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Roserade</p><p class="wm-equipe__niveau">niv. 18</p><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Roserade</p><span class="wm-infobulle__niveau">Niv. 18</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="plante">Plante</span><span class="wm-infobulle__type" data-wm-type="poison">Poison</span></ul><p class="wm-equipe__chiffres">49 PV · 30 ATT · 28 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/286.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Chapignon</p><p class="wm-equipe__niveau">niv. 19</p><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Chapignon</p><span class="wm-infobulle__niveau">Niv. 19</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="plante">Plante</span><span class="wm-infobulle__type" data-wm-type="combat">Combat</span></ul><p class="wm-equipe__chiffres">51 PV · 54 ATT · 35 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/556.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Maracachi</p><p class="wm-equipe__niveau">niv. 19</p><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Maracachi</p><span class="wm-infobulle__niveau">Niv. 19</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="plante">Plante</span></ul><p class="wm-equipe__chiffres">57 PV · 37 ATT · 30 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/470.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Phyllali</p><p class="wm-equipe__niveau">niv. 20</p><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Phyllali</p><span class="wm-infobulle__niveau">Niv. 20</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="plante">Plante</span></ul><p class="wm-equipe__chiffres">56 PV · 49 ATT · 57 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/673.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Chevroum</p><p class="wm-equipe__niveau">niv. 20</p><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Chevroum</p><span class="wm-infobulle__niveau">Niv. 20</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="plante">Plante</span></ul><p class="wm-equipe__chiffres">79 PV · 45 ATT · 29 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="arene-roche">
+                <h3 class="wm-defi__titre">Arène Roche</h3>
+                <p class="wm-defi__lieu">Pyrite</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/roche.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--combat" data-wm-type="combat">Combat</span> <span class="wm-defi__facteur">×2.5 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>25 <span class="wm-defi__palier">Palier 2</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f29-arene-roche">Défier · Arène Roche</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15596">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/874.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Dolman</p><p class="wm-equipe__niveau">niv. 23</p><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Dolman</p><span class="wm-infobulle__niveau">Niv. 23</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="roche">Roche</span></ul><p class="wm-equipe__chiffres">79 PV · 62 ATT · 67 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/409.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Charkos</p><p class="wm-equipe__niveau">niv. 23</p><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Charkos</p><span class="wm-infobulle__niveau">Niv. 23</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="roche">Roche</span></ul><p class="wm-equipe__chiffres">77 PV · 80 ATT · 32 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/745.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Lougaroc Diurne</p><p class="wm-equipe__niveau">niv. 24</p><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Lougaroc Diurne</p><span class="wm-infobulle__niveau">Niv. 24</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="roche">Roche</span></ul><p class="wm-equipe__chiffres">70 PV · 60 ATT · 36 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/699.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Dragmara</p><p class="wm-equipe__niveau">niv. 24</p><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Dragmara</p><span class="wm-infobulle__niveau">Niv. 24</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="roche">Roche</span><span class="wm-infobulle__type" data-wm-type="glace">Glace</span></ul><p class="wm-equipe__chiffres">93 PV · 41 ATT · 39 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/348.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Armaldo</p><p class="wm-equipe__niveau">niv. 25</p><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Armaldo</p><span class="wm-infobulle__niveau">Niv. 25</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="roche">Roche</span><span class="wm-infobulle__type" data-wm-type="insecte">Insecte</span></ul><p class="wm-equipe__chiffres">72 PV · 67 ATT · 55 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/306.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Galeking</p><p class="wm-equipe__niveau">niv. 25</p><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Galeking</p><span class="wm-infobulle__niveau">Niv. 25</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="acier">Acier</span><span class="wm-infobulle__type" data-wm-type="roche">Roche</span></ul><p class="wm-equipe__chiffres">70 PV · 60 ATT · 95 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="arene-acier">
+                <h3 class="wm-defi__titre">Arène Acier</h3>
+                <p class="wm-defi__lieu">Suerebe</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/acier.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span> <span class="wm-defi__facteur">×2.333 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>30 <span class="wm-defi__palier">Palier 2</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f27-arene-acier">Défier · Arène Acier</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15597">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/863.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Berserkatt</p><p class="wm-equipe__niveau">niv. 28</p><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Berserkatt</p><span class="wm-infobulle__niveau">Niv. 28</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="acier">Acier</span></ul><p class="wm-equipe__chiffres">77 PV · 66 ATT · 61 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/10102.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Sablaireau d&#x27;Alola</p><p class="wm-equipe__niveau">niv. 28</p><span class="wm-type wm-type--glace" data-wm-type="glace">Glace</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Sablaireau d&#x27;Alola</p><span class="wm-infobulle__niveau">Niv. 28</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="glace">Glace</span><span class="wm-infobulle__type" data-wm-type="acier">Acier</span></ul><p class="wm-equipe__chiffres">80 PV · 61 ATT · 72 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/227.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Airmure</p><p class="wm-equipe__niveau">niv. 29</p><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Airmure</p><span class="wm-infobulle__niveau">Niv. 29</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="acier">Acier</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">76 PV · 51 ATT · 86 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/208.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Steelix</p><p class="wm-equipe__niveau">niv. 29</p><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Steelix</p><span class="wm-infobulle__niveau">Niv. 29</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="acier">Acier</span><span class="wm-infobulle__type" data-wm-type="sol">Sol</span></ul><p class="wm-equipe__chiffres">82 PV · 54 ATT · 121 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/448.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Lucario</p><p class="wm-equipe__niveau">niv. 30</p><span class="wm-type wm-type--combat" data-wm-type="combat">Combat</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Lucario</p><span class="wm-infobulle__niveau">Niv. 30</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="combat">Combat</span><span class="wm-infobulle__type" data-wm-type="acier">Acier</span></ul><p class="wm-equipe__chiffres">82 PV · 71 ATT · 47 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/376.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Métalosse</p><p class="wm-equipe__niveau">niv. 30</p><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Métalosse</p><span class="wm-infobulle__niveau">Niv. 30</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="acier">Acier</span><span class="wm-infobulle__type" data-wm-type="psy">Psy</span></ul><p class="wm-equipe__chiffres">88 PV · 86 ATT · 83 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="arene-vol">
+                <h3 class="wm-defi__titre">Arène Vol</h3>
+                <p class="wm-defi__lieu">Tour Titanite</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/vol.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--vol" data-wm-type="vol">Vol</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--glace" data-wm-type="glace">Glace</span> <span class="wm-defi__facteur">×2.5 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>50 <span class="wm-defi__palier">Palier 2</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f21-arene-vol">Défier · Arène Vol</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15595">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/164.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Noarfang</p><p class="wm-equipe__niveau">niv. 48</p><span class="wm-type wm-type--normal" data-wm-type="normal">Normal</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Noarfang</p><span class="wm-infobulle__niveau">Niv. 48</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="normal">Normal</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">154 PV · 53 ATT · 53 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/357.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Tropius</p><p class="wm-equipe__niveau">niv. 48</p><span class="wm-type wm-type--plante" data-wm-type="plante">Plante</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Tropius</p><span class="wm-infobulle__niveau">Niv. 48</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="plante">Plante</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">153 PV · 70 ATT · 84 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/18.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Roucarnage</p><p class="wm-equipe__niveau">niv. 49</p><span class="wm-type wm-type--normal" data-wm-type="normal">Normal</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Roucarnage</p><span class="wm-infobulle__niveau">Niv. 49</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="normal">Normal</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">140 PV · 83 ATT · 78 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/823.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Corvaillus</p><p class="wm-equipe__niveau">niv. 49</p><span class="wm-type wm-type--vol" data-wm-type="vol">Vol</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Corvaillus</p><span class="wm-infobulle__niveau">Niv. 49</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="vol">Vol</span><span class="wm-infobulle__type" data-wm-type="acier">Acier</span></ul><p class="wm-equipe__chiffres">155 PV · 90 ATT · 107 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/567.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Aéroptéryx</p><p class="wm-equipe__niveau">niv. 50</p><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Aéroptéryx</p><span class="wm-infobulle__niveau">Niv. 50</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="roche">Roche</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">135 PV · 145 ATT · 70 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/334.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Altaria</p><p class="wm-equipe__niveau">niv. 50</p><span class="wm-type wm-type--dragon" data-wm-type="dragon">Dragon</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Altaria</p><span class="wm-infobulle__niveau">Niv. 50</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">135 PV · 75 ATT · 95 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="arene-tenebres">
+                <h3 class="wm-defi__titre">Arène Ténèbres</h3>
+                <p class="wm-defi__lieu">Île Ténèbra</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/tenebres.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--combat" data-wm-type="combat">Combat</span> <span class="wm-defi__facteur">×2.5 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>60 <span class="wm-defi__palier">Palier 2</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f20-arene-tenebres">Défier · Arène Ténèbres</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15594">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/229.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Démolosse</p><p class="wm-equipe__niveau">niv. 58</p><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Démolosse</p><span class="wm-infobulle__niveau">Niv. 58</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</span><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></ul><p class="wm-equipe__chiffres">155 PV · 109 ATT · 63 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/359.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Absol</p><p class="wm-equipe__niveau">niv. 58</p><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Absol</p><span class="wm-infobulle__niveau">Niv. 58</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</span></ul><p class="wm-equipe__chiffres">143 PV · 155 ATT · 74 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/461.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Dimoret</p><p class="wm-equipe__niveau">niv. 59</p><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Dimoret</p><span class="wm-infobulle__niveau">Niv. 59</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</span><span class="wm-infobulle__type" data-wm-type="glace">Glace</span></ul><p class="wm-equipe__chiffres">151 PV · 146 ATT · 81 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/862.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Ixon</p><p class="wm-equipe__niveau">niv. 59</p><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Ixon</p><span class="wm-infobulle__niveau">Niv. 59</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</span><span class="wm-infobulle__type" data-wm-type="normal">Normal</span></ul><p class="wm-equipe__chiffres">178 PV · 111 ATT · 124 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/635.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Trioxhydre</p><p class="wm-equipe__niveau">niv. 60</p><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Trioxhydre</p><span class="wm-infobulle__niveau">Niv. 60</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</span><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span></ul><p class="wm-equipe__chiffres">180 PV · 131 ATT · 113 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/430.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Corboss</p><p class="wm-equipe__niveau">niv. 60</p><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Corboss</p><span class="wm-infobulle__niveau">Niv. 60</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">190 PV · 155 ATT · 67 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
             </div>
-          </div>
-          <p class="wm-perso__liens">
-            <a class="wm-perso__lien" href="/h10-celebrites-de-rhode#les-champions">Les
-              onze postes de champion →</a>
-            <a class="wm-perso__lien" href="/h10-celebrites-de-rhode">Personnages
-              jouables, champions &amp; célébrités →</a>
-          </p>
+
+          </section>
+
+          <section data-wm-sous-onglet="les-colosseums">
+            <h2 class="wm-annexe__carte-titre">Les quatre colosseums</h2>
+            <div class="wm-paras">
+              <p>Deux contre deux. Ce n&#x27;est pas plus difficile qu&#x27;une arène : c&#x27;est la façon de se battre qui change.</p>
+              <p>On vient avec deux pokémon au lieu d&#x27;un — les deux premiers de l&#x27;équipe — et on remplit le formulaire du forum avec leur infobulle. Il faut préciser quel pokémon adverse on attaque, et avec lequel des siens. On ne choisit le suivant que quand l&#x27;un des deux est K.O.</p>
+              <p>Les colosseums et la Ligue sont les seuls endroits du forum où le combat en duo est autorisé. L&#x27;expérience de fin de combat n&#x27;est pas partagée entre les deux pokémon : chacun a la sienne.</p>
+            </div>
+
+            <div class="wm-defis wm-sous-onglets" data-wm-sous-onglets>
+
+              <section class="wm-defi" data-wm-sous-onglet="colosseum-de-targare">
+                <h3 class="wm-defi__titre">Colosseum de Targare</h3>
+                <p class="wm-defi__lieu">Suerebe</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/electrik.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--sol" data-wm-type="sol">Sol</span> <span class="wm-defi__facteur">×2 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>18 <span class="wm-defi__palier">Palier 2</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f28-colosseum-de-targare">Défier · Colosseum de Targare</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15591">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/26.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Raichu</p><p class="wm-equipe__niveau">niv. 16</p><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Raichu</p><span class="wm-infobulle__niveau">Niv. 16</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="electrik">Électrik</span></ul><p class="wm-equipe__chiffres">45 PV · 33 ATT · 22 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/310.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Élecsprint</p><p class="wm-equipe__niveau">niv. 16</p><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Élecsprint</p><span class="wm-infobulle__niveau">Niv. 16</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="electrik">Électrik</span></ul><p class="wm-equipe__chiffres">48 PV · 29 ATT · 24 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/181.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Pharamp</p><p class="wm-equipe__niveau">niv. 17</p><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Pharamp</p><span class="wm-infobulle__niveau">Niv. 17</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="electrik">Électrik</span></ul><p class="wm-equipe__chiffres">57 PV · 30 ATT · 33 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/405.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Luxray</p><p class="wm-equipe__niveau">niv. 17</p><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Luxray</p><span class="wm-infobulle__niveau">Niv. 17</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="electrik">Électrik</span></ul><p class="wm-equipe__chiffres">54 PV · 45 ATT · 31 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/135.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Voltali</p><p class="wm-equipe__niveau">niv. 18</p><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Voltali</p><span class="wm-infobulle__niveau">Niv. 18</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="electrik">Électrik</span></ul><p class="wm-equipe__chiffres">51 PV · 28 ATT · 26 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/604.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Ohmassacre</p><p class="wm-equipe__niveau">niv. 18</p><span class="wm-type wm-type--electrik" data-wm-type="electrik">Électrik</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Ohmassacre</p><span class="wm-infobulle__niveau">Niv. 18</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="electrik">Électrik</span></ul><p class="wm-equipe__chiffres">58 PV · 46 ATT · 33 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="colosseum-de-phenacit">
+                <h3 class="wm-defi__titre">Colosseum de Phenacit</h3>
+                <p class="wm-defi__lieu">Phenacit</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/spectre.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--spectre" data-wm-type="spectre">Spectre</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--spectre" data-wm-type="spectre">Spectre</span> <span class="wm-defi__facteur">×1.833 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>35 <span class="wm-defi__palier">Palier 1</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f30-colosseum-de-phenacit">Défier · Colosseum de Phenacit</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15592">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/355.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Skelénox</p><p class="wm-equipe__niveau">niv. 33</p><span class="wm-type wm-type--spectre" data-wm-type="spectre">Spectre</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Skelénox</p><span class="wm-infobulle__niveau">Niv. 33</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="spectre">Spectre</span></ul><p class="wm-equipe__chiffres">56 PV · 31 ATT · 64 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/302.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Ténéfix</p><p class="wm-equipe__niveau">niv. 33</p><span class="wm-type wm-type--tenebres" data-wm-type="tenebres">Ténèbres</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Ténéfix</p><span class="wm-infobulle__niveau">Niv. 33</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</span><span class="wm-infobulle__type" data-wm-type="spectre">Spectre</span></ul><p class="wm-equipe__chiffres">76 PV · 54 ATT · 54 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/429.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Magirêve</p><p class="wm-equipe__niveau">niv. 34</p><span class="wm-type wm-type--spectre" data-wm-type="spectre">Spectre</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Magirêve</p><span class="wm-infobulle__niveau">Niv. 34</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="spectre">Spectre</span></ul><p class="wm-equipe__chiffres">84 PV · 45 ATT · 45 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/864.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Corayôme</p><p class="wm-equipe__niveau">niv. 34</p><span class="wm-type wm-type--spectre" data-wm-type="spectre">Spectre</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Corayôme</p><span class="wm-infobulle__niveau">Niv. 34</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="spectre">Spectre</span></ul><p class="wm-equipe__chiffres">84 PV · 69 ATT · 39 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/778.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Mimiqui</p><p class="wm-equipe__niveau">niv. 35</p><span class="wm-type wm-type--spectre" data-wm-type="spectre">Spectre</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Mimiqui</p><span class="wm-infobulle__niveau">Niv. 35</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="spectre">Spectre</span><span class="wm-infobulle__type" data-wm-type="fee">Fée</span></ul><p class="wm-equipe__chiffres">83 PV · 68 ATT · 61 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/94.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Ectoplasma</p><p class="wm-equipe__niveau">niv. 35</p><span class="wm-type wm-type--spectre" data-wm-type="spectre">Spectre</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Ectoplasma</p><span class="wm-infobulle__niveau">Niv. 35</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="spectre">Spectre</span><span class="wm-infobulle__type" data-wm-type="poison">Poison</span></ul><p class="wm-equipe__chiffres">87 PV · 50 ATT · 47 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="colosseum-de-rhode">
+                <h3 class="wm-defi__titre">Colosseum de Rhode</h3>
+                <p class="wm-defi__lieu">Port-Amarée</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/fee.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--fee" data-wm-type="fee">Fée</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span> <span class="wm-defi__facteur">×2.167 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>40 <span class="wm-defi__palier">Palier 1</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f24-colosseum-de-rhode">Défier · Colosseum de Rhode</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15593">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/showdown/869.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Charmilly</p><p class="wm-equipe__niveau">niv. 38</p><span class="wm-type wm-type--fee" data-wm-type="fee">Fée</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Charmilly</p><span class="wm-infobulle__niveau">Niv. 38</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="fee">Fée</span></ul><p class="wm-equipe__chiffres">97 PV · 50 ATT · 62 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/36.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Mélodelfe</p><p class="wm-equipe__niveau">niv. 38</p><span class="wm-type wm-type--fee" data-wm-type="fee">Fée</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Mélodelfe</p><span class="wm-infobulle__niveau">Niv. 38</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="fee">Fée</span></ul><p class="wm-equipe__chiffres">120 PV · 58 ATT · 60 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/303.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Mysdibule</p><p class="wm-equipe__niveau">niv. 39</p><span class="wm-type wm-type--acier" data-wm-type="acier">Acier</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Mysdibule</p><span class="wm-infobulle__niveau">Niv. 39</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="acier">Acier</span><span class="wm-infobulle__type" data-wm-type="fee">Fée</span></ul><p class="wm-equipe__chiffres">88 PV · 71 ATT · 71 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/10104.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Feunard d&#x27;Alola</p><p class="wm-equipe__niveau">niv. 39</p><span class="wm-type wm-type--glace" data-wm-type="glace">Glace</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Feunard d&#x27;Alola</p><span class="wm-infobulle__niveau">Niv. 39</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="glace">Glace</span><span class="wm-infobulle__type" data-wm-type="fee">Fée</span></ul><p class="wm-equipe__chiffres">105 PV · 57 ATT · 63 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/700.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Nymphali</p><p class="wm-equipe__niveau">niv. 40</p><span class="wm-type wm-type--fee" data-wm-type="fee">Fée</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Nymphali</p><span class="wm-infobulle__niveau">Niv. 40</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="fee">Fée</span></ul><p class="wm-equipe__chiffres">126 PV · 57 ATT · 57 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/468.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Togekiss</p><p class="wm-equipe__niveau">niv. 40</p><span class="wm-type wm-type--fee" data-wm-type="fee">Fée</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Togekiss</p><span class="wm-infobulle__niveau">Niv. 40</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="fee">Fée</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">118 PV · 45 ATT · 81 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+              <section class="wm-defi" data-wm-sous-onglet="colosseum-de-titanite">
+                <h3 class="wm-defi__titre">Colosseum de Titanite</h3>
+                <p class="wm-defi__lieu">Tour Titanite</p>
+
+                <div class="wm-defi__tete">
+                  <figure class="wm-defi__badge">
+                    <img src="https://by-teenspirit.github.io/wild-mystery/img/badges/dragon.png" alt="" loading="lazy" />
+                    <figcaption>Badge à gagner</figcaption>
+                  </figure>
+                  <dl class="wm-defi__faits">
+                    <div class="wm-defi__fait">
+                      <dt>Type de l'arène</dt>
+                      <dd><span class="wm-type wm-type--dragon" data-wm-type="dragon">Dragon</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Type conseillé</dt>
+                      <dd><span class="wm-type wm-type--glace" data-wm-type="glace">Glace</span> <span class="wm-defi__facteur">×2.5 en moyenne sur l'équipe</span></dd>
+                    </div>
+                    <div class="wm-defi__fait">
+                      <dt>Niveau de l'équipe</dt>
+                      <dd>70 <span class="wm-defi__palier">Palier 2</span></dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <p class="wm-defi__liens">
+                  <a class="wm-renvoi" href="https://mysteryinrhode.forumactif.com/f22-colosseum-de-titanite">Défier · Colosseum de Titanite</a>
+                  <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/t1002-les-champions#15590">Le pré-lien du champion</a>
+                  <span class="wm-defi__etat">Poste vacant — <a class="wm-renvoi wm-renvoi--sec" href="https://mysteryinrhode.forumactif.com/h10-celebrites-de-rhode">annexe 10 · Personnages jouables, champions &amp; célébrités</a></span>
+                </p>
+
+                <h4 class="wm-defi__sous-titre">L&#x27;équipe du défi</h4>
+                <ul class="wm-equipe">
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/621.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Drakkarmin</p><p class="wm-equipe__niveau">niv. 68</p><span class="wm-type wm-type--dragon" data-wm-type="dragon">Dragon</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Drakkarmin</p><span class="wm-infobulle__niveau">Niv. 68</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span></ul><p class="wm-equipe__chiffres">182 PV · 168 ATT · 127 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/230.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Hyporoi</p><p class="wm-equipe__niveau">niv. 68</p><span class="wm-type wm-type--eau" data-wm-type="eau">Eau</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Hyporoi</p><span class="wm-infobulle__niveau">Niv. 68</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="eau">Eau</span><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span></ul><p class="wm-equipe__chiffres">180 PV · 134 ATT · 134 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/612.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Tranchodon</p><p class="wm-equipe__niveau">niv. 69</p><span class="wm-type wm-type--dragon" data-wm-type="dragon">Dragon</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Tranchodon</p><span class="wm-infobulle__niveau">Niv. 69</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span></ul><p class="wm-equipe__chiffres">183 PV · 207 ATT · 129 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/697.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Rexillius</p><p class="wm-equipe__niveau">niv. 69</p><span class="wm-type wm-type--roche" data-wm-type="roche">Roche</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Rexillius</p><span class="wm-infobulle__niveau">Niv. 69</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="roche">Roche</span><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span></ul><p class="wm-equipe__chiffres">192 PV · 171 ATT · 169 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/373.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Drattak</p><p class="wm-equipe__niveau">niv. 70</p><span class="wm-type wm-type--dragon" data-wm-type="dragon">Dragon</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Drattak</p><span class="wm-infobulle__niveau">Niv. 70</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">213 PV · 194 ATT · 117 DEF</p></div></li>
+<li class="wm-equipe__pkmn" tabindex="0"><img class="wm-equipe__sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/versions/generation-vii/ultra-sun-ultra-moon/149.gif" alt="" loading="lazy" /><p class="wm-equipe__nom">Dracolosse</p><p class="wm-equipe__niveau">niv. 70</p><span class="wm-type wm-type--dragon" data-wm-type="dragon">Dragon</span><div class="wm-infobulle" role="tooltip"><div class="wm-infobulle__tete"><p class="wm-infobulle__nom">Dracolosse</p><span class="wm-infobulle__niveau">Niv. 70</span></div><ul class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="dragon">Dragon</span><span class="wm-infobulle__type" data-wm-type="vol">Vol</span></ul><p class="wm-equipe__chiffres">207 PV · 192 ATT · 138 DEF</p></div></li>
+                </ul>
+                <p class="wm-defi__dit">Cette équipe appartient à l&#x27;arène, pas au champion. Qui prend le poste ne peut ni l&#x27;entraîner, ni la vendre, ni l&#x27;utiliser : elle peut être mentionnée en narration, jamais rejoindre l&#x27;équipe usuelle du personnage.</p>
+                <p class="wm-defi__dit">Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d&#x27;avant les niveaux du 6 novembre.</p>
+              </section>
+
+            </div>
+
+          </section>
+
+          <section data-wm-sous-onglet="la-ligue">
+            <h2 class="wm-annexe__carte-titre">La Ligue</h2>
+            <div class="wm-paras">
+              <p>Le douzième défi, et le dernier. Elle se tient au Mont Bataille et Michael la tient lui-même.</p>
+              <p>Il faut le palier 3 pour y entrer : l&#x27;intégralité des badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe. Le palier 3 ouvre en même temps la zone ultime de la région.</p>
+              <p>Comme dans un colosseum, on s&#x27;y bat en deux contre deux.</p>
+            </div>
+
+            <dl class="wm-defi__faits">
+              <div class="wm-defi__fait">
+                <dt>Où</dt>
+                <dd>Mont Bataille</dd>
+              </div>
+              <div class="wm-defi__fait">
+                <dt>Niveau de l&#x27;équipe</dt>
+                <dd>80 · Palier 3</dd>
+              </div>
+              <div class="wm-defi__fait">
+                <dt>Tenue par</dt>
+                <dd>Michael</dd>
+              </div>
+            </dl>
+
+            <p class="wm-defi__dit">L&#x27;équipe de Michael n&#x27;est pas publiée : le sujet des pré-liens n&#x27;en donne aucune. Elle s&#x27;affichera ici le jour où elle sera écrite.</p>
+
+          </section>
+
         </div>
 
         <div class="wm-suivante">

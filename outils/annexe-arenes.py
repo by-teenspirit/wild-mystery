@@ -1,0 +1,514 @@
+#!/usr/bin/env python3
+# ════════════════════════════════════════════════════════════════════
+#  outils/annexe-arenes.py — le corps de l'annexe 06, les onze défis
+#
+#  ── CE QU'ELLE PORTE ────────────────────────────────────────────────
+#
+#  Demandé le 6 novembre 2026 : « on va avoir trois onglets : un onglet
+#  de présentation de l'annexe, un onglet arènes, un onglet colosseums
+#  et un onglet ligue ». Quatre, donc. Et dans les deux du milieu :
+#  « faire un onglet par arène colosseum […] avec le type de l'arène,
+#  type conseillé pour le battre, un lien vers le pré-lien, et les
+#  pokémons de l'arène », chacun montrant « le badge à gagner ».
+#
+#  ── POURQUOI UN GÉNÉRATEUR ──────────────────────────────────────────
+#
+#  Soixante-six pokémon, chacun avec un niveau et trois chiffres qui se
+#  CALCULENT depuis le niveau du défi. Changer un seul niveau d'arène,
+#  c'est dix-huit chiffres à refaire à la main — et une page ne casse
+#  pas quand elle mente. Plus onze badges, onze types, onze types
+#  conseillés, onze adresses de forum et onze ancres de pré-lien.
+#
+#  Rien de tout ça n'est écrit ici : `data/arenes.json` tient les défis
+#  et les textes, `data/equipes-de-champions.json` tient les équipes et
+#  les types conseillés, et `data/personnages.json` dit si un poste a
+#  son pré-lien.
+#
+#  ── PAS DE NOM DE CHAMPION SUR CETTE PAGE ───────────────────────────
+#
+#  « Aucune des informations affichées n'est bonne concernant le
+#  champion en lui-même, il n'y a que son équipe » (6 novembre). Le
+#  sujet des pré-liens propose onze personnages — Lars, Hana, Carmen… —
+#  et ils ne font pas foi. La page renvoie donc vers le pré-lien et dit
+#  « poste vacant » tant qu'aucune fiche n'existe dans
+#  `data/personnages.json`. Le jour où une fiche est écrite, son nom
+#  apparaît tout seul, et le renvoi pointe sur elle.
+#
+#  ── ET PAS DE JAVASCRIPT POUR LES SPRITES ───────────────────────────
+#
+#  Contrairement aux cartes d'une zone ou d'une brèche, les soixante-six
+#  sprites sont écrits DANS la page. C'est possible ici et pas là-bas :
+#  une équipe de champion est FIXE — six espèces décidées —, alors
+#  qu'une zone en porte jusqu'à soixante-dix dont le joueur filtre
+#  l'affichage. Six adresses écrites coûtent moins qu'un module, et la
+#  page marche sans script.
+#
+#  Le style est celui du forum, comme sur la carte dresseur collée. Il
+#  passe par `data/sprites-couverture.json` et PAS par un chemin écrit
+#  en dur : le style du forum n'a pas de sprite pour tout le monde, et
+#  la carte de couverture dit, espèce par espèce, où est le bon.
+#
+#  ── IL ÉCRIT ENTRE LES BORNES, COMME LA RÉDACTION ───────────────────
+#
+#  `outils/annexes.py` refait l'enveloppe de chaque page et conserve ce
+#  qui est entre `▼▼▼ DÉBUT DU CORPS` et `▲▲▲ FIN DU CORPS`. Cet
+#  outil-ci écrit ce corps-là.
+# ════════════════════════════════════════════════════════════════════
+
+import html
+import json
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).parent))
+from annexes import (  # noqa: E402
+    ARTWORK,
+    DEBUT,
+    DECORS,
+    FIN,
+    PAGES,
+    chemin_de_la_page,
+    en_titre,
+    entre_les_bornes,
+    numero_de,
+    pied_de_page,
+    remplacer_le_corps,
+    renvoi_vers,
+    sans_accent,
+    slug,
+)
+
+R = pathlib.Path(__file__).resolve().parent.parent
+SLUG = "arenes-colosseums-ligues"
+PAGE = chemin_de_la_page(SLUG)
+FORUM = "https://mysteryinrhode.forumactif.com"
+#  LE SUJET DES PRÉ-LIENS. Une seule adresse, et les onze ancres sont
+#  les numéros de message relevés dedans — voir `message` dans
+#  `data/equipes-de-champions.json`.
+PRELIENS = f"{FORUM}/t1002-les-champions"
+#  Le style du forum, celui de la carte dresseur collée.
+STYLE = "forum"
+
+PALIERS = {1: "Palier 1", 2: "Palier 2", 3: "Palier 3"}
+
+
+def e(t):
+    """Échappe, et c'est NON NÉGOCIABLE sur cette page.
+
+    L'éditeur de pages HTML de Forumactif DÉCODE les entités au
+    collage : un `<` laissé nu dans un nom finit en balise. C'est ce qui
+    a mis la moitié de l'annexe 01 dans un `<table>` le 1er novembre.
+    """
+    return html.escape(str(t), quote=True)
+
+
+def lire(chemin):
+    return json.loads((R / chemin).read_text(encoding="utf-8"))
+
+
+def adresse_du_sprite(couverture, espece_id):
+    """L'adresse du sprite animé d'une espèce, dans le style du forum.
+
+    ON LIT LA CARTE DE COUVERTURE, on n'écrit pas un chemin. Le style du
+    forum est Ultra-Soleil / Ultra-Lune, qui s'arrête à la septième
+    génération : Ixon, Corvaillus et Corayôme n'y sont pas, et
+    `outils/sprites.py` leur a trouvé une source ailleurs. Un chemin
+    écrit en dur — c'est ce que fait `equipe-de-test.py` — rend une
+    image cassée pour eux.
+
+    `source` et pas `fige` : le sprite ANIMÉ, comme dans une zone. Les
+    images figées servent la grille du Pokédex, où il y en a neuf cents
+    sur un écran.
+    """
+    fiche = couverture["styles"][STYLE]["especes"].get(str(espece_id))
+    if fiche is None:
+        return None
+    chemin = fiche["source"]
+    return chemin if chemin.startswith("http") else f'{couverture["base"]}/{chemin}'
+
+
+def pastille(cle, classe="wm-type"):
+    """Une pastille de type. La CLÉ est sans accent — ce sont les classes
+    de `css/13-composants.css` — et le NOM affiché la retrouve.
+
+    PAS DE MODIFICATEUR SUR L'INFOBULLE, et c'est écrit dans la feuille :
+    « ce ne sont pas les pastilles `.wm-type` […] sur le vert ou le
+    violet de l'infobulle, aucune de ces paires n'a été mesurée ». Les
+    types y sont translucides, et un `wm-infobulle__type--feu` serait
+    une classe qui ne peint rien — donc une classe qu'on croirait
+    utile. Seul `data-wm-type` reste, parce que lui porte le glyphe.
+    """
+    c = sans_accent(cle)
+    modificateur = f" {classe}--{e(c)}" if classe == "wm-type" else ""
+    return (f'<span class="{classe}{modificateur}" data-wm-type="{e(c)}">'
+            f'{e(en_titre(c))}</span>')
+
+
+def membre(w, m, couverture):
+    """Une case d'équipe, avec son infobulle — SUR UNE SEULE LIGNE.
+
+    L'INFOBULLE EST CELLE DU DÉPÔT — `wm-infobulle`, déjà stylée et déjà
+    posée sur la carte dresseur. « Les pokémons de l'arène avec une
+    infobulle pour afficher leur niveau » (6 novembre) : le niveau y est
+    déjà, et les trois chiffres du combat avec.
+
+    ── POURQUOI UNE SEULE LIGNE, ICI ET PAS AILLEURS ────────────────
+    Soixante-six cases écrites comme le reste de la page faisaient
+    143 109 caractères — MESURÉ — contre 128 000 que l'éditeur de pages
+    de Forumactif accepte. Et il refuse EN SILENCE : la page se
+    recharge, le contenu revient à l'état d'avant, aucun message.
+    L'indentation à elle seule pesait 33 Ko sur 140.
+
+    On ne gagne rien à aérer un bloc que personne ne lit : la source,
+    c'est ce fichier-ci. Le reste de la page garde son indentation,
+    parce que le reste de la page tient.
+    """
+    adresse = adresse_du_sprite(couverture, m["id"])
+    if adresse is None:
+        #  PAS D'IMAGE CASSÉE. La boîte vide est prévue par la feuille,
+        #  et le nom reste écrit en dessous : on sait quelle bête
+        #  manque, ce qu'une image en 404 ne dit pas.
+        image = '<span class="wm-equipe__sprite wm-equipe__sprite--vide"></span>'
+    else:
+        image = (f'<img class="wm-equipe__sprite" src="{e(adresse)}" alt=""'
+                 ' loading="lazy" />')
+    #  LA CASE NE PORTE QUE LE PREMIER TYPE : elle fait moins de cent
+    #  pixels, et un double type y passerait sur deux lignes. L'infobulle
+    #  les montre tous les deux. Même arbitrage que `equipe-de-test.py`.
+    #
+    #  LES TROIS CHIFFRES TIENNENT SUR UNE LIGNE, et c'est aussi mieux à
+    #  lire : trois lignes « mot / valeur » dans une infobulle de deux
+    #  cent cinquante pixels faisaient un tableau là où une phrase
+    #  suffit.
+    w(
+        '<li class="wm-equipe__pkmn" tabindex="0">'
+        + image
+        + f'<p class="wm-equipe__nom">{e(m["nom"])}</p>'
+        + f'<p class="wm-equipe__niveau">niv. {m["niveau"]}</p>'
+        + pastille(m["types"][0])
+        + '<div class="wm-infobulle" role="tooltip">'
+        + '<div class="wm-infobulle__tete">'
+        + f'<p class="wm-infobulle__nom">{e(m["nom"])}</p>'
+        + f'<span class="wm-infobulle__niveau">Niv. {m["niveau"]}</span>'
+        + "</div>"
+        + '<ul class="wm-infobulle__types">'
+        + "".join(pastille(t, "wm-infobulle__type") for t in m["types"])
+        + "</ul>"
+        + f'<p class="wm-equipe__chiffres">{m["pv"]} PV · {m["att"]} ATT'
+        f' · {m["def"]} DEF</p>'
+        + "</div></li>"
+    )
+
+
+def defi(w, a, equipe, textes, couverture, fiche_du_poste, renvoi_personnages):
+    """Un sous-onglet : un défi, son badge, ses types, ses liens, son équipe."""
+    i = "              "
+    w(f'{i}<section class="wm-defi" data-wm-sous-onglet="{e(slug(a["nom"]))}">')
+    #  LE TITRE EST CE QUE LE MODULE LIT pour nommer le bouton d'onglet
+    #  — `h2, h3`, premier trouvé dans la section. C'est donc un `h3`, et
+    #  il ne contient que le nom : la ville va dans la ligne d'après.
+    w(f'{i}  <h3 class="wm-defi__titre">{e(a["nom"])}</h3>')
+    w(f'{i}  <p class="wm-defi__lieu">{e(a["ville"])}</p>')
+    w("")
+
+    w(f'{i}  <div class="wm-defi__tete">')
+    #  ── LE BADGE À GAGNER ────────────────────────────────────────
+    #
+    #  `img/badges/<slug>.png`, les mêmes images que la grille de la
+    #  carte dresseur et que la liste des postes de l'annexe 10. Une
+    #  seconde série de badges finirait par ne plus ressembler à la
+    #  première.
+    w(f'{i}    <figure class="wm-defi__badge">')
+    w(f'{i}      <img src="{PAGES}/img/badges/{e(a["slug"])}.png" alt=""'
+      ' loading="lazy" />')
+    w(f'{i}      <figcaption>Badge à gagner</figcaption>')
+    w(f'{i}    </figure>')
+
+    w(f'{i}    <dl class="wm-defi__faits">')
+    w(f'{i}      <div class="wm-defi__fait">')
+    w(f'{i}        <dt>Type de l\'arène</dt>')
+    w(f'{i}        <dd>{pastille(a["type"])}</dd>')
+    w(f'{i}      </div>')
+    #  ── LE TYPE CONSEILLÉ VIENT DE L'ÉQUIPE, PAS DU TYPE DU DÉFI ──
+    #
+    #  Calculé par `outils/equipes-de-champions.py` sur les six membres
+    #  réels. L'arène Vol aligne un Aéroptéryx Roche/Vol et un Altaria
+    #  Dragon/Vol : « Électrik, super efficace contre Vol » se tromperait
+    #  sur un tiers de l'équipe. Le chiffre est affiché avec, parce qu'un
+    #  conseil sans son ampleur ne se compare pas d'un défi à l'autre.
+    conseil = equipe["conseil"]
+    w(f'{i}      <div class="wm-defi__fait">')
+    w(f'{i}        <dt>Type conseillé</dt>')
+    w(f'{i}        <dd>'
+      + " ".join(pastille(t) for t in conseil["types"])
+      + f' <span class="wm-defi__facteur">×{conseil["facteur"]:g} '
+      'en moyenne sur l\'équipe</span></dd>')
+    w(f'{i}      </div>')
+    w(f'{i}      <div class="wm-defi__fait">')
+    w(f'{i}        <dt>Niveau de l\'équipe</dt>')
+    w(f'{i}        <dd>{a["niveau"]} <span class="wm-defi__palier">'
+      f'{e(PALIERS[a["palier"]])}</span></dd>')
+    w(f'{i}      </div>')
+    w(f'{i}    </dl>')
+    w(f'{i}  </div>')
+    w("")
+
+    # ── les deux renvois ────────────────────────────────────────────
+    w(f'{i}  <p class="wm-defi__liens">')
+    w(f'{i}    <a class="wm-renvoi" href="{FORUM}{e(a["forum"])}">'
+      f'Défier · {e(a["nom"])}</a>')
+    #  L'ANCRE EST LE NUMÉRO DU MESSAGE, relevé dans le sujet. Elle
+    #  ouvre le pré-lien du bon champion plutôt que le haut d'un sujet
+    #  de douze messages.
+    w(f'{i}    <a class="wm-renvoi wm-renvoi--sec" '
+      f'href="{PRELIENS}#{equipe["message"]}">Le pré-lien du champion</a>')
+    if fiche_du_poste is None:
+        adresse, numero, titre = renvoi_personnages
+        w(f'{i}    <span class="wm-defi__etat">Poste vacant — '
+          f'<a class="wm-renvoi wm-renvoi--sec" href="{FORUM}{e(adresse)}">'
+          f'annexe {e(numero)} · {e(titre)}</a></span>')
+    else:
+        adresse, numero, titre = renvoi_personnages
+        w(f'{i}    <span class="wm-defi__etat">Tenue par '
+          f'<a class="wm-renvoi wm-renvoi--sec" '
+          f'href="{FORUM}{e(adresse)}#les-champions">'
+          f'{e(fiche_du_poste["nom"])}</a></span>')
+    w(f'{i}  </p>')
+    w("")
+
+    # ── l'équipe ────────────────────────────────────────────────────
+    eq = textes["equipe"]
+    w(f'{i}  <h4 class="wm-defi__sous-titre">{e(eq["titre"])}</h4>')
+    w(f'{i}  <ul class="wm-equipe">')
+    for m in equipe["membres"]:
+        membre(w, m, couverture)
+    w(f'{i}  </ul>')
+    w(f'{i}  <p class="wm-defi__dit">{e(eq["note"])}</p>')
+    w(f'{i}  <p class="wm-defi__dit">{e(eq["dit"])}</p>')
+    w(f'{i}</section>')
+    w("")
+
+
+def groupe(w, titre_onglet, bloc, defis, equipes, textes, couverture, fiches,
+           renvoi_personnages):
+    """Un onglet du milieu : son texte de rappel, puis un sous-onglet par défi."""
+    w('          <section data-wm-sous-onglet="'
+      f'{e(slug(titre_onglet))}">')
+    w(f'            <h2 class="wm-annexe__carte-titre">{e(bloc["titre"])}</h2>')
+    w('            <div class="wm-paras">')
+    for para in bloc["paragraphes"]:
+        w(f"              <p>{e(para)}</p>")
+    w("            </div>")
+    w("")
+    #  ── LES SOUS-ONGLETS S'IMBRIQUENT ────────────────────────────
+    #
+    #  `poserLesSousOnglets` ne ramasse que les sections dont le groupe
+    #  le plus proche est le sien — corrigé le 5 novembre pour les quatre
+    #  évènements de Rhode. Un groupe dans un groupe marche donc, et
+    #  aucun des deux n'a besoin de savoir que l'autre existe.
+    w('            <div class="wm-defis wm-sous-onglets" data-wm-sous-onglets>')
+    w("")
+    #  L'ORDRE EST CELUI DES NIVEAUX. `data/arenes.json` garde son
+    #  tableau groupé pour la grille de badges de la carte dresseur ;
+    #  ici on lit le jeu, donc on trie.
+    for a in sorted(defis, key=lambda a: a["niveau"]):
+        defi(w, a, equipes[a["slug"]], textes, couverture,
+             fiches.get(a["slug"]), renvoi_personnages)
+    w("            </div>")
+    w("")
+    w("          </section>")
+    w("")
+
+
+def corps():
+    arenes = lire("data/arenes.json")
+    textes = arenes["textes"]
+    equipes = lire("data/equipes-de-champions.json")["equipes"]
+    couverture = lire("data/sprites-couverture.json")
+    #  LES FICHES DE CHAMPION, PAR ARÈNE. La liste est vide aujourd'hui
+    #  et c'est voulu — voir `_fiches` dans `data/personnages.json`.
+    fiches = {
+        f["arene"]: f
+        for f in lire("data/personnages.json")["champions"]["fiches"]
+    }
+    renvoi_personnages = renvoi_vers("celebrites-de-rhode")
+
+    manquants = [a["slug"] for a in arenes["arenes"] if a["slug"] not in equipes]
+    if manquants:
+        raise SystemExit(
+            "pas d'équipe pour : " + ", ".join(manquants)
+            + " — lance outils/equipes-de-champions.py --depuis"
+        )
+
+    out = []
+    w = out.append
+
+    #  LES BORNES FONT PARTIE DU CORPS : `entre_les_bornes` les rend avec
+    #  lui et `remplacer_le_corps` les remplace avec lui. Les oublier
+    #  produit une page sans corps, et la fois suivante l'outil ne sait
+    #  plus où écrire.
+    w(f"{DEBUT} — écrit par `outils/annexe-arenes.py` ▼▼▼ -->")
+    photo, espece, _lieu = DECORS[SLUG]
+    w(f"""<div class="wm-annexe wm-annexe--arenes" style="--annexe-fond: """
+      f"""url('{PAGES}/assets/zones/{photo}.jpg'); """
+      f"""--annexe-rendu: url('{ARTWORK}/{espece}.png')">""")
+    w("")
+    w('  <nav class="wm-annexe__sommaire" data-wm-sommaire aria-label="Les annexes"></nav>')
+    w("")
+    w('  <div class="wm-annexe__corps">')
+    w('    <div class="wm-annexe__colonne">')
+    w("")
+    w(f'      <p class="wm-annexe__surtitre">Annexe {numero_de(SLUG)}</p>')
+    w('      <h1 class="wm-annexe__titre">Arènes, <em>colosseums</em> et Ligue</h1>')
+    w('      <p class="wm-annexe__chapo">')
+    for ligne in textes["chapo"]:
+        w(f"        {e(ligne)}")
+    w("      </p>")
+    w("")
+    w('      <div class="wm-annexe__blocs">')
+    w("")
+
+    # ── QUATRE ONGLETS ──────────────────────────────────────────────
+    w('        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>')
+    w("")
+
+    # ── 1 · la présentation ─────────────────────────────────────────
+    p = textes["presentation"]
+    w('          <section data-wm-sous-onglet="comment-on-defie">')
+    w(f'            <h2 class="wm-annexe__carte-titre">{e(p["titre"])}</h2>')
+    w('            <div class="wm-paras">')
+    for para in p["paragraphes"]:
+        w(f"              <p>{e(para)}</p>")
+    w("            </div>")
+    w("")
+
+    #  ── CE QUI S'OUVRE À QUEL PALIER, DÉRIVÉ ──────────────────────
+    #
+    #  La liste des défis d'un palier n'est pas écrite dans les textes :
+    #  elle se lit dans `palier`. Recopiée, elle mentirait au premier
+    #  arbitrage — et il y en a déjà un en attente, voir
+    #  `_palier_contradiction` dans `data/arenes.json`.
+    acces = p["acces"]
+    w(f'            <h3 class="wm-defi__sous-titre">{e(acces["titre"])}</h3>')
+    w('            <ul class="wm-paliers">')
+    for n in (1, 2, 3):
+        dedans = sorted(
+            (a for a in arenes["arenes"] if a["palier"] == n),
+            key=lambda a: a["niveau"],
+        )
+        w('              <li class="wm-palier">')
+        w(f'                <h4 class="wm-palier__titre">{e(PALIERS[n])}</h4>')
+        w(f'                <p class="wm-palier__condition">'
+          f'{e(acces["conditions"][str(n)])}</p>')
+        if dedans:
+            w('                <ul class="wm-palier__defis">')
+            for a in dedans:
+                w('                  <li class="wm-palier__defi">'
+                  f'<a class="wm-renvoi wm-renvoi--sec" href="{FORUM}'
+                  f'{e(a["forum"])}">{e(a["nom"])}</a>'
+                  f'<span class="wm-palier__niveau">niv. {a["niveau"]}</span>'
+                  "</li>")
+            w('                </ul>')
+        else:
+            #  LE PALIER 3 N'A AUCUN DÉFI, et ce n'est pas un oubli : la
+            #  planche 36 n'y met que la Ligue. On l'écrit, plutôt que de
+            #  laisser un trou qui ressemble à une donnée manquante.
+            ligue = arenes["ligue"]
+            w('                <p class="wm-palier__defis '
+              'wm-palier__defis--vide">Aucune arène, aucun colosseum : '
+              f'seulement {e(ligue["nom"])}, au niveau {ligue["niveau"]}.</p>')
+        w('              </li>')
+    w('            </ul>')
+    w(f'            <p class="wm-defi__dit">{e(acces["note"])}</p>')
+    w("")
+    w("          </section>")
+    w("")
+
+    # ── 2 et 3 · les arènes, les colosseums ─────────────────────────
+    for titre_onglet, cle, genre in (
+        ("Les arènes", "arenes", "arene"),
+        ("Les colosseums", "colosseums", "colosseum"),
+    ):
+        groupe(
+            w,
+            titre_onglet,
+            textes[cle],
+            [a for a in arenes["arenes"] if a["genre"] == genre],
+            equipes,
+            textes,
+            couverture,
+            fiches,
+            renvoi_personnages,
+        )
+
+    # ── 4 · la Ligue ────────────────────────────────────────────────
+    ligue, lt = arenes["ligue"], textes["ligue"]
+    w('          <section data-wm-sous-onglet="la-ligue">')
+    w(f'            <h2 class="wm-annexe__carte-titre">{e(lt["titre"])}</h2>')
+    w('            <div class="wm-paras">')
+    for para in lt["paragraphes"]:
+        w(f"              <p>{e(para)}</p>")
+    w("            </div>")
+    w("")
+    w('            <dl class="wm-defi__faits">')
+    for mot, valeur in (
+        ("Où", ligue["ville"]),
+        ("Niveau de l'équipe", f'{ligue["niveau"]} · {PALIERS[3]}'),
+        ("Tenue par", ligue["tenuePar"]),
+    ):
+        w('              <div class="wm-defi__fait">')
+        w(f'                <dt>{e(mot)}</dt>')
+        w(f'                <dd>{e(valeur)}</dd>')
+        w('              </div>')
+    w('            </dl>')
+    w("")
+    w(f'            <p class="wm-defi__dit">{e(lt["note"])}</p>')
+    w("")
+    w("          </section>")
+    w("")
+
+    w("        </div>")
+    w("")
+
+    #  LE PIED VIENT DE `annexes.py`, pas d'ici : il porte la page
+    #  suivante et les deux boutons de contact, les mêmes sur les
+    #  quatorze annexes. Deux versions du même bloc, c'est une de trop.
+    w(pied_de_page(SLUG))
+    w("")
+    w("      </div>")
+    w("    </div>")
+    w("  </div>")
+    w("</div>")
+    w(FIN)
+    return "\n".join(out)
+
+
+def main():
+    if not PAGE.exists():
+        raise SystemExit(f"{PAGE} n'existe pas — lance d'abord « deno task annexes »")
+
+    ancien = PAGE.read_text(encoding="utf-8")
+    if entre_les_bornes(ancien) is None:
+        raise SystemExit(f"{PAGE.name} n'a pas ses bornes de corps")
+
+    neuf = remplacer_le_corps(ancien, corps())
+    if "--verifier" in sys.argv:
+        if neuf != ancien:
+            raise SystemExit(
+                "annexe-06 : le corps ne correspond plus aux données — "
+                "lance « python3 outils/annexe-arenes.py »"
+            )
+        print(f"annexe-06 : à jour ({len(ancien)} caractères).")
+        return 0
+
+    PAGE.write_text(neuf, encoding="utf-8")
+    #  LA LIMITE DE FORUMACTIF EST DE 128 000 CARACTÈRES par page HTML,
+    #  et elle refuse EN SILENCE : la page se recharge sans rien dire et
+    #  revient à l'état d'avant. On mesure donc à chaque écriture.
+    print(f"annexe-06 écrite : {len(neuf)} caractères "
+          "(limite Forumactif : 128 000).")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

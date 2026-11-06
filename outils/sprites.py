@@ -121,9 +121,41 @@ STYLES = {
 
 
 def especes_de_rhode():
-    """Les espèces citées par les tables de faune. C'est la seule liste qui
-    fasse foi : inutile de figer mille Pokémon dont aucun n'apparaît."""
+    """Les espèces du Pokédex de Rhode : les tables de faune ET celles
+    qu'aucune zone ne porte.
+
+    LE TROU, MESURÉ LE 6 NOVEMBRE 2026. Cette fonction ne lisait que les
+    dix-sept tables de faune — « c'est la seule liste qui fasse foi ». Et
+    c'était vrai pour les RENCONTRES, pas pour le Pokédex : les onze
+    lignées fossiles et les cinquante formes régionales n'entrent dans
+    aucune zone, et n'avaient donc aucun sprite figé ni aucune ligne dans
+    la carte de couverture.
+
+    Conséquence visible le jour même : six des soixante-six pokémon des
+    équipes de champion rendaient une boîte vide — Rexillius, Aéroptéryx,
+    Charkos, Dragmara, Armaldo et Feunard d'Alola. Toutes hors-nature.
+    L'onglet des brèches et l'annexe des fossiles avaient le même trou.
+
+    C'est EXACTEMENT la panne que `outils/hors-nature.py` a refermée dans
+    le Pokédex, et elle était là aussi : une liste dérivée des tables de
+    faune ne dit pas ce que le Pokédex contient, elle dit ce qui se
+    promène. Deux outils avaient fait la même déduction ; un seul avait
+    été corrigé."""
     vues = set()
+
+    hors = os.path.join(RACINE, "data", "hors-nature.json")
+    try:
+        with open(hors, encoding="utf-8") as f:
+            for e in json.load(f)["especes"]:
+                vues.add(e["id"])
+    except (OSError, ValueError, KeyError):
+        #  ON NE S'ARRÊTE PAS, mais on le dit. Le fichier peut ne pas
+        #  encore exister sur une vieille copie du dépôt ; une carte de
+        #  couverture amputée de 71 espèces reste meilleure qu'aucune
+        #  carte — à condition que personne ne croie qu'elle est
+        #  complète.
+        print(f"   ⚠ {os.path.relpath(hors, RACINE)} illisible — "
+              "les espèces hors-nature n'auront pas de sprite")
 
     def parcourir(objet):
         if isinstance(objet, dict):

@@ -871,7 +871,9 @@ else
   # C'est exactement le cas que la règle 9 décrit pour l'index des
   # espèces, appliqué à du HTML.
   for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones pokedex-carnet \
-               minifier-le-code annexe-carte annexe-personnages annexe-credits; do
+               minifier-le-code annexe-contexte annexe-carte annexe-arenes annexe-personnages \
+               annexe-credits \
+               equipes-de-champions hors-nature; do
     if ! python3 "outils/$outil.py" --verifier; then
       gronde "outils/$outil.py --verifier refuse : un fichier dérivé a été modifié à la main"
     fi
@@ -933,7 +935,7 @@ PY
   fi
 fi
 
-echo "── 25. chaque espèce des tables a un sprite ────────────────────"
+echo "── 25. chaque espèce du Pokédex a un sprite ────────────────────"
 # TROUVÉ EN BRANCHANT L'ANNEXE DE LA CARTE, le 4 novembre.
 #
 # `data/sprites-couverture.json` a été écrit quand les dix-sept tables
@@ -975,6 +977,24 @@ for f in glob.glob("data/faune/*.json"):
     for table in d["conditions"].values():
         for e in table:
             especes.add(str(e["espece"]))
+#  ── ET CELLES QU'AUCUNE ZONE NE PORTE ──────────────────────────────
+#
+#  CETTE RÈGLE A RATÉ LE 6 NOVEMBRE, et pour la raison qu'elle était
+#  censée attraper. Elle ne comptait que les tables de faune, comme
+#  `outils/sprites.py` lui-même : les onze lignées fossiles et les
+#  cinquante formes régionales n'entrent dans aucune zone, donc ni
+#  l'outil ni la règle ne les voyaient. Six des soixante-six pokémon
+#  des équipes de champion rendaient une boîte vide — Rexillius,
+#  Aéroptéryx, Charkos, Dragmara, Armaldo, Feunard d'Alola —, l'onglet
+#  des brèches et l'annexe des fossiles avaient le même trou, et la
+#  dette affichait zéro.
+#
+#  Une règle qui dérive sa liste de la même source que l'outil qu'elle
+#  surveille ne surveille rien. Elle lit donc maintenant le Pokédex :
+#  les tables PLUS `data/hors-nature.json`, ce que la règle 32 vérifie
+#  par ailleurs.
+for e in json.loads(Path("data/hors-nature.json").read_text(encoding="utf-8"))["especes"]:
+    especes.add(str(e["id"]))
 #  LES TROIS STYLES, pas seulement celui par défaut : un joueur qui a
 #  choisi « retro » doit voir les mêmes espèces que les autres.
 manques = {s: sorted(especes - set(v["especes"]), key=int) for s, v in styles.items()}
@@ -1259,8 +1279,8 @@ echo "── 30. les niveaux, les paliers et les adresses des onze défis ─"
 #
 # `niveau` décide désormais l'ORDRE DES ONZE DÉFIS : deux arènes au
 # même niveau, et l'ordre devient celui du hasard du tri. `palier` dit
-# à quel palier le défi s'ouvre, et il est déduit des niveaux — un
-# palier qui redescend quand le niveau monte est une faute de frappe.
+# à quel palier le défi s'ouvre, et il vient de la planche 36 — pas
+# des niveaux, voir plus bas.
 #
 # `forum` est l'adresse du forum du défi, relevée sur l'index. Et
 # FORUMACTIF NE ROUTE QUE SUR LE NUMÉRO : une adresse dont le numéro a
@@ -1289,17 +1309,38 @@ for n in sorted(set(niveaux)):
         qui = ", ".join(a["nom"] for a in arenes if a["niveau"] == n)
         fautes.append(f"niveau {n} porté par deux défis : {qui}")
 
-#  Le palier ne redescend jamais quand le niveau monte.
-precedent = None
-for a in sorted(arenes, key=lambda a: a["niveau"]):
-    if a["palier"] not in (1, 2, 3):
+#  ── LES PALIERS : CINQ ET SIX, ET AUCUN AU TROISIÈME ─────────────
+#
+#  CETTE RÈGLE A DIT UNE CHOSE FAUSSE PENDANT UN JOUR. Elle vérifiait
+#  qu'un palier ne redescend jamais quand le niveau monte — ce qui
+#  n'était pas une règle du jeu mais MA déduction du 6 novembre, tirée
+#  des trois groupes de niveaux que Callista avait séparés.
+#
+#  La planche 36, elle, NOMME les défis de chaque palier, et elle dit
+#  autre chose : le Colosseum de Rhode (niveau 40) s'ouvre au palier 1
+#  à côté de l'Arène Eau (niveau 10), et le Colosseum de Targare
+#  (niveau 18) attend le palier 2. La planche est de Callista ; ma
+#  déduction ne l'était pas. Elle a donc perdu, et avec elle la
+#  monotonie — voir `_palier_contradiction` dans `data/arenes.json`,
+#  qui garde l'arbitrage en attente.
+#
+#  CE QUI RESTE VÉRIFIABLE est le COMPTE : la planche met cinq défis
+#  au palier 1, six au palier 2, et AUCUN au palier 3, où il n'y a que
+#  la Ligue. Un palier recopié de travers déplace un défi d'une liste à
+#  l'autre, donc change les deux comptes — ce que la monotonie, elle,
+#  ne voyait pas toujours.
+compte = {1: 0, 2: 0, 3: 0}
+for a in arenes:
+    if a["palier"] not in compte:
         fautes.append(f"{a['nom']} : palier {a['palier']} — attendu 1, 2 ou 3")
-    elif precedent is not None and a["palier"] < precedent[1]:
-        fautes.append(
-            f"{a['nom']} (niveau {a['niveau']}) est au palier {a['palier']} "
-            f"alors que {precedent[0]} est déjà au palier {precedent[1]}"
-        )
-    precedent = (f"{a['nom']} (niveau {a['niveau']})", a["palier"])
+    else:
+        compte[a["palier"]] += 1
+if compte != {1: 5, 2: 6, 3: 0}:
+    fautes.append(
+        f"les paliers comptent {compte[1]}/{compte[2]}/{compte[3]} défis "
+        "là où la planche 36 en met 5 au palier 1, 6 au palier 2 et aucun "
+        "au palier 3 — un défi a changé de liste"
+    )
 
 #  LA LIGUE EST AU-DESSUS DES ONZE. Elle est le dernier défi : un
 #  niveau sous une arène ferait une Ligue qu'on bat avant son arène.
@@ -1331,7 +1372,8 @@ if fautes:
     for f in fautes:
         print(f"   {f}")
     sys.exit(1)
-print(f"   défis : {len(arenes)} niveaux distincts, paliers d'accord avec eux, "
+print(f"   défis : {len(arenes)} niveaux distincts, "
+      f"paliers {compte[1]}/{compte[2]}/{compte[3]} comme la planche 36, "
       f"Ligue à {ligue['niveau']}, {len(vus)} adresses de forum bien formées")
 PY
   then
@@ -1502,6 +1544,64 @@ print(f"   outils : {len(fichiers)} fichiers, {liens} imports entre voisins, "
 PY
   then
     gronde "un outil importe un nom qu'un autre ne définit plus"
+  fi
+fi
+
+echo "── 33. aucune page ne dépasse ce que Forumactif accepte ───────"
+# L'ÉDITEUR DE PAGES HTML S'ARRÊTE À 128 000 CARACTÈRES, ET IL REFUSE
+# EN SILENCE : la page se recharge, le contenu revient à l'état
+# d'avant, aucun message. On ne découvre rien en collant — on découvre
+# en relisant la page en ligne trois jours plus tard.
+#
+# MESURÉ LE 6 NOVEMBRE : l'annexe 06, écrite avec l'indentation du
+# reste du gabarit, faisait 143 109 caractères. Soixante-six cases de
+# pokémon, dont 33 Ko d'espaces. Elle aurait été collée, refusée, et la
+# page en ligne serait restée l'ancienne.
+#
+# Les générateurs impriment déjà leur taille ; personne ne lit un
+# chiffre qui va bien. Ici on la compare, et on garde une MARGE : à
+# 120 000, la prochaine zone ou le prochain défi ferait sauter la
+# limite sans qu'on l'ait vu venir.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — la taille des pages non vérifiée"
+else
+  if ! python3 - <<'PY_TAILLE'
+import sys
+from pathlib import Path
+
+LIMITE = 128000
+#  L'ALERTE EST À 94 % de la limite. Plus haut, on n'a plus le temps
+#  d'arbitrer : il faut couper dans la page le jour où on la colle.
+ALERTE = 120000
+
+pages = sorted(Path("pages").glob("*.html"))
+if not pages:
+    print("   aucune page dans pages/ — rien à mesurer")
+    sys.exit(0)
+
+trop, limite = [], []
+for p in pages:
+    n = len(p.read_text(encoding="utf-8"))
+    if n > LIMITE:
+        trop.append((p.name, n))
+    elif n > ALERTE:
+        limite.append((p.name, n))
+
+for nom, n in trop:
+    print(f"   {nom} : {n} caractères — Forumactif en accepte {LIMITE}, "
+          "et il refuse sans le dire")
+for nom, n in limite:
+    print(f"   {nom} : {n} caractères — sous la limite, mais à moins de "
+          f"{LIMITE - ALERTE} du mur")
+if trop:
+    sys.exit(1)
+
+grosse = max(pages, key=lambda p: len(p.read_text(encoding="utf-8")))
+print(f"   pages : {len(pages)} pages, la plus grosse est {grosse.name} "
+      f"({len(grosse.read_text(encoding='utf-8'))} caractères sur {LIMITE})")
+PY_TAILLE
+  then
+    gronde "une page dépasse les 128 000 caractères de l'éditeur Forumactif"
   fi
 fi
 

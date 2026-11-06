@@ -536,14 +536,14 @@ def main():
     if verifier:
         if neuf != ancien:
             raise SystemExit(
-                "annexe-06 : le corps ne correspond plus aux données — "
+                "annexe-05 : le corps ne correspond plus aux données — "
                 "lance « python3 outils/annexe-carte.py »"
             )
-        print(f"annexe-06 : à jour ({len(ancien)} caractères).")
+        print(f"annexe-05 : à jour ({len(ancien)} caractères).")
         return
 
     PAGE.write_text(neuf, encoding="utf-8")
-    print(f"annexe-06 écrite : {len(neuf)} caractères (limite Forumactif : 128 000).")
+    print(f"annexe-05 écrite : {len(neuf)} caractères (limite Forumactif : 128 000).")
 
 
 if __name__ == "__main__":

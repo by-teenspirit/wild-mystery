@@ -11334,7 +11334,13 @@ body:has(#modernbb .wm-carnet) {
       « NOVEMBRE 2011 » — la plus longue — se coupait en deux. Une date
       sur deux lignes décale son texte sans décaler son point, et la
       rangée part de travers. Le harnais refuse qu'une date se coupe. */
-  --chrono-date: 150px;
+  /*  LA COLONNE SUIT LA TAILLE DE LA DATE. 150 px avaient été taillés
+      pour du 16 px ; à 13,5 « NOVEMBRE 2011 », la plus longue, tient
+      en 132 — et le harnais refuse qu'une date se coupe en deux.
+      Garder 150 laisserait un vide à gauche du point sans rien y
+      mettre. L'écart entre la date et le rond, lui, ne bouge pas :
+      c'est lui qu'elle a demandé plus grand. */
+  --chrono-date: 132px;
   --chrono-ecart: 48px;
   --chrono-point: 14px;
   /*  LA HAUTEUR DU POINT, ÉCRITE UNE FOIS. Elle centre le point sur la
@@ -11404,7 +11410,6 @@ body:has(#modernbb .wm-carnet) {
   border-radius: 999px;
 }
 
-
 /*  Le présent est allumé. */
 #modernbb .wm-chrono__moment:last-child::before {
   background: var(--wm-accent-terre, #8b4725);
@@ -11471,10 +11476,21 @@ body:has(#modernbb .wm-carnet) {
     qu'elle commande : on lisait le paragraphe, puis on cherchait à
     quelle date il appartenait. L'accent reste au rail, qui est la
     structure ; l'encre va au texte, dont la date fait partie. */
+/*  ── LA TAILLE DE LA DATE, TROISIÈME RÉGLAGE ET LE BON ────────────
+
+    11,5 px à l'origine ; « la date : plus grosse » (6 novembre) l'a
+    passée à 16, le palier au-dessus dans l'échelle ; « réduit la
+    taille des dates, c'est trop gros » (le même jour) la ramène à
+    13,5 — le palier du milieu, et le seul qui existe entre les deux.
+
+    CE QUI PORTE L'EMPHASE N'EST PLUS LA TAILLE. Le gras, les
+    majuscules, les chiffres tabulaires et la colonne alignée à droite
+    font la date d'un coup d'œil ; à 16 px elle pesait plus que le
+    texte qu'elle annonce. */
 #modernbb .wm-chrono__quand {
   flex: 0 0 var(--chrono-date);
   color: var(--wm-encre, #2e2018);
-  font-size: var(--wm-taille-titre-carte, 16px);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-variant-numeric: tabular-nums;
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -11517,6 +11533,492 @@ body:has(#modernbb .wm-carnet) {
       — c'est le prix de la colonne, et les points restent alignés. */
   #modernbb .wm-chrono__quand {
     font-size: var(--wm-taille-petit, 11.5px);
+  }
+}
+
+/* ── wm-defi · un défi d'arène, de colosseum, ou la Ligue ───────────
+
+    LA NEUVIÈME BRIQUE, demandée le 6 novembre : « faire un onglet par
+    arène colosseum […] avec le type de l'arène, type conseillé pour le
+    battre, un lien vers le pré-lien, et les pokémons de l'arène », et
+    pour chacun « afficher le badge à gagner ».
+
+    ── ELLE N'A PAS DE FOND À ELLE ───────────────────────────────────
+
+    Un sous-onglet vit DÉJÀ dans la carte de l'annexe, qui a son fond,
+    son filet et son rembourrage. Lui en donner un second ferait une
+    boîte dans une boîte — le défaut relevé le 5 novembre sur l'onglet
+    de la région. Ce qui sépare les blocs ici, ce sont des écarts et un
+    filet, jamais une surface de plus.
+
+    ── ZÉRO `<table>`, QUE DU FLEXBOX ───────────────────────────────
+
+    Planche 49, et c'est une consigne, pas une préférence. Les trois
+    faits d'un défi sont un `<dl>` en flexbox : la relation
+    terme/valeur est dans le balisage, la mise en page dans la feuille. */
+
+#modernbb .wm-defi__titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-defi__lieu {
+  margin: var(--wm-espace-4, 4px) 0 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  ── LA TÊTE : LE BADGE À GAUCHE, LES TROIS FAITS À DROITE ────────
+
+    `align-items: flex-start` et pas `center` : le badge fait 72 px de
+    haut, la pile des faits en fait le double selon le nombre de types
+    conseillés. Centré, le badge flotterait au milieu d'une colonne de
+    texte sans rien à quoi s'aligner. */
+#modernbb .wm-defi__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: var(--wm-espace-20, 20px);
+  gap: var(--wm-espace-24, 24px);
+}
+
+#modernbb .wm-defi__badge {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  gap: var(--wm-espace-6, 6px);
+}
+
+/*  LA BOÎTE EST BORNÉE, L'IMAGE NON — même règle que les sprites
+    d'une zone. Les onze badges sont dessinés à des tailles qui ne se
+    ressemblent pas ; leur imposer 72 × 72 agrandirait les petits. */
+#modernbb .wm-defi__badge img {
+  width: auto;
+  max-width: 72px;
+  height: auto;
+  max-height: 72px;
+}
+
+#modernbb .wm-defi__badge figcaption {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-defi__faits {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 260px;
+  flex-direction: column;
+  margin: 0;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-defi__fait {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-defi__fait dt {
+  flex: 0 0 140px;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-defi__fait dd {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  gap: var(--wm-espace-8, 8px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LE FACTEUR EST ÉCRIT À CÔTÉ DU TYPE, pas à sa place : « Glace »
+    seul ne dit pas si le conseil vaut beaucoup ou un peu, et deux
+    défis ne se comparent pas sans ce chiffre. */
+#modernbb .wm-defi__facteur {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb .wm-defi__palier {
+  padding: 2px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  ── LES RENVOIS ──────────────────────────────────────────────────
+
+    Trois choses sur une ligne qui passe à la ligne : défier, le
+    pré-lien, l'état du poste. Le dernier n'est pas un bouton — c'est
+    une phrase avec un lien dedans. */
+#modernbb .wm-defi__liens {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: var(--wm-espace-20, 20px) 0 0;
+  gap: var(--wm-espace-12, 12px);
+}
+
+/*  LES DEUX RENVOIS ÉPOUSENT LEUR TEXTE. `.wm-renvoi` est un bloc —
+    il remplit sa ligne partout ailleurs — et dans un conteneur flex il
+    s'étirait sur la moitié du cadre chacun : deux boutons de 580 px
+    pour « Défier » et « Le pré-lien du champion ». */
+#modernbb .wm-defi__liens > .wm-renvoi {
+  flex: 0 0 auto;
+}
+
+/*  L'ÉTAT DU POSTE EST UNE PHRASE, PAS UN TROISIÈME BOUTON. Le lien
+    qu'elle contient reste un lien : souligné, à la taille du texte
+    autour, et sans le cadre d'un renvoi. Avec le cadre, « poste
+    vacant » pesait autant que « Défier », qui est l'action de la
+    page. */
+#modernbb .wm-defi__etat {
+  flex: 0 0 auto;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb .wm-defi__etat .wm-renvoi {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: inherit;
+  text-decoration: underline;
+}
+
+#modernbb .wm-defi__sous-titre {
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-defi__dit {
+  margin: var(--wm-espace-12, 12px) 0 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/* ── wm-equipe · les six pokémon d'un défi ─────────────────────────
+
+    « Et les pokémons de l'arène » avec « une infobulle pour afficher
+    leur niveau » (6 novembre).
+
+    ── C'EST LA LISTE QUI PORTE `position: relative` ─────────────────
+
+    Et la case qui ne la porte pas. Le même arbitrage que la carte
+    dresseur, et pour la même raison mesurée là-bas : centrée sur la
+    case, la bulle sort du cadre de 19 px dès que la place manque, et
+    les rattrapages `:first-child` ne tiennent plus quand les cases
+    passent à la ligne. Posée contre la liste et bornée au `clamp`,
+    elle glisse le long du bord au lieu de sortir. */
+#modernbb .wm-equipe {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+/*  SIX CASES QUI SE PARTAGENT LA LIGNE, avec un plancher. `flex-basis`
+    à 0 les rendrait égales mais écraserait les noms longs — « Feunard
+    d'Alola » sur trois lignes ; 88 px est la largeur en-dessous de
+    laquelle un sprite d'Ultra-Lune ne tient plus. */
+#modernbb .wm-equipe__pkmn {
+  display: flex;
+  /*  `border-box`, ET C'EST LE DÉFAUT QUI M'A EU. ModernBB ne pose pas
+      `box-sizing` globalement : la case héritait de `content-box`, donc
+      ses 12 px de rembourrage et ses 2 px de filet s'AJOUTAIENT à la
+      base flex. Une base calculée pour que trois cases tiennent en
+      donnait deux, et la cause ne se voyait ni dans `flex-basis` ni
+      dans la largeur rendue — seulement en comparant les deux.
+      Mesuré le 6 novembre : base 94 px, case 108 px. */
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 1 1 88px;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-6, 6px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-equipe__sprite {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 64px;
+}
+
+/*  LA BOÎTE VIDE GARDE LA HAUTEUR. Sans elle, la case d'une espèce
+    sans sprite serait plus courte que ses voisines et la rangée se
+    décalerait — le défaut déjà payé sur `wm-tcard__libre`. */
+#modernbb .wm-equipe__sprite--vide {
+  display: block;
+  width: 100%;
+  height: 64px;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-equipe__nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-align: center;
+}
+
+#modernbb .wm-equipe__niveau {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  LES TROIS CHIFFRES SUR UNE LIGNE, dans l'infobulle. Elle fait
+    212 px : trois lignes « mot / valeur » y faisaient un tableau là où
+    une phrase suffit. */
+#modernbb .wm-equipe__chiffres {
+  margin: 0;
+  color: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+/*  LE RANG DE CHAQUE CASE, d'où son centre se déduit. Six règles et
+    pas une boucle : le CSS n'en a pas. */
+#modernbb .wm-equipe > .wm-equipe__pkmn:nth-child(1) {
+  --rang-case: 1;
+}
+#modernbb .wm-equipe > .wm-equipe__pkmn:nth-child(2) {
+  --rang-case: 2;
+}
+#modernbb .wm-equipe > .wm-equipe__pkmn:nth-child(3) {
+  --rang-case: 3;
+}
+#modernbb .wm-equipe > .wm-equipe__pkmn:nth-child(4) {
+  --rang-case: 4;
+}
+#modernbb .wm-equipe > .wm-equipe__pkmn:nth-child(5) {
+  --rang-case: 5;
+}
+#modernbb .wm-equipe > .wm-equipe__pkmn:nth-child(6) {
+  --rang-case: 6;
+}
+
+#modernbb .wm-equipe__pkmn .wm-infobulle {
+  --largeur-bulle: 212px;
+  --centre-case: calc((2 * var(--rang-case, 1) - 1) / 12 * 100%);
+  position: absolute;
+  z-index: 3;
+  bottom: calc(100% + var(--wm-espace-8, 8px));
+  left: clamp(
+    0px,
+    calc(var(--centre-case) - var(--largeur-bulle) / 2),
+    calc(100% - var(--largeur-bulle))
+  );
+  max-width: 100%;
+  /*  ELLE NE PREND PAS LE SURVOL. Sans ça, la bulle passe sous la
+      souris, la case perd le survol, la bulle se ferme, la case le
+      regagne — un clignotement sans fin. */
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 6px 20px rgb(46 32 24 / 18%);
+  visibility: hidden;
+  transition: opacity 120ms ease-out, visibility 0s linear 120ms;
+}
+
+/*  AU SURVOL, AU DOIGT ET AU CLAVIER. `:focus-within` sur une case
+    rendue focalisable (`tabindex="0"` dans le générateur) : on touche,
+    elle s'ouvre ; on touche ailleurs, elle se ferme. Un `:hover` seul
+    n'existe pas au doigt. */
+#modernbb .wm-equipe__pkmn:hover .wm-infobulle,
+#modernbb .wm-equipe__pkmn:focus-within .wm-infobulle {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 120ms ease-out;
+}
+
+#modernbb .wm-equipe__pkmn:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #modernbb .wm-equipe__pkmn .wm-infobulle {
+    transition: none;
+  }
+}
+
+/* ── wm-paliers · ce qui s'ouvre à quel palier ─────────────────────
+
+    Les trois paliers et leurs défis. LA LISTE DES DÉFIS N'EST PAS
+    ÉCRITE DANS LA PAGE À LA MAIN : elle se dérive de `palier` dans
+    `data/arenes.json`. Recopiée, elle mentirait au premier arbitrage,
+    et il y en a déjà un en attente. */
+#modernbb .wm-paliers {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-16, 16px);
+  list-style: none;
+}
+
+/*  LE LISERÉ PORTE LA COULEUR DU PALIER, et il est le SEUL à la
+    porter : les trois teintes `--wm-palier-N` sont des couleurs de
+    fond dans la charte, pas des couleurs de texte, et aucune n'a été
+    mesurée en contraste sur le crème. En liseré, elle ne porte aucun
+    texte — et le nom du palier reste écrit, comme toujours. */
+#modernbb .wm-palier {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 240px;
+  flex-direction: column;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-left: 3px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-paliers > .wm-palier:nth-child(1) {
+  border-left-color: var(--wm-palier-1, #3f7d52);
+}
+#modernbb .wm-paliers > .wm-palier:nth-child(2) {
+  border-left-color: var(--wm-palier-2, #a05e18);
+}
+#modernbb .wm-paliers > .wm-palier:nth-child(3) {
+  border-left-color: var(--wm-palier-3, #b1402f);
+}
+
+#modernbb .wm-palier__titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-palier__condition {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-palier__defis {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+#modernbb .wm-palier__defi {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-palier__niveau {
+  flex: 0 0 auto;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+/*  LE PALIER 3 N'A AUCUN DÉFI, et ce n'est pas une donnée manquante :
+    la planche 36 n'y met que la Ligue. On l'écrit plutôt que de
+    laisser un trou. */
+#modernbb .wm-palier__defis--vide {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+@media (max-width: 760px) {
+  /*  LA TÊTE PASSE EN COLONNE : le badge au-dessus des faits plutôt
+      qu'à côté. À 360 px, le `flex: 1 1 260px` des faits les pousse à
+      la ligne de toute façon — autant que le badge s'aligne à gauche
+      avec eux au lieu de rester centré tout seul. */
+  #modernbb .wm-defi__badge {
+    align-items: flex-start;
+  }
+
+  #modernbb .wm-defi__badge figcaption {
+    text-align: left;
+  }
+
+  #modernbb .wm-defi__fait dt {
+    flex: 1 1 100%;
+  }
+
+  /*  TROIS CASES PAR RANGÉE, et pas six à 50 px de large. Le sprite y
+      perd sa place et le nom passe sur trois lignes.
+
+      LA BASE RETIRE LES DEUX ÉCARTS, et le premier essai ne le faisait
+      pas : `30%` plus deux gouttières de 12 px dépassait la ligne, donc
+      deux cases par rangée et trois rangées. Mesuré par le harnais, pas
+      vu à l'œil. */
+  #modernbb .wm-equipe__pkmn {
+    flex: 1 1 calc((100% - var(--wm-espace-12, 12px) * 2) / 3 - 1px);
   }
 }
 

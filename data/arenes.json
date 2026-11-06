@@ -4,23 +4,80 @@
   "_slug": "`slug` est la valeur de `data-wm-badge` dans le code collé, et le nom de l'image : img/badges/<slug>.png.",
   "_ordre": "L'ORDRE DES ONZE DÉFIS EST CELUI DES NIVEAUX, et c'est `niveau` qui le dit — pas la position dans ce tableau. Tranché par Callista le 6 novembre : Eau 10, Feu 15, Targare 18, Plante 20, Roche 25, Acier 30, Phenacit 35, Rhode 40, Vol 50, Ténèbres 60, Titanite 70. Ça REMPLACE l'ordre « imposé » de la planche 36 (Feu, Plante, Eau, Acier, Roche, Vol, Ténèbres), qui n'avait pas de niveaux et mettait l'Eau en troisième.",
   "_tableau": "LE TABLEAU, LUI, RESTE GROUPÉ : les sept arènes puis les quatre colosseums. Ce n'est pas l'ordre du jeu, c'est l'ordre de la GRILLE DE BADGES de la carte dresseur, qui est groupée dans la maquette et dont les onze cases sont en dur dans templates/carte-dresseur.a-coller.html — la règle 24 du garde-fou compare les deux listes case par case. Trier ce tableau par niveau obligerait à refondre la grille en une seule liste et à recoller la carte dresseur de tout le monde. Qui veut l'ordre du jeu trie sur `niveau` ; personne ne lit la position dans ce fichier.",
-  "_niveau": "`niveau` est le niveau de l'équipe du champion, donné par Callista le 6 novembre. `palier` est le palier auquel le défi s'ouvre, déduit des trois groupes qu'elle a séparés : 10 à 20 au palier 1, 25 à 40 au palier 2, 50 à 70 au palier 3. LA LIGUE EST À PART, à 80 — voir la clé `ligue`.",
+  "_niveau": "`niveau` est le niveau de l'équipe du champion, donné par Callista le 6 novembre. LA LIGUE EST À PART, à 80 — voir la clé `ligue`.",
+  "_palier": "`palier` EST ÉCRIT DANS LA PLANCHE 36, et il n'est plus déduit. La planche nomme les défis de chaque palier : palier 1 — Station Service, Samaragd, Port-Amarée, et les colosseums de Rhode et Phenacit ; palier 2 — Suerebe, Pyrite, Tour Titanite, Île Ténèbra, et les colosseums de Targare et Titanite ; palier 3 — aucun défi, seulement la Ligue. Cinq et six, et c'est ce que la règle 30 du garde-fou compte.",
+  "_palier_contradiction": "ATTENTION, CES PALIERS NE SUIVENT PAS LES NIVEAUX, et il faut un arbitrage. Le 6 novembre, j'avais DÉDUIT les paliers des trois groupes de niveaux (10-20, 25-40, 50-70) ; la planche 36, elle, écrit autre chose, et c'est elle qui fait foi puisqu'elle est de Callista. Résultat : le Colosseum de Rhode (niveau 40) s'ouvre au palier 1 à côté de l'Arène Eau (niveau 10), et le Colosseum de Targare (niveau 18) attend le palier 2. Six paliers sur onze ont changé le 6 novembre pour revenir à la planche : fée 2→1, spectre 2→1, électrik 1→2, vol 3→2, ténèbres 3→2, dragon 3→2. SIGNALÉ À CALLISTA : si les niveaux doivent décider, c'est ce champ-là qu'on change, pas la planche.",
   "_forum": "`forum` est l'adresse du forum du défi, RELEVÉE SUR L'INDEX DU FORUM le 6 novembre, en lisant les liens que le forum écrit lui-même. Forumactif ne route que sur le numéro — le reste de l'adresse est décoratif — donc une adresse dont le numéro a glissé ne tombe pas en 404, elle mène ailleurs en silence. On ne la réécrit pas de mémoire : on la relève.",
   "_colosseums": "Ils ne sont pas des arènes : on y combat en 2 contre 2 (planche 36). La planche 36 dit qu'il faut les sept badges d'arène « ainsi que les Colosseums » pour la Ligue, pendant que la maquette de Mon jeu écrit « les colosseums, eux, ne comptent pas ». Le code compte les ARÈNES et montre les colosseums à part : c'est ce que fait `paliers_a_revoir()`, dont le seuil est 7.",
   "_source": "Relevé le 2 novembre des planches 36 (les règles de progression) et 44 (l'arborescence réelle), et de templates/carte-dresseur.a-coller.html. Niveaux, ordre et Ligue : Callista, le 6 novembre. Adresses de forum : l'index du forum, le 6 novembre.",
   "_eau": "« Phenacit lvl 10 (eau) » dans la liste du 6 novembre était un lapsus, confirmé par Callista : L'ARÈNE EAU RESTE À PORT-AMARÉE (f23, sous f13). Phenacit est la seule ville sans arène et ne porte que son colosseum Spectre, à 35. Port-Amarée porte donc deux défis — l'Arène Eau à 10 et le Colosseum de Rhode à 40 — comme Suerebe (Acier 30, Targare 18) et la Tour Titanite (Vol 50, Titanite 70).",
+  "_textes": "LES QUATRE ONGLETS DE L'ANNEXE 06. « Un onglet de présentation de l'annexe, un onglet arènes, un onglet colosseums et un onglet ligue » (6 novembre). Le texte est un RAPPEL : l'annexe 04, le guide du dresseur, arrive avant et porte les règles elles-mêmes. Tout ce qui est écrit ici vient des planches 36 (paliers, arènes, colosseums, missions) et 37 (combats, 1 contre 1, 2 contre 2) — rien n'y est inventé. Ce qui se CALCULE n'est pas écrit ici : la liste des défis d'un palier, les niveaux, les types conseillés et les équipes sont dérivés.",
+  "textes": {
+    "chapo": [
+      "Onze défis, puis la Ligue. Sept arènes, quatre colosseums, et le Mont Bataille au bout.",
+      "Les règles de combat sont dans le guide du dresseur, juste avant : ce qui suit n'en est qu'un rappel."
+    ],
+    "presentation": {
+      "titre": "Comment on défie",
+      "paragraphes": [
+        "Pour défier un champion, on passe par le sujet obligatoire qui se trouve dans le sous-forum de l'arène ou du colosseum. C'est le PNJ Michael qui ouvre ensuite le sujet du combat. Le champion répond ; s'il n'y a pas encore de champion, un PNJ le remplace le temps du combat.",
+        "Un champion utilise toujours le dé d'attaque de ton palier, pas du sien : au palier 2, c'est « Attaque Palier 2 », quel que soit son propre palier.",
+        "On gagne un badge en postant un RP dans l'arène qu'on défie. L'ordre des onze défis est celui des niveaux — du plus faible au plus fort, et on ne saute pas une marche.",
+        "Les sept badges d'arène et les quatre colosseums ouvrent la Ligue. Le champion dont tu prends le poste part d'office avec son propre badge acquis."
+      ],
+      "acces": {
+        "titre": "Ce qui s'ouvre à quel palier",
+        "conditions": {
+          "1": "Il suffit d'être validé sur le forum.",
+          "2": "Les conditions dépendent de ton groupe : badges, Battle Points, missions, pokédex ou naissances selon le cas. Elles sont écrites dans l'annexe des groupes.",
+          "3": "Tous les badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe."
+        },
+        "note": "La liste des défis de chaque palier est tirée de la planche 36, et le niveau de chacun de la liste du 6 novembre. Les deux ne vont pas dans le même sens : un défi de palier 1 peut demander une équipe de niveau 40."
+      }
+    },
+    "arenes": {
+      "titre": "Les sept arènes",
+      "paragraphes": [
+        "Un contre un, et les mêmes règles qu'un combat normal : un RP de cent mots au minimum, la situation posée, les attaques expliquées, l'état du personnage et de ses pokémon.",
+        "Utiliser un objet compte comme un tour — ce tour-là, pas d'attaque.",
+        "Le combat s'arrête quand tous les pokémon engagés d'un camp sont K.O. On demande ensuite la clôture dans le sujet prévu ; les pokémon sont soignés automatiquement après chaque aventure."
+      ]
+    },
+    "colosseums": {
+      "titre": "Les quatre colosseums",
+      "paragraphes": [
+        "Deux contre deux. Ce n'est pas plus difficile qu'une arène : c'est la façon de se battre qui change.",
+        "On vient avec deux pokémon au lieu d'un — les deux premiers de l'équipe — et on remplit le formulaire du forum avec leur infobulle. Il faut préciser quel pokémon adverse on attaque, et avec lequel des siens. On ne choisit le suivant que quand l'un des deux est K.O.",
+        "Les colosseums et la Ligue sont les seuls endroits du forum où le combat en duo est autorisé. L'expérience de fin de combat n'est pas partagée entre les deux pokémon : chacun a la sienne."
+      ]
+    },
+    "equipe": {
+      "titre": "L'équipe du défi",
+      "note": "Cette équipe appartient à l'arène, pas au champion. Qui prend le poste ne peut ni l'entraîner, ni la vendre, ni l'utiliser : elle peut être mentionnée en narration, jamais rejoindre l'équipe usuelle du personnage.",
+      "dit": "Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d'avant les niveaux du 6 novembre."
+    },
+    "ligue": {
+      "titre": "La Ligue",
+      "paragraphes": [
+        "Le douzième défi, et le dernier. Elle se tient au Mont Bataille et Michael la tient lui-même.",
+        "Il faut le palier 3 pour y entrer : l'intégralité des badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe. Le palier 3 ouvre en même temps la zone ultime de la région.",
+        "Comme dans un colosseum, on s'y bat en deux contre deux."
+      ],
+      "note": "L'équipe de Michael n'est pas publiée : le sujet des pré-liens n'en donne aucune. Elle s'affichera ici le jour où elle sera écrite."
+    }
+  },
   "arenes": [
     { "nom": "Arène Feu", "slug": "feu", "type": "feu", "ville": "Station Service", "genre": "arene", "niveau": 15, "palier": 1, "forum": "/f19-arene-feu" },
     { "nom": "Arène Plante", "slug": "plante", "type": "plante", "ville": "Samaragd", "genre": "arene", "niveau": 20, "palier": 1, "forum": "/f26-arene-plante" },
     { "nom": "Arène Eau", "slug": "eau", "type": "eau", "ville": "Port-Amarée", "genre": "arene", "niveau": 10, "palier": 1, "forum": "/f23-arene-eau" },
     { "nom": "Arène Acier", "slug": "acier", "type": "acier", "ville": "Suerebe", "genre": "arene", "niveau": 30, "palier": 2, "forum": "/f27-arene-acier" },
     { "nom": "Arène Roche", "slug": "roche", "type": "roche", "ville": "Pyrite", "genre": "arene", "niveau": 25, "palier": 2, "forum": "/f29-arene-roche" },
-    { "nom": "Arène Vol", "slug": "vol", "type": "vol", "ville": "Tour Titanite", "genre": "arene", "niveau": 50, "palier": 3, "forum": "/f21-arene-vol" },
-    { "nom": "Arène Ténèbres", "slug": "tenebres", "type": "tenebres", "ville": "Île Ténèbra", "genre": "arene", "niveau": 60, "palier": 3, "forum": "/f20-arene-tenebres" },
-    { "nom": "Colosseum de Rhode", "slug": "fee", "type": "fee", "ville": "Port-Amarée", "genre": "colosseum", "niveau": 40, "palier": 2, "forum": "/f24-colosseum-de-rhode" },
-    { "nom": "Colosseum de Phenacit", "slug": "spectre", "type": "spectre", "ville": "Phenacit", "genre": "colosseum", "niveau": 35, "palier": 2, "forum": "/f30-colosseum-de-phenacit" },
-    { "nom": "Colosseum de Targare", "slug": "electrik", "type": "electrik", "ville": "Suerebe", "genre": "colosseum", "niveau": 18, "palier": 1, "forum": "/f28-colosseum-de-targare" },
-    { "nom": "Colosseum de Titanite", "slug": "dragon", "type": "dragon", "ville": "Tour Titanite", "genre": "colosseum", "niveau": 70, "palier": 3, "forum": "/f22-colosseum-de-titanite" }
+    { "nom": "Arène Vol", "slug": "vol", "type": "vol", "ville": "Tour Titanite", "genre": "arene", "niveau": 50, "palier": 2, "forum": "/f21-arene-vol" },
+    { "nom": "Arène Ténèbres", "slug": "tenebres", "type": "tenebres", "ville": "Île Ténèbra", "genre": "arene", "niveau": 60, "palier": 2, "forum": "/f20-arene-tenebres" },
+    { "nom": "Colosseum de Rhode", "slug": "fee", "type": "fee", "ville": "Port-Amarée", "genre": "colosseum", "niveau": 40, "palier": 1, "forum": "/f24-colosseum-de-rhode" },
+    { "nom": "Colosseum de Phenacit", "slug": "spectre", "type": "spectre", "ville": "Phenacit", "genre": "colosseum", "niveau": 35, "palier": 1, "forum": "/f30-colosseum-de-phenacit" },
+    { "nom": "Colosseum de Targare", "slug": "electrik", "type": "electrik", "ville": "Suerebe", "genre": "colosseum", "niveau": 18, "palier": 2, "forum": "/f28-colosseum-de-targare" },
+    { "nom": "Colosseum de Titanite", "slug": "dragon", "type": "dragon", "ville": "Tour Titanite", "genre": "colosseum", "niveau": 70, "palier": 2, "forum": "/f22-colosseum-de-titanite" }
   ],
   "ligue": {
     "nom": "La Ligue",
