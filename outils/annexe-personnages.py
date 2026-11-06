@@ -46,10 +46,12 @@ from annexes import (  # noqa: E402
     FIN,
     entre_les_bornes,
     chemin_de_la_page,
+    en_titre,
     numero_de,
     pied_de_page,
     remplacer_le_corps,
     renvoi_vers,
+    sans_accent,
 )
 
 R = pathlib.Path(__file__).resolve().parent.parent
@@ -285,11 +287,23 @@ def champion(w, f, par_slug, adresse_annexe, numero_annexe, titre_annexe, indent
     #  une impression. Mélangés dans la même rangée de pastilles
     #  identiques, « 25 – 30 ans » se lisait comme un trait de
     #  caractère de plus.
+    #  LE TYPE EN PREMIER, et c'est la pastille `wm-type` du reste du
+    #  forum — dix-huit teintes dont chaque paire fond/texte est
+    #  validée à 4,5 dans les deux thèmes. Elle gagne sa place surtout
+    #  pour les QUATRE COLOSSEUMS, dont le nom ne dit pas le type :
+    #  « Colosseum de Titanite » ne se lit pas Dragon.
+    #
+    #  Et c'est elle qui donne à chaque fiche sa couleur : sur onze
+    #  fiches d'affilée, c'est le seul repère qui se voit de loin.
+    cle = sans_accent(a["type"])
     w(f'{i}      <p class="wm-champion__tags">')
-    if f.get("age"):
-        w(f'{i}        <span class="wm-champion__age">{e(f["age"])}</span>')
+    w(f'{i}        <span class="wm-type wm-type--{e(cle)}"'
+      f' data-wm-type="{e(cle)}">{e(en_titre(a["type"]))}</span>')
     w(f'{i}        <span class="wm-champion__niveau">niveau'
       f' {e(a["niveau"])}</span>')
+    #  Puis ce qui appartient au personnage, pas à l'arène.
+    if f.get("age"):
+        w(f'{i}        <span class="wm-champion__age">{e(f["age"])}</span>')
     for t in f.get("traits") or []:
         w(f'{i}        <span class="wm-champion__trait">{e(t)}</span>')
     w(f'{i}      </p>')

@@ -44,6 +44,36 @@ import pathlib
 import unicodedata
 import re
 
+#  ── LES DIX-HUIT TYPES ────────────────────────────────────────────
+#
+#  La table vit ICI parce que deux générateurs la lisent :
+#  `equipe-de-test.py` pour les pastilles de l'équipe d'essai, et
+#  `annexe-personnages.py` pour le type de l'arène sur une fiche de
+#  champion. Recopiée des deux côtés, elle finit par diverger — et les
+#  classes CSS `wm-type--<clé>` de `css/13-composants.css` sont
+#  exactement ces clés.
+NOMS_DE_TYPE = {
+    "normal": "Normal", "combat": "Combat", "vol": "Vol", "poison": "Poison",
+    "sol": "Sol", "roche": "Roche", "insecte": "Insecte", "spectre": "Spectre",
+    "acier": "Acier", "feu": "Feu", "eau": "Eau", "plante": "Plante",
+    "electrik": "Électrik", "psy": "Psy", "glace": "Glace", "dragon": "Dragon",
+    "tenebres": "Ténèbres", "fee": "Fée",
+}
+
+
+def sans_accent(s):
+    """La clé CSS d'un type : minuscules, sans accent. `wm-type--tenebres`."""
+    return "".join(
+        c for c in unicodedata.normalize("NFD", s.lower())
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+def en_titre(cle):
+    """Le nom affiché d'un type, à partir de sa clé de fiche."""
+    return NOMS_DE_TYPE.get(sans_accent(cle), cle.capitalize())
+
+
 def slug(titre):
     """La clé d'un onglet, dans l'adresse et dans l'attribut.
 

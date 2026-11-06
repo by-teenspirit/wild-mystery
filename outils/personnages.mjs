@@ -584,6 +584,21 @@ const regarderLesChampions = () =>
       ou: f.querySelector(".wm-champion__ou")?.textContent?.trim() ?? "",
       badge: f.querySelector(".wm-champion__badge")?.getAttribute("src") ?? "",
       nom: f.querySelector(".wm-champion__nom")?.textContent?.trim() ?? "",
+      type: (() => {
+        const n = f.querySelector(".wm-type");
+        if (n === null) return null;
+        const s = getComputedStyle(n);
+        return {
+          mot: n.textContent?.trim() ?? "",
+          cle: n.dataset.wmType,
+          classe: n.className,
+          fond: s.backgroundColor,
+          encre: s.color,
+          //  La pastille est le PREMIER tag : le type et le niveau
+          //  sont ce qu'on vient vérifier avant de défier.
+          premier: f.querySelector(".wm-champion__tags")?.firstElementChild === n,
+        };
+      })(),
       age: tag(".wm-champion__age"),
       niveau: tag(".wm-champion__niveau"),
       traits: Array.from(f.querySelectorAll(".wm-champion__trait")).map((t) => {
@@ -608,7 +623,19 @@ const regarderLesChampions = () =>
         href: a.getAttribute("href"),
         quoi: a.querySelector(".wm-renvoi__quoi")?.textContent?.trim() ?? "",
         mot: a.querySelector(".wm-renvoi__mot")?.textContent?.trim() ?? "",
+        haut: Math.round(a.getBoundingClientRect().height),
+        fond: getComputedStyle(a).backgroundColor,
       })),
+      //  La silhouette est posée en FOND du portrait, image comprise :
+      //  une adresse morte doit montrer une silhouette, pas l'icône de
+      //  l'image cassée.
+      silhouetteSousLImage: (() => {
+        const n = f.querySelector("img.wm-champion__portrait");
+        if (n === null) return null;
+        const s = getComputedStyle(n);
+        return s.backgroundImage.includes("radial-gradient") &&
+          s.color === "rgba(0, 0, 0, 0)";
+      })(),
       large: Math.round(r.width),
       debord: f.scrollWidth > Math.ceil(r.width) + 1,
     };
@@ -690,12 +717,51 @@ if (ENGENDREE.ok) {
     { age: pleine?.age?.fond, niveau: pleine?.niveau?.fond },
   );
 
+  //  ── LA PASTILLE DE TYPE ────────────────────────────────────────
+  //
+  //  Elle vient de l'ARÈNE, pas de la fiche, et c'est le composant
+  //  `wm-type` du reste du forum — pas une pastille de plus. Elle
+  //  gagne sa place sur les quatre colosseums, dont le nom ne dit pas
+  //  le type : « Colosseum de Titanite » ne se lit pas Dragon.
+  ok(
+    "chaque fiche porte le type de son arène",
+    pleine?.type?.mot === "Eau" && nue?.type?.mot === "Dragon",
+    { pleine: pleine?.type?.mot, nue: nue?.type?.mot, attendu: [eau.type, dragon.type] },
+  );
+  ok(
+    "et c'est la pastille wm-type du forum, pas une pastille de plus",
+    pleine?.type?.classe.includes("wm-type--" + eau.type) &&
+      nue?.type?.classe.includes("wm-type--" + dragon.type),
+    [pleine?.type?.classe, nue?.type?.classe],
+  );
+  ok(
+    "elle ouvre la rangée de tags",
+    pleine?.type?.premier === true && nue?.type?.premier === true,
+    { pleine: pleine?.type?.premier, nue: nue?.type?.premier },
+  );
+  //  DEUX TYPES, DEUX COULEURS : c'est ce qui distingue onze fiches
+  //  d'affilée. Deux arènes de la même teinte, et le repère tombe.
+  ok(
+    "et deux arènes de types différents ne portent pas la même teinte",
+    pleine?.type?.fond !== nue?.type?.fond,
+    [pleine?.type?.fond, nue?.type?.fond],
+  );
+
   //  ── LE PORTRAIT, CARRÉ, ET SA PLACE TENUE SANS IMAGE ───────────
   ok("la fiche pleine a son portrait", pleine?.portrait === true, pleine?.portrait);
   ok(
     "la fiche nue montre la silhouette, pas une image cassée",
     nue?.silhouette === true && nue?.portrait === false,
     { silhouette: nue?.silhouette, image: nue?.portrait },
+  );
+  //  UNE ADRESSE MORTE MONTRE LA SILHOUETTE, pas l'icône de l'image
+  //  cassée — et surtout pas le texte que Forumactif colle dans
+  //  l'attribut `alt` des images d'un message. Vu le 6 novembre sur
+  //  t1003 : « Les Champions (V2) Portrait » en travers de la fiche.
+  ok(
+    "une image morte retombe sur la silhouette, sans texte de remplacement",
+    pleine?.silhouetteSousLImage === true,
+    pleine?.silhouetteSousLImage,
   );
   ok(
     "et les deux portraits sont carrés, de la même taille",
@@ -767,6 +833,22 @@ if (ENGENDREE.ok) {
     pleine?.renvois[0]?.mot === eau.nom,
     pleine?.renvois[0],
   );
+  //  ALLÉGÉS, MAIS PAS RÉTRÉCIS. Dans une fiche les deux boutons
+  //  perdent leur fond et quatre pixels de hauteur — ils pesaient
+  //  plus lourd que le nom du personnage. 44 px reste 44 px : c'est
+  //  un minimum de cible tactile, pas une décoration.
+  ok(
+    "les renvois d'une fiche sont allégés — sans fond",
+    [...(pleine?.renvois ?? []), ...(nue?.renvois ?? [])]
+      .every((r) => r.fond === "rgba(0, 0, 0, 0)"),
+    pleine?.renvois.map((r) => r.fond),
+  );
+  ok(
+    "mais gardent leurs 44 pixels de cible tactile",
+    [...(pleine?.renvois ?? []), ...(nue?.renvois ?? [])]
+      .every((r) => r.haut >= 44),
+    [...(pleine?.renvois ?? []), ...(nue?.renvois ?? [])].map((r) => r.haut),
+  );
   ok(
     "puis à l'annexe des arènes, prise au sommaire",
     pleine?.renvois[1]?.href === sommaire?.adresse &&
@@ -783,6 +865,7 @@ if (ENGENDREE.ok) {
   //  disparaît en sombre. La leçon du 4 novembre, sur ces fiches-là.
   const MOTS = [
     ".wm-champion__ou",
+    ".wm-type",
     ".wm-champion__nom",
     ".wm-champion__age",
     ".wm-champion__niveau",

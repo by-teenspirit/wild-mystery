@@ -25668,10 +25668,25 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   object-fit: cover;
 }
 
+/*  UNE IMAGE QUI NE CHARGE PAS TOMBE SUR LA SILHOUETTE, elle ne
+    laisse pas l'icône de l'image cassée. Vu le 6 novembre sur le
+    sujet t1003 : l'adresse du portrait n'existait pas, et Forumactif
+    remplit tout seul l'attribut `alt` des images d'un message — on
+    lisait « Les Champions (V2) Portrait » en travers de la fiche.
+
+    `color: transparent` efface ce texte de remplacement, et la
+    silhouette posée en fond se voit alors à travers. Quand l'image
+    charge, elle la couvre entièrement. */
+#modernbb img.wm-champion__portrait {
+  color: transparent;
+  font-size: 0;
+}
+
 /*  LA MÊME SILHOUETTE QUE LES CÉLÉBRITÉS : une tête et des épaules en
     deux cercles. Une fiche sans portrait ne doit pas être plus courte
     que sa voisine. */
-#modernbb .wm-champion__portrait--vide {
+#modernbb .wm-champion__portrait--vide,
+#modernbb img.wm-champion__portrait {
   background-image: radial-gradient(
       circle at 50% 34%,
       var(--wm-bord-net, #d9c3b1) 17%,
@@ -25884,6 +25899,29 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     s'ajoutait au `gap` de 14 et détachait les deux boutons du reste. */
 #modernbb .wm-champion .wm-renvois {
   margin-top: 0;
+}
+
+/*  ET ILS PARLENT PLUS BAS QUE LE RESTE DE LA FICHE.
+
+    En fin de section, deux boutons pleins sont la conclusion de la
+    page. Dans une fiche, ce sont les DERNIERS éléments d'un bloc qui
+    en contient déjà six — et pleins, hauts de 57 px, ils pesaient
+    plus lourd que le nom du personnage. Vu au rendu sur le forum le
+    6 novembre.
+
+    Le fond part, le bord reste, le rembourrage se resserre. LA CIBLE
+    TACTILE NE BOUGE PAS : 44 px, c'est un minimum, pas une décoration
+    — le harnais le vérifie à chaque passage. */
+#modernbb .wm-champion a.wm-renvoi {
+  min-height: var(--wm-cible-tactile, 44px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-40, 40px)
+    var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  background: none;
+}
+
+#modernbb .wm-champion a.wm-renvoi:hover,
+#modernbb .wm-champion a.wm-renvoi:focus-visible {
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
 @media (max-width: 760px) {

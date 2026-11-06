@@ -33,6 +33,10 @@
 #  LES ONZE BADGES SONT DÉCRITS UNE SEULE FOIS, dans `icones.py`.
 from icones import LES_QUATRE_COLOSSEUMS, LES_SEPT_ARENES
 
+#  LES DIX-HUIT TYPES AUSSI, dans `annexes.py` — la fiche de champion
+#  de l'annexe 11 lit la même table.
+from annexes import en_titre, sans_accent
+
 import argparse
 import json
 import pathlib
@@ -50,24 +54,8 @@ STYLE_DU_FORUM = "versions/generation-vii/ultra-sun-ultra-moon"
 FICHES = json.loads((R / "data/especes-fiches.json").read_text())["fiches"]
 
 
-def sans_accent(s: str) -> str:
-    """La clé CSS d'un type : minuscules, sans accent. `wm-type--tenebres`."""
-    return "".join(
-        c for c in unicodedata.normalize("NFD", s.lower())
-        if unicodedata.category(c) != "Mn"
-    )
-
-
-def en_titre(cle: str) -> str:
-    """Le nom affiché d'un type, à partir de sa clé de fiche."""
-    NOMS = {
-        "normal": "Normal", "combat": "Combat", "vol": "Vol", "poison": "Poison",
-        "sol": "Sol", "roche": "Roche", "insecte": "Insecte", "spectre": "Spectre",
-        "acier": "Acier", "feu": "Feu", "eau": "Eau", "plante": "Plante",
-        "electrik": "Électrik", "psy": "Psy", "glace": "Glace", "dragon": "Dragon",
-        "tenebres": "Ténèbres", "fee": "Fée",
-    }
-    return NOMS.get(sans_accent(cle), cle.capitalize())
+#  `sans_accent` et `en_titre` vivent dans `annexes.py` : la fiche de
+#  champion de l'annexe 11 lit la même table des dix-huit types.
 
 
 def rencontres(zone: int | None, de: random.Random) -> tuple[str, list[dict]]:
