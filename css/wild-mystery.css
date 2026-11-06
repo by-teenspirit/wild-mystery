@@ -10112,13 +10112,18 @@ html#min-width {
    et pâlie. Ce n'est pas une divergence, c'est un état que la maquette
    n'avait pas à montrer.
 
-   ── SEPT BRIQUES ─────────────────────────────────────────────────────
+   ── HUIT BRIQUES ─────────────────────────────────────────────────────
 
-   `wm-carte` · `wm-tirets` · `wm-paras` · `wm-table` · `wm-paire` ·
-   `wm-encarts` · `wm-suivante` (avec `wm-question`). Une huitième se discute
-   avant de s'écrire, sinon le gabarit se dissout en douze pages
-   différentes. **`wm-table` est en flexbox**, pas un `<table>`
-   (planche 49) : un vrai tableau ne se replie pas sur téléphone.
+   `wm-carte` · `wm-tirets` · `wm-paras` · `wm-table` · `wm-chrono` ·
+   `wm-paire` · `wm-encarts` · `wm-suivante` (avec `wm-question`). Une
+   neuvième se discute avant de s'écrire, sinon le gabarit se dissout en
+   douze pages différentes. **`wm-table` est en flexbox**, pas un
+   `<table>` (planche 49) : un vrai tableau ne se replie pas sur
+   téléphone.
+
+   `wm-chrono` est arrivée le 6 novembre, demandée : la chronologie du
+   contexte était une `wm-table` à deux colonnes, qui disait « voici des
+   lignes » là où il fallait dire « voici une suite ».
    ════════════════════════════════════════════════════════════════════ */
 
 /*  Le sommaire ne rétrécit pas, le contenu prend le reste. `min-width: 0`
@@ -11280,6 +11285,152 @@ body:has(#modernbb .wm-carnet) {
     décor : `--wm-fond-page` vaut #eecfb5, et le corps la portait déjà
     sous les deux couches. Il n'y a donc rien à retirer de plus —
     vérifié à la mesure, pas à l'œil. */
+
+/* ── wm-chrono · une suite de moments ──────────────────────────────
+
+   « À gauche, la date ; entre les deux, un point et un trait qui relie
+   tous les points ; à droite, les infos concernant cette date. »
+   (6 novembre, pour la chronologie du contexte.)
+
+   ELLE HÉRITE DU BLOC D'ANNONCES DE L'ACCUEIL, `wm-news`, et pas d'un
+   dessin neuf : le point de 8 px, le filet d'un pixel, et le filet qui
+   court à travers l'écart jusqu'au point suivant, tout ça y est déjà et
+   a déjà été réglé. Deux différences, et deux seulement :
+
+   · LA DATE PASSE DEVANT LE RAIL. Sur l'accueil, elle vient après le
+     point — on lit « • 18 sept · un titre ». Ici c'est la date qu'on
+     cherche, alors elle tient sa propre colonne, alignée à droite
+     contre le rail, et les huit dates s'empilent au cordeau.
+
+   · LE POINT ALLUMÉ EST LE DERNIER, pas le premier. Une liste
+     d'annonces commence par la plus fraîche ; une chronologie finit
+     par le présent.
+
+   POURQUOI PAS DE TROISIÈME ÉLÉMENT POUR LE RAIL. Le point et le trait
+   sont deux pseudo-éléments posés sur le moment lui-même, à une
+   distance calculée depuis la largeur de la colonne de date. C'est une
+   ligne de CSS de plus et un `<span>` vide de moins dans un code que
+   Callista recolle à la main. */
+#modernbb .wm-chrono {
+  /*  Les deux mesures qui commandent tout le reste. Le point fait 8 px
+      comme celui de l'accueil, et l'écart lui laisse de quoi respirer
+      de chaque côté. */
+  --chrono-date: 108px;
+  --chrono-ecart: 22px;
+  --chrono-point: 8px;
+  /*  Le saut entre deux moments. C'est lui que le filet traverse : s'il
+      change, le filet suit, parce que sa hauteur le lit. */
+  --chrono-saut: var(--wm-espace-20, 20px);
+
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-chrono__moment {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--chrono-ecart);
+  padding-bottom: var(--chrono-saut);
+}
+
+/*  Le dernier ne pousse rien sous lui. */
+#modernbb .wm-chrono__moment:last-child {
+  padding-bottom: 0;
+}
+
+/*  ── LE POINT ─────────────────────────────────────────────────────
+    Posé au MILIEU de l'écart : la moitié de l'écart, moins la moitié
+    du point. Il suit donc les deux mesures du dessus sans qu'on ait à
+    le replacer à la main. */
+#modernbb .wm-chrono__moment::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: calc(
+    var(--chrono-date) + var(--chrono-ecart) / 2 - var(--chrono-point) / 2
+  );
+  width: var(--chrono-point);
+  height: var(--chrono-point);
+  border-radius: 999px;
+  background: var(--wm-bord-net, #d9c3b1);
+}
+
+/*  Le présent est allumé. */
+#modernbb .wm-chrono__moment:last-child::before {
+  background: var(--wm-accent-terre, #8b4725);
+}
+
+/*  ── LE FILET ─────────────────────────────────────────────────────
+    Il part sous le point et descend JUSQU'AU POINT SUIVANT — donc il
+    traverse le rembourrage du bas. `100% + saut` est la hauteur du
+    moment plus le saut ; on en retire ce qui est déjà passé sous le
+    point. Sans le `+ saut`, le trait s'arrêtait à chaque fois et la
+    suite se lisait comme huit traits séparés. */
+#modernbb .wm-chrono__moment::after {
+  content: "";
+  position: absolute;
+  top: calc(6px + var(--chrono-point));
+  left: calc(var(--chrono-date) + var(--chrono-ecart) / 2);
+  width: 1px;
+  height: calc(100% + var(--chrono-saut) - 6px - var(--chrono-point));
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-chrono__moment:last-child::after {
+  display: none;
+}
+
+/*  ── LA DATE ──────────────────────────────────────────────────────
+    Alignée à DROITE contre le rail : c'est ce qui met les huit dates
+    au cordeau quelles que soient leurs longueurs — « Août 2011 » et
+    « 2022 – 2026 » n'ont pas le même nombre de signes.
+
+    `tabular-nums` pour que les chiffres aient tous la même chasse ;
+    sinon les années dansent d'une ligne à l'autre. */
+#modernbb .wm-chrono__quand {
+  flex: 0 0 var(--chrono-date);
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: right;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-chrono__quoi {
+  min-width: 0;
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  Un moment peut porter plusieurs paragraphes. */
+#modernbb .wm-chrono__quoi > * {
+  margin: 0;
+}
+
+#modernbb .wm-chrono__quoi > * + * {
+  margin-top: var(--wm-espace-8, 8px);
+}
+
+@media (max-width: 760px) {
+  /*  LA COLONNE DE DATE RÉTRÉCIT, ELLE NE DISPARAÎT PAS. Passer la
+      date au-dessus du texte casserait l'alignement des points, qui
+      est tout l'intérêt du dessin. 76 px tiennent « Novembre 2011 »
+      sur deux lignes, ce qui va : c'est la date la plus longue. */
+  #modernbb .wm-chrono {
+    --chrono-date: 76px;
+    --chrono-ecart: 18px;
+  }
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    09-boutique.css — le catalogue et son panier

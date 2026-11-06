@@ -20,6 +20,7 @@
     "construire": "deno bundle --platform browser --format iife --minify -o js/wild-mystery.js js/wild-mystery.ts && deno bundle --platform browser --format iife --minify -o js/annexes.js js/annexes.ts && deno bundle --platform browser --format iife --minify -o js/carnet.js js/carnet.ts && deno bundle --platform browser --format iife --minify -o js/carte.js js/carte.ts",
     "test:navigateur": "deno test --allow-env --allow-read=data/accueil.json,img/accueil src/navigateur/",
     "harnais": "deno bundle --platform browser --format iife -o js/harnais-sommaire.js js/harnais-sommaire.ts",
+    "chrono": "deno run -A outils/chrono.mjs",
     "contraste": "deno run -A outils/contraste.mjs",
     "annexes": "python3 outils/annexe-carte.py && python3 outils/annexe-personnages.py && python3 outils/annexe-credits.py && python3 outils/annexes.py",
     "annexe-carte": "python3 outils/annexe-carte.py",
