@@ -128,5 +128,15 @@
     }
   ],
   "_encarts": "encartsDeLaCarte : les deux encarts du bas de l'onglet de la carte. Écrits par Callista le 5 novembre, en remplacement de deux sections d'explication du tirage et de la météo qu'elle a jugées de trop. `ton` vaut paisible ou terre, comme la classe wm-encart--*.",
-  "_icones": "icone : le nom d'un dessin de outils/icones.py, posé dans le titre de l'évènement et recopié dans son onglet par module-annexes.ts."
+  "_icones": "icone : le nom d'un dessin de outils/icones.py, posé dans le titre de l'évènement et recopié dans son onglet par module-annexes.ts.",
+  "breches": {
+    "_": "LE TEXTE EST PROVISOIRE, écrit d'après les mots de Callista le 6 novembre : « Brèche interdimensionnelle qui permettent de capturer dans une nouvelle zone sauvage dans un temps imparti des pokémons d'une autre région / sa forme d'une autre région. » Elle a dit « j'expliquerai plus tard le phénomène » — c'est donc ici qu'on remplace, et nulle part dans le code.",
+    "titre": "Les brèches interdimensionnelles",
+    "presentation": [
+      "Il arrive qu'une brèche s'ouvre quelque part dans Rhode. Le temps qu'elle reste ouverte, une zone sauvage inédite apparaît derrière elle — et on y croise des pokémon d'une autre région, ou la forme qu'ils y ont prise.",
+      "C'est le seul endroit où on les rencontre : aucune de ces formes ne vit dans les zones de Rhode. Quand la brèche se referme, ce qui n'a pas été attrapé repart avec elle."
+    ],
+    "note": "Le phénomène sera expliqué plus en détail. Pour l'instant, voici ce qui passe par une brèche."
+  },
+  "_breches": "La LISTE n'est pas ici : elle est dérivée de data/hors-nature.json, où chaque forme régionale porte `origine: \"breche\"`. L'écrire deux fois, c'est se garantir qu'un jour les deux ne diront plus la même chose."
 }

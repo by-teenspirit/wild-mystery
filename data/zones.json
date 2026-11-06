@@ -16,7 +16,7 @@
    "niveau": "Niveaux 1 à 20",
    "description": "Des racines dans l'eau noire et des passerelles qui tiennent mal. On ne quitte pas le sentier.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/foret-marecageuse.jpg",
-   "especes": 73
+   "especes": 72
   },
   {
    "forumId": 34,
@@ -28,7 +28,7 @@
    "niveau": "Niveaux 1 à 20",
    "description": "Des crêtes qui disparaissent dans le brouillard dès la mi-journée. On y monte au son, plus qu'à la vue.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/montagnes-embrumees.jpg",
-   "especes": 68
+   "especes": 59
   },
   {
    "forumId": 38,
@@ -40,7 +40,7 @@
    "niveau": "Niveaux 1 à 20",
    "description": "Des buissons jusqu'à la taille sur des kilomètres. Le vent y porte les cris de très loin.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/lande-broussailleuse.jpg",
-   "especes": 67
+   "especes": 64
   },
   {
    "forumId": 100,
@@ -52,7 +52,7 @@
    "niveau": "Niveaux 1 à 20",
    "description": "Large, lent, et bien plus profond qu'il n'en a l'air. Les barques s'y louent à la journée.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/fleuve-paisible.jpg",
-   "especes": 67
+   "especes": 64
   },
   {
    "forumId": 32,
@@ -76,7 +76,7 @@
    "niveau": "Niveaux 1 à 20",
    "description": "De l'herbe sèche à perte de vue. Rien pour se cacher, ni pour les dresseurs ni pour les pokémons.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/steppes-arides.jpg",
-   "especes": 67
+   "especes": 66
   },
   {
    "forumId": 31,
@@ -88,7 +88,7 @@
    "niveau": "Niveaux 15 à 40",
    "description": "Une bâtisse que personne ne revendique, et dont les portes ne grincent jamais dans le même sens.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/manoir-barjok.jpg",
-   "especes": 62
+   "especes": 61
   },
   {
    "forumId": 35,
@@ -100,7 +100,7 @@
    "niveau": "Niveaux 15 à 40",
    "description": "Des chaînes de montage arrêtées en plein travail. Le courant passe encore, on ne sait pas d'où.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/usine-desaffectee.jpg",
-   "especes": 64
+   "especes": 58
   },
   {
    "forumId": 39,
@@ -112,7 +112,7 @@
    "niveau": "Niveaux 15 à 40",
    "description": "Un cône toujours coiffé de vapeur. La roche reste tiède sous les semelles, même la nuit.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-nuageux.jpg",
-   "especes": 64
+   "especes": 56
   },
   {
    "forumId": 33,
@@ -124,7 +124,7 @@
    "niveau": "Niveaux 15 à 40",
    "description": "La carcasse d'un cargo couchée sur le flanc, mangée par le sel. On y entre par la cheminée.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/libra-echoue.jpg",
-   "especes": 61
+   "especes": 58
   },
   {
    "forumId": 37,
@@ -136,7 +136,7 @@
    "niveau": "Niveaux 15 à 40",
    "description": "Des parois de grès rouge et un fond qu'on n'atteint pas en une journée. L'écho y est trompeur.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/canyon-lekro.jpg",
-   "especes": 67
+   "especes": 62
   },
   {
    "forumId": 101,
@@ -148,7 +148,7 @@
    "niveau": "Niveaux 15 à 40",
    "description": "Quelques palmiers et une eau trop bleue, au milieu de rien. On la trouve rarement deux fois au même endroit.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/oasis-perdue.jpg",
-   "especes": 64
+   "especes": 63
   },
   {
    "forumId": 102,
@@ -160,7 +160,7 @@
    "niveau": "Niveaux 35 et plus",
    "description": "Une entrée dans la falaise, et rien d'écrit nulle part. Ceux qui savent n'en parlent pas.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/planque-snatch.jpg",
-   "especes": 24
+   "especes": 22
   },
   {
    "forumId": 103,
@@ -172,7 +172,7 @@
    "niveau": "Niveaux 35 et plus",
    "description": "Au-dessus de la limite des arbres. Le froid y est le vrai adversaire, bien avant les pokémons.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/monts-enneiges.jpg",
-   "especes": 30
+   "especes": 28
   },
   {
    "forumId": 46,
@@ -184,7 +184,7 @@
    "niveau": "Niveaux 35 et plus",
    "description": "Des pierres levées plus vieilles que Rhode. Les appareils photo y rendent des images vides.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/relique-sacree.jpg",
-   "especes": 30
+   "especes": 28
   },
   {
    "forumId": 104,
@@ -196,7 +196,7 @@
    "niveau": "Niveaux 35 et plus",
    "description": "Le large, au sud-est. Les cartes s'y arrêtent et les boussoles y tournent.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/ocean-mysterieux.jpg",
-   "especes": 27
+   "especes": 26
   },
   {
    "forumId": 105,
@@ -208,7 +208,7 @@
    "niveau": "Niveaux 35 et plus",
    "description": "Noir de la base au cratère. Rien n'y pousse, et le sol sonne creux.",
    "image": "https://by-teenspirit.github.io/wild-mystery/assets/zones/volcan-sombre.jpg",
-   "especes": 29
+   "especes": 28
   }
  ]
 }

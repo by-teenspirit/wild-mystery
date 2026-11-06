@@ -1396,16 +1396,23 @@ for e in hors.values():
     if e["origine"] == "evolution" and e.get("de") not in hors:
         fautes.append(f"{e['nom']} évolue d'une espèce qui n'est pas hors nature")
 
-#  4 · ET AUCUNE FORME RÉGIONALE NE TRAÎNE DANS UNE TABLE DE FAUNE.
+#  4 · ET RIEN DE CE QUI PASSE PAR UNE BRÈCHE NE TRAÎNE DANS UNE TABLE.
+#
+#      ON COMPARE AUX BRÈCHES, PAS À « identifiant > 10000 ». Ce
+#      raccourci prenait Plumeline Pom-Pom et Lougaroc Nocturne, qui
+#      sont des formes ALTERNATIVES et non régionales — on les obtient
+#      à Alola même — et il ratait Darumacho de Galar, dont
+#      l'identifiant PokéAPI ne finit pas par « -galar ».
+par_breche = {e["id"] for e in hors.values() if e["origine"] == "breche"}
 restes = []
 for f in sorted(Path("data/faune").glob("*.json")):
     z = json.loads(f.read_text(encoding="utf-8"))
     for table in z["conditions"].values():
         for ligne in table:
-            if ligne["espece"] > 10000:
+            if ligne["espece"] in par_breche:
                 restes.append(f"{ligne['nom']} dans {z['zone']}")
 if restes:
-    fautes.append(f"{len(restes)} forme(s) régionale(s) encore dans une table : {restes[:3]}")
+    fautes.append(f"{len(restes)} espèce(s) de brèche encore dans une table : {restes[:3]}")
 
 if fautes:
     for f in fautes[:12]:

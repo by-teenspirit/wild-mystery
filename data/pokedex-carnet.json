@@ -286,8 +286,8 @@
     "vol"
    ],
    "zone": 32,
-   "min": 7,
-   "max": 12,
+   "min": 6,
+   "max": 11,
    "quand": "les deux"
   },
   {
@@ -438,8 +438,8 @@
     "electrik"
    ],
    "zone": 102,
-   "min": 37,
-   "max": 42,
+   "min": 36,
+   "max": 41,
    "quand": "les deux"
   },
   {
@@ -541,8 +541,8 @@
     "sol"
    ],
    "zone": 102,
-   "min": 38,
-   "max": 43,
+   "min": 39,
+   "max": 44,
    "quand": "les deux"
   },
   {
@@ -578,8 +578,8 @@
     "sol"
    ],
    "zone": 102,
-   "min": 37,
-   "max": 42,
+   "min": 38,
+   "max": 43,
    "quand": "les deux"
   },
   {
@@ -1121,8 +1121,8 @@
     "combat"
    ],
    "zone": 102,
-   "min": 40,
-   "max": 45,
+   "min": 41,
+   "max": 46,
    "quand": "les deux"
   },
   {
@@ -1538,8 +1538,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 4,
-   "max": 9,
+   "min": 3,
+   "max": 8,
    "quand": "les deux"
   },
   {
@@ -2129,8 +2129,8 @@
     "glace"
    ],
    "zone": 32,
-   "min": 13,
-   "max": 18,
+   "min": 14,
+   "max": 19,
    "quand": "les deux"
   },
   {
@@ -3555,8 +3555,8 @@
     "sol"
    ],
    "zone": 37,
-   "min": 30,
-   "max": 35,
+   "min": 29,
+   "max": 34,
    "quand": "les deux"
   },
   {
@@ -4073,8 +4073,8 @@
     "normal"
    ],
    "zone": 102,
-   "min": 43,
-   "max": 48,
+   "min": 44,
+   "max": 49,
    "quand": "les deux"
   },
   {
@@ -4185,8 +4185,8 @@
     "fee"
    ],
    "zone": 32,
-   "min": 10,
-   "max": 15,
+   "min": 11,
+   "max": 16,
    "quand": "les deux"
   },
   {
@@ -4583,8 +4583,8 @@
     "dragon"
    ],
    "zone": 102,
-   "min": 39,
-   "max": 44,
+   "min": 40,
+   "max": 45,
    "quand": "les deux"
   },
   {
@@ -4608,8 +4608,8 @@
     "tenebres"
    ],
    "zone": 37,
-   "min": 29,
-   "max": 34,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
@@ -5003,8 +5003,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 8,
-   "max": 13,
+   "min": 7,
+   "max": 12,
    "quand": "les deux"
   },
   {
@@ -5090,8 +5090,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 6,
-   "max": 11,
+   "min": 5,
+   "max": 10,
    "quand": "les deux"
   },
   {
@@ -6607,8 +6607,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 9,
-   "max": 14,
+   "min": 8,
+   "max": 13,
    "quand": "les deux"
   },
   {
@@ -6853,8 +6853,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 10,
-   "max": 15,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
@@ -6891,8 +6891,8 @@
     "combat"
    ],
    "zone": 37,
-   "min": 28,
-   "max": 33,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
@@ -6981,8 +6981,8 @@
     "poison"
    ],
    "zone": 102,
-   "min": 45,
-   "max": 50,
+   "min": 46,
+   "max": 51,
    "quand": "les deux"
   },
   {
@@ -7083,8 +7083,8 @@
     "tenebres"
    ],
    "zone": 37,
-   "min": 27,
-   "max": 32,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
@@ -7421,8 +7421,8 @@
     "normal"
    ],
    "zone": 37,
-   "min": 26,
-   "max": 31,
+   "min": 25,
+   "max": 30,
    "quand": "les deux"
   },
   {
@@ -7658,8 +7658,8 @@
     "spectre"
    ],
    "zone": 32,
-   "min": 10,
-   "max": 15,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
@@ -7683,8 +7683,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 9,
-   "max": 14,
+   "min": 8,
+   "max": 13,
    "quand": "les deux"
   },
   {
@@ -8335,8 +8335,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 12,
-   "max": 17,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
@@ -9405,11 +9405,10 @@
     "electrik",
     "vol"
    ],
-   "zone": null,
-   "min": null,
-   "max": null,
-   "quand": null,
-   "origine": "breche"
+   "zone": 32,
+   "min": 10,
+   "max": 15,
+   "quand": "les deux"
   },
   {
    "no": 739,
@@ -9419,11 +9418,10 @@
     "psy",
     "vol"
    ],
-   "zone": null,
-   "min": null,
-   "max": null,
-   "quand": null,
-   "origine": "breche"
+   "zone": 32,
+   "min": 10,
+   "max": 15,
+   "quand": "les deux"
   },
   {
    "no": 740,
@@ -9433,11 +9431,10 @@
     "spectre",
     "vol"
    ],
-   "zone": null,
-   "min": null,
-   "max": null,
-   "quand": null,
-   "origine": "breche"
+   "zone": 32,
+   "min": 10,
+   "max": 15,
+   "quand": "les deux"
   },
   {
    "no": 741,
@@ -9496,11 +9493,10 @@
    "types": [
     "roche"
    ],
-   "zone": null,
-   "min": null,
-   "max": null,
-   "quand": null,
-   "origine": "breche"
+   "zone": 37,
+   "min": 30,
+   "max": 35,
+   "quand": "les deux"
   },
   {
    "no": 746,
@@ -9509,11 +9505,10 @@
    "types": [
     "roche"
    ],
-   "zone": null,
-   "min": null,
-   "max": null,
-   "quand": null,
-   "origine": "breche"
+   "zone": 102,
+   "min": 37,
+   "max": 42,
+   "quand": "les deux"
   },
   {
    "no": 747,
@@ -9536,8 +9531,8 @@
     "eau"
    ],
    "zone": 32,
-   "min": 3,
-   "max": 8,
+   "min": 2,
+   "max": 7,
    "quand": "les deux"
   },
   {

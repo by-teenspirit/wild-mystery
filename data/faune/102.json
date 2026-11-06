@@ -8,7 +8,7 @@
    {
     "espece": 76,
     "nom": "Grolem",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 35,
     "max": 40,
     "rarete": "commun"
@@ -16,7 +16,7 @@
    {
     "espece": 248,
     "nom": "Tyranocif",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 36,
     "max": 41,
     "rarete": "commun"
@@ -24,7 +24,15 @@
    {
     "espece": 26,
     "nom": "Raichu",
-    "pct": 7.2289,
+    "pct": 6.7416,
+    "min": 36,
+    "max": 41,
+    "rarete": "commun"
+   },
+   {
+    "espece": 10152,
+    "nom": "Lougaroc Crépusculaire",
+    "pct": 6.7416,
     "min": 37,
     "max": 42,
     "rarete": "commun"
@@ -32,23 +40,23 @@
    {
     "espece": 34,
     "nom": "Nidoking",
-    "pct": 7.2289,
-    "min": 37,
-    "max": 42,
-    "rarete": "commun"
-   },
-   {
-    "espece": 31,
-    "nom": "Nidoqueen",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 38,
     "max": 43,
     "rarete": "commun"
    },
    {
+    "espece": 31,
+    "nom": "Nidoqueen",
+    "pct": 6.7416,
+    "min": 39,
+    "max": 44,
+    "rarete": "commun"
+   },
+   {
     "espece": 94,
     "nom": "Ectoplasma",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 39,
     "max": 44,
     "rarete": "commun"
@@ -56,23 +64,23 @@
    {
     "espece": 330,
     "nom": "Libégon",
-    "pct": 7.2289,
-    "min": 39,
-    "max": 44,
-    "rarete": "commun"
-   },
-   {
-    "espece": 68,
-    "nom": "Mackogneur",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 40,
     "max": 45,
     "rarete": "commun"
    },
    {
+    "espece": 68,
+    "nom": "Mackogneur",
+    "pct": 6.7416,
+    "min": 41,
+    "max": 46,
+    "rarete": "commun"
+   },
+   {
     "espece": 652,
     "nom": "Blindépique",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 41,
     "max": 46,
     "rarete": "commun"
@@ -80,7 +88,7 @@
    {
     "espece": 534,
     "nom": "Bétochef",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 42,
     "max": 47,
     "rarete": "commun"
@@ -88,7 +96,7 @@
    {
     "espece": 295,
     "nom": "Brouhabam",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 43,
     "max": 48,
     "rarete": "peu commun"
@@ -96,15 +104,15 @@
    {
     "espece": 289,
     "nom": "Monaflèmit",
-    "pct": 3.6145,
-    "min": 43,
-    "max": 48,
+    "pct": 3.3708,
+    "min": 44,
+    "max": 49,
     "rarete": "peu commun"
    },
    {
     "espece": 508,
     "nom": "Mastouffe",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 44,
     "max": 49,
     "rarete": "peu commun"
@@ -112,7 +120,7 @@
    {
     "espece": 389,
     "nom": "Torterra",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 45,
     "max": 50,
     "rarete": "peu commun"
@@ -120,15 +128,15 @@
    {
     "espece": 545,
     "nom": "Brutapode",
-    "pct": 3.6145,
-    "min": 45,
-    "max": 50,
+    "pct": 3.3708,
+    "min": 46,
+    "max": 51,
     "rarete": "peu commun"
    },
    {
     "espece": 462,
     "nom": "Magnézone",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 46,
     "max": 51,
     "rarete": "peu commun"
@@ -136,7 +144,7 @@
    {
     "espece": 526,
     "nom": "Gigalithe",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 47,
     "max": 52,
     "rarete": "rare"
@@ -144,7 +152,7 @@
    {
     "espece": 474,
     "nom": "Porygon-Z",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 48,
     "max": 53,
     "rarete": "rare"
@@ -152,7 +160,7 @@
    {
     "espece": 464,
     "nom": "Rhinastoc",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 49,
     "max": 54,
     "rarete": "rare"
@@ -160,7 +168,7 @@
    {
     "espece": 901,
     "nom": "Ursaking",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 49,
     "max": 54,
     "rarete": "rare"
@@ -168,7 +176,7 @@
    {
     "espece": 934,
     "nom": "Gigansel",
-    "pct": 1.2048,
+    "pct": 1.1232,
     "min": 50,
     "max": 55,
     "rarete": "rare"
@@ -178,7 +186,7 @@
    {
     "espece": 76,
     "nom": "Grolem",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 35,
     "max": 40,
     "rarete": "commun"
@@ -186,7 +194,7 @@
    {
     "espece": 248,
     "nom": "Tyranocif",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 36,
     "max": 41,
     "rarete": "commun"
@@ -194,7 +202,15 @@
    {
     "espece": 26,
     "nom": "Raichu",
-    "pct": 7.2289,
+    "pct": 6.7416,
+    "min": 36,
+    "max": 41,
+    "rarete": "commun"
+   },
+   {
+    "espece": 10152,
+    "nom": "Lougaroc Crépusculaire",
+    "pct": 6.7416,
     "min": 37,
     "max": 42,
     "rarete": "commun"
@@ -202,23 +218,23 @@
    {
     "espece": 34,
     "nom": "Nidoking",
-    "pct": 7.2289,
-    "min": 37,
-    "max": 42,
-    "rarete": "commun"
-   },
-   {
-    "espece": 31,
-    "nom": "Nidoqueen",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 38,
     "max": 43,
     "rarete": "commun"
    },
    {
+    "espece": 31,
+    "nom": "Nidoqueen",
+    "pct": 6.7416,
+    "min": 39,
+    "max": 44,
+    "rarete": "commun"
+   },
+   {
     "espece": 94,
     "nom": "Ectoplasma",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 39,
     "max": 44,
     "rarete": "commun"
@@ -226,23 +242,23 @@
    {
     "espece": 330,
     "nom": "Libégon",
-    "pct": 7.2289,
-    "min": 39,
-    "max": 44,
-    "rarete": "commun"
-   },
-   {
-    "espece": 68,
-    "nom": "Mackogneur",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 40,
     "max": 45,
     "rarete": "commun"
    },
    {
+    "espece": 68,
+    "nom": "Mackogneur",
+    "pct": 6.7416,
+    "min": 41,
+    "max": 46,
+    "rarete": "commun"
+   },
+   {
     "espece": 652,
     "nom": "Blindépique",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 41,
     "max": 46,
     "rarete": "commun"
@@ -250,7 +266,7 @@
    {
     "espece": 534,
     "nom": "Bétochef",
-    "pct": 7.2289,
+    "pct": 6.7416,
     "min": 42,
     "max": 47,
     "rarete": "commun"
@@ -258,7 +274,7 @@
    {
     "espece": 295,
     "nom": "Brouhabam",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 43,
     "max": 48,
     "rarete": "peu commun"
@@ -266,15 +282,15 @@
    {
     "espece": 289,
     "nom": "Monaflèmit",
-    "pct": 3.6145,
-    "min": 43,
-    "max": 48,
+    "pct": 3.3708,
+    "min": 44,
+    "max": 49,
     "rarete": "peu commun"
    },
    {
     "espece": 508,
     "nom": "Mastouffe",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 44,
     "max": 49,
     "rarete": "peu commun"
@@ -282,7 +298,7 @@
    {
     "espece": 389,
     "nom": "Torterra",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 45,
     "max": 50,
     "rarete": "peu commun"
@@ -290,15 +306,15 @@
    {
     "espece": 545,
     "nom": "Brutapode",
-    "pct": 3.6145,
-    "min": 45,
-    "max": 50,
+    "pct": 3.3708,
+    "min": 46,
+    "max": 51,
     "rarete": "peu commun"
    },
    {
     "espece": 462,
     "nom": "Magnézone",
-    "pct": 3.6145,
+    "pct": 3.3708,
     "min": 46,
     "max": 51,
     "rarete": "peu commun"
@@ -306,7 +322,7 @@
    {
     "espece": 526,
     "nom": "Gigalithe",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 47,
     "max": 52,
     "rarete": "rare"
@@ -314,7 +330,7 @@
    {
     "espece": 474,
     "nom": "Porygon-Z",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 48,
     "max": 53,
     "rarete": "rare"
@@ -322,7 +338,7 @@
    {
     "espece": 464,
     "nom": "Rhinastoc",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 49,
     "max": 54,
     "rarete": "rare"
@@ -330,7 +346,7 @@
    {
     "espece": 901,
     "nom": "Ursaking",
-    "pct": 1.2048,
+    "pct": 1.1236,
     "min": 49,
     "max": 54,
     "rarete": "rare"
@@ -338,7 +354,7 @@
    {
     "espece": 934,
     "nom": "Gigansel",
-    "pct": 1.2048,
+    "pct": 1.1232,
     "min": 50,
     "max": 55,
     "rarete": "rare"

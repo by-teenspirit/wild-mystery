@@ -1213,3 +1213,121 @@
 #modernbb .wm-sous-onglets--posee .wm-region__bloc {
   margin-top: 0;
 }
+
+/* ── les brèches interdimensionnelles ──────────────────────────────
+
+   « Un onglet dans les zones, avec les brèches interdimensionnelles, et
+   toutes les formes de pokémons différentes dedans » (6 novembre).
+
+   TROIS LISTES, UNE PAR RÉGION — Alola, Galar, Hisui — et pas une
+   seule de cinquante lignes. Une brèche s'ouvre SUR une région : le
+   regroupement n'est pas un classement de confort, c'est ce que la
+   chose est.
+
+   Chaque forme tient sur une ligne : son numéro de Rhode, son nom, ses
+   types. Pas de sprite — ils sont servis par le module de la carte,
+   depuis un fichier de couverture que cette page ne lit pas, et
+   cinquante images pour une liste qu'on parcourt ne valent pas la
+   requête. */
+#modernbb .wm-breches {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-24, 24px);
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-breche__titre {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-10, 10px);
+  margin: 0 0 var(--wm-espace-10, 10px);
+  padding-bottom: var(--wm-espace-8, 8px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-breche__region {
+  color: var(--wm-encre, #2e2018);
+}
+
+/*  LE COMPTE EST DANS LE TITRE, et il se compte à la génération : dix-
+    huit formes d'Alola, seize de Galar, seize de Hisui. Écrit à la
+    main, il aurait menti le jour où une forme change de camp — et ce
+    jour-là est arrivé une heure après la première version. */
+#modernbb .wm-breche__compte {
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-normale, 400);
+}
+
+#modernbb .wm-breche__liste {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*  UNE LIGNE PAR FORME, et un filet entre deux : à seize lignes de
+    suite, l'œil a besoin de savoir où l'une finit. Le filet est ENTRE,
+    pas sous chacune — sinon la dernière traîne un trait qui ne sépare
+    rien. */
+#modernbb .wm-breche__forme {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-8, 8px) 0;
+}
+
+#modernbb .wm-breche__forme + .wm-breche__forme {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  Le numéro ne s'étire pas et garde une chasse fixe : cinquante
+    numéros qui dansent d'une ligne à l'autre se lisent mal. */
+#modernbb .wm-breche__no {
+  flex: 0 0 auto;
+  min-width: 52px;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-variant-numeric: tabular-nums;
+}
+
+/*  LE NOM POUSSE LES TYPES À DROITE. `flex: 1 1 auto` sur lui seul :
+    les pastilles gardent leur taille, et l'espace qui reste va au nom,
+    qui est ce qu'on lit. */
+#modernbb .wm-breche__nom {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-breche__types {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-breche__dit {
+  margin: var(--wm-espace-16, 16px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+@media (max-width: 760px) {
+  /*  Le nom passe sur sa propre ligne, au-dessus de ses types : à
+      320 px, nom et pastilles se partageaient trois mots chacun. */
+  #modernbb .wm-breche__nom {
+    flex: 1 1 100%;
+  }
+
+  #modernbb .wm-breche__no {
+    min-width: 0;
+  }
+}

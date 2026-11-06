@@ -1237,14 +1237,22 @@ body:has(#modernbb .wm-carnet) {
       sur deux lignes décale son texte sans décaler son point, et la
       rangée part de travers. Le harnais refuse qu'une date se coupe. */
   --chrono-date: 132px;
-  --chrono-ecart: 22px;
-  --chrono-point: 10px;
+  --chrono-ecart: 32px;
+  --chrono-point: 14px;
+  /*  LA HAUTEUR DU POINT, ÉCRITE UNE FOIS. Elle centre le point sur la
+      PREMIÈRE LIGNE du texte : 13,5 px à 1,5 d'interligne font 20,25
+      de haut, donc un milieu à 10 — moins la moitié du point.
+
+      Elle valait 6 px en dur, répétée à quatre endroits ; grossir le
+      point obligeait à la recalculer quatre fois, et à en oublier
+      une. */
+  --chrono-haut: 3px;
   /*  La hauteur d'un point de PÉRIODE. Un moment qui dure n'est pas un
       instant : son repère s'étire. Voir `--duree` plus bas. */
-  --chrono-duree: 26px;
+  --chrono-duree: 36px;
   /*  Le saut entre deux moments. C'est lui que le filet traverse : s'il
       change, le filet suit, parce que sa hauteur le lit. */
-  --chrono-saut: var(--wm-espace-24, 24px);
+  --chrono-saut: var(--wm-espace-40, 40px);
 
   display: flex;
   flex-direction: column;
@@ -1273,7 +1281,7 @@ body:has(#modernbb .wm-carnet) {
 #modernbb .wm-chrono__moment::before {
   content: "";
   position: absolute;
-  top: 6px;
+  top: var(--chrono-haut);
   left: calc(
     var(--chrono-date) + var(--chrono-ecart) / 2 - var(--chrono-point) / 2
   );
@@ -1313,10 +1321,23 @@ body:has(#modernbb .wm-carnet) {
 #modernbb .wm-chrono__moment::after {
   content: "";
   position: absolute;
-  top: calc(6px + var(--chrono-point));
+  top: calc(var(--chrono-haut) + var(--chrono-point));
   left: calc(var(--chrono-date) + var(--chrono-ecart) / 2);
   width: 1px;
-  height: calc(100% + var(--chrono-saut) - 6px - var(--chrono-point));
+  /*  ── `100 %` CONTIENT DÉJÀ LE SAUT ────────────────────────────
+      Un élément positionné en absolu calcule ses pourcentages sur la
+      BOÎTE DE REMBOURRAGE de son bloc conteneur — donc sur la hauteur
+      du moment PLUS son `padding-bottom`, qui est le saut.
+
+      J'écrivais `100% + saut`, et le saut comptait deux fois : le
+      trait du dernier moment visible dépassait son point de quarante
+      pixels et pendait dans le vide. Le harnais ne le voyait pas, il
+      ne vérifiait que « atteint le suivant » — il vérifie aussi « ne
+      le dépasse pas » maintenant.
+
+      `100% - point` tombe pile sur le point suivant : le bas du trait
+      vaut alors hauteur + saut + haut, qui est son sommet. */
+  height: calc(100% - var(--chrono-point));
   /*  `bord-net` ET PAS `bord-fin` : c'est le trait qui fait la suite,
       et à la teinte la plus pâle de la charte il disparaissait entre
       deux points. Un filet qu'on ne voit pas ne relie rien. */
@@ -1332,8 +1353,8 @@ body:has(#modernbb .wm-carnet) {
     du haut de sa capsule, en lui passant au travers. Attrapé par le
     harnais, pas à l'œil. */
 #modernbb .wm-chrono__moment--duree::after {
-  top: calc(6px + var(--chrono-duree));
-  height: calc(100% + var(--chrono-saut) - 6px - var(--chrono-duree));
+  top: calc(var(--chrono-haut) + var(--chrono-duree));
+  height: calc(100% - var(--chrono-duree));
 }
 
 #modernbb .wm-chrono__moment:last-child::after {
@@ -1389,7 +1410,8 @@ body:has(#modernbb .wm-carnet) {
       sur deux lignes, ce qui va : c'est la date la plus longue. */
   #modernbb .wm-chrono {
     --chrono-date: 84px;
-    --chrono-ecart: 18px;
+    --chrono-ecart: 22px;
+    --chrono-saut: var(--wm-espace-32, 32px);
   }
 
   /*  Et la date reprend sa taille d'étiquette : à 13,5 px dans 84 px,

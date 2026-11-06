@@ -142,7 +142,12 @@ console.log("── la chronologie, à 1440 ──");
     i,
     partSousSonPoint: m.trait !== null && m.trait.haut >= m.point.bas - 1,
     atteintLeSuivant: m.trait !== null && m.trait.bas >= vu[i + 1].point.y - 1,
-    manque: m.trait === null ? null : vu[i + 1].point.y - m.trait.bas,
+    //  ET NE LE DÉPASSE PAS. Ce contrôle manquait : `100% + saut`
+    //  comptait le saut deux fois — un élément en absolu calcule ses
+    //  pourcentages sur la boîte de REMBOURRAGE — et le trait du
+    //  dernier moment visible pendait quarante pixels sous son point.
+    sansDepasser: m.trait !== null && m.trait.bas <= vu[i + 1].point.y + 1,
+    ecart: m.trait === null ? null : vu[i + 1].point.y - m.trait.bas,
   }));
   ok(
     "chaque trait part sous son point",
@@ -153,6 +158,11 @@ console.log("── la chronologie, à 1440 ──");
     "et descend jusqu'au point suivant, sans rupture",
     relies.every((r) => r.atteintLeSuivant),
     relies.filter((r) => !r.atteintLeSuivant),
+  );
+  ok(
+    "sans le dépasser — rien ne pend sous un point",
+    relies.every((r) => r.sansDepasser),
+    relies.filter((r) => !r.sansDepasser),
   );
   ok(
     "le trait est sur l'axe des points",

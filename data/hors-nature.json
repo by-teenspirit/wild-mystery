@@ -1,7 +1,7 @@
 {
-  "_": "Les 76 espèces du Pokédex de Rhode qu'on ne croise dans AUCUNE zone sauvage. DÉRIVÉ par outils/hors-nature.py de data/fossiles.json et des chaînes d'évolution de PokéAPI. Ne pas modifier à la main.",
+  "_": "Les 71 espèces du Pokédex de Rhode qu'on ne croise dans AUCUNE zone sauvage. DÉRIVÉ par outils/hors-nature.py de data/fossiles.json et des chaînes d'évolution de PokéAPI. Ne pas modifier à la main.",
   "_origine": "« fossile » : l'espèce sort du laboratoire, et `fossile` nomme la clé de data/fossiles.json qui la ressuscite. « evolution » : elle s'obtient en faisant évoluer l'espèce que `de` désigne. « breche » : c'est une forme régionale, qu'on ne croise dans aucune zone et qui s'obtient par une brèche interdimensionnelle (6 novembre) ; `de` est alors la forme dont elle évolue, quand elle ne s'obtient que comme ça. Dans les trois cas la ligne du Pokédex n'a ni zone, ni fourchette de niveaux, ni moment — il n'y a rien de vrai à y écrire.",
-  "_compte": "11 espèces de base ressuscitées par un fossile, 10 obtenues en les faisant évoluer, et 55 formes régionales qui passent par une brèche.",
+  "_compte": "11 espèces de base ressuscitées par un fossile, 10 obtenues en les faisant évoluer, et 50 formes régionales qui passent par une brèche.",
   "source": "https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv",
   "especes": [
     {
@@ -379,31 +379,6 @@
     {
       "id": 10244,
       "nom": "Archéduc de Hisui",
-      "origine": "breche"
-    },
-    {
-      "id": 10123,
-      "nom": "Plumeline Pom-Pom",
-      "origine": "breche"
-    },
-    {
-      "id": 10124,
-      "nom": "Plumeline Hula",
-      "origine": "breche"
-    },
-    {
-      "id": 10125,
-      "nom": "Plumeline Buyō",
-      "origine": "breche"
-    },
-    {
-      "id": 10126,
-      "nom": "Lougaroc Nocturne",
-      "origine": "breche"
-    },
-    {
-      "id": 10152,
-      "nom": "Lougaroc Crépusculaire",
       "origine": "breche"
     }
   ]

@@ -790,7 +790,7 @@
    "typesDominants": [
     "feu",
     "combat",
-    "tenebres"
+    "psy"
    ],
    "objets": [
     {
@@ -799,7 +799,7 @@
      "nom": "Poké Ball",
      "famille": "ball",
      "prix": 200,
-     "pct": 2.8348
+     "pct": 2.9232
     },
     {
      "slug": "potion",
@@ -807,7 +807,7 @@
      "nom": "Potion",
      "famille": "soin",
      "prix": 300,
-     "pct": 1.8898
+     "pct": 1.9488
     },
     {
      "slug": "antidote",
@@ -815,7 +815,7 @@
      "nom": "Antidote",
      "famille": "statut",
      "prix": 100,
-     "pct": 5.6695
+     "pct": 5.8463
     },
     {
      "slug": "paralyze-heal",
@@ -823,7 +823,7 @@
      "nom": "Anti-Para",
      "famille": "statut",
      "prix": 200,
-     "pct": 2.8348
+     "pct": 2.9232
     },
     {
      "slug": "awakening",
@@ -831,7 +831,7 @@
      "nom": "Réveil",
      "famille": "statut",
      "prix": 250,
-     "pct": 2.2678
+     "pct": 2.3385
     },
     {
      "slug": "great-ball",
@@ -839,7 +839,7 @@
      "nom": "Super Ball",
      "famille": "ball",
      "prix": 600,
-     "pct": 0.9449
+     "pct": 0.9744
     },
     {
      "slug": "super-potion",
@@ -847,7 +847,7 @@
      "nom": "Super Potion",
      "famille": "soin",
      "prix": 700,
-     "pct": 0.8099
+     "pct": 0.8352
     },
     {
      "slug": "burn-heal",
@@ -855,7 +855,7 @@
      "nom": "Anti-Brûle",
      "famille": "statut",
      "prix": 250,
-     "pct": 2.2678
+     "pct": 2.3385
     },
     {
      "slug": "ice-heal",
@@ -863,7 +863,7 @@
      "nom": "Antigel",
      "famille": "statut",
      "prix": 250,
-     "pct": 2.2678
+     "pct": 2.3385
     },
     {
      "slug": "full-heal",
@@ -871,7 +871,7 @@
      "nom": "Total Soin",
      "famille": "statut",
      "prix": 600,
-     "pct": 0.9449
+     "pct": 0.9744
     },
     {
      "slug": "quick-ball",
@@ -879,15 +879,7 @@
      "nom": "Rapide Ball",
      "famille": "ball",
      "prix": 1000,
-     "pct": 0.567
-    },
-    {
-     "slug": "dusk-ball",
-     "objet": 990007,
-     "nom": "Sombre Ball",
-     "famille": "ball",
-     "prix": 1000,
-     "pct": 0.567
+     "pct": 0.5846
     },
     {
      "slug": "fire-stone",
@@ -895,15 +887,7 @@
      "nom": "Pierre Feu",
      "famille": "evolution",
      "prix": 3000,
-     "pct": 0.189
-    },
-    {
-     "slug": "dusk-stone",
-     "objet": 990088,
-     "nom": "Pierre Nuit",
-     "famille": "evolution",
-     "prix": 3000,
-     "pct": 0.189
+     "pct": 0.1949
     },
     {
      "slug": "moon-stone",
@@ -911,7 +895,7 @@
      "nom": "Pierre Lune",
      "famille": "evolution",
      "prix": 3000,
-     "pct": 0.189
+     "pct": 0.1949
     },
     {
      "slug": "sun-stone",
@@ -919,7 +903,7 @@
      "nom": "Pierre Soleil",
      "famille": "evolution",
      "prix": 3000,
-     "pct": 0.189
+     "pct": 0.1949
     },
     {
      "slug": "shiny-stone",
@@ -927,7 +911,7 @@
      "nom": "Pierre Éclat",
      "famille": "evolution",
      "prix": 3000,
-     "pct": 0.189
+     "pct": 0.1949
     },
     {
      "slug": "dawn-stone",
@@ -935,7 +919,7 @@
      "nom": "Pierre Aube",
      "famille": "evolution",
      "prix": 3000,
-     "pct": 0.189
+     "pct": 0.1948
     }
    ]
   },
@@ -1101,8 +1085,8 @@
    "palier": 2,
    "typesDominants": [
     "normal",
-    "roche",
-    "sol"
+    "sol",
+    "roche"
    ],
    "objets": [
     {
@@ -1380,8 +1364,8 @@
    "zone": "Planque Snatch",
    "palier": 3,
    "typesDominants": [
-    "roche",
     "sol",
+    "roche",
     "normal"
    ],
    "objets": [
@@ -1552,9 +1536,9 @@
    "zone": "Monts Enneigés",
    "palier": 3,
    "typesDominants": [
-    "acier",
     "glace",
-    "psy"
+    "acier",
+    "vol"
    ],
    "objets": [
     {

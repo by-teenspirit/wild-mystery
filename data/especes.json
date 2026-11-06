@@ -1,6 +1,6 @@
 {
   "source": "dérivé de data/faune/*.json et data/hors-nature.json par outils/especes.py",
-  "couverture": "les 879 espèces des zones sauvages et les 76 qu'aucune zone ne porte — fossiles, leurs évolutions, et les formes régionales, qui passent par une brèche interdimensionnelle (data/hors-nature.json)",
+  "couverture": "les 884 espèces des zones sauvages et les 71 qu'aucune zone ne porte — fossiles, leurs évolutions, et les formes régionales, qui passent par une brèche interdimensionnelle (data/hors-nature.json)",
   "especes": {
     "1": "Bulbizarre",
     "2": "Herbizarre",

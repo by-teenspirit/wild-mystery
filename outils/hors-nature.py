@@ -53,7 +53,14 @@ import sys
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 FOSSILES = RACINE / "data" / "fossiles.json"
-POKEDEX = RACINE / "data" / "pokedex-carnet.json"
+#  LA PLANCHE, ET PAS LE POKÉDEX ENGENDRÉ.
+#
+#  `pokedex-carnet.json` serait plus commode — il porte déjà les noms et
+#  les identifiants ensemble. Mais il est DÉRIVÉ des tables de faune, et
+#  `faune-par-zone.py` a besoin de ce fichier-ci pour savoir quoi
+#  exclure : on tournerait en rond. `pokedex-ids.json` est la planche 39
+#  recopiée, en amont de tout.
+IDS = RACINE / "data" / "pokedex-ids.json"
 SORTIE = RACINE / "data" / "hors-nature.json"
 
 #  Le français, dans les tables de PokéAPI.
@@ -62,6 +69,33 @@ FRANCAIS = 5
 #  tels quels de `outils/especes-sql.py`, qui s'en sert pour la même
 #  raison : une forme régionale est une espèce à part (5 octobre).
 FORMES = ("alola", "galar", "hisui", "paldea")
+
+
+def region_de(identifiant: str) -> str | None:
+    """La région d'une forme, ou None si ce n'en est pas une.
+
+    ON LIT LES SEGMENTS, pas la fin, et surtout pas le numéro.
+
+    · `id > 10000` prend TOUTES les formes alternatives — Plumeline
+      Pom-Pom, Lougaroc Nocturne — qui ne viennent d'aucune autre
+      région : on les obtient à Alola même, par un nectar ou par
+      l'heure. Les envoyer aux brèches était une faute, et elle était
+      dans le dépôt pendant une heure.
+
+    · « finit par `-galar` » rate `darmanitan-galar-standard`, qui est
+      bel et bien la forme de Galar de Darumarond.
+
+    · Et « contient `alola` » prendrait `raticate-totem-alola`, qui est
+      une forme Totem — un pokémon de boss, pas une forme régionale.
+      D'où le refus explicite de `totem`.
+    """
+    parties = identifiant.split("-")
+    if "totem" in parties:
+        return None
+    for region in FORMES:
+        if region in parties:
+            return region
+    return None
 
 
 class SourceIncomplete(Exception):
@@ -152,17 +186,19 @@ def deriver(dossier: pathlib.Path) -> list[dict]:
     #  noms sont ceux de la planche 39 ; les réécrire ferait 54 faux
     #  désaccords dans `especes.py`, qui compare les noms table par
     #  table.
-    dex = json.loads(POKEDEX.read_text(encoding="utf-8"))["especes"]
-    au_dex = {e["id"] for e in dex}
-    nom_au_dex = {e["id"]: e["nom"] for e in dex}
+    ids = json.loads(IDS.read_text(encoding="utf-8"))["ids"]
+    nom_au_dex = {i: n for n, i in ids.items()}
+    au_dex = set(nom_au_dex)
     par_espece_suffixe: dict[tuple[int, str], int] = {}
     for pokemon, ident in identifiant.items():
-        for suffixe in FORMES:
-            #  « -alola » et pas « alola » : `raticate-totem-alola` est
-            #  une forme Totem, pas une forme régionale, et elle se
-            #  glisserait ici sans ce test de fin exacte.
-            if ident.endswith(f"-{suffixe}") and ident.count("-") == 1:
-                par_espece_suffixe[(espece_de[pokemon], suffixe)] = pokemon
+        region = region_de(ident)
+        #  La forme la plus simple gagne : `darmanitan-galar` plutôt que
+        #  `darmanitan-galar-zen`, qui est un état de combat.
+        if region is not None:
+            cle = (espece_de[pokemon], region)
+            ancien = par_espece_suffixe.get(cle)
+            if ancien is None or ident.count("-") < identifiant[ancien].count("-"):
+                par_espece_suffixe[cle] = pokemon
 
     def apostrophe_du_depot(s: str) -> str:
         return s.replace("’", "'")
@@ -184,15 +220,17 @@ def deriver(dossier: pathlib.Path) -> list[dict]:
         }
 
     #  Celles que le Pokédex porte déjà : elles sortent des zones.
-    for pokemon in sorted(x for x in au_dex if x > 10000):
-        poser_la_breche(pokemon, None)
+    #  SEULEMENT LES RÉGIONALES — les autres formes alternatives
+    #  restent où elles vivent.
+    for pokemon in sorted(au_dex):
+        if region_de(identifiant.get(pokemon, "")) is not None:
+            poser_la_breche(pokemon, None)
 
     #  Et celles qui manquaient — une évolution régionale qu'aucune
     #  table ne pouvait porter, puisqu'on ne l'obtient qu'en faisant
     #  évoluer. Feunard d'Alola est la seule, mesuré le 6 novembre.
-    for pokemon in sorted(x for x in au_dex if x > 10000):
-        ident = identifiant.get(pokemon, "")
-        suffixe = next((s for s in FORMES if ident.endswith(f"-{s}")), None)
+    for pokemon in sorted(au_dex):
+        suffixe = region_de(identifiant.get(pokemon, ""))
         if suffixe is None:
             continue
         for enfant in sorted(enfants.get(espece_de[pokemon], [])):
@@ -264,7 +302,7 @@ def verifier() -> int:
     if len(ids) != len(set(ids)):
         fautes.append("deux lignes portent le même identifiant")
 
-    au_dex = {e["id"] for e in json.loads(POKEDEX.read_text(encoding="utf-8"))["especes"]}
+    au_dex = set(json.loads(IDS.read_text(encoding="utf-8"))["ids"].values())
     connus = set(ids) | au_dex
 
     attendues = {f["especeId"] for f in json.loads(FOSSILES.read_text(encoding="utf-8"))["fossiles"]}

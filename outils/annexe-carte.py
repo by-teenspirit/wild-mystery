@@ -42,6 +42,7 @@ from annexes import (  # noqa: E402
     FIN,
     entre_les_bornes,
     chemin_de_la_page,
+    en_titre,
     numero_de,
     pied_de_page,
     remplacer_le_corps,
@@ -400,6 +401,77 @@ def corps():
     #  CE QUI EN RESTE EST DANS LE BLOC DE LA ZONE, et c'est le bon
     #  endroit : les cinq parts sont les mêmes partout, mais la liste
     #  d'objets, elle, change de zone en zone.
+    w("")
+    w("          </section>")
+    w("")
+
+    #  ── 3 · les brèches interdimensionnelles ──────────────────────
+    #
+    #  « Tu vas ajouter un onglet dans les zones, avec les brèches
+    #  interdimensionnelles et tu vas mettre toutes les formes de
+    #  pokémons différentes dans cet onglet » (6 novembre).
+    #
+    #  LA LISTE EST DÉRIVÉE DE `data/hors-nature.json`, où chaque forme
+    #  régionale porte `origine: "breche"` — la même source qui les
+    #  sort des dix-sept tables de rencontre. Recopiée ici, elle
+    #  finirait par ne plus dire la même chose que les zones.
+    #
+    #  LA RÉGION SE LIT DANS LE NOM, en français : « Rattata d'Alola »,
+    #  « Miaouss de Galar ». C'est ce que le lecteur voit, et ça évite
+    #  de traîner les identifiants PokéAPI jusqu'ici.
+    b = region["breches"]
+    w('          <section data-wm-sous-onglet="les-breches">')
+    w(f'            <h2 class="wm-annexe__carte-titre">{e(b["titre"])}</h2>')
+    w('            <div class="wm-paras">')
+    for para in b["presentation"]:
+        w(f"              <p>{e(para)}</p>")
+    w("            </div>")
+    w("")
+
+    numeros = {x["id"]: x["no"] for x in lire("data/pokedex-carnet.json")["especes"]}
+    types = {x["id"]: x["types"] for x in lire("data/pokedex-carnet.json")["especes"]}
+    formes = [
+        x for x in lire("data/hors-nature.json")["especes"] if x["origine"] == "breche"
+    ]
+    REGIONS = (("Alola", "d'Alola"), ("Galar", "de Galar"),
+               ("Hisui", "de Hisui"), ("Paldea", "de Paldea"))
+    restantes = list(formes)
+    w('            <div class="wm-breches">')
+    for nom_region, marque in REGIONS:
+        dedans = [x for x in restantes if x["nom"].endswith(marque)]
+        if not dedans:
+            continue
+        restantes = [x for x in restantes if x not in dedans]
+        dedans.sort(key=lambda x: numeros.get(x["id"], 0))
+        w('              <section class="wm-breche">')
+        w('                <h3 class="wm-breche__titre">')
+        w(f'                  <span class="wm-breche__region">{e(nom_region)}</span>')
+        w(f'                  <span class="wm-breche__compte">{len(dedans)} formes</span>')
+        w("                </h3>")
+        w('                <ul class="wm-breche__liste">')
+        for x in dedans:
+            w('                  <li class="wm-breche__forme">')
+            w('                    <span class="wm-breche__no">N°'
+              f' {numeros.get(x["id"], 0):03d}</span>')
+            w(f'                    <span class="wm-breche__nom">{e(x["nom"])}</span>')
+            w('                    <span class="wm-breche__types">')
+            for ty in types.get(x["id"], []):
+                w(f'                      <span class="wm-type wm-type--{e(ty)}"'
+                  f' data-wm-type="{e(ty)}">{e(en_titre(ty))}</span>')
+            w("                    </span>")
+            w("                  </li>")
+        w("                </ul>")
+        w("              </section>")
+    #  UNE FORME SANS RÉGION RECONNUE ARRÊTE LA PAGE. La taire
+    #  l'effacerait de la liste sans que personne ne le voie.
+    if restantes:
+        raise SystemExit(
+            "région non reconnue pour : "
+            + ", ".join(x["nom"] for x in restantes[:5])
+        )
+    w("            </div>")
+    w("")
+    w(f'            <p class="wm-breche__dit">{e(b["note"])}</p>')
     w("")
     w("          </section>")
     w("")

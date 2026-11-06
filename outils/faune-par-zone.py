@@ -70,6 +70,7 @@ import sys
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 POKEDEX = RACINE / "data" / "pokedex-de-rhode.json"
+HORS_NATURE = RACINE / "data" / "hors-nature.json"
 IDS = RACINE / "data" / "pokedex-ids.json"
 ZONES = RACINE / "data" / "zones.json"
 FAUNE = RACINE / "data" / "faune"
@@ -159,6 +160,11 @@ def table(especes: list[str], ids: dict[str, int], bande: tuple[int, int]) -> li
 
 def construire() -> dict[pathlib.Path, str]:
     pokedex = json.loads(POKEDEX.read_text(encoding="utf-8"))
+    BRECHES = {
+        e["id"]
+        for e in json.loads(HORS_NATURE.read_text(encoding="utf-8"))["especes"]
+        if e["origine"] == "breche"
+    }
     ids = json.loads(IDS.read_text(encoding="utf-8"))["ids"]
     zones = {z["forumId"]: z for z in json.loads(ZONES.read_text(encoding="utf-8"))["zones"]}
 
@@ -193,7 +199,17 @@ def construire() -> dict[pathlib.Path, str]:
         #  n'est pas un effet de bord, c'est la seule chose correcte à
         #  faire — une table dont les parts ne font pas cent ment sur
         #  la chance de chacune.
-        retenues = [n for n in entree["especes"] if ids[n] < 10000]
+        #  ON EXCLUT CE QUE `hors-nature.json` DIT DE LA BRÈCHE, et pas
+        #  « tout identifiant au-dessus de 10000 ». Ce raccourci prenait
+        #  Plumeline Pom-Pom et Lougaroc Nocturne, qui sont des formes
+        #  ALTERNATIVES et pas régionales : on les obtient à Alola même,
+        #  par un nectar ou par l'heure, et elles n'ont rien à faire
+        #  dans une brèche. Il ratait aussi Darumacho de Galar, dont
+        #  l'identifiant PokéAPI ne finit pas par « -galar ».
+        #
+        #  La règle vit dans `hors-nature.py`, une seule fois ; ici on
+        #  lit son résultat.
+        retenues = [n for n in entree["especes"] if ids[n] not in BRECHES]
         t = table(retenues, ids, bande)
         fichiers[FAUNE / f"{zone['forumId']}.json"] = json.dumps(
             {
