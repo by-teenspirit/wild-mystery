@@ -77,6 +77,7 @@ const regarder = () =>
         x: Math.round(px),
         y: Math.round(py),
         taille: nombre(point.width),
+        hauteur: nombre(point.height),
         centre: Math.round(px + nombre(point.width) / 2),
         bas: Math.round(py + nombre(point.height)),
         couleur: point.backgroundColor,
@@ -95,8 +96,14 @@ const regarder = () =>
         large: Math.round(quand.width),
         mot: m.querySelector(".wm-chrono__quand").textContent.trim(),
         aligne: getComputedStyle(m.querySelector(".wm-chrono__quand")).textAlign,
+        //  Combien de lignes la date occupe : sa hauteur divisée par
+        //  son interligne. Deux, et elle se coupe.
+        lignes: Math.round(
+          quand.height / parseFloat(getComputedStyle(m.querySelector(".wm-chrono__quand")).lineHeight),
+        ),
       },
       quoi: { gauche: Math.round(quoi.left), large: Math.round(quoi.width) },
+      duree: m.classList.contains("wm-chrono__moment--duree"),
       debord: m.scrollWidth > Math.ceil(b.width) + 1,
     };
   });
@@ -156,6 +163,30 @@ console.log("── la chronologie, à 1440 ──");
   //  Un trait qui dépasse le dernier point pend dans le vide.
   ok("le dernier moment n'a pas de trait", vu.at(-1).trait === null, vu.at(-1).trait);
 
+  //  ── UNE PÉRIODE N'EST PAS UN INSTANT ───────────────────────────
+  //
+  //  « 2011 – 2020 » et « Juin 2026 » portaient le même rond. Le
+  //  repère d'une période s'étire ; la classe est posée par le
+  //  générateur, qui voit le tiret.
+  const durees = vu.filter((m) => m.duree);
+  const instants = vu.filter((m) => !m.duree);
+  ok(
+    "la page porte les deux sortes de moments",
+    durees.length > 0 && instants.length > 0,
+    { durees: durees.length, instants: instants.length },
+  );
+  ok(
+    "le repère d'une période est plus haut que celui d'un instant",
+    durees.every((d) => instants.every((i) => d.point.hauteur > i.point.hauteur)),
+    { duree: durees[0]?.point.hauteur, instant: instants[0]?.point.hauteur },
+  );
+  //  MAIS IL GARDE LA MÊME LARGEUR, sinon l'axe se décale.
+  ok(
+    "et exactement la même largeur, pour ne pas sortir de l'axe",
+    new Set(vu.map((m) => m.point.taille)).size === 1,
+    vu.map((m) => m.point.taille),
+  );
+
   //  ── LE PRÉSENT EST ALLUMÉ ──────────────────────────────────────
   //  Une liste d'annonces allume la plus fraîche, qui est en tête ;
   //  une chronologie finit par le présent.
@@ -173,6 +204,14 @@ console.log("── la chronologie, à 1440 ──");
       new Set(vu.map((m) => m.quand.droite)).size === 1 &&
       vu.every((m) => m.quand.aligne === "right"),
     vu.map((m) => ({ large: m.quand.large, droite: m.quand.droite, aligne: m.quand.aligne })),
+  );
+  //  AUCUNE DATE NE SE COUPE EN DEUX. Une date sur deux lignes décale
+  //  son texte sans décaler son point : la rangée part de travers, et
+  //  c'est arrivé en passant la date de 11,5 à 13,5 px.
+  ok(
+    "aucune date ne se coupe en deux",
+    vu.every((m) => m.quand.lignes === 1),
+    vu.filter((m) => m.quand.lignes !== 1).map((m) => ({ date: m.quand.mot, lignes: m.quand.lignes })),
   );
   ok(
     "et les textes commencent tous au même endroit",

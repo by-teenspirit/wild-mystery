@@ -1232,12 +1232,19 @@ body:has(#modernbb .wm-carnet) {
   /*  Les deux mesures qui commandent tout le reste. Le point fait 8 px
       comme celui de l'accueil, et l'écart lui laisse de quoi respirer
       de chaque côté. */
-  --chrono-date: 108px;
+  /*  132 ET PAS 108 : la date est passée de 11,5 à 13,5 px, et
+      « NOVEMBRE 2011 » — la plus longue — se coupait en deux. Une date
+      sur deux lignes décale son texte sans décaler son point, et la
+      rangée part de travers. Le harnais refuse qu'une date se coupe. */
+  --chrono-date: 132px;
   --chrono-ecart: 22px;
-  --chrono-point: 8px;
+  --chrono-point: 10px;
+  /*  La hauteur d'un point de PÉRIODE. Un moment qui dure n'est pas un
+      instant : son repère s'étire. Voir `--duree` plus bas. */
+  --chrono-duree: 26px;
   /*  Le saut entre deux moments. C'est lui que le filet traverse : s'il
       change, le filet suit, parce que sa hauteur le lit. */
-  --chrono-saut: var(--wm-espace-20, 20px);
+  --chrono-saut: var(--wm-espace-24, 24px);
 
   display: flex;
   flex-direction: column;
@@ -1276,6 +1283,22 @@ body:has(#modernbb .wm-carnet) {
   background: var(--wm-bord-net, #d9c3b1);
 }
 
+/*  ── UNE PÉRIODE N'EST PAS UN INSTANT ─────────────────────────────
+
+    « 2011 – 2020 » et « Juin 2026 » portaient le même rond : la
+    chronologie disait que dix ans de reconstruction et une découverte
+    d'un matin sont la même chose. Le repère d'une période S'ÉTIRE, en
+    capsule, sur la hauteur de ce qu'elle couvre.
+
+    LA CLASSE EST POSÉE PAR LE GÉNÉRATEUR, pas à la main : une date qui
+    porte un tiret demi-cadratin est une période, et c'est lui qui le
+    voit. Rien à retenir en recollant. */
+#modernbb .wm-chrono__moment--duree::before {
+  height: var(--chrono-duree);
+  border-radius: 999px;
+}
+
+
 /*  Le présent est allumé. */
 #modernbb .wm-chrono__moment:last-child::before {
   background: var(--wm-accent-terre, #8b4725);
@@ -1294,7 +1317,23 @@ body:has(#modernbb .wm-carnet) {
   left: calc(var(--chrono-date) + var(--chrono-ecart) / 2);
   width: 1px;
   height: calc(100% + var(--chrono-saut) - 6px - var(--chrono-point));
-  background: var(--wm-bord-fin, #eadacd);
+  /*  `bord-net` ET PAS `bord-fin` : c'est le trait qui fait la suite,
+      et à la teinte la plus pâle de la charte il disparaissait entre
+      deux points. Un filet qu'on ne voit pas ne relie rien. */
+  background: var(--wm-bord-net, #d9c3b1);
+}
+
+/*  Le filet d'une période repart SOUS SA CAPSULE, pas sous un rond.
+
+    CETTE RÈGLE EST ICI, APRÈS CELLE DE BASE, ET PAS PLUS HAUT. Les
+    deux ont exactement la même spécificité — un identifiant, une
+    classe, un pseudo-élément — donc c'est l'ORDRE qui tranche. Écrite
+    au-dessus, elle était écrasée et le filet d'une période repartait
+    du haut de sa capsule, en lui passant au travers. Attrapé par le
+    harnais, pas à l'œil. */
+#modernbb .wm-chrono__moment--duree::after {
+  top: calc(6px + var(--chrono-duree));
+  height: calc(100% + var(--chrono-saut) - 6px - var(--chrono-duree));
 }
 
 #modernbb .wm-chrono__moment:last-child::after {
@@ -1308,10 +1347,15 @@ body:has(#modernbb .wm-carnet) {
 
     `tabular-nums` pour que les chiffres aient tous la même chasse ;
     sinon les années dansent d'une ligne à l'autre. */
+/*  LA DATE PORTE L'ENCRE, PAS L'ACCENT, et elle est plus grande qu'une
+    étiquette. En 11,5 px d'accent elle pesait MOINS que le texte
+    qu'elle commande : on lisait le paragraphe, puis on cherchait à
+    quelle date il appartenait. L'accent reste au rail, qui est la
+    structure ; l'encre va au texte, dont la date fait partie. */
 #modernbb .wm-chrono__quand {
   flex: 0 0 var(--chrono-date);
-  color: var(--wm-accent-fort, #1f5470);
-  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-variant-numeric: tabular-nums;
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -1344,7 +1388,14 @@ body:has(#modernbb .wm-carnet) {
       est tout l'intérêt du dessin. 76 px tiennent « Novembre 2011 »
       sur deux lignes, ce qui va : c'est la date la plus longue. */
   #modernbb .wm-chrono {
-    --chrono-date: 76px;
+    --chrono-date: 84px;
     --chrono-ecart: 18px;
+  }
+
+  /*  Et la date reprend sa taille d'étiquette : à 13,5 px dans 84 px,
+      « NOVEMBRE 2011 » tiendrait sur trois lignes. Ici on accepte deux
+      — c'est le prix de la colonne, et les points restent alignés. */
+  #modernbb .wm-chrono__quand {
+    font-size: var(--wm-taille-petit, 11.5px);
   }
 }
