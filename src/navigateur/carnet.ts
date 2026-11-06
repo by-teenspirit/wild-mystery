@@ -287,15 +287,47 @@ export function sacRange(
   return sections;
 }
 
+/** Une espèce du Pokédex de Rhode.
+ *
+ *  LA ZONE EST FACULTATIVE DEPUIS LE 6 NOVEMBRE. Soixante-seize
+ *  espèces sont au Pokédex sans vivre dans aucune zone : les onze
+ *  lignées fossiles, qui sortent du laboratoire, et les cinquante-cinq
+ *  formes régionales, qui passent par une brèche interdimensionnelle.
+ *  Elles n'ont ni zone, ni fourchette de niveaux, ni moment — et c'est
+ *  `origine` qui dit par où on les obtient.
+ *
+ *  Écrire `zone: 0` ou `min: 0` aurait évité ce `| null` et menti sur
+ *  la page : « Niveaux 0 à 0 ». */
 export interface EspeceDeRhode {
   no: number;
   id: number;
   nom: string;
   types: string[];
-  zone: number;
-  min: number;
-  max: number;
-  quand: string;
+  zone: number | null;
+  min: number | null;
+  max: number | null;
+  quand: string | null;
+  /** Absente pour les espèces sauvages : leur zone le dit déjà. */
+  origine?: "fossile" | "evolution" | "breche";
+  /** La clé du fossile qui la ressuscite, quand `origine` vaut « fossile ». */
+  fossile?: string;
+  /** L'espèce dont elle évolue, quand on ne l'obtient que comme ça. */
+  de?: number;
+}
+
+/** Par où l'on obtient une espèce qu'aucune zone ne porte.
+ *
+ *  ON NE NOMME PAS LE FOSSILE. Le décor du carnet ne porte pas les
+ *  onze objets, et lui ajouter un champ pour une seule phrase ferait
+ *  une deuxième liste des mêmes fossiles — qui finirait par ne plus
+ *  dire la même chose que `data/fossiles.json`. « Au laboratoire, par
+ *  un fossile » est vrai, et l'annexe des fossiles dit lequel. */
+export function ouLaTrouver(espece: EspeceDeRhode): string {
+  if (espece.origine === "fossile") return "au laboratoire, par un fossile";
+  if (espece.origine === "breche") return "par une brèche interdimensionnelle";
+  if (espece.origine === "evolution") return "en la faisant évoluer";
+  //  Pas d'origine et pas de zone : on ne sait pas, et on le dit.
+  return "on ne sait pas encore";
 }
 
 export type EtatDEspece = "inconnu" | "croise" | "attrape";

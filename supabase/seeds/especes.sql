@@ -13,7 +13,7 @@
 --  base d'accord avec le dépôt. Un `do nothing` laisserait l'ancienne
 --  ligne et ne dirait rien.
 --
---  944 espèces, celles qui apparaissent dans une zone de Rhode.
+--  955 espèces, celles qui apparaissent dans une zone de Rhode.
 
 insert into espece (id, nom_fr, forme, types, stade, pv_base) values
   (1, 'Bulbizarre', null, array['plante','poison'], 1, 45),
@@ -154,7 +154,9 @@ insert into espece (id, nom_fr, forme, types, stade, pv_base) values
   (136, 'Pyroli', null, array['feu'], 2, 65),
   (137, 'Porygon', null, array['normal'], 1, 65),
   (138, 'Amonita', null, array['roche','eau'], 1, 35),
+  (139, 'Amonistar', null, array['roche','eau'], 2, 70),
   (140, 'Kabuto', null, array['roche','eau'], 1, 30),
+  (141, 'Kabutops', null, array['roche','eau'], 2, 60),
   (142, 'Ptéra', null, array['roche','vol'], 1, 80),
   (143, 'Ronflex', null, array['normal'], 2, 160),
   (147, 'Minidraco', null, array['dragon'], 1, 41),
@@ -348,7 +350,9 @@ insert into espece (id, nom_fr, forme, types, stade, pv_base) values
   (343, 'Balbuto', null, array['sol','psy'], 1, 40),
   (344, 'Kaorine', null, array['sol','psy'], 2, 60),
   (345, 'Lilia', null, array['roche','plante'], 1, 66),
+  (346, 'Vacilys', null, array['roche','plante'], 2, 86),
   (347, 'Anorith', null, array['roche','insecte'], 1, 45),
+  (348, 'Armaldo', null, array['roche','insecte'], 2, 75),
   (349, 'Barpau', null, array['eau'], 1, 20),
   (350, 'Milobellus', null, array['eau'], 2, 95),
   (351, 'Morphéo', null, array['normal'], 1, 70),
@@ -399,7 +403,9 @@ insert into espece (id, nom_fr, forme, types, stade, pv_base) values
   (406, 'Rozbouton', null, array['plante','poison'], 1, 40),
   (407, 'Roserade', null, array['plante','poison'], 3, 60),
   (408, 'Kranidos', null, array['roche'], 1, 67),
+  (409, 'Charkos', null, array['roche'], 2, 97),
   (410, 'Dinoclier', null, array['roche','acier'], 1, 30),
+  (411, 'Bastiodon', null, array['roche','acier'], 2, 60),
   (412, 'Cheniti', null, array['insecte'], 1, 40),
   (413, 'Cheniselle', null, array['insecte','plante'], 2, 60),
   (414, 'Papilord', null, array['insecte','vol'], 2, 70),
@@ -538,7 +544,9 @@ insert into espece (id, nom_fr, forme, types, stade, pv_base) values
   (562, 'Tutafeh', null, array['spectre'], 1, 38),
   (563, 'Tutankafer', null, array['spectre'], 2, 58),
   (564, 'Carapagos', null, array['eau','roche'], 1, 54),
+  (565, 'Mégapagos', null, array['eau','roche'], 2, 74),
   (566, 'Arkéapti', null, array['roche','vol'], 1, 55),
+  (567, 'Aéroptéryx', null, array['roche','vol'], 2, 75),
   (568, 'Miamiasme', null, array['poison'], 1, 50),
   (569, 'Miasmax', null, array['poison'], 2, 80),
   (570, 'Zorua', null, array['tenebres'], 1, 40),
@@ -656,7 +664,9 @@ insert into espece (id, nom_fr, forme, types, stade, pv_base) values
   (694, 'Galvaran', null, array['electrik','normal'], 1, 44),
   (695, 'Iguolta', null, array['electrik','normal'], 2, 62),
   (696, 'Ptyranidur', null, array['roche','dragon'], 1, 58),
+  (697, 'Rexillius', null, array['roche','dragon'], 2, 82),
   (698, 'Amagara', null, array['roche','glace'], 1, 77),
+  (699, 'Dragmara', null, array['roche','glace'], 2, 123),
   (700, 'Nymphali', null, array['fee'], 2, 95),
   (701, 'Brutalibré', null, array['combat','vol'], 1, 78),
   (702, 'Dedenne', null, array['electrik','fee'], 1, 67),
@@ -912,6 +922,7 @@ insert into espece (id, nom_fr, forme, types, stade, pv_base) values
   (10101, 'Sabelette d''Alola', 'alola', array['glace','acier'], 1, 50),
   (10102, 'Sablaireau d''Alola', 'alola', array['glace','acier'], 2, 75),
   (10103, 'Goupix d''Alola', 'alola', array['glace'], 1, 38),
+  (10104, 'Feunard d''Alola', 'alola', array['glace','fee'], 2, 73),
   (10105, 'Taupiqueur d''Alola', 'alola', array['sol','acier'], 1, 10),
   (10106, 'Triopikeur d''Alola', 'alola', array['sol','acier'], 2, 35),
   (10107, 'Miaouss d''Alola', 'alola', array['tenebres'], 1, 40),

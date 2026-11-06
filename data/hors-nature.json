@@ -1,0 +1,410 @@
+{
+  "_": "Les 76 espèces du Pokédex de Rhode qu'on ne croise dans AUCUNE zone sauvage. DÉRIVÉ par outils/hors-nature.py de data/fossiles.json et des chaînes d'évolution de PokéAPI. Ne pas modifier à la main.",
+  "_origine": "« fossile » : l'espèce sort du laboratoire, et `fossile` nomme la clé de data/fossiles.json qui la ressuscite. « evolution » : elle s'obtient en faisant évoluer l'espèce que `de` désigne. « breche » : c'est une forme régionale, qu'on ne croise dans aucune zone et qui s'obtient par une brèche interdimensionnelle (6 novembre) ; `de` est alors la forme dont elle évolue, quand elle ne s'obtient que comme ça. Dans les trois cas la ligne du Pokédex n'a ni zone, ni fourchette de niveaux, ni moment — il n'y a rien de vrai à y écrire.",
+  "_compte": "11 espèces de base ressuscitées par un fossile, 10 obtenues en les faisant évoluer, et 55 formes régionales qui passent par une brèche.",
+  "source": "https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv",
+  "especes": [
+    {
+      "id": 10091,
+      "nom": "Rattata d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10092,
+      "nom": "Rattatac d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10100,
+      "nom": "Raichu d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10101,
+      "nom": "Sabelette d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10102,
+      "nom": "Sablaireau d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10103,
+      "nom": "Goupix d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10104,
+      "nom": "Feunard d'Alola",
+      "origine": "breche",
+      "de": 10103
+    },
+    {
+      "id": 10105,
+      "nom": "Taupiqueur d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10106,
+      "nom": "Triopikeur d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10107,
+      "nom": "Miaouss d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10161,
+      "nom": "Miaouss de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10108,
+      "nom": "Persian d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10229,
+      "nom": "Caninos de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10230,
+      "nom": "Arcanin de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10109,
+      "nom": "Racaillou d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10110,
+      "nom": "Gravalanch d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10111,
+      "nom": "Grolem d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10162,
+      "nom": "Ponyta de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10163,
+      "nom": "Galopa de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10164,
+      "nom": "Ramoloss de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10165,
+      "nom": "Flagadoss de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10166,
+      "nom": "Canarticho de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10112,
+      "nom": "Tadmorv d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10113,
+      "nom": "Grotadmorv d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10231,
+      "nom": "Voltorbe de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10232,
+      "nom": "Électrode de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10114,
+      "nom": "Noadkoko d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10115,
+      "nom": "Ossatueur d'Alola",
+      "origine": "breche"
+    },
+    {
+      "id": 10167,
+      "nom": "Smogogo de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10168,
+      "nom": "M. Mime de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 138,
+      "nom": "Amonita",
+      "origine": "fossile",
+      "fossile": "nautile"
+    },
+    {
+      "id": 139,
+      "nom": "Amonistar",
+      "origine": "evolution",
+      "de": 138
+    },
+    {
+      "id": 140,
+      "nom": "Kabuto",
+      "origine": "fossile",
+      "fossile": "dome"
+    },
+    {
+      "id": 141,
+      "nom": "Kabutops",
+      "origine": "evolution",
+      "de": 140
+    },
+    {
+      "id": 142,
+      "nom": "Ptéra",
+      "origine": "fossile",
+      "fossile": "ambre"
+    },
+    {
+      "id": 10233,
+      "nom": "Typhlosion de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10172,
+      "nom": "Roigada de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10234,
+      "nom": "Qwilfish de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10235,
+      "nom": "Farfuret de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10173,
+      "nom": "Corayon de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10174,
+      "nom": "Zigzaton de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10175,
+      "nom": "Linéon de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 345,
+      "nom": "Lilia",
+      "origine": "fossile",
+      "fossile": "racine"
+    },
+    {
+      "id": 346,
+      "nom": "Vacilys",
+      "origine": "evolution",
+      "de": 345
+    },
+    {
+      "id": 347,
+      "nom": "Anorith",
+      "origine": "fossile",
+      "fossile": "griffe"
+    },
+    {
+      "id": 348,
+      "nom": "Armaldo",
+      "origine": "evolution",
+      "de": 347
+    },
+    {
+      "id": 408,
+      "nom": "Kranidos",
+      "origine": "fossile",
+      "fossile": "crane"
+    },
+    {
+      "id": 409,
+      "nom": "Charkos",
+      "origine": "evolution",
+      "de": 408
+    },
+    {
+      "id": 410,
+      "nom": "Dinoclier",
+      "origine": "fossile",
+      "fossile": "armure"
+    },
+    {
+      "id": 411,
+      "nom": "Bastiodon",
+      "origine": "evolution",
+      "de": 410
+    },
+    {
+      "id": 10236,
+      "nom": "Clamiral de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10237,
+      "nom": "Fragilady de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10176,
+      "nom": "Darumarond de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10177,
+      "nom": "Darumacho de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10179,
+      "nom": "Tutafeh de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 564,
+      "nom": "Carapagos",
+      "origine": "fossile",
+      "fossile": "plaque"
+    },
+    {
+      "id": 565,
+      "nom": "Mégapagos",
+      "origine": "evolution",
+      "de": 564
+    },
+    {
+      "id": 566,
+      "nom": "Arkéapti",
+      "origine": "fossile",
+      "fossile": "plume"
+    },
+    {
+      "id": 567,
+      "nom": "Aéroptéryx",
+      "origine": "evolution",
+      "de": 566
+    },
+    {
+      "id": 10238,
+      "nom": "Zorua de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10239,
+      "nom": "Zoroark de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10180,
+      "nom": "Limonde de Galar",
+      "origine": "breche"
+    },
+    {
+      "id": 10240,
+      "nom": "Gueriaigle de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 696,
+      "nom": "Ptyranidur",
+      "origine": "fossile",
+      "fossile": "machoire"
+    },
+    {
+      "id": 697,
+      "nom": "Rexillius",
+      "origine": "evolution",
+      "de": 696
+    },
+    {
+      "id": 698,
+      "nom": "Amagara",
+      "origine": "fossile",
+      "fossile": "nageoire"
+    },
+    {
+      "id": 699,
+      "nom": "Dragmara",
+      "origine": "evolution",
+      "de": 698
+    },
+    {
+      "id": 10241,
+      "nom": "Colimucus de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10242,
+      "nom": "Muplodocus de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10243,
+      "nom": "Séracrawl de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10244,
+      "nom": "Archéduc de Hisui",
+      "origine": "breche"
+    },
+    {
+      "id": 10123,
+      "nom": "Plumeline Pom-Pom",
+      "origine": "breche"
+    },
+    {
+      "id": 10124,
+      "nom": "Plumeline Hula",
+      "origine": "breche"
+    },
+    {
+      "id": 10125,
+      "nom": "Plumeline Buyō",
+      "origine": "breche"
+    },
+    {
+      "id": 10126,
+      "nom": "Lougaroc Nocturne",
+      "origine": "breche"
+    },
+    {
+      "id": 10152,
+      "nom": "Lougaroc Crépusculaire",
+      "origine": "breche"
+    }
+  ]
+}

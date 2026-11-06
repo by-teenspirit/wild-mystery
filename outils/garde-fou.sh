@@ -1339,6 +1339,87 @@ PY
   fi
 fi
 
+echo "── 32. les espèces hors nature ────────────────────────────────"
+# LE TROU DU 6 NOVEMBRE, ET CE QUI L'AVAIT CACHÉ.
+#
+# Le Pokédex a été bâti sur les dix-sept tables de rencontre : une
+# espèce y entrait parce qu'une zone la portait. Vingt-deux n'y sont
+# donc jamais entrées — les onze lignées fossiles et Feunard d'Alola —
+# et RIEN NE LE DISAIT, parce que rien ne comparait le Pokédex à ce
+# qu'on peut obtenir ailleurs. Les champions d'arène jouaient Armaldo,
+# Charkos et Rexillius, qui n'existaient nulle part dans le dépôt.
+#
+# Depuis, les formes régionales sont sorties des zones elles aussi :
+# elles passent par une brèche interdimensionnelle. Elles sont donc au
+# Pokédex SANS zone, comme les fossiles.
+#
+# On vérifie les trois accords qui se défont en silence.
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — espèces hors nature non vérifiées"
+else
+  if ! python3 - <<'PY'
+import json, sys
+from pathlib import Path
+
+lire = lambda n: json.loads(Path("data", n).read_text(encoding="utf-8"))
+hors = {e["id"]: e for e in lire("hors-nature.json")["especes"]}
+dex = lire("pokedex-carnet.json")["especes"]
+fossiles = lire("fossiles.json")["fossiles"]
+fautes = []
+
+#  1 · TOUT CE QUI EST HORS NATURE EST AU POKÉDEX, et sans zone.
+au_dex = {e["id"]: e for e in dex}
+for i, e in hors.items():
+    d = au_dex.get(i)
+    if d is None:
+        fautes.append(f"{e['nom']} est hors nature mais pas au Pokédex")
+    elif d["zone"] is not None:
+        fautes.append(f"{e['nom']} est hors nature et porte pourtant la zone {d['zone']}")
+
+#  2 · TOUTE ESPÈCE SANS ZONE DIT D'OÙ ELLE VIENT. Sans ça, la fiche
+#      du carnet affiche « on ne sait pas encore ».
+for e in dex:
+    if e["zone"] is None and not e.get("origine"):
+        fautes.append(f"{e['nom']} n'a ni zone ni origine")
+    if e["zone"] is not None and e.get("origine"):
+        fautes.append(f"{e['nom']} a une zone ET une origine — l'une des deux ment")
+
+#  3 · AUCUNE ESPÈCE DE FOSSILE N'EST OUBLIÉE, et sa lignée est
+#      entière : c'est le trou d'origine, celui qui laissait Armaldo
+#      dehors pendant qu'Anorith était dedans.
+bases = {f["especeId"] for f in fossiles}
+portees = {e["id"] for e in hors.values() if e["origine"] == "fossile"}
+if portees != bases:
+    fautes.append(f"fossiles.json et hors-nature.json ne portent pas les mêmes espèces : "
+                  f"{sorted(bases ^ portees)}")
+for e in hors.values():
+    if e["origine"] == "evolution" and e.get("de") not in hors:
+        fautes.append(f"{e['nom']} évolue d'une espèce qui n'est pas hors nature")
+
+#  4 · ET AUCUNE FORME RÉGIONALE NE TRAÎNE DANS UNE TABLE DE FAUNE.
+restes = []
+for f in sorted(Path("data/faune").glob("*.json")):
+    z = json.loads(f.read_text(encoding="utf-8"))
+    for table in z["conditions"].values():
+        for ligne in table:
+            if ligne["espece"] > 10000:
+                restes.append(f"{ligne['nom']} dans {z['zone']}")
+if restes:
+    fautes.append(f"{len(restes)} forme(s) régionale(s) encore dans une table : {restes[:3]}")
+
+if fautes:
+    for f in fautes[:12]:
+        print(f"   {f}")
+    sys.exit(1)
+sauvages = sum(1 for e in dex if e["zone"] is not None)
+print(f"   hors nature : {len(dex)} espèces au Pokédex — {sauvages} dans les zones, "
+      f"{len(hors)} ailleurs, toutes rattachées")
+PY
+  then
+    gronde "les espèces hors nature et le Pokédex ne disent plus la même chose"
+  fi
+fi
+
 echo "── 31. les outils s'importent encore les uns les autres ───────"
 # CETTE RÈGLE EXISTE PARCE QUE J'AI DÉTRUIT UN FICHIER.
 #

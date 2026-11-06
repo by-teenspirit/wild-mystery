@@ -111,8 +111,8 @@
     "poison"
    ],
    "zone": 31,
-   "min": 28,
-   "max": 33,
+   "min": 29,
+   "max": 34,
    "quand": "les deux"
   },
   {
@@ -234,8 +234,8 @@
     "vol"
    ],
    "zone": 46,
-   "min": 47,
-   "max": 52,
+   "min": 48,
+   "max": 53,
    "quand": "les deux"
   },
   {
@@ -286,8 +286,8 @@
     "vol"
    ],
    "zone": 32,
-   "min": 6,
-   "max": 11,
+   "min": 7,
+   "max": 12,
    "quand": "les deux"
   },
   {
@@ -299,8 +299,8 @@
     "vol"
    ],
    "zone": 37,
-   "min": 20,
-   "max": 25,
+   "min": 21,
+   "max": 26,
    "quand": "les deux"
   },
   {
@@ -336,10 +336,11 @@
     "tenebres",
     "normal"
    ],
-   "zone": 35,
-   "min": 27,
-   "max": 32,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
    "no": 21,
@@ -361,10 +362,11 @@
     "tenebres",
     "normal"
    ],
-   "zone": 39,
-   "min": 25,
-   "max": 30,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
    "no": 23,
@@ -424,8 +426,8 @@
     "electrik"
    ],
    "zone": 35,
-   "min": 29,
-   "max": 34,
+   "min": 30,
+   "max": 35,
    "quand": "les deux"
   },
   {
@@ -436,8 +438,8 @@
     "electrik"
    ],
    "zone": 102,
-   "min": 36,
-   "max": 41,
+   "min": 37,
+   "max": 42,
    "quand": "les deux"
   },
   {
@@ -448,10 +450,11 @@
     "electrik",
     "psy"
    ],
-   "zone": 102,
-   "min": 37,
-   "max": 42,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
    "no": 30,
@@ -473,10 +476,11 @@
     "glace",
     "acier"
    ],
-   "zone": 34,
-   "min": 2,
-   "max": 7,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
    "no": 32,
@@ -498,10 +502,11 @@
     "glace",
     "acier"
    ],
-   "zone": 35,
-   "min": 29,
-   "max": 34,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
    "no": 34,
@@ -511,8 +516,8 @@
     "poison"
    ],
    "zone": 9,
-   "min": 6,
-   "max": 11,
+   "min": 7,
+   "max": 12,
    "quand": "les deux"
   },
   {
@@ -536,8 +541,8 @@
     "sol"
    ],
    "zone": 102,
-   "min": 40,
-   "max": 45,
+   "min": 38,
+   "max": 43,
    "quand": "les deux"
   },
   {
@@ -573,8 +578,8 @@
     "sol"
    ],
    "zone": 102,
-   "min": 39,
-   "max": 44,
+   "min": 37,
+   "max": 42,
    "quand": "les deux"
   },
   {
@@ -585,8 +590,8 @@
     "fee"
    ],
    "zone": 31,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
@@ -620,10 +625,11 @@
    "types": [
     "glace"
    ],
-   "zone": 34,
-   "min": 13,
-   "max": 18,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
    "no": 44,
@@ -639,6 +645,21 @@
   },
   {
    "no": 45,
+   "id": 10104,
+   "nom": "Feunard d'Alola",
+   "types": [
+    "glace",
+    "fee"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche",
+   "de": 10103
+  },
+  {
+   "no": 46,
    "id": 39,
    "nom": "Rondoudou",
    "types": [
@@ -651,7 +672,7 @@
    "quand": "les deux"
   },
   {
-   "no": 46,
+   "no": 47,
    "id": 40,
    "nom": "Grodoudou",
    "types": [
@@ -664,7 +685,7 @@
    "quand": "les deux"
   },
   {
-   "no": 47,
+   "no": 48,
    "id": 41,
    "nom": "Nosferapti",
    "types": [
@@ -677,7 +698,7 @@
    "quand": "les deux"
   },
   {
-   "no": 48,
+   "no": 49,
    "id": 42,
    "nom": "Nosferalto",
    "types": [
@@ -690,7 +711,7 @@
    "quand": "les deux"
   },
   {
-   "no": 49,
+   "no": 50,
    "id": 43,
    "nom": "Mystherbe",
    "types": [
@@ -703,7 +724,7 @@
    "quand": "les deux"
   },
   {
-   "no": 50,
+   "no": 51,
    "id": 44,
    "nom": "Ortide",
    "types": [
@@ -716,7 +737,7 @@
    "quand": "les deux"
   },
   {
-   "no": 51,
+   "no": 52,
    "id": 45,
    "nom": "Rafflesia",
    "types": [
@@ -724,12 +745,12 @@
     "poison"
    ],
    "zone": 46,
-   "min": 40,
-   "max": 45,
+   "min": 41,
+   "max": 46,
    "quand": "les deux"
   },
   {
-   "no": 52,
+   "no": 53,
    "id": 46,
    "nom": "Paras",
    "types": [
@@ -742,7 +763,7 @@
    "quand": "les deux"
   },
   {
-   "no": 53,
+   "no": 54,
    "id": 47,
    "nom": "Parasect",
    "types": [
@@ -755,7 +776,7 @@
    "quand": "les deux"
   },
   {
-   "no": 54,
+   "no": 55,
    "id": 48,
    "nom": "Mimitoss",
    "types": [
@@ -763,12 +784,12 @@
     "poison"
    ],
    "zone": 9,
-   "min": 5,
-   "max": 10,
+   "min": 6,
+   "max": 11,
    "quand": "les deux"
   },
   {
-   "no": 55,
+   "no": 56,
    "id": 49,
    "nom": "Aéromite",
    "types": [
@@ -781,7 +802,7 @@
    "quand": "les deux"
   },
   {
-   "no": 56,
+   "no": 57,
    "id": 50,
    "nom": "Taupiqueur",
    "types": [
@@ -793,20 +814,21 @@
    "quand": "les deux"
   },
   {
-   "no": 57,
+   "no": 58,
    "id": 10105,
    "nom": "Taupiqueur d'Alola",
    "types": [
     "sol",
     "acier"
    ],
-   "zone": 34,
-   "min": 9,
-   "max": 14,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 58,
+   "no": 59,
    "id": 51,
    "nom": "Triopikeur",
    "types": [
@@ -818,20 +840,21 @@
    "quand": "les deux"
   },
   {
-   "no": 59,
+   "no": 60,
    "id": 10106,
    "nom": "Triopikeur d'Alola",
    "types": [
     "sol",
     "acier"
    ],
-   "zone": 35,
-   "min": 22,
-   "max": 27,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 60,
+   "no": 61,
    "id": 52,
    "nom": "Miaouss",
    "types": [
@@ -843,31 +866,33 @@
    "quand": "les deux"
   },
   {
-   "no": 61,
+   "no": 62,
    "id": 10107,
    "nom": "Miaouss d'Alola",
    "types": [
     "tenebres"
    ],
-   "zone": 9,
-   "min": 11,
-   "max": 16,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 62,
+   "no": 63,
    "id": 10161,
    "nom": "Miaouss de Galar",
    "types": [
     "acier"
    ],
-   "zone": 34,
-   "min": 10,
-   "max": 15,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 63,
+   "no": 64,
    "id": 53,
    "nom": "Persian",
    "types": [
@@ -879,19 +904,20 @@
    "quand": "les deux"
   },
   {
-   "no": 64,
+   "no": 65,
    "id": 10108,
    "nom": "Persian d'Alola",
    "types": [
     "tenebres"
    ],
-   "zone": 39,
-   "min": 25,
-   "max": 30,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 65,
+   "no": 66,
    "id": 54,
    "nom": "Psykokwak",
    "types": [
@@ -903,7 +929,7 @@
    "quand": "les deux"
   },
   {
-   "no": 66,
+   "no": 67,
    "id": 55,
    "nom": "Akwakwak",
    "types": [
@@ -915,7 +941,7 @@
    "quand": "les deux"
   },
   {
-   "no": 67,
+   "no": 68,
    "id": 56,
    "nom": "Férosinge",
    "types": [
@@ -927,19 +953,19 @@
    "quand": "les deux"
   },
   {
-   "no": 68,
+   "no": 69,
    "id": 57,
    "nom": "Colossinge",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 19,
-   "max": 24,
+   "min": 20,
+   "max": 25,
    "quand": "les deux"
   },
   {
-   "no": 69,
+   "no": 70,
    "id": 58,
    "nom": "Caninos",
    "types": [
@@ -951,20 +977,21 @@
    "quand": "les deux"
   },
   {
-   "no": 70,
+   "no": 71,
    "id": 10229,
    "nom": "Caninos de Hisui",
    "types": [
     "feu",
     "roche"
    ],
-   "zone": 36,
-   "min": 15,
-   "max": 20,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 71,
+   "no": 72,
    "id": 59,
    "nom": "Arcanin",
    "types": [
@@ -976,20 +1003,21 @@
    "quand": "les deux"
   },
   {
-   "no": 72,
+   "no": 73,
    "id": 10230,
    "nom": "Arcanin de Hisui",
    "types": [
     "feu",
     "roche"
    ],
-   "zone": 39,
-   "min": 35,
-   "max": 40,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 73,
+   "no": 74,
    "id": 60,
    "nom": "Ptitard",
    "types": [
@@ -1001,19 +1029,19 @@
    "quand": "les deux"
   },
   {
-   "no": 74,
+   "no": 75,
    "id": 61,
    "nom": "Têtarte",
    "types": [
     "eau"
    ],
    "zone": 101,
-   "min": 18,
-   "max": 23,
+   "min": 19,
+   "max": 24,
    "quand": "les deux"
   },
   {
-   "no": 75,
+   "no": 76,
    "id": 62,
    "nom": "Tartard",
    "types": [
@@ -1026,7 +1054,7 @@
    "quand": "les deux"
   },
   {
-   "no": 76,
+   "no": 77,
    "id": 63,
    "nom": "Abra",
    "types": [
@@ -1038,19 +1066,19 @@
    "quand": "les deux"
   },
   {
-   "no": 77,
+   "no": 78,
    "id": 64,
    "nom": "Kadabra",
    "types": [
     "psy"
    ],
    "zone": 35,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 78,
+   "no": 79,
    "id": 65,
    "nom": "Alakazam",
    "types": [
@@ -1062,7 +1090,7 @@
    "quand": "les deux"
   },
   {
-   "no": 79,
+   "no": 80,
    "id": 66,
    "nom": "Machoc",
    "types": [
@@ -1074,7 +1102,7 @@
    "quand": "les deux"
   },
   {
-   "no": 80,
+   "no": 81,
    "id": 67,
    "nom": "Machopeur",
    "types": [
@@ -1086,19 +1114,19 @@
    "quand": "les deux"
   },
   {
-   "no": 81,
+   "no": 82,
    "id": 68,
    "nom": "Mackogneur",
    "types": [
     "combat"
    ],
    "zone": 102,
-   "min": 42,
-   "max": 47,
+   "min": 40,
+   "max": 45,
    "quand": "les deux"
   },
   {
-   "no": 82,
+   "no": 83,
    "id": 69,
    "nom": "Chétiflor",
    "types": [
@@ -1111,7 +1139,7 @@
    "quand": "les deux"
   },
   {
-   "no": 83,
+   "no": 84,
    "id": 70,
    "nom": "Boustiflor",
    "types": [
@@ -1124,7 +1152,7 @@
    "quand": "les deux"
   },
   {
-   "no": 84,
+   "no": 85,
    "id": 71,
    "nom": "Empiflor",
    "types": [
@@ -1137,7 +1165,7 @@
    "quand": "les deux"
   },
   {
-   "no": 85,
+   "no": 86,
    "id": 72,
    "nom": "Tentacool",
    "types": [
@@ -1150,7 +1178,7 @@
    "quand": "les deux"
   },
   {
-   "no": 86,
+   "no": 87,
    "id": 73,
    "nom": "Tentacruel",
    "types": [
@@ -1163,7 +1191,7 @@
    "quand": "les deux"
   },
   {
-   "no": 87,
+   "no": 88,
    "id": 74,
    "nom": "Racaillou",
    "types": [
@@ -1176,20 +1204,21 @@
    "quand": "les deux"
   },
   {
-   "no": 88,
+   "no": 89,
    "id": 10109,
    "nom": "Racaillou d'Alola",
    "types": [
     "roche",
     "electrik"
    ],
-   "zone": 34,
-   "min": 5,
-   "max": 10,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 89,
+   "no": 90,
    "id": 75,
    "nom": "Gravalanch",
    "types": [
@@ -1202,20 +1231,21 @@
    "quand": "les deux"
   },
   {
-   "no": 90,
+   "no": 91,
    "id": 10110,
    "nom": "Gravalanch d'Alola",
    "types": [
     "roche",
     "electrik"
    ],
-   "zone": 37,
-   "min": 17,
-   "max": 22,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 91,
+   "no": 92,
    "id": 76,
    "nom": "Grolem",
    "types": [
@@ -1228,20 +1258,21 @@
    "quand": "les deux"
   },
   {
-   "no": 92,
+   "no": 93,
    "id": 10111,
    "nom": "Grolem d'Alola",
    "types": [
     "roche",
     "electrik"
    ],
-   "zone": 102,
-   "min": 38,
-   "max": 43,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 93,
+   "no": 94,
    "id": 77,
    "nom": "Ponyta",
    "types": [
@@ -1253,19 +1284,20 @@
    "quand": "les deux"
   },
   {
-   "no": 94,
+   "no": 95,
    "id": 10162,
    "nom": "Ponyta de Galar",
    "types": [
     "psy"
    ],
-   "zone": 38,
-   "min": 12,
-   "max": 17,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 95,
+   "no": 96,
    "id": 78,
    "nom": "Galopa",
    "types": [
@@ -1277,20 +1309,21 @@
    "quand": "les deux"
   },
   {
-   "no": 96,
+   "no": 97,
    "id": 10163,
    "nom": "Galopa de Galar",
    "types": [
     "psy",
     "fee"
    ],
-   "zone": 46,
-   "min": 45,
-   "max": 50,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 97,
+   "no": 98,
    "id": 79,
    "nom": "Ramoloss",
    "types": [
@@ -1303,19 +1336,20 @@
    "quand": "les deux"
   },
   {
-   "no": 98,
+   "no": 99,
    "id": 10164,
    "nom": "Ramoloss de Galar",
    "types": [
     "psy"
    ],
-   "zone": 101,
-   "min": 28,
-   "max": 33,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 99,
+   "no": 100,
    "id": 80,
    "nom": "Flagadoss",
    "types": [
@@ -1323,25 +1357,26 @@
     "psy"
    ],
    "zone": 101,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 100,
+   "no": 101,
    "id": 10165,
    "nom": "Flagadoss de Galar",
    "types": [
     "poison",
     "psy"
    ],
-   "zone": 35,
-   "min": 30,
-   "max": 35,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 101,
+   "no": 102,
    "id": 81,
    "nom": "Magnéti",
    "types": [
@@ -1354,7 +1389,7 @@
    "quand": "les deux"
   },
   {
-   "no": 102,
+   "no": 103,
    "id": 82,
    "nom": "Magnéton",
    "types": [
@@ -1367,7 +1402,7 @@
    "quand": "les deux"
   },
   {
-   "no": 103,
+   "no": 104,
    "id": 83,
    "nom": "Canarticho",
    "types": [
@@ -1380,19 +1415,20 @@
    "quand": "les deux"
   },
   {
-   "no": 104,
+   "no": 105,
    "id": 10166,
    "nom": "Canarticho de Galar",
    "types": [
     "combat"
    ],
-   "zone": 37,
-   "min": 31,
-   "max": 36,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 105,
+   "no": 106,
    "id": 84,
    "nom": "Doduo",
    "types": [
@@ -1405,7 +1441,7 @@
    "quand": "les deux"
   },
   {
-   "no": 106,
+   "no": 107,
    "id": 85,
    "nom": "Dodrio",
    "types": [
@@ -1418,7 +1454,7 @@
    "quand": "les deux"
   },
   {
-   "no": 107,
+   "no": 108,
    "id": 86,
    "nom": "Otaria",
    "types": [
@@ -1430,7 +1466,7 @@
    "quand": "les deux"
   },
   {
-   "no": 108,
+   "no": 109,
    "id": 87,
    "nom": "Lamantine",
    "types": [
@@ -1443,7 +1479,7 @@
    "quand": "les deux"
   },
   {
-   "no": 109,
+   "no": 110,
    "id": 88,
    "nom": "Tadmorv",
    "types": [
@@ -1455,20 +1491,21 @@
    "quand": "les deux"
   },
   {
-   "no": 110,
+   "no": 111,
    "id": 10112,
    "nom": "Tadmorv d'Alola",
    "types": [
     "poison",
     "tenebres"
    ],
-   "zone": 39,
-   "min": 28,
-   "max": 33,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 111,
+   "no": 112,
    "id": 89,
    "nom": "Grotadmorv",
    "types": [
@@ -1480,32 +1517,33 @@
    "quand": "les deux"
   },
   {
-   "no": 112,
+   "no": 113,
    "id": 10113,
    "nom": "Grotadmorv d'Alola",
    "types": [
     "poison",
     "tenebres"
    ],
-   "zone": 39,
-   "min": 31,
-   "max": 36,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 113,
+   "no": 114,
    "id": 90,
    "nom": "Kokiyas",
    "types": [
     "eau"
    ],
    "zone": 32,
-   "min": 3,
-   "max": 8,
+   "min": 4,
+   "max": 9,
    "quand": "les deux"
   },
   {
-   "no": 114,
+   "no": 115,
    "id": 91,
    "nom": "Crustabri",
    "types": [
@@ -1518,7 +1556,7 @@
    "quand": "les deux"
   },
   {
-   "no": 115,
+   "no": 116,
    "id": 92,
    "nom": "Fantominus",
    "types": [
@@ -1531,7 +1569,7 @@
    "quand": "les deux"
   },
   {
-   "no": 116,
+   "no": 117,
    "id": 93,
    "nom": "Spectrum",
    "types": [
@@ -1544,7 +1582,7 @@
    "quand": "les deux"
   },
   {
-   "no": 117,
+   "no": 118,
    "id": 94,
    "nom": "Ectoplasma",
    "types": [
@@ -1552,12 +1590,12 @@
     "poison"
    ],
    "zone": 102,
-   "min": 40,
-   "max": 45,
+   "min": 39,
+   "max": 44,
    "quand": "les deux"
   },
   {
-   "no": 118,
+   "no": 119,
    "id": 95,
    "nom": "Onix",
    "types": [
@@ -1570,7 +1608,7 @@
    "quand": "les deux"
   },
   {
-   "no": 119,
+   "no": 120,
    "id": 96,
    "nom": "Soporifik",
    "types": [
@@ -1582,19 +1620,19 @@
    "quand": "les deux"
   },
   {
-   "no": 120,
+   "no": 121,
    "id": 97,
    "nom": "Hypnomade",
    "types": [
     "psy"
    ],
    "zone": 35,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 121,
+   "no": 122,
    "id": 98,
    "nom": "Krabby",
    "types": [
@@ -1606,7 +1644,7 @@
    "quand": "les deux"
   },
   {
-   "no": 122,
+   "no": 123,
    "id": 99,
    "nom": "Krabboss",
    "types": [
@@ -1618,7 +1656,7 @@
    "quand": "les deux"
   },
   {
-   "no": 123,
+   "no": 124,
    "id": 100,
    "nom": "Voltorbe",
    "types": [
@@ -1630,45 +1668,47 @@
    "quand": "les deux"
   },
   {
-   "no": 124,
+   "no": 125,
    "id": 10231,
    "nom": "Voltorbe de Hisui",
    "types": [
     "electrik",
     "plante"
    ],
-   "zone": 34,
-   "min": 15,
-   "max": 20,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 125,
+   "no": 126,
    "id": 101,
    "nom": "Électrode",
    "types": [
     "electrik"
    ],
    "zone": 35,
-   "min": 18,
-   "max": 23,
+   "min": 19,
+   "max": 24,
    "quand": "les deux"
   },
   {
-   "no": 126,
+   "no": 127,
    "id": 10232,
    "nom": "Électrode de Hisui",
    "types": [
     "electrik",
     "plante"
    ],
-   "zone": 31,
-   "min": 35,
-   "max": 40,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 127,
+   "no": 128,
    "id": 102,
    "nom": "Noeunoeuf",
    "types": [
@@ -1676,12 +1716,12 @@
     "psy"
    ],
    "zone": 38,
-   "min": 10,
-   "max": 15,
+   "min": 11,
+   "max": 16,
    "quand": "les deux"
   },
   {
-   "no": 128,
+   "no": 129,
    "id": 103,
    "nom": "Noadkoko",
    "types": [
@@ -1694,20 +1734,21 @@
    "quand": "les deux"
   },
   {
-   "no": 129,
+   "no": 130,
    "id": 10114,
    "nom": "Noadkoko d'Alola",
    "types": [
     "plante",
     "dragon"
    ],
-   "zone": 33,
-   "min": 27,
-   "max": 32,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 130,
+   "no": 131,
    "id": 104,
    "nom": "Osselait",
    "types": [
@@ -1719,7 +1760,7 @@
    "quand": "les deux"
   },
   {
-   "no": 131,
+   "no": 132,
    "id": 105,
    "nom": "Ossatueur",
    "types": [
@@ -1731,44 +1772,45 @@
    "quand": "les deux"
   },
   {
-   "no": 132,
+   "no": 133,
    "id": 10115,
    "nom": "Ossatueur d'Alola",
    "types": [
     "feu",
     "spectre"
    ],
-   "zone": 33,
-   "min": 17,
-   "max": 22,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 133,
+   "no": 134,
    "id": 106,
    "nom": "Kicklee",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 20,
-   "max": 25,
+   "min": 21,
+   "max": 26,
    "quand": "les deux"
   },
   {
-   "no": 134,
+   "no": 135,
    "id": 107,
    "nom": "Tygnon",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 20,
-   "max": 25,
+   "min": 21,
+   "max": 26,
    "quand": "les deux"
   },
   {
-   "no": 135,
+   "no": 136,
    "id": 108,
    "nom": "Excelangue",
    "types": [
@@ -1780,7 +1822,7 @@
    "quand": "les deux"
   },
   {
-   "no": 136,
+   "no": 137,
    "id": 109,
    "nom": "Smogo",
    "types": [
@@ -1792,7 +1834,7 @@
    "quand": "les deux"
   },
   {
-   "no": 137,
+   "no": 138,
    "id": 110,
    "nom": "Smogogo",
    "types": [
@@ -1804,20 +1846,21 @@
    "quand": "les deux"
   },
   {
-   "no": 138,
+   "no": 139,
    "id": 10167,
    "nom": "Smogogo de Galar",
    "types": [
     "poison",
     "fee"
    ],
-   "zone": 39,
-   "min": 27,
-   "max": 32,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 139,
+   "no": 140,
    "id": 111,
    "nom": "Rhinocorne",
    "types": [
@@ -1825,12 +1868,12 @@
     "roche"
    ],
    "zone": 36,
-   "min": 2,
-   "max": 7,
+   "min": 3,
+   "max": 8,
    "quand": "les deux"
   },
   {
-   "no": 140,
+   "no": 141,
    "id": 112,
    "nom": "Rhinoféros",
    "types": [
@@ -1843,7 +1886,7 @@
    "quand": "les deux"
   },
   {
-   "no": 141,
+   "no": 142,
    "id": 113,
    "nom": "Leveinard",
    "types": [
@@ -1855,7 +1898,7 @@
    "quand": "les deux"
   },
   {
-   "no": 142,
+   "no": 143,
    "id": 114,
    "nom": "Saquedeneu",
    "types": [
@@ -1867,19 +1910,19 @@
    "quand": "les deux"
   },
   {
-   "no": 143,
+   "no": 144,
    "id": 115,
    "nom": "Kangourex",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 4,
-   "max": 9,
+   "min": 5,
+   "max": 10,
    "quand": "les deux"
   },
   {
-   "no": 144,
+   "no": 145,
    "id": 116,
    "nom": "Hypotrempe",
    "types": [
@@ -1891,7 +1934,7 @@
    "quand": "les deux"
   },
   {
-   "no": 145,
+   "no": 146,
    "id": 117,
    "nom": "Hypocéan",
    "types": [
@@ -1903,7 +1946,7 @@
    "quand": "les deux"
   },
   {
-   "no": 146,
+   "no": 147,
    "id": 118,
    "nom": "Poissirène",
    "types": [
@@ -1915,7 +1958,7 @@
    "quand": "les deux"
   },
   {
-   "no": 147,
+   "no": 148,
    "id": 119,
    "nom": "Poissoroy",
    "types": [
@@ -1927,7 +1970,7 @@
    "quand": "les deux"
   },
   {
-   "no": 148,
+   "no": 149,
    "id": 120,
    "nom": "Stari",
    "types": [
@@ -1939,7 +1982,7 @@
    "quand": "les deux"
   },
   {
-   "no": 149,
+   "no": 150,
    "id": 121,
    "nom": "Staross",
    "types": [
@@ -1952,7 +1995,7 @@
    "quand": "les deux"
   },
   {
-   "no": 150,
+   "no": 151,
    "id": 122,
    "nom": "M. Mime",
    "types": [
@@ -1965,20 +2008,21 @@
    "quand": "les deux"
   },
   {
-   "no": 151,
+   "no": 152,
    "id": 10168,
    "nom": "M. Mime de Galar",
    "types": [
     "glace",
     "psy"
    ],
-   "zone": 34,
-   "min": 2,
-   "max": 7,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 152,
+   "no": 153,
    "id": 123,
    "nom": "Insécateur",
    "types": [
@@ -1991,7 +2035,7 @@
    "quand": "les deux"
   },
   {
-   "no": 153,
+   "no": 154,
    "id": 124,
    "nom": "Lippoutou",
    "types": [
@@ -2004,19 +2048,19 @@
    "quand": "les deux"
   },
   {
-   "no": 154,
+   "no": 155,
    "id": 125,
    "nom": "Élektek",
    "types": [
     "electrik"
    ],
    "zone": 35,
-   "min": 18,
-   "max": 23,
+   "min": 19,
+   "max": 24,
    "quand": "les deux"
   },
   {
-   "no": 155,
+   "no": 156,
    "id": 126,
    "nom": "Magmar",
    "types": [
@@ -2028,7 +2072,7 @@
    "quand": "les deux"
   },
   {
-   "no": 156,
+   "no": 157,
    "id": 127,
    "nom": "Scarabrute",
    "types": [
@@ -2040,7 +2084,7 @@
    "quand": "les deux"
   },
   {
-   "no": 157,
+   "no": 158,
    "id": 128,
    "nom": "Tauros",
    "types": [
@@ -2052,7 +2096,7 @@
    "quand": "les deux"
   },
   {
-   "no": 158,
+   "no": 159,
    "id": 129,
    "nom": "Magicarpe",
    "types": [
@@ -2064,7 +2108,7 @@
    "quand": "les deux"
   },
   {
-   "no": 159,
+   "no": 160,
    "id": 130,
    "nom": "Léviator",
    "types": [
@@ -2077,7 +2121,7 @@
    "quand": "les deux"
   },
   {
-   "no": 160,
+   "no": 161,
    "id": 131,
    "nom": "Lokhlass",
    "types": [
@@ -2085,12 +2129,12 @@
     "glace"
    ],
    "zone": 32,
-   "min": 14,
-   "max": 19,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
-   "no": 161,
+   "no": 162,
    "id": 132,
    "nom": "Métamorph",
    "types": [
@@ -2102,19 +2146,19 @@
    "quand": "les deux"
   },
   {
-   "no": 162,
+   "no": 163,
    "id": 133,
    "nom": "Évoli",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 11,
-   "max": 16,
+   "min": 12,
+   "max": 17,
    "quand": "les deux"
   },
   {
-   "no": 163,
+   "no": 164,
    "id": 134,
    "nom": "Aquali",
    "types": [
@@ -2126,7 +2170,7 @@
    "quand": "les deux"
   },
   {
-   "no": 164,
+   "no": 165,
    "id": 135,
    "nom": "Voltali",
    "types": [
@@ -2138,7 +2182,7 @@
    "quand": "les deux"
   },
   {
-   "no": 165,
+   "no": 166,
    "id": 136,
    "nom": "Pyroli",
    "types": [
@@ -2150,7 +2194,7 @@
    "quand": "les deux"
   },
   {
-   "no": 166,
+   "no": 167,
    "id": 137,
    "nom": "Porygon",
    "types": [
@@ -2162,19 +2206,94 @@
    "quand": "les deux"
   },
   {
-   "no": 167,
+   "no": 168,
+   "id": 138,
+   "nom": "Amonita",
+   "types": [
+    "roche",
+    "eau"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "nautile"
+  },
+  {
+   "no": 169,
+   "id": 139,
+   "nom": "Amonistar",
+   "types": [
+    "roche",
+    "eau"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 138
+  },
+  {
+   "no": 170,
+   "id": 140,
+   "nom": "Kabuto",
+   "types": [
+    "roche",
+    "eau"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "dome"
+  },
+  {
+   "no": 171,
+   "id": 141,
+   "nom": "Kabutops",
+   "types": [
+    "roche",
+    "eau"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 140
+  },
+  {
+   "no": 172,
+   "id": 142,
+   "nom": "Ptéra",
+   "types": [
+    "roche",
+    "vol"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "ambre"
+  },
+  {
+   "no": 173,
    "id": 143,
    "nom": "Ronflex",
    "types": [
     "normal"
    ],
    "zone": 37,
-   "min": 31,
-   "max": 36,
+   "min": 32,
+   "max": 37,
    "quand": "les deux"
   },
   {
-   "no": 168,
+   "no": 174,
    "id": 147,
    "nom": "Minidraco",
    "types": [
@@ -2186,7 +2305,7 @@
    "quand": "les deux"
   },
   {
-   "no": 169,
+   "no": 175,
    "id": 148,
    "nom": "Draco",
    "types": [
@@ -2198,7 +2317,7 @@
    "quand": "les deux"
   },
   {
-   "no": 170,
+   "no": 176,
    "id": 149,
    "nom": "Dracolosse",
    "types": [
@@ -2211,7 +2330,7 @@
    "quand": "les deux"
   },
   {
-   "no": 171,
+   "no": 177,
    "id": 152,
    "nom": "Germignon",
    "types": [
@@ -2223,7 +2342,7 @@
    "quand": "les deux"
   },
   {
-   "no": 172,
+   "no": 178,
    "id": 153,
    "nom": "Macronium",
    "types": [
@@ -2235,7 +2354,7 @@
    "quand": "les deux"
   },
   {
-   "no": 173,
+   "no": 179,
    "id": 154,
    "nom": "Méganium",
    "types": [
@@ -2247,19 +2366,19 @@
    "quand": "les deux"
   },
   {
-   "no": 174,
+   "no": 180,
    "id": 155,
    "nom": "Héricendre",
    "types": [
     "feu"
    ],
    "zone": 36,
-   "min": 12,
-   "max": 17,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
-   "no": 175,
+   "no": 181,
    "id": 156,
    "nom": "Feurisson",
    "types": [
@@ -2271,7 +2390,7 @@
    "quand": "les deux"
   },
   {
-   "no": 176,
+   "no": 182,
    "id": 157,
    "nom": "Typhlosion",
    "types": [
@@ -2283,20 +2402,21 @@
    "quand": "les deux"
   },
   {
-   "no": 177,
+   "no": 183,
    "id": 10233,
    "nom": "Typhlosion de Hisui",
    "types": [
     "feu",
     "spectre"
    ],
-   "zone": 105,
-   "min": 50,
-   "max": 55,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 178,
+   "no": 184,
    "id": 158,
    "nom": "Kaiminus",
    "types": [
@@ -2308,7 +2428,7 @@
    "quand": "les deux"
   },
   {
-   "no": 179,
+   "no": 185,
    "id": 159,
    "nom": "Crocrodil",
    "types": [
@@ -2320,7 +2440,7 @@
    "quand": "les deux"
   },
   {
-   "no": 180,
+   "no": 186,
    "id": 160,
    "nom": "Aligatueur",
    "types": [
@@ -2332,7 +2452,7 @@
    "quand": "les deux"
   },
   {
-   "no": 181,
+   "no": 187,
    "id": 161,
    "nom": "Fouinette",
    "types": [
@@ -2344,19 +2464,19 @@
    "quand": "les deux"
   },
   {
-   "no": 182,
+   "no": 188,
    "id": 162,
    "nom": "Fouinar",
    "types": [
     "normal"
    ],
    "zone": 31,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 183,
+   "no": 189,
    "id": 163,
    "nom": "Hoothoot",
    "types": [
@@ -2369,7 +2489,7 @@
    "quand": "les deux"
   },
   {
-   "no": 184,
+   "no": 190,
    "id": 164,
    "nom": "Noarfang",
    "types": [
@@ -2377,12 +2497,12 @@
     "vol"
    ],
    "zone": 37,
-   "min": 21,
-   "max": 26,
+   "min": 22,
+   "max": 27,
    "quand": "les deux"
   },
   {
-   "no": 185,
+   "no": 191,
    "id": 165,
    "nom": "Coxy",
    "types": [
@@ -2395,7 +2515,7 @@
    "quand": "les deux"
   },
   {
-   "no": 186,
+   "no": 192,
    "id": 166,
    "nom": "Coxyclaque",
    "types": [
@@ -2408,7 +2528,7 @@
    "quand": "les deux"
   },
   {
-   "no": 187,
+   "no": 193,
    "id": 167,
    "nom": "Mimigal",
    "types": [
@@ -2421,7 +2541,7 @@
    "quand": "les deux"
   },
   {
-   "no": 188,
+   "no": 194,
    "id": 168,
    "nom": "Migalos",
    "types": [
@@ -2434,7 +2554,7 @@
    "quand": "les deux"
   },
   {
-   "no": 189,
+   "no": 195,
    "id": 169,
    "nom": "Nostenfer",
    "types": [
@@ -2447,7 +2567,7 @@
    "quand": "les deux"
   },
   {
-   "no": 190,
+   "no": 196,
    "id": 170,
    "nom": "Loupio",
    "types": [
@@ -2460,7 +2580,7 @@
    "quand": "les deux"
   },
   {
-   "no": 191,
+   "no": 197,
    "id": 171,
    "nom": "Lanturn",
    "types": [
@@ -2473,19 +2593,19 @@
    "quand": "les deux"
   },
   {
-   "no": 192,
+   "no": 198,
    "id": 172,
    "nom": "Pichu",
    "types": [
     "electrik"
    ],
    "zone": 34,
-   "min": 6,
-   "max": 11,
+   "min": 5,
+   "max": 10,
    "quand": "les deux"
   },
   {
-   "no": 193,
+   "no": 199,
    "id": 173,
    "nom": "Mélo",
    "types": [
@@ -2497,7 +2617,7 @@
    "quand": "les deux"
   },
   {
-   "no": 194,
+   "no": 200,
    "id": 174,
    "nom": "Toudoudou",
    "types": [
@@ -2510,19 +2630,19 @@
    "quand": "les deux"
   },
   {
-   "no": 195,
+   "no": 201,
    "id": 175,
    "nom": "Togepi",
    "types": [
     "fee"
    ],
    "zone": 100,
-   "min": 2,
-   "max": 7,
+   "min": 3,
+   "max": 8,
    "quand": "les deux"
   },
   {
-   "no": 196,
+   "no": 202,
    "id": 176,
    "nom": "Togetic",
    "types": [
@@ -2535,7 +2655,7 @@
    "quand": "les deux"
   },
   {
-   "no": 197,
+   "no": 203,
    "id": 177,
    "nom": "Natu",
    "types": [
@@ -2548,7 +2668,7 @@
    "quand": "les deux"
   },
   {
-   "no": 198,
+   "no": 204,
    "id": 178,
    "nom": "Xatu",
    "types": [
@@ -2561,7 +2681,7 @@
    "quand": "les deux"
   },
   {
-   "no": 199,
+   "no": 205,
    "id": 179,
    "nom": "Wattouat",
    "types": [
@@ -2573,7 +2693,7 @@
    "quand": "les deux"
   },
   {
-   "no": 200,
+   "no": 206,
    "id": 180,
    "nom": "Lainergie",
    "types": [
@@ -2585,7 +2705,7 @@
    "quand": "les deux"
   },
   {
-   "no": 201,
+   "no": 207,
    "id": 181,
    "nom": "Pharamp",
    "types": [
@@ -2597,7 +2717,7 @@
    "quand": "les deux"
   },
   {
-   "no": 202,
+   "no": 208,
    "id": 182,
    "nom": "Joliflor",
    "types": [
@@ -2609,7 +2729,7 @@
    "quand": "les deux"
   },
   {
-   "no": 203,
+   "no": 209,
    "id": 183,
    "nom": "Marill",
    "types": [
@@ -2622,7 +2742,7 @@
    "quand": "les deux"
   },
   {
-   "no": 204,
+   "no": 210,
    "id": 184,
    "nom": "Azumarill",
    "types": [
@@ -2635,7 +2755,7 @@
    "quand": "les deux"
   },
   {
-   "no": 205,
+   "no": 211,
    "id": 185,
    "nom": "Simularbre",
    "types": [
@@ -2647,7 +2767,7 @@
    "quand": "les deux"
   },
   {
-   "no": 206,
+   "no": 212,
    "id": 186,
    "nom": "Tarpaud",
    "types": [
@@ -2659,7 +2779,7 @@
    "quand": "les deux"
   },
   {
-   "no": 207,
+   "no": 213,
    "id": 187,
    "nom": "Granivol",
    "types": [
@@ -2672,7 +2792,7 @@
    "quand": "les deux"
   },
   {
-   "no": 208,
+   "no": 214,
    "id": 188,
    "nom": "Floravol",
    "types": [
@@ -2685,7 +2805,7 @@
    "quand": "les deux"
   },
   {
-   "no": 209,
+   "no": 215,
    "id": 189,
    "nom": "Cotovol",
    "types": [
@@ -2698,7 +2818,7 @@
    "quand": "les deux"
   },
   {
-   "no": 210,
+   "no": 216,
    "id": 190,
    "nom": "Capumain",
    "types": [
@@ -2710,7 +2830,7 @@
    "quand": "les deux"
   },
   {
-   "no": 211,
+   "no": 217,
    "id": 191,
    "nom": "Tournegrin",
    "types": [
@@ -2722,7 +2842,7 @@
    "quand": "les deux"
   },
   {
-   "no": 212,
+   "no": 218,
    "id": 192,
    "nom": "Héliatronc",
    "types": [
@@ -2734,7 +2854,7 @@
    "quand": "les deux"
   },
   {
-   "no": 213,
+   "no": 219,
    "id": 193,
    "nom": "Yanma",
    "types": [
@@ -2747,7 +2867,7 @@
    "quand": "les deux"
   },
   {
-   "no": 214,
+   "no": 220,
    "id": 194,
    "nom": "Axoloto",
    "types": [
@@ -2760,7 +2880,7 @@
    "quand": "les deux"
   },
   {
-   "no": 215,
+   "no": 221,
    "id": 195,
    "nom": "Maraiste",
    "types": [
@@ -2773,7 +2893,7 @@
    "quand": "les deux"
   },
   {
-   "no": 216,
+   "no": 222,
    "id": 196,
    "nom": "Mentali",
    "types": [
@@ -2785,7 +2905,7 @@
    "quand": "les deux"
   },
   {
-   "no": 217,
+   "no": 223,
    "id": 197,
    "nom": "Noctali",
    "types": [
@@ -2797,7 +2917,7 @@
    "quand": "les deux"
   },
   {
-   "no": 218,
+   "no": 224,
    "id": 198,
    "nom": "Cornèbre",
    "types": [
@@ -2810,7 +2930,7 @@
    "quand": "les deux"
   },
   {
-   "no": 219,
+   "no": 225,
    "id": 199,
    "nom": "Roigada",
    "types": [
@@ -2823,20 +2943,21 @@
    "quand": "les deux"
   },
   {
-   "no": 220,
+   "no": 226,
    "id": 10172,
    "nom": "Roigada de Galar",
    "types": [
     "poison",
     "psy"
    ],
-   "zone": 103,
-   "min": 43,
-   "max": 48,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 221,
+   "no": 227,
    "id": 200,
    "nom": "Feuforêve",
    "types": [
@@ -2848,7 +2969,7 @@
    "quand": "les deux"
   },
   {
-   "no": 222,
+   "no": 228,
    "id": 201,
    "nom": "Zarbi",
    "types": [
@@ -2860,7 +2981,7 @@
    "quand": "les deux"
   },
   {
-   "no": 223,
+   "no": 229,
    "id": 202,
    "nom": "Qulbutoké",
    "types": [
@@ -2872,7 +2993,7 @@
    "quand": "les deux"
   },
   {
-   "no": 224,
+   "no": 230,
    "id": 203,
    "nom": "Girafarig",
    "types": [
@@ -2885,7 +3006,7 @@
    "quand": "les deux"
   },
   {
-   "no": 225,
+   "no": 231,
    "id": 204,
    "nom": "Pomdepik",
    "types": [
@@ -2897,7 +3018,7 @@
    "quand": "les deux"
   },
   {
-   "no": 226,
+   "no": 232,
    "id": 205,
    "nom": "Foretress",
    "types": [
@@ -2905,12 +3026,12 @@
     "acier"
    ],
    "zone": 35,
-   "min": 21,
-   "max": 26,
+   "min": 22,
+   "max": 27,
    "quand": "les deux"
   },
   {
-   "no": 227,
+   "no": 233,
    "id": 206,
    "nom": "Insolourdo",
    "types": [
@@ -2922,7 +3043,7 @@
    "quand": "les deux"
   },
   {
-   "no": 228,
+   "no": 234,
    "id": 207,
    "nom": "Scorplane",
    "types": [
@@ -2935,7 +3056,7 @@
    "quand": "les deux"
   },
   {
-   "no": 229,
+   "no": 235,
    "id": 208,
    "nom": "Steelix",
    "types": [
@@ -2948,7 +3069,7 @@
    "quand": "les deux"
   },
   {
-   "no": 230,
+   "no": 236,
    "id": 209,
    "nom": "Snubbull",
    "types": [
@@ -2960,7 +3081,7 @@
    "quand": "les deux"
   },
   {
-   "no": 231,
+   "no": 237,
    "id": 210,
    "nom": "Granbull",
    "types": [
@@ -2972,7 +3093,7 @@
    "quand": "les deux"
   },
   {
-   "no": 232,
+   "no": 238,
    "id": 211,
    "nom": "Qwilfish",
    "types": [
@@ -2985,20 +3106,21 @@
    "quand": "les deux"
   },
   {
-   "no": 233,
+   "no": 239,
    "id": 10234,
    "nom": "Qwilfish de Hisui",
    "types": [
     "tenebres",
     "poison"
    ],
-   "zone": 100,
-   "min": 15,
-   "max": 20,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 234,
+   "no": 240,
    "id": 212,
    "nom": "Cizayox",
    "types": [
@@ -3006,12 +3128,12 @@
     "acier"
    ],
    "zone": 35,
-   "min": 21,
-   "max": 26,
+   "min": 22,
+   "max": 27,
    "quand": "les deux"
   },
   {
-   "no": 235,
+   "no": 241,
    "id": 213,
    "nom": "Caratroc",
    "types": [
@@ -3024,7 +3146,7 @@
    "quand": "les deux"
   },
   {
-   "no": 236,
+   "no": 242,
    "id": 214,
    "nom": "Scarhino",
    "types": [
@@ -3037,7 +3159,7 @@
    "quand": "les deux"
   },
   {
-   "no": 237,
+   "no": 243,
    "id": 215,
    "nom": "Farfuret",
    "types": [
@@ -3045,25 +3167,26 @@
     "glace"
    ],
    "zone": 34,
-   "min": 4,
-   "max": 9,
+   "min": 3,
+   "max": 8,
    "quand": "les deux"
   },
   {
-   "no": 238,
+   "no": 244,
    "id": 10235,
    "nom": "Farfuret de Hisui",
    "types": [
     "combat",
     "poison"
    ],
-   "zone": 38,
-   "min": 15,
-   "max": 20,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 239,
+   "no": 245,
    "id": 216,
    "nom": "Teddiursa",
    "types": [
@@ -3075,7 +3198,7 @@
    "quand": "les deux"
   },
   {
-   "no": 240,
+   "no": 246,
    "id": 217,
    "nom": "Ursaring",
    "types": [
@@ -3087,7 +3210,7 @@
    "quand": "les deux"
   },
   {
-   "no": 241,
+   "no": 247,
    "id": 218,
    "nom": "Limagma",
    "types": [
@@ -3099,7 +3222,7 @@
    "quand": "les deux"
   },
   {
-   "no": 242,
+   "no": 248,
    "id": 219,
    "nom": "Volcaropod",
    "types": [
@@ -3112,7 +3235,7 @@
    "quand": "les deux"
   },
   {
-   "no": 243,
+   "no": 249,
    "id": 220,
    "nom": "Marcacrin",
    "types": [
@@ -3125,7 +3248,7 @@
    "quand": "les deux"
   },
   {
-   "no": 244,
+   "no": 250,
    "id": 221,
    "nom": "Cochignon",
    "types": [
@@ -3138,7 +3261,7 @@
    "quand": "les deux"
   },
   {
-   "no": 245,
+   "no": 251,
    "id": 222,
    "nom": "Corayon",
    "types": [
@@ -3151,19 +3274,20 @@
    "quand": "les deux"
   },
   {
-   "no": 246,
+   "no": 252,
    "id": 10173,
    "nom": "Corayon de Galar",
    "types": [
     "spectre"
    ],
-   "zone": 100,
-   "min": 11,
-   "max": 16,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 247,
+   "no": 253,
    "id": 223,
    "nom": "Rémoraid",
    "types": [
@@ -3175,7 +3299,7 @@
    "quand": "les deux"
   },
   {
-   "no": 248,
+   "no": 254,
    "id": 224,
    "nom": "Octillery",
    "types": [
@@ -3187,7 +3311,7 @@
    "quand": "les deux"
   },
   {
-   "no": 249,
+   "no": 255,
    "id": 225,
    "nom": "Cadoizo",
    "types": [
@@ -3195,12 +3319,12 @@
     "vol"
    ],
    "zone": 34,
-   "min": 4,
-   "max": 9,
+   "min": 3,
+   "max": 8,
    "quand": "les deux"
   },
   {
-   "no": 250,
+   "no": 256,
    "id": 226,
    "nom": "Démanta",
    "types": [
@@ -3213,7 +3337,7 @@
    "quand": "les deux"
   },
   {
-   "no": 251,
+   "no": 257,
    "id": 227,
    "nom": "Airmure",
    "types": [
@@ -3226,7 +3350,7 @@
    "quand": "les deux"
   },
   {
-   "no": 252,
+   "no": 258,
    "id": 228,
    "nom": "Malosse",
    "types": [
@@ -3239,7 +3363,7 @@
    "quand": "les deux"
   },
   {
-   "no": 253,
+   "no": 259,
    "id": 229,
    "nom": "Démolosse",
    "types": [
@@ -3247,12 +3371,12 @@
     "feu"
    ],
    "zone": 39,
-   "min": 18,
-   "max": 23,
+   "min": 19,
+   "max": 24,
    "quand": "les deux"
   },
   {
-   "no": 254,
+   "no": 260,
    "id": 230,
    "nom": "Hyporoi",
    "types": [
@@ -3260,24 +3384,24 @@
     "dragon"
    ],
    "zone": 104,
-   "min": 41,
-   "max": 46,
+   "min": 42,
+   "max": 47,
    "quand": "les deux"
   },
   {
-   "no": 255,
+   "no": 261,
    "id": 231,
    "nom": "Phanpy",
    "types": [
     "sol"
    ],
    "zone": 36,
-   "min": 5,
-   "max": 10,
+   "min": 6,
+   "max": 11,
    "quand": "les deux"
   },
   {
-   "no": 256,
+   "no": 262,
    "id": 232,
    "nom": "Donphan",
    "types": [
@@ -3289,7 +3413,7 @@
    "quand": "les deux"
   },
   {
-   "no": 257,
+   "no": 263,
    "id": 233,
    "nom": "Porygon2",
    "types": [
@@ -3301,19 +3425,19 @@
    "quand": "les deux"
   },
   {
-   "no": 258,
+   "no": 264,
    "id": 234,
    "nom": "Cerfrousse",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 5,
-   "max": 10,
+   "min": 6,
+   "max": 11,
    "quand": "les deux"
   },
   {
-   "no": 259,
+   "no": 265,
    "id": 235,
    "nom": "Queulorior",
    "types": [
@@ -3325,7 +3449,7 @@
    "quand": "les deux"
   },
   {
-   "no": 260,
+   "no": 266,
    "id": 236,
    "nom": "Debugant",
    "types": [
@@ -3337,19 +3461,19 @@
    "quand": "les deux"
   },
   {
-   "no": 261,
+   "no": 267,
    "id": 237,
    "nom": "Kapoera",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 21,
-   "max": 26,
+   "min": 22,
+   "max": 27,
    "quand": "les deux"
   },
   {
-   "no": 262,
+   "no": 268,
    "id": 238,
    "nom": "Lippouti",
    "types": [
@@ -3362,7 +3486,7 @@
    "quand": "les deux"
   },
   {
-   "no": 263,
+   "no": 269,
    "id": 239,
    "nom": "Élekid",
    "types": [
@@ -3374,7 +3498,7 @@
    "quand": "les deux"
   },
   {
-   "no": 264,
+   "no": 270,
    "id": 240,
    "nom": "Magby",
    "types": [
@@ -3386,7 +3510,7 @@
    "quand": "les deux"
   },
   {
-   "no": 265,
+   "no": 271,
    "id": 241,
    "nom": "Écrémeuh",
    "types": [
@@ -3398,19 +3522,19 @@
    "quand": "les deux"
   },
   {
-   "no": 266,
+   "no": 272,
    "id": 242,
    "nom": "Leuphorie",
    "types": [
     "normal"
    ],
    "zone": 46,
-   "min": 43,
-   "max": 48,
+   "min": 44,
+   "max": 49,
    "quand": "les deux"
   },
   {
-   "no": 267,
+   "no": 273,
    "id": 246,
    "nom": "Embrylex",
    "types": [
@@ -3418,12 +3542,12 @@
     "sol"
    ],
    "zone": 36,
-   "min": 11,
-   "max": 16,
+   "min": 12,
+   "max": 17,
    "quand": "les deux"
   },
   {
-   "no": 268,
+   "no": 274,
    "id": 247,
    "nom": "Ymphect",
    "types": [
@@ -3431,12 +3555,12 @@
     "sol"
    ],
    "zone": 37,
-   "min": 29,
-   "max": 34,
+   "min": 30,
+   "max": 35,
    "quand": "les deux"
   },
   {
-   "no": 269,
+   "no": 275,
    "id": 248,
    "nom": "Tyranocif",
    "types": [
@@ -3449,7 +3573,7 @@
    "quand": "les deux"
   },
   {
-   "no": 270,
+   "no": 276,
    "id": 252,
    "nom": "Arcko",
    "types": [
@@ -3461,7 +3585,7 @@
    "quand": "les deux"
   },
   {
-   "no": 271,
+   "no": 277,
    "id": 253,
    "nom": "Massko",
    "types": [
@@ -3473,7 +3597,7 @@
    "quand": "les deux"
   },
   {
-   "no": 272,
+   "no": 278,
    "id": 254,
    "nom": "Jungko",
    "types": [
@@ -3485,7 +3609,7 @@
    "quand": "les deux"
   },
   {
-   "no": 273,
+   "no": 279,
    "id": 255,
    "nom": "Poussifeu",
    "types": [
@@ -3497,7 +3621,7 @@
    "quand": "les deux"
   },
   {
-   "no": 274,
+   "no": 280,
    "id": 256,
    "nom": "Galifeu",
    "types": [
@@ -3510,7 +3634,7 @@
    "quand": "les deux"
   },
   {
-   "no": 275,
+   "no": 281,
    "id": 257,
    "nom": "Braségali",
    "types": [
@@ -3518,12 +3642,12 @@
     "combat"
    ],
    "zone": 105,
-   "min": 40,
-   "max": 45,
+   "min": 41,
+   "max": 46,
    "quand": "les deux"
   },
   {
-   "no": 276,
+   "no": 282,
    "id": 258,
    "nom": "Gobou",
    "types": [
@@ -3535,7 +3659,7 @@
    "quand": "les deux"
   },
   {
-   "no": 277,
+   "no": 283,
    "id": 259,
    "nom": "Flobio",
    "types": [
@@ -3548,7 +3672,7 @@
    "quand": "les deux"
   },
   {
-   "no": 278,
+   "no": 284,
    "id": 260,
    "nom": "Laggron",
    "types": [
@@ -3561,7 +3685,7 @@
    "quand": "les deux"
   },
   {
-   "no": 279,
+   "no": 285,
    "id": 261,
    "nom": "Medhyèna",
    "types": [
@@ -3573,7 +3697,7 @@
    "quand": "les deux"
   },
   {
-   "no": 280,
+   "no": 286,
    "id": 262,
    "nom": "Grahyèna",
    "types": [
@@ -3585,7 +3709,7 @@
    "quand": "les deux"
   },
   {
-   "no": 281,
+   "no": 287,
    "id": 263,
    "nom": "Zigzaton",
    "types": [
@@ -3597,20 +3721,21 @@
    "quand": "les deux"
   },
   {
-   "no": 282,
+   "no": 288,
    "id": 10174,
    "nom": "Zigzaton de Galar",
    "types": [
     "tenebres",
     "normal"
    ],
-   "zone": 100,
-   "min": 11,
-   "max": 16,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 283,
+   "no": 289,
    "id": 264,
    "nom": "Linéon",
    "types": [
@@ -3622,20 +3747,21 @@
    "quand": "les deux"
   },
   {
-   "no": 284,
+   "no": 290,
    "id": 10175,
    "nom": "Linéon de Galar",
    "types": [
     "tenebres",
     "normal"
    ],
-   "zone": 37,
-   "min": 26,
-   "max": 31,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 285,
+   "no": 291,
    "id": 265,
    "nom": "Chenipotte",
    "types": [
@@ -3647,7 +3773,7 @@
    "quand": "les deux"
   },
   {
-   "no": 286,
+   "no": 292,
    "id": 266,
    "nom": "Armulys",
    "types": [
@@ -3659,7 +3785,7 @@
    "quand": "les deux"
   },
   {
-   "no": 287,
+   "no": 293,
    "id": 267,
    "nom": "Charmillon",
    "types": [
@@ -3672,7 +3798,7 @@
    "quand": "les deux"
   },
   {
-   "no": 288,
+   "no": 294,
    "id": 268,
    "nom": "Blindalys",
    "types": [
@@ -3684,7 +3810,7 @@
    "quand": "les deux"
   },
   {
-   "no": 289,
+   "no": 295,
    "id": 269,
    "nom": "Papinox",
    "types": [
@@ -3692,12 +3818,12 @@
     "poison"
    ],
    "zone": 46,
-   "min": 42,
-   "max": 47,
+   "min": 43,
+   "max": 48,
    "quand": "les deux"
   },
   {
-   "no": 290,
+   "no": 296,
    "id": 270,
    "nom": "Nénupiot",
    "types": [
@@ -3710,7 +3836,7 @@
    "quand": "les deux"
   },
   {
-   "no": 291,
+   "no": 297,
    "id": 271,
    "nom": "Lombre",
    "types": [
@@ -3723,7 +3849,7 @@
    "quand": "les deux"
   },
   {
-   "no": 292,
+   "no": 298,
    "id": 272,
    "nom": "Ludicolo",
    "types": [
@@ -3736,7 +3862,7 @@
    "quand": "les deux"
   },
   {
-   "no": 293,
+   "no": 299,
    "id": 273,
    "nom": "Grainipiot",
    "types": [
@@ -3748,7 +3874,7 @@
    "quand": "les deux"
   },
   {
-   "no": 294,
+   "no": 300,
    "id": 274,
    "nom": "Pifeuil",
    "types": [
@@ -3761,7 +3887,7 @@
    "quand": "les deux"
   },
   {
-   "no": 295,
+   "no": 301,
    "id": 275,
    "nom": "Tengalice",
    "types": [
@@ -3769,12 +3895,12 @@
     "tenebres"
    ],
    "zone": 46,
-   "min": 45,
-   "max": 50,
+   "min": 46,
+   "max": 51,
    "quand": "les deux"
   },
   {
-   "no": 296,
+   "no": 302,
    "id": 276,
    "nom": "Nirondelle",
    "types": [
@@ -3787,7 +3913,7 @@
    "quand": "les deux"
   },
   {
-   "no": 297,
+   "no": 303,
    "id": 277,
    "nom": "Hélédelle",
    "types": [
@@ -3800,7 +3926,7 @@
    "quand": "les deux"
   },
   {
-   "no": 298,
+   "no": 304,
    "id": 278,
    "nom": "Goélise",
    "types": [
@@ -3813,7 +3939,7 @@
    "quand": "les deux"
   },
   {
-   "no": 299,
+   "no": 305,
    "id": 279,
    "nom": "Bekipan",
    "types": [
@@ -3821,12 +3947,12 @@
     "vol"
    ],
    "zone": 37,
-   "min": 23,
-   "max": 28,
+   "min": 24,
+   "max": 29,
    "quand": "les deux"
   },
   {
-   "no": 300,
+   "no": 306,
    "id": 280,
    "nom": "Tarsal",
    "types": [
@@ -3839,7 +3965,7 @@
    "quand": "les deux"
   },
   {
-   "no": 301,
+   "no": 307,
    "id": 281,
    "nom": "Kirlia",
    "types": [
@@ -3847,12 +3973,12 @@
     "fee"
    ],
    "zone": 101,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
-   "no": 302,
+   "no": 308,
    "id": 282,
    "nom": "Gardevoir",
    "types": [
@@ -3865,7 +3991,7 @@
    "quand": "les deux"
   },
   {
-   "no": 303,
+   "no": 309,
    "id": 283,
    "nom": "Arakdo",
    "types": [
@@ -3878,7 +4004,7 @@
    "quand": "les deux"
   },
   {
-   "no": 304,
+   "no": 310,
    "id": 284,
    "nom": "Maskadra",
    "types": [
@@ -3891,7 +4017,7 @@
    "quand": "les deux"
   },
   {
-   "no": 305,
+   "no": 311,
    "id": 285,
    "nom": "Balignon",
    "types": [
@@ -3903,7 +4029,7 @@
    "quand": "les deux"
   },
   {
-   "no": 306,
+   "no": 312,
    "id": 286,
    "nom": "Chapignon",
    "types": [
@@ -3911,24 +4037,24 @@
     "combat"
    ],
    "zone": 39,
-   "min": 18,
-   "max": 23,
+   "min": 19,
+   "max": 24,
    "quand": "les deux"
   },
   {
-   "no": 307,
+   "no": 313,
    "id": 287,
    "nom": "Parecool",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 6,
-   "max": 11,
+   "min": 7,
+   "max": 12,
    "quand": "les deux"
   },
   {
-   "no": 308,
+   "no": 314,
    "id": 288,
    "nom": "Vigoroth",
    "types": [
@@ -3940,19 +4066,19 @@
    "quand": "les deux"
   },
   {
-   "no": 309,
+   "no": 315,
    "id": 289,
    "nom": "Monaflèmit",
    "types": [
     "normal"
    ],
    "zone": 102,
-   "min": 44,
-   "max": 49,
+   "min": 43,
+   "max": 48,
    "quand": "les deux"
   },
   {
-   "no": 310,
+   "no": 316,
    "id": 290,
    "nom": "Ningale",
    "types": [
@@ -3965,7 +4091,7 @@
    "quand": "les deux"
   },
   {
-   "no": 311,
+   "no": 317,
    "id": 291,
    "nom": "Ninjask",
    "types": [
@@ -3978,7 +4104,7 @@
    "quand": "les deux"
   },
   {
-   "no": 312,
+   "no": 318,
    "id": 292,
    "nom": "Munja",
    "types": [
@@ -3991,7 +4117,7 @@
    "quand": "les deux"
   },
   {
-   "no": 313,
+   "no": 319,
    "id": 293,
    "nom": "Chuchmur",
    "types": [
@@ -4003,19 +4129,19 @@
    "quand": "les deux"
   },
   {
-   "no": 314,
+   "no": 320,
    "id": 294,
    "nom": "Ramboum",
    "types": [
     "normal"
    ],
    "zone": 31,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 315,
+   "no": 321,
    "id": 295,
    "nom": "Brouhabam",
    "types": [
@@ -4027,31 +4153,31 @@
    "quand": "les deux"
   },
   {
-   "no": 316,
+   "no": 322,
    "id": 296,
    "nom": "Makuhita",
    "types": [
     "combat"
    ],
    "zone": 100,
-   "min": 10,
-   "max": 15,
+   "min": 11,
+   "max": 16,
    "quand": "les deux"
   },
   {
-   "no": 317,
+   "no": 323,
    "id": 297,
    "nom": "Hariyama",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 21,
-   "max": 26,
+   "min": 22,
+   "max": 27,
    "quand": "les deux"
   },
   {
-   "no": 318,
+   "no": 324,
    "id": 298,
    "nom": "Azurill",
    "types": [
@@ -4059,12 +4185,12 @@
     "fee"
    ],
    "zone": 32,
-   "min": 11,
-   "max": 16,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 319,
+   "no": 325,
    "id": 299,
    "nom": "Tarinor",
    "types": [
@@ -4076,7 +4202,7 @@
    "quand": "les deux"
   },
   {
-   "no": 320,
+   "no": 326,
    "id": 300,
    "nom": "Skitty",
    "types": [
@@ -4088,7 +4214,7 @@
    "quand": "les deux"
   },
   {
-   "no": 321,
+   "no": 327,
    "id": 301,
    "nom": "Delcatty",
    "types": [
@@ -4100,7 +4226,7 @@
    "quand": "les deux"
   },
   {
-   "no": 322,
+   "no": 328,
    "id": 302,
    "nom": "Ténéfix",
    "types": [
@@ -4113,7 +4239,7 @@
    "quand": "les deux"
   },
   {
-   "no": 323,
+   "no": 329,
    "id": 303,
    "nom": "Mysdibule",
    "types": [
@@ -4126,7 +4252,7 @@
    "quand": "les deux"
   },
   {
-   "no": 324,
+   "no": 330,
    "id": 304,
    "nom": "Galekid",
    "types": [
@@ -4139,7 +4265,7 @@
    "quand": "les deux"
   },
   {
-   "no": 325,
+   "no": 331,
    "id": 305,
    "nom": "Galegon",
    "types": [
@@ -4147,12 +4273,12 @@
     "roche"
    ],
    "zone": 35,
-   "min": 23,
-   "max": 28,
+   "min": 24,
+   "max": 29,
    "quand": "les deux"
   },
   {
-   "no": 326,
+   "no": 332,
    "id": 306,
    "nom": "Galeking",
    "types": [
@@ -4165,7 +4291,7 @@
    "quand": "les deux"
   },
   {
-   "no": 327,
+   "no": 333,
    "id": 307,
    "nom": "Méditikka",
    "types": [
@@ -4173,12 +4299,12 @@
     "psy"
    ],
    "zone": 100,
-   "min": 10,
-   "max": 15,
+   "min": 11,
+   "max": 16,
    "quand": "les deux"
   },
   {
-   "no": 328,
+   "no": 334,
    "id": 308,
    "nom": "Charmina",
    "types": [
@@ -4186,12 +4312,12 @@
     "psy"
    ],
    "zone": 39,
-   "min": 23,
-   "max": 28,
+   "min": 24,
+   "max": 29,
    "quand": "les deux"
   },
   {
-   "no": 329,
+   "no": 335,
    "id": 309,
    "nom": "Dynavolt",
    "types": [
@@ -4203,19 +4329,19 @@
    "quand": "les deux"
   },
   {
-   "no": 330,
+   "no": 336,
    "id": 310,
    "nom": "Élecsprint",
    "types": [
     "electrik"
    ],
    "zone": 35,
-   "min": 19,
-   "max": 24,
+   "min": 20,
+   "max": 25,
    "quand": "les deux"
   },
   {
-   "no": 331,
+   "no": 337,
    "id": 311,
    "nom": "Posipi",
    "types": [
@@ -4227,7 +4353,7 @@
    "quand": "les deux"
   },
   {
-   "no": 332,
+   "no": 338,
    "id": 312,
    "nom": "Négapi",
    "types": [
@@ -4239,19 +4365,19 @@
    "quand": "les deux"
   },
   {
-   "no": 333,
+   "no": 339,
    "id": 313,
    "nom": "Muciole",
    "types": [
     "insecte"
    ],
    "zone": 100,
-   "min": 6,
-   "max": 11,
+   "min": 7,
+   "max": 12,
    "quand": "les deux"
   },
   {
-   "no": 334,
+   "no": 340,
    "id": 314,
    "nom": "Lumivole",
    "types": [
@@ -4263,7 +4389,7 @@
    "quand": "les deux"
   },
   {
-   "no": 335,
+   "no": 341,
    "id": 315,
    "nom": "Rosélia",
    "types": [
@@ -4276,7 +4402,7 @@
    "quand": "les deux"
   },
   {
-   "no": 336,
+   "no": 342,
    "id": 316,
    "nom": "Gloupti",
    "types": [
@@ -4288,7 +4414,7 @@
    "quand": "les deux"
   },
   {
-   "no": 337,
+   "no": 343,
    "id": 317,
    "nom": "Avaltout",
    "types": [
@@ -4300,7 +4426,7 @@
    "quand": "les deux"
   },
   {
-   "no": 338,
+   "no": 344,
    "id": 318,
    "nom": "Carvanha",
    "types": [
@@ -4313,7 +4439,7 @@
    "quand": "les deux"
   },
   {
-   "no": 339,
+   "no": 345,
    "id": 319,
    "nom": "Sharpedo",
    "types": [
@@ -4326,7 +4452,7 @@
    "quand": "les deux"
   },
   {
-   "no": 340,
+   "no": 346,
    "id": 320,
    "nom": "Wailmer",
    "types": [
@@ -4338,7 +4464,7 @@
    "quand": "les deux"
   },
   {
-   "no": 341,
+   "no": 347,
    "id": 321,
    "nom": "Wailord",
    "types": [
@@ -4350,7 +4476,7 @@
    "quand": "les deux"
   },
   {
-   "no": 342,
+   "no": 348,
    "id": 322,
    "nom": "Chamallot",
    "types": [
@@ -4363,7 +4489,7 @@
    "quand": "les deux"
   },
   {
-   "no": 343,
+   "no": 349,
    "id": 323,
    "nom": "Camérupt",
    "types": [
@@ -4376,19 +4502,19 @@
    "quand": "les deux"
   },
   {
-   "no": 344,
+   "no": 350,
    "id": 324,
    "nom": "Chartor",
    "types": [
     "feu"
    ],
    "zone": 36,
-   "min": 8,
-   "max": 13,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
-   "no": 345,
+   "no": 351,
    "id": 325,
    "nom": "Spoink",
    "types": [
@@ -4400,19 +4526,19 @@
    "quand": "les deux"
   },
   {
-   "no": 346,
+   "no": 352,
    "id": 326,
    "nom": "Groret",
    "types": [
     "psy"
    ],
    "zone": 35,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 347,
+   "no": 353,
    "id": 327,
    "nom": "Spinda",
    "types": [
@@ -4424,7 +4550,7 @@
    "quand": "les deux"
   },
   {
-   "no": 348,
+   "no": 354,
    "id": 328,
    "nom": "Kraknoix",
    "types": [
@@ -4436,7 +4562,7 @@
    "quand": "les deux"
   },
   {
-   "no": 349,
+   "no": 355,
    "id": 329,
    "nom": "Vibraninf",
    "types": [
@@ -4449,7 +4575,7 @@
    "quand": "les deux"
   },
   {
-   "no": 350,
+   "no": 356,
    "id": 330,
    "nom": "Libégon",
    "types": [
@@ -4457,12 +4583,12 @@
     "dragon"
    ],
    "zone": 102,
-   "min": 41,
-   "max": 46,
+   "min": 39,
+   "max": 44,
    "quand": "les deux"
   },
   {
-   "no": 351,
+   "no": 357,
    "id": 331,
    "nom": "Cacnea",
    "types": [
@@ -4474,7 +4600,7 @@
    "quand": "les deux"
   },
   {
-   "no": 352,
+   "no": 358,
    "id": 332,
    "nom": "Cacturne",
    "types": [
@@ -4482,12 +4608,12 @@
     "tenebres"
    ],
    "zone": 37,
-   "min": 28,
-   "max": 33,
+   "min": 29,
+   "max": 34,
    "quand": "les deux"
   },
   {
-   "no": 353,
+   "no": 359,
    "id": 333,
    "nom": "Tylton",
    "types": [
@@ -4500,7 +4626,7 @@
    "quand": "les deux"
   },
   {
-   "no": 354,
+   "no": 360,
    "id": 334,
    "nom": "Altaria",
    "types": [
@@ -4513,7 +4639,7 @@
    "quand": "les deux"
   },
   {
-   "no": 355,
+   "no": 361,
    "id": 335,
    "nom": "Mangriff",
    "types": [
@@ -4525,7 +4651,7 @@
    "quand": "les deux"
   },
   {
-   "no": 356,
+   "no": 362,
    "id": 336,
    "nom": "Séviper",
    "types": [
@@ -4537,7 +4663,7 @@
    "quand": "les deux"
   },
   {
-   "no": 357,
+   "no": 363,
    "id": 337,
    "nom": "Séléroc",
    "types": [
@@ -4550,7 +4676,7 @@
    "quand": "les deux"
   },
   {
-   "no": 358,
+   "no": 364,
    "id": 338,
    "nom": "Solaroc",
    "types": [
@@ -4563,7 +4689,7 @@
    "quand": "les deux"
   },
   {
-   "no": 359,
+   "no": 365,
    "id": 339,
    "nom": "Barloche",
    "types": [
@@ -4576,7 +4702,7 @@
    "quand": "les deux"
   },
   {
-   "no": 360,
+   "no": 366,
    "id": 340,
    "nom": "Barbicha",
    "types": [
@@ -4589,7 +4715,7 @@
    "quand": "les deux"
   },
   {
-   "no": 361,
+   "no": 367,
    "id": 341,
    "nom": "Écrapince",
    "types": [
@@ -4601,7 +4727,7 @@
    "quand": "les deux"
   },
   {
-   "no": 362,
+   "no": 368,
    "id": 342,
    "nom": "Colhomard",
    "types": [
@@ -4614,7 +4740,7 @@
    "quand": "les deux"
   },
   {
-   "no": 363,
+   "no": 369,
    "id": 343,
    "nom": "Balbuto",
    "types": [
@@ -4627,7 +4753,7 @@
    "quand": "les deux"
   },
   {
-   "no": 364,
+   "no": 370,
    "id": 344,
    "nom": "Kaorine",
    "types": [
@@ -4640,7 +4766,67 @@
    "quand": "les deux"
   },
   {
-   "no": 365,
+   "no": 371,
+   "id": 345,
+   "nom": "Lilia",
+   "types": [
+    "roche",
+    "plante"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "racine"
+  },
+  {
+   "no": 372,
+   "id": 346,
+   "nom": "Vacilys",
+   "types": [
+    "roche",
+    "plante"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 345
+  },
+  {
+   "no": 373,
+   "id": 347,
+   "nom": "Anorith",
+   "types": [
+    "roche",
+    "insecte"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "griffe"
+  },
+  {
+   "no": 374,
+   "id": 348,
+   "nom": "Armaldo",
+   "types": [
+    "roche",
+    "insecte"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 347
+  },
+  {
+   "no": 375,
    "id": 349,
    "nom": "Barpau",
    "types": [
@@ -4652,7 +4838,7 @@
    "quand": "les deux"
   },
   {
-   "no": 366,
+   "no": 376,
    "id": 350,
    "nom": "Milobellus",
    "types": [
@@ -4664,19 +4850,19 @@
    "quand": "les deux"
   },
   {
-   "no": 367,
+   "no": 377,
    "id": 351,
    "nom": "Morphéo",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 12,
-   "max": 17,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
-   "no": 368,
+   "no": 378,
    "id": 352,
    "nom": "Kecleon",
    "types": [
@@ -4688,7 +4874,7 @@
    "quand": "les deux"
   },
   {
-   "no": 369,
+   "no": 379,
    "id": 353,
    "nom": "Polichombr",
    "types": [
@@ -4700,19 +4886,19 @@
    "quand": "les deux"
   },
   {
-   "no": 370,
+   "no": 380,
    "id": 354,
    "nom": "Branette",
    "types": [
     "spectre"
    ],
    "zone": 33,
-   "min": 18,
-   "max": 23,
+   "min": 17,
+   "max": 22,
    "quand": "les deux"
   },
   {
-   "no": 371,
+   "no": 381,
    "id": 355,
    "nom": "Skelénox",
    "types": [
@@ -4724,7 +4910,7 @@
    "quand": "les deux"
   },
   {
-   "no": 372,
+   "no": 382,
    "id": 356,
    "nom": "Téraclope",
    "types": [
@@ -4736,7 +4922,7 @@
    "quand": "les deux"
   },
   {
-   "no": 373,
+   "no": 383,
    "id": 357,
    "nom": "Tropius",
    "types": [
@@ -4749,19 +4935,19 @@
    "quand": "les deux"
   },
   {
-   "no": 374,
+   "no": 384,
    "id": 358,
    "nom": "Éoko",
    "types": [
     "psy"
    ],
    "zone": 35,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 375,
+   "no": 385,
    "id": 359,
    "nom": "Absol",
    "types": [
@@ -4773,19 +4959,19 @@
    "quand": "les deux"
   },
   {
-   "no": 376,
+   "no": 386,
    "id": 360,
    "nom": "Okéoké",
    "types": [
     "psy"
    ],
    "zone": 100,
-   "min": 4,
-   "max": 9,
+   "min": 5,
+   "max": 10,
    "quand": "les deux"
   },
   {
-   "no": 377,
+   "no": 387,
    "id": 361,
    "nom": "Stalgamin",
    "types": [
@@ -4797,7 +4983,7 @@
    "quand": "les deux"
   },
   {
-   "no": 378,
+   "no": 388,
    "id": 362,
    "nom": "Oniglali",
    "types": [
@@ -4809,7 +4995,7 @@
    "quand": "les deux"
   },
   {
-   "no": 379,
+   "no": 389,
    "id": 363,
    "nom": "Obalie",
    "types": [
@@ -4817,12 +5003,12 @@
     "eau"
    ],
    "zone": 32,
-   "min": 7,
-   "max": 12,
+   "min": 8,
+   "max": 13,
    "quand": "les deux"
   },
   {
-   "no": 380,
+   "no": 390,
    "id": 364,
    "nom": "Phogleur",
    "types": [
@@ -4835,7 +5021,7 @@
    "quand": "les deux"
   },
   {
-   "no": 381,
+   "no": 391,
    "id": 365,
    "nom": "Kaimorse",
    "types": [
@@ -4848,7 +5034,7 @@
    "quand": "les deux"
   },
   {
-   "no": 382,
+   "no": 392,
    "id": 366,
    "nom": "Coquiperl",
    "types": [
@@ -4860,31 +5046,31 @@
    "quand": "les deux"
   },
   {
-   "no": 383,
+   "no": 393,
    "id": 367,
    "nom": "Serpang",
    "types": [
     "eau"
    ],
    "zone": 101,
-   "min": 32,
-   "max": 37,
+   "min": 31,
+   "max": 36,
    "quand": "les deux"
   },
   {
-   "no": 384,
+   "no": 394,
    "id": 368,
    "nom": "Rosabyss",
    "types": [
     "eau"
    ],
    "zone": 104,
-   "min": 38,
-   "max": 43,
+   "min": 39,
+   "max": 44,
    "quand": "les deux"
   },
   {
-   "no": 385,
+   "no": 395,
    "id": 369,
    "nom": "Relicanth",
    "types": [
@@ -4897,19 +5083,19 @@
    "quand": "les deux"
   },
   {
-   "no": 386,
+   "no": 396,
    "id": 370,
    "nom": "Lovdisc",
    "types": [
     "eau"
    ],
    "zone": 32,
-   "min": 5,
-   "max": 10,
+   "min": 6,
+   "max": 11,
    "quand": "les deux"
   },
   {
-   "no": 387,
+   "no": 397,
    "id": 371,
    "nom": "Draby",
    "types": [
@@ -4921,7 +5107,7 @@
    "quand": "les deux"
   },
   {
-   "no": 388,
+   "no": 398,
    "id": 372,
    "nom": "Drackhaus",
    "types": [
@@ -4933,7 +5119,7 @@
    "quand": "les deux"
   },
   {
-   "no": 389,
+   "no": 399,
    "id": 373,
    "nom": "Drattak",
    "types": [
@@ -4946,7 +5132,7 @@
    "quand": "les deux"
   },
   {
-   "no": 390,
+   "no": 400,
    "id": 374,
    "nom": "Terhal",
    "types": [
@@ -4959,7 +5145,7 @@
    "quand": "les deux"
   },
   {
-   "no": 391,
+   "no": 401,
    "id": 375,
    "nom": "Métang",
    "types": [
@@ -4967,12 +5153,12 @@
     "psy"
    ],
    "zone": 35,
-   "min": 28,
-   "max": 33,
+   "min": 29,
+   "max": 34,
    "quand": "les deux"
   },
   {
-   "no": 392,
+   "no": 402,
    "id": 376,
    "nom": "Métalosse",
    "types": [
@@ -4980,12 +5166,12 @@
     "psy"
    ],
    "zone": 103,
-   "min": 41,
-   "max": 46,
+   "min": 42,
+   "max": 47,
    "quand": "les deux"
   },
   {
-   "no": 393,
+   "no": 403,
    "id": 387,
    "nom": "Tortipouss",
    "types": [
@@ -4997,19 +5183,19 @@
    "quand": "les deux"
   },
   {
-   "no": 394,
+   "no": 404,
    "id": 388,
    "nom": "Boskara",
    "types": [
     "plante"
    ],
    "zone": 31,
-   "min": 29,
-   "max": 34,
+   "min": 30,
+   "max": 35,
    "quand": "les deux"
   },
   {
-   "no": 395,
+   "no": 405,
    "id": 389,
    "nom": "Torterra",
    "types": [
@@ -5022,7 +5208,7 @@
    "quand": "les deux"
   },
   {
-   "no": 396,
+   "no": 406,
    "id": 390,
    "nom": "Ouisticram",
    "types": [
@@ -5034,7 +5220,7 @@
    "quand": "les deux"
   },
   {
-   "no": 397,
+   "no": 407,
    "id": 391,
    "nom": "Chimpenfeu",
    "types": [
@@ -5042,12 +5228,12 @@
     "combat"
    ],
    "zone": 39,
-   "min": 29,
-   "max": 34,
+   "min": 30,
+   "max": 35,
    "quand": "les deux"
   },
   {
-   "no": 398,
+   "no": 408,
    "id": 392,
    "nom": "Simiabraz",
    "types": [
@@ -5055,12 +5241,12 @@
     "combat"
    ],
    "zone": 105,
-   "min": 47,
-   "max": 52,
+   "min": 48,
+   "max": 53,
    "quand": "les deux"
   },
   {
-   "no": 399,
+   "no": 409,
    "id": 393,
    "nom": "Tiplouf",
    "types": [
@@ -5072,7 +5258,7 @@
    "quand": "les deux"
   },
   {
-   "no": 400,
+   "no": 410,
    "id": 394,
    "nom": "Prinplouf",
    "types": [
@@ -5084,7 +5270,7 @@
    "quand": "les deux"
   },
   {
-   "no": 401,
+   "no": 411,
    "id": 395,
    "nom": "Pingoléon",
    "types": [
@@ -5097,7 +5283,7 @@
    "quand": "les deux"
   },
   {
-   "no": 402,
+   "no": 412,
    "id": 396,
    "nom": "Étourmi",
    "types": [
@@ -5110,7 +5296,7 @@
    "quand": "les deux"
   },
   {
-   "no": 403,
+   "no": 413,
    "id": 397,
    "nom": "Étourvol",
    "types": [
@@ -5123,7 +5309,7 @@
    "quand": "les deux"
   },
   {
-   "no": 404,
+   "no": 414,
    "id": 398,
    "nom": "Étouraptor",
    "types": [
@@ -5136,7 +5322,7 @@
    "quand": "les deux"
   },
   {
-   "no": 405,
+   "no": 415,
    "id": 399,
    "nom": "Keunotor",
    "types": [
@@ -5148,7 +5334,7 @@
    "quand": "les deux"
   },
   {
-   "no": 406,
+   "no": 416,
    "id": 400,
    "nom": "Castorno",
    "types": [
@@ -5161,7 +5347,7 @@
    "quand": "les deux"
   },
   {
-   "no": 407,
+   "no": 417,
    "id": 401,
    "nom": "Crikzik",
    "types": [
@@ -5173,7 +5359,7 @@
    "quand": "les deux"
   },
   {
-   "no": 408,
+   "no": 418,
    "id": 402,
    "nom": "Mélokrik",
    "types": [
@@ -5185,7 +5371,7 @@
    "quand": "les deux"
   },
   {
-   "no": 409,
+   "no": 419,
    "id": 403,
    "nom": "Lixy",
    "types": [
@@ -5197,19 +5383,19 @@
    "quand": "les deux"
   },
   {
-   "no": 410,
+   "no": 420,
    "id": 404,
    "nom": "Luxio",
    "types": [
     "electrik"
    ],
    "zone": 35,
-   "min": 19,
-   "max": 24,
+   "min": 20,
+   "max": 25,
    "quand": "les deux"
   },
   {
-   "no": 411,
+   "no": 421,
    "id": 405,
    "nom": "Luxray",
    "types": [
@@ -5221,7 +5407,7 @@
    "quand": "les deux"
   },
   {
-   "no": 412,
+   "no": 422,
    "id": 406,
    "nom": "Rozbouton",
    "types": [
@@ -5234,7 +5420,7 @@
    "quand": "les deux"
   },
   {
-   "no": 413,
+   "no": 423,
    "id": 407,
    "nom": "Roserade",
    "types": [
@@ -5242,12 +5428,70 @@
     "poison"
    ],
    "zone": 46,
-   "min": 41,
-   "max": 46,
+   "min": 42,
+   "max": 47,
    "quand": "les deux"
   },
   {
-   "no": 414,
+   "no": 424,
+   "id": 408,
+   "nom": "Kranidos",
+   "types": [
+    "roche"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "crane"
+  },
+  {
+   "no": 425,
+   "id": 409,
+   "nom": "Charkos",
+   "types": [
+    "roche"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 408
+  },
+  {
+   "no": 426,
+   "id": 410,
+   "nom": "Dinoclier",
+   "types": [
+    "roche",
+    "acier"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "armure"
+  },
+  {
+   "no": 427,
+   "id": 411,
+   "nom": "Bastiodon",
+   "types": [
+    "roche",
+    "acier"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 410
+  },
+  {
+   "no": 428,
    "id": 412,
    "nom": "Cheniti",
    "types": [
@@ -5259,7 +5503,7 @@
    "quand": "les deux"
   },
   {
-   "no": 415,
+   "no": 429,
    "id": 413,
    "nom": "Cheniselle",
    "types": [
@@ -5272,7 +5516,7 @@
    "quand": "les deux"
   },
   {
-   "no": 416,
+   "no": 430,
    "id": 414,
    "nom": "Papilord",
    "types": [
@@ -5285,7 +5529,7 @@
    "quand": "les deux"
   },
   {
-   "no": 417,
+   "no": 431,
    "id": 415,
    "nom": "Apitrini",
    "types": [
@@ -5298,7 +5542,7 @@
    "quand": "les deux"
   },
   {
-   "no": 418,
+   "no": 432,
    "id": 416,
    "nom": "Apireine",
    "types": [
@@ -5311,7 +5555,7 @@
    "quand": "les deux"
   },
   {
-   "no": 419,
+   "no": 433,
    "id": 417,
    "nom": "Pachirisu",
    "types": [
@@ -5323,7 +5567,7 @@
    "quand": "les deux"
   },
   {
-   "no": 420,
+   "no": 434,
    "id": 418,
    "nom": "Mustébouée",
    "types": [
@@ -5335,7 +5579,7 @@
    "quand": "les deux"
   },
   {
-   "no": 421,
+   "no": 435,
    "id": 419,
    "nom": "Mustéflott",
    "types": [
@@ -5347,7 +5591,7 @@
    "quand": "les deux"
   },
   {
-   "no": 422,
+   "no": 436,
    "id": 420,
    "nom": "Ceribou",
    "types": [
@@ -5359,7 +5603,7 @@
    "quand": "les deux"
   },
   {
-   "no": 423,
+   "no": 437,
    "id": 421,
    "nom": "Ceriflor",
    "types": [
@@ -5371,19 +5615,19 @@
    "quand": "les deux"
   },
   {
-   "no": 424,
+   "no": 438,
    "id": 422,
    "nom": "Sancoki",
    "types": [
     "eau"
    ],
    "zone": 36,
-   "min": 9,
-   "max": 14,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 425,
+   "no": 439,
    "id": 423,
    "nom": "Tritosor",
    "types": [
@@ -5391,24 +5635,24 @@
     "sol"
    ],
    "zone": 101,
-   "min": 19,
-   "max": 24,
+   "min": 20,
+   "max": 25,
    "quand": "les deux"
   },
   {
-   "no": 426,
+   "no": 440,
    "id": 424,
    "nom": "Capidextre",
    "types": [
     "normal"
    ],
    "zone": 37,
-   "min": 23,
-   "max": 28,
+   "min": 24,
+   "max": 29,
    "quand": "les deux"
   },
   {
-   "no": 427,
+   "no": 441,
    "id": 425,
    "nom": "Baudrive",
    "types": [
@@ -5421,7 +5665,7 @@
    "quand": "les deux"
   },
   {
-   "no": 428,
+   "no": 442,
    "id": 426,
    "nom": "Grodrive",
    "types": [
@@ -5434,19 +5678,19 @@
    "quand": "les deux"
   },
   {
-   "no": 429,
+   "no": 443,
    "id": 427,
    "nom": "Laporeille",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 7,
-   "max": 12,
+   "min": 8,
+   "max": 13,
    "quand": "les deux"
   },
   {
-   "no": 430,
+   "no": 444,
    "id": 428,
    "nom": "Lockpin",
    "types": [
@@ -5458,7 +5702,7 @@
    "quand": "les deux"
   },
   {
-   "no": 431,
+   "no": 445,
    "id": 429,
    "nom": "Magirêve",
    "types": [
@@ -5470,7 +5714,7 @@
    "quand": "les deux"
   },
   {
-   "no": 432,
+   "no": 446,
    "id": 430,
    "nom": "Corboss",
    "types": [
@@ -5483,7 +5727,7 @@
    "quand": "les deux"
   },
   {
-   "no": 433,
+   "no": 447,
    "id": 431,
    "nom": "Chaglam",
    "types": [
@@ -5495,19 +5739,19 @@
    "quand": "les deux"
   },
   {
-   "no": 434,
+   "no": 448,
    "id": 432,
    "nom": "Chaffreux",
    "types": [
     "normal"
    ],
    "zone": 31,
-   "min": 31,
-   "max": 36,
+   "min": 32,
+   "max": 37,
    "quand": "les deux"
   },
   {
-   "no": 435,
+   "no": 449,
    "id": 433,
    "nom": "Korillon",
    "types": [
@@ -5519,7 +5763,7 @@
    "quand": "les deux"
   },
   {
-   "no": 436,
+   "no": 450,
    "id": 434,
    "nom": "Moufouette",
    "types": [
@@ -5532,7 +5776,7 @@
    "quand": "les deux"
   },
   {
-   "no": 437,
+   "no": 451,
    "id": 435,
    "nom": "Moufflair",
    "types": [
@@ -5545,7 +5789,7 @@
    "quand": "les deux"
   },
   {
-   "no": 438,
+   "no": 452,
    "id": 436,
    "nom": "Archéomire",
    "types": [
@@ -5558,7 +5802,7 @@
    "quand": "les deux"
   },
   {
-   "no": 439,
+   "no": 453,
    "id": 437,
    "nom": "Archéodong",
    "types": [
@@ -5571,7 +5815,7 @@
    "quand": "les deux"
   },
   {
-   "no": 440,
+   "no": 454,
    "id": 438,
    "nom": "Manzaï",
    "types": [
@@ -5583,7 +5827,7 @@
    "quand": "les deux"
   },
   {
-   "no": 441,
+   "no": 455,
    "id": 439,
    "nom": "Mime Jr.",
    "types": [
@@ -5596,7 +5840,7 @@
    "quand": "les deux"
   },
   {
-   "no": 442,
+   "no": 456,
    "id": 440,
    "nom": "Ptiravi",
    "types": [
@@ -5608,7 +5852,7 @@
    "quand": "les deux"
   },
   {
-   "no": 443,
+   "no": 457,
    "id": 441,
    "nom": "Pijako",
    "types": [
@@ -5621,7 +5865,7 @@
    "quand": "les deux"
   },
   {
-   "no": 444,
+   "no": 458,
    "id": 442,
    "nom": "Spiritomb",
    "types": [
@@ -5634,7 +5878,7 @@
    "quand": "les deux"
   },
   {
-   "no": 445,
+   "no": 459,
    "id": 443,
    "nom": "Griknot",
    "types": [
@@ -5647,7 +5891,7 @@
    "quand": "les deux"
   },
   {
-   "no": 446,
+   "no": 460,
    "id": 444,
    "nom": "Carmache",
    "types": [
@@ -5660,7 +5904,7 @@
    "quand": "les deux"
   },
   {
-   "no": 447,
+   "no": 461,
    "id": 445,
    "nom": "Carchacrok",
    "types": [
@@ -5673,7 +5917,7 @@
    "quand": "les deux"
   },
   {
-   "no": 448,
+   "no": 462,
    "id": 446,
    "nom": "Goinfrex",
    "types": [
@@ -5685,19 +5929,19 @@
    "quand": "les deux"
   },
   {
-   "no": 449,
+   "no": 463,
    "id": 447,
    "nom": "Riolu",
    "types": [
     "combat"
    ],
    "zone": 38,
-   "min": 12,
-   "max": 17,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
-   "no": 450,
+   "no": 464,
    "id": 448,
    "nom": "Lucario",
    "types": [
@@ -5710,7 +5954,7 @@
    "quand": "les deux"
   },
   {
-   "no": 451,
+   "no": 465,
    "id": 449,
    "nom": "Hippopotas",
    "types": [
@@ -5722,7 +5966,7 @@
    "quand": "les deux"
   },
   {
-   "no": 452,
+   "no": 466,
    "id": 450,
    "nom": "Hippodocus",
    "types": [
@@ -5734,7 +5978,7 @@
    "quand": "les deux"
   },
   {
-   "no": 453,
+   "no": 467,
    "id": 451,
    "nom": "Rapion",
    "types": [
@@ -5747,7 +5991,7 @@
    "quand": "les deux"
   },
   {
-   "no": 454,
+   "no": 468,
    "id": 452,
    "nom": "Drascore",
    "types": [
@@ -5755,12 +5999,12 @@
     "tenebres"
    ],
    "zone": 33,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 455,
+   "no": 469,
    "id": 453,
    "nom": "Cradopaud",
    "types": [
@@ -5768,12 +6012,12 @@
     "combat"
    ],
    "zone": 100,
-   "min": 9,
-   "max": 14,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 456,
+   "no": 470,
    "id": 454,
    "nom": "Coatox",
    "types": [
@@ -5786,7 +6030,7 @@
    "quand": "les deux"
   },
   {
-   "no": 457,
+   "no": 471,
    "id": 455,
    "nom": "Vortente",
    "types": [
@@ -5798,7 +6042,7 @@
    "quand": "les deux"
   },
   {
-   "no": 458,
+   "no": 472,
    "id": 456,
    "nom": "Écayon",
    "types": [
@@ -5810,7 +6054,7 @@
    "quand": "les deux"
   },
   {
-   "no": 459,
+   "no": 473,
    "id": 457,
    "nom": "Luminéon",
    "types": [
@@ -5822,7 +6066,7 @@
    "quand": "les deux"
   },
   {
-   "no": 460,
+   "no": 474,
    "id": 458,
    "nom": "Babimanta",
    "types": [
@@ -5835,7 +6079,7 @@
    "quand": "les deux"
   },
   {
-   "no": 461,
+   "no": 475,
    "id": 459,
    "nom": "Blizzi",
    "types": [
@@ -5848,7 +6092,7 @@
    "quand": "les deux"
   },
   {
-   "no": 462,
+   "no": 476,
    "id": 460,
    "nom": "Blizzaroi",
    "types": [
@@ -5861,7 +6105,7 @@
    "quand": "les deux"
   },
   {
-   "no": 463,
+   "no": 477,
    "id": 461,
    "nom": "Dimoret",
    "types": [
@@ -5874,7 +6118,7 @@
    "quand": "les deux"
   },
   {
-   "no": 464,
+   "no": 478,
    "id": 462,
    "nom": "Magnézone",
    "types": [
@@ -5882,24 +6126,24 @@
     "acier"
    ],
    "zone": 102,
-   "min": 47,
-   "max": 52,
+   "min": 46,
+   "max": 51,
    "quand": "les deux"
   },
   {
-   "no": 465,
+   "no": 479,
    "id": 463,
    "nom": "Coudlangue",
    "types": [
     "normal"
    ],
    "zone": 37,
-   "min": 24,
-   "max": 29,
+   "min": 25,
+   "max": 30,
    "quand": "les deux"
   },
   {
-   "no": 466,
+   "no": 480,
    "id": 464,
    "nom": "Rhinastoc",
    "types": [
@@ -5912,7 +6156,7 @@
    "quand": "les deux"
   },
   {
-   "no": 467,
+   "no": 481,
    "id": 465,
    "nom": "Bouldeneu",
    "types": [
@@ -5924,19 +6168,19 @@
    "quand": "les deux"
   },
   {
-   "no": 468,
+   "no": 482,
    "id": 466,
    "nom": "Élekable",
    "types": [
     "electrik"
    ],
    "zone": 103,
-   "min": 47,
-   "max": 52,
+   "min": 48,
+   "max": 53,
    "quand": "les deux"
   },
   {
-   "no": 469,
+   "no": 483,
    "id": 467,
    "nom": "Maganon",
    "types": [
@@ -5948,7 +6192,7 @@
    "quand": "les deux"
   },
   {
-   "no": 470,
+   "no": 484,
    "id": 468,
    "nom": "Togekiss",
    "types": [
@@ -5956,12 +6200,12 @@
     "vol"
    ],
    "zone": 104,
-   "min": 45,
-   "max": 50,
+   "min": 46,
+   "max": 51,
    "quand": "les deux"
   },
   {
-   "no": 471,
+   "no": 485,
    "id": 469,
    "nom": "Yanmega",
    "types": [
@@ -5974,7 +6218,7 @@
    "quand": "les deux"
   },
   {
-   "no": 472,
+   "no": 486,
    "id": 470,
    "nom": "Phyllali",
    "types": [
@@ -5986,19 +6230,19 @@
    "quand": "les deux"
   },
   {
-   "no": 473,
+   "no": 487,
    "id": 471,
    "nom": "Givrali",
    "types": [
     "glace"
    ],
    "zone": 103,
-   "min": 40,
-   "max": 45,
+   "min": 41,
+   "max": 46,
    "quand": "les deux"
   },
   {
-   "no": 474,
+   "no": 488,
    "id": 472,
    "nom": "Scorvol",
    "types": [
@@ -6011,7 +6255,7 @@
    "quand": "les deux"
   },
   {
-   "no": 475,
+   "no": 489,
    "id": 473,
    "nom": "Mammochon",
    "types": [
@@ -6024,7 +6268,7 @@
    "quand": "les deux"
   },
   {
-   "no": 476,
+   "no": 490,
    "id": 474,
    "nom": "Porygon-Z",
    "types": [
@@ -6036,7 +6280,7 @@
    "quand": "les deux"
   },
   {
-   "no": 477,
+   "no": 491,
    "id": 475,
    "nom": "Gallame",
    "types": [
@@ -6044,12 +6288,12 @@
     "combat"
    ],
    "zone": 103,
-   "min": 46,
-   "max": 51,
+   "min": 47,
+   "max": 52,
    "quand": "les deux"
   },
   {
-   "no": 478,
+   "no": 492,
    "id": 476,
    "nom": "Tarinorme",
    "types": [
@@ -6062,7 +6306,7 @@
    "quand": "les deux"
   },
   {
-   "no": 479,
+   "no": 493,
    "id": 477,
    "nom": "Noctunoir",
    "types": [
@@ -6074,7 +6318,7 @@
    "quand": "les deux"
   },
   {
-   "no": 480,
+   "no": 494,
    "id": 478,
    "nom": "Momartik",
    "types": [
@@ -6087,7 +6331,7 @@
    "quand": "les deux"
   },
   {
-   "no": 481,
+   "no": 495,
    "id": 479,
    "nom": "Motisma",
    "types": [
@@ -6100,7 +6344,7 @@
    "quand": "les deux"
   },
   {
-   "no": 482,
+   "no": 496,
    "id": 495,
    "nom": "Vipélierre",
    "types": [
@@ -6112,7 +6356,7 @@
    "quand": "les deux"
   },
   {
-   "no": 483,
+   "no": 497,
    "id": 496,
    "nom": "Lianaja",
    "types": [
@@ -6124,7 +6368,7 @@
    "quand": "les deux"
   },
   {
-   "no": 484,
+   "no": 498,
    "id": 497,
    "nom": "Majaspic",
    "types": [
@@ -6136,7 +6380,7 @@
    "quand": "les deux"
   },
   {
-   "no": 485,
+   "no": 499,
    "id": 498,
    "nom": "Gruikui",
    "types": [
@@ -6148,7 +6392,7 @@
    "quand": "les deux"
   },
   {
-   "no": 486,
+   "no": 500,
    "id": 499,
    "nom": "Grotichon",
    "types": [
@@ -6161,7 +6405,7 @@
    "quand": "les deux"
   },
   {
-   "no": 487,
+   "no": 501,
    "id": 500,
    "nom": "Roitiflam",
    "types": [
@@ -6174,7 +6418,7 @@
    "quand": "les deux"
   },
   {
-   "no": 488,
+   "no": 502,
    "id": 501,
    "nom": "Moustillon",
    "types": [
@@ -6186,7 +6430,7 @@
    "quand": "les deux"
   },
   {
-   "no": 489,
+   "no": 503,
    "id": 502,
    "nom": "Mateloutre",
    "types": [
@@ -6198,7 +6442,7 @@
    "quand": "les deux"
   },
   {
-   "no": 490,
+   "no": 504,
    "id": 503,
    "nom": "Clamiral",
    "types": [
@@ -6210,20 +6454,21 @@
    "quand": "les deux"
   },
   {
-   "no": 491,
+   "no": 505,
    "id": 10236,
    "nom": "Clamiral de Hisui",
    "types": [
     "eau",
     "tenebres"
    ],
-   "zone": 104,
-   "min": 50,
-   "max": 55,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 492,
+   "no": 506,
    "id": 504,
    "nom": "Ratentif",
    "types": [
@@ -6235,19 +6480,19 @@
    "quand": "les deux"
   },
   {
-   "no": 493,
+   "no": 507,
    "id": 505,
    "nom": "Miradar",
    "types": [
     "normal"
    ],
    "zone": 37,
-   "min": 24,
-   "max": 29,
+   "min": 25,
+   "max": 30,
    "quand": "les deux"
   },
   {
-   "no": 494,
+   "no": 508,
    "id": 506,
    "nom": "Ponchiot",
    "types": [
@@ -6259,7 +6504,7 @@
    "quand": "les deux"
   },
   {
-   "no": 495,
+   "no": 509,
    "id": 507,
    "nom": "Ponchien",
    "types": [
@@ -6271,43 +6516,43 @@
    "quand": "les deux"
   },
   {
-   "no": 496,
+   "no": 510,
    "id": 508,
    "nom": "Mastouffe",
    "types": [
     "normal"
    ],
    "zone": 102,
-   "min": 45,
-   "max": 50,
+   "min": 44,
+   "max": 49,
    "quand": "les deux"
   },
   {
-   "no": 497,
+   "no": 511,
    "id": 509,
    "nom": "Chacripan",
    "types": [
     "tenebres"
    ],
    "zone": 38,
-   "min": 10,
-   "max": 15,
+   "min": 11,
+   "max": 16,
    "quand": "les deux"
   },
   {
-   "no": 498,
+   "no": 512,
    "id": 510,
    "nom": "Léopardus",
    "types": [
     "tenebres"
    ],
    "zone": 39,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 499,
+   "no": 513,
    "id": 511,
    "nom": "Feuillajou",
    "types": [
@@ -6319,7 +6564,7 @@
    "quand": "les deux"
   },
   {
-   "no": 500,
+   "no": 514,
    "id": 512,
    "nom": "Feuiloutan",
    "types": [
@@ -6331,7 +6576,7 @@
    "quand": "les deux"
   },
   {
-   "no": 501,
+   "no": 515,
    "id": 513,
    "nom": "Flamajou",
    "types": [
@@ -6343,31 +6588,31 @@
    "quand": "les deux"
   },
   {
-   "no": 502,
+   "no": 516,
    "id": 514,
    "nom": "Flamoutan",
    "types": [
     "feu"
    ],
    "zone": 39,
-   "min": 17,
-   "max": 22,
+   "min": 18,
+   "max": 23,
    "quand": "les deux"
   },
   {
-   "no": 503,
+   "no": 517,
    "id": 515,
    "nom": "Flotajou",
    "types": [
     "eau"
    ],
    "zone": 32,
-   "min": 8,
-   "max": 13,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
-   "no": 504,
+   "no": 518,
    "id": 516,
    "nom": "Flotoutan",
    "types": [
@@ -6379,7 +6624,7 @@
    "quand": "les deux"
   },
   {
-   "no": 505,
+   "no": 519,
    "id": 517,
    "nom": "Munna",
    "types": [
@@ -6391,19 +6636,19 @@
    "quand": "les deux"
   },
   {
-   "no": 506,
+   "no": 520,
    "id": 518,
    "nom": "Mushana",
    "types": [
     "psy"
    ],
    "zone": 35,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 507,
+   "no": 521,
    "id": 519,
    "nom": "Poichigeon",
    "types": [
@@ -6416,7 +6661,7 @@
    "quand": "les deux"
   },
   {
-   "no": 508,
+   "no": 522,
    "id": 520,
    "nom": "Colombeau",
    "types": [
@@ -6424,12 +6669,12 @@
     "vol"
    ],
    "zone": 37,
-   "min": 22,
-   "max": 27,
+   "min": 23,
+   "max": 28,
    "quand": "les deux"
   },
   {
-   "no": 509,
+   "no": 523,
    "id": 521,
    "nom": "Déflaisan",
    "types": [
@@ -6442,19 +6687,19 @@
    "quand": "les deux"
   },
   {
-   "no": 510,
+   "no": 524,
    "id": 522,
    "nom": "Zébibron",
    "types": [
     "electrik"
    ],
    "zone": 34,
-   "min": 7,
-   "max": 12,
+   "min": 8,
+   "max": 13,
    "quand": "les deux"
   },
   {
-   "no": 511,
+   "no": 525,
    "id": 523,
    "nom": "Zéblitz",
    "types": [
@@ -6466,7 +6711,7 @@
    "quand": "les deux"
   },
   {
-   "no": 512,
+   "no": 526,
    "id": 524,
    "nom": "Nodulithe",
    "types": [
@@ -6478,7 +6723,7 @@
    "quand": "les deux"
   },
   {
-   "no": 513,
+   "no": 527,
    "id": 525,
    "nom": "Géolithe",
    "types": [
@@ -6490,7 +6735,7 @@
    "quand": "les deux"
   },
   {
-   "no": 514,
+   "no": 528,
    "id": 526,
    "nom": "Gigalithe",
    "types": [
@@ -6502,7 +6747,7 @@
    "quand": "les deux"
   },
   {
-   "no": 515,
+   "no": 529,
    "id": 527,
    "nom": "Chovsourir",
    "types": [
@@ -6515,7 +6760,7 @@
    "quand": "les deux"
   },
   {
-   "no": 516,
+   "no": 530,
    "id": 528,
    "nom": "Rhinolove",
    "types": [
@@ -6523,12 +6768,12 @@
     "vol"
    ],
    "zone": 35,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 517,
+   "no": 531,
    "id": 529,
    "nom": "Rototaupe",
    "types": [
@@ -6540,7 +6785,7 @@
    "quand": "les deux"
   },
   {
-   "no": 518,
+   "no": 532,
    "id": 530,
    "nom": "Minotaupe",
    "types": [
@@ -6548,24 +6793,24 @@
     "acier"
    ],
    "zone": 35,
-   "min": 22,
-   "max": 27,
+   "min": 23,
+   "max": 28,
    "quand": "les deux"
   },
   {
-   "no": 519,
+   "no": 533,
    "id": 531,
    "nom": "Nanméouïe",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 8,
-   "max": 13,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
-   "no": 520,
+   "no": 534,
    "id": 532,
    "nom": "Charpenti",
    "types": [
@@ -6577,43 +6822,43 @@
    "quand": "les deux"
   },
   {
-   "no": 521,
+   "no": 535,
    "id": 533,
    "nom": "Ouvrifier",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 21,
-   "max": 26,
+   "min": 22,
+   "max": 27,
    "quand": "les deux"
   },
   {
-   "no": 522,
+   "no": 536,
    "id": 534,
    "nom": "Bétochef",
    "types": [
     "combat"
    ],
    "zone": 102,
-   "min": 43,
-   "max": 48,
+   "min": 42,
+   "max": 47,
    "quand": "les deux"
   },
   {
-   "no": 523,
+   "no": 537,
    "id": 535,
    "nom": "Tritonde",
    "types": [
     "eau"
    ],
    "zone": 32,
-   "min": 9,
-   "max": 14,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 524,
+   "no": 538,
    "id": 536,
    "nom": "Batracné",
    "types": [
@@ -6626,7 +6871,7 @@
    "quand": "les deux"
   },
   {
-   "no": 525,
+   "no": 539,
    "id": 537,
    "nom": "Crapustule",
    "types": [
@@ -6634,36 +6879,36 @@
     "sol"
    ],
    "zone": 104,
-   "min": 47,
-   "max": 52,
+   "min": 48,
+   "max": 53,
    "quand": "les deux"
   },
   {
-   "no": 526,
+   "no": 540,
    "id": 538,
    "nom": "Judokrak",
    "types": [
     "combat"
    ],
    "zone": 37,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
-   "no": 527,
+   "no": 541,
    "id": 539,
    "nom": "Karaclée",
    "types": [
     "combat"
    ],
    "zone": 37,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
-   "no": 528,
+   "no": 542,
    "id": 540,
    "nom": "Larveyette",
    "types": [
@@ -6671,12 +6916,12 @@
     "plante"
    ],
    "zone": 100,
-   "min": 5,
-   "max": 10,
+   "min": 6,
+   "max": 11,
    "quand": "les deux"
   },
   {
-   "no": 529,
+   "no": 543,
    "id": 541,
    "nom": "Couverdure",
    "types": [
@@ -6689,7 +6934,7 @@
    "quand": "les deux"
   },
   {
-   "no": 530,
+   "no": 544,
    "id": 542,
    "nom": "Manternel",
    "types": [
@@ -6702,7 +6947,7 @@
    "quand": "les deux"
   },
   {
-   "no": 531,
+   "no": 545,
    "id": 543,
    "nom": "Venipatte",
    "types": [
@@ -6715,7 +6960,7 @@
    "quand": "les deux"
   },
   {
-   "no": 532,
+   "no": 546,
    "id": 544,
    "nom": "Scobolide",
    "types": [
@@ -6728,7 +6973,7 @@
    "quand": "les deux"
   },
   {
-   "no": 533,
+   "no": 547,
    "id": 545,
    "nom": "Brutapode",
    "types": [
@@ -6736,12 +6981,12 @@
     "poison"
    ],
    "zone": 102,
-   "min": 46,
-   "max": 51,
+   "min": 45,
+   "max": 50,
    "quand": "les deux"
   },
   {
-   "no": 534,
+   "no": 548,
    "id": 546,
    "nom": "Doudouvet",
    "types": [
@@ -6754,7 +6999,7 @@
    "quand": "les deux"
   },
   {
-   "no": 535,
+   "no": 549,
    "id": 547,
    "nom": "Farfaduvet",
    "types": [
@@ -6762,12 +7007,12 @@
     "fee"
    ],
    "zone": 101,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 536,
+   "no": 550,
    "id": 548,
    "nom": "Chlorobule",
    "types": [
@@ -6779,7 +7024,7 @@
    "quand": "les deux"
   },
   {
-   "no": 537,
+   "no": 551,
    "id": 549,
    "nom": "Fragilady",
    "types": [
@@ -6791,20 +7036,21 @@
    "quand": "les deux"
   },
   {
-   "no": 538,
+   "no": 552,
    "id": 10237,
    "nom": "Fragilady de Hisui",
    "types": [
     "plante",
     "combat"
    ],
-   "zone": 39,
-   "min": 35,
-   "max": 40,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 539,
+   "no": 553,
    "id": 550,
    "nom": "Bargantua",
    "types": [
@@ -6816,7 +7062,7 @@
    "quand": "les deux"
   },
   {
-   "no": 540,
+   "no": 554,
    "id": 551,
    "nom": "Mascaïman",
    "types": [
@@ -6829,7 +7075,7 @@
    "quand": "les deux"
   },
   {
-   "no": 541,
+   "no": 555,
    "id": 552,
    "nom": "Escroco",
    "types": [
@@ -6837,12 +7083,12 @@
     "tenebres"
    ],
    "zone": 37,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 542,
+   "no": 556,
    "id": 553,
    "nom": "Crocorible",
    "types": [
@@ -6855,7 +7101,7 @@
    "quand": "les deux"
   },
   {
-   "no": 543,
+   "no": 557,
    "id": 554,
    "nom": "Darumarond",
    "types": [
@@ -6867,19 +7113,20 @@
    "quand": "les deux"
   },
   {
-   "no": 544,
+   "no": 558,
    "id": 10176,
    "nom": "Darumarond de Galar",
    "types": [
     "glace"
    ],
-   "zone": 34,
-   "min": 2,
-   "max": 7,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 545,
+   "no": 559,
    "id": 555,
    "nom": "Darumacho",
    "types": [
@@ -6891,19 +7138,20 @@
    "quand": "les deux"
   },
   {
-   "no": 546,
+   "no": 560,
    "id": 10177,
    "nom": "Darumacho de Galar",
    "types": [
     "glace"
    ],
-   "zone": 35,
-   "min": 32,
-   "max": 37,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 547,
+   "no": 561,
    "id": 556,
    "nom": "Maracachi",
    "types": [
@@ -6915,7 +7163,7 @@
    "quand": "les deux"
   },
   {
-   "no": 548,
+   "no": 562,
    "id": 557,
    "nom": "Crabicoque",
    "types": [
@@ -6928,7 +7176,7 @@
    "quand": "les deux"
   },
   {
-   "no": 549,
+   "no": 563,
    "id": 558,
    "nom": "Crabaraque",
    "types": [
@@ -6941,7 +7189,7 @@
    "quand": "les deux"
   },
   {
-   "no": 550,
+   "no": 564,
    "id": 559,
    "nom": "Baggiguane",
    "types": [
@@ -6954,7 +7202,7 @@
    "quand": "les deux"
   },
   {
-   "no": 551,
+   "no": 565,
    "id": 560,
    "nom": "Baggaïd",
    "types": [
@@ -6962,12 +7210,12 @@
     "combat"
    ],
    "zone": 39,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 552,
+   "no": 566,
    "id": 561,
    "nom": "Cryptéro",
    "types": [
@@ -6980,7 +7228,7 @@
    "quand": "les deux"
   },
   {
-   "no": 553,
+   "no": 567,
    "id": 562,
    "nom": "Tutafeh",
    "types": [
@@ -6992,20 +7240,21 @@
    "quand": "les deux"
   },
   {
-   "no": 554,
+   "no": 568,
    "id": 10179,
    "nom": "Tutafeh de Galar",
    "types": [
     "sol",
     "spectre"
    ],
-   "zone": 34,
-   "min": 13,
-   "max": 18,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 555,
+   "no": 569,
    "id": 563,
    "nom": "Tutankafer",
    "types": [
@@ -7017,19 +7266,79 @@
    "quand": "les deux"
   },
   {
-   "no": 556,
+   "no": 570,
+   "id": 564,
+   "nom": "Carapagos",
+   "types": [
+    "eau",
+    "roche"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "plaque"
+  },
+  {
+   "no": 571,
+   "id": 565,
+   "nom": "Mégapagos",
+   "types": [
+    "eau",
+    "roche"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 564
+  },
+  {
+   "no": 572,
+   "id": 566,
+   "nom": "Arkéapti",
+   "types": [
+    "roche",
+    "vol"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "plume"
+  },
+  {
+   "no": 573,
+   "id": 567,
+   "nom": "Aéroptéryx",
+   "types": [
+    "roche",
+    "vol"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 566
+  },
+  {
+   "no": 574,
    "id": 568,
    "nom": "Miamiasme",
    "types": [
     "poison"
    ],
    "zone": 9,
-   "min": 7,
-   "max": 12,
+   "min": 8,
+   "max": 13,
    "quand": "les deux"
   },
   {
-   "no": 557,
+   "no": 575,
    "id": 569,
    "nom": "Miasmax",
    "types": [
@@ -7041,7 +7350,7 @@
    "quand": "les deux"
   },
   {
-   "no": 558,
+   "no": 576,
    "id": 570,
    "nom": "Zorua",
    "types": [
@@ -7053,20 +7362,21 @@
    "quand": "les deux"
   },
   {
-   "no": 559,
+   "no": 577,
    "id": 10238,
    "nom": "Zorua de Hisui",
    "types": [
     "normal",
     "spectre"
    ],
-   "zone": 38,
-   "min": 15,
-   "max": 20,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 560,
+   "no": 578,
    "id": 571,
    "nom": "Zoroark",
    "types": [
@@ -7078,44 +7388,45 @@
    "quand": "les deux"
   },
   {
-   "no": 561,
+   "no": 579,
    "id": 10239,
    "nom": "Zoroark de Hisui",
    "types": [
     "normal",
     "spectre"
    ],
-   "zone": 37,
-   "min": 35,
-   "max": 40,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 562,
+   "no": 580,
    "id": 572,
    "nom": "Chinchidou",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 8,
-   "max": 13,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
-   "no": 563,
+   "no": 581,
    "id": 573,
    "nom": "Pashmilla",
    "types": [
     "normal"
    ],
    "zone": 37,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 564,
+   "no": 582,
    "id": 574,
    "nom": "Scrutella",
    "types": [
@@ -7127,19 +7438,19 @@
    "quand": "les deux"
   },
   {
-   "no": 565,
+   "no": 583,
    "id": 575,
    "nom": "Mesmérella",
    "types": [
     "psy"
    ],
    "zone": 39,
-   "min": 23,
-   "max": 28,
+   "min": 24,
+   "max": 29,
    "quand": "les deux"
   },
   {
-   "no": 566,
+   "no": 584,
    "id": 576,
    "nom": "Sidérella",
    "types": [
@@ -7151,7 +7462,7 @@
    "quand": "les deux"
   },
   {
-   "no": 567,
+   "no": 585,
    "id": 577,
    "nom": "Nucléos",
    "types": [
@@ -7163,19 +7474,19 @@
    "quand": "les deux"
   },
   {
-   "no": 568,
+   "no": 586,
    "id": 578,
    "nom": "Méios",
    "types": [
     "psy"
    ],
    "zone": 39,
-   "min": 23,
-   "max": 28,
+   "min": 24,
+   "max": 29,
    "quand": "les deux"
   },
   {
-   "no": 569,
+   "no": 587,
    "id": 579,
    "nom": "Symbios",
    "types": [
@@ -7187,7 +7498,7 @@
    "quand": "les deux"
   },
   {
-   "no": 570,
+   "no": 588,
    "id": 580,
    "nom": "Couaneton",
    "types": [
@@ -7200,7 +7511,7 @@
    "quand": "les deux"
   },
   {
-   "no": 571,
+   "no": 589,
    "id": 581,
    "nom": "Lakmécygne",
    "types": [
@@ -7213,19 +7524,19 @@
    "quand": "les deux"
   },
   {
-   "no": 572,
+   "no": 590,
    "id": 582,
    "nom": "Sorbébé",
    "types": [
     "glace"
    ],
    "zone": 34,
-   "min": 3,
-   "max": 8,
+   "min": 2,
+   "max": 7,
    "quand": "les deux"
   },
   {
-   "no": 573,
+   "no": 591,
    "id": 583,
    "nom": "Sorboul",
    "types": [
@@ -7237,7 +7548,7 @@
    "quand": "les deux"
   },
   {
-   "no": 574,
+   "no": 592,
    "id": 584,
    "nom": "Sorbouboul",
    "types": [
@@ -7249,7 +7560,7 @@
    "quand": "les deux"
   },
   {
-   "no": 575,
+   "no": 593,
    "id": 585,
    "nom": "Vivaldaim",
    "types": [
@@ -7262,7 +7573,7 @@
    "quand": "les deux"
   },
   {
-   "no": 576,
+   "no": 594,
    "id": 586,
    "nom": "Haydaim",
    "types": [
@@ -7275,7 +7586,7 @@
    "quand": "les deux"
   },
   {
-   "no": 577,
+   "no": 595,
    "id": 587,
    "nom": "Emolga",
    "types": [
@@ -7288,7 +7599,7 @@
    "quand": "les deux"
   },
   {
-   "no": 578,
+   "no": 596,
    "id": 588,
    "nom": "Carabing",
    "types": [
@@ -7300,7 +7611,7 @@
    "quand": "les deux"
   },
   {
-   "no": 579,
+   "no": 597,
    "id": 589,
    "nom": "Lançargot",
    "types": [
@@ -7313,7 +7624,7 @@
    "quand": "les deux"
   },
   {
-   "no": 580,
+   "no": 598,
    "id": 590,
    "nom": "Trompignon",
    "types": [
@@ -7326,7 +7637,7 @@
    "quand": "les deux"
   },
   {
-   "no": 581,
+   "no": 599,
    "id": 591,
    "nom": "Gaulet",
    "types": [
@@ -7339,7 +7650,7 @@
    "quand": "les deux"
   },
   {
-   "no": 582,
+   "no": 600,
    "id": 592,
    "nom": "Viskuse",
    "types": [
@@ -7347,12 +7658,12 @@
     "spectre"
    ],
    "zone": 32,
-   "min": 9,
-   "max": 14,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 583,
+   "no": 601,
    "id": 593,
    "nom": "Moyade",
    "types": [
@@ -7365,19 +7676,19 @@
    "quand": "les deux"
   },
   {
-   "no": 584,
+   "no": 602,
    "id": 594,
    "nom": "Mamanbo",
    "types": [
     "eau"
    ],
    "zone": 32,
-   "min": 8,
-   "max": 13,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
-   "no": 585,
+   "no": 603,
    "id": 595,
    "nom": "Statitik",
    "types": [
@@ -7390,7 +7701,7 @@
    "quand": "les deux"
   },
   {
-   "no": 586,
+   "no": 604,
    "id": 596,
    "nom": "Mygavolt",
    "types": [
@@ -7403,7 +7714,7 @@
    "quand": "les deux"
   },
   {
-   "no": 587,
+   "no": 605,
    "id": 597,
    "nom": "Grindur",
    "types": [
@@ -7416,7 +7727,7 @@
    "quand": "les deux"
   },
   {
-   "no": 588,
+   "no": 606,
    "id": 598,
    "nom": "Noacier",
    "types": [
@@ -7429,7 +7740,7 @@
    "quand": "les deux"
   },
   {
-   "no": 589,
+   "no": 607,
    "id": 599,
    "nom": "Tic",
    "types": [
@@ -7441,7 +7752,7 @@
    "quand": "les deux"
   },
   {
-   "no": 590,
+   "no": 608,
    "id": 600,
    "nom": "Clic",
    "types": [
@@ -7453,7 +7764,7 @@
    "quand": "les deux"
   },
   {
-   "no": 591,
+   "no": 609,
    "id": 601,
    "nom": "Cliticlic",
    "types": [
@@ -7465,7 +7776,7 @@
    "quand": "les deux"
   },
   {
-   "no": 592,
+   "no": 610,
    "id": 602,
    "nom": "Anchwatt",
    "types": [
@@ -7477,31 +7788,31 @@
    "quand": "les deux"
   },
   {
-   "no": 593,
+   "no": 611,
    "id": 603,
    "nom": "Lampéroie",
    "types": [
     "electrik"
    ],
    "zone": 35,
-   "min": 20,
-   "max": 25,
+   "min": 21,
+   "max": 26,
    "quand": "les deux"
   },
   {
-   "no": 594,
+   "no": 612,
    "id": 604,
    "nom": "Ohmassacre",
    "types": [
     "electrik"
    ],
    "zone": 104,
-   "min": 44,
-   "max": 49,
+   "min": 45,
+   "max": 50,
    "quand": "les deux"
   },
   {
-   "no": 595,
+   "no": 613,
    "id": 605,
    "nom": "Lewsor",
    "types": [
@@ -7513,19 +7824,19 @@
    "quand": "les deux"
   },
   {
-   "no": 596,
+   "no": 614,
    "id": 606,
    "nom": "Neitram",
    "types": [
     "psy"
    ],
    "zone": 39,
-   "min": 24,
-   "max": 29,
+   "min": 25,
+   "max": 30,
    "quand": "les deux"
   },
   {
-   "no": 597,
+   "no": 615,
    "id": 607,
    "nom": "Funécire",
    "types": [
@@ -7538,7 +7849,7 @@
    "quand": "les deux"
   },
   {
-   "no": 598,
+   "no": 616,
    "id": 608,
    "nom": "Mélancolux",
    "types": [
@@ -7551,7 +7862,7 @@
    "quand": "les deux"
   },
   {
-   "no": 599,
+   "no": 617,
    "id": 609,
    "nom": "Lugulabre",
    "types": [
@@ -7559,12 +7870,12 @@
     "feu"
    ],
    "zone": 105,
-   "min": 46,
-   "max": 51,
+   "min": 47,
+   "max": 52,
    "quand": "les deux"
   },
   {
-   "no": 600,
+   "no": 618,
    "id": 610,
    "nom": "Coupenotte",
    "types": [
@@ -7576,7 +7887,7 @@
    "quand": "les deux"
   },
   {
-   "no": 601,
+   "no": 619,
    "id": 611,
    "nom": "Incisache",
    "types": [
@@ -7588,7 +7899,7 @@
    "quand": "les deux"
   },
   {
-   "no": 602,
+   "no": 620,
    "id": 612,
    "nom": "Tranchodon",
    "types": [
@@ -7600,19 +7911,19 @@
    "quand": "les deux"
   },
   {
-   "no": 603,
+   "no": 621,
    "id": 613,
    "nom": "Polarhume",
    "types": [
     "glace"
    ],
    "zone": 34,
-   "min": 3,
-   "max": 8,
+   "min": 2,
+   "max": 7,
    "quand": "les deux"
   },
   {
-   "no": 604,
+   "no": 622,
    "id": 614,
    "nom": "Polagriffe",
    "types": [
@@ -7624,7 +7935,7 @@
    "quand": "les deux"
   },
   {
-   "no": 605,
+   "no": 623,
    "id": 615,
    "nom": "Hexagel",
    "types": [
@@ -7636,7 +7947,7 @@
    "quand": "les deux"
   },
   {
-   "no": 606,
+   "no": 624,
    "id": 616,
    "nom": "Escargaume",
    "types": [
@@ -7648,7 +7959,7 @@
    "quand": "les deux"
   },
   {
-   "no": 607,
+   "no": 625,
    "id": 617,
    "nom": "Limaspeed",
    "types": [
@@ -7660,7 +7971,7 @@
    "quand": "les deux"
   },
   {
-   "no": 608,
+   "no": 626,
    "id": 618,
    "nom": "Limonde",
    "types": [
@@ -7673,20 +7984,21 @@
    "quand": "les deux"
   },
   {
-   "no": 609,
+   "no": 627,
    "id": 10180,
    "nom": "Limonde de Galar",
    "types": [
     "sol",
     "acier"
    ],
-   "zone": 39,
-   "min": 28,
-   "max": 33,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 610,
+   "no": 628,
    "id": 619,
    "nom": "Kungfouine",
    "types": [
@@ -7698,19 +8010,19 @@
    "quand": "les deux"
   },
   {
-   "no": 611,
+   "no": 629,
    "id": 620,
    "nom": "Shaofouine",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 22,
-   "max": 27,
+   "min": 23,
+   "max": 28,
    "quand": "les deux"
   },
   {
-   "no": 612,
+   "no": 630,
    "id": 621,
    "nom": "Drakkarmin",
    "types": [
@@ -7722,7 +8034,7 @@
    "quand": "les deux"
   },
   {
-   "no": 613,
+   "no": 631,
    "id": 622,
    "nom": "Gringolem",
    "types": [
@@ -7735,7 +8047,7 @@
    "quand": "les deux"
   },
   {
-   "no": 614,
+   "no": 632,
    "id": 623,
    "nom": "Golemastoc",
    "types": [
@@ -7748,7 +8060,7 @@
    "quand": "les deux"
   },
   {
-   "no": 615,
+   "no": 633,
    "id": 624,
    "nom": "Scalpion",
    "types": [
@@ -7761,7 +8073,7 @@
    "quand": "les deux"
   },
   {
-   "no": 616,
+   "no": 634,
    "id": 625,
    "nom": "Scalproie",
    "types": [
@@ -7769,12 +8081,12 @@
     "acier"
    ],
    "zone": 35,
-   "min": 24,
-   "max": 29,
+   "min": 25,
+   "max": 30,
    "quand": "les deux"
   },
   {
-   "no": 617,
+   "no": 635,
    "id": 626,
    "nom": "Frison",
    "types": [
@@ -7786,7 +8098,7 @@
    "quand": "les deux"
   },
   {
-   "no": 618,
+   "no": 636,
    "id": 627,
    "nom": "Furaiglon",
    "types": [
@@ -7799,7 +8111,7 @@
    "quand": "les deux"
   },
   {
-   "no": 619,
+   "no": 637,
    "id": 628,
    "nom": "Gueriaigle",
    "types": [
@@ -7812,20 +8124,21 @@
    "quand": "les deux"
   },
   {
-   "no": 620,
+   "no": 638,
    "id": 10240,
    "nom": "Gueriaigle de Hisui",
    "types": [
     "psy",
     "vol"
    ],
-   "zone": 35,
-   "min": 35,
-   "max": 40,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 621,
+   "no": 639,
    "id": 629,
    "nom": "Vostourno",
    "types": [
@@ -7838,7 +8151,7 @@
    "quand": "les deux"
   },
   {
-   "no": 622,
+   "no": 640,
    "id": 630,
    "nom": "Vaututrice",
    "types": [
@@ -7846,12 +8159,12 @@
     "vol"
    ],
    "zone": 33,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 623,
+   "no": 641,
    "id": 631,
    "nom": "Aflamanoir",
    "types": [
@@ -7863,7 +8176,7 @@
    "quand": "les deux"
   },
   {
-   "no": 624,
+   "no": 642,
    "id": 632,
    "nom": "Fermite",
    "types": [
@@ -7876,7 +8189,7 @@
    "quand": "les deux"
   },
   {
-   "no": 625,
+   "no": 643,
    "id": 633,
    "nom": "Solochi",
    "types": [
@@ -7889,7 +8202,7 @@
    "quand": "les deux"
   },
   {
-   "no": 626,
+   "no": 644,
    "id": 634,
    "nom": "Diamat",
    "types": [
@@ -7902,7 +8215,7 @@
    "quand": "les deux"
   },
   {
-   "no": 627,
+   "no": 645,
    "id": 635,
    "nom": "Trioxhydre",
    "types": [
@@ -7910,12 +8223,12 @@
     "dragon"
    ],
    "zone": 105,
-   "min": 41,
-   "max": 46,
+   "min": 42,
+   "max": 47,
    "quand": "les deux"
   },
   {
-   "no": 628,
+   "no": 646,
    "id": 636,
    "nom": "Pyronille",
    "types": [
@@ -7923,12 +8236,12 @@
     "feu"
    ],
    "zone": 38,
-   "min": 11,
-   "max": 16,
+   "min": 12,
+   "max": 17,
    "quand": "les deux"
   },
   {
-   "no": 629,
+   "no": 647,
    "id": 637,
    "nom": "Pyrax",
    "types": [
@@ -7941,7 +8254,7 @@
    "quand": "les deux"
   },
   {
-   "no": 630,
+   "no": 648,
    "id": 650,
    "nom": "Marisson",
    "types": [
@@ -7953,7 +8266,7 @@
    "quand": "les deux"
   },
   {
-   "no": 631,
+   "no": 649,
    "id": 651,
    "nom": "Boguérisse",
    "types": [
@@ -7965,7 +8278,7 @@
    "quand": "les deux"
   },
   {
-   "no": 632,
+   "no": 650,
    "id": 652,
    "nom": "Blindépique",
    "types": [
@@ -7973,12 +8286,12 @@
     "combat"
    ],
    "zone": 102,
-   "min": 42,
-   "max": 47,
+   "min": 41,
+   "max": 46,
    "quand": "les deux"
   },
   {
-   "no": 633,
+   "no": 651,
    "id": 653,
    "nom": "Feunnec",
    "types": [
@@ -7990,7 +8303,7 @@
    "quand": "les deux"
   },
   {
-   "no": 634,
+   "no": 652,
    "id": 654,
    "nom": "Roussil",
    "types": [
@@ -8002,7 +8315,7 @@
    "quand": "les deux"
   },
   {
-   "no": 635,
+   "no": 653,
    "id": 655,
    "nom": "Goupelin",
    "types": [
@@ -8015,19 +8328,19 @@
    "quand": "les deux"
   },
   {
-   "no": 636,
+   "no": 654,
    "id": 656,
    "nom": "Grenousse",
    "types": [
     "eau"
    ],
    "zone": 32,
-   "min": 13,
-   "max": 18,
+   "min": 12,
+   "max": 17,
    "quand": "les deux"
   },
   {
-   "no": 637,
+   "no": 655,
    "id": 657,
    "nom": "Croâporal",
    "types": [
@@ -8039,7 +8352,7 @@
    "quand": "les deux"
   },
   {
-   "no": 638,
+   "no": 656,
    "id": 658,
    "nom": "Amphinobi",
    "types": [
@@ -8052,7 +8365,7 @@
    "quand": "les deux"
   },
   {
-   "no": 639,
+   "no": 657,
    "id": 659,
    "nom": "Sapereau",
    "types": [
@@ -8064,7 +8377,7 @@
    "quand": "les deux"
   },
   {
-   "no": 640,
+   "no": 658,
    "id": 660,
    "nom": "Excavarenne",
    "types": [
@@ -8077,7 +8390,7 @@
    "quand": "les deux"
   },
   {
-   "no": 641,
+   "no": 659,
    "id": 661,
    "nom": "Passerouge",
    "types": [
@@ -8085,12 +8398,12 @@
     "vol"
    ],
    "zone": 38,
-   "min": 2,
-   "max": 7,
+   "min": 3,
+   "max": 8,
    "quand": "les deux"
   },
   {
-   "no": 642,
+   "no": 660,
    "id": 662,
    "nom": "Braisillon",
    "types": [
@@ -8103,7 +8416,7 @@
    "quand": "les deux"
   },
   {
-   "no": 643,
+   "no": 661,
    "id": 663,
    "nom": "Flambusard",
    "types": [
@@ -8116,7 +8429,7 @@
    "quand": "les deux"
   },
   {
-   "no": 644,
+   "no": 662,
    "id": 664,
    "nom": "Lépidonille",
    "types": [
@@ -8128,7 +8441,7 @@
    "quand": "les deux"
   },
   {
-   "no": 645,
+   "no": 663,
    "id": 665,
    "nom": "Pérégrain",
    "types": [
@@ -8140,7 +8453,7 @@
    "quand": "les deux"
   },
   {
-   "no": 646,
+   "no": 664,
    "id": 666,
    "nom": "Prismillon",
    "types": [
@@ -8148,12 +8461,12 @@
     "vol"
    ],
    "zone": 46,
-   "min": 46,
-   "max": 51,
+   "min": 47,
+   "max": 52,
    "quand": "les deux"
   },
   {
-   "no": 647,
+   "no": 665,
    "id": 667,
    "nom": "Hélionceau",
    "types": [
@@ -8166,7 +8479,7 @@
    "quand": "les deux"
   },
   {
-   "no": 648,
+   "no": 666,
    "id": 668,
    "nom": "Némélios",
    "types": [
@@ -8179,7 +8492,7 @@
    "quand": "les deux"
   },
   {
-   "no": 649,
+   "no": 667,
    "id": 669,
    "nom": "Flabébé",
    "types": [
@@ -8191,19 +8504,19 @@
    "quand": "les deux"
   },
   {
-   "no": 650,
+   "no": 668,
    "id": 670,
    "nom": "Floette",
    "types": [
     "fee"
    ],
    "zone": 35,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
-   "no": 651,
+   "no": 669,
    "id": 671,
    "nom": "Florges",
    "types": [
@@ -8215,7 +8528,7 @@
    "quand": "les deux"
   },
   {
-   "no": 652,
+   "no": 670,
    "id": 672,
    "nom": "Cabriolaine",
    "types": [
@@ -8227,7 +8540,7 @@
    "quand": "les deux"
   },
   {
-   "no": 653,
+   "no": 671,
    "id": 673,
    "nom": "Chevroum",
    "types": [
@@ -8239,19 +8552,19 @@
    "quand": "les deux"
   },
   {
-   "no": 654,
+   "no": 672,
    "id": 674,
    "nom": "Pandespiègle",
    "types": [
     "combat"
    ],
    "zone": 38,
-   "min": 13,
-   "max": 18,
+   "min": 14,
+   "max": 19,
    "quand": "les deux"
   },
   {
-   "no": 655,
+   "no": 673,
    "id": 675,
    "nom": "Pandarbare",
    "types": [
@@ -8259,12 +8572,12 @@
     "tenebres"
    ],
    "zone": 39,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 656,
+   "no": 674,
    "id": 676,
    "nom": "Couafarel",
    "types": [
@@ -8276,7 +8589,7 @@
    "quand": "les deux"
   },
   {
-   "no": 657,
+   "no": 675,
    "id": 677,
    "nom": "Psystigri",
    "types": [
@@ -8288,19 +8601,19 @@
    "quand": "les deux"
   },
   {
-   "no": 658,
+   "no": 676,
    "id": 678,
    "nom": "Mistigrix",
    "types": [
     "psy"
    ],
    "zone": 39,
-   "min": 24,
-   "max": 29,
+   "min": 25,
+   "max": 30,
    "quand": "les deux"
   },
   {
-   "no": 659,
+   "no": 677,
    "id": 679,
    "nom": "Monorpale",
    "types": [
@@ -8313,7 +8626,7 @@
    "quand": "les deux"
   },
   {
-   "no": 660,
+   "no": 678,
    "id": 680,
    "nom": "Dimoclès",
    "types": [
@@ -8326,7 +8639,7 @@
    "quand": "les deux"
   },
   {
-   "no": 661,
+   "no": 679,
    "id": 681,
    "nom": "Exagide",
    "types": [
@@ -8334,12 +8647,12 @@
     "spectre"
    ],
    "zone": 103,
-   "min": 42,
-   "max": 47,
+   "min": 43,
+   "max": 48,
    "quand": "les deux"
   },
   {
-   "no": 662,
+   "no": 680,
    "id": 682,
    "nom": "Fluvetin",
    "types": [
@@ -8351,19 +8664,19 @@
    "quand": "les deux"
   },
   {
-   "no": 663,
+   "no": 681,
    "id": 683,
    "nom": "Cocotine",
    "types": [
     "fee"
    ],
    "zone": 39,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
-   "no": 664,
+   "no": 682,
    "id": 684,
    "nom": "Sucroquin",
    "types": [
@@ -8375,19 +8688,19 @@
    "quand": "les deux"
   },
   {
-   "no": 665,
+   "no": 683,
    "id": 685,
    "nom": "Cupcanaille",
    "types": [
     "fee"
    ],
    "zone": 39,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
-   "no": 666,
+   "no": 684,
    "id": 686,
    "nom": "Sepiatop",
    "types": [
@@ -8400,7 +8713,7 @@
    "quand": "les deux"
   },
   {
-   "no": 667,
+   "no": 685,
    "id": 687,
    "nom": "Sepiatroce",
    "types": [
@@ -8408,12 +8721,12 @@
     "psy"
    ],
    "zone": 39,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 668,
+   "no": 686,
    "id": 688,
    "nom": "Opermine",
    "types": [
@@ -8426,7 +8739,7 @@
    "quand": "les deux"
   },
   {
-   "no": 669,
+   "no": 687,
    "id": 689,
    "nom": "Golgopathe",
    "types": [
@@ -8439,7 +8752,7 @@
    "quand": "les deux"
   },
   {
-   "no": 670,
+   "no": 688,
    "id": 690,
    "nom": "Venalgue",
    "types": [
@@ -8452,7 +8765,7 @@
    "quand": "les deux"
   },
   {
-   "no": 671,
+   "no": 689,
    "id": 691,
    "nom": "Kravarech",
    "types": [
@@ -8465,7 +8778,7 @@
    "quand": "les deux"
   },
   {
-   "no": 672,
+   "no": 690,
    "id": 692,
    "nom": "Flingouste",
    "types": [
@@ -8477,7 +8790,7 @@
    "quand": "les deux"
   },
   {
-   "no": 673,
+   "no": 691,
    "id": 693,
    "nom": "Gamblast",
    "types": [
@@ -8489,7 +8802,7 @@
    "quand": "les deux"
   },
   {
-   "no": 674,
+   "no": 692,
    "id": 694,
    "nom": "Galvaran",
    "types": [
@@ -8502,7 +8815,7 @@
    "quand": "les deux"
   },
   {
-   "no": 675,
+   "no": 693,
    "id": 695,
    "nom": "Iguolta",
    "types": [
@@ -8515,19 +8828,79 @@
    "quand": "les deux"
   },
   {
-   "no": 676,
+   "no": 694,
+   "id": 696,
+   "nom": "Ptyranidur",
+   "types": [
+    "roche",
+    "dragon"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "machoire"
+  },
+  {
+   "no": 695,
+   "id": 697,
+   "nom": "Rexillius",
+   "types": [
+    "roche",
+    "dragon"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 696
+  },
+  {
+   "no": 696,
+   "id": 698,
+   "nom": "Amagara",
+   "types": [
+    "roche",
+    "glace"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "fossile",
+   "fossile": "nageoire"
+  },
+  {
+   "no": 697,
+   "id": 699,
+   "nom": "Dragmara",
+   "types": [
+    "roche",
+    "glace"
+   ],
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "evolution",
+   "de": 698
+  },
+  {
+   "no": 698,
    "id": 700,
    "nom": "Nymphali",
    "types": [
     "fee"
    ],
    "zone": 46,
-   "min": 44,
-   "max": 49,
+   "min": 45,
+   "max": 50,
    "quand": "les deux"
   },
   {
-   "no": 677,
+   "no": 699,
    "id": 701,
    "nom": "Brutalibré",
    "types": [
@@ -8540,7 +8913,7 @@
    "quand": "les deux"
   },
   {
-   "no": 678,
+   "no": 700,
    "id": 702,
    "nom": "Dedenne",
    "types": [
@@ -8553,7 +8926,7 @@
    "quand": "les deux"
   },
   {
-   "no": 679,
+   "no": 701,
    "id": 703,
    "nom": "Strassie",
    "types": [
@@ -8566,19 +8939,19 @@
    "quand": "les deux"
   },
   {
-   "no": 680,
+   "no": 702,
    "id": 704,
    "nom": "Mucuscule",
    "types": [
     "dragon"
    ],
    "zone": 34,
-   "min": 12,
-   "max": 17,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
-   "no": 681,
+   "no": 703,
    "id": 705,
    "nom": "Colimucus",
    "types": [
@@ -8590,45 +8963,47 @@
    "quand": "les deux"
   },
   {
-   "no": 682,
+   "no": 704,
    "id": 10241,
    "nom": "Colimucus de Hisui",
    "types": [
     "acier",
     "dragon"
    ],
-   "zone": 33,
-   "min": 35,
-   "max": 40,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 683,
+   "no": 705,
    "id": 706,
    "nom": "Muplodocus",
    "types": [
     "dragon"
    ],
    "zone": 103,
-   "min": 45,
-   "max": 50,
+   "min": 46,
+   "max": 51,
    "quand": "les deux"
   },
   {
-   "no": 684,
+   "no": 706,
    "id": 10242,
    "nom": "Muplodocus de Hisui",
    "types": [
     "acier",
     "dragon"
    ],
-   "zone": 103,
-   "min": 50,
-   "max": 55,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 685,
+   "no": 707,
    "id": 707,
    "nom": "Trousselin",
    "types": [
@@ -8641,7 +9016,7 @@
    "quand": "les deux"
   },
   {
-   "no": 686,
+   "no": 708,
    "id": 708,
    "nom": "Brocélôme",
    "types": [
@@ -8654,7 +9029,7 @@
    "quand": "les deux"
   },
   {
-   "no": 687,
+   "no": 709,
    "id": 709,
    "nom": "Desséliande",
    "types": [
@@ -8667,7 +9042,7 @@
    "quand": "les deux"
   },
   {
-   "no": 688,
+   "no": 710,
    "id": 710,
    "nom": "Pitrouille",
    "types": [
@@ -8680,7 +9055,7 @@
    "quand": "les deux"
   },
   {
-   "no": 689,
+   "no": 711,
    "id": 711,
    "nom": "Banshitrouye",
    "types": [
@@ -8693,7 +9068,7 @@
    "quand": "les deux"
   },
   {
-   "no": 690,
+   "no": 712,
    "id": 712,
    "nom": "Grelaçon",
    "types": [
@@ -8705,7 +9080,7 @@
    "quand": "les deux"
   },
   {
-   "no": 691,
+   "no": 713,
    "id": 713,
    "nom": "Séracrawl",
    "types": [
@@ -8717,20 +9092,21 @@
    "quand": "les deux"
   },
   {
-   "no": 692,
+   "no": 714,
    "id": 10243,
    "nom": "Séracrawl de Hisui",
    "types": [
     "glace",
     "roche"
    ],
-   "zone": 37,
-   "min": 35,
-   "max": 40,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 693,
+   "no": 715,
    "id": 714,
    "nom": "Sonistrelle",
    "types": [
@@ -8738,12 +9114,12 @@
     "dragon"
    ],
    "zone": 34,
-   "min": 11,
-   "max": 16,
+   "min": 12,
+   "max": 17,
    "quand": "les deux"
   },
   {
-   "no": 694,
+   "no": 716,
    "id": 715,
    "nom": "Bruyverne",
    "types": [
@@ -8756,7 +9132,7 @@
    "quand": "les deux"
   },
   {
-   "no": 695,
+   "no": 717,
    "id": 722,
    "nom": "Brindibou",
    "types": [
@@ -8769,7 +9145,7 @@
    "quand": "les deux"
   },
   {
-   "no": 696,
+   "no": 718,
    "id": 723,
    "nom": "Efflèche",
    "types": [
@@ -8782,7 +9158,7 @@
    "quand": "les deux"
   },
   {
-   "no": 697,
+   "no": 719,
    "id": 724,
    "nom": "Archéduc",
    "types": [
@@ -8795,20 +9171,21 @@
    "quand": "les deux"
   },
   {
-   "no": 698,
+   "no": 720,
    "id": 10244,
    "nom": "Archéduc de Hisui",
    "types": [
     "plante",
     "combat"
    ],
-   "zone": 46,
-   "min": 50,
-   "max": 55,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 699,
+   "no": 721,
    "id": 725,
    "nom": "Flamiaou",
    "types": [
@@ -8820,7 +9197,7 @@
    "quand": "les deux"
   },
   {
-   "no": 700,
+   "no": 722,
    "id": 726,
    "nom": "Matoufeu",
    "types": [
@@ -8832,7 +9209,7 @@
    "quand": "les deux"
   },
   {
-   "no": 701,
+   "no": 723,
    "id": 727,
    "nom": "Félinferno",
    "types": [
@@ -8845,7 +9222,7 @@
    "quand": "les deux"
   },
   {
-   "no": 702,
+   "no": 724,
    "id": 728,
    "nom": "Otaquin",
    "types": [
@@ -8857,7 +9234,7 @@
    "quand": "les deux"
   },
   {
-   "no": 703,
+   "no": 725,
    "id": 729,
    "nom": "Otarlette",
    "types": [
@@ -8869,7 +9246,7 @@
    "quand": "les deux"
   },
   {
-   "no": 704,
+   "no": 726,
    "id": 730,
    "nom": "Oratoria",
    "types": [
@@ -8877,12 +9254,12 @@
     "fee"
    ],
    "zone": 104,
-   "min": 48,
-   "max": 53,
+   "min": 49,
+   "max": 54,
    "quand": "les deux"
   },
   {
-   "no": 705,
+   "no": 727,
    "id": 731,
    "nom": "Picassaut",
    "types": [
@@ -8895,7 +9272,7 @@
    "quand": "les deux"
   },
   {
-   "no": 706,
+   "no": 728,
    "id": 732,
    "nom": "Piclairon",
    "types": [
@@ -8908,7 +9285,7 @@
    "quand": "les deux"
   },
   {
-   "no": 707,
+   "no": 729,
    "id": 733,
    "nom": "Bazoucan",
    "types": [
@@ -8921,19 +9298,19 @@
    "quand": "les deux"
   },
   {
-   "no": 708,
+   "no": 730,
    "id": 734,
    "nom": "Manglouton",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 9,
-   "max": 14,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 709,
+   "no": 731,
    "id": 735,
    "nom": "Argouste",
    "types": [
@@ -8945,7 +9322,7 @@
    "quand": "les deux"
   },
   {
-   "no": 710,
+   "no": 732,
    "id": 736,
    "nom": "Larvibule",
    "types": [
@@ -8957,7 +9334,7 @@
    "quand": "les deux"
   },
   {
-   "no": 711,
+   "no": 733,
    "id": 737,
    "nom": "Chrysapile",
    "types": [
@@ -8965,12 +9342,12 @@
     "electrik"
    ],
    "zone": 34,
-   "min": 5,
-   "max": 10,
+   "min": 4,
+   "max": 9,
    "quand": "les deux"
   },
   {
-   "no": 712,
+   "no": 734,
    "id": 738,
    "nom": "Lucanon",
    "types": [
@@ -8983,7 +9360,7 @@
    "quand": "les deux"
   },
   {
-   "no": 713,
+   "no": 735,
    "id": 739,
    "nom": "Crabagarre",
    "types": [
@@ -8995,7 +9372,7 @@
    "quand": "les deux"
   },
   {
-   "no": 714,
+   "no": 736,
    "id": 740,
    "nom": "Crabominable",
    "types": [
@@ -9008,7 +9385,7 @@
    "quand": "les deux"
   },
   {
-   "no": 715,
+   "no": 737,
    "id": 741,
    "nom": "Plumeline Flamenco",
    "types": [
@@ -9021,46 +9398,49 @@
    "quand": "les deux"
   },
   {
-   "no": 716,
+   "no": 738,
    "id": 10123,
    "nom": "Plumeline Pom-Pom",
    "types": [
     "electrik",
     "vol"
    ],
-   "zone": 32,
-   "min": 10,
-   "max": 15,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 717,
+   "no": 739,
    "id": 10124,
    "nom": "Plumeline Hula",
    "types": [
     "psy",
     "vol"
    ],
-   "zone": 32,
-   "min": 10,
-   "max": 15,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 718,
+   "no": 740,
    "id": 10125,
    "nom": "Plumeline Buyō",
    "types": [
     "spectre",
     "vol"
    ],
-   "zone": 32,
-   "min": 10,
-   "max": 15,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 719,
+   "no": 741,
    "id": 742,
    "nom": "Bombydou",
    "types": [
@@ -9068,12 +9448,12 @@
     "fee"
    ],
    "zone": 100,
-   "min": 8,
-   "max": 13,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
-   "no": 720,
+   "no": 742,
    "id": 743,
    "nom": "Rubombelle",
    "types": [
@@ -9081,12 +9461,12 @@
     "fee"
    ],
    "zone": 35,
-   "min": 27,
-   "max": 32,
+   "min": 28,
+   "max": 33,
    "quand": "les deux"
   },
   {
-   "no": 721,
+   "no": 743,
    "id": 744,
    "nom": "Rocabot",
    "types": [
@@ -9098,7 +9478,7 @@
    "quand": "les deux"
   },
   {
-   "no": 722,
+   "no": 744,
    "id": 745,
    "nom": "Lougaroc Diurne",
    "types": [
@@ -9110,31 +9490,33 @@
    "quand": "les deux"
   },
   {
-   "no": 723,
+   "no": 745,
    "id": 10126,
    "nom": "Lougaroc Nocturne",
    "types": [
     "roche"
    ],
-   "zone": 37,
-   "min": 30,
-   "max": 35,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 724,
+   "no": 746,
    "id": 10152,
    "nom": "Lougaroc Crépusculaire",
    "types": [
     "roche"
    ],
-   "zone": 102,
-   "min": 38,
-   "max": 43,
-   "quand": "les deux"
+   "zone": null,
+   "min": null,
+   "max": null,
+   "quand": null,
+   "origine": "breche"
   },
   {
-   "no": 725,
+   "no": 747,
    "id": 746,
    "nom": "Froussardine",
    "types": [
@@ -9146,7 +9528,7 @@
    "quand": "les deux"
   },
   {
-   "no": 726,
+   "no": 748,
    "id": 747,
    "nom": "Vorastérie",
    "types": [
@@ -9154,12 +9536,12 @@
     "eau"
    ],
    "zone": 32,
-   "min": 2,
-   "max": 7,
+   "min": 3,
+   "max": 8,
    "quand": "les deux"
   },
   {
-   "no": 727,
+   "no": 749,
    "id": 748,
    "nom": "Prédastérie",
    "types": [
@@ -9172,7 +9554,7 @@
    "quand": "les deux"
   },
   {
-   "no": 728,
+   "no": 750,
    "id": 749,
    "nom": "Tiboudet",
    "types": [
@@ -9184,19 +9566,19 @@
    "quand": "les deux"
   },
   {
-   "no": 729,
+   "no": 751,
    "id": 750,
    "nom": "Bourrinos",
    "types": [
     "sol"
    ],
    "zone": 37,
-   "min": 30,
-   "max": 35,
+   "min": 31,
+   "max": 36,
    "quand": "les deux"
   },
   {
-   "no": 730,
+   "no": 752,
    "id": 751,
    "nom": "Araqua",
    "types": [
@@ -9209,7 +9591,7 @@
    "quand": "les deux"
   },
   {
-   "no": 731,
+   "no": 753,
    "id": 752,
    "nom": "Tarenbulle",
    "types": [
@@ -9222,7 +9604,7 @@
    "quand": "les deux"
   },
   {
-   "no": 732,
+   "no": 754,
    "id": 753,
    "nom": "Mimantis",
    "types": [
@@ -9234,7 +9616,7 @@
    "quand": "les deux"
   },
   {
-   "no": 733,
+   "no": 755,
    "id": 754,
    "nom": "Floramantis",
    "types": [
@@ -9246,7 +9628,7 @@
    "quand": "les deux"
   },
   {
-   "no": 734,
+   "no": 756,
    "id": 755,
    "nom": "Spododo",
    "types": [
@@ -9254,12 +9636,12 @@
     "fee"
    ],
    "zone": 100,
-   "min": 8,
-   "max": 13,
+   "min": 9,
+   "max": 14,
    "quand": "les deux"
   },
   {
-   "no": 735,
+   "no": 757,
    "id": 756,
    "nom": "Lampignon",
    "types": [
@@ -9272,7 +9654,7 @@
    "quand": "les deux"
   },
   {
-   "no": 736,
+   "no": 758,
    "id": 757,
    "nom": "Tritox",
    "types": [
@@ -9285,7 +9667,7 @@
    "quand": "les deux"
   },
   {
-   "no": 737,
+   "no": 759,
    "id": 758,
    "nom": "Malamandre",
    "types": [
@@ -9298,7 +9680,7 @@
    "quand": "les deux"
   },
   {
-   "no": 738,
+   "no": 760,
    "id": 759,
    "nom": "Nounourson",
    "types": [
@@ -9306,12 +9688,12 @@
     "combat"
    ],
    "zone": 100,
-   "min": 9,
-   "max": 14,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 739,
+   "no": 761,
    "id": 760,
    "nom": "Chelours",
    "types": [
@@ -9319,12 +9701,12 @@
     "combat"
    ],
    "zone": 39,
-   "min": 19,
-   "max": 24,
+   "min": 20,
+   "max": 25,
    "quand": "les deux"
   },
   {
-   "no": 740,
+   "no": 762,
    "id": 761,
    "nom": "Croquine",
    "types": [
@@ -9336,7 +9718,7 @@
    "quand": "les deux"
   },
   {
-   "no": 741,
+   "no": 763,
    "id": 762,
    "nom": "Candine",
    "types": [
@@ -9348,7 +9730,7 @@
    "quand": "les deux"
   },
   {
-   "no": 742,
+   "no": 764,
    "id": 763,
    "nom": "Sucreine",
    "types": [
@@ -9360,7 +9742,7 @@
    "quand": "les deux"
   },
   {
-   "no": 743,
+   "no": 765,
    "id": 764,
    "nom": "Guérilande",
    "types": [
@@ -9372,7 +9754,7 @@
    "quand": "les deux"
   },
   {
-   "no": 744,
+   "no": 766,
    "id": 765,
    "nom": "Gouroutan",
    "types": [
@@ -9385,7 +9767,7 @@
    "quand": "les deux"
   },
   {
-   "no": 745,
+   "no": 767,
    "id": 766,
    "nom": "Quartermac",
    "types": [
@@ -9397,7 +9779,7 @@
    "quand": "les deux"
   },
   {
-   "no": 746,
+   "no": 768,
    "id": 767,
    "nom": "Sovkipou",
    "types": [
@@ -9410,7 +9792,7 @@
    "quand": "les deux"
   },
   {
-   "no": 747,
+   "no": 769,
    "id": 768,
    "nom": "Sarmuraï",
    "types": [
@@ -9423,7 +9805,7 @@
    "quand": "les deux"
   },
   {
-   "no": 748,
+   "no": 770,
    "id": 769,
    "nom": "Bacabouh",
    "types": [
@@ -9436,7 +9818,7 @@
    "quand": "les deux"
   },
   {
-   "no": 749,
+   "no": 771,
    "id": 770,
    "nom": "Trépassable",
    "types": [
@@ -9449,7 +9831,7 @@
    "quand": "les deux"
   },
   {
-   "no": 750,
+   "no": 772,
    "id": 771,
    "nom": "Concombaffe",
    "types": [
@@ -9461,7 +9843,7 @@
    "quand": "les deux"
   },
   {
-   "no": 751,
+   "no": 773,
    "id": 774,
    "nom": "Météno",
    "types": [
@@ -9474,19 +9856,19 @@
    "quand": "les deux"
   },
   {
-   "no": 752,
+   "no": 774,
    "id": 775,
    "nom": "Dodoala",
    "types": [
     "normal"
    ],
    "zone": 38,
-   "min": 9,
-   "max": 14,
+   "min": 10,
+   "max": 15,
    "quand": "les deux"
   },
   {
-   "no": 753,
+   "no": 775,
    "id": 776,
    "nom": "Boumata",
    "types": [
@@ -9499,7 +9881,7 @@
    "quand": "les deux"
   },
   {
-   "no": 754,
+   "no": 776,
    "id": 777,
    "nom": "Togedemaru",
    "types": [
@@ -9512,7 +9894,7 @@
    "quand": "les deux"
   },
   {
-   "no": 755,
+   "no": 777,
    "id": 778,
    "nom": "Mimiqui",
    "types": [
@@ -9525,7 +9907,7 @@
    "quand": "les deux"
   },
   {
-   "no": 756,
+   "no": 778,
    "id": 779,
    "nom": "Denticrisse",
    "types": [
@@ -9538,7 +9920,7 @@
    "quand": "les deux"
   },
   {
-   "no": 757,
+   "no": 779,
    "id": 780,
    "nom": "Draïeul",
    "types": [
@@ -9551,7 +9933,7 @@
    "quand": "les deux"
   },
   {
-   "no": 758,
+   "no": 780,
    "id": 781,
    "nom": "Sinistrail",
    "types": [
@@ -9564,7 +9946,7 @@
    "quand": "les deux"
   },
   {
-   "no": 759,
+   "no": 781,
    "id": 782,
    "nom": "Bébécaille",
    "types": [
@@ -9576,7 +9958,7 @@
    "quand": "les deux"
   },
   {
-   "no": 760,
+   "no": 782,
    "id": 783,
    "nom": "Écaïd",
    "types": [
@@ -9589,7 +9971,7 @@
    "quand": "les deux"
   },
   {
-   "no": 761,
+   "no": 783,
    "id": 784,
    "nom": "Ékaïser",
    "types": [
@@ -9597,12 +9979,12 @@
     "combat"
    ],
    "zone": 105,
-   "min": 45,
-   "max": 50,
+   "min": 46,
+   "max": 51,
    "quand": "les deux"
   },
   {
-   "no": 762,
+   "no": 784,
    "id": 810,
    "nom": "Ouistempo",
    "types": [
@@ -9614,19 +9996,19 @@
    "quand": "les deux"
   },
   {
-   "no": 763,
+   "no": 785,
    "id": 811,
    "nom": "Badabouin",
    "types": [
     "plante"
    ],
    "zone": 31,
-   "min": 30,
-   "max": 35,
+   "min": 31,
+   "max": 36,
    "quand": "les deux"
   },
   {
-   "no": 764,
+   "no": 786,
    "id": 812,
    "nom": "Gorythmic",
    "types": [
@@ -9638,7 +10020,7 @@
    "quand": "les deux"
   },
   {
-   "no": 765,
+   "no": 787,
    "id": 813,
    "nom": "Flambino",
    "types": [
@@ -9650,19 +10032,19 @@
    "quand": "les deux"
   },
   {
-   "no": 766,
+   "no": 788,
    "id": 814,
    "nom": "Lapyro",
    "types": [
     "feu"
    ],
    "zone": 39,
-   "min": 30,
-   "max": 35,
+   "min": 31,
+   "max": 36,
    "quand": "les deux"
   },
   {
-   "no": 767,
+   "no": 789,
    "id": 815,
    "nom": "Pyrobut",
    "types": [
@@ -9674,7 +10056,7 @@
    "quand": "les deux"
   },
   {
-   "no": 768,
+   "no": 790,
    "id": 816,
    "nom": "Larméléon",
    "types": [
@@ -9686,19 +10068,19 @@
    "quand": "les deux"
   },
   {
-   "no": 769,
+   "no": 791,
    "id": 817,
    "nom": "Arrozard",
    "types": [
     "eau"
    ],
    "zone": 101,
-   "min": 31,
-   "max": 36,
+   "min": 30,
+   "max": 35,
    "quand": "les deux"
   },
   {
-   "no": 770,
+   "no": 792,
    "id": 818,
    "nom": "Lézargus",
    "types": [
@@ -9710,7 +10092,7 @@
    "quand": "les deux"
   },
   {
-   "no": 771,
+   "no": 793,
    "id": 819,
    "nom": "Rongourmand",
    "types": [
@@ -9722,19 +10104,19 @@
    "quand": "les deux"
   },
   {
-   "no": 772,
+   "no": 794,
    "id": 820,
    "nom": "Rongrigou",
    "types": [
     "normal"
    ],
    "zone": 37,
-   "min": 25,
-   "max": 30,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 773,
+   "no": 795,
    "id": 821,
    "nom": "Minisange",
    "types": [
@@ -9746,19 +10128,19 @@
    "quand": "les deux"
   },
   {
-   "no": 774,
+   "no": 796,
    "id": 822,
    "nom": "Bleuseille",
    "types": [
     "vol"
    ],
    "zone": 37,
-   "min": 30,
-   "max": 35,
+   "min": 31,
+   "max": 36,
    "quand": "les deux"
   },
   {
-   "no": 775,
+   "no": 797,
    "id": 823,
    "nom": "Corvaillus",
    "types": [
@@ -9771,19 +10153,19 @@
    "quand": "les deux"
   },
   {
-   "no": 776,
+   "no": 798,
    "id": 824,
    "nom": "Larvadar",
    "types": [
     "insecte"
    ],
    "zone": 100,
-   "min": 7,
-   "max": 12,
+   "min": 8,
+   "max": 13,
    "quand": "les deux"
   },
   {
-   "no": 777,
+   "no": 799,
    "id": 825,
    "nom": "Coléodôme",
    "types": [
@@ -9796,7 +10178,7 @@
    "quand": "les deux"
   },
   {
-   "no": 778,
+   "no": 800,
    "id": 826,
    "nom": "Astronelle",
    "types": [
@@ -9809,7 +10191,7 @@
    "quand": "les deux"
   },
   {
-   "no": 779,
+   "no": 801,
    "id": 827,
    "nom": "Goupilou",
    "types": [
@@ -9821,19 +10203,19 @@
    "quand": "les deux"
   },
   {
-   "no": 780,
+   "no": 802,
    "id": 828,
    "nom": "Roublenard",
    "types": [
     "tenebres"
    ],
    "zone": 39,
-   "min": 26,
-   "max": 31,
+   "min": 27,
+   "max": 32,
    "quand": "les deux"
   },
   {
-   "no": 781,
+   "no": 803,
    "id": 829,
    "nom": "Tournicoton",
    "types": [
@@ -9845,7 +10227,7 @@
    "quand": "les deux"
   },
   {
-   "no": 782,
+   "no": 804,
    "id": 830,
    "nom": "Blancoton",
    "types": [
@@ -9857,7 +10239,7 @@
    "quand": "les deux"
   },
   {
-   "no": 783,
+   "no": 805,
    "id": 831,
    "nom": "Moumouton",
    "types": [
@@ -9869,7 +10251,7 @@
    "quand": "les deux"
   },
   {
-   "no": 784,
+   "no": 806,
    "id": 832,
    "nom": "Moumouflon",
    "types": [
@@ -9881,7 +10263,7 @@
    "quand": "les deux"
   },
   {
-   "no": 785,
+   "no": 807,
    "id": 833,
    "nom": "Khélocrok",
    "types": [
@@ -9893,7 +10275,7 @@
    "quand": "les deux"
   },
   {
-   "no": 786,
+   "no": 808,
    "id": 834,
    "nom": "Torgamord",
    "types": [
@@ -9901,12 +10283,12 @@
     "roche"
    ],
    "zone": 37,
-   "min": 28,
-   "max": 33,
+   "min": 29,
+   "max": 34,
    "quand": "les deux"
   },
   {
-   "no": 787,
+   "no": 809,
    "id": 835,
    "nom": "Voltoutou",
    "types": [
@@ -9918,19 +10300,19 @@
    "quand": "les deux"
   },
   {
-   "no": 788,
+   "no": 810,
    "id": 836,
    "nom": "Fulgudog",
    "types": [
     "electrik"
    ],
    "zone": 35,
-   "min": 20,
-   "max": 25,
+   "min": 21,
+   "max": 26,
    "quand": "les deux"
   },
   {
-   "no": 789,
+   "no": 811,
    "id": 837,
    "nom": "Charbi",
    "types": [
@@ -9942,7 +10324,7 @@
    "quand": "les deux"
   },
   {
-   "no": 790,
+   "no": 812,
    "id": 838,
    "nom": "Wagomine",
    "types": [
@@ -9950,12 +10332,12 @@
     "feu"
    ],
    "zone": 37,
-   "min": 29,
-   "max": 34,
+   "min": 30,
+   "max": 35,
    "quand": "les deux"
   },
   {
-   "no": 791,
+   "no": 813,
    "id": 839,
    "nom": "Monthracite",
    "types": [
@@ -9968,7 +10350,7 @@
    "quand": "les deux"
   },
   {
-   "no": 792,
+   "no": 814,
    "id": 840,
    "nom": "Verpom",
    "types": [
@@ -9981,7 +10363,7 @@
    "quand": "les deux"
   },
   {
-   "no": 793,
+   "no": 815,
    "id": 841,
    "nom": "Pomdrapi",
    "types": [
@@ -9994,7 +10376,7 @@
    "quand": "les deux"
   },
   {
-   "no": 794,
+   "no": 816,
    "id": 842,
    "nom": "Dratatin",
    "types": [
@@ -10007,7 +10389,7 @@
    "quand": "les deux"
   },
   {
-   "no": 795,
+   "no": 817,
    "id": 843,
    "nom": "Dunaja",
    "types": [
@@ -10019,7 +10401,7 @@
    "quand": "les deux"
   },
   {
-   "no": 796,
+   "no": 818,
    "id": 844,
    "nom": "Dunaconda",
    "types": [
@@ -10031,7 +10413,7 @@
    "quand": "les deux"
   },
   {
-   "no": 797,
+   "no": 819,
    "id": 845,
    "nom": "Nigosier",
    "types": [
@@ -10044,7 +10426,7 @@
    "quand": "les deux"
   },
   {
-   "no": 798,
+   "no": 820,
    "id": 846,
    "nom": "Embrochet",
    "types": [
@@ -10056,7 +10438,7 @@
    "quand": "les deux"
   },
   {
-   "no": 799,
+   "no": 821,
    "id": 847,
    "nom": "Hastacuda",
    "types": [
@@ -10068,7 +10450,7 @@
    "quand": "les deux"
   },
   {
-   "no": 800,
+   "no": 822,
    "id": 848,
    "nom": "Toxizap",
    "types": [
@@ -10081,7 +10463,7 @@
    "quand": "les deux"
   },
   {
-   "no": 801,
+   "no": 823,
    "id": 849,
    "nom": "Salarsen",
    "types": [
@@ -10094,7 +10476,7 @@
    "quand": "les deux"
   },
   {
-   "no": 802,
+   "no": 824,
    "id": 850,
    "nom": "Grillepattes",
    "types": [
@@ -10107,7 +10489,7 @@
    "quand": "les deux"
   },
   {
-   "no": 803,
+   "no": 825,
    "id": 851,
    "nom": "Scolocendre",
    "types": [
@@ -10120,7 +10502,7 @@
    "quand": "les deux"
   },
   {
-   "no": 804,
+   "no": 826,
    "id": 852,
    "nom": "Poulpaf",
    "types": [
@@ -10132,19 +10514,19 @@
    "quand": "les deux"
   },
   {
-   "no": 805,
+   "no": 827,
    "id": 853,
    "nom": "Krakos",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 22,
-   "max": 27,
+   "min": 23,
+   "max": 28,
    "quand": "les deux"
   },
   {
-   "no": 806,
+   "no": 828,
    "id": 854,
    "nom": "Théffroi",
    "types": [
@@ -10156,7 +10538,7 @@
    "quand": "les deux"
   },
   {
-   "no": 807,
+   "no": 829,
    "id": 855,
    "nom": "Polthégeist",
    "types": [
@@ -10168,7 +10550,7 @@
    "quand": "les deux"
   },
   {
-   "no": 808,
+   "no": 830,
    "id": 856,
    "nom": "Bibichut",
    "types": [
@@ -10180,19 +10562,19 @@
    "quand": "les deux"
   },
   {
-   "no": 809,
+   "no": 831,
    "id": 857,
    "nom": "Chapotus",
    "types": [
     "psy"
    ],
    "zone": 39,
-   "min": 24,
-   "max": 29,
+   "min": 26,
+   "max": 31,
    "quand": "les deux"
   },
   {
-   "no": 810,
+   "no": 832,
    "id": 858,
    "nom": "Sorcilence",
    "types": [
@@ -10205,7 +10587,7 @@
    "quand": "les deux"
   },
   {
-   "no": 811,
+   "no": 833,
    "id": 859,
    "nom": "Grimalin",
    "types": [
@@ -10218,7 +10600,7 @@
    "quand": "les deux"
   },
   {
-   "no": 812,
+   "no": 834,
    "id": 860,
    "nom": "Fourbelin",
    "types": [
@@ -10231,7 +10613,7 @@
    "quand": "les deux"
   },
   {
-   "no": 813,
+   "no": 835,
    "id": 861,
    "nom": "Angoliath",
    "types": [
@@ -10244,7 +10626,7 @@
    "quand": "les deux"
   },
   {
-   "no": 814,
+   "no": 836,
    "id": 862,
    "nom": "Ixon",
    "types": [
@@ -10257,7 +10639,7 @@
    "quand": "les deux"
   },
   {
-   "no": 815,
+   "no": 837,
    "id": 863,
    "nom": "Berserkatt",
    "types": [
@@ -10269,7 +10651,7 @@
    "quand": "les deux"
   },
   {
-   "no": 816,
+   "no": 838,
    "id": 864,
    "nom": "Corayôme",
    "types": [
@@ -10281,19 +10663,19 @@
    "quand": "les deux"
   },
   {
-   "no": 817,
+   "no": 839,
    "id": 865,
    "nom": "Palarticho",
    "types": [
     "combat"
    ],
    "zone": 39,
-   "min": 22,
-   "max": 27,
+   "min": 23,
+   "max": 28,
    "quand": "les deux"
   },
   {
-   "no": 818,
+   "no": 840,
    "id": 866,
    "nom": "M. Glaquette",
    "types": [
@@ -10301,12 +10683,12 @@
     "psy"
    ],
    "zone": 35,
-   "min": 28,
-   "max": 33,
+   "min": 29,
+   "max": 34,
    "quand": "les deux"
   },
   {
-   "no": 819,
+   "no": 841,
    "id": 867,
    "nom": "Tutétékri",
    "types": [
@@ -10319,19 +10701,19 @@
    "quand": "les deux"
   },
   {
-   "no": 820,
+   "no": 842,
    "id": 868,
    "nom": "Crèmy",
    "types": [
     "fee"
    ],
    "zone": 100,
-   "min": 12,
-   "max": 17,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
-   "no": 821,
+   "no": 843,
    "id": 869,
    "nom": "Charmilly",
    "types": [
@@ -10343,7 +10725,7 @@
    "quand": "les deux"
   },
   {
-   "no": 822,
+   "no": 844,
    "id": 870,
    "nom": "Hexadron",
    "types": [
@@ -10355,7 +10737,7 @@
    "quand": "les deux"
   },
   {
-   "no": 823,
+   "no": 845,
    "id": 871,
    "nom": "Wattapik",
    "types": [
@@ -10367,7 +10749,7 @@
    "quand": "les deux"
   },
   {
-   "no": 824,
+   "no": 846,
    "id": 872,
    "nom": "Frissonille",
    "types": [
@@ -10380,7 +10762,7 @@
    "quand": "les deux"
   },
   {
-   "no": 825,
+   "no": 847,
    "id": 873,
    "nom": "Beldeneige",
    "types": [
@@ -10393,7 +10775,7 @@
    "quand": "les deux"
   },
   {
-   "no": 826,
+   "no": 848,
    "id": 874,
    "nom": "Dolman",
    "types": [
@@ -10405,7 +10787,7 @@
    "quand": "les deux"
   },
   {
-   "no": 827,
+   "no": 849,
    "id": 875,
    "nom": "Bekaglaçon",
    "types": [
@@ -10417,7 +10799,7 @@
    "quand": "les deux"
   },
   {
-   "no": 828,
+   "no": 850,
    "id": 876,
    "nom": "Wimessir",
    "types": [
@@ -10430,7 +10812,7 @@
    "quand": "les deux"
   },
   {
-   "no": 829,
+   "no": 851,
    "id": 877,
    "nom": "Morpeko",
    "types": [
@@ -10443,7 +10825,7 @@
    "quand": "les deux"
   },
   {
-   "no": 830,
+   "no": 852,
    "id": 878,
    "nom": "Charibari",
    "types": [
@@ -10455,7 +10837,7 @@
    "quand": "les deux"
   },
   {
-   "no": 831,
+   "no": 853,
    "id": 879,
    "nom": "Pachyradjah",
    "types": [
@@ -10467,7 +10849,7 @@
    "quand": "les deux"
   },
   {
-   "no": 832,
+   "no": 854,
    "id": 880,
    "nom": "Galvagon",
    "types": [
@@ -10480,7 +10862,7 @@
    "quand": "les deux"
   },
   {
-   "no": 833,
+   "no": 855,
    "id": 881,
    "nom": "Galvagla",
    "types": [
@@ -10488,12 +10870,12 @@
     "glace"
    ],
    "zone": 35,
-   "min": 32,
-   "max": 37,
+   "min": 33,
+   "max": 38,
    "quand": "les deux"
   },
   {
-   "no": 834,
+   "no": 856,
    "id": 882,
    "nom": "Hydragon",
    "types": [
@@ -10506,7 +10888,7 @@
    "quand": "les deux"
   },
   {
-   "no": 835,
+   "no": 857,
    "id": 883,
    "nom": "Hydragla",
    "types": [
@@ -10519,7 +10901,7 @@
    "quand": "les deux"
   },
   {
-   "no": 836,
+   "no": 858,
    "id": 884,
    "nom": "Duralugon",
    "types": [
@@ -10532,7 +10914,7 @@
    "quand": "les deux"
   },
   {
-   "no": 837,
+   "no": 859,
    "id": 885,
    "nom": "Fantyrm",
    "types": [
@@ -10540,12 +10922,12 @@
     "spectre"
    ],
    "zone": 34,
-   "min": 12,
-   "max": 17,
+   "min": 13,
+   "max": 18,
    "quand": "les deux"
   },
   {
-   "no": 838,
+   "no": 860,
    "id": 886,
    "nom": "Dispareptil",
    "types": [
@@ -10558,7 +10940,7 @@
    "quand": "les deux"
   },
   {
-   "no": 839,
+   "no": 861,
    "id": 887,
    "nom": "Lanssorien",
    "types": [
@@ -10571,7 +10953,7 @@
    "quand": "les deux"
   },
   {
-   "no": 840,
+   "no": 862,
    "id": 899,
    "nom": "Cerbyllin",
    "types": [
@@ -10584,7 +10966,7 @@
    "quand": "les deux"
   },
   {
-   "no": 841,
+   "no": 863,
    "id": 900,
    "nom": "Hachécateur",
    "types": [
@@ -10597,7 +10979,7 @@
    "quand": "les deux"
   },
   {
-   "no": 842,
+   "no": 864,
    "id": 901,
    "nom": "Ursaking",
    "types": [
@@ -10610,7 +10992,7 @@
    "quand": "les deux"
   },
   {
-   "no": 843,
+   "no": 865,
    "id": 902,
    "nom": "Paragruel",
    "types": [
@@ -10623,7 +11005,7 @@
    "quand": "les deux"
   },
   {
-   "no": 844,
+   "no": 866,
    "id": 903,
    "nom": "Farfurex",
    "types": [
@@ -10636,7 +11018,7 @@
    "quand": "les deux"
   },
   {
-   "no": 845,
+   "no": 867,
    "id": 904,
    "nom": "Qwilpik",
    "types": [
@@ -10649,7 +11031,7 @@
    "quand": "les deux"
   },
   {
-   "no": 846,
+   "no": 868,
    "id": 906,
    "nom": "Poussacha",
    "types": [
@@ -10661,19 +11043,19 @@
    "quand": "les deux"
   },
   {
-   "no": 847,
+   "no": 869,
    "id": 907,
    "nom": "Matourgeon",
    "types": [
     "plante"
    ],
    "zone": 31,
-   "min": 32,
-   "max": 37,
+   "min": 33,
+   "max": 38,
    "quand": "les deux"
   },
   {
-   "no": 848,
+   "no": 870,
    "id": 908,
    "nom": "Miascarade",
    "types": [
@@ -10681,12 +11063,12 @@
     "tenebres"
    ],
    "zone": 46,
-   "min": 48,
-   "max": 53,
+   "min": 49,
+   "max": 54,
    "quand": "les deux"
   },
   {
-   "no": 849,
+   "no": 871,
    "id": 909,
    "nom": "Chochodile",
    "types": [
@@ -10698,19 +11080,19 @@
    "quand": "les deux"
   },
   {
-   "no": 850,
+   "no": 872,
    "id": 910,
    "nom": "Crocogril",
    "types": [
     "feu"
    ],
    "zone": 39,
-   "min": 32,
-   "max": 37,
+   "min": 33,
+   "max": 38,
    "quand": "les deux"
   },
   {
-   "no": 851,
+   "no": 873,
    "id": 911,
    "nom": "Flâmigator",
    "types": [
@@ -10718,12 +11100,12 @@
     "spectre"
    ],
    "zone": 105,
-   "min": 48,
-   "max": 53,
+   "min": 49,
+   "max": 54,
    "quand": "les deux"
   },
   {
-   "no": 852,
+   "no": 874,
    "id": 912,
    "nom": "Coiffeton",
    "types": [
@@ -10735,7 +11117,7 @@
    "quand": "les deux"
   },
   {
-   "no": 853,
+   "no": 875,
    "id": 913,
    "nom": "Canarbello",
    "types": [
@@ -10747,7 +11129,7 @@
    "quand": "les deux"
   },
   {
-   "no": 854,
+   "no": 876,
    "id": 914,
    "nom": "Palmaval",
    "types": [
@@ -10755,12 +11137,12 @@
     "combat"
    ],
    "zone": 104,
-   "min": 49,
-   "max": 54,
+   "min": 50,
+   "max": 55,
    "quand": "les deux"
   },
   {
-   "no": 855,
+   "no": 877,
    "id": 915,
    "nom": "Gourmelet",
    "types": [
@@ -10772,19 +11154,19 @@
    "quand": "les deux"
   },
   {
-   "no": 856,
+   "no": 878,
    "id": 916,
    "nom": "Fragroin",
    "types": [
     "normal"
    ],
    "zone": 37,
-   "min": 32,
-   "max": 37,
+   "min": 33,
+   "max": 38,
    "quand": "les deux"
   },
   {
-   "no": 857,
+   "no": 879,
    "id": 917,
    "nom": "Tissenboule",
    "types": [
@@ -10796,31 +11178,31 @@
    "quand": "les deux"
   },
   {
-   "no": 858,
+   "no": 880,
    "id": 918,
    "nom": "Filentrappe",
    "types": [
     "insecte"
    ],
    "zone": 33,
-   "min": 32,
-   "max": 37,
+   "min": 33,
+   "max": 38,
    "quand": "les deux"
   },
   {
-   "no": 859,
+   "no": 881,
    "id": 919,
    "nom": "Lilliterelle",
    "types": [
     "insecte"
    ],
    "zone": 100,
-   "min": 14,
-   "max": 19,
+   "min": 15,
+   "max": 20,
    "quand": "les deux"
   },
   {
-   "no": 860,
+   "no": 882,
    "id": 920,
    "nom": "Gambex",
    "types": [
@@ -10833,7 +11215,7 @@
    "quand": "les deux"
   },
   {
-   "no": 861,
+   "no": 883,
    "id": 921,
    "nom": "Pohm",
    "types": [
@@ -10845,7 +11227,7 @@
    "quand": "les deux"
   },
   {
-   "no": 862,
+   "no": 884,
    "id": 922,
    "nom": "Pohmotte",
    "types": [
@@ -10858,7 +11240,7 @@
    "quand": "les deux"
   },
   {
-   "no": 863,
+   "no": 885,
    "id": 923,
    "nom": "Pohmarmotte",
    "types": [
@@ -10866,12 +11248,12 @@
     "combat"
    ],
    "zone": 103,
-   "min": 48,
-   "max": 53,
+   "min": 49,
+   "max": 54,
    "quand": "les deux"
   },
   {
-   "no": 864,
+   "no": 886,
    "id": 924,
    "nom": "Compagnol",
    "types": [
@@ -10883,7 +11265,7 @@
    "quand": "les deux"
   },
   {
-   "no": 865,
+   "no": 887,
    "id": 925,
    "nom": "Famignol",
    "types": [
@@ -10895,7 +11277,7 @@
    "quand": "les deux"
   },
   {
-   "no": 866,
+   "no": 888,
    "id": 926,
    "nom": "Pâtachiot",
    "types": [
@@ -10907,7 +11289,7 @@
    "quand": "les deux"
   },
   {
-   "no": 867,
+   "no": 889,
    "id": 927,
    "nom": "Briochien",
    "types": [
@@ -10919,7 +11301,7 @@
    "quand": "les deux"
   },
   {
-   "no": 868,
+   "no": 890,
    "id": 928,
    "nom": "Olivini",
    "types": [
@@ -10927,12 +11309,12 @@
     "normal"
    ],
    "zone": 38,
-   "min": 14,
-   "max": 19,
+   "min": 15,
+   "max": 20,
    "quand": "les deux"
   },
   {
-   "no": 869,
+   "no": 891,
    "id": 929,
    "nom": "Olivado",
    "types": [
@@ -10945,7 +11327,7 @@
    "quand": "les deux"
   },
   {
-   "no": 870,
+   "no": 892,
    "id": 930,
    "nom": "Arboliva",
    "types": [
@@ -10958,7 +11340,7 @@
    "quand": "les deux"
   },
   {
-   "no": 871,
+   "no": 893,
    "id": 931,
    "nom": "Tapatoès",
    "types": [
@@ -10971,7 +11353,7 @@
    "quand": "les deux"
   },
   {
-   "no": 872,
+   "no": 894,
    "id": 932,
    "nom": "Selutin",
    "types": [
@@ -10983,19 +11365,19 @@
    "quand": "les deux"
   },
   {
-   "no": 873,
+   "no": 895,
    "id": 933,
    "nom": "Amassel",
    "types": [
     "roche"
    ],
    "zone": 37,
-   "min": 33,
-   "max": 38,
+   "min": 34,
+   "max": 39,
    "quand": "les deux"
   },
   {
-   "no": 874,
+   "no": 896,
    "id": 934,
    "nom": "Gigansel",
    "types": [
@@ -11007,19 +11389,19 @@
    "quand": "les deux"
   },
   {
-   "no": 875,
+   "no": 897,
    "id": 935,
    "nom": "Charbambin",
    "types": [
     "feu"
    ],
    "zone": 36,
-   "min": 14,
-   "max": 19,
+   "min": 15,
+   "max": 20,
    "quand": "les deux"
   },
   {
-   "no": 876,
+   "no": 898,
    "id": 936,
    "nom": "Carmadura",
    "types": [
@@ -11027,12 +11409,12 @@
     "psy"
    ],
    "zone": 39,
-   "min": 33,
-   "max": 38,
+   "min": 34,
+   "max": 39,
    "quand": "les deux"
   },
   {
-   "no": 877,
+   "no": 899,
    "id": 937,
    "nom": "Malvalame",
    "types": [
@@ -11040,12 +11422,12 @@
     "spectre"
    ],
    "zone": 39,
-   "min": 33,
-   "max": 38,
+   "min": 34,
+   "max": 39,
    "quand": "les deux"
   },
   {
-   "no": 878,
+   "no": 900,
    "id": 938,
    "nom": "Têtampoule",
    "types": [
@@ -11057,7 +11439,7 @@
    "quand": "les deux"
   },
   {
-   "no": 879,
+   "no": 901,
    "id": 939,
    "nom": "Ampibidou",
    "types": [
@@ -11069,7 +11451,7 @@
    "quand": "les deux"
   },
   {
-   "no": 880,
+   "no": 902,
    "id": 940,
    "nom": "Zapétrel",
    "types": [
@@ -11077,12 +11459,12 @@
     "vol"
    ],
    "zone": 34,
-   "min": 14,
-   "max": 19,
+   "min": 15,
+   "max": 20,
    "quand": "les deux"
   },
   {
-   "no": 881,
+   "no": 903,
    "id": 941,
    "nom": "Fulgulairo",
    "types": [
@@ -11095,7 +11477,7 @@
    "quand": "les deux"
   },
   {
-   "no": 882,
+   "no": 904,
    "id": 942,
    "nom": "Grondogue",
    "types": [
@@ -11107,7 +11489,7 @@
    "quand": "les deux"
   },
   {
-   "no": 883,
+   "no": 905,
    "id": 943,
    "nom": "Dogrino",
    "types": [
@@ -11119,7 +11501,7 @@
    "quand": "les deux"
   },
   {
-   "no": 884,
+   "no": 906,
    "id": 944,
    "nom": "Gribouraigne",
    "types": [
@@ -11127,12 +11509,12 @@
     "normal"
    ],
    "zone": 38,
-   "min": 14,
-   "max": 19,
+   "min": 15,
+   "max": 20,
    "quand": "les deux"
   },
   {
-   "no": 885,
+   "no": 907,
    "id": 945,
    "nom": "Tag-Tag",
    "types": [
@@ -11145,7 +11527,7 @@
    "quand": "les deux"
   },
   {
-   "no": 886,
+   "no": 908,
    "id": 946,
    "nom": "Virovent",
    "types": [
@@ -11158,7 +11540,7 @@
    "quand": "les deux"
   },
   {
-   "no": 887,
+   "no": 909,
    "id": 947,
    "nom": "Virevorreur",
    "types": [
@@ -11166,12 +11548,12 @@
     "spectre"
    ],
    "zone": 31,
-   "min": 33,
-   "max": 38,
+   "min": 34,
+   "max": 39,
    "quand": "les deux"
   },
   {
-   "no": 888,
+   "no": 910,
    "id": 948,
    "nom": "Terracool",
    "types": [
@@ -11184,7 +11566,7 @@
    "quand": "les deux"
   },
   {
-   "no": 889,
+   "no": 911,
    "id": 949,
    "nom": "Terracruel",
    "types": [
@@ -11197,19 +11579,19 @@
    "quand": "les deux"
   },
   {
-   "no": 890,
+   "no": 912,
    "id": 950,
    "nom": "Craparoi",
    "types": [
     "roche"
    ],
    "zone": 37,
-   "min": 33,
-   "max": 38,
+   "min": 34,
+   "max": 39,
    "quand": "les deux"
   },
   {
-   "no": 891,
+   "no": 913,
    "id": 951,
    "nom": "Pimito",
    "types": [
@@ -11221,7 +11603,7 @@
    "quand": "les deux"
   },
   {
-   "no": 892,
+   "no": 914,
    "id": 952,
    "nom": "Scovilain",
    "types": [
@@ -11234,7 +11616,7 @@
    "quand": "les deux"
   },
   {
-   "no": 893,
+   "no": 915,
    "id": 953,
    "nom": "Léboulérou",
    "types": [
@@ -11246,7 +11628,7 @@
    "quand": "les deux"
   },
   {
-   "no": 894,
+   "no": 916,
    "id": 954,
    "nom": "Bérasca",
    "types": [
@@ -11254,12 +11636,12 @@
     "psy"
    ],
    "zone": 35,
-   "min": 33,
-   "max": 38,
+   "min": 34,
+   "max": 39,
    "quand": "les deux"
   },
   {
-   "no": 895,
+   "no": 917,
    "id": 955,
    "nom": "Flotillon",
    "types": [
@@ -11271,7 +11653,7 @@
    "quand": "les deux"
   },
   {
-   "no": 896,
+   "no": 918,
    "id": 956,
    "nom": "Cléopsytra",
    "types": [
@@ -11283,7 +11665,7 @@
    "quand": "les deux"
   },
   {
-   "no": 897,
+   "no": 919,
    "id": 957,
    "nom": "Forgerette",
    "types": [
@@ -11296,7 +11678,7 @@
    "quand": "les deux"
   },
   {
-   "no": 898,
+   "no": 920,
    "id": 958,
    "nom": "Forgella",
    "types": [
@@ -11309,7 +11691,7 @@
    "quand": "les deux"
   },
   {
-   "no": 899,
+   "no": 921,
    "id": 959,
    "nom": "Forgelina",
    "types": [
@@ -11322,7 +11704,7 @@
    "quand": "les deux"
   },
   {
-   "no": 900,
+   "no": 922,
    "id": 960,
    "nom": "Taupikeau",
    "types": [
@@ -11334,7 +11716,7 @@
    "quand": "les deux"
   },
   {
-   "no": 901,
+   "no": 923,
    "id": 961,
    "nom": "Triopikeau",
    "types": [
@@ -11346,7 +11728,7 @@
    "quand": "les deux"
   },
   {
-   "no": 902,
+   "no": 924,
    "id": 962,
    "nom": "Lestombaile",
    "types": [
@@ -11354,12 +11736,12 @@
     "tenebres"
    ],
    "zone": 33,
-   "min": 33,
-   "max": 38,
+   "min": 34,
+   "max": 39,
    "quand": "les deux"
   },
   {
-   "no": 903,
+   "no": 925,
    "id": 963,
    "nom": "Dofin",
    "types": [
@@ -11371,7 +11753,7 @@
    "quand": "les deux"
   },
   {
-   "no": 904,
+   "no": 926,
    "id": 964,
    "nom": "Superdofin",
    "types": [
@@ -11383,7 +11765,7 @@
    "quand": "les deux"
   },
   {
-   "no": 905,
+   "no": 927,
    "id": 965,
    "nom": "Vrombi",
    "types": [
@@ -11396,7 +11778,7 @@
    "quand": "les deux"
   },
   {
-   "no": 906,
+   "no": 928,
    "id": 966,
    "nom": "Vrombotor",
    "types": [
@@ -11409,7 +11791,7 @@
    "quand": "les deux"
   },
   {
-   "no": 907,
+   "no": 929,
    "id": 967,
    "nom": "Motorizard",
    "types": [
@@ -11422,7 +11804,7 @@
    "quand": "les deux"
   },
   {
-   "no": 908,
+   "no": 930,
    "id": 968,
    "nom": "Ferdeter",
    "types": [
@@ -11434,7 +11816,7 @@
    "quand": "les deux"
   },
   {
-   "no": 909,
+   "no": 931,
    "id": 969,
    "nom": "Germéclat",
    "types": [
@@ -11447,7 +11829,7 @@
    "quand": "les deux"
   },
   {
-   "no": 910,
+   "no": 932,
    "id": 970,
    "nom": "Floréclat",
    "types": [
@@ -11460,7 +11842,7 @@
    "quand": "les deux"
   },
   {
-   "no": 911,
+   "no": 933,
    "id": 971,
    "nom": "Toutombe",
    "types": [
@@ -11472,7 +11854,7 @@
    "quand": "les deux"
   },
   {
-   "no": 912,
+   "no": 934,
    "id": 972,
    "nom": "Tomberro",
    "types": [
@@ -11484,7 +11866,7 @@
    "quand": "les deux"
   },
   {
-   "no": 913,
+   "no": 935,
    "id": 973,
    "nom": "Flamenroule",
    "types": [
@@ -11492,12 +11874,12 @@
     "combat"
    ],
    "zone": 39,
-   "min": 34,
-   "max": 39,
+   "min": 35,
+   "max": 40,
    "quand": "les deux"
   },
   {
-   "no": 914,
+   "no": 936,
    "id": 974,
    "nom": "Piétacé",
    "types": [
@@ -11509,19 +11891,19 @@
    "quand": "les deux"
   },
   {
-   "no": 915,
+   "no": 937,
    "id": 975,
    "nom": "Balbalèze",
    "types": [
     "glace"
    ],
    "zone": 35,
-   "min": 34,
-   "max": 39,
+   "min": 35,
+   "max": 40,
    "quand": "les deux"
   },
   {
-   "no": 916,
+   "no": 938,
    "id": 976,
    "nom": "Délestin",
    "types": [
@@ -11534,7 +11916,7 @@
    "quand": "les deux"
   },
   {
-   "no": 917,
+   "no": 939,
    "id": 977,
    "nom": "Oyacata",
    "types": [
@@ -11546,7 +11928,7 @@
    "quand": "les deux"
   },
   {
-   "no": 918,
+   "no": 940,
    "id": 978,
    "nom": "Nigirigon",
    "types": [
@@ -11559,7 +11941,7 @@
    "quand": "les deux"
   },
   {
-   "no": 919,
+   "no": 941,
    "id": 979,
    "nom": "Courrousinge",
    "types": [
@@ -11572,7 +11954,7 @@
    "quand": "les deux"
   },
   {
-   "no": 920,
+   "no": 942,
    "id": 980,
    "nom": "Terraiste",
    "types": [
@@ -11580,12 +11962,12 @@
     "sol"
    ],
    "zone": 37,
-   "min": 34,
-   "max": 39,
+   "min": 35,
+   "max": 40,
    "quand": "les deux"
   },
   {
-   "no": 921,
+   "no": 943,
    "id": 981,
    "nom": "Farigiraf",
    "types": [
@@ -11593,24 +11975,24 @@
     "psy"
    ],
    "zone": 37,
-   "min": 34,
-   "max": 39,
+   "min": 35,
+   "max": 40,
    "quand": "les deux"
   },
   {
-   "no": 922,
+   "no": 944,
    "id": 982,
    "nom": "Deusolourdo",
    "types": [
     "normal"
    ],
    "zone": 31,
-   "min": 34,
-   "max": 39,
+   "min": 35,
+   "max": 40,
    "quand": "les deux"
   },
   {
-   "no": 923,
+   "no": 945,
    "id": 983,
    "nom": "Scalpereur",
    "types": [
@@ -11618,12 +12000,12 @@
     "acier"
    ],
    "zone": 105,
-   "min": 49,
-   "max": 54,
+   "min": 50,
+   "max": 55,
    "quand": "les deux"
   },
   {
-   "no": 924,
+   "no": 946,
    "id": 996,
    "nom": "Frigodo",
    "types": [
@@ -11636,7 +12018,7 @@
    "quand": "les deux"
   },
   {
-   "no": 925,
+   "no": 947,
    "id": 997,
    "nom": "Cryodo",
    "types": [
@@ -11644,12 +12026,12 @@
     "glace"
    ],
    "zone": 33,
-   "min": 34,
-   "max": 39,
+   "min": 35,
+   "max": 40,
    "quand": "les deux"
   },
   {
-   "no": 926,
+   "no": 948,
    "id": 998,
    "nom": "Glaivodo",
    "types": [
@@ -11657,12 +12039,12 @@
     "glace"
    ],
    "zone": 103,
-   "min": 49,
-   "max": 54,
+   "min": 50,
+   "max": 55,
    "quand": "les deux"
   },
   {
-   "no": 927,
+   "no": 949,
    "id": 999,
    "nom": "Mordudor",
    "types": [
@@ -11674,7 +12056,7 @@
    "quand": "les deux"
   },
   {
-   "no": 928,
+   "no": 950,
    "id": 1000,
    "nom": "Gromago",
    "types": [
@@ -11687,7 +12069,7 @@
    "quand": "les deux"
   },
   {
-   "no": 929,
+   "no": 951,
    "id": 1011,
    "nom": "Pomdramour",
    "types": [
@@ -11700,7 +12082,7 @@
    "quand": "les deux"
   },
   {
-   "no": 930,
+   "no": 952,
    "id": 1012,
    "nom": "Poltchageist",
    "types": [
@@ -11713,7 +12095,7 @@
    "quand": "les deux"
   },
   {
-   "no": 931,
+   "no": 953,
    "id": 1013,
    "nom": "Théffroyable",
    "types": [
@@ -11726,7 +12108,7 @@
    "quand": "les deux"
   },
   {
-   "no": 932,
+   "no": 954,
    "id": 1018,
    "nom": "Pondralugon",
    "types": [
@@ -11734,12 +12116,12 @@
     "dragon"
    ],
    "zone": 39,
-   "min": 34,
-   "max": 39,
+   "min": 35,
+   "max": 40,
    "quand": "les deux"
   },
   {
-   "no": 933,
+   "no": 955,
    "id": 1019,
    "nom": "Pomdorochi",
    "types": [
@@ -11747,8 +12129,8 @@
     "dragon"
    ],
    "zone": 46,
-   "min": 49,
-   "max": 54,
+   "min": 50,
+   "max": 55,
    "quand": "les deux"
   }
  ]

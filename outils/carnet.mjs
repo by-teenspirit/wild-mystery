@@ -32,6 +32,12 @@ import { readFileSync } from "node:fs";
 import { chromium } from "npm:playwright@1.56.0";
 
 const R = new URL("..", import.meta.url).pathname;
+
+//  Le nombre d'espèces du Pokédex, LU et non écrit : il a changé deux
+//  fois (734 → 933 → 955) et chaque fois il était en dur quelque part.
+const AU_DEX = JSON.parse(
+  Deno.readTextFileSync(new URL("../data/pokedex-carnet.json", import.meta.url)),
+).especes.length;
 //  L'ADRESSE DE L'ANNEXE DE LA RÉGION, LUE AU SOMMAIRE. Elle était
 //  écrite en dur ici et dans le module : le 4 novembre les pages du
 //  forum ont reculé d'un cran et `h9` est devenu « Le staff », sans
@@ -2085,9 +2091,15 @@ const { q: p, appels } = await monter();
     filtres: document.querySelectorAll("[data-wm-carnet-filtres] button").length,
   }));
   dire(
-    "le Pokédex montre les 933 espèces, trois états, la silhouette étant le même sprite éteint",
-    vu.cases === 933 && vu.attrapees === 2 && vu.croisees === 1 && vu.compte === "2 / 933" &&
-      vu.total === "933" && /brightness\(0\)/.test(vu.filtre ?? "") && vu.inconnuSansImage &&
+    //  LE COMPTE SE LIT DANS LE FICHIER, il ne s'écrit pas ici. « 933 »
+    //  était vrai jusqu'au 6 novembre ; le Pokédex en porte 955 depuis
+    //  que les lignées fossiles l'ont rejoint, et ce contrôle criait
+    //  pour une bonne donnée.
+    `le Pokédex montre les ${AU_DEX} espèces, trois états, la silhouette étant le même sprite éteint`,
+    vu.cases === AU_DEX && vu.attrapees === 2 && vu.croisees === 1 &&
+      vu.compte === `2 / ${AU_DEX}` &&
+      vu.total === String(AU_DEX) && /brightness\(0\)/.test(vu.filtre ?? "") &&
+      vu.inconnuSansImage &&
       vu.filtres === 20,
     JSON.stringify(vu),
   );
@@ -2175,7 +2187,7 @@ const { q: p, appels } = await monter();
   }));
   dire(
     "un filtre cache sans recharger, et s'écrit dans l'adresse",
-    vu.visibles === 2 && vu.toujoursLa === 933 && vu.adresse === "#attrape" &&
+    vu.visibles === 2 && vu.toujoursLa === AU_DEX && vu.adresse === "#attrape" &&
       appels.length === avant,
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),
   );

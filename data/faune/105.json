@@ -8,7 +8,7 @@
    {
     "espece": 6,
     "nom": "Dracaufeu",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 35,
     "max": 40,
     "rarete": "commun"
@@ -16,7 +16,7 @@
    {
     "espece": 467,
     "nom": "Maganon",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 36,
     "max": 41,
     "rarete": "commun"
@@ -24,7 +24,7 @@
    {
     "espece": 157,
     "nom": "Typhlosion",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 36,
     "max": 41,
     "rarete": "commun"
@@ -32,7 +32,7 @@
    {
     "espece": 655,
     "nom": "Goupelin",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 37,
     "max": 42,
     "rarete": "commun"
@@ -40,7 +40,7 @@
    {
     "espece": 815,
     "nom": "Pyrobut",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 37,
     "max": 42,
     "rarete": "commun"
@@ -48,7 +48,7 @@
    {
     "espece": 136,
     "nom": "Pyroli",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 38,
     "max": 43,
     "rarete": "commun"
@@ -56,7 +56,7 @@
    {
     "espece": 862,
     "nom": "Ixon",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 38,
     "max": 43,
     "rarete": "commun"
@@ -64,7 +64,7 @@
    {
     "espece": 553,
     "nom": "Crocorible",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 39,
     "max": 44,
     "rarete": "commun"
@@ -72,7 +72,7 @@
    {
     "espece": 727,
     "nom": "Félinferno",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 39,
     "max": 44,
     "rarete": "commun"
@@ -80,7 +80,7 @@
    {
     "espece": 197,
     "nom": "Noctali",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 40,
     "max": 45,
     "rarete": "commun"
@@ -88,15 +88,15 @@
    {
     "espece": 257,
     "nom": "Braségali",
-    "pct": 5.1282,
-    "min": 40,
-    "max": 45,
+    "pct": 5.2632,
+    "min": 41,
+    "max": 46,
     "rarete": "commun"
    },
    {
     "espece": 445,
     "nom": "Carchacrok",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 41,
     "max": 46,
     "rarete": "commun"
@@ -104,15 +104,15 @@
    {
     "espece": 635,
     "nom": "Trioxhydre",
-    "pct": 5.1282,
-    "min": 41,
-    "max": 46,
+    "pct": 5.2632,
+    "min": 42,
+    "max": 47,
     "rarete": "commun"
    },
    {
     "espece": 663,
     "nom": "Flambusard",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 42,
     "max": 47,
     "rarete": "commun"
@@ -120,7 +120,7 @@
    {
     "espece": 861,
     "nom": "Angoliath",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 43,
     "max": 48,
     "rarete": "peu commun"
@@ -128,7 +128,7 @@
    {
     "espece": 612,
     "nom": "Tranchodon",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 43,
     "max": 48,
     "rarete": "peu commun"
@@ -136,7 +136,7 @@
    {
     "espece": 65,
     "nom": "Alakazam",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 44,
     "max": 49,
     "rarete": "peu commun"
@@ -144,7 +144,7 @@
    {
     "espece": 373,
     "nom": "Drattak",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 44,
     "max": 49,
     "rarete": "peu commun"
@@ -152,7 +152,7 @@
    {
     "espece": 149,
     "nom": "Dracolosse",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 45,
     "max": 50,
     "rarete": "peu commun"
@@ -160,15 +160,15 @@
    {
     "espece": 784,
     "nom": "Ékaïser",
-    "pct": 2.5641,
-    "min": 45,
-    "max": 50,
+    "pct": 2.6316,
+    "min": 46,
+    "max": 51,
     "rarete": "peu commun"
    },
    {
     "espece": 724,
     "nom": "Archéduc",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 46,
     "max": 51,
     "rarete": "peu commun"
@@ -176,31 +176,31 @@
    {
     "espece": 609,
     "nom": "Lugulabre",
-    "pct": 2.5641,
-    "min": 46,
-    "max": 51,
+    "pct": 2.6316,
+    "min": 47,
+    "max": 52,
     "rarete": "peu commun"
    },
    {
     "espece": 839,
     "nom": "Monthracite",
-    "pct": 2.5641,
-    "min": 47,
-    "max": 52,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 392,
-    "nom": "Simiabraz",
-    "pct": 0.8547,
+    "pct": 0.8772,
     "min": 47,
     "max": 52,
     "rarete": "rare"
    },
    {
+    "espece": 392,
+    "nom": "Simiabraz",
+    "pct": 0.8772,
+    "min": 48,
+    "max": 53,
+    "rarete": "rare"
+   },
+   {
     "espece": 500,
     "nom": "Roitiflam",
-    "pct": 0.8547,
+    "pct": 0.8772,
     "min": 48,
     "max": 53,
     "rarete": "rare"
@@ -208,15 +208,15 @@
    {
     "espece": 911,
     "nom": "Flâmigator",
-    "pct": 0.8547,
-    "min": 48,
-    "max": 53,
+    "pct": 0.8772,
+    "min": 49,
+    "max": 54,
     "rarete": "rare"
    },
    {
     "espece": 979,
     "nom": "Courrousinge",
-    "pct": 0.8547,
+    "pct": 0.8772,
     "min": 49,
     "max": 54,
     "rarete": "rare"
@@ -224,15 +224,7 @@
    {
     "espece": 983,
     "nom": "Scalpereur",
-    "pct": 0.8547,
-    "min": 49,
-    "max": 54,
-    "rarete": "rare"
-   },
-   {
-    "espece": 10233,
-    "nom": "Typhlosion de Hisui",
-    "pct": 0.8548,
+    "pct": 0.8764,
     "min": 50,
     "max": 55,
     "rarete": "rare"
@@ -242,7 +234,7 @@
    {
     "espece": 6,
     "nom": "Dracaufeu",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 35,
     "max": 40,
     "rarete": "commun"
@@ -250,7 +242,7 @@
    {
     "espece": 467,
     "nom": "Maganon",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 36,
     "max": 41,
     "rarete": "commun"
@@ -258,7 +250,7 @@
    {
     "espece": 157,
     "nom": "Typhlosion",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 36,
     "max": 41,
     "rarete": "commun"
@@ -266,7 +258,7 @@
    {
     "espece": 655,
     "nom": "Goupelin",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 37,
     "max": 42,
     "rarete": "commun"
@@ -274,7 +266,7 @@
    {
     "espece": 815,
     "nom": "Pyrobut",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 37,
     "max": 42,
     "rarete": "commun"
@@ -282,7 +274,7 @@
    {
     "espece": 136,
     "nom": "Pyroli",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 38,
     "max": 43,
     "rarete": "commun"
@@ -290,7 +282,7 @@
    {
     "espece": 862,
     "nom": "Ixon",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 38,
     "max": 43,
     "rarete": "commun"
@@ -298,7 +290,7 @@
    {
     "espece": 553,
     "nom": "Crocorible",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 39,
     "max": 44,
     "rarete": "commun"
@@ -306,7 +298,7 @@
    {
     "espece": 727,
     "nom": "Félinferno",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 39,
     "max": 44,
     "rarete": "commun"
@@ -314,7 +306,7 @@
    {
     "espece": 197,
     "nom": "Noctali",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 40,
     "max": 45,
     "rarete": "commun"
@@ -322,15 +314,15 @@
    {
     "espece": 257,
     "nom": "Braségali",
-    "pct": 5.1282,
-    "min": 40,
-    "max": 45,
+    "pct": 5.2632,
+    "min": 41,
+    "max": 46,
     "rarete": "commun"
    },
    {
     "espece": 445,
     "nom": "Carchacrok",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 41,
     "max": 46,
     "rarete": "commun"
@@ -338,15 +330,15 @@
    {
     "espece": 635,
     "nom": "Trioxhydre",
-    "pct": 5.1282,
-    "min": 41,
-    "max": 46,
+    "pct": 5.2632,
+    "min": 42,
+    "max": 47,
     "rarete": "commun"
    },
    {
     "espece": 663,
     "nom": "Flambusard",
-    "pct": 5.1282,
+    "pct": 5.2632,
     "min": 42,
     "max": 47,
     "rarete": "commun"
@@ -354,7 +346,7 @@
    {
     "espece": 861,
     "nom": "Angoliath",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 43,
     "max": 48,
     "rarete": "peu commun"
@@ -362,7 +354,7 @@
    {
     "espece": 612,
     "nom": "Tranchodon",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 43,
     "max": 48,
     "rarete": "peu commun"
@@ -370,7 +362,7 @@
    {
     "espece": 65,
     "nom": "Alakazam",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 44,
     "max": 49,
     "rarete": "peu commun"
@@ -378,7 +370,7 @@
    {
     "espece": 373,
     "nom": "Drattak",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 44,
     "max": 49,
     "rarete": "peu commun"
@@ -386,7 +378,7 @@
    {
     "espece": 149,
     "nom": "Dracolosse",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 45,
     "max": 50,
     "rarete": "peu commun"
@@ -394,15 +386,15 @@
    {
     "espece": 784,
     "nom": "Ékaïser",
-    "pct": 2.5641,
-    "min": 45,
-    "max": 50,
+    "pct": 2.6316,
+    "min": 46,
+    "max": 51,
     "rarete": "peu commun"
    },
    {
     "espece": 724,
     "nom": "Archéduc",
-    "pct": 2.5641,
+    "pct": 2.6316,
     "min": 46,
     "max": 51,
     "rarete": "peu commun"
@@ -410,31 +402,31 @@
    {
     "espece": 609,
     "nom": "Lugulabre",
-    "pct": 2.5641,
-    "min": 46,
-    "max": 51,
+    "pct": 2.6316,
+    "min": 47,
+    "max": 52,
     "rarete": "peu commun"
    },
    {
     "espece": 839,
     "nom": "Monthracite",
-    "pct": 2.5641,
-    "min": 47,
-    "max": 52,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 392,
-    "nom": "Simiabraz",
-    "pct": 0.8547,
+    "pct": 0.8772,
     "min": 47,
     "max": 52,
     "rarete": "rare"
    },
    {
+    "espece": 392,
+    "nom": "Simiabraz",
+    "pct": 0.8772,
+    "min": 48,
+    "max": 53,
+    "rarete": "rare"
+   },
+   {
     "espece": 500,
     "nom": "Roitiflam",
-    "pct": 0.8547,
+    "pct": 0.8772,
     "min": 48,
     "max": 53,
     "rarete": "rare"
@@ -442,15 +434,15 @@
    {
     "espece": 911,
     "nom": "Flâmigator",
-    "pct": 0.8547,
-    "min": 48,
-    "max": 53,
+    "pct": 0.8772,
+    "min": 49,
+    "max": 54,
     "rarete": "rare"
    },
    {
     "espece": 979,
     "nom": "Courrousinge",
-    "pct": 0.8547,
+    "pct": 0.8772,
     "min": 49,
     "max": 54,
     "rarete": "rare"
@@ -458,15 +450,7 @@
    {
     "espece": 983,
     "nom": "Scalpereur",
-    "pct": 0.8547,
-    "min": 49,
-    "max": 54,
-    "rarete": "rare"
-   },
-   {
-    "espece": 10233,
-    "nom": "Typhlosion de Hisui",
-    "pct": 0.8548,
+    "pct": 0.8764,
     "min": 50,
     "max": 55,
     "rarete": "rare"

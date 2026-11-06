@@ -8,7 +8,7 @@
    {
     "espece": 221,
     "nom": "Cochignon",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 15,
     "max": 20,
     "rarete": "commun"
@@ -16,7 +16,7 @@
    {
     "espece": 124,
     "nom": "Lippoutou",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 15,
     "max": 20,
     "rarete": "commun"
@@ -24,7 +24,7 @@
    {
     "espece": 362,
     "nom": "Oniglali",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 16,
     "max": 21,
     "rarete": "commun"
@@ -32,7 +32,7 @@
    {
     "espece": 583,
     "nom": "Sorboul",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 16,
     "max": 21,
     "rarete": "commun"
@@ -40,7 +40,7 @@
    {
     "espece": 713,
     "nom": "Séracrawl",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 16,
     "max": 21,
     "rarete": "commun"
@@ -48,7 +48,7 @@
    {
     "espece": 461,
     "nom": "Dimoret",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 17,
     "max": 22,
     "rarete": "commun"
@@ -56,7 +56,7 @@
    {
     "espece": 596,
     "nom": "Mygavolt",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 17,
     "max": 22,
     "rarete": "commun"
@@ -64,7 +64,7 @@
    {
     "espece": 738,
     "nom": "Lucanon",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 17,
     "max": 22,
     "rarete": "commun"
@@ -72,7 +72,7 @@
    {
     "espece": 695,
     "nom": "Iguolta",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 18,
     "max": 23,
     "rarete": "commun"
@@ -80,7 +80,7 @@
    {
     "espece": 82,
     "nom": "Magnéton",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 18,
     "max": 23,
     "rarete": "commun"
@@ -88,23 +88,23 @@
    {
     "espece": 101,
     "nom": "Électrode",
-    "pct": 2.2901,
-    "min": 18,
-    "max": 23,
+    "pct": 2.5316,
+    "min": 19,
+    "max": 24,
     "rarete": "commun"
    },
    {
     "espece": 125,
     "nom": "Élektek",
-    "pct": 2.2901,
-    "min": 18,
-    "max": 23,
+    "pct": 2.5316,
+    "min": 19,
+    "max": 24,
     "rarete": "commun"
    },
    {
     "espece": 180,
     "nom": "Lainergie",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 19,
     "max": 24,
     "rarete": "commun"
@@ -112,23 +112,23 @@
    {
     "espece": 310,
     "nom": "Élecsprint",
-    "pct": 2.2901,
-    "min": 19,
-    "max": 24,
+    "pct": 2.5316,
+    "min": 20,
+    "max": 25,
     "rarete": "commun"
    },
    {
     "espece": 404,
     "nom": "Luxio",
-    "pct": 2.2901,
-    "min": 19,
-    "max": 24,
+    "pct": 2.5316,
+    "min": 20,
+    "max": 25,
     "rarete": "commun"
    },
    {
     "espece": 523,
     "nom": "Zéblitz",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 20,
     "max": 25,
     "rarete": "commun"
@@ -136,23 +136,23 @@
    {
     "espece": 603,
     "nom": "Lampéroie",
-    "pct": 2.2901,
-    "min": 20,
-    "max": 25,
+    "pct": 2.5316,
+    "min": 21,
+    "max": 26,
     "rarete": "commun"
    },
    {
     "espece": 836,
     "nom": "Fulgudog",
-    "pct": 2.2901,
-    "min": 20,
-    "max": 25,
+    "pct": 2.5316,
+    "min": 21,
+    "max": 26,
     "rarete": "commun"
    },
    {
     "espece": 598,
     "nom": "Noacier",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 21,
     "max": 26,
     "rarete": "commun"
@@ -160,31 +160,23 @@
    {
     "espece": 205,
     "nom": "Foretress",
-    "pct": 2.2901,
-    "min": 21,
-    "max": 26,
-    "rarete": "commun"
-   },
-   {
-    "espece": 212,
-    "nom": "Cizayox",
-    "pct": 2.2901,
-    "min": 21,
-    "max": 26,
-    "rarete": "commun"
-   },
-   {
-    "espece": 589,
-    "nom": "Lançargot",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 22,
     "max": 27,
     "rarete": "commun"
    },
    {
-    "espece": 10106,
-    "nom": "Triopikeur d'Alola",
-    "pct": 2.2901,
+    "espece": 212,
+    "nom": "Cizayox",
+    "pct": 2.5316,
+    "min": 22,
+    "max": 27,
+    "rarete": "commun"
+   },
+   {
+    "espece": 589,
+    "nom": "Lançargot",
+    "pct": 2.5316,
     "min": 22,
     "max": 27,
     "rarete": "commun"
@@ -192,15 +184,15 @@
    {
     "espece": 530,
     "nom": "Minotaupe",
-    "pct": 2.2901,
-    "min": 22,
-    "max": 27,
+    "pct": 2.5316,
+    "min": 23,
+    "max": 28,
     "rarete": "commun"
    },
    {
     "espece": 600,
     "nom": "Clic",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 23,
     "max": 28,
     "rarete": "commun"
@@ -208,7 +200,7 @@
    {
     "espece": 437,
     "nom": "Archéodong",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 23,
     "max": 28,
     "rarete": "commun"
@@ -216,15 +208,15 @@
    {
     "espece": 305,
     "nom": "Galegon",
-    "pct": 2.2901,
-    "min": 23,
-    "max": 28,
+    "pct": 2.5316,
+    "min": 24,
+    "max": 29,
     "rarete": "commun"
    },
    {
     "espece": 476,
     "nom": "Tarinorme",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 24,
     "max": 29,
     "rarete": "commun"
@@ -232,7 +224,7 @@
    {
     "espece": 680,
     "nom": "Dimoclès",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 24,
     "max": 29,
     "rarete": "commun"
@@ -240,95 +232,87 @@
    {
     "espece": 625,
     "nom": "Scalproie",
-    "pct": 2.2901,
-    "min": 24,
-    "max": 29,
+    "pct": 2.5316,
+    "min": 25,
+    "max": 30,
     "rarete": "commun"
    },
    {
     "espece": 178,
     "nom": "Xatu",
-    "pct": 2.2901,
+    "pct": 1.2658,
     "min": 25,
     "max": 30,
-    "rarete": "commun"
+    "rarete": "peu commun"
    },
    {
     "espece": 528,
     "nom": "Rhinolove",
-    "pct": 2.2901,
-    "min": 25,
-    "max": 30,
-    "rarete": "commun"
+    "pct": 1.2658,
+    "min": 26,
+    "max": 31,
+    "rarete": "peu commun"
    },
    {
     "espece": 64,
     "nom": "Kadabra",
-    "pct": 1.145,
-    "min": 25,
-    "max": 30,
+    "pct": 1.2658,
+    "min": 26,
+    "max": 31,
     "rarete": "peu commun"
    },
    {
     "espece": 97,
     "nom": "Hypnomade",
-    "pct": 1.145,
-    "min": 25,
-    "max": 30,
+    "pct": 1.2658,
+    "min": 26,
+    "max": 31,
     "rarete": "peu commun"
    },
    {
     "espece": 326,
     "nom": "Groret",
-    "pct": 1.145,
-    "min": 26,
-    "max": 31,
+    "pct": 1.2658,
+    "min": 27,
+    "max": 32,
     "rarete": "peu commun"
    },
    {
     "espece": 358,
     "nom": "Éoko",
-    "pct": 1.145,
-    "min": 26,
-    "max": 31,
+    "pct": 1.2658,
+    "min": 27,
+    "max": 32,
     "rarete": "peu commun"
    },
    {
     "espece": 518,
     "nom": "Mushana",
-    "pct": 1.145,
-    "min": 26,
-    "max": 31,
+    "pct": 1.2658,
+    "min": 27,
+    "max": 32,
     "rarete": "peu commun"
    },
    {
     "espece": 743,
     "nom": "Rubombelle",
-    "pct": 1.145,
-    "min": 27,
-    "max": 32,
+    "pct": 1.2658,
+    "min": 28,
+    "max": 33,
     "rarete": "peu commun"
    },
    {
     "espece": 670,
     "nom": "Floette",
-    "pct": 1.145,
-    "min": 27,
-    "max": 32,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 10091,
-    "nom": "Rattata d'Alola",
-    "pct": 1.145,
-    "min": 27,
-    "max": 32,
+    "pct": 1.2658,
+    "min": 28,
+    "max": 33,
     "rarete": "peu commun"
    },
    {
     "espece": 203,
     "nom": "Girafarig",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 28,
     "max": 33,
     "rarete": "peu commun"
@@ -336,23 +320,15 @@
    {
     "espece": 375,
     "nom": "Métang",
-    "pct": 1.145,
-    "min": 28,
-    "max": 33,
+    "pct": 1.2658,
+    "min": 29,
+    "max": 34,
     "rarete": "peu commun"
    },
    {
     "espece": 866,
     "nom": "M. Glaquette",
-    "pct": 1.145,
-    "min": 28,
-    "max": 33,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 10102,
-    "nom": "Sablaireau d'Alola",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 29,
     "max": 34,
     "rarete": "peu commun"
@@ -360,7 +336,7 @@
    {
     "espece": 849,
     "nom": "Salarsen",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 29,
     "max": 34,
     "rarete": "peu commun"
@@ -368,15 +344,15 @@
    {
     "espece": 25,
     "nom": "Pikachu",
-    "pct": 1.145,
-    "min": 29,
-    "max": 34,
+    "pct": 1.2658,
+    "min": 30,
+    "max": 35,
     "rarete": "peu commun"
    },
    {
     "espece": 208,
     "nom": "Steelix",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 30,
     "max": 35,
     "rarete": "peu commun"
@@ -384,15 +360,7 @@
    {
     "espece": 103,
     "nom": "Noadkoko",
-    "pct": 1.145,
-    "min": 30,
-    "max": 35,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 10165,
-    "nom": "Flagadoss de Galar",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 30,
     "max": 35,
     "rarete": "peu commun"
@@ -400,7 +368,7 @@
    {
     "espece": 863,
     "nom": "Berserkatt",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 31,
     "max": 36,
     "rarete": "peu commun"
@@ -408,31 +376,23 @@
    {
     "espece": 879,
     "nom": "Pachyradjah",
-    "pct": 1.145,
-    "min": 31,
-    "max": 36,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 614,
-    "nom": "Polagriffe",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 31,
     "max": 36,
     "rarete": "rare"
    },
    {
-    "espece": 10177,
-    "nom": "Darumacho de Galar",
-    "pct": 0.3817,
-    "min": 32,
-    "max": 37,
+    "espece": 614,
+    "nom": "Polagriffe",
+    "pct": 0.4219,
+    "min": 31,
+    "max": 36,
     "rarete": "rare"
    },
    {
     "espece": 135,
     "nom": "Voltali",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 32,
     "max": 37,
     "rarete": "rare"
@@ -440,7 +400,7 @@
    {
     "espece": 880,
     "nom": "Galvagon",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 32,
     "max": 37,
     "rarete": "rare"
@@ -448,15 +408,15 @@
    {
     "espece": 881,
     "nom": "Galvagla",
-    "pct": 0.3817,
-    "min": 32,
-    "max": 37,
+    "pct": 0.4219,
+    "min": 33,
+    "max": 38,
     "rarete": "rare"
    },
    {
     "espece": 927,
     "nom": "Briochien",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 33,
     "max": 38,
     "rarete": "rare"
@@ -464,7 +424,7 @@
    {
     "espece": 939,
     "nom": "Ampibidou",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 33,
     "max": 38,
     "rarete": "rare"
@@ -472,15 +432,15 @@
    {
     "espece": 954,
     "nom": "Bérasca",
-    "pct": 0.3817,
-    "min": 33,
-    "max": 38,
+    "pct": 0.4219,
+    "min": 34,
+    "max": 39,
     "rarete": "rare"
    },
    {
     "espece": 958,
     "nom": "Forgella",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 34,
     "max": 39,
     "rarete": "rare"
@@ -488,7 +448,7 @@
    {
     "espece": 966,
     "nom": "Vrombotor",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 34,
     "max": 39,
     "rarete": "rare"
@@ -496,23 +456,15 @@
    {
     "espece": 975,
     "nom": "Balbalèze",
-    "pct": 0.3817,
-    "min": 34,
-    "max": 39,
-    "rarete": "rare"
-   },
-   {
-    "espece": 1000,
-    "nom": "Gromago",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 35,
     "max": 40,
     "rarete": "rare"
    },
    {
-    "espece": 10240,
-    "nom": "Gueriaigle de Hisui",
-    "pct": 0.3814,
+    "espece": 1000,
+    "nom": "Gromago",
+    "pct": 0.4241,
     "min": 35,
     "max": 40,
     "rarete": "rare"
@@ -522,7 +474,7 @@
    {
     "espece": 221,
     "nom": "Cochignon",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 15,
     "max": 20,
     "rarete": "commun"
@@ -530,7 +482,7 @@
    {
     "espece": 124,
     "nom": "Lippoutou",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 15,
     "max": 20,
     "rarete": "commun"
@@ -538,7 +490,7 @@
    {
     "espece": 362,
     "nom": "Oniglali",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 16,
     "max": 21,
     "rarete": "commun"
@@ -546,7 +498,7 @@
    {
     "espece": 583,
     "nom": "Sorboul",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 16,
     "max": 21,
     "rarete": "commun"
@@ -554,7 +506,7 @@
    {
     "espece": 713,
     "nom": "Séracrawl",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 16,
     "max": 21,
     "rarete": "commun"
@@ -562,7 +514,7 @@
    {
     "espece": 461,
     "nom": "Dimoret",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 17,
     "max": 22,
     "rarete": "commun"
@@ -570,7 +522,7 @@
    {
     "espece": 596,
     "nom": "Mygavolt",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 17,
     "max": 22,
     "rarete": "commun"
@@ -578,7 +530,7 @@
    {
     "espece": 738,
     "nom": "Lucanon",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 17,
     "max": 22,
     "rarete": "commun"
@@ -586,7 +538,7 @@
    {
     "espece": 695,
     "nom": "Iguolta",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 18,
     "max": 23,
     "rarete": "commun"
@@ -594,7 +546,7 @@
    {
     "espece": 82,
     "nom": "Magnéton",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 18,
     "max": 23,
     "rarete": "commun"
@@ -602,23 +554,23 @@
    {
     "espece": 101,
     "nom": "Électrode",
-    "pct": 2.2901,
-    "min": 18,
-    "max": 23,
+    "pct": 2.5316,
+    "min": 19,
+    "max": 24,
     "rarete": "commun"
    },
    {
     "espece": 125,
     "nom": "Élektek",
-    "pct": 2.2901,
-    "min": 18,
-    "max": 23,
+    "pct": 2.5316,
+    "min": 19,
+    "max": 24,
     "rarete": "commun"
    },
    {
     "espece": 180,
     "nom": "Lainergie",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 19,
     "max": 24,
     "rarete": "commun"
@@ -626,23 +578,23 @@
    {
     "espece": 310,
     "nom": "Élecsprint",
-    "pct": 2.2901,
-    "min": 19,
-    "max": 24,
+    "pct": 2.5316,
+    "min": 20,
+    "max": 25,
     "rarete": "commun"
    },
    {
     "espece": 404,
     "nom": "Luxio",
-    "pct": 2.2901,
-    "min": 19,
-    "max": 24,
+    "pct": 2.5316,
+    "min": 20,
+    "max": 25,
     "rarete": "commun"
    },
    {
     "espece": 523,
     "nom": "Zéblitz",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 20,
     "max": 25,
     "rarete": "commun"
@@ -650,23 +602,23 @@
    {
     "espece": 603,
     "nom": "Lampéroie",
-    "pct": 2.2901,
-    "min": 20,
-    "max": 25,
+    "pct": 2.5316,
+    "min": 21,
+    "max": 26,
     "rarete": "commun"
    },
    {
     "espece": 836,
     "nom": "Fulgudog",
-    "pct": 2.2901,
-    "min": 20,
-    "max": 25,
+    "pct": 2.5316,
+    "min": 21,
+    "max": 26,
     "rarete": "commun"
    },
    {
     "espece": 598,
     "nom": "Noacier",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 21,
     "max": 26,
     "rarete": "commun"
@@ -674,31 +626,23 @@
    {
     "espece": 205,
     "nom": "Foretress",
-    "pct": 2.2901,
-    "min": 21,
-    "max": 26,
-    "rarete": "commun"
-   },
-   {
-    "espece": 212,
-    "nom": "Cizayox",
-    "pct": 2.2901,
-    "min": 21,
-    "max": 26,
-    "rarete": "commun"
-   },
-   {
-    "espece": 589,
-    "nom": "Lançargot",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 22,
     "max": 27,
     "rarete": "commun"
    },
    {
-    "espece": 10106,
-    "nom": "Triopikeur d'Alola",
-    "pct": 2.2901,
+    "espece": 212,
+    "nom": "Cizayox",
+    "pct": 2.5316,
+    "min": 22,
+    "max": 27,
+    "rarete": "commun"
+   },
+   {
+    "espece": 589,
+    "nom": "Lançargot",
+    "pct": 2.5316,
     "min": 22,
     "max": 27,
     "rarete": "commun"
@@ -706,15 +650,15 @@
    {
     "espece": 530,
     "nom": "Minotaupe",
-    "pct": 2.2901,
-    "min": 22,
-    "max": 27,
+    "pct": 2.5316,
+    "min": 23,
+    "max": 28,
     "rarete": "commun"
    },
    {
     "espece": 600,
     "nom": "Clic",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 23,
     "max": 28,
     "rarete": "commun"
@@ -722,7 +666,7 @@
    {
     "espece": 437,
     "nom": "Archéodong",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 23,
     "max": 28,
     "rarete": "commun"
@@ -730,15 +674,15 @@
    {
     "espece": 305,
     "nom": "Galegon",
-    "pct": 2.2901,
-    "min": 23,
-    "max": 28,
+    "pct": 2.5316,
+    "min": 24,
+    "max": 29,
     "rarete": "commun"
    },
    {
     "espece": 476,
     "nom": "Tarinorme",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 24,
     "max": 29,
     "rarete": "commun"
@@ -746,7 +690,7 @@
    {
     "espece": 680,
     "nom": "Dimoclès",
-    "pct": 2.2901,
+    "pct": 2.5316,
     "min": 24,
     "max": 29,
     "rarete": "commun"
@@ -754,95 +698,87 @@
    {
     "espece": 625,
     "nom": "Scalproie",
-    "pct": 2.2901,
-    "min": 24,
-    "max": 29,
+    "pct": 2.5316,
+    "min": 25,
+    "max": 30,
     "rarete": "commun"
    },
    {
     "espece": 178,
     "nom": "Xatu",
-    "pct": 2.2901,
+    "pct": 1.2658,
     "min": 25,
     "max": 30,
-    "rarete": "commun"
+    "rarete": "peu commun"
    },
    {
     "espece": 528,
     "nom": "Rhinolove",
-    "pct": 2.2901,
-    "min": 25,
-    "max": 30,
-    "rarete": "commun"
+    "pct": 1.2658,
+    "min": 26,
+    "max": 31,
+    "rarete": "peu commun"
    },
    {
     "espece": 64,
     "nom": "Kadabra",
-    "pct": 1.145,
-    "min": 25,
-    "max": 30,
+    "pct": 1.2658,
+    "min": 26,
+    "max": 31,
     "rarete": "peu commun"
    },
    {
     "espece": 97,
     "nom": "Hypnomade",
-    "pct": 1.145,
-    "min": 25,
-    "max": 30,
+    "pct": 1.2658,
+    "min": 26,
+    "max": 31,
     "rarete": "peu commun"
    },
    {
     "espece": 326,
     "nom": "Groret",
-    "pct": 1.145,
-    "min": 26,
-    "max": 31,
+    "pct": 1.2658,
+    "min": 27,
+    "max": 32,
     "rarete": "peu commun"
    },
    {
     "espece": 358,
     "nom": "Éoko",
-    "pct": 1.145,
-    "min": 26,
-    "max": 31,
+    "pct": 1.2658,
+    "min": 27,
+    "max": 32,
     "rarete": "peu commun"
    },
    {
     "espece": 518,
     "nom": "Mushana",
-    "pct": 1.145,
-    "min": 26,
-    "max": 31,
+    "pct": 1.2658,
+    "min": 27,
+    "max": 32,
     "rarete": "peu commun"
    },
    {
     "espece": 743,
     "nom": "Rubombelle",
-    "pct": 1.145,
-    "min": 27,
-    "max": 32,
+    "pct": 1.2658,
+    "min": 28,
+    "max": 33,
     "rarete": "peu commun"
    },
    {
     "espece": 670,
     "nom": "Floette",
-    "pct": 1.145,
-    "min": 27,
-    "max": 32,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 10091,
-    "nom": "Rattata d'Alola",
-    "pct": 1.145,
-    "min": 27,
-    "max": 32,
+    "pct": 1.2658,
+    "min": 28,
+    "max": 33,
     "rarete": "peu commun"
    },
    {
     "espece": 203,
     "nom": "Girafarig",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 28,
     "max": 33,
     "rarete": "peu commun"
@@ -850,23 +786,15 @@
    {
     "espece": 375,
     "nom": "Métang",
-    "pct": 1.145,
-    "min": 28,
-    "max": 33,
+    "pct": 1.2658,
+    "min": 29,
+    "max": 34,
     "rarete": "peu commun"
    },
    {
     "espece": 866,
     "nom": "M. Glaquette",
-    "pct": 1.145,
-    "min": 28,
-    "max": 33,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 10102,
-    "nom": "Sablaireau d'Alola",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 29,
     "max": 34,
     "rarete": "peu commun"
@@ -874,7 +802,7 @@
    {
     "espece": 849,
     "nom": "Salarsen",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 29,
     "max": 34,
     "rarete": "peu commun"
@@ -882,15 +810,15 @@
    {
     "espece": 25,
     "nom": "Pikachu",
-    "pct": 1.145,
-    "min": 29,
-    "max": 34,
+    "pct": 1.2658,
+    "min": 30,
+    "max": 35,
     "rarete": "peu commun"
    },
    {
     "espece": 208,
     "nom": "Steelix",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 30,
     "max": 35,
     "rarete": "peu commun"
@@ -898,15 +826,7 @@
    {
     "espece": 103,
     "nom": "Noadkoko",
-    "pct": 1.145,
-    "min": 30,
-    "max": 35,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 10165,
-    "nom": "Flagadoss de Galar",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 30,
     "max": 35,
     "rarete": "peu commun"
@@ -914,7 +834,7 @@
    {
     "espece": 863,
     "nom": "Berserkatt",
-    "pct": 1.145,
+    "pct": 1.2658,
     "min": 31,
     "max": 36,
     "rarete": "peu commun"
@@ -922,31 +842,23 @@
    {
     "espece": 879,
     "nom": "Pachyradjah",
-    "pct": 1.145,
-    "min": 31,
-    "max": 36,
-    "rarete": "peu commun"
-   },
-   {
-    "espece": 614,
-    "nom": "Polagriffe",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 31,
     "max": 36,
     "rarete": "rare"
    },
    {
-    "espece": 10177,
-    "nom": "Darumacho de Galar",
-    "pct": 0.3817,
-    "min": 32,
-    "max": 37,
+    "espece": 614,
+    "nom": "Polagriffe",
+    "pct": 0.4219,
+    "min": 31,
+    "max": 36,
     "rarete": "rare"
    },
    {
     "espece": 135,
     "nom": "Voltali",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 32,
     "max": 37,
     "rarete": "rare"
@@ -954,7 +866,7 @@
    {
     "espece": 880,
     "nom": "Galvagon",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 32,
     "max": 37,
     "rarete": "rare"
@@ -962,15 +874,15 @@
    {
     "espece": 881,
     "nom": "Galvagla",
-    "pct": 0.3817,
-    "min": 32,
-    "max": 37,
+    "pct": 0.4219,
+    "min": 33,
+    "max": 38,
     "rarete": "rare"
    },
    {
     "espece": 927,
     "nom": "Briochien",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 33,
     "max": 38,
     "rarete": "rare"
@@ -978,7 +890,7 @@
    {
     "espece": 939,
     "nom": "Ampibidou",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 33,
     "max": 38,
     "rarete": "rare"
@@ -986,15 +898,15 @@
    {
     "espece": 954,
     "nom": "Bérasca",
-    "pct": 0.3817,
-    "min": 33,
-    "max": 38,
+    "pct": 0.4219,
+    "min": 34,
+    "max": 39,
     "rarete": "rare"
    },
    {
     "espece": 958,
     "nom": "Forgella",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 34,
     "max": 39,
     "rarete": "rare"
@@ -1002,7 +914,7 @@
    {
     "espece": 966,
     "nom": "Vrombotor",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 34,
     "max": 39,
     "rarete": "rare"
@@ -1010,23 +922,15 @@
    {
     "espece": 975,
     "nom": "Balbalèze",
-    "pct": 0.3817,
-    "min": 34,
-    "max": 39,
-    "rarete": "rare"
-   },
-   {
-    "espece": 1000,
-    "nom": "Gromago",
-    "pct": 0.3817,
+    "pct": 0.4219,
     "min": 35,
     "max": 40,
     "rarete": "rare"
    },
    {
-    "espece": 10240,
-    "nom": "Gueriaigle de Hisui",
-    "pct": 0.3814,
+    "espece": 1000,
+    "nom": "Gromago",
+    "pct": 0.4241,
     "min": 35,
     "max": 40,
     "rarete": "rare"

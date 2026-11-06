@@ -64,6 +64,15 @@ def construire() -> dict:
     ids = lire("pokedex-ids.json")["ids"]
     fiches = lire("especes-fiches.json")["fiches"]
 
+    #  ── LES ESPÈCES QU'AUCUNE ZONE NE PORTE ─────────────────────────
+    #
+    #  Fossiles, leurs évolutions, et les formes régionales depuis le
+    #  6 novembre. Elles sont au Pokédex et n'ont ni zone, ni
+    #  fourchette de niveaux, ni moment : il n'y a rien de vrai à y
+    #  écrire, alors on écrit `null` et on dit l'origine.
+    hors = {e["id"]: e for e in lire("hors-nature.json")["especes"]}
+    hors_nature = set(hors)
+
     zones = []
     especes = []
     refus = []
@@ -104,6 +113,17 @@ def construire() -> dict:
                 continue
             rencontre = par_espece.get(identifiant)
             if rencontre is None:
+                #  UNE ESPÈCE HORS NATURE N'EST PAS UNE ERREUR. Elle est
+                #  au Pokédex de la planche, mais aucune table ne la
+                #  porte — parce qu'on ne la croise pas. Les formes
+                #  régionales sont dans ce cas depuis le 6 novembre :
+                #  elles passent par une brèche interdimensionnelle.
+                #
+                #  Elle est posée plus bas, avec les fossiles, pour que
+                #  TOUTES les espèces hors nature sortent du même
+                #  endroit et portent la même forme.
+                if identifiant in hors_nature:
+                    continue
                 refus.append(
                     f"« {nom} » est au Pokédex de la zone {forum} "
                     f"mais pas dans sa table de faune"
@@ -124,6 +144,40 @@ def construire() -> dict:
                 "max": rencontre["max"],
                 "quand": "les deux" if len(moments) == 2 else next(iter(moments)),
             })
+
+    #  ── ET MAINTENANT LES HORS-NATURE, TOUTES ENSEMBLE ──────────────
+    #
+    #  Celles que la planche cite dans une zone (les formes régionales)
+    #  comme celles qu'elle ne cite nulle part (les lignées fossiles) :
+    #  même source, même forme de ligne, un seul endroit à relire.
+    deja = {e["id"] for e in especes}
+    for identifiant, e in hors.items():
+        if identifiant in deja:
+            refus.append(
+                f"« {e['nom']} » est à la fois dans une table de faune et "
+                "dans hors-nature.json"
+            )
+            continue
+        fiche = fiches.get(str(identifiant))
+        if fiche is None:
+            refus.append(f"« {e['nom']} » ({identifiant}) n'a pas de fiche de types")
+            continue
+        ligne = {
+            "no": 0,
+            "id": identifiant,
+            "nom": e["nom"],
+            "types": fiche["types"],
+            "zone": None,
+            "min": None,
+            "max": None,
+            "quand": None,
+            "origine": e["origine"],
+        }
+        if e.get("fossile"):
+            ligne["fossile"] = e["fossile"]
+        if e.get("de"):
+            ligne["de"] = e["de"]
+        especes.append(ligne)
 
     if refus:
         print(f"REFUS : {len(refus)} problème(s) :", file=sys.stderr)

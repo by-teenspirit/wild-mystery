@@ -48,6 +48,7 @@ import {
   type ObjetDuCatalogue,
   ongletDeLAdresse,
   ONGLETS,
+  ouLaTrouver,
   pokedexAffiche,
   PokemonDuCarnet,
   sacRange,
@@ -386,12 +387,21 @@ function poserLaFiche(doc: Document, k: CaseDePokedex, decor: Decor): void {
     ligne("Pas encore", "croisée");
   } else {
     ligne("Attrapés", k.fois === 0 ? "jamais" : `${k.fois} fois`);
-    ligne("Où", zone?.nom ?? `zone ${k.espece.zone}`);
-    ligne("Niveaux", `${k.espece.min} à ${k.espece.max}`);
-    ligne(
-      "Quand",
-      k.espece.quand === "les deux" ? "de jour comme de nuit" : `de ${k.espece.quand}`,
-    );
+    //  UNE ESPÈCE SANS ZONE NE DIT PAS « zone null ». Soixante-seize
+    //  d'entre elles ne vivent nulle part : fossiles, leurs évolutions,
+    //  et les formes régionales depuis le 6 novembre. Elles disent par
+    //  où on les obtient, et taisent les niveaux et le moment — il n'y
+    //  a rien de vrai à en dire.
+    if (k.espece.zone === null) {
+      ligne("Où", ouLaTrouver(k.espece));
+    } else {
+      ligne("Où", zone?.nom ?? `zone ${k.espece.zone}`);
+      ligne("Niveaux", `${k.espece.min} à ${k.espece.max}`);
+      ligne(
+        "Quand",
+        k.espece.quand === "les deux" ? "de jour comme de nuit" : `de ${k.espece.quand}`,
+      );
+    }
     if (k.croiseLe !== null) ligne("Première fois", jour(k.croiseLe));
   }
 

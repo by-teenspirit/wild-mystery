@@ -176,7 +176,25 @@ def construire() -> dict[pathlib.Path, str]:
                 f"REFUS : {entree['zone']} — sans identifiant : {', '.join(absents)}"
             )
 
-        t = table(entree["especes"], ids, bande)
+        #  ── LES FORMES RÉGIONALES SORTENT DES ZONES ────────────────
+        #
+        #  Arbitrage de Callista, le 6 novembre : « les formes Galar,
+        #  Alola etc. doivent se trouver dans le pokédex mais ne
+        #  doivent pas être trouvables pour le moment dans les zones ».
+        #  Elles s'obtiennent par une BRÈCHE INTERDIMENSIONNELLE.
+        #
+        #  Elles restent dans la planche 39 et au Pokédex — c'est
+        #  `data/hors-nature.json` qui les y porte maintenant. Elles ne
+        #  sortent QUE des tables de rencontre.
+        #
+        #  CE QUE ÇA CHANGE, ET QUI NE SE VOIT PAS : les pourcentages
+        #  sont calculés sur la liste de la zone, donc en retirer des
+        #  espèces REDISTRIBUE les chances sur celles qui restent. Ce
+        #  n'est pas un effet de bord, c'est la seule chose correcte à
+        #  faire — une table dont les parts ne font pas cent ment sur
+        #  la chance de chacune.
+        retenues = [n for n in entree["especes"] if ids[n] < 10000]
+        t = table(retenues, ids, bande)
         fichiers[FAUNE / f"{zone['forumId']}.json"] = json.dumps(
             {
                 "forumId": zone["forumId"],

@@ -52,9 +52,17 @@ SOURCE = (
 
 
 def les_ids():
-    """Les identifiants des 933 espèces du Pokédex de Rhode."""
-    d = json.loads((R / "data/pokedex-ids.json").read_text(encoding="utf-8"))
-    return sorted(set(d["ids"].values()))
+    """Les identifiants de toutes les espèces du Pokédex de Rhode.
+
+    `data/especes.json` ET PAS `pokedex-ids.json` depuis le 6 novembre :
+    le second ne porte que les espèces des zones, et les vingt-deux
+    arrivées ce jour-là — les lignées fossiles et Feunard d'Alola — n'y
+    sont pas. Feunard d'Alola, qui est une forme, se retrouvait donc
+    sans base et tombait à la toute fin du Pokédex au lieu de suivre
+    Goupix d'Alola.
+    """
+    d = json.loads((R / "data/especes.json").read_text(encoding="utf-8"))
+    return sorted(int(i) for i in d["especes"])
 
 
 def ecrire(chemin_csv):

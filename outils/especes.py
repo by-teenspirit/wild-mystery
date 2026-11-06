@@ -33,7 +33,7 @@ import sys
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 FAUNE = RACINE / "data" / "faune"
-FOSSILES = RACINE / "data" / "fossiles.json"
+HORS_NATURE = RACINE / "data" / "hors-nature.json"
 SORTIE = RACINE / "data" / "especes.json"
 
 
@@ -64,21 +64,29 @@ def releve() -> dict[int, str]:
             for entree in table:
                 vus[entree["espece"]].add(entree["nom"])
 
-    #  ── ET LES ONZE ESPÈCES FOSSILES ────────────────────────────────
+    #  ── ET LES ESPÈCES QU'AUCUNE ZONE NE PORTE ──────────────────────
     #
-    #  Elles ne sont dans AUCUNE zone, et c'est voulu : planche 39, « les
-    #  fossiles restent hors des zones sauvages, ils ne s'obtiennent
-    #  qu'au laboratoire ». Elles étaient quand même dans cet index
-    #  jusqu'au 15 octobre, par accident — les tables de la V1 les
-    #  citaient.
+    #  Elles ne sont dans AUCUNE table, et c'est voulu. Il y en a trois
+    #  sortes, toutes dans `data/hors-nature.json` :
     #
-    #  Il faut les garder : une ligne de registre « rendu » nomme
+    #    · les ONZE ESPÈCES FOSSILES et leurs dix évolutions — « les
+    #      fossiles restent hors des zones sauvages, ils ne s'obtiennent
+    #      qu'au laboratoire » (planche 39) ;
+    #    · les CINQUANTE-CINQ FORMES RÉGIONALES, sorties des tables le
+    #      6 novembre : elles passent par une brèche interdimensionnelle.
+    #
+    #  Il faut les garder ici : une ligne de registre « rendu » nomme
     #  l'espèce ressuscitée, et sans son nom le bilan afficherait un
     #  numéro. C'est exactement ce que le garde-fou n° 13 refuse — « un
     #  fossile qu'on ramasse et qu'on ne peut pas rendre » — et c'est lui
     #  qui a attrapé le trou le jour où les tables ont changé.
-    for fossile in json.loads(FOSSILES.read_text(encoding="utf-8"))["fossiles"]:
-        vus[fossile["especeId"]].add(fossile["espece"])
+    #
+    #  CE FICHIER LISAIT `fossiles.json` DIRECTEMENT jusqu'au 6
+    #  novembre. Il n'en portait donc que les onze espèces de base : ni
+    #  leurs évolutions, ni rien d'autre. C'est par là qu'Armaldo,
+    #  Charkos et les huit autres manquaient au Pokédex.
+    for espece in json.loads(HORS_NATURE.read_text(encoding="utf-8"))["especes"]:
+        vus[espece["id"]].add(espece["nom"])
 
     desaccords = {i: sorted(n) for i, n in vus.items() if len(n) > 1}
     if desaccords:
@@ -91,11 +99,21 @@ def releve() -> dict[int, str]:
 def contenu(noms: dict[int, str]) -> str:
     """Le fichier, trié par identifiant et lisible par un humain."""
     index = {str(i): noms[i] for i in sorted(noms)}
+    hors_nature = {
+        e["id"] for e in json.loads(HORS_NATURE.read_text(encoding="utf-8"))["especes"]
+    }
     corps = {
-        "source": "dérivé de data/faune/*.json et data/fossiles.json par outils/especes.py",
+        "source": (
+            "dérivé de data/faune/*.json et data/hors-nature.json par outils/especes.py"
+        ),
+        #  LE COMPTE SE COMPTE, il ne s'écrit pas : « 933 » est resté
+        #  dans cette phrase après que les tables ont changé, et la
+        #  note a menti de 22 espèces jusqu'au 6 novembre.
         "couverture": (
-            "les 933 espèces des zones sauvages (le Pokédex de Rhode, planche 39) "
-            "et les 11 espèces fossiles, qui ne vivent dans aucune zone"
+            f"les {sum(1 for i in noms if i not in hors_nature)} espèces des zones "
+            f"sauvages et les {len(hors_nature)} qu'aucune zone ne porte — fossiles, "
+            "leurs évolutions, et les formes régionales, qui passent par une brèche "
+            "interdimensionnelle (data/hors-nature.json)"
         ),
         "especes": index,
     }

@@ -25,6 +25,7 @@ import {
   type ObjetDuCatalogue,
   ONGLET_PAR_DEFAUT,
   ongletDeLAdresse,
+  ouLaTrouver,
   pokedexAffiche,
   type PokemonDuCarnet,
   sacRange,
@@ -272,4 +273,49 @@ Deno.test("UNE ESPÈCE EN DOUBLE : LA PLUS AVANCÉE GAGNE", () => {
 
 Deno.test("un relevé vide donne une table vide, pas une exception", () => {
   assertEquals(etatsParEspece([]).size, 0);
+});
+
+Deno.test("OÙ TROUVER UNE ESPÈCE QU'AUCUNE ZONE NE PORTE", () => {
+  //  Soixante-seize espèces sont au Pokédex sans vivre nulle part
+  //  (6 novembre). La fiche doit dire par où on les obtient, et jamais
+  //  « zone null » ni « Niveaux 0 à 0 ».
+  const base = {
+    no: 1,
+    id: 1,
+    nom: "X",
+    types: ["roche"],
+    zone: null,
+    min: null,
+    max: null,
+    quand: null,
+  };
+  assertEquals(
+    ouLaTrouver({ ...base, origine: "fossile", fossile: "griffe" }),
+    "au laboratoire, par un fossile",
+  );
+  assertEquals(
+    ouLaTrouver({ ...base, origine: "breche" }),
+    "par une brèche interdimensionnelle",
+  );
+  assertEquals(
+    ouLaTrouver({ ...base, origine: "evolution", de: 347 }),
+    "en la faisant évoluer",
+  );
+  //  SANS ORIGINE, ON NE DEVINE PAS. Une espèce sans zone et sans
+  //  origine est une donnée incomplète : la page le dit plutôt que
+  //  d'inventer un endroit.
+  assertEquals(ouLaTrouver(base), "on ne sait pas encore");
+});
+
+Deno.test("LES VRAIES ESPÈCES HORS NATURE DU POKÉDEX SONT TOUTES RATTACHÉES", async () => {
+  //  Mesuré sur le fichier livré, pas sur un gabarit : une espèce sans
+  //  zone et sans origine passerait les trois cas ci-dessus et
+  //  afficherait « on ne sait pas encore » sur le forum.
+  const dex = JSON.parse(
+    await Deno.readTextFile(new URL("../../data/pokedex-carnet.json", import.meta.url)),
+  ).especes as EspeceDeRhode[];
+  const sansZone = dex.filter((e) => e.zone === null);
+  assertEquals(sansZone.length, 76);
+  assertEquals(sansZone.filter((e) => e.origine === undefined).length, 0);
+  assertEquals(dex.filter((e) => e.zone !== null && e.origine !== undefined).length, 0);
 });

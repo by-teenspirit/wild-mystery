@@ -1166,6 +1166,15 @@
    "pv": 35,
    "forme": null
   },
+  "139": {
+   "types": [
+    "roche",
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 70,
+   "forme": null
+  },
   "140": {
    "types": [
     "roche",
@@ -1173,6 +1182,15 @@
    ],
    "stade": 1,
    "pv": 30,
+   "forme": null
+  },
+  "141": {
+   "types": [
+    "roche",
+    "eau"
+   ],
+   "stade": 2,
+   "pv": 60,
    "forme": null
   },
   "142": {
@@ -2817,6 +2835,15 @@
    "pv": 66,
    "forme": null
   },
+  "346": {
+   "types": [
+    "roche",
+    "plante"
+   ],
+   "stade": 2,
+   "pv": 86,
+   "forme": null
+  },
   "347": {
    "types": [
     "roche",
@@ -2824,6 +2851,15 @@
    ],
    "stade": 1,
    "pv": 45,
+   "forme": null
+  },
+  "348": {
+   "types": [
+    "roche",
+    "insecte"
+   ],
+   "stade": 2,
+   "pv": 75,
    "forme": null
   },
   "349": {
@@ -3245,6 +3281,14 @@
    "pv": 67,
    "forme": null
   },
+  "409": {
+   "types": [
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 97,
+   "forme": null
+  },
   "410": {
    "types": [
     "roche",
@@ -3252,6 +3296,15 @@
    ],
    "stade": 1,
    "pv": 30,
+   "forme": null
+  },
+  "411": {
+   "types": [
+    "roche",
+    "acier"
+   ],
+   "stade": 2,
+   "pv": 60,
    "forme": null
   },
   "412": {
@@ -4422,6 +4475,15 @@
    "pv": 54,
    "forme": null
   },
+  "565": {
+   "types": [
+    "eau",
+    "roche"
+   ],
+   "stade": 2,
+   "pv": 74,
+   "forme": null
+  },
   "566": {
    "types": [
     "roche",
@@ -4429,6 +4491,15 @@
    ],
    "stade": 1,
    "pv": 55,
+   "forme": null
+  },
+  "567": {
+   "types": [
+    "roche",
+    "vol"
+   ],
+   "stade": 2,
+   "pv": 75,
    "forme": null
   },
   "568": {
@@ -5422,6 +5493,15 @@
    "pv": 58,
    "forme": null
   },
+  "697": {
+   "types": [
+    "roche",
+    "dragon"
+   ],
+   "stade": 2,
+   "pv": 82,
+   "forme": null
+  },
   "698": {
    "types": [
     "roche",
@@ -5429,6 +5509,15 @@
    ],
    "stade": 1,
    "pv": 77,
+   "forme": null
+  },
+  "699": {
+   "types": [
+    "roche",
+    "glace"
+   ],
+   "stade": 2,
+   "pv": 123,
    "forme": null
   },
   "700": {
@@ -7608,6 +7697,15 @@
    ],
    "stade": 1,
    "pv": 38,
+   "forme": "alola"
+  },
+  "10104": {
+   "types": [
+    "glace",
+    "fee"
+   ],
+   "stade": 2,
+   "pv": 73,
    "forme": "alola"
   },
   "10105": {
