@@ -32,6 +32,7 @@ import {
   poserLeSommaire,
   poserLesSousOnglets,
 } from "../src/adaptateurs/navigateur/module-annexes.ts";
+import { poserLAccessibilite } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { poserLesFiltres } from "../src/adaptateurs/navigateur/module-personnages.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
@@ -57,7 +58,26 @@ async function poser(): Promise<void> {
 //  LE THÈME NE DÉPEND D'AUCUN FICHIER, donc il est posé tout de suite
 //  et pas après la requête : attendre le sommaire pour habiller la page
 //  la ferait clignoter du clair au sombre sous les yeux du joueur.
-poserLeTheme(document, new Preferences(new StockageLocal()));
+const prefs = new Preferences(new StockageLocal());
+poserLeTheme(document, prefs);
+
+//  ── LES TROIS RÉGLAGES DE CONFORT, SUR LES ANNEXES AUSSI ────────────
+//
+//  Demandé le 8 novembre : « ajoute le module d'accessibilité dans les
+//  annexes aussi ».
+//
+//  Il n'y était pas, et ce n'était pas un oubli de configuration : les
+//  pages d'annexe sont servies par le système de pages HTML de
+//  Forumactif, `overall_header` ne les habille pas, et elles ne
+//  chargent que ce fichier-ci. Mesuré sur la page des arènes en ligne : zéro
+//  `.wm-coin`, donc zéro réglage — `poserLAccessibilite` cherchait un
+//  coin d'outils qui n'existe pas ici.
+//
+//  Il s'accroche donc à la barre de retour, qui porte déjà le bouton de
+//  thème. APRÈS `poserLeTheme`, et c'est une dépendance d'ordre : les
+//  deux visent la même barre, et on veut le thème en premier — c'est
+//  celui qu'on cherche le plus souvent.
+poserLAccessibilite(document, prefs);
 
 //  LES SOUS-ONGLETS NE DÉPENDENT D'AUCUN FICHIER non plus : les
 //  sections sont dans la page. On les pose tout de suite, avant la

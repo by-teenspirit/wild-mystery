@@ -56,6 +56,38 @@ def degraisser(html: str) -> str:
     return re.sub(r"\s+", " ", sans).strip()
 
 
+#  ── UN FICHIER QUI PORTE PLUSIEURS MODÈLES ─────────────────────────
+#
+#  `annonce-du-staff.a-coller.html` en contient dix. Dégraissé d'un
+#  bloc, il sortirait en UNE ligne de dix annonces collées — illisible
+#  et inutilisable : on en colle une à la fois.
+#
+#  On le coupe donc sur ses en-têtes `── MODÈLE n · …`, et chaque
+#  modèle sort sur sa ligne, précédé d'une étiquette d'une ligne pour
+#  qu'on retrouve celui qu'on cherche. L'étiquette est un commentaire :
+#  qui copie UNE ligne ne la copie pas.
+DEBUT_DE_MODELE = re.compile(r"<!--\s*─+\s*MODÈLE\s+(\d+)\s*·\s*(.*?)\s*─*\s*$", re.M)
+
+
+def par_modele(html: str):
+    """Rend (numéro, titre, markup dégraissé) pour chaque modèle du fichier."""
+    debuts = list(DEBUT_DE_MODELE.finditer(html))
+    for i, debut in enumerate(debuts):
+        fin = debuts[i + 1].start() if i + 1 < len(debuts) else len(html)
+        yield (
+            int(debut.group(1)),
+            " ".join(debut.group(2).split()).capitalize(),
+            degraisser(html[debut.start():fin]),
+        )
+
+
+#  Les fichiers découpés par modèle. Ailleurs : un fichier, une ligne.
+DECOUPES = {"annonce-du-staff.a-coller.html"}
+
+#  Ce que `--tout` prend.
+GABARITS = ("carte-dresseur.*.html", "annonce-du-staff.*.html")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("fichiers", nargs="*", help="les gabarits à dégraisser")
@@ -65,15 +97,33 @@ def main() -> None:
     cibles = [pathlib.Path(f) for f in args.fichiers]
     if args.tout or not cibles:
         cibles = sorted(
-            f for f in (R / "templates").glob("carte-dresseur.*.html")
+            f
+            for motif in GABARITS
+            for f in (R / "templates").glob(motif)
             if ".min." not in f.name
         )
 
     for f in cibles:
         if not f.exists():
             f = R / f
+        #  ── TOUJOURS UN CHEMIN ABSOLU À PARTIR D'ICI ────────────────
+        #
+        #  Un chemin donné en relatif depuis la racine — le cas normal
+        #  quand on nomme un fichier à la main — existe déjà, donc la
+        #  ligne ci-dessus ne le touchait pas, et le `relative_to(R)`
+        #  de l'affichage jetait. L'outil faisait son travail et
+        #  plantait en annonçant le résultat.
+        f = f.resolve()
         brut = f.read_text()
-        serre = degraisser(brut)
+        if f.name in DECOUPES:
+            lignes = []
+            for numero, titre, markup in par_modele(brut):
+                lignes.append(f"<!-- MODÈLE {numero} · {titre} -->")
+                lignes.append(markup)
+                lignes.append("")
+            serre = "\n".join(lignes).strip()
+        else:
+            serre = degraisser(brut)
         #  `.a-coller.html` → `.a-coller.min.html`. On coupe les cinq
         #  caractères de `.html` et rien d'autre : `with_suffix` aurait
         #  pris `.a-coller` pour une extension et collé les deux

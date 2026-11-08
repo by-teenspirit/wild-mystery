@@ -14,11 +14,11 @@
     if (typeof brute !== "object" || brute === null) return null;
     const r = brute;
     const titre = texte(r.titre);
-    const slug = texte(r.slug);
-    if (titre === "" || slug === "") return null;
+    const slug2 = texte(r.slug);
+    if (titre === "" || slug2 === "") return null;
     return {
       numero: texte(r.numero),
-      slug,
+      slug: slug2,
       titre,
       adresse: adresse(r.adresse)
     };
@@ -232,6 +232,60 @@
     return true;
   }
 
+  // src/adaptateurs/navigateur/module-tw.ts
+  var SANS_LIBELLE = "contenu sensible";
+  function libelleDe(balise) {
+    for (const nom of [
+      "data-wm-tw",
+      "data-mot",
+      "title"
+    ]) {
+      const lu = balise.getAttribute(nom);
+      if (lu !== null && lu.trim() !== "") return lu.trim();
+    }
+    return SANS_LIBELLE;
+  }
+  function poserLesAvertissements(doc) {
+    const balises = doc.querySelectorAll(".postbody .content tw, .postbody .content .wm-tw-source");
+    let pose = 0;
+    for (const balise of Array.from(balises)) {
+      if (balise.closest(".wm-tw") !== null) continue;
+      const mot = libelleDe(balise);
+      const numero = `wm-tw-${pose + 1}-${Math.random().toString(36).slice(2, 7)}`;
+      const bloc = doc.createElement("div");
+      bloc.className = "wm-tw";
+      const tete = doc.createElement("div");
+      tete.className = "wm-tw__tete";
+      const bouton = doc.createElement("button");
+      bouton.type = "button";
+      bouton.className = "wm-tw__bouton";
+      bouton.textContent = "Afficher ce passage";
+      bouton.setAttribute("aria-expanded", "false");
+      bouton.setAttribute("aria-controls", numero);
+      const etiquette = doc.createElement("span");
+      etiquette.className = "wm-tw__mot";
+      etiquette.textContent = mot;
+      const passage = doc.createElement("div");
+      passage.className = "wm-tw__passage";
+      passage.id = numero;
+      passage.setAttribute("aria-hidden", "true");
+      while (balise.firstChild !== null) passage.appendChild(balise.firstChild);
+      tete.appendChild(bouton);
+      tete.appendChild(etiquette);
+      bloc.appendChild(tete);
+      bloc.appendChild(passage);
+      bouton.addEventListener("click", () => {
+        const ouvert = bloc.classList.toggle("wm-tw--ouvert");
+        bouton.setAttribute("aria-expanded", ouvert ? "true" : "false");
+        passage.setAttribute("aria-hidden", ouvert ? "false" : "true");
+        bouton.textContent = ouvert ? "Masquer ce passage" : "Afficher ce passage";
+      });
+      balise.replaceWith(bloc);
+      pose += 1;
+    }
+    return pose;
+  }
+
   // src/navigateur/sprites.ts
   var STYLE_PAR_DEFAUT = "forum";
   function estUnStyleDeSprite(valeur) {
@@ -340,4 +394,5 @@
     return pose;
   };
   g.wmPoserLeTheme = () => poserLeTheme(document, new Preferences(new StockageLocal()));
+  g.wmPoserLesAvertissements = () => poserLesAvertissements(document);
 })();

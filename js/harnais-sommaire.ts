@@ -15,6 +15,7 @@ import {
   poserLeSommaire,
 } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
+import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
 
@@ -30,3 +31,9 @@ g.wmPoserLeSommaire = (donnees: unknown): boolean => {
 //  sans lui, c'est mesurer une page que personne ne verra : il ajoute
 //  un bouton dans la barre, et le thème sombre passe par lui.
 g.wmPoserLeTheme = (): boolean => poserLeTheme(document, new Preferences(new StockageLocal()));
+
+//  LES PASSAGES MASQUÉS, pour `outils/annonces.mjs`. Même raison que
+//  le sommaire : le harnais mesure le bouton POSÉ PAR LE MODULE, pas
+//  un bouton que j'aurais recopié dans la page d'essai — et qui serait
+//  resté juste même après que le module ait cessé de l'être.
+g.wmPoserLesAvertissements = (): number => poserLesAvertissements(document);

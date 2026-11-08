@@ -144,8 +144,26 @@ export function poserLAccessibilite(
   doc: Document,
   prefs: Preferences,
 ): HTMLElement | null {
-  const coin = doc.querySelector(".wm-coin");
+  //  ── DEUX HÔTES POSSIBLES, ET UN SEUL À LA FOIS ────────────────────
+  //
+  //  Le coin d'outils sur le forum ; la barre de retour sur une annexe.
+  //  Les quatorze pages d'annexe sont servies par le système de pages
+  //  HTML de Forumactif : `overall_header` ne les habille pas, elles ne
+  //  chargent que `js/annexes.js`, et il n'y a donc PAS de coin
+  //  d'outils dessus. Mesuré le 8 novembre sur la page des arènes en ligne :
+  //  zéro `.wm-coin`, zéro réglage de confort.
+  //
+  //  On ne pose pas un coin d'outils rien que pour ça : la barre de
+  //  l'annexe porte déjà le bouton de thème, et un second bloc flottant
+  //  avec un second thème ferait chercher le réglage dans celui qui ne
+  //  l'a pas — c'est l'argument écrit en tête de ce fichier, et il vaut
+  //  dans les deux sens.
+  const coin = doc.querySelector(".wm-coin") ?? doc.querySelector(".wm-retour");
   if (coin === null) return null;
+  //  SUR UNE ANNEXE, LE BOUTON SUIT LA BARRE : c'est un lien de barre,
+  //  pas un bouton de coin. Les deux classes sont posées, celle qui ne
+  //  correspond à rien ne peint rien.
+  const dansLaBarre = coin.classList.contains("wm-retour");
 
   //  Une ancre en position relative : le panneau se place par rapport à
   //  ELLE et pas à l'écran, donc il suit le coin où qu'il soit.
@@ -153,14 +171,18 @@ export function poserLAccessibilite(
 
   const bouton = doc.createElement("button");
   bouton.type = "button";
-  bouton.className = "wm-coin__bouton wm-confort__bouton";
+  bouton.className = dansLaBarre
+    ? "wm-retour__lien wm-confort__bouton wm-confort__bouton--barre"
+    : "wm-coin__bouton wm-confort__bouton";
   bouton.setAttribute("aria-expanded", "false");
   bouton.setAttribute("aria-controls", "wm-confort-panneau");
   bouton.appendChild(pictoAccessibilite(doc));
   //  Le libellé est visible ET annoncé, comme les autres boutons du
   //  coin. « CONFORT » et pas « ACCESSIBILITÉ » : il reste lisible dans
   //  les 92 px du coin.
-  bouton.appendChild(element(doc, "span", "wm-coin__texte", "CONFORT"));
+  bouton.appendChild(
+    element(doc, "span", dansLaBarre ? "wm-confort__mot" : "wm-coin__texte", "CONFORT"),
+  );
   bouton.setAttribute("aria-label", "Confort de lecture");
 
   const panneau = element(doc, "div", "wm-confort__panneau");

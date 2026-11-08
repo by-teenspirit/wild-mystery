@@ -174,15 +174,19 @@ const nav = await chromium.launch(
     }))
   );
   ok("trois paliers", paliers.length === 3, paliers.map((x) => x.titre));
-  for (const n of [1, 2]) {
+  //  LES TROIS PALIERS PORTENT DES DÉFIS, depuis les listes du
+  //  8 novembre : 4 / 4 / 3. Le palier 3 était vide jusque-là, et ce
+  //  harnais exigeait encore qu'il le soit — une attente qui avait
+  //  survécu à la donnée qu'elle décrivait.
+  for (const n of [1, 2, 3]) {
     const attendu = ARENES.arenes.filter((a) => a.palier === n).length;
     ok(
       `palier ${n} : ${attendu} défis listés`,
-      paliers[n - 1]?.defis.length === attendu,
-      { lu: paliers[n - 1]?.defis, attendu },
+      attendu > 0 && paliers[n - 1]?.defis.length === attendu &&
+        paliers[n - 1]?.vide === false,
+      { lu: paliers[n - 1]?.defis, attendu, vide: paliers[n - 1]?.vide },
     );
   }
-  ok("le palier 3 dit qu'il n'a aucun défi", paliers[2]?.vide === true, paliers[2]);
 
   // ── chaque défi, ouvert, mesuré ───────────────────────────────────
   const defis = [...ARENES.arenes].sort((a, b) => a.niveau - b.niveau);
@@ -341,12 +345,12 @@ const nav = await chromium.launch(
           //  leur ALIGNEMENT, qui est tout l'intérêt de la colonne :
           //  trois nombres qui ne finissent pas au même endroit ne se
           //  comparent pas d'un pokémon à l'autre.
-          chiffres: Array.from(bulle.querySelectorAll(".wm-equipe__chiffre")).map(
+          chiffres: Array.from(bulle.querySelectorAll(".wm-infobulle__attaque")).map(
             (l) => ({
-              mot: l.querySelector(".wm-equipe__mot")?.textContent.trim() ?? null,
-              valeur: l.querySelector(".wm-equipe__valeur")?.textContent.trim() ?? null,
+              mot: l.querySelector("span:first-child")?.textContent.trim() ?? null,
+              valeur: l.querySelector("span:last-child")?.textContent.trim() ?? null,
               droite: Math.round(
-                l.querySelector(".wm-equipe__valeur").getBoundingClientRect().right,
+                l.querySelector("span:last-child").getBoundingClientRect().right,
               ),
             }),
           ),

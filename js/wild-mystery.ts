@@ -87,6 +87,7 @@ import {
   poserLesNotifications,
 } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
+import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -579,6 +580,11 @@ desQueLeCorpsEstLa(() => {
   //  le panneau de mentions du forum. Les deux sortent tout de suite
   //  sur une page qui n'a ni message ni éditeur.
   poserLesMentions(document);
+  //  LES PASSAGES MASQUÉS, posés depuis les balises `<tw>` des
+  //  messages. Rien à attendre : le corps des messages est servi avec
+  //  la page, et un avertissement qui arriverait après le texte qu'il
+  //  couvre n'avertirait plus de rien.
+  poserLesAvertissements(document);
   //  L'ÉDITEUR ARRIVE APRÈS NOUS. `sceditor` est monté par le script
   //  de Forumactif, et son iframe n'existe pas encore quand on passe :
   //  on guette son arrivée au lieu de deviner un délai.

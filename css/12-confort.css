@@ -532,3 +532,42 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     max-width: none;
   }
 }
+
+/* ── LE BOUTON DE CONFORT DANS LA BARRE D'UNE ANNEXE ────────────────
+
+    Les quatorze pages d'annexe n'ont pas de coin d'outils : elles sont
+    servies par le système de pages HTML de Forumactif, qui ne passe pas
+    par `overall_header`. Le bouton s'accroche donc à la barre de
+    retour, à côté de celui du thème, et il prend l'allure d'un lien de
+    barre — c'est `module-confort.ts` qui pose la classe.
+
+    Mesuré le 8 novembre sur la page des arènes en ligne : zéro `.wm-coin`. */
+#modernbb .wm-retour .wm-confort {
+  position: relative;
+  display: inline-flex;
+}
+
+#modernbb .wm-confort__bouton--barre {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-confort__bouton--barre svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: currentcolor;
+}
+
+/*  LE PANNEAU S'OUVRE SOUS LA BARRE, pas au-dessus : dans le coin
+    d'outils il remonte parce qu'il n'y a rien en dessous ; ici la barre
+    est en haut de page et un panneau qui remonte sortirait de l'écran. */
+#modernbb .wm-retour .wm-confort__panneau {
+  top: calc(100% + var(--wm-espace-8, 8px));
+  right: 0;
+  bottom: auto;
+}

@@ -1756,38 +1756,11 @@ body:has(#modernbb .wm-carnet) {
     unes sous les autres. Tu affiches "Attaque" à gauche et le numéro à
     droite » (8 novembre).
 
-    C'était une phrase — « 126 PV · 115 ATT · 87 DEF » — écrite le
-    6 novembre pour tenir dans 212 px. Elle tenait, mais elle ne se
-    compare pas : trois nombres en ligne obligent à relire le mot avant
-    chaque chiffre. Alignés à droite et en chiffres tabulaires, ils se
-    lisent en colonne d'un pokémon à l'autre. */
-#modernbb .wm-equipe__chiffres {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  gap: var(--wm-espace-4, 4px);
-  list-style: none;
-}
-
-#modernbb .wm-equipe__chiffre {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--wm-espace-10, 10px);
-  font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-etiquette, 1.3);
-}
-
-#modernbb .wm-equipe__mot {
-  color: inherit;
-  opacity: 0.75;
-}
-
-#modernbb .wm-equipe__valeur {
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--wm-graisse-gras, 700);
-}
+    RIEN ICI : ce sont `wm-infobulle__attaques` et `__attaque`, déjà
+    dans le composant depuis la planche 39, qui les dessinent. J'en
+    avais écrit une copie sous le nom `wm-equipe__chiffre` — le même
+    alignement, écrit deux fois, donc deux choses à tenir d'accord.
+    Retirée le 8 novembre, le jour où je l'ai vue. */
 
 /*  LE RANG DE CHAQUE CASE, d'où son centre se déduit. Six règles et
     pas une boucle : le CSS n'en a pas. */

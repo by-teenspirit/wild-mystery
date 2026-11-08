@@ -1328,6 +1328,8 @@ html#min-width {
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
 
+
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 03 · L'index
 
@@ -2992,6 +2994,7 @@ html#min-width {
   padding-right: 0;
   padding-left: 0;
 }
+
 
 /*  ════════════════════════════════════════════════════════════════
     LES DEUX BARRES DE LIENS DE L'INDEX
@@ -5058,6 +5061,27 @@ html#min-width {
 /*  Une image postée dans un RP ne doit jamais dépasser sa colonne. */
 #modernbb .postbody .content img {
   max-width: 100%;
+}
+
+/*  ── `height: auto` NE VAUT QUE POUR LES IMAGES DES JOUEURS ────────
+
+    `height` est déjà `auto` par défaut : cette ligne ne sert qu'à
+    défaire un `height="400"` posé dans le code du message. Sans elle,
+    une image rétrécie par `max-width` garde la hauteur de l'attribut
+    et sort étirée. Elle est donc load-bearing — pour les images des
+    joueurs.
+
+    MAIS ELLE ÉCRASAIT AUSSI LES NÔTRES. Avec un id, deux classes et
+    un type, ce sélecteur l'emporte sur `.wm-annonce__bandeau` : le
+    bandeau d'une fiche d'annonce reprenait le rapport de sa photo et
+    sortait en colonne de 2310 px de haut. Mesuré le 8 novembre, dans
+    un message réel — mes aperçus précédents posaient la fiche hors
+    de `.content` et ne pouvaient pas le voir.
+
+    Nos composants connaissent leur taille ; on les laisse donc en
+    dehors. Le critère est le préfixe de classe, pas une liste de
+    composants à tenir à jour. */
+#modernbb .postbody .content img:not([class*="wm-"]) {
   height: auto;
 }
 
@@ -8854,20 +8878,14 @@ html#min-width {
     sont la MÊME action, menée au même moment. Les trois modes ne sont
     pas un réglage de la recherche, ce sont trois pages. Les coller à
     la recherche laissait croire qu'ils la filtraient. */
-#modernbb .wm-membres__recherche {
-  order: 0;
-}
+#modernbb .wm-membres__recherche { order: 0; }
 
 /*  LE TRI COLLE À LA RECHERCHE. Il avait `margin-left: auto`, donc il
     partait au bord droit et les deux listes se retrouvaient loin du
     champ auquel elles s'appliquent. « Dernière visite et décroissant
     doivent être rapprochés de la recherche, à la même hauteur »,
     30 octobre. */
-#modernbb .wm-membres__tri {
-  order: 1;
-  flex: 3 1 0;
-  min-width: 0;
-}
+#modernbb .wm-membres__tri { order: 1; flex: 3 1 0; min-width: 0; }
 
 #modernbb .wm-membres__modes {
   order: 2;
@@ -9247,25 +9265,15 @@ html#min-width {
 
 /*  Les parts viennent de la maquette : 376 · 170 · 100 · 144 · 166 sur
     les 956 utiles d'une ligne de 998. */
-#modernbb .wm-membres__col--qui {
-  flex: 376 1 0;
-}
-#modernbb .wm-membres__col--rang {
-  flex: 170 1 0;
-}
-#modernbb .wm-membres__col--chiffre {
-  flex: 100 1 0;
-}
-#modernbb .wm-membres__col--date {
-  flex: 144 1 0;
-}
+#modernbb .wm-membres__col--qui     { flex: 376 1 0; }
+#modernbb .wm-membres__col--rang    { flex: 170 1 0; }
+#modernbb .wm-membres__col--chiffre { flex: 100 1 0; }
+#modernbb .wm-membres__col--date    { flex: 144 1 0; }
 /*  « Dernière visite » fait 166 et pas 144 : c'est le titre le plus
     long. Une CLASSE et pas `:last-of-type` — ce pseudo vise le dernier
     SPAN de la rangée, donc la colonne des liens, et les deux colonnes
     de date restaient à égalité sans que rien ne le dise. */
-#modernbb .wm-membres__col--vue {
-  flex: 166 1 0;
-}
+#modernbb .wm-membres__col--vue { flex: 166 1 0; }
 
 /*  ── LA COLONNE DES LIENS A UNE LARGEUR, ET C'EST OBLIGATOIRE ───────
 
@@ -9289,9 +9297,7 @@ html#min-width {
     capitales, coupé s'il dépasse. Les deux formes tiennent dans la
     même colonne, et la largeur reste FIXE — c'est elle qui garantit
     que l'en-tête tombe en face des valeurs. */
-#modernbb .wm-membres__col--liens {
-  flex: 0 0 92px;
-}
+#modernbb .wm-membres__col--liens { flex: 0 0 92px; }
 
 #modernbb .wm-membres__col--liens a {
   overflow: hidden;
@@ -9743,10 +9749,7 @@ html#min-width {
   border-bottom: 1px dotted var(--wm-bord-fin, #eadacd);
 }
 
-#modernbb .wm-groupe__ligne > .wm-groupe__cle {
-  order: 0;
-  flex: none;
-}
+#modernbb .wm-groupe__ligne > .wm-groupe__cle { order: 0; flex: none; }
 
 #modernbb .wm-groupe__ligne > .wm-groupe__valeur {
   order: 2;
@@ -11857,38 +11860,11 @@ body:has(#modernbb .wm-carnet) {
     unes sous les autres. Tu affiches "Attaque" à gauche et le numéro à
     droite » (8 novembre).
 
-    C'était une phrase — « 126 PV · 115 ATT · 87 DEF » — écrite le
-    6 novembre pour tenir dans 212 px. Elle tenait, mais elle ne se
-    compare pas : trois nombres en ligne obligent à relire le mot avant
-    chaque chiffre. Alignés à droite et en chiffres tabulaires, ils se
-    lisent en colonne d'un pokémon à l'autre. */
-#modernbb .wm-equipe__chiffres {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  gap: var(--wm-espace-4, 4px);
-  list-style: none;
-}
-
-#modernbb .wm-equipe__chiffre {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--wm-espace-10, 10px);
-  font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-etiquette, 1.3);
-}
-
-#modernbb .wm-equipe__mot {
-  color: inherit;
-  opacity: 0.75;
-}
-
-#modernbb .wm-equipe__valeur {
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--wm-graisse-gras, 700);
-}
+    RIEN ICI : ce sont `wm-infobulle__attaques` et `__attaque`, déjà
+    dans le composant depuis la planche 39, qui les dessinent. J'en
+    avais écrit une copie sous le nom `wm-equipe__chiffre` — le même
+    alignement, écrit deux fois, donc deux choses à tenir d'accord.
+    Retirée le 8 novembre, le jour où je l'ai vue. */
 
 /*  LE RANG DE CHAQUE CASE, d'où son centre se déduit. Six règles et
     pas une boucle : le CSS n'en a pas. */
@@ -15053,6 +15029,45 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
+/* ── LE BOUTON DE CONFORT DANS LA BARRE D'UNE ANNEXE ────────────────
+
+    Les quatorze pages d'annexe n'ont pas de coin d'outils : elles sont
+    servies par le système de pages HTML de Forumactif, qui ne passe pas
+    par `overall_header`. Le bouton s'accroche donc à la barre de
+    retour, à côté de celui du thème, et il prend l'allure d'un lien de
+    barre — c'est `module-confort.ts` qui pose la classe.
+
+    Mesuré le 8 novembre sur la page des arènes en ligne : zéro `.wm-coin`. */
+#modernbb .wm-retour .wm-confort {
+  position: relative;
+  display: inline-flex;
+}
+
+#modernbb .wm-confort__bouton--barre {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-confort__bouton--barre svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  fill: currentcolor;
+}
+
+/*  LE PANNEAU S'OUVRE SOUS LA BARRE, pas au-dessus : dans le coin
+    d'outils il remonte parce qu'il n'y a rien en dessous ; ici la barre
+    est en haut de page et un panneau qui remonte sortirait de l'écran. */
+#modernbb .wm-retour .wm-confort__panneau {
+  top: calc(100% + var(--wm-espace-8, 8px));
+  right: 0;
+  bottom: auto;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 13 · La bibliothèque de composants
 
@@ -16621,6 +16636,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wm-infobulle__attaque > span:last-child {
   flex: 0 0 auto;
+  /*  CHIFFRES TABULAIRES : depuis le 8 novembre ces lignes portent
+      aussi les statistiques d'une équipe de champion, qu'on lit d'un
+      Pokémon à l'autre. Des chiffres de largeurs différentes ne se
+      comparent pas en colonne. Sur les puissances d'attaque, qui sont
+      toutes à trois chiffres ou moins, ça ne change rien. */
+  font-variant-numeric: tabular-nums;
   font-weight: var(--wm-graisse-demi, 600);
 }
 
@@ -16931,6 +16952,335 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin-right: 0;
   margin-left: 0;
   border-radius: var(--wm-rayon-md, 8px);
+}
+
+/* ── LES MORCEAUX DU 8 NOVEMBRE ─────────────────────────────────────
+
+    « Des titres centrés. Des fonds couleur sable. Des blocs à
+    l'intérieur aussi. Beaucoup plus de texte, en général on écrit
+    beaucoup. Des images rondes. »
+
+    Toujours la même brique : ce sont des modificateurs et des
+    morceaux, pas de nouveaux composants. On les combine. */
+
+/*  ── TITRE CENTRÉ ─────────────────────────────────────────────────
+
+    Le filet du titre se centre avec lui — c'est `margin-inline: auto`
+    qui le fait, pas une seconde règle : le trait est un pseudo-élément
+    de bloc, il suit donc les marges qu'on lui donne. Le TEXTE, lui,
+    reste justifié : un paragraphe de dix lignes centré ne se lit
+    pas. */
+#modernbb .wm-annonce--centre .wm-annonce__titre,
+#modernbb .wm-annonce--centre .wm-annonce__soustitre {
+  text-align: center;
+}
+
+#modernbb .wm-annonce--centre .wm-annonce__titre::after {
+  margin-inline: auto;
+}
+
+/*  ── FOND SABLE ───────────────────────────────────────────────────
+
+    `fond-douce` est le sable de la charte, et il a sa valeur dans les
+    deux thèmes — en sombre c'est un brun très foncé. Une couleur
+    écrite en dur serait restée claire la nuit.
+
+    LES BLOCS INTÉRIEURS REPASSENT EN SURFACE : sur un fond sable, un
+    bloc sable ne se voit pas. C'est pour ça que les deux vont
+    ensemble. */
+#modernbb .wm-annonce--sable {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  ── UN BLOC À L'INTÉRIEUR ────────────────────────────────────────
+
+    Pour découper une longue annonce : un encadré avec son petit titre,
+    posé sur la surface claire. Deux blocs côte à côte si la place le
+    permet, l'un sous l'autre sinon — `wm-annonce__blocs` les range. */
+#modernbb .wm-annonce__blocs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-20, 20px) 0 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+#modernbb .wm-annonce__bloc {
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 1 1 240px;
+  margin: var(--wm-espace-20, 20px) 0 0;
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  DANS UNE RANGÉE, LE BLOC N'A PAS SA MARGE DU HAUT : c'est la rangée
+    qui l'espace, et les deux cumulés décalaient le second bloc. */
+#modernbb .wm-annonce__blocs > .wm-annonce__bloc {
+  margin-top: 0;
+}
+
+#modernbb .wm-annonce__bloc-titre {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-annonce__bloc .wm-annonce__texte:first-of-type {
+  margin-top: 0;
+}
+
+/*  ── DES IMAGES RONDES ────────────────────────────────────────────
+
+    Pour un portrait, une équipe, une galerie de visages. Le rond est
+    un carré arrondi à fond : `aspect-ratio` garde la case carrée quelle
+    que soit la photo, et `cover` recadre sur son centre. Sans le
+    rapport imposé, une photo large donnait une ellipse.
+
+    `fit-content` sur la liste pour que trois ronds centrés le soient
+    vraiment : étirée, la rangée centrerait ses éléments dans toute la
+    largeur, ce qui revient au même tant qu'ils tiennent sur une ligne
+    et faux dès qu'ils passent à deux. */
+#modernbb .wm-annonce__rondes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: var(--wm-espace-20, 20px) auto 0;
+  padding: 0;
+  gap: var(--wm-espace-16, 16px);
+  list-style: none;
+}
+
+#modernbb .wm-annonce__rondes img {
+  width: 108px;
+  /*  ── LE CARRÉ TIENT PAR LE RAPPORT, PAS PAR LA HAUTEUR ──────────
+
+      `aspect-ratio: 1` et pas seulement `height: 108px` : dans un
+      message, `#modernbb .postbody .content img` remet la hauteur à
+      `auto` et l'emporte en spécificité. La hauteur écrite se perdait
+      donc, et les ronds sortaient en 108 × 36 — des ellipses, depuis
+      une photo large. Le rapport, lui, s'applique JUSTEMENT quand la
+      hauteur est `auto`. Mesuré dans un vrai message le 8 novembre. */
+  aspect-ratio: 1;
+  height: 108px;
+  flex: 0 0 auto;
+  border: 2px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+/*  Le rond et son nom, en colonne. */
+#modernbb .wm-annonce__ronde {
+  display: flex;
+  width: 108px;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  text-align: center;
+}
+
+#modernbb .wm-annonce__ronde-mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  ── UN SÉPARATEUR ────────────────────────────────────────────────
+
+    Pour une annonce longue : il respire entre deux sujets sans ouvrir
+    un bloc. Pas un filet d'un bord à l'autre — il s'arrête avant. */
+#modernbb .wm-annonce__separateur {
+  width: 60%;
+  height: 1px;
+  margin: var(--wm-espace-24, 24px) auto;
+  border: 0;
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+/* ── 18 · le trigger warning ──────────────────────────────────────── */
+
+/*  Planche 39, « L'infobulle et le trigger warning », section 02.
+    Six places, et trois briques pour les couvrir :
+
+      · `wm-tw-puce`     — l'étiquette, partout où on énumère des TW :
+                           les deux champs du profil, la description
+                           d'un sujet, le rappel au survol d'un pseudo.
+      · `wm-tw-bandeau`  — « CE MESSAGE CONTIENT », en tête de message.
+      · `wm-tw`          — le passage masqué, posé par `module-tw`
+                           depuis une balise `<tw>`.
+
+    LES TROIS SONT POSÉES PAR LE JOUEUR, pas par le serveur. C'est la
+    note de la planche sur la place 03 : « posé par le joueur, pas par
+    le serveur ». Un avertissement que le forum devinerait serait un
+    avertissement faux une fois sur deux. */
+
+/*  ── LA PUCE ─────────────────────────────────────────────────────── */
+
+/*  Le fond est `--wm-fond-terre` : la même terre que les encadrés de
+    la charte, et pas un rose d'alerte. UN TW N'EST PAS UNE ERREUR —
+    le rouge dirait qu'il y a un problème à régler, alors qu'il y a un
+    soin à prendre. La planche la dessine en terre, sur la surface. */
+#modernbb .wm-tw-puces {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+#modernbb .wm-tw-puce {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+/*  ── LE BANDEAU EN TÊTE DE MESSAGE ───────────────────────────────── */
+
+/*  Un rappel avant le premier paragraphe. Il se lit d'un coup d'œil
+    et il ne mange pas le message : une ligne, pas un pavé. */
+#modernbb .wm-tw-bandeau {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  box-sizing: border-box;
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
+  gap: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .wm-tw-bandeau__mot {
+  color: var(--wm-accent-terre, #8b4725);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  Sur le bandeau, les puces reprennent la surface : terre sur terre
+    ne se verrait pas. Même raison que les blocs d'une annonce sable. */
+#modernbb .wm-tw-bandeau .wm-tw-puce {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  ── LE PASSAGE MASQUÉ ───────────────────────────────────────────── */
+
+#modernbb .wm-tw {
+  box-sizing: border-box;
+  margin: var(--wm-espace-16, 16px) 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+#modernbb .wm-tw__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-tw__bouton {
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  cursor: pointer;
+}
+
+#modernbb .wm-tw__mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+/*  ── CE QUI CACHE VRAIMENT ───────────────────────────────────────── */
+
+/*  Le flou se voit ; les deux autres non, et ce sont elles qui font le
+    travail pour qui n'a pas d'écran ou qui glisse la souris.
+    `user-select` empêche la sélection, donc la copie et la révélation
+    accidentelle. `aria-hidden` est posé par le module sur le même
+    élément : un lecteur d'écran ne lit pas ce que l'écran cache.
+
+    PAS DE `height: 0` NI DE `display: none` : le passage garde sa
+    place. Un bloc qui apparaît pousse tout le message vers le bas au
+    moment du clic, et on perd la ligne qu'on lisait. */
+#modernbb .wm-tw__passage {
+  margin-top: var(--wm-espace-12, 12px);
+  opacity: 0.75;
+  color: var(--wm-texte-corps, #4e3b30);
+  filter: blur(3.5px);
+  user-select: none;
+  pointer-events: none;
+}
+
+#modernbb .wm-tw--ouvert .wm-tw__passage {
+  opacity: 1;
+  filter: none;
+  user-select: auto;
+  pointer-events: auto;
+}
+
+/*  ── QUI NE VEUT PAS D'ANIMATION N'EN A PAS ──────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  #modernbb .wm-tw__passage {
+    transition: filter 0.18s ease, opacity 0.18s ease;
+  }
+}
+
+/*  ── UN AVERTISSEMENT DANS UNE FICHE D'ANNONCE ───────────────────── */
+
+/*  Demandé le 8 novembre : « est-ce que tu pourras afficher une balise
+    trigger warning dans une fiche des annonces ? »
+
+    Rien à redessiner — le bandeau et les puces entrent tels quels. Une
+    seule correction : SUR FOND SABLE, LA TERRE NE SE VOIT PLUS.
+    #f8eae1 sur #f3e1d2, c'est cinq points d'écart ; le bandeau
+    disparaîtrait dans la carte, et un avertissement qu'on ne voit pas
+    n'avertit personne. Il reprend donc la surface, comme les blocs. */
+#modernbb .wm-annonce--sable .wm-tw-bandeau,
+#modernbb .wm-annonce--sable .wm-tw {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-annonce--sable .wm-tw-bandeau .wm-tw-puce,
+#modernbb .wm-annonce--sable .wm-tw .wm-tw-puce {
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/*  Dans une annonce, le bandeau vient APRÈS le titre et avant le
+    texte : il a donc une marge des deux côtés, pas seulement en bas. */
+#modernbb .wm-annonce .wm-tw-bandeau {
+  margin: var(--wm-espace-16, 16px) 0 0;
 }
 
 /*  ── PLUS AUCUN `@media` DANS CETTE FEUILLE, ET C'EST VOULU ────────
@@ -23958,6 +24308,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   cursor: pointer;
 }
 
+
 #modernbb .wm-carnet__souci {
   margin-top: var(--wm-espace-12, 12px);
   color: var(--wm-accent-terre, #8b4725);
@@ -24030,6 +24381,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /* ── 12 · ouvrir son carnet en postant ────────────────────────────── */
+
 
 /* ── 13 · Écrire ──────────────────────────────────────────────────── */
 /*

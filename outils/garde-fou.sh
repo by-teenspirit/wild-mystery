@@ -1310,38 +1310,46 @@ for n in sorted(set(niveaux)):
         qui = ", ".join(a["nom"] for a in arenes if a["niveau"] == n)
         fautes.append(f"niveau {n} porté par deux défis : {qui}")
 
-#  ── LES PALIERS : CINQ ET SIX, ET AUCUN AU TROISIÈME ─────────────
+#  ── LES PALIERS : QUATRE, QUATRE, TROIS — ET JAMAIS EN ARRIÈRE ───
 #
-#  CETTE RÈGLE A DIT UNE CHOSE FAUSSE PENDANT UN JOUR. Elle vérifiait
-#  qu'un palier ne redescend jamais quand le niveau monte — ce qui
-#  n'était pas une règle du jeu mais MA déduction du 6 novembre, tirée
-#  des trois groupes de niveaux que Callista avait séparés.
+#  CETTE RÈGLE A CHANGÉ DEUX FOIS EN DEUX JOURS, et l'histoire vaut
+#  d'être écrite parce qu'elle dit ce qu'une règle a le droit de
+#  vérifier.
 #
-#  La planche 36, elle, NOMME les défis de chaque palier, et elle dit
-#  autre chose : le Colosseum de Rhode (niveau 40) s'ouvre au palier 1
-#  à côté de l'Arène Eau (niveau 10), et le Colosseum de Targare
-#  (niveau 18) attend le palier 2. La planche est de Callista ; ma
-#  déduction ne l'était pas. Elle a donc perdu, et avec elle la
-#  monotonie — voir `_palier_contradiction` dans `data/arenes.json`,
-#  qui garde l'arbitrage en attente.
+#  Le 6 novembre au matin : elle vérifiait qu'un palier ne redescend
+#  jamais quand le niveau monte. C'était MA déduction des trois groupes
+#  de niveaux, pas une règle du jeu — une règle qui garde une déduction
+#  de l'outil qu'elle surveille ne garde rien.
 #
-#  CE QUI RESTE VÉRIFIABLE est le COMPTE : la planche met cinq défis
-#  au palier 1, six au palier 2, et AUCUN au palier 3, où il n'y a que
-#  la Ligue. Un palier recopié de travers déplace un défi d'une liste à
-#  l'autre, donc change les deux comptes — ce que la monotonie, elle,
-#  ne voyait pas toujours.
+#  Le 6 novembre au soir : la planche 36, écrite par Callista, nommait
+#  d'autres listes. Elle a gagné, et la monotonie est tombée avec ma
+#  déduction.
+#
+#  Le 8 novembre : Callista a donné les trois listes à la main. Elles
+#  retombent exactement sur les groupes de niveaux. La monotonie
+#  revient — non plus comme ma déduction, mais comme une CONSÉQUENCE de
+#  ce qu'elle a écrit. C'est la différence qui compte.
 compte = {1: 0, 2: 0, 3: 0}
 for a in arenes:
     if a["palier"] not in compte:
         fautes.append(f"{a['nom']} : palier {a['palier']} — attendu 1, 2 ou 3")
     else:
         compte[a["palier"]] += 1
-if compte != {1: 5, 2: 6, 3: 0}:
+if compte != {1: 4, 2: 4, 3: 3}:
     fautes.append(
         f"les paliers comptent {compte[1]}/{compte[2]}/{compte[3]} défis "
-        "là où la planche 36 en met 5 au palier 1, 6 au palier 2 et aucun "
-        "au palier 3 — un défi a changé de liste"
+        "là où Callista en met 4 au palier 1, 4 au palier 2 et 3 au "
+        "palier 3 — un défi a changé de liste"
     )
+#  ET L'ORDRE : le palier ne redescend pas quand le niveau monte.
+precedent = None
+for a in sorted(arenes, key=lambda a: a["niveau"]):
+    if precedent is not None and a["palier"] < precedent[1]:
+        fautes.append(
+            f"{a['nom']} (niveau {a['niveau']}) est au palier {a['palier']} "
+            f"alors que {precedent[0]} est déjà au palier {precedent[1]}"
+        )
+    precedent = (f"{a['nom']} (niveau {a['niveau']})", a["palier"])
 
 #  LA LIGUE EST AU-DESSUS DES ONZE. Elle est le dernier défi : un
 #  niveau sous une arène ferait une Ligue qu'on bat avant son arène.
@@ -1374,7 +1382,7 @@ if fautes:
         print(f"   {f}")
     sys.exit(1)
 print(f"   défis : {len(arenes)} niveaux distincts, "
-      f"paliers {compte[1]}/{compte[2]}/{compte[3]} comme la planche 36, "
+      f"paliers {compte[1]}/{compte[2]}/{compte[3]} et jamais en arrière, "
       f"Ligue à {ligue['niveau']}, {len(vus)} adresses de forum bien formées")
 PY
   then

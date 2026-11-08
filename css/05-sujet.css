@@ -382,6 +382,27 @@
 /*  Une image postée dans un RP ne doit jamais dépasser sa colonne. */
 #modernbb .postbody .content img {
   max-width: 100%;
+}
+
+/*  ── `height: auto` NE VAUT QUE POUR LES IMAGES DES JOUEURS ────────
+
+    `height` est déjà `auto` par défaut : cette ligne ne sert qu'à
+    défaire un `height="400"` posé dans le code du message. Sans elle,
+    une image rétrécie par `max-width` garde la hauteur de l'attribut
+    et sort étirée. Elle est donc load-bearing — pour les images des
+    joueurs.
+
+    MAIS ELLE ÉCRASAIT AUSSI LES NÔTRES. Avec un id, deux classes et
+    un type, ce sélecteur l'emporte sur `.wm-annonce__bandeau` : le
+    bandeau d'une fiche d'annonce reprenait le rapport de sa photo et
+    sortait en colonne de 2310 px de haut. Mesuré le 8 novembre, dans
+    un message réel — mes aperçus précédents posaient la fiche hors
+    de `.content` et ne pouvaient pas le voir.
+
+    Nos composants connaissent leur taille ; on les laisse donc en
+    dehors. Le critère est le préfixe de classe, pas une liste de
+    composants à tenir à jour. */
+#modernbb .postbody .content img:not([class*="wm-"]) {
   height: auto;
 }
 

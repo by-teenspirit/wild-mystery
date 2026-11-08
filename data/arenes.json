@@ -5,12 +5,12 @@
   "_ordre": "L'ORDRE DES ONZE DÉFIS EST CELUI DES NIVEAUX, et c'est `niveau` qui le dit — pas la position dans ce tableau. Tranché par Callista le 6 novembre : Eau 10, Feu 15, Targare 18, Plante 20, Roche 25, Acier 30, Phenacit 35, Rhode 40, Vol 50, Ténèbres 60, Titanite 70. Ça REMPLACE l'ordre « imposé » de la planche 36 (Feu, Plante, Eau, Acier, Roche, Vol, Ténèbres), qui n'avait pas de niveaux et mettait l'Eau en troisième.",
   "_tableau": "LE TABLEAU, LUI, RESTE GROUPÉ : les sept arènes puis les quatre colosseums. Ce n'est pas l'ordre du jeu, c'est l'ordre de la GRILLE DE BADGES de la carte dresseur, qui est groupée dans la maquette et dont les onze cases sont en dur dans templates/carte-dresseur.a-coller.html — la règle 24 du garde-fou compare les deux listes case par case. Trier ce tableau par niveau obligerait à refondre la grille en une seule liste et à recoller la carte dresseur de tout le monde. Qui veut l'ordre du jeu trie sur `niveau` ; personne ne lit la position dans ce fichier.",
   "_niveau": "`niveau` est le niveau de l'équipe du champion, donné par Callista le 6 novembre. LA LIGUE EST À PART, à 80 — voir la clé `ligue`.",
-  "_palier": "`palier` EST ÉCRIT DANS LA PLANCHE 36, et il n'est plus déduit. La planche nomme les défis de chaque palier : palier 1 — Station Service, Samaragd, Port-Amarée, et les colosseums de Rhode et Phenacit ; palier 2 — Suerebe, Pyrite, Tour Titanite, Île Ténèbra, et les colosseums de Targare et Titanite ; palier 3 — aucun défi, seulement la Ligue. Cinq et six, et c'est ce que la règle 30 du garde-fou compte.",
-  "_palier_contradiction": "ATTENTION, CES PALIERS NE SUIVENT PAS LES NIVEAUX, et il faut un arbitrage. Le 6 novembre, j'avais DÉDUIT les paliers des trois groupes de niveaux (10-20, 25-40, 50-70) ; la planche 36, elle, écrit autre chose, et c'est elle qui fait foi puisqu'elle est de Callista. Résultat : le Colosseum de Rhode (niveau 40) s'ouvre au palier 1 à côté de l'Arène Eau (niveau 10), et le Colosseum de Targare (niveau 18) attend le palier 2. Six paliers sur onze ont changé le 6 novembre pour revenir à la planche : fée 2→1, spectre 2→1, électrik 1→2, vol 3→2, ténèbres 3→2, dragon 3→2. SIGNALÉ À CALLISTA : si les niveaux doivent décider, c'est ce champ-là qu'on change, pas la planche.",
+  "_palier": "`palier` EST TRANCHÉ PAR CALLISTA, le 8 novembre 2026, et c'est la troisième et dernière version. Elle a donné les trois listes elle-même : palier 1 — Port-Amarée 10, Station Service 15, Colosseum de Targare 18, Samaragd 20 ; palier 2 — Pyrite 25, Suerebe 30, Colosseum de Phenacit 35, Colosseum de Rhode 40 ; palier 3 — Tour Titanite 50, Île Ténèbra 60, Colosseum de Titanite 70. Quatre, quatre, trois, et c'est ce que la règle 30 du garde-fou compte.",
+  "_palier_contradiction": "L'ARBITRAGE EST CLOS. Trois états successifs : le 6 novembre j'avais DÉDUIT les paliers des trois groupes de niveaux ; le même jour la planche 36 a gagné parce qu'elle était écrite et ma déduction non ; le 8 novembre Callista a donné les listes à la main, et ce sont elles. Elles retombent exactement sur les groupes de niveaux — 10 à 20, 25 à 40, 50 à 70 — donc LE PALIER NE REDESCEND PLUS JAMAIS QUAND LE NIVEAU MONTE, et la règle 30 peut de nouveau le vérifier. Ce n'est plus une déduction : c'est une conséquence de ce qu'elle a écrit. LA PLANCHE 36 EST PÉRIMÉE SUR CE POINT : elle met le Colosseum de Rhode au palier 1 et Targare au palier 2.",
   "_forum": "`forum` est l'adresse du forum du défi, RELEVÉE SUR L'INDEX DU FORUM le 6 novembre, en lisant les liens que le forum écrit lui-même. Forumactif ne route que sur le numéro — le reste de l'adresse est décoratif — donc une adresse dont le numéro a glissé ne tombe pas en 404, elle mène ailleurs en silence. On ne la réécrit pas de mémoire : on la relève.",
   "_colosseums": "Ils ne sont pas des arènes : on y combat en 2 contre 2 (planche 36). La planche 36 dit qu'il faut les sept badges d'arène « ainsi que les Colosseums » pour la Ligue, pendant que la maquette de Mon jeu écrit « les colosseums, eux, ne comptent pas ». Le code compte les ARÈNES et montre les colosseums à part : c'est ce que fait `paliers_a_revoir()`, dont le seuil est 7.",
   "_source": "Relevé le 2 novembre des planches 36 (les règles de progression) et 44 (l'arborescence réelle), et de templates/carte-dresseur.a-coller.html. Niveaux, ordre et Ligue : Callista, le 6 novembre. Adresses de forum : l'index du forum, le 6 novembre.",
-  "_eau": "« Phenacit lvl 10 (eau) » dans la liste du 6 novembre était un lapsus, confirmé par Callista : L'ARÈNE EAU RESTE À PORT-AMARÉE (f23, sous f13). Phenacit est la seule ville sans arène et ne porte que son colosseum Spectre, à 35. Port-Amarée porte donc deux défis — l'Arène Eau à 10 et le Colosseum de Rhode à 40 — comme Suerebe (Acier 30, Targare 18) et la Tour Titanite (Vol 50, Titanite 70).",
+  "_eau": "« Phenacit lvl 10 (eau) » dans la liste du 6 novembre était un lapsus, confirmé par Callista : L'ARÈNE EAU RESTE À PORT-AMARÉE (f23, sous f13). Phenacit est la seule ville sans arène et ne porte que son colosseum Spectre, à 35. Port-Amarée porte donc deux défis — l'Arène Eau à 10 et le Colosseum de Rhode à 40 — comme Suerebe (Acier 30, Targare 18) et la Tour Titanite (Vol 50, Titanite 70). LE 8 NOVEMBRE elle a réécrit « Phenacit lvl 10 (eau) » dans sa liste des paliers. C'est le même lapsus que le 6 novembre, qu'elle avait corrigé elle-même : « C'est Port-Amarée (lapsus) ». La ville reste Port-Amarée. Phenacit porte le colosseum Spectre, niveau 35.",
   "_textes": "LES QUATRE ONGLETS DE L'ANNEXE 06. « Un onglet de présentation de l'annexe, un onglet arènes, un onglet colosseums et un onglet ligue » (6 novembre). Le texte est un RAPPEL : l'annexe 04, le guide du dresseur, arrive avant et porte les règles elles-mêmes. Tout ce qui est écrit ici vient des planches 36 (paliers, arènes, colosseums, missions) et 37 (combats, 1 contre 1, 2 contre 2) — rien n'y est inventé. Ce qui se CALCULE n'est pas écrit ici : la liste des défis d'un palier, les niveaux, les types conseillés et les équipes sont dérivés.",
   "textes": {
     "chapo": [
@@ -173,7 +173,7 @@
       "ville": "Tour Titanite",
       "genre": "arene",
       "niveau": 50,
-      "palier": 2,
+      "palier": 3,
       "forum": "/f21-arene-vol"
     },
     {
@@ -183,7 +183,7 @@
       "ville": "Île Ténèbra",
       "genre": "arene",
       "niveau": 60,
-      "palier": 2,
+      "palier": 3,
       "forum": "/f20-arene-tenebres"
     },
     {
@@ -193,7 +193,7 @@
       "ville": "Port-Amarée",
       "genre": "colosseum",
       "niveau": 40,
-      "palier": 1,
+      "palier": 2,
       "forum": "/f24-colosseum-de-rhode"
     },
     {
@@ -203,7 +203,7 @@
       "ville": "Phenacit",
       "genre": "colosseum",
       "niveau": 35,
-      "palier": 1,
+      "palier": 2,
       "forum": "/f30-colosseum-de-phenacit"
     },
     {
@@ -213,7 +213,7 @@
       "ville": "Suerebe",
       "genre": "colosseum",
       "niveau": 18,
-      "palier": 2,
+      "palier": 1,
       "forum": "/f28-colosseum-de-targare"
     },
     {
@@ -223,7 +223,7 @@
       "ville": "Tour Titanite",
       "genre": "colosseum",
       "niveau": 70,
-      "palier": 2,
+      "palier": 3,
       "forum": "/f22-colosseum-de-titanite"
     }
   ],

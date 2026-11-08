@@ -21,6 +21,7 @@
     "test:navigateur": "deno test --allow-env --allow-read=data/accueil.json,img/accueil src/navigateur/",
     "harnais": "deno bundle --platform browser --format iife -o js/harnais-sommaire.js js/harnais-sommaire.ts",
     "chrono": "deno run -A outils/chrono.mjs",
+    "annonces": "deno run -A outils/annonces.mjs",
     "arenes": "deno run -A outils/arenes.mjs",
     "contraste": "deno run -A outils/contraste.mjs",
     "annexes": "python3 outils/annexe-groupes.py && python3 outils/annexe-contexte.py && python3 outils/annexe-carte.py && python3 outils/annexe-arenes.py && python3 outils/annexe-personnages.py && python3 outils/annexe-credits.py && python3 outils/annexes.py",

@@ -215,11 +215,20 @@ def membre(w, m, couverture):
         + '<ul class="wm-infobulle__types">'
         + "".join(pastille(t, "wm-infobulle__type") for t in m["types"])
         + "</ul>"
-        + '<ul class="wm-equipe__chiffres">'
+        #  ── LES CHIFFRES SONT DES LIGNES DE L'INFOBULLE ────────────
+        #
+        #  Pas une liste à moi. La planche 39 dessine déjà ces lignes
+        #  — nom à gauche, nombre à droite, un ressort entre les deux —
+        #  pour les attaques d'un Pokémon, et le composant les porte
+        #  depuis ce jour-là. J'en avais écrit une seconde paire,
+        #  `wm-equipe__chiffre`, qui faisait la même chose sous un
+        #  autre nom : deux écritures du même alignement finissent par
+        #  diverger. On garde celle de la planche.
+        + '<p class="wm-infobulle__surtitre">Statistiques</p>'
+        + '<ul class="wm-infobulle__attaques">'
         + "".join(
-            f'<li class="wm-equipe__chiffre">'
-            f'<span class="wm-equipe__mot">{mot}</span>'
-            f'<b class="wm-equipe__valeur">{m[cle]}</b></li>'
+            f'<li class="wm-infobulle__attaque">'
+            f"<span>{mot}</span><span>{m[cle]}</span></li>"
             for mot, cle in (("PV", "pv"), ("Attaque", "att"), ("Défense", "def"))
         )
         + "</ul>"
