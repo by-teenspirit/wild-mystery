@@ -127,14 +127,24 @@ export function poserLeProfil(doc: Document): boolean {
   const tete = doc.createElement("div");
   tete.className = "wm-profil-page__tete";
 
-  //  LE NOM, AVEC SON `span.usr_grp_clr` INTACT. Le titre de la page
-  //  est « Tout à propos de <span>Arceus</span> » : on garde le span
-  //  et on jette le reste, qui est une phrase, pas un nom.
+  //  ── LE NOM VIENT DE LA COLONNE DE DROITE, ET IL EST COPIÉ ───────
+  //
+  //  Deux endroits le portent : le `<h1>` de l'onglet (« Tout à propos
+  //  de X », « Contacter X ») et le `.h3` de la colonne de droite. On
+  //  prend celui de droite, parce que le `<h1>` sert maintenant de
+  //  titre au panneau : « Groupes 1 à 7 sur 7 », « Feuille de
+  //  personnage » disent ce qu'on regarde, et les jeter laissait
+  //  quatre onglets sans intitulé.
+  //
+  //  COPIÉ, donc, et pas déplacé — mais `cloneNode` garde le
+  //  `style="color:…"` du panneau, qui est tout ce qui comptait. Une
+  //  copie du TEXTE, elle, aurait perdu la couleur du groupe.
   const titre = gauche.querySelector("#cp-main h1");
   const nom = doc.createElement("h1");
   nom.className = "wm-profil-page__nom";
-  const colore = titre?.querySelector(".usr_grp_clr") ??
-    droite?.querySelector(".h3 .usr_grp_clr") ?? null;
+  const source = droite?.querySelector(".h3 .usr_grp_clr") ??
+    titre?.querySelector(".usr_grp_clr") ?? null;
+  const colore = source === null ? null : source.cloneNode(true) as HTMLElement;
   if (colore !== null) nom.appendChild(colore);
   else nom.textContent = titre?.textContent?.trim() ?? "";
   tete.appendChild(nom);
@@ -219,6 +229,9 @@ export function poserLeProfil(doc: Document): boolean {
   carte.appendChild(ident);
   page.appendChild(carte);
 
+  const principal = doc.createElement("div");
+  principal.className = "wm-profil-page__principal";
+
   // ── LES ONGLETS ───────────────────────────────────────────────────
   //
   //  Ce sont cinq pages. On refait des `<a>` propres plutôt que de
@@ -255,7 +268,7 @@ export function poserLeProfil(doc: Document): boolean {
       ul.appendChild(item);
     }
     barre.appendChild(ul);
-    page.appendChild(barre);
+    principal.appendChild(barre);
   }
 
   // ── LE PANNEAU DE L'ONGLET ────────────────────────────────────────
@@ -278,14 +291,34 @@ export function poserLeProfil(doc: Document): boolean {
   //  de personnage — n'ont pas le même balisage, et les énumérer ici
   //  reviendrait à tenir une liste qui vieillirait à la première page
   //  que Forumactif change. La feuille les habille par leurs classes.
+  //  LE `<h1>` DE L'ONGLET EN TÊTE DU PANNEAU. Il dit ce qu'on
+  //  regarde — et sur l'onglet Profil il porte le pseudo coloré, qui
+  //  doit donc rester sur une surface : le panneau en est une.
   const corps = gauche.querySelector("#cp-main");
   if (corps !== null) {
+    if (titre !== null) {
+      titre.classList.add("wm-profil-page__titre");
+      panneau.insertBefore(titre, panneau.firstChild);
+    }
     for (const enfant of Array.from(corps.children)) {
       if (enfant.tagName === "H1") continue;
       panneau.appendChild(enfant);
     }
   }
-  page.appendChild(panneau);
+
+  //  ── LES ONGLETS ET LEUR PANNEAU FONT UNE COLONNE ────────────────
+  //
+  //  « Est-ce que tu peux améliorer le profil pour que le bloc du
+  //  dessus, il aille à droite finalement ? » (8 novembre) — deux
+  //  colonnes : les onglets et leur contenu à gauche, la carte
+  //  d'identité à droite, sur toute la hauteur.
+  //
+  //  La carte reste PREMIÈRE DANS LE DOCUMENT : c'est elle qu'on lit
+  //  d'abord, à voix haute comme au doigt, et c'est la grille qui la
+  //  met à droite sur un grand écran. L'ordre du code ne suit pas
+  //  l'écran, il suit le sens.
+  principal.appendChild(panneau);
+  page.appendChild(principal);
 
   //  LA PLACE DE « SON JEU », vide pour l'instant : niveau,
   //  expérience, équipe et argent se lisent dans Supabase par

@@ -466,6 +466,104 @@ await p.setViewportSize({ width: 1280, height: 1200 });
   }
   console.log(`au clic : ${ouvert.length} passage(s) rendus lisibles, et annoncés comme tels`);
 
+  //  ── LE MODE EN LIGNE ────────────────────────────────────────────
+  //
+  //  La balise `<tw>` NUE : pas d'encadré, pas de bouton visible, le
+  //  passage flouté dans la phrase. Deux choses à prouver, et ce sont
+  //  les mêmes que pour l'encadré : il cache vraiment, et il s'ouvre
+  //  sans souris.
+  {
+    const enLigne = await p.evaluate(() =>
+      [...document.querySelectorAll(".wm-tw-mot")].map((b) => {
+        const t = b.querySelector(".wm-tw-mot__texte");
+        const st = getComputedStyle(t);
+        return {
+          n: Number(b.closest(".essai").dataset.n),
+          balise: b.tagName,
+          type: b.getAttribute("type"),
+          //  PAS D'ENCADRÉ : c'est la demande. Le bouton n'a ni fond,
+          //  ni cadre, et il reste DANS la phrase.
+          dansUnCadre: b.closest(".wm-tw") !== null,
+          fond: getComputedStyle(b).backgroundColor,
+          bord: getComputedStyle(b).borderTopWidth,
+          enLigne: getComputedStyle(b).display,
+          flou: st.filter,
+          selection: st.userSelect,
+          cache: t.getAttribute("aria-hidden"),
+          ouvre: b.getAttribute("aria-expanded"),
+          //  Sans nom accessible, le bouton serait annoncé « bouton »
+          //  et rien d'autre : son seul contenu est masqué.
+          nom: b.getAttribute("aria-label"),
+          mots: t.textContent.trim().length,
+        };
+      })
+    );
+    if (enLigne.length < 2) rate(`${enLigne.length} passage(s) en ligne montés`);
+    for (const m of enLigne) {
+      if (m.balise !== "BUTTON" || m.type !== "button") {
+        rate(`modèle ${m.n} en ligne : ${m.balise} de type ${m.type}`);
+      }
+      if (m.dansUnCadre) rate(`modèle ${m.n} en ligne : il a fabriqué un encadré`);
+      if (m.fond !== "rgba(0, 0, 0, 0)") rate(`modèle ${m.n} en ligne : fond ${m.fond}`);
+      if (parseFloat(m.bord) !== 0) rate(`modèle ${m.n} en ligne : bordure ${m.bord}`);
+      if (!/^inline/.test(m.enLigne)) {
+        rate(`modèle ${m.n} en ligne : display ${m.enLigne}`);
+      }
+      if (!/blur/.test(m.flou)) rate(`modèle ${m.n} en ligne : pas de flou (${m.flou})`);
+      if (m.selection !== "none") rate(`modèle ${m.n} en ligne : user-select ${m.selection}`);
+      if (m.cache !== "true") rate(`modèle ${m.n} en ligne : aria-hidden ${m.cache}`);
+      if (m.ouvre !== "false") rate(`modèle ${m.n} en ligne : aria-expanded ${m.ouvre}`);
+      if ((m.nom ?? "").length < 5) rate(`modèle ${m.n} en ligne : sans nom accessible`);
+      if (m.mots < 10) rate(`modèle ${m.n} en ligne : ${m.mots} caractères masqués`);
+    }
+    console.log(
+      `en ligne : ${enLigne.length} passage(s), floutés, sans encadré ni bouton visible`,
+    );
+
+    //  AU SURVOL IL S'OUVRE, ET IL SE REFERME QUAND ON S'EN VA.
+    const premier = await p.$(".wm-tw-mot");
+    await premier.hover();
+    await p.waitForTimeout(300);
+    const survole = await p.evaluate(() => {
+      const b = document.querySelector(".wm-tw-mot");
+      return {
+        flou: getComputedStyle(b.querySelector(".wm-tw-mot__texte")).filter,
+        ouvre: b.getAttribute("aria-expanded"),
+        cache: b.querySelector(".wm-tw-mot__texte").getAttribute("aria-hidden"),
+      };
+    });
+    if (survole.flou !== "none") rate(`au survol : toujours flouté (${survole.flou})`);
+    if (survole.ouvre !== "true") rate(`au survol : aria-expanded ${survole.ouvre}`);
+    if (survole.cache !== "false") rate(`au survol : aria-hidden ${survole.cache}`);
+
+    //  ON S'EN VA : il se referme, parce qu'il n'a pas été cliqué.
+    await p.mouse.move(5, 5);
+    await p.waitForTimeout(300);
+    const parti = await p.evaluate(() =>
+      getComputedStyle(document.querySelector(".wm-tw-mot__texte")).filter
+    );
+    if (!/blur/.test(parti)) rate(`après le survol : il reste ouvert (${parti})`);
+    console.log("au survol : il s'ouvre, et il se referme quand on s'en va");
+
+    //  AU CLIC IL RESTE OUVERT — sans quoi on ne pourrait pas lire
+    //  deux lignes sans garder la souris dessus.
+    await premier.click();
+    await p.mouse.move(5, 5);
+    await p.evaluate(() => document.activeElement?.blur());
+    await p.waitForTimeout(300);
+    const epingle = await p.evaluate(() => {
+      const b = document.querySelector(".wm-tw-mot");
+      return {
+        flou: getComputedStyle(b.querySelector(".wm-tw-mot__texte")).filter,
+        ouvre: b.getAttribute("aria-expanded"),
+      };
+    });
+    if (epingle.flou !== "none" || epingle.ouvre !== "true") {
+      rate(`après le clic : il ne reste pas ouvert (${JSON.stringify(epingle)})`);
+    }
+    console.log("au clic : il reste ouvert, souris partie et focus rendu");
+  }
+
   //  ── LA PUCE SE DÉTACHE DE SON BANDEAU, DANS LES DEUX THÈMES ─────
   for (const theme of ["clair", "sombre"]) {
     const puces = await p.evaluate((t) => {

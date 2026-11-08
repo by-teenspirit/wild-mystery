@@ -65,10 +65,42 @@
     remonté dans la carte d'identité par le module. On la masque au
     lieu de la vider — un module qui ne tourne pas laisse alors une
     page moche mais COMPLÈTE, et pas une page amputée. */
+/*  ── DEUX COLONNES : LES ONGLETS À GAUCHE, LA CARTE À DROITE ──────
+
+    « Est-ce que tu peux améliorer le profil pour que le bloc du
+    dessus, il aille à droite finalement ? » (8 novembre).
+
+    La carte est PREMIÈRE DANS LE DOCUMENT et DEUXIÈME À L'ÉCRAN :
+    `grid-column` la place, l'ordre du code ne bouge pas. C'est ce
+    qui permet qu'elle se lise d'abord à voix haute et qu'elle passe
+    d'elle-même au-dessus quand la fenêtre se resserre — sans une
+    seule règle de plus, et sans `order`, qui aurait menti au
+    clavier : la tabulation suit le code, pas l'écran. */
 #modernbb .wm-profil-page {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  align-items: start;
   gap: var(--wm-espace-20, 20px);
+  grid-template-columns: minmax(0, 1fr) 288px;
+}
+
+#modernbb .wm-profil-page__carte {
+  grid-row: 1;
+  grid-column: 2;
+}
+
+#modernbb .wm-profil-page__principal {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-16, 16px);
+  grid-row: 1;
+  grid-column: 1;
+}
+
+/*  La place de « son jeu » occupera les deux colonnes le jour où elle
+    sera remplie. */
+#modernbb .wm-profil-page__jeu {
+  grid-column: 1 / -1;
 }
 
 /*  LES DEUX COLONNES NE SONT PAS SŒURS. `#profile-advanced-right` est
@@ -91,13 +123,22 @@
 
 /* ── 2 · la carte d'identité ──────────────────────────────────────── */
 
+/*  ── LA CARTE EST UNE COLONNE ─────────────────────────────────────
+
+    Elle faisait 1000 px de large et portait l'avatar à gauche du
+    texte ; elle en fait 288 et les empile. L'avatar fait 200 de
+    large : il reste de la place pour le padding et rien d'autre, et
+    c'est très bien — une carte d'identité se lit de haut en bas. */
 #modernbb .wm-profil-page__carte {
   display: flex;
   box-sizing: border-box;
-  padding: var(--wm-espace-24, 24px);
-  gap: var(--wm-espace-24, 24px);
+  flex-direction: column;
+  align-items: center;
+  padding: var(--wm-espace-20, 20px);
+  gap: var(--wm-espace-16, 16px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
+  text-align: center;
 }
 
 /*  ── L'AVATAR, EN 200 × 320 ───────────────────────────────────────
@@ -114,7 +155,10 @@
   box-sizing: border-box;
   width: 200px;
   height: 320px;
-  flex: 0 0 200px;
+  /*  `flex: none` ET PLUS `0 0 200px` : depuis que la carte est une
+      colonne, la base d'un flex s'applique a la HAUTEUR. L'avatar
+      sortait en 200 x 200 — carre, et rogne de 120 px. */
+  flex: none;
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-terre, #f8eae1);
   object-fit: cover;
@@ -132,10 +176,10 @@
     La carte respire au lieu d'avoir un creux. */
 #modernbb .wm-profil-page__ident {
   display: flex;
+  width: 100%;
   min-width: 0;
-  flex: 1 1 auto;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
   gap: var(--wm-espace-14, 14px);
 }
 
@@ -143,7 +187,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--wm-espace-10, 10px);
+  justify-content: center;
+  gap: var(--wm-espace-8, 8px);
 }
 
 /*  LE NOM GARDE LA COULEUR DE SON GROUPE. Forumactif la pose en style
@@ -192,18 +237,26 @@
     TABULAIRES (sans quoi « 291 » et « 1 148 » ne s'alignent pas d'un
     profil à l'autre), et la rangée passe à la ligne au lieu de
     rétrécir. */
+/*  Les trois chiffres se partagent la largeur de la carte au lieu de
+    se serrer à gauche : dans une colonne de 248 px utiles, trois
+    blocs collés laissent un vide à droite qui ne veut rien dire. */
 #modernbb .wm-profil-page__chiffres {
   display: flex;
+  width: 100%;
   flex-wrap: wrap;
+  justify-content: space-around;
   margin: 0;
-  padding: 0;
-  gap: var(--wm-espace-24, 24px);
+  padding: var(--wm-espace-12, 12px) 0;
+  gap: var(--wm-espace-12, 12px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
   list-style: none;
 }
 
 #modernbb .wm-profil-page__chiffre {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 
@@ -232,14 +285,19 @@
     `margin-top: auto` les colle en bas de la colonne, à la hauteur du
     pied de l'avatar : c'est ce qui fait que la carte a une assise au
     lieu d'un bloc de texte flottant dans 320 px de haut. */
+/*  Les trois boutons l'un sous l'autre, pleine largeur : côte à côte
+    dans 248 px, « Envoyer un message » passe sur deux lignes et les
+    trois n'ont plus la même hauteur. */
 #modernbb .wm-profil-page__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--wm-espace-10, 10px);
+  width: 100%;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
 }
 
 #modernbb a.wm-profil-page__bouton {
   padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  text-align: center;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
@@ -296,6 +354,21 @@
   background: var(--wm-fond-surface, #fffbf7);
 }
 
+/*  ── LE TITRE DE L'ONGLET ─────────────────────────────────────────
+
+    Le `<h1>` de la page — « Groupes 1 à 7 sur 7 », « Récompenses »,
+    « Feuille de personnage » — reste en tête du panneau. Je le jetais
+    au début, et les quatre onglets autres que Profil n'avaient plus
+    d'intitulé : on arrivait sur une liste sans savoir de quoi.
+
+    Un filet sous le titre, comme les fiches d'annonce : il soude le
+    titre à ce qui suit au lieu de le laisser flotter. */
+#modernbb .wm-profil-page__titre {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding-bottom: var(--wm-espace-12, 12px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
 #modernbb .wm-profil-page__panneau > h1,
 #modernbb .wm-profil-page__panneau .h3 {
   margin: 0 0 var(--wm-espace-16, 16px);
@@ -313,14 +386,25 @@
     `div.separator` entre. On en fait des LIGNES : libellé à gauche en
     petites capitales, valeur à droite, un filet entre deux.
 
-    DEUX COLONNES DÈS QU'IL Y A LA PLACE, comme la maquette : six
-    champs l'un sous l'autre sur 960 px laissent les trois quarts de
-    la largeur vides. `column-count` plutôt qu'une grille — les
-    champs n'ont pas à se répondre d'une colonne à l'autre, seulement
-    à remplir. */
+    DEUX COLONNES DÈS QU'IL Y A LA PLACE : six champs l'un sous
+    l'autre sur une colonne large laissent les trois quarts de la
+    largeur vides. `column-count` plutôt qu'une grille — les champs
+    n'ont pas à se répondre d'une colonne à l'autre, seulement à
+    remplir.
+
+    ── UNE LARGEUR, PAS UN NOMBRE ────────────────────────────────────
+
+    `columns: 260px 2` : deux colonnes AU PLUS, et seulement si
+    chacune peut faire 260 px. Depuis que le panneau partage la page
+    avec la carte de droite, il n'a plus 960 px mais 640 — et à 390
+    il en a 340. Un `columns: 2` en dur y aurait mis deux colonnes de
+    160 px, où « Date d'inscription » passe sur trois lignes.
+
+    Le navigateur tranche donc sur la place réelle, et le point
+    d'arrêt de la page n'a rien à savoir des champs. */
 #modernbb .wm-profil-page__champs {
   column-gap: var(--wm-espace-32, 32px);
-  columns: 2;
+  columns: 260px 2;
 }
 
 /*  `break-inside` : sans lui, un champ à valeur longue se coupe en
@@ -360,20 +444,36 @@
   overflow-wrap: anywhere;
 }
 
-/*  Un champ vide se voit : mieux vaut un tiret qu'une ligne orpheline
-    dont on se demande si elle a raté son chargement. */
-/*  ── UNE VALEUR EN IMAGE RESTE UNE LIGNE ──────────────────────────
+/*  ── UNE VALEUR PEUT ÊTRE UNE IMAGE, PETITE OU GRANDE ─────────────
 
-    Le champ « Genre » a pour valeur une icône, pas un mot. Sans
-    hauteur imposée, cette icône décide de la hauteur de la ligne et
-    le libellé ne tombe plus en face d'elle — le harnais l'a vu sur
-    le seul champ concerné. On la ramène à la hauteur d'une ligne de
-    texte. */
+    Deux cas, et le premier m'a fait écrire une règle qui cassait le
+    second :
+
+      · « Genre » a pour valeur une ICÔNE d'une dizaine de pixels ;
+      · « TRAINER CARD », dans l'onglet Contact, a pour valeur une
+        VRAIE IMAGE — la carte de dresseur du membre, en pleine
+        largeur. Relevé sur `/u1contact` le 8 novembre.
+
+    J'avais plafonné toutes les images à `1.4em` pour que l'icône de
+    genre ne décide pas de la hauteur de sa ligne. La carte de
+    dresseur serait sortie en timbre-poste de quinze pixels.
+
+    Le plafond est donc large, et c'est l'ALIGNEMENT qui s'adapte :
+    une ligne dont la valeur porte une image passe en `flex-start`,
+    sinon le libellé irait se coller au bas de l'image — la ligne de
+    base d'une image est son bord inférieur. */
 #modernbb .wm-profil-page__champs > dl > dd img {
-  max-height: 1.4em;
+  max-width: 100%;
+  max-height: 160px;
   vertical-align: middle;
 }
 
+#modernbb .wm-profil-page__champs > dl:has(dd img) {
+  align-items: flex-start;
+}
+
+/*  Un champ vide se voit : mieux vaut un tiret qu'une ligne orpheline
+    dont on se demande si elle a raté son chargement. */
 #modernbb .wm-profil-page__champs > dl > dd:empty::after {
   content: "—";
   opacity: 0.6;
@@ -395,6 +495,7 @@
 #modernbb .wm-profil-page__badges {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   margin: 0;
   padding: 0;
   gap: var(--wm-espace-12, 12px);
@@ -405,8 +506,11 @@
   position: relative;
   display: flex;
   box-sizing: border-box;
-  width: 56px;
-  height: 56px;
+  /*  48 ET PLUS 56 : dans la colonne de 288 px, quatre badges de 56
+      passaient a trois par rangee et le quatrieme restait seul en
+      dessous. A 48, les quatre tiennent — et six aussi. */
+  width: 48px;
+  height: 48px;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
@@ -426,6 +530,30 @@
 /*  ELLE S'OUVRE VERS LE BAS. Au-dessus, elle se posait sur la rangée
     de chiffres juste au-dessus des badges et la rendait illisible le
     temps du survol. En dessous, elle n'a que du vide sous elle. */
+/*  ── ELLE EST ACCROCHEE A LA RANGEE, PAS AU BADGE ─────────────────
+
+    Centree sous SON badge, l'infobulle du dernier debordait de la
+    carte de 5 px — mesure a 1000 px de large, ou la colonne de
+    droite touche presque le bord. Accrochee a la rangee entiere et
+    etiree d'un bord a l'autre, elle ne peut plus sortir : une seule
+    s'ouvre a la fois, donc il n'y a pas d'ambiguite sur ce qu'elle
+    nomme. */
+#modernbb .wm-profil-page__badges {
+  position: relative;
+}
+
+#modernbb .wm-profil-page__badges .award {
+  position: static;
+}
+
+#modernbb .wm-profil-page__badges .award_tooltiptext {
+  right: 0;
+  left: 0;
+  transform: none;
+  text-align: center;
+  white-space: normal;
+}
+
 #modernbb .wm-profil-page .award_tooltiptext {
   position: absolute;
   top: calc(100% + 6px);
@@ -454,8 +582,83 @@
 
 /*  ── LES GROUPES (`/uNgroups`) ────────────────────────────────────
 
-    Forumactif sert des rangées `.avatar` + `.message-block`. On en
-    fait des lignes de liste, pas des blocs de message. */
+    Relevé le 8 novembre, et mon premier jet s'était trompé de nœud :
+    j'avais pris `.clearfix` pour la rangée. C'EST UN DIV VIDE DE
+    DÉGAGEMENT, posé au milieu du bloc de message. La rangée est le
+    `<li>` de la liste.
+
+    Mise en page réelle :
+
+        ol > li
+          .avatar > i.ion-ios-people[style="color:#46849C"]
+          .message-block
+            .message-header > strong        ← le nom du groupe
+            .message-text                   ← sa description, son statut
+            .clearfix                       ← vide
+            ul.message-footer > li > a      ← « Voir plus »
+            .clear                          ← vide */
+#modernbb .wm-profil-page__panneau ol {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*  CHAQUE GROUPE EST UNE CARTE, pas une ligne separee par un filet :
+    un groupe porte un nom, une description et un lien, soit trois
+    hauteurs differentes d'une rangee a l'autre. Des filets entre des
+    blocs inegaux donnent une liste qui tremble ; une carte par groupe
+    la pose. */
+#modernbb .wm-profil-page__panneau ol {
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-profil-page__panneau ol > li {
+  display: flex;
+  box-sizing: border-box;
+  align-items: flex-start;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-14, 14px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  La pastille se cale sur la premiere ligne du nom, pas sur le haut
+    de la carte : deux pixels plus bas, et elle se lit comme une puce
+    de liste au lieu d'une decoration posee dans un coin. */
+#modernbb .wm-profil-page__panneau ol > li .avatar {
+  margin-top: 4px;
+}
+
+/*  ── L'ICÔNE DE GROUPE DEVIENT UNE PASTILLE ───────────────────────
+
+    Forumactif pose `<i class="ion-ios-people">`, un glyphe de la
+    fonte Ionicons — QUI N'EST PAS CHARGÉE sur ce forum. Le résultat
+    est un carré vide, ou rien du tout.
+
+    Mais il pose AUSSI la couleur du groupe en style inline sur ce
+    même `<i>`. On en fait donc un disque de cette couleur :
+    `background: currentcolor` reprend la couleur inline sans qu'on
+    ait à la connaître, et la liste des groupes se lit d'un coup
+    d'œil. Le nom reste écrit à côté — la couleur ne porte jamais
+    seule. */
+#modernbb .wm-profil-page__panneau ol > li .avatar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+#modernbb .wm-profil-page__panneau ol > li .avatar > i {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: currentcolor;
+  font-size: 0;
+}
+
 #modernbb .wm-profil-page__panneau .message-block {
   display: flex;
   min-width: 0;
@@ -464,20 +667,91 @@
   gap: 2px;
 }
 
-#modernbb .wm-profil-page__panneau .clearfix {
+/*  Les deux div de dégagement de 2007 n'ont plus d'emploi : nos
+    rangées sont en flex, rien ne flotte. */
+#modernbb .wm-profil-page__panneau .clearfix,
+#modernbb .wm-profil-page__panneau .clear {
+  display: none;
+}
+
+#modernbb .wm-profil-page__panneau .message-footer {
   display: flex;
-  align-items: center;
-  padding: var(--wm-espace-12, 12px) 0;
-  gap: var(--wm-espace-14, 14px);
-  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  margin: var(--wm-espace-6, 6px) 0 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+#modernbb .wm-profil-page__panneau .message-footer a {
+  color: var(--wm-accent-primaire, #275e7a);
+  text-decoration: none;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  ── UNE PAGINATION D'UNE SEULE PAGE NE SE MONTRE PAS ─────────────
+
+    « Page 1 sur 1 » avec ses deux pastilles pleines prend la place et
+    l'oeil d'une vraie pagination, pour ne rien dire. Sans lien, il
+    n'y a nulle part ou aller : on la retire.
+
+    Elle revient d'elle-meme des qu'un second ecran existe, puisque
+    c'est la presence d'un lien qui la fait exister. */
+#modernbb .wm-profil-page__panneau .pagination:not(:has(a)) {
+  display: none;
+}
+
+/*  La pagination des groupes : une ligne, pas un bloc.
+
+    EN `texte-corps` ET PAS `texte-doux` : le « 1 » en gras y tombait
+    à 3,85 en thème sombre, sous le seuil de 4,5 d'un texte de 10 px.
+    Mesuré par le harnais le 8 novembre. */
+#modernbb .wm-profil-page__panneau .pagination {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
 }
 
 #modernbb .wm-profil-page__panneau .message-header {
   color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+/*  LE STATUT DEVIENT UNE PASTILLE. Forumactif l'ecrit « <b>Statut :
+    </b><i>Groupe ouvert</i> » a la suite de la description, sur la
+    meme ligne qu'elle : deux renseignements de nature differente
+    colles bout a bout. Le `<i>` se detache, le `<b>` s'en va — la
+    pastille dit deja que c'est un statut. */
+#modernbb .wm-profil-page__panneau .message-text > b {
+  display: none;
+}
+
+#modernbb .wm-profil-page__panneau .message-text > i {
+  display: inline-block;
+  margin-top: var(--wm-espace-6, 6px);
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-style: normal;
   font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
 }
 
 #modernbb .wm-profil-page__panneau .message-text {
@@ -501,10 +775,23 @@
 #modernbb .wm-profil-page__panneau .award_row {
   display: flex;
   align-items: center;
-  padding: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
   gap: var(--wm-espace-16, 16px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  EN GRAND DANS CET ONGLET : c'est la page des recompenses, elles
+    ont la place. Dans la carte d'identite elles font 48 ; ici, 64. */
+#modernbb .wm-profil-page__panneau .award_row .award {
+  width: 64px;
+  height: 64px;
+}
+
+/*  `.award_img` enveloppe le badge : sans `flex: none`, il rétrécit
+    avant la description et le rond devient un ovale. */
+#modernbb .wm-profil-page__panneau .award_img {
+  flex: 0 0 auto;
 }
 
 #modernbb .wm-profil-page__panneau .award_desc {
@@ -516,11 +803,72 @@
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
+/*  Le nom de la récompense, puis sa date en petit. Le `<p>` vide que
+    Forumactif intercale entre les deux ne doit pas creuser la carte. */
+#modernbb .wm-profil-page__panneau .award_desc > b {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-profil-page__panneau .award_desc > p:empty {
+  display: none;
+}
+
+#modernbb .wm-profil-page__panneau .award_desc > i {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-legende, 10.5px);
+  font-style: normal;
+  line-height: var(--wm-interligne-legende, 1.45);
+}
+
+/*  DANS CET ONGLET, L'INFOBULLE N'A PAS LIEU D'ÊTRE : le nom de la
+    récompense est écrit juste à côté. */
+#modernbb .wm-profil-page__panneau .award_row .award_tooltiptext {
+  display: none;
+}
+
+/*  ── L'ONGLET CONTACT ─────────────────────────────────────────────
+
+    Un seul champ, et sa valeur est une IMAGE en pleine largeur — la
+    carte de dresseur du membre. Alignee a droite comme une valeur de
+    texte, elle se collait au bord et laissait un grand vide a gauche.
+
+    Une ligne dont la valeur est une image seule passe donc en
+    colonne : le libelle au-dessus, l'image centree en dessous. */
+#modernbb .wm-profil-page__champs > dl:has(> dd > .field_uneditable > a > img) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-profil-page__champs > dl:has(> dd > .field_uneditable > a > img) > dd {
+  text-align: center;
+}
+
 /*  ── LA FEUILLE DE PERSONNAGE (`/uNrpg`) ──────────────────────────
 
     Celle-là vient VRAIMENT du gabarit : `div.column2 > dl > dt/dd`,
     le bloc `switch_rpg`. Mêmes lignes que les champs de profil — ce
-    sont les mêmes renseignements, ils doivent se lire pareil. */
+    sont les mêmes renseignements, ils doivent se lire pareil.
+
+    Le gabarit sert aussi, au-dessus, un `<p>` vide (l'image de
+    feuille, `{RPG_IMAGE}`, absente ici), un `<hr>` et un `fieldset`
+    vide. Les trois laissaient trois trous en tête de l'onglet. */
+/*  PAS `>` : ces trois-là sont enfouis dans deux `div.panel .inner`
+    que le gabarit enveloppe autour du bloc. Avec l'enfant direct, la
+    règle ne portait sur rien — le harnais l'a vu. */
+#modernbb .wm-profil-page__panneau p:empty,
+#modernbb .wm-profil-page__panneau hr,
+#modernbb .wm-profil-page__panneau .submit-buttons:empty {
+  display: none;
+}
+
 #modernbb .wm-profil-page__panneau .column2 {
   display: flex;
   align-items: baseline;
@@ -562,21 +910,20 @@
     L'avatar passe au-dessus et prend la largeur, mais GARDE SON
     RAPPORT : une image de 200 × 320 étirée sur 390 px de large
     donnerait un visage déformé. */
-@media (max-width: 720px) {
-  #modernbb .wm-profil-page__carte {
-    flex-direction: column;
-    align-items: center;
+@media (max-width: 860px) {
+  /*  UNE SEULE COLONNE, ET LA CARTE PASSE EN TÊTE TOUTE SEULE :
+      elle est déjà première dans le document. Rien à réordonner. */
+  #modernbb .wm-profil-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #modernbb .wm-profil-page__carte,
+  #modernbb .wm-profil-page__principal {
+    grid-row: auto;
+    grid-column: 1;
   }
 
   #modernbb .wm-profil-page__avatar {
-    flex: 0 0 auto;
-  }
-
-  #modernbb .wm-profil-page__ident {
-    width: 100%;
-  }
-
-  #modernbb .wm-profil-page__champs {
-    columns: 1;
+    flex: none;
   }
 }

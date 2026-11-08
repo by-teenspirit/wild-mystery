@@ -2212,3 +2212,74 @@
 #modernbb .wm-annonce .wm-tw-bandeau {
   margin: var(--wm-espace-16, 16px) 0 0;
 }
+
+/*  ── LE PASSAGE MASQUÉ EN LIGNE ──────────────────────────────────── */
+
+/*  « Est-ce que <tw> peut aussi fonctionner avec juste la balise <tw>
+    et ça fonctionne juste au survol de la souris (ça ne crée pas un
+    encadré, ni besoin de cliquer sur "afficher ce passage") ? Il
+    faudrait qu'on ait les 2 » (8 novembre).
+
+    Celui-ci est pour un mot ou une phrase AU MILIEU D'UN PARAGRAPHE.
+    L'encadré reste pour un passage entier, et c'est le libellé qui
+    choisit : `<tw>` nue en ligne, `<tw data-wm-tw="…">` en encadré.
+
+    ── UN BOUTON QU'ON NE VOIT PAS ───────────────────────────────────
+
+    C'est un `<button>`, et il n'en a l'air d'aucune façon : ni fond,
+    ni cadre, ni police de bouton. Il hérite de tout.
+
+    Il est un bouton parce que le SURVOL N'EXISTE PAS PARTOUT — pas au
+    doigt, pas au clavier. Sans lui, le passage resterait flouté pour
+    de bon sur un téléphone. Avec lui, trois façons de l'ouvrir : le
+    survol, le focus, et le clic qui l'ouvre pour de bon. */
+#modernbb .wm-tw-mot {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+}
+
+/*  LE SOULIGNÉ POINTILLÉ DIT QU'IL Y A QUELQUE CHOSE, et il reste
+    quand le passage s'ouvre : c'est ce qui le distingue du texte
+    autour une fois révélé. Le flou, lui, s'en va.
+
+    `text-decoration` sur le bouton et pas sur le texte flouté :
+    `filter: blur()` brouillerait le trait avec les lettres, et on ne
+    verrait plus qu'il y a une marque. */
+#modernbb .wm-tw-mot {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--wm-accent-terre, #8b4725);
+  text-underline-offset: 3px;
+}
+
+#modernbb .wm-tw-mot__texte {
+  opacity: 0.75;
+  filter: blur(4px);
+  user-select: none;
+}
+
+#modernbb .wm-tw-mot--ouvert .wm-tw-mot__texte {
+  opacity: 1;
+  filter: none;
+  user-select: auto;
+}
+
+/*  Le focus se voit — c'est un bouton, et sans anneau on ne saurait
+    pas où l'on est en tabulant. */
+#modernbb .wm-tw-mot:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  #modernbb .wm-tw-mot__texte {
+    transition: filter 0.15s ease, opacity 0.15s ease;
+  }
+}

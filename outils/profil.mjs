@@ -57,24 +57,53 @@ const PHOTO = "data:image/svg+xml;base64," +
     '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="280">' +
       '<rect width="640" height="280" fill="#8a6a4f"/></svg>',
   );
+//  L'icone de genre fait une douzaine de pixels sur le vrai forum
+//  (`icon_minigender_female.gif`, 10 x 12). Le harnais s'en servait
+//  d'un rond de 64, et la ligne « Genre » sortait trois fois trop
+//  haute : une mesure prise sur un faux gabarit.
+const ICONE = "data:image/svg+xml;base64," +
+  btoa(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="12">' +
+      '<rect width="10" height="12" fill="#6e5749"/></svg>',
+  );
+
 const BADGE = "data:image/svg+xml;base64," +
   btoa(
     '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">' +
       '<circle cx="32" cy="32" r="30" fill="#b1402f"/></svg>',
   );
 
-const GAUCHE = `<div id="profile-advanced-layout"><div id="profile-advanced-left">
-<div id="new-message"><div id="tabs"><ul>
-<li class="activetab"><a href="#"><span>Profil</span></a></li>
-<li><a href="/u1groups"><span>Groupes</span></a></li>
-<li><a href="/u1awards"><span>Récompenses</span></a></li>
-<li><a href="/u1contact"><span>Contact</span></a></li>
-<li><a href="/u1rpg"><span>Feuille de personnage</span></a></li>
-</ul></div></div>
+//  ── LA PAGE SE FABRIQUE : CINQ ONGLETS, LE MÊME CADRE ─────────────
+//
+//  Les cinq pages d'un profil partagent tout sauf le contenu de
+//  `#cp-main`. Une fabrique plutôt que cinq copies : le cadre est
+//  relevé une fois, et un contrôle de mise en page vaut pour les cinq.
+const ONGLETS = [
+  ["Profil", "#"],
+  ["Groupes", "/u1groups"],
+  ["Récompenses", "/u1awards"],
+  ["Contact", "/u1contact"],
+  ["Feuille de personnage", "/u1rpg"],
+];
+
+const gauche = (actif, corps) =>
+  `<div id="profile-advanced-layout"><div id="profile-advanced-left">
+<div id="new-message"><div id="tabs"><ul>${
+    ONGLETS.map(([mot, vers], i) =>
+      `<li${i === actif ? ' class="activetab"' : ""}><a href="${
+        i === actif ? "#" : vers
+      }"><span>${mot}</span></a></li>`
+    ).join("")
+  }</ul></div></div>
 <div id="profile-advanced-details" class="panel row3"><div class="inner">
 <span class="corners-top"><span></span></span>
-<div id="cp-main" class="ucp-main">
-<h1>Tout à propos de <span class="group-2 usr_grp_clr" style="color:#808080"><strong>Arceus</strong></span></h1>
+<div id="cp-main" class="ucp-main">${corps}</div>
+<span class="corners-bottom"><span></span></span></div></div></div></div>`;
+
+//  ── LES CINQ CORPS, RELEVÉS LE 8 NOVEMBRE ─────────────────────────
+
+const CORPS_PROFIL =
+  `<h1>Tout à propos de <span class="group-2 usr_grp_clr" style="color:#808080"><strong>Arceus</strong></span></h1>
 <div class="panel"><div class="inner"><span class="corners-top"><span></span></span>
 <div class="middleline"><div id="profile-tab-field-profil">
 <dl id="field_id-8"><dt>Faceclaim : </dt><dd><div class="field_uneditable">uc</div></dd></dl>
@@ -87,10 +116,79 @@ const GAUCHE = `<div id="profile-advanced-layout"><div id="profile-advanced-left
 <div class="separator">&nbsp;</div>
 <dl id="field_id-6"><dt>Messages postés : </dt><dd><div class="field_uneditable">291</div></dd></dl>
 <div class="separator">&nbsp;</div>
-<dl id="field_id-7"><dt>Genre : </dt><dd><div class="field_uneditable"><img src="${BADGE}" alt="Féminin" title="Féminin"></div></dd></dl>
+<dl id="field_id-7"><dt>Genre : </dt><dd><div class="field_uneditable"><img src="${ICONE}" alt="Féminin" title="Féminin"></div></dd></dl>
 <div class="separator">&nbsp;</div>
 </div></div><span class="corners-bottom"><span></span></span></div></div>
-</div><span class="corners-bottom"><span></span></span></div></div></div></div>`;
+`;
+
+//  `/u1groups` — et le piège : `.clearfix` est un DIV VIDE au milieu
+//  du bloc de message, pas la rangée. La rangée est le `<li>`.
+const CORPS_GROUPES = `<h1>Groupes 1 à 7 sur 7</h1><div class="panel"><div class="inner">
+<span class="corners-top"><span></span></span>
+<div class="pagination top"> Page <strong>1</strong> sur <strong>1</strong></div>
+<div class="clear"></div><ol>${
+  [
+    ["PNJ", "#808080", "g2", "Personnages non joués du forum."],
+    [
+      "Hardi",
+      "#46849C",
+      "g4",
+      "Valheureux challengers, dresseurs, à la conquête des arènes et de la ligue de Rhode.",
+    ],
+    ["Sérieux", "#B56A45", "g6", "Champions de Rhode, ils font parti des arènes et colosseum."],
+    ["Malin", "#A264BE", "g7", "Scientifiques, étudiants, ils sont fascinés par les Pokémons."],
+    ["Doux", "#4C8A52", "g5", "Éleveurs, gérants de pensions, soigneurs."],
+  ].map(([nom, couleur, id, quoi]) =>
+    `<li><div class="avatar"><i class="ion-ios-people" style="color:${couleur}"></i></div>` +
+    `<div id="group-${id}" class="message-block"><div class="message-header"><strong>${nom}</strong></div>` +
+    `<div class="message-text"><div>${quoi}</div><b>Statut : </b><i>Groupe ouvert</i></div>` +
+    `<div class="clearfix"></div><ul class="message-footer"><li><a href="/${id}-x">Voir plus</a></li></ul>` +
+    `<div class="clear"></div></div></li>`
+  ).join("")
+}</ol><span class="corners-bottom"><span></span></span></div></div>`;
+
+//  `/u1awards` — chaque badge porte son image dans `--award-image`.
+const CORPS_RECOMPENSES = `<h1>Récompenses</h1><div class="panel"><div class="inner">
+<span class="corners-top"><span></span></span><div id="profile_awards_full">
+<div class="module owned"><div class="h3">Récompenses obtenues</div><div class="awards_block">${
+  ["Feu", "Plante", "Eau", "Acier"].map((t) =>
+    `<div class="award_row"><div class="award_img">` +
+    `<div class="award " style="--award-image: url('${BADGE}');"> </div></div>` +
+    `<div class="award_desc"><b>Badge - Arène ${t}</b><p></p>` +
+    `<i>Récompense obtenue le Ven 30 Oct 2026 - 15:57 - 1 membres</i></div></div>`
+  ).join("")
+}</div></div></div><span class="corners-bottom"><span></span></span></div></div>`;
+
+//  `/u1contact` — la valeur est une VRAIE image, pas une icône.
+const CORPS_CONTACT =
+  `<h1>Contacter <span class="group-2 usr_grp_clr" style="color:#808080"><strong>Arceus</strong></span></h1>
+<div class="panel"><div class="inner"><span class="corners-top"><span></span></span>
+<div class="middleline"><div id="profile-tab-field-profil">
+<dl id="field_id5"><dt>TRAINER CARD : </dt><dd><div class="field_uneditable">
+<a href="/t8-trainer-card" target="_blank" rel="nofollow"><img src="${PHOTO}" alt="carte"></a>
+</div></dd></dl><div class="separator">&nbsp;</div>
+</div></div><span class="corners-bottom"><span></span></span></div></div>`;
+
+//  `/u1rpg` — le bloc `switch_rpg` du gabarit, avec son `<p>` vide,
+//  son `<hr>` et son `fieldset` vide.
+const CORPS_RPG = `<h1>Feuille de personnage</h1><div class="panel"><div class="inner">
+<span class="corners-top"><span></span></span><p style="text-align: center;"></p><hr>${
+  [
+    ["Âge", "pseudo sur la toile."],
+    ["Alignement", "double comptes."],
+    ["Lieu de vie", "la célébrité de ton personnage."],
+    ["Métier", "créateurs de ton kit."],
+    ["Origines", "tes pronoms personnels."],
+    ["Statut marital", "thèmes ou sujets qui peuvent te mettre mal à l'aise."],
+    ["Orientation sexuelle", "triggers réguliers que peuvent contenir tes rps."],
+  ].map(([mot, quoi]) =>
+    `<div class="column2"><dl class="details"><dt><span class="gen">${mot}</span> :</dt>` +
+    `<dd><span class="gen">${quoi}</span></dd></dl></div>`
+  ).join("")
+}<div class="clear"></div><fieldset class="submit-buttons"></fieldset>
+<span class="corners-bottom"><span></span></span></div></div>`;
+
+const CORPS = [CORPS_PROFIL, CORPS_GROUPES, CORPS_RECOMPENSES, CORPS_CONTACT, CORPS_RPG];
 
 const DROITE = `<div id="profile-advanced-right">
 <div class="module"><div class="h3"><span class="group-2 usr_grp_clr" style="color:#808080"><strong>Arceus</strong></span> </div>
@@ -108,13 +206,15 @@ const DROITE = `<div id="profile-advanced-right">
 <div style="text-align:center;"><div class="clear">&nbsp;</div>Arceus n'a pas encore d'amis</div>
 <span class="corners-bottom"><span></span></span></div></div></div>`;
 
-const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
-<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
+const FEUILLES = `<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 <style>html,body{margin:0}body{background:var(--wm-fond-page);padding:24px}
-  #main-content{margin:0 auto;max-width:1000px}</style></head>
+  #main-content{margin:0 auto;max-width:1000px}</style>`;
+
+const page = (actif) =>
+  `<!doctype html><html lang="fr"><head><meta charset="utf-8">${FEUILLES}</head>
 <body id="modernbb"><div id="page-body"><div id="main-content">
-${GAUCHE}
+${gauche(actif, CORPS[actif])}
 ${DROITE}
 </div></div></body></html>`;
 
@@ -125,15 +225,21 @@ p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 //  L'ADRESSE COMPTE : le module y lit l'identifiant du membre, et
 //  construit les trois boutons avec. Servie sur `about:blank`, la
 //  page n'aurait pas de `pathname` et la carte sortirait sans actions.
-const ADRESSE = "https://mysteryinrhode.forumactif.com/u1";
-await p.route(
-  "**/*",
-  (r) =>
-    r.request().url() === ADRESSE
-      ? r.fulfill({ contentType: "text/html; charset=utf-8", body: page })
-      : r.fulfill({ status: 204, body: "" }),
-);
-await p.goto(ADRESSE);
+const RACINE = "https://mysteryinrhode.forumactif.com";
+const ADRESSES = ["/u1", "/u1groups", "/u1awards", "/u1contact", "/u1rpg"];
+await p.route("**/*", (r) => {
+  let chemin = "";
+  try {
+    chemin = new URL(r.request().url()).pathname;
+  } catch {
+    chemin = "";
+  }
+  const i = ADRESSES.indexOf(chemin);
+  return i === -1
+    ? r.fulfill({ status: 204, body: "" })
+    : r.fulfill({ contentType: "text/html; charset=utf-8", body: page(i) });
+});
+await p.goto(RACINE + ADRESSES[0]);
 await p.addScriptTag({ path: R + "js/harnais-sommaire.js" });
 const pose = await p.evaluate(() => globalThis.wmPoserLeProfil());
 
@@ -308,7 +414,7 @@ const champs = await p.evaluate(() => {
       memeLigne: Math.abs(dt.top - dd.top) < 6,
     };
   });
-  return { colonnes: getComputedStyle(l).columnCount, lignes };
+  return { colonnes: new Set(lignes.map((x) => x.gauche)).size, lignes };
 });
 ok("les six champs sont montés", champs?.lignes.length === 6, champs?.lignes.length);
 ok(
@@ -316,7 +422,7 @@ ok(
   champs.lignes.every((l) => l.memeLigne),
   champs.lignes.filter((l) => !l.memeLigne),
 );
-ok("ils tiennent sur deux colonnes", champs.colonnes === "2", champs.colonnes);
+ok("ils tiennent sur deux colonnes", champs.colonnes === 2, champs.colonnes);
 //  LES VALEURS D'UNE MÊME COLONNE FINISSENT AU MÊME ENDROIT, sans
 //  quoi l'alignement à droite ne sert à rien.
 {
@@ -346,8 +452,14 @@ for (const largeur of [1280, 1000, 390]) {
         }))
         .filter((x) => x.d > 1),
       avatar: [Math.round(av.width), Math.round(av.height)],
-      colonnes: getComputedStyle(document.querySelector(".wm-profil-page__champs"))
-        .columnCount,
+      //  LE NOMBRE DE COLONNES SE COMPTE, IL NE SE LIT PAS :
+      //  `columnCount` rend la valeur DECLAREE (« 2 »), pas celle que
+      //  le navigateur a retenue. On regarde donc ou les champs
+      //  commencent vraiment.
+      colonnes: new Set(
+        [...document.querySelectorAll(".wm-profil-page__champs > dl")]
+          .map((d) => Math.round(d.getBoundingClientRect().left)),
+      ).size,
     };
   }, largeur);
   ok(`${largeur} px : rien ne dépasse`, etat.trop.length === 0, etat.trop.slice(0, 3));
@@ -360,7 +472,7 @@ for (const largeur of [1280, 1000, 390]) {
     etat.avatar,
   );
   if (largeur === 390) {
-    ok("390 px : les champs passent sur une colonne", etat.colonnes === "1", etat.colonnes);
+    ok("390 px : les champs passent sur une colonne", etat.colonnes === 1, etat.colonnes);
   }
 }
 await p.setViewportSize({ width: 1280, height: 1400 });
@@ -452,6 +564,217 @@ for (const theme of ["clair", "sombre"]) {
 }
 await p.evaluate(() => document.body.classList.remove("wm-sombre"));
 
+// ── 8 · LES QUATRE AUTRES ONGLETS ─────────────────────────────────
+//
+//  Ils n'ont pas le même balisage que le Profil, et la feuille les
+//  habille PAR LEURS CLASSES. Une feuille écrite sans les monter est
+//  une feuille écrite sur parole : mon premier jet prenait `.clearfix`
+//  pour la rangée des groupes, alors que c'est un div vide de
+//  dégagement au milieu du bloc de message.
+for (let i = 1; i < ADRESSES.length; i += 1) {
+  const nom = ONGLETS[i][0];
+  await p.goto(RACINE + ADRESSES[i]);
+  await p.addScriptTag({ path: R + "js/harnais-sommaire.js" });
+  const monte = await p.evaluate(() => globalThis.wmPoserLeProfil());
+  ok(`${nom} : le module remonte la page`, monte === true, { nom, monte });
+
+  const etat = await p.evaluate(() => {
+    const page = document.querySelector(".wm-profil-page");
+    const panneau = page?.querySelector(".wm-profil-page__panneau") ?? null;
+    return {
+      onglets: page?.querySelectorAll(".wm-onglet").length ?? 0,
+      courant: page?.querySelector('[aria-current="page"]')?.textContent.trim() ?? null,
+      carte: page?.querySelector(".wm-profil-page__carte") !== null,
+      //  Rien ne doit rester en dehors du panneau : un bloc oublié
+      //  retombe sur le fond de page, sans carte sous lui.
+      horsPanneau: panneau === null
+        ? null
+        : [...page.children].filter((e) =>
+          !e.classList.contains("wm-profil-page__carte") &&
+          !e.classList.contains("wm-profil-page__panneau") &&
+          !e.classList.contains("wm-profil-page__jeu") &&
+          !e.classList.contains("wm-profil-page__principal") &&
+          e.tagName !== "NAV"
+        ).map((e) => e.className || e.tagName),
+      //  Les trois trous du gabarit RPG : un `<p>` vide, un `<hr>`,
+      //  un `fieldset` vide.
+      trous: panneau === null ? null : [...panneau.querySelectorAll("p, hr, fieldset")]
+        .filter((e) => e.textContent.trim() === "" && e.querySelector("img") === null)
+        .filter((e) => getComputedStyle(e).display !== "none")
+        .map((e) => e.tagName),
+      //  « Du contenu » n'est pas forcément du TEXTE : l'onglet
+      //  Contact n'a qu'un libellé et une image.
+      vide: panneau === null ? null : panneau.textContent.trim().length,
+      images: panneau === null ? 0 : panneau.querySelectorAll("img").length,
+    };
+  });
+  ok(`${nom} : les cinq onglets suivent`, etat.onglets === 5, etat.onglets);
+  ok(`${nom} : l'onglet courant est celui-ci`, etat.courant === nom, etat.courant);
+  ok(`${nom} : la carte d'identité reste en tête`, etat.carte === true, etat.carte);
+  ok(
+    `${nom} : rien ne reste hors du panneau`,
+    etat.horsPanneau?.length === 0,
+    etat.horsPanneau,
+  );
+  ok(`${nom} : aucun bloc vide du gabarit n'est affiché`, etat.trous?.length === 0, etat.trous);
+  ok(
+    `${nom} : le panneau a du contenu`,
+    (etat.vide ?? 0) > 20 || etat.images > 0,
+    { texte: etat.vide, images: etat.images },
+  );
+
+  //  LA MISE EN PAGE PROPRE À CHAQUE ONGLET.
+  if (i === 1) {
+    const g = await p.evaluate(() =>
+      [...document.querySelectorAll(".wm-profil-page__panneau ol > li")].map((l) => {
+        const pastille = l.querySelector(".avatar i");
+        const r = pastille.getBoundingClientRect();
+        const nom = l.querySelector(".message-header").getBoundingClientRect();
+        return {
+          //  La pastille reprend la couleur inline du groupe par
+          //  `currentcolor` : rien à connaître, rien à tenir.
+          fond: getComputedStyle(pastille).backgroundColor,
+          couleur: pastille.getAttribute("style"),
+          ronde: Math.round(r.width) === Math.round(r.height) &&
+            parseFloat(getComputedStyle(pastille).borderRadius) >= r.width / 2,
+          //  La pastille est À CÔTÉ du nom, pas au-dessus : c'est ce
+          //  qui dit que la rangée est bien le `<li>` et pas un div
+          //  de dégagement.
+          aCote: r.right <= nom.left + 1,
+        };
+      })
+    );
+    ok("Groupes : cinq rangées", g.length === 5, g.length);
+    ok("Groupes : chaque pastille est ronde", g.every((x) => x.ronde), g.map((x) => x.ronde));
+    ok(
+      "Groupes : chaque pastille porte la couleur de son groupe",
+      g.every((x) => x.fond !== "rgba(0, 0, 0, 0)") &&
+        new Set(g.map((x) => x.fond)).size === 5,
+      g.map((x) => x.fond),
+    );
+    ok(
+      "Groupes : la pastille est à côté du nom",
+      g.every((x) => x.aCote),
+      g.map((x) => x.aCote),
+    );
+  }
+  if (i === 2) {
+    const a = await p.evaluate(() =>
+      [...document.querySelectorAll(".wm-profil-page__panneau .award_row")].map((r) => {
+        const b = r.querySelector(".award");
+        const bb = b.getBoundingClientRect();
+        const d = r.querySelector(".award_desc").getBoundingClientRect();
+        return {
+          image: getComputedStyle(b).backgroundImage !== "none",
+          rond: Math.round(bb.width) === Math.round(bb.height),
+          large: Math.round(bb.width),
+          //  Les descriptions tombent toutes au même endroit.
+          gauche: Math.round(d.left),
+          //  DANS CET ONGLET, LE VRAI FORUM NE POSE PAS D'INFOBULLE :
+          //  le nom est écrit juste à côté. J'en cherchais une, et
+          //  `getComputedStyle(null)` jette.
+          bulle: r.querySelector(".award_tooltiptext") === null
+            ? "none"
+            : getComputedStyle(r.querySelector(".award_tooltiptext")).display,
+        };
+      })
+    );
+    ok("Récompenses : quatre rangées", a.length === 4, a.length);
+    ok("Récompenses : chaque badge peint son image", a.every((x) => x.image), a);
+    ok(
+      "Récompenses : aucun badge écrasé en ovale",
+      a.every((x) => x.rond && x.large > 30),
+      a.map((x) => [x.large, x.rond]),
+    );
+    ok(
+      "Récompenses : les descriptions commencent au même endroit",
+      new Set(a.map((x) => x.gauche)).size === 1,
+      a.map((x) => x.gauche),
+    );
+    ok(
+      "Récompenses : pas d'infobulle, le nom est écrit à côté",
+      a.every((x) => x.bulle === "none"),
+      a.map((x) => x.bulle),
+    );
+  }
+  if (i === 3) {
+    const c = await p.evaluate(() => {
+      const img = document.querySelector(".wm-profil-page__champs dd img");
+      const r = img.getBoundingClientRect();
+      const dl = img.closest("dl");
+      const dt = dl.querySelector("dt").getBoundingClientRect();
+      return {
+        haute: Math.round(r.height),
+        large: Math.round(r.width),
+        //  L'image est grande ; le libellé doit rester AU-DESSUS, ou
+        //  au niveau du haut de l'image — jamais collé à son bas, ce
+        //  qui est ce que donne un alignement sur la ligne de base.
+        enHaut: dt.top <= r.top + 8,
+        aligne: getComputedStyle(dl).alignItems,
+      };
+    });
+    //  LE PIÈGE DU 8 NOVEMBRE : j'avais plafonné toutes les images de
+    //  champ à 1,4 em pour l'icône de genre. La carte de dresseur
+    //  serait sortie en timbre-poste.
+    ok("Contact : la carte de dresseur est une vraie image", c.haute > 60, c);
+    ok("Contact : elle ne déborde pas de sa colonne", c.large <= 500, c.large);
+    ok("Contact : le libellé reste en haut de la ligne", c.enHaut, c);
+  }
+  if (i === 4) {
+    const r = await p.evaluate(() =>
+      [...document.querySelectorAll(".wm-profil-page__panneau .column2")].map((c) => {
+        const dt = c.querySelector("dt").getBoundingClientRect();
+        const dd = c.querySelector("dd").getBoundingClientRect();
+        return {
+          mot: c.querySelector("dt").textContent.trim(),
+          memeLigne: Math.abs(dt.top - dd.top) < 8,
+          droite: Math.round(dd.right),
+        };
+      })
+    );
+    ok("Feuille : sept champs", r.length === 7, r.length);
+    ok(
+      "Feuille : chaque libellé est sur la ligne de sa valeur",
+      r.every((x) => x.memeLigne),
+      r.filter((x) => !x.memeLigne),
+    );
+    ok(
+      "Feuille : les valeurs finissent au même endroit",
+      new Set(r.map((x) => x.droite)).size === 1,
+      r.map((x) => x.droite),
+    );
+  }
+
+  //  ET LE CONTRASTE, ONGLET PAR ONGLET.
+  for (const theme of ["clair", "sombre"]) {
+    const m = await mesurer(theme);
+    const rates = m.filter((x) => !x.ok);
+    ok(
+      `${nom}, ${theme} : ${m.length} textes mesurés, aucun défaut`,
+      rates.length === 0,
+      rates,
+    );
+  }
+  await p.evaluate(() => document.body.classList.remove("wm-sombre"));
+
+  //  RIEN NE DÉPASSE, LARGE ET ÉTROIT.
+  for (const largeur of [1280, 390]) {
+    await p.setViewportSize({ width: largeur, height: 1400 });
+    const trop = await p.evaluate(
+      (l) =>
+        [...document.querySelectorAll(".wm-profil-page, .wm-profil-page *")]
+          .map((e) => ({
+            c: e.className || e.tagName,
+            d: Math.round(e.getBoundingClientRect().right - (l - 24)),
+          }))
+          .filter((x) => x.d > 1),
+      largeur,
+    );
+    ok(`${nom}, ${largeur} px : rien ne dépasse`, trop.length === 0, trop.slice(0, 3));
+  }
+  await p.setViewportSize({ width: 1280, height: 1400 });
+}
+
 for (const s of soucis) ok(s, false, s);
 
 if (Deno.args.includes("--apercu")) {
@@ -460,18 +783,25 @@ if (Deno.args.includes("--apercu")) {
   console.log("aperçu : apercu-profil.html");
 }
 if (Deno.args.includes("--photo")) {
-  //  ON REND LE FOCUS AVANT DE PHOTOGRAPHIER : le contrôle du clavier
-  //  a laissé une infobulle de badge ouverte, et elle se retrouvait
-  //  sur l'image comme si elle y était tout le temps.
-  await p.evaluate(() => document.activeElement?.blur());
-  for (const theme of ["clair", "sombre"]) {
-    await p.evaluate(
-      (t) => document.body.classList.toggle("wm-sombre", t === "sombre"),
-      theme,
-    );
-    await p.screenshot({ path: `${R}profil-${theme}.png`, fullPage: true });
-    console.log(`photo : ${R}profil-${theme}.png`);
+  //  UNE PHOTO PAR ONGLET : la boucle a laissé la page sur le
+  //  dernier, et une seule image ne montrerait qu'un cinquième du
+  //  travail.
+  for (let i = 0; i < ADRESSES.length; i += 1) {
+    await p.goto(RACINE + ADRESSES[i]);
+    await p.addScriptTag({ path: R + "js/harnais-sommaire.js" });
+    await p.evaluate(() => globalThis.wmPoserLeProfil());
+    await p.evaluate(() => document.activeElement?.blur());
+    for (const theme of ["clair", "sombre"]) {
+      await p.evaluate(
+        (t) => document.body.classList.toggle("wm-sombre", t === "sombre"),
+        theme,
+      );
+      const nom = ONGLETS[i][0].toLowerCase().split(" ")[0]
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      await p.screenshot({ path: `${R}profil-${nom}-${theme}.png`, fullPage: true });
+    }
   }
+  console.log("photos : profil-<onglet>-<theme>.png");
 }
 
 await nav.close();
