@@ -20,9 +20,9 @@
     "presentation": {
       "titre": "Présentation",
       "paragraphes": [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
+        "Pour de nombreux dresseurs, le voyage à travers Rhode ne se résume pas à découvrir de nouveaux Pokémon, à les entraîner ou à affronter d'autres passionnés. Les arènes représentent une étape incontournable de leur parcours, un véritable moyen de mettre leurs compétences à l'épreuve face aux meilleurs spécialistes de la région.",
+        "Chacune d'entre elles est dirigée par un champion, maître d'un type de Pokémon, qu'il faudra parvenir à vaincre pour obtenir son précieux badge. Sept arènes, sept défis et autant d'occasions de prouver sa valeur.",
+        "Alors, serez-vous à la hauteur ?"
       ],
       "acces": {
         "titre": "Ce qui s'ouvre à quel palier",
@@ -48,6 +48,11 @@
           "Un champion utilise toujours le dé d'attaque de ton palier, pas du sien : au palier 2, c'est « Attaque Palier 2 », quel que soit son propre palier.",
           "On gagne un badge en postant un RP dans l'arène qu'on défie. L'ordre des onze défis est celui des niveaux — du plus faible au plus fort, et on ne saute pas une marche.",
           "Les sept badges d'arène et les quatre colosseums ouvrent la Ligue. Le champion dont tu prends le poste part d'office avec son propre badge acquis."
+        ],
+        "loremDu8": [
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+          "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo."
         ]
       }
     },
@@ -107,7 +112,8 @@
         "note": "L'équipe de Michael n'est pas publiée : le sujet des pré-liens n'en donne aucune. Elle s'affichera ici le jour où elle sera écrite."
       }
     },
-    "_lorem": "LES TEXTES SONT DU LOREM IPSUM, DEMANDÉ LE 6 NOVEMBRE. Ce que j'avais tiré des planches 36 et 37 n'est pas perdu : il est gardé sous `_redige` dans chaque bloc, et il suffit de le remonter dans `paragraphes` pour le remettre. Les CHIFFRES, eux, ne sont jamais du remplissage : niveaux, paliers, types conseillés et équipes restent dérivés."
+    "_lorem": "LES TEXTES SONT DU LOREM IPSUM, DEMANDÉ LE 6 NOVEMBRE. Ce que j'avais tiré des planches 36 et 37 n'est pas perdu : il est gardé sous `_redige` dans chaque bloc, et il suffit de le remonter dans `paragraphes` pour le remettre. Les CHIFFRES, eux, ne sont jamais du remplissage : niveaux, paliers, types conseillés et équipes restent dérivés.",
+    "_presentation": "LE TEXTE DE PRÉSENTATION EST DE CALLISTA, donné le 8 novembre 2026 et recopié mot pour mot. Il était en trois phrases d'un seul tenant ; elles sont coupées en trois paragraphes aux deux respirations du texte — aucun mot n'a bougé. Le lorem qu'il remplace est sous `presentation._redige.loremDu8`."
   },
   "arenes": [
     {

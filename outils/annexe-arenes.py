@@ -196,10 +196,11 @@ def membre(w, m, couverture):
     #  pixels, et un double type y passerait sur deux lignes. L'infobulle
     #  les montre tous les deux. Même arbitrage que `equipe-de-test.py`.
     #
-    #  LES TROIS CHIFFRES TIENNENT SUR UNE LIGNE, et c'est aussi mieux à
-    #  lire : trois lignes « mot / valeur » dans une infobulle de deux
-    #  cent cinquante pixels faisaient un tableau là où une phrase
-    #  suffit.
+    #  LES TROIS CHIFFRES L'UN SOUS L'AUTRE, mot à gauche et nombre à
+    #  droite — « comme avec pokémon » (8 novembre). Ils avaient été mis
+    #  en ligne le 6 novembre pour gagner des caractères ; ça tenait,
+    #  mais trois nombres en ligne obligent à relire le mot avant chaque
+    #  chiffre, et deux pokémon ne se comparent pas.
     w(
         '<li class="wm-equipe__pkmn" tabindex="0">'
         + image
@@ -214,8 +215,14 @@ def membre(w, m, couverture):
         + '<ul class="wm-infobulle__types">'
         + "".join(pastille(t, "wm-infobulle__type") for t in m["types"])
         + "</ul>"
-        + f'<p class="wm-equipe__chiffres">{m["pv"]} PV · {m["att"]} ATT'
-        f' · {m["def"]} DEF</p>'
+        + '<ul class="wm-equipe__chiffres">'
+        + "".join(
+            f'<li class="wm-equipe__chiffre">'
+            f'<span class="wm-equipe__mot">{mot}</span>'
+            f'<b class="wm-equipe__valeur">{m[cle]}</b></li>'
+            for mot, cle in (("PV", "pv"), ("Attaque", "att"), ("Défense", "def"))
+        )
+        + "</ul>"
         + "</div></li>"
     )
 
@@ -438,8 +445,16 @@ def corps():
             (a for a in arenes["arenes"] if a["palier"] == n),
             key=lambda a: a["niveau"],
         )
-        w('              <li class="wm-palier">')
-        w(f'                <h4 class="wm-palier__titre">{e(PALIERS[n])}</h4>')
+        w(f'              <li class="wm-palier wm-palier--{n}">')
+        #  LA COULEUR DU PALIER EST DANS UNE PASTILLE, plus dans un
+        #  filet à gauche : « ne mets pas un border à gauche, ne mets
+        #  ça nulle part, ce n'est pas beau » (8 novembre). Le chiffre
+        #  rempli porte la couleur bien mieux qu'un trait de 3 px, et
+        #  il dit en même temps de quel palier il s'agit.
+        w('                <div class="wm-palier__tete">')
+        w(f'                  <span class="wm-palier__pastille">{n}</span>')
+        w(f'                  <h4 class="wm-palier__titre">{e(PALIERS[n])}</h4>')
+        w('                </div>')
         w(f'                <p class="wm-palier__condition">'
           f'{e(acces["conditions"][str(n)])}</p>')
         if dedans:
@@ -450,7 +465,12 @@ def corps():
                 #  feraient trois colonnes de boutons là où on veut
                 #  une liste. Et employé avec du texte nu, il perd sa
                 #  couleur — mesuré à 1,81 en thème sombre.
+                #  CHACUN PORTE SON BADGE : la même image que son
+                #  onglet et que sa tête de section, donc on reconnaît
+                #  le défi avant d'avoir lu son nom.
                 w('                  <li class="wm-palier__defi">'
+                  f'<img class="wm-palier__badge" src="{PAGES}/img/badges/'
+                  f'{e(a["slug"])}.png" alt="" loading="lazy" />'
                   f'<a class="wm-palier__lien" href="{FORUM}'
                   f'{e(a["forum"])}">{e(a["nom"])}</a>'
                   f'<span class="wm-palier__niveau">niv. {a["niveau"]}</span>'

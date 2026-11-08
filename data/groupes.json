@@ -7,52 +7,77 @@
     {
       "cle": "hardi",
       "nom": "Hardi",
-      "description": "On se relève. Ce qui a échoué peut encore gagner.",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       "avantage": "Si une fouille est bredouille dans le sujet, il peut relancer une fois pour avoir quelque chose.",
       "pokemons": [],
-      "embleme": "Keldeo"
+      "embleme": "Keldeo",
+      "emblemeId": 647,
+      "_redige": {
+        "description": "On se relève. Ce qui a échoué peut encore gagner."
+      }
     },
     {
       "cle": "serieux",
       "nom": "Sérieux",
-      "description": "On dit ce qu'on a vu. On ne s'arrange pas avec la vérité.",
+      "description": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
       "avantage": "À chaque rencontre, la rareté est tirée deux fois et on garde la plus rare : environ 19 % de rares contre 10 % pour les autres.",
       "pokemons": [],
-      "embleme": "Uxie"
+      "embleme": "Uxie",
+      "emblemeId": 480,
+      "_redige": {
+        "description": "On dit ce qu'on a vu. On ne s'arrange pas avec la vérité."
+      }
     },
     {
       "cle": "malin",
       "nom": "Malin",
-      "description": "On change de méthode, pas d'avis.",
+      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
       "avantage": "Avec six types différents dans son équipe, l'expérience versée à la clôture monte de 10 %.",
       "pokemons": [],
-      "embleme": "Hoopa"
+      "embleme": "Hoopa",
+      "emblemeId": 720,
+      "_redige": {
+        "description": "On change de méthode, pas d'avis."
+      }
     },
     {
       "cle": "doux",
       "nom": "Doux",
-      "description": "On fait passer les autres devant.",
+      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est.",
       "avantage": "Dans un sujet à plusieurs, tout le monde gagne 15 % de pokédollars en plus à la clôture.",
       "pokemons": [],
-      "embleme": "Shaymin"
+      "embleme": "Shaymin",
+      "emblemeId": 492,
+      "_redige": {
+        "description": "On fait passer les autres devant."
+      }
     },
     {
       "cle": "brave",
       "nom": "Brave",
-      "description": "On se met devant, et on ne bouge pas.",
+      "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.",
       "avantage": "Une fois par sujet, un pokémon de son équipe mis K.O. tient un tour de plus.",
       "pokemons": [],
-      "embleme": "Cresselia"
+      "embleme": "Cresselia",
+      "emblemeId": 488,
+      "_redige": {
+        "description": "On se met devant, et on ne bouge pas."
+      }
     },
     {
       "cle": "jovial",
       "nom": "Jovial",
-      "description": "On veut voir ce qu'il y a derrière.",
+      "description": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae itaque earum rerum hic tenetur.",
       "avantage": "Ses chances de morceau de fossile passent de 10 à 20 %, et de fossile entier de 0,2 à 0,4 %.",
       "pokemons": [],
-      "embleme": "Celebi"
+      "embleme": "Celebi",
+      "emblemeId": 251,
+      "_redige": {
+        "description": "On veut voir ce qu'il y a derrière."
+      }
     }
   ],
-  "_lorem": "LES CINQ GROUPES EN LOREM IPSUM, à la demande de Callista le 9 octobre : sans description, un onglet reste éteint, et on ne pouvait cliquer que sur Ho-Oh. À remplacer par les vrais textes — ils se repèrent au « Lorem ipsum » de l'avantage.",
-  "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires."
+  "_lorem": "LES SIX DESCRIPTIONS SONT DU LOREM IPSUM, demandé le 8 novembre (« la description en lorem ipsum »). Les phrases écrites le 9 octobre sont gardées sous `_redige` dans chaque groupe — une ligne à remonter. LES AVANTAGES, EUX, NE SONT PAS DU REMPLISSAGE : ils sont actés et le jeu s'en sert.",
+  "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires.",
+  "_embleme": "`emblemeId` est le numéro national du légendaire, relevé dans `pokemon.csv` de PokéAPI le 8 novembre — pas écrit de mémoire. Il sert à bâtir l'adresse de l'illustration officielle, `other/official-artwork/<id>.png`, qui est détourée et en haute définition : c'est elle qui passe en filigrane au fond de la carte. CE N'EST PAS LA CARTE DE COUVERTURE : elle ne connaît aucun légendaire, puisque le Pokédex de Rhode n'en porte pas. L'illustration officielle, elle, existe pour n'importe quel numéro."
 }

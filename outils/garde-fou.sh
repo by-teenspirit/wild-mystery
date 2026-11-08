@@ -871,7 +871,8 @@ else
   # C'est exactement le cas que la règle 9 décrit pour l'index des
   # espèces, appliqué à du HTML.
   for outil in pokedex-de-rhode pokedex-ids faune-par-zone butin zones pokedex-carnet \
-               minifier-le-code annexe-contexte annexe-carte annexe-arenes annexe-personnages \
+               minifier-le-code annexe-contexte annexe-carte annexe-arenes annexe-groupes \
+               annexe-personnages \
                annexe-credits \
                equipes-de-champions hors-nature; do
     if ! python3 "outils/$outil.py" --verifier; then

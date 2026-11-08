@@ -1328,8 +1328,6 @@ html#min-width {
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
 
-
-
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 03 · L'index
 
@@ -2994,7 +2992,6 @@ html#min-width {
   padding-right: 0;
   padding-left: 0;
 }
-
 
 /*  ════════════════════════════════════════════════════════════════
     LES DEUX BARRES DE LIENS DE L'INDEX
@@ -8857,14 +8854,20 @@ html#min-width {
     sont la MÊME action, menée au même moment. Les trois modes ne sont
     pas un réglage de la recherche, ce sont trois pages. Les coller à
     la recherche laissait croire qu'ils la filtraient. */
-#modernbb .wm-membres__recherche { order: 0; }
+#modernbb .wm-membres__recherche {
+  order: 0;
+}
 
 /*  LE TRI COLLE À LA RECHERCHE. Il avait `margin-left: auto`, donc il
     partait au bord droit et les deux listes se retrouvaient loin du
     champ auquel elles s'appliquent. « Dernière visite et décroissant
     doivent être rapprochés de la recherche, à la même hauteur »,
     30 octobre. */
-#modernbb .wm-membres__tri { order: 1; flex: 3 1 0; min-width: 0; }
+#modernbb .wm-membres__tri {
+  order: 1;
+  flex: 3 1 0;
+  min-width: 0;
+}
 
 #modernbb .wm-membres__modes {
   order: 2;
@@ -9244,15 +9247,25 @@ html#min-width {
 
 /*  Les parts viennent de la maquette : 376 · 170 · 100 · 144 · 166 sur
     les 956 utiles d'une ligne de 998. */
-#modernbb .wm-membres__col--qui     { flex: 376 1 0; }
-#modernbb .wm-membres__col--rang    { flex: 170 1 0; }
-#modernbb .wm-membres__col--chiffre { flex: 100 1 0; }
-#modernbb .wm-membres__col--date    { flex: 144 1 0; }
+#modernbb .wm-membres__col--qui {
+  flex: 376 1 0;
+}
+#modernbb .wm-membres__col--rang {
+  flex: 170 1 0;
+}
+#modernbb .wm-membres__col--chiffre {
+  flex: 100 1 0;
+}
+#modernbb .wm-membres__col--date {
+  flex: 144 1 0;
+}
 /*  « Dernière visite » fait 166 et pas 144 : c'est le titre le plus
     long. Une CLASSE et pas `:last-of-type` — ce pseudo vise le dernier
     SPAN de la rangée, donc la colonne des liens, et les deux colonnes
     de date restaient à égalité sans que rien ne le dise. */
-#modernbb .wm-membres__col--vue { flex: 166 1 0; }
+#modernbb .wm-membres__col--vue {
+  flex: 166 1 0;
+}
 
 /*  ── LA COLONNE DES LIENS A UNE LARGEUR, ET C'EST OBLIGATOIRE ───────
 
@@ -9276,7 +9289,9 @@ html#min-width {
     capitales, coupé s'il dépasse. Les deux formes tiennent dans la
     même colonne, et la largeur reste FIXE — c'est elle qui garantit
     que l'en-tête tombe en face des valeurs. */
-#modernbb .wm-membres__col--liens { flex: 0 0 92px; }
+#modernbb .wm-membres__col--liens {
+  flex: 0 0 92px;
+}
 
 #modernbb .wm-membres__col--liens a {
   overflow: hidden;
@@ -9728,7 +9743,10 @@ html#min-width {
   border-bottom: 1px dotted var(--wm-bord-fin, #eadacd);
 }
 
-#modernbb .wm-groupe__ligne > .wm-groupe__cle { order: 0; flex: none; }
+#modernbb .wm-groupe__ligne > .wm-groupe__cle {
+  order: 0;
+  flex: none;
+}
 
 #modernbb .wm-groupe__ligne > .wm-groupe__valeur {
   order: 2;
@@ -11233,7 +11251,7 @@ body:has(#modernbb .wm-carnet) {
   overflow-x: auto;
   flex-wrap: wrap;
   gap: var(--wm-espace-6, 6px);
-  margin-bottom: var(--wm-espace-14, 14px);
+  margin-bottom: var(--wm-espace-10, 10px);
 }
 
 /*  LES SECTIONS GARDENT LEUR TITRE SANS LE SCRIPT, et le perdent avec :
@@ -11775,27 +11793,42 @@ body:has(#modernbb .wm-carnet) {
   flex: 1 1 88px;
   flex-direction: column;
   align-items: center;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-8, 8px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
-  gap: var(--wm-espace-4, 4px);
+  /*  PLUS D'AIR ENTRE LE SPRITE, LE NOM ET LE TYPE, demandé le
+      8 novembre. 4 px collaient les trois en un seul pâté. */
+  gap: var(--wm-espace-8, 8px);
 }
 
+/*  ── LES SIX CASES FONT LA MÊME HAUTEUR ────────────────────────────
+
+    « Elles doivent toutes faire la même taille. Si un pokémon est plus
+    grand ou plus petit, laisse de l'espace en haut » (8 novembre).
+
+    La boîte du sprite est FIXE — 76 px — et l'image se pose au BAS
+    de cette boîte : un Ptitard de 40 px laisse son vide au-dessus, pas
+    en dessous, et les six noms restent sur la même ligne. C'est
+    `object-fit: contain` qui réduit sans déformer, et
+    `object-position: bottom` qui cale.
+
+    Sans ça, chaque case prenait la hauteur de son sprite : les six
+    cartes d'une équipe avaient six hauteurs, et la rangée ondulait. */
 #modernbb .wm-equipe__sprite {
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: 64px;
+  width: 100%;
+  height: 76px;
+  object-fit: contain;
+  object-position: bottom;
 }
 
-/*  LA BOÎTE VIDE GARDE LA HAUTEUR. Sans elle, la case d'une espèce
-    sans sprite serait plus courte que ses voisines et la rangée se
-    décalerait — le défaut déjà payé sur `wm-tcard__libre`. */
+/*  LA BOÎTE VIDE GARDE EXACTEMENT LA MÊME HAUTEUR. Sans elle, la case
+    d'une espèce sans sprite serait plus courte que ses voisines — le
+    défaut déjà payé sur `wm-tcard__libre`. */
 #modernbb .wm-equipe__sprite--vide {
   display: block;
   width: 100%;
-  height: 64px;
+  height: 76px;
   border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-douce, #f3e1d2);
 }
@@ -11818,16 +11851,43 @@ body:has(#modernbb .wm-carnet) {
   text-transform: uppercase;
 }
 
-/*  LES TROIS CHIFFRES SUR UNE LIGNE, dans l'infobulle. Elle fait
-    212 px : trois lignes « mot / valeur » y faisaient un tableau là où
-    une phrase suffit. */
+/*  ── LES TROIS CHIFFRES, COMME DANS LE JEU ─────────────────────────
+
+    « Affiche les stats comme avec pokémon : tu affiches les stats les
+    unes sous les autres. Tu affiches "Attaque" à gauche et le numéro à
+    droite » (8 novembre).
+
+    C'était une phrase — « 126 PV · 115 ATT · 87 DEF » — écrite le
+    6 novembre pour tenir dans 212 px. Elle tenait, mais elle ne se
+    compare pas : trois nombres en ligne obligent à relire le mot avant
+    chaque chiffre. Alignés à droite et en chiffres tabulaires, ils se
+    lisent en colonne d'un pokémon à l'autre. */
 #modernbb .wm-equipe__chiffres {
+  display: flex;
+  flex-direction: column;
   margin: 0;
-  color: inherit;
+  padding: 0;
+  gap: var(--wm-espace-4, 4px);
+  list-style: none;
+}
+
+#modernbb .wm-equipe__chiffre {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--wm-espace-10, 10px);
   font-size: var(--wm-taille-petit, 11.5px);
-  font-variant-numeric: tabular-nums;
-  font-weight: var(--wm-graisse-demi, 600);
   line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb .wm-equipe__mot {
+  color: inherit;
+  opacity: 0.75;
+}
+
+#modernbb .wm-equipe__valeur {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-gras, 700);
 }
 
 /*  LE RANG DE CHAQUE CASE, d'où son centre se déduit. Six règles et
@@ -11910,32 +11970,71 @@ body:has(#modernbb .wm-carnet) {
   list-style: none;
 }
 
-/*  LE LISERÉ PORTE LA COULEUR DU PALIER, et il est le SEUL à la
-    porter : les trois teintes `--wm-palier-N` sont des couleurs de
-    fond dans la charte, pas des couleurs de texte, et aucune n'a été
-    mesurée en contraste sur le crème. En liseré, elle ne porte aucun
-    texte — et le nom du palier reste écrit, comme toujours. */
+/*  ── UN PALIER ─────────────────────────────────────────────────────
+
+    PAS DE FILET À GAUCHE : « ne mets pas un border à gauche, ne mets ça
+    nulle part, ce n'est pas beau » (8 novembre). Le liseré de 3 px
+    portait la couleur du palier ; elle passe maintenant dans la
+    pastille du numéro et dans une teinte de fond, qui la montrent
+    bien mieux qu'un trait au bord.
+
+    LA TEINTE EST TIRÉE DE LA COULEUR ELLE-MÊME, à 8 % : une seule
+    valeur à régler par palier, et le fond suit la couleur si elle
+    change dans le panneau d'administration. Chromium calcule le
+    `color-mix` en `color(srgb …)` — le lecteur de contraste sait le
+    lire depuis le 5 novembre. */
 #modernbb .wm-palier {
   display: flex;
+  box-sizing: border-box;
   min-width: 0;
   flex: 1 1 240px;
   flex-direction: column;
   padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-left: 3px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
+  background: color-mix(in srgb, var(--couleur-palier, #d9c3b1) 8%, transparent);
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-paliers > .wm-palier--1 {
+  --couleur-palier: var(--wm-palier-1, #3f7d52);
+}
+#modernbb .wm-paliers > .wm-palier--2 {
+  --couleur-palier: var(--wm-palier-2, #a05e18);
+}
+#modernbb .wm-paliers > .wm-palier--3 {
+  --couleur-palier: var(--wm-palier-3, #b1402f);
+}
+
+#modernbb .wm-palier__tete {
+  display: flex;
+  align-items: center;
   gap: var(--wm-espace-8, 8px);
 }
 
-#modernbb .wm-paliers > .wm-palier:nth-child(1) {
-  border-left-color: var(--wm-palier-1, #3f7d52);
-}
-#modernbb .wm-paliers > .wm-palier:nth-child(2) {
-  border-left-color: var(--wm-palier-2, #a05e18);
-}
-#modernbb .wm-paliers > .wm-palier:nth-child(3) {
-  border-left-color: var(--wm-palier-3, #b1402f);
+/*  LE NUMÉRO, REMPLI. C'est là que la couleur du palier se voit. Le
+    blanc dessus est le seul texte de la page posé sur une couleur
+    saturée : les trois teintes sont faites pour ça dans la charte. */
+#modernbb .wm-palier__pastille {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--couleur-palier, #d9c3b1);
+  /*  LE CHIFFRE PREND LA COULEUR D’UNE SURFACE, et c'est tout le
+      truc : en thème clair elle est presque blanche sur une pastille foncée, en
+      thème sombre elle est brune sur une pastille pâle. Écrit `#fff`,
+      il tombait à 2,27 de contraste en sombre — les trois jetons de
+      palier y sont des pastels, pas des couleurs saturées. Mesuré le
+      8 novembre, invisible en clair. */
+  color: var(--wm-fond-surface, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
 }
 
 #modernbb .wm-palier__titre {
@@ -11964,11 +12063,39 @@ body:has(#modernbb .wm-carnet) {
   list-style: none;
 }
 
+/*  ── UN DÉFI DANS SON PALIER ──────────────────────────────────────
+
+    « Rentre plus joli les arènes à l'intérieur des paliers »
+    (8 novembre). C'était un lien et un nombre aux deux bouts d'une
+    ligne vide. C'est maintenant une rangée posée sur la surface, avec
+    le badge du défi devant : la même image que son onglet et que sa
+    tête de section, donc on le reconnaît avant de l'avoir lu.
+
+    `center` et plus `baseline` : une image de 20 px n'a pas de ligne
+    de base, elle se calait donc par son bas. */
 #modernbb .wm-palier__defi {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
   gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-palier__badge {
+  width: auto;
+  max-width: 20px;
+  height: auto;
+  max-height: 20px;
+  flex: 0 0 auto;
+}
+
+/*  LE NOM PREND LA PLACE QUI RESTE, et le niveau est poussé au bout :
+    `space-between` ne marchait plus dès qu'un troisième élément est
+    entré dans la rangée. */
+#modernbb .wm-palier__lien {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 /*  LE LIEN D'UN DÉFI PREND LA COULEUR DU TEXTE, PAS CELLE DE
@@ -12001,8 +12128,11 @@ body:has(#modernbb .wm-carnet) {
 /*  LE PALIER 3 N'A AUCUN DÉFI, et ce n'est pas une donnée manquante :
     la planche 36 n'y met que la Ligue. On l'écrit plutôt que de
     laisser un trou. */
+/*  LE TEXTE DU PALIER VIDE EST POSÉ SUR LA TEINTE DU PALIER, pas sur
+    la surface : `texte-pale` y tombait à 4,07 en thème sombre, juste
+    sous les 4,5. C'est le fond teinté qui mange la marge. */
 #modernbb .wm-palier__defis--vide {
-  color: var(--wm-texte-pale, #69564c);
+  color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
   font-style: italic;
   line-height: var(--wm-interligne-courant, 1.5);
@@ -12050,6 +12180,229 @@ body:has(#modernbb .wm-carnet) {
   height: auto;
   max-height: 20px;
   flex: 0 0 auto;
+}
+
+/* ── wm-groupe · les six natures ────────────────────────────────────
+
+    « Six cards. Le nom du groupe, le pokémon du groupe en fond en
+    transparence en bas à droite, le fond à la couleur du groupe, la
+    description, un encadré pour l'avantage. Tous les blocs font la
+    même taille, 3 colonnes, 2 lignes, avec un overflow auto. »
+    8 novembre.
+
+    ── UNE GRILLE, ET C'EST LE SEUL ENDROIT ─────────────────────────
+
+    Six cartes en flexbox ne font pas deux lignes de trois : elles font
+    ce que leur contenu décide, et la plus bavarde pousse les autres.
+    « Toutes de la même taille » demande une grille.
+
+    La consigne « zéro tableau, que du flexbox » (planche 49) vise les
+    `<table>` de mise en page que ModernBB sème partout, pas
+    `display: grid` — qui n'existait pas quand ces gabarits ont été
+    écrits. Le balisage reste une liste. */
+#modernbb .wm-groupes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-14, 14px);
+  list-style: none;
+}
+
+/*  LA HAUTEUR EST LA MÊME POUR LES SIX, et c'est `1fr` sur les lignes
+    qui la donne — pas une hauteur écrite, qui serait juste pour une
+    longueur de texte et fausse pour la suivante. Le trop-plein
+    défile dans la carte au lieu de l'étirer. */
+#modernbb .wm-groupe {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  min-width: 0;
+  flex-direction: column;
+  /*  LA HAUTEUR MINIMALE EXISTE pour que six cartes courtes ne
+      s'écrasent pas sur deux lignes de rien. Au-delà, c'est le
+      contenu le plus long qui fixe la ligne, et les autres suivent. */
+  min-height: 260px;
+  max-height: 340px;
+  padding: var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--fond-groupe, var(--wm-fond-surface, #fffbf7));
+  gap: var(--wm-espace-12, 12px);
+  overflow: hidden;
+}
+
+/*  ── LE FILIGRANE ─────────────────────────────────────────────────
+
+    En bas à droite, débordant légèrement : une illustration cadrée
+    net dans un coin ressemble à une vignette qu'on a oublié de
+    placer. `overflow: hidden` sur la carte la coupe au bord arrondi.
+
+    `pointer-events: none` parce qu'elle passe sous le texte : sans
+    ça, elle attraperait la sélection au milieu d'un paragraphe. */
+#modernbb .wm-groupe__embleme {
+  position: absolute;
+  z-index: 0;
+  right: -18px;
+  bottom: -14px;
+  width: 44%;
+  max-width: 150px;
+  height: auto;
+  opacity: 0.17;
+  pointer-events: none;
+}
+
+/*  LE TEXTE PASSE DEVANT, ET IL DÉFILE. `min-height: 0` parce qu'un
+    enfant de flex refuse de rétrécir sous son contenu sans ça — et
+    sans rétrécissement, pas de défilement : la carte s'allongerait. */
+#modernbb .wm-groupe__texte {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+#modernbb .wm-groupe__nom {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--texte-groupe, var(--wm-encre, #2e2018));
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-groupe__dit {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  L'AVANTAGE EST COLLÉ EN BAS, hors du défilement : c'est la seule
+    chose de la carte qui change quelque chose au jeu, et il ne doit
+    pas disparaître parce que la description est longue. */
+#modernbb .wm-groupe__avantage {
+  position: relative;
+  z-index: 1;
+  /*  `margin-top: auto` ET PAS SEULEMENT `flex: 0 0 auto` : quand la
+      description est courte, c'est elle qui refusait de grandir, et
+      l'encadré restait collé au texte avec le vide en dessous. Mesuré
+      sur Hardi et Malin, qui ont les descriptions les plus brèves. */
+  margin-top: auto;
+  flex: 0 0 auto;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--texte-groupe, var(--wm-bord-net, #d9c3b1));
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-groupe__mot {
+  display: block;
+  margin-bottom: var(--wm-espace-4, 4px);
+  color: var(--texte-groupe, var(--wm-texte-pale, #69564c));
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-groupe__avantage p {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LES SIX PAIRES DE JETONS, NOMMÉES ET PAS RECOPIÉES. Chaque groupe
+    a déjà son fond et son texte dans le panneau d'administration, et
+    les deux thèmes les redéfinissent : la carte ne fait que les
+    désigner. Une couleur écrite ici resterait claire en thème sombre. */
+#modernbb .wm-groupe--hardi {
+  --fond-groupe: var(--wm-groupe-hardi-fond, #d4e4ed);
+  --texte-groupe: var(--wm-groupe-hardi-texte, #21658c);
+}
+#modernbb .wm-groupe--serieux {
+  --fond-groupe: var(--wm-groupe-serieux-fond, #ede6d4);
+  --texte-groupe: var(--wm-groupe-serieux-texte, #7c611d);
+}
+#modernbb .wm-groupe--malin {
+  --fond-groupe: var(--wm-groupe-malin-fond, #e1d4ed);
+  --texte-groupe: var(--wm-groupe-malin-texte, #5a218c);
+}
+#modernbb .wm-groupe--doux {
+  --fond-groupe: var(--wm-groupe-doux-fond, #d4edd4);
+  --texte-groupe: var(--wm-groupe-doux-texte, #1b741b);
+}
+#modernbb .wm-groupe--brave {
+  --fond-groupe: var(--wm-groupe-brave-fond, #edd4e0);
+  --texte-groupe: var(--wm-groupe-brave-texte, #8c2157);
+}
+#modernbb .wm-groupe--jovial {
+  --fond-groupe: var(--wm-groupe-jovial-fond, #d4ede8);
+  --texte-groupe: var(--wm-groupe-jovial-texte, #1a705e);
+}
+
+@media (max-width: 900px) {
+  /*  DEUX COLONNES, PUIS UNE. Trois cartes à 210 px laissent le nom
+      du groupe sur deux lignes et l'avantage sur six. */
+  #modernbb .wm-groupes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  #modernbb .wm-groupes {
+    grid-template-columns: 1fr;
+  }
+
+  /*  SUR UNE COLONNE, ON NE PLAFONNE PLUS LA HAUTEUR : il y a la
+      place, et un cadre qui défile sur un téléphone se bat avec le
+      défilement de la page. */
+  #modernbb .wm-groupe {
+    min-height: 0;
+    max-height: none;
+  }
+
+  #modernbb .wm-groupe__texte {
+    overflow-y: visible;
+  }
+}
+
+/* ── TOUT LE TEXTE COURANT EST JUSTIFIÉ ─────────────────────────────
+
+    « Passe tout en justify », 8 novembre. Une seule règle, posée sur
+    le gabarit d'annexe : la poser composant par composant garantirait
+    d'en oublier un, et le prochain arriverait aligné à gauche sans
+    qu'on sache pourquoi.
+
+    AVEC LA COUPURE DES MOTS, et ce n'est pas un ornement : justifier
+    sans couper creuse des rivières de blanc dès que la colonne se
+    rétrécit, et la colonne d'une annexe fait 252 px de moins que la
+    page. Le navigateur coupe selon la langue du document — le forum
+    est en français, et c'est son `<html lang>` qui décide, pas nous.
+
+    SEULS LES PARAGRAPHES ET LES PUCES DE TEXTE SONT VISÉS. Les
+    étiquettes, les noms, les nombres et les cases qui se rangent en
+    flexbox gardent leur alignement propre : ils le déclarent eux-mêmes
+    et leur règle est plus forte. Un titre justifié n'a d'ailleurs
+    aucun effet — la justification ne touche que les lignes qui se
+    cassent, jamais la dernière. */
+#modernbb .wm-annexe p,
+#modernbb .wm-annexe .wm-tirets li {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  text-align: justify;
+}
+
+/*  CE QUI NE SE JUSTIFIE PAS. Trois `<p>` sont des étiquettes centrées
+    ou de petites mentions : la règle du dessus les aurait prises, et
+    `text-align` n'est pas déclaré dans leur propre règle. */
+#modernbb .wm-annexe .wm-defi__liens,
+#modernbb .wm-annexe .wm-discipline__nom,
+#modernbb .wm-annexe .wm-defi__lieu {
+  text-align: left;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -15104,7 +15457,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   align-items: center;
   gap: var(--wm-espace-6, 6px);
   box-sizing: border-box;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
   overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
@@ -15114,7 +15467,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-etiquette, 1.3);
+  /*  ── POURQUOI 1,1 ET PAS 1,3 ───────────────────────────────────
+
+      « Le badge n'est pas aligné avec le texte, le texte semble plus
+      haut » (8 novembre). Mesuré : les deux SONT centrés au pixel —
+      image et texte ont le même milieu, 21 px du haut du bouton. Et
+      l'encre du badge remplit sa case de haut en bas, vérifié sur les
+      onze png.
+
+      Ce qui n'était pas centré, c'est le texte DANS sa ligne. À 1,3,
+      la boîte de ligne fait 15 px pour des lettres de 11,5, et le
+      creux des jambages — qu'« Arène Eau » n'utilise pas — se répartit
+      sous les lettres. Le bouton centrait donc une boîte dont le bas
+      était vide : les lettres remontaient.
+
+      À 1,1 la boîte serre les lettres, et ce qu'on centre est ce
+      qu'on voit. */
+  line-height: var(--wm-interligne-titre, 1.1);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -23402,7 +23771,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   cursor: pointer;
 }
 
-
 #modernbb .wm-carnet__souci {
   margin-top: var(--wm-espace-12, 12px);
   color: var(--wm-accent-terre, #8b4725);
@@ -23475,7 +23843,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /* ── 12 · ouvrir son carnet en postant ────────────────────────────── */
-
 
 /* ── 13 · Écrire ──────────────────────────────────────────────────── */
 /*

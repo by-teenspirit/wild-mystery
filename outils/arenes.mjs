@@ -226,6 +226,16 @@ const nav = await chromium.launch(
         //  LA HAUTEUR DES CASES, toutes égales : une case sans sprite
         //  plus courte que ses voisines décale la rangée.
         hauteurs: [...new Set(cases.map((c) => Math.round(c.getBoundingClientRect().height)))],
+        //  LA BOÎTE DU SPRITE EST FIXE ET L'IMAGE SE POSE EN BAS : six
+        //  boîtes de hauteurs différentes, et les six noms ne sont plus
+        //  sur la même ligne. On mesure la boîte, pas l'encre — c'est
+        //  `object-fit` qui place l'encre dedans.
+        boitesDeSprite: [
+          ...new Set(cases.map((c) => {
+            const i = c.querySelector(".wm-equipe__sprite");
+            return i === null ? -1 : Math.round(i.getBoundingClientRect().height);
+          })),
+        ],
         //  LE BADGE EST L'IMAGE DU TITRE depuis le 6 novembre — c'est
         //  ce qui le met aussi sur le bouton d'onglet. Chercher
         //  « .wm-defi__badge img » revenait à chercher une image dans
@@ -254,6 +264,9 @@ const nav = await chromium.launch(
     if (vu.sprites !== 6) soucis.push(`${a.nom} : ${vu.sprites}/6 sprites`);
     if (!vu.badge) soucis.push(`${a.nom} : pas de badge`);
     if (vu.hauteurs.length !== 1) soucis.push(`${a.nom} : cases inégales ${vu.hauteurs}`);
+    if (vu.boitesDeSprite.length !== 1) {
+      soucis.push(`${a.nom} : boîtes de sprite inégales ${vu.boitesDeSprite}`);
+    }
     if (vu.typeArene !== a.type) soucis.push(`${a.nom} : type « ${vu.typeArene} »`);
     if (JSON.stringify(vu.conseil) !== JSON.stringify(eq.conseil.types)) {
       soucis.push(`${a.nom} : conseil ${vu.conseil} au lieu de ${eq.conseil.types}`);
@@ -324,7 +337,19 @@ const nav = await chromium.launch(
           dedansDroite: Math.round(liste.right - b.right),
           auDessus: Math.round(c.top - b.bottom),
           niveau: bulle.querySelector(".wm-infobulle__niveau")?.textContent.trim() ?? null,
-          chiffres: bulle.querySelector(".wm-equipe__chiffres")?.textContent.trim() ?? null,
+          //  LES TROIS LIGNES, chacune avec son mot et son nombre — et
+          //  leur ALIGNEMENT, qui est tout l'intérêt de la colonne :
+          //  trois nombres qui ne finissent pas au même endroit ne se
+          //  comparent pas d'un pokémon à l'autre.
+          chiffres: Array.from(bulle.querySelectorAll(".wm-equipe__chiffre")).map(
+            (l) => ({
+              mot: l.querySelector(".wm-equipe__mot")?.textContent.trim() ?? null,
+              valeur: l.querySelector(".wm-equipe__valeur")?.textContent.trim() ?? null,
+              droite: Math.round(
+                l.querySelector(".wm-equipe__valeur").getBoundingClientRect().right,
+              ),
+            }),
+          ),
         };
       }, rang),
     );
@@ -341,11 +366,18 @@ const nav = await chromium.launch(
     bulles.map((b) => [b.rang, b.auDessus]),
   );
   ok(
-    "elle porte le niveau et les trois chiffres",
+    "elle porte le niveau et les trois chiffres, l'un sous l'autre",
     bulles.every((b) =>
-      /^Niv\. \d+$/.test(b.niveau) && /\d+ PV · \d+ ATT · \d+ DEF/.test(b.chiffres)
+      /^Niv\. \d+$/.test(b.niveau) &&
+      b.chiffres.length === 3 &&
+      b.chiffres.every((c) => c.mot && /^\d+$/.test(c.valeur ?? ""))
     ),
     bulles.map((b) => [b.niveau, b.chiffres]),
+  );
+  ok(
+    "les trois nombres finissent au même endroit",
+    bulles.every((b) => new Set(b.chiffres.map((c) => c.droite)).size === 1),
+    bulles.map((b) => b.chiffres.map((c) => c.droite)),
   );
 
   const debord = await p.evaluate(() => ({

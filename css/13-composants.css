@@ -402,7 +402,7 @@
   align-items: center;
   gap: var(--wm-espace-6, 6px);
   box-sizing: border-box;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
   overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
@@ -412,7 +412,23 @@
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-etiquette, 1.3);
+  /*  ── POURQUOI 1,1 ET PAS 1,3 ───────────────────────────────────
+
+      « Le badge n'est pas aligné avec le texte, le texte semble plus
+      haut » (8 novembre). Mesuré : les deux SONT centrés au pixel —
+      image et texte ont le même milieu, 21 px du haut du bouton. Et
+      l'encre du badge remplit sa case de haut en bas, vérifié sur les
+      onze png.
+
+      Ce qui n'était pas centré, c'est le texte DANS sa ligne. À 1,3,
+      la boîte de ligne fait 15 px pour des lettres de 11,5, et le
+      creux des jambages — qu'« Arène Eau » n'utilise pas — se répartit
+      sous les lettres. Le bouton centrait donc une boîte dont le bas
+      était vide : les lettres remontaient.
+
+      À 1,1 la boîte serre les lettres, et ce qu'on centre est ce
+      qu'on voit. */
+  line-height: var(--wm-interligne-titre, 1.1);
   text-decoration: none;
   white-space: nowrap;
 }
