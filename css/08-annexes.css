@@ -1141,12 +1141,16 @@ body:has(#modernbb .wm-carnet) {
    Le bouton réutilise `wm-onglet` de la charte, contrastes compris.
    Trois états de plus auraient été trois occasions de se tromper de
    jeton. */
+/*  L'ÉCART ENTRE LES BOUTONS SUIT CELUI DE LEUR REMBOURRAGE. Huit
+    pixels entre deux onglets déjà larges faisaient une barre plus
+    aérée que le contenu qu'elle ouvre — « trop d'écart sur les
+    onglets partout », 8 novembre. */
 #modernbb .wm-sous-onglets__barre {
   display: flex;
   overflow-x: auto;
   flex-wrap: wrap;
-  gap: var(--wm-espace-8, 8px);
-  margin-bottom: var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-6, 6px);
+  margin-bottom: var(--wm-espace-14, 14px);
 }
 
 /*  LES SECTIONS GARDENT LEUR TITRE SANS LE SCRIPT, et le perdent avec :

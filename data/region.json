@@ -48,38 +48,83 @@
           "l'Île Ténèbra"
         ],
         "_ordre": "Les neuf Grand Prix dans l'ordre imposé du texte source. L'Île Ténèbra termine le championnat et est « connu pour être le circuit le plus difficile ».",
-        "ecuries": [
+        "titreDeLOrdre": "La ligue des circuits",
+        "titreDesEquipes": "Les équipes",
+        "_disciplines": "DEUX DISCIPLINES depuis le 8 novembre 2026 : « j'aimerai qu'on mette en place la monoplace mais aussi la moto […] et faire une équipe de chaque pour la moto ». Les trois noms d'écurie sont les mêmes des deux côtés — Entei, Raikou, Suicune — parce que ce sont les écuries de Rhode, pas des équipes de monoplace. ATTENTION : le texte de Callida du 4 novembre ne parle QUE de monoplaces (« les monoplaces se ressemblent toutes »). La moto n'a pas encore sa phrase, et ce n'est pas à moi de l'écrire — les six sièges moto sont donc libres et sans commentaire.",
+        "disciplines": [
           {
-            "nom": "Écurie Entei",
-            "pilotes": [
+            "nom": "Monoplace",
+            "equipes": [
               {
-                "libre": true
+                "nom": "Écurie Entei",
+                "pilotes": [
+                  {
+                    "libre": true
+                  },
+                  {
+                    "libre": true
+                  }
+                ]
               },
               {
-                "libre": true
+                "nom": "Écurie Raikou",
+                "pilotes": [
+                  {
+                    "libre": true
+                  },
+                  {
+                    "libre": true
+                  }
+                ]
+              },
+              {
+                "nom": "Écurie Suicune",
+                "pilotes": [
+                  {
+                    "libre": true
+                  },
+                  {
+                    "libre": true
+                  }
+                ]
               }
             ]
           },
           {
-            "nom": "Écurie Raikou",
-            "pilotes": [
+            "nom": "Moto",
+            "equipes": [
               {
-                "nom": "Charlie Spinster",
-                "lien": "https://mysteryinrhode.forumactif.com/u6"
+                "nom": "Écurie Entei",
+                "pilotes": [
+                  {
+                    "libre": true
+                  },
+                  {
+                    "libre": true
+                  }
+                ]
               },
               {
-                "libre": true
-              }
-            ]
-          },
-          {
-            "nom": "Écurie Suicune",
-            "pilotes": [
-              {
-                "libre": true
+                "nom": "Écurie Raikou",
+                "pilotes": [
+                  {
+                    "libre": true
+                  },
+                  {
+                    "libre": true
+                  }
+                ]
               },
               {
-                "libre": true
+                "nom": "Écurie Suicune",
+                "pilotes": [
+                  {
+                    "libre": true
+                  },
+                  {
+                    "libre": true
+                  }
+                ]
               }
             ]
           }

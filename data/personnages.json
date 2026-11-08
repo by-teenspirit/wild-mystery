@@ -1,7 +1,7 @@
 {
   "_": "Les personnages du jeu, les célébrités de Rhode et les champions. Source : le texte de Callista du 4 novembre 2026. La page pages/annexe-11-celebrites-de-rhode.html en est DÉRIVÉE par outils/annexe-personnages.py — on corrige ici, jamais dans la page.",
   "_statuts": "TROIS STATUTS, ET TROIS SEULEMENT, parce que ce sont les trois filtres de la page : `jouable` (le poste est libre), `joue` (quelqu'un le joue déjà) et `pnj` (le staff le tient, on ne le joue pas). Les mots du sujet d'origine — « Non jouable », « Célébrité » — disent tous la même chose côté lecteur : ils sont ramenés à `pnj`. Un quatrième mot écrit ici ne serait filtré par rien, et `outils/personnages.mjs` le refuse. AUCUNE FICHE N'EST `joue` aujourd'hui — Donozor l'a été quelques heures le 4 novembre, par erreur de ma part : son avatar disait « (pris) » dans le sujet du forum, ce qui parle du faceclaim, pas du personnage. Le bouton « Joué » n'apparaît donc pas, et il reviendra tout seul le jour où une fiche le portera.",
-  "_avatars": "`avatar` est le GIF du personnage. Les six premiers viennent du sujet « Personnages jouables » du forum, relevés le 4 novembre ; les quatre suivants ont été donnés par Callista le même soir, pour des PNJ. CHAQUE ADRESSE A ÉTÉ CHARGÉE AVANT D'ÊTRE ÉCRITE ICI — Florent 540×540, Charlie 275×255, Malafid 540×500, Silas 600×338 — parce que deux des six premières étaient déjà mortes (Vamper chez narvii, et l'ancienne de Donozor). Les `.gifv` de tumblr répondent bien en `image/gif` : ils s'affichent dans une balise `img`, c'est vérifié. La fiche retombe sur la silhouette quand une image ne charge pas. Les FC sont de vraies personnes et on ne va pas chercher leur photo : le nom reste écrit comme ce qu'il est — une suggestion, et le choix de Callista.",
+  "_avatars": "`avatar` est le GIF du personnage. Les six premiers viennent du sujet « Personnages jouables » du forum, relevés le 4 novembre ; les quatre suivants ont été donnés par Callista le même soir, pour des PNJ. CHAQUE ADRESSE A ÉTÉ CHARGÉE AVANT D'ÊTRE ÉCRITE ICI — Florent 540×540, Malafid 540×500, Silas 600×338 — parce que deux des six premières étaient déjà mortes (Vamper chez narvii, et l'ancienne de Donozor). Les `.gifv` de tumblr répondent bien en `image/gif` : ils s'affichent dans une balise `img`, c'est vérifié. La fiche retombe sur la silhouette quand une image ne charge pas. Les FC sont de vraies personnes et on ne va pas chercher leur photo : le nom reste écrit comme ce qu'il est — une suggestion, et le choix de Callista.",
   "_dates": "LES ÂGES SONT CEUX DU TEXTE SOURCE, qui compte depuis 2021 : « il y a quinze ans » pour la chute de la Team Snatch et « il y a dix ans » pour celle de la Team Ombre. Le forum est en 2026, donc vingt et quinze. La planche 78 signalait déjà ce décalage de cinq ans. À trancher par Callista : on ne réécrit pas une chronologie depuis le code.",
   "celebrites": {
     "titre": "Célébrités de Rhode",
@@ -54,13 +54,6 @@
         "origine": "Protagoniste de Pokémon XD",
         "statut": "pnj",
         "texte": "Le professeur pokémon de la région depuis plus d'une décennie. Il a aidé à mettre au point les parfums qui purifient les pokémon obscurs, et c'est dans son laboratoire de Samaragd qu'il faut se rendre pour en purifier un. C'est aussi lui qui offre son premier pokémon à qui est natif de la région — il en élève de nombreux dans son laboratoire."
-      },
-      {
-        "nom": "Charlie Spinster",
-        "origine": "Écurie Raikou",
-        "statut": "pnj",
-        "texte": "Gagnante du Grand Prix de Rhode cinq années consécutives. Pilote de l'écurie Raikou, elle est pleine de vie, toujours de bonne humeur, et fortement appréciée des fans de courses automobiles.",
-        "avatar": "https://i.pinimg.com/originals/b6/5e/84/b65e840f654d614cbb5b30755eb21b3e.gif"
       },
       {
         "nom": "Helgonza",
@@ -195,5 +188,6 @@
     "contact": "N'hésite pas à nous contacter si tu as la moindre question sur un poste vacant. Il est aussi possible de demander à lier ton personnage à l'un des champions.",
     "_fiches": "LES PRÉ-LIENS DE CHAMPION. Un champion déjà écrit, qu'un joueur peut prendre tel qu'il est. Chaque fiche porte : `arene` (le slug de data/arenes.json — l'arène, sa ville, son type, son niveau, son badge et l'adresse de son forum en sont tirés, jamais recopiés ici), `nom`, `age` (une tranche : « 25 – 30 ans »), `image` (un portrait carré, chargé avant d'être écrit ici), `traits` (trois mots de caractère, affichés en tags), `affinites` et `rivalites` (des paires [qui, ce qui les lie], affichées dans deux cadres face à face), `ditAffinites` / `ditRivalites` (une note sous un cadre, facultative) et `texte` (un paragraphe, facultatif).\nLA LISTE EST VIDE AUJOURD'HUI, et c'est voulu : aucun champion n'est écrit, et inventer un titulaire serait inventer un personnage. La section n'apparaît donc pas sur la page. Un poste sans pré-lien reste dans la liste des onze postes, qui dit « poste vacant » ; une fiche sans `nom` arrête la génération.",
     "fiches": []
-  }
+  },
+  "_charlie": "CHARLIE SPINSTER A ÉTÉ RETIRÉE le 8 novembre 2026, à la demande de Callista : « enlève Charlie Spinster finalement des annexes, laisse la place libre ». Sa fiche de célébrité est partie, et son siège chez l'Écurie Raikou (data/region.json) est redevenu libre — les six sièges des trois écuries le sont donc tous. ELLE EST ENCORE NOMMÉE dans le texte de la région, au paragraphe des GPR1 : ce texte est de Callista, repris mot pour mot, et on ne le réécrit pas sans elle."
 }

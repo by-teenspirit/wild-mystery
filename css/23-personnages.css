@@ -86,15 +86,15 @@
   display: block;
   background: var(--wm-fond-douce, #f3e1d2);
   background-image: radial-gradient(
-      circle at 50% 36%,
-      var(--wm-bord-net, #d9c3b1) 15%,
-      transparent 16%
-    ),
+    circle at 50% 36%,
+    var(--wm-bord-net, #d9c3b1) 15%,
+    transparent 16%
+  ),
     radial-gradient(
-      ellipse at 50% 104%,
-      var(--wm-bord-net, #d9c3b1) 34%,
-      transparent 35%
-    );
+    ellipse at 50% 104%,
+    var(--wm-bord-net, #d9c3b1) 34%,
+    transparent 35%
+  );
 }
 
 /* ── 3 · le corps, et ce qui défile ───────────────────────────────── */
@@ -393,8 +393,26 @@
   text-transform: uppercase;
 }
 
+/*  LA MOITIÉ DROITE D'UN CRÉDIT NE DÉCLARAIT PAS SA COULEUR, et
+    `wm-credit__quoi`, sa voisine, le faisait. Elle prenait donc celle
+    d'un `li` ordinaire, qui ne suit pas le thème : 1,23 de contraste
+    en thème sombre, treize fois sur la page des crédits — mesuré le
+    8 novembre, invisible en thème clair.
+
+    C'est la même panne que les `dt`/`dd` nus de l'annexe 06 le
+    6 novembre : un élément sans couleur à lui, à côté d'un frère qui
+    en a une, dans une page qu'on ne regarde jamais en sombre.
+
+    Le `<b>` qui porte le nom de la personne créditée prend l'encre :
+    c'est l'information de la ligne, et elle doit ressortir de la
+    phrase qui l'entoure. */
 #modernbb .wm-credit__qui {
   flex: 1 1 200px;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-credit__qui b {
+  color: var(--wm-encre, #2e2018);
 }
 
 @media (max-width: 760px) {
@@ -604,15 +622,15 @@
 #modernbb .wm-champion__portrait--vide,
 #modernbb img.wm-champion__portrait {
   background-image: radial-gradient(
-      circle at 50% 34%,
-      var(--wm-bord-net, #d9c3b1) 17%,
-      transparent 18%
-    ),
+    circle at 50% 34%,
+    var(--wm-bord-net, #d9c3b1) 17%,
+    transparent 18%
+  ),
     radial-gradient(
-      ellipse at 50% 106%,
-      var(--wm-bord-net, #d9c3b1) 36%,
-      transparent 37%
-    );
+    ellipse at 50% 106%,
+    var(--wm-bord-net, #d9c3b1) 36%,
+    transparent 37%
+  );
 }
 
 #modernbb .wm-champion__identite {

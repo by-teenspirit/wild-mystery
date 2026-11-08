@@ -51,17 +51,7 @@
     sélecteurs listés : la règle ne gêne jamais une de nos feuilles qui
     voudrait poser une ombre sur un bouton précis, elle n'écrase que ce
     qui n'a pas d'avis. */
-#modernbb :where(
-    button,
-    input[type="submit"],
-    input[type="button"],
-    input[type="reset"],
-    .button1,
-    .button2,
-    .wm-btn,
-    .mainoption,
-    .liteoption
-  ) {
+#modernbb :where(button, input[type="submit"], input[type="button"], input[type="reset"], .button1, .button2, .wm-btn, .mainoption, .liteoption) {
   box-shadow: none;
 }
 
@@ -161,6 +151,39 @@
   height: 15px;
   border-radius: 999px;
   background: currentcolor;
+}
+
+/*  ── LE VRAI GLYPHE, ET PAS UN BOUT DE GLYPHE ──────────────────────
+
+    L'image est déjà la bonne : `20-icones.css` pose le badge
+    Écarlate/Violet découpé dans PokeAPI. Ce qui manquait, c'est de
+    lui dire QUELLE TAILLE prendre.
+
+    Sans `background-size`, une image de 40 × 40 posée dans une boîte
+    de 15 × 15 n'est pas réduite : elle est COUPÉE, et `background-
+    position` valant `0 0` par défaut, on voyait le coin haut-gauche
+    du glyphe. D'où la tache de couleur qu'on prenait pour un rond
+    dessiné — « des trucs que tu reconstruits », 8 novembre. Le glyphe
+    était là depuis le 30 octobre, tronqué aux trois quarts.
+
+    Le défaut n'était corrigé qu'aux deux endroits où il avait sauté
+    aux yeux : l'infobulle (§ 17 plus bas) et la case de la carte
+    dresseur (`18-carte-dresseur.css` § 5). Partout ailleurs — les
+    pastilles d'une zone, d'une fiche, d'un défi d'arène — personne
+    n'avait regardé de près. La règle est donc ici, sur le composant,
+    et les deux autres deviennent des réglages de taille.
+
+    LE ROND VIENT DE L'IMAGE, pas de la feuille : le découpage est
+    déjà masqué en rond par `outils/icones.py`. On rend donc le fond
+    transparent et on retire le rayon, sinon un disque de la couleur
+    du texte reste derrière et mange le glyphe. La pastille SANS
+    `data-wm-type` garde son point : c'est son repli. */
+#modernbb .wm-type[data-wm-type]::before {
+  border-radius: 0;
+  background-color: transparent;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 
 #modernbb .wm-type--normal {
@@ -360,12 +383,26 @@
 /*  Un seul actif à la fois. L'actif prend l'accent PLEIN : un onglet qui
     ne se distingue qu'à la nuance disparaît pour la moitié des gens, et
     `aria-selected` le dit à voix haute. */
+/*  ── LA TAILLE D'UN ONGLET ─────────────────────────────────────────
+
+    18 px de rembourrage vertical et 20 horizontaux pour un texte de
+    11,5 px : l'onglet faisait 47 px de haut pour quinze de texte, et
+    une barre de onze défis tenait sur deux lignes avant d'avoir dit
+    quoi que ce soit. « Trop d'écart, trop de padding sur les onglets
+    partout », 8 novembre. 10 et 14, donc — 37 px de haut, ce qui
+    reste attrapable au doigt.
+
+    `center` ET PLUS `flex-start` : depuis que les onglets de défi
+    portent leur badge, une image de 20 px calée en haut laissait le
+    mot pendre en dessous. Avec un seul texte sur une ligne, les deux
+    valeurs donnaient la même chose — c'est l'icône qui a rendu le
+    choix visible. */
 #modernbb .wm-onglet {
   display: inline-flex;
-  align-items: flex-start;
-  gap: var(--wm-espace-8, 8px);
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
   box-sizing: border-box;
-  padding: var(--wm-espace-18, 18px) var(--wm-espace-20, 20px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
   overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);

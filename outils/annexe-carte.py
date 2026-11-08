@@ -253,6 +253,14 @@ def corps():
         #  une phrase de neuf lieux ne se retient pas : on la lit deux
         #  fois pour savoir lequel vient avant lequel.
         if bloc.get("ordre"):
+            #  LE TITRE, PARCE QUE SANS LUI ON NE SAIT PAS CE QU'ON LIT.
+            #  « Quand tu mets la ligue des circuits, ajoute le titre,
+            #  sinon on comprend pas » (8 novembre) : neuf noms de
+            #  lieux numérotés, posés sous un paragraphe, pouvaient
+            #  aussi bien être neuf villes que neuf étapes.
+            if bloc.get("titreDeLOrdre"):
+                w('              <h4 class="wm-region__sous-titre">'
+                  f'{e(bloc["titreDeLOrdre"])}</h4>')
             w('              <ol class="wm-region__ordre">')
             for n, lieu in enumerate(bloc["ordre"], 1):
                 w(f'                <li><span class="wm-region__rang">{n}</span>'
@@ -261,28 +269,43 @@ def corps():
             if bloc.get("ditDeLOrdre"):
                 w(f'              <p class="wm-region__dit">{e(bloc["ditDeLOrdre"])}</p>')
 
-        #  LES SIX BAUDRIERS, DONT CINQ LIBRES. « Place libre » porte la
+        #  LES DOUZE BAUDRIERS, TOUS LIBRES. « Place libre » porte la
         #  même pastille verte que « poste vacant » chez les champions :
         #  c'est la même information — tu peux la prendre.
-        if bloc.get("ecuries"):
-            w('              <ul class="wm-ecuries">')
-            for ec in bloc["ecuries"]:
-                w('                <li class="wm-ecurie">')
-                w(f'                  <b class="wm-ecurie__nom">{e(ec["nom"])}</b>')
-                w('                  <span class="wm-ecurie__pilotes">')
-                for pil in ec["pilotes"]:
-                    if pil.get("libre"):
-                        w('                    <span class="wm-ecurie__libre">place'
-                          " libre</span>")
-                    elif pil.get("lien"):
-                        w('                    <a class="wm-ecurie__pilote" href="'
-                          f'{e(pil["lien"])}">{e(pil["nom"])}</a>')
-                    else:
-                        w('                    <span class="wm-ecurie__pilote">'
-                          f'{e(pil["nom"])}</span>')
-                w("                  </span>")
-                w("                </li>")
-            w("              </ul>")
+        #
+        #  DEUX DISCIPLINES DEPUIS LE 8 NOVEMBRE, monoplace et moto, et
+        #  les mêmes trois écuries des deux côtés : ce sont les écuries
+        #  de Rhode, pas des équipes d'une seule discipline. Le nom de
+        #  la discipline est écrit, sinon six cartouches de plus
+        #  arriveraient sans qu'on sache ce qui les sépare.
+        if bloc.get("disciplines"):
+            if bloc.get("titreDesEquipes"):
+                w('              <h4 class="wm-region__sous-titre">'
+                  f'{e(bloc["titreDesEquipes"])}</h4>')
+            for disc in bloc["disciplines"]:
+                w('              <div class="wm-discipline">')
+                w('                <p class="wm-discipline__nom">'
+                  f'{e(disc["nom"])}</p>')
+                w('                <ul class="wm-ecuries">')
+                for ec in disc["equipes"]:
+                    w('                  <li class="wm-ecurie">')
+                    w('                    <b class="wm-ecurie__nom">'
+                      f'{e(ec["nom"])}</b>')
+                    w('                    <span class="wm-ecurie__pilotes">')
+                    for pil in ec["pilotes"]:
+                        if pil.get("libre"):
+                            w('                      <span class="wm-ecurie__libre">'
+                              "place libre</span>")
+                        elif pil.get("lien"):
+                            w('                      <a class="wm-ecurie__pilote" '
+                              f'href="{e(pil["lien"])}">{e(pil["nom"])}</a>')
+                        else:
+                            w('                      <span class="wm-ecurie__pilote">'
+                              f'{e(pil["nom"])}</span>')
+                    w("                    </span>")
+                    w("                  </li>")
+                w("                </ul>")
+                w("              </div>")
 
         if bloc.get("dit"):
             w(f'              <p class="wm-region__dit">{e(bloc["dit"])}</p>')

@@ -195,15 +195,15 @@
   background-image:
     var(--wm-faune-image, none),
     radial-gradient(
-      ellipse 70% 120% at 18% 110%,
-      rgb(255 255 255 / 16%) 0%,
-      rgb(255 255 255 / 0%) 70%
-    ),
+    ellipse 70% 120% at 18% 110%,
+    rgb(255 255 255 / 16%) 0%,
+    rgb(255 255 255 / 0%) 70%
+  ),
     radial-gradient(
-      ellipse 90% 140% at 88% -20%,
-      rgb(255 255 255 / 12%) 0%,
-      rgb(255 255 255 / 0%) 72%
-    );
+    ellipse 90% 140% at 88% -20%,
+    rgb(255 255 255 / 12%) 0%,
+    rgb(255 255 255 / 0%) 72%
+  );
 }
 
 #modernbb .wm-faune__visite-image::after {
@@ -1347,4 +1347,41 @@
 
 #modernbb .wm-breche__liste.wm-faune-repli--remplace {
   display: none;
+}
+
+/*  ── LES DEUX TITRES DE SECTION D'UN ÉVÈNEMENT ─────────────────────
+
+    « Quand tu mets la ligue des circuits, ajoute le titre, sinon on
+    comprend pas, pareil en dessous, liste des équipes » (8 novembre).
+    Neuf lieux numérotés et six cartouches de noms arrivaient sous un
+    paragraphe sans rien dire de ce qu'ils étaient.
+
+    Plus petit que `wm-region__nom`, qui titre le bloc entier : ce sont
+    ses sections, pas ses égales. */
+#modernbb .wm-region__sous-titre {
+  margin: var(--wm-espace-20, 20px) 0 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  ── LA DISCIPLINE ────────────────────────────────────────────────
+
+    Monoplace et moto alignent les mêmes trois écuries : sans ce mot,
+    on lirait six équipes dont trois en double. */
+#modernbb .wm-discipline__nom {
+  margin: var(--wm-espace-14, 14px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LA LISTE SUIT SON MOT DE PRÈS : les 16 px de marge d'une liste
+    d'écuries la détachaient de la discipline qui la nomme. */
+#modernbb .wm-discipline .wm-ecuries {
+  margin-top: var(--wm-espace-8, 8px);
 }
