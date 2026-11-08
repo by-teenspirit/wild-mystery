@@ -321,6 +321,18 @@ jobs:
       - name: La carte dresseur
         run: deno task tcard
 
+      #  Ajoutés le 8 novembre. Le garde-fou n° 22 refuse un harnais
+      #  que le CI ne lance pas : un harnais qu'on lance à la main ne
+      #  garde rien.
+      - name: Les arènes, les colosseums et la ligue
+        run: deno task arenes
+
+      - name: Les fiches d'annonce et les trigger warnings
+        run: deno task annonces
+
+      - name: Le profil d'un membre
+        run: deno task profil
+
       #  Ajoutés le 4 novembre, avec l'annexe de la carte et celle des
       #  célébrités. Le garde-fou n° 22 refuse un harnais que le CI ne
       #  lance pas : un harnais qu'on lance à la main ne garde rien.
