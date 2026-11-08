@@ -16,6 +16,7 @@ import {
 } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
+import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
 
@@ -37,3 +38,7 @@ g.wmPoserLeTheme = (): boolean => poserLeTheme(document, new Preferences(new Sto
 //  un bouton que j'aurais recopié dans la page d'essai — et qui serait
 //  resté juste même après que le module ait cessé de l'être.
 g.wmPoserLesAvertissements = (): number => poserLesAvertissements(document);
+
+//  LE PROFIL, pour `outils/profil.mjs` : même raison que les deux
+//  au-dessus — le harnais mesure le balisage du module, pas une copie.
+g.wmPoserLeProfil = (): boolean => poserLeProfil(document);

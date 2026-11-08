@@ -88,6 +88,7 @@ import {
 } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
+import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -585,6 +586,10 @@ desQueLeCorpsEstLa(() => {
   //  la page, et un avertissement qui arriverait après le texte qu'il
   //  couvre n'avertirait plus de rien.
   poserLesAvertissements(document);
+  //  LE PROFIL D'UN MEMBRE. Il se reconnaît tout seul — pas de page,
+  //  pas de carte — et il ne fait aucune requête : il déplace ce que
+  //  Forumactif a déjà servi.
+  poserLeProfil(document);
   //  L'ÉDITEUR ARRIVE APRÈS NOUS. `sceditor` est monté par le script
   //  de Forumactif, et son iframe n'existe pas encore quand on passe :
   //  on guette son arrivée au lieu de deviner un délai.

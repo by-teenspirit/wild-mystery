@@ -1,0 +1,582 @@
+/* ════════════════════════════════════════════════════════════════════
+    24-profil.css — le profil d'un membre, `/uN`
+
+    Planche 06 (`325:68`), note de code 06 (`325:273`). Relevé sur
+    `/u1` le 8 novembre, déconnectée : la page est publique.
+
+    ── CE QUE LA PAGE EST VRAIMENT ──────────────────────────────────
+
+    La note de code annonçait le gabarit `profile_view_body` et ses
+    blocs. C'est vrai pour UNE PARTIE de la page seulement, et il
+    valait mieux le mesurer que le croire :
+
+      · LA FEUILLE DE PERSONNAGE (`/uNrpg`) sort bien du gabarit —
+        ses `div.column2 > dl` sont mot pour mot le bloc `switch_rpg`
+        du gabarit par défaut ;
+      · LES CHAMPS DE PROFIL aussi — `dl#field_id-N`, c'est la boucle
+        `profile_field` ;
+      · MAIS LE RESTE N'EST PAS DANS LE GABARIT. `#profile-advanced-
+        layout`, `#tabs`, la colonne de droite et ses modules, les
+        récompenses : Forumactif les pose lui-même quand le profil est
+        en mode avancé. Aucune variable, aucun bloc.
+
+    DONC LE LEVIER EST LE CSS, et le JS pour ce qu'il faut déplacer.
+    C'est l'ordre de la charte — réglage, puis CSS, puis gabarit, puis
+    JS — et ici il tombe juste : on ne peut pas réécrire ce qu'on ne
+    nous donne pas.
+
+    ── CE QU'ON NE REPREND PAS DE LA MAQUETTE ───────────────────────
+
+    « Je ne suis pas fan de la façon dont ça a été fait dans la
+    maquette. La hiérarchie, les bonnes couleurs, un fond, c'est très
+    bien. En revanche tu peux venir juste modifier, réorganiser,
+    améliorer visuellement, mais pas forcément faire comme la
+    maquette » (8 novembre).
+
+    Ce qui change, et pourquoi :
+
+      · L'AVATAR N'EST PAS ROND, il est en 200 × 320. C'est demandé,
+        et c'est aussi la taille que le panneau sert déjà : l'image
+        arrive avec `max-width: 200px; max-height: 320px` écrit en
+        style inline par Forumactif. On dessine donc la case à la
+        taille que le forum a choisie, au lieu de la rogner.
+      · LE RANG N'EST PLUS « Rang: en découverte » en texte nu, mais
+        une pastille sous le nom.
+      · LES BADGES SE VOIENT. Le panneau pose leur image dans une
+        variable CSS, `--award-image`, et RIEN NE LA PEINT : les
+        quatre récompenses d'Arceus étaient quatre cases vides.
+        C'était un bug de la page, pas un manque de la maquette.
+      · LES ONGLETS SONT LA BARRE D'ONGLETS DU SITE. Ce sont cinq
+        vraies pages — `/uN`, `/uNgroups`, `/uNawards`, `/uNcontact`,
+        `/uNrpg` — pas un panneau à bascule : une barre de navigation,
+        pas un widget.
+
+    ── LE PSEUDO COLORÉ RESTE SUR UNE CARTE ─────────────────────────
+
+    Les dix tons de groupe donnent 3,78 sur les surfaces et 2,78 sur
+    `fond-page` (relevé du 30 octobre). La carte d'identité est donc
+    sur `fond-surface-haute`, et aucun pseudo ne se pose à même la
+    page.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la page ──────────────────────────────────────────────────── */
+
+/*  La colonne de droite de Forumactif disparaît : son contenu est
+    remonté dans la carte d'identité par le module. On la masque au
+    lieu de la vider — un module qui ne tourne pas laisse alors une
+    page moche mais COMPLÈTE, et pas une page amputée. */
+#modernbb .wm-profil-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-20, 20px);
+}
+
+/*  LES DEUX COLONNES NE SONT PAS SŒURS. `#profile-advanced-right` est
+    posé À CÔTÉ de `#profile-advanced-layout`, pas dedans — relevé le
+    8 novembre, et un `~` depuis la carte ne l'atteignait pas. On
+    remonte donc d'un cran avec `:has`, qui a aussi le bon repli : pas
+    de carte, pas de règle, la page garde ses deux colonnes
+    d'origine. */
+#modernbb #profile-advanced-layout:has(.wm-profil-page) ~ #profile-advanced-right {
+  display: none;
+}
+
+/*  Les coins arrondis en `<span>` de ModernBB — `corners-top`,
+    `corners-bottom` — sont des images de 2007. Rien à en tirer. */
+#modernbb .wm-profil-page .corners-top,
+#modernbb .wm-profil-page .corners-bottom,
+#modernbb .wm-profil-page .separator {
+  display: none;
+}
+
+/* ── 2 · la carte d'identité ──────────────────────────────────────── */
+
+#modernbb .wm-profil-page__carte {
+  display: flex;
+  box-sizing: border-box;
+  padding: var(--wm-espace-24, 24px);
+  gap: var(--wm-espace-24, 24px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  ── L'AVATAR, EN 200 × 320 ───────────────────────────────────────
+
+    La case est fixe ; l'image la remplit et se recadre sur son
+    centre. `object-fit` fait les deux cas d'un coup : une image plus
+    petite que la case s'agrandit, une plus grande se rogne, et
+    aucune ne se déforme.
+
+    `flex: 0 0 200px` et pas une largeur seule : dans un flex, une
+    image rétrécit sous sa largeur déclarée dès que le texte à côté
+    pousse — c'est le défaut qu'on ne voit qu'à 1000 px de large. */
+#modernbb .wm-profil-page__avatar {
+  box-sizing: border-box;
+  width: 200px;
+  height: 320px;
+  flex: 0 0 200px;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-terre, #f8eae1);
+  object-fit: cover;
+}
+
+/*  ── LA COLONNE SE RÉPARTIT, ELLE NE POUSSE PAS ──────────────────
+
+    L'avatar fait 320 px de haut ; le nom, trois chiffres, quatre
+    badges et trois boutons en font bien moins. Le premier jet collait
+    les actions en bas avec `margin-top: auto`, ce qui ramassait TOUT
+    le vide en un seul trou au milieu de la carte — visible sur la
+    photo du 8 novembre.
+
+    `space-between` répartit le même vide entre les quatre rangées.
+    La carte respire au lieu d'avoir un creux. */
+#modernbb .wm-profil-page__ident {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wm-profil-page__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+}
+
+/*  LE NOM GARDE LA COULEUR DE SON GROUPE. Forumactif la pose en style
+    inline sur `span.usr_grp_clr`, et le module déplace ce `span` tel
+    quel : on hérite de sa couleur au lieu d'en redéclarer une, ce qui
+    la garderait d'accord avec le panneau sans rien à tenir. */
+#modernbb .wm-profil-page__nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-page, 25px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  ── LE RANG ──────────────────────────────────────────────────────
+
+    Une pastille de la charte, pas la couleur du groupe. Un ton de
+    groupe est choisi dans le panneau, il n'est mesuré que pour du
+    texte gras sur une surface — le poser en FOND d'une pastille
+    serait une couleur dont personne n'a vérifié le contraste. */
+#modernbb .wm-profil-page__rang {
+  padding: 4px var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  L'image de rang, quand le panneau en sert une. */
+#modernbb .wm-profil-page__rang-image {
+  max-height: 22px;
+  vertical-align: middle;
+}
+
+/*  ── LES CHIFFRES ─────────────────────────────────────────────────
+
+    Nombre au-dessus, mot en dessous — la maquette a raison là-dessus
+    et on la garde. Deux corrections : les nombres sont en chiffres
+    TABULAIRES (sans quoi « 291 » et « 1 148 » ne s'alignent pas d'un
+    profil à l'autre), et la rangée passe à la ligne au lieu de
+    rétrécir. */
+#modernbb .wm-profil-page__chiffres {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-24, 24px);
+  list-style: none;
+}
+
+#modernbb .wm-profil-page__chiffre {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#modernbb .wm-profil-page__nombre {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-profil-page__mot {
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  ── LES ACTIONS ──────────────────────────────────────────────────
+
+    `margin-top: auto` les colle en bas de la colonne, à la hauteur du
+    pied de l'avatar : c'est ce qui fait que la carte a une assise au
+    lieu d'un bloc de texte flottant dans 320 px de haut. */
+#modernbb .wm-profil-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb a.wm-profil-page__bouton {
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  text-decoration: none;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb a.wm-profil-page__bouton--calme {
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/* ── 3 · les onglets ──────────────────────────────────────────────── */
+
+/*  CE SONT CINQ PAGES, PAS UN PANNEAU. On reprend donc la barre
+    d'onglets du site — celle des annexes et du carnet — pour que les
+    onglets se ressemblent partout, mais avec des `<a>` : un onglet
+    qui mène ailleurs doit s'ouvrir dans un nouvel onglet du
+    navigateur, se copier, se mettre en favori. Un `<button>` ne sait
+    faire aucune des trois. */
+#modernbb .wm-profil-page__onglets {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+/*  ── LES ONGLETS SONT LE COMPOSANT DU SITE ───────────────────────
+
+    `wm-onglet` et `wm-onglet--actif`, les mêmes que les annexes, le
+    carnet et la faune. Rien à dessiner ici : la barre seule est
+    propre à cette page, parce qu'elle tient des LIENS.
+
+    POURQUOI DES LIENS ET PAS DES BOUTONS : ces cinq onglets sont cinq
+    pages — `/uN`, `/uNgroups`, `/uNawards`, `/uNcontact`, `/uNrpg`.
+    Un lien s'ouvre dans un nouvel onglet du navigateur, se copie, se
+    met en favori ; un bouton ne sait faire aucune des trois.
+
+    L'onglet courant porte en plus `aria-current="page"`, posé par le
+    module : la couleur seule ne dirait rien à un lecteur d'écran. */
+
+/* ── 4 · le panneau de l'onglet ───────────────────────────────────── */
+
+#modernbb .wm-profil-page__panneau {
+  box-sizing: border-box;
+  padding: var(--wm-espace-24, 24px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-profil-page__panneau > h1,
+#modernbb .wm-profil-page__panneau .h3 {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+/*  ── LES CHAMPS ───────────────────────────────────────────────────
+
+    Le gabarit sert des `<dl>` empilés, un par champ, avec un
+    `div.separator` entre. On en fait des LIGNES : libellé à gauche en
+    petites capitales, valeur à droite, un filet entre deux.
+
+    DEUX COLONNES DÈS QU'IL Y A LA PLACE, comme la maquette : six
+    champs l'un sous l'autre sur 960 px laissent les trois quarts de
+    la largeur vides. `column-count` plutôt qu'une grille — les
+    champs n'ont pas à se répondre d'une colonne à l'autre, seulement
+    à remplir. */
+#modernbb .wm-profil-page__champs {
+  column-gap: var(--wm-espace-32, 32px);
+  columns: 2;
+}
+
+/*  `break-inside` : sans lui, un champ à valeur longue se coupe en
+    deux au bas d'une colonne, libellé d'un côté et valeur de
+    l'autre. */
+#modernbb .wm-profil-page__champs > dl {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0;
+  padding: var(--wm-espace-10, 10px) 0;
+  gap: var(--wm-espace-16, 16px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  break-inside: avoid;
+}
+
+#modernbb .wm-profil-page__champs > dl > dt {
+  flex: 0 0 auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-profil-page__champs > dl > dd {
+  min-width: 0;
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+/*  Un champ vide se voit : mieux vaut un tiret qu'une ligne orpheline
+    dont on se demande si elle a raté son chargement. */
+/*  ── UNE VALEUR EN IMAGE RESTE UNE LIGNE ──────────────────────────
+
+    Le champ « Genre » a pour valeur une icône, pas un mot. Sans
+    hauteur imposée, cette icône décide de la hauteur de la ligne et
+    le libellé ne tombe plus en face d'elle — le harnais l'a vu sur
+    le seul champ concerné. On la ramène à la hauteur d'une ligne de
+    texte. */
+#modernbb .wm-profil-page__champs > dl > dd img {
+  max-height: 1.4em;
+  vertical-align: middle;
+}
+
+#modernbb .wm-profil-page__champs > dl > dd:empty::after {
+  content: "—";
+  opacity: 0.6;
+}
+
+/* ── 5 · les badges ───────────────────────────────────────────────── */
+
+/*  ── LE PANNEAU POSE L'IMAGE, PERSONNE NE LA PEINT ────────────────
+
+    Relevé sur `/u1` : chaque récompense arrive avec son image dans
+    une variable, `style="--award-image: url('…feu.png')"`, et aucune
+    feuille ne s'en sert. Les quatre badges d'Arceus étaient quatre
+    cases vides — ce n'est pas la maquette qui manquait, c'est la
+    page qui perdait ce que le panneau lui donnait.
+
+    `var(--award-image)` sans repli : une récompense sans image garde
+    alors sa case ronde vide, ce qui est exactement ce qu'on veut
+    montrer. */
+#modernbb .wm-profil-page__badges {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+#modernbb .wm-profil-page .award {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background-color: var(--wm-fond-terre, #f8eae1);
+  background-image: var(--award-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 76%;
+}
+
+/*  ── L'INFOBULLE D'UNE RÉCOMPENSE ─────────────────────────────────
+
+    Elle existe déjà dans la page (`span.award_tooltiptext`), et
+    Forumactif ne la montre nulle part. Même règle que l'infobulle
+    d'un Pokémon : cachée au repos, ouverte au survol ET au focus —
+    sans le focus, elle n'existe pas pour qui navigue au clavier. */
+/*  ELLE S'OUVRE VERS LE BAS. Au-dessus, elle se posait sur la rangée
+    de chiffres juste au-dessus des badges et la rendait illisible le
+    temps du survol. En dessous, elle n'a que du vide sous elle. */
+#modernbb .wm-profil-page .award_tooltiptext {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  z-index: 3;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+#modernbb .wm-profil-page .award:hover .award_tooltiptext,
+#modernbb .wm-profil-page .award:focus-visible .award_tooltiptext {
+  opacity: 1;
+}
+
+/* ── 6 · les quatre autres onglets ────────────────────────────────── */
+
+/*  ── LES GROUPES (`/uNgroups`) ────────────────────────────────────
+
+    Forumactif sert des rangées `.avatar` + `.message-block`. On en
+    fait des lignes de liste, pas des blocs de message. */
+#modernbb .wm-profil-page__panneau .message-block {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#modernbb .wm-profil-page__panneau .clearfix {
+  display: flex;
+  align-items: center;
+  padding: var(--wm-espace-12, 12px) 0;
+  gap: var(--wm-espace-14, 14px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-profil-page__panneau .message-header {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb .wm-profil-page__panneau .message-text {
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: var(--wm-interligne-legende, 1.45);
+}
+
+/*  ── LES RÉCOMPENSES EN GRAND (`/uNawards`) ───────────────────────
+
+    La page complète les range en rangées `.award_row` : l'image, le
+    badge, la description. Une grille, pour que les descriptions
+    tombent en face les unes des autres. */
+#modernbb .wm-profil-page__panneau .awards_block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-profil-page__panneau .award_row {
+  display: flex;
+  align-items: center;
+  padding: var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-16, 16px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-profil-page__panneau .award_desc {
+  min-width: 0;
+  flex: 1 1 auto;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  ── LA FEUILLE DE PERSONNAGE (`/uNrpg`) ──────────────────────────
+
+    Celle-là vient VRAIMENT du gabarit : `div.column2 > dl > dt/dd`,
+    le bloc `switch_rpg`. Mêmes lignes que les champs de profil — ce
+    sont les mêmes renseignements, ils doivent se lire pareil. */
+#modernbb .wm-profil-page__panneau .column2 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--wm-espace-10, 10px) 0;
+  gap: var(--wm-espace-16, 16px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-profil-page__panneau .column2 dl {
+  display: contents;
+}
+
+#modernbb .wm-profil-page__panneau .column2 dt {
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-profil-page__panneau .column2 dd {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: right;
+}
+
+/* ── 7 · l'étroit ─────────────────────────────────────────────────── */
+
+/*  « On ne touche à rien pour la version mobile » — les gabarits
+    mobiles de Forumactif sont un jeu à part. Ce point d'arrêt-ci ne
+    les concerne pas : c'est la même page, dans une fenêtre étroite.
+
+    L'avatar passe au-dessus et prend la largeur, mais GARDE SON
+    RAPPORT : une image de 200 × 320 étirée sur 390 px de large
+    donnerait un visage déformé. */
+@media (max-width: 720px) {
+  #modernbb .wm-profil-page__carte {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #modernbb .wm-profil-page__avatar {
+    flex: 0 0 auto;
+  }
+
+  #modernbb .wm-profil-page__ident {
+    width: 100%;
+  }
+
+  #modernbb .wm-profil-page__champs {
+    columns: 1;
+  }
+}

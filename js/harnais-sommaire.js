@@ -113,22 +113,22 @@
     return true;
   }
   function poserLaSuivante({ doc, donnees }) {
-    const bouton = doc.querySelector("a.wm-suivante__bouton");
-    if (bouton === null) return false;
+    const bouton2 = doc.querySelector("a.wm-suivante__bouton");
+    if (bouton2 === null) return false;
     const sections = sommaireAffiche(sommaireDepuis(donnees), slugDepuisAdresse(doc.location?.pathname ?? ""));
     const toutes = sections.flatMap((s) => s.entrees);
     const ici = toutes.findIndex((e) => e.active);
     if (ici === -1) return false;
     const suite = toutes.slice(ici + 1).concat(toutes.slice(0, ici)).find((e) => e.adresse !== null && !e.aVenir);
     if (suite === void 0 || suite.adresse === null) {
-      bouton.remove();
+      bouton2.remove();
       return false;
     }
-    bouton.setAttribute("href", suite.adresse);
-    const etiquette = bouton.querySelector(".wm-suivante__etiquette");
-    bouton.textContent = "";
-    if (etiquette !== null) bouton.appendChild(etiquette);
-    bouton.appendChild(doc.createTextNode(` ${suite.titre} \u2192`));
+    bouton2.setAttribute("href", suite.adresse);
+    const etiquette = bouton2.querySelector(".wm-suivante__etiquette");
+    bouton2.textContent = "";
+    if (etiquette !== null) bouton2.appendChild(etiquette);
+    bouton2.appendChild(doc.createTextNode(` ${suite.titre} \u2192`));
     return true;
   }
 
@@ -212,23 +212,23 @@
       appliquer(doc, t);
       return t;
     };
-    const bouton = doc.createElement("button");
-    bouton.type = "button";
-    bouton.className = `wm-retour__lien ${CLASSE_BOUTON}`;
+    const bouton2 = doc.createElement("button");
+    bouton2.type = "button";
+    bouton2.className = `wm-retour__lien ${CLASSE_BOUTON}`;
     const habiller = () => {
       const t = rendre();
       const mot = libelle(t);
-      bouton.textContent = "";
-      bouton.appendChild(destination(t) === "sombre" ? lune(doc) : soleil(doc));
-      bouton.appendChild(doc.createTextNode(mot));
-      bouton.setAttribute("aria-label", `Passer en th\xE8me ${mot.toLowerCase()}`);
+      bouton2.textContent = "";
+      bouton2.appendChild(destination(t) === "sombre" ? lune(doc) : soleil(doc));
+      bouton2.appendChild(doc.createTextNode(mot));
+      bouton2.setAttribute("aria-label", `Passer en th\xE8me ${mot.toLowerCase()}`);
     };
     habiller();
-    bouton.addEventListener("click", () => {
+    bouton2.addEventListener("click", () => {
       prefs.poserTheme(choixApresClic(prefs.theme(), systemeEstSombre()));
       habiller();
     });
-    barre.appendChild(bouton);
+    barre.appendChild(bouton2);
     return true;
   }
 
@@ -256,12 +256,12 @@
       bloc.className = "wm-tw";
       const tete = doc.createElement("div");
       tete.className = "wm-tw__tete";
-      const bouton = doc.createElement("button");
-      bouton.type = "button";
-      bouton.className = "wm-tw__bouton";
-      bouton.textContent = "Afficher ce passage";
-      bouton.setAttribute("aria-expanded", "false");
-      bouton.setAttribute("aria-controls", numero);
+      const bouton2 = doc.createElement("button");
+      bouton2.type = "button";
+      bouton2.className = "wm-tw__bouton";
+      bouton2.textContent = "Afficher ce passage";
+      bouton2.setAttribute("aria-expanded", "false");
+      bouton2.setAttribute("aria-controls", numero);
       const etiquette = doc.createElement("span");
       etiquette.className = "wm-tw__mot";
       etiquette.textContent = mot;
@@ -270,20 +270,194 @@
       passage.id = numero;
       passage.setAttribute("aria-hidden", "true");
       while (balise.firstChild !== null) passage.appendChild(balise.firstChild);
-      tete.appendChild(bouton);
+      tete.appendChild(bouton2);
       tete.appendChild(etiquette);
       bloc.appendChild(tete);
       bloc.appendChild(passage);
-      bouton.addEventListener("click", () => {
+      bouton2.addEventListener("click", () => {
         const ouvert = bloc.classList.toggle("wm-tw--ouvert");
-        bouton.setAttribute("aria-expanded", ouvert ? "true" : "false");
+        bouton2.setAttribute("aria-expanded", ouvert ? "true" : "false");
         passage.setAttribute("aria-hidden", ouvert ? "false" : "true");
-        bouton.textContent = ouvert ? "Masquer ce passage" : "Afficher ce passage";
+        bouton2.textContent = ouvert ? "Masquer ce passage" : "Afficher ce passage";
       });
       balise.replaceWith(bloc);
       pose += 1;
     }
     return pose;
+  }
+
+  // src/adaptateurs/navigateur/module-profil.ts
+  function identifiantDuProfil(adresse2) {
+    const trouve = /\/u(\d+)(?:[a-z]*)?(?:[/?#]|$)/.exec(adresse2);
+    if (trouve === null) return null;
+    const n = Number(trouve[1]);
+    return Number.isInteger(n) && n > 0 ? n : null;
+  }
+  function sansLeLibelle(texte2) {
+    return texte2.replace(/^[^:]*:\s*/, "").trim();
+  }
+  function champ(racine, libelle2) {
+    for (const dl of Array.from(racine.querySelectorAll("dl"))) {
+      const dt = dl.querySelector("dt");
+      if (dt === null) continue;
+      const mot = dt.textContent?.replace(/\s*:\s*$/, "").trim().toLowerCase() ?? "";
+      if (mot === libelle2.toLowerCase()) return dl.querySelector("dd");
+    }
+    return null;
+  }
+  function chiffre(doc, nombre, mot) {
+    const li = doc.createElement("li");
+    li.className = "wm-profil-page__chiffre";
+    const b = doc.createElement("b");
+    b.className = "wm-profil-page__nombre";
+    b.textContent = nombre;
+    const s = doc.createElement("span");
+    s.className = "wm-profil-page__mot";
+    s.textContent = mot;
+    li.appendChild(b);
+    li.appendChild(s);
+    return li;
+  }
+  function bouton(doc, adresse2, mot, calme = false) {
+    const a = doc.createElement("a");
+    a.href = adresse2;
+    a.className = "wm-profil-page__bouton" + (calme ? " wm-profil-page__bouton--calme" : "");
+    a.textContent = mot;
+    return a;
+  }
+  function poserLeProfil(doc) {
+    const gauche = doc.querySelector("#profile-advanced-left");
+    const droite = doc.querySelector("#profile-advanced-right");
+    if (gauche === null) return false;
+    if (doc.querySelector(".wm-profil-page") !== null) return false;
+    const identifiant = identifiantDuProfil(doc.location?.pathname ?? "");
+    const page = doc.createElement("div");
+    page.className = "wm-profil-page";
+    const carte = doc.createElement("section");
+    carte.className = "wm-profil-page__carte";
+    const avatar = droite?.querySelector(".mod-login-avatar img") ?? null;
+    if (avatar !== null) {
+      avatar.removeAttribute("style");
+      avatar.classList.add("wm-profil-page__avatar");
+      carte.appendChild(avatar);
+    }
+    const ident = doc.createElement("div");
+    ident.className = "wm-profil-page__ident";
+    const tete = doc.createElement("div");
+    tete.className = "wm-profil-page__tete";
+    const titre = gauche.querySelector("#cp-main h1");
+    const nom = doc.createElement("h1");
+    nom.className = "wm-profil-page__nom";
+    const colore = titre?.querySelector(".usr_grp_clr") ?? droite?.querySelector(".h3 .usr_grp_clr") ?? null;
+    if (colore !== null) nom.appendChild(colore);
+    else nom.textContent = titre?.textContent?.trim() ?? "";
+    tete.appendChild(nom);
+    const bloc = droite?.querySelector(".mod-login-rank") ?? null;
+    if (bloc !== null) {
+      const mot = sansLeLibelle(bloc.textContent ?? "");
+      const image = bloc.querySelector("img");
+      if (image !== null) {
+        image.classList.add("wm-profil-page__rang-image");
+        tete.appendChild(image);
+      }
+      if (mot !== "") {
+        const rang = doc.createElement("span");
+        rang.className = "wm-profil-page__rang";
+        rang.textContent = mot;
+        tete.appendChild(rang);
+      }
+    }
+    ident.appendChild(tete);
+    const chiffres = doc.createElement("ul");
+    chiffres.className = "wm-profil-page__chiffres";
+    const messages = champ(gauche, "Messages post\xE9s");
+    if (messages !== null) {
+      chiffres.appendChild(chiffre(doc, messages.textContent?.trim() ?? "", "messages"));
+    }
+    const inscription = champ(gauche, "Date d'inscription");
+    if (inscription !== null) {
+      chiffres.appendChild(chiffre(doc, inscription.textContent?.trim() ?? "", "inscrit\xB7e le"));
+    }
+    const badges = droite?.querySelectorAll(".awards_module .award") ?? [];
+    if (badges.length > 0) {
+      chiffres.appendChild(chiffre(doc, String(badges.length), "badges"));
+    }
+    if (chiffres.children.length > 0) ident.appendChild(chiffres);
+    if (badges.length > 0) {
+      const liste = doc.createElement("ul");
+      liste.className = "wm-profil-page__badges";
+      for (const b of Array.from(badges)) {
+        const li = doc.createElement("li");
+        li.appendChild(b);
+        liste.appendChild(li);
+      }
+      ident.appendChild(liste);
+    }
+    const actions = doc.createElement("div");
+    actions.className = "wm-profil-page__actions";
+    if (identifiant !== null) {
+      actions.appendChild(bouton(doc, `/privmsg?mode=post&u=${identifiant}`, "Envoyer un message"));
+    }
+    const pseudo = colore?.textContent?.trim() ?? "";
+    if (pseudo !== "") {
+      actions.appendChild(bouton(doc, `/spa/${encodeURIComponent(pseudo)}`, "Voir ses messages", true));
+      actions.appendChild(bouton(doc, `/sta/${encodeURIComponent(pseudo)}`, "Ses sujets", true));
+    }
+    if (actions.children.length > 0) ident.appendChild(actions);
+    carte.appendChild(ident);
+    page.appendChild(carte);
+    const onglets = Array.from(gauche.querySelectorAll("#tabs li"));
+    if (onglets.length > 0) {
+      const barre = doc.createElement("nav");
+      barre.setAttribute("aria-label", "Les pages de ce profil");
+      const ul = doc.createElement("ul");
+      ul.className = "wm-profil-page__onglets";
+      for (const li of onglets) {
+        const a = li.querySelector("a");
+        if (a === null) continue;
+        const courant = li.classList.contains("activetab");
+        const lien = doc.createElement("a");
+        const vise = a.getAttribute("href") ?? "#";
+        lien.href = courant && vise === "#" && identifiant !== null ? `/u${identifiant}` : vise;
+        lien.className = "wm-onglet" + (courant ? " wm-onglet--actif" : "");
+        const mot = doc.createElement("span");
+        mot.className = "wm-onglet__mot";
+        mot.textContent = a.textContent?.trim() ?? "";
+        lien.appendChild(mot);
+        if (courant) lien.setAttribute("aria-current", "page");
+        const item = doc.createElement("li");
+        item.appendChild(lien);
+        ul.appendChild(item);
+      }
+      barre.appendChild(ul);
+      page.appendChild(barre);
+    }
+    const panneau = doc.createElement("section");
+    panneau.className = "wm-profil-page__panneau";
+    const champs = gauche.querySelector("#profile-tab-field-profil");
+    if (champs !== null) {
+      const liste = doc.createElement("div");
+      liste.className = "wm-profil-page__champs";
+      for (const dl of Array.from(champs.querySelectorAll("dl"))) liste.appendChild(dl);
+      panneau.appendChild(liste);
+    }
+    const corps = gauche.querySelector("#cp-main");
+    if (corps !== null) {
+      for (const enfant of Array.from(corps.children)) {
+        if (enfant.tagName === "H1") continue;
+        panneau.appendChild(enfant);
+      }
+    }
+    page.appendChild(panneau);
+    if (identifiant !== null) {
+      const jeu = doc.createElement("section");
+      jeu.className = "wm-profil-page__jeu";
+      jeu.dataset.wmMembre = String(identifiant);
+      jeu.hidden = true;
+      page.appendChild(jeu);
+    }
+    gauche.replaceWith(page);
+    return true;
   }
 
   // src/navigateur/sprites.ts
@@ -395,4 +569,5 @@
   };
   g.wmPoserLeTheme = () => poserLeTheme(document, new Preferences(new StockageLocal()));
   g.wmPoserLesAvertissements = () => poserLesAvertissements(document);
+  g.wmPoserLeProfil = () => poserLeProfil(document);
 })();
