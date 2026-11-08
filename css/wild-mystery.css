@@ -16746,6 +16746,193 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   translate: 3px -50%;
 }
 
+/* ── wm-annonce · une annonce du staff ──────────────────────────────
+
+    Demandée le 8 novembre 2026 : « une fiche simple avec un fond, bords
+    arrondis, titre, sous-titre, texte. Ce serait utilisé pour toutes
+    les annonces du staff. Avec la possibilité de rajouter une ou
+    plusieurs images. »
+
+    ── ELLE SE COLLE DANS UN MESSAGE, PAS DANS UNE PAGE ──────────────
+
+    Donc aucune de ses règles ne suppose la colonne d'une annexe : elle
+    prend la largeur qu'on lui donne, et elle se replie seule. Et elle
+    n'emporte aucun style avec elle — la feuille du dépôt est déjà
+    servie à toutes les pages du forum, c'est elle qui l'habille. Une
+    annonce collée avec son `<style>` aurait vieilli à part du reste.
+
+    ── UNE SEULE BRIQUE, QUATRE FAÇONS DE S'EN SERVIR ────────────────
+
+    Pas quatre composants : un seul, plus des morceaux qu'on ajoute ou
+    non — un bandeau en tête, une rangée d'images, un modificateur
+    `--duo` pour poser l'image à côté du texte. Quatre composants
+    auraient divergé dès la première retouche.
+
+    PAS DE FILET À GAUCHE, nulle part — 8 novembre. */
+#modernbb .wm-annonce {
+  box-sizing: border-box;
+  margin: var(--wm-espace-16, 16px) 0;
+  padding: var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  /*  `hidden` POUR QUE LE BANDEAU SUIVE L'ARRONDI. Une image collée
+      aux bords d'une carte arrondie en dépasse les quatre coins si
+      rien ne la coupe. */
+  overflow: hidden;
+}
+
+#modernbb .wm-annonce__titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-page, 25px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  LE SOUS-TITRE PORTE L'ACCENT, et il est au-DESSUS du titre dans le
+    balisage comme à l'œil : c'est lui qui dit de quoi on parle —
+    « Mise à jour », « Événement » — et le titre qui dit quoi. L'ordre
+    inverse obligerait à lire le titre deux fois. */
+#modernbb .wm-annonce__soustitre {
+  display: block;
+  margin-bottom: var(--wm-espace-6, 6px);
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  LE FILET SOUS LE TITRE EST COURT ET NE TRAVERSE PAS. Un trait d'un
+    bord à l'autre coupe la carte en deux ; celui-ci ponctue. */
+#modernbb .wm-annonce__titre::after {
+  display: block;
+  width: 44px;
+  height: 2px;
+  margin-top: var(--wm-espace-12, 12px);
+  background: var(--wm-accent-primaire, #275e7a);
+  content: "";
+}
+
+#modernbb .wm-annonce__texte {
+  margin: var(--wm-espace-16, 16px) 0 0;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: justify;
+}
+
+#modernbb .wm-annonce__texte + .wm-annonce__texte {
+  margin-top: var(--wm-espace-12, 12px);
+}
+
+/*  ── LE BANDEAU ───────────────────────────────────────────────────
+
+    Il remonte dans les marges de la carte pour toucher les bords —
+    d'où les marges négatives, qui valent exactement le rembourrage.
+    `object-fit: cover` recadre sans déformer : une annonce ne choisit
+    pas le format de l'image qu'on lui donne. */
+#modernbb .wm-annonce__bandeau {
+  display: block;
+  width: calc(100% + 2 * var(--wm-espace-24, 24px));
+  height: 180px;
+  margin: calc(-1 * var(--wm-espace-24, 24px)) calc(-1 * var(--wm-espace-24, 24px))
+    var(--wm-espace-20, 20px);
+  object-fit: cover;
+  object-position: center;
+}
+
+/*  ── UNE OU PLUSIEURS IMAGES ──────────────────────────────────────
+
+    La même rangée sert pour une image comme pour six : chacune
+    réclame 180 px et prend sa part de ce qui reste. Une seule occupe
+    toute la largeur, deux font des moitiés, trois des tiers, et au-delà
+    ça passe à la ligne. Rien à changer dans le code collé selon le
+    nombre — c'était la demande : « une ou plusieurs ». */
+#modernbb .wm-annonce__images {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-20, 20px) 0 0;
+  padding: 0;
+  gap: var(--wm-espace-10, 10px);
+  list-style: none;
+}
+
+#modernbb .wm-annonce__images img {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  flex: 1 1 180px;
+  height: 160px;
+  border-radius: var(--wm-rayon-md, 8px);
+  object-fit: cover;
+}
+
+/*  ── LE MODÈLE EN DUO ─────────────────────────────────────────────
+
+    L'image à côté du texte. Elle garde sa colonne tant qu'il y a la
+    place, puis passe au-dessus : `flex-wrap` et deux bases, pas une
+    media query — la carte ne sait pas dans quelle largeur on la colle,
+    et un message n'a pas la même colonne partout. */
+#modernbb .wm-annonce--duo .wm-annonce__corps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  /*  LE FILET DU TITRE NE DOIT PAS TOUCHER L'IMAGE. Sans cette marge,
+      les deux colonnes démarrent sous le trait de 2 px et l'image
+      vient s'y coller. */
+  margin-top: var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-20, 20px);
+}
+
+/*  UNE HAUTEUR DÉCIDÉE, et pas `auto` : laissée libre, l'image prenait
+    le rapport de la photo qu'on lui donne, et une photo large devenait
+    une bande écrasée à côté de deux paragraphes. 220 px tiennent la
+    colonne quelle que soit la source, et `cover` recadre sans
+    déformer. */
+#modernbb .wm-annonce--duo .wm-annonce__cote {
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 200px;
+  height: 220px;
+  border-radius: var(--wm-rayon-md, 8px);
+  object-fit: cover;
+}
+
+#modernbb .wm-annonce--duo .wm-annonce__mots {
+  min-width: 0;
+  flex: 2 1 280px;
+}
+
+/*  Dans le duo, le texte suit l'image sans la marge du haut : les deux
+    colonnes doivent commencer à la même ligne. */
+#modernbb .wm-annonce--duo .wm-annonce__mots > .wm-annonce__texte:first-child {
+  margin-top: 0;
+}
+
+/*  ── LA VARIANTE SOBRE ────────────────────────────────────────────
+
+    Sans fond ni filet : pour une annonce courte qu'on ne veut pas voir
+    peser dans un sujet où elle revient à chaque message. */
+#modernbb .wm-annonce--nue {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+#modernbb .wm-annonce--nue .wm-annonce__bandeau {
+  width: 100%;
+  margin-right: 0;
+  margin-left: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
 /*  ── PLUS AUCUN `@media` DANS CETTE FEUILLE, ET C'EST VOULU ────────
 
     Il y en avait cinq : les sept blocs passaient en colonne sous

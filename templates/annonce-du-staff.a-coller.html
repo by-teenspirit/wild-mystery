@@ -1,0 +1,92 @@
+<!-- ══════════════════════════════════════════════════════════════════
+     LES ANNONCES DU STAFF — cinq modèles, une seule brique
+     Demandés le 8 novembre 2026.
+
+     COMMENT S'EN SERVIR
+     Copier UN bloc (de <div class="wm-annonce"…> à </div>) dans un
+     message, en mode HTML. Remplacer le sur-titre, le titre, le texte
+     et les adresses d'image. Rien d'autre à faire : la feuille du
+     dépôt est déjà servie à toutes les pages du forum, c'est elle qui
+     habille la carte.
+
+     CE QUI SE CHANGE SANS TOUCHER AU CODE
+     · le sur-titre : « Mise à jour », « Événement », « Rappel »… ;
+     · le nombre d'images du modèle 4 : une, deux, six — la rangée
+       s'arrange seule, il suffit d'ajouter ou d'enlever des <img> ;
+     · le nombre de paragraphes : autant de <p class="wm-annonce__texte">
+       qu'on veut.
+
+     CE QU'IL NE FAUT PAS FAIRE
+     · ne pas coller de <style> avec : la carte suivrait sa propre
+       charte et vieillirait à part du forum ;
+     · ne pas écrire de couleur en dur : les deux thèmes, clair et
+       sombre, sont déjà prévus — mesurés, zéro défaut de contraste des
+       deux côtés.
+     ══════════════════════════════════════════════════════════════════ -->
+
+
+<!-- ── MODÈLE 1 · SIMPLE ─────────────────────────────────────────────
+     Un fond, des bords arrondis, un sur-titre, un titre, du texte.
+     C'est le modèle de base ; les autres ne font que lui ajouter des
+     images. -->
+
+<div class="wm-annonce">
+<h2 class="wm-annonce__titre"><span class="wm-annonce__soustitre">Mise à jour</span>Le titre de l'annonce</h2>
+<p class="wm-annonce__texte">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+<p class="wm-annonce__texte">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
+</div>
+
+
+<!-- ── MODÈLE 2 · AVEC UN BANDEAU ────────────────────────────────────
+     Une image large en tête, qui touche les bords et suit l'arrondi.
+     Elle est recadrée, pas déformée : n'importe quelle photo convient,
+     c'est son centre qui est gardé. -->
+
+<div class="wm-annonce">
+<img class="wm-annonce__bandeau" src="ADRESSE-DE-L-IMAGE.jpg" alt="">
+<h2 class="wm-annonce__titre"><span class="wm-annonce__soustitre">Événement</span>Le titre de l'annonce</h2>
+<p class="wm-annonce__texte">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+</div>
+
+
+<!-- ── MODÈLE 3 · EN DUO ─────────────────────────────────────────────
+     L'image à côté du texte. Elle garde sa colonne tant qu'il y a la
+     place, et passe au-dessus quand la fenêtre se resserre — sans
+     qu'on ait à prévoir quoi que ce soit. -->
+
+<div class="wm-annonce wm-annonce--duo">
+<h2 class="wm-annonce__titre"><span class="wm-annonce__soustitre">Le staff</span>Le titre de l'annonce</h2>
+<div class="wm-annonce__corps">
+<img class="wm-annonce__cote" src="ADRESSE-DE-L-IMAGE.jpg" alt="">
+<div class="wm-annonce__mots">
+<p class="wm-annonce__texte">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+<p class="wm-annonce__texte">Nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>
+</div>
+</div>
+</div>
+
+
+<!-- ── MODÈLE 4 · AVEC PLUSIEURS IMAGES ──────────────────────────────
+     UNE SEULE RANGÉE POUR UNE IMAGE COMME POUR SIX. Chacune réclame
+     180 px et prend sa part de ce qui reste : une seule occupe toute
+     la largeur, deux font des moitiés, trois des tiers, et au-delà ça
+     passe à la ligne. Ajouter ou enlever une <img> suffit. -->
+
+<div class="wm-annonce">
+<h2 class="wm-annonce__titre"><span class="wm-annonce__soustitre">Nouveautés</span>Le titre de l'annonce</h2>
+<p class="wm-annonce__texte">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+<div class="wm-annonce__images">
+<img src="ADRESSE-1.jpg" alt=""><img src="ADRESSE-2.jpg" alt=""><img src="ADRESSE-3.jpg" alt="">
+</div>
+</div>
+
+
+<!-- ── MODÈLE 5 · SOBRE, SANS CADRE ──────────────────────────────────
+     Le même contenu sans fond ni filet, pour une annonce courte qu'on
+     ne veut pas voir peser dans un sujet où elle revient à chaque
+     message. -->
+
+<div class="wm-annonce wm-annonce--nue">
+<h2 class="wm-annonce__titre"><span class="wm-annonce__soustitre">Rappel</span>Le titre de l'annonce</h2>
+<p class="wm-annonce__texte">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.</p>
+</div>
