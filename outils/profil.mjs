@@ -227,6 +227,40 @@ p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 //  page n'aurait pas de `pathname` et la carte sortirait sans actions.
 const RACINE = "https://mysteryinrhode.forumactif.com";
 const ADRESSES = ["/u1", "/u1groups", "/u1awards", "/u1contact", "/u1rpg"];
+//  ── CE QUE LE HARNAIS SERT À LA PLACE DE SUPABASE ─────────────────
+//
+//  La réponse de `carte_dresseur` telle que la fonction la rend : un
+//  palier, des pokédollars, des badges, et une équipe de cinq — avec
+//  une place libre et un pokémon en pension, parce que ce sont les
+//  deux cas qu'on oublie en réécrivant un rendu d'équipe.
+const CARTE = {
+  forumUserId: 1,
+  pseudo: "Arceus",
+  palier: 2,
+  pokedollars: 3240,
+  badges: [
+    { arene: "Arène Feu", obtenuLe: "2026-10-30" },
+    { arene: "Arène Eau", obtenuLe: "2026-10-30" },
+  ],
+  equipe: [
+    { especeId: 37, surnom: "Rouquine", niveau: 24, obscur: false, place: 1, enPension: false },
+    { especeId: 25, surnom: null, niveau: 18, obscur: false, place: 2, enPension: false },
+    { especeId: 133, surnom: null, niveau: 31, obscur: true, place: 3, enPension: false },
+    { especeId: 7, surnom: null, niveau: 12, obscur: false, place: 4, enPension: true },
+    { especeId: 1, surnom: null, niveau: 9, obscur: false, place: 5, enPension: false },
+  ],
+};
+const ESPECES = {
+  especes: {
+    "37": "Goupix",
+    "25": "Pikachu",
+    "133": "Évoli",
+    "7": "Carapuce",
+    "1": "Bulbizarre",
+  },
+};
+const FICHES = { fiches: { "37": { types: ["feu"] }, "25": { types: ["electrik"] } } };
+
 await p.route("**/*", (r) => {
   let chemin = "";
   try {
@@ -234,6 +268,10 @@ await p.route("**/*", (r) => {
   } catch {
     chemin = "";
   }
+  const json = (o) => r.fulfill({ contentType: "application/json", body: JSON.stringify(o) });
+  if (chemin.endsWith("/rpc/carte_dresseur")) return json(CARTE);
+  if (chemin === "/data/especes.json") return json(ESPECES);
+  if (chemin === "/data/especes-fiches.json") return json(FICHES);
   const i = ADRESSES.indexOf(chemin);
   return i === -1
     ? r.fulfill({ status: 204, body: "" })
@@ -564,6 +602,96 @@ for (const theme of ["clair", "sombre"]) {
 }
 await p.evaluate(() => document.body.classList.remove("wm-sombre"));
 
+// ── 7 bis · « SON JEU » ───────────────────────────────────────────
+//
+//  La section que `module-profil` laisse vide. Elle n'existe que si
+//  Supabase répond — et c'est le point : un joueur sans compte de jeu
+//  ne doit pas voir une section vide qui laisse croire qu'on n'a pas
+//  su lire la sienne.
+{
+  const avant = await p.evaluate(() => {
+    const s = document.querySelector(".wm-profil-page__jeu");
+    return { existe: s !== null, cachee: s?.hidden ?? null, vide: s?.children.length ?? null };
+  });
+  ok(
+    "la place de « son jeu » est posée, et cachée",
+    avant.existe && avant.cachee === true && avant.vide === 0,
+    avant,
+  );
+
+  const rempli = await p.evaluate(() =>
+    globalThis.wmPoserSonJeu("https://exemple.supabase.co", "cle-publiable")
+  );
+  ok("elle se remplit quand Supabase répond", rempli === true, rempli);
+
+  const jeu = await p.evaluate(() => {
+    const s = document.querySelector(".wm-profil-page__jeu");
+    const cases = [...s.querySelectorAll(".wm-tcard__pkmn")];
+    return {
+      cachee: s.hidden,
+      titre: s.querySelector(".wm-profil-page__titre")?.textContent.trim() ?? null,
+      chiffres: [...s.querySelectorAll(".wm-profil-page__chiffre")].map((l) => [
+        l.querySelector(".wm-profil-page__nombre").textContent.trim(),
+        l.querySelector(".wm-profil-page__mot").textContent.trim(),
+      ]),
+      //  SIX CASES TOUJOURS, cinq pokémon et une place libre : c'est
+      //  la règle de la carte dresseur, et la réutiliser telle quelle
+      //  est tout l'intérêt de ne pas avoir réécrit ce rendu.
+      cases: cases.length,
+      libres: cases.filter((c) => c.className.includes("--libre")).length,
+      obscurs: cases.filter((c) => c.className.includes("--obscur")).length,
+      sprites: s.querySelectorAll("img.wm-tcard__sprite").length,
+      noms: [...s.querySelectorAll(".wm-tcard__nom")].map((n) => n.textContent.trim()),
+    };
+  });
+  ok("elle n'est plus cachée", jeu.cachee === false, jeu.cachee);
+  ok("elle porte son titre", jeu.titre === "Son jeu", jeu.titre);
+  ok(
+    "trois chiffres : palier, pokédollars, badges",
+    jeu.chiffres.length === 3 && jeu.chiffres[0][0] === "2" &&
+      jeu.chiffres[2][0] === "2",
+    jeu.chiffres,
+  );
+  ok("six cases d'équipe", jeu.cases === 6, jeu.cases);
+  ok("dont une place libre", jeu.libres === 1, jeu.libres);
+  ok("et le pokémon obscur est marqué", jeu.obscurs === 1, jeu.obscurs);
+  ok("cinq sprites", jeu.sprites === 5, jeu.sprites);
+  //  LE SURNOM PASSE DEVANT L'ESPÈCE quand il y en a un : c'est le
+  //  rendu de la carte, et c'est bien celui-là qu'on réutilise.
+  ok(
+    "le surnom passe devant l'espèce",
+    jeu.noms[0] === "Rouquine" && jeu.noms[1] === "Pikachu",
+    jeu.noms,
+  );
+
+  for (const theme of ["clair", "sombre"]) {
+    const m = await mesurer(theme);
+    const rates = m.filter((x) => !x.ok);
+    ok(
+      `son jeu, ${theme} : ${m.length} textes mesurés, aucun défaut`,
+      rates.length === 0,
+      rates,
+    );
+  }
+  await p.evaluate(() => document.body.classList.remove("wm-sombre"));
+
+  for (const largeur of [1280, 390]) {
+    await p.setViewportSize({ width: largeur, height: 1600 });
+    const trop = await p.evaluate(
+      (l) =>
+        [...document.querySelectorAll(".wm-profil-page__jeu, .wm-profil-page__jeu *")]
+          .map((e) => ({
+            c: e.className || e.tagName,
+            d: Math.round(e.getBoundingClientRect().right - (l - 24)),
+          }))
+          .filter((x) => x.d > 1),
+      largeur,
+    );
+    ok(`son jeu, ${largeur} px : rien ne dépasse`, trop.length === 0, trop.slice(0, 3));
+  }
+  await p.setViewportSize({ width: 1280, height: 1400 });
+}
+
 // ── 8 · LES QUATRE AUTRES ONGLETS ─────────────────────────────────
 //
 //  Ils n'ont pas le même balisage que le Profil, et la feuille les
@@ -790,6 +918,14 @@ if (Deno.args.includes("--photo")) {
     await p.goto(RACINE + ADRESSES[i]);
     await p.addScriptTag({ path: R + "js/harnais-sommaire.js" });
     await p.evaluate(() => globalThis.wmPoserLeProfil());
+    //  « SON JEU » SUR LA PHOTO DU PREMIER ONGLET : il ne se remplit
+    //  qu'une fois Supabase répondu, et une image sans lui montrerait
+    //  une page qu'on ne verra jamais.
+    if (i === 0) {
+      await p.evaluate(() =>
+        globalThis.wmPoserSonJeu("https://exemple.supabase.co", "cle-publiable")
+      );
+    }
     await p.evaluate(() => document.activeElement?.blur());
     for (const theme of ["clair", "sombre"]) {
       await p.evaluate(

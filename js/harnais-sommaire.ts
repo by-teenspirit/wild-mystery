@@ -17,6 +17,7 @@ import {
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
+import { poserSonJeu } from "../src/adaptateurs/navigateur/module-profil-jeu.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
 
@@ -42,3 +43,9 @@ g.wmPoserLesAvertissements = (): number => poserLesAvertissements(document);
 //  LE PROFIL, pour `outils/profil.mjs` : même raison que les deux
 //  au-dessus — le harnais mesure le balisage du module, pas une copie.
 g.wmPoserLeProfil = (): boolean => poserLeProfil(document);
+
+//  « SON JEU », pour `outils/profil.mjs`. Le harnais sert lui-même la
+//  réponse de `carte_dresseur` et les deux fichiers de données : ce
+//  qu'on mesure est le rendu, pas le réseau.
+g.wmPoserSonJeu = (url: string, cle: string): Promise<boolean> =>
+  poserSonJeu(document, { url, clePubliable: cle }, "/data/", "/img/");

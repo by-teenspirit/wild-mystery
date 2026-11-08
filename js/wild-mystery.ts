@@ -89,6 +89,7 @@ import {
 import { poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
+import { poserSonJeu } from "../src/adaptateurs/navigateur/module-profil-jeu.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
@@ -462,6 +463,16 @@ async function avatarDe(urlDuProfil: string): Promise<string | null> {
  *  ELLE NE DEMANDE PAS LA CLÉ DU CARNET, et c'est le point : une carte
  *  est lue par les AUTRES. `carte_dresseur()` est publique et étroite
  *  (migration 0020), là où `carnet()` exige le secret du joueur. */
+async function poserLeJeuDuProfil(): Promise<void> {
+  if (RACINE === null) return;
+  //  PAS DE SECTION, PAS D'APPEL : ce module tourne sur toutes les
+  //  pages du forum, et une seule sur mille est un profil.
+  if (document.querySelector(".wm-profil-page__jeu[data-wm-membre]") === null) return;
+  const config = await configSupabase();
+  if (config === null) return;
+  await poserSonJeu(document, config, RACINE, IMAGES);
+}
+
 async function poserLaCarteDresseur(): Promise<void> {
   if (RACINE === null) return;
   if (document.querySelector("[data-wm-tcard]") === null) return;
@@ -590,6 +601,9 @@ desQueLeCorpsEstLa(() => {
   //  pas de carte — et il ne fait aucune requête : il déplace ce que
   //  Forumactif a déjà servi.
   poserLeProfil(document);
+  //  ET « SON JEU », SI LE PROFIL EN A UN. Celui-là demande à
+  //  Supabase ; il part après, et son échec ne touche pas la page.
+  poserLeJeuDuProfil().catch(() => {});
   //  L'ÉDITEUR ARRIVE APRÈS NOUS. `sceditor` est monté par le script
   //  de Forumactif, et son iframe n'existe pas encore quand on passe :
   //  on guette son arrivée au lieu de deviner un délai.

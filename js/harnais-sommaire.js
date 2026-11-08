@@ -243,14 +243,53 @@
       const lu = balise.getAttribute(nom);
       if (lu !== null && lu.trim() !== "") return lu.trim();
     }
-    return SANS_LIBELLE;
+    return null;
+  }
+  var INTERDITS = "a, button, input, select, textarea, iframe, p, div, ul, ol, table, blockquote, h1, h2, h3, h4, h5, h6";
+  function tientEnLigne(balise) {
+    return balise.querySelector(INTERDITS) === null;
+  }
+  function poserEnLigne(doc, balise) {
+    const bouton2 = doc.createElement("button");
+    bouton2.type = "button";
+    bouton2.className = "wm-tw-mot";
+    bouton2.setAttribute("aria-expanded", "false");
+    bouton2.setAttribute("aria-label", "Passage masqu\xE9, afficher");
+    const texte2 = doc.createElement("span");
+    texte2.className = "wm-tw-mot__texte";
+    texte2.setAttribute("aria-hidden", "true");
+    while (balise.firstChild !== null) texte2.appendChild(balise.firstChild);
+    bouton2.appendChild(texte2);
+    let epingle = false;
+    const montrer = (ouvert) => {
+      bouton2.classList.toggle("wm-tw-mot--ouvert", ouvert);
+      bouton2.setAttribute("aria-expanded", ouvert ? "true" : "false");
+      texte2.setAttribute("aria-hidden", ouvert ? "false" : "true");
+      if (ouvert) bouton2.removeAttribute("aria-label");
+      else bouton2.setAttribute("aria-label", "Passage masqu\xE9, afficher");
+    };
+    bouton2.addEventListener("pointerenter", () => montrer(true));
+    bouton2.addEventListener("pointerleave", () => montrer(epingle));
+    bouton2.addEventListener("focus", () => montrer(true));
+    bouton2.addEventListener("blur", () => montrer(epingle));
+    bouton2.addEventListener("click", () => {
+      epingle = !epingle;
+      montrer(true);
+    });
+    return bouton2;
   }
   function poserLesAvertissements(doc) {
     const balises = doc.querySelectorAll(".postbody .content tw, .postbody .content .wm-tw-source");
     let pose = 0;
     for (const balise of Array.from(balises)) {
       if (balise.closest(".wm-tw") !== null) continue;
-      const mot = libelleDe(balise);
+      const libelle2 = libelleDe(balise);
+      if (libelle2 === null && tientEnLigne(balise)) {
+        balise.replaceWith(poserEnLigne(doc, balise));
+        pose += 1;
+        continue;
+      }
+      const mot = libelle2 ?? SANS_LIBELLE;
       const numero = `wm-tw-${pose + 1}-${Math.random().toString(36).slice(2, 7)}`;
       const bloc = doc.createElement("div");
       bloc.className = "wm-tw";
@@ -348,7 +387,8 @@
     const titre = gauche.querySelector("#cp-main h1");
     const nom = doc.createElement("h1");
     nom.className = "wm-profil-page__nom";
-    const colore = titre?.querySelector(".usr_grp_clr") ?? droite?.querySelector(".h3 .usr_grp_clr") ?? null;
+    const source = droite?.querySelector(".h3 .usr_grp_clr") ?? titre?.querySelector(".usr_grp_clr") ?? null;
+    const colore = source === null ? null : source.cloneNode(true);
     if (colore !== null) nom.appendChild(colore);
     else nom.textContent = titre?.textContent?.trim() ?? "";
     tete.appendChild(nom);
@@ -406,6 +446,8 @@
     if (actions.children.length > 0) ident.appendChild(actions);
     carte.appendChild(ident);
     page.appendChild(carte);
+    const principal = doc.createElement("div");
+    principal.className = "wm-profil-page__principal";
     const onglets = Array.from(gauche.querySelectorAll("#tabs li"));
     if (onglets.length > 0) {
       const barre = doc.createElement("nav");
@@ -430,7 +472,7 @@
         ul.appendChild(item);
       }
       barre.appendChild(ul);
-      page.appendChild(barre);
+      principal.appendChild(barre);
     }
     const panneau = doc.createElement("section");
     panneau.className = "wm-profil-page__panneau";
@@ -443,12 +485,17 @@
     }
     const corps = gauche.querySelector("#cp-main");
     if (corps !== null) {
+      if (titre !== null) {
+        titre.classList.add("wm-profil-page__titre");
+        panneau.insertBefore(titre, panneau.firstChild);
+      }
       for (const enfant of Array.from(corps.children)) {
         if (enfant.tagName === "H1") continue;
         panneau.appendChild(enfant);
       }
     }
-    page.appendChild(panneau);
+    principal.appendChild(panneau);
+    page.appendChild(principal);
     if (identifiant !== null) {
       const jeu = doc.createElement("section");
       jeu.className = "wm-profil-page__jeu";
@@ -457,6 +504,197 @@
       page.appendChild(jeu);
     }
     gauche.replaceWith(page);
+    return true;
+  }
+
+  // src/adaptateurs/navigateur/supabase.ts
+  var RefusSupabase = class extends Error {
+    code;
+    statut;
+    constructor(code, statut) {
+      super(code), this.code = code, this.statut = statut;
+      this.name = "RefusSupabase";
+    }
+  };
+  function codeDuRefus(corps, statut) {
+    if (typeof corps === "object" && corps !== null) {
+      const m = corps.message;
+      if (typeof m === "string") {
+        const mot = m.match(/[A-Z_]{4,}/);
+        if (mot !== null) return mot[0];
+      }
+    }
+    return `HTTP_${statut}`;
+  }
+  async function appeler(acces, fonction, p) {
+    const reponse = await fetch(`${acces.url}/rest/v1/rpc/${fonction}`, {
+      method: "POST",
+      credentials: "omit",
+      headers: {
+        "apikey": acces.clePubliable,
+        "Authorization": `Bearer ${acces.clePubliable}`,
+        "Content-Type": "application/json",
+        //  La réponse est une valeur, pas une collection : sans ça
+        //  PostgREST l'enveloppe dans un tableau d'une ligne.
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        p
+      })
+    });
+    const corps = await reponse.json().catch(() => null);
+    if (!reponse.ok) throw new RefusSupabase(codeDuRefus(corps, reponse.status), reponse.status);
+    return corps;
+  }
+
+  // src/adaptateurs/navigateur/catalogue.ts
+  function especesDepuis(donnees) {
+    const vide = /* @__PURE__ */ new Map();
+    if (typeof donnees !== "object" || donnees === null) return vide;
+    const brut = donnees.especes;
+    if (typeof brut !== "object" || brut === null) return vide;
+    const index = /* @__PURE__ */ new Map();
+    for (const [cle, valeur] of Object.entries(brut)) {
+      const id = Number(cle);
+      if (!Number.isInteger(id) || id <= 0) continue;
+      if (typeof valeur !== "string" || valeur === "") continue;
+      index.set(id, valeur);
+    }
+    return index;
+  }
+
+  // src/navigateur/carnet.ts
+  function chiffre2(n) {
+    const signe = n < 0 ? "-" : "";
+    const entier = Math.abs(Math.trunc(n)).toString();
+    let sortie = "";
+    for (let i = 0; i < entier.length; i += 1) {
+      if (i > 0 && (entier.length - i) % 3 === 0) sortie += "\u202F";
+      sortie += entier[i];
+    }
+    return signe + sortie;
+  }
+
+  // src/adaptateurs/navigateur/module-tcard.ts
+  var PLACES = 6;
+  function caseDEquipe(doc, p, especes, types, racineDesImages) {
+    const li = doc.createElement("li");
+    li.className = "wm-tcard__pkmn";
+    if (p === null) {
+      li.classList.add("wm-tcard__pkmn--libre");
+      const vide = doc.createElement("span");
+      vide.className = "wm-tcard__sprite";
+      const mot = doc.createElement("p");
+      mot.className = "wm-tcard__libre";
+      mot.textContent = "Place libre";
+      li.append(vide, mot);
+      return li;
+    }
+    if (p.obscur) li.classList.add("wm-tcard__pkmn--obscur");
+    if (racineDesImages !== null) {
+      const img = doc.createElement("img");
+      img.className = "wm-tcard__sprite";
+      img.src = `${racineDesImages}pokemon/${p.especeId}.png`;
+      img.alt = "";
+      img.loading = "lazy";
+      li.append(img);
+    } else {
+      const vide = doc.createElement("span");
+      vide.className = "wm-tcard__sprite";
+      li.append(vide);
+    }
+    const nom = doc.createElement("p");
+    nom.className = "wm-tcard__nom";
+    const surnom = p.surnom?.trim() ?? "";
+    nom.textContent = surnom !== "" ? surnom : especes.get(p.especeId) ?? `N\xB0 ${p.especeId}`;
+    const niveau = doc.createElement("p");
+    niveau.className = "wm-tcard__niveau";
+    niveau.textContent = p.enPension ? `niv. ${p.niveau} \xB7 en pension` : `niv. ${p.niveau}`;
+    li.append(nom, niveau);
+    const sesTypes = types.get(p.especeId) ?? [];
+    for (const t of sesTypes.slice(0, 2)) {
+      const pastille = doc.createElement("span");
+      pastille.className = `wm-type wm-type--${t}`;
+      pastille.setAttribute("data-wm-type", t);
+      pastille.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+      li.append(pastille);
+    }
+    return li;
+  }
+  function poserLEquipe(carte, donnees, especes, types, racineDesImages) {
+    const liste = carte.querySelector("[data-wm-tcard-equipe]");
+    if (liste === null) return;
+    const doc = carte.ownerDocument;
+    const places = Array(PLACES).fill(null);
+    for (const p of donnees.equipe) {
+      const i = p.place !== null && p.place >= 1 && p.place <= PLACES ? p.place - 1 : places.indexOf(null);
+      if (i >= 0 && places[i] === null) places[i] = p;
+    }
+    liste.replaceChildren(...places.map((p) => caseDEquipe(doc, p, especes, types, racineDesImages)));
+  }
+  function typesDepuis(donnees) {
+    const index = /* @__PURE__ */ new Map();
+    if (typeof donnees !== "object" || donnees === null) return index;
+    const fiches = donnees.fiches;
+    if (typeof fiches !== "object" || fiches === null) return index;
+    for (const [cle, v] of Object.entries(fiches)) {
+      const id = Number(cle);
+      const t = v.types;
+      if (Number.isInteger(id) && Array.isArray(t)) {
+        index.set(id, t.filter((x) => typeof x === "string"));
+      }
+    }
+    return index;
+  }
+
+  // src/adaptateurs/navigateur/module-profil-jeu.ts
+  var MARQUEUR = ".wm-profil-page__jeu[data-wm-membre]";
+  async function lire(racine, nom) {
+    return await fetch(`${racine}${nom}`, {
+      credentials: "omit"
+    }).then((r) => r.ok ? r.json() : null).catch(() => null);
+  }
+  function chiffreDuJeu(doc, nombre, mot) {
+    const li = doc.createElement("li");
+    li.className = "wm-profil-page__chiffre";
+    const b = doc.createElement("b");
+    b.className = "wm-profil-page__nombre";
+    b.textContent = nombre;
+    const s = doc.createElement("span");
+    s.className = "wm-profil-page__mot";
+    s.textContent = mot;
+    li.append(b, s);
+    return li;
+  }
+  async function poserSonJeu(doc, acces, racineDesDonnees, racineDesImages) {
+    const section = doc.querySelector(MARQUEUR);
+    if (section === null) return false;
+    const forumUserId = Number(section.dataset.wmMembre);
+    if (!Number.isInteger(forumUserId) || forumUserId <= 0) return false;
+    const brut = await appeler(acces, "carte_dresseur", {
+      forumUserId
+    }).catch(() => null);
+    if (brut === null || typeof brut !== "object") return false;
+    const d = brut;
+    const [especesBrut, typesBrut] = await Promise.all([
+      lire(racineDesDonnees, "especes.json"),
+      lire(racineDesDonnees, "especes-fiches.json")
+    ]);
+    const titre = doc.createElement("h2");
+    titre.className = "wm-profil-page__titre";
+    titre.textContent = "Son jeu";
+    const chiffres = doc.createElement("ul");
+    chiffres.className = "wm-profil-page__chiffres wm-profil-page__chiffres--jeu";
+    chiffres.append(chiffreDuJeu(doc, d.palier === null ? "\u2014" : String(d.palier), "palier"), chiffreDuJeu(doc, chiffre2(d.pokedollars), "pok\xE9dollars"), chiffreDuJeu(doc, String(d.badges.length), "badges gagn\xE9s"));
+    const mot = doc.createElement("p");
+    mot.className = "wm-profil-page__surtitre";
+    mot.textContent = "Son \xE9quipe";
+    const liste = doc.createElement("ul");
+    liste.className = "wm-tcard__equipe";
+    liste.setAttribute("data-wm-tcard-equipe", "");
+    section.replaceChildren(titre, chiffres, mot, liste);
+    poserLEquipe(section, d, especesDepuis(especesBrut), typesDepuis(typesBrut), racineDesImages);
+    section.hidden = false;
     return true;
   }
 
@@ -570,4 +808,8 @@
   g.wmPoserLeTheme = () => poserLeTheme(document, new Preferences(new StockageLocal()));
   g.wmPoserLesAvertissements = () => poserLesAvertissements(document);
   g.wmPoserLeProfil = () => poserLeProfil(document);
+  g.wmPoserSonJeu = (url, cle) => poserSonJeu(document, {
+    url,
+    clePubliable: cle
+  }, "/data/", "/img/");
 })();

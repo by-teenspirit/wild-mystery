@@ -331,7 +331,17 @@
 
 #modernbb .wm-tcard__niveau {
   margin: 0;
-  color: var(--wm-texte-pale, #69564c);
+  /*  ── `texte-doux` ET PLUS `texte-pale` ─────────────────────────
+
+      4,16 en thème sombre sur `fond-surface-haute`, le fond de la
+      case : sous le seuil de 4,5 pour un texte de 11 px. Trouvé le
+      8 novembre par le harnais du profil, qui monte cette même
+      équipe — `outils/tcard.mjs` ne mesure pas le contraste, et la
+      passe du thème sombre n'avait pas regardé la carte collée.
+
+      `texte-pale` reste juste là où il est posé : sur `fond-surface`,
+      plus clair d'un cran. Ici, non. */
+  color: var(--wm-texte-doux, #6e5749);
   font-size: 11px;
   font-weight: var(--wm-graisse-gras, 700);
   line-height: 1;

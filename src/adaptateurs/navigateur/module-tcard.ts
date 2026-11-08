@@ -50,7 +50,7 @@ import { type Arene, type Badge, chiffre } from "../../navigateur/carnet.ts";
 const MARQUEUR = "[data-wm-tcard]";
 const PLACES = 6;
 
-interface PokemonDeLaCarte {
+export interface PokemonDeLaCarte {
   especeId: number;
   surnom: string | null;
   niveau: number;
@@ -59,7 +59,7 @@ interface PokemonDeLaCarte {
   enPension: boolean;
 }
 
-interface CarteDresseur {
+export interface CarteDresseur {
   forumUserId: number;
   pseudo: string;
   palier: number | null;
@@ -157,7 +157,14 @@ function caseDEquipe(
   return li;
 }
 
-function poserLEquipe(
+/** Les six cases d'une équipe, dans l'élément qui porte
+ *  `data-wm-tcard-equipe`.
+ *
+ *  EXPORTÉE DEPUIS LE 8 NOVEMBRE, pour le profil d'un membre. Les deux
+ *  écrans montrent la même équipe du même joueur, lue par le même
+ *  appel : deux rendus auraient fini par ne plus se ressembler, et
+ *  c'est toujours le second qu'on oublie de corriger. */
+export function poserLEquipe(
   carte: Element,
   donnees: CarteDresseur,
   especes: ReadonlyMap<number, string>,
@@ -255,7 +262,13 @@ export function remplirUneCarte(
   carte.setAttribute("data-wm-tcard-remplie", "");
 }
 
-function typesDepuis(donnees: unknown): ReadonlyMap<number, string[]> {
+/** Les types de chaque espèce, depuis `especes-fiches.json`.
+ *
+ *  EXPORTÉE AVEC `poserLEquipe` : les deux vont ensemble, et une
+ *  seconde lecture de ce fichier écrite à côté s'est trompée de forme
+ *  dès le premier essai — `{especes: […]}` au lieu de
+ *  `{fiches: {id: …}}`. */
+export function typesDepuis(donnees: unknown): ReadonlyMap<number, string[]> {
   const index = new Map<number, string[]>();
   if (typeof donnees !== "object" || donnees === null) return index;
   const fiches = (donnees as { fiches?: unknown }).fiches;
