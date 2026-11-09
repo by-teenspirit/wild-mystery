@@ -139,6 +139,25 @@
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: 12px;
   font-weight: var(--wm-graisse-gras, 700);
+  /*  ── L'INTERLIGNE, ET PAS LE REMPLISSAGE ────────────────────────
+
+      « Réduis le padding haut et bas des types » (9 novembre). Fait
+      le jour même, six pixels ramenés à trois dans les cadres — et
+      la pastille n'a presque pas bougé : 33 px, puis 27. Callista
+      l'a redit trois heures plus tard, et elle avait raison.
+
+      CE N'ÉTAIT PAS LE REMPLISSAGE QUI LA GONFLAIT. La pastille
+      HÉRITAIT l'interligne du corps de message, 21 px, posé pour un
+      paragraphe de 13,5 px. Sur un mot de 12 px dans une boîte, cet
+      interligne est une marge invisible : 21 + 3 + 3 = 27, et les
+      trois pixels rendus ne pouvaient donc rien rendre de plus.
+
+      Un composant ne doit pas hériter son interligne du texte
+      autour : sa hauteur devient alors celle de la page où on le
+      colle. `1` le remet sur son propre texte, et c'est le point de
+      15 px qui fixe le plancher — exactement ce qu'on veut, puisque
+      c'est lui qu'on doit voir. */
+  line-height: 1;
   white-space: nowrap;
 }
 
