@@ -261,6 +261,27 @@ const ligue = await p.evaluate(() => {
     titres: duels.map((d) =>
       d.querySelector(".wm-annonce__duel-titre")?.textContent.trim() ?? null
     ),
+    //  ── LE TYPE SE REPÈRE AVANT DE SE LIRE ──────────────────────
+    //
+    //  Le titre porte la pastille du type, pas son nom en serif. On
+    //  vérifie qu'elle est là, qu'elle annonce LE MÊME type que
+    //  l'équipe en dessous, et qu'elle n'ouvre pas la ligne du titre
+    //  — une pastille à son remplissage normal fait 27 px contre un
+    //  interligne de 17,6, et le titre se décalerait de dix pixels.
+    pastilles: duels.map((d) => {
+      const t = d.querySelector(".wm-annonce__duel-titre .wm-type");
+      if (t === null) return null;
+      return {
+        type: t.dataset.wmType ?? null,
+        mot: t.textContent.trim(),
+        hauteur: Math.round(t.getBoundingClientRect().height),
+        //  Le premier type de la première case de SON équipe.
+        premierDeLEquipe: d.querySelector(".wm-equipe__pkmn .wm-type")?.dataset.wmType ?? null,
+      };
+    }),
+    hauteurTitres: duels.map((d) =>
+      Math.round(d.querySelector(".wm-annonce__duel-titre").getBoundingClientRect().height)
+    ),
     //  Chaque adversaire garde ses deux repères : son équipe, et de
     //  quoi la combattre.
     chacunSonEquipe: duels.every((d) => d.querySelectorAll("ul.wm-equipe").length === 1),
@@ -301,6 +322,29 @@ dire(
   "et leurs titres sont tous différents : cinq personnes, pas cinq rangées",
   new Set(ligue.titres).size === 5,
   JSON.stringify(ligue.titres),
+);
+//  LES QUATRE DU CONSEIL PORTENT LEUR PASTILLE ; MICHAEL N'EN A PAS,
+//  et c'est juste : son équipe mélange six types, aucune pastille ne
+//  le résumerait.
+const quatre = ligue.pastilles.slice(0, 4);
+dire(
+  "les quatre du Conseil annoncent leur type en pastille, pas en mot",
+  quatre.every((p) => p !== null && p.type !== null && p.mot !== "") &&
+    ligue.pastilles[4] === null,
+  JSON.stringify(ligue.pastilles),
+);
+dire(
+  "et la pastille dit le MÊME type que l'équipe en dessous",
+  quatre.every((p) => p !== null && p.type === p.premierDeLEquipe),
+  JSON.stringify(quatre.map((p) => p && [p.type, p.premierDeLEquipe])),
+);
+dire(
+  "elle n'ouvre pas la ligne du titre",
+  quatre.every((p) => p !== null && p.hauteur <= 22),
+  JSON.stringify({
+    pastilles: quatre.map((p) => p?.hauteur),
+    titres: ligue.hauteurTitres,
+  }),
 );
 dire(
   "ils sont séparés d'au moins 24 px",

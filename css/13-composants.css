@@ -2239,6 +2239,26 @@
   line-height: var(--wm-interligne-titre, 1.1);
 }
 
+/*  LA PASTILLE DANS LE TITRE ──────────────────────────────────────
+
+    « Sinon on voit pas tout de suite quel type on doit combattre. »
+    Le titre finit donc sur la pastille du type plutôt que sur son nom
+    en serif noir : même couleur et même point que sur les cases
+    d'équipe en dessous, et l'œil fait le lien sans lire.
+
+    `vertical-align: middle` : la pastille est un `inline-flex`, donc
+    posée sur la ligne de base comme un mot. Sans ce calage, son point
+    de 15 px tirait tout le bloc vers le haut.
+
+    Et le remplissage réduit, comme dans les cadres de types : le
+    titre a un interligne de 1,1 — une pastille de 27 px y ouvrirait
+    la ligne de dix pixels. */
+#modernbb .wm-annonce__duel-titre .wm-type {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  vertical-align: middle;
+}
+
 #modernbb .wm-annonce__duel-niveaux {
   margin: var(--wm-espace-4, 4px) 0 0;
   color: var(--wm-texte-doux, #6e5749);

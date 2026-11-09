@@ -212,7 +212,8 @@ def equipe(w, membres, couverture, retrait="  "):
 RANGS = ("Premier", "Deuxième", "Troisième", "Quatrième", "Cinquième")
 
 
-def duel(w, rang, titre, membres, couverture, table=None, dernier=False):
+def duel(w, rang, titre, membres, couverture, table=None, dernier=False,
+         type_=None):
     """Un adversaire d'une suite de combats, dans sa propre carte.
 
     « Ça manque d'espace ici, entre les équipes. On voit pas que ce sont
@@ -239,6 +240,16 @@ def duel(w, rang, titre, membres, couverture, table=None, dernier=False):
     ne les désigne que par leur type ; leur en inventer un serait
     écrire son forum à sa place. La hiérarchie se fait donc sur ce qui
     existe : l'ordre, le type, les niveaux.
+
+    LE TYPE EST UNE PASTILLE, PAS UN MOT. « Sinon on voit pas tout de
+    suite quel type on doit combattre » (9 novembre). C'est exactement
+    ce que ce titre doit dire, et un mot en serif noir au bout d'une
+    phrase ne le dit pas — il se lit, il ne se repère pas. La pastille
+    porte la couleur du type et son point, les mêmes que sur les cases
+    d'équipe juste en dessous : l'œil fait le lien sans lire.
+
+    MICHAEL N'EN A PAS, et c'est juste : son équipe mélange six types,
+    aucune pastille ne le résumerait.
     """
     niveaux = [m["niveau"] for m in membres]
     mot = "Dernier" if dernier else RANGS[rang - 1]
@@ -248,7 +259,8 @@ def duel(w, rang, titre, membres, couverture, table=None, dernier=False):
     w(f'      <span class="wm-annonce__duel-rang" aria-hidden="true">{rang}</span>')
     w('      <div class="wm-annonce__duel-mots">')
     w(f'        <p class="wm-annonce__duel-rappel">{e(mot)} adversaire</p>')
-    w(f'        <h3 class="wm-annonce__duel-titre">{e(titre)}</h3>')
+    w(f'        <h3 class="wm-annonce__duel-titre">{e(titre)}'
+      + (" " + pastille(type_) if type_ else "") + '</h3>')
     w(f'        <p class="wm-annonce__duel-niveaux">{len(membres)} pokémon · '
       f'niveaux {min(niveaux)} à {max(niveaux)}</p>')
     w('      </div>')
@@ -400,9 +412,9 @@ def main():
         conseil4 = eq.get("conseil4", [])
         for rang, membre4 in enumerate(conseil4, start=1):
             duel(
-                w, rang,
-                f'Conseil 4 · spécialiste {en_titre(membre4["type"])}',
+                w, rang, "Conseil 4 · spécialiste",
                 membre4["membres"], couverture, table=membre4.get("table"),
+                type_=membre4["type"],
             )
         duel(
             w, len(conseil4) + 1,
