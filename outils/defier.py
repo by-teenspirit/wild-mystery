@@ -291,7 +291,7 @@ def main():
         else:
             w('     SUJET INCONNU — ajoute son adresse dans `defier` de')
             w('     data/arenes.json et relance `deno task defier`. -->')
-        w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable'
+        w('<div class="wm-annonce wm-annonce--sable'
           ' wm-annonce--sans-filet">')
         w(f'  <p class="wm-annonce__soustitre">{e(PALIERS[a["palier"]])} · '
           f'niveau {a["niveau"]}</p>')
@@ -315,7 +315,7 @@ def main():
         w('<!-- ░░░ LA LIGUE · LE CONSEIL 4 ET LE CHAMPION ░░░')
         w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
         w('     — le deuxième message, celui qui porte les équipes. -->')
-        w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable'
+        w('<div class="wm-annonce wm-annonce--sable'
           ' wm-annonce--sans-filet">')
         w(f'  <p class="wm-annonce__soustitre">{e(PALIERS[3])} · '
           f'niveau {lig["niveau"]}</p>')
@@ -356,7 +356,7 @@ def main():
     w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
     w('     — le troisième message, AU-DESSUS de sa boîte « Code: »,')
     w('     qui reste telle quelle. -->')
-    w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable'
+    w('<div class="wm-annonce wm-annonce--sable'
       ' wm-annonce--sans-filet">')
     w('  <p class="wm-annonce__soustitre">En avant pour le combat</p>')
     w('  <h2 class="wm-annonce__titre">S\'inscrire à la Ligue Finale</h2>')

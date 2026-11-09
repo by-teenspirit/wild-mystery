@@ -16989,6 +16989,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   hyphens: auto;
   font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-courant, 1.5);
+  /*  JUSTIFIÉ, ET DÉCLARÉ PLUTÔT QU'HÉRITÉ — « le petit texte de
+      présentation, tu le justify, ne le centre pas » (9 novembre).
+      Un message de forum hérite de ce que l'éditeur a laissé autour
+      de lui, et un vieux `<center>` suffit à centrer un paragraphe.
+      Déclaré, il gagne. */
   text-align: justify;
 }
 
@@ -17168,6 +17173,18 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   content: none;
 }
 
+/*  ET IL REPREND EN REMBOURRAGE CE QUE LE TRAIT OCCUPAIT — « mets du
+    padding entre le titre et le texte en dessous » (9 novembre).
+
+    EN REMBOURRAGE ET PAS EN MARGE, et c'est la seule façon qui
+    marche : le paragraphe qui suit porte déjà 16 px de marge haute,
+    et deux marges voisines FUSIONNENT — la plus grande gagne, donc
+    une marge basse de 8 n'aurait rien ajouté du tout. Un rembourrage
+    ne fusionne pas : 16 + 8 = 24. */
+#modernbb .wm-annonce--sans-filet .wm-annonce__titre {
+  padding-bottom: var(--wm-espace-8, 8px);
+}
+
 /*  ── FOND SABLE ───────────────────────────────────────────────────
 
     `fond-douce` est le sable de la charte, et il a sa valeur dans les
@@ -17177,16 +17194,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     LES BLOCS INTÉRIEURS REPASSENT EN SURFACE : sur un fond sable, un
     bloc sable ne se voit pas. C'est pour ça que les deux vont
     ensemble. */
-/*  LE TEXTE EST JUSTIFIÉ, et il est écrit ici plutôt que laissé à
-    l'héritage : « le petit texte de présentation, tu le justify, ne le
-    centre pas » (9 novembre). Un message de forum hérite de ce que
-    l'éditeur a laissé autour de lui — un vieux `<center>` suffit à
-    centrer un paragraphe — et une annonce ne doit pas dépendre de ça.
-    Déclaré, il gagne. */
-#modernbb .wm-annonce__texte {
-  text-align: justify;
-}
-
 #modernbb .wm-annonce--sable {
   background: var(--wm-fond-douce, #f3e1d2);
 }
