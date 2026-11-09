@@ -290,6 +290,29 @@ for (const theme of ["clair", "sombre"]) {
   for (const x of rates) {
     console.log(`   ${x.ratio} < ${x.seuil}  ${x.px}px  .${x.classe}  « ${x.mot} »`);
   }
+  //  ── LA TOILE SUIT LE CORPS ───────────────────────────────────────
+  //
+  //  Le fond de `html` peint ce qu'on voit SOUS la page et pendant
+  //  qu'elle se repeint. Il restait crème dans les deux themes —
+  //  ModernBB l'ecrit, et la bascule ne pose la classe que sur le
+  //  corps — ce qui faisait une image de clair avant le sombre a
+  //  chaque bascule. Les deux fonds doivent dire la meme chose.
+  const toile = await p.evaluate(() => {
+    const h = getComputedStyle(document.documentElement);
+    return { html: h.backgroundColor, scheme: h.colorScheme, body: getComputedStyle(document.body).backgroundColor };
+  });
+  //  Un `html` transparent va aussi : c'est alors le corps qui peint
+  //  la toile, et il n'y a rien a desynchroniser. Le defaut, c'est un
+  //  `html` qui porte une AUTRE couleur que le corps.
+  const nu = /rgba\(0, 0, 0, 0\)|transparent/.test(toile.html);
+  const accorde = nu || toile.html === toile.body;
+  const schemaBon = toile.scheme === (theme === "sombre" ? "dark" : "light");
+  console.log(
+    `${theme} : toile ${accorde ? "accordee" : "DESACCORDEE"} (html ${toile.html}, body ${toile.body})` +
+      `, color-scheme ${toile.scheme}${schemaBon ? "" : " — defaut"}`,
+  );
+  if (!accorde) fautes++;
+  if (!schemaBon) fautes++;
 }
 console.log(
   "entrees de sommaire posees :",

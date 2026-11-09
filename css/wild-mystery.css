@@ -1128,6 +1128,40 @@ html#min-width {
   height: auto;
 }
 
+/*  ── LA TOILE SUIT LE THÈME ───────────────────────────────────────
+
+    « Quand on passe en dark mode, y'a un glitch, comme si on
+    repassait au light mode et on remettait le dark mode. »
+
+    MESURÉ SUR LE FORUM, le 9 novembre : après la bascule, le fond
+    calculé de `body` passait bien à `#1a1210` en une image, mais
+    celui de `html` restait à `#eecfb5` dans les DEUX thèmes. Il
+    vient de ModernBB — `html, body { background-color: … }` dans
+    `16-ltr.css`, la couleur réglée au panneau d'administration — et
+    notre bascule ne posait la classe que sur le corps.
+
+    Le fond de `html` peint la TOILE : ce qu'on voit sous la page,
+    au-delà d'elle, et pendant qu'elle se repeint. Sur un sujet de
+    sept mille pixels, la toile se repeint avant le corps, et ça fait
+    une image de crème avant le sombre.
+
+    `color-scheme` VA AVEC. Sans lui, la barre de défilement et les
+    champs du navigateur restent clairs à côté d'une page sombre —
+    l'autre moitié de « comme si on repassait au light mode ».
+
+    Les jetons sont lisibles ici parce que `jetons.css` les déclare
+    aussi sur `html:has(body.wm-sombre)` ; sans ça, `var()` lu sur
+    `html` rendrait la valeur CLAIRE et on aurait peint le crème en
+    croyant peindre le sombre. */
+html {
+  color-scheme: light;
+}
+
+html:has(body.wm-sombre) {
+  background-color: var(--wm-fond-page, #1a1210);
+  color-scheme: dark;
+}
+
 #modernbb {
   min-height: 100vh;
 }
@@ -11278,13 +11312,24 @@ body:has(#modernbb .wm-carnet) {
 /*  L'ÉCART ENTRE LES BOUTONS SUIT CELUI DE LEUR REMBOURRAGE. Huit
     pixels entre deux onglets déjà larges faisaient une barre plus
     aérée que le contenu qu'elle ouvre — « trop d'écart sur les
-    onglets partout », 8 novembre. */
+    onglets partout », 8 novembre.
+
+    SOUS LA BARRE, C'EST L'INVERSE. « Dans les arènes, les onglets
+    sont collés au texte » (9 novembre) : il y avait dix pixels
+    entre la rangée de boutons et le premier mot du panneau, soit
+    moins que l'écart entre deux paragraphes. On ne voyait plus où
+    finissait la commande et où commençait ce qu'elle ouvre. Vingt-
+    quatre, comme partout ailleurs dans la page.
+
+    LES DEUX CHIFFRES NE SE CONTREDISENT PAS : le 8 novembre, c'est
+    le `gap` ENTRE LES BOUTONS qui était trop large, et il n'a pas
+    bougé. */
 #modernbb .wm-sous-onglets__barre {
   display: flex;
   overflow-x: auto;
   flex-wrap: wrap;
   gap: var(--wm-espace-6, 6px);
-  margin-bottom: var(--wm-espace-10, 10px);
+  margin-bottom: var(--wm-espace-24, 24px);
 }
 
 /*  LES SECTIONS GARDENT LEUR TITRE SANS LE SCRIPT, et le perdent avec :
@@ -26682,8 +26727,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
    d'affilée en paragraphes se lisent comme un seul : on ne retrouve
    plus où commence le Festival du Soleil. Chaque évènement a son
    cartouche, et son nom se voit. */
+/*  MÊME CORRECTION QUE `wm-perso__section`, 9 novembre : quatre
+    pixels sous un titre, c'est moins que l'écart entre deux
+    paragraphes, et le titre tombait sur son texte. */
 #modernbb .wm-region__section {
-  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-12, 12px);
   color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
@@ -27349,8 +27397,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     noir sur brun, illisible, et invisible en clair où tout allait
     bien. Un titre sans couleur déclarée n'est pas « neutre » : il est
     à la merci de la première règle qui passe. */
+/*  QUATRE PIXELS SOUS UN TITRE, C'ÉTAIT MOINS QUE L'ÉCART ENTRE DEUX
+    PARAGRAPHES (12). Le titre tombait sur son texte. Douze : il
+    reste bien plus près de ce qu'il annonce (12) que de ce qui le
+    précède (32), ce qui est tout ce qu'un titre doit dire. */
 #modernbb .wm-perso__section {
-  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-12, 12px);
   color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
@@ -27587,11 +27639,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   vertical-align: 0.08em;
 }
 
+/*  La ligne de compte vit sous les filtres et leur appartient, mais
+    dix pixels la collaient au dernier bouton. Seize : elle suit la
+    rangée sans la toucher. */
 #modernbb .wm-filtres {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-8, 8px);
-  margin: var(--wm-espace-24, 24px) 0 0;
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-16, 16px);
 }
 
 #modernbb .wm-filtre {

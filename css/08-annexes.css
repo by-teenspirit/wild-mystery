@@ -1168,13 +1168,24 @@ body:has(#modernbb .wm-carnet) {
 /*  L'ÉCART ENTRE LES BOUTONS SUIT CELUI DE LEUR REMBOURRAGE. Huit
     pixels entre deux onglets déjà larges faisaient une barre plus
     aérée que le contenu qu'elle ouvre — « trop d'écart sur les
-    onglets partout », 8 novembre. */
+    onglets partout », 8 novembre.
+
+    SOUS LA BARRE, C'EST L'INVERSE. « Dans les arènes, les onglets
+    sont collés au texte » (9 novembre) : il y avait dix pixels
+    entre la rangée de boutons et le premier mot du panneau, soit
+    moins que l'écart entre deux paragraphes. On ne voyait plus où
+    finissait la commande et où commençait ce qu'elle ouvre. Vingt-
+    quatre, comme partout ailleurs dans la page.
+
+    LES DEUX CHIFFRES NE SE CONTREDISENT PAS : le 8 novembre, c'est
+    le `gap` ENTRE LES BOUTONS qui était trop large, et il n'a pas
+    bougé. */
 #modernbb .wm-sous-onglets__barre {
   display: flex;
   overflow-x: auto;
   flex-wrap: wrap;
   gap: var(--wm-espace-6, 6px);
-  margin-bottom: var(--wm-espace-10, 10px);
+  margin-bottom: var(--wm-espace-24, 24px);
 }
 
 /*  LES SECTIONS GARDENT LEUR TITRE SANS LE SCRIPT, et le perdent avec :

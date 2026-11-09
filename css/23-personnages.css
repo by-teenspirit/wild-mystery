@@ -230,8 +230,12 @@
     noir sur brun, illisible, et invisible en clair où tout allait
     bien. Un titre sans couleur déclarée n'est pas « neutre » : il est
     à la merci de la première règle qui passe. */
+/*  QUATRE PIXELS SOUS UN TITRE, C'ÉTAIT MOINS QUE L'ÉCART ENTRE DEUX
+    PARAGRAPHES (12). Le titre tombait sur son texte. Douze : il
+    reste bien plus près de ce qu'il annonce (12) que de ce qui le
+    précède (32), ce qui est tout ce qu'un titre doit dire. */
 #modernbb .wm-perso__section {
-  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-12, 12px);
   color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
@@ -468,11 +472,14 @@
   vertical-align: 0.08em;
 }
 
+/*  La ligne de compte vit sous les filtres et leur appartient, mais
+    dix pixels la collaient au dernier bouton. Seize : elle suit la
+    rangée sans la toucher. */
 #modernbb .wm-filtres {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-8, 8px);
-  margin: var(--wm-espace-24, 24px) 0 0;
+  margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-16, 16px);
 }
 
 #modernbb .wm-filtre {

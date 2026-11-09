@@ -951,8 +951,11 @@
    d'affilée en paragraphes se lisent comme un seul : on ne retrouve
    plus où commence le Festival du Soleil. Chaque évènement a son
    cartouche, et son nom se voit. */
+/*  MÊME CORRECTION QUE `wm-perso__section`, 9 novembre : quatre
+    pixels sous un titre, c'est moins que l'écart entre deux
+    paragraphes, et le titre tombait sur son texte. */
 #modernbb .wm-region__section {
-  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-12, 12px);
   color: var(--wm-accent-fort, #1f5470);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);

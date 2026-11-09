@@ -1748,17 +1748,25 @@ console.log("\n── la région de Rhode est présentée, et sans JavaScript �
       vu.ordre.join("|") === gp.ordre.join("|"),
       vu.ordre,
     );
+    //  LES ÉQUIPES SONT SOUS LEUR DISCIPLINE DEPUIS QUE LE GPR1 EN A
+    //  DEUX — monoplace et moto. Le harnais lisait encore
+    //  `gp.ecuries`, une clé que le fichier n'a plus : il tombait
+    //  sur `undefined.map` et TOUT CE QUI SUIT N'ÉTAIT PLUS MESURÉ.
+    //  Un harnais qui s'arrête au milieu est pire qu'un harnais
+    //  absent : il affiche « TOUT PASSE » jusqu'à la ligne où il
+    //  meurt. Trouvé le 9 novembre, en passant.
+    const equipes = gp.disciplines.flatMap((d) => d.equipes);
     ok(
-      "les trois écuries sont là",
-      vu.ecuries.join("|") === gp.ecuries.map((e) => e.nom).join("|"),
-      vu.ecuries,
+      `les ${equipes.length} équipes sont là, dans l'ordre du fichier`,
+      vu.ecuries.join("|") === equipes.map((e) => e.nom).join("|"),
+      { lu: vu.ecuries, attendu: equipes.map((e) => e.nom) },
     );
     //  LE COMPTE DES PLACES LIBRES EST CELUI DU FICHIER. Cinq
     //  aujourd'hui, quatre le jour où quelqu'un prend un baudrier :
     //  une constante écrite ici mentirait dès ce jour-là.
-    const libres = gp.ecuries.flatMap((e) => e.pilotes).filter((x) => x.libre).length;
+    const libres = equipes.flatMap((e) => e.pilotes).filter((x) => x.libre).length;
     ok(`${libres} places libres, comme le fichier`, vu.libres === libres, vu.libres);
-    const pris = gp.ecuries.flatMap((e) => e.pilotes).filter((x) => x.lien);
+    const pris = equipes.flatMap((e) => e.pilotes).filter((x) => x.lien);
     ok(
       "le pilote en place mène à son profil",
       vu.pilotes.length === pris.length &&

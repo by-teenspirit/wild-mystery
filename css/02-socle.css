@@ -862,6 +862,40 @@ html#min-width {
   height: auto;
 }
 
+/*  ── LA TOILE SUIT LE THÈME ───────────────────────────────────────
+
+    « Quand on passe en dark mode, y'a un glitch, comme si on
+    repassait au light mode et on remettait le dark mode. »
+
+    MESURÉ SUR LE FORUM, le 9 novembre : après la bascule, le fond
+    calculé de `body` passait bien à `#1a1210` en une image, mais
+    celui de `html` restait à `#eecfb5` dans les DEUX thèmes. Il
+    vient de ModernBB — `html, body { background-color: … }` dans
+    `16-ltr.css`, la couleur réglée au panneau d'administration — et
+    notre bascule ne posait la classe que sur le corps.
+
+    Le fond de `html` peint la TOILE : ce qu'on voit sous la page,
+    au-delà d'elle, et pendant qu'elle se repeint. Sur un sujet de
+    sept mille pixels, la toile se repeint avant le corps, et ça fait
+    une image de crème avant le sombre.
+
+    `color-scheme` VA AVEC. Sans lui, la barre de défilement et les
+    champs du navigateur restent clairs à côté d'une page sombre —
+    l'autre moitié de « comme si on repassait au light mode ».
+
+    Les jetons sont lisibles ici parce que `jetons.css` les déclare
+    aussi sur `html:has(body.wm-sombre)` ; sans ça, `var()` lu sur
+    `html` rendrait la valeur CLAIRE et on aurait peint le crème en
+    croyant peindre le sombre. */
+html {
+  color-scheme: light;
+}
+
+html:has(body.wm-sombre) {
+  background-color: var(--wm-fond-page, #1a1210);
+  color-scheme: dark;
+}
+
 #modernbb {
   min-height: 100vh;
 }

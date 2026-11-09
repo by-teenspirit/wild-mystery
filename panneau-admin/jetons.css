@@ -240,6 +240,28 @@
   --wm-cible-tactile:          44px;
 }
 
+/*  ── LE THÈME SOMBRE EST AUSSI DÉCLARÉ SUR `html` ─────────────────
+
+    « Quand on passe en dark mode, y'a un glitch, comme si on
+    repassait au light mode et on remettait le dark mode »
+    (9 novembre). Ce n'était pas une impression.
+
+    ModernBB écrit `html, body { background-color: … }` avec la
+    couleur de fond réglée au panneau d'administration. Notre bascule
+    ne posait `wm-sombre` que sur le CORPS : `html` gardait donc le
+    crème dans les deux thèmes. Or c'est le fond de `html` qui peint
+    la TOILE — ce qu'on voit sous la page, au-delà d'elle, et pendant
+    qu'elle se repeint. Sur un sujet de sept mille pixels de haut, la
+    toile est repeinte avant le corps : une image de crème, puis le
+    sombre. D'où l'éclair.
+
+    On déclare donc le même jeu de jetons sur `html` quand le corps
+    porte la classe. Les deux blocs sont identiques, et `:has` sert à
+    lire sur le parent une classe posée sur l'enfant — il n'y a pas
+    d'autre moyen tant que la bascule écrit sur le corps, et elle doit
+    y écrire : toutes nos règles passent par `body`.
+    ════════════════════════════════════════════════════════════════ */
+html:has(body.wm-sombre),
 body.wm-sombre {
 
   --wm-fond-page:             #1a1210;
