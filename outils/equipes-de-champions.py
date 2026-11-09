@@ -332,6 +332,12 @@ def deriver(dossier: pathlib.Path) -> dict[str, object]:
                 )
             conseil4.append({
                 "type": membre4["type"],
+                #  CHAQUE MEMBRE A SA TABLE : il a son type à lui, et
+                #  c'est la seule chose qu'un challenger doit savoir
+                #  avant de l'affronter. Sans elle, les quatre équipes
+                #  de la Ligue seraient les seules du forum à ne pas
+                #  dire contre quoi on les bat.
+                "table": table_des_types(membre4["type"]),
                 "membres": [
                     monter(nom, niveau, f"conseil4 {membre4['type']}")
                     for nom, niveau in zip(membre4["especes"], membre4["niveaux"])
@@ -353,14 +359,20 @@ def deriver(dossier: pathlib.Path) -> dict[str, object]:
         #  table produit en simple type, avec 1 et 0. Les immunités
         #  tombent donc dans « peu efficaces », ce qui est vrai et plus
         #  court à dire que « inefficaces ou immunisés ».
-        contre = defi.get("type")
-        table = {}
-        if contre is not None:
-            fort = sorted(a for a in {x for x, _ in efficacite}
-                          if efficacite.get((a, contre), 1.0) >= 2)
-            faible = sorted(a for a in {x for x, _ in efficacite}
-                            if efficacite.get((a, contre), 1.0) <= 0.5)
-            table = {"superEfficaces": fort, "peuEfficaces": faible}
+        def table_des_types(contre: str | None) -> dict[str, list[str]]:
+            if contre is None:
+                return {}
+            attaques = {x for x, _ in efficacite}
+            return {
+                "superEfficaces": sorted(
+                    a for a in attaques if efficacite.get((a, contre), 1.0) >= 2
+                ),
+                "peuEfficaces": sorted(
+                    a for a in attaques if efficacite.get((a, contre), 1.0) <= 0.5
+                ),
+            }
+
+        table = table_des_types(defi.get("type"))
 
         equipes[slug] = {
             "message": bloc["message"],

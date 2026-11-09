@@ -122,6 +122,44 @@ def e(t):
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
+def cadres_de_types(w, table):
+    """Les deux petits cadres, en face à face.
+
+    « Un petit cadre pour afficher le type super efficace contre le
+    feu, et un autre petit cadre en face pour les types qui ne sont
+    pas efficaces » (9 novembre).
+
+    ILS PORTENT SUR UN TYPE, pas sur une équipe — c'est la table des
+    types, nue, telle qu'un joueur la connaît. Le « type conseillé »
+    d'un défi, lui, est une moyenne sur six membres qui peuvent être
+    doubles : les deux ne disent pas la même chose, et les confondre
+    donnerait un conseil faux.
+
+    LES TYPES SONT DES PASTILLES, donc écrits en toutes lettres :
+    dix-huit teintes dont plusieurs se ressemblent, et qui ne
+    distingue pas le violet du psy de celui du poison doit pouvoir
+    lire la réponse.
+    """
+    if not table:
+        return
+    w('  <div class="wm-annonce__blocs">')
+    for titre, cle in (
+        ("Super efficace contre lui", "superEfficaces"),
+        ("Peu efficace contre lui", "peuEfficaces"),
+    ):
+        w('    <div class="wm-annonce__bloc">')
+        w(f'      <p class="wm-annonce__bloc-titre">{e(titre)}</p>')
+        #  LES PASTILLES SONT DANS UN RANG, et pas posées à la suite :
+        #  collées les unes aux autres, elles formaient une barre de
+        #  couleurs où l'on ne voyait plus où finissait un type. Le
+        #  rang leur donne leur écart, et c'est lui qui les replie
+        #  quand il y en a six.
+        w('      <p class="wm-annonce__types">'
+          + "".join(pastille(ty) for ty in table[cle]) + '</p>')
+        w('    </div>')
+    w('  </div>')
+
+
 def pastille(cle):
     """Une pastille de type, nom écrit — la même que sur une case."""
     return (f'<span class="wm-type wm-type--{e(cle)}" data-wm-type="{e(cle)}">'
@@ -264,28 +302,7 @@ def main():
             type=en_titre(a["type"]),
             conseil=" ou ".join(en_titre(t) for t in eq["conseil"]["types"]),
         )) + "</p>")
-        #  ── LES DEUX CADRES, EN FACE À FACE ──────────────────────
-        #
-        #  « Un petit cadre pour afficher le type super efficace contre
-        #  le feu, et un autre petit cadre en face pour les types qui
-        #  ne sont pas efficaces » (9 novembre).
-        #
-        #  LES TYPES SONT DES PASTILLES, donc écrits en toutes lettres :
-        #  dix-huit teintes dont plusieurs se ressemblent, et un joueur
-        #  qui ne distingue pas le violet du psy de celui du poison doit
-        #  pouvoir lire la réponse.
-        table = eq.get("table")
-        if table:
-            w('  <div class="wm-annonce__blocs">')
-            for titre, cle in (
-                ("Super efficace contre lui", "superEfficaces"),
-                ("Peu efficace contre lui", "peuEfficaces"),
-            ):
-                w('    <div class="wm-annonce__bloc">')
-                w(f'      <p class="wm-annonce__bloc-titre">{e(titre)}</p>')
-                w("      " + "".join(pastille(ty) for ty in table[cle]))
-                w('    </div>')
-            w('  </div>')
+        cadres_de_types(w, eq.get("table"))
         w('  <p class="wm-annonce__soustitre">L\'équipe du champion</p>')
         equipe(w, eq["membres"], couverture)
         w("</div>")
@@ -315,6 +332,7 @@ def main():
             w('  <p class="wm-annonce__soustitre">Conseil 4 · '
               f'{e(en_titre(membre4["type"]))} — niveaux '
               f'{min(niveaux)} à {max(niveaux)}</p>')
+            cadres_de_types(w, membre4.get("table"))
             equipe(w, membre4["membres"], couverture)
         niveaux = [m["niveau"] for m in eq["membres"]]
         w(f'  <p class="wm-annonce__soustitre">{e(lig["tenuePar"])}, champion de '

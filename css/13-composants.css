@@ -1947,6 +1947,35 @@
   margin-inline: auto;
 }
 
+/*  ── UN RANG DE PASTILLES DE TYPE DANS UN BLOC ────────────────────
+
+    « Mets davantage d'espace entre les types […] et réduit le padding
+    haut et bas pour le padding des types » (9 novembre).
+
+    L'ÉCART VIENT DU RANG, PAS DES PASTILLES. Posées à la suite dans
+    du HTML dégraissé, elles se touchent : il n'y a plus d'espace
+    entre deux balises, donc plus rien entre deux couleurs. Un `gap`
+    sur le conteneur le donne, et il les replie toutes seules quand il
+    y en a six — ce qui arrive dès qu'on liste ce qui résiste au Feu.
+
+    LE REMBOURRAGE VERTICAL EST RÉDUIT ICI SEULEMENT. `.wm-type` sert
+    partout — les cases d'équipe, les fiches de zone, le pokédex — et
+    l'amincir pour tout le monde changerait des pages qui vont bien.
+    Dans un cadre, les pastilles sont le contenu entier : elles n'ont
+    pas besoin de la même hauteur que lorsqu'elles accompagnent un
+    nom. */
+#modernbb .wm-annonce__types {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-annonce__types .wm-type {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
 /*  ── SANS LE FILET SOUS LE TITRE ──────────────────────────────────
 
     « Enlève le trait bleu que tu as rajouté » (9 novembre). Il n'a pas

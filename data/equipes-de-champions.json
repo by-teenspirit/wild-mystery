@@ -1660,6 +1660,17 @@
       "conseil4": [
         {
           "type": "psy",
+          "table": {
+            "superEfficaces": [
+              "insecte",
+              "spectre",
+              "tenebres"
+            ],
+            "peuEfficaces": [
+              "combat",
+              "psy"
+            ]
+          },
           "membres": [
             {
               "id": 579,
@@ -1765,6 +1776,18 @@
         },
         {
           "type": "combat",
+          "table": {
+            "superEfficaces": [
+              "fee",
+              "psy",
+              "vol"
+            ],
+            "peuEfficaces": [
+              "insecte",
+              "roche",
+              "tenebres"
+            ]
+          },
           "membres": [
             {
               "id": 297,
@@ -1868,6 +1891,19 @@
         },
         {
           "type": "poison",
+          "table": {
+            "superEfficaces": [
+              "psy",
+              "sol"
+            ],
+            "peuEfficaces": [
+              "combat",
+              "fee",
+              "insecte",
+              "plante",
+              "poison"
+            ]
+          },
           "membres": [
             {
               "id": 24,
@@ -1973,6 +2009,17 @@
         },
         {
           "type": "glace",
+          "table": {
+            "superEfficaces": [
+              "acier",
+              "combat",
+              "feu",
+              "roche"
+            ],
+            "peuEfficaces": [
+              "glace"
+            ]
+          },
           "membres": [
             {
               "id": 471,
