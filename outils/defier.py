@@ -68,9 +68,47 @@ from annexes import (  # noqa: E402
 
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SORTIE = os.path.join(RACINE, "templates", "defier-le-champion.a-coller.html")
+#  ── UN FICHIER DÉGRAISSÉ PAR SUJET ──────────────────────────────────
+#
+#  « Je veux bien le code en min de chaque sujet » (9 novembre). Le
+#  fichier d'ensemble sert à relire ; celui-ci sert à coller — un
+#  fichier par sujet, nommé par son adresse, sans un commentaire ni une
+#  indentation à décoller du presse-papier.
+DOSSIER = os.path.join(RACINE, "templates", "defier")
 
 PALIERS = {1: "Palier 1", 2: "Palier 2", 3: "Palier 3"}
 FORUM = "https://mysteryinrhode.forumactif.com"
+
+
+def degraisser(lignes):
+    """Les lignes d'un bloc, sans commentaire ni indentation.
+
+    ON NE TOUCHE PAS AU TEXTE. Les retours à la ligne sautent entre les
+    BALISES, jamais à l'intérieur d'un paragraphe : un `join` nu
+    recollerait « type Eau,et que si » faute de l'espace que portait le
+    saut de ligne. Chaque ligne du générateur est déjà un élément
+    complet, donc il suffit de retirer son indentation.
+    """
+    out = []
+    dedans = False
+    for l in lignes:
+        nu = l.strip()
+        if dedans:
+            if "-->" in nu:
+                dedans = False
+            continue
+        if nu.startswith("<!--"):
+            #  UN COMMENTAIRE PEUT TENIR SUR PLUSIEURS LIGNES — celui
+            #  qui dit où va le bloc en fait trois. Ne regarder que la
+            #  première laissait « À COLLER DANS … --> » dans le code
+            #  collé.
+            if "-->" not in nu:
+                dedans = True
+            continue
+        if nu == "":
+            continue
+        out.append(nu)
+    return "".join(out) + "\n"
 
 
 def lire(chemin):
@@ -154,6 +192,9 @@ def main():
 
     out = []
     w = out.append
+    #  (nom du fichier, première ligne du bloc) — le bloc va jusqu'au
+    #  début du suivant, ou jusqu'à la fin.
+    blocs = []
     w("<!-- ══════════════════════════════════════════════════════════")
     w("     DÉFIER LE CHAMPION — les douze messages, prêts à coller.")
     w("")
@@ -198,6 +239,8 @@ def main():
         #  adresses connues viennent de `data/arenes.json` ; les sept
         #  autres sont dans les archives du staff, qu'un visiteur ne
         #  voit pas. Le bloc le dit plutôt que de faire comme si.
+        numero = a["defier"].lstrip("/").split("-")[0] if a.get("defier") else "sans-sujet"
+        blocs.append((f'{numero}-{a["slug"]}', len(out)))
         w(f'<!-- ░░░ {a["nom"].upper()} · {a["ville"].upper()} ░░░')
         if a.get("defier"):
             w(f'     À COLLER DANS {FORUM}{a["defier"]} -->')
@@ -223,6 +266,7 @@ def main():
     #  ── LA LIGUE : CINQ ÉQUIPES ────────────────────────────────────
     lig, eq = arenes["ligue"], equipes.get("ligue")
     if eq is not None:
+        blocs.append(("t100-ligue-les-equipes", len(out)))
         w('<!-- ░░░ LA LIGUE · LE CONSEIL 4 ET LE CHAMPION ░░░')
         w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
         w('     — le deuxième message, celui qui porte les équipes. -->')
@@ -262,6 +306,7 @@ def main():
     #  charte ; le refaire ici demanderait une classe de plus, et
     #  celle de Forumactif fait déjà le travail. La carte se colle
     #  AU-DESSUS de la boîte existante, qui ne bouge pas.
+    blocs.append(("t100-ligue-inscription", len(out)))
     w('<!-- ░░░ S\'INSCRIRE À LA LIGUE FINALE ░░░')
     w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
     w('     — le troisième message, AU-DESSUS de sa boîte « Code: »,')
@@ -296,7 +341,23 @@ def main():
     with open(SORTIE, "w", encoding="utf-8") as f:
         f.write(texte)
     print(f"   {os.path.relpath(SORTIE, RACINE)} : {len(texte)} caractères, "
-          f"{len(ordre) + (1 if eq is not None else 0)} blocs")
+          f"{len(blocs)} blocs")
+
+    #  UN FICHIER PAR SUJET, DÉGRAISSÉ. Le dossier est refait à chaque
+    #  passage : un sujet retiré de `arenes.json` ne doit pas laisser
+    #  son fichier derrière lui, que quelqu'un collerait des mois plus
+    #  tard sans savoir qu'il ne correspond plus à rien.
+    os.makedirs(DOSSIER, exist_ok=True)
+    for vieux in os.listdir(DOSSIER):
+        if vieux.endswith(".min.html"):
+            os.remove(os.path.join(DOSSIER, vieux))
+    bornes = [i for _, i in blocs] + [len(out)]
+    for (nom, _), debut, fin in zip(blocs, bornes, bornes[1:]):
+        contenu = degraisser(out[debut:fin])
+        chemin = os.path.join(DOSSIER, f"{nom}.min.html")
+        with open(chemin, "w", encoding="utf-8") as f:
+            f.write(contenu)
+        print(f"   {os.path.relpath(chemin, RACINE)} : {len(contenu)} caractères")
 
 
 if __name__ == "__main__":

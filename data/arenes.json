@@ -124,7 +124,8 @@
    "genre": "arene",
    "niveau": 15,
    "palier": 1,
-   "forum": "/f19-arene-feu"
+   "forum": "/f19-arene-feu",
+   "defier": "/t60-defier-le-champion-de-l-arene-de-la-station-service"
   },
   {
    "nom": "Arène Plante",
@@ -134,7 +135,8 @@
    "genre": "arene",
    "niveau": 20,
    "palier": 1,
-   "forum": "/f26-arene-plante"
+   "forum": "/f26-arene-plante",
+   "defier": "/t62-defier-le-champion-de-l-arene-de-samaragd"
   },
   {
    "nom": "Arène Eau",
@@ -144,7 +146,8 @@
    "genre": "arene",
    "niveau": 10,
    "palier": 1,
-   "forum": "/f23-arene-eau"
+   "forum": "/f23-arene-eau",
+   "defier": "/t63-defier-le-champion-de-port-amaree"
   },
   {
    "nom": "Arène Acier",
@@ -165,7 +168,8 @@
    "genre": "arene",
    "niveau": 25,
    "palier": 2,
-   "forum": "/f29-arene-roche"
+   "forum": "/f29-arene-roche",
+   "defier": "/t67-defier-le-champion-de-pyrite"
   },
   {
    "nom": "Arène Vol",
@@ -175,7 +179,8 @@
    "genre": "arene",
    "niveau": 50,
    "palier": 3,
-   "forum": "/f21-arene-vol"
+   "forum": "/f21-arene-vol",
+   "defier": "/t66-defier-le-champion-de-la-tour-titanite"
   },
   {
    "nom": "Arène Ténèbres",
@@ -207,7 +212,8 @@
    "genre": "colosseum",
    "niveau": 35,
    "palier": 2,
-   "forum": "/f30-colosseum-de-phenacit"
+   "forum": "/f30-colosseum-de-phenacit",
+   "defier": "/t64-defier-le-champion-du-colosseum-de-phenacit"
   },
   {
    "nom": "Colosseum de Targare",
@@ -228,7 +234,8 @@
    "genre": "colosseum",
    "niveau": 70,
    "palier": 3,
-   "forum": "/f22-colosseum-de-titanite"
+   "forum": "/f22-colosseum-de-titanite",
+   "defier": "/t65-defier-le-champion-du-colosseum-de-titanite"
   }
  ],
  "ligue": {
@@ -238,5 +245,5 @@
   "tenuePar": "Michael",
   "_": "Le douzième défi, et le dernier. Il n'est PAS dans `arenes` : il n'a ni badge, ni type, ni case dans la grille de la carte dresseur, et le compteur de la Ligue compte les arènes — il ne se compterait pas lui-même. Michael le tient : c'est la fiche `Michael` de data/personnages.json, aujourd'hui président de la région."
  },
- "_defier": "`defier` EST L'ADRESSE DU SUJET « Défier le champion » DU DÉFI, et c'est là qu'on colle le bloc que `outils/defier.py` écrit pour lui. Les quatre qui y sont ont été relevées le 9 novembre 2026, par la recherche du forum ; les sept autres sont dans les archives du staff, invisibles à un visiteur. Les ajouter ici suffit à ce que le générateur les nomme."
+ "_defier": "`defier` EST L'ADRESSE DU SUJET « Défier le champion » DU DÉFI, et c'est là qu'on colle le bloc que `outils/defier.py` écrit pour lui. Les onze ont été relevées le 9 novembre 2026 : quatre par la recherche du forum, les sept autres données par Callista — elles sont dans les archives du staff, qu'un visiteur ne voit pas. ATTENTION AUX DEUX VILLES PARTAGÉES : Port-Amarée porte l'Arène Eau (t63) ET le Colosseum de Rhode (t91), Suerebe porte l'Arène Acier (t68) ET le Colosseum de Targare (t69). C'est le NOM du défi qui lève l'ambiguïté, pas sa ville."
 }
