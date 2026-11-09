@@ -97,6 +97,18 @@ ENCRE = "#2e2018"  # les titres
 CORPS = "#4e3b30"  # le texte
 DOUX = "#6e5749"  # les mentions
 ACCENT = "#8b4725"  # le sur-titre, les dates, le dernier point
+#  ── DEUX ACCENTS DE PLUS, PARCE QUE « ÇA MANQUE UN PEU DE COULEURS »
+#
+#  Ce sont ceux de la charte, et ceux que l'annexe emploie déjà : le
+#  bleu fort titre les sections, le bleu primaire marque les repères.
+#  MESURÉS SUR LES TROIS FONDS DE LA FICHE — 7,97 sur la surface, 6,97
+#  sur le terre, 6,55 sur le paisible pour le bleu fort.
+#
+#  LE VERT `danger-paisible` A ÉTÉ ESSAYÉ ET REFUSÉ : 3,95 sur le fond
+#  paisible, sous les 4,5. Il aurait fallu l'assombrir, donc inventer
+#  une couleur qui n'est pas dans la charte.
+BLEU = "#1f5470"  # accent-fort : les titres de cadre, l'étiquette verte
+REPERE = "#275e7a"  # accent-primaire : les points de la chronologie
 
 TITRE = "Georgia, 'Times New Roman', Times, serif"
 TEXTE = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
@@ -129,9 +141,38 @@ POKEMON = (
 NOM = "Wild Mystery"
 SOUS_TITRE = "Le contexte et la chronologie de la région de Rhode"
 
-#  Les hauteurs des deux fenêtres qui défilent.
+#  LA BANNIÈRE EST UNE BANDE, PAS UNE IMAGE ENTIÈRE. « Réduit la
+#  hauteur de la bannière » : à 1280 × 620 elle faisait 374 px de haut
+#  dans une colonne de 772, soit un quart de la fiche avant le premier
+#  mot. Deux cent quarante, et l'image est recadrée en `cover` — on
+#  garde sa bande centrale à toutes les largeurs plutôt que de
+#  l'écraser.
+HAUTEUR_BANNIERE = "240px"
+
+#  OÙ VIT LE TITRE. « Met le header du forum dedans » et « mets le
+#  titre au dessus pour voir ? » : `dedans` le pose SUR la bannière,
+#  calé en haut ; `dessus` le remet au-dessus d'elle, sur le sable,
+#  comme ce matin. La variable sert à comparer les deux sans réécrire
+#  le générateur — `FICHE_TITRE=dessus python3 outils/fiche-ailleurs.py`
+#  écrit la variante à côté, sans toucher la fiche.
+OU_LE_TITRE = os.environ.get("FICHE_TITRE", "dedans")
+#  La variante s'écrit AILLEURS, et c'est voulu : `templates/` ne
+#  garde que ce qui se colle. Un second fichier y traînerait, le
+#  dégraisseur en ferait un `.min` de plus, et personne ne saurait
+#  lequel des deux est la fiche.
+#      FICHE_TITRE=dessus FICHE_SORTIE=/tmp/essai.html \
+#          python3 outils/fiche-ailleurs.py
+SORTIE = os.environ.get("FICHE_SORTIE") or SORTIE
+
+#  Les hauteurs des fenêtres qui défilent.
 HAUTEUR_CONTEXTE = "320px"
 HAUTEUR_CHRONO = "360px"
+#  LES DEUX ENCARTS SONT PLUS PETITS, et à hauteur fixe comme les
+#  autres : « rajoute une taille fixe dans "à retenir" & "bon à
+#  savoir" et fais les plus petit ». Leur texte faisait neuf lignes
+#  dans une colonne étroite et ils pesaient autant que la
+#  chronologie.
+HAUTEUR_ENCART = "132px"
 
 #  La chronologie, reprise de la brique du forum.
 DATE = "112px"  # la colonne de gauche
@@ -184,7 +225,7 @@ def cadre(fond: str = SURFACE, marge: str = "margin:0 0 16px",
     )
 
 
-def degrade_du_bas() -> str:
+def degrade_du_bas(fond: str = SURFACE, rgb: str = "255,251,247") -> str:
     """Le bas d'un cadre qui défile, fondu vers son fond.
 
     POURQUOI IL EXISTE : une fenêtre à hauteur fixe coupe une ligne de
@@ -202,17 +243,17 @@ def degrade_du_bas() -> str:
     """
     return (
         f'<span style="{st("position:absolute", "left:2px", "right:2px",
-                           "bottom:2px", "height:40px",
+                           "bottom:2px", "height:34px",
                            "border-radius:0 0 12px 12px",
                            "background:linear-gradient(to bottom, "
-                           "rgba(255,251,247,0), " + SURFACE + ")",
+                           f"rgba({rgb},0), " + fond + ")",
                            "pointer-events:none", "display:block")}"></span>'
     )
 
 
 def titre_de_cadre(mot: str, taille: str = "22px") -> str:
     return (
-        f'<h2 style="{st("margin:0 0 14px", f"color:{ENCRE}",
+        f'<h2 style="{st("margin:0 0 14px", f"color:{BLEU}",
                          f"font-family:{TITRE}", f"font-size:{taille}",
                          "font-weight:600", "line-height:1.2")}">{mot}</h2>'
     )
@@ -267,7 +308,7 @@ def moment(m: dict, dernier: bool) -> list[str]:
         f'<span style="{st("position:absolute", "top:3px", "left:0",
                            f"width:{POINT}px", f"height:{haut}px",
                            "border-radius:999px",
-                           f"background:{ACCENT if dernier else NET}",
+                           f"background:{ACCENT if dernier else REPERE}",
                            "display:block")}"></span>',
     ]
     if not dernier:
@@ -286,6 +327,39 @@ def moment(m: dict, dernier: bool) -> list[str]:
                            "display:block")}">{m["quoi"]}</span>',
         "</div>",
     ]
+    return out
+
+
+def bloc_du_titre(sur_le_sable: bool) -> list[str]:
+    """Le nom du forum et son sous-titre, sans cadre.
+
+    « Le grand titre et le sous titre, mets pas de fond » et « centre
+    le texte » (9 novembre). Deux habillages, un seul bloc : sur le
+    sable il prend l'encre de la charte, sur la bannière il passe en
+    crème avec une ombre portée — une photo n'a pas de couleur qu'on
+    puisse mesurer, et l'ombre détache les lettres de ce qu'il y a
+    dessous même là où le voile est le plus clair.
+    """
+    encre = ENCRE if sur_le_sable else "#fffbf7"
+    doux = DOUX if sur_le_sable else "#f0e4da"
+    ombre = "" if sur_le_sable else "text-shadow:0 1px 4px rgba(18,12,10,0.55)"
+    out = []
+    if sur_le_sable:
+        out.append(
+            f'<div style="{st(BOITE, "padding:18px 4px 22px",
+                              "text-align:center")}">',
+        )
+    out.append(
+        f'<p style="{st("margin:0", f"color:{encre}", f"font-family:{TITRE}",
+                        "font-size:32px", "font-weight:600",
+                        "line-height:1.15", ombre)}">{NOM}</p>',
+    )
+    out.append(
+        f'<p style="{st("margin:10px 0 0", f"color:{doux}", "font-size:13.5px",
+                        "line-height:1.5", ombre)}">{SOUS_TITRE}</p>',
+    )
+    if sur_le_sable:
+        out.append("</div>")
     return out
 
 
@@ -351,58 +425,55 @@ def main() -> None:
     )
     e(f'<div style="{st("position:relative")}">')
 
-    #  ── LA BANNIÈRE ─────────────────────────────────────────────────
+    #  ── LA BANNIÈRE, EN BANDE, AVEC LE TITRE DEDANS ────────────────
     #
-    #  `width:100%` ET `height:auto` : elle se met à la largeur que
-    #  l'hôte donne au message et garde ses proportions. Pas de
-    #  hauteur fixe — on ne sait pas quelle largeur on aura, et une
-    #  hauteur écrite ici l'écraserait sur une colonne étroite.
+    #  ELLE EST UN FOND, PLUS UNE `<img>`. Pour poser le titre dessus
+    #  il faut un bloc qui la porte ; une image et un calque frère
+    #  auraient fait deux éléments à garder alignés pour rien.
+    #  `cover` recadre sans déformer : on voit sa bande centrale,
+    #  quelle que soit la largeur que l'hôte donne au message.
     #
-    #  `display:block` tue l'espace d'une ligne de texte que le
-    #  navigateur laisse sous une image en ligne : sans lui, un liseré
-    #  de sable traîne entre la bannière et le cadre qui suit.
+    #  LE VOILE N'EST PAS UNE DÉCORATION. Le texte est blanc sur une
+    #  photo qu'on ne choisit pas : sans lui, un ciel clair le rendrait
+    #  illisible, et aucune mesure de contraste n'est possible sur une
+    #  image. Le dégradé sombre en haut garantit le fond du titre quoi
+    #  qu'il y ait derrière, et s'efface avant le bas de la bande.
+    titre_dedans = OU_LE_TITRE != "dessus"
+    if not titre_dedans:
+        out.extend(bloc_du_titre(sur_le_sable=True))
     e(
-        #  PAS DE MARGE SOUS LA BANNIÈRE : le bloc du titre porte son
-        #  propre rembourrage depuis qu'il n'a plus de carte, et les
-        #  deux s'additionneraient.
-        f'<img src="{BANNIERE}" alt="" style="{st("width:100%",
-            "max-width:100%", "height:auto", "border-radius:12px",
-            "display:block", "margin:0")}">',
+        f'<div style="{st(BOITE, "position:relative",
+                          f"height:{HAUTEUR_BANNIERE}", "max-width:100%",
+                          "border-radius:12px", "overflow:hidden",
+                          f"background-image:url({BANNIERE})",
+                          "background-size:cover",
+                          "background-position:center",
+                          f"background-color:{NET}",
+                          "margin:0 0 16px")}">',
     )
-
-    #  ── LE TITRE ET SON SOUS-TITRE ──────────────────────────────────
-    #
-    #  SANS CADRE, demandé le 9 novembre : « le grand titre et le sous
-    #  titre, mets pas de fond ». Ils sont donc posés à même le sable,
-    #  et c'est le seul endroit de la fiche qui n'a pas de carte.
-    #
-    #  C'EST CE QUI LEUR DONNE LEUR RANG. Dans un cadre blanc comme
-    #  les autres, le nom du forum était un bloc parmi quatre ; nu, il
-    #  devient la tête de la fiche et les cartes deviennent son
-    #  contenu. Le rembourrage vertical remplace ce que faisait la
-    #  carte : sans lui, le titre collerait la bannière.
-    e(
-        f'<div style="{st(BOITE, "padding:18px 4px 22px",
-                          "text-align:center")}">',
-    )
-    e(
-        f'<p style="{st("margin:0", f"color:{ENCRE}", f"font-family:{TITRE}",
-                        "font-size:32px", "font-weight:600",
-                        "line-height:1.15")}">{NOM}</p>',
-    )
-    e(
-        f'<p style="{st("margin:10px 0 0", f"color:{DOUX}", "font-size:13.5px",
-                        "line-height:1.5")}">{SOUS_TITRE}</p>',
-    )
+    if titre_dedans:
+        e(
+            f'<div style="{st(BOITE, "position:absolute", "left:0", "right:0",
+                              "top:0", "padding:22px 18px 52px",
+                              "background:linear-gradient(to bottom, "
+                              "rgba(18,12,10,0.66), rgba(18,12,10,0))",
+                              "text-align:center")}">',
+        )
+        out.extend(bloc_du_titre(sur_le_sable=False))
+        e("</div>")
     e("</div>")
 
     #  ── LE CONTEXTE, DANS SA FENÊTRE ────────────────────────────────
     e(cadre(fenetre_dedans=True))
     e(titre_de_cadre("Le contexte"))
     e(fenetre(HAUTEUR_CONTEXTE))
-    e(paragraphe(d["chapo"], True, "14.5px"))
+    #  LE CHAPÔ N'EST PAS REPRIS. « Le paragraphe en dessous du
+    #  contexte, tu peux l'enlever » (9 novembre) : il dit « cette PAGE
+    #  vous dévoile les événements », ce qui est vrai de l'annexe et
+    #  faux d'un message posté ailleurs. Il reste dans
+    #  `data/contexte.json` et sur l'annexe, où il est à sa place.
     e(
-        f'<p style="{st("margin:18px 0 10px", f"color:{ACCENT}",
+        f'<p style="{st("margin:0 0 10px", f"color:{ACCENT}",
                         "font-size:11px", "font-weight:700",
                         "letter-spacing:0.08em",
                         "text-transform:uppercase")}">'
@@ -434,25 +505,40 @@ def main() -> None:
     tons = {"terre": TERRE, "paisible": PAISIBLE}
     e(f'<div style="{st("display:flex", "flex-wrap:wrap", "gap:14px",
                         "margin:0 0 4px")}">')
+    #  LE DÉGRADÉ DU BAS DOIT ÊTRE DE LA COULEUR DE SON ENCART, sinon
+    #  il pose un voile crème sur du terre. D'où les composantes rouge-
+    #  vert-bleu à côté du ton : un dégradé a besoin de la MÊME couleur
+    #  à zéro d'opacité à son autre bout, et `rgba()` est le seul moyen
+    #  de l'écrire en ligne.
+    rgb = {"terre": "248,234,225", "paisible": "231,230,221"}
+    #  L'étiquette prend l'accent qui va avec son ton : terre sur
+    #  terre, bleu fort sur le paisible. Le vert de la charte y tombe
+    #  à 3,95 — mesuré, et refusé pour ça.
+    encres = {"terre": ACCENT, "paisible": BLEU}
     for enc in d["encarts"]:
+        ton = enc["ton"]
         e(
             f'<div style="{st(BOITE, "flex:1 1 240px", "min-width:0",
-                              f"background:{tons.get(enc["ton"], HAUTE)}",
+                              "position:relative",
+                              f"background:{tons.get(ton, HAUTE)}",
                               f"border:1px solid {BORD}", "border-radius:12px",
-                              "padding:18px 20px")}">',
+                              "padding:14px 16px")}">',
         )
         e(
-            f'<p style="{st("margin:0 0 8px", f"color:{ACCENT}",
-                            "font-size:11px", "font-weight:700",
+            f'<p style="{st("margin:0 0 8px", f"color:{encres.get(ton, ACCENT)}",
+                            "font-size:10.5px", "font-weight:700",
                             "letter-spacing:0.08em",
                             "text-transform:uppercase")}">'
             f"{enc['etiquette']}</p>",
         )
+        e(fenetre(HAUTEUR_ENCART))
         e(
-            f'<p style="{st("margin:0", f"color:{CORPS}", "font-size:13.5px",
-                            "line-height:1.65", "text-align:justify")}">'
+            f'<p style="{st("margin:0", f"color:{CORPS}", "font-size:12.5px",
+                            "line-height:1.6", "text-align:justify")}">'
             f"{enc['texte']}</p>",
         )
+        e("</div>")
+        e(degrade_du_bas(tons.get(ton, HAUTE), rgb.get(ton, "252,244,236")))
         e("</div>")
     e("</div>")
 
