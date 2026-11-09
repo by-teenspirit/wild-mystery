@@ -1056,15 +1056,16 @@ html#min-width {
 #modernbb #wrap,
 #modernbb .wrap {
   /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28, 1 200 le
-      30, 1 400 le 9 novembre — « prends plus de largeur sur le
-      forum ». Une seule valeur à changer ici : tout le forum la suit,
-      sauf l'en-tête et le bandeau d'une zone, qui sont hors de
-      `#wrap`.
+      30. Une seule valeur à changer ici : tout le forum la suit, sauf
+      l'en-tête et le bandeau d'une zone, qui sont hors de `#wrap`.
 
-      1 400 ET PAS PLUS : c'est le plafond de ModernBB lui-même, donc
-      la largeur pour laquelle ses propres blocs sont écrits. Au-delà,
-      on serait seuls à tenir ce qui déborde. */
-  max-width: 1400px;
+      ELLE EST PASSÉE À 1 400 LE 9 NOVEMBRE AU MATIN, ET ELLE EST
+      REVENUE LE SOIR. « Je demandais plus large en parlant du
+      profil » : la demande portait sur la carte d'identité du profil,
+      pas sur le forum entier. J'ai élargi ce qui se voyait de loin au
+      lieu de demander lequel des deux — et pendant huit heures toutes
+      les pages du forum ont changé de largeur pour une page. */
+  max-width: 1200px;
 }
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
