@@ -144,10 +144,10 @@ SOUS_TITRE = "Le contexte et la chronologie de la région de Rhode"
 #  LA BANNIÈRE EST UNE BANDE, PAS UNE IMAGE ENTIÈRE. « Réduit la
 #  hauteur de la bannière » : à 1280 × 620 elle faisait 374 px de haut
 #  dans une colonne de 772, soit un quart de la fiche avant le premier
-#  mot. Deux cent quarante, et l'image est recadrée en `cover` — on
-#  garde sa bande centrale à toutes les largeurs plutôt que de
-#  l'écraser.
-HAUTEUR_BANNIERE = "240px"
+#  mot. Et « réduit son height encore » dans la foulée : cent
+#  soixante-dix. L'image est recadrée en `cover` — on garde sa bande
+#  centrale à toutes les largeurs plutôt que de l'écraser.
+HAUTEUR_BANNIERE = "170px"
 
 #  OÙ VIT LE TITRE. « Met le header du forum dedans » et « mets le
 #  titre au dessus pour voir ? » : `dedans` le pose SUR la bannière,
@@ -351,11 +351,11 @@ def bloc_du_titre(sur_le_sable: bool) -> list[str]:
         )
     out.append(
         f'<p style="{st("margin:0", f"color:{encre}", f"font-family:{TITRE}",
-                        "font-size:32px", "font-weight:600",
+                        "font-size:28px", "font-weight:600",
                         "line-height:1.15", ombre)}">{NOM}</p>',
     )
     out.append(
-        f'<p style="{st("margin:10px 0 0", f"color:{doux}", "font-size:13.5px",
+        f'<p style="{st("margin:8px 0 0", f"color:{doux}", "font-size:13px",
                         "line-height:1.5", ombre)}">{SOUS_TITRE}</p>',
     )
     if sur_le_sable:
@@ -454,7 +454,7 @@ def main() -> None:
     if titre_dedans:
         e(
             f'<div style="{st(BOITE, "position:absolute", "left:0", "right:0",
-                              "top:0", "padding:22px 18px 52px",
+                              "top:0", "padding:16px 18px 38px",
                               "background:linear-gradient(to bottom, "
                               "rgba(18,12,10,0.66), rgba(18,12,10,0))",
                               "text-align:center")}">',
