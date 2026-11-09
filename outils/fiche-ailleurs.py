@@ -436,8 +436,13 @@ def main() -> None:
     #  LE VOILE N'EST PAS UNE DÉCORATION. Le texte est blanc sur une
     #  photo qu'on ne choisit pas : sans lui, un ciel clair le rendrait
     #  illisible, et aucune mesure de contraste n'est possible sur une
-    #  image. Le dégradé sombre en haut garantit le fond du titre quoi
-    #  qu'il y ait derrière, et s'efface avant le bas de la bande.
+    #  image. Le dégradé garantit le fond du titre quoi qu'il y ait
+    #  derrière, et s'efface avant l'autre bord de la bande.
+    #
+    #  IL PART DU BAS depuis le 9 novembre : « colle le titre et
+    #  sous-titre plutôt au bas de la bannière avec le dégradé sombre
+    #  du bas vers le haut ». Le titre est donc calé en bas, et le
+    #  voile monte au lieu de descendre.
     titre_dedans = OU_LE_TITRE != "dessus"
     if not titre_dedans:
         out.extend(bloc_du_titre(sur_le_sable=True))
@@ -454,9 +459,9 @@ def main() -> None:
     if titre_dedans:
         e(
             f'<div style="{st(BOITE, "position:absolute", "left:0", "right:0",
-                              "top:0", "padding:16px 18px 38px",
-                              "background:linear-gradient(to bottom, "
-                              "rgba(18,12,10,0.66), rgba(18,12,10,0))",
+                              "bottom:0", "padding:40px 18px 16px",
+                              "background:linear-gradient(to top, "
+                              "rgba(18,12,10,0.72), rgba(18,12,10,0))",
                               "text-align:center")}">',
         )
         out.extend(bloc_du_titre(sur_le_sable=False))
