@@ -1264,9 +1264,25 @@ const types = await p.evaluate(() => {
       [...b.querySelectorAll(".wm-infobulle__type")]
         .every((t) => t.textContent.trim().length > 2)
     ),
-    //  La case, elle, n'en porte qu'un : elle fait moins de cent
-    //  pixels et deux pastilles y passeraient à la ligne.
-    surLaCase: [...document.querySelectorAll("#test .wm-tcard__pkmn .wm-type")].length,
+    //  ── LA CASE PORTE LES MÊMES TYPES QUE SA BULLE ──────────────
+    //
+    //  Elle n'en portait qu'un, et CE CONTRÔLE L'EXIGEAIT :
+    //  `surLaCase === 6` pour six cases, sous la phrase « la case
+    //  n'en montre qu'un ». Le défaut était donc gravé dans son
+    //  propre garde-fou — un Couaneton annoncé « Eau » quand il est
+    //  Eau/Vol, et un test vert pour le confirmer.
+    //
+    //  LA BULLE DE LA MÊME CASE EST LE TÉMOIN : elle porte les deux
+    //  depuis toujours. On compare les deux listes case par case
+    //  plutôt que de recompter depuis les données, ce qui reviendrait
+    //  à vérifier le générateur avec lui-même.
+    cases: [...document.querySelectorAll("#test .wm-tcard__pkmn")].map((c) => ({
+      nom: c.querySelector(".wm-tcard__nom")?.textContent.trim() ?? "?",
+      surLaCase: [...c.querySelectorAll(".wm-tcard__types .wm-type")]
+        .map((t) => t.dataset.wmType),
+      dansLaBulle: [...c.querySelectorAll(".wm-infobulle__type")]
+        .map((t) => t.dataset.wmType),
+    })),
   };
 });
 
@@ -1472,10 +1488,20 @@ dire(
 );
 
 dire(
-  "l'infobulle écrit les deux types d'un double, la case n'en montre qu'un",
-  types.unDoubleAuMoins && types.tousNommes && types.surLaCase === 6,
-  JSON.stringify(types),
+  "l'infobulle écrit les deux types d'un double, et les nomme",
+  types.unDoubleAuMoins && types.tousNommes,
+  JSON.stringify(types.comptes),
 );
+{
+  const menteuses = types.cases.filter((c) =>
+    c.surLaCase.join(",") !== c.dansLaBulle.join(",")
+  );
+  dire(
+    "ET LA CASE AFFICHE LES MÊMES, pas seulement le premier",
+    menteuses.length === 0,
+    JSON.stringify(menteuses),
+  );
+}
 
 // ── et elle tient aussi dans une colonne étroite ────────────────────
 

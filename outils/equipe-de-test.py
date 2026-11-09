@@ -101,10 +101,25 @@ def case(b: dict, obscur: bool) -> str:
         f'<li class="wm-infobulle__type" data-wm-type="{t}">{en_titre(t)}</li>'
         for t in b["types"]
     )
-    #  La pastille de la case ne porte QUE le premier type : la case
-    #  fait moins de cent pixels, et un double type y tiendrait sur
-    #  deux lignes. L'infobulle, elle, les montre tous les deux.
-    premier = b["types"][0]
+    #  ── LA CASE PORTE TOUS SES TYPES ───────────────────────────────
+    #
+    #  « Y'a des pokémons qui ont 2 types et tu les affiches pas »
+    #  (9 novembre), dit des équipes de défi — et c'était vrai ici
+    #  aussi. J'avais écrit que la case faisait moins de cent pixels
+    #  et qu'un double type y tiendrait sur deux lignes. Les deux
+    #  lignes sont le prix juste : un Couaneton annoncé « Eau » quand
+    #  il est Eau/Vol est une information FAUSSE, et l'infobulle qui
+    #  la rectifie demande de survoler, donc de soupçonner.
+    #
+    #  ET LE MODULE, LUI, LES POSAIT DÉJÀ TOUS LES DEUX. Deux chemins
+    #  pour la même carte — le module pour un joueur, ce script pour
+    #  le compte de test — et un seul des deux était juste. Rien ne
+    #  les comparait ; `outils/tcard.mjs` le fait maintenant.
+    pastilles = "".join(
+        f'<span class="wm-type wm-type--{t}" data-wm-type="{t}">'
+        f"{en_titre(t)}</span>"
+        for t in b["types"]
+    )
     part = round(100 * b["pv"] / b["pv_max"])
     etoiles = "★" * b["rang"] + "☆" * (5 - b["rang"])
     echelle = "Purification" if obscur else "Bonheur"
@@ -112,7 +127,7 @@ def case(b: dict, obscur: bool) -> str:
           <img class="wm-tcard__sprite" src="{sprite}" alt="" />
           <p class="wm-tcard__nom">{b["nom"]}</p>
           <p class="wm-tcard__niveau">niv. {b["niveau"]}</p>
-          <span class="wm-type wm-type--{premier}" data-wm-type="{premier}">{en_titre(premier)}</span>
+          <p class="wm-tcard__types">{pastilles}</p>
           <div class="wm-infobulle{" wm-infobulle--obscur" if obscur else ""}" role="tooltip">
             <div class="wm-infobulle__tete">
               <p class="wm-infobulle__nom">{b["nom"]}</p>

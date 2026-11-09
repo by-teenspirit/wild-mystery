@@ -22986,6 +22986,30 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
+/*  ── LES TYPES D'UNE CASE, EN PAIRE ────────────────────────────────
+
+    Ils étaient posés en frères directs de la case, donc espacés par
+    son `gap` comme le sprite, le nom et le niveau — quatre choses
+    différentes. Les types d'un pokémon en sont UNE, et ils doivent se
+    lire ensemble.
+
+    Même structure que `wm-equipe__types` côté annexes, et c'est tout
+    l'intérêt : deux composants qui montrent la même chose finissent
+    sinon par la montrer autrement.
+
+    `min-width: 0` : la case porte `overflow: hidden`, donc une
+    pastille trop large y serait coupée en silence. Avec lui, le bloc
+    peut rétrécir et la pastille se coupe là où on la mesure. */
+#modernbb .wm-tcard__types {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  gap: var(--wm-espace-4, 4px);
+}
+
 /*  ── UN POKÉMON OBSCUR SE VOIT SANS SURVOLER ──────────────────────
 
     « Est-ce qu'on peut avoir un fond direct, sans infobulle, pour

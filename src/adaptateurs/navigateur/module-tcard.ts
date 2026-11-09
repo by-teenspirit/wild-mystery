@@ -143,16 +143,30 @@ function caseDEquipe(
 
   li.append(nom, niveau);
 
+  //  ── LES DEUX TYPES SONT UNE PAIRE, PAS DEUX VOISINS ─────────────
+  //
+  //  Ils étaient posés en frères directs de la case, donc séparés par
+  //  son `gap` au même titre que le sprite, le nom et le niveau —
+  //  quatre choses différentes. Les types d'un pokémon en sont UNE.
+  //  Le bloc les empile avec leur propre écart, et c'est la même
+  //  structure que `wm-equipe__types` côté annexes : deux composants
+  //  qui montrent la même chose finissent sinon par la montrer
+  //  autrement, et c'est toujours le second qu'on oublie de corriger.
   const sesTypes = types.get(p.especeId) ?? [];
-  for (const t of sesTypes.slice(0, 2)) {
-    const pastille = doc.createElement("span");
-    pastille.className = `wm-type wm-type--${t}`;
-    pastille.setAttribute("data-wm-type", t);
-    //  LE NOM EST TOUJOURS ÉCRIT SUR LA PASTILLE : « ne jamais coder un
-    //  type par la couleur seule » (planche 17). Combat et Feu sont
-    //  voisins, Insecte et Plante aussi.
-    pastille.textContent = t.charAt(0).toUpperCase() + t.slice(1);
-    li.append(pastille);
+  if (sesTypes.length > 0) {
+    const bloc = doc.createElement("p");
+    bloc.className = "wm-tcard__types";
+    for (const t of sesTypes.slice(0, 2)) {
+      const pastille = doc.createElement("span");
+      pastille.className = `wm-type wm-type--${t}`;
+      pastille.setAttribute("data-wm-type", t);
+      //  LE NOM EST TOUJOURS ÉCRIT SUR LA PASTILLE : « ne jamais coder un
+      //  type par la couleur seule » (planche 17). Combat et Feu sont
+      //  voisins, Insecte et Plante aussi.
+      pastille.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+      bloc.append(pastille);
+    }
+    li.append(bloc);
   }
   return li;
 }
