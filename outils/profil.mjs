@@ -84,6 +84,11 @@ const ONGLETS = [
   ["Récompenses", "/u1awards"],
   ["Contact", "/u1contact"],
   ["Feuille de personnage", "/u1rpg"],
+  //  SIXIÈME ONGLET, relevé le 9 novembre : il n'apparaît QU'UNE FOIS
+  //  CONNECTÉE, ce qui est pourquoi le relevé du 8, fait déconnectée,
+  //  ne le voyait pas. Le harnais le monte quand même : la feuille
+  //  doit l'habiller, et personne ne se connecte pour le vérifier.
+  ["Statistiques", "/u1stats"],
 ];
 
 const gauche = (actif, corps) =>
@@ -188,7 +193,56 @@ const CORPS_RPG = `<h1>Feuille de personnage</h1><div class="panel"><div class="
 }<div class="clear"></div><fieldset class="submit-buttons"></fieldset>
 <span class="corners-bottom"><span></span></span></div></div>`;
 
-const CORPS = [CORPS_PROFIL, CORPS_GROUPES, CORPS_RECOMPENSES, CORPS_CONTACT, CORPS_RPG];
+//  `/u1stats` — LE PIÈGE EST DANS LE `<li>` : la valeur n'est pas
+//  dans un élément, c'est un nœud de texte posé après le `</label>`.
+//  Et la dernière ligne de chaque bloc n'a QUE son libellé.
+const CORPS_STATS = `<h1>Statistiques</h1><div class="panel"><div class="inner">
+<span class="corners-top"><span></span></span>${
+  [
+    ["Sujets", [
+      [
+        '<a rel="nofollow" href="/st/u1">Nombre de sujets ouverts dans le forum</a> :',
+        "44 (45.36% du total)",
+      ],
+      ["Sujets par jour :", "0.02"],
+      ["Dernier sujet :", "Mer 4 Nov 2026 - 12:15"],
+      [
+        '<a rel="nofollow" href="/sta/u1">Trouver tous les sujets où Arceus a participé</a>',
+        null,
+      ],
+    ]],
+    ["Messages", [
+      ["Messages postés :", "291 (100.00% du total)"],
+      ["Messages par jour :", "0.13"],
+      ["Dernier message :", "Dim 8 Nov 2026 - 20:23"],
+      [
+        '<a rel="nofollow" href="/spa/u1">Trouver tous les messages postés par Arceus</a>',
+        null,
+      ],
+    ]],
+    ["Informations", [
+      ["Nombre d'amis :", "0"],
+      ["Messages privés :", "17"],
+      ["Inscrit le :", "06/08/2020"],
+      ["Dernière visite :", "Aujourd'hui à 9:34"],
+    ]],
+  ].map(([legende, lignes]) =>
+    `<fieldset class="stats-field genmed"><legend>${legende}</legend><ul>${
+      lignes.map(([mot, valeur]) =>
+        `<li><label>${mot}</label>${valeur === null ? "" : " " + valeur}</li>`
+      ).join("")
+    }</ul></fieldset>`
+  ).join("")
+}<span class="corners-bottom"><span></span></span></div></div>`;
+
+const CORPS = [
+  CORPS_PROFIL,
+  CORPS_GROUPES,
+  CORPS_RECOMPENSES,
+  CORPS_CONTACT,
+  CORPS_RPG,
+  CORPS_STATS,
+];
 
 const DROITE = `<div id="profile-advanced-right">
 <div class="module"><div class="h3"><span class="group-2 usr_grp_clr" style="color:#808080"><strong>Arceus</strong></span> </div>
@@ -232,7 +286,7 @@ p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
 //  construit les trois boutons avec. Servie sur `about:blank`, la
 //  page n'aurait pas de `pathname` et la carte sortirait sans actions.
 const RACINE = "https://mysteryinrhode.forumactif.com";
-const ADRESSES = ["/u1", "/u1groups", "/u1awards", "/u1contact", "/u1rpg"];
+const ADRESSES = ["/u1", "/u1groups", "/u1awards", "/u1contact", "/u1rpg", "/u1stats"];
 //  ── CE QUE LE HARNAIS SERT À LA PLACE DE SUPABASE ─────────────────
 //
 //  La réponse de `carte_dresseur` telle que la fonction la rend : un
@@ -400,6 +454,26 @@ ok(
   vus.map((v) => v.bulle),
 );
 
+//  AUCUN CONTOUR AU REPOS : ni bordure, ni ombre, ni anneau du
+//  navigateur. « Enlève le contour bleu autour des badges »
+//  (9 novembre) — et il ne doit pas revenir par une autre feuille.
+{
+  const nus = await p.evaluate(() =>
+    [...document.querySelectorAll(".wm-profil-page__badges .award")].map((a) => {
+      const st = getComputedStyle(a);
+      return [st.borderTopWidth, st.boxShadow, st.outlineStyle];
+    })
+  );
+  ok(
+    "aucun contour autour d'un badge au repos",
+    nus.every((x) =>
+      parseFloat(x[0]) === 0 && x[1] === "none" &&
+      (x[2] === "none" || parseFloat(x[2]) === 0)
+    ),
+    nus[0],
+  );
+}
+
 const auSurvol = await p.evaluate(async () => {
   const a = document.querySelector(".wm-profil-page .award");
   a.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
@@ -423,7 +497,7 @@ const onglets = await p.evaluate(() =>
     fond: getComputedStyle(a).backgroundColor,
   }))
 );
-ok("les cinq onglets sont là", onglets.length === 5, onglets.map((o) => o.mot));
+ok("les six onglets sont là", onglets.length === 6, onglets.map((o) => o.mot));
 ok(
   "aucun onglet ne mène à « # »",
   onglets.every((o) => o.vers !== "#"),
@@ -742,7 +816,7 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
       images: panneau === null ? 0 : panneau.querySelectorAll("img").length,
     };
   });
-  ok(`${nom} : les cinq onglets suivent`, etat.onglets === 5, etat.onglets);
+  ok(`${nom} : les six onglets suivent`, etat.onglets === 6, etat.onglets);
   ok(`${nom} : l'onglet courant est celui-ci`, etat.courant === nom, etat.courant);
   ok(`${nom} : la carte d'identité reste en tête`, etat.carte === true, etat.carte);
   ok(
@@ -775,6 +849,17 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
           //  qui dit que la rangée est bien le `<li>` et pas un div
           //  de dégagement.
           aCote: r.right <= nom.left + 1,
+          //  CENTRÉE SUR LA PREMIÈRE LIGNE DU NOM, à deux pixels près :
+          //  c'est ce qu'un nombre de marge écrit à la main ne tient
+          //  pas quand la police change.
+          centree: Math.abs((r.top + r.bottom) / 2 - (nom.top + nom.height / 2)) <= 2,
+          //  ET SANS LE DÉCOR DE MODERNBB : disque blanc de 34 px,
+          //  bordure blanche, ombre portée.
+          decor: [
+            getComputedStyle(pastille.parentElement).backgroundColor,
+            getComputedStyle(pastille.parentElement).borderTopWidth,
+            getComputedStyle(pastille.parentElement).boxShadow,
+          ],
         };
       })
     );
@@ -790,6 +875,42 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
       "Groupes : la pastille est à côté du nom",
       g.every((x) => x.aCote),
       g.map((x) => x.aCote),
+    );
+    ok(
+      "Groupes : et centrée sur la première ligne du nom",
+      g.every((x) => x.centree),
+      g.map((x) => x.centree),
+    );
+    ok(
+      "Groupes : le décor de `.avatar` de ModernBB est défait",
+      g.every((x) =>
+        x.decor[0] === "rgba(0, 0, 0, 0)" && parseFloat(x.decor[1]) === 0 &&
+        x.decor[2] === "none"
+      ),
+      g[0]?.decor,
+    );
+
+    const pieds = await p.evaluate(() =>
+      [...document.querySelectorAll(".wm-profil-page__panneau .message-footer")]
+        .map((u) => {
+          const r = u.getBoundingClientRect();
+          const carte = u.closest("li").getBoundingClientRect();
+          const bloc = u.closest(".message-block").getBoundingClientRect();
+          return {
+            //  Au bout du bloc, pas au début : c'est tout ce que
+            //  « place le texte à droite » demande, et ce qu'un
+            //  `justify-content` n'aurait pas fait — la liste est plus
+            //  étroite que la carte.
+            aDroite: Math.round(bloc.right - r.right) <= 1,
+            dansLaCarte: Math.round(carte.right - r.right) >= 0,
+          };
+        })
+    );
+    ok("Groupes : cinq pieds de carte", pieds.length === 5, pieds.length);
+    ok(
+      "Groupes : « Voir plus » est au bout de sa carte",
+      pieds.every((x) => x.aDroite && x.dansLaCarte),
+      pieds,
     );
   }
   if (i === 2) {
@@ -876,6 +997,76 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
       "Feuille : les valeurs finissent au même endroit",
       new Set(r.map((x) => x.droite)).size === 1,
       r.map((x) => x.droite),
+    );
+  }
+
+  if (i === 5) {
+    const st = await p.evaluate(() => {
+      const blocs = [...document.querySelectorAll(".wm-profil-page__panneau .stats-field")];
+      return blocs.map((b) => {
+        const leg = b.querySelector("legend").getBoundingClientRect();
+        const prem = b.querySelector("li").getBoundingClientRect();
+        const lignes = [...b.querySelectorAll("li")].map((l) => {
+          const lab = l.querySelector("label").getBoundingClientRect();
+          const r = l.getBoundingClientRect();
+          return {
+            seul: l.querySelector("label").children.length === l.childNodes.length - 0 &&
+              l.textContent.trim() === l.querySelector("label").textContent.trim(),
+            //  LE LIBELLÉ À GAUCHE, LA VALEUR À DROITE : c'est tout
+            //  l'objet de cette passe, et la valeur n'étant pas dans
+            //  un élément, on la mesure par ce qui reste de la ligne.
+            aGauche: Math.round(lab.left - r.left) <= 1,
+            finit: Math.round(r.right - lab.right),
+            puce: getComputedStyle(l).listStyleType,
+            casse: getComputedStyle(l.querySelector("label")).textTransform,
+            retrait: getComputedStyle(l.parentElement).paddingLeft,
+          };
+        });
+        return {
+          legende: b.querySelector("legend").textContent.trim(),
+          //  LA LÉGENDE EST AU-DESSUS DE LA PREMIÈRE LIGNE, pas à
+          //  cheval sur le bord : c'est le placement que le navigateur
+          //  donne à `<legend>` et qu'il faut défaire.
+          auDessus: leg.bottom <= prem.top + 1,
+          lignes,
+        };
+      });
+    });
+    ok("Statistiques : trois blocs", st.length === 3, st.map((b) => b.legende));
+    ok(
+      "Statistiques : chaque légende est au-dessus de sa liste",
+      st.every((b) => b.auDessus),
+      st.map((b) => [b.legende, b.auDessus]),
+    );
+    const toutes = st.flatMap((b) => b.lignes);
+    ok("Statistiques : douze lignes", toutes.length === 12, toutes.length);
+    ok(
+      "Statistiques : aucun retrait de 40 px hérité de ModernBB",
+      toutes.every((l) => parseFloat(l.retrait) === 0),
+      [...new Set(toutes.map((l) => l.retrait))],
+    );
+    ok(
+      "Statistiques : aucune puce",
+      toutes.every((l) => l.puce === "none"),
+      [...new Set(toutes.map((l) => l.puce))],
+    );
+    ok(
+      "Statistiques : chaque libellé commence à gauche de sa ligne",
+      toutes.every((l) => l.aGauche),
+      toutes.filter((l) => !l.aGauche).length,
+    );
+    //  LES DEUX LIGNES QUI N'ONT QU'UN LIEN existent, et elles ne
+    //  sont pas distinguables en CSS : la valeur d'une ligne
+    //  ordinaire est un nœud de texte, pas un élément, donc
+    //  `:only-child` les attrape toutes. On vérifie ici qu'aucune
+    //  règle ne prétend le contraire — les quatre libellés d'un bloc
+    //  se lisent de la même façon.
+    const seules = toutes.filter((l) => l.seul);
+    ok("Statistiques : deux lignes sans valeur", seules.length === 2, seules.length);
+    ok(
+      "Statistiques : les libellés se lisent tous pareil",
+      new Set(toutes.map((l) => l.casse)).size === 1,
+      [...new Set(toutes.map((l) => l.casse))],
     );
   }
 

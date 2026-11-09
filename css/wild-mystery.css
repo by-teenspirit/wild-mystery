@@ -28033,6 +28033,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     là qu'il y a la place, et c'est ce qui équilibre les deux colonnes
     quand le panneau est court. */
 
+/*  ── LA PLACE RÉSERVÉE À LA COLONNE QU'ON A RETIRÉE ───────────────
+
+    Forumactif écrit `#profile-advanced-layout { margin-right: 300px }`
+    pour laisser la place à sa colonne de droite. On masque cette
+    colonne : la marge, elle, restait — 300 px de vide à droite de la
+    page, sur chacun des six onglets.
+
+    Elle ne tombe QUE si la carte est là. Sans le module, la colonne
+    d'origine est visible et sa place lui est encore due. */
+#modernbb #profile-advanced-layout:has(.wm-profil-page) {
+  margin-right: 0;
+}
+
 /*  LES DEUX COLONNES NE SONT PAS SŒURS. `#profile-advanced-right` est
     posé À CÔTÉ de `#profile-advanced-layout`, pas dedans — relevé le
     8 novembre, et un `~` depuis la carte ne l'atteignait pas. On
@@ -28041,6 +28054,31 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     d'origine. */
 #modernbb #profile-advanced-layout:has(.wm-profil-page) ~ #profile-advanced-right {
   display: none;
+}
+
+/*  ── LE RETRAIT DE 40 px SUR NOS LISTES ───────────────────────────
+
+    ModernBB écrit `#main-content .panel .inner ol,
+    #main-content .panel .inner ul { padding-left: 40px }`. Un id,
+    deux classes, un type — exactement le poids de nos propres
+    sélecteurs, et à égalité c'est l'ordre des feuilles qui tranche.
+    Nos listes partaient donc avec 40 px de retrait : les groupes, les
+    trois blocs de statistiques, les badges.
+
+    On passe au-dessus avec une classe de plus, et une seule fois pour
+    toutes les listes de la page : une règle par liste était une règle
+    à oublier à la prochaine. */
+#modernbb .wm-profil-page .wm-profil-page__panneau ul,
+#modernbb .wm-profil-page .wm-profil-page__panneau ol,
+#modernbb .wm-profil-page .wm-profil-page__badges,
+#modernbb .wm-profil-page .wm-profil-page__chiffres,
+#modernbb .wm-profil-page .wm-profil-page__onglets {
+  padding-left: 0;
+  /*  ET LES PUCES AVEC. Même feuille, même poids, même règle :
+      `#main-content .panel .inner ul { list-style-type: disc }`
+      remettait un point noir devant chaque groupe, chaque ligne de
+      statistique et chaque badge. */
+  list-style: none;
 }
 
 /*  Les coins arrondis en `<span>` de ModernBB — `corners-top`,
@@ -28508,6 +28546,29 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   opacity: 1;
 }
 
+/*  ── PAS DE CONTOUR BLEU AUTOUR D'UN BADGE ────────────────────────
+
+    « Enlève le contour bleu autour des badges » (9 novembre). Il
+    venait du navigateur, qui pose son anneau par défaut sur tout ce
+    qui peut recevoir le focus — et nos badges le peuvent, pour que
+    leur infobulle s'ouvre au clavier.
+
+    ON NE LE RETIRE PAS SANS LE REMPLACER. Un anneau de focus invisible
+    est un badge qu'on ne sait plus repérer en tabulant. Il devient
+    donc un anneau de la charte, et seulement au focus CLAVIER —
+    `:focus-visible` ne se déclenche pas à la souris, donc un clic ne
+    laisse rien derrière lui. */
+#modernbb .wm-profil-page .award {
+  border: 0;
+  box-shadow: none;
+  outline: 0;
+}
+
+#modernbb .wm-profil-page .award:focus-visible {
+  outline: 2px solid var(--wm-accent-terre, #8b4725);
+  outline-offset: 2px;
+}
+
 /* ── 6 · les quatre autres onglets ────────────────────────────────── */
 
 /*  ── LES GROUPES (`/uNgroups`) ────────────────────────────────────
@@ -28554,11 +28615,43 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
-/*  La pastille se cale sur la premiere ligne du nom, pas sur le haut
-    de la carte : deux pixels plus bas, et elle se lit comme une puce
-    de liste au lieu d'une decoration posee dans un coin. */
+/*  ── LA PASTILLE SE CENTRE SUR LA PREMIÈRE LIGNE DU NOM ───────────
+
+    Et pas « à 4 px du haut », ni à 24. J'avais mis 4 ; sur le vrai
+    forum il en fallait 24 (relevé par Callista le 9 novembre) — ce
+    qui veut dire que le nombre ne vaut que pour une taille de nom
+    donnée, et qu'il redeviendra faux au prochain changement de
+    police.
+
+    On ne pose donc plus de marge : la case de la pastille prend la
+    HAUTEUR D'UNE LIGNE DE NOM et y centre son disque. Le nom et la
+    pastille commencent tous deux en haut de la rangée, donc le disque
+    tombe au milieu de la première ligne, quelle que soit la taille du
+    titre. Rien à régler, rien à re-régler. */
+/*  ── D'OÙ VENAIT LE DÉCALAGE : `.avatar` N'EST PAS UNE ENVELOPPE ──
+
+    ModernBB lui donne tout un décor, relevé le 9 novembre :
+
+        .avatar { width:30px; height:30px; border:2px solid #FFF;
+                  background-color:#FFF; border-radius:50px;
+                  box-shadow:0 1px 1px …; overflow:hidden }
+
+    Un disque blanc de 34 px, donc, avec notre point de 14 perdu au
+    milieu. C'est pour ça qu'il fallait 24 px de marge pour que ça
+    tombe juste : la marge corrigeait un décor qu'on n'avait pas vu.
+
+    On défait le décor, et la case prend la hauteur d'une ligne de
+    nom pour y centrer le point. Plus de nombre à régler : le point
+    suit la taille du titre. */
 #modernbb .wm-profil-page__panneau ol > li .avatar {
-  margin-top: 4px;
+  width: auto;
+  height: calc(var(--wm-taille-titre-carte, 16px) * var(--wm-interligne-section, 1.2));
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
 }
 
 /*  ── L'ICÔNE DE GROUPE DEVIENT UNE PASTILLE ───────────────────────
@@ -28604,9 +28697,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   display: none;
 }
 
+/*  « VOIR PLUS » VA À DROITE (9 novembre). C'est une sortie, pas un
+    renseignement : à gauche sous la description, il se lisait comme
+    une troisième ligne du groupe ; au bout de la carte, il se lit
+    comme ce qu'il est.
+
+    `margin-left: auto` sur la LISTE et pas `justify-content` : la
+    liste ne fait pas toute la largeur de la carte, et aligner son
+    contenu à droite n'aurait rien déplacé. */
 #modernbb .wm-profil-page__panneau .message-footer {
   display: flex;
-  margin: var(--wm-espace-6, 6px) 0 0;
+  margin: var(--wm-espace-6, 6px) 0 0 auto;
   padding: 0;
   gap: var(--wm-espace-12, 12px);
   list-style: none;
@@ -28893,5 +28994,140 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
   line-height: var(--wm-interligne-etiquette, 1.3);
   text-transform: uppercase;
+}
+
+/* ── 9 · l'onglet Statistiques ────────────────────────────────────── */
+
+/*  Relevé le 9 novembre : il n'apparaît qu'une fois connectée, ce qui
+    est pourquoi il manquait au relevé du 8. Trois `fieldset` — Sujets,
+    Messages, Informations — chacun avec sa `legend` et une liste.
+
+    ── LE PIÈGE DE SON BALISAGE ──────────────────────────────────────
+
+    La valeur n'est PAS dans un élément :
+
+        <li><label>Messages postés :</label> 291 (100.00% du total)</li>
+
+    Un simple nœud de texte, après le `</label>`. On ne peut donc pas
+    l'attraper par un sélecteur — et c'est exactement ce que le flex
+    sait faire : dans un conteneur flex, une suite de texte nu devient
+    un élément anonyme, et `space-between` le pousse à droite comme
+    s'il portait une classe. Rien à reconstruire.
+
+    `align-items: baseline` et pas `center` : le libellé et la valeur
+    n'ont pas la même taille, et deux boîtes centrées donnent deux
+    lignes de texte qui ne se posent pas sur la même ligne. */
+#modernbb .wm-profil-page__panneau .stats-field {
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  border: 0;
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  break-inside: avoid;
+}
+
+/*  LES TROIS BLOCS EN COLONNES, par la place et pas par un nombre :
+    le panneau n'a pas la même largeur selon que la carte de droite
+    est là, et selon la fenêtre. */
+#modernbb .wm-profil-page__panneau:has(.stats-field) {
+  column-gap: var(--wm-espace-16, 16px);
+  columns: 300px 2;
+}
+
+/*  Le titre du panneau reprend toute la largeur : il n'a pas à se
+    ranger dans la première colonne. */
+#modernbb .wm-profil-page__panneau:has(.stats-field) > .wm-profil-page__titre {
+  column-span: all;
+}
+
+#modernbb .wm-profil-page__panneau .stats-field + .stats-field {
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+/*  ── LA LÉGENDE DEVIENT UN TITRE ──────────────────────────────────
+
+    `<legend>` est posé DANS la bordure du `fieldset` par le
+    navigateur, et il garde ce placement même sans bordure : il
+    chevauchait le bord haut de la carte. `float: left` + une largeur
+    pleine le sortent du flux de la légende et le rendent à la
+    colonne — c'est la seule façon portable de le faire. */
+#modernbb .wm-profil-page__panneau .stats-field > legend {
+  display: block;
+  float: left;
+  width: 100%;
+  margin: 0 0 var(--wm-espace-10, 10px);
+  padding: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-profil-page__panneau .stats-field > ul {
+  display: flex;
+  clear: both;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-profil-page__panneau .stats-field li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--wm-espace-8, 8px) 0;
+  gap: var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: right;
+}
+
+#modernbb .wm-profil-page__panneau .stats-field li + li {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  ── LE LIBELLÉ RESTE EN BAS DE CASSE ─────────────────────────────
+
+    Les autres listes du profil mettent leurs libellés en petites
+    capitales. Pas ici : deux des quatre lignes de chaque bloc sont
+    des PHRASES — « Trouver tous les messages postés par Arceus » —
+    et une phrase en capitales se crie au lieu de se lire.
+
+    ET ON NE PEUT PAS LES DISTINGUER EN CSS. J'avais écrit une règle
+    pour ces lignes-là, sur `label:only-child` : elle les attrapait
+    TOUTES. `:only-child` compte les éléments, et la valeur d'une
+    ligne ordinaire n'en est pas un — c'est un nœud de texte posé
+    après le `</label>`. Les quatre libellés passaient donc en bleu.
+    Vu sur la photo du 9 novembre, pas dans le code. */
+#modernbb .wm-profil-page__panneau .stats-field label {
+  flex: 0 1 auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: left;
+}
+
+/*  Un lien dans un libellé se voit, lui : c'est la seule chose de
+    cette liste sur laquelle on puisse cliquer. */
+#modernbb .wm-profil-page__panneau .stats-field label a {
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .wm-profil-page__panneau .stats-field a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#modernbb .wm-profil-page__panneau .stats-field a:hover,
+#modernbb .wm-profil-page__panneau .stats-field a:focus-visible {
+  text-decoration: underline;
 }
 

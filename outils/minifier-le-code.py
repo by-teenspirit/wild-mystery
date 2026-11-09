@@ -85,7 +85,11 @@ def par_modele(html: str):
 DECOUPES = {"annonce-du-staff.a-coller.html"}
 
 #  Ce que `--tout` prend.
-GABARITS = ("carte-dresseur.*.html", "annonce-du-staff.*.html")
+GABARITS = (
+    "carte-dresseur.*.html",
+    "annonce-du-staff.*.html",
+    "contexte-ailleurs.*.html",
+)
 
 
 def main() -> None:
