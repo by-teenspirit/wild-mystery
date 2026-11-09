@@ -106,8 +106,13 @@ Deno.test("LE VRAI FICHIER DU DÉPÔT N'EST PAS VIDE", async () => {
   );
   const a = accueilDepuis(brut);
   assert(!estVide(a), "data/accueil.json ne donne plus rien à afficher");
-  assertEquals(a.liens.length, 7, "les sept liens rapides de la maquette");
   assert(a.contexte !== null && a.contexte.paragraphes.length >= 2);
+  //  Le compte des liens rapides a bougé deux fois le 9 novembre ; il
+  //  est vérifié, avec leurs adresses, par « LE VRAI FICHIER PORTE SON
+  //  POKÉMON, ET SES SIX LIENS RAPIDES ». Il était écrit ici AUSSI,
+  //  figé à sept, et c'est ce doublon qui a laissé la suite rouge une
+  //  demi-journée : un même fait affirmé à deux endroits finit par
+  //  n'être mis à jour qu'à un seul.
 });
 
 // ── le contexte ─────────────────────────────────────────────────────
@@ -296,6 +301,48 @@ Deno.test("LE VRAI FICHIER PORTE SA MASCOTTE, ET PLUS DE BANDEAU", async () => {
     () => Deno.stat(new URL("../../img/accueil/bandeau-staff.png", import.meta.url)),
     Deno.errors.NotFound,
   );
+});
+
+// ── le gros bloc des annexes ────────────────────────────────────────
+
+Deno.test("le pokémon du gros bloc passe par le filtre des adresses", () => {
+  const propre = accueilDepuis({
+    decouvrir: { titre: "Les annexes", image: "https://i.test/milobellus.png" },
+  });
+  assertEquals(propre.decouvrir?.image, "https://i.test/milobellus.png");
+  //  Une image est une adresse comme une autre : si elle arrivait
+  //  telle quelle dans un attribut `src`, un `javascript:` collé dans
+  //  le JSON deviendrait du code sur la page d'accueil.
+  const sale = accueilDepuis({
+    decouvrir: { titre: "Les annexes", image: "javascript:alert(1)" },
+  });
+  assertEquals(sale.decouvrir?.image, "");
+  //  Et sans image, le bloc existe quand même : elle est décorative.
+  assertEquals(accueilDepuis({ decouvrir: { titre: "Les annexes" } })?.decouvrir?.image, "");
+});
+
+Deno.test("LE VRAI FICHIER PORTE SON POKÉMON, ET SES SIX LIENS RAPIDES", async () => {
+  const brut = JSON.parse(
+    await Deno.readTextFile(new URL("../../data/accueil.json", import.meta.url)),
+  );
+  const a = accueilDepuis(brut);
+
+  //  Servi par le dépôt comme la mascotte, pas par un hébergeur tiers.
+  assert(
+    a.decouvrir?.image.endsWith("/img/accueil/annexes.png"),
+    `l'image du gros bloc : ${a.decouvrir?.image}`,
+  );
+  const fichier = await Deno.stat(new URL("../../img/accueil/annexes.png", import.meta.url));
+  assert(fichier.size > 1000, "img/accueil/annexes.png est vide ou absent");
+
+  //  SIX LIENS, ET AUCUN TROU. « Questions » était sans adresse depuis
+  //  le 7 octobre faute de page ; /t997 est cette page. Une entrée
+  //  sans adresse s'affiche en gris et ne clique pas — c'est honnête,
+  //  mais ce n'est plus nécessaire ici, et ce test le dit le jour où
+  //  l'une d'elles se vide.
+  assertEquals(a.liens.length, 6);
+  const creuses = a.liens.filter((l) => l.url === "").map((l) => l.texte);
+  assertEquals(creuses, [], `des liens rapides sans adresse : ${creuses.join(", ")}`);
 });
 
 // ── estVide ─────────────────────────────────────────────────────────

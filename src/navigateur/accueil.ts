@@ -109,6 +109,8 @@ export type Decouvrir = {
   readonly surtitre: string;
   readonly titre: string;
   readonly texte: string;
+  /** Le pokémon en transparence, à droite. Décoratif, et facultatif. */
+  readonly image: string;
   readonly lien: Lien | null;
 };
 
@@ -353,6 +355,10 @@ function decouvrirDepuis(v: unknown): Decouvrir | null {
     surtitre: texte(o.surtitre),
     titre,
     texte: texte(o.texte),
+    //  `adresse` et pas `texte` : l'image passe par le même filtre que
+    //  les liens, donc un `javascript:` collé là ne devient pas un
+    //  attribut `src`.
+    image: adresse(o.image),
     lien: lienDepuis(o.lien),
   };
 }

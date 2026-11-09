@@ -55,6 +55,7 @@ const DONNEES = {
     surtitre: "Tout l'univers du forum",
     titre: "Les annexes",
     texte: "Tout ce qui fait Rhode est rassemblé là.",
+    image: "https://exemple.test/img/accueil/annexes.png",
     lien: { texte: "Par où commencer", url: "/h1-par-ou-commencer" },
   },
   liens: [
@@ -256,9 +257,12 @@ const sansModule = await p.evaluate(() => {
   };
 });
 dire("sans JavaScript, le bloc de repli est déjà là", sansModule.la);
+//  LE REPLI VIENT DU VRAI FICHIER, pas de la bulle de ce harnais :
+//  c'est `pages/accueil-repli.html`, donc le compte suit celui de
+//  `data/accueil.json`. Six depuis le 9 novembre.
 dire(
-  "il porte le gros bloc, puis le contexte et les quatre liens",
-  sansModule.texte.startsWith("Tout l'univers") && sansModule.liens === 4 &&
+  "il porte le gros bloc, puis le contexte et les six liens",
+  sansModule.texte.startsWith("Tout l'univers") && sansModule.liens === 6 &&
     sansModule.decouvrir === 1,
   JSON.stringify(sansModule),
 );
@@ -363,6 +367,74 @@ dire(
   JSON.stringify(gros),
 );
 dire("et rien ne déborde en largeur", !pose.debord);
+
+//  ── LE POKÉMON EN TRANSPARENCE ────────────────────────────────────
+//
+//  « Mets un pokémon en transparence tout à droite pour remplir un peu
+//  le cadre des annexes » — 9 novembre. Trois choses peuvent mal
+//  tourner, et aucune ne se voit sur une capture :
+//
+//  1. IL PASSE DEVANT LE TEXTE. Il arrive en dernier dans le DOM ;
+//     sans `z-index`, c'est lui qui est peint par-dessus le titre.
+//     On compare donc les deux `z-index` calculés, pas l'apparence.
+//  2. IL CHEVAUCHE LE TEXTE. Le paragraphe est borné à 56ch, mais le
+//     bloc rétrécit avec le forum : on mesure l'écart réel entre le
+//     bord droit du texte le plus large et le bord gauche de l'image.
+//  3. IL AJOUTE UN DÉFILEMENT. Il déborde à droite exprès, et c'est
+//     `overflow: hidden` du cadre qui le coupe — une règle qu'un
+//     `padding` ajouté plus tard pourrait faire sauter.
+const pokemon = await p.evaluate(() => {
+  const bloc = document.querySelector(".wm-accueil__decouvrir");
+  const img = bloc?.querySelector(".wm-accueil__decouvrir-image");
+  if (img == null) return null;
+  const si = getComputedStyle(img);
+  const ri = img.getBoundingClientRect();
+  const textes = [...bloc.querySelectorAll(
+    ".wm-accueil__decouvrir-surtitre, .wm-accueil__decouvrir-titre," +
+    " .wm-accueil__decouvrir-texte, .wm-accueil__decouvrir-bouton",
+  )];
+  return {
+    //  Posée, et pas seulement présente dans le HTML.
+    visible: ri.width > 80 && ri.height > 80,
+    //  La vraie image du dépôt, servie et décodée : une adresse morte
+    //  rendrait une boîte vide que `getBoundingClientRect` mesurerait
+    //  quand même.
+    chargee: img.complete && img.naturalWidth > 0,
+    //  Elle ne dit rien : un lecteur d'écran doit passer devant.
+    muette: img.getAttribute("alt") === "" &&
+      img.getAttribute("aria-hidden") === "true",
+    opacite: Number(si.opacity),
+    //  Derrière le texte, et sans voler le clic.
+    derriere: Number(si.zIndex) <
+      Math.min(...textes.map((t) => Number(getComputedStyle(t).zIndex))),
+    inerte: si.pointerEvents === "none",
+    //  L'écart entre le texte le plus large et l'image.
+    ecart: Math.round(ri.left - Math.max(...textes.map((t) => t.getBoundingClientRect().right))),
+    coupee: getComputedStyle(bloc).overflow === "hidden",
+    debordeADroite: Math.round(ri.right - bloc.getBoundingClientRect().right),
+  };
+});
+dire(
+  "le pokémon est posé à droite du cadre, et il s'est bien chargé",
+  pokemon !== null && pokemon.visible && pokemon.chargee,
+  JSON.stringify(pokemon),
+);
+dire(
+  "il est en transparence, muet et inerte",
+  pokemon !== null && pokemon.opacite > 0 && pokemon.opacite <= 0.3 &&
+    pokemon.muette && pokemon.inerte,
+  JSON.stringify(pokemon),
+);
+dire(
+  "il est DERRIÈRE le texte, et il ne le touche pas",
+  pokemon !== null && pokemon.derriere && pokemon.ecart >= 24,
+  JSON.stringify(pokemon),
+);
+dire(
+  "il déborde à droite, et c'est le cadre qui le coupe",
+  pokemon !== null && pokemon.coupee && pokemon.debordeADroite > 0 && !pose.debord,
+  JSON.stringify(pokemon),
+);
 
 //  ── L'ACCUEIL NE DÉPEND PLUS DE LA LARGEUR DU FORUM ───────────────
 //
@@ -805,6 +877,17 @@ for (const largeur of [900, 520, 390, 320]) {
   const m = await ouvrirLaBulle();
   dire(`à ${largeur} px, l'infobulle reste dans l'écran`, m.dedans, JSON.stringify(m));
   dire(`à ${largeur} px, rien ne déborde`, !m.debord);
+  //  LE POKÉMON S'EFFACE QUAND LE VIDE DISPARAÎT. Au-dessus de 860 px
+  //  il remplit la droite du cadre ; en dessous, il n'y a plus de
+  //  droite, et une ombre à 16 % sous un paragraphe le rend pénible à
+  //  lire. La bascule se mesure, elle ne se devine pas sur une capture.
+  const vu = await p.evaluate(() =>
+    getComputedStyle(document.querySelector(".wm-accueil__decouvrir-image")).display !== "none"
+  );
+  dire(
+    `à ${largeur} px, le pokémon ${largeur > 860 ? "remplit encore le cadre" : "s'efface"}`,
+    vu === (largeur > 860),
+  );
   //  ET LE BEC DÉSIGNE ENCORE SA BULLE. C'est là que ça se joue : sous
   //  520 px le panneau glisse de plus de 200 px pour rentrer dans
   //  l'écran, et un bec resté au milieu pointerait le vide.
@@ -979,12 +1062,17 @@ const vrai = await p.evaluate(() => {
     motVisible: /visibility/i.test(hote.textContent),
   };
 });
-//  QUATRE LIENS RAPIDES DEPUIS LE 9 NOVEMBRE, et plus sept : Contexte,
-//  Règlement et Annexes sont partis dans le gros bloc, qui les porte
-//  tous les trois en un seul appel.
+//  SIX LIENS RAPIDES, et plus sept : Contexte, Règlement et Annexes
+//  sont partis le 9 novembre dans le gros bloc, qui les porte tous les
+//  trois en un seul appel ; le même jour, Callista en a rendu trois —
+//  FAQ & suggestions, Créer sa présentation, Petites annonces.
+//
+//  LE COMPTE EST DUR EXPRÈS. C'est le seul endroit qui dirait qu'une
+//  entrée a disparu de `data/accueil.json` : le module saute en
+//  silence un lien sans texte, et un lien perdu ne casse rien.
 dire(
   "AVEC LES VRAIES DONNÉES, LES HUIT BLOCS TIENNENT LA PAGE",
-  vrai.pose && vrai.liens === 4 && vrai.decouvrir === 1 &&
+  vrai.pose && vrai.liens === 6 && vrai.decouvrir === 1 &&
     vrai.partenaires === 7 && vrai.actus === 4 &&
     vrai.preliens === 6 && vrai.mascotte !== "aucune",
   JSON.stringify(vrai),

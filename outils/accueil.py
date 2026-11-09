@@ -134,6 +134,14 @@ def en_forum(d: dict) -> str:
                 else '    <span class="wm-accueil__decouvrir-bouton '
                      f'wm-accueil__decouvrir-bouton--sans-adresse">{mot}</span>'
             )
+        #  LE POKÉMON EST DÉCORATIF, et il arrive EN DERNIER : il est
+        #  sorti du flux par le CSS, mais sans CSS il se glisserait
+        #  sinon entre le texte et son bouton. `alt` vide ET
+        #  `aria-hidden` : un lecteur d'écran n'a rien à en dire.
+        image = str(dec.get("image", "")).strip()
+        if image:
+            out.append('    <img class="wm-accueil__decouvrir-image" '
+                       f'src="{echappe(image)}" alt="" aria-hidden="true">')
         out.append("  </section>")
 
     out += [

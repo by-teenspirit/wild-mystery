@@ -19269,16 +19269,61 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
    l'infobulle des équipes le même jour — 0,72 tombait sous 4,5. */
 
 #modernbb .wm-accueil__decouvrir {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   box-sizing: border-box;
+  /*  `overflow: hidden` : le pokémon déborde en bas et à droite, et
+      c'est le cadre qui le coupe — aux arrondis près, donc sans angle
+      vif qui dépasse. C'est aussi ce qui garantit qu'il n'ajoute pas
+      un défilement horizontal à la page. */
+  overflow: hidden;
   margin: 0 0 var(--wm-espace-24, 24px);
   padding: var(--wm-espace-32, 32px) var(--wm-espace-32, 32px)
     var(--wm-espace-24, 24px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-nuit, #3a2a22);
   color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  LE POKÉMON QUI REMPLIT LE CADRE ─────────────────────────────────
+
+    « Mets un pokémon en transparence tout à droite pour remplir un peu
+    le cadre des annexes » — 9 novembre 2026.
+
+    IL EST DERRIÈRE, PAS DESSOUS. `z-index: 0` sur l'image et un
+    `position: relative` sur les enfants de texte : sans ça, l'image
+    arrivant en dernier dans le DOM passerait DEVANT le titre. Le texte
+    est borné à 56ch et le bloc fait plus de 1 100 px sur le forum, donc
+    les deux ne se croisent pas — mais l'ordre de peinture ne doit pas
+    dépendre de cette chance.
+
+    0,16 D'OPACITÉ, et pas un dégradé ni un masque : le panneau est
+    sombre dans les deux thèmes (`fond-nuit`), donc une seule valeur
+    suffit — elle ne change pas de sens quand le thème bascule.
+
+    Décoratif de bout en bout : pas de clic, pas de sélection, et le
+    module le pose déjà en `aria-hidden` avec un `alt` vide. */
+#modernbb .wm-accueil__decouvrir-image {
+  position: absolute;
+  right: -18px;
+  bottom: -28px;
+  z-index: 0;
+  width: auto;
+  height: 300px;
+  max-width: none;
+  opacity: 0.16;
+  pointer-events: none;
+  user-select: none;
+}
+
+#modernbb .wm-accueil__decouvrir-surtitre,
+#modernbb .wm-accueil__decouvrir-titre,
+#modernbb .wm-accueil__decouvrir-texte,
+#modernbb .wm-accueil__decouvrir-bouton {
+  position: relative;
+  z-index: 1;
 }
 
 #modernbb .wm-accueil__decouvrir-surtitre {
@@ -19354,6 +19399,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /*  Sous 560 px, le bouton prend la ligne entière : un bouton de
     132 px au milieu d'un pavé de 320 se rate du pouce. */
+/*  SOUS 860 px, LE POKÉMON S'EN VA. Il remplit un vide à droite du
+    texte ; quand il n'y a plus de vide, il passe DERRIÈRE le texte, et
+    une ombre de 16 % sous un paragraphe est exactement ce qui le rend
+    pénible à lire. Mieux vaut un cadre nu qu'un cadre sali. */
+@media (max-width: 860px) {
+  #modernbb .wm-accueil__decouvrir-image {
+    display: none;
+  }
+}
+
 @media (max-width: 560px) {
   #modernbb .wm-accueil__decouvrir {
     padding: var(--wm-espace-24, 24px) var(--wm-espace-20, 20px);

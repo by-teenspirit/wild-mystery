@@ -219,6 +219,19 @@ function blocDecouvrir(doc: Document, a: Accueil): HTMLElement | null {
     bouton.appendChild(chevron(doc));
     bloc.appendChild(bouton);
   }
+  //  LE POKÉMON EN TRANSPARENCE, « tout à droite pour remplir un peu le
+  //  cadre » (9 novembre). Il est DÉCORATIF : `alt` vide ET
+  //  `aria-hidden`, parce qu'il ne dit rien que le titre ne dise déjà.
+  //  Il arrive EN DERNIER — le CSS le sort du flux, mais sans CSS il se
+  //  glisserait sinon entre le texte et son bouton.
+  if (d.image !== "") {
+    const img = doc.createElement("img");
+    img.className = "wm-accueil__decouvrir-image";
+    img.src = d.image;
+    img.alt = "";
+    img.setAttribute("aria-hidden", "true");
+    bloc.appendChild(img);
+  }
   return bloc;
 }
 

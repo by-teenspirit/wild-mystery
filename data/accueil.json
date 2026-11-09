@@ -2,7 +2,7 @@
  "_": "Le bloc d'accueil, maquette `390:3170`. SOURCE UNIQUE de ses sept blocs : contexte, liens rapides, partenaires, votes, staff, actualités, pré-liens. Arbitrage de Callista du 7 octobre : tout vient d'ici, et pas du forum.",
  "_PROVISOIRE": "⚠ CONTENU DE LA MAQUETTE `390:3170`, posé le 7 octobre à la demande de Callista — « les mêmes que la maquette et moi je viendrai corriger plus tard ». Le staff, les actualités, les partenaires et les pré-liens sont CEUX DU DESSIN, pas ceux du forum : Teenspirit n'est pas un vrai compte, « Le Festival du Soleil » n'est pas une vraie annonce. TOUTE ADRESSE VALANT « # » EST UN TROU — elle ne mène nulle part et se repère d'un coup d'œil. Ce qui est VRAI ici : le contexte, les six adresses relevées sur le forum, les trois votes, et les deux images.",
  "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module le lit et dessine. Changer une actualité = changer une ligne ici et pousser ; RIEN à recoller dans le panneau d'administration. Ce qui y est collé une fois pour toutes est un bloc court — le texte du contexte et les sept liens en dur — pour que la page reste lisible sans JavaScript.",
- "_adressesRelevees": "Six adresses relevées sur le forum le 7 octobre et vérifiées une par une — code 200, et le titre de la page confirme à chaque fois : Contexte /t12, Règlement /t10, Pré-liens /f6, Bottin /t51, Zone Invités /f54, Toutes les annonces /f56. Les deux qui restent vides le restent exprès : « Questions » n'a pas de page évidente, et les Annexes ne sont pas encore sur le forum.",
+ "_adressesRelevees": "Six adresses relevées sur le forum le 7 octobre et vérifiées une par une — code 200, et le titre de la page confirme à chaque fois : Contexte /t12, Règlement /t10, Pré-liens /f6, Bottin /t51, Zone Invités /f54, Toutes les annonces /f56. Trois de plus données par Callista le 9 novembre : FAQ & suggestions /t997, Petites annonces /t813, et le formulaire de présentation /post?f=7&mode=newtopic. Il ne reste qu'un trou : les Annexes ne sont pas encore sur le forum.",
  "_cequiManque": "Les URL vides sont VOLONTAIREMENT vides : je ne les invente pas. Une entrée sans URL s'affiche en gris et ne clique pas, ce qui se voit — c'est préférable à un lien qui mène dans le vide. Les images aussi : sans URL, pas de balise `img`, et le bloc tient quand même.",
  "contexte": {
   "titre": "Contexte",
@@ -17,19 +17,22 @@
   }
  },
  "_decouvrir": "LE GROS BLOC DE L'ACCUEIL, demandé le 9 novembre 2026 : « un gros bloc qui contient un lien vers les annexes : c'est là que la personne va pouvoir découvrir tout l'univers du forum, donc faut le pousser à aller cliquer dessus ». Il remplace trois liens rapides — Contexte, Règlement, Annexes — qui pesaient le même poids que « Bottin » alors qu'ils ouvrent le forum entier. L'adresse est celle de l'annexe 01, la porte d'entrée du sommaire. ⚠ SON CORPS EST ENCORE LE REMPLISSAGE DU GABARIT : le bloc pousse vers une page qui n'est pas écrite.",
+ "_decouvrirImage": "LE POKÉMON EN TRANSPARENCE, demandé le 9 novembre : « mets un pokémon en transparence tout à droite pour remplir un peu le cadre des annexes ». C'est Milobellus, du dex de Rhode — choisi pour sa silhouette haute et pâle, qui se lit encore à 14 % sur un panneau sombre, là où un Noctali disparaîtrait. DÉCORATIF : le module le pose en `aria-hidden` avec un `alt` vide, et le CSS le masque sous 860 px plutôt que de le laisser passer derrière le texte. Pour en changer : remplacer `img/accueil/annexes.png` et pousser, l'adresse ne bouge pas.",
  "decouvrir": {
   "surtitre": "Tout l'univers du forum",
   "titre": "Les annexes",
   "texte": "La région et ses dix-sept zones, les arènes et la Ligue, les six groupes, le combat, la Team Ombre : tout ce qui fait Rhode est rassemblé là, en treize pages.",
+  "image": "https://by-teenspirit.github.io/wild-mystery/img/accueil/annexes.png",
   "lien": {
    "texte": "Par où commencer",
    "url": "/h1-par-ou-commencer"
   }
  },
+ "_liens": "SIX LIENS RAPIDES depuis le 9 novembre, rangés dans l'ordre où un nouveau venu s'en sert : il se présente, il cherche un alter ego, il cherche un avatar, il lit les annonces, il passe par la zone invités, et la FAQ ferme la marche parce qu'on y va quand on bloque. « Questions » était une entrée SANS adresse depuis le 7 octobre — la page n'existait pas ; /t997 est cette page, et le trou est bouché. « Créer sa présentation » ouvre directement le formulaire de nouveau sujet du forum 7 : l'adresse de Forumactif, pas une page à nous — « je voulais qu'on ait juste à modifier un formulaire sans toucher au code ».",
  "liens": [
   {
-   "texte": "Questions",
-   "url": ""
+   "texte": "Créer sa présentation",
+   "url": "/post?f=7&mode=newtopic"
   },
   {
    "texte": "Pré-liens",
@@ -40,8 +43,16 @@
    "url": "/t51-bottin-des-avatars"
   },
   {
+   "texte": "Petites annonces",
+   "url": "/t813-petites-annonces"
+  },
+  {
    "texte": "Zone Invités",
    "url": "/f54-zone-invites"
+  },
+  {
+   "texte": "FAQ & suggestions",
+   "url": "/t997-faq-suggestions"
   }
  ],
  "partenaires": {
