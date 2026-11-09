@@ -105,26 +105,62 @@ const gauche = (actif, corps) =>
 <div id="cp-main" class="ucp-main">${corps}</div>
 <span class="corners-bottom"><span></span></span></div></div></div></div>`;
 
-//  ── LES CINQ CORPS, RELEVÉS LE 8 NOVEMBRE ─────────────────────────
+//  ── LES SIX CORPS, RELEVÉS LES 8 ET 9 NOVEMBRE ────────────────────
+
+//  ── LE PROFIL, RELEVÉ CONNECTÉE ───────────────────────────────────
+//
+//  Et pas déconnectée, comme le 8. Ce n'est pas la même page, et les
+//  différences portent trois défauts que l'autre ne pouvait pas
+//  montrer :
+//
+//    · un champ VIDE ne l'est pas — Forumactif y écrit « &nbsp;- »,
+//      donc aucune règle `:empty` ne le voit ;
+//    · chaque champ porte son FORMULAIRE D'ÉDITION, caché par une
+//      classe de Forumactif à laquelle on ne s'en remet pas ;
+//    · le libellé porte une COULEUR EN DUR, `#444444`, écrite en
+//      style dans un `<span>` — 2,4 de contraste en thème sombre.
+//
+//  Quinze champs, l'astérisque des champs obligatoires, et la ZONE
+//  LIBRE qui est un `textarea`.
+const CHAMPS = [
+  ["field_id8", '<span style="color:#444444;">Pseudo</span> : ', " &nbsp;-", "input"],
+  ["field_id7", '<span style="color:#444444;">Crédits</span>&nbsp;* : ', " &nbsp;-", "input"],
+  ["field_id6", '<span style="color:#444444;">Rythme de rp</span> : ', "uc", "input"],
+  ["field_id4", '<span style="color:#444444;">Warning</span> : ', " &nbsp;-", "input"],
+  ["field_id3", '<span style="color:#444444;">Trigger</span>&nbsp;* : ', " &nbsp;-", "input"],
+  ["field_id1", '<span style="color:#444444;">Discord</span>&nbsp;* : ', " &nbsp;-", "input"],
+  ["field_id-8", "Faceclaim&nbsp;* : ", "uc", "input"],
+  ["field_id-9", "Autres comptes : ", "Tour Titanite.", "input"],
+  ["field_id-11", "Pronoms&nbsp;* : ", "uc", "input"],
+  ["field_id-13", "₽OKÉDOLLARS : ", "257", null],
+  ["field_id-4", "Date d'inscription : ", "06/08/2020", null],
+  ["field_id-6", "Messages postés : ", "291", null],
+  ["field_id-20", "ZONE LIBRE : ", " &nbsp;-", "textarea"],
+  ["field_id-7", "Genre : ", null, null],
+  ["field_id-12", "Date de naissance : ", " &nbsp;-", "select"],
+];
+
+const forme = (quoi) =>
+  quoi === null
+    ? ""
+    : `<div class="field_editable invisible">${
+      quoi === "textarea"
+        ? '<textarea class="inputbox" rows="7" cols="60"></textarea>'
+        : quoi === "select"
+        ? '<select class="gensmall"><option value="">Aucun</option></select>'
+        : '<input type="text" class="inputbox" style="width:250px" value="">'
+    }</div>`;
 
 const CORPS_PROFIL =
   `<h1>Tout à propos de <span class="group-2 usr_grp_clr" style="color:#808080"><strong>Arceus</strong></span></h1>
 <div class="panel"><div class="inner"><span class="corners-top"><span></span></span>
-<div class="middleline"><div id="profile-tab-field-profil">
-<dl id="field_id-8"><dt>Faceclaim : </dt><dd><div class="field_uneditable">uc</div></dd></dl>
-<div class="separator">&nbsp;</div>
-<dl id="field_id-9"><dt>Autres comptes : </dt><dd><div class="field_uneditable">Tour Titanite.</div></dd></dl>
-<div class="separator">&nbsp;</div>
-<dl id="field_id-11"><dt>Pronoms : </dt><dd><div class="field_uneditable">uc</div></dd></dl>
-<div class="separator">&nbsp;</div>
-<dl id="field_id-4"><dt>Date d'inscription : </dt><dd><div class="field_uneditable">06/08/2020</div></dd></dl>
-<div class="separator">&nbsp;</div>
-<dl id="field_id-6"><dt>Messages postés : </dt><dd><div class="field_uneditable">291</div></dd></dl>
-<div class="separator">&nbsp;</div>
-<dl id="field_id-7"><dt>Genre : </dt><dd><div class="field_uneditable"><img src="${ICONE}" alt="Féminin" title="Féminin"></div></dd></dl>
-<div class="separator">&nbsp;</div>
-</div></div><span class="corners-bottom"><span></span></span></div></div>
-`;
+<div class="middleline"><div id="profile-tab-field-profil">${
+    CHAMPS.map(([id, mot, valeur, edition]) =>
+      `<dl id="${id}"><dt>${mot}</dt><dd><div class="field_uneditable">${
+        valeur === null ? `<img src="${ICONE}" alt="Féminin" title="Féminin">` : valeur
+      }</div>${forme(edition)}</dd></dl><div class="separator">&nbsp;</div>`
+    ).join("")
+  }</div></div><span class="corners-bottom"><span></span></span></div></div>`;
 
 //  `/u1groups` — et le piège : `.clearfix` est un DIV VIDE au milieu
 //  du bloc de message, pas la rangée. La rangée est le `<li>`.
@@ -603,7 +639,88 @@ const champs = await p.evaluate(() => {
   });
   return { colonnes: new Set(lignes.map((x) => x.gauche)).size, lignes };
 });
-ok("les six champs sont montés", champs?.lignes.length === 6, champs?.lignes.length);
+//  ── LES TROIS PIÈGES DE LA PAGE CONNECTÉE ─────────────────────────
+{
+  const connectee = await p.evaluate(() => {
+    const dls = [...document.querySelectorAll(".wm-profil-page__champs > dl")];
+    return {
+      //  1 · « &nbsp;- » devient un cadratin, et il est en sourdine.
+      vides: dls.filter((d) => d.querySelector(".wm-profil-page__vide")).length,
+      tirets: dls.filter((d) =>
+        /^[\s\u00a0]*-[\s\u00a0]*$/.test(
+          d.querySelector(".field_uneditable")?.textContent ?? "x",
+        )
+      ).length,
+      //  UNE VALEUR EN IMAGE N'EST PAS UNE VALEUR VIDE : `textContent`
+      //  rend la chaîne vide pour une icône, et mon premier test les
+      //  a remplacées par un tiret.
+      images: dls.filter((d) => d.querySelector(".field_uneditable img")).length,
+      imagesPerdues: dls.filter((d) =>
+        d.querySelector(".wm-profil-page__vide") &&
+        d.querySelector(".field_uneditable img") === null &&
+        d.id === "field_id-7"
+      ).length,
+      //  2 · aucun formulaire d'édition visible.
+      formes: dls.filter((d) => d.querySelector(".field_editable")).length,
+      formesOuvertes: dls.filter((d) => {
+        const e = d.querySelector(".field_editable");
+        return e !== null && getComputedStyle(e).display !== "none";
+      }).length,
+      //  3 · la couleur en dur du libellé ne s'applique plus.
+      enDur: dls.filter((d) => d.querySelector("dt span[style]")).length,
+      couleurs: [
+        ...new Set(
+          dls.map((d) => {
+            const sp = d.querySelector("dt span[style]");
+            return sp === null ? null : getComputedStyle(sp).color;
+          }).filter(Boolean),
+        ),
+      ],
+      attendue: getComputedStyle(dls[0].querySelector("dt")).color,
+      //  Et l'astérisque est sorti du texte.
+      etoiles: document.querySelectorAll(".wm-profil-page__requis").length,
+      etoilesRestees: dls.filter((d) =>
+        (d.querySelector("dt")?.textContent ?? "").includes("*") &&
+        d.querySelector(".wm-profil-page__requis") === null
+      ).length,
+    };
+  });
+  ok(
+    "les champs vides portent un cadratin, pas « - »",
+    connectee.vides === 7 && connectee.tirets === 0,
+    connectee,
+  );
+  ok(
+    "et une valeur en image n'a pas été prise pour du vide",
+    connectee.images === 1 && connectee.imagesPerdues === 0,
+    connectee,
+  );
+  ok(
+    "aucun formulaire d'édition n'est ouvert",
+    connectee.formes === 11 && connectee.formesOuvertes === 0,
+    connectee,
+  );
+  //  `#444444` sur le fond sombre de la charte donne 2,4 : il faut
+  //  que la couleur en ligne cède, et c'est le seul `!important` de
+  //  la feuille.
+  ok(
+    "la couleur en dur du libellé ne s'applique plus",
+    connectee.enDur === 6 && connectee.couleurs.length === 1 &&
+      connectee.couleurs[0] === connectee.attendue,
+    connectee,
+  );
+  ok(
+    "l'astérisque est sorti du texte du libellé",
+    connectee.etoiles === 5 && connectee.etoilesRestees === 0,
+    connectee,
+  );
+}
+
+ok(
+  "les quinze champs sont montés",
+  champs?.lignes.length === 15,
+  champs?.lignes.length,
+);
 ok(
   "chaque libellé est sur la ligne de sa valeur",
   champs.lignes.every((l) => l.memeLigne),

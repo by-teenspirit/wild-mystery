@@ -28489,8 +28489,49 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   align-items: flex-start;
 }
 
-/*  Un champ vide se voit : mieux vaut un tiret qu'une ligne orpheline
-    dont on se demande si elle a raté son chargement. */
+/*  ── CE QUE LA PAGE MONTRE QUAND ON EST CONNECTÉE ─────────────────
+
+    Relevé le 9 novembre sur son propre profil : seize champs au lieu
+    de six, chacun avec son formulaire d'édition caché, et trois
+    choses que la page déconnectée ne montrait pas.
+
+    1 · UN CHAMP VIDE N'EST PAS VIDE. Forumactif y écrit « &nbsp;- ».
+        Le module le remplace par un cadratin et le marque ; ici on le
+        met en sourdine, parce qu'un champ non rempli ne doit pas se
+        lire aussi fort qu'un champ rempli. */
+#modernbb .wm-profil-page__vide {
+  color: var(--wm-texte-doux, #6e5749);
+  opacity: 0.7;
+}
+
+/*  2 · LE FORMULAIRE D'ÉDITION RESTE FERMÉ. Forumactif le cache par
+       une classe `invisible` ; on ne s'en remet pas à elle seule —
+       seize formulaires ouverts d'un coup, c'est la page entière. */
+#modernbb .wm-profil-page__forme {
+  display: none;
+}
+
+/*  3 · LE LIBELLÉ PORTE UNE COULEUR EN DUR, `#444444`, écrite par le
+       panneau dans un `<span>` de style. Elle vient donc après tout
+       ce qu'une feuille peut dire — d'où le seul `!important` de
+       cette feuille, que la charte autorise contre un style en ligne
+       et nulle part ailleurs.
+
+       CE N'EST PAS UN DÉTAIL DE GOÛT : #444444 sur le fond sombre de
+       la charte donne 2,4, là où il en faut 4,5. Les libellés
+       devenaient illisibles la nuit. */
+#modernbb .wm-profil-page__champs > dl > dt span[style] {
+  color: inherit !important;
+}
+
+/*  L'astérisque des champs obligatoires, sorti du texte par le
+    module : il se voit sans se lire à voix haute comme un mot. */
+#modernbb .wm-profil-page__requis {
+  color: var(--wm-accent-terre, #8b4725);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  Un champ resté vide côté DOM garde quand même son tiret. */
 #modernbb .wm-profil-page__champs > dl > dd:empty::after {
   content: "—";
   opacity: 0.6;

@@ -65,6 +65,65 @@ function champ(racine: ParentNode, libelle: string): HTMLElement | null {
   return null;
 }
 
+//  ── UN CHAMP VIDE, VU DE L'INTÉRIEUR ────────────────────────────────
+//
+//  Connectée, la page n'est pas la même : chaque champ porte en plus
+//  son formulaire d'édition caché, et un champ sans valeur n'est PAS
+//  vide — Forumactif y écrit une espace insécable et un trait.
+//
+//      <dd><div class="field_uneditable"> &nbsp;-</div>…
+//
+//  Une règle `:empty` ne voit donc rien, et la page affiche « - » une
+//  douzaine de fois. On remplace par un vrai cadratin, en le marquant
+//  pour que la feuille le mette en sourdine : un champ non rempli ne
+//  doit pas se lire aussi fort qu'un champ rempli.
+const VIDE = /^[\s\u00a0]*[-–—]?[\s\u00a0]*$/;
+
+function rangerUnChamp(dl: Element): void {
+  const valeur = dl.querySelector(".field_uneditable");
+  //  ── UNE VALEUR SANS TEXTE N'EST PAS UNE VALEUR VIDE ─────────────
+  //
+  //  « Genre » a pour valeur une icône, « Trainer card » une image :
+  //  leur `textContent` est la chaîne vide, et mon test les a
+  //  remplacées par un tiret au premier essai. On ne regarde le
+  //  texte que s'il n'y a RIEN d'autre dans la case.
+  if (
+    valeur !== null && valeur.children.length === 0 &&
+    VIDE.test(valeur.textContent ?? "")
+  ) {
+    valeur.textContent = "—";
+    valeur.classList.add("wm-profil-page__vide");
+  }
+  //  LE FORMULAIRE CACHÉ RESTE CACHÉ. Forumactif compte sur sa classe
+  //  `invisible` ; si sa feuille passait après la nôtre, ou si elle
+  //  changeait de nom, seize champs s'ouvriraient d'un coup sur la
+  //  page. On le marque donc nous-mêmes.
+  for (const forme of Array.from(dl.querySelectorAll(".field_editable"))) {
+    forme.classList.add("wm-profil-page__forme");
+  }
+  //  L'ASTÉRISQUE DES CHAMPS OBLIGATOIRES vit dans le texte du
+  //  libellé, collé par une espace insécable. On l'en sort pour
+  //  pouvoir le mettre en sourdine sans toucher au mot.
+  const dt = dl.querySelector("dt");
+  if (dt === null) return;
+  for (const n of Array.from(dt.childNodes)) {
+    if (n.nodeType !== 3) continue;
+    const texte = n.textContent ?? "";
+    if (!texte.includes("*")) continue;
+    const avant = texte.slice(0, texte.indexOf("*"));
+    const apres = texte.slice(texte.indexOf("*") + 1);
+    const etoile = dt.ownerDocument.createElement("span");
+    etoile.className = "wm-profil-page__requis";
+    etoile.textContent = "*";
+    etoile.setAttribute("title", "Champ obligatoire");
+    n.replaceWith(
+      dt.ownerDocument.createTextNode(avant),
+      etoile,
+      dt.ownerDocument.createTextNode(apres),
+    );
+  }
+}
+
 /** Un chiffre de la carte : le nombre, puis le mot. */
 function chiffre(doc: Document, nombre: string, mot: string): HTMLLIElement {
   const li = doc.createElement("li");
@@ -282,7 +341,10 @@ export function poserLeProfil(doc: Document): boolean {
   if (champs !== null) {
     const liste = doc.createElement("div");
     liste.className = "wm-profil-page__champs";
-    for (const dl of Array.from(champs.querySelectorAll("dl"))) liste.appendChild(dl);
+    for (const dl of Array.from(champs.querySelectorAll("dl"))) {
+      rangerUnChamp(dl);
+      liste.appendChild(dl);
+    }
     panneau.appendChild(liste);
   }
 

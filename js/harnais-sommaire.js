@@ -344,6 +344,31 @@
     }
     return null;
   }
+  var VIDE2 = /^[\s\u00a0]*[-–—]?[\s\u00a0]*$/;
+  function rangerUnChamp(dl) {
+    const valeur = dl.querySelector(".field_uneditable");
+    if (valeur !== null && valeur.children.length === 0 && VIDE2.test(valeur.textContent ?? "")) {
+      valeur.textContent = "\u2014";
+      valeur.classList.add("wm-profil-page__vide");
+    }
+    for (const forme of Array.from(dl.querySelectorAll(".field_editable"))) {
+      forme.classList.add("wm-profil-page__forme");
+    }
+    const dt = dl.querySelector("dt");
+    if (dt === null) return;
+    for (const n of Array.from(dt.childNodes)) {
+      if (n.nodeType !== 3) continue;
+      const texte2 = n.textContent ?? "";
+      if (!texte2.includes("*")) continue;
+      const avant = texte2.slice(0, texte2.indexOf("*"));
+      const apres = texte2.slice(texte2.indexOf("*") + 1);
+      const etoile = dt.ownerDocument.createElement("span");
+      etoile.className = "wm-profil-page__requis";
+      etoile.textContent = "*";
+      etoile.setAttribute("title", "Champ obligatoire");
+      n.replaceWith(dt.ownerDocument.createTextNode(avant), etoile, dt.ownerDocument.createTextNode(apres));
+    }
+  }
   function chiffre(doc, nombre, mot) {
     const li = doc.createElement("li");
     li.className = "wm-profil-page__chiffre";
@@ -480,7 +505,10 @@
     if (champs !== null) {
       const liste = doc.createElement("div");
       liste.className = "wm-profil-page__champs";
-      for (const dl of Array.from(champs.querySelectorAll("dl"))) liste.appendChild(dl);
+      for (const dl of Array.from(champs.querySelectorAll("dl"))) {
+        rangerUnChamp(dl);
+        liste.appendChild(dl);
+      }
       panneau.appendChild(liste);
     }
     const corps = gauche.querySelector("#cp-main");
