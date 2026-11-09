@@ -17299,6 +17299,124 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin-top: 0;
 }
 
+/*  ── UN ADVERSAIRE D'UNE SUITE DE COMBATS ─────────────────────────
+
+    « Ça manque d'espace ici, entre les équipes. On voit pas que ce
+    sont des équipes différentes, de personnages différents » —
+    9 novembre 2026, sur la Ligue.
+
+    LE DÉFAUT N'ÉTAIT PAS L'ESPACE. Les cinq sections du sujet
+    étaient cinq fois la même chose : une étiquette de dix pixels,
+    deux cadres, une rangée de sprites. Rien ne disait où finissait
+    l'un et où commençait l'autre, et l'œil y lisait une seule équipe
+    de trente pokémon. Ajouter vingt pixels aurait donné cinq rangées
+    un peu plus espacées — pas cinq personnes.
+
+    UNE BORDURE DIT « CECI VA ENSEMBLE » PLUS VITE QU'UN BLANC. C'est
+    tout l'écart entre les deux : le blanc sépare, le cadre groupe. Et
+    la carte porte un rang, parce que ces cinq-là se combattent DANS
+    L'ORDRE et que rien ne le disait.
+
+    LA SURFACE S'INVERSE À L'INTÉRIEUR. L'annonce est sur le sable,
+    la carte d'un adversaire sur la surface claire — et les deux
+    cadres de types, qui sont en surface partout ailleurs, repassent
+    donc au sable ici. Sans cette bascule, un bloc clair sur une carte
+    claire ne se voit plus, exactement comme un bloc sable sur une
+    annonce sable. */
+#modernbb .wm-annonce__duel {
+  margin: var(--wm-espace-24, 24px) 0 0;
+  padding: var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-annonce__duel .wm-annonce__bloc {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  La tête : le chiffre, puis les mots. `align-items: center` et pas
+    `flex-start` — le chiffre est une pastille, pas une puce de
+    paragraphe, et calé en haut il flottait au-dessus du rappel. */
+#modernbb .wm-annonce__duel-tete {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-16, 16px);
+}
+
+/*  LE CHIFFRE EST UNE PASTILLE RONDE, et il ne rétrécit pas :
+    `flex-shrink: 0`, sans quoi un titre long l'écrasait en ovale.
+    `line-height: 1` plutôt qu'un calage vertical : le chiffre est
+    centré par la grille, pas par une marge devinée. */
+#modernbb .wm-annonce__duel-rang {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  /*  L'ENCRE DE NUIT, ET PAS L'ACCENT. Je l'avais peinte en
+      `accent-primaire` ; le harnais l'a reprise le jour même. Comme
+      `accent-fort`, cette couleur s'ÉCLAIRCIT la nuit — la pastille
+      devenait un pois bleu pâle, la seule tache claire d'une page
+      noire, quatre fois de suite. `fond-nuit` est sombre dans les
+      DEUX thèmes ; c'est la paire faite pour ça. */
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1;
+}
+
+#modernbb .wm-annonce__duel-mots {
+  min-width: 0;
+}
+
+#modernbb .wm-annonce__duel-rappel {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-annonce__duel-titre {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .wm-annonce__duel-niveaux {
+  margin: var(--wm-espace-4, 4px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  LE DERNIER EST LE CHAMPION, et c'est son CONTOUR qui le dit : le
+    bord net au lieu du bord fin. Pas une couleur de fond à lui — elle
+    le sortirait de la série alors qu'il en est l'aboutissement, et
+    toute teinte d'accent s'éclaircit la nuit. Un bord, lui, suit le
+    thème sans jamais devenir une plaque. */
+#modernbb .wm-annonce__duel--champion {
+  border-color: var(--wm-bord-net, #d9c3b1);
+}
+
+/*  LA PREMIÈRE CHOSE SOUS LA TÊTE N'A PAS SA MARGE DU HAUT :
+    `__blocs` en porte vingt, qui s'ajoutaient aux seize de la tête. */
+#modernbb .wm-annonce__duel .wm-annonce__duel-tete + .wm-annonce__blocs {
+  margin-top: var(--wm-espace-16, 16px);
+}
+
 /*  ── DES IMAGES RONDES ────────────────────────────────────────────
 
     Pour un portrait, une équipe, une galerie de visages. Le rond est

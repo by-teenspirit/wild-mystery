@@ -122,7 +122,7 @@ def e(t):
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
-def cadres_de_types(w, table):
+def cadres_de_types(w, table, retrait="  "):
     """Les deux petits cadres, en face à face.
 
     « Un petit cadre pour afficher le type super efficace contre le
@@ -142,22 +142,22 @@ def cadres_de_types(w, table):
     """
     if not table:
         return
-    w('  <div class="wm-annonce__blocs">')
+    w(f'{retrait}<div class="wm-annonce__blocs">')
     for titre, cle in (
         ("Super efficace contre lui", "superEfficaces"),
         ("Peu efficace contre lui", "peuEfficaces"),
     ):
-        w('    <div class="wm-annonce__bloc">')
-        w(f'      <p class="wm-annonce__bloc-titre">{e(titre)}</p>')
+        w(f'{retrait}  <div class="wm-annonce__bloc">')
+        w(f'{retrait}    <p class="wm-annonce__bloc-titre">{e(titre)}</p>')
         #  LES PASTILLES SONT DANS UN RANG, et pas posées à la suite :
         #  collées les unes aux autres, elles formaient une barre de
         #  couleurs où l'on ne voyait plus où finissait un type. Le
         #  rang leur donne leur écart, et c'est lui qui les replie
         #  quand il y en a six.
-        w('      <p class="wm-annonce__types">'
+        w(f'{retrait}    <p class="wm-annonce__types">'
           + "".join(pastille(ty) for ty in table[cle]) + '</p>')
-        w('    </div>')
-    w('  </div>')
+        w(f'{retrait}  </div>')
+    w(f'{retrait}</div>')
 
 
 def pastille(cle):
@@ -201,11 +201,81 @@ def case(m):
     )
 
 
-def equipe(w, membres, couverture):
-    w('  <ul class="wm-equipe">')
+def equipe(w, membres, couverture, retrait="  "):
+    w(f'{retrait}<ul class="wm-equipe">')
     for m in membres:
-        w("    " + case(dict(m, sprite=adresse_du_sprite(couverture, m["id"]))))
-    w("  </ul>")
+        w(retrait + "  "
+          + case(dict(m, sprite=adresse_du_sprite(couverture, m["id"]))))
+    w(f"{retrait}</ul>")
+
+
+RANGS = ("Premier", "Deuxième", "Troisième", "Quatrième", "Cinquième")
+
+
+def duel(w, rang, titre, membres, couverture, table=None, dernier=False):
+    """Un adversaire d'une suite de combats, dans sa propre carte.
+
+    « Ça manque d'espace ici, entre les équipes. On voit pas que ce sont
+    des équipes différentes, de personnages différents » (9 novembre).
+
+    LE DÉFAUT N'ÉTAIT PAS QUE L'ESPACE. Les cinq sections de la Ligue
+    étaient cinq fois la même chose : une étiquette de dix pixels, deux
+    cadres, une rangée de sprites, et rien entre elles. L'œil y lisait
+    une seule longue équipe de trente pokémon. Ajouter vingt pixels
+    aurait donné cinq rangées un peu plus espacées — pas cinq
+    personnes.
+
+    IL FALLAIT UNE CARTE, ET UN RANG. La carte, parce qu'une bordure
+    autour d'un groupe dit « ceci va ensemble » bien plus vite qu'un
+    blanc. Le rang, parce que ces cinq-là se combattent DANS L'ORDRE,
+    et que c'est l'information qui manquait le plus : rien, avant, ne
+    disait qu'on affronte le Psy puis le Combat puis le Poison.
+
+    LE CHIFFRE EST `aria-hidden` : le rang est déjà écrit en toutes
+    lettres juste à côté, et un lecteur d'écran n'a pas à entendre
+    « un Premier adversaire ».
+
+    ET LES MEMBRES DU CONSEIL 4 N'ONT PAS DE NOM. Le sujet de Callista
+    ne les désigne que par leur type ; leur en inventer un serait
+    écrire son forum à sa place. La hiérarchie se fait donc sur ce qui
+    existe : l'ordre, le type, les niveaux.
+    """
+    niveaux = [m["niveau"] for m in membres]
+    mot = "Dernier" if dernier else RANGS[rang - 1]
+    w('  <div class="wm-annonce__duel'
+      + (" wm-annonce__duel--champion" if dernier else "") + '">')
+    w('    <div class="wm-annonce__duel-tete">')
+    w(f'      <span class="wm-annonce__duel-rang" aria-hidden="true">{rang}</span>')
+    w('      <div class="wm-annonce__duel-mots">')
+    w(f'        <p class="wm-annonce__duel-rappel">{e(mot)} adversaire</p>')
+    w(f'        <h3 class="wm-annonce__duel-titre">{e(titre)}</h3>')
+    w(f'        <p class="wm-annonce__duel-niveaux">{len(membres)} pokémon · '
+      f'niveaux {min(niveaux)} à {max(niveaux)}</p>')
+    w('      </div>')
+    w('    </div>')
+    if table:
+        cadres_de_types(w, table, retrait="    ")
+    else:
+        #  MICHAEL N'A PAS DE TABLE, et c'est un fait de ses données :
+        #  son équipe mélange les types, donc aucune colonne ne vaut
+        #  contre lui. Sa carte porte à la place les types qu'il
+        #  aligne — même emplacement, même forme, pas un trou.
+        vus = []
+        for m in membres:
+            for t in m["types"]:
+                if t not in vus:
+                    vus.append(t)
+        w('    <div class="wm-annonce__blocs">')
+        w('      <div class="wm-annonce__bloc">')
+        w('        <p class="wm-annonce__bloc-titre">Les types de son '
+          'équipe</p>')
+        w('        <p class="wm-annonce__types">'
+          + "".join(pastille(t) for t in vus) + '</p>')
+        w('      </div>')
+        w('    </div>')
+    w('    <p class="wm-annonce__soustitre">Son équipe</p>')
+    equipe(w, membres, couverture, retrait="    ")
+    w('  </div>')
 
 
 #  LA PHRASE DE CALLISTA, relevée le 9 novembre sur t91. Trois trous :
@@ -327,17 +397,18 @@ def main():
         w('  <p class="wm-annonce__texte">' + e(PHRASE_LIGUE.format(
             conseil=" ou ".join(en_titre(t) for t in eq["conseil"]["types"]),
         )) + "</p>")
-        for membre4 in eq.get("conseil4", []):
-            niveaux = [m["niveau"] for m in membre4["membres"]]
-            w('  <p class="wm-annonce__soustitre">Conseil 4 · '
-              f'{e(en_titre(membre4["type"]))} — niveaux '
-              f'{min(niveaux)} à {max(niveaux)}</p>')
-            cadres_de_types(w, membre4.get("table"))
-            equipe(w, membre4["membres"], couverture)
-        niveaux = [m["niveau"] for m in eq["membres"]]
-        w(f'  <p class="wm-annonce__soustitre">{e(lig["tenuePar"])}, champion de '
-          f'Rhode — niveaux {min(niveaux)} à {max(niveaux)}</p>')
-        equipe(w, eq["membres"], couverture)
+        conseil4 = eq.get("conseil4", [])
+        for rang, membre4 in enumerate(conseil4, start=1):
+            duel(
+                w, rang,
+                f'Conseil 4 · spécialiste {en_titre(membre4["type"])}',
+                membre4["membres"], couverture, table=membre4.get("table"),
+            )
+        duel(
+            w, len(conseil4) + 1,
+            f'{lig["tenuePar"]}, champion de Rhode',
+            eq["membres"], couverture, dernier=True,
+        )
         w("</div>")
         w("")
 

@@ -52,7 +52,8 @@
     "personnages": "deno run -A outils/personnages.mjs",
     "natures": "deno run --allow-read=. outils/natures.ts",
     "moderation": "deno run -A outils/moderation.mjs",
-    "defier": "python3 outils/defier.py"
+    "defier": "python3 outils/defier.py",
+    "defis": "deno run -A outils/defis.mjs"
   },
   "fmt": {
     "include": [
