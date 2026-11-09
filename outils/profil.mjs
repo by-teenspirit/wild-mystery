@@ -208,15 +208,21 @@ const DROITE = `<div id="profile-advanced-right">
 
 const FEUILLES = `<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
-<style>html,body{margin:0}body{background:var(--wm-fond-page);padding:24px}
-  #main-content{margin:0 auto;max-width:1000px}</style>`;
+<style>html,body{margin:0}body{background:var(--wm-fond-page)}
+  /*  LE CADRE DU FORUM, PAS UN CADRE A MOI. Releve sur le vrai
+      forum le 9 novembre : le conteneur #wrap porte un max-width
+      (notre regle), une largeur de 98 % et un rembourrage de 24 px
+      sur 36 (ModernBB, sa feuille 16-ltr). Mon apercu posait le
+      contenu dans 1 000 px fixes — plus etroit que le forum, donc
+      des photos qui ne ressemblaient pas a la page. */
+  #wrap{box-sizing:border-box;margin:0 auto;width:98%;padding:24px 36px}</style>`;
 
 const page = (actif) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">${FEUILLES}</head>
-<body id="modernbb"><div id="page-body"><div id="main-content">
+<body id="modernbb"><div id="wrap"><div id="page-body"><div id="main-content">
 ${gauche(actif, CORPS[actif])}
 ${DROITE}
-</div></div></body></html>`;
+</div></div></div></body></html>`;
 
 const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
 const p = await nav.newPage({ viewport: { width: 1280, height: 1200 } });

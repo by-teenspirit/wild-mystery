@@ -1418,21 +1418,40 @@ await p9.close();
 //  sélecteur doit gagner même là. Il le peut parce qu'il porte deux
 //  identifiants — `#modernbb #wrap` — contre un seul chez ModernBB.
 
+//  ── LA LARGEUR ATTENDUE EST LUE DANS LA FEUILLE ───────────────────
+//
+//  Elle a changé quatre fois — 1 200 le 27 octobre, 1 000 le 28,
+//  1 200 le 30, 1 400 le 9 novembre. Écrite en dur ici, elle faisait
+//  tomber ce test à chaque fois, pour une valeur que personne n'a
+//  jamais voulu figer.
+//
+//  CE QUE LE TEST PROUVE NE CHANGE PAS : c'est NOTRE règle qui
+//  s'applique sur `#wrap`, et pas celle de ModernBB. Il le prouve
+//  encore quand les deux valeurs coïncident, parce que le décor
+//  ci-dessous injecte celle de ModernBB À UNE AUTRE VALEUR : si notre
+//  sélecteur perdait, la sonde sortirait à 980.
+const NOTRE_LARGEUR = (() => {
+  const feuille = readFileSync(R + "css/02-socle.css", "utf8");
+  const bloc = feuille.slice(feuille.indexOf("#modernbb #wrap,"));
+  const trouve = /max-width:\s*(\d+)px/.exec(bloc);
+  if (trouve === null) throw new Error("largeur du forum introuvable dans 02-socle.css");
+  return Number(trouve[1]);
+})();
+
 const p10 = await monter({
   corps: `<div id="wrap"><div class="wm-sonde-largeur">du contenu</div></div>`,
-  styleEnPlus: "#wrap { max-width: 1400px; } .wrap { max-width: 1400px; }",
+  //  980 ET PLUS 1 400 : à la même valeur que la nôtre, la règle de
+  //  ModernBB pouvait gagner sans que rien ne le montre.
+  styleEnPlus: "#wrap { max-width: 980px; } .wrap { max-width: 980px; }",
 });
 const laisse = await p10.evaluate(() => ({
   wrap: getComputedStyle(document.getElementById("wrap")).maxWidth,
   corps: Math.round(document.querySelector(".wm-sonde-largeur").getBoundingClientRect().width),
 }));
 dire(
-  "LE FORUM EST TENU À 1200 px, MÊME CONTRE L'ID DE MODERNBB",
-  //  1 200 depuis le 30 octobre ; 1 000 les deux jours d'avant. Le
-  //  chiffre bouge, pas ce que le test prouve : c'est NOTRE valeur qui
-  //  s'applique, et pas les 1 400 que ModernBB écrit sur l'id.
-  laisse.wrap === "1200px" && laisse.corps <= 1200,
-  JSON.stringify(laisse),
+  `LE FORUM EST TENU À ${NOTRE_LARGEUR} px, MÊME CONTRE L'ID DE MODERNBB`,
+  laisse.wrap === `${NOTRE_LARGEUR}px` && laisse.corps <= NOTRE_LARGEUR,
+  JSON.stringify({ ...laisse, attendu: NOTRE_LARGEUR }),
 );
 await p10.close();
 

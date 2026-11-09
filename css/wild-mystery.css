@@ -1322,14 +1322,18 @@ html#min-width {
 #modernbb #wrap,
 #modernbb .wrap {
   /*  1 400 chez ModernBB, 1 200 le 27 octobre, 1 000 le 28, 1 200 le
-      30. Une seule valeur à changer ici : tout le forum la suit, sauf
-      l'en-tête et le bandeau d'une zone, qui sont hors de `#wrap`. */
-  max-width: 1200px;
+      30, 1 400 le 9 novembre — « prends plus de largeur sur le
+      forum ». Une seule valeur à changer ici : tout le forum la suit,
+      sauf l'en-tête et le bandeau d'une zone, qui sont hors de
+      `#wrap`.
+
+      1 400 ET PAS PLUS : c'est le plafond de ModernBB lui-même, donc
+      la largeur pour laquelle ses propres blocs sont écrits. Au-delà,
+      on serait seuls à tenir ce qui déborde. */
+  max-width: 1400px;
 }
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
-
-
 
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 03 · L'index
@@ -28025,11 +28029,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   grid-column: 1;
 }
 
-/*  La place de « son jeu » occupera les deux colonnes le jour où elle
-    sera remplie. */
-#modernbb .wm-profil-page__jeu {
-  grid-column: 1 / -1;
-}
+/*  « Son jeu » vit dans la colonne de gauche, sous le panneau : c'est
+    là qu'il y a la place, et c'est ce qui équilibre les deux colonnes
+    quand le panneau est court. */
 
 /*  LES DEUX COLONNES NE SONT PAS SŒURS. `#profile-advanced-right` est
     posé À CÔTÉ de `#profile-advanced-layout`, pas dedans — relevé le

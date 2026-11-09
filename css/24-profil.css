@@ -97,11 +97,9 @@
   grid-column: 1;
 }
 
-/*  La place de « son jeu » occupera les deux colonnes le jour où elle
-    sera remplie. */
-#modernbb .wm-profil-page__jeu {
-  grid-column: 1 / -1;
-}
+/*  « Son jeu » vit dans la colonne de gauche, sous le panneau : c'est
+    là qu'il y a la place, et c'est ce qui équilibre les deux colonnes
+    quand le panneau est court. */
 
 /*  LES DEUX COLONNES NE SONT PAS SŒURS. `#profile-advanced-right` est
     posé À CÔTÉ de `#profile-advanced-layout`, pas dedans — relevé le

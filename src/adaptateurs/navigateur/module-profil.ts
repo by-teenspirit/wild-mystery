@@ -329,7 +329,12 @@ export function poserLeProfil(doc: Document): boolean {
     jeu.className = "wm-profil-page__jeu";
     jeu.dataset.wmMembre = String(identifiant);
     jeu.hidden = true;
-    page.appendChild(jeu);
+    //  DANS LA COLONNE DE GAUCHE, avec les onglets : depuis que la
+    //  page a la largeur du forum, un panneau de six champs laissait
+    //  600 px de vide sous lui pendant que la carte de droite
+    //  descendait seule. Deux colonnes qui ne se remplissent pas en
+    //  même temps ne font pas deux colonnes.
+    principal.appendChild(jeu);
   }
 
   gauche.replaceWith(page);
