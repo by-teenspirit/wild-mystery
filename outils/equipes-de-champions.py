@@ -219,15 +219,45 @@ def deriver(dossier: pathlib.Path) -> dict[str, object]:
                 int(l["damage_factor"]) / 100
             )
 
+    #  ── LA LIGUE EST UN DÉFI, MAIS PAS UNE ARÈNE ───────────────────
+    #
+    #  Elle vit dans `arenes.json` sous sa propre clé : pas de badge,
+    #  pas de type, pas de case dans la grille de la carte dresseur.
+    #  Elle a en revanche un niveau et une équipe, donc elle passe
+    #  par ce dérivateur comme les onze autres.
+    ligue = json.loads(ARENES.read_text("utf-8")).get("ligue")
+
     equipes: dict[str, object] = {}
     for slug, bloc in releve.items():
-        if slug not in arenes:
+        if slug == "ligue" and ligue is not None:
+            defi = ligue
+        elif slug in arenes:
+            defi = arenes[slug]
+        else:
             raise Manquant(
                 f"« {slug} » n'est pas un slug de data/arenes.json "
                 f"({', '.join(sorted(arenes))})"
             )
-        defi = arenes[slug]
-        niveaux = niveaux_de(defi["niveau"])
+        #  ── DES NIVEAUX ÉCRITS, QUAND L'ÉQUIPE A SA FORME ──────────
+        #
+        #  Les onze arènes suivent l'étagement, qui se déduit du seul
+        #  niveau du défi. L'équipe de Michael, elle, est publiée avec
+        #  ses propres écarts — 75, 75, 70, 72, 72, 71 — et les aplatir
+        #  serait inventer une équipe qu'on a sous les yeux.
+        #
+        #  Le contrôle qui reste : le plus fort doit être AU niveau du
+        #  défi, comme sur les onze autres. Sans lui, une liste écrite
+        #  à la main pourrait dire 80 et aligner des pokémon de 60.
+        niveaux = bloc.get("niveaux")
+        if niveaux is None:
+            niveaux = niveaux_de(defi["niveau"])
+        elif max(niveaux) != defi["niveau"]:
+            raise Manquant(
+                f"« {slug} » : le plus fort de l'équipe est au niveau "
+                f"{max(niveaux)}, mais le défi est au niveau "
+                f"{defi['niveau']} — sur les onze arènes, les deux sont "
+                "le même nombre"
+            )
         if len(bloc["especes"]) != len(niveaux):
             raise Manquant(
                 f"« {slug} » : {len(bloc['especes'])} espèces pour "
@@ -292,11 +322,20 @@ def verifier() -> list[str]:
             "relance outils/equipes-de-champions.py --depuis"
         )
         return maux
-    if set(releve) != set(arenes):
-        manque = sorted(set(arenes) - set(releve))
-        trop = sorted(set(releve) - set(arenes))
+    #  ── LA LIGUE EST UN DOUZIÈME DÉFI, ET PAS UNE ARÈNE ────────────
+    #
+    #  Elle vit sous sa propre clé dans `arenes.json` — ni badge, ni
+    #  type, ni case dans la grille de la carte dresseur — mais elle a
+    #  un niveau et, depuis le 9 novembre, une équipe. Elle doit donc
+    #  être couverte par le relevé comme les onze autres.
+    attendus = set(arenes)
+    if json.loads(ARENES.read_text("utf-8")).get("ligue") is not None:
+        attendus.add("ligue")
+    if set(releve) != attendus:
+        manque = sorted(attendus - set(releve))
+        trop = sorted(set(releve) - attendus)
         maux.append(
-            "`releve` ne couvre pas les onze défis de data/arenes.json"
+            "`releve` ne couvre pas les douze défis de data/arenes.json"
             + (f" — manque : {', '.join(manque)}" if manque else "")
             + (f" — en trop : {', '.join(trop)}" if trop else "")
         )

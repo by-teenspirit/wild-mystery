@@ -444,6 +444,74 @@ const nav = await chromium.launch(
   await p.close();
 }
 
+// ── LA LIGUE, ET SON ÉQUIPE ───────────────────────────────────────
+//
+//  Elle n'est pas une arène : pas de badge, pas de type, pas de case
+//  dans la grille de la carte dresseur. Elle a en revanche une équipe
+//  depuis le 9 novembre, relevée sur la carte de dresseur de Michael
+//  — `t8`, publique ; `t100` demande une connexion.
+//
+//  CE QU'ON VÉRIFIE, ET QUI NE SE VOIT PAS À L'ŒIL : que le plus fort
+//  de son équipe est AU niveau du défi. C'est la règle des onze
+//  autres — le défi dragon est à 70 et son équipe monte à 70 — et
+//  c'est tout ce qui rattache « niveau 80 » à six pokémon écrits à la
+//  main dans le relevé.
+{
+  const p = await ouvrir(nav);
+
+  const eq = EQUIPES.ligue;
+  ok("la Ligue a une équipe dans les données", eq !== undefined, Object.keys(EQUIPES));
+
+  const vu = await p.evaluate(() => {
+    const s = document.querySelector('[data-wm-sous-onglet="la-ligue"]');
+    if (s === null) return null;
+    const cases = [...s.querySelectorAll(".wm-equipe__pkmn")];
+    return {
+      cases: cases.length,
+      noms: cases.map((c) => c.querySelector(".wm-equipe__nom").textContent.trim()),
+      niveaux: cases.map((c) =>
+        Number(
+          c.querySelector(".wm-equipe__niveau").textContent.replace(/\D+/g, ""),
+        )
+      ),
+      faits: [...s.querySelectorAll(".wm-defi__mot")].map((d) => d.textContent.trim()),
+      //  Le renvoi vers la carte de Michael : c'est la source, et elle
+      //  doit être citée dans la page, pas seulement dans le code.
+      carte: [...s.querySelectorAll("a")].map((a) => a.getAttribute("href"))
+        .filter((h) => h !== null && h.includes("t8-trainer-card")).length,
+    };
+  });
+  ok("l'onglet de la Ligue existe", vu !== null, vu);
+  if (vu !== null && eq !== undefined) {
+    ok("six pokémon dans l'équipe de la Ligue", vu.cases === 6, vu.cases);
+    ok(
+      "ce sont ceux du relevé, dans l'ordre",
+      vu.noms.join("|") === eq.membres.map((m) => m.nom).join("|"),
+      { page: vu.noms, donnees: eq.membres.map((m) => m.nom) },
+    );
+    //  LE PLUS FORT EST AU NIVEAU DU DÉFI : la règle des onze autres.
+    ok(
+      `le plus fort de l'équipe est au niveau ${eq.niveau}`,
+      Math.max(...vu.niveaux) === eq.niveau && eq.niveau === 80,
+      { niveaux: vu.niveaux, defi: eq.niveau },
+    );
+    //  ET LEURS ÉCARTS SONT CEUX DE SA CARTE, décalés de cinq : c'est
+    //  ce qui distingue cette équipe des onze étagées.
+    ok(
+      "les écarts de la carte sont gardés, décalés de cinq",
+      vu.niveaux.join(",") === "80,80,75,77,77,76",
+      vu.niveaux,
+    );
+    ok(
+      "la Ligue a son type conseillé, comme les onze autres",
+      vu.faits.includes("Type conseillé"),
+      vu.faits,
+    );
+    ok("et la page cite la carte de dresseur de Michael", vu.carte === 1, vu.carte);
+  }
+  await p.close();
+}
+
 await nav.close();
 console.log(fautes === 0 ? "\n  TOUT PASSE." : `\n  ${fautes} défaut(s).`);
 Deno.exit(fautes === 0 ? 0 : 1);

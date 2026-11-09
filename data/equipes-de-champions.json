@@ -8,7 +8,7 @@
   "_ecarts": "LES CINQ CHIFFRES DU SUJET QUI NE TOMBENT PAS, mesurés le 6 novembre. Ils ne sont pas repris : la page affiche le calcul. (1) Mimiqui niv. 33 — ATT 54 au sujet, 64 par la formule. (2) Feunard d'Alola niv. 29 — ATT 49 au sujet, 43 par la formule. (3) Sablaireau d'Alola niv. 34 — DEF 79 au sujet, 86 par la formule ; 79 est la DEF de la forme de Kanto, vérifié. (4) Trioxhydre niv. 53 — 163/136/87 au sujet, 160/116/100 par la formule, et ces trois chiffres-là ne tombent à AUCUN niveau. (5) Phyllali niv. 24 — 55/67/57 au sujet contre 65/57/67 : ATT et DEF sont échangées et le 65 est devenu 55.",
   "_sansnom": "Le quatrième pokémon de l'Île Ténébra n'est PAS nommé dans le sujet. Il a été identifié par ses chiffres : 158/98/110 au niveau 52 ne correspond qu'à une seule espèce de PokéAPI, Ixon (862) — les trois tombent au chiffre près, et aucune autre espèce ne les donne. C'est une déduction, pas une lecture : si Callista voulait une autre bête, c'est cette ligne qu'on change.",
   "_conseil": "`conseil` est DÉRIVÉ de l'équipe réelle, pas du type du défi. Pour chacun des dix-huit types d'attaque, on multiplie l'efficacité contre les types de chaque membre, on fait la moyenne sur les six, et on garde les meilleurs. C'est plus juste que « super efficace contre le type de l'arène » : l'arène Vol aligne un Aéroptéryx Roche/Vol et un Altaria Dragon/Vol, qui ne se battent pas comme un Roucarnage.",
-  "_ligue": "LA LIGUE N'EST PAS ICI. Elle n'a pas d'équipe publiée — le sujet des pré-liens n'en donne aucune —, et inventer six pokémon pour Michael serait inventer la Ligue. L'annexe 06 le dit en toutes lettres.",
+  "_ligue": "LA LIGUE A SON ÉQUIPE DEPUIS LE 9 NOVEMBRE. Elle est lue sur la carte de dresseur de Michael, t8, qui est PUBLIQUE — t100, le sujet de présentation de la Ligue, demande une connexion et je ne me connecte pas. Six pokémon, et les dix-huit chiffres de la carte tombent EXACTEMENT sur notre formule : Noctali 75 donne 227/102/170 des deux côtés. La carte a donc été faite avec la même règle, ce qui vaut vérification croisée.",
   "releve": {
     "dragon": {
       "message": 15590,
@@ -129,6 +129,34 @@
         "Pyroli",
         "Tritox",
         "Némélios"
+      ]
+    },
+    "ligue": {
+      "message": 8,
+      "_source": "https://mysteryinrhode.forumactif.com/t8-trainer-card-de-michael",
+      "_niveaux_de_la_carte": [
+        75,
+        75,
+        70,
+        72,
+        72,
+        71
+      ],
+      "especes": [
+        "Noctali",
+        "Mentali",
+        "Posipi",
+        "Typhlosion",
+        "Aligatueur",
+        "Ludicolo"
+      ],
+      "niveaux": [
+        80,
+        80,
+        75,
+        77,
+        77,
+        76
       ]
     }
   },
@@ -1357,6 +1385,116 @@
           "def": 26
         }
       ]
+    },
+    "ligue": {
+      "message": 8,
+      "niveau": 80,
+      "conseil": {
+        "types": [
+          "insecte"
+        ],
+        "facteur": 1.417
+      },
+      "membres": [
+        {
+          "id": 197,
+          "nom": "Noctali",
+          "types": [
+            "tenebres"
+          ],
+          "niveau": 80,
+          "base": {
+            "pv": 95,
+            "att": 65,
+            "def": 110
+          },
+          "pv": 242,
+          "att": 109,
+          "def": 181
+        },
+        {
+          "id": 196,
+          "nom": "Mentali",
+          "types": [
+            "psy"
+          ],
+          "niveau": 80,
+          "base": {
+            "pv": 65,
+            "att": 65,
+            "def": 60
+          },
+          "pv": 194,
+          "att": 109,
+          "def": 101
+        },
+        {
+          "id": 311,
+          "nom": "Posipi",
+          "types": [
+            "electrik"
+          ],
+          "niveau": 75,
+          "base": {
+            "pv": 60,
+            "att": 50,
+            "def": 40
+          },
+          "pv": 175,
+          "att": 80,
+          "def": 65
+        },
+        {
+          "id": 157,
+          "nom": "Typhlosion",
+          "types": [
+            "feu"
+          ],
+          "niveau": 77,
+          "base": {
+            "pv": 78,
+            "att": 84,
+            "def": 78
+          },
+          "pv": 207,
+          "att": 134,
+          "def": 125
+        },
+        {
+          "id": 160,
+          "nom": "Aligatueur",
+          "types": [
+            "eau"
+          ],
+          "niveau": 77,
+          "base": {
+            "pv": 85,
+            "att": 105,
+            "def": 100
+          },
+          "pv": 217,
+          "att": 166,
+          "def": 159
+        },
+        {
+          "id": 272,
+          "nom": "Ludicolo",
+          "types": [
+            "eau",
+            "plante"
+          ],
+          "niveau": 76,
+          "base": {
+            "pv": 80,
+            "att": 70,
+            "def": 70
+          },
+          "pv": 207,
+          "att": 111,
+          "def": 111
+        }
+      ]
     }
-  }
+  },
+  "_ligue_niveaux": "LE DÉCALAGE DE CINQ NIVEAUX, ET POURQUOI. « La ligue doit passer niveau 80 » (9 novembre). Sur les onze arènes, le niveau du défi est celui du pokémon le plus fort de l'équipe — vérifié : le défi dragon est à 70 et son équipe monte à 70. La carte de Michael plafonne à 75. On décale donc TOUTE son équipe de +5, ce qui met son plus fort à 80 et garde l'écart entre ses six. ET PAS L'ÉTAGEMENT DES ONZE AUTRES (-2,-2,-1,-1,0,0) : il aurait donné 78/78/79/79/80/80 et effacé la forme de son équipe, qui n'est pas étagée comme les autres. Les niveaux de la carte sont gardés ci-dessous pour qu'on puisse revenir en arrière d'une ligne."
 }

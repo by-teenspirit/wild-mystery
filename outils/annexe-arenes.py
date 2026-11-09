@@ -80,6 +80,13 @@ from annexes import (  # noqa: E402
 
 R = pathlib.Path(__file__).resolve().parent.parent
 SLUG = "arenes-colosseums-ligues"
+
+#  LA CARTE DE DRESSEUR DE MICHAEL. Elle porte son équipe, et elle est
+#  PUBLIQUE — `t100`, le sujet de présentation de la Ligue, demande une
+#  connexion. C'est la seule source qu'on puisse lire et citer.
+CARTE_DE_MICHAEL = (
+    "https://mysteryinrhode.forumactif.com/t8-trainer-card-de-michael"
+)
 PAGE = chemin_de_la_page(SLUG)
 FORUM = "https://mysteryinrhode.forumactif.com"
 #  LE SUJET DES PRÉ-LIENS. Une seule adresse, et les onze ancres sont
@@ -536,10 +543,50 @@ def corps():
         w(f'                <dt class="wm-defi__mot">{e(mot)}</dt>')
         w(f'                <dd class="wm-defi__valeur">{e(valeur)}</dd>')
         w('              </div>')
+    #  -- LE TYPE CONSEILLE, COMME POUR LES ONZE AUTRES -------------
+    #
+    #  Il n'existe que depuis que la Ligue a une equipe : il se calcule
+    #  sur ses six membres, pas sur un type de defi -- la Ligue n'en a
+    #  pas. C'est la meme moyenne d'efficacite que partout ailleurs.
+    equipe_ligue = equipes.get("ligue")
+    if equipe_ligue is not None:
+        conseil = equipe_ligue["conseil"]
+        w('              <div class="wm-defi__fait">')
+        w('                <dt class="wm-defi__mot">Type conseillé</dt>')
+        w('                <dd class="wm-defi__valeur">'
+          + " ".join(pastille(t) for t in conseil["types"])
+          + '<span class="wm-defi__facteur">×'
+          + f'{conseil["facteur"]:g} en moyenne</span></dd>')
+        w('              </div>')
     w('            </dl>')
     w("")
     w(f'            <p class="wm-defi__dit">{e(lt["note"])}</p>')
     w("")
+
+    #  -- L'EQUIPE DE MICHAEL ---------------------------------------
+    #
+    #  Relevee sur sa CARTE DE DRESSEUR (t8), qui est publique : le
+    #  sujet de presentation de la Ligue demande une connexion, et je
+    #  ne me connecte pas.
+    #
+    #  SES NIVEAUX SONT DECALES DE +5 et pas etages comme les onze
+    #  autres : son equipe a ses propres ecarts -- 75, 75, 70, 72, 72,
+    #  71 -- et les aplatir serait inventer une equipe qu'on a sous les
+    #  yeux. Le derivateur refuse une liste dont le plus fort ne serait
+    #  pas au niveau du defi. Tout est dit dans le fichier des equipes.
+    if equipe_ligue is not None:
+        w('            <h4 class="wm-defi__sous-titre">'
+          + e(textes["equipe"]["titre"]) + '</h4>')
+        w('            <ul class="wm-equipe">')
+        for m in equipe_ligue["membres"]:
+            membre(w, m, couverture)
+        w('            </ul>')
+        w("")
+        w('            <p class="wm-defi__liens">')
+        w('              ' + renvoi("Sa carte de dresseur",
+                                    ligue["tenuePar"], CARTE_DE_MICHAEL))
+        w('            </p>')
+        w("")
     w("          </section>")
     w("")
 
