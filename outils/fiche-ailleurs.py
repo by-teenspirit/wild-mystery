@@ -115,17 +115,23 @@ TEXTE = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
 
 #  ── LA BANNIÈRE ─────────────────────────────────────────────────────
 #
-#  C'est celle du forum, 1280 × 620, prise CHEZ SON HÉBERGEUR et non
+#  C'est celle du forum, 1280 × 720, prise CHEZ SON HÉBERGEUR et non
 #  derrière `2img.net` : ce dernier est le relais d'images de
 #  Forumactif, et une fiche collée ailleurs n'a aucune raison de
-#  passer par lui. Les deux adresses rendent le même fichier
-#  aujourd'hui — mesuré, 985 740 octets des deux côtés — mais l'une
-#  dépend de Forumactif et l'autre pas.
+#  passer par lui.
 #
 #  ELLE REMPLACE LES DEUX IMAGES CÔTE À CÔTE du premier jet : « en
 #  fait en haut, on va mettre une grande image (la bannière) »
 #  (9 novembre).
-BANNIERE = "https://i.postimg.cc/9fcYn6Wj/banniere-wm.png"
+#
+#  ET CE N'EST PAS CELLE QU'ON LIT SUR LE FORUM. L'en-tête servi aux
+#  visiteurs est encore `banniere-wm.png` — relevé sur l'index
+#  rechargé sans cache le 9 novembre — mais c'est la PRÉCÉDENTE.
+#  Callista a donné l'adresse de la nouvelle, et c'est elle qui fait
+#  foi : une fiche qui copie ce que le forum sert aujourd'hui aurait
+#  figé l'ancienne pour tous les forums où elle est collée. Vérifiée :
+#  200, 1 951 777 octets, 1280 × 720.
+BANNIERE = "https://i.postimg.cc/TwkyQ6Tn/wild-mystery-header.png"
 
 #  LE POKÉMON DU FOND est celui de l'annexe 02 — Lugia, rendu officiel,
 #  au commit épinglé de PokéAPI comme partout ailleurs dans le dépôt.
@@ -148,6 +154,16 @@ SOUS_TITRE = "Le contexte et la chronologie de la région de Rhode"
 #  soixante-dix. L'image est recadrée en `cover` — on garde sa bande
 #  centrale à toutes les largeurs plutôt que de l'écraser.
 HAUTEUR_BANNIERE = "170px"
+
+#  ── LA LARGEUR ET LA TAILLE DU TEXTE ────────────────────────────────
+#
+#  Cinq cents pixels et onze pixels de texte, demandés le 9 novembre.
+#  `max-width:100%` reste à côté de la largeur : sur un téléphone, une
+#  colonne de message peut être plus étroite que 500, et une largeur
+#  nue y ferait déborder la fiche. `margin:0 auto` la centre quand
+#  l'hôte lui en laisse davantage.
+LARGEUR = "500px"
+TEXTE_PX = "11px"
 
 #  OÙ VIT LE TITRE. « Met le header du forum dedans » et « mets le
 #  titre au dessus pour voir ? » : `dedans` le pose SUR la bannière,
@@ -172,10 +188,10 @@ HAUTEUR_CHRONO = "360px"
 #  savoir" et fais les plus petit ». Leur texte faisait neuf lignes
 #  dans une colonne étroite et ils pesaient autant que la
 #  chronologie.
-HAUTEUR_ENCART = "132px"
+HAUTEUR_ENCART = "150px"
 
 #  La chronologie, reprise de la brique du forum.
-DATE = "112px"  # la colonne de gauche
+DATE = "84px"  # la colonne de gauche
 RAIL = "14px"  # la largeur du point
 SAUT = 28  # l'écart entre deux moments, en pixels
 POINT = 14  # le diamètre d'un instant
@@ -220,7 +236,7 @@ def cadre(fond: str = SURFACE, marge: str = "margin:0 0 16px",
     """
     return (
         f'<div style="{st(BOITE, f"background:{fond}", "border-radius:12px",
-                          "padding:22px", marge, "max-width:100%",
+                          "padding:20px 22px", marge, "max-width:100%",
                           "position:relative" if fenetre_dedans else "")}">'
     )
 
@@ -251,11 +267,28 @@ def degrade_du_bas(fond: str = SURFACE, rgb: str = "255,251,247") -> str:
     )
 
 
-def titre_de_cadre(mot: str, taille: str = "22px") -> str:
+def titre_de_cadre(mot: str, taille: str = "17px") -> str:
+    """Le titre d'un cadre, et tout ce qu'un hôte pourrait lui ajouter.
+
+    « Y'a une ligne sous le H2 (je crois), enlève la » (9 novembre).
+    Elle n'est pas dans la fiche : c'est l'hôte qui la pose. ModernBB
+    et la plupart des thèmes de forum habillent `h2` dans un message —
+    filet en dessous, fond, capitales — et ces règles-là s'appliquent
+    à notre balise comme aux leurs.
+
+    ON NE PEUT PAS LES DEVINER, DONC ON LES NEUTRALISE TOUTES : bord,
+    fond, rembourrage, capitales, interlettre. C'est le prix d'une
+    fiche qui vit chez quelqu'un d'autre, et ça vaut mieux que de
+    renoncer au `h2` — un titre doit rester un titre pour qui lit la
+    page avec un lecteur d'écran.
+    """
     return (
-        f'<h2 style="{st("margin:0 0 14px", f"color:{BLEU}",
+        f'<h2 style="{st("margin:0 0 12px", "padding:0", "border:0",
+                         "background:none", f"color:{BLEU}",
                          f"font-family:{TITRE}", f"font-size:{taille}",
-                         "font-weight:600", "line-height:1.2")}">{mot}</h2>'
+                         "font-weight:600", "line-height:1.2",
+                         "text-transform:none", "letter-spacing:normal")}">'
+        f'{mot}</h2>'
     )
 
 
@@ -272,8 +305,8 @@ def fenetre(hauteur: str) -> str:
     )
 
 
-def paragraphe(mot: str, premier: bool, taille: str = "14px") -> str:
-    marge = "margin:0" if premier else "margin:13px 0 0"
+def paragraphe(mot: str, premier: bool, taille: str = "11px") -> str:
+    marge = "margin:0" if premier else "margin:11px 0 0"
     return (
         f'<p style="{st(marge, f"color:{CORPS}", f"font-size:{taille}",
                         "line-height:1.7", "text-align:justify")}">{mot}</p>'
@@ -298,8 +331,8 @@ def moment(m: dict, dernier: bool) -> list[str]:
                           "margin:0" if dernier else f"padding-bottom:{SAUT}px")}">',
         #  La date, calée à droite contre son repère.
         f'<span style="{st(f"flex:0 0 {DATE}", f"color:{ENCRE}",
-                           "font-size:13px", "font-weight:700",
-                           "letter-spacing:0.02em", "line-height:1.5",
+                           "font-size:10px", "font-weight:700",
+                           "letter-spacing:0.02em", "line-height:1.6",
                            "text-align:right", "text-transform:uppercase")}">'
         f"{m['quand']}</span>",
         #  La colonne du repère.
@@ -323,7 +356,7 @@ def moment(m: dict, dernier: bool) -> list[str]:
     out += [
         "</span>",
         f'<span style="{st("flex:1 1 auto", "min-width:0", f"color:{CORPS}",
-                           "font-size:13.5px", "line-height:1.6",
+                           "font-size:11px", "line-height:1.6",
                            "display:block")}">{m["quoi"]}</span>',
         "</div>",
     ]
@@ -351,11 +384,11 @@ def bloc_du_titre(sur_le_sable: bool) -> list[str]:
         )
     out.append(
         f'<p style="{st("margin:0", f"color:{encre}", f"font-family:{TITRE}",
-                        "font-size:28px", "font-weight:600",
+                        "font-size:23px", "font-weight:600",
                         "line-height:1.15", ombre)}">{NOM}</p>',
     )
     out.append(
-        f'<p style="{st("margin:8px 0 0", f"color:{doux}", "font-size:13px",
+        f'<p style="{st("margin:7px 0 0", f"color:{doux}", "font-size:11px",
                         "line-height:1.5", ombre)}">{SOUS_TITRE}</p>',
     )
     if sur_le_sable:
@@ -408,9 +441,10 @@ def main() -> None:
     #  dépasse du coin arrondi.
     e(
         f'<div style="{st(BOITE, f"background:{PAGE}", "border-radius:16px",
-                          "padding:24px 24px 34px", f"color:{CORPS}",
-                          f"font-family:{TEXTE}", "font-size:14px",
-                          "line-height:1.6", "max-width:100%",
+                          "padding:18px 18px 26px", f"color:{CORPS}",
+                          f"font-family:{TEXTE}", f"font-size:{TEXTE_PX}",
+                          "line-height:1.6", f"width:{LARGEUR}",
+                          "max-width:100%", "margin:0 auto",
                           "position:relative", "overflow:hidden")}">',
     )
 
@@ -479,7 +513,7 @@ def main() -> None:
     #  `data/contexte.json` et sur l'annexe, où il est à sa place.
     e(
         f'<p style="{st("margin:0 0 10px", f"color:{ACCENT}",
-                        "font-size:11px", "font-weight:700",
+                        "font-size:10px", "font-weight:700",
                         "letter-spacing:0.08em",
                         "text-transform:uppercase")}">'
         f"{d['recit']['titre']}</p>",
@@ -523,23 +557,34 @@ def main() -> None:
     for enc in d["encarts"]:
         ton = enc["ton"]
         e(
-            f'<div style="{st(BOITE, "flex:1 1 240px", "min-width:0",
+            #  `1 1 170px` ET PAS 240 : la fiche fait 500 de large, donc
+            #  464 dedans. À 240 de base les deux encarts ne tenaient
+            #  plus côte à côte et se rangeaient l'un sous l'autre —
+            #  ils doivent être EN FACE À FACE. À 170 ils tiennent, et
+            #  ne s'empilent que sous 400, là où c'est le bon choix.
+            f'<div style="{st(BOITE, "flex:1 1 170px", "min-width:0",
                               "position:relative",
                               f"background:{tons.get(ton, HAUTE)}",
                               f"border:1px solid {BORD}", "border-radius:12px",
-                              "padding:14px 16px")}">',
+                              "padding:16px 18px")}">',
         )
         e(
             f'<p style="{st("margin:0 0 8px", f"color:{encres.get(ton, ACCENT)}",
-                            "font-size:10.5px", "font-weight:700",
+                            "font-size:10px", "font-weight:700",
                             "letter-spacing:0.08em",
                             "text-transform:uppercase")}">'
             f"{enc['etiquette']}</p>",
         )
         e(fenetre(HAUTEUR_ENCART))
         e(
-            f'<p style="{st("margin:0", f"color:{CORPS}", "font-size:12.5px",
-                            "line-height:1.6", "text-align:justify")}">'
+            #  PAS DE JUSTIFICATION ICI. Dans une colonne de 190 px à
+            #  11 px de texte, un mot long laisse des trous béants
+            #  entre les autres — « de    connaître    Pokémon ». Le
+            #  drapeau à droite est plus régulier à cette largeur. Les
+            #  deux grandes fenêtres, elles, gardent la justification :
+            #  elles ont 420 px, de quoi la tenir.
+            f'<p style="{st("margin:0", f"color:{CORPS}", "font-size:11px",
+                            "line-height:1.6", "text-align:left")}">'
             f"{enc['texte']}</p>",
         )
         e("</div>")
@@ -550,7 +595,7 @@ def main() -> None:
     #  LE CRÉDIT. Il dit d'où vient la fiche, sur un forum où personne
     #  ne le devine.
     e(
-        f'<p style="{st("margin:16px 0 0", f"color:{DOUX}", "font-size:11px",
+        f'<p style="{st("margin:16px 0 0", f"color:{DOUX}", "font-size:10px",
                         "text-align:center")}">'
         "Wild Mystery — forum RPG Pokémon</p>",
     )
