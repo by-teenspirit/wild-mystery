@@ -11950,6 +11950,38 @@ body:has(#modernbb .wm-carnet) {
   text-align: center;
 }
 
+/*  ── LES TYPES D'UNE CASE, EMPILÉS ─────────────────────────────────
+
+    « Y'a des pokémons qui ont 2 types et tu les affiches pas »
+    (9 novembre). La case n'en montrait qu'un, et le commentaire du
+    générateur disait pourquoi : elle fait moins de cent pixels, et
+    deux pastilles n'y tiennent pas côte à côte. C'était vrai, et ça ne
+    justifiait rien — un Roigada annoncé « Eau » quand il est Eau/Psy
+    est une information FAUSSE pour qui prépare un combat.
+
+    MESURÉ : une pastille « Ténèbres » fait 89 px, la case en offre
+    108 de contenu. Deux côte à côte en demanderaient 184. On les
+    empile donc, et c'est réglé — pas de repli qui mettrait parfois
+    deux pastilles sur une ligne et parfois sur deux selon la longueur
+    du nom du type.
+
+    QUATRE PIXELS ENTRE ELLES, pas les huit de la case : les huit
+    séparent le sprite, le nom, le niveau et le bloc de types, qui
+    sont quatre choses différentes. Les deux types, eux, sont UNE
+    chose, et ils doivent se lire comme une paire.
+
+    LES SIX CASES GARDENT LA MÊME HAUTEUR SANS RIEN DE PLUS : une
+    rangée flex étire déjà ses éléments sur le plus grand, et le vide
+    tombe au bas de celles qui n'ont qu'un type. */
+#modernbb .wm-equipe__types {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+  margin: 0;
+  gap: var(--wm-espace-4, 4px);
+}
+
 #modernbb .wm-equipe__niveau {
   margin: 0;
   color: var(--wm-texte-pale, #69564c);

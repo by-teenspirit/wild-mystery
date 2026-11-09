@@ -173,7 +173,22 @@ def case(m):
     `module-equipe.ts` construit, et c'est du HTML valide. La case, elle,
     ne porte que le premier type : elle fait moins de cent pixels.
     """
-    premier = m["types"][0]
+    #  ── LA CASE PORTE TOUS SES TYPES ────────────────────────────────
+    #
+    #  « Y'a des pokémons qui ont 2 types et tu les affiches pas »
+    #  (9 novembre). Elle n'en portait qu'un, et le commentaire d'alors
+    #  disait pourquoi : « la case fait moins de cent pixels, un double
+    #  type y passerait sur deux lignes ». C'était vrai, et ça ne
+    #  justifiait rien — un Roigada annoncé « Eau » quand il est
+    #  Eau/Psy, c'est une information FAUSSE pour qui prépare un
+    #  combat. Deux lignes coûtent quatre pixels ; une erreur de type
+    #  coûte le combat.
+    #
+    #  `wm-equipe__types` les empile et les centre. Les six cases d'une
+    #  rangée gardent la même hauteur : elles s'étirent déjà sur la
+    #  plus grande, et le vide va au bas de celles qui n'ont qu'un
+    #  type.
+    pastilles = "".join(pastille(t) for t in m["types"])
     types = "".join(
         f'<li class="wm-infobulle__type" data-wm-type="{e(t)}">{e(en_titre(t))}</li>'
         for t in m["types"]
@@ -188,8 +203,7 @@ def case(m):
         f'<img class="wm-equipe__sprite" src="{e(m["sprite"])}" alt="" loading="lazy" />'
         f'<p class="wm-equipe__nom">{e(m["nom"])}</p>'
         f'<p class="wm-equipe__niveau">niv. {m["niveau"]}</p>'
-        f'<span class="wm-type wm-type--{e(premier)}" data-wm-type="{e(premier)}">'
-        f'{e(en_titre(premier))}</span>'
+        f'<p class="wm-equipe__types">{pastilles}</p>'
         '<div class="wm-infobulle" role="tooltip">'
         '<div class="wm-infobulle__tete">'
         f'<p class="wm-infobulle__nom">{e(m["nom"])}</p>'

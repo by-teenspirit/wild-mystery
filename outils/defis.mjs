@@ -142,6 +142,71 @@ for (const s of entiers) {
   );
 }
 
+// ── 1 bis · UNE CASE PORTE TOUS SES TYPES ───────────────────────────
+//
+//  « Y'a des pokémons qui ont 2 types et tu les affiches pas. » La
+//  case n'en montrait qu'un, et c'était une information FAUSSE : un
+//  Roigada annoncé « Eau » quand il est Eau/Psy trompe qui prépare un
+//  combat. L'infobulle les montrait bien tous les deux — mais il
+//  fallait la survoler, donc savoir qu'il fallait vérifier.
+//
+//  LA SOURCE DE VÉRITÉ EST L'INFOBULLE DE LA MÊME CASE : elle porte
+//  les types depuis toujours. On compare donc les deux listes case par
+//  case, plutôt que de recompter depuis les données — ce qui
+//  reviendrait à vérifier le générateur avec lui-même.
+const doubles = await p.evaluate(() =>
+  [...document.querySelectorAll(".wm-equipe__pkmn")].map((c) => ({
+    nom: c.querySelector(".wm-equipe__nom")?.textContent.trim() ?? "?",
+    surLaCase: [...c.querySelectorAll(".wm-equipe__types .wm-type")]
+      .map((t) => t.dataset.wmType),
+    dansLaBulle: [...c.querySelectorAll(".wm-infobulle__type")]
+      .map((t) => t.dataset.wmType),
+  }))
+);
+const menteuses = doubles.filter((c) =>
+  c.surLaCase.join(",") !== c.dansLaBulle.join(",")
+);
+dire(
+  `les ${doubles.length} cases affichent TOUS leurs types, bulle comprise`,
+  menteuses.length === 0,
+  JSON.stringify(menteuses.slice(0, 4)),
+);
+const bi = doubles.filter((c) => c.dansLaBulle.length === 2);
+dire(
+  `et ${bi.length} d'entre elles sont à double type — c'était le défaut`,
+  bi.length > 0 && bi.every((c) => c.surLaCase.length === 2),
+  JSON.stringify(bi.slice(0, 3)),
+);
+
+//  ── ET LA RANGÉE NE SE MET PAS À ONDULER ──────────────────────────
+//
+//  « Elles doivent toutes faire la même taille » (8 novembre). Deux
+//  pastilles empilées rendent une case plus haute ; c'est l'étirement
+//  de la rangée flex qui garde les six d'aplomb, et ça ne se voit que
+//  si on le mesure.
+const rangees = await p.evaluate(() =>
+  [...document.querySelectorAll("ul.wm-equipe")].map((u) => {
+    const h = [...u.children].map((c) => Math.round(c.getBoundingClientRect().height));
+    return {
+      hauteurs: [...new Set(h)],
+      //  Une pastille plus large que sa case déborderait du cadre.
+      deborde: [...u.querySelectorAll(".wm-equipe__types .wm-type")].some((t) =>
+        t.getBoundingClientRect().right >
+          t.closest(".wm-equipe__pkmn").getBoundingClientRect().right + 0.5
+      ),
+    };
+  })
+);
+dire(
+  "les six cases d'une rangée gardent la même hauteur",
+  rangees.every((r) => r.hauteurs.length === 1),
+  JSON.stringify(rangees.map((r) => r.hauteurs)),
+);
+dire(
+  "et aucune pastille ne déborde de sa case",
+  rangees.every((r) => !r.deborde),
+);
+
 // ── 2 · LE TITRE ET LE SOUS-TITRE SONT À GAUCHE ─────────────────────
 //
 //  « Le titre aussi et le sous-titre, colle tout à gauche » — et ça

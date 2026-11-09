@@ -175,9 +175,19 @@ def membre(w, m, couverture):
     else:
         image = (f'<img class="wm-equipe__sprite" src="{e(adresse)}" alt=""'
                  ' loading="lazy" />')
-    #  LA CASE NE PORTE QUE LE PREMIER TYPE : elle fait moins de cent
-    #  pixels, et un double type y passerait sur deux lignes. L'infobulle
-    #  les montre tous les deux. Même arbitrage que `equipe-de-test.py`.
+    #  ── LA CASE PORTE TOUS SES TYPES ───────────────────────────────
+    #
+    #  « Y'a des pokémons qui ont 2 types et tu les affiches pas »
+    #  (9 novembre). Elle n'en portait qu'un, et j'avais écrit ici
+    #  qu'« un double type y passerait sur deux lignes ». C'était vrai,
+    #  et ça ne justifiait rien : un Roigada annoncé « Eau » quand il
+    #  est Eau/Psy, c'est une information FAUSSE pour qui prépare un
+    #  combat. L'infobulle les montrait tous les deux — mais il fallait
+    #  la survoler pour le savoir, donc savoir qu'il fallait vérifier.
+    #
+    #  CE QUE ÇA COÛTE À LA PAGE : une pastille pèse environ 85
+    #  caractères, et trente-huit cases de cette annexe ont deux types.
+    #  Mesuré après coup, le garde-fou n° 33 le redit à chaque passage.
     #
     #  ── LA BULLE N'EST PLUS ÉCRITE ICI ─────────────────────────────
     #
@@ -208,8 +218,9 @@ def membre(w, m, couverture):
         + image
         + f'<p class="wm-equipe__nom">{e(m["nom"])}</p>'
         + f'<p class="wm-equipe__niveau">niv. {m["niveau"]}</p>'
-        + pastille(m["types"][0])
-        + "</li>"
+        + '<p class="wm-equipe__types">'
+        + "".join(pastille(ty) for ty in m["types"])
+        + "</p></li>"
     )
 
 
