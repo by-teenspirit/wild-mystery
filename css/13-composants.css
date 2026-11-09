@@ -2037,6 +2037,62 @@
   list-style: none;
 }
 
+/*  ── ET DE L'AIR SOUS EUX QUAND UN SURTITRE SUIT ──────────────────
+
+    « Il manque un espace aussi entre les types efficaces et le titre
+    “l'équipe” » (9 novembre). Le surtitre n'a qu'une marge BASSE —
+    six pixels pour coller à ce qu'il annonce — et rien au-dessus :
+    il lui faut donc l'écart de ce qui le précède.
+
+    UNE MARGE SUR LA PAIRE, et pas une marge basse posée sur
+    `__blocs` : celle-là tomberait aussi quand les cadres finissent
+    l'annonce, et ajouterait vingt pixels de vide au bas de la carte.
+    `+` ne pose l'écart que là où il manque. */
+#modernbb .postbody .content .wm-annonce__blocs + .wm-annonce__soustitre,
+#modernbb .postbody .content .wm-annonce__bloc + .wm-annonce__soustitre,
+#modernbb .wm-annonce .wm-annonce__blocs + .wm-annonce__soustitre,
+#modernbb .wm-annonce .wm-annonce__bloc + .wm-annonce__soustitre {
+  margin-top: var(--wm-espace-24, 24px);
+}
+
+/*  ── POURQUOI CES TROIS RÈGLES PORTENT `.wm-annonce` EN PLUS ──────
+    (9 novembre, trouvé en mesurant « il manque un espace »)
+
+    `05-sujet.css` écrit, pour le corps d'un message :
+
+        #modernbb .postbody .content p { margin: 0 0 16px; }
+
+    Un identifiant, deux classes, UN TYPE. Nos règles de composant
+    n'avaient qu'un identifiant et deux classes : à b égal, le type
+    de ModernBB l'emportait, et le raccourci `margin` remettait la
+    marge HAUTE à zéro.
+
+    MESURÉ dans un vrai corps de message : l'écart entre les cadres
+    de types et le sous-titre valait 0 au lieu de 24, et le
+    paragraphe d'une annonce avait perdu ses 16 px de marge haute
+    depuis le début — sur les treize modèles, pas seulement ici.
+
+    ET J'AI MAL COMPTÉ DU PREMIER COUP. J'ai d'abord écrit
+    `#modernbb .wm-annonce .wm-annonce__texte` en croyant passer
+    devant : deux classes de chaque côté, `#modernbb` est un
+    identifiant des DEUX côtés, et c'est leur `p` qui tranchait.
+    Mesuré, pas déduit — la marge valait toujours zéro.
+
+    Il faut donc TROIS classes. `.postbody .content` plus la nôtre
+    les donne, et c'est aussi la vérité de l'endroit : une annonce
+    vit dans un corps de message. La paire `.wm-annonce …` reste à
+    côté pour les pages qui montent le composant hors d'un message —
+    la planche de composants, les harnais. */
+#modernbb .postbody .content .wm-annonce__texte,
+#modernbb .wm-annonce .wm-annonce__texte {
+  margin: var(--wm-espace-16, 16px) 0 0;
+}
+
+#modernbb .postbody .content .wm-annonce__soustitre,
+#modernbb .wm-annonce .wm-annonce__soustitre {
+  margin-bottom: var(--wm-espace-6, 6px);
+}
+
 #modernbb .wm-annonce__bloc {
   box-sizing: border-box;
   min-width: 0;

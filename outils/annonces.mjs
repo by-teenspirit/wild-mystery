@@ -692,6 +692,44 @@ if (Deno.args.includes("--photo")) {
   }
 }
 
+//  ── LES ÉCARTS DU COMPOSANT SURVIVENT À MODERNBB ──────────────────
+//
+//  TROUVÉ LE 9 NOVEMBRE, en mesurant « il manque un espace ».
+//  `05-sujet.css` écrit `#modernbb .postbody .content p { margin: 0 0
+//  16px }` — un identifiant, deux classes, UN TYPE. Nos règles de
+//  composant n'avaient qu'un identifiant et deux classes, donc le
+//  type de ModernBB tranchait et le raccourci `margin` remettait la
+//  marge HAUTE à zéro.
+//
+//  Conséquence mesurée : le paragraphe d'une annonce avait perdu ses
+//  16 px de marge haute DEPUIS LE DÉBUT, sur les treize modèles.
+//  Aucun contrôle ne le voyait, parce qu'aucun ne mesurait un écart.
+//
+//  Celui-ci les mesure dans le vrai corps de message où le harnais
+//  monte déjà les modèles.
+{
+  const ecarts = await p.evaluate(() => {
+    const lu = (sel, prop) => {
+      const el = document.querySelector(sel);
+      return el === null ? null : getComputedStyle(el)[prop];
+    };
+    return {
+      texte: lu(".wm-annonce__texte", "marginTop"),
+      soustitre: lu(".wm-annonce__soustitre", "marginBottom"),
+    };
+  });
+  if (ecarts.texte !== "16px") {
+    rate(`la marge haute d'un texte d'annonce vaut ${ecarts.texte} au lieu de 16px — ` +
+      "une règle de ModernBB est repassée devant");
+  }
+  if (ecarts.soustitre !== "6px") {
+    rate(`la marge basse d'un sous-titre vaut ${ecarts.soustitre} au lieu de 6px`);
+  }
+  if (ecarts.texte === "16px" && ecarts.soustitre === "6px") {
+    console.log("   ✓ les écarts du composant tiennent dans un corps de message");
+  }
+}
+
 await nav.close();
 console.log(fautes === 0 ? "\nannonces  TOUT PASSE." : `\nannonces  ${fautes} défaut(s).`);
 Deno.exit(fautes === 0 ? 0 : 1);
