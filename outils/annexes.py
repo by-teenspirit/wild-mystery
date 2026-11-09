@@ -74,6 +74,32 @@ def en_titre(cle):
     return NOMS_DE_TYPE.get(sans_accent(cle), cle.capitalize())
 
 
+#  LE STYLE DE SPRITE DU FORUM — Ultra-Soleil / Ultra-Lune, celui de
+#  la carte dresseur collée.
+STYLE = "forum"
+
+
+def adresse_du_sprite(couverture, espece_id):
+    """L'adresse du sprite animé d'une espèce, dans le style du forum.
+
+    ON LIT LA CARTE DE COUVERTURE, on n'écrit pas un chemin. Le style du
+    forum est Ultra-Soleil / Ultra-Lune, qui s'arrête à la septième
+    génération : Ixon, Corvaillus et Corayôme n'y sont pas, et
+    `outils/sprites.py` leur a trouvé une source ailleurs. Un chemin
+    écrit en dur — c'est ce que fait `equipe-de-test.py` — rend une
+    image cassée pour eux.
+
+    `source` et pas `fige` : le sprite ANIMÉ, comme dans une zone. Les
+    images figées servent la grille du Pokédex, où il y en a neuf cents
+    sur un écran.
+    """
+    fiche = couverture["styles"][STYLE]["especes"].get(str(espece_id))
+    if fiche is None:
+        return None
+    chemin = fiche["source"]
+    return chemin if chemin.startswith("http") else f'{couverture["base"]}/{chemin}'
+
+
 def slug(titre):
     """La clé d'un onglet, dans l'adresse et dans l'attribut.
 

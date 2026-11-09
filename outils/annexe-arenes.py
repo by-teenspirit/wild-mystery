@@ -63,6 +63,8 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from annexes import (  # noqa: E402
     ARTWORK,
+    STYLE,
+    adresse_du_sprite,
     DEBUT,
     DECORS,
     FIN,
@@ -90,8 +92,6 @@ FORUM = "https://mysteryinrhode.forumactif.com"
 #  les numéros de message relevés dedans — voir `message` dans
 #  `data/equipes-de-champions.json`.
 PRELIENS = f"{FORUM}/t1002-les-champions"
-#  Le style du forum, celui de la carte dresseur collée.
-STYLE = "forum"
 
 PALIERS = {1: "Palier 1", 2: "Palier 2", 3: "Palier 3"}
 
@@ -108,27 +108,6 @@ def e(t):
 
 def lire(chemin):
     return json.loads((R / chemin).read_text(encoding="utf-8"))
-
-
-def adresse_du_sprite(couverture, espece_id):
-    """L'adresse du sprite animé d'une espèce, dans le style du forum.
-
-    ON LIT LA CARTE DE COUVERTURE, on n'écrit pas un chemin. Le style du
-    forum est Ultra-Soleil / Ultra-Lune, qui s'arrête à la septième
-    génération : Ixon, Corvaillus et Corayôme n'y sont pas, et
-    `outils/sprites.py` leur a trouvé une source ailleurs. Un chemin
-    écrit en dur — c'est ce que fait `equipe-de-test.py` — rend une
-    image cassée pour eux.
-
-    `source` et pas `fige` : le sprite ANIMÉ, comme dans une zone. Les
-    images figées servent la grille du Pokédex, où il y en a neuf cents
-    sur un écran.
-    """
-    fiche = couverture["styles"][STYLE]["especes"].get(str(espece_id))
-    if fiche is None:
-        return None
-    chemin = fiche["source"]
-    return chemin if chemin.startswith("http") else f'{couverture["base"]}/{chemin}'
 
 
 def renvoi(quoi, mot, adresse):
