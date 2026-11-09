@@ -36,8 +36,10 @@ La phrase est celle de Callista, relevée sur `t91`, au mot près. Deux
 choses seulement en sortent, parce qu'elles sont fausses là-bas :
 
   · LE LIEU. Le sujet du Colosseum de Rhode parle du « Collosseum
-    Port-Amarée » — un copier-coller d'un autre défi. Ici le lieu
-    vient de `arenes.json`, donc il est juste par construction.
+    Port-Amarée », et il a RAISON : ce colosseum est bien à
+    Port-Amarée. Mais deux défis s'y tiennent — l'Arène Eau aussi —
+    et deux autres partagent Suerebe. Le titre nomme donc le DÉFI,
+    pas sa ville, et la ville reste dans la phrase.
   · LE TYPE CONSEILLÉ. Il vient de la moyenne d'efficacité calculée
     sur les six membres, la même que l'annexe affiche.
 
@@ -68,6 +70,7 @@ RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SORTIE = os.path.join(RACINE, "templates", "defier-le-champion.a-coller.html")
 
 PALIERS = {1: "Palier 1", 2: "Palier 2", 3: "Palier 3"}
+FORUM = "https://mysteryinrhode.forumactif.com"
 
 
 def lire(chemin):
@@ -175,15 +178,39 @@ def main():
         eq = equipes.get(a["slug"])
         if eq is None:
             continue
-        lieu = ("de l'" if a["ville"][:1].lower() in "aeiouéèî" else "de ")
-        w(f'<!-- ░░░ {a["nom"].upper()} · {a["ville"].upper()} ░░░ -->')
+        #  ── LE NOM DU DÉFI, PAS SA VILLE ─────────────────────────
+        #
+        #  Deux défis partagent Port-Amarée — l'Arène Eau et le
+        #  Colosseum de Rhode — et deux autres Suerebe. « Défier le
+        #  champion de Port-Amarée » en désignerait donc deux.
+        #
+        #  ET CELA RÉHABILITE LE TEXTE D'ORIGINE : t91 parle du
+        #  « Collosseum Port-Amarée », ce que j'avais pris pour un
+        #  copier-coller d'un autre défi. C'en était un de ma part :
+        #  le Colosseum de Rhode EST à Port-Amarée. Le sujet avait
+        #  raison, la ville reste dans la phrase.
+        lieu = ("de l'" if a["genre"] == "arene" else "du ") + a["nom"]
+        #  ── OÙ VA CE BLOC ────────────────────────────────────────
+        #
+        #  Sans l'adresse écrite ici, il faut deviner quel bloc va dans
+        #  quel sujet à partir du nom du lieu — et il y a onze sujets
+        #  qui commencent tous par « Défier le champion ». Les quatre
+        #  adresses connues viennent de `data/arenes.json` ; les sept
+        #  autres sont dans les archives du staff, qu'un visiteur ne
+        #  voit pas. Le bloc le dit plutôt que de faire comme si.
+        w(f'<!-- ░░░ {a["nom"].upper()} · {a["ville"].upper()} ░░░')
+        if a.get("defier"):
+            w(f'     À COLLER DANS {FORUM}{a["defier"]} -->')
+        else:
+            w('     SUJET INCONNU — ajoute son adresse dans `defier` de')
+            w('     data/arenes.json et relance `deno task defier`. -->')
         w('<div class="wm-annonce wm-annonce--centre">')
         w(f'  <p class="wm-annonce__soustitre">{e(PALIERS[a["palier"]])} · '
           f'niveau {a["niveau"]}</p>')
         w(f'  <h2 class="wm-annonce__titre">Défier le champion '
-          f'{e(lieu)}{e(a["ville"])}</h2>')
+          f'{e(lieu)}</h2>')
         w('  <p class="wm-annonce__texte">' + e(PHRASE.format(
-            lieu=f'{lieu}{a["ville"]}',
+            lieu=f'{lieu}, à {a["ville"]},',
             type=en_titre(a["type"]),
             conseil=" ou ".join(en_titre(t) for t in eq["conseil"]["types"]),
         )) + "</p>")
@@ -196,12 +223,17 @@ def main():
     #  ── LA LIGUE : CINQ ÉQUIPES ────────────────────────────────────
     lig, eq = arenes["ligue"], equipes.get("ligue")
     if eq is not None:
-        w('<!-- ░░░ LA LIGUE · LE CONSEIL 4 ET LE CHAMPION ░░░ -->')
+        w('<!-- ░░░ LA LIGUE · LE CONSEIL 4 ET LE CHAMPION ░░░')
+        w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
+        w('     — le deuxième message, celui qui porte les équipes. -->')
         w('<div class="wm-annonce wm-annonce--centre">')
         w(f'  <p class="wm-annonce__soustitre">{e(PALIERS[3])} · '
           f'niveau {lig["niveau"]}</p>')
-        w(f'  <h2 class="wm-annonce__titre">Défier la Ligue '
-          f'{e("de " + lig["ville"])}</h2>')
+        #  « au Mont Bataille » et pas « de Mont Bataille » : le nom
+        #  du lieu porte son article, et le coller derrière « de »
+        #  donnait « la Ligue de Mont Bataille ».
+        w('  <h2 class="wm-annonce__titre">Défier la Ligue, '
+          f'au {e(lig["ville"])}</h2>')
         w('  <p class="wm-annonce__texte">' + e(PHRASE_LIGUE.format(
             conseil=" ou ".join(en_titre(t) for t in eq["conseil"]["types"]),
         )) + "</p>")
@@ -230,9 +262,10 @@ def main():
     #  charte ; le refaire ici demanderait une classe de plus, et
     #  celle de Forumactif fait déjà le travail. La carte se colle
     #  AU-DESSUS de la boîte existante, qui ne bouge pas.
-    w('<!-- ░░░ S\'INSCRIRE À LA LIGUE FINALE ░░░ -->')
-    w('<!--     À coller AU-DESSUS de la boîte « Code: » du message,')
-    w('         qui reste telle quelle. -->')
+    w('<!-- ░░░ S\'INSCRIRE À LA LIGUE FINALE ░░░')
+    w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
+    w('     — le troisième message, AU-DESSUS de sa boîte « Code: »,')
+    w('     qui reste telle quelle. -->')
     w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable">')
     w('  <p class="wm-annonce__soustitre">En avant pour le combat</p>')
     w('  <h2 class="wm-annonce__titre">S\'inscrire à la Ligue Finale</h2>')
