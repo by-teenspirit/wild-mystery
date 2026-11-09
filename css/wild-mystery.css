@@ -28332,14 +28332,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Un filet sous le titre, comme les fiches d'annonce : il soude le
     titre à ce qui suit au lieu de le laisser flotter. */
 #modernbb .wm-profil-page__titre {
-  margin: 0 0 var(--wm-espace-16, 16px);
+  /*  ── NI FILET, NI MARGE ÉCRITE ICI ──────────────────────────────
+
+      Le filet est retiré le 9 novembre : il soudait le titre à ce qui
+      suit, mais sur six onglets dont les contenus sont déjà en cartes
+      il ajoutait un trait de plus à une page qui en a assez.
+
+      Et la marge du bas N'EST PLUS ÉCRITE DEUX FOIS : la règle
+      `#modernbb .wm-profil-page__panneau > h1` la pose déjà, et avec
+      une classe de plus — c'était elle qui gagnait de toute façon.
+      Deux déclarations dont une seule s'applique, c'est une que l'on
+      corrigera un jour sans effet. */
   padding-bottom: var(--wm-espace-12, 12px);
-  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
 #modernbb .wm-profil-page__panneau > h1,
 #modernbb .wm-profil-page__panneau .h3 {
-  margin: 0 0 var(--wm-espace-16, 16px);
+  /*  ── `margin: 0`, ET PAS LA LIGNE RETIRÉE ───────────────────────
+
+      Les 16 px du bas s'en vont le 9 novembre. Mais on ne supprime
+      pas la déclaration : sans elle, le navigateur rend à `<h1>` sa
+      marge par défaut — 0,67 em EN HAUT comme en bas. Le titre
+      descendrait dans son panneau au lieu de se coller au bord, et
+      on aurait retiré un espace pour en gagner deux autres.
+
+      Le rembourrage du titre, lui, reste : c'est lui qui espace
+      maintenant le titre de ce qui suit. */
+  margin: 0;
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-section, 19px);
