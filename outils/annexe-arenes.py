@@ -203,48 +203,37 @@ def membre(w, m, couverture):
     #  pixels, et un double type y passerait sur deux lignes. L'infobulle
     #  les montre tous les deux. Même arbitrage que `equipe-de-test.py`.
     #
-    #  LES TROIS CHIFFRES L'UN SOUS L'AUTRE, mot à gauche et nombre à
-    #  droite — « comme avec pokémon » (8 novembre). Ils avaient été mis
-    #  en ligne le 6 novembre pour gagner des caractères ; ça tenait,
-    #  mais trois nombres en ligne obligent à relire le mot avant chaque
-    #  chiffre, et deux pokémon ne se comparent pas.
+    #  ── LA BULLE N'EST PLUS ÉCRITE ICI ─────────────────────────────
+    #
+    #  La case ne porte que ce qu'elle seule sait : ses types avec
+    #  leur libellé, et les trois chiffres du combat.
+    #  `module-equipe.ts` reconstruit la balise à l'affichage, à
+    #  l'identique — nom et niveau compris, qui sont déjà écrits en
+    #  clair juste au-dessus.
+    #
+    #  POURQUOI : mesuré le 9 novembre, une case avec sa bulle pèse
+    #  1 021 caractères, sans elle 413. Soixante-douze cases, et la
+    #  page à 120 622 sur les 128 000 que Forumactif accepte — avant
+    #  les vingt-quatre pokémon du Conseil 4, qui en demandaient
+    #  dix-neuf mille. Il n'y avait pas d'autre place à prendre.
+    #
+    #  CE QU'ON PERD : sans JavaScript, plus d'infobulle. Sur cette
+    #  page-ci, ça ne retire rien : les équipes vivent dans des
+    #  sous-onglets que le script ouvre, donc sans lui on ne les
+    #  atteignait déjà pas.
+    donnees = (
+        ";".join(f'{sans_accent(ty)}:{en_titre(sans_accent(ty))}'
+                 for ty in m["types"])
+        + "|"
+        + ",".join(str(m[cle]) for cle in ("pv", "att", "def"))
+    )
     w(
-        '<li class="wm-equipe__pkmn" tabindex="0">'
+        f'<li class="wm-equipe__pkmn" tabindex="0" data-wm-bulle="{e(donnees)}">'
         + image
         + f'<p class="wm-equipe__nom">{e(m["nom"])}</p>'
         + f'<p class="wm-equipe__niveau">niv. {m["niveau"]}</p>'
         + pastille(m["types"][0])
-        + '<div class="wm-infobulle" role="tooltip">'
-        + '<div class="wm-infobulle__tete">'
-        + f'<p class="wm-infobulle__nom">{e(m["nom"])}</p>'
-        + f'<span class="wm-infobulle__niveau">Niv. {m["niveau"]}</span>'
-        + "</div>"
-        + '<ul class="wm-infobulle__types">'
-        + "".join(pastille(t, "wm-infobulle__type") for t in m["types"])
-        + "</ul>"
-        #  ── LES CHIFFRES SONT DES LIGNES DE L'INFOBULLE ────────────
-        #
-        #  Pas une liste à moi. La planche 39 dessine déjà ces lignes
-        #  — nom à gauche, nombre à droite, un ressort entre les deux —
-        #  pour les attaques d'un Pokémon, et le composant les porte
-        #  depuis ce jour-là. J'en avais écrit une seconde paire,
-        #  `wm-equipe__chiffre`, qui faisait la même chose sous un
-        #  autre nom : deux écritures du même alignement finissent par
-        #  diverger. On garde celle de la planche.
-        #
-        #  `__stats` ET `__stat`, PAS `__attaques` : la ligne est la
-        #  même et la feuille leur donne les mêmes déclarations, mais
-        #  une statistique n'est pas une attaque et le nom doit le
-        #  dire. `__attaque` reste valide pour les cartes collées.
-        + '<p class="wm-infobulle__surtitre">Statistiques</p>'
-        + '<ul class="wm-infobulle__stats">'
-        + "".join(
-            f'<li class="wm-infobulle__stat">'
-            f"<span>{mot}</span><span>{m[cle]}</span></li>"
-            for mot, cle in (("PV", "pv"), ("Attaque", "att"), ("Défense", "def"))
-        )
-        + "</ul>"
-        + "</div></li>"
+        + "</li>"
     )
 
 

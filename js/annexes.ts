@@ -33,6 +33,7 @@ import {
   poserLesSousOnglets,
 } from "../src/adaptateurs/navigateur/module-annexes.ts";
 import { poserLAccessibilite } from "../src/adaptateurs/navigateur/module-confort.ts";
+import { poserLesInfobulles } from "../src/adaptateurs/navigateur/module-equipe.ts";
 import { poserLesFiltres } from "../src/adaptateurs/navigateur/module-personnages.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
@@ -78,6 +79,15 @@ poserLeTheme(document, prefs);
 //  deux visent la même barre, et on veut le thème en premier — c'est
 //  celui qu'on cherche le plus souvent.
 poserLAccessibilite(document, prefs);
+
+//  ── LES INFOBULLES DES ÉQUIPES ──────────────────────────────────────
+//
+//  AVANT LES SOUS-ONGLETS, et c'est une dépendance d'ordre : les
+//  sections se replient juste après, et une bulle construite dans une
+//  section déjà cachée coûterait un calcul de mise en page pour rien.
+//  La fonction ne fait rien sur les treize autres annexes : elle ne
+//  touche que les cases qui portent `data-wm-bulle`.
+poserLesInfobulles(document);
 
 //  LES SOUS-ONGLETS NE DÉPENDENT D'AUCUN FICHIER non plus : les
 //  sections sont dans la page. On les pose tout de suite, avant la

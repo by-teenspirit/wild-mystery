@@ -312,6 +312,33 @@ const nav = await chromium.launch(
   });
   ok("l'infobulle est cachée au repos", avant.visibilite === "hidden", avant);
 
+  //  ── LA BULLE VIENT DU SCRIPT, PAS DE LA PAGE ──────────────────────
+  //
+  //  Depuis le 9 novembre la page ne porte que `data-wm-bulle` ; c'est
+  //  `module-equipe.ts` qui construit la balise. Les deux moitiés de
+  //  cette phrase se vérifient : rien dans le HTML collé, tout dans le
+  //  DOM affiché. Si quelqu'un remet la bulle dans le générateur, la
+  //  page repasse au-dessus des 128 000 caractères de Forumactif sans
+  //  que rien ne le dise — sauf ici.
+  ok(
+    "aucune infobulle dans la page collée, seulement ses données",
+    !/wm-infobulle/.test(PAGE) && /data-wm-bulle="/.test(PAGE),
+    {
+      bullesEcrites: (PAGE.match(/wm-infobulle/g) ?? []).length,
+      donneesEcrites: (PAGE.match(/data-wm-bulle="/g) ?? []).length,
+      caracteres: PAGE.length,
+    },
+  );
+  const construites = await p.evaluate(() => ({
+    cases: document.querySelectorAll("[data-wm-bulle]").length,
+    bulles: document.querySelectorAll("[data-wm-bulle] .wm-infobulle").length,
+  }));
+  ok(
+    "et le script en a posé une dans chaque case",
+    construites.cases > 0 && construites.bulles === construites.cases,
+    construites,
+  );
+
   //  LES SIX CASES, UNE PAR UNE. La première et la dernière sont les
   //  seules qui peuvent sortir : c'est là que le `clamp` travaille.
   const bulles = [];
