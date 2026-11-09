@@ -51,6 +51,12 @@ const DONNEES = {
     paragraphes: ["Un premier paragraphe.", "Un second."],
     lien: { texte: "Lire le contexte", url: "/t1-contexte" },
   },
+  decouvrir: {
+    surtitre: "Tout l'univers du forum",
+    titre: "Les annexes",
+    texte: "Tout ce qui fait Rhode est rassemblé là.",
+    lien: { texte: "Par où commencer", url: "/h1-par-ou-commencer" },
+  },
   liens: [
     { texte: "Contexte", url: "/t1" },
     { texte: "Règlement", url: "/t2" },
@@ -242,13 +248,28 @@ const sansModule = await p.evaluate(() => {
     texte: hote.textContent.replace(/\s+/g, " ").trim().slice(0, 60),
     liens: hote.querySelectorAll(".wm-accueil__rapide").length,
     hauteur: Math.round(hote.getBoundingClientRect().height),
+    //  LE GROS BLOC EST DANS LE REPLI AUSSI, et c'est voulu : un
+    //  visiteur sans JavaScript est exactement celui qu'on ne veut
+    //  pas perdre.
+    decouvrir: hote.querySelectorAll(".wm-accueil__decouvrir").length,
+    bouton: hote.querySelector(".wm-accueil__decouvrir-bouton")?.getAttribute("href") ?? null,
   };
 });
 dire("sans JavaScript, le bloc de repli est déjà là", sansModule.la);
 dire(
-  "il porte le contexte et les sept liens",
-  sansModule.texte.startsWith("Contexte") && sansModule.liens === 7,
+  "il porte le gros bloc, puis le contexte et les quatre liens",
+  sansModule.texte.startsWith("Tout l'univers") && sansModule.liens === 4 &&
+    sansModule.decouvrir === 1,
   JSON.stringify(sansModule),
+);
+//  UN BLOC QUI POUSSE À CLIQUER DOIT MENER QUELQUE PART. C'est la
+//  seule chose qu'on lui demande vraiment, et `outils/accueil.py`
+//  refuse déjà d'écrire un repli sans adresse — ici on vérifie ce qui
+//  est SERVI, pas ce qui est généré.
+dire(
+  "et son bouton est un vrai lien vers les annexes",
+  typeof sansModule.bouton === "string" && sansModule.bouton.startsWith("/h"),
+  JSON.stringify(sansModule.bouton),
 );
 dire("et il occupe de la place : ce n'est pas un bloc vide", sansModule.hauteur > 200);
 
@@ -267,6 +288,7 @@ const pose = await p.evaluate(() => {
   const q = (s) => hote.querySelectorAll(s).length;
   return {
     pose: hote.classList.contains("wm-accueil--pose"),
+    decouvrir: q(".wm-accueil__decouvrir"),
     contexte: q(".wm-accueil__contexte"),
     liens: q(".wm-accueil__rapide"),
     partenaires: q(".wm-accueil__partenaire"),
@@ -282,10 +304,63 @@ const pose = await p.evaluate(() => {
 });
 dire("le module a remplacé le repli", pose.pose, JSON.stringify(pose));
 dire(
-  "LES SEPT BLOCS SONT LÀ",
-  pose.contexte === 1 && pose.liens === 3 && pose.partenaires === 2 &&
-    pose.votes === 2 && pose.staff === 1 && pose.actus === 2 && pose.preliens === 2,
+  "LES HUIT BLOCS SONT LÀ",
+  pose.decouvrir === 1 && pose.contexte === 1 && pose.liens === 3 &&
+    pose.partenaires === 2 && pose.votes === 2 && pose.staff === 1 &&
+    pose.actus === 2 && pose.preliens === 2,
   JSON.stringify(pose),
+);
+
+//  ── LE GROS BLOC ARRIVE EN PREMIER, ET IL SE LIT ──────────────────
+//
+//  « Faut le pousser à aller cliquer dessus » : un bloc d'appel qui
+//  arriverait en troisième position ne pousse personne. On mesure donc
+//  sa place — au-dessus de tout le reste — et son contraste, parce
+//  qu'il est le seul bloc de la page peint sur l'accent.
+const gros = await p.evaluate(() => {
+  const lin = (c) => (c /= 255, c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  const rgb = (t) => (t.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+  const bloc = document.querySelector(".wm-accueil__decouvrir");
+  if (bloc === null) return null;
+  const fond = rgb(getComputedStyle(bloc).backgroundColor);
+  const mesure = (sel) => {
+    const el = bloc.querySelector(sel);
+    if (el === null) return null;
+    const s = getComputedStyle(el);
+    const o = Number(s.opacity);
+    const t = rgb(s.color).map((v, i) => o * v + (1 - o) * fond[i]);
+    const propre = rgb(getComputedStyle(el).backgroundColor);
+    const dessous = /rgba\(0, 0, 0, 0\)/.test(getComputedStyle(el).backgroundColor)
+      ? fond
+      : propre;
+    const [hi, lo] = [lum(t), lum(dessous)].sort((a, b) => b - a);
+    return Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+  };
+  const autres = [...document.querySelectorAll("#wm-accueil .wm-accueil__panneau > *")];
+  return {
+    premier: autres.indexOf(bloc) === 0,
+    surtitre: mesure(".wm-accueil__decouvrir-surtitre"),
+    titre: mesure(".wm-accueil__decouvrir-titre"),
+    texte: mesure(".wm-accueil__decouvrir-texte"),
+    bouton: mesure(".wm-accueil__decouvrir-bouton"),
+    largeur: Math.round(bloc.getBoundingClientRect().width),
+    panneau: Math.round(
+      document.querySelector(".wm-accueil__panneau").getBoundingClientRect().width,
+    ),
+  };
+});
+dire("le gros bloc est le premier du panneau", gros !== null && gros.premier, JSON.stringify(gros));
+dire(
+  "et il prend toute la largeur",
+  gros !== null && gros.panneau - gros.largeur < 60,
+  JSON.stringify({ bloc: gros?.largeur, panneau: gros?.panneau }),
+);
+dire(
+  "ses quatre textes tiennent les 4,5 de la charte sur l'accent",
+  gros !== null && [gros.surtitre, gros.titre, gros.texte, gros.bouton]
+    .every((r) => r !== null && r >= 4.5),
+  JSON.stringify(gros),
 );
 dire("et rien ne déborde en largeur", !pose.debord);
 
@@ -894,6 +969,7 @@ const vrai = await p.evaluate(() => {
   return {
     pose: hote.classList.contains("wm-accueil--pose"),
     liens: hote.querySelectorAll(".wm-accueil__rapide").length,
+    decouvrir: hote.querySelectorAll(".wm-accueil__decouvrir").length,
     partenaires: hote.querySelectorAll(".wm-accueil__partenaire").length,
     actus: entrees.length,
     preliens: hote.querySelectorAll(".wm-accueil__prelien").length,
@@ -903,9 +979,13 @@ const vrai = await p.evaluate(() => {
     motVisible: /visibility/i.test(hote.textContent),
   };
 });
+//  QUATRE LIENS RAPIDES DEPUIS LE 9 NOVEMBRE, et plus sept : Contexte,
+//  Règlement et Annexes sont partis dans le gros bloc, qui les porte
+//  tous les trois en un seul appel.
 dire(
-  "AVEC LES VRAIES DONNÉES, LES SEPT BLOCS TIENNENT LA PAGE",
-  vrai.pose && vrai.liens === 7 && vrai.partenaires === 7 && vrai.actus === 4 &&
+  "AVEC LES VRAIES DONNÉES, LES HUIT BLOCS TIENNENT LA PAGE",
+  vrai.pose && vrai.liens === 4 && vrai.decouvrir === 1 &&
+    vrai.partenaires === 7 && vrai.actus === 4 &&
     vrai.preliens === 6 && vrai.mascotte !== "aucune",
   JSON.stringify(vrai),
 );

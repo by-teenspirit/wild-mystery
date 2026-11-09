@@ -19094,6 +19094,134 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     couvrirait le contexte, et une illustration qui cache le texte
     qu'elle illustre n'a plus de raison d'être. */
 
+/* ── 12 · le gros bloc qui pousse vers les annexes ─────────────────
+
+   « J'aimerai retirer règlement, contexte, annexes et que tu fasses un
+   gros bloc qui contient un lien vers les annexes : c'est là que la
+   personne va pouvoir découvrir tout l'univers du forum donc faut le
+   pousser à aller cliquer dessus » — 9 novembre 2026.
+
+   ── POURQUOI IL EST SI GRAND ──────────────────────────────────────
+
+   Les trois liens qu'il remplace étaient trois lignes dans une liste
+   de sept, à égalité avec « Bottin des avatars ». Un visiteur qui
+   arrive cherche de quoi comprendre le forum, pas une liste de sept
+   portes de même taille. Celui-ci prend toute la largeur, il arrive en
+   premier, et il porte un bouton plutôt qu'un lien — c'est tout ce
+   qu'on peut faire sans crier.
+
+   ── SA COULEUR EST LA NUIT, ET LE HARNAIS M'A REPRIS ──────────────
+
+   Je l'avais peint en `accent-fort`. Le rapport tenait — 7,97 avec
+   `texte-inverse` — mais `accent-fort` devient un bleu PÂLE en
+   sombre : le bloc d'appel était alors la seule plaque CLAIRE d'une
+   page noire. C'est exactement ce que le harnais interdit depuis le
+   30 octobre, et il l'a dit tout seul, sans que j'aie à regarder.
+
+   `fond-nuit` + `texte-sur-nuit` est la paire faite pour ça : un
+   panneau sombre dans LES DEUX thèmes, comme la bande du sommaire des
+   annexes. Elle ne change pas de sens quand le thème bascule.
+
+   Le surtitre est à 0,82 d'opacité et pas 0,72 : même mesure que
+   l'infobulle des équipes le même jour — 0,72 tombait sous 4,5. */
+
+#modernbb .wm-accueil__decouvrir {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-sizing: border-box;
+  margin: 0 0 var(--wm-espace-24, 24px);
+  padding: var(--wm-espace-32, 32px) var(--wm-espace-32, 32px)
+    var(--wm-espace-24, 24px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-accueil__decouvrir-surtitre {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  opacity: 0.82;
+  color: inherit;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-accueil__decouvrir-titre {
+  margin: 0;
+  color: inherit;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-page, 25px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+/*  LA MESURE EST BORNÉE. Sur un panneau de 1172 px, une phrase de
+    trois lignes courue d'un bord à l'autre se relit mal — c'est la
+    même raison qui borne la colonne d'une annexe. */
+#modernbb .wm-accueil__decouvrir-texte {
+  max-width: 56ch;
+  margin: var(--wm-espace-12, 12px) 0 0;
+  color: inherit;
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  LE BOUTON PREND LA SURFACE, PAS L'ACCENT : il est posé SUR
+    l'accent, donc il doit s'en détacher. Crème sur bleu, et l'encre
+    par-dessus — les trois jetons suivent le thème ensemble. */
+#modernbb .wm-accueil__decouvrir-bouton {
+  display: inline-flex;
+  align-items: center;
+  margin: var(--wm-espace-20, 20px) 0 0;
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-20, 20px);
+  gap: var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1.2;
+  text-decoration: none;
+  /*  `background-color` seulement : une transition sur `all` animerait
+      aussi le contour de focus, qui doit apparaître d'un coup. */
+  transition: background-color 120ms ease;
+}
+
+#modernbb .wm-accueil__decouvrir-bouton:hover,
+#modernbb .wm-accueil__decouvrir-bouton:focus-visible {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wm-accueil__decouvrir-bouton .wm-accueil__chevron {
+  width: 14px;
+  height: 14px;
+}
+
+/*  SANS ADRESSE, IL NE FAIT PAS SEMBLANT. Même règle que les liens
+    rapides : pas de balise `a`, et le pavé le dit à l'œil. */
+#modernbb .wm-accueil__decouvrir-bouton--sans-adresse {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/*  Sous 560 px, le bouton prend la ligne entière : un bouton de
+    132 px au milieu d'un pavé de 320 se rate du pouce. */
+@media (max-width: 560px) {
+  #modernbb .wm-accueil__decouvrir {
+    padding: var(--wm-espace-24, 24px) var(--wm-espace-20, 20px);
+  }
+
+  #modernbb .wm-accueil__decouvrir-bouton {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 15 · Le Messenger, à la charte
 

@@ -99,8 +99,22 @@ export type Prelien = {
   readonly url: string;
 };
 
+/** Le gros bloc qui pousse vers les annexes.
+ *
+ *  « Un gros bloc qui contient un lien vers les annexes : c'est là que
+ *  la personne va pouvoir découvrir tout l'univers du forum, donc faut
+ *  le pousser à aller cliquer dessus » (9 novembre). Il remplace trois
+ *  liens rapides qui pesaient le même poids qu'un bottin d'avatars. */
+export type Decouvrir = {
+  readonly surtitre: string;
+  readonly titre: string;
+  readonly texte: string;
+  readonly lien: Lien | null;
+};
+
 export type Accueil = {
   readonly contexte: Contexte | null;
+  readonly decouvrir: Decouvrir | null;
   readonly liens: readonly Lien[];
   readonly partenaires: {
     readonly titre: string;
@@ -135,6 +149,7 @@ export type Accueil = {
  *  laisse le bloc de repli à l'écran. */
 export const ACCUEIL_VIDE: Accueil = {
   contexte: null,
+  decouvrir: null,
   liens: [],
   partenaires: { titre: "", lien: null, liste: [] },
   votes: { titre: "", liste: [] },
@@ -321,6 +336,27 @@ function preliensDepuis(v: unknown): Accueil["preliens"] {
   };
 }
 
+/** Le gros bloc, ou `null`.
+ *
+ *  SANS TITRE, PAS DE BLOC. Un pavé qui n'annonce rien n'appelle
+ *  personne, et c'est tout ce qu'on lui demande. Le lien, lui, peut
+ *  manquer : la carte reste lisible, et `lienOuTexte` rend un texte
+ *  mort plutôt qu'un lien vers nulle part — même règle que partout
+ *  ailleurs dans ce fichier.
+ */
+function decouvrirDepuis(v: unknown): Decouvrir | null {
+  const o = objet(v);
+  if (o === null) return null;
+  const titre = texte(o.titre);
+  if (titre === "") return null;
+  return {
+    surtitre: texte(o.surtitre),
+    titre,
+    texte: texte(o.texte),
+    lien: lienDepuis(o.lien),
+  };
+}
+
 /** Tout le bloc d'accueil, lu et nettoyé. Ne lève jamais. */
 export function accueilDepuis(brut: unknown): Accueil {
   const o = objet(brut);
@@ -328,6 +364,7 @@ export function accueilDepuis(brut: unknown): Accueil {
   const images = objet(o.images) ?? {};
   return {
     contexte: contexteDepuis(o.contexte),
+    decouvrir: decouvrirDepuis(o.decouvrir),
     liens: liste(o.liens).flatMap((l) => {
       const lien = lienDepuis(l);
       return lien === null ? [] : [lien];
@@ -351,6 +388,7 @@ export function accueilDepuis(brut: unknown): Accueil {
  *  d'accueil sans JavaScript. */
 export function estVide(a: Accueil): boolean {
   return a.contexte === null &&
+    a.decouvrir === null &&
     a.liens.length === 0 &&
     a.partenaires.liste.length === 0 &&
     a.votes.liste.length === 0 &&

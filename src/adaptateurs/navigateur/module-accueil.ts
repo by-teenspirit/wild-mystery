@@ -186,6 +186,42 @@ function blocContexte(doc: Document, a: Accueil): HTMLElement | null {
   return bloc;
 }
 
+/** Le gros bloc qui pousse vers les annexes.
+ *
+ *  IL TIENT TOUTE LA LARGEUR, EN TÊTE DU PANNEAU, et c'est tout son
+ *  propos : « c'est là que la personne va pouvoir découvrir tout
+ *  l'univers du forum, donc faut le pousser à aller cliquer dessus ».
+ *  Les trois liens qu'il remplace — Contexte, Règlement, Annexes —
+ *  étaient des lignes de six pixels de haut dans une liste de sept,
+ *  à égalité avec « Bottin ».
+ *
+ *  LE BOUTON EST UN VRAI LIEN, pas un `div` cliquable : on le voit
+ *  dans la barre d'état avant de cliquer, il s'ouvre dans un onglet au
+ *  clic du milieu, et un lecteur d'écran l'annonce comme un lien. */
+function blocDecouvrir(doc: Document, a: Accueil): HTMLElement | null {
+  const d = a.decouvrir;
+  if (d === null) return null;
+  const bloc = element(doc, "section", "wm-accueil__decouvrir");
+  if (d.surtitre !== "") {
+    bloc.appendChild(
+      element(doc, "p", "wm-accueil__decouvrir-surtitre", d.surtitre),
+    );
+  }
+  bloc.appendChild(element(doc, "h2", "wm-accueil__decouvrir-titre", d.titre));
+  if (d.texte !== "") {
+    bloc.appendChild(element(doc, "p", "wm-accueil__decouvrir-texte", d.texte));
+  }
+  if (d.lien !== null) {
+    const bouton = lienOuTexte(doc, d.lien, "wm-accueil__decouvrir-bouton");
+    //  La flèche vient APRÈS le mot, comme sur le bouton de page
+    //  suivante des annexes : elle dit « ça continue par là », et elle
+    //  est décorative — le mot porte déjà le sens.
+    bouton.appendChild(chevron(doc));
+    bloc.appendChild(bouton);
+  }
+  return bloc;
+}
+
 function blocLiens(doc: Document, a: Accueil): HTMLElement | null {
   if (a.liens.length === 0) return null;
   const nav = element(doc, "nav", "wm-accueil__liens");
@@ -629,6 +665,11 @@ export function poserLAccueil(doc: Document, a: Accueil): boolean {
   //
   //  Deux rangées indépendantes, chacune avec sa coupe, règlent les
   //  deux d'un coup.
+  //  EN TÊTE DE TOUT, avant les deux rangées : c'est le premier bloc
+  //  qu'on voit en arrivant, et c'est voulu.
+  const decouvrir = blocDecouvrir(doc, a);
+  if (decouvrir !== null) panneau.appendChild(decouvrir);
+
   const haut = element(doc, "div", "wm-accueil__bande");
   const gaucheHaut = element(doc, "div", "wm-accueil__rangee");
   for (const bloc of [blocContexte(doc, a), blocLiens(doc, a)]) {

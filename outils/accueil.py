@@ -74,6 +74,19 @@ def charger() -> dict:
     for lien in liens:
         if not isinstance(lien, dict) or not str(lien.get("texte", "")).strip():
             raise AccueilIncoherent(f"un lien rapide sans texte : {lien!r}")
+    #  UN BLOC QUI POUSSE À CLIQUER DOIT MENER QUELQUE PART. Sans
+    #  adresse, il reste un pavé mort en tête de page — et c'est le
+    #  premier bloc qu'on voit.
+    dec = d.get("decouvrir")
+    if isinstance(dec, dict):
+        if not str(dec.get("titre", "")).strip():
+            raise AccueilIncoherent("le bloc « découvrir » n'a pas de titre")
+        lien = dec.get("lien")
+        if not isinstance(lien, dict) or not str(lien.get("url", "")).strip():
+            raise AccueilIncoherent(
+                "le bloc « découvrir » ne mène nulle part — donne-lui une "
+                "adresse dans data/accueil.json"
+            )
     return d
 
 
@@ -92,6 +105,38 @@ def en_forum(d: dict) -> str:
         "      est ce qui reste quand il n'y a pas de JavaScript, et c'est",
         "      la seule raison pour laquelle ce bloc existe.  -->",
         '<div id="wm-accueil" class="wm-accueil">',
+    ]
+
+    #  ── LE GROS BLOC, EN TÊTE ───────────────────────────────────────
+    #
+    #  Il est dans le repli AUSSI, et pas seulement dans le module :
+    #  c'est le bloc qui doit faire cliquer, et un visiteur sans
+    #  JavaScript est exactement celui qu'on ne veut pas perdre. Il
+    #  coûte six lignes de HTML.
+    dec = d.get("decouvrir")
+    if isinstance(dec, dict) and str(dec.get("titre", "")).strip():
+        out.append('  <section class="wm-accueil__decouvrir">')
+        if str(dec.get("surtitre", "")).strip():
+            out.append('    <p class="wm-accueil__decouvrir-surtitre">'
+                       f'{echappe(dec["surtitre"])}</p>')
+        out.append('    <h2 class="wm-accueil__decouvrir-titre">'
+                   f'{echappe(dec["titre"])}</h2>')
+        if str(dec.get("texte", "")).strip():
+            out.append('    <p class="wm-accueil__decouvrir-texte">'
+                       f'{echappe(dec["texte"])}</p>')
+        bouton = dec.get("lien")
+        if isinstance(bouton, dict) and str(bouton.get("texte", "")).strip():
+            url = str(bouton.get("url", "")).strip()
+            mot = echappe(bouton["texte"])
+            out.append(
+                f'    <a class="wm-accueil__decouvrir-bouton" href="{echappe(url)}">{mot}</a>'
+                if url
+                else '    <span class="wm-accueil__decouvrir-bouton '
+                     f'wm-accueil__decouvrir-bouton--sans-adresse">{mot}</span>'
+            )
+        out.append("  </section>")
+
+    out += [
         '  <section class="wm-accueil__contexte">',
         f'    <h2 class="wm-accueil__titre">{echappe(c.get("titre", "Contexte"))}</h2>',
     ]
