@@ -876,10 +876,34 @@ body:has(#modernbb .wm-carnet) {
     terre, vert. Une quatrième teinte n'est pas une variante, c'est un
     sens de plus — et un sens porté par la seule couleur ne se lit pas,
     d'où l'étiquette en capitales qui le dit en mots. */
+/*  ── DE L'AIR AU-DESSUS ET AU-DESSOUS ─────────────────────────────
+
+    « Quand tu mets des encadrés dans les annexes, il faudrait qu'il y
+    ait un margin en haut et en bas » (9 novembre).
+
+    Le bloc n'avait aucune marge. Dans neuf annexes sur quatorze il
+    est posé dans `wm-annexe__blocs`, qui donne 16 de `gap` — soit
+    exactement l'écart entre deux cartes, donc l'encart se lisait
+    comme une carte de plus. Dans les cinq autres il est en flux
+    normal, et il touchait son voisin.
+
+    VINGT-QUATRE DANS LES DEUX CAS, parce que c'est le rythme de la
+    page : le chapô pose 24 en bas, le pied 24 en haut.
+
+    MAIS PAS LE MÊME CHIFFRE ÉCRIT DANS LES DEUX RÈGLES. En flux
+    normal la marge FUSIONNE avec celle du voisin, et 24 contre 24
+    reste 24. Dans un conteneur flex elle ne fusionne pas : elle
+    S'AJOUTE au `gap`. D'où 8 seulement pour les enfants de
+    `wm-annexe__blocs` — 16 + 8 = 24 — et pas 24, qui ferait 40. */
 #modernbb .wm-encarts {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wm-espace-16, 16px);
+  margin-block: var(--wm-espace-24, 24px);
+}
+
+#modernbb .wm-annexe__blocs > .wm-encarts {
+  margin-block: var(--wm-espace-8, 8px);
 }
 
 #modernbb .wm-encart {

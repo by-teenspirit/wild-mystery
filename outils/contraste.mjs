@@ -756,6 +756,37 @@ if (lavis !== null) {
   if (!lavis.deuxDerniersEgaux) fautes++;
 }
 
+//  ── LES ENCADRES ONT DE L'AIR AU-DESSUS ET AU-DESSOUS ─────────────
+//
+//  « Quand tu mets des encadrés dans les annexes, il faudrait qu'il y
+//  ait un margin en haut et en bas » (9 novembre).
+//
+//  ON NE MESURE PAS LA MARGE DECLAREE. En flux normal elle FUSIONNE
+//  avec celle du voisin, dans un conteneur flex elle S'AJOUTE au
+//  `gap` : le chiffre ecrit dans la feuille ne dit pas l'ecart obtenu,
+//  et c'est l'ecart obtenu que l'oeil voit. On mesure donc le vide
+//  reel entre le bas du voisin du dessus et le haut du bloc, puis
+//  entre son bas et le haut du voisin du dessous.
+const air = await p.evaluate(() =>
+  [...document.querySelectorAll("#modernbb .wm-encarts")].map((e) => {
+    const b = e.getBoundingClientRect();
+    const avant = e.previousElementSibling?.getBoundingClientRect() ?? null;
+    const apres = e.nextElementSibling?.getBoundingClientRect() ?? null;
+    return {
+      haut: avant === null ? null : Math.round(b.top - avant.bottom),
+      bas: apres === null ? null : Math.round(apres.top - b.bottom),
+    };
+  })
+);
+for (const [i, a] of air.entries()) {
+  const manque = (a.haut !== null && a.haut < 24) || (a.bas !== null && a.bas < 24);
+  console.log(
+    `encadres ${i + 1} : ${a.haut ?? "—"} px au-dessus, ${a.bas ?? "—"} px au-dessous` +
+      (manque ? " — defaut, 24 attendus" : ""),
+  );
+  if (manque) fautes++;
+}
+
 for (const l of [1280, 900, 520, 390]) {
   await p.setViewportSize({ width: l, height: 900 });
   //  Et QUI deborde. « Il y a un debordement » envoie chercher a la main

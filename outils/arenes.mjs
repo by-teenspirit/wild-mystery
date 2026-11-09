@@ -345,14 +345,27 @@ const nav = await chromium.launch(
           //  leur ALIGNEMENT, qui est tout l'intérêt de la colonne :
           //  trois nombres qui ne finissent pas au même endroit ne se
           //  comparent pas d'un pokémon à l'autre.
-          chiffres: Array.from(bulle.querySelectorAll(".wm-infobulle__attaque")).map(
-            (l) => ({
-              mot: l.querySelector("span:first-child")?.textContent.trim() ?? null,
-              valeur: l.querySelector("span:last-child")?.textContent.trim() ?? null,
-              droite: Math.round(
-                l.querySelector("span:last-child").getBoundingClientRect().right,
-              ),
-            }),
+          chiffres: Array.from(bulle.querySelectorAll(".wm-infobulle__stat")).map(
+            (l) => {
+              const mot = l.querySelector("span:first-child");
+              const val = l.querySelector("span:last-child");
+              const sm = getComputedStyle(mot);
+              const sv = getComputedStyle(val);
+              return {
+                mot: mot?.textContent.trim() ?? null,
+                valeur: val?.textContent.trim() ?? null,
+                droite: Math.round(val.getBoundingClientRect().right),
+                //  LE BORD GAUCHE DE LA COLONNE, et pas seulement le
+                //  droit : « 84 » au-dessus de « 112 » finissent au
+                //  même pixel sans commencer dans la même colonne, et
+                //  c'est le début du nombre que l'œil suit.
+                gauche: Math.round(val.getBoundingClientRect().left),
+                //  LE MOT EST AFFAIBLI, LE NOMBRE NON.
+                opaciteMot: Number(sm.opacity),
+                opaciteValeur: Number(sv.opacity),
+                graisseValeur: Number(sv.fontWeight),
+              };
+            },
           ),
         };
       }, rang),
@@ -382,6 +395,47 @@ const nav = await chromium.launch(
     "les trois nombres finissent au même endroit",
     bulles.every((b) => new Set(b.chiffres.map((c) => c.droite)).size === 1),
     bulles.map((b) => b.chiffres.map((c) => c.droite)),
+  );
+  ok(
+    "et ils commencent tous dans la même colonne",
+    bulles.every((b) => new Set(b.chiffres.map((c) => c.gauche)).size === 1),
+    bulles.map((b) => b.chiffres.map((c) => c.gauche)),
+  );
+  ok(
+    "le mot est affaibli, le nombre est plein et gras",
+    bulles.every((b) =>
+      b.chiffres.every((c) =>
+        c.opaciteMot > 0.7 && c.opaciteMot < 1 &&
+        c.opaciteValeur === 1 && c.graisseValeur >= 700
+      )
+    ),
+    bulles.map((b) => b.chiffres.map((c) => [c.opaciteMot, c.opaciteValeur, c.graisseValeur])),
+  );
+
+  //  ── LE MOT AFFAIBLI RESTE LISIBLE ────────────────────────────────
+  //
+  //  Un `opacity` n'est pas une couleur : aucun outil de contraste ne
+  //  le voit, et c'est par là que la charte fuit. On remonte donc la
+  //  couleur réellement peinte — le texte mélangé à son fond selon
+  //  l'opacité — et on la mesure comme n'importe quelle autre.
+  const lisibilite = await p.evaluate(() => {
+    const lin = (c) => (c /= 255, c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    const rgb = (t) => t.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number);
+    const bulle = document.querySelector(".wm-infobulle");
+    const fond = rgb(getComputedStyle(bulle).backgroundColor);
+    const mot = bulle.querySelector(".wm-infobulle__stat > span:first-child");
+    const st = getComputedStyle(mot);
+    const o = Number(st.opacity);
+    const t = rgb(st.color);
+    const peint = t.map((v, i) => o * v + (1 - o) * fond[i]);
+    const [hi, lo] = [lum(peint), lum(fond)].sort((a, b) => b - a);
+    return { rapport: Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100, opacite: o };
+  });
+  ok(
+    "le mot affaibli tient les 4,5 de la charte sur le fond de la bulle",
+    lisibilite.rapport >= 4.5,
+    lisibilite,
   );
 
   const debord = await p.evaluate(() => ({

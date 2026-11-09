@@ -231,10 +231,15 @@ def membre(w, m, couverture):
         #  `wm-equipe__chiffre`, qui faisait la même chose sous un
         #  autre nom : deux écritures du même alignement finissent par
         #  diverger. On garde celle de la planche.
+        #
+        #  `__stats` ET `__stat`, PAS `__attaques` : la ligne est la
+        #  même et la feuille leur donne les mêmes déclarations, mais
+        #  une statistique n'est pas une attaque et le nom doit le
+        #  dire. `__attaque` reste valide pour les cartes collées.
         + '<p class="wm-infobulle__surtitre">Statistiques</p>'
-        + '<ul class="wm-infobulle__attaques">'
+        + '<ul class="wm-infobulle__stats">'
         + "".join(
-            f'<li class="wm-infobulle__attaque">'
+            f'<li class="wm-infobulle__stat">'
             f"<span>{mot}</span><span>{m[cle]}</span></li>"
             for mot, cle in (("PV", "pv"), ("Attaque", "att"), ("Défense", "def"))
         )

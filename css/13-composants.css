@@ -1532,11 +1532,26 @@
   white-space: nowrap;
 }
 
-/*  ── LES ATTAQUES ────────────────────────────────────────────────── */
+/*  ── LES LIGNES CHIFFRÉES : ATTAQUES ET STATISTIQUES ──────────────
+
+    UNE SEULE ÉCRITURE POUR LES DEUX. Les attaques d'un Pokémon
+    (planche 39) et les statistiques d'une équipe de champion sont la
+    même ligne : un mot à gauche, un nombre à droite. Le nom
+    `__attaque` est resté seul jusqu'au 9 novembre, et des cartes
+    collées dans des sujets le portent — on le garde donc, et
+    `__stat` vient à côté pour ce qui n'est pas une attaque. Les deux
+    sélecteurs partagent chaque déclaration : deux écritures du même
+    alignement finissent par diverger.
+
+    L'OPACITÉ EST MESURÉE, PAS CHOISIE. Le texte crème de l'infobulle
+    sur le vert `pokemon-pur-fond` donne 6,02 en plein ; affaibli à
+    0,72 il tombe à 4,01, SOUS les 4,5 de la charte. À 0,82 il remonte
+    à 4,66, et à 6,95 sur le violet. C'est 0,82 partout ici — le
+    surtitre et l'échelle y passent aussi, ils étaient à 0,72. */
 
 #modernbb .wm-infobulle__surtitre {
   margin: 0;
-  opacity: 0.72;
+  opacity: 0.82;
   font-size: 9px;
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
@@ -1544,18 +1559,20 @@
   text-transform: uppercase;
 }
 
-#modernbb .wm-infobulle__attaques {
+#modernbb .wm-infobulle__attaques,
+#modernbb .wm-infobulle__stats {
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 0;
-  gap: 3px;
+  gap: 4px;
   list-style: none;
 }
 
-/*  Un ressort entre le nom et la puissance : les quatre nombres
-    s'alignent à droite quels que soient les noms. */
-#modernbb .wm-infobulle__attaque {
+/*  Un ressort entre le mot et le nombre : les nombres s'alignent à
+    droite quels que soient les mots. */
+#modernbb .wm-infobulle__attaque,
+#modernbb .wm-infobulle__stat {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -1564,15 +1581,36 @@
   line-height: 1.4;
 }
 
-#modernbb .wm-infobulle__attaque > span:last-child {
+/*  LE MOT À GAUCHE EST AFFAIBLI, LE NOMBRE NON. Les deux étaient de
+    la même encre et de la même graisse : l'œil n'avait rien à suivre
+    et relisait le mot avant chaque chiffre. Un long nom d'attaque se
+    coupe plutôt que de pousser son nombre hors de la bulle, qui ne
+    fait que 212 pixels. */
+#modernbb .wm-infobulle__attaque > span:first-child,
+#modernbb .wm-infobulle__stat > span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  opacity: 0.82;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modernbb .wm-infobulle__attaque > span:last-child,
+#modernbb .wm-infobulle__stat > span:last-child {
   flex: 0 0 auto;
-  /*  CHIFFRES TABULAIRES : depuis le 8 novembre ces lignes portent
-      aussi les statistiques d'une équipe de champion, qu'on lit d'un
-      Pokémon à l'autre. Des chiffres de largeurs différentes ne se
-      comparent pas en colonne. Sur les puissances d'attaque, qui sont
-      toutes à trois chiffres ou moins, ça ne change rien. */
+  /*  CHIFFRES TABULAIRES ET COLONNE DE TROIS CHIFFRES : depuis le
+      8 novembre ces lignes portent aussi les statistiques d'une
+      équipe de champion, qu'on lit d'un Pokémon à l'autre. Des
+      chiffres de largeurs différentes ne se comparent pas en
+      colonne, et « 84 » au-dessus de « 112 » ne se compare pas
+      davantage si les deux finissent au même pixel de droite sans
+      commencer dans la même colonne. `min-width` tient la colonne,
+      `text-align` y range le nombre. */
+  min-width: 3ch;
   font-variant-numeric: tabular-nums;
-  font-weight: var(--wm-graisse-demi, 600);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-align: right;
 }
 
 /*  ── LE RANG, ET CE QU'IL MESURE ─────────────────────────────────── */
@@ -1597,7 +1635,7 @@
 
 #modernbb .wm-infobulle__echelle {
   flex: 0 0 auto;
-  opacity: 0.72;
+  opacity: 0.82;
   font-size: 9px;
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
