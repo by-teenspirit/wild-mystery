@@ -1152,13 +1152,18 @@ html#min-width {
     Les jetons sont lisibles ici parce que `jetons.css` les déclare
     aussi sur `html:has(body.wm-sombre)` ; sans ça, `var()` lu sur
     `html` rendrait la valeur CLAIRE et on aurait peint le crème en
-    croyant peindre le sombre. */
+    croyant peindre le sombre.
+
+    LE REPLI EST LE CRÈME, et c'est voulu : il ne sert que si
+    `jetons.css` n'a pas été servi du tout, et ce jour-là le corps
+    est crème lui aussi. Un repli sombre peindrait la toile en noir
+    sous une page claire — exactement le désaccord qu'on corrige. */
 html {
   color-scheme: light;
 }
 
 html:has(body.wm-sombre) {
-  background-color: var(--wm-fond-page, #1a1210);
+  background-color: var(--wm-fond-page, #eecfb5);
   color-scheme: dark;
 }
 
