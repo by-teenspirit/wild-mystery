@@ -43,13 +43,32 @@ D'OÙ CINQ RÈGLES, et chacune coûte quelque chose :
      masqué. Ce qui s'affiche est ce qui est écrit.
 
 LE TEXTE NE BOUGE PAS. « Ne modifie pas notre texte » (6 novembre). Il
-est lu dans `data/contexte.json`, au caractère près, trois coquilles
-comprises. Changer le texte là-bas regénère la fiche ici.
+est lu dans `data/contexte.json`, au caractère près, deux coquilles
+comprises — « Rhode.Si » et « forum.Que », qui sont dans la source et
+s'affichent donc aussi sur l'annexe.
+
+══════════════════════════════════════════════════════════════════════
+
+LA CONSTRUCTION, DEMANDÉE LE 9 NOVEMBRE
+
+  · la bannière du forum, en grand, en haut, aux coins arrondis ;
+  · un cadre : titre, sous-titre ;
+  · un cadre : titre du contexte, contenu À HAUTEUR FIXE qui défile ;
+  · un cadre : titre de la chrono, contenu codé comme sur les annexes,
+    à hauteur fixe qui défile ;
+  · « À retenir » et « Bon à savoir » EN FACE À FACE, aux couleurs de
+    l'annexe ;
+  · un pokémon en fond, en transparence, en bas à droite.
+
+CE QUE LES HAUTEURS FIXES COÛTENT, et ça vaut d'être écrit : un
+visiteur qui ne voit pas la barre de défilement croit la page finie.
+Les deux cadres gardent donc un bas DÉGRADÉ, du blanc vers rien, qui
+dit qu'il reste du texte dessous — c'est tout ce qu'on peut faire sans
+script.
 
     python3 outils/fiche-ailleurs.py
 """
 
-import html
 import json
 import os
 import re
@@ -67,15 +86,59 @@ SORTIE = os.path.join(RACINE, "templates", "contexte-ailleurs.a-coller.html")
 PAGE = "#f3e1d2"  # le sable du fond
 SURFACE = "#fffbf7"  # la surface d'une carte
 HAUTE = "#fcf4ec"  # la surface d'un bloc dans la carte
-TERRE = "#f8eae1"  # le fond d'une pastille
+TERRE = "#f8eae1"  # le fond d'un encart « terre »
+#  `--wm-danger-paisible` à 16 % sur `fond-surface`, calculé une fois
+#  ici : `color-mix` n'a rien à faire dans un attribut `style` qu'un
+#  vieux navigateur de forum pourrait ne pas comprendre.
+PAISIBLE = "#e7e6dd"
 BORD = "#eadacd"
+NET = "#d9c3b1"  # le filet et les points de la chronologie
 ENCRE = "#2e2018"  # les titres
 CORPS = "#4e3b30"  # le texte
 DOUX = "#6e5749"  # les mentions
-ACCENT = "#8b4725"  # le sur-titre et les dates
+ACCENT = "#8b4725"  # le sur-titre, les dates, le dernier point
 
 TITRE = "Georgia, 'Times New Roman', Times, serif"
 TEXTE = "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+
+#  ── LA BANNIÈRE ─────────────────────────────────────────────────────
+#
+#  C'est celle du forum, 1280 × 620, prise CHEZ SON HÉBERGEUR et non
+#  derrière `2img.net` : ce dernier est le relais d'images de
+#  Forumactif, et une fiche collée ailleurs n'a aucune raison de
+#  passer par lui. Les deux adresses rendent le même fichier
+#  aujourd'hui — mesuré, 985 740 octets des deux côtés — mais l'une
+#  dépend de Forumactif et l'autre pas.
+#
+#  ELLE REMPLACE LES DEUX IMAGES CÔTE À CÔTE du premier jet : « en
+#  fait en haut, on va mettre une grande image (la bannière) »
+#  (9 novembre).
+BANNIERE = "https://i.postimg.cc/9fcYn6Wj/banniere-wm.png"
+
+#  LE POKÉMON DU FOND est celui de l'annexe 02 — Lugia, rendu officiel,
+#  au commit épinglé de PokéAPI comme partout ailleurs dans le dépôt.
+POKEMON = (
+    "https://raw.githubusercontent.com/PokeAPI/sprites/"
+    "bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/"
+    "official-artwork/249.png"
+)
+
+#  LE TITRE ET LE SOUS-TITRE NE SONT PAS DANS `contexte.json` : ce
+#  fichier-là porte le texte de l'annexe, qui n'a pas à nommer le
+#  forum. Ils sont donc ici, et nulle part ailleurs.
+NOM = "Wild Mystery"
+SOUS_TITRE = "Le contexte et la chronologie de la région de Rhode"
+
+#  Les hauteurs des deux fenêtres qui défilent.
+HAUTEUR_CONTEXTE = "320px"
+HAUTEUR_CHRONO = "360px"
+
+#  La chronologie, reprise de la brique du forum.
+DATE = "112px"  # la colonne de gauche
+RAIL = "14px"  # la largeur du point
+SAUT = 28  # l'écart entre deux moments, en pixels
+POINT = 14  # le diamètre d'un instant
+DUREE = 34  # la hauteur d'une période
 
 #  Un moment qui S'ÉTEND, reconnu au tiret dans sa date — même règle
 #  que l'annexe, et les trois tirets Unicode comptent.
@@ -101,6 +164,131 @@ def st(*regles: str) -> str:
     return valeur.replace("&", "&amp;").replace('"', "&quot;")
 
 
+#  `box-sizing` sur CHAQUE bloc qui a un rembourrage : l'hôte peut ne
+#  pas le poser globalement, et un bloc en `content-box` ajoute son
+#  rembourrage à sa largeur — il déborde alors de la colonne du
+#  message. C'est le défaut qu'on ne voit que chez l'autre.
+BOITE = "box-sizing:border-box"
+
+
+def cadre(fond: str = SURFACE, marge: str = "margin:0 0 16px",
+          fenetre_dedans: bool = False) -> str:
+    """L'ouverture d'un cadre : fond clair, coins arrondis, rembourrage.
+
+    `fenetre_dedans` ajoute le repère dont le dégradé du bas a besoin.
+    """
+    return (
+        f'<div style="{st(BOITE, f"background:{fond}", "border-radius:12px",
+                          "padding:22px", marge, "max-width:100%",
+                          "position:relative" if fenetre_dedans else "")}">'
+    )
+
+
+def degrade_du_bas() -> str:
+    """Le bas d'un cadre qui défile, fondu vers son fond.
+
+    POURQUOI IL EXISTE : une fenêtre à hauteur fixe coupe une ligne de
+    texte en deux, et une demi-ligne ressemble à un défaut d'affichage
+    plutôt qu'à « il y a la suite ». Sans script, le fondu est le seul
+    moyen de le dire.
+
+    IL EST POSÉ SUR LE CADRE, PAS DANS LA FENÊTRE : dedans, il
+    défilerait avec le texte et ne couvrirait le bas qu'au départ.
+
+    LES DEUX BOUTS DU DÉGRADÉ PORTENT LA MÊME COULEUR, l'un à zéro
+    d'opacité. `transparent` vaut `rgba(0,0,0,0)` et certains moteurs
+    traversent alors le gris en interpolant — un voile sale au milieu
+    du fondu.
+    """
+    return (
+        f'<span style="{st("position:absolute", "left:2px", "right:2px",
+                           "bottom:2px", "height:40px",
+                           "border-radius:0 0 12px 12px",
+                           "background:linear-gradient(to bottom, "
+                           "rgba(255,251,247,0), " + SURFACE + ")",
+                           "pointer-events:none", "display:block")}"></span>'
+    )
+
+
+def titre_de_cadre(mot: str, taille: str = "22px") -> str:
+    return (
+        f'<h2 style="{st("margin:0 0 14px", f"color:{ENCRE}",
+                         f"font-family:{TITRE}", f"font-size:{taille}",
+                         "font-weight:600", "line-height:1.2")}">{mot}</h2>'
+    )
+
+
+def fenetre(hauteur: str) -> str:
+    """Un contenu à hauteur fixe qui défile.
+
+    `overflow:auto` ET PAS `scroll` : `scroll` dessine une barre vide
+    quand le contenu tient, et deux barres mortes dans une fiche font
+    plus de mal qu'elles n'en épargnent.
+    """
+    return (
+        f'<div style="{st(BOITE, f"height:{hauteur}", "overflow:auto",
+                          "padding-right:10px")}">'
+    )
+
+
+def paragraphe(mot: str, premier: bool, taille: str = "14px") -> str:
+    marge = "margin:0" if premier else "margin:13px 0 0"
+    return (
+        f'<p style="{st(marge, f"color:{CORPS}", f"font-size:{taille}",
+                        "line-height:1.7", "text-align:justify")}">{mot}</p>'
+    )
+
+
+def moment(m: dict, dernier: bool) -> list[str]:
+    """Une rangée de la chronologie : date, repère, texte.
+
+    LE REPÈRE EST UN VRAI ÉLÉMENT, pas un `::before`. On ne peut pas
+    écrire de pseudo-élément dans un attribut `style`, et un filet à
+    gauche du texte est exclu — « ne mets pas un border à gauche, ne
+    mets ça nulle part ». Le point et le trait sont donc deux `<span>`
+    posés en absolu dans une colonne étroite, comme la feuille du
+    forum les dessine.
+    """
+    duree = une_duree(m["quand"])
+    haut = DUREE if duree else POINT
+    out = [
+        f'<div style="{st(BOITE, "display:flex", "align-items:stretch",
+                          "gap:18px",
+                          "margin:0" if dernier else f"padding-bottom:{SAUT}px")}">',
+        #  La date, calée à droite contre son repère.
+        f'<span style="{st(f"flex:0 0 {DATE}", f"color:{ENCRE}",
+                           "font-size:13px", "font-weight:700",
+                           "letter-spacing:0.02em", "line-height:1.5",
+                           "text-align:right", "text-transform:uppercase")}">'
+        f"{m['quand']}</span>",
+        #  La colonne du repère.
+        f'<span style="{st("position:relative", f"flex:0 0 {RAIL}",
+                           "display:block")}">',
+        f'<span style="{st("position:absolute", "top:3px", "left:0",
+                           f"width:{POINT}px", f"height:{haut}px",
+                           "border-radius:999px",
+                           f"background:{ACCENT if dernier else NET}",
+                           "display:block")}"></span>',
+    ]
+    if not dernier:
+        #  LE TRAIT DESCEND JUSQU'AU POINT SUIVANT. Il part sous le
+        #  repère et plonge de `SAUT` sous la rangée — c'est
+        #  exactement l'écart qui les sépare.
+        out.append(
+            f'<span style="{st("position:absolute", f"top:{3 + haut}px",
+                               "left:6px", "width:1px", f"bottom:-{SAUT + 3}px",
+                               f"background:{NET}", "display:block")}"></span>',
+        )
+    out += [
+        "</span>",
+        f'<span style="{st("flex:1 1 auto", "min-width:0", f"color:{CORPS}",
+                           "font-size:13.5px", "line-height:1.6",
+                           "display:block")}">{m["quoi"]}</span>',
+        "</div>",
+    ]
+    return out
+
+
 def main() -> None:
     with open(SOURCE, encoding="utf-8") as f:
         d = json.load(f)
@@ -122,6 +310,11 @@ def main() -> None:
     e("     passer en mode HTML (le bouton est souvent écrit « HTML »,")
     e("     « <> » ou « Code source »), puis coller tout le bloc.")
     e("")
+    e("     LA BANNIÈRE EST LA PREMIÈRE ADRESSE DU BLOC. Pour en mettre")
+    e("     une autre, il suffit de la remplacer : la largeur, les")
+    e("     proportions et les coins arrondis sont posés à côté et")
+    e("     s'adaptent à n'importe quelle image.")
+    e("")
     e("     SI LE FORUM N'ACCEPTE PAS LE HTML dans les messages, il n'y")
     e("     a rien à faire de ce côté : aucun style ne passera, et il")
     e("     faudra recopier le texte en BBCode. Les forums en")
@@ -134,107 +327,103 @@ def main() -> None:
     e("     ══════════════════════════════════════════════════════════ -->")
     e("")
 
-    #  ── LA CARTE ────────────────────────────────────────────────────
+    #  ── LA FICHE ────────────────────────────────────────────────────
     #
-    #  `box-sizing` sur CHAQUE bloc qui a un rembourrage : l'hôte peut
-    #  ne pas le poser globalement, et un bloc en `content-box` ajoute
-    #  son rembourrage à sa largeur — il déborde alors de la colonne du
-    #  message. C'est le défaut qu'on ne voit que chez l'autre.
-    boite = "box-sizing:border-box"
+    #  `position:relative` et `overflow:hidden` servent au pokémon du
+    #  fond : l'un lui donne son repère, l'autre lui coupe ce qui
+    #  dépasse du coin arrondi.
     e(
-        f'<div style="{st(boite, f"background:{PAGE}", "border-radius:14px",
-                          "padding:26px", f"color:{CORPS}",
+        f'<div style="{st(BOITE, f"background:{PAGE}", "border-radius:16px",
+                          "padding:24px 24px 34px", f"color:{CORPS}",
                           f"font-family:{TEXTE}", "font-size:14px",
-                          "line-height:1.6", "max-width:100%")}">',
+                          "line-height:1.6", "max-width:100%",
+                          "position:relative", "overflow:hidden")}">',
     )
 
-    #  Le chapô, dans sa carte claire.
+    #  LE POKÉMON DU FOND. Il est posé AVANT le contenu et sans
+    #  `z-index` : dans le flux, un élément écrit plus tôt passe
+    #  dessous, et le contenu qui suit porte `position:relative` pour
+    #  se placer au-dessus sans qu'on ait à empiler des couches.
     e(
-        f'<div style="{st(boite, f"background:{SURFACE}", "border-radius:10px",
-                          "padding:22px", "margin:0 0 18px")}">',
+        f'<img src="{POKEMON}" alt="" style="{st("position:absolute",
+            "right:-34px", "bottom:-26px", "width:300px", "max-width:60%",
+            "height:auto", "opacity:0.14", "pointer-events:none")}">',
+    )
+    e(f'<div style="{st("position:relative")}">')
+
+    #  ── LA BANNIÈRE ─────────────────────────────────────────────────
+    #
+    #  `width:100%` ET `height:auto` : elle se met à la largeur que
+    #  l'hôte donne au message et garde ses proportions. Pas de
+    #  hauteur fixe — on ne sait pas quelle largeur on aura, et une
+    #  hauteur écrite ici l'écraserait sur une colonne étroite.
+    #
+    #  `display:block` tue l'espace d'une ligne de texte que le
+    #  navigateur laisse sous une image en ligne : sans lui, un liseré
+    #  de sable traîne entre la bannière et le cadre qui suit.
+    e(
+        f'<img src="{BANNIERE}" alt="" style="{st("width:100%",
+            "max-width:100%", "height:auto", "border-radius:12px",
+            "display:block", "margin:0 0 16px")}">',
+    )
+
+    #  ── LE CADRE DE TÊTE : TITRE, SOUS-TITRE ────────────────────────
+    e(cadre())
+    e(
+        f'<p style="{st("margin:0", f"color:{ENCRE}", f"font-family:{TITRE}",
+                        "font-size:30px", "font-weight:600",
+                        "line-height:1.15")}">{NOM}</p>',
     )
     e(
-        f'<p style="{st("margin:0 0 10px", f"color:{ACCENT}", "font-size:11px",
-                        "font-weight:700", "letter-spacing:0.08em",
-                        "text-transform:uppercase")}">Le contexte</p>',
-    )
-    e(
-        f'<p style="{st("margin:0", f"color:{CORPS}", "font-size:15px",
-                        "line-height:1.7", "text-align:justify")}">'
-        f"{d['chapo']}</p>",
+        f'<p style="{st("margin:8px 0 0", f"color:{DOUX}", "font-size:13.5px",
+                        "line-height:1.5")}">{SOUS_TITRE}</p>',
     )
     e("</div>")
 
-    #  ── LE RÉCIT ────────────────────────────────────────────────────
+    #  ── LE CONTEXTE, DANS SA FENÊTRE ────────────────────────────────
+    e(cadre(fenetre_dedans=True))
+    e(titre_de_cadre("Le contexte"))
+    e(fenetre(HAUTEUR_CONTEXTE))
+    e(paragraphe(d["chapo"], True, "14.5px"))
     e(
-        f'<div style="{st(boite, f"background:{SURFACE}", "border-radius:10px",
-                          "padding:22px", "margin:0 0 18px")}">',
-    )
-    e(
-        f'<h2 style="{st("margin:0 0 14px", f"color:{ENCRE}",
-                         f"font-family:{TITRE}", "font-size:26px",
-                         "font-weight:600", "line-height:1.2")}">'
-        f"{d['recit']['titre']}</h2>",
+        f'<p style="{st("margin:18px 0 10px", f"color:{ACCENT}",
+                        "font-size:11px", "font-weight:700",
+                        "letter-spacing:0.08em",
+                        "text-transform:uppercase")}">'
+        f"{d['recit']['titre']}</p>",
     )
     for i, p in enumerate(d["recit"]["paragraphes"]):
-        marge = "margin:0" if i == 0 else "margin:14px 0 0"
-        e(
-            f'<p style="{st(marge, f"color:{CORPS}", "font-size:14px",
-                            "line-height:1.7", "text-align:justify")}">{p}</p>',
-        )
+        e(paragraphe(p, i == 0))
+    e("</div>")
+    e(degrade_du_bas())
     e("</div>")
 
-    #  ── LA CHRONOLOGIE ──────────────────────────────────────────────
+    #  ── LA CHRONOLOGIE, DANS LA SIENNE ──────────────────────────────
+    e(cadre(fenetre_dedans=True))
+    e(titre_de_cadre(d["chronologie"]["titre"]))
+    e(fenetre(HAUTEUR_CHRONO))
+    moments = d["chronologie"]["moments"]
+    for i, m in enumerate(moments):
+        out.extend(moment(m, i == len(moments) - 1))
+    e("</div>")
+    e(degrade_du_bas())
+    e("</div>")
+
+    #  ── LES DEUX ENCARTS, EN FACE À FACE ────────────────────────────
     #
-    #  PAS DE TABLEAU, et pas de flexbox non plus ici : une rangée
-    #  « date / récit » en flex se replie mal dans une colonne de
-    #  message étroite, et on ne sait pas laquelle l'hôte donne. La
-    #  date passe donc AU-DESSUS de son texte, ce qui tient à toutes
-    #  les largeurs sans une seule règle de repli.
-    e(
-        f'<div style="{st(boite, f"background:{SURFACE}", "border-radius:10px",
-                          "padding:22px", "margin:0 0 18px")}">',
-    )
-    e(
-        f'<h2 style="{st("margin:0 0 16px", f"color:{ENCRE}",
-                         f"font-family:{TITRE}", "font-size:22px",
-                         "font-weight:600", "line-height:1.2")}">'
-        f"{d['chronologie']['titre']}</h2>",
-    )
-    for i, m in enumerate(d["chronologie"]["moments"]):
-        marge = "margin:0" if i == 0 else "margin:14px 0 0"
-        #  Une période porte une capsule, un instant un rond — la même
-        #  distinction que la brique du forum, faite ici avec un fond
-        #  et un rayon, les seuls outils qu'on ait.
-        rayon = "999px" if une_duree(m["quand"]) else "6px"
+    #  Les couleurs sont celles de l'annexe, et c'est la DONNÉE qui les
+    #  choisit : chaque encart porte son `ton` dans `contexte.json`.
+    #  Une couleur décidée ici se serait séparée de l'annexe le jour où
+    #  l'un des deux tons change.
+    tons = {"terre": TERRE, "paisible": PAISIBLE}
+    e(f'<div style="{st("display:flex", "flex-wrap:wrap", "gap:14px",
+                        "margin:0 0 4px")}">')
+    for enc in d["encarts"]:
         e(
-            f'<div style="{st(boite, marge, f"background:{HAUTE}",
-                              "border-radius:8px", "padding:14px 16px")}">',
-        )
-        e(
-            f'<span style="{st("display:inline-block", "margin:0 0 6px",
-                               f"background:{TERRE}", f"border-radius:{rayon}",
-                               "padding:4px 10px", f"color:{ACCENT}",
-                               "font-size:11px", "font-weight:700",
-                               "letter-spacing:0.04em")}">'
-            f"{m['quand']}</span>",
-        )
-        e(
-            f'<p style="{st("margin:0", f"color:{CORPS}", "font-size:13.5px",
-                            "line-height:1.65", "text-align:justify")}">'
-            f"{m['quoi']}</p>",
-        )
-        e("</div>")
-    e("</div>")
-
-    #  ── LES DEUX ENCARTS ────────────────────────────────────────────
-    for j, enc in enumerate(d["encarts"]):
-        dernier = j == len(d["encarts"]) - 1
-        e(
-            f'<div style="{st(boite, f"background:{HAUTE}",
-                              f"border:1px solid {BORD}", "border-radius:10px",
-                              "padding:18px 20px",
-                              "margin:0" if dernier else "margin:0 0 14px")}">',
+            f'<div style="{st(BOITE, "flex:1 1 240px", "min-width:0",
+                              f"background:{tons.get(enc["ton"], HAUTE)}",
+                              f"border:1px solid {BORD}", "border-radius:12px",
+                              "padding:18px 20px")}">',
         )
         e(
             f'<p style="{st("margin:0 0 8px", f"color:{ACCENT}",
@@ -249,14 +438,16 @@ def main() -> None:
             f"{enc['texte']}</p>",
         )
         e("</div>")
+    e("</div>")
 
     #  LE CRÉDIT. Il dit d'où vient la fiche, sur un forum où personne
     #  ne le devine.
     e(
-        f'<p style="{st("margin:18px 0 0", f"color:{DOUX}", "font-size:11px",
+        f'<p style="{st("margin:16px 0 0", f"color:{DOUX}", "font-size:11px",
                         "text-align:center")}">'
         "Wild Mystery — forum RPG Pokémon</p>",
     )
+    e("</div>")
     e("</div>")
 
     texte = "\n".join(out) + "\n"

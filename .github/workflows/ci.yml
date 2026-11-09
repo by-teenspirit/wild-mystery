@@ -419,10 +419,10 @@ jobs:
       #  rien ; celui-la a failli entrer tel quel.
       - name: Le harnais attrape vraiment quelque chose
         run: |
-          printf '#modernbb .wm-carte__titre { color: #f6efe7; }\n' > css/99-essai-contraste.css
+          printf '#modernbb .wm-annexe__carte-titre { color: #f6efe7; }\n' > css/99-essai-contraste.css
           bash outils/css.sh
           vu=1
-          deno task contraste pages/annexe-03-le-reglement.html || vu=0
+          deno task contraste pages/annexe-03-reglement.html || vu=0
           rm -f css/99-essai-contraste.css
           bash outils/css.sh
           if [ "$vu" = "1" ]; then
