@@ -84,9 +84,6 @@ SLUG = "arenes-colosseums-ligues"
 #  LA CARTE DE DRESSEUR DE MICHAEL. Elle porte son équipe, et elle est
 #  PUBLIQUE — `t100`, le sujet de présentation de la Ligue, demande une
 #  connexion. C'est la seule source qu'on puisse lire et citer.
-CARTE_DE_MICHAEL = (
-    "https://mysteryinrhode.forumactif.com/t8-trainer-card-de-michael"
-)
 PAGE = chemin_de_la_page(SLUG)
 FORUM = "https://mysteryinrhode.forumactif.com"
 #  LE SUJET DES PRÉ-LIENS. Une seule adresse, et les onze ancres sont
@@ -557,31 +554,48 @@ def corps():
     w(f'            <p class="wm-defi__dit">{e(lt["note"])}</p>')
     w("")
 
-    #  -- L'EQUIPE DE MICHAEL ---------------------------------------
+    #  ── LE CONSEIL 4, PUIS LE CHAMPION ────────────────────────────
     #
-    #  Relevee sur sa CARTE DE DRESSEUR (t8), qui est publique : le
-    #  sujet de presentation de la Ligue demande une connexion, et je
-    #  ne me connecte pas.
+    #  Cinq équipes dans cet onglet, et dans cet ordre : on monte les
+    #  marches avant d'arriver en haut. Relevées le 9 novembre sur le
+    #  deuxième message de t100.
     #
-    #  SES NIVEAUX SONT DECALES DE +5 et pas etages comme les onze
-    #  autres : son equipe a ses propres ecarts -- 75, 75, 70, 72, 72,
-    #  71 -- et les aplatir serait inventer une equipe qu'on a sous les
-    #  yeux. Le derivateur refuse une liste dont le plus fort ne serait
-    #  pas au niveau du defi. Tout est dit dans le fichier des equipes.
+    #  LES MEMBRES DU CONSEIL N'ONT PAS DE NOM. Le sujet les annonce
+    #  « Conseil 4 » avec leur icône de type, et rien d'autre. On n'en
+    #  invente pas : le type EST leur nom ici, écrit en toutes lettres
+    #  — une pastille de couleur seule ne dit rien à qui ne distingue
+    #  pas le violet du psy du violet du poison.
+    #
+    #  PLUS DE RENVOI VERS LA CARTE DE DRESSEUR DE MICHAEL : « on
+    #  affichera plus la carte de dresseur de Michael à l'avenir »
+    #  (9 novembre). Son équipe est ici, et le sujet de la Ligue la
+    #  porte aussi.
     if equipe_ligue is not None:
-        w('            <h4 class="wm-defi__sous-titre">'
-          + e(textes["equipe"]["titre"]) + '</h4>')
+        for membre4 in equipe_ligue.get("conseil4", []):
+            niveaux = [m["niveau"] for m in membre4["membres"]]
+            titre = (f'Conseil 4 · {en_titre(sans_accent(membre4["type"]))}'
+                     f' — niveaux {min(niveaux)} à {max(niveaux)}')
+            w(f'            <h4 class="wm-defi__sous-titre">{e(titre)}</h4>')
+            w('            <ul class="wm-equipe">')
+            for m in membre4["membres"]:
+                membre(w, m, couverture)
+            w('            </ul>')
+            w("")
+        niveaux = [m["niveau"] for m in equipe_ligue["membres"]]
+        #  « champion de Rhode » est le titre que le sujet lui donne,
+        #  en capitales au-dessus de son équipe. On le reprend tel
+        #  quel plutôt que de recomposer un intitulé avec le nom de la
+        #  Ligue, qui donnait « Michael, la ligue ».
+        titre = (f'{ligue["tenuePar"]}, champion de Rhode'
+                 f' — niveaux {min(niveaux)} à {max(niveaux)}')
+        w(f'            <h4 class="wm-defi__sous-titre">{e(titre)}</h4>')
         w('            <ul class="wm-equipe">')
         for m in equipe_ligue["membres"]:
             membre(w, m, couverture)
         w('            </ul>')
         w("")
-        w('            <p class="wm-defi__liens">')
-        w('              ' + renvoi("Sa carte de dresseur",
-                                    ligue["tenuePar"], CARTE_DE_MICHAEL))
-        w('            </p>')
-        w("")
     w("          </section>")
+    w("")
     w("")
 
     w("        </div>")

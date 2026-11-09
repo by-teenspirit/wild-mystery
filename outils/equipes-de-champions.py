@@ -263,12 +263,15 @@ def deriver(dossier: pathlib.Path) -> dict[str, object]:
                 f"« {slug} » : {len(bloc['especes'])} espèces pour "
                 f"{len(niveaux)} niveaux — une équipe fait six pokémon"
             )
-        membres = []
-        for nom, niveau in zip(bloc["especes"], niveaux):
+        #  UN SEUL ENDROIT QUI MONTE UN POKÉMON. L'équipe du défi et
+        #  celles du Conseil 4 passent par ici : deux écritures du même
+        #  calcul finiraient par diverger, et c'est un chiffre de
+        #  combat qu'on lirait faux.
+        def monter(nom: str, niveau: int, ou: str) -> dict[str, object]:
             identifiant = par_nom.get(clef_de_nom(nom))
             if identifiant is None:
                 raise Manquant(
-                    f"« {nom} » ({slug}) n'est pas dans data/especes.json — "
+                    f"« {nom} » ({ou}) n'est pas dans data/especes.json — "
                     "une espèce d'équipe doit être une espèce de Rhode"
                 )
             base = bases.get(identifiant)
@@ -283,20 +286,63 @@ def deriver(dossier: pathlib.Path) -> dict[str, object]:
                     f"« {nom} » (#{identifiant}) n'a pas de fiche dans "
                     "data/especes-fiches.json — relance outils/especes-sql.py"
                 )
-            membres.append(
-                {
-                    "id": identifiant,
-                    "nom": index[str(identifiant)],
-                    "types": fiche["types"],
-                    "niveau": niveau,
-                    "base": base,
-                    **chiffres(base, niveau),
-                }
-            )
+            return {
+                "id": identifiant,
+                "nom": index[str(identifiant)],
+                "types": fiche["types"],
+                "niveau": niveau,
+                "base": base,
+                **chiffres(base, niveau),
+            }
+
+        membres = [
+            monter(nom, niveau, slug)
+            for nom, niveau in zip(bloc["especes"], niveaux)
+        ]
+        #  ── LE CONSEIL 4, QUATRE ÉQUIPES DE PLUS SOUS LA LIGUE ─────
+        #
+        #  Relevé le 9 novembre sur le deuxième message de t100. Ce
+        #  sont quatre dresseurs d'un type chacun, six pokémon chacun,
+        #  qu'on affronte AVANT Michael — donc quatre équipes à
+        #  dériver exactement comme les douze autres, mais qui
+        #  n'appartiennent pas à un défi : elles vivent sous celui de
+        #  la Ligue.
+        #
+        #  ILS N'ONT PAS DE NOM. Le sujet les annonce « Conseil 4 »
+        #  avec leur icône de type, et rien d'autre. On n'en invente
+        #  pas : le type EST leur nom ici.
+        conseil4 = []
+        for membre4 in bloc.get("conseil4", []):
+            if len(membre4["especes"]) != len(membre4["niveaux"]):
+                raise Manquant(
+                    f"conseil4 {membre4['type']} : "
+                    f"{len(membre4['especes'])} espèces pour "
+                    f"{len(membre4['niveaux'])} niveaux"
+                )
+            #  LE CONSEIL RESTE SOUS LE CHAMPION. Un membre du Conseil
+            #  au niveau du défi, ou au-dessus, voudrait dire qu'on
+            #  peut perdre contre lui ce qu'on vient gagner contre
+            #  Michael — l'échelle de la Ligue se lit de bas en haut.
+            if max(membre4["niveaux"]) >= defi["niveau"]:
+                raise Manquant(
+                    f"conseil4 {membre4['type']} : son plus fort est au "
+                    f"niveau {max(membre4['niveaux'])}, au niveau du défi "
+                    f"({defi['niveau']}) ou au-dessus — le Conseil 4 passe "
+                    "avant le champion"
+                )
+            conseil4.append({
+                "type": membre4["type"],
+                "membres": [
+                    monter(nom, niveau, f"conseil4 {membre4['type']}")
+                    for nom, niveau in zip(membre4["especes"], membre4["niveaux"])
+                ],
+            })
+
         equipes[slug] = {
             "message": bloc["message"],
             "niveau": defi["niveau"],
             "conseil": conseil_contre(membres, efficacite),
+            **({"conseil4": conseil4} if conseil4 else {}),
             "membres": membres,
         }
     fichier["equipes"] = equipes

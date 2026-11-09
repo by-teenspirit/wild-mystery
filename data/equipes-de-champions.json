@@ -1,1500 +1,2031 @@
 {
-  "_": "Les onze équipes d'arène et de colosseum. UNE SEULE source pour l'annexe 06 : le badge, le type, le type conseillé et les six pokémon d'un défi sortent d'ici.",
-  "_releve": "`releve` est la SEULE partie écrite à la main, et elle est RELEVÉE, pas inventée : https://mysteryinrhode.forumactif.com/t1002-les-champions, lu le 6 novembre 2026. Pour chaque défi, le numéro du message et les six espèces DANS L'ORDRE du message. Callista, le 6 novembre : « aucune des informations affichées n'est bonne concernant le champion en lui-même, il n'y a que son équipe ». On ne garde donc ni le nom, ni l'âge, ni l'histoire des champions proposés dans ce sujet : l'équipe et rien d'autre.",
-  "_defi": "La clé est le `slug` de data/arenes.json. Le nom du défi, sa ville, son type, son niveau, son palier, son badge et l'adresse de son forum sont tirés de là — jamais recopiés ici.",
-  "_equipes": "`equipes` est DÉRIVÉ par outils/equipes-de-champions.py. On ne l'écrit pas : on relance l'outil.",
-  "_niveau": "LES NIVEAUX DU SUJET SONT PÉRIMÉS. Callista, le 6 novembre : « il faut revoir le niveau de son équipe par contre et les stats associées », puis « niveau de l'arène = celui du pokémon le plus fort : oui ». Le niveau du défi vient donc de data/arenes.json, et l'équipe se répartit 2-2-2 sous lui : N-2, N-2, N-1, N-1, N, N. Cette forme n'est pas choisie, elle est RELEVÉE : dix des onze équipes du sujet l'ont déjà exactement (46-46-47-47-48-48, 22-22-23-23-24-24…). La onzième, celle de l'Île Ténébra, est la seule à s'en écarter (49-50-51-52-53-55).",
-  "_stats": "LES TROIS CHIFFRES SE CALCULENT, ils ne se recopient pas. Formule de la 3e génération avec IV 0, EV 0 et nature neutre — VÉRIFIÉE contre les chiffres du sujet : 60 des 65 pokémon nommés les reproduisent au chiffre près. PV = ⌊2 × base × niveau / 100⌋ + niveau + 10 ; ATT et DEF = ⌊2 × base × niveau / 100⌋ + 5. `base` garde les trois statistiques de base de PokéAPI pour que le garde-fou refasse l'arithmétique sans réseau.",
-  "_ecarts": "LES CINQ CHIFFRES DU SUJET QUI NE TOMBENT PAS, mesurés le 6 novembre. Ils ne sont pas repris : la page affiche le calcul. (1) Mimiqui niv. 33 — ATT 54 au sujet, 64 par la formule. (2) Feunard d'Alola niv. 29 — ATT 49 au sujet, 43 par la formule. (3) Sablaireau d'Alola niv. 34 — DEF 79 au sujet, 86 par la formule ; 79 est la DEF de la forme de Kanto, vérifié. (4) Trioxhydre niv. 53 — 163/136/87 au sujet, 160/116/100 par la formule, et ces trois chiffres-là ne tombent à AUCUN niveau. (5) Phyllali niv. 24 — 55/67/57 au sujet contre 65/57/67 : ATT et DEF sont échangées et le 65 est devenu 55.",
-  "_sansnom": "Le quatrième pokémon de l'Île Ténébra n'est PAS nommé dans le sujet. Il a été identifié par ses chiffres : 158/98/110 au niveau 52 ne correspond qu'à une seule espèce de PokéAPI, Ixon (862) — les trois tombent au chiffre près, et aucune autre espèce ne les donne. C'est une déduction, pas une lecture : si Callista voulait une autre bête, c'est cette ligne qu'on change.",
-  "_conseil": "`conseil` est DÉRIVÉ de l'équipe réelle, pas du type du défi. Pour chacun des dix-huit types d'attaque, on multiplie l'efficacité contre les types de chaque membre, on fait la moyenne sur les six, et on garde les meilleurs. C'est plus juste que « super efficace contre le type de l'arène » : l'arène Vol aligne un Aéroptéryx Roche/Vol et un Altaria Dragon/Vol, qui ne se battent pas comme un Roucarnage.",
-  "_ligue": "LA LIGUE A SON ÉQUIPE DEPUIS LE 9 NOVEMBRE. Elle est lue sur la carte de dresseur de Michael, t8, qui est PUBLIQUE — t100, le sujet de présentation de la Ligue, demande une connexion et je ne me connecte pas. Six pokémon, et les dix-huit chiffres de la carte tombent EXACTEMENT sur notre formule : Noctali 75 donne 227/102/170 des deux côtés. La carte a donc été faite avec la même règle, ce qui vaut vérification croisée.",
-  "releve": {
-    "dragon": {
-      "message": 15590,
-      "especes": [
-        "Drakkarmin",
-        "Hyporoi",
-        "Tranchodon",
-        "Rexillius",
-        "Drattak",
-        "Dracolosse"
-      ]
-    },
-    "electrik": {
-      "message": 15591,
-      "especes": [
-        "Raichu",
-        "Élecsprint",
-        "Pharamp",
-        "Luxray",
-        "Voltali",
-        "Ohmassacre"
-      ]
-    },
-    "spectre": {
-      "message": 15592,
-      "especes": [
-        "Skelénox",
-        "Ténéfix",
-        "Magirêve",
-        "Corayôme",
-        "Mimiqui",
-        "Ectoplasma"
-      ]
-    },
-    "fee": {
-      "message": 15593,
-      "especes": [
-        "Charmilly",
-        "Mélodelfe",
-        "Mysdibule",
-        "Feunard d'Alola",
-        "Nymphali",
-        "Togekiss"
-      ]
-    },
-    "tenebres": {
-      "message": 15594,
-      "especes": [
-        "Démolosse",
-        "Absol",
-        "Dimoret",
-        "Ixon",
-        "Trioxhydre",
-        "Corboss"
-      ]
-    },
-    "vol": {
-      "message": 15595,
-      "especes": [
-        "Noarfang",
-        "Tropius",
-        "Roucarnage",
-        "Corvaillus",
-        "Aéroptéryx",
-        "Altaria"
-      ]
-    },
-    "roche": {
-      "message": 15596,
-      "especes": [
-        "Dolman",
-        "Charkos",
-        "Lougaroc Diurne",
-        "Dragmara",
-        "Armaldo",
-        "Galeking"
-      ]
-    },
-    "acier": {
-      "message": 15597,
-      "especes": [
-        "Berserkatt",
-        "Sablaireau d'Alola",
-        "Airmure",
-        "Steelix",
-        "Lucario",
-        "Métalosse"
-      ]
-    },
-    "eau": {
-      "message": 15598,
-      "especes": [
-        "Flotoutan",
-        "Tarpaud",
-        "Mustéflott",
-        "Tartard",
-        "Aquali",
-        "Lokhlass"
-      ]
-    },
-    "plante": {
-      "message": 15599,
-      "especes": [
-        "Blancoton",
-        "Roserade",
-        "Chapignon",
-        "Maracachi",
-        "Phyllali",
-        "Chevroum"
-      ]
-    },
-    "feu": {
-      "message": 15600,
-      "especes": [
-        "Grillepattes",
-        "Chartor",
-        "Flamoutan",
-        "Pyroli",
-        "Tritox",
-        "Némélios"
-      ]
-    },
-    "ligue": {
-      "message": 8,
-      "_source": "https://mysteryinrhode.forumactif.com/t8-trainer-card-de-michael",
-      "_niveaux_de_la_carte": [
-        75,
-        75,
-        70,
-        72,
-        72,
-        71
-      ],
-      "especes": [
-        "Noctali",
-        "Mentali",
-        "Posipi",
-        "Typhlosion",
-        "Aligatueur",
-        "Ludicolo"
-      ],
-      "niveaux": [
-        80,
-        80,
-        75,
-        77,
-        77,
-        76
-      ]
-    }
+ "_": "Les onze équipes d'arène et de colosseum. UNE SEULE source pour l'annexe 06 : le badge, le type, le type conseillé et les six pokémon d'un défi sortent d'ici.",
+ "_releve": "`releve` est la SEULE partie écrite à la main, et elle est RELEVÉE, pas inventée : https://mysteryinrhode.forumactif.com/t1002-les-champions, lu le 6 novembre 2026. Pour chaque défi, le numéro du message et les six espèces DANS L'ORDRE du message. Callista, le 6 novembre : « aucune des informations affichées n'est bonne concernant le champion en lui-même, il n'y a que son équipe ». On ne garde donc ni le nom, ni l'âge, ni l'histoire des champions proposés dans ce sujet : l'équipe et rien d'autre.",
+ "_defi": "La clé est le `slug` de data/arenes.json. Le nom du défi, sa ville, son type, son niveau, son palier, son badge et l'adresse de son forum sont tirés de là — jamais recopiés ici.",
+ "_equipes": "`equipes` est DÉRIVÉ par outils/equipes-de-champions.py. On ne l'écrit pas : on relance l'outil.",
+ "_niveau": "LES NIVEAUX DU SUJET SONT PÉRIMÉS. Callista, le 6 novembre : « il faut revoir le niveau de son équipe par contre et les stats associées », puis « niveau de l'arène = celui du pokémon le plus fort : oui ». Le niveau du défi vient donc de data/arenes.json, et l'équipe se répartit 2-2-2 sous lui : N-2, N-2, N-1, N-1, N, N. Cette forme n'est pas choisie, elle est RELEVÉE : dix des onze équipes du sujet l'ont déjà exactement (46-46-47-47-48-48, 22-22-23-23-24-24…). La onzième, celle de l'Île Ténébra, est la seule à s'en écarter (49-50-51-52-53-55).",
+ "_stats": "LES TROIS CHIFFRES SE CALCULENT, ils ne se recopient pas. Formule de la 3e génération avec IV 0, EV 0 et nature neutre — VÉRIFIÉE contre les chiffres du sujet : 60 des 65 pokémon nommés les reproduisent au chiffre près. PV = ⌊2 × base × niveau / 100⌋ + niveau + 10 ; ATT et DEF = ⌊2 × base × niveau / 100⌋ + 5. `base` garde les trois statistiques de base de PokéAPI pour que le garde-fou refasse l'arithmétique sans réseau.",
+ "_ecarts": "LES CINQ CHIFFRES DU SUJET QUI NE TOMBENT PAS, mesurés le 6 novembre. Ils ne sont pas repris : la page affiche le calcul. (1) Mimiqui niv. 33 — ATT 54 au sujet, 64 par la formule. (2) Feunard d'Alola niv. 29 — ATT 49 au sujet, 43 par la formule. (3) Sablaireau d'Alola niv. 34 — DEF 79 au sujet, 86 par la formule ; 79 est la DEF de la forme de Kanto, vérifié. (4) Trioxhydre niv. 53 — 163/136/87 au sujet, 160/116/100 par la formule, et ces trois chiffres-là ne tombent à AUCUN niveau. (5) Phyllali niv. 24 — 55/67/57 au sujet contre 65/57/67 : ATT et DEF sont échangées et le 65 est devenu 55.",
+ "_sansnom": "Le quatrième pokémon de l'Île Ténébra n'est PAS nommé dans le sujet. Il a été identifié par ses chiffres : 158/98/110 au niveau 52 ne correspond qu'à une seule espèce de PokéAPI, Ixon (862) — les trois tombent au chiffre près, et aucune autre espèce ne les donne. C'est une déduction, pas une lecture : si Callista voulait une autre bête, c'est cette ligne qu'on change.",
+ "_conseil": "`conseil` est DÉRIVÉ de l'équipe réelle, pas du type du défi. Pour chacun des dix-huit types d'attaque, on multiplie l'efficacité contre les types de chaque membre, on fait la moyenne sur les six, et on garde les meilleurs. C'est plus juste que « super efficace contre le type de l'arène » : l'arène Vol aligne un Aéroptéryx Roche/Vol et un Altaria Dragon/Vol, qui ne se battent pas comme un Roucarnage.",
+ "_ligue": "LA LIGUE A SON ÉQUIPE DEPUIS LE 9 NOVEMBRE. Elle est lue sur la carte de dresseur de Michael, t8, qui est PUBLIQUE — t100, le sujet de présentation de la Ligue, demande une connexion et je ne me connecte pas. Six pokémon, et les dix-huit chiffres de la carte tombent EXACTEMENT sur notre formule : Noctali 75 donne 227/102/170 des deux côtés. La carte a donc été faite avec la même règle, ce qui vaut vérification croisée.",
+ "releve": {
+  "dragon": {
+   "message": 15590,
+   "especes": [
+    "Drakkarmin",
+    "Hyporoi",
+    "Tranchodon",
+    "Rexillius",
+    "Drattak",
+    "Dracolosse"
+   ]
   },
-  "equipes": {
-    "dragon": {
-      "message": 15590,
-      "niveau": 70,
-      "conseil": {
-        "types": [
-          "glace"
-        ],
-        "facteur": 2.5
-      },
-      "membres": [
-        {
-          "id": 621,
-          "nom": "Drakkarmin",
-          "types": [
-            "dragon"
-          ],
-          "niveau": 68,
-          "base": {
-            "pv": 77,
-            "att": 120,
-            "def": 90
-          },
-          "pv": 182,
-          "att": 168,
-          "def": 127
-        },
-        {
-          "id": 230,
-          "nom": "Hyporoi",
-          "types": [
-            "eau",
-            "dragon"
-          ],
-          "niveau": 68,
-          "base": {
-            "pv": 75,
-            "att": 95,
-            "def": 95
-          },
-          "pv": 180,
-          "att": 134,
-          "def": 134
-        },
-        {
-          "id": 612,
-          "nom": "Tranchodon",
-          "types": [
-            "dragon"
-          ],
-          "niveau": 69,
-          "base": {
-            "pv": 76,
-            "att": 147,
-            "def": 90
-          },
-          "pv": 183,
-          "att": 207,
-          "def": 129
-        },
-        {
-          "id": 697,
-          "nom": "Rexillius",
-          "types": [
-            "roche",
-            "dragon"
-          ],
-          "niveau": 69,
-          "base": {
-            "pv": 82,
-            "att": 121,
-            "def": 119
-          },
-          "pv": 192,
-          "att": 171,
-          "def": 169
-        },
-        {
-          "id": 373,
-          "nom": "Drattak",
-          "types": [
-            "dragon",
-            "vol"
-          ],
-          "niveau": 70,
-          "base": {
-            "pv": 95,
-            "att": 135,
-            "def": 80
-          },
-          "pv": 213,
-          "att": 194,
-          "def": 117
-        },
-        {
-          "id": 149,
-          "nom": "Dracolosse",
-          "types": [
-            "dragon",
-            "vol"
-          ],
-          "niveau": 70,
-          "base": {
-            "pv": 91,
-            "att": 134,
-            "def": 95
-          },
-          "pv": 207,
-          "att": 192,
-          "def": 138
-        }
-      ]
-    },
-    "electrik": {
-      "message": 15591,
-      "niveau": 18,
-      "conseil": {
-        "types": [
-          "sol"
-        ],
-        "facteur": 2.0
-      },
-      "membres": [
-        {
-          "id": 26,
-          "nom": "Raichu",
-          "types": [
-            "electrik"
-          ],
-          "niveau": 16,
-          "base": {
-            "pv": 60,
-            "att": 90,
-            "def": 55
-          },
-          "pv": 45,
-          "att": 33,
-          "def": 22
-        },
-        {
-          "id": 310,
-          "nom": "Élecsprint",
-          "types": [
-            "electrik"
-          ],
-          "niveau": 16,
-          "base": {
-            "pv": 70,
-            "att": 75,
-            "def": 60
-          },
-          "pv": 48,
-          "att": 29,
-          "def": 24
-        },
-        {
-          "id": 181,
-          "nom": "Pharamp",
-          "types": [
-            "electrik"
-          ],
-          "niveau": 17,
-          "base": {
-            "pv": 90,
-            "att": 75,
-            "def": 85
-          },
-          "pv": 57,
-          "att": 30,
-          "def": 33
-        },
-        {
-          "id": 405,
-          "nom": "Luxray",
-          "types": [
-            "electrik"
-          ],
-          "niveau": 17,
-          "base": {
-            "pv": 80,
-            "att": 120,
-            "def": 79
-          },
-          "pv": 54,
-          "att": 45,
-          "def": 31
-        },
-        {
-          "id": 135,
-          "nom": "Voltali",
-          "types": [
-            "electrik"
-          ],
-          "niveau": 18,
-          "base": {
-            "pv": 65,
-            "att": 65,
-            "def": 60
-          },
-          "pv": 51,
-          "att": 28,
-          "def": 26
-        },
-        {
-          "id": 604,
-          "nom": "Ohmassacre",
-          "types": [
-            "electrik"
-          ],
-          "niveau": 18,
-          "base": {
-            "pv": 85,
-            "att": 115,
-            "def": 80
-          },
-          "pv": 58,
-          "att": 46,
-          "def": 33
-        }
-      ]
-    },
-    "spectre": {
-      "message": 15592,
-      "niveau": 35,
-      "conseil": {
-        "types": [
-          "spectre"
-        ],
-        "facteur": 1.833
-      },
-      "membres": [
-        {
-          "id": 355,
-          "nom": "Skelénox",
-          "types": [
-            "spectre"
-          ],
-          "niveau": 33,
-          "base": {
-            "pv": 20,
-            "att": 40,
-            "def": 90
-          },
-          "pv": 56,
-          "att": 31,
-          "def": 64
-        },
-        {
-          "id": 302,
-          "nom": "Ténéfix",
-          "types": [
-            "tenebres",
-            "spectre"
-          ],
-          "niveau": 33,
-          "base": {
-            "pv": 50,
-            "att": 75,
-            "def": 75
-          },
-          "pv": 76,
-          "att": 54,
-          "def": 54
-        },
-        {
-          "id": 429,
-          "nom": "Magirêve",
-          "types": [
-            "spectre"
-          ],
-          "niveau": 34,
-          "base": {
-            "pv": 60,
-            "att": 60,
-            "def": 60
-          },
-          "pv": 84,
-          "att": 45,
-          "def": 45
-        },
-        {
-          "id": 864,
-          "nom": "Corayôme",
-          "types": [
-            "spectre"
-          ],
-          "niveau": 34,
-          "base": {
-            "pv": 60,
-            "att": 95,
-            "def": 50
-          },
-          "pv": 84,
-          "att": 69,
-          "def": 39
-        },
-        {
-          "id": 778,
-          "nom": "Mimiqui",
-          "types": [
-            "spectre",
-            "fee"
-          ],
-          "niveau": 35,
-          "base": {
-            "pv": 55,
-            "att": 90,
-            "def": 80
-          },
-          "pv": 83,
-          "att": 68,
-          "def": 61
-        },
-        {
-          "id": 94,
-          "nom": "Ectoplasma",
-          "types": [
-            "spectre",
-            "poison"
-          ],
-          "niveau": 35,
-          "base": {
-            "pv": 60,
-            "att": 65,
-            "def": 60
-          },
-          "pv": 87,
-          "att": 50,
-          "def": 47
-        }
-      ]
-    },
-    "fee": {
-      "message": 15593,
-      "niveau": 40,
-      "conseil": {
-        "types": [
-          "acier"
-        ],
-        "facteur": 2.167
-      },
-      "membres": [
-        {
-          "id": 869,
-          "nom": "Charmilly",
-          "types": [
-            "fee"
-          ],
-          "niveau": 38,
-          "base": {
-            "pv": 65,
-            "att": 60,
-            "def": 75
-          },
-          "pv": 97,
-          "att": 50,
-          "def": 62
-        },
-        {
-          "id": 36,
-          "nom": "Mélodelfe",
-          "types": [
-            "fee"
-          ],
-          "niveau": 38,
-          "base": {
-            "pv": 95,
-            "att": 70,
-            "def": 73
-          },
-          "pv": 120,
-          "att": 58,
-          "def": 60
-        },
-        {
-          "id": 303,
-          "nom": "Mysdibule",
-          "types": [
-            "acier",
-            "fee"
-          ],
-          "niveau": 39,
-          "base": {
-            "pv": 50,
-            "att": 85,
-            "def": 85
-          },
-          "pv": 88,
-          "att": 71,
-          "def": 71
-        },
-        {
-          "id": 10104,
-          "nom": "Feunard d'Alola",
-          "types": [
-            "glace",
-            "fee"
-          ],
-          "niveau": 39,
-          "base": {
-            "pv": 73,
-            "att": 67,
-            "def": 75
-          },
-          "pv": 105,
-          "att": 57,
-          "def": 63
-        },
-        {
-          "id": 700,
-          "nom": "Nymphali",
-          "types": [
-            "fee"
-          ],
-          "niveau": 40,
-          "base": {
-            "pv": 95,
-            "att": 65,
-            "def": 65
-          },
-          "pv": 126,
-          "att": 57,
-          "def": 57
-        },
-        {
-          "id": 468,
-          "nom": "Togekiss",
-          "types": [
-            "fee",
-            "vol"
-          ],
-          "niveau": 40,
-          "base": {
-            "pv": 85,
-            "att": 50,
-            "def": 95
-          },
-          "pv": 118,
-          "att": 45,
-          "def": 81
-        }
-      ]
-    },
-    "tenebres": {
-      "message": 15594,
-      "niveau": 60,
-      "conseil": {
-        "types": [
-          "combat"
-        ],
-        "facteur": 2.5
-      },
-      "membres": [
-        {
-          "id": 229,
-          "nom": "Démolosse",
-          "types": [
-            "tenebres",
-            "feu"
-          ],
-          "niveau": 58,
-          "base": {
-            "pv": 75,
-            "att": 90,
-            "def": 50
-          },
-          "pv": 155,
-          "att": 109,
-          "def": 63
-        },
-        {
-          "id": 359,
-          "nom": "Absol",
-          "types": [
-            "tenebres"
-          ],
-          "niveau": 58,
-          "base": {
-            "pv": 65,
-            "att": 130,
-            "def": 60
-          },
-          "pv": 143,
-          "att": 155,
-          "def": 74
-        },
-        {
-          "id": 461,
-          "nom": "Dimoret",
-          "types": [
-            "tenebres",
-            "glace"
-          ],
-          "niveau": 59,
-          "base": {
-            "pv": 70,
-            "att": 120,
-            "def": 65
-          },
-          "pv": 151,
-          "att": 146,
-          "def": 81
-        },
-        {
-          "id": 862,
-          "nom": "Ixon",
-          "types": [
-            "tenebres",
-            "normal"
-          ],
-          "niveau": 59,
-          "base": {
-            "pv": 93,
-            "att": 90,
-            "def": 101
-          },
-          "pv": 178,
-          "att": 111,
-          "def": 124
-        },
-        {
-          "id": 635,
-          "nom": "Trioxhydre",
-          "types": [
-            "tenebres",
-            "dragon"
-          ],
-          "niveau": 60,
-          "base": {
-            "pv": 92,
-            "att": 105,
-            "def": 90
-          },
-          "pv": 180,
-          "att": 131,
-          "def": 113
-        },
-        {
-          "id": 430,
-          "nom": "Corboss",
-          "types": [
-            "tenebres",
-            "vol"
-          ],
-          "niveau": 60,
-          "base": {
-            "pv": 100,
-            "att": 125,
-            "def": 52
-          },
-          "pv": 190,
-          "att": 155,
-          "def": 67
-        }
-      ]
-    },
-    "vol": {
-      "message": 15595,
-      "niveau": 50,
-      "conseil": {
-        "types": [
-          "glace"
-        ],
-        "facteur": 2.5
-      },
-      "membres": [
-        {
-          "id": 164,
-          "nom": "Noarfang",
-          "types": [
-            "normal",
-            "vol"
-          ],
-          "niveau": 48,
-          "base": {
-            "pv": 100,
-            "att": 50,
-            "def": 50
-          },
-          "pv": 154,
-          "att": 53,
-          "def": 53
-        },
-        {
-          "id": 357,
-          "nom": "Tropius",
-          "types": [
-            "plante",
-            "vol"
-          ],
-          "niveau": 48,
-          "base": {
-            "pv": 99,
-            "att": 68,
-            "def": 83
-          },
-          "pv": 153,
-          "att": 70,
-          "def": 84
-        },
-        {
-          "id": 18,
-          "nom": "Roucarnage",
-          "types": [
-            "normal",
-            "vol"
-          ],
-          "niveau": 49,
-          "base": {
-            "pv": 83,
-            "att": 80,
-            "def": 75
-          },
-          "pv": 140,
-          "att": 83,
-          "def": 78
-        },
-        {
-          "id": 823,
-          "nom": "Corvaillus",
-          "types": [
-            "vol",
-            "acier"
-          ],
-          "niveau": 49,
-          "base": {
-            "pv": 98,
-            "att": 87,
-            "def": 105
-          },
-          "pv": 155,
-          "att": 90,
-          "def": 107
-        },
-        {
-          "id": 567,
-          "nom": "Aéroptéryx",
-          "types": [
-            "roche",
-            "vol"
-          ],
-          "niveau": 50,
-          "base": {
-            "pv": 75,
-            "att": 140,
-            "def": 65
-          },
-          "pv": 135,
-          "att": 145,
-          "def": 70
-        },
-        {
-          "id": 334,
-          "nom": "Altaria",
-          "types": [
-            "dragon",
-            "vol"
-          ],
-          "niveau": 50,
-          "base": {
-            "pv": 75,
-            "att": 70,
-            "def": 90
-          },
-          "pv": 135,
-          "att": 75,
-          "def": 95
-        }
-      ]
-    },
-    "roche": {
-      "message": 15596,
-      "niveau": 25,
-      "conseil": {
-        "types": [
-          "combat"
-        ],
-        "facteur": 2.5
-      },
-      "membres": [
-        {
-          "id": 874,
-          "nom": "Dolman",
-          "types": [
-            "roche"
-          ],
-          "niveau": 23,
-          "base": {
-            "pv": 100,
-            "att": 125,
-            "def": 135
-          },
-          "pv": 79,
-          "att": 62,
-          "def": 67
-        },
-        {
-          "id": 409,
-          "nom": "Charkos",
-          "types": [
-            "roche"
-          ],
-          "niveau": 23,
-          "base": {
-            "pv": 97,
-            "att": 165,
-            "def": 60
-          },
-          "pv": 77,
-          "att": 80,
-          "def": 32
-        },
-        {
-          "id": 745,
-          "nom": "Lougaroc Diurne",
-          "types": [
-            "roche"
-          ],
-          "niveau": 24,
-          "base": {
-            "pv": 75,
-            "att": 115,
-            "def": 65
-          },
-          "pv": 70,
-          "att": 60,
-          "def": 36
-        },
-        {
-          "id": 699,
-          "nom": "Dragmara",
-          "types": [
-            "roche",
-            "glace"
-          ],
-          "niveau": 24,
-          "base": {
-            "pv": 123,
-            "att": 77,
-            "def": 72
-          },
-          "pv": 93,
-          "att": 41,
-          "def": 39
-        },
-        {
-          "id": 348,
-          "nom": "Armaldo",
-          "types": [
-            "roche",
-            "insecte"
-          ],
-          "niveau": 25,
-          "base": {
-            "pv": 75,
-            "att": 125,
-            "def": 100
-          },
-          "pv": 72,
-          "att": 67,
-          "def": 55
-        },
-        {
-          "id": 306,
-          "nom": "Galeking",
-          "types": [
-            "acier",
-            "roche"
-          ],
-          "niveau": 25,
-          "base": {
-            "pv": 70,
-            "att": 110,
-            "def": 180
-          },
-          "pv": 70,
-          "att": 60,
-          "def": 95
-        }
-      ]
-    },
-    "acier": {
-      "message": 15597,
-      "niveau": 30,
-      "conseil": {
-        "types": [
-          "feu"
-        ],
-        "facteur": 2.333
-      },
-      "membres": [
-        {
-          "id": 863,
-          "nom": "Berserkatt",
-          "types": [
-            "acier"
-          ],
-          "niveau": 28,
-          "base": {
-            "pv": 70,
-            "att": 110,
-            "def": 100
-          },
-          "pv": 77,
-          "att": 66,
-          "def": 61
-        },
-        {
-          "id": 10102,
-          "nom": "Sablaireau d'Alola",
-          "types": [
-            "glace",
-            "acier"
-          ],
-          "niveau": 28,
-          "base": {
-            "pv": 75,
-            "att": 100,
-            "def": 120
-          },
-          "pv": 80,
-          "att": 61,
-          "def": 72
-        },
-        {
-          "id": 227,
-          "nom": "Airmure",
-          "types": [
-            "acier",
-            "vol"
-          ],
-          "niveau": 29,
-          "base": {
-            "pv": 65,
-            "att": 80,
-            "def": 140
-          },
-          "pv": 76,
-          "att": 51,
-          "def": 86
-        },
-        {
-          "id": 208,
-          "nom": "Steelix",
-          "types": [
-            "acier",
-            "sol"
-          ],
-          "niveau": 29,
-          "base": {
-            "pv": 75,
-            "att": 85,
-            "def": 200
-          },
-          "pv": 82,
-          "att": 54,
-          "def": 121
-        },
-        {
-          "id": 448,
-          "nom": "Lucario",
-          "types": [
-            "combat",
-            "acier"
-          ],
-          "niveau": 30,
-          "base": {
-            "pv": 70,
-            "att": 110,
-            "def": 70
-          },
-          "pv": 82,
-          "att": 71,
-          "def": 47
-        },
-        {
-          "id": 376,
-          "nom": "Métalosse",
-          "types": [
-            "acier",
-            "psy"
-          ],
-          "niveau": 30,
-          "base": {
-            "pv": 80,
-            "att": 135,
-            "def": 130
-          },
-          "pv": 88,
-          "att": 86,
-          "def": 83
-        }
-      ]
-    },
-    "eau": {
-      "message": 15598,
-      "niveau": 10,
-      "conseil": {
-        "types": [
-          "electrik",
-          "plante"
-        ],
-        "facteur": 2.0
-      },
-      "membres": [
-        {
-          "id": 516,
-          "nom": "Flotoutan",
-          "types": [
-            "eau"
-          ],
-          "niveau": 8,
-          "base": {
-            "pv": 75,
-            "att": 98,
-            "def": 63
-          },
-          "pv": 30,
-          "att": 20,
-          "def": 15
-        },
-        {
-          "id": 186,
-          "nom": "Tarpaud",
-          "types": [
-            "eau"
-          ],
-          "niveau": 8,
-          "base": {
-            "pv": 90,
-            "att": 75,
-            "def": 75
-          },
-          "pv": 32,
-          "att": 17,
-          "def": 17
-        },
-        {
-          "id": 419,
-          "nom": "Mustéflott",
-          "types": [
-            "eau"
-          ],
-          "niveau": 9,
-          "base": {
-            "pv": 85,
-            "att": 105,
-            "def": 55
-          },
-          "pv": 34,
-          "att": 23,
-          "def": 14
-        },
-        {
-          "id": 62,
-          "nom": "Tartard",
-          "types": [
-            "eau",
-            "combat"
-          ],
-          "niveau": 9,
-          "base": {
-            "pv": 90,
-            "att": 95,
-            "def": 95
-          },
-          "pv": 35,
-          "att": 22,
-          "def": 22
-        },
-        {
-          "id": 134,
-          "nom": "Aquali",
-          "types": [
-            "eau"
-          ],
-          "niveau": 10,
-          "base": {
-            "pv": 130,
-            "att": 65,
-            "def": 60
-          },
-          "pv": 46,
-          "att": 18,
-          "def": 17
-        },
-        {
-          "id": 131,
-          "nom": "Lokhlass",
-          "types": [
-            "eau",
-            "glace"
-          ],
-          "niveau": 10,
-          "base": {
-            "pv": 130,
-            "att": 85,
-            "def": 80
-          },
-          "pv": 46,
-          "att": 22,
-          "def": 21
-        }
-      ]
-    },
-    "plante": {
-      "message": 15599,
-      "niveau": 20,
-      "conseil": {
-        "types": [
-          "vol"
-        ],
-        "facteur": 2.333
-      },
-      "membres": [
-        {
-          "id": 830,
-          "nom": "Blancoton",
-          "types": [
-            "plante"
-          ],
-          "niveau": 18,
-          "base": {
-            "pv": 60,
-            "att": 50,
-            "def": 90
-          },
-          "pv": 49,
-          "att": 23,
-          "def": 37
-        },
-        {
-          "id": 407,
-          "nom": "Roserade",
-          "types": [
-            "plante",
-            "poison"
-          ],
-          "niveau": 18,
-          "base": {
-            "pv": 60,
-            "att": 70,
-            "def": 65
-          },
-          "pv": 49,
-          "att": 30,
-          "def": 28
-        },
-        {
-          "id": 286,
-          "nom": "Chapignon",
-          "types": [
-            "plante",
-            "combat"
-          ],
-          "niveau": 19,
-          "base": {
-            "pv": 60,
-            "att": 130,
-            "def": 80
-          },
-          "pv": 51,
-          "att": 54,
-          "def": 35
-        },
-        {
-          "id": 556,
-          "nom": "Maracachi",
-          "types": [
-            "plante"
-          ],
-          "niveau": 19,
-          "base": {
-            "pv": 75,
-            "att": 86,
-            "def": 67
-          },
-          "pv": 57,
-          "att": 37,
-          "def": 30
-        },
-        {
-          "id": 470,
-          "nom": "Phyllali",
-          "types": [
-            "plante"
-          ],
-          "niveau": 20,
-          "base": {
-            "pv": 65,
-            "att": 110,
-            "def": 130
-          },
-          "pv": 56,
-          "att": 49,
-          "def": 57
-        },
-        {
-          "id": 673,
-          "nom": "Chevroum",
-          "types": [
-            "plante"
-          ],
-          "niveau": 20,
-          "base": {
-            "pv": 123,
-            "att": 100,
-            "def": 62
-          },
-          "pv": 79,
-          "att": 45,
-          "def": 29
-        }
-      ]
-    },
-    "feu": {
-      "message": 15600,
-      "niveau": 15,
-      "conseil": {
-        "types": [
-          "roche"
-        ],
-        "facteur": 2.333
-      },
-      "membres": [
-        {
-          "id": 850,
-          "nom": "Grillepattes",
-          "types": [
-            "feu",
-            "insecte"
-          ],
-          "niveau": 13,
-          "base": {
-            "pv": 50,
-            "att": 65,
-            "def": 45
-          },
-          "pv": 36,
-          "att": 21,
-          "def": 16
-        },
-        {
-          "id": 324,
-          "nom": "Chartor",
-          "types": [
-            "feu"
-          ],
-          "niveau": 13,
-          "base": {
-            "pv": 70,
-            "att": 85,
-            "def": 140
-          },
-          "pv": 41,
-          "att": 27,
-          "def": 41
-        },
-        {
-          "id": 514,
-          "nom": "Flamoutan",
-          "types": [
-            "feu"
-          ],
-          "niveau": 14,
-          "base": {
-            "pv": 75,
-            "att": 98,
-            "def": 63
-          },
-          "pv": 45,
-          "att": 32,
-          "def": 22
-        },
-        {
-          "id": 136,
-          "nom": "Pyroli",
-          "types": [
-            "feu"
-          ],
-          "niveau": 14,
-          "base": {
-            "pv": 65,
-            "att": 130,
-            "def": 60
-          },
-          "pv": 42,
-          "att": 41,
-          "def": 21
-        },
-        {
-          "id": 757,
-          "nom": "Tritox",
-          "types": [
-            "poison",
-            "feu"
-          ],
-          "niveau": 15,
-          "base": {
-            "pv": 48,
-            "att": 44,
-            "def": 40
-          },
-          "pv": 39,
-          "att": 18,
-          "def": 17
-        },
-        {
-          "id": 668,
-          "nom": "Némélios",
-          "types": [
-            "feu",
-            "normal"
-          ],
-          "niveau": 15,
-          "base": {
-            "pv": 86,
-            "att": 68,
-            "def": 72
-          },
-          "pv": 50,
-          "att": 25,
-          "def": 26
-        }
-      ]
-    },
-    "ligue": {
-      "message": 8,
-      "niveau": 80,
-      "conseil": {
-        "types": [
-          "insecte"
-        ],
-        "facteur": 1.417
-      },
-      "membres": [
-        {
-          "id": 197,
-          "nom": "Noctali",
-          "types": [
-            "tenebres"
-          ],
-          "niveau": 80,
-          "base": {
-            "pv": 95,
-            "att": 65,
-            "def": 110
-          },
-          "pv": 242,
-          "att": 109,
-          "def": 181
-        },
-        {
-          "id": 196,
-          "nom": "Mentali",
-          "types": [
-            "psy"
-          ],
-          "niveau": 80,
-          "base": {
-            "pv": 65,
-            "att": 65,
-            "def": 60
-          },
-          "pv": 194,
-          "att": 109,
-          "def": 101
-        },
-        {
-          "id": 311,
-          "nom": "Posipi",
-          "types": [
-            "electrik"
-          ],
-          "niveau": 75,
-          "base": {
-            "pv": 60,
-            "att": 50,
-            "def": 40
-          },
-          "pv": 175,
-          "att": 80,
-          "def": 65
-        },
-        {
-          "id": 157,
-          "nom": "Typhlosion",
-          "types": [
-            "feu"
-          ],
-          "niveau": 77,
-          "base": {
-            "pv": 78,
-            "att": 84,
-            "def": 78
-          },
-          "pv": 207,
-          "att": 134,
-          "def": 125
-        },
-        {
-          "id": 160,
-          "nom": "Aligatueur",
-          "types": [
-            "eau"
-          ],
-          "niveau": 77,
-          "base": {
-            "pv": 85,
-            "att": 105,
-            "def": 100
-          },
-          "pv": 217,
-          "att": 166,
-          "def": 159
-        },
-        {
-          "id": 272,
-          "nom": "Ludicolo",
-          "types": [
-            "eau",
-            "plante"
-          ],
-          "niveau": 76,
-          "base": {
-            "pv": 80,
-            "att": 70,
-            "def": 70
-          },
-          "pv": 207,
-          "att": 111,
-          "def": 111
-        }
-      ]
-    }
+  "electrik": {
+   "message": 15591,
+   "especes": [
+    "Raichu",
+    "Élecsprint",
+    "Pharamp",
+    "Luxray",
+    "Voltali",
+    "Ohmassacre"
+   ]
   },
-  "_ligue_niveaux": "LE DÉCALAGE DE CINQ NIVEAUX, ET POURQUOI. « La ligue doit passer niveau 80 » (9 novembre). Sur les onze arènes, le niveau du défi est celui du pokémon le plus fort de l'équipe — vérifié : le défi dragon est à 70 et son équipe monte à 70. La carte de Michael plafonne à 75. On décale donc TOUTE son équipe de +5, ce qui met son plus fort à 80 et garde l'écart entre ses six. ET PAS L'ÉTAGEMENT DES ONZE AUTRES (-2,-2,-1,-1,0,0) : il aurait donné 78/78/79/79/80/80 et effacé la forme de son équipe, qui n'est pas étagée comme les autres. Les niveaux de la carte sont gardés ci-dessous pour qu'on puisse revenir en arrière d'une ligne."
+  "spectre": {
+   "message": 15592,
+   "especes": [
+    "Skelénox",
+    "Ténéfix",
+    "Magirêve",
+    "Corayôme",
+    "Mimiqui",
+    "Ectoplasma"
+   ]
+  },
+  "fee": {
+   "message": 15593,
+   "especes": [
+    "Charmilly",
+    "Mélodelfe",
+    "Mysdibule",
+    "Feunard d'Alola",
+    "Nymphali",
+    "Togekiss"
+   ]
+  },
+  "tenebres": {
+   "message": 15594,
+   "especes": [
+    "Démolosse",
+    "Absol",
+    "Dimoret",
+    "Ixon",
+    "Trioxhydre",
+    "Corboss"
+   ]
+  },
+  "vol": {
+   "message": 15595,
+   "especes": [
+    "Noarfang",
+    "Tropius",
+    "Roucarnage",
+    "Corvaillus",
+    "Aéroptéryx",
+    "Altaria"
+   ]
+  },
+  "roche": {
+   "message": 15596,
+   "especes": [
+    "Dolman",
+    "Charkos",
+    "Lougaroc Diurne",
+    "Dragmara",
+    "Armaldo",
+    "Galeking"
+   ]
+  },
+  "acier": {
+   "message": 15597,
+   "especes": [
+    "Berserkatt",
+    "Sablaireau d'Alola",
+    "Airmure",
+    "Steelix",
+    "Lucario",
+    "Métalosse"
+   ]
+  },
+  "eau": {
+   "message": 15598,
+   "especes": [
+    "Flotoutan",
+    "Tarpaud",
+    "Mustéflott",
+    "Tartard",
+    "Aquali",
+    "Lokhlass"
+   ]
+  },
+  "plante": {
+   "message": 15599,
+   "especes": [
+    "Blancoton",
+    "Roserade",
+    "Chapignon",
+    "Maracachi",
+    "Phyllali",
+    "Chevroum"
+   ]
+  },
+  "feu": {
+   "message": 15600,
+   "especes": [
+    "Grillepattes",
+    "Chartor",
+    "Flamoutan",
+    "Pyroli",
+    "Tritox",
+    "Némélios"
+   ]
+  },
+  "ligue": {
+   "message": 8,
+   "_source": "https://mysteryinrhode.forumactif.com/t8-trainer-card-de-michael",
+   "_niveaux_de_la_carte": [
+    75,
+    75,
+    70,
+    72,
+    72,
+    71
+   ],
+   "especes": [
+    "Noctali",
+    "Mentali",
+    "Posipi",
+    "Typhlosion",
+    "Aligatueur",
+    "Ludicolo"
+   ],
+   "niveaux": [
+    80,
+    80,
+    75,
+    77,
+    77,
+    76
+   ],
+   "_conseil4": "LE CONSEIL 4, RELEVÉ LE 9 NOVEMBRE 2026 sur le deuxième message de https://mysteryinrhode.forumactif.com/t100-presentation-de-la-ligue — quatre membres, un type chacun, six pokémon chacun. Ils n'ont pas de nom sur le sujet : ils s'y annoncent « Conseil 4 » avec leur icône de type, et c'est tout ce qu'on sait d'eux.",
+   "_conseil4_niveaux": "LES NIVEAUX SONT DÉCALÉS DE CINQ, comme ceux de Michael. Le sujet les donne de 58 à 69 et Michael de 70 à 75 ; la Ligue passe au niveau 80, donc Michael monte de cinq et le Conseil 4 avec lui — sinon l'échelle se casse entre le dernier membre et le champion. `_niveaux_du_sujet` garde ce qui est écrit sur le forum, ligne à ligne.",
+   "conseil4": [
+    {
+     "type": "psy",
+     "_niveaux_du_sujet": [
+      58,
+      58,
+      59,
+      59,
+      60,
+      60
+     ],
+     "especes": [
+      "Symbios",
+      "Roigada",
+      "Alakazam",
+      "Sorcilence",
+      "Sepiatroce",
+      "Noadkoko"
+     ],
+     "niveaux": [
+      63,
+      63,
+      64,
+      64,
+      65,
+      65
+     ]
+    },
+    {
+     "type": "combat",
+     "_niveaux_du_sujet": [
+      61,
+      61,
+      62,
+      62,
+      63,
+      63
+     ],
+     "especes": [
+      "Hariyama",
+      "Braségali",
+      "Chelours",
+      "Shaofouine",
+      "Mackogneur",
+      "Bétochef"
+     ],
+     "niveaux": [
+      66,
+      66,
+      67,
+      67,
+      68,
+      68
+     ]
+    },
+    {
+     "type": "poison",
+     "_niveaux_du_sujet": [
+      64,
+      64,
+      65,
+      65,
+      66,
+      66
+     ],
+     "especes": [
+      "Arbok",
+      "Smogogo de Galar",
+      "Salarsen",
+      "Nidoking",
+      "Séviper",
+      "Grotadmorv d'Alola"
+     ],
+     "niveaux": [
+      69,
+      69,
+      70,
+      70,
+      71,
+      71
+     ]
+    },
+    {
+     "type": "glace",
+     "_niveaux_du_sujet": [
+      67,
+      67,
+      68,
+      68,
+      69,
+      69
+     ],
+     "especes": [
+      "Givrali",
+      "Sorbouboul",
+      "Galvagla",
+      "Séracrawl",
+      "Mammochon",
+      "Polagriffe"
+     ],
+     "niveaux": [
+      72,
+      72,
+      73,
+      73,
+      74,
+      74
+     ]
+    }
+   ],
+   "_conseil4_ecarts": "LES CHIFFRES DU SUJET, COMPARÉS À LA FORMULE — 9 novembre 2026. Vingt des vingt-quatre pokémon du Conseil 4 tombent AU CHIFFRE PRÈS sur la formule du dépôt (IV 0, EV 0, nature neutre), la même qui redonnait les dix-huit chiffres de la carte de Michael. Les quatre autres sont des coquilles du sujet, et la page affiche la valeur calculée : Noadkoko niv. 60 — 183 PV écrits, 184 calculés (un de moins) ; Galvagla niv. 68 — 127/141 écrits, 141/127 calculés (attaque et défense interverties) ; Grotadmorv d'Alola niv. 66 — 155/137/84 écrits, soit exactement les chiffres de Séviper juste au-dessus, au lieu de 214/143/104 ; Salarsen niv. 65 — 166/148/135 écrits, 172/132/96 calculés, et aucune espèce du Pokédex ne donne ces trois-là à ce niveau."
+  }
+ },
+ "equipes": {
+  "dragon": {
+   "message": 15590,
+   "niveau": 70,
+   "conseil": {
+    "types": [
+     "glace"
+    ],
+    "facteur": 2.5
+   },
+   "membres": [
+    {
+     "id": 621,
+     "nom": "Drakkarmin",
+     "types": [
+      "dragon"
+     ],
+     "niveau": 68,
+     "base": {
+      "pv": 77,
+      "att": 120,
+      "def": 90
+     },
+     "pv": 182,
+     "att": 168,
+     "def": 127
+    },
+    {
+     "id": 230,
+     "nom": "Hyporoi",
+     "types": [
+      "eau",
+      "dragon"
+     ],
+     "niveau": 68,
+     "base": {
+      "pv": 75,
+      "att": 95,
+      "def": 95
+     },
+     "pv": 180,
+     "att": 134,
+     "def": 134
+    },
+    {
+     "id": 612,
+     "nom": "Tranchodon",
+     "types": [
+      "dragon"
+     ],
+     "niveau": 69,
+     "base": {
+      "pv": 76,
+      "att": 147,
+      "def": 90
+     },
+     "pv": 183,
+     "att": 207,
+     "def": 129
+    },
+    {
+     "id": 697,
+     "nom": "Rexillius",
+     "types": [
+      "roche",
+      "dragon"
+     ],
+     "niveau": 69,
+     "base": {
+      "pv": 82,
+      "att": 121,
+      "def": 119
+     },
+     "pv": 192,
+     "att": 171,
+     "def": 169
+    },
+    {
+     "id": 373,
+     "nom": "Drattak",
+     "types": [
+      "dragon",
+      "vol"
+     ],
+     "niveau": 70,
+     "base": {
+      "pv": 95,
+      "att": 135,
+      "def": 80
+     },
+     "pv": 213,
+     "att": 194,
+     "def": 117
+    },
+    {
+     "id": 149,
+     "nom": "Dracolosse",
+     "types": [
+      "dragon",
+      "vol"
+     ],
+     "niveau": 70,
+     "base": {
+      "pv": 91,
+      "att": 134,
+      "def": 95
+     },
+     "pv": 207,
+     "att": 192,
+     "def": 138
+    }
+   ]
+  },
+  "electrik": {
+   "message": 15591,
+   "niveau": 18,
+   "conseil": {
+    "types": [
+     "sol"
+    ],
+    "facteur": 2.0
+   },
+   "membres": [
+    {
+     "id": 26,
+     "nom": "Raichu",
+     "types": [
+      "electrik"
+     ],
+     "niveau": 16,
+     "base": {
+      "pv": 60,
+      "att": 90,
+      "def": 55
+     },
+     "pv": 45,
+     "att": 33,
+     "def": 22
+    },
+    {
+     "id": 310,
+     "nom": "Élecsprint",
+     "types": [
+      "electrik"
+     ],
+     "niveau": 16,
+     "base": {
+      "pv": 70,
+      "att": 75,
+      "def": 60
+     },
+     "pv": 48,
+     "att": 29,
+     "def": 24
+    },
+    {
+     "id": 181,
+     "nom": "Pharamp",
+     "types": [
+      "electrik"
+     ],
+     "niveau": 17,
+     "base": {
+      "pv": 90,
+      "att": 75,
+      "def": 85
+     },
+     "pv": 57,
+     "att": 30,
+     "def": 33
+    },
+    {
+     "id": 405,
+     "nom": "Luxray",
+     "types": [
+      "electrik"
+     ],
+     "niveau": 17,
+     "base": {
+      "pv": 80,
+      "att": 120,
+      "def": 79
+     },
+     "pv": 54,
+     "att": 45,
+     "def": 31
+    },
+    {
+     "id": 135,
+     "nom": "Voltali",
+     "types": [
+      "electrik"
+     ],
+     "niveau": 18,
+     "base": {
+      "pv": 65,
+      "att": 65,
+      "def": 60
+     },
+     "pv": 51,
+     "att": 28,
+     "def": 26
+    },
+    {
+     "id": 604,
+     "nom": "Ohmassacre",
+     "types": [
+      "electrik"
+     ],
+     "niveau": 18,
+     "base": {
+      "pv": 85,
+      "att": 115,
+      "def": 80
+     },
+     "pv": 58,
+     "att": 46,
+     "def": 33
+    }
+   ]
+  },
+  "spectre": {
+   "message": 15592,
+   "niveau": 35,
+   "conseil": {
+    "types": [
+     "spectre"
+    ],
+    "facteur": 1.833
+   },
+   "membres": [
+    {
+     "id": 355,
+     "nom": "Skelénox",
+     "types": [
+      "spectre"
+     ],
+     "niveau": 33,
+     "base": {
+      "pv": 20,
+      "att": 40,
+      "def": 90
+     },
+     "pv": 56,
+     "att": 31,
+     "def": 64
+    },
+    {
+     "id": 302,
+     "nom": "Ténéfix",
+     "types": [
+      "tenebres",
+      "spectre"
+     ],
+     "niveau": 33,
+     "base": {
+      "pv": 50,
+      "att": 75,
+      "def": 75
+     },
+     "pv": 76,
+     "att": 54,
+     "def": 54
+    },
+    {
+     "id": 429,
+     "nom": "Magirêve",
+     "types": [
+      "spectre"
+     ],
+     "niveau": 34,
+     "base": {
+      "pv": 60,
+      "att": 60,
+      "def": 60
+     },
+     "pv": 84,
+     "att": 45,
+     "def": 45
+    },
+    {
+     "id": 864,
+     "nom": "Corayôme",
+     "types": [
+      "spectre"
+     ],
+     "niveau": 34,
+     "base": {
+      "pv": 60,
+      "att": 95,
+      "def": 50
+     },
+     "pv": 84,
+     "att": 69,
+     "def": 39
+    },
+    {
+     "id": 778,
+     "nom": "Mimiqui",
+     "types": [
+      "spectre",
+      "fee"
+     ],
+     "niveau": 35,
+     "base": {
+      "pv": 55,
+      "att": 90,
+      "def": 80
+     },
+     "pv": 83,
+     "att": 68,
+     "def": 61
+    },
+    {
+     "id": 94,
+     "nom": "Ectoplasma",
+     "types": [
+      "spectre",
+      "poison"
+     ],
+     "niveau": 35,
+     "base": {
+      "pv": 60,
+      "att": 65,
+      "def": 60
+     },
+     "pv": 87,
+     "att": 50,
+     "def": 47
+    }
+   ]
+  },
+  "fee": {
+   "message": 15593,
+   "niveau": 40,
+   "conseil": {
+    "types": [
+     "acier"
+    ],
+    "facteur": 2.167
+   },
+   "membres": [
+    {
+     "id": 869,
+     "nom": "Charmilly",
+     "types": [
+      "fee"
+     ],
+     "niveau": 38,
+     "base": {
+      "pv": 65,
+      "att": 60,
+      "def": 75
+     },
+     "pv": 97,
+     "att": 50,
+     "def": 62
+    },
+    {
+     "id": 36,
+     "nom": "Mélodelfe",
+     "types": [
+      "fee"
+     ],
+     "niveau": 38,
+     "base": {
+      "pv": 95,
+      "att": 70,
+      "def": 73
+     },
+     "pv": 120,
+     "att": 58,
+     "def": 60
+    },
+    {
+     "id": 303,
+     "nom": "Mysdibule",
+     "types": [
+      "acier",
+      "fee"
+     ],
+     "niveau": 39,
+     "base": {
+      "pv": 50,
+      "att": 85,
+      "def": 85
+     },
+     "pv": 88,
+     "att": 71,
+     "def": 71
+    },
+    {
+     "id": 10104,
+     "nom": "Feunard d'Alola",
+     "types": [
+      "glace",
+      "fee"
+     ],
+     "niveau": 39,
+     "base": {
+      "pv": 73,
+      "att": 67,
+      "def": 75
+     },
+     "pv": 105,
+     "att": 57,
+     "def": 63
+    },
+    {
+     "id": 700,
+     "nom": "Nymphali",
+     "types": [
+      "fee"
+     ],
+     "niveau": 40,
+     "base": {
+      "pv": 95,
+      "att": 65,
+      "def": 65
+     },
+     "pv": 126,
+     "att": 57,
+     "def": 57
+    },
+    {
+     "id": 468,
+     "nom": "Togekiss",
+     "types": [
+      "fee",
+      "vol"
+     ],
+     "niveau": 40,
+     "base": {
+      "pv": 85,
+      "att": 50,
+      "def": 95
+     },
+     "pv": 118,
+     "att": 45,
+     "def": 81
+    }
+   ]
+  },
+  "tenebres": {
+   "message": 15594,
+   "niveau": 60,
+   "conseil": {
+    "types": [
+     "combat"
+    ],
+    "facteur": 2.5
+   },
+   "membres": [
+    {
+     "id": 229,
+     "nom": "Démolosse",
+     "types": [
+      "tenebres",
+      "feu"
+     ],
+     "niveau": 58,
+     "base": {
+      "pv": 75,
+      "att": 90,
+      "def": 50
+     },
+     "pv": 155,
+     "att": 109,
+     "def": 63
+    },
+    {
+     "id": 359,
+     "nom": "Absol",
+     "types": [
+      "tenebres"
+     ],
+     "niveau": 58,
+     "base": {
+      "pv": 65,
+      "att": 130,
+      "def": 60
+     },
+     "pv": 143,
+     "att": 155,
+     "def": 74
+    },
+    {
+     "id": 461,
+     "nom": "Dimoret",
+     "types": [
+      "tenebres",
+      "glace"
+     ],
+     "niveau": 59,
+     "base": {
+      "pv": 70,
+      "att": 120,
+      "def": 65
+     },
+     "pv": 151,
+     "att": 146,
+     "def": 81
+    },
+    {
+     "id": 862,
+     "nom": "Ixon",
+     "types": [
+      "tenebres",
+      "normal"
+     ],
+     "niveau": 59,
+     "base": {
+      "pv": 93,
+      "att": 90,
+      "def": 101
+     },
+     "pv": 178,
+     "att": 111,
+     "def": 124
+    },
+    {
+     "id": 635,
+     "nom": "Trioxhydre",
+     "types": [
+      "tenebres",
+      "dragon"
+     ],
+     "niveau": 60,
+     "base": {
+      "pv": 92,
+      "att": 105,
+      "def": 90
+     },
+     "pv": 180,
+     "att": 131,
+     "def": 113
+    },
+    {
+     "id": 430,
+     "nom": "Corboss",
+     "types": [
+      "tenebres",
+      "vol"
+     ],
+     "niveau": 60,
+     "base": {
+      "pv": 100,
+      "att": 125,
+      "def": 52
+     },
+     "pv": 190,
+     "att": 155,
+     "def": 67
+    }
+   ]
+  },
+  "vol": {
+   "message": 15595,
+   "niveau": 50,
+   "conseil": {
+    "types": [
+     "glace"
+    ],
+    "facteur": 2.5
+   },
+   "membres": [
+    {
+     "id": 164,
+     "nom": "Noarfang",
+     "types": [
+      "normal",
+      "vol"
+     ],
+     "niveau": 48,
+     "base": {
+      "pv": 100,
+      "att": 50,
+      "def": 50
+     },
+     "pv": 154,
+     "att": 53,
+     "def": 53
+    },
+    {
+     "id": 357,
+     "nom": "Tropius",
+     "types": [
+      "plante",
+      "vol"
+     ],
+     "niveau": 48,
+     "base": {
+      "pv": 99,
+      "att": 68,
+      "def": 83
+     },
+     "pv": 153,
+     "att": 70,
+     "def": 84
+    },
+    {
+     "id": 18,
+     "nom": "Roucarnage",
+     "types": [
+      "normal",
+      "vol"
+     ],
+     "niveau": 49,
+     "base": {
+      "pv": 83,
+      "att": 80,
+      "def": 75
+     },
+     "pv": 140,
+     "att": 83,
+     "def": 78
+    },
+    {
+     "id": 823,
+     "nom": "Corvaillus",
+     "types": [
+      "vol",
+      "acier"
+     ],
+     "niveau": 49,
+     "base": {
+      "pv": 98,
+      "att": 87,
+      "def": 105
+     },
+     "pv": 155,
+     "att": 90,
+     "def": 107
+    },
+    {
+     "id": 567,
+     "nom": "Aéroptéryx",
+     "types": [
+      "roche",
+      "vol"
+     ],
+     "niveau": 50,
+     "base": {
+      "pv": 75,
+      "att": 140,
+      "def": 65
+     },
+     "pv": 135,
+     "att": 145,
+     "def": 70
+    },
+    {
+     "id": 334,
+     "nom": "Altaria",
+     "types": [
+      "dragon",
+      "vol"
+     ],
+     "niveau": 50,
+     "base": {
+      "pv": 75,
+      "att": 70,
+      "def": 90
+     },
+     "pv": 135,
+     "att": 75,
+     "def": 95
+    }
+   ]
+  },
+  "roche": {
+   "message": 15596,
+   "niveau": 25,
+   "conseil": {
+    "types": [
+     "combat"
+    ],
+    "facteur": 2.5
+   },
+   "membres": [
+    {
+     "id": 874,
+     "nom": "Dolman",
+     "types": [
+      "roche"
+     ],
+     "niveau": 23,
+     "base": {
+      "pv": 100,
+      "att": 125,
+      "def": 135
+     },
+     "pv": 79,
+     "att": 62,
+     "def": 67
+    },
+    {
+     "id": 409,
+     "nom": "Charkos",
+     "types": [
+      "roche"
+     ],
+     "niveau": 23,
+     "base": {
+      "pv": 97,
+      "att": 165,
+      "def": 60
+     },
+     "pv": 77,
+     "att": 80,
+     "def": 32
+    },
+    {
+     "id": 745,
+     "nom": "Lougaroc Diurne",
+     "types": [
+      "roche"
+     ],
+     "niveau": 24,
+     "base": {
+      "pv": 75,
+      "att": 115,
+      "def": 65
+     },
+     "pv": 70,
+     "att": 60,
+     "def": 36
+    },
+    {
+     "id": 699,
+     "nom": "Dragmara",
+     "types": [
+      "roche",
+      "glace"
+     ],
+     "niveau": 24,
+     "base": {
+      "pv": 123,
+      "att": 77,
+      "def": 72
+     },
+     "pv": 93,
+     "att": 41,
+     "def": 39
+    },
+    {
+     "id": 348,
+     "nom": "Armaldo",
+     "types": [
+      "roche",
+      "insecte"
+     ],
+     "niveau": 25,
+     "base": {
+      "pv": 75,
+      "att": 125,
+      "def": 100
+     },
+     "pv": 72,
+     "att": 67,
+     "def": 55
+    },
+    {
+     "id": 306,
+     "nom": "Galeking",
+     "types": [
+      "acier",
+      "roche"
+     ],
+     "niveau": 25,
+     "base": {
+      "pv": 70,
+      "att": 110,
+      "def": 180
+     },
+     "pv": 70,
+     "att": 60,
+     "def": 95
+    }
+   ]
+  },
+  "acier": {
+   "message": 15597,
+   "niveau": 30,
+   "conseil": {
+    "types": [
+     "feu"
+    ],
+    "facteur": 2.333
+   },
+   "membres": [
+    {
+     "id": 863,
+     "nom": "Berserkatt",
+     "types": [
+      "acier"
+     ],
+     "niveau": 28,
+     "base": {
+      "pv": 70,
+      "att": 110,
+      "def": 100
+     },
+     "pv": 77,
+     "att": 66,
+     "def": 61
+    },
+    {
+     "id": 10102,
+     "nom": "Sablaireau d'Alola",
+     "types": [
+      "glace",
+      "acier"
+     ],
+     "niveau": 28,
+     "base": {
+      "pv": 75,
+      "att": 100,
+      "def": 120
+     },
+     "pv": 80,
+     "att": 61,
+     "def": 72
+    },
+    {
+     "id": 227,
+     "nom": "Airmure",
+     "types": [
+      "acier",
+      "vol"
+     ],
+     "niveau": 29,
+     "base": {
+      "pv": 65,
+      "att": 80,
+      "def": 140
+     },
+     "pv": 76,
+     "att": 51,
+     "def": 86
+    },
+    {
+     "id": 208,
+     "nom": "Steelix",
+     "types": [
+      "acier",
+      "sol"
+     ],
+     "niveau": 29,
+     "base": {
+      "pv": 75,
+      "att": 85,
+      "def": 200
+     },
+     "pv": 82,
+     "att": 54,
+     "def": 121
+    },
+    {
+     "id": 448,
+     "nom": "Lucario",
+     "types": [
+      "combat",
+      "acier"
+     ],
+     "niveau": 30,
+     "base": {
+      "pv": 70,
+      "att": 110,
+      "def": 70
+     },
+     "pv": 82,
+     "att": 71,
+     "def": 47
+    },
+    {
+     "id": 376,
+     "nom": "Métalosse",
+     "types": [
+      "acier",
+      "psy"
+     ],
+     "niveau": 30,
+     "base": {
+      "pv": 80,
+      "att": 135,
+      "def": 130
+     },
+     "pv": 88,
+     "att": 86,
+     "def": 83
+    }
+   ]
+  },
+  "eau": {
+   "message": 15598,
+   "niveau": 10,
+   "conseil": {
+    "types": [
+     "electrik",
+     "plante"
+    ],
+    "facteur": 2.0
+   },
+   "membres": [
+    {
+     "id": 516,
+     "nom": "Flotoutan",
+     "types": [
+      "eau"
+     ],
+     "niveau": 8,
+     "base": {
+      "pv": 75,
+      "att": 98,
+      "def": 63
+     },
+     "pv": 30,
+     "att": 20,
+     "def": 15
+    },
+    {
+     "id": 186,
+     "nom": "Tarpaud",
+     "types": [
+      "eau"
+     ],
+     "niveau": 8,
+     "base": {
+      "pv": 90,
+      "att": 75,
+      "def": 75
+     },
+     "pv": 32,
+     "att": 17,
+     "def": 17
+    },
+    {
+     "id": 419,
+     "nom": "Mustéflott",
+     "types": [
+      "eau"
+     ],
+     "niveau": 9,
+     "base": {
+      "pv": 85,
+      "att": 105,
+      "def": 55
+     },
+     "pv": 34,
+     "att": 23,
+     "def": 14
+    },
+    {
+     "id": 62,
+     "nom": "Tartard",
+     "types": [
+      "eau",
+      "combat"
+     ],
+     "niveau": 9,
+     "base": {
+      "pv": 90,
+      "att": 95,
+      "def": 95
+     },
+     "pv": 35,
+     "att": 22,
+     "def": 22
+    },
+    {
+     "id": 134,
+     "nom": "Aquali",
+     "types": [
+      "eau"
+     ],
+     "niveau": 10,
+     "base": {
+      "pv": 130,
+      "att": 65,
+      "def": 60
+     },
+     "pv": 46,
+     "att": 18,
+     "def": 17
+    },
+    {
+     "id": 131,
+     "nom": "Lokhlass",
+     "types": [
+      "eau",
+      "glace"
+     ],
+     "niveau": 10,
+     "base": {
+      "pv": 130,
+      "att": 85,
+      "def": 80
+     },
+     "pv": 46,
+     "att": 22,
+     "def": 21
+    }
+   ]
+  },
+  "plante": {
+   "message": 15599,
+   "niveau": 20,
+   "conseil": {
+    "types": [
+     "vol"
+    ],
+    "facteur": 2.333
+   },
+   "membres": [
+    {
+     "id": 830,
+     "nom": "Blancoton",
+     "types": [
+      "plante"
+     ],
+     "niveau": 18,
+     "base": {
+      "pv": 60,
+      "att": 50,
+      "def": 90
+     },
+     "pv": 49,
+     "att": 23,
+     "def": 37
+    },
+    {
+     "id": 407,
+     "nom": "Roserade",
+     "types": [
+      "plante",
+      "poison"
+     ],
+     "niveau": 18,
+     "base": {
+      "pv": 60,
+      "att": 70,
+      "def": 65
+     },
+     "pv": 49,
+     "att": 30,
+     "def": 28
+    },
+    {
+     "id": 286,
+     "nom": "Chapignon",
+     "types": [
+      "plante",
+      "combat"
+     ],
+     "niveau": 19,
+     "base": {
+      "pv": 60,
+      "att": 130,
+      "def": 80
+     },
+     "pv": 51,
+     "att": 54,
+     "def": 35
+    },
+    {
+     "id": 556,
+     "nom": "Maracachi",
+     "types": [
+      "plante"
+     ],
+     "niveau": 19,
+     "base": {
+      "pv": 75,
+      "att": 86,
+      "def": 67
+     },
+     "pv": 57,
+     "att": 37,
+     "def": 30
+    },
+    {
+     "id": 470,
+     "nom": "Phyllali",
+     "types": [
+      "plante"
+     ],
+     "niveau": 20,
+     "base": {
+      "pv": 65,
+      "att": 110,
+      "def": 130
+     },
+     "pv": 56,
+     "att": 49,
+     "def": 57
+    },
+    {
+     "id": 673,
+     "nom": "Chevroum",
+     "types": [
+      "plante"
+     ],
+     "niveau": 20,
+     "base": {
+      "pv": 123,
+      "att": 100,
+      "def": 62
+     },
+     "pv": 79,
+     "att": 45,
+     "def": 29
+    }
+   ]
+  },
+  "feu": {
+   "message": 15600,
+   "niveau": 15,
+   "conseil": {
+    "types": [
+     "roche"
+    ],
+    "facteur": 2.333
+   },
+   "membres": [
+    {
+     "id": 850,
+     "nom": "Grillepattes",
+     "types": [
+      "feu",
+      "insecte"
+     ],
+     "niveau": 13,
+     "base": {
+      "pv": 50,
+      "att": 65,
+      "def": 45
+     },
+     "pv": 36,
+     "att": 21,
+     "def": 16
+    },
+    {
+     "id": 324,
+     "nom": "Chartor",
+     "types": [
+      "feu"
+     ],
+     "niveau": 13,
+     "base": {
+      "pv": 70,
+      "att": 85,
+      "def": 140
+     },
+     "pv": 41,
+     "att": 27,
+     "def": 41
+    },
+    {
+     "id": 514,
+     "nom": "Flamoutan",
+     "types": [
+      "feu"
+     ],
+     "niveau": 14,
+     "base": {
+      "pv": 75,
+      "att": 98,
+      "def": 63
+     },
+     "pv": 45,
+     "att": 32,
+     "def": 22
+    },
+    {
+     "id": 136,
+     "nom": "Pyroli",
+     "types": [
+      "feu"
+     ],
+     "niveau": 14,
+     "base": {
+      "pv": 65,
+      "att": 130,
+      "def": 60
+     },
+     "pv": 42,
+     "att": 41,
+     "def": 21
+    },
+    {
+     "id": 757,
+     "nom": "Tritox",
+     "types": [
+      "poison",
+      "feu"
+     ],
+     "niveau": 15,
+     "base": {
+      "pv": 48,
+      "att": 44,
+      "def": 40
+     },
+     "pv": 39,
+     "att": 18,
+     "def": 17
+    },
+    {
+     "id": 668,
+     "nom": "Némélios",
+     "types": [
+      "feu",
+      "normal"
+     ],
+     "niveau": 15,
+     "base": {
+      "pv": 86,
+      "att": 68,
+      "def": 72
+     },
+     "pv": 50,
+     "att": 25,
+     "def": 26
+    }
+   ]
+  },
+  "ligue": {
+   "message": 8,
+   "niveau": 80,
+   "conseil": {
+    "types": [
+     "insecte"
+    ],
+    "facteur": 1.417
+   },
+   "conseil4": [
+    {
+     "type": "psy",
+     "membres": [
+      {
+       "id": 579,
+       "nom": "Symbios",
+       "types": [
+        "psy"
+       ],
+       "niveau": 63,
+       "base": {
+        "pv": 110,
+        "att": 65,
+        "def": 75
+       },
+       "pv": 211,
+       "att": 86,
+       "def": 99
+      },
+      {
+       "id": 199,
+       "nom": "Roigada",
+       "types": [
+        "eau",
+        "psy"
+       ],
+       "niveau": 63,
+       "base": {
+        "pv": 95,
+        "att": 75,
+        "def": 80
+       },
+       "pv": 192,
+       "att": 99,
+       "def": 105
+      },
+      {
+       "id": 65,
+       "nom": "Alakazam",
+       "types": [
+        "psy"
+       ],
+       "niveau": 64,
+       "base": {
+        "pv": 55,
+        "att": 50,
+        "def": 45
+       },
+       "pv": 144,
+       "att": 69,
+       "def": 62
+      },
+      {
+       "id": 858,
+       "nom": "Sorcilence",
+       "types": [
+        "psy",
+        "fee"
+       ],
+       "niveau": 64,
+       "base": {
+        "pv": 57,
+        "att": 90,
+        "def": 95
+       },
+       "pv": 146,
+       "att": 120,
+       "def": 126
+      },
+      {
+       "id": 687,
+       "nom": "Sepiatroce",
+       "types": [
+        "tenebres",
+        "psy"
+       ],
+       "niveau": 65,
+       "base": {
+        "pv": 86,
+        "att": 92,
+        "def": 88
+       },
+       "pv": 186,
+       "att": 124,
+       "def": 119
+      },
+      {
+       "id": 103,
+       "nom": "Noadkoko",
+       "types": [
+        "plante",
+        "psy"
+       ],
+       "niveau": 65,
+       "base": {
+        "pv": 95,
+        "att": 95,
+        "def": 85
+       },
+       "pv": 198,
+       "att": 128,
+       "def": 115
+      }
+     ]
+    },
+    {
+     "type": "combat",
+     "membres": [
+      {
+       "id": 297,
+       "nom": "Hariyama",
+       "types": [
+        "combat"
+       ],
+       "niveau": 66,
+       "base": {
+        "pv": 144,
+        "att": 120,
+        "def": 60
+       },
+       "pv": 266,
+       "att": 163,
+       "def": 84
+      },
+      {
+       "id": 257,
+       "nom": "Braségali",
+       "types": [
+        "feu",
+        "combat"
+       ],
+       "niveau": 66,
+       "base": {
+        "pv": 80,
+        "att": 120,
+        "def": 70
+       },
+       "pv": 181,
+       "att": 163,
+       "def": 97
+      },
+      {
+       "id": 760,
+       "nom": "Chelours",
+       "types": [
+        "normal",
+        "combat"
+       ],
+       "niveau": 67,
+       "base": {
+        "pv": 120,
+        "att": 125,
+        "def": 80
+       },
+       "pv": 237,
+       "att": 172,
+       "def": 112
+      },
+      {
+       "id": 620,
+       "nom": "Shaofouine",
+       "types": [
+        "combat"
+       ],
+       "niveau": 67,
+       "base": {
+        "pv": 65,
+        "att": 125,
+        "def": 60
+       },
+       "pv": 164,
+       "att": 172,
+       "def": 85
+      },
+      {
+       "id": 68,
+       "nom": "Mackogneur",
+       "types": [
+        "combat"
+       ],
+       "niveau": 68,
+       "base": {
+        "pv": 90,
+        "att": 130,
+        "def": 80
+       },
+       "pv": 200,
+       "att": 181,
+       "def": 113
+      },
+      {
+       "id": 534,
+       "nom": "Bétochef",
+       "types": [
+        "combat"
+       ],
+       "niveau": 68,
+       "base": {
+        "pv": 105,
+        "att": 140,
+        "def": 95
+       },
+       "pv": 220,
+       "att": 195,
+       "def": 134
+      }
+     ]
+    },
+    {
+     "type": "poison",
+     "membres": [
+      {
+       "id": 24,
+       "nom": "Arbok",
+       "types": [
+        "poison"
+       ],
+       "niveau": 69,
+       "base": {
+        "pv": 60,
+        "att": 95,
+        "def": 69
+       },
+       "pv": 161,
+       "att": 136,
+       "def": 100
+      },
+      {
+       "id": 10167,
+       "nom": "Smogogo de Galar",
+       "types": [
+        "poison",
+        "fee"
+       ],
+       "niveau": 69,
+       "base": {
+        "pv": 65,
+        "att": 90,
+        "def": 120
+       },
+       "pv": 168,
+       "att": 129,
+       "def": 170
+      },
+      {
+       "id": 849,
+       "nom": "Salarsen",
+       "types": [
+        "electrik",
+        "poison"
+       ],
+       "niveau": 70,
+       "base": {
+        "pv": 75,
+        "att": 98,
+        "def": 70
+       },
+       "pv": 185,
+       "att": 142,
+       "def": 103
+      },
+      {
+       "id": 34,
+       "nom": "Nidoking",
+       "types": [
+        "poison",
+        "sol"
+       ],
+       "niveau": 70,
+       "base": {
+        "pv": 81,
+        "att": 102,
+        "def": 77
+       },
+       "pv": 193,
+       "att": 147,
+       "def": 112
+      },
+      {
+       "id": 336,
+       "nom": "Séviper",
+       "types": [
+        "poison"
+       ],
+       "niveau": 71,
+       "base": {
+        "pv": 73,
+        "att": 100,
+        "def": 60
+       },
+       "pv": 184,
+       "att": 147,
+       "def": 90
+      },
+      {
+       "id": 10113,
+       "nom": "Grotadmorv d'Alola",
+       "types": [
+        "poison",
+        "tenebres"
+       ],
+       "niveau": 71,
+       "base": {
+        "pv": 105,
+        "att": 105,
+        "def": 75
+       },
+       "pv": 230,
+       "att": 154,
+       "def": 111
+      }
+     ]
+    },
+    {
+     "type": "glace",
+     "membres": [
+      {
+       "id": 471,
+       "nom": "Givrali",
+       "types": [
+        "glace"
+       ],
+       "niveau": 72,
+       "base": {
+        "pv": 65,
+        "att": 60,
+        "def": 110
+       },
+       "pv": 175,
+       "att": 91,
+       "def": 163
+      },
+      {
+       "id": 584,
+       "nom": "Sorbouboul",
+       "types": [
+        "glace"
+       ],
+       "niveau": 72,
+       "base": {
+        "pv": 71,
+        "att": 95,
+        "def": 85
+       },
+       "pv": 184,
+       "att": 141,
+       "def": 127
+      },
+      {
+       "id": 881,
+       "nom": "Galvagla",
+       "types": [
+        "electrik",
+        "glace"
+       ],
+       "niveau": 73,
+       "base": {
+        "pv": 90,
+        "att": 100,
+        "def": 90
+       },
+       "pv": 214,
+       "att": 151,
+       "def": 136
+      },
+      {
+       "id": 713,
+       "nom": "Séracrawl",
+       "types": [
+        "glace"
+       ],
+       "niveau": 73,
+       "base": {
+        "pv": 95,
+        "att": 117,
+        "def": 184
+       },
+       "pv": 221,
+       "att": 175,
+       "def": 273
+      },
+      {
+       "id": 473,
+       "nom": "Mammochon",
+       "types": [
+        "glace",
+        "sol"
+       ],
+       "niveau": 74,
+       "base": {
+        "pv": 110,
+        "att": 130,
+        "def": 80
+       },
+       "pv": 246,
+       "att": 197,
+       "def": 123
+      },
+      {
+       "id": 614,
+       "nom": "Polagriffe",
+       "types": [
+        "glace"
+       ],
+       "niveau": 74,
+       "base": {
+        "pv": 95,
+        "att": 130,
+        "def": 80
+       },
+       "pv": 224,
+       "att": 197,
+       "def": 123
+      }
+     ]
+    }
+   ],
+   "membres": [
+    {
+     "id": 197,
+     "nom": "Noctali",
+     "types": [
+      "tenebres"
+     ],
+     "niveau": 80,
+     "base": {
+      "pv": 95,
+      "att": 65,
+      "def": 110
+     },
+     "pv": 242,
+     "att": 109,
+     "def": 181
+    },
+    {
+     "id": 196,
+     "nom": "Mentali",
+     "types": [
+      "psy"
+     ],
+     "niveau": 80,
+     "base": {
+      "pv": 65,
+      "att": 65,
+      "def": 60
+     },
+     "pv": 194,
+     "att": 109,
+     "def": 101
+    },
+    {
+     "id": 311,
+     "nom": "Posipi",
+     "types": [
+      "electrik"
+     ],
+     "niveau": 75,
+     "base": {
+      "pv": 60,
+      "att": 50,
+      "def": 40
+     },
+     "pv": 175,
+     "att": 80,
+     "def": 65
+    },
+    {
+     "id": 157,
+     "nom": "Typhlosion",
+     "types": [
+      "feu"
+     ],
+     "niveau": 77,
+     "base": {
+      "pv": 78,
+      "att": 84,
+      "def": 78
+     },
+     "pv": 207,
+     "att": 134,
+     "def": 125
+    },
+    {
+     "id": 160,
+     "nom": "Aligatueur",
+     "types": [
+      "eau"
+     ],
+     "niveau": 77,
+     "base": {
+      "pv": 85,
+      "att": 105,
+      "def": 100
+     },
+     "pv": 217,
+     "att": 166,
+     "def": 159
+    },
+    {
+     "id": 272,
+     "nom": "Ludicolo",
+     "types": [
+      "eau",
+      "plante"
+     ],
+     "niveau": 76,
+     "base": {
+      "pv": 80,
+      "att": 70,
+      "def": 70
+     },
+     "pv": 207,
+     "att": 111,
+     "def": 111
+    }
+   ]
+  }
+ },
+ "_ligue_niveaux": "LE DÉCALAGE DE CINQ NIVEAUX, ET POURQUOI. « La ligue doit passer niveau 80 » (9 novembre). Sur les onze arènes, le niveau du défi est celui du pokémon le plus fort de l'équipe — vérifié : le défi dragon est à 70 et son équipe monte à 70. La carte de Michael plafonne à 75. On décale donc TOUTE son équipe de +5, ce qui met son plus fort à 80 et garde l'écart entre ses six. ET PAS L'ÉTAGEMENT DES ONZE AUTRES (-2,-2,-1,-1,0,0) : il aurait donné 78/78/79/79/80/80 et effacé la forme de son équipe, qui n'est pas étagée comme les autres. Les niveaux de la carte sont gardés ci-dessous pour qu'on puisse revenir en arrière d'une ligne."
 }

@@ -50,7 +50,8 @@
     "carnet": "deno run -A outils/carnet.mjs",
     "faune": "deno run -A outils/faune.mjs",
     "personnages": "deno run -A outils/personnages.mjs",
-    "natures": "deno run --allow-read=. outils/natures.ts"
+    "natures": "deno run --allow-read=. outils/natures.ts",
+    "moderation": "deno run -A outils/moderation.mjs"
   },
   "fmt": {
     "include": [

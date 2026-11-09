@@ -528,9 +528,10 @@ const nav = await chromium.launch(
 // ── LA LIGUE, ET SON ÉQUIPE ───────────────────────────────────────
 //
 //  Elle n'est pas une arène : pas de badge, pas de type, pas de case
-//  dans la grille de la carte dresseur. Elle a en revanche une équipe
-//  depuis le 9 novembre, relevée sur la carte de dresseur de Michael
-//  — `t8`, publique ; `t100` demande une connexion.
+//  dans la grille de la carte dresseur. Elle a en revanche CINQ
+//  équipes depuis le 9 novembre — le Conseil 4 et le champion —
+//  relevées sur le deuxième message de `t100`, qui est devenu
+//  lisible sans connexion.
 //
 //  CE QU'ON VÉRIFIE, ET QUI NE SE VOIT PAS À L'ŒIL : que le plus fort
 //  de son équipe est AU niveau du défi. C'est la règle des onze
@@ -556,39 +557,84 @@ const nav = await chromium.launch(
         )
       ),
       faits: [...s.querySelectorAll(".wm-defi__mot")].map((d) => d.textContent.trim()),
-      //  Le renvoi vers la carte de Michael : c'est la source, et elle
-      //  doit être citée dans la page, pas seulement dans le code.
+      //  PLUS AUCUN RENVOI VERS LA CARTE DE DRESSEUR : « on affichera
+      //  plus la carte de dresseur de Michael à l'avenir ». Le
+      //  harnais exigeait l'inverse jusqu'au 9 novembre ; il exige
+      //  maintenant son absence, sinon le lien reviendrait sans que
+      //  rien ne le dise.
       carte: [...s.querySelectorAll("a")].map((a) => a.getAttribute("href"))
         .filter((h) => h !== null && h.includes("t8-trainer-card")).length,
+      //  Les cinq intitulés d'équipe, dans l'ordre où on les monte.
+      titres: [...s.querySelectorAll(".wm-defi__sous-titre")].map((h) =>
+        h.textContent.trim()
+      ),
+      //  Les six dernières cases sont celles du champion : la page
+      //  les écrit en dernier, après les quatre du Conseil.
+      tousLesNiveaux: [...s.querySelectorAll(".wm-equipe__pkmn")].map((c) =>
+        Number(c.querySelector(".wm-equipe__niveau").textContent.replace(/\D+/g, ""))
+      ),
     };
   });
   ok("l'onglet de la Ligue existe", vu !== null, vu);
   if (vu !== null && eq !== undefined) {
-    ok("six pokémon dans l'équipe de la Ligue", vu.cases === 6, vu.cases);
+    //  TRENTE CASES : quatre équipes de Conseil et celle du champion.
+    ok("cinq équipes dans l'onglet de la Ligue, trente pokémon", vu.cases === 30, vu.cases);
     ok(
-      "ce sont ceux du relevé, dans l'ordre",
-      vu.noms.join("|") === eq.membres.map((m) => m.nom).join("|"),
-      { page: vu.noms, donnees: eq.membres.map((m) => m.nom) },
+      "le Conseil 4 vient avant le champion, un type par membre",
+      vu.titres.length === 5 &&
+        vu.titres.slice(0, 4).every((h, i) =>
+          h.startsWith("Conseil 4 · ") &&
+          h.toLowerCase().includes(eq.conseil4[i].type.replace("psy", "psy"))
+        ) &&
+        vu.titres[4].startsWith("Michael"),
+      vu.titres,
+    );
+    //  Les six DERNIÈRES cases sont celles de Michael.
+    const duChampion = vu.noms.slice(-6);
+    ok(
+      "l'équipe du champion est celle du relevé, dans l'ordre",
+      duChampion.join("|") === eq.membres.map((m) => m.nom).join("|"),
+      { page: duChampion, donnees: eq.membres.map((m) => m.nom) },
+    );
+    //  ── LE CONSEIL RESTE SOUS LE CHAMPION ──────────────────────────
+    //
+    //  C'est l'échelle de la Ligue : on monte. Un membre du Conseil au
+    //  niveau de Michael, ou au-dessus, voudrait dire qu'on peut
+    //  perdre après avoir gagné.
+    const duConseil = vu.tousLesNiveaux.slice(0, 24);
+    ok(
+      "les vingt-quatre pokémon du Conseil restent sous le champion",
+      duConseil.length === 24 && Math.max(...duConseil) < eq.niveau,
+      { plusFortDuConseil: Math.max(...duConseil), defi: eq.niveau },
+    );
+    ok(
+      "et ils montent d'un membre à l'autre",
+      eq.conseil4.every((m, i) =>
+        i === 0 ||
+        Math.max(...m.membres.map((x) => x.niveau)) >
+          Math.max(...eq.conseil4[i - 1].membres.map((x) => x.niveau))
+      ),
+      eq.conseil4.map((m) => [m.type, m.membres.map((x) => x.niveau)]),
     );
     //  LE PLUS FORT EST AU NIVEAU DU DÉFI : la règle des onze autres.
     ok(
       `le plus fort de l'équipe est au niveau ${eq.niveau}`,
-      Math.max(...vu.niveaux) === eq.niveau && eq.niveau === 80,
-      { niveaux: vu.niveaux, defi: eq.niveau },
+      Math.max(...vu.tousLesNiveaux) === eq.niveau && eq.niveau === 80,
+      { niveaux: vu.tousLesNiveaux, defi: eq.niveau },
     );
     //  ET LEURS ÉCARTS SONT CEUX DE SA CARTE, décalés de cinq : c'est
     //  ce qui distingue cette équipe des onze étagées.
     ok(
       "les écarts de la carte sont gardés, décalés de cinq",
-      vu.niveaux.join(",") === "80,80,75,77,77,76",
-      vu.niveaux,
+      vu.tousLesNiveaux.slice(-6).join(",") === "80,80,75,77,77,76",
+      vu.tousLesNiveaux.slice(-6),
     );
     ok(
       "la Ligue a son type conseillé, comme les onze autres",
       vu.faits.includes("Type conseillé"),
       vu.faits,
     );
-    ok("et la page cite la carte de dresseur de Michael", vu.carte === 1, vu.carte);
+    ok("et la page ne renvoie plus vers sa carte de dresseur", vu.carte === 0, vu.carte);
   }
   await p.close();
 }

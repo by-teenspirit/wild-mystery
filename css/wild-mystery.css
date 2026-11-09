@@ -30,6 +30,7 @@
      · css/22-faune.css
      · css/23-personnages.css
      · css/24-profil.css
+     · css/25-moderation.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -29406,5 +29407,186 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-profil-page__panneau .stats-field a:hover,
 #modernbb .wm-profil-page__panneau .stats-field a:focus-visible {
   text-decoration: underline;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   25 · LE PANNEAU DE MODÉRATION
+
+   « Quand je suis ici, les couleurs ne vont pas […] le design n'a pas
+   été fait sur cette page » — 9 novembre 2026, sur `/modcp?f=…`.
+
+   ── CE QU'ON VOYAIT, ET POURQUOI ──────────────────────────────────
+
+   Les lignes de la table sortaient en BLEU ARDOISE — la couleur par
+   défaut de ModernBB, un `#2a3340` qui n'est nulle part dans la
+   charte — et les titres de sujet par-dessus en `accent-terre`. Du
+   brun sur de l'ardoise : illisible, et la seule ligne claire de la
+   capture était celle que la souris survolait.
+
+   La raison tient en une balise. `02-socle.css` repeint bien les
+   zébrures de ModernBB, mais sur `li.row1` et `li.row2` : les listes
+   de sujets de l'index et d'un forum sont des LISTES. Le panneau de
+   modération, lui, sert une vraie `<table class="table1">` et ses
+   lignes sont des `<tr class="row1">`. Aucun de nos sélecteurs ne les
+   touchait, et la couleur d'origine restait.
+
+   ── POURQUOI UNE TABLE, ALORS QU'ON N'EN VEUT PAS ─────────────────
+
+   « Je veux pas de tableau, que du flexbox » vaut pour CE QU'ON
+   ÉCRIT. Ici on n'écrit rien : `modcp_body` est un gabarit de
+   Forumactif qu'on n'a pas modifié, et le relever pour le réécrire
+   en flexbox coûterait un gabarit de plus à maintenir pour une page
+   que seul le staff ouvre. On l'habille, et c'est tout.
+
+   ── CE QU'ON NE PEUT PAS VÉRIFIER D'ICI ───────────────────────────
+
+   La page demande une connexion de modérateur, et son adresse porte
+   un jeton de session. Je ne m'y connecte pas et je ne lis pas cette
+   adresse : la structure vient donc du gabarit amont
+   (`Etana/template`, `src/modernbb/modcp_body.tpl`, relevé le
+   9 novembre) et les couleurs d'une capture d'écran. **À regarder en
+   vrai après coup** — c'est la seule page de la charte qu'aucun
+   harnais ne monte.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la table, ses lignes, son en-tête ────────────────────────── */
+
+/*  `border-collapse` REMPLACE LE `cellspacing="1"` DU GABARIT. Cet
+    espacement d'un pixel laissait voir le fond du panneau entre les
+    cellules, ce qui dessinait une grille là où il faut un filet. */
+#modernbb .mcp-main table.table1 {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  L'EN-TÊTE PREND L'ACCENT, comme les en-têtes de liste du forum :
+    c'est la même fonction, et `texte-inverse` est le jeton fait pour
+    écrire dessus — il suit l'accent dans les deux thèmes, ce que du
+    crème écrit en dur ne ferait pas. */
+#modernbb .mcp-main table.table1 thead th {
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-16, 16px);
+  background: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+/*  LES TROIS ZÉBRURES PRENNENT LA MÊME SURFACE. C'est la décision de
+    `02-socle.css` pour les listes de sujets, reprise ici pour la même
+    raison : une ligne sur deux en gris foncé contre une ligne crème,
+    c'est un damier, pas une lecture. Le filet suffit à séparer. */
+#modernbb .mcp-main table.table1 tbody tr.row1,
+#modernbb .mcp-main table.table1 tbody tr.row2,
+#modernbb .mcp-main table.table1 tbody tr.row3 {
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .mcp-main table.table1 tbody tr + tr {
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+/*  La ligne survolée se détache d'un cran, pas d'une couleur : c'est
+    un repère de pointage, pas une information. */
+#modernbb .mcp-main table.table1 tbody tr:hover {
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .mcp-main table.table1 td {
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  vertical-align: middle;
+}
+
+/*  La colonne des icônes de dossier : l'image est posée en style en
+    ligne par le gabarit, on ne lui donne que sa place. */
+#modernbb .mcp-main table.table1 td.icon {
+  width: 44px;
+  padding-right: 0;
+}
+
+/*  ── PAS DE SOULIGNEMENT SOUS LES LIENS ───────────────────────────
+    (9 novembre)
+
+    C'est la règle du reste du forum : un lien se reconnaît à sa
+    couleur et à sa famille, et il se souligne AU SURVOL. Nulle part
+    ailleurs on ne le déclare, parce que la feuille de ModernBB pose
+    déjà `text-decoration: none` sur tous les `a` — et c'est
+    justement ce dont on ne veut plus dépendre ici : le jour où
+    Forumactif change sa feuille, cette page serait la première à
+    repartir en souligné sans que rien ne le dise.
+
+    LE SURVOL LE REMET, et ce n'est pas une décoration : sur une
+    table de six lignes, c'est lui qui dit laquelle on est en train
+    de viser, en plus du fond. */
+#modernbb .mcp-main a,
+#modernbb .mcp-main a.topictitle {
+  text-decoration: none;
+}
+
+#modernbb .mcp-main a:hover,
+#modernbb .mcp-main a.topictitle:hover {
+  text-decoration: underline;
+}
+
+/*  Les réponses et la case à cocher sont des chiffres et un contrôle,
+    pas du texte courant : au centre, et en chiffres tabulaires pour
+    que la colonne s'aligne. */
+#modernbb .mcp-main table.table1 td.posts {
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/*  LE TITRE DU SUJET EST DÉJÀ COLORÉ PAR `02-socle.css` — accent, et
+    souligné au survol. Il n'avait pas besoin d'être changé : ce qui
+    le rendait illisible était le fond, pas lui. On ne redéclare donc
+    rien ici, et c'est volontaire.
+
+    La DATE du dernier message, elle, n'a jamais eu de couleur sur
+    cette page : elle héritait du blanc de ModernBB et disparaissait
+    sur un fond clair. */
+#modernbb .mcp-main table.table1 td:nth-child(4) {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 2 · ce qui entoure la table ──────────────────────────────────── */
+
+/*  Le phrasé d'explication sous le titre de page, et les deux liens
+    « tout sélectionner / désélectionner » sous la table. */
+#modernbb p.linkmcp {
+  margin: 0 0 var(--wm-espace-24, 24px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .mcp-main .right-box {
+  margin: var(--wm-espace-12, 12px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-align: right;
+}
+
+/*  LA RANGÉE DE BOUTONS N'EST PAS UN CADRE. `fieldset` arrive avec la
+    bordure et le fond du navigateur ; les boutons eux-mêmes sont des
+    `.button2`, déjà habillés par `02-socle.css`. On ne pose ici que
+    la mise en place, et en flexbox : sept boutons sur une ligne
+    étroite doivent pouvoir passer à la ligne. */
+#modernbb .mcp-main fieldset.submit-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-24, 24px) 0 0;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  border: 0;
+  background: none;
 }
 
