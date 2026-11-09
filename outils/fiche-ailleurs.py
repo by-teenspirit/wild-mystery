@@ -362,20 +362,36 @@ def main() -> None:
     #  navigateur laisse sous une image en ligne : sans lui, un liseré
     #  de sable traîne entre la bannière et le cadre qui suit.
     e(
+        #  PAS DE MARGE SOUS LA BANNIÈRE : le bloc du titre porte son
+        #  propre rembourrage depuis qu'il n'a plus de carte, et les
+        #  deux s'additionneraient.
         f'<img src="{BANNIERE}" alt="" style="{st("width:100%",
             "max-width:100%", "height:auto", "border-radius:12px",
-            "display:block", "margin:0 0 16px")}">',
+            "display:block", "margin:0")}">',
     )
 
-    #  ── LE CADRE DE TÊTE : TITRE, SOUS-TITRE ────────────────────────
-    e(cadre())
+    #  ── LE TITRE ET SON SOUS-TITRE ──────────────────────────────────
+    #
+    #  SANS CADRE, demandé le 9 novembre : « le grand titre et le sous
+    #  titre, mets pas de fond ». Ils sont donc posés à même le sable,
+    #  et c'est le seul endroit de la fiche qui n'a pas de carte.
+    #
+    #  C'EST CE QUI LEUR DONNE LEUR RANG. Dans un cadre blanc comme
+    #  les autres, le nom du forum était un bloc parmi quatre ; nu, il
+    #  devient la tête de la fiche et les cartes deviennent son
+    #  contenu. Le rembourrage vertical remplace ce que faisait la
+    #  carte : sans lui, le titre collerait la bannière.
+    e(
+        f'<div style="{st(BOITE, "padding:18px 4px 22px",
+                          "text-align:center")}">',
+    )
     e(
         f'<p style="{st("margin:0", f"color:{ENCRE}", f"font-family:{TITRE}",
-                        "font-size:30px", "font-weight:600",
+                        "font-size:32px", "font-weight:600",
                         "line-height:1.15")}">{NOM}</p>',
     )
     e(
-        f'<p style="{st("margin:8px 0 0", f"color:{DOUX}", "font-size:13.5px",
+        f'<p style="{st("margin:10px 0 0", f"color:{DOUX}", "font-size:13.5px",
                         "line-height:1.5")}">{SOUS_TITRE}</p>',
     )
     e("</div>")
