@@ -365,6 +365,14 @@ const carte = await p.evaluate(() => {
     //  remplir la case : une photo large sortirait en bande.
     styleInline: av === null ? null : av.getAttribute("style"),
     avatar: r === null ? null : [Math.round(r.width), Math.round(r.height)],
+    //  La largeur utile de la carte : sa boîte moins son rembourrage.
+    carteUtile: (() => {
+      const st = getComputedStyle(c);
+      return Math.round(
+        c.getBoundingClientRect().width - parseFloat(st.paddingLeft) -
+          parseFloat(st.paddingRight),
+      );
+    })(),
     recadre: av === null ? null : getComputedStyle(av).objectFit,
     source: av === null ? null : [av.naturalWidth, av.naturalHeight],
     //  Le pseudo garde le `style="color:…"` que le panneau pose.
@@ -372,6 +380,16 @@ const carte = await p.evaluate(() => {
     couleur: c.querySelector(".wm-profil-page__nom .usr_grp_clr")
       ?.getAttribute("style") ?? null,
     rang: c.querySelector(".wm-profil-page__rang")?.textContent.trim() ?? null,
+    ...(() => {
+      const n = c.querySelector(".wm-profil-page__nom")?.getBoundingClientRect();
+      const r = c.querySelector(".wm-profil-page__rang")?.getBoundingClientRect();
+      if (n === undefined || r === undefined) return { rangSousLeNom: null };
+      return {
+        rangSousLeNom: r.top >= n.bottom - 1,
+        boiteNom: [Math.round(n.top), Math.round(n.bottom)],
+        boiteRang: [Math.round(r.top), Math.round(r.bottom)],
+      };
+    })(),
     chiffres: [...c.querySelectorAll(".wm-profil-page__chiffre")].map((l) => ({
       nombre: l.querySelector(".wm-profil-page__nombre").textContent.trim(),
       mot: l.querySelector(".wm-profil-page__mot").textContent.trim(),
@@ -386,10 +404,20 @@ const carte = await p.evaluate(() => {
 ok("la carte d'identité existe", carte !== null, carte);
 if (carte !== null) {
   ok("le style inline de l'avatar est retiré", carte.styleInline === null, carte.styleInline);
+  //  IL REMPLIT LA CARTE ET GARDE SON PORTRAIT : plus de mesure en
+  //  dur, c'est le rapport qui tient — la carte peut changer de
+  //  largeur sans qu'on y revienne.
   ok(
-    "l'avatar fait 200 × 320",
-    carte.avatar?.[0] === 200 && carte.avatar?.[1] === 320,
-    { boite: carte.avatar, source: carte.source },
+    "l'avatar remplit la largeur de sa carte",
+    carte.avatar !== null && carte.carteUtile !== null &&
+      Math.abs(carte.avatar[0] - carte.carteUtile) <= 1,
+    { avatar: carte.avatar, utile: carte.carteUtile },
+  );
+  ok(
+    "et il garde son portrait",
+    carte.avatar !== null && carte.avatar[1] > carte.avatar[0] &&
+      Math.abs(carte.avatar[1] / carte.avatar[0] - 320 / 200) < 0.02,
+    carte.avatar,
   );
   ok("l'avatar est recadré, pas déformé", carte.recadre === "cover", carte.recadre);
   ok("le nom est celui du membre", carte.nom === "Arceus", carte.nom);
@@ -400,6 +428,11 @@ if (carte !== null) {
   );
   //  « Rang: en découverte » devient « en découverte ».
   ok("le rang est sans son libellé", carte.rang === "en découverte", carte.rang);
+  ok(
+    "et il est SOUS le nom, pas à côté",
+    carte.rangSousLeNom === true,
+    { nom: carte.boiteNom, rang: carte.boiteRang },
+  );
   ok(
     "les trois chiffres sont là, avec leur mot",
     carte.chiffres.length === 3 &&
@@ -471,6 +504,42 @@ ok(
       (x[2] === "none" || parseFloat(x[2]) === 0)
     ),
     nus[0],
+  );
+}
+
+//  ── L'INFOBULLE TIENT SUR UNE LIGNE, SOUS SON BADGE ───────────────
+//
+//  Les deux défauts du 9 novembre : elle s'affichait « en deux fois »
+//  — son texte passait sur deux lignes parce que sa boîte était trop
+//  large — et « complètement décalée du badge », parce qu'elle était
+//  accrochée à la rangée. On mesure donc les deux : une seule ligne,
+//  et un chevauchement horizontal avec SON badge.
+{
+  const bulles = await p.evaluate(() =>
+    [...document.querySelectorAll(".wm-profil-page__badges .award")].map((a) => {
+      const b = a.querySelector(".award_tooltiptext");
+      const rb = b.getBoundingClientRect();
+      const ra = a.getBoundingClientRect();
+      const ligne = parseFloat(getComputedStyle(b).lineHeight) || 14;
+      const st = getComputedStyle(b);
+      const haut = rb.height - parseFloat(st.paddingTop) -
+        parseFloat(st.paddingBottom);
+      return {
+        //  Une seule ligne : la hauteur du texte ne dépasse pas une
+        //  interligne et demie.
+        uneLigne: haut <= ligne * 1.5,
+        //  Elle chevauche son badge en horizontal — donc elle le
+        //  désigne, au lieu de flotter ailleurs dans la rangée.
+        surSonBadge: rb.left < ra.right && rb.right > ra.left,
+        sousSonBadge: Math.round(rb.top) >= Math.round(ra.bottom),
+      };
+    })
+  );
+  ok("chaque infobulle tient sur une ligne", bulles.every((b) => b.uneLigne), bulles);
+  ok(
+    "chaque infobulle désigne SON badge",
+    bulles.every((b) => b.surSonBadge && b.sousSonBadge),
+    bulles,
   );
 }
 
@@ -584,9 +653,13 @@ for (const largeur of [1280, 1000, 390]) {
   //  L'AVATAR NE S'ÉCRASE JAMAIS. Dans un flex, une image rétrécit
   //  sous sa largeur déclarée dès que le texte à côté pousse : c'est
   //  le défaut qui ne se voit qu'à 1000 px.
+  //  À TOUTES LES LARGEURS, il reste un portrait et il ne devient pas
+  //  une tour : c'est `max-height` qui tient le second cas, et on ne
+  //  le voit qu'en fenêtre étroite, là où la carte prend toute la
+  //  page.
   ok(
-    `${largeur} px : l'avatar fait toujours 200 × 320`,
-    etat.avatar[0] === 200 && etat.avatar[1] === 320,
+    `${largeur} px : l'avatar reste un portrait, sans devenir une tour`,
+    etat.avatar[1] > etat.avatar[0] && etat.avatar[1] <= 420,
     etat.avatar,
   );
   if (largeur === 390) {
@@ -1022,8 +1095,11 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
             retrait: getComputedStyle(l.parentElement).paddingLeft,
           };
         });
+        const boite = b.getBoundingClientRect();
         return {
           legende: b.querySelector("legend").textContent.trim(),
+          gauche: Math.round(boite.left),
+          haut: Math.round(boite.top),
           //  LA LÉGENDE EST AU-DESSUS DE LA PREMIÈRE LIGNE, pas à
           //  cheval sur le bord : c'est le placement que le navigateur
           //  donne à `<legend>` et qu'il faut défaire.
@@ -1033,6 +1109,15 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
       });
     });
     ok("Statistiques : trois blocs", st.length === 3, st.map((b) => b.legende));
+    //  L'UN SOUS L'AUTRE, chacun sur toute la largeur : en colonnes,
+    //  le troisième commençait au milieu du second et laissait un
+    //  trou sous le premier.
+    ok(
+      "Statistiques : les trois sont empilés, pas en colonnes",
+      st.every((b, i) => i === 0 || b.gauche === st[0].gauche) &&
+        st.every((b, i) => i === 0 || b.haut > st[i - 1].haut),
+      st.map((b) => [b.legende, b.gauche, b.haut]),
+    );
     ok(
       "Statistiques : chaque légende est au-dessus de sa liste",
       st.every((b) => b.auDessus),

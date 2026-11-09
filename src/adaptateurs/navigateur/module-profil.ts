@@ -304,6 +304,27 @@ export function poserLeProfil(doc: Document): boolean {
       if (enfant.tagName === "H1") continue;
       panneau.appendChild(enfant);
     }
+
+    //  ── LES INTER-TITRES DEVIENNENT DE VRAIS TITRES ───────────────
+    //
+    //  Forumactif écrit ses sous-titres en `<div class="h3">` —
+    //  « Récompenses obtenues », « Amis de X ». Un `<div>` n'est pas
+    //  un titre : il ne paraît pas dans le plan de la page, et qui
+    //  navigue de titre en titre saute la section entière.
+    //
+    //  ILS DEVIENNENT DES `<h2>` ET PAS DES `<h4>`, comme demandé le
+    //  9 novembre. Le panneau porte déjà un `<h1>` — le nom de
+    //  l'onglet — et ce qui vient juste en dessous est un niveau 2.
+    //  Sauter à 4 laisserait deux crans vides dans le plan, ce qui
+    //  est exactement ce qu'un lecteur d'écran annonce de travers.
+    //  La TAILLE, elle, ne dépend pas du niveau : la feuille les
+    //  dessine petits.
+    for (const faux of Array.from(panneau.querySelectorAll(".h3"))) {
+      const vrai = doc.createElement("h2");
+      vrai.className = "wm-profil-page__sous-titre";
+      while (faux.firstChild !== null) vrai.appendChild(faux.firstChild);
+      faux.replaceWith(vrai);
+    }
   }
 
   //  ── LES ONGLETS ET LEUR PANNEAU FONT UNE COLONNE ────────────────

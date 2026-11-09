@@ -187,10 +187,24 @@
     `flex: 0 0 200px` et pas une largeur seule : dans un flex, une
     image rétrécit sous sa largeur déclarée dès que le texte à côté
     pousse — c'est le défaut qu'on ne voit qu'à 1000 px de large. */
+/*  ── L'AVATAR PREND TOUTE LA LARGEUR DE LA CARTE ──────────────────
+
+    « Quitte à ce qu'elle soit plus haute, pour pas avoir des marges
+    énormes à droite et à gauche » (9 novembre). Il faisait 200 px
+    dans une colonne qui en laisse 248 : deux marges de 24 de part et
+    d'autre, pour rien.
+
+    LE RAPPORT REMPLACE LES DEUX MESURES. `aspect-ratio: 200 / 320`,
+    c'est le portrait que le panneau sert déjà, gardé quelle que soit
+    la largeur de la carte — sans lui, une image large redeviendrait
+    une bande. Et `max-height` l'empêche de devenir une tour sur une
+    fenêtre étroite, où la carte prend toute la page. */
 #modernbb .wm-profil-page__avatar {
   box-sizing: border-box;
-  width: 200px;
-  height: 320px;
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  aspect-ratio: 200 / 320;
   /*  `flex: none` ET PLUS `0 0 200px` : depuis que la carte est une
       colonne, la base d'un flex s'applique a la HAUTEUR. L'avatar
       sortait en 200 x 200 — carre, et rogne de 120 px. */
@@ -219,12 +233,14 @@
   gap: var(--wm-espace-14, 14px);
 }
 
+/*  LE RANG VA SOUS LE NOM (9 novembre). À côté, il se lisait comme
+    une suite du pseudo ; dessous, il se lit comme ce qu'il est — et
+    un nom long ne le pousse plus seul à la ligne suivante. */
 #modernbb .wm-profil-page__tete {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-6, 6px);
 }
 
 /*  LE NOM GARDE LA COULEUR DE SON GROUPE. Forumactif la pose en style
@@ -414,8 +430,22 @@
   padding-bottom: var(--wm-espace-12, 12px);
 }
 
+/*  ── TROIS CRANS, PAS DEUX ────────────────────────────────────────
+
+    Le titre de l'onglet et le sous-titre de section se suivaient à
+    19 et 16 px : trois pixels d'écart, et « Récompenses » puis
+    « Récompenses obtenues » se lisaient comme deux titres de même
+    rang qui se répètent. Le premier passe à 22 — l'écart se voit,
+    et le second se lit comme ce qu'il est, une section dedans. */
+#modernbb .wm-profil-page__panneau > h1 {
+  /*  `titre-page` et pas un 22 inventé : la charte n'a pas de cran
+      entre 19 et 25, et un nombre écrit à la main ne suivrait pas le
+      thème — `jetons.css` monte les titres d'un cran en sombre. */
+  font-size: var(--wm-taille-titre-page, 25px);
+}
+
 #modernbb .wm-profil-page__panneau > h1,
-#modernbb .wm-profil-page__panneau .h3 {
+#modernbb .wm-profil-page__panneau .wm-profil-page__sous-titre {
   /*  ── `margin: 0`, ET PAS LA LIGNE RETIRÉE ───────────────────────
 
       Les 16 px du bas s'en vont le 9 novembre. Mais on ne supprime
@@ -585,28 +615,35 @@
 /*  ELLE S'OUVRE VERS LE BAS. Au-dessus, elle se posait sur la rangée
     de chiffres juste au-dessus des badges et la rendait illisible le
     temps du survol. En dessous, elle n'a que du vide sous elle. */
-/*  ── ELLE EST ACCROCHEE A LA RANGEE, PAS AU BADGE ─────────────────
+/*  ── ELLE RESTE ACCROCHÉE À SON BADGE ─────────────────────────────
 
-    Centree sous SON badge, l'infobulle du dernier debordait de la
-    carte de 5 px — mesure a 1000 px de large, ou la colonne de
-    droite touche presque le bord. Accrochee a la rangee entiere et
-    etiree d'un bord a l'autre, elle ne peut plus sortir : une seule
-    s'ouvre a la fois, donc il n'y a pas d'ambiguite sur ce qu'elle
-    nomme. */
-#modernbb .wm-profil-page__badges {
-  position: relative;
-}
+    J'avais essayé de l'accrocher à la RANGÉE entière, pour qu'elle ne
+    puisse pas déborder de la carte. Deux défauts, les deux signalés
+    le 9 novembre : « l'infobulle s'affiche en deux fois et est
+    complètement décalée du badge ».
 
-#modernbb .wm-profil-page__badges .award {
-  position: static;
-}
+    Les deux venaient de la même chose. La règle de rangée posait
+    `right: 0` et `transform: none`, mais pas `left` — et la règle
+    générale, juste en dessous et de même poids, gardait son
+    `left: 50%`. La boîte s'étirait donc de la moitié de la rangée
+    jusqu'à son bord droit : décalée, et assez large pour que son
+    texte passe sur deux lignes.
 
-#modernbb .wm-profil-page__badges .award_tooltiptext {
-  right: 0;
+    On revient à l'ancrage sur le badge, qui est le seul qui dise
+    quelque chose, et on règle le débordement autrement : LA PREMIÈRE
+    ET LA DERNIÈRE s'alignent sur leur bord au lieu de se centrer.
+    C'est là, et seulement là, qu'une bulle centrée sortait de la
+    carte. */
+#modernbb .wm-profil-page__badges > li:first-child .award_tooltiptext {
+  right: auto;
   left: 0;
   transform: none;
-  text-align: center;
-  white-space: normal;
+}
+
+#modernbb .wm-profil-page__badges > li:last-child .award_tooltiptext {
+  right: 0;
+  left: auto;
+  transform: none;
 }
 
 #modernbb .wm-profil-page .award_tooltiptext {
@@ -879,6 +916,38 @@
   line-height: var(--wm-interligne-legende, 1.45);
 }
 
+/*  ── UN SOUS-TITRE DE SECTION ─────────────────────────────────────
+
+    « Récompenses obtenues », « Amis de X ». Posé par le module en
+    `<h2>` — le panneau a déjà son `<h1>`, et ce qui suit est un
+    niveau 2, quelle que soit sa taille à l'écran.
+
+    PAS DE CAPITALES (9 novembre) : c'est un titre, pas une étiquette.
+    Il se distingue par sa police et sa taille, comme les autres
+    titres du site, et pas en criant. */
+#modernbb .wm-profil-page__sous-titre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  /*  Il respire quand il arrive APRÈS quelque chose — un second
+      bloc de récompenses, la liste des amis. Collé au titre de
+      l'onglet, il n'en a pas besoin. */
+}
+
+#modernbb .wm-profil-page__panneau > * + * > .wm-profil-page__sous-titre,
+#modernbb .wm-profil-page__sous-titre + * .wm-profil-page__sous-titre {
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+#modernbb .wm-profil-page__sous-titre {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: normal;
+  line-height: var(--wm-interligne-section, 1.2);
+  text-transform: none;
+}
+
 /*  ── LES RÉCOMPENSES EN GRAND (`/uNawards`) ───────────────────────
 
     La page complète les range en rangées `.award_row` : l'image, le
@@ -943,6 +1012,30 @@
   font-size: var(--wm-taille-legende, 10.5px);
   font-style: normal;
   line-height: var(--wm-interligne-legende, 1.45);
+}
+
+/*  ── NI OMBRE, NI CONTOUR, DANS TOUT L'ONGLET ────────────────────
+
+    « Enlève le box shadow », « enlève ici aussi le contour bleu »
+    (9 novembre). ModernBB pose une ombre portée sur ses modules et
+    ses récompenses, et le navigateur son anneau de focus bleu.
+
+    On balaie les deux sur TOUT le bloc, et pas récompense par
+    récompense : le balisage de Forumactif emboîte quatre `<div>` par
+    ligne — `.module`, `.awards_block`, `.award_row`, `.award_img` —
+    et une ombre peut être posée sur n'importe lequel. Les nommer un
+    par un, c'est en oublier un au prochain changement. */
+#modernbb .wm-profil-page__panneau .module,
+#modernbb .wm-profil-page__panneau .module * {
+  box-shadow: none;
+  outline: 0;
+}
+
+/*  Le focus clavier reste visible, et il n'est pas bleu. */
+#modernbb .wm-profil-page__panneau .module a:focus-visible,
+#modernbb .wm-profil-page__panneau .module [tabindex]:focus-visible {
+  outline: 2px solid var(--wm-accent-terre, #8b4725);
+  outline-offset: 2px;
 }
 
 /*  DANS CET ONGLET, L'INFOBULLE N'A PAS LIEU D'ÊTRE : le nom de la
@@ -1114,18 +1207,19 @@
   break-inside: avoid;
 }
 
-/*  LES TROIS BLOCS EN COLONNES, par la place et pas par un nombre :
-    le panneau n'a pas la même largeur selon que la carte de droite
-    est là, et selon la fenêtre. */
-#modernbb .wm-profil-page__panneau:has(.stats-field) {
-  column-gap: var(--wm-espace-16, 16px);
-  columns: 300px 2;
-}
+/*  ── LES TROIS BLOCS L'UN SOUS L'AUTRE ────────────────────────────
 
-/*  Le titre du panneau reprend toute la largeur : il n'a pas à se
-    ranger dans la première colonne. */
-#modernbb .wm-profil-page__panneau:has(.stats-field) > .wm-profil-page__titre {
-  column-span: all;
+    Je les avais mis en colonnes. « Affiche les stats les unes sous
+    les autres finalement, parce que ça rend pas super comme ça, ça
+    fait vide et c'est décalé » (9 novembre).
+
+    Elle a raison, et la raison est dans le contenu : les trois blocs
+    n'ont pas la même hauteur, et un flux en colonnes les coupe où il
+    veut — le troisième commençait au milieu du second, en laissant
+    un trou sous le premier. Des colonnes ne valent que pour un
+    contenu qui se coupe n'importe où ; trois sections nommées, non. */
+#modernbb .wm-profil-page__panneau .stats-field {
+  width: 100%;
 }
 
 #modernbb .wm-profil-page__panneau .stats-field + .stats-field {

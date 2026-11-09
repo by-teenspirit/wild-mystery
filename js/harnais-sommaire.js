@@ -493,6 +493,12 @@
         if (enfant.tagName === "H1") continue;
         panneau.appendChild(enfant);
       }
+      for (const faux of Array.from(panneau.querySelectorAll(".h3"))) {
+        const vrai = doc.createElement("h2");
+        vrai.className = "wm-profil-page__sous-titre";
+        while (faux.firstChild !== null) vrai.appendChild(faux.firstChild);
+        faux.replaceWith(vrai);
+      }
     }
     principal.appendChild(panneau);
     page.appendChild(principal);
@@ -501,7 +507,7 @@
       jeu.className = "wm-profil-page__jeu";
       jeu.dataset.wmMembre = String(identifiant);
       jeu.hidden = true;
-      page.appendChild(jeu);
+      principal.appendChild(jeu);
     }
     gauche.replaceWith(page);
     return true;
