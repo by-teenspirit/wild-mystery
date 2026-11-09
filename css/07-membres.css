@@ -1179,9 +1179,13 @@
     `minmax(220px, 1fr)` : quatre cartes sur une page de 1 200, deux
     sur une tablette, une sur un téléphone — et c'est la grille qui
     décide, pas un point de rupture à tenir d'accord. */
+/*  NI REMBOURRAGE NI CADRE (9 novembre). Le bloc est déjà posé sous
+    l'en-tête de la liste des membres, qui porte le sien : le cadre
+    doublait le filet du dessus et le rembourrage décalait les cartes
+    de vingt pixels par rapport à tout ce qui les entoure. Le
+    `border-top: 0` reste écrit — sans bordure, il ne peint rien, mais
+    il dit que ce bloc se colle à ce qui le précède. */
 #modernbb .wm-groupes {
-  padding: var(--wm-espace-20, 20px);
-  border: 1px solid var(--wm-bord-fin, #eadacd);
   border-top: 0;
   border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);

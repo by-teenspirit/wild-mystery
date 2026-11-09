@@ -1947,6 +1947,23 @@
   margin-inline: auto;
 }
 
+/*  ── SANS LE FILET SOUS LE TITRE ──────────────────────────────────
+
+    « Enlève le trait bleu que tu as rajouté » (9 novembre). Il n'a pas
+    été rajouté ce jour-là : `.wm-annonce__titre::after` porte ce filet
+    d'accent depuis que le composant existe. Mais il n'est pas voulu
+    partout, et les fiches « défier le champion » en sont l'exemple —
+    un titre, un sous-titre et deux cadres faisaient déjà trois traits
+    horizontaux avant le premier mot.
+
+    UN MODIFICATEUR PLUTÔT QU'UNE SUPPRESSION : les treize modèles
+    d'annonce le portent, et le retirer pour tout le monde changerait
+    des messages déjà collés dans des sujets. Un mot à ajouter, un mot
+    à retirer. */
+#modernbb .wm-annonce--sans-filet .wm-annonce__titre::after {
+  content: none;
+}
+
 /*  ── FOND SABLE ───────────────────────────────────────────────────
 
     `fond-douce` est le sable de la charte, et il a sa valeur dans les
@@ -1956,6 +1973,16 @@
     LES BLOCS INTÉRIEURS REPASSENT EN SURFACE : sur un fond sable, un
     bloc sable ne se voit pas. C'est pour ça que les deux vont
     ensemble. */
+/*  LE TEXTE EST JUSTIFIÉ, et il est écrit ici plutôt que laissé à
+    l'héritage : « le petit texte de présentation, tu le justify, ne le
+    centre pas » (9 novembre). Un message de forum hérite de ce que
+    l'éditeur a laissé autour de lui — un vieux `<center>` suffit à
+    centrer un paragraphe — et une annonce ne doit pas dépendre de ça.
+    Déclaré, il gagne. */
+#modernbb .wm-annonce__texte {
+  text-align: justify;
+}
+
 #modernbb .wm-annonce--sable {
   background: var(--wm-fond-douce, #f3e1d2);
 }

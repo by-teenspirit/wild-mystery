@@ -9967,9 +9967,13 @@ html:has(body.wm-sombre) {
     `minmax(220px, 1fr)` : quatre cartes sur une page de 1 200, deux
     sur une tablette, une sur un téléphone — et c'est la grille qui
     décide, pas un point de rupture à tenir d'accord. */
+/*  NI REMBOURRAGE NI CADRE (9 novembre). Le bloc est déjà posé sous
+    l'en-tête de la liste des membres, qui porte le sien : le cadre
+    doublait le filet du dessus et le rembourrage décalait les cartes
+    de vingt pixels par rapport à tout ce qui les entoure. Le
+    `border-top: 0` reste écrit — sans bordure, il ne peint rien, mais
+    il dit que ce bloc se colle à ce qui le précède. */
 #modernbb .wm-groupes {
-  padding: var(--wm-espace-20, 20px);
-  border: 1px solid var(--wm-bord-fin, #eadacd);
   border-top: 0;
   border-radius: 0 0 var(--wm-rayon-lg, 10px) var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -11899,11 +11903,31 @@ body:has(#modernbb .wm-carnet) {
 
     Sans ça, chaque case prenait la hauteur de son sprite : les six
     cartes d'une équipe avaient six hauteurs, et la rangée ondulait. */
+/*  ── ON NE GROSSIT JAMAIS UN SPRITE ───────────────────────────────
+
+    « Certains sont pixellisés parce que tu les agrandis, tu ne gardes
+    pas leur taille initiale » (9 novembre).
+
+    `contain` REMPLIT LA BOÎTE : il met l'image à l'échelle pour
+    qu'elle y tienne, vers le haut comme vers le bas. Les sprites
+    d'Ultra-Soleil font pour la plupart 64 px de côté ; dans une boîte
+    de 76, ils étaient grossis d'un cinquième — et un sprite grossi
+    est un sprite flou, parce qu'il n'a pas plus de pixels à montrer.
+
+    `scale-down` est exactement « le plus petit entre `none` et
+    `contain` » : taille réelle quand l'image est petite, réduction
+    quand elle est trop grande. La boîte garde sa hauteur, donc les
+    cases restent alignées ; c'est l'image qui cesse de s'étirer. */
 #modernbb .wm-equipe__sprite {
   width: 100%;
   height: 76px;
-  object-fit: contain;
+  object-fit: scale-down;
   object-position: bottom;
+  /*  MÊME TRAITEMENT QUE LA CARTE DE DRESSEUR, qui a réglé ce défaut
+      le premier — « pourquoi certains comme Couaneton sont plus
+      gros ? ». Un sprite est du dessin au pixel : lissé, il devient
+      flou ; `pixelated` garde ses bords nets quand il est réduit. */
+  image-rendering: pixelated;
 }
 
 /*  LA BOÎTE VIDE GARDE EXACTEMENT LA MÊME HAUTEUR. Sans elle, la case
@@ -17098,6 +17122,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin-inline: auto;
 }
 
+/*  ── SANS LE FILET SOUS LE TITRE ──────────────────────────────────
+
+    « Enlève le trait bleu que tu as rajouté » (9 novembre). Il n'a pas
+    été rajouté ce jour-là : `.wm-annonce__titre::after` porte ce filet
+    d'accent depuis que le composant existe. Mais il n'est pas voulu
+    partout, et les fiches « défier le champion » en sont l'exemple —
+    un titre, un sous-titre et deux cadres faisaient déjà trois traits
+    horizontaux avant le premier mot.
+
+    UN MODIFICATEUR PLUTÔT QU'UNE SUPPRESSION : les treize modèles
+    d'annonce le portent, et le retirer pour tout le monde changerait
+    des messages déjà collés dans des sujets. Un mot à ajouter, un mot
+    à retirer. */
+#modernbb .wm-annonce--sans-filet .wm-annonce__titre::after {
+  content: none;
+}
+
 /*  ── FOND SABLE ───────────────────────────────────────────────────
 
     `fond-douce` est le sable de la charte, et il a sa valeur dans les
@@ -17107,6 +17148,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     LES BLOCS INTÉRIEURS REPASSENT EN SURFACE : sur un fond sable, un
     bloc sable ne se voit pas. C'est pour ça que les deux vont
     ensemble. */
+/*  LE TEXTE EST JUSTIFIÉ, et il est écrit ici plutôt que laissé à
+    l'héritage : « le petit texte de présentation, tu le justify, ne le
+    centre pas » (9 novembre). Un message de forum hérite de ce que
+    l'éditeur a laissé autour de lui — un vieux `<center>` suffit à
+    centrer un paragraphe — et une annonce ne doit pas dépendre de ça.
+    Déclaré, il gagne. */
+#modernbb .wm-annonce__texte {
+  text-align: justify;
+}
+
 #modernbb .wm-annonce--sable {
   background: var(--wm-fond-douce, #f3e1d2);
 }

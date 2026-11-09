@@ -338,10 +338,35 @@ def deriver(dossier: pathlib.Path) -> dict[str, object]:
                 ],
             })
 
+        #  ── LES DEUX LISTES DE LA TABLE DES TYPES ──────────────────
+        #
+        #  Demandées le 9 novembre : « un petit cadre pour afficher le
+        #  type super efficace contre le feu, et un autre petit cadre
+        #  en face pour les types qui ne sont pas efficaces ».
+        #
+        #  ELLES PORTENT SUR LE TYPE DU DÉFI, pas sur son équipe. Le
+        #  « type conseillé » juste au-dessus est une moyenne sur les
+        #  six membres, qui peuvent être doubles ; ces deux-ci sont la
+        #  table des types, nue, telle qu'un joueur la connaît.
+        #
+        #  SEUIL À 2 ET À 0,5 : ce sont les deux seules valeurs que la
+        #  table produit en simple type, avec 1 et 0. Les immunités
+        #  tombent donc dans « peu efficaces », ce qui est vrai et plus
+        #  court à dire que « inefficaces ou immunisés ».
+        contre = defi.get("type")
+        table = {}
+        if contre is not None:
+            fort = sorted(a for a in {x for x, _ in efficacite}
+                          if efficacite.get((a, contre), 1.0) >= 2)
+            faible = sorted(a for a in {x for x, _ in efficacite}
+                            if efficacite.get((a, contre), 1.0) <= 0.5)
+            table = {"superEfficaces": fort, "peuEfficaces": faible}
+
         equipes[slug] = {
             "message": bloc["message"],
             "niveau": defi["niveau"],
             "conseil": conseil_contre(membres, efficacite),
+            **({"table": table} if table else {}),
             **({"conseil4": conseil4} if conseil4 else {}),
             "membres": membres,
         }

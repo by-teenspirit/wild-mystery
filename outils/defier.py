@@ -122,6 +122,12 @@ def e(t):
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
+def pastille(cle):
+    """Une pastille de type, nom écrit — la même que sur une case."""
+    return (f'<span class="wm-type wm-type--{e(cle)}" data-wm-type="{e(cle)}">'
+            f'{e(en_titre(cle))}</span>')
+
+
 def case(m):
     """Une case d'équipe AVEC son infobulle, sur une seule ligne.
 
@@ -247,7 +253,8 @@ def main():
         else:
             w('     SUJET INCONNU — ajoute son adresse dans `defier` de')
             w('     data/arenes.json et relance `deno task defier`. -->')
-        w('<div class="wm-annonce wm-annonce--centre">')
+        w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable'
+          ' wm-annonce--sans-filet">')
         w(f'  <p class="wm-annonce__soustitre">{e(PALIERS[a["palier"]])} · '
           f'niveau {a["niveau"]}</p>')
         w(f'  <h2 class="wm-annonce__titre">Défier le champion '
@@ -257,7 +264,28 @@ def main():
             type=en_titre(a["type"]),
             conseil=" ou ".join(en_titre(t) for t in eq["conseil"]["types"]),
         )) + "</p>")
-        w('  <div class="wm-annonce__separateur"></div>')
+        #  ── LES DEUX CADRES, EN FACE À FACE ──────────────────────
+        #
+        #  « Un petit cadre pour afficher le type super efficace contre
+        #  le feu, et un autre petit cadre en face pour les types qui
+        #  ne sont pas efficaces » (9 novembre).
+        #
+        #  LES TYPES SONT DES PASTILLES, donc écrits en toutes lettres :
+        #  dix-huit teintes dont plusieurs se ressemblent, et un joueur
+        #  qui ne distingue pas le violet du psy de celui du poison doit
+        #  pouvoir lire la réponse.
+        table = eq.get("table")
+        if table:
+            w('  <div class="wm-annonce__blocs">')
+            for titre, cle in (
+                ("Super efficace contre lui", "superEfficaces"),
+                ("Peu efficace contre lui", "peuEfficaces"),
+            ):
+                w('    <div class="wm-annonce__bloc">')
+                w(f'      <p class="wm-annonce__bloc-titre">{e(titre)}</p>')
+                w("      " + "".join(pastille(ty) for ty in table[cle]))
+                w('    </div>')
+            w('  </div>')
         w('  <p class="wm-annonce__soustitre">L\'équipe du champion</p>')
         equipe(w, eq["membres"], couverture)
         w("</div>")
@@ -270,7 +298,8 @@ def main():
         w('<!-- ░░░ LA LIGUE · LE CONSEIL 4 ET LE CHAMPION ░░░')
         w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
         w('     — le deuxième message, celui qui porte les équipes. -->')
-        w('<div class="wm-annonce wm-annonce--centre">')
+        w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable'
+          ' wm-annonce--sans-filet">')
         w(f'  <p class="wm-annonce__soustitre">{e(PALIERS[3])} · '
           f'niveau {lig["niveau"]}</p>')
         #  « au Mont Bataille » et pas « de Mont Bataille » : le nom
@@ -283,13 +312,11 @@ def main():
         )) + "</p>")
         for membre4 in eq.get("conseil4", []):
             niveaux = [m["niveau"] for m in membre4["membres"]]
-            w('  <div class="wm-annonce__separateur"></div>')
             w('  <p class="wm-annonce__soustitre">Conseil 4 · '
               f'{e(en_titre(membre4["type"]))} — niveaux '
               f'{min(niveaux)} à {max(niveaux)}</p>')
             equipe(w, membre4["membres"], couverture)
         niveaux = [m["niveau"] for m in eq["membres"]]
-        w('  <div class="wm-annonce__separateur"></div>')
         w(f'  <p class="wm-annonce__soustitre">{e(lig["tenuePar"])}, champion de '
           f'Rhode — niveaux {min(niveaux)} à {max(niveaux)}</p>')
         equipe(w, eq["membres"], couverture)
@@ -311,7 +338,8 @@ def main():
     w(f'     À COLLER DANS {FORUM}/t100-presentation-de-la-ligue')
     w('     — le troisième message, AU-DESSUS de sa boîte « Code: »,')
     w('     qui reste telle quelle. -->')
-    w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable">')
+    w('<div class="wm-annonce wm-annonce--centre wm-annonce--sable'
+      ' wm-annonce--sans-filet">')
     w('  <p class="wm-annonce__soustitre">En avant pour le combat</p>')
     w('  <h2 class="wm-annonce__titre">S\'inscrire à la Ligue Finale</h2>')
     for para in (
@@ -330,7 +358,6 @@ def main():
         "et toi.",
     ):
         w(f'  <p class="wm-annonce__texte">{e(para)}</p>')
-    w('  <div class="wm-annonce__separateur"></div>')
     w('  <p class="wm-annonce__texte">Les pokémon de la Ligue sont listés '
       'dans le sujet de présentation. Et maintenant, c\'est à toi de jouer, '
       'jeune dresseur !</p>')

@@ -465,6 +465,41 @@ const nav = await chromium.launch(
     lisibilite,
   );
 
+  //  ── AUCUN SPRITE N'EST GROSSI ─────────────────────────────────
+  //
+  //  Un sprite affiché plus grand que sa taille réelle est flou : il
+  //  n'a pas plus de pixels à montrer. Le harnais de la faune mesure
+  //  déjà ça sur la grille des zones ; les cases d'équipe ne l'étaient
+  //  pas, et `object-fit: contain` les grossissait d'un cinquième.
+  //  ON MESURE LA RÈGLE, PAS LA BOÎTE — et c'est une leçon payée en
+  //  écrivant ce contrôle. Avec `object-fit`, la boîte de l'`<img>`
+  //  garde la taille que la feuille lui donne ; c'est l'image PEINTE
+  //  qui rétrécit dedans, et aucune API ne la mesure. Comparer la
+  //  boîte à la taille naturelle accusait donc une règle correcte.
+  //
+  //  Deux valeurs d'`object-fit` ne grossissent jamais : `scale-down`
+  //  (le plus petit entre `none` et `contain`) et `none` (taille
+  //  réelle). Les trois autres — `contain`, `cover`, `fill` —
+  //  remplissent la boîte, donc grossissent dès qu'elle est plus
+  //  grande que l'image. C'est cela qu'on interdit.
+  const agrandis = await p.evaluate(() =>
+    [...document.querySelectorAll(".wm-equipe__sprite")]
+      .filter((i) => i.naturalWidth > 0)
+      .map((i) => {
+        const r = i.getBoundingClientRect();
+        const fit = getComputedStyle(i).objectFit;
+        const tientSansGrossir = fit === "scale-down" || fit === "none" ||
+          (r.width <= i.naturalWidth + 0.5 && r.height <= i.naturalHeight + 0.5);
+        return { n: `${i.naturalWidth}×${i.naturalHeight}`, fit, tientSansGrossir };
+      })
+      .filter((x) => !x.tientSansGrossir)
+  );
+  ok(
+    "aucun sprite d'équipe n'est affiché plus grand que nature",
+    agrandis.length === 0,
+    agrandis.slice(0, 4),
+  );
+
   const debord = await p.evaluate(() => ({
     page: document.documentElement.scrollWidth > window.innerWidth + 1,
     largeur: document.documentElement.scrollWidth,

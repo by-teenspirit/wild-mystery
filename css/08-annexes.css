@@ -1749,11 +1749,31 @@ body:has(#modernbb .wm-carnet) {
 
     Sans ça, chaque case prenait la hauteur de son sprite : les six
     cartes d'une équipe avaient six hauteurs, et la rangée ondulait. */
+/*  ── ON NE GROSSIT JAMAIS UN SPRITE ───────────────────────────────
+
+    « Certains sont pixellisés parce que tu les agrandis, tu ne gardes
+    pas leur taille initiale » (9 novembre).
+
+    `contain` REMPLIT LA BOÎTE : il met l'image à l'échelle pour
+    qu'elle y tienne, vers le haut comme vers le bas. Les sprites
+    d'Ultra-Soleil font pour la plupart 64 px de côté ; dans une boîte
+    de 76, ils étaient grossis d'un cinquième — et un sprite grossi
+    est un sprite flou, parce qu'il n'a pas plus de pixels à montrer.
+
+    `scale-down` est exactement « le plus petit entre `none` et
+    `contain` » : taille réelle quand l'image est petite, réduction
+    quand elle est trop grande. La boîte garde sa hauteur, donc les
+    cases restent alignées ; c'est l'image qui cesse de s'étirer. */
 #modernbb .wm-equipe__sprite {
   width: 100%;
   height: 76px;
-  object-fit: contain;
+  object-fit: scale-down;
   object-position: bottom;
+  /*  MÊME TRAITEMENT QUE LA CARTE DE DRESSEUR, qui a réglé ce défaut
+      le premier — « pourquoi certains comme Couaneton sont plus
+      gros ? ». Un sprite est du dessin au pixel : lissé, il devient
+      flou ; `pixelated` garde ses bords nets quand il est réduit. */
+  image-rendering: pixelated;
 }
 
 /*  LA BOÎTE VIDE GARDE EXACTEMENT LA MÊME HAUTEUR. Sans elle, la case
