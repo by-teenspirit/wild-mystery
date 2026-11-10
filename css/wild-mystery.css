@@ -17090,6 +17090,32 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     balisage comme à l'œil : c'est lui qui dit de quoi on parle —
     « Mise à jour », « Événement » — et le titre qui dit quoi. L'ordre
     inverse obligerait à lire le titre deux fois. */
+/*  ── UNE ÉTIQUETTE APPARTIENT À CE QU'ELLE ANNONCE ────────────────
+
+    « Revoir les espacements entre eux, des fois on sent pas que le
+    titre va avec le bloc » — 10 novembre 2026.
+
+    C'est la loi de proximité, et elle se mesure : l'écart SOUS une
+    étiquette doit être nettement plus petit que l'écart AU-DESSUS,
+    sinon l'œil ne sait pas à qui elle appartient. Relevé avant
+    correction, en écart d'encre à encre :
+
+      « Ce qu'on demande »   dessus 28,9  dessous 21,5  →  1,34
+      « Quatre colosseums »  dessus  7,5  dessous 17,5  →  0,43
+
+    Le second était INVERSÉ : le titre collait à la liste du dessus et
+    flottait au-dessus de la sienne.
+
+    POURQUOI C'ÉTAIT CASSÉ. La marge haute était posée par une liste
+    de voisins — `__blocs + __soustitre`, `__bloc + …`, `__texte + …`.
+    Un `ul.wm-postes` n'y était pas, donc il ne donnait rien. Une
+    règle qui ÉNUMÈRE ses cas oublie toujours le suivant.
+
+    Elle est maintenant portée par l'étiquette elle-même, et annulée
+    au premier enfant — le seul cas où il n'y a rien au-dessus. Ce qui
+    SUIT une étiquette ne pose plus sa propre marge haute : c'est la
+    règle `+ *` juste en dessous, et elle dit la chose entière plutôt
+    qu'une liste de voisins. */
 #modernbb .wm-annonce__soustitre {
   display: block;
   margin-bottom: var(--wm-espace-6, 6px);
@@ -17352,19 +17378,25 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     `__blocs` : celle-là tomberait aussi quand les cadres finissent
     l'annonce, et ajouterait vingt pixels de vide au bas de la carte.
     `+` ne pose l'écart que là où il manque. */
-/*  `__texte` EST DANS LA LISTE DEPUIS LE 10 NOVEMBRE. Sur le premier
-    message des Champions, « CE QU'ON DEMANDE » se collait au dernier
-    mot du paragraphe d'introduction : un sous-titre n'a qu'une marge
-    BASSE, six pixels pour tenir à ce qu'il annonce, et il compte sur
-    ce qui le précède pour l'écart du haut. Les cadres le donnaient,
-    un paragraphe non. */
-#modernbb .postbody .content .wm-annonce__blocs + .wm-annonce__soustitre,
-#modernbb .postbody .content .wm-annonce__bloc + .wm-annonce__soustitre,
-#modernbb .postbody .content .wm-annonce__texte + .wm-annonce__soustitre,
-#modernbb .wm-annonce .wm-annonce__blocs + .wm-annonce__soustitre,
-#modernbb .wm-annonce .wm-annonce__bloc + .wm-annonce__soustitre,
-#modernbb .wm-annonce .wm-annonce__texte + .wm-annonce__soustitre {
-  margin-top: var(--wm-espace-24, 24px);
+/*  AU SOMMET D'UNE CARTE, RIEN AU-DESSUS : pas de marge à poser. */
+#modernbb .postbody .content .wm-annonce__soustitre:first-child,
+#modernbb .wm-annonce .wm-annonce__soustitre:first-child {
+  margin-top: 0;
+}
+
+/*  ET CE QUI SUIT UNE ÉTIQUETTE N'AJOUTE RIEN. `__blocs` porte vingt
+    pixels de marge haute, `.wm-postes` seize, `.wm-lexique` vingt :
+    chacun les ajoutait aux six de l'étiquette et l'en détachait. Le
+    `+ *` dit la règle entière — « rien ne s'écarte de son étiquette » —
+    au lieu d'énumérer les voisins connus, ce qui est précisément
+    l'erreur qu'on vient de réparer.
+
+    DEUX CLASSES DANS LE SÉLECTEUR, et c'est nécessaire : `.wm-lexique`
+    est déclaré dans `23-personnages.css`, donc APRÈS celui-ci. À
+    spécificité égale, c'est lui qui gagnerait. */
+#modernbb .postbody .content .wm-annonce__soustitre + *,
+#modernbb .wm-annonce .wm-annonce__soustitre + * {
+  margin-top: 0;
 }
 
 /*  ── PAS DE JUSTIFICATION DANS UN CADRE ───────────────────────────
@@ -17415,8 +17447,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin: var(--wm-espace-16, 16px) 0 0;
 }
 
+/*  LA MARGE HAUTE EST ICI, ET PAS SUR LA RÈGLE DE BASE — troisième
+    fois que ce piège se referme. Un sous-titre est un `<p>`, et
+    `05-sujet.css` écrit `#modernbb .postbody .content p { margin: 0 0
+    16px }` : un identifiant, DEUX classes et UN TYPE. La règle de
+    composant n'en a qu'une, donc son `margin-top` ne s'appliquait
+    pas — et le relevé donnait 4,9 px là où on en voulait 29.
+    Mesuré, pas déduit.
+
+    VINGT-QUATRE, parce que `--wm-espace-28` n'existe pas dans
+    `jetons.css` — il n'y a que 20, 24 et 32 — et que d'encre à encre,
+    ces vingt-quatre font vingt-neuf pixels de vide contre onze sous
+    l'étiquette. Deux fois et demie : l'œil tranche sans hésiter. */
 #modernbb .postbody .content .wm-annonce__soustitre,
 #modernbb .wm-annonce .wm-annonce__soustitre {
+  margin-top: var(--wm-espace-24, 24px);
   margin-bottom: var(--wm-espace-6, 6px);
 }
 
@@ -28719,18 +28764,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  ── LE LEXIQUE DES CHAMPIONS ──────────────────────────────────────
 
     « Mets les champions sur 2 colonnes et améliore la hiérarchie des
-    informations » — 10 novembre 2026, sur t1002.
+    informations » (10 nov.), puis « je suis pas fan des blocs, surtout
+    que l'image fournie fonctionne mieux en vertical qu'en horizontal ;
+    j'aimerais que les informations soient plus visuelles » (le même
+    jour, une heure après).
 
     DEUX COLONNES, PAS UNE GRILLE. `flex: 1 1 260px` et non
-    `grid-template-columns: repeat(2, 1fr)` : le message fait 586 px
-    sur le forum, mais un sujet se lit aussi sur un écran étroit, et
-    une grille à deux colonnes fixes y couperait les mots. Avec une
-    base de 260, deux fiches tiennent dès 540 px et il n'en reste
-    qu'une en dessous — sans règle de repli à écrire.
+    `repeat(2, 1fr)` : le message fait 586 px sur le forum, mais un
+    sujet se lit aussi sur un écran étroit, et une grille fixe y
+    couperait les mots. Deux fiches tiennent dès 540 px, une seule en
+    dessous, sans règle de repli à écrire.
 
     LES FICHES D'UNE MÊME LIGNE ONT LA MÊME HAUTEUR : une rangée flex
-    étire déjà ses éléments sur le plus grand. Ce qui dépasse tombe au
-    bas de la plus courte, pas entre ses lignes. */
+    étire déjà ses éléments sur le plus grand. */
 #modernbb .wm-lexique {
   display: flex;
   flex-wrap: wrap;
@@ -28751,41 +28797,80 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-/*  L'IMAGE EST UN BANDEAU, et pas une vignette à gauche : dans une
-    colonne de 260 px, une vignette et du texte côte à côte ne
-    laisseraient à chacun que de quoi mal tenir. Le ratio est fixé par
-    `aspect-ratio` plutôt que par une hauteur : les onze illustrations
-    n'ont pas la même taille, et `cover` recadre sans déformer. */
+/*  ── L'AFFICHE ─────────────────────────────────────────────────────
+
+    L'image était recadrée en 16/9. Les illustrations sont debout :
+    d'un lieu entier, on ne voyait qu'une tranche du milieu. En 3/4,
+    elle tient debout, et le nom se pose DESSUS plutôt qu'en dessous —
+    la forme de la fiche de contexte, celle qui a plu.
+
+    LE DÉGRADÉ EST SUR UN CALQUE À PART, pas sur l'image : un filtre
+    posé sur l'image elle-même assombrirait tout, alors qu'on ne veut
+    noircir que le bas, là où le texte se pose. Il part de rien en
+    haut et finit presque opaque — assez pour qu'un titre clair tienne
+    ses 4,5 sur n'importe quelle illustration, y compris une plage en
+    plein soleil. */
+#modernbb .wm-lexique__affiche {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  align-items: flex-end;
+  aspect-ratio: 3 / 4;
+}
+
 #modernbb .wm-lexique__image {
-  display: block;
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   border: 0;
   border-radius: 0;
   margin: 0;
   object-fit: cover;
 }
 
-#modernbb .wm-lexique__corps {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: var(--wm-espace-16, 16px);
+#modernbb .wm-lexique__bandeau {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 56px var(--wm-espace-12, 12px) var(--wm-espace-12, 12px);
+  /*  CINQ ARRÊTS, ET PAS TROIS. À trois, la montée se voyait comme un
+      bandeau posé sur l'image — un rectangle plus sombre, à bord net.
+      Les arrêts intermédiaires étalent la transition sur plus de la
+      moitié de la hauteur, et l'œil ne trouve plus de bord. Le bas
+      reste à 94 % : c'est lui qui garantit les 4,5 du titre, quelle
+      que soit l'illustration dessous — y compris une plage en plein
+      soleil. */
+  background: linear-gradient(
+    to top,
+    rgb(18 12 10 / 94%) 0%,
+    rgb(18 12 10 / 88%) 22%,
+    rgb(18 12 10 / 62%) 48%,
+    rgb(18 12 10 / 24%) 76%,
+    rgb(18 12 10 / 0%) 100%
+  );
+  color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
 /*  L'ÉTAT PASSE AVANT LE NOM. C'est la première chose qu'on cherche
-    dans cette liste — « lequel est encore libre ? » —, donc elle est
-    en tête, en étiquette, et pas noyée au milieu des champs.
+    dans cette liste — lequel est encore libre ? — et il était au
+    milieu des champs.
 
-    DEUX FONDS SOMBRES DANS LES DEUX THÈMES. `fond-douce` pour libre,
-    `fond-nuit` pour joué : aucun des deux ne s'éclaircit la nuit,
-    contrairement aux couleurs d'accent. Et c'est le SEUL poste pris
-    qui porte le fond fort — l'exception se voit, la règle se lit. */
+    SUR L'AFFICHE, IL NE PEUT PLUS PRENDRE UN FOND DE THÈME : le
+    dégradé est sombre dans les deux thèmes, donc `fond-douce` y
+    deviendrait une plaque claire la nuit comme le jour. Libre porte
+    donc un cadre clair sur rien, et joué une plaque pleine — c'est
+    l'exception qui doit se voir. */
 #modernbb .wm-lexique__etat {
-  align-self: flex-start;
+  display: inline-block;
   margin: 0 0 var(--wm-espace-8, 8px);
   padding: 3px var(--wm-espace-8, 8px);
+  border: 1px solid rgb(255 251 247 / 55%);
   border-radius: var(--wm-rayon-sm, 6px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -28793,19 +28878,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-transform: uppercase;
 }
 
-#modernbb .wm-lexique__etat--libre {
-  background: var(--wm-fond-douce, #f3e1d2);
-  color: var(--wm-texte-doux, #6e5749);
-}
-
 #modernbb .wm-lexique__etat--joue {
-  background: var(--wm-fond-nuit, #3a2a22);
-  color: var(--wm-texte-sur-nuit, #fffbf7);
+  border-color: transparent;
+  background: var(--wm-texte-sur-nuit, #fffbf7);
+  color: var(--wm-fond-nuit, #3a2a22);
 }
 
 #modernbb .wm-lexique__nom {
   margin: 0;
-  color: var(--wm-encre, #2e2018);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
   font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
@@ -28821,21 +28902,31 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  margin: var(--wm-espace-8, 8px) 0 var(--wm-espace-12, 12px);
+  margin: var(--wm-espace-6, 6px) 0 0;
   gap: var(--wm-espace-8, 8px);
 }
 
 #modernbb .wm-lexique__niveau {
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  color: rgb(255 251 247 / 82%);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-lexique__corps {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-12, 12px);
 }
 
 /*  LA CLÉ ET LA VALEUR, et plus « Tranche d'âge : Entre 20 et 30 ans »
-    sur une seule ligne du même poids. L'étiquette était en prose : même
-    couleur, même taille, même graisse que ce qu'elle annonçait, donc
-    aucune hiérarchie et il fallait lire pour trouver. */
+    sur une seule ligne du même poids. L'étiquette était en prose :
+    même couleur, même taille, même graisse que ce qu'elle annonçait —
+    donc aucune hiérarchie, et il fallait lire pour trouver. */
 #modernbb .wm-lexique__cle {
-  margin: 0 0 var(--wm-espace-2, 2px);
+  margin: 0 0 var(--wm-espace-6, 6px);
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -28844,38 +28935,149 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-transform: uppercase;
 }
 
-#modernbb .wm-lexique__valeur {
-  margin: 0 0 var(--wm-espace-12, 12px);
+/*  ── LES JETONS ────────────────────────────────────────────────────
+
+    « J'aimerais que les informations soient plus visuelles. » Cinq
+    adjectifs séparés par des virgules se lisent comme une phrase ; en
+    jetons, ils se COMPTENT d'un coup d'œil, et chacun devient une
+    chose plutôt qu'un mot dans une file.
+
+    Les mots sont ceux de Callista, dans son ordre : seule la virgule
+    qui les séparait devient un blanc. */
+#modernbb .wm-lexique__jetons {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-lexique__jeton {
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-encre, #2e2018);
   font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-normal, 1.65);
+  line-height: 1.4;
 }
 
-/*  LES DEUX CADRES DE RELATIONS TOMBENT AU BAS DE LA FICHE : `auto`
-    les y pousse, et les onze fiches alignent donc leurs affinités
-    quelle que soit la longueur des traits de caractère au-dessus.
+/*  ── LES RELATIONS ─────────────────────────────────────────────────
 
-    LEUR SURFACE S'INVERSE, comme dans la carte d'un adversaire de la
-    Ligue : la fiche est claire, les cadres repassent au sable. Un
-    cadre clair sur une fiche claire ne se verrait plus. */
-#modernbb .wm-lexique__fiche .wm-annonce__blocs {
-  margin-top: auto;
+    Une affinité désigne une AUTRE arène, donc un autre type : la
+    pastille le dit sans qu'on ait à savoir par cœur que Samaragd est
+    l'arène Plante. C'est ça, « plus visuel » — pas un cadre de plus,
+    une information que l'œil prend sans lire.
+
+    LE NOM RESTE ÉCRIT EN ENTIER. « Titanite » seul désignerait deux
+    lieux : la Tour et le Colosseum.
+
+    LES RIVALITÉS NE SONT PAS PEINTES EN ROUGE. Le forum n'a pas de
+    rouge de système, et en inventer un pour quatre lignes donnerait
+    une couleur qui ne voudrait dire ça qu'ici. C'est le FOND qui les
+    sépare : une affinité s'appuie sur une surface pleine, une
+    rivalité n'a que son contour. Creux contre plein se lit aussi vite
+    qu'une couleur, et tient en thème sombre sans rien redéfinir. */
+#modernbb .wm-lexique__relations {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: 0;
+  gap: var(--wm-espace-4, 4px);
+  list-style: none;
+}
+
+#modernbb .wm-lexique__relations:last-child {
+  margin-bottom: 0;
+}
+
+#modernbb .wm-lexique__relation {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
+  border: 1px solid transparent;
+  border-radius: var(--wm-rayon-sm, 6px);
+  /*  HUIT ENTRE LA PASTILLE ET LE NOM, et plus six : la pastille a
+      son propre fond, donc l'écart doit SE VOIR entre deux surfaces,
+      pas seulement entre deux mots. */
   gap: var(--wm-espace-8, 8px);
-}
-
-#modernbb .wm-lexique__fiche .wm-annonce__bloc {
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
-/*  Dans une colonne de 260 px, les deux cadres s'empilent — et c'est
-    bien : la paire reste lisible, et elle se remettra côte à côte
-    toute seule le jour où le forum s'élargira. Leur texte n'a pas
-    besoin des seize pixels de marge haute d'un texte d'annonce : le
-    titre du cadre est juste au-dessus. */
-#modernbb .wm-lexique__fiche .wm-annonce__bloc .wm-annonce__texte,
-#modernbb .postbody .content .wm-lexique__fiche .wm-annonce__texte {
-  margin-top: var(--wm-espace-4, 4px);
+#modernbb .wm-lexique__relations--contre .wm-lexique__relation {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: none;
+}
+
+#modernbb .wm-lexique__lieu {
+  min-width: 0;
+  color: var(--wm-encre, #2e2018);
   font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1.4;
+}
+
+/*  ── LA PASTILLE D'UNE RELATION RESPIRE ───────────────────────────
+
+    « Laisse un minimum de padding à droite et à gauche des tags dans
+    les affinités et rivalités, y'en a pas assez. Pareil pour l'écart
+    entre l'icône et le nom » (10 nov.).
+
+    Je les avais reprises telles quelles des cases d'équipe, où six
+    pastilles doivent tenir dans cent pixels — un réglage de DISETTE,
+    serré au pixel, et qui n'avait aucune raison d'être ici. Une
+    relation est seule sur sa ligne : il reste de la place.
+
+    MESURÉ : la ligne offre 216 px, la plus longue — Dragon + «
+    Colosseum de Titanite » — en demandait 188. Vingt-huit pixels
+    dormaient là. Six vont au rembourrage, trois à l'écart intérieur,
+    et le texte remonte de 9 à 10 px au passage. */
+#modernbb .wm-lexique__relation .wm-type {
+  flex-shrink: 0;
+  padding: 3px var(--wm-espace-8, 8px) 3px var(--wm-espace-6, 6px);
+  gap: 5px;
+  font-size: 10px;
+}
+
+#modernbb .wm-lexique__relation .wm-type::before {
+  width: 9px;
+  height: 9px;
+}
+
+/*  ── LA PROXIMITÉ TIENT À TROIS CLASSES ───────────────────────────
+
+    « Des fois on sent pas que le titre va avec le bloc. » Mesuré sur
+    le lexique, d'encre à encre : 21,2 px sous la clé, 21,2 au-dessus.
+    Exactement le même vide des deux côtés — l'œil n'a aucune raison
+    de rattacher « TRANCHE D'ÂGE » à ce qui suit plutôt qu'à ce qui
+    précède.
+
+    LA CAUSE EST LA MÊME QUE TROIS FOIS AVANT. Une clé et une valeur
+    sont des `<p>`, et `05-sujet.css` écrit pour un corps de message
+    `#modernbb .postbody .content p { margin: 0 0 16px }` — un
+    identifiant, DEUX classes, UN type. Nos règles de composant n'ont
+    qu'une classe : leurs marges ne s'appliquaient pas, et les seize
+    pixels de ModernBB tombaient des deux côtés.
+
+    Trois classes suffisent à reprendre la main. Deux pixels sous la
+    clé, quatorze sous la valeur : d'encre à encre, sept contre dix-
+    neuf. L'étiquette appartient enfin à ce qu'elle annonce. */
+#modernbb .postbody .content .wm-lexique__cle,
+#modernbb .wm-lexique .wm-lexique__cle {
+  margin: 0 0 var(--wm-espace-2, 2px);
+}
+
+#modernbb .postbody .content .wm-lexique__valeur,
+#modernbb .wm-lexique .wm-lexique__valeur {
+  margin: 0 0 14px;
+}
+
+#modernbb .postbody .content .wm-lexique__etat,
+#modernbb .wm-lexique .wm-lexique__etat {
+  margin: 0 0 var(--wm-espace-8, 8px);
+}
+
+#modernbb .postbody .content .wm-lexique__repere,
+#modernbb .wm-lexique .wm-lexique__repere {
+  margin: var(--wm-espace-8, 8px) 0 var(--wm-espace-12, 12px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

@@ -108,7 +108,9 @@ const p1 = await p.evaluate(() => {
     combien: liens.length,
     sansAdresse: liens.filter((a) => !a.getAttribute("href")).length,
     cadres: e.querySelectorAll(".wm-annonce__bloc").length,
-    soustitres: [...e.querySelectorAll(".wm-annonce__soustitre")].map((x) => x.textContent.trim()),
+    soustitres: [...e.querySelectorAll(".wm-annonce__soustitre")].map((x) =>
+      x.textContent.trim()
+    ),
     //  L'écart entre les mots du poste et son état, sur chaque ligne.
     colles: liens.filter((a) => {
       const m = a.querySelector(".wm-poste__mots").getBoundingClientRect();
@@ -119,25 +121,32 @@ const p1 = await p.evaluate(() => {
     debord: e.scrollWidth > e.clientWidth + 1,
   };
 });
-dire("le premier message porte les onze postes, tous adressés",
-  p1.combien === 11 && p1.sansAdresse === 0, JSON.stringify(p1.combien));
-dire("ses quatre conditions sont dans quatre cadres",
-  p1.cadres === 4, `${p1.cadres} cadres`);
-dire("AUCUN ÉTAT N'EST COLLÉ À SON PALIER",
-  p1.colles.length === 0, JSON.stringify(p1.colles));
-dire("un seul poste est pris, les dix autres sont vacants",
+dire(
+  "le premier message porte les onze postes, tous adressés",
+  p1.combien === 11 && p1.sansAdresse === 0,
+  JSON.stringify(p1.combien),
+);
+dire("ses quatre conditions sont dans quatre cadres", p1.cadres === 4, `${p1.cadres} cadres`);
+dire("AUCUN ÉTAT N'EST COLLÉ À SON PALIER", p1.colles.length === 0, JSON.stringify(p1.colles));
+dire(
+  "un seul poste est pris, les dix autres sont vacants",
   p1.etats.filter((x) => x === "poste pris").length === 1 &&
     p1.etats.filter((x) => x === "poste vacant").length === 10,
-  JSON.stringify([...new Set(p1.etats)]));
+  JSON.stringify([...new Set(p1.etats)]),
+);
 //  LES DEUX TITRES COMPTENT EUX-MÊMES. « Sept arènes » et « Quatre
 //  colosseums » étaient écrits en toutes lettres et deviendraient faux
 //  le jour où une douzième arrive.
 const sept = arenes.filter((a) => a.genre === "arene").length;
 const quatre = arenes.filter((a) => a.genre === "colosseum").length;
-dire("et les titres de section comptent ce qu'ils annoncent",
-  p1.soustitres.some((t) => t.startsWith(["", "Une", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept"][sept])) &&
+dire(
+  "et les titres de section comptent ce qu'ils annoncent",
+  p1.soustitres.some((t) =>
+    t.startsWith(["", "Une", "Deux", "Trois", "Quatre", "Cinq", "Six", "Sept"][sept])
+  ) &&
     p1.soustitres.some((t) => t.startsWith(["", "Une", "Deux", "Trois", "Quatre"][quatre])),
-  JSON.stringify(p1.soustitres));
+  JSON.stringify(p1.soustitres),
+);
 dire("rien ne déborde du premier message", !p1.debord);
 
 // ── 2 · LE LEXIQUE SUR DEUX COLONNES ────────────────────────────────
@@ -174,34 +183,215 @@ const p2 = await p.evaluate(() => {
         (et.compareDocumentPosition(nom) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
     }),
     joues: fiches.filter((f) => f.querySelector(".wm-lexique__etat--joue")).length,
-    //  La clé doit peser MOINS que sa valeur : c'est toute la
+    //  La clé doit peser MOINS que ce qu'elle annonce : c'est toute la
     //  hiérarchie qu'on est venu réparer.
     tailleCle: parseFloat(getComputedStyle(corps.querySelector(".wm-lexique__cle")).fontSize),
-    tailleValeur: parseFloat(getComputedStyle(corps.querySelector(".wm-lexique__valeur")).fontSize),
+    tailleValeur: parseFloat(
+      getComputedStyle(corps.querySelector(".wm-lexique__jeton")).fontSize,
+    ),
     cleEnCapitales: getComputedStyle(corps.querySelector(".wm-lexique__cle")).textTransform,
-    //  Chaque fiche porte sa pastille de type — le pont vers le
-    //  premier message, qui nomme la même arène autrement.
-    sansPastille: fiches.filter((f) => f.querySelector(".wm-lexique__repere .wm-type") === null).length,
-    //  Les deux cadres de relations, alignés au bas de chaque fiche.
-    cadres: [...new Set(fiches.map((f) => f.querySelectorAll(".wm-annonce__bloc").length))],
-    basDesCadres: Object.entries(hauteursParLigne).length,
+    sansPastille: fiches.filter((f) =>
+      f.querySelector(".wm-lexique__repere .wm-type") === null
+    ).length,
+    //  ── L'AFFICHE EST DEBOUT ──────────────────────────────────
+    //
+    //  « L'image fournie fonctionne mieux en vertical qu'en
+    //  horizontal. » Elle était en 16/9 : d'une illustration debout,
+    //  on ne voyait qu'une tranche du milieu. On mesure le rapport de
+    //  la BOÎTE, parce que c'est lui qui décide du recadrage.
+    affiches: [
+      ...new Set(fiches.map((f) => {
+        const r = f.querySelector(".wm-lexique__affiche").getBoundingClientRect();
+        return Math.round((r.width / r.height) * 100) / 100;
+      })),
+    ],
+    nomSurLImage: fiches.every((f) => {
+      const img = f.querySelector(".wm-lexique__image").getBoundingClientRect();
+      const nom = f.querySelector(".wm-lexique__nom").getBoundingClientRect();
+      return nom.top >= img.top - 1 && nom.bottom <= img.bottom + 1;
+    }),
+    //  ── LES RELATIONS PORTENT LEUR PASTILLE ───────────────────
+    //
+    //  C'est ça, « plus visuel » : une affinité désigne une AUTRE
+    //  arène, donc un autre type, et la pastille le dit sans qu'on
+    //  ait à savoir par cœur que Samaragd est l'arène Plante.
+    relations: fiches.map((f) => ({
+      pour: f.querySelectorAll(
+        ".wm-lexique__relations:not(.wm-lexique__relations--contre) .wm-lexique__relation",
+      ).length,
+      contre: f.querySelectorAll(".wm-lexique__relations--contre .wm-lexique__relation").length,
+      sansPastille: [...f.querySelectorAll(".wm-lexique__relation")]
+        .filter((r) => r.querySelector(".wm-type") === null).length,
+      //  Creux contre plein : c'est ce qui sépare les deux familles,
+      //  et ça ne se lit pas dans le HTML.
+      pleines: [...f.querySelectorAll(
+        ".wm-lexique__relations:not(.wm-lexique__relations--contre) .wm-lexique__relation",
+      )].every((r) => getComputedStyle(r).backgroundColor !== "rgba(0, 0, 0, 0)"),
+      creuses: [...f.querySelectorAll(".wm-lexique__relations--contre .wm-lexique__relation")]
+        .every((r) => getComputedStyle(r).backgroundColor === "rgba(0, 0, 0, 0)"),
+    })),
+    jetons: fiches.map((f) => f.querySelectorAll(".wm-lexique__jeton").length),
     debord: e.scrollWidth > e.clientWidth + 1,
   };
 });
 dire("le lexique porte les onze champions", p2.combien === 11);
-dire("SUR DEUX COLONNES", p2.parLigne.every((n) => n === 2 || n === 1) && p2.parLigne.includes(2),
-  JSON.stringify(p2.parLigne));
-dire("et les fiches d'une même ligne ont la même hauteur",
-  p2.lignesInegales === 0, `${p2.lignesInegales} ligne(s) inégale(s)`);
+dire(
+  "SUR DEUX COLONNES",
+  p2.parLigne.every((n) => n === 2 || n === 1) && p2.parLigne.includes(2),
+  JSON.stringify(p2.parLigne),
+);
+dire(
+  "et les fiches d'une même ligne ont la même hauteur",
+  p2.lignesInegales === 0,
+  `${p2.lignesInegales} ligne(s) inégale(s)`,
+);
 dire("l'état se lit avant le nom", p2.etatAvantNom);
 dire("un seul champion est marqué joué", p2.joues === 1, `${p2.joues}`);
 dire("chaque fiche porte sa pastille de type", p2.sansPastille === 0);
-dire("LA CLÉ PÈSE MOINS QUE SA VALEUR, et elle est en capitales",
+dire(
+  "LA CLÉ PÈSE MOINS QUE SA VALEUR, et elle est en capitales",
   p2.tailleCle < p2.tailleValeur && p2.cleEnCapitales === "uppercase",
-  `${p2.tailleCle}px contre ${p2.tailleValeur}px`);
-dire("affinités et rivalités sont deux cadres, sur chaque fiche",
-  p2.cadres.length === 1 && p2.cadres[0] === 2, JSON.stringify(p2.cadres));
+  `${p2.tailleCle}px contre ${p2.tailleValeur}px`,
+);
+dire(
+  "L'AFFICHE EST DEBOUT, en 3/4",
+  p2.affiches.length === 1 && Math.abs(p2.affiches[0] - 0.75) < 0.02,
+  JSON.stringify(p2.affiches),
+);
+dire("et le nom se pose SUR l'image", p2.nomSurLImage);
+dire(
+  "chaque fiche a ses deux affinités et ses deux rivalités",
+  p2.relations.every((r) => r.pour === 2 && r.contre === 2),
+  JSON.stringify(p2.relations.filter((r) => r.pour !== 2 || r.contre !== 2)),
+);
+dire(
+  "CHAQUE RELATION PORTE LA PASTILLE DE L'ARÈNE QU'ELLE DÉSIGNE",
+  p2.relations.every((r) => r.sansPastille === 0),
+);
+dire(
+  "les affinités sont pleines, les rivalités creuses",
+  p2.relations.every((r) => r.pleines && r.creuses),
+);
+
+// ── LES PASTILLES DE RELATION RESPIRENT ─────────────────────────────
+//
+//  « Laisse un minimum de padding à droite et à gauche des tags dans
+//  les affinités et rivalités, y'en a pas assez. Pareil pour l'écart
+//  entre l'icône et le nom. »
+//
+//  Elles étaient reprises des cases d'équipe, où six pastilles
+//  doivent tenir dans cent pixels : un réglage de DISETTE, serré au
+//  pixel, sans raison d'être ici. Le contrôle fixe un plancher, et il
+//  mesure aussi ce qui reste — ce sont ces pixels disponibles qui
+//  permettent de desserrer, et c'est eux qu'un nom d'arène plus long
+//  mangerait un jour sans prévenir.
+const souffle = await p.evaluate(() => {
+  const rs = [...document.querySelectorAll('[data-m="lexique"] .wm-lexique__relation')];
+  const s = getComputedStyle(rs[0].querySelector(".wm-type"));
+  let pire = null;
+  for (const r of rs) {
+    const t = r.querySelector(".wm-type");
+    const n = r.querySelector(".wm-lexique__lieu");
+    const dispo = r.clientWidth - parseFloat(getComputedStyle(r).paddingLeft) * 2;
+    const besoin = t.getBoundingClientRect().width + n.scrollWidth +
+      parseFloat(getComputedStyle(r).gap);
+    const marge = Math.round(dispo - besoin);
+    if (pire === null || marge < pire.marge) pire = { mot: n.textContent.trim(), marge };
+  }
+  return {
+    gauche: parseFloat(s.paddingLeft),
+    droite: parseFloat(s.paddingRight),
+    entre: parseFloat(s.columnGap || s.gap),
+    ecartAuNom: parseFloat(getComputedStyle(rs[0]).columnGap || getComputedStyle(rs[0]).gap),
+    //  Une relation tient sur UNE ligne : sinon le nom passe sous la
+    //  pastille et la paire se désolidarise.
+    surUneLigne: rs.every((r) => Math.round(r.getBoundingClientRect().height) <= 30),
+    pire,
+  };
+});
+dire(
+  "la pastille d'une relation a six pixels à gauche et huit à droite",
+  souffle.gauche >= 6 && souffle.droite >= 8,
+  JSON.stringify(souffle),
+);
+dire(
+  "et l'icône n'est collée ni à son nom, ni au nom de l'arène",
+  souffle.entre >= 4 && souffle.ecartAuNom >= 8,
+  JSON.stringify(souffle),
+);
+dire(
+  "chaque relation tient sur une ligne, la plus longue avec de la marge",
+  souffle.surUneLigne && souffle.pire.marge >= 8,
+  JSON.stringify(souffle.pire),
+);
+dire(
+  "les traits sont des jetons, un par mot",
+  p2.jetons.every((n) => n >= 6),
+  JSON.stringify([...new Set(p2.jetons)]),
+);
 dire("rien ne déborde du lexique", !p2.debord);
+
+// ── 2 bis · UNE ÉTIQUETTE APPARTIENT À CE QU'ELLE ANNONCE ───────────
+//
+//  « Revoir les espacements entre eux, des fois on sent pas que le
+//  titre va avec le bloc. » C'est la loi de proximité, et elle se
+//  mesure : l'écart SOUS une étiquette doit être nettement plus petit
+//  que l'écart AU-DESSUS, sinon l'œil ne sait pas à qui elle est.
+//
+//  ON MESURE D'ENCRE À ENCRE, pas de boîte à boîte. Une étiquette de
+//  10 px dans une ligne de 13 porte trois pixels de vide invisible
+//  sous elle, et un paragraphe de 11,5 dans une ligne de 19 en porte
+//  presque quatre au-dessus : la marge déclarée ne dit pas ce qu'on
+//  voit. C'est d'ailleurs ce qui rendait le défaut difficile à
+//  trouver à l'œil nu — les marges avaient l'air justes.
+//
+//  RELEVÉ AVANT CORRECTION : « Ce qu'on demande » 28,9 contre 21,5,
+//  soit 1,34 ; « Quatre colosseums » 7,5 contre 17,5, soit 0,43 —
+//  INVERSÉ, le titre collait à la liste du dessus.
+const proximite = await p.evaluate(() => {
+  const encre = (el) => {
+    const r = el.getBoundingClientRect();
+    const s = getComputedStyle(el);
+    const fs = parseFloat(s.fontSize);
+    const lh = parseFloat(s.lineHeight) || fs * 1.2;
+    const demi = (lh - fs) / 2;
+    return {
+      haut: r.top + parseFloat(s.paddingTop) + demi,
+      bas: r.bottom - parseFloat(s.paddingBottom) - demi,
+    };
+  };
+  const out = [];
+  for (
+    const et of document.querySelectorAll(
+      ".wm-annonce__soustitre, .wm-lexique__cle",
+    )
+  ) {
+    const suiv = et.nextElementSibling;
+    const prec = et.previousElementSibling;
+    //  Sans voisin au-dessus, il n'y a pas d'ambiguïté à lever.
+    if (suiv === null || prec === null) continue;
+    const e = encre(et);
+    const dessus = Math.round((e.haut - encre(prec).bas) * 10) / 10;
+    const dessous = Math.round((encre(suiv).haut - e.bas) * 10) / 10;
+    out.push({
+      mot: et.textContent.trim().slice(0, 24),
+      dessus,
+      dessous,
+      ratio: Math.round((dessus / Math.max(dessous, 0.1)) * 100) / 100,
+    });
+  }
+  const vus = new Set();
+  return out.filter((x) => {
+    if (vus.has(x.mot)) return false;
+    vus.add(x.mot);
+    return true;
+  });
+});
+dire(
+  `les ${proximite.length} étiquettes tiennent à ce qu'elles annoncent`,
+  proximite.length >= 6 && proximite.every((x) => x.ratio >= 1.8),
+  JSON.stringify(proximite.filter((x) => x.ratio < 1.8)),
+);
 
 // ── 3 · LES TEXTES SONT CEUX DE CALLISTA ────────────────────────────
 //
@@ -211,8 +401,8 @@ dire("rien ne déborde du lexique", !p2.debord);
 const rendu = await p.evaluate(() =>
   [...document.querySelectorAll('[data-m="lexique"] .wm-lexique__fiche')].map((f) => ({
     nom: f.querySelector(".wm-lexique__nom").textContent.trim(),
-    valeurs: [...f.querySelectorAll(".wm-lexique__valeur, .wm-annonce__bloc .wm-annonce__texte")]
-      .map((x) => x.textContent.trim()),
+    jetons: [...f.querySelectorAll(".wm-lexique__jeton")].map((x) => x.textContent.trim()),
+    lieux: [...f.querySelectorAll(".wm-lexique__lieu")].map((x) => x.textContent.trim()),
   }))
 );
 const attendus = Object.values(donnees.champions);
@@ -223,12 +413,29 @@ for (const c of attendus) {
     perdus.push(`${c.nomDuPoste} : fiche absente`);
     continue;
   }
-  for (const t of [c.age, c.traits, c.affinites, c.rivalites]) {
-    if (!f.valeurs.includes(t)) perdus.push(`${c.nomDuPoste} : « ${t} »`);
+  //  ON RECOMPOSE LA PHRASE DE DÉPART à partir de ce qui est affiché,
+  //  et on la compare mot pour mot. C'est plus sévère que de chercher
+  //  les morceaux un par un : un mot perdu, un ordre changé, une
+  //  virgule avalée, tout se voit.
+  const recolle = {
+    age: f.jetons[0],
+    traits: f.jetons.slice(1).join(", "),
+    affinites: f.lieux.slice(0, 2).join(" et "),
+    rivalites: f.lieux.slice(2).join(" et "),
+  };
+  for (const champ of ["age", "traits", "affinites", "rivalites"]) {
+    //  Le point final tombe à l'affichage — un jeton ne se ponctue
+    //  pas — et c'est de la typographie, pas du texte en moins.
+    if (recolle[champ] !== c[champ].replace(/\.$/, "")) {
+      perdus.push(`${c.nomDuPoste} / ${champ} : « ${recolle[champ]} »`);
+    }
   }
 }
-dire("LES QUARANTE-QUATRE TEXTES SONT RENDUS MOT POUR MOT",
-  perdus.length === 0, JSON.stringify(perdus.slice(0, 3)));
+dire(
+  "LES QUARANTE-QUATRE TEXTES SONT RENDUS MOT POUR MOT",
+  perdus.length === 0,
+  JSON.stringify(perdus.slice(0, 3)),
+);
 
 // ── 4 · EN SOMBRE, AUCUNE PLAQUE CLAIRE ─────────────────────────────
 await p.evaluate(() => document.body.classList.add("wm-sombre"));
@@ -245,6 +452,13 @@ const sombre = await p.evaluate(() => {
       ".wm-annonce, .wm-lexique__fiche, .wm-annonce__bloc, .wm-lexique__etat, .wm-poste, .wm-encart",
     )
   ) {
+    //  L'AFFICHE EST SOMBRE DANS LES DEUX THÈMES — c'est un dégradé
+    //  posé sur une illustration, pas une couleur de thème. Une
+    //  plaque claire y est donc VOULUE : c'est ainsi que la pastille
+    //  « Joué » se détache. La règle qu'on protège ici est « pas de
+    //  plaque claire sur une PAGE sombre », et le bandeau n'est pas
+    //  la page. Son contraste à lui est mesuré juste en dessous.
+    if (el.closest(".wm-lexique__bandeau") !== null) continue;
     const f = getComputedStyle(el).backgroundColor;
     if (!/rgba\(0, 0, 0, 0\)/.test(f) && lum(f) > 0.35) clairs.push(el.className + " → " + f);
   }
@@ -257,18 +471,38 @@ const sombre = await p.evaluate(() => {
   return {
     clairs: [...new Set(clairs)],
     cle: rap(getComputedStyle(f0.querySelector(".wm-lexique__cle")).color, fond),
-    valeur: rap(getComputedStyle(f0.querySelector(".wm-lexique__valeur")).color, fond),
-    niveau: rap(getComputedStyle(f0.querySelector(".wm-lexique__niveau")).color, fond),
-    etat: rap(
-      getComputedStyle(f0.querySelector(".wm-lexique__etat")).color,
-      getComputedStyle(f0.querySelector(".wm-lexique__etat")).backgroundColor,
+    valeur: rap(
+      getComputedStyle(f0.querySelector(".wm-lexique__jeton")).color,
+      getComputedStyle(f0.querySelector(".wm-lexique__jeton")).backgroundColor,
     ),
+    niveau: rap(getComputedStyle(f0.querySelector(".wm-lexique__niveau")).color, fond),
+    //  LA PASTILLE « JOUÉ » EST LA SEULE PLEINE, et c'est elle qu'il
+    //  faut mesurer : « Libre » n'a qu'un contour, donc son texte se
+    //  lit sur le dégradé, pas sur un fond à lui.
+    etat: (() => {
+      const j = document.querySelector(".wm-lexique__etat--joue");
+      const s = getComputedStyle(j);
+      return rap(s.color, s.backgroundColor);
+    })(),
+    etatLibre: (() => {
+      const l = document.querySelector(".wm-lexique__etat--libre");
+      return rap(
+        getComputedStyle(l).color,
+        getComputedStyle(l.closest(".wm-lexique__bandeau")).backgroundColor ===
+            "rgba(0, 0, 0, 0)"
+          ? "rgb(22, 16, 13)"
+          : getComputedStyle(l.closest(".wm-lexique__bandeau")).backgroundColor,
+      );
+    })(),
   };
 });
 dire("EN SOMBRE, AUCUNE PLAQUE CLAIRE", sombre.clairs.length === 0, sombre.clairs.join(" · "));
-dire("et les quatre textes d'une fiche tiennent les 4,5",
-  [sombre.cle, sombre.valeur, sombre.niveau, sombre.etat].every((r) => r >= 4.5),
-  JSON.stringify(sombre));
+dire(
+  "et les quatre textes d'une fiche tiennent les 4,5",
+  [sombre.cle, sombre.valeur, sombre.niveau, sombre.etat, sombre.etatLibre]
+    .every((r) => r >= 4.5),
+  JSON.stringify(sombre),
+);
 
 for (const s of soucis) {
   fautes += 1;

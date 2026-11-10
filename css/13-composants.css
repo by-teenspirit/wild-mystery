@@ -1805,6 +1805,32 @@
     balisage comme à l'œil : c'est lui qui dit de quoi on parle —
     « Mise à jour », « Événement » — et le titre qui dit quoi. L'ordre
     inverse obligerait à lire le titre deux fois. */
+/*  ── UNE ÉTIQUETTE APPARTIENT À CE QU'ELLE ANNONCE ────────────────
+
+    « Revoir les espacements entre eux, des fois on sent pas que le
+    titre va avec le bloc » — 10 novembre 2026.
+
+    C'est la loi de proximité, et elle se mesure : l'écart SOUS une
+    étiquette doit être nettement plus petit que l'écart AU-DESSUS,
+    sinon l'œil ne sait pas à qui elle appartient. Relevé avant
+    correction, en écart d'encre à encre :
+
+      « Ce qu'on demande »   dessus 28,9  dessous 21,5  →  1,34
+      « Quatre colosseums »  dessus  7,5  dessous 17,5  →  0,43
+
+    Le second était INVERSÉ : le titre collait à la liste du dessus et
+    flottait au-dessus de la sienne.
+
+    POURQUOI C'ÉTAIT CASSÉ. La marge haute était posée par une liste
+    de voisins — `__blocs + __soustitre`, `__bloc + …`, `__texte + …`.
+    Un `ul.wm-postes` n'y était pas, donc il ne donnait rien. Une
+    règle qui ÉNUMÈRE ses cas oublie toujours le suivant.
+
+    Elle est maintenant portée par l'étiquette elle-même, et annulée
+    au premier enfant — le seul cas où il n'y a rien au-dessus. Ce qui
+    SUIT une étiquette ne pose plus sa propre marge haute : c'est la
+    règle `+ *` juste en dessous, et elle dit la chose entière plutôt
+    qu'une liste de voisins. */
 #modernbb .wm-annonce__soustitre {
   display: block;
   margin-bottom: var(--wm-espace-6, 6px);
@@ -2067,19 +2093,25 @@
     `__blocs` : celle-là tomberait aussi quand les cadres finissent
     l'annonce, et ajouterait vingt pixels de vide au bas de la carte.
     `+` ne pose l'écart que là où il manque. */
-/*  `__texte` EST DANS LA LISTE DEPUIS LE 10 NOVEMBRE. Sur le premier
-    message des Champions, « CE QU'ON DEMANDE » se collait au dernier
-    mot du paragraphe d'introduction : un sous-titre n'a qu'une marge
-    BASSE, six pixels pour tenir à ce qu'il annonce, et il compte sur
-    ce qui le précède pour l'écart du haut. Les cadres le donnaient,
-    un paragraphe non. */
-#modernbb .postbody .content .wm-annonce__blocs + .wm-annonce__soustitre,
-#modernbb .postbody .content .wm-annonce__bloc + .wm-annonce__soustitre,
-#modernbb .postbody .content .wm-annonce__texte + .wm-annonce__soustitre,
-#modernbb .wm-annonce .wm-annonce__blocs + .wm-annonce__soustitre,
-#modernbb .wm-annonce .wm-annonce__bloc + .wm-annonce__soustitre,
-#modernbb .wm-annonce .wm-annonce__texte + .wm-annonce__soustitre {
-  margin-top: var(--wm-espace-24, 24px);
+/*  AU SOMMET D'UNE CARTE, RIEN AU-DESSUS : pas de marge à poser. */
+#modernbb .postbody .content .wm-annonce__soustitre:first-child,
+#modernbb .wm-annonce .wm-annonce__soustitre:first-child {
+  margin-top: 0;
+}
+
+/*  ET CE QUI SUIT UNE ÉTIQUETTE N'AJOUTE RIEN. `__blocs` porte vingt
+    pixels de marge haute, `.wm-postes` seize, `.wm-lexique` vingt :
+    chacun les ajoutait aux six de l'étiquette et l'en détachait. Le
+    `+ *` dit la règle entière — « rien ne s'écarte de son étiquette » —
+    au lieu d'énumérer les voisins connus, ce qui est précisément
+    l'erreur qu'on vient de réparer.
+
+    DEUX CLASSES DANS LE SÉLECTEUR, et c'est nécessaire : `.wm-lexique`
+    est déclaré dans `23-personnages.css`, donc APRÈS celui-ci. À
+    spécificité égale, c'est lui qui gagnerait. */
+#modernbb .postbody .content .wm-annonce__soustitre + *,
+#modernbb .wm-annonce .wm-annonce__soustitre + * {
+  margin-top: 0;
 }
 
 /*  ── PAS DE JUSTIFICATION DANS UN CADRE ───────────────────────────
@@ -2130,8 +2162,21 @@
   margin: var(--wm-espace-16, 16px) 0 0;
 }
 
+/*  LA MARGE HAUTE EST ICI, ET PAS SUR LA RÈGLE DE BASE — troisième
+    fois que ce piège se referme. Un sous-titre est un `<p>`, et
+    `05-sujet.css` écrit `#modernbb .postbody .content p { margin: 0 0
+    16px }` : un identifiant, DEUX classes et UN TYPE. La règle de
+    composant n'en a qu'une, donc son `margin-top` ne s'appliquait
+    pas — et le relevé donnait 4,9 px là où on en voulait 29.
+    Mesuré, pas déduit.
+
+    VINGT-QUATRE, parce que `--wm-espace-28` n'existe pas dans
+    `jetons.css` — il n'y a que 20, 24 et 32 — et que d'encre à encre,
+    ces vingt-quatre font vingt-neuf pixels de vide contre onze sous
+    l'étiquette. Deux fois et demie : l'œil tranche sans hésiter. */
 #modernbb .postbody .content .wm-annonce__soustitre,
 #modernbb .wm-annonce .wm-annonce__soustitre {
+  margin-top: var(--wm-espace-24, 24px);
   margin-bottom: var(--wm-espace-6, 6px);
 }
 

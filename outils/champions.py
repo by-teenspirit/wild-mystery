@@ -62,6 +62,7 @@ import json
 import os
 import pathlib
 import sys
+import unicodedata
 
 RACINE = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -175,7 +176,56 @@ EN_LETTRES = {
 TYPE_IMG = "https://by-teenspirit.github.io/wild-mystery/img/types/{}.png"
 
 
+def clef(nom):
+    """Un nom de lieu réduit à ce qui ne varie pas.
+
+    Les textes de Callista écrivent le même lieu de deux façons —
+    « Port-Amarée » et « Port Amarée », « Station-Service » et
+    « Station Service ». Les deux sont les siens et restent tels quels
+    dans la fiche ; c'est seulement pour les RAPPROCHER qu'on les
+    réduit ici : minuscules, sans accent, sans rien qui ne soit une
+    lettre ou un chiffre.
+    """
+    nu = unicodedata.normalize("NFD", nom.lower())
+    return "".join(c for c in nu
+                   if unicodedata.category(c) != "Mn" and c.isalnum())
+
+
+def relations(texte, par_clef, ou):
+    """« Arène de Samaragd et Colosseum de Rhode. » → deux arènes.
+
+    ON REFUSE PLUTÔT QUE DE DEVINER. Un nom qui ne tombe sur aucune
+    arène arrête le générateur : laisser passer une relation muette
+    donnerait une fiche à trois cadres au lieu de quatre, et personne
+    ne verrait ce qui manque.
+    """
+    morceaux = [m.strip(" .") for m in texte.split(" et ") if m.strip(" .")]
+    out, perdus = [], []
+    for m in morceaux:
+        a = par_clef.get(clef(m))
+        if a is None:
+            perdus.append(m)
+        else:
+            out.append((a, m))
+    if perdus:
+        raise SystemExit(
+            f"{ou} : ces noms ne tombent sur aucune arène — "
+            + ", ".join(f"« {x} »" for x in perdus)
+        )
+    return out
+
+
 def message_du_lexique(d, arenes):
+    #  LA TABLE DES NOMS vient du lexique lui-même : c'est lui qui
+    #  nomme les arènes comme les textes de relations les nomment. Le
+    #  premier message, lui, dit « Arène Eau » — un autre nom pour la
+    #  même chose, et qui ne servirait à rien ici.
+    par_clef = {}
+    for a in arenes:
+        ch = d["champions"].get(a["slug"])
+        if ch is not None:
+            par_clef[clef(ch["nomDuPoste"])] = a
+
     out = []
     w = out.append
     w('<div class="wm-annonce wm-annonce--sable wm-annonce--sans-filet">')
@@ -188,29 +238,67 @@ def message_du_lexique(d, arenes):
             continue
         pris = ch["statut"] == "joue"
         w('    <li class="wm-lexique__fiche">')
-        #  L'IMAGE EST DÉCORATIVE : `alt` vide. Elle montre le lieu, que
-        #  le titre juste en dessous nomme déjà ; la décrire ferait lire
-        #  deux fois la même chose à qui écoute la page.
-        w(f'      <img class="wm-lexique__image" src="{e(ch["image"])}" '
+
+        #  ── L'AFFICHE ────────────────────────────────────────────
+        #
+        #  « L'image fournie fonctionne mieux en vertical qu'en
+        #  horizontal » (10 novembre). Elle était recadrée en 16/9 :
+        #  d'une illustration debout, on ne voyait qu'une tranche du
+        #  milieu. Elle est en portrait, et le nom se pose DESSUS, sur
+        #  un dégradé — la forme de la fiche de contexte.
+        w('      <div class="wm-lexique__affiche">')
+        #  L'IMAGE EST DÉCORATIVE : `alt` vide. Elle montre le lieu,
+        #  que le titre posé par-dessus nomme déjà.
+        w(f'        <img class="wm-lexique__image" src="{e(ch["image"])}" '
           'alt="" loading="lazy">')
-        w('      <div class="wm-lexique__corps">')
-        w('        <p class="wm-lexique__etat wm-lexique__etat--'
+        w('        <div class="wm-lexique__bandeau">')
+        w('          <p class="wm-lexique__etat wm-lexique__etat--'
           f'{"joue" if pris else "libre"}">'
           f'{"Joué" if pris else "Libre"}</p>')
-        w(f'        <h3 class="wm-lexique__nom">{e(ch["nomDuPoste"])}</h3>')
-        #  LE REPÈRE EST LE PONT ENTRE LES DEUX MESSAGES : la pastille
-        #  dit le type, donc le nom que porte le premier message.
-        w('        <p class="wm-lexique__repere">' + pastille(a["type"])
-          + f'<span class="wm-lexique__niveau">Niveau {a["niveau"]} · '
+        w(f'          <h3 class="wm-lexique__nom">{e(ch["nomDuPoste"])}</h3>')
+        w('          <p class="wm-lexique__repere">' + pastille(a["type"])
+          + f'<span class="wm-lexique__niveau">niveau {a["niveau"]} · '
           f'palier {a["palier"]}</span></p>')
-        for cle, valeur in (("Tranche d'âge", ch["age"]),
-                            ("Traits de caractère", ch["traits"])):
-            w(f'        <p class="wm-lexique__cle">{e(cle)}</p>')
-            w(f'        <p class="wm-lexique__valeur">{e(valeur)}</p>')
-        w('        <div class="wm-annonce__blocs">')
-        w("    " + cadre("Affinités", ch["affinites"]).strip())
-        w("    " + cadre("Rivalités", ch["rivalites"]).strip())
         w("        </div>")
+        w("      </div>")
+
+        #  ── LE CORPS ─────────────────────────────────────────────
+        w('      <div class="wm-lexique__corps">')
+        w('        <p class="wm-lexique__cle">Tranche d\'âge</p>')
+        w('        <p class="wm-lexique__jetons">'
+          f'<span class="wm-lexique__jeton">{e(ch["age"].rstrip("."))}'
+          "</span></p>")
+
+        #  UN TRAIT PAR JETON. Les mots sont ceux de Callista, dans son
+        #  ordre ; seule la virgule qui les séparait devient un blanc.
+        #  Cinq adjectifs en file se lisaient comme une phrase ; en
+        #  jetons, ils se comptent d'un coup d'œil.
+        w('        <p class="wm-lexique__cle">Traits de caractère</p>')
+        traits = [m.strip(" .") for m in ch["traits"].split(",") if m.strip(" .")]
+        w('        <p class="wm-lexique__jetons">'
+          + "".join(f'<span class="wm-lexique__jeton">{e(m)}</span>'
+                    for m in traits) + "</p>")
+
+        #  ── LES RELATIONS, EN PASTILLES ──────────────────────────
+        #
+        #  « J'aimerais que les informations soient plus visuelles. »
+        #  Une affinité désigne une AUTRE arène, donc un autre type :
+        #  la pastille le dit sans qu'on ait à savoir par cœur que
+        #  Samaragd est l'arène Plante. Le nom reste écrit en entier —
+        #  « Titanite » seul désignerait deux lieux, la Tour et le
+        #  Colosseum.
+        for cle_mot, champ, modif in (
+            ("Affinités", "affinites", ""),
+            ("Rivalités", "rivalites", " wm-lexique__relations--contre"),
+        ):
+            w(f'        <p class="wm-lexique__cle">{cle_mot}</p>')
+            w(f'        <ul class="wm-lexique__relations{modif}">')
+            for autre, mot in relations(ch[champ], par_clef,
+                                        f'{ch["nomDuPoste"]} / {cle_mot}'):
+                w('          <li class="wm-lexique__relation">'
+                  + pastille(autre["type"])
+                  + f'<span class="wm-lexique__lieu">{e(mot)}</span></li>')
+            w("        </ul>")
         w("      </div>")
         w("    </li>")
     w("  </ul>")
