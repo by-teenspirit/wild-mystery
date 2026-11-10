@@ -1926,6 +1926,15 @@ body:has(#modernbb .wm-carnet) {
   --hauteur-etiquette: calc(var(--wm-taille-etiquette, 10px) * 1.2);
   order: -1;
   align-self: flex-end;
+  position: relative;
+  /*  PRESQUE EN HAUT DE LA CASE (10 nov.). L'étiquette se posait au
+      début du contenu, donc sous tout le rembourrage haut. Elle
+      remonte dedans et s'arrête à trois pixels du bord : « collé en
+      haut » sans toucher le filet ni l'arrondi du coin. `top` plutôt
+      qu'une marge, pour que le décalage ne rentre dans aucun calcul
+      de hauteur — la case ne doit toujours pas bouger. */
+  top: calc(-1 * var(--wm-espace-12, 12px) + 3px);
+  right: -2px;
   box-sizing: content-box;
   height: var(--hauteur-etiquette);
   padding: 1px var(--wm-espace-4, 4px);

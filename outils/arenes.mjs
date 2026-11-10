@@ -813,9 +813,21 @@ const nav = await chromium.launch(
       vu.tousLesNiveaux.slice(-6).join(",") === "80,80,75,77,77,76",
       vu.tousLesNiveaux.slice(-6),
     );
+    //  ── ET PAS DE TYPE CONSEILLÉ POUR LA LIGUE ──────────────────
+    //
+    //  Le contrôle exigeait l'inverse jusqu'au 10 novembre : « la
+    //  Ligue a son type conseillé, comme les onze autres ». Callista
+    //  l'a retiré de la page qu'elle avait collée, et elle a raison —
+    //  une moyenne d'efficacité sur le Conseil 4 ET le champion mêle
+    //  cinq dresseurs aux spécialités différentes. Le chiffre ne
+    //  conseillait rien ; il avait seulement l'air d'un chiffre.
+    //
+    //  Une arène n'a qu'une équipe : sa moyenne veut dire quelque
+    //  chose, et elle reste. C'est pour ça que le contrôle est ici,
+    //  sur la Ligue seule, et pas ailleurs.
     ok(
-      "la Ligue a son type conseillé, comme les onze autres",
-      vu.faits.includes("Type conseillé"),
+      "LA LIGUE N'A PAS DE TYPE CONSEILLÉ, parce qu'il n'en existe pas un",
+      !vu.faits.includes("Type conseillé"),
       vu.faits,
     );
     ok("et la page ne renvoie plus vers sa carte de dresseur", vu.carte === 0, vu.carte);

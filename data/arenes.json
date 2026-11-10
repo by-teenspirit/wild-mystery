@@ -14,8 +14,7 @@
  "_textes": "LES QUATRE ONGLETS DE L'ANNEXE 06. « Un onglet de présentation de l'annexe, un onglet arènes, un onglet colosseums et un onglet ligue » (6 novembre). Le texte est un RAPPEL : l'annexe 04, le guide du dresseur, arrive avant et porte les règles elles-mêmes. Tout ce qui est écrit ici vient des planches 36 (paliers, arènes, colosseums, missions) et 37 (combats, 1 contre 1, 2 contre 2) — rien n'y est inventé. Ce qui se CALCULE n'est pas écrit ici : la liste des défis d'un palier, les niveaux, les types conseillés et les équipes sont dérivés.",
  "textes": {
   "chapo": [
-   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-   "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+   "Découvrez les onze défis qui attendent les dresseurs de Rhode : sept arènes, quatre Colosseums et, au bout du parcours, la prestigieuse Ligue Pokémon. Retrouvez ici leurs champions, leurs spécialités et les règles pour tenter de vous hisser jusqu'au sommet."
   ],
   "presentation": {
    "titre": "Présentation",
@@ -27,11 +26,11 @@
    "acces": {
     "titre": "Ce qui s'ouvre à quel palier",
     "conditions": {
-     "1": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-     "2": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
-     "3": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore."
+     "1": "",
+     "2": "",
+     "3": ""
     },
-    "note": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.",
+    "note": "",
     "_redige": {
      "conditions": {
       "1": "Il suffit d'être validé sur le forum.",
@@ -39,7 +38,8 @@
       "3": "Tous les badges de Rhode et tous les colosseums, 1 000 Battle Points, et cinq missions de plus correspondant à ton groupe."
      },
      "note": "La liste des défis de chaque palier est tirée de la planche 36, et le niveau de chacun de la liste du 6 novembre. Les deux ne vont pas dans le même sens : un défi de palier 1 peut demander une équipe de niveau 40."
-    }
+    },
+    "_retire_le_10_nov": "Les trois conditions de palier et la note qui les suivait ont été supprimées de la page par Callista. Le rédigé reste dans `_redige`, il n'est plus rendu : les clés vides suffisent à le dire."
    },
    "_redige": {
     "titre": "Comment on défie",
@@ -59,8 +59,8 @@
   "arenes": {
    "titre": "Arènes",
    "paragraphes": [
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    "Pour certains dresseurs, les arènes représentent bien plus qu'une simple succession de combats. C'est l'occasion de repousser ses limites, de mettre à l'épreuve les liens tissés avec ses Pokémon et de mesurer le chemin parcouru depuis ses premiers pas. Chaque victoire est une fierté, chaque badge une récompense pour les efforts accomplis et chaque nouveau champion une occasion de se dépasser.",
+    "Mais au-delà de la compétition, le défi des arènes est avant tout une aventure personnelle, faite de rencontres, d'apprentissage et de souvenirs.. Êtes vous prêts ?"
    ],
    "_redige": {
     "titre": "Les sept arènes",
@@ -74,8 +74,7 @@
   "colosseums": {
    "titre": "Colosseums",
    "paragraphes": [
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    "Les Colosseums représentent une étape incontournable dans le parcours des dresseurs de Rhode. Plus que de simples tournois, ils sont l'occasion de mettre ses compétences à l'épreuve face à des adversaires redoutables. Ici, les combats se déroulent en 2 contre 2, offrant aux dresseurs l'occasion de démontrer leur sens de la stratégie, leur capacité d'adaptation et la complémentarité de leur équipe. Mais ici, pas de place pour l'à-peu-près : seule la victoire permet de décrocher le précieux titre et de poursuivre son ascension vers la Ligue Pokémon. Chaque combat est un défi supplémentaire, chaque triomphe un pas de plus vers le sommet. Saurez-vous relever le défi ?"
    ],
    "_redige": {
     "titre": "Les quatre colosseums",
@@ -97,10 +96,9 @@
   "ligue": {
    "titre": "Ligue",
    "paragraphes": [
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    "La Ligue Pokémon représente le sommet que tout dresseur rêve un jour d'atteindre. Accessible uniquement à ceux qui auront remporté les sept badges d'arènes et triomphé des quatre Colosseums, elle est l'ultime consécration d'un long parcours à travers Rhode. Ici, les dresseurs ne viennent plus simplement faire leurs preuves : ils viennent affronter l'élite et tenter d'inscrire leur nom parmi les plus grands. Une dernière étape vous sépare désormais de la consécration. À vous d'écrire la suite de votre histoire."
    ],
-   "note": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
+   "note": "Avant de pouvoir affronter le Maître de la Ligue Pokémon de Rhode, vous devrez d'abord vous mesurer à chacun des membres du Conseil 4. Ce sont des dresseurs aguerris, redoutables par leur expérience et leur sens de la stratégie, qui ne vous laisseront aucun répit. Vous n'aurez pas la possibilité de passer par le Centre Pokémon entre chaque combat : il vous faudra enchaîner les affrontements avec les ressources dont vous disposerez. Une épreuve éprouvante, destinée à prouver que vous êtes digne de devenir le nouveau Maître Pokémon de Rhode.",
    "_redige": {
     "titre": "La Ligue",
     "paragraphes": [

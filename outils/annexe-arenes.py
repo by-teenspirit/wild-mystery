@@ -478,8 +478,13 @@ def corps():
         w(f'                  <span class="wm-palier__pastille">{n}</span>')
         w(f'                  <h4 class="wm-palier__titre">{e(PALIERS[n])}</h4>')
         w('                </div>')
-        w(f'                <p class="wm-palier__condition">'
-          f'{e(acces["conditions"][str(n)])}</p>')
+        #  VIDE, RIEN NE S'ÉCRIT. Callista a retiré les trois
+        #  conditions de la page le 10 novembre ; le texte rédigé
+        #  reste dans `_redige` de `data/arenes.json`, et il suffit
+        #  d'y remettre une chaîne pour que la ligne revienne.
+        if acces["conditions"].get(str(n), "").strip():
+            w(f'                <p class="wm-palier__condition">'
+              f'{e(acces["conditions"][str(n)])}</p>')
         if dedans:
             w('                <ul class="wm-palier__defis">')
             for a in dedans:
@@ -509,7 +514,8 @@ def corps():
               f'seulement {e(ligue["nom"])}, au niveau {ligue["niveau"]}.</p>')
         w('              </li>')
     w('            </ul>')
-    w(f'            <p class="wm-defi__dit">{e(acces["note"])}</p>')
+    if acces.get("note", "").strip():
+        w(f'            <p class="wm-defi__dit">{e(acces["note"])}</p>')
     w("")
     w("          </section>")
     w("")
@@ -555,16 +561,16 @@ def corps():
     #  Il n'existe que depuis que la Ligue a une equipe : il se calcule
     #  sur ses six membres, pas sur un type de defi -- la Ligue n'en a
     #  pas. C'est la meme moyenne d'efficacite que partout ailleurs.
+    #  PAS DE TYPE CONSEILLÉ POUR LA LIGUE, et Callista l'a retiré de
+    #  la page avant qu'on en parle (10 nov.). Elle a raison : une
+    #  moyenne d'efficacité sur les six membres du Conseil 4 ET du
+    #  champion ne conseille rien. Ce sont cinq dresseurs différents,
+    #  chacun avec sa spécialité ; un seul type « conseillé » pour les
+    #  cinq ne dit rien à personne. Les arènes, elles, n'ont qu'une
+    #  équipe, et la moyenne y veut dire quelque chose.
+    #
+    #  L'équipe reste lue : elle sert aux six cases plus bas.
     equipe_ligue = equipes.get("ligue")
-    if equipe_ligue is not None:
-        conseil = equipe_ligue["conseil"]
-        w('              <div class="wm-defi__fait">')
-        w('                <dt class="wm-defi__mot">Type conseillé</dt>')
-        w('                <dd class="wm-defi__valeur">'
-          + " ".join(pastille(t) for t in conseil["types"])
-          + '<span class="wm-defi__facteur">×'
-          + f'{conseil["facteur"]:g} en moyenne</span></dd>')
-        w('              </div>')
     w('            </dl>')
     w("")
     w(f'            <p class="wm-defi__dit">{e(lt["note"])}</p>')
