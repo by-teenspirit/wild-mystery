@@ -54,7 +54,13 @@
     panneau-là, et sur lui seul. */
 #modernbb .panel.row3 {
   box-sizing: border-box;
-  padding: var(--wm-espace-24, 24px);
+  /*  TRENTE-DEUX, et plus vingt-quatre (10 nov.). La carte tient plus
+      de mille pixels de large et quarante lignes de formulaire : à
+      vingt-quatre, le premier mot d'une étiquette commençait presque
+      au bord, et la carte ressemblait à un fond posé derrière le
+      texte plutôt qu'à une page qui le contient. Le rembourrage d'un
+      cadre se juge à ce qu'il entoure, pas à une valeur par défaut. */
+  padding: var(--wm-espace-32, 32px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -352,6 +358,14 @@
   #modernbb .ucp-main dt,
   #modernbb #cp-main dt {
     flex: 1 1 100%;
+  }
+
+  /*  ET LA CARTE REND SES BORDS. Trente-deux de chaque côté sur un
+      écran de trois cent quatre-vingt-dix, c'est un sixième de la
+      largeur donné au vide — un champ de saisie n'y tiendrait plus
+      ses mots. */
+  #modernbb .panel.row3 {
+    padding: var(--wm-espace-20, 20px);
   }
 }
 
