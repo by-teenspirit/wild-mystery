@@ -1796,7 +1796,13 @@ body:has(#modernbb .wm-carnet) {
 
       LE REMBOURRAGE HAUT RESTE À DOUZE : c'est lui qui donne son air
       à la case, et il ne dispute rien à personne. */
-  padding: var(--wm-espace-12, 12px) 5px;
+  /*  LE REMBOURRAGE EST NOMMÉ, et pas seulement écrit : l'étiquette
+      obscure doit se poser à égale distance du haut et de la droite,
+      et pour ça elle a besoin de savoir de combien remonter. Nommé
+      ici, le nombre n'existe qu'à un seul endroit. */
+  --rembourrage-haut: var(--wm-espace-12, 12px);
+  --rembourrage-cote: 5px;
+  padding: var(--rembourrage-haut) var(--rembourrage-cote);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -1933,8 +1939,15 @@ body:has(#modernbb .wm-carnet) {
       haut » sans toucher le filet ni l'arrondi du coin. `top` plutôt
       qu'une marge, pour que le décalage ne rentre dans aucun calcul
       de hauteur — la case ne doit toujours pas bouger. */
-  top: calc(-1 * var(--wm-espace-12, 12px) + 3px);
-  right: -2px;
+  /*  QUATRE PIXELS DU HAUT, QUATRE PIXELS DE LA DROITE (10 nov.) :
+      « mets un petit padding à droite et en haut, le même pour l'un
+      et l'autre ». Le retrait est écrit une fois ; les deux décalages
+      s'en déduisent, chacun par le rembourrage de SON côté. Changer
+      le rembourrage de la case ne décollera donc jamais l'étiquette
+      de son coin. */
+  --retrait-etiquette: var(--wm-espace-4, 4px);
+  top: calc(var(--retrait-etiquette) - var(--rembourrage-haut));
+  right: calc(var(--retrait-etiquette) - var(--rembourrage-cote));
   box-sizing: content-box;
   height: var(--hauteur-etiquette);
   padding: 1px var(--wm-espace-4, 4px);

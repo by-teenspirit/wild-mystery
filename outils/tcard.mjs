@@ -1359,6 +1359,15 @@ const casesDuTest = await p.evaluate(() => {
         return e === null || getComputedStyle(e).marginBottom === "0px";
       })
     ),
+    //  LE MÊME RETRAIT EN HAUT ET À DROITE (10 nov.), déduit du
+    //  rembourrage de cette case-ci et pas recopié de l'annexe, qui
+    //  n'a pas le même.
+    coinEgal: obscurs.every((c) => {
+      const e = c.querySelector(".wm-tcard__obscur");
+      if (e === null) return false;
+      const rc = c.getBoundingClientRect(), re = e.getBoundingClientRect();
+      return Math.abs((rc.right - re.right) - (re.top - rc.top)) <= 1;
+    }),
     leMot: obscurs.length > 0 &&
       obscurs[0].querySelector(".wm-tcard__obscur")?.textContent?.trim() === "Obscur",
     aucunLisere: cases.every((c) =>
@@ -1380,7 +1389,7 @@ dire(
   "la case porte son glyphe de type, et un obscur se voit sans survoler",
   casesDuTest.pastillesAvecGlyphe === 6 && casesDuTest.obscurs === 1 &&
     casesDuTest.fondDifferent && casesDuTest.leMot &&
-    casesDuTest.margesANous &&
+    casesDuTest.margesANous && casesDuTest.coinEgal &&
     casesDuTest.aucunLisere &&
     casesDuTest.jamaisAgrandi,
   JSON.stringify(casesDuTest),

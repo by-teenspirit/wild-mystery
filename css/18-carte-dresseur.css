@@ -223,7 +223,10 @@
       n'entrait plus et se coupait. La mesure suit le texte, elle ne
       le contraint pas. */
   min-width: 104px;
-  padding: var(--wm-espace-8, 8px);
+  /*  NOMMÉ pour que l'étiquette obscure sache de combien remonter —
+      voir `08-annexes.css`, même mécanique, rembourrage différent. */
+  --rembourrage-case: var(--wm-espace-8, 8px);
+  padding: var(--rembourrage-case);
   gap: var(--wm-espace-4, 4px);
   overflow: hidden;
   border: 1px solid var(--wm-bord-fin, #eadacd);
@@ -304,12 +307,15 @@
       qu'une marge, pour que le décalage ne rentre dans aucun calcul
       de hauteur — la case ne doit toujours pas bouger.
 
-      HUIT ET PAS DOUZE : c'est le rembourrage de CETTE case-ci. La
-      case d'équipe de l'annexe en a douze, et sa feuille écrit
-      douze. Recopier le mauvais nombre ferait sortir l'étiquette du
-      cadre d'un côté et la laisserait flotter de l'autre. */
-  top: calc(-1 * var(--wm-espace-8, 8px) + 3px);
-  right: -2px;
+      QUATRE PIXELS DU HAUT ET DE LA DROITE, comme dans l'annexe :
+      « le même pour l'un et l'autre ». Le rembourrage de cette
+      case-ci n'est pas celui de l'autre — huit contre douze en haut,
+      huit contre cinq sur les côtés — alors on ne recopie aucun
+      nombre : chaque décalage se déduit du rembourrage nommé plus
+      haut, et le retrait, lui, est le même des deux côtés. */
+  --retrait-etiquette: var(--wm-espace-4, 4px);
+  top: calc(var(--retrait-etiquette) - var(--rembourrage-case));
+  right: calc(var(--retrait-etiquette) - var(--rembourrage-case));
   box-sizing: content-box;
   height: var(--hauteur-etiquette);
   padding: 1px var(--wm-espace-4, 4px);

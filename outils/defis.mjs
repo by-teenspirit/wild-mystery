@@ -570,6 +570,17 @@ const obscurs = await p.evaluate(() => {
   return {
     cases: cases.length,
     marquees: marquees.length,
+    //  LE MÊME RETRAIT EN HAUT ET À DROITE : « mets un petit padding
+    //  à droite et en haut, le même pour l'un et l'autre ». Les deux
+    //  décalages se déduisent du rembourrage de LEUR côté, qui ne
+    //  vaut pas la même chose — cinq sur les côtés, douze en haut.
+    //  Une seule des deux soustractions oubliée, et l'étiquette colle
+    //  d'un bord et flotte de l'autre sans rien casser d'autre.
+    coinEgal: marquees.every((c) => {
+      const e = c.querySelector(".wm-equipe__obscur");
+      const rc = c.getBoundingClientRect(), re = e.getBoundingClientRect();
+      return Math.abs((rc.right - re.right) - (re.top - rc.top)) <= 1;
+    }),
     //  chacune porte le mot, et pas seulement la teinte
     leMot: marquees.every((c) =>
       c.querySelector(".wm-equipe__obscur")?.textContent?.trim() === "Obscur"
@@ -599,6 +610,11 @@ dire(
   "chacun le dit par le mot ET par la teinte, et sa bulle suit",
   obscurs.leMot && obscurs.fondDifferent && obscurs.bulleViolette,
   JSON.stringify(obscurs),
+);
+dire(
+  "l'étiquette garde le même retrait en haut et à droite",
+  obscurs.coinEgal,
+  String(obscurs.coinEgal),
 );
 dire(
   "aucun liseré à gauche sur une case d'équipe",
