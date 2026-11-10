@@ -1554,12 +1554,39 @@ body:has(#modernbb .wm-carnet) {
     rater, la ville passe dessous en étiquette, et les trois faits
     deviennent trois cartes. L'œil entre par le badge, descend au nom,
     et trouve les chiffres rangés. */
+/*  ── LE NOM ET SON LIEU SONT UNE SEULE CHOSE ──────────────────────
+
+    « Rapproche davantage le titre de l'arène et le sous-titre »
+    (10 nov.). Quatre pixels les séparaient — assez pour qu'ils se
+    lisent comme deux lignes, alors que « Arène Eau » et
+    « Port-Amarée · badge Eau à gagner » disent la même chose, en
+    deux temps. Deux pixels, et le sous-titre redevient la suite du
+    titre.
+
+    ET UN ÉCART SOUS LE FILET. Il n'y en avait aucun : la description
+    commençait AU trait, collée dessus. La marge basse ne s'ajoute pas
+    à celle des trois faits quand il n'y a pas de description — deux
+    marges voisines se fondent dans la plus grande, et les deux valent
+    seize. */
 #modernbb .wm-defi__tete {
   display: flex;
   flex-direction: column;
-  gap: var(--wm-espace-4, 4px);
+  gap: 2px;
   padding-bottom: var(--wm-espace-16, 16px);
   border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  margin-bottom: var(--wm-espace-16, 16px);
+}
+
+/*  ── LA GRANDE DESCRIPTION NE TOUCHE PAS LES ONGLETS ──────────────
+
+    « Mets un espace entre la grande description et les onglets »
+    (10 nov.). Le texte d'ouverture d'un onglet principal — les sept
+    arènes, les quatre colosseums — est suivi immédiatement de la
+    barre des sous-onglets, qui n'avait qu'une marge BASSE. Elle
+    sortait donc du paragraphe sans rien pour l'en séparer, et on
+    lisait la première pastille comme la suite de la phrase. */
+#modernbb .wm-defis {
+  margin-top: var(--wm-espace-24, 24px);
 }
 
 #modernbb .wm-defi__titre {

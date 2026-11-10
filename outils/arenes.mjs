@@ -322,6 +322,60 @@ const nav = await chromium.launch(
     `${airSousLaBarre} px sous la barre`,
   );
 
+  //  ── LES TROIS ÉCARTS DEMANDÉS LE 10 NOVEMBRE ─────────────────────
+  //
+  //  « Rapproche le titre de l'arène et le sous-titre », « mets un
+  //  espace entre la ligne et la description », « mets un espace
+  //  entre la grande description et les onglets ». Trois écarts, et
+  //  aucun des trois ne se lit dans la feuille : le premier dépend
+  //  d'un `gap` de flex, le deuxième de deux marges qui se fondent,
+  //  le troisième d'une barre que le JavaScript insère. On les mesure
+  //  donc RENDUS, et on les borne des deux côtés — trop d'air est un
+  //  défaut autant que pas assez.
+  const ecarts = await p.evaluate(() => {
+    const r = (e) => e.getBoundingClientRect();
+    const s = Array.from(document.querySelectorAll(".wm-defi"))
+      .find((x) => x.offsetParent !== null);
+    //  VISIBLE, sinon on mesure deux rectangles nuls et leur écart
+    //  vaut zéro — un défaut qui n'en est pas un, ou pire, un vert
+    //  qui n'en est pas un selon le sens de la borne.
+    const paras = Array.from(document.querySelectorAll(".wm-paras"))
+      .find((x) =>
+        x.offsetParent !== null &&
+        x.nextElementSibling?.classList.contains("wm-defis")
+      );
+    const barre = paras?.nextElementSibling
+      ?.querySelector(".wm-sous-onglets__barre");
+    return {
+      titreVersLieu: Math.round(
+        r(s.querySelector(".wm-defi__lieu")).top -
+          r(s.querySelector(".wm-defi__titre")).bottom,
+      ),
+      filetVersSuite: Math.round(
+        r(s.querySelector(".wm-defi__tete").nextElementSibling).top -
+          r(s.querySelector(".wm-defi__tete")).bottom,
+      ),
+      grandeDescriptionVersOnglets: barre && paras
+        ? Math.round(r(barre).top - r(paras).bottom)
+        : null,
+    };
+  });
+  ok(
+    "le sous-titre d'une arène colle à son titre",
+    ecarts.titreVersLieu >= 1 && ecarts.titreVersLieu <= 3,
+    ecarts,
+  );
+  ok(
+    "le filet de la tête ne touche pas ce qui le suit",
+    ecarts.filetVersSuite >= 12 && ecarts.filetVersSuite <= 20,
+    ecarts,
+  );
+  ok(
+    "et la grande description ne touche pas la barre d'onglets",
+    ecarts.grandeDescriptionVersOnglets >= 16,
+    ecarts,
+  );
+
   //  ── LES TROIS OBSCURS, ET LA BULLE QUI SUIT LA CASE ──────────────
   //
   //  « Oui, dragon, ténèbres et elec », le dernier de chaque équipe
