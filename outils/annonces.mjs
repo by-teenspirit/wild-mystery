@@ -199,7 +199,17 @@ for (const c of compte) {
       n: Number(c.closest(".essai").dataset.n),
       centre: c.classList.contains("wm-annonce--centre"),
       titre: getComputedStyle(c.querySelector(".wm-annonce__titre")).textAlign,
+      //  DEUX ALIGNEMENTS, ET C'EST VOULU. Un texte d'annonce est
+      //  justifié sur la pleine largeur d'une carte ; dans un cadre
+      //  de deux cents pixels, la justification étire des lignes de
+      //  quatre mots en rivières blanches. On sépare donc les deux
+      //  familles, au lieu d'exiger `justify` partout — ce qui a
+      //  fait virer ce contrôle au rouge le jour où les cadres ont
+      //  reçu de la prose.
       textes: [...c.querySelectorAll(".wm-annonce__texte")]
+        .filter((t) => t.closest(".wm-annonce__bloc") === null)
+        .map((t) => getComputedStyle(t).textAlign),
+      dansCadre: [...c.querySelectorAll(".wm-annonce__bloc .wm-annonce__texte")]
         .map((t) => getComputedStyle(t).textAlign),
       //  Le filet sous le titre : ses marges gauche et droite doivent
       //  être égales dans un modèle centré. C'est `margin-inline: auto`
@@ -222,6 +232,11 @@ for (const c of compte) {
     }
     for (const t of a.textes) {
       if (t !== "justify") rate(`modèle ${a.n} : un paragraphe en ${t} au lieu de justify`);
+    }
+    for (const t of a.dansCadre) {
+      if (!["start", "left"].includes(t)) {
+        rate(`modèle ${a.n} : un texte de cadre en ${t} au lieu de left`);
+      }
     }
     if (a.centre && a.filet.g !== a.filet.d) {
       rate(`modèle ${a.n} : filet du titre pas centré (${a.filet.g} / ${a.filet.d})`);

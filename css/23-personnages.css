@@ -880,3 +880,165 @@
     flex-basis: 100%;
   }
 }
+
+/*  ── LE LEXIQUE DES CHAMPIONS ──────────────────────────────────────
+
+    « Mets les champions sur 2 colonnes et améliore la hiérarchie des
+    informations » — 10 novembre 2026, sur t1002.
+
+    DEUX COLONNES, PAS UNE GRILLE. `flex: 1 1 260px` et non
+    `grid-template-columns: repeat(2, 1fr)` : le message fait 586 px
+    sur le forum, mais un sujet se lit aussi sur un écran étroit, et
+    une grille à deux colonnes fixes y couperait les mots. Avec une
+    base de 260, deux fiches tiennent dès 540 px et il n'en reste
+    qu'une en dessous — sans règle de repli à écrire.
+
+    LES FICHES D'UNE MÊME LIGNE ONT LA MÊME HAUTEUR : une rangée flex
+    étire déjà ses éléments sur le plus grand. Ce qui dépasse tombe au
+    bas de la plus courte, pas entre ses lignes. */
+#modernbb .wm-lexique {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-20, 20px) 0 0;
+  padding: 0;
+  gap: var(--wm-espace-16, 16px);
+  list-style: none;
+}
+
+#modernbb .wm-lexique__fiche {
+  display: flex;
+  overflow: hidden;
+  flex: 1 1 260px;
+  flex-direction: column;
+  box-sizing: border-box;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  L'IMAGE EST UN BANDEAU, et pas une vignette à gauche : dans une
+    colonne de 260 px, une vignette et du texte côte à côte ne
+    laisseraient à chacun que de quoi mal tenir. Le ratio est fixé par
+    `aspect-ratio` plutôt que par une hauteur : les onze illustrations
+    n'ont pas la même taille, et `cover` recadre sans déformer. */
+#modernbb .wm-lexique__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  object-fit: cover;
+}
+
+#modernbb .wm-lexique__corps {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--wm-espace-16, 16px);
+}
+
+/*  L'ÉTAT PASSE AVANT LE NOM. C'est la première chose qu'on cherche
+    dans cette liste — « lequel est encore libre ? » —, donc elle est
+    en tête, en étiquette, et pas noyée au milieu des champs.
+
+    DEUX FONDS SOMBRES DANS LES DEUX THÈMES. `fond-douce` pour libre,
+    `fond-nuit` pour joué : aucun des deux ne s'éclaircit la nuit,
+    contrairement aux couleurs d'accent. Et c'est le SEUL poste pris
+    qui porte le fond fort — l'exception se voit, la règle se lit. */
+#modernbb .wm-lexique__etat {
+  align-self: flex-start;
+  margin: 0 0 var(--wm-espace-8, 8px);
+  padding: 3px var(--wm-espace-8, 8px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-lexique__etat--libre {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-lexique__etat--joue {
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-lexique__nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+/*  LE REPÈRE EST LE PONT ENTRE LES DEUX MESSAGES. Le premier appelle
+    cette arène « Arène Eau », le second « Arène de Port-Amarée » —
+    deux noms de Callista, tous deux gardés. La pastille et le niveau
+    disent sans compter qu'il s'agit de la même. */
+#modernbb .wm-lexique__repere {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: var(--wm-espace-8, 8px) 0 var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-lexique__niveau {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  LA CLÉ ET LA VALEUR, et plus « Tranche d'âge : Entre 20 et 30 ans »
+    sur une seule ligne du même poids. L'étiquette était en prose : même
+    couleur, même taille, même graisse que ce qu'elle annonçait, donc
+    aucune hiérarchie et il fallait lire pour trouver. */
+#modernbb .wm-lexique__cle {
+  margin: 0 0 var(--wm-espace-2, 2px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-lexique__valeur {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  LES DEUX CADRES DE RELATIONS TOMBENT AU BAS DE LA FICHE : `auto`
+    les y pousse, et les onze fiches alignent donc leurs affinités
+    quelle que soit la longueur des traits de caractère au-dessus.
+
+    LEUR SURFACE S'INVERSE, comme dans la carte d'un adversaire de la
+    Ligue : la fiche est claire, les cadres repassent au sable. Un
+    cadre clair sur une fiche claire ne se verrait plus. */
+#modernbb .wm-lexique__fiche .wm-annonce__blocs {
+  margin-top: auto;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-lexique__fiche .wm-annonce__bloc {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  Dans une colonne de 260 px, les deux cadres s'empilent — et c'est
+    bien : la paire reste lisible, et elle se remettra côte à côte
+    toute seule le jour où le forum s'élargira. Leur texte n'a pas
+    besoin des seize pixels de marge haute d'un texte d'annonce : le
+    titre du cadre est juste au-dessus. */
+#modernbb .wm-lexique__fiche .wm-annonce__bloc .wm-annonce__texte,
+#modernbb .postbody .content .wm-lexique__fiche .wm-annonce__texte {
+  margin-top: var(--wm-espace-4, 4px);
+  font-size: var(--wm-taille-petit, 11.5px);
+}

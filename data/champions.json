@@ -1,0 +1,130 @@
+{
+ "_": "LES DEUX MESSAGES DE t1002 « Les Champions ». Le premier annonce les onze postes, le second est le lexique des caractères. Les deux étaient écrits à la main dans l'éditeur du forum ; ils sont générés depuis ici le 10 novembre 2026, comme tout le reste.",
+ "_textes": "LES TEXTES SONT CEUX DE CALLISTA, mot pour mot, relevés sur le forum le 10 novembre. Rien n'a été réécrit — ni une tournure, ni une virgule. Les écarts d'orthographe d'un même lieu d'une ligne à l'autre (« Port-Amarée » et « Port Amarée », « Station-Service » et « Station Service ») sont les siens et restent tels quels : les corriger serait réécrire son forum.",
+ "_jointure": "Le reste — nom de type, ville, niveau, palier, adresse du défi — vient de `data/arenes.json` par le `slug`, et n'est PAS recopié ici. Deux fichiers qui portent le niveau d'une arène finissent par ne plus être d'accord.",
+ "_deuxNoms": "UNE MÊME ARÈNE PORTE DEUX NOMS SUR CE SUJET : « Arène Eau » dans le premier message, « Arène de Port-Amarée » dans le second. Les deux sont de Callista, et les deux restent — mais la fiche du lexique affiche désormais aussi la pastille de type et le niveau, pour qu'on voie d'un coup d'œil que les deux désignent la même arène.",
+ "intro": "Les champions de Rhode sont interprétables sous certaines conditions : ils sont importants pour le bon déroulement du forum et pour la progression des joueurs. Tu es totalement libre de débarquer avec ton propre personnage pour prendre le poste. Si le personnage n'est pas encore joué, un PNJ vient le remplacer le temps du combat quand un joueur se lance dans son arène.",
+ "conditions": [
+  {
+   "titre": "Une activité RP rigoureuse.",
+   "texte": "C'est ce qu'on demande à un champion. Tu pourras bien entendu conquérir les autres arènes du jeu — mais tu pars d'office avec ton propre badge déjà acquis."
+  },
+  {
+   "titre": "L'équipe du champion ne t'appartient pas.",
+   "texte": "Tu ne peux ni l'entraîner, ni la vendre, ni l'utiliser : sa place est au sein du Colosseum. Elle peut être mentionnée en narration, jamais rejoindre ton équipe usuelle — elle appartient à l'arène. Tu constitues donc ta propre équipe en commençant sur le forum, sinon tu partirais avec un avantage considérable sur tout le monde."
+  },
+  {
+   "titre": "Une affinité avec le type de l'arène.",
+   "texte": "Chaque champion en possède une. L'affiliation à la Team Ombre est en revanche totalement libre — sauf pour le champion de l'Île Ténèbra, qui lui est affilié."
+  },
+  {
+   "titre": "Le poste se rend.",
+   "texte": "Au bout d'un certain temps, tu peux demander à ne plus être champion d'une arène et à passer le rôle à quelqu'un qui souhaite tenter sa chance."
+  }
+ ],
+ "encart": {
+  "etiquette": "Un poste t'intéresse ?",
+  "texte": "N'hésite pas à nous contacter si tu as la moindre question sur un poste vacant. Il est aussi possible de demander à lier ton personnage à l'un des champions."
+ },
+ "champions": {
+  "eau": {
+   "nomDuPoste": "Arène de Port-Amarée",
+   "image": "https://images4.imgbox.com/40/a3/SbrwRnNG_o.png",
+   "statut": "libre",
+   "age": "Entre 20 et 30 ans.",
+   "traits": "Adaptable, calme, intuitif, diplomate, mystérieux.",
+   "affinites": "Arène de Samaragd et Colosseum de Rhode.",
+   "rivalites": "Arène de la Station-Service et Colosseum de Titanite."
+  },
+  "feu": {
+   "nomDuPoste": "Arène de la Station Service",
+   "image": "https://images4.imgbox.com/8a/4e/4fP2mu5C_o.png",
+   "statut": "libre",
+   "age": "Entre 35 et 60 ans.",
+   "traits": "Passionné, impulsif, extraverti, audacieux, compétitif.",
+   "affinites": "Colosseum de Titanite et Colosseum de Targare.",
+   "rivalites": "Arène de Port Amarée et Arène de Pyrite."
+  },
+  "electrik": {
+   "nomDuPoste": "Colosseum de Targare",
+   "image": "https://images4.imgbox.com/88/63/cBZ2C6ex_o.png",
+   "statut": "libre",
+   "age": "Entre 30 et 50 ans.",
+   "traits": "Énergique, spontané, enthousiaste, imprévisible, espiègle",
+   "affinites": "Arène de Pyrite et Arène de la Tour Titanite.",
+   "rivalites": "Arène de Suerebe et Colosseum de Phenacit."
+  },
+  "plante": {
+   "nomDuPoste": "Arène de Samaragd",
+   "image": "https://images4.imgbox.com/94/4b/5ouPIcoc_o.png",
+   "statut": "libre",
+   "age": "Entre 25 et 40 ans.",
+   "traits": "Patient, bienveillant, réfléchi, protecteur, persévérant.",
+   "affinites": "Colosseum de Targare et Arène de Pyrite.",
+   "rivalites": "Colosseum de Phenacit et Arène de la Tour Titanite."
+  },
+  "roche": {
+   "nomDuPoste": "Arène de Pyrite",
+   "image": "https://images4.imgbox.com/3d/ee/3pb9K2wH_o.png",
+   "statut": "libre",
+   "age": "Entre 40 et 70 ans.",
+   "traits": "Stoïque, fiable, déterminé, pragmatique, têtu.",
+   "affinites": "Arène de l'Île Ténèbra et Colosseum de Rhode.",
+   "rivalites": "Arène de Port-Amarée et Arène de Suerebe."
+  },
+  "acier": {
+   "nomDuPoste": "Arène de Suerebe",
+   "image": "https://images4.imgbox.com/12/9f/BiJK2PY9_o.png",
+   "statut": "libre",
+   "age": "Entre 20 et 40 ans.",
+   "traits": "Rigoureux, discipliné, méthodique, loyal, perfectionniste",
+   "affinites": "Arène de Port Amarée et Arène de la Station Service.",
+   "rivalites": "Colosseum de Titanite et Arène de l'Île Ténèbra."
+  },
+  "spectre": {
+   "nomDuPoste": "Colosseum de Phenacit",
+   "image": "https://images4.imgbox.com/19/9f/1hmFXhlh_o.png",
+   "statut": "libre",
+   "age": "Entre 30 et 50 ans.",
+   "traits": "Énigmatique, solitaire, lunatique, observateur, excentrique",
+   "affinites": "Arène de Suerebe et Arène de Port-Amarée.",
+   "rivalites": "Arène de la Station Service et Arène de l'Île Ténèbra."
+  },
+  "fee": {
+   "nomDuPoste": "Colosseum de Rhode",
+   "image": "https://images4.imgbox.com/51/fd/RPK1fWVP_o.png",
+   "statut": "libre",
+   "age": "Entre 25 et 50 ans.",
+   "traits": "Charismatique, malicieux, raffiné, rêveur, fantasque",
+   "affinites": "Arène de l'Île Ténèbra et Colosseum de Titanite.",
+   "rivalites": "Arène de Port-Amarée et Arène de Samaragd."
+  },
+  "vol": {
+   "nomDuPoste": "Arène de la Tour Titanite",
+   "image": "https://images4.imgbox.com/c4/dc/m8WUaKgX_o.png",
+   "statut": "libre",
+   "age": "Entre 30 et 60 ans.",
+   "traits": "Libre, aventureux, optimiste, insouciant, curieux",
+   "affinites": "Arène de Suerebe et Colosseum de Phenacit.",
+   "rivalites": "Arène de Pyrite et Colosseum de Rhode."
+  },
+  "tenebres": {
+   "nomDuPoste": "Arène de l'Île Ténèbra",
+   "image": "https://images4.imgbox.com/99/89/amtxpdih_o.png",
+   "statut": "joue",
+   "age": "Entre 25 et 50 ans.",
+   "traits": "Taciturne, calculateur, indépendant, sarcastique, méfiant",
+   "affinites": "Arène de la Tour Titanite et Colosseum de Titanite.",
+   "rivalites": "Arène de Samaragd et Colosseum de Targare."
+  },
+  "dragon": {
+   "nomDuPoste": "Colosseum de Titanite",
+   "image": "https://images4.imgbox.com/a9/ba/PkcjOfh4_o.png",
+   "statut": "libre",
+   "age": "Entre 35 et 55 ans.",
+   "traits": "Fier, ambitieux, autoritaire, courageux, exigeant",
+   "affinites": "Arène de la Tour Titanite et Colosseum de Phenacit.",
+   "rivalites": "Arène de Pyrite et Colosseum de Targare."
+  }
+ }
+}

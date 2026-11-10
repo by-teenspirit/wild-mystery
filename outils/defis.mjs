@@ -53,17 +53,33 @@ if (sujets.length === 0) {
   Deno.exit(1);
 }
 
-//  ── LE CORPS DE MESSAGE EST CELUI DE MODERNBB ─────────────────────
+//  ── LE CORPS DE MESSAGE EST CELUI DU FORUM ────────────────────────
 //
 //  `#modernbb`, `.postbody`, `.content` : les trois que porte un
 //  message réel. Sans eux, `#modernbb .postbody .content p { margin:
 //  0 0 16px }` ne s'applique pas, et le harnais mesurerait des écarts
 //  que personne ne verra jamais sur le forum.
+//
+//  LES VALEURS SONT RELEVÉES, pas écrites de mémoire : mesurées le
+//  10 novembre dans un vrai message de mysteryinrhode, en y insérant
+//  une balise nue et en lisant son style calculé. J'avais d'abord
+//  écrit `padding-left: 24px` sur les listes — le forum met
+//  `margin-left: 48px` et `padding: 0`. Un rembourrage se retranche du
+//  contenu, une marge pousse la boîte : la différence a coûté une
+//  colonne au lexique des champions avant qu'on la relève.
+//  ET LEUR SPÉCIFICITÉ COMPTE AUTANT QUE LEUR VALEUR. Écrites
+//  `#modernbb .postbody .content ul`, elles passaient devant nos
+//  règles de composant — ce que le forum NE FAIT PAS : sur la vraie
+//  page, `.wm-postes` garde sa marge à zéro. Elles sont donc posées
+//  au plus faible, `#modernbb ul`, ce qui reproduit l'ordre observé :
+//  elles s'appliquent à une balise nue, et cèdent à la première
+//  classe. La règle du `p`, elle, n'est pas d'eux — elle est à nous,
+//  dans `05-sujet.css`, donc déjà dans la feuille montée.
 const MODERNBB = `
-#modernbb .postbody .content p { margin: 0 0 16px; }
-#modernbb .postbody .content h2,
-#modernbb .postbody .content h3 { margin: 0 0 12px; }
-#modernbb .postbody .content ul { margin: 0 0 16px; padding-left: 24px; }
+#modernbb ul, #modernbb ol { margin: 0 0 16px 48px; padding: 0; }
+#modernbb li { margin: 0; padding: 0; }
+#modernbb h2 { margin: -3px 0 9px; padding: 0 0 3px; }
+#modernbb h3 { margin: 0 0 12px; padding: 0 0 3px; }
 `;
 
 const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">

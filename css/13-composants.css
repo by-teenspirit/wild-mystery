@@ -2067,11 +2067,34 @@
     `__blocs` : celle-là tomberait aussi quand les cadres finissent
     l'annonce, et ajouterait vingt pixels de vide au bas de la carte.
     `+` ne pose l'écart que là où il manque. */
+/*  `__texte` EST DANS LA LISTE DEPUIS LE 10 NOVEMBRE. Sur le premier
+    message des Champions, « CE QU'ON DEMANDE » se collait au dernier
+    mot du paragraphe d'introduction : un sous-titre n'a qu'une marge
+    BASSE, six pixels pour tenir à ce qu'il annonce, et il compte sur
+    ce qui le précède pour l'écart du haut. Les cadres le donnaient,
+    un paragraphe non. */
 #modernbb .postbody .content .wm-annonce__blocs + .wm-annonce__soustitre,
 #modernbb .postbody .content .wm-annonce__bloc + .wm-annonce__soustitre,
+#modernbb .postbody .content .wm-annonce__texte + .wm-annonce__soustitre,
 #modernbb .wm-annonce .wm-annonce__blocs + .wm-annonce__soustitre,
-#modernbb .wm-annonce .wm-annonce__bloc + .wm-annonce__soustitre {
+#modernbb .wm-annonce .wm-annonce__bloc + .wm-annonce__soustitre,
+#modernbb .wm-annonce .wm-annonce__texte + .wm-annonce__soustitre {
   margin-top: var(--wm-espace-24, 24px);
+}
+
+/*  ── PAS DE JUSTIFICATION DANS UN CADRE ───────────────────────────
+
+    Le texte d'annonce est justifié depuis le 9 novembre — « le petit
+    texte de présentation, tu le justify, ne le centre pas » — et c'est
+    juste sur la pleine largeur d'une carte.
+
+    DANS UN CADRE, C'EST L'INVERSE. Un `__bloc` fait deux cents pixels
+    et porte des lignes de quatre mots : la justification les étire en
+    rivières blanches — « Arène   de   Samaragd   et   Colosseum ».
+    Le drapeau à droite est ce qui se lit, à cette largeur-là. */
+#modernbb .postbody .content .wm-annonce__bloc .wm-annonce__texte,
+#modernbb .wm-annonce__bloc .wm-annonce__texte {
+  text-align: left;
 }
 
 /*  ── POURQUOI CES TROIS RÈGLES PORTENT `.wm-annonce` EN PLUS ──────

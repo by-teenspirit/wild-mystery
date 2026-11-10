@@ -11,6 +11,22 @@
    "le": null,
    "constat": "10 nov. 2026, relevé sur la page publique : le forum porte ENCORE les sept anciens liens (Contexte, Règlement, Questions, Pré-liens, Bottin, Zone Invités, Annexes), pas de bloc des annexes, et la puce en ligature Material Symbols — « visibilityContexte » en clair quand la police ne charge pas. À recoller en priorité."
   },
+  "champions-1-postes": {
+   "quoi": "Les Champions · les onze postes",
+   "ou": "https://mysteryinrhode.forumactif.com/t1002-les-champions (1er message)",
+   "fichier": "templates/champions-1-postes.min.html",
+   "empreinte": null,
+   "le": null,
+   "constat": "10 nov. 2026 : le message était écrit à la main. Un <br> de l'éditeur traînait entre chaque poste, et sur l'Arène Acier l'état s'était collé au palier — « PALIER 2POSTE VACANT ». Il est généré depuis ce jour."
+  },
+  "champions-2-lexique": {
+   "quoi": "Les Champions · le lexique, sur deux colonnes",
+   "ou": "https://mysteryinrhode.forumactif.com/t1002-les-champions (2e message)",
+   "fichier": "templates/champions-2-lexique.min.html",
+   "empreinte": null,
+   "le": null,
+   "constat": "10 nov. 2026 : une seule colonne, et les quatre champs en prose — « Tranche d'âge : Entre 20 et 30 ans. » L'étiquette et la valeur avaient le même poids, donc aucune hiérarchie."
+  },
   "annexe-01": {
    "quoi": "Annexe 01 · Par où commencer",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
