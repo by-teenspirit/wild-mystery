@@ -321,7 +321,7 @@ Deno.test("le pokémon du gros bloc passe par le filtre des adresses", () => {
   assertEquals(accueilDepuis({ decouvrir: { titre: "Les annexes" } })?.decouvrir?.image, "");
 });
 
-Deno.test("LE VRAI FICHIER PORTE SON POKÉMON, ET SES SIX LIENS RAPIDES", async () => {
+Deno.test("LE VRAI FICHIER PORTE SON POKÉMON, ET SES SEPT LIENS RAPIDES", async () => {
   const brut = JSON.parse(
     await Deno.readTextFile(new URL("../../data/accueil.json", import.meta.url)),
   );
@@ -340,7 +340,7 @@ Deno.test("LE VRAI FICHIER PORTE SON POKÉMON, ET SES SIX LIENS RAPIDES", async 
   //  sans adresse s'affiche en gris et ne clique pas — c'est honnête,
   //  mais ce n'est plus nécessaire ici, et ce test le dit le jour où
   //  l'une d'elles se vide.
-  assertEquals(a.liens.length, 6);
+  assertEquals(a.liens.length, 7);
   const creuses = a.liens.filter((l) => l.url === "").map((l) => l.texte);
   assertEquals(creuses, [], `des liens rapides sans adresse : ${creuses.join(", ")}`);
 });

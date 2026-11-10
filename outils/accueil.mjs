@@ -261,8 +261,8 @@ dire("sans JavaScript, le bloc de repli est déjà là", sansModule.la);
 //  c'est `pages/accueil-repli.html`, donc le compte suit celui de
 //  `data/accueil.json`. Six depuis le 9 novembre.
 dire(
-  "il porte le gros bloc, puis le contexte et les six liens",
-  sansModule.texte.startsWith("Tout l'univers") && sansModule.liens === 6 &&
+  "il porte le gros bloc, puis le contexte et les sept liens",
+  sansModule.texte.startsWith("Tout l'univers") && sansModule.liens === 7 &&
     sansModule.decouvrir === 1,
   JSON.stringify(sansModule),
 );
@@ -1062,17 +1062,18 @@ const vrai = await p.evaluate(() => {
     motVisible: /visibility/i.test(hote.textContent),
   };
 });
-//  SIX LIENS RAPIDES, et plus sept : Contexte, Règlement et Annexes
-//  sont partis le 9 novembre dans le gros bloc, qui les porte tous les
-//  trois en un seul appel ; le même jour, Callista en a rendu trois —
-//  FAQ & suggestions, Créer sa présentation, Petites annonces.
+//  SEPT LIENS RAPIDES, et plus sept AUTRES : Contexte, Règlement et
+//  Annexes sont partis le 9 novembre dans le gros bloc, qui les porte
+//  tous les trois en un seul appel ; le même jour, Callista en a rendu
+//  quatre — Créer sa présentation, Petites annonces, Demandes, FAQ &
+//  suggestions.
 //
 //  LE COMPTE EST DUR EXPRÈS. C'est le seul endroit qui dirait qu'une
 //  entrée a disparu de `data/accueil.json` : le module saute en
 //  silence un lien sans texte, et un lien perdu ne casse rien.
 dire(
   "AVEC LES VRAIES DONNÉES, LES HUIT BLOCS TIENNENT LA PAGE",
-  vrai.pose && vrai.liens === 6 && vrai.decouvrir === 1 &&
+  vrai.pose && vrai.liens === 7 && vrai.decouvrir === 1 &&
     vrai.partenaires === 7 && vrai.actus === 4 &&
     vrai.preliens === 6 && vrai.mascotte !== "aucune",
   JSON.stringify(vrai),
