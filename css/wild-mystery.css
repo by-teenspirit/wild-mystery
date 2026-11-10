@@ -29446,6 +29446,149 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin: var(--wm-espace-8, 8px) 0 var(--wm-espace-12, 12px);
 }
 
+/* ── wm-versions · les habillages du forum, du plus récent au premier
+
+   « J'aimerais aussi afficher les différentes versions du forum depuis
+   qu'on l'a ouvert. On a un sujet avec toutes les bannières, l'auteur
+   des bannières, à quelle période on l'a fait. Parfois, pour certains
+   designs, y'a une bannière. Des fois, y'en a plusieurs. »
+   10 novembre 2026, second onglet de l'annexe des crédits.
+
+   ── CE QUE LA DONNÉE DIT, ET CE QUE LA FEUILLE EN FAIT ────────────
+
+   Sept versions, quatorze bannières, relevées sur le sujet t41. Une
+   version en a une, une autre en a six. C'EST LA PÉRIODE QUI ORDONNE,
+   pas le nombre d'images : chaque version est une entrée de même rang,
+   et ses bannières vivent DANS sa carte. Six images ne doivent pas
+   faire croire à six versions.
+
+   ── POURQUOI LA GRILLE N'EST PAS AUTOMATIQUE ──────────────────────
+
+   Parce que le CSS ne sait pas compter ses enfants. `--plusieurs` est
+   posée par le générateur, qui le sait : une bannière prend toute la
+   largeur, plusieurs se rangent à deux. Un `auto-fill` donnerait deux
+   colonnes à une image seule, qui s'afficherait alors à moitié de sa
+   taille sans raison.
+   ───────────────────────────────────────────────────────────────── */
+
+#modernbb .wm-versions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-24, 24px);
+  margin: var(--wm-espace-24, 24px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-version {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LE NOM ET SA DATE SUR UNE LIGNE, la date à droite. C'est la même
+    forme que la tête d'un défi dans l'annexe 06 : ce qu'on cherche à
+    gauche, ce qui situe à droite. En dessous de 420 px la date passe
+    sous le nom plutôt que de le comprimer. */
+#modernbb .wm-version__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-version__nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-version__quand {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  L'AUTEUR EST LA RAISON D'ÊTRE DE LA PAGE, pas une mention de bas
+    de carte : il garde l'encre pleine quand la date reste pâle. Une
+    page de remerciements qui met le crédit en gris clair remercie à
+    moitié. */
+#modernbb .wm-version__par {
+  margin: var(--wm-espace-4, 4px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-version__qui {
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-versions__images {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-12, 12px);
+}
+
+/*  `auto-fit` ICI, ET `auto-fill` AILLEURS — c'est le même mot à une
+    lettre près et l'effet est inverse, alors voici la règle qui
+    tranche : `auto-fill` GARDE les pistes vides, `auto-fit` les
+    replie.
+
+    Le lexique des champions veut `auto-fill` : onze fiches, la
+    dernière seule sur sa ligne, et elle doit rester large comme les
+    dix autres. Les bannières veulent `auto-fit` : deux images sur
+    une ligne de trois pistes doivent se partager toute la largeur,
+    pas rester au tiers en laissant un vide à droite.
+
+    La différence n'est pas une préférence : là-bas les fiches sont
+    des objets qu'on compare, ici les bannières sont une image qu'on
+    regarde. */
+#modernbb .wm-versions__images--plusieurs {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/*  LA BANNIÈRE GARDE SES PROPORTIONS. Les quatorze ne font pas la
+    même taille — 800×500 pour les premières, 800×600 pour les
+    suivantes — et les forcer à un rapport commun les couperait. Le
+    cadre suit l'image, pas l'inverse.
+
+    `display: block` : une image reste en ligne par défaut, et la
+    ligne de base laisse quelques pixels sous elle, à l'intérieur du
+    cadre. C'est ce qui donne ces liserés clairs en bas des images
+    encadrées, qu'on prend toujours pour un défaut de bordure. */
+#modernbb .wm-version__banniere {
+  display: block;
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  margin: 0;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LE BLOC DE CRÉDITS garde son air quand il descend d'un cran : les
+    deux parties de l'onglet « Les crédits » étaient deux cartes, elles
+    sont maintenant deux sections d'une même carte. */
+#modernbb .wm-credits-bloc + .wm-credits-bloc {
+  margin-top: var(--wm-espace-32, 32px);
+}
+
 /* ════════════════════════════════════════════════════════════════════
     24-profil.css — le profil d'un membre, `/uN`
 

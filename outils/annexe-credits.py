@@ -82,9 +82,35 @@ def corps():
     w('      <div class="wm-annexe__blocs">')
     w("")
 
+    #  ── DEUX ONGLETS DEPUIS LE 10 NOVEMBRE ────────────────────────
+    #
+    #  « J'aimerais aussi afficher les différentes versions du forum
+    #  depuis qu'on l'a ouvert […] je pense qu'on fera ça dans un 2e
+    #  onglet dans cette annexe. »
+    #
+    #  LE MÉCANISME EST CELUI DE L'ANNEXE 06, à l'identique : un
+    #  conteneur `[data-wm-sous-onglets]`, une `<section
+    #  data-wm-sous-onglet>` par onglet, et `module-annexes.ts` fait
+    #  la barre à partir du PREMIER titre de chaque section. Rien de
+    #  nouveau à écrire côté script.
+    #
+    #  LES DEUX BLOCS DE CRÉDITS PASSENT DONC SOUS UN SEUL `<h2>`, et
+    #  leurs titres descendent en `<h3>`. Laissés en `<h2>`, c'est le
+    #  premier — « Le code » — qui aurait nommé l'onglet.
+    #
+    #  SANS JAVASCRIPT, LES DEUX SECTIONS SE SUIVENT l'une sous
+    #  l'autre et tout se lit. C'est pour ça que la barre d'onglets
+    #  n'est pas écrite dans la page : une rangée de boutons morts
+    #  serait pire qu'une page longue.
+    w('        <div class="wm-annexe__carte wm-sous-onglets" data-wm-sous-onglets>')
+    w("")
+    w('          <section data-wm-sous-onglet="les-credits">')
+    w('            <h2 class="wm-annexe__carte-titre">Les crédits</h2>')
+    w("")
+
     for bloc in c["blocs"]:
-        w('        <div class="wm-annexe__carte">')
-        w(f'          <h2 class="wm-annexe__carte-titre">{e(bloc["titre"])}</h2>')
+        w('        <div class="wm-credits-bloc">')
+        w(f'          <h3 class="wm-defi__sous-titre">{e(bloc["titre"])}</h3>')
         if bloc.get("dit"):
             w('          <div class="wm-paras">')
             w(f"            <p>{riche(bloc['dit'], fondatrice=nom)}</p>")
@@ -109,6 +135,65 @@ def corps():
             w("          </div>")
         w("        </div>")
         w("")
+
+    w("          </section>")
+    w("")
+
+    #  ── LA FRISE DES VERSIONS ─────────────────────────────────────
+    #
+    #  « On a un sujet avec toutes les bannières, l'auteur des
+    #  bannières, à quelle période on l'a fait. Parfois, pour certains
+    #  designs, y'a une bannière. Des fois, y'en a plusieurs. »
+    #
+    #  C'EST LA PÉRIODE QUI ORDONNE, pas le nombre d'images. Une
+    #  version à six bannières et une version à une seule sont deux
+    #  entrées de même rang : la grille des bannières vit DANS la
+    #  carte de sa version, et ne la fait pas compter double.
+    #
+    #  DE LA PLUS RÉCENTE À LA PLUS ANCIENNE, comme on relit un
+    #  journal. L'ordre est celui de la donnée, pas un tri calculé —
+    #  « août 2021 » et « décembre 2020 » ne se comparent pas sans
+    #  écrire un analyseur de dates en français pour sept lignes.
+    v = c["versions"]
+    w('          <section data-wm-sous-onglet="les-versions">')
+    w(f'            <h2 class="wm-annexe__carte-titre">{e(v["titre"])}</h2>')
+    if v.get("dit"):
+        w('            <div class="wm-paras">')
+        w(f'              <p>{riche(v["dit"])}</p>')
+        w("            </div>")
+    w('            <ol class="wm-versions">')
+    for ver in v["liste"]:
+        bannieres = ver["bannieres"]
+        #  `--plusieurs` et pas un calcul dans la feuille : une seule
+        #  bannière prend toute la largeur, plusieurs se rangent en
+        #  grille. Le CSS seul ne sait pas compter ses enfants.
+        plus = " wm-versions__images--plusieurs" if len(bannieres) > 1 else ""
+        w('              <li class="wm-version">')
+        w('                <div class="wm-version__tete">')
+        w(f'                  <h3 class="wm-version__nom">{e(ver["nom"])}</h3>')
+        w('                  <p class="wm-version__quand">'
+          f'{e(ver["quand"])}</p>')
+        w("                </div>")
+        w('                <p class="wm-version__par">'
+          + " et ".join(f'<span class="wm-version__qui">{e(q)}</span>'
+                        for q in ver["par"])
+          + "</p>")
+        w(f'                <div class="wm-versions__images{plus}">')
+        for i, src in enumerate(bannieres, 1):
+            #  L'ALTERNATIVE DIT CE QU'ON NE VOIT PAS. Une bannière
+            #  n'est pas décorative ici : c'est l'objet même de la
+            #  page. Son texte nomme donc le design et son rang.
+            alt = (f'{ver["nom"]}, bannière {i} sur {len(bannieres)}'
+                   if len(bannieres) > 1 else f'{ver["nom"]}, la bannière')
+            w('                  <img class="wm-version__banniere" '
+              f'src="{e(src)}" alt="{e(alt)}" loading="lazy" />')
+        w("                </div>")
+        w("              </li>")
+    w("            </ol>")
+    w("          </section>")
+    w("")
+    w("        </div>")
+    w("")
 
     w('        <div class="wm-encarts">')
     w('          <div class="wm-encart wm-encart--terre">')
