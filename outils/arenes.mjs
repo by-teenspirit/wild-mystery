@@ -299,6 +299,35 @@ const nav = await chromium.launch(
     soucis,
   );
 
+  //  ── LES TROIS OBSCURS, ET LA BULLE QUI SUIT LA CASE ──────────────
+  //
+  //  « Oui, dragon, ténèbres et elec », le dernier de chaque équipe
+  //  (10 nov.). Ici la bulle est montée par `module-equipe.ts`, qui
+  //  lit la classe de la case : le contrôle vérifie donc les DEUX
+  //  bouts de la chaîne, le générateur Python et le module.
+  const obscurs = await p.evaluate(() => {
+    const cases = Array.from(document.querySelectorAll(".wm-equipe__pkmn"));
+    const marquees = cases.filter((c) =>
+      c.classList.contains("wm-equipe__pkmn--obscur")
+    );
+    return {
+      cases: cases.length,
+      marquees: marquees.length,
+      leMot: marquees.every((c) =>
+        c.querySelector(".wm-equipe__obscur")?.textContent?.trim() === "Obscur"
+      ),
+      bulleViolette: marquees.every((c) =>
+        c.querySelector(".wm-infobulle")?.classList
+          .contains("wm-infobulle--obscur") === true
+      ),
+    };
+  });
+  ok(
+    "TROIS POKÉMON OBSCURS, chacun avec le mot et sa bulle violette",
+    obscurs.marquees === 3 && obscurs.leMot && obscurs.bulleViolette,
+    obscurs,
+  );
+
   // ── l'infobulle : cachée, puis dans le cadre ──────────────────────
   await p.getByRole("tab", { name: ARENES.textes.arenes.titre, exact: true }).click();
   await new Promise((x) => setTimeout(x, 120));

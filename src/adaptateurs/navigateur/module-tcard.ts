@@ -143,6 +143,17 @@ function caseDEquipe(
 
   li.append(nom, niveau);
 
+  //  LE MOT, SOUS LE NOM ET SON NIVEAU. La teinte de la case le disait
+  //  déjà, mais elle le disait SEULE depuis que le liseré de gauche
+  //  est parti — et une teinte seule ne suffit pas, c'est la règle qui
+  //  tient les trois états du Pokédex et les badges à gagner.
+  if (p.obscur) {
+    const marque = doc.createElement("p");
+    marque.className = "wm-tcard__obscur";
+    marque.textContent = "Obscur";
+    li.append(marque);
+  }
+
   //  ── LES DEUX TYPES SONT UNE PAIRE, PAS DEUX VOISINS ─────────────
   //
   //  Ils étaient posés en frères directs de la case, donc séparés par

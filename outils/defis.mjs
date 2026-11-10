@@ -553,6 +553,64 @@ dire(
   JSON.stringify(sombre),
 );
 
+//  ── LES TROIS OBSCURS ─────────────────────────────────────────────
+//
+//  « On a des champions avec des obscurs ? » — « Oui, dragon,
+//  ténèbres et elec », le dernier de chaque équipe (10 nov.). Deux
+//  colosseums et une arène tenus par la Team Ombre.
+//
+//  Le contrôle compte TROIS cases marquées sur les treize blocs, pas
+//  « au moins une » : un générateur qui marquerait tout le monde, ou
+//  plus personne, passerait un seuil et pas un compte.
+const obscurs = await p.evaluate(() => {
+  const cases = [...document.querySelectorAll(".wm-equipe__pkmn")];
+  const marquees = cases.filter((c) => c.classList.contains("wm-equipe__pkmn--obscur"));
+  const fond = (e) => getComputedStyle(e).backgroundColor;
+  const temoin = cases.find((c) => !marquees.includes(c));
+  return {
+    cases: cases.length,
+    marquees: marquees.length,
+    //  chacune porte le mot, et pas seulement la teinte
+    leMot: marquees.every((c) =>
+      c.querySelector(".wm-equipe__obscur")?.textContent?.trim() === "Obscur"
+    ),
+    fondDifferent: marquees.every((c) => fond(c) !== fond(temoin)),
+    //  et la bulle suit la case
+    bulleViolette: marquees.every((c) =>
+      c.querySelector(".wm-infobulle")?.classList.contains("wm-infobulle--obscur") === true
+    ),
+    //  AUCUN LISERÉ À GAUCHE, nulle part : « ne mets pas un border à
+    //  gauche, ne mets ça nulle part, ce n'est pas beau ».
+    aucunLisere: cases.every((c) => !getComputedStyle(c).boxShadow.includes("inset")),
+    //  la marque ne doit pas faire déborder la case de sa rangée
+    memeHauteur: marquees.every((c) => {
+      const voisines = [...c.parentElement.children];
+      const h = voisines.map((v) => Math.round(v.getBoundingClientRect().height));
+      return new Set(h).size === 1;
+    }),
+  };
+});
+dire(
+  "TROIS POKÉMON OBSCURS, et trois seulement",
+  obscurs.marquees === 3,
+  `${obscurs.marquees} sur ${obscurs.cases} cases`,
+);
+dire(
+  "chacun le dit par le mot ET par la teinte, et sa bulle suit",
+  obscurs.leMot && obscurs.fondDifferent && obscurs.bulleViolette,
+  JSON.stringify(obscurs),
+);
+dire(
+  "aucun liseré à gauche sur une case d'équipe",
+  obscurs.aucunLisere,
+  String(obscurs.aucunLisere),
+);
+dire(
+  "et la marque ne déforme pas la rangée",
+  obscurs.memeHauteur,
+  String(obscurs.memeHauteur),
+);
+
 for (const s of soucis) rate(s);
 
 console.log(

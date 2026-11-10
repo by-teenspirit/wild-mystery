@@ -644,6 +644,16 @@
   border-radius: var(--wm-rayon-sm, 6px);
   background-color: var(--wm-fond-douce, #f3e1d2);
   background-origin: content-box;
+  /*  `no-repeat`, ET C'EST LE DÉFAUT QUI M'A EU (10 nov., signalé par
+      Callista : « on dirait que les badges sont en fond, et se
+      répètent, on les repère en haut et en bas »).
+
+      `background-origin` déplace l'ORIGINE de l'image, pas la zone
+      PEINTE : celle-ci reste la boîte de rembourrage. L'insigne,
+      calé sur la boîte de contenu, laissait donc quatre pixels de
+      libre en haut et en bas — que la répétition par défaut
+      remplissait avec des tranches de lui-même. */
+  background-repeat: no-repeat;
 }
 
 /*  LA RANGÉE EST EN FLEX, et les marges de 3 px de Forumactif s'en

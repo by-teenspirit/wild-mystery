@@ -198,13 +198,31 @@ def case(m):
         f'<span>{m[cle]}</span></li>'
         for mot, cle in (("PV", "pv"), ("Attaque", "att"), ("Défense", "def"))
     )
+    #  ── UN OBSCUR SE DIT DANS LA CASE, PAS SEULEMENT DANS LA BULLE ──
+    #
+    #  « On a des champions avec des obscurs ? » — « Oui, dragon,
+    #  ténèbres et elec », le dernier de chaque équipe (Plumyts, 10
+    #  novembre). Deux colosseums et une arène tenus par la Team Ombre.
+    #
+    #  La bulle savait déjà le dire — elle passe du vert au violet —
+    #  mais il fallait survoler les six pour le trouver. Un joueur qui
+    #  prépare un combat doit le voir du premier coup d'œil : il ne
+    #  prépare pas la même chose.
+    #
+    #  ET LE MOT EST ÉCRIT. La teinte seule ne suffit pas : c'est la
+    #  règle qui tient déjà les trois états du Pokédex et les badges.
+    obscur = bool(m.get("obscur"))
+    marque = ' wm-equipe__pkmn--obscur' if obscur else ""
+    mot = '<p class="wm-equipe__obscur">Obscur</p>' if obscur else ""
     return (
-        '<li class="wm-equipe__pkmn" tabindex="0">'
+        f'<li class="wm-equipe__pkmn{marque}" tabindex="0">'
         f'<img class="wm-equipe__sprite" src="{e(m["sprite"])}" alt="" loading="lazy" />'
         f'<p class="wm-equipe__nom">{e(m["nom"])}</p>'
-        f'<p class="wm-equipe__niveau">niv. {m["niveau"]}</p>'
+        + mot
+        + f'<p class="wm-equipe__niveau">niv. {m["niveau"]}</p>'
         f'<p class="wm-equipe__types">{pastilles}</p>'
-        '<div class="wm-infobulle" role="tooltip">'
+        f'<div class="wm-infobulle{" wm-infobulle--obscur" if obscur else ""}"'
+        ' role="tooltip">'
         '<div class="wm-infobulle__tete">'
         f'<p class="wm-infobulle__nom">{e(m["nom"])}</p>'
         f'<span class="wm-infobulle__niveau">Niv. {m["niveau"]}</span></div>'

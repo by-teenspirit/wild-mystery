@@ -395,7 +395,8 @@
           },
           "pv": 207,
           "att": 192,
-          "def": 138
+          "def": 138,
+          "obscur": true
         }
       ]
     },
@@ -513,7 +514,8 @@
           },
           "pv": 58,
           "att": 46,
-          "def": 33
+          "def": 33,
+          "obscur": true
         }
       ]
     },
@@ -884,7 +886,8 @@
           },
           "pv": 190,
           "att": 155,
-          "def": 67
+          "def": 67,
+          "obscur": true
         }
       ]
     },
@@ -2223,5 +2226,6 @@
       ]
     }
   },
-  "_ligue_niveaux": "LE DÉCALAGE DE CINQ NIVEAUX, ET POURQUOI. « La ligue doit passer niveau 80 » (9 novembre). Sur les onze arènes, le niveau du défi est celui du pokémon le plus fort de l'équipe — vérifié : le défi dragon est à 70 et son équipe monte à 70. La carte de Michael plafonne à 75. On décale donc TOUTE son équipe de +5, ce qui met son plus fort à 80 et garde l'écart entre ses six. ET PAS L'ÉTAGEMENT DES ONZE AUTRES (-2,-2,-1,-1,0,0) : il aurait donné 78/78/79/79/80/80 et effacé la forme de son équipe, qui n'est pas étagée comme les autres. Les niveaux de la carte sont gardés ci-dessous pour qu'on puisse revenir en arrière d'une ligne."
+  "_ligue_niveaux": "LE DÉCALAGE DE CINQ NIVEAUX, ET POURQUOI. « La ligue doit passer niveau 80 » (9 novembre). Sur les onze arènes, le niveau du défi est celui du pokémon le plus fort de l'équipe — vérifié : le défi dragon est à 70 et son équipe monte à 70. La carte de Michael plafonne à 75. On décale donc TOUTE son équipe de +5, ce qui met son plus fort à 80 et garde l'écart entre ses six. ET PAS L'ÉTAGEMENT DES ONZE AUTRES (-2,-2,-1,-1,0,0) : il aurait donné 78/78/79/79/80/80 et effacé la forme de son équipe, qui n'est pas étagée comme les autres. Les niveaux de la carte sont gardés ci-dessous pour qu'on puisse revenir en arrière d'une ligne.",
+  "_obscurs": "Le DERNIER membre des équipes dragon, ténèbres et electrik est un pokémon obscur : deux colosseums et une arène tenus par la Team Ombre. Information donnée par Plumyts le 10 novembre 2026."
 }

@@ -127,6 +127,7 @@ def case(b: dict, obscur: bool) -> str:
           <img class="wm-tcard__sprite" src="{sprite}" alt="" />
           <p class="wm-tcard__nom">{b["nom"]}</p>
           <p class="wm-tcard__niveau">niv. {b["niveau"]}</p>
+          {'<p class="wm-tcard__obscur">Obscur</p>' if obscur else ""}
           <p class="wm-tcard__types">{pastilles}</p>
           <div class="wm-infobulle{" wm-infobulle--obscur" if obscur else ""}" role="tooltip">
             <div class="wm-infobulle__tete">

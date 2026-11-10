@@ -213,10 +213,18 @@ def membre(w, m, couverture):
         + "|"
         + ",".join(str(m[cle]) for cle in ("pv", "att", "def"))
     )
+    #  L'OBSCUR SE LIT SANS SURVOLER (10 nov.) : la case prend la
+    #  teinte violette ET le mot. La bulle, elle, est montée par
+    #  `module-equipe.ts`, qui lit la classe de la case — rien à
+    #  passer dans `data-wm-bulle`.
+    obscur = bool(m.get("obscur"))
     w(
-        f'<li class="wm-equipe__pkmn" tabindex="0" data-wm-bulle="{e(donnees)}">'
+        '<li class="wm-equipe__pkmn'
+        + (" wm-equipe__pkmn--obscur" if obscur else "")
+        + f'" tabindex="0" data-wm-bulle="{e(donnees)}">'
         + image
         + f'<p class="wm-equipe__nom">{e(m["nom"])}</p>'
+        + ('<p class="wm-equipe__obscur">Obscur</p>' if obscur else "")
         + f'<p class="wm-equipe__niveau">niv. {m["niveau"]}</p>'
         + '<p class="wm-equipe__types">'
         + "".join(pastille(ty) for ty in m["types"])

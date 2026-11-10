@@ -1338,13 +1338,20 @@ const casesDuTest = await p.evaluate(() => {
       return p !== null &&
         getComputedStyle(p, "::before").backgroundImage.startsWith("url(");
     }).length,
-    //  UN OBSCUR SE VOIT SANS SURVOLER : fond différent ET un liseré,
+    //  UN OBSCUR SE VOIT SANS SURVOLER : fond différent ET le mot,
     //  parce que la couleur ne porte jamais seule.
     obscurs: obscurs.length,
     fondDifferent: obscurs.length > 0 &&
       fond(obscurs[0]) !== fond(cases.find((c) => !obscurs.includes(c))),
-    liseré: obscurs.length > 0 &&
-      getComputedStyle(obscurs[0]).boxShadow.includes("inset"),
+    //  LE SECOND SIGNAL EST LE MOT, et plus un liseré à gauche :
+    //  « ne mets pas un border à gauche, ne mets ça nulle part ».
+    //  Le contrôle d'avant EXIGEAIT ce liseré — il tenait donc en
+    //  place une règle qu'on avait demandé de retirer partout.
+    leMot: obscurs.length > 0 &&
+      obscurs[0].querySelector(".wm-tcard__obscur")?.textContent?.trim() === "Obscur",
+    aucunLisere: cases.every((c) =>
+      !getComputedStyle(c).boxShadow.includes("inset")
+    ),
     //  ET LES SPRITES NE SONT PLUS AGRANDIS. « Pourquoi certains comme
     //  Couaneton sont plus gros ? » — `scale-down` ne grossit jamais.
     jamaisAgrandi: cases.every((c) => {
@@ -1360,7 +1367,8 @@ const casesDuTest = await p.evaluate(() => {
 dire(
   "la case porte son glyphe de type, et un obscur se voit sans survoler",
   casesDuTest.pastillesAvecGlyphe === 6 && casesDuTest.obscurs === 1 &&
-    casesDuTest.fondDifferent && casesDuTest.liseré &&
+    casesDuTest.fondDifferent && casesDuTest.leMot &&
+    casesDuTest.aucunLisere &&
     casesDuTest.jamaisAgrandi,
   JSON.stringify(casesDuTest),
 );

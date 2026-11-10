@@ -80,7 +80,16 @@ function construire(doc: Document, li: Element, brut: string): HTMLElement | nul
     .trim()
     .replace(/^niv\./i, "Niv.");
 
-  const bulle = elt(doc, "div", "wm-infobulle");
+  //  LA BULLE SUIT LA CASE. Un pokémon obscur se marque sur le `<li>`
+  //  par le générateur ; la bulle n'a donc rien à lire de plus dans
+  //  `data-wm-bulle`, dont le format ne bouge pas. Elle passe du vert
+  //  au violet parce que la case le dit déjà.
+  const obscur = li.classList.contains("wm-equipe__pkmn--obscur");
+  const bulle = elt(
+    doc,
+    "div",
+    obscur ? "wm-infobulle wm-infobulle--obscur" : "wm-infobulle",
+  );
   bulle.setAttribute("role", "tooltip");
 
   const tete = elt(doc, "div", "wm-infobulle__tete");

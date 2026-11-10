@@ -67,7 +67,8 @@
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
    "fichier": "pages/annexe-06-arenes-colosseums-ligues.html",
    "empreinte": null,
-   "le": null
+   "le": null,
+   "constat": "10 nov. 2026 : les trois pokémon obscurs des équipes dragon, ténèbres et electrik sont marqués. À recoller."
   },
   "annexe-07": {
    "quoi": "Annexe 07 · Groupes",
@@ -165,7 +166,8 @@
    "ou": "https://mysteryinrhode.forumactif.com/t65",
    "fichier": "templates/defier/t65-dragon.min.html",
    "empreinte": null,
-   "le": null
+   "le": null,
+   "constat": "10 nov. 2026 : le dernier pokémon de l'équipe est obscur (Team Ombre). La case le dit maintenant par la teinte ET par le mot, et sa bulle passe au violet. À recoller."
   },
   "defi-t66-vol": {
    "quoi": "Défier le champion · Arène Vol",
@@ -193,14 +195,16 @@
    "ou": "https://mysteryinrhode.forumactif.com/t69",
    "fichier": "templates/defier/t69-electrik.min.html",
    "empreinte": null,
-   "le": null
+   "le": null,
+   "constat": "10 nov. 2026 : le dernier pokémon de l'équipe est obscur (Team Ombre). La case le dit maintenant par la teinte ET par le mot, et sa bulle passe au violet. À recoller."
   },
   "defi-t70-tenebres": {
    "quoi": "Défier le champion · Arène Ténèbres",
    "ou": "https://mysteryinrhode.forumactif.com/t70",
    "fichier": "templates/defier/t70-tenebres.min.html",
    "empreinte": null,
-   "le": null
+   "le": null,
+   "constat": "10 nov. 2026 : le dernier pokémon de l'équipe est obscur (Team Ombre). La case le dit maintenant par la teinte ET par le mot, et sa bulle passe au violet. À recoller."
   },
   "defi-t91-fee": {
    "quoi": "Défier le champion · Colosseum de Rhode",

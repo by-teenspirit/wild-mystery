@@ -1830,6 +1830,45 @@ body:has(#modernbb .wm-carnet) {
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
+/*  ── UN POKÉMON OBSCUR SE VOIT DANS LA CASE ───────────────────────
+
+    « On a des champions avec des obscurs ? » — « Oui, dragon,
+    ténèbres et elec », le dernier de chaque équipe. Deux colosseums
+    et une arène tenus par la Team Ombre.
+
+    L'infobulle le disait déjà, en passant du vert au violet. Mais il
+    fallait survoler les six cases pour trouver laquelle, et on ne
+    prépare pas le même combat contre un obscur.
+
+    ET LE MOT EST ÉCRIT SOUS LE NOM. Six cases crème et une lilas ne
+    se distinguent pas pour tout le monde — c'est la règle qui tient
+    déjà les trois états du Pokédex et les badges à gagner.
+
+    LE CADRE FAIT LE TOUR, il ne se met pas à gauche. Un liseré sur
+    un seul côté a été refusé une fois pour toutes (« ne mets pas un
+    border à gauche, ne mets ça nulle part »), et la case porte déjà
+    un filet complet qu'il suffit de teinter. */
+#modernbb .wm-equipe__pkmn--obscur {
+  border-color: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 45%, transparent);
+  background: color-mix(in srgb, var(--wm-pokemon-obscur-fond, #4a3a63) 12%,
+    var(--wm-fond-douce, #f3e1d2));
+}
+
+/*  LA TAILLE DES ÉTIQUETTES, la plus petite de la charte. La case
+    fait quatre-vingt-huit pixels moins douze de rembourrage :
+    « Obscur » y tient sur une ligne, là où un nom d'espèce
+    déborderait. */
+#modernbb .wm-equipe__obscur {
+  margin: 1px 0 0;
+  color: var(--wm-pokemon-obscur-fond, #4a3a63);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.2;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 #modernbb .wm-equipe__nom {
   margin: 0;
   color: var(--wm-encre, #2e2018);
