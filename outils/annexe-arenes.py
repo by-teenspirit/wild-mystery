@@ -576,7 +576,12 @@ def corps():
     for mot, valeur in (
         ("Où", ligue["ville"]),
         ("Niveau de l'équipe", f'{ligue["niveau"]} · {PALIERS[3]}'),
-        ("Tenue par", ligue["tenuePar"]),
+        #  « MAÎTRE DE LA LIGUE » ET PLUS « TENUE PAR » : corrigé par
+        #  Callista sur la page collée, repris ici le 10 novembre. Les
+        #  onze arènes gardent « Tenue par », qui dit bien ce qu'il
+        #  dit — un poste qu'on occupe. La Ligue, elle, n'est pas
+        #  tenue : elle a un maître, et c'est un titre.
+        ("Maître de la Ligue", ligue["tenuePar"]),
     ):
         w('              <div class="wm-defi__fait">')
         w(f'                <dt class="wm-defi__mot">{e(mot)}</dt>')
