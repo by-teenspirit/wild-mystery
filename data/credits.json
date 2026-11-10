@@ -48,7 +48,7 @@
   "titre": "Les versions du forum",
   "_": "Relevé le 10 novembre 2026 sur https://mysteryinrhode.forumactif.com/t41-credits-du-forum, un message par design. Les noms, les auteurs et les mois sont repris MOT POUR MOT du sujet.",
   "_images": "LES IMAGES SONT CHEZ TUMBLR ET IMGUR, pas chez nous. C'est déjà le cas dans le sujet, donc la page n'ajoute pas de risque — mais elle en ajoute une seconde dépendance. À rapatrier dans `img/versions/` dès qu'on peut les télécharger : une page de remerciements pleine de cadres vides serait une ironie coûteuse.",
-  "dit": "Sept habillages depuis l'ouverture, de décembre 2020 à aujourd'hui. Certains n'ont eu qu'une bannière, d'autres toute une série.",
+  "dit": "Sept habillages depuis l'ouverture, de décembre 2020 à aujourd'hui. Certains n'ont eu qu'une bannière, d'autres toute une série. Chaque design porte le pseudo sous lequel il a été signé : <b>TWOSTARS</b> et <b>teenspirit</b> sont la même personne.",
   "liste": [
    {
     "nom": "Design printemps / forum privé",
@@ -78,8 +78,7 @@
    {
     "nom": "Design été / festival du soleil 2021",
     "par": [
-     "TWOSTARS",
-     "teenspirit"
+     "TWOSTARS"
     ],
     "quand": "août 2021",
     "bannieres": [
@@ -89,8 +88,7 @@
    {
     "nom": "Design été / GPR1 2021",
     "par": [
-     "TWOSTARS",
-     "teenspirit"
+     "TWOSTARS"
     ],
     "quand": "juin 2021",
     "bannieres": [
@@ -129,6 +127,7 @@
      "https://2img.net/i.imgur.com/0wGo5Tv.png"
     ]
    }
-  ]
+  ],
+  "_pseudos": "TWOSTARS ET TEENSPIRIT SONT LA MÊME PERSONNE — l'ancien et le nouveau pseudo de Callista (10 nov. 2026, de sa bouche). Deux designs étaient crédités « TWOSTARS/teenspirit » dans le sujet : la barre oblique se lisait comme un duo. Chaque design garde LE NOM SIGNÉ À L'ÉPOQUE — un crédit date autant qu'il nomme — et l'équivalence est dite UNE FOIS, dans le chapeau de l'onglet."
  }
 }

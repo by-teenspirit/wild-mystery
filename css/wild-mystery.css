@@ -29480,6 +29480,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   list-style: none;
 }
 
+/*  ── UN ENCADRÉ QUI N'AVAIT PAS DE FOND ───────────────────────────
+
+    « Mets un fond pour les encadrés » (10 nov.), et c'était un vrai
+    défaut, mesuré : la carte d'une version rendait exactement
+    `rgb(255, 251, 247)`, la couleur de la carte d'annexe qui la
+    contient. Blanc sur blanc — seul le filet d'un pixel disait où
+    elle commençait.
+
+    C'EST LE PIÈGE DES SURFACES EMPILÉES, et il revient dès qu'on
+    pose une boîte dans une boîte : `fond-surface` est la couleur
+    d'une carte, pas celle de ce qu'on met DEDANS. Ce qui est dedans
+    prend `fond-douce`, comme les cases d'équipe et les encarts.
+
+    ET LA BANNIÈRE S'INVERSE À SON TOUR : son fond passe à
+    `fond-surface`, sinon une image qui ne charge pas laisserait un
+    rectangle de la même couleur que la carte, et on ne saurait même
+    pas qu'il manque quelque chose. */
 #modernbb .wm-version {
   display: flex;
   flex-direction: column;
@@ -29487,7 +29504,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   padding: var(--wm-espace-20, 20px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
+  background: var(--wm-fond-douce, #f3e1d2);
 }
 
 /*  ── TROIS NIVEAUX, ET PLUS DEUX CHOSES AUX DEUX BOUTS ────────────
@@ -29591,7 +29608,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-sm, 6px);
   margin: 0;
-  background: var(--wm-fond-douce, #f3e1d2);
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
 /*  LE BLOC DE CRÉDITS garde son air quand il descend d'un cran : les
