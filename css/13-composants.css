@@ -2169,7 +2169,12 @@
     annonce sable. */
 #modernbb .wm-annonce__duel {
   margin: var(--wm-espace-24, 24px) 0 0;
-  padding: var(--wm-espace-20, 20px);
+  /*  SEIZE ET PLUS VINGT, depuis que deux pastilles de type doivent
+      tenir côte à côte dans une case. La carte d'adversaire est
+      imbriquée dans l'annonce, donc ses marges se retranchent deux
+      fois de la largeur utile d'une case : huit pixels rendus ici,
+      c'est la paire Poison + Ténèbres qui cesse de se replier. */
+  padding: var(--wm-espace-16, 16px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);

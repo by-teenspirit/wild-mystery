@@ -560,6 +560,103 @@ const nav = await chromium.launch(
   await p.close();
 }
 
+// ── 1440 · LES DOUBLES TYPES TIENNENT SUR UNE LIGNE ─────────────────
+//
+//  « Fais-les plus petits pour que les doubles types tiennent sur une
+//  seule ligne » (9 novembre). Le réglage qui le permet est serré :
+//  9 px de texte, point de 8, rembourrage de 4, et quatre pixels de
+//  marge sur la pire paire — Ténèbres + Spectre.
+//
+//  QUATRE PIXELS NE SURVIVENT PAS À UNE DISTRACTION. Remonter le
+//  texte d'un pixel, rendre deux pixels de rembourrage à une case, et
+//  trois cases se replient sans que rien ne le signale. On mesure
+//  donc la MARGE, pas seulement le repli : savoir qu'il en reste
+//  quatre vaut mieux qu'apprendre qu'il n'en reste plus.
+{
+  const p = await ouvrir(nav);
+  const m = await p.evaluate(() => {
+    //  Les équipes vivent dans des panneaux d'onglets fermés ; on les
+    //  ouvre tous, sinon on ne mesure que la première arène.
+    for (const e of document.querySelectorAll("[hidden]")) e.hidden = false;
+    const pires = [];
+    for (const c of document.querySelectorAll(".wm-equipe__pkmn")) {
+      const ps = [...c.querySelectorAll(".wm-equipe__types .wm-type")];
+      if (ps.length < 2 || c.getBoundingClientRect().width === 0) continue;
+      const s = getComputedStyle(c);
+      const dispo = c.getBoundingClientRect().width -
+        parseFloat(s.paddingLeft) - parseFloat(s.paddingRight) -
+        parseFloat(s.borderLeftWidth) - parseFloat(s.borderRightWidth);
+      const large = ps.reduce((a, t) => a + t.getBoundingClientRect().width, 0) +
+        parseFloat(getComputedStyle(ps[0].parentElement).gap || "0");
+      pires.push({
+        pkmn: c.querySelector(".wm-equipe__nom")?.textContent.trim(),
+        paire: ps.map((t) => t.dataset.wmType).join("+"),
+        marge: Math.round(dispo - large),
+        lignes: new Set(ps.map((t) => Math.round(t.getBoundingClientRect().top))).size,
+      });
+    }
+    pires.sort((a, b) => a.marge - b.marge);
+    return {
+      combien: pires.length,
+      pire: pires[0] ?? null,
+      replies: pires.filter((x) => x.lignes > 1).map((x) => `${x.paire} (${x.pkmn})`),
+    };
+  });
+  ok(
+    `les ${m.combien} doubles types de l'annexe tiennent sur UNE ligne`,
+    m.combien > 0 && m.replies.length === 0,
+    JSON.stringify(m.replies.slice(0, 5)),
+  );
+  ok(
+    "et la paire la plus large garde au moins 3 px de marge",
+    m.pire !== null && m.pire.marge >= 3,
+    JSON.stringify(m.pire),
+  );
+
+  //  ── CHAQUE BARRE D'ONGLETS TIENT SUR UNE LIGNE ──────────────────
+  //
+  //  « Fais en sorte que les onglets des arènes dans l'annexe
+  //  tiennent sur une seule ligne. » Les sept onglets d'arène
+  //  demandaient 896 px dans une barre de 832, et la deuxième ligne
+  //  ne portait qu'un bouton.
+  //
+  //  ON MESURE TOUTES LES BARRES, pas seulement celle des arènes :
+  //  le réglage est commun, et le jour où un colosseum ou une maison
+  //  s'ajoute, c'est une autre barre qui débordera la première.
+  const barres = await p.evaluate(() => {
+    for (const e of document.querySelectorAll("[hidden]")) e.hidden = false;
+    return [...document.querySelectorAll(".wm-sous-onglets__barre")]
+      .filter((b) => b.getBoundingClientRect().width > 0)
+      .map((b) => {
+        const bs = [...b.children];
+        const g = parseFloat(getComputedStyle(b).gap || "0");
+        return {
+          premier: bs[0]?.textContent.trim() ?? "?",
+          combien: bs.length,
+          lignes: new Set(bs.map((x) => Math.round(x.getBoundingClientRect().top))).size,
+          marge: Math.round(
+            b.getBoundingClientRect().width -
+              (bs.reduce((a, x) => a + x.getBoundingClientRect().width, 0) + (bs.length - 1) * g),
+          ),
+        };
+      });
+  });
+  ok(
+    `les ${barres.length} barres d'onglets tiennent chacune sur une ligne`,
+    barres.length >= 3 && barres.every((x) => x.lignes === 1),
+    JSON.stringify(barres.filter((x) => x.lignes > 1)),
+  );
+  //  DIX PIXELS DE MARGE AU MINIMUM. En dessous, un libellé rallongé
+  //  d'un caractère renvoie la barre sur deux lignes, et c'est le
+  //  genre de régression qu'on ne voit qu'en rouvrant la page.
+  ok(
+    "avec au moins 10 px de marge sur la plus chargée",
+    barres.every((x) => x.marge >= 10),
+    JSON.stringify(barres.slice().sort((a, b) => a.marge - b.marge)[0]),
+  );
+  await p.close();
+}
+
 // ── LA LIGUE, ET SON ÉQUIPE ───────────────────────────────────────
 //
 //  Elle n'est pas une arène : pas de badge, pas de type, pas de case

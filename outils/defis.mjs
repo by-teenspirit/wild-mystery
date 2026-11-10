@@ -207,6 +207,56 @@ dire(
   rangees.every((r) => !r.deborde),
 );
 
+//  ── LES DEUX TYPES TIENNENT SUR UNE LIGNE ─────────────────────────
+//
+//  « Fais-les plus petits pour que les doubles types tiennent sur une
+//  seule ligne » (9 novembre). Le réglage qui le permet est serré —
+//  9 px, point de 8, rembourrage de 4 — et la marge se compte en
+//  pixels : la pire paire, Ténèbres + Spectre, laisse quatre pixels
+//  dans l'annexe. Un jour quelqu'un remontera la taille du texte ou
+//  le rembourrage d'une case, et le repli reviendra sans bruit.
+//
+//  ON MESURE DONC LA MARGE, pas seulement le repli : savoir qu'il
+//  reste quatre pixels vaut mieux qu'apprendre qu'il n'en reste plus.
+const uneLigne = await p.evaluate(() => {
+  const pires = [];
+  for (const c of document.querySelectorAll(".wm-equipe__pkmn")) {
+    const ps = [...c.querySelectorAll(".wm-equipe__types .wm-type")];
+    if (ps.length < 2) continue;
+    const s = getComputedStyle(c);
+    const dispo = c.getBoundingClientRect().width -
+      parseFloat(s.paddingLeft) - parseFloat(s.paddingRight) -
+      parseFloat(s.borderLeftWidth) - parseFloat(s.borderRightWidth);
+    const large = ps.reduce((a, t) => a + t.getBoundingClientRect().width, 0) +
+      parseFloat(getComputedStyle(ps[0].parentElement).gap || "0");
+    pires.push({
+      paire: ps.map((t) => t.dataset.wmType).join("+"),
+      marge: Math.round(dispo - large),
+      lignes: new Set(ps.map((t) => Math.round(t.getBoundingClientRect().top))).size,
+    });
+  }
+  pires.sort((a, b) => a.marge - b.marge);
+  return { combien: pires.length, pire: pires[0] ?? null, replies: pires.filter((x) => x.lignes > 1) };
+});
+dire(
+  `les ${uneLigne.combien} doubles types tiennent sur UNE ligne`,
+  uneLigne.replies.length === 0,
+  JSON.stringify(uneLigne.replies.slice(0, 4)),
+);
+//  LE SEUIL EST À UN PIXEL ICI, ET C'EST VOULU. Ce harnais monte les
+//  blocs dans 900 px, la largeur la plus étroite où ils doivent encore
+//  tenir ; le forum est plus large, et la même paire y respire. Ce
+//  qu'on garde, c'est le signal : toute taille reprise à la pastille
+//  ou au rembourrage d'une carte passe la marge sous zéro, et le
+//  contrôle du dessus vire au rouge avant que personne ne le voie.
+//  L'annexe, elle, a de la place : `deno task arenes` y exige trois
+//  pixels.
+dire(
+  "et la paire la plus large tient encore dans 900 px",
+  uneLigne.pire !== null && uneLigne.pire.marge >= 1,
+  JSON.stringify(uneLigne.pire),
+);
+
 // ── 2 · LE TITRE ET LE SOUS-TITRE SONT À GAUCHE ─────────────────────
 //
 //  « Le titre aussi et le sous-titre, colle tout à gauche » — et ça

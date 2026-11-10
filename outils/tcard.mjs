@@ -1503,6 +1503,40 @@ dire(
   );
 }
 
+//  ── ET LES DEUX TIENNENT SUR UNE LIGNE ────────────────────────────
+//
+//  « Fais-les plus petits pour que les doubles types tiennent sur une
+//  seule ligne » (9 novembre). À 11 px, Ténèbres + Vol demandait
+//  136 px pour 112 de contenu. Le réglage est le même que sur les
+//  cases d'équipe des annexes, et la marge se mesure ici aussi : une
+//  taille reprise à la pastille replierait la paire en silence.
+const surUneLigne = await p.evaluate(() => {
+  const pires = [];
+  for (const c of document.querySelectorAll("#test .wm-tcard__pkmn")) {
+    const ps = [...c.querySelectorAll(".wm-tcard__types .wm-type")];
+    if (ps.length < 2) continue;
+    const s = getComputedStyle(c);
+    const dispo = c.getBoundingClientRect().width -
+      parseFloat(s.paddingLeft) - parseFloat(s.paddingRight) -
+      parseFloat(s.borderLeftWidth) - parseFloat(s.borderRightWidth);
+    const large = ps.reduce((a, t) => a + t.getBoundingClientRect().width, 0) +
+      parseFloat(getComputedStyle(ps[0].parentElement).gap || "0");
+    pires.push({
+      paire: ps.map((t) => t.dataset.wmType).join("+"),
+      marge: Math.round(dispo - large),
+      lignes: new Set(ps.map((t) => Math.round(t.getBoundingClientRect().top))).size,
+    });
+  }
+  pires.sort((a, b) => a.marge - b.marge);
+  return { combien: pires.length, pire: pires[0] ?? null, replies: pires.filter((x) => x.lignes > 1) };
+});
+dire(
+  "les doubles types tiennent sur une ligne, avec de la marge",
+  surUneLigne.combien > 0 && surUneLigne.replies.length === 0 &&
+    surUneLigne.pire.marge >= 3,
+  JSON.stringify(surUneLigne),
+);
+
 // ── et elle tient aussi dans une colonne étroite ────────────────────
 
 await p.setContent(

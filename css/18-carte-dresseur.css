@@ -247,8 +247,9 @@
     peut rétrécir et la pastille se coupe là où on la mesure. */
 #modernbb .wm-tcard__types {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   min-width: 0;
   max-width: 100%;
   margin: 0;
@@ -374,11 +375,18 @@
 /*  LA PASTILLE DE TYPE RÉTRÉCIT, et seulement ici. `.wm-type` est
     dessinée pour une fiche ; six d'affilée dans 96 px de large
     déborderaient. On ne touche qu'aux mesures — les paires
-    fond/texte, validées à 4,5:1, restent celles du composant. */
+    fond/texte, validées à 4,5:1, restent celles du composant.
+
+    ELLE RÉTRÉCIT ENCORE DEPUIS LE 9 NOVEMBRE : « fais-les plus petits
+    pour que les doubles types tiennent sur une seule ligne ». À 11 px,
+    Ténèbres + Vol demandait 136 px pour 112 de contenu. À 9 px, point
+    de 8, rembourrage de 4, la paire tient. Mesuré sur les paires qui
+    existent vraiment, pas estimé ; `08-annexes.css` porte le détail
+    du calcul, et les deux composants gardent les mêmes mesures. */
 #modernbb .wm-tcard__pkmn .wm-type {
-  padding: 3px var(--wm-espace-8, 8px) 3px var(--wm-espace-6, 6px);
-  gap: 5px;
-  font-size: 11px;
+  padding: 3px var(--wm-espace-4, 4px);
+  gap: 2px;
+  font-size: 9px;
 }
 
 /*  ── LE GLYPHE EST SUR LA CASE AUSSI ──────────────────────────────
@@ -395,8 +403,12 @@
     l'infobulle : `[data-wm-type]::before`. La pastille de la case
     porte donc maintenant l'attribut, et le gabarit le pose. */
 #modernbb .wm-tcard__pkmn .wm-type[data-wm-type]::before {
-  width: 13px;
-  height: 13px;
+  /*  Huit et plus treize, depuis que deux pastilles doivent tenir
+      côte à côte. Le glyphe reste un repère de couleur et de forme ;
+      c'est le NOM écrit à côté qui porte l'information, et lui n'a
+      pas bougé de taille autant que le glyphe. */
+  width: 8px;
+  height: 8px;
   border-radius: 0;
   background-color: transparent;
   background-position: center;
@@ -879,8 +891,13 @@
     Les six pastilles se retrouvent donc sur une ligne, quelle que
     soit la hauteur du sprite au-dessus — ce qui est exactement ce
     qui est demandé, et ce qui fait disparaître le vide : il passe
-    au-dessus du nom, là où le sprite varie. */
-#modernbb .wm-tcard__pkmn .wm-type {
+    au-dessus du nom, là où le sprite varie.
+
+    DEPUIS LE 9 NOVEMBRE LA MARGE EST SUR LE BLOC, pas sur la
+    pastille : elles sont deux maintenant, et `margin-top: auto` sur
+    chacune les aurait poussées séparément. C'est le bloc qui descend,
+    et la paire reste solidaire. */
+#modernbb .wm-tcard__types {
   margin-top: auto;
 }
 

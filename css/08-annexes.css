@@ -1184,8 +1184,39 @@ body:has(#modernbb .wm-carnet) {
   display: flex;
   overflow-x: auto;
   flex-wrap: wrap;
-  gap: var(--wm-espace-6, 6px);
+  gap: var(--wm-espace-4, 4px);
   margin-bottom: var(--wm-espace-24, 24px);
+}
+
+/*  ── SEPT ONGLETS SUR UNE SEULE LIGNE ──────────────────────────────
+
+    « Fais en sorte que les onglets des arènes dans l'annexe tiennent
+    sur une seule ligne » (9 novembre).
+
+    MESURÉ : les sept onglets d'arène demandaient 896 px dans une
+    barre de 832. Soixante-quatre de trop, donc neuf par onglet — et
+    c'est la deuxième ligne, avec un seul bouton dessus, qui cassait
+    le rythme de la page.
+
+    TROIS PINCÉES PLUTÔT QU'UNE COUPE. Le rembourrage passe de 14 à
+    10, l'écart entre onglets de 6 à 4, et le texte de 11,5 à 11 :
+    896 → 808, soit vingt-quatre pixels de marge. Aucune n'est
+    perceptible seule ; ensemble elles suffisent.
+
+    CE QU'ON N'A PAS FAIT : retirer le mot « Arène » des libellés.
+    C'était le gain le plus large et de loin — le parent dit déjà
+    « Arènes », donc le mot ne porte rien. Mais ce sont les mots de
+    Callista, et on ne réécrit pas son forum pour gagner des pixels.
+    Si les onglets se remettent à déborder un jour, c'est la question
+    à lui poser, pas un réglage à reprendre.
+
+    LA LARGEUR DU TEXTE EST ÉCRITE EN DUR, 11 px, et pas prise au
+    jeton : `--wm-taille-petit` vaut 11,5 et sert partout ailleurs.
+    Le baisser pour une barre d'onglets déplacerait le problème sur
+    vingt autres composants. */
+#modernbb .wm-sous-onglets__barre .wm-onglet {
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  font-size: 11px;
 }
 
 /*  LES SECTIONS GARDENT LEUR TITRE SANS LE SCRIPT, et le perdent avec :
@@ -1705,7 +1736,15 @@ body:has(#modernbb .wm-carnet) {
   flex-wrap: wrap;
   margin: 0;
   padding: 0;
-  gap: var(--wm-espace-12, 12px);
+  /*  HUIT ET PLUS DOUZE : les quatre pixels rendus par chaque intervalle
+      se répartissent sur les six cases et leur donnent trois pixels de
+      contenu chacune. C'est ce qui fait passer la marge de la pire
+      paire de types — Ténèbres + Spectre — d'un pixel à cinq. Un seul
+      pixel tenait sur le rendu de police exact de cette machine ; cinq
+      tiennent sur un forum un peu plus étroit. Les cases ont leur
+      propre filet, elles n'ont pas besoin de douze pixels pour se
+      distinguer. */
+  gap: var(--wm-espace-8, 8px);
   list-style: none;
 }
 
@@ -1727,7 +1766,11 @@ body:has(#modernbb .wm-carnet) {
   flex: 1 1 88px;
   flex-direction: column;
   align-items: center;
-  padding: var(--wm-espace-12, 12px) var(--wm-espace-8, 8px);
+  /*  SIX PIXELS SUR LES CÔTÉS, ET PAS HUIT : quatre pixels de contenu
+      rendus à la case, qui font tenir deux paires de types de plus sur
+      une seule ligne. Le rembourrage HAUT reste à douze — c'est lui
+      qui donne son air à la case, et il ne dispute rien. */
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-6, 6px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -1821,11 +1864,46 @@ body:has(#modernbb .wm-carnet) {
     tombe au bas de celles qui n'ont qu'un type. */
 #modernbb .wm-equipe__types {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   max-width: 100%;
   margin: 0;
-  gap: var(--wm-espace-4, 4px);
+  gap: 3px;
+}
+
+/*  ── LA PASTILLE RÉTRÉCIT POUR TENIR À DEUX SUR UNE LIGNE ──────────
+
+    « Fais-les plus petits pour que les doubles types tiennent sur une
+    seule ligne » (9 novembre).
+
+    MESURÉ SUR LES QUARANTE-SIX PAIRES QUI EXISTENT VRAIMENT dans les
+    équipes, pas sur une estimation. La case offre 111 px de contenu
+    dans l'annexe. À la taille normale, la pire paire — Ténèbres +
+    Spectre — en demande 195. En descendant à 9 px, point de 8 px et
+    rembourrage serré, elle tombe à 117, et quarante-deux paires sur
+    quarante-six passent sous 111. Deux pixels rendus par la case
+    (rembourrage 8 → 6) en font passer deux de plus.
+
+    IL EN RESTE DEUX QUI SE REPLIENT, et c'est assumé : les faire
+    tenir toutes exigeait de retirer le glyphe de type, ou de passer à
+    quatre cases par rangée. Le repli ne casse rien — la rangée
+    s'étire déjà sur la plus haute, et une paire sur deux lignes reste
+    lisible.
+
+    POURQUOI PAS PLUS PETIT ENCORE : à 8 px, un libellé en gras sur un
+    fond coloré commence à se brouiller, et le nom écrit est la règle
+    d'accessibilité de la pastille — c'est lui qu'on protège en
+    dernier, pas sa largeur. */
+#modernbb .wm-equipe__types .wm-type {
+  padding: 3px 4px;
+  gap: 2px;
+  font-size: 9px;
+}
+
+#modernbb .wm-equipe__types .wm-type::before {
+  width: 8px;
+  height: 8px;
 }
 
 #modernbb .wm-equipe__niveau {
