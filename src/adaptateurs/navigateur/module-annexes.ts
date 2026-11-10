@@ -311,7 +311,19 @@ export function poserLesSousOnglets(doc: Document): number {
       //
       //  `textContent` ne ramasse ni l'un ni l'autre, donc le nom de
       //  l'onglet reste le nom.
-      const icone = tete?.querySelector(":scope > svg, :scope > img") ?? null;
+      //  DANS LE TITRE, OU DANS L'EN-TÊTE DE LA SECTION. Jusqu'au
+      //  10 novembre l'icône était toujours le premier enfant du
+      //  `<h3>`. Les badges d'arène sont passés à droite du nom, dans
+      //  le bloc d'en-tête et non plus sous le titre : cherchée au
+      //  seul endroit d'avant, elle n'existait plus et les onglets
+      //  perdaient leur image.
+      //
+      //  `firstElementChild` et pas une classe : le module sert les
+      //  quatorze annexes, et il ne doit rien savoir de ce que
+      //  celle-ci appelle ses blocs.
+      const icone = tete?.querySelector(":scope > svg, :scope > img") ??
+        s.firstElementChild?.querySelector(":scope > svg, :scope > img") ??
+        null;
       if (icone !== null) {
         const copie = icone.cloneNode(true) as HTMLElement;
         //  LA COPIE N'EST PAS RELUE À VOIX HAUTE. Le nom de l'onglet

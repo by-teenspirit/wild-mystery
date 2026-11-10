@@ -240,12 +240,16 @@ const nav = await chromium.launch(
             return i === null ? -1 : Math.round(i.getBoundingClientRect().height);
           })),
         ],
-        //  LE BADGE EST L'IMAGE DU TITRE depuis le 6 novembre — c'est
-        //  ce qui le met aussi sur le bouton d'onglet. Chercher
-        //  « .wm-defi__badge img » revenait à chercher une image dans
-        //  une image.
+        //  LE BADGE EST L'IMAGE DE L'EN-TÊTE, et plus celle du titre :
+        //  il est passé à droite du nom le 10 novembre. Le contrôle
+        //  cherchait `h3 > img` et a sonné pour les onze défis d'un
+        //  coup — c'est ainsi qu'on a su qu'il fallait aussi changer
+        //  `module-annexes.ts`, qui le cherchait au même endroit.
+        //
+        //  `naturalWidth > 0` reste le cœur : une balise présente mais
+        //  dont l'image ne charge pas n'est pas un badge.
         badge: (() => {
-          const i = section.querySelector("h3 > img.wm-defi__badge");
+          const i = section.querySelector(".wm-defi__tete > img.wm-defi__badge");
           return i !== null && i.naturalWidth > 0;
         })(),
         typeArene: section.querySelector(".wm-defi__fait dd .wm-type")?.dataset.wmType ?? null,
@@ -355,6 +359,31 @@ const nav = await chromium.launch(
         r(s.querySelector(".wm-defi__tete").nextElementSibling).top -
           r(s.querySelector(".wm-defi__tete")).bottom,
       ),
+      //  LE BADGE EST À DROITE, ET CENTRÉ EN FACE DU COUPLE.
+      //  « Tu mets l'icône de l'arène à droite […] comme ça l'icône
+      //  est alignée avec ça. » Les deux moitiés se vérifient : le
+      //  badge commence APRÈS la fin du bloc nom + lieu, et leurs
+      //  deux centres sont à la même hauteur.
+      badgeADroite: (() => {
+        const tete = s.querySelector(".wm-defi__tete");
+        const b = tete.querySelector(".wm-defi__badge");
+        const id = tete.querySelector(".wm-defi__identite");
+        if (b === null || id === null) return null;
+        return {
+          apresLeTexte: r(b).left >= r(id).right,
+          //  AU BORD DROIT, et pas seulement « après le texte » : la
+          //  première écriture du contrôle se contentait de l'ordre,
+          //  et elle restait verte en passant `justify-content` à
+          //  `flex-start`, où le badge se colle au nom au lieu
+          //  d'aller au bout. Vérifié en le cassant exprès.
+          auBordDroit: Math.abs(r(b).right - r(tete).right) <= 1,
+          ecartDesCentres: Math.round(
+            Math.abs(
+              (r(b).top + r(b).height / 2) - (r(id).top + r(id).height / 2),
+            ),
+          ),
+        };
+      })(),
       grandeDescriptionVersOnglets: barre && paras
         ? Math.round(r(barre).top - r(paras).bottom)
         : null,
@@ -369,6 +398,13 @@ const nav = await chromium.launch(
     "le filet de la tête ne touche pas ce qui le suit",
     ecarts.filetVersSuite >= 12 && ecarts.filetVersSuite <= 20,
     ecarts,
+  );
+  ok(
+    "LE BADGE EST À DROITE DU NOM, centré en face de lui",
+    ecarts.badgeADroite !== null && ecarts.badgeADroite.apresLeTexte &&
+      ecarts.badgeADroite.auBordDroit &&
+      ecarts.badgeADroite.ecartDesCentres <= 1,
+    JSON.stringify(ecarts.badgeADroite),
   );
   ok(
     "et la grande description ne touche pas la barre d'onglets",

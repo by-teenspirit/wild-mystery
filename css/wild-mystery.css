@@ -11729,13 +11729,45 @@ body:has(#modernbb .wm-carnet) {
     à celle des trois faits quand il n'y a pas de description — deux
     marges voisines se fondent dans la plus grande, et les deux valent
     seize. */
+/*  ── LE NOM ET SON LIEU D'UN CÔTÉ, LE BADGE DE L'AUTRE ────────────
+
+    « Tu mets l'icône de l'arène à droite. Et ensuite, tu mets le nom
+    de l'arène et le sous-titre ensemble, l'un sous l'autre. Comme ça,
+    l'icône est alignée avec ça » (10 nov.).
+
+    C'était une colonne : le badge collé à gauche du nom, et le lieu
+    décalé de soixante-quatre pixels en dessous pour venir se ranger
+    sous lui. Le décalage se recalculait à la main dès que le badge
+    changeait de taille, et le badge séparait le nom de son lieu
+    alors qu'ils se lisent ensemble.
+
+    DEUX COLONNES, DEUX RANGÉES. Le nom et le lieu occupent la
+    première colonne, l'un au-dessus de l'autre ; le badge tient la
+    seconde sur les deux rangées, centré en face du couple. Plus
+    aucun retrait à calculer — c'est la grille qui aligne, et le lieu
+    recommence au bord gauche comme tout le reste de la section. */
 #modernbb .wm-defi__tete {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-espace-16, 16px);
   padding-bottom: var(--wm-espace-16, 16px);
   border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
   margin-bottom: var(--wm-espace-16, 16px);
+}
+
+/*  LE NOM ET LE LIEU DANS LA MÊME BOÎTE, et pas dans deux cases
+    voisines d'une grille. Essayé en grille d'abord — le nom en
+    1/1, le lieu en 2/1, le badge tenant les deux rangées : le badge
+    imposait sa hauteur aux deux pistes, et l'écart entre le nom et
+    le lieu passait de deux pixels à treize. Deux choses qui se
+    lisent ensemble vont dans la même boîte ; c'est elle, ensuite,
+    qui se centre en face du badge. */
+#modernbb .wm-defi__identite {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
 }
 
 /*  ── LA GRANDE DESCRIPTION NE TOUCHE PAS LES ONGLETS ──────────────
@@ -11783,9 +11815,13 @@ body:has(#modernbb .wm-carnet) {
 /*  LA VILLE S'ALIGNE SOUS LE NOM, pas sous le badge : elle complète le
     nom, elle ne commente pas l'image. Le décalage vaut le badge plus
     son écart — une seule valeur, écrite une fois. */
+/*  PLUS DE RETRAIT À GAUCHE. Il valait la largeur du badge plus son
+    écart — soixante-quatre et seize — pour aligner le lieu sous le
+    nom quand le badge se tenait à leur gauche. Le badge est passé à
+    droite : le lieu repart du bord, et le nombre recopié disparaît
+    avec lui. */
 #modernbb .wm-defi__lieu {
   margin: 0;
-  padding-left: calc(64px + var(--wm-espace-16, 16px));
   color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-etiquette, 10px);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);

@@ -253,14 +253,40 @@ def defi(w, a, equipe, textes, couverture, fiche_du_poste, renvoi_personnages):
     #  l'image, donc l'onglet s'appelle « Arène Eau » ; la ville et le
     #  mot « badge » sont dans la ligne d'après, sinon ils entreraient
     #  dans le nom du bouton.
+    #  ── LE BADGE SORT DU TITRE ET PASSE À DROITE (10 nov.) ────────
+    #
+    #  « Tu mets l'icône de l'arène à droite, et le nom de l'arène et
+    #  le sous-titre ensemble, l'un sous l'autre. »
+    #
+    #  Il était PREMIER ENFANT du `<h3>`, ce qui le collait à gauche
+    #  du nom et forçait le lieu à se décaler de soixante-quatre
+    #  pixels pour s'aligner dessous.
+    #
+    #  LE NOM ET LE LIEU SE SERRENT DANS UNE BOÎTE À EUX,
+    #  `wm-defi__identite`, et le badge se met à côté. Essayé d'abord
+    #  à plat, en grille à deux rangées : le badge, qui tient les
+    #  deux, imposait sa hauteur aux deux pistes et l'écart entre le
+    #  nom et le lieu passait de deux pixels à treize. Deux choses qui
+    #  vont ensemble se mettent dans la même boîte, pas dans deux
+    #  cases voisines d'une grille.
+    #
+    #  LE BADGE EST ÉCRIT EN DERNIER : à la lecture comme au clavier,
+    #  on rencontre le nom, puis le lieu, puis l'image décorative.
+    #
+    #  LE SCRIPT LE RETROUVE QUAND MÊME : `module-annexes.ts` cherchait
+    #  l'icône d'un onglet sous le titre ; il la cherche maintenant
+    #  aussi dans l'en-tête de la section. Sans ça, les onglets d'arène
+    #  perdaient leur badge — vu en rouge dans `arenes.mjs` d'abord.
     w(f'{i}  <div class="wm-defi__tete">')
-    w(f'{i}    <h3 class="wm-defi__titre">')
-    w(f'{i}      <img class="wm-defi__badge" src="{PAGES}/img/badges/'
-      f'{e(a["slug"])}.png" alt="" loading="lazy" />')
-    w(f'{i}      <span class="wm-defi__nom">{e(a["nom"])}</span>')
-    w(f'{i}    </h3>')
-    w(f'{i}    <p class="wm-defi__lieu">{e(a["ville"])}'
+    w(f'{i}    <div class="wm-defi__identite">')
+    w(f'{i}      <h3 class="wm-defi__titre">')
+    w(f'{i}        <span class="wm-defi__nom">{e(a["nom"])}</span>')
+    w(f'{i}      </h3>')
+    w(f'{i}      <p class="wm-defi__lieu">{e(a["ville"])}'
       f' · badge {e(en_titre(sans_accent(a["type"])))} à gagner</p>')
+    w(f'{i}    </div>')
+    w(f'{i}    <img class="wm-defi__badge" src="{PAGES}/img/badges/'
+      f'{e(a["slug"])}.png" alt="" loading="lazy" />')
     w(f'{i}  </div>')
     w("")
 
