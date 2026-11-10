@@ -52,7 +52,18 @@
     qui enveloppe les onglets ET le formulaire, donc lui qui doit
     porter le fond. `row3` est la classe que ModernBB pose sur ce
     panneau-là, et sur lui seul. */
-#modernbb .panel.row3 {
+/*  `:has(.ucp-main)` ET PAS `.panel.row3` TOUT SEUL (10 nov.).
+    `row3` est une classe de ZÉBRURE que ModernBB pose selon la parité
+    des lignes, pas un nom de carte : elle tombe aussi sur le panneau
+    de la chatbox, en page d'accueil, qui s'est donc retrouvé avec mes
+    trente-deux pixels de rembourrage et ma bordure. La feuille `03` le
+    disait déjà noir sur blanc à propos de cette même chatbox ; je ne
+    l'ai pas relue avant d'écrire celle-ci.
+
+    `.ucp-main` est le panneau de contrôle lui-même. Relevé sur la
+    vraie page le 10 novembre : la carte est un `.panel.row3` SANS
+    identifiant — c'est son contenu qui la nomme, pas sa classe. */
+#modernbb .panel.row3:has(.ucp-main) {
   box-sizing: border-box;
   /*  TRENTE-DEUX, et plus vingt-quatre (10 nov.). La carte tient plus
       de mille pixels de large et quarante lignes de formulaire : à
@@ -66,7 +77,7 @@
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-#modernbb .panel.row3 > .inner {
+#modernbb .panel.row3:has(.ucp-main) > .inner {
   padding: 0;
   border: 0;
   background: none;
@@ -364,7 +375,7 @@
       écran de trois cent quatre-vingt-dix, c'est un sixième de la
       largeur donné au vide — un champ de saisie n'y tiendrait plus
       ses mots. */
-  #modernbb .panel.row3 {
+  #modernbb .panel.row3:has(.ucp-main) {
     padding: var(--wm-espace-20, 20px);
   }
 }
@@ -417,10 +428,23 @@
   background: none;
 }
 
+/*  PAS DE FILET SOUS UN ONGLET. ModernBB en pose un sur le `<a>`
+    lui-même — relevé le 10 novembre sur la vraie page :
+
+      #tabs ul a       → border-width: 0 0 1px ; rgba(0, 0, 0, .1)
+      #tabs ul a:hover → border-color: rgb(55, 147, 255)
+
+    Le premier se lit brun sur le sable, le second est le bleu de
+    liaison par défaut du thème. Les deux datent du temps où un
+    onglet se dessinait avec un trait sous le mot ; ici l'onglet est
+    une pastille, et la pastille se suffit. `border: 0` à nous,
+    `#modernbb #tabs li a`, passe devant `#tabs ul a` sans avoir à
+    forcer quoi que ce soit — deux identifiants contre un. */
 #modernbb #tabs li a {
   display: block;
   float: none;
   padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  border: 0;
   border-radius: var(--wm-rayon-sm, 6px);
   color: var(--wm-texte-doux, #6e5749);
   text-decoration: none;
@@ -438,12 +462,14 @@
 
 #modernbb #tabs li a:hover,
 #modernbb #tabs li a:focus-visible {
+  border: 0;
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-encre, #2e2018);
 }
 
 #modernbb #tabs li.activetab a,
 #modernbb #tabs li.activetab a:hover {
+  border: 0;
   background: var(--wm-fond-nuit, #3a2a22);
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }

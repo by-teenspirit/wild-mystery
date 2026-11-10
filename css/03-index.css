@@ -1656,11 +1656,17 @@
     CONTIENT la chatbox —, et il est posé par tous les navigateurs
     depuis 2023.
 
-    Le rembourrage vertical reste : c'est lui qui sépare la chatbox du
-    bloc au-dessus. */
+    LE REMBOURRAGE VERTICAL EST PARTI AUSSI (10 nov.). Il restait
+    pour séparer la chatbox du bloc au-dessus — mais ce n'est pas le
+    travail d'un rembourrage : il pousse le CONTENU vers l'intérieur,
+    alors qu'on voulait écarter la BOÎTE. On le dit donc avec la
+    marge, et avec celle des catégories : `0 0 24px`, mot pour mot ce
+    que portent `.forabg` et `.forumbg` en haut de cette feuille. La
+    chatbox entre enfin dans la même cadence que les blocs qu'elle
+    suit. */
 #modernbb .panel:has(> #chatbox_top) {
-  padding-right: 0;
-  padding-left: 0;
+  padding: 0;
+  margin: 0 0 var(--wm-espace-24, 24px);
 }
 
 

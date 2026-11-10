@@ -1646,6 +1646,40 @@ else
   python3 outils/recoller.py --bref
 fi
 
+echo "── 35. « row3 » n'est pas un nom de carte ──────────────────────"
+# ModernBB pose `row3` sur un panneau selon la PARITÉ DES LIGNES, pas
+# selon ce qu'il contient : c'est une classe de zébrure. Elle tombe
+# donc sur le panneau de la chatbox autant que sur la carte du profil.
+#
+# CE QUI L'A FAIT ÉCRIRE. Le 10 novembre, la chatbox de la page
+# d'accueil s'est réveillée avec trente-deux pixels de rembourrage et
+# une bordure qui venaient de la feuille du profil : elle visait
+# `.panel.row3` tout court. La feuille `03` prévenait pourtant, noir
+# sur blanc, à propos de cette même chatbox et deux ans plus tôt.
+#
+# La règle demande donc qu'un sélecteur sur `.panel.row3` dise AUSSI
+# de quel panneau il parle — un `:has()`, un identifiant, n'importe
+# quoi qui nomme le contenu. Le commentaire qui explique la règle a le
+# droit d'écrire `.panel.row3` tout seul : on ne lit que le code.
+nus=$(python3 - <<'ROW3'
+import glob, re
+for f in sorted(glob.glob("css/[0-9][0-9]-*.css")):
+    code = re.sub(r"/\*.*?\*/", "", open(f, encoding="utf-8").read(), flags=re.S)
+    for bloc in re.findall(r"[^{}]+(?=\{)", code):
+        for sel in bloc.split(","):
+            if ".panel.row3" in sel and ":has(" not in sel \
+                    and not re.search(r"#[\w-]+\.panel\.row3", sel):
+                print("   " + f + " : " + sel.strip())
+ROW3
+)
+if [ -n "$nus" ]; then
+  echo "$nus"
+  echo "   ↳ dites quel panneau : .panel.row3:has(.ucp-main)"
+  fautes=$((fautes + 1))
+else
+  echo "   chaque .panel.row3 dit de quel panneau il parle"
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."
