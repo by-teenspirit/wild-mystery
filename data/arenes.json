@@ -88,11 +88,10 @@
   },
   "equipe": {
    "titre": "L'équipe du défi",
-   "note": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-   "dit": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.",
    "_redige": {
     "note": "Cette équipe appartient à l'arène, pas au champion. Qui prend le poste ne peut ni l'entraîner, ni la vendre, ni l'utiliser : elle peut être mentionnée en narration, jamais rejoindre l'équipe usuelle du personnage.",
-    "dit": "Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d'avant les niveaux du 6 novembre."
+    "dit": "Les niveaux et les trois chiffres sont calculés depuis le niveau du défi — ce ne sont plus ceux du sujet des pré-liens, qui datent d'avant les niveaux du 6 novembre.",
+    "_retire_le_10_nov": "`note` et `dit` s'affichaient SOUS l'équipe du défi. Retirés sur demande : « y'a une description sous l'équipe du défi, enlève-la ». Le texte rédigé reste ici, il n'est plus rendu."
    }
   },
   "ligue": {
@@ -125,7 +124,8 @@
    "niveau": 15,
    "palier": 1,
    "forum": "/f19-arene-feu",
-   "defier": "/t60-defier-le-champion-de-l-arene-de-la-station-service"
+   "defier": "/t60-defier-le-champion-de-l-arene-de-la-station-service",
+   "description": []
   },
   {
    "nom": "Arène Plante",
@@ -136,7 +136,8 @@
    "niveau": 20,
    "palier": 1,
    "forum": "/f26-arene-plante",
-   "defier": "/t62-defier-le-champion-de-l-arene-de-samaragd"
+   "defier": "/t62-defier-le-champion-de-l-arene-de-samaragd",
+   "description": []
   },
   {
    "nom": "Arène Eau",
@@ -147,7 +148,8 @@
    "niveau": 10,
    "palier": 1,
    "forum": "/f23-arene-eau",
-   "defier": "/t63-defier-le-champion-de-port-amaree"
+   "defier": "/t63-defier-le-champion-de-port-amaree",
+   "description": []
   },
   {
    "nom": "Arène Acier",
@@ -158,7 +160,8 @@
    "niveau": 30,
    "palier": 2,
    "forum": "/f27-arene-acier",
-   "defier": "/t68-defier-le-champion-de-l-arene-de-suerebe"
+   "defier": "/t68-defier-le-champion-de-l-arene-de-suerebe",
+   "description": []
   },
   {
    "nom": "Arène Roche",
@@ -169,7 +172,8 @@
    "niveau": 25,
    "palier": 2,
    "forum": "/f29-arene-roche",
-   "defier": "/t67-defier-le-champion-de-pyrite"
+   "defier": "/t67-defier-le-champion-de-pyrite",
+   "description": []
   },
   {
    "nom": "Arène Vol",
@@ -180,7 +184,8 @@
    "niveau": 50,
    "palier": 3,
    "forum": "/f21-arene-vol",
-   "defier": "/t66-defier-le-champion-de-la-tour-titanite"
+   "defier": "/t66-defier-le-champion-de-la-tour-titanite",
+   "description": []
   },
   {
    "nom": "Arène Ténèbres",
@@ -191,7 +196,8 @@
    "niveau": 60,
    "palier": 3,
    "forum": "/f20-arene-tenebres",
-   "defier": "/t70-defier-le-champion-de-l-arene-de-l-ile-tenebra"
+   "defier": "/t70-defier-le-champion-de-l-arene-de-l-ile-tenebra",
+   "description": []
   },
   {
    "nom": "Colosseum de Rhode",
@@ -202,7 +208,8 @@
    "niveau": 40,
    "palier": 2,
    "forum": "/f24-colosseum-de-rhode",
-   "defier": "/t91-defier-le-champion-du-colosseum-de-rhode"
+   "defier": "/t91-defier-le-champion-du-colosseum-de-rhode",
+   "description": []
   },
   {
    "nom": "Colosseum de Phenacit",
@@ -213,7 +220,8 @@
    "niveau": 35,
    "palier": 2,
    "forum": "/f30-colosseum-de-phenacit",
-   "defier": "/t64-defier-le-champion-du-colosseum-de-phenacit"
+   "defier": "/t64-defier-le-champion-du-colosseum-de-phenacit",
+   "description": []
   },
   {
    "nom": "Colosseum de Targare",
@@ -224,7 +232,8 @@
    "niveau": 18,
    "palier": 1,
    "forum": "/f28-colosseum-de-targare",
-   "defier": "/t69-defier-le-champion-du-colosseum-de-targare"
+   "defier": "/t69-defier-le-champion-du-colosseum-de-targare",
+   "description": []
   },
   {
    "nom": "Colosseum de Titanite",
@@ -235,7 +244,8 @@
    "niveau": 70,
    "palier": 3,
    "forum": "/f22-colosseum-de-titanite",
-   "defier": "/t65-defier-le-champion-du-colosseum-de-titanite"
+   "defier": "/t65-defier-le-champion-du-colosseum-de-titanite",
+   "description": []
   }
  ],
  "ligue": {
@@ -243,7 +253,9 @@
   "ville": "Mont Bataille",
   "niveau": 80,
   "tenuePar": "Michael",
-  "_": "Le douzième défi, et le dernier. Il n'est PAS dans `arenes` : il n'a ni badge, ni type, ni case dans la grille de la carte dresseur, et le compteur de la Ligue compte les arènes — il ne se compterait pas lui-même. Michael le tient : c'est la fiche `Michael` de data/personnages.json, aujourd'hui président de la région."
+  "_": "Le douzième défi, et le dernier. Il n'est PAS dans `arenes` : il n'a ni badge, ni type, ni case dans la grille de la carte dresseur, et le compteur de la Ligue compte les arènes — il ne se compterait pas lui-même. Michael le tient : c'est la fiche `Michael` de data/personnages.json, aujourd'hui président de la région.",
+  "description": []
  },
- "_defier": "`defier` EST L'ADRESSE DU SUJET « Défier le champion » DU DÉFI, et c'est là qu'on colle le bloc que `outils/defier.py` écrit pour lui. Les onze ont été relevées le 9 novembre 2026 : quatre par la recherche du forum, les sept autres données par Callista — elles sont dans les archives du staff, qu'un visiteur ne voit pas. ATTENTION AUX DEUX VILLES PARTAGÉES : Port-Amarée porte l'Arène Eau (t63) ET le Colosseum de Rhode (t91), Suerebe porte l'Arène Acier (t68) ET le Colosseum de Targare (t69). C'est le NOM du défi qui lève l'ambiguïté, pas sa ville."
+ "_defier": "`defier` EST L'ADRESSE DU SUJET « Défier le champion » DU DÉFI, et c'est là qu'on colle le bloc que `outils/defier.py` écrit pour lui. Les onze ont été relevées le 9 novembre 2026 : quatre par la recherche du forum, les sept autres données par Callista — elles sont dans les archives du staff, qu'un visiteur ne voit pas. ATTENTION AUX DEUX VILLES PARTAGÉES : Port-Amarée porte l'Arène Eau (t63) ET le Colosseum de Rhode (t91), Suerebe porte l'Arène Acier (t68) ET le Colosseum de Targare (t69). C'est le NOM du défi qui lève l'ambiguïté, pas sa ville.",
+ "_description": "`description` : le texte d'ouverture d'un défi, sous le nom de l'arène et avant les trois faits. Un à trois paragraphes. Il remplace les deux lignes qui traînaient SOUS l'équipe, que personne ne lisait là. Vide, rien ne s'affiche — pas de trou."
 }

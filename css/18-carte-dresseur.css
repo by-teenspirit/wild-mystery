@@ -283,15 +283,36 @@
     var(--wm-fond-surface, #fffbf7));
 }
 
+/*  ── ET L'ÉTIQUETTE NE DÉCALE RIEN ────────────────────────────────
+
+    Même règle que la case d'équipe de l'annexe, et pour la même
+    raison : « le mot obscur ne doit pas venir tout décaler » (10
+    nov.). Elle passe en tête (`order: -1`), se range à droite
+    (l'axe transversal d'une colonne est horizontal) et rend sa
+    hauteur par une marge basse négative. Pas de `position:
+    absolute` : la case deviendrait le repère de l'infobulle, qui se
+    place contre la rangée. */
 #modernbb .wm-tcard__obscur {
-  margin: 1px 0 0;
-  color: var(--wm-pokemon-obscur-fond, #4a3a63);
+  --hauteur-etiquette: calc(var(--wm-taille-etiquette, 10px) * 1.2);
+  order: -1;
+  align-self: flex-end;
+  box-sizing: content-box;
+  height: var(--hauteur-etiquette);
+  padding: 1px var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-pokemon-obscur-fond, #4a3a63);
+  color: var(--wm-pokemon-obscur-texte, #fffbf7);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   line-height: 1.2;
   text-align: center;
   text-transform: uppercase;
+}
+
+#modernbb .postbody .content .wm-tcard__obscur,
+#modernbb .wm-tcard__equipe .wm-tcard__obscur {
+  margin: 0 0 calc(-1 * (var(--hauteur-etiquette) + var(--wm-espace-4, 4px)));
 }
 
 /*  LA CASE LIBRE SE RECONNAÎT À SON CADRE, pas à sa teinte. Trois
@@ -355,6 +376,30 @@
   border-radius: 999px;
   background: color-mix(in srgb, var(--wm-bord-net, #d9c3b1) 55%, transparent);
   transform: scale(0.32);
+}
+
+/*  ── LES LIGNES D'UNE CASE PASSENT DEVANT MODERNBB ────────────────
+
+    MESURÉ dans un corps de message le 10 novembre : le nom, le
+    niveau et l'étiquette obscure rendaient tous `margin: 0 0 16px`
+    au lieu du zéro écrit ici. Ce n'est pas ModernBB, c'est NOUS —
+    `#modernbb .postbody .content p` de `05-sujet.css`, qui compte un
+    identifiant, deux classes et un type contre notre identifiant et
+    notre classe.
+
+    Seize pixels sous chaque ligne, trois fois, dans une case de
+    deux cent sept : la moitié du blanc d'une case d'équipe ne venait
+    d'aucune décision. La parade est celle du reste de la charte :
+    trois classes. Le second sélecteur sert la carte montée hors
+    message, dans le harnais et sur la page de profil. */
+#modernbb .postbody .content .wm-tcard__nom,
+#modernbb .wm-tcard__equipe .wm-tcard__nom {
+  margin: 0;
+}
+
+#modernbb .postbody .content .wm-tcard__niveau,
+#modernbb .wm-tcard__equipe .wm-tcard__niveau {
+  margin: 0;
 }
 
 #modernbb .wm-tcard__nom {

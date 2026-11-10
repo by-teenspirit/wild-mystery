@@ -11861,6 +11861,28 @@ body:has(#modernbb .wm-carnet) {
   flex: 0 0 auto;
 }
 
+/*  ── LA DESCRIPTION D'UNE ARÈNE ───────────────────────────────────
+
+    « Ajoute de quoi faire une description pour chaque arène et chaque
+    colosseum » (10 novembre). Elle ouvre la section, sous le nom et
+    avant les trois faits.
+
+    C'est du texte courant, pas une note : la taille et l'interligne
+    de lecture, l'encre pleine. Les deux lignes qui traînaient SOUS
+    l'équipe étaient en `texte-pale` et en petit — l'œil les lisait
+    comme une mention légale, et c'est sans doute pour ça qu'elles ne
+    servaient à personne. */
+#modernbb .wm-defi__description {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-defi__description:last-of-type {
+  margin-bottom: var(--wm-espace-24, 24px);
+}
+
 #modernbb .wm-defi__sous-titre {
   margin: var(--wm-espace-24, 24px) 0 var(--wm-espace-12, 12px);
   color: var(--wm-encre, #2e2018);
@@ -11927,17 +11949,33 @@ body:has(#modernbb .wm-carnet) {
   flex: 1 1 88px;
   flex-direction: column;
   align-items: center;
-  /*  SIX PIXELS SUR LES CÔTÉS, ET PAS HUIT : quatre pixels de contenu
-      rendus à la case, qui font tenir deux paires de types de plus sur
-      une seule ligne. Le rembourrage HAUT reste à douze — c'est lui
-      qui donne son air à la case, et il ne dispute rien. */
-  padding: var(--wm-espace-12, 12px) var(--wm-espace-6, 6px);
+  /*  CINQ PIXELS SUR LES CÔTÉS, et c'est la troisième fois qu'on les
+      rabote : huit, puis six le 9 novembre, cinq aujourd'hui. Chaque
+      pixel rendu de chaque côté en rend deux au contenu, et c'est le
+      contenu qui décide si une paire de types tient sur une ligne.
+      Le rembourrage demandé sur les pastilles se paie ici.
+
+      LE REMBOURRAGE HAUT RESTE À DOUZE : c'est lui qui donne son air
+      à la case, et il ne dispute rien à personne. */
+  padding: var(--wm-espace-12, 12px) 5px;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
-  /*  PLUS D'AIR ENTRE LE SPRITE, LE NOM ET LE TYPE, demandé le
-      8 novembre. 4 px collaient les trois en un seul pâté. */
-  gap: var(--wm-espace-8, 8px);
+  /*  ── LE VIDE EN HAUT, LES INFOS EN BAS (10 nov.) ───────────────
+      « Les infos doivent plutôt être collées en bas de la card.
+      L'espace doit se trouver au dessus, pas en dessous. »
+      `flex-end` pousse tout vers le bas ; ce qui reste de hauteur,
+      quand la rangée s'étire sur la plus grande case, tombe
+      au-dessus du sprite. */
+  justify-content: flex-end;
+  /*  ── ET L'ÉCART N'EST PLUS LE MÊME PARTOUT ─────────────────────
+      Huit pixels entre les quatre, c'était « trop d'espace entre les
+      infos » : le nom, le niveau et les types flottaient à égale
+      distance, donc rien ne disait lesquels vont ensemble. Le nom et
+      son niveau sont UNE chose, les types en sont une autre. Les
+      écarts le disent maintenant — deux pixels à l'intérieur d'un
+      groupe, six entre deux groupes, huit sous le sprite. */
+  gap: 0;
 }
 
 /*  ── LES SIX CASES FONT LA MÊME HAUTEUR ────────────────────────────
@@ -12019,9 +12057,43 @@ body:has(#modernbb .wm-carnet) {
     fait quatre-vingt-huit pixels moins douze de rembourrage :
     « Obscur » y tient sur une ligne, là où un nom d'espèce
     déborderait. */
+/*  ── L'ÉTIQUETTE OBSCURE NE DÉCALE RIEN ───────────────────────────
+
+    « Le mot "obscur" ne doit pas venir tout décaler. On pourrait
+    faire un petit tag qui vient se placer en absolute en haut à
+    droite » (10 nov.). Le mot était en flux, sous le nom : il
+    poussait le niveau et les types vers le bas, et la rangée
+    entière s'étirait de sa hauteur pour une seule case.
+
+    ── POURQUOI PAS `position: absolute` ─────────────────────────────
+
+    Parce qu'il faudrait rendre la case `position: relative`, et que
+    la case n'est PAS le repère de l'infobulle : la bulle se place
+    contre la rangée (`.wm-equipe`), avec `--rang-case` pour trouver
+    le centre de sa case et un `clamp()` pour ne pas sortir du bord.
+    Une case positionnée deviendrait son nouveau repère, et les deux
+    contrôles de placement de `arenes.mjs` tomberaient.
+
+    ── CE QUI MARCHE SANS RIEN CASSER ────────────────────────────────
+
+    L'étiquette reste en flux, mais ne pèse rien : `order: -1` la
+    met en tête, `align-self: flex-end` la pousse à droite (l'axe
+    transversal d'une colonne est horizontal), et une marge basse
+    négative égale à sa propre hauteur lui rend la place qu'elle
+    prend. La hauteur n'est pas un nombre recopié : c'est sa taille
+    de police multipliée par son interligne, écrite une seule fois
+    dans la variable juste en dessous. */
 #modernbb .wm-equipe__obscur {
-  margin: 1px 0 0;
-  color: var(--wm-pokemon-obscur-fond, #4a3a63);
+  --hauteur-etiquette: calc(var(--wm-taille-etiquette, 10px) * 1.2);
+  order: -1;
+  align-self: flex-end;
+  box-sizing: content-box;
+  height: var(--hauteur-etiquette);
+  padding: 1px var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  margin: 0 0 calc(-1 * (var(--hauteur-etiquette) + 2px));
+  background: var(--wm-pokemon-obscur-fond, #4a3a63);
+  color: var(--wm-pokemon-obscur-texte, #fffbf7);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -12030,10 +12102,53 @@ body:has(#modernbb .wm-carnet) {
   text-transform: uppercase;
 }
 
+/*  ── LES QUATRE LIGNES D'UNE CASE PASSENT DEVANT MODERNBB ─────────
+
+    MESURÉ, PAS SUPPOSÉ (10 nov.) : dans un message, le nom, le
+    niveau, les types et l'étiquette obscure rendaient tous
+    `margin: 0 0 16px`. Pas nos marges — celle de `05-sujet.css`,
+    `#modernbb .postbody .content p`, qui compte un identifiant, DEUX
+    classes et un type là où `#modernbb .wm-equipe__nom` n'a qu'un
+    identifiant et une classe. Elle gagnait les quatre.
+
+    D'où « y'a trop d'espace entre les infos » : seize pixels sous
+    chacune des quatre lignes, soit quarante-huit de blanc empilés
+    dans une case qui en fait cent quatre-vingt-seize. Les écarts
+    qu'on croyait écrire plus bas — deux, six, huit — n'ont jamais
+    été appliqués une seule fois sur le forum.
+
+    C'est le piège de spécificité de ModernBB, et sa parade est
+    toujours la même : TROIS classes. Le second sélecteur sert
+    l'annexe, qui est une page HTML et n'a pas de `.postbody`. */
+#modernbb .postbody .content .wm-equipe__nom,
+#modernbb .wm-equipe .wm-equipe__nom {
+  margin: var(--wm-espace-8, 8px) 0 0;
+}
+
+#modernbb .postbody .content .wm-equipe__niveau,
+#modernbb .wm-equipe .wm-equipe__niveau {
+  margin: 2px 0 0;
+}
+
+#modernbb .postbody .content .wm-equipe__types,
+#modernbb .wm-equipe .wm-equipe__types {
+  margin: var(--wm-espace-6, 6px) 0 0;
+}
+
+#modernbb .postbody .content .wm-equipe__obscur,
+#modernbb .wm-equipe .wm-equipe__obscur {
+  margin: 0 0 calc(-1 * (var(--hauteur-etiquette) + 2px));
+}
+
+/*  LE NOM EST CE QU'ON LIT EN PREMIER, et il était à la taille du
+    texte courant le plus petit — moins gros que la pastille de type
+    qu'il surplombe. « Le nom du pokémon n'est pas assez mis en
+    avant » (10 nov.) : il prend la taille normale, et l'écart
+    au-dessus de lui est le plus large de la case. */
 #modernbb .wm-equipe__nom {
-  margin: 0;
+  margin: var(--wm-espace-8, 8px) 0 0;
   color: var(--wm-encre, #2e2018);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
   text-align: center;
@@ -12068,8 +12183,8 @@ body:has(#modernbb .wm-carnet) {
   align-items: center;
   justify-content: center;
   max-width: 100%;
-  margin: 0;
-  gap: 3px;
+  margin: var(--wm-espace-6, 6px) 0 0;
+  gap: 2px;
 }
 
 /*  ── LA PASTILLE RÉTRÉCIT POUR TENIR À DEUX SUR UNE LIGNE ──────────
@@ -12095,19 +12210,31 @@ body:has(#modernbb .wm-carnet) {
     fond coloré commence à se brouiller, et le nom écrit est la règle
     d'accessibilité de la pastille — c'est lui qu'on protège en
     dernier, pas sa largeur. */
+/*  SIX PIXELS SUR LES CÔTÉS, PAS QUATRE (10 nov.) : « rajoute un
+    padding sur les tags des types à droite et à gauche ». À quatre,
+    le mot touchait presque le bord de sa pastille et la pastille ne
+    se lisait plus comme une étiquette, mais comme un mot souligné de
+    couleur. Les deux pixels rendus par côté coûtent huit pixels à
+    une paire — et les paires s'empilent déjà ici. */
 #modernbb .wm-equipe__types .wm-type {
-  padding: 3px 4px;
-  gap: 2px;
+  padding: 3px var(--wm-espace-6, 6px);
+  gap: 1px;
   font-size: 9px;
 }
 
+/*  ET LE GLYPHE REND UN PIXEL. Les deux pixels de rembourrage gagnés
+    de chaque côté se paient quelque part : la pire paire — Poison +
+    Ténèbres — sortait de sa case de trois pixels et repassait sur
+    deux lignes. Le point du type perd un pixel, l'écart entre le
+    point et le mot un autre, et celui entre les deux pastilles un
+    troisième. La paire rentre, et le rembourrage demandé reste. */
 #modernbb .wm-equipe__types .wm-type::before {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 #modernbb .wm-equipe__niveau {
-  margin: 0;
+  margin: 2px 0 0;
   color: var(--wm-texte-pale, #69564c);
   font-size: var(--wm-taille-etiquette, 10px);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
@@ -23235,15 +23362,36 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     var(--wm-fond-surface, #fffbf7));
 }
 
+/*  ── ET L'ÉTIQUETTE NE DÉCALE RIEN ────────────────────────────────
+
+    Même règle que la case d'équipe de l'annexe, et pour la même
+    raison : « le mot obscur ne doit pas venir tout décaler » (10
+    nov.). Elle passe en tête (`order: -1`), se range à droite
+    (l'axe transversal d'une colonne est horizontal) et rend sa
+    hauteur par une marge basse négative. Pas de `position:
+    absolute` : la case deviendrait le repère de l'infobulle, qui se
+    place contre la rangée. */
 #modernbb .wm-tcard__obscur {
-  margin: 1px 0 0;
-  color: var(--wm-pokemon-obscur-fond, #4a3a63);
+  --hauteur-etiquette: calc(var(--wm-taille-etiquette, 10px) * 1.2);
+  order: -1;
+  align-self: flex-end;
+  box-sizing: content-box;
+  height: var(--hauteur-etiquette);
+  padding: 1px var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-pokemon-obscur-fond, #4a3a63);
+  color: var(--wm-pokemon-obscur-texte, #fffbf7);
   font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   line-height: 1.2;
   text-align: center;
   text-transform: uppercase;
+}
+
+#modernbb .postbody .content .wm-tcard__obscur,
+#modernbb .wm-tcard__equipe .wm-tcard__obscur {
+  margin: 0 0 calc(-1 * (var(--hauteur-etiquette) + var(--wm-espace-4, 4px)));
 }
 
 /*  LA CASE LIBRE SE RECONNAÎT À SON CADRE, pas à sa teinte. Trois
@@ -23307,6 +23455,30 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-radius: 999px;
   background: color-mix(in srgb, var(--wm-bord-net, #d9c3b1) 55%, transparent);
   transform: scale(0.32);
+}
+
+/*  ── LES LIGNES D'UNE CASE PASSENT DEVANT MODERNBB ────────────────
+
+    MESURÉ dans un corps de message le 10 novembre : le nom, le
+    niveau et l'étiquette obscure rendaient tous `margin: 0 0 16px`
+    au lieu du zéro écrit ici. Ce n'est pas ModernBB, c'est NOUS —
+    `#modernbb .postbody .content p` de `05-sujet.css`, qui compte un
+    identifiant, deux classes et un type contre notre identifiant et
+    notre classe.
+
+    Seize pixels sous chaque ligne, trois fois, dans une case de
+    deux cent sept : la moitié du blanc d'une case d'équipe ne venait
+    d'aucune décision. La parade est celle du reste de la charte :
+    trois classes. Le second sélecteur sert la carte montée hors
+    message, dans le harnais et sur la page de profil. */
+#modernbb .postbody .content .wm-tcard__nom,
+#modernbb .wm-tcard__equipe .wm-tcard__nom {
+  margin: 0;
+}
+
+#modernbb .postbody .content .wm-tcard__niveau,
+#modernbb .wm-tcard__equipe .wm-tcard__niveau {
+  margin: 0;
 }
 
 #modernbb .wm-tcard__nom {

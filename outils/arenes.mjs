@@ -299,6 +299,29 @@ const nav = await chromium.launch(
     soucis,
   );
 
+  //  ── L'AIR SOUS LA BARRE D'ONGLETS ────────────────────────────────
+  //
+  //  « Ajoute un padding dans les arènes entre les onglets et la
+  //  description » (10 nov.). La barre a sa marge, mais le 9 novembre
+  //  on a réduit le rembourrage des onglets pour les faire tenir sur
+  //  une ligne — et un bouton moins haut rapproche tout ce qui suit.
+  //  Le contrôle mesure l'écart RENDU, pas la marge déclarée.
+  const airSousLaBarre = await p.evaluate(() => {
+    const g = Array.from(document.querySelectorAll(".wm-sous-onglets"))
+      .find((x) => x.querySelector(".wm-defi") !== null && x.offsetParent !== null);
+    const barre = g.querySelector(".wm-sous-onglets__barre");
+    const section = Array.from(g.querySelectorAll(".wm-defi"))
+      .find((s) => s.offsetParent !== null);
+    return Math.round(
+      section.getBoundingClientRect().top - barre.getBoundingClientRect().bottom,
+    );
+  });
+  ok(
+    "la barre d'onglets garde son air avant la section",
+    airSousLaBarre >= 32,
+    `${airSousLaBarre} px sous la barre`,
+  );
+
   //  ── LES TROIS OBSCURS, ET LA BULLE QUI SUIT LA CASE ──────────────
   //
   //  « Oui, dragon, ténèbres et elec », le dernier de chaque équipe

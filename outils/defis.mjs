@@ -605,6 +605,35 @@ dire(
   obscurs.aucunLisere,
   String(obscurs.aucunLisere),
 );
+//  ── NOS MARGES, ET PAS CELLES DU CORPS DE MESSAGE ─────────────────
+//
+//  LE PIÈGE DE SPÉCIFICITÉ, mesuré le 10 novembre : le nom, le
+//  niveau, les types et l'étiquette d'une case rendaient tous
+//  `margin: 0 0 16px`. Pas une règle de ModernBB — la NÔTRE,
+//  `#modernbb .postbody .content p` dans `05-sujet.css`, qui compte
+//  un identifiant, deux classes et un type contre notre identifiant
+//  et notre classe. Quarante-huit pixels de blanc dans une case de
+//  cent quatre-vingt-seize, qu'aucune décision n'avait posés.
+//
+//  Le contrôle lit la marge BASSE : c'est celle que la règle du
+//  message ajoute, et aucune de nos quatre lignes n'en veut.
+const marges = await p.evaluate(() => {
+  const c = document.querySelector(".wm-equipe__pkmn");
+  const bas = (s) => {
+    const e = c.querySelector(s);
+    return e === null ? null : getComputedStyle(e).marginBottom;
+  };
+  return {
+    nom: bas(".wm-equipe__nom"),
+    niveau: bas(".wm-equipe__niveau"),
+    types: bas(".wm-equipe__types"),
+  };
+});
+dire(
+  "AUCUNE LIGNE DE CASE NE GARDE LA MARGE DU CORPS DE MESSAGE",
+  Object.values(marges).every((v) => v === "0px"),
+  JSON.stringify(marges),
+);
 dire(
   "et la marque ne déforme pas la rangée",
   obscurs.memeHauteur,

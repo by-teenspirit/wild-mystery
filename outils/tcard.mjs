@@ -1347,6 +1347,18 @@ const casesDuTest = await p.evaluate(() => {
     //  « ne mets pas un border à gauche, ne mets ça nulle part ».
     //  Le contrôle d'avant EXIGEAIT ce liseré — il tenait donc en
     //  place une règle qu'on avait demandé de retirer partout.
+    //  NOS MARGES, PAS CELLES DU CORPS DE MESSAGE. Mesuré le 10
+    //  novembre : le nom, le niveau et l'étiquette rendaient tous
+    //  `margin: 0 0 16px` — notre propre règle
+    //  `#modernbb .postbody .content p`, plus spécifique que nos
+    //  règles de composant. La moitié du blanc d'une case venait de
+    //  là, et aucun contrôle ne regardait les marges.
+    margesANous: cases.every((c) =>
+      [".wm-tcard__nom", ".wm-tcard__niveau"].every((s) => {
+        const e = c.querySelector(s);
+        return e === null || getComputedStyle(e).marginBottom === "0px";
+      })
+    ),
     leMot: obscurs.length > 0 &&
       obscurs[0].querySelector(".wm-tcard__obscur")?.textContent?.trim() === "Obscur",
     aucunLisere: cases.every((c) =>
@@ -1368,6 +1380,7 @@ dire(
   "la case porte son glyphe de type, et un obscur se voit sans survoler",
   casesDuTest.pastillesAvecGlyphe === 6 && casesDuTest.obscurs === 1 &&
     casesDuTest.fondDifferent && casesDuTest.leMot &&
+    casesDuTest.margesANous &&
     casesDuTest.aucunLisere &&
     casesDuTest.jamaisAgrandi,
   JSON.stringify(casesDuTest),

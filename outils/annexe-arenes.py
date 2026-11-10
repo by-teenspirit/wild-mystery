@@ -264,6 +264,21 @@ def defi(w, a, equipe, textes, couverture, fiche_du_poste, renvoi_personnages):
     w(f'{i}  </div>')
     w("")
 
+    # ── LA DESCRIPTION DE L'ARÈNE ───────────────────────────────────
+    #
+    #  « Ajoute de quoi faire une description pour chaque arène et
+    #  chaque colosseum » (10 novembre). Elle se lit AVANT les trois
+    #  faits : c'est le texte qui dit où l'on est et ce qu'on y
+    #  trouve, et les chiffres n'ont de sens qu'après.
+    #
+    #  VIDE, RIEN NE S'AFFICHE. Onze arènes n'auront pas leur texte le
+    #  même jour ; un paragraphe de remplissage en attendant serait
+    #  pire que rien, parce qu'il finirait collé sur le forum.
+    for paragraphe in a.get("description", []) or []:
+        w(f'{i}  <p class="wm-defi__description">{e(paragraphe)}</p>')
+    if a.get("description"):
+        w("")
+
     # ── LES TROIS FAITS, EN CARTES ──────────────────────────────────
     #
     #  C'ÉTAIT UNE LISTE DE DÉFINITIONS À DEUX COLONNES, et ça ne
@@ -337,8 +352,11 @@ def defi(w, a, equipe, textes, couverture, fiche_du_poste, renvoi_personnages):
     for m in equipe["membres"]:
         membre(w, m, couverture)
     w(f'{i}  </ul>')
-    w(f'{i}  <p class="wm-defi__dit">{e(eq["note"])}</p>')
-    w(f'{i}  <p class="wm-defi__dit">{e(eq["dit"])}</p>')
+    #  RIEN SOUS L'ÉQUIPE. Deux paragraphes s'y trouvaient — l'équipe
+    #  appartient à l'arène, et d'où viennent les chiffres. « Y'a une
+    #  description sous l'équipe du défi : enlève-la » (10 nov.) : la
+    #  section se termine sur les six cases, et ce qu'il y a à dire
+    #  d'une arène se dit en haut, dans sa description.
     w(f'{i}</section>')
     w("")
 
