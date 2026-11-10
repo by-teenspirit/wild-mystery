@@ -123,7 +123,10 @@
    "palier": 1,
    "forum": "/f19-arene-feu",
    "defier": "/t60-defier-le-champion-de-l-arene-de-la-station-service",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Arène Plante",
@@ -135,7 +138,10 @@
    "palier": 1,
    "forum": "/f26-arene-plante",
    "defier": "/t62-defier-le-champion-de-l-arene-de-samaragd",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Arène Eau",
@@ -147,7 +153,10 @@
    "palier": 1,
    "forum": "/f23-arene-eau",
    "defier": "/t63-defier-le-champion-de-port-amaree",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Arène Acier",
@@ -159,7 +168,10 @@
    "palier": 2,
    "forum": "/f27-arene-acier",
    "defier": "/t68-defier-le-champion-de-l-arene-de-suerebe",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Arène Roche",
@@ -171,7 +183,10 @@
    "palier": 2,
    "forum": "/f29-arene-roche",
    "defier": "/t67-defier-le-champion-de-pyrite",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Arène Vol",
@@ -183,7 +198,10 @@
    "palier": 3,
    "forum": "/f21-arene-vol",
    "defier": "/t66-defier-le-champion-de-la-tour-titanite",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Arène Ténèbres",
@@ -195,7 +213,10 @@
    "palier": 3,
    "forum": "/f20-arene-tenebres",
    "defier": "/t70-defier-le-champion-de-l-arene-de-l-ile-tenebra",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Colosseum de Rhode",
@@ -207,7 +228,10 @@
    "palier": 2,
    "forum": "/f24-colosseum-de-rhode",
    "defier": "/t91-defier-le-champion-du-colosseum-de-rhode",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Colosseum de Phenacit",
@@ -219,7 +243,10 @@
    "palier": 2,
    "forum": "/f30-colosseum-de-phenacit",
    "defier": "/t64-defier-le-champion-du-colosseum-de-phenacit",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Colosseum de Targare",
@@ -231,7 +258,10 @@
    "palier": 1,
    "forum": "/f28-colosseum-de-targare",
    "defier": "/t69-defier-le-champion-du-colosseum-de-targare",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   },
   {
    "nom": "Colosseum de Titanite",
@@ -243,7 +273,10 @@
    "palier": 3,
    "forum": "/f22-colosseum-de-titanite",
    "defier": "/t65-defier-le-champion-du-colosseum-de-titanite",
-   "description": []
+   "description": [
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+   ]
   }
  ],
  "ligue": {
@@ -252,8 +285,11 @@
   "niveau": 80,
   "tenuePar": "Michael",
   "_": "Le douzième défi, et le dernier. Il n'est PAS dans `arenes` : il n'a ni badge, ni type, ni case dans la grille de la carte dresseur, et le compteur de la Ligue compte les arènes — il ne se compterait pas lui-même. Michael le tient : c'est la fiche `Michael` de data/personnages.json, aujourd'hui président de la région.",
-  "description": []
+  "description": [
+   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+   "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+  ]
  },
  "_defier": "`defier` EST L'ADRESSE DU SUJET « Défier le champion » DU DÉFI, et c'est là qu'on colle le bloc que `outils/defier.py` écrit pour lui. Les onze ont été relevées le 9 novembre 2026 : quatre par la recherche du forum, les sept autres données par Callista — elles sont dans les archives du staff, qu'un visiteur ne voit pas. ATTENTION AUX DEUX VILLES PARTAGÉES : Port-Amarée porte l'Arène Eau (t63) ET le Colosseum de Rhode (t91), Suerebe porte l'Arène Acier (t68) ET le Colosseum de Targare (t69). C'est le NOM du défi qui lève l'ambiguïté, pas sa ville.",
- "_description": "`description` : le texte d'ouverture d'un défi, sous le nom de l'arène et avant les trois faits. Un à trois paragraphes. Il remplace les deux lignes qui traînaient SOUS l'équipe, que personne ne lisait là. Vide, rien ne s'affiche — pas de trou."
+ "_description": "`description` : le texte d'ouverture d'un défi, sous le nom de l'arène et avant les trois faits. Un à trois paragraphes. Il remplace les deux lignes qui traînaient SOUS l'équipe, que personne ne lisait là. DU LOREM POUR L'INSTANT, posé le 10 novembre à la demande de Callista pour qu'elle voie l'emplacement : à remplacer par le vrai texte de chacune des onze, et NE PAS COLLER sur le forum tant qu'il est là. Vider la liste fait disparaître le bloc sans laisser de trou."
 }
