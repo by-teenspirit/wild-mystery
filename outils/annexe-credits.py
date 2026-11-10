@@ -161,7 +161,13 @@ def corps():
         w('            <div class="wm-paras">')
         w(f'              <p>{riche(v["dit"])}</p>')
         w("            </div>")
-    w('            <ol class="wm-versions">')
+    #  `<ul>` ET PLUS `<ol>` : « le fait de mettre une liste de numéro,
+    #  je suis pas fan » (10 nov.). L'ordre est chronologique, donc un
+    #  `<ol>` se défendait — mais chaque entrée PORTE sa date, qui dit
+    #  l'ordre mieux qu'un numéro. Et une liste numérotée dont on cache
+    #  les numéros en CSS redevient numérotée dès que la feuille tarde
+    #  à arriver : c'est exactement ce qui s'est passé.
+    w('            <ul class="wm-versions">')
     for ver in v["liste"]:
         bannieres = ver["bannieres"]
         #  `--plusieurs` et pas un calcul dans la feuille : une seule
@@ -169,12 +175,21 @@ def corps():
         #  grille. Le CSS seul ne sait pas compter ses enfants.
         plus = " wm-versions__images--plusieurs" if len(bannieres) > 1 else ""
         w('              <li class="wm-version">')
-        w('                <div class="wm-version__tete">')
-        w(f'                  <h3 class="wm-version__nom">{e(ver["nom"])}</h3>')
-        w('                  <p class="wm-version__quand">'
-          f'{e(ver["quand"])}</p>')
-        w("                </div>")
-        w('                <p class="wm-version__par">'
+        #  ── TROIS NIVEAUX, DANS L'ORDRE OÙ ON LES LIT ─────────────
+        #
+        #  « Le design, la date, le crédit, tu peux mieux les
+        #  afficher. » Ils étaient deux : le nom et la date sur la
+        #  même ligne, aux deux bouts, puis l'auteur en dessous. Deux
+        #  choses aux deux bouts d'une ligne pèsent pareil, et la
+        #  hiérarchie était plate.
+        #
+        #  La date monte au-dessus en surtitre — elle SITUE, elle ne
+        #  nomme pas. Le nom reste le titre. L'auteur suit, et c'est
+        #  lui qu'on est venu lire sur une page de crédits : son nom
+        #  prend l'encre pleine quand le mot « par » reste doux.
+        w(f'                <p class="wm-version__quand">{e(ver["quand"])}</p>')
+        w(f'                <h3 class="wm-version__nom">{e(ver["nom"])}</h3>')
+        w('                <p class="wm-version__par">par '
           + " et ".join(f'<span class="wm-version__qui">{e(q)}</span>'
                         for q in ver["par"])
           + "</p>")
@@ -189,7 +204,7 @@ def corps():
               f'src="{e(src)}" alt="{e(alt)}" loading="lazy" />')
         w("                </div>")
         w("              </li>")
-    w("            </ol>")
+    w("            </ul>")
     w("          </section>")
     w("")
     w("        </div>")

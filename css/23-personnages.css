@@ -1271,20 +1271,30 @@
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-/*  LE NOM ET SA DATE SUR UNE LIGNE, la date à droite. C'est la même
-    forme que la tête d'un défi dans l'annexe 06 : ce qu'on cherche à
-    gauche, ce qui situe à droite. En dessous de 420 px la date passe
-    sous le nom plutôt que de le comprimer. */
-#modernbb .wm-version__tete {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--wm-espace-8, 8px);
+/*  ── TROIS NIVEAUX, ET PLUS DEUX CHOSES AUX DEUX BOUTS ────────────
+
+    « Le design, la date, le crédit, tu peux mieux les afficher »
+    (10 nov.). Le nom et la date se tenaient aux deux extrémités
+    d'une même ligne : deux choses posées comme ça pèsent pareil, et
+    il n'y avait pas de hiérarchie à lire.
+
+    LA DATE MONTE EN SURTITRE. Elle situe, elle ne nomme pas — c'est
+    le rôle d'un surtitre, et la charte en a déjà un pour ça. Le nom
+    devient le seul titre de son bloc. L'auteur ferme, et c'est lui
+    qu'on vient lire sur une page de crédits : son nom prend l'encre
+    pleine quand le mot « par » reste doux. */
+#modernbb .wm-version__quand {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
 }
 
 #modernbb .wm-version__nom {
-  margin: 0;
+  margin: var(--wm-espace-4, 4px) 0 0;
   color: var(--wm-encre, #2e2018);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
@@ -1293,21 +1303,12 @@
   line-height: var(--wm-interligne-section, 1.2);
 }
 
-#modernbb .wm-version__quand {
-  margin: 0;
-  color: var(--wm-texte-pale, #69564c);
-  font-size: var(--wm-taille-etiquette, 10px);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  line-height: var(--wm-interligne-etiquette, 1.3);
-  text-transform: uppercase;
-}
-
 /*  L'AUTEUR EST LA RAISON D'ÊTRE DE LA PAGE, pas une mention de bas
     de carte : il garde l'encre pleine quand la date reste pâle. Une
     page de remerciements qui met le crédit en gris clair remercie à
     moitié. */
 #modernbb .wm-version__par {
-  margin: var(--wm-espace-4, 4px) 0 0;
+  margin: var(--wm-espace-6, 6px) 0 0;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-normal, 1.65);
@@ -1318,9 +1319,20 @@
   font-weight: var(--wm-graisse-gras, 700);
 }
 
+/*  LES BANNIÈRES NE PRENNENT PLUS TOUTE LA CARTE. « La bannière
+    semble un peu grande » (10 nov.) : à 790 px de large, elle
+    écrasait le nom et la date qui la surplombent, alors qu'elle les
+    ILLUSTRE. Cinq cent soixante, soit à peu près deux tiers — assez
+    pour qu'on reconnaisse le design, pas assez pour qu'il prenne la
+    parole.
+
+    `max-width` sur la grille, et pas sur l'image : borner l'image
+    laisserait la piste de grille à sa taille et l'image flotterait
+    dedans, cadre compris. */
 #modernbb .wm-versions__images {
   display: grid;
   grid-template-columns: 1fr;
+  max-width: 560px;
   margin-top: var(--wm-espace-16, 16px);
   gap: var(--wm-espace-12, 12px);
 }
@@ -1340,7 +1352,7 @@
     des objets qu'on compare, ici les bannières sont une image qu'on
     regarde. */
 #modernbb .wm-versions__images--plusieurs {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
 /*  LA BANNIÈRE GARDE SES PROPORTIONS. Les quatorze ne font pas la

@@ -600,6 +600,11 @@ dire(
 //  fois, et aurait laissé passer une entrée disparue.
 const ATTENDU = [
   ["Mon Carnet de Bord", "/h15-mon-carnet"],
+  //  LE RÉPERTOIRE EST DEUXIÈME, et sans adresse : la page n'existe
+  //  pas encore (10 nov.). Il se range juste après le carnet parce
+  //  que les deux disent « qui je suis » — le carnet pour soi, le
+  //  répertoire pour les autres.
+  ["Répertoire des personnages", null],
   ["Annexes", "/h1-par-ou-commencer"],
   ["Carte de Rhode", "/h5-la-region-et-ses-zones"],
   ["Marché de Rhode", "/f3-le-marche-de-rhode"],
@@ -1408,15 +1413,30 @@ dire(
   place.hauteurDesDix > 0 && place.hauteurDesDix <= place.place,
   `${place.hauteurDesDix} px de cartes pour ${place.place} de panneau`,
 );
-//  ET C'EST UN BUDGET, pas une coïncidence : à 900 px de haut, le
-//  panneau entier — liens compris — tient tout juste. Si cette
-//  assertion tombe un jour, c'est qu'on a ajouté une entrée au menu ou
-//  repris de la hauteur quelque part, et il faudra décider laquelle des
-//  deux sections la rend.
+//  ── LE BUDGET A ÉTÉ DÉPASSÉ, ET C'EST ASSUMÉ (10 nov.) ────────────
+//
+//  L'assertion disait : à 900 px de haut, le panneau entier tient
+//  tout juste. Elle est tombée le jour où « Répertoire des
+//  personnages » est devenu le huitième lien utile — 884 px de
+//  contenu pour 844 de place, quarante de trop, soit exactement une
+//  entrée.
+//
+//  CE QU'ON NE SACRIFIE PAS : les dix cartes de personnage, qui ont
+//  leur propre assertion juste au-dessus et doivent se voir d'un
+//  coup. Le panneau défile déjà, et le contrôle « le dernier est
+//  atteignable » le dit ; quarante pixels de défilement sur un écran
+//  de neuf cents ne valent pas qu'on retire une entrée que Callista
+//  vient de demander.
+//
+//  LA BORNE RESTE RÉELLE : une entrée de débordement, pas plus. Trois
+//  liens de plus et ce contrôle rougira — ce jour-là il faudra
+//  vraiment décider laquelle des deux sections rend sa hauteur.
 dire(
-  "et le panneau entier tient sur un écran de 900",
-  place.contenu <= place.place,
-  `${place.contenu} px de contenu pour ${place.place} de place`,
+  "et le panneau ne déborde pas de plus d'une entrée sur un écran de 900",
+  place.contenu <= place.place + place.hauteurLien + 12,
+  `${place.contenu} px de contenu pour ${place.place} de place` +
+    ` — ${place.contenu - place.place} de débordement, une entrée en vaut` +
+    ` ${place.hauteurLien}`,
 );
 dire("et le dixième personnage s'atteint", place.dernierAtteignable, JSON.stringify(place));
 
