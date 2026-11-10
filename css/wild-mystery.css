@@ -31,6 +31,7 @@
      · css/23-personnages.css
      · css/24-profil.css
      · css/25-moderation.css
+     · css/26-profil-edition.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -28993,7 +28994,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
+  /*  SIX EN HAUT ET EN BAS, et plus quatre (10 nov.). Quatre
+      suffisaient à ne pas toucher la pastille, pas à lui donner de
+      l'air : la pastille fait dix-huit pixels de haut dans une
+      rangée qui en faisait vingt-six, soit quatre de chaque côté —
+      l'épaisseur d'un cheveu. */
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-8, 8px);
   border: 1px solid transparent;
   border-radius: var(--wm-rayon-sm, 6px);
   /*  HUIT ENTRE LA PASTILLE ET LE NOM, et plus six : la pastille a
@@ -30614,5 +30620,447 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-8, 8px);
   border: 0;
   background: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   26 · L'ÉDITION DU PROFIL
+
+   « Améliore cette page, notamment ajouter un fond et améliorer les
+   onglets » — 10 novembre 2026, sur `/profile?mode=editprofile`.
+
+   ── CE QU'ON VOYAIT ───────────────────────────────────────────────
+
+   Rien de nous. Aucune règle de la charte ne touchait `#cp-main` :
+   la page sortait avec les panneaux de ModernBB, les images d'angle
+   de 2007 (`span.corners-top`), et quarante lignes de formulaire en
+   `<dl>` nues, étiquette et champ l'un sous l'autre.
+
+   ── CE QU'ON NE PEUT PAS VÉRIFIER D'ICI ───────────────────────────
+
+   La page demande une connexion. Je ne me connecte pas au forum : la
+   structure vient donc du gabarit amont (`Etana/template`,
+   `src/modernbb/profile_add_body.tpl`, relevé le 10 novembre), monté
+   par `deno task profil-edition` avec ses dix panneaux, ses onze
+   `fieldset` et ses quarante lignes.
+
+   LES ONGLETS SONT LE TROU. Ils viennent de `{UCP_TABS}`, que
+   Forumactif génère lui-même et qui n'existe dans AUCUN gabarit. Leur
+   structure est celle relevée sur un profil public le 8 novembre
+   (doc 88) — `#tabs > ul > li[.activetab] > a > span` — et c'est le
+   même composant d'un bout à l'autre du forum. À confirmer sur la
+   vraie page.
+
+   ── ZÉRO TABLEAU, Y COMPRIS QUAND LE GABARIT EN SUGGÈRE UN ────────
+
+   Une ligne de formulaire est un `<dl>` : `<dt>` l'étiquette, `<dd>`
+   le champ. C'est la forme d'un tableau sans en être un, et c'est
+   tant mieux — `display: flex` sur le `<dl>` suffit à les mettre
+   côte à côte, et à les empiler quand la place manque.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · le fond, et la carte ─────────────────────────────────────── */
+
+/*  LES ANGLES DE 2007 S'EN VONT. `span.corners-top` et
+    `span.corners-bottom` sont des images d'angle arrondi, du temps où
+    `border-radius` n'existait pas. Elles ne portent aucun texte et
+    aucune fonction ; vidées, elles laisseraient un blanc de quelques
+    pixels en haut de chaque panneau. */
+#modernbb .ucp-main .corners-top,
+#modernbb .ucp-main .corners-bottom,
+#modernbb #cp-main .corners-top,
+#modernbb #cp-main .corners-bottom {
+  display: none;
+}
+
+/*  LA CARTE EST LE PANNEAU EXTÉRIEUR, et pas `#cp-main` : c'est lui
+    qui enveloppe les onglets ET le formulaire, donc lui qui doit
+    porter le fond. `row3` est la classe que ModernBB pose sur ce
+    panneau-là, et sur lui seul. */
+#modernbb .panel.row3 {
+  box-sizing: border-box;
+  padding: var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .panel.row3 > .inner {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+/*  LES PANNEAUX INTÉRIEURS NE SONT PAS DES BOÎTES. Dix cadres dans un
+    cadre donneraient dix bords à lire avant le premier champ. Ce sont
+    des SECTIONS : un filet les sépare, et le premier n'en a pas. */
+#modernbb .ucp-main .panel,
+#modernbb #cp-main .panel {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  background: none;
+}
+
+#modernbb .ucp-main .panel .inner,
+#modernbb #cp-main .panel .inner {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+/* ── 2 · les titres de section ────────────────────────────────────── */
+
+/*  LE GABARIT POSE UN `<h1>` PAR SECTION — six ou sept sur la même
+    page. C'est discutable, et ce n'est pas à nous de le corriger :
+    `profile_add_body` est un gabarit qu'on n'a pas modifié.
+
+    ON NE TOUCHE NI À LEUR TAILLE NI À LEUR POLICE. Relevé sur la
+    vraie page le 10 novembre : ils sortent déjà au serif de la
+    charte, et ils font exactement le travail de séparer les
+    sections. Les rapetisser aurait été corriger ce qui marchait.
+    Seuls les ÉCARTS manquaient, et le filet qui dit où une section
+    s'arrête.
+
+    LA MARGE HAUTE EST DEUX FOIS ET DEMIE LA BASSE : un titre
+    appartient à ce qu'il annonce, pas à ce qui le précède. C'est la
+    même loi que sur les fiches d'annonce, et elle se mesure. */
+#modernbb .ucp-main h1.page-title,
+#modernbb #cp-main h1.page-title {
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-24, 24px) 0 0;
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
+#modernbb .ucp-main h1.page-title:first-of-type,
+#modernbb #cp-main h1.page-title:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+  margin-top: 0;
+}
+
+/* ── 3 · une ligne de formulaire ──────────────────────────────────── */
+
+/*  `<dl>` EN FLEX : l'étiquette à gauche, le champ à droite, et les
+    deux qui s'empilent quand la colonne devient étroite. Pas de
+    largeur fixe sur l'étiquette — `flex: 0 0 34%` la cale sans la
+    figer, et les champs s'alignent donc d'une ligne à l'autre sans
+    qu'aucun nombre de pixels ne soit écrit ici. */
+#modernbb .ucp-main dl,
+#modernbb #cp-main dl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 0 0 var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+}
+
+#modernbb .ucp-main dt,
+#modernbb #cp-main dt {
+  flex: 0 0 34%;
+  min-width: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .ucp-main dt label,
+#modernbb #cp-main dt label {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+/*  LA COLONNE DES CHAMPS EST BORNÉE À 420 px. Sans borne, elle
+    prenait les sept cents pixels restants : un champ « Pseudo » large
+    comme un paragraphe, et un œil qui doit parcourir toute la page
+    pour revenir à l'étiquette suivante. */
+#modernbb .ucp-main dd,
+#modernbb #cp-main dd {
+  flex: 1 1 240px;
+  max-width: 420px;
+  min-width: 0;
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+}
+
+/*  LE TEXTE D'AIDE EST UNE AIDE, pas une valeur. Il sortait en
+    italique à la taille du champ, juste en dessous, et se lisait
+    comme une réponse déjà saisie. */
+#modernbb .ucp-main .italic,
+#modernbb #cp-main .italic {
+  display: block;
+  margin-top: var(--wm-espace-4, 4px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: normal;
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/* ── 4 · les champs ───────────────────────────────────────────────── */
+
+/*  UN CHAMP EST CREUX, PAS BLANC. La carte est déjà sur la surface
+    claire : un champ blanc dessus ne se verrait pas. Le sable le
+    creuse, et c'est le même rapport que les cadres de types sur une
+    fiche d'adversaire. */
+#modernbb .ucp-main input.inputbox,
+#modernbb .ucp-main input[type="text"],
+#modernbb .ucp-main input[type="password"],
+#modernbb .ucp-main input[type="email"],
+#modernbb .ucp-main select,
+#modernbb .ucp-main textarea,
+#modernbb #cp-main input.inputbox,
+#modernbb #cp-main input[type="text"],
+#modernbb #cp-main input[type="password"],
+#modernbb #cp-main input[type="email"],
+#modernbb #cp-main select,
+#modernbb #cp-main textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-encre, #2e2018);
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .ucp-main textarea,
+#modernbb #cp-main textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/*  ── LE SEUL `!important` DE CETTE FEUILLE, ET IL EST MÉRITÉ ───────
+
+    Relevé sur la vraie page : Forumactif écrit `style="width:250px"`
+    EN DUR sur chaque champ de profil personnalisé. Pas dans une
+    feuille — dans l'attribut, donc hors d'atteinte de n'importe quel
+    sélecteur.
+
+    Le résultat se voyait : « Nom d'utilisateur » faisait sept cents
+    pixels de large, « Pseudo » deux cent cinquante, et la colonne
+    des champs n'avait plus de bord droit. Deux largeurs pour deux
+    champs voisins, sans raison lisible.
+
+    C'est le seul cas où la charte autorise `!important` : contre un
+    style en ligne, il n'y a rien d'autre. */
+#modernbb .ucp-main dd input.inputbox,
+#modernbb .ucp-main dd select,
+#modernbb .ucp-main dd textarea,
+#modernbb #cp-main dd input.inputbox,
+#modernbb #cp-main dd select,
+#modernbb #cp-main dd textarea {
+  width: 100% !important;
+}
+
+/*  L'ANNEAU DE FOCUS EST UN `outline`, et pas une bordure de
+    couleur : une bordure qui change d'épaisseur fait sauter la ligne
+    d'un pixel, un contour ne déplace rien. */
+#modernbb .ucp-main input:focus-visible,
+#modernbb .ucp-main select:focus-visible,
+#modernbb .ucp-main textarea:focus-visible,
+#modernbb #cp-main input:focus-visible,
+#modernbb #cp-main select:focus-visible,
+#modernbb #cp-main textarea:focus-visible {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 1px;
+}
+
+/*  UNE CASE À COCHER NE PREND PAS TOUTE LA LIGNE. Le sélecteur
+    au-dessus vise les champs de saisie ; celui-ci rend leur taille
+    aux cases et aux boutons radio, et colle leur libellé à côté. */
+#modernbb .ucp-main input[type="checkbox"],
+#modernbb .ucp-main input[type="radio"],
+#modernbb #cp-main input[type="checkbox"],
+#modernbb #cp-main input[type="radio"] {
+  width: auto;
+  margin: 0 var(--wm-espace-6, 6px) 0 0;
+  accent-color: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .ucp-main dd label,
+#modernbb #cp-main dd label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--wm-espace-16, 16px);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── 5 · les boutons ──────────────────────────────────────────────── */
+
+/*  EN FLEXBOX, et au bas de la carte. Le gabarit les pose dans un
+    `fieldset` nu ; sans règle, ils se suivaient collés, séparés par
+    une espace insécable du HTML. */
+#modernbb .ucp-main fieldset.submit-buttons,
+#modernbb #cp-main fieldset.submit-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-24, 24px) 0 0;
+  padding: var(--wm-espace-20, 20px) 0 0;
+  border: 0;
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .ucp-main .button1,
+#modernbb #cp-main .button1 {
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-20, 20px);
+  border: 1px solid transparent;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  LE SECOND BOUTON EST « Annuler » : il remet le formulaire à zéro.
+    Il ne peut donc pas peser autant que celui qui enregistre — d'où
+    le contour seul. */
+#modernbb .ucp-main .button2,
+#modernbb #cp-main .button2 {
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: none;
+  color: var(--wm-encre, #2e2018);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .ucp-main .button1:hover,
+#modernbb .ucp-main .button2:hover,
+#modernbb #cp-main .button1:hover,
+#modernbb #cp-main .button2:hover {
+  filter: brightness(0.94);
+}
+
+/*  LES `<br>` DU GABARIT S'EN VONT. Relevé sur la vraie page :
+    vingt-deux des vingt-cinq lignes portent un `<br>` entre le champ
+    et son texte d'aide. Le texte d'aide est déjà en `display: block`
+    — le saut était donc une ligne vide de plus, et c'est elle qui
+    creusait les grands trous entre « Pseudo » et « Crédits ». */
+#modernbb .ucp-main dd > br,
+#modernbb #cp-main dd > br {
+  display: none;
+}
+
+/*  LE SÉPARATEUR DU GABARIT est un `<div>` vide qui ne porte qu'une
+    image de fond. Un filet le remplace. */
+#modernbb .ucp-main .separator,
+#modernbb #cp-main .separator {
+  height: 1px;
+  border: 0;
+  margin: var(--wm-espace-16, 16px) 0;
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+/* ── 6 · sous 640 px, l'étiquette passe au-dessus ─────────────────── */
+
+/*  Trente-quatre pour cent d'une colonne de six cents pixels, c'est
+    deux cents : de quoi écrire « Confirmation du mot de passe » sur
+    trois lignes à côté d'un champ d'une. En dessous, l'étiquette
+    reprend toute la largeur et le champ passe en dessous. */
+@media (max-width: 640px) {
+  #modernbb .ucp-main dt,
+  #modernbb #cp-main dt {
+    flex: 1 1 100%;
+  }
+}
+
+/* ── 7 · les onglets ──────────────────────────────────────────────── */
+
+/*  RELEVÉ SUR LA VRAIE PAGE, dans Chrome, le 10 novembre : douze
+    onglets sur deux rangées, et L'ONGLET ACTIF EST INDISCERNABLE DES
+    AUTRES. Mesuré, pas deviné — `li.activetab` et `li` rendent
+    exactement les mêmes styles calculés : même fond transparent,
+    même couleur, même graisse. Rien ne dit où l'on est.
+
+    Le texte sortait en `rgb(68, 68, 68)`, un gris qui n'est nulle
+    part dans la charte : c'est la valeur par défaut de ModernBB.
+
+    ── CE QUI REMPLACE ────────────────────────────────────────────
+
+    Des pastilles, en flex. `float: left` traîne sur le `<a>` ET sur
+    le `<span>` qu'il contient — un reste de mise en page de 2007 —
+    et il faut l'annuler aux deux endroits, sinon la rangée ne
+    s'aligne pas.
+
+    L'ACTIF PREND L'ENCRE DE NUIT, et pas l'accent. `accent-primaire`
+    s'éclaircit la nuit : la pastille active deviendrait la seule
+    tache claire d'une page sombre. `fond-nuit` est sombre dans les
+    deux thèmes — c'est la leçon des pastilles de rang du Conseil 4,
+    apprise la veille. */
+/*  PAS DE FILET SOUS LA BARRE. Essayé, puis retiré en regardant la
+    vraie page : les onglets vivent SUR le sable, au-dessus de la
+    carte, et un filet posé là flotte à vingt pixels du seul bord qui
+    compte — celui de la carte. */
+#modernbb #tabs {
+  margin: 0 0 var(--wm-espace-20, 20px);
+}
+
+#modernbb #tabs ul {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-4, 4px);
+  list-style: none;
+}
+
+#modernbb #tabs li {
+  display: block;
+  float: none;
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+#modernbb #tabs li a {
+  display: block;
+  float: none;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-12, 12px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  color: var(--wm-texte-doux, #6e5749);
+  text-decoration: none;
+}
+
+#modernbb #tabs li a span {
+  display: block;
+  float: none;
+  padding: 0;
+  color: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb #tabs li a:hover,
+#modernbb #tabs li a:focus-visible {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-encre, #2e2018);
+}
+
+#modernbb #tabs li.activetab a,
+#modernbb #tabs li.activetab a:hover {
+  background: var(--wm-fond-nuit, #3a2a22);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  L'ONGLET COURANT NE MÈNE NULLE PART — son `href` vaut `#`, relevé
+    sur un profil public le 8 novembre. Le curseur le dit. */
+#modernbb #tabs li.activetab a {
+  cursor: default;
 }
 

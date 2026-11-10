@@ -1113,7 +1113,12 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
+  /*  SIX EN HAUT ET EN BAS, et plus quatre (10 nov.). Quatre
+      suffisaient à ne pas toucher la pastille, pas à lui donner de
+      l'air : la pastille fait dix-huit pixels de haut dans une
+      rangée qui en faisait vingt-six, soit quatre de chaque côté —
+      l'épaisseur d'un cheveu. */
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-8, 8px);
   border: 1px solid transparent;
   border-radius: var(--wm-rayon-sm, 6px);
   /*  HUIT ENTRE LA PASTILLE ET LE NOM, et plus six : la pastille a
