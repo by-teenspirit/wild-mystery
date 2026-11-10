@@ -31,7 +31,7 @@
      · css/23-personnages.css
      · css/24-profil.css
      · css/25-moderation.css
-     · css/26-profil-edition.css
+     · css/26-formulaires-fa.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -30651,32 +30651,61 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   26 · L'ÉDITION DU PROFIL
+   26 · LES FORMULAIRES DE FORUMACTIF
 
    « Améliore cette page, notamment ajouter un fond et améliorer les
    onglets » — 10 novembre 2026, sur `/profile?mode=editprofile`.
+   « Améliore aussi cette page » — le même jour, sur `/search`.
 
-   ── CE QU'ON VOYAIT ───────────────────────────────────────────────
+   ── POURQUOI UNE SEULE FEUILLE POUR LES DEUX ──────────────────────
 
-   Rien de nous. Aucune règle de la charte ne touchait `#cp-main` :
-   la page sortait avec les panneaux de ModernBB, les images d'angle
-   de 2007 (`span.corners-top`), et quarante lignes de formulaire en
-   `<dl>` nues, étiquette et champ l'un sous l'autre.
+   Elle s'appelait « l'édition du profil » jusqu'au second message.
+   En ouvrant `/search`, on y a trouvé le MÊME BALISAGE, mot pour
+   mot : `.panel > .inner`, les images d'angle de 2007, un `fieldset`
+   par section, et des lignes en `<dl>` — `<dt>` l'étiquette, `<dd>`
+   le champ. Ce n'est pas une ressemblance : c'est le vocabulaire que
+   Forumactif emploie pour TOUS ses formulaires, de la recherche à la
+   connexion.
+
+   Alors la feuille a changé de nom plutôt que de se faire recopier.
+   Ce qu'elle décrit n'est pas une page, c'est une forme.
+
+   ── À QUOI ELLE S'APPLIQUE, ET À QUOI ELLE NE S'APPLIQUE PAS ──────
+
+   Le périmètre est une liste nommée, et c'est VOULU : `/post` emploie
+   exactement le même balisage — six panneaux, le même `fieldset` —
+   mais il porte l'éditeur de message, qui ne se touche pas sans
+   qu'on le demande. Un sélecteur large aurait tout pris.
+
+   On nomme donc deux choses, et deux seulement : `.ucp-main` (le
+   panneau de contrôle) et le formulaire de recherche, par son `name`.
+
+   LE « SAUTER VERS » EN EST SORTI, et pour une raison de poids au
+   sens propre. Il y était d'abord, écrit `form[name="searchform"] ~
+   form[name="jumpbox"]` pour ne pas toucher aux pages de forum et de
+   sujet où il vit aussi. Mais la spécificité d'un `:is()` est celle
+   de son argument LE PLUS FORT : cette seule ligne tirait tout le
+   reste vers le haut, et les règles propres à la recherche, écrites
+   plus bas et plus précises à la lecture, perdaient contre elle.
+   Deux heures à regarder un champ rester à quatre-vingt-douze pixels
+   pendant que la règle censée l'élargir s'appliquait pour de vrai —
+   mais perdait.
+
+   Le « sauter vers » a donc ses deux règles à lui, en bas de la
+   feuille, écrites en toutes lettres. Il n'avait pas besoin du reste :
+   ModernBB habille déjà ses menus déroulants correctement.
 
    ── CE QU'ON NE PEUT PAS VÉRIFIER D'ICI ───────────────────────────
 
-   La page demande une connexion. Je ne me connecte pas au forum : la
-   structure vient donc du gabarit amont (`Etana/template`,
-   `src/modernbb/profile_add_body.tpl`, relevé le 10 novembre), monté
-   par `deno task profil-edition` avec ses dix panneaux, ses onze
-   `fieldset` et ses quarante lignes.
+   L'édition du profil demande une connexion. Je ne me connecte pas
+   au forum : la structure vient du gabarit amont (`Etana/template`,
+   `src/modernbb/profile_add_body.tpl`), et les mesures des pages
+   connectées ont été lues dans le navigateur de Callista, où sa
+   session était déjà ouverte.
 
-   LES ONGLETS SONT LE TROU. Ils viennent de `{UCP_TABS}`, que
-   Forumactif génère lui-même et qui n'existe dans AUCUN gabarit. Leur
-   structure est celle relevée sur un profil public le 8 novembre
-   (doc 88) — `#tabs > ul > li[.activetab] > a > span` — et c'est le
-   même composant d'un bout à l'autre du forum. À confirmer sur la
-   vraie page.
+   `/search` est publique et a été relevée directement : trois
+   panneaux dans un `form[name="searchform"]`, puis le « sauter vers »
+   dans un `form[name="jumpbox"]` frère.
 
    ── ZÉRO TABLEAU, Y COMPRIS QUAND LE GABARIT EN SUGGÈRE UN ────────
 
@@ -30693,10 +30722,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     `border-radius` n'existait pas. Elles ne portent aucun texte et
     aucune fonction ; vidées, elles laisseraient un blanc de quelques
     pixels en haut de chaque panneau. */
-#modernbb .ucp-main .corners-top,
-#modernbb .ucp-main .corners-bottom,
-#modernbb #cp-main .corners-top,
-#modernbb #cp-main .corners-bottom {
+#modernbb :is(.ucp-main, form[name="searchform"]) .corners-top,
+#modernbb :is(.ucp-main, form[name="searchform"]) .corners-bottom {
   display: none;
 }
 
@@ -30738,8 +30765,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LES PANNEAUX INTÉRIEURS NE SONT PAS DES BOÎTES. Dix cadres dans un
     cadre donneraient dix bords à lire avant le premier champ. Ce sont
     des SECTIONS : un filet les sépare, et le premier n'en a pas. */
-#modernbb .ucp-main .panel,
-#modernbb #cp-main .panel {
+#modernbb :is(.ucp-main, form[name="searchform"]) .panel {
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -30747,8 +30773,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: none;
 }
 
-#modernbb .ucp-main .panel .inner,
-#modernbb #cp-main .panel .inner {
+#modernbb :is(.ucp-main, form[name="searchform"]) .panel .inner {
   padding: 0;
   border: 0;
   background: none;
@@ -30770,16 +30795,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     LA MARGE HAUTE EST DEUX FOIS ET DEMIE LA BASSE : un titre
     appartient à ce qu'il annonce, pas à ce qui le précède. C'est la
     même loi que sur les fiches d'annonce, et elle se mesure. */
-#modernbb .ucp-main h1.page-title,
-#modernbb #cp-main h1.page-title {
+#modernbb :is(.ucp-main, form[name="searchform"]) h1.page-title {
   margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-12, 12px);
   padding: var(--wm-espace-24, 24px) 0 0;
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
   line-height: var(--wm-interligne-titre, 1.1);
 }
 
-#modernbb .ucp-main h1.page-title:first-of-type,
-#modernbb #cp-main h1.page-title:first-of-type {
+#modernbb :is(.ucp-main, form[name="searchform"]) h1.page-title:first-of-type {
   padding-top: 0;
   border-top: 0;
   margin-top: 0;
@@ -30792,8 +30815,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     largeur fixe sur l'étiquette — `flex: 0 0 34%` la cale sans la
     figer, et les champs s'alignent donc d'une ligne à l'autre sans
     qu'aucun nombre de pixels ne soit écrit ici. */
-#modernbb .ucp-main dl,
-#modernbb #cp-main dl {
+#modernbb :is(.ucp-main, form[name="searchform"]) dl {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -30801,9 +30823,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
 }
 
-#modernbb .ucp-main dt,
-#modernbb #cp-main dt {
+#modernbb :is(.ucp-main, form[name="searchform"]) dt {
   flex: 0 0 34%;
+  /*  MAIS JAMAIS PLUS DE 220 px. Trente-quatre pour cent, c'est bon
+      sur la carte du profil ; sur la recherche, qui occupe toute la
+      largeur, ça faisait 373 px d'étiquette pour trois mots, et une
+      gouttière vide à traverser des yeux avant d'atteindre le champ.
+      Le pourcentage cale les lignes entre elles, la borne les
+      empêche de s'étirer avec la fenêtre. */
+  max-width: 220px;
   min-width: 0;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-etiquette, 10px);
@@ -30813,8 +30841,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   text-transform: uppercase;
 }
 
-#modernbb .ucp-main dt label,
-#modernbb #cp-main dt label {
+#modernbb :is(.ucp-main, form[name="searchform"]) dt label {
   color: inherit;
   font: inherit;
   letter-spacing: inherit;
@@ -30824,8 +30851,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     prenait les sept cents pixels restants : un champ « Pseudo » large
     comme un paragraphe, et un œil qui doit parcourir toute la page
     pour revenir à l'étiquette suivante. */
-#modernbb .ucp-main dd,
-#modernbb #cp-main dd {
+#modernbb :is(.ucp-main, form[name="searchform"]) dd {
   flex: 1 1 240px;
   max-width: 420px;
   min-width: 0;
@@ -30836,8 +30862,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LE TEXTE D'AIDE EST UNE AIDE, pas une valeur. Il sortait en
     italique à la taille du champ, juste en dessous, et se lisait
     comme une réponse déjà saisie. */
-#modernbb .ucp-main .italic,
-#modernbb #cp-main .italic {
+#modernbb :is(.ucp-main, form[name="searchform"]) .italic {
   display: block;
   margin-top: var(--wm-espace-4, 4px);
   color: var(--wm-texte-doux, #6e5749);
@@ -30852,32 +30877,32 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     claire : un champ blanc dessus ne se verrait pas. Le sable le
     creuse, et c'est le même rapport que les cadres de types sur une
     fiche d'adversaire. */
-#modernbb .ucp-main input.inputbox,
-#modernbb .ucp-main input[type="text"],
-#modernbb .ucp-main input[type="password"],
-#modernbb .ucp-main input[type="email"],
-#modernbb .ucp-main select,
-#modernbb .ucp-main textarea,
-#modernbb #cp-main input.inputbox,
-#modernbb #cp-main input[type="text"],
-#modernbb #cp-main input[type="password"],
-#modernbb #cp-main input[type="email"],
-#modernbb #cp-main select,
-#modernbb #cp-main textarea {
+#modernbb :is(.ucp-main, form[name="searchform"]) input.inputbox,
+#modernbb :is(.ucp-main, form[name="searchform"]) input[type="text"],
+#modernbb :is(.ucp-main, form[name="searchform"]) input[type="password"],
+#modernbb :is(.ucp-main, form[name="searchform"]) input[type="email"],
+#modernbb :is(.ucp-main, form[name="searchform"]) select,
+#modernbb :is(.ucp-main, form[name="searchform"]) textarea {
   width: 100%;
   box-sizing: border-box;
   padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-sm, 6px);
-  background: var(--wm-fond-douce, #f3e1d2);
+  /*  `background-color`, ET SURTOUT PAS `background`. Le raccourci
+      remet TOUTES les propriétés de fond à leur valeur initiale,
+      `background-image` comprise — et c'est une image qui dessine le
+      chevron d'un `<select>` sur ce thème. Écrit en raccourci, le
+      menu déroulant perdait sa flèche et ne se distinguait plus d'un
+      champ de saisie. Vu sur la page de recherche le 10 novembre,
+      en comparant la capture d'avant et celle d'après. */
+  background-color: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-encre, #2e2018);
   font-family: inherit;
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-normal, 1.65);
 }
 
-#modernbb .ucp-main textarea,
-#modernbb #cp-main textarea {
+#modernbb :is(.ucp-main, form[name="searchform"]) textarea {
   min-height: 120px;
   resize: vertical;
 }
@@ -30896,24 +30921,18 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     C'est le seul cas où la charte autorise `!important` : contre un
     style en ligne, il n'y a rien d'autre. */
-#modernbb .ucp-main dd input.inputbox,
-#modernbb .ucp-main dd select,
-#modernbb .ucp-main dd textarea,
-#modernbb #cp-main dd input.inputbox,
-#modernbb #cp-main dd select,
-#modernbb #cp-main dd textarea {
+#modernbb :is(.ucp-main, form[name="searchform"]) dd input.inputbox,
+#modernbb :is(.ucp-main, form[name="searchform"]) dd select,
+#modernbb :is(.ucp-main, form[name="searchform"]) dd textarea {
   width: 100% !important;
 }
 
 /*  L'ANNEAU DE FOCUS EST UN `outline`, et pas une bordure de
     couleur : une bordure qui change d'épaisseur fait sauter la ligne
     d'un pixel, un contour ne déplace rien. */
-#modernbb .ucp-main input:focus-visible,
-#modernbb .ucp-main select:focus-visible,
-#modernbb .ucp-main textarea:focus-visible,
-#modernbb #cp-main input:focus-visible,
-#modernbb #cp-main select:focus-visible,
-#modernbb #cp-main textarea:focus-visible {
+#modernbb :is(.ucp-main, form[name="searchform"]) input:focus-visible,
+#modernbb :is(.ucp-main, form[name="searchform"]) select:focus-visible,
+#modernbb :is(.ucp-main, form[name="searchform"]) textarea:focus-visible {
   border-color: var(--wm-accent-primaire, #275e7a);
   outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 1px;
@@ -30922,17 +30941,14 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  UNE CASE À COCHER NE PREND PAS TOUTE LA LIGNE. Le sélecteur
     au-dessus vise les champs de saisie ; celui-ci rend leur taille
     aux cases et aux boutons radio, et colle leur libellé à côté. */
-#modernbb .ucp-main input[type="checkbox"],
-#modernbb .ucp-main input[type="radio"],
-#modernbb #cp-main input[type="checkbox"],
-#modernbb #cp-main input[type="radio"] {
+#modernbb :is(.ucp-main, form[name="searchform"]) input[type="checkbox"],
+#modernbb :is(.ucp-main, form[name="searchform"]) input[type="radio"] {
   width: auto;
   margin: 0 var(--wm-espace-6, 6px) 0 0;
   accent-color: var(--wm-accent-primaire, #275e7a);
 }
 
-#modernbb .ucp-main dd label,
-#modernbb #cp-main dd label {
+#modernbb :is(.ucp-main, form[name="searchform"]) dd label {
   display: inline-flex;
   align-items: center;
   margin-right: var(--wm-espace-16, 16px);
@@ -30944,8 +30960,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  EN FLEXBOX, et au bas de la carte. Le gabarit les pose dans un
     `fieldset` nu ; sans règle, ils se suivaient collés, séparés par
     une espace insécable du HTML. */
-#modernbb .ucp-main fieldset.submit-buttons,
-#modernbb #cp-main fieldset.submit-buttons {
+#modernbb :is(.ucp-main, form[name="searchform"]) fieldset.submit-buttons {
   display: flex;
   flex-wrap: wrap;
   margin: var(--wm-espace-24, 24px) 0 0;
@@ -30955,8 +30970,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-8, 8px);
 }
 
-#modernbb .ucp-main .button1,
-#modernbb #cp-main .button1 {
+#modernbb :is(.ucp-main, form[name="searchform"]) .button1 {
   padding: var(--wm-espace-8, 8px) var(--wm-espace-20, 20px);
   border: 1px solid transparent;
   border-radius: var(--wm-rayon-sm, 6px);
@@ -30971,8 +30985,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LE SECOND BOUTON EST « Annuler » : il remet le formulaire à zéro.
     Il ne peut donc pas peser autant que celui qui enregistre — d'où
     le contour seul. */
-#modernbb .ucp-main .button2,
-#modernbb #cp-main .button2 {
+#modernbb :is(.ucp-main, form[name="searchform"]) .button2 {
   padding: var(--wm-espace-8, 8px) var(--wm-espace-20, 20px);
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-sm, 6px);
@@ -30984,10 +30997,8 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-weight: var(--wm-graisse-gras, 700);
 }
 
-#modernbb .ucp-main .button1:hover,
-#modernbb .ucp-main .button2:hover,
-#modernbb #cp-main .button1:hover,
-#modernbb #cp-main .button2:hover {
+#modernbb :is(.ucp-main, form[name="searchform"]) .button1:hover,
+#modernbb :is(.ucp-main, form[name="searchform"]) .button2:hover {
   filter: brightness(0.94);
 }
 
@@ -30996,15 +31007,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     et son texte d'aide. Le texte d'aide est déjà en `display: block`
     — le saut était donc une ligne vide de plus, et c'est elle qui
     creusait les grands trous entre « Pseudo » et « Crédits ». */
-#modernbb .ucp-main dd > br,
-#modernbb #cp-main dd > br {
+#modernbb :is(.ucp-main, form[name="searchform"]) dd > br {
   display: none;
 }
 
 /*  LE SÉPARATEUR DU GABARIT est un `<div>` vide qui ne porte qu'une
     image de fond. Un filet le remplace. */
-#modernbb .ucp-main .separator,
-#modernbb #cp-main .separator {
+#modernbb :is(.ucp-main, form[name="searchform"]) .separator {
   height: 1px;
   border: 0;
   margin: var(--wm-espace-16, 16px) 0;
@@ -31018,8 +31027,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     trois lignes à côté d'un champ d'une. En dessous, l'étiquette
     reprend toute la largeur et le champ passe en dessous. */
 @media (max-width: 640px) {
-  #modernbb .ucp-main dt,
-  #modernbb #cp-main dt {
+  #modernbb :is(.ucp-main, form[name="searchform"]) dt {
     flex: 1 1 100%;
   }
 
@@ -31029,6 +31037,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       ses mots. */
   #modernbb .panel.row3:has(.ucp-main) {
     padding: var(--wm-espace-20, 20px);
+  }
+
+  /*  ET LES OPTIONS PERDENT LEUR DÉCALAGE : l'étiquette prend toute
+      la largeur ici, il n'y a plus de colonne sous laquelle se
+      ranger. */
+  #modernbb form[name="searchform"] dd:has(> label) {
+    margin-left: 0;
   }
 }
 
@@ -31130,5 +31145,170 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     sur un profil public le 8 novembre. Le curseur le dit. */
 #modernbb #tabs li.activetab a {
   cursor: default;
+}
+
+/* ── 8 · la page de recherche ─────────────────────────────────────── */
+
+/*  LA CARTE EST LE FORMULAIRE LUI-MÊME. Sur l'édition du profil, le
+    panneau extérieur existait déjà et portait la carte ; ici il n'y
+    en a pas : trois `.panel` frères flottent directement sur le
+    sable, sans rien qui dise où commence le formulaire et où il
+    finit. C'est le `<form>` qui le dit — il contient exactement les
+    trois, ni plus ni moins. */
+#modernbb form[name="searchform"] {
+  box-sizing: border-box;
+  padding: var(--wm-espace-32, 32px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  margin: 0 0 var(--wm-espace-24, 24px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LES TITRES DE SECTION, comme les `h1.page-title` du profil : un
+    filet au-dessus, et rien au-dessus du premier. Deux sections
+    séparées par un simple blanc se lisent comme une seule longue
+    liste ; le filet dit où l'une s'arrête. */
+#modernbb form[name="searchform"] h2.h3 {
+  margin: var(--wm-espace-32, 32px) 0 var(--wm-espace-16, 16px);
+  padding: var(--wm-espace-24, 24px) 0 0;
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb form[name="searchform"] .panel:first-child h2.h3 {
+  padding-top: 0;
+  border-top: 0;
+  margin-top: 0;
+}
+
+/*  LE TIRETÉ DEVIENT UN FILET. `hr.dashed` sépare deux lignes à
+    l'intérieur d'une même section : un trait plein et fin suffit, et
+    c'est déjà celui que la feuille donne à `.separator`. */
+/*  LE `fieldset` NE GARDE PAS SA MARGE DU BAS. Elle s'ajoutait à
+    celle de la dernière ligne, puis à celle du titre suivant, puis à
+    son rembourrage : quatre-vingt-dix pixels de blanc entre deux
+    sections, soit un trou plus haut qu'une ligne de formulaire. Le
+    filet du titre suivant écarte déjà bien assez. */
+#modernbb form[name="searchform"] fieldset {
+  margin-bottom: 0;
+}
+
+#modernbb form[name="searchform"] hr.dashed {
+  height: 1px;
+  border: 0;
+  margin: var(--wm-espace-16, 16px) 0;
+  background: var(--wm-bord-fin, #eadacd);
+}
+
+/*  LE DERNIER PANNEAU NE PORTE QUE LE BOUTON. Il hérite donc du
+    filet des boutons d'envoi, qui se superposerait à celui du titre
+    absent ; on le laisse, mais sans le blanc de section au-dessus. */
+#modernbb form[name="searchform"] .panel:last-child {
+  margin-bottom: 0;
+}
+
+/*  « RECHERCHER GOOGLE » APPARTIENT AU CHAMP DE MOTS-CLÉS, et se
+    tient donc à côté de lui. Le champ prend toute la largeur qu'on
+    lui donne (`width: 100% !important`, contre le style en ligne de
+    Forumactif), si bien que le bouton passait à la ligne et semblait
+    commander autre chose. En rangée, le champ s'étire sur ce qui
+    reste et le bouton garde sa taille. */
+#modernbb form[name="searchform"] dd:has(> .button2) {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+/*  `flex: 1 1 0` ET `width: auto`. Avec `width: 100%` encore en
+    place, la base du champ valait toute la largeur du `<dd>` : il
+    fallait donc le rétrécir de la taille du bouton ET du reste, et
+    le rétrécissement se partageait entre les deux. Le champ finissait
+    à quatre-vingt-treize pixels. Base nulle, il prend simplement ce
+    que le bouton laisse. */
+#modernbb form[name="searchform"] dd:has(> .button2) input.inputbox {
+  flex: 1 1 0;
+  width: auto !important;
+  min-width: 0;
+}
+
+#modernbb form[name="searchform"] dd > .button2 {
+  flex-shrink: 0;
+}
+
+/*  LES OPTIONS PASSENT SOUS LEUR CHAMP, alignées avec lui.
+
+    « Rechercher n'importe lequel de ces termes » et « Rechercher tous
+    les termes » sont deux `<dd>` à eux seuls, frères du champ. Sur la
+    même rangée, le troisième ne tenait plus et retombait tout à
+    gauche, sous la colonne des étiquettes : une option posée sous un
+    libellé auquel elle ne se rapporte pas.
+
+    Sur leur propre rangée, elles tiennent à toutes les largeurs. Le
+    décalage reprend MOT POUR MOT la mesure de l'étiquette —
+    `min(34%, 220px)` est exactement ce que dit `flex-basis` du `<dt>`
+    plus haut, et le pourcentage se calcule sur le même `<dl>`. Pas un
+    nombre de pixels recopié : la même expression, au même endroit. */
+#modernbb form[name="searchform"] dd:has(> label) {
+  flex: 1 1 100%;
+  max-width: none;
+  margin-left: calc(min(34%, 220px) + var(--wm-espace-16, 16px));
+}
+
+/*  « SAUTER VERS » EST UNE PHRASE, pas un formulaire. Un libellé, un
+    menu, un bouton, sur une ligne, alignés à droite comme ModernBB
+    les met — mais avec un vrai écart entre les trois, et de l'air
+    au-dessus. */
+#modernbb form[name="searchform"] ~ form[name="jumpbox"] p.right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb form[name="searchform"] ~ form[name="jumpbox"] select {
+  width: auto;
+  max-width: 280px;
+}
+
+/* ── 9 · les récompenses ──────────────────────────────────────────── */
+
+/*  « Enlève le contour bleu, mets un petit fond et arrondi. »
+
+    Le contour vient de Forumactif : `div.award` porte
+    `border: 2px solid var(--awards_color)`, et `--awards_color` est
+    réglée dans le panneau d'administration — un bleu qui n'est
+    d'aucune des deux palettes. Relevé le 10 novembre sur la page :
+    `rgb(55, 147, 255)`, le même que celui des onglets.
+
+    À la place, une plaque : le fond doux, un angle de la charte, et
+    l'image posée DANS le rembourrage — `background-origin:
+    content-box`, sans quoi l'insigne resterait collé aux quatre
+    bords de sa plaque et le rembourrage ne se verrait pas.
+
+    C'est scopé au panneau de contrôle, et pas à `div.award` partout :
+    les récompenses du profil public sont les nôtres, rondes, avec
+    leur infobulle, et elles n'ont rien à voir avec celles-ci. */
+#modernbb .ucp-main div.award {
+  box-sizing: border-box;
+  padding: var(--wm-espace-4, 4px);
+  border: 0;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background-color: var(--wm-fond-douce, #f3e1d2);
+  background-origin: content-box;
+}
+
+/*  LA RANGÉE EST EN FLEX, et les marges de 3 px de Forumactif s'en
+    vont avec. Une marge sur un `inline-block` laisse en plus l'espace
+    du blanc entre deux balises : l'écart réel n'était ni 3 ni 6, mais
+    6 plus ce que la police décidait. */
+#modernbb .ucp-main #list_awards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .ucp-main #list_awards div.award {
+  margin: 0;
 }
 
