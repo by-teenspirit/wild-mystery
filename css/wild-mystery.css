@@ -28770,17 +28770,29 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     j'aimerais que les informations soient plus visuelles » (le même
     jour, une heure après).
 
-    DEUX COLONNES, PAS UNE GRILLE. `flex: 1 1 260px` et non
-    `repeat(2, 1fr)` : le message fait 586 px sur le forum, mais un
-    sujet se lit aussi sur un écran étroit, et une grille fixe y
-    couperait les mots. Deux fiches tiennent dès 540 px, une seule en
-    dessous, sans règle de repli à écrire.
+    UNE GRILLE EN `auto-fill`, ET PAS UNE RANGÉE FLEX. C'était du flex
+    jusqu'au 10 novembre, et ça avait un défaut qu'on ne voit qu'à la
+    onzième fiche : LES CHAMPIONS SONT ONZE. La dernière se retrouve
+    seule sur sa ligne, et `flex-grow: 1` lui fait prendre toute la
+    largeur — une fiche deux fois plus large que les dix autres, pour
+    la seule raison qu'il n'y avait personne à côté d'elle.
 
-    LES FICHES D'UNE MÊME LIGNE ONT LA MÊME HAUTEUR : une rangée flex
-    étire déjà ses éléments sur le plus grand. */
+    `repeat(auto-fill, minmax(260px, 1fr))` règle ça sans condition de
+    largeur : `auto-fill` GARDE les pistes vides, donc la onzième reste
+    dans une piste de la taille des autres. `auto-fit`, lui, replie les
+    pistes vides et reproduirait exactement le défaut.
+
+    Et ça reste élastique : à 538 px deux pistes tiennent, en dessous
+    de 276 une seule. Aucun nombre de colonnes n'est écrit ici, aucune
+    media query non plus — la largeur du message décide, pas celle de
+    l'écran, et c'est elle qui compte puisqu'un sujet se lit dans une
+    colonne.
+
+    LES FICHES D'UNE MÊME LIGNE ONT LA MÊME HAUTEUR : une grille étire
+    déjà ses éléments sur la plus grande de leur rangée. */
 #modernbb .wm-lexique {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   margin: var(--wm-espace-20, 20px) 0 0;
   padding: 0;
   gap: var(--wm-espace-16, 16px);
@@ -28790,9 +28802,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-lexique__fiche {
   display: flex;
   overflow: hidden;
-  flex: 1 1 260px;
   flex-direction: column;
   box-sizing: border-box;
+  min-width: 0;
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -28811,12 +28823,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     haut et finit presque opaque — assez pour qu'un titre clair tienne
     ses 4,5 sur n'importe quelle illustration, y compris une plage en
     plein soleil. */
+/*  QUATRE SUR CINQ, ET PLUS TROIS SUR QUATRE (10 nov.). À 261 px de
+    large, le trois-quarts donnait une affiche de 348 px de haut —
+    plus que tout le reste de la fiche réuni, et il fallait faire
+    défiler pour atteindre les types. 326, puis 261 : l'affiche tient
+    encore debout sans avaler la fiche. */
 #modernbb .wm-lexique__affiche {
   position: relative;
   display: flex;
   overflow: hidden;
   align-items: flex-end;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 1 / 1;
 }
 
 #modernbb .wm-lexique__image {
@@ -28830,6 +28847,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-radius: 0;
   margin: 0;
   object-fit: cover;
+  /*  ON GARDE LE HAUT DE L'IMAGE. `cover` recadre au centre par
+      défaut : en raccourcissant l'affiche, c'était la bande du
+      milieu qui restait, donc le sol et le ciel au lieu du lieu.
+      Ces illustrations sont composées par le haut. */
+  object-position: top center;
 }
 
 #modernbb .wm-lexique__bandeau {

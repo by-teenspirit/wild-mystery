@@ -172,6 +172,14 @@ const p2 = await p.evaluate(() => {
   return {
     combien: fiches.length,
     parLigne: [...new Set(lignes.values())],
+    //  ── TOUTES LES FICHES ONT LA MÊME LARGEUR ─────────────────
+    //
+    //  « Le dernier bloc prend toute la largeur. » Ils sont onze :
+    //  la onzième fiche se retrouve seule sur sa ligne, et en flex
+    //  `flex-grow` la faisait s'étaler sur les deux colonnes. On
+    //  compte les largeurs distinctes — il doit y en avoir UNE, et
+    //  ça ne se vérifie qu'avec un nombre IMPAIR de fiches.
+    largeurs: [...new Set(fiches.map((f) => Math.round(f.getBoundingClientRect().width)))],
     //  Les fiches d'une même rangée doivent faire la même hauteur.
     lignesInegales: Object.values(hauteursParLigne)
       .filter((h) => new Set(h).size > 1).length,
@@ -204,6 +212,14 @@ const p2 = await p.evaluate(() => {
         const r = f.querySelector(".wm-lexique__affiche").getBoundingClientRect();
         return Math.round((r.width / r.height) * 100) / 100;
       })),
+    ],
+    //  ON GARDE LE HAUT DE L'IMAGE : en raccourcissant l'affiche,
+    //  `cover` centré ne laissait voir que la bande du milieu.
+    //  `top center` se calcule en « 50% 0% » — on lit la verticale.
+    ancrage: [
+      ...new Set(fiches.map((f) =>
+        getComputedStyle(f.querySelector(".wm-lexique__image")).objectPosition
+      )),
     ],
     nomSurLImage: fiches.every((f) => {
       const img = f.querySelector(".wm-lexique__image").getBoundingClientRect();
@@ -245,6 +261,11 @@ dire(
   p2.lignesInegales === 0,
   `${p2.lignesInegales} ligne(s) inégale(s)`,
 );
+dire(
+  "et TOUTES font la même largeur, la onzième comprise",
+  p2.largeurs.length === 1,
+  `${p2.largeurs.length} largeur(s) : ${JSON.stringify(p2.largeurs)}`,
+);
 dire("l'état se lit avant le nom", p2.etatAvantNom);
 dire("un seul champion est marqué joué", p2.joues === 1, `${p2.joues}`);
 dire("chaque fiche porte sa pastille de type", p2.sansPastille === 0);
@@ -254,9 +275,10 @@ dire(
   `${p2.tailleCle}px contre ${p2.tailleValeur}px`,
 );
 dire(
-  "L'AFFICHE EST DEBOUT, en 3/4",
-  p2.affiches.length === 1 && Math.abs(p2.affiches[0] - 0.75) < 0.02,
-  JSON.stringify(p2.affiches),
+  "L'AFFICHE EST CARRÉE, et on en garde le haut",
+  p2.affiches.length === 1 && Math.abs(p2.affiches[0] - 1) < 0.02 &&
+    p2.ancrage.length === 1 && /\s0%$/.test(p2.ancrage[0]),
+  `${JSON.stringify(p2.affiches)} · ${JSON.stringify(p2.ancrage)}`,
 );
 dire("et le nom se pose SUR l'image", p2.nomSurLImage);
 dire(
