@@ -2,8 +2,25 @@
 # ════════════════════════════════════════════════════════════════════
 #  outils/accueil.py
 #
-#  Le bloc de repli de la page d'accueil — celui que Callista colle UNE
-#  FOIS dans le message d'accueil du forum, et qu'elle ne recolle plus.
+#  Le bloc de repli de la page d'accueil — celui que Callista colle dans
+#  le message d'accueil du forum.
+#
+#  ── IL A LONGTEMPS DIT « COLLE UNE FOIS ET NE RECOLLE PLUS » ────────
+#
+#  C'était faux, et ça a coûté. Le bloc porte le contexte ET les liens
+#  rapides ; les liens changent — quatre sont arrivés le 9 novembre,
+#  un cinquième le 10. Chaque fois, le bloc du forum prend un tour de
+#  retard, et rien ne le dit.
+#
+#  Le 10 novembre, la page d'accueil du forum portait encore les SEPT
+#  ANCIENS liens, pas de bloc des annexes, et la puce en ligature
+#  Material Symbols — « visibilityContexte » en clair quand la police
+#  ne charge pas, le défaut même que la constante PUCE plus bas a
+#  corrigé il y a des semaines.
+#
+#  La promesse est donc retirée, et remplacée par un registre :
+#  `data/a-recoller.json` et `outils/recoller.py` disent quand un
+#  collage est dû. Garde-fou n° 34.
 #
 #  ── POURQUOI IL EXISTE ──────────────────────────────────────────────
 #
@@ -16,18 +33,19 @@
 #    · la page s'affiche avant que le module ait fini.
 #
 #  Dans les trois cas, ce qui reste à l'écran est ce bloc : le texte du
-#  contexte et les sept liens. C'est la même règle que le sujet de
+#  contexte et les liens rapides. C'est la même règle que le sujet de
 #  boutique, et c'est pour ça que `--forum` existe là-bas aussi.
 #
 #  ── POURQUOI IL EST GÉNÉRÉ, ET PAS ÉCRIT À LA MAIN ──────────────────
 #
 #  Parce qu'il DIT LA MÊME CHOSE que le fichier de données, et que deux
 #  textes qui disent la même chose finissent toujours par diverger. Le
-#  garde-fou n° 14 vérifie que le bloc collé correspond encore.
+#  garde-fou n° 14 compare le FICHIER aux DONNÉES ; le n° 34 dit si le
+#  FORUM, lui, est encore à jour.
 #
-#  Il ne contient QUE ce qui ne change jamais — le contexte et les sept
-#  liens. Les actualités, le staff, les partenaires n'y sont pas : ils
-#  changent, et c'est justement ce qu'on ne veut pas recoller.
+#  Il ne contient que le contexte et les liens rapides. Les actualités,
+#  le staff, les partenaires n'y sont pas : ils changent toutes les
+#  semaines, et un bloc qui les porterait serait à recoller sans arrêt.
 #
 #  Usage :
 #      python3 outils/accueil.py --forum      le bloc à coller

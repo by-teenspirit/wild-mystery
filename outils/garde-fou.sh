@@ -540,9 +540,14 @@ echo "── 14. le bloc d'accueil et son repli ──────────�
 # autre — et personne ne s'en aperçoit, puisque les deux s'affichent
 # très bien.
 #
-# Le bloc ne contient QUE ce qui ne change jamais : le contexte et les
-# sept liens. Les actualités n'y sont pas, justement pour n'avoir rien
-# à recoller.
+# Le bloc ne contient que le contexte et les liens rapides — les
+# actualités, le staff et les partenaires n'y sont pas, parce qu'ils
+# changent toutes les semaines.
+#
+# CE QU'IL VÉRIFIE, ET CE QU'IL NE VÉRIFIE PAS. Il compare le FICHIER
+# aux DONNÉES. Il ne sait rien du forum : entre le dépôt et le message
+# d'accueil il y a un copier-coller, et un copier-coller ne laisse
+# aucune trace ici. C'est le n° 36 qui tient ce registre-là.
 if [ ! -f data/accueil.json ]; then
   echo "   pas de bloc d'accueil à vérifier"
 elif ! command -v python3 >/dev/null 2>&1; then
@@ -1612,6 +1617,33 @@ PY_TAILLE
   then
     gronde "une page dépasse les 128 000 caractères de l'éditeur Forumactif"
   fi
+fi
+
+echo "── 34. ce qui se colle à la main sur le forum ──────────────────"
+# ENTRE LE DÉPÔT ET LE FORUM IL Y A UN COPIER-COLLER, et un
+# copier-coller ne laisse aucune trace dans git. Vingt-huit fichiers
+# partent comme ça : le bloc d'accueil, les treize annexes, les treize
+# blocs de défi, la carte du compte de test.
+#
+# CE QUI L'A FAIT ÉCRIRE. Le 10 novembre, en ouvrant la page d'accueil
+# du forum pour vérifier un lien, on y a trouvé un bloc de repli de
+# DEUX GÉNÉRATIONS DE RETARD : les sept anciens liens rapides, pas de
+# bloc des annexes, et la puce encore écrite en ligature Material
+# Symbols — donc « visibilityContexte » en clair quand la police ne
+# charge pas. Ce défaut-là était corrigé dans le générateur depuis des
+# semaines, et personne ne pouvait savoir qu'il tenait encore.
+#
+# IL NE FAIT PAS ÉCHOUER LA CI, et c'est voulu : un forum en retard
+# n'est pas un défaut du code. Le rouge est réservé à ce qu'on corrige
+# en poussant ; ici il n'y a qu'un collage à faire, par une personne,
+# dans une interface. Le registre le DIT, à chaque passage, et c'est
+# tout ce qu'on lui demande.
+if [ ! -f data/a-recoller.json ]; then
+  echo "   pas de registre de collage"
+elif ! command -v python3 >/dev/null 2>&1; then
+  echo "   python3 absent du PATH — vérification sautée"
+else
+  python3 outils/recoller.py --bref
 fi
 
 echo "────────────────────────────────────────────────────────────────"

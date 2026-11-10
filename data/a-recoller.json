@@ -1,0 +1,205 @@
+{
+ "_": "CE QUI SE COLLE À LA MAIN SUR LE FORUM. Chaque entrée note le fichier généré, l'endroit où il va, et l'EMPREINTE DE CE QUI A ÉTÉ COLLÉ la dernière fois. `outils/recoller.py` compare cette empreinte à celle du fichier d'aujourd'hui : s'il a changé depuis, le forum est en retard.",
+ "_pourquoi": "Écrit le 10 novembre 2026, après avoir trouvé sur la page d'accueil un bloc de repli de deux générations de retard — les sept anciens liens, pas de bloc des annexes, et la puce encore en ligature Material Symbols, donc « visibilityContexte » en clair si la police ne charge pas. Le correctif était dans le générateur depuis des semaines. Entre le dépôt et le forum il y a un copier-coller, et un copier-coller ne laisse aucune trace : rien ne pouvait le dire.",
+ "_empreinte_nulle": "`empreinte: null` veut dire JAMAIS CONFIRMÉ, et pas « à jour ». C'est l'état de départ, et il est exact : on ignorait vraiment ce que le forum portait. Après un collage : python3 outils/recoller.py --pose <clé>",
+ "colles": {
+  "accueil": {
+   "quoi": "Le bloc de repli de la page d'accueil",
+   "ou": "https://mysteryinrhode.forumactif.com/ — message d'accueil, en mode HTML",
+   "fichier": "pages/accueil-repli.html",
+   "empreinte": null,
+   "le": null,
+   "constat": "10 nov. 2026, relevé sur la page publique : le forum porte ENCORE les sept anciens liens (Contexte, Règlement, Questions, Pré-liens, Bottin, Zone Invités, Annexes), pas de bloc des annexes, et la puce en ligature Material Symbols — « visibilityContexte » en clair quand la police ne charge pas. À recoller en priorité."
+  },
+  "annexe-01": {
+   "quoi": "Annexe 01 · Par où commencer",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-01-par-ou-commencer.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-02": {
+   "quoi": "Annexe 02 · Contexte",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-02-contexte.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-03": {
+   "quoi": "Annexe 03 · Règlement",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-03-reglement.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-04": {
+   "quoi": "Annexe 04 · Guide du dresseur",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-04-guide-du-dresseur.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-05": {
+   "quoi": "Annexe 05 · La région et ses zones",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-05-la-region-et-ses-zones.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-06": {
+   "quoi": "Annexe 06 · Arènes, colosseums & ligues",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-06-arenes-colosseums-ligues.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-07": {
+   "quoi": "Annexe 07 · Groupes",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-07-groupes.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-08": {
+   "quoi": "Annexe 08 · Crédits",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-08-credits.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-09": {
+   "quoi": "Annexe 09 · Staff",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-09-staff.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-10": {
+   "quoi": "Annexe 10 · Célébrités de Rhode",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-10-celebrites-de-rhode.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-11": {
+   "quoi": "Annexe 11 · Monnaie et missions",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-11-monnaie-et-missions.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-12": {
+   "quoi": "Annexe 12 · Combat et progression",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-12-combat-et-progression.html",
+   "empreinte": null,
+   "le": null
+  },
+  "annexe-13": {
+   "quoi": "Annexe 13 · Allégeance et Team Ombre",
+   "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
+   "fichier": "pages/annexe-13-allegeance-et-team-ombre.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t100-ligue-inscription": {
+   "quoi": "Ligue · l'inscription",
+   "ou": "https://mysteryinrhode.forumactif.com/t100-presentation-de-la-ligue (3ᵉ message)",
+   "fichier": "templates/defier/t100-ligue-inscription.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t100-ligue-les-equipes": {
+   "quoi": "Ligue · les cinq équipes",
+   "ou": "https://mysteryinrhode.forumactif.com/t100-presentation-de-la-ligue (2ᵉ message)",
+   "fichier": "templates/defier/t100-ligue-les-equipes.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t60-feu": {
+   "quoi": "Défier le champion · Arène Feu",
+   "ou": "https://mysteryinrhode.forumactif.com/t60",
+   "fichier": "templates/defier/t60-feu.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t62-plante": {
+   "quoi": "Défier le champion · Arène Plante",
+   "ou": "https://mysteryinrhode.forumactif.com/t62",
+   "fichier": "templates/defier/t62-plante.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t63-eau": {
+   "quoi": "Défier le champion · Arène Eau",
+   "ou": "https://mysteryinrhode.forumactif.com/t63",
+   "fichier": "templates/defier/t63-eau.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t64-spectre": {
+   "quoi": "Défier le champion · Colosseum de Phenacit",
+   "ou": "https://mysteryinrhode.forumactif.com/t64",
+   "fichier": "templates/defier/t64-spectre.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t65-dragon": {
+   "quoi": "Défier le champion · Colosseum de Titanite",
+   "ou": "https://mysteryinrhode.forumactif.com/t65",
+   "fichier": "templates/defier/t65-dragon.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t66-vol": {
+   "quoi": "Défier le champion · Arène Vol",
+   "ou": "https://mysteryinrhode.forumactif.com/t66",
+   "fichier": "templates/defier/t66-vol.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t67-roche": {
+   "quoi": "Défier le champion · Arène Roche",
+   "ou": "https://mysteryinrhode.forumactif.com/t67",
+   "fichier": "templates/defier/t67-roche.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t68-acier": {
+   "quoi": "Défier le champion · Arène Acier",
+   "ou": "https://mysteryinrhode.forumactif.com/t68",
+   "fichier": "templates/defier/t68-acier.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t69-electrik": {
+   "quoi": "Défier le champion · Colosseum de Targare",
+   "ou": "https://mysteryinrhode.forumactif.com/t69",
+   "fichier": "templates/defier/t69-electrik.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t70-tenebres": {
+   "quoi": "Défier le champion · Arène Ténèbres",
+   "ou": "https://mysteryinrhode.forumactif.com/t70",
+   "fichier": "templates/defier/t70-tenebres.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "defi-t91-fee": {
+   "quoi": "Défier le champion · Colosseum de Rhode",
+   "ou": "https://mysteryinrhode.forumactif.com/t91",
+   "fichier": "templates/defier/t91-fee.min.html",
+   "empreinte": null,
+   "le": null
+  },
+  "carte-de-test": {
+   "quoi": "La carte dresseur du Compte de test",
+   "ou": "https://mysteryinrhode.forumactif.com/ (sujet de carte du compte de test)",
+   "fichier": "templates/carte-dresseur.compte-de-test.min.html",
+   "empreinte": null,
+   "le": null
+  }
+ },
+ "_constat": "Un `constat` est une mesure prise À LA MAIN sur le forum, un jour donné. L'outil ne lit pas le forum ; quand quelqu'un l'a fait pour lui, ça se note ici, sinon l'observation meurt dans une conversation."
+}

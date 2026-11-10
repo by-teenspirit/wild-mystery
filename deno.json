@@ -53,7 +53,8 @@
     "natures": "deno run --allow-read=. outils/natures.ts",
     "moderation": "deno run -A outils/moderation.mjs",
     "defier": "python3 outils/defier.py",
-    "defis": "deno run -A outils/defis.mjs"
+    "defis": "deno run -A outils/defis.mjs",
+    "recoller": "python3 outils/recoller.py"
   },
   "fmt": {
     "include": [
