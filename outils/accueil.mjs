@@ -1438,13 +1438,23 @@ dire(
 //
 //  CE QUI RESTE EXIGÉ est le fond du besoin, et il n'a pas bougé :
 //  chaque personnage mène quelque part.
+//  LA LISTE VIDE EST UN ÉTAT LÉGITIME depuis le 12 novembre : les
+//  quatre admins n'ont pas encore de personnages renseignés, et la
+//  fiche se contente alors d'omettre l'intitulé. Exiger « au moins
+//  une » obligerait à inventer une donnée pour faire passer un
+//  contrôle, ce qui est l'inverse de son travail.
+//
+//  LA RÈGLE, ELLE, NE BOUGE PAS : ce qui est écrit mène quelque part.
+//  Et la forme complète reste éprouvée — les données du harnais, plus
+//  haut, montent quatre staffiens dont trois avec personnages.
 dire(
   "les personnages sont des étiquettes, et elles mènent quelque part",
-  cotes.staff.tags.length > 0 &&
-    cotes.staff.tags.every(([t, h]) =>
-      !t.startsWith("@") && t.trim() !== "" && h !== null && h !== ""
-    ),
-  JSON.stringify(cotes.staff.tags),
+  cotes.staff.tags.every(([t, h]) =>
+    !t.startsWith("@") && t.trim() !== "" && h !== null && h !== ""
+  ),
+  cotes.staff.tags.length === 0
+    ? "aucun personnage renseigné dans le vrai fichier"
+    : JSON.stringify(cotes.staff.tags),
 );
 dire(
   "la mascotte déborde de 93 en bas et de 60 à gauche",

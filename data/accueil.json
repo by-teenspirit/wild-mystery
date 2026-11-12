@@ -125,37 +125,35 @@
  "staff": [
   {
    "pseudo": "Teenspirit",
-   "role": "Fondatrice",
-   "profil": "#",
+   "role": "Admin",
+   "profil": "",
    "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
-   "personnages": [
-    {
-     "nom": "Arceus",
-     "url": "/u1"
-    },
-    {
-     "nom": "Maître du Jeu",
-     "url": "/u3"
-    }
-   ],
-   "presence": "Présente"
+   "personnages": [],
+   "presence": "Présent·e"
   },
   {
-   "pseudo": "Teenspirit",
-   "role": "Fondatrice",
-   "profil": "#",
+   "pseudo": "Plumyts",
+   "role": "Admin",
+   "profil": "",
    "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
-   "personnages": [
-    {
-     "nom": "Arceus",
-     "url": "/u1"
-    },
-    {
-     "nom": "Maître du Jeu",
-     "url": "/u3"
-    }
-   ],
-   "presence": "Présente"
+   "personnages": [],
+   "presence": "Présent·e"
+  },
+  {
+   "pseudo": "Ekko",
+   "role": "Admin",
+   "profil": "",
+   "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
+   "personnages": [],
+   "presence": "Présent·e"
+  },
+  {
+   "pseudo": "mangue",
+   "role": "Admin",
+   "profil": "",
+   "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
+   "personnages": [],
+   "presence": "Présent·e"
   }
  ],
  "actualites": {
@@ -243,5 +241,6 @@
   "_remplacer": "Pour changer une image : remplacer le fichier dans `img/accueil/` et pousser. L'adresse ne bouge pas.",
   "mascotte": "https://by-teenspirit.github.io/wild-mystery/img/accueil/mascotte.png",
   "fond": ""
- }
+ },
+ "_staff": "QUATRE ADMINS, 12 novembre 2026 : Teenspirit, Plumyts, Ekko, mangue, tous présents. Les portraits sont l'avatar générique du dépôt — à remplacer par les vrais quand on les aura.\nLE RÔLE EST « ADMIN » ET LA PRÉSENCE « PRÉSENT·E », sans genre : je ne connais pas celui d'Ekko ni de mangue, et un masculin générique sur une équipe où deux membres sont des femmes est un choix, pas une neutralité. À corriger personne par personne.\nAUCUN PERSONNAGE N'EST RENSEIGNÉ, et c'est volontaire : les deux qui traînaient sur Teenspirit — Arceus et Maître du Jeu — sont les comptes système du forum, pas ses personnages de jeu. Mieux vaut l'intitulé absent qu'une liste fausse sur la page d'accueil.\nLES PROFILS SONT VIDES : le pseudo s'affiche alors en texte et pas en lien, plutôt que de pointer sur « # »."
 }
