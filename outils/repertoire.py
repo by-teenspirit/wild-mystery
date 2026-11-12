@@ -60,11 +60,16 @@ SORTIE = R / "pages/repertoire-des-personnages.html"
 
 #  ── LES TROIS FAITS DE LA CARTE ────────────────────────────────────
 #
-#  Clé du fichier → intitulé affiché. L'ordre est celui de la carte :
-#  l'âge d'abord, qui situe ; le statut marital, qu'on vient chercher
-#  dans un bottin ; le lieu, qui dit où on peut le croiser ; l'origine
-#  enfin, qui est de l'histoire.
-FAITS = [("age", "Âge"), ("statut", "Statut"), ("lieu", "Vit à"), ("origine", "De")]
+#  Clé du fichier → intitulé affiché, dans l'ordre de la carte.
+#
+#  LE MÉTIER EST DESCENDU ICI le 12 novembre : il était le surtitre, en
+#  capitales au-dessus du nom, et c'est le FACECLAIM qui y monte. Un
+#  surtitre est l'étiquette la plus lue d'une carte après son titre, et
+#  dans un répertoire de RPG la question qui vient avant toutes les
+#  autres est « avec quel avatar ? ». Le métier reste un fait parmi les
+#  cinq, à sa place : on le lit quand on lit la fiche.
+FAITS = [("metier", "Métier"), ("age", "Âge"), ("statut", "Statut"),
+         ("lieu", "Vit à"), ("origine", "De")]
 
 
 def e(s):
@@ -178,6 +183,9 @@ def carte(p, groupes, plaintes):
         if groupe != "" else ""
     )
 
+    #  LE FACECLAIM EST MONTÉ EN SURTITRE, à la place du métier. Il
+    #  n'est donc plus au pied de la carte, et le filet du pied revient
+    #  aux boutons — seuls occupants de cette zone désormais.
     a_un_fc = (p.get("faceclaim") or "").strip() != ""
 
     #  LES QUATRE ATTRIBUTS QUE LE MODULE RELIT. `data-wm-cherche` est
@@ -192,17 +200,13 @@ def carte(p, groupes, plaintes):
             data-wm-cherche="{e(cherche)}">
           <div class="wm-repertoire__cadre">{image}{pastille}</div>
           <div class="wm-repertoire__dedans">
-            {f'<p class="wm-repertoire__metier">{e(p["metier"])}</p>'
-             if (p.get('metier') or '').strip() != '' else ''}
+            {f'<p class="wm-repertoire__fc">{e(p["faceclaim"])}</p>' if a_un_fc else ''}
             <h2 class="wm-repertoire__nom">{e(nom)}</h2>
             {f'<p class="wm-repertoire__caractere">{e(p["caractere"])}</p>'
              if (p.get('caractere') or '').strip() != '' else ''}
             {f'<ul class="wm-repertoire__faits">{faits}</ul>' if faits else ''}
-            {f'<p class="wm-repertoire__fc wm-repertoire__pied">'
-             f'Avatar · {e(p["faceclaim"])}</p>'
-             if a_un_fc else ''}
-            {f'<ul class="wm-repertoire__liens{"" if a_un_fc else " wm-repertoire__pied"}">'
-             f'{liens}</ul>' if liens else ''}
+            {f'<ul class="wm-repertoire__liens wm-repertoire__pied">{liens}</ul>'
+             if liens else ''}
           </div>
         </li>"""
 

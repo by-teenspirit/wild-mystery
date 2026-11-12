@@ -324,6 +324,19 @@ const regarder = () => {
           epais: getComputedStyle(el).borderTopWidth,
         };
       })(),
+      surtitre: c.querySelector(".wm-repertoire__fc")?.textContent?.trim() ?? null,
+      faits2: Array.from(c.querySelectorAll(".wm-repertoire__fait")).map((f) => [
+        f.querySelector(".wm-repertoire__cle").textContent.trim(),
+        f.lastElementChild.textContent.trim(),
+      ]),
+      cadre: (() => {
+        const d = c.querySelector(".wm-repertoire__cadre");
+        const i = c.querySelector("img.wm-repertoire__portrait");
+        return {
+          hauteur: Math.round(d.getBoundingClientRect().height),
+          tenue: i === null ? null : getComputedStyle(i).objectFit,
+        };
+      })(),
       portrait: c.querySelector("img.wm-repertoire__portrait") !== null,
       vide: c.querySelector(".wm-repertoire__portrait--vide") !== null,
       liens: Array.from(c.querySelectorAll(".wm-repertoire__lien")).map((a) =>
@@ -664,16 +677,53 @@ console.log("\n── la carte ──");
     premiere.map((c) => [c.nom, c.faits]),
   );
 
-  //  Gil n'a pas de faceclaim : son filet doit passer sur les boutons.
+  //  LE PIED, C'EST LES BOUTONS, depuis que le faceclaim est monté en
+  //  surtitre : le filet les sépare des faits, sur toutes les cartes.
   ok(
-    "le filet du pied est là même sans faceclaim",
-    vu.cartes.every((c) => c.filet !== null && c.filet.epais === "1px") &&
-      vu.cartes.find((c) => c.nom === "Gil Abadie").filet.sur === "liens" &&
-      vu.cartes.find((c) => c.nom === "Ana Vasquez").filet.sur === "fc",
-    vu.cartes.map((c) => [c.nom, c.filet]),
+    "le filet ouvre le pied de chaque carte",
+    vu.cartes.every((c) => c.filet !== null && c.filet.epais === "1px" &&
+      c.filet.sur === "liens"),
+    vu.cartes.filter((c) => c.filet === null || c.filet.sur !== "liens")
+      .map((c) => [c.nom, c.filet]),
   );
 
+  //  ── CE QUE LA CARTE MET EN AVANT ─────────────────────────────
+  //
+  //  « Mets l'avatar à la place du métier et mets le métier comme les
+  //  autres champs. » Le surtitre est le faceclaim, et le métier est
+  //  le premier des cinq faits. Les deux se vérifient ensemble :
+  //  intervertis, chacun pris seul passerait.
   const ana = vu.cartes.find((c) => c.nom === "Ana Vasquez");
+  ok(
+    "le surtitre est le faceclaim, et le métier est un fait parmi les autres",
+    ana.surtitre === "Jessica Henwick" &&
+      JSON.stringify(ana.faits2[0]) === JSON.stringify(["Métier", "Fleuriste"]) &&
+      ana.faits2.map(([k]) => k).join(",") === "Métier,Âge,Statut,Vit à,De",
+    { surtitre: ana.surtitre, faits: ana.faits2 },
+  );
+  //  Maître du Jeu n'a pas de faceclaim dans la vraie page, et Gil
+  //  n'en a pas ici : pas de surtitre inventé.
+  ok(
+    "une carte sans faceclaim n'a pas de surtitre vide",
+    vu.cartes.find((c) => c.nom === "Gil Abadie").surtitre === null,
+    vu.cartes.map((c) => [c.nom, c.surtitre]),
+  );
+
+  //  ── L'AVATAR N'EST PAS COUPÉ ─────────────────────────────────
+  //
+  //  « J'aimerais bien que l'avatar garde ses proportions et ne soit
+  //  pas coupé en hauteur, sans que les cards soient trop hautes. »
+  //  `contain` tient la première moitié, la hauteur fixe la seconde —
+  //  et elle doit être la MÊME partout, sinon les noms ne tombent plus
+  //  en face sur une rangée.
+  ok(
+    "l'avatar garde ses proportions, dans un cadre de 200 px partout",
+    vu.cartes.every((c) =>
+      c.cadre.hauteur === 200 && (c.cadre.tenue === null || c.cadre.tenue === "contain")
+    ),
+    [...new Set(vu.cartes.map((c) => `${c.cadre.hauteur}/${c.cadre.tenue}`))],
+  );
+
   ok(
     "la pastille de clan est DANS l'image, en haut à droite",
     ana.pastille.dedans && ana.pastille.haut === 8 && ana.pastille.droite === 8,
@@ -705,12 +755,12 @@ console.log("\n── la carte ──");
 //  5 · LES LARGEURS
 // ════════════════════════════════════════════════════════════════════
 console.log("\n── les largeurs ──");
-//  LES PALIERS ONT BOUGÉ le 12 novembre, quand les bottins ont pris
-//  252 px sur la gauche : la colonne des cartes est passée de 1 264 à
-//  1 092. Les chiffres ci-dessous sont ceux de la page telle qu'elle
-//  est, bottins compris — sous 900 px la colonne repasse au-dessus du
-//  corps, ce qui rend de la largeur aux cartes.
-for (const [largeur, attendu] of [[1440, 4], [1280, 3], [1100, 2], [390, 1]]) {
+//  QUATRE COLONNES SONT ÉCRITES, PAS DÉDUITES — « mets aussi 4
+//  personnages par colonne ». Les paliers en dessous sont des largeurs
+//  de PAGE : sous 900 px la colonne des bottins repasse au-dessus du
+//  corps et rend ses 252 px, ce qui explique que trois colonnes
+//  tiennent encore à 900 alors qu'elles seraient à l'étroit à 1 000.
+for (const [largeur, attendu] of [[1440, 4], [1280, 3], [1100, 3], [900, 3], [800, 2], [390, 1]]) {
   await p.setViewportSize({ width: largeur, height: 1000 });
   await p.waitForTimeout(120);
   const vu = await p.evaluate(() => {
