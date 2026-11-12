@@ -1543,10 +1543,22 @@ const onglets = await p.evaluate(async () => {
   const ecartBarreFiche = Math.round(
     fiches[0].getBoundingClientRect().top - b[0].getBoundingClientRect().bottom,
   );
-  //  Le centrage demandé le 12 novembre, sur les trois endroits qu'il
-  //  faut : le texte, et les deux conteneurs flex que `text-align` ne
-  //  touche pas.
+  //  « Ne centre pas l'intérieur des onglets. Laisse le contenu à
+  //  gauche. Centre les onglets eux-mêmes. » Les deux moitiés de la
+  //  phrase sont mesurées : la rangée se centre dans sa colonne, et
+  //  la fiche garde son bord gauche.
   const centrage = {
+    rangee: getComputedStyle(bar).justifyContent,
+    //  Le vrai aveu du centrage : autant de place à gauche du premier
+    //  portrait qu'à droite du dernier. Une règle qui s'appliquerait
+    //  sans effet passerait un contrôle écrit sur le seul mot.
+    avant: Math.round(
+      b[0].getBoundingClientRect().left - bar.getBoundingClientRect().left,
+    ),
+    apres: Math.round(
+      bar.getBoundingClientRect().right -
+        b[b.length - 1].getBoundingClientRect().right,
+    ),
     fiche: getComputedStyle(fiches[0]).textAlign,
     tete: getComputedStyle(
       fiches[0].querySelector(".wm-accueil__fiche-tete"),
@@ -1633,9 +1645,11 @@ dire(
 //  staffien sélectionné. » UN SEUL `::after`, et sur le bon bouton.
 const porte = (l, i) => l[i] !== "none" && l.filter((c) => c !== "none").length === 1;
 dire(
-  "LES TEXTES DE LA FICHE SONT CENTRÉS, les deux rangées flex comprises",
-  onglets.centrage.fiche === "center" && onglets.centrage.tete === "center" &&
-    onglets.centrage.persos === "center",
+  "LA RANGÉE DE PORTRAITS EST CENTRÉE, et le contenu de la fiche reste à gauche",
+  onglets.centrage.rangee === "center" &&
+    Math.abs(onglets.centrage.avant - onglets.centrage.apres) <= 1 &&
+    onglets.centrage.fiche === "start" &&
+    onglets.centrage.tete !== "center" && onglets.centrage.persos !== "center",
   JSON.stringify(onglets.centrage),
 );
 dire(

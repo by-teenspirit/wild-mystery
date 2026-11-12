@@ -1013,9 +1013,14 @@
   flex-direction: column;
 }
 
+/*  LA RANGÉE SE CENTRE, demandé le 12 novembre. Quatre portraits de
+    68 px et trois écarts de 12 font 308 px dans une colonne qui en
+    fait 479 : alignés à gauche, ils laissaient un vide de 171 px sur
+    la droite, sous lequel la fiche, elle, allait jusqu'au bord. */
 #modernbb .wm-accueil__staff-onglets {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   margin: 0 0 var(--wm-espace-16, 16px);
   gap: var(--wm-espace-12, 12px);
 }
@@ -1120,10 +1125,10 @@
 
 /*  ── LA FICHE ─────────────────────────────────────────────────────── */
 
-/*  LE CONTENU EST CENTRÉ, demandé le 12 novembre. `text-align` ne
-    suffit pas : la tête et les personnages sont des conteneurs flex,
-    que l'alignement du texte ne touche pas — ils se centrent avec
-    `justify-content`, et c'est pour ça qu'il en faut les trois. */
+/*  LE CONTENU DE LA FICHE RESTE À GAUCHE. Il a été centré une heure,
+    le 12 novembre, sur un malentendu : c'est la RANGÉE D'ONGLETS qui
+    devait l'être, pas le texte dessous. Un rôle, un pseudo et une
+    liste d'étiquettes se lisent le long d'un bord. */
 #modernbb .wm-accueil__fiche {
   position: relative;
   box-sizing: border-box;
@@ -1131,7 +1136,6 @@
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
-  text-align: center;
 }
 
 /*  LE RÔLE EST UN SURTITRE : il situe, il ne nomme pas. Il était en
@@ -1151,7 +1155,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: center;
   margin-top: 2px;
   gap: var(--wm-espace-8, 8px);
 }
@@ -1213,7 +1216,6 @@
 #modernbb .wm-accueil__fiche-persos {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   margin: 0;
   padding: 0;
   gap: var(--wm-espace-6, 6px);
