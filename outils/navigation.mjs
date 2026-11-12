@@ -600,11 +600,11 @@ dire(
 //  fois, et aurait laissé passer une entrée disparue.
 const ATTENDU = [
   ["Mon Carnet de Bord", "/h15-mon-carnet"],
-  //  LE RÉPERTOIRE EST DEUXIÈME, et sans adresse : la page n'existe
-  //  pas encore (10 nov.). Il se range juste après le carnet parce
-  //  que les deux disent « qui je suis » — le carnet pour soi, le
-  //  répertoire pour les autres.
-  ["Répertoire des personnages", null],
+  //  LE RÉPERTOIRE EST DEUXIÈME. Il se range juste après le carnet
+  //  parce que les deux disent « qui je suis » — le carnet pour soi,
+  //  le répertoire pour les autres. Sans adresse jusqu'au 12 novembre,
+  //  jour où la page a été créée en `h14`.
+  ["Répertoire des personnages", "/h14-repertoire-des-personnages"],
   ["Annexes", "/h1-par-ou-commencer"],
   ["Carte de Rhode", "/h5-la-region-et-ses-zones"],
   ["Marché de Rhode", "/f3-le-marche-de-rhode"],

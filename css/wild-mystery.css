@@ -11957,6 +11957,28 @@ body:has(#modernbb .wm-carnet) {
   line-height: var(--wm-interligne-section, 1.2);
 }
 
+/*  ── UN CRAN SOUS LE SOUS-TITRE ───────────────────────────────────
+
+    Posé le 12 novembre pour l'annexe 13, où une organisation (`h3`)
+    porte cinq points — présentation, histoire, hiérarchie, recrutement,
+    missions. Sans ce niveau, les cinq devenaient des `h3` comme
+    l'organisation elle-même, et on ne voyait plus ce qui contenait
+    quoi.
+
+    IL NE RESSEMBLE PAS À UN TITRE DE PLUS : pas de serif, pas de
+    taille en plus. C'est une étiquette en capitales, qui ouvre un
+    paragraphe sans prétendre ouvrir une section. */
+#modernbb .wm-annexe__point {
+  margin: var(--wm-espace-16, 16px) 0 var(--wm-espace-6, 6px);
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
 #modernbb .wm-defi__dit {
   margin: var(--wm-espace-12, 12px) 0 0;
   color: var(--wm-texte-pale, #69564c);
@@ -32051,18 +32073,28 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
    pistes vides gardent à chaque carte la largeur des autres, et c'est
    ce qu'on veut d'un répertoire qui se remplit peu à peu.
 
-   300 px ET PAS 240. Mesuré le 12 novembre : la colonne large fait
-   1 264 px à 1 440, donc 240 y donnait CINQ cartes par rangée — une
-   de trop, et des cartes trop étroites pour un nom de famille. À 300,
-   la mesure tombe sur quatre, puis trois vers 1 100, deux vers 820,
-   une sur téléphone. Personne n'écrit ces paliers.
+   260 px, ET LE CHIFFRE A CHANGÉ DEUX FOIS LE MÊME JOUR. 240 donnait
+   CINQ cartes par rangée dans une colonne de 1 264 px ; 300 en donnait
+   quatre. Puis les bottins ont pris 252 px sur la gauche, la colonne
+   est tombée à 1 092, et les mêmes 300 n'en donnaient plus que trois.
+   260 remet quatre cartes à 1 440, trois vers 1 280, deux vers 1 100,
+   une sur téléphone. Personne n'écrit ces paliers : ils tombent de la
+   mesure, et c'est pour ça qu'il faut la refaire quand la page change
+   de largeur.
 
    `min(300px, 100%)` PARCE QU'UNE PISTE NE DOIT PAS DÉPASSER L'ÉCRAN :
    à 390 px, un minimum de 300 plus les marges ferait glisser la page
    entière sous le doigt. */
 #modernbb .wm-repertoire__grille {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  /*  `padding: 0` : c'est un `ul`, et les 40 px que le navigateur lui
+      donne à gauche sont retirés de la largeur AVANT qu'`auto-fill`
+      compte ses colonnes. 1 092 px moins 40 ne font plus quatre
+      pistes de 260, mais trois de 340 — la grille décalée par-dessus.
+      Deuxième fois dans cette feuille : les trois faits d'une carte
+      sont partis de la même marge invisible. */
+  padding: 0;
   margin: 0;
   gap: var(--wm-espace-16, 16px);
 }
@@ -32214,7 +32246,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-repertoire__faits {
   display: flex;
   flex-direction: column;
-  padding-top: var(--wm-espace-14, 14px);
+  /*  `padding: 0` D'ABORD, ET SUR LES QUATRE CÔTÉS. Écrit en
+      `padding-top` seul, le `padding-left: 40px` que le navigateur
+      donne à tout `ul` revenait, et les trois faits partaient à
+      quarante pixels du bord pendant que le reste de la carte
+      s'alignait à seize. */
+  padding: var(--wm-espace-14, 14px) 0 0;
   /*  `auto` EN HAUT, et c'est toute la règle. Elle avait été écrite
       en commentaire et pas en CSS : les faits suivaient le caractère,
       donc descendaient de dix-sept pixels sur les cartes dont la
@@ -32310,6 +32347,146 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
   text-align: center;
+}
+
+/* ── 5 · les bottins, dans la colonne de gauche ────────────────────
+
+   « En latéral, il faudrait aussi le bottin des faceclaims, le bottin
+   des métiers en fonction des lieux du forum », puis « il faudrait
+   aussi un bottin des noms et des prénoms ».
+
+   ILS NE RÉPONDENT PAS À LA MÊME QUESTION QUE LA GRILLE. La grille
+   montre un personnage et dit tout de lui ; les bottins montrent ce
+   qui est PRIS. « Y a-t-il déjà une Ana ? », « cet avatar est-il
+   libre ? », « il y a déjà qui à Lumirandé ? » sont les questions
+   qu'on se pose AVANT d'écrire une fiche, et aucune ne se répond en
+   faisant défiler des cartes.
+
+   LA COLONNE EMPRUNTE CELLE DU SOMMAIRE DES ANNEXES — même largeur,
+   même fond, même collant — parce que c'est la même place dans la
+   page et que la refaire serait deux colonnes à tenir d'accord. */
+#modernbb .wm-bottins {
+  /*  TROIS LISTES PEUVENT DÉPASSER L'ÉCRAN, et le sommaire des
+      annexes, lui, ne le peut pas : quatorze entrées tiennent
+      toujours. Collée en haut sans plafond, une colonne plus haute
+      que la fenêtre devient impossible à lire jusqu'au bout — sa fin
+      reste sous le bord. */
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  /*  La barre de défilement se sort du texte, sinon elle couvre la
+      colonne de droite des lignes. */
+  scrollbar-width: thin;
+}
+
+/*  ── LA BARRE D'ONGLETS, SUR FOND DE NUIT ────────────────────────
+
+    Les boutons de `13-composants` sont faits pour une carte claire :
+    fond crème, texte brun, bord pâle. Posés tels quels sur le bandeau
+    sombre, quatre rectangles blancs écrasaient la colonne entière.
+
+    Ici ils sont CREUX : un bord à peine visible et le texte de la
+    nuit. Celui qui est choisi se remplit de l'accent, comme ailleurs
+    — c'est la même grammaire, lue à l'envers. */
+#modernbb .wm-bottins__onglets {
+  padding: var(--wm-espace-14, 14px) 22px 0;
+}
+
+#modernbb .wm-bottins .wm-sous-onglets__barre {
+  margin-bottom: var(--wm-espace-14, 14px);
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-bottins .wm-onglet {
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  border-color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 26%, transparent);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: transparent;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+#modernbb .wm-bottins .wm-onglet:hover {
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 12%, transparent);
+}
+
+#modernbb .wm-bottins .wm-onglet[aria-selected="true"] {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  Le compte reste sous la barre, visible une fois l'onglet ouvert :
+    il ne tient pas sur un bouton de 252 px partagé en quatre. */
+#modernbb .wm-bottin__compte {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  opacity: 0.55;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-bottin {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/*  UNE LIGNE = CE QUI EST PRIS, ET PAR QUI. Les deux colonnes sont
+    alignées à gauche l'une sous l'autre plutôt que justifiées aux deux
+    bords : un faceclaim court suivi d'un nom long, justifiés, laissent
+    un trou au milieu qu'on lit comme une colonne de tableau. */
+#modernbb .wm-bottin__ligne {
+  display: flex;
+  flex-direction: column;
+  /*  Plus de retrait horizontal : il est porté par le conteneur des
+      onglets, qui doit aligner la barre et les listes sur le même
+      bord. Deux retraits empilés donnaient 44 px. */
+  padding: var(--wm-espace-6, 6px) 0;
+  gap: 1px;
+}
+
+#modernbb .wm-bottin__quoi {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LE PERSONNAGE EST EN SECOND, et plus discret : on cherche le
+    faceclaim ou le prénom, pas qui le porte — on le lit ensuite. */
+#modernbb .wm-bottin__qui {
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  opacity: 0.62;
+}
+
+/*  Le nom du lieu ouvre son paquet de métiers. Il est en serif comme
+    les titres, pour ne pas se confondre avec l'intertitre en capitales
+    juste au-dessus. */
+#modernbb .wm-bottin__ou {
+  padding: var(--wm-espace-12, 12px) 0 var(--wm-espace-4, 4px);
+  margin: 0;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+@media (max-width: 900px) {
+  /*  Sous 900, la colonne du sommaire passe au-dessus du corps et
+      n'est plus collante : le plafond de hauteur n'a plus lieu
+      d'être, et il couperait les bottins en plein milieu. */
+  #modernbb .wm-bottins {
+    max-height: none;
+    overflow-y: visible;
+  }
 }
 
 @media (max-width: 560px) {

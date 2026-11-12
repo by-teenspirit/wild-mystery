@@ -24,8 +24,9 @@ function fiche(
   lieu: string,
   origine: string,
   cherche: string,
+  statut = "Célibataire",
 ): Fiche {
-  return { groupe, lieu, origine, cherche };
+  return { groupe, lieu, origine, statut, cherche };
 }
 
 const GENS: readonly Fiche[] = [
@@ -38,11 +39,31 @@ const GENS: readonly Fiche[] = [
 
 Deno.test("les menus viennent des cartes, et pas d'une liste écrite", () => {
   const m = menusAProposer(GENS);
+  //  Pas « statut » : les trois fiches d'essai sont célibataires, donc
+  //  un seul choix, donc pas de menu — la règle d'en dessous.
   assertEquals(m.map((x) => x.colonne), ["groupe", "lieu", "origine"]);
   //  Rangés alphabétiquement, en français : « Doux » avant « Hardi ».
   assertEquals(m[0].choix, ["Doux", "Hardi"]);
   assertEquals(m[1].choix, ["Lumirandé", "Port-Varène"]);
   assertEquals(m[2].choix, ["Kanto", "Rhode"]);
+});
+
+Deno.test("le statut marital devient un menu dès qu'il y a deux réponses", () => {
+  //  Ajouté le 12 novembre. C'est ce qu'on vient chercher dans un
+  //  bottin, et ça ne prend que trois ou quatre valeurs — contrairement
+  //  au métier, qui en prend autant qu'il y a de personnages.
+  const meles = [
+    fiche("Hardi", "Lumirandé", "Rhode", "Ana", "Célibataire"),
+    fiche("Doux", "Lumirandé", "Rhode", "Bo", "Marié"),
+    fiche("Doux", "Lumirandé", "Rhode", "Cy", "En couple"),
+  ];
+  const m = menusAProposer(meles);
+  assertEquals(m.map((x) => x.colonne), ["groupe", "statut"]);
+  assertEquals(m[1].choix, ["Célibataire", "En couple", "Marié"]);
+  assertEquals(
+    filtrer(meles, { recherche: "", menus: new Map([["statut", "Marié"]]) }),
+    [false, true, false],
+  );
 });
 
 Deno.test("une colonne où tout le monde répond pareil n'a pas de menu", () => {

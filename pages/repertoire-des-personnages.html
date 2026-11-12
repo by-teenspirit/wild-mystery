@@ -13,13 +13,15 @@
      la page charge elle-même ses polices, sa feuille et son script,
      exactement comme les annexes.
 
-     Une fois l'adresse obtenue, la reporter dans `data/navigation.json`
-     et `data/accueil.json` — le lien « Répertoire des personnages » y
-     attend sans adresse, et s'affiche en gris tant qu'il n'en a pas.
+     Créée le 12 novembre 2026 : /h14-repertoire-des-personnages. Son
+     adresse est posée dans `data/navigation.json` (barre latérale) et
+     `data/accueil.json` (liens rapides).
 
      LA BARRE DE FILTRES EST POSÉE PAR LE SCRIPT, et c'est voulu : sans
      JavaScript, tous les personnages restent affichés. Un bouton n'a le
-     droit de cacher que ce qu'il peut remontrer.
+     droit de cacher que ce qu'il peut remontrer. LES DEUX BOTTINS DE LA
+     COLONNE DE GAUCHE, eux, sont écrits en dur : ce sont des listes à
+     lire, pas des commandes.
      ═══════════════════════════════════════════════════════════════════ -->
 
 <!DOCTYPE html>
@@ -47,19 +49,95 @@
     </nav>
 
 <div class="wm-annexe" style="--annexe-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/plage-grain-de-sel.jpg'); --annexe-rendu: url('https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/133.png')">
+
+  <nav class="wm-annexe__sommaire wm-bottins" aria-label="Les bottins">
+    <div class="wm-annexe__entete">
+      <div class="wm-annexe__logo" aria-hidden="true"></div>
+      <p class="wm-annexe__enseigne">Les bottins</p>
+    </div>
+    <div class="wm-sous-onglets wm-bottins__onglets" data-wm-sous-onglets>
+      <section data-wm-sous-onglet="prenoms">
+        <h2>Prénoms</h2>
+        <p class="wm-bottin__compte">5 pris</p>
+        <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Arceus</span><span class="wm-bottin__qui">Arceus</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Compte</span><span class="wm-bottin__qui">Compte de test</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Fenja</span><span class="wm-bottin__qui">Fenja Ringen</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Maître</span><span class="wm-bottin__qui">Maître du Jeu</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Xaden</span><span class="wm-bottin__qui">Xaden Nomdefamille</span></li>
+        </ul>
+      </section>
+      <section data-wm-sous-onglet="noms">
+        <h2>Noms</h2>
+        <p class="wm-bottin__compte">4 pris</p>
+        <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">de test</span><span class="wm-bottin__qui">Compte de test</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">du Jeu</span><span class="wm-bottin__qui">Maître du Jeu</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Nomdefamille</span><span class="wm-bottin__qui">Xaden Nomdefamille</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Ringen</span><span class="wm-bottin__qui">Fenja Ringen</span></li>
+        </ul>
+      </section>
+      <section data-wm-sous-onglet="faceclaims">
+        <h2>Avatars</h2>
+        <p class="wm-bottin__compte">4 pris</p>
+        <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Andy Biersack</span><span class="wm-bottin__qui">Xaden Nomdefamille</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">elizabeth olsen.</span><span class="wm-bottin__qui">Fenja Ringen</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">rythme</span><span class="wm-bottin__qui">Compte de test</span></li>
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">uc</span><span class="wm-bottin__qui">Arceus</span></li>
+        </ul>
+      </section>
+      <section data-wm-sous-onglet="metiers">
+        <h2>Métiers</h2>
+        <p class="wm-bottin__compte">5 tenus, 5 lieux</p>
+        <div class="wm-bottin__lieu">
+          <p class="wm-bottin__ou">Canyon Lekro</p>
+          <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Mineur</span><span class="wm-bottin__qui">Xaden Nomdefamille</span></li>
+          </ul>
+        </div>
+        <div class="wm-bottin__lieu">
+          <p class="wm-bottin__ou">Forêt Marécageuse</p>
+          <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Herboriste</span><span class="wm-bottin__qui">Fenja Ringen</span></li>
+          </ul>
+        </div>
+        <div class="wm-bottin__lieu">
+          <p class="wm-bottin__ou">Lumirandé</p>
+          <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Arbitre</span><span class="wm-bottin__qui">Maître du Jeu</span></li>
+          </ul>
+        </div>
+        <div class="wm-bottin__lieu">
+          <p class="wm-bottin__ou">Oasis Perdue</p>
+          <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Marchand ambulant</span><span class="wm-bottin__qui">Compte de test</span></li>
+          </ul>
+        </div>
+        <div class="wm-bottin__lieu">
+          <p class="wm-bottin__ou">Relique Sacrée</p>
+          <ul class="wm-bottin">
+          <li class="wm-bottin__ligne"><span class="wm-bottin__quoi">Gardien du sanctuaire</span><span class="wm-bottin__qui">Arceus</span></li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </nav>
+
   <div class="wm-annexe__corps">
     <div class="wm-annexe__colonne wm-annexe__colonne--large">
 
       <p class="wm-annexe__surtitre">Les habitants de Rhode</p>
       <h1 class="wm-annexe__titre">Répertoire des personnages</h1>
-      <p class="wm-annexe__chapo">Tous les personnages validés du forum, avec de quoi savoir à qui on a affaire avant de proposer un lien. La recherche prend un nom, un métier, un trait de caractère ou un faceclaim ; les trois menus trient par clan, par lieu de vie et par région d&#x27;origine.</p>
+      <p class="wm-annexe__chapo">Tous les personnages validés du forum, avec de quoi savoir à qui on a affaire avant de proposer un lien. La recherche prend un nom, un métier, un trait de caractère ou un faceclaim ; les menus trient par clan, par statut, par lieu de vie et par région d&#x27;origine. La colonne de gauche liste ce qui est déjà pris : les prénoms, les noms de famille, les faceclaims, et les métiers tenus dans chaque lieu.</p>
 
       <ul class="wm-repertoire__grille" data-wm-repertoire>
         <li class="wm-repertoire__carte"
             data-wm-groupe="Hardi"
             data-wm-lieu="Relique Sacrée"
             data-wm-origine="Rhode"
-            data-wm-cherche="arceus gardien du sanctuaire ne parle qu&#x27;une fois, et pas deux. uc relique sacree rhode">
+            data-wm-statut="Célibataire"
+            data-wm-cherche="arceus gardien du sanctuaire ne parle qu&#x27;une fois, et pas deux. uc relique sacree rhode celibataire">
           <div class="wm-repertoire__cadre"><img class="wm-repertoire__portrait" src="https://i.postimg.cc/3w4YZVZ8/Arceus-dieu-pokemon.gif" alt="" loading="lazy" /><p class="wm-repertoire__groupe wm-groupe--hardi">Hardi</p></div>
           <div class="wm-repertoire__dedans">
             <p class="wm-repertoire__metier">Gardien du sanctuaire</p>
@@ -67,6 +145,7 @@
             <p class="wm-repertoire__caractere">Ne parle qu&#x27;une fois, et pas deux.</p>
             <ul class="wm-repertoire__faits">
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Âge</span><span>inconnu</span></li>
+            <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Statut</span><span>Célibataire</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Vit à</span><span>Relique Sacrée</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">De</span><span>Rhode</span></li></ul>
             <p class="wm-repertoire__fc wm-repertoire__pied">Avatar · uc</p>
@@ -79,7 +158,8 @@
             data-wm-groupe="Sérieux"
             data-wm-lieu="Lumirandé"
             data-wm-origine="Rhode"
-            data-wm-cherche="maitre du jeu arbitre impartial jusqu&#x27;a l&#x27;agacement. note tout.  lumirande rhode">
+            data-wm-statut="Marié"
+            data-wm-cherche="maitre du jeu arbitre impartial jusqu&#x27;a l&#x27;agacement. note tout.  lumirande rhode marie">
           <div class="wm-repertoire__cadre"><img class="wm-repertoire__portrait" src="https://i.postimg.cc/dtsFfL9g/Untitled-1.gif" alt="" loading="lazy" /><p class="wm-repertoire__groupe wm-groupe--serieux">Sérieux</p></div>
           <div class="wm-repertoire__dedans">
             <p class="wm-repertoire__metier">Arbitre</p>
@@ -87,6 +167,7 @@
             <p class="wm-repertoire__caractere">Impartial jusqu&#x27;à l&#x27;agacement. Note tout.</p>
             <ul class="wm-repertoire__faits">
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Âge</span><span>la trentaine</span></li>
+            <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Statut</span><span>Marié</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Vit à</span><span>Lumirandé</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">De</span><span>Rhode</span></li></ul>
             
@@ -99,7 +180,8 @@
             data-wm-groupe="Malin"
             data-wm-lieu="Oasis Perdue"
             data-wm-origine="Johto"
-            data-wm-cherche="compte de test marchand ambulant change d&#x27;avis vite, et s&#x27;en explique encore plus vite. rythme oasis perdue johto">
+            data-wm-statut="En couple"
+            data-wm-cherche="compte de test marchand ambulant change d&#x27;avis vite, et s&#x27;en explique encore plus vite. rythme oasis perdue johto en couple">
           <div class="wm-repertoire__cadre"><img class="wm-repertoire__portrait" src="https://i.postimg.cc/9Fm2krB6/invite-mystere.gif" alt="" loading="lazy" /><p class="wm-repertoire__groupe wm-groupe--malin">Malin</p></div>
           <div class="wm-repertoire__dedans">
             <p class="wm-repertoire__metier">Marchand ambulant</p>
@@ -107,6 +189,7 @@
             <p class="wm-repertoire__caractere">Change d&#x27;avis vite, et s&#x27;en explique encore plus vite.</p>
             <ul class="wm-repertoire__faits">
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Âge</span><span>28 ans</span></li>
+            <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Statut</span><span>En couple</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Vit à</span><span>Oasis Perdue</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">De</span><span>Johto</span></li></ul>
             <p class="wm-repertoire__fc wm-repertoire__pied">Avatar · rythme</p>
@@ -118,7 +201,8 @@
             data-wm-groupe="Doux"
             data-wm-lieu="Forêt Marécageuse"
             data-wm-origine="Sinnoh"
-            data-wm-cherche="fenja ringen herboriste douce avec les gens, intraitable avec les plantes. elizabeth olsen. foret marecageuse sinnoh">
+            data-wm-statut="Célibataire"
+            data-wm-cherche="fenja ringen herboriste douce avec les gens, intraitable avec les plantes. elizabeth olsen. foret marecageuse sinnoh celibataire">
           <div class="wm-repertoire__cadre"><span class="wm-repertoire__portrait wm-repertoire__portrait--vide" aria-hidden="true"></span><p class="wm-repertoire__groupe wm-groupe--doux">Doux</p></div>
           <div class="wm-repertoire__dedans">
             <p class="wm-repertoire__metier">Herboriste</p>
@@ -126,6 +210,7 @@
             <p class="wm-repertoire__caractere">Douce avec les gens, intraitable avec les plantes.</p>
             <ul class="wm-repertoire__faits">
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Âge</span><span>24 ans</span></li>
+            <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Statut</span><span>Célibataire</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Vit à</span><span>Forêt Marécageuse</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">De</span><span>Sinnoh</span></li></ul>
             <p class="wm-repertoire__fc wm-repertoire__pied">Avatar · elizabeth olsen.</p>
@@ -138,7 +223,8 @@
             data-wm-groupe="Brave"
             data-wm-lieu="Canyon Lekro"
             data-wm-origine="Unys"
-            data-wm-cherche="xaden nomdefamille mineur descend la ou les autres remontent. andy biersack canyon lekro unys">
+            data-wm-statut="En couple"
+            data-wm-cherche="xaden nomdefamille mineur descend la ou les autres remontent. andy biersack canyon lekro unys en couple">
           <div class="wm-repertoire__cadre"><img class="wm-repertoire__portrait" src="https://i.postimg.cc/9Fm2krB6/invite-mystere.gif" alt="" loading="lazy" /><p class="wm-repertoire__groupe wm-groupe--brave">Brave</p></div>
           <div class="wm-repertoire__dedans">
             <p class="wm-repertoire__metier">Mineur</p>
@@ -146,6 +232,7 @@
             <p class="wm-repertoire__caractere">Descend là où les autres remontent.</p>
             <ul class="wm-repertoire__faits">
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Âge</span><span>31 ans</span></li>
+            <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Statut</span><span>En couple</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">Vit à</span><span>Canyon Lekro</span></li>
             <li class="wm-repertoire__fait"><span class="wm-repertoire__cle">De</span><span>Unys</span></li></ul>
             <p class="wm-repertoire__fc wm-repertoire__pied">Avatar · Andy Biersack</p>

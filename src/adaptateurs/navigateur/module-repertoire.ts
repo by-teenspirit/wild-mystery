@@ -54,6 +54,7 @@ function ficheDe(el: HTMLElement): Fiche {
     groupe: el.dataset.wmGroupe ?? "",
     lieu: el.dataset.wmLieu ?? "",
     origine: el.dataset.wmOrigine ?? "",
+    statut: el.dataset.wmStatut ?? "",
     cherche: el.dataset.wmCherche ?? "",
   };
 }

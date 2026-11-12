@@ -55,21 +55,29 @@ export type Fiche = {
   readonly groupe: string;
   readonly lieu: string;
   readonly origine: string;
+  readonly statut: string;
   readonly cherche: string;
 };
 
-/** Les trois colonnes filtrables, dans l'ordre des menus.
+/** Les quatre colonnes filtrables, dans l'ordre des menus.
  *
  *  PAS LE MÉTIER NI L'ÂGE : un métier est un texte libre, et autant de
  *  valeurs que de personnages ne font pas un menu — c'est la recherche
- *  qui s'en charge. */
-export const COLONNES = ["groupe", "lieu", "origine"] as const;
+ *  qui s'en charge. Le statut marital, lui, prend trois ou quatre
+ *  valeurs et c'est exactement ce qu'on vient chercher dans un bottin.
+ *
+ *  LE FACECLAIM N'EST PAS UN MENU NON PLUS, et pour la même raison :
+ *  un par personnage. Il a sa place dans la recherche et dans le
+ *  bottin de la colonne de gauche, qui répond à la vraie question —
+ *  « est-ce que celui-là est pris ? ». */
+export const COLONNES = ["groupe", "lieu", "origine", "statut"] as const;
 export type Colonne = typeof COLONNES[number];
 
 const MOTS: Record<Colonne, string> = {
   groupe: "Groupe",
   lieu: "Lieu de vie",
   origine: "Région d'origine",
+  statut: "Statut",
 };
 
 export function motDeLaColonne(c: Colonne): string {
@@ -81,7 +89,7 @@ export function estUneColonne(x: string): x is Colonne {
 }
 
 export function valeur(f: Fiche, c: Colonne): string {
-  return c === "groupe" ? f.groupe : c === "lieu" ? f.lieu : f.origine;
+  return f[c];
 }
 
 export type Menu = {

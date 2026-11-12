@@ -78,23 +78,80 @@ const PIXEL = Buffer.from(
 //  liens, une sans présentation, et un clan inconnu que le générateur
 //  doit signaler sans poser de pastille.
 const MORTE = "https://exemple.test/morte.png";
+//  Le statut marital est en dernier, ajouté le 12 novembre : trois
+//  valeurs pour que le menu existe, et il ne faut pas qu'elles soient
+//  réparties comme les clans, sinon deux filtres cumulés ne prouvent
+//  rien — on ne saurait pas lequel a retenu.
 const GENS = [
-  ["Ana Vasquez", "hardi", "Fleuriste", "Franche, têtue, incapable de laisser passer une injustice même quand elle n'est pas la sienne.", "Lumirandé", "24 ans", "Rhode", "Jessica Henwick", "/t1-a", "/t2-a", "https://exemple.test/0.png"],
-  ["Bo Ferrand", "serieux", "Pêcheur", "Bourru.", "Port-Varène", "41 ans", "Kanto", "Pedro Pascal", "", "/t3-b", "https://exemple.test/1.png"],
-  ["Cy Nakamura", "doux", "Infirmier", "Patient jusqu'à l'épuisement. Dort peu, écoute beaucoup.", "Lumirandé", "29 ans", "Johto", "Steven Yeun", "/t4-c", "", "https://exemple.test/2.png"],
-  ["Dalia Okonkwo", "brave", "Rangère", "Ne recule pas. Pose les questions après.", "Steppes arides", "33 ans", "Unys", "Lupita Nyong'o", "/t5-d", "/t6-d", MORTE],
-  ["Elio Marchetti", "jovial", "Géologue", "Curieux comme un enfant, ouvre tout ce qui est fermé.", "Samaragd", "26 ans", "Rhode", "Timothée Chalamet", "/t7-e", "/t8-e", "https://exemple.test/4.png"],
-  ["Faye Lindqvist", "malin", "Marchande", "Sait ce que vaut chaque chose, et ce que vaut chaque personne.", "Port-Varène", "37 ans", "Sinnoh", "Alicia Vikander", "/t9-f", "/t10-f", "https://exemple.test/5.png"],
-  ["Gil Abadie", "hardi", "Mineur", "Monte d'abord, réfléchit plus haut.", "Monts Enneigés", "31 ans", "Rhode", "", "", "/t11-g", "https://exemple.test/6.png"],
-  ["Hana Toriyama", "fantaisiste", "Étudiante", "Timide à l'oral, redoutable par écrit.", "Samaragd", "19 ans", "Johto", "Sakura Ando", "/t12-h", "/t13-h", ""],
+  ["Ana Vasquez", "hardi", "Fleuriste", "Franche, têtue, incapable de laisser passer une injustice même quand elle n'est pas la sienne.", "Lumirandé", "24 ans", "Rhode", "Jessica Henwick", "/t1-a", "/t2-a", "https://exemple.test/0.png", "Célibataire"],
+  ["Bo Ferrand", "serieux", "Pêcheur", "Bourru.", "Port-Varène", "41 ans", "Kanto", "Pedro Pascal", "", "/t3-b", "https://exemple.test/1.png", "Marié"],
+  ["Cy Nakamura", "doux", "Infirmier", "Patient jusqu'à l'épuisement. Dort peu, écoute beaucoup.", "Lumirandé", "29 ans", "Johto", "Steven Yeun", "/t4-c", "", "https://exemple.test/2.png", "En couple"],
+  ["Dalia Okonkwo", "brave", "Rangère", "Ne recule pas. Pose les questions après.", "Steppes arides", "33 ans", "Unys", "Lupita Nyong'o", "/t5-d", "/t6-d", MORTE, "Célibataire"],
+  ["Elio Marchetti", "jovial", "Géologue", "Curieux comme un enfant, ouvre tout ce qui est fermé.", "Samaragd", "26 ans", "Rhode", "Timothée Chalamet", "/t7-e", "/t8-e", "https://exemple.test/4.png", "En couple"],
+  ["Faye Lindqvist", "malin", "Marchande", "Sait ce que vaut chaque chose, et ce que vaut chaque personne.", "Port-Varène", "37 ans", "Sinnoh", "Alicia Vikander", "/t9-f", "/t10-f", "https://exemple.test/5.png", "Marié"],
+  ["Gil Abadie", "hardi", "Mineur", "Monte d'abord, réfléchit plus haut.", "Monts Enneigés", "31 ans", "Rhode", "", "", "/t11-g", "https://exemple.test/6.png", "Célibataire"],
+  ["Hana Toriyama", "fantaisiste", "Étudiante", "Timide à l'oral, redoutable par écrit.", "Samaragd", "19 ans", "Johto", "Sakura Ando", "/t12-h", "/t13-h", "", "Célibataire"],
 ];
+
+//  ── ET TRENTE-DEUX DE PLUS, POUR TENIR L'ÉCHELLE ──────────────────
+//
+//  « Faut que tu réfléchisses comme si les bottins allaient contenir
+//  peut-être 30 à 50 noms. » Avec huit, trois contrôles restaient verts
+//  alors qu'on avait cassé la règle qu'ils surveillaient : le plafond
+//  de hauteur de la colonne ne servait pas (huit lignes tiennent dans
+//  n'importe quelle fenêtre), le tri sans accent n'avait aucun accent à
+//  trier, et les noms de famille n'avaient aucun mononyme à écarter.
+//
+//  Les trois cas qui manquaient sont donc posés exprès : Élise, dont
+//  le prénom accentué doit se ranger à sa place alphabétique et pas
+//  après Zéphyr ; Zéphyr justement, qui n'a qu'un nom et ne doit pas
+//  apparaître au bottin des noms de famille ; et assez de monde pour
+//  que la colonne dépasse la fenêtre si on retire son plafond.
+const PRENOMS = [
+  "Élise", "Zéphyr", "Noor", "Ivar", "Soline", "Kemal", "Ada", "Björn",
+  "Chiara", "Dmitri", "Esme", "Félix", "Gaia", "Hugo", "Ines", "Jonas",
+  "Keiko", "Luc", "Maya", "Nils", "Oona", "Piotr", "Quentin", "Rina",
+  "Sacha", "Tomas", "Ulla", "Viggo", "Wanda", "Yara", "Zoltan", "Amara",
+];
+const NOMSDEFAMILLE = [
+  "", "", "Haddad", "Lindgren", "Berger", "Demir", "Okafor", "Eriksen",
+  "Russo", "Volkov", "Clarke", "Moreau", "Panagos", "Weber", "Costa", "Dahl",
+  "Watanabe", "Fabre", "Singh", "Holm", "Kelly", "Nowak", "Girard", "Sato",
+  "Petrov", "Alves", "Virtanen", "Ekman", "Nowicka", "Khoury", "Nagy", "Diallo",
+];
+const LIEUX = ["Lumirandé", "Port-Varène", "Samaragd", "Canyon Lekro", "Oasis Perdue"];
+const CLANS = ["hardi", "serieux", "malin", "doux", "brave", "jovial"];
+const STATUTS = ["Célibataire", "En couple", "Marié"];
+const FOULE = PRENOMS.map((prenom, i) => {
+  const nom = `${prenom}${NOMSDEFAMILLE[i] === "" ? "" : " " + NOMSDEFAMILLE[i]}`;
+  return [
+    nom,
+    CLANS[i % CLANS.length],
+    `Métier ${i + 1}`,
+    "Une phrase de caractère, assez courte pour tenir sur deux lignes.",
+    LIEUX[i % LIEUX.length],
+    `${20 + (i % 25)} ans`,
+    ["Rhode", "Kanto", "Johto", "Sinnoh", "Unys"][i % 5],
+    //  Un sur quatre n'a pas de faceclaim : le bottin des avatars ne
+    //  doit pas inventer de ligne vide pour eux.
+    i % 4 === 0 ? "" : `Modèle ${i + 1}`,
+    "/t900-x",
+    "/t901-x",
+    `https://exemple.test/f${i}.png`,
+    STATUTS[i % STATUTS.length],
+  ];
+});
+const TOUS = [...GENS, ...FOULE];
 
 const ESSAI = {
   titre: "Répertoire des personnages",
   surtitre: "Les habitants de Rhode",
   intro: "Tous les personnages validés du forum.",
-  personnages: GENS.map(
-    ([nom, groupe, metier, caractere, lieu, age, origine, faceclaim, liens, presentation, avatar]) => ({
+  personnages: TOUS.map(
+    (
+      [nom, groupe, metier, caractere, lieu, age, origine, faceclaim, liens, presentation,
+        avatar, statut],
+    ) => ({
       nom,
       groupe,
       metier,
@@ -106,6 +163,7 @@ const ESSAI = {
       liens,
       presentation,
       avatar,
+      statut,
     }),
   ),
 };
@@ -178,6 +236,53 @@ async function ouvrir(nav, { avecScript = true, largeur = 1440, theme = undefine
   return p;
 }
 
+/** Les bottins de la colonne de gauche, tels qu'ils sont à l'écran. */
+const regarderLesBottins = () => {
+  const vus = (s) =>
+    Array.from(document.querySelectorAll(s)).filter((e) =>
+      e.getBoundingClientRect().height > 0
+    );
+  return {
+    onglets: Array.from(document.querySelectorAll(".wm-bottins .wm-onglet")).map((b) => ({
+      mot: b.textContent.trim(),
+      choisi: b.getAttribute("aria-selected") === "true",
+    })),
+    sections: Array.from(document.querySelectorAll(".wm-bottins [data-wm-sous-onglet]")).map(
+      (x) => ({ cle: x.dataset.wmSousOnglet, vu: x.getBoundingClientRect().height > 0 }),
+    ),
+    //  Ce que chaque liste contient, section par section, qu'elle soit
+    //  ouverte ou non : le contenu est dans la page même replié.
+    listes: Object.fromEntries(
+      Array.from(document.querySelectorAll(".wm-bottins [data-wm-sous-onglet]")).map((x) => [
+        x.dataset.wmSousOnglet,
+        Array.from(x.querySelectorAll(".wm-bottin__ligne")).map((l) => [
+          l.querySelector(".wm-bottin__quoi").textContent.trim(),
+          l.querySelector(".wm-bottin__qui").textContent.trim(),
+        ]),
+      ]),
+    ),
+    lieux: Array.from(document.querySelectorAll(".wm-bottins .wm-bottin__ou")).map((e) =>
+      e.textContent.trim()
+    ),
+    lignesVues: vus(".wm-bottins .wm-bottin__ligne").length,
+    //  LA COLONNE NE DOIT PAS DÉPASSER LA FENÊTRE : trente noms dans
+    //  une colonne collante sans plafond, et la fin reste sous le bord
+    //  sans moyen d'y arriver.
+    colonne: (() => {
+      const c = document.querySelector(".wm-bottins");
+      if (c === null) return null;
+      return {
+        hauteur: Math.round(c.getBoundingClientRect().height),
+        fenetre: window.innerHeight,
+        //  LE PLAFOND NE SERT QUE S'IL Y A TROP À MONTRER : si le
+        //  contenu tient, la colonne est courte et la règle ne prouve
+        //  rien. On vérifie donc qu'elle DÉBORDE et qu'elle défile.
+        deborde: c.scrollHeight > c.clientHeight + 1,
+      };
+    })(),
+  };
+};
+
 /** Ce qui est VISIBLE à l'écran. Une carte en `hidden` dont la feuille
  *  dirait `display: flex` resterait à l'écran : on mesure la boîte. */
 const regarder = () => {
@@ -246,7 +351,11 @@ ok(
   /groupe « fantaisiste » inconnu/.test(DIT),
   DIT.trim(),
 );
-ok("et il annonce les huit personnages", /8 personnage\(s\)/.test(DIT), DIT.trim());
+ok(
+  `et il annonce les ${TOUS.length} personnages`,
+  new RegExp(`${TOUS.length} personnage\\(s\\)`).test(DIT),
+  DIT.trim(),
+);
 
 // ════════════════════════════════════════════════════════════════════
 //  1 · SANS LE SCRIPT
@@ -256,14 +365,26 @@ console.log("\n── sans JavaScript : tout le monde est là ──");
   const p = await ouvrir(nav, { avecScript: false });
   const vu = await p.evaluate(regarder);
   ok(
-    `les ${GENS.length} cartes sont dans la page et visibles`,
-    vu.cartes.length === GENS.length && vu.cartes.every((c) => c.vue),
+    `les ${TOUS.length} cartes sont dans la page et visibles`,
+    vu.cartes.length === TOUS.length && vu.cartes.every((c) => c.vue),
     vu.cartes.map((c) => [c.nom, c.vue]),
   );
   //  LA BARRE EST POSÉE PAR LE SCRIPT, JAMAIS ÉCRITE DANS LA PAGE.
   //  Écrite, un filtre cacherait des personnages que rien ne pourrait
   //  plus rouvrir.
   ok("et il n'y a ni champ ni menu", !vu.champ && vu.menus.length === 0, vu.menus);
+
+  //  MÊME RÈGLE POUR LES BOTTINS. Les quatre listes sont dans la page
+  //  et s'affichent À LA SUITE sans script : ce sont des onglets, pas
+  //  un contenu construit au chargement.
+  const b = await p.evaluate(regarderLesBottins);
+  const total = Object.values(b.listes).reduce((n, l) => n + l.length, 0);
+  ok(
+    "les quatre bottins sont là, tous dépliés, sans un seul onglet",
+    b.sections.length === 4 && b.sections.every((x) => x.vu) &&
+      b.onglets.length === 0 && b.lignesVues === total,
+    { sections: b.sections, lignesVues: b.lignesVues, total },
+  );
   await p.close();
 }
 
@@ -281,18 +402,18 @@ await p.waitForTimeout(300);
   //  depuis les données d'essai : une constante écrite à la main ne
   //  comparerait que deux fautes possibles.
   const attendu = (i) =>
-    [...new Set(GENS.map((g) => g[i]).filter((v) => v !== ""))].sort((a, b) =>
+    [...new Set(TOUS.map((g) => g[i]).filter((v) => v !== ""))].sort((a, b) =>
       a.localeCompare(b, "fr")
     );
   //  Le clan « fantaisiste » n'existe pas : sa carte n'a pas de
   //  groupe, donc il n'est pas au menu — et elle reste affichée.
   const clans = { hardi: "Hardi", serieux: "Sérieux", malin: "Malin", doux: "Doux", brave: "Brave", jovial: "Jovial" };
-  const groupesAttendus = [...new Set(GENS.map((g) => clans[g[1]]).filter(Boolean))]
+  const groupesAttendus = [...new Set(TOUS.map((g) => clans[g[1]]).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b, "fr"));
 
   ok(
-    "trois menus, dans l'ordre : groupe, lieu, origine",
-    vu.menus.map((m) => m.colonne).join(",") === "groupe,lieu,origine",
+    "quatre menus, dans l'ordre : groupe, lieu, origine, statut",
+    vu.menus.map((m) => m.colonne).join(",") === "groupe,lieu,origine,statut",
     vu.menus.map((m) => m.colonne),
   );
   ok(
@@ -309,8 +430,8 @@ await p.waitForTimeout(300);
     vu.menus[0].choix,
   );
   ok(
-    `l'annonce dit les ${GENS.length} personnages`,
-    vu.annonce === `${GENS.length} personnages`,
+    `l'annonce dit les ${TOUS.length} personnages`,
+    vu.annonce === `${TOUS.length} personnages`,
     vu.annonce,
   );
 }
@@ -325,25 +446,37 @@ const vuesApres = async (quoi) => {
   return { noms: vu.cartes.filter((c) => c.vue).map((c) => c.nom), annonce: vu.annonce, quoi };
 };
 
+//  LES ATTENDUS SE RECALCULENT DEPUIS LES DONNÉES D'ESSAI, comme les
+//  menus : écrits à la main, ils auraient été à refaire au premier
+//  personnage ajouté — et c'est exactement ce qui vient d'arriver.
+const CLAN = {
+  hardi: "Hardi", serieux: "Sérieux", malin: "Malin",
+  doux: "Doux", brave: "Brave", jovial: "Jovial",
+};
+const quiHabite = (lieu) => TOUS.filter((g) => g[4] === lieu).map((g) => g[0]);
+
 await p.selectOption(".wm-repertoire__menu[data-wm-colonne='lieu']", "Lumirandé");
 {
   const vu = await vuesApres("lieu");
+  const attendu = quiHabite("Lumirandé");
   ok(
     "un menu ne garde que sa valeur — et le compte le dit",
-    JSON.stringify(vu.noms) === JSON.stringify(["Ana Vasquez", "Cy Nakamura"]) &&
-      vu.annonce === `2 personnages sur ${GENS.length}`,
-    vu,
+    JSON.stringify(vu.noms) === JSON.stringify(attendu) &&
+      vu.annonce === `${attendu.length} personnages sur ${TOUS.length}`,
+    { vu, attendu },
   );
 }
 
 await p.selectOption(".wm-repertoire__menu[data-wm-colonne='groupe']", "Doux");
 {
   const vu = await vuesApres("deux menus");
+  const attendu = TOUS.filter((g) => g[4] === "Lumirandé" && CLAN[g[1]] === "Doux")
+    .map((g) => g[0]);
   ok(
     "deux menus se cumulent",
-    JSON.stringify(vu.noms) === JSON.stringify(["Cy Nakamura"]) &&
-      vu.annonce === `1 personnage sur ${GENS.length}`,
-    vu,
+    JSON.stringify(vu.noms) === JSON.stringify(attendu) && attendu.length > 0 &&
+      attendu.length < quiHabite("Lumirandé").length,
+    { vu, attendu },
   );
 }
 
@@ -352,7 +485,7 @@ await p.click(".wm-repertoire__vider");
   const vu = await vuesApres("vider");
   ok(
     "« Tout afficher » rend la page entière",
-    vu.noms.length === GENS.length && vu.annonce === `${GENS.length} personnages`,
+    vu.noms.length === TOUS.length && vu.annonce === `${TOUS.length} personnages`,
     vu,
   );
 }
@@ -365,8 +498,8 @@ await p.fill(".wm-repertoire__saisie", "lumirande");
   const vu = await vuesApres("recherche sans accent");
   ok(
     "la recherche ignore les accents — Python et TypeScript s'accordent",
-    JSON.stringify(vu.noms) === JSON.stringify(["Ana Vasquez", "Cy Nakamura"]),
-    vu,
+    JSON.stringify(vu.noms) === JSON.stringify(quiHabite("Lumirandé")),
+    { vu, attendu: quiHabite("Lumirandé") },
   );
 }
 
@@ -404,8 +537,98 @@ await p.waitForTimeout(80);
   //  de la page.
   ok(
     "et il remet le champ et les menus à zéro, pas seulement les cartes",
-    vu.saisie === "" && vu.menus.every((m) => m === "") && vu.vues === GENS.length,
+    vu.saisie === "" && vu.menus.every((m) => m === "") && vu.vues === TOUS.length,
     vu,
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  3 bis · LES BOTTINS
+// ════════════════════════════════════════════════════════════════════
+//
+//  Ils ne répondent pas à la même question que la grille : la grille
+//  montre un personnage, les bottins montrent ce qui est PRIS. Ce qu'on
+//  éprouve ici, c'est qu'ils disent la VÉRITÉ — une liste de ce qui est
+//  pris qui oublie une entrée est pire que pas de liste, parce qu'on ne
+//  s'en aperçoit qu'après avoir validé le doublon.
+console.log("\n── les bottins ──");
+{
+  const b = await p.evaluate(regarderLesBottins);
+
+  ok(
+    "quatre onglets, un seul ouvert : prénoms, noms, avatars, métiers",
+    b.onglets.map((o) => o.mot).join(",") === "Prénoms,Noms,Avatars,Métiers" &&
+      b.onglets.filter((o) => o.choisi).length === 1 &&
+      b.sections.filter((x) => x.vu).length === 1,
+    { onglets: b.onglets, sections: b.sections },
+  );
+
+  //  LES LISTES SE DÉDUISENT DES PERSONNAGES, et les attendus se
+  //  recalculent ici depuis les données d'essai : une liste écrite à
+  //  la main ne comparerait que deux fautes possibles.
+  const sa = (x) => x.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const range = (l) => [...l].sort((x, y) => sa(x[0]) < sa(y[0]) ? -1 : 1);
+  const attenduPrenoms = range(TOUS.map((g) => [g[0].split(" ")[0], g[0]]));
+  const attenduNoms = range(
+    TOUS.filter((g) => g[0].split(" ").length > 1)
+      .map((g) => [g[0].split(" ").slice(1).join(" "), g[0]]),
+  );
+  const attenduFcs = range(TOUS.filter((g) => g[7] !== "").map((g) => [g[7], g[0]]));
+
+  ok(
+    "le bottin des prénoms a tout le monde, par ordre alphabétique",
+    JSON.stringify(b.listes.prenoms) === JSON.stringify(attenduPrenoms),
+    { vu: b.listes.prenoms, attendu: attenduPrenoms },
+  );
+  ok(
+    "celui des noms de famille saute ceux qui n'en ont pas",
+    JSON.stringify(b.listes.noms) === JSON.stringify(attenduNoms),
+    { vu: b.listes.noms, attendu: attenduNoms },
+  );
+  //  Gil n'a pas de faceclaim : il ne doit pas apparaître avec une
+  //  ligne vide, qu'on lirait comme un avatar pris par personne.
+  ok(
+    "celui des avatars ne liste que les faceclaims renseignés",
+    JSON.stringify(b.listes.faceclaims) === JSON.stringify(attenduFcs) &&
+      b.listes.faceclaims.every(([q]) => q !== ""),
+    { vu: b.listes.faceclaims, attendu: attenduFcs },
+  );
+
+  //  LES MÉTIERS SONT RANGÉS PAR LIEU, et les lieux alphabétiquement.
+  const lieux = [...new Set(TOUS.map((g) => g[4]))].sort((x, y) => sa(x) < sa(y) ? -1 : 1);
+  ok(
+    "les métiers sont rangés par lieu, les lieux dans l'ordre",
+    JSON.stringify(b.lieux) === JSON.stringify(lieux),
+    { vu: b.lieux, attendu: lieux },
+  );
+  ok(
+    "et chaque métier est sous le lieu de celui qui le tient",
+    b.listes.metiers.every(([metier, qui]) => {
+      const g = TOUS.find((x) => x[0] === qui);
+      return g !== undefined && g[2] === metier;
+    }) && b.listes.metiers.length === TOUS.length,
+    b.listes.metiers,
+  );
+
+  //  LE PLAFOND DE HAUTEUR. « Comme si les bottins allaient contenir
+  //  30 à 50 noms » : la colonne est collante, et sans plafond sa fin
+  //  reste sous le bord de la fenêtre sans moyen d'y arriver.
+  ok(
+    "quarante noms dans la colonne : elle défile, elle ne dépasse pas la fenêtre",
+    b.colonne !== null && b.colonne.deborde &&
+      b.colonne.hauteur <= b.colonne.fenetre,
+    b.colonne,
+  );
+
+  //  ET LES ONGLETS CHANGENT VRAIMENT DE LISTE.
+  await p.click(".wm-bottins .wm-onglet:nth-child(4)");
+  await p.waitForTimeout(120);
+  const apres = await p.evaluate(regarderLesBottins);
+  ok(
+    "au clic sur « Métiers », c'est la liste des métiers qui s'ouvre",
+    apres.sections.filter((x) => x.vu).map((x) => x.cle).join() === "metiers" &&
+      apres.lieux.length === lieux.length,
+    apres.sections,
   );
 }
 
@@ -482,7 +705,12 @@ console.log("\n── la carte ──");
 //  5 · LES LARGEURS
 // ════════════════════════════════════════════════════════════════════
 console.log("\n── les largeurs ──");
-for (const [largeur, attendu] of [[1440, 4], [1100, 3], [820, 2], [390, 1]]) {
+//  LES PALIERS ONT BOUGÉ le 12 novembre, quand les bottins ont pris
+//  252 px sur la gauche : la colonne des cartes est passée de 1 264 à
+//  1 092. Les chiffres ci-dessous sont ceux de la page telle qu'elle
+//  est, bottins compris — sous 900 px la colonne repasse au-dessus du
+//  corps, ce qui rend de la largeur aux cartes.
+for (const [largeur, attendu] of [[1440, 4], [1280, 3], [1100, 2], [390, 1]]) {
   await p.setViewportSize({ width: largeur, height: 1000 });
   await p.waitForTimeout(120);
   const vu = await p.evaluate(() => {

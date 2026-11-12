@@ -1795,6 +1795,28 @@ body:has(#modernbb .wm-carnet) {
   line-height: var(--wm-interligne-section, 1.2);
 }
 
+/*  ── UN CRAN SOUS LE SOUS-TITRE ───────────────────────────────────
+
+    Posé le 12 novembre pour l'annexe 13, où une organisation (`h3`)
+    porte cinq points — présentation, histoire, hiérarchie, recrutement,
+    missions. Sans ce niveau, les cinq devenaient des `h3` comme
+    l'organisation elle-même, et on ne voyait plus ce qui contenait
+    quoi.
+
+    IL NE RESSEMBLE PAS À UN TITRE DE PLUS : pas de serif, pas de
+    taille en plus. C'est une étiquette en capitales, qui ouvre un
+    paragraphe sans prétendre ouvrir une section. */
+#modernbb .wm-annexe__point {
+  margin: var(--wm-espace-16, 16px) 0 var(--wm-espace-6, 6px);
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
 #modernbb .wm-defi__dit {
   margin: var(--wm-espace-12, 12px) 0 0;
   color: var(--wm-texte-pale, #69564c);

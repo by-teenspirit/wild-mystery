@@ -1117,8 +1117,10 @@ for s in sommaire["sections"]:
 
 #  LES PAGES QUI NE SONT PAS DES ANNEXES. Elles vivent sur le même
 #  forum et portent le même genre d'adresse ; les lister ici est plus
-#  honnête que d'exempter un fichier entier.
-AUTRES = {"15": "mon-carnet"}
+#  honnête que d'exempter un fichier entier. Le répertoire des
+#  personnages est en `h14` depuis le 12 novembre : juste après les
+#  treize annexes, mais pas au sommaire — il n'en est pas une.
+AUTRES = {"15": "mon-carnet", "14": "repertoire-des-personnages"}
 connues = {**par_numero, **AUTRES}
 
 #  Les fichiers où un `/hN-` est un EXEMPLE et pas une adresse : les

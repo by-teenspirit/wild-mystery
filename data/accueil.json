@@ -28,7 +28,7 @@
    "url": "/h1-par-ou-commencer"
   }
  },
- "_liens": "SEPT LIENS RAPIDES depuis le 9 novembre, rangés dans l'ordre où un nouveau venu s'en sert : il se présente, il cherche un alter ego, il cherche un avatar, il lit les annonces, il passe par la zone invités — puis Demandes et FAQ & suggestions ferment la marche, parce qu'on y va quand on bloque, et que ce sont les deux seuls où l'on écrit au staff. « Questions » était une entrée SANS adresse depuis le 7 octobre — la page n'existait pas ; /t997 est cette page, et le trou est bouché. « Créer sa présentation » ouvre directement le formulaire de nouveau sujet du forum 7 : l'adresse de Forumactif, pas une page à nous — « je voulais qu'on ait juste à modifier un formulaire sans toucher au code ». — 10 NOVEMBRE : « Petites annonces » cède sa place au « Répertoire des personnages », qui n'a pas encore d'adresse. Une `url` nulle affiche l'entrée SANS lien, comme au sommaire des annexes : on voit qu'elle arrive, on ne clique pas dans le vide.",
+ "_liens": "SEPT LIENS RAPIDES depuis le 9 novembre, rangés dans l'ordre où un nouveau venu s'en sert : il se présente, il cherche un alter ego, il cherche un avatar, il lit les annonces, il passe par la zone invités — puis Demandes et FAQ & suggestions ferment la marche, parce qu'on y va quand on bloque, et que ce sont les deux seuls où l'on écrit au staff. « Questions » était une entrée SANS adresse depuis le 7 octobre — la page n'existait pas ; /t997 est cette page, et le trou est bouché. « Créer sa présentation » ouvre directement le formulaire de nouveau sujet du forum 7 : l'adresse de Forumactif, pas une page à nous — « je voulais qu'on ait juste à modifier un formulaire sans toucher au code ». — 10 NOVEMBRE : « Petites annonces » cède sa place au « Répertoire des personnages » ; la page a été créée le 12 novembre et l'entrée porte son adresse, /h14-repertoire-des-personnages.",
  "liens": [
   {
    "texte": "Créer sa présentation",
@@ -44,7 +44,7 @@
   },
   {
    "texte": "Répertoire des personnages",
-   "url": null
+   "url": "/h14-repertoire-des-personnages"
   },
   {
    "texte": "Zone Invités",
