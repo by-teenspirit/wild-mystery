@@ -32122,7 +32122,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
    en passant au-dessus du corps. */
 #modernbb .wm-repertoire__grille {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   /*  `padding: 0` : c'est un `ul`, et les 40 px que le navigateur lui
       donne à gauche sont retirés de la largeur AVANT qu'`auto-fill`
       compte ses colonnes. 1 092 px moins 40 ne font plus quatre
@@ -32135,6 +32135,12 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 @media (max-width: 1320px) {
+  #modernbb .wm-repertoire__grille {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
   #modernbb .wm-repertoire__grille {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -32303,7 +32309,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: var(--wm-interligne-section, 1.2);
 }
 
-#modernbb .wm-repertoire__caractere {
+/*  AU FIL DE L'EAU, PAS JUSTIFIÉ. La page d'annexe justifie son texte,
+    ce qui va pour une colonne de 880 px ; dans une carte de 205, la
+    même règle écarte les mots jusqu'à creuser des rivières blanches —
+    « Douce    avec    les    gens ». Relevé le 12 novembre en passant
+    à cinq colonnes.
+
+    ET IL FAUT TROIS CRANS POUR LA DÉFAIRE. La règle d'en face est
+    `#modernbb .wm-annexe p`, à (1,1,1) : un `#modernbb .wm-repertoire
+    __caractere` à (1,1,0) perd, s'applique à rien, et ne dit même pas
+    qu'il a perdu. C'est le même piège que `.postbody .content p` sur
+    les cases de pokémon, pour la troisième fois sur ce projet — on
+    vise le parent ET la classe. */
+#modernbb .wm-annexe p.wm-repertoire__caractere {
+  text-align: left;
   margin: var(--wm-espace-8, 8px) 0 0;
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
@@ -32400,7 +32419,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     La page vide n'est pas une erreur : c'est l'état d'un répertoire
     qu'on commence. Elle le dit plutôt que de laisser une grille
     blanche qu'on prendrait pour une panne. */
-#modernbb .wm-repertoire__rien {
+/*  Même poids à trouver que pour le caractère, et pour la même
+    raison : `#modernbb .wm-annexe p` justifierait ce message. */
+#modernbb .wm-annexe p.wm-repertoire__rien {
   padding: var(--wm-espace-24, 24px);
   border: 1px dashed var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);

@@ -325,6 +325,15 @@ const regarder = () => {
         };
       })(),
       surtitre: c.querySelector(".wm-repertoire__fc")?.textContent?.trim() ?? null,
+      //  LE CARACTÈRE NE DOIT PAS ÊTRE JUSTIFIÉ : la page d'annexe
+      //  justifie tous ses `p`, et dans une carte de 205 px ça creuse
+      //  des rivières blanches. La règle qui le défait doit peser plus
+      //  que `#modernbb .wm-annexe p` — une règle qui perd s'applique
+      //  à rien et ne dit pas qu'elle a perdu.
+      aligne: (() => {
+        const e = c.querySelector(".wm-repertoire__caractere");
+        return e === null ? null : getComputedStyle(e).textAlign;
+      })(),
       faits2: Array.from(c.querySelectorAll(".wm-repertoire__fait")).map((f) => [
         f.querySelector(".wm-repertoire__cle").textContent.trim(),
         f.lastElementChild.textContent.trim(),
@@ -656,7 +665,7 @@ console.log("\n── la carte ──");
 
   ok(
     `${premiere.length} cartes sur la première rangée à 1440 px`,
-    premiere.length === 4,
+    premiere.length === 5,
     premiere.map((c) => c.nom),
   );
   //  MÊME LARGEUR ET MÊME HAUTEUR. Des cartes qui ne se ressemblent
@@ -709,6 +718,12 @@ console.log("\n── la carte ──");
     vu.cartes.map((c) => [c.nom, c.surtitre]),
   );
 
+  ok(
+    "le caractère se lit au fil de l'eau, pas justifié",
+    vu.cartes.every((c) => c.aligne === null || c.aligne === "left"),
+    [...new Set(vu.cartes.map((c) => c.aligne))],
+  );
+
   //  ── L'AVATAR N'EST PAS COUPÉ ─────────────────────────────────
   //
   //  « J'aimerais bien que l'avatar garde ses proportions et ne soit
@@ -755,12 +770,13 @@ console.log("\n── la carte ──");
 //  5 · LES LARGEURS
 // ════════════════════════════════════════════════════════════════════
 console.log("\n── les largeurs ──");
-//  QUATRE COLONNES SONT ÉCRITES, PAS DÉDUITES — « mets aussi 4
-//  personnages par colonne ». Les paliers en dessous sont des largeurs
+//  CINQ COLONNES SONT ÉCRITES, PAS DÉDUITES — « mets aussi 4
+//  personnages par colonne », puis « peut-être qu'avec 5 personnages
+//  par colonne, c'est mieux ? ». Les paliers en dessous sont des largeurs
 //  de PAGE : sous 900 px la colonne des bottins repasse au-dessus du
 //  corps et rend ses 252 px, ce qui explique que trois colonnes
 //  tiennent encore à 900 alors qu'elles seraient à l'étroit à 1 000.
-for (const [largeur, attendu] of [[1440, 4], [1280, 3], [1100, 3], [900, 3], [800, 2], [390, 1]]) {
+for (const [largeur, attendu] of [[1440, 5], [1280, 4], [1100, 3], [900, 3], [800, 2], [390, 1]]) {
   await p.setViewportSize({ width: largeur, height: 1000 });
   await p.waitForTimeout(120);
   const vu = await p.evaluate(() => {
