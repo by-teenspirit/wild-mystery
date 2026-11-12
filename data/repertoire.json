@@ -1,0 +1,91 @@
+{
+ "_": "Le répertoire des personnages validés. SOURCE UNIQUE de la page `pages/repertoire-des-personnages.html`, qui en est DÉRIVÉE par `outils/repertoire.py` — on corrige ici, jamais dans la page. Demandé le 10 novembre 2026 : « une page sur laquelle on a tous les personnages validés avec quelques infos […] ce serait des cards, on en affiche 3 ou 4 par colonne. On pourrait filtrer cette page. »",
+ "_PROVISOIRE": "⚠ REMPLISSAGE D'ESSAI, posé le 12 novembre 2026 à la demande de Callista — « tu remplis au hasard avec les comptes qui sont actuellement inscrits sur le forum, juste pour que je puisse tester / on videra après ». CE QUI EST VRAI : les cinq comptes, relevés sur /memberlist le 12 novembre, leurs faceclaims tels que le forum les affiche, leurs avatars tels que leur profil les porte (Fenja Ringen n'en a pas : sa carte montre un cadre vide, et c'est le vrai comportement), et l'adresse de profil mise en « presentation » — elle mène quelque part. CE QUI EST FAUX : le métier, le clan, le caractère, le lieu de vie, l'âge et la région d'origine, inventés pour que la page ait de quoi filtrer. Deux cartes n'ont pas de fiche de liens, volontairement : c'est ce qu'on voit quand le sujet n'existe pas encore. VIDER `personnages` pour repartir de zéro.",
+ "_pourquoiIci": "TROIS SOURCES ONT ÉTÉ REGARDÉES. (1) Les champs de profil du forum : les lire demande une session connectée et le panneau d'administration, ce que ce projet ne fait pas. (2) Supabase : les tables existent (`joueur`, `fiche_champ`), mais elles se remplissent une fiche à la fois, par les joueurs, et personne n'en a encore rempli une — la page serait vide longtemps. (3) Ce fichier : c'est l'arbitrage du 7 octobre pour l'accueil, « tout vient d'ici, et pas du forum », et le seul des trois qui affiche quelque chose le jour où on pousse. Le jour où les fiches Supabase se rempliront, c'est le GÉNÉRATEUR qui changera de source : ni la feuille ni les filtres ne bougeront.",
+ "_commentAjouter": "Ajouter un personnage = ajouter un objet dans `personnages`, puis `python3 outils/repertoire.py`, puis recoller la page. C'est le même geste que pour une annexe. Les menus de filtre se refont tout seuls : ils sont DÉRIVÉS des valeurs présentes, et une colonne où tout le monde répond la même chose n'affiche pas de menu.",
+ "_champs": "`nom` est le seul obligatoire — un personnage sans nom ne s'affiche pas, il n'y a rien à montrer. TOUS LES AUTRES PEUVENT MANQUER, et la carte tient quand même : c'est l'état normal d'un répertoire qu'on remplit peu à peu. `groupe` est une CLÉ de `data/groupes.json` (hardi, serieux, malin, doux, brave, jovial) ; une clé inconnue ne donne pas de pastille, et le générateur le signale. `age` est une CHAÎNE, pas un nombre : « 24 ans », « la trentaine », « inconnu » sont tous des réponses. `liens` et `presentation` sont des adresses de sujet ; vides, les boutons ne s'affichent pas — on ne clique pas dans le vide.",
+ "_faceclaim": "C'EST UN NOM, ET SEULEMENT UN NOM. Les faceclaims sont de vraies personnes : le répertoire écrit qui c'est, il ne va pas chercher leur photo. Même règle que `data/personnages.json`. `avatar`, lui, est l'image du PERSONNAGE — celle du forum.",
+ "_exemple": {
+  "nom": "Ana Vasquez",
+  "avatar": "https://exemple.test/ana.png",
+  "faceclaim": "Nom de la personne",
+  "groupe": "hardi",
+  "metier": "Fleuriste",
+  "caractere": "Franche, têtue, incapable de laisser passer une injustice.",
+  "lieu": "Lumirandé",
+  "age": "24 ans",
+  "origine": "Rhode",
+  "liens": "/t000-liens-d-ana",
+  "presentation": "/t000-presentation-d-ana"
+ },
+ "titre": "Répertoire des personnages",
+ "surtitre": "Les habitants de Rhode",
+ "intro": "Tous les personnages validés du forum, avec de quoi savoir à qui on a affaire avant de proposer un lien. La recherche prend un nom, un métier, un trait de caractère ou un faceclaim ; les trois menus trient par clan, par lieu de vie et par région d'origine.",
+ "personnages": [
+  {
+   "nom": "Arceus",
+   "avatar": "https://i.postimg.cc/3w4YZVZ8/Arceus-dieu-pokemon.gif",
+   "faceclaim": "uc",
+   "groupe": "hardi",
+   "metier": "Gardien du sanctuaire",
+   "caractere": "Ne parle qu'une fois, et pas deux.",
+   "lieu": "Relique Sacrée",
+   "age": "inconnu",
+   "origine": "Rhode",
+   "liens": "/u1",
+   "presentation": "/u1"
+  },
+  {
+   "nom": "Maître du Jeu",
+   "avatar": "https://i.postimg.cc/dtsFfL9g/Untitled-1.gif",
+   "faceclaim": "",
+   "groupe": "serieux",
+   "metier": "Arbitre",
+   "caractere": "Impartial jusqu'à l'agacement. Note tout.",
+   "lieu": "Lumirandé",
+   "age": "la trentaine",
+   "origine": "Rhode",
+   "liens": "/u3",
+   "presentation": "/u3"
+  },
+  {
+   "nom": "Compte de test",
+   "avatar": "https://i.postimg.cc/9Fm2krB6/invite-mystere.gif",
+   "faceclaim": "rythme",
+   "groupe": "malin",
+   "metier": "Marchand ambulant",
+   "caractere": "Change d'avis vite, et s'en explique encore plus vite.",
+   "lieu": "Oasis Perdue",
+   "age": "28 ans",
+   "origine": "Johto",
+   "liens": "",
+   "presentation": "/u4"
+  },
+  {
+   "nom": "Fenja Ringen",
+   "avatar": "",
+   "faceclaim": "elizabeth olsen.",
+   "groupe": "doux",
+   "metier": "Herboriste",
+   "caractere": "Douce avec les gens, intraitable avec les plantes.",
+   "lieu": "Forêt Marécageuse",
+   "age": "24 ans",
+   "origine": "Sinnoh",
+   "liens": "/u5",
+   "presentation": "/u5"
+  },
+  {
+   "nom": "Xaden Nomdefamille",
+   "avatar": "https://i.postimg.cc/9Fm2krB6/invite-mystere.gif",
+   "faceclaim": "Andy Biersack",
+   "groupe": "brave",
+   "metier": "Mineur",
+   "caractere": "Descend là où les autres remontent.",
+   "lieu": "Canyon Lekro",
+   "age": "31 ans",
+   "origine": "Unys",
+   "liens": "",
+   "presentation": "/u6"
+  }
+ ]
+}

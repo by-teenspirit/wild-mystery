@@ -379,15 +379,13 @@ function ficheStaff(doc: Document, m: Accueil["staff"][number]): HTMLElement {
 
   const tete = element(doc, "div", "wm-accueil__fiche-tete");
   tete.appendChild(
-    m.profil === ""
-      ? element(doc, "p", "wm-accueil__fiche-pseudo", m.pseudo)
-      : (() => {
-        const lien = doc.createElement("a");
-        lien.className = "wm-accueil__fiche-pseudo";
-        lien.href = m.profil;
-        lien.textContent = m.pseudo;
-        return lien;
-      })(),
+    m.profil === "" ? element(doc, "p", "wm-accueil__fiche-pseudo", m.pseudo) : (() => {
+      const lien = doc.createElement("a");
+      lien.className = "wm-accueil__fiche-pseudo";
+      lien.href = m.profil;
+      lien.textContent = m.pseudo;
+      return lien;
+    })(),
   );
   if (m.presence !== "") {
     const etat = element(doc, "p", "wm-accueil__fiche-presence");
@@ -498,9 +496,7 @@ function blocStaff(doc: Document, a: Accueil): HTMLElement | null {
       const bout = e.key === "Home" ? 0 : e.key === "End" ? boutons.length - 1 : -1;
       if (pas === 0 && bout === -1) return;
       e.preventDefault();
-      const n = bout !== -1
-        ? bout
-        : (i + pas + boutons.length) % boutons.length;
+      const n = bout !== -1 ? bout : (i + pas + boutons.length) % boutons.length;
       montrer(n);
       boutons[n].focus();
     });

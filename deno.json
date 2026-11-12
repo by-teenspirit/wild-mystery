@@ -55,7 +55,8 @@
     "defier": "python3 outils/defier.py",
     "defis": "deno run -A outils/defis.mjs",
     "recoller": "python3 outils/recoller.py",
-    "champions": "python3 outils/champions.py && deno run -A outils/champions.mjs"
+    "champions": "python3 outils/champions.py && deno run -A outils/champions.mjs",
+    "repertoire": "python3 outils/repertoire.py && deno run -A outils/repertoire.mjs"
   },
   "fmt": {
     "include": [

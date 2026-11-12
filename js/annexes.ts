@@ -35,6 +35,7 @@ import {
 import { poserLAccessibilite } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { poserLesInfobulles } from "../src/adaptateurs/navigateur/module-equipe.ts";
 import { poserLesFiltres } from "../src/adaptateurs/navigateur/module-personnages.ts";
+import { poserLeRepertoire } from "../src/adaptateurs/navigateur/module-repertoire.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
@@ -100,6 +101,18 @@ poserLesSousOnglets(document);
 //  les treize autres annexes, il n'y a pas de liste et la fonction ne
 //  fait rien.
 poserLesFiltres(document);
+
+//  ── LA BARRE DU RÉPERTOIRE ──────────────────────────────────────────
+//
+//  La page du répertoire des personnages n'est pas une annexe — elle
+//  n'a ni numéro ni sommaire — mais elle emprunte la même enveloppe et
+//  charge donc ce paquet-ci. Lui donner le sien aurait voulu dire un
+//  quatrième fichier à construire et à servir pour deux cents lignes.
+//
+//  Comme les filtres au-dessus : les cartes sont dans la page, la barre
+//  qui les trie est posée ici, et sur les quatorze annexes la fonction
+//  ne trouve pas de `[data-wm-repertoire]` et ne fait rien.
+poserLeRepertoire(document);
 
 //  LA PAGE RESTE LISIBLE SANS CE SCRIPT. Le texte est dans la page, en
 //  vrai HTML ; sans sommaire il manque une navigation, pas le contenu.

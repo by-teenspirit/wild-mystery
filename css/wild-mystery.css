@@ -32,6 +32,7 @@
      · css/24-profil.css
      · css/25-moderation.css
      · css/26-formulaires-fa.css
+     · css/27-repertoire.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -31923,5 +31924,399 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .ucp-main #list_awards div.award {
   margin: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   27-repertoire.css — le répertoire des personnages
+
+   « Il faudrait faire une page sur laquelle on a tous les personnages
+   validés avec quelques infos : leur avatar (en image) & leur avatar
+   (le faceclaim), leur nom, leur métier, leur groupe, leur caractère
+   en quelques mots, leur lieu de vie, leur âge, leur région d'origine,
+   le lien vers la fiche de liens et vers la présentation (ce serait
+   des cards, on en affiche 3 ou 4 par colonne). On pourrait filtrer
+   cette page. »
+
+   LA PAGE EMPRUNTE L'ENVELOPPE DES ANNEXES — même tête, même fond de
+   zone, même colonne — et n'apporte que la barre et les cartes. Elle
+   n'a pas de sommaire : elle n'est pas une annexe, et une barre
+   latérale « Les annexes » y désignerait quatorze pages dont celle-ci
+   ne fait pas partie.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la barre de filtres ───────────────────────────────────────
+
+   ELLE EST POSÉE PAR LE SCRIPT, jamais écrite dans la page : un
+   filtre qui ne peut pas se défaire cacherait des personnages pour de
+   bon. Tant que le script n'a pas tourné, il n'y a pas de barre et
+   toutes les cartes sont là. */
+#modernbb .wm-repertoire__barre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  box-sizing: border-box;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  margin: 0 0 var(--wm-espace-20, 20px);
+  gap: var(--wm-espace-12, 12px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-repertoire__champ {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+}
+
+/*  LE CHAMP DE RECHERCHE PREND LA PLACE QUI RESTE, les menus la
+    leur : on cherche un nom bien plus souvent qu'on ne déroule une
+    liste de régions. */
+#modernbb .wm-repertoire__barre > .wm-repertoire__champ:first-child {
+  min-width: 220px;
+  flex: 1 1 240px;
+}
+
+#modernbb .wm-repertoire__etiquette {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+/*  ── LES DEUX CONTRÔLES SE RESSEMBLENT, ET C'EST VOULU ────────────
+
+    `background-color` SEUL, JAMAIS LE RACCOURCI `background` : c'est
+    une image de fond qui dessine le chevron d'un `select`, et le
+    raccourci l'efface — relevé le 11 novembre sur les formulaires de
+    Forumactif, et c'est la même famille de piège ici. */
+#modernbb .wm-repertoire__saisie,
+#modernbb .wm-repertoire__menu {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background-color: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-encre, #2e2018);
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-repertoire__saisie:focus-visible,
+#modernbb .wm-repertoire__menu:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 1px;
+}
+
+#modernbb .wm-repertoire__vider {
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background-color: transparent;
+  color: var(--wm-accent-fort, #1f5470);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-repertoire__vider:hover,
+#modernbb .wm-repertoire__vider:focus-visible {
+  background-color: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LE COMPTE EST UNE RÉPONSE. « Aucun personnage ne correspond » doit
+    se distinguer d'une page qui n'a pas compris la demande, et il est
+    aussi annoncé aux lecteurs d'écran — d'où `role="status"` côté
+    module. */
+#modernbb .wm-repertoire__compte {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/* ── 2 · la grille ─────────────────────────────────────────────────
+
+   « On en affiche 3 ou 4 par colonne. »
+
+   `auto-fill` ET PAS `auto-fit` : avec `auto-fit`, trois personnages
+   dans une colonne large s'étaleraient en trois cartes géantes. Les
+   pistes vides gardent à chaque carte la largeur des autres, et c'est
+   ce qu'on veut d'un répertoire qui se remplit peu à peu.
+
+   300 px ET PAS 240. Mesuré le 12 novembre : la colonne large fait
+   1 264 px à 1 440, donc 240 y donnait CINQ cartes par rangée — une
+   de trop, et des cartes trop étroites pour un nom de famille. À 300,
+   la mesure tombe sur quatre, puis trois vers 1 100, deux vers 820,
+   une sur téléphone. Personne n'écrit ces paliers.
+
+   `min(300px, 100%)` PARCE QU'UNE PISTE NE DOIT PAS DÉPASSER L'ÉCRAN :
+   à 390 px, un minimum de 300 plus les marges ferait glisser la page
+   entière sous le doigt. */
+#modernbb .wm-repertoire__grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  margin: 0;
+  gap: var(--wm-espace-16, 16px);
+}
+
+/*  LA GRILLE VIDE GARDE SA PLACE, sinon la page remonte d'un coup
+    sous le curseur quand un filtre ne rend rien. */
+#modernbb .wm-repertoire__grille--vide {
+  min-height: 120px;
+}
+
+/* ── 3 · la carte ──────────────────────────────────────────────────
+
+   LES INFORMATIONS SONT COLLÉES EN BAS, l'espace est au-dessus —
+   c'est la règle posée le 10 novembre pour les cases de pokémon, et
+   elle vaut ici pour la même raison : des cartes de hauteurs
+   différentes dont les trois faits ne tombent pas à la même ligne se
+   lisent une par une au lieu de se comparer. */
+#modernbb .wm-repertoire__carte {
+  display: flex;
+  overflow: hidden;
+  box-sizing: border-box;
+  flex-direction: column;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  ── CACHER UNE CARTE DEMANDE AUTANT DE POIDS QUE L'AFFICHER ──────
+
+    `[hidden]` vaut `display: none` dans la feuille du navigateur, qui
+    pèse (0,0,1) : la règle juste au-dessus, à (1,1,0), gagnait, et
+    une carte filtrée restait à l'écran sous un compteur qui annonçait
+    pourtant deux personnages sur huit. Mesuré le 12 novembre.
+
+    ET ELLE EST ÉCRITE APRÈS, PAS AVANT. Les deux règles pèsent le
+    même poids : c'est l'ordre qui tranche, et posée plus haut dans la
+    feuille elle perdait en silence — ce qui est exactement comment ce
+    défaut a été introduit une première fois. */
+#modernbb .wm-repertoire__carte--filtree {
+  display: none;
+}
+
+/*  ── LE PORTRAIT ──────────────────────────────────────────────────
+
+    3 / 4, et le HAUT de l'image. Un avatar de forum est cadré sur un
+    visage : centré, une image haute se coupe au menton. Même réglage
+    que les affiches de champion, pour la même raison. */
+#modernbb .wm-repertoire__cadre {
+  position: relative;
+  /*  3 / 4 TANT QUE ÇA RESTE RAISONNABLE. Dans une carte de 300 px,
+      le seul ratio donnait 400 px d'image pour 180 de texte : on
+      voyait quatre portraits géants au lieu d'un répertoire. Le
+      plafond borne la colonne large sans toucher au cadrage des
+      colonnes étroites, où l'image est déjà plus petite que lui. */
+  max-height: 280px;
+  aspect-ratio: 3 / 4;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-repertoire__portrait {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/*  Le cadre vide d'un portrait qui n'a pas chargé : le fond douce
+    reste, et rien ne crie. Pas de silhouette inventée. */
+#modernbb .wm-repertoire__portrait--vide {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*  ── LA PASTILLE DE GROUPE ────────────────────────────────────────
+
+    Les six paires de jetons sont déjà définies par `08-annexes` sur
+    `.wm-groupe--<clé>` : la pastille ne fait que les désigner, et une
+    couleur écrite ici resterait claire en thème sombre.
+
+    EN HAUT À DROITE DE L'IMAGE, en `absolute` : dans le flux, elle
+    décalerait le nom d'une carte sur deux selon que le groupe est
+    renseigné ou non. */
+#modernbb .wm-repertoire__groupe {
+  position: absolute;
+  top: var(--wm-espace-8, 8px);
+  right: var(--wm-espace-8, 8px);
+  padding: 3px var(--wm-espace-8, 8px);
+  /*  `margin: 0` N'EST PAS DE L'HYGIÈNE ICI. Un `p` garde sa marge de
+      1 em même en `absolute`, et elle s'AJOUTE au `top` : la pastille
+      tombait à 18 px du haut au lieu de 8. */
+  margin: 0;
+  border-radius: 999px;
+  background: var(--fond-groupe, var(--wm-fond-douce, #f3e1d2));
+  color: var(--texte-groupe, var(--wm-texte-corps, #4e3b30));
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-repertoire__dedans {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px)
+    var(--wm-espace-16, 16px);
+}
+
+/*  LE MÉTIER EST UN SURTITRE : il situe, il ne nomme pas. Le nom
+    reste l'élément le plus fort de la carte — c'est lui qu'on
+    cherche. */
+#modernbb .wm-repertoire__metier {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-repertoire__nom {
+  margin: 2px 0 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wm-repertoire__caractere {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  ── LES TROIS FAITS, COLLÉS EN BAS ───────────────────────────────
+
+    `margin-top: auto` pousse le bloc au bas de la carte quelle que
+    soit la longueur du caractère au-dessus : l'âge, le lieu et
+    l'origine tombent à la même hauteur sur toute une rangée, et se
+    comparent d'un regard. */
+#modernbb .wm-repertoire__faits {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--wm-espace-14, 14px);
+  /*  `auto` EN HAUT, et c'est toute la règle. Elle avait été écrite
+      en commentaire et pas en CSS : les faits suivaient le caractère,
+      donc descendaient de dix-sept pixels sur les cartes dont la
+      phrase tenait en deux lignes, et l'espace restait en BAS de la
+      carte au lieu d'être au-dessus. Mesuré le 12 novembre. */
+  margin: auto 0 0;
+  gap: 3px;
+  list-style: none;
+}
+
+#modernbb .wm-repertoire__fait {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-6, 6px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-repertoire__cle {
+  flex: none;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LE FACECLAIM EST UN NOM DE PERSONNE RÉELLE, et rien d'autre : le
+    répertoire écrit qui c'est, il ne va pas chercher sa photo. Il est
+    donc discret, et séparé des faits du personnage par un filet. */
+#modernbb .wm-repertoire__fc {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb .wm-repertoire__liens {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: var(--wm-espace-10, 10px) 0 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+/*  LE FILET OUVRE LE PIED DE CARTE, et le pied commence où il peut :
+    à la ligne « Avatar · … », ou aux boutons quand le faceclaim n'est
+    pas renseigné. Posé sur le faceclaim seul, il disparaissait avec
+    lui et les boutons se collaient aux trois faits. Le générateur
+    pose la classe sur le premier des deux. */
+#modernbb .wm-repertoire__pied {
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  margin-top: var(--wm-espace-12, 12px);
+}
+
+/*  DEUX BOUTONS SUR UNE LIGNE. « Présentation » et « Fiche de liens »
+    passaient à la ligne dans une carte de 300 px, et le bloc des trois
+    faits au-dessus descendait de dix-sept pixels sur les seules cartes
+    qui avaient leurs deux liens : sur une rangée, les âges ne
+    tombaient plus en face. « Liens » se comprend sous un nom de
+    personnage, et la rangée redevient droite. */
+#modernbb .wm-repertoire__lien {
+  display: inline-block;
+  padding: 4px var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+#modernbb a.wm-repertoire__lien:hover,
+#modernbb a.wm-repertoire__lien:focus-visible {
+  background: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 14%,
+    var(--wm-fond-douce, #f3e1d2));
+}
+
+/*  ── 4 · CE QUI MANQUE SE VOIT ────────────────────────────────────
+
+    La page vide n'est pas une erreur : c'est l'état d'un répertoire
+    qu'on commence. Elle le dit plutôt que de laisser une grille
+    blanche qu'on prendrait pour une panne. */
+#modernbb .wm-repertoire__rien {
+  padding: var(--wm-espace-24, 24px);
+  border: 1px dashed var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  /*  Un seul champ par ligne : trois menus côte à côte sur un
+      téléphone font trois contrôles de 90 px qu'on ne lit plus. */
+  #modernbb .wm-repertoire__champ {
+    flex: 1 1 100%;
+  }
 }
 

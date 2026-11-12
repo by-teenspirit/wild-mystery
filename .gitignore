@@ -36,6 +36,8 @@ templates/*.a-publier.html
 # on ne les garde pas. Ancrées à la racine, pour ne pas toucher `img/`.
 /staff-*.png
 /profil-*.png
+/repertoire-*.png
+/apercu-repertoire-*.png
 
 # python
 __pycache__/

@@ -178,10 +178,15 @@ def lire_le_sommaire():
 #  `jetons.css` (qui vit dans le panneau d'administration mais que
 #  Pages sert aussi, depuis le dépôt), ni la feuille, ni aucun script.
 #  Elle les demande donc en clair.
-TETE = """  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Annexe {numero} · {titre} — Wild Mystery</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+#  LES DEUX MOITIÉS SONT SÉPARÉES POUR QUE LE RÉPERTOIRE LES REPRENNE.
+#  `outils/repertoire.py` écrit une page qui n'est pas une annexe — elle
+#  n'a ni numéro ni sommaire — mais qui charge exactement les mêmes
+#  polices et les mêmes feuilles. Recopiées là-bas, elles seraient un
+#  second endroit à corriger le jour d'un déménagement.
+METAS = """  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />"""
+
+FEUILLES = """  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     rel="stylesheet"
@@ -190,6 +195,14 @@ TETE = """  <meta charset="utf-8" />
   <link rel="stylesheet" href="{pages}/panneau-admin/jetons.css" />
   <link rel="stylesheet" href="{pages}/css/wild-mystery.css" />"""
 
+TETE = (
+    METAS
+    + """
+  <title>Annexe {numero} · {titre} — Wild Mystery</title>
+"""
+    + FEUILLES
+)
+
 #  ── LA BARRE DU HAUT ───────────────────────────────────────────────
 #
 #  « Juste une barre de navigation en haut pour retourner au forum. »
@@ -197,10 +210,15 @@ TETE = """  <meta charset="utf-8" />
 #  connaît, et ça évite une entrée « Accueil » juste à côté qui mènerait
 #  au même endroit. Les trois autres liens sont ceux de la vraie barre,
 #  pour qu'on ne se croie pas ailleurs.
+#
+#  « MEMBRES » ET PLUS « PERSONNAGES » depuis le 10 novembre, comme
+#  dans la barre du forum : le mot « personnages » désigne maintenant
+#  le répertoire, et deux entrées qui portent le même nom pour deux
+#  pages différentes se marchent dessus.
 BARRE = """    <nav class="wm-retour" aria-label="Retour au forum">
       <a class="wm-retour__nom" href="/">Wild Mystery</a>
       <a class="wm-retour__lien" href="/search">Rechercher</a>
-      <a class="wm-retour__lien" href="/memberlist">Personnages</a>
+      <a class="wm-retour__lien" href="/memberlist">Membres</a>
       <a class="wm-retour__lien" href="/privmsg?folder=inbox">Messagerie</a>
     </nav>"""
 
