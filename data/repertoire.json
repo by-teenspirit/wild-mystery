@@ -21,7 +21,7 @@
  },
  "titre": "Répertoire des personnages",
  "surtitre": "Les habitants de Rhode",
- "intro": "Tous les personnages validés du forum, avec de quoi savoir à qui on a affaire avant de proposer un lien. La recherche prend un nom, un métier, un trait de caractère ou un faceclaim ; les menus trient par clan, par statut, par lieu de vie et par région d'origine. La colonne de gauche liste ce qui est déjà pris : les prénoms, les noms de famille, les faceclaims, et les métiers tenus dans chaque lieu.",
+ "intro": "Tous les personnages validés du forum, avec de quoi savoir à qui on a affaire avant de proposer un lien. La recherche prend un nom, un métier, un trait de caractère ou un faceclaim ; les menus trient par clan, par statut, par lieu de vie et par région d'origine.",
  "personnages": [
   {
    "nom": "Arceus",

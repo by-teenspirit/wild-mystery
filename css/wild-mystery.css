@@ -32213,38 +32213,39 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     il pose l'image entière dans le cadre et la laisse plus étroite que
     lui quand elle est haute.
 
-    POURQUOI UNE HAUTEUR ET PAS UN RATIO. Un `aspect-ratio` suit la
-    largeur de la carte : en 3 / 4, une carte de 255 px donnait 340 px
-    d'image, soit quatre portraits géants au-dessus de leur texte. Une
-    hauteur de 200 px ne bouge plus, et c'est la même sur toute une
-    rangée — ce qui aligne les noms.
+    ET IL PREND TOUTE LA LARGEUR, demandé le 12 novembre. La hauteur
+    fixe de 200 px laissait des bandes de fond à gauche et à droite
+    d'un avatar vertical : l'image était entière, mais petite et
+    flottante au milieu de son cadre. En lui donnant la largeur et en
+    laissant la hauteur suivre, elle est entière ET pleine.
 
-    Le fond douce porte les bandes que laisse une image dont les
-    proportions ne sont pas celles du cadre : on voit un portrait posé
-    sur un fond, pas une image mal découpée. */
+    CE QUE ÇA COÛTE, ET POURQUOI ÇA PASSE : deux avatars de
+    proportions différentes ne font plus la même hauteur, donc les
+    noms ne tombent plus en face d'une carte à l'autre. Le bas de
+    carte, lui, reste aligné — les faits sont poussés par
+    `margin-top: auto`, et c'est là que l'œil compare. */
 #modernbb .wm-repertoire__cadre {
   position: relative;
-  height: 200px;
   background: var(--wm-fond-douce, #f3e1d2);
 }
 
 #modernbb .wm-repertoire__portrait {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  /*  `center` et plus `top` : avec `contain` il n'y a plus rien à
-      sauver d'un recadrage, et une image centrée dans ses bandes est
-      posée, pas poussée en haut. */
-  object-position: center;
+  /*  `auto` ET PAS 100% : la hauteur suit la largeur, donc l'image
+      garde ses proportions sans qu'`object-fit` ait à s'en mêler. */
+  height: auto;
 }
 
-/*  Le cadre vide d'un portrait qui n'a pas chargé : le fond douce
-    reste, et rien ne crie. Pas de silhouette inventée. */
+/*  Le cadre vide d'un portrait qui n'a pas chargé, ou d'un personnage
+    qui n'en a pas encore : le fond douce reste, et rien ne crie. Pas
+    de silhouette inventée. Il lui faut une forme, puisqu'il n'y a
+    plus d'image pour en donner une — 3 / 4, le format d'un avatar de
+    forum. */
 #modernbb .wm-repertoire__portrait--vide {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 3 / 4;
 }
 
 /*  ── LA PASTILLE DE GROUPE ────────────────────────────────────────

@@ -47,6 +47,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { readFileSync, writeFileSync } from "node:fs";
+import { deflateSync } from "node:zlib";
 import { chromium } from "npm:playwright@1.56.0";
 
 const CHROME = [
@@ -68,6 +69,49 @@ const PIXEL = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64",
 );
+
+//  ── DEUX VRAIES PROPORTIONS ─────────────────────────────────────
+//
+//  Un pixel carré ne prouve rien sur « l'avatar n'est ni coupé ni
+//  déformé » : tout ratio vaut 1. Il faut une image haute et une image
+//  large, et vérifier que le rapport affiché est celui du fichier.
+//  Deux PNG unis, écrits ici plutôt que posés dans le dépôt : ils ne
+//  servent qu'à cette mesure.
+function png(l, h) {
+  const crc = (b) => {
+    let c = ~0;
+    for (const o of b) {
+      c ^= o;
+      for (let i = 0; i < 8; i++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
+    }
+    return ~c >>> 0;
+  };
+  const bloc = (t, d) => {
+    const e = new TextEncoder().encode(t);
+    const corps = new Uint8Array([...e, ...d]);
+    const taille = new Uint8Array(4);
+    new DataView(taille.buffer).setUint32(0, d.length);
+    const somme = new Uint8Array(4);
+    new DataView(somme.buffer).setUint32(0, crc(corps));
+    return [...taille, ...corps, ...somme];
+  };
+  const ihdr = new Uint8Array(13);
+  const v = new DataView(ihdr.buffer);
+  v.setUint32(0, l);
+  v.setUint32(4, h);
+  ihdr[8] = 8;
+  ihdr[9] = 2;
+  const lignes = [];
+  for (let y = 0; y < h; y++) lignes.push(0, ...new Array(l * 3).fill(140));
+  return Buffer.from([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    ...bloc("IHDR", ihdr),
+    ...bloc("IDAT", new Uint8Array(deflateSync(Buffer.from(lignes)))),
+    ...bloc("IEND", new Uint8Array()),
+  ]);
+}
+const HAUTE = png(60, 100);
+const LARGE = png(140, 50);
 
 // ── les données d'essai ─────────────────────────────────────────────
 //
@@ -227,7 +271,14 @@ async function ouvrir(nav, { avecScript = true, largeur = 1440, theme = undefine
       return r.fulfill({ status: 404, body: "" });
     }
     if (u === MORTE) return r.fulfill({ status: 404, body: "" });
-    if (/\.(png|jpe?g|gif)/.test(u)) return r.fulfill({ contentType: "image/png", body: PIXEL });
+    //  Une carte sur deux reçoit l'image haute, l'autre la large :
+    //  les deux proportions doivent survivre au même CSS.
+    if (/\.(png|jpe?g|gif)/.test(u)) {
+      return r.fulfill({
+        contentType: "image/png",
+        body: u.length % 2 === 0 ? HAUTE : LARGE,
+      });
+    }
     if (/fonts\.(googleapis|gstatic)/.test(u)) return rendre("text/css", "");
     return r.fulfill({ status: 404, body: "" });
   });
@@ -341,9 +392,23 @@ const regarder = () => {
       cadre: (() => {
         const d = c.querySelector(".wm-repertoire__cadre");
         const i = c.querySelector("img.wm-repertoire__portrait");
+        const b = d.getBoundingClientRect();
+        if (i === null) return { large: Math.round(b.width), image: null };
+        const r = i.getBoundingClientRect();
         return {
-          hauteur: Math.round(d.getBoundingClientRect().height),
-          tenue: i === null ? null : getComputedStyle(i).objectFit,
+          large: Math.round(b.width),
+          image: {
+            //  PLEINE LARGEUR : l'image occupe tout le cadre, plus de
+            //  bandes de fond sur les côtés.
+            largeur: Math.round(r.width),
+            //  NI DÉFORMÉE NI COUPÉE : le rapport affiché est celui du
+            //  fichier. C'est la seule mesure qui prouve les deux à la
+            //  fois — `object-fit` ne dit rien de ce qui est peint.
+            ratioAffiche: r.height === 0 ? 0 : +(r.width / r.height).toFixed(2),
+            ratioNaturel: i.naturalHeight === 0
+              ? 0
+              : +(i.naturalWidth / i.naturalHeight).toFixed(2),
+          },
         };
       })(),
       portrait: c.querySelector("img.wm-repertoire__portrait") !== null,
@@ -732,11 +797,17 @@ console.log("\n── la carte ──");
   //  et elle doit être la MÊME partout, sinon les noms ne tombent plus
   //  en face sur une rangée.
   ok(
-    "l'avatar garde ses proportions, dans un cadre de 200 px partout",
+    "l'avatar prend toute la largeur, sans être coupé ni déformé",
     vu.cartes.every((c) =>
-      c.cadre.hauteur === 200 && (c.cadre.tenue === null || c.cadre.tenue === "contain")
+      c.cadre.image === null ||
+      (c.cadre.image.largeur === c.cadre.large &&
+        Math.abs(c.cadre.image.ratioAffiche - c.cadre.image.ratioNaturel) <= 0.02)
     ),
-    [...new Set(vu.cartes.map((c) => `${c.cadre.hauteur}/${c.cadre.tenue}`))],
+    vu.cartes.filter((c) =>
+      c.cadre.image !== null &&
+      (c.cadre.image.largeur !== c.cadre.large ||
+        Math.abs(c.cadre.image.ratioAffiche - c.cadre.image.ratioNaturel) > 0.02)
+    ).map((c) => [c.nom, c.cadre]),
   );
 
   ok(
