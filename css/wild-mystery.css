@@ -11957,6 +11957,43 @@ body:has(#modernbb .wm-carnet) {
   line-height: var(--wm-interligne-section, 1.2);
 }
 
+/*  ── LA BARRE DU SECOND NIVEAU ────────────────────────────────────
+
+    L'annexe 13 porte des onglets DANS un onglet : « Les organisations »
+    contient la Team Ombre, les Fidèles de Michael et le Clan de la
+    Nuit. Le module sait déjà imbriquer deux groupes — il filtre ses
+    sections par `closest` — mais les deux barres sortaient identiques,
+    et on ne voyait plus laquelle commandait l'autre.
+
+    Celle du dedans est donc PLUS PETITE et séparée par un filet : on
+    lit « dans cette page-ci, voici les trois organisations », pas deux
+    rangées de boutons au même rang. Le choisi garde l'accent plein,
+    parce que c'est ce qui dit où on est. */
+#modernbb .wm-sous-onglets--imbriques {
+  padding-top: var(--wm-espace-16, 16px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-sous-onglets--imbriques > .wm-sous-onglets__barre {
+  margin-bottom: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-sous-onglets--imbriques > .wm-sous-onglets__barre .wm-onglet {
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  font-size: var(--wm-taille-etiquette, 10px);
+}
+
+/*  LE PREMIER TITRE D'UNE SECTION IMBRIQUÉE NE LAISSE PAS SA MARGE.
+    `wm-defi__sous-titre` ouvre avec 24 px au-dessus, ce qui creusait
+    un trou entre la barre du second niveau et son contenu — alors que
+    le titre, lui, est masqué : il est devenu le bouton. */
+#modernbb .wm-sous-onglets--posee .wm-sous-onglets--imbriques
+  [data-wm-sous-onglet] > .wm-paras:first-of-type {
+  margin-top: 0;
+}
+
 /*  ── UN CRAN SOUS LE SOUS-TITRE ───────────────────────────────────
 
     Posé le 12 novembre pour l'annexe 13, où une organisation (`h3`)
