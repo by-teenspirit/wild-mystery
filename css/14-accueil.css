@@ -1022,6 +1022,9 @@
 
 #modernbb .wm-accueil__onglet {
   display: block;
+  /*  Il porte la flèche de sa fiche : elle est posée par rapport à
+      LUI, pas à la fiche. */
+  position: relative;
   padding: 0;
   border: 0;
   border-radius: 999px;
@@ -1072,6 +1075,38 @@
   filter: none;
 }
 
+/*  ── LA FLÈCHE APPARTIENT AU PORTRAIT CHOISI ──────────────────────
+
+    Elle était sur la fiche, immobile sous le premier portrait, et le
+    commentaire d'alors disait qu'elle suivre coûterait une position
+    en pixels écrite par le module à chaque clic. C'était faux : il
+    suffit de la poser sur l'ONGLET, où `left: 50%` se mesure sur une
+    pastille de 68 px et tombe donc au bon endroit sans que personne
+    ne le calcule. C'est le sélecteur qui la déplace, pas du script.
+
+    LES NEUF PIXELS. La barre d'onglets a 16 px de marge basse, donc
+    le bord haut de la fiche est à 16 px sous la pastille ; la flèche
+    de 12 px était posée à `-7` de ce bord, donc à 16 − 7 = 9 px sous
+    la pastille. Même dépassement qu'avant, mesuré pareil. Le harnais
+    vérifie les 16 px : s'ils bougeaient un jour, les 9 d'ici
+    mentiraient en silence. */
+#modernbb .wm-accueil__onglet[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  /*  Au-dessus du fond de la fiche, dont elle masque le filet. */
+  z-index: 2;
+  top: calc(100% + 9px);
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-right: 0;
+  border-bottom: 0;
+  margin-left: -6px;
+  background: var(--wm-fond-surface, #fffbf7);
+  transform: rotate(45deg);
+}
+
 /*  LE FOCUS SE VOIT SUR LA PASTILLE, pas sur la boîte du bouton :
     le bouton est rond, son contour par défaut serait carré. */
 #modernbb .wm-accueil__onglet:focus-visible {
@@ -1085,6 +1120,10 @@
 
 /*  ── LA FICHE ─────────────────────────────────────────────────────── */
 
+/*  LE CONTENU EST CENTRÉ, demandé le 12 novembre. `text-align` ne
+    suffit pas : la tête et les personnages sont des conteneurs flex,
+    que l'alignement du texte ne touche pas — ils se centrent avec
+    `justify-content`, et c'est pour ça qu'il en faut les trois. */
 #modernbb .wm-accueil__fiche {
   position: relative;
   box-sizing: border-box;
@@ -1092,27 +1131,7 @@
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-surface, #fffbf7);
-}
-
-/*  LA FLÈCHE POINTE LE PREMIER PORTRAIT, et elle ne bouge pas avec
-    l'onglet choisi : la faire suivre demanderait au module d'écrire
-    une position en pixels à chaque clic, donc de connaître la taille
-    des pastilles et leurs écarts. Elle dit « cette fiche appartient à
-    cette rangée », ce qui est déjà la moitié du travail ; la couleur
-    dit laquelle. */
-#modernbb .wm-accueil__fiche::before {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  top: -7px;
-  left: 29px;
-  width: 12px;
-  height: 12px;
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-right: 0;
-  border-bottom: 0;
-  background: var(--wm-fond-surface, #fffbf7);
-  transform: rotate(45deg);
+  text-align: center;
 }
 
 /*  LE RÔLE EST UN SURTITRE : il situe, il ne nomme pas. Il était en
@@ -1132,6 +1151,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
+  justify-content: center;
   margin-top: 2px;
   gap: var(--wm-espace-8, 8px);
 }
@@ -1193,6 +1213,7 @@
 #modernbb .wm-accueil__fiche-persos {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   margin: 0;
   padding: 0;
   gap: var(--wm-espace-6, 6px);
@@ -1208,6 +1229,15 @@
   font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   text-decoration: none;
+}
+
+/*  UNE ÉTIQUETTE QUI NE CLIQUE PAS N'EST PAS BLEUE. Les quatre admins
+    ont un nom de personnage mais pas encore de profil ; en accent,
+    ces noms promettaient un lien qui n'existe pas. En texte doux, on
+    voit qu'ils arrivent — même choix qu'un lien rapide sans adresse
+    au sommaire des annexes. Le harnais tient les deux ensemble. */
+#modernbb span.wm-accueil__fiche-perso {
+  color: var(--wm-texte-doux, #6e5749);
 }
 
 #modernbb a.wm-accueil__fiche-perso:hover,

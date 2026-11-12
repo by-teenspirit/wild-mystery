@@ -32,6 +32,11 @@ css/99-essai-contraste.css
 apercu-sujet.html
 templates/*.a-publier.html
 
+# Les photos que les harnais rendent avec `--photo` : on les regarde,
+# on ne les garde pas. Ancrées à la racine, pour ne pas toucher `img/`.
+/staff-*.png
+/profil-*.png
+
 # python
 __pycache__/
 *.pyc

@@ -1277,6 +1277,9 @@ const cotes = await p.evaluate((liste) => {
     tags: [...document.querySelectorAll(".wm-accueil__fiche-perso")].map((a) => [
       a.textContent,
       a.getAttribute("href"),
+      //  La couleur : une étiquette qui ne clique pas ne doit pas
+      //  porter l'accent, qui est la marque d'un lien.
+      getComputedStyle(a).color,
     ]),
   };
   const m = r(".wm-accueil__mascotte");
@@ -1444,13 +1447,31 @@ dire(
 //  une » obligerait à inventer une donnée pour faire passer un
 //  contrôle, ce qui est l'inverse de son travail.
 //
-//  LA RÈGLE, ELLE, NE BOUGE PAS : ce qui est écrit mène quelque part.
-//  Et la forme complète reste éprouvée — les données du harnais, plus
-//  haut, montent quatre staffiens dont trois avec personnages.
+//  ── UN NOM SANS COMPTE EST LÉGITIME, UNE FAUSSE ÉTIQUETTE NON ────
+//
+//  12 novembre : « rajoute un personnage par personne, un nom au
+//  hasard, on s'en fiche on corrigera ». Les quatre noms sont donc là
+//  sans adresse de profil — et le contrôle d'avant, qui exigeait un
+//  `href` sur chacun, demandait d'INVENTER quatre URL pour passer au
+//  vert. C'est exactement ce qu'il est censé empêcher.
+//
+//  Ce qu'il garde, c'est le fond du besoin : une étiquette bleue et
+//  grasse annonce un lien, et doit en être un. Un nom pas encore
+//  relié reste affiché — on voit qu'il arrive — mais en texte doux,
+//  comme les liens rapides sans adresse au sommaire des annexes. La
+//  règle tient dans une phrase : la couleur d'accent et le `href`
+//  vont ensemble, ou aucun des deux.
+const accentue = (c) => {
+  const [r, v, b] = (c.match(/[\d.]+/g) ?? []).map(Number);
+  //  L'accent est bleu — plus de bleu que de rouge. Le texte doux est
+  //  brun, donc l'inverse. Pas besoin de connaître le jeton exact.
+  return b > r + 20;
+};
 dire(
-  "les personnages sont des étiquettes, et elles mènent quelque part",
-  cotes.staff.tags.every(([t, h]) =>
-    !t.startsWith("@") && t.trim() !== "" && h !== null && h !== ""
+  "les personnages sont des étiquettes, et le bleu veut dire « ça clique »",
+  cotes.staff.tags.every(([t, h, c]) =>
+    !t.startsWith("@") && t.trim() !== "" &&
+    (h !== null && h !== "") === accentue(c)
   ),
   cotes.staff.tags.length === 0
     ? "aucun personnage renseigné dans le vrai fichier"
@@ -1506,6 +1527,43 @@ const onglets = await p.evaluate(async () => {
 
   const auDepart = { ...etat(), grisPremier: gris(0), grisSecond: gris(1) };
 
+  //  ── LA FLÈCHE ───────────────────────────────────────────────────
+  //
+  //  Elle est posée sur l'ONGLET CHOISI, et pas sur la fiche : la
+  //  vérifier, c'est lire quel bouton porte un `::after` — un seul,
+  //  et c'est celui qui est en couleur. On relève du même coup
+  //  l'ancien `::before` de la fiche, qui doit avoir disparu : les
+  //  deux ensemble feraient deux flèches.
+  const fleches = () => b.map((x) => getComputedStyle(x, "::after").content);
+  const flecheDepart = fleches();
+  const flecheAncienne = getComputedStyle(fiches[0], "::before").content;
+  //  LES SEIZE PIXELS dont la feuille déduit son décalage de 9. Si la
+  //  marge de la barre changeait, la flèche flotterait au-dessus du
+  //  filet ou passerait dessous, et rien ne le dirait.
+  const ecartBarreFiche = Math.round(
+    fiches[0].getBoundingClientRect().top - b[0].getBoundingClientRect().bottom,
+  );
+  //  Le centrage demandé le 12 novembre, sur les trois endroits qu'il
+  //  faut : le texte, et les deux conteneurs flex que `text-align` ne
+  //  touche pas.
+  const centrage = {
+    fiche: getComputedStyle(fiches[0]).textAlign,
+    tete: getComputedStyle(
+      fiches[0].querySelector(".wm-accueil__fiche-tete"),
+    ).justifyContent,
+    persos: getComputedStyle(
+      fiches[0].querySelector(".wm-accueil__fiche-persos"),
+    ).justifyContent,
+  };
+
+  const styleFleche = getComputedStyle(b[0], "::after");
+  const milieuFleche = {
+    //  `left: 50%` + `margin-left: -6px` + la demi-flèche = le milieu
+    //  exact de la pastille, sans que personne ne l'ait calculé.
+    pointe: parseFloat(styleFleche.left) + parseFloat(styleFleche.marginLeft) + 6,
+    milieuPastille: b[0].getBoundingClientRect().width / 2,
+  };
+
   //  ON VISE LE DERNIER, PAS LE TROISIÈME. Ce bloc tourne après que la
   //  page a été reposée avec le VRAI fichier de données, qui ne compte
   //  pas forcément quatre staffiens : un indice écrit en dur plantait
@@ -1515,6 +1573,7 @@ const onglets = await p.evaluate(async () => {
   await dormir(60);
   const apresClic = etat();
   const couleurAuClic = { gris0: gris(0), grisChoisi: gris(dernier) };
+  const flecheApresClic = fleches();
 
   //  Depuis le dernier, la flèche droite doit revenir au premier.
   b[dernier].focus();
@@ -1543,6 +1602,12 @@ const onglets = await p.evaluate(async () => {
     auDepart,
     apresClic,
     couleurAuClic,
+    flecheDepart,
+    flecheApresClic,
+    flecheAncienne,
+    ecartBarreFiche,
+    milieuFleche,
+    centrage,
     apresBoucle,
     apresRetour,
   };
@@ -1563,6 +1628,34 @@ dire(
     onglets.auDepart.grisPremier === "none" &&
     /grayscale\(1\)/.test(onglets.auDepart.grisSecond),
   JSON.stringify(onglets.auDepart),
+);
+//  « Fais en sorte que la petite flèche soit bien sous la bulle du
+//  staffien sélectionné. » UN SEUL `::after`, et sur le bon bouton.
+const porte = (l, i) => l[i] !== "none" && l.filter((c) => c !== "none").length === 1;
+dire(
+  "LES TEXTES DE LA FICHE SONT CENTRÉS, les deux rangées flex comprises",
+  onglets.centrage.fiche === "center" && onglets.centrage.tete === "center" &&
+    onglets.centrage.persos === "center",
+  JSON.stringify(onglets.centrage),
+);
+dire(
+  "LA FLÈCHE EST SOUS LE PORTRAIT CHOISI, et elle le suit au clic",
+  porte(onglets.flecheDepart, 0) &&
+    porte(onglets.flecheApresClic, onglets.dernier) &&
+    onglets.flecheAncienne === "none",
+  JSON.stringify({
+    depart: onglets.flecheDepart,
+    apresClic: onglets.flecheApresClic,
+    surLaFiche: onglets.flecheAncienne,
+  }),
+);
+dire(
+  "et elle tombe au milieu de la pastille, sur le filet de la fiche",
+  onglets.ecartBarreFiche === 16 &&
+    Math.abs(onglets.milieuFleche.pointe - onglets.milieuFleche.milieuPastille) <= 0.5,
+  `écart barre → fiche ${onglets.ecartBarreFiche} px (la feuille en déduit 9), ` +
+    `flèche à ${onglets.milieuFleche.pointe} pour un milieu à ` +
+    `${onglets.milieuFleche.milieuPastille}`,
 );
 dire(
   "AU CLIC, le portrait repasse en couleur et sa fiche paraît",
@@ -1639,6 +1732,30 @@ for (const largeur of [1340, 900, 520, 390]) {
   console.log(
     `       ↳ facteur ${m.echelle}, le corps de texte s'affiche à ${m.corps} px`,
   );
+}
+
+//  ── UNE PHOTO DU BLOC DU STAFF, SUR DEMANDE ──────────────────────
+//
+//  Le bloc est passé en onglets, et une mesure ne dit pas si la
+//  flèche tombe juste à l'œil. `--photo` rend les deux thèmes, le
+//  premier onglet et le dernier, pour qu'on voie la flèche bouger.
+if (Deno.args.includes("--photo")) {
+  await p.setViewportSize({ width: 1280, height: 1400 });
+  const bloc = p.locator(".wm-accueil__staff");
+  for (const theme of ["clair", "sombre"]) {
+    await p.evaluate(
+      (t) => document.body.classList.toggle("wm-sombre", t === "sombre"),
+      theme,
+    );
+    for (const [quoi, i] of [["premier", 0], ["dernier", -1]]) {
+      const b = p.locator(".wm-accueil__onglet");
+      await b.nth(i === -1 ? (await b.count()) - 1 : i).click();
+      await p.waitForTimeout(80);
+      await p.evaluate(() => document.activeElement?.blur());
+      await bloc.screenshot({ path: `${R}staff-${quoi}-${theme}.png` });
+    }
+  }
+  console.log("photos : staff-<premier|dernier>-<theme>.png");
 }
 
 await nav.close();

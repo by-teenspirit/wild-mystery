@@ -128,7 +128,12 @@
    "role": "Admin",
    "profil": "",
    "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
-   "personnages": [],
+   "personnages": [
+    {
+     "texte": "Elijah Springsteen",
+     "url": null
+    }
+   ],
    "presence": "Présent·e"
   },
   {
@@ -136,7 +141,12 @@
    "role": "Admin",
    "profil": "",
    "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
-   "personnages": [],
+   "personnages": [
+    {
+     "texte": "Maeve Calloway",
+     "url": null
+    }
+   ],
    "presence": "Présent·e"
   },
   {
@@ -144,7 +154,12 @@
    "role": "Admin",
    "profil": "",
    "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
-   "personnages": [],
+   "personnages": [
+    {
+     "texte": "Silas Renner",
+     "url": null
+    }
+   ],
    "presence": "Présent·e"
   },
   {
@@ -152,7 +167,12 @@
    "role": "Admin",
    "profil": "",
    "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
-   "personnages": [],
+   "personnages": [
+    {
+     "texte": "Iris Bellamy",
+     "url": null
+    }
+   ],
    "presence": "Présent·e"
   }
  ],
