@@ -335,14 +335,25 @@ Deno.test("LE VRAI FICHIER PORTE SON POKÉMON, ET SES SEPT LIENS RAPIDES", async
   const fichier = await Deno.stat(new URL("../../img/accueil/annexes.png", import.meta.url));
   assert(fichier.size > 1000, "img/accueil/annexes.png est vide ou absent");
 
-  //  SIX LIENS, ET AUCUN TROU. « Questions » était sans adresse depuis
-  //  le 7 octobre faute de page ; /t997 est cette page. Une entrée
-  //  sans adresse s'affiche en gris et ne clique pas — c'est honnête,
-  //  mais ce n'est plus nécessaire ici, et ce test le dit le jour où
-  //  l'une d'elles se vide.
+  //  SEPT LIENS, ET UN SEUL TROU, QUI EST NOMMÉ. « Questions » était
+  //  sans adresse depuis le 7 octobre faute de page ; /t997 est cette
+  //  page, et le test exigeait depuis qu'aucune entrée ne soit vide.
+  //
+  //  LE RÉPERTOIRE DES PERSONNAGES rouvre un trou le 10 novembre, et
+  //  celui-là est voulu : la page n'existe pas encore, l'entrée
+  //  s'affiche en gris et ne clique pas. C'est la convention du
+  //  fichier, et elle vaut mieux qu'un lien vers une page absente.
+  //
+  //  ON NOMME L'EXCEPTION plutôt que de lever la règle : le jour où
+  //  une AUTRE entrée se vide, ce test le dira encore. Et le jour où
+  //  le répertoire existe, il rappellera qu'il faut le brancher ici.
   assertEquals(a.liens.length, 7);
   const creuses = a.liens.filter((l) => l.url === "").map((l) => l.texte);
-  assertEquals(creuses, [], `des liens rapides sans adresse : ${creuses.join(", ")}`);
+  assertEquals(
+    creuses,
+    ["Répertoire des personnages"],
+    `des liens rapides sans adresse : ${creuses.join(", ")}`,
+  );
 });
 
 // ── estVide ─────────────────────────────────────────────────────────

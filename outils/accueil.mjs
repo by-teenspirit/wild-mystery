@@ -78,6 +78,11 @@ const DONNEES = {
       { nom: "Un autre classement", url: "https://vote.test/2" },
     ],
   },
+  //  QUATRE, PARCE QUE C'EST LE CAS QUI A TOUT DÉCLENCHÉ. « Il va
+  //  falloir prévoir 4 personnes du staff sur la PA », 12 novembre :
+  //  un harnais qui n'en monterait qu'un ne verrait jamais la barre
+  //  d'onglets faire son travail, ni la flèche boucler du dernier au
+  //  premier.
   staff: [{
     pseudo: "Teenspirit",
     role: "Fondatrice",
@@ -85,6 +90,30 @@ const DONNEES = {
     avatar: "",
     personnages: ["Elijah Springsteen", "Adam Lockhart"],
     presence: "Présente",
+  }, {
+    pseudo: "Plumyts",
+    role: "Fondatrice",
+    profil: "/u2",
+    avatar: "",
+    personnages: ["Nora Vaughn"],
+    presence: "Présente",
+  }, {
+    pseudo: "Michael",
+    role: "Modérateur",
+    profil: "/u4",
+    avatar: "",
+    //  SANS PERSONNAGE ET SANS PRÉSENCE : la fiche doit tenir debout
+    //  quand il manque des morceaux, et c'est le cas d'un staffien
+    //  qui vient d'arriver.
+    personnages: [],
+    presence: "",
+  }, {
+    pseudo: "Ondine",
+    role: "Modératrice",
+    profil: "",
+    avatar: "",
+    personnages: ["Lise Carvalho", "Tom Abbadie", "Jun Watanabe"],
+    presence: "Absente",
   }],
   actualites: {
     titre: "Actualités",
@@ -297,7 +326,7 @@ const pose = await p.evaluate(() => {
     liens: q(".wm-accueil__rapide"),
     partenaires: q(".wm-accueil__partenaire"),
     votes: q(".wm-accueil__vote"),
-    staff: q(".wm-accueil__membre"),
+    staff: q(".wm-accueil__onglet"),
     actus: q(".wm-news__entree"),
     preliens: q(".wm-accueil__prelien"),
     //  Les sept blocs doivent tenir dans la largeur : c'est la
@@ -310,7 +339,10 @@ dire("le module a remplacé le repli", pose.pose, JSON.stringify(pose));
 dire(
   "LES HUIT BLOCS SONT LÀ",
   pose.decouvrir === 1 && pose.contexte === 1 && pose.liens === 3 &&
-    pose.partenaires === 2 && pose.votes === 2 && pose.staff === 1 &&
+    pose.partenaires === 2 && pose.votes === 2 &&
+    //  UN PORTRAIT PAR STAFFIEN depuis le passage en onglets ;
+    //  c'était un membre empilé, et ils étaient comptés pareil.
+    pose.staff === DONNEES.staff.length &&
     pose.actus === 2 && pose.preliens === 2,
   JSON.stringify(pose),
 );
@@ -1180,7 +1212,10 @@ const cotes = await p.evaluate((liste) => {
   //  s'arrête à 849. Le jour où l'un des deux s'élargit, cette mesure
   //  le dit avant l'écran.
   const votes = r(".wm-accueil__votes");
-  const m0 = document.querySelector(".wm-accueil__membre").getBoundingClientRect();
+  //  LE PREMIER PORTRAIT a remplacé le premier membre le 12 novembre :
+  //  le bloc est passé en onglets, et c'est la rangée de portraits qui
+  //  croise désormais la carte des votes.
+  const m0 = document.querySelector(".wm-accueil__onglet").getBoundingClientRect();
   const croiseEnX = Math.min(votes.right, m0.right) - Math.max(votes.left, m0.left) > 0;
   const sousLesVotes = Math.round(m0.top - votes.bottom);
   const ecarts = {
@@ -1215,8 +1250,8 @@ const cotes = await p.evaluate((liste) => {
   //  ordonnée : le nombre de membres change, le centre non.
   //  Par `r()`, comme tout le reste : dans le repère de la composition
   //  et pas en pixels d'écran.
-  const membres = [...document.querySelectorAll(".wm-accueil__membre")]
-    .map((_, i) => r(`.wm-accueil__membre:nth-of-type(${i + 1})`));
+  const membres = [...document.querySelectorAll(".wm-accueil__onglet")]
+    .map((_, i) => r(`.wm-accueil__onglet:nth-of-type(${i + 1})`));
   const bandeau = r(".wm-accueil__bandeau");
   const staff = {
     //  31 SOUS LE BANDEAU, la cote de la maquette. Ils ont été centrés
@@ -1234,12 +1269,12 @@ const cotes = await p.evaluate((liste) => {
       r(".wm-accueil__actus").top - membres[membres.length - 1].bottom,
     ),
     retraitAvatar: parseFloat(
-      getComputedStyle(document.querySelector(".wm-accueil__membre-avatar")).paddingTop,
+      getComputedStyle(document.querySelector(".wm-accueil__onglet-portrait")).paddingTop,
     ),
     pseudo: parseFloat(
-      getComputedStyle(document.querySelector(".wm-accueil__membre-pseudo")).fontSize,
+      getComputedStyle(document.querySelector(".wm-accueil__fiche-pseudo")).fontSize,
     ),
-    tags: [...document.querySelectorAll(".wm-accueil__tag")].map((a) => [
+    tags: [...document.querySelectorAll(".wm-accueil__fiche-perso")].map((a) => [
       a.textContent,
       a.getAttribute("href"),
     ]),
@@ -1390,10 +1425,25 @@ dire(
   cotes.staff.retraitAvatar === 5 && cotes.staff.pseudo >= 13,
   JSON.stringify(cotes.staff),
 );
+//  LE `@` A DISPARU LE 12 NOVEMBRE, et le contrôle le disait encore.
+//  Il avait été posé le 8 octobre pour une raison précise : les
+//  personnages étaient trois mots gris séparés par un point, et rien
+//  ne laissait deviner qu'on pouvait aller les voir. Le signe faisait
+//  ce travail.
+//
+//  Ils sont maintenant des étiquettes — un fond, un angle, l'encre de
+//  l'accent — et la forme dit ce que le signe disait. Deux marqueurs
+//  pour une seule frontière, c'en est un de trop : c'est le mot pour
+//  mot l'argument qui avait fait retirer le point de séparation.
+//
+//  CE QUI RESTE EXIGÉ est le fond du besoin, et il n'a pas bougé :
+//  chaque personnage mène quelque part.
 dire(
-  "les personnages sont des comptes taggués, et ils mènent quelque part",
+  "les personnages sont des étiquettes, et elles mènent quelque part",
   cotes.staff.tags.length > 0 &&
-    cotes.staff.tags.every(([t, h]) => t.startsWith("@") && h !== null && h !== ""),
+    cotes.staff.tags.every(([t, h]) =>
+      !t.startsWith("@") && t.trim() !== "" && h !== null && h !== ""
+    ),
   JSON.stringify(cotes.staff.tags),
 );
 dire(
@@ -1422,6 +1472,113 @@ dire(
 //  IL MESURE AUSSI LE PRIX, et il l'affiche. Le texte rétrécit avec le
 //  reste : c'est la conséquence directe du choix, elle est connue, et
 //  elle doit rester sous les yeux de qui relira ce harnais.
+// ── LES ONGLETS DU STAFF RÉPONDENT ──────────────────────────────────
+//
+//  C'est le cœur du changement du 12 novembre, et rien dans la mise en
+//  page ne le vérifie : un bloc où les quatre portraits sont là, bien
+//  rangés, et où le clic ne fait rien, passerait tous les contrôles
+//  de cotes au-dessus.
+//
+//  LE CONTRÔLE REVIENT TOUJOURS AU PREMIER à la fin, parce que les
+//  mesures de largeur qui suivent sont prises sur la fiche visible.
+const onglets = await p.evaluate(async () => {
+  const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
+  const bar = document.querySelector(".wm-accueil__staff-onglets");
+  const b = [...document.querySelectorAll(".wm-accueil__onglet")];
+  const fiches = [...document.querySelectorAll(".wm-accueil__fiche")];
+  const gris = (i) =>
+    getComputedStyle(b[i].querySelector(".wm-accueil__onglet-portrait")).filter;
+  const etat = () => ({
+    choisis: b.map((x) => x.getAttribute("aria-selected")),
+    visibles: fiches.map((f) => !f.hidden),
+    arrets: b.map((x) => x.tabIndex),
+  });
+
+  const auDepart = { ...etat(), grisPremier: gris(0), grisSecond: gris(1) };
+
+  //  ON VISE LE DERNIER, PAS LE TROISIÈME. Ce bloc tourne après que la
+  //  page a été reposée avec le VRAI fichier de données, qui ne compte
+  //  pas forcément quatre staffiens : un indice écrit en dur plantait
+  //  le harnais dès que Callista en retirait un.
+  const dernier = b.length - 1;
+  b[dernier].click();
+  await dormir(60);
+  const apresClic = etat();
+  const couleurAuClic = { gris0: gris(0), grisChoisi: gris(dernier) };
+
+  //  Depuis le dernier, la flèche droite doit revenir au premier.
+  b[dernier].focus();
+  b[dernier].dispatchEvent(
+    new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+  );
+  await dormir(60);
+  const apresBoucle = { ...etat(), focus: document.activeElement === b[0] };
+
+  //  Et la flèche gauche depuis le premier repart au dernier.
+  b[0].dispatchEvent(
+    new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }),
+  );
+  await dormir(60);
+  const apresRetour = etat();
+
+  return {
+    combien: b.length,
+    role: bar?.getAttribute("role") ?? null,
+    balises: b.map((x) => x.tagName),
+    nomme: b.every((x) => (x.getAttribute("aria-label") ?? "").trim() !== ""),
+    relie: b.every((x, i) =>
+      x.getAttribute("aria-controls") === fiches[i].id && fiches[i].id !== ""
+    ),
+    dernier,
+    auDepart,
+    apresClic,
+    couleurAuClic,
+    apresBoucle,
+    apresRetour,
+  };
+});
+
+dire(
+  "LA BARRE EST UNE BARRE D'ONGLETS, en boutons et pas en div cliquables",
+  onglets.role === "tablist" && onglets.balises.every((x) => x === "BUTTON") &&
+    onglets.nomme && onglets.relie,
+  JSON.stringify({ role: onglets.role, balises: onglets.balises }),
+);
+dire(
+  "LE PREMIER EST ACTIF AU DÉPART, et lui seul est en couleur",
+  onglets.auDepart.choisis[0] === "true" &&
+    onglets.auDepart.choisis.slice(1).every((x) => x === "false") &&
+    onglets.auDepart.visibles[0] === true &&
+    onglets.auDepart.visibles.slice(1).every((v) => v === false) &&
+    onglets.auDepart.grisPremier === "none" &&
+    /grayscale\(1\)/.test(onglets.auDepart.grisSecond),
+  JSON.stringify(onglets.auDepart),
+);
+dire(
+  "AU CLIC, le portrait repasse en couleur et sa fiche paraît",
+  onglets.apresClic.choisis[onglets.dernier] === "true" &&
+    onglets.apresClic.visibles[onglets.dernier] === true &&
+    onglets.apresClic.visibles.filter(Boolean).length === 1 &&
+    onglets.couleurAuClic.grisChoisi === "none" &&
+    /grayscale\(1\)/.test(onglets.couleurAuClic.gris0),
+  JSON.stringify({ ...onglets.apresClic, ...onglets.couleurAuClic }),
+);
+dire(
+  "LA FLÈCHE DROITE boucle du dernier au premier, focus compris",
+  onglets.apresBoucle.choisis[0] === "true" && onglets.apresBoucle.focus,
+  JSON.stringify(onglets.apresBoucle),
+);
+dire(
+  "et la flèche gauche repart du premier au dernier",
+  onglets.apresRetour.choisis[onglets.dernier] === "true",
+  JSON.stringify(onglets.apresRetour.choisis),
+);
+dire(
+  "UN SEUL ARRÊT DE TABULATION pour toute la barre",
+  onglets.apresRetour.arrets.filter((n) => n === 0).length === 1,
+  JSON.stringify(onglets.apresRetour.arrets),
+);
+
 for (const largeur of [1340, 900, 520, 390]) {
   await p.setViewportSize({ width: largeur, height: 900 });
   await p.waitForTimeout(150);

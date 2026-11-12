@@ -968,75 +968,85 @@
   gap: var(--wm-espace-16, 16px);
 }
 
-/*  LES AVATARS MORDENT LE BANDEAU DE 29 PX. Maquette : le bandeau
-    occupe x = 698 à 797, et la liste des membres commence à 768 — donc
-    29 px par-dessus. C'est voulu, et c'est la seconde chose qui donne
-    son allure au bloc : le premier avatar chevauche le dégradé au lieu
-    de s'aligner sagement à côté.
+/*  ── LE STAFF EN ONGLETS (12 novembre) ────────────────────────────
 
-    Le `z-index` les met devant ; sans lui, le bandeau — qui vient après
-    dans le flux — leur passerait dessus. */
-#modernbb .wm-accueil__staff-liste {
+    « Il va falloir prévoir 4 personnes du staff sur la PA. »
+
+    CE QUI NE TENAIT PAS, ET POURQUOI CE N'ÉTAIT PAS UN PROBLÈME DE
+    RANGEMENT. Entre le haut du bloc et la carte des actualités, qui
+    le chevauche volontairement, il y a 338 px. Un membre empilé en
+    fait 70, l'écart 24 : quatre demandent 352. Quatorze de trop.
+
+    Mais resserrer n'était pas la réponse. Chaque membre portait cinq
+    informations — portrait, pseudo, rôle, personnages, présence —
+    soit vingt pour quatre personnes dans 479 px de large. Deux
+    essais, une colonne resserrée et deux colonnes, ont été refusés :
+    ils ne faisaient que choisir l'endroit où ça déborde.
+
+    LA MAQUETTE DE CALLISTA TRANCHE AUTREMENT : les portraits
+    deviennent des onglets, un membre à la fois. La place cesse
+    d'être le sujet — le bloc tiendrait à six.
+
+    ── L'ACTIF SE RECONNAÎT À SA COULEUR ────────────────────────────
+
+    « Le premier est toujours actif. Les autres sont grisés / noir et
+    blanc. Et au clic, on repasse en couleur, c'est tout. »
+
+    Pas de changement de taille ni de cerclage, donc : la saturation
+    seule. Elle se tient — ce n'est pas une différence de TEINTE, que
+    huit hommes sur cent confondraient, mais de vivacité, qui se voit
+    même en noir et blanc. La flèche de la fiche ajoute quand même un
+    repère géométrique, pour qui regarde de loin ou de biais.
+    ───────────────────────────────────────────────────────────────── */
+
+#modernbb .wm-accueil__staff-dedans {
   position: relative;
   z-index: 1;
   display: flex;
   min-width: 0;
+  /*  LES PORTRAITS MORDENT LE BANDEAU DE 29 PX, comme les avatars de
+      la liste d'avant : c'est le chevauchement de la maquette, et
+      c'est lui qui donne son allure au bloc. */
   margin: 0 0 0 -29px;
-  padding: 0;
+  padding-top: 51px;
   flex: 1 1 auto;
   flex-direction: column;
-  /*  ── ILS SONT REMONTÉS EN HAUT, ET C'EST LA TROISIÈME POSITION ──
-
-      D'abord posés en haut avec 31 px de marge, puis centrés dans le
-      bandeau (« centre bien les deux staffiens »), et maintenant
-      remontés : centrés, le second finissait à 282, exactement là où
-      commence la carte des actualités — les deux se touchaient.
-      « Remonte le staff pour s'éloigner un peu du bloc d'actualités ».
-
-      Le haut du bandeau est la position de la maquette : les membres y
-      sont à y = 72, soit 31 sous le bandeau. On y revient, et les 46 px
-      gagnés sont exactement l'air qui manquait au-dessus des
-      actualités.
-
-      **51 DEPUIS LE 8 OCTOBRE AU SOIR**, réglé par Callista. Le bloc du
-      staff est remonté au niveau du contexte et des liens rapides — sa
-      marge haute est partie —, donc ce sont les membres seuls qui
-      doivent laisser passer la carte des votes. Vingt pixels de plus
-      ici font exactement le travail que la marge faisait sur le bloc
-      entier, sans emmener le bandeau avec eux. */
-  justify-content: flex-start;
-  padding-top: 51px;
-  gap: var(--wm-espace-24, 24px);
-  list-style: none;
 }
 
-/*  Sous 900 px le bandeau se recouche à l'horizontale (feuille §10) :
-    il n'y a plus de bord vertical à mordre, et le retrait négatif
-    rognerait le premier avatar contre le bord de l'écran. */
-
-#modernbb .wm-accueil__membre {
+#modernbb .wm-accueil__staff-onglets {
   display: flex;
-  min-width: 0;
-  align-items: center;
+  flex-wrap: wrap;
+  margin: 0 0 var(--wm-espace-16, 16px);
   gap: var(--wm-espace-12, 12px);
 }
 
-/*  L'avatar : 60 px, cerclé du bleu de la maquette. Le cercle est une
-    bordure et pas une seconde image : il suit le thème. */
-/*  Le cercle de la maquette est un bleu pâle (#96bfd2) qui n'a pas de
-    jeton à lui — et je n'en invente pas un pour une bordure. On le
-    DÉRIVE de l'accent : la nuance est la même en clair, et elle suit le
-    thème en sombre au lieu de rester un bleu de jour. */
-/*  LE MÊME RETRAIT QUE LES BULLES DE PRÉ-LIEN. L'image touchait son
-    filet — « il y a un écart entre l'avatar et la border, comme les
-    pré-liens ». Les bulles posent 5 px entre les deux ; on reprend le
-    chiffre plutôt que d'en inventer un second pour le même geste.
+#modernbb .wm-accueil__onglet {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  /*  Un bouton hérite rarement de la police du document ; sans ça,
+      son `aria-label` n'y change rien mais sa boîte se calcule sur
+      la police du système. */
+  font: inherit;
+  line-height: 0;
+}
 
-    68 ET PLUS 60 : les 60 de la maquette étaient l'image. Lui prendre
-    5 px de chaque côté pour le retrait l'aurait ramenée à 48, et les
-    visages se seraient réduits d'un cinquième. 58 + 2 × 5 = 68 garde
-    l'image à sa taille. */
-#modernbb .wm-accueil__membre-avatar {
+/*  ── LA PASTILLE DU PORTRAIT ──────────────────────────────────────
+
+    Reprise de l'avatar de la liste d'avant, au détail près : 68 px
+    dont 5 de retrait et un filet dérivé de l'accent. Les chiffres
+    viennent de la maquette d'octobre et n'ont pas de raison de
+    changer parce que le bloc change de forme.
+
+    `grayscale(1)` ET PAS `opacity`. Baisser l'opacité délaverait
+    aussi le filet et laisserait voir le dégradé du bandeau au
+    travers ; on veut une photo en noir et blanc, pas une photo
+    transparente. */
+#modernbb .wm-accueil__onglet-portrait {
   display: block;
   overflow: hidden;
   box-sizing: border-box;
@@ -1047,9 +1057,10 @@
   border: 1px solid color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 45%,
     var(--wm-fond-surface, #fffbf7));
   border-radius: 999px;
+  filter: grayscale(1);
 }
 
-#modernbb .wm-accueil__membre-avatar img {
+#modernbb .wm-accueil__onglet-portrait img {
   display: block;
   width: 100%;
   height: 100%;
@@ -1057,98 +1068,154 @@
   object-fit: cover;
 }
 
-#modernbb .wm-accueil__membre-corps {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--wm-espace-8, 8px);
+#modernbb .wm-accueil__onglet[aria-selected="true"] .wm-accueil__onglet-portrait {
+  filter: none;
 }
 
-#modernbb .wm-accueil__membre-tete {
-  display: flex;
+/*  LE FOCUS SE VOIT SUR LA PASTILLE, pas sur la boîte du bouton :
+    le bouton est rond, son contour par défaut serait carré. */
+#modernbb .wm-accueil__onglet:focus-visible {
+  outline: none;
+}
+
+#modernbb .wm-accueil__onglet:focus-visible .wm-accueil__onglet-portrait {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  ── LA FICHE ─────────────────────────────────────────────────────── */
+
+#modernbb .wm-accueil__fiche {
+  position: relative;
+  box-sizing: border-box;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+/*  LA FLÈCHE POINTE LE PREMIER PORTRAIT, et elle ne bouge pas avec
+    l'onglet choisi : la faire suivre demanderait au module d'écrire
+    une position en pixels à chaque clic, donc de connaître la taille
+    des pastilles et leurs écarts. Elle dit « cette fiche appartient à
+    cette rangée », ce qui est déjà la moitié du travail ; la couleur
+    dit laquelle. */
+#modernbb .wm-accueil__fiche::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -7px;
+  left: 29px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-right: 0;
+  border-bottom: 0;
+  background: var(--wm-fond-surface, #fffbf7);
+  transform: rotate(45deg);
+}
+
+/*  LE RÔLE EST UN SURTITRE : il situe, il ne nomme pas. Il était en
+    gras, en bleu et en capitales sous le pseudo, où il pesait presque
+    autant que lui. */
+#modernbb .wm-accueil__fiche-role {
   margin: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--wm-espace-8, 8px);
-}
-
-/*  ── LES TROIS LIGNES MONTENT D'UN CRAN ────────────────────────────
-    « Écrit les textes du staff en plus gros ». Elles tenaient en 11,5
-    et 10 — la taille des légendes —, pour un bloc qui occupe le tiers
-    droit du panneau et qu'on lit de loin. Chacune prend le cran
-    au-dessus dans l'échelle, sans en inventer : 13,5, puis 11,5. */
-#modernbb .wm-accueil__membre-pseudo {
-  color: var(--wm-encre, #2e2018);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-normal, 13.5px);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
-  text-decoration: none;
-}
-
-#modernbb a.wm-accueil__membre-pseudo:hover,
-#modernbb a.wm-accueil__membre-pseudo:focus-visible {
-  text-decoration: underline;
-}
-
-#modernbb .wm-accueil__membre-role {
-  color: var(--wm-accent-primaire, #275e7a);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-  letter-spacing: 0.12px;
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
   text-transform: uppercase;
 }
 
-#modernbb .wm-accueil__membre-personnages {
+#modernbb .wm-accueil__fiche-tete {
   display: flex;
-  margin: 0;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--wm-espace-10, 10px);
-  color: var(--wm-texte-corps, #4e3b30);
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
-  letter-spacing: 0.12px;
+  align-items: baseline;
+  margin-top: 2px;
+  gap: var(--wm-espace-8, 8px);
 }
 
-/*  Le tag d'un compte. Bleu comme tous les liens du bloc depuis le
-    8 octobre, et sans soulignement au repos : deux tags soulignés
-    côte à côte font un trait continu qu'on lit comme un seul mot. */
-#modernbb .wm-accueil__tag {
-  color: var(--wm-accent-primaire, #275e7a);
+#modernbb .wm-accueil__fiche-pseudo {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
   text-decoration: none;
 }
 
-#modernbb a.wm-accueil__tag:hover,
-#modernbb a.wm-accueil__tag:focus-visible {
+#modernbb a.wm-accueil__fiche-pseudo:hover,
+#modernbb a.wm-accueil__fiche-pseudo:focus-visible {
   text-decoration: underline;
 }
 
-/*  Le compte qui n'existe pas encore : même règle que partout ici — le
-    manque se dit dans le `title`, il ne se peint pas. */
-#modernbb .wm-accueil__tag--sans-adresse {
-  color: var(--wm-texte-corps, #4e3b30);
-  cursor: default;
+/*  LA PRÉSENCE EST UN ÉTAT, PAS UNE COMMANDE. C'était la pastille de
+    danger détournée : une bordure, un fond, du texte en capitales
+    d'imprimerie — la forme d'un bouton. Elle était l'élément le plus
+    fort d'une fiche où elle est l'information la moins utile. */
+#modernbb .wm-accueil__fiche-presence {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  gap: 5px;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
 }
 
-/*  Le point de séparation de la maquette. Un pseudo-élément plutôt
-    qu'un caractère : « · » dépend d'une police, et il se lit à voix
-    haute dans certains lecteurs. */
-#modernbb .wm-accueil__point {
-  display: block;
-  width: 4px;
-  height: 4px;
+#modernbb .wm-accueil__fiche-point {
+  width: 6px;
+  height: 6px;
   flex: none;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 45%, var(--wm-fond-surface,
-    #fffbf7));
+  background: var(--wm-palier-1, #3f7d52);
 }
 
-#modernbb .wm-accueil__presence {
-  margin: 0;
+#modernbb .wm-accueil__fiche-intitule {
+  margin: var(--wm-espace-12, 12px) 0 var(--wm-espace-6, 6px);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
 }
+
+/*  LES PERSONNAGES SONT DES COMPTES, ET ÇA DOIT SE VOIR. Deux noms
+    séparés d'un point gris se lisaient comme une légende ; en
+    étiquettes, on sait qu'on peut cliquer. Le `@` d'octobre disparaît
+    avec le besoin qui l'avait fait poser : la forme dit maintenant ce
+    que le signe disait. */
+#modernbb .wm-accueil__fiche-persos {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+#modernbb .wm-accueil__fiche-perso {
+  display: inline-block;
+  padding: 3px var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+#modernbb a.wm-accueil__fiche-perso:hover,
+#modernbb a.wm-accueil__fiche-perso:focus-visible {
+  background: color-mix(in srgb, var(--wm-accent-primaire, #275e7a) 14%,
+    var(--wm-fond-douce, #f3e1d2));
+}
+
 
 /* ── 8 · les actualités ───────────────────────────────────────────── */
 

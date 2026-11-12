@@ -324,6 +324,99 @@ function blocPartenaires(doc: Document, a: Accueil): HTMLElement | null {
   return bloc;
 }
 
+//  ── LE STAFF EN ONGLETS ─────────────────────────────────────────────
+//
+//  « Il va falloir prévoir 4 personnes du staff sur la PA. C'est
+//  faisable ? » — 12 novembre. Mesuré : non, pas en les empilant.
+//  Entre le haut du bloc et la carte des actualités, qui le chevauche
+//  volontairement depuis le 8 octobre, il y a 338 px. Un membre en fait
+//  70, l'écart 24 : quatre demandent 352. Quatorze de trop, et le
+//  quatrième passait sous les actualités.
+//
+//  CE N'ÉTAIT PAS UN PROBLÈME DE RANGEMENT. Chaque membre porte cinq
+//  informations — portrait, pseudo, rôle, personnages, présence — soit
+//  vingt pour quatre personnes dans un bloc de 479 px. Resserrer les
+//  écarts ou passer à deux colonnes ne faisait que choisir l'endroit où
+//  ça déborde ; les deux essais ont été refusés, à juste titre.
+//
+//  LA MAQUETTE DE CALLISTA TRANCHE AUTREMENT : les portraits deviennent
+//  des ONGLETS, et on ne montre qu'un membre à la fois. La place cesse
+//  d'être le sujet — le bloc tiendrait aussi bien à six.
+//
+//  ── CE QUI A ÉTÉ REPRIS DE LA MAQUETTE, ET POURQUOI ────────────────
+//
+//  Quatre portraits cerclés pareil, et une fiche en dessous : rien ne
+//  disait de qui elle parlait. C'est la seule chose qu'un système
+//  d'onglets doit faire. Callista a tranché la forme du signal :
+//  « le premier est toujours actif, les autres sont grisés/noir et
+//  blanc, au clic on repasse en couleur, c'est tout. »
+//
+//  La fiche porte une flèche qui pointe son portrait — un second
+//  repère, celui-là géométrique, pour qui ne distingue pas bien une
+//  photo grise d'une photo en couleur.
+//
+//  DANS LA FICHE, l'ordre a changé : le rôle monte en surtitre (il
+//  situe, il ne nomme pas), le pseudo reste seul titre, la présence
+//  devient un point et un mot à sa suite — c'était une pastille
+//  bordée, donc la forme d'un bouton, et c'était l'élément le plus
+//  fort d'une fiche où il est le moins utile. Les personnages passent
+//  en étiquettes sous un intitulé : ce sont des comptes qu'on peut
+//  aller voir, et deux noms séparés d'un point se lisaient comme une
+//  légende.
+//
+//  ── SANS JAVASCRIPT ────────────────────────────────────────────────
+//
+//  Le repli de `pages/accueil-repli.html` écrit les membres à la
+//  suite, sans onglets. Ce module ne construit la barre que s'il
+//  tourne : il n'y a donc jamais de rangée de portraits qui ne répond
+//  pas au clic.
+function ficheStaff(doc: Document, m: Accueil["staff"][number]): HTMLElement {
+  const fiche = element(doc, "div", "wm-accueil__fiche");
+
+  if (m.role !== "") {
+    fiche.appendChild(element(doc, "p", "wm-accueil__fiche-role", m.role));
+  }
+
+  const tete = element(doc, "div", "wm-accueil__fiche-tete");
+  tete.appendChild(
+    m.profil === ""
+      ? element(doc, "p", "wm-accueil__fiche-pseudo", m.pseudo)
+      : (() => {
+        const lien = doc.createElement("a");
+        lien.className = "wm-accueil__fiche-pseudo";
+        lien.href = m.profil;
+        lien.textContent = m.pseudo;
+        return lien;
+      })(),
+  );
+  if (m.presence !== "") {
+    const etat = element(doc, "p", "wm-accueil__fiche-presence");
+    //  LE POINT EST UN NŒUD VIDE ET CACHÉ AUX LECTEURS D'ÉCRAN. La
+    //  pastille d'avant le dessinait en `::before` ; ici la feuille ne
+    //  peut pas, parce que le mot doit rester aligné sur sa ligne de
+    //  base et le point sur son centre — deux alignements, deux boîtes.
+    const point = element(doc, "span", "wm-accueil__fiche-point");
+    point.setAttribute("aria-hidden", "true");
+    etat.append(point, doc.createTextNode(m.presence));
+    tete.appendChild(etat);
+  }
+  fiche.appendChild(tete);
+
+  if (m.personnages.length > 0) {
+    fiche.appendChild(
+      element(doc, "p", "wm-accueil__fiche-intitule", "Ses personnages"),
+    );
+    const liste = element(doc, "ul", "wm-accueil__fiche-persos");
+    for (const p of m.personnages) {
+      const li = element(doc, "li", "");
+      li.appendChild(lienOuTexte(doc, p, "wm-accueil__fiche-perso"));
+      liste.appendChild(li);
+    }
+    fiche.appendChild(liste);
+  }
+  return fiche;
+}
+
 function blocStaff(doc: Document, a: Accueil): HTMLElement | null {
   if (a.staff.length === 0) return null;
   const bloc = element(doc, "section", "wm-accueil__staff");
@@ -334,70 +427,88 @@ function blocStaff(doc: Document, a: Accueil): HTMLElement | null {
   //  thème sombre, il restait clair — un bloc blanc au milieu d'une
   //  page nuit, repéré par Callista le 7 octobre.
   //
-  //  Il est maintenant peint par la feuille, en jetons. Mêmes deux
-  //  couleurs, mais dérivées : elles se retournent avec le thème, elles
-  //  ne coûtent pas une requête, et il n'y a plus de fichier à tenir à
-  //  jour quand la charte bouge. Le module n'a donc plus rien à poser
-  //  ici — d'où la classe seule.
-  const etiquette = element(doc, "h2", "wm-accueil__titre-cote wm-accueil__bandeau", "Staff");
-  bloc.appendChild(etiquette);
-  const liste = element(doc, "ul", "wm-accueil__staff-liste");
-  for (const m of a.staff) {
-    const li = element(doc, "li", "wm-accueil__membre");
-    li.appendChild(vignette(doc, m.avatar, "wm-accueil__membre-avatar"));
+  //  Il est maintenant peint par la feuille, en jetons.
+  bloc.appendChild(
+    element(doc, "h2", "wm-accueil__titre-cote wm-accueil__bandeau", "Staff"),
+  );
 
-    const corps = element(doc, "div", "wm-accueil__membre-corps");
-    const tete = element(doc, "p", "wm-accueil__membre-tete");
-    const nom = m.profil === ""
-      ? element(doc, "span", "wm-accueil__membre-pseudo", m.pseudo)
-      : (() => {
-        const lien = doc.createElement("a");
-        lien.className = "wm-accueil__membre-pseudo";
-        lien.href = m.profil;
-        lien.textContent = m.pseudo;
-        return lien;
-      })();
-    tete.appendChild(nom);
-    if (m.role !== "") {
-      //  Le point de séparation est décoratif : il ne doit pas être lu.
-      const point = element(doc, "span", "wm-accueil__point");
-      point.setAttribute("aria-hidden", "true");
-      tete.append(point, element(doc, "span", "wm-accueil__membre-role", m.role));
-    }
-    corps.appendChild(tete);
+  const dedans = element(doc, "div", "wm-accueil__staff-dedans");
 
-    //  ── LES PERSONNAGES SONT DES COMPTES, ET ON LES TAGUE ───────────
-    //
-    //  Ils étaient trois mots gris séparés par un point : on lisait le
-    //  nom du personnage sans pouvoir aller le voir. Demandé le
-    //  8 octobre — un `@` et le compte derrière.
-    //
-    //  Le `@` est DANS le lien, parce qu'il en fait partie : posé à
-    //  côté, il resterait seul à la fin d'une ligne quand le nom passe
-    //  à la suivante, et il ne serait pas souligné au survol avec lui.
-    //
-    //  Plus de point de séparation : le `@` sépare déjà, et deux
-    //  marqueurs pour une seule frontière, c'en est un de trop.
-    if (m.personnages.length > 0) {
-      const perso = element(doc, "p", "wm-accueil__membre-personnages");
-      for (const p of m.personnages) {
-        perso.appendChild(lienOuTexte(doc, { ...p, texte: `@${p.texte}` }, "wm-accueil__tag"));
-      }
-      corps.appendChild(perso);
-    }
+  //  ── LA BARRE DE PORTRAITS ────────────────────────────────────────
+  //
+  //  `role="tablist"` et des `<button>`, pas des `<div>` cliquables :
+  //  un bouton se prend au clavier, s'annonce comme actionnable et
+  //  répond à Entrée sans qu'on écrive une ligne pour ça.
+  const barre = element(doc, "div", "wm-accueil__staff-onglets");
+  barre.setAttribute("role", "tablist");
+  barre.setAttribute("aria-label", "Les membres de l'équipe");
 
-    if (m.presence !== "") {
-      //  La pastille de la maquette, qui est le composant « Pastille de
-      //  danger » détourné : même forme, autre propos. On reprend sa
-      //  classe plutôt que d'en dessiner une seconde.
-      //  LE ROND EST UN `::before` DE LA FEUILLE, pas un nœud : on ne
-      //  pose donc que le texte. Lui en ajouter un ferait deux points.
-      corps.appendChild(element(doc, "p", "wm-danger wm-accueil__presence", m.presence));
-    }
-    li.appendChild(corps);
-    liste.appendChild(li);
-  }
-  bloc.appendChild(liste);
+  const fiches: HTMLElement[] = [];
+  const boutons: HTMLButtonElement[] = [];
+
+  a.staff.forEach((m, i) => {
+    const bouton = doc.createElement("button");
+    bouton.type = "button";
+    bouton.className = "wm-accueil__onglet";
+    bouton.setAttribute("role", "tab");
+    bouton.setAttribute("aria-selected", i === 0 ? "true" : "false");
+    //  HORS TABULATION SAUF L'ACTIF : dans une barre d'onglets, Tab
+    //  entre et sort du groupe, et ce sont les flèches qui circulent
+    //  dedans. Quatre arrêts de tabulation pour quatre portraits
+    //  feraient quatre obstacles entre les liens rapides et la suite.
+    bouton.tabIndex = i === 0 ? 0 : -1;
+    //  LE NOM EST SUR LE BOUTON, parce que le portrait est décoratif et
+    //  que sans lui le bouton n'aurait rien à annoncer.
+    bouton.setAttribute("aria-label", m.pseudo);
+    bouton.appendChild(vignette(doc, m.avatar, "wm-accueil__onglet-portrait"));
+    barre.appendChild(bouton);
+    boutons.push(bouton);
+
+    const fiche = ficheStaff(doc, m);
+    fiche.setAttribute("role", "tabpanel");
+    if (i !== 0) fiche.hidden = true;
+    fiches.push(fiche);
+  });
+
+  //  LES IDENTIFIANTS SONT POSÉS APRÈS COUP, et préfixés : la page
+  //  d'accueil vit dans un message de forum, où d'autres blocs peuvent
+  //  déjà employer des identifiants courts.
+  boutons.forEach((b, i) => {
+    b.id = `wm-staff-onglet-${i}`;
+    fiches[i].id = `wm-staff-fiche-${i}`;
+    b.setAttribute("aria-controls", fiches[i].id);
+    fiches[i].setAttribute("aria-labelledby", b.id);
+  });
+
+  const montrer = (n: number) => {
+    boutons.forEach((b, i) => {
+      b.setAttribute("aria-selected", i === n ? "true" : "false");
+      b.tabIndex = i === n ? 0 : -1;
+      fiches[i].hidden = i !== n;
+    });
+  };
+
+  boutons.forEach((b, i) => {
+    b.addEventListener("click", () => montrer(i));
+    b.addEventListener("keydown", (e: KeyboardEvent) => {
+      //  LES FLÈCHES CIRCULENT, ET ELLES BOUCLENT. C'est ce que font
+      //  déjà les sous-onglets des annexes ; deux barres d'onglets sur
+      //  le même forum qui ne répondent pas pareil, c'est une de trop.
+      const pas = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      const bout = e.key === "Home" ? 0 : e.key === "End" ? boutons.length - 1 : -1;
+      if (pas === 0 && bout === -1) return;
+      e.preventDefault();
+      const n = bout !== -1
+        ? bout
+        : (i + pas + boutons.length) % boutons.length;
+      montrer(n);
+      boutons[n].focus();
+    });
+  });
+
+  dedans.appendChild(barre);
+  for (const f of fiches) dedans.appendChild(f);
+  bloc.appendChild(dedans);
   return bloc;
 }
 
