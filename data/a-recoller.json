@@ -118,7 +118,8 @@
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
    "fichier": "pages/annexe-13-allegeance-et-team-ombre.html",
    "empreinte": null,
-   "le": null
+   "le": null,
+   "constat": "12 nov. 2026 : la page était encore le gabarit générique — « Le premier bloc », « Deux cartes côte à côte ». Elle porte maintenant ses trois onglets (La Team Ombre, Les Pokémon Obscurs, Les Allégeances) et leurs quatorze sections, corps en lorem ipsum en attendant le texte. À recoller."
   },
   "defi-t100-ligue-inscription": {
    "quoi": "Ligue · l'inscription",
@@ -220,6 +221,14 @@
    "fichier": "templates/carte-dresseur.compte-de-test.min.html",
    "empreinte": null,
    "le": null
+  },
+  "repertoire": {
+   "quoi": "Le répertoire des personnages",
+   "ou": "Panneau d'administration > Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en MODE AVANCÉ, « Utiliser le header et le footer du forum » = NON",
+   "fichier": "pages/repertoire-des-personnages.html",
+   "empreinte": null,
+   "le": null,
+   "constat": "12 nov. 2026 : page neuve, jamais collée. Une fois créée, reporter son adresse dans data/navigation.json (barre latérale) et data/accueil.json (liens rapides) — les deux entrées « Répertoire des personnages » y attendent sans adresse et s'affichent en gris."
   }
  },
  "_constat": "Un `constat` est une mesure prise À LA MAIN sur le forum, un jour donné. L'outil ne lit pas le forum ; quand quelqu'un l'a fait pour lui, ça se note ici, sinon l'observation meurt dans une conversation."

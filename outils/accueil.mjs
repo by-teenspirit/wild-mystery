@@ -1465,7 +1465,9 @@ dire(
 //  règle tient dans une phrase : la couleur d'accent et le `href`
 //  vont ensemble, ou aucun des deux.
 const accentue = (c) => {
-  const [r, v, b] = (c.match(/[\d.]+/g) ?? []).map(Number);
+  //  Le vert n'entre pas dans la comparaison : on oppose le bleu de
+  //  l'accent au brun du texte doux, et c'est le rouge qui les sépare.
+  const [r, , b] = (c.match(/[\d.]+/g) ?? []).map(Number);
   //  L'accent est bleu — plus de bleu que de rouge. Le texte doux est
   //  brun, donc l'inverse. Pas besoin de connaître le jeton exact.
   return b > r + 20;
