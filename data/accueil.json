@@ -134,7 +134,7 @@
      "url": null
     }
    ],
-   "presence": "Présent·e"
+   "presence": "Présente"
   },
   {
    "pseudo": "Plumyts",
@@ -147,7 +147,7 @@
      "url": null
     }
    ],
-   "presence": "Présent·e"
+   "presence": "Présente"
   },
   {
    "pseudo": "Ekko",
@@ -160,10 +160,10 @@
      "url": null
     }
    ],
-   "presence": "Présent·e"
+   "presence": "Présente"
   },
   {
-   "pseudo": "mangue",
+   "pseudo": "mangue.",
    "role": "Admin",
    "profil": "",
    "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
@@ -173,7 +173,7 @@
      "url": null
     }
    ],
-   "presence": "Présent·e"
+   "presence": "Présente"
   }
  ],
  "actualites": {

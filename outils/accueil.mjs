@@ -1408,9 +1408,12 @@ dire(
 //  Deux pixels de tolérance : le centrage tombe sur un demi-pixel dès
 //  que la hauteur des membres est impaire, et l'arrondi du navigateur
 //  le rend tantôt d'un côté tantôt de l'autre.
+//  TRENTE-ET-UN DEPUIS LE 12 NOVEMBRE, cinquante-et-un avant : la
+//  rangée de portraits remplace la liste empilée d'octobre, et elle
+//  est plus courte — le bloc tombait trop bas dans son bandeau.
 dire(
-  "les membres du staff commencent 51 px sous le bandeau",
-  cotes.staff.sousLeBandeau === 51,
+  "les membres du staff commencent 31 px sous le bandeau",
+  cotes.staff.sousLeBandeau === 31,
   `relevé ${cotes.staff.sousLeBandeau}`,
 );
 dire(

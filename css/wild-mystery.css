@@ -19225,7 +19225,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       la liste d'avant : c'est le chevauchement de la maquette, et
       c'est lui qui donne son allure au bloc. */
   margin: 0 0 0 -29px;
-  padding-top: 51px;
+  padding-top: 31px;
   flex: 1 1 auto;
   flex-direction: column;
 }
