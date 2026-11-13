@@ -1,0 +1,159 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 29 · Les résultats de recherche
+
+   `/search?search_id=unanswered`, `…=newposts`, et toute recherche qui
+   rend une liste de sujets.
+
+   ── LA CONTRAINTE, ET CE QUI LA REND TENABLE ───────────────────────
+
+   « Comment on pourrait faire sans venir toucher aux catégories /
+   liste des forums ? » — 13 novembre.
+
+   Parce que Forumactif marque cette liste-là : elle s'appelle
+   `ul.topiclist.topics.search`, et la classe `search` n'existe ni sur
+   l'index ni sur une page de forum. Tout ce qui suit passe par elle,
+   ou par `.forabg:has(ul.topiclist.search)` quand il faut atteindre un
+   frère. Rien ici ne peut donc tomber sur une catégorie.
+
+   ── LES TROIS DÉFAUTS, RELEVÉS LE 13 NOVEMBRE SUR LA VRAIE PAGE ────
+
+   1. « L'icône à gauche est très loin du titre. » Mesuré : l'icône
+      d'état occupe 135 → 169 px, le titre commence à 235. CENT PIXELS
+      de vide entre les deux. La cause est une addition : `04-forum`
+      réserve 48 px de rembourrage à gauche POUR l'icône, puis ouvre
+      une PREMIÈRE COLONNE de 48 px pour la pastille — qui, sur cette
+      page, mesure zéro. La place est donc comptée deux fois.
+
+   2. « Nous avons des colonnes sujets et vues tout en haut mais ça ne
+      correspond à rien. » Mesuré : l'en-tête vit dans une SECONDE
+      liste, `ul.topiclist.topics` sans `.search`, qui ne contient que
+      lui. Ses quatre colonnes font 998, 0, 56 et 0 px pendant que
+      celles des lignes font 622, 104, 104 et 252 : il n'annonce rien
+      qui tombe en face.
+
+   3. « On a le chiffre tout seul, sans le mot à côté. » `dd.views`
+      porte « 8 », `dd.posts` porte « 0 », et l'en-tête qui les
+      nommait est faux. Les deux reçoivent donc leur étiquette ici.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · l'en-tête qui n'annonce rien ─────────────────────────────── */
+
+/*  IL PART PLUTÔT QU'IL NE SE REDRESSE. L'aligner demanderait de lui
+    refaire la grille des lignes — quatre colonnes, deux rangées, des
+    aires nommées — pour quatre mots qui ne servent qu'à nommer deux
+    chiffres. Ces deux chiffres portent maintenant leur nom chacun sur
+    sa ligne : l'en-tête n'a plus rien à dire. */
+#modernbb .forabg:has(ul.topiclist.search) > ul.topiclist:not(.search) {
+  display: none;
+}
+
+/* ── 2 · l'icône revient contre le titre ──────────────────────────── */
+
+/*  LA COLONNE DE LA PASTILLE TOMBE À ZÉRO. Sur une page de forum elle
+    porte quelque chose ; ici elle mesure zéro et pousse quand même le
+    titre de 48 px, plus les 10 px de gouttière.
+
+    LES 48 PX DE REMBOURRAGE RESTENT : ce sont eux qui réservent la
+    place de l'icône, qui est un `::before` posé en absolu à 6 px du
+    bord et large de 34. Les retirer mettrait l'icône SOUS le texte.
+
+    Les aires sont recopiées telles quelles — les redéfinir est le
+    seul moyen de changer une largeur sans toucher à `04-forum`, qui
+    sert les listes de sujets de tout le forum. */
+#modernbb ul.topiclist.search li.row dl.icon {
+  grid-template-areas:
+    "pastille identite sujets dernier"
+    "pastille identite messages dernier";
+  grid-template-columns: 0 minmax(0, 1fr) auto 252px;
+}
+
+/*  ── ET LES QUARANTE PIXELS DU `dd` ───────────────────────────────
+    Un `dd` porte 40 px de marge à gauche par défaut, et c'est la
+    moitié des cent qu'elle voyait. `04-forum` les retire déjà — mais
+    sous `.wm-forum ul.topics`, un enrobage que cette page n'a pas :
+    les deux corrections étaient écrites et ne l'atteignaient pas.
+
+    C'est la quatrième fois aujourd'hui qu'une marge par défaut de
+    liste coûte une mesure : `ul` deux fois dans le répertoire, `p`
+    sur la pastille de groupe, `dd` ici. */
+#modernbb ul.topiclist.search li.row dd.dterm {
+  margin-left: 0;
+}
+
+/*  L'icône au milieu des 48 px qui lui sont réservés, et plus collée
+    à 6 px du bord : même réglage que la liste d'un forum. */
+#modernbb ul.topiclist.search li.row dl.icon::before {
+  left: 18px;
+}
+
+/* ── 3 · un chiffre sans son mot ne dit rien ──────────────────────── */
+
+/*  L'ÉTIQUETTE EST AVANT LE CHIFFRE, en petites capitales : c'est le
+    motif des faits d'une carte du répertoire, et il règle au passage
+    le pluriel — « Réponses 1 » se lit, là où « 1 réponses » serait
+    faux et où le CSS ne sait pas accorder.
+
+    `dd.views` PORTE LES VUES ET `dd.posts` LES RÉPONSES, dans cet
+    ordre d'affichage : relevé, pas deviné — les classes de Forumactif
+    ne disent pas ce qu'on croit, et la grille les empile à l'envers
+    de leur ordre dans le balisage. */
+/*  ON N'HABILLE QUE L'ÉTIQUETTE. Les deux chiffres sont déjà traités
+    par `03-index` — `ul.topiclist li.row dd.posts`, sans enrobage, donc
+    cette page aussi : terre, Fraunces, en ligne de base, collés au
+    joint des deux rangées. Ils n'ont pas besoin de nous ; redéclarer
+    leur couleur et leur taille ici n'aurait fait qu'ouvrir deux
+    réglages de plus à tenir d'accord avec le reste du forum. */
+#modernbb ul.topiclist.search li.row dd.posts,
+#modernbb ul.topiclist.search li.row dd.views {
+  /*  « Réponses 12 » sur deux lignes serait pire que le chiffre seul. */
+  white-space: nowrap;
+}
+
+#modernbb ul.topiclist.search li.row dd.posts::before,
+#modernbb ul.topiclist.search li.row dd.views::before {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+#modernbb ul.topiclist.search li.row dd.posts::before {
+  content: "Réponses";
+}
+
+#modernbb ul.topiclist.search li.row dd.views::before {
+  content: "Vues";
+}
+
+/* ── 4 · le titre ─────────────────────────────────────────────────── */
+
+/*  Il sortait en Roboto 14, la police de ModernBB : la liste des
+    sujets d'un forum l'habille, cette page-ci n'était couverte par
+    rien. */
+#modernbb ul.topiclist.search li.row .topic-title {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+@media (max-width: 760px) {
+  /*  Les deux chiffres et leur étiquette passent sous le titre plutôt
+      que de lui prendre sa largeur. */
+  #modernbb ul.topiclist.search li.row dl.icon {
+    grid-template-areas:
+      "pastille identite"
+      "pastille sujets"
+      "pastille messages"
+      "pastille dernier";
+    grid-template-columns: 0 minmax(0, 1fr);
+  }
+
+  #modernbb ul.topiclist.search li.row dd.posts,
+  #modernbb ul.topiclist.search li.row dd.views {
+    justify-content: flex-start;
+  }
+}

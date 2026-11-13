@@ -57,7 +57,8 @@
     "recoller": "python3 outils/recoller.py",
     "champions": "python3 outils/champions.py && deno run -A outils/champions.mjs",
     "repertoire": "deno run -A outils/repertoire.mjs",
-    "statistiques": "deno run -A outils/statistiques.mjs"
+    "statistiques": "deno run -A outils/statistiques.mjs",
+    "recherche": "deno run -A outils/recherche.mjs"
   },
   "fmt": {
     "include": [

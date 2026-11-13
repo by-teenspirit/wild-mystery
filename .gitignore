@@ -39,6 +39,7 @@ templates/*.a-publier.html
 /profil-*.png
 /repertoire-*.png
 /apercu-repertoire-*.png
+/recherche-*.png
 
 # python
 __pycache__/
