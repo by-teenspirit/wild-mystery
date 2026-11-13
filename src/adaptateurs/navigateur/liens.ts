@@ -30,6 +30,7 @@
 
 import type { ConfigSupabase } from "./registre.ts";
 import { appelerAvecLeJeton } from "./auth-supabase.ts";
+import { adresseDuSujet } from "../../navigateur/tableau-des-rp.ts";
 
 export type Lien = {
   cible_forum_id: number;
@@ -136,7 +137,7 @@ export function poserLesLiens(r: ReglagesLiens): boolean {
     publier.textContent = motDuBouton(etat);
     const sujet = etat === null ? null : etat.sujetId;
     voir.hidden = sujet === null;
-    if (sujet !== null) voir.href = `/t${sujet}`;
+    if (sujet !== null) voir.href = adresseDuSujet(sujet);
     etatSous.textContent = etat === null || etat.publieLe === null
       ? "Le bouton copie le texte et ouvre le formulaire du forum. C'est toi qui envoies."
       : `Publiée le ${new Date(etat.publieLe).toLocaleDateString("fr-FR")}. ` +

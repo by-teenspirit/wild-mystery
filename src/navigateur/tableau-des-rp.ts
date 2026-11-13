@@ -102,3 +102,32 @@ export function sujetDeLAdresse(dit: string): number | null {
   const m = /(?:^|\/)t(\d+)(?:p\d+)?(?:[-?#]|$)/i.exec(propre);
   return m === null ? null : Number(m[1]);
 }
+
+/** L'adresse d'un sujet sur le forum, éventuellement sur un message.
+ *
+ *  ── LE TIRET N'EST PAS DÉCORATIF ──────────────────────────────────
+ *
+ *  « Quand je veux aller sur le sujet en cliquant dessus, je suis sur
+ *  une 404 », 13 novembre, sur `/t996`. Mesuré sur le forum le même
+ *  jour :
+ *
+ *      /t996          → 404, « Page not found »
+ *      /t996-         → 200, redirigé vers /t996-test
+ *      /viewtopic?t=996 → 200, pareil
+ *
+ *  Forumactif attend le titre après le numéro ; le tiret seul suffit à
+ *  le lui faire compléter. Le code serveur l'écrivait depuis toujours
+ *  (`lecture.ts`, `publication.ts`), le code du navigateur l'oubliait
+ *  aux quatre endroits qui fabriquaient l'adresse à la main. D'où
+ *  cette fonction : une seule façon d'écrire une adresse de sujet.
+ *
+ *  ── ET L'ANCRE EST UN NOMBRE NU ───────────────────────────────────
+ *
+ *  Mesuré aussi : un message porte DEUX ancres, `15582` et `p15582`.
+ *  Le forum lie vers la première — `/t996-test#15570` — et elle
+ *  traverse la redirection, que le navigateur suit en gardant le
+ *  fragment. On écrit donc le nombre nu, comme le forum. */
+export function adresseDuSujet(sujetId: number, messageId?: number | null): string {
+  const base = `/t${sujetId}-`;
+  return messageId === null || messageId === undefined ? base : `${base}#${messageId}`;
+}

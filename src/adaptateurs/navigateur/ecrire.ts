@@ -30,6 +30,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type { ConfigSupabase } from "./registre.ts";
+import { adresseDuSujet } from "../../navigateur/tableau-des-rp.ts";
 import {
   adresseDuFormulaire,
   commencerUneSession,
@@ -182,7 +183,7 @@ export async function dernierMessageDuSujet(
   demander: (a: string) => Promise<string> = (a) =>
     fetch(a, { credentials: "same-origin" }).then((x) => x.text()),
 ): Promise<string | null> {
-  const code = await demander(`/t${sujetId}`).catch(() => null);
+  const code = await demander(adresseDuSujet(sujetId)).catch(() => null);
   if (code === null) return null;
   return dernierMessageDansLaPage(code);
 }

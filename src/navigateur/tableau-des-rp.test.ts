@@ -4,6 +4,7 @@ import {
   garderLesRp,
   type LigneDeRp,
   rangerLesRp,
+  adresseDuSujet,
   sujetDeLAdresse,
 } from "./tableau-des-rp.ts";
 
@@ -104,4 +105,24 @@ Deno.test("et ce qui n'est pas une adresse de sujet rend null", () => {
   assertEquals(sujetDeLAdresse("https://mysteryinrhode.forumactif.com/f36-steppes"), null);
   assertEquals(sujetDeLAdresse("un café, deux silences"), null);
   assertEquals(sujetDeLAdresse("0"), null);
+});
+
+Deno.test("LE TIRET N'EST PAS DÉCORATIF — sans lui, le forum rend 404", () => {
+  //  Mesuré sur le forum le 13 novembre : `/t996` rend « 404 - Page
+  //  not found », `/t996-` rend le sujet et redirige vers
+  //  `/t996-test`. C'est ce tiret qui manquait aux quatre endroits qui
+  //  fabriquaient l'adresse à la main.
+  assertEquals(adresseDuSujet(996), "/t996-");
+  assertEquals(adresseDuSujet(996).endsWith("-"), true);
+});
+
+Deno.test("et l'ancre d'un message est un nombre nu, comme celles du forum", () => {
+  //  Un message porte DEUX ancres, `15582` et `p15582` ; le forum lie
+  //  vers la première (`/t996-test#15570`), et le fragment traverse la
+  //  redirection.
+  assertEquals(adresseDuSujet(996, 15582), "/t996-#15582");
+  //  Sans dernier message connu — un RP prévu — on va en tête de sujet,
+  //  et surtout pas sur `#null`.
+  assertEquals(adresseDuSujet(996, null), "/t996-");
+  assertEquals(adresseDuSujet(996, undefined), "/t996-");
 });

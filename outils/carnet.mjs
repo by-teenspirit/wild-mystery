@@ -1334,7 +1334,7 @@ const PUBLIEE_ET_CHANGEE = {
   dire(
     "UNE FICHE MODIFIÉE DEPUIS LE DIT, ET PROPOSE LA MISE À JOUR",
     /a changé depuis/.test(vu.etat ?? "") && vu.bouton === "Mettre à jour ma fiche" &&
-      vu.lien === "/t1500",
+      vu.lien === "/t1500-",
     JSON.stringify(vu),
   );
   await q.close();
@@ -1514,7 +1514,7 @@ const PUBLIEE_ET_CHANGEE = {
   dire(
     "LE DÉTAIL DIT LE NIVEAU, LA SCÈNE, ET CE QUE LE BOUTON VA FAIRE",
     vu.nom === "EnBoite" && vu.bouton === "Mettre dans l'équipe →" &&
-      vu.scene === "/t36" && /place est libre/.test(vu.dit ?? ""),
+      vu.scene === "/t36-" && /place est libre/.test(vu.dit ?? ""),
     JSON.stringify(vu),
   );
   await q.close();
@@ -1608,8 +1608,31 @@ const RP = [
     "« À MOI » SE CALCULE DEPUIS LE DERNIER AUTEUR, ET CE QU'ELLE A POSÉ PASSE AVANT",
     vu.etats[0] === "à l'autre" && vu.etats[1] === "à moi d'écrire" &&
       vu.etats[2] === "prévu" && /1 où c'est à toi/.test(vu.compte ?? "") &&
-      vu.liens[1] === "/t996#15582",
+      vu.liens[1] === "/t996-#15582",
     JSON.stringify(vu),
+  );
+  await q.close();
+}
+
+{
+  //  LE TIRET N'EST PAS DÉCORATIF, et ce contrôle existe parce que
+  //  celui d'au-dessus affirmait « /t996#15582 » : il GRAVAIT le
+  //  défaut. Mesuré sur le forum le 13 novembre, `/t996` rend « 404 -
+  //  Page not found » et `/t996-` rend le sujet.
+  //
+  //  On ne vérifie donc pas une chaîne attendue, qu'on peut recopier
+  //  de travers, mais LA RÈGLE : toute adresse de sujet porte son
+  //  tiret, avec ou sans ancre.
+  const { q } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  const adresses = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-rp__titre")].map((a) => a.getAttribute("href"))
+  );
+  dire(
+    "AUCUN LIEN DE SUJET NE PART SANS SON TIRET — sinon le forum rend 404",
+    adresses.length > 0 && adresses.every((h) => /^\/t\d+-(#\d+)?$/.test(h ?? "")),
+    JSON.stringify(adresses),
   );
   await q.close();
 }

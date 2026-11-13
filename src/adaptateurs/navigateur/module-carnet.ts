@@ -31,6 +31,7 @@
 //  l'ancienne, c'est la seule façon de révoquer.
 // ════════════════════════════════════════════════════════════════════
 import { adresseDuSprite } from "./module-faune.ts";
+import { adresseDuSujet } from "../../navigateur/tableau-des-rp.ts";
 import { Sprites, type StyleDeSprite } from "../../navigateur/sprites.ts";
 import {
   type Arene,
@@ -756,7 +757,7 @@ export function poserMesBoites(
       const ligne = el(doc, "div");
       const dd = el(doc, "dd");
       const a = el(doc, "a", undefined, "la scène");
-      a.href = `/t${p.captureDans}`;
+      a.href = adresseDuSujet(p.captureDans);
       dd.append(a);
       ligne.append(el(doc, "dt", undefined, "Dans"), dd);
       faits.append(ligne);

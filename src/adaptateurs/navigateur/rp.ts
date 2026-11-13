@@ -13,6 +13,7 @@
 
 import type { ConfigSupabase } from "./registre.ts";
 import {
+  adresseDuSujet,
   etatVu,
   garderLesRp,
   type LigneDeRp,
@@ -212,9 +213,7 @@ export function poserLesRp(r: ReglagesRp): boolean {
       //  LE LIEN VA AU DERNIER MESSAGE quand on le connaît : relire la
       //  première page d'un RP de quarante réponses pour retrouver où
       //  on en était, c'est le geste qu'on vient éviter.
-      titre.href = l.dernierMessage === null
-        ? `/t${l.sujetId}`
-        : `/t${l.sujetId}#${l.dernierMessage}`;
+      titre.href = adresseDuSujet(l.sujetId, l.dernierMessage);
       const lieu = doc.createElement("span");
       lieu.className = "wm-rp__lieu";
       lieu.textContent = l.forumNom === ""
