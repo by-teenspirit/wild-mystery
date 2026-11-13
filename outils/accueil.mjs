@@ -1821,6 +1821,28 @@ const selection = await p.evaluate(() => {
     return c;
   };
   const fonds = ["--wm-fond-surface", "--wm-fond-page", "--wm-fond-douce", "--wm-fond-terre"];
+
+  //  ── ET DANS UN CHAMP, qui était le cas qu'elle décrivait ────────
+  //
+  //  « Quand je sélectionne par exemple "Arceus" pour modifier quelque
+  //  chose » : c'est le champ Pseudo de `profile?mode=editprofile`, pas
+  //  du texte courant. Or `#modernbb *` rend le PREMIER descendant,
+  //  un `div` — le commentaire d'à côté disait « y compris dans un
+  //  champ blanc » sans qu'aucun champ ait jamais été mesuré.
+  //
+  //  Un champ n'hérite pas forcément : le navigateur dessine sa
+  //  sélection lui-même, et une feuille de Forumactif peut viser
+  //  `input::selection` de son côté. Donc on POSE un champ dans
+  //  `#modernbb` et on lit le sien.
+  const dansLeChamp = (balise) => {
+    const e = document.createElement(balise);
+    document.querySelector("#modernbb").appendChild(e);
+    const s = getComputedStyle(e, "::selection");
+    const r = { bande: s.backgroundColor, encre: s.color };
+    e.remove();
+    return r;
+  };
+
   return {
     bande: sel.backgroundColor,
     encre: sel.color,
@@ -1828,6 +1850,17 @@ const selection = await p.evaluate(() => {
       fonds.map((j) => [j.replace("--wm-fond-", ""), ratio(sel.backgroundColor, temoin(j))]),
     ),
     texteSurLaBande: ratio(sel.color, sel.backgroundColor),
+    champs: Object.fromEntries(
+      ["input", "textarea", "select"].map((b) => {
+        const c = dansLeChamp(b);
+        return [b, {
+          ...c,
+          commeAilleurs: c.bande === sel.backgroundColor && c.encre === sel.color,
+          surLeBlanc: ratio(c.bande, "rgb(255, 255, 255)"),
+          texteSurLaBande: ratio(c.encre, c.bande),
+        }];
+      }),
+    ),
   };
 });
 dire(
@@ -1839,6 +1872,23 @@ dire(
   "et le texte se lit dessus",
   selection.texteSurLaBande >= 4.5,
   String(selection.texteSurLaBande),
+);
+//  LE CAS QU'ELLE DÉCRIVAIT : un champ de formulaire, pas du texte
+//  courant. Le fond d'un champ est blanc chez Forumactif, et c'est le
+//  contraste le plus dur de la charte pour notre bleu.
+dire(
+  "ET DANS UN CHAMP AUSSI — c'était son cas, le pseudo dans le profil",
+  Object.values(selection.champs).every((c) => c.commeAilleurs),
+  JSON.stringify(Object.fromEntries(
+    Object.entries(selection.champs).map(([b, c]) => [b, c.bande]),
+  )),
+);
+dire(
+  "et la bande s'y détache du blanc du champ",
+  Object.values(selection.champs).every((c) => c.surLeBlanc >= 3 && c.texteSurLaBande >= 4.5),
+  JSON.stringify(Object.fromEntries(
+    Object.entries(selection.champs).map(([b, c]) => [b, [c.surLeBlanc, c.texteSurLaBande]]),
+  )),
 );
 
 await nav.close();
