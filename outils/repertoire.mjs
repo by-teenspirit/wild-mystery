@@ -233,6 +233,14 @@ if (!sortieGen.success) {
   Deno.exit(1);
 }
 const PAGE = readFileSync(`${DOSSIER}/page.html`, "utf8");
+//  CE QUI EST COLLÉ, gardé TOUT DE SUITE : le générateur sera rappelé
+//  plus bas pour fabriquer la version du lendemain, et il écrase ce
+//  fichier. Lu trop tard, « les bottins déjà collés » étaient en fait
+//  ceux de demain — et le contrôle qui s'appuyait dessus passait au
+//  vert en éprouvant autre chose que ce qu'il annonçait.
+const CONTENU_COLLE = JSON.parse(
+  readFileSync(`${DOSSIER}/repertoire-contenu.json`, "utf8"),
+);
 
 let passes = 0;
 const soucis = [];
@@ -246,12 +254,32 @@ function ok(quoi, vrai, detail) {
   }
 }
 
-async function ouvrir(nav, { avecScript = true, largeur = 1440, theme = undefined } = {}) {
+async function ouvrir(
+  nav,
+  { avecScript = true, largeur = 1440, theme = undefined, servi = undefined } = {},
+) {
   const p = await nav.newPage({
     viewport: { width: largeur, height: 1000 },
     ...(theme === undefined ? {} : { colorScheme: theme }),
   });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
+
+  //  UN TÉMOIN QUI COMPTE LES REMPLACEMENTS. L'empreinte sert à ne pas
+  //  refaire une colonne qui n'a pas changé ; son effet est invisible
+  //  dans la page finale — même nombre de barres, même contenu — donc
+  //  on l'observe à la source, au moment où le nœud est retiré.
+  await p.addInitScript(() => {
+    globalThis.__remplaces = [];
+    new MutationObserver((lots) => {
+      for (const lot of lots) {
+        for (const n of lot.removedNodes) {
+          if (n.nodeType !== 1) continue;
+          if (n.matches?.(".wm-bottins")) globalThis.__remplaces.push("bottins");
+          if (n.matches?.("[data-wm-repertoire]")) globalThis.__remplaces.push("grille");
+        }
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
 
   await p.route("**/*", (r) => {
     const u = r.request().url();
@@ -261,6 +289,21 @@ async function ouvrir(nav, { avecScript = true, largeur = 1440, theme = undefine
     if (/wild-mystery\.css$/.test(u)) return rendre("text/css", lire("css/wild-mystery.css"));
     if (/\/js\/annexes\.js$/.test(u)) {
       return rendre("text/javascript", avecScript ? lire("js/annexes.js") : "");
+    }
+    //  ── CE QUE PAGES SERT ──────────────────────────────────────
+    //
+    //  `servi` est ce que le fichier `repertoire-contenu.json` rend :
+    //  le contenu frais, un contenu abîmé, ou rien du tout quand on
+    //  veut éprouver la page hors réseau.
+    if (/repertoire-contenu\.json$/.test(u)) {
+      if (servi === undefined) {
+        return rendre(
+          "application/json",
+          readFileSync(`${DOSSIER}/repertoire-contenu.json`, "utf8"),
+        );
+      }
+      if (servi === null) return r.fulfill({ status: 503, body: "" });
+      return rendre("application/json", JSON.stringify(servi));
     }
     //  Le fichier du sommaire : la page n'a pas de `[data-wm-sommaire]`,
     //  donc le paquet ne devrait même pas le demander. S'il le
@@ -730,6 +773,150 @@ console.log("\n── les bottins ──");
       apres.lieux.length === lieux.length,
     apres.sections,
   );
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  3 ter · LA PAGE SE MET À JOUR SANS ÊTRE RECOLLÉE
+// ════════════════════════════════════════════════════════════════════
+//
+//  « On pourrait avoir plusieurs personnes à valider par semaine. » Le
+//  même contenu est servi par Pages, et le script le pose au
+//  chargement. Ce qu'on éprouve ici, c'est les TROIS cas — le contenu
+//  frais arrive, le réseau se tait, le fichier est abîmé — parce que
+//  les deux derniers sont ceux qui transforment une commodité en page
+//  blanche.
+console.log("\n── la mise à jour sans recollage ──");
+{
+  //  Un personnage de plus, généré par le MÊME outil : c'est ce que
+  //  Pages servirait le lendemain d'une validation.
+  const demain = {
+    ...ESSAI,
+    personnages: [...ESSAI.personnages, {
+      nom: "Nouvelle Venue",
+      groupe: "doux",
+      metier: "Apicultrice",
+      caractere: "Arrivée hier.",
+      lieu: "Lumirandé",
+      age: "22 ans",
+      origine: "Hoenn",
+      faceclaim: "Zendaya",
+      liens: "",
+      presentation: "",
+      avatar: "",
+      statut: "Célibataire",
+      profil: "/u999",
+    }],
+  };
+  writeFileSync(`${DOSSIER}/demain.json`, JSON.stringify(demain), "utf8");
+  const g = await new Deno.Command("python3", {
+    args: [`${R}outils/repertoire.py`, "--donnees", `${DOSSIER}/demain.json`,
+      "--sortie", `${DOSSIER}/demain.html`],
+    stdout: "piped",
+    stderr: "piped",
+  }).output();
+  ok("l'outil écrit le contenu à servir à côté de la page", g.success);
+  const frais = JSON.parse(readFileSync(`${DOSSIER}/repertoire-contenu.json`, "utf8"));
+  ok(
+    "et ce contenu est bien celui du lendemain, pas celui qu'on a collé",
+    frais.grille !== CONTENU_COLLE.grille && frais.bottins !== CONTENU_COLLE.bottins,
+  );
+
+  const q = await ouvrir(nav, { servi: frais });
+  await q.waitForTimeout(400);
+  const vu = await q.evaluate(regarder);
+  const b2 = await q.evaluate(regarderLesBottins);
+  ok(
+    "la page collée affiche le personnage validé depuis, sans avoir été recollée",
+    vu.cartes.some((c) => c.nom === "Nouvelle Venue") &&
+      vu.cartes.length === TOUS.length + 1,
+    { cartes: vu.cartes.length, attendu: TOUS.length + 1 },
+  );
+  //  LA BARRE EST POSÉE SUR LE CONTENU FRAIS, pas sur l'ancien : si
+  //  elle arrivait avant, « Hoenn » ne serait pas au menu et le
+  //  compteur annoncerait un personnage de moins.
+  ok(
+    "ses valeurs entrent dans les menus et dans le compte",
+    vu.menus[2].choix.includes("Hoenn") &&
+      vu.annonce === `${TOUS.length + 1} personnages`,
+    { origines: vu.menus[2].choix, annonce: vu.annonce },
+  );
+  //  ET LES BOTTINS SUIVENT, avec leurs onglets reposés : une colonne
+  //  remplacée les perd, et sans la garde de `poserLesSousOnglets`
+  //  elle en prendrait deux.
+  ok(
+    "les bottins sont refaits, et n'ont qu'une seule barre d'onglets",
+    b2.listes.prenoms.some(([x]) => x === "Nouvelle") &&
+      b2.onglets.length === 4 &&
+      await q.evaluate(() =>
+        document.querySelectorAll(".wm-bottins .wm-sous-onglets__barre").length
+      ) === 1,
+    { onglets: b2.onglets.map((o) => o.mot) },
+  );
+  await q.close();
+}
+{
+  //  ── LE CAS QUI JUSTIFIE LA GARDE ─────────────────────────────
+  //
+  //  Seule la GRILLE change ; les bottins servis sont ceux déjà
+  //  collés. `remplacerLeRepertoire` rend donc vrai — il a remplacé
+  //  quelque chose — et `poserLesSousOnglets` est rappelé sur une
+  //  colonne qui porte DÉJÀ sa barre. Sans la garde qui saute les
+  //  groupes posés, elle en prend une seconde par-dessus.
+  //  La grille change ET son empreinte avec, comme le ferait le vrai
+  //  générateur ; les bottins gardent la leur, donc ils ne bougent pas.
+  const q = await ouvrir(nav, {
+    servi: {
+      grille: CONTENU_COLLE.grille
+        .replace("Ana Vasquez", "Ana Renommée")
+        .replace(/data-wm-empreinte="[a-f0-9]+"/, 'data-wm-empreinte="000000000000"'),
+      bottins: CONTENU_COLLE.bottins,
+    },
+  });
+  await q.waitForTimeout(400);
+  const combien = await q.evaluate(() =>
+    document.querySelectorAll(".wm-bottins .wm-sous-onglets__barre").length
+  );
+  const nom = await q.evaluate(() =>
+    document.querySelector(".wm-repertoire__nom")?.textContent?.trim()
+  );
+  ok(
+    "et les bottins inchangés ne sont pas refaits pour rien",
+    JSON.stringify(await q.evaluate(() => globalThis.__remplaces)) ===
+      JSON.stringify(["grille"]),
+    await q.evaluate(() => globalThis.__remplaces),
+  );
+  ok(
+    "quand seule la grille change, les bottins ne prennent pas une seconde barre",
+    combien === 1 && nom === "Ana Renommée",
+    { barres: combien, premierNom: nom },
+  );
+  await q.close();
+}
+{
+  //  LE RÉSEAU SE TAIT : on garde ce qui est collé. C'est le cas qui
+  //  justifie d'avoir gardé les cartes en dur, et il doit rester vrai.
+  const q = await ouvrir(nav, { servi: null });
+  await q.waitForTimeout(400);
+  const vu = await q.evaluate(regarder);
+  ok(
+    "si Pages ne répond pas, la page collée reste entière et filtrable",
+    vu.cartes.length === TOUS.length && vu.cartes.every((c) => c.vue) && vu.champ,
+    { cartes: vu.cartes.length, champ: vu.champ },
+  );
+  await q.close();
+}
+{
+  //  UN FICHIER ABÎMÉ NE DOIT RIEN EFFACER. Une grille remplacée par
+  //  « undefined » serait pire que pas de mise à jour du tout.
+  const q = await ouvrir(nav, { servi: { grille: 42, bottins: null } });
+  await q.waitForTimeout(400);
+  const vu = await q.evaluate(regarder);
+  ok(
+    "et un contenu abîmé laisse la page tranquille",
+    vu.cartes.length === TOUS.length && vu.champ,
+    { cartes: vu.cartes.length },
+  );
+  await q.close();
 }
 
 // ════════════════════════════════════════════════════════════════════

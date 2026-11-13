@@ -33,6 +33,7 @@
 #  quatorze pages dont celle-ci ne fait pas partie.
 # ════════════════════════════════════════════════════════════════════
 
+import hashlib
 import html
 import json
 import pathlib
@@ -298,6 +299,24 @@ RIEN = """      <p class="wm-repertoire__rien">
       </p>"""
 
 
+def empreinte(fragment):
+    """Douze caractères qui changent quand le fragment change.
+
+    ── POURQUOI PAS COMPARER LES DEUX HTML ───────────────────────────
+
+    Le module compare ce que Pages sert à ce qui est dans la page, pour
+    ne rien remplacer quand rien n'a bougé. Comparer les deux textes ne
+    marche pas : le script a déjà travaillé la page — il a posé une
+    barre d'onglets dans la colonne, masqué des sections, ajouté des
+    attributs `aria` — donc son `outerHTML` ne ressemble plus à ce qui
+    a été collé, et tout serait remplacé à chaque chargement.
+
+    L'empreinte est calculée sur le fragment TEL QU'IL SORT D'ICI, et
+    écrite dedans : des deux côtés on compare la même chose.
+    """
+    return hashlib.sha1(fragment.encode("utf-8")).hexdigest()[:12]
+
+
 def bottins(personnages):
     """La colonne de gauche : qui joue quel faceclaim, et qui tient
     quel métier, lieu par lieu.
@@ -453,6 +472,9 @@ def main(source=None, sortie=None):
     """
     source = source or (R / "data/repertoire.json")
     sortie = sortie or SORTIE
+    #  Par défaut la page va dans `pages/` et son contenu dans
+    #  `data/`, qui est le dossier servi par Pages.
+    contenu_a_cote = sortie is not SORTIE
     d = json.loads(pathlib.Path(source).read_text(encoding="utf-8"))
     groupes = lire_les_groupes()
     plaintes = []
@@ -469,6 +491,20 @@ def main(source=None, sortie=None):
         if cartes else RIEN
     )
 
+    colonne = bottins(d["personnages"])
+    #  L'EMPREINTE VA DANS LA BALISE, après coup : la calculer sur le
+    #  fragment déjà marqué serait circulaire.
+    colonne = colonne.replace(
+        '<nav class="wm-annexe__sommaire wm-bottins"',
+        f'<nav data-wm-empreinte="{empreinte(colonne)}" class="wm-annexe__sommaire wm-bottins"',
+        1,
+    ) if colonne != "" else ""
+    contenu = contenu.replace(
+        "<ul class=\"wm-repertoire__grille\" data-wm-repertoire>",
+        f'<ul data-wm-empreinte="{empreinte(contenu)}" '
+        'class="wm-repertoire__grille" data-wm-repertoire>',
+        1,
+    )
     page = GABARIT.format(
         tete=(METAS + f"\n  <title>{e(d['titre'])} — Wild Mystery</title>\n"
               + FEUILLES).format(pages=PAGES),
@@ -478,7 +514,7 @@ def main(source=None, sortie=None):
         surtitre=e(d.get("surtitre") or "Les personnages"),
         titre=e(d["titre"]),
         intro=e(d.get("intro") or ""),
-        bottins=bottins(d["personnages"]),
+        bottins=colonne,
         fond=f"{PAGES}/assets/zones/{PHOTO}.jpg",
         rendu=f"{ARTWORK}/{RENDU}.png",
         contenu=contenu,
@@ -496,6 +532,30 @@ def main(source=None, sortie=None):
         )
 
     pathlib.Path(sortie).write_text(page, encoding="utf-8")
+
+    #  ── LE MÊME CONTENU, SERVI PAR PAGES ──────────────────────────
+    #
+    #  « On pourrait avoir plusieurs personnes à valider par semaine. »
+    #  Recoller la page à chaque validation ne tiendrait pas, alors le
+    #  script va chercher ce fichier-ci au chargement et remplace ce
+    #  qui a changé : un `git push` suffit, la page collée ne bouge
+    #  plus.
+    #
+    #  CE N'EST PAS UNE SECONDE SOURCE. Les deux sortent du MÊME
+    #  gabarit, dans la même fonction, au même instant : ce qui est
+    #  collé est la photo du jour du collage, ce qui est servi est la
+    #  version d'aujourd'hui. Sans script, ou sans réseau, on lit la
+    #  photo — jamais une page blanche.
+    #  IL SUIT LA PAGE, il ne vise pas `data/` en dur : le harnais
+    #  génère une page d'essai dans son propre dossier, et un chemin
+    #  écrit en dur lui ferait écraser le vrai fichier du dépôt à
+    #  chaque passage — un outil de vérification qui abîme ce qu'il
+    #  vérifie.
+    ou = (pathlib.Path(sortie).parent if contenu_a_cote else R / "data")
+    (ou / "repertoire-contenu.json").write_text(
+        json.dumps({"bottins": colonne, "grille": contenu}, ensure_ascii=False),
+        encoding="utf-8",
+    )
     for p in plaintes:
         print(f"  ⚠ {p}")
     print(f"  {pathlib.Path(sortie).name} — {len(cartes)} personnage(s), {len(page)} caractères")

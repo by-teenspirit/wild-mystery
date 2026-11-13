@@ -239,6 +239,11 @@ export function poserLesSousOnglets(doc: Document): number {
     //  UN SEUL ONGLET N'EST PAS UN ONGLET : on laisse la section telle
     //  quelle plutôt que de poser une barre à un bouton.
     if (sections.length < 2) continue;
+    //  DEUX FOIS NE DOIT RIEN FAIRE. Le répertoire rappelle cette
+    //  fonction après avoir remplacé sa colonne de bottins par une
+    //  version fraîche ; sans cette garde, tous les AUTRES groupes de
+    //  la page recevraient une seconde barre par-dessus la première.
+    if (groupe.classList.contains("wm-sous-onglets--posee")) continue;
 
     const clefs: string[] = [];
     for (const s of sections) {

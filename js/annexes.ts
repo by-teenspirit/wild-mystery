@@ -35,7 +35,10 @@ import {
 import { poserLAccessibilite } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { poserLesInfobulles } from "../src/adaptateurs/navigateur/module-equipe.ts";
 import { poserLesFiltres } from "../src/adaptateurs/navigateur/module-personnages.ts";
-import { poserLeRepertoire } from "../src/adaptateurs/navigateur/module-repertoire.ts";
+import {
+  poserLeRepertoire,
+  remplacerLeRepertoire,
+} from "../src/adaptateurs/navigateur/module-repertoire.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
@@ -112,7 +115,32 @@ poserLesFiltres(document);
 //  Comme les filtres au-dessus : les cartes sont dans la page, la barre
 //  qui les trie est posée ici, et sur les quatorze annexes la fonction
 //  ne trouve pas de `[data-wm-repertoire]` et ne fait rien.
-poserLeRepertoire(document);
+//
+//  ── ET LA PAGE SE MET À JOUR TOUTE SEULE ───────────────────────────
+//
+//  « On pourrait avoir plusieurs personnes à valider par semaine »,
+//  13 novembre : recoller la page à chaque validation ne tiendrait pas.
+//  Le même contenu est servi par Pages, et on le pose AVANT la barre.
+//
+//  AVANT, ET PAS APRÈS : poser la barre sur les cartes collées puis
+//  les remplacer ferait clignoter la page et perdrait la recherche en
+//  cours de frappe. On attend donc la requête — quelques centaines de
+//  millisecondes — et si elle échoue, on pose sur ce qui est collé,
+//  qui est juste au jour du collage.
+async function poserLeRepertoireAJour(): Promise<void> {
+  if (document.querySelector("[data-wm-repertoire]") !== null && RACINE !== null) {
+    const contenu = await fetch(`${RACINE}repertoire-contenu.json`, {
+      credentials: "omit",
+    }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    //  La colonne des bottins porte ses propres onglets : remplacée,
+    //  elle les a perdus, et il faut les reposer. `poserLesSousOnglets`
+    //  saute les groupes déjà posés, donc les autres n'en prennent pas
+    //  une seconde barre.
+    if (remplacerLeRepertoire(document, contenu)) poserLesSousOnglets(document);
+  }
+  poserLeRepertoire(document);
+}
+poserLeRepertoireAJour();
 
 //  LA PAGE RESTE LISIBLE SANS CE SCRIPT. Le texte est dans la page, en
 //  vrai HTML ; sans sommaire il manque une navigation, pas le contenu.

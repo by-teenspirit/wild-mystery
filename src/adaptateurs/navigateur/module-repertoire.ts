@@ -67,6 +67,71 @@ function elt(doc: Document, balise: string, classe: string, texte?: string): HTM
 }
 
 /**
+ * Remplace les cartes et les bottins collés par la version servie.
+ *
+ * ── POURQUOI LA PAGE NE SE RECOLLE PLUS ───────────────────────────
+ *
+ * « On pourrait avoir plusieurs personnes à valider par semaine »,
+ * 13 novembre. Jusque-là, ajouter un personnage demandait de
+ * régénérer la page et de la recoller dans le panneau — tenable pour
+ * une annexe qu'on écrit une fois, intenable pour une liste qui
+ * grandit toutes les semaines.
+ *
+ * `outils/repertoire.py` écrit donc, en plus de la page, le MÊME
+ * contenu dans `data/repertoire-contenu.json`, servi par Pages. Un
+ * `git push` suffit.
+ *
+ * CE N'EST PAS UNE SECONDE SOURCE : les deux sortent du même gabarit,
+ * dans la même fonction, au même instant. Ce qui est collé est la
+ * photo du jour du collage ; ce qui est servi est la version
+ * d'aujourd'hui. Sans script, sans réseau, ou si Pages répond autre
+ * chose que ce qu'on attend, on lit la photo — jamais une page
+ * blanche, et c'est tout l'intérêt d'avoir gardé les cartes en dur.
+ *
+ * Rend vrai si quelque chose a été remplacé.
+ */
+export function remplacerLeRepertoire(doc: Document, contenu: unknown): boolean {
+  const o = typeof contenu === "object" && contenu !== null
+    ? contenu as Record<string, unknown>
+    : null;
+  if (o === null) return false;
+  let change = false;
+  //  ON NE REMPLACE QUE CE QU'ON RETROUVE, et seulement par du texte :
+  //  un champ absent ou d'un autre type laisse la page tranquille
+  //  plutôt que d'effacer une grille contre « undefined ».
+  for (
+    const [cle, ou] of [
+      ["grille", "[data-wm-repertoire]"],
+      ["bottins", ".wm-bottins"],
+    ] as const
+  ) {
+    const neuf = o[cle];
+    const vieux = doc.querySelector(ou);
+    if (typeof neuf !== "string" || neuf === "" || vieux === null) continue;
+    //  ── IDENTIQUE, ON NE TOUCHE À RIEN ──────────────────────────
+    //
+    //  Le cas courant est que la page collée soit déjà à jour, et
+    //  remplacer ferait repartir le défilement et perdre le focus
+    //  pour rien.
+    //
+    //  ON COMPARE DES EMPREINTES, PAS DES HTML. Comparer les deux
+    //  textes ne marche pas : quand ce code tourne, le script a déjà
+    //  travaillé la page — barre d'onglets posée dans la colonne,
+    //  sections masquées, attributs `aria` ajoutés — donc son
+    //  `outerHTML` ne ressemble plus à ce qui a été collé, et TOUT
+    //  était remplacé à chaque chargement. Le générateur écrit la
+    //  même empreinte des deux côtés, calculée sur le fragment tel
+    //  qu'il sort de lui.
+    const avant = vieux.getAttribute("data-wm-empreinte");
+    const apres = neuf.match(/data-wm-empreinte="([a-f0-9]+)"/)?.[1] ?? null;
+    if (avant !== null && apres !== null && avant === apres) continue;
+    vieux.outerHTML = neuf;
+    change = true;
+  }
+  return change;
+}
+
+/**
  * Pose la barre sur chaque `[data-wm-repertoire]` de la page. Rend le
  * nombre de barres posées — zéro partout ailleurs sur le forum.
  */
