@@ -1,0 +1,143 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 30 · La messagerie
+
+   `/privmsg?folder=inbox`, `sentbox`, `outbox`, `savebox`.
+
+   ── CE QUI A ÉTÉ RELEVÉ, LE 13 NOVEMBRE, À 1384 PX ──────────────────
+
+   La page est bâtie comme une liste de sujets — `.forabg`, `ul.topiclist`,
+   `li.row`, `dl.icon` — mais ses lignes ne contiennent pas ce qu'une
+   liste de sujets contient. Notre grille à quatre colonnes de
+   `03-index` l'attrape quand même, et c'est de là que tout vient.
+
+   · `dl.icon` reçoit `48px / 642px / 104px / 252px` sur DEUX rangées
+     de 52, plus 22 de rembourrage : CENT CINQUANTE PIXELS de ligne
+     pour deux lignes de texte, et la dernière colonne — réservée au
+     dernier message d'un sujet — reste vide sur toute la liste ;
+   · `dt` n'a pas d'aire nommée : il se pose dans la première cellule
+     libre. Avec un message dans le dossier, la pastille occupe la
+     colonne 1 et `dt` tombe dans l'identité, à peu près au bon
+     endroit. **Sans message, il n'y a pas de pastille** : `dt` tombe
+     dans la colonne de 48 px, moins 18 de rembourrage de chaque côté,
+     soit douze pixels pour écrire — « Vous n'avez pas de messages dans
+     ce dossier » sortait UN MOT PAR LIGNE, et débordait de cinquante
+     pixels au-dessus de sa ligne ;
+   · `dd.mark`, la case à cocher, se pose dans la cellule suivante : au
+     MILIEU de la ligne, à 864 px, pendant que son étiquette
+     « Sélectionner » est tout à droite, à 1154, dans un en-tête qui
+     vit — comme sur la page de recherche — dans une SECONDE liste,
+     en `display: block`, sur deux lignes qui ne tombent en face de
+     rien ;
+   · `.button-round`, le bouton rond « écrire », porte
+     `rgb(55, 147, 255)` : le bleu de ModernBB, deux fois sur la page ;
+   · chaque ligne commence par un `<div>` vide de 24 × 20 px — la place
+     de l'image de dossier, que Forumactif ne remplit plus.
+
+   ── LA PORTÉE ──────────────────────────────────────────────────────
+
+   `ul.topiclist.pmlist` ne se trouve que sur cette page, comme
+   `ul.topiclist.search` ne se trouve que sur les résultats de
+   recherche. Tout passe par elle, ou par `.forabg:has(…)` pour
+   atteindre l'en-tête, qui est son frère. Les catégories et les listes
+   de sujets ne peuvent pas être touchées d'ici.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · la ligne, avec les trois choses qu'elle porte vraiment ───── */
+
+/*  TROIS COLONNES, PAS QUATRE, ET UNE SEULE RANGÉE. Un message privé
+    a une pastille, un sujet avec son expéditeur et sa date, et une
+    case à cocher. Il n'a ni compteur de réponses, ni dernier message :
+    les deux colonnes que `03-index` lui donnait pour ça restaient
+    vides et lui coûtaient cent pixels de hauteur. */
+#modernbb ul.topiclist.pmlist li.row dl.icon {
+  grid-template-areas: "pastille identite marque";
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  /*  `auto`, et pas les deux rangées de 52 px : la ligne fait la
+      hauteur de ce qu'elle contient. */
+  grid-template-rows: auto;
+  min-height: 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-20, 20px);
+}
+
+/*  LE `dt` REÇOIT SON AIRE. C'est la correction qui règle le dossier
+    vide : nommée, l'aire est la même qu'il y ait une pastille ou non,
+    et le message « Vous n'avez pas de messages dans ce dossier »
+    dispose de la largeur de la liste au lieu de douze pixels. */
+#modernbb ul.topiclist.pmlist li.row dl.icon dt {
+  grid-area: identite;
+  padding: 0;
+}
+
+/*  LA CASE REJOINT SON ÉTIQUETTE, à droite. Au milieu de la ligne,
+    rien ne disait ce qu'elle cochait. */
+#modernbb ul.topiclist.pmlist li.row dd.mark {
+  grid-area: marque;
+  width: auto;
+  padding-left: var(--wm-espace-16, 16px);
+}
+
+/*  La place vide de l'image de dossier. Vingt-quatre pixels de rien
+    au début de chaque ligne, qui la décalaient vers le bas. */
+#modernbb ul.topiclist.pmlist li.row > div:empty {
+  display: none;
+}
+
+/* ── 2 · l'en-tête se met en face de ce qu'il annonce ─────────────── */
+
+/*  IL NE PART PAS, CONTRAIREMENT À CELUI DE LA RECHERCHE. Là-bas il
+    nommait deux chiffres qui portent maintenant leur nom eux-mêmes ;
+    ici « Sélectionner » nomme une colonne de cases à cocher, qui ne
+    peut rien dire d'elle-même. Il lui suffit de tomber au bon endroit,
+    et pour ça il prend la grille des lignes. */
+#modernbb .forabg:has(ul.topiclist.pmlist) ul.topiclist:not(.pmlist) li.header dl {
+  display: grid;
+  grid-template-areas: "pastille identite marque";
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
+}
+
+#modernbb .forabg:has(ul.topiclist.pmlist) ul.topiclist:not(.pmlist) li.header dl dt {
+  grid-area: identite;
+  width: auto;
+  padding: 0;
+}
+
+#modernbb .forabg:has(ul.topiclist.pmlist) ul.topiclist:not(.pmlist) li.header dl dd.mark {
+  grid-area: marque;
+  width: auto;
+  padding-left: var(--wm-espace-16, 16px);
+  text-align: right;
+}
+
+/* ── 3 · les onglets de dossier ───────────────────────────────────── */
+
+/*  `#privmsgs-menu` porte quatre dossiers, et le dossier courant se
+    marque par un `div.active` en `rgba(0, 0, 0, .05)` sur du gris 68 :
+    le marquage par défaut de ModernBB, qui se voit à peine sur notre
+    fond et ne ressemble à aucun autre onglet du forum. */
+#modernbb #privmsgs-menu li .active {
+  background-color: var(--wm-fond-surface, #fffbf7);
+  box-shadow: inset 0 -2px 0 0 var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-encre, #2e2018);
+}
+
+#modernbb #privmsgs-menu li a {
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/* ── 4 · le bouton rond, et le dernier bleu de ModernBB ───────────── */
+
+/*  `rgb(55, 147, 255)`, pour la troisième page d'affilée. On ne le
+    cache pas : c'est le bouton « écrire un message », le seul geste
+    que la page propose vraiment. */
+#modernbb .pm-actions .button-round {
+  background-color: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .pm-actions .button-round:hover,
+#modernbb .pm-actions .button-round:focus-visible {
+  background-color: var(--wm-accent-fort, #1f5470);
+}
