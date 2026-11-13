@@ -327,10 +327,34 @@ Deno.test("les vrais fichiers · dix-sept zones, TOUTES avec une faune", async (
 
 Deno.test("les vrais fichiers · les 34 tables se chargent et sont jouables", async () => {
   //  Il y en avait 312, réparties sur 152 lieux. Les lieux sont partis le
-  //  15 octobre : dix-sept zones, deux conditions chacune, 34 tables, et
-  //  les 933 espèces du Pokédex de Rhode dedans.
+  //  15 octobre : dix-sept zones, deux conditions chacune, 34 tables.
+  //
+  //  ── POURQUOI PAS LES 933 DU POKÉDEX ───────────────────────────────
+  //
+  //  Ce test attendait 933 et le CI était rouge depuis le 6 novembre —
+  //  pour une ASSERTION PÉRIMÉE, pas pour un défaut. Le 6 novembre,
+  //  Callista a tranché : « les formes Galar, Alola etc. doivent se
+  //  trouver dans le pokédex mais ne doivent pas être trouvables pour le
+  //  moment dans les zones ». Confirmé le 13 novembre : « on les
+  //  croisera dans les brèches interdimensionnelles, mais on mettra ça
+  //  en place plus tard. »
+  //
+  //  `outils/faune-par-zone.py` applique cette règle depuis ce jour-là.
+  //  Seul le chiffre écrit ici ne l'avait pas suivie.
+  //
+  //  ── ET ON N'ÉCRIT PLUS UN CHIFFRE ─────────────────────────────────
+  //
+  //  Un nombre en dur ne dit pas POURQUOI il vaut ça, et il rouille à la
+  //  première décision de jeu — c'est exactement ce qui vient
+  //  d'arriver. On le DÉRIVE donc des deux fichiers qui portent la
+  //  décision : le Pokédex, moins ce que `hors-nature.json` envoie à la
+  //  brèche. Le jour où la brèche s'ouvrira, le compte suivra tout seul ;
+  //  et si une espèce ordinaire disparaît d'une table, ce test rougira
+  //  toujours, ce qu'un chiffre en dur faisait aussi — mais en plus il
+  //  dira laquelle.
   const f = vraieFaune();
   let tables = 0;
+  const vues = new Set<number>();
   let especes = 0;
   for (const zone of await f.zonesSauvages()) {
     if (!zone.aUneFaune) continue;
@@ -340,11 +364,44 @@ Deno.test("les vrais fichiers · les 34 tables se chargent et sont jouables", as
       const table = await f.tableDe(zone.forumId, condition);
       verifieTable(table);
       tables++;
-      if (condition === "jour") especes += table.length;
+      if (condition === "jour") {
+        especes += table.length;
+        for (const ligne of table) vues.add(ligne.especeId);
+      }
     }
   }
   assertEquals(tables, 34);
-  assertEquals(especes, 933);
+
+  //  Le Pokédex de Rhode, et ce que la brèche lui retire.
+  const pokedex: Record<string, number> =
+    JSON.parse(await Deno.readTextFile(`${RACINE}data/pokedex-ids.json`)).ids;
+  const horsNature: { nom: string; origine: string }[] =
+    JSON.parse(await Deno.readTextFile(`${RACINE}data/hors-nature.json`)).especes;
+  const brecheIds = new Set(
+    horsNature.filter((e) => e.origine === "breche")
+      .map((e) => pokedex[e.nom])
+      //  `Feunard d'Alola` est déclaré à la brèche mais n'est PAS au
+      //  Pokédex de Rhode — Goupix d'Alola y est, pas son évolution.
+      //  C'est un trou du Pokédex, pas des tables : on ne peut pas
+      //  retirer d'une table une espèce qui n'y a jamais pu être.
+      .filter((id) => id !== undefined),
+  );
+
+  //  CE QUE LES TABLES DOIVENT PORTER : tout le Pokédex, moins la
+  //  brèche. Dit comme une différence d'ensembles, le test nomme ce qui
+  //  manque au lieu d'afficher deux nombres qui ne se ressemblent pas.
+  const attendues = new Set(
+    Object.values(pokedex).filter((id) => !brecheIds.has(id)),
+  );
+  const manquantes = [...attendues].filter((id) => !vues.has(id));
+  const enTrop = [...vues].filter((id) => !attendues.has(id));
+  const nomDe = (id: number) =>
+    Object.keys(pokedex).find((n) => pokedex[n] === id) ?? String(id);
+  assertEquals(manquantes.map(nomDe), [], "des espèces du Pokédex ne sont dans aucune zone");
+  assertEquals(enTrop.map(nomDe), [], "des espèces de la brèche traînent dans une zone");
+  //  Aucune espèce dans deux zones — le test suivant le dit aussi, mais
+  //  ici ça garantit que la somme vaut bien le compte des distinctes.
+  assertEquals(especes, attendues.size);
 });
 
 Deno.test("les vrais fichiers · jour et nuit existent partout", async () => {
@@ -358,10 +415,16 @@ Deno.test("les vrais fichiers · jour et nuit existent partout", async () => {
 });
 
 Deno.test("les vrais fichiers · AUCUNE ESPÈCE N'EST DANS DEUX ZONES", async () => {
-  //  Le Pokédex de Rhode répartit les 933 espèces, il ne les partage pas :
+  //  Le Pokédex de Rhode RÉPARTIT ses espèces, il ne les partage pas :
   //  le sujet d'origine avait trois doublons, la planche 39 les a retirés.
   //  Une espèce dans deux zones, c'est une rareté qui double sans que
   //  personne l'ait décidé.
+  //
+  //  Le compte lui-même est éprouvé par « les 34 tables se chargent et
+  //  sont jouables », qui le dérive du Pokédex moins la brèche. Ici on
+  //  ne vérifie QUE l'unicité — c'est ce que le nom du test promet, et
+  //  le chiffre en dur qui traînait au bout rendait ce test rouge pour
+  //  une raison qui n'est pas la sienne.
   const f = vraieFaune();
   const ou = new Map<number, string>();
   for (const zone of await f.zonesSauvages()) {
@@ -375,7 +438,7 @@ Deno.test("les vrais fichiers · AUCUNE ESPÈCE N'EST DANS DEUX ZONES", async ()
       ou.set(entree.especeId, zone.nom);
     }
   }
-  assertEquals(ou.size, 933);
+  assert(ou.size > 0, "aucune espèce dans aucune zone");
 });
 
 Deno.test("les vrais fichiers · un tirage réel est reproductible", async () => {
