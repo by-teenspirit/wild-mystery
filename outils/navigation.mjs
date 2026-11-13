@@ -1154,6 +1154,43 @@ dire(
   `${compteur.hauteur} px, corps ${compteur.corps}`,
 );
 
+//  ── LES DEUX COMPTES DE LA BARRE DISENT LA MÊME CHOSE ─────────────
+//
+//  « Le petit 3 de la messagerie, tu peux le faire visuellement comme
+//  les notifs ? », 13 novembre. Les deux annoncent ce qui attend
+//  d'être lu, à dix centimètres l'un de l'autre dans la même barre.
+//
+//  CE CONTRÔLE GARDE LA RÈGLE PARTAGÉE. Les deux pastilles sortent
+//  d'un seul bloc ; le jour où quelqu'un le dédouble « pour y voir
+//  clair », les deux se ressembleront encore — et divergeront au
+//  réglage suivant. Ici elles doivent être identiques au pixel et à
+//  la couleur près, pas « semblables ».
+const deuxPastilles = await p.evaluate(() => {
+  const forme = (e) => {
+    const c = getComputedStyle(e);
+    return [
+      c.backgroundColor,
+      c.color,
+      c.borderRadius,
+      c.fontSize,
+      c.fontWeight,
+      c.minWidth,
+      c.height,
+      c.padding,
+      c.marginLeft,
+    ].join(" | ");
+  };
+  return {
+    notifs: forme(document.querySelector("#notif_unread")),
+    messagerie: forme(document.querySelector(".wm-nav__compteur")),
+  };
+});
+dire(
+  "LE COMPTE DE LA MESSAGERIE EST LA MÊME PASTILLE QUE CELUI DES NOTIFS",
+  deuxPastilles.notifs === deuxPastilles.messagerie,
+  `notifs ${deuxPastilles.notifs}\n       messagerie ${deuxPastilles.messagerie}`,
+);
+
 //  ── ET QUAND LEUR SCRIPT LE RÉÉCRIT ───────────────────────────────
 //
 //  C'est le cas qui compte vraiment : leur script remet le compteur à
@@ -2208,6 +2245,20 @@ dire(
     phrases[1].texte.startsWith("Felicitations"),
   JSON.stringify(phrases),
 );
+
+//  Une photo de la barre, pour l'œil : `--photo`.
+if (Deno.args.includes("--photo")) {
+  //  Le harnais finit ses mesures à 390 : on revient à la largeur de
+  //  bureau avant de photographier, sinon c'est le menu replié.
+  await p.setViewportSize({ width: 1384, height: 400 });
+  await p.waitForTimeout(120);
+  const ou = await p.evaluate(() => {
+    const b = document.querySelector("nav.wm-nav").getBoundingClientRect();
+    return { x: 0, y: Math.round(b.top), width: 1384, height: Math.round(b.height) };
+  });
+  await p.screenshot({ path: "barre.png", clip: ou });
+  console.log("photo : barre.png");
+}
 
 await nav.close();
 if (soucis.length > 0) { for (const x of soucis) console.log("  · " + x); }

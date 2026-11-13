@@ -365,7 +365,22 @@
 
     DEUX PIXELS DE PLUS, AUSSI : 16 de haut et 10 de corps, c'était la
     taille d'une étiquette, pas d'un compte qu'on cherche du coin de
-    l'œil. */
+    l'œil.
+
+    ── ET LE COMPTE DE LA MESSAGERIE PORTE LA MÊME ──────────────────
+
+    « Le petit 3 de la messagerie, tu peux le faire visuellement comme
+    les notifs ? », 13 novembre. Les deux disent la même chose — ce
+    qui attend d'être lu — à dix centimètres l'un de l'autre dans la
+    même barre : ils ne peuvent pas se dire de deux façons.
+
+    UNE SEULE RÈGLE POUR LES DEUX, et pas une copie. Deux blocs
+    jumeaux se ressemblent le jour où on les écrit et divergent au
+    premier réglage — celui-ci en a déjà eu trois. Celui de Forumactif
+    a besoin de sa chaîne pour battre leur feuille, le nôtre n'en a
+    pas besoin : chaque sélecteur porte sa propre force, et la liste
+    les sert tous les deux. */
+#modernbb .wm-nav__compteur,
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_unread {
   display: inline-flex;
   min-width: 18px;
@@ -381,6 +396,10 @@
   font-weight: var(--wm-graisse-gras, 700);
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  /*  L'écart au mot, déclaré ici pour les deux : Forumactif posait
+      `.5em` sur le sien, qui suivait son corps et changeait donc avec
+      lui. */
+  margin-left: var(--wm-espace-6, 6px);
   pointer-events: none;
 }
 
@@ -892,12 +911,9 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   white-space: nowrap;
 }
 
-/*  « Messagerie 3 ». Le compteur est DANS le lien, à 11,5 comme la
-    maquette, et il n'apparaît que s'il y a quelque chose à lire. */
-#modernbb .wm-nav__compteur {
-  margin-left: var(--wm-espace-6, 6px);
-  font-size: var(--wm-taille-petit, 11.5px);
-}
+/*  « Messagerie 3 ». Le compteur est DANS le lien, et il n'apparaît
+    que s'il y a quelque chose à lire. Sa pastille est écrite plus
+    haut, dans la même règle que celle des notifications. */
 
 /* ── 3 · les personnages (le switcheroo) ──────────────────────────── */
 

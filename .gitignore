@@ -41,6 +41,7 @@ templates/*.a-publier.html
 /apercu-repertoire-*.png
 /recherche-*.png
 /messagerie-*.png
+/barre.png
 
 # python
 __pycache__/
