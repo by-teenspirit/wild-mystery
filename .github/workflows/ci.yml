@@ -460,7 +460,7 @@ jobs:
       - name: Fonctions Edge
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: supabase functions deploy releve
+        run: supabase functions deploy releve --no-verify-jwt
 
       # 3. enfin la bascule du navigateur. jsDelivr sert le tag, donc
       #    l'URL est immuable : il n'y a rien à purger, mais les deux
