@@ -35,6 +35,7 @@ templates/*.a-publier.html
 # Les photos que les harnais rendent avec `--photo` : on les regarde,
 # on ne les garde pas. Ancrées à la racine, pour ne pas toucher `img/`.
 /staff-*.png
+/statistiques-*.png
 /profil-*.png
 /repertoire-*.png
 /apercu-repertoire-*.png

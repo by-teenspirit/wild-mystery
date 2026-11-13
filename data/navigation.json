@@ -26,7 +26,7 @@
   {
    "clef": "messagerie",
    "titre": "Messagerie",
-   "adresse": "/privmsg"
+   "adresse": "/privmsg?folder=inbox"
   }
  ],
  "_utiles": "Les sept liens du panneau latéral. `icone` est un nom de Material Symbols — la police est déjà chargée par le forum, on n'en ajoute pas. Deux adresses sont MESURÉES sur le forum ; les cinq autres sont des pages qui n'existent pas encore.",
@@ -97,8 +97,9 @@
   {
    "icone": "mail",
    "titre": "Mes messages",
-   "modele": "/privmsg"
+   "modele": "/privmsg?folder=inbox"
   }
  ],
+ "_messagerie": "⚠ `?folder=inbox` N'EST PAS DÉCORATIF. `/privmsg` tout nu répond « Le dossier n'existe pas » — relevé le 13 novembre sur le forum, connectée : la page attend le dossier en paramètre et n'en suppose aucun. Le lien de la barre et celui du menu du compte y menaient tous les deux, donc la messagerie était inatteignable depuis le thème.",
  "_membres": "« Personnages » est devenu « Membres » le 10 novembre : l'entrée mène à `/memberlist`, la liste des COMPTES, et le mot promettait les personnages — qui ont maintenant leur propre page, le répertoire."
 }

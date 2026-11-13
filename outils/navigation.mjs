@@ -897,8 +897,12 @@ if (menu !== null) {
 //  C'est la demande du 7 octobre : la maquette ne montre qu'une barre.
 const adroite = await p.evaluate(() => {
   const g = document.querySelector(".wm-nav__droite");
+  //  `startsWith` ET PAS L'ÉGALITÉ : l'adresse porte son dossier
+  //  depuis le 13 novembre — `/privmsg` tout nu répond « Le dossier
+  //  n'existe pas ». Le contrôle cherche le lien de la messagerie,
+  //  pas une adresse exacte qu'il faudrait recopier à chaque fois.
   const msg = [...document.querySelectorAll(".wm-nav__lien")]
-    .find((a) => a.getAttribute("href") === "/privmsg");
+    .find((a) => (a.getAttribute("href") ?? "").startsWith("/privmsg"));
   return {
     dansLaBarre: g?.closest("nav.wm-nav") !== null,
     avatar: g?.querySelector(".wm-nav__avatar img")?.getAttribute("src") ?? null,

@@ -308,7 +308,10 @@ export function poserLesNotifications(
       titre: "message non lu",
       pluriel: "messages non lus",
       nombre: messages,
-      adresse: "/privmsg",
+      //  `?folder=inbox` : `/privmsg` tout nu répond « Le dossier
+      //  n'existe pas ». Relevé le 13 novembre, connectée sur le
+      //  forum — la page attend son dossier et n'en suppose aucun.
+      adresse: "/privmsg?folder=inbox",
     }],
     [
       { titre: "Nouveaux messages", adresse: "/search?search_id=newposts" },

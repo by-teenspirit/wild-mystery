@@ -1,0 +1,223 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 28 · La page des statistiques
+
+   `/statistics`. Onze tableaux `forumline` que Forumactif fabrique
+   lui-même : on ne peut pas les remplacer par du flexbox sans toucher
+   au template, alors on les habille.
+
+   ── CE QUI A ÉTÉ RELEVÉ, LE 13 NOVEMBRE, CONNECTÉE ──────────────────
+
+   · `table.forumline` porte `background-color: rgb(55, 147, 255)` —
+     le BLEU VIF de ModernBB par défaut. C'est lui qu'on voyait en
+     premier sur la page, et aucune de nos feuilles ne le couvrait ;
+   · trois familles de tableaux : `.values` (les chiffres clés),
+     `.statistical` (les classements) et `.bars` (les barres) ;
+   · les en-têtes sont des `th.catHead` avec un `span.cattitle` dedans,
+     et les cellules des `td.row1` / `td.row2` — la zébrure 2007 ;
+   · `.thCornerL`, `.thTop`, `.thCornerR` sont les trois cellules de
+     coin de 2007. Elles n'ont plus d'image de fond, mais elles
+     occupent encore une ligne de 25 px en haut de chaque tableau ;
+   · une barre est faite de TROIS IMAGES — `vote_lcap.png`,
+     `voting_bar.png` et `vote_rcap.png` — et c'est l'attribut
+     `width="91%"` de celle du milieu qui porte la valeur. C'est la
+     seule donnée : on ne peut pas la supprimer sans perdre la mesure.
+
+   ── LA RÈGLE DU JOUR (59-…) ─────────────────────────────────────────
+
+   Une couleur et la surface qui la porte sont une seule décision.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · le tableau devient une carte ─────────────────────────────── */
+
+/*  LE BLEU D'ABORD. `rgb(55, 147, 255)` est le fond que ModernBB donne
+    à `forumline` quand personne ne le reprend, et il traversait toute
+    la page entre les cellules — c'est le « fond » qu'on voyait, pas
+    une bordure. */
+#modernbb table.forumline {
+  width: 100%;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  margin: 0 0 var(--wm-espace-20, 20px);
+  background-color: var(--wm-fond-surface, #fffbf7);
+  /*  Les cellules se touchent, et c'est le filet du bas de chacune
+      qui sépare les lignes — pas un écart de fond bleu entre elles. */
+  border-collapse: collapse;
+  border-spacing: 0;
+  /*  Pour que les coins arrondis coupent vraiment les cellules. */
+  overflow: hidden;
+}
+
+/*  ── LES TROIS CELLULES DE COIN DE 2007 ──────────────────────────
+
+    `thCornerL`, `thTop` et `thCornerR` portaient les images d'angle
+    d'un thème de 2007. Les images ont disparu, la ligne est restée :
+    25 px de vide en haut de chacun des onze tableaux. Le rayon du
+    tableau fait ce travail maintenant. */
+#modernbb table.forumline .thCornerL,
+#modernbb table.forumline .thCornerR,
+#modernbb table.forumline .thTop {
+  display: none;
+}
+
+/*  L'en-tête de section. Le `span.cattitle` dedans porte le texte ;
+    on habille la cellule, et la typographie va sur les deux pour que
+    le titre tienne même si Forumactif change l'un des deux. */
+#modernbb table.forumline .catHead,
+#modernbb table.forumline th {
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-16, 16px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  background-color: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-encre, #2e2018);
+  text-align: left;
+}
+
+#modernbb table.forumline .cattitle,
+#modernbb table.forumline th .gen {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: normal;
+  line-height: var(--wm-interligne-section, 1.2);
+  text-transform: none;
+}
+
+/* ── 2 · les lignes ───────────────────────────────────────────────── */
+
+/*  DIX-HUIT PIXELS DE REMBOURRAGE SUR CHAQUE CELLULE, relevé le
+    13 novembre : c'est le réglage des cartes du forum, et il donne ici
+    des lignes de cinquante-quatre pixels pour y écrire un nombre. Dix
+    et quatorze suffisent, et la page tient alors sur un écran. */
+#modernbb table.forumline td {
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  /*  LE FILET DES LIGNES EST CELUI DES CARTES, en plus discret par
+      l'opacité : un second jeton de bord n'existe pas, et en inventer
+      un ici en ferait un que le thème sombre devrait suivre. */
+  border-bottom: 1px solid color-mix(in srgb, var(--wm-bord-fin, #eadacd) 55%, transparent);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  vertical-align: middle;
+}
+
+#modernbb table.forumline tr:last-child td {
+  border-bottom: 0;
+}
+
+/*  LA ZÉBRURE PART. `row1` et `row2` alternent depuis 2007 pour aider
+    l'œil à suivre une ligne ; avec un filet sous chaque ligne, les
+    deux font double emploi et le damier se voit plus que les
+    chiffres. */
+#modernbb table.forumline td.row1,
+#modernbb table.forumline td.row2,
+#modernbb table.forumline td.row3 {
+  background-color: transparent;
+}
+
+#modernbb table.forumline tr:hover td {
+  background-color: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  La première colonne des classements est un rang, la dernière un
+    nombre : les deux se lisent mieux serrés et alignés. */
+#modernbb table.statistical td:first-child,
+#modernbb table.bars td:first-child {
+  width: 1%;
+  color: var(--wm-texte-pale, #69564c);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+#modernbb table.forumline td .gen,
+#modernbb table.forumline td .gensmall {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/*  Le nom d'un membre ou d'un sujet reste un lien, mais discret : sur
+    une page qui n'est QUE des listes, dix-huit liens en accent plein
+    font un sapin de Noël. */
+#modernbb table.forumline td a {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: none;
+}
+
+#modernbb table.forumline td a:hover,
+#modernbb table.forumline td a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── 3 · les barres ───────────────────────────────────────────────── */
+
+/*  ── TROIS IMAGES DE 2007, ET LA DONNÉE EST DANS L'UNE D'ELLES ────
+
+    Forumactif écrit `vote_lcap.png`, `voting_bar.png` et
+    `vote_rcap.png` à la suite, et c'est l'attribut `width="91%"` de
+    celle du MILIEU qui porte la valeur. On ne peut donc ni les cacher
+    toutes les trois, ni redessiner la barre : la mesure disparaîtrait
+    avec l'image qui la porte.
+
+    LES DEUX EMBOUTS PARTENT — quatre pixels d'angle arrondi peints en
+    2007 —, et l'image du milieu est REMPLACÉE par un pixel
+    transparent avec `content`. Elle garde sa largeur, donc sa valeur,
+    et ce qu'on voit est son fond à nous. */
+#modernbb .stat-bar img[src*="vote_lcap"],
+#modernbb .stat-bar img[src*="vote_rcap"] {
+  display: none;
+}
+
+#modernbb .stat-bar img[src*="voting_bar"] {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #275e7a);
+  /*  UN PNG TRANSPARENT D'UN PIXEL, et pas un GIF : le garde-fou
+      n'admet dans une feuille que `data:image/svg+xml` et
+      `data:image/png`, pour que `data:text/html` ne puisse pas s'y
+      glisser. La règle a raison, et un PNG fait le même travail. */
+  content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
+  vertical-align: middle;
+}
+
+/*  La gouttière derrière la barre : sans elle, une valeur de 4 % est
+    un trait perdu au milieu d'une cellule vide, et on ne voit pas par
+    rapport à quoi. */
+#modernbb .stat-bar > div {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb td.stat-bar {
+  width: 45%;
+  padding-right: var(--wm-espace-16, 16px);
+}
+
+/* ── 4 · la page ──────────────────────────────────────────────────── */
+
+/*  Les onze tableaux se suivaient sans respirer ; `values` et
+    `statistical` ouvrent chacun une idée différente. */
+#modernbb table.forumline + br,
+#modernbb table.forumline + p:empty {
+  display: none;
+}
+
+@media (max-width: 620px) {
+  /*  Sur un écran étroit, le rembourrage latéral mange la colonne des
+      noms. On le réduit plutôt que de laisser le tableau déborder. */
+  #modernbb table.forumline td,
+  #modernbb table.forumline .catHead,
+  #modernbb table.forumline th {
+    padding-right: var(--wm-espace-10, 10px);
+    padding-left: var(--wm-espace-10, 10px);
+  }
+
+  #modernbb td.stat-bar {
+    width: 30%;
+  }
+}
