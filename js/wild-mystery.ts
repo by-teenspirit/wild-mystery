@@ -41,6 +41,7 @@ import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
 import { poserQuiEstEnLigne } from "../src/adaptateurs/navigateur/module-enligne.ts";
+import { poserLaJaugeDeQuota } from "../src/adaptateurs/navigateur/module-messagerie.ts";
 import { avatarParmi } from "../src/navigateur/enligne.ts";
 import { estLIndex, poserLaVieDeRhode } from "../src/adaptateurs/navigateur/module-vie.ts";
 import {
@@ -601,6 +602,9 @@ desQueLeCorpsEstLa(() => {
   //  pas de carte — et il ne fait aucune requête : il déplace ce que
   //  Forumactif a déjà servi.
   poserLeProfil(document);
+  //  LA JAUGE DE QUOTA DES MESSAGES PRIVÉS. Elle ne fait rien partout
+  //  ailleurs : la phrase qu'elle lit n'existe que sur `/privmsg`.
+  poserLaJaugeDeQuota(document);
   //  ET « SON JEU », SI LE PROFIL EN A UN. Celui-là demande à
   //  Supabase ; il part après, et son échec ne touche pas la page.
   poserLeJeuDuProfil().catch(() => {});

@@ -220,6 +220,38 @@
   margin-bottom: var(--wm-espace-20, 20px);
 }
 
+/* ── 3 ter · la jauge de quota ────────────────────────────────────── */
+
+/*  ── LA MAQUETTE LA VEUT EN BARRE, FORUMACTIF N'EN DIT QU'UNE PHRASE
+
+    `343:538` montre « Ta boîte est remplie à 34 % » avec la jauge
+    dessous. Forumactif écrit, dans `p.left-box` : « Votre boîte des
+    messages envoyés est pleine à 8% » — relevé le 13 novembre. Le
+    pourcentage est DANS le texte, et c'est la seule forme où on
+    l'ait : `{INBOX_LIMIT_PERCENT}` n'existe qu'en phpBB2.
+
+    `module-messagerie` lit la phrase et pose la gouttière. La phrase
+    reste : c'est elle qui dit de quelle boîte on parle, et c'est elle
+    que lit un lecteur d'écran — la barre est en `aria-hidden`.
+
+    LA LARGEUR EST UNE DONNÉE, posée en ligne par le script : elle
+    change à chaque message, et une feuille ne peut pas la porter. */
+#modernbb .wm-pm-quota {
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+  height: 6px;
+  margin-top: var(--wm-espace-8, 8px);
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+#modernbb .wm-pm-quota__part {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #275e7a);
+}
+
 /* ── 4 · le bouton rond, et le dernier bleu de ModernBB ───────────── */
 
 /*  `rgb(55, 147, 255)`, pour la troisième page d'affilée. On ne le

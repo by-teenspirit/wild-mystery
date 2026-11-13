@@ -590,6 +590,127 @@ for (const largeur of [1100, 740, 390]) {
 }
 await p.setViewportSize({ width: 1384, height: 1200 });
 
+// ════════════════════════════════════════════════════════════════════
+//  ── LA JAUGE DE QUOTA, SUR UNE PAGE À PART ─────────────────────────
+//
+//  Elle est posée par `module-messagerie`, donc il faut le PAQUET —
+//  et le paquet réécrit la barre de navigation, guette l'éditeur et
+//  cherche des données. Sur la page des vingt-neuf contrôles
+//  ci-dessus, il changerait ce qu'ils mesurent.
+//
+//  Une seconde page, donc, avec le seul panneau de quota, et le
+//  paquet dessus. La phrase est celle relevée le 13 novembre, mot pour
+//  mot, dans `p.left-box` ; la boîte vide est l'autre cas réel, relevé
+//  le même jour sur `?folder=inbox`.
+// ════════════════════════════════════════════════════════════════════
+{
+  const panneau = (phrase) => `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<title>Messages privés</title>
+<link rel="stylesheet" href="/jetons.css"><link rel="stylesheet" href="/wild-mystery.css">
+</head><body><div id="modernbb"><div class="wrap"><div id="main-content">
+<form>
+  <div class="panel"><div class="inner">
+    <span class="corners-top"><span></span></span>
+    <p class="left-box">${phrase}</p>
+    <p class="right-box">Montrer les messages depuis :</p>
+    <div class="clear"></div>
+    <span class="corners-bottom"><span></span></span>
+  </div></div>
+</form>
+</div></div></div></body></html>`;
+
+  const mesurerLaJauge = async (phrase, deuxFois = false) => {
+    const q = await nav.newPage({ viewport: { width: 1384, height: 600 } });
+    await q.route("**/*", (r) => {
+      const u = new URL(r.request().url()).pathname;
+      if (u === "/jetons.css") {
+        return r.fulfill({ contentType: "text/css", body: lire("panneau-admin/jetons.css") });
+      }
+      if (u === "/wild-mystery.css") {
+        return r.fulfill({ contentType: "text/css", body: lire("css/wild-mystery.css") });
+      }
+      if (u === "/js/wild-mystery.js") {
+        return r.fulfill({
+          contentType: "text/javascript",
+          body: lire("js/wild-mystery.js"),
+        });
+      }
+      if (u.startsWith("/data/")) {
+        try {
+          return r.fulfill({ contentType: "application/json", body: lire(u.slice(1)) });
+        } catch {
+          return r.fulfill({ status: 404, body: "" });
+        }
+      }
+      return r.fulfill({ contentType: "text/html; charset=utf-8", body: panneau(phrase) });
+    });
+    await q.goto("http://wild-mystery.test/privmsg?folder=sentbox");
+    await q.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+    await q.waitForTimeout(250);
+    //  LE PAQUET QUI REPASSE. Ce n'est pas une hypothèse : une page
+    //  qui se recharge en partie, ou un second passage du script,
+    //  poserait une deuxième jauge sous la première. C'est le seul cas
+    //  qui rend la garde d'idempotence autre chose qu'une décoration.
+    if (deuxFois) {
+      await q.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+      await q.waitForTimeout(250);
+    }
+    const vuJauge = await q.evaluate(() => {
+      const g = document.querySelector(".wm-pm-quota");
+      const phraseEl = document.querySelector(".panel p.left-box");
+      if (g === null) return { posee: false, phraseEncoreLa: phraseEl !== null };
+      const part = g.querySelector(".wm-pm-quota__part");
+      return {
+        posee: true,
+        phraseEncoreLa: phraseEl !== null,
+        //  La phrase doit rester AU-DESSUS : c'est elle qui nomme la
+        //  boîte, la barre ne fait que mesurer.
+        sousLaPhrase: g.getBoundingClientRect().top >=
+          phraseEl.getBoundingClientRect().bottom,
+        largeurDeLaPart: Math.round(
+          (part.getBoundingClientRect().width / g.getBoundingClientRect().width) * 100,
+        ),
+        styleEnLigne: part.getAttribute("style"),
+        cachee: g.getAttribute("aria-hidden"),
+        combien: document.querySelectorAll(".wm-pm-quota").length,
+      };
+    });
+    await q.close();
+    return vuJauge;
+  };
+
+  console.log("\n── la jauge de quota ──");
+  const pleine = await mesurerLaJauge("Votre boîte des messages envoyés est pleine à 8%");
+  ok("elle est posée quand la phrase porte un pourcentage", pleine.posee, pleine);
+  ok(
+    "et sa part vaut ce que la phrase annonce",
+    pleine.largeurDeLaPart === 8,
+    pleine,
+  );
+  ok("la phrase reste, et au-dessus", pleine.phraseEncoreLa && pleine.sousLaPhrase, pleine);
+  //  ELLE NE RÉPÈTE RIEN À VOIX HAUTE : la phrase dit déjà tout, et de
+  //  quelle boîte il s'agit.
+  ok("la barre ne répète pas la phrase au lecteur d'écran", pleine.cachee === "true", pleine);
+  ok("et il n'y en a qu'une", pleine.combien === 1, pleine);
+
+  const deuxPassages = await mesurerLaJauge(
+    "Votre boîte des messages envoyés est pleine à 8%",
+    true,
+  );
+  ok(
+    "ET LE PAQUET PEUT REPASSER SANS EN POSER UNE SECONDE",
+    deuxPassages.combien === 1,
+    deuxPassages,
+  );
+
+  //  LA BOÎTE VIDE : relevé le 13 novembre sur `?folder=inbox`. Pas de
+  //  pourcentage, donc pas de jauge — une barre à zéro sur une boîte
+  //  vide est du mobilier.
+  const vide = await mesurerLaJauge("Votre boîte de réception est vide");
+  ok("aucune jauge sur une boîte vide", !vide.posee, vide);
+  ok("et la phrase y est toujours", vide.phraseEncoreLa, vide);
+}
+
 if (Deno.args.includes("--photo")) {
   for (const theme of ["clair", "sombre"]) {
     await p.evaluate(
