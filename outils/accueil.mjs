@@ -1777,6 +1777,70 @@ if (Deno.args.includes("--photo")) {
   console.log("photos : staff-<premier|dernier>-<theme>.png");
 }
 
+// ── LE TEXTE SÉLECTIONNÉ ────────────────────────────────────────────
+//
+//  « Quand je sélectionne du texte, on voit pas bien que j'ai
+//  sélectionné », 13 novembre. La règle vit dans `02-socle` et vaut
+//  pour tout le forum ; elle est éprouvée ici parce que cette page
+//  monte la feuille entière sur de vraies surfaces.
+//
+//  MESURÉ AVANT : `fond-terre` sur `fond-surface` faisait 1,14. Deux
+//  crèmes à un cheveu l'un de l'autre, invisibles dans un champ de
+//  formulaire. Une sélection est un état, et un état qui ne se voit
+//  pas n'existe pas.
+const selection = await p.evaluate(() => {
+  const lum = (couleur) => {
+    const [r, v, b] = couleur.match(/\d+/g).slice(0, 3).map(Number);
+    const f = (x) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * f(r) + 0.7152 * f(v) + 0.0722 * f(b);
+  };
+  const ratio = (x, y) => {
+    const [h, b] = [lum(x), lum(y)].sort((m, n) => n - m);
+    return Math.round(((h + 0.05) / (b + 0.05)) * 100) / 100;
+  };
+  //  SUR UN ÉLÉMENT DE DANS `#modernbb`, et pas sur `body` : notre
+  //  règle est `#modernbb ::selection`, et `body` est AU-DESSUS de
+  //  `#modernbb`. Mesuré sur `body`, c'est la sélection par défaut du
+  //  navigateur qu'on lisait — 20,39 contre la surface et 1,99 pour le
+  //  texte, des chiffres qui ne venaient pas de nous. Le contrôle est
+  //  tombé rouge là-dessus avant de mesurer quoi que ce soit de vrai.
+  //  UN DESCENDANT, et pas `#modernbb` lui-même : le combinateur de
+  //  notre règle est un espace. Et pas `querySelector("#modernbb p,
+  //  #modernbb")` non plus — une liste rend le PREMIER DANS L'ORDRE DU
+  //  DOCUMENT, donc le conteneur, jamais le paragraphe.
+  const sel = getComputedStyle(document.querySelector("#modernbb *"), "::selection");
+  //  On éprouve la bande contre LES QUATRE FONDS de la charte, pas
+  //  seulement celui de la page : la sélection suit le texte partout,
+  //  y compris dans un champ blanc.
+  const temoin = (jeton) => {
+    const t = document.createElement("span");
+    t.style.cssText = `position:absolute;background-color:var(${jeton})`;
+    document.body.appendChild(t);
+    const c = getComputedStyle(t).backgroundColor;
+    t.remove();
+    return c;
+  };
+  const fonds = ["--wm-fond-surface", "--wm-fond-page", "--wm-fond-douce", "--wm-fond-terre"];
+  return {
+    bande: sel.backgroundColor,
+    encre: sel.color,
+    contreLesFonds: Object.fromEntries(
+      fonds.map((j) => [j.replace("--wm-fond-", ""), ratio(sel.backgroundColor, temoin(j))]),
+    ),
+    texteSurLaBande: ratio(sel.color, sel.backgroundColor),
+  };
+});
+dire(
+  "LA SÉLECTION SE VOIT SUR TOUTES LES SURFACES DE LA CHARTE",
+  Object.values(selection.contreLesFonds).every((r) => r >= 3),
+  JSON.stringify(selection.contreLesFonds),
+);
+dire(
+  "et le texte se lit dessus",
+  selection.texteSurLaBande >= 4.5,
+  String(selection.texteSurLaBande),
+);
+
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
 for (const s of soucis) console.log("  · " + s);

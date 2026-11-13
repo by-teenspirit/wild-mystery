@@ -325,12 +325,33 @@ body#modernbb {
   font-variation-settings: inherit;
 }
 
-/*  Le texte sélectionné : la maquette n'en dit rien, mais le bleu par
-    défaut du navigateur jure avec la charte, et ça se voit dès qu'on
-    relit un message. */
+/*  ── LE TEXTE SÉLECTIONNÉ ──────────────────────────────────────────
+
+    La maquette n'en dit rien, et le bleu par défaut du navigateur jure
+    avec la charte : d'où cette règle. Mais elle était allée trop loin
+    dans l'autre sens.
+
+    « Quand je sélectionne du texte, on voit pas bien que j'ai
+    sélectionné — surtout quand je sélectionne "Arceus" pour modifier
+    quelque chose dans le profil », 13 novembre.
+
+    MESURÉ : `fond-terre` (#f8eae1) sur `fond-surface` (#fffbf7) fait
+    1,14. Deux crèmes à un cheveu l'un de l'autre — dans un champ de
+    formulaire, qui est blanc, la sélection ne se voyait tout
+    simplement pas. Une sélection n'est pas une teinte d'ambiance :
+    c'est un état, et un état qui ne se voit pas n'existe pas.
+
+    L'ACCENT PLEIN, DONC, avec le texte inverse — le couple de
+    `.wm-onglet--actif`, qui dit déjà « ceci est l'élément en cours »
+    partout ailleurs sur le forum. C'est aussi ce que fait le
+    navigateur par défaut, et pour la même raison.
+
+    Il tient sur toutes les surfaces des deux thèmes, mesuré sur les
+    quatre fonds : 4,79 à 6,87 en clair, 7,77 à 9,38 en sombre, et le
+    texte dessus à 6,87 et 9,38. Aucun cas où la bande se perd. */
 #modernbb ::selection {
-  background: var(--wm-fond-terre, #f8eae1);
-  color: var(--wm-encre, #2e2018);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 /* ── 1 bis · les surfaces, parce qu'une couleur ne voyage pas seule ── */
