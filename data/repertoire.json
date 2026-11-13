@@ -1,6 +1,6 @@
 {
  "_": "Le répertoire des personnages validés. SOURCE UNIQUE de la page `pages/repertoire-des-personnages.html`, qui en est DÉRIVÉE par `outils/repertoire.py` — on corrige ici, jamais dans la page. Demandé le 10 novembre 2026 : « une page sur laquelle on a tous les personnages validés avec quelques infos […] ce serait des cards, on en affiche 3 ou 4 par colonne. On pourrait filtrer cette page. »",
- "_PROVISOIRE": "⚠ REMPLISSAGE D'ESSAI, posé le 12 novembre 2026 à la demande de Callista — « tu remplis au hasard avec les comptes qui sont actuellement inscrits sur le forum, juste pour que je puisse tester / on videra après ». CE QUI EST VRAI : les cinq comptes, relevés sur /memberlist le 12 novembre, leurs faceclaims tels que le forum les affiche, leurs avatars tels que leur profil les porte (Fenja Ringen n'en a pas : sa carte montre un cadre vide, et c'est le vrai comportement), et l'adresse du compte en « profil » — le nom de la carte y mène vraiment. CE QUI EST FAUX : le métier, le clan, le caractère, le statut marital, le lieu de vie, l'âge et la région d'origine, inventés pour que la page ait de quoi filtrer. Deux cartes n'ont pas de fiche de liens, volontairement : c'est ce qu'on voit quand le sujet n'existe pas encore. VIDER `personnages` pour repartir de zéro.",
+ "_PROVISOIRE": "⚠ REMPLISSAGE D'ESSAI, posé le 12 novembre 2026 à la demande de Callista — « tu remplis au hasard avec les comptes qui sont actuellement inscrits sur le forum, juste pour que je puisse tester / on videra après ». CE QUI EST VRAI : les cinq comptes, relevés sur /memberlist, leurs faceclaims tels que le forum les affiche, leurs avatars tels que leur profil les porte, et l'adresse du compte en « profil » — le nom de la carte y mène vraiment. CE QUI EST FAUX : le métier, le clan, le caractère, le statut marital, le lieu de vie, l'âge et la région d'origine, inventés pour avoir de quoi filtrer ; et les adresses de présentation et de fiche de liens, en /t000-, qui ne mènent nulle part — le forum des présentations est fermé aux invités et on ne se connecte pas pour le lire. Elles sont là pour que les deux boutons s'affichent. VIDER `personnages` pour repartir de zéro. CORRIGÉ LE 13 NOVEMBRE : Fenja Ringen avait bien un avatar, et le relevé du 12 l'avait manqué — son filtre écartait les .gif, qui sont justement le format des avatars du forum. Une carte vide qu'on prend pour un comportement normal est pire qu'une erreur visible.",
  "_pourquoiIci": "TROIS SOURCES ONT ÉTÉ REGARDÉES. (1) Les champs de profil du forum : les lire demande une session connectée et le panneau d'administration, ce que ce projet ne fait pas. (2) Supabase : les tables existent (`joueur`, `fiche_champ`), mais elles se remplissent une fiche à la fois, par les joueurs, et personne n'en a encore rempli une — la page serait vide longtemps. (3) Ce fichier : c'est l'arbitrage du 7 octobre pour l'accueil, « tout vient d'ici, et pas du forum », et le seul des trois qui affiche quelque chose le jour où on pousse. Le jour où les fiches Supabase se rempliront, c'est le GÉNÉRATEUR qui changera de source : ni la feuille ni les filtres ne bougeront.",
  "_commentAjouter": "Ajouter un personnage = ajouter un objet dans `personnages`, puis `python3 outils/repertoire.py`, puis recoller la page. C'est le même geste que pour une annexe. Les menus de filtre se refont tout seuls : ils sont DÉRIVÉS des valeurs présentes, et une colonne où tout le monde répond la même chose n'affiche pas de menu.",
  "_champs": "`nom` est le seul obligatoire — un personnage sans nom ne s'affiche pas, il n'y a rien à montrer. TOUS LES AUTRES PEUVENT MANQUER, et la carte tient quand même : c'est l'état normal d'un répertoire qu'on remplit peu à peu. `groupe` est une CLÉ de `data/groupes.json` (hardi, serieux, malin, doux, brave, jovial) ; une clé inconnue ne donne pas de pastille, et le générateur le signale. `statut` est le statut marital, en texte libre (« Célibataire », « En couple », « Marié », « Veuf »…) : il devient un menu de filtre dès que deux valeurs différentes existent. `age` est une CHAÎNE, pas un nombre : « 24 ans », « la trentaine », « inconnu » sont tous des réponses. `profil` est l'adresse du compte sur le forum (/u5) : le NOM de la carte y mène, et sans elle le nom reste un simple titre — un lien qui ne mène nulle part est pire que pas de lien. `liens` et `presentation` sont des adresses de sujet ; vides, les boutons ne s'affichent pas — on ne clique pas dans le vide.",
@@ -36,8 +36,8 @@
    "age": "inconnu",
    "origine": "Rhode",
    "profil": "/u1",
-   "liens": "/u1",
-   "presentation": ""
+   "liens": "/t000-liens-de-arceus",
+   "presentation": "/t000-presentation-de-arceus"
   },
   {
    "nom": "Maître du Jeu",
@@ -51,8 +51,8 @@
    "age": "la trentaine",
    "origine": "Rhode",
    "profil": "/u3",
-   "liens": "/u3",
-   "presentation": ""
+   "liens": "/t000-liens-de-maitre-du-jeu",
+   "presentation": "/t000-presentation-de-maitre-du-jeu"
   },
   {
    "nom": "Compte de test",
@@ -66,12 +66,12 @@
    "age": "28 ans",
    "origine": "Johto",
    "profil": "/u4",
-   "liens": "",
-   "presentation": ""
+   "liens": "/t000-liens-de-compte-de-test",
+   "presentation": "/t000-presentation-de-compte-de-test"
   },
   {
    "nom": "Fenja Ringen",
-   "avatar": "",
+   "avatar": "https://i.postimg.cc/9Fm2krB6/invite-mystere.gif",
    "faceclaim": "elizabeth olsen.",
    "groupe": "doux",
    "metier": "Herboriste",
@@ -81,8 +81,8 @@
    "age": "24 ans",
    "origine": "Sinnoh",
    "profil": "/u5",
-   "liens": "/u5",
-   "presentation": ""
+   "liens": "/t000-liens-de-fenja-ringen",
+   "presentation": "/t000-presentation-de-fenja-ringen"
   },
   {
    "nom": "Xaden Nomdefamille",
@@ -96,8 +96,8 @@
    "age": "31 ans",
    "origine": "Unys",
    "profil": "/u6",
-   "liens": "",
-   "presentation": ""
+   "liens": "/t000-liens-de-xaden-nomdefamille",
+   "presentation": "/t000-presentation-de-xaden-nomdefamille"
   }
  ]
 }
