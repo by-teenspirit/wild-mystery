@@ -1,0 +1,135 @@
+/* ════════════════════════════════════════════════════════════════════
+   Wild Mystery · 31 · La page « Qui est en ligne »
+
+   `/viewonline`. À ne pas confondre avec `17-en-ligne.css`, qui habille
+   le PANNEAU du même nom sur l'index : celui-là est posé par notre
+   script à partir de `{LOGGED_IN_USER_LIST}`, un bloc de HTML tout
+   fait. Ici, c'est une vraie page avec un vrai tableau.
+
+   ── CE QUI A ÉTÉ RELEVÉ, LE 13 NOVEMBRE, CONNECTÉE ──────────────────
+
+   · `.forumbg` est déjà notre carte — blanche, rayon 10, filet, coins
+     coupés. Rien à y faire ;
+   · le tableau est `table.table1`, avec `thead > tr > th.name`,
+     `th.active` et `th.info`, puis `tbody > tr.row1 / tr.row2 > td` ;
+   · **LES TROIS INTITULÉS SONT EN `rgb(255, 255, 255)` SUR UN FOND
+     TRANSPARENT.** Blanc sur notre carte blanche : « Nom
+     d'utilisateur », « Dernière mise à jour » et « Localisation sur le
+     Forum » sont INVISIBLES. On les voit à peine en sélectionnant la
+     ligne. C'est le défaut principal de la page ;
+   · les cellules ont `padding: 3px 18px`. Trois pixels : deux lignes
+     se touchent presque, et la liste se lit comme un bloc ;
+   · le texte des cellules est en `rgb(68, 68, 68)`, le gris de
+     ModernBB, pas notre encre.
+
+   ── LA PORTÉE ──────────────────────────────────────────────────────
+
+   `th.active` n'existe que sur cette page : la liste des membres
+   n'utilise même pas `table.table1` — vérifié le 13 novembre. Tout
+   passe donc par `:has(th.active)`, qui ne peut attraper qu'un tableau
+   ayant cet en-tête.
+
+   ── CE QUE CETTE FEUILLE NE PEUT PAS FAIRE ─────────────────────────
+
+   La maquette `345:264` montre aussi quatre cartes de chiffres, une
+   bande numérotée, un avatar rond et une pastille de groupe par ligne,
+   et DEUX colonnes de temps là où le gabarit n'en imprime qu'une.
+   Rien de tout ça n'est dans la page : ce sont des nœuds qui
+   n'existent pas, et une feuille de style ne les fait pas apparaître.
+   C'est une passe sur `viewonline_body` — et la note de code 12 dit
+   elle-même que ce gabarit a sa propre boucle avec de vraies
+   variables, donc c'est là que ça se fera.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · l'en-tête, qu'on ne voyait pas ───────────────────────────── */
+
+/*  LE BLANC SUR BLANC D'ABORD. Il vient de ModernBB, qui dessinait
+    cette ligne sur une bande foncée ; la bande a disparu avec son
+    thème, le blanc est resté.
+
+    Les trois intitulés nomment des colonnes : ils prennent la
+    grammaire d'étiquette du forum — petites capitales, pâle — et la
+    bande douce qui les sépare des lignes, comme les en-têtes de
+    `28-statistiques`. */
+#modernbb table.table1:has(th.active) thead th {
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  background-color: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+/* ── 2 · les lignes ───────────────────────────────────────────────── */
+
+/*  TROIS PIXELS DE REMBOURRAGE, et deux lignes se touchaient. Dix et
+    seize, comme la page des statistiques : c'est le même objet — une
+    liste de faits courts à parcourir de l'œil. */
+#modernbb table.table1:has(th.active) tbody td {
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
+  /*  Le filet des lignes, en plus discret par l'opacité : même choix
+      que `28-statistiques`, pour ne pas inventer un second jeton de
+      bord que le thème sombre devrait suivre. */
+  border-bottom: 1px solid color-mix(in srgb, var(--wm-bord-fin, #eadacd) 55%, transparent);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  vertical-align: middle;
+}
+
+#modernbb table.table1:has(th.active) tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/*  LA ZÉBRURE PART, comme ailleurs : avec un filet sous chaque ligne,
+    `row1` / `row2` font double emploi et le damier se voit plus que
+    les noms. */
+#modernbb table.table1:has(th.active) tbody tr.row1 td,
+#modernbb table.table1:has(th.active) tbody tr.row2 td {
+  background-color: transparent;
+}
+
+#modernbb table.table1:has(th.active) tbody tr:hover td {
+  background-color: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LE PSEUDO EST LE SUJET DE LA LIGNE. Les deux autres colonnes le
+    renseignent ; lui seul se lit en premier. */
+#modernbb table.table1:has(th.active) tbody td:first-child {
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+/*  La colonne du temps se lit en colonne : des chiffres alignés, et
+    qui ne se coupent pas en deux lignes. */
+#modernbb table.table1:has(th.active) tbody td:nth-child(2) {
+  color: var(--wm-texte-pale, #69564c);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/*  Le lieu est un lien, et il reste discret : sur une page qui n'est
+    qu'une liste, vingt liens en accent plein font un sapin de Noël. */
+#modernbb table.table1:has(th.active) tbody td a {
+  color: var(--wm-accent-fort, #1f5470);
+  text-decoration: none;
+}
+
+#modernbb table.table1:has(th.active) tbody td a:hover,
+#modernbb table.table1:has(th.active) tbody td a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 620px) {
+  /*  Sur un écran étroit, le rembourrage latéral mange la colonne des
+      noms. On le réduit plutôt que de laisser le tableau déborder. */
+  #modernbb table.table1:has(th.active) thead th,
+  #modernbb table.table1:has(th.active) tbody td {
+    padding-right: var(--wm-espace-10, 10px);
+    padding-left: var(--wm-espace-10, 10px);
+  }
+}

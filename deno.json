@@ -59,7 +59,8 @@
     "repertoire": "deno run -A outils/repertoire.mjs",
     "statistiques": "deno run -A outils/statistiques.mjs",
     "recherche": "deno run -A outils/recherche.mjs",
-    "messagerie": "deno run -A outils/messagerie.mjs"
+    "messagerie": "deno run -A outils/messagerie.mjs",
+    "qeel": "deno run -A outils/qui-est-en-ligne.mjs"
   },
   "fmt": {
     "include": [

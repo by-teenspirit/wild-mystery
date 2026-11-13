@@ -42,6 +42,7 @@ templates/*.a-publier.html
 /recherche-*.png
 /messagerie-*.png
 /barre.png
+/qui-est-en-ligne-*.png
 
 # python
 __pycache__/
