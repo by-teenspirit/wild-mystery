@@ -125,16 +125,76 @@ const sujet = `
     </dl>
   </li>`;
 
+/*  ── LES ONGLETS DE DOSSIER, TELS QUE MODERNBB LES ÉCRIT ──────────
+
+    LES QUATRE `li` PORTENT UN `div.active`, et il est VIDE : c'est un
+    calque posé en absolu sur toute la surface de l'onglet, pas le
+    marqueur du dossier courant. Le dossier courant est celui qui n'a
+    PAS de `<a>` — son nom est un nœud de texte posé directement dans
+    le `li`, SOUS le calque.
+
+    C'est ce qui rend le fac-similé indispensable ici : un fond opaque
+    posé sur le calque recouvre ce nom, et c'est exactement le défaut
+    que ma règle du 13 novembre au matin avait introduit. Sans le
+    calque et sans sa position, la page montée ici ne pourrait pas le
+    montrer.
+
+    `position`, `top`, `left` et les 88 px de hauteur viennent de la
+    feuille de ModernBB, que ce fac-similé ne charge pas : relevés sur
+    la vraie page, ils sont reposés en style en ligne. */
+const CALQUE = 'class="active" style="position: absolute; top: 0; left: 0; width: 100%; height: 88px"';
+
+/*  La mise en page du menu vient elle aussi de ModernBB : des `li` en
+    ligne de 129 px, centrés, hauts de 88, avec un rond d'icône de 33
+    au-dessus du nom. Reposée ici pour que la photo montre les onglets
+    tels qu'ils sont, et pas quatre puces empilées. */
+const LI = "box-sizing: border-box; position: relative; display: inline-block;" +
+  " width: 129px; height: 88px;" +
+  " padding: 18px 9px 0; text-align: center; vertical-align: top";
+const ICONE = "display: block; width: 33px; height: 33px; margin: 0 auto;" +
+  " border-radius: 33px; line-height: 31px";
+
+const onglet = (icone, nom, adresse) =>
+  adresse === null
+    //  Le dossier ouvert : pas de lien, le nom à même le `li`.
+    ? `<li style="${LI}"><i class="${icone}" style="${ICONE}"></i>${nom}<div ${CALQUE}></div></li>`
+    : `<li style="${LI}"><i class="${icone}" style="${ICONE}"></i><a href="${adresse}">${nom}</a><div ${CALQUE}></div></li>`;
+
+const MENU = `
+<ul id="privmsgs-menu">
+  ${onglet("ion-archive", "Boîte de réception", "/privmsg?folder=inbox")}
+  ${onglet("ion-paper-airplane", "Messages envoyés", null)}
+  ${onglet("ion-share", "Boîte d'envoi", "/privmsg?folder=outbox")}
+  ${onglet("ion-bookmark", "Archives", "/privmsg?folder=savebox")}
+</ul>`;
+
+/*  LA PAGINATION, ET LE `float: left` QUI EXPLIQUE TOUT.
+
+    Ses pastilles rondes de 32 px viennent de `04-forum`, donc du vrai
+    habillage. Mais le `<p>` qui les porte ne fait que DIX-HUIT pixels
+    de haut, et c'est ce flottement — posé par la feuille de
+    Forumactif, que ce fac-similé ne charge pas — qui en est la cause :
+    un enfant flottant ne compte pas dans la hauteur de son parent. Le
+    `p` se règle donc sur son seul `<br>`, et la barre déborde de
+    quatorze pixels par le bas, dans la marge de dix-huit qu'il
+    déclare. Il restait quatre pixels avant la rangée de boutons.
+
+    Sans ce `float` reposé ici, la page montée n'a pas le défaut, et la
+    règle qui le corrige serait gardée par un contrôle vert d'avance —
+    c'était le cas au premier essai. */
+const PAGINATION =
+  `<span class="pagination" style="float: left">Page <strong>1</strong> sur <strong>1</strong></span><br>`;
+
 const PAGE = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
 <title>Messages privés</title>
 <link rel="stylesheet" href="/jetons.css"><link rel="stylesheet" href="/wild-mystery.css">
 </head><body><div id="modernbb"><div class="wrap"><div id="main-content">
 
-<ul id="privmsgs-menu">
-  <li><i class="ion-archive"></i><div class="active">Boîte de réception</div></li>
-  <li><i class="ion-paper-airplane"></i><a href="/privmsg?folder=sentbox">Messages envoyés</a></li>
-</ul>
+${MENU}
 <div class="pm-actions"><a class="ion-ios-compose-outline button-round" href="/privmsg?mode=post"></a></div>
+
+<p>${PAGINATION}</p>
+<div class="pm-actions bottom"><input class="button1" type="submit" value="Tout supprimer"></div>
 
 <!-- UN DOSSIER PLEIN -->
 <div class="forabg" id="plein">
@@ -275,7 +335,39 @@ const vu = await p.evaluate(() => {
       hauteurLigne: b(g("#forum li.row")).ht,
     },
     bouton: getComputedStyle(g(".pm-actions .button-round")).backgroundColor,
-    onglet: getComputedStyle(g("#privmsgs-menu .active")).backgroundColor,
+    onglets: (() => {
+      const lis = [...document.querySelectorAll("#privmsgs-menu li")];
+      const ouvert = lis.find((li) => li.querySelector("a") === null);
+      const ferme = lis.find((li) => li.querySelector("a") !== null);
+      //  LE NOM DU DOSSIER OUVERT EST SOUS LE CALQUE : on compare ce
+      //  que le calque peint à ce que le `li` peint derrière le texte.
+      //  Opaque sur le calque, le nom disparaît — c'est le défaut.
+      const calque = ouvert.querySelector(".active");
+      const transparent = (c) => c === "transparent" || /, *0\)$/.test(c);
+      return {
+        fondDuCalque: getComputedStyle(calque).backgroundColor,
+        calqueTransparent: transparent(getComputedStyle(calque).backgroundColor),
+        fondDuDossierOuvert: getComputedStyle(ouvert).backgroundColor,
+        ouvertADuFond: !transparent(getComputedStyle(ouvert).backgroundColor),
+        filet: getComputedStyle(calque).boxShadow,
+        filetSurLesAutres: getComputedStyle(ferme.querySelector(".active")).boxShadow,
+        couleurOuvert: getComputedStyle(ouvert).color,
+        couleurLien: getComputedStyle(ferme.querySelector("a")).color,
+      };
+    })(),
+    pagination: (() => {
+      const p = g("#main-content p:has(.pagination)");
+      const barre = g(".pagination");
+      const apres = p.nextElementSibling;
+      return {
+        hauteurDuP: Math.round(p.getBoundingClientRect().height),
+        hauteurDeLaBarre: Math.round(barre.getBoundingClientRect().height),
+        //  L'AIR QU'ELLE VOYAIT : du bas de la barre au bloc suivant.
+        air: Math.round(
+          apres.getBoundingClientRect().top - barre.getBoundingClientRect().bottom,
+        ),
+      };
+    })(),
     deborde: [...document.querySelectorAll("#modernbb *")]
       .filter((e) =>
         e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
@@ -357,16 +449,51 @@ ok(
   { tete: vu.tete.selectionnerDroite, case: vu.plein.caseDroite },
 );
 
-console.log("\n── les deux derniers bleus de ModernBB ──");
+console.log("\n── le dernier bleu de ModernBB ──");
 ok(
   "le bouton rond n'est plus bleu",
   vu.bouton !== "rgb(55, 147, 255)",
   vu.bouton,
 );
+
+console.log("\n── les onglets de dossier ──");
+//  LE DÉFAUT QUE J'AVAIS INTRODUIT : un fond opaque sur un calque posé
+//  PAR-DESSUS le nom du dossier ouvert. L'onglet devenait un rectangle
+//  blanc et vide.
 ok(
-  "le dossier courant se voit",
-  vu.onglet !== "rgba(0, 0, 0, 0.05)",
-  vu.onglet,
+  "le calque ne peint rien par-dessus le nom",
+  vu.onglets.calqueTransparent,
+  vu.onglets,
+);
+ok(
+  "le dossier ouvert a son fond, derrière son nom",
+  vu.onglets.ouvertADuFond,
+  vu.onglets,
+);
+ok(
+  "et son filet, que les trois autres n'ont pas",
+  vu.onglets.filet !== "none" && vu.onglets.filetSurLesAutres === "none",
+  { ouvert: vu.onglets.filet, autres: vu.onglets.filetSurLesAutres },
+);
+ok(
+  "les liens se lisent plus pâles que le dossier ouvert",
+  vu.onglets.couleurLien !== vu.onglets.couleurOuvert,
+  vu.onglets,
+);
+
+console.log("\n── la pagination ──");
+//  « La pagination est trop collée. » Le `p` faisait 18 px, la barre
+//  qu'il contient 32 : les 14 de débord mangeaient sa marge, et il
+//  restait quatre pixels avant la rangée de boutons.
+ok(
+  "le paragraphe a la hauteur de la barre qu'il porte",
+  vu.pagination.hauteurDuP >= vu.pagination.hauteurDeLaBarre,
+  vu.pagination,
+);
+ok(
+  "et il reste de l'air avant ce qui suit",
+  vu.pagination.air >= 16,
+  vu.pagination,
 );
 
 console.log("\n── et la liste d'un forum ne bouge pas ──");

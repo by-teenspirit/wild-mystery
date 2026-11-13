@@ -113,18 +113,94 @@
 
 /* ── 3 · les onglets de dossier ───────────────────────────────────── */
 
-/*  `#privmsgs-menu` porte quatre dossiers, et le dossier courant se
-    marque par un `div.active` en `rgba(0, 0, 0, .05)` sur du gris 68 :
-    le marquage par défaut de ModernBB, qui se voit à peine sur notre
-    fond et ne ressemble à aucun autre onglet du forum. */
+/*  ── CE QUE `.active` EST VRAIMENT, ET CE QUE J'AVAIS CRU ─────────
+
+    « Améliore les onglets boîte de réception et tout, c'est pas
+    lisible », 13 novembre — et l'onglet courant était un rectangle
+    BLANC ET VIDE. C'est ma règle du matin qui l'avait peint.
+
+    Relevé cette fois-ci jusqu'au bout : LES QUATRE `li` CONTIENNENT UN
+    `div.active`. Ce n'est pas le marqueur du dossier courant, c'est un
+    calque posé en absolu sur toute la surface de l'onglet — 132 × 88,
+    `top: 0`, `left: 0` — et il est VIDE. Le dossier courant est celui
+    qui n'a PAS de `<a>` : son nom est un nœud de texte posé
+    directement dans le `li`, sous le calque.
+
+    Un fond opaque sur le calque recouvre donc le nom. Le fond va sur
+    le `li`, qui est derrière le texte ; le calque ne garde que le
+    filet, qui est la seule chose qu'il sache faire sans rien cacher.
+
+    LA LEÇON EST CELLE DU `[hidden]` ET DES MARGES PAR DÉFAUT : j'avais
+    lu la classe et déduit son rôle au lieu de mesurer ce qu'elle
+    portait. `textContent` vide et `position: absolute` étaient à deux
+    lignes du relevé que j'avais déjà fait. */
 #modernbb #privmsgs-menu li .active {
+  background-color: transparent;
+}
+
+/*  LE DOSSIER COURANT : celui sans lien. */
+#modernbb #privmsgs-menu li:not(:has(a)) {
   background-color: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb #privmsgs-menu li:not(:has(a)) .active {
   box-shadow: inset 0 -2px 0 0 var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb #privmsgs-menu li:not(:has(a)) i {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+/*  LES TROIS AUTRES SONT DES LIENS, et ils doivent se lire comme tels :
+    un ton plus pâle que le dossier ouvert, qui se renforce au survol.
+    `.active` est posé par-dessus et attrape le pointeur : le survol se
+    écoute donc sur le `li`, pas sur le `a`. */
+#modernbb #privmsgs-menu li a {
+  color: var(--wm-texte-pale, #69564c);
+}
+
+#modernbb #privmsgs-menu li:hover a,
+#modernbb #privmsgs-menu li a:focus-visible {
   color: var(--wm-encre, #2e2018);
 }
 
-#modernbb #privmsgs-menu li a {
-  color: var(--wm-texte-corps, #4e3b30);
+#modernbb #privmsgs-menu li:hover:has(a) {
+  background-color: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  Le rond de l'icône : gris 68 sur un filet gris, les deux de
+    ModernBB. */
+#modernbb #privmsgs-menu li i {
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-pale, #69564c);
+}
+
+/* ── 3 bis · la pagination, qui ne tient pas dans son paragraphe ─── */
+
+/*  « Et la pagination est trop collée. »
+
+    Mesuré : le `<p>` qui la porte fait DIX-HUIT pixels de haut, et la
+    barre qu'il contient en fait TRENTE-DEUX — nos pastilles rondes
+    sont plus hautes qu'une ligne de texte.
+
+    LA CAUSE EST UN `float: left`, posé sur `.pagination` par la
+    feuille de Forumactif. Un enfant flottant ne compte pas dans la
+    hauteur de son parent : le `p` se règle sur son seul `<br>`, la
+    barre déborde de quatorze pixels par le bas, et ces quatorze
+    mangent les dix-huit de marge. Il restait QUATRE pixels avant la
+    rangée de boutons.
+
+    En conteneur souple, le flottement ne s'applique plus — un enfant
+    de flexbox n'est jamais flottant — et le paragraphe reprend la
+    hauteur de ce qu'il porte. Sa marge redevient de la marge. */
+#modernbb #main-content:has(ul.topiclist.pmlist) p:has(.pagination) {
+  display: flex;
+  align-items: center;
+  margin-top: var(--wm-espace-16, 16px);
+  margin-bottom: var(--wm-espace-20, 20px);
 }
 
 /* ── 4 · le bouton rond, et le dernier bleu de ModernBB ───────────── */
