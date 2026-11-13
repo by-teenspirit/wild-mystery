@@ -33135,9 +33135,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     qui n'a PAS de `<a>` : son nom est un nœud de texte posé
     directement dans le `li`, sous le calque.
 
-    Un fond opaque sur le calque recouvre donc le nom. Le fond va sur
-    le `li`, qui est derrière le texte ; le calque ne garde que le
-    filet, qui est la seule chose qu'il sache faire sans rien cacher.
+    Un fond opaque sur le calque recouvre donc le nom. Tout ce qui se
+    peint va sur le `li`, qui est derrière le texte ; le calque, lui,
+    ne peint plus rien.
 
     LA LEÇON EST CELLE DU `[hidden]` ET DES MARGES PAR DÉFAUT : j'avais
     lu la classe et déduit son rôle au lieu de mesurer ce qu'elle
@@ -33147,28 +33147,45 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background-color: transparent;
 }
 
-/*  LE DOSSIER COURANT : celui sans lien. */
-#modernbb #privmsgs-menu li:not(:has(a)) {
+/*  ── LA BARRE EST BLANCHE, ET L'OUVERT SE PEINT DESSUS ────────────
+
+    « J'aimerais bien mettre un fond blanc de base et ensuite, on
+    montre quel onglet est sélectionné », 13 novembre.
+
+    C'est la grammaire d'onglet du forum, celle de `.wm-onglet` dans
+    `13-composants` : surface et filet fin au repos, accent plein et
+    texte inverse pour l'actif. Les onglets de dossier la suivent
+    plutôt que d'en inventer une deuxième sur la même charte.
+
+    `overflow: hidden` pour que le remplissage de l'onglet ouvert
+    s'arrête sur l'arrondi de la barre quand il est au bout. */
+#modernbb #privmsgs-menu {
+  overflow: hidden;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
   background-color: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-encre, #2e2018);
-  font-weight: var(--wm-graisse-demi, 600);
+  padding: 0;
 }
 
-#modernbb #privmsgs-menu li:not(:has(a)) .active {
-  box-shadow: inset 0 -2px 0 0 var(--wm-accent-primaire, #275e7a);
+/*  LE DOSSIER OUVERT : celui sans lien. Il se peint en plein, comme
+    tout onglet actif du forum — le filet discret d'avant ne pouvait
+    plus rien marquer sur une barre déjà blanche. */
+#modernbb #privmsgs-menu li:not(:has(a)) {
+  background-color: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-weight: var(--wm-graisse-gras, 700);
 }
 
 #modernbb #privmsgs-menu li:not(:has(a)) i {
-  border-color: var(--wm-accent-primaire, #275e7a);
-  color: var(--wm-accent-primaire, #275e7a);
+  border-color: var(--wm-texte-inverse, #fffbf7);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
-/*  LES TROIS AUTRES SONT DES LIENS, et ils doivent se lire comme tels :
-    un ton plus pâle que le dossier ouvert, qui se renforce au survol.
-    `.active` est posé par-dessus et attrape le pointeur : le survol se
-    écoute donc sur le `li`, pas sur le `a`. */
+/*  LES TROIS AUTRES SONT DES LIENS, et ils se lisent sur le blanc.
+    `.active` est posé par-dessus et attrape le pointeur : le survol
+    s'écoute donc sur le `li`, pas sur le `a`. */
 #modernbb #privmsgs-menu li a {
-  color: var(--wm-texte-pale, #69564c);
+  color: var(--wm-texte-corps, #4e3b30);
 }
 
 #modernbb #privmsgs-menu li:hover a,

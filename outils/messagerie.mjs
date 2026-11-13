@@ -343,16 +343,56 @@ const vu = await p.evaluate(() => {
       //  que le calque peint à ce que le `li` peint derrière le texte.
       //  Opaque sur le calque, le nom disparaît — c'est le défaut.
       const calque = ouvert.querySelector(".active");
+      const menu = document.querySelector("#privmsgs-menu");
       const transparent = (c) => c === "transparent" || /, *0\)$/.test(c);
+      //  Le rapport de contraste, calculé et pas affirmé.
+      const lum = (couleur) => {
+        const [r, v, b] = couleur.match(/\d+/g).slice(0, 3).map(Number);
+        const f = (x) =>
+          x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4;
+        return 0.2126 * f(r) + 0.7152 * f(v) + 0.0722 * f(b);
+      };
+      const ratio = (x, y) => {
+        const [h, b2] = [lum(x), lum(y)].sort((m, n) => n - m);
+        return Math.round(((h + 0.05) / (b2 + 0.05)) * 100) / 100;
+      };
       return {
         fondDuCalque: getComputedStyle(calque).backgroundColor,
         calqueTransparent: transparent(getComputedStyle(calque).backgroundColor),
         fondDuDossierOuvert: getComputedStyle(ouvert).backgroundColor,
         ouvertADuFond: !transparent(getComputedStyle(ouvert).backgroundColor),
-        filet: getComputedStyle(calque).boxShadow,
-        filetSurLesAutres: getComputedStyle(ferme.querySelector(".active")).boxShadow,
+        //  LA BARRE EST BLANCHE DE BASE, et l'onglet ouvert se peint
+        //  dessus : c'est la demande du 13 novembre au soir, et c'est
+        //  la grammaire de `.wm-onglet`. Les deux fonds doivent donc
+        //  différer, et le fermé rester celui de la barre.
+        fondDeLaBarre: getComputedStyle(menu).backgroundColor,
+        fondDuDossierFerme: getComputedStyle(ferme).backgroundColor,
+        fermeNePeintRien: transparent(getComputedStyle(ferme).backgroundColor),
+        //  LE JETON RÉSOLU PAR LE NAVIGATEUR, pas lu tel quel : la
+        //  variable vaut « #fffbf7 » et un fond calculé vaut
+        //  « rgb(255, 251, 247) ». Les comparer directement ne dit
+        //  jamais vrai — premier essai rouge pour cette raison. On
+        //  passe donc par un témoin, qui les met dans la même langue.
+        surface: (() => {
+          const t = document.createElement("span");
+          t.style.cssText = "position:absolute;background-color:var(--wm-fond-surface)";
+          document.body.appendChild(t);
+          const c = getComputedStyle(t).backgroundColor;
+          t.remove();
+          return c;
+        })(),
         couleurOuvert: getComputedStyle(ouvert).color,
         couleurLien: getComputedStyle(ferme.querySelector("a")).color,
+        //  Le nom de l'onglet ouvert est en texte inverse sur l'accent :
+        //  on mesure que ça se lit, plutôt que de l'affirmer.
+        contrasteDuNomOuvert: ratio(
+          getComputedStyle(ouvert).color,
+          getComputedStyle(ouvert).backgroundColor,
+        ),
+        contrasteDuNomFerme: ratio(
+          getComputedStyle(ferme.querySelector("a")).color,
+          getComputedStyle(menu).backgroundColor,
+        ),
       };
     })(),
     pagination: (() => {
@@ -470,10 +510,30 @@ ok(
   vu.onglets.ouvertADuFond,
   vu.onglets,
 );
+//  LA BARRE PORTE LE BLANC, ET LES ONGLETS FERMÉS NE PEIGNENT RIEN :
+//  c'est le blanc de la barre qu'on voit à travers eux. Comparer leurs
+//  deux fonds calculés dirait le contraire — un `li` transparent
+//  au-dessus d'une barre blanche EST blanc.
 ok(
-  "et son filet, que les trois autres n'ont pas",
-  vu.onglets.filet !== "none" && vu.onglets.filetSurLesAutres === "none",
-  { ouvert: vu.onglets.filet, autres: vu.onglets.filetSurLesAutres },
+  "la barre est blanche de base",
+  vu.onglets.fondDeLaBarre === vu.onglets.surface &&
+    vu.onglets.fermeNePeintRien,
+  { barre: vu.onglets.fondDeLaBarre, ferme: vu.onglets.fondDuDossierFerme },
+);
+ok(
+  "ET L'ONGLET OUVERT SE PEINT DESSUS",
+  vu.onglets.fondDuDossierOuvert !== vu.onglets.fondDeLaBarre,
+  { ouvert: vu.onglets.fondDuDossierOuvert, barre: vu.onglets.fondDeLaBarre },
+);
+ok(
+  "son nom se lit sur ce fond",
+  vu.onglets.contrasteDuNomOuvert >= 4.5,
+  vu.onglets.contrasteDuNomOuvert,
+);
+ok(
+  "et les trois autres se lisent sur le blanc",
+  vu.onglets.contrasteDuNomFerme >= 4.5,
+  vu.onglets.contrasteDuNomFerme,
 );
 ok(
   "les liens se lisent plus pâles que le dossier ouvert",
