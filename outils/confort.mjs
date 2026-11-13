@@ -106,6 +106,13 @@ const bouton = await p.evaluate(() => {
     texte: b.textContent.trim(),
     picto: b.querySelector("svg") !== null,
     dansLeCoin: b.closest(".wm-coin") !== null,
+    //  LA CASSE EST UNE DÉCISION D'AFFICHAGE, PAS DU TEXTE. Le mot
+    //  s'écrit « Confort » dans le code, et c'est la feuille du coin
+    //  qui le met en capitales — ailleurs, dans la barre des annexes,
+    //  il reste en casse normale à côté de « Personnages »,
+    //  « Messagerie » et « Sombre ».
+    motEcrit: b.querySelector("span")?.textContent ?? null,
+    casseAffichee: getComputedStyle(b.querySelector("span")).textTransform,
   };
 });
 dire("le bouton de confort existe", bouton !== null);
@@ -117,6 +124,16 @@ dire(
   //  gauche sur une fente fixe.
   bouton !== null && bouton.l <= 100 && bouton.h <= 60,
   JSON.stringify(bouton),
+);
+dire(
+  "LE MOT EST ÉCRIT EN CASSE NORMALE",
+  bouton?.motEcrit === "Confort",
+  JSON.stringify(bouton?.motEcrit),
+);
+dire(
+  "et c'est la feuille du coin qui le met en capitales",
+  bouton?.casseAffichee === "uppercase",
+  String(bouton?.casseAffichee),
 );
 dire("il a son pictogramme en tracé, pas une ligature", bouton?.picto === true);
 dire("il dit qu'il est replié", bouton?.deplie === "false");

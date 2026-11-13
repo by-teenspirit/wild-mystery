@@ -178,10 +178,24 @@ export function poserLAccessibilite(
   bouton.setAttribute("aria-controls", "wm-confort-panneau");
   bouton.appendChild(pictoAccessibilite(doc));
   //  Le libellé est visible ET annoncé, comme les autres boutons du
-  //  coin. « CONFORT » et pas « ACCESSIBILITÉ » : il reste lisible dans
+  //  coin. « Confort » et pas « Accessibilité » : il reste lisible dans
   //  les 92 px du coin.
+  //
+  //  ── ET IL S'ÉCRIT EN MINUSCULES ────────────────────────────────
+  //
+  //  « Le mot confort dans les annexes, ne le mets pas en majuscule »,
+  //  13 novembre. Il était écrit « CONFORT » EN DUR, et c'est le seul
+  //  du forum à l'être : dans la barre des annexes il tombait à côté
+  //  de « Personnages », « Messagerie » et « Sombre », tous en casse
+  //  normale, et criait tout seul.
+  //
+  //  Le coin ne change pas pour autant : `.wm-coin__bouton` met déjà
+  //  ses quatre étiquettes en capitales par la feuille, et
+  //  `text-transform` s'hérite. La capitale redevient donc une
+  //  décision d'affichage, prise là où elle vaut — ce qu'elle aurait
+  //  dû être depuis le début.
   bouton.appendChild(
-    element(doc, "span", dansLaBarre ? "wm-confort__mot" : "wm-coin__texte", "CONFORT"),
+    element(doc, "span", dansLaBarre ? "wm-confort__mot" : "wm-coin__texte", "Confort"),
   );
   bouton.setAttribute("aria-label", "Confort de lecture");
 
