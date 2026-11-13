@@ -12733,8 +12733,27 @@ body:has(#modernbb .wm-carnet) {
     La consigne « zéro tableau, que du flexbox » (planche 49) vise les
     `<table>` de mise en page que ModernBB sème partout, pas
     `display: grid` — qui n'existait pas quand ces gabarits ont été
-    écrits. Le balisage reste une liste. */
-#modernbb .wm-groupes {
+    écrits. Le balisage reste une liste.
+
+    ── ET ELLE EST SCOPÉE À L'ANNEXE, parce que `.wm-groupes` DÉSIGNE
+       DEUX CHOSES ─────────────────────────────────────────────────
+
+    Le même nom sert ici, pour la liste des six groupes de l'annexe 07,
+    ET dans `templates/groupcp_user_body.nouveau.html`, où il nomme
+    l'ENVELOPPE de la page des groupes — dont l'enfant
+    `.wm-groupes__grille` est la vraie grille.
+
+    Non scopée, cette règle faisait de cette enveloppe une grille de
+    trois colonnes. La grille intérieure devenait alors un ITEM de
+    grille, donc dimensionnée par sa piste : mesurée à 391 px dans un
+    parent de 1 200, elle retombait à une seule colonne. Six cartes
+    empilées là où le harnais en attendait trois de front.
+
+    Le bon correctif de fond serait de renommer l'une des deux : un nom
+    qui désigne deux objets finira par se recogner. En attendant,
+    scoper celle-ci est exact — cette liste ne vit QUE dans une annexe,
+    sous `.wm-annexe__carte`. */
+#modernbb .wm-annexe .wm-groupes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   margin: 0;
@@ -12747,7 +12766,7 @@ body:has(#modernbb .wm-carnet) {
     qui la donne — pas une hauteur écrite, qui serait juste pour une
     longueur de texte et fausse pour la suivante. Le trop-plein
     défile dans la carte au lieu de l'étirer. */
-#modernbb .wm-groupe {
+#modernbb .wm-annexe .wm-groupe {
   position: relative;
   display: flex;
   box-sizing: border-box;
@@ -12774,7 +12793,7 @@ body:has(#modernbb .wm-carnet) {
 
     `pointer-events: none` parce qu'elle passe sous le texte : sans
     ça, elle attraperait la sélection au milieu d'un paragraphe. */
-#modernbb .wm-groupe__embleme {
+#modernbb .wm-annexe .wm-groupe__embleme {
   position: absolute;
   z-index: 0;
   right: -18px;
@@ -12789,7 +12808,7 @@ body:has(#modernbb .wm-carnet) {
 /*  LE TEXTE PASSE DEVANT, ET IL DÉFILE. `min-height: 0` parce qu'un
     enfant de flex refuse de rétrécir sous son contenu sans ça — et
     sans rétrécissement, pas de défilement : la carte s'allongerait. */
-#modernbb .wm-groupe__texte {
+#modernbb .wm-annexe .wm-groupe__texte {
   position: relative;
   z-index: 1;
   min-height: 0;
@@ -12797,7 +12816,7 @@ body:has(#modernbb .wm-carnet) {
   overflow-y: auto;
 }
 
-#modernbb .wm-groupe__nom {
+#modernbb .wm-annexe .wm-groupe__nom {
   margin: 0 0 var(--wm-espace-8, 8px);
   color: var(--texte-groupe, var(--wm-encre, #2e2018));
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
@@ -12807,7 +12826,7 @@ body:has(#modernbb .wm-carnet) {
   line-height: var(--wm-interligne-titre, 1.1);
 }
 
-#modernbb .wm-groupe__dit {
+#modernbb .wm-annexe .wm-groupe__dit {
   margin: 0;
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
@@ -12817,7 +12836,7 @@ body:has(#modernbb .wm-carnet) {
 /*  L'AVANTAGE EST COLLÉ EN BAS, hors du défilement : c'est la seule
     chose de la carte qui change quelque chose au jeu, et il ne doit
     pas disparaître parce que la description est longue. */
-#modernbb .wm-groupe__avantage {
+#modernbb .wm-annexe .wm-groupe__avantage {
   position: relative;
   z-index: 1;
   /*  `margin-top: auto` ET PAS SEULEMENT `flex: 0 0 auto` : quand la
@@ -12832,7 +12851,7 @@ body:has(#modernbb .wm-carnet) {
   background: var(--wm-fond-surface, #fffbf7);
 }
 
-#modernbb .wm-groupe__mot {
+#modernbb .wm-annexe .wm-groupe__mot {
   display: block;
   margin-bottom: var(--wm-espace-4, 4px);
   color: var(--texte-groupe, var(--wm-texte-pale, #69564c));
@@ -12842,7 +12861,7 @@ body:has(#modernbb .wm-carnet) {
   text-transform: uppercase;
 }
 
-#modernbb .wm-groupe__avantage p {
+#modernbb .wm-annexe .wm-groupe__avantage p {
   margin: 0;
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
@@ -12853,27 +12872,27 @@ body:has(#modernbb .wm-carnet) {
     a déjà son fond et son texte dans le panneau d'administration, et
     les deux thèmes les redéfinissent : la carte ne fait que les
     désigner. Une couleur écrite ici resterait claire en thème sombre. */
-#modernbb .wm-groupe--hardi {
+#modernbb .wm-annexe .wm-groupe--hardi {
   --fond-groupe: var(--wm-groupe-hardi-fond, #d4e4ed);
   --texte-groupe: var(--wm-groupe-hardi-texte, #21658c);
 }
-#modernbb .wm-groupe--serieux {
+#modernbb .wm-annexe .wm-groupe--serieux {
   --fond-groupe: var(--wm-groupe-serieux-fond, #ede6d4);
   --texte-groupe: var(--wm-groupe-serieux-texte, #7c611d);
 }
-#modernbb .wm-groupe--malin {
+#modernbb .wm-annexe .wm-groupe--malin {
   --fond-groupe: var(--wm-groupe-malin-fond, #e1d4ed);
   --texte-groupe: var(--wm-groupe-malin-texte, #5a218c);
 }
-#modernbb .wm-groupe--doux {
+#modernbb .wm-annexe .wm-groupe--doux {
   --fond-groupe: var(--wm-groupe-doux-fond, #d4edd4);
   --texte-groupe: var(--wm-groupe-doux-texte, #1b741b);
 }
-#modernbb .wm-groupe--brave {
+#modernbb .wm-annexe .wm-groupe--brave {
   --fond-groupe: var(--wm-groupe-brave-fond, #edd4e0);
   --texte-groupe: var(--wm-groupe-brave-texte, #8c2157);
 }
-#modernbb .wm-groupe--jovial {
+#modernbb .wm-annexe .wm-groupe--jovial {
   --fond-groupe: var(--wm-groupe-jovial-fond, #d4ede8);
   --texte-groupe: var(--wm-groupe-jovial-texte, #1a705e);
 }
@@ -12881,25 +12900,25 @@ body:has(#modernbb .wm-carnet) {
 @media (max-width: 900px) {
   /*  DEUX COLONNES, PUIS UNE. Trois cartes à 210 px laissent le nom
       du groupe sur deux lignes et l'avantage sur six. */
-  #modernbb .wm-groupes {
+  #modernbb .wm-annexe .wm-groupes {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 560px) {
-  #modernbb .wm-groupes {
+  #modernbb .wm-annexe .wm-groupes {
     grid-template-columns: 1fr;
   }
 
   /*  SUR UNE COLONNE, ON NE PLAFONNE PLUS LA HAUTEUR : il y a la
       place, et un cadre qui défile sur un téléphone se bat avec le
       défilement de la page. */
-  #modernbb .wm-groupe {
+  #modernbb .wm-annexe .wm-groupe {
     min-height: 0;
     max-height: none;
   }
 
-  #modernbb .wm-groupe__texte {
+  #modernbb .wm-annexe .wm-groupe__texte {
     overflow-y: visible;
   }
 }
@@ -21924,7 +21943,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     du tableau au lieu de s'y arrêter. L'alternative, `slice`, rognait
     la carte : on ne voyait plus Rhode en entier sans la traîner. */
 #modernbb .wm-carte--peinte .wm-carte__cadre {
-  background-color: var(--wm-carte-marge-peinte, #1b5481);
+  background-color: var(--wm-carte-marge-peinte, #014389);
   background-image: none;
 }
 
