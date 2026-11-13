@@ -32310,6 +32310,27 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: var(--wm-interligne-section, 1.2);
 }
 
+/*  ── LE NOM MÈNE AU COMPTE ────────────────────────────────────────
+
+    « Et si je clique sur le pseudo / le nom du perso, je peux voir son
+    compte » — 13 novembre.
+
+    IL N'EN PREND PAS L'AIR POUR AUTANT : ni couleur, ni soulignement
+    au repos. Sur une carte où tout le reste est du texte, un titre
+    coloré se lirait comme une catégorie, et l'accent est déjà pris par
+    les deux boutons du bas. Le soulignement vient au survol et au
+    clavier — les deux moments où l'on cherche à savoir si ça clique. */
+#modernbb a.wm-repertoire__vers-compte {
+  color: inherit;
+  text-decoration: none;
+}
+
+#modernbb a.wm-repertoire__vers-compte:hover,
+#modernbb a.wm-repertoire__vers-compte:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /*  AU FIL DE L'EAU, PAS JUSTIFIÉ. La page d'annexe justifie son texte,
     ce qui va pour une colonne de 880 px ; dans une carte de 205, la
     même règle écarte les mots jusqu'à creuser des rivières blanches —

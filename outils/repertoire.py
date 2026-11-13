@@ -138,6 +138,12 @@ def carte(p, groupes, plaintes):
         #  voit tout de suite et se corrige d'une ligne.
         plaintes.append(f"{nom} : groupe « {cle} » inconnu — pas de pastille")
 
+    #  LE CARACTÈRE N'EST PLUS AFFICHÉ SUR LA CARTE — « la description
+    #  que tu rajoutes en dessous, elle est inutile », 13 novembre. Il
+    #  RESTE dans le fichier et dans le texte cherchable juste en
+    #  dessous : chercher « têtue » doit continuer de trouver qui l'est,
+    #  et le jour où on veut le remontrer, la donnée est là.
+    #
     #  LE TEXTE CHERCHABLE EST PRÉPARÉ UNE FOIS. Sur cent cartes, le
     #  recomposer à chaque frappe se sent ; et l'ordre des champs n'a
     #  aucune importance puisqu'on y cherche des mots.
@@ -186,6 +192,23 @@ def carte(p, groupes, plaintes):
     #  LE FACECLAIM EST MONTÉ EN SURTITRE, à la place du métier. Il
     #  n'est donc plus au pied de la carte, et le filet du pied revient
     #  aux boutons — seuls occupants de cette zone désormais.
+    #  ── LE NOM MÈNE AU COMPTE ────────────────────────────────────
+    #
+    #  « Et si je clique sur le pseudo / le nom du perso, je peux voir
+    #  son compte » — 13 novembre. Le profil du forum est la page qui
+    #  dit tout le reste : les messages, la date d'inscription, les
+    #  champs qu'on n'a pas recopiés ici.
+    #
+    #  LE TITRE RESTE UN TITRE quand l'adresse manque. Un `h2` qui
+    #  devient un lien vide, ou qui pointe sur « # », promet un clic
+    #  qui ne mène nulle part — et sur une carte, c'est le mot qu'on
+    #  vise en premier.
+    profil = adresse(p.get("profil"))
+    titre = (
+        f'<a class="wm-repertoire__vers-compte" href="{e(profil)}">{e(nom)}</a>'
+        if profil != "" else e(nom)
+    )
+
     a_un_fc = (p.get("faceclaim") or "").strip() != ""
 
     #  LES QUATRE ATTRIBUTS QUE LE MODULE RELIT. `data-wm-cherche` est
@@ -201,9 +224,7 @@ def carte(p, groupes, plaintes):
           <div class="wm-repertoire__cadre">{image}{pastille}</div>
           <div class="wm-repertoire__dedans">
             {f'<p class="wm-repertoire__fc">{e(p["faceclaim"])}</p>' if a_un_fc else ''}
-            <h2 class="wm-repertoire__nom">{e(nom)}</h2>
-            {f'<p class="wm-repertoire__caractere">{e(p["caractere"])}</p>'
-             if (p.get('caractere') or '').strip() != '' else ''}
+            <h2 class="wm-repertoire__nom">{titre}</h2>
             {f'<ul class="wm-repertoire__faits">{faits}</ul>' if faits else ''}
             {f'<ul class="wm-repertoire__liens wm-repertoire__pied">{liens}</ul>'
              if liens else ''}

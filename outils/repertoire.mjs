@@ -65,11 +65,6 @@ const CHROME = [
 const R = new URL("..", import.meta.url).pathname;
 const lire = (c) => readFileSync(R + c, "utf8");
 
-const PIXEL = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
-  "base64",
-);
-
 //  ── DEUX VRAIES PROPORTIONS ─────────────────────────────────────
 //
 //  Un pixel carré ne prouve rien sur « l'avatar n'est ni coupé ni
@@ -77,6 +72,8 @@ const PIXEL = Buffer.from(
 //  large, et vérifier que le rapport affiché est celui du fichier.
 //  Deux PNG unis, écrits ici plutôt que posés dans le dépôt : ils ne
 //  servent qu'à cette mesure.
+/** Un PNG uni de `l` × `h`, en mémoire.
+ *  @returns {Buffer} */
 function png(l, h) {
   const crc = (b) => {
     let c = ~0;
@@ -127,14 +124,14 @@ const MORTE = "https://exemple.test/morte.png";
 //  réparties comme les clans, sinon deux filtres cumulés ne prouvent
 //  rien — on ne saurait pas lequel a retenu.
 const GENS = [
-  ["Ana Vasquez", "hardi", "Fleuriste", "Franche, têtue, incapable de laisser passer une injustice même quand elle n'est pas la sienne.", "Lumirandé", "24 ans", "Rhode", "Jessica Henwick", "/t1-a", "/t2-a", "https://exemple.test/0.png", "Célibataire"],
-  ["Bo Ferrand", "serieux", "Pêcheur", "Bourru.", "Port-Varène", "41 ans", "Kanto", "Pedro Pascal", "", "/t3-b", "https://exemple.test/1.png", "Marié"],
-  ["Cy Nakamura", "doux", "Infirmier", "Patient jusqu'à l'épuisement. Dort peu, écoute beaucoup.", "Lumirandé", "29 ans", "Johto", "Steven Yeun", "/t4-c", "", "https://exemple.test/2.png", "En couple"],
-  ["Dalia Okonkwo", "brave", "Rangère", "Ne recule pas. Pose les questions après.", "Steppes arides", "33 ans", "Unys", "Lupita Nyong'o", "/t5-d", "/t6-d", MORTE, "Célibataire"],
-  ["Elio Marchetti", "jovial", "Géologue", "Curieux comme un enfant, ouvre tout ce qui est fermé.", "Samaragd", "26 ans", "Rhode", "Timothée Chalamet", "/t7-e", "/t8-e", "https://exemple.test/4.png", "En couple"],
-  ["Faye Lindqvist", "malin", "Marchande", "Sait ce que vaut chaque chose, et ce que vaut chaque personne.", "Port-Varène", "37 ans", "Sinnoh", "Alicia Vikander", "/t9-f", "/t10-f", "https://exemple.test/5.png", "Marié"],
-  ["Gil Abadie", "hardi", "Mineur", "Monte d'abord, réfléchit plus haut.", "Monts Enneigés", "31 ans", "Rhode", "", "", "/t11-g", "https://exemple.test/6.png", "Célibataire"],
-  ["Hana Toriyama", "fantaisiste", "Étudiante", "Timide à l'oral, redoutable par écrit.", "Samaragd", "19 ans", "Johto", "Sakura Ando", "/t12-h", "/t13-h", "", "Célibataire"],
+  ["Ana Vasquez", "hardi", "Fleuriste", "Franche, têtue, incapable de laisser passer une injustice même quand elle n'est pas la sienne.", "Lumirandé", "24 ans", "Rhode", "Jessica Henwick", "/t1-a", "/t2-a", "https://exemple.test/0.png", "Célibataire", "/u10"],
+  ["Bo Ferrand", "serieux", "Pêcheur", "Bourru.", "Port-Varène", "41 ans", "Kanto", "Pedro Pascal", "", "/t3-b", "https://exemple.test/1.png", "Marié", "/u11"],
+  ["Cy Nakamura", "doux", "Infirmier", "Patient jusqu'à l'épuisement. Dort peu, écoute beaucoup.", "Lumirandé", "29 ans", "Johto", "Steven Yeun", "/t4-c", "", "https://exemple.test/2.png", "En couple", "/u12"],
+  ["Dalia Okonkwo", "brave", "Rangère", "Ne recule pas. Pose les questions après.", "Steppes arides", "33 ans", "Unys", "Lupita Nyong'o", "/t5-d", "/t6-d", MORTE, "Célibataire", "/u13"],
+  ["Elio Marchetti", "jovial", "Géologue", "Curieux comme un enfant, ouvre tout ce qui est fermé.", "Samaragd", "26 ans", "Rhode", "Timothée Chalamet", "/t7-e", "/t8-e", "https://exemple.test/4.png", "En couple", "/u14"],
+  ["Faye Lindqvist", "malin", "Marchande", "Sait ce que vaut chaque chose, et ce que vaut chaque personne.", "Port-Varène", "37 ans", "Sinnoh", "Alicia Vikander", "/t9-f", "/t10-f", "https://exemple.test/5.png", "Marié", "/u15"],
+  ["Gil Abadie", "hardi", "Mineur", "Monte d'abord, réfléchit plus haut.", "Monts Enneigés", "31 ans", "Rhode", "", "", "/t11-g", "https://exemple.test/6.png", "Célibataire", "/u16"],
+  ["Hana Toriyama", "fantaisiste", "Étudiante", "Timide à l'oral, redoutable par écrit.", "Samaragd", "19 ans", "Johto", "Sakura Ando", "/t12-h", "/t13-h", "", "Célibataire", ""],
 ];
 
 //  ── ET TRENTE-DEUX DE PLUS, POUR TENIR L'ÉCHELLE ──────────────────
@@ -183,6 +180,7 @@ const FOULE = PRENOMS.map((prenom, i) => {
     "/t901-x",
     `https://exemple.test/f${i}.png`,
     STATUTS[i % STATUTS.length],
+    `/u${100 + i}`,
   ];
 });
 const TOUS = [...GENS, ...FOULE];
@@ -194,7 +192,7 @@ const ESSAI = {
   personnages: TOUS.map(
     (
       [nom, groupe, metier, caractere, lieu, age, origine, faceclaim, liens, presentation,
-        avatar, statut],
+        avatar, statut, profil],
     ) => ({
       nom,
       groupe,
@@ -208,6 +206,7 @@ const ESSAI = {
       presentation,
       avatar,
       statut,
+      profil,
     }),
   ),
 };
@@ -376,14 +375,17 @@ const regarder = () => {
         };
       })(),
       surtitre: c.querySelector(".wm-repertoire__fc")?.textContent?.trim() ?? null,
-      //  LE CARACTÈRE NE DOIT PAS ÊTRE JUSTIFIÉ : la page d'annexe
-      //  justifie tous ses `p`, et dans une carte de 205 px ça creuse
-      //  des rivières blanches. La règle qui le défait doit peser plus
-      //  que `#modernbb .wm-annexe p` — une règle qui perd s'applique
-      //  à rien et ne dit pas qu'elle a perdu.
-      aligne: (() => {
-        const e = c.querySelector(".wm-repertoire__caractere");
-        return e === null ? null : getComputedStyle(e).textAlign;
+      //  LE NOM MÈNE AU COMPTE — ou reste un titre quand l'adresse
+      //  manque. Un `h2` changé en lien vide promettrait un clic qui
+      //  ne mène nulle part, sur le mot qu'on vise en premier.
+      versCompte: c.querySelector(".wm-repertoire__vers-compte")
+        ?.getAttribute("href") ?? null,
+      //  Et il ne doit pas AVOIR L'AIR d'un lien au repos : sur une
+      //  carte où tout est du texte, un titre coloré se lirait comme
+      //  une catégorie.
+      nomSouligne: (() => {
+        const e = c.querySelector(".wm-repertoire__vers-compte");
+        return e === null ? null : getComputedStyle(e).textDecorationLine;
       })(),
       faits2: Array.from(c.querySelectorAll(".wm-repertoire__fait")).map((f) => [
         f.querySelector(".wm-repertoire__cle").textContent.trim(),
@@ -411,6 +413,7 @@ const regarder = () => {
           },
         };
       })(),
+      caractere: c.querySelector(".wm-repertoire__caractere") !== null,
       portrait: c.querySelector("img.wm-repertoire__portrait") !== null,
       vide: c.querySelector(".wm-repertoire__portrait--vide") !== null,
       liens: Array.from(c.querySelectorAll(".wm-repertoire__lien")).map((a) =>
@@ -587,6 +590,16 @@ await p.fill(".wm-repertoire__saisie", "lumirande");
     "la recherche ignore les accents — Python et TypeScript s'accordent",
     JSON.stringify(vu.noms) === JSON.stringify(quiHabite("Lumirandé")),
     { vu, attendu: quiHabite("Lumirandé") },
+  );
+}
+
+await p.fill(".wm-repertoire__saisie", "bourru");
+{
+  const vu = await vuesApres("recherche par caractère");
+  ok(
+    "la recherche trouve encore par description, qui n'est plus affichée",
+    JSON.stringify(vu.noms) === JSON.stringify(["Bo Ferrand"]),
+    vu,
   );
 }
 
@@ -783,10 +796,33 @@ console.log("\n── la carte ──");
     vu.cartes.map((c) => [c.nom, c.surtitre]),
   );
 
+  //  ── LE NOM MÈNE AU COMPTE ────────────────────────────────────
   ok(
-    "le caractère se lit au fil de l'eau, pas justifié",
-    vu.cartes.every((c) => c.aligne === null || c.aligne === "left"),
-    [...new Set(vu.cartes.map((c) => c.aligne))],
+    "le nom mène au compte, et reste un titre quand l'adresse manque",
+    vu.cartes.every((c) => {
+      const g = TOUS.find((x) => x[0] === c.nom);
+      return c.versCompte === (g[12] === "" ? null : g[12]);
+    }),
+    vu.cartes.filter((c) => {
+      const g = TOUS.find((x) => x[0] === c.nom);
+      return c.versCompte !== (g[12] === "" ? null : g[12]);
+    }).map((c) => [c.nom, c.versCompte]),
+  );
+  ok(
+    "et il n'en prend pas l'air au repos",
+    vu.cartes.every((c) => c.nomSouligne === null || c.nomSouligne === "none"),
+    [...new Set(vu.cartes.map((c) => c.nomSouligne))],
+  );
+
+  //  LA DESCRIPTION A QUITTÉ LA CARTE — « la description que tu
+  //  rajoutes en dessous, elle est inutile », 13 novembre — MAIS PAS
+  //  LA RECHERCHE : chercher un trait de caractère doit continuer de
+  //  trouver qui le porte, et c'est le genre de chose qu'on casse en
+  //  retirant un affichage.
+  ok(
+    "la description ne s'affiche plus sur les cartes",
+    vu.cartes.every((c) => c.caractere === false),
+    vu.cartes.filter((c) => c.caractere).map((c) => c.nom),
   );
 
   //  ── L'AVATAR N'EST PAS COUPÉ ─────────────────────────────────
