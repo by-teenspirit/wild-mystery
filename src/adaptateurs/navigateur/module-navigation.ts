@@ -52,6 +52,7 @@
 
 import {
   adresseDeCompte,
+  compteDeNotifications,
   lienCourant,
   type LienUtile,
   type Navigation,
@@ -832,6 +833,58 @@ const CE_QU_ON_GARDE = new Set(["fa_right", "fa_notifications", "notif_list", "l
  *
  *  Ce qui est posé ici est de la MISE EN PLACE, pas de l'apparence :
  *  ce qui disparaît, et où se place ce qui reste. */
+/** Retire les parenthèses du compteur de notifications, et les y laisse
+ *  retirées.
+ *
+ *  ── CE QUE LE CSS NE PEUT PAS FAIRE ───────────────────────────────
+ *
+ *  « Le petit (3) en haut, tu pourrais le rendre plus visible ? »,
+ *  13 novembre. La pastille contient le texte `"(3)"`, parenthèses
+ *  comprises, et une feuille ne coupe pas un nœud de texte. Dans un
+ *  rond, elles prennent la moitié de la place du chiffre.
+ *
+ *  ── ET POURQUOI UN OBSERVATEUR ────────────────────────────────────
+ *
+ *  Leur script RÉÉCRIT ce compteur quand une notification arrive ou
+ *  qu'on ouvre la liste. Écrit une fois au chargement, le chiffre
+ *  reviendrait entre parenthèses à la première mise à jour — et celle
+ *  qu'on verrait le plus est justement celle qui compte.
+ *
+ *  L'observateur ne peut pas boucler : il ne récrit que si le texte
+ *  change vraiment, donc sa propre écriture ne déclenche rien de plus
+ *  qu'un tour où il ne fait rien.
+ *
+ *  Rend vrai si un compteur a été trouvé. */
+export function nettoyerLeCompteur(racine: ParentNode): boolean {
+  const pastille = racine.querySelector<HTMLElement>("#notif_unread");
+  if (pastille === null) return false;
+
+  const ranger = (): void => {
+    const n = compteDeNotifications(pastille.textContent);
+    //  RIEN À LIRE, ON NE TOUCHE À RIEN. Un « 99+ » ou un libellé
+    //  traduit reste tel quel : son texte dit toujours plus juste que
+    //  ce qu'on en déduirait.
+    if (n === null || pastille.textContent === n) return;
+    pastille.textContent = n;
+  };
+
+  ranger();
+  const vue = racine.ownerDocument?.defaultView ?? globalThis;
+  //  `MutationObserver` manque dans un DOM minimal : on s'en passe
+  //  plutôt que de tomber. Le chiffre sera propre au chargement, et
+  //  c'est déjà l'essentiel.
+  const Observateur = (vue as { MutationObserver?: typeof MutationObserver })
+    .MutationObserver;
+  if (typeof Observateur === "function") {
+    new Observateur(ranger).observe(pastille, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
+  }
+  return true;
+}
+
 function habillerLaToolbar(toolbar: HTMLElement): void {
   const poser = (e: HTMLElement, p: readonly (readonly [string, string])[]): void => {
     for (const [nom, valeur] of p) e.style.setProperty(nom, valeur, "important");
@@ -930,6 +983,8 @@ function habillerLaToolbar(toolbar: HTMLElement): void {
     ["padding", "0"],
     ...commeLeVoisin,
   ]);
+
+  nettoyerLeCompteur(toolbar);
 
   //  `#fa_right` EST LE MAILLON QU'ON AVAIT SAUTÉ. Il est entre la
   //  toolbar et la cloche, il portait ses propres 13 px et sa propre

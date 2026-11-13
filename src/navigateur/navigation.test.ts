@@ -15,11 +15,16 @@
 //
 //  **Et qu'aucun personnage ne s'invente.** La liste vient du switcheroo,
 //  pas d'un fichier : ce qu'il ne donne pas ne s'affiche pas.
+//
+//  **Que la pastille des notifications n'invente pas de chiffre.** On y
+//  retire des parenthèses que Forumactif y met ; le jour où il y écrit
+//  autre chose, on laisse son texte plutôt que d'en déduire un nombre.
 // ════════════════════════════════════════════════════════════════════
 
 import { assertEquals } from "@std/assert";
 import {
   adresseDeCompte,
+  compteDeNotifications,
   type Lien,
   lienCourant,
   navigationDepuis,
@@ -223,5 +228,25 @@ Deno.test("une source qui n'est pas une image du forum est refusée", () => {
     ]
   ) {
     assertEquals(sourceDAvatar(mauvais), null, mauvais);
+  }
+});
+
+Deno.test("la pastille des notifications perd ses parenthèses", () => {
+  assertEquals(compteDeNotifications("(3)"), "3");
+  assertEquals(compteDeNotifications(" (12) "), "12");
+  //  Sans parenthèses, ce que d'autres thèmes écrivent.
+  assertEquals(compteDeNotifications("7"), "7");
+});
+
+Deno.test("et elle n'invente rien du reste", () => {
+  //  ZÉRO N'EST PAS UNE NOTIFICATION. La feuille cache déjà le cas
+  //  vide ; un rond portant « 0 » serait un mensonge visuel.
+  assertEquals(compteDeNotifications("(0)"), null);
+  assertEquals(compteDeNotifications("0"), null);
+  //  Rien à lire : la pastille garde son texte d'origine.
+  for (
+    const brut of ["", "   ", "99+", "(99+)", "trois", "(1) (2)", null, undefined]
+  ) {
+    assertEquals(compteDeNotifications(brut), null, JSON.stringify(brut));
   }
 });

@@ -348,18 +348,36 @@
     délégué sur `document` et branche sur `e.target.id` : un clic qui
     atterrit sur la pastille tombe dans le `default`, qui REFERME la
     liste. Le clic doit donc toujours arriver sur la cloche. */
+/*  ── « TU POURRAIS RENDRE LE NUMÉRO PLUS VISIBLE ? », 13 NOVEMBRE ──
+
+    Le chiffre se lisait très bien SUR la pastille — blanc sur terre,
+    mesuré à 6,74. C'est LA PASTILLE qui ne se voyait pas : terre
+    (#8b4725) sur la barre de nuit (#3a2a22) fait 1,97. Deux bruns
+    sombres l'un sur l'autre, et le rond disparaissait dans la barre.
+
+    `--wm-chiffre-sur-nuit` existe pour exactement ce problème : il a
+    été créé le 9 octobre pour le rang d'une catégorie, parce que le
+    terre ne se lisait pas sur le bandeau sombre. Il monte la pastille
+    à 5,97 sur la barre, et le chiffre en encre par-dessus à 6,85. Il
+    vaut la même valeur dans les deux thèmes — la barre est sombre dans
+    les deux, et c'est pour ça que ce jeton n'est pas une valeur de
+    thème.
+
+    DEUX PIXELS DE PLUS, AUSSI : 16 de haut et 10 de corps, c'était la
+    taille d'une étiquette, pas d'un compte qu'on cherche du coin de
+    l'œil. */
 #modernbb .wm-nav__droite #fa_toolbar #fa_right #notif_unread {
   display: inline-flex;
-  min-width: 16px;
-  height: 16px;
+  min-width: 18px;
+  height: 18px;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  padding: 0 4px;
+  padding: 0 5px;
   border-radius: 999px;
-  background: var(--wm-accent-terre, #8b4725);
-  color: var(--wm-texte-inverse, #fffbf7);
-  font-size: var(--wm-taille-etiquette, 10px);
+  background: var(--wm-chiffre-sur-nuit, #d99e80);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   font-variant-numeric: tabular-nums;
   line-height: 1;

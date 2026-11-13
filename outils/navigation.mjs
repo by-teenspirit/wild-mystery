@@ -227,7 +227,7 @@ a#logo img{max-width:100%}</style>
         l'ouvre, d'ou le demenagement de la BARRE ENTIERE au lieu de la
         copie de la cloche.  -->
   <div id="fa_menu"><span id="fa_welcome">Bienvenue Compte de test</span><ul><li>un menu</li></ul></div>
-  <a id="fa_notifications" class="rightHeaderLink unread">Notifications<span id="notif_unread">2</span></a>
+  <a id="fa_notifications" class="rightHeaderLink unread">Notifications<span id="notif_unread">(2)</span></a>
   <ul id="notif_list">
     <!-- LA VRAIE FORME, relevee le 31 octobre sur le forum : .content
          porte un .contentText, le lien de suppression et la date. Et
@@ -1097,6 +1097,99 @@ dire(
 dire("et on n'a pas touché à son interrupteur", cloche.listeFermee);
 dire("une pastille pleine s'affiche", cloche.pastille !== "none", cloche.pastille);
 dire("et elle n'attrape pas le clic", cloche.pastilleTransparenteAuClic);
+
+//  ── LE COMPTEUR, ET LES PARENTHÈSES DE FORUMACTIF ─────────────────
+//
+//  « Le petit (3) en haut, tu pourrais le rendre plus visible ? »,
+//  13 novembre. Deux choses, et une seule se règle au CSS.
+//
+//  Le fac-similé écrit « (2) » parce que c'est CE QUE FORUMACTIF
+//  ÉCRIT — relevé le 13 novembre sur le forum connecté. Il écrivait
+//  « 2 » jusqu'ici, et le contrôle ne pouvait donc rien dire du
+//  nettoyage.
+const compteur = await p.evaluate(() => {
+  const past = document.querySelector("#notif_unread");
+  const c = getComputedStyle(past);
+  const barre = getComputedStyle(document.querySelector("nav.wm-nav")).backgroundColor;
+  //  Le rapport de contraste, calculé ici plutôt qu'affirmé : c'est la
+  //  mesure du défaut. La pastille terre faisait 1,97 sur la barre.
+  const lum = (couleur) => {
+    const [r, v, b] = couleur.match(/\d+/g).slice(0, 3).map(Number);
+    const f = (x) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * f(r) + 0.7152 * f(v) + 0.0722 * f(b);
+  };
+  const ratio = (a, b) => {
+    const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+    return Math.round(((x + 0.05) / (y + 0.05)) * 100) / 100;
+  };
+  return {
+    texte: past.textContent,
+    contreLaBarre: ratio(c.backgroundColor, barre),
+    chiffreSurLaPastille: ratio(c.color, c.backgroundColor),
+    hauteur: Math.round(past.getBoundingClientRect().height),
+    corps: c.fontSize,
+  };
+});
+dire(
+  "le compteur a perdu les parenthèses de Forumactif",
+  compteur.texte === "2",
+  JSON.stringify(compteur.texte),
+);
+//  CE QUI NE SE VOYAIT PAS, C'ÉTAIT LA PASTILLE, PAS LE CHIFFRE : le
+//  chiffre sur la pastille était déjà à 6,74, mais la pastille sur la
+//  barre à 1,97. Deux bruns sombres l'un sur l'autre.
+dire(
+  "LA PASTILLE SE DÉTACHE DE LA BARRE",
+  compteur.contreLaBarre >= 4.5,
+  `${compteur.contreLaBarre} contre la barre de nuit`,
+);
+dire(
+  "et le chiffre se lit toujours dessus",
+  compteur.chiffreSurLaPastille >= 4.5,
+  `${compteur.chiffreSurLaPastille}`,
+);
+dire(
+  "elle a grandi avec",
+  compteur.hauteur >= 18 && parseFloat(compteur.corps) >= 11,
+  `${compteur.hauteur} px, corps ${compteur.corps}`,
+);
+
+//  ── ET QUAND LEUR SCRIPT LE RÉÉCRIT ───────────────────────────────
+//
+//  C'est le cas qui compte vraiment : leur script remet le compteur à
+//  jour quand une notification arrive. Nettoyé une seule fois au
+//  chargement, le chiffre reviendrait entre parenthèses à la première
+//  mise à jour — celle qu'on regarde.
+const apresLeur = await p.evaluate(async () => {
+  const past = document.querySelector("#notif_unread");
+  past.textContent = "(5)";
+  //  L'observateur est asynchrone : on lui laisse un tour.
+  await new Promise((r) => setTimeout(r, 30));
+  return past.textContent;
+});
+dire(
+  "LE NETTOYAGE TIENT QUAND LEUR SCRIPT RÉÉCRIT LE COMPTE",
+  apresLeur === "5",
+  JSON.stringify(apresLeur),
+);
+
+//  ET ON NE DÉDUIT PAS UN CHIFFRE DE CE QUI N'EN EST PAS UN. « 99+ »
+//  veut dire PLUS de 99 : le lire comme « 99 » serait annoncer moins
+//  de notifications qu'il n'y en a.
+const pasUnNombre = await p.evaluate(async () => {
+  const past = document.querySelector("#notif_unread");
+  past.textContent = "99+";
+  await new Promise((r) => setTimeout(r, 30));
+  const garde = past.textContent;
+  past.textContent = "(2)";
+  await new Promise((r) => setTimeout(r, 30));
+  return garde;
+});
+dire(
+  "et un « 99+ » garde son texte plutôt que de devenir « 99 »",
+  pasUnNombre === "99+",
+  JSON.stringify(pasUnNombre),
+);
 //  « JE NE VEUX RIEN VOIR » de la barre Forumactif, 7 octobre. On
 //  vérifie donc l'INVERSE de d'habitude : non pas que les quelques
 //  nœuds qu'on connaît sont masqués, mais qu'il ne reste QUE les

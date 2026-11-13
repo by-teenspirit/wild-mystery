@@ -247,3 +247,42 @@ export function personnagesDepuis(
   }
   return sortie;
 }
+
+// ── le compteur de notifications ────────────────────────────────────
+
+/**
+ * Le nombre de notifications, tiré de ce que Forumactif écrit dans la
+ * pastille.
+ *
+ * ── POURQUOI UNE FONCTION POUR TROIS CARACTÈRES ────────────────────
+ *
+ * « Le petit (3) en haut, tu pourrais le rendre plus visible ? »,
+ * 13 novembre. Relevé : la pastille contient le texte `"(3)"` —
+ * PARENTHÈSES COMPRISES. Elles viennent de la barre Forumactif, et
+ * aucune feuille ne peut les retirer : le CSS ne coupe pas un nœud de
+ * texte. Dans une pastille ronde, elles prennent la moitié de la place
+ * et rapetissent le chiffre qu'on veut justement voir.
+ *
+ * ── ET RIEN D'AUTRE QUE DES CHIFFRES ───────────────────────────────
+ *
+ * Forumactif peut y écrire autre chose — un `99+` sur certains thèmes,
+ * un libellé traduit, ou rien du tout. On ne rend donc un nombre que si
+ * on en lit un, et `null` dans tous les autres cas : la pastille garde
+ * alors son texte d'origine, qui est toujours plus juste qu'un chiffre
+ * inventé.
+ *
+ * `null` aussi pour zéro : une pastille à zéro est un mensonge visuel,
+ * et la feuille cache déjà le cas vide.
+ */
+export function compteDeNotifications(brut: string | null | undefined): string | null {
+  if (typeof brut !== "string") return null;
+  //  ON N'ACCEPTE QUE DES PARENTHÈSES AUTOUR, pas n'importe quoi qui
+  //  ne soit pas un chiffre. Un `\D*` complaisant lisait « 99+ »
+  //  comme « 99 » — et « 99+ » veut dire PLUS de 99 : on aurait
+  //  annoncé moins de notifications qu'il n'y en a, en croyant
+  //  nettoyer. Attrapé par son test.
+  const chiffres = brut.trim().match(/^[\s([]*(\d{1,4})[\s)\]]*$/);
+  if (chiffres === null) return null;
+  const n = Number(chiffres[1]);
+  return n > 0 ? String(n) : null;
+}
