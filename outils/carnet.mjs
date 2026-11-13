@@ -667,6 +667,35 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
       /bo[îi]te/i.test(dit),
     JSON.stringify({ envoi, dit }),
   );
+  //  ── ET IL FAUT REGARDER OÙ LA RÉPONSE TOMBE ────────────────────
+  //
+  //  « Quand les personnes viennent connecter leur compte au carnet, le
+  //  texte d'erreur chevauche le bouton », 13 novembre.
+  //
+  //  Ce harnais lisait déjà cette phrase — mot pour mot, dans trois cas
+  //  — et n'a rien vu : il vérifiait CE QU'ELLE DIT, jamais OÙ ELLE
+  //  TOMBE. Une phrase juste, posée sur le bouton qu'elle commente.
+  const place = await q.evaluate(() => {
+    const b = document.querySelector("[data-wm-carnet-liaison] button");
+    const d = document.querySelector("[data-wm-carnet-lier-dit]");
+    const rb = b.getBoundingClientRect(), rd = d.getBoundingClientRect();
+    return {
+      basDuBouton: Math.round(rb.bottom),
+      hautDuTexte: Math.round(rd.top),
+      ecart: Math.round(rd.top - rb.bottom),
+      margeHaute: getComputedStyle(d).marginTop,
+    };
+  });
+  dire(
+    "LA RÉPONSE SE POSE SOUS LE BOUTON, PAS DESSUS",
+    place.ecart >= 0,
+    JSON.stringify(place),
+  );
+  dire(
+    "et elle respire un peu",
+    place.ecart >= 8,
+    JSON.stringify(place),
+  );
   dire(
     "et le corps ne porte QUE ce que l'API lit — un champ de plus serait jeté en silence",
     envoi !== undefined && Object.keys(envoi.corps).sort().join() === "create_user,email",

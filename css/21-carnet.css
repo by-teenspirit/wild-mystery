@@ -287,10 +287,35 @@
 }
 
 #modernbb .wm-carnet__bloc-dit {
-  flex: 1 1 100%;
-  margin: calc(-1 * var(--wm-espace-8, 8px)) 0 0;
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  ── LA LIGNE ENTIÈRE ET LE RAPPROCHEMENT SONT DEUX RÉGLAGES DE
+       RANGÉE, PAS DEUX RÉGLAGES DE PHRASE ───────────────────────────
+
+    « Quand les personnes viennent connecter leur compte au carnet, le
+    texte d'erreur chevauche le bouton », 13 novembre.
+
+    `flex: 1 1 100%` et la marge NÉGATIVE de 8 px étaient posées sur la
+    phrase elle-même. Elles n'ont de sens que dans
+    `.wm-carnet__bloc-tete`, la rangée souple où la phrase passe à la
+    ligne sous le titre et vient s'en rapprocher.
+
+    La réponse du formulaire de liaison porte la même classe et ne vit
+    dans aucune rangée : `flex` n'y servait à rien, et les huit pixels
+    la remontaient SUR le bouton qu'elle commente. Mesuré : −8.
+
+    Les deux déclarations rejoignent donc la rangée qui les demande.
+    Partout ailleurs, la phrase suit le flux. */
+#modernbb .wm-carnet__bloc-tete .wm-carnet__bloc-dit {
+  flex: 1 1 100%;
+  margin: calc(-1 * var(--wm-espace-8, 8px)) 0 0;
+}
+
+/*  Et sous le bouton, elle respire. */
+#modernbb .wm-carnet__lier .wm-carnet__bloc-dit {
+  margin: var(--wm-espace-10, 10px) 0 0;
 }
 
 /*  LE LIEN DE COIN — « Mes boîtes → », « La boutique », « Le sujet de
