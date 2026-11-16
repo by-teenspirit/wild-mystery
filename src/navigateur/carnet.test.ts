@@ -11,6 +11,7 @@
 import { assertEquals } from "@std/assert";
 import {
   type Arene,
+  avecLePseudoDuForum,
   badgesAffiches,
   chiffre,
   compteDeBadges,
@@ -323,4 +324,79 @@ Deno.test("LES VRAIES ESPÈCES HORS NATURE DU POKÉDEX SONT TOUTES RATTACHÉES",
   assertEquals(sansZone.length > 0, true);
   assertEquals(sansZone.filter((e) => e.origine === undefined).length, 0);
   assertEquals(dex.filter((e) => e.zone !== null && e.origine !== undefined).length, 0);
+});
+
+//  ── LE PSEUDO DU CARNET SUIT CELUI DU FORUM ───────────────────────
+//
+//  « J'ai changé mon pseudo mais il a pas changé dans le carnet de
+//  bord » · « "mes RP" en liste ne fonctionne pas » · « j'ai découvert
+//  "personne n'a écrit" alors qu'Arceus a posté après moi »,
+//  13 novembre. Un seul défaut, trois symptômes.
+//
+//  `joueur.pseudo` est écrit UNE SEULE FOIS par `lier_compte` et plus
+//  jamais relu. Le nom de la barre latérale est donc celui du jour de
+//  la liaison — et `etatVu` compare l'auteur du dernier message, relevé
+//  sur le forum, à ce nom figé. Après un changement de pseudo les deux
+//  ne correspondent plus jamais.
+
+const DRESSEUR = {
+  joueurId: "j-1",
+  forumUserId: 42,
+  pseudo: "Ancien Pseudo",
+  groupe: null,
+  palier: null,
+  pokedollars: 0,
+  lieLe: null,
+};
+const CARNET = {
+  dresseur: DRESSEUR,
+  pokemon: [],
+  pension: [],
+  badges: [],
+  sac: [],
+  pokedex: [],
+  dernierJet: null,
+};
+
+Deno.test("le carnet prend le pseudo que le forum donne aujourd'hui", () => {
+  const c = avecLePseudoDuForum(CARNET, { id: 42, pseudo: "Nouveau Pseudo" });
+  assertEquals(c.dresseur?.pseudo, "Nouveau Pseudo");
+  //  ET RIEN D'AUTRE NE BOUGE : on recolle un nom, on ne reconstruit
+  //  pas le carnet.
+  assertEquals(c.dresseur?.joueurId, "j-1");
+  assertEquals(c.dresseur?.forumUserId, 42);
+  assertEquals(c.pokemon, CARNET.pokemon);
+  //  L'ORIGINAL N'EST PAS TOUCHÉ.
+  assertEquals(CARNET.dresseur.pseudo, "Ancien Pseudo");
+});
+
+Deno.test("ELLE NE TOUCHE À RIEN SI CE N'EST PAS LE BON PERSONNAGE", () => {
+  //  Une connexion peut porter plusieurs personnages (migration 0029).
+  //  Recopier le pseudo de la session sur le mauvais carnet
+  //  renommerait le second personnage avec le nom du premier — et le
+  //  nom d'un personnage est ce que tout le monde lit dans le journal.
+  const c = avecLePseudoDuForum(CARNET, { id: 77, pseudo: "Un Autre" });
+  assertEquals(c.dresseur?.pseudo, "Ancien Pseudo");
+  assertEquals(c, CARNET);
+});
+
+Deno.test("et elle n'efface jamais un nom avec du vide", () => {
+  //  Une page de profil qu'on n'a pas comprise ne doit pas effacer un
+  //  nom qui, lui, est juste. Perdre le nom est pire que l'avoir vieux
+  //  d'un jour.
+  assertEquals(
+    avecLePseudoDuForum(CARNET, { id: 42, pseudo: "   " }).dresseur?.pseudo,
+    "Ancien Pseudo",
+  );
+  assertEquals(avecLePseudoDuForum(CARNET, null).dresseur?.pseudo, "Ancien Pseudo");
+  //  Un carnet sans dresseur traverse sans bruit : la page de liaison
+  //  s'en sert avant qu'un personnage existe.
+  const vide = { ...CARNET, dresseur: null };
+  assertEquals(avecLePseudoDuForum(vide, { id: 42, pseudo: "X" }), vide);
+});
+
+Deno.test("un pseudo inchangé rend le carnet tel quel, sans copie", () => {
+  //  Pas par économie : une copie à chaque passage ferait repeindre
+  //  des écrans qui n'ont pas changé.
+  assertEquals(avecLePseudoDuForum(CARNET, { id: 42, pseudo: "Ancien Pseudo" }), CARNET);
 });

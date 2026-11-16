@@ -99,7 +99,12 @@ if (CHROME === undefined) {
 const CARNET = {
   dresseur: {
     joueurId: "eeee0000-0000-0000-0000-000000000001",
-    forumUserId: 4,
+    //  LE MÊME QUE `MEMBRE.id`. Il disait 4 pendant que le harnais
+    //  demandait le carnet de l'utilisateur 42 : la réponse d'essai
+    //  décrivait quelqu'un d'autre que celui qu'on allait chercher.
+    //  Rien ne comparait les deux, alors rien ne criait — jusqu'au
+    //  jour où un contrôle en a eu besoin.
+    forumUserId: 42,
     pseudo: "Eliott Vanner",
     groupe: "hardi",
     palier: 2,
@@ -1591,6 +1596,55 @@ const RP = [
     reponses: 0, dernier_le: null, dernier_auteur: "", dernier_message: null,
     extrait: "", etat: "prevu", ordre: 0 },
 ];
+
+//  ── LE PSEUDO DU CARNET SUIT CELUI DU FORUM ───────────────────────
+//
+//  « J'ai changé mon pseudo mais il a pas changé dans le carnet de
+//  bord » · « "mes RP" en liste ne fonctionne pas » · « j'ai découvert
+//  "personne n'a écrit" alors qu'Arceus a posté après moi »,
+//  13 novembre. Un seul défaut, trois symptômes.
+//
+//  `joueur.pseudo` est écrit une seule fois par `lier_compte` et plus
+//  jamais relu. On reproduit donc l'état exact d'une personne qui
+//  vient de se renommer : le carnet porte L'ANCIEN nom, le forum en
+//  annonce un NEUF, et les RP — relevés sur le forum — portent le
+//  NEUF eux aussi.
+//
+//  SANS LE CORRECTIF, PLUS RIEN NE CORRESPOND : chaque RP dont elle
+//  est la dernière autrice se lit « à moi d'écrire », et la vue liste
+//  n'a plus rien à filtrer.
+{
+  const ancien = { ...CARNET, dresseur: { ...CARNET.dresseur, pseudo: "Ancien Pseudo" } };
+  const rpRenommes = RP.map((r) =>
+    r.dernier_auteur === "Eliott Vanner" ? { ...r, dernier_auteur: "Nouveau Pseudo" } : r
+  );
+  const { q } = await monter({
+    reponse: ancien,
+    compte: { id: 42, pseudo: "Nouveau Pseudo" },
+    lesRp: rpRenommes,
+  });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  const vu = await q.evaluate(() => ({
+    nom: document.querySelector("[data-wm-carnet-nom]")?.textContent?.trim() ?? "",
+    etats: [...document.querySelectorAll(".wm-rp__etat")].map((e) => e.textContent.trim()),
+  }));
+  dire(
+    "LE CARNET PORTE LE PSEUDO D'AUJOURD'HUI, pas celui du jour de la liaison",
+    vu.nom === "Nouveau Pseudo",
+    JSON.stringify(vu),
+  );
+  dire(
+    "et « à l'autre » redevient possible — sinon tout basculait vers elle",
+    //  « À l'autre » ne peut apparaître QUE si le dernier auteur est
+    //  reconnu comme elle. Avec le pseudo figé, aucun ne l'était :
+    //  c'est le symptôme « mes RP ne fonctionne pas ». Un seul suffit
+    //  à prouver que la comparaison retombe sur ses pieds.
+    vu.etats.includes("à l'autre"),
+    JSON.stringify(vu.etats),
+  );
+  await q.close();
+}
 
 {
   //  « À MOI D'ÉCRIRE » SE CALCULE, il n'est rangé nulle part : le

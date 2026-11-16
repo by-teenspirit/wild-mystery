@@ -92,7 +92,7 @@ import { poserEcrire } from "../src/adaptateurs/navigateur/ecrire.ts";
 import { poserHistoire } from "../src/adaptateurs/navigateur/histoire.ts";
 import { poserLesLiens } from "../src/adaptateurs/navigateur/liens.ts";
 import { poserLesRp } from "../src/adaptateurs/navigateur/rp.ts";
-import type { Carnet } from "../src/navigateur/carnet.ts";
+import { avecLePseudoDuForum, type Carnet } from "../src/navigateur/carnet.ts";
 import {
   demandeurDuNavigateur,
   profilQuiRegarde,
@@ -424,7 +424,27 @@ async function ouvrirLeCarnet(): Promise<void> {
   //  plantait au même endroit qu'une panne de réseau, et la page disait
   //  le même mot. On cherchait alors du côté de la base, qui avait très
   //  bien répondu.
-  const carnet = lu;
+  //  ── LE PSEUDO VIENT DU FORUM, PAS DE LA BASE ────────────────────
+  //
+  //  « J'ai changé mon pseudo mais il a pas changé dans le carnet de
+  //  bord », 13 novembre. `joueur.pseudo` est écrit une seule fois par
+  //  `lier_compte` et plus jamais relu.
+  //
+  //  Trois écrans en dépendaient : le nom de la barre latérale, et
+  //  surtout `etatVu`, qui compare l'auteur du dernier message —
+  //  relevé sur le forum, donc le pseudo D'AUJOURD'HUI — à ce nom
+  //  figé. Après un changement de pseudo les deux ne correspondent
+  //  plus jamais : tous les RP passent en « à moi d'écrire » et les
+  //  filtres de la vue liste ne gardent plus rien.
+  //
+  //  La page sait pourtant le bon nom : elle vient de lire
+  //  `/profile?mode=editprofile`, et cette page-là ne se charge
+  //  qu'avec la session de son propriétaire.
+  //
+  //  CE N'EST QU'UN PANSEMENT D'ÉCRAN. La relève cherche les RP par
+  //  `/search?search_author=<pseudo>` avec le nom de la base : tant
+  //  qu'elle ne le recolle pas elle-même, elle ne trouvera rien.
+  const carnet = avecLePseudoDuForum(lu, compte);
   try {
     const decor = await decorDuCarnet();
     poserLaBarre(document, carnet, "mon-jeu", decor);

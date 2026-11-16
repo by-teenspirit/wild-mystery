@@ -91,6 +91,60 @@ export interface Carnet {
   dernierJet: Jet | null;
 }
 
+/** Le carnet, avec le pseudo que le forum donne AUJOURD'HUI.
+ *
+ *  ── POURQUOI IL FAUT LE RECOLLER ──────────────────────────────────
+ *
+ *  « J'ai changé mon pseudo mais il a pas changé dans le carnet de
+ *  bord » · « "mes RP" en liste ne fonctionne pas », 13 novembre. Un
+ *  seul défaut, deux symptômes.
+ *
+ *  `joueur.pseudo` est écrit UNE SEULE FOIS, par `lier_compte`, et
+ *  plus jamais relu. Le nom de la barre latérale est donc celui du
+ *  jour de la liaison.
+ *
+ *  Et `etatVu` compare `dernierAuteur` — relevé sur le forum, donc le
+ *  pseudo D'AUJOURD'HUI — à ce nom figé. Après un changement de
+ *  pseudo les deux ne correspondent plus jamais : tous les RP que la
+ *  personne a écrits en dernier passent en « à moi d'écrire », et les
+ *  filtres de la vue liste ne gardent plus rien. L'onglet a l'air
+ *  cassé alors qu'il applique fidèlement une comparaison fausse.
+ *
+ *  La page sait pourtant le bon nom : elle demande
+ *  `/profile?mode=editprofile` à chaque visite, et cette page-là ne se
+ *  charge qu'avec la session de son propriétaire.
+ *
+ *  ── CE QU'ELLE REFUSE DE FAIRE ────────────────────────────────────
+ *
+ *  Elle ne touche à rien si le compte du forum n'est pas CELUI du
+ *  personnage : une connexion peut porter plusieurs personnages
+ *  (migration 0029), et recopier le pseudo de la session sur le
+ *  mauvais carnet renommerait le second personnage avec le nom du
+ *  premier.
+ *
+ *  Elle ne touche à rien non plus sur un nom vide : une page de profil
+ *  qui n'a pas été comprise ne doit pas effacer un nom qui, lui, est
+ *  juste. Perdre le nom est pire que l'avoir vieux d'un jour.
+ *
+ *  ── ET ELLE N'ÉCRIT PAS DANS LA BASE ──────────────────────────────
+ *
+ *  `joueur.pseudo` reste ce qu'il est : le reste du jeu — le journal,
+ *  les bilans, la liste du staff — continue de le lire. Les y recoller
+ *  demande une migration, et le journal, lui, garde son ancien nom
+ *  EXPRÈS (migration 0014) : un évènement passé porte le nom qu'on
+ *  avait ce jour-là. */
+export function avecLePseudoDuForum(
+  c: Carnet,
+  compte: { id: number; pseudo: string } | null,
+): Carnet {
+  const d = c.dresseur;
+  if (d === null || compte === null) return c;
+  if (compte.id !== d.forumUserId) return c;
+  const vivant = compte.pseudo.trim();
+  if (vivant === "" || vivant === d.pseudo) return c;
+  return { ...c, dresseur: { ...d, pseudo: vivant } };
+}
+
 /** Les sept onglets, dans l'ordre de la barre latérale. L'ordre vient
  *  de la maquette et il est le même sur les huit écrans. */
 export const ONGLETS = [
