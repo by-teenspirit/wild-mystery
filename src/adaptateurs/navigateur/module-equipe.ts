@@ -38,6 +38,31 @@
 /** Les trois chiffres, dans l'ordre où la page les écrit. */
 const CHIFFRES = ["PV", "Attaque", "Défense"] as const;
 
+/** Les dégâts d'un pokémon, en pourcentage de la normale.
+ *
+ *  ── POURQUOI CETTE LIGNE EXISTE ───────────────────────────────────
+ *
+ *  « Rajouter deux infobulles au-dessus de "particularités et
+ *  restrictions" pour que les membres puissent bien voir la différence
+ *  entre les deux », 16 novembre, et c'est la version chiffrée qui a
+ *  été retenue.
+ *
+ *  L'annexe 13 dit la règle en toutes lettres : « un Pokémon Obscur
+ *  voit ses dégâts d'attaque augmentés de 20 % par rapport à un
+ *  Pokémon normal, afin de se rapprocher du mode Hyper/Retour présent
+ *  dans les jeux ». La bulle se contentait de la couleur du fond ; on
+ *  l'écrit maintenant, parce qu'une couleur ne se lit pas en niveaux
+ *  de gris et ne dit pas combien.
+ *
+ *  LA LIGNE EST POSÉE SUR LES DEUX. Un « 120 % » tout seul ne se
+ *  compare à rien : c'est le « 100 % » du pokémon pur, juste à côté,
+ *  qui en fait une différence.
+ *
+ *  Ce n'est pas un calcul de combat — il n'y en a pas dans ce dépôt.
+ *  Le jour où il y en aura un, cette valeur déménagera dans le
+ *  domaine, et cette constante ira la lire. */
+const DEGATS = { pur: "100 %", obscur: "120 %" } as const;
+
 /** `eau:Eau;vol:Vol|34,23,14` → les types et les chiffres.
  *
  *  LE LIBELLÉ EST DANS L'ATTRIBUT, PAS DANS UNE TABLE ICI. Les dix-huit
@@ -124,6 +149,19 @@ function construire(doc: Document, li: Element, brut: string): HTMLElement | nul
     ligne.append(g, d);
     stats.append(ligne);
   }
+
+  //  LES DÉGÂTS FERMENT LA LISTE, séparés par un filet. Ils ne sont
+  //  pas une statistique du pokémon : c'est une règle du jeu qui
+  //  s'applique à lui. Le filet dit cette différence sans un mot de
+  //  plus dans une bulle qui ne fait que 212 pixels.
+  const degats = elt(doc, "li", "wm-infobulle__stat wm-infobulle__stat--degats");
+  const mot = doc.createElement("span");
+  mot.textContent = "Dégâts";
+  const part = doc.createElement("span");
+  part.textContent = obscur ? DEGATS.obscur : DEGATS.pur;
+  degats.append(mot, part);
+  stats.append(degats);
+
   bulle.append(stats);
   return bulle;
 }

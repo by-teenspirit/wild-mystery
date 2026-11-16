@@ -1634,6 +1634,23 @@
 
 /*  ── LE RANG, ET CE QU'IL MESURE ─────────────────────────────────── */
 
+/*  ── LES DÉGÂTS, EN BAS, DERRIÈRE UN FILET ───────────────────────
+
+    L'annexe 13 dit que les obscurs frappent 20 % plus fort ; la bulle
+    ne le disait pas, elle changeait seulement de couleur de fond. Une
+    couleur ne se lit pas en niveaux de gris et ne dit pas combien.
+
+    Le filet sépare la règle du jeu des statistiques du pokémon : les
+    trois premières lignes décrivent CE POKÉMON, la dernière décrit CE
+    QU'IL EST. Il est tiré de la couleur du texte, comme la pastille du
+    niveau, pour tenir sur le vert ET sur le violet sans être
+    redéclaré. */
+#modernbb .wm-infobulle__stat--degats {
+  margin-top: 2px;
+  padding-top: var(--wm-espace-8, 8px);
+  border-top: 1px solid color-mix(in srgb, currentcolor 22%, transparent);
+}
+
 #modernbb .wm-infobulle__rang {
   display: flex;
   align-items: center;

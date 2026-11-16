@@ -1112,7 +1112,7 @@ dire(
   "LA FICHE DU GROUPE EST UN BLOC BLANC",
   groupe !== null && groupe.fond !== groupe.fondPage &&
     groupe.filet === "1px" && groupe.rayon === "10px",
-  JSON.stringify({ fond: groupe?.fond, filet: groupe?.filet }),
+  JSON.stringify({ fond: groupe?.fond, fondPage: groupe?.fondPage, filet: groupe?.filet, rayon: groupe?.rayon }),
 );
 dire(
   "LES MEMBRES SONT UNE GRILLE DE CARTES DE MÊME HAUTEUR",
@@ -1233,6 +1233,25 @@ for (const liens of [true, false]) {
       .find((e) => e.classList.contains("wm-groupes__champ--mien") === false);
     return {
       //  LA GRILLE DE CARTES.
+      grille: (() => {
+        const g = document.querySelector(".wm-groupes__grille");
+        if (g === null) return "pas de .wm-groupes__grille";
+        const c = getComputedStyle(g);
+        return {
+          largeur: Math.round(g.getBoundingClientRect().width),
+          display: c.display,
+          colonnes: c.gridTemplateColumns,
+          parent: g.parentElement.className,
+          largeurParent: Math.round(g.parentElement.getBoundingClientRect().width),
+          displayParent: getComputedStyle(g.parentElement).display,
+          largeurDeclaree: c.width,
+          flottant: c.float,
+          position: c.position,
+          boite: c.boxSizing,
+          marge: c.margin,
+          maxLargeur: c.maxWidth,
+        };
+      })(),
       cartes: cartes.length,
       colonnes: new Set(cartes.map((c) => Math.round(r(c).x))).size,
       hauteurs: [...new Set(cartes.map(h))],
@@ -1307,6 +1326,114 @@ for (const liens of [true, false]) {
     }),
   );
 }
+
+//  ── L'ORGANIGRAMME DE L'ANNEXE 13 ─────────────────────────────────
+//
+//  « Ça dépasse et les blocs sont énormes », 16 novembre, sur la page
+//  réelle. Deux défauts à la fois, et aucun ne se voyait dans le CSS :
+//
+//    · `height: 100%` sur la carte du Boss. Son parent est le `li` qui
+//      porte TOUT L'ARBRE : cent pour cent de ce parent-là valaient
+//      507 px, et la carte recouvrait le texte en dessous.
+//    · une `@media (max-width: 460px)` qui ne se déclenchait jamais.
+//      L'écran fait 1200 px, mais LA COLONNE DE L'ANNEXE N'EN FAIT QUE
+//      493 — une requête d'écran ne sait rien de la largeur dont le
+//      bloc dispose.
+//
+//  Le harnais reproduit donc la colonne étroite de l'annexe, parce
+//  qu'une mesure dans 1400 px n'aurait rien vu.
+const LARGEUR_COLONNE = 493;
+const ORGANIGRAMME = `<div class="wm-annexe"><div class="wm-annexe__corps">
+  <div style="width:${LARGEUR_COLONNE}px"><div class="wm-paras">
+  <p>Un paragraphe avant, pour voir si la carte le recouvre.</p>
+  <ul class="wm-orga">
+    <li>
+      <div class="wm-orga__rang">
+        <div class="wm-orga__tete">
+          <h3 class="wm-orga__nom wm-orga__nom--chef">Boss du Groupe Ombre</h3>
+          <span class="wm-orga__compte">1 poste</span>
+        </div>
+        <ul class="wm-orga__postes">
+          <li class="wm-orga__poste"><span class="wm-orga__qui">Identité inconnue</span></li>
+        </ul>
+      </div>
+      ${
+  [["Admins", "Lieutenants"], ["Scientifiques", "Sbires"]].map(([g, d]) =>
+    `<ul class="wm-orga__paire">${
+      [g, d].map((n) =>
+        `<li><div class="wm-orga__rang">
+          <div class="wm-orga__tete"><h3 class="wm-orga__nom">${n}</h3>
+          <span class="wm-orga__compte">2 libres / 2</span></div>
+          <ul class="wm-orga__postes">
+            <li class="wm-orga__poste wm-orga__poste--libre">
+              <span class="wm-orga__role">Premier</span>
+              <span class="wm-orga__qui">Poste libre</span>
+              <span class="wm-orga__obscur">pokémon obscur</span>
+              <span class="wm-orga__libre">Libre</span>
+            </li>
+          </ul></div></li>`
+      ).join("")
+    }</ul>`
+  ).join("")
+}
+    </li>
+  </ul>
+  <p>Un paragraphe après.</p>
+  </div></div>
+</div></div>`;
+
+const orga = await nav.newPage();
+await orga.setViewportSize({ width: 1200, height: 900 });
+await orga.setContent(page(ORGANIGRAMME), { waitUntil: "load" });
+const vuOrga = await orga.evaluate(() => {
+  const o = document.querySelector(".wm-orga");
+  const h = (e) => Math.round(e.getBoundingClientRect().height);
+  const rangs = [...o.querySelectorAll(".wm-orga__rang")];
+  const paire = o.querySelector(".wm-orga__paire");
+  return {
+    conteneur: Math.round(o.getBoundingClientRect().width),
+    totale: h(o),
+    chef: h(rangs[0]),
+    //  LES DEUX D'UNE RANGÉE ONT LA MÊME HAUTEUR, sans pourcentage.
+    rangee: [h(rangs[1]), h(rangs[2])],
+    colonnes: getComputedStyle(paire).gridTemplateColumns.split(" ").length,
+    //  RIEN NE SORT DE LA COLONNE.
+    deborde: [...o.querySelectorAll("*")].some((e) =>
+      e.getBoundingClientRect().right > o.getBoundingClientRect().right + 1
+    ),
+  };
+});
+dire(
+  "L'ORGANIGRAMME : LA CARTE DU CHEF NE PREND PAS TOUT L'ARBRE",
+  //  Mesuré sur la page réelle avant correction : 507 px de chef pour
+  //  507 px d'arbre. La carte doit en occuper une petite part.
+  vuOrga.chef > 0 && vuOrga.chef < vuOrga.totale * 0.5 && !vuOrga.deborde,
+  JSON.stringify(vuOrga),
+);
+dire(
+  "et les deux cartes d'une rangée font la même hauteur",
+  vuOrga.rangee[0] === vuOrga.rangee[1] && vuOrga.rangee[0] > 0,
+  JSON.stringify(vuOrga.rangee),
+);
+
+//  ── ET LA COUPURE SE DÉCIDE SUR LE CONTENEUR ──────────────────────
+//
+//  Même fenêtre de 1200 px, conteneur réduit à 380 : la paire doit se
+//  défaire. Une `@media` ne le ferait pas, et c'est tout le défaut.
+await orga.evaluate(() => {
+  document.querySelector(".wm-orga").closest("div[style]").style.width = "380px";
+});
+const etroitOrga = await orga.evaluate(() => ({
+  conteneur: Math.round(document.querySelector(".wm-orga").getBoundingClientRect().width),
+  colonnes: getComputedStyle(document.querySelector(".wm-orga__paire"))
+    .gridTemplateColumns.split(" ").length,
+}));
+dire(
+  "LA PAIRE SE DÉFAIT SUR LA LARGEUR DU BLOC, PAS DE L'ÉCRAN",
+  vuOrga.colonnes === 2 && etroitOrga.colonnes === 1,
+  JSON.stringify({ large: vuOrga.colonnes, etroit: etroitOrga }),
+);
+await orga.close();
 
 await p.close();
 await nav.close();

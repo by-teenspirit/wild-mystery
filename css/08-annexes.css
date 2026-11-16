@@ -2823,22 +2823,46 @@ body:has(#modernbb .wm-carnet) {
   margin-top: var(--wm-espace-16, 16px);
 }
 
-/*  LES DEUX RANGÉES DE DEUX. En dessous de 460 px la paire se défait :
-    deux cartes de poste côte à côte sur un téléphone donneraient des
-    noms coupés au milieu. */
+/*  ── LA COUPURE SE DÉCIDE SUR LE CONTENEUR, PAS SUR L'ÉCRAN ──────
+
+    « Ça dépasse et les blocs sont énormes », 16 novembre, sur la page
+    réelle. Il y avait là une `@media (max-width: 460px)`, et elle ne
+    se déclenchait jamais : l'écran fait 1200 px, mais LA COLONNE DE
+    L'ANNEXE N'EN FAIT QUE 493. Une requête d'écran ne sait rien de la
+    largeur dont le bloc dispose vraiment.
+
+    C'est donc une requête de conteneur. À 493 px la paire tient — deux
+    cartes de 241 — et en dessous de 420 elle se défait, parce que deux
+    cartes de poste côte à côte couperaient les noms. */
+#modernbb .wm-annexe .wm-orga {
+  container-type: inline-size;
+}
+
 #modernbb .wm-annexe .wm-orga__paire {
   grid-template-columns: 1fr 1fr;
 }
 
-@media (max-width: 460px) {
+/*  LE `li` DE LA PAIRE EST UNE GRILLE, pour que sa carte s'étire et
+    que les deux d'une rangée aient la même hauteur. C'est ce qui
+    remplace le `height: 100%` d'avant. */
+#modernbb .wm-annexe .wm-orga__paire > li {
+  display: grid;
+}
+
+@container (max-width: 420px) {
   #modernbb .wm-annexe .wm-orga__paire {
     grid-template-columns: 1fr;
   }
 }
 
+/*  PAS DE `height: 100%` ICI. Il y en avait un, pour égaliser les
+    cartes d'une rangée, et il a gonflé celle du Boss à 507 px : son
+    parent est le `li` qui porte TOUT L'ARBRE, et cent pour cent de ce
+    parent-là, c'est toute la hauteur de l'organigramme. La carte
+    recouvrait le texte en dessous. Une hauteur en pourcentage se
+    mesure contre un parent qu'on n'a pas toujours en tête. */
 #modernbb .wm-annexe .wm-orga__rang {
   box-sizing: border-box;
-  height: 100%;
   padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);

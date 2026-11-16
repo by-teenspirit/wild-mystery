@@ -514,7 +514,25 @@ const nav = await chromium.launch(
           //  leur ALIGNEMENT, qui est tout l'intérêt de la colonne :
           //  trois nombres qui ne finissent pas au même endroit ne se
           //  comparent pas d'un pokémon à l'autre.
-          chiffres: Array.from(bulle.querySelectorAll(".wm-infobulle__stat")).map(
+          //  LES DÉGÂTS NE SONT PAS UNE STATISTIQUE. « 120 % » n'est
+          //  pas comparable à « 155 » : l'un décrit le pokémon,
+          //  l'autre une règle du jeu qui s'applique à lui. Il est
+          //  donc hors de la colonne des nombres — et c'est ce que
+          //  dit déjà le filet qui l'en sépare. Le compter ici faisait
+          //  rougir les deux contrôles pour une bonne raison : « 120 %
+          //  » fait cinq caractères et débordait la colonne de 3ch.
+          degats: (() => {
+            const l = bulle.querySelector(".wm-infobulle__stat--degats");
+            if (l === null) return null;
+            return {
+              mot: l.querySelector("span:first-child")?.textContent.trim() ?? null,
+              valeur: l.querySelector("span:last-child")?.textContent.trim() ?? null,
+              filet: getComputedStyle(l).borderTopWidth,
+            };
+          })(),
+          chiffres: Array.from(
+            bulle.querySelectorAll(".wm-infobulle__stat:not(.wm-infobulle__stat--degats)"),
+          ).map(
             (l) => {
               const mot = l.querySelector("span:first-child");
               const val = l.querySelector("span:last-child");
@@ -564,6 +582,19 @@ const nav = await chromium.launch(
     "les trois nombres finissent au même endroit",
     bulles.every((b) => new Set(b.chiffres.map((c) => c.droite)).size === 1),
     bulles.map((b) => b.chiffres.map((c) => c.droite)),
+  );
+  ok(
+    "ET CHAQUE BULLE DIT SES DÉGÂTS, derrière un filet",
+    //  « Rajouter deux infobulles pour que les membres puissent bien
+    //  voir la différence entre les deux », 16 novembre, version
+    //  chiffrée. La règle vient de l'annexe 13 : les obscurs frappent
+    //  20 % plus fort. Une équipe de champion n'a que des purs, donc
+    //  100 % ici ; le 120 % se vérifie là où il y a un obscur.
+    bulles.every((b) =>
+      b.degats !== null && b.degats.mot === "Dégâts" &&
+      /^\d+ %$/.test(b.degats.valeur ?? "") && b.degats.filet === "1px"
+    ),
+    bulles.map((b) => b.degats),
   );
   ok(
     "et ils commencent tous dans la même colonne",
