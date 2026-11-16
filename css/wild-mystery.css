@@ -3639,6 +3639,62 @@ html:has(body.wm-sombre) {
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
+/*  ── LE FIL D'ARIANE SUR LA PHOTO ────────────────────────────────
+
+    « Tout en haut, le fil d'Ariane n'est pas lisible », 16 novembre.
+    Il ne l'était sur AUCUNE zone, et ce n'était pas une couleur à
+    corriger.
+
+    Le fil tombe à 42 % du bandeau — exactement le point milieu du
+    voile, où celui-ci ne fait que 0,40. Soixante pour cent de la
+    photo traversent donc derrière le texte. Mesuré sur les vrais
+    pixels des dix-sept photos de zone, sous ce voile, le crème de la
+    charte donne :
+
+        Manoir Barjok, Oasis Perdue   1,38   le pire
+        Steppes Arides                1,70
+        Volcan Sombre                 2,78   le meilleur
+
+    Aucune n'atteint 4,5. Ce qui a été essayé et jeté :
+
+      · garder `--wm-texte-doux` : il faudrait un voile à 86 %.
+      · redessiner le voile — 25/62/92, 20/68/94, 15/72/95 : on
+        plafonne à 2,75 en noircissant déjà 65 % du bandeau.
+      · un dégradé horizontal, sombre à gauche : le texte occupe 98 %
+        de la largeur, il n'y a pas de « côté vide ».
+
+    ── CE QUI A ÉTÉ CHOISI, ET CE QUE ÇA NE RÉPARE PAS ─────────────
+
+    Une pastille sous le fil seul, dans l'esprit de `.wm-zone__retour`
+    qui résout déjà ça à 0,34 sur le même bandeau. Mais 0,34 ne suffit
+    pas ici : il donne 3,93 sur Manoir Barjok. Le minimum qui fait
+    passer les dix-sept est 0,41 ; c'est 0,46, pour la marge — 5,03 sur
+    la pire.
+
+    LE TITRE ET LE SURTITRE RESTENT SUR LA PHOTO, et ils ne passent
+    pas la charte. C'est un arbitrage assumé du 16 novembre : réparer
+    le fil sans poser un rectangle sombre sur 60 % du bandeau. Le
+    titre est en Fraunces 40 — du grand texte, qui s'en tire mieux à
+    l'œil — mais ce n'est pas mesuré, et ça reste à reprendre.
+
+    Les chevrons sont `aria-hidden` et décoratifs : la charte ne leur
+    demande rien, ils gardent leur transparence. */
+
+#modernbb .wm-zone__legende .wm-sujet__ariane {
+  align-self: flex-start;
+  box-sizing: border-box;
+  padding: 4px var(--wm-espace-10, 10px);
+  border-radius: 999px;
+  /*  Le fond de la pastille se compose PAR-DESSUS le voile, qui vaut
+      déjà 0,40 à cette hauteur : 0,46 de plus donne 0,68 au total. */
+  background: rgb(26 18 16 / 0.46);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-zone__legende .wm-sujet__ariane a {
+  color: inherit;
+}
+
 #modernbb .wm-zone__surtitre {
   margin: 0;
   font-size: var(--wm-taille-surtitre, 10.5px);
@@ -12956,6 +13012,186 @@ body:has(#modernbb .wm-carnet) {
 #modernbb .wm-annexe .wm-discipline__nom,
 #modernbb .wm-annexe .wm-defi__lieu {
   text-align: left;
+}
+
+/* ── wm-orga · l'organigramme d'une organisation ────────────────────
+
+    « Je voulais pour l'organigramme, mettre le boss sur une ligne tout
+    en haut, et les 4 en dessous genre admins lieutenants côtes à
+    côtes, puis scientifiques et sbires côtes à côtes », 16 novembre.
+
+    ── POURQUOI UN BLOC NEUF, ET PAS `wm-groupe` ───────────────────
+
+    L'annexe 13 empilait cinq `wm-groupe`, le bloc des SIX NATURES de
+    l'annexe 07. Les classes `--malin`, `--brave`, `--serieux`,
+    `--jovial`, `--hardi` y portent les couleurs des natures, où elles
+    veulent dire quelque chose. Posées sur des rangs d'une organisation
+    criminelle, elles ne disent plus rien — et on les lit quand même :
+    le violet du Boss avait l'air d'un sens qu'il n'avait pas.
+
+    Un organigramme n'est pas une collection de natures. Il a son bloc.
+
+    ── CE QUI PORTE LE RANG ────────────────────────────────────────
+
+    Pas un filet, pas un fond dégradé : LE NOM DU RANG. Mesuré le
+    16 novembre, la piste du fond teinté ne tient pas — en thème
+    sombre le texte discret tombe à 3,80 sur la teinte la plus forte,
+    et le plafond où il repasse 4,5 est 0,145. Cinq nuances dans cet
+    intervalle ne se verraient pas.
+
+    Une pastille, elle, porte. Pleine pour le chef — 9,38 en sombre,
+    6,87 en clair —, cerclée pour les autres. Et le reste de la
+    hiérarchie, c'est la disposition qui le dit : une ligne seule en
+    haut, puis deux rangées de deux.
+
+    ── ET LES POSTES LIBRES SE VOIENT ──────────────────────────────
+
+    Huit sur dix le sont, et c'est ce qu'un joueur vient chercher ici.
+    Ils étaient écrits du même gris que le reste. Ils ont maintenant
+    leur contour en pointillés et leur mot.
+
+    Les comptes (« 1 libre / 2 ») s'écrivent à la main : « quand les
+    postes seront pris, on éditera l'annexe. » */
+
+#modernbb .wm-annexe .wm-orga,
+#modernbb .wm-annexe .wm-orga ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  list-style: none;
+}
+
+#modernbb .wm-annexe .wm-orga {
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+/*  LES DEUX RANGÉES DE DEUX. En dessous de 460 px la paire se défait :
+    deux cartes de poste côte à côte sur un téléphone donneraient des
+    noms coupés au milieu. */
+#modernbb .wm-annexe .wm-orga__paire {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 460px) {
+  #modernbb .wm-annexe .wm-orga__paire {
+    grid-template-columns: 1fr;
+  }
+}
+
+#modernbb .wm-annexe .wm-orga__rang {
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .wm-annexe .wm-orga__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--wm-espace-10, 10px);
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-annexe .wm-orga__nom {
+  margin: 0;
+  padding: 4px var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-accent-primaire, #275e7a);
+  border-radius: 999px;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1.25;
+}
+
+/*  LE CHEF A LA PASTILLE PLEINE, et son texte est la nuit, pas l'encre :
+    sur l'accent, l'encre crème du thème sombre ne ferait que 1,58. */
+#modernbb .wm-annexe .wm-orga__nom--chef {
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-annexe .wm-orga__compte {
+  margin-left: auto;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+#modernbb .wm-annexe .wm-orga__postes {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 5px;
+  list-style: none;
+}
+
+#modernbb .wm-annexe .wm-orga__poste {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  box-sizing: border-box;
+  padding: 5px var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-8, 8px);
+  border: 1px solid transparent;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-annexe .wm-orga__role {
+  min-width: 7em;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-annexe .wm-orga__qui {
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-annexe .wm-orga__obscur {
+  color: var(--wm-texte-doux, #6e5749);
+  font-style: italic;
+}
+
+/*  UN POSTE LIBRE SE VOIT. Pas de fond plein, un contour en pointillés,
+    et le mot écrit — pas seulement une couleur, qui ne se lit pas en
+    niveaux de gris ni par qui distingue mal les teintes. */
+#modernbb .wm-annexe .wm-orga__poste--libre {
+  border-color: var(--wm-bord-fin, #eadacd);
+  border-style: dashed;
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-annexe .wm-orga__poste--libre .wm-orga__qui {
+  color: var(--wm-texte-doux, #6e5749);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-annexe .wm-orga__libre {
+  margin-left: auto;
+  padding: 3px 7px;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

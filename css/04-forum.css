@@ -411,6 +411,62 @@
   color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
+/*  ── LE FIL D'ARIANE SUR LA PHOTO ────────────────────────────────
+
+    « Tout en haut, le fil d'Ariane n'est pas lisible », 16 novembre.
+    Il ne l'était sur AUCUNE zone, et ce n'était pas une couleur à
+    corriger.
+
+    Le fil tombe à 42 % du bandeau — exactement le point milieu du
+    voile, où celui-ci ne fait que 0,40. Soixante pour cent de la
+    photo traversent donc derrière le texte. Mesuré sur les vrais
+    pixels des dix-sept photos de zone, sous ce voile, le crème de la
+    charte donne :
+
+        Manoir Barjok, Oasis Perdue   1,38   le pire
+        Steppes Arides                1,70
+        Volcan Sombre                 2,78   le meilleur
+
+    Aucune n'atteint 4,5. Ce qui a été essayé et jeté :
+
+      · garder `--wm-texte-doux` : il faudrait un voile à 86 %.
+      · redessiner le voile — 25/62/92, 20/68/94, 15/72/95 : on
+        plafonne à 2,75 en noircissant déjà 65 % du bandeau.
+      · un dégradé horizontal, sombre à gauche : le texte occupe 98 %
+        de la largeur, il n'y a pas de « côté vide ».
+
+    ── CE QUI A ÉTÉ CHOISI, ET CE QUE ÇA NE RÉPARE PAS ─────────────
+
+    Une pastille sous le fil seul, dans l'esprit de `.wm-zone__retour`
+    qui résout déjà ça à 0,34 sur le même bandeau. Mais 0,34 ne suffit
+    pas ici : il donne 3,93 sur Manoir Barjok. Le minimum qui fait
+    passer les dix-sept est 0,41 ; c'est 0,46, pour la marge — 5,03 sur
+    la pire.
+
+    LE TITRE ET LE SURTITRE RESTENT SUR LA PHOTO, et ils ne passent
+    pas la charte. C'est un arbitrage assumé du 16 novembre : réparer
+    le fil sans poser un rectangle sombre sur 60 % du bandeau. Le
+    titre est en Fraunces 40 — du grand texte, qui s'en tire mieux à
+    l'œil — mais ce n'est pas mesuré, et ça reste à reprendre.
+
+    Les chevrons sont `aria-hidden` et décoratifs : la charte ne leur
+    demande rien, ils gardent leur transparence. */
+
+#modernbb .wm-zone__legende .wm-sujet__ariane {
+  align-self: flex-start;
+  box-sizing: border-box;
+  padding: 4px var(--wm-espace-10, 10px);
+  border-radius: 999px;
+  /*  Le fond de la pastille se compose PAR-DESSUS le voile, qui vaut
+      déjà 0,40 à cette hauteur : 0,46 de plus donne 0,68 au total. */
+  background: rgb(26 18 16 / 0.46);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+#modernbb .wm-zone__legende .wm-sujet__ariane a {
+  color: inherit;
+}
+
 #modernbb .wm-zone__surtitre {
   margin: 0;
   font-size: var(--wm-taille-surtitre, 10.5px);

@@ -2862,6 +2862,57 @@ dire(
   leBandeau !== null && leBandeau.sujet && leBandeau.h === 300,
   JSON.stringify(leBandeau),
 );
+//  ── LE FIL D'ARIANE EST SUR UNE PHOTO ──────────────────────────
+//
+//  « Tout en haut, le fil d'Ariane n'est pas lisible », 16 novembre.
+//  Il tombe à 42 % du bandeau, le point où le voile ne fait que 0,40 :
+//  soixante pour cent de la photo traversent derrière le texte.
+//  Mesuré sur les vrais pixels des dix-sept photos de zone, le crème
+//  donnait de 1,38 (Manoir Barjok) à 2,78 (Volcan Sombre). Aucune
+//  n'atteignait 4,5.
+//
+//  On ne peut pas mesurer ça ici : le harnais n'a pas les photos, et
+//  un contraste sur une image se calcule pixel par pixel, pas avec
+//  `getComputedStyle`. Ce qu'on garde, c'est LA CONDITION qui rend le
+//  calcul valable — la pastille est là, assez opaque, et le texte est
+//  le crème. Si l'une des deux repart, les 1,38 reviennent.
+const filSurLaPhoto = await dansUneZone.evaluate(() => {
+  const fil = document.querySelector(".wm-zone__legende .wm-sujet__ariane");
+  if (fil === null) return null;
+  const c = getComputedStyle(fil);
+  const alpha = (() => {
+    const m = /rgba?\(([^)]+)\)/.exec(c.backgroundColor);
+    if (m === null) return 0;
+    const p = m[1].split(/[,/]/).map((x) => Number(x.trim()));
+    return p.length > 3 ? p[3] : 1;
+  })();
+  //  LE CRÈME SE RÉSOUT, il ne se compare pas au nom du jeton : une
+  //  comparaison entre `var(--wm-texte-sur-nuit)` et `rgb(…)` ne
+  //  correspond jamais.
+  const sonde = document.createElement("span");
+  sonde.style.color = "var(--wm-texte-sur-nuit, #fffbf7)";
+  fil.appendChild(sonde);
+  const creme = getComputedStyle(sonde).color;
+  sonde.remove();
+  return { alpha, couleur: c.color, creme, rayon: c.borderTopLeftRadius };
+});
+dire(
+  "LE FIL D'ARIANE A SA PASTILLE SUR LA PHOTO — sans elle il fait 1,38",
+  //  0,41 est le minimum qui fait passer les dix-sept zones ; la
+  //  feuille pose 0,46 pour la marge. Le 0,34 de `.wm-zone__retour`
+  //  n'aurait donné que 3,93 sur Manoir Barjok.
+  filSurLaPhoto !== null && filSurLaPhoto.alpha >= 0.41 &&
+    filSurLaPhoto.rayon !== "0px",
+  JSON.stringify(filSurLaPhoto),
+);
+dire(
+  "et son texte est le crème, pas la couleur douce des cartes claires",
+  //  `--wm-texte-doux` est mesuré pour une carte crème, jamais pour
+  //  une photo. C'est lui qui donnait 2,04 au premier relevé.
+  filSurLaPhoto !== null && filSurLaPhoto.couleur === filSurLaPhoto.creme,
+  JSON.stringify(filSurLaPhoto),
+);
+
 await dansUneZone.close();
 
 const horsZone = await monterAvecScript(ARIANE_HORS_ZONE);
