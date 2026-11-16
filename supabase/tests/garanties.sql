@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(257);
+select plan(264);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1900,6 +1900,68 @@ select ok(not has_function_privilege('anon', 'liens_a_proposer(jsonb)', 'execute
 select ok(not has_table_privilege('authenticated', 'rp_participant', 'select'),
   'ET LA TABLE RESTE FERMÉE : c''est la fonction qui ouvre, et elle filtre');
 
+
+-- ════════════════════════════════════════════════════════════════════
+--  VALIDER ENREGISTRE L'ADRESSE (0041)
+--
+--  La 0028 créait le joueur ; la 0029 a fait de `courriel` la seule
+--  chose qui autorise une liaison. Personne n'a rebranché la première
+--  sur la seconde : valider écrivait une ligne sans adresse, et aucune
+--  liaison ne pouvait aboutir. Trouvé par une joueuse bloquée le
+--  16 novembre, pas par un test — d'où ceux-ci.
+-- ════════════════════════════════════════════════════════════════════
+
+select is(
+  (valider_le_personnage(
+    '{"forumUserId":9001,"pseudo":"Essai Un","groupe":"doux",
+      "courriel":"  ESSAI@Exemple.FR "}'::jsonb) ->> 'peutSeLier'),
+  'true',
+  'VALIDER AVEC UNE ADRESSE DIT QUE LA LIAISON POURRA SE FAIRE'
+);
+
+select is(
+  (select courriel from joueur where forum_user_id = 9001),
+  'essai@exemple.fr',
+  'et l''adresse est rangée en minuscules, sans espaces — comme la cherche lier_mon_personnage'
+);
+
+--  LA COMPARAISON DES DEUX CÔTÉS, qui est tout l'enjeu : une
+--  normalisation ici et une autre là-bas, et le rapprochement ne vaut
+--  rien.
+select ok(
+  exists(select 1 from joueur
+          where lower(courriel) = lower(trim('  ESSAI@Exemple.FR '))
+            and forum_user_id = 9001),
+  'ET LE RAPPROCHEMENT TOMBE JUSTE : lower(trim(…)) des deux côtés'
+);
+
+select is(
+  (valider_le_personnage(
+    '{"forumUserId":9001,"pseudo":"Essai Deux","groupe":"brave"}'::jsonb)
+     ->> 'peutSeLier'),
+  'true',
+  'revalider sans adresse ne la perd pas'
+);
+
+select is(
+  (select courriel || ' / ' || pseudo from joueur where forum_user_id = 9001),
+  'essai@exemple.fr / Essai Deux',
+  'l''adresse reste, le pseudo change — on corrige un pseudo sans retaper une adresse'
+);
+
+select is(
+  (valider_le_personnage(
+    '{"forumUserId":9002,"pseudo":"Sans Adresse","groupe":"malin"}'::jsonb)
+     ->> 'peutSeLier'),
+  'false',
+  'SANS ADRESSE, LA RÉPONSE LE DIT TOUT DE SUITE — et pas trois jours plus tard'
+);
+
+select ok(
+  exists(select 1 from joueur_sans_adresse where forum_user_id = 9002)
+    and not exists(select 1 from joueur_sans_adresse where forum_user_id = 9001),
+  'et la vue nomme ceux qui sont bloqués, eux seuls'
+);
 
 select * from finish();
 rollback;

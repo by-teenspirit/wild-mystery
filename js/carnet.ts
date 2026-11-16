@@ -407,13 +407,29 @@ async function ouvrirLeCarnet(): Promise<void> {
   //  validé, soit il relève d'une autre boîte — le cas de quelqu'un qui
   //  a deux adresses. On propose la liaison, qui est le geste qui
   //  répare les deux.
+  //
+  //  ── CE MESSAGE ENVOYAIT CHERCHER CE QU'ON NE PEUT PAS TROUVER ───
+  //
+  //  Il disait : « s'il a une autre adresse, relie-toi avec celle-là ;
+  //  sinon, c'est qu'il n'est pas encore validé. » Deux pistes, et
+  //  aucune que la joueuse puisse suivre.
+  //
+  //  Le 16 novembre, une joueuse a essayé deux adresses, cherché du
+  //  côté des alias `mail+perso@`, fouillé ses spams, et conclu « il
+  //  doit me manquer une étape ». Elle n'en avait aucune.
+  //
+  //  La liaison compare l'adresse de la session à `joueur.courriel`,
+  //  que LE STAFF renseigne à la validation (0029 : « la seule chose
+  //  qui autorise une liaison »). Tant qu'il ne l'a pas fait, rien de
+  //  ce que la joueuse tente ne peut aboutir. Le message le dit
+  //  maintenant, et il s'arrête là.
   if (lu === null) {
     poserLEtat(document, "dehors");
     montrerLaLiaison(true);
     direLaLiaison(
-      `Connectée en tant que ${compte.pseudo || "ce compte"}, mais ce personnage n'est ` +
-        `pas rattaché à cette connexion. S'il a une autre adresse, relie-toi avec ` +
-        `celle-là ; sinon, c'est qu'il n'est pas encore validé.`,
+      `Connectée en tant que ${compte.pseudo || "ce compte"}, mais aucun personnage ` +
+        `n'est rattaché à cette adresse. C'est le staff qui l'enregistre à la ` +
+        `validation : préviens-le, il n'y a rien à faire de ton côté.`,
     );
     brancherLaLiaison(config);
     return;
@@ -548,9 +564,14 @@ function brancherLaLiaison(acces: ConfigSupabase): void {
     envoyerLeLien(acces, courriel, adresseSansJeton(location.href, location.hash))
       .then((r) => {
         if (r.etat === "parti") {
+          //  LES SPAMS SONT NOMMÉS, parce que c'est là qu'il tombe.
+          //  « Il vient de tomber dans les spams sur l'autre mail »,
+          //  16 novembre : un lien qui dure quinze minutes et qu'on
+          //  cherche dans la mauvaise boîte est un lien perdu.
           direLaLiaison(
-            "Regarde ta boîte : le lien part tout de suite et il ne vaut " +
-              "qu'un quart d'heure. Il te ramènera ici.",
+            "Regarde ta boîte, et tes spams — c'est souvent là qu'il tombe. " +
+              "Le lien part tout de suite et il ne vaut qu'un quart d'heure. " +
+              "Il te ramènera ici.",
           );
           return;
         }

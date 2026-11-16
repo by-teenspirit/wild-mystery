@@ -672,6 +672,15 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
       /bo[îi]te/i.test(dit),
     JSON.stringify({ envoi, dit }),
   );
+  dire(
+    "ET IL DIT DE REGARDER DANS LES SPAMS — c'est là qu'il tombe",
+    //  « Il vient de tomber dans les spams sur l'autre mail »,
+    //  16 novembre. Un lien qui ne vaut qu'un quart d'heure et qu'on
+    //  cherche dans la mauvaise boîte est un lien perdu. La phrase le
+    //  dit maintenant, et ce contrôle fait qu'elle le dira encore.
+    /spam/i.test(dit),
+    dit,
+  );
   //  ── ET IL FAUT REGARDER OÙ LA RÉPONSE TOMBE ────────────────────
   //
   //  « Quand les personnes viennent connecter leur compte au carnet, le
@@ -876,7 +885,12 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
   }));
   dire(
     "UN RATTRAPAGE QUI ÉCHOUE DIT LA PANNE, PAS « PAS RATTACHÉ »",
-    vu.etat === "dehors" && /400/.test(vu.souci) && !/pas rattaché/i.test(vu.souci),
+    //  LA TOURNURE A CHANGÉ LE 16 NOVEMBRE — « aucun personnage n'est
+    //  rattaché à cette adresse » — et ce contrôle la suit. Laissé sur
+    //  l'ancienne, il serait passé au vert sans plus rien garder : le
+    //  pire état d'un contrôle, parce qu'on le croit encore utile.
+    vu.etat === "dehors" && /400/.test(vu.souci) &&
+      !/rattaché à cette adresse/i.test(vu.souci),
     JSON.stringify(vu),
   );
   await q.close();
@@ -1972,18 +1986,35 @@ const RP = [
 }
 
 {
-  //  UN PERSONNAGE QUI N'EST PAS DERRIÈRE CETTE CONNEXION. Le cas de
-  //  quelqu'un qui a deux adresses — `carnet_de_la_session` rend `null`
-  //  — et celui d'un personnage pas encore validé. Le geste qui répare
-  //  est le même : se relier avec la bonne adresse.
+  //  UN PERSONNAGE QUI N'EST PAS DERRIÈRE CETTE CONNEXION.
+  //
+  //  ── LE GESTE QUI RÉPARE N'EST PAS CELUI QU'ON CROYAIT ───────────
+  //
+  //  Ce commentaire disait : « le geste qui répare est le même : se
+  //  relier avec la bonne adresse ». C'était faux, et le message le
+  //  répétait au joueur.
+  //
+  //  La liaison compare l'adresse de la session à `joueur.courriel`,
+  //  que LE STAFF renseigne à la validation (0029). Et jusqu'à la 0041,
+  //  `valider_le_personnage` ne l'écrivait pas du tout — la fonction
+  //  datait d'avant la colonne. Aucune adresse que le joueur essaie ne
+  //  pouvait donc aboutir.
+  //
+  //  Trouvé le 16 novembre par une joueuse qui a tenté deux adresses,
+  //  soupçonné ses alias, fouillé ses spams et conclu « il doit me
+  //  manquer une étape ». Elle n'en avait aucune.
   const { q } = await monter({ reponse: null });
   const vu = await q.evaluate(() => ({
     lierOuvert: document.querySelector("[data-wm-carnet-lier]")?.hidden === false,
     dit: document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim() ?? "",
   }));
   dire(
-    "UN PERSONNAGE HORS DE CETTE CONNEXION LE DIT, ET NOMME LE COMPTE",
-    vu.lierOuvert && vu.dit.includes("Eliott Vanner") && /autre adresse/i.test(vu.dit),
+    "UN PERSONNAGE HORS DE CETTE CONNEXION LE DIT, NOMME LE COMPTE, ET RENVOIE AU STAFF",
+    vu.lierOuvert && vu.dit.includes("Eliott Vanner") &&
+      /staff/i.test(vu.dit) &&
+      //  ET IL N'ENVOIE PLUS CHERCHER UNE AUTRE ADRESSE : c'est la
+      //  piste qui a coûté trois jours à une joueuse.
+      !/autre adresse/i.test(vu.dit),
     JSON.stringify(vu),
   );
   await q.close();
