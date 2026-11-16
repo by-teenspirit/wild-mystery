@@ -11622,7 +11622,7 @@ body:has(#modernbb .wm-carnet) {
   width: var(--chrono-point);
   height: var(--chrono-point);
   border-radius: 999px;
-  background: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-texte-doux, #6e5749);
 }
 
 /*  ── UNE PÉRIODE N'EST PAS UN INSTANT ─────────────────────────────
@@ -11674,7 +11674,7 @@ body:has(#modernbb .wm-carnet) {
   /*  `bord-net` ET PAS `bord-fin` : c'est le trait qui fait la suite,
       et à la teinte la plus pâle de la charte il disparaissait entre
       deux points. Un filet qu'on ne voit pas ne relie rien. */
-  background: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-texte-doux, #6e5749);
 }
 
 /*  Le filet d'une période repart SOUS SA CAPSULE, pas sous un rond.
@@ -13087,14 +13087,26 @@ body:has(#modernbb .wm-carnet) {
 
 /*  LE `li` DE LA PAIRE EST UNE GRILLE, pour que sa carte s'étire et
     que les deux d'une rangée aient la même hauteur. C'est ce qui
-    remplace le `height: 100%` d'avant. */
+    remplace le `height: 100%` d'avant.
+
+    `position: relative` pour les deux moitiés de fourche, plus bas. */
 #modernbb .wm-annexe .wm-orga__paire > li {
   display: grid;
+  position: relative;
 }
 
 @container (max-width: 420px) {
   #modernbb .wm-annexe .wm-orga__paire {
     grid-template-columns: 1fr;
+  }
+
+  /*  EN UNE COLONNE, PAS DE FOURCHE. Un trait horizontal qui relie
+      deux cartes empilées l'une sur l'autre ne relie rien : il part
+      du centre de la première vers le vide. La tige reste, elle dit
+      l'étage, et c'est tout ce qu'il y a à dire sur une colonne. */
+  #modernbb .wm-annexe .wm-orga__paire > li::before,
+  #modernbb .wm-annexe .wm-orga__paire > li::after {
+    display: none;
   }
 }
 
@@ -13215,6 +13227,137 @@ body:has(#modernbb .wm-carnet) {
   font-weight: var(--wm-graisse-gras, 700);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   line-height: 1;
+  text-transform: uppercase;
+}
+
+/*  ── LE LIEN SE VOIT, ET LES ÉTAGES RESPIRENT ──────────────────────
+
+    « Tous les blocs sont trop collés et ce serait bien d'avoir une
+    ligne entre les blocs pour marquer le lien », 16 novembre.
+
+    ILS NE SE TOUCHAIENT PAS PAR MALCHANCE : RIEN NE LES SÉPARAIT.
+    `ul.wm-orga` est bien une grille avec douze pixels d'écart, mais
+    les trois étages ne sont pas SES enfants — ce sont ceux du `li`
+    unique qui porte l'arbre, et ce `li` n'était ni grille ni flex. Un
+    `gap` posé sur un parent ne traverse pas un enfant, et les trois
+    étages se touchaient donc bord à bord.
+
+    L'ÉCART EST DANS LE CONNECTEUR, PAS À CÔTÉ DE LUI. Chaque rangée
+    porte son rembourrage haut, et la ligne est tracée dedans : l'air
+    et le trait sont la même mesure, ils ne peuvent pas se désaccorder
+    le jour où l'un des deux change. */
+#modernbb .wm-annexe .wm-orga > li {
+  display: grid;
+  gap: 0;
+}
+
+/*  `ul.wm-orga__paire`, ET LA BALISE EST NÉCESSAIRE. Écrit
+    `.wm-orga__paire`, ce bloc perdait son rembourrage et son écart
+    de colonnes sans rien dire : la règle générale du haut vise
+    `#modernbb .wm-annexe .wm-orga ul`, soit un id, deux classes et UNE
+    BALISE — elle passe donc devant un id et deux classes, même écrite
+    plus haut dans la feuille. Mesuré : `padding-top` restait à 0 et
+    l'écart à 12 px, alors que la règle était bien là. C'est la même
+    leçon que `.wm-lexique` deux feuilles plus loin. */
+#modernbb .wm-annexe .wm-orga ul.wm-orga__paire {
+  position: relative;
+  padding-top: var(--wm-espace-24, 24px);
+  column-gap: var(--wm-espace-16, 16px);
+  row-gap: var(--wm-espace-16, 16px);
+}
+
+/*  LA TIGE — de l'étage du dessus jusqu'à la fourche. */
+#modernbb .wm-annexe .wm-orga__paire::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: var(--wm-espace-12, 12px);
+  background: var(--wm-texte-doux, #6e5749);
+}
+
+/*  LA DESCENTE — de la fourche au haut de la carte. */
+#modernbb .wm-annexe .wm-orga__paire > li::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--wm-espace-12, 12px));
+  left: 50%;
+  width: 1px;
+  height: var(--wm-espace-12, 12px);
+  background: var(--wm-texte-doux, #6e5749);
+}
+
+/*  ET LA MOITIÉ DE FOURCHE QUI LUI REVIENT — de son propre centre
+    jusqu'au milieu de la rangée, soit son bord plus la moitié de
+    l'écart des colonnes.
+
+    CHAQUE MOITIÉ EST ANCRÉE SUR SON CENTRE À ELLE. D'un seul trait
+    posé de 25 % à 75 %, la fourche dépasserait les descentes de
+    quatre pixels : le centre d'une colonne n'est pas à 25 % dès qu'il
+    y a un écart entre les deux, il est à 25 % moins le quart de cet
+    écart. Un trait calculé sur une constante qu'on peut changer
+    ailleurs est un trait qui finira de travers. */
+#modernbb .wm-annexe .wm-orga__paire > li::after {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--wm-espace-12, 12px));
+  height: 1px;
+  background: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-annexe .wm-orga__paire > li:first-child::after {
+  left: 50%;
+  right: calc(var(--wm-espace-16, 16px) / -2);
+}
+
+#modernbb .wm-annexe .wm-orga__paire > li:last-child::after {
+  left: calc(var(--wm-espace-16, 16px) / -2);
+  right: 50%;
+}
+
+/* ── wm-compare · deux cas côte à côte, et ce qui les sépare ────────
+
+    « Rajouter deux infobulles au-dessus de "particularités et
+    restrictions" pour que les membres puissent bien voir la
+    différence entre les deux », 16 novembre — version chiffrée.
+
+    L'INFOBULLE N'A PAS BESOIN D'ÊTRE SURVOLÉE POUR SE MONTRER. Elle
+    est un composant à elle seule : 212 px, son fond, ses chiffres.
+    C'est l'HÔTE qui la cache — `.wm-equipe__pkmn .wm-infobulle` la
+    pose en absolu et à `opacity: 0`. Posée nue dans une annexe, elle
+    s'affiche telle quelle. Il n'y a donc rien à écrire pour ça, et
+    surtout pas une seconde infobulle « de démonstration » qui
+    vieillirait à part de la vraie.
+
+    IL MANQUAIT SEULEMENT DE QUOI LES RANGER : une rangée qui les
+    centre, et une légende sous chacune — parce qu'un fond vert et un
+    fond violet ne se nomment pas tout seuls, et qu'une couleur ne se
+    lit ni en niveaux de gris, ni par qui distingue mal les teintes. */
+#modernbb .wm-annexe .wm-compare {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: var(--wm-espace-16, 16px) 0;
+  padding: 0;
+  gap: var(--wm-espace-24, 24px);
+  list-style: none;
+}
+
+#modernbb .wm-annexe .wm-compare__cas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-annexe .wm-compare__legende {
+  margin: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-align: center;
   text-transform: uppercase;
 }
 

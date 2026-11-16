@@ -1,0 +1,94 @@
+<!-- ══════════════════════════════════════════════════════════════════
+     LES DEUX INFOBULLES DE L'ANNEXE 13
+
+     « J'aimerais bien juste rajouter deux infobulles de pokémon au
+     dessus de "particularités et restrictions" pour que les membres
+     puissent bien voir la différence entre les deux », 16 novembre.
+     Version chiffrée, validée sur maquette.
+
+     ── OÙ ─────────────────────────────────────────────────────────────
+
+     Dans l'annexe 13, JUSTE AVANT le sous-titre « Particularités et
+     restrictions ». Coller `obscurs-deux-infobulles.a-coller.min.html`
+     — une seule ligne — en mode HTML.
+
+     ── CE QUE C'EST ───────────────────────────────────────────────────
+
+     LE VRAI COMPOSANT, pas une copie. `.wm-infobulle` est une carte à
+     elle seule : 212 px, son fond, ses chiffres. C'est l'hôte qui la
+     cache d'habitude — dans une case d'équipe elle est posée en absolu
+     et à `opacity: 0` jusqu'au survol. Posée nue ici, elle s'affiche.
+
+     Une seconde infobulle « de démonstration », écrite à part, aurait
+     vieilli à part de la vraie. Celle-ci bouge avec elle.
+
+     ── POURQUOI LES DEUX SONT IDENTIQUES ─────────────────────────────
+
+     Même pokémon, même niveau, mêmes types, mêmes trois chiffres. SEULS
+     LE FOND ET LA DERNIÈRE LIGNE CHANGENT, et c'est exactement ce que
+     dit l'annexe : rien ne permet de distinguer un Pokémon Obscur,
+     sauf ses dégâts et la couleur de sa bulle.
+
+     Changer un chiffre d'un côté sans l'autre ferait croire à une
+     différence de statistiques qui n'existe pas. Le harnais
+     (`deno task membres`) compare les deux lignes par lignes et
+     refuse tout autre écart.
+
+     ── LES DEUX POURCENTAGES NE S'INVENTENT PAS ICI ───────────────────
+
+     100 % et 120 % sont ceux de `DEGATS`, dans
+     `src/adaptateurs/navigateur/module-equipe.ts` — la constante que
+     le script pose sur les bulles des cases d'équipe. Le harnais les y
+     relit : si elle change, c'est ce fichier-ci qui devient rouge.
+
+     ── CE QU'IL NE FAUT PAS FAIRE ─────────────────────────────────────
+
+     · ne pas écrire de couleur en dur : le vert et le violet sont des
+       jetons, et les deux thèmes sont déjà mesurés ;
+     · ne pas retirer les légendes : un fond vert et un fond violet ne
+       se nomment pas tout seuls, et une couleur ne se lit pas en
+       niveaux de gris.
+     ══════════════════════════════════════════════════════════════════ -->
+
+<ul class="wm-compare">
+  <li class="wm-compare__cas">
+    <div class="wm-infobulle">
+      <div class="wm-infobulle__tete">
+        <p class="wm-infobulle__nom">Malosse</p>
+        <span class="wm-infobulle__niveau">Niv. 24</span>
+      </div>
+      <ul class="wm-infobulle__types">
+        <li class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</li>
+        <li class="wm-infobulle__type" data-wm-type="feu">Feu</li>
+      </ul>
+      <p class="wm-infobulle__surtitre">Statistiques</p>
+      <ul class="wm-infobulle__stats">
+        <li class="wm-infobulle__stat"><span>PV</span><span>61</span></li>
+        <li class="wm-infobulle__stat"><span>Attaque</span><span>52</span></li>
+        <li class="wm-infobulle__stat"><span>Défense</span><span>41</span></li>
+        <li class="wm-infobulle__stat wm-infobulle__stat--degats"><span>Dégâts</span><span>100 %</span></li>
+      </ul>
+    </div>
+    <p class="wm-compare__legende">Pokémon pur</p>
+  </li>
+  <li class="wm-compare__cas">
+    <div class="wm-infobulle wm-infobulle--obscur">
+      <div class="wm-infobulle__tete">
+        <p class="wm-infobulle__nom">Malosse</p>
+        <span class="wm-infobulle__niveau">Niv. 24</span>
+      </div>
+      <ul class="wm-infobulle__types">
+        <li class="wm-infobulle__type" data-wm-type="tenebres">Ténèbres</li>
+        <li class="wm-infobulle__type" data-wm-type="feu">Feu</li>
+      </ul>
+      <p class="wm-infobulle__surtitre">Statistiques</p>
+      <ul class="wm-infobulle__stats">
+        <li class="wm-infobulle__stat"><span>PV</span><span>61</span></li>
+        <li class="wm-infobulle__stat"><span>Attaque</span><span>52</span></li>
+        <li class="wm-infobulle__stat"><span>Défense</span><span>41</span></li>
+        <li class="wm-infobulle__stat wm-infobulle__stat--degats"><span>Dégâts</span><span>120 %</span></li>
+      </ul>
+    </div>
+    <p class="wm-compare__legende">Pokémon obscur</p>
+  </li>
+</ul>

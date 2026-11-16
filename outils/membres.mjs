@@ -1416,6 +1416,190 @@ dire(
   JSON.stringify(vuOrga.rangee),
 );
 
+//  ── LES ÉTAGES RESPIRENT, ET LE TRAIT LES RELIE VRAIMENT ──────────
+//
+//  « Tous les blocs sont trop collés et ce serait bien d'avoir une
+//  ligne entre les blocs pour marquer le lien », 16 novembre.
+//
+//  LES ÉTAGES SE TOUCHAIENT BORD À BORD, et pas par malchance : rien
+//  ne les séparait. `ul.wm-orga` est une grille avec son écart, mais
+//  les trois étages sont les enfants du `li` qui porte l'arbre, pas
+//  les siens — et un `gap` posé sur un parent ne traverse pas un
+//  enfant. Le premier contrôle mesure donc l'écart réel entre le bas
+//  d'une carte et le haut de la suivante.
+//
+//  ET UN TRAIT QUI EXISTE N'EST PAS UN TRAIT QUI RELIE. Celui-ci est
+//  fait de quatre morceaux — la tige, deux moitiés de fourche, deux
+//  descentes — et il suffit qu'un seul soit posé sur la mauvaise
+//  référence pour qu'il pointe à côté. C'est arrivé en l'écrivant :
+//  une fourche posée de 25 % à 75 % dépassait les descentes de quatre
+//  pixels, parce que le centre d'une colonne n'est pas à 25 % dès
+//  qu'il y a un écart entre les deux. On vérifie donc les RACCORDS,
+//  bout à bout, et pas la présence des morceaux.
+const trait = await orga.evaluate(() => {
+  const paires = [...document.querySelectorAll(".wm-orga__paire")];
+  const chef = document.querySelector(".wm-orga__rang");
+  const bord = (el, pseudo) => {
+    const s = getComputedStyle(el, pseudo);
+    const r = el.getBoundingClientRect();
+    //  `left`/`right` d'un pseudo-élément sont résolus en pixels par
+    //  le navigateur, relativement au bloc conteneur — ici l'élément
+    //  lui-même, qui porte `position: relative`.
+    const g = s.left === "auto" ? null : r.left + parseFloat(s.left);
+    const d = s.right === "auto" ? null : r.right - parseFloat(s.right);
+    return {
+      g,
+      d,
+      y: r.top + parseFloat(s.top),
+      h: parseFloat(s.height),
+      l: parseFloat(s.width),
+      affiche: s.display !== "none",
+      fond: s.backgroundColor,
+    };
+  };
+  const centre = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.left + r.width / 2;
+  };
+  return paires.map((paire, i) => {
+    const lis = [...paire.querySelectorAll(":scope > li")];
+    const cartes = lis.map((li) => li.querySelector(".wm-orga__rang"));
+    const dessus = i === 0 ? chef : paires[i - 1];
+    return {
+      //  L'écart entre l'étage du dessus et cette rangée.
+      ecart: Math.round(
+        cartes[0].getBoundingClientRect().top -
+          dessus.getBoundingClientRect().bottom,
+      ),
+      tige: bord(paire, "::before"),
+      fourche: lis.map((li) => bord(li, "::after")),
+      descente: lis.map((li) => bord(li, "::before")),
+      centrePaire: centre(paire),
+      centres: cartes.map(centre),
+      hautCarte: cartes[0].getBoundingClientRect().top,
+    };
+  });
+});
+
+const pres = (a, b) => a !== null && b !== null && Math.abs(a - b) <= 1;
+dire(
+  "LES ÉTAGES NE SE TOUCHENT PLUS",
+  trait.every((t) => t.ecart >= 24),
+  JSON.stringify(trait.map((t) => t.ecart)),
+);
+dire(
+  "LA TIGE TOMBE AU MILIEU DE LA RANGÉE",
+  trait.every((t) =>
+    t.tige.l === 1 && t.tige.h === 12 && pres(t.tige.g, t.centrePaire - 0.5) &&
+    !/rgba\(0, 0, 0, 0\)/.test(t.tige.fond)
+  ),
+  JSON.stringify(trait.map((t) => ({ x: t.tige.g, milieu: t.centrePaire }))),
+);
+dire(
+  "LES DEUX MOITIÉS DE FOURCHE SE REJOIGNENT SOUS LA TIGE",
+  trait.every((t) =>
+    //  La gauche part du centre de sa carte et finit au milieu ; la
+    //  droite part du milieu et finit au centre de la sienne.
+    pres(t.fourche[0].g, t.centres[0]) && pres(t.fourche[0].d, t.centrePaire) &&
+    pres(t.fourche[1].g, t.centrePaire) && pres(t.fourche[1].d, t.centres[1]) &&
+    t.fourche.every((f) => f.h === 1)
+  ),
+  JSON.stringify(trait.map((t) => ({
+    gauche: [t.fourche[0].g, t.fourche[0].d],
+    droite: [t.fourche[1].g, t.fourche[1].d],
+    milieu: t.centrePaire,
+    cartes: t.centres,
+  }))),
+);
+dire(
+  "ET CHAQUE DESCENTE VA DE LA FOURCHE AU HAUT DE SA CARTE",
+  trait.every((t) =>
+    t.descente.every((d, k) =>
+      d.l === 1 && pres(d.g, t.centres[k] - 0.5) &&
+      //  Le bas de la descente touche le haut de la carte, et son
+      //  haut touche la fourche : le trait est continu.
+      pres(d.y + d.h, t.hautCarte) && pres(d.y, t.fourche[k].y)
+    ) &&
+    //  La tige s'arrête exactement là où la fourche commence.
+    pres(t.tige.y + t.tige.h, t.fourche[0].y)
+  ),
+  JSON.stringify(trait.map((t) => ({
+    descentes: t.descente.map((d) => [d.y, d.y + d.h]),
+    fourche: t.fourche[0].y,
+    carte: t.hautCarte,
+    tige: t.tige.y + t.tige.h,
+  }))),
+);
+//  ── ET IL SE VOIT : MESURÉ SUR LES VRAIS PIXELS ───────────────────
+//
+//  PAS SUR LA COULEUR DU JETON. Derrière l'organigramme il y a le
+//  dégradé de `.wm-annexe`, et une mesure qui remonte les ancêtres à
+//  la recherche d'un `backgroundColor` l'ignore — c'est exactement
+//  l'erreur qui m'avait donné 2,04 sur le fil d'Ariane, là où le vrai
+//  chiffre était 1,70. On photographie donc la bande du trait et celle
+//  juste au-dessus, et on compare ce qui est réellement peint.
+//
+//  UN TRAIT EST UN OBJET GRAPHIQUE : le seuil est 3, pas 4,5.
+const premier = trait[0];
+const photo = {
+  x: Math.round(premier.centres[0]),
+  y: Math.round(premier.fourche[0].y),
+  w: Math.max(2, Math.round(premier.centres[1] - premier.centres[0])),
+};
+const photographier = async () => {
+  const png = await orga.screenshot({
+    clip: { x: photo.x, y: photo.y - 5, width: photo.w, height: 6 },
+  });
+  //  `String.fromCharCode(...tout)` dépasse la pile sur une image de
+  //  quelques kilo-octets : on assemble la chaîne binaire par
+  //  tranches, et on l'encode une fois.
+  let binaire = "";
+  for (let i = 0; i < png.length; i += 8192) {
+    binaire += String.fromCharCode(...png.subarray(i, i + 8192));
+  }
+  return await orga.evaluate(lirelesPixels, btoa(binaire));
+};
+const lirelesPixels = async (brut) => {
+  const img = new Image();
+  img.src = "data:image/png;base64," + brut;
+  await img.decode();
+  const c = document.createElement("canvas");
+  c.width = img.width;
+  c.height = img.height;
+  c.getContext("2d").drawImage(img, 0, 0);
+  const px = c.getContext("2d").getImageData(0, 0, img.width, img.height).data;
+  const lin = (v) => (v /= 255, v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  const lum = (i) => 0.2126 * lin(px[i]) + 0.7152 * lin(px[i + 1]) + 0.0722 * lin(px[i + 2]);
+  //  La dernière ligne de la photo est celle du trait ; la première
+  //  est le fond, cinq pixels plus haut.
+  const ligne = (y) => {
+    const l = [];
+    for (let x = 0; x < img.width; x += 1) l.push(lum((y * img.width + x) * 4));
+    return l.sort((a, b) => a - b);
+  };
+  const t = ligne(img.height - 1);
+  const f = ligne(0);
+  const med = (a) => a[Math.floor(a.length / 2)];
+  const rap = (a, b) => {
+    const [hi, lo] = [a, b].sort((x, y) => y - x);
+    return Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+  };
+  return { trait: rap(med(t), med(f)), largeur: img.width };
+};
+const clairTrait = await photographier();
+//  ET EN SOMBRE AUSSI. Le trait est un jeton, donc il change de
+//  valeur avec le thème — et le fond derrière lui aussi. Un seul des
+//  deux côtés mesuré ne dit rien de l'autre.
+await orga.evaluate(() => document.body.classList.add("wm-sombre"));
+await orga.waitForTimeout(120);
+const sombreTrait = await photographier();
+await orga.evaluate(() => document.body.classList.remove("wm-sombre"));
+dire(
+  "ET LE TRAIT SE VOIT SUR CE QUI EST VRAIMENT PEINT DERRIÈRE",
+  clairTrait.trait >= 3 && sombreTrait.trait >= 3,
+  JSON.stringify({ clair: clairTrait.trait, sombre: sombreTrait.trait }),
+);
+
 //  ── ET LA COUPURE SE DÉCIDE SUR LE CONTENEUR ──────────────────────
 //
 //  Même fenêtre de 1200 px, conteneur réduit à 380 : la paire doit se
@@ -1434,6 +1618,171 @@ dire(
   JSON.stringify({ large: vuOrga.colonnes, etroit: etroitOrga }),
 );
 await orga.close();
+
+//  ── LES DEUX INFOBULLES DE L'ANNEXE 13 ────────────────────────────
+//
+//  « Rajouter deux infobulles de pokémon au-dessus de "particularités
+//  et restrictions" pour que les membres puissent bien voir la
+//  différence entre les deux », 16 novembre — version chiffrée.
+//
+//  ELLES VIVENT DANS LA MÊME COLONNE QUE L'ORGANIGRAMME, d'où ce
+//  harnais plutôt qu'un autre : les deux blocs de l'annexe 13 sont
+//  mesurés au même endroit, dans les 493 px dont ils disposent.
+//
+//  CE QU'IL GARDE, ET POURQUOI C'EST ÇA : tout le sens du bloc tient
+//  dans « les deux cartes sont rigoureusement identiques, sauf le fond
+//  et la dernière ligne ». C'est ce que dit l'annexe — rien ne permet
+//  de distinguer un Pokémon Obscur. Un chiffre changé d'un seul côté
+//  ferait croire à une différence de statistiques qui n'existe pas, et
+//  ça ne se voit pas en relisant : les deux cartes sont loin l'une de
+//  l'autre dans le markup.
+const BULLES = readFileSync(R + "templates/obscurs-deux-infobulles.a-coller.min.html", "utf8");
+const equipe = readFileSync(R + "src/adaptateurs/navigateur/module-equipe.ts", "utf8");
+//  LES DEUX POURCENTAGES SONT LUS DANS LE MODULE, pas recopiés ici.
+//  `const DEGATS = { pur: "100 %", obscur: "120 %" }` est ce que le
+//  script pose sur les bulles des cases d'équipe ; si elle change, ce
+//  sont ces deux cartes-ci qui deviennent rouges.
+const DEGATS = Object.fromEntries(
+  [...(equipe.match(/const DEGATS = \{([^}]*)\}/) ?? [, ""])[1]
+    .matchAll(/(\w+):\s*"([^"]*)"/g)].map((m) => [m[1], m[2]]),
+);
+
+const bulles = await nav.newPage();
+await bulles.setViewportSize({ width: 1200, height: 900 });
+await bulles.setContent(
+  page(
+    `<div class="wm-annexe"><div class="wm-annexe__corps">
+      <div style="width:${LARGEUR_COLONNE}px">${BULLES}</div>
+    </div></div>`,
+  ),
+  { waitUntil: "load" },
+);
+const vuBulles = await bulles.evaluate(() => {
+  const cas = [...document.querySelectorAll(".wm-compare__cas")];
+  const lire = (c) => {
+    const b = c.querySelector(".wm-infobulle");
+    const s = getComputedStyle(b);
+    return {
+      obscur: b.classList.contains("wm-infobulle--obscur"),
+      fond: s.backgroundColor,
+      //  Chaque ligne de statistique, nom et valeur séparés.
+      lignes: [...b.querySelectorAll(".wm-infobulle__stat")].map((l) =>
+        [...l.querySelectorAll("span")].map((x) => x.textContent.trim())
+      ),
+      tete: b.querySelector(".wm-infobulle__nom").textContent.trim() + " / " +
+        b.querySelector(".wm-infobulle__niveau").textContent.trim(),
+      types: [...b.querySelectorAll(".wm-infobulle__type")].map((t) =>
+        t.getAttribute("data-wm-type") + ":" + t.textContent.trim()
+      ),
+      legende: c.querySelector(".wm-compare__legende").textContent.trim(),
+      large: Math.round(b.getBoundingClientRect().width),
+      boite: b.getBoundingClientRect(),
+    };
+  };
+  const rangee = document.querySelector(".wm-compare");
+  return {
+    combien: cas.length,
+    cas: cas.map(lire),
+    //  CÔTE À CÔTE, et dans la colonne.
+    memeLigne: cas.length === 2 &&
+      Math.abs(
+          cas[0].getBoundingClientRect().top - cas[1].getBoundingClientRect().top,
+        ) < 2,
+    deborde: [...rangee.querySelectorAll("*")].some((e) =>
+      e.getBoundingClientRect().right > rangee.getBoundingClientRect().right + 1
+    ),
+  };
+});
+
+const [pur, obscur] = vuBulles.cas;
+dire(
+  "LES DEUX INFOBULLES SONT IDENTIQUES, SAUF LES DÉGÂTS",
+  vuBulles.combien === 2 &&
+    pur.tete === obscur.tete &&
+    JSON.stringify(pur.types) === JSON.stringify(obscur.types) &&
+    pur.lignes.length === obscur.lignes.length &&
+    //  Toutes les lignes sauf la dernière sont les mêmes, valeur
+    //  comprise ; la dernière a le même nom et une autre valeur.
+    pur.lignes.slice(0, -1).every((l, i) =>
+      JSON.stringify(l) === JSON.stringify(obscur.lignes[i])
+    ) &&
+    pur.lignes.at(-1)[0] === obscur.lignes.at(-1)[0] &&
+    pur.lignes.at(-1)[1] !== obscur.lignes.at(-1)[1],
+  JSON.stringify({ pur: pur?.lignes, obscur: obscur?.lignes }),
+);
+dire(
+  "ET LES DEUX POURCENTAGES SONT CEUX DU MODULE",
+  Object.keys(DEGATS).length === 2 &&
+    !pur.obscur && obscur.obscur &&
+    pur.lignes.at(-1)[1] === DEGATS.pur &&
+    obscur.lignes.at(-1)[1] === DEGATS.obscur,
+  JSON.stringify({ module: DEGATS, cartes: [pur?.lignes.at(-1), obscur?.lignes.at(-1)] }),
+);
+dire(
+  "la légende nomme le cas qu'elle légende",
+  /pur/i.test(pur.legende) && /obscur/i.test(obscur.legende) &&
+    !/obscur/i.test(pur.legende),
+  JSON.stringify([pur?.legende, obscur?.legende]),
+);
+dire(
+  "les deux fonds sont différents, et les bulles tiennent la colonne",
+  pur.fond !== obscur.fond && vuBulles.memeLigne && !vuBulles.deborde &&
+    pur.large === 212 && obscur.large === 212,
+  JSON.stringify({
+    fonds: [pur?.fond, obscur?.fond],
+    largeurs: [pur?.large, obscur?.large],
+    memeLigne: vuBulles.memeLigne,
+    deborde: vuBulles.deborde,
+  }),
+);
+
+//  ── ET LEURS TEXTES SE LISENT, DANS LES DEUX THÈMES ───────────────
+//
+//  Les deux fonds des bulles sont les mêmes dans les deux thèmes — ce
+//  sont des couleurs de pokémon, pas de page. Mais la légende, elle,
+//  est du texte de page, et c'est elle qui bascule.
+const lisible = async () =>
+  await bulles.evaluate(() => {
+    const lin = (c) => (c /= 255, c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    const lum = (t) => {
+      const [r, g, b] = (t.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+      return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    };
+    const fond = (el) => {
+      for (let n = el; n; n = n.parentElement) {
+        const f = getComputedStyle(n).backgroundColor;
+        const a = (f.match(/[\d.]+/g) || [])[3];
+        if (!/rgba\(0, 0, 0, 0\)/.test(f) && a !== "0") return f;
+      }
+      return "rgb(255, 255, 255)";
+    };
+    const rap = (a, b) => {
+      const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+      return Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+    };
+    const faibles = [];
+    let combien = 0;
+    for (const el of document.querySelectorAll(".wm-compare *")) {
+      const direct = [...el.childNodes].some((n) =>
+        n.nodeType === 3 && n.textContent.trim() !== ""
+      );
+      if (!direct) continue;
+      combien += 1;
+      const r = rap(getComputedStyle(el).color, fond(el));
+      if (r < 4.5) faibles.push(`${el.className} ${r}`);
+    }
+    return { faibles, combien };
+  });
+const bullesClair = await lisible();
+await bulles.evaluate(() => document.body.classList.add("wm-sombre"));
+await bulles.waitForTimeout(120);
+const bullesSombre = await lisible();
+dire(
+  `les ${bullesClair.combien} textes des deux bulles tiennent les 4,5, clair et sombre`,
+  bullesClair.faibles.length === 0 && bullesSombre.faibles.length === 0,
+  JSON.stringify({ clair: bullesClair.faibles, sombre: bullesSombre.faibles }),
+);
+await bulles.close();
 
 await p.close();
 await nav.close();
