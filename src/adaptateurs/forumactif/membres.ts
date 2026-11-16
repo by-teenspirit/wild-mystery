@@ -57,7 +57,8 @@
 import { decoderLesEntites } from "./recherche.ts";
 
 /** `<a class="wm-membres__nom" href="/u5">…</a>`, bornée à la balise. */
-const LIGNE = /<a[^>]*\bclass="[^"]*\bwm-membres__nom\b[^"]*"[^>]*\bhref="\/u(\d+)"[^>]*>([\s\S]*?)<\/a>/gi;
+const LIGNE =
+  /<a[^>]*\bclass="[^"]*\bwm-membres__nom\b[^"]*"[^>]*\bhref="\/u(\d+)"[^>]*>([\s\S]*?)<\/a>/gi;
 
 /** Les liens de pagination de la liste, tels que `{PAGINATION}` les pose. */
 const PAGE = /<a[^>]*\bhref="([^"]*\/memberlist[^"]*\bstart=\d+[^"]*)"/gi;

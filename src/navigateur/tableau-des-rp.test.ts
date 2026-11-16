@@ -1,10 +1,10 @@
 import { assertEquals } from "@std/assert";
 import {
+  adresseDuSujet,
   etatVu,
   garderLesRp,
   type LigneDeRp,
   rangerLesRp,
-  adresseDuSujet,
   sujetDeLAdresse,
 } from "./tableau-des-rp.ts";
 

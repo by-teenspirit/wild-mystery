@@ -89,6 +89,7 @@ GABARITS = (
     "carte-dresseur.*.html",
     "annonce-du-staff.*.html",
     "contexte-ailleurs.*.html",
+    "valider-un-membre.*.html",
 )
 
 

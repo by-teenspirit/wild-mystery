@@ -1,0 +1,187 @@
+<!-- ══════════════════════════════════════════════════════════════════
+     VALIDER UN MEMBRE, LIER SON COMPTE — le message de t1003.
+
+     Demandé le 16 novembre : « réutilise le code des fiches, et
+     expliquer comment valider un membre / lier son compte ici :
+     https://mysteryinrhode.forumactif.com/t1003-lier-un-compte-a-la-validation »
+
+     ── CE QUE « LE CODE DES FICHES » VEUT DIRE ICI ──────────────────
+
+     Les briques de `wm-annonce`, les mêmes que les annonces du staff,
+     les postes de champion et les douze messages de défi. Rien de neuf
+     dans la feuille : la carte, les cadres, les étiquettes et les
+     encarts existent déjà et sont mesurés dans les deux thèmes.
+
+     AUCUNE COULEUR EN DUR, AUCUN `<style>`. La feuille du dépôt est
+     servie à toutes les pages du forum, c'est elle qui habille la
+     carte — et c'est pour ça que le message reste juste quand le thème
+     change.
+
+     ── CE QU'ON SE REFUSE, ET POURQUOI ──────────────────────────────
+
+     · PAS DE `<pre>` NI DE `[code]`. Le HTML des messages passe par
+       une liste blanche (`a, b, blockquote, br, div, em, h1-h6, i,
+       img, li, ol, p, span, strong, table, u, ul` — doc 03, § 9.6) où
+       `pre` et `code` ne sont pas, et aucun message du forum ne porte
+       encore de bloc de code : il sortirait habillé par Forumactif et
+       pas par nous (doc 50). La commande SQL est donc du texte, dans
+       un cadre à elle, en pleine largeur.
+     · PAS DE TABLEAU pour les quatre pannes : `wm-annonce__blocs` est
+       en flex, il range deux cadres côte à côte quand la place est là
+       et l'un sous l'autre sinon.
+
+     ── COMMENT LE COLLER ────────────────────────────────────────────
+
+     Prendre `valider-un-membre.a-coller.min.html` — UNE SEULE LIGNE —
+     et le coller dans le message en mode HTML. Pas ce fichier-ci :
+     l'éditeur transforme une partie de ses retours à la ligne en
+     <br />, et la carte sort trouée.
+
+     ── CE QUI SE CHANGE SANS TOUCHER AU CODE ────────────────────────
+
+     Le texte, et seulement lui. Le numéro `/u5` et l'adresse
+     `son-adresse@exemple.fr` de la commande sont des exemples : ils
+     n'appartiennent à personne.
+
+     AUCUNE VRAIE CLÉ DE CARNET N'EST ÉCRITE ICI, et il n'en faut
+     jamais dans un message : c'est elle qui ouvre le carnet de son
+     propriétaire.
+     ══════════════════════════════════════════════════════════════════ -->
+
+<div class="wm-annonce wm-annonce--sable wm-annonce--sans-filet">
+
+  <p class="wm-annonce__soustitre">Côté staff</p>
+  <h2 class="wm-annonce__titre">Valider un membre, et lier son compte</h2>
+  <p class="wm-annonce__texte">Valider demande deux gestes. Le premier est celui du forum — le groupe, la présentation, le reste. Le second se fait dans Supabase, et c'est lui qui ouvre le carnet de bord. Tant qu'il manque, le joueur a tout fait correctement et sa page lui répond qu'il n'est pas validé : c'est arrivé, trois jours durant, parce que l'adresse ne s'enregistrait pas.</p>
+
+  <p class="wm-annonce__soustitre">Ce qu'il faut sous la main</p>
+  <ul class="wm-annonce__blocs">
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">Son numéro de membre</p>
+      <p class="wm-annonce__texte">Le nombre de <strong>/u5</strong> sur son profil. C'est lui qui désigne le personnage, et pas le pseudo : un pseudo se change, un numéro non.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">Son adresse e-mail</p>
+      <p class="wm-annonce__texte">Celle avec laquelle il ouvrira son carnet. C'est toi qui la certifies — le forum ne la prouve pas. Les majuscules et les espaces n'ont pas d'importance, elle est rangée en minuscules.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">Sa maison</p>
+      <p class="wm-annonce__texte">Le nom interne, en minuscules et sans accent : <strong>hardi</strong>, <strong>serieux</strong>, <strong>malin</strong>, <strong>doux</strong>, <strong>brave</strong> ou <strong>jovial</strong>. Tout le reste est refusé.</p>
+    </li>
+  </ul>
+
+  <p class="wm-annonce__soustitre">Les six étapes</p>
+  <ul class="wm-annonce__blocs">
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">1 · Il s'inscrit</p>
+      <p class="wm-annonce__texte">Rien à faire de notre côté. On note son numéro.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">2 · On le valide sur le forum</p>
+      <p class="wm-annonce__texte">Comme d'habitude : le groupe, la présentation, le reste.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">3 · On enregistre le personnage</p>
+      <p class="wm-annonce__texte">Dans l'éditeur SQL de Supabase, avec la commande juste en dessous.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">4 · On lit la réponse</p>
+      <p class="wm-annonce__texte">Elle rend la clé du carnet, et elle dit tout de suite si la liaison pourra aboutir.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">5 · On colle la clé</p>
+      <p class="wm-annonce__texte">Dans le champ <strong>clé de liaison</strong> de son profil, côté forum. C'est le seul endroit où elle va.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">6 · Il ouvre son carnet</p>
+      <p class="wm-annonce__texte">Il entre son adresse, reçoit un lien, clique, et c'est fini.</p>
+    </li>
+  </ul>
+
+  <p class="wm-annonce__soustitre">La commande</p>
+  <div class="wm-annonce__bloc">
+    <p class="wm-annonce__bloc-titre">À coller dans l'éditeur SQL</p>
+    <p class="wm-annonce__texte">select valider_le_personnage('{<br />&nbsp; "forumUserId": 5,<br />&nbsp; "pseudo": "Nom Prénom",<br />&nbsp; "groupe": "doux",<br />&nbsp; "courriel": "son-adresse@exemple.fr"<br />}'::jsonb);</p>
+    <p class="wm-annonce__texte">Les quatre champs sont ceux du dessus. <strong>pseudo</strong> et <strong>courriel</strong> peuvent être omis quand on revalide quelqu'un dont ils n'ont pas changé : ce qu'on ne donne pas n'efface rien.</p>
+  </div>
+
+  <p class="wm-annonce__soustitre">Ce que la réponse dit</p>
+  <ul class="wm-annonce__blocs">
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">cle</p>
+      <p class="wm-annonce__texte">Les trente-deux caractères à coller dans son profil. C'est la seule sortie : elle ne se retrouve nulle part ailleurs, et elle ne se redemande pas.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">peutSeLier</p>
+      <p class="wm-annonce__texte">À <strong>false</strong>, le personnage n'ouvrira pas son carnet, quoi qu'il tente : il manque l'adresse. C'est le seul chiffre à regarder avant de refermer l'onglet.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">creee</p>
+      <p class="wm-annonce__texte">À <strong>false</strong>, le personnage existait déjà et on vient de le mettre à jour. Ce n'est pas une erreur.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">groupe</p>
+      <p class="wm-annonce__texte">La maison telle qu'elle a été comprise. On la relit : c'est là qu'une faute de frappe se voit, avant que le joueur ne la découvre sur son carnet.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">joueurId</p>
+      <p class="wm-annonce__texte">L'identifiant interne du personnage. On n'en fait rien : il ne sert qu'aux requêtes de la base.</p>
+    </li>
+  </ul>
+
+  <div class="wm-annonce__separateur"></div>
+
+  <p class="wm-annonce__soustitre">Revalider ne casse rien</p>
+  <p class="wm-annonce__texte">C'est voulu, et on s'en sert : on corrige un pseudo, on change une maison, on repasse la commande. La <strong>clé n'est refaite que si elle manque</strong> — sinon on couperait le carnet de quelqu'un qui jouait très bien. Et une <strong>adresse absente n'efface jamais celle qui est là</strong>.</p>
+
+  <p class="wm-annonce__soustitre">Les personnages validés avant le 16 novembre</p>
+  <p class="wm-annonce__texte">Ils ont été créés sans adresse, et l'adresse n'est écrite nulle part dans la base : c'est le staff qui la connaît. Pour savoir qui est bloqué sans attendre qu'il écrive :</p>
+  <div class="wm-annonce__bloc">
+    <p class="wm-annonce__bloc-titre">Qui ne pourra pas ouvrir son carnet</p>
+    <p class="wm-annonce__texte">select * from joueur_sans_adresse;</p>
+    <p class="wm-annonce__texte">Pour chacun, la même commande qu'à l'étape 3 : elle met à jour au lieu de créer.</p>
+  </div>
+
+  <div class="wm-annonce__separateur"></div>
+
+  <p class="wm-annonce__soustitre">Si un joueur reste bloqué</p>
+  <p class="wm-annonce__texte">On regarde sa ligne, et elle dit laquelle des quatre pannes c'est :</p>
+  <div class="wm-annonce__bloc">
+    <p class="wm-annonce__bloc-titre">Ce qu'on lit</p>
+    <p class="wm-annonce__texte">select pseudo, forum_user_id, courriel,<br />&nbsp; &nbsp; &nbsp; &nbsp;auth_id is not null as deja_lie, lie_le<br />&nbsp; from joueur where forum_user_id = 5;</p>
+  </div>
+  <ul class="wm-annonce__blocs">
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">Aucune ligne</p>
+      <p class="wm-annonce__texte">Le personnage n'existe pas dans Supabase. C'est l'étape 3, et elle n'a jamais été faite.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">courriel vide</p>
+      <p class="wm-annonce__texte">Il a été validé avant le correctif. L'étape 3 le met à jour, sans rien perdre.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">courriel différent du sien</p>
+      <p class="wm-annonce__texte">Il se connecte avec une autre boîte que celle qu'on a certifiée. On corrige l'une ou l'autre, et les deux se valent.</p>
+    </li>
+    <li class="wm-annonce__bloc">
+      <p class="wm-annonce__bloc-titre">deja_lie à true</p>
+      <p class="wm-annonce__texte">Le personnage est déjà accroché à un autre compte. On détache <strong>auth_id</strong> et <strong>lie_le</strong>, puis il recommence.</p>
+    </li>
+  </ul>
+  <p class="wm-annonce__texte">Dans tous les cas, il recharge la page après : la liaison se rejoue toute seule, il n'a rien à redemander.</p>
+
+  <div class="wm-annonce__separateur"></div>
+
+  <p class="wm-annonce__soustitre">Ce que le joueur fait, lui</p>
+  <p class="wm-annonce__texte">Il ouvre son carnet, entre l'adresse qu'on a certifiée, et reçoit un lien. <strong>Il tombe souvent dans les spams</strong>, et il ne vaut qu'un quart d'heure : passé ce délai, il en redemande un, et rien n'est perdu. Le lien le ramène sur son carnet, déjà ouvert.</p>
+  <p class="wm-annonce__texte">S'il joue plusieurs personnages, <strong>tous ceux qui portent cette adresse sont rattachés d'un seul clic</strong>. La même adresse sur plusieurs personnages est le chemin prévu — les alias du genre <strong>mon-adresse+perso@</strong> marchent aussi, à condition que ce soit exactement la même chaîne des deux côtés.</p>
+  <p class="wm-annonce__texte">Et s'il change de boîte après sa validation, il nous le dit : on repasse la commande avec la nouvelle adresse, et son carnet le suit.</p>
+
+  <div class="wm-encarts wm-encarts--detachee">
+    <div class="wm-encart wm-encart--terre">
+      <span class="wm-encart__etiquette">La clé ne se colle qu'à un seul endroit</span>
+      <p>Le champ <strong>clé de liaison</strong> de son profil, et nulle part ailleurs : pas dans un message, pas dans la chatbox, pas dans une réponse à sa demande. C'est elle qui ouvre son carnet, et elle n'ouvre que le sien.</p>
+    </div>
+  </div>
+
+</div>
