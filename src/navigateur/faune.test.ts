@@ -391,14 +391,24 @@ Deno.test("les numéros se lisent dans le fichier, et le faux est écarté", () 
   assertEquals(numerosDepuis({ numeros: { "105": 131, "10115": 132 } }).get(105), 131);
   assertEquals(numerosDepuis({ numeros: { "10115": 132 } }).get(10115), 132);
 
-  //  UN RANG HORS DU DEX N'EST PAS UN RANG. Écrire « N° 000 » ou
-  //  « N° 1200 » sur une carte produirait un numéro qui n'existe pas —
-  //  et un faux numéro circule : on le recopie dans un RP, on le
-  //  cherche.
+  //  CE QUI N'EST PAS UN RANG N'EST PAS UN RANG : zéro, négatif, à
+  //  virgule, en texte, absent. Écrire « N° 000 » sur une carte
+  //  produirait un numéro qui n'existe pas — et un faux numéro
+  //  circule : on le recopie dans un RP, on le cherche.
   const sale = numerosDepuis({
-    numeros: { "1": 0, "2": 934, "3": -4, "4": 12.5, "5": "131", "6": null },
+    numeros: { "1": 0, "3": -4, "4": 12.5, "5": "131", "6": null },
   });
   assertEquals(sale.size, 0);
+
+  //  MAIS UN GRAND NOMBRE PASSE, et c'est le correctif du 13 novembre.
+  //  Il y avait ici `934` parmi les valeurs refusées, parce que le
+  //  lecteur plafonnait à 933 — le dex d'alors. Les formes régionales
+  //  l'ont porté à 955, et les numéros 949 et 952 tombaient en
+  //  silence. Ce lecteur-ci ne voit jamais le dex entier : il ne peut
+  //  pas savoir où il s'arrête, et refuser au hasard coûte plus que
+  //  laisser passer. La complétude se vérifie chez le générateur.
+  assertEquals(numerosDepuis({ numeros: { "999": 949 } }).get(999), 949);
+  assertEquals(numerosDepuis({ numeros: { "1012": 952 } }).get(1012), 952);
 
   //  Une clé qui n'est pas un identifiant non plus.
   assertEquals(numerosDepuis({ numeros: { "abc": 12, "0": 12 } }).size, 0);

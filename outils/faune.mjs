@@ -495,6 +495,23 @@ console.log("\n── les sous-onglets ──");
 // ════════════════════════════════════════════════════════════════════
 //  3 · UN CLIC SUR UNE ZONE
 // ════════════════════════════════════════════════════════════════════
+//  ── LES BRÈCHES NE SONT PAS LA FAUNE D'UNE ZONE ───────────────────
+//
+//  Depuis le 6 novembre, l'annexe porte AUSSI la liste des brèches
+//  interdimensionnelles : les formes régionales, affichées « comme dans
+//  les zones sauvages » mais sans rareté, sans pourcentage et sans
+//  niveaux, parce qu'on ne les rencontre dans aucune zone.
+//
+//  Ces contrôles-ci, eux, datent d'avant. Ils comptaient TOUTES les
+//  cartes de la page, donc les cinquante formes des brèches en plus des
+//  espèces de la zone : « 122 vues pour 72 au fichier ». Dix contrôles
+//  rouges qui ne disaient rien du code — ils mesuraient un écran qui
+//  avait grandi sans eux.
+//
+//  On borne donc la mesure à la faune de la zone, avec
+//  `:not([data-wm-breche-liste] [data-wm-espece])` partout où un
+//  contrôle compte des espèces. Les brèches ont les leurs, plus bas.
+
 const ZONE = ZONES.find((z) => z.nom === "Forêt Marécageuse") ?? ZONES[0];
 const TABLE = json(`data/faune/${ZONE.forumId}.json`).conditions.jour;
 console.log(`\n── un clic sur ${ZONE.nom} ──`);
@@ -507,7 +524,7 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     ZONE.forumId,
   );
   await p.waitForFunction(
-    () => document.querySelectorAll("[data-wm-espece]").length > 0,
+    () => document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length > 0,
     undefined,
     { timeout: 15000 },
   );
@@ -532,7 +549,7 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     //  espèces ensemble dans l'ordre, tu rajoutes un filtre ».
     const tranches = [{
       rarete: "toutes",
-      especes: Array.from(document.querySelectorAll("[data-wm-espece]")).map((e) => ({
+      especes: Array.from(document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")).map((e) => ({
         id: Number(e.dataset.wmEspece),
         nom: e.querySelector(".wm-faune__nom")?.textContent ?? "",
         pct: pct(e.querySelector(".wm-faune__pct")?.textContent),
@@ -571,7 +588,7 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
         ),
       dit: document.querySelector(".wm-faune__dit")?.textContent ?? "",
       tranches,
-      total: document.querySelectorAll("[data-wm-espece]").length,
+      total: document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length,
       issues: Array.from(document.querySelectorAll(".wm-faune__issue")).map((n) => ({
         clef: n.dataset.wmIssue,
         pct: pct(n.querySelector(".wm-faune__issue-pct")?.textContent),
@@ -632,16 +649,18 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     JSON.stringify(vuDex) === JSON.stringify(attenduDex),
     { vu: vuDex.slice(0, 8), attendu: attenduDex.slice(0, 8) },
   );
-  //  Et la preuve que ce n'est pas un tri par identifiant : au moins
-  //  une forme régionale doit passer AVANT une espèce ordinaire.
-  const formeAvantOrdinaire = vuDex.some((id, i) =>
-    id > 10000 && vuDex.slice(i + 1).some((j) => j < 10000)
-  );
-  ok(
-    "une forme régionale passe avant l'espèce ordinaire qui la suit",
-    formeAvantOrdinaire,
-    vuDex.filter((i) => i > 10000).slice(0, 3),
-  );
+  //  ── LA PREUVE DU TRI A DÉMÉNAGÉ, ET C'EST SA PLACE ──────────────
+  //
+  //  Il y avait ici une preuve que l'ordre n'est pas un tri par
+  //  identifiant : au moins une forme régionale devait passer AVANT
+  //  une espèce ordinaire. Elle reposait sur des formes régionales
+  //  DANS la liste d'une zone, et il n'y en a plus : on ne les
+  //  rencontre que dans les brèches.
+  //
+  //  Le contrôle rendait donc `[]` et criait, sans rien dire du code.
+  //  La même preuve vit en test unitaire, sur la fonction elle-même,
+  //  où elle n'a besoin d'aucun écran : `src/navigateur/dex.test.ts`
+  //  range `[10092, 19, 10091]` et exige la forme avant le 19.
 
   //  LES PARTS FONT CENT. Elles se relisent maintenant carte par
   //  carte : il n'y a plus de titre de tranche pour porter le total.
@@ -880,7 +899,7 @@ console.log("\n── on change de zone, puis on clique une ville ──");
     autre.nom,
     { timeout: 15000 },
   );
-  const compte = await p.evaluate(() => document.querySelectorAll("[data-wm-espece]").length);
+  const compte = await p.evaluate(() => document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length);
   ok(
     "LA FAUNE EST REMPLACÉE, PAS AJOUTÉE",
     compte === sienne.length,
@@ -901,7 +920,7 @@ console.log("\n── on change de zone, puis on clique une ville ──");
   );
   const vu = await p.evaluate(() => ({
     mot: document.querySelector(".wm-faune__vide")?.textContent ?? "",
-    especes: document.querySelectorAll("[data-wm-espece]").length,
+    especes: document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length,
   }));
   ok("une ville le dit", vu.mot.includes("Aucune faune"), vu.mot);
   ok(
@@ -930,14 +949,14 @@ console.log("\n── à 390 px ──");
     ZONE.forumId,
   );
   await p.waitForFunction(
-    () => document.querySelectorAll("[data-wm-espece]").length > 0,
+    () => document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length > 0,
     undefined,
     { timeout: 15000 },
   );
   const vu = await p.evaluate(() => ({
     debord: document.documentElement.scrollWidth > window.innerWidth + 1,
     large: document.documentElement.scrollWidth,
-    espece: document.querySelector("[data-wm-espece]")?.getBoundingClientRect().width ?? 0,
+    espece: document.querySelector("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")?.getBoundingClientRect().width ?? 0,
   }));
   ok("rien ne déborde", !vu.debord, vu);
   ok("et une carte d'espèce tient dans l'écran", vu.espece > 0 && vu.espece <= 390, vu.espece);
@@ -1093,7 +1112,13 @@ console.log("\n── le numéro du dex, et la marque qui doit se taire ──")
 {
   const numeros = json("data/dex-numeros.json").numeros;
   const marques = await p.evaluate(() => ({
-    nos: Array.from(document.querySelectorAll('[data-wm-liste="especes"] [data-wm-espece]'))
+    //  SANS LES BRÈCHES : elles vivent DANS la même liste, et leurs
+    //  cartes n'ont pas de numéro de Rhode à porter — on ne les
+    //  rencontre dans aucune zone. Les compter ici faisait « 122 vus
+    //  pour 72 au fichier ».
+    nos: Array.from(document.querySelectorAll(
+      '[data-wm-liste="especes"] [data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])',
+    ))
       .map((e) => ({
         id: Number(e.dataset.wmEspece),
         no: e.querySelector(".wm-faune__no")?.textContent ?? "",

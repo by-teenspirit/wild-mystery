@@ -514,11 +514,36 @@ export function numerosDepuis(donnees: unknown): ReadonlyMap<number, number> {
   if (donnees === null || typeof donnees !== "object") return table;
   const brut = (donnees as Record<string, unknown>).numeros;
   if (brut === null || typeof brut !== "object") return table;
+  //  ── IL N'Y A PLUS DE PLAFOND ÉCRIT ICI, ET C'EST VOULU ──────────
+  //
+  //  Il y avait `valeur > 933`, le nombre d'espèces du dex au jour où
+  //  la ligne a été écrite. Puis les formes régionales sont entrées
+  //  dans le dex, qui en compte 955 — et ce lecteur a continué de
+  //  jeter tout ce qui dépassait 933, SANS RIEN DIRE.
+  //
+  //  Mesuré le 13 novembre : les numéros de Rhode 949 (Gimmighoul) et
+  //  952 (Poltchageist) disparaissaient, et leurs cartes s'affichaient
+  //  sans numéro. Le harnais criait « chaque espèce porte son numéro »
+  //  sans que personne remonte jusqu'ici. Le même 933 figé avait déjà
+  //  fait rougir le CI une semaine durant, dans un test de
+  //  `fichiers.test.ts` : deux fois le même nombre, deux fois la même
+  //  panne. Un comptage écrit en dur est une date de péremption que
+  //  personne ne lit.
+  //
+  //  COMPTER LES ENTRÉES NE MARCHE PAS NON PLUS : ce lecteur reçoit
+  //  parfois un fragment — deux espèces, numéros 131 et 132 — et un
+  //  plafond tiré de sa taille les jetterait toutes les deux.
+  //
+  //  Alors on ne plafonne plus. Ce qui est vraiment garanti — les
+  //  numéros vont de 1 à N, sans trou ni doublon — se vérifie là où on
+  //  voit le dex ENTIER, c'est-à-dire chez le générateur
+  //  (`src/adaptateurs/faune/fichiers.test.ts`). Ici on ne sait rien du
+  //  tout, et refuser au hasard coûte plus que laisser passer.
   for (const [clef, valeur] of Object.entries(brut as Record<string, unknown>)) {
     const id = Number(clef);
     if (!Number.isInteger(id) || id <= 0) continue;
     if (typeof valeur !== "number" || !Number.isInteger(valeur)) continue;
-    if (valeur < 1 || valeur > 933) continue;
+    if (valeur < 1) continue;
     table.set(id, valeur);
   }
   return table;
