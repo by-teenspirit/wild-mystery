@@ -26060,6 +26060,102 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin-top: var(--wm-espace-24, 24px);
   padding-top: var(--wm-espace-20, 20px);
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  /*  LE FORMULAIRE À GAUCHE, L'INFORMATION À DROITE. La coupure se
+      décide sur LA LARGEUR DU BLOC et pas sur celle de l'écran : le
+      carnet vit dans une colonne dont on ne connaît pas la taille, et
+      une `@media` a déjà menti une fois ce mois-ci sur l'organigramme
+      de l'annexe 13. */
+  container-type: inline-size;
+  display: grid;
+  gap: var(--wm-espace-20, 20px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 17rem);
+  align-items: start;
+}
+
+@container (max-width: 620px) {
+  #modernbb .wm-carnet__lier {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+#modernbb .wm-carnet__lier-forme {
+  min-width: 0;
+}
+
+/*  ── L'ENCADRÉ D'INFORMATION ───────────────────────────────────────
+
+    « Précise au début quand les personnes viennent lier leur compte »,
+    16 novembre, après qu'une joueuse est restée bloquée trois jours en
+    cherchant une étape qui n'existait pas de son côté.
+
+    ── LE FOND BLEU A ÉTÉ MESURÉ, PUIS ABANDONNÉ ────────────────────
+
+    L'encadré était demandé « avec un fond clair bleu ». Essayé :
+    `--wm-accent-primaire` fondu à 14 % dans la surface. Mesuré ensuite,
+    et c'est ce qui a tranché :
+
+        clair   #e1e5e6   teinte 192°   saturation  9 %
+        sombre  #313232   teinte 180°   saturation  1 %
+
+    UN POUR CENT. Un bleu clair fondu dans une surface chaude se
+    désature jusqu'au gris — le thème sombre n'aurait pas eu d'encadré
+    bleu, il aurait eu une tache grise. « Sinon garde les jetons si
+    c'est du marron plutôt », 16 novembre : c'est donc
+    `--wm-fond-terre`, qui existe déjà, qui est mesuré, et qui a une
+    valeur par thème.
+
+    LE BLEU RESTE, SUR L'ICÔNE ET LE TITRE. C'est là qu'il dit
+    « information » sans avoir à teinter une surface entière, et il y
+    tient ses contrastes : 6,01 en clair, 7,77 en sombre sur le marron.
+    Le texte courant fait 13,36 et 12,28, le texte doux 5,72 et 5,42. */
+#modernbb .wm-info {
+  box-sizing: border-box;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-info p {
+  margin: 0 0 var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-info p:last-child {
+  margin-bottom: 0;
+}
+
+#modernbb .wm-info__titre {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  color: var(--wm-accent-primaire, #275e7a);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+/*  L'ICÔNE NE RÉTRÉCIT PAS. Dans un flex, un SVG sans `flex: 0 0 auto`
+    se laisse écraser par le texte à côté dès que la place manque, et un
+    cercle devient une ellipse. */
+#modernbb .wm-info__icone {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+#modernbb .wm-info code {
+  padding: 1px 4px;
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: color-mix(in srgb, var(--wm-encre, #2e2018) 8%, transparent);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.92em;
+  /*  UNE ADRESSE NE SE COUPE PAS N'IMPORTE OÙ, mais elle doit pouvoir
+      se couper : dans une colonne de 17 rem, `mail+perso@gmail.com`
+      pousserait l'encadré hors de la page. */
+  overflow-wrap: anywhere;
 }
 
 #modernbb .wm-carnet__lier label {

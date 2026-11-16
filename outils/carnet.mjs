@@ -672,6 +672,63 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
       /bo[îi]te/i.test(dit),
     JSON.stringify({ envoi, dit }),
   );
+  //  ── L'ENCADRÉ D'INFORMATION ───────────────────────────────────
+  //
+  //  « Précise au début quand les personnes viennent lier leur compte »,
+  //  16 novembre, après qu'une joueuse est restée bloquée trois jours.
+  //  Il répond aux trois questions qu'on se pose AVANT de taper quoi
+  //  que ce soit : pourquoi une adresse, et si j'en change, et si j'ai
+  //  plusieurs personnages.
+  const encadre = await q.evaluate(() => {
+    const e = document.querySelector("[data-wm-carnet-lier-info]");
+    if (e === null) return null;
+    const bloc = e.closest(".wm-carnet__lier");
+    const forme = bloc.querySelector(".wm-carnet__lier-forme");
+    const c = getComputedStyle(e);
+    //  LES COULEURS SE RÉSOLVENT, elles ne se comparent pas à un nom
+    //  de jeton : `var(--wm-fond-terre)` et `rgb(…)` ne correspondent
+    //  jamais.
+    const sonde = document.createElement("span");
+    sonde.style.color = "var(--wm-fond-terre)";
+    e.appendChild(sonde);
+    const terre = getComputedStyle(sonde).color;
+    sonde.style.color = "var(--wm-accent-primaire)";
+    const accent = getComputedStyle(sonde).color;
+    sonde.remove();
+    return {
+      fond: c.backgroundColor,
+      terre,
+      titre: getComputedStyle(e.querySelector(".wm-info__titre")).color,
+      accent,
+      icone: e.querySelector(".wm-info__icone") !== null,
+      //  À DROITE DU FORMULAIRE, pas en dessous.
+      aDroite: Math.round(e.getBoundingClientRect().left) >
+        Math.round(forme.getBoundingClientRect().right) - 2,
+      dit: e.textContent.replace(/\s+/g, " ").trim(),
+    };
+  });
+  dire(
+    "L'ENCADRÉ D'INFORMATION EST LÀ, À DROITE DU FORMULAIRE",
+    encadre !== null && encadre.aDroite && encadre.icone,
+    JSON.stringify({ ...encadre, dit: (encadre?.dit ?? "").slice(0, 40) }),
+  );
+  dire(
+    "il prend le marron de la charte, et garde le bleu sur son titre",
+    //  Le fond bleu a été mesuré puis abandonné : fondu dans une
+    //  surface chaude, il tombait à 1 % de saturation en thème
+    //  sombre — du gris, pas du bleu.
+    encadre !== null && encadre.fond === encadre.terre &&
+      encadre.titre === encadre.accent,
+    JSON.stringify({ fond: encadre?.fond, terre: encadre?.terre,
+      titre: encadre?.titre, accent: encadre?.accent }),
+  );
+  dire(
+    "et il répond aux trois questions qu'on se pose avant de taper",
+    encadre !== null && /cl[ée] de liaison/i.test(encadre.dit) &&
+      /pr[ée]viens-nous/i.test(encadre.dit) &&
+      /tous d'un coup/i.test(encadre.dit) && /mail\+perso/i.test(encadre.dit),
+    (encadre?.dit ?? "").slice(0, 200),
+  );
   dire(
     "ET IL DIT DE REGARDER DANS LES SPAMS — c'est là qu'il tombe",
     //  « Il vient de tomber dans les spams sur l'autre mail »,

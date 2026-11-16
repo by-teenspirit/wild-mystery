@@ -121,20 +121,56 @@
               que si la page n'a pas de laissez-passer valable. Le
               script remplit tout le reste.  -->
         <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
-          <h2 class="wm-carnet__bloc-titre">Lier mon compte</h2>
-          <p>
-            Une fois, et jamais plus : tape l'adresse que le staff a
-            notée pour ce personnage. Tu recevras un lien à cliquer, et
-            ton carnet s'ouvrira tout seul ensuite — sur tous tes
-            personnages, sur tous tes navigateurs.
-          </p>
-          <form data-wm-carnet-liaison>
-            <label for="wm-courriel">Ton adresse e-mail</label>
-            <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
-                   spellcheck="false" required placeholder="celle de ton inscription" />
-            <button type="submit">Recevoir mon lien</button>
-          </form>
-          <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+          <div class="wm-carnet__lier-forme">
+            <h2 class="wm-carnet__bloc-titre">Lier mon compte</h2>
+            <p>
+              Une fois, et jamais plus : tape l'adresse que le staff a
+              notée pour ce personnage. Tu recevras un lien à cliquer, et
+              ton carnet s'ouvrira tout seul ensuite — sur tous tes
+              personnages, sur tous tes navigateurs.
+            </p>
+            <form data-wm-carnet-liaison>
+              <label for="wm-courriel">Ton adresse e-mail</label>
+              <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
+                     spellcheck="false" required placeholder="celle de ton inscription" />
+              <button type="submit">Recevoir mon lien</button>
+            </form>
+            <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+          </div>
+
+          <!--  L'ENCADRÉ D'INFORMATION. Il répond aux trois questions
+                que les joueuses posent avant de taper quoi que ce soit —
+                pourquoi une adresse, et si j'en change, et si j'ai
+                plusieurs personnages. Demandé le 16 novembre, après
+                qu'une joueuse est restée bloquée trois jours.  -->
+          <aside class="wm-info" data-wm-carnet-lier-info>
+            <p class="wm-info__titre">
+              <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <circle cx="10" cy="5.9" r="1.15" fill="currentColor" />
+                <path d="M10 9v5.6" fill="none" stroke="currentColor"
+                      stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              Pourquoi ton adresse&nbsp;?
+            </p>
+            <p>
+              À ta validation, le staff relie ton adresse à une
+              <b>clé de liaison</b> — un petit code qui prouve que c'est
+              bien toi, et qui empêche quelqu'un d'autre d'ouvrir ton
+              carnet.
+            </p>
+            <p>
+              <b>Si tu changes d'adresse ensuite, préviens-nous.</b> Nous
+              mettrons la nouvelle à jour&nbsp;; sans ça, ton carnet ne
+              s'ouvrira plus.
+            </p>
+            <p>
+              Plusieurs personnages&nbsp;? La même adresse les ouvre
+              <b>tous d'un coup</b>. Le format
+              <code>mail+perso@gmail.com</code> marche aussi, si tu
+              préfères les séparer.
+            </p>
+          </aside>
         </div>
       </div>
 
