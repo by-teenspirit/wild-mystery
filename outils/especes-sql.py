@@ -13,7 +13,21 @@ fossiles échouait à sa première ligne.
 Il n'existait aucun seed d'espèces dans le dépôt. `data/especes.json`
 n'en est pas un : c'est un index pour le navigateur, il ne porte que
 `id → nom_fr`. La table, elle, veut aussi `types` — qui n'a PAS de
-valeur par défaut —, `stade` et `pv_base`.
+valeur par défaut —, `stade`, `pv_base`, et depuis le 17 novembre
+`att_base` et `def_base`.
+
+LES DEUX CHIFFRES AJOUTÉS LE 17 NOVEMBRE
+─────────────────────────────────────────
+Le combat dans le sujet se résout avec l'attaque de l'un contre la
+défense de l'autre, et ces deux bases n'existaient nulle part : les
+champions ont les leurs parce que `outils/equipes-de-champions.py` les
+tire des mêmes CSV, mais rien ne les versait en base. Un combat ne peut
+pas s'écrire au-dessus d'une table qui ne porte que les PV.
+
+Les TROIS chiffres et pas six : c'est ce que le forum affiche — carte
+des champions, carte de dresseur —, et c'est ce que la formule du
+6 novembre calcule. L'attaque spéciale ferait jouer le combat sur un
+chiffre que personne ne voit.
 
 CE QUI FAIT FOI, ET CE QUI NE FAIT QUE COMPLÉTER
 ─────────────────────────────────────────────────
@@ -83,9 +97,14 @@ SEED = RACINE / "supabase" / "seeds" / "especes.sql"
 
 #  Le français, dans les tables de PokéAPI.
 FRANCAIS = 5
-#  `stat_id = 1` est « hp ». Les autres statistiques ne nous servent à
-#  rien : le combat n'est pas simulé.
-STAT_PV = 1
+
+#  LES TROIS CHIFFRES DU FORUM, ET PAS UN DE PLUS. PokéAPI en porte
+#  six ; le forum en affiche trois — PV, ATT, DÉF — sur la carte des
+#  champions comme sur la carte de dresseur, et la formule du
+#  6 novembre (`outils/equipes-de-champions.py`) ne calcule que
+#  ceux-là. Prendre l'attaque spéciale et la vitesse ferait jouer le
+#  combat sur des chiffres que personne ne voit.
+STATS = {"1": "pv", "2": "att", "3": "def"}
 
 FORMES_CONNUES = ("alola", "galar", "hisui", "paldea")
 
@@ -139,11 +158,11 @@ def fabriquer_les_fiches(dossier: pathlib.Path) -> dict[str, object]:
             (int(l["slot"]), types_fr[l["type_id"]])
         )
 
-    pv = {
-        l["pokemon_id"]: int(l["base_stat"])
-        for l in lire(dossier, "pokemon_stats.csv")
-        if l["stat_id"] == str(STAT_PV)
-    }
+    bases: dict[str, dict[str, int]] = {}
+    for l in lire(dossier, "pokemon_stats.csv"):
+        quoi = STATS.get(l["stat_id"])
+        if quoi is not None:
+            bases.setdefault(l["pokemon_id"], {})[quoi] = int(l["base_stat"])
 
     pokemon = {l["id"]: l for l in lire(dossier, "pokemon.csv")}
 
@@ -175,14 +194,25 @@ def fabriquer_les_fiches(dossier: pathlib.Path) -> dict[str, object]:
             raise Manquant(f"l'espèce {brut} ({index[brut]}) n'est pas dans pokemon.csv")
         if brut not in par_pokemon:
             raise Manquant(f"l'espèce {brut} ({index[brut]}) n'a aucun type")
-        if brut not in pv:
-            raise Manquant(f"l'espèce {brut} ({index[brut]}) n'a pas de PV")
+        #  LES TROIS, OU AUCUNE. Une espèce qui n'aurait que ses PV
+        #  passerait avec une attaque à zéro et ne ferait jamais un
+        #  point de dégât — un Pokémon qui ne peut pas blesser, et
+        #  personne pour s'en apercevoir avant le combat.
+        base = bases.get(brut, {})
+        if len(base) != len(STATS):
+            manque = ", ".join(sorted(set(STATS.values()) - set(base)))
+            raise Manquant(
+                f"l'espèce {brut} ({index[brut]}) n'a pas {manque} "
+                "dans pokemon_stats.csv"
+            )
 
         suffixe = p["identifier"].rsplit("-", 1)[-1]
         fiches[brut] = {
             "types": [clef(t) for _, t in sorted(par_pokemon[brut])],
             "stade": stade(p["species_id"]),
-            "pv": pv[brut],
+            "pv": base["pv"],
+            "att": base["att"],
+            "def": base["def"],
             "forme": suffixe if suffixe in FORMES_CONNUES else None,
         }
 
@@ -222,7 +252,7 @@ def seed() -> str:
         nom = index[brut].replace("'", "''")
         lignes.append(
             f"  ({brut}, '{nom}', {forme}, {tableau_sql(f['types'])}, "
-            f"{f['stade']}, {f['pv']})"
+            f"{f['stade']}, {f['pv']}, {f['att']}, {f['def']})"
         )
 
     return "\n".join([
@@ -243,14 +273,17 @@ def seed() -> str:
         "--",
         f"--  {len(lignes)} espèces, celles qui apparaissent dans une zone de Rhode.",
         "",
-        "insert into espece (id, nom_fr, forme, types, stade, pv_base) values",
+        "insert into espece (id, nom_fr, forme, types, stade, pv_base,",
+        "                    att_base, def_base) values",
         ",\n".join(lignes),
         "    on conflict (id) do update set",
-        "       nom_fr  = excluded.nom_fr,",
-        "       forme   = excluded.forme,",
-        "       types   = excluded.types,",
-        "       stade   = excluded.stade,",
-        "       pv_base = excluded.pv_base;",
+        "       nom_fr   = excluded.nom_fr,",
+        "       forme    = excluded.forme,",
+        "       types    = excluded.types,",
+        "       stade    = excluded.stade,",
+        "       pv_base  = excluded.pv_base,",
+        "       att_base = excluded.att_base,",
+        "       def_base = excluded.def_base;",
         "",
     ])
 

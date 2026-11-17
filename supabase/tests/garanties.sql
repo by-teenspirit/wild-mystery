@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(308);
+select plan(317);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2327,5 +2327,68 @@ select ok(
   'LES DEUX TABLES DE RÉFÉRENCE SE LISENT : le carnet affiche les capacités'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0045 · L'ATTAQUE ET LA DÉFENSE DE BASE
+--
+--  La formule n'est pas inventée ici : elle est relevée contre le
+--  sujet t1002 des champions, le 6 novembre. Les chiffres testés plus
+--  bas sont CEUX DU FORUM, pas ceux d'un calcul refait à côté — c'est
+--  la seule façon qu'un jour où la formule bouge, le test rougisse.
+-- ════════════════════════════════════════════════════════════════════
+
+select has_column('espece', 'att_base', 'L''ESPÈCE PORTE SON ATTAQUE DE BASE — sans elle, aucun dégât ne se calcule');
+select has_column('espece', 'def_base', 'et sa défense');
+
+select is(
+  pv_au_niveau(45::smallint, 5::smallint),
+  19,
+  'PV AU NIVEAU 5 D''UN BULBIZARRE : ⌊2 × 45 × 5 / 100⌋ + 5 + 10 = 19'
+);
+
+select is(
+  stat_au_niveau(49::smallint, 5::smallint),
+  9,
+  'et son attaque : ⌊2 × 49 × 5 / 100⌋ + 5 = 9'
+);
+
+--  UN CHIFFRE DE LA PAGE DES CHAMPIONS, ET PAS UN AUTRE. Drattak du
+--  défi dragon, niveau 70, base 95 : l'annexe 06 affiche 213 PV et
+--  194 d'attaque, et les deux sortent de ces mêmes fonctions côté
+--  Python. Si cette assertion tombe, ce n'est pas le test qui a
+--  tort — c'est que la base et la page ne disent plus la même chose
+--  au même joueur.
+select is(
+  pv_au_niveau(95::smallint, 70::smallint),
+  213,
+  'LA BASE ET LA PAGE S''ACCORDENT : Drattak niveau 70 a 213 PV des deux côtés'
+);
+
+select is(
+  stat_au_niveau(135::smallint, 70::smallint),
+  194,
+  'et 194 d''attaque'
+);
+
+select is(
+  pv_au_niveau(0::smallint, 1::smallint),
+  11,
+  'AU PLUS BAS, ON NE TOMBE PAS À ZÉRO : 11 PV, jamais un combat qui finit avant de commencer'
+);
+
+insert into espece (id, nom_fr, types, stade, pv_base, att_base, def_base)
+values (999004, 'Essai des bases', array['normal'], 1, 50, 60, 70);
+
+select is(
+  (select att_base from espece where id = 999004)::integer,
+  60,
+  'LA COLONNE SE REMPLIT, elle n''a pas qu''un défaut'
+);
+
+select ok(
+  (select count(*) from espece where att_base = 45 and def_base = 45 and id < 100000) < 20,
+  'ET LE SEED EST PASSÉ : presque personne ne reste sur la valeur par défaut'
+);
+
 select * from finish();
+
 rollback;
