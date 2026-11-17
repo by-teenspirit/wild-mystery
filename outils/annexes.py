@@ -158,7 +158,7 @@ DECORS = {
     "celebrites-de-rhode": ("manoir-barjok", 571, "Le Manoir Barjok"),
     "monnaie-et-missions": ("usine-desaffectee", 52, "L'Usine Désaffectée"),
     "combat-et-progression": ("volcan-nuageux", 68, "Le Volcan Nuageux"),
-    "allegeance-et-team-ombre": ("ile-tenebra", 197, "L'Île Ténèbra"),
+    "organisations-et-pokemon-obscurs": ("ile-tenebra", 197, "L'Île Ténèbra"),
 }
 
 
