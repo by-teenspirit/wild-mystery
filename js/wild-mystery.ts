@@ -631,7 +631,12 @@ desQueLeCorpsEstLa(() => {
   poserLeSwitcheroo(document)
     .then((pose) => {
       const panneau = document.querySelector("#wm-panneau");
-      if (pose && panneau !== null) remplirLesPersonnages(document, panneau);
+      //  AVEC L'AVATAR DE LA SESSION : c'est lui qui dit si celui rangé
+      //  dans la pastille est en retard, et donc si la mise à jour vaut
+      //  d'être proposée.
+      if (pose && panneau !== null) {
+        remplirLesPersonnages(document, panneau, avatarDuCompte());
+      }
     })
     .catch(() => {});
   //  Les trois réglages de confort s'ajoutent au coin d'outils, qui vient

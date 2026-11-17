@@ -15508,6 +15508,71 @@ html.wm-toolbar-attendue #fa_toolbar:not(.wm-toolbar-chez-nous) {
   line-height: 20px;
 }
 
+/*  ── RETIRER UN PERSONNAGE, ET REMETTRE SON AVATAR À JOUR ───────────
+
+    « Je viens de voir aussi dans le switcheroo qu'on peut pas supprimer
+    un personnage », 17 novembre. Son bouton existe — un
+    `div.switcheroo__delete` sur chaque pastille — mais il vit dans son
+    conteneur, que `.wm-switcheroo-cache` met hors écran pour garder
+    notre rendu. On lui avait pris sa bascule et oublié sa croix.
+
+    LA LIGNE DEVIENT UNE RANGÉE. La carte est un `button` quand elle
+    bascule, et un bouton ne peut pas en contenir un autre : les deux
+    commandes sont donc à CÔTÉ d'elle, dans le `li`, qui passe en flex.
+
+    `min-width: 0` sur la carte : sans lui, un nom long la pousse et
+    sort les deux boutons du panneau. */
+#modernbb .wm-panneau__personnage {
+  display: flex;
+  align-items: stretch;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-panneau__personnage .wm-panneau__carte {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/*  Les deux boutons partagent tout sauf leur couleur au survol. */
+#modernbb .wm-panneau__retirer,
+#modernbb .wm-panneau__rafraichir {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+}
+
+#modernbb .wm-panneau__retirer .wm-nav__icone,
+#modernbb .wm-panneau__rafraichir .wm-nav__icone {
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: 1;
+}
+
+/*  LA SUPPRESSION SE SIGNALE AU SURVOL, pas au repos. Une croix rouge
+    en permanence dans une liste de dix personnages fait dix alertes
+    pour un geste qu'on fait trois fois par an. */
+#modernbb .wm-panneau__retirer:hover,
+#modernbb .wm-panneau__retirer:focus-visible {
+  background: var(--wm-fond-surface, #fffbf7);
+  /*  `--wm-danger-interdite` est le rouge de la charte — celui des
+      zones interdites de la carte. Il n'y avait pas de jeton « rouge »
+      à inventer : il y en avait déjà un, et c'est le bon. */
+  color: var(--wm-danger-interdite, #a64430);
+}
+
+#modernbb .wm-panneau__rafraichir:hover,
+#modernbb .wm-panneau__rafraichir:focus-visible {
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 12 · Le confort de lecture et les notifications
 

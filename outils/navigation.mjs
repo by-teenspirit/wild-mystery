@@ -1481,7 +1481,14 @@ await p3.addInitScript(() => {
   const faux = [];
   for (let i = 1; i <= 10; i++) {
     faux.push({
-      id: 1000 + i,
+      //  EN TEXTE, et c'est indispensable : `catchID` les tire d'une
+      //  expression régulière, donc le switcheroo range des chaînes. Son
+      //  `deleteSwitcheroo` filtre sur `obj.id !== id` avec l'`id` d'un
+      //  `dataset`, qui est toujours du texte — un décor à identifiants
+      //  numériques rend sa propre suppression sans effet, et
+      //  `findSwitcheroo` rend `undefined`. Mesuré en l'essayant : dix
+      //  personnages avant, dix après.
+      id: String(1000 + i),
       username: "Personnage numéro " + i,
       avatar: '<img src="https://i.servimg.com/u/f12/avatar.jpg" alt="" />',
     });
@@ -1573,6 +1580,277 @@ dire(
     ` ${place.hauteurLien}`,
 );
 dire("et le dixième personnage s'atteint", place.dernierAtteignable, JSON.stringify(place));
+
+// ── 11 bis · RETIRER UN PERSONNAGE ──────────────────────────────────
+//
+//  « Je viens de voir aussi dans le switcheroo qu'on peut pas supprimer
+//  un personnage », 17 novembre. C'était nous : le switcheroo a une
+//  croix par pastille, et notre conteneur caché la rendait
+//  inatteignable.
+//
+//  CE HARNAIS TOURNE AVEC LE VRAI SWITCHEROO, à son commit épinglé.
+//  C'est donc la suppression RÉELLE qu'on mesure — le `localStorage`
+//  après coup — et pas le fait d'avoir cliqué quelque part.
+const boutons = await p3.evaluate(() => {
+  //  `--ajout` PORTE LE MÊME `li` : « Associer un personnage » n'est pas
+  //  un personnage, et il n'a rien à retirer.
+  const liste = [...document.querySelectorAll(
+    "#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)",
+  )];
+  return {
+    cartes: liste.length,
+    retirer: liste.filter((li) => li.querySelector(".wm-panneau__retirer") !== null).length,
+    //  L'intitulé NOMME le personnage : « supprimer » seul, dix fois
+    //  dans une colonne, ne dit pas lequel part.
+    nomme: liste.filter((li) => {
+      const b = li.querySelector(".wm-panneau__retirer");
+      const nom = li.querySelector(".wm-panneau__nom")?.textContent?.trim() ?? "";
+      return b !== null && nom !== "" && (b.getAttribute("aria-label") ?? "").includes(nom);
+    }).length,
+    //  UN BOUTON DANS UN BOUTON N'EST PAS DU HTML : le navigateur le
+    //  ressort du parent, et le clic part au mauvais endroit.
+    imbrique: liste.some((li) =>
+      li.querySelector(".wm-panneau__carte .wm-panneau__retirer") !== null
+    ),
+    //  Aucun avatar à rafraîchir ici : le compte en session est le 4,
+    //  et aucun des dix n'est actif.
+    rafraichir: liste.filter((li) => li.querySelector(".wm-panneau__rafraichir") !== null).length,
+  };
+});
+dire(
+  "CHAQUE PERSONNAGE A SON BOUTON POUR LE RETIRER",
+  boutons.cartes === 10 && boutons.retirer === 10,
+  JSON.stringify(boutons),
+);
+dire(
+  "et l'intitulé nomme celui qui partirait",
+  boutons.nomme === 10,
+  `${boutons.nomme} / 10`,
+);
+dire(
+  "les boutons sont à CÔTÉ de la carte, pas dedans",
+  boutons.imbrique === false,
+);
+dire(
+  "et rien ne propose de rafraîchir un avatar qui n'est pas en jeu",
+  boutons.rafraichir === 0,
+  `${boutons.rafraichir}`,
+);
+
+//  LES DIALOGUES SONT ENREGISTRÉS, et c'est le contrôle central. Si
+//  notre bouton cliquait la PASTILLE au lieu de sa croix, le
+//  switcheroo demanderait « Changer de personnage ? » et basculerait de
+//  compte — en déconnectant. On vérifie donc à la fois ce qui a été
+//  retiré et ce qui a été demandé.
+const dialogues = [];
+p3.on("dialog", (d) => {
+  dialogues.push(d.message());
+  d.accept();
+});
+
+const stockAvant = await p3.evaluate(() => JSON.parse(localStorage.getItem("switcheroo")).length);
+await p3.evaluate(() => {
+  //  ON RETIENT LE RECHARGEMENT, et sans ça le contrôle ne mesure rien :
+  //  `deleteRecord` écrit le stockage PUIS appelle `monomer.reload()`, et
+  //  au rechargement l'`addInitScript` du harnais repose ses dix
+  //  personnages. On observait donc le décor, pas le retrait. Mesuré en
+  //  l'essayant : dix avant, dix après, et la suppression marchait.
+  globalThis.monomer.reload = () => {};
+  document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[2]
+    ?.querySelector(".wm-panneau__retirer")?.click();
+});
+await p3.waitForTimeout(400);
+const stockApres = await p3.evaluate(() => {
+  const brut = JSON.parse(localStorage.getItem("switcheroo"));
+  return { combien: brut.length, ids: brut.map((e) => String(e.id)) };
+});
+dire(
+  "LE PERSONNAGE EST VRAIMENT RETIRÉ DU STOCKAGE DU SWITCHEROO",
+  stockAvant === 10 && stockApres.combien === 9 && !stockApres.ids.includes("1003"),
+  JSON.stringify({ stockAvant, ...stockApres }),
+);
+dire(
+  "et le seul dialogue a été NOTRE confirmation, pas une bascule de compte",
+  dialogues.length === 1 && /Retirer/i.test(dialogues[0]) &&
+    !dialogues.some((m) => /changer de personnage/i.test(m)),
+  JSON.stringify(dialogues),
+);
+
+//  ET UN REFUS NE RETIRE RIEN. Le switcheroo, lui, ne confirme pas la
+//  suppression : c'est la nôtre, et elle doit pouvoir s'annuler.
+const p3bis = await nav.newPage({ viewport: { width: 1280, height: 900 } });
+p3bis.on("pageerror", (e) => soucis.push("erreur JS (retirer) : " + e.message));
+p3bis.on("dialog", (d) => d.dismiss());
+await p3bis.route("**/*", (r) => {
+  const u = r.request().url();
+  if (u.endsWith("/data/navigation.json")) {
+    return r.fulfill({
+      contentType: "application/json",
+      body: readFileSync(R + "data/navigation.json", "utf8"),
+    });
+  }
+  if (u.endsWith("/js/wild-mystery.js")) {
+    return r.fulfill({
+      contentType: "text/javascript",
+      body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+    });
+  }
+  for (const f of ["monomer.js", "switcheroo.js"]) {
+    if (u.endsWith("/" + f)) {
+      return r.fulfill({ contentType: "text/javascript", body: switcheroo[f] });
+    }
+  }
+  return r.fulfill({ contentType: "text/html; charset=utf-8", body: page });
+});
+//  LE DÉCOR DIFFÈRE SUR DEUX POINTS, et les deux servent : le compte en
+//  session EST l'un des personnages, et son avatar a changé depuis
+//  l'association. C'est le seul cas où le switcheroo sait relire un
+//  avatar — `updateAvatar` lit celui de la SESSION.
+await p3bis.addInitScript(() => {
+  globalThis._userdata = {
+    session_logged_in: 1,
+    user_id: 1001,
+    username: "Jake Dalziel",
+    avatar: '<img src="https://i.servimg.com/u/f12/neuf.jpg" alt="" />',
+  };
+  localStorage.setItem(
+    "switcheroo",
+    JSON.stringify([
+      {
+        id: "1001",
+        username: "Compte de test",
+        avatar: '<img src="https://i.servimg.com/u/f12/vieux.jpg" alt="" />',
+      },
+      {
+        id: "1002",
+        username: "Personnage numéro 2",
+        avatar: '<img src="https://i.servimg.com/u/f12/vieux.jpg" alt="" />',
+      },
+    ]),
+  );
+});
+await p3bis.goto("http://wild-mystery.test/");
+await p3bis.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
+await p3bis.waitForTimeout(900);
+await p3bis.evaluate(() => document.querySelector('[aria-controls="wm-panneau"]')?.click());
+await p3bis.waitForTimeout(400);
+
+const refus = await p3bis.evaluate(() => {
+  const li = document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[1];
+  li?.querySelector(".wm-panneau__retirer")?.click();
+  return li === undefined ? -1 : 0;
+});
+await p3bis.waitForTimeout(600);
+dire(
+  "UN REFUS NE RETIRE RIEN",
+  refus === 0 &&
+    await p3bis.evaluate(() => JSON.parse(localStorage.getItem("switcheroo")).length) === 2,
+);
+
+//  ── L'AVATAR QUI A CHANGÉ ─────────────────────────────────────────
+const avatars = await p3bis.evaluate(() => {
+  const lis = [...document.querySelectorAll(
+    "#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)",
+  )];
+  return lis.map((li) => ({
+    nom: li.querySelector(".wm-panneau__nom")?.textContent?.trim() ?? "",
+    actif: li.classList.contains("wm-panneau__personnage--actif"),
+    propose: li.querySelector(".wm-panneau__rafraichir") !== null,
+  }));
+});
+dire(
+  "LE PERSONNAGE EN JEU DONT L'AVATAR A CHANGÉ PEUT LE METTRE À JOUR",
+  avatars.length === 2 && avatars[0].actif && avatars[0].propose,
+  JSON.stringify(avatars),
+);
+dire(
+  "et les autres ne le proposent pas — le switcheroo ne sait relire que la session",
+  avatars.filter((a) => a.propose).length === 1,
+  JSON.stringify(avatars.map((a) => a.propose)),
+);
+
+//  ET LE GESTE ARRIVE À DESTINATION. Son écouteur est posé sur
+//  `document`, pour un `contextmenu` sur la pastille ACTIVE : l'envoyer
+//  sans `bubbles` ne ferait rien du tout, en silence.
+const vuAvatar = await p3bis.evaluate(() => {
+  //  MÊME RETENUE QUE POUR LE RETRAIT : `updateAvatar` écrit puis
+  //  recharge, et un rechargement au milieu d'un harnais détruit le
+  //  contexte des mesures suivantes.
+  globalThis.monomer.reload = () => {};
+  let recu = 0;
+  document.addEventListener("contextmenu", (e) => {
+    if (e.target.matches('[data-action="switcheroo"].active')) recu += 1;
+  });
+  document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[0]
+    ?.querySelector(".wm-panneau__rafraichir")?.click();
+  return recu;
+});
+dire(
+  "le clic envoie bien un contextmenu qui remonte jusqu'à son écouteur",
+  vuAvatar === 1,
+  `${vuAvatar}`,
+);
+
+//  ── ET UN NOM LONG NE POUSSE PAS LES BOUTONS HORS DU PANNEAU ──────
+const largeurs = await p3bis.evaluate(() => {
+  const li = document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[0];
+  const nom = li.querySelector(".wm-panneau__nom");
+  nom.textContent = "Un personnage au nom beaucoup trop long pour cette colonne";
+  const panneau = document.querySelector("#wm-panneau").getBoundingClientRect();
+  const r = li.querySelector(".wm-panneau__retirer").getBoundingClientRect();
+  return {
+    bordDuBouton: Math.round(r.right),
+    bordDuPanneau: Math.round(panneau.right),
+    largeurDuBouton: Math.round(r.width),
+  };
+});
+dire(
+  "UN NOM TROP LONG NE POUSSE PAS LES BOUTONS HORS DU PANNEAU",
+  largeurs.bordDuBouton <= largeurs.bordDuPanneau + 1 && largeurs.largeurDuBouton >= 28,
+  JSON.stringify(largeurs),
+);
+
+//  ── LES DEUX BOUTONS SE LISENT, DANS LES DEUX THÈMES ──────────────
+const lisibilite = async () =>
+  await p3bis.evaluate(() => {
+    const lin = (c) => (c /= 255, c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    const lum = (t) => {
+      const [r, g, b] = (t.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+      return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+    };
+    const opaque = (el) => {
+      for (let n = el; n; n = n.parentElement) {
+        const f = getComputedStyle(n).backgroundColor;
+        const a = (f.match(/[\d.]+/g) || [])[3];
+        if (!/rgba\(0, 0, 0, 0\)/.test(f) && a !== "0") return f;
+      }
+      return "rgb(255, 255, 255)";
+    };
+    const rap = (a, b) => {
+      const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
+      return Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+    };
+    const sortie = {};
+    for (const cl of ["wm-panneau__retirer", "wm-panneau__rafraichir"]) {
+      const el = document.querySelector("." + cl);
+      if (el === null) continue;
+      //  L'ICÔNE EST LE TEXTE : c'est elle qu'on lit, pas le bouton.
+      const ico = el.querySelector(".wm-nav__icone") ?? el;
+      sortie[cl] = rap(getComputedStyle(ico).color, opaque(el));
+    }
+    return sortie;
+  });
+const clairB = await lisibilite();
+await p3bis.evaluate(() => document.body.classList.add("wm-sombre"));
+await p3bis.waitForTimeout(150);
+const sombreB = await lisibilite();
+dire(
+  "les deux icônes tiennent les 4,5 sur leur fond, clair et sombre",
+  Object.values(clairB).every((v) => v >= 4.5) &&
+    Object.values(sombreB).every((v) => v >= 4.5) &&
+    Object.keys(clairB).length === 2,
+  JSON.stringify({ clair: clairB, sombre: sombreB }),
+);
 
 // ── 12 · L'AVATAR NE CLIGNOTE PLUS ──────────────────────────────────
 //

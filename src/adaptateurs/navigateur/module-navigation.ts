@@ -163,7 +163,132 @@ function lienUtileEnDOM(doc: Document, u: LienUtile): HTMLElement {
   return li;
 }
 
-function personnageEnDOM(doc: Document, p: Personnage): HTMLElement {
+/** Le bouton qui RETIRE un personnage de ce navigateur.
+ *
+ *  ── POURQUOI IL MANQUAIT ───────────────────────────────────────────
+ *
+ *  « Je viens de voir aussi dans le switcheroo qu'on peut pas supprimer
+ *  un personnage », 17 novembre. C'est exact, et c'est nous : le
+ *  switcheroo EN A UN. Lu dans son code au commit épinglé, chaque
+ *  pastille porte un `div.switcheroo__delete`, et un clic dessus appelle
+ *  `deleteRecord(id)` — retrait du `localStorage`, puis rechargement.
+ *
+ *  Sauf que ce bouton vit dans son conteneur, que nous cachons en
+ *  `clip-path` pour garder notre rendu. On lui avait donc pris sa
+ *  bascule et oublié sa suppression. C'est le même oubli que le « + »
+ *  d'association, au même endroit, pour la même raison.
+ *
+ *  ── ON DÉLÈGUE, ON NE RÉÉCRIT PAS ──────────────────────────────────
+ *
+ *  Notre bouton clique SA croix. On ne touche pas à son `localStorage` :
+ *  son format est à lui, il est épinglé à un commit, et il y garde les
+ *  mots de passe. Lui laisser la seule écriture, c'est la règle de ce
+ *  fichier depuis le 6 octobre — et c'est aussi ce qui fait que le
+ *  rechargement et le retrait restent cohérents, puisque c'est son code
+ *  qui fait les deux.
+ *
+ *  Son propre gestionnaire vérifie `e.target.matches('.switcheroo__
+ *  delete')` : il faut donc cliquer LA CROIX, pas la pastille — un clic
+ *  sur la pastille basculerait de compte.
+ *
+ *  ── ET ON DEMANDE CONFIRMATION, LUI NE LE FAIT PAS ─────────────────
+ *
+ *  Il confirme la bascule et pas la suppression, alors que c'est
+ *  l'inverse qui coûte : une bascule se refait d'un clic, un personnage
+ *  retiré demande de retaper son mot de passe. On confirme donc avec le
+ *  nom dedans, et en disant ce que ça coûtera. */
+function boutonRetirer(doc: Document, p: Personnage): HTMLElement | null {
+  if (p.identifiant === null) return null;
+  const b = doc.createElement("button");
+  b.type = "button";
+  b.className = "wm-panneau__retirer";
+  b.setAttribute("aria-label", `Retirer ${p.nom} de ce navigateur`);
+  b.title = `Retirer ${p.nom} de ce navigateur`;
+  const ico = icone(doc, "close");
+  if (ico !== null) b.appendChild(ico);
+  b.addEventListener("click", () => {
+    const sur = doc.defaultView?.confirm(
+      `Retirer ${p.nom} de ce navigateur ?\n\n` +
+        `La liste des personnages est locale : il faudra retaper son mot de ` +
+        `passe pour le réassocier. Le personnage lui-même n'est pas touché.`,
+    );
+    if (sur !== true) return;
+    //  On relit la pastille au moment du clic, comme la bascule : le
+    //  switcheroo redessine sa liste, et une référence gardée depuis
+    //  l'ouverture du panneau pointerait sur un nœud retiré.
+    pastilleDuSwitcheroo(doc, p.identifiant as string)
+      ?.querySelector<HTMLElement>(".switcheroo__delete")
+      ?.click();
+  });
+  return b;
+}
+
+/** Le bouton qui remet l'avatar à jour, quand il a changé.
+ *
+ *  ── CE QUI RÈGLE LA MOITIÉ DU PROBLÈME ─────────────────────────────
+ *
+ *  « Parfois je change de pseudo ou d'avatar et donc il faut le
+ *  supprimer et le lier à nouveau. » Pour l'avatar, non : le switcheroo
+ *  sait le relire, par un CLIC DROIT sur la pastille du personnage en
+ *  jeu (`updateAvatar`, activé par défaut, et on ne le désactive pas).
+ *  Un geste que rien n'annonce et que notre conteneur caché rend
+ *  inatteignable — autant dire qu'il n'existe pas.
+ *
+ *  Pour le pseudo, il n'y a rien à déléguer : `update()` n'écrit que
+ *  lorsque l'identifiant est absent, et `updateCredentials` n'est appelé
+ *  qu'à l'association. **Le switcheroo ne relit jamais un pseudo.**
+ *  C'est à notre rendu de ne pas afficher le sien, et c'est une autre
+ *  affaire que celle-ci.
+ *
+ *  ── IL N'APPARAÎT QUE QUAND IL Y A QUELQUE CHOSE À FAIRE ───────────
+ *
+ *  `updateAvatar` compare avant d'écrire et ne recharge pas si c'est
+ *  identique : un bouton toujours visible ne ferait donc rien, une fois
+ *  sur deux, sans rien dire. On compare donc nous aussi — l'avatar rangé
+ *  dans la pastille contre celui de la session — et le bouton n'est là
+ *  que s'ils diffèrent.
+ *
+ *  SEUL LE PERSONNAGE EN JEU PEUT L'ÊTRE, et ce n'est pas un choix :
+ *  `updateAvatar` lit `monomer.user().avatar()`, donc l'avatar de la
+ *  session en cours. Pour les autres, il faudrait y basculer.
+ *
+ *  Les deux adresses viennent de la même source — `_userdata.avatar` —
+ *  l'une rangée au moment de l'association, l'autre d'aujourd'hui. Une
+ *  différence d'écriture ferait apparaître le bouton pour rien, et ça ne
+ *  coûte qu'un clic sans effet : son propre code revérifie. */
+function boutonAvatar(
+  doc: Document,
+  p: Personnage,
+  avatarVivant: string | null,
+): HTMLElement | null {
+  if (!p.actif || p.identifiant === null) return null;
+  if (avatarVivant === null || avatarVivant === "") return null;
+  if (p.image === avatarVivant) return null;
+
+  const b = doc.createElement("button");
+  b.type = "button";
+  b.className = "wm-panneau__rafraichir";
+  b.setAttribute("aria-label", `Mettre à jour l'avatar de ${p.nom}`);
+  b.title = `Mettre à jour l'avatar de ${p.nom}`;
+  const ico = icone(doc, "refresh");
+  if (ico !== null) b.appendChild(ico);
+  b.addEventListener("click", () => {
+    //  SON GESTE EST UN CLIC DROIT, et son écouteur est posé sur
+    //  `document` : l'événement doit donc remonter. `bubbles` n'est pas
+    //  un ornement ici, et `cancelable` non plus — son gestionnaire
+    //  appelle `preventDefault()`.
+    pastilleDuSwitcheroo(doc, p.identifiant as string)?.dispatchEvent(
+      new doc.defaultView!.MouseEvent("contextmenu", { bubbles: true, cancelable: true }),
+    );
+  });
+  return b;
+}
+
+function personnageEnDOM(
+  doc: Document,
+  p: Personnage,
+  avatarVivant: string | null = null,
+): HTMLElement {
   const li = element(doc, "li", "wm-panneau__personnage");
   if (p.actif) li.classList.add("wm-panneau__personnage--actif");
 
@@ -202,6 +327,14 @@ function personnageEnDOM(doc: Document, p: Personnage): HTMLElement {
   if (p.actif) corps.appendChild(element(doc, "span", "wm-panneau__en-jeu", "en jeu"));
 
   li.appendChild(corps);
+  //  LES DEUX BOUTONS SONT HORS DE LA CARTE, et c'est obligatoire : la
+  //  carte EST un bouton quand elle bascule, et un bouton dans un bouton
+  //  n'est pas du HTML — le navigateur le ressort, et le clic part au
+  //  mauvais endroit.
+  const avatar = boutonAvatar(doc, p, avatarVivant);
+  if (avatar !== null) li.appendChild(avatar);
+  const retirer = boutonRetirer(doc, p);
+  if (retirer !== null) li.appendChild(retirer);
   return li;
 }
 
@@ -281,7 +414,14 @@ function boutonAssocier(doc: Document): HTMLElement | null {
  *  liste ni bouton.
  *
  *  Rend le nombre de personnages lus, le bouton non compris. */
-export function remplirLesPersonnages(doc: Document, panneau: Element): number {
+export function remplirLesPersonnages(
+  doc: Document,
+  panneau: Element,
+  //  L'avatar de la SESSION, déjà extrait. Il sert à savoir si celui
+  //  qui est rangé dans la pastille est en retard — et donc à n'offrir
+  //  la mise à jour que quand elle changerait quelque chose.
+  avatarVivant: string | null = null,
+): number {
   const zone = panneau.querySelector(".wm-panneau__personnages");
   if (zone === null) return 0;
   zone.textContent = "";
@@ -304,7 +444,7 @@ export function remplirLesPersonnages(doc: Document, panneau: Element): number {
   }
 
   const liste = element(doc, "ul", "wm-panneau__liste");
-  for (const p of personnages) liste.appendChild(personnageEnDOM(doc, p));
+  for (const p of personnages) liste.appendChild(personnageEnDOM(doc, p, avatarVivant));
   if (ajout !== null) liste.appendChild(ajout);
   zone.appendChild(liste);
   return personnages.length;
@@ -1208,7 +1348,7 @@ export function poserLaNavigation(
     //  une classe, et le CSS fait glisser la position.
     //  On relit les personnages À L'OUVERTURE, pas au chargement : le
     //  switcheroo se charge après nous et redessine sa liste.
-    if (ouvrir) remplirLesPersonnages(doc, panneau);
+    if (ouvrir) remplirLesPersonnages(doc, panneau, avatar);
     panneau.classList.toggle("wm-panneau--ouvert", ouvrir);
     bouton.setAttribute("aria-expanded", String(ouvrir));
     bouton.setAttribute("aria-label", ouvrir ? "Fermer le panneau" : "Ouvrir le panneau");
