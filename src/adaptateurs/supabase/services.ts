@@ -24,7 +24,9 @@ import type {
   Menage,
   MenageFait,
   Paliers,
+  RegistreDesPseudos,
   RegistreDesRp,
+  Renommage,
   SujetDUnJoueur,
 } from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
@@ -201,5 +203,45 @@ export class RpSupabase implements RegistreDesRp {
       );
     }
     return { ecrits: c.ecrits as number, effaces: c.effaces as number };
+  }
+}
+
+/* ── Les pseudos — l'annuaire relu à chaque passage des RP ─────────── */
+
+/** `renommer_les_joueurs` (migration `0042`).
+ *
+ *  UN SEUL APPEL POUR TOUS LES CHANGEMENTS : renommer un par un, c'est
+ *  autant d'allers-retours que de membres renommés, et une panne au
+ *  milieu laisse la moitié des noms d'hier et la moitié d'aujourd'hui.
+ *
+ *  LE COMPTE RENDU EST RELU COMME LES AUTRES, et il porte en plus une
+ *  impossibilité à vérifier : la base ne peut pas avoir renommé plus de
+ *  personnages qu'on ne lui en a envoyé. Au-delà, c'est qu'elle a
+ *  touché quelqu'un qu'on ne lui a pas demandé — et un renommage de
+ *  trop est un joueur qui perd ses RP. */
+export class PseudosSupabase implements RegistreDesPseudos {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async renommer(changements: readonly Renommage[]): Promise<number> {
+    //  AUCUN CHANGEMENT, AUCUN APPEL. La couche application s'en charge
+    //  déjà, mais un adaptateur qui envoie une liste vide au moindre
+    //  passage ajoute 288 appels par jour pour rien.
+    if (changements.length === 0) return 0;
+
+    const nom = "renommer_les_joueurs";
+    const recu = await this.appeler(nom, { changements });
+    if (!entierPositif(recu)) {
+      throw new AppelEchoue(
+        nom,
+        `entier positif ou nul attendu, reçu ${JSON.stringify(recu)}`,
+      );
+    }
+    if (recu > changements.length) {
+      throw new AppelEchoue(
+        nom,
+        `${recu} renommés pour ${changements.length} envoyés : impossible`,
+      );
+    }
+    return recu;
   }
 }

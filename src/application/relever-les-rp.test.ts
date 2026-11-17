@@ -3,8 +3,11 @@ import { MINUTES_ENTRE_DEUX_PASSAGES, ReleverLesRp, TACHE } from "./relever-les-
 import type {
   JoueurARelever,
   JournalDeReleve,
+  LecteurDesPseudos,
   LecteurDesSujetsDUnMembre,
+  RegistreDesPseudos,
   RegistreDesRp,
+  Renommage,
   SujetDUnJoueur,
 } from "./ports.ts";
 
@@ -66,37 +69,75 @@ class RegistreFeint implements RegistreDesRp {
   }
 }
 
+/** L'annuaire du forum : qui s'appelle comment aujourd'hui. */
+class AnnuaireFeint implements LecteurDesPseudos {
+  appels = 0;
+  constructor(
+    private readonly noms: Record<number, string> = {},
+    private readonly tombe = false,
+  ) {}
+  pseudosDuForum(): Promise<ReadonlyMap<number, string>> {
+    this.appels += 1;
+    if (this.tombe) return Promise.reject(new Error("HTTP 503"));
+    return Promise.resolve(
+      new Map(Object.entries(this.noms).map(([id, nom]) => [Number(id), nom])),
+    );
+  }
+}
+
+class PseudosFeints implements RegistreDesPseudos {
+  recu: Renommage[][] = [];
+  constructor(private readonly tombe = false) {}
+  renommer(changements: readonly Renommage[]): Promise<number> {
+    this.recu.push([...changements]);
+    if (this.tombe) return Promise.reject(new Error("base muette"));
+    return Promise.resolve(changements.length);
+  }
+}
+
 const SCRIBE: JoueurARelever = { joueurId: "j1", forumUserId: 4, pseudo: "Scribe" };
 const OMBRE: JoueurARelever = { joueurId: "j2", forumUserId: 7, pseudo: "Ombre" };
+
+const quand = { maintenant: () => MAINTENANT };
 
 Deno.test("elle relève chaque personnage et compte ses sujets", async () => {
   const forum = new ForumFeint({ Scribe: [sujet(996), sujet(977)], Ombre: [sujet(1200)] });
   const registre = new RegistreFeint([SCRIBE, OMBRE]);
   const journal = new JournalFeint(null);
 
-  const passage = await new ReleverLesRp(forum, registre, journal, {
-    maintenant: () => MAINTENANT,
-  }).executer();
+  const passage = await new ReleverLesRp(
+    forum,
+    registre,
+    journal,
+    quand,
+    new AnnuaireFeint({ 4: "Scribe", 7: "Ombre" }),
+    new PseudosFeints(),
+  ).executer();
 
   assertEquals(passage.tourne, true);
   assertEquals(passage.joueurs, 2);
   assertEquals(passage.sujets, 3);
+  assertEquals(passage.renommes, 0);
   assertEquals(passage.erreurs, []);
   assertEquals(forum.demandes, ["Scribe", "Ombre"]);
 });
 
-Deno.test("LE PERSONNAGE EST PARTICIPANT DE CHACUN DE SES SUJETS", () => {
+Deno.test("LE PERSONNAGE EST PARTICIPANT DE CHACUN DE SES SUJETS", async () => {
   //  C'est la prémisse même de la recherche : elle rend les sujets où
   //  IL A ÉCRIT. Sans cette ligne, les RP communs de la fiche de liens
   //  seraient vides pour tout le monde — on saurait qui a ouvert et
   //  qui a répondu en dernier, jamais que la personne y était.
   const forum = new ForumFeint({ Scribe: [sujet(996, { participants: [] })] });
   const registre = new RegistreFeint([SCRIBE]);
-  return new ReleverLesRp(forum, registre, new JournalFeint(null), {
-    maintenant: () => MAINTENANT,
-  }).executer().then(() => {
-    assertEquals(registre.recu[0].sujets[0].participants, [{ id: 4, pseudo: "Scribe" }]);
-  });
+  await new ReleverLesRp(
+    forum,
+    registre,
+    new JournalFeint(null),
+    quand,
+    new AnnuaireFeint(),
+    new PseudosFeints(),
+  ).executer();
+  assertEquals(registre.recu[0].sujets[0].participants, [{ id: 4, pseudo: "Scribe" }]);
 });
 
 Deno.test("et il n'y figure pas deux fois quand la page le nomme déjà", async () => {
@@ -106,9 +147,14 @@ Deno.test("et il n'y figure pas deux fois quand la page le nomme déjà", async 
     ],
   });
   const registre = new RegistreFeint([SCRIBE]);
-  await new ReleverLesRp(forum, registre, new JournalFeint(null), {
-    maintenant: () => MAINTENANT,
-  }).executer();
+  await new ReleverLesRp(
+    forum,
+    registre,
+    new JournalFeint(null),
+    quand,
+    new AnnuaireFeint(),
+    new PseudosFeints(),
+  ).executer();
   assertEquals(registre.recu[0].sujets[0].participants, [
     { id: 4, pseudo: "Scribe" },
     { id: 1, pseudo: "Arceus" },
@@ -120,9 +166,14 @@ Deno.test("UN PERSONNAGE QUI ÉCHOUE N'EMPORTE PAS LES AUTRES", async () => {
   //  autres doivent être relevés quand même.
   const forum = new ForumFeint({ Ombre: [sujet(1200)] }, ["Scribe"]);
   const registre = new RegistreFeint([SCRIBE, OMBRE]);
-  const passage = await new ReleverLesRp(forum, registre, new JournalFeint(null), {
-    maintenant: () => MAINTENANT,
-  }).executer();
+  const passage = await new ReleverLesRp(
+    forum,
+    registre,
+    new JournalFeint(null),
+    quand,
+    new AnnuaireFeint(),
+    new PseudosFeints(),
+  ).executer();
 
   assertEquals(passage.joueurs, 1);
   assertEquals(passage.sujets, 1);
@@ -140,12 +191,22 @@ Deno.test("ELLE NE TOURNE PAS SI LE DERNIER PASSAGE EST RÉCENT", async () => {
   const forum = new ForumFeint({ Scribe: [sujet(996)] });
   const registre = new RegistreFeint([SCRIBE]);
   const ilYAUneDemiHeure = new Date(MAINTENANT.getTime() - 30 * 60_000);
-  const passage = await new ReleverLesRp(forum, registre, new JournalFeint(ilYAUneDemiHeure), {
-    maintenant: () => MAINTENANT,
-  }).executer();
+  const annuaire = new AnnuaireFeint({ 4: "Plume" });
+  const passage = await new ReleverLesRp(
+    forum,
+    registre,
+    new JournalFeint(ilYAUneDemiHeure),
+    quand,
+    annuaire,
+    new PseudosFeints(),
+  ).executer();
 
   assertEquals(passage.tourne, false);
   assertEquals(forum.demandes, [], "aucune page n'a été demandée");
+  //  ET L'ANNUAIRE NON PLUS. Il est gratuit par rapport à la recherche,
+  //  pas gratuit tout court : une page toutes les cinq minutes pour un
+  //  passage qu'on saute, c'est 288 pages par jour pour rien.
+  assertEquals(annuaire.appels, 0, "l'annuaire n'est pas demandé pour rien");
 });
 
 Deno.test("mais elle tourne passé l'heure", async () => {
@@ -155,7 +216,9 @@ Deno.test("mais elle tourne passé l'heure", async () => {
     forum,
     new RegistreFeint([SCRIBE]),
     new JournalFeint(vieux),
-    { maintenant: () => MAINTENANT },
+    quand,
+    new AnnuaireFeint(),
+    new PseudosFeints(),
   ).executer();
   assertEquals(passage.tourne, true);
 });
@@ -169,7 +232,9 @@ Deno.test("UN JOURNAL ILLISIBLE FAIT SAUTER LE PASSAGE, il ne le déclenche pas"
     forum,
     new RegistreFeint([SCRIBE]),
     new JournalFeint(null, true),
-    { maintenant: () => MAINTENANT },
+    quand,
+    new AnnuaireFeint(),
+    new PseudosFeints(),
   ).executer();
 
   assertEquals(passage.tourne, false);
@@ -182,12 +247,133 @@ Deno.test("ON NOTE LE JOURNAL MÊME QUAND TOUT A ÉCHOUÉ", async () => {
   //  minutes et écrirait la même erreur 288 fois par jour.
   const forum = new ForumFeint({}, ["Scribe"]);
   const journal = new JournalFeint(null);
-  await new ReleverLesRp(forum, new RegistreFeint([SCRIBE]), journal, {
-    maintenant: () => MAINTENANT,
-  }).executer();
+  await new ReleverLesRp(
+    forum,
+    new RegistreFeint([SCRIBE]),
+    journal,
+    quand,
+    new AnnuaireFeint(),
+    new PseudosFeints(),
+  ).executer();
 
   assertEquals(journal.notes.length, 1);
   assertEquals(journal.notes[0].tache, TACHE);
   assertEquals(journal.notes[0].traites, 0);
   assertEquals(journal.notes[0].erreurs.length, 1);
+});
+
+// ── L'ANNUAIRE DES PSEUDOS ─────────────────────────────────────────
+
+Deno.test("UN PSEUDO CHANGÉ EST CORRIGÉ, ET LA RECHERCHE PART AVEC LE NEUF", async () => {
+  //  Le défaut du 13 novembre, en une ligne : u4 s'appelait « Compte de
+  //  test », il s'appelle « Jake Dalziel ». Chercher avec l'ancien nom
+  //  rend zéro sujet, et le carnet annonce que personne n'a écrit.
+  //
+  //  CORRIGER EN BASE NE SUFFIT PAS : si la recherche part quand même
+  //  avec l'ancien nom, le défaut est le même, déplacé d'une ligne.
+  const forum = new ForumFeint({ "Jake Dalziel": [sujet(996)] });
+  const registre = new RegistreFeint([{ ...SCRIBE, pseudo: "Compte de test" }]);
+  const pseudos = new PseudosFeints();
+  const passage = await new ReleverLesRp(
+    forum,
+    registre,
+    new JournalFeint(null),
+    quand,
+    new AnnuaireFeint({ 4: "Jake Dalziel" }),
+    pseudos,
+  ).executer();
+
+  assertEquals(pseudos.recu, [[{ forumUserId: 4, pseudo: "Jake Dalziel" }]]);
+  assertEquals(passage.renommes, 1);
+  assertEquals(forum.demandes, ["Jake Dalziel"]);
+  assertEquals(passage.sujets, 1);
+  //  ET LE PARTICIPANT PORTE LE NOM FRAIS, pas celui de la base.
+  assertEquals(registre.recu[0].sujets[0].participants[0], {
+    id: 4,
+    pseudo: "Jake Dalziel",
+  });
+});
+
+Deno.test("un nom qui n'a pas changé n'est pas envoyé", async () => {
+  //  La base ne compterait rien, mais le journal annoncerait trente
+  //  renommages par heure — et un journal qui crie tout le temps ne dit
+  //  plus rien.
+  const pseudos = new PseudosFeints();
+  const passage = await new ReleverLesRp(
+    new ForumFeint({ Scribe: [] }),
+    new RegistreFeint([SCRIBE]),
+    new JournalFeint(null),
+    quand,
+    new AnnuaireFeint({ 4: "Scribe" }),
+    pseudos,
+  ).executer();
+  assertEquals(pseudos.recu, [], "aucun appel de renommage");
+  assertEquals(passage.renommes, 0);
+});
+
+Deno.test("UN MEMBRE ABSENT DE L'ANNUAIRE GARDE LE NOM QU'ON A", async () => {
+  //  La liste peut être partielle — une page de pagination qui tombe,
+  //  un gabarit en travaux, un `<a>` sans texte que le lecteur écarte.
+  //  Mieux vaut un nom vieux d'une heure qu'un personnage renommé
+  //  « rien », et surtout : on ne le renomme pas du tout.
+  const forum = new ForumFeint({ Scribe: [sujet(996)], Ombre: [] });
+  const pseudos = new PseudosFeints();
+  const passage = await new ReleverLesRp(
+    forum,
+    new RegistreFeint([SCRIBE, OMBRE]),
+    new JournalFeint(null),
+    quand,
+    new AnnuaireFeint({ 4: "Scribe" }),
+    pseudos,
+  ).executer();
+  assertEquals(pseudos.recu, []);
+  assertEquals(forum.demandes, ["Scribe", "Ombre"]);
+  assertEquals(passage.erreurs, [], "une liste partielle n'est pas une erreur");
+});
+
+Deno.test("UN ANNUAIRE ILLISIBLE NE FAIT PAS SAUTER LE PASSAGE", async () => {
+  //  L'annuaire est une amélioration de la relève, pas sa condition :
+  //  on relève avec les noms qu'on a, et l'erreur est dans le journal.
+  const forum = new ForumFeint({ Scribe: [sujet(996)] });
+  const journal = new JournalFeint(null);
+  const passage = await new ReleverLesRp(
+    forum,
+    new RegistreFeint([SCRIBE]),
+    journal,
+    quand,
+    new AnnuaireFeint({}, true),
+    new PseudosFeints(),
+  ).executer();
+
+  assertEquals(passage.tourne, true);
+  assertEquals(passage.sujets, 1, "la relève a eu lieu");
+  assertEquals(forum.demandes, ["Scribe"]);
+  assertEquals(passage.renommes, 0);
+  assertEquals(passage.erreurs.length, 1);
+  assert(
+    passage.erreurs[0].includes("annuaire"),
+    "l'erreur nomme l'annuaire, pas la recherche",
+  );
+  assertEquals(journal.notes[0].erreurs.length, 1, "et elle est notée");
+});
+
+Deno.test("UN RENOMMAGE REFUSÉ FAIT CHERCHER AVEC LES ANCIENS NOMS", async () => {
+  //  Ce sont ceux que la base a encore, et c'est sous eux que le
+  //  résultat sera rangé. Chercher avec le nom frais rangerait les
+  //  sujets d'aujourd'hui sous un personnage qui s'appelle encore
+  //  autrement — un tableau faux, là où on avait un tableau vieux.
+  const forum = new ForumFeint({ "Compte de test": [sujet(996)], "Jake Dalziel": [sujet(42)] });
+  const passage = await new ReleverLesRp(
+    forum,
+    new RegistreFeint([{ ...SCRIBE, pseudo: "Compte de test" }]),
+    new JournalFeint(null),
+    quand,
+    new AnnuaireFeint({ 4: "Jake Dalziel" }),
+    new PseudosFeints(true),
+  ).executer();
+
+  assertEquals(forum.demandes, ["Compte de test"]);
+  assertEquals(passage.renommes, 0);
+  assertEquals(passage.erreurs.length, 1);
+  assert(passage.erreurs[0].includes("renommage"), "l'erreur dit ce qui a été refusé");
 });

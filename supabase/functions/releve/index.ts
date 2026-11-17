@@ -54,6 +54,7 @@ import { FossilesSupabase } from "../../../src/adaptateurs/supabase/fossile.ts";
 import {
   MenageSupabase,
   PaliersSupabase,
+  PseudosSupabase,
   RpSupabase,
 } from "../../../src/adaptateurs/supabase/services.ts";
 import { SignataireHmac } from "../../../src/adaptateurs/systeme/horloge-et-signature.ts";
@@ -341,6 +342,13 @@ function assembler(reglages: Reglages): Montage {
       new RpSupabase(appeler),
       new JournalSupabase(appeler),
       { maintenant: () => new Date() },
+      //  L'ANNUAIRE, RELU À CHAQUE PASSAGE DE CETTE TÂCHE. C'est le
+      //  même lecteur : `/memberlist` est une page du forum comme une
+      //  autre. Une à deux pages par heure, contre une par personnage
+      //  pour la recherche — ça ne change pas l'ordre de grandeur, et
+      //  ça répare « personne n'a écrit » après un changement de pseudo.
+      forumEnLecture,
+      new PseudosSupabase(appeler),
     ),
     verrou: new VerrouSupabase(appeler),
   };
@@ -516,6 +524,12 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       rp_saute: !tableaux.tourne,
       rp_personnages: tableaux.joueurs,
       rp_sujets: tableaux.sujets,
+      //  ATTENDU À ZÉRO LA PLUPART DU TEMPS, et c'est bon signe : un
+      //  renommage est rare. Un nombre non nul dit qu'un membre a
+      //  changé de pseudo sur le forum et que la relève vient de le
+      //  rattraper — sans cette ligne, sa recherche rendait zéro sujet
+      //  et son carnet annonçait que personne n'avait écrit.
+      rp_renommes: tableaux.renommes,
       rp_en_echec: tableaux.erreurs,
       //  Attendu à ZÉRO. Un nombre non nul veut dire qu'il manque une
       //  ligne dans `fossile_espece` : le joueur n'a rien perdu, n'est

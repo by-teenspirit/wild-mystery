@@ -653,3 +653,43 @@ export interface RegistreDesRp {
     sujets: readonly SujetDUnJoueur[],
   ): Promise<{ readonly ecrits: number; readonly effaces: number }>;
 }
+
+/** Qui s'appelle comment sur le forum, AUJOURD'HUI.
+ *
+ *  ── POURQUOI CE PORT EXISTE ───────────────────────────────────────
+ *
+ *  « J'ai découvert "personne n'a écrit" alors qu'Arceus a posté après
+ *  moi », 13 novembre. Le carnet disait vrai sur une donnée fausse :
+ *  `joueur.pseudo` est écrit UNE FOIS à la liaison et n'était plus
+ *  jamais relu. Après un changement de pseudo, la recherche du forum
+ *  ne trouve plus personne, `dernier_auteur` reste vide, et le tableau
+ *  des RP annonce que le sujet n'a pas bougé.
+ *
+ *  PORT SÉPARÉ DE `LecteurDesSujetsDUnMembre` : celui-là cherche des
+ *  sujets par auteur, celui-ci lit un annuaire. Ce sont deux pages du
+ *  forum, deux formats, et deux raisons de tomber en panne — un outil
+ *  qui veut l'un n'a aucune raison de savoir faire l'autre.
+ *
+ *  LA TABLE PEUT ÊTRE PARTIELLE, et ça n'est pas une erreur : un
+ *  membre absent de la liste garde le nom qu'on a déjà. Mieux vaut un
+ *  nom vieux d'une heure qu'un personnage renommé « rien ». */
+export interface LecteurDesPseudos {
+  pseudosDuForum(): Promise<ReadonlyMap<number, string>>;
+}
+
+/** Un personnage dont le pseudo a changé côté forum. */
+export type Renommage = {
+  readonly forumUserId: number;
+  readonly pseudo: string;
+};
+
+/** Ce que la relève corrige quand un membre a changé de pseudo.
+ *
+ *  UN SEUL APPEL POUR TOUS LES CHANGEMENTS : renommer un par un, c'est
+ *  autant d'allers-retours que de membres renommés, et une panne de
+ *  réseau au milieu laisse la moitié des noms d'hier et la moitié de
+ *  ceux d'aujourd'hui — sans que personne sache laquelle. */
+export interface RegistreDesPseudos {
+  /** Rend le nombre de personnages effectivement renommés. */
+  renommer(changements: readonly Renommage[]): Promise<number>;
+}

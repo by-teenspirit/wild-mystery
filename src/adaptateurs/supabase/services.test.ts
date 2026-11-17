@@ -11,7 +11,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assertEquals, assertRejects } from "@std/assert";
-import { MenageSupabase, PaliersSupabase } from "./services.ts";
+import { MenageSupabase, PaliersSupabase, PseudosSupabase } from "./services.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
 function rendant(valeur: unknown): AppelSql {
@@ -148,4 +148,43 @@ Deno.test("le ménage : un compte négatif ou fractionnaire est refusé", async 
       "sujets",
     );
   }
+});
+
+// ── les pseudos ────────────────────────────────────────────────────
+
+Deno.test("les pseudos : aucun changement, aucun appel", async () => {
+  //  288 appels par jour pour une liste vide, c'est 288 de trop.
+  let appele = 0;
+  const appeler: AppelSql = () => {
+    appele += 1;
+    return Promise.resolve(0);
+  };
+  assertEquals(await new PseudosSupabase(appeler).renommer([]), 0);
+  assertEquals(appele, 0);
+});
+
+Deno.test("les pseudos : le compte rendu est relu", async () => {
+  assertEquals(
+    await new PseudosSupabase(rendant(1)).renommer([{ forumUserId: 4, pseudo: "Jake" }]),
+    1,
+  );
+  for (const mauvais of [null, "1", 1.5, -1, {}, [1]]) {
+    await assertRejects(
+      () =>
+        new PseudosSupabase(rendant(mauvais)).renommer([{ forumUserId: 4, pseudo: "Jake" }]),
+      AppelEchoue,
+      "renommer_les_joueurs",
+    );
+  }
+});
+
+Deno.test("LES PSEUDOS : PLUS DE RENOMMÉS QUE D'ENVOYÉS EST IMPOSSIBLE", async () => {
+  //  Un renommage de trop, c'est un joueur qui perd ses RP : la
+  //  recherche part alors avec un nom qui n'est pas le sien. Le
+  //  vérifier coûte une comparaison.
+  await assertRejects(
+    () => new PseudosSupabase(rendant(2)).renommer([{ forumUserId: 4, pseudo: "Jake" }]),
+    AppelEchoue,
+    "impossible",
+  );
 });

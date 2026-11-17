@@ -18,6 +18,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { dateDuForum, sujetsDeLaRecherche } from "./recherche.ts";
+import { pagesDeLaListe, pseudosDeLaListe } from "./membres.ts";
 import type {
   ActionLue,
   CommandeLue,
@@ -27,6 +28,7 @@ import type {
   LecteurDeDemandes,
   LecteurDeForum,
   LecteurDeReclamations,
+  LecteurDesPseudos,
   LecteurDesSujetsDUnMembre,
   MessageDuForum,
   ReclamationDeCarnetLue,
@@ -196,7 +198,8 @@ export class ForumactifEnLecture
     LecteurDActions,
     LecteurDeCommandes,
     LecteurDeReclamations,
-    LecteurDesSujetsDUnMembre {
+    LecteurDesSujetsDUnMembre,
+    LecteurDesPseudos {
   constructor(private readonly recuperer: Recuperateur) {}
 
   /** Les demandes de clôture d'un sujet, depuis un message donné.
@@ -312,5 +315,57 @@ export class ForumactifEnLecture
           : [{ id: s.dernierAuteurId, pseudo: s.dernierAuteurPseudo }]),
       ],
     }));
+  }
+
+  /** Qui s'appelle comment, d'après `/memberlist`.
+   *
+   *  UNE À DEUX PAGES POUR TOUT LE MONDE, là où `/u<id>` en demanderait
+   *  une par personnage. Mesuré le 16 novembre : 65 Ko, cinq membres, et
+   *  la pagination se laisse suivre.
+   *
+   *  ON SUIT LES LIENS DU FORUM plutôt que de deviner un pas : `?start=50`
+   *  répond 200 avec zéro membre, donc un pas deviné de 50 sauterait la
+   *  moitié des membres si le forum en affiche 25 par page.
+   *
+   *  LE PLAFOND N'EST PAS DE LA MÉFIANCE ENVERS FORUMACTIF. Une page de
+   *  pagination qui se nomme elle-même sous une autre adresse — un
+   *  paramètre de tri en plus, un `&` encodé autrement — et la boucle
+   *  demande des pages jusqu'à la fin des temps, à l'intérieur d'une
+   *  fonction Edge qui a trente secondes. L'ensemble des adresses déjà
+   *  vues ne suffit pas : ce sont des adresses DIFFÉRENTES qui rendent
+   *  la même page.
+   *
+   *  UNE PAGE QUI TOMBE N'EMPORTE PAS LES PRÉCÉDENTES : on rend ce
+   *  qu'on a lu. La table peut être partielle, c'est écrit dans le port,
+   *  et un membre absent garde le nom qu'on lui connaît. */
+  async pseudosDuForum(): Promise<ReadonlyMap<number, string>> {
+    const PLAFOND = 20;
+    const table = new Map<number, string>();
+    const vues = new Set<string>();
+    const aLire = ["/memberlist"];
+
+    for (let tour = 0; tour < PLAFOND && aLire.length > 0; tour += 1) {
+      const chemin = aLire.shift() as string;
+      if (vues.has(chemin)) continue;
+      vues.add(chemin);
+
+      let html: string;
+      try {
+        html = await this.recuperer(chemin);
+      } catch (e) {
+        //  LA PREMIÈRE PAGE EST LA SEULE DONT L'ÉCHEC COMPTE : sans
+        //  elle on n'a rien, et rendre une table vide ferait croire à un
+        //  forum sans membres. Les suivantes, on s'en passe.
+        if (table.size === 0) throw e;
+        break;
+      }
+
+      for (const [id, nom] of pseudosDeLaListe(html)) table.set(id, nom);
+      for (const suivante of pagesDeLaListe(html)) {
+        if (!vues.has(suivante)) aLire.push(suivante);
+      }
+    }
+
+    return table;
   }
 }

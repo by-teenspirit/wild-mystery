@@ -189,3 +189,89 @@ Deno.test("un sujet sans aucun bloc ne rend aucune action", async () => {
   const forum = new ForumactifEnLecture((_c: string) => Promise.resolve(PAGE));
   assertEquals(await forum.actionsDuSujet(813, 0), []);
 });
+
+// ── L'ANNUAIRE DES PSEUDOS ─────────────────────────────────────────
+//
+//  Les décors viennent du gabarit du dépôt, `templates/memberlist_body`,
+//  qui est celui que le forum sert. Les parseurs ont leurs propres
+//  tests dans `membres.test.ts` ; ici on mesure LE PARCOURS : combien de
+//  pages sont demandées, lesquelles, et ce qui se passe quand l'une
+//  tombe.
+
+const ligne = (id: number, nom: string) =>
+  `<a class="wm-membres__nom" href="/u${id}"><span class="group-5 usr_grp_clr"><strong>${nom}</strong></span></a>`;
+
+Deno.test("l'annuaire suit la pagination du forum, et ne la devine pas", async () => {
+  //  MESURÉ LE 16 NOVEMBRE : `?start=50` répond 200 avec zéro membre.
+  //  Un pas deviné de 50 sauterait la moitié des membres si le forum en
+  //  affiche 25 par page — les liens, eux, disent la vérité.
+  const demandes: string[] = [];
+  const forum = new ForumactifEnLecture((chemin: string) => {
+    demandes.push(chemin);
+    if (chemin === "/memberlist") {
+      return Promise.resolve(
+        `<ul id="memberlist">${ligne(5, "Erin Kavanagh")}${ligne(1, "Arceus")}</ul>
+         <div class="pagination"><a href="/memberlist?start=0">1</a>
+         <a href="/memberlist?start=25">2</a></div>`,
+      );
+    }
+    return Promise.resolve(`<ul id="memberlist">${ligne(4, "Jake Dalziel")}</ul>`);
+  });
+
+  const table = await forum.pseudosDuForum();
+  assertEquals(demandes, ["/memberlist", "/memberlist?start=25"]);
+  assertEquals(table.size, 3);
+  assertEquals(table.get(4), "Jake Dalziel");
+});
+
+Deno.test("UNE PAGE QUI SE NOMME ELLE-MÊME NE FAIT PAS BOUCLER L'ANNUAIRE", async () => {
+  //  Ce n'est pas de la méfiance envers Forumactif : il suffit d'un
+  //  paramètre de tri en plus pour que deux adresses DIFFÉRENTES
+  //  rendent la même page, et l'ensemble des adresses déjà vues n'y
+  //  suffit pas. La fonction Edge a trente secondes.
+  let appels = 0;
+  const forum = new ForumactifEnLecture((_c: string) => {
+    appels += 1;
+    //  Chaque page annonce une suivante, toujours neuve.
+    return Promise.resolve(
+      `<ul id="memberlist">${ligne(appels + 100, `Membre ${appels}`)}</ul>
+       <a href="/memberlist?page=${appels}&start=${appels * 25}">suite</a>`,
+    );
+  });
+
+  const table = await forum.pseudosDuForum();
+  assertEquals(appels, 20, "le plafond arrête la boucle");
+  assertEquals(table.size, 20);
+});
+
+Deno.test("UNE PAGE SUIVANTE QUI TOMBE N'EMPORTE PAS LES PRÉCÉDENTES", async () => {
+  //  On rend ce qu'on a lu : la table peut être partielle, c'est écrit
+  //  dans le port, et un membre absent garde le nom qu'on lui connaît.
+  const forum = new ForumactifEnLecture((chemin: string) => {
+    if (chemin === "/memberlist") {
+      return Promise.resolve(
+        `<ul id="memberlist">${ligne(5, "Erin Kavanagh")}</ul>
+         <a href="/memberlist?start=25">2</a>`,
+      );
+    }
+    return Promise.reject(new Error("HTTP 503"));
+  });
+
+  const table = await forum.pseudosDuForum();
+  assertEquals(table.size, 1);
+  assertEquals(table.get(5), "Erin Kavanagh");
+});
+
+Deno.test("mais la PREMIÈRE page qui tombe, elle, remonte", async () => {
+  //  Sans elle on n'a rien, et rendre une table vide ferait croire à un
+  //  forum sans membres — donc à trente personnages à ne pas renommer,
+  //  silencieusement.
+  const forum = new ForumactifEnLecture((_c: string) => Promise.reject(new Error("HTTP 503")));
+  let leve = false;
+  try {
+    await forum.pseudosDuForum();
+  } catch {
+    leve = true;
+  }
+  assertEquals(leve, true);
+});

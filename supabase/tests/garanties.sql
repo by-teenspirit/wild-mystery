@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(264);
+select plan(279);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -1961,6 +1961,117 @@ select ok(
   exists(select 1 from joueur_sans_adresse where forum_user_id = 9002)
     and not exists(select 1 from joueur_sans_adresse where forum_user_id = 9001),
   'et la vue nomme ceux qui sont bloqués, eux seuls'
+);
+
+-- ════════════════════════════════════════════════════════════════════
+--  LES PSEUDOS SE RELISENT (0042)
+--
+--  « J'ai découvert "personne n'a écrit" alors qu'Arceus a posté après
+--  moi », 13 novembre. `joueur.pseudo` était écrit une fois à la
+--  liaison et plus jamais relu ; la recherche du forum, elle, ne
+--  connaît que le pseudo d'aujourd'hui.
+-- ════════════════════════════════════════════════════════════════════
+
+insert into joueur (forum_user_id, pseudo, groupe, courriel)
+values (9101, 'Compte de test', 'doux', 'ren1@exemple.fr'),
+       (9102, 'Ombre', 'brave', 'ren2@exemple.fr');
+
+select is(
+  renommer_les_joueurs('{"changements":[
+     {"forumUserId":9101,"pseudo":"Jake Dalziel"}]}'::jsonb),
+  1,
+  'un pseudo changé est renommé, et compté'
+);
+
+select is(
+  (select pseudo from joueur where forum_user_id = 9101),
+  'Jake Dalziel',
+  'et c''est bien le nouveau nom qui est rangé'
+);
+
+select is(
+  renommer_les_joueurs('{"changements":[
+     {"forumUserId":9101,"pseudo":"Jake Dalziel"}]}'::jsonb),
+  0,
+  'CE QUI N''A PAS CHANGÉ N''EST PAS COMPTÉ — sinon le journal annoncerait trente renommages par heure'
+);
+
+select is(
+  renommer_les_joueurs('{"changements":[
+     {"forumUserId":9999,"pseudo":"Personne"}]}'::jsonb),
+  0,
+  'ELLE NE CRÉE PERSONNE : un numéro inconnu ne donne pas une ligne de plus'
+);
+
+select is(
+  (select count(*)::integer from joueur where forum_user_id = 9999),
+  0,
+  'et la table ne porte toujours pas ce numéro'
+);
+
+select is(
+  renommer_les_joueurs('{"changements":[
+     {"forumUserId":9102,"pseudo":"   "}]}'::jsonb),
+  0,
+  'ELLE N''ÉCRIT PAS UN NOM VIDE — mieux vaut un nom vieux d''une heure'
+);
+
+select is(
+  (select pseudo from joueur where forum_user_id = 9102),
+  'Ombre',
+  'et le nom d''avant est intact'
+);
+
+select is(
+  renommer_les_joueurs('{"changements":[
+     {"forumUserId":9102,"pseudo":"  Ombre Pâle  "}]}'::jsonb),
+  1,
+  'les espaces autour du nom sont rognés'
+);
+
+select is(
+  (select pseudo from joueur where forum_user_id = 9102),
+  'Ombre Pâle',
+  'et le nom rangé est le nom rogné'
+);
+
+select is(
+  renommer_les_joueurs('{"changements":[
+     {"forumUserId":9101,"pseudo":"Premier"},
+     {"forumUserId":9101,"pseudo":"Second"}]}'::jsonb),
+  1,
+  'deux lignes pour le même numéro ne comptent qu''un renommage'
+);
+
+select is(
+  (select pseudo from joueur where forum_user_id = 9101),
+  'Second',
+  'ET C''EST LE DERNIER NOMMÉ QUI GAGNE, comme dans le lecteur — sans le rang, la ligne retenue est arbitraire'
+);
+
+select is(
+  renommer_les_joueurs('{}'::jsonb),
+  0,
+  'une liste absente n''est pas une erreur : c''est le passage ordinaire'
+);
+
+select is(
+  renommer_les_joueurs('{"changements":[]}'::jsonb),
+  0,
+  'et une liste vide non plus'
+);
+
+select is(
+  renommer_les_joueurs('{"changements":"pas une liste"}'::jsonb),
+  0,
+  'ni une liste qui n''en est pas une'
+);
+
+select ok(
+  not has_function_privilege('anon', 'renommer_les_joueurs(jsonb)', 'execute')
+    and not has_function_privilege('authenticated', 'renommer_les_joueurs(jsonb)', 'execute')
+    and has_function_privilege('service_role', 'renommer_les_joueurs(jsonb)', 'execute'),
+  'RENOMMER EST RÉSERVÉ À LA RELÈVE : un joueur ne renomme pas les autres'
 );
 
 select * from finish();
