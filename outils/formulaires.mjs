@@ -128,6 +128,53 @@ const ligneRadios = `<dl id="radios"><dt><label>Rechercher :</label></dt>
 <dd><label><input type="radio" name="o" checked /> Tous les mots</label></dd>
 <dd><label><input type="radio" name="o" /> N'importe quel mot</label></dd></dl>`;
 
+/** La feuille de personnage, dans ses DEUX pages et leurs DEUX états.
+ *
+ *  Relevé le 17 novembre dans le navigateur de Callista, sa session
+ *  ouverte :
+ *
+ *    · `/u<n>rpgsheet?mode=generate` — `.column1` / `.column2`
+ *      flottantes dans un `.panel` qui ne les contenait pas : 18 px de
+ *      haut pour 269 de contenu, donc ni fond ni bord. « On dirait que
+ *      y'a pas de css » ;
+ *    · `/rpg_sheet_edit` — `.panel-left` / `.panel-right`, la gauche
+ *      VIDE et la droite portant les sept champs. « Les infos sont à
+ *      droite mais ça fait pas vraiment deux colonnes. »
+ *
+ *  LES DEUX ÉTATS SONT MONTÉS : colonne de gauche vide (le cas de
+ *  Callista, où tous les champs sont rangés à droite dans le panneau
+ *  d'administration) et colonne de gauche remplie. Une règle qui range
+ *  bien le premier et empile le second ne serait pas un correctif. */
+const champRpg = (nom, valeur) =>
+  `<dl><dt><label><span class="gen">${nom}</span></label></dt><dd>${valeur}</dd></dl>`;
+
+const feuilleGeneree = (id, aGauche) =>
+  `<div class="panel" id="${id}"><div class="inner">
+<span class="corners-top"><span></span></span>
+<div class="column1"><p style="text-align: center;"><ed>en découverte</ed><br></p>
+<fieldset>${aGauche ? champRpg("Taille", "1,70 m") : ""}</fieldset></div>
+<div class="column2"><fieldset>${
+    [["Âge", "22 ans"], ["Alignement", "neutre"], ["Origines", "Rhode"]]
+      .map(([n, v]) => champRpg(n, v)).join("")
+  }</fieldset></div>
+<span class="corners-bottom"><span></span></span></div></div>`;
+
+const feuilleEditee = (id, aGauche) =>
+  `<div id="${id}">
+<div class="panel"><div class="inner"><p style="text-align: center;"><ed>en découverte</ed><br></p></div></div>
+<div class="panel panel-left"><div class="inner"><fieldset>${
+    aGauche ? champRpg("Taille", '<input type="text" class="inputbox" name="field_9">') : ""
+  }</fieldset></div></div>
+<div class="panel panel-right"><div class="inner">${
+    [["Âge", "field_1"], ["Alignement", "field_2"], ["Origines", "field_3"]]
+      .map(([n, f]) =>
+        `<fieldset>${
+          champRpg(n, `<input type="text" class="inputbox" name="${f}">`)
+        }</fieldset>`
+      ).join("")
+  }</div></div>
+</div>`;
+
 const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>html,body{margin:0;min-height:100%}</style>
 <style>${lire("panneau-admin/jetons.css")}</style>
@@ -157,6 +204,12 @@ const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
     </div></div>
   </div>
 </form>
+<div id="cp-main-2" class="ucp-main">
+  ${feuilleGeneree("gen-vide", false)}
+  ${feuilleGeneree("gen-pleine", true)}
+  ${feuilleEditee("edit-vide", false)}
+  ${feuilleEditee("edit-pleine", true)}
+</div>
 <form action="/search" method="post" name="searchform">
   <div class="panel row2"><div class="inner">
     <span class="corners-top"><span></span></span>
@@ -308,6 +361,95 @@ dire(
   "ET LES BOUTONS D'ENVOI FONT BIEN 44, pas 44 plus le rembourrage",
   bouton.envoi >= 44 && bouton.envoi <= 46,
   `${bouton.envoi} px`,
+);
+
+// ── LA FEUILLE DE PERSONNAGE ───────────────────────────────────────
+console.log("\n── LA FEUILLE DE PERSONNAGE ───────────────────────────");
+const feuille = await p.evaluate(() => {
+  const r = (e) => {
+    if (e === null) return null;
+    const b = e.getBoundingClientRect();
+    const c = getComputedStyle(e);
+    return {
+      x: Math.round(b.left),
+      y: Math.round(b.top),
+      l: Math.round(b.width),
+      h: Math.round(b.height),
+      disp: c.display,
+      flt: c.cssFloat,
+    };
+  };
+  const lu = (id) => {
+    const n = document.getElementById(id);
+    const c1 = n.querySelector(".column1") ?? n.querySelector(".panel-left");
+    const c2 = n.querySelector(".column2") ?? n.querySelector(".panel-right");
+    const panneau = n.classList.contains("panel") ? n : null;
+    return {
+      g: r(c1),
+      d: r(c2),
+      panneau: r(panneau),
+      //  LE PANNEAU CONTIENT-IL SES COLONNES ? c'était la question :
+      //  un flottant sort de son parent et le vide.
+      contient: panneau === null || c2 === null
+        ? null
+        : Math.round(panneau.getBoundingClientRect().bottom) >=
+          Math.round(c2.getBoundingClientRect().bottom) - 1,
+      rang: r(n.querySelector("p ed")),
+      alignementDuRang: n.querySelector("p:has(> ed)") === null
+        ? null
+        : getComputedStyle(n.querySelector("p:has(> ed)")).textAlign,
+    };
+  };
+  return {
+    genVide: lu("gen-vide"),
+    genPleine: lu("gen-pleine"),
+    editVide: lu("edit-vide"),
+    editPleine: lu("edit-pleine"),
+  };
+});
+
+dire(
+  "AUCUNE COLONNE NE FLOTTE PLUS — un flottant vide son parent",
+  [feuille.genVide, feuille.genPleine, feuille.editVide, feuille.editPleine]
+    .flatMap((f) => [f.g, f.d]).filter((c) => c !== null && c.disp !== "none")
+    .every((c) => c.flt === "none"),
+);
+dire(
+  "LE PANNEAU DE LA PAGE GÉNÉRÉE CONTIENT SES COLONNES",
+  feuille.genVide.contient === true && feuille.genPleine.contient === true,
+  JSON.stringify([feuille.genVide.panneau?.h, feuille.genPleine.panneau?.h]),
+);
+dire(
+  "COLONNE DE GAUCHE VIDE : une seule colonne, pleine largeur",
+  feuille.genVide.d.l > feuille.genVide.d.x - feuille.genVide.d.x + 600 &&
+    feuille.genVide.d.y > feuille.genVide.g.y,
+  JSON.stringify({ g: feuille.genVide.g, d: feuille.genVide.d }),
+);
+dire(
+  "COLONNE DE GAUCHE REMPLIE : deux colonnes, côte à côte",
+  feuille.genPleine.g.y === feuille.genPleine.d.y &&
+    feuille.genPleine.d.x > feuille.genPleine.g.x,
+  JSON.stringify({ g: feuille.genPleine.g, d: feuille.genPleine.d }),
+);
+dire(
+  "PAGE D'ÉDITION, GAUCHE VIDE : elle disparaît et la droite prend tout",
+  feuille.editVide.g.disp === "none" && feuille.editVide.d.l > 900,
+  JSON.stringify({ g: feuille.editVide.g.disp, d: feuille.editVide.d.l }),
+);
+dire(
+  "PAGE D'ÉDITION, GAUCHE REMPLIE : les deux panneaux côte à côte",
+  feuille.editPleine.g.disp !== "none" && feuille.editPleine.g.y === feuille.editPleine.d.y &&
+    feuille.editPleine.d.x > feuille.editPleine.g.x,
+  JSON.stringify({ g: feuille.editPleine.g, d: feuille.editPleine.d }),
+);
+dire(
+  "LE RANG N'EST PLUS CENTRÉ — un `style=` en ligne le centrait",
+  [feuille.editVide, feuille.editPleine, feuille.genVide]
+    .every((f) => f.alignementDuRang === "left"),
+  JSON.stringify([
+    feuille.genVide.alignementDuRang,
+    feuille.editVide.alignementDuRang,
+  ]),
 );
 
 console.log("\n── ET CE QUI NE DOIT PAS BOUGER ───────────────────────");

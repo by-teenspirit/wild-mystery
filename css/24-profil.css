@@ -1352,3 +1352,198 @@
 #modernbb .wm-profil-page__panneau .stats-field a:focus-visible {
   text-decoration: underline;
 }
+
+/* ── 9 · la feuille de personnage, hors du profil ─────────────────── */
+
+/*  DEUX PAGES, UN SEUL DÉFAUT. Relevé le 17 novembre dans le
+    navigateur de Callista, sa session ouverte :
+
+      · `/u<n>rpgsheet?mode=generate` — « on dirait que y'a pas de
+        css ». Notre feuille était bien chargée : c'est le PANNEAU qui
+        n'existait plus. Ses deux colonnes sont des FLOTTANTS, le
+        `.panel` ne les contient pas, et il mesurait 18 px de haut
+        pour 269 px de contenu. Un panneau haut de 18 px n'a ni fond,
+        ni bord, ni rembourrage visible — d'où « pas de css ».
+
+      · `/rpg_sheet_edit` — « les infos sont à droite mais ça fait pas
+        vraiment deux colonnes ». Deux panneaux frères, `.panel-left`
+        flottant à gauche et `.panel-right` à droite. Mesuré : la
+        gauche fait 18 px et ne contient AUCUN champ, la droite en
+        porte sept.
+
+    ET LA VRAIE RAISON DE LA COLONNE VIDE N'EST PAS DU CSS : dans le
+    panneau d'administration, chaque champ de la feuille de
+    personnage est rangé à gauche ou à droite, et les sept sont à
+    droite. Une colonne vide restera vide quoi qu'on écrive ici — ce
+    qu'on peut faire, c'est ne plus réserver sa place.
+
+    LES DEUX BALISAGES SONT TRAITÉS ENSEMBLE parce que c'est le même
+    gabarit amont (`rpg_sheet`) vu deux fois : `{rpg_fields_left}` à
+    gauche, `{rpg_fields}` à droite. */
+
+#modernbb :is(.column1, .column2, .panel-left, .panel-right) {
+  float: none;
+  width: auto;
+}
+
+/*  LA CARTE, SUR LA PAGE DE GÉNÉRATION. Elle n'est pas dans
+    `.ucp-main` : la feuille 26 ne l'atteint pas, et ModernBB ne lui
+    donne rien. */
+#modernbb .panel:has(> .inner > .column1) {
+  padding: var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+}
+
+#modernbb .panel:has(> .inner > .column1) .corners-top,
+#modernbb .panel:has(> .inner > .column1) .corners-bottom {
+  display: none;
+}
+
+/*  UNE COLONNE SANS CHAMP NE FAIT PAS UNE COLONNE. On part donc d'UNE
+    colonne, et on en met deux seulement si la gauche porte des
+    champs. On garde ce qu'elle porte par ailleurs — le rang,
+    l'image —, on lui retire seulement la moitié de page qu'elle
+    laissait vide.
+
+    ET PAS `:has(> .column1:not(:has(dl)))` : **`:has()` ne
+    s'imbrique pas dans `:has()`**, la règle entière devient invalide
+    et le navigateur la jette sans un mot. Mesuré sur la vraie page :
+    la grille restait à « 527px 527px » pendant que la règle semblait
+    écrite. On teste donc la PRÉSENCE des champs, qui se dit sans
+    imbriquer. */
+#modernbb .inner:has(> .column1) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--wm-espace-24, 24px);
+  align-items: start;
+}
+
+#modernbb .inner:has(> .column1 dl) {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/*  `/rpg_sheet_edit` : deux panneaux FRÈRES, sans conteneur commun —
+    on ne peut donc pas les mettre en grille. `inline-block` les range
+    côte à côte sans flottant et sans parent à inventer. */
+#modernbb .panel-left:has(dl),
+#modernbb .panel-left:has(dl) ~ .panel-right {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(50% - var(--wm-espace-6, 6px));
+}
+
+#modernbb .panel-left:not(:has(dl)) {
+  display: none;
+}
+
+/*  LE RANG ET L'IMAGE DE LA FEUILLE tiennent dans un `<p>` en tête de
+    la colonne de gauche : `{POSTER_RANK} {RPG_IMAGE}` dans le
+    gabarit. Le rang sort en `<ed>` — une balise que personne
+    n'habille — et se lisait comme une phrase perdue au milieu de la
+    page. On le nomme et on le range. */
+#modernbb :is(.column1, .panel-left) > p:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  margin: 0 0 var(--wm-espace-16, 16px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb :is(.column1, .panel-left) > p:first-child ed {
+  color: var(--wm-encre, #2e2018);
+  font-style: normal;
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb :is(.column1, .panel-left) > p:first-child img {
+  max-width: 100%;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+/*  LES LIGNES DE CHAMP, comme sur les autres formulaires de
+    Forumactif — même vocabulaire `dl/dt/dd`, même mise en page. La
+    feuille 26 ne les atteint pas : son périmètre est `.ucp-main` et
+    le formulaire de recherche, et la page de génération n'est ni
+    l'un ni l'autre. Les valeurs sont les siennes, et c'est voulu :
+    deux pages qui se ressemblent doivent se ressembler. */
+#modernbb :is(.column1, .column2, .panel-left, .panel-right) dl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 0 0 var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+}
+
+#modernbb :is(.column1, .column2, .panel-left, .panel-right) dt {
+  flex: 0 0 34%;
+  max-width: 220px;
+  min-width: 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: uppercase;
+}
+
+#modernbb :is(.column1, .column2, .panel-left, .panel-right) dt label {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+#modernbb :is(.column1, .column2, .panel-left, .panel-right) dd {
+  flex: 1 1 240px;
+  max-width: 420px;
+  min-width: 0;
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+}
+
+#modernbb :is(.column1, .column2, .panel-left, .panel-right) fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/*  LE RANG, SUR LA PAGE D'ÉDITION. « Le rang est bizarre » : Forumactif
+    le sort dans un `<ed>` — une balise que personne n'habille — seul
+    dans un panneau, entre deux titres, et centré par le thème. Il se
+    lisait comme une phrase tombée là.
+
+    `<ed>` EST LA PRISE, et c'est elle qui rend la règle étroite : la
+    page porte d'autres `<p>`, et aucun autre ne contient cette balise.
+
+    DEUX PÉRIMÈTRES, PARCE QUE LE RANG VIT À DEUX ENDROITS : direct
+    dans le panneau sur `/rpg_sheet_edit`, et DANS la colonne de
+    gauche sur la page de génération — qui, elle, n'est pas dans
+    `.ucp-main`. Mon premier jet écrivait `.ucp-main .inner > p` et
+    ne voyait que le premier : le harnais a trouvé « center » sur le
+    second pendant que la règle semblait écrite.
+
+    ON NE LUI INVENTE PAS D'ÉTIQUETTE. C'est le rang du membre, celui
+    des Rangs du panneau d'administration ; le nommer en CSS
+    reviendrait à écrire du texte dans une feuille de style. On le
+    range, on ne le commente pas. */
+#modernbb :is(.ucp-main, .column1, .panel-left) p:has(> ed) {
+  margin: 0 0 var(--wm-espace-16, 16px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  /*  `style="text-align: center"` EN LIGNE sur ce `<p>`, relevé sur la
+      vraie page. C'est le second cas où la charte autorise
+      `!important` — le premier est le `width:250px` des champs de
+      profil — et pour la même raison : contre un style en ligne, il
+      n'y a rien d'autre. Ma règle s'appliquait et perdait ; mesuré à
+      `center` alors qu'elle disait `left`. */
+  text-align: left !important;
+}
+
+#modernbb :is(.ucp-main, .column1, .panel-left) p > ed {
+  color: var(--wm-encre, #2e2018);
+  font-style: normal;
+  font-weight: var(--wm-graisse-gras, 700);
+}
