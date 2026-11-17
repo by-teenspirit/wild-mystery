@@ -109,6 +109,77 @@ import type { Brouillon } from "./editeur.ts";
  *  départ, et il a son bouton. */
 type Cle = "rien" | "chercher" | "fouiller" | "cloture";
 
+//  ── LES QUATRE ICÔNES ────────────────────────────────────────────
+//
+//  « Ce serait bien d'avoir une icône pour chaque action », 17 novembre.
+//
+//  MÊME FABRIQUE QUE LE COIN D'OUTILS : viewBox de 16, `currentColor`,
+//  `aria-hidden`. Elles suivent donc la couleur du bouton — y compris
+//  quand il est coché et que le texte passe en clair — et aucune n'est
+//  annoncée deux fois : le libellé reste écrit à côté.
+//
+//  CHACUNE DIT CE QUE LE JOUEUR FAIT, pas ce que le code fait : une
+//  bulle pour un message qui part comme les autres, des herbes hautes
+//  pour la rencontre — c'est le signe que tout le monde connaît —, une
+//  loupe pour la fouille, un cadenas pour la clôture, qui est le mot
+//  des forums pour un sujet verrouillé.
+const SVG = "http://www.w3.org/2000/svg";
+
+function dessin(doc: Document, traces: readonly (readonly [string, string])[]): SVGSVGElement {
+  const racine = doc.createElementNS(SVG, "svg");
+  racine.setAttribute("viewBox", "0 0 16 16");
+  racine.setAttribute("class", "wm-barre__icone");
+  racine.setAttribute("aria-hidden", "true");
+  racine.setAttribute("focusable", "false");
+  for (const [d, largeur] of traces) {
+    const p = doc.createElementNS(SVG, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("fill", "none");
+    p.setAttribute("stroke", "currentColor");
+    p.setAttribute("stroke-width", largeur);
+    p.setAttribute("stroke-linecap", "round");
+    p.setAttribute("stroke-linejoin", "round");
+    racine.appendChild(p);
+  }
+  return racine;
+}
+
+const ICONES: Record<Cle, (doc: Document) => SVGSVGElement> = {
+  //  Une bulle de message : ce qui part quand on ne demande rien.
+  rien: (d) =>
+    dessin(d, [[
+      "M2.7 3.4h10.6a1.6 1.6 0 0 1 1.6 1.6v5a1.6 1.6 0 0 1-1.6 1.6H7l-3.1 2.3v-2.3H2.7A1.6 1.6 0 0 1 1.1 10V5a1.6 1.6 0 0 1 1.6-1.6Z",
+      "1.5",
+    ]]),
+  //  Des herbes hautes : trois brins qui s'ouvrent en éventail.
+  //
+  //  PREMIER JET RATÉ, ET C'EST LE RENDU QUI L'A DIT : les trois brins
+  //  montaient tous vers la droite et un trait de sol les fermait en
+  //  bas. À 17 px, ça ne faisait pas des herbes, ça faisait une tente.
+  //  Un dessin se regarde à sa taille, pas dans son `viewBox`.
+  chercher: (d) =>
+    dessin(d, [
+      ["M4 14.3C4 10.2 3.1 7.7 1.6 5.9", "1.6"],
+      ["M8 14.3C8 9.2 7.9 5.3 7.6 2.3", "1.6"],
+      ["M12 14.3C12 10.2 12.9 7.7 14.4 5.9", "1.6"],
+    ]),
+  //  Une loupe : on retourne la zone.
+  fouiller: (d) =>
+    dessin(d, [
+      ["M11.1 7a4.2 4.2 0 1 1-8.4 0 4.2 4.2 0 0 1 8.4 0Z", "1.6"],
+      ["M10.2 10.2 14 14", "1.8"],
+    ]),
+  //  Un cadenas : le mot des forums pour un sujet qui se ferme.
+  cloture: (d) =>
+    dessin(d, [
+      [
+        "M4.4 7.2h7.2a1.3 1.3 0 0 1 1.3 1.3v4.3a1.3 1.3 0 0 1-1.3 1.3H4.4a1.3 1.3 0 0 1-1.3-1.3V8.5a1.3 1.3 0 0 1 1.3-1.3Z",
+        "1.5",
+      ],
+      ["M5.7 7.2V5.3a2.3 2.3 0 0 1 4.6 0v1.9", "1.5"],
+    ]),
+};
+
 type Choix = {
   readonly cle: Cle;
   readonly libelle: string;
@@ -310,7 +381,14 @@ export class BarreDActions {
     bouton.type = "button";
     bouton.className = "wm-barre__bouton" +
       (choix.secondaire === true ? " wm-barre__bouton--secondaire" : "");
-    bouton.textContent = choix.libelle;
+    //  L'ICÔNE N'EST PAS LE LIBELLÉ. Elle est `aria-hidden` et le mot
+    //  reste écrit : un bouton dont l'icône porte le sens n'est lisible
+    //  que par qui l'a déjà appris.
+    bouton.appendChild(ICONES[choix.cle](this.#doc));
+    const mot = this.#doc.createElement("span");
+    mot.className = "wm-barre__mot";
+    mot.textContent = choix.libelle;
+    bouton.appendChild(mot);
     bouton.setAttribute("role", "radio");
     bouton.setAttribute("aria-checked", "false");
     bouton.tabIndex = -1;
@@ -372,4 +450,51 @@ function placer(barre: HTMLElement, formulaire: Element): void {
   }
   if (champ !== null && noeud.contains(champ)) noeud = envoi;
   noeud.insertAdjacentElement("beforebegin", barre);
+  centrerLesEnvois(formulaire, champ);
+}
+
+/** « Envoyer et prévisualiser, centrer les deux boutons. »
+ *
+ *  LES DEUX BOUTONS NE SONT PAS À NOUS : Forumactif sert la réponse
+ *  rapide toute faite (`{QUICK_REPLY_FORM}`) et on ne connaît pas son
+ *  balisage d'avance — ils peuvent être nus dans le formulaire ou déjà
+ *  rangés dans un conteneur. Les deux cas existent, et le harnais monte
+ *  les deux.
+ *
+ *  ON NE DÉPLACE QUE SI C'EST NÉCESSAIRE. Si un conteneur ne tient
+ *  QU'EUX, on l'habille — c'est le geste le plus léger, et rien ne
+ *  bouge dans l'arbre. Sinon on les enveloppe, à leur place, dans l'ordre
+ *  où ils étaient : un script du forum qui les retrouve par `name` ou
+ *  par `id` s'y retrouve toujours, et aucun n'est perdu en route. */
+function centrerLesEnvois(formulaire: Element, champ: Element | null): void {
+  const envois = [...formulaire.querySelectorAll('[type="submit"]')];
+  if (envois.length === 0) return;
+
+  const parent = envois[0].parentElement;
+  if (
+    parent !== null && parent !== formulaire &&
+    (champ === null || !parent.contains(champ)) &&
+    envois.every((e) => e.parentElement === parent) &&
+    //  LES CHAMPS CACHÉS NE COMPTENT PAS : Forumactif en pose à côté
+    //  des boutons, et exiger un conteneur parfaitement pur ferait
+    //  créer une boîte de plus pour rien.
+    [...parent.children].every((e) => envois.includes(e) || e.getAttribute("type") === "hidden")
+  ) {
+    parent.classList.add("wm-envois");
+    return;
+  }
+
+  //  LA PLAGE, ET PAS SEULEMENT LES BOUTONS : entre « Envoyer » et
+  //  « Prévisualisation » Forumactif glisse des champs cachés et du
+  //  texte. Les emporter garde l'ordre d'origine ; les laisser
+  //  derrière couperait le formulaire en deux.
+  const freres = [...(envois[0].parentElement?.childNodes ?? [])];
+  const premier = freres.indexOf(envois[0]);
+  const dernier = freres.indexOf(envois[envois.length - 1]);
+  if (premier < 0 || dernier < premier) return;
+
+  const boite = formulaire.ownerDocument.createElement("div");
+  boite.className = "wm-envois";
+  envois[0].parentElement?.insertBefore(boite, envois[0]);
+  for (const n of freres.slice(premier, dernier + 1)) boite.appendChild(n);
 }

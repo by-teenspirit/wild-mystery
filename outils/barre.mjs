@@ -72,7 +72,20 @@ const chemin = (forum) => `
  *  (`form[name=post]`) — celle par laquelle passe la prévisualisation.
  *  Les deux existent sur le forum, et `wild-mystery.ts` accepte les
  *  deux ; le harnais doit donc les voir toutes les deux. */
-const formulaire = (quick) =>
+//
+//  `enveloppe` DONNE TROIS BALISAGES, parce que Forumactif sert la
+//  réponse rapide toute faite et qu'il n'y en a pas qu'un :
+//
+//    · `false`  — les deux boutons nus dans le formulaire ;
+//    · `"pur"`  — déjà dans un `.submit-buttons` qui ne tient qu'eux ;
+//    · `"mixte"`— dans un `.submit-buttons` qui tient AUSSI autre chose,
+//                 le cas de la page de rédaction complète amont.
+//
+//  Monter un seul des trois, c'est parier sur celui qu'on a sous la
+//  main. Le deuxième a déjà rendu un défaut que le premier ne montrait
+//  pas : `06-ecrire.css` réserve 108 px à droite de `.submit-buttons`
+//  pour le coin d'outils, et ces 108 px décentraient les boutons de 54.
+const formulaire = (quick, enveloppe = false) =>
   quick
     ? `
 <a name="quickreply"></a>
@@ -80,8 +93,18 @@ const formulaire = (quick) =>
   <div id="textarea_content">
     <textarea id="text_editor_textarea" name="message" rows="6" cols="80"></textarea>
   </div>
-  <input type="submit" name="post" value="Envoyer" />
-  <input type="submit" name="preview" value="Prévisualisation" />
+  ${
+      enveloppe === false
+        ? `<input type="submit" name="post" value="Envoyer" />
+  <input type="hidden" name="tid" value="x" />
+  <input type="submit" name="preview" value="Prévisualisation" />`
+        : `<div class="submit-buttons">
+    ${enveloppe === "mixte" ? '<span class="wm-essai-voisin">Aperçu</span>' : ""}
+    <input type="hidden" name="tid" value="x" />
+    <input type="submit" name="post" value="Envoyer" />
+    <input type="submit" name="preview" value="Prévisualisation" />
+  </div>`
+    }
 </form>`
     : `
 <form action="/post" method="post" name="post" enctype="multipart/form-data">
@@ -101,7 +124,7 @@ const formulaire = (quick) =>
 //  un commentaire**, plus haut dans le document, et c'est lui que le
 //  remplacement attrapait. Remplacer une chaîne dans un document entier
 //  touche la première occurrence, pas celle qu'on visait.
-const page = (quick, texte = "", forum = "f9-foret-marecageuse") =>
+const page = (quick, texte = "", forum = "f9-foret-marecageuse", enveloppe = false) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>html,body{margin:0;min-height:100%}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
@@ -115,7 +138,7 @@ const page = (quick, texte = "", forum = "f9-foret-marecageuse") =>
 ${chemin(forum)}
 <div id="page-body">
   <div class="post post--15552"><div class="postbody"><div class="content">Un message de RP.</div></div></div>
-  ${formulaire(quick).replace("></textarea>", `>${texte}</textarea>`)}
+  ${formulaire(quick, enveloppe).replace("></textarea>", `>${texte}</textarea>`)}
 </div>
 </div>
 </body></html>`;
@@ -129,7 +152,9 @@ function dire(nom, ok, detail = "") {
 }
 
 /** Une page montée, script compris, prête à cliquer. */
-async function monter({ quick = true, texte = "", largeur = 1440, forum } = {}) {
+async function monter(
+  { quick = true, texte = "", largeur = 1440, forum, enveloppe = false } = {},
+) {
   const p = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   await p.route("**/*", (r) => {
@@ -161,7 +186,7 @@ async function monter({ quick = true, texte = "", largeur = 1440, forum } = {}) 
     }
     return r.fulfill({
       contentType: "text/html; charset=utf-8",
-      body: page(quick, texte, forum),
+      body: page(quick, texte, forum, enveloppe),
     });
   });
   await p.goto("http://wild-mystery.test/t996-test");
@@ -196,7 +221,9 @@ const CLOTURER = "Clôturer le sujet";
 /** Les quatre boutons, dans l'ordre du DOM, avec leur état coché. */
 const etats = (p) =>
   p.evaluate(() =>
-    [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.getAttribute("aria-checked"))
+    [...document.querySelectorAll(".wm-barre__bouton")].map((b) =>
+      b.getAttribute("aria-checked")
+    )
   );
 
 // ── 1 · la barre est là, où il faut, et elle n'a que ce qu'il faut ──
@@ -261,6 +288,51 @@ dire(
   "et la phrase dit que rien ne partira",
   pose?.note?.startsWith("Ton message part comme un message normal"),
   pose?.note,
+);
+
+// ── 1 bis · UNE ICÔNE PAR ACTION, ET QUATRE DIFFÉRENTES ────────────
+//
+//  « Ce serait bien d'avoir une icône pour chaque action. »
+//
+//  DEUX CHOSES, PAS UNE : qu'il y en ait une par bouton, et qu'elles
+//  ne soient pas la même. Un seul dessin recopié quatre fois passerait
+//  le premier contrôle et ne servirait à rien — c'est exactement la
+//  forme de défaut que ce harnais existe pour attraper.
+//
+//  ET LE MOT RESTE ÉCRIT : une icône `aria-hidden` à côté d'un libellé
+//  aide à repérer ; une icône seule demande de l'avoir apprise.
+const icones = await p.evaluate(() =>
+  [...document.querySelectorAll(".wm-barre__bouton")].map((b) => ({
+    nombre: b.querySelectorAll("svg").length,
+    trace: [...b.querySelectorAll("svg path")].map((c) => c.getAttribute("d")).join("|"),
+    cachee: b.querySelector("svg")?.getAttribute("aria-hidden"),
+    mot: b.querySelector(".wm-barre__mot")?.textContent.trim(),
+    taille: (() => {
+      const r = b.querySelector("svg")?.getBoundingClientRect();
+      return r === undefined ? null : [Math.round(r.width), Math.round(r.height)];
+    })(),
+  }))
+);
+dire(
+  "CHAQUE BOUTON PORTE UNE ICÔNE, UNE SEULE, et elle est dessinée",
+  icones.length === 4 && icones.every((i) => i.nombre === 1 && i.trace.length > 20),
+  JSON.stringify(icones.map((i) => i.nombre)),
+);
+dire(
+  "LES QUATRE SONT DIFFÉRENTES — un même dessin recopié ne dirait rien",
+  new Set(icones.map((i) => i.trace)).size === 4,
+  `${new Set(icones.map((i) => i.trace)).size} dessins distincts`,
+);
+dire(
+  "elles ont une taille à l'écran, et elles ne sont pas annoncées",
+  icones.every((i) => i.cachee === "true" && i.taille[0] >= 14 && i.taille[1] >= 14),
+  JSON.stringify(icones.map((i) => i.taille)),
+);
+dire(
+  "et le libellé reste écrit à côté",
+  JSON.stringify(icones.map((i) => i.mot)) ===
+    JSON.stringify([RIEN, APPARAITRE, FOUILLER, CLOTURER]),
+  JSON.stringify(icones.map((i) => i.mot)),
 );
 
 // ── 2 · LA RÈGLE GÉNÉRALE : chaque contrôle change quelque chose ────
@@ -328,7 +400,8 @@ dire(
   JSON.stringify(await etats(p)) === JSON.stringify(["false", "true", "false", "false"]),
   JSON.stringify(await etats(p)),
 );
-const note = () => p.evaluate(() => document.querySelector(".wm-barre__note").textContent.trim());
+const note = () =>
+  p.evaluate(() => document.querySelector(".wm-barre__note").textContent.trim());
 dire(
   "et la phrase dit ce qui va partir, en français",
   (await note()) === "Quand tu enverras ce message, tu fais apparaître un Pokémon.",
@@ -638,6 +711,49 @@ dire(
     new Set(vu.boutons.slice(0, 3).map((b) => b.y)).size === 1,
   JSON.stringify(vu.boutons.slice(0, 3).map((b) => [b.x, b.y])),
 );
+//  LA CLÔTURE, DEUXIÈME ESSAI : « je suis pas convaincue de comment
+//  elle est ». Le pointillé est le dessin de ce qui est désactivé ; il
+//  disait « pas disponible » au lieu de « pas pareil ». Elle est
+//  maintenant séparée par un trait et rangée en terre.
+const fin = await p.evaluate(() => {
+  const tous = [...document.querySelectorAll(".wm-barre__bouton")];
+  const b = tous.at(-1);
+  const libre = tous[1]; //  un des trois, non coché : la référence
+  const s = getComputedStyle(b);
+  return {
+    pointille: s.borderTopStyle,
+    bord: s.borderTopColor,
+    fond: s.backgroundColor,
+    couleur: s.color,
+    fondLibre: getComputedStyle(libre).backgroundColor,
+    bordLibre: getComputedStyle(libre).borderTopColor,
+    trait: getComputedStyle(b.closest(".wm-barre__rangee")).borderTopWidth,
+    hauteur: Math.round(b.getBoundingClientRect().height),
+  };
+});
+dire(
+  "LA CLÔTURE N'EST PLUS EN POINTILLÉ — ce dessin-là veut dire « désactivé »",
+  fin.pointille === "solid",
+  fin.pointille,
+);
+dire(
+  "un trait la sépare des trois autres",
+  parseFloat(fin.trait) >= 1,
+  fin.trait,
+);
+dire(
+  "et elle est RANGÉE EN TERRE, pas affaiblie : fond et bord à elle",
+  fin.fond !== fin.fondLibre && fin.bord !== fin.bordLibre && fin.bord === fin.couleur,
+  JSON.stringify({
+    elle: [fin.fond, fin.bord, fin.couleur],
+    libre: [fin.fondLibre, fin.bordLibre],
+  }),
+);
+dire(
+  "et elle garde ses 44 px — secondaire ne veut pas dire plus dure à toucher",
+  fin.hauteur >= 44,
+  `${fin.hauteur} px`,
+);
 dire(
   "ET CLÔTURER EST EN DESSOUS, sans s'étirer — « un peu secondaire »",
   vu.boutons[3].y > vu.boutons[0].y &&
@@ -755,6 +871,84 @@ dire(
   JSON.stringify(empile.b),
 );
 await etroit.close();
+
+// ── 9 · ENVOYER ET PRÉVISUALISER, CENTRÉS ──────────────────────────
+//
+//  « Envoyer et prévisualiser, centrer les deux boutons. »
+//
+//  LE CENTRAGE SE MESURE, il ne se déclare pas : on compare l'écart à
+//  gauche et l'écart à droite dans le formulaire. Une règle
+//  `justify-content: center` posée sur le mauvais élément passerait une
+//  lecture de CSS et laisserait les boutons collés à gauche.
+//
+//  ET DANS LES DEUX BALISAGES. Forumactif sert la réponse rapide toute
+//  faite : les boutons peuvent être nus dans le formulaire ou déjà dans
+//  un conteneur. Monter un seul des deux, c'est parier sur celui qu'on
+//  a sous la main — et c'est ce pari-là qui coûte une journée quand il
+//  tombe du mauvais côté.
+console.log("\n── LES BOUTONS D'ENVOI ────────────────────────────────");
+for (
+  const [quoi, enveloppe] of [
+    ["boutons nus", false],
+    ["conteneur à eux", "pur"],
+    ["conteneur partagé", "mixte"],
+  ]
+) {
+  const page = await monter({ enveloppe });
+  const centre = await page.evaluate(() => {
+    const formulaire = document.querySelector("#quick_reply");
+    const boite = formulaire.querySelector(".wm-envois");
+    if (boite === null) return null;
+    const f = formulaire.getBoundingClientRect();
+    const envois = [...boite.querySelectorAll('[type="submit"]')];
+    const rects = envois.map((e) => e.getBoundingClientRect());
+    const gauche = Math.min(...rects.map((r) => r.left)) - f.left;
+    const droite = f.right - Math.max(...rects.map((r) => r.right));
+    return {
+      combien: envois.length,
+      noms: envois.map((e) => e.name),
+      //  AUCUN PERDU EN ROUTE : les deux sont toujours dans le
+      //  formulaire, et le champ caché aussi.
+      tousDansLeFormulaire: [...formulaire.querySelectorAll('[type="submit"]')].length === 2,
+      cacheGarde: formulaire.querySelector('[name="tid"]') !== null,
+      //  LE CHAMP CACHÉ NE POUSSE PAS : il est hors flux.
+      cacheHorsFlux:
+        formulaire.querySelector('[name="tid"]').getBoundingClientRect().width === 0,
+      gauche: Math.round(gauche),
+      droite: Math.round(droite),
+      surUneLigne: new Set(rects.map((r) => Math.round(r.top))).size === 1,
+      sousLaBarre: rects.every((r) =>
+        r.top >= document.querySelector(".wm-barre").getBoundingClientRect().bottom - 1
+      ),
+    };
+  });
+  dire(
+    `${quoi} : les deux boutons sont dans une boîte à eux`,
+    centre?.combien === 2,
+    JSON.stringify(centre?.noms),
+  );
+  dire(
+    `${quoi} : ILS SONT CENTRÉS dans le formulaire`,
+    centre !== null && Math.abs(centre.gauche - centre.droite) <= 2,
+    `${centre?.gauche} à gauche, ${centre?.droite} à droite`,
+  );
+  dire(
+    `${quoi} : côte à côte, et sous le bloc d'actions`,
+    centre?.surUneLigne === true && centre?.sousLaBarre === true,
+    JSON.stringify({ ligne: centre?.surUneLigne, sous: centre?.sousLaBarre }),
+  );
+  dire(
+    `${quoi} : rien n'a été perdu en déplaçant — le champ caché est là, et il ne pousse pas`,
+    centre?.tousDansLeFormulaire === true && centre?.cacheGarde === true &&
+      centre?.cacheHorsFlux === true,
+    JSON.stringify({
+      envois: centre?.tousDansLeFormulaire,
+      cache: centre?.cacheGarde,
+      horsFlux: centre?.cacheHorsFlux,
+    }),
+  );
+  await page.close();
+}
 
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);

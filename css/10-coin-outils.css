@@ -174,13 +174,25 @@
   padding: 12px 14px;
 }
 
-/*  LA CLÔTURE A SA PROPRE RANGÉE, collée sous l'autre : « Clôturer doit
-    apparaître de manière un peu secondaire ». Elle est dans le même
-    groupe de choix — les quatre s'excluent —, mais pas dans le même
-    alignement, et c'est ce décrochage qui dit « pas comme les trois
-    autres ». */
+/*  ── LA CLÔTURE, DEUXIÈME ESSAI ───────────────────────────────────
+
+    « La clôture, ce serait cool de mieux l'afficher, je suis pas
+    convaincue de comment elle est », 17 novembre.
+
+    CE QUI N'ALLAIT PAS : un bouton en POINTILLÉ, seul sur sa ligne,
+    sans rien autour. Le pointillé est le dessin qu'on donne à ce qui
+    est désactivé ou à ce qui n'existe pas encore — il disait « pas
+    disponible » là où il fallait dire « pas pareil ».
+
+    CE QU'ELLE EST MAINTENANT : un trait qui la sépare des trois
+    autres, un fond et un bord en terre, et son cadenas. Elle n'est
+    plus en retrait, elle est AILLEURS : c'est la couleur qui la range
+    à part, pas un affaiblissement. Et elle garde ses 44 px de haut —
+    secondaire ne veut pas dire plus dure à toucher. */
 #modernbb .wm-barre__rangee--fin {
-  padding-top: 0;
+  margin: 0 14px;
+  padding: var(--wm-espace-12, 12px) 0;
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
 #modernbb .wm-barre__bouton {
@@ -232,13 +244,26 @@
   background-clip: content-box;
 }
 
+/*  L'ICÔNE SUIT LA COULEUR DU BOUTON — `currentColor` — donc elle passe
+    en clair quand le bouton est rempli, sans règle de plus. */
+#modernbb .wm-barre__icone {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+}
+
+/*  Le mot peut se replier ; l'icône et la pastille, non. */
+#modernbb .wm-barre__mot {
+  min-width: 0;
+}
+
 /*  Clôturer ne fait pas la même chose que les autres : il termine. Il
-    ne s'étire pas sur la rangée, et son bord pointillé le sort de la
-    file sans le cacher. */
+    ne s'étire pas sur la rangée, et la terre le range à part. */
 #modernbb .wm-barre__bouton--secondaire {
   flex: 0 0 auto;
-  border-style: dashed;
-  color: var(--wm-texte-doux, #6e5749);
+  border-color: var(--wm-accent-terre, #8b4725);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-accent-terre, #8b4725);
   font-weight: 600;
 }
 
@@ -263,6 +288,63 @@
 #modernbb .wm-barre__bouton:focus-visible {
   outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 2px;
+}
+
+/*  ── « ENVOYER ET PRÉVISUALISER, CENTRER LES DEUX BOUTONS » ───────
+
+    LA CLASSE EST POSÉE PAR LE SCRIPT, sur le conteneur des boutons
+    d'envoi s'il n'en tient qu'eux, sinon sur une boîte qu'il crée
+    autour d'eux. Elle n'est donc jamais écrite dans un gabarit :
+    Forumactif sert la réponse rapide toute faite, et son balisage
+    n'est pas le même d'une page de réponse à l'autre.
+
+    LE `gap` NE SUFFIT PAS SEUL : entre les deux boutons, Forumactif
+    glisse des champs cachés. Ils deviennent des éléments de flex de
+    largeur nulle, et le `gap` les compterait — d'où `display: none`
+    sur ce qui ne se voit pas, plutôt qu'un rattrapage de marge. */
+#modernbb .wm-envois {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  margin-top: var(--wm-espace-12, 12px);
+  /*  LE RÉSERVOIR DE DROITE DE `06` S'EN VA ICI, et c'est la seule
+      ligne de cette règle qui ait coûté quelque chose. `06-ecrire.css`
+      pose `padding: 0 108px 0 0` sur `.submit-buttons` pour réserver
+      la place du coin d'outils — 92 px plus 16 de marge — du temps où
+      les boutons étaient poussés contre le bord droit et passaient
+      dessous.
+
+      CENTRÉS, ILS N'Y VONT PLUS : ils se tiennent au milieu, loin du
+      coin, et ces 108 px ne réservent plus rien — ils DÉCENTRENT, de
+      54 px exactement. Le harnais l'a mesuré : 545 à gauche, 653 à
+      droite, dans le balisage où le conteneur existe déjà.
+
+      Corrigé par le NUMÉRO de feuille (10 passe après 06) et pas en
+      empilant des sélecteurs, comme `19-pages-de-message.css` le fait
+      déjà pour la même règle. */
+  padding-inline: 0;
+}
+
+#modernbb .wm-envois > [type="hidden"] {
+  display: none;
+}
+
+/*  QUAND LA BOÎTE EST POSÉE DANS UN CONTENEUR QUI N'EST PAS À NOUS —
+    un `.submit-buttons` qui tient aussi autre chose —, c'est ce
+    conteneur qui commande : son `justify-content: flex-end` et ses
+    108 px poussaient la boîte entière contre le bord droit. Mesuré :
+    1070 à gauche, 127 à droite.
+
+    On lui rend un comportement de bloc ordinaire plutôt que de
+    surenchérir sur son flex : la boîte prend alors toute la largeur et
+    se centre elle-même. `.submit-buttons` garde sa mise en page
+    partout ailleurs — la règle ne la touche que là où nous sommes
+    dedans. */
+#modernbb .submit-buttons:has(> .wm-envois) {
+  display: block;
+  padding-inline: 0;
 }
 
 #modernbb .wm-barre__note {
