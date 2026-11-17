@@ -983,6 +983,12 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
       onglets: page?.querySelectorAll(".wm-onglet").length ?? 0,
       courant: page?.querySelector('[aria-current="page"]')?.textContent.trim() ?? null,
       carte: page?.querySelector(".wm-profil-page__carte") !== null,
+      //  « SON JEU » N'EST QUE SUR L'ONGLET PROFIL. Le module se pose
+      //  dès que `#profile-advanced-left` existe — donc sur les six —,
+      //  et la section partait avec : le palier, les pokédollars et
+      //  l'équipe se répétaient sous les groupes, les récompenses et
+      //  la feuille de personnage.
+      jeu: page?.querySelector(".wm-profil-page__jeu") !== null,
       //  Rien ne doit rester en dehors du panneau : un bloc oublié
       //  retombe sur le fond de page, sans carte sous lui.
       horsPanneau: panneau === null
@@ -1009,6 +1015,11 @@ for (let i = 1; i < ADRESSES.length; i += 1) {
   ok(`${nom} : les six onglets suivent`, etat.onglets === 6, etat.onglets);
   ok(`${nom} : l'onglet courant est celui-ci`, etat.courant === nom, etat.courant);
   ok(`${nom} : la carte d'identité reste en tête`, etat.carte === true, etat.carte);
+  ok(
+    `${nom} : PAS DE « SON JEU » ICI — il n'appartient qu'à l'onglet Profil`,
+    etat.jeu === false,
+    { nom, jeu: etat.jeu },
+  );
   ok(
     `${nom} : rien ne reste hors du panneau`,
     etat.horsPanneau?.length === 0,

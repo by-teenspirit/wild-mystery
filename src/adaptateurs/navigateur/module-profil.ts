@@ -152,6 +152,17 @@ function bouton(doc: Document, adresse: string, mot: string, calme = false): HTM
  * Remet en ordre la page de profil. Rend `false` si la page n'en est
  * pas une, ou si le balisage attendu n'est pas là.
  */
+/** Vrai si l'onglet ouvert est celui du profil — ou s'il n'y a pas
+ *  d'onglets du tout.
+ *
+ *  LE MOT EST COMPARÉ SANS ACCENTS NI CASSE : Forumactif écrit le
+ *  libellé dans la langue du forum, et un « Profil » qui arriverait
+ *  en capitales ferait disparaître la section sans rien dire. */
+export function estLOngletDuProfil(mot: string | null): boolean {
+  if (mot === null) return true;
+  return mot.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === "profil";
+}
+
 export function poserLeProfil(doc: Document): boolean {
   const gauche = doc.querySelector("#profile-advanced-left");
   const droite = doc.querySelector("#profile-advanced-right");
@@ -300,6 +311,10 @@ export function poserLeProfil(doc: Document): boolean {
   //  lecteur d'écran. Ici il devient un lien vers sa propre page,
   //  marqué `aria-current`.
   const onglets = Array.from(gauche.querySelectorAll("#tabs li"));
+  //  L'ONGLET OUVERT, PAR SON MOT ET PAS PAR SON LIEN. Les `href` des
+  //  onglets portent un jeton de session (`tid=…`) : on ne les lit pas
+  //  pour décider de quoi que ce soit.
+  let ongletOuvert: string | null = onglets.length === 0 ? null : "";
   if (onglets.length > 0) {
     const barre = doc.createElement("nav");
     barre.setAttribute("aria-label", "Les pages de ce profil");
@@ -321,7 +336,10 @@ export function poserLeProfil(doc: Document): boolean {
       mot.className = "wm-onglet__mot";
       mot.textContent = a.textContent?.trim() ?? "";
       lien.appendChild(mot);
-      if (courant) lien.setAttribute("aria-current", "page");
+      if (courant) {
+        lien.setAttribute("aria-current", "page");
+        ongletOuvert = mot.textContent;
+      }
       const item = doc.createElement("li");
       item.appendChild(lien);
       ul.appendChild(item);
@@ -407,7 +425,18 @@ export function poserLeProfil(doc: Document): boolean {
   //  expérience, équipe et argent se lisent dans Supabase par
   //  identifiant de membre. Le jour où ce module existe, il remplit
   //  cette section au lieu d'avoir à refaire la mise en page.
-  if (identifiant !== null) {
+  //  ── ET SEULEMENT SUR L'ONGLET « PROFIL » ───────────────────────
+  //
+  //  « Ici, j'ai "son jeu" qui s'affiche — affiche-le seulement dans
+  //  "profil" », 17 novembre, sur `/u4rpg`. Ce module se pose dès que
+  //  `#profile-advanced-left` existe, c'est-à-dire sur LES SIX
+  //  onglets ; la section partait donc avec, et répétait le palier,
+  //  les pokédollars et l'équipe sous les groupes, les récompenses et
+  //  la feuille de personnage.
+  //
+  //  SANS ONGLETS, ON LA POSE QUAND MÊME : une page de profil qui n'en
+  //  porte pas est une page unique, et c'est celle du profil.
+  if (identifiant !== null && estLOngletDuProfil(ongletOuvert)) {
     const jeu = doc.createElement("section");
     jeu.className = "wm-profil-page__jeu";
     jeu.dataset.wmMembre = String(identifiant);

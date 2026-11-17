@@ -389,6 +389,10 @@
     a.textContent = mot;
     return a;
   }
+  function estLOngletDuProfil(mot) {
+    if (mot === null) return true;
+    return mot.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === "profil";
+  }
   function poserLeProfil(doc) {
     const gauche = doc.querySelector("#profile-advanced-left");
     const droite = doc.querySelector("#profile-advanced-right");
@@ -474,6 +478,7 @@
     const principal = doc.createElement("div");
     principal.className = "wm-profil-page__principal";
     const onglets = Array.from(gauche.querySelectorAll("#tabs li"));
+    let ongletOuvert = onglets.length === 0 ? null : "";
     if (onglets.length > 0) {
       const barre = doc.createElement("nav");
       barre.setAttribute("aria-label", "Les pages de ce profil");
@@ -491,7 +496,10 @@
         mot.className = "wm-onglet__mot";
         mot.textContent = a.textContent?.trim() ?? "";
         lien.appendChild(mot);
-        if (courant) lien.setAttribute("aria-current", "page");
+        if (courant) {
+          lien.setAttribute("aria-current", "page");
+          ongletOuvert = mot.textContent;
+        }
         const item = doc.createElement("li");
         item.appendChild(lien);
         ul.appendChild(item);
@@ -530,7 +538,7 @@
     }
     principal.appendChild(panneau);
     page.appendChild(principal);
-    if (identifiant !== null) {
+    if (identifiant !== null && estLOngletDuProfil(ongletOuvert)) {
       const jeu = doc.createElement("section");
       jeu.className = "wm-profil-page__jeu";
       jeu.dataset.wmMembre = String(identifiant);
@@ -645,13 +653,24 @@
     niveau.className = "wm-tcard__niveau";
     niveau.textContent = p.enPension ? `niv. ${p.niveau} \xB7 en pension` : `niv. ${p.niveau}`;
     li.append(nom, niveau);
+    if (p.obscur) {
+      const marque = doc.createElement("p");
+      marque.className = "wm-tcard__obscur";
+      marque.textContent = "Obscur";
+      li.append(marque);
+    }
     const sesTypes = types.get(p.especeId) ?? [];
-    for (const t of sesTypes.slice(0, 2)) {
-      const pastille = doc.createElement("span");
-      pastille.className = `wm-type wm-type--${t}`;
-      pastille.setAttribute("data-wm-type", t);
-      pastille.textContent = t.charAt(0).toUpperCase() + t.slice(1);
-      li.append(pastille);
+    if (sesTypes.length > 0) {
+      const bloc = doc.createElement("p");
+      bloc.className = "wm-tcard__types";
+      for (const t of sesTypes.slice(0, 2)) {
+        const pastille = doc.createElement("span");
+        pastille.className = `wm-type wm-type--${t}`;
+        pastille.setAttribute("data-wm-type", t);
+        pastille.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+        bloc.append(pastille);
+      }
+      li.append(bloc);
     }
     return li;
   }
