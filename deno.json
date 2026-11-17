@@ -36,6 +36,7 @@
     "carte": "deno run -A outils/carte.mjs",
     "enligne": "deno run -A outils/enligne.mjs",
     "categories": "deno run -A outils/categories.mjs",
+    "formulaires": "deno run -A outils/formulaires.mjs",
     "messenger": "deno run -A outils/messenger.mjs",
     "barre": "deno run -A outils/barre.mjs",
     "boutique": "deno run -A outils/boutique.mjs",

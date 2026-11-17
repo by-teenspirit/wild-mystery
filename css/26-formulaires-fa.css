@@ -359,6 +359,49 @@
   display: none;
 }
 
+/*  ── UNE LIGNE À PLUSIEURS MENUS EST UNE LIGNE, PAS TROIS ─────────
+
+    « Quand j'édite mon profil : tu peux améliorer le choix de la date
+    de naissance ? Au moins mettre les champs côte à côte et pas aussi
+    longs », 17 novembre.
+
+    LA CAUSE EST UNE RÈGLE DE CETTE FEUILLE, et pas un reste de
+    ModernBB : `dd select { width: 100% !important }`, écrite plus
+    haut contre les `style="width:250px"` en ligne de Forumactif. Elle
+    a raison pour un champ ; sur une ligne qui en porte trois — jour,
+    mois, année — elle en fait trois barres pleine largeur, empilées.
+    Un correctif juste devient un défaut dès qu'il rencontre le cas
+    qu'il n'avait pas vu.
+
+    LA RÈGLE EST ÉCRITE SUR LA FORME, pas sur la date : « un champ qui
+    porte plusieurs menus les met en rang ». La date de naissance est
+    ce qui l'a fait voir ; elle n'est nommée nulle part, et toute autre
+    ligne de la même forme en profite.
+
+    `select ~ select` ATTRAPE AUSSI LA VERSION AVEC DES `<br>` : le
+    combinateur est « frère quelconque », pas « frère immédiat », et
+    les sauts du gabarit sont déjà retirés juste au-dessus. Si le
+    relevé montrait un jour des menus enveloppés chacun dans leur
+    balise, ce sélecteur ne les verrait pas — il faudrait alors
+    compter, donc passer par le script, et ce n'est pas la peine tant
+    que la forme reste celle-ci. */
+#modernbb :is(.ucp-main, form[name="searchform"]) dd:has(select ~ select) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+#modernbb :is(.ucp-main, form[name="searchform"]) dd:has(select ~ select) select {
+  flex: 1 1 5.5rem;
+  min-width: 0;
+  /*  CONTRE LE `100% !important` D'AU-DESSUS, et contre le
+      `style="width:250px"` en ligne : à spécificité égale c'est la
+      règle la plus tardive qui gagne, et `!important` répond à
+      `!important`. */
+  width: auto !important;
+}
+
 /*  LE SÉPARATEUR DU GABARIT est un `<div>` vide qui ne porte qu'une
     image de fond. Un filet le remplace. */
 #modernbb :is(.ucp-main, form[name="searchform"]) .separator {
