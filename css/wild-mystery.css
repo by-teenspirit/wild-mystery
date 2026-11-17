@@ -2026,10 +2026,41 @@ html:has(body.wm-sombre) {
   max-height: 36px;
   overflow-x: hidden;
   overflow-y: auto;
-  /*  Firefox n'a pas de `::-webkit-scrollbar` : il lit ces deux-là, et
-      il faut donc que le curseur y soit de la même couleur. */
-  scrollbar-color: var(--wm-texte-doux, #6e5749) var(--wm-fond-douce, #f3e1d2);
-  scrollbar-width: thin;
+}
+
+/*  ── LES DEUX FAÇONS DE PEINDRE UNE BARRE S'ANNULENT ──────────────
+
+    « La scrollbar doit être tout le temps visible, pas seulement au
+    survol », 17 novembre — après la mise en ligne du correctif, donc
+    sur le vrai forum, avec les règles `::-webkit-scrollbar` servies.
+
+    LA CAUSE : elles ÉTAIENT là et elles ne s'appliquaient pas. Depuis
+    Chrome 121, un élément qui déclare `scrollbar-width` ou
+    `scrollbar-color` — les propriétés standard — voit TOUTES ses
+    règles `::-webkit-scrollbar` ignorées. Les deux syntaxes ne se
+    complètent pas, la standard gagne et l'autre disparaît. Et la
+    standard, sous macOS, laisse la barre FLOTTANTE : elle s'efface
+    dès qu'on arrête de défiler.
+
+    J'avais écrit les deux sur le même sélecteur en croyant couvrir
+    deux moteurs. J'en couvrais zéro : Chrome lisait la standard et
+    jetait la mienne, et le forum est resté exactement comme avant,
+    avec vingt lignes de CSS de plus et un commentaire qui expliquait
+    pourquoi c'était réglé.
+
+    LA SÉPARATION EST DONC OBLIGATOIRE, pas élégante : les propriétés
+    standard ne vont QU'À Firefox, qui n'a pas `::-webkit-scrollbar`
+    et que `@supports not selector(…)` désigne sans le nommer. Chrome
+    et Safari ne les voient jamais, gardent les règles ci-dessous, et
+    une barre `::-webkit-scrollbar` n'est jamais flottante.
+
+    `outils/categories.mjs` refuse désormais qu'un même sélecteur
+    porte les deux hors de cette garde. C'est la règle, pas le cas. */
+@supports not selector(::-webkit-scrollbar) {
+  #modernbb ul.topiclist li.row .wm-forum__description {
+    scrollbar-color: var(--wm-texte-doux, #6e5749) var(--wm-fond-douce, #f3e1d2);
+    scrollbar-width: thin;
+  }
 }
 
 /*  ── LA BARRE EST TOUJOURS LÀ, ET ELLE PREND SA PLACE ─────────────
@@ -13886,7 +13917,19 @@ body:has(#modernbb .wm-carnet) {
   padding: 12px 14px;
 }
 
+/*  LA CLÔTURE A SA PROPRE RANGÉE, collée sous l'autre : « Clôturer doit
+    apparaître de manière un peu secondaire ». Elle est dans le même
+    groupe de choix — les quatre s'excluent —, mais pas dans le même
+    alignement, et c'est ce décrochage qui dit « pas comme les trois
+    autres ». */
+#modernbb .wm-barre__rangee--fin {
+  padding-top: 0;
+}
+
 #modernbb .wm-barre__bouton {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
   flex: 1 1 180px;
   min-height: 44px;
   margin: 0;
@@ -13894,31 +13937,70 @@ body:has(#modernbb .wm-carnet) {
   border: 1.5px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-corps, #4e3b30);
   cursor: pointer;
+  text-align: left;
 
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.3;
 }
 
-#modernbb .wm-barre__bouton--pleine {
+/*  ── LA PASTILLE, ET POURQUOI LA COULEUR NE SUFFIT PAS ────────────
+
+    « Les boutons, on doit bien faire la différence qu'on l'a
+    sélectionné ou non. Aujourd'hui, c'est pas le cas », 17 novembre.
+    L'état posé ajoutait une couleur de bord et une ombre intérieure
+    d'un pixel — sur un bouton qui avait déjà un bord. Deux états
+    séparés par un pixel ne sont pas deux états.
+
+    Le bouton choisi est maintenant REMPLI, et il porte une pastille
+    pleine là où le bouton libre en porte une vide. Le remplissage se
+    voit de loin ; la pastille se voit sans la couleur, et c'est elle
+    qui tient quand on distingue mal le bleu du beige.
+
+    `outils/barre.mjs` mesure l'écart entre les deux fonds et exige au
+    moins 3 — c'est la mesure de sa phrase, pas une décoration. */
+#modernbb .wm-barre__bouton::before {
+  content: "";
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  padding: 3px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  background-clip: content-box;
+}
+
+/*  Clôturer ne fait pas la même chose que les autres : il termine. Il
+    ne s'étire pas sur la rangée, et son bord pointillé le sort de la
+    file sans le cacher. */
+#modernbb .wm-barre__bouton--secondaire {
+  flex: 0 0 auto;
+  border-style: dashed;
+  color: var(--wm-texte-doux, #6e5749);
+  font-weight: 600;
+}
+
+#modernbb .wm-barre__bouton--choisi {
   border-color: transparent;
   background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
+  font-weight: 700;
 }
 
-/* Clôturer ne fait pas la même chose que les autres : il termine. */
-#modernbb .wm-barre__bouton--terre {
-  color: var(--wm-accent-terre, #8b4725);
+#modernbb .wm-barre__bouton--choisi::before {
+  background: currentColor;
+  background-clip: content-box;
 }
 
-/* Posé : le bloc est dans le message. Un second clic l'enlève — d'où un
-   état qui se voit, et pas seulement un bouton qu'on a cliqué. */
-#modernbb .wm-barre__bouton--pose {
-  border-color: var(--wm-accent-primaire, #275e7a);
-  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #275e7a);
+#modernbb .wm-barre__bouton--secondaire.wm-barre__bouton--choisi {
+  border-color: transparent;
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 #modernbb .wm-barre__bouton:focus-visible {

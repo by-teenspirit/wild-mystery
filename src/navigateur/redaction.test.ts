@@ -2,11 +2,13 @@ import { assertEquals } from "@std/assert";
 import {
   actionDuBrouillon,
   avecAction,
+  avecLaCloture,
   basculer,
   basculerLaCloture,
   clotureDemandee,
   MOT_DE_CLOTURE,
   sansAction,
+  sansLaCloture,
 } from "./redaction.ts";
 import { demandeLaCloture } from "../adaptateurs/forumactif/demandes.ts";
 import { actionDe } from "../domaine/action.ts";
@@ -137,9 +139,46 @@ Deno.test("CE QUE LE BOUTON POSE EST CE QUE LA RELÈVE LIT", () => {
 });
 
 Deno.test("une action et une clôture tiennent dans le même message", () => {
-  //  On peut fouiller une dernière fois et clôturer dans la foulée : la
-  //  clôture n'est pas une action, elle ne la remplace pas.
+  //  AU NIVEAU DU TEXTE, oui : la clôture n'est pas une action, elle ne
+  //  la remplace pas, et un message tapé à la main peut porter les deux.
+  //
+  //  LA BARRE, ELLE, NE L'OFFRE PLUS depuis le 17 novembre : ses quatre
+  //  choix s'excluent. C'est une règle d'INTERFACE, gardée par
+  //  `outils/barre.mjs` — pas une règle du texte, et il ne faut pas la
+  //  faire descendre ici : la relève doit continuer à lire correctement
+  //  un vieux message qui porte les deux.
   const texte = basculerLaCloture(avecAction("Un dernier tour.", FOUILLER));
   assertEquals(clotureDemandee(texte), true);
   assertEquals(actionDuBrouillon(texte)?.type, "fouiller");
+});
+
+Deno.test("poser et retirer le mot ne dépendent pas de ce qui est déjà là", () => {
+  //  LA BASCULE NE SUFFISAIT PLUS. Quatre choix qui s'excluent ont
+  //  besoin de « pose » et de « retire », pas de « inverse » : la barre
+  //  sait ce qu'elle veut obtenir, pas ce qu'il y avait avant.
+  assertEquals(avecLaCloture("Elle part."), "Elle part.\n\n[cloture]");
+  assertEquals(avecLaCloture("Elle part.\n\n[cloture]"), "Elle part.\n\n[cloture]");
+  assertEquals(sansLaCloture("Elle part.\n\n[cloture]"), "Elle part.");
+  assertEquals(sansLaCloture("Elle part."), "Elle part.");
+});
+
+Deno.test("poser deux fois ne pose qu'une fois, quelle que soit la forme tapée", () => {
+  for (const forme of ["[cloture]", "[clôture]", "[ Clôture ]", "[CLOTURE]"]) {
+    const texte = `Fin du RP.\n\n${forme}`;
+    assertEquals(avecLaCloture(texte), texte, forme);
+    assertEquals(sansLaCloture(avecLaCloture(texte)), "Fin du RP.", forme);
+  }
+});
+
+Deno.test("la bascule n'est que les deux autres mises bout à bout", () => {
+  //  Le mot exact et sa distance au texte sont écrits UNE fois. Le
+  //  module au-dessus du premier message bascule encore, et il ne peut
+  //  donc pas poser un mot différent de celui de la barre.
+  for (const texte of ["", "Un mot.", "Deux\nlignes.", "Fin.\n\n[CLOTURE]"]) {
+    assertEquals(
+      basculerLaCloture(texte),
+      clotureDemandee(texte) ? sansLaCloture(texte) : avecLaCloture(texte),
+      texte,
+    );
+  }
 });

@@ -3,191 +3,252 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/adaptateurs/navigateur/barre-d-actions.ts
 //
-//  COUVERT PAR : outils/barre.mjs — les trois états, l'écriture à l'envoi et le fait qu'aucun contrôle ne soit muet.
+//  COUVERT PAR : outils/barre.mjs — les quatre choix, la place dans le
+//  formulaire, l'écriture à l'envoi, l'écart visible entre choisi et pas
+//  choisi, et le fait qu'aucun contrôle ne soit muet.
 //  (Garde-fou n° 22 : un module d'interface sans test unitaire doit dire
 //   quel harnais le monte, et ce harnais doit tourner dans le CI.)
 //
-//  La barre sous l'éditeur de réponse. Dessinée dans Figma, page
-//  Composants, « Barre d'actions ».
+//  Le bloc d'actions de la réponse. Dessiné dans Figma, page Composants,
+//  « Barre d'actions ».
 //
 //  QUE DU DOM. Ce qu'un clic fait au texte est décidé dans
 //  `src/navigateur/redaction.ts`, où c'est testé sans navigateur.
 //
-//  TROIS CHOIX, ET TROIS BOUTONS : « Faire apparaître un Pokémon »,
-//  « Fouiller la zone » et « Clôturer le sujet ».
+//  ── QUATRE CHOIX QUI S'EXCLUENT, DEPUIS LE 17 NOVEMBRE ──────────────
 //
-//  ── LE CLIC N'ÉCRIT PLUS DANS LE MESSAGE ────────────────────────────
+//  Callista, sur `t996` : « j'aimerai que dans la réponse rapide on ait
+//  la possibilité de "ne rien faire, faire apparaître, fouiller ou
+//  cloturer". On doit bien voir que "ne rien faire" est sélectionné.
+//  Clôturer doit apparaître de manière un peu secondaire. Aussi, les
+//  boutons, on doit bien faire la différence qu'on l'a sélectionné ou
+//  non. Aujourd'hui, c'est pas le cas. En dessous, prévisualiser ou
+//  envoyer. »
+//
+//  Trois choses changent, et chacune se mesure :
+//
+//  1. « NE RIEN FAIRE » EST UN BOUTON. C'était déjà un état — celui de
+//     départ —, mais il n'avait pas de contrôle : on le reconnaissait à
+//     ce qu'aucun bouton n'était enfoncé. Un état qu'on lit à l'absence
+//     des autres ne se voit pas ; maintenant il est coché.
+//
+//  2. LES QUATRE S'EXCLUENT. La clôture était un bouton à part qui
+//     pouvait coexister avec une action — « une dernière fouille et on
+//     clôture ». Elle est demandée dans le même groupe, donc ce
+//     cumul-là n'est plus possible. **C'est une perte, et elle est
+//     volontaire** : c'est le « ou » de sa phrase. Si elle revient
+//     dessus, la clôture redevient une bascule à côté du groupe — tout
+//     ce qu'il faut pour ça est déjà écrit en deux fonctions dans
+//     `redaction.ts` (`avecLaCloture`, `sansLaCloture`).
+//
+//  3. LA BARRE SE POSE AVANT LA RANGÉE D'ENVOI, dans le formulaire, et
+//     plus après lui. « En dessous, prévisualiser ou envoyer. »
+//
+//  ── L'ÉCART ENTRE CHOISI ET PAS CHOISI ──────────────────────────────
+//
+//  « Aujourd'hui, c'est pas le cas » : l'état posé ajoutait une couleur
+//  de bord et une ombre intérieure d'un pixel sur un bouton qui avait
+//  déjà un bord. Deux états séparés par un pixel ne sont pas deux états.
+//  Le bouton choisi est maintenant **rempli**, et il porte une pastille
+//  pleine que le bouton libre porte vide — la couleur seule ne suffit
+//  pas à qui la distingue mal. `outils/barre.mjs` mesure l'écart entre
+//  les deux fonds et exige un rapport d'au moins 3.
+//
+//  ── LE CLIC N'ÉCRIT TOUJOURS RIEN DANS LE MESSAGE ───────────────────
 //
 //  Callista, le 15 octobre : « je n'aime pas le fait que ça ajoute une
 //  balise dans mon texte, je veux que ce soit automatique quand je
-//  clique. soit je fais rien, soit je fouille la zone, soit je fais
-//  apparaître un pokémon. »
-//
-//  Donc : TROIS ÉTATS, portés par la barre, et le bloc écrit au dernier
-//  moment — à l'envoi, dans le champ du formulaire. Le joueur ne voit
-//  jamais notre syntaxe ; il voit un bouton enfoncé et une phrase qui
-//  dit ce qui va partir.
-//
-//  CE QUE CE CHOIX COÛTE, et pourquoi il reste le bon : le bloc n'est
-//  plus relisible avant l'envoi. C'était l'argument d'en face — « le
-//  joueur lit ce qu'il demande avant d'envoyer ». Mais il le lisait sous
-//  la forme `[[WM-ACTION:chercher]]`, qui ne se lit pas ; la phrase sous
-//  les boutons le dit mieux, en français.
+//  clique. » Le bloc est donc écrit au dernier moment, à l'envoi, dans
+//  le champ du formulaire. Le joueur ne voit jamais notre syntaxe ; il
+//  voit un bouton coché et une phrase qui dit ce qui va partir.
 //
 //  ET LE BLOC EST ENCORE LU S'IL EST LÀ. Un message en cours d'édition
-//  peut en porter un — il en est parti comme ça pendant deux semaines.
-//  La barre s'ouvre donc sur l'état du texte, et à l'envoi elle réécrit
-//  un bloc unique et canonique (`avecAction` remplace, il n'empile pas).
+//  peut en porter un. La barre s'ouvre donc sur l'état du texte, et à
+//  l'envoi elle réécrit un bloc unique et canonique (`avecAction`
+//  remplace, il n'empile pas).
+//
+//  LA CLÔTURE, ELLE, RESTE VISIBLE DANS LE TEXTE : elle écrit
+//  `[cloture]`, le mot que les joueurs tapent déjà aujourd'hui. Ce n'est
+//  pas notre syntaxe, c'est la leur ; la cacher serait leur retirer
+//  quelque chose qu'ils savent lire et corriger. La barre suit donc le
+//  texte : effacer le mot à la main décoche le bouton.
 //
 //  ── LE MENU « OÙ » EST PARTI, LE 15 OCTOBRE ─────────────────────────
 //
 //  Il y avait une rangée de plus : une étiquette « Où », un menu des
-//  quinze lieux de la zone, et un bouton qui reprenait le lieu
-//  sélectionné. Callista, en montrant la barre sur `t996` : « on est
-//  déjà dans une zone sauvage, avec un palier (fleuve paisible etc.),
-//  donc y'a pas d'autres zones à rajouter. »
+//  quinze lieux de la zone. Callista : « on est déjà dans une zone
+//  sauvage, avec un palier, donc y'a pas d'autres zones à rajouter. »
 //
-//  ET C'ÉTAIT AUSSI UN PIÈGE. Changer de lieu dans le menu ne touchait
-//  pas au message — c'était écrit en commentaire comme une intention,
-//  « le joueur reste maître de ce qu'il écrit ». Mais un menu ressemble
-//  à l'action : elle a déroulé, choisi, et rien ne s'est passé. Un
-//  contrôle qui a l'air d'agir et qui n'agit pas est un défaut, quelle
-//  que soit la bonne raison derrière. **`outils/barre.mjs` monte la
-//  barre dans un navigateur et exige que CHAQUE contrôle qu'elle pose
-//  change quelque chose** : c'est la règle générale dont ce défaut
-//  était un cas, et elle ne dépend pas de se souvenir de celui-là.
+//  ET C'ÉTAIT AUSSI UN PIÈGE : changer de lieu dans le menu ne touchait
+//  pas au message. Un contrôle qui a l'air d'agir et qui n'agit pas est
+//  un défaut, quelle que soit la bonne raison derrière. **`outils/barre.mjs`
+//  exige que CHAQUE contrôle que la barre pose change quelque chose** :
+//  c'est la règle générale dont ce défaut était un cas.
 //
-//  Le lieu n'a pas disparu pour autant : les tables de rencontre vivent
-//  par lieu, et c'est le SERVEUR qui en tire un, avec la graine du
-//  message — voir `tirerUnLieu` dans `domaine/rencontre.ts`. Le joueur
-//  ne le choisit plus ; le bilan lui dira où ça s'est passé.
+//  Le lieu n'a pas disparu : les tables de rencontre vivent par lieu, et
+//  c'est le SERVEUR qui en tire un, avec la graine du message — voir
+//  `tirerUnLieu` dans `domaine/rencontre.ts`.
 //
 //  **La barre ne se pose que dans les dix-sept zones sauvages**, règle 4
-//  de la planche 45. Ailleurs, la relève ne lit rien : un bouton y
-//  écrirait un bloc que personne ne traiterait, et le joueur n'aurait
-//  aucun moyen de comprendre pourquoi rien ne se passe. C'est
+//  de la planche 45. Ailleurs, la relève ne lit rien. C'est
 //  `js/wild-mystery.ts` qui tranche, avant de construire quoi que ce
 //  soit.
-//
-//  « Clôturer le sujet » EST À PART, et reste visible dans le texte : il
-//  écrit `[cloture]`, le mot que les joueurs tapent déjà aujourd'hui.
-//  Ce n'est pas notre syntaxe, c'est la leur ; la cacher serait leur
-//  retirer quelque chose qu'ils savent lire et corriger. Et rien ne part
-//  tout seul : c'est toujours le joueur qui envoie.
 // ════════════════════════════════════════════════════════════════════
 
-import { avecAction, basculerLaCloture, clotureDemandee } from "../../navigateur/redaction.ts";
+import {
+  avecAction,
+  avecLaCloture,
+  clotureDemandee,
+  sansAction,
+  sansLaCloture,
+} from "../../navigateur/redaction.ts";
 import { type Action, actionDe } from "../../domaine/action.ts";
 import type { Brouillon } from "./editeur.ts";
 
-/** Les trois états de la barre. `null` est un état à part entière : « je
- *  ne fais rien », et c'est celui de départ. */
-type Etat = Action | null;
+/** Les quatre choix. `rien` en est un à part entière — c'est celui de
+ *  départ, et il a son bouton. */
+type Cle = "rien" | "chercher" | "fouiller" | "cloture";
 
 type Choix = {
+  readonly cle: Cle;
   readonly libelle: string;
-  readonly forme: "pleine" | "cerclee" | "terre";
-  /** Ce qui partira à l'envoi, dit en français, pour la phrase sous les
-   *  boutons. */
+  /** La phrase sous les boutons, en français, qui dit ce qui partira. */
   readonly annonce: string;
-  readonly action: Action;
+  /** « Clôturer doit apparaître de manière un peu secondaire » : il est
+   *  dans le même groupe, sur sa propre rangée, en plus calme. */
+  readonly secondaire?: true;
 };
 
 const CHOIX: readonly Choix[] = [
+  {
+    cle: "rien",
+    libelle: "Ne rien faire",
+    annonce: "Ton message part comme un message normal. Rien n'est envoyé sans toi.",
+  },
   {
     //  LES MOTS SONT CEUX DE CALLISTA : « soit je fais rien, soit je
     //  fouille la zone, soit je fais apparaître un pokémon ». Le libellé
     //  disait « Chercher », et elle a demandé ce que ça voulait dire —
     //  un bouton qu'il faut expliquer est mal nommé.
+    cle: "chercher",
     libelle: "Faire apparaître un Pokémon",
-    forme: "cerclee",
-    annonce: "tu fais apparaître un Pokémon",
-    action: { type: "chercher" },
+    annonce: "Quand tu enverras ce message, tu fais apparaître un Pokémon.",
   },
   {
+    cle: "fouiller",
     libelle: "Fouiller la zone",
-    forme: "pleine",
-    annonce: "tu fouilles la zone",
-    action: { type: "fouiller" },
+    annonce: "Quand tu enverras ce message, tu fouilles la zone.",
+  },
+  {
+    cle: "cloture",
+    libelle: "Clôturer le sujet",
+    annonce: "Quand tu enverras ce message, le sujet sera clôturé. " +
+      "Le mot « [cloture] » est écrit à la fin de ton texte : tu peux l'effacer à la main.",
+    secondaire: true,
   },
 ];
 
-const RIEN = "Si tu ne cliques sur rien, ton message part comme un message normal. " +
-  "Rien n'est envoyé sans toi.";
-
-const CLOTURE = "Clôturer le sujet";
+/** L'action que porte un choix, ou `null` pour les deux qui n'en
+ *  demandent aucune. */
+function actionDuChoix(cle: Cle): Action | null {
+  return cle === "chercher" || cle === "fouiller" ? { type: cle } : null;
+}
 
 export class BarreDActions {
   readonly #doc: Document;
   readonly #brouillon: Brouillon;
-  readonly #boutons = new Map<string, HTMLButtonElement>();
+  readonly #boutons = new Map<Cle, HTMLButtonElement>();
   #note: HTMLParagraphElement | null = null;
-  #etat: Etat = null;
+  #action: Action | null = null;
 
   constructor(doc: Document, brouillon: Brouillon) {
     this.#doc = doc;
     this.#brouillon = brouillon;
   }
 
-  /** L'état demandé, pour qui veut l'envoyer lui-même (l'essai, le
-   *  module de bilan plus tard). */
-  get etat(): Etat {
-    return this.#etat;
-  }
-
-  /** Reflète l'état sur les boutons et sur la phrase.
+  /** Le choix en cours, pour qui veut l'envoyer lui-même (l'essai, le
+   *  module de bilan plus tard).
    *
-   *  La clôture, elle, se lit dans le TEXTE : c'est le joueur qui l'écrit
-   *  ou l'efface, et la barre doit le suivre plutôt que de mentir. */
-  #rafraichir(): void {
-    for (const choix of CHOIX) {
-      const bouton = this.#boutons.get(choix.libelle);
-      if (!bouton) continue;
-      const pose = this.#etat?.type === choix.action.type;
-      bouton.classList.toggle("wm-barre__bouton--pose", pose);
-      bouton.setAttribute("aria-pressed", String(pose));
-    }
-
-    const cloture = this.#boutons.get(CLOTURE);
-    if (cloture) {
-      const pose = clotureDemandee(this.#brouillon.lire());
-      cloture.classList.toggle("wm-barre__bouton--pose", pose);
-      cloture.setAttribute("aria-pressed", String(pose));
-    }
-
-    if (this.#note === null) return;
-    const choisi = CHOIX.find((c) => c.action.type === this.#etat?.type);
-    this.#note.textContent = choisi === undefined
-      ? RIEN
-      : `Quand tu enverras ce message, ${choisi.annonce}. Reclique pour annuler.`;
+   *  LA CLÔTURE SE LIT DANS LE TEXTE, pas dans un champ à nous : le
+   *  joueur l'écrit et l'efface à la main, et le module au-dessus du
+   *  premier message la pose aussi. Deux mémoires se contrediraient ;
+   *  une seule, non. */
+  get choix(): Cle {
+    if (clotureDemandee(this.#brouillon.lire())) return "cloture";
+    return this.#action?.type ?? "rien";
   }
 
-  /** Ce qu'un clic sur un bouton d'action fait : il change l'état, et
-   *  RIEN D'AUTRE. Le même bouton deux fois revient à « je ne fais
-   *  rien » ; un autre bouton remplace, puisque les trois états
-   *  s'excluent. */
-  #choisir(action: Action): void {
-    this.#etat = this.#etat?.type === action.type ? null : action;
+  /** L'action demandée, s'il y en a une. */
+  get etat(): Action | null {
+    return this.choix === "cloture" ? null : this.#action;
+  }
+
+  /** Reflète le choix sur les boutons et sur la phrase. */
+  #rafraichir(): void {
+    const choisi = this.choix;
+    for (const choix of CHOIX) {
+      const bouton = this.#boutons.get(choix.cle);
+      if (bouton === undefined) continue;
+      const coche = choix.cle === choisi;
+      bouton.classList.toggle("wm-barre__bouton--choisi", coche);
+      bouton.setAttribute("aria-checked", String(coche));
+      //  TABINDEX TOURNANT : un groupe de radios est UNE étape de
+      //  tabulation, et les flèches s'y déplacent. Sans ça, quatre
+      //  boutons séparés — et la tabulation au clavier devient quatre
+      //  fois plus longue sur chaque réponse.
+      bouton.tabIndex = coche ? 0 : -1;
+    }
+    if (this.#note !== null) {
+      this.#note.textContent = CHOIX.find((c) => c.cle === choisi)?.annonce ?? "";
+    }
+  }
+
+  /** Ce qu'un clic produit. Les quatre s'excluent, donc poser l'un
+   *  défait l'autre — y compris la clôture, qui vit dans le texte. */
+  #poser(cle: Cle): void {
+    const texte = this.#brouillon.lire();
+    if (cle === "cloture") {
+      this.#action = null;
+      if (!clotureDemandee(texte)) this.#brouillon.ecrire(avecLaCloture(texte));
+    } else {
+      this.#action = actionDuChoix(cle);
+      if (clotureDemandee(texte)) this.#brouillon.ecrire(sansLaCloture(texte));
+    }
     this.#rafraichir();
   }
 
   /** Le bloc, écrit dans le champ du formulaire au dernier moment.
    *
    *  Appelé par l'écouteur d'envoi — et aussi par la prévisualisation,
-   *  qui passe par le même formulaire. Sans action demandée, on ne
-   *  touche à rien : un message de RP pur doit pouvoir partir sans que
-   *  nous l'ayons réécrit. */
+   *  qui passe par le même formulaire.
+   *
+   *  CE QUI EST AFFICHÉ EST CE QUI PART. Un texte repris peut porter un
+   *  vieux bloc d'action ET le mot de clôture ; la barre montre alors
+   *  « Clôturer », et c'est elle qui a raison — le bloc est retiré. */
   ecrireAvantEnvoi(): void {
-    if (this.#etat === null) return;
-    this.#brouillon.ecrire(avecAction(this.#brouillon.lire(), this.#etat));
+    const texte = this.#brouillon.lire();
+    if (this.choix === "cloture") {
+      //  ON REPOSE LE MOT APRÈS COUP, et ce n'est pas un détour :
+      //  retirer le bloc laisse les deux lignes vides qui
+      //  l'encadraient, et le joueur se retrouvait avec un trou de
+      //  quatre retours avant `[cloture]`. `sansLaCloture` rogne la fin,
+      //  `avecLaCloture` la repose à la bonne distance — les deux mêmes
+      //  fonctions que les clics, donc une seule règle d'espacement.
+      const propre = avecLaCloture(sansLaCloture(sansAction(texte)));
+      if (propre !== texte) this.#brouillon.ecrire(propre);
+      return;
+    }
+    if (this.#action === null) return;
+    this.#brouillon.ecrire(avecAction(texte, this.#action));
   }
 
-  /** Construit la barre et l'accroche après le formulaire de réponse. */
+  /** Construit la barre et l'accroche DANS le formulaire, juste
+   *  au-dessus des boutons d'envoi. */
   poser(apres: Element): HTMLElement {
     //  L'ÉTAT DE DÉPART VIENT DU TEXTE. Un brouillon repris, une
     //  modification, un retour de prévisualisation : le bloc peut déjà
     //  être là, et la barre doit s'ouvrir dessus.
-    this.#etat = actionDe(this.#brouillon.lire());
+    this.#action = actionDe(this.#brouillon.lire());
 
     const barre = this.#doc.createElement("div");
     barre.className = "wm-barre";
@@ -197,26 +258,30 @@ export class BarreDActions {
     entete.textContent = "Ton tour";
     barre.appendChild(entete);
 
+    const groupe = this.#doc.createElement("div");
+    groupe.className = "wm-barre__choix";
+    groupe.setAttribute("role", "radiogroup");
+    groupe.setAttribute("aria-label", "Ce que fait ce message");
+
     const rangee = this.#doc.createElement("div");
     rangee.className = "wm-barre__rangee";
+    const fin = this.#doc.createElement("div");
+    fin.className = "wm-barre__rangee wm-barre__rangee--fin";
     for (const choix of CHOIX) {
-      rangee.appendChild(
-        this.#bouton(choix.libelle, choix.forme, () => this.#choisir(choix.action)),
-      );
+      const bouton = this.#bouton(choix);
+      (choix.secondaire === true ? fin : rangee).appendChild(bouton);
     }
-    //  LA CLÔTURE ÉCRIT DANS LE TEXTE, elle : voir l'en-tête.
-    rangee.appendChild(this.#bouton(CLOTURE, "terre", () => {
-      this.#brouillon.ecrire(basculerLaCloture(this.#brouillon.lire()));
-      this.#rafraichir();
-    }));
-    barre.appendChild(rangee);
+    groupe.appendChild(rangee);
+    groupe.appendChild(fin);
+    barre.appendChild(groupe);
 
     const note = this.#doc.createElement("p");
     note.className = "wm-barre__note";
     this.#note = note;
     barre.appendChild(note);
 
-    apres.insertAdjacentElement("afterend", barre);
+    const formulaire = apres.closest("form") ?? apres;
+    placer(barre, formulaire);
 
     //  L'ENVOI, PAR DEUX CHEMINS, et ce n'est pas de la ceinture et des
     //  bretelles :
@@ -230,7 +295,6 @@ export class BarreDActions {
     //
     //  Écrire deux fois ne double rien : `avecAction` remplace le bloc
     //  présent au lieu de l'empiler.
-    const formulaire = apres.closest("form") ?? apres;
     formulaire.addEventListener("submit", () => this.ecrireAvantEnvoi(), { capture: true });
     for (const envoi of formulaire.querySelectorAll('[type="submit"]')) {
       envoi.addEventListener("click", () => this.ecrireAvantEnvoi(), { capture: true });
@@ -241,14 +305,71 @@ export class BarreDActions {
     return barre;
   }
 
-  #bouton(libelle: string, forme: string, fait: () => void): HTMLButtonElement {
+  #bouton(choix: Choix): HTMLButtonElement {
     const bouton = this.#doc.createElement("button");
     bouton.type = "button";
-    bouton.className = `wm-barre__bouton wm-barre__bouton--${forme}`;
-    bouton.textContent = libelle;
-    bouton.setAttribute("aria-pressed", "false");
-    bouton.addEventListener("click", fait);
-    this.#boutons.set(libelle, bouton);
+    bouton.className = "wm-barre__bouton" +
+      (choix.secondaire === true ? " wm-barre__bouton--secondaire" : "");
+    bouton.textContent = choix.libelle;
+    bouton.setAttribute("role", "radio");
+    bouton.setAttribute("aria-checked", "false");
+    bouton.tabIndex = -1;
+    bouton.addEventListener("click", () => this.#poser(choix.cle));
+    bouton.addEventListener("keydown", (e) => this.#auClavier(e as KeyboardEvent, choix.cle));
+    this.#boutons.set(choix.cle, bouton);
     return bouton;
   }
+
+  /** Les flèches déplacent le choix, comme dans n'importe quel groupe de
+   *  radios. Annoncer `role="radio"` sans ça serait mentir au clavier. */
+  #auClavier(e: KeyboardEvent, cle: Cle): void {
+    const pas = SUIVANT[e.key];
+    if (pas === undefined) return;
+    e.preventDefault();
+    const i = CHOIX.findIndex((c) => c.cle === cle);
+    const vise = pas === "debut"
+      ? 0
+      : pas === "fin"
+      ? CHOIX.length - 1
+      : (i + pas + CHOIX.length) % CHOIX.length;
+    this.#poser(CHOIX[vise].cle);
+    this.#boutons.get(CHOIX[vise].cle)?.focus();
+  }
+}
+
+const SUIVANT: Record<string, number | "debut" | "fin" | undefined> = {
+  ArrowRight: 1,
+  ArrowDown: 1,
+  ArrowLeft: -1,
+  ArrowUp: -1,
+  Home: "debut",
+  End: "fin",
+};
+
+/** Où la barre se glisse : DANS le formulaire, juste avant la rangée
+ *  d'envoi. « En dessous, prévisualiser ou envoyer. »
+ *
+ *  ON REMONTE DEPUIS LE BOUTON D'ENVOI, et pas depuis un sélecteur de
+ *  conteneur : la réponse rapide et la page de rédaction complète n'ont
+ *  pas le même balisage, et Forumactif sert la première toute faite
+ *  (`{QUICK_REPLY_FORM}`) — on ne la choisit pas.
+ *
+ *  LA GARDE QUI COMPTE : si en remontant on attrape un bloc qui contient
+ *  AUSSI le champ de texte, on s'arrête et on se colle au bouton. Sans
+ *  elle, la barre passerait au-dessus de l'éditeur sur tout formulaire
+ *  qui range les deux ensemble — et ce serait exactement le contraire de
+ *  ce qui est demandé. */
+function placer(barre: HTMLElement, formulaire: Element): void {
+  const envoi = formulaire.querySelector('[type="submit"]');
+  if (envoi === null) {
+    formulaire.appendChild(barre);
+    return;
+  }
+  const champ = formulaire.querySelector("textarea");
+  let noeud: Element = envoi;
+  while (noeud.parentElement !== null && noeud.parentElement !== formulaire) {
+    noeud = noeud.parentElement;
+  }
+  if (champ !== null && noeud.contains(champ)) noeud = envoi;
+  noeud.insertAdjacentElement("beforebegin", barre);
 }

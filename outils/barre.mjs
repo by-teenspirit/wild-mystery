@@ -188,42 +188,78 @@ const clic = (p, libelle) =>
 const envoyer = (p, nom = "post") =>
   p.evaluate((n) => document.querySelector(`input[name="${n}"]`).click(), nom);
 
+const RIEN = "Ne rien faire";
 const APPARAITRE = "Faire apparaître un Pokémon";
 const FOUILLER = "Fouiller la zone";
 const CLOTURER = "Clôturer le sujet";
 
-// ── 1 · la barre est là, et elle n'a que ce qu'il faut ──────────────
+/** Les quatre boutons, dans l'ordre du DOM, avec leur état coché. */
+const etats = (p) =>
+  p.evaluate(() =>
+    [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.getAttribute("aria-checked"))
+  );
+
+// ── 1 · la barre est là, où il faut, et elle n'a que ce qu'il faut ──
 console.log("\n── LA BARRE SE POSE DANS UNE ZONE ─────────────────────");
 let p = await monter();
 const pose = await p.evaluate(() => {
   const barre = document.querySelector(".wm-barre");
   if (barre === null) return null;
+  const formulaire = document.querySelector("#quick_reply");
+  const champ = document.querySelector("#text_editor_textarea");
+  const envois = [...formulaire.querySelectorAll('[type="submit"]')];
+  //  LA PLACE SE MESURE DANS L'ORDRE DU DOCUMENT, pas sur un voisin :
+  //  « en dessous, prévisualiser ou envoyer ». Le champ avant, les
+  //  boutons d'envoi après, et le tout DANS le formulaire.
+  const rang = (e) => [...formulaire.querySelectorAll("*")].indexOf(e);
   return {
     entete: barre.querySelector(".wm-barre__entete")?.textContent.trim(),
     boutons: [...barre.querySelectorAll("button")].map((b) => b.textContent.trim()),
     //  TOUT contrôle, pas seulement les boutons : c'est ce que le menu
     //  « Où » était.
     controles: barre.querySelectorAll("button, select, input, textarea, a").length,
-    apresLeFormulaire: barre.previousElementSibling?.id === "quick_reply",
+    dansLeFormulaire: formulaire.contains(barre),
+    apresLeChamp: rang(barre) > rang(champ),
+    avantLesEnvois: envois.every((e) => rang(barre) < rang(e)),
+    groupe: barre.querySelector(".wm-barre__choix")?.getAttribute("role"),
     note: barre.querySelector(".wm-barre__note")?.textContent.trim(),
   };
 });
 dire("elle existe", pose !== null);
 dire("son en-tête dit « Ton tour »", pose?.entete === "Ton tour", pose?.entete);
 dire(
-  "TROIS BOUTONS, dans les mots de Callista",
-  JSON.stringify(pose?.boutons) === JSON.stringify([APPARAITRE, FOUILLER, CLOTURER]),
+  "QUATRE BOUTONS, dans les mots de Callista et dans son ordre",
+  JSON.stringify(pose?.boutons) === JSON.stringify([RIEN, APPARAITRE, FOUILLER, CLOTURER]),
   JSON.stringify(pose?.boutons),
 );
 dire(
   "et AUCUN autre contrôle — plus de menu, plus d'étiquette",
-  pose?.controles === 3,
+  pose?.controles === 4,
   `${pose?.controles} contrôles`,
 );
-dire("elle se pose après le formulaire", pose?.apresLeFormulaire === true);
 dire(
-  "au départ, la phrase dit que rien ne partira",
-  pose?.note?.startsWith("Si tu ne cliques sur rien"),
+  "LE BLOC EST DANS LE FORMULAIRE, SOUS LE CHAMP ET AU-DESSUS DES ENVOIS",
+  pose?.dansLeFormulaire === true && pose?.apresLeChamp === true &&
+    pose?.avantLesEnvois === true,
+  JSON.stringify({
+    dedans: pose?.dansLeFormulaire,
+    apresLeChamp: pose?.apresLeChamp,
+    avantLesEnvois: pose?.avantLesEnvois,
+  }),
+);
+dire(
+  "les quatre choix s'annoncent comme un groupe de radios",
+  pose?.groupe === "radiogroup",
+  pose?.groupe,
+);
+dire(
+  "AU DÉPART, « NE RIEN FAIRE » EST COCHÉ, et ça se lit",
+  JSON.stringify(await etats(p)) === JSON.stringify(["true", "false", "false", "false"]),
+  JSON.stringify(await etats(p)),
+);
+dire(
+  "et la phrase dit que rien ne partira",
+  pose?.note?.startsWith("Ton message part comme un message normal"),
   pose?.note,
 );
 
@@ -234,16 +270,26 @@ dire(
 //  un, et exige qu'il se passe quelque chose de visible — dans le
 //  texte, ou dans l'état de la barre.
 console.log("\n── CHAQUE CONTRÔLE DE LA BARRE FAIT QUELQUE CHOSE ─────");
+//
+//  LES QUATRE S'EXCLUENT DEPUIS LE 17 NOVEMBRE, et ça change comment on
+//  les actionne : recliquer celui qui est déjà coché ne doit RIEN
+//  changer — c'est le propre d'un groupe de radios. On part donc d'un
+//  autre choix avant chaque essai, sinon le contrôle accuserait le
+//  bouton coché d'être muet alors qu'il fait ce qu'il doit.
 const muets = await p.evaluate(() => {
   const barre = document.querySelector(".wm-barre");
   const champ = document.querySelector("#text_editor_textarea");
+  const boutons = [...barre.querySelectorAll("button")];
   const empreinte = () =>
     champ.value + "|" +
-    [...barre.querySelectorAll("button")].map((b) => b.getAttribute("aria-pressed")).join(",") +
+    boutons.map((b) => b.getAttribute("aria-checked")).join(",") +
     "|" + barre.querySelector(".wm-barre__note").textContent;
 
   const sansEffet = [];
   for (const c of barre.querySelectorAll("button, select, input, a")) {
+    //  ON PART D'AILLEURS : le premier bouton qui n'est pas celui-ci.
+    const ailleurs = boutons.find((b) => b !== c);
+    if (ailleurs !== undefined) ailleurs.click();
     const avant = empreinte();
     if (c.tagName === "SELECT" && c.options.length > 1) {
       c.selectedIndex = c.selectedIndex === 0 ? 1 : 0;
@@ -252,9 +298,8 @@ const muets = await p.evaluate(() => {
       c.click();
     }
     if (empreinte() === avant) sansEffet.push(c.textContent.trim() || c.id || c.tagName);
-    //  On remet l'état comme avant : ces contrôles basculent.
-    if (c.tagName === "BUTTON") c.click();
   }
+  boutons[0].click();
   return sansEffet;
 });
 dire(
@@ -263,8 +308,8 @@ dire(
   muets.join(", "),
 );
 
-// ── 3 · les trois états, et la balise qui n'apparaît plus ───────────
-console.log("\n── TROIS ÉTATS, SANS BALISE DANS LE TEXTE ─────────────");
+// ── 3 · les quatre choix, et la balise qui n'apparaît plus ──────────
+console.log("\n── QUATRE CHOIX, SANS BALISE DANS LE TEXTE ────────────");
 await p.evaluate(() => {
   document.querySelector("#text_editor_textarea").value = "Elle avance prudemment.";
   document.querySelector("#text_editor_textarea").dispatchEvent(
@@ -278,47 +323,46 @@ dire(
   apresClic === "Elle avance prudemment.",
   JSON.stringify(apresClic),
 );
-const etat = await p.evaluate(() => ({
-  presse: [...document.querySelectorAll(".wm-barre__bouton")].map((b) =>
-    b.getAttribute("aria-pressed")
-  ),
-  note: document.querySelector(".wm-barre__note").textContent.trim(),
-}));
 dire(
-  "mais le bouton se voit enfoncé, et lui seul",
-  JSON.stringify(etat.presse) === JSON.stringify(["true", "false", "false"]),
-  JSON.stringify(etat.presse),
+  "mais le bouton se voit coché, et lui seul",
+  JSON.stringify(await etats(p)) === JSON.stringify(["false", "true", "false", "false"]),
+  JSON.stringify(await etats(p)),
 );
+const note = () => p.evaluate(() => document.querySelector(".wm-barre__note").textContent.trim());
 dire(
   "et la phrase dit ce qui va partir, en français",
-  etat.note ===
-    "Quand tu enverras ce message, tu fais apparaître un Pokémon. Reclique pour annuler.",
-  etat.note,
+  (await note()) === "Quand tu enverras ce message, tu fais apparaître un Pokémon.",
+  await note(),
 );
 
 await clic(p, FOUILLER);
-const deux = await p.evaluate(() =>
-  [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.getAttribute("aria-pressed"))
-);
 dire(
-  "LES DEUX S'EXCLUENT : fouiller remplace, il n'ajoute pas",
-  JSON.stringify(deux) === JSON.stringify(["false", "true", "false"]),
-  JSON.stringify(deux),
+  "ILS S'EXCLUENT : fouiller remplace, il n'ajoute pas",
+  JSON.stringify(await etats(p)) === JSON.stringify(["false", "false", "true", "false"]),
+  JSON.stringify(await etats(p)),
 );
 
+//  UN GROUPE DE RADIOS NE SE DÉCOCHE PAS : recliquer le choix en cours
+//  ne le défait pas, on repasse par « Ne rien faire ». C'était une
+//  bascule avant, et c'est exactement ce que la phrase « ne rien faire,
+//  faire apparaître, fouiller ou cloturer » a changé.
 await clic(p, FOUILLER);
-const zero = await p.evaluate(() => ({
-  presse: [...document.querySelectorAll(".wm-barre__bouton")].map((b) =>
-    b.getAttribute("aria-pressed")
-  ),
-  note: document.querySelector(".wm-barre__note").textContent.trim(),
-}));
 dire(
-  "LE MÊME BOUTON DEUX FOIS REVIENT À « JE NE FAIS RIEN »",
-  JSON.stringify(zero.presse) === JSON.stringify(["false", "false", "false"]),
-  JSON.stringify(zero.presse),
+  "recliquer le même choix ne le décoche pas",
+  JSON.stringify(await etats(p)) === JSON.stringify(["false", "false", "true", "false"]),
+  JSON.stringify(await etats(p)),
 );
-dire("et la phrase revient à son état de départ", zero.note.startsWith("Si tu ne cliques"));
+await clic(p, RIEN);
+dire(
+  "« NE RIEN FAIRE » EST UN CHOIX, PAS UNE ABSENCE",
+  JSON.stringify(await etats(p)) === JSON.stringify(["true", "false", "false", "false"]),
+  JSON.stringify(await etats(p)),
+);
+dire(
+  "et la phrase revient à son état de départ",
+  (await note()).startsWith("Ton message part comme un message normal"),
+  await note(),
+);
 
 // ── 4 · le bloc est écrit À L'ENVOI, et une seule fois ──────────────
 console.log("\n── LE BLOC PART AVEC LE MESSAGE, PAS AVANT ────────────");
@@ -383,16 +427,30 @@ dire(
 const retour = await monter({ quick: false, texte: versPreview });
 const rendue = await retour.evaluate(() => {
   const barre = document.querySelector(".wm-barre");
+  const formulaire = document.querySelector("form[name=post]");
+  const rang = (e) => [...formulaire.querySelectorAll("*")].indexOf(e);
   return barre === null ? null : {
-    presse: [...barre.querySelectorAll("button")].map((b) => b.getAttribute("aria-pressed")),
+    coche: [...barre.querySelectorAll("button")].map((b) => b.getAttribute("aria-checked")),
     note: barre.querySelector(".wm-barre__note").textContent.trim(),
+    //  LA MÊME PLACE QUE DANS LA RÉPONSE RAPIDE, et le balisage n'est
+    //  pas le même : le champ y est dans un `#message-box`. C'est la
+    //  règle « on remonte depuis le bouton d'envoi » qui est mesurée.
+    apresLeChamp: rang(barre) > rang(document.querySelector("#text_editor_textarea")),
+    avantLesEnvois: [...formulaire.querySelectorAll('[type="submit"]')].every((e) =>
+      rang(barre) < rang(e)
+    ),
   };
 });
 dire("LA BARRE EST LÀ SUR LA PAGE DE RÉPONSE COMPLÈTE", rendue !== null);
 dire(
-  "et elle s'ouvre sur l'état du texte : le bouton est déjà enfoncé",
-  JSON.stringify(rendue?.presse) === JSON.stringify(["true", "false", "false"]),
-  JSON.stringify(rendue?.presse),
+  "et elle s'ouvre sur l'état du texte : le bouton est déjà coché",
+  JSON.stringify(rendue?.coche) === JSON.stringify(["false", "true", "false", "false"]),
+  JSON.stringify(rendue?.coche),
+);
+dire(
+  "et elle y est AUSSI sous le champ et au-dessus des envois",
+  rendue?.apresLeChamp === true && rendue?.avantLesEnvois === true,
+  JSON.stringify({ apres: rendue?.apresLeChamp, avant: rendue?.avantLesEnvois }),
 );
 dire(
   "la phrase aussi",
@@ -401,8 +459,16 @@ dire(
 );
 await retour.close();
 
-// ── 6 · la clôture, qui reste visible, et qui cohabite ──────────────
-console.log("\n── LA CLÔTURE EST À PART ──────────────────────────────");
+// ── 6 · la clôture : visible dans le texte, et dans le groupe ───────
+//
+//  CE QUE CE BLOC MESURAIT AVANT, ET QUI N'EST PLUS VRAI : « une
+//  dernière fouille et une clôture tiennent dans le même message ».
+//  Les quatre choix s'excluent depuis que Callista les a énumérés avec
+//  un « ou » ; le cumul n'est plus possible, et c'est une perte
+//  assumée. Le contrôle est retourné : il exige maintenant que poser
+//  l'un défasse l'autre, dans LES DEUX SENS. S'il faut revenir en
+//  arrière, c'est lui qui rougira en premier.
+console.log("\n── LA CLÔTURE EST DANS LE GROUPE ──────────────────────");
 p = await monter();
 await p.evaluate(() => {
   const c = document.querySelector("#text_editor_textarea");
@@ -415,29 +481,91 @@ dire(
   (await lire(p)) === "Elle s'en va.\n\n[cloture]",
   JSON.stringify(await lire(p)),
 );
-await clic(p, FOUILLER);
-await envoyer(p);
-const ensemble = await lire(p);
 dire(
-  "UNE DERNIÈRE FOUILLE ET UNE CLÔTURE TIENNENT DANS LE MÊME MESSAGE",
-  ensemble.includes("[cloture]") && ensemble.includes("[[WM-ACTION:fouiller]]"),
-  JSON.stringify(ensemble),
+  "et c'est elle qui est cochée",
+  JSON.stringify(await etats(p)) === JSON.stringify(["false", "false", "false", "true"]),
+  JSON.stringify(await etats(p)),
 );
-await clic(p, CLOTURER);
+
+await clic(p, FOUILLER);
 dire(
-  "et un second clic retire le mot",
+  "CHOISIR UNE ACTION RETIRE LE MOT DE CLÔTURE",
   !(await lire(p)).includes("[cloture]"),
   JSON.stringify(await lire(p)),
 );
+await envoyer(p);
+const ensemble = await lire(p);
 dire(
-  "le bouton suit le texte quand le joueur efface le mot à la main",
+  "et ce qui part ne porte que l'action",
+  ensemble.includes("[[WM-ACTION:fouiller]]") && !ensemble.includes("[cloture]"),
+  JSON.stringify(ensemble),
+);
+
+await clic(p, CLOTURER);
+await envoyer(p);
+const close = await lire(p);
+//  L'ÉGALITÉ EXACTE, ET PAS DEUX `includes` : mon premier jet retirait
+//  le bloc et laissait les deux lignes vides qui l'encadraient — quatre
+//  retours avant `[cloture]`, dans le message du joueur. Les deux
+//  `includes` passaient au vert dessus.
+dire(
+  "DANS L'AUTRE SENS AUSSI : clôturer retire le bloc d'action à l'envoi, sans trou",
+  close === "Elle s'en va.\n\n[cloture]",
+  JSON.stringify(close),
+);
+
+await clic(p, RIEN);
+dire(
+  "« ne rien faire » retire le mot lui aussi",
+  !(await lire(p)).includes("[cloture]"),
+  JSON.stringify(await lire(p)),
+);
+
+dire(
+  "le bouton suit le texte quand le joueur écrit le mot à la main",
   await p.evaluate(() => {
     const c = document.querySelector("#text_editor_textarea");
     c.value = "Elle part. [cloture]";
     c.dispatchEvent(new Event("input", { bubbles: true }));
     const b = [...document.querySelectorAll(".wm-barre__bouton")].at(-1);
-    return b.getAttribute("aria-pressed") === "true";
+    return b.getAttribute("aria-checked") === "true";
   }),
+);
+dire(
+  "et il se décoche quand le joueur l'efface à la main",
+  await p.evaluate(() => {
+    const c = document.querySelector("#text_editor_textarea");
+    c.value = "Elle part.";
+    c.dispatchEvent(new Event("input", { bubbles: true }));
+    const b = [...document.querySelectorAll(".wm-barre__bouton")];
+    return b.at(-1).getAttribute("aria-checked") === "false" &&
+      b[0].getAttribute("aria-checked") === "true";
+  }),
+);
+
+// ── 6 bis · LES FLÈCHES DÉPLACENT LE CHOIX ─────────────────────────
+//
+//  On annonce `role="radio"` : un clavier a donc le droit d'attendre
+//  les flèches. Annoncer le rôle sans le comportement, c'est le mentir
+//  à qui s'y fie — et c'est la même faute que le menu « Où », à
+//  l'envers.
+console.log("\n── AU CLAVIER ─────────────────────────────────────────");
+await clic(p, RIEN);
+await p.evaluate(() => {
+  const b = [...document.querySelectorAll(".wm-barre__bouton")][0];
+  b.focus();
+  b.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+});
+dire(
+  "FLÈCHE DROITE : le choix passe au suivant",
+  JSON.stringify(await etats(p)) === JSON.stringify(["false", "true", "false", "false"]),
+  JSON.stringify(await etats(p)),
+);
+dire(
+  "et un seul des quatre est atteignable par tabulation",
+  await p.evaluate(() =>
+    [...document.querySelectorAll(".wm-barre__bouton")].filter((b) => b.tabIndex === 0).length
+  ) === 1,
 );
 
 // ── 7 · la barre ne se pose pas là où la relève ne lit rien ─────────
@@ -467,7 +595,10 @@ const vu = await p.evaluate(() => {
     const b = e.getBoundingClientRect();
     return { x: Math.round(b.left), d: Math.round(b.right), h: Math.round(b.height) };
   };
-  const boutons = [...barre.querySelectorAll("button")].map(r);
+  const boutons = [...barre.querySelectorAll("button")].map((e) => ({
+    ...r(e),
+    y: Math.round(e.getBoundingClientRect().top),
+  }));
   const voie = (t) => (t.match(/-?\d*\.?\d+/g) ?? []).map(Number);
   const lum = (c) => {
     const [r1, g, b] = voie(c).slice(0, 3).map((v) => {
@@ -497,14 +628,24 @@ const vu = await p.evaluate(() => {
   };
 });
 dire(
-  "LES TROIS BOUTONS FONT AU MOINS 44 DE HAUT — c'est la cible tactile",
+  "LES QUATRE BOUTONS FONT AU MOINS 44 DE HAUT — c'est la cible tactile",
   vu.boutons.every((b) => b.h >= 44),
   JSON.stringify(vu.boutons.map((b) => b.h)),
 );
 dire(
-  "ils sont sur UNE SEULE RANGÉE à 1440",
-  new Set(vu.boutons.map((b) => b.x)).size === 3,
-  JSON.stringify(vu.boutons.map((b) => b.x)),
+  "les trois premiers sont sur UNE SEULE RANGÉE à 1440",
+  new Set(vu.boutons.slice(0, 3).map((b) => b.x)).size === 3 &&
+    new Set(vu.boutons.slice(0, 3).map((b) => b.y)).size === 1,
+  JSON.stringify(vu.boutons.slice(0, 3).map((b) => [b.x, b.y])),
+);
+dire(
+  "ET CLÔTURER EST EN DESSOUS, sans s'étirer — « un peu secondaire »",
+  vu.boutons[3].y > vu.boutons[0].y &&
+    vu.boutons[3].d - vu.boutons[3].x < vu.boutons[0].d - vu.boutons[0].x,
+  JSON.stringify({
+    y: [vu.boutons[0].y, vu.boutons[3].y],
+    largeurs: [vu.boutons[0].d - vu.boutons[0].x, vu.boutons[3].d - vu.boutons[3].x],
+  }),
 );
 dire(
   "la barre tient dans la largeur du formulaire",
@@ -514,6 +655,54 @@ dire(
 for (const [quoi, r] of vu.contrastes) {
   dire(`${quoi} : ${r} contre son fond`, r >= 4.5, `${r}`);
 }
+
+//  ── L'ÉCART ENTRE COCHÉ ET PAS COCHÉ ─────────────────────────────
+//
+//  « Les boutons, on doit bien faire la différence qu'on l'a
+//  sélectionné ou non. Aujourd'hui, c'est pas le cas. » L'ancien état
+//  posé ajoutait une couleur de bord et une ombre intérieure d'un
+//  pixel sur un bouton déjà bordé : mesuré ici, les deux fonds
+//  donnaient 1,00 — le même. C'est exactement ce que ce contrôle
+//  refuse désormais, et c'est la mesure de sa phrase.
+//
+//  DEUX SIGNAUX, PAS UN : le fond, qu'on voit de loin, et la pastille,
+//  qu'on voit sans la couleur. Un bouton coché la remplit ; un bouton
+//  libre la laisse vide.
+const ecart = await p.evaluate(() => {
+  const b = [...document.querySelectorAll(".wm-barre__bouton")];
+  const lum = (c) => {
+    const [r1, g, bl] = (c.match(/-?\d*\.?\d+/g) ?? []).slice(0, 3).map((v) => {
+      const x = v / 255;
+      return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r1 + 0.7152 * g + 0.0722 * bl;
+  };
+  const rapport = (x, y) => {
+    const [hi, lo] = [lum(x), lum(y)].sort((m, n) => n - m);
+    return Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+  };
+  const fond = (e) => getComputedStyle(e).backgroundColor;
+  const pastille = (e) => getComputedStyle(e, "::before").backgroundColor;
+  const vide = (c) => /rgba\(0, 0, 0, 0\)|transparent/.test(c);
+  return {
+    //  b[0] est coché au départ, b[1] ne l'est pas.
+    fonds: rapport(fond(b[0]), fond(b[1])),
+    couleurs: [fond(b[0]), fond(b[1])],
+    pastilleCochee: pastille(b[0]),
+    pastilleLibre: pastille(b[1]),
+    pastillesDifferentes: !vide(pastille(b[0])) && vide(pastille(b[1])),
+  };
+});
+dire(
+  "LE BOUTON COCHÉ NE RESSEMBLE PAS AU BOUTON LIBRE — son fond les sépare",
+  ecart.fonds >= 3,
+  `${ecart.fonds} entre ${ecart.couleurs.join(" et ")}`,
+);
+dire(
+  "et la pastille le dit AUSSI sans la couleur : pleine contre vide",
+  ecart.pastillesDifferentes,
+  `cochée ${ecart.pastilleCochee} · libre ${ecart.pastilleLibre}`,
+);
 
 //  EN THÈME SOMBRE, les mêmes textes.
 //  LE THÈME SOMBRE EST UNE CLASSE SUR LE CORPS, `body.wm-sombre`.

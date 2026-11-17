@@ -174,7 +174,19 @@
   padding: 12px 14px;
 }
 
+/*  LA CLÔTURE A SA PROPRE RANGÉE, collée sous l'autre : « Clôturer doit
+    apparaître de manière un peu secondaire ». Elle est dans le même
+    groupe de choix — les quatre s'excluent —, mais pas dans le même
+    alignement, et c'est ce décrochage qui dit « pas comme les trois
+    autres ». */
+#modernbb .wm-barre__rangee--fin {
+  padding-top: 0;
+}
+
 #modernbb .wm-barre__bouton {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
   flex: 1 1 180px;
   min-height: 44px;
   margin: 0;
@@ -182,31 +194,70 @@
   border: 1.5px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-accent-fort, #1f5470);
+  color: var(--wm-texte-corps, #4e3b30);
   cursor: pointer;
+  text-align: left;
 
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
   font-size: var(--wm-taille-normal, 13.5px);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.3;
 }
 
-#modernbb .wm-barre__bouton--pleine {
+/*  ── LA PASTILLE, ET POURQUOI LA COULEUR NE SUFFIT PAS ────────────
+
+    « Les boutons, on doit bien faire la différence qu'on l'a
+    sélectionné ou non. Aujourd'hui, c'est pas le cas », 17 novembre.
+    L'état posé ajoutait une couleur de bord et une ombre intérieure
+    d'un pixel — sur un bouton qui avait déjà un bord. Deux états
+    séparés par un pixel ne sont pas deux états.
+
+    Le bouton choisi est maintenant REMPLI, et il porte une pastille
+    pleine là où le bouton libre en porte une vide. Le remplissage se
+    voit de loin ; la pastille se voit sans la couleur, et c'est elle
+    qui tient quand on distingue mal le bleu du beige.
+
+    `outils/barre.mjs` mesure l'écart entre les deux fonds et exige au
+    moins 3 — c'est la mesure de sa phrase, pas une décoration. */
+#modernbb .wm-barre__bouton::before {
+  content: "";
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  padding: 3px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  background-clip: content-box;
+}
+
+/*  Clôturer ne fait pas la même chose que les autres : il termine. Il
+    ne s'étire pas sur la rangée, et son bord pointillé le sort de la
+    file sans le cacher. */
+#modernbb .wm-barre__bouton--secondaire {
+  flex: 0 0 auto;
+  border-style: dashed;
+  color: var(--wm-texte-doux, #6e5749);
+  font-weight: 600;
+}
+
+#modernbb .wm-barre__bouton--choisi {
   border-color: transparent;
   background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
+  font-weight: 700;
 }
 
-/* Clôturer ne fait pas la même chose que les autres : il termine. */
-#modernbb .wm-barre__bouton--terre {
-  color: var(--wm-accent-terre, #8b4725);
+#modernbb .wm-barre__bouton--choisi::before {
+  background: currentColor;
+  background-clip: content-box;
 }
 
-/* Posé : le bloc est dans le message. Un second clic l'enlève — d'où un
-   état qui se voit, et pas seulement un bouton qu'on a cliqué. */
-#modernbb .wm-barre__bouton--pose {
-  border-color: var(--wm-accent-primaire, #275e7a);
-  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #275e7a);
+#modernbb .wm-barre__bouton--secondaire.wm-barre__bouton--choisi {
+  border-color: transparent;
+  background: var(--wm-accent-terre, #8b4725);
+  color: var(--wm-texte-inverse, #fffbf7);
 }
 
 #modernbb .wm-barre__bouton:focus-visible {

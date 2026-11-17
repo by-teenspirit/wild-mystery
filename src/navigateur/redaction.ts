@@ -97,17 +97,31 @@ export function clotureDemandee(texte: string): boolean {
   return EST_UNE_CLOTURE.test(texte);
 }
 
-/** Ce qu'un clic sur « Clôturer » produit : on pose le mot, ou on le
- *  retire s'il est déjà là.
+/** Le texte avec le mot de clôture, qu'il y fût déjà ou non.
  *
  *  Il va en fin de message, comme un bloc d'action : c'est là qu'on le
  *  cherche en relisant, et ça ne coupe pas une phrase. */
-export function basculerLaCloture(texte: string): string {
-  if (clotureDemandee(texte)) {
-    return texte.replace(EST_UNE_CLOTURE, "").replace(/\s+$/, "");
-  }
+export function avecLaCloture(texte: string): string {
+  if (clotureDemandee(texte)) return texte;
   const propre = texte.replace(/\s+$/, "");
   return propre === "" ? MOT_DE_CLOTURE : `${propre}\n\n${MOT_DE_CLOTURE}`;
+}
+
+/** Le texte sans le mot de clôture, qu'il y fût ou non. */
+export function sansLaCloture(texte: string): string {
+  return texte.replace(EST_UNE_CLOTURE, "").replace(/\s+$/, "");
+}
+
+/** Ce qu'un clic sur « Clôturer » produit, là où c'est encore une
+ *  BASCULE : le module au-dessus du premier message, règle 6 de la
+ *  planche 45.
+ *
+ *  LA BARRE, ELLE, NE BASCULE PLUS : depuis le 17 novembre ses quatre
+ *  choix s'excluent, donc elle pose et retire par les deux fonctions
+ *  ci-dessus. Ce qui reste commun — le mot exact, et où il va — est
+ *  écrit une seule fois, ici. */
+export function basculerLaCloture(texte: string): string {
+  return clotureDemandee(texte) ? sansLaCloture(texte) : avecLaCloture(texte);
 }
 
 // ── LE PANIER ────────────────────────────────────────────────────────
