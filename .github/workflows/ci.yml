@@ -341,6 +341,18 @@ jobs:
       - name: Le profil d'un membre
         run: deno task profil
 
+      #  Ajoutés le 17 novembre. Garde-fou n° 22 : un harnais que le CI
+      #  ne lance pas ne garde rien, et ces trois-là tournaient à la
+      #  main depuis qu'ils existent.
+      - name: Les formulaires de Forumactif
+        run: deno task formulaires
+
+      - name: La messagerie
+        run: deno task messagerie
+
+      - name: Le répertoire des personnages
+        run: deno task repertoire
+
       #  Ajoutés le 4 novembre, avec l'annexe de la carte et celle des
       #  célébrités. Le garde-fou n° 22 refuse un harnais que le CI ne
       #  lance pas : un harnais qu'on lance à la main ne garde rien.

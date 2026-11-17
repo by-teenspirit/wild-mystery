@@ -296,6 +296,45 @@ dire(
     m.champs.every((x, i) => i === 0 || x.x >= m.champs[i - 1].d),
   JSON.stringify({ dd: [m.dd.x, m.dd.d], champs: m.champs.map((x) => [x.x, x.d]) }),
 );
+//  L'ÉTIQUETTE EST AU-DESSUS DE SON CHAMP, et c'est tout l'intérêt de
+//  la grille : « Mois » était aussi près de la flèche du menu des
+//  jours que de son propre menu. On mesure donc l'APPARIEMENT, pas
+//  l'écart — un écart plus grand n'aurait rien apparié.
+//
+//  LES ÉTIQUETTES SONT DES NŒUDS DE TEXTE NUS : aucun sélecteur ne les
+//  atteint, on les mesure avec un `Range`.
+const etiquettes = await p.evaluate(() => {
+  const dd = document.querySelector("#date dd");
+  const champs = [...dd.querySelectorAll("select, input[type=text]")];
+  const mots = [...dd.childNodes].filter((n) =>
+    n.nodeType === 3 && n.textContent.trim() !== ""
+  );
+  return champs.map((c, i) => {
+    const m = mots[i];
+    if (m === undefined) return null;
+    const r = document.createRange();
+    r.selectNodeContents(m);
+    const a = r.getBoundingClientRect();
+    const b = c.getBoundingClientRect();
+    return {
+      mot: m.textContent.trim(),
+      dessus: Math.round(a.bottom) <= Math.round(b.top) + 1,
+      aligne: Math.abs(Math.round(a.left) - Math.round(b.left)) <= 2,
+      ecart: Math.round(b.top - a.bottom),
+    };
+  });
+});
+dire(
+  "CHAQUE ÉTIQUETTE EST AU-DESSUS DE SON CHAMP, et alignée dessus",
+  etiquettes.length === 3 && etiquettes.every((e) => e !== null && e.dessus && e.aligne),
+  JSON.stringify(etiquettes),
+);
+dire(
+  "et elle n'est pas collée dessus",
+  etiquettes.every((e) => e !== null && e.ecart >= 2 && e.ecart <= 12),
+  JSON.stringify(etiquettes.map((e) => e?.ecart)),
+);
+
 dire(
   "ils restent cliquables — au moins 30 px de haut",
   m.champs.every((x) => x.h >= 30),
