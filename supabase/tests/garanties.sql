@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(317);
+select plan(336);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2389,6 +2389,152 @@ select ok(
   'ET LE SEED EST PASSÉ : presque personne ne reste sur la valeur par défaut'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0046 · LE COMBAT DANS LE SUJET
+--
+--  Le joueur 9110 a été doté d'un Salamèche plus haut ; c'est lui qui
+--  se bat. On ne recrée pas de personnage : un test qui se fabrique
+--  son propre monde ne prouve rien sur celui des autres.
+-- ════════════════════════════════════════════════════════════════════
+
+select has_table('combat', 'LE COMBAT A SA TABLE');
+
+--  Ponyta (77) niveau 10, sur le sujet 996 — le sujet d'essai de
+--  Callista, et la rencontre qu'elle a vue le 17 novembre.
+select ok(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 996, 'messageId', 15601,
+      'joueurId', j.id, 'especeId', 77, 'niveau', 10))->>'ouvert')::boolean
+     from joueur j where j.forum_user_id = 9110),
+  'UNE RENCONTRE OUVRE UN COMBAT'
+);
+
+select is(
+  (select pv_sauvage from combat where message_id = 15601),
+  pv_au_niveau(50::smallint, 10::smallint)::smallint,
+  'et le sauvage arrive avec les PV de la formule, pas avec un chiffre posé à la main'
+);
+
+select ok(
+  (select pokemon_id is not null and pv_pokemon > 0 from combat where message_id = 15601),
+  'LE COMBATTANT EST LÀ : le premier de l''équipe, avec ses PV — personne n''entre les mains vides depuis la 0043'
+);
+
+--  ── LA RELECTURE NE SOIGNE PERSONNE ──────────────────────────────
+--
+--  La relève relit chaque fois qu'un incident l'empêche d'avancer le
+--  curseur. Si rouvrir remettait les PV au maximum, un joueur verrait
+--  son Ponyta ressusciter entre deux passages.
+update combat set pv_sauvage = 3 where message_id = 15601;
+
+select is(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 996, 'messageId', 15601,
+      'joueurId', j.id, 'especeId', 77, 'niveau', 10))->>'raison')
+     from joueur j where j.forum_user_id = 9110),
+  'DEJA_LU',
+  'RELIRE LE MESSAGE NE ROUVRE RIEN'
+);
+
+select is(
+  (select pv_sauvage from combat where message_id = 15601),
+  3::smallint,
+  'et surtout, ça ne le soigne pas'
+);
+
+--  ── UN SEUL COMBAT OUVERT PAR SUJET ──────────────────────────────
+select is(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 996, 'messageId', 15602,
+      'joueurId', j.id, 'especeId', 25, 'niveau', 8))->>'raison')
+     from joueur j where j.forum_user_id = 9110),
+  'COMBAT_EN_COURS',
+  'DEUX COMBATS DANS UN FIL : refusé, et sans lever — le joueur n''a rien fait de mal'
+);
+
+select is(
+  (select count(*)::int from combat where sujet_id = 996),
+  1,
+  'et rien n''a été écrit'
+);
+
+--  ── LA BARRE SAIT QUOI SERVIR ────────────────────────────────────
+select is(
+  (combat_du_sujet(996)->>'nom'),
+  'Ponyta',
+  'LA BARRE LIT LE COMBAT OUVERT DU SUJET — c''est ce qui lui fait changer ses boutons'
+);
+
+select ok(
+  combat_du_sujet(999996) is null,
+  'et un sujet sans combat ne rend rien'
+);
+
+--  ── LA FERMETURE, ET LA PREMIÈRE FIN QUI L'EMPORTE ───────────────
+select ok(
+  (select fermer_un_combat(c.id, 'capture') from combat c where c.message_id = 15601),
+  'ON FERME UN COMBAT'
+);
+
+select ok(
+  (select clos_le is not null from combat where message_id = 15601),
+  'et la fin est datée — la contrainte l''exige, parce qu''un état sans date se met à mentir'
+);
+
+select ok(
+  (select not fermer_un_combat(c.id, 'defaite') from combat c where c.message_id = 15601),
+  'LA PREMIÈRE FIN L''EMPORTE : refermer ne change ni la fin ni la date'
+);
+
+select is(
+  (select etat from combat where message_id = 15601),
+  'capture',
+  'le combat reste une capture'
+);
+
+select throws_ok(
+  $$ select fermer_un_combat(c.id, 'ouvert') from combat c where c.message_id = 15601 $$,
+  'P0001',
+  'ETAT_DE_FERMETURE_INVALIDE',
+  'et « fermer en ouvert » n''est pas une fin'
+);
+
+--  ── LE SUJET SE ROUVRE UNE FOIS LE COMBAT CLOS ───────────────────
+select ok(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 996, 'messageId', 15603,
+      'joueurId', j.id, 'especeId', 25, 'niveau', 8))->>'ouvert')::boolean
+     from joueur j where j.forum_user_id = 9110),
+  'LE COMBAT CLOS LIBÈRE LE SUJET : on peut refaire apparaître un Pokémon'
+);
+
+select throws_ok(
+  $$ select ouvrir_un_combat(jsonb_build_object(
+       'sujetId', 997, 'messageId', 15604,
+       'joueurId', '00000000-0000-0000-0000-000000000000'::uuid,
+       'especeId', 999999, 'niveau', 8)) $$,
+  'P0001',
+  'ESPECE_INCONNUE',
+  'UNE ESPÈCE QUI N''EXISTE PAS N''OUVRE RIEN'
+);
+
+select throws_ok(
+  $$ select ouvrir_un_combat(jsonb_build_object(
+       'sujetId', 998, 'messageId', 15605,
+       'joueurId', '00000000-0000-0000-0000-000000000000'::uuid,
+       'especeId', 25, 'niveau', 0)) $$,
+  'P0001',
+  'NIVEAU_HORS_BORNES',
+  'et un niveau zéro non plus'
+);
+
+select ok(
+  not has_table_privilege('anon', 'combat', 'insert')
+    and not has_table_privilege('anon', 'combat', 'update'),
+  'PERSONNE N''ÉCRIT UN COMBAT DEPUIS LE NAVIGATEUR : les PV sont le score'
+);
+
 select * from finish();
+
 
 rollback;
