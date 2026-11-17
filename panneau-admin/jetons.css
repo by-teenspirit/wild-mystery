@@ -232,6 +232,17 @@
   --wm-rayon-md:  8px;
   --wm-rayon-lg: 10px;
 
+  /*  LA LARGEUR DU FORUM, à un seul endroit.
+      « Cette partie-là doit être alignée, comme avant, niveau largeur
+      du forum comme le sujet en lui-même », 17 novembre. Mesuré sur
+      `/f36` à 1280 : la colonne commençait à 40 px, la légende du
+      bandeau à 92 — un chiffre pris sur la maquette et jamais rattaché
+      à rien. Le bandeau d'une zone est HORS de `#wrap` par
+      construction, donc il ne suit pas tout seul : il lui faut la même
+      valeur, et pas une copie. 1400 chez ModernBB, 1200 depuis le
+      30 octobre. */
+  --wm-largeur-forum:        1200px;
+
   --wm-avatar-largeur:        200px;
   --wm-avatar-hauteur:        320px;
   --wm-vignette-zone-largeur: 900px;

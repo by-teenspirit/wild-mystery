@@ -1397,8 +1397,13 @@ html:has(body.wm-sombre) {
       profil » : la demande portait sur la carte d'identité du profil,
       pas sur le forum entier. J'ai élargi ce qui se voyait de loin au
       lieu de demander lequel des deux — et pendant huit heures toutes
-      les pages du forum ont changé de largeur pour une page. */
-  max-width: 1200px;
+      les pages du forum ont changé de largeur pour une page.
+
+      ELLE EST DANS UN JETON DEPUIS LE 17 NOVEMBRE, parce qu'un second
+      endroit en avait besoin : le bandeau d'une zone, qui est hors de
+      `#wrap` et ne suit donc pas. « Une seule valeur à changer ici »
+      ne tient que si c'est vrai. */
+  max-width: var(--wm-largeur-forum, 1200px);
 }
 
 /* ── 14 · la page « Informations » ────────────────────────────────── */
@@ -3626,17 +3631,64 @@ html:has(body.wm-sombre) {
   background: linear-gradient(180deg, transparent 0%, var(--wm-fond-page, #eecfb5) 100%);
 }
 
-/*  La légende : collée en bas à gauche, à 92 px du bord comme dans la
-    maquette, et au-dessus du fondu. */
+/*  ── LA LÉGENDE S'ALIGNE SUR LA COLONNE DU FORUM ─────────────────
+
+    « Cette partie-là doit être alignée, comme avant, niveau largeur du
+    forum comme le sujet en lui-même. Pourquoi est-ce que ça a
+    changé ? », 17 novembre.
+
+    Ça n'a pas changé, et c'est pire : ça n'a jamais été aligné.
+    `left: 92px` est là depuis la création du bandeau — un chiffre pris
+    sur la maquette, jamais rattaché à la colonne. Mesuré sur `/f36` à
+    1280 : la colonne commence à 40 px, la légende à 92. Cinquante-deux
+    pixels d'écart, à toutes les largeurs sauf une.
+
+    LE BANDEAU EST HORS DE `#wrap`, et c'est voulu : il va d'un bord à
+    l'autre. Il ne peut donc pas hériter de la colonne, il doit la
+    REFAIRE — même largeur maximale, même centrage. D'où le jeton
+    partagé : un second `1200px` écrit ici se désynchroniserait au
+    prochain changement de largeur, exactement comme ce 92 l'a fait.
+
+    La gouttière de 32 px est celle qui reste sous 1200 : la colonne du
+    forum touche les bords à cette largeur-là, le texte sur une photo,
+    non. */
 #modernbb .wm-zone__legende {
   position: absolute;
   bottom: 86px;
-  left: 92px;
+  /*  ── LE BORD DE LA COLONNE, REFAIT ICI ──────────────────────────
+
+      `50%` est celui du BANDEAU — c'est lui le bloc conteneur —, donc
+      cette expression rend exactement le bord de la colonne du forum,
+      et la gouttière de 18 px en dessous de sa largeur maximale.
+
+      ELLE EST ÉCRITE DEUX FOIS, ici et sur la flèche de retour, et
+      c'est voulu : le garde-fou n° 15 refuse qu'une feuille DÉCLARE un
+      jeton — ils vivent dans le panneau d'administration — et celui-ci
+      ne pourrait pas y vivre, puisque son `50%` doit se résoudre chez
+      celui qui s'en sert. Ce qui est partagé est la LARGEUR, qui est
+      bien dans un jeton ; ce qui est recopié est la formule. Et le
+      harnais mesure que les deux tombent au même pixel. */
+  left: max(
+    var(--wm-espace-18, 18px),
+    calc(50% - var(--wm-largeur-forum, 1200px) / 2)
+  );
+  right: max(
+    var(--wm-espace-18, 18px),
+    calc(50% - var(--wm-largeur-forum, 1200px) / 2)
+  );
   display: flex;
   flex-direction: column;
+  /*  Le bloc fait la largeur de la colonne, le TEXTE reste à gauche. */
+  align-items: flex-start;
   gap: var(--wm-espace-8, 8px);
-  max-width: min(640px, calc(100% - 184px));
   color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  LA LAISSE PASSE SUR LE TEXTE, pas sur le bloc : le bloc doit faire
+    la colonne pour s'aligner dessus, et la phrase doit rester courte
+    pour se lire sur une photo. */
+#modernbb .wm-zone__legende > * {
+  max-width: min(640px, 100%);
 }
 
 /*  ── LE FIL D'ARIANE SUR LA PHOTO ────────────────────────────────
@@ -3730,10 +3782,10 @@ html:has(body.wm-sombre) {
     height: 220px;
   }
 
+  /*  La largeur et le centrage viennent de la règle de base : il ne
+      reste que la hauteur, le bandeau étant plus court ici. */
   #modernbb .wm-zone__legende {
     bottom: 64px;
-    left: var(--wm-espace-18, 18px);
-    max-width: calc(100% - var(--wm-espace-32, 32px));
   }
 
   #modernbb .wm-zone__titre {
@@ -4412,7 +4464,14 @@ html:has(body.wm-sombre) {
   position: absolute;
   z-index: 2;
   top: var(--wm-espace-24, 24px);
-  left: 92px;
+  /*  LE MÊME BORD QUE LA LÉGENDE, et c'est un harnais qui l'exige
+      depuis le 28 octobre : « la flèche de retour est dans le bandeau,
+      alignée au texte ». Les deux portaient 92 px ; elles portent
+      maintenant la même expression, et le harnais les compare. */
+  left: max(
+    var(--wm-espace-18, 18px),
+    calc(50% - var(--wm-largeur-forum, 1200px) / 2)
+  );
   display: flex;
   width: 34px;
   height: 34px;

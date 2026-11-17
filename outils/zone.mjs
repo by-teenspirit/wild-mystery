@@ -361,7 +361,15 @@ const BASE_MODERNBB = `
 *, ::before, ::after { box-sizing: border-box; }
 dl.icon { background-size: 33px 33px !important; }
 .topic-actions::after { content: ""; display: block; clear: both; }
-dfn { display: none; }`;
+dfn { display: none; }
+/*  LE #wrap EST CENTRÉ CHEZ MODERNBB, et c'est lui qui place la
+    colonne du forum. Mesuré sur /f36-steppes-arides le 17 novembre,
+    fenêtre à 1280 : le conteneur fait 1200 px et commence à 40 — donc
+    centré. Sa feuille n'est pas chargée ici, et sans cette ligne le
+    décor posait la colonne au bord : un contrôle d'alignement y
+    mesurait zéro, et le défaut qu'on vient de corriger y était
+    invisible. */
+#wrap { margin-left: auto; margin-right: auto; }`;
 
 const page = (corps, styleEnPlus = "") =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
@@ -373,7 +381,10 @@ const page = (corps, styleEnPlus = "") =>
 </head><body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
 ${BANNIERE}
-<div id="page-body">${corps}</div>
+<!--  LE BANDEAU EST HORS DU #wrap, et #page-body dedans : c'est
+      l'ordre du forum, et c'est toute la raison pour laquelle le
+      bandeau doit refaire la colonne au lieu d'en heriter.  -->
+<div id="wrap"><div id="page-body">${corps}</div></div>
 </div>
 </body></html>`;
 
@@ -580,16 +591,42 @@ if (bandeau !== null) {
 
 const lisible = await p1.evaluate(() => {
   const t = document.querySelector(".wm-zone__titre");
-  if (t === null) return { dans: false, gauche: -1 };
+  if (t === null) return { dans: false, gauche: -1, colonne: -1 };
   const r = t.getBoundingClientRect();
   const b = document.querySelector(".wm-zone").getBoundingClientRect();
-  return { dans: r.top >= b.top && r.bottom <= b.bottom, gauche: Math.round(r.left) };
+  //  LA COLONNE DU FORUM, SUR LA MÊME PAGE : c'est elle qui dit où le
+  //  texte doit commencer, et pas un chiffre écrit ici.
+  //
+  //  `#wrap` SEUL, et pas `#wrap, .wrap` : la bannière porte elle aussi
+  //  un `.wrap`, qui garde sa pleine largeur exprès (02-socle, § 11).
+  //  `querySelector` rend le premier dans l'ordre du document, donc
+  //  c'était celui-là — et il commence à 0.
+  const colonne = document.querySelector("#wrap");
+  return {
+    dans: r.top >= b.top && r.bottom <= b.bottom,
+    gauche: Math.round(r.left),
+    colonne: colonne === null ? -1 : Math.round(colonne.getBoundingClientRect().left),
+    fenetre: window.innerWidth,
+  };
 });
 dire("le titre tient dans le bandeau", lisible.dans, JSON.stringify(lisible));
+//  ── CE CONTRÔLE DISAIT 92, ET 92 ÉTAIT FAUX ───────────────────────
+//
+//  « Cette partie-là doit être alignée, niveau largeur du forum comme
+//  le sujet en lui-même. Pourquoi est-ce que ça a changé ? »,
+//  17 novembre. Ça n'avait jamais été aligné : 92 px venait de la
+//  maquette, et la colonne du forum commence à 40 sur une fenêtre de
+//  1280 — le forum est passé de 1400 à 1200 fin octobre, et le bandeau
+//  est hors de `#wrap`, donc il n'a pas suivi.
+//
+//  LE CONTRÔLE RECOPIAIT LE CODE : il vérifiait que le CSS portait bien
+//  le chiffre que le CSS portait. Il ne pouvait rien attraper, et il a
+//  tenu trois semaines sur un défaut visible. Il compare maintenant au
+//  bord de la colonne, sur la même page, à la même seconde.
 dire(
-  "il est à 92 px du bord, comme la maquette",
-  lisible.gauche === 92,
-  `${lisible.gauche} px`,
+  "LE TITRE COMMENCE OÙ COMMENCE LA COLONNE DU FORUM",
+  lisible.colonne > 0 && Math.abs(lisible.gauche - lisible.colonne) <= 1,
+  `titre à ${lisible.gauche}, colonne à ${lisible.colonne}, fenêtre ${lisible.fenetre}`,
 );
 
 // ════════════════════════════════════════════════════════════════════
@@ -1430,13 +1467,31 @@ await p9.close();
 //  encore quand les deux valeurs coïncident, parce que le décor
 //  ci-dessous injecte celle de ModernBB À UNE AUTRE VALEUR : si notre
 //  sélecteur perdait, la sonde sortirait à 980.
+//  ELLE EST DANS UN JETON DEPUIS LE 17 NOVEMBRE. `02-socle.css` écrit
+//  maintenant `max-width: var(--wm-largeur-forum, 1200px)`, parce que le
+//  bandeau d'une zone en a besoin lui aussi et qu'un second chiffre en
+//  dur les aurait désynchronisés. La valeur se lit donc à sa source.
 const NOTRE_LARGEUR = (() => {
-  const feuille = readFileSync(R + "css/02-socle.css", "utf8");
-  const bloc = feuille.slice(feuille.indexOf("#modernbb #wrap,"));
-  const trouve = /max-width:\s*(\d+)px/.exec(bloc);
-  if (trouve === null) throw new Error("largeur du forum introuvable dans 02-socle.css");
+  const jetons = readFileSync(R + "panneau-admin/jetons.css", "utf8");
+  const trouve = /--wm-largeur-forum:\s*(\d+)px/.exec(jetons);
+  if (trouve === null) throw new Error("--wm-largeur-forum introuvable dans jetons.css");
   return Number(trouve[1]);
 })();
+
+//  ET LA RÈGLE DU FORUM DOIT S'EN SERVIR, sinon le jeton ne sert à
+//  rien : c'est la seule chose qui garantit que la colonne et le
+//  bandeau parlent de la même largeur.
+{
+  const socle = readFileSync(R + "css/02-socle.css", "utf8");
+  const bloc = socle.slice(socle.indexOf("#modernbb #wrap,"), socle.indexOf("#modernbb #wrap,") + 1200);
+  const forum = readFileSync(R + "css/04-forum.css", "utf8");
+  dire(
+    "LA LARGEUR DU FORUM EST ÉCRITE UNE SEULE FOIS",
+    /max-width:\s*var\(--wm-largeur-forum/.test(bloc) &&
+      (forum.match(/var\(--wm-largeur-forum/g) ?? []).length >= 2,
+    `jeton à ${NOTRE_LARGEUR} px`,
+  );
+}
 
 const p10 = await monter({
   corps: `<div id="wrap"><div class="wm-sonde-largeur">du contenu</div></div>`,
