@@ -730,7 +730,10 @@ const barre = await p4.evaluate(() => {
   for (let n = b; n; n = n.parentElement) {
     const f = getComputedStyle(n).backgroundColor;
     const a = (f.match(/[\d.]+/g) || [])[3];
-    if (!/rgba\(0, 0, 0, 0\)/.test(f) && a !== "0") { fond = f; break; }
+    if (!/rgba\(0, 0, 0, 0\)/.test(f) && a !== "0") {
+      fond = f;
+      break;
+    }
   }
   return {
     deborde: b.scrollHeight > b.clientHeight + 1,
@@ -786,6 +789,111 @@ dire(
   JSON.stringify(court),
 );
 await p5.close();
+
+// ════════════════════════════════════════════════════════════════════
+//  LES DEUX SYNTAXES DE BARRE NE COHABITENT PAS SUR UN SÉLECTEUR
+//
+//  LE DÉFAUT QUE CE CONTRÔLE AURAIT ATTRAPÉ. Le 17 novembre, après
+//  mise en ligne : « la scrollbar doit être tout le temps visible, pas
+//  seulement au survol ». Les règles `::-webkit-scrollbar` étaient bien
+//  servies, et elles ne s'appliquaient pas : depuis Chrome 121, un
+//  élément qui déclare `scrollbar-width` ou `scrollbar-color` voit
+//  toutes ses règles `::-webkit-scrollbar` ignorées. J'avais écrit les
+//  deux sur le même sélecteur en croyant couvrir deux moteurs ; je n'en
+//  couvrais aucun, et le contrôle d'à côté — qui lit la largeur du rail
+//  par `getComputedStyle` — restait vert, parce que le style calculé
+//  d'un pseudo-élément ne sait rien de ce qui l'écrase.
+//
+//  CE QU'IL MESURE : la RÈGLE, pas ce cas. Aucun sélecteur d'aucune
+//  feuille ne porte les deux syntaxes, sauf si la standard est dans
+//  `@supports not selector(::-webkit-scrollbar)` — la garde qui ne la
+//  sert qu'à Firefox.
+//
+//  ET IL SE PROUVE LUI-MÊME : on lui donne d'abord un échantillon
+//  fautif, et il doit le refuser. Un détecteur qu'on n'a jamais vu
+//  rougir ne détecte rien.
+console.log("\n── LES DEUX SYNTAXES DE BARRE ────────────────────────");
+
+/** Les blocs d'une feuille, à plat : leur prélude, et s'ils sont sous
+ *  la garde `@supports not selector(::-webkit-scrollbar)`. */
+function blocs(css) {
+  const propre = css.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const out = [];
+  const pile = [];
+  let debut = 0;
+  for (let i = 0; i < propre.length; i++) {
+    if (propre[i] === "{") {
+      pile.push({ prelude: propre.slice(debut, i).trim(), corps: i + 1 });
+      debut = i + 1;
+    } else if (propre[i] === "}") {
+      const b = pile.pop();
+      if (b !== undefined) {
+        out.push({
+          prelude: b.prelude,
+          corps: propre.slice(b.corps, i),
+          garde: pile.some((p) =>
+            /@supports\s+not\s+selector\(\s*::-webkit-scrollbar/.test(p.prelude)
+          ),
+        });
+      }
+      debut = i + 1;
+    } else if (propre[i] === ";") debut = i + 1;
+  }
+  return out;
+}
+
+/** Les sélecteurs fautifs d'une feuille : ceux qui déclarent la syntaxe
+ *  standard hors garde ALORS QUE le même sélecteur de base est habillé
+ *  en `::-webkit-scrollbar` ailleurs. */
+function melanges(css) {
+  const tous = blocs(css);
+  const habilles = new Set(
+    tous.flatMap((b) =>
+      b.prelude.split(",").map((s) => s.trim())
+        .filter((s) => s.includes("::-webkit-scrollbar"))
+        .map((s) => s.slice(0, s.indexOf("::-webkit-scrollbar")).trim())
+    ),
+  );
+  const fautifs = [];
+  for (const b of tous) {
+    if (b.garde) continue;
+    if (!/(^|[;{\s])scrollbar-(width|color)\s*:/.test(b.corps)) continue;
+    for (const s of b.prelude.split(",").map((x) => x.trim())) {
+      if (habilles.has(s)) fautifs.push(s);
+    }
+  }
+  return fautifs;
+}
+
+const ECHANTILLON_FAUTIF = `
+.essai { overflow-y: auto; scrollbar-width: thin; }
+.essai::-webkit-scrollbar { width: 6px; }
+`;
+dire(
+  "LE DÉTECTEUR ATTRAPE LE CAS CONNU — sinon il ne garde rien",
+  melanges(ECHANTILLON_FAUTIF).length === 1,
+  JSON.stringify(melanges(ECHANTILLON_FAUTIF)),
+);
+
+const feuilles = [...Deno.readDirSync(R + "css")]
+  .filter((e) => e.isFile && e.name.endsWith(".css") && e.name !== "wild-mystery.css")
+  .map((e) => e.name)
+  .sort();
+for (const nom of feuilles) {
+  const fautifs = melanges(Deno.readTextFileSync(R + "css/" + nom));
+  if (fautifs.length === 0) continue;
+  dire(
+    `${nom} mélange les deux syntaxes de barre`,
+    false,
+    fautifs.join(", ") +
+      " — Chrome lit la standard et jette les règles ::-webkit-scrollbar ; " +
+      "mettre la standard sous @supports not selector(::-webkit-scrollbar)",
+  );
+}
+dire(
+  `aucune des ${feuilles.length} feuilles ne mélange les deux`,
+  feuilles.every((n) => melanges(Deno.readTextFileSync(R + "css/" + n)).length === 0),
+);
 
 await nav.close();
 if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }
