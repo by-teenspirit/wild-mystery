@@ -1618,6 +1618,68 @@ sys.exit(1 if fautes else 0)
 FIN
 [ $? -ne 0 ] && fautes=$((fautes + 1))
 
+echo "── 37. la table des types, celle du combat et celle de l'annexe ─"
+# UNE SEULE TABLE D'EFFICACITÉ, ET ELLE EST DÉRIVÉE. Elle a vécu en
+# mémoire dans `outils/equipes-de-champions.py` jusqu'au 17 novembre ;
+# le combat en a besoin dans le domaine TypeScript, et recalculer la
+# même chose dans un deuxième langage, c'est deux tables qui finiront
+# par ne plus dire la même chose. Le jour où ça arriverait, l'annexe 12
+# afficherait une maîtrise des types que le combat ne respecte pas.
+#
+# CE QU'ON VÉRIFIE ICI, C'EST CE QU'UN OUBLI CASSERAIT EN SILENCE : un
+# type porté par une espèce et absent de la table serait traité comme
+# neutre, et un Dracaufeu deviendrait inoffensif sans qu'une seule
+# ligne rougisse.
+python3 - <<'FIN'
+import json, sys
+table = json.load(open("data/types.json"))
+fiches = json.load(open("data/especes-fiches.json"))["fiches"]
+caps = json.load(open("data/capacites.json"))["capacites"]
+eff = table["efficacite"]
+noms = set(table["types"])
+fautes = []
+
+if len(noms) != 18:
+    fautes.append(f"{len(noms)} types dans la table, 18 attendus")
+
+portes = {t for f in fiches.values() for t in f["types"]}
+absents = sorted(portes - noms)
+if absents:
+    fautes.append(f"types portés par une espèce et absents de la table : {absents}")
+
+# Un type d'attaque que la table ignore lève en plein combat
+# (`domaine/combat.ts` refuse de le traiter comme neutre) : autant le
+# savoir ici que pendant un tour.
+hors = sorted({c["type"] for c in caps.values()} - noms)
+if hors:
+    fautes.append(f"types de capacité hors de la table : {hors}")
+
+for a, ligne in eff.items():
+    if a not in noms:
+        fautes.append(f"attaque d'un type inconnu : {a}")
+    for d, f in ligne.items():
+        if d not in noms:
+            fautes.append(f"défense d'un type inconnu : {a} → {d}")
+        # 0, ½ et ×2 sont les trois seules valeurs du jeu. Un 1 rangé
+        # serait du bruit — le neutre est l'absence — et tout autre
+        # chiffre serait une erreur de dérivation.
+        if f not in (0.0, 0.5, 2.0):
+            fautes.append(f"facteur inattendu {a} → {d} : {f}")
+
+muets = sorted(noms - set(eff))
+if muets:
+    fautes.append(f"types sans aucune faiblesse ni résistance : {muets}")
+
+for f in fautes[:5]:
+    print(f"::error::{f}")
+if not fautes:
+    paires = sum(len(l) for l in eff.values())
+    print(f"   types : 18 types, {paires} paires non neutres, "
+          f"{len(portes)} types portés par les espèces")
+sys.exit(1 if fautes else 0)
+FIN
+[ $? -ne 0 ] && fautes=$((fautes + 1))
+
 echo "── 33. aucune page ne dépasse ce que Forumactif accepte ───────"
 # L'ÉDITEUR DE PAGES HTML S'ARRÊTE À 128 000 CARACTÈRES, ET IL REFUSE
 # EN SILENCE : la page se recharge, le contenu revient à l'état

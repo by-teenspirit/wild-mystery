@@ -1,0 +1,184 @@
+{
+ "_": "La table d'efficacité des dix-huit types, dérivée des CSV de PokéAPI par outils/types.py. NE PAS MODIFIER À LA MAIN.",
+ "_lecture": "efficacite[attaque][defenseur] : le multiplicateur. Une paire ABSENTE vaut 1 — on ne range que ce qui n'est pas neutre, sinon 258 lignes sur 324 ne disent rien et masquent les 66 qui comptent.",
+ "_noms": "Bas de casse et sans accent, comme data/especes-fiches.json (« electrik »). Une table accentuée ne joindrait sur rien.",
+ "source": "https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv",
+ "types": [
+  "acier",
+  "combat",
+  "dragon",
+  "eau",
+  "electrik",
+  "fee",
+  "feu",
+  "glace",
+  "insecte",
+  "normal",
+  "plante",
+  "poison",
+  "psy",
+  "roche",
+  "sol",
+  "spectre",
+  "tenebres",
+  "vol"
+ ],
+ "efficacite": {
+  "acier": {
+   "acier": 0.5,
+   "eau": 0.5,
+   "electrik": 0.5,
+   "fee": 2.0,
+   "feu": 0.5,
+   "glace": 2.0,
+   "roche": 2.0
+  },
+  "combat": {
+   "acier": 2.0,
+   "fee": 0.5,
+   "glace": 2.0,
+   "insecte": 0.5,
+   "normal": 2.0,
+   "poison": 0.5,
+   "psy": 0.5,
+   "roche": 2.0,
+   "spectre": 0.0,
+   "tenebres": 2.0,
+   "vol": 0.5
+  },
+  "dragon": {
+   "acier": 0.5,
+   "dragon": 2.0,
+   "fee": 0.0
+  },
+  "eau": {
+   "dragon": 0.5,
+   "eau": 0.5,
+   "feu": 2.0,
+   "plante": 0.5,
+   "roche": 2.0,
+   "sol": 2.0
+  },
+  "electrik": {
+   "dragon": 0.5,
+   "eau": 2.0,
+   "electrik": 0.5,
+   "plante": 0.5,
+   "sol": 0.0,
+   "vol": 2.0
+  },
+  "fee": {
+   "acier": 0.5,
+   "combat": 2.0,
+   "dragon": 2.0,
+   "feu": 0.5,
+   "poison": 0.5,
+   "tenebres": 2.0
+  },
+  "feu": {
+   "acier": 2.0,
+   "dragon": 0.5,
+   "eau": 0.5,
+   "feu": 0.5,
+   "glace": 2.0,
+   "insecte": 2.0,
+   "plante": 2.0,
+   "roche": 0.5
+  },
+  "glace": {
+   "acier": 0.5,
+   "dragon": 2.0,
+   "eau": 0.5,
+   "feu": 0.5,
+   "glace": 0.5,
+   "plante": 2.0,
+   "sol": 2.0,
+   "vol": 2.0
+  },
+  "insecte": {
+   "acier": 0.5,
+   "combat": 0.5,
+   "fee": 0.5,
+   "feu": 0.5,
+   "plante": 2.0,
+   "poison": 0.5,
+   "psy": 2.0,
+   "spectre": 0.5,
+   "tenebres": 2.0,
+   "vol": 0.5
+  },
+  "normal": {
+   "acier": 0.5,
+   "roche": 0.5,
+   "spectre": 0.0
+  },
+  "plante": {
+   "acier": 0.5,
+   "dragon": 0.5,
+   "eau": 2.0,
+   "feu": 0.5,
+   "insecte": 0.5,
+   "plante": 0.5,
+   "poison": 0.5,
+   "roche": 2.0,
+   "sol": 2.0,
+   "vol": 0.5
+  },
+  "poison": {
+   "acier": 0.0,
+   "fee": 2.0,
+   "plante": 2.0,
+   "poison": 0.5,
+   "roche": 0.5,
+   "sol": 0.5,
+   "spectre": 0.5
+  },
+  "psy": {
+   "acier": 0.5,
+   "combat": 2.0,
+   "poison": 2.0,
+   "psy": 0.5,
+   "tenebres": 0.0
+  },
+  "roche": {
+   "acier": 0.5,
+   "combat": 0.5,
+   "feu": 2.0,
+   "glace": 2.0,
+   "insecte": 2.0,
+   "sol": 0.5,
+   "vol": 2.0
+  },
+  "sol": {
+   "acier": 2.0,
+   "electrik": 2.0,
+   "feu": 2.0,
+   "insecte": 0.5,
+   "plante": 0.5,
+   "poison": 2.0,
+   "roche": 2.0,
+   "vol": 0.0
+  },
+  "spectre": {
+   "normal": 0.0,
+   "psy": 2.0,
+   "spectre": 2.0,
+   "tenebres": 0.5
+  },
+  "tenebres": {
+   "combat": 0.5,
+   "fee": 0.5,
+   "psy": 2.0,
+   "spectre": 2.0,
+   "tenebres": 0.5
+  },
+  "vol": {
+   "acier": 0.5,
+   "combat": 2.0,
+   "electrik": 0.5,
+   "insecte": 2.0,
+   "plante": 2.0,
+   "roche": 0.5
+  }
+ }
+}
