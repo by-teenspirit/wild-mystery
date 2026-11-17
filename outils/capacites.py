@@ -157,13 +157,24 @@ def main() -> None:
         appris: list[dict] = []
         if lignes:
             recent = max(v for v, _, _ in lignes)
-            vus = {
-                (m, n) for v, m, n in lignes if v == recent and m in capacites
-            }
+            #  UNE CAPACITÉ, UN NIVEAU : LE PLUS BAS. La même capacité
+            #  peut être listée deux fois dans un groupe de version —
+            #  apprise tôt, puis re-listée plus loin. Le seed l'a dit
+            #  avant moi : « ON CONFLICT DO UPDATE cannot affect row a
+            #  second time ». On garde la première fois qu'elle
+            #  s'apprend, qui est la seule qui veut dire quelque chose.
+            #
             #  Le niveau 0 chez PokéAPI veut dire « connue d'emblée ».
+            plus_bas: dict[int, int] = {}
+            for v, m, n in lignes:
+                if v != recent or m not in capacites:
+                    continue
+                n = max(1, n)
+                if m not in plus_bas or n < plus_bas[m]:
+                    plus_bas[m] = n
             appris = [
-                {"id": m, "niveau": max(1, n)}
-                for m, n in sorted(vus, key=lambda x: (x[1], x[0]))
+                {"id": m, "niveau": n}
+                for m, n in sorted(plus_bas.items(), key=lambda x: (x[1], x[0]))
             ]
         plancher = not appris
         if plancher:
@@ -214,9 +225,57 @@ def main() -> None:
         encoding="utf-8",
     )
 
+    #  ── ET LE SEED, DANS LA FOULÉE ──────────────────────────────────
+    #
+    #  La dotation et la capture choisissent les quatre capacités d'un
+    #  Pokémon, et elles se passent EN BASE. Le JSON ne leur sert à
+    #  rien : il faut les tables. Écrites ici, dans la même passe, pour
+    #  qu'elles ne puissent pas diverger du fichier.
+    def guillemets(t: str) -> str:
+        return "'" + t.replace("'", "''") + "'"
+
+    lignes = [
+        "--  DÉRIVÉ DE data/capacites.json ET data/capacites-par-espece.json —",
+        "--  NE PAS MODIFIER À LA MAIN.",
+        "--  Régénérer avec : python3 outils/capacites.py",
+        "--",
+        "--  À APPLIQUER APRÈS `especes.sql` : `espece_capacite` a une clé",
+        "--  étrangère vers `espece(id)`.",
+        "--",
+        "--  `on conflict do update` ET PAS `do nothing` : si PokéAPI corrige",
+        "--  une puissance, rejouer ce seed remet la base d'accord avec le",
+        "--  dépôt. Un `do nothing` garderait l'ancienne et ne dirait rien.",
+        "",
+        "insert into capacite (id, nom, type, puissance, pp, precision, categorie) values",
+    ]
+    corps = [
+        f"  ({i}, {guillemets(c['nom'])}, {guillemets(c['type'])}, "
+        f"{c['puissance']}, {c['pp']}, {c['precision']}, {guillemets(c['categorie'])})"
+        for i, c in sorted(capacites.items(), key=lambda x: int(x[0]))
+    ]
+    lignes.append(",\n".join(corps))
+    lignes.append("  on conflict (id) do update set")
+    lignes.append("    nom = excluded.nom, type = excluded.type,")
+    lignes.append("    puissance = excluded.puissance, pp = excluded.pp,")
+    lignes.append("    precision = excluded.precision, categorie = excluded.categorie;")
+    lignes.append("")
+    lignes.append("insert into espece_capacite (espece_id, capacite_id, niveau) values")
+    appris_sql = [
+        f"  ({p}, {a['id']}, {a['niveau']})"
+        for p, e in sorted(especes.items(), key=lambda x: int(x[0]))
+        for a in e["apprend"]
+    ]
+    lignes.append(",\n".join(appris_sql))
+    lignes.append("  on conflict (espece_id, capacite_id) do update set")
+    lignes.append("    niveau = excluded.niveau;")
+    (RACINE / "supabase/seeds/capacites.sql").write_text(
+        "\n".join(lignes) + "\n", encoding="utf-8"
+    )
+
     total = sum(len(e["apprend"]) for e in especes.values())
     print(f"capacités : {len(capacites)} offensives retenues")
     print(f"espèces   : {len(especes)}, {total} apprentissages, {planchers} au plancher")
+    print(f"seed      : supabase/seeds/capacites.sql")
 
 
 if __name__ == "__main__":

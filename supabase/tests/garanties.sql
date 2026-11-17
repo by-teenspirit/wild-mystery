@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(295);
+select plan(308);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2208,6 +2208,123 @@ select throws_ok(
   'P0001',
   'STARTER_INCONNU',
   'et une espèce qui n''existe pas aussi'
+);
+
+-- ════════════════════════════════════════════════════════════════════
+--  0044 · LES QUATRE CAPACITÉS
+--
+--  « Les attaques : oui, les quatre capacités du pokémon. » Un starter
+--  sans capacité est un starter qui ne peut pas se battre, et c'est
+--  lui qui combat — le combat se joue avec le premier de l'équipe.
+-- ════════════════════════════════════════════════════════════════════
+
+select is(
+  array_length(capacites_de_depart(1, 5::smallint), 1),
+  2,
+  'BULBIZARRE AU NIVEAU 5 CONNAÎT CE QU''IL A APPRIS, et rien de plus'
+);
+
+select is(
+  array_length(capacites_de_depart(1, 60::smallint), 1),
+  4,
+  'QUATRE AU MAXIMUM, jamais cinq — c''est la règle du jeu'
+);
+
+--  Magicarpe n'apprend rien d'offensif avant le niveau 15.
+select is(
+  array_length(capacites_de_depart(129, 5::smallint), 1),
+  1,
+  'UNE ESPÈCE QUI N''A RIEN APPRIS À SON NIVEAU reçoit quand même de quoi attaquer'
+);
+
+select ok(
+  (select bool_and(exists (select 1 from capacite c where c.id = x))
+     from unnest(capacites_de_depart(1, 60::smallint)) as x),
+  'et les quatre existent vraiment — un identifiant inventé se verrait en plein combat'
+);
+
+--  ── LA DOTATION LES POSE ─────────────────────────────────────────
+select lives_ok(
+  $$ select valider_le_personnage(
+       '{"forumUserId": 9110, "pseudo": "Capacitée", "groupe": "brave",
+         "starter": 4}'::jsonb) $$,
+  'on dote un personnage avec Salamèche'
+);
+
+select ok(
+  ((select valider_le_personnage('{"forumUserId": 9111, "pseudo": "Deux",
+      "groupe": "brave", "starter": 7}'::jsonb)->>'capacites')::int) > 0,
+  'LA RÉPONSE DIT COMBIEN LE STARTER EN CONNAÎT — zéro voudrait dire qu''il ne peut pas se battre'
+);
+
+select ok(
+  (select count(*) from pokemon_capacite pc
+     join pokemon p on p.id = pc.pokemon_id
+     join joueur j on j.id = p.joueur_id
+    where j.forum_user_id = 9110) between 1 and 4,
+  'LE STARTER A SES CAPACITÉS, une à quatre'
+);
+
+select is(
+  (select min(pc.position)::int from pokemon_capacite pc
+     join pokemon p on p.id = pc.pokemon_id
+     join joueur j on j.id = p.joueur_id
+    where j.forum_user_id = 9110),
+  1,
+  'et elles commencent à la première position'
+);
+
+--  ── ON REMPLACE, ON N'AJOUTE PAS ─────────────────────────────────
+--
+--  `poser_les_capacites` sera rappelée à chaque niveau gagné. Appelée
+--  deux fois, elle doit laisser QUATRE capacités, pas huit.
+select is(
+  (select poser_les_capacites(p.id) from pokemon p
+     join joueur j on j.id = p.joueur_id where j.forum_user_id = 9110),
+  (select count(*)::int from pokemon_capacite pc
+     join pokemon p on p.id = pc.pokemon_id
+     join joueur j on j.id = p.joueur_id where j.forum_user_id = 9110),
+  'LA POSE EST IDEMPOTENTE : rappelée, elle laisse le même nombre'
+);
+
+select throws_ok(
+  $$ select poser_les_capacites('00000000-0000-0000-0000-000000000000'::uuid) $$,
+  'P0001',
+  'POKEMON_INCONNU',
+  'et elle refuse un pokémon qui n''existe pas'
+);
+
+--  ── CE QUE LA BASE GARANTIT ──────────────────────────────────────
+--  SUR UN POKÉMON NEUF, sans capacité : viser la position 1 d'un
+--  starter déjà doté ferait tomber la clé primaire avant la clé
+--  étrangère, et le test dirait vrai pour la mauvaise raison.
+insert into pokemon (joueur_id, espece_id, emplacement)
+select j.id, 7, 'boite' from joueur j where j.forum_user_id = 9111;
+
+select throws_ok(
+  $$ insert into pokemon_capacite (pokemon_id, position, capacite_id)
+     select p.id, 1, 999999 from pokemon p
+       join joueur j on j.id = p.joueur_id
+      where j.forum_user_id = 9111 and p.emplacement = 'boite' $$,
+  '23503',
+  null,
+  'UNE CAPACITÉ QUI N''EXISTE PAS EST REFUSÉE PAR LA BASE — pas par le navigateur'
+);
+
+select throws_ok(
+  $$ insert into pokemon_capacite (pokemon_id, position, capacite_id)
+     select p.id, 5, 33 from pokemon p
+       join joueur j on j.id = p.joueur_id
+      where j.forum_user_id = 9111 and p.emplacement = 'boite' $$,
+  '23514',
+  null,
+  'et une cinquième position aussi'
+);
+
+select ok(
+  has_table_privilege('anon', 'capacite', 'select')
+    and has_table_privilege('anon', 'espece_capacite', 'select'),
+  'LES DEUX TABLES DE RÉFÉRENCE SE LISENT : le carnet affiche les capacités'
 );
 
 select * from finish();
