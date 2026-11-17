@@ -616,11 +616,60 @@
   max-height: 36px;
   overflow-x: hidden;
   overflow-y: auto;
-  /*  SIX PIXELS POUR LA BARRE, sans quoi elle passe sur les dernières
-      lettres des quatre forums qui en portent une. */
-  padding-right: var(--wm-espace-6, 6px);
-  scrollbar-color: var(--wm-bord-net, #d9c3b1) transparent;
+  /*  Firefox n'a pas de `::-webkit-scrollbar` : il lit ces deux-là, et
+      il faut donc que le curseur y soit de la même couleur. */
+  scrollbar-color: var(--wm-texte-doux, #6e5749) var(--wm-fond-douce, #f3e1d2);
   scrollbar-width: thin;
+}
+
+/*  ── LA BARRE EST TOUJOURS LÀ, ET ELLE PREND SA PLACE ─────────────
+
+    « Je trouve pas très pratique le scroll pour lire la description
+    des lieux dans les catégories. Quand je veux lire toute la
+    description de Pyrite, je peux pas », 17 novembre — Mangue, relayée
+    par Plumyts, qui ajoute comment elles s'y prenaient : « on met
+    notre souris sur un mot, on clique, et on remonte avec les flèches
+    du clavier ». Surligner du texte pour le faire défiler, c'est le
+    signe qu'on n'a rien trouvé d'autre.
+
+    CE N'ÉTAIT PAS LA COULEUR DE LA BARRE, C'ÉTAIT SON EXISTENCE. Sous
+    macOS, une barre de défilement est FLOTTANTE : elle n'apparaît
+    qu'en défilant et disparaît ensuite. Rien, sur une description de
+    cinq lignes coupée à deux, ne disait qu'il y avait quelque chose en
+    dessous.
+
+    `::-webkit-scrollbar` LA REND CLASSIQUE : réservée dans la
+    largeur, peinte en permanence, et donc visible à l'arrêt. C'est le
+    seul moyen de sortir du mode flottant, et il ne coûte rien aux
+    vingt forums sur vingt-quatre qui tiennent en deux lignes : en
+    `overflow-y: auto`, une boîte qui ne déborde pas n'a pas de barre
+    du tout.
+
+    ET LES SIX PIXELS DE REMBOURRAGE SONT PARTIS AVEC. Ils étaient là
+    « pour la barre », du temps où elle flottait par-dessus le texte.
+    Une barre classique prend la place elle-même : les garder, c'était
+    réserver deux fois la même gouttière. */
+#modernbb ul.topiclist li.row .wm-forum__description::-webkit-scrollbar {
+  width: var(--wm-espace-6, 6px);
+}
+
+#modernbb ul.topiclist li.row .wm-forum__description::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LE CURSEUR EST SOMBRE, ET CE N'EST PAS UN GOÛT. Mon premier jet le
+    peignait en `--wm-bord-net` sur une piste en `--wm-fond-douce` :
+    1,33 de contraste, mesuré par le harnais. Une barre qu'on rend
+    permanente pour qu'elle se voie et qu'on ne voit pas, c'est le
+    défaut d'avant avec une ligne de CSS en plus. */
+#modernbb ul.topiclist li.row .wm-forum__description::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb ul.topiclist li.row .wm-forum__description::-webkit-scrollbar-thumb:hover {
+  background: var(--wm-texte-corps, #4e3b30);
 }
 
 /*  LA DESCRIPTION SE COUPAIT AU PIXEL, ET C'ÉTAIT ASSUMÉ — jusqu'au
@@ -1819,61 +1868,4 @@
   #modernbb ul.linklist.bottom > li > a {
     font-size: var(--wm-taille-etiquette, 10px);
   }
-}
-
-/*  ── LE DÉPLIANT D'UNE DESCRIPTION ─────────────────────────────────
-
-    « Je trouve pas très pratique le scroll pour lire la description
-    des lieux dans les catégories », 17 novembre, remonté par deux
-    joueuses. La boîte de 36 px ne s'atteignait qu'à la molette : elle
-    n'est pas focalisable, donc pas de clavier, et sa barre fine est
-    invisible au repos sous macOS. Rien ne disait qu'il y avait du
-    texte dessous — l'une d'elles surlignait le texte pour le faire
-    remonter.
-
-    LA LIGNE RESTE À 92 PX TANT QU'ON NE DÉPLIE PAS. La hauteur
-    uniforme est une décision du 8 octobre, pas un repli ; c'est le
-    geste de la joueuse qui l'ouvre, et sa ligne seulement. Arbitré par
-    Callista le 17 novembre.
-
-    DEUX BORNES À LEVER, ET PAS TROIS. La boîte, et les deux rangées
-    FIXES de la grille. J'en avais écrit une troisième — rendre la
-    cellule `overflow: visible` — et le harnais a montré qu'elle ne
-    servait à rien : la rangée en `auto` fait grandir la cellule avec
-    son contenu, et une cellule à la taille de ce qu'elle contient ne
-    rogne rien. Une règle dont le retrait ne change rien est une règle
-    qui ment sur ce qui tient le reste. */
-#modernbb ul.topiclist li.row dl.icon.wm-forum__ligne--depliee {
-  grid-template-rows: auto auto;
-}
-
-#modernbb ul.topiclist li.row .wm-forum__description--depliee {
-  max-height: none;
-  overflow: visible;
-  /*  La place de la barre ne sert plus à rien quand il n'y a plus de
-      barre, et elle décalerait le texte de six pixels à l'ouverture. */
-  padding-right: 0;
-}
-
-/*  Un bouton de texte : pas un cadre de plus dans une liste qui en
-    compte déjà vingt-six. Il prend l'accent, parce que c'est la seule
-    chose cliquable de la cellule après le titre. */
-#modernbb .wm-forum__deplier {
-  display: inline-block;
-  margin-top: var(--wm-espace-4, 4px);
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--wm-accent-primaire, #275e7a);
-  cursor: pointer;
-  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-weight: var(--wm-graisse-gras, 700);
-  line-height: var(--wm-interligne-courant, 1.5);
-  text-align: left;
-}
-
-#modernbb .wm-forum__deplier:hover,
-#modernbb .wm-forum__deplier:focus-visible {
-  text-decoration: underline;
 }

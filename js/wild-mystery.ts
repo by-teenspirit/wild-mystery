@@ -47,7 +47,6 @@ import { estLIndex, poserLaVieDeRhode } from "../src/adaptateurs/navigateur/modu
 import {
   envelopperLesDescriptions,
   numeroterLesCategories,
-  poserLesDepliants,
   poserLesPastilles,
   rangerLesSousForums,
   recomposerLesDerniersMessages,
@@ -555,19 +554,6 @@ desQueLeCorpsEstLa(() => {
   //  qui défile et pas le titre au-dessus. Après les sous-forums :
   //  c'est leur rang qui lui sert de frontière.
   envelopperLesDescriptions(document);
-  //  ET CELLES QUI DÉPASSENT REÇOIVENT UN « LIRE LA SUITE ». Deux
-  //  joueuses, le 17 novembre : la description de Pyrite ne se lisait
-  //  qu'à la molette, dans une fenêtre de 36 px, sans barre visible
-  //  sous macOS et sans accès au clavier.
-  //
-  //  DEUX FOIS, ET C'EST VOULU : tout de suite pour que le bouton soit
-  //  là sans attendre, puis quand les polices sont arrivées — la Nunito
-  //  Sans n'a pas les métriques de la police de secours, et une
-  //  description de deux lignes et demie bascule d'un côté ou de
-  //  l'autre. La fonction est idempotente, le second passage ne pose
-  //  que ce qui manquait.
-  poserLesDepliants(document);
-  document.fonts?.ready?.then(() => poserLesDepliants(document)).catch(() => {});
   //  ET LES LIGNES DE SUJET REÇOIVENT LEUR ROND ET LEURS ÉTIQUETTES.
   //  Sans réseau : l'état est dans le style en ligne du gabarit, les
   //  étiquettes dans le titre. Sur toutes les pages de forum, pas
