@@ -3231,6 +3231,63 @@ html:has(body.wm-sombre) {
   }
 }
 
+/*  ── LE DÉPLIANT D'UNE DESCRIPTION ─────────────────────────────────
+
+    « Je trouve pas très pratique le scroll pour lire la description
+    des lieux dans les catégories », 17 novembre, remonté par deux
+    joueuses. La boîte de 36 px ne s'atteignait qu'à la molette : elle
+    n'est pas focalisable, donc pas de clavier, et sa barre fine est
+    invisible au repos sous macOS. Rien ne disait qu'il y avait du
+    texte dessous — l'une d'elles surlignait le texte pour le faire
+    remonter.
+
+    LA LIGNE RESTE À 92 PX TANT QU'ON NE DÉPLIE PAS. La hauteur
+    uniforme est une décision du 8 octobre, pas un repli ; c'est le
+    geste de la joueuse qui l'ouvre, et sa ligne seulement. Arbitré par
+    Callista le 17 novembre.
+
+    DEUX BORNES À LEVER, ET PAS TROIS. La boîte, et les deux rangées
+    FIXES de la grille. J'en avais écrit une troisième — rendre la
+    cellule `overflow: visible` — et le harnais a montré qu'elle ne
+    servait à rien : la rangée en `auto` fait grandir la cellule avec
+    son contenu, et une cellule à la taille de ce qu'elle contient ne
+    rogne rien. Une règle dont le retrait ne change rien est une règle
+    qui ment sur ce qui tient le reste. */
+#modernbb ul.topiclist li.row dl.icon.wm-forum__ligne--depliee {
+  grid-template-rows: auto auto;
+}
+
+#modernbb ul.topiclist li.row .wm-forum__description--depliee {
+  max-height: none;
+  overflow: visible;
+  /*  La place de la barre ne sert plus à rien quand il n'y a plus de
+      barre, et elle décalerait le texte de six pixels à l'ouverture. */
+  padding-right: 0;
+}
+
+/*  Un bouton de texte : pas un cadre de plus dans une liste qui en
+    compte déjà vingt-six. Il prend l'accent, parce que c'est la seule
+    chose cliquable de la cellule après le titre. */
+#modernbb .wm-forum__deplier {
+  display: inline-block;
+  margin-top: var(--wm-espace-4, 4px);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--wm-accent-primaire, #275e7a);
+  cursor: pointer;
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: var(--wm-interligne-courant, 1.5);
+  text-align: left;
+}
+
+#modernbb .wm-forum__deplier:hover,
+#modernbb .wm-forum__deplier:focus-visible {
+  text-decoration: underline;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 04 · Une page de forum
 

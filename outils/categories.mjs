@@ -664,6 +664,196 @@ for (const [l, h] of [[1440, 1200], [900, 900], [390, 844]]) {
 }
 await p3.close();
 
+// ════════════════════════════════════════════════════════════════════
+//  LE DÉPLIANT D'UNE DESCRIPTION
+//
+//  « Je trouve pas très pratique le scroll pour lire la description des
+//  lieux dans les catégories. Quand je veux lire toute la description
+//  de Pyrite, je peux pas », 17 novembre, remonté par deux joueuses.
+//  L'une surlignait le texte pour le faire remonter — la boîte n'est
+//  pas focalisable, donc pas de clavier, et sa barre est invisible au
+//  repos sous macOS.
+//
+//  CE QUI SE MESURE N'EST PAS « LE BOUTON EST LÀ », mais « on voit tout
+//  le texte après avoir cliqué ». Un dépliant qui ouvre la boîte sans
+//  ouvrir la ligne ne montre rien de plus : la cellule est en
+//  `overflow: hidden` et la grille a deux rangées FIXES.
+// ════════════════════════════════════════════════════════════════════
+
+//  LA DESCRIPTION DU DÉCOR TIENT EN DEUX LIGNES À 1440, et c'est le
+//  cas NORMAL : vingt forums sur vingt-quatre sont dans ce cas. Pour
+//  mesurer le dépliant il en faut une qui dépasse vraiment — celle de
+//  Pyrite en fait cinq. On la remplace, et on garde l'originale pour le
+//  contrôle inverse.
+const LONG = NOUVEAU.replace(
+  /On y dépose sa fiche[\s\S]*?au maximum\./,
+  //  SIX LIGNES À 1440, et c'est le point : à 1440 la colonne
+  //  d'identité fait près de mille pixels, donc un texte « long » de
+  //  deux cent cinquante caractères y tient en trois lignes et le
+  //  dépliant n'a presque rien à ouvrir. Mesuré : la boîte passait de
+  //  36 à 52 px, et retirer les deux règles qui lèvent les bornes ne
+  //  faisait rien rougir — le décor ne forçait aucune borne.
+  ("Pyrite est une ville qui vit la nuit, et qui s'en vante. Les néons " +
+    "tiennent lieu de soleil, les rues ne dorment jamais vraiment, et " +
+    "personne n'y demande d'où l'on vient. On y trouve un marché qui " +
+    "ouvre à la tombée du jour, une arène dont le champion ne reçoit " +
+    "que sur rendez-vous, et plus d'adresses discrètes qu'il n'y paraît " +
+    "— la Team Ombre y a longtemps eu ses habitudes, et certains " +
+    "disent qu'elle les a gardées. ").repeat(4),
+);
+
+const p4 = await ouvrir(LONG);
+const dep = await p4.evaluate(() => {
+  const lignes = [...document.querySelectorAll("li.row dl.icon")];
+  const boite = document.querySelector(".wm-forum__description");
+  const bouton = document.querySelector(".wm-forum__deplier");
+  return {
+    lignes: lignes.length,
+    boutons: document.querySelectorAll(".wm-forum__deplier").length,
+    //  LA RÈGLE, ET PAS UN COMPTE : chaque ligne dont la description
+    //  dépasse a un bouton, chaque ligne dont elle tient n'en a pas.
+    //  Le décor n'allonge que la PREMIÈRE des trois — un `===` sur le
+    //  nombre de lignes aurait demandé trois boutons pour une seule
+    //  description coupée.
+    accord: lignes.every((l) => {
+      const b = l.querySelector(".wm-forum__description");
+      if (b === null) return true;
+      const deborde = b.scrollHeight > b.clientHeight + 1;
+      return deborde === (l.querySelector(".wm-forum__deplier") !== null);
+    }),
+    hauteurs: lignes.map((e) => Math.round(e.getBoundingClientRect().height)),
+    balise: bouton === null ? null : bouton.tagName,
+    etiquette: bouton === null ? null : bouton.textContent,
+    ouvert: bouton === null ? null : bouton.getAttribute("aria-expanded"),
+    //  IL DIT CE QU'IL COMMANDE : sans `aria-controls`, un lecteur
+    //  d'écran annonce « bouton réduit » sans dire réduit quoi.
+    commande: bouton !== null && boite !== null && boite.id !== "" &&
+      bouton.getAttribute("aria-controls") === boite.id,
+    coupee: boite === null ? null : boite.scrollHeight > boite.clientHeight + 1,
+  };
+});
+dire(
+  "UNE DESCRIPTION COUPÉE REÇOIT SON « LIRE LA SUITE »",
+  dep.coupee === true && dep.accord && dep.boutons === 1 && dep.balise === "BUTTON" &&
+    dep.etiquette === "Lire la suite" && dep.ouvert === "false" && dep.commande,
+  JSON.stringify(dep),
+);
+dire(
+  "et la ligne garde sa hauteur tant qu'on ne déplie pas",
+  dep.hauteurs.length > 1 && new Set(dep.hauteurs).size === 1,
+  JSON.stringify(dep.hauteurs),
+);
+
+const ouvert = await p4.evaluate(() => {
+  const avant = [...document.querySelectorAll("li.row dl.icon")]
+    .map((e) => Math.round(e.getBoundingClientRect().height));
+  const hautBoiteAvant = document.querySelector(".wm-forum__description").clientHeight;
+  document.querySelector(".wm-forum__deplier").click();
+  const boite = document.querySelector(".wm-forum__description");
+  const ligne = boite.closest("dl.icon");
+  //  ── LES DEUX ANCÊTRES, ET IL FAUT LES DEUX ─────────────────────
+  //
+  //  `overflow: hidden` ROGNE LA PEINTURE, PAS LA DISPOSITION : avec la
+  //  grille figée à 52 px par rangée, la cellule reste à 242 px de
+  //  haut dans son rectangle — elle dépasse simplement la LIGNE, qui
+  //  en fait 150, et c'est la ligne qui coupe. Mesuré en figeant la
+  //  grille exprès : comparer à la cellule seule ne voyait rien.
+  //
+  //  Et comparer à la ligne seule ne suffit pas non plus, parce qu'elle
+  //  fait déjà 150 px à cause du bloc du dernier message. On exige donc
+  //  que la boîte tienne dans les DEUX.
+  const cellule = boite.closest("dd.dterm");
+  const rb = boite.getBoundingClientRect();
+  const rl = cellule.getBoundingClientRect();
+  const rligne = ligne.getBoundingClientRect();
+  const bouton = document.querySelector(".wm-forum__deplier");
+  return {
+    //  PLUS RIEN NE DÉBORDE DE LA BOÎTE…
+    toutLeTexte: boite.scrollHeight <= boite.clientHeight + 1,
+    //  …ET LA BOÎTE TIENT DANS CE QUI LA ROGNE. C'est le contrôle qui
+    //  attrape une borne oubliée : la grille ne grandit pas, et le
+    //  texte « déplié » reste invisible.
+    dansLaLigne: rb.bottom <= rl.bottom + 1 && rb.bottom <= rligne.bottom + 1,
+    //  LA BOÎTE GRANDIT, ET C'EST ÇA L'EFFET. La LIGNE, elle, ne
+    //  grandit que si la colonne d'identité devient la plus haute des
+    //  quatre : le bloc du dernier message fait déjà 150 avec son
+    //  avatar rond. Exiger une ligne plus haute mesurerait la hauteur
+    //  du voisin, pas le dépliement.
+    boiteGrandit: boite.clientHeight > hautBoiteAvant,
+    etiquette: bouton.textContent,
+    ouvert: bouton.getAttribute("aria-expanded"),
+    //  ET LES AUTRES LIGNES N'ONT PAS BOUGÉ.
+    voisines: [...document.querySelectorAll("li.row dl.icon")].slice(1)
+      .map((e) => Math.round(e.getBoundingClientRect().height)),
+    avant,
+  };
+});
+dire(
+  "DÉPLIER MONTRE TOUT LE TEXTE, DANS LA LIGNE",
+  ouvert.toutLeTexte && ouvert.dansLaLigne && ouvert.boiteGrandit &&
+    ouvert.etiquette === "Replier" && ouvert.ouvert === "true",
+  JSON.stringify(ouvert),
+);
+dire(
+  "et seule la ligne dépliée grandit",
+  ouvert.voisines.every((h) => h === ouvert.avant[1]),
+  JSON.stringify({ voisines: ouvert.voisines, repos: ouvert.avant[1] }),
+);
+
+const referme = await p4.evaluate(() => {
+  document.querySelector(".wm-forum__deplier").click();
+  const ligne = document.querySelector(".wm-forum__description").closest("dl.icon");
+  const bouton = document.querySelector(".wm-forum__deplier");
+  return {
+    hauteur: Math.round(ligne.getBoundingClientRect().height),
+    etiquette: bouton.textContent,
+    ouvert: bouton.getAttribute("aria-expanded"),
+  };
+});
+dire(
+  "et replier remet la ligne comme elle était",
+  referme.hauteur === dep.hauteurs[0] && referme.etiquette === "Lire la suite" &&
+    referme.ouvert === "false",
+  JSON.stringify({ ...referme, repos: dep.hauteurs[0] }),
+);
+
+//  LE CONTRASTE DU BOUTON, sur le fond de la ligne.
+const lisibleDep = await p4.evaluate(() => {
+  const lin = (c) => (c /= 255, c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  const lum = (t) => {
+    const [r, g, b] = (t.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  };
+  const el = document.querySelector(".wm-forum__deplier");
+  let fond = "rgb(255, 255, 255)";
+  for (let n = el; n; n = n.parentElement) {
+    const f = getComputedStyle(n).backgroundColor;
+    const a = (f.match(/[\d.]+/g) || [])[3];
+    if (!/rgba\(0, 0, 0, 0\)/.test(f) && a !== "0") { fond = f; break; }
+  }
+  const [hi, lo] = [lum(getComputedStyle(el).color), lum(fond)].sort((x, y) => y - x);
+  return Math.round(((hi + 0.05) / (lo + 0.05)) * 100) / 100;
+});
+dire("le bouton se lit sur son fond", lisibleDep >= 4.5, `${lisibleDep}`);
+await p4.close();
+
+//  ── ET UNE DESCRIPTION QUI TIENT N'EN REÇOIT PAS ─────────────────
+//
+//  Mesuré le 9 octobre : quatre forums sur vingt-quatre dépassent deux
+//  lignes. Vingt boutons qui ne font rien seraient vingt invitations à
+//  cliquer dans le vide.
+const p5 = await ouvrir(NOUVEAU);
+const court = await p5.evaluate(() => ({
+  boutons: document.querySelectorAll(".wm-forum__deplier").length,
+  boites: document.querySelectorAll(".wm-forum__description").length,
+}));
+dire(
+  "UNE DESCRIPTION QUI TIENT N'A PAS DE DÉPLIANT",
+  court.boites > 0 && court.boutons === 0,
+  JSON.stringify(court),
+);
+await p5.close();
+
 await nav.close();
 if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
