@@ -342,6 +342,15 @@ jobs:
       - name: Les célébrités et leurs filtres
         run: deno task personnages
 
+      - name: La messagerie
+        run: deno task messagerie
+
+      - name: Le répertoire des personnages
+        run: deno task repertoire
+
+      - name: Le message de validation et ses contrôles
+        run: deno task valider
+
       #  LA VÉRIFICATION QUI COMPTE. jsDelivr sert `js/wild-mystery.js`
       #  depuis le dépôt, pas depuis une étape de construction : si le
       #  fichier commité ne correspond pas aux sources, les joueurs
