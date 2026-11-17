@@ -94,6 +94,7 @@ create table if not exists fiche_champ (
   primary key (joueur_id, champ)
 );
 
+drop trigger if exists fiche_champ_pas_trop on fiche_champ;
 create trigger fiche_champ_pas_trop before insert on fiche_champ
   for each row execute function fiche_pas_trop_de_lignes(24);
 
@@ -143,6 +144,7 @@ create table if not exists fiche_trait (
   primary key (joueur_id, mot)
 );
 
+drop trigger if exists fiche_trait_pas_trop on fiche_trait;
 create trigger fiche_trait_pas_trop before insert on fiche_trait
   for each row execute function fiche_pas_trop_de_lignes(12);
 
@@ -162,6 +164,7 @@ create table if not exists fiche_moment (
 
 create index if not exists fiche_moment_du_joueur on fiche_moment (joueur_id, quand);
 
+drop trigger if exists fiche_moment_pas_trop on fiche_moment;
 create trigger fiche_moment_pas_trop before insert on fiche_moment
   for each row execute function fiche_pas_trop_de_lignes(80);
 
@@ -187,6 +190,7 @@ end $$ language plpgsql set search_path = public, pg_temp;
 
 revoke all on function fiche_moment_auto_intouchable() from public;
 
+drop trigger if exists fiche_moment_auto on fiche_moment;
 create trigger fiche_moment_auto before update on fiche_moment
   for each row execute function fiche_moment_auto_intouchable();
 

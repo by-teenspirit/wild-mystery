@@ -54,6 +54,7 @@ create table if not exists lien (
   primary key (joueur_id, cible_forum_id)
 );
 
+drop trigger if exists lien_pas_trop on lien;
 create trigger lien_pas_trop before insert on lien
   for each row execute function fiche_pas_trop_de_lignes(60);
 

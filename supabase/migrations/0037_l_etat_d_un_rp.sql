@@ -53,7 +53,13 @@ alter table rp add constraint rp_etat_connu
   check (etat in ('en-cours', 'prevu', 'en-pause', 'cloture'));
 
 --  Ce que `prevu` disait passe dans la colonne, puis le booléen s'en va.
-update rp set etat = 'prevu' where prevu;
+--
+--  LA REPRISE EST GARDÉE : au second passage la colonne n'est plus là,
+--  et `where prevu` ne compile pas. Le `drop`, lui, est déjà en `if
+--  exists` — il manquait la même prudence deux lignes plus haut.
+do $$ begin
+  update rp set etat = 'prevu' where prevu;
+exception when undefined_column then null; end $$;
 alter table rp drop column if exists prevu;
 
 comment on column rp.etat is

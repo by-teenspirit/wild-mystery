@@ -87,6 +87,12 @@ comment on function joueur_courant() is
 -- ── 3 · les neuf politiques, réécrites ─────────────────────────────
 
 drop policy if exists "chacun lit sa fiche" on joueur;
+--  ET CELLE QU'ON VIENT DE CRÉER. Le `drop` du dessus nomme l'ANCIENNE
+--  politique, celle de la 0001 ; au second passage elle n'existe plus,
+--  le `drop` ne fait rien, et le `create` tombe sur la nouvelle qui est
+--  déjà là. C'est l'erreur qui a bloqué `supabase db push` le
+--  17 novembre, à la neuvième instruction de ce fichier.
+drop policy if exists "chacun lit ses fiches" on joueur;
 create policy "chacun lit ses fiches" on joueur
   for select using (id in (select mes_joueurs()));
 

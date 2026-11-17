@@ -66,10 +66,17 @@ comment on table rp is
   'native du forum (tâche 9). Le joueur n''y contrôle que `prevu` et '
   '`ordre` — le reste est l''état du forum (0036).';
 
-comment on column rp.prevu is
-  'Posé par le joueur : un RP prévu, pas encore commencé. C''est la '
-  'seule chose que la relève ne sait pas et qu''elle ne doit pas '
-  'écraser.';
+--  LE COMMENTAIRE EST GARDÉ, parce que la 0037 retire cette colonne :
+--  au second passage, `rp` existe déjà sans `prevu` et l'instruction
+--  tombe. Une migration qui ne se rejoue pas bloque le jour où la table
+--  des migrations est en retard sur la base — c'est arrivé le
+--  17 novembre, et c'est le seul moment où on en a besoin.
+do $$ begin
+  comment on column rp.prevu is
+    'Posé par le joueur : un RP prévu, pas encore commencé. C''est la '
+    'seule chose que la relève ne sait pas et qu''elle ne doit pas '
+    'écraser.';
+exception when undefined_column then null; end $$;
 
 -- ── 2 · qui a écrit où ─────────────────────────────────────────────
 
@@ -148,7 +155,12 @@ create policy rp_reecriture on rp for update to authenticated
 --  n'est pas une chose qu'on se déclare. S'en ajouter un serait se
 --  mettre dans un RP où l'on n'a pas écrit.
 grant select on rp to authenticated;
-grant update (prevu, ordre) on rp to authenticated;
+--  GARDÉ POUR LA MÊME RAISON que le commentaire plus haut : la 0037
+--  remplace `prevu` par `etat` et re-donne le droit sur la bonne
+--  colonne. Au second passage, celle-ci n'existe plus.
+do $$ begin
+  grant update (prevu, ordre) on rp to authenticated;
+exception when undefined_column then null; end $$;
 revoke all on rp from anon;
 revoke all on rp_participant from anon;
 revoke all on rp_participant from authenticated;

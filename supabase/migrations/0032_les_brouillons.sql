@@ -99,6 +99,26 @@ comment on function brouillon_encore_vivant(timestamptz) is
   'lecture et la purge l''appellent toutes les deux. Deux endroits qui '
   'calculent la même date sont deux endroits où elle peut diverger.';
 
+--  LE DROIT EST ÉCRIT, et il ne l'était pas.
+--
+--  Une politique est évaluée AVEC LES DROITS DE CELUI QUI LIT : sans
+--  `execute` sur cette fonction, `authenticated` se voit refuser la
+--  lecture de ses propres brouillons. Ça marchait quand même, par
+--  accident d'ordre — la 0008 révoque `execute on all functions in
+--  schema public from anon, authenticated`, et au premier montage elle
+--  passe AVANT que cette fonction existe, donc elle gardait son droit
+--  par défaut à `public`.
+--
+--  Rejouer la 0008 sur une base à jour, et le droit tombe. Mesuré le
+--  17 novembre, en montant les migrations trois fois de suite :
+--  « permission denied for function brouillon_encore_vivant » dans la
+--  suite pgTAP, sur un test qui vérifiait justement que Plume voit son
+--  brouillon. Un droit qui dépend de l'ordre des migrations n'est pas
+--  un droit, c'est une coïncidence.
+revoke all on function brouillon_encore_vivant(timestamptz) from public;
+grant execute on function brouillon_encore_vivant(timestamptz)
+  to authenticated, service_role;
+
 -- ── 3 · la RLS ─────────────────────────────────────────────────────
 
 alter table brouillon enable row level security;
