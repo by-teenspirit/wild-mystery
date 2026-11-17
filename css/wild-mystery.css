@@ -915,6 +915,15 @@ body,
 #modernbb input[type="button"],
 #modernbb input[type="reset"],
 #modernbb button[type="submit"] {
+  /*  `border-box`, SINON LES 44 PX SONT CEUX DU CONTENU. Relevé le
+      17 novembre sur « Exporter vos données » : 44 de hauteur
+      minimale + 16 de rembourrage + 2 de bord = 62 px de bouton, dont
+      39 sous le texte. « Y'a un gros padding en dessous, dans le
+      bouton » — c'était cette addition, pas un rembourrage.
+
+      La cible tactile est une hauteur TOTALE : c'est ce qu'on vise
+      avec le doigt. */
+  box-sizing: border-box;
   min-height: var(--wm-cible-tactile, 44px);
   padding: 10px 18px;
   border: 1.5px solid var(--wm-bord-net, #d9c3b1);
@@ -927,6 +936,22 @@ body,
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-courant, 1.5);
   text-transform: none;
+}
+
+/*  UN BOUTON QUI EST UN LIEN. Le gabarit amont écrit
+    `<a class="button1">` sur la ligne « Exporter vos données », et
+    ailleurs selon les pages. Un `<a>` est une boîte EN LIGNE : son
+    rembourrage vertical ne pousse rien, sa hauteur minimale ne
+    s'applique pas, et son texte se colle en haut. Trois défauts pour
+    une balise, et un seul correctif.
+
+    `inline-flex` plutôt que `inline-block` : c'est ce qui centre le
+    texte dans les 44 px au lieu de le poser contre le bord haut. */
+#modernbb a:is(.button1, .button2, .mainoption, .liteoption) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 /*  L'action principale d'un formulaire. ModernBB la marque déjà avec
@@ -32649,23 +32674,74 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     ce qui l'a fait voir ; elle n'est nommée nulle part, et toute autre
     ligne de la même forme en profite.
 
-    `select ~ select` ATTRAPE AUSSI LA VERSION AVEC DES `<br>` : le
-    combinateur est « frère quelconque », pas « frère immédiat », et
-    les sauts du gabarit sont déjà retirés juste au-dessus. Si le
-    relevé montrait un jour des menus enveloppés chacun dans leur
-    balise, ce sélecteur ne les verrait pas — il faudrait alors
-    compter, donc passer par le script, et ce n'est pas la peine tant
-    que la forme reste celle-ci. */
-#modernbb :is(.ucp-main, form[name="searchform"]) dd:has(select ~ select) {
+    ── LE RELEVÉ, LE 17 NOVEMBRE, ET CE QU'IL A CORRIGÉ ──────────────
+
+    J'avais écrit cette règle sur DEUX formes imaginées, faute de
+    pouvoir ouvrir la page — elle demande une connexion. Callista a
+    collé le vrai balisage, et il n'est ni l'une ni l'autre :
+
+        Jour&nbsp;<select …>  Mois&nbsp;<select …>
+        Année&nbsp;<input type="text" style="width:50px" size="5">
+
+    TROIS CHOSES QUE JE N'AVAIS PAS VUES :
+
+      · l'ANNÉE N'EST PAS UN MENU, c'est un champ de texte. Une règle
+        qui ne range que les `select` le laissait à `width: 100%` —
+        une barre pleine largeur au milieu de la ligne. Le correctif
+        aurait été pire que le défaut ;
+      · les trois champs portent une ÉTIQUETTE EN TEXTE NU avant eux,
+        « Jour », « Mois », « Année ». Ce sont des nœuds de texte :
+        en flex ils deviennent des éléments à part entière, et c'est
+        tant mieux — ils se posent devant leur champ tout seuls ;
+      · « le code a une certaine largeur » : `style="width:50px"` sur
+        l'année. C'est ce qu'elle voyait, et c'est pourquoi le rendu
+        que je lui avais montré ne ressemblait pas au sien.
+
+    LE SÉLECTEUR VISE DONC « PLUSIEURS CHAMPS », pas « plusieurs
+    menus » : deux `select`, ou un `select` et un champ de texte,
+    dans n'importe quel ordre. Le `:is()` à l'intérieur du `:has()`
+    tire la spécificité à (1,3,3) — au-dessus du `width: 100%
+    !important` écrit plus haut, et c'est voulu : il faut le battre. */
+#modernbb :is(.ucp-main, form[name="searchform"])
+  dd:has(:is(select, input[type="text"]) ~ :is(select, input[type="text"])) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--wm-espace-8, 8px);
+  /*  LA BORNE DE 420 px SAUTE ICI, ET SEULEMENT ICI. Elle existe pour
+      qu'un champ unique ne s'étire pas sur sept cents pixels — un
+      « Pseudo » large comme un paragraphe. Une ligne de trois champs
+      courts a le problème INVERSE : à 420, « Jour » et « Mois »
+      tiennent, « Année » passe à la ligne suivante toute seule.
+      Mesuré : 674 px demandés dans 672. */
+  max-width: none;
 }
 
-#modernbb :is(.ucp-main, form[name="searchform"]) dd:has(select ~ select) select {
-  flex: 1 1 5.5rem;
-  min-width: 0;
+/*  LE TEXTE D'AIDE VIDE NE PREND PAS UNE PLACE. Forumactif écrit
+    `<span class="italic"></span>` à la fin de la ligne, même sans
+    rien dedans ; en flex il devient un élément de largeur nulle que
+    le `gap` compte quand même. */
+#modernbb :is(.ucp-main, form[name="searchform"]) dd .italic:empty {
+  display: none;
+}
+
+/*  CHACUN FAIT LA LARGEUR DE SON CONTENU, et pas un tiers de la
+    colonne. `flex: 0 1 auto` plutôt que `1 1 <base>` : un menu de
+    jours n'a pas besoin de la place d'un menu de mois, et trois tiers
+    égaux obligent à deviner la largeur de la colonne — qui n'est pas
+    la même sur le profil, sur la recherche, et selon la largeur du
+    forum.
+
+    LE `min-width` EST CE QUI EMPÊCHE LA COUPE. Sans lui, une colonne
+    étroite ferait rétrécir les trois menus jusqu'à ce que « Septembre »
+    ne tienne plus, et un menu dont on ne lit pas l'option est pire
+    qu'un menu trop long. Avec lui, ils passent à la ligne suivante
+    avant de se serrer. */
+#modernbb :is(.ucp-main, form[name="searchform"])
+  dd:has(:is(select, input[type="text"]) ~ :is(select, input[type="text"]))
+  :is(select, input[type="text"]) {
+  flex: 0 1 auto;
+  min-width: 3.5rem;
   /*  CONTRE LE `100% !important` D'AU-DESSUS, et contre le
       `style="width:250px"` en ligne : à spécificité égale c'est la
       règle la plus tardive qui gagne, et `!important` répond à
