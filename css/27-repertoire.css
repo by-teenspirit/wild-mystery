@@ -489,11 +489,29 @@
       toujours. Collée en haut sans plafond, une colonne plus haute
       que la fenêtre devient impossible à lire jusqu'au bout — sa fin
       reste sous le bord. */
+  /*  `border-box`, SINON LE PLAFOND NE PLAFONNE PAS. Le sommaire
+      porte 24 px de rembourrage bas : en `content-box`, un plafond de
+      944 donne une boîte de 968, et 56 + 968 dépasse une fenêtre de
+      1 000. Un `sticky` plus haut que son écran ne peut pas rester
+      épinglé — le navigateur le laisse monter jusqu'à ce qu'on voie
+      son bas. Mesuré par `deno task contraste` : « défile de 78,
+      sommaire à -22, il passe dessous ». Vingt-quatre pixels. */
+  box-sizing: border-box;
   max-height: calc(100vh - 56px);
   overflow-y: auto;
-  /*  La barre de défilement se sort du texte, sinon elle couvre la
-      colonne de droite des lignes. */
-  scrollbar-width: thin;
+  /*  `scrollbar-width` EST PARTI SOUS UNE GARDE, le 17 novembre.
+      Depuis Chrome 121, un élément qui déclare `scrollbar-width` ou
+      `scrollbar-color` voit TOUTES ses règles `::-webkit-scrollbar`
+      ignorées — et `08-annexes.css` en pose sur ce même élément pour
+      que la barre se voie à l'arrêt. Les deux syntaxes ne se
+      complètent pas : la standard gagne et l'autre disparaît. Elle ne
+      va donc plus qu'à Firefox, qui n'a pas l'autre. */
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  #modernbb .wm-bottins {
+    scrollbar-width: thin;
+  }
 }
 
 /*  ── LA BARRE D'ONGLETS, SUR FOND DE NUIT ────────────────────────
