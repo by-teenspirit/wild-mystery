@@ -161,14 +161,32 @@ Deno.test("au PREMIER passage, la relève ne lit rien et pose son curseur", asyn
   const bilan = await c.tache.executer();
 
   assertEquals(bilan.issues, [], "rien n'est traité au premier passage");
-  assertEquals(bilan.erreurs, []);
   assertEquals(c.suivi.curseurs.get(9), 8001, "mais le curseur est posé");
+
+  //  ET ELLE LE DIT. « Quand je veux faire apparaître un Pokémon, il
+  //  ne se passe rien », 17 novembre : le forum venait d'être pris en
+  //  charge, le message de Callista était le plus récent, et c'est lui
+  //  qui a posé le curseur — donc il n'a jamais été lu. Le
+  //  comportement est bon ; son SILENCE ne l'était pas. Le journal
+  //  notait « 0 traité · aucune erreur », ce qui se lit « rien à
+  //  faire » au lieu de « j'ai sauté tout ce qui précède, exprès ».
+  assertEquals(bilan.erreurs.length, 1, "elle annonce sa prise en charge");
+  const dit = bilan.erreurs[0];
+  assertEquals(dit.includes("PRISE EN CHARGE"), true, dit);
+  assertEquals(dit.includes("pas une erreur"), true, dit);
+  //  LE NUMÉRO DU MESSAGE EST DEDANS : c'est lui qui permet de
+  //  comprendre, en lisant le journal, que son propre message était
+  //  celui-là.
+  assertEquals(dit.includes("8001"), true, dit);
 });
 
 Deno.test("une zone vide au premier passage ne pose pas de curseur", async () => {
   const c = monter();
-  await c.tache.executer();
+  const bilan = await c.tache.executer();
   assertEquals(c.suivi.avances, []);
+  //  ET ELLE N'ANNONCE RIEN : il n'y a rien à sauter. Une ligne par
+  //  zone vide et par passage noierait la seule qui compte.
+  assertEquals(bilan.erreurs, []);
 });
 
 Deno.test("au passage SUIVANT, elle traite ce qui est arrivé depuis", async () => {

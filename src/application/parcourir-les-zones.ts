@@ -135,6 +135,29 @@ export class ParcourirLesZones {
     if (curseur === 0) {
       const maintenant = remues.reduce((m, s) => Math.max(m, s.dernierMessageId), 0);
       if (maintenant > 0) await this.suivi.avancer(forumId, maintenant);
+      //  ET ON LE DIT. Le 17 novembre, Callista : « quand je veux faire
+      //  apparaître un Pokémon, il ne se passe rien ». Le forum venait
+      //  d'être pris en charge, son message était le PLUS RÉCENT, et
+      //  c'est lui qui a posé le curseur — donc il n'a jamais été lu.
+      //
+      //  LE COMPORTEMENT EST BON, SON SILENCE NE L'ÉTAIT PAS : le
+      //  journal notait « messages · 0 traité · aucune erreur », ce qui
+      //  se lit comme « rien à faire » alors que la vraie phrase est
+      //  « j'ai sauté tout ce qui précède, exprès ». Il a fallu trois
+      //  requêtes et une lecture du code pour retrouver ça ; une ligne
+      //  l'aurait dit tout de suite.
+      //
+      //  C'est écrit dans `erreurs` parce que c'est le seul canal de
+      //  texte du journal, et la phrase dit elle-même que ce n'en est
+      //  pas une. Une colonne de plus pour une ligne par forum et par
+      //  vie ne vaut pas une migration.
+      if (maintenant > 0) {
+        erreurs.push(
+          `zone ${zone.nom} (f${forumId}) : PRISE EN CHARGE, pas une erreur — ` +
+            `curseur posé au message ${maintenant}. Tout ce qui précède ne sera pas lu, ` +
+            `y compris ce message-là : la relève commence au suivant.`,
+        );
+      }
       return;
     }
 
