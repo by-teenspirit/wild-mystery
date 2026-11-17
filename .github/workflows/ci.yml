@@ -224,6 +224,14 @@ jobs:
       - name: Lancer la suite
         run: pg_prove --ext .sql -d "$PGURL" supabase/tests/
 
+      #  LE REJEU. Monte tout, remonte tout, puis relance pgTAP : une
+      #  migration qui ne se rejoue pas bloque le jour où la table des
+      #  migrations est en retard sur la base — et c'est le seul jour
+      #  où on la rejoue. Arrivé le 17 novembre, à la neuvième
+      #  instruction de la 0029.
+      - name: Les migrations se rejouent
+        run: bash outils/migrations-rejouables.sh
+
   # ── 5 bis · le navigateur ─────────────────────────────────────────
   navigateur:
     name: Navigateur et fichier livré
