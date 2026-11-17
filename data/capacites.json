@@ -1,0 +1,2998 @@
+{
+ "_": "Les capacités offensives, dérivées des CSV de PokéAPI par outils/capacites.py. Les capacités de STATUT n'y sont pas : le combat de Rhode résout des dégâts, et un bouton qui n'agit pas est un défaut. La catégorie est gardée mais pas encore lue — le combat n'a que PV, Attaque et Défense.",
+ "_cle": "L'identifiant de la capacité chez PokéAPI.",
+ "capacites": {
+  "1": {
+   "nom": "Écras’Face",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "3": {
+   "nom": "Torgnoles",
+   "type": "normal",
+   "puissance": 15,
+   "pp": 10,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "4": {
+   "nom": "Poing Comète",
+   "type": "normal",
+   "puissance": 18,
+   "pp": 15,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "5": {
+   "nom": "Ultimapoing",
+   "type": "normal",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "6": {
+   "nom": "Jackpot",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "7": {
+   "nom": "Poing Feu",
+   "type": "feu",
+   "puissance": 75,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "8": {
+   "nom": "Poing Glace",
+   "type": "glace",
+   "puissance": 75,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "9": {
+   "nom": "Poing Éclair",
+   "type": "electrik",
+   "puissance": 75,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "10": {
+   "nom": "Griffe",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "11": {
+   "nom": "Force Poigne",
+   "type": "normal",
+   "puissance": 55,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "13": {
+   "nom": "Coupe-Vent",
+   "type": "normal",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "16": {
+   "nom": "Tornade",
+   "type": "vol",
+   "puissance": 40,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "17": {
+   "nom": "Cru-Ailes",
+   "type": "vol",
+   "puissance": 60,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "19": {
+   "nom": "Vol",
+   "type": "vol",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "20": {
+   "nom": "Étreinte",
+   "type": "normal",
+   "puissance": 15,
+   "pp": 20,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "21": {
+   "nom": "Souplesse",
+   "type": "normal",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 75,
+   "categorie": "physique"
+  },
+  "22": {
+   "nom": "Fouet Lianes",
+   "type": "plante",
+   "puissance": 45,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "23": {
+   "nom": "Écrasement",
+   "type": "normal",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "24": {
+   "nom": "Double Pied",
+   "type": "combat",
+   "puissance": 30,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "25": {
+   "nom": "Ultimawashi",
+   "type": "normal",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 75,
+   "categorie": "physique"
+  },
+  "26": {
+   "nom": "Pied Sauté",
+   "type": "combat",
+   "puissance": 100,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "27": {
+   "nom": "Mawashi Geri",
+   "type": "combat",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "29": {
+   "nom": "Coup d’Boule",
+   "type": "normal",
+   "puissance": 70,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "30": {
+   "nom": "Koud’Korne",
+   "type": "normal",
+   "puissance": 65,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "31": {
+   "nom": "Furie",
+   "type": "normal",
+   "puissance": 15,
+   "pp": 20,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "33": {
+   "nom": "Charge",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "34": {
+   "nom": "Plaquage",
+   "type": "normal",
+   "puissance": 85,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "35": {
+   "nom": "Ligotage",
+   "type": "normal",
+   "puissance": 15,
+   "pp": 20,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "36": {
+   "nom": "Bélier",
+   "type": "normal",
+   "puissance": 90,
+   "pp": 20,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "37": {
+   "nom": "Mania",
+   "type": "normal",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "38": {
+   "nom": "Damoclès",
+   "type": "normal",
+   "puissance": 120,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "40": {
+   "nom": "Dard-Venin",
+   "type": "poison",
+   "puissance": 15,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "42": {
+   "nom": "Dard-Nuée",
+   "type": "insecte",
+   "puissance": 25,
+   "pp": 20,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "44": {
+   "nom": "Morsure",
+   "type": "tenebres",
+   "puissance": 60,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "51": {
+   "nom": "Acide",
+   "type": "poison",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "52": {
+   "nom": "Flammèche",
+   "type": "feu",
+   "puissance": 40,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "53": {
+   "nom": "Lance-Flammes",
+   "type": "feu",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "55": {
+   "nom": "Pistolet à O",
+   "type": "eau",
+   "puissance": 40,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "56": {
+   "nom": "Hydrocanon",
+   "type": "eau",
+   "puissance": 110,
+   "pp": 5,
+   "precision": 80,
+   "categorie": "speciale"
+  },
+  "57": {
+   "nom": "Surf",
+   "type": "eau",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "58": {
+   "nom": "Laser Glace",
+   "type": "glace",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "59": {
+   "nom": "Blizzard",
+   "type": "glace",
+   "puissance": 110,
+   "pp": 5,
+   "precision": 70,
+   "categorie": "speciale"
+  },
+  "60": {
+   "nom": "Rafale Psy",
+   "type": "psy",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "61": {
+   "nom": "Bulles d’O",
+   "type": "eau",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "62": {
+   "nom": "Onde Boréale",
+   "type": "glace",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "63": {
+   "nom": "Ultralaser",
+   "type": "normal",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "64": {
+   "nom": "Picpic",
+   "type": "vol",
+   "puissance": 35,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "65": {
+   "nom": "Bec Vrille",
+   "type": "vol",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "66": {
+   "nom": "Sacrifice",
+   "type": "combat",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 80,
+   "categorie": "physique"
+  },
+  "70": {
+   "nom": "Force",
+   "type": "normal",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "71": {
+   "nom": "Vole-Vie",
+   "type": "plante",
+   "puissance": 20,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "72": {
+   "nom": "Méga-Sangsue",
+   "type": "plante",
+   "puissance": 40,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "75": {
+   "nom": "Tranch’Herbe",
+   "type": "plante",
+   "puissance": 55,
+   "pp": 25,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "76": {
+   "nom": "Lance-Soleil",
+   "type": "plante",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "80": {
+   "nom": "Danse Fleurs",
+   "type": "plante",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "83": {
+   "nom": "Danse Flammes",
+   "type": "feu",
+   "puissance": 35,
+   "pp": 15,
+   "precision": 85,
+   "categorie": "speciale"
+  },
+  "84": {
+   "nom": "Éclair",
+   "type": "electrik",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "85": {
+   "nom": "Tonnerre",
+   "type": "electrik",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "87": {
+   "nom": "Fatal-Foudre",
+   "type": "electrik",
+   "puissance": 110,
+   "pp": 10,
+   "precision": 70,
+   "categorie": "speciale"
+  },
+  "88": {
+   "nom": "Jet-Pierres",
+   "type": "roche",
+   "puissance": 50,
+   "pp": 15,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "89": {
+   "nom": "Séisme",
+   "type": "sol",
+   "puissance": 100,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "91": {
+   "nom": "Tunnel",
+   "type": "sol",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "93": {
+   "nom": "Choc Mental",
+   "type": "psy",
+   "puissance": 50,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "94": {
+   "nom": "Psyko",
+   "type": "psy",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "98": {
+   "nom": "Vive-Attaque",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "99": {
+   "nom": "Frénésie",
+   "type": "normal",
+   "puissance": 20,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "120": {
+   "nom": "Destruction",
+   "type": "normal",
+   "puissance": 200,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "122": {
+   "nom": "Léchouille",
+   "type": "spectre",
+   "puissance": 30,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "123": {
+   "nom": "Purédpois",
+   "type": "poison",
+   "puissance": 30,
+   "pp": 20,
+   "precision": 70,
+   "categorie": "speciale"
+  },
+  "124": {
+   "nom": "Détritus",
+   "type": "poison",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "126": {
+   "nom": "Déflagration",
+   "type": "feu",
+   "puissance": 110,
+   "pp": 5,
+   "precision": 85,
+   "categorie": "speciale"
+  },
+  "127": {
+   "nom": "Cascade",
+   "type": "eau",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "128": {
+   "nom": "Claquoir",
+   "type": "eau",
+   "puissance": 35,
+   "pp": 15,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "129": {
+   "nom": "Météores",
+   "type": "normal",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "131": {
+   "nom": "Picanon",
+   "type": "normal",
+   "puissance": 20,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "132": {
+   "nom": "Constriction",
+   "type": "normal",
+   "puissance": 10,
+   "pp": 35,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "136": {
+   "nom": "Pied Voltige",
+   "type": "combat",
+   "puissance": 130,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "138": {
+   "nom": "Dévorêve",
+   "type": "psy",
+   "puissance": 100,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "140": {
+   "nom": "Pilonnage",
+   "type": "normal",
+   "puissance": 15,
+   "pp": 20,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "141": {
+   "nom": "Vampirisme",
+   "type": "insecte",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "143": {
+   "nom": "Piqué",
+   "type": "vol",
+   "puissance": 140,
+   "pp": 5,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "145": {
+   "nom": "Écume",
+   "type": "eau",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "152": {
+   "nom": "Pince-Masse",
+   "type": "eau",
+   "puissance": 100,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "153": {
+   "nom": "Explosion",
+   "type": "normal",
+   "puissance": 250,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "154": {
+   "nom": "Combo-Griffe",
+   "type": "normal",
+   "puissance": 18,
+   "pp": 15,
+   "precision": 80,
+   "categorie": "physique"
+  },
+  "155": {
+   "nom": "Osmerang",
+   "type": "sol",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "157": {
+   "nom": "Éboulement",
+   "type": "roche",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "158": {
+   "nom": "Croc de Mort",
+   "type": "normal",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "161": {
+   "nom": "Triplattaque",
+   "type": "normal",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "163": {
+   "nom": "Tranche",
+   "type": "normal",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "167": {
+   "nom": "Triple Pied",
+   "type": "combat",
+   "puissance": 10,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "168": {
+   "nom": "Larcin",
+   "type": "tenebres",
+   "puissance": 60,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "172": {
+   "nom": "Roue de Feu",
+   "type": "feu",
+   "puissance": 60,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "173": {
+   "nom": "Ronflement",
+   "type": "normal",
+   "puissance": 50,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "181": {
+   "nom": "Poudreuse",
+   "type": "glace",
+   "puissance": 40,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "183": {
+   "nom": "Mach Punch",
+   "type": "combat",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "188": {
+   "nom": "Bombe Beurk",
+   "type": "poison",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "189": {
+   "nom": "Coud’Boue",
+   "type": "sol",
+   "puissance": 20,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "190": {
+   "nom": "Octazooka",
+   "type": "eau",
+   "puissance": 65,
+   "pp": 10,
+   "precision": 85,
+   "categorie": "speciale"
+  },
+  "192": {
+   "nom": "Élecanon",
+   "type": "electrik",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 50,
+   "categorie": "speciale"
+  },
+  "196": {
+   "nom": "Vent Glace",
+   "type": "glace",
+   "puissance": 55,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "198": {
+   "nom": "Charge Os",
+   "type": "sol",
+   "puissance": 25,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "200": {
+   "nom": "Colère",
+   "type": "dragon",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "202": {
+   "nom": "Giga-Sangsue",
+   "type": "plante",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "205": {
+   "nom": "Roulade",
+   "type": "roche",
+   "puissance": 30,
+   "pp": 20,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "206": {
+   "nom": "Faux-Chage",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 40,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "209": {
+   "nom": "Étincelle",
+   "type": "electrik",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "210": {
+   "nom": "Taillade",
+   "type": "insecte",
+   "puissance": 40,
+   "pp": 20,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "211": {
+   "nom": "Ailes d’Acier",
+   "type": "acier",
+   "puissance": 70,
+   "pp": 25,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "223": {
+   "nom": "Dynamo-Poing",
+   "type": "combat",
+   "puissance": 100,
+   "pp": 5,
+   "precision": 50,
+   "categorie": "physique"
+  },
+  "224": {
+   "nom": "Mégacorne",
+   "type": "insecte",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "225": {
+   "nom": "Draco-Souffle",
+   "type": "dragon",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "229": {
+   "nom": "Tour Rapide",
+   "type": "normal",
+   "puissance": 50,
+   "pp": 40,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "231": {
+   "nom": "Queue de Fer",
+   "type": "acier",
+   "puissance": 100,
+   "pp": 15,
+   "precision": 75,
+   "categorie": "physique"
+  },
+  "232": {
+   "nom": "Griffe Acier",
+   "type": "acier",
+   "puissance": 50,
+   "pp": 35,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "237": {
+   "nom": "Puissance Cachée",
+   "type": "normal",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "238": {
+   "nom": "Coup Croix",
+   "type": "combat",
+   "puissance": 100,
+   "pp": 5,
+   "precision": 80,
+   "categorie": "physique"
+  },
+  "239": {
+   "nom": "Ouragan",
+   "type": "dragon",
+   "puissance": 40,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "242": {
+   "nom": "Mâchouille",
+   "type": "tenebres",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "245": {
+   "nom": "Vitesse Extrême",
+   "type": "normal",
+   "puissance": 80,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "246": {
+   "nom": "Pouvoir Antique",
+   "type": "roche",
+   "puissance": 60,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "247": {
+   "nom": "Ball’Ombre",
+   "type": "spectre",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "248": {
+   "nom": "Prescience",
+   "type": "psy",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "249": {
+   "nom": "Éclate-Roc",
+   "type": "combat",
+   "puissance": 40,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "250": {
+   "nom": "Siphon",
+   "type": "eau",
+   "puissance": 35,
+   "pp": 15,
+   "precision": 85,
+   "categorie": "speciale"
+  },
+  "252": {
+   "nom": "Bluff",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "253": {
+   "nom": "Brouhaha",
+   "type": "normal",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "257": {
+   "nom": "Canicule",
+   "type": "feu",
+   "puissance": 95,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "263": {
+   "nom": "Façade",
+   "type": "normal",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "264": {
+   "nom": "Mitra-Poing",
+   "type": "combat",
+   "puissance": 150,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "276": {
+   "nom": "Surpuissance",
+   "type": "combat",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "279": {
+   "nom": "Vendetta",
+   "type": "combat",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "280": {
+   "nom": "Casse-Brique",
+   "type": "combat",
+   "puissance": 75,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "282": {
+   "nom": "Sabotage",
+   "type": "tenebres",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "284": {
+   "nom": "Éruption",
+   "type": "feu",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "291": {
+   "nom": "Plongée",
+   "type": "eau",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "292": {
+   "nom": "Cogne",
+   "type": "combat",
+   "puissance": 15,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "299": {
+   "nom": "Pied Brûleur",
+   "type": "feu",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "304": {
+   "nom": "Mégaphone",
+   "type": "normal",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "305": {
+   "nom": "Crochet Venin",
+   "type": "poison",
+   "puissance": 50,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "306": {
+   "nom": "Éclate Griffe",
+   "type": "normal",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "310": {
+   "nom": "Étonnement",
+   "type": "spectre",
+   "puissance": 30,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "311": {
+   "nom": "Ball’Météo",
+   "type": "normal",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "314": {
+   "nom": "Tranch’Air",
+   "type": "vol",
+   "puissance": 60,
+   "pp": 25,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "315": {
+   "nom": "Surchauffe",
+   "type": "feu",
+   "puissance": 130,
+   "pp": 5,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "317": {
+   "nom": "Tomberoche",
+   "type": "roche",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "318": {
+   "nom": "Vent Argenté",
+   "type": "insecte",
+   "puissance": 60,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "323": {
+   "nom": "Giclédo",
+   "type": "eau",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "325": {
+   "nom": "Poing Ombre",
+   "type": "spectre",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "326": {
+   "nom": "Extrasenseur",
+   "type": "psy",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "328": {
+   "nom": "Tourbi-Sable",
+   "type": "sol",
+   "puissance": 35,
+   "pp": 15,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "330": {
+   "nom": "Ocroupi",
+   "type": "eau",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 85,
+   "categorie": "speciale"
+  },
+  "331": {
+   "nom": "Balle Graine",
+   "type": "plante",
+   "puissance": 25,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "332": {
+   "nom": "Aéropique",
+   "type": "vol",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "333": {
+   "nom": "Stalactite",
+   "type": "glace",
+   "puissance": 25,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "337": {
+   "nom": "Draco-Griffe",
+   "type": "dragon",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "340": {
+   "nom": "Rebond",
+   "type": "vol",
+   "puissance": 85,
+   "pp": 5,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "341": {
+   "nom": "Tir de Boue",
+   "type": "sol",
+   "puissance": 55,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "342": {
+   "nom": "Queue-Poison",
+   "type": "poison",
+   "puissance": 50,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "343": {
+   "nom": "Implore",
+   "type": "normal",
+   "puissance": 60,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "344": {
+   "nom": "Électacle",
+   "type": "electrik",
+   "puissance": 120,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "345": {
+   "nom": "Feuille Magik",
+   "type": "plante",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "348": {
+   "nom": "Lame Feuille",
+   "type": "plante",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "350": {
+   "nom": "Boule Roc",
+   "type": "roche",
+   "puissance": 25,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "351": {
+   "nom": "Onde de Choc",
+   "type": "electrik",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "352": {
+   "nom": "Vibraqua",
+   "type": "eau",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "359": {
+   "nom": "Marto-Poing",
+   "type": "combat",
+   "puissance": 100,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "362": {
+   "nom": "Saumure",
+   "type": "eau",
+   "puissance": 65,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "364": {
+   "nom": "Ruse",
+   "type": "normal",
+   "puissance": 30,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "365": {
+   "nom": "Picore",
+   "type": "vol",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "369": {
+   "nom": "Demi-Tour",
+   "type": "insecte",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "370": {
+   "nom": "Close Combat",
+   "type": "combat",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "371": {
+   "nom": "Représailles",
+   "type": "tenebres",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "372": {
+   "nom": "Assurance",
+   "type": "tenebres",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "387": {
+   "nom": "Dernier Recours",
+   "type": "normal",
+   "puissance": 140,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "389": {
+   "nom": "Coup Bas",
+   "type": "tenebres",
+   "puissance": 70,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "394": {
+   "nom": "Boutefeu",
+   "type": "feu",
+   "puissance": 120,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "395": {
+   "nom": "Forte-Paume",
+   "type": "combat",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "396": {
+   "nom": "Aurasphère",
+   "type": "combat",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "398": {
+   "nom": "Direct Toxik",
+   "type": "poison",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "399": {
+   "nom": "Vibrobscur",
+   "type": "tenebres",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "400": {
+   "nom": "Tranche-Nuit",
+   "type": "tenebres",
+   "puissance": 70,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "401": {
+   "nom": "Hydro-Queue",
+   "type": "eau",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "402": {
+   "nom": "Canon Graine",
+   "type": "plante",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "403": {
+   "nom": "Lame d’Air",
+   "type": "vol",
+   "puissance": 75,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "404": {
+   "nom": "Plaie Croix",
+   "type": "insecte",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "405": {
+   "nom": "Bourdon",
+   "type": "insecte",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "406": {
+   "nom": "Draco-Choc",
+   "type": "dragon",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "407": {
+   "nom": "Draco-Charge",
+   "type": "dragon",
+   "puissance": 100,
+   "pp": 10,
+   "precision": 75,
+   "categorie": "physique"
+  },
+  "408": {
+   "nom": "Rayon Gemme",
+   "type": "roche",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "409": {
+   "nom": "Vampi-Poing",
+   "type": "combat",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "411": {
+   "nom": "Exploforce",
+   "type": "combat",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 70,
+   "categorie": "speciale"
+  },
+  "412": {
+   "nom": "Éco-Sphère",
+   "type": "plante",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "413": {
+   "nom": "Rapace",
+   "type": "vol",
+   "puissance": 120,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "414": {
+   "nom": "Telluriforce",
+   "type": "sol",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "416": {
+   "nom": "Giga Impact",
+   "type": "normal",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "418": {
+   "nom": "Pisto-Poing",
+   "type": "acier",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "419": {
+   "nom": "Avalanche",
+   "type": "glace",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "420": {
+   "nom": "Éclats Glace",
+   "type": "glace",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "421": {
+   "nom": "Griffe Ombre",
+   "type": "spectre",
+   "puissance": 70,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "422": {
+   "nom": "Crocs Éclair",
+   "type": "electrik",
+   "puissance": 65,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "423": {
+   "nom": "Crocs Givre",
+   "type": "glace",
+   "puissance": 65,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "424": {
+   "nom": "Crocs Feu",
+   "type": "feu",
+   "puissance": 65,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "425": {
+   "nom": "Ombre Portée",
+   "type": "spectre",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "427": {
+   "nom": "Coupe Psycho",
+   "type": "psy",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "428": {
+   "nom": "Psykoud’Boul",
+   "type": "psy",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "430": {
+   "nom": "Luminocanon",
+   "type": "acier",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "435": {
+   "nom": "Coup d’Jus",
+   "type": "electrik",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "436": {
+   "nom": "Ébullilave",
+   "type": "feu",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "437": {
+   "nom": "Tempête Verte",
+   "type": "plante",
+   "puissance": 130,
+   "pp": 5,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "438": {
+   "nom": "Mégafouet",
+   "type": "plante",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "439": {
+   "nom": "Roc-Boulet",
+   "type": "roche",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "440": {
+   "nom": "Poison Croix",
+   "type": "poison",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "441": {
+   "nom": "Détricanon",
+   "type": "poison",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 80,
+   "categorie": "physique"
+  },
+  "442": {
+   "nom": "Tête de Fer",
+   "type": "acier",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "444": {
+   "nom": "Lame de Roc",
+   "type": "roche",
+   "puissance": 100,
+   "pp": 5,
+   "precision": 80,
+   "categorie": "physique"
+  },
+  "450": {
+   "nom": "Piqûre",
+   "type": "insecte",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "451": {
+   "nom": "Rayon Chargé",
+   "type": "electrik",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "452": {
+   "nom": "Martobois",
+   "type": "plante",
+   "puissance": 120,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "453": {
+   "nom": "Aqua-Jet",
+   "type": "eau",
+   "puissance": 40,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "454": {
+   "nom": "Appel Attaque",
+   "type": "insecte",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "457": {
+   "nom": "Fracass’Tête",
+   "type": "roche",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 80,
+   "categorie": "physique"
+  },
+  "458": {
+   "nom": "Coup Double",
+   "type": "normal",
+   "puissance": 35,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "466": {
+   "nom": "Vent Mauvais",
+   "type": "spectre",
+   "puissance": 60,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "473": {
+   "nom": "Choc Psy",
+   "type": "psy",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "474": {
+   "nom": "Choc Venin",
+   "type": "poison",
+   "puissance": 65,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "479": {
+   "nom": "Anti-Air",
+   "type": "roche",
+   "puissance": 50,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "480": {
+   "nom": "Yama Arashi",
+   "type": "combat",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "482": {
+   "nom": "Cradovague",
+   "type": "poison",
+   "puissance": 95,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "488": {
+   "nom": "Nitrocharge",
+   "type": "feu",
+   "puissance": 50,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "490": {
+   "nom": "Balayette",
+   "type": "combat",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "491": {
+   "nom": "Bombe Acide",
+   "type": "poison",
+   "puissance": 40,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "492": {
+   "nom": "Tricherie",
+   "type": "tenebres",
+   "puissance": 95,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "496": {
+   "nom": "Chant Canon",
+   "type": "normal",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "497": {
+   "nom": "Écho",
+   "type": "normal",
+   "puissance": 40,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "499": {
+   "nom": "Bain de Smog",
+   "type": "poison",
+   "puissance": 50,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "500": {
+   "nom": "Force Ajoutée",
+   "type": "psy",
+   "puissance": 20,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "506": {
+   "nom": "Châtiment",
+   "type": "spectre",
+   "puissance": 65,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "509": {
+   "nom": "Projection",
+   "type": "combat",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "510": {
+   "nom": "Calcination",
+   "type": "feu",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "512": {
+   "nom": "Acrobatie",
+   "type": "vol",
+   "puissance": 55,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "514": {
+   "nom": "Vengeance",
+   "type": "normal",
+   "puissance": 70,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "517": {
+   "nom": "Feu d’Enfer",
+   "type": "feu",
+   "puissance": 100,
+   "pp": 5,
+   "precision": 50,
+   "categorie": "speciale"
+  },
+  "521": {
+   "nom": "Change Éclair",
+   "type": "electrik",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "522": {
+   "nom": "Survinsecte",
+   "type": "insecte",
+   "puissance": 50,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "523": {
+   "nom": "Piétisol",
+   "type": "sol",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "524": {
+   "nom": "Souffle Glacé",
+   "type": "glace",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "525": {
+   "nom": "Draco-Queue",
+   "type": "dragon",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "527": {
+   "nom": "Toile Élek",
+   "type": "electrik",
+   "puissance": 55,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "528": {
+   "nom": "Éclair Fou",
+   "type": "electrik",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "529": {
+   "nom": "Tunnelier",
+   "type": "sol",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "532": {
+   "nom": "Encornebois",
+   "type": "plante",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "534": {
+   "nom": "Coqui-Lame",
+   "type": "eau",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "536": {
+   "nom": "Phytomixeur",
+   "type": "plante",
+   "puissance": 65,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "539": {
+   "nom": "Explonuit",
+   "type": "tenebres",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "541": {
+   "nom": "Plumo-Queue",
+   "type": "normal",
+   "puissance": 25,
+   "pp": 10,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "542": {
+   "nom": "Vent Violent",
+   "type": "vol",
+   "puissance": 110,
+   "pp": 10,
+   "precision": 70,
+   "categorie": "speciale"
+  },
+  "543": {
+   "nom": "Peignée",
+   "type": "normal",
+   "puissance": 120,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "544": {
+   "nom": "Lancécrou",
+   "type": "acier",
+   "puissance": 50,
+   "pp": 15,
+   "precision": 85,
+   "categorie": "physique"
+  },
+  "552": {
+   "nom": "Danse du Feu",
+   "type": "feu",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "555": {
+   "nom": "Aboiement",
+   "type": "tenebres",
+   "puissance": 55,
+   "pp": 15,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "556": {
+   "nom": "Chute Glace",
+   "type": "glace",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "560": {
+   "nom": "Flying Press",
+   "type": "combat",
+   "puissance": 100,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "562": {
+   "nom": "Éructation",
+   "type": "poison",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "565": {
+   "nom": "Dard Mortel",
+   "type": "insecte",
+   "puissance": 50,
+   "pp": 25,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "566": {
+   "nom": "Hantise",
+   "type": "spectre",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "570": {
+   "nom": "Parabocharge",
+   "type": "electrik",
+   "puissance": 65,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "572": {
+   "nom": "Tempête Florale",
+   "type": "plante",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "573": {
+   "nom": "Lyophilisation",
+   "type": "glace",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "574": {
+   "nom": "Voix Enjôleuse",
+   "type": "fee",
+   "puissance": 40,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "577": {
+   "nom": "Vampibaiser",
+   "type": "fee",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "583": {
+   "nom": "Câlinerie",
+   "type": "fee",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "584": {
+   "nom": "Vent Féérique",
+   "type": "fee",
+   "puissance": 40,
+   "pp": 30,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "585": {
+   "nom": "Pouvoir Lunaire",
+   "type": "fee",
+   "puissance": 95,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "586": {
+   "nom": "Bang Sonique",
+   "type": "normal",
+   "puissance": 140,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "594": {
+   "nom": "Sheauriken",
+   "type": "eau",
+   "puissance": 15,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "595": {
+   "nom": "Feu Ensorcelé",
+   "type": "feu",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "605": {
+   "nom": "Éclat Magique",
+   "type": "fee",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "609": {
+   "nom": "Frotte-Frimousse",
+   "type": "electrik",
+   "puissance": 20,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "611": {
+   "nom": "Harcèlement",
+   "type": "insecte",
+   "puissance": 20,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "612": {
+   "nom": "Poing Boost",
+   "type": "combat",
+   "puissance": 40,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "660": {
+   "nom": "Escarmouche",
+   "type": "insecte",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "662": {
+   "nom": "Tisse Ombre",
+   "type": "spectre",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "663": {
+   "nom": "Dark Lariat",
+   "type": "tenebres",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "664": {
+   "nom": "Aria de l’Écume",
+   "type": "eau",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "665": {
+   "nom": "Marteau de Glace",
+   "type": "glace",
+   "puissance": 100,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "667": {
+   "nom": "Cavalerie Lourde",
+   "type": "sol",
+   "puissance": 95,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "669": {
+   "nom": "Lame Solaire",
+   "type": "plante",
+   "puissance": 125,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "670": {
+   "nom": "Feuillage",
+   "type": "plante",
+   "puissance": 40,
+   "pp": 40,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "675": {
+   "nom": "Exécu-Son",
+   "type": "tenebres",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "676": {
+   "nom": "Boule Pollen",
+   "type": "insecte",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "677": {
+   "nom": "Ancrage",
+   "type": "acier",
+   "puissance": 80,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "679": {
+   "nom": "Furie-Bond",
+   "type": "insecte",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "680": {
+   "nom": "Fouet de Feu",
+   "type": "feu",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "681": {
+   "nom": "Arrogance",
+   "type": "tenebres",
+   "puissance": 20,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "682": {
+   "nom": "Flamme Ultime",
+   "type": "feu",
+   "puissance": 130,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "686": {
+   "nom": "Danse Éveil",
+   "type": "normal",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "688": {
+   "nom": "Botte Sucrette",
+   "type": "plante",
+   "puissance": 70,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "690": {
+   "nom": "Bec-Canon",
+   "type": "vol",
+   "puissance": 100,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "691": {
+   "nom": "Vibrécaille",
+   "type": "dragon",
+   "puissance": 110,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "692": {
+   "nom": "Draco-Marteau",
+   "type": "dragon",
+   "puissance": 90,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "693": {
+   "nom": "Centrifugifle",
+   "type": "tenebres",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "704": {
+   "nom": "Carapiège",
+   "type": "feu",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "706": {
+   "nom": "Psycho-Croc",
+   "type": "psy",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "707": {
+   "nom": "Trépignement",
+   "type": "sol",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "708": {
+   "nom": "Os Ombre",
+   "type": "spectre",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "709": {
+   "nom": "Vif Roc",
+   "type": "roche",
+   "puissance": 40,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "710": {
+   "nom": "Aqua-Brèche",
+   "type": "eau",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "716": {
+   "nom": "Électrikipik",
+   "type": "electrik",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "745": {
+   "nom": "Tir de Précision",
+   "type": "eau",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "746": {
+   "nom": "Croque Fort",
+   "type": "tenebres",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "751": {
+   "nom": "Draco-Flèches",
+   "type": "dragon",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "754": {
+   "nom": "Prise de Bec",
+   "type": "electrik",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "755": {
+   "nom": "Branchicrok",
+   "type": "eau",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "778": {
+   "nom": "Tambour Battant",
+   "type": "plante",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "780": {
+   "nom": "Ballon Brûlant",
+   "type": "feu",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "783": {
+   "nom": "Roue Libre",
+   "type": "electrik",
+   "puissance": 110,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "784": {
+   "nom": "Abattage",
+   "type": "dragon",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "785": {
+   "nom": "Tapotige",
+   "type": "plante",
+   "puissance": 40,
+   "pp": 40,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "786": {
+   "nom": "Overdrive",
+   "type": "electrik",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "787": {
+   "nom": "Acide Malique",
+   "type": "plante",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "788": {
+   "nom": "Force G",
+   "type": "plante",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "789": {
+   "nom": "Choc Émotionnel",
+   "type": "fee",
+   "puissance": 75,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "790": {
+   "nom": "Vapeur Féérique",
+   "type": "fee",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "793": {
+   "nom": "Fourbette",
+   "type": "tenebres",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "794": {
+   "nom": "Joute Astrale",
+   "type": "combat",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "800": {
+   "nom": "Laser Météore",
+   "type": "roche",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "805": {
+   "nom": "Champlification",
+   "type": "normal",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "806": {
+   "nom": "Ravage Rampant",
+   "type": "insecte",
+   "puissance": 70,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "812": {
+   "nom": "Eau Revoir",
+   "type": "eau",
+   "puissance": 60,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "814": {
+   "nom": "Double Volée",
+   "type": "vol",
+   "puissance": 40,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "827": {
+   "nom": "Griffes Funestes",
+   "type": "poison",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "828": {
+   "nom": "Sprint Bouclier",
+   "type": "psy",
+   "puissance": 70,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "830": {
+   "nom": "Hache de Pierre",
+   "type": "roche",
+   "puissance": 65,
+   "pp": 15,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "833": {
+   "nom": "Grand Courroux",
+   "type": "feu",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "834": {
+   "nom": "Aquatacle",
+   "type": "eau",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "835": {
+   "nom": "Herblast",
+   "type": "plante",
+   "puissance": 150,
+   "pp": 5,
+   "precision": 95,
+   "categorie": "speciale"
+  },
+  "838": {
+   "nom": "Assaut Frontal",
+   "type": "sol",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "839": {
+   "nom": "Multitoxik",
+   "type": "poison",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "840": {
+   "nom": "Ailes Psycho",
+   "type": "psy",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "841": {
+   "nom": "Cœur de Rancœur",
+   "type": "spectre",
+   "puissance": 75,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "843": {
+   "nom": "Triple Flèche",
+   "type": "combat",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "844": {
+   "nom": "Cortège Funèbre",
+   "type": "spectre",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "845": {
+   "nom": "Vagues à Lames",
+   "type": "tenebres",
+   "puissance": 65,
+   "pp": 15,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "853": {
+   "nom": "Talon-Marteau",
+   "type": "combat",
+   "puissance": 120,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "854": {
+   "nom": "Hommage Posthume",
+   "type": "spectre",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "855": {
+   "nom": "Lumino-Impact",
+   "type": "psy",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "856": {
+   "nom": "Plat du Jour",
+   "type": "dragon",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "857": {
+   "nom": "Poing Sonique",
+   "type": "eau",
+   "puissance": 60,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "859": {
+   "nom": "Dérapage",
+   "type": "acier",
+   "puissance": 100,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "860": {
+   "nom": "Prolifération",
+   "type": "normal",
+   "puissance": 20,
+   "pp": 10,
+   "precision": 90,
+   "categorie": "physique"
+  },
+  "861": {
+   "nom": "Cryo-Pirouette",
+   "type": "glace",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "862": {
+   "nom": "Charge Glaive",
+   "type": "dragon",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "864": {
+   "nom": "Salaison",
+   "type": "roche",
+   "puissance": 40,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "865": {
+   "nom": "Triple Plongeon",
+   "type": "eau",
+   "puissance": 30,
+   "pp": 10,
+   "precision": 95,
+   "categorie": "physique"
+  },
+  "866": {
+   "nom": "Toupie Éclat",
+   "type": "poison",
+   "puissance": 30,
+   "pp": 15,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "869": {
+   "nom": "Génusection",
+   "type": "tenebres",
+   "puissance": 85,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "870": {
+   "nom": "Magie Florale",
+   "type": "plante",
+   "puissance": 70,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "871": {
+   "nom": "Chant Flamboyant",
+   "type": "feu",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "872": {
+   "nom": "Danse Aquatique",
+   "type": "eau",
+   "puissance": 80,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "874": {
+   "nom": "Ruée d'Or",
+   "type": "acier",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "887": {
+   "nom": "Hyperceuse",
+   "type": "normal",
+   "puissance": 100,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "888": {
+   "nom": "Double Laser",
+   "type": "psy",
+   "puissance": 40,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "889": {
+   "nom": "Poing de Colère",
+   "type": "spectre",
+   "puissance": 50,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "890": {
+   "nom": "Canon Blindé",
+   "type": "feu",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "891": {
+   "nom": "Lame en Peine",
+   "type": "feu",
+   "puissance": 90,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "892": {
+   "nom": "Double Décharge",
+   "type": "electrik",
+   "puissance": 120,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "893": {
+   "nom": "Marteau Mastoc",
+   "type": "acier",
+   "puissance": 160,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "894": {
+   "nom": "Vindicte",
+   "type": "tenebres",
+   "puissance": 1,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "895": {
+   "nom": "Tranch'Aqua",
+   "type": "eau",
+   "puissance": 70,
+   "pp": 20,
+   "precision": 100,
+   "categorie": "physique"
+  },
+  "902": {
+   "nom": "Mortier Matcha",
+   "type": "plante",
+   "puissance": 80,
+   "pp": 15,
+   "precision": 90,
+   "categorie": "speciale"
+  },
+  "903": {
+   "nom": "Bombe au Sirop",
+   "type": "plante",
+   "puissance": 60,
+   "pp": 10,
+   "precision": 85,
+   "categorie": "speciale"
+  },
+  "905": {
+   "nom": "Fulgurayon",
+   "type": "electrik",
+   "puissance": 130,
+   "pp": 10,
+   "precision": 100,
+   "categorie": "speciale"
+  },
+  "907": {
+   "nom": "Laser Hasard",
+   "type": "dragon",
+   "puissance": 80,
+   "pp": 5,
+   "precision": 100,
+   "categorie": "speciale"
+  }
+ }
+}

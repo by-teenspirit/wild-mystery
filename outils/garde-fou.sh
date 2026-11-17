@@ -1563,6 +1563,61 @@ PY
   fi
 fi
 
+echo "── 36. les capacités, et les espèces qui les apprennent ───────"
+# DEUX FICHIERS DÉRIVÉS DE POKÉAPI, et une règle qui les tient
+# ensemble : une espèce ne peut pas apprendre une capacité qui
+# n'existe pas. C'est le même principe que la règle 9 pour l'index
+# des espèces — une donnée dérivée qu'on ne relit jamais finit par
+# mentir, et personne ne le voit tant qu'on ne s'en sert pas.
+#
+# LE PLANCHER EST COMPTÉ, PAS TOLÉRÉ. Sept espèces n'ont aucune
+# capacité offensive en montée de niveau et reçoivent Charge. Le
+# nombre est écrit ici : s'il bouge, c'est que la source a changé, et
+# on veut le savoir avant de s'en apercevoir en combat.
+python3 - <<'FIN'
+import json, sys
+caps = json.load(open("data/capacites.json"))["capacites"]
+esp = json.load(open("data/capacites-par-espece.json"))["especes"]
+fiches = json.load(open("data/especes-fiches.json"))["fiches"]
+TYPES = {t for f in fiches.values() for t in f["types"]}
+fautes = []
+
+manquantes = {f for f in fiches if f not in esp}
+if manquantes:
+    fautes.append(f"{len(manquantes)} espèce(s) sans capacités : {sorted(manquantes)[:5]}")
+
+inconnues = {
+    str(a["id"]) for e in esp.values() for a in e["apprend"] if str(a["id"]) not in caps
+}
+if inconnues:
+    fautes.append(f"capacités apprises qui n'existent pas : {sorted(inconnues)[:5]}")
+
+hors = {c["type"] for c in caps.values()} - TYPES
+if hors:
+    fautes.append(f"types de capacité hors du vocabulaire du dépôt : {sorted(hors)}")
+
+muettes = [i for i, c in caps.items() if c["puissance"] <= 0]
+if muettes:
+    fautes.append(f"capacités sans puissance — elles n'agiraient pas : {muettes[:5]}")
+
+vides = [i for i, e in esp.items() if not e["apprend"]]
+if vides:
+    fautes.append(f"espèces sans aucune capacité : {vides[:5]}")
+
+planchers = sum(1 for e in esp.values() if e["plancher"])
+if planchers != 7:
+    fautes.append(f"{planchers} espèces au plancher, 7 attendues — la source a bougé")
+
+for f in fautes:
+    print(f"::error::{f}")
+if not fautes:
+    appris = sum(len(e["apprend"]) for e in esp.values())
+    print(f"   capacités : {len(caps)} offensives, {len(esp)} espèces, "
+          f"{appris} apprentissages, {planchers} au plancher")
+sys.exit(1 if fautes else 0)
+FIN
+[ $? -ne 0 ] && fautes=$((fautes + 1))
+
 echo "── 33. aucune page ne dépasse ce que Forumactif accepte ───────"
 # L'ÉDITEUR DE PAGES HTML S'ARRÊTE À 128 000 CARACTÈRES, ET IL REFUSE
 # EN SILENCE : la page se recharge, le contenu revient à l'état
