@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(279);
+select plan(295);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2072,6 +2072,142 @@ select ok(
     and not has_function_privilege('authenticated', 'renommer_les_joueurs(jsonb)', 'execute')
     and has_function_privilege('service_role', 'renommer_les_joueurs(jsonb)', 'execute'),
   'RENOMMER EST RÉSERVÉ À LA RELÈVE : un joueur ne renomme pas les autres'
+);
+
+-- ════════════════════════════════════════════════════════════════════
+--  0043 · LA DOTATION DE DÉPART
+--
+--  « Personne n'aura une équipe vide : à la validation, il reçoit son
+--  premier pokémon », 17 novembre. Le combat se joue entre le PREMIER
+--  POKÉMON DE L'ÉQUIPE et le sauvage : si la dotation ment, le moteur
+--  de combat a besoin d'un cas « équipe vide » qui ne devrait pas
+--  exister.
+--
+--  CE QUI EST GARDÉ ICI, c'est surtout qu'on ne dote QU'UNE FOIS.
+--  `valider_le_personnage` se relance — c'est comme ça qu'on corrige
+--  un groupe — et sans garde chaque relance rendrait cinq potions et
+--  mille pokédollars de plus.
+-- ════════════════════════════════════════════════════════════════════
+
+--  Bulbizarre est 1, et il est de stade 1. Herbizarre est 2, stade 2.
+select lives_ok(
+  $$ select valider_le_personnage(
+       '{"forumUserId": 9101, "pseudo": "Dotée", "groupe": "doux",
+         "courriel": "d@exemple.fr", "starter": 1}'::jsonb) $$,
+  'LA VALIDATION AVEC UN STARTER PASSE'
+);
+
+select is(
+  (select count(*)::int from pokemon p join joueur j on j.id = p.joueur_id
+    where j.forum_user_id = 9101 and p.emplacement = 'equipe' and p.position = 1),
+  1,
+  'LE STARTER EST EN PREMIÈRE PLACE DE L''ÉQUIPE — c''est lui qui combattra'
+);
+
+select is(
+  (select p.espece_id from pokemon p join joueur j on j.id = p.joueur_id
+    where j.forum_user_id = 9101),
+  1,
+  'et c''est bien l''espèce demandée'
+);
+
+select is(
+  (select quantite from sac s join joueur j on j.id = s.joueur_id
+    where j.forum_user_id = 9101 and s.objet_id = 990001),
+  5,
+  'cinq Poké Ball dans le sac'
+);
+
+select is(
+  (select quantite from sac s join joueur j on j.id = s.joueur_id
+    where j.forum_user_id = 9101 and s.objet_id = 990020),
+  5,
+  'et cinq Potions'
+);
+
+select is(
+  (select pokedollars from joueur where forum_user_id = 9101),
+  1000,
+  'mille pokédollars'
+);
+
+select ok(
+  (select attrape_le is not null from pokedex x join joueur j on j.id = x.joueur_id
+    where j.forum_user_id = 9101 and x.espece_id = 1),
+  'LE STARTER EST AU POKÉDEX, ATTRAPÉ : il est à lui, le cacher ferait mentir son premier chiffre'
+);
+
+--  ── LA GARDE QUI COMPTE ──────────────────────────────────────────
+select lives_ok(
+  $$ select valider_le_personnage(
+       '{"forumUserId": 9101, "pseudo": "Dotée", "groupe": "brave",
+         "starter": 1}'::jsonb) $$,
+  'on peut revalider — c''est comme ça qu''on corrige un groupe'
+);
+
+select is(
+  (select count(*)::int from pokemon p join joueur j on j.id = p.joueur_id
+    where j.forum_user_id = 9101),
+  1,
+  'ON NE DOTE QU''UNE FOIS : pas de second starter'
+);
+
+select is(
+  (select quantite from sac s join joueur j on j.id = s.joueur_id
+    where j.forum_user_id = 9101 and s.objet_id = 990020),
+  5,
+  'ni cinq potions de plus'
+);
+
+select is(
+  (select pokedollars from joueur where forum_user_id = 9101),
+  1000,
+  'ni mille pokédollars de plus'
+);
+
+--  ── SANS STARTER, PAS DE DOTATION DU TOUT ────────────────────────
+--
+--  Sinon `dote_le` serait posée et le pokémon n'arriverait JAMAIS.
+select is(
+  (select valider_le_personnage(
+     '{"forumUserId": 9102, "pseudo": "SansStarter", "groupe": "doux"}'::jsonb)
+   ->>'dote'),
+  'false',
+  'SANS STARTER, LA DOTATION N''A PAS LIEU'
+);
+
+select is(
+  (select pokedollars from joueur where forum_user_id = 9102),
+  0,
+  'et rien n''est donné — ni argent, ni sac'
+);
+
+select is(
+  (select valider_le_personnage(
+     '{"forumUserId": 9102, "starter": 1}'::jsonb)->>'dote'),
+  'true',
+  'ET ELLE PEUT AVOIR LIEU PLUS TARD : la date était restée nulle'
+);
+
+--  ── CE QUE LA BASE PEUT GARANTIR, ET ELLE SEULE ──────────────────
+--
+--  La LISTE des starters est éditoriale et bougera. Ce qui est gardé
+--  ici est qu'un starter existe et qu'il est une forme de BASE : un
+--  Herbizarre de départ est une faute de frappe, pas un choix.
+select throws_ok(
+  $$ select valider_le_personnage(
+       '{"forumUserId": 9103, "pseudo": "Faute", "starter": 2}'::jsonb) $$,
+  'P0001',
+  'STARTER_PAS_UNE_FORME_DE_BASE',
+  'UN STARTER QUI N''EST PAS UNE FORME DE BASE EST REFUSÉ'
+);
+
+select throws_ok(
+  $$ select valider_le_personnage(
+       '{"forumUserId": 9104, "pseudo": "Fantome", "starter": 999999}'::jsonb) $$,
+  'P0001',
+  'STARTER_INCONNU',
+  'et une espèce qui n''existe pas aussi'
 );
 
 select * from finish();

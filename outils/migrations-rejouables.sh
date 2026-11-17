@@ -49,10 +49,12 @@
 #
 #  Usage :  PGURL=postgres://… bash outils/migrations-rejouables.sh
 #
-#  LA BASE DOIT ÊTRE VIERGE, pgTAP installé et rien d'autre. Relancé
-#  sur une base déjà montée, le PREMIER passage se comporte comme un
-#  rejeu et les quatre exemptées remontent en défaut — ce qui est juste,
-#  mais ne mesure plus ce qu'on voulait.
+#  LA BASE PEUT ÊTRE VIERGE OU DÉJÀ MONTÉE, pourvu que pgTAP y soit.
+#  Les quatre exemptées sont tolérées AUX DEUX PASSAGES, et c'est
+#  voulu : sur une base déjà montée — le cas du CI, qui monte les
+#  migrations à l'étape d'avant — le premier passage est déjà un rejeu.
+#  Ce script ne mesure que le REJEU ; le premier montage, lui, est gardé
+#  par l'étape « Monter les migrations », qui n'exempte personne.
 # ════════════════════════════════════════════════════════════════════
 set -uo pipefail
 
@@ -70,8 +72,8 @@ monter() {
     if psql "$PGURL" -q -v ON_ERROR_STOP=1 -f "$m" >/tmp/migration.log 2>&1; then
       continue
     fi
-    if [ "$passe" = "2" ] && [[ " $EXEMPTEES " == *" $n "* ]]; then
-      echo "   (passe 2) $n exemptée, comme prévu"
+    if [[ " $EXEMPTEES " == *" $n "* ]]; then
+      echo "   (passe $passe) $n exemptée, comme prévu"
       continue
     fi
     echo "::error::$(basename "$m") ne se rejoue pas — une migration qui ne se rejoue pas bloque le jour où la table des migrations est en retard sur la base"
@@ -85,8 +87,37 @@ monter 1
 echo "══ second montage, sur une base déjà à jour"
 monter 2
 
+#  ── `pg_prove` N'EST PAS `psql` ────────────────────────────────────
+#
+#  Trouvé le 17 novembre, en montant la 0043 : `psql --dbname` accepte
+#  une URI de connexion, `pg_prove -d` NON — il la prend pour un nom de
+#  base et retombe sur la socket par défaut. Le script disait donc « la
+#  suite pgTAP ne passe plus » quelle que soit la suite, et il le disait
+#  DEPUIS LE JOUR OÙ IL A ÉTÉ ÉCRIT.
+#
+#  Un contrôle qui ne peut pas passer est un contrôle que personne ne
+#  lit : au deuxième « rouge » sans cause, on arrête de regarder. Celui
+#  d'à côté — le rejeu des migrations — marche, et c'est lui qu'on
+#  serait venu à ignorer avec.
+#
+#  On traduit donc l'URI en variables libpq, que `pg_prove` hérite
+#  comme n'importe quel client.
+eval "$(python3 - "$PGURL" <<'FIN'
+import sys, urllib.parse as u
+p = u.urlsplit(sys.argv[1])
+q = dict(u.parse_qsl(p.query))
+print(f"export PGHOST={q.get('host') or p.hostname or '/var/run/postgresql'}")
+print(f"export PGPORT={q.get('port') or p.port or 5432}")
+if p.username:
+    print(f"export PGUSER={p.username}")
+if p.password:
+    print(f"export PGPASSWORD={p.password}")
+print(f"export PGDATABASE={p.path.lstrip('/') or 'postgres'}")
+FIN
+)"
+
 echo "══ et la suite tient toujours"
-if ! pg_prove --ext .sql -d "$PGURL" supabase/tests/ >/tmp/prove.log 2>&1; then
+if ! pg_prove --ext .sql supabase/tests/ >/tmp/prove.log 2>&1; then
   #  C'EST ICI QUE LE DROIT PERDU SE VOIT. Un rejeu peut monter sans
   #  une erreur et laisser la base dans un autre état : la suite est la
   #  seule chose qui le dise.
