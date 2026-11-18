@@ -345,7 +345,15 @@ const pose = await p.evaluate(() => {
     boutons: [...barre.querySelectorAll("button")].map((b) => b.textContent.trim()),
     //  TOUT contrôle, pas seulement les boutons : c'est ce que le menu
     //  « Où » était.
-    controles: barre.querySelectorAll("button, select, input, textarea, a").length,
+    //
+    //  SAUF CE QUI EST CACHÉ, depuis le 18 novembre. Le bloc d'erreur
+    //  du carnet non relié naît caché et porte un lien ; compté ici,
+    //  il faisait un cinquième contrôle sur une barre qui n'en montre
+    //  que quatre. Ce n'est pas un contrôle de plus à l'écran — c'en
+    //  est un qui n'est pas à l'écran, et la règle de 15 octobre parle
+    //  de ce qu'on VOIT.
+    controles: [...barre.querySelectorAll("button, select, input, textarea, a")]
+      .filter((e) => e.offsetParent !== null || e.getClientRects().length > 0).length,
     dansLeFormulaire: formulaire.contains(barre),
     apresLeChamp: rang(barre) > rang(champ),
     avantLesEnvois: envois.every((e) => rang(barre) < rang(e)),
@@ -460,6 +468,17 @@ const muets = await p.evaluate(() => {
 
   const sansEffet = [];
   for (const c of barre.querySelectorAll("button, select, input, a")) {
+    //  UN LIEN QUI MÈNE AILLEURS N'EST PAS MUET, il est SORTANT. Le
+    //  contrôle du 15 octobre cherche des contrôles qui ne changent
+    //  rien DANS la barre ; un `<a href>` n'a aucune raison d'y
+    //  changer quoi que ce soit — son effet est de quitter la page, et
+    //  le harnais empêche justement toute navigation. Le cliquer ici
+    //  ne mesurerait rien et, sur une page réelle, l'emporterait.
+    //
+    //  SON ADRESSE EST VÉRIFIÉE AILLEURS — dans l'essai du bloc
+    //  d'erreur, qui exige `/h17-mon-carnet`. Un lien vide ou en « # »
+    //  n'y passerait pas.
+    if (c.tagName === "A" && (c.getAttribute("href") ?? "") !== "") continue;
     //  ON PART D'AILLEURS : le premier bouton qui n'est pas celui-ci.
     const ailleurs = boutons.find((b) => b !== c);
     if (ailleurs !== undefined) ailleurs.click();
@@ -1250,20 +1269,86 @@ await p.close();
 //  point, le bouton serait un décor.
 console.log("\n── COMBAT OUVERT, LECTURE PRIVÉE MUETTE ───────────────");
 p = await monter({ ouvert: { combatId: "11111111-1111-1111-1111-111111111111" } });
-const sourd = await p.evaluate(() => ({
-  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
-  note: document.querySelector(".wm-barre__note")?.textContent ?? "",
-}));
+const sourd = await p.evaluate(() => {
+  const a = document.querySelector(".wm-barre__alerte");
+  const r = a === null ? null : a.getBoundingClientRect();
+  return {
+    mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+    note: document.querySelector(".wm-barre__note")?.textContent ?? "",
+    alerte: a === null ? null : {
+      visible: !a.hidden && r.height > 0,
+      titre: a.querySelector(".wm-barre__alerte-titre")?.textContent ?? "",
+      texte: a.querySelector(".wm-barre__alerte-texte")?.textContent ?? "",
+      lien: a.querySelector("a")?.getAttribute("href") ?? null,
+      //  LA CIBLE TACTILE DU LIEN : une sortie qu'on ne peut pas viser
+      //  au doigt n'est pas une sortie.
+      hauteurDuLien: Math.round(
+        a.querySelector("a")?.getBoundingClientRect().height ?? 0,
+      ),
+      //  IL SE DÉTACHE : un bloc d'erreur qui a le fond de la barre
+      //  n'est pas mis en avant, c'est un paragraphe de plus.
+      fond: getComputedStyle(a).backgroundColor,
+      fondDeLaBarre: getComputedStyle(document.querySelector(".wm-barre")).backgroundColor,
+      filet: getComputedStyle(a).borderTopWidth,
+      filetGauche: getComputedStyle(a).borderLeftWidth,
+    },
+  };
+});
 dire(
   "LES CINQ BOUTONS DU COMBAT, « FUIR » COMPRIS",
   sourd.mots.length === 5 && sourd.mots.includes("Fuir"),
   JSON.stringify(sourd.mots),
 );
+//  ── « UN BLOC D'ERREUR MIS EN AVANT », ET PAS UNE PHRASE GRISE ───
+//
+//  18 novembre : « quand le compte n'est pas lié, tu ne peux pas
+//  afficher juste ce petit message ». La première version mettait la
+//  phrase dans la note sous les boutons — là où l'œil ne lit que ce
+//  qui change au clic. Un blocage qui demande une action ne vit pas
+//  là.
 dire(
-  "LA PHRASE DIT « PAS PU ÊTRE LUS », PAS « TU N'AS AUCUNE »",
-  sourd.note.includes("pas pu être lus") && !sourd.note.includes("aucune"),
-  sourd.note,
+  "LE BLOC D'ERREUR EST VISIBLE, AVEC SON TITRE",
+  sourd.alerte !== null && sourd.alerte.visible &&
+    sourd.alerte.titre.includes("carnet n'est pas relié"),
+  JSON.stringify(sourd.alerte && {
+    visible: sourd.alerte.visible,
+    titre: sourd.alerte.titre,
+  }),
 );
+dire(
+  "il se détache du fond de la barre, et son filet n'est pas à gauche",
+  sourd.alerte !== null && sourd.alerte.fond !== sourd.alerte.fondDeLaBarre &&
+    sourd.alerte.filet !== "0px" && sourd.alerte.filetGauche === "0px",
+  JSON.stringify(sourd.alerte && {
+    fond: sourd.alerte.fond,
+    barre: sourd.alerte.fondDeLaBarre,
+    haut: sourd.alerte.filet,
+    gauche: sourd.alerte.filetGauche,
+  }),
+);
+dire(
+  "il dit quoi faire ET où, avec une cible qu'un doigt peut viser",
+  sourd.alerte !== null && sourd.alerte.lien === "/h17-mon-carnet" &&
+    sourd.alerte.hauteurDuLien >= 44,
+  JSON.stringify(sourd.alerte && {
+    lien: sourd.alerte.lien,
+    hauteur: sourd.alerte.hauteurDuLien,
+  }),
+);
+dire(
+  "et le texte nomme les quatre choix hors de portée, sans mentir sur le sac",
+  sourd.alerte !== null && sourd.alerte.texte.includes("ne peut pas lire") &&
+    !sourd.alerte.texte.includes("aucune"),
+  sourd.alerte?.texte,
+);
+//  UNE PHOTO DU BLOC D'ERREUR, QUAND ON LA DEMANDE. « Il faut que ce
+//  soit plus clair, que ça apparaisse comme un bloc mis en avant » :
+//  « mis en avant » se regarde, il ne se mesure pas.
+if (Deno.args.includes("--photo")) {
+  const barre = await p.$(".wm-barre");
+  await barre.screenshot({ path: `${R}barre-carnet.png` });
+  console.log("photo : barre-carnet.png");
+}
 await clic(p, "Fuir");
 await envoyer(p);
 const fuite = await lire(p);

@@ -430,8 +430,16 @@ export const ATTENTE = "Le Maître du Jeu répond dans les minutes qui suivent, 
  *  serait un mensonge : on n'a pas lu son sac, on ne sait pas ce qu'il
  *  y a dedans. Dire « pas pu être lus » est la seule phrase vraie, et
  *  elle dit aussi où regarder. */
-export const SOURD = "Ton équipe, ton sac et tes capacités n'ont pas pu être lus — " +
-  "vérifie que ton carnet est relié. Fuir reste possible.";
+export const SOURD = "Le Maître du Jeu ne peut pas lire ton équipe, ton sac ni tes " +
+  "capacités : attaquer, lancer une ball, utiliser un objet et changer de Pokémon " +
+  "sont hors de portée tant que le carnet n'est pas relié. Fuir, lui, ne demande " +
+  "rien et reste possible.";
+
+/** Où l'on relie son carnet. La même adresse que la barre latérale et
+ *  que le menu du compte — elle est dans `data/navigation.json`, mais
+ *  la barre d'actions ne lit aucun fichier et n'en lira pas un pour
+ *  une ligne. Si elle change, le garde-fou n° 31 le dira. */
+export const ADRESSE_DU_CARNET = "/h17-mon-carnet";
 
 export const JEUX: Record<Jeu, readonly Choix[]> = {
   hors: HORS_COMBAT,
@@ -499,6 +507,7 @@ export class BarreDActions {
   readonly #depart: "hors" | "nouveau";
   #combat: DonneesDeCombat | null = null;
   #groupe: HTMLElement | null = null;
+  #alerte: HTMLElement | null = null;
 
   /** `jeu` est celui des choix SERVIS AU DÉPART, et il n'y en a que
    *  deux de possibles ici : `hors` dans un sujet, `nouveau` sur le
@@ -570,8 +579,12 @@ export class BarreDActions {
       //  LE MENU NE PARAÎT QUE SOUS LE BOUTON CHOISI. Quatre menus
       //  ouverts en permanence feraient une barre illisible, et trois
       //  d'entre eux parleraient d'une action qu'on n'a pas demandée.
+      //  UN MENU VIDE NE PARAÎT PAS, même sous le choix coché : une
+      //  liste déroulante sans rien dedans est un contrôle qui ment.
+      //  La phrase en dessous dit pourquoi — « tu n'as aucune Poké
+      //  Ball », ou le bloc d'erreur du carnet non relié.
       const menu = this.#menus.get(choix.cle);
-      if (menu !== undefined) menu.hidden = !coche;
+      if (menu !== undefined) menu.hidden = !coche || menu.options.length === 0;
     }
 
     if (this.#note !== null) {
@@ -585,11 +598,22 @@ export class BarreDActions {
       //  jamais emprunter la phrase de la première.
       const sansMenu = menu !== undefined && menu.options.length === 0;
       const sourd = this.#combat === null && trouve?.liste !== undefined;
+      //  EN COMBAT SOURD, LA NOTE SE TAIT et laisse parler l'alerte :
+      //  deux textes qui disent la même chose à dix pixels l'un de
+      //  l'autre se lisent moins bien qu'un seul.
       this.#note.textContent = sourd
-        ? SOURD
+        ? "Ce choix demande ton carnet."
         : sansMenu
         ? (trouve?.vide ?? "")
         : (trouve?.annonce ?? "");
+    }
+
+    //  L'ALERTE SUIT L'ÉTAT, ELLE N'EST PAS POSÉE UNE FOIS : la
+    //  lecture privée peut arriver APRÈS la barre (un aller-retour
+    //  réseau), et le jour où elle arrive, l'alerte doit disparaître
+    //  sans que personne recharge la page.
+    if (this.#alerte !== null) {
+      this.#alerte.hidden = !(this.#jeu === "combat" && this.#combat === null);
     }
 
     //  ELLE NE PARAÎT QUE SI QUELQU'UN DOIT ATTENDRE. « Ne rien faire »
@@ -687,6 +711,40 @@ export class BarreDActions {
     entete.className = "wm-barre__entete";
     entete.textContent = "Ton tour";
     barre.appendChild(entete);
+
+    //  ── L'ALERTE DU CARNET NON RELIÉ ──────────────────────────────
+    //
+    //  « Quand le compte n'est pas lié, tu ne peux pas afficher juste
+    //  ce petit message. Il faut que ce soit plus clair, que ça
+    //  apparaisse comme un bloc d'erreur mis en avant. » — 18
+    //  novembre.
+    //
+    //  ELLE A RAISON, ET LA PREMIÈRE VERSION ÉTAIT UN DEMI-GESTE : une
+    //  phrase grise sous les boutons, à la place d'une annonce, dans
+    //  un endroit où le joueur ne lit que ce qui change. Un blocage
+    //  qui demande une action — relier son carnet — n'est pas une
+    //  note de bas de page.
+    //
+    //  ELLE NAÎT CACHÉE et ne paraît qu'en combat sourd : un bloc
+    //  d'erreur visible sur un sujet où tout va bien serait pire que
+    //  l'absence de message.
+    const alerte = this.#doc.createElement("div");
+    alerte.className = "wm-barre__alerte";
+    alerte.hidden = true;
+    alerte.setAttribute("role", "status");
+    const alerteTitre = this.#doc.createElement("p");
+    alerteTitre.className = "wm-barre__alerte-titre";
+    alerteTitre.textContent = "Ton carnet n'est pas relié";
+    const alerteTexte = this.#doc.createElement("p");
+    alerteTexte.className = "wm-barre__alerte-texte";
+    alerteTexte.textContent = SOURD;
+    const alerteLien = this.#doc.createElement("a");
+    alerteLien.className = "wm-barre__alerte-lien";
+    alerteLien.href = ADRESSE_DU_CARNET;
+    alerteLien.textContent = "Relier mon carnet";
+    alerte.append(alerteTitre, alerteTexte, alerteLien);
+    this.#alerte = alerte;
+    barre.appendChild(alerte);
 
     const groupe = this.#doc.createElement("div");
     groupe.className = "wm-barre__choix";

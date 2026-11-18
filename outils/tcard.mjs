@@ -262,21 +262,20 @@ const page = (corps) =>
 <style>${BASE_MODERNBB}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
 <style>${
-  //  LES ADRESSES D'IMAGES SONT RELATIVES À LA FEUILLE, pas à la
-  //  page. Sur le forum la feuille est servie depuis `/css/`, donc
-  //  `../img/…` tombe juste. Ici elle est recopiée DANS une page
-  //  montée par `setContent`, dont l'origine est `about:blank` :
-  //  aucune adresse relative ni `file://` n'y charge quoi que ce
-  //  soit. On lit donc le fichier sur le disque et on le met en
-  //  `data:` — s'il n'existe pas, `readFileSync` jette ici, et si
-  //  l'adresse est fausse, le `naturalWidth` plus bas tombe. Relire
-  //  l'adresse déclarée n'aurait rien prouvé.
-  readFileSync(R + "css/wild-mystery.css", "utf8").replaceAll(
-    /url\("\.\.\/img\/([^"]+)"\)/g,
-    (_, f) =>
-      `url("data:image/png;base64,${readFileSync(R + "img/" + f).toString("base64")}")`,
-  )
-}</style>
+    //  LES ADRESSES D'IMAGES SONT RELATIVES À LA FEUILLE, pas à la
+    //  page. Sur le forum la feuille est servie depuis `/css/`, donc
+    //  `../img/…` tombe juste. Ici elle est recopiée DANS une page
+    //  montée par `setContent`, dont l'origine est `about:blank` :
+    //  aucune adresse relative ni `file://` n'y charge quoi que ce
+    //  soit. On lit donc le fichier sur le disque et on le met en
+    //  `data:` — s'il n'existe pas, `readFileSync` jette ici, et si
+    //  l'adresse est fausse, le `naturalWidth` plus bas tombe. Relire
+    //  l'adresse déclarée n'aurait rien prouvé.
+    readFileSync(R + "css/wild-mystery.css", "utf8").replaceAll(
+      /url\("\.\.\/img\/([^"]+)"\)/g,
+      (_, f) =>
+        `url("data:image/png;base64,${readFileSync(R + "img/" + f).toString("base64")}")`,
+    )}</style>
 <style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
 </head><body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
@@ -797,9 +796,7 @@ const bulles = await p.evaluate(() => {
   //  voulu — le code collé par une joueuse peut faire les deux.
   const liste = [...document.querySelectorAll("#remplie .wm-tcard__badges")]
     .flatMap((u) => {
-      const v = [...u.children].filter((e) =>
-        e.querySelector(".wm-tcard__bulle") !== null
-      );
+      const v = [...u.children].filter((e) => e.querySelector(".wm-tcard__bulle") !== null);
       return v.map((e, i) => ({
         v: e,
         bout: e === u.firstElementChild
@@ -873,8 +870,6 @@ dire(
   JSON.stringify(bulles),
 );
 
-
-
 //  ══════════════════════════════════════════════════════════════════
 //  LE BANDEAU PORTE LA NATURE
 //
@@ -928,7 +923,8 @@ const nature = await p.evaluate(async (attendue) => {
     teinteDansLeDegrade: /^#[0-9a-f]{6}$/i.test(teinte) &&
       avec.includes(
         "rgb(" + [1, 3, 5].map((i) => parseInt(teinte.slice(i, i + 2), 16))
-          .join(", ") + ")",
+          .join(", ") +
+          ")",
       ),
     teinte,
     //  ET LE LÉGENDAIRE EST UN FOND À FOND PERDU, PAS UNE MOSAÏQUE :
@@ -1370,9 +1366,7 @@ const casesDuTest = await p.evaluate(() => {
     }),
     leMot: obscurs.length > 0 &&
       obscurs[0].querySelector(".wm-tcard__obscur")?.textContent?.trim() === "Obscur",
-    aucunLisere: cases.every((c) =>
-      !getComputedStyle(c).boxShadow.includes("inset")
-    ),
+    aucunLisere: cases.every((c) => !getComputedStyle(c).boxShadow.includes("inset")),
     //  ET LES SPRITES NE SONT PLUS AGRANDIS. « Pourquoi certains comme
     //  Couaneton sont plus gros ? » — `scale-down` ne grossit jamais.
     jamaisAgrandi: cases.every((c) => {
@@ -1558,7 +1552,11 @@ const surUneLigne = await p.evaluate(() => {
     });
   }
   pires.sort((a, b) => a.marge - b.marge);
-  return { combien: pires.length, pire: pires[0] ?? null, replies: pires.filter((x) => x.lignes > 1) };
+  return {
+    combien: pires.length,
+    pire: pires[0] ?? null,
+    replies: pires.filter((x) => x.lignes > 1),
+  };
 });
 dire(
   "les doubles types tiennent sur une ligne, avec de la marge",
@@ -1731,9 +1729,33 @@ const REPONSE_CARTE = {
     { arene: "Colosseum de Rhode", obtenuLe: "2026-09-20T10:00:00Z" },
   ],
   equipe: [
-    { especeId: 95, surnom: null, niveau: 26, sexe: "M", obscur: false, place: 1, enPension: false },
-    { especeId: 25, surnom: "Pika", niveau: 24, sexe: "F", obscur: false, place: 2, enPension: true },
-    { especeId: 7, surnom: null, niveau: 21, sexe: "M", obscur: true, place: 4, enPension: false },
+    {
+      especeId: 95,
+      surnom: null,
+      niveau: 26,
+      sexe: "M",
+      obscur: false,
+      place: 1,
+      enPension: false,
+    },
+    {
+      especeId: 25,
+      surnom: "Pika",
+      niveau: 24,
+      sexe: "F",
+      obscur: false,
+      place: 2,
+      enPension: true,
+    },
+    {
+      especeId: 7,
+      surnom: null,
+      niveau: 21,
+      sexe: "M",
+      obscur: true,
+      place: 4,
+      enPension: false,
+    },
   ],
 };
 
@@ -1822,12 +1844,16 @@ async function monterLaPage({ corps, reponse = REPONSE_CARTE }) {
         (e.querySelector(".wm-tcard__nom") ?? e.querySelector(".wm-tcard__libre"))
           ?.textContent?.trim() ?? ""
       ),
-      niveaux: cases.map((e) => e.querySelector(".wm-tcard__niveau")?.textContent?.trim() ?? ""),
+      niveaux: cases.map((e) =>
+        e.querySelector(".wm-tcard__niveau")?.textContent?.trim() ?? ""
+      ),
       feu: badge("feu"),
       eau: badge("eau"),
       fee: badge("fee"),
       //  LES SPRITES VIENNENT DU DÉPÔT, jamais d'un CDN tiers.
-      sprites: [...c.querySelectorAll("img.wm-tcard__sprite")].map((i) => i.getAttribute("src")),
+      sprites: [...c.querySelectorAll("img.wm-tcard__sprite")].map((i) =>
+        i.getAttribute("src")
+      ),
     };
   });
 
@@ -1835,12 +1861,14 @@ async function monterLaPage({ corps, reponse = REPONSE_CARTE }) {
     "le marqueur est rempli : palier, pokédollars et compteur viennent de la base",
     releve !== null && releve.remplie && releve.palier === "2" &&
       releve.argent === "1 240" && releve.compte === "3 / 11",
-    JSON.stringify(releve && {
-      remplie: releve.remplie,
-      palier: releve.palier,
-      argent: releve.argent,
-      compte: releve.compte,
-    }),
+    JSON.stringify(
+      releve && {
+        remplie: releve.remplie,
+        palier: releve.palier,
+        argent: releve.argent,
+        compte: releve.compte,
+      },
+    ),
   );
 
   dire(
@@ -1848,7 +1876,9 @@ async function monterLaPage({ corps, reponse = REPONSE_CARTE }) {
     releve !== null && releve.cases === 6 && releve.libres === 3 &&
       releve.noms[0] !== "" && releve.noms[1] === "Pika" && releve.noms[2] === "Place libre" &&
       releve.niveaux[1] === "niv. 24 · en pension" && releve.obscurs === 1,
-    JSON.stringify(releve && { noms: releve.noms, niveaux: releve.niveaux, obscurs: releve.obscurs }),
+    JSON.stringify(
+      releve && { noms: releve.noms, niveaux: releve.niveaux, obscurs: releve.obscurs },
+    ),
   );
 
   dire(
@@ -1860,10 +1890,36 @@ async function monterLaPage({ corps, reponse = REPONSE_CARTE }) {
     JSON.stringify(releve && { feu: releve.feu, eau: releve.eau, fee: releve.fee }),
   );
 
+  //  ── CET ESSAI A LAISSÉ VIVRE LE DÉFAUT QU'IL DEVAIT ATTRAPER ─────
+  //
+  //  Il exigeait `/assets/pokemon/<id>.png`. Ce dossier N'EXISTE PAS
+  //  dans le dépôt — zéro fichier suivi — et l'essai passait au vert
+  //  parce qu'il comparait l'adresse écrite par le module à l'adresse
+  //  écrite par le module. Deux copies de la même erreur sont
+  //  d'accord entre elles.
+  //
+  //  Résultat, relevé par Callista le 18 novembre : « pourquoi le
+  //  Goupix de Jake ne s'affiche pas dans son équipe, dans son
+  //  profil, dans l'affichage d'un sujet ». Les trois à la fois,
+  //  parce que les trois passent par ici.
+  //
+  //  ON VÉRIFIE DONC QUE LE FICHIER EXISTE SUR LE DISQUE, et plus
+  //  seulement que l'adresse a la bonne forme. Une adresse bien formée
+  //  vers un fichier absent est exactement ce qu'on vient de corriger.
+  const surLeDisque = (adresse) => {
+    const m = /\/(assets\/sprites-figes\/[a-z-]+\/\d+\.(?:png|gif))$/.exec(adresse ?? "");
+    if (m === null) return false;
+    try {
+      readFileSync(R + m[1]);
+      return true;
+    } catch {
+      return false;
+    }
+  };
   dire(
-    "les sprites viennent du dépôt, pas du CDN d'un autre projet",
+    "les sprites viennent du dépôt, et les fichiers y sont vraiment",
     releve !== null && releve.sprites.length === 3 &&
-      releve.sprites.every((s) => /\/assets\/pokemon\/\d+\.png$/.test(s ?? "")),
+      releve.sprites.every(surLeDisque),
     JSON.stringify(releve && releve.sprites),
   );
 

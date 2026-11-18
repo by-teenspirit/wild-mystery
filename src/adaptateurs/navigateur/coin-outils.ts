@@ -118,10 +118,34 @@ export class CoinOutils {
     return themeApplique(this.#prefs.theme(), this.#systemeEstSombre());
   }
 
-  /** Pose ou retire la classe sur `body`. À appeler le plus tôt possible :
-   *  tout retard se voit comme un éclair blanc avant le thème sombre. */
+  /** Pose ou retire la classe sur `html` ET sur `body`. À appeler le
+   *  plus tôt possible : tout retard se voit comme un éclair clair
+   *  avant le thème sombre.
+   *
+   *  ── POURQUOI `html` D'ABORD, ET PAS SEULEMENT LE CORPS ────────────
+   *
+   *  « Quand je suis en mode sombre, j'ai toujours le glitch du mode
+   *  clair même s'il est léger » — 18 novembre, après une première
+   *  réparation le 9 novembre qui n'avait traité que la moitié du
+   *  problème.
+   *
+   *  LA MOITIÉ RESTANTE EST UNE QUESTION DE MOMENT, pas de sélecteur.
+   *  Relevé sur le forum le 18 : notre script est dans le `<head>`,
+   *  en huitième position et sans `defer`. À ce moment-là
+   *  `document.body` VAUT NULL — le corps n'est pas encore analysé.
+   *  La pose attendait donc `DOMContentLoaded`, c'est-à-dire la fin de
+   *  l'analyse de toute la page ; le navigateur, lui, peint avant.
+   *
+   *  `documentElement` EXISTE DÉJÀ, LUI, dès la première ligne de
+   *  l'analyse. La classe y va donc tout de suite, et `jetons.css`
+   *  déclare la palette sombre sur `html.wm-sombre` : la toile et le
+   *  fond de page sont sombres dès le premier pixel peint.
+   *
+   *  LE CORPS GARDE LA SIENNE : toutes nos règles de composant passent
+   *  par `body`, et elles ne vont pas changer d'ancre pour ça. */
   appliquerLeTheme(): Theme {
     const theme = this.#themeCourant();
+    this.#doc.documentElement?.classList.toggle(CLASSE_SOMBRE, theme === "sombre");
     this.#doc.body?.classList.toggle(CLASSE_SOMBRE, theme === "sombre");
     return theme;
   }

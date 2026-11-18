@@ -272,6 +272,20 @@
     d'autre moyen tant que la bascule écrit sur le corps, et elle doit
     y écrire : toutes nos règles passent par `body`.
     ════════════════════════════════════════════════════════════════ */
+/*  ── ET `html.wm-sombre` EN PREMIER, LE 18 NOVEMBRE ───────────────
+
+    `:has()` ne peut lire la classe du corps qu'une fois le corps
+    analysé. Or le script est dans le `<head>` : quand il s'exécute,
+    `document.body` vaut null et la pose attendait `DOMContentLoaded`
+    — après le premier rendu. Le fond restait donc crème le temps que
+    la page s'analyse, quelle que soit la finesse du sélecteur.
+
+    La bascule écrit maintenant AUSSI sur `html`, tout de suite. Cette
+    ligne-ci est ce qui rend cette écriture utile. Les deux autres
+    sélecteurs restent : le `:has` couvre une page où seul le corps
+    aurait la classe (le carnet, les annexes), et `body` porte nos
+    règles de composant.  */
+html.wm-sombre,
 html:has(body.wm-sombre),
 body.wm-sombre {
 

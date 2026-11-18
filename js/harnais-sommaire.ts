@@ -18,6 +18,8 @@ import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
 import { poserSonJeu } from "../src/adaptateurs/navigateur/module-profil-jeu.ts";
+import { decorDesSprites } from "../src/adaptateurs/navigateur/module-tcard.ts";
+import { STYLE_PAR_DEFAUT } from "../src/navigateur/sprites.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
 
@@ -47,5 +49,15 @@ g.wmPoserLeProfil = (): boolean => poserLeProfil(document);
 //  « SON JEU », pour `outils/profil.mjs`. Le harnais sert lui-même la
 //  réponse de `carte_dresseur` et les deux fichiers de données : ce
 //  qu'on mesure est le rendu, pas le réseau.
-g.wmPoserSonJeu = (url: string, cle: string): Promise<boolean> =>
-  poserSonJeu(document, { url, clePubliable: cle }, "/data/", "/img/");
+//  LE DÉCOR DES SPRITES EST CONSTRUIT PAR LA MÊME FONCTION QUE LA
+//  PAGE, depuis `/data/sprites-couverture.json` que le harnais sert :
+//  un décor écrit à la main ici mesurerait l'invention du harnais, et
+//  c'est exactement comme ça que l'adresse `assets/pokemon/<id>.png`
+//  a vécu des semaines sans que personne la voie.
+g.wmPoserSonJeu = async (url: string, cle: string): Promise<boolean> =>
+  poserSonJeu(
+    document,
+    { url, clePubliable: cle },
+    "/data/",
+    await decorDesSprites("/data/", "/", STYLE_PAR_DEFAUT),
+  );

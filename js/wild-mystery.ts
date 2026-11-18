@@ -48,6 +48,7 @@ import {
   forumDeLaPage,
   racineDesDonnees,
   racineDesImages,
+  racineDuDepot,
 } from "../src/adaptateurs/navigateur/catalogue.ts";
 import { zoneDe } from "../src/navigateur/zone.ts";
 import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/registre.ts";
@@ -102,13 +103,32 @@ import {
   poserLAccessibilite,
   poserLesNotifications,
 } from "../src/adaptateurs/navigateur/module-confort.ts";
-import { poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
+import { decorDesSprites, poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
 import { poserSonJeu } from "../src/adaptateurs/navigateur/module-profil-jeu.ts";
 
 const prefs = new Preferences(new StockageLocal());
 const coin = new CoinOutils(document, prefs);
+
+//  ── LE THÈME, TOUT DE SUITE, AVANT TOUT LE RESTE ────────────────────
+//
+//  « Quand je suis en mode sombre, j'ai toujours le glitch du mode
+//  clair même s'il est léger » — 18 novembre.
+//
+//  CET APPEL EST HORS DE `desQueLeCorpsEstLa`, ET C'EST TOUT L'OBJET.
+//  Ce script est servi dans le `<head>` du forum, sans `defer`
+//  (relevé le 18) : quand il s'exécute, `document.body` vaut null.
+//  La pose du thème attendait donc `DOMContentLoaded` — la fin de
+//  l'analyse de la page entière — alors que le navigateur peint bien
+//  avant. D'où l'éclair clair, même court.
+//
+//  `documentElement` EXISTE DÉJÀ ICI, et `jetons.css` déclare la
+//  palette sombre sur `html.wm-sombre` : la toile est sombre dès le
+//  premier pixel. L'appel dans `desQueLeCorpsEstLa` reste, pour
+//  habiller le corps quand il arrive — les deux ne font pas double
+//  emploi, ils ne visent pas le même élément au même moment.
+coin.appliquerLeTheme();
 
 //  LU TOUT DE SUITE, et pas plus tard : `document.currentScript` n'est
 //  renseigné que pendant l'exécution initiale du script. Après le premier
@@ -119,6 +139,12 @@ const RACINE = racineDesDonnees(adresseDuScript(document));
 //  balises `<script>` de la page — il marche, mais il n'y a aucune
 //  raison de s'en remettre à lui alors que la vraie valeur est là.
 const IMAGES = racineDesImages(adresseDuScript(document));
+//  ET LA RACINE DU DÉPÔT, pour la même raison. `Sprites` rend un
+//  chemin RELATIF À LA RACINE — `assets/sprites-figes/forum/37.png` —
+//  parce qu'elle ne sait pas, et n'a pas à savoir, où le dépôt est
+//  servi. Le recollage se fait ici, dans la couche qui connaît les
+//  adresses, exactement comme dans `js/carnet.ts`.
+const DEPOT = racineDuDepot(adresseDuScript(document));
 
 //  LA BARRE FORUMACTIF EST RETENUE TOUT DE SUITE, et pas dans
 //  `desQueLeCorpsEstLa` : son avatar clignotait en haut de l'écran le
@@ -646,7 +672,12 @@ async function poserLeJeuDuProfil(): Promise<void> {
   if (document.querySelector(".wm-profil-page__jeu[data-wm-membre]") === null) return;
   const config = await configSupabase();
   if (config === null) return;
-  await poserSonJeu(document, config, RACINE, IMAGES);
+  await poserSonJeu(
+    document,
+    config,
+    RACINE,
+    await decorDesSprites(RACINE, DEPOT, prefs.styleDeSprite()),
+  );
 }
 
 async function poserLaCarteDresseur(): Promise<void> {
@@ -654,7 +685,17 @@ async function poserLaCarteDresseur(): Promise<void> {
   if (document.querySelector("[data-wm-tcard]") === null) return;
   const config = await configSupabase();
   if (config === null) return;
-  await poserLesCartes(document, config, RACINE, IMAGES);
+  //  LE STYLE EST CELUI DU LECTEUR, comme dans le carnet : les trois
+  //  jeux de sprites existent et le choix est rangé dans ses
+  //  préférences. Un module qui servirait le style par défaut à qui a
+  //  choisi l'autre ferait deux carnets dans le même forum.
+  await poserLesCartes(
+    document,
+    config,
+    RACINE,
+    DEPOT,
+    prefs.styleDeSprite(),
+  );
 }
 
 async function poserLesPresents(): Promise<void> {

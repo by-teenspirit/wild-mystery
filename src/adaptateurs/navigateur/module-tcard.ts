@@ -46,9 +46,28 @@
 import { type Acces, appeler } from "./supabase.ts";
 import { especesDepuis } from "./catalogue.ts";
 import { type Arene, type Badge, chiffre } from "../../navigateur/carnet.ts";
+import { adresseDuSprite } from "./module-faune.ts";
+import {
+  type CarteDeCouverture,
+  Sprites,
+  type StyleDeSprite,
+} from "../../navigateur/sprites.ts";
 
 const MARQUEUR = "[data-wm-tcard]";
 const PLACES = 6;
+
+/** Où sont les sprites, et dans quel style les servir.
+ *
+ *  LES TROIS VONT ENSEMBLE, et c'est pour ça qu'ils voyagent en un
+ *  seul objet : une racine sans carte de couverture ne sait pas quelle
+ *  espèce est couverte, et une carte sans racine ne sait pas où elle
+ *  est servie. Les séparer, c'est ce qui a permis à trois modules
+ *  d'écrire chacun sa propre adresse — et de se tromper. */
+export type DecorDesSprites = {
+  readonly depot: string | null;
+  readonly sprites: Sprites | null;
+  readonly style: StyleDeSprite;
+};
 
 export interface PokemonDeLaCarte {
   especeId: number;
@@ -95,7 +114,7 @@ function caseDEquipe(
   p: PokemonDeLaCarte | null,
   especes: ReadonlyMap<number, string>,
   types: ReadonlyMap<number, string[]>,
-  racineDesImages: string | null,
+  decor: DecorDesSprites,
 ): HTMLLIElement {
   const li = doc.createElement("li");
   li.className = "wm-tcard__pkmn";
@@ -116,10 +135,34 @@ function caseDEquipe(
   //  LE SPRITE VIENT DU DÉPÔT, jamais du CDN d'un autre projet
   //  (note 371:713). Sans racine connue, on pose la case vide plutôt
   //  qu'une image cassée.
-  if (racineDesImages !== null) {
+  //
+  //  ── IL ÉCRIVAIT `pokemon/<id>.png` À LA MAIN, ET CE DOSSIER N'EXISTE PAS
+  //
+  //  « Pourquoi le Goupix de Jake ne s'affiche pas dans son équipe,
+  //  dans son profil, dans l'affichage d'un sujet ? » — 18 novembre.
+  //  Relevé sur `/u4` le jour même :
+  //  `assets/pokemon/37.png`, largeur naturelle 0. Le dossier n'a
+  //  jamais existé ; les images sont dans `assets/sprites-figes/`,
+  //  rangées par style.
+  //
+  //  C'EST LA TROISIÈME FOIS, et les deux premières sont écrites juste
+  //  à côté : `module-carnet.ts` et `module-faune.ts` portent chacun
+  //  le commentaire de leur propre réparation. Trois modules avaient
+  //  recopié la même adresse fausse. `adresseDuSprite` est la seule
+  //  fonction qui sache où sont les images — celle-ci l'appelle
+  //  maintenant aussi.
+  //
+  //  `trainer-card` EST L'EMPLACEMENT, et il décide tout seul que le
+  //  sprite ne bouge pas (`BOUGE`, dans `sprites.ts`) : une équipe de
+  //  six par carte, plusieurs cartes par sujet, ça ferait trente GIF
+  //  dans une page de RP.
+  const adresse = decor.depot === null || decor.sprites === null
+    ? null
+    : adresseDuSprite(decor.sprites, decor.depot, p.especeId, decor.style, "trainer-card");
+  if (adresse !== null) {
     const img = doc.createElement("img");
     img.className = "wm-tcard__sprite";
-    img.src = `${racineDesImages}pokemon/${p.especeId}.png`;
+    img.src = adresse;
     img.alt = "";
     img.loading = "lazy";
     li.append(img);
@@ -194,7 +237,7 @@ export function poserLEquipe(
   donnees: CarteDresseur,
   especes: ReadonlyMap<number, string>,
   types: ReadonlyMap<number, string[]>,
-  racineDesImages: string | null,
+  decor: DecorDesSprites,
 ): void {
   const liste = carte.querySelector("[data-wm-tcard-equipe]");
   if (liste === null) return;
@@ -209,7 +252,7 @@ export function poserLEquipe(
   }
 
   liste.replaceChildren(
-    ...places.map((p) => caseDEquipe(doc, p, especes, types, racineDesImages)),
+    ...places.map((p) => caseDEquipe(doc, p, especes, types, decor)),
   );
 }
 
@@ -273,13 +316,13 @@ export function remplirUneCarte(
     especes: ReadonlyMap<number, string>;
     types: ReadonlyMap<number, string[]>;
     arenes: Arene[];
-    racineDesImages: string | null;
+    decor: DecorDesSprites;
   },
 ): void {
   texte(carte, "data-wm-tcard-palier", donnees.palier === null ? "—" : String(donnees.palier));
   texte(carte, "data-wm-tcard-argent", chiffre(donnees.pokedollars));
   texte(carte, "data-wm-tcard-compte", compteDeLaCarte(donnees.badges, contexte.arenes));
-  poserLEquipe(carte, donnees, contexte.especes, contexte.types, contexte.racineDesImages);
+  poserLEquipe(carte, donnees, contexte.especes, contexte.types, contexte.decor);
   poserLesBadges(carte, donnees, contexte.arenes);
   //  LA CARTE DIT QU'ELLE EST À JOUR. Sans ce marqueur, rien ne
   //  distingue à l'œil une carte remplie d'une carte restée sur ses
@@ -320,6 +363,35 @@ async function lire(racine: string, nom: string): Promise<unknown> {
     .catch(() => null);
 }
 
+/** Lit la carte de couverture et rend le décor des sprites.
+ *
+ *  UNE SEULE FONCTION POUR LES DEUX APPELANTS — la carte de dresseur
+ *  dans un sujet, et « Son jeu » sur une page de profil. Les deux
+ *  posent la MÊME équipe par la même fonction ; leur donner deux
+ *  façons de trouver les images, c'est ce qui vient d'être réparé.
+ *
+ *  SANS COUVERTURE, LE DÉCOR EXISTE QUAND MÊME, avec `sprites: null` :
+ *  les cases se posent vides. Une case vide se voit moins qu'une image
+ *  cassée, et la carte dit le reste — niveau, nom, types. */
+export async function decorDesSprites(
+  racineDesDonnees: string,
+  depot: string | null,
+  style: StyleDeSprite,
+): Promise<DecorDesSprites> {
+  const couverture = await lire(racineDesDonnees, "sprites-couverture.json");
+  return {
+    depot,
+    sprites: couverture === null
+      ? null
+      //  LE MOUVEMENT EST DÉJÀ REFUSÉ PAR L'EMPLACEMENT : une carte de
+      //  dresseur ne bouge pas. On n'a donc pas à lire la préférence de
+      //  mouvement du lecteur ici — `trainer-card` n'est pas dans
+      //  `BOUGE`, et c'est tout.
+      : new Sprites(couverture as CarteDeCouverture, false),
+    style,
+  };
+}
+
 /** Remplit toutes les cartes de la page.
  *
  *  UNE REQUÊTE PAR DRESSEUR, pas par carte : un sujet où le même joueur
@@ -328,7 +400,8 @@ export async function poserLesCartes(
   doc: Document,
   acces: Acces,
   racineDesDonnees: string,
-  racineDesImages: string | null,
+  depot: string | null,
+  style: StyleDeSprite,
 ): Promise<number> {
   const cartes = [...doc.querySelectorAll(MARQUEUR)];
   const parDresseur = new Map<number, Element[]>();
@@ -349,16 +422,17 @@ export async function poserLesCartes(
   //  celle-ci ne retienne, vérifié en la retirant le 2 novembre.
   if (parDresseur.size === 0) return 0;
 
-  const [especesBrut, typesBrut, arenesBrut] = await Promise.all([
+  const [especesBrut, typesBrut, arenesBrut, decor] = await Promise.all([
     lire(racineDesDonnees, "especes.json"),
     lire(racineDesDonnees, "especes-fiches.json"),
     lire(racineDesDonnees, "arenes.json"),
+    decorDesSprites(racineDesDonnees, depot, style),
   ]);
   const contexte = {
     especes: especesDepuis(especesBrut),
     types: typesDepuis(typesBrut),
     arenes: arenesDepuis(arenesBrut),
-    racineDesImages,
+    decor,
   };
 
   let remplies = 0;

@@ -1215,6 +1215,11 @@ html {
   color-scheme: light;
 }
 
+/*  `html.wm-sombre` EN PREMIER depuis le 18 novembre : la bascule pose
+    la classe sur `html` dès l'exécution du script, avant que le corps
+    existe. C'est ce qui rend la toile sombre au PREMIER rendu, et pas
+    à `DOMContentLoaded`. */
+html.wm-sombre,
 html:has(body.wm-sombre) {
   background-color: var(--wm-fond-page, #eecfb5);
   color-scheme: dark;
@@ -14589,6 +14594,20 @@ body:has(#modernbb .wm-carnet) {
     LA HAUTEUR DE CIBLE EST CELLE DES BOUTONS : 34 px, mesurés par
     `outils/barre.mjs`. Un menu plus bas que les boutons qu'il
     accompagne se rate au doigt. */
+/*  ── `display: block` BAT `[hidden]`, ET LE HARNAIS L'A PHOTOGRAPHIÉ
+
+    18 novembre, sur la photo du bloc d'erreur : les QUATRE menus
+    s'affichaient en même temps, vides, sous les boutons. Le module
+    pose pourtant `hidden` sur les trois qui ne sont pas choisis — mais
+    `[hidden] { display: none }` du navigateur est une règle de base,
+    et n'importe quel `display` écrit dans une feuille la bat.
+
+    On le redit donc ici. C'est le genre de défaut qu'aucune mesure
+    de texte n'attrape : il fallait regarder. */
+#modernbb .wm-barre__menu[hidden] {
+  display: none;
+}
+
 #modernbb .wm-barre__menu {
   display: block;
   box-sizing: border-box;
@@ -14610,6 +14629,70 @@ body:has(#modernbb .wm-carnet) {
     qu'on l'a perdu — et elle se lit comme indisponible. */
 #modernbb .wm-barre__menu option:disabled {
   color: var(--wm-texte-pale, #69564c);
+}
+
+/*  ── L'ALERTE DU CARNET NON RELIÉ ─────────────────────────────────
+
+    « Quand le compte n'est pas lié, tu ne peux pas afficher juste ce
+    petit message. Il faut que ce soit plus clair, que ça apparaisse
+    comme un bloc d'erreur mis en avant. » — 18 novembre.
+
+    LES TROIS CHOSES QUI FONT UN BLOC D'ERREUR, et pas une phrase
+    grise : un fond qui le détache du reste de la barre, un filet
+    épais sur le bord qui porte la lecture, et un titre. Le reste est
+    du texte ordinaire : une alerte qui crie sur quatre lignes se lit
+    moins bien qu'une alerte qui nomme le problème en cinq mots.
+
+    LE FILET EST EN HAUT, PAS À GAUCHE. « Ne mets pas un border à
+    gauche. Ne mets ça nulle part, ce n'est pas beau » (7 novembre).
+
+    LA COULEUR EST CELLE DES AVERTISSEMENTS DE LA CHARTE, pas un rouge
+    inventé ici : ce n'est pas une panne, c'est une étape qui manque,
+    et le rouge d'erreur dirait que quelque chose est cassé. */
+#modernbb .wm-barre__alerte {
+  margin: 0 14px 12px;
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
+  border-top: 3px solid var(--wm-rarete-peu-commun-texte, #96540e);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+}
+
+#modernbb .wm-barre__alerte-titre {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  color: var(--wm-rarete-peu-commun-texte, #96540e);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-barre__alerte-texte {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1.5;
+}
+
+/*  LE LIEN EST UNE SORTIE, DONC IL SE CLIQUE. Une alerte qui dit quoi
+    faire sans donner le chemin fait chercher. Cible tactile tenue :
+    c'est un bouton pour un doigt autant que pour une souris. */
+#modernbb a.wm-barre__alerte-lien {
+  display: inline-flex;
+  min-height: var(--wm-cible-tactile, 44px);
+  align-items: center;
+  margin-top: var(--wm-espace-8, 8px);
+  padding: 0 var(--wm-espace-14, 14px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-rarete-peu-commun-texte, #96540e);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
+#modernbb a.wm-barre__alerte-lien:hover,
+#modernbb a.wm-barre__alerte-lien:focus-visible {
+  background: var(--wm-texte-corps, #4e3b30);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
 }
 
 #modernbb .wm-barre__note {

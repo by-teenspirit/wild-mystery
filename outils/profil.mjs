@@ -356,6 +356,7 @@ const ESPECES = {
   },
 };
 const FICHES = { fiches: { "37": { types: ["feu"] }, "25": { types: ["electrik"] } } };
+const COUVERTURE = JSON.parse(readFileSync(R + "data/sprites-couverture.json", "utf8"));
 
 await p.route("**/*", (r) => {
   let chemin = "";
@@ -368,6 +369,15 @@ await p.route("**/*", (r) => {
   if (chemin.endsWith("/rpc/carte_dresseur")) return json(CARTE);
   if (chemin === "/data/especes.json") return json(ESPECES);
   if (chemin === "/data/especes-fiches.json") return json(FICHES);
+  //  LA VRAIE CARTE DE COUVERTURE DU DÉPÔT, et pas une invention.
+  //
+  //  C'est elle qui dit où sont les sprites. Tant que le module
+  //  écrivait `pokemon/<id>.png` à la main, ce harnais comptait cinq
+  //  images sans jamais vérifier qu'elles existaient — et il a compté
+  //  cinq images mortes pendant des semaines. Depuis le 18 novembre le
+  //  module lit la couverture ; le harnais la sert donc telle qu'elle
+  //  est, et la vérification des adresses, plus bas, a de quoi mordre.
+  if (chemin === "/data/sprites-couverture.json") return json(COUVERTURE);
   const i = ADRESSES.indexOf(chemin);
   return i === -1
     ? r.fulfill({ status: 204, body: "" })
@@ -911,6 +921,15 @@ await p.evaluate(() => document.body.classList.remove("wm-sombre"));
       libres: cases.filter((c) => c.className.includes("--libre")).length,
       obscurs: cases.filter((c) => c.className.includes("--obscur")).length,
       sprites: s.querySelectorAll("img.wm-tcard__sprite").length,
+      //  ── OÙ POINTENT-ILS, VRAIMENT ──────────────────────────────
+      //
+      //  Compter les balises ne prouve rien : cinq `<img>` dont
+      //  l'adresse n'existe pas font cinq cadres vides, et c'est
+      //  exactement ce que Callista a vu le 18 novembre — « le Goupix
+      //  de Jake ne s'affiche pas ». On relève donc les adresses, et
+      //  on vérifie qu'elles portent le dossier qui existe.
+      adresses: [...s.querySelectorAll("img.wm-tcard__sprite")]
+        .map((i) => i.getAttribute("src") ?? ""),
       noms: [...s.querySelectorAll(".wm-tcard__nom")].map((n) => n.textContent.trim()),
     };
   });
@@ -926,6 +945,24 @@ await p.evaluate(() => document.body.classList.remove("wm-sombre"));
   ok("dont une place libre", jeu.libres === 1, jeu.libres);
   ok("et le pokémon obscur est marqué", jeu.obscurs === 1, jeu.obscurs);
   ok("cinq sprites", jeu.sprites === 5, jeu.sprites);
+  //  LE DOSSIER QUI EXISTE EST `assets/sprites-figes/<style>/`. Celui
+  //  que le module écrivait, `pokemon/<id>.png`, n'a jamais existé
+  //  dans le dépôt : le relevé du 18 novembre sur `/u4` donnait une
+  //  largeur naturelle de zéro.
+  ok(
+    "et chacun pointe sur le dossier qui existe",
+    jeu.adresses.length === 5 &&
+      jeu.adresses.every((a) => /\/assets\/sprites-figes\/[a-z-]+\/\d+\.(png|gif)$/.test(a)),
+    jeu.adresses.join(" · "),
+  );
+  //  LE GOUPIX NOMMÉMENT. C'est celui qu'elle a vu manquer, et un essai
+  //  qui ne nomme personne laisse passer un jeu de cinq images justes
+  //  dont aucune n'est la bonne.
+  ok(
+    "dont le Goupix de la première case",
+    jeu.adresses.some((a) => a.endsWith("/37.png")),
+    jeu.adresses[0] ?? "aucune",
+  );
   //  LE SURNOM PASSE DEVANT L'ESPÈCE quand il y en a un : c'est le
   //  rendu de la carte, et c'est bien celui-là qu'on réutilise.
   ok(

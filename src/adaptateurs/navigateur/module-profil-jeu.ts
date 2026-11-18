@@ -43,7 +43,12 @@
 
 import { type Acces, appeler } from "./supabase.ts";
 import { especesDepuis } from "./catalogue.ts";
-import { type CarteDresseur, poserLEquipe, typesDepuis } from "./module-tcard.ts";
+import {
+  type CarteDresseur,
+  type DecorDesSprites,
+  poserLEquipe,
+  typesDepuis,
+} from "./module-tcard.ts";
 import { chiffre } from "../../navigateur/carnet.ts";
 
 const MARQUEUR = ".wm-profil-page__jeu[data-wm-membre]";
@@ -80,7 +85,7 @@ export async function poserSonJeu(
   doc: Document,
   acces: Acces,
   racineDesDonnees: string,
-  racineDesImages: string | null,
+  decor: DecorDesSprites,
 ): Promise<boolean> {
   const section = doc.querySelector<HTMLElement>(MARQUEUR);
   if (section === null) return false;
@@ -124,7 +129,12 @@ export async function poserSonJeu(
     d,
     especesDepuis(especesBrut),
     typesDepuis(typesBrut),
-    racineDesImages,
+    //  MÊME DÉCOR QUE LA CARTE DE DRESSEUR, et c'est tout l'objet du
+    //  18 novembre : « quand je vais voir le profil de Jake, Son jeu
+    //  s'affiche, mais son Goupix, l'image ne s'affiche pas ». Les deux
+    //  passent par `poserLEquipe`, donc par la même adresse de sprite —
+    //  elle était fausse pour les deux.
+    decor,
   );
   section.hidden = false;
   return true;

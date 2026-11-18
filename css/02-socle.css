@@ -942,6 +942,11 @@ html {
   color-scheme: light;
 }
 
+/*  `html.wm-sombre` EN PREMIER depuis le 18 novembre : la bascule pose
+    la classe sur `html` dès l'exécution du script, avant que le corps
+    existe. C'est ce qui rend la toile sombre au PREMIER rendu, et pas
+    à `DOMContentLoaded`. */
+html.wm-sombre,
 html:has(body.wm-sombre) {
   background-color: var(--wm-fond-page, #eecfb5);
   color-scheme: dark;

@@ -635,9 +635,85 @@
     return signe + sortie;
   }
 
+  // src/navigateur/sprites.ts
+  var STYLE_PAR_DEFAUT = "forum";
+  var BOUGE = /* @__PURE__ */ new Set([
+    "rencontre",
+    "fiche",
+    "zone"
+  ]);
+  function estUnStyleDeSprite(valeur) {
+    return valeur === "forum" || valeur === "retro" || valeur === "gba-ds";
+  }
+  var StyleInconnu = class extends Error {
+    constructor(style) {
+      super(`Style de sprite absent de la carte de couverture : \xAB ${style} \xBB.`);
+      this.name = "StyleInconnu";
+    }
+  };
+  var Sprites = class {
+    carte;
+    mouvementRefuse;
+    constructor(carte, mouvementRefuse = false) {
+      this.carte = carte;
+      this.mouvementRefuse = mouvementRefuse;
+    }
+    /** Vrai si l'image doit être animée à cet endroit, dans ce style. */
+    anime(style, ou) {
+      if (this.mouvementRefuse) return false;
+      const voulu = this.carte.styles[style];
+      if (!voulu) throw new StyleInconnu(style);
+      return voulu.anime && BOUGE.has(ou);
+    }
+    /** L'adresse complète, ou null si l'espèce n'est pas dans la carte —
+     *  auquel cas l'appelant n'affiche rien plutôt qu'une image cassée. */
+    adresse(especeId, style, ou) {
+      const voulu = this.carte.styles[style];
+      if (!voulu) throw new StyleInconnu(style);
+      const entree = voulu.especes[String(especeId)];
+      if (!entree) return null;
+      const chemin = this.anime(style, ou) ? entree.source : entree.fige;
+      return chemin.startsWith("assets/") ? chemin : `${this.carte.base}/${chemin}`;
+    }
+    /** L'adresse de la vignette d'un objet, ou `null`.
+     *
+     *  LES OBJETS SONT DÉJÀ DES PNG FIXES chez PokeAPI : rien à figer,
+     *  rien à recopier chez nous. On ne garde que la carte de ce qui
+     *  existe — `outils/sprites.py` la relève —, pour la même raison que
+     *  pour les espèces : un repli `onerror` côté navigateur coûterait
+     *  une requête ratée et un clignotement par vignette absente, chez
+     *  chaque visiteur, à chaque page.
+     *
+     *  `sweet-apple` n'en a pas au commit épinglé, et c'est exactement le
+     *  cas que cette carte permet de traiter sans le découvrir à l'écran. */
+    adresseDObjet(slug2) {
+      const base = this.carte.baseObjets;
+      const connus = this.carte.objets?.slugs;
+      if (base === void 0 || connus === void 0) return null;
+      return connus.includes(slug2) ? `${base}/${slug2}.png` : null;
+    }
+    /** Le numéro d'espèce porté par une adresse déjà écrite — c'est ce qui
+     *  permet de réécrire le sprite d'une fiche publiée, dont l'adresse est
+     *  figée dans le message au moment où le joueur le poste. */
+    especeDe(adresse2) {
+      const m = /\/(\d+)\.(?:png|gif)(?:[?#].*)?$/.exec(adresse2);
+      if (!m) return null;
+      const id = Number(m[1]);
+      return Number.isSafeInteger(id) && id > 0 ? id : null;
+    }
+  };
+
+  // src/adaptateurs/navigateur/module-faune.ts
+  function adresseDuSprite(sprites, depot, especeId, style, ou = "pokedex") {
+    if (sprites === null) return null;
+    const chemin = sprites.adresse(especeId, style, ou);
+    if (chemin === null) return null;
+    return chemin.startsWith("http") ? chemin : `${depot}${chemin}`;
+  }
+
   // src/adaptateurs/navigateur/module-tcard.ts
   var PLACES = 6;
-  function caseDEquipe(doc, p, especes, types, racineDesImages) {
+  function caseDEquipe(doc, p, especes, types, decor) {
     const li = doc.createElement("li");
     li.className = "wm-tcard__pkmn";
     if (p === null) {
@@ -651,10 +727,11 @@
       return li;
     }
     if (p.obscur) li.classList.add("wm-tcard__pkmn--obscur");
-    if (racineDesImages !== null) {
+    const adresse2 = decor.depot === null || decor.sprites === null ? null : adresseDuSprite(decor.sprites, decor.depot, p.especeId, decor.style, "trainer-card");
+    if (adresse2 !== null) {
       const img = doc.createElement("img");
       img.className = "wm-tcard__sprite";
-      img.src = `${racineDesImages}pokemon/${p.especeId}.png`;
+      img.src = adresse2;
       img.alt = "";
       img.loading = "lazy";
       li.append(img);
@@ -692,7 +769,7 @@
     }
     return li;
   }
-  function poserLEquipe(carte, donnees, especes, types, racineDesImages) {
+  function poserLEquipe(carte, donnees, especes, types, decor) {
     const liste = carte.querySelector("[data-wm-tcard-equipe]");
     if (liste === null) return;
     const doc = carte.ownerDocument;
@@ -701,7 +778,7 @@
       const i = p.place !== null && p.place >= 1 && p.place <= PLACES ? p.place - 1 : places.indexOf(null);
       if (i >= 0 && places[i] === null) places[i] = p;
     }
-    liste.replaceChildren(...places.map((p) => caseDEquipe(doc, p, especes, types, racineDesImages)));
+    liste.replaceChildren(...places.map((p) => caseDEquipe(doc, p, especes, types, decor)));
   }
   function typesDepuis(donnees) {
     const index = /* @__PURE__ */ new Map();
@@ -717,10 +794,23 @@
     }
     return index;
   }
+  async function lire(racine, nom) {
+    return await fetch(`${racine}${nom}`, {
+      credentials: "omit"
+    }).then((r) => r.ok ? r.json() : null).catch(() => null);
+  }
+  async function decorDesSprites(racineDesDonnees, depot, style) {
+    const couverture = await lire(racineDesDonnees, "sprites-couverture.json");
+    return {
+      depot,
+      sprites: couverture === null ? null : new Sprites(couverture, false),
+      style
+    };
+  }
 
   // src/adaptateurs/navigateur/module-profil-jeu.ts
   var MARQUEUR = ".wm-profil-page__jeu[data-wm-membre]";
-  async function lire(racine, nom) {
+  async function lire2(racine, nom) {
     return await fetch(`${racine}${nom}`, {
       credentials: "omit"
     }).then((r) => r.ok ? r.json() : null).catch(() => null);
@@ -737,7 +827,7 @@
     li.append(b, s);
     return li;
   }
-  async function poserSonJeu(doc, acces, racineDesDonnees, racineDesImages) {
+  async function poserSonJeu(doc, acces, racineDesDonnees, decor) {
     const section = doc.querySelector(MARQUEUR);
     if (section === null) return false;
     const forumUserId = Number(section.dataset.wmMembre);
@@ -748,8 +838,8 @@
     if (brut === null || typeof brut !== "object") return false;
     const d = brut;
     const [especesBrut, typesBrut] = await Promise.all([
-      lire(racineDesDonnees, "especes.json"),
-      lire(racineDesDonnees, "especes-fiches.json")
+      lire2(racineDesDonnees, "especes.json"),
+      lire2(racineDesDonnees, "especes-fiches.json")
     ]);
     const titre = doc.createElement("h2");
     titre.className = "wm-profil-page__titre";
@@ -764,15 +854,19 @@
     liste.className = "wm-tcard__equipe";
     liste.setAttribute("data-wm-tcard-equipe", "");
     section.replaceChildren(titre, chiffres, mot, liste);
-    poserLEquipe(section, d, especesDepuis(especesBrut), typesDepuis(typesBrut), racineDesImages);
+    poserLEquipe(
+      section,
+      d,
+      especesDepuis(especesBrut),
+      typesDepuis(typesBrut),
+      //  18 novembre : « quand je vais voir le profil de Jake, Son jeu
+      //  s'affiche, mais son Goupix, l'image ne s'affiche pas ». Les deux
+      //  passent par `poserLEquipe`, donc par la même adresse de sprite —
+      //  elle était fausse pour les deux.
+      decor
+    );
     section.hidden = false;
     return true;
-  }
-
-  // src/navigateur/sprites.ts
-  var STYLE_PAR_DEFAUT = "forum";
-  function estUnStyleDeSprite(valeur) {
-    return valeur === "forum" || valeur === "retro" || valeur === "gba-ds";
   }
 
   // src/navigateur/confort.ts
@@ -879,8 +973,8 @@
   g.wmPoserLeTheme = () => poserLeTheme(document, new Preferences(new StockageLocal()));
   g.wmPoserLesAvertissements = () => poserLesAvertissements(document);
   g.wmPoserLeProfil = () => poserLeProfil(document);
-  g.wmPoserSonJeu = (url, cle) => poserSonJeu(document, {
+  g.wmPoserSonJeu = async (url, cle) => poserSonJeu(document, {
     url,
     clePubliable: cle
-  }, "/data/", "/img/");
+  }, "/data/", await decorDesSprites("/data/", "/", STYLE_PAR_DEFAUT));
 })();
