@@ -26,7 +26,9 @@ import type {
   ObjetDuSac,
   OuvertureDeCombat,
   RencontreEnAttente,
+  TourEnAttente,
   TourJoue,
+  ToursEnAttente,
 } from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
@@ -347,5 +349,116 @@ export class CombatsSupabase implements Combats {
       ouvert: o.ouvert === true,
       raison: typeof o.raison === "string" ? o.raison : null,
     };
+  }
+}
+
+/** La file des messages de tour.
+ *
+ *  LE RÉCIT EST RELU, FRAPPE PAR FRAPPE. C'est la seule partie dont le
+ *  message a vraiment besoin, et une frappe mal lue ferait un message
+ *  qui dit « undefined utilise undefined » dans un sujet — posté, lu,
+ *  et marqué comme fait. */
+function lireLeRecit(brut: unknown): TourEnAttente["recit"] {
+  if (brut === null || typeof brut !== "object") {
+    throw new AppelEchoue("tours_a_poster", `récit illisible : ${JSON.stringify(brut)}`);
+  }
+  const frappes = (brut as Record<string, unknown>).frappes;
+  //  UN RÉCIT SANS FRAPPE EST NORMAL : une fuite, une ball qui prend.
+  //  C'est l'absence du TABLEAU qui serait une faute.
+  if (frappes === undefined || frappes === null) return { frappes: [] };
+  if (!Array.isArray(frappes)) {
+    throw new AppelEchoue("tours_a_poster", "recit.frappes : tableau attendu");
+  }
+  return {
+    frappes: frappes.map((f, i) => {
+      const o = f as Record<string, unknown>;
+      const ou = `recit.frappes[${i}]`;
+      const cap = o.capacite;
+      const deg = o.degats;
+      return {
+        qui: o.qui === "sauvage" ? "sauvage" as const : "joueur" as const,
+        capacite: {
+          nom: cap === null || typeof cap !== "object"
+            ? "sa capacité"
+            : texte(cap as Record<string, unknown>, "nom", `${ou}.capacite`),
+        },
+        touche: o.touche === true,
+        degats: deg === null || deg === undefined || typeof deg !== "object" ? null : {
+          points: nombre(deg as Record<string, unknown>, "points", `${ou}.degats`),
+          efficacite: nombre(
+            deg as Record<string, unknown>,
+            "efficacite",
+            `${ou}.degats`,
+          ),
+          de: nombre(deg as Record<string, unknown>, "de", `${ou}.degats`),
+        },
+      };
+    }),
+  };
+}
+
+export function lireUnTour(brut: unknown): TourEnAttente {
+  if (brut === null || typeof brut !== "object") {
+    throw new AppelEchoue("tours_a_poster", `tour illisible : ${JSON.stringify(brut)}`);
+  }
+  const o = brut as Record<string, unknown>;
+  const s = o.sauvage;
+  if (s === null || typeof s !== "object") {
+    throw new AppelEchoue("tours_a_poster", "tour sans sauvage");
+  }
+  const sv = s as Record<string, unknown>;
+  const c = o.combattant;
+
+  return {
+    tourId: texte(o, "tourId", "tour"),
+    combatId: texte(o, "combatId", "tour"),
+    sujetId: nombre(o, "sujetId", "tour"),
+    messageId: nombre(o, "messageId", "tour"),
+    numero: nombre(o, "numero", "tour"),
+    demande: texte(o, "demande", "tour"),
+    //  LE DÉTAIL EST LIBRE : chaque demande y range ce qui la concerne,
+    //  et le texte lit ce qu'il trouve. Le vérifier champ par champ
+    //  demanderait de connaître les cinq formes ici, alors que
+    //  `message-de-tour.ts` a déjà un défaut pour chacune.
+    detail: o.detail === null || o.detail === undefined
+      ? null
+      : o.detail as Record<string, string | number>,
+    recit: lireLeRecit(o.recit),
+    fin: typeof o.fin === "string" ? o.fin : null,
+    essais: typeof o.essais === "number" ? o.essais : 0,
+    mentionne: texte(o, "mentionne", "tour"),
+    sauvage: {
+      nom: texte(sv, "nom", "sauvage"),
+      pv: nombre(sv, "pv", "sauvage"),
+      pvMax: nombre(sv, "pvMax", "sauvage"),
+    },
+    combattant: c === null || c === undefined ? null : {
+      nom: texte(c as Record<string, unknown>, "nom", "combattant"),
+      surnom: lireUnSurnom((c as Record<string, unknown>).surnom),
+      pv: nombre(c as Record<string, unknown>, "pv", "combattant"),
+      pvMax: nombre(c as Record<string, unknown>, "pvMax", "combattant"),
+    },
+  };
+}
+
+export class ToursSupabase implements ToursEnAttente {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async aPoster(combien: number): Promise<readonly TourEnAttente[]> {
+    const nom = "tours_a_poster";
+    const recu = await this.appeler(nom, { combien });
+    if (!Array.isArray(recu)) {
+      throw new AppelEchoue(nom, `tableau attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    return recu.map(lireUnTour);
+  }
+
+  async poste(tourId: string, messageId: number): Promise<void> {
+    await this.appeler("tour_poste", { tour: tourId, message: messageId });
+  }
+
+  async echoue(tourId: string, erreur: string): Promise<number> {
+    const recu = await this.appeler("tour_echoue", { tour: tourId, erreur });
+    return typeof recu === "number" ? recu : 0;
   }
 }

@@ -27,6 +27,7 @@ import {
 import {
   CartesDeRencontreSupabase,
   CombatsSupabase,
+  ToursSupabase,
 } from "../../../src/adaptateurs/supabase/combat.ts";
 import { TableDesTypesEnFichier } from "../../../src/adaptateurs/faune/types.ts";
 import { JouerUnTour } from "../../../src/application/jouer-un-tour.ts";
@@ -69,6 +70,7 @@ import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouve
 import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.ts";
 import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
 import { PosterLesRencontres } from "../../../src/application/poster-les-rencontres.ts";
+import { PosterLesTours } from "../../../src/application/poster-les-tours.ts";
 import { ServirUneCommande } from "../../../src/application/servir-une-commande.ts";
 import { RangerLePokedex } from "../../../src/application/ranger-le-pokedex.ts";
 import { RendreLesFossiles } from "../../../src/application/rendre-les-fossiles.ts";
@@ -157,6 +159,7 @@ type Montage = {
    *  est le seul point de non-retour, la publication se repasse. */
   readonly bilans: PosterLesBilans;
   readonly rencontres: PosterLesRencontres;
+  readonly tours: PosterLesTours;
   /** Tâche 3 : la boutique. Les paniers posés dans les sujets de comptoir
    *  deviennent des commandes servies, et chacune reçoit son reçu. */
   readonly boutique: ServirUneCommande;
@@ -293,6 +296,18 @@ function assembler(reglages: Reglages): Montage {
   //  même raison : ouvrir un combat et poster sa carte ne sont pas
   //  atomiques, donc le combat est le point de non-retour et la carte
   //  se repasse (planche 99, migration 0047).
+  //  LE MESSAGE DE CHAQUE TOUR. Un tour qui ne part pas laisse le
+  //  joueur devant un combat dont il ne connaît pas l'état, et il
+  //  jouera le tour suivant à l'aveugle — c'est pire qu'un bilan qui
+  //  tarde, donc cette tâche passe dans le même passage que la
+  //  résolution.
+  const tours = new PosterLesTours(
+    new ToursSupabase(appeler),
+    forumEnEcriture,
+    signataire,
+    new JournalSupabase(appeler),
+  );
+
   const rencontres = new PosterLesRencontres(
     new CartesDeRencontreSupabase(appeler),
     forumEnEcriture,
@@ -318,6 +333,7 @@ function assembler(reglages: Reglages): Montage {
     parcourir,
     bilans,
     rencontres,
+    tours,
     boutique,
     pokedex: new RangerLePokedex(
       new PokedexSupabase(appeler),
@@ -423,6 +439,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     parcourir,
     bilans,
     rencontres,
+    tours,
     boutique,
     comptoirs,
     carnet,
@@ -463,6 +480,10 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     //  secondes plus tard, pas cinq minutes. Avant le parcours, elle
     //  aurait toujours un passage de retard.
     const cartesDeCombat = await rencontres.executer();
+    //  LES TOURS APRÈS LES CARTES, dans le même passage : une rencontre
+    //  qui s'ouvre et un tour qui se joue dans le même parcours
+    //  partent tous les deux, dans l'ordre où le joueur les a vécus.
+    const toursJoues = await tours.executer();
 
     //  ── LA BOUTIQUE PASSE EN DERNIER, ET C'EST UN CHOIX ──────────────
     //
@@ -566,6 +587,8 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       bilans_en_echec: repris.erreurs,
       cartes_de_combat: cartesDeCombat.publiees.length,
       cartes_de_combat_en_echec: cartesDeCombat.erreurs,
+      tours_de_combat: toursJoues.publies.length,
+      tours_de_combat_en_echec: toursJoues.erreurs,
       commandes_servies: achats.servies,
       commandes_refusees: achats.refusees,
       boutique_en_echec: achats.erreurs,

@@ -552,6 +552,57 @@ export type RencontreEnAttente = {
   } | null;
 };
 
+/** Un tour qui attend son message.
+ *
+ *  MÊME MOTIF QUE LES CARTES, et le texte n'est pas stocké pour la même
+ *  raison : la ligne `combat_tour` porte déjà tout ce que le message
+ *  dit, le récit compris. */
+export type TourEnAttente = {
+  readonly tourId: string;
+  readonly combatId: string;
+  readonly sujetId: number;
+  /** Le message du joueur qui a joué ce tour. Graine du code, donc un
+   *  reposté porte le même marqueur. */
+  readonly messageId: number;
+  readonly numero: number;
+  readonly demande: string;
+  /** L'argument de la demande, tel que le tour l'a rangé : le nom de la
+   *  capacité, celui de l'objet, les PV rendus. */
+  readonly detail: Readonly<Record<string, string | number>> | null;
+  readonly recit: {
+    readonly frappes: readonly {
+      readonly qui: "joueur" | "sauvage";
+      readonly capacite: { readonly nom: string };
+      readonly touche: boolean;
+      readonly degats: {
+        readonly points: number;
+        readonly efficacite: number;
+        readonly de: number;
+      } | null;
+    }[];
+  };
+  readonly fin: string | null;
+  readonly essais: number;
+  readonly mentionne: string;
+  readonly sauvage: {
+    readonly nom: string;
+    readonly pv: number;
+    readonly pvMax: number;
+  };
+  readonly combattant: {
+    readonly nom: string;
+    readonly surnom: string | null;
+    readonly pv: number;
+    readonly pvMax: number;
+  } | null;
+};
+
+export interface ToursEnAttente {
+  aPoster(combien: number): Promise<readonly TourEnAttente[]>;
+  poste(tourId: string, messageId: number): Promise<void>;
+  echoue(tourId: string, erreur: string): Promise<number>;
+}
+
 export interface CartesDeRencontreEnAttente {
   aPoster(combien: number): Promise<readonly RencontreEnAttente[]>;
   postee(combatId: string, messageId: number): Promise<void>;
