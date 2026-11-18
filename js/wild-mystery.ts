@@ -50,6 +50,7 @@ import {
 } from "../src/adaptateurs/navigateur/catalogue.ts";
 import { zoneDe } from "../src/navigateur/zone.ts";
 import { configDepuis, RegistreDistant } from "../src/adaptateurs/navigateur/registre.ts";
+import { reveillerLaReleve } from "../src/adaptateurs/navigateur/module-reveil.ts";
 import { poserLeBilan } from "../src/adaptateurs/navigateur/module-bilan.ts";
 import { poserLaBoutique } from "../src/adaptateurs/navigateur/module-boutique.ts";
 import { JournalDistant } from "../src/adaptateurs/navigateur/journal.ts";
@@ -393,6 +394,19 @@ async function poserLeModule(): Promise<void> {
  *  L'AUTRE CHEMIN AURAIT ÉTÉ `joueur_du_compte`, donc une requête de
  *  plus et une SECONDE façon de dire qui je suis — exactement ce que
  *  `0051` a refusé pour la barre. */
+//  ── RÉVEILLER LA RELÈVE APRÈS UNE ACTION ────────────────────────────
+//
+//  « Toutes les cinq minutes, c'est trop long. » Dès qu'on revient sur
+//  un sujet dont le dernier message est une action, on sonne la
+//  fonction et on guette sa réponse — deux à quatre secondes au lieu
+//  de cinq minutes. Le cron reste derrière, pour qui a fermé l'onglet.
+async function reveiller(): Promise<void> {
+  if (sujetDeLAdresse(location.pathname) === null) return;
+  const config = await configSupabase();
+  if (config === null) return;
+  await reveillerLaReleve({ doc: document, acces: config });
+}
+
 async function poserLeRecapitulatif(): Promise<void> {
   if (RACINE === null) return;
 
@@ -659,6 +673,11 @@ desQueLeCorpsEstLa(() => {
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
   poserLeRecapitulatif().catch(() => {});
+  //  APRÈS LE RÉCAPITULATIF, et c'est voulu : le réveil attend puis
+  //  recharge la page. Lancé avant, il n'aurait rien changé — mais
+  //  l'ordre dit lequel des deux on veut voir en premier si l'un
+  //  traîne.
+  reveiller().catch(() => {});
   poserLaVie().catch(() => {});
   //  LE PRÉAMBULE DE FORUMACTIF EN PREMIER, AVANT TOUS LES AUTRES.
   //

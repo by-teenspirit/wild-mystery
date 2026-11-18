@@ -6,7 +6,7 @@
   "_slug": "Le slug est la fin de l'adresse : /h3-reglement donne « reglement ». C'est lui que le sommaire reconnaît pour se surligner, et PAS le numéro de page — h3 dépend de l'ordre de création chez Forumactif, le slug est celui qu'on a choisi.",
   "sections": [
     {
-      "titre": "Entrer",
+      "titre": "Bien démarrer",
       "entrees": [
         {
           "numero": "01",
@@ -17,7 +17,7 @@
         {
           "numero": "02",
           "slug": "contexte",
-          "titre": "Le contexte",
+          "titre": "Le contexte & la chronologie",
           "adresse": "/h2-contexte"
         },
         {
@@ -84,7 +84,7 @@
         {
           "numero": "11",
           "slug": "trouver-et-capturer",
-          "titre": "Trouver et capturer",
+          "titre": "Trouver et capturer des Pokémons",
           "adresse": null
         },
         {
@@ -120,5 +120,6 @@
     }
   ],
   "_numero": "Le numéro est celui du SOMMAIRE, et il se recalcule à chaque passe de `outils/annexes.py` : il n'est écrit nulle part ailleurs, ni dans un nom de fichier qu'on taperait, ni dans un générateur. Retirer une annexe ou en insérer une décale les suivantes toute seule — c'est arrivé le 4 novembre, et ça n'a coûté que ce fichier.",
-  "_ordre": "L'ORDRE VALIDÉ PAR CALLISTA LE 18 NOVEMBRE, et sa raison tient en quatre mots : ENTRER (on les lit une fois), LE MONDE (on y revient pour écrire), JOUER (on y revient en plein RP), LA MAISON. Avant, les crédits et le staff coupaient les pages de jeu en deux, et « Combat et progression » arrivait huit entrées après le guide du dresseur.\nLES NUMÉROS CHANGENT, PAS LES ADRESSES : `/h7-groupes` est l'adresse Forumactif de la page, posée à sa création, et le sommaire la suit. Les quinze pages sont à recoller une fois, parce que leur surtitre porte le numéro.\nDEUX ANNEXES SONT NEUVES et n'ont pas encore d'adresse : « Trouver et capturer » et « Élever ses Pokémon ». Elles s'affichent en gris dans le sommaire tant que l'adresse n'est pas reportée ici. `/h14` et `/h15` sont déjà pris par le répertoire des personnages et le carnet de bord : les deux nouvelles pages prendront les suivantes."
+  "_ordre": "L'ORDRE VALIDÉ PAR CALLISTA LE 18 NOVEMBRE, et sa raison tient en quatre mots : ENTRER (on les lit une fois), LE MONDE (on y revient pour écrire), JOUER (on y revient en plein RP), LA MAISON. Avant, les crédits et le staff coupaient les pages de jeu en deux, et « Combat et progression » arrivait huit entrées après le guide du dresseur.\nLES NUMÉROS CHANGENT, PAS LES ADRESSES : `/h7-groupes` est l'adresse Forumactif de la page, posée à sa création, et le sommaire la suit. Les quinze pages sont à recoller une fois, parce que leur surtitre porte le numéro.\nDEUX ANNEXES SONT NEUVES et n'ont pas encore d'adresse : « Trouver et capturer » et « Élever ses Pokémon ». Elles s'affichent en gris dans le sommaire tant que l'adresse n'est pas reportée ici. `/h14` et `/h15` sont déjà pris par le répertoire des personnages et le carnet de bord : les deux nouvelles pages prendront les suivantes.",
+  "_adresses": "LES ADRESSES SONT CELLES D'AVANT LA RENUMÉROTATION DU 18 NOVEMBRE. Callista renumérote les pages HTML du forum pour qu'elles suivent cet ordre (le répertoire des personnages passe en 16, le carnet de bord en 17) : chaque `/hN-…` va changer, et aucune ne se devine — le numéro vient de Forumactif, le reste du titre qu'elle tape. À REPORTER ICI une par une une fois les pages renumérotées. Tant que ce n'est pas fait, les liens du sommaire pointent sur les anciennes pages."
 }

@@ -518,6 +518,17 @@ export interface Combats {
     readonly especeId: number;
     readonly niveau: number;
   }): Promise<OuvertureDeCombat>;
+
+  /** Remet la carte du combat ouvert de ce sujet dans la file.
+   *
+   *  POUR RÉPONDRE À UN REFUS, et c'est tout son emploi : le joueur a
+   *  demandé une rencontre alors qu'un combat tournait déjà, et la
+   *  carte de ce combat dit exactement ce qu'il faut lui dire — qui se
+   *  bat, à combien de PV, ce qu'il peut faire.
+   *
+   *  REND `false` QUAND IL N'Y A RIEN À RAPPELER, et ce n'est pas une
+   *  erreur : une carte encore dans la file n'a pas à être redemandée. */
+  rappelerLaCarte(sujetId: number): Promise<boolean>;
 }
 
 /** La table d'efficacité des dix-huit types.
@@ -553,6 +564,11 @@ export type RencontreEnAttente = {
   readonly messageId: number;
   readonly mentionne: string;
   readonly essais: number;
+  /** Vrai quand cette carte a DÉJÀ été postée une fois et qu'on la
+   *  redemande — le joueur a cliqué « chercher » alors que son combat
+   *  tournait encore (migration 0055). La carte dit alors où il en est
+   *  au lieu d'annoncer une apparition qui n'a pas lieu. */
+  readonly rappel: boolean;
   readonly sauvage: {
     /** Le numéro d'espèce, et il ne sert qu'à UNE chose : l'adresse du
      *  sprite. Un nom ne désigne pas un fichier, et la base ne sait pas
@@ -562,6 +578,10 @@ export type RencontreEnAttente = {
     readonly niveau: number;
     readonly types: readonly string[];
     readonly pv: number;
+    /** `null` à l'apparition — le sauvage est entier, et « 30/30 PV »
+     *  ferait croire qu'il a déjà pris des coups. Rempli sur un
+     *  rappel, où il peut être entamé (migration 0055). */
+    readonly pvMax: number | null;
     readonly attaque: number;
     readonly defense: number;
   };

@@ -27,6 +27,7 @@ const CARTE = {
     niveau: 10,
     types: ["feu"],
     pv: 30,
+    pvMax: null,
     attaque: 22,
     defense: 16,
   },

@@ -2581,12 +2581,54 @@ async function monterAvecScript(
   //  et de la place à droite des messages, que `module-recap.ts`
   //  mesure. Les 1 440 par défaut du harnais n'en laissent EXPRÈS pas
   //  assez : c'est la largeur où le panneau ne doit PAS se poser.
-  { recap = null, largeur = 1440 } = {},
+  //  ── LE RÉVEIL A BESOIN D'UNE ACTION EN DERNIER MESSAGE ──────────
+  //
+  //  `action` ajoute un `[[WM-ACTION:chercher]]` au second message du
+  //  décor et le date d'aujourd'hui : c'est exactement l'état d'une
+  //  page où le joueur vient de poster. `compteur` reçoit les appels,
+  //  pour qu'on puisse les compter du dehors.
+  { recap = null, largeur = 1440, action = false, compteur = null } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
+  const maintenant = new Date();
+  const heure = `${maintenant.getHours()}:${String(maintenant.getMinutes()).padStart(2, "0")}`;
+  const decor = () => {
+    if (!action) return page(pageDeSujet({ ariane }));
+    const avant = [MESSAGES[1].corps, MESSAGES[1].date];
+    MESSAGES[1].corps += '<span class="wm-marqueur">[[WM-ACTION:chercher]]</span>';
+    MESSAGES[1].date = `Aujourd'hui à ${heure}`;
+    const html = page(pageDeSujet({ ariane }));
+    [MESSAGES[1].corps, MESSAGES[1].date] = avant;
+    //  UN TROISIÈME MESSAGE À PARTIR DU SECOND APPEL : c'est la
+    //  réponse du Maître du Jeu qui arrive pendant le guet, et c'est
+    //  ce qui doit déclencher le rechargement.
+    if (compteur !== null && compteur.pages >= 2) {
+      //  ON L'INSÈRE DANS `#page-body`, là où vivent les messages, et
+      //  pas en fin de document : `combienDeMessages` compte les
+      //  `.post` où qu'ils soient, mais un harnais qui poserait le
+      //  message hors de la page ne mesurerait pas la vraie page.
+      return html.replace(
+        "</div></div>\n</div>\n</body>",
+        '<div class="post" id="p15999"><div class="postbody"><div class="content">' +
+          "réponse du Maître du Jeu</div></div></div></div></div>\n</div>\n</body>",
+      );
+    }
+    return html;
+  };
   await q.route("**/*", (route) => {
     const chemin = new URL(route.request().url()).pathname;
+    if (chemin.endsWith("/functions/v1/releve")) {
+      if (compteur !== null) {
+        compteur.releve += 1;
+        //  ON RELÈVE CE QU'ON ENVOIE : une clé partie d'ici serait une
+        //  clé publiée. Le corps et les en-têtes sont gardés pour
+        //  qu'un contrôle puisse le dire plutôt que de le supposer.
+        compteur.entetes.push(route.request().headers());
+        compteur.corps.push(route.request().postData() ?? "");
+      }
+      return route.fulfill({ contentType: "application/json", body: "{}" });
+    }
     if (chemin.endsWith("/rpc/mon_sujet")) {
       return route.fulfill({
         contentType: "application/json",
@@ -2639,9 +2681,10 @@ async function monterAvecScript(
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"></svg>',
       });
     }
+    if (compteur !== null) compteur.pages += 1;
     return route.fulfill({
       contentType: "text/html; charset=utf-8",
-      body: page(pageDeSujet({ ariane })),
+      body: decor(),
     });
   });
   await q.goto(adresse);
@@ -3296,6 +3339,74 @@ dire(
   JSON.stringify(vuEtroit),
 );
 await etroit.close();
+
+//  ── LE RÉVEIL DE LA RELÈVE ─────────────────────────────────────────
+//
+//  « Toutes les cinq minutes, c'est trop long. » Dès que le dernier
+//  message du sujet est une action, la page sonne la fonction et
+//  guette la réponse. Ce qu'on vérifie ici : qu'elle sonne UNE fois,
+//  qu'elle n'envoie aucune clé, qu'elle recharge quand la réponse
+//  arrive — et qu'elle ne sonne pas quand il n'y a rien à attendre.
+
+const compteur = { releve: 0, pages: 0, entetes: [], corps: [] };
+const sonnee = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  action: true,
+  compteur,
+});
+let rechargements = 0;
+sonnee.on("framenavigated", (f) => {
+  if (f === sonnee.mainFrame()) rechargements += 1;
+});
+//  LE GUET VA DE DEUX EN DEUX : au bout de six secondes, la réponse
+//  est servie et le rechargement doit avoir eu lieu.
+await sonnee.waitForTimeout(7000);
+
+dire(
+  "UNE ACTION EN DERNIER MESSAGE SONNE LA RELÈVE",
+  compteur.releve >= 1,
+  `${compteur.releve} appel(s)`,
+);
+dire(
+  "et une seule fois — le verrou n'a pas à rattraper nos doublons",
+  compteur.releve === 1,
+  `${compteur.releve} appel(s)`,
+);
+//  AUCUNE CLÉ NE PART D'ICI. La fonction est publique ; lui envoyer
+//  une clé depuis une page publique serait la publier.
+const entetes = compteur.entetes[0] ?? {};
+dire(
+  "AUCUNE CLÉ, AUCUN JETON DANS L'APPEL",
+  entetes.authorization === undefined && entetes.apikey === undefined &&
+    (compteur.corps[0] ?? "") === "",
+  JSON.stringify({
+    authorization: entetes.authorization ?? null,
+    apikey: entetes.apikey ?? null,
+    corps: compteur.corps[0] ?? "",
+  }),
+);
+dire(
+  "LA PAGE SE RECHARGE QUAND LA RÉPONSE ARRIVE",
+  rechargements >= 1,
+  `${rechargements} rechargement(s), ${compteur.pages} page(s) demandée(s)`,
+);
+await sonnee.close();
+
+//  ── ET ELLE NE SONNE PAS QUAND IL N'Y A RIEN À ATTENDRE ────────────
+//
+//  Le décor ordinaire : deux messages, aucune action. Sans cette
+//  garde, chaque ouverture de n'importe quel sujet réveillerait la
+//  fonction — des centaines de passages par jour pour rien.
+const sansAction = { releve: 0, pages: 0, entetes: [], corps: [] };
+const calme = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  compteur: sansAction,
+});
+await calme.waitForTimeout(1500);
+dire(
+  "SANS ACTION EN ATTENTE, ON NE SONNE PAS",
+  sansAction.releve === 0,
+  `${sansAction.releve} appel(s)`,
+);
+await calme.close();
 
 //  ── SANS LAISSEZ-PASSER, RIEN ──────────────────────────────────────
 //

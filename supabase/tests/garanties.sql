@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(414);
+select plan(424);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2636,6 +2636,88 @@ select is(
 select ok(
   (cartes_a_poster(jsonb_build_object('combien', 10))->0->'combattant'->>'especeId')::integer > 0,
   'et celui du combattant'
+);
+
+-- ════════════════════════════════════════════════════════════════════
+--  LE REFUS QUI SE VOIT (0055)
+--
+--  Un joueur demande une rencontre alors qu'un combat tourne : la
+--  relève refuse d'en ouvrir un second, et plutôt que de se taire elle
+--  REDEMANDE la carte du combat en cours. Cette carte-là ne s'annonce
+--  pas comme une apparition, et elle porte les PV du moment.
+-- ════════════════════════════════════════════════════════════════════
+
+select ok(
+  (cartes_a_poster(jsonb_build_object('combien', 10))->0->>'rappel')::boolean is false,
+  'UNE CARTE JAMAIS POSTÉE N''EST PAS UN RAPPEL'
+);
+
+select is(
+  cartes_a_poster(jsonb_build_object('combien', 10))->0->'sauvage'->'pvMax',
+  'null'::jsonb,
+  'et le sauvage n''a pas de maximum : il arrive entier, « 30/30 » ferait croire qu''il a pris des coups'
+);
+
+--  ON MARQUE LA CARTE COMME POSTÉE, puis on la redemande — c'est
+--  exactement ce que fait la relève quand elle refuse une seconde
+--  rencontre.
+update combat
+   set carte_poste_le = now(), carte_message_id = 90001, carte_essais = 7
+ where etat = 'ouvert';
+
+select is(
+  jsonb_array_length(cartes_a_poster(jsonb_build_object('combien', 10))),
+  0,
+  'UNE CARTE POSTÉE QUITTE LA FILE'
+);
+
+select is(
+  rappeler_la_carte(jsonb_build_object('sujetId',
+    (select sujet_id from combat where etat = 'ouvert')))->>'rappelee',
+  'true',
+  'LE RAPPEL REMET LA CARTE DANS LA FILE'
+);
+
+select is(
+  jsonb_array_length(cartes_a_poster(jsonb_build_object('combien', 10))),
+  1,
+  'et elle y est'
+);
+
+select is(
+  (cartes_a_poster(jsonb_build_object('combien', 10))->0->>'rappel')::boolean,
+  true,
+  'ELLE SAIT QU''ELLE EST UN RAPPEL — « un Pikachu sauvage apparaît » serait faux la seconde fois'
+);
+
+select ok(
+  (cartes_a_poster(jsonb_build_object('combien', 10))->0->'sauvage'->>'pvMax')::integer > 0,
+  'ET LE SAUVAGE PORTE SA FRACTION : il a pu encaisser des tours, « 18 PV » ne dirait plus rien'
+);
+
+--  LES ESSAIS REPARTENT À ZÉRO. Une carte qui avait échoué sept fois
+--  ne doit pas refuser de repartir parce qu'on a redemandé la même
+--  ligne : ce n'est pas la même tentative.
+select is(
+  (select carte_essais from combat where etat = 'ouvert'),
+  0,
+  'et ses essais repartent à zéro'
+);
+
+select is(
+  rappeler_la_carte(jsonb_build_object('sujetId', 999999))->>'rappelee',
+  'false',
+  'UN SUJET SANS COMBAT OUVERT NE RAPPELLE RIEN — et ce n''est pas une erreur'
+);
+
+--  ON NE RAPPELLE PAS UNE CARTE QUI N'EST JAMAIS PARTIE : elle est
+--  déjà dans la file, et remettre ses essais à zéro masquerait un
+--  envoi qui échoue en boucle.
+select is(
+  rappeler_la_carte(jsonb_build_object('sujetId',
+    (select sujet_id from combat where etat = 'ouvert')))->>'rappelee',
+  'false',
+  'NI UNE CARTE ENCORE EN ATTENTE DE SON PREMIER ENVOI'
 );
 
 --  ── POSTER, ET NE PAS REPOSTER ───────────────────────────────────

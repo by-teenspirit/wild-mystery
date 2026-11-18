@@ -40,6 +40,7 @@ const PONYTA: RencontreAAnnoncer = {
   sujetId: 996,
   messageId: 15601,
   essais: 0,
+  rappel: false,
   mentionne: "Jake Dalziel",
   sauvage: {
     especeId: 77,
@@ -47,6 +48,7 @@ const PONYTA: RencontreAAnnoncer = {
     niveau: 10,
     types: ["feu"],
     pv: 30,
+    pvMax: null,
     attaque: 22,
     defense: 16,
   },
@@ -232,4 +234,48 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
       `<p class="wm-combat__appel">${APPEL}</p>` +
       "</div>",
   );
+});
+
+// ── le rappel ───────────────────────────────────────────────────────
+
+Deno.test("UN RAPPEL N'ANNONCE PAS UNE APPARITION", () => {
+  //  « Un Ponyta sauvage apparaît » est faux la seconde fois : le
+  //  joueur a demandé une rencontre alors que son combat tournait
+  //  encore. Ce qu'il faut lui dire, c'est où il en est.
+  const html = redigerLaCarte({ ...PONYTA, rappel: true }, RACINE);
+  assert(
+    !html.includes("sauvage apparaît"),
+    "un rappel ne doit pas annoncer une apparition",
+  );
+  assertStringIncludes(html, "Ton combat contre Ponyta n'est pas fini.");
+  assertStringIncludes(html, "Combat en cours");
+});
+
+Deno.test("et il montre les mêmes deux camps, avec les PV du moment", () => {
+  //  LE RESTE EST IDENTIQUE À DESSEIN : deux mises en forme pour le
+  //  même état finiraient par ne plus dire la même chose, et le joueur
+  //  apprendrait à lire deux cartes au lieu d'une.
+  const html = redigerLaCarte(
+    {
+      ...PONYTA,
+      rappel: true,
+      sauvage: { ...PONYTA.sauvage, pv: 18, pvMax: 30 },
+      combattant: { ...PONYTA.combattant!, pv: 7 },
+    },
+    RACINE,
+  );
+  assertStringIncludes(html, "Ponyta");
+  assertStringIncludes(html, "Salamèche");
+  //  AU RAPPEL LE SAUVAGE PORTE SA FRACTION : il a encaissé des tours,
+  //  et « 18 PV » tout court ne dirait plus rien.
+  assertStringIncludes(html, "18/30");
+  assertStringIncludes(html, "7/18");
+});
+
+Deno.test("À L'APPARITION, LE SAUVAGE N'A PAS DE FRACTION", () => {
+  //  Il arrive entier : « 30/30 PV » ferait croire qu'il a déjà pris
+  //  des coups.
+  const html = redigerLaCarte(PONYTA, RACINE);
+  assert(!html.includes("30/30"), "le sauvage ne doit pas porter de maximum");
+  assertStringIncludes(html, "30");
 });

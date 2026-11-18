@@ -490,6 +490,40 @@ Deno.test("UN COMBAT DÉJÀ EN COURS SE DIT, et la rencontre reste inscrite", as
     bilan.erreurs[0].includes("un combat tourne déjà"),
     bilan.erreurs[0],
   );
+  //  ── ET LE JOUEUR L'APPREND ──────────────────────────────────────
+  //
+  //  C'est tout l'objet du 18 novembre : le refus ne partait que dans
+  //  les journaux, et le joueur a recliqué trois fois en croyant le
+  //  forum cassé. La carte du combat en cours est redemandée, et elle
+  //  dit où il en est.
+  assertEquals(combats.rappels, [976]);
+});
+
+Deno.test("ON NE RAPPELLE PAS LA CARTE QUAND LE COMBAT S'OUVRE", async () => {
+  //  Le cas ordinaire. Un rappel ici reposterait la carte deux fois
+  //  pour une seule rencontre.
+  const combats = new CombatsEnMemoire();
+  const c = monter([action(15601, { type: "chercher" })], { combats });
+  await c.tache.executerSur(c.zone, 976, 0);
+  assertEquals(combats.rappels, []);
+});
+
+Deno.test("UN RAPPEL QUI ÉCHOUE N'EMPORTE PAS LA RENCONTRE", async () => {
+  //  La ligne du registre est l'essentiel : ne pas réussir à DIRE le
+  //  refus est un ennui, pas une raison de perdre ce que le joueur a
+  //  gagné.
+  const combats = new CombatsEnMemoire();
+  combats.rappelerLaCarte = () => Promise.reject(new Error("base injoignable"));
+  const c = monter(
+    [action(15601, { type: "chercher" }), action(15602, { type: "chercher" })],
+    { combats },
+  );
+  const bilan = await c.tache.executerSur(c.zone, 976, 0);
+  assertEquals(c.registre.ecrites.length, 2);
+  assertEquals(bilan.erreurs.length, 1);
+  assert(bilan.erreurs[0].includes("un combat tourne déjà"), bilan.erreurs[0]);
+  //  LE MESSAGE NE PROMET PAS CE QUI N'A PAS EU LIEU.
+  assert(!bilan.erreurs[0].includes("redemandée"), bilan.erreurs[0]);
 });
 
 Deno.test("une ouverture en panne n'emporte pas les actions suivantes", async () => {

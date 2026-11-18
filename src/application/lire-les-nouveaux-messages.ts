@@ -354,9 +354,28 @@ export class LireLesNouveauxMessages {
     //  rencontre reste inscrite au registre — mais il faut que ça se
     //  VOIE, sinon il croira que le forum l'a ignoré.
     if (!ouverture.ouvert && ouverture.raison === "COMBAT_EN_COURS") {
+      //  ── ET LE JOUEUR L'APPREND ─────────────────────────────────────
+      //
+      //  Cette ligne-ci ne partait que dans les journaux. Le 18
+      //  novembre, deux fois dans la journée : « ça ne fonctionne
+      //  plus ». Ça fonctionnait — ça refusait, en silence, et un
+      //  refus que personne ne lit n'existe pas.
+      //
+      //  ON REDEMANDE LA CARTE DU COMBAT EN COURS plutôt que d'ouvrir
+      //  une troisième file de messages : cette carte dit déjà
+      //  exactement ce qu'il faut dire — qui se bat, à combien de PV,
+      //  ce qu'on peut faire — et elle sait qu'elle est un rappel
+      //  (migration 0055).
+      //
+      //  L'ÉCHEC DU RAPPEL N'EMPORTE RIEN. La rencontre est inscrite,
+      //  c'est l'essentiel ; ne pas réussir à le dire est un ennui, pas
+      //  une raison de perdre la ligne du registre.
+      const rappelee = await this.combats.rappelerLaCarte(lue.sujetId)
+        .catch(() => false);
       erreurs.push(
         `message ${lue.messageId} : un combat tourne déjà dans ce sujet, ` +
-          `la rencontre est inscrite mais aucun combat n'est ouvert`,
+          `la rencontre est inscrite mais aucun combat n'est ouvert` +
+          (rappelee ? ` — sa carte est redemandée` : ``),
       );
     }
 

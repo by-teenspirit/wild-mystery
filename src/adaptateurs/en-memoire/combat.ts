@@ -102,6 +102,22 @@ export class CombatsEnMemoire implements Combats {
     const c = this.ouverts.find((x) => x.messageId === messageId);
     if (c !== undefined) c.etat = etat;
   }
+
+  /** Les sujets dont la carte a été redemandée, dans l'ordre.
+   *
+   *  UN TABLEAU ET PAS UN BOOLÉEN : un test doit pouvoir vérifier
+   *  qu'on ne rappelle pas deux fois la même carte, et un drapeau ne
+   *  le dirait pas. */
+  readonly rappels: number[] = [];
+
+  rappelerLaCarte(sujetId: number): Promise<boolean> {
+    //  LA MÊME RÈGLE QUE LA BASE : seulement un combat ouvert. Un faux
+    //  qui dirait oui sans combat laisserait passer un appel que
+    //  PostgreSQL refuse.
+    const ouvert = this.ouverts.some((c) => c.sujetId === sujetId && c.etat === "ouvert");
+    if (ouvert) this.rappels.push(sujetId);
+    return Promise.resolve(ouvert);
+  }
 }
 
 /** Un ouvreur qui tombe en panne, pour le test qui compte.
@@ -120,6 +136,10 @@ export class CombatsEnPanne implements Combats {
   }
 
   jouer(): Promise<TourJoue> {
+    return Promise.reject(new Error(this.motif));
+  }
+
+  rappelerLaCarte(): Promise<boolean> {
     return Promise.reject(new Error(this.motif));
   }
 }

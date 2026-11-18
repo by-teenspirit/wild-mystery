@@ -93,13 +93,30 @@ export function redigerLaCarte(
   racine: string,
 ): string {
   const s = r.sauvage;
-  const dedans: string[] = [
-    //  LE SURTITRE DIT DE QUEL MESSAGE IL S'AGIT, et c'est la seule
-    //  chose qu'on cherche en remontant un sujet de dix messages.
-    //  Même forme que les titres de bloc de la carte de dresseur.
-    '<p class="wm-combat__surtitre">Rencontre</p>',
-    `<p class="wm-combat__titre">Un ${echapper(s.nom)} sauvage apparaît.</p>`,
-  ];
+  //  ── UN RAPPEL NE S'ANNONCE PAS COMME UNE APPARITION ──────────────
+  //
+  //  « Un Debugant sauvage apparaît » est faux la seconde fois, et
+  //  c'est pourtant le même Debugant, les mêmes PV, les mêmes choix.
+  //  Seule la première phrase change : le joueur a demandé une
+  //  rencontre alors que son combat tournait, et ce qu'il faut lui
+  //  dire, c'est où il en est.
+  //
+  //  LE RESTE EST IDENTIQUE À DESSEIN. Deux mises en forme pour le
+  //  même état finiraient par ne plus dire la même chose, et le
+  //  joueur apprendrait à lire deux cartes au lieu d'une.
+  const dedans: string[] = r.rappel
+    ? [
+      '<p class="wm-combat__surtitre">Combat en cours</p>',
+      `<p class="wm-combat__titre">Ton combat contre ${echapper(s.nom)} ` +
+      "n'est pas fini. Termine-le avant d'en chercher un autre.</p>",
+    ]
+    : [
+      //  LE SURTITRE DIT DE QUEL MESSAGE IL S'AGIT, et c'est la seule
+      //  chose qu'on cherche en remontant un sujet de dix messages.
+      //  Même forme que les titres de bloc de la carte de dresseur.
+      '<p class="wm-combat__surtitre">Rencontre</p>',
+      `<p class="wm-combat__titre">Un ${echapper(s.nom)} sauvage apparaît.</p>`,
+    ];
 
   const sauvage = fiche(
     {
@@ -110,8 +127,12 @@ export function redigerLaCarte(
       //  LE SAUVAGE ARRIVE ENTIER, donc pas de maximum : « 30 PV » et
       //  non « 30/30 PV ». Écrire la fraction des deux côtés ferait
       //  croire qu'il a déjà pris des coups.
+      //
+      //  AU RAPPEL C'EST L'INVERSE : il a pu encaisser des tours, et
+      //  « 18 PV » tout court ne dit plus rien. La base n'envoie donc
+      //  le maximum que dans ce cas-là.
       pv: s.pv,
-      pvMax: null,
+      pvMax: s.pvMax,
       attaque: s.attaque,
       defense: s.defense,
     },

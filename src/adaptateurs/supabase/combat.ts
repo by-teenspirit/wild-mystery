@@ -119,12 +119,19 @@ export function lireUneCarte(brut: unknown): RencontreEnAttente {
     messageId: nombre(o, "messageId", "carte"),
     mentionne: texte(o, "mentionne", "carte"),
     essais: typeof o.essais === "number" ? o.essais : 0,
+    //  `rappel` ABSENT VAUT FAUX. Se tromper dans ce sens-là annonce
+    //  une apparition de trop ; dans l'autre, on dirait « ton combat
+    //  n'est pas fini » à quelqu'un qui vient d'en commencer un.
+    rappel: o.rappel === true,
     sauvage: {
       especeId: nombre(sv, "especeId", "sauvage"),
       nom: texte(sv, "nom", "sauvage"),
       niveau: nombre(sv, "niveau", "sauvage"),
       types: types(sv, "sauvage"),
       pv: nombre(sv, "pv", "sauvage"),
+      //  LE MAXIMUM N'ARRIVE QUE SUR UN RAPPEL (migration 0055), donc
+      //  son absence est normale et ne lève pas.
+      pvMax: typeof sv.pvMax === "number" ? sv.pvMax : null,
       attaque: nombre(sv, "attaque", "sauvage"),
       defense: nombre(sv, "defense", "sauvage"),
     },
@@ -354,6 +361,17 @@ export class CombatsSupabase implements Combats {
       ouvert: o.ouvert === true,
       raison: typeof o.raison === "string" ? o.raison : null,
     };
+  }
+
+  /** Remet la carte du combat ouvert dans la file (migration 0055).
+   *
+   *  `false` N'EST PAS UNE ERREUR : il n'y a simplement rien à
+   *  rappeler — pas de combat ouvert, ou une carte encore en attente
+   *  de son premier envoi. */
+  async rappelerLaCarte(sujetId: number): Promise<boolean> {
+    const recu = await this.appeler("rappeler_la_carte", { sujetId });
+    return recu !== null && typeof recu === "object" &&
+      (recu as Record<string, unknown>).rappelee === true;
   }
 }
 
