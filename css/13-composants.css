@@ -1904,6 +1904,34 @@
   object-position: center;
 }
 
+/*  ── ET IL FAUT LE DIRE DEUX FOIS POUR QU'IL TOUCHE LE BORD DROIT ─
+    (18 novembre, mesuré sur le sujet t1009)
+
+    `05-sujet.css` écrit, pour toute image d'un corps de message :
+
+        #modernbb .postbody .content img { max-width: 100%; }
+
+    Un identifiant, DEUX classes et UN TYPE. La règle du dessus n'a
+    qu'un identifiant et UNE classe : son `width: calc(100% + 48px)`
+    passait, et `max-width: 100%` le reprenait aussitôt. Le bandeau
+    commençait donc 24 px à gauche de la fiche et s'arrêtait 49 px
+    avant son bord droit — décalé, pas centré. Mesuré : 1/49.
+
+    MÊME PIÈGE QUE LES TEXTES DU 9 NOVEMBRE, même remède : trois
+    classes. `.postbody .content` plus la nôtre les donne, et la paire
+    `.wm-annonce …` reste à côté pour les pages qui montent le
+    composant hors d'un message — la planche de composants, les
+    harnais.
+
+    LA RÈGLE DE `05-sujet.css` NE BOUGE PAS. Elle protège les images
+    des joueurs, qui n'annoncent aucune taille ; trois de nos classes
+    d'image n'en annoncent pas non plus, donc la sortir pour tout ce
+    qui commence par `wm-` les laisserait déborder de la colonne. */
+#modernbb .postbody .content .wm-annonce__bandeau,
+#modernbb .wm-annonce .wm-annonce__bandeau {
+  max-width: none;
+}
+
 /*  ── UNE OU PLUSIEURS IMAGES ──────────────────────────────────────
 
     La même rangée sert pour une image comme pour six : chacune

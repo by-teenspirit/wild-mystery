@@ -303,6 +303,50 @@ for (const c of compte) {
   );
 }
 
+//  ── 5 bis. LE BANDEAU TOUCHE LES DEUX BORDS DE LA FICHE ───────────
+//
+//  Trouvé le 18 novembre sur le sujet t1009 : « est-ce que tu peux
+//  faire en sorte que le gif prenne toute la page ». Le bandeau
+//  demande `width: calc(100% + 2 × 24px)` et remonte dans le
+//  rembourrage par des marges négatives — mais `05-sujet.css` écrit
+//  `#modernbb .postbody .content img { max-width: 100% }`, un
+//  identifiant, DEUX classes et UN TYPE, et reprenait la largeur
+//  aussitôt. Le bandeau commençait donc 24 px à gauche de la fiche et
+//  s'arrêtait 24 px avant son bord droit.
+//
+//  LE CONTRÔLE 5 NE POUVAIT PAS LE VOIR : il comparait la hauteur à la
+//  largeur, et 48 px de moins sur 820 ne renversent pas ce rapport.
+//  On mesure donc les deux bords, pas la forme.
+{
+  const bords = await p.evaluate(() =>
+    [...document.querySelectorAll(".wm-annonce__bandeau")].map((i) => {
+      const fiche = i.closest(".wm-annonce").getBoundingClientRect();
+      const b = i.getBoundingClientRect();
+      return {
+        n: Number(i.closest(".essai").dataset.n),
+        gauche: Math.round(b.left - fiche.left),
+        droite: Math.round(fiche.right - b.right),
+      };
+    })
+  );
+  for (const b of bords) {
+    //  UN PIXEL DE TOLÉRANCE, pas plus : le filet de la fiche fait
+    //  1 px de chaque côté, et `getBoundingClientRect` rend des
+    //  fractions.
+    if (Math.abs(b.gauche) > 1 || Math.abs(b.droite) > 1) {
+      rate(
+        `modèle ${b.n} : le bandeau laisse ${b.gauche}px à gauche et ` +
+          `${b.droite}px à droite — il ne touche pas les bords`,
+      );
+    }
+  }
+  console.log(
+    `bandeaux bord à bord : ${
+      bords.map((b) => `n°${b.n} ${b.gauche}/${b.droite}`).join(", ") || "aucun"
+    }`,
+  );
+}
+
 //  ── 6. UN BLOC INTÉRIEUR SE DÉTACHE DE SON FOND ───────────────────
 //
 //  C'est tout l'intérêt du morceau, et c'est aussi là qu'un fond
@@ -734,8 +778,10 @@ if (Deno.args.includes("--photo")) {
     };
   });
   if (ecarts.texte !== "16px") {
-    rate(`la marge haute d'un texte d'annonce vaut ${ecarts.texte} au lieu de 16px — ` +
-      "une règle de ModernBB est repassée devant");
+    rate(
+      `la marge haute d'un texte d'annonce vaut ${ecarts.texte} au lieu de 16px — ` +
+        "une règle de ModernBB est repassée devant",
+    );
   }
   if (ecarts.soustitre !== "6px") {
     rate(`la marge basse d'un sous-titre vaut ${ecarts.soustitre} au lieu de 6px`);
