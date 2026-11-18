@@ -66,7 +66,7 @@ const RACINE = "https://exemple.test/wm/";
 
 Deno.test("le tour s'ouvre sur son numéro, puis raconte", () => {
   const html = redigerLeTour(attaque(), RACINE);
-  assertStringIncludes(html, '<p class="wm-combat__titre">Tour 1</p>');
+  assertStringIncludes(html, '<p class="wm-combat__surtitre">Tour 1</p>');
   assertStringIncludes(html, "Salamèche utilise Flammèche");
   //  LE RÉCIT AVANT LES FICHES : on lit ce qui s'est passé, puis on
   //  regarde où en sont les deux.

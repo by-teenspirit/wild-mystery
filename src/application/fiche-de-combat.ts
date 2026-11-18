@@ -133,7 +133,12 @@ export function fiche(
   const nom = nomAffiche(c.nom, c.surnom);
   const pv = c.pvMax === null || c.pvMax === undefined ? `${c.pv} PV` : `${c.pv}/${c.pvMax} PV`;
 
-  const morceaux: string[] = [`<div class="wm-combat__camp wm-combat__camp--${camp}">`];
+  //  `tabindex="0"` PARCE QU'UNE BULLE AU SURVOL N'EXISTE PAS AU
+  //  CLAVIER. La carte de dresseur le fait depuis le 30 octobre, et
+  //  `:focus-within` ouvre la bulle comme `:hover`.
+  const morceaux: string[] = [
+    `<div class="wm-combat__camp wm-combat__camp--${camp}" tabindex="0">`,
+  ];
 
   //  PAS D'IMAGE PLUTÔT QU'UNE IMAGE CASSÉE — l'espèce de test n'a pas
   //  de sprite, et la fiche doit tenir debout sans lui.
@@ -151,16 +156,82 @@ export function fiche(
     morceaux.push(`<p class="wm-combat__types">${pastillesDeType(c.types)}</p>`);
   }
   morceaux.push(`<p class="wm-combat__pv">${pv}</p>`);
-  if (
-    c.attaque !== null && c.attaque !== undefined &&
-    c.defense !== null && c.defense !== undefined
-  ) {
+
+  //  ── LES CHIFFRES PASSENT DANS L'INFOBULLE ───────────────────────
+  //
+  //  « Je pense que tu peux du coup mettre les stats en infobulle » —
+  //  18 novembre, après avoir rapproché la fiche de la carte de
+  //  dresseur. C'est la même bulle, `.wm-infobulle` de la planche 39,
+  //  celle que la carte de dresseur ouvre déjà au survol de chaque
+  //  case.
+  //
+  //  CE QUI RESTE VISIBLE EST CE QU'ON LIT À CHAQUE TOUR : le nom, le
+  //  niveau, les types et les PV. L'attaque et la défense ne changent
+  //  pas d'un tour à l'autre — on les consulte une fois, au début.
+  //
+  //  ELLE S'OUVRE SANS JAVASCRIPT, au survol et au clavier : le
+  //  message est du HTML posé dans un sujet, personne ne vient
+  //  l'animer après coup.
+  const bulle = infobulle(c, nom);
+  if (bulle !== null) morceaux.push(bulle);
+
+  morceaux.push("</div>");
+  return joindre(morceaux);
+}
+
+/** La bulle d'une case, ou `null` quand il n'y a rien de plus à dire.
+ *
+ *  Le message d'un TOUR ne porte ni niveau, ni types, ni statistiques
+ *  — `tours_a_poster` ne les rend pas, parce qu'ils ont été lus au
+ *  premier message. Une bulle qui répéterait les PV déjà affichés
+ *  serait une bulle qui s'ouvre pour rien. */
+function infobulle(c: Combattant, nom: string): string | null {
+  const aDesStats = c.attaque !== null && c.attaque !== undefined &&
+    c.defense !== null && c.defense !== undefined;
+  if (!aDesStats) return null;
+
+  const morceaux: string[] = ['<span class="wm-infobulle" role="tooltip">'];
+
+  morceaux.push('<span class="wm-infobulle__tete">');
+  morceaux.push(`<span class="wm-infobulle__nom">${echapper(nom)}</span>`);
+  if (c.niveau !== null && c.niveau !== undefined) {
+    morceaux.push(`<span class="wm-infobulle__niveau">Niv. ${c.niveau}</span>`);
+  }
+  morceaux.push("</span>");
+
+  if (c.types !== undefined && c.types.length > 0) {
+    morceaux.push('<span class="wm-infobulle__types">');
+    for (const type of c.types.filter((x) => FORME_DE_TYPE.test(x))) {
+      morceaux.push(
+        `<span class="wm-infobulle__type" data-wm-type="${type}">` +
+          `${echapper(type.charAt(0).toUpperCase() + type.slice(1))}</span>`,
+      );
+    }
+    morceaux.push("</span>");
+  }
+
+  //  LA JAUGE N'EXISTE QUE QUAND LE MAXIMUM EST CONNU. Le sauvage
+  //  arrive entier et n'en porte pas : une barre pleine à côté d'un
+  //  « 30 PV » sans fraction ferait croire qu'on connaît son total
+  //  alors qu'on affiche juste ce qu'il a.
+  if (c.pvMax !== null && c.pvMax !== undefined && c.pvMax > 0) {
+    const part = Math.max(0, Math.min(100, Math.round((c.pv / c.pvMax) * 100)));
     morceaux.push(
-      `<p class="wm-combat__stats">Att. ${c.attaque} · Déf. ${c.defense}</p>`,
+      '<span class="wm-infobulle__pv">',
+      `<span class="wm-infobulle__jauge"><span style="width:${part}%"></span></span>`,
+      `<span class="wm-infobulle__chiffre">${c.pv}/${c.pvMax} PV</span>`,
+      "</span>",
     );
   }
 
-  morceaux.push("</div>");
+  morceaux.push(
+    '<span class="wm-infobulle__surtitre">Statistiques</span>',
+    '<span class="wm-infobulle__stats">',
+    `<span class="wm-infobulle__stat"><span>Attaque</span><span>${c.attaque}</span></span>`,
+    `<span class="wm-infobulle__stat"><span>Défense</span><span>${c.defense}</span></span>`,
+    "</span>",
+    "</span>",
+  );
   return joindre(morceaux);
 }
 

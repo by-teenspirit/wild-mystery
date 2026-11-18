@@ -94,6 +94,10 @@ export function redigerLaCarte(
 ): string {
   const s = r.sauvage;
   const dedans: string[] = [
+    //  LE SURTITRE DIT DE QUEL MESSAGE IL S'AGIT, et c'est la seule
+    //  chose qu'on cherche en remontant un sujet de dix messages.
+    //  Même forme que les titres de bloc de la carte de dresseur.
+    '<p class="wm-combat__surtitre">Rencontre</p>',
     `<p class="wm-combat__titre">Un ${echapper(s.nom)} sauvage apparaît.</p>`,
   ];
 

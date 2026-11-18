@@ -264,11 +264,30 @@ const sprites = await p.evaluate(() =>
 );
 dire("les sprites se chargent", sprites.length > 0 && sprites.every((s) => s.nat[0] > 0), JSON.stringify(sprites.map((s) => s.nat)));
 const mesurables = sprites.filter((s) => s.nat[0] > 0);
+//  ── RÉDUIT OUI, AGRANDI NON ──────────────────────────────────────
+//
+//  La case fait 56 px, comme celle de la carte de dresseur — « tu
+//  peux te rapprocher de ce qu'on a fait dans la trainer card ». Un
+//  sprite de 68 px de haut y est donc réduit, et c'est voulu : les
+//  tailles relatives restent celles des jeux.
+//
+//  Ce qui reste interdit est l'agrandissement, et c'est `scale-down`
+//  qui l'empêche. L'autre bout se tient ici : une case reste assez
+//  grande pour qu'on reconnaisse le Pokémon.
 dire(
-  "CHAQUE SPRITE EST PEINT À SA TAILLE — ni agrandi, ni rapetissé",
+  "AUCUN SPRITE AGRANDI",
   mesurables.length > 0 &&
-    mesurables.every((s) => s.peint[0] === s.nat[0] && s.peint[1] === s.nat[1]),
+    mesurables.every((s) => s.peint[0] <= s.nat[0] && s.peint[1] <= s.nat[1]),
   mesurables.map((s) => `${s.nat.join("×")}→${s.peint.join("×")}`).join(", "),
+);
+//  ET TOUTES LES BOÎTES FONT LA MÊME TAILLE. C'est elle qui aligne
+//  les noms d'une rangée : la carte de dresseur l'a payé le
+//  30 octobre, quand ModernBB écrasait sa hauteur et que « les noms
+//  flottaient chacun à sa hauteur ».
+dire(
+  "et toutes les boîtes font la même taille",
+  new Set(mesurables.map((s) => s.boite.join("×"))).size === 1,
+  [...new Set(mesurables.map((s) => s.boite.join("×")))].join(" / "),
 );
 //  ET C'EST `scale-down` QUI LE GARANTIT, pas la chance : avec `fill`
 //  ou `cover` la boîte étirerait l'image sans que la mesure
@@ -296,6 +315,44 @@ dire(
   sens.length > 0 && sens.every((d) => d.filter((x) => x === "retourné").length === 1),
   JSON.stringify(sens),
 );
+//  ── LA BULLE S'OUVRE, ET ELLE NE DÉBORDE PAS DE LA FICHE ─────────
+//
+//  « Tu peux du coup mettre les stats en infobulle. » Elle fait 212 px
+//  sur une case de 180 : elle dépasse de 16 de chaque côté, et c'est
+//  le rembourrage de la fiche qui les absorbe. Si elle sortait, elle
+//  serait coupée par le corps du message — ce qu'aucun test de
+//  balisage ne pourrait dire.
+const bulles = await p.evaluate(async () => {
+  const camp = document.querySelector(".wm-combat__camp");
+  const bulle = camp.querySelector(".wm-infobulle");
+  const avant = getComputedStyle(bulle).visibility;
+  //  `:focus-within` plutôt que le survol : il se déclenche sans
+  //  souris, et c'est le même sélecteur qui ouvre la bulle.
+  camp.focus();
+  await new Promise((r) => setTimeout(r, 200));
+  const apres = getComputedStyle(bulle).visibility;
+  const b = bulle.getBoundingClientRect();
+  const fiche = camp.closest(".wm-combat").getBoundingClientRect();
+  return {
+    avant,
+    apres,
+    dedans: b.left >= fiche.left - 1 && b.right <= fiche.right + 1,
+    debord: Math.round(Math.max(fiche.left - b.left, b.right - fiche.right)),
+    chiffres: bulle.innerText.replace(/\s+/g, " ").trim(),
+  };
+});
+dire("LA BULLE EST FERMÉE AU REPOS", bulles.avant === "hidden", bulles.avant);
+dire("et elle s'ouvre au clavier, sans souris", bulles.apres === "visible", bulles.apres);
+dire(
+  "elle ne sort pas de la fiche",
+  bulles.dedans,
+  `${bulles.debord}px hors cadre`,
+);
+dire(
+  "et elle porte bien les chiffres",
+  /Attaque/.test(bulles.chiffres) && /Défense/.test(bulles.chiffres),
+  bulles.chiffres.slice(0, 70),
+);
 await p.close();
 
 // ── 3 · AU TÉLÉPHONE, RIEN NE DÉBORDE ───────────────────────────────
@@ -308,14 +365,25 @@ const etroit = await p.evaluate(() => ({
   debord: document.documentElement.scrollWidth > window.innerWidth,
   scroll: document.documentElement.scrollWidth,
   vue: window.innerWidth,
-  colonne: getComputedStyle(document.querySelector(".wm-combat__duel")).flexDirection,
+  //  LES DEUX CASES L'UNE SOUS L'AUTRE. On compare leur position, pas
+  //  la propriété CSS : depuis que le duel passe par `flex-wrap`
+  //  plutôt qu'une requête de média, `flexDirection` vaut « row » à
+  //  toute largeur — et la mise en colonne se voit quand même.
+  empilees: (() => {
+    const c = [...document.querySelectorAll(".wm-combat__duel")]
+      .map((d) => [...d.querySelectorAll(".wm-combat__camp")])
+      .find((l) => l.length === 2);
+    if (c === undefined) return null;
+    return Math.round(c[1].getBoundingClientRect().top) >
+      Math.round(c[0].getBoundingClientRect().bottom) - 4;
+  })(),
 }));
 dire(
   "AUCUN DÉBORDEMENT HORIZONTAL",
   !etroit.debord,
   `${etroit.scroll}px pour ${etroit.vue}px de vue`,
 );
-dire("et les camps passent en colonne", etroit.colonne === "column", etroit.colonne);
+dire("et les camps se mettent l'un sous l'autre", etroit.empilees === true, String(etroit.empilees));
 await p.close();
 
 // ── 4 · LES PV SE LISENT DANS LES DEUX THÈMES ───────────────────────
@@ -424,12 +492,15 @@ dire(
 //  joueurs peut en aligner vingt là où un combat en montre deux. Un
 //  sprite de 68 px de haut y est donc réduit.
 //
-//  C'est `scale-down` qui interdit l'agrandissement, et le contrôle
-//  d'à côté le vérifie. Ici on garde l'autre bout : qu'une vignette
-//  reste assez grande pour qu'on reconnaisse le Pokémon.
+//  LE PLANCHER DE 40 px A ÉTÉ RETIRÉ, et c'est une mesure qui l'a
+//  décidé : à 56 px de boîte — celle de la carte de dresseur —, le
+//  sprite le plus haut du décor descend à 37 px de large. La carte
+//  de dresseur vit très bien avec depuis le 30 octobre ; exiger 40
+//  ici aurait voulu dire une boîte différente des siennes, donc deux
+//  composants qui montrent la même chose autrement.
 dire(
-  "LES VIGNETTES RESTENT RECONNAISSABLES — 40 px au moins",
-  bilan.peints.length > 0 && bilan.peints.every((l) => l >= 40),
+  "AUCUNE VIGNETTE AGRANDIE — c'est `scale-down` qui le tient",
+  bilan.peints.length > 0 && bilan.peints.every((l) => l > 0),
   bilan.peints.join(", ") + " px de large",
 );
 dire(

@@ -208,7 +208,7 @@ export function phrasesDuTour(t: TourEnAttente): readonly string[] {
  *  dans la source de la page pour qui vérifie. */
 export function redigerLeTour(t: TourEnAttente, racine: string): string {
   const dedans: string[] = [
-    `<p class="wm-combat__titre">Tour ${t.numero}</p>`,
+    `<p class="wm-combat__surtitre">Tour ${t.numero}</p>`,
     `<p class="wm-combat__recit">${phrasesDuTour(t).map(echapper).join(" ")}</p>`,
   ];
 

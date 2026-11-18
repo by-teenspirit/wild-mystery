@@ -103,7 +103,7 @@ Deno.test("une fiche complète, et rien de plus", () => {
       "sauvage",
       RACINE,
     ),
-    '<div class="wm-combat__camp wm-combat__camp--sauvage">' +
+    '<div class="wm-combat__camp wm-combat__camp--sauvage" tabindex="0">' +
       '<img class="wm-combat__sprite" ' +
       'src="https://exemple.test/wm/assets/sprites-figes/forum/77.png" alt="" loading="lazy">' +
       '<p class="wm-combat__nom">Ponyta</p>' +
@@ -111,7 +111,7 @@ Deno.test("une fiche complète, et rien de plus", () => {
       '<p class="wm-combat__types">' +
       '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
       '<p class="wm-combat__pv">30 PV</p>' +
-      '<p class="wm-combat__stats">Att. 22 · Déf. 16</p>' +
+      '<span class="wm-infobulle" role="tooltip"><span class="wm-infobulle__tete"><span class="wm-infobulle__nom">Ponyta</span><span class="wm-infobulle__niveau">Niv. 10</span></span><span class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></span><span class="wm-infobulle__surtitre">Statistiques</span><span class="wm-infobulle__stats"><span class="wm-infobulle__stat"><span>Attaque</span><span>22</span></span><span class="wm-infobulle__stat"><span>Défense</span><span>16</span></span></span></span>' +
       "</div>",
   );
 });
@@ -127,7 +127,10 @@ Deno.test("une fiche de tour n'a ni niveau ni types, et tient", () => {
   assert(!html.includes("undefined"), html);
   assert(!html.includes("wm-combat__niveau"), html);
   assert(!html.includes("wm-combat__types"), html);
-  assert(!html.includes("wm-combat__stats"), html);
+  //  ET PAS DE BULLE NON PLUS : elle ne dirait rien de plus que les PV
+  //  déjà affichés, et une bulle qui s'ouvre pour rien est pire qu'une
+  //  bulle absente.
+  assert(!html.includes("wm-infobulle"), html);
   assertStringIncludes(html, ">11/18 PV<");
 });
 
@@ -213,4 +216,73 @@ Deno.test("RIEN DE TOUT ÇA NE PORTE DE RETOUR À LA LIGNE", () => {
     ]),
   ]);
   assert(!tout.includes("\n"), tout);
+});
+
+// ── LA BULLE DES CHIFFRES ───────────────────────────────────────────
+
+Deno.test("LA BULLE PORTE LES CHIFFRES, LA CASE PORTE L'ÉTAT", () => {
+  //  « Tu peux du coup mettre les stats en infobulle. » Ce qui reste
+  //  visible est ce qu'on lit à CHAQUE tour — nom, niveau, types, PV ;
+  //  l'attaque et la défense ne bougent pas d'un tour à l'autre.
+  const html = fiche(
+    {
+      especeId: 4,
+      nom: "Salamèche",
+      niveau: 5,
+      types: ["feu"],
+      pv: 9,
+      pvMax: 18,
+      attaque: 10,
+      defense: 9,
+    },
+    "mien",
+    RACINE,
+  );
+  const bulle = html.slice(html.indexOf("wm-infobulle"));
+  const case_ = html.slice(0, html.indexOf("wm-infobulle"));
+
+  assertStringIncludes(case_, ">9/18 PV<");
+  assert(!case_.includes("Attaque"), case_);
+  assertStringIncludes(bulle, "<span>Attaque</span><span>10</span>");
+  assertStringIncludes(bulle, "<span>Défense</span><span>9</span>");
+});
+
+Deno.test("LA CASE EST FOCALISABLE — une bulle au survol n'existe pas au clavier", () => {
+  const html = fiche(
+    { especeId: 4, nom: "Salamèche", pv: 9, pvMax: 18, attaque: 10, defense: 9 },
+    "mien",
+    RACINE,
+  );
+  assertStringIncludes(html, 'tabindex="0"');
+});
+
+Deno.test("la jauge suit les PV, et s'arrête aux bornes", () => {
+  const part = (pv: number, pvMax: number) => {
+    const html = fiche(
+      { especeId: 4, nom: "S", pv, pvMax, attaque: 1, defense: 1 },
+      "mien",
+      RACINE,
+    );
+    return /width:(\d+)%/.exec(html)?.[1] ?? null;
+  };
+  assertEquals(part(18, 18), "100");
+  assertEquals(part(9, 18), "50");
+  assertEquals(part(0, 18), "0");
+  //  UN POKÉMON À PLUS QUE SON MAXIMUM NE DÉBORDE PAS DE SA JAUGE.
+  //  Le cas ne devrait pas exister ; s'il arrive, une barre à 140 %
+  //  sortirait de la bulle et on chercherait le défaut dans le CSS.
+  assertEquals(part(25, 18), "100");
+});
+
+Deno.test("SANS MAXIMUM CONNU, PAS DE JAUGE", () => {
+  //  Le sauvage arrive entier et n'en porte pas : une barre pleine à
+  //  côté d'un « 30 PV » sans fraction ferait croire qu'on connaît son
+  //  total alors qu'on affiche juste ce qu'il a.
+  const html = fiche(
+    { especeId: 77, nom: "Ponyta", pv: 30, pvMax: null, attaque: 22, defense: 16 },
+    "sauvage",
+    RACINE,
+  );
+  assert(!html.includes("wm-infobulle__jauge"), html);
+  assertStringIncludes(html, "wm-infobulle__stats");
 });

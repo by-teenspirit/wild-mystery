@@ -204,9 +204,10 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
   assertEquals(
     redigerLaCarte(PONYTA, RACINE),
     '<div class="wm-combat wm-combat--rencontre">' +
+      '<p class="wm-combat__surtitre">Rencontre</p>' +
       '<p class="wm-combat__titre">Un Ponyta sauvage apparaît.</p>' +
       '<div class="wm-combat__duel">' +
-      '<div class="wm-combat__camp wm-combat__camp--sauvage">' +
+      '<div class="wm-combat__camp wm-combat__camp--sauvage" tabindex="0">' +
       '<img class="wm-combat__sprite" ' +
       'src="https://exemple.test/wm/assets/sprites-figes/forum/77.png" alt="" loading="lazy">' +
       '<p class="wm-combat__nom">Ponyta</p>' +
@@ -214,10 +215,10 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
       '<p class="wm-combat__types">' +
       '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
       '<p class="wm-combat__pv">30 PV</p>' +
-      '<p class="wm-combat__stats">Att. 22 · Déf. 16</p>' +
+      '<span class="wm-infobulle" role="tooltip"><span class="wm-infobulle__tete"><span class="wm-infobulle__nom">Ponyta</span><span class="wm-infobulle__niveau">Niv. 10</span></span><span class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></span><span class="wm-infobulle__surtitre">Statistiques</span><span class="wm-infobulle__stats"><span class="wm-infobulle__stat"><span>Attaque</span><span>22</span></span><span class="wm-infobulle__stat"><span>Défense</span><span>16</span></span></span></span>' +
       "</div>" +
       '<p class="wm-combat__contre">contre</p>' +
-      '<div class="wm-combat__camp wm-combat__camp--mien">' +
+      '<div class="wm-combat__camp wm-combat__camp--mien" tabindex="0">' +
       '<img class="wm-combat__sprite" ' +
       'src="https://exemple.test/wm/assets/sprites-figes/forum/4.png" alt="" loading="lazy">' +
       '<p class="wm-combat__nom">Salamèche</p>' +
@@ -225,7 +226,7 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
       '<p class="wm-combat__types">' +
       '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
       '<p class="wm-combat__pv">18/18 PV</p>' +
-      '<p class="wm-combat__stats">Att. 10 · Déf. 9</p>' +
+      '<span class="wm-infobulle" role="tooltip"><span class="wm-infobulle__tete"><span class="wm-infobulle__nom">Salamèche</span><span class="wm-infobulle__niveau">Niv. 5</span></span><span class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></span><span class="wm-infobulle__pv"><span class="wm-infobulle__jauge"><span style="width:100%"></span></span><span class="wm-infobulle__chiffre">18/18 PV</span></span><span class="wm-infobulle__surtitre">Statistiques</span><span class="wm-infobulle__stats"><span class="wm-infobulle__stat"><span>Attaque</span><span>10</span></span><span class="wm-infobulle__stat"><span>Défense</span><span>9</span></span></span></span>' +
       "</div>" +
       "</div>" +
       `<p class="wm-combat__appel">${APPEL}</p>` +
