@@ -93,6 +93,39 @@
 //  de la planche 45. Ailleurs, la relève ne lit rien. C'est
 //  `js/wild-mystery.ts` qui tranche, avant de construire quoi que ce
 //  soit.
+//
+//  ── DEUX JEUX DE CHOIX, DEPUIS LE 18 NOVEMBRE ───────────────────────
+//
+//  Callista, le 17 : « ensuite, on a les propositions qui changent : je
+//  peux attaquer le pokémon, lancer une pokeball, utiliser quelque chose
+//  de mon sac ou fuir, ou changer de pokémon. »
+//
+//  MÊME GROUPE DE RADIOS, MÊMES RÈGLES. La barre sert l'un ou l'autre
+//  jeu selon qu'un combat est ouvert dans le sujet, et c'est
+//  `mon_combat` (migration 0051) qui le dit. Rien d'autre ne change :
+//  un seul choix à la fois, les flèches qui déplacent, le bloc écrit au
+//  dernier moment.
+//
+//  ── LES BOUTONS N'ARRIVENT QU'APRÈS LE SERVEUR ──────────────────────
+//
+//  La règle écrite en tête de `domaine/action.ts` depuis le 2 octobre :
+//  **une action que le serveur ne sait pas honorer n'a rien à faire dans
+//  un bouton.** Les cinq actions de combat ont été résolues côté relève
+//  avant que cette barre ne les propose — d'abord le vocabulaire
+//  (0048), puis la résolution, puis la Poké Ball et les objets (0050).
+//
+//  ── ET QUATRE D'ENTRE ELLES DEMANDENT « LAQUELLE » ──────────────────
+//
+//  Attaquer avec quoi, lancer quelle ball, utiliser quel objet, envoyer
+//  qui. Un menu déroulant par bouton, et pas une liste à nous : un
+//  `<select>` est un seul élément, il se navigue au clavier sans qu'on
+//  écrive une ligne pour ça, et il n'y en a jamais plus de huit options.
+//  Un faux menu construit à la main serait du travail en plus pour un
+//  résultat moins bon.
+//
+//  LE MENU NE PARAÎT QUE SOUS LE BOUTON CHOISI. Quatre menus ouverts en
+//  permanence feraient une barre illisible, et trois d'entre eux
+//  parleraient d'une action qu'on n'a pas demandée.
 // ════════════════════════════════════════════════════════════════════
 
 import {
@@ -118,23 +151,42 @@ import type { Brouillon } from "./editeur.ts";
  *  Conséquence à tenir, et c'est `offerte()` plus bas : un brouillon
  *  repris peut porter un bloc que cette barre n'offre pas. Elle ne doit
  *  ni l'afficher comme un choix, ni le laisser partir en silence. */
-type Cle = "rien" | "chercher" | "fouiller" | "cloture";
+type Cle =
+  | "rien"
+  | "chercher"
+  | "fouiller"
+  | "cloture"
+  | "attaquer"
+  | "ball"
+  | "objet"
+  | "changer"
+  | "fuir";
 
-/** Dit si une action est une de celles que cette barre propose.
+/** Lequel des deux jeux la barre sert. */
+export type Jeu = "hors" | "combat";
+
+/** Dit si une action est une de celles que le jeu courant propose.
  *
- *  POURQUOI CETTE FONCTION EXISTE : le compilateur l'a réclamée le
+ *  POURQUOI CE CONTRÔLE EXISTE : le compilateur l'a réclamé le
  *  18 novembre, à la minute où le domaine s'est ouvert au combat.
  *  `this.#action?.type` pouvait soudain valoir « attaquer », que `Cle`
- *  ne connaît pas. La réponse facile aurait été d'élargir `Cle` ; elle
- *  aurait donné une barre qui affiche « Ne rien faire » sur un message
- *  portant `[[WM-ACTION:attaquer:52]]`, et qui l'envoie quand même.
- *  CE QUI EST AFFICHÉ EST CE QUI PART — alors une action non offerte
- *  n'est pas un choix, et son bloc est retiré à l'envoi. */
-type ActionOfferte = Extract<Action, { readonly type: "chercher" | "fouiller" }>;
-
-function offerte(action: Action | null): ActionOfferte | null {
+ *  ne connaissait pas. La réponse facile aurait été d'élargir `Cle` et
+ *  de s'arrêter là ; elle aurait donné une barre qui affiche « Ne rien
+ *  faire » sur un message portant `[[WM-ACTION:attaquer:52]]`, et qui
+ *  l'envoie quand même.
+ *
+ *  CE QUI EST AFFICHÉ EST CE QUI PART. Une action hors du jeu courant
+ *  n'est donc pas un choix, et son bloc est retiré à l'envoi — un
+ *  brouillon repris après la fin d'un combat ne doit pas rejouer un
+ *  tour qui n'existe plus.
+ *
+ *  Et ce n'est pas une garde théorique : un combat se termine pendant
+ *  qu'on rédige, la barre repasse hors combat, et le texte garde son
+ *  `[[WM-ACTION:attaquer:52]]`.
+ */
+function offerte(action: Action | null, jeu: readonly Choix[]): Action | null {
   if (action === null) return null;
-  return action.type === "chercher" || action.type === "fouiller" ? action : null;
+  return jeu.some((c) => c.cle === action.type) ? action : null;
 }
 
 //  ── LES QUATRE ICÔNES ────────────────────────────────────────────
@@ -197,6 +249,50 @@ const ICONES: Record<Cle, (doc: Document) => SVGSVGElement> = {
       ["M11.1 7a4.2 4.2 0 1 1-8.4 0 4.2 4.2 0 0 1 8.4 0Z", "1.6"],
       ["M10.2 10.2 14 14", "1.8"],
     ]),
+  //  ── LES CINQ DU COMBAT ───────────────────────────────────────────
+  //
+  //  MÊME RÈGLE QUE LES QUATRE AUTRES : chacune dit ce que le joueur
+  //  FAIT, pas ce que le code fait, et chacune se regarde à 17 px —
+  //  c'est à cette taille que la première herbe ressemblait à une
+  //  tente.
+  //
+  //  Un éclair : frapper.
+  attaquer: (d) => dessin(d, [["M9.6 1.6 3.2 9.2h3.9l-.7 5.2 6.4-7.6H8.9l.7-5.2Z", "1.5"]]),
+  //  Un cercle coupé en deux par une bande, avec son bouton : une
+  //  Poké Ball, le dessin que tout le monde reconnaît.
+  ball: (d) =>
+    dessin(d, [
+      ["M14.4 8a6.4 6.4 0 1 1-12.8 0 6.4 6.4 0 0 1 12.8 0Z", "1.5"],
+      ["M1.6 8h3.9", "1.5"],
+      ["M10.5 8h3.9", "1.5"],
+      ["M10.1 8a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 0 1 4.2 0Z", "1.5"],
+    ]),
+  //  Un flacon : l'objet qu'on sort du sac.
+  objet: (d) =>
+    dessin(d, [
+      ["M6.4 1.8h3.2", "1.6"],
+      [
+        "M6.9 1.8v3L4.6 8.6a2.4 2.4 0 0 0-.4 1.3v2.4a1.9 1.9 0 0 0 1.9 1.9h3.8a1.9 1.9 0 0 0 1.9-1.9V9.9a2.4 2.4 0 0 0-.4-1.3L9.1 4.8v-3",
+        "1.5",
+      ],
+      ["M4.5 10.4h7", "1.5"],
+    ]),
+  //  Deux flèches qui s'échangent : on change de Pokémon.
+  changer: (d) =>
+    dessin(d, [
+      ["M2.4 5.4h9.3", "1.6"],
+      ["M9.2 2.9l2.5 2.5-2.5 2.5", "1.6"],
+      ["M13.6 10.6H4.3", "1.6"],
+      ["M6.8 8.1 4.3 10.6l2.5 2.5", "1.6"],
+    ]),
+  //  Une porte avec une flèche qui sort : fuir. Pas un pied qui court —
+  //  à 17 px un bonhomme n'est qu'une tache.
+  fuir: (d) =>
+    dessin(d, [
+      ["M9.6 2.4H4.3a1.3 1.3 0 0 0-1.3 1.3v8.6a1.3 1.3 0 0 0 1.3 1.3h5.3", "1.5"],
+      ["M8 8h6", "1.6"],
+      ["M11.5 5.5 14 8l-2.5 2.5", "1.6"],
+    ]),
   //  Un cadenas : le mot des forums pour un sujet qui se ferme.
   cloture: (d) =>
     dessin(d, [
@@ -216,9 +312,15 @@ type Choix = {
   /** « Clôturer doit apparaître de manière un peu secondaire » : il est
    *  dans le même groupe, sur sa propre rangée, en plus calme. */
   readonly secondaire?: true;
+  /** Quelle liste ce choix ouvre, quand il en ouvre une. Le menu ne
+   *  paraît que sous le bouton choisi. */
+  readonly liste?: "capacite" | "ball" | "objet" | "equipe";
+  /** Ce que le menu dit quand il est vide — « tu n'as pas de ball » se
+   *  lit, un menu vide ne dit rien. */
+  readonly vide?: string;
 };
 
-const CHOIX: readonly Choix[] = [
+const HORS_COMBAT: readonly Choix[] = [
   {
     cle: "rien",
     libelle: "Ne rien faire",
@@ -247,18 +349,116 @@ const CHOIX: readonly Choix[] = [
   },
 ];
 
-/** L'action que porte un choix, ou `null` pour les deux qui n'en
- *  demandent aucune. */
-function actionDuChoix(cle: Cle): Action | null {
-  return cle === "chercher" || cle === "fouiller" ? { type: cle } : null;
+/** LES CINQ DU COMBAT, dans l'ordre de la planche 99 §4 : attaquer,
+ *  lancer une Poké Ball, utiliser un objet, changer de Pokémon, fuir.
+ *
+ *  « NE RIEN FAIRE » N'EST PAS DANS CE JEU, et c'est volontaire : en
+ *  combat, poster sans agir laisse le tour au sauvage et le joueur
+ *  prend des coups pour rien. Le choix de départ est donc « attaquer »,
+ *  le plus courant — et fuir reste à un clic. */
+const EN_COMBAT: readonly Choix[] = [
+  {
+    cle: "attaquer",
+    libelle: "Attaquer",
+    annonce: "Quand tu enverras ce message, ton Pokémon attaquera.",
+    liste: "capacite",
+    vide: "Ton Pokémon ne connaît aucune capacité.",
+  },
+  {
+    cle: "ball",
+    libelle: "Lancer une Poké Ball",
+    annonce: "Quand tu enverras ce message, tu lanceras la ball choisie. " +
+      "Elle est dépensée, prise ou pas.",
+    liste: "ball",
+    vide: "Tu n'as aucune Poké Ball dans ton sac.",
+  },
+  {
+    cle: "objet",
+    libelle: "Utiliser un objet",
+    annonce: "Quand tu enverras ce message, tu utiliseras l'objet choisi. " +
+      "Le sauvage attaquera quand même.",
+    liste: "objet",
+    vide: "Tu n'as aucun objet utilisable en combat.",
+  },
+  {
+    cle: "changer",
+    libelle: "Changer de Pokémon",
+    annonce: "Quand tu enverras ce message, tu enverras ce Pokémon à la " +
+      "place. Ça coûte le tour : le sauvage attaquera.",
+    liste: "equipe",
+    vide: "Tu n'as aucun autre Pokémon en état de se battre.",
+  },
+  {
+    cle: "fuir",
+    libelle: "Fuir",
+    annonce: "Quand tu enverras ce message, tu quitteras le combat.",
+    secondaire: true,
+  },
+];
+
+export const JEUX: Record<Jeu, readonly Choix[]> = {
+  hors: HORS_COMBAT,
+  combat: EN_COMBAT,
+};
+
+/** L'action que porte un choix, ou `null` pour ceux qui n'en demandent
+ *  aucune.
+ *
+ *  `argument` est l'identifiant choisi dans le menu — la capacité,
+ *  l'objet, la case d'équipe. SANS LUI, LES QUATRE CHOIX À MENU NE
+ *  RENDENT RIEN : « attaque avec n'importe laquelle » serait une
+ *  décision prise à la place du joueur, et `domaine/action.ts` refuse
+ *  déjà un bloc sans argument. Autant ne pas l'écrire. */
+function actionDuChoix(cle: Cle, argument: number | null): Action | null {
+  if (cle === "chercher" || cle === "fouiller") return { type: cle };
+  if (cle === "fuir") return { type: "fuir" };
+  if (argument === null) return null;
+  if (cle === "attaquer") return { type: "attaquer", capacite: argument };
+  if (cle === "ball") return { type: "ball", objetId: argument };
+  if (cle === "objet") return { type: "objet", objetId: argument };
+  if (cle === "changer") return { type: "changer", position: argument };
+  return null;
 }
+
+/** Ce que `mon_combat` rend, réduit à ce que la barre affiche.
+ *
+ *  LA BARRE NE CALCULE RIEN : les PV, les capacités, qui se bat déjà —
+ *  tout vient de la base. Elle choisit seulement quoi montrer. */
+export type DonneesDeCombat = {
+  readonly capacites: readonly {
+    readonly id: number;
+    readonly nom: string;
+    readonly type: string;
+    readonly puissance: number;
+  }[];
+  readonly equipe: readonly {
+    readonly position: number | null;
+    readonly nom: string;
+    readonly surnom: string | null;
+    readonly pv: number;
+    readonly pvMax: number;
+    /** Celui qui se bat déjà. Il paraît dans le menu, DÉSACTIVÉ et dit
+     *  comme tel : le retirer ferait croire qu'on l'a perdu. */
+    readonly combat: boolean;
+  }[];
+  readonly sac: readonly {
+    readonly objetId: number;
+    readonly nom: string;
+    readonly famille: string;
+    readonly quantite: number;
+  }[];
+};
 
 export class BarreDActions {
   readonly #doc: Document;
   readonly #brouillon: Brouillon;
   readonly #boutons = new Map<Cle, HTMLButtonElement>();
+  readonly #menus = new Map<Cle, HTMLSelectElement>();
   #note: HTMLParagraphElement | null = null;
   #action: Action | null = null;
+  #jeu: Jeu = "hors";
+  #combat: DonneesDeCombat | null = null;
+  #groupe: HTMLElement | null = null;
 
   constructor(doc: Document, brouillon: Brouillon) {
     this.#doc = doc;
@@ -272,10 +472,33 @@ export class BarreDActions {
    *  joueur l'écrit et l'efface à la main, et le module au-dessus du
    *  premier message la pose aussi. Deux mémoires se contrediraient ;
    *  une seule, non. */
+  /** Le jeu de choix servi en ce moment. */
+  get jeu(): Jeu {
+    return this.#jeu;
+  }
+
+  #lesChoix(): readonly Choix[] {
+    return JEUX[this.#jeu];
+  }
+
+  /** Le choix de départ du jeu courant.
+   *
+   *  Hors combat c'est « ne rien faire » ; en combat c'est « attaquer »,
+   *  parce que poster sans agir laisserait le tour au sauvage. */
+  #parDefaut(): Cle {
+    return this.#lesChoix()[0].cle;
+  }
+
   get choix(): Cle {
-    if (clotureDemandee(this.#brouillon.lire())) return "cloture";
-    const offert = offerte(this.#action);
-    return offert === null ? "rien" : offert.type;
+    if (clotureDemandee(this.#brouillon.lire())) {
+      //  LA CLÔTURE N'EST PAS DANS LE JEU DE COMBAT. Si le mot est dans
+      //  le texte pendant un combat, elle l'emporte quand même : c'est
+      //  le joueur qui l'a écrit, et la relève la lira. On le dit par
+      //  la phrase plutôt que de la cacher.
+      return "cloture";
+    }
+    const offert = offerte(this.#action, this.#lesChoix());
+    return offert === null ? this.#parDefaut() : offert.type as Cle;
   }
 
   /** L'action demandée, s'il y en a une. */
@@ -283,10 +506,10 @@ export class BarreDActions {
     return this.choix === "cloture" ? null : this.#action;
   }
 
-  /** Reflète le choix sur les boutons et sur la phrase. */
+  /** Reflète le choix sur les boutons, les menus et la phrase. */
   #rafraichir(): void {
     const choisi = this.choix;
-    for (const choix of CHOIX) {
+    for (const choix of this.#lesChoix()) {
       const bouton = this.#boutons.get(choix.cle);
       if (bouton === undefined) continue;
       const coche = choix.cle === choisi;
@@ -297,9 +520,21 @@ export class BarreDActions {
       //  boutons séparés — et la tabulation au clavier devient quatre
       //  fois plus longue sur chaque réponse.
       bouton.tabIndex = coche ? 0 : -1;
+      //  LE MENU NE PARAÎT QUE SOUS LE BOUTON CHOISI. Quatre menus
+      //  ouverts en permanence feraient une barre illisible, et trois
+      //  d'entre eux parleraient d'une action qu'on n'a pas demandée.
+      const menu = this.#menus.get(choix.cle);
+      if (menu !== undefined) menu.hidden = !coche;
     }
+
     if (this.#note !== null) {
-      this.#note.textContent = CHOIX.find((c) => c.cle === choisi)?.annonce ?? "";
+      const trouve = this.#lesChoix().find((c) => c.cle === choisi);
+      const menu = this.#menus.get(choisi);
+      //  UN MENU VIDE SE DIT. « Tu n'as aucune Poké Ball » se lit ; un
+      //  menu sans option ne dit rien et laisse croire à une panne.
+      this.#note.textContent = menu !== undefined && menu.options.length === 0
+        ? (trouve?.vide ?? "")
+        : (trouve?.annonce ?? "");
     }
   }
 
@@ -311,10 +546,20 @@ export class BarreDActions {
       this.#action = null;
       if (!clotureDemandee(texte)) this.#brouillon.ecrire(avecLaCloture(texte));
     } else {
-      this.#action = actionDuChoix(cle);
+      this.#action = actionDuChoix(cle, this.#argumentDe(cle));
       if (clotureDemandee(texte)) this.#brouillon.ecrire(sansLaCloture(texte));
     }
     this.#rafraichir();
+  }
+
+  /** Ce que le menu de ce choix dit, ou `null` s'il n'y a pas de menu
+   *  ou rien à choisir. */
+  #argumentDe(cle: Cle): number | null {
+    const menu = this.#menus.get(cle);
+    if (menu === undefined) return null;
+    if (menu.value === "") return null;
+    const n = Number(menu.value);
+    return Number.isInteger(n) && n > 0 ? n : null;
   }
 
   /** Le bloc, écrit dans le champ du formulaire au dernier moment.
@@ -338,17 +583,33 @@ export class BarreDActions {
       if (propre !== texte) this.#brouillon.ecrire(propre);
       return;
     }
-    const offert = offerte(this.#action);
-    if (offert === null) {
-      //  AUCUNE ACTION OFFERTE, ET POURTANT UN BLOC POSSIBLE. Un
+    //  ── ON PART DU CHOIX AFFICHÉ, PAS DE `#action` ──────────────────
+    //
+    //  LE HARNAIS A ATTRAPÉ ÇA LE 18 NOVEMBRE. En combat, le choix de
+    //  départ est « Attaquer » — un choix qui écrit un bloc, contrairement
+    //  à « ne rien faire ». La barre l'affichait coché et n'envoyait
+    //  RIEN : `#action` restait nul tant que personne n'avait cliqué,
+    //  et c'est `#action` qu'on lisait ici.
+    //
+    //  Hors combat le défaut est « ne rien faire », donc le vide était
+    //  la bonne réponse et le défaut ne pouvait pas se voir. C'est le
+    //  genre de faute qu'un second jeu de choix révèle, et pas un
+    //  test de plus sur le premier.
+    //
+    //  CE QUI EST AFFICHÉ EST CE QUI PART : on relit donc le choix
+    //  coché et le menu qui l'accompagne, les deux seules choses que le
+    //  joueur voit.
+    const action = actionDuChoix(this.choix, this.#argumentDe(this.choix));
+    if (action === null) {
+      //  AUCUNE ACTION, ET POURTANT UN BLOC POSSIBLE : « ne rien
+      //  faire », ou un choix à menu dont le menu est vide. Un
       //  brouillon repris peut porter `[[WM-ACTION:attaquer:52]]` d'un
-      //  combat précédent ; la barre montre « Ne rien faire », donc
-      //  c'est un message normal qui doit partir. Le bloc s'en va.
+      //  combat terminé — le bloc s'en va.
       const propre = sansAction(texte);
       if (propre !== texte) this.#brouillon.ecrire(propre);
       return;
     }
-    this.#brouillon.ecrire(avecAction(texte, offert));
+    this.#brouillon.ecrire(avecAction(texte, action));
   }
 
   /** Construit la barre et l'accroche DANS le formulaire, juste
@@ -357,7 +618,7 @@ export class BarreDActions {
     //  L'ÉTAT DE DÉPART VIENT DU TEXTE. Un brouillon repris, une
     //  modification, un retour de prévisualisation : le bloc peut déjà
     //  être là, et la barre doit s'ouvrir dessus.
-    this.#action = offerte(actionDe(this.#brouillon.lire()));
+    this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());
 
     const barre = this.#doc.createElement("div");
     barre.className = "wm-barre";
@@ -372,16 +633,8 @@ export class BarreDActions {
     groupe.setAttribute("role", "radiogroup");
     groupe.setAttribute("aria-label", "Ce que fait ce message");
 
-    const rangee = this.#doc.createElement("div");
-    rangee.className = "wm-barre__rangee";
-    const fin = this.#doc.createElement("div");
-    fin.className = "wm-barre__rangee wm-barre__rangee--fin";
-    for (const choix of CHOIX) {
-      const bouton = this.#bouton(choix);
-      (choix.secondaire === true ? fin : rangee).appendChild(bouton);
-    }
-    groupe.appendChild(rangee);
-    groupe.appendChild(fin);
+    this.#groupe = groupe;
+    this.#remplirLeGroupe();
     barre.appendChild(groupe);
 
     const note = this.#doc.createElement("p");
@@ -414,6 +667,131 @@ export class BarreDActions {
     return barre;
   }
 
+  /** Pose les boutons du jeu courant dans le groupe.
+   *
+   *  APPELÉE À CHAQUE BASCULE, donc elle doit VIDER d'abord. Un premier
+   *  jet qui ajoutait sans vider aurait laissé les quatre boutons hors
+   *  combat sous les cinq du combat — neuf boutons dans un groupe de
+   *  radios, dont quatre que le serveur refuserait. */
+  #remplirLeGroupe(): void {
+    const groupe = this.#groupe;
+    if (groupe === null) return;
+    groupe.textContent = "";
+    this.#boutons.clear();
+    this.#menus.clear();
+
+    const rangee = this.#doc.createElement("div");
+    rangee.className = "wm-barre__rangee";
+    const fin = this.#doc.createElement("div");
+    fin.className = "wm-barre__rangee wm-barre__rangee--fin";
+    for (const choix of this.#lesChoix()) {
+      const bouton = this.#bouton(choix);
+      (choix.secondaire === true ? fin : rangee).appendChild(bouton);
+    }
+    groupe.appendChild(rangee);
+    groupe.appendChild(fin);
+
+    //  LES MENUS SOUS LE GROUPE, pas dans la rangée : un `<select>`
+    //  parmi des `role="radio"` serait annoncé comme un cinquième
+    //  bouton du groupe, et les flèches l'attraperaient.
+    for (const choix of this.#lesChoix()) {
+      if (choix.liste === undefined) continue;
+      groupe.appendChild(this.#menu(choix));
+    }
+  }
+
+  /** Le menu d'un choix, rempli depuis les données du combat. */
+  #menu(choix: Choix): HTMLSelectElement {
+    const menu = this.#doc.createElement("select");
+    menu.className = "wm-barre__menu";
+    menu.hidden = true;
+    //  UN NOM QUI DIT QUOI, parce que « select » tout court ne se lit
+    //  pas au lecteur d'écran.
+    menu.setAttribute("aria-label", choix.libelle);
+
+    for (const o of this.#optionsDe(choix)) {
+      const option = this.#doc.createElement("option");
+      option.value = String(o.valeur);
+      option.textContent = o.mot;
+      //  CELUI QUI SE BAT DÉJÀ RESTE DANS LA LISTE, désactivé. Le
+      //  retirer ferait croire qu'on l'a perdu.
+      if (o.inerte === true) option.disabled = true;
+      menu.appendChild(option);
+    }
+
+    //  CHANGER LE MENU CHANGE L'ACTION. C'est la règle du harnais :
+    //  « chaque contrôle que la barre pose change quelque chose ». Le
+    //  menu « Où » était parti pour avoir manqué à celle-là.
+    menu.addEventListener("change", () => this.#poser(choix.cle));
+    this.#menus.set(choix.cle, menu);
+    return menu;
+  }
+
+  #optionsDe(
+    choix: Choix,
+  ): readonly { valeur: number; mot: string; inerte?: true }[] {
+    const c = this.#combat;
+    if (c === null) return [];
+    switch (choix.liste) {
+      case "capacite":
+        //  LE TYPE ET LA PUISSANCE DANS LE MOT : c'est ce qui permet de
+        //  choisir sans ouvrir l'annexe des types.
+        return c.capacites.map((k) => ({
+          valeur: k.id,
+          mot: `${k.nom} — ${k.type}, ${k.puissance}`,
+        }));
+      case "ball":
+        return c.sac
+          .filter((o) => o.famille === "ball")
+          .map((o) => ({ valeur: o.objetId, mot: `${o.nom} (${o.quantite})` }));
+      case "objet":
+        return c.sac
+          .filter((o) => o.famille !== "ball")
+          .map((o) => ({ valeur: o.objetId, mot: `${o.nom} (${o.quantite})` }));
+      case "equipe":
+        return c.equipe
+          //  SANS CASE, PAS DE CHOIX POSSIBLE : `changer` désigne une
+          //  case, et la base autorise un Pokémon d'équipe sans
+          //  position. On ne peut pas cliquer sur ce qui n'a pas de
+          //  numéro.
+          .filter((m) => m.position !== null)
+          .map((m) => ({
+            valeur: m.position as number,
+            mot: `${m.position}. ${m.surnom ?? m.nom} — ${m.pv}/${m.pvMax} PV` +
+              (m.combat ? " (se bat)" : m.pv <= 0 ? " (K.O.)" : ""),
+            //  À TERRE OU DÉJÀ SUR LE TERRAIN : inerte. Le serveur le
+            //  refuserait de toute façon ; le dire ici évite au joueur
+            //  de dépenser un message pour l'apprendre.
+            inerte: m.combat || m.pv <= 0 ? true as const : undefined,
+          }));
+      default:
+        return [];
+    }
+  }
+
+  /** Bascule la barre en combat, avec ce que `mon_combat` a rendu.
+   *
+   *  LE CHOIX EN COURS EST OUBLIÉ, et c'est voulu : « fouiller » n'a
+   *  aucun sens dans un combat, et le garder coché en servant d'autres
+   *  boutons afficherait un état que le serveur refuserait. */
+  basculerEnCombat(donnees: DonneesDeCombat): void {
+    this.#combat = donnees;
+    this.#jeu = "combat";
+    this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());
+    this.#remplirLeGroupe();
+    this.#rafraichir();
+  }
+
+  /** Repasse hors combat — le combat s'est terminé, ou il n'y en a
+   *  jamais eu. */
+  basculerHorsCombat(): void {
+    this.#combat = null;
+    this.#jeu = "hors";
+    this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());
+    this.#remplirLeGroupe();
+    this.#rafraichir();
+  }
+
   #bouton(choix: Choix): HTMLButtonElement {
     const bouton = this.#doc.createElement("button");
     bouton.type = "button";
@@ -442,14 +820,15 @@ export class BarreDActions {
     const pas = SUIVANT[e.key];
     if (pas === undefined) return;
     e.preventDefault();
-    const i = CHOIX.findIndex((c) => c.cle === cle);
+    const choix = this.#lesChoix();
+    const i = choix.findIndex((c) => c.cle === cle);
     const vise = pas === "debut"
       ? 0
       : pas === "fin"
-      ? CHOIX.length - 1
-      : (i + pas + CHOIX.length) % CHOIX.length;
-    this.#poser(CHOIX[vise].cle);
-    this.#boutons.get(CHOIX[vise].cle)?.focus();
+      ? choix.length - 1
+      : (i + pas + choix.length) % choix.length;
+    this.#poser(choix[vise].cle);
+    this.#boutons.get(choix[vise].cle)?.focus();
   }
 }
 

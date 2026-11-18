@@ -28,6 +28,8 @@ import { CoinOutils } from "../src/adaptateurs/navigateur/coin-outils.ts";
 import { masquerLesMarqueurs } from "../src/adaptateurs/navigateur/marqueurs.ts";
 import { BrouillonForumactif } from "../src/adaptateurs/navigateur/editeur.ts";
 import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts";
+import { monCombat } from "../src/adaptateurs/navigateur/mon-combat.ts";
+import { sujetDeLAdresse } from "../src/navigateur/tableau-des-rp.ts";
 import {
   adresseDuScript,
   CatalogueDistant,
@@ -149,7 +151,29 @@ async function poserLaBarre(): Promise<void> {
   //  aller-retour réseau de moins au chargement d'un sujet de zone — le
   //  fichier de faune pèse de 7 à 28 Ko selon la zone, et la barre
   //  l'attendait avant de se poser.
-  new BarreDActions(document, brouillon).poser(formulaire);
+  const barre = new BarreDActions(document, brouillon);
+  barre.poser(formulaire);
+
+  //  ── ET ELLE BASCULE SI UN COMBAT EST OUVERT ─────────────────────
+  //
+  //  LA BARRE EST POSÉE AVANT, PAS APRÈS. L'appel à `mon_combat`
+  //  demande le réseau, et une barre qui n'apparaîtrait qu'après lui
+  //  laisserait le formulaire nu pendant une seconde sur CHAQUE sujet
+  //  de zone — alors que neuf sur dix n'ont aucun combat ouvert.
+  //
+  //  Elle sert donc ses quatre boutons tout de suite et passe aux cinq
+  //  autres quand la réponse arrive. Le joueur qui clique entre les
+  //  deux voit son choix oublié, et c'est le bon comportement :
+  //  « fouiller » n'a aucun sens dans un combat.
+  //  LE NUMÉRO DU SUJET SE LIT DANS L'ADRESSE, par la fonction qui le
+  //  fait déjà pour le tableau des RP : `t996-test`, `t996p2`, avec ou
+  //  sans ancre. On n'en écrit pas une seconde.
+  const sujet = sujetDeLAdresse(location.pathname);
+  if (sujet === null) return;
+  const config = await configSupabase();
+  if (config === null) return;
+  const combat = await monCombat(sujet, config);
+  if (combat !== null) barre.basculerEnCombat(combat);
 }
 
 /** La configuration Supabase servie dans `data/` : l'URL et la clé

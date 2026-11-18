@@ -152,13 +152,59 @@ function dire(nom, ok, detail = "") {
 }
 
 /** Une page montée, script compris, prête à cliquer. */
+//  ── CE QUE `mon_combat` REND, QUAND ON MONTE UN COMBAT ─────────────
+//
+//  Un Ponyta niveau 10 contre un Salamèche de départ, l'affiche du
+//  17 novembre sur `t996`. L'équipe en porte TROIS : celui qui se bat,
+//  un valide, et un à terre — les trois états que le menu doit
+//  distinguer, et les deux derniers sont ceux qu'on ne peut pas
+//  envoyer.
+const COMBAT = {
+  combatId: "11111111-1111-1111-1111-111111111111",
+  tour: 1,
+  sauvage: { nom: "Ponyta", niveau: 10, types: ["feu"], pv: 18, pvMax: 30 },
+  pvPokemon: 11,
+  pvPokemonMax: 18,
+  capacites: [
+    { id: 52, nom: "Flammèche", type: "feu", puissance: 40 },
+    { id: 33, nom: "Charge", type: "normal", puissance: 40 },
+  ],
+  equipe: [
+    { position: 1, nom: "Salamèche", surnom: null, niveau: 5, pv: 11, pvMax: 18, combat: true },
+    {
+      position: 2,
+      nom: "Carapuce",
+      surnom: "Biscotte",
+      niveau: 6,
+      pv: 20,
+      pvMax: 20,
+      combat: false,
+    },
+    { position: 3, nom: "Chenipan", surnom: null, niveau: 4, pv: 0, pvMax: 15, combat: false },
+  ],
+  sac: [
+    { objetId: 990001, nom: "Poké Ball", famille: "ball", quantite: 5 },
+    { objetId: 990020, nom: "Potion", famille: "soin", quantite: 5 },
+  ],
+};
+
 async function monter(
-  { quick = true, texte = "", largeur = 1440, forum, enveloppe = false } = {},
+  { quick = true, texte = "", largeur = 1440, forum, enveloppe = false, combat = null } = {},
 ) {
   const p = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   await p.route("**/*", (r) => {
     const u = new URL(r.request().url()).pathname;
+    //  L'APPEL À `mon_combat` EST INTERCEPTÉ ICI, et pas remplacé par un
+    //  faux module : c'est le vrai paquet livré qui l'émet, avec son
+    //  vrai en-tête `Authorization`. Un faux à la place de
+    //  l'adaptateur ne dirait rien du chemin réel.
+    if (u.endsWith("/rpc/mon_combat")) {
+      return r.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(combat),
+      });
+    }
     //  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se charge
     //  aussi pour une visiteuse déconnectée, donc ces deux scripts
     //  partent sur toutes les pages. Sans route, le serveur du harnais
@@ -190,6 +236,22 @@ async function monter(
     });
   });
   await p.goto("http://wild-mystery.test/t996-test");
+  //  LE LAISSEZ-PASSER, POSÉ AVANT LE SCRIPT. Sans lui `monCombat` sort
+  //  avant tout réseau — c'est voulu, et c'est aussi ce qui fait qu'un
+  //  harnais qui l'oublierait mesurerait une barre hors combat en
+  //  croyant mesurer un combat.
+  if (combat !== null) {
+    await p.evaluate(() =>
+      localStorage.setItem(
+        "wm.carnet.laissez",
+        JSON.stringify({
+          jeton: "jeton-d-essai",
+          rafraichir: "rafraichir-d-essai",
+          expireLe: Date.now() + 3600_000,
+        }),
+      )
+    );
+  }
   await p.addScriptTag({ url: "http://wild-mystery.test/js/wild-mystery.js" });
   //  LE FORMULAIRE N'ENVOIE RIEN. On laisse notre écouteur tourner — il
   //  est en capture, donc il passe avant —, puis on arrête la
@@ -950,7 +1012,191 @@ for (
   await page.close();
 }
 
+// ── 10 · LA BARRE BASCULE EN COMBAT ────────────────────────────────
+//
+//  « Ensuite, on a les propositions qui changent : je peux attaquer le
+//  pokémon, lancer une pokeball, utiliser quelque chose de mon sac ou
+//  fuir, ou changer de pokémon. » — 17 novembre.
+console.log("\n── EN COMBAT ──────────────────────────────────────────");
+p = await monter({ combat: COMBAT });
+
+const enCombat = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  menus: [...document.querySelectorAll(".wm-barre__menu")].length,
+  visibles: [...document.querySelectorAll(".wm-barre__menu")]
+    .filter((m) => !m.hidden).length,
+  coche: [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((b) => b.getAttribute("aria-checked") === "true")?.textContent.trim(),
+}));
+
+dire(
+  "LES CINQ CHOIX DU COMBAT SONT SERVIS",
+  JSON.stringify(enCombat.mots) === JSON.stringify([
+    "Attaquer",
+    "Lancer une Poké Ball",
+    "Utiliser un objet",
+    "Changer de Pokémon",
+    "Fuir",
+  ]),
+  JSON.stringify(enCombat.mots),
+);
+dire(
+  "et « ne rien faire » n'en est pas : poster sans agir laisserait le tour au sauvage",
+  !enCombat.mots.includes(RIEN),
+  enCombat.mots.join(" · "),
+);
+dire(
+  "ATTAQUER EST COCHÉ PAR DÉFAUT, et c'est le choix le plus courant",
+  enCombat.coche === "Attaquer",
+  String(enCombat.coche),
+);
+dire(
+  "QUATRE MENUS POSÉS, UN SEUL VISIBLE — trois menus de plus parleraient d'actions qu'on n'a pas demandées",
+  enCombat.menus === 4 && enCombat.visibles === 1,
+  `${enCombat.menus} posés, ${enCombat.visibles} visible(s)`,
+);
+
+//  ── LE MENU DIT CE QU'IL FAUT POUR CHOISIR ───────────────────────
+const menuAttaque = await p.evaluate(() =>
+  [...document.querySelectorAll(".wm-barre__menu")]
+      .find((m) => !m.hidden)
+      ?.options.length === undefined
+    ? null
+    : [...[...document.querySelectorAll(".wm-barre__menu")].find((m) => !m.hidden).options]
+      .map((o) => o.textContent)
+);
+dire(
+  "LE TYPE ET LA PUISSANCE SONT DANS LE MOT : on choisit sans ouvrir l'annexe des types",
+  menuAttaque !== null && menuAttaque[0].includes("feu") &&
+    menuAttaque[0].includes("40"),
+  JSON.stringify(menuAttaque),
+);
+
+//  ── ET LE BLOC QUI PART PORTE LA CAPACITÉ CHOISIE ────────────────
+await envoyer(p);
+let partant = await lire(p);
+dire(
+  "LE BLOC PORTE L'IDENTIFIANT DE LA CAPACITÉ, pas son rang",
+  partant.includes("[[WM-ACTION:attaquer:52]]"),
+  partant.trim(),
+);
+
+//  Deuxième capacité : le menu change, donc le bloc change. C'est la
+//  règle du harnais — chaque contrôle que la barre pose change quelque
+//  chose.
+await p.evaluate(() => {
+  const m = [...document.querySelectorAll(".wm-barre__menu")].find((x) => !x.hidden);
+  m.value = "33";
+  m.dispatchEvent(new Event("change"));
+});
+await envoyer(p);
+partant = await lire(p);
+dire(
+  "CHANGER LE MENU CHANGE CE QUI PART — le menu « Où » était parti pour avoir manqué à cette règle",
+  partant.includes("[[WM-ACTION:attaquer:33]]"),
+  partant.trim(),
+);
+
+//  ── CHANGER DE POKÉMON : LES TROIS ÉTATS DE L'ÉQUIPE ─────────────
+await clic(p, "Changer de Pokémon");
+const equipe = await p.evaluate(() => {
+  const m = [...document.querySelectorAll(".wm-barre__menu")].find((x) => !x.hidden);
+  return [...m.options].map((o) => ({ mot: o.textContent, inerte: o.disabled }));
+});
+dire(
+  "CELUI QUI SE BAT RESTE DANS LA LISTE, inerte — le retirer ferait croire qu'on l'a perdu",
+  equipe.some((o) => o.mot.includes("se bat") && o.inerte),
+  JSON.stringify(equipe.map((o) => o.mot)),
+);
+dire(
+  "UN POKÉMON À TERRE EST DIT ET INERTE — le serveur le refuserait, autant ne pas dépenser un message pour l'apprendre",
+  equipe.some((o) => o.mot.includes("K.O.") && o.inerte),
+  JSON.stringify(equipe.filter((o) => o.inerte).map((o) => o.mot)),
+);
+dire(
+  "et les PV DANS LE SUJET sont affichés : 20/20 pour celui qui n'a pas encore combattu",
+  equipe.some((o) => o.mot.includes("20/20")),
+  JSON.stringify(equipe.map((o) => o.mot)),
+);
+
+//  ── LA POKÉ BALL ET L'OBJET LISENT LE SAC ────────────────────────
+await clic(p, "Lancer une Poké Ball");
+const balls = await p.evaluate(() =>
+  [...[...document.querySelectorAll(".wm-barre__menu")].find((x) => !x.hidden).options]
+    .map((o) => o.textContent)
+);
+dire(
+  "LE MENU DES BALLS DIT COMBIEN IL EN RESTE",
+  balls.length === 1 && balls[0].includes("Poké Ball (5)"),
+  JSON.stringify(balls),
+);
+await envoyer(p);
+partant = await lire(p);
+dire(
+  "et le bloc porte l'objet",
+  partant.includes("[[WM-ACTION:ball:990001]]"),
+  partant.trim(),
+);
+
+await clic(p, "Utiliser un objet");
+const objets = await p.evaluate(() =>
+  [...[...document.querySelectorAll(".wm-barre__menu")].find((x) => !x.hidden).options]
+    .map((o) => o.textContent)
+);
+dire(
+  "LES BALLS NE SONT PAS DANS « UTILISER UN OBJET » : deux boutons pour la même chose seraient un piège",
+  objets.length === 1 && objets[0].includes("Potion"),
+  JSON.stringify(objets),
+);
+
+//  ── FUIR N'A PAS DE MENU ─────────────────────────────────────────
+await clic(p, "Fuir");
+const enFuite = await p.evaluate(() => ({
+  visibles: [...document.querySelectorAll(".wm-barre__menu")].filter((m) => !m.hidden)
+    .length,
+}));
+dire(
+  "FUIR NE DEMANDE RIEN, donc aucun menu",
+  enFuite.visibles === 0,
+  `${enFuite.visibles} menu(s) visible(s)`,
+);
+await envoyer(p);
+partant = await lire(p);
+dire("et le bloc de fuite part seul", partant.includes("[[WM-ACTION:fuir]]"), partant.trim());
+
+//  ── LES FLÈCHES PARCOURENT LE JEU DE COMBAT, PAS L'AUTRE ─────────
+const auClavierEnCombat = await p.evaluate(() => {
+  const b = [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((x) => x.getAttribute("aria-checked") === "true");
+  b.focus();
+  b.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+  return [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((x) => x.getAttribute("aria-checked") === "true")?.textContent.trim();
+});
+dire(
+  "AU CLAVIER, « Home » revient au premier du JEU COURANT",
+  auClavierEnCombat === "Attaquer",
+  String(auClavierEnCombat),
+);
+await p.close();
+
+// ── 10 bis · SANS COMBAT, LA BARRE NE CHANGE PAS ───────────────────
+console.log("\n── SANS COMBAT OUVERT ─────────────────────────────────");
+p = await monter({ combat: null });
+const horsCombat = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  menus: [...document.querySelectorAll(".wm-barre__menu")].length,
+}));
+dire(
+  "LES QUATRE CHOIX HABITUELS, ET AUCUN MENU — neuf sujets de zone sur dix n'ont pas de combat",
+  JSON.stringify(horsCombat.mots) === JSON.stringify([RIEN, APPARAITRE, FOUILLER, CLOTURER]) &&
+    horsCombat.menus === 0,
+  `${JSON.stringify(horsCombat.mots)} · ${horsCombat.menus} menu(s)`,
+);
+await p.close();
+
 await nav.close();
+
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
 for (const s of soucis) console.log("  · " + s);
 if (soucis.length > 0) Deno.exit(1);

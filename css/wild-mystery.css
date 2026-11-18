@@ -14186,6 +14186,43 @@ body:has(#modernbb .wm-carnet) {
   padding-inline: 0;
 }
 
+/*  ── LE MENU D'UN CHOIX DE COMBAT ───────────────────────────────
+    « Attaquer avec quoi, lancer quelle ball, utiliser quel objet,
+    envoyer qui » : quatre des cinq boutons de combat ouvrent une
+    liste. Un `<select>` natif, et pas une liste à nous — il se navigue
+    au clavier sans qu'on écrive une ligne pour ça, et il n'y a jamais
+    plus de huit options.
+
+    IL NE PARAÎT QUE SOUS LE BOUTON CHOISI, par `hidden` en JavaScript.
+    Quatre menus ouverts en permanence feraient une barre illisible, et
+    trois d'entre eux parleraient d'une action qu'on n'a pas demandée.
+
+    LA HAUTEUR DE CIBLE EST CELLE DES BOUTONS : 34 px, mesurés par
+    `outils/barre.mjs`. Un menu plus bas que les boutons qu'il
+    accompagne se rate au doigt. */
+#modernbb .wm-barre__menu {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 28px);
+  min-height: 34px;
+  margin: 2px 14px 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 1.4;
+}
+
+/*  Une option désactivée est celle d'un Pokémon qui se bat déjà ou
+    qui est à terre. Elle RESTE dans la liste — la retirer ferait croire
+    qu'on l'a perdu — et elle se lit comme indisponible. */
+#modernbb .wm-barre__menu option:disabled {
+  color: var(--wm-texte-pale, #69564c);
+}
+
 #modernbb .wm-barre__note {
   margin: 0;
   padding: 0 14px 12px;
@@ -32970,10 +33007,40 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     !important` écrit plus haut, et c'est voulu : il faut le battre. */
 #modernbb :is(.ucp-main, form[name="searchform"])
   dd:has(:is(select, input[type="text"]) ~ :is(select, input[type="text"])) {
-  display: flex;
-  flex-wrap: wrap;
+  /*  ── L'ÉTIQUETTE AU-DESSUS DE SON CHAMP, SANS UNE LIGNE DE JS ───
+
+      « Il manque un écart entre la flèche qui va vers le bas et
+      "Mois", et "Année" est loin de son champ. Tu crois que tu
+      pourrais mettre le label au-dessus de chaque champ et les mettre
+      côte à côte ? », 17 novembre.
+
+      EN RANGÉE, LES SIX MORCEAUX SONT À PLAT et rien ne dit lequel va
+      avec lequel : « Mois » était aussi près de la flèche du menu des
+      jours que de son propre menu. Un écart plus grand n'aurait pas
+      résolu ça, il aurait juste éloigné tout le monde.
+
+      LA GRILLE LES APPARIE SANS LES ENVELOPPER. « Jour », « Mois » et
+      « Année » sont des NŒUDS DE TEXTE NUS — Forumactif les écrit
+      sans balise, et aucun sélecteur ne les atteint. Mais en grille
+      ils deviennent des éléments à part entière : deux rangées, un
+      remplissage par COLONNE, et chaque étiquette tombe au-dessus de
+      son champ. Trois paires côte à côte, et pas une balise ajoutée.
+
+      C'est aussi pourquoi le style d'étiquette est posé sur le `dd`
+      et DÉFAIT sur les champs : on ne peut pas viser un nœud de texte,
+      on peut viser tout le reste. */
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: auto auto;
+  justify-content: start;
   align-items: center;
-  gap: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-16, 16px);
+
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
   /*  LA BORNE DE 420 px SAUTE ICI, ET SEULEMENT ICI. Elle existe pour
       qu'un champ unique ne s'étire pas sur sept cents pixels — un
       « Pseudo » large comme un paragraphe. Une ligne de trois champs
@@ -33006,7 +33073,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb :is(.ucp-main, form[name="searchform"])
   dd:has(:is(select, input[type="text"]) ~ :is(select, input[type="text"]))
   :is(select, input[type="text"]) {
-  flex: 0 1 auto;
+  /*  LE CHAMP REPREND SA VOIX : le `dd` porte maintenant le style
+      d'étiquette pour que les nœuds de texte l'héritent, et il
+      déteindrait sur les menus sans ça. */
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-normale, 400);
+  letter-spacing: normal;
+  text-transform: none;
+
   min-width: 3.5rem;
   /*  CONTRE LE `100% !important` D'AU-DESSUS, et contre le
       `style="width:250px"` en ligne : à spécificité égale c'est la

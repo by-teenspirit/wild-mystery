@@ -347,6 +347,43 @@
   padding-inline: 0;
 }
 
+/*  ── LE MENU D'UN CHOIX DE COMBAT ───────────────────────────────
+    « Attaquer avec quoi, lancer quelle ball, utiliser quel objet,
+    envoyer qui » : quatre des cinq boutons de combat ouvrent une
+    liste. Un `<select>` natif, et pas une liste à nous — il se navigue
+    au clavier sans qu'on écrive une ligne pour ça, et il n'y a jamais
+    plus de huit options.
+
+    IL NE PARAÎT QUE SOUS LE BOUTON CHOISI, par `hidden` en JavaScript.
+    Quatre menus ouverts en permanence feraient une barre illisible, et
+    trois d'entre eux parleraient d'une action qu'on n'a pas demandée.
+
+    LA HAUTEUR DE CIBLE EST CELLE DES BOUTONS : 34 px, mesurés par
+    `outils/barre.mjs`. Un menu plus bas que les boutons qu'il
+    accompagne se rate au doigt. */
+#modernbb .wm-barre__menu {
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 28px);
+  min-height: 34px;
+  margin: 2px 14px 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 1.4;
+}
+
+/*  Une option désactivée est celle d'un Pokémon qui se bat déjà ou
+    qui est à terre. Elle RESTE dans la liste — la retirer ferait croire
+    qu'on l'a perdu — et elle se lit comme indisponible. */
+#modernbb .wm-barre__menu option:disabled {
+  color: var(--wm-texte-pale, #69564c);
+}
+
 #modernbb .wm-barre__note {
   margin: 0;
   padding: 0 14px 12px;

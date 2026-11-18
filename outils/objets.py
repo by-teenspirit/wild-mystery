@@ -65,11 +65,23 @@ def familles_du_schema() -> set[str]:
         #  On retire les commentaires : une migration explique souvent
         #  l'ancienne contrainte avant de poser la nouvelle.
         nu = re.sub(r"--[^\n]*", "", texte)
-        for trouve in re.finditer(r"famille\s+in\s*\(([^)]*)\)", nu, re.S):
+        #  `check (famille in (…))` ET PAS « famille in (…) » TOUT COURT.
+        #
+        #  Le 18 novembre, la 0051 a écrit `o.famille in ('ball', 'soin')`
+        #  pour réduire le sac aux objets utiles en combat — et ce
+        #  motif-là, trop large, a pris CETTE ligne pour la contrainte.
+        #  Le garde-fou a alors annoncé que la base refusait quatre
+        #  familles de son propre catalogue.
+        #
+        #  Une contrainte se reconnaît à son `check`. Chercher sans lui,
+        #  c'était chercher une phrase au lieu d'une déclaration.
+        for trouve in re.finditer(
+            r"check\s*\(\s*famille\s+in\s*\(([^)]*)\)", nu, re.S
+        ):
             derniere = set(re.findall(r"'([^']+)'", trouve.group(1)))
     if derniere is None:
         raise CatalogueIncoherent(
-            "aucune contrainte « famille in (…) » dans supabase/migrations/"
+            "aucune contrainte « check (famille in (…)) » dans supabase/migrations/"
         )
     return derniere
 

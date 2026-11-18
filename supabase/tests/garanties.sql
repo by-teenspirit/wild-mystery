@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(391);
+select plan(399);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2950,7 +2950,81 @@ select ok(
   'LE SAC PORTE LES SLUGS : le domaine choisit le multiplicateur d''une ball par son slug, pas par son identifiant'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0051 · MON COMBAT
+--
+--  La frontière du privé. `combat_du_sujet` est lisible par n'importe
+--  qui — elle ne rend que ce qui est déjà dans le sujet. `mon_combat`
+--  rend le SAC et l'ÉQUIPE, donc elle demande le laissez-passer.
+-- ════════════════════════════════════════════════════════════════════
+
+select ok(
+  mon_combat(jsonb_build_object('sujetId', 999)) is null,
+  'SANS LAISSEZ-PASSER, AUCUN COMBAT — le refus est dans la base, pas seulement dans l''affichage : un bouton caché se retrouve avec les outils du navigateur'
+);
+
+--  On relie le joueur d'essai à une identité, puis on pose le jeton
+--  comme PostgREST le fait.
+update joueur set auth_id = 'bbbbbbbb-0000-0000-0000-000000000001'
+ where forum_user_id = 9110;
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"bbbbbbbb-0000-0000-0000-000000000001"}',
+  true
+);
+
+select is(
+  joueur_courant(),
+  (select id from joueur where forum_user_id = 9110),
+  'AVEC LE LAISSEZ-PASSER, LE BON JOUEUR'
+);
+
+select ok(
+  mon_combat(jsonb_build_object('sujetId', 999)) is not null,
+  'et son combat se lit'
+);
+
+select ok(
+  jsonb_array_length(mon_combat(jsonb_build_object('sujetId', 999))->'equipe') >= 2,
+  'L''ÉQUIPE EST LÀ, pour que « changer » puisse proposer des cases'
+);
+
+select ok(
+  (select count(*) from jsonb_array_elements(
+     mon_combat(jsonb_build_object('sujetId', 999))->'equipe') m
+    where (m->>'combat')::boolean) = 1,
+  'et UN SEUL y est marqué comme se battant : la barre doit pouvoir le dire avant que le joueur ne clique'
+);
+
+select ok(
+  (select bool_and(o->>'famille' in ('ball', 'soin'))
+     from jsonb_array_elements(
+       mon_combat(jsonb_build_object('sujetId', 999))->'sac') o),
+  'LE SAC EST RÉDUIT À CE QUI SERT EN COMBAT : une pierre d''évolution dans une liste où chaque ligne coûte un tour serait un piège'
+);
+
+--  ── ET LE COMBAT DU VOISIN RESTE LE SIEN ─────────────────────────
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"bbbbbbbb-0000-0000-0000-00000000ffff"}',
+  true
+);
+
+select ok(
+  mon_combat(jsonb_build_object('sujetId', 999)) is null,
+  'LE COMBAT N''EST PAS CELUI DU VOISIN : planche 99 §5.4, l''autre voit la carte et ne peut pas agir'
+);
+
+select ok(
+  combat_du_sujet(jsonb_build_object('sujetId', 999)) is not null,
+  'MAIS IL VOIT LA CARTE : ce qui est dans le sujet reste public'
+);
+
+select set_config('request.jwt.claims', '', true);
+
 select * from finish();
+
 
 
 
