@@ -714,6 +714,71 @@ for (
     vu.etat === "dehors" && vu.lierOuvert && vu.champ && appels.length === 0,
     JSON.stringify({ ...vu, appels: appels.length }),
   );
+
+  //  ── L'ONBOARDING DIT À QUOI SERT LE CARNET, AVANT DE DEMANDER ────
+  //
+  //  « Il faut vraiment que l'onboarding serve à expliquer à quoi il
+  //  sert, comment on lie son compte » — 18 novembre. La page
+  //  demandait une adresse e-mail sans s'être présentée : un titre,
+  //  un champ, et c'est tout.
+  //
+  //  CE QUI SE MESURE, C'EST L'ORDRE autant que la présence. Une
+  //  présentation posée SOUS le formulaire ne présente rien : on a
+  //  déjà tapé, ou déjà renoncé.
+  const onb = await q.evaluate(() => {
+    const pres = document.querySelector("[data-wm-carnet-presentation]");
+    const form = document.querySelector("[data-wm-carnet-liaison]");
+    const spam = document.querySelector("[data-wm-carnet-lier-spam]");
+    const tout = document.querySelector(".wm-carnet__dehors")?.textContent ?? "";
+    if (pres === null || form === null) return null;
+    return {
+      presentationVisible: pres.hidden === false &&
+        pres.getBoundingClientRect().height > 0,
+      atouts: pres.querySelectorAll(".wm-carnet__atout").length,
+      //  AVANT LE FORMULAIRE, dans l'ordre du document.
+      avantLeChamp: (pres.compareDocumentPosition(form) &
+        Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
+      spamVisible: spam !== null && spam.getBoundingClientRect().height > 0,
+      //  LES QUATRE CHOSES QU'ELLE A DICTÉES, cherchées dans le texte
+      //  rendu — pas dans la source : c'est ce que la joueuse lit.
+      ditLaValidation: /validé/i.test(tout),
+      ditLesSpams: /spams?/i.test(tout),
+      ditLeStaff: /staff/i.test(tout),
+      ditLaBase: /base de données/i.test(tout),
+    };
+  });
+  dire(
+    "LA PRÉSENTATION EST LÀ, ET AVANT LE FORMULAIRE",
+    onb !== null && onb.presentationVisible && onb.avantLeChamp && onb.atouts >= 6,
+    JSON.stringify(onb && {
+      visible: onb.presentationVisible,
+      atouts: onb.atouts,
+      avant: onb.avantLeChamp,
+    }),
+  );
+  dire(
+    "ELLE DIT LA VALIDATION, LES SPAMS, LE STAFF, ET D'OÙ VIENNENT LES DONNÉES",
+    onb !== null && onb.ditLaValidation && onb.ditLesSpams && onb.ditLeStaff &&
+      onb.ditLaBase,
+    JSON.stringify(onb && {
+      validation: onb.ditLaValidation,
+      spams: onb.ditLesSpams,
+      staff: onb.ditLeStaff,
+      base: onb.ditLaBase,
+    }),
+  );
+  dire(
+    "et l'encart des spams se voit sans avoir à chercher",
+    onb?.spamVisible === true,
+    String(onb?.spamVisible),
+  );
+  //  UNE PHOTO DE L'ONBOARDING. C'est une page qu'on lit : sa
+  //  hiérarchie et sa longueur se regardent, elles ne se comptent pas.
+  if (Deno.args.includes("--photo")) {
+    const bloc = await q.$(".wm-carnet__dehors");
+    if (bloc !== null) await bloc.screenshot({ path: `${R}carnet-onboarding.png` });
+    console.log("photo : carnet-onboarding.png");
+  }
   await q.close();
 }
 

@@ -800,6 +800,65 @@
   min-width: 0;
 }
 
+/*  ── LA PRÉSENTATION, AVANT LE FORMULAIRE ─────────────────────────
+
+    « Il faut vraiment que l'onboarding serve à expliquer à quoi il
+    sert, comment on lie son compte » — 18 novembre.
+
+    LA PAGE DEMANDAIT UNE ADRESSE SANS S'ÊTRE PRÉSENTÉE. On arrivait
+    sur un titre et un champ. Les six cartes disent d'abord ce qu'on
+    ouvre ; le formulaire vient après, et il demande alors quelque
+    chose pour une raison qu'on connaît.
+
+    DEUX COLONNES QUI SE REPLIENT SUR LA LARGEUR DU BLOC, comme le
+    formulaire juste en dessous : même `container-type`, même seuil.
+    Une `@media` mesurerait l'écran, pas la colonne — et le carnet vit
+    dans une colonne dont on ne connaît pas la taille. */
+#modernbb .wm-carnet__presentation {
+  container-type: inline-size;
+  margin-bottom: var(--wm-espace-24, 24px);
+}
+
+#modernbb .wm-carnet__atouts {
+  display: grid;
+  margin: var(--wm-espace-14, 14px) 0 0;
+  padding: 0;
+  gap: var(--wm-espace-12, 12px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+}
+
+@container (max-width: 620px) {
+  #modernbb .wm-carnet__atouts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/*  UNE CARTE PAR ATOUT, et le titre sur sa propre ligne : la liste se
+    parcourt à l'œil avant de se lire. `display: block` sur le `<b>`
+    plutôt qu'un titre de niveau — ce sont six libellés, pas six
+    sections, et six `<h3>` dans une page qui en a déjà casseraient le
+    plan pour un lecteur d'écran. */
+#modernbb .wm-carnet__atout {
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+#modernbb .wm-carnet__atout b {
+  display: block;
+  margin-bottom: var(--wm-espace-4, 4px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .wm-carnet__atout span {
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
 /*  ── L'ENCADRÉ D'INFORMATION ───────────────────────────────────────
 
     « Précise au début quand les personnes viennent lier leur compte »,
@@ -843,6 +902,28 @@
 
 #modernbb .wm-info p:last-child {
   margin-bottom: 0;
+}
+
+/*  ── L'ENCART D'ATTENTION ─────────────────────────────────────────
+
+    « Attention, l'email peut tomber dans les spams ! Si il y a un
+    problème, il ne faut pas hésiter à demander au staff. »
+
+    MÊME BOÎTE QUE L'INFORMATION, AUTRE COULEUR DE TITRE. Les deux
+    encadrés vivent côte à côte sous le formulaire ; s'ils étaient
+    identiques, on lirait le second comme la suite du premier. Le
+    titre et l'icône passent à l'ocre des avertissements de la charte
+    — pas au rouge : rien n'est cassé, c'est une chose à savoir.
+
+    LE FOND NE CHANGE PAS. Deux fonds différents à dix pixels d'écart
+    feraient deux blocs qui se disputent, et c'est le formulaire qu'on
+    doit regarder. */
+#modernbb .wm-info--attention {
+  margin-top: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-info--attention .wm-info__titre {
+  color: var(--wm-rarete-peu-commun-texte, #96540e);
 }
 
 #modernbb .wm-info__titre {

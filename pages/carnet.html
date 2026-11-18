@@ -109,12 +109,63 @@
           <p class="wm-carnet__surtitre">Le carnet de bord</p>
           <h1 class="wm-carnet__titre">Ton <b>carnet</b></h1>
           <p class="wm-carnet__chapo">
-            Il montre ce que le serveur sait de toi : ton équipe, ton sac,
-            ton Pokédex. Il s'ouvre tout seul, du moment que tu es
-            connectée au forum.
+            Le carnet de bord est un outil codé pour Wild Mystery. Il suit
+            tes RP, il te sert d'éditeur de texte, et il te montre ce que
+            le jeu sait de toi — ton équipe, ton sac, ton Pokédex. Il
+            tourne sur sa propre base de données, en dehors du forum, mais
+            il s'appuie sur ton compte : c'est pour ça qu'il faut le relier
+            une fois.
           </p>
         </header>
         <p class="wm-carnet__souci" data-wm-carnet-souci role="status"></p>
+
+        <!--  ── À QUOI IL SERT, AVANT DE DEMANDER QUOI QUE CE SOIT ────
+
+              « Il faut vraiment que l'onboarding serve à expliquer à
+              quoi il sert, comment on lie son compte » — 18 novembre.
+
+              LA PAGE DEMANDAIT UNE ADRESSE E-MAIL SANS AVOIR DIT CE
+              QU'ELLE OUVRAIT. On arrivait sur « Lier mon compte » et un
+              champ. Personne ne donne son adresse à un formulaire qui
+              ne s'est pas présenté.
+
+              Les sept cartes viennent de la liste que Callista a
+              dictée, dans son ordre. Elles sont AVANT le formulaire, et
+              c'est tout l'objet du changement.  -->
+        <section class="wm-carnet__presentation" data-wm-carnet-presentation hidden>
+          <h2 class="wm-carnet__bloc-titre">Ce que tu y trouveras</h2>
+          <ul class="wm-carnet__atouts">
+            <li class="wm-carnet__atout">
+              <b>Le suivi de tes RP</b>
+              <span>Tes sujets en cours, ceux qui sont prévus, tes solos — et
+                surtout, à qui c'est de répondre.</span>
+            </li>
+            <li class="wm-carnet__atout">
+              <b>Un éditeur qui sauvegarde tout seul</b>
+              <span>Tu écris tes RP dedans. Il enregistre tout le temps, sans
+                que tu aies à y penser, et garde tes brouillons.</span>
+            </li>
+            <li class="wm-carnet__atout">
+              <b>Des sprints d'écriture</b>
+              <span>Pour s'y mettre à plusieurs, ou se donner un temps à soi.</span>
+            </li>
+            <li class="wm-carnet__atout">
+              <b>Un mode focus</b>
+              <span>L'écran se vide, il ne reste que le texte.</span>
+            </li>
+            <li class="wm-carnet__atout">
+              <b>Ton histoire et ta chronologie</b>
+              <span>Les informations de ton personnage, rangées là où tu
+                écris, et ta fiche de liens tenue depuis la même
+                interface.</span>
+            </li>
+            <li class="wm-carnet__atout">
+              <b>Ton jeu, à l'instant</b>
+              <span>Ton équipe, tes boîtes, ton sac, et ton Pokédex — ce que
+                tu as vu, ce que tu as attrapé.</span>
+            </li>
+          </ul>
+        </section>
 
         <!--  LIER SON COMPTE, UNE SEULE FOIS DANS LA VIE DU
               PERSONNAGE. Le bloc est caché par défaut : il ne s'ouvre
@@ -122,12 +173,27 @@
               script remplit tout le reste.  -->
         <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
           <div class="wm-carnet__lier-forme">
-            <h2 class="wm-carnet__bloc-titre">Lier mon compte</h2>
+            <h2 class="wm-carnet__bloc-titre">Relier ton carnet</h2>
+            <!--  ── LA CONDITION D'ABORD, LE GESTE ENSUITE ───────────
+
+                  « Cela ne peut être fait qu'une fois validée : le staff
+                  effectue une manipulation pour permettre l'accès à
+                  votre pseudo et votre email au carnet de bord. »
+
+                  ELLE EST ÉCRITE AVANT LE CHAMP. Quelqu'un qui n'est pas
+                  encore validé tapait son adresse, ne recevait rien, et
+                  n'avait aucun moyen de savoir que c'était normal.  -->
             <p>
-              Une fois, et jamais plus : tape l'adresse que le staff a
-              notée pour ce personnage. Tu recevras un lien à cliquer, et
-              ton carnet s'ouvrira tout seul ensuite — sur tous tes
-              personnages, sur tous tes navigateurs.
+              <b>D'abord, il faut que ton personnage soit validé.</b> À ce
+              moment-là, le staff fait une manipulation de son côté : il
+              autorise le carnet à lire ton pseudo et ton adresse e-mail.
+              Tant que ce n'est pas fait, le lien ne partira pas.
+            </p>
+            <p>
+              Ensuite, tape ici l'adresse de ton inscription. Tu recevras un
+              lien à cliquer : c'est lui qui confirme que c'est bien toi.
+              Une seule fois, et ton carnet s'ouvrira tout seul ensuite —
+              sur tous tes personnages, sur tous tes navigateurs.
             </p>
             <form data-wm-carnet-liaison>
               <label for="wm-courriel">Ton adresse e-mail</label>
@@ -169,6 +235,42 @@
               <b>tous d'un coup</b>. Le format
               <code>mail+perso@gmail.com</code> marche aussi, si tu
               préfères les séparer.
+            </p>
+          </aside>
+
+          <!--  ── LES DEUX CHOSES QUI BLOQUENT POUR DE VRAI ──────────
+
+                « Attention, l'email peut tomber dans les spams ! Si il
+                y a un problème, il ne faut pas hésiter à demander au
+                staff. » — 18 novembre.
+
+                ELLES SONT DANS UN ENCART À PART, après le formulaire et
+                non avant : on les lit au moment où elles servent,
+                c'est-à-dire quand le lien n'arrive pas. Les mettre plus
+                haut, c'était annoncer une panne avant d'avoir essayé.  -->
+          <aside class="wm-info wm-info--attention" data-wm-carnet-lier-spam>
+            <p class="wm-info__titre">
+              <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="M10 2.6 18.4 17H1.6Z" fill="none" stroke="currentColor"
+                      stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M10 7.8v4.1" fill="none" stroke="currentColor"
+                      stroke-width="1.8" stroke-linecap="round" />
+                <circle cx="10" cy="14.5" r="1.1" fill="currentColor" />
+              </svg>
+              Le lien n'arrive pas&nbsp;?
+            </p>
+            <p>
+              <b>Regarde dans tes spams.</b> C'est là qu'il tombe le plus
+              souvent — le courrier vient d'un service automatique, et les
+              messageries s'en méfient. Pense à le marquer comme
+              «&nbsp;non indésirable&nbsp;» pour les fois suivantes.
+            </p>
+            <p>
+              Rien non plus au bout de quelques minutes&nbsp;?
+              <b>Écris au staff</b>, on regarde avec toi. C'est en général
+              que l'adresse notée à ta validation n'est pas celle que tu
+              viens de taper, ou que la manipulation reste à faire. Il n'y
+              a rien à réparer de ton côté.
             </p>
           </aside>
         </div>

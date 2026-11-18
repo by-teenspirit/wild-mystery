@@ -237,10 +237,23 @@ function direLaLiaison(mot: string): void {
   if (e !== null) e.textContent = mot;
 }
 
-/** Montre ou cache le bloc « Lier mon compte ». */
+/** Montre ou cache le bloc « Relier ton carnet » — et la présentation
+ *  qui le précède.
+ *
+ *  LES DEUX VONT ENSEMBLE, et c'est voulu. « Il faut vraiment que
+ *  l'onboarding serve à expliquer à quoi il sert » (18 novembre) : la
+ *  présentation s'adresse à qui n'a pas encore relié son carnet, et à
+ *  personne d'autre. Une fois relié, on ouvre son carnet pour
+ *  travailler, pas pour relire ce qu'il sait faire.
+ *
+ *  UNE SEULE FONCTION POUR LES DEUX : deux appels séparés finiraient
+ *  par se désaccorder, et on verrait la présentation seule au-dessus
+ *  d'un carnet ouvert. */
 function montrerLaLiaison(ouvert: boolean): void {
-  const bloc = document.querySelector<HTMLElement>("[data-wm-carnet-lier]");
-  if (bloc !== null) bloc.hidden = !ouvert;
+  for (const nom of ["[data-wm-carnet-presentation]", "[data-wm-carnet-lier]"]) {
+    const bloc = document.querySelector<HTMLElement>(nom);
+    if (bloc !== null) bloc.hidden = !ouvert;
+  }
 }
 
 /** Le laissez-passer utilisable, rafraîchi si besoin.
