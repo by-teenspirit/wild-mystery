@@ -22,6 +22,8 @@ import type {
   CartesDeRencontreEnAttente,
   CombatEnCours,
   Combats,
+  MembreDEquipe,
+  ObjetDuSac,
   OuvertureDeCombat,
   RencontreEnAttente,
   TourJoue,
@@ -212,6 +214,52 @@ export class CartesDeRencontreSupabase implements CartesDeRencontreEnAttente {
  *  que transporter — et relire la réponse, parce qu'un `combatId` absent
  *  ferait planter la carte bien plus loin, sans rapport apparent.
  */
+/** L'équipe, membre par membre.
+ *
+ *  UNE ÉQUIPE VIDE EST POSSIBLE et n'est pas une faute : un joueur peut
+ *  avoir relâché son dernier Pokémon. C'est `changer` qui refusera, en
+ *  disant qu'il n'y a personne en case 2. */
+function lireLEquipe(brut: unknown): readonly MembreDEquipe[] {
+  if (brut === null || brut === undefined) return [];
+  if (!Array.isArray(brut)) {
+    throw new AppelEchoue("combat_pour_jouer", "equipe : tableau attendu");
+  }
+  return brut.map((m, i) => {
+    const o = m as Record<string, unknown>;
+    const ou = `equipe[${i}]`;
+    return {
+      ...lireUnCombattant(m, ou),
+      pokemonId: texte(o, "pokemonId", ou),
+      surnom: lireUnSurnom(o.surnom),
+      //  LA CASE PEUT ÊTRE NULLE : la base l'autorise pour un Pokémon
+      //  d'équipe sans position, et `position asc nulls last` le range
+      //  en dernier. `changer` ne le trouvera pas, et c'est juste —
+      //  on ne peut pas cliquer sur une case qui n'existe pas.
+      position: typeof o.position === "number" ? o.position : null,
+    };
+  });
+}
+
+/** Le sac. Chaque ligne porte son slug, parce que le domaine choisit
+ *  par le slug et pas par l'identifiant. */
+function lireLeSac(brut: unknown): readonly ObjetDuSac[] {
+  if (brut === null || brut === undefined) return [];
+  if (!Array.isArray(brut)) {
+    throw new AppelEchoue("combat_pour_jouer", "sac : tableau attendu");
+  }
+  return brut.map((x, i) => {
+    const o = x as Record<string, unknown>;
+    const ou = `sac[${i}]`;
+    return {
+      objetId: nombre(o, "objetId", ou),
+      quantite: nombre(o, "quantite", ou),
+      slug: texte(o, "slug", ou),
+      nom: texte(o, "nom", ou),
+      famille: texte(o, "famille", ou),
+    };
+  });
+}
+
 export class CombatsSupabase implements Combats {
   constructor(private readonly appeler: AppelSql) {}
 
@@ -238,6 +286,10 @@ export class CombatsSupabase implements Combats {
       sauvage: {
         ...lireUnCombattant(o.sauvage, "sauvage"),
         especeId: nombre(o.sauvage as Record<string, unknown>, "especeId", "sauvage"),
+        //  LE TAUX DE CAPTURE. Absent, la Poké Ball lèverait sur un
+        //  « taux de capture undefined » au milieu d'un lancer — après
+        //  que la base a été lue, avant qu'elle ne soit écrite.
+        capture: nombre(o.sauvage as Record<string, unknown>, "capture", "sauvage"),
       },
       combattant: o.combattant === null || o.combattant === undefined ? null : {
         ...lireUnCombattant(o.combattant, "combattant"),
@@ -248,6 +300,8 @@ export class CombatsSupabase implements Combats {
         ),
         surnom: lireUnSurnom((o.combattant as Record<string, unknown>).surnom),
       },
+      equipe: lireLEquipe(o.equipe),
+      sac: lireLeSac(o.sac),
     };
   }
 

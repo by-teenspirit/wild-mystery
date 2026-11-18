@@ -234,7 +234,7 @@ function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
     d.fossiles ?? SANS_FOSSILES,
     d.butin ?? BUTIN_ORDINAIRE,
     d.combats ?? combats,
-    new JouerUnTour(combats, TYPES_DE_TEST),
+    new JouerUnTour(combats, TYPES_DE_TEST, d.heures ?? new HeuresFixes()),
   );
   return { tache, registre, zone: d.zone ?? ZONE };
 }
@@ -612,7 +612,7 @@ Deno.test("une écriture qui lève n'emporte pas les actions suivantes", async (
     SANS_FOSSILES,
     BUTIN_ORDINAIRE,
     new CombatsEnMemoire(),
-    new JouerUnTour(new CombatsEnMemoire(), TYPES_DE_TEST),
+    new JouerUnTour(new CombatsEnMemoire(), TYPES_DE_TEST, new HeuresFixes()),
   );
 
   const bilan = await tache.executerSur(ZONE, 976, 0);

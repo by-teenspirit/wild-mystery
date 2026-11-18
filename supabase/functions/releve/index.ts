@@ -262,7 +262,7 @@ function assembler(reglages: Reglages): Montage {
     //  domaine le fait, elle orchestre et refuse ce qui n'a pas de
     //  sens — une capacité qui n'est pas des quatre, un combat qui
     //  n'est pas le sien.
-    new JouerUnTour(combats, typesDuJeu),
+    new JouerUnTour(combats, typesDuJeu, new HeuresSupabase(appeler)),
   );
 
   const parcourir = new ParcourirLesZones(

@@ -127,9 +127,11 @@ function monter(
     sansFossiles,
     butinMuet,
     new CombatsEnMemoire(),
-    new JouerUnTour(new CombatsEnMemoire(), {
-      efficacite: () => Promise.resolve({ feu: { feu: 0.5 } }),
-    }),
+    new JouerUnTour(
+      new CombatsEnMemoire(),
+      { efficacite: () => Promise.resolve({ feu: { feu: 0.5 } }) },
+      { heureLocaleDe: () => Promise.resolve(12) },
+    ),
   );
 
   const tache = new ParcourirLesZones(

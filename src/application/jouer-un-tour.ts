@@ -43,19 +43,38 @@ import {
   type Capacite,
   type Combattant,
   degatsAuSauvage,
+  resoudreUneRiposte,
   resoudreUnTour,
   type Tour,
   TOURS_MAX,
 } from "../domaine/combat.ts";
+import { type Jet, lancerUneBall } from "../domaine/capture.ts";
+import { estLaNuit } from "../domaine/meteo.ts";
+import { estUnSoin, soigner } from "../domaine/soin.ts";
+import { graineDepuis, suiteAleatoire } from "../domaine/alea.ts";
 import { experienceGagnee } from "../domaine/experience.ts";
-import type { ActionLue, CombatEnCours, Combats, TableDesTypesEnJeu } from "./ports.ts";
+import type {
+  ActionLue,
+  CombatEnCours,
+  Combats,
+  ObjetDuSac,
+  TableDesTypesEnJeu,
+} from "./ports.ts";
+//  `HeuresDesJoueurs` vit dans `lire-les-nouveaux-messages.ts` et pas
+//  dans `ports.ts` — c'est là qu'elle a été écrite le 2 octobre, avec
+//  la décision qu'elle porte : « le jour et la nuit suivent l'heure du
+//  JOUEUR ». On l'importe de là plutôt que d'en déclarer une seconde.
+import type { HeuresDesJoueurs } from "./lire-les-nouveaux-messages.ts";
 
-/** Les trois demandes que ce service honore aujourd'hui.
- *
- *  `ball` et `objet` touchent au sac et viennent après — et comme la
- *  barre ne les propose pas, un bloc qui les porte ne peut venir que
- *  d'une main. On le DIT et on ne joue rien, plutôt que de deviner. */
-export const DEMANDES = ["attaquer", "fuir", "changer"] as const;
+/** Les cinq demandes du combat, toutes honorées depuis le
+ *  18 novembre. */
+export const DEMANDES = [
+  "attaquer",
+  "fuir",
+  "changer",
+  "ball",
+  "objet",
+] as const;
 
 export type Demande = (typeof DEMANDES)[number];
 
@@ -130,6 +149,11 @@ export class JouerUnTour {
   constructor(
     private readonly combats: Combats,
     private readonly types: TableDesTypesEnJeu,
+    /** POUR LA SOMBRE BALL, et pour elle seule : elle vaut ×3 la nuit,
+     *  et la nuit est celle du JOUEUR — la même heure locale qui
+     *  décide des tables de faune. Deux notions de « nuit » dans un
+     *  jeu, c'est une de trop. */
+    private readonly heures: HeuresDesJoueurs,
   ) {}
 
   async executer(
@@ -166,18 +190,6 @@ export class JouerUnTour {
       return rien;
     }
 
-    if (action.type === "ball" || action.type === "objet") {
-      //  PAS ENCORE HONORÉ, ET DIT COMME TEL. La barre ne propose pas
-      //  ce bouton, donc ce bloc vient d'une main — et la promesse de
-      //  `action.ts` est que ça ne donne aucun avantage. On ne joue
-      //  rien, on ne consomme rien.
-      erreurs.push(
-        `message ${lue.messageId} : « ${action.type} » n'est pas encore ` +
-          `servi par la relève, rien n'a été joué`,
-      );
-      return rien;
-    }
-
     if (etat.tour >= TOURS_MAX) {
       //  Le cinquième tour a déjà été joué : le sauvage est parti, et
       //  `jouer_un_tour` refuserait de toute façon. On le dit plutôt
@@ -190,14 +202,13 @@ export class JouerUnTour {
 
     if (action.type === "fuir") return await this.#fuir(etat, lue);
     if (action.type === "changer") {
-      //  CHANGER DE POKÉMON EST UN TOUR, mais il demande l'équipe —
-      //  qui n'est pas dans l'état du combat. On le dit en attendant,
-      //  pour la même raison que `ball` : rien joué, rien consommé.
-      erreurs.push(
-        `message ${lue.messageId} : « changer » n'est pas encore servi ` +
-          `par la relève, rien n'a été joué`,
-      );
-      return rien;
+      return await this.#changer(etat, lue, action.position, erreurs);
+    }
+    if (action.type === "ball") {
+      return await this.#lancerUneBall(etat, lue, action.objetId, joueurId, erreurs);
+    }
+    if (action.type === "objet") {
+      return await this.#utiliserUnObjet(etat, lue, action.objetId, erreurs);
     }
 
     return await this.#attaquer(etat, lue, action.capacite, erreurs);
@@ -224,6 +235,385 @@ export class JouerUnTour {
       fin: "fuite",
     });
     return { evenements: [], tour: null };
+  }
+
+  /** L'objet du sac, s'il y en a un.
+   *
+   *  LA QUANTITÉ EST CELLE DE LA BASE, pas celle du sujet : ce que le
+   *  registre a déjà consommé se déduit à la CLÔTURE, comme tout le
+   *  reste. Conséquence assumée — un joueur peut lancer six balls avec
+   *  cinq dans son sac, et la clôture refusera le tout en disant ce
+   *  qui manque (`evaluerCloture`). Ce contrôle-ci sert à refuser le
+   *  cas évident tout de suite, pas à tenir la comptabilité. */
+  #duSac(etat: CombatEnCours, objetId: number): ObjetDuSac | undefined {
+    return etat.sac.find((o) => o.objetId === objetId && o.quantite > 0);
+  }
+
+  /** CHANGER DE POKÉMON, et ça coûte le tour.
+   *
+   *  C'est la règle des jeux, et elle n'est pas décorative : sans elle,
+   *  la bonne stratégie serait toujours de faire défiler l'équipe
+   *  entière pour trouver la meilleure affiche. Un choix sans coût
+   *  n'est pas un choix. */
+  async #changer(
+    etat: CombatEnCours,
+    lue: ActionLue,
+    position: number,
+    erreurs: string[],
+  ): Promise<Resolution> {
+    const rien: Resolution = { evenements: [], tour: null };
+
+    const vise = etat.equipe.find((m) => m.position === position);
+    if (vise === undefined) {
+      erreurs.push(
+        `message ${lue.messageId} : aucun Pokémon en case ${position} de ton équipe`,
+      );
+      return rien;
+    }
+    //  CELUI-LÀ SE BAT DÉJÀ, et on le NOMME. « Rien ne s'est passé »
+    //  serait pris pour une panne ; « Salamèche se bat déjà » se lit.
+    if (etat.combattant !== null && vise.pokemonId === etat.combattant.pokemonId) {
+      erreurs.push(
+        `message ${lue.messageId} : ${vise.nom} se bat déjà`,
+      );
+      return rien;
+    }
+    //  À TERRE NE REVIENT PAS. Zéro PV n'est pas « très blessé » : il
+    //  faut un Rappel, que le combat ne sert pas encore.
+    if (vise.pv <= 0) {
+      erreurs.push(
+        `message ${lue.messageId} : ${vise.nom} est à terre, il ne peut pas entrer`,
+      );
+      return rien;
+    }
+
+    const riposte = riposteDe(etat.sauvage.capacites.map(capaciteDe));
+    if (riposte === null) {
+      erreurs.push(
+        `message ${lue.messageId} : ${etat.sauvage.nom} n'a aucune capacité, ` +
+          `le combat ne peut pas se jouer`,
+      );
+      return rien;
+    }
+
+    const numero = etat.tour + 1;
+    //  L'ARRIVANT ENCAISSE, et c'est lui que la riposte vise : il entre
+    //  sur le terrain au début du tour, pas à la fin.
+    const tour = resoudreUneRiposte(
+      numero,
+      combattantDe(vise),
+      combattantDe(etat.sauvage),
+      riposte,
+      await this.types.efficacite(),
+      String(lue.messageId),
+      "changer",
+    );
+
+    const joue = await this.combats.jouer({
+      combatId: etat.combatId,
+      messageId: lue.messageId,
+      numero,
+      demande: "changer",
+      detail: { position, pokemonId: vise.pokemonId, nom: vise.nom },
+      recit: tour,
+      pvJoueur: tour.pvJoueur,
+      pvSauvage: tour.pvSauvage,
+      fin: tour.fin,
+      //  LES DEUX CHAMPS QUI FONT LE CHANGEMENT. Sans eux, la base
+      //  écrirait les PV de l'arrivant sur la ligne de celui qui sort.
+      pokemonId: vise.pokemonId,
+      pvPokemonMax: vise.pvMax,
+    });
+    if (!joue.joue) {
+      if (joue.raison !== "DEJA_JOUE") {
+        erreurs.push(
+          `message ${lue.messageId} : tour refusé (${joue.raison ?? "sans raison"})`,
+        );
+      }
+      return rien;
+    }
+    //  AUCUNE EXPÉRIENCE : personne n'a frappé de ce côté-ci.
+    return { evenements: [], tour };
+  }
+
+  /** LANCER UNE POKÉ BALL.
+   *
+   *  ── LA CAPTURE PASSE PAR LE REGISTRE, COMME TOUT LE RESTE ─────────
+   *
+   *  Une prise n'écrit PAS un Pokémon dans la boîte : elle écrit une
+   *  ligne `capture` au registre, qui se versera à la clôture. C'est
+   *  la même règle que l'expérience et que les objets trouvés, et elle
+   *  a une raison — `evaluerCloture` vérifie qu'il y a la place en
+   *  boîte, et un Pokémon versé en plein sujet sauterait ce contrôle.
+   *
+   *  ── ET LA BALL SE CONSOMME, PRISE OU PAS ──────────────────────────
+   *
+   *  Une ball lancée est une ball perdue. `objet_utilise` part dans les
+   *  deux cas, et c'est ce qui rend le choix de la ball intéressant. */
+  async #lancerUneBall(
+    etat: CombatEnCours,
+    lue: ActionLue,
+    objetId: number,
+    joueurId: string,
+    erreurs: string[],
+  ): Promise<Resolution> {
+    const rien: Resolution = { evenements: [], tour: null };
+
+    const objet = this.#duSac(etat, objetId);
+    if (objet === undefined) {
+      erreurs.push(
+        `message ${lue.messageId} : tu n'as pas cet objet (${objetId}) dans ton sac`,
+      );
+      return rien;
+    }
+    if (objet.famille !== "ball") {
+      erreurs.push(
+        `message ${lue.messageId} : ${objet.nom} n'est pas une Poké Ball`,
+      );
+      return rien;
+    }
+
+    //  LE TIRAGE DE LA BALL EST UNE SUITE À PART, et le suffixe le dit.
+    //  Mélangée aux quatre tirages du tour, elle les décalerait selon
+    //  qu'on a lancé ou frappé — et rejouer un combat contesté
+    //  dépendrait de ce qu'on a choisi au tour deux.
+    const tirer = suiteAleatoire(graineDepuis(`${lue.messageId}|ball`));
+    let jet: Jet;
+    try {
+      jet = lancerUneBall(
+        {
+          pv: etat.sauvage.pv,
+          pvMax: etat.sauvage.pvMax,
+          niveau: etat.sauvage.niveau,
+          types: etat.sauvage.types,
+          capture: etat.sauvage.capture,
+        },
+        objet.slug,
+        {
+          nuit: estLaNuit(await this.heures.heureLocaleDe(joueurId)),
+          tour: etat.tour + 1,
+        },
+        tirer(),
+      );
+    } catch (e) {
+      //  UNE BALL QUE LE DOMAINE NE CONNAÎT PAS. Le catalogue en porte
+      //  huit et `BALLS` les a toutes — un test le vérifie — donc
+      //  arriver ici veut dire qu'une neuvième est entrée au catalogue
+      //  sans passer par le domaine. On ne consomme rien.
+      erreurs.push(
+        `message ${lue.messageId} : ${objet.nom} — ${(e as Error).message}`,
+      );
+      return rien;
+    }
+
+    const numero = etat.tour + 1;
+    const evenements: Evenement[] = [
+      { type: "objet_utilise", objetId, quantite: 1 },
+    ];
+
+    if (jet.prise) {
+      const tour: Tour = {
+        numero,
+        aLaPlace: "ball",
+        frappes: [],
+        pvJoueur: etat.combattant?.pv ?? 0,
+        pvSauvage: etat.sauvage.pv,
+        fin: null,
+      };
+      const joue = await this.combats.jouer({
+        combatId: etat.combatId,
+        messageId: lue.messageId,
+        numero,
+        demande: "ball",
+        detail: { objetId, nom: objet.nom, chance: jet.chance, de: jet.de },
+        recit: { ...tour, jet },
+        pvJoueur: tour.pvJoueur,
+        pvSauvage: tour.pvSauvage,
+        fin: "capture",
+      });
+      if (!joue.joue) {
+        if (joue.raison !== "DEJA_JOUE") {
+          erreurs.push(
+            `message ${lue.messageId} : tour refusé (${joue.raison ?? "sans raison"})`,
+          );
+        }
+        return rien;
+      }
+      evenements.push({
+        type: "capture",
+        especeId: etat.sauvage.especeId,
+        niveau: etat.sauvage.niveau,
+      });
+      return { evenements, tour: { ...tour, fin: null } };
+    }
+
+    //  RATÉE : le sauvage frappe. Une ball lancée pour rien coûte le
+    //  tour et la ball, comme dans les jeux.
+    if (etat.combattant === null) {
+      //  Planche 99 §5.3 : sans Pokémon, la rencontre reste une
+      //  rencontre et la ball se lance quand même — mais personne ne
+      //  peut encaisser la riposte. Le tour passe, sans frappe.
+      const tour: Tour = {
+        numero,
+        aLaPlace: "ball",
+        frappes: [],
+        pvJoueur: 0,
+        pvSauvage: etat.sauvage.pv,
+        fin: numero === TOURS_MAX ? "fuite" : null,
+      };
+      const joue = await this.combats.jouer({
+        combatId: etat.combatId,
+        messageId: lue.messageId,
+        numero,
+        demande: "ball",
+        detail: { objetId, nom: objet.nom, chance: jet.chance, de: jet.de },
+        recit: { ...tour, jet },
+        pvJoueur: 0,
+        pvSauvage: etat.sauvage.pv,
+        fin: tour.fin,
+      });
+      return joue.joue ? { evenements, tour } : rien;
+    }
+
+    const riposte = riposteDe(etat.sauvage.capacites.map(capaciteDe));
+    if (riposte === null) {
+      erreurs.push(
+        `message ${lue.messageId} : ${etat.sauvage.nom} n'a aucune capacité, ` +
+          `le combat ne peut pas se jouer`,
+      );
+      return rien;
+    }
+    const tour = resoudreUneRiposte(
+      numero,
+      combattantDe(etat.combattant),
+      combattantDe(etat.sauvage),
+      riposte,
+      await this.types.efficacite(),
+      String(lue.messageId),
+      "ball",
+    );
+    const joue = await this.combats.jouer({
+      combatId: etat.combatId,
+      messageId: lue.messageId,
+      numero,
+      demande: "ball",
+      detail: { objetId, nom: objet.nom, chance: jet.chance, de: jet.de },
+      recit: { ...tour, jet },
+      pvJoueur: tour.pvJoueur,
+      pvSauvage: tour.pvSauvage,
+      fin: tour.fin,
+    });
+    if (!joue.joue) {
+      if (joue.raison !== "DEJA_JOUE") {
+        erreurs.push(
+          `message ${lue.messageId} : tour refusé (${joue.raison ?? "sans raison"})`,
+        );
+      }
+      return rien;
+    }
+    return { evenements, tour };
+  }
+
+  /** UTILISER UN OBJET DU SAC. Une Potion, pour l'instant : c'est la
+   *  seule famille que le combat sait appliquer.
+   *
+   *  Les autres familles du catalogue — statut, rappel, évolution,
+   *  tenu — sont refusées NOMMÉMENT. Les accepter en silence
+   *  consommerait l'objet sans rien faire. */
+  async #utiliserUnObjet(
+    etat: CombatEnCours,
+    lue: ActionLue,
+    objetId: number,
+    erreurs: string[],
+  ): Promise<Resolution> {
+    const rien: Resolution = { evenements: [], tour: null };
+
+    const objet = this.#duSac(etat, objetId);
+    if (objet === undefined) {
+      erreurs.push(
+        `message ${lue.messageId} : tu n'as pas cet objet (${objetId}) dans ton sac`,
+      );
+      return rien;
+    }
+    if (!estUnSoin(objet.slug)) {
+      erreurs.push(
+        `message ${lue.messageId} : ${objet.nom} ne s'utilise pas en combat`,
+      );
+      return rien;
+    }
+    if (etat.combattant === null) {
+      erreurs.push(
+        `message ${lue.messageId} : aucun Pokémon à soigner`,
+      );
+      return rien;
+    }
+
+    let guerison;
+    try {
+      guerison = soigner(objet.slug, etat.combattant.pv, etat.combattant.pvMax);
+    } catch (e) {
+      //  « À terre demande un Rappel », « déjà au maximum » : des
+      //  refus utiles. Sans eux le joueur dépense une Potion pour rien
+      //  et ne comprend pas pourquoi il a toujours perdu.
+      erreurs.push(
+        `message ${lue.messageId} : ${objet.nom} — ${(e as Error).message}`,
+      );
+      return rien;
+    }
+    if (guerison.rendus === 0) {
+      erreurs.push(
+        `message ${lue.messageId} : ${etat.combattant.nom} est déjà au maximum, ` +
+          `${objet.nom} n'a pas été utilisée`,
+      );
+      return rien;
+    }
+
+    const riposte = riposteDe(etat.sauvage.capacites.map(capaciteDe));
+    if (riposte === null) {
+      erreurs.push(
+        `message ${lue.messageId} : ${etat.sauvage.nom} n'a aucune capacité, ` +
+          `le combat ne peut pas se jouer`,
+      );
+      return rien;
+    }
+
+    const numero = etat.tour + 1;
+    //  ON SOIGNE D'ABORD, LE SAUVAGE FRAPPE ENSUITE. L'ordre compte :
+    //  une Potion sur un Pokémon à 2 PV le sauve, et l'inverse le
+    //  laisserait tomber avant d'avoir bu.
+    const tour = resoudreUneRiposte(
+      numero,
+      { ...combattantDe(etat.combattant), pv: guerison.pv },
+      combattantDe(etat.sauvage),
+      riposte,
+      await this.types.efficacite(),
+      String(lue.messageId),
+      "objet",
+    );
+
+    const joue = await this.combats.jouer({
+      combatId: etat.combatId,
+      messageId: lue.messageId,
+      numero,
+      demande: "objet",
+      detail: { objetId, nom: objet.nom, rendus: guerison.rendus },
+      recit: tour,
+      pvJoueur: tour.pvJoueur,
+      pvSauvage: tour.pvSauvage,
+      fin: tour.fin,
+    });
+    if (!joue.joue) {
+      if (joue.raison !== "DEJA_JOUE") {
+        erreurs.push(
+          `message ${lue.messageId} : tour refusé (${joue.raison ?? "sans raison"})`,
+        );
+      }
+      return rien;
+    }
+    return {
+      evenements: [{ type: "objet_utilise", objetId, quantite: 1 }],
+      tour,
+    };
   }
 
   async #attaquer(

@@ -398,6 +398,33 @@ export type CombattantEnJeu = {
   readonly capacites: readonly CapaciteEnJeu[];
 };
 
+/** Un Pokémon de l'équipe, banc compris.
+ *
+ *  LES PV SONT CEUX DU SUJET (migration 0049), pas le maximum. Un
+ *  Pokémon blessé plus tôt dans le sujet revient blessé — c'est la
+ *  décision du 18 novembre. */
+export type MembreDEquipe = CombattantEnJeu & {
+  readonly pokemonId: string;
+  readonly surnom: string | null;
+  /** La case, de 1 à 6. `null` pour un Pokémon d'équipe sans case —
+   *  la base l'autorise, et `position asc nulls last` le range en
+   *  dernier. */
+  readonly position: number | null;
+};
+
+/** Une ligne du sac, telle que le combat en a besoin.
+ *
+ *  LE SLUG EST LÀ EXPRÈS : le domaine choisit le multiplicateur d'une
+ *  ball et le soin d'une potion par leur slug — « quick-ball »,
+ *  « super-potion ». L'identifiant ne dit rien de ce que l'objet fait. */
+export type ObjetDuSac = {
+  readonly objetId: number;
+  readonly quantite: number;
+  readonly slug: string;
+  readonly nom: string;
+  readonly famille: string;
+};
+
 export type CombatEnCours = {
   readonly combatId: string;
   readonly sujetId: number;
@@ -407,6 +434,8 @@ export type CombatEnCours = {
   readonly tour: number;
   readonly sauvage: CombattantEnJeu & {
     readonly especeId: number;
+    /** Le taux de capture de l'espèce, de 3 à 255 (migration 0050). */
+    readonly capture: number;
   };
   readonly combattant:
     | (CombattantEnJeu & {
@@ -414,6 +443,10 @@ export type CombatEnCours = {
       readonly surnom: string | null;
     })
     | null;
+  /** L'équipe entière, celui qui se bat compris : « changer » doit
+   *  pouvoir refuser « celui-là se bat déjà » en le NOMMANT. */
+  readonly equipe: readonly MembreDEquipe[];
+  readonly sac: readonly ObjetDuSac[];
 };
 
 /** Ce que la base répond quand on enregistre un tour.
@@ -443,6 +476,12 @@ export interface Combats {
     readonly pvJoueur: number;
     readonly pvSauvage: number;
     readonly fin: string | null;
+    /** Le Pokémon qui porte ces PV. Absent veut dire « celui qui se
+     *  bat déjà » ; un changement le NOMME, parce que les PV écrits
+     *  sont alors ceux de l'arrivant — et ceux de celui qui sort sont
+     *  rangés au passage (migration 0049). */
+    readonly pokemonId?: string;
+    readonly pvPokemonMax?: number;
   }): Promise<TourJoue>;
 
   /** Ouvre un combat sauvage, ou rend celui qui est déjà là.

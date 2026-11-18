@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(384);
+select plan(391);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2906,7 +2906,52 @@ select ok(
   'et personne n''écrit ses PV depuis le navigateur : les PV sont le score'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0050 · L'ÉQUIPE EN COMBAT, ET LE TAUX DE CAPTURE
+-- ════════════════════════════════════════════════════════════════════
+
+select has_column('espece', 'capture_base', 'L''ESPÈCE PORTE SON TAUX DE CAPTURE — la seule chose qui sépare un Chenipan d''un légendaire');
+
+select ok(
+  (select capture_base from espece where id = 10)
+    > (select capture_base from espece where id = 4),
+  'et il est semé : un Chenipan s''attrape plus facilement qu''un Salamèche'
+);
+
+select ok(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 999, 'messageId', 15900,
+      'joueurId', j.id, 'especeId', 77, 'niveau', 10))->>'ouvert')::boolean
+     from joueur j where j.forum_user_id = 9110),
+  'un combat pour lire l''équipe'
+);
+
+select ok(
+  jsonb_array_length(combat_pour_jouer(jsonb_build_object('sujetId', 999))->'equipe') >= 2,
+  'L''ÉQUIPE ENTIÈRE EST LÀ, banc compris : « changer » doit pouvoir refuser « celui-là se bat déjà » en le NOMMANT'
+);
+
+select ok(
+  (combat_pour_jouer(jsonb_build_object('sujetId', 999))
+     ->'equipe'->0->>'pokemonId') is not null,
+  'et chaque membre porte son identifiant'
+);
+
+select is(
+  (combat_pour_jouer(jsonb_build_object('sujetId', 999))->'sauvage'->>'capture')::integer,
+  190,
+  'LE TAUX DU SAUVAGE EST DANS LA MÊME LECTURE : un appel de plus pour un chiffre déjà joint serait un aller-retour pour rien'
+);
+
+select ok(
+  (select count(*) from jsonb_array_elements(
+     combat_pour_jouer(jsonb_build_object('sujetId', 999))->'sac') o
+    where o->>'slug' is not null) > 0,
+  'LE SAC PORTE LES SLUGS : le domaine choisit le multiplicateur d''une ball par son slug, pas par son identifiant'
+);
+
 select * from finish();
+
 
 
 

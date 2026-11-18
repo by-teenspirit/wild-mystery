@@ -198,6 +198,9 @@ export type Frappe = {
 
 export type Tour = {
   readonly numero: number;
+  /** Ce que le joueur a fait au lieu de frapper — « changer », « ball »,
+   *  « objet ». Absent quand il a attaqué. */
+  readonly aLaPlace?: string;
   readonly frappes: readonly Frappe[];
   readonly pvJoueur: number;
   readonly pvSauvage: number;
@@ -290,6 +293,67 @@ export function resoudreUnTour(
   else if (numero === TOURS_MAX) fin = "fuite";
 
   return { numero, frappes, pvJoueur, pvSauvage, fin };
+}
+
+/** Le tour où le joueur NE FRAPPE PAS : il change de Pokémon, il
+ *  lance une ball qui rate, il utilise un objet. Le sauvage, lui,
+ *  frappe.
+ *
+ *  ── POURQUOI ÇA COÛTE LE TOUR ───────────────────────────────────────
+ *
+ *  C'est la règle des jeux, et elle n'est pas décorative : sans elle,
+ *  changer de Pokémon serait gratuit, et la bonne stratégie serait
+ *  toujours de faire tourner l'équipe entière pour trouver la meilleure
+ *  affiche. Un choix sans coût n'est pas un choix.
+ *
+ *  ── ET POURQUOI LA GRAINE EST LA MÊME ───────────────────────────────
+ *
+ *  Les quatre tirages du tour sont consommés dans le MÊME ORDRE qu'un
+ *  tour d'attaque : précision du joueur, dé du joueur, précision du
+ *  sauvage, dé du sauvage. Les deux premiers sont tirés et jetés.
+ *
+ *  Gaspiller deux tirages a l'air bête, et c'est le point : la suite
+ *  doit avancer pareil quoi que le joueur ait fait, sinon rejouer un
+ *  combat contesté dépend de ce qu'on a choisi au tour deux. */
+export function resoudreUneRiposte(
+  numero: number,
+  cible: Combattant,
+  sauvage: Combattant,
+  riposte: Capacite,
+  table: TableDesTypes,
+  graine: string,
+  /** Ce que le joueur a fait à la place de frapper, pour le récit. */
+  aLaPlace: string,
+): Tour {
+  if (!Number.isInteger(numero) || numero < 1 || numero > TOURS_MAX) {
+    throw new CombatInvalide(`tour ${numero} hors de 1..${TOURS_MAX}`);
+  }
+  if (cible.pv <= 0) throw new CombatInvalide("la cible est déjà à terre");
+  if (sauvage.pv <= 0) throw new CombatInvalide("le sauvage est déjà à terre");
+
+  const tirer = suiteAleatoire(graineDepuis(`${graine}|${numero}`));
+  const des = [tirer(), tirer(), tirer(), tirer()];
+
+  const touche = des[2] * 100 < riposte.precision;
+  const degats = touche ? degatsDe(sauvage, cible, riposte, table, des[3]) : null;
+  const pvJoueur = Math.max(0, cible.pv - (degats?.points ?? 0));
+
+  return {
+    numero,
+    aLaPlace,
+    frappes: [{
+      qui: "sauvage",
+      capacite: riposte,
+      touche,
+      degats,
+      pvRestants: pvJoueur,
+    }],
+    pvJoueur,
+    pvSauvage: sauvage.pv,
+    //  PAS DE VICTOIRE POSSIBLE ICI : le joueur n'a pas frappé. Seule
+    //  la défaite, ou le cinquième tour.
+    fin: pvJoueur === 0 ? "defaite" : numero === TOURS_MAX ? "fuite" : null,
+  };
 }
 
 /** Les dégâts du tour infligés AU SAUVAGE, et eux seuls.

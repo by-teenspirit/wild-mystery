@@ -33,6 +33,7 @@ import {
   degatsDe,
   efficacite,
   pvAuNiveau,
+  resoudreUneRiposte,
   resoudreUnTour,
   statAuNiveau,
   type TableDesTypes,
@@ -356,4 +357,56 @@ Deno.test("un combat de cinq tours tient dans ses bornes", () => {
     pv = tour.pvSauvage;
   }
   assert(pv < pvAuNiveau(50, 10) / 2, `cinq tours laissent ${pv} PV, c'est trop`);
+});
+
+Deno.test("une riposte ne frappe que d'un côté", () => {
+  //  Le joueur a changé de Pokémon, lancé une ball qui a raté, ou
+  //  utilisé un objet. Le sauvage frappe, lui.
+  const joueur = combattant({ pv: 30, pvMax: 30 });
+  const sauvage = combattant({ niveau: 20, attaque: 40, pv: 50, pvMax: 50 });
+  const tour = resoudreUneRiposte(1, joueur, sauvage, CHARGE, TABLE, "g", "changer");
+
+  assertEquals(tour.frappes.length, 1);
+  assertEquals(tour.frappes[0].qui, "sauvage");
+  assertEquals(tour.aLaPlace, "changer");
+  //  LE SAUVAGE NE PERD RIEN : personne ne l'a touché.
+  assertEquals(tour.pvSauvage, 50);
+  assert(tour.pvJoueur < 30, "la cible encaisse");
+});
+
+Deno.test("une riposte ne peut pas être une victoire", () => {
+  //  Le joueur n'a pas frappé : il ne peut pas gagner ce tour-ci.
+  //  Seule la défaite, ou le cinquième tour.
+  const faible = combattant({ pv: 1 });
+  const fort = combattant({ niveau: 50, attaque: 200, pv: 300, pvMax: 300 });
+  assertEquals(
+    resoudreUneRiposte(1, faible, fort, CHARGE, TABLE, "g", "objet").fin,
+    "defaite",
+  );
+  const solide = combattant({ pv: 500, pvMax: 500 });
+  assertEquals(
+    resoudreUneRiposte(TOURS_MAX, solide, combattant(), CHARGE, TABLE, "g", "ball").fin,
+    "fuite",
+  );
+});
+
+Deno.test("LA RIPOSTE LIT LES MÊMES TIRAGES QU'UN TOUR D'ATTAQUE", () => {
+  //  C'est la garantie du rejeu, et elle vaut pour les deux formes de
+  //  tour : la suite doit avancer pareil quoi que le joueur ait fait,
+  //  sinon rejouer un combat contesté dépend de ce qu'on a choisi au
+  //  tour deux.
+  const joueur = combattant({ pv: 100, pvMax: 100 });
+  const sauvage = combattant({ pv: 100, pvMax: 100 });
+  const attaque = resoudreUnTour(1, joueur, sauvage, CHARGE, CHARGE, TABLE, "g");
+  const riposte = resoudreUneRiposte(1, joueur, sauvage, CHARGE, TABLE, "g", "changer");
+
+  const dAttaque = attaque.frappes.find((f) => f.qui === "sauvage")?.degats?.de;
+  assertEquals(riposte.frappes[0].degats?.de, dAttaque);
+});
+
+Deno.test("on ne riposte pas contre une cible déjà à terre", () => {
+  assertThrows(
+    () => resoudreUneRiposte(1, combattant({ pv: 0 }), combattant(), CHARGE, TABLE, "g", "x"),
+    CombatInvalide,
+  );
 });

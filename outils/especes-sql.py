@@ -170,10 +170,23 @@ def fabriquer_les_fiches(dossier: pathlib.Path) -> dict[str, object]:
     #  numéro de génération, pas un rang de Pokédex — le nombre de fois
     #  qu'il faut remonter `evolves_from_species_id` pour arriver à la
     #  racine. Zéro remontée = stade 1.
+    especes = lire(dossier, "pokemon_species.csv")
     parent = {
         l["id"]: l["evolves_from_species_id"] or None
-        for l in lire(dossier, "pokemon_species.csv")
+        for l in especes
     }
+
+    #  LE TAUX DE CAPTURE, de 3 à 255, ajouté le 18 novembre.
+    #
+    #  C'est la seule chose qui distingue un Ratentif d'un Mewtwo quand
+    #  on lance une Poké Ball. Sans lui, une formule de capture devrait
+    #  traiter les 955 espèces pareil — et un légendaire s'attraperait
+    #  comme un Chenipan.
+    #
+    #  Il vit sur l'ESPÈCE et pas sur la forme : les formes régionales
+    #  partagent le taux de leur espèce, ce que PokéAPI range comme
+    #  nous. On le lit donc par `species_id`.
+    capture = {l["id"]: int(l["capture_rate"]) for l in especes}
 
     def stade(espece_id: str) -> int:
         profondeur, vu = 1, {espece_id}
@@ -213,6 +226,9 @@ def fabriquer_les_fiches(dossier: pathlib.Path) -> dict[str, object]:
             "pv": base["pv"],
             "att": base["att"],
             "def": base["def"],
+            #  De 3 (un légendaire) à 255 (un Chenipan). Plus c'est
+            #  haut, plus c'est facile.
+            "capture": capture[p["species_id"]],
             "forme": suffixe if suffixe in FORMES_CONNUES else None,
         }
 
@@ -252,7 +268,8 @@ def seed() -> str:
         nom = index[brut].replace("'", "''")
         lignes.append(
             f"  ({brut}, '{nom}', {forme}, {tableau_sql(f['types'])}, "
-            f"{f['stade']}, {f['pv']}, {f['att']}, {f['def']})"
+            f"{f['stade']}, {f['pv']}, {f['att']}, {f['def']}, "
+            f"{f['capture']})"
         )
 
     return "\n".join([
@@ -274,7 +291,7 @@ def seed() -> str:
         f"--  {len(lignes)} espèces, celles qui apparaissent dans une zone de Rhode.",
         "",
         "insert into espece (id, nom_fr, forme, types, stade, pv_base,",
-        "                    att_base, def_base) values",
+        "                    att_base, def_base, capture_base) values",
         ",\n".join(lignes),
         "    on conflict (id) do update set",
         "       nom_fr   = excluded.nom_fr,",
@@ -283,7 +300,8 @@ def seed() -> str:
         "       stade    = excluded.stade,",
         "       pv_base  = excluded.pv_base,",
         "       att_base = excluded.att_base,",
-        "       def_base = excluded.def_base;",
+        "       def_base = excluded.def_base,",
+        "       capture_base = excluded.capture_base;",
         "",
     ])
 
