@@ -106,8 +106,36 @@ import { type Action, actionDe } from "../../domaine/action.ts";
 import type { Brouillon } from "./editeur.ts";
 
 /** Les quatre choix. `rien` en est un à part entière — c'est celui de
- *  départ, et il a son bouton. */
+ *  départ, et il a son bouton.
+ *
+ *  LE VOCABULAIRE DU DOMAINE EST PLUS LARGE QUE CELUI-LÀ depuis le
+ *  18 novembre : `attaquer`, `ball`, `objet`, `changer`, `fuir` existent
+ *  dans `domaine/action.ts`, parce que le serveur apprend à les honorer.
+ *  La barre ne les offre PAS encore, et c'est la règle écrite dans
+ *  `action.ts` : une action que le serveur ne sait pas honorer n'a rien
+ *  à faire dans un bouton.
+ *
+ *  Conséquence à tenir, et c'est `offerte()` plus bas : un brouillon
+ *  repris peut porter un bloc que cette barre n'offre pas. Elle ne doit
+ *  ni l'afficher comme un choix, ni le laisser partir en silence. */
 type Cle = "rien" | "chercher" | "fouiller" | "cloture";
+
+/** Dit si une action est une de celles que cette barre propose.
+ *
+ *  POURQUOI CETTE FONCTION EXISTE : le compilateur l'a réclamée le
+ *  18 novembre, à la minute où le domaine s'est ouvert au combat.
+ *  `this.#action?.type` pouvait soudain valoir « attaquer », que `Cle`
+ *  ne connaît pas. La réponse facile aurait été d'élargir `Cle` ; elle
+ *  aurait donné une barre qui affiche « Ne rien faire » sur un message
+ *  portant `[[WM-ACTION:attaquer:52]]`, et qui l'envoie quand même.
+ *  CE QUI EST AFFICHÉ EST CE QUI PART — alors une action non offerte
+ *  n'est pas un choix, et son bloc est retiré à l'envoi. */
+type ActionOfferte = Extract<Action, { readonly type: "chercher" | "fouiller" }>;
+
+function offerte(action: Action | null): ActionOfferte | null {
+  if (action === null) return null;
+  return action.type === "chercher" || action.type === "fouiller" ? action : null;
+}
 
 //  ── LES QUATRE ICÔNES ────────────────────────────────────────────
 //
@@ -246,7 +274,8 @@ export class BarreDActions {
    *  une seule, non. */
   get choix(): Cle {
     if (clotureDemandee(this.#brouillon.lire())) return "cloture";
-    return this.#action?.type ?? "rien";
+    const offert = offerte(this.#action);
+    return offert === null ? "rien" : offert.type;
   }
 
   /** L'action demandée, s'il y en a une. */
@@ -309,8 +338,17 @@ export class BarreDActions {
       if (propre !== texte) this.#brouillon.ecrire(propre);
       return;
     }
-    if (this.#action === null) return;
-    this.#brouillon.ecrire(avecAction(texte, this.#action));
+    const offert = offerte(this.#action);
+    if (offert === null) {
+      //  AUCUNE ACTION OFFERTE, ET POURTANT UN BLOC POSSIBLE. Un
+      //  brouillon repris peut porter `[[WM-ACTION:attaquer:52]]` d'un
+      //  combat précédent ; la barre montre « Ne rien faire », donc
+      //  c'est un message normal qui doit partir. Le bloc s'en va.
+      const propre = sansAction(texte);
+      if (propre !== texte) this.#brouillon.ecrire(propre);
+      return;
+    }
+    this.#brouillon.ecrire(avecAction(texte, offert));
   }
 
   /** Construit la barre et l'accroche DANS le formulaire, juste
@@ -319,7 +357,7 @@ export class BarreDActions {
     //  L'ÉTAT DE DÉPART VIENT DU TEXTE. Un brouillon repris, une
     //  modification, un retour de prévisualisation : le bloc peut déjà
     //  être là, et la barre doit s'ouvrir dessus.
-    this.#action = actionDe(this.#brouillon.lire());
+    this.#action = offerte(actionDe(this.#brouillon.lire()));
 
     const barre = this.#doc.createElement("div");
     barre.className = "wm-barre";

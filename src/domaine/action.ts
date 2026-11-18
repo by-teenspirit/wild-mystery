@@ -26,9 +26,16 @@
 //  demande de clôture l'emporte dans un sujet.
 // ════════════════════════════════════════════════════════════════════
 
-/** Le vocabulaire, volontairement court. Il s'ouvrira avec le combat
- *  (`attaquer`, `ball`, `objet`, `fuir`), et pas avant : une action que
- *  le serveur ne sait pas honorer n'a rien à faire dans un bouton. */
+/** Le vocabulaire. Il s'est ouvert au combat le 18 novembre — et la
+ *  règle qui était écrite ici tient toujours : UNE ACTION QUE LE
+ *  SERVEUR NE SAIT PAS HONORER N'A RIEN À FAIRE DANS UN BOUTON. Les
+ *  cinq verbes du combat existent donc ici avant que la barre ne les
+ *  propose, et la barre ne les proposera qu'une fois chacun honoré.
+ *
+ *  LES CINQ PORTENT UN ARGUMENT, ou presque : « fuir » n'en a pas
+ *  besoin, les autres disent QUOI. C'est la différence avec les deux
+ *  premiers verbes, et elle change la lecture — un `attaquer` sans
+ *  argument n'est pas une action, c'est un bloc abîmé. */
 export type Action =
   /** « Fais apparaître un Pokémon. » Sans argument : la zone entière.
    *
@@ -52,9 +59,46 @@ export type Action =
   | { readonly type: "chercher" }
   /** Sans argument : fouiller vaut pour la zone entière, et le butin suit
    *  son palier (`fouille.ts`). */
-  | { readonly type: "fouiller" };
+  | { readonly type: "fouiller" }
+  /** « Attaque avec cette capacité. »
+   *
+   *  L'ARGUMENT EST L'IDENTIFIANT DE LA CAPACITÉ, PAS SON RANG dans les
+   *  quatre. Le rang aurait été plus court à écrire, et c'est
+   *  exactement pour ça qu'il est mauvais : il dit OÙ était le choix
+   *  dans une liste, pas LEQUEL. Le jour où les quatre capacités
+   *  changent — un niveau gagné à la clôture — le rang 2 désigne autre
+   *  chose, et le joueur attaquerait avec un move qu'il n'a pas choisi.
+   *
+   *  Un identifiant, lui, se vérifie : le serveur regarde s'il est
+   *  parmi les quatre du Pokémon, et refuse sinon. C'est ce qui garde
+   *  vraie la promesse de l'en-tête — taper le bloc à la main ne donne
+   *  aucun avantage. */
+  | { readonly type: "attaquer"; readonly capacite: number }
+  /** « Lance cette Poké Ball. » L'objet est nommé parce qu'il y en a
+   *  plusieurs au catalogue, et qu'ils n'ont pas le même taux. */
+  | { readonly type: "ball"; readonly objetId: number }
+  /** « Utilise cet objet du sac. » Une Potion, un rappel, une baie. */
+  | { readonly type: "objet"; readonly objetId: number }
+  /** « Envoie celui-ci à la place. » La POSITION dans l'équipe, de 1 à
+   *  6 — et là, contrairement à la capacité, la position EST ce que le
+   *  joueur a choisi : l'équipe est une suite de six cases, pas un
+   *  ensemble, et c'est la case qu'il a cliquée. */
+  | { readonly type: "changer"; readonly position: number }
+  /** Sans argument : on s'en va, et le combat se ferme. */
+  | { readonly type: "fuir" };
 
-export const VERBES = ["chercher", "fouiller"] as const;
+export const VERBES = [
+  "chercher",
+  "fouiller",
+  "attaquer",
+  "ball",
+  "objet",
+  "changer",
+  "fuir",
+] as const;
+
+/** Les cases d'une équipe. Six, comme partout dans ce jeu. */
+export const EQUIPE_MAX = 6;
 
 export type Verbe = (typeof VERBES)[number];
 
@@ -74,8 +118,37 @@ function estUnVerbe(valeur: string): valeur is Verbe {
   return (VERBES as readonly string[]).includes(valeur);
 }
 
+/** L'argument d'une action, ou rien. Un seul endroit décide de la
+ *  forme écrite, pour que `ecrireUneAction` et `actionDe` ne puissent
+ *  pas diverger. */
+function argumentDe(action: Action): string {
+  switch (action.type) {
+    case "attaquer":
+      return `:${action.capacite}`;
+    case "ball":
+    case "objet":
+      return `:${action.objetId}`;
+    case "changer":
+      return `:${action.position}`;
+    default:
+      return "";
+  }
+}
+
 export function ecrireUneAction(action: Action): string {
-  return `[[WM-ACTION:${action.type}]]`;
+  return `[[WM-ACTION:${action.type}${argumentDe(action)}]]`;
+}
+
+/** Un entier strictement positif, ou `null`.
+ *
+ *  `Number()` accepte « 1e3 », « 0x10 » et « 1.5 » ; aucun des trois
+ *  n'est un identifiant, et aucun n'est ce que le bouton écrit. On
+ *  refuse donc tout ce qui n'est pas une suite de chiffres — un bloc
+ *  abîmé ne doit pas devenir une action approximative. */
+function entierPositif(valeur: string | undefined): number | null {
+  if (valeur === undefined || !/^[0-9]+$/.test(valeur)) return null;
+  const n = Number(valeur);
+  return n > 0 ? n : null;
 }
 
 /**
@@ -99,10 +172,33 @@ export function actionDe(texte: string): Action | null {
     //  lieu est lu puis laissé de côté — il n'y a plus de table par
     //  lieu. Le message, lui, garde son texte : c'est la trace.
     if (verbe === "chercher") return { type: "chercher" };
-    //  « fouiller » AVEC un lieu, en revanche, dit quelque chose qu'on ne
-    //  sait pas honorer : fouiller vaut pour la zone entière. On passe,
-    //  plutôt que de deviner ce que le joueur voulait.
-    if (!argument) return { type: verbe };
+
+    //  LES DEUX VERBES SANS ARGUMENT. « fouiller » AVEC un lieu dit
+    //  quelque chose qu'on ne sait pas honorer : fouiller vaut pour la
+    //  zone entière. On passe, plutôt que de deviner ce que le joueur
+    //  voulait — et « fuir » suit la même règle.
+    if (verbe === "fouiller" || verbe === "fuir") {
+      if (!argument) return { type: verbe };
+      continue;
+    }
+
+    //  LES QUATRE QUI DISENT QUOI. Sans argument lisible, le bloc est
+    //  abîmé : on ne le remplace pas par un choix par défaut. « Attaque
+    //  avec n'importe laquelle » serait une décision prise à la place
+    //  du joueur, dans un combat qu'il peut perdre.
+    const n = entierPositif(argument);
+    if (n === null) continue;
+    if (verbe === "attaquer") return { type: "attaquer", capacite: n };
+    if (verbe === "ball" || verbe === "objet") {
+      return { type: verbe, objetId: n };
+    }
+    //  LA SEULE BORNE TENUE ICI, et elle est tenue ici parce qu'elle ne
+    //  dépend d'aucune base : une équipe a six cases. Le reste — le
+    //  Pokémon existe, il n'est pas à terre, ce n'est pas celui qui se
+    //  bat déjà — se vérifie là où ces faits vivent.
+    if (verbe === "changer" && n <= EQUIPE_MAX) {
+      return { type: "changer", position: n };
+    }
   }
   return null;
 }

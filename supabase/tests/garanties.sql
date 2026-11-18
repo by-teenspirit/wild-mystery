@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(347);
+select plan(370);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2607,7 +2607,185 @@ select ok(
   'PERSONNE NE LIT LA FILE DEPUIS LE NAVIGATEUR : la carte arrive dans le sujet, pas avant'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0048 · LES TOURS DU COMBAT
+--
+--  Le combat du message 15603 a été fermé plus haut (carte). On en
+--  ouvre un neuf sur un autre sujet : un tour ne se joue que dans un
+--  combat ouvert, et c'est justement une des choses à vérifier.
+-- ════════════════════════════════════════════════════════════════════
+
+select has_table('combat_tour', 'LE TOUR A SA TABLE');
+
+select ok(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 997, 'messageId', 15700,
+      'joueurId', j.id, 'especeId', 77, 'niveau', 10))->>'ouvert')::boolean
+     from joueur j where j.forum_user_id = 9110),
+  'un combat neuf pour les tours'
+);
+
+--  ── CE QU'IL FAUT POUR JOUER ─────────────────────────────────────
+select ok(
+  jsonb_array_length(combat_pour_jouer(jsonb_build_object('sujetId', 997))
+    ->'sauvage'->'capacites') > 0,
+  'LE SAUVAGE A DES CAPACITÉS — sans elles il ne riposte pas, et un combat où le sauvage ne frappe jamais n''est pas un combat'
+);
+
+select ok(
+  jsonb_array_length(combat_pour_jouer(jsonb_build_object('sujetId', 997))
+    ->'combattant'->'capacites') > 0,
+  'et le combattant a les siennes, celles que la dotation lui a posées'
+);
+
+select is(
+  (combat_pour_jouer(jsonb_build_object('sujetId', 997))->'sauvage'->>'attaque')::integer,
+  stat_au_niveau(85::smallint, 10::smallint),
+  'LES CHIFFRES VIENNENT DE LA MÊME FONCTION QUE LA CARTE : une seule formule'
+);
+
+select ok(
+  combat_pour_jouer(jsonb_build_object('sujetId', 999997)) is null,
+  'et un sujet sans combat ouvert ne rend rien'
+);
+
+--  ── JOUER ────────────────────────────────────────────────────────
+select ok(
+  (select (jouer_un_tour(jsonb_build_object(
+      'combatId', c.id, 'messageId', 15701, 'numero', 1,
+      'demande', 'attaquer', 'detail', jsonb_build_object('capacite', 52),
+      'recit', jsonb_build_object('de', 93), 'pvJoueur', 12, 'pvSauvage', 24
+    ))->>'joue')::boolean
+     from combat c where c.message_id = 15700),
+  'UN TOUR SE JOUE'
+);
+
+select is(
+  (select pv_sauvage from combat where message_id = 15700),
+  24::smallint,
+  'et LES PV QUI COMPTENT SONT CEUX DU COMBAT, mis à jour'
+);
+
+select is(
+  (select tour from combat where message_id = 15700),
+  1::smallint,
+  'le combat sait où il en est'
+);
+
+select ok(
+  (select recit->>'de' = '93' from combat_tour where message_id = 15701),
+  'LE DÉ EST GARDÉ : une contestation se tranche en le montrant, pas en le recalculant dans un an'
+);
+
+--  ── REJOUER LE MÊME MESSAGE NE REJOUE PAS LE TOUR ────────────────
+--
+--  La relève relit. Sans cette garde, les dégâts tomberaient deux fois
+--  et un Pokémon mourrait d'un message qu'il avait déjà encaissé.
+select is(
+  (select (jouer_un_tour(jsonb_build_object(
+      'combatId', c.id, 'messageId', 15701, 'numero', 1,
+      'demande', 'attaquer', 'recit', '{}'::jsonb,
+      'pvJoueur', 1, 'pvSauvage', 1))->>'raison')
+     from combat c where c.message_id = 15700),
+  'DEJA_JOUE',
+  'REJOUER LE MÊME MESSAGE NE REJOUE PAS LE TOUR'
+);
+
+select is(
+  (select pv_joueur from combat_tour where message_id = 15701),
+  12::smallint,
+  'et surtout, ça ne retire pas de PV une seconde fois'
+);
+
+--  ── DEUX MESSAGES NE JOUENT PAS LE MÊME NUMÉRO ───────────────────
+select is(
+  (select (jouer_un_tour(jsonb_build_object(
+      'combatId', c.id, 'messageId', 15702, 'numero', 1,
+      'demande', 'attaquer', 'recit', '{}'::jsonb,
+      'pvJoueur', 9, 'pvSauvage', 20))->>'raison')
+     from combat c where c.message_id = 15700),
+  'TOUR_DEPASSE',
+  'DEUX MESSAGES NE JOUENT PAS LE TOUR 1 : le premier l''emporte'
+);
+
+--  ── UNE FIN FERME LE COMBAT ──────────────────────────────────────
+select is(
+  (select (jouer_un_tour(jsonb_build_object(
+      'combatId', c.id, 'messageId', 15703, 'numero', 2,
+      'demande', 'fuir', 'recit', '{}'::jsonb,
+      'pvJoueur', 12, 'pvSauvage', 24, 'fin', 'fuite'))->>'fin')
+     from combat c where c.message_id = 15700),
+  'fuite',
+  'UNE FIN SE JOUE'
+);
+
+select is(
+  (select etat from combat where message_id = 15700),
+  'fuite',
+  'et elle ferme le combat'
+);
+
+select ok(
+  (select clos_le is not null from combat where message_id = 15700),
+  'en le datant — la contrainte de la 0046 l''exige'
+);
+
+select is(
+  (select (jouer_un_tour(jsonb_build_object(
+      'combatId', c.id, 'messageId', 15704, 'numero', 3,
+      'demande', 'attaquer', 'recit', '{}'::jsonb,
+      'pvJoueur', 1, 'pvSauvage', 1))->>'raison')
+     from combat c where c.message_id = 15700),
+  'COMBAT_CLOS',
+  'ON NE FRAPPE PAS UN COMBAT TERMINÉ'
+);
+
+select throws_ok(
+  $$ select jouer_un_tour(jsonb_build_object(
+       'combatId', '00000000-0000-0000-0000-000000000000'::uuid,
+       'messageId', 15705, 'numero', 1, 'demande', 'fuir',
+       'pvJoueur', 1, 'pvSauvage', 1)) $$,
+  'P0001',
+  'TOUR_SANS_RECIT',
+  'UN TOUR SANS RÉCIT N''EST PAS UN TOUR : il n''y aurait rien à montrer'
+);
+
+select throws_ok(
+  $$ select jouer_un_tour(jsonb_build_object(
+       'combatId', '00000000-0000-0000-0000-000000000000'::uuid,
+       'messageId', 15706, 'numero', 1, 'demande', 'fuir',
+       'recit', '{}'::jsonb, 'pvJoueur', 1, 'pvSauvage', 1, 'fin', 'gagne')) $$,
+  'P0001',
+  'FIN_INCONNUE',
+  'et une fin qu''on ne saurait pas relire est refusée'
+);
+
+--  ── LA FILE DES MESSAGES DE TOUR ─────────────────────────────────
+select is(
+  jsonb_array_length(tours_a_poster('{}'::jsonb)),
+  2,
+  'LES DEUX TOURS ATTENDENT LEUR MESSAGE, y compris celui qui a fini le combat — c''est lui qui annonce la fin'
+);
+
+select ok(
+  (select tour_poste(jsonb_build_object('message', 99100, 'tour', t.id))
+     from combat_tour t where t.message_id = 15701),
+  'on note le message d''un tour'
+);
+
+select is(
+  jsonb_array_length(tours_a_poster('{}'::jsonb)),
+  1,
+  'et il sort de la file'
+);
+
+select ok(
+  not has_table_privilege('anon', 'combat_tour', 'insert'),
+  'PERSONNE N''ÉCRIT UN TOUR DEPUIS LE NAVIGATEUR : un tour qu''on écrit soi-même est un combat qu''on gagne en écrivant qu''on l''a gagné'
+);
+
 select * from finish();
+
 
 
 

@@ -3,16 +3,70 @@ import { actionDe, ecrireUneAction, sansActions, VERBES } from "./action.ts";
 
 const CHERCHER = { type: "chercher" } as const;
 const FOUILLER = { type: "fouiller" } as const;
+//  Les cinq du combat, ouverts le 18 novembre.
+const ATTAQUER = { type: "attaquer", capacite: 52 } as const;
+const BALL = { type: "ball", objetId: 990001 } as const;
+const OBJET = { type: "objet", objetId: 990020 } as const;
+const CHANGER = { type: "changer", position: 2 } as const;
+const FUIR = { type: "fuir" } as const;
 
 Deno.test("ce que le bouton écrit, le serveur le relit", () => {
   // Le trajet complet, pour chaque action. C'est le test qui empêche
-  // d'ajouter un verbe d'un seul côté.
-  for (const action of [CHERCHER, FOUILLER]) {
+  // d'ajouter un verbe d'un seul côté — et il a fait exactement ça le
+  // 18 novembre, quand les cinq verbes du combat sont arrivés dans le
+  // type sans passer par ici.
+  for (const action of [CHERCHER, FOUILLER, ATTAQUER, BALL, OBJET, CHANGER, FUIR]) {
     const bloc = ecrireUneAction(action);
     assertEquals(actionDe(`Elle avance prudemment.\n\n${bloc}`), action);
   }
   // Et le vocabulaire déclaré est bien celui qu'on sait écrire.
-  assertEquals([...VERBES].sort(), ["chercher", "fouiller"]);
+  assertEquals([...VERBES].sort(), [
+    "attaquer",
+    "ball",
+    "changer",
+    "chercher",
+    "fouiller",
+    "fuir",
+    "objet",
+  ]);
+});
+
+Deno.test("UN ARGUMENT ABÎMÉ N'EST PAS UNE ACTION PAR DÉFAUT", () => {
+  //  « Attaque avec n'importe laquelle » serait une décision prise à la
+  //  place du joueur, dans un combat qu'il peut perdre. On ne lit rien,
+  //  et le message reste un message.
+  for (
+    const bloc of [
+      "[[WM-ACTION:attaquer]]",
+      "[[WM-ACTION:attaquer:0]]",
+      "[[WM-ACTION:attaquer:feu]]",
+      "[[WM-ACTION:ball]]",
+      "[[WM-ACTION:objet]]",
+      "[[WM-ACTION:changer]]",
+      "[[WM-ACTION:changer:0]]",
+    ]
+  ) {
+    assertEquals(actionDe(bloc), null, bloc);
+  }
+});
+
+Deno.test("UNE SEPTIÈME CASE D'ÉQUIPE N'EXISTE PAS", () => {
+  //  La seule borne tenue dans le domaine, parce qu'elle ne dépend
+  //  d'aucune base : une équipe a six cases.
+  assertEquals(actionDe("[[WM-ACTION:changer:6]]"), { type: "changer", position: 6 });
+  assertEquals(actionDe("[[WM-ACTION:changer:7]]"), null);
+});
+
+Deno.test("« fuir » ne prend pas d'argument, comme « fouiller »", () => {
+  assertEquals(actionDe("[[WM-ACTION:fuir]]"), { type: "fuir" });
+  assertEquals(actionDe("[[WM-ACTION:fuir:vite]]"), null);
+});
+
+Deno.test("l'identifiant de capacité est lu tel quel, pas arrondi", () => {
+  //  `Number()` aurait accepté « 1e3 », « 0x10 » et « 1.5 ». Aucun des
+  //  trois n'est un identifiant, et aucun n'est ce que le bouton écrit.
+  assertEquals(actionDe("[[WM-ACTION:attaquer:33]]"), { type: "attaquer", capacite: 33 });
+  assertEquals(actionDe("[[WM-ACTION:attaquer:1e3]]"), null);
 });
 
 Deno.test("« CHERCHER » N'A PLUS DE LIEU DU TOUT", () => {
