@@ -159,6 +159,11 @@ DECORS = {
     "monnaie-et-missions": ("usine-desaffectee", 52, "L'Usine Désaffectée"),
     "combat-et-progression": ("volcan-nuageux", 68, "Le Volcan Nuageux"),
     "organisations-et-pokemon-obscurs": ("ile-tenebra", 197, "L'Île Ténèbra"),
+    #  LES DEUX NEUVES DU 18 NOVEMBRE. Kabuto pour les fossiles, Évoli
+    #  pour l'évolution : le rendu dit de quoi parle la page avant son
+    #  titre.
+    "trouver-et-capturer": ("foret-marecageuse", 140, "La Forêt Marécageuse"),
+    "elever-ses-pokemon": ("lac-souterrain", 133, "Le Lac Souterrain"),
 }
 
 

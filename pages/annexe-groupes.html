@@ -1,4 +1,4 @@
-<!-- Annexe 07 · Les groupes. Écrite par `outils/annexes.py` : une
+<!-- Annexe 05 · Les groupes. Écrite par `outils/annexes.py` : une
      correction faite ici serait perdue à la prochaine génération.
      Page HTML en mode avancé, « header et footer du forum » sur NON,
      adresse finissant par `groupes` et reportée dans `data/annexes.json`. -->
@@ -8,7 +8,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Annexe 07 · Les groupes — Wild Mystery</title>
+  <title>Annexe 05 · Les groupes — Wild Mystery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -35,7 +35,7 @@
   <div class="wm-annexe__corps">
     <div class="wm-annexe__colonne">
 
-      <p class="wm-annexe__surtitre">Annexe 07</p>
+      <p class="wm-annexe__surtitre">Annexe 05</p>
       <h1 class="wm-annexe__titre">Les <em>groupes</em></h1>
       <p class="wm-annexe__chapo">
         Six natures, six façons de jouer. Celle que tu choisis ne dit
@@ -191,7 +191,7 @@
         <div class="wm-annexe__carte" data-wm-questionnaire>
           <h2 class="wm-annexe__carte-titre">Vers quel groupe penches-tu ?</h2>
           <p>
-            Huit situations, quatre réponses. Aucune n'est la bonne : chacune
+            Neuf situations, quatre réponses. Aucune n'est la bonne : chacune
             pèse sur deux natures. Tu peux être un peu de chaque — les jauges
             le disent en pourcentage, et le questionnaire ne décide de rien.
           </p>
@@ -349,10 +349,29 @@
                 <span>Tu le ramasses, et tu improviseras.</span>
               </label>
             </fieldset>
+            <fieldset class="wm-sondage__question">
+              <legend class="wm-sondage__situation"><span class="wm-sondage__numero">9</span> Le dernier bateau pour Port-Dorval est parti sans toi. Le prochain est dans deux jours.</legend>
+              <label class="wm-sondage__reponse" for="wm-q9-1">
+                <input type="radio" id="wm-q9-1" name="wm-q9" value="1" data-wm-premier="hardi" data-wm-second="malin" />
+                <span>Tu longes la côte à pied. Ça prendra la nuit, tant pis.</span>
+              </label>
+              <label class="wm-sondage__reponse" for="wm-q9-2">
+                <input type="radio" id="wm-q9-2" name="wm-q9" value="2" data-wm-premier="serieux" data-wm-second="malin" />
+                <span>Tu vas demander pourquoi il est parti en avance.</span>
+              </label>
+              <label class="wm-sondage__reponse" for="wm-q9-3">
+                <input type="radio" id="wm-q9-3" name="wm-q9" value="3" data-wm-premier="jovial" data-wm-second="hardi" />
+                <span>Deux jours pour voir ce qu&#x27;il y a autour : tu poses ton sac et tu pars marcher.</span>
+              </label>
+              <label class="wm-sondage__reponse" for="wm-q9-4">
+                <input type="radio" id="wm-q9-4" name="wm-q9" value="4" data-wm-premier="jovial" data-wm-second="brave" />
+                <span>Tu restes au port avec les autres recalés, et tu veilles sur leurs affaires pendant qu&#x27;ils dorment.</span>
+              </label>
+            </fieldset>
           </form>
 
           <div class="wm-sondage__resultat">
-            <p class="wm-sondage__verdict" data-wm-resultat role="status">Encore 8 questions.</p>
+            <p class="wm-sondage__verdict" data-wm-resultat role="status">Encore 9 questions.</p>
             <ul class="wm-sondage__jauges">
               <li class="wm-sonde wm-groupe--hardi" data-wm-jauge="hardi" data-wm-nom="Hardi">
                 <span class="wm-sonde__nom">Hardi</span>
@@ -390,9 +409,9 @@
         </div>
 
         <div class="wm-suivante">
-          <a class="wm-suivante__bouton" href="/h5-la-region-et-ses-zones">
+          <a class="wm-suivante__bouton" href="/h10-celebrites-de-rhode">
             <span class="wm-suivante__etiquette">Annexe suivante</span>
-            La région et ses zones →
+            Personnages jouables, champions & célébrités →
           </a>
           <div class="wm-question">
             <span class="wm-question__mot">Une question ?</span>

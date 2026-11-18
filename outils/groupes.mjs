@@ -112,7 +112,7 @@ async function ouvrir(largeur, theme) {
  *  ce que fait une personne, et c'est le chemin qui casserait si le
  *  label cessait d'être lié à son bouton. */
 async function repondre(p, colonne) {
-  for (let n = 1; n <= 8; n++) {
+  for (let n = 1; n <= 9; n++) {
     await p.click(`label[for="wm-q${n}-${colonne}"]`);
   }
   //  LES BARRES GLISSENT EN 220 ms. Mesurer avant la fin donnerait la
@@ -278,7 +278,7 @@ dire(
 );
 dire(
   "et la phrase compte ce qui reste, sans désigner personne",
-  avant.fini === "non" && /8 questions/.test(avant.verdict ?? ""),
+  avant.fini === "non" && /9 questions/.test(avant.verdict ?? ""),
   String(avant.verdict),
 );
 
@@ -315,18 +315,18 @@ dire(
   JSON.stringify(une.jauges.map((j) => [j.cle, j.rang])),
 );
 dire(
-  "MAIS LE VERDICT ATTEND LES HUIT",
-  une.fini === "non" && /7 questions/.test(une.verdict ?? ""),
+  "MAIS LE VERDICT ATTEND LES NEUF",
+  une.fini === "non" && /8 questions/.test(une.verdict ?? ""),
   String(une.verdict),
 );
 
-//  LES HUIT, COLONNE 1. C'est un passage complet, celui qu'une
+//  LES NEUF, COLONNE 1. C'est un passage complet, celui qu'une
 //  personne fera.
 await repondre(large, 1);
 const plein = await lireLesJauges(large);
 const somme = plein.jauges.reduce((a, j) => a + parseInt(j.part, 10), 0);
 dire(
-  "LES HUIT RÉPONDUES, LE VERDICT DÉSIGNE UN GROUPE",
+  "LES NEUF RÉPONDUES, LE VERDICT DÉSIGNE UN GROUPE",
   plein.fini === "oui" && /penches vers|tirent autant/.test(plein.verdict ?? ""),
   String(plein.verdict),
 );

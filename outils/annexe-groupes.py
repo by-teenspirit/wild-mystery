@@ -66,7 +66,7 @@ def questionnaire(d):
     w('        <div class="wm-annexe__carte" data-wm-questionnaire>')
     w('          <h2 class="wm-annexe__carte-titre">Vers quel groupe penches-tu ?</h2>')
     w('          <p>')
-    w("            Huit situations, quatre réponses. Aucune n'est la bonne : chacune")
+    w("            Neuf situations, quatre réponses. Aucune n'est la bonne : chacune")
     w("            pèse sur deux natures. Tu peux être un peu de chaque — les jauges")
     w("            le disent en pourcentage, et le questionnaire ne décide de rien.")
     w("          </p>")
@@ -92,7 +92,7 @@ def questionnaire(d):
     #  script qui vieillirait de son côté.
     w('          <div class="wm-sondage__resultat">')
     w('            <p class="wm-sondage__verdict" data-wm-resultat'
-      ' role="status">Encore 8 questions.</p>')
+      ' role="status">Encore 9 questions.</p>')
     w('            <ul class="wm-sondage__jauges">')
     for g in d["groupes"]:
         cle = e(g["cle"])

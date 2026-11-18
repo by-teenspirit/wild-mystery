@@ -301,8 +301,33 @@
           "second": "jovial"
         }
       ]
+    },
+    {
+      "situation": "Le dernier bateau pour Port-Dorval est parti sans toi. Le prochain est dans deux jours.",
+      "reponses": [
+        {
+          "dit": "Tu longes la côte à pied. Ça prendra la nuit, tant pis.",
+          "premier": "hardi",
+          "second": "malin"
+        },
+        {
+          "dit": "Tu vas demander pourquoi il est parti en avance.",
+          "premier": "serieux",
+          "second": "malin"
+        },
+        {
+          "dit": "Deux jours pour voir ce qu'il y a autour : tu poses ton sac et tu pars marcher.",
+          "premier": "jovial",
+          "second": "hardi"
+        },
+        {
+          "dit": "Tu restes au port avec les autres recalés, et tu veilles sur leurs affaires pendant qu'ils dorment.",
+          "premier": "jovial",
+          "second": "brave"
+        }
+      ]
     }
   ],
-  "_questionnaire": "Les huit situations de la planche 79. Chaque réponse pèse sur DEUX natures : la première reçoit 2 points, la seconde 1 — c'est ce qui empêche de deviner la bonne réponse et d'en sortir avec un score nul partout sauf une. Aucune question sur les goûts, que des choix sous contrainte. Le dépouillement est dans `src/navigateur/questionnaire.ts` ; la page ne demande rien au réseau, les huit questions sont écrites dedans par `outils/annexe-groupes.py`.",
-  "_equilibre": "RECOMPTÉ LE 18 NOVEMBRE, et ce n'est pas ce que la planche 79 annonçait (« Doux et Brave six, les quatre autres cinq »). En premier choix : brave 6, doux 6, malin 6, serieux 5, hardi 5, JOVIAL 4. En points atteignables (2 par premier, 1 par second) : doux 17, brave 16, malin 16, serieux 16, hardi 15, jovial 14. Le Jovial est le moins accessible des six. On ne retouche pas les poids avant d'avoir compté les vingt premiers passages — c'est la règle du §3 de la planche 79 — mais le déséquilibre est écrit ici pour qu'on sache où regarder."
+  "_questionnaire": "Les huit situations de la planche 79, plus une neuvième écrite le 18 novembre pour l'équilibre (voir `_equilibre`). Chaque réponse pèse sur DEUX natures : la première reçoit 2 points, la seconde 1 — c'est ce qui empêche de deviner la bonne réponse et d'en sortir avec un score nul partout sauf une. Aucune question sur les goûts, que des choix sous contrainte. Le dépouillement est dans `src/navigateur/questionnaire.ts` ; la page ne demande rien au réseau, les questions sont écrites dedans par `outils/annexe-groupes.py`.",
+  "_equilibre": "ÉQUILIBRÉ LE 18 NOVEMBRE, et c'est exact, pas approché. À huit questions, le Jovial ne sortait que 4 fois en premier choix contre 6 au Brave, au Doux et au Malin : il était le moins accessible des six. Une NEUVIÈME question le corrige, et c'est le seul nombre qui tombe juste — 9 × 4 = 36 réponses, soit exactement 6 premiers et 6 seconds par nature, donc 18 points atteignables pour chacune des six. À huit questions (32 réponses), aucune répartition ne pouvait être égale. Recompté par `questionnaire.test.ts`, qui refuse tout écart."
 }
