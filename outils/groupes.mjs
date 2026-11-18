@@ -22,7 +22,7 @@
 //    · rien ne déborde en largeur, à 1 440 comme à 390, dans les deux
 //      thèmes.
 //
-//  IL SERT LA VRAIE PAGE, pas un décor : `pages/annexe-07-groupes.html`
+//  IL SERT LA VRAIE PAGE, pas un décor : `pages/annexe-groupes.html`
 //  tel qu'il sera collé sur le forum. Un décor recopié aurait vieilli
 //  à la première génération.
 // ════════════════════════════════════════════════════════════════════
@@ -44,7 +44,7 @@ const CHROME = [
 
 const R = new URL("..", import.meta.url).pathname;
 const GROUPES = JSON.parse(readFileSync(R + "data/groupes.json", "utf8")).groupes;
-const ANNEXE = readFileSync(R + "pages/annexe-07-groupes.html", "utf8");
+const ANNEXE = readFileSync(R + "pages/annexe-groupes.html", "utf8");
 
 const soucis = [];
 const dire = (nom, ok, detail = "") => {

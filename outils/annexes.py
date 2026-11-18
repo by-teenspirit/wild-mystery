@@ -433,18 +433,23 @@ def remplacer_le_surtitre(corps, numero):
 def chemin_de_la_page(slug):
     """Le fichier d'une annexe, désignée par son SLUG.
 
-    PAS PAR SON NUMÉRO. Le numéro est un rang dans le sommaire : il
-    change dès qu'on retire une annexe ou qu'on en insère une — c'est
-    arrivé le 4 novembre, quand « créer son personnage » s'est repliée
-    dans « par où commencer » et que les douze suivantes ont reculé
-    d'un cran. Trois générateurs et deux harnais portaient le numéro
-    dans un chemin écrit à la main ; ils demandent maintenant.
+    PAS PAR SON NUMÉRO, ET LE FICHIER NON PLUS — depuis le
+    18 novembre. Le numéro est un rang dans le sommaire : il change dès
+    qu'on retire une annexe, qu'on en insère une, ou qu'on range la
+    liste. C'est arrivé le 4 novembre, puis encore le 18 en rangeant
+    les annexes en quatre sections.
+
+    TANT QU'IL ÉTAIT DANS LE NOM DU FICHIER, chaque rangement
+    renommait treize fichiers et périmait tous les chemins écrits
+    ailleurs — six commentaires du dépôt citaient encore des numéros
+    de deux versions en arrière. Le nom ne porte plus que le slug,
+    qui ne bouge pas.
     """
     entrees = lire_le_sommaire()
     e = next((x for x in entrees if x["slug"] == slug), None)
     if e is None:
         raise SystemExit(f"{slug} n'est pas dans data/annexes.json")
-    return R / "pages" / f"annexe-{e['numero']}-{slug}.html"
+    return R / "pages" / f"annexe-{slug}.html"
 
 
 def pied_de_page(slug):
@@ -573,7 +578,11 @@ def main():
                 f'\n<script src="{PAGES}/{s}"></script>' for s in e.get("scripts", [])
             ),
         )
-        chemin = dossier / f"annexe-{e['numero']}-{e['slug']}.html"
+        #  LE MÊME CHEMIN QUE `chemin_de_la_page`, et pas une seconde
+        #  formule : c'est en en ayant deux qu'on a écrit treize pages
+        #  en double le 18 novembre, les numérotées vides à côté des
+        #  rédigées.
+        chemin = chemin_de_la_page(e["slug"])
 
         #  ── LE CORPS DÉJÀ RÉDIGÉ EST REPRIS, L'ENVELOPPE REFAITE ──
         #
@@ -627,14 +636,14 @@ def main():
         chemin.write_text(page, encoding="utf-8")
         ecrits.append((chemin.name, len(page)))
 
-    #  LES ANCIENNES PAGES S'EN VONT : un fichier `pages/annexe-04-…`
+    #  LES ANCIENNES PAGES S'EN VONT : un fichier `annexe-<slug>.html`
     #  resté d'une liste précédente serait collé un jour par erreur.
     #  ON NE SUPPRIME PLUS RIEN. Toutes les pages portent maintenant la
     #  signature de cet outil, y compris celles dont le corps est
     #  rédigé : s'en servir pour décider d'un effacement reviendrait à
     #  effacer du texte. Une page qui quitte le sommaire est une
     #  décision, pas un nettoyage — on la signale et on la laisse.
-    gardees = {f"annexe-{e['numero']}-{e['slug']}.html" for e in entrees}
+    gardees = {f"annexe-{e['slug']}.html" for e in entrees}
     for f in sorted(dossier.glob("annexe-*.html")):
         if f.name not in gardees:
             print(f"  ⚠ {f.name} n'est plus au sommaire — laissée, à retirer à la main")

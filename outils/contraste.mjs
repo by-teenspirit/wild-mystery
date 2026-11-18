@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════════════════════
 //  outils/contraste.mjs — mesurer une page collée, dans les deux thèmes
 //
-//  USAGE :  deno task contraste pages/annexe-03-le-reglement.html
+//  USAGE :  deno task contraste pages/annexe-reglement.html
 //
 //  POURQUOI UN HARNAIS ET PAS UN COUP D'ŒIL. « Ce texte me paraît pâle »
 //  n'est pas une mesure, et un jeton de texte doux sur un pavé teinté
@@ -134,10 +134,13 @@ const p = await navigateur.newPage({ viewport: { width: 1280, height: 1400 } });
 //  rend bien la premiere annexe).
 const slugDeLaCible = /annexe-\d+-([a-z0-9-]+)\.html$/.exec(cible)?.[1] ?? "x";
 const ADRESSE = `https://mysteryinrhode.forumactif.com/h1-${slugDeLaCible}`;
-await p.route("**/*", (route) =>
-  route.request().url() === ADRESSE
-    ? route.fulfill({ contentType: "text/html; charset=utf-8", body: doc })
-    : route.fulfill({ status: 204, body: "" }));
+await p.route(
+  "**/*",
+  (route) =>
+    route.request().url() === ADRESSE
+      ? route.fulfill({ contentType: "text/html; charset=utf-8", body: doc })
+      : route.fulfill({ status: 204, body: "" }),
+);
 await p.goto(ADRESSE);
 
 // Le sommaire, pose par le vrai module : on ne mesure pas un balisage
@@ -299,7 +302,11 @@ for (const theme of ["clair", "sombre"]) {
   //  chaque bascule. Les deux fonds doivent dire la meme chose.
   const toile = await p.evaluate(() => {
     const h = getComputedStyle(document.documentElement);
-    return { html: h.backgroundColor, scheme: h.colorScheme, body: getComputedStyle(document.body).backgroundColor };
+    return {
+      html: h.backgroundColor,
+      scheme: h.colorScheme,
+      body: getComputedStyle(document.body).backgroundColor,
+    };
   });
   //  Un `html` transparent va aussi : c'est alors le corps qui peint
   //  la toile, et il n'y a rien a desynchroniser. Le defaut, c'est un
@@ -308,7 +315,9 @@ for (const theme of ["clair", "sombre"]) {
   const accorde = nu || toile.html === toile.body;
   const schemaBon = toile.scheme === (theme === "sombre" ? "dark" : "light");
   console.log(
-    `${theme} : toile ${accorde ? "accordee" : "DESACCORDEE"} (html ${toile.html}, body ${toile.body})` +
+    `${theme} : toile ${
+      accorde ? "accordee" : "DESACCORDEE"
+    } (html ${toile.html}, body ${toile.body})` +
       `, color-scheme ${toile.scheme}${schemaBon ? "" : " — defaut"}`,
   );
   if (!accorde) fautes++;

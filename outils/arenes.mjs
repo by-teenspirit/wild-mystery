@@ -30,7 +30,7 @@ import { chromium } from "npm:playwright@1.56.0";
 
 const R = new URL("..", import.meta.url).pathname;
 const lire = (c) => readFileSync(R + c, "utf8");
-const PAGE = lire("pages/annexe-06-arenes-colosseums-ligues.html");
+const PAGE = lire("pages/annexe-arenes-colosseums-ligues.html");
 const ARENES = JSON.parse(lire("data/arenes.json"));
 const EQUIPES = JSON.parse(lire("data/equipes-de-champions.json")).equipes;
 
@@ -420,9 +420,7 @@ const nav = await chromium.launch(
   //  bouts de la chaîne, le générateur Python et le module.
   const obscurs = await p.evaluate(() => {
     const cases = Array.from(document.querySelectorAll(".wm-equipe__pkmn"));
-    const marquees = cases.filter((c) =>
-      c.classList.contains("wm-equipe__pkmn--obscur")
-    );
+    const marquees = cases.filter((c) => c.classList.contains("wm-equipe__pkmn--obscur"));
     return {
       cases: cases.length,
       marquees: marquees.length,
@@ -809,7 +807,8 @@ const nav = await chromium.launch(
           lignes: new Set(bs.map((x) => Math.round(x.getBoundingClientRect().top))).size,
           marge: Math.round(
             b.getBoundingClientRect().width -
-              (bs.reduce((a, x) => a + x.getBoundingClientRect().width, 0) + (bs.length - 1) * g),
+              (bs.reduce((a, x) => a + x.getBoundingClientRect().width, 0) +
+                (bs.length - 1) * g),
           ),
         };
       });
@@ -870,9 +869,7 @@ const nav = await chromium.launch(
       carte: [...s.querySelectorAll("a")].map((a) => a.getAttribute("href"))
         .filter((h) => h !== null && h.includes("t8-trainer-card")).length,
       //  Les cinq intitulés d'équipe, dans l'ordre où on les monte.
-      titres: [...s.querySelectorAll(".wm-defi__sous-titre")].map((h) =>
-        h.textContent.trim()
-      ),
+      titres: [...s.querySelectorAll(".wm-defi__sous-titre")].map((h) => h.textContent.trim()),
       //  Les six dernières cases sont celles du champion : la page
       //  les écrit en dernier, après les quatre du Conseil.
       tousLesNiveaux: [...s.querySelectorAll(".wm-equipe__pkmn")].map((c) =>

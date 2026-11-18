@@ -881,10 +881,10 @@ else
   # ET DEPUIS LE 4 NOVEMBRE, UNE PAGE DÉRIVÉE, pas seulement un JSON :
   #
   #   carte.json + les 17 faune/*.json + butin.json
-  #               →  pages/annexe-06-la-region-et-ses-zones.html
+  #               →  pages/annexe-la-region-et-ses-zones.html
   #   personnages.json + arenes.json
-  #               →  pages/annexe-11-celebrites-de-rhode.html
-  #   credits.json →  pages/annexe-09-credits.html
+  #               →  pages/annexe-celebrites-de-rhode.html
+  #   credits.json →  pages/annexe-credits.html
   #
   # Les crédits portent des NOMS DE PERSONNES, et un nom mal écrit se
   # corrige à un seul endroit ou jamais.
@@ -1279,7 +1279,7 @@ import json, pathlib, sys
 sys.path.insert(0, "outils")
 from dessins import noms
 region = json.loads(pathlib.Path("data/region.json").read_text(encoding="utf-8"))
-page = pathlib.Path("pages/annexe-05-la-region-et-ses-zones.html").read_text(encoding="utf-8")
+page = pathlib.Path("pages/annexe-la-region-et-ses-zones.html").read_text(encoding="utf-8")
 connus = set(noms())
 fautes = []
 for b in region["evenements"]["blocs"]:

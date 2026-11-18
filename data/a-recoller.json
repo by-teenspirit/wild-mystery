@@ -30,42 +30,42 @@
   "annexe-01": {
    "quoi": "Annexe 01 · Par où commencer",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-01-par-ou-commencer.html",
+   "fichier": "pages/annexe-par-ou-commencer.html",
    "empreinte": null,
    "le": null
   },
   "annexe-02": {
    "quoi": "Annexe 02 · Contexte",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-02-contexte.html",
+   "fichier": "pages/annexe-contexte.html",
    "empreinte": null,
    "le": null
   },
   "annexe-03": {
    "quoi": "Annexe 03 · Règlement",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-03-reglement.html",
+   "fichier": "pages/annexe-reglement.html",
    "empreinte": null,
    "le": null
   },
   "annexe-04": {
    "quoi": "Annexe 04 · Guide du dresseur",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-04-guide-du-dresseur.html",
+   "fichier": "pages/annexe-guide-du-dresseur.html",
    "empreinte": null,
    "le": null
   },
   "annexe-05": {
    "quoi": "Annexe 05 · La région et ses zones",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-05-la-region-et-ses-zones.html",
+   "fichier": "pages/annexe-la-region-et-ses-zones.html",
    "empreinte": null,
    "le": null
   },
   "annexe-06": {
    "quoi": "Annexe 06 · Arènes, colosseums & ligues",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-06-arenes-colosseums-ligues.html",
+   "fichier": "pages/annexe-arenes-colosseums-ligues.html",
    "empreinte": null,
    "le": null,
    "constat": "10 nov. 2026 : les trois obscurs, les paddings refaits, les textes repris du forum, et une DESCRIPTION EN LOREM sous chaque arène — posée pour voir l'emplacement, à remplacer avant de coller pour de bon. À recoller."
@@ -73,14 +73,14 @@
   "annexe-07": {
    "quoi": "Annexe 07 · Groupes",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-07-groupes.html",
+   "fichier": "pages/annexe-groupes.html",
    "empreinte": null,
    "le": null
   },
   "annexe-08": {
    "quoi": "Annexe 08 · Crédits",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-08-credits.html",
+   "fichier": "pages/annexe-credits.html",
    "empreinte": null,
    "le": null,
    "constat": "10 nov. 2026 : la page passe à DEUX ONGLETS — « Les crédits » et « Les versions du forum », sept habillages et quatorze bannières relevés du sujet t41. À recoller."
@@ -88,35 +88,35 @@
   "annexe-09": {
    "quoi": "Annexe 09 · Staff",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-09-staff.html",
+   "fichier": "pages/annexe-staff.html",
    "empreinte": null,
    "le": null
   },
   "annexe-10": {
    "quoi": "Annexe 10 · Célébrités de Rhode",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-10-celebrites-de-rhode.html",
+   "fichier": "pages/annexe-celebrites-de-rhode.html",
    "empreinte": null,
    "le": null
   },
   "annexe-11": {
    "quoi": "Annexe 11 · Monnaie et missions",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-11-monnaie-et-missions.html",
+   "fichier": "pages/annexe-monnaie-et-missions.html",
    "empreinte": null,
    "le": null
   },
   "annexe-12": {
    "quoi": "Annexe 12 · Combat et progression",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-12-combat-et-progression.html",
+   "fichier": "pages/annexe-combat-et-progression.html",
    "empreinte": null,
    "le": null
   },
   "annexe-13": {
    "quoi": "Annexe 13 · Organisations et Pokémon Obscurs",
    "ou": "https://mysteryinrhode.forumactif.com/h?-annexe (page HTML du panneau d'administration)",
-   "fichier": "pages/annexe-13-organisations-et-pokemon-obscurs.html",
+   "fichier": "pages/annexe-organisations-et-pokemon-obscurs.html",
    "empreinte": null,
    "le": null,
    "constat": "12 nov. 2026 : la page était encore le gabarit générique — « Le premier bloc », « Deux cartes côte à côte ». Elle porte maintenant ses trois onglets (La Team Ombre, Les Pokémon Obscurs, Les Allégeances) et leurs quatorze sections, corps en lorem ipsum en attendant le texte. À recoller."

@@ -20,7 +20,7 @@ import { chromium } from "npm:playwright@1.56.0";
 
 const R = new URL("..", import.meta.url).pathname;
 const lire = (c) => readFileSync(R + c, "utf8");
-const PAGE = lire("pages/annexe-02-contexte.html");
+const PAGE = lire("pages/annexe-contexte.html");
 
 let fautes = 0;
 function ok(quoi, vrai, detail) {
@@ -45,7 +45,10 @@ async function ouvrir(nav, { largeur = 1440, theme } = {}) {
     if (/\/js\/annexes\.js$/.test(u)) return f("text/javascript", lire("js/annexes.js"));
     if (/\/data\/([a-z-]+)\.json$/.test(u)) {
       try {
-        return f("application/json", lire(`data/${/\/data\/([a-z-]+)\.json$/.exec(u)[1]}.json`));
+        return f(
+          "application/json",
+          lire(`data/${/\/data\/([a-z-]+)\.json$/.exec(u)[1]}.json`),
+        );
       } catch {
         return q.fulfill({ status: 404, body: "" });
       }
@@ -99,7 +102,8 @@ const regarder = () =>
         //  Combien de lignes la date occupe : sa hauteur divisée par
         //  son interligne. Deux, et elle se coupe.
         lignes: Math.round(
-          quand.height / parseFloat(getComputedStyle(m.querySelector(".wm-chrono__quand")).lineHeight),
+          quand.height /
+            parseFloat(getComputedStyle(m.querySelector(".wm-chrono__quand")).lineHeight),
         ),
       },
       quoi: { gauche: Math.round(quoi.left), large: Math.round(quoi.width) },
@@ -128,7 +132,8 @@ console.log("── la chronologie, à 1440 ──");
     "et chacun tient dans l'écart, sans mordre la date ni le texte",
     vu.every((m) => m.point.x >= m.quand.droite && m.point.x + m.point.taille <= m.quoi.gauche),
     vu.slice(0, 2).map((m) => ({
-      dateFinit: m.quand.droite, point: [m.point.x, m.point.x + m.point.taille],
+      dateFinit: m.quand.droite,
+      point: [m.point.x, m.point.x + m.point.taille],
       texteCommence: m.quoi.gauche,
     })),
   );
@@ -221,7 +226,10 @@ console.log("── la chronologie, à 1440 ──");
   ok(
     "aucune date ne se coupe en deux",
     vu.every((m) => m.quand.lignes === 1),
-    vu.filter((m) => m.quand.lignes !== 1).map((m) => ({ date: m.quand.mot, lignes: m.quand.lignes })),
+    vu.filter((m) => m.quand.lignes !== 1).map((m) => ({
+      date: m.quand.mot,
+      lignes: m.quand.lignes,
+    })),
   );
   ok(
     "et les textes commencent tous au même endroit",

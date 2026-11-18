@@ -356,6 +356,9 @@ jobs:
       - name: La fiche de combat
         run: deno task combat
 
+      - name: Les six natures et leur questionnaire
+        run: deno task groupes
+
       #  Ajoutés le 4 novembre, avec l'annexe de la carte et celle des
       #  célébrités. Le garde-fou n° 22 refuse un harnais que le CI ne
       #  lance pas : un harnais qu'on lance à la main ne garde rien.

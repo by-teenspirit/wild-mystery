@@ -6,7 +6,7 @@
   "_slug": "Le slug est la fin de l'adresse : /h3-reglement donne « reglement ». C'est lui que le sommaire reconnaît pour se surligner, et PAS le numéro de page — h3 dépend de l'ordre de création chez Forumactif, le slug est celui qu'on a choisi.",
   "sections": [
     {
-      "titre": "Les annexes",
+      "titre": "Pour commencer",
       "entrees": [
         {
           "numero": "01",
@@ -25,7 +25,12 @@
           "slug": "reglement",
           "titre": "Le règlement",
           "adresse": "/h3-reglement"
-        },
+        }
+      ]
+    },
+    {
+      "titre": "Jouer",
+      "entrees": [
         {
           "numero": "04",
           "slug": "guide-du-dresseur",
@@ -34,6 +39,29 @@
         },
         {
           "numero": "05",
+          "slug": "combat-et-progression",
+          "titre": "Combat et progression",
+          "adresse": "/h12-combat-et-progression"
+        },
+        {
+          "numero": "06",
+          "slug": "monnaie-et-missions",
+          "titre": "Monnaie, médailles et missions",
+          "adresse": "/h11-monnaie-et-missions"
+        },
+        {
+          "numero": "07",
+          "slug": "groupes",
+          "titre": "Les groupes",
+          "adresse": "/h7-groupes"
+        }
+      ]
+    },
+    {
+      "titre": "Le monde de Rhode",
+      "entrees": [
+        {
+          "numero": "08",
           "slug": "la-region-et-ses-zones",
           "titre": "La région et ses zones",
           "adresse": "/h5-la-region-et-ses-zones",
@@ -42,55 +70,43 @@
           ]
         },
         {
-          "numero": "06",
+          "numero": "09",
           "slug": "arenes-colosseums-ligues",
           "titre": "Arènes, colosseums et Ligue",
           "adresse": "/h6-arenes-colosseums-ligues"
         },
         {
-          "numero": "07",
-          "slug": "groupes",
-          "titre": "Les groupes",
-          "adresse": "/h7-groupes"
+          "numero": "10",
+          "slug": "organisations-et-pokemon-obscurs",
+          "titre": "Organisations et Pokémon Obscurs",
+          "adresse": "/h13-organisations-et-pokemon-obscurs"
         },
         {
-          "numero": "08",
-          "slug": "credits",
-          "titre": "Les crédits",
-          "adresse": "/h8-credits"
-        },
+          "numero": "11",
+          "slug": "celebrites-de-rhode",
+          "titre": "Personnages jouables, champions & célébrités",
+          "adresse": "/h10-celebrites-de-rhode"
+        }
+      ]
+    },
+    {
+      "titre": "Le forum",
+      "entrees": [
         {
-          "numero": "09",
+          "numero": "12",
           "slug": "staff",
           "titre": "Le staff",
           "adresse": "/h9-staff"
         },
         {
-          "numero": "10",
-          "slug": "celebrites-de-rhode",
-          "titre": "Personnages jouables, champions & célébrités",
-          "adresse": "/h10-celebrites-de-rhode"
-        },
-        {
-          "numero": "11",
-          "slug": "monnaie-et-missions",
-          "titre": "Monnaie, médailles et missions",
-          "adresse": "/h11-monnaie-et-missions"
-        },
-        {
-          "numero": "12",
-          "slug": "combat-et-progression",
-          "titre": "Combat et progression",
-          "adresse": "/h12-combat-et-progression"
-        },
-        {
           "numero": "13",
-          "slug": "organisations-et-pokemon-obscurs",
-          "titre": "Organisations et Pokémon Obscurs",
-          "adresse": "/h13-organisations-et-pokemon-obscurs"
+          "slug": "credits",
+          "titre": "Les crédits",
+          "adresse": "/h8-credits"
         }
       ]
     }
   ],
-  "_numero": "Le numéro est celui du SOMMAIRE, et il se recalcule à chaque passe de `outils/annexes.py` : il n'est écrit nulle part ailleurs, ni dans un nom de fichier qu'on taperait, ni dans un générateur. Retirer une annexe ou en insérer une décale les suivantes toute seule — c'est arrivé le 4 novembre, et ça n'a coûté que ce fichier."
+  "_numero": "Le numéro est celui du SOMMAIRE, et il se recalcule à chaque passe de `outils/annexes.py` : il n'est écrit nulle part ailleurs, ni dans un nom de fichier qu'on taperait, ni dans un générateur. Retirer une annexe ou en insérer une décale les suivantes toute seule — c'est arrivé le 4 novembre, et ça n'a coûté que ce fichier.",
+  "_ordre": "RANGÉ LE 18 NOVEMBRE — « modifier l'ordre des annexes pour que tout soit propre ». Quatre sections, et la règle est l'ordre où on en a besoin : on arrive, on joue, on explore, et on regarde qui tient la maison. Avant, les crédits et le staff coupaient les pages de jeu en deux, et « Combat et progression » était huit entrées après « Le guide du dresseur ».\nLES NUMÉROS CHANGENT, PAS LES ADRESSES : `/h7-groupes` est l'adresse Forumactif de la page, posée à sa création, et le sommaire la suit. Les pages sont à recoller une fois, parce que leur surtitre porte le numéro."
 }
