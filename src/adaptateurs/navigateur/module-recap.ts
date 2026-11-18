@@ -152,6 +152,28 @@ function bloc(doc: Document, titre: string): HTMLElement {
 }
 
 function dessinerUnBloc(doc: Document, decor: Decor, b: BlocDuRecap): HTMLElement {
+  //  LE CARNET NON RELIÉ, dit ici plutôt que tu par une absence. Même
+  //  texte et même sortie que le bloc d'erreur de la barre d'actions :
+  //  deux formulations pour un même blocage en feraient deux blocages
+  //  dans la tête du joueur.
+  if (b.quoi === "carnet") {
+    const section = bloc(doc, "Carnet non relié");
+    section.classList.add("wm-recap__bloc--alerte");
+    section.appendChild(element(
+      doc,
+      "p",
+      "wm-recap__alerte-texte",
+      "Ton équipe, ton sac et ton combat se lisent dans ton carnet, et il " +
+        "n'est pas relié à ce navigateur. Relie-le pour les voir ici.",
+    ));
+    const lien = doc.createElement("a");
+    lien.className = "wm-recap__alerte-lien";
+    lien.href = "/h17-mon-carnet";
+    lien.textContent = "Relier mon carnet";
+    section.appendChild(lien);
+    return section;
+  }
+
   if (b.quoi === "combat") {
     const section = bloc(doc, `Combat · tour ${b.combat.tour}`);
     const liste = element(doc, "ul", "wm-recap__liste");

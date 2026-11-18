@@ -17238,6 +17238,44 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-top: 1px solid var(--wm-bord-fin, #eadacd);
 }
 
+/*  ── LE BLOC DU CARNET NON RELIÉ ──────────────────────────────────
+    (18 novembre)
+
+    MÊME HABILLAGE QUE L'ALERTE DE LA BARRE D'ACTIONS : c'est le même
+    blocage, dit au même joueur, à deux endroits de la même page. Deux
+    habits différents en feraient deux problèmes.
+
+    Filet en haut, pas à gauche — « ne mets pas un border à gauche,
+    ne mets ça nulle part ». */
+#modernbb .wm-recap__bloc--alerte {
+  padding-top: var(--wm-espace-10, 10px);
+  border-top: 3px solid var(--wm-rarete-peu-commun-texte, #96540e);
+}
+
+#modernbb .wm-recap__alerte-texte {
+  margin: var(--wm-espace-6, 6px) 0 0;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1.5;
+}
+
+/*  LA SORTIE SE CLIQUE, et la cible tient le doigt. Le panneau est
+    sur fond nuit : le bouton prend le clair, c'est le seul contraste
+    qui tienne des deux côtés. */
+#modernbb a.wm-recap__alerte-lien {
+  display: inline-flex;
+  min-height: var(--wm-cible-tactile, 44px);
+  align-items: center;
+  margin-top: var(--wm-espace-8, 8px);
+  padding: 0 var(--wm-espace-12, 12px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-texte-sur-nuit, #fffbf7);
+  color: var(--wm-fond-nuit, #3a2a22);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
 #modernbb .wm-recap__titre {
   margin: 0;
   color: var(--wm-texte-pale, #69564c);

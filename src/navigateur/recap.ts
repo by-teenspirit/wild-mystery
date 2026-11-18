@@ -190,7 +190,11 @@ export type BlocDuRecap =
   | {
     readonly quoi: "gains";
     readonly rubriques: readonly { readonly etiquette: string; readonly valeur: string }[];
-  };
+  }
+  /** La lecture privée n'a rien rendu : carnet non relié, jeton
+   *  périmé, réseau coupé. Un bloc à part plutôt qu'une absence —
+   *  voir `blocsDuRecap`. */
+  | { readonly quoi: "carnet" };
 
 /** Les blocs à dessiner, dans l'ordre, pour ce joueur et ce sujet.
  *
@@ -207,6 +211,19 @@ export function blocsDuRecap(
   mien: LigneEnAttente | null,
 ): readonly BlocDuRecap[] {
   const blocs: BlocDuRecap[] = [];
+  //  ── UN CARNET NON RELIÉ SE DIT, IL NE DISPARAÎT PAS ─────────────
+  //
+  //  « Je ne vois toujours pas le récap à droite ou à gauche que tu
+  //  devais mettre » — trois fois en deux jours, les 17 et 18
+  //  novembre. Il était bien là, dans le paquet, mesuré par le
+  //  harnais : simplement `mon_sujet` ne rendait rien, et un
+  //  récapitulatif sans contenu se retirait. En silence.
+  //
+  //  C'EST LA MÊME FAUTE QUE LES BOUTONS DE COMBAT, et elle a la même
+  //  réponse : `sujet === null` ne veut pas dire « rien à montrer »,
+  //  ça veut dire « on n'a pas pu lire ». Un joueur dont l'équipe est
+  //  vide reçoit un objet avec des listes vides, pas `null`.
+  if (sujet === null) return [{ quoi: "carnet" }];
   if (sujet !== null && sujet.combat !== null) {
     blocs.push({ quoi: "combat", combat: sujet.combat });
   }

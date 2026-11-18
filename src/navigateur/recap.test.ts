@@ -146,9 +146,27 @@ Deno.test("UN BLOC VIDE NE SE DESSINE PAS", () => {
   );
 });
 
-Deno.test("RIEN DU TOUT REND UN TABLEAU VIDE — et le panneau ne se pose pas", () => {
-  assertEquals(blocsDuRecap(null, null), []);
+Deno.test("UN SUJET LU, MAIS RIEN DEDANS : pas de panneau", () => {
+  //  Lecture RÉUSSIE et rien à montrer — équipe vide, pas de combat,
+  //  aucun gain en attente. Là, un cadre vide collé au bord de
+  //  l'écran serait une gêne : on ne pose rien.
   assertEquals(blocsDuRecap({ equipe: [], combat: null }, null), []);
+});
+
+Deno.test("UNE LECTURE QUI ÉCHOUE SE DIT — elle ne disparaît pas", () => {
+  //  « Je ne vois toujours pas le récap » — trois fois en deux jours.
+  //  Il était là ; `mon_sujet` ne rendait rien, et le panneau se
+  //  retirait sans un mot. `null` ne veut pas dire « rien à montrer »,
+  //  ça veut dire « on n'a pas pu lire ».
+  assertEquals(blocsDuRecap(null, null).map((b) => b.quoi), ["carnet"]);
+});
+
+Deno.test("et le bloc du carnet passe avant tout le reste", () => {
+  //  Même sans sujet, une ligne de bilan peut exister — elle vient du
+  //  registre, qui est public. Le blocage reste la première chose à
+  //  dire : les gains seuls, sans équipe ni combat, laisseraient
+  //  croire que le panneau fonctionne.
+  assertEquals(blocsDuRecap(null, GAINS).map((b) => b.quoi), ["carnet"]);
 });
 
 Deno.test("une ligne de bilan sans rubrique ne fait pas un bloc", () => {

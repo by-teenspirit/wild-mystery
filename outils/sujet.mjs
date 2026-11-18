@@ -3493,18 +3493,51 @@ dire(
 );
 await calme.close();
 
-//  ── SANS LAISSEZ-PASSER, RIEN ──────────────────────────────────────
+//  ── SANS LAISSEZ-PASSER, LE PANNEAU LE DIT ─────────────────────────
 //
-//  Un visiteur déconnecté n'a ni équipe ni registre : le panneau ne se
-//  pose pas, et il ne doit pas laisser de cadre vide collé au bord.
+//  CET ESSAI EXIGEAIT LE CONTRAIRE JUSQU'AU 18 NOVEMBRE : « sans
+//  laissez-passer, aucun récapitulatif ». Il passait au vert, et
+//  pendant ce temps Callista écrivait trois fois en deux jours « je
+//  ne vois toujours pas le récap ». Elle avait raison ; l'essai
+//  garantissait le silence.
+//
+//  LE RAISONNEMENT ÉTAIT FAUX D'UN CRAN. Il est vrai qu'un cadre vide
+//  collé au bord de l'écran est une gêne — mais « je n'ai pas pu
+//  lire » n'est pas « il n'y a rien à montrer ». Le premier se dit,
+//  le second se tait. Un joueur dont l'équipe est vide reçoit un
+//  objet vide, pas une absence : les deux cas se distinguent.
 const invite = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
   largeur: 1920,
 });
 await invite.waitForTimeout(500);
+const sansCarnet = await invite.evaluate(() => {
+  const r = document.querySelector(".wm-recap");
+  if (r === null) return null;
+  const a = r.querySelector(".wm-recap__bloc--alerte");
+  return {
+    titre: a?.querySelector(".wm-recap__titre")?.textContent ?? null,
+    lien: a?.querySelector("a")?.getAttribute("href") ?? null,
+    //  LA LANGUETTE DOIT ÊTRE LÀ : le panneau est replié par défaut,
+    //  et sans elle le message serait invisible malgré tout.
+    languette: r.querySelector(".wm-recap__languette") !== null,
+    blocs: r.querySelectorAll(".wm-recap__bloc").length,
+  };
+});
 dire(
-  "SANS LAISSEZ-PASSER, AUCUN RÉCAPITULATIF",
-  await invite.evaluate(() => document.querySelector(".wm-recap") === null),
-  "",
+  "SANS LAISSEZ-PASSER, LE PANNEAU SE POSE ET DIT POURQUOI",
+  sansCarnet !== null && sansCarnet.titre === "Carnet non relié" &&
+    sansCarnet.languette === true,
+  JSON.stringify(sansCarnet),
+);
+dire(
+  "et il donne la sortie, pas seulement le constat",
+  sansCarnet?.lien === "/h17-mon-carnet",
+  sansCarnet?.lien ?? "aucun lien",
+);
+dire(
+  "UN SEUL BLOC, et pas une équipe vide à côté — on n'a rien lu, on ne montre rien d'autre",
+  sansCarnet?.blocs === 1,
+  `${sansCarnet?.blocs} bloc(s)`,
 );
 await invite.close();
 
