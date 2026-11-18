@@ -1,0 +1,89 @@
+{
+  "_": "Le staff de Wild Mystery, pour l'annexe « Le staff ». `outils/annexe-staff.py` en DÉRIVE la page — on corrige ici, jamais dans la page.",
+  "_aConfirmer": "LES QUATRE FICHES SONT À CONFIRMER PAR CALLISTA, demandé le 18 novembre. Les deux premières viennent de la présentation du staff de la version précédente (planche 42) et peuvent avoir changé ; les deux dernières sont des emplacements vides. Tant qu'une fiche porte `aConfirmer: true`, le générateur l'écrit avec une marque visible — une page qui se présente comme finie alors qu'elle ne l'est pas est pire qu'une page visiblement en travaux.",
+  "_roles": "Le rôle est écrit tel quel, en toutes lettres. Pas de liste fermée : une équipe de quatre n'a pas besoin d'un vocabulaire officiel.",
+  "chapo": "Quatre personnes tiennent Wild Mystery. On est joignable par message privé, et il n'y a pas de question bête : si tu ne sais pas à qui t'adresser, écris à n'importe laquelle d'entre nous, on fait suivre.",
+  "staff": [
+    {
+      "pseudo": "Foxblida",
+      "role": "Fondatrice",
+      "aussi": [
+        "SWAPAKRU",
+        "PLUMYTS"
+      ],
+      "comptes": [
+        "Charlie Spinster",
+        "Murphy Birdwhistle",
+        "Valteri Rybakov",
+        "Ziggy Archdeacon"
+      ],
+      "texte": "S'occupe principalement du codage et de l'administration.",
+      "traits": [
+        "codage",
+        "administration"
+      ],
+      "avatar": null,
+      "aConfirmer": true
+    },
+    {
+      "pseudo": "teenspirit",
+      "role": "Administratrice",
+      "aussi": [
+        "TWOSTARS",
+        "CalliDesign"
+      ],
+      "comptes": [
+        "James Birdwhistle",
+        "Alix Snyder",
+        "Ezekiel Cobain"
+      ],
+      "texte": "S'occupe du graphisme, assiste au codage, gère l'administration et les animations.",
+      "traits": [
+        "graphisme",
+        "codage",
+        "animations"
+      ],
+      "avatar": null,
+      "aConfirmer": true
+    },
+    {
+      "pseudo": "",
+      "role": "",
+      "aussi": [],
+      "comptes": [],
+      "texte": "",
+      "traits": [],
+      "avatar": null,
+      "aConfirmer": true
+    },
+    {
+      "pseudo": "",
+      "role": "",
+      "aussi": [],
+      "comptes": [],
+      "texte": "",
+      "traits": [],
+      "avatar": null,
+      "aConfirmer": true
+    }
+  ],
+  "aQuiSAdresser": [
+    {
+      "quoi": "Valider ton personnage, un doute sur ta fiche",
+      "qui": "n'importe qui du staff"
+    },
+    {
+      "quoi": "Un bug du forum, un affichage cassé",
+      "qui": "à confirmer"
+    },
+    {
+      "quoi": "Un souci avec quelqu'un, un signalement",
+      "qui": "à confirmer"
+    },
+    {
+      "quoi": "Un partenariat, une demande extérieure",
+      "qui": "à confirmer"
+    }
+  ],
+  "_anciens": "Les anciens staffiens remerciés dans les crédits (planche 42) : Hippogriffe (co-fondatrice), Sullivan et Ryune (anciennes administratrices), Thaenerys et Owlikho (anciens modérateurs), Golden (ancienne modératrice). Ils vivent dans `data/credits.json`, pas ici : cette page présente qui répond aujourd'hui."
+}
