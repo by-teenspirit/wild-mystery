@@ -326,7 +326,14 @@ Deno.test("repondre · se connecte, relit le formulaire, poste, rend l'id", asyn
     "GET /post?t=813&mode=reply",
     "POST /post",
   ]);
-  assert(forum.posteCorps?.startsWith("@Dresseuse\n\n"), forum.posteCorps ?? "rien");
+  //  LE TAG EST HABILLÉ DEPUIS LE 18 NOVEMBRE — « mieux afficher le
+  //  tag, le styliser, le mettre en titre ou en sous-titre ». Il reste
+  //  EN PREMIER et le texte `@<pseudo>` reste d'un seul tenant : c'est
+  //  ce que Forumactif relit, et c'est ce que cette ligne tient.
+  assert(
+    forum.posteCorps?.startsWith('<p class="wm-tag">@Dresseuse</p>\n\n'),
+    forum.posteCorps ?? "rien",
+  );
 });
 
 Deno.test("repondre · ne se reconnecte pas pour le deuxième message", async () => {
@@ -748,4 +755,20 @@ Deno.test("l'identifiant lu après une création est celui du SUJET", () => {
   assertEquals(idDuMessagePoste("/t1003-carte-eliott-vanner#15601"), 15601);
   assertEquals(idDuSujetCree("/post?mode=newtopic"), null);
   assertEquals(idDuSujetCree(null), null);
+});
+
+Deno.test("repondre · un pseudo à chevrons ne casse pas la balise du tag", async () => {
+  //  LE PSEUDO VIENT DU FORUM, pas de nous. Celui-ci n'existe
+  //  probablement pas, mais rien n'empêche qu'il existe un jour — et
+  //  le jour-là, un `<` non échappé transformerait le tag en balise
+  //  ouverte, donc la carte entière en texte.
+  const forum = fauxForum({ sessionExigee: false });
+  const p = new ForumactifEnPublication(forum.transport, COMPTE);
+  await p.repondre(813, '<b>Dresseuse</b> & "co"', "Bilan du sujet.", CODE);
+  assert(
+    forum.posteCorps?.startsWith(
+      '<p class="wm-tag">@&lt;b&gt;Dresseuse&lt;/b&gt; &amp; &quot;co&quot;</p>',
+    ),
+    forum.posteCorps ?? "rien",
+  );
 });

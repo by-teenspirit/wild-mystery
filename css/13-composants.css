@@ -2756,6 +2756,32 @@
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
+/*  ── LE TAG EST UN TITRE ──────────────────────────────────────────
+    (demandé le 18 novembre : « mieux afficher le tag, le styliser, le
+    mettre en titre ou en sous-titre »)
+
+    IL ÉTAIT EN TEXTE NU au-dessus de la carte, à la taille du corps,
+    suivi de deux retours — relevé dans le message 15630 :
+    `@Jake Dalziel<br><br><div class="wm-combat"…`. Un nom seul, qu'on
+    ne lit pas, pour l'information la plus importante du message :
+    À QUI il s'adresse.
+
+    IL DEVIENT LE TITRE DU MESSAGE. Police d'accent, taille de titre
+    de bloc, couleur `accent/terre` comme le surtitre de la carte
+    dessous — les deux se lisent alors comme une même annonce, le nom
+    puis ce qui lui arrive.
+
+    PAS DE FILET SOUS LUI. La carte qui suit a le sien, et deux traits
+    à huit pixels d'écart font une grille, pas une hiérarchie. */
+#modernbb .wm-tag {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-accent-terre, #8b4725);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-titre, 1.1);
+}
+
 /*  ── LA RENCONTRE A SON FOND, COMME LA CARTE DE DRESSEUR ──────────
     (maquette `305:218`, demandé le 18 novembre : « le bloc de
     rencontre, mets un fond, comme la trainer card »)

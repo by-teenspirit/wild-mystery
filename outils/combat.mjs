@@ -169,14 +169,33 @@ const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
 </head><body id="modernbb">
 <div class="sujet"><div class="post"><div class="postbody"><div class="content">
-<div class="essai" data-n="1">${CARTE}</div>
+<!-- LE TAG EST POSÉ PAR LA COUCHE DE PUBLICATION, pas par la carte :
+     c'est repondre() qui l'écrit devant le corps. On le monte donc ici
+     tel qu'elle l'écrit, pour mesurer ce que le joueur voit. -->
+<div class="essai" data-n="1"><p class="wm-tag">@Jake Dalziel</p>\n\n${CARTE}</div>
 <div class="essai" data-n="2">${TOUR}</div>
 <div class="essai" data-n="3">${SEUL}</div>
 </div></div></div></div></body></html>`;
 
+//  ── LA PAGE DU BILAN SE DÉRIVE DE L'AUTRE, PAR SON MARQUEUR ───────
+//
+//  Elle remplaçait la carte en recomposant la chaîne exacte du
+//  gabarit — `'<div class="essai" data-n="1">' + CARTE + "</div>"`.
+//  Le 18 novembre, le tag est venu s'ajouter devant la carte : la
+//  chaîne ne correspondait plus à rien, le remplacement ne faisait
+//  rien, et la page du bilan n'avait plus de bilan. Le harnais est
+//  mort sur `innerText` de `null`, six écrans plus bas, loin de la
+//  cause.
+//
+//  ON DÉCOUPE SUR LE MARQUEUR, PAS SUR LE CONTENU : `data-n="1"`
+//  jusqu'à `data-n="2"`. Ce qu'il y a entre les deux peut changer
+//  autant qu'il veut.
 const pageDuBilan = page.replace(
-  '<div class="essai" data-n="1">' + CARTE + "</div>",
-  '<div class="essai" data-n="4">' + BILAN + "</div>",
+  page.slice(
+    page.indexOf('<div class="essai" data-n="1">'),
+    page.indexOf('<div class="essai" data-n="2">'),
+  ),
+  '<div class="essai" data-n="4">' + BILAN + "</div>\n",
 );
 
 const soucis = [];
@@ -247,11 +266,57 @@ for (const d of duels) {
 //  regarde.
 if (Deno.args.includes("--photo")) {
   const q = await monter(900);
-  const bloc = await q.$(".wm-combat--rencontre");
+  //  LA PHOTO PREND LE TAG AVEC LA CARTE : il est posé AVANT elle, par
+  //  la couche de publication, et c'est leur enchaînement qu'on juge.
+  const bloc = await q.$(".essai[data-n=\"1\"]");
   if (bloc !== null) await bloc.screenshot({ path: `${R}combat-rencontre.png` });
   await q.close();
   console.log("photo : combat-rencontre.png");
 }
+
+//  ── LE TAG SE LIT COMME UN TITRE ─────────────────────────────────
+//
+//  « Mieux afficher le tag, le styliser, le mettre en titre ou en
+//  sous-titre » — 18 novembre. Il était en texte nu, à la taille du
+//  corps. Ce qui se mesure : qu'il soit PLUS GROS que le corps du
+//  message, dans la police des titres, et de la couleur de la carte
+//  qu'il annonce — sinon ce n'est pas un titre, c'est une ligne.
+const tag = await (async () => {
+  const q = await monter(900);
+  const m = await q.evaluate(() => {
+    const t = document.querySelector(".wm-tag");
+    const r = document.querySelector(".wm-combat__recit, .wm-combat__titre");
+    if (t === null) return null;
+    const st = getComputedStyle(t);
+    return {
+      texte: t.textContent,
+      taille: parseFloat(st.fontSize),
+      tailleDuCorps: r === null ? 0 : parseFloat(getComputedStyle(r).fontSize),
+      police: st.fontFamily,
+      couleur: st.color,
+      couleurDuSurtitre: getComputedStyle(
+        document.querySelector(".wm-combat--rencontre .wm-combat__surtitre"),
+      ).color,
+    };
+  });
+  await q.close();
+  return m;
+})();
+dire(
+  "LE TAG EST PLUS GROS QUE LE CORPS, et dans la police des titres",
+  tag !== null && tag.taille > tag.tailleDuCorps && /Fraunces/.test(tag.police),
+  tag === null ? "aucun tag monté" : `${tag.taille}px contre ${tag.tailleDuCorps}px · ${tag.police}`,
+);
+dire(
+  "et il porte la couleur de la carte qu'il annonce",
+  tag !== null && tag.couleur === tag.couleurDuSurtitre,
+  tag === null ? "" : `${tag.couleur} / ${tag.couleurDuSurtitre}`,
+);
+dire(
+  "le texte du tag reste d'un seul tenant — c'est ce que Forumactif relit",
+  tag !== null && tag.texte === "@Jake Dalziel",
+  tag?.texte,
+);
 
 const seule = duels.find((d) => d.camps.length === 1);
 dire(

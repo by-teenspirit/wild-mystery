@@ -37,6 +37,9 @@
 import type { PosteurSurForum } from "../../application/ports.ts";
 import { ecrireUnMarqueur, marqueursDe } from "./marqueur.ts";
 import { lireLesMessages } from "./lecture.ts";
+//  L'ÉCHAPPEMENT EST CELUI DES CARTES, pas un second écrit ici : une
+//  seconde table de caractères finirait par ne plus couvrir les mêmes.
+import { echapper as echapperLeTexte } from "../../application/fiche-de-combat.ts";
 
 // ── le transport ────────────────────────────────────────────────────
 
@@ -651,7 +654,27 @@ export class ForumactifEnPublication implements PosteurSurForum {
 
     const charge = chargeDuMarqueur(sujetId);
     const avecMarqueur = `${corps}\n\n${ecrireUnMarqueur(charge, code)}`;
-    const message = mentionne === "" ? avecMarqueur : `@${mentionne}\n\n${avecMarqueur}`;
+    //  ── LE TAG EST UN TITRE, PAS UNE LIGNE PERDUE EN HAUT ───────────
+    //
+    //  « Déjà, mieux afficher le tag, le styliser, le mettre en titre
+    //  ou en sous-titre » — 18 novembre.
+    //
+    //  IL ÉTAIT EN TEXTE NU, suivi de deux retours. Relevé dans le
+    //  message 15630 le même jour : `@Jake Dalziel<br><br><div
+    //  class="wm-combat"…`. Un nom seul au-dessus d'une carte, à la
+    //  taille du corps, qu'on ne lit pas.
+    //
+    //  FORUMACTIF NE LE TRANSFORME PAS, et c'est ce qui rend
+    //  l'habillage sûr : dans le message publié, le `@Jake Dalziel`
+    //  est resté du texte — pas un lien, pas une balise de mention.
+    //  L'entourer d'un `<p>` ne lui retire donc rien, et le texte
+    //  `@<pseudo>` reste d'un seul tenant pour qui le relirait.
+    //
+    //  LE PSEUDO EST ÉCHAPPÉ. Il vient du forum, pas de nous, et un
+    //  nom qui porterait un chevron casserait la balise.
+    const message = mentionne === ""
+      ? avecMarqueur
+      : `<p class="wm-tag">@${echapperLeTexte(mentionne)}</p>\n\n${avecMarqueur}`;
     const codes = marqueursDe(message).map((m) => m.code);
 
     // ── ON REGARDE AVANT D'ÉCRIRE ────────────────────────────────────
