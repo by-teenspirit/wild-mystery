@@ -139,6 +139,50 @@ export function placementDuRecap(
   return { pose: gauche + largeur + ecart <= fenetre, gauche };
 }
 
+/*  ── ET QUAND IL N'Y A PAS LA PLACE : UN TIROIR ────────────────────
+ *
+ *  Mesuré le 18 novembre : le forum fait 1 200 px, le panneau en
+ *  demande 216 plus 16 de chaque côté, donc il faut 1 696 px de
+ *  fenêtre. Sur un portable de 1 440, le panneau ne se posait JAMAIS —
+ *  et personne ne pouvait le deviner, puisqu'il s'effaçait en silence.
+ *
+ *  « Un onglet qui se déplie », 18 novembre. Le panneau existe donc
+ *  toujours ; c'est son ÉTAT qui change :
+ *
+ *    · de la place à droite des messages → ouvert, collé à eux ;
+ *    · pas la place → replié contre le bord, une languette dépasse.
+ *
+ *  LE CHOIX DE LA PERSONNE PASSE AVANT LA MESURE. Qui a replié le
+ *  panneau sur un grand écran le retrouve replié ; qui l'a déplié sur
+ *  un portable le retrouve déplié. La mesure ne décide que du PREMIER
+ *  affichage, quand il n'y a encore rien à respecter. */
+export type EtatDuRecap = {
+  /** À quoi il s'accroche : au bord des messages, ou au bord de la
+   *  fenêtre quand il n'y a pas la place. */
+  readonly contre: "messages" | "bord";
+  readonly gauche: number;
+  readonly ouvert: boolean;
+};
+
+export function etatDuRecap(
+  ancre: Ancre | null,
+  fenetre: number,
+  largeur: number,
+  ecart: number,
+  /** Ce que la personne a choisi la dernière fois, ou `null` si elle
+   *  n'a jamais touché à la languette. */
+  voulu: boolean | null,
+): EtatDuRecap {
+  const { pose, gauche } = placementDuRecap(ancre, fenetre, largeur, ecart);
+  return {
+    contre: pose ? "messages" : "bord",
+    gauche,
+    //  SANS CHOIX, LA PLACE DÉCIDE : ouvert là où il ne gêne personne,
+    //  replié là où il couvrirait le texte.
+    ouvert: voulu ?? pose,
+  };
+}
+
 /** Un bloc du récapitulatif, prêt à dessiner. */
 export type BlocDuRecap =
   | { readonly quoi: "combat"; readonly combat: CombatDuRecap }

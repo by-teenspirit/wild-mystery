@@ -16920,27 +16920,36 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   bottom: auto;
 }
 
-/* ── LE RÉCAPITULATIF LATÉRAL ────────────────────────────────────────
+/* ── LE RÉCAPITULATIF LATÉRAL, EN TIROIR ─────────────────────────────
 
     « Le bilan du sujet qui nous suit, en petit récap à droite ou à
     gauche, en vertical, pour savoir où on en est, en tout temps. »
+    Puis, le 18 novembre : « un onglet qui se déplie ».
+
+    ── POURQUOI UN TIROIR ───────────────────────────────────────────
+
+    Le forum fait 1 200 px, centré. Le panneau en demande 216, plus 16
+    entre lui et les messages et 16 jusqu'au bord : il faut donc
+    1 696 px de fenêtre pour qu'il tienne À CÔTÉ du texte. Sur un
+    portable de 1 440, il ne se posait pas — et il s'effaçait en
+    silence, donc personne ne pouvait comprendre pourquoi.
+
+    Il existe maintenant toujours. C'est son état qui change, et c'est
+    `module-recap.ts` qui le mesure :
+
+      · `data-wm-contre="messages"` — de la place à droite du texte :
+        il se colle aux messages, ouvert ;
+      · `data-wm-contre="bord"` — pas la place : il se range contre le
+        bord de la fenêtre, replié, la languette dehors.
+
+    LE CHOIX DE LA PERSONNE PASSE AVANT LA MESURE : `data-wm-ouvert`
+    vient du clic quand il y a eu un clic, de la place sinon.
 
     ── LE PLACEMENT N'EST PAS ICI ───────────────────────────────────
 
-    « Pas besoin de mesurer l'écran, tu l'accroches à ça » —
-    18 novembre, le code d'un sujet à l'appui. Le panneau longe le
-    bord droit des messages, et une feuille de style ne connaît pas le
-    bord d'un élément : c'est `module-recap.ts` qui mesure, écrit le
-    `left` et pose `data-wm-pose` quand il y a la place.
-
-    IL Y AVAIT UN SEUIL DE 1 700 PX ICI, calculé à la main depuis la
-    largeur du forum, à recalculer à chaque fois qu'elle changeait, et
-    qu'une requête de média ne savait pas lire de toute façon. Il n'y
-    en a plus : la mesure le remplace, et elle se reprend quand la
-    fenêtre change de taille.
-
-    Cette feuille ne garde donc que l'APPARENCE — et le fait qu'il ne
-    se montre pas tant que personne ne l'a placé. */
+    Une feuille de style ne connaît pas le bord d'un élément. Le
+    `left` est écrit par le module, qui relève les `.post`. Il y avait
+    un seuil de 1 700 px en dur ici : il a disparu avec la mesure. */
 #modernbb .wm-recap {
   display: none;
 }
@@ -16949,24 +16958,115 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     (vu au rendu, 18 novembre)
 
     `.wm-coin` est fixe en bas à droite, à 16 px du bord, et porte
-    quatre boutons. Le récapitulatif centré verticalement passait
-    juste au-dessus dans le décor d'essai ; avec six Pokémon et six
-    rubriques, il serait descendu dessus.
-
-    ON L'ANCRE DONC EN HAUT, pas au centre, et on lui donne pour
-    plafond ce qui reste au-dessus du coin : la hauteur de la fenêtre,
-    moins les 88 du haut, moins les 16 du bas du coin, ses 190 de
-    hauteur et les 16 d'écart entre eux.
+    quatre boutons. On ancre donc le récapitulatif EN HAUT, et on lui
+    donne pour plafond ce qui reste au-dessus du coin : la hauteur de
+    la fenêtre, moins les 88 du haut, moins les 16 du bas du coin, ses
+    190 de hauteur et les 16 d'écart entre eux.
 
     LES 190 SONT MESURÉS SUR LE COIN RÉEL : quatre boutons de 40 et
     trois écarts de 10. S'il gagne un cinquième bouton, ce nombre doit
     changer — d'où le calcul écrit, et pas seulement le résultat. */
 #modernbb .wm-recap[data-wm-pose="oui"] {
-  box-sizing: border-box;
-  display: flex;
+  display: block;
   position: fixed;
   z-index: 20;
   top: 88px;
+}
+
+/*  ── CONTRE LE BORD : UNE BOÎTE SANS LARGEUR ──────────────────────
+
+    La boîte est à `right: 0` et ne mesure RIEN ; ses deux enfants s'y
+    accrochent en absolu. C'est ce qui permet à la languette de rester
+    collée au bord quand le panneau est rangé.
+
+    PREMIÈRE VERSION, ET SON DÉFAUT : la boîte était un flex contenant
+    les deux, donc elle mesurait 237 px même repliée, et la languette
+    se retrouvait 60 px À GAUCHE du bord des messages — par-dessus le
+    texte, exactement ce qu'on voulait éviter. Mesuré au harnais à
+    1 440 px, pas supposé. */
+#modernbb .wm-recap[data-wm-contre="bord"] {
+  right: 0;
+  width: 0;
+}
+
+#modernbb .wm-recap[data-wm-contre="bord"] .wm-recap__panneau {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#modernbb .wm-recap[data-wm-contre="bord"] .wm-recap__languette {
+  position: absolute;
+  top: var(--wm-espace-12, 12px);
+  right: 0;
+  transition: right 180ms ease-out;
+  writing-mode: vertical-rl;
+}
+
+/*  OUVERTE, LA LANGUETTE SE RANGE À GAUCHE DU PANNEAU : elle reste
+    sous la souris, au même endroit relatif, et c'est elle qui referme. */
+#modernbb .wm-recap[data-wm-contre="bord"][data-wm-ouvert="oui"] .wm-recap__languette {
+  right: 216px;
+}
+
+/*  ── CONTRE LES MESSAGES : UNE COLONNE ORDINAIRE ──────────────────
+
+    Il y a la place, donc le panneau est simplement là, et la
+    languette se pose au-dessus de lui — horizontale, parce qu'une
+    étiquette verticale entre les messages et le panneau mangerait
+    justement l'écart de 16 px qui les sépare. */
+#modernbb .wm-recap[data-wm-contre="messages"] {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--wm-espace-6, 6px);
+}
+
+/*  ── LA LANGUETTE ─────────────────────────────────────────────────
+
+    UN VRAI BOUTON : il se prend au clavier, il s'annonce aux lecteurs
+    d'écran, et `aria-expanded` dit dans quel sens il va. */
+#modernbb .wm-recap__languette {
+  flex: 0 0 auto;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-4, 4px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 2px 10px rgb(46 32 24 / 10%);
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+  cursor: pointer;
+  /*  SUR UNE SEULE LIGNE. Verticale et sans ça, « Où j'en suis » se
+      coupe aux espaces et s'écrit sur trois colonnes de trois
+      lettres — vu au rendu. */
+  white-space: nowrap;
+}
+
+#modernbb .wm-recap[data-wm-contre="messages"] .wm-recap__languette {
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-recap__languette:hover {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-recap__languette:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+/*  ── LE PANNEAU ───────────────────────────────────────────────────
+
+    C'est lui qui glisse. `visibility` autant que `transform` : un
+    panneau seulement déplacé reste cliquable là où il n'est plus, et
+    attrape les clics du bord de la fenêtre. */
+#modernbb .wm-recap__panneau {
+  box-sizing: border-box;
+  display: flex;
   width: 216px;
   max-height: calc(100vh - 88px - 16px - 190px - 16px);
   flex-direction: column;
@@ -16979,6 +17079,25 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   box-shadow: 0 6px 20px rgb(46 32 24 / 12%);
   color: var(--wm-texte-corps, #4e3b30);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  transition: transform 180ms ease-out, visibility 0s linear 0s;
+}
+
+#modernbb .wm-recap[data-wm-ouvert="non"] .wm-recap__panneau {
+  transform: translateX(calc(100% + 24px));
+  visibility: hidden;
+  transition: transform 180ms ease-out, visibility 0s linear 180ms;
+}
+
+/*  ── ET RIEN DE TOUT ÇA SUR UN TÉLÉPHONE ──────────────────────────
+
+    « On touche à rien pour la version mobile. » Un tiroir de 216 px
+    sur un écran de 390 couvrirait plus de la moitié du texte. Le
+    module le pose quand même — il ne connaît pas les téléphones — et
+    c'est la feuille qui le range. */
+@media (max-width: 760px) {
+  #modernbb .wm-recap[data-wm-pose="oui"] {
+    display: none;
+  }
 }
 
 #modernbb .wm-recap__bloc {

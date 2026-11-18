@@ -3289,12 +3289,24 @@ await tresLarge.setViewportSize({ width: 1400, height: 900 });
 await tresLarge.waitForTimeout(300);
 const apresRetreci = await tresLarge.evaluate(() => {
   const r = document.querySelector(".wm-recap");
-  return r === null ? null : getComputedStyle(r).display;
+  if (r === null) return null;
+  const p = r.querySelector(".wm-recap__panneau");
+  return {
+    contre: r.dataset.wmContre,
+    ouvert: r.dataset.wmOuvert,
+    //  LE PANNEAU EST-IL VRAIMENT HORS DU CHAMP ? On lit la visibilité
+    //  calculée, pas seulement l'attribut : un panneau seulement
+    //  déplacé resterait cliquable là où il n'est plus.
+    panneauVisible: p === null ? null : getComputedStyle(p).visibility,
+    droiteDuPanneau: p === null ? null : Math.round(p.getBoundingClientRect().right),
+    fenetre: document.documentElement.clientWidth,
+  };
 });
 dire(
-  "RÉTRÉCIE, LA FENÊTRE L'EFFACE — il ne reste pas sur les messages",
-  apresRetreci === "none",
-  String(apresRetreci),
+  "RÉTRÉCIE, LA FENÊTRE LE REPLIE CONTRE LE BORD",
+  apresRetreci !== null && apresRetreci.contre === "bord" &&
+    apresRetreci.ouvert === "non" && apresRetreci.panneauVisible === "hidden",
+  JSON.stringify(apresRetreci),
 );
 await tresLarge.setViewportSize({ width: 2000, height: 900 });
 await tresLarge.waitForTimeout(300);
@@ -3328,15 +3340,88 @@ const etroit = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-
 await etroit.waitForTimeout(500);
 const vuEtroit = await etroit.evaluate(() => {
   const r = document.querySelector(".wm-recap");
+  if (r === null) return { dansLaPage: false };
+  const l = r.querySelector(".wm-recap__languette");
+  const p = r.querySelector(".wm-recap__panneau");
+  const messages = [...document.querySelectorAll(".post")];
+  const bord = messages.length === 0
+    ? null
+    : Math.max(...messages.map((m) => m.getBoundingClientRect().right));
   return {
-    dansLaPage: r !== null,
-    visible: r === null ? false : getComputedStyle(r).display !== "none",
+    dansLaPage: true,
+    contre: r.dataset.wmContre,
+    ouvert: r.dataset.wmOuvert,
+    bord: bord === null ? null : Math.round(bord),
+    fenetre: document.documentElement.clientWidth,
+    languette: l === null ? null : {
+      gauche: Math.round(l.getBoundingClientRect().left),
+      visible: getComputedStyle(l).visibility !== "hidden",
+      largeur: Math.round(l.getBoundingClientRect().width),
+      //  ELLE NE DOIT PAS MORDRE SUR LES MESSAGES : c'est la seule
+      //  chose qui dépasse, et elle est censée tenir dans la marge.
+      mord: bord === null ? null : l.getBoundingClientRect().left < bord,
+    },
+    panneauCache: p === null ? null : getComputedStyle(p).visibility === "hidden",
   };
 });
 dire(
-  "FAUTE DE PLACE À DROITE DES MESSAGES, IL NE S'AFFICHE PAS",
-  vuEtroit.visible === false,
+  "FAUTE DE PLACE, IL SE REPLIE AU LIEU DE DISPARAÎTRE",
+  vuEtroit.dansLaPage === true && vuEtroit.contre === "bord" &&
+    vuEtroit.ouvert === "non" && vuEtroit.panneauCache === true,
   JSON.stringify(vuEtroit),
+);
+dire(
+  "ET LA LANGUETTE DÉPASSE, SANS MORDRE SUR LE TEXTE",
+  vuEtroit.languette !== null && vuEtroit.languette.visible === true &&
+    vuEtroit.languette.largeur > 0 && vuEtroit.languette.mord === false,
+  JSON.stringify(vuEtroit.languette),
+);
+
+//  ── ET UN CLIC L'OUVRE ────────────────────────────────────────────
+//
+//  C'est tout l'objet du tiroir : sur un portable de 1 440, le panneau
+//  ne se posait pas du tout. Il doit s'ouvrir à la demande, et le
+//  choix doit survivre au rechargement.
+await etroit.click(".wm-recap__languette");
+await etroit.waitForTimeout(400);
+//  ── LA PHOTO, SUR DEMANDE ─────────────────────────────────────────
+//
+//  `--photo` écrit les deux états du tiroir à 1 440 px. Un relevé dit
+//  qu'un panneau est à 1 394 ; une image dit s'il est beau.
+if (Deno.args.includes("--photo")) {
+  await etroit.screenshot({ path: R + "apercu-tiroir-ouvert.png" });
+  await etroit.click(".wm-recap__languette");
+  await etroit.waitForTimeout(400);
+  await etroit.screenshot({ path: R + "apercu-tiroir-replie.png" });
+  await etroit.click(".wm-recap__languette");
+  await etroit.waitForTimeout(400);
+}
+const ouvert = await etroit.evaluate(() => {
+  const r = document.querySelector(".wm-recap");
+  const p = r?.querySelector(".wm-recap__panneau") ?? null;
+  return {
+    ouvert: r?.dataset.wmOuvert,
+    dit: r?.querySelector(".wm-recap__languette")?.getAttribute("aria-expanded"),
+    visible: p === null ? null : getComputedStyle(p).visibility,
+    garde: (() => {
+      try {
+        return localStorage.getItem("wm.recap.ouvert");
+      } catch {
+        return null;
+      }
+    })(),
+    largeur: p === null ? null : Math.round(p.getBoundingClientRect().width),
+  };
+});
+dire(
+  "UN CLIC SUR LA LANGUETTE OUVRE LE TIROIR",
+  ouvert.ouvert === "oui" && ouvert.visible === "visible" && ouvert.largeur === 216,
+  JSON.stringify(ouvert),
+);
+dire(
+  "il le dit au clavier, et il s'en souvient",
+  ouvert.dit === "true" && ouvert.garde === "oui",
+  JSON.stringify({ aria: ouvert.dit, garde: ouvert.garde }),
 );
 await etroit.close();
 

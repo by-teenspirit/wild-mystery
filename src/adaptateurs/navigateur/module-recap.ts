@@ -52,6 +52,7 @@ import {
   type BlocDuRecap,
   blocsDuRecap,
   etatDePv,
+  etatDuRecap,
   type MembreDuRecap,
   type MonSujet,
   nomDuMembre,
@@ -222,22 +223,52 @@ const ECART = 16;
  *  une décision de charte : le CSS ne peut pas connaître le bord d'un
  *  élément. `data-wm-pose` dit l'autre moitié — c'est lui que le CSS
  *  lit pour afficher ou non. */
+const CLE_OUVERT = "wm.recap.ouvert";
+
+/** Ce que la personne a choisi la dernière fois, ou `null`.
+ *
+ *  ENVELOPPÉ, PARCE QUE `localStorage` LÈVE. En navigation privée, ou
+ *  quand les données de site sont bloquées, le simple fait de le lire
+ *  jette — et une préférence d'affichage ne doit pas empêcher le
+ *  panneau d'exister. */
+export function choixGarde(): boolean | null {
+  try {
+    const v = localStorage.getItem(CLE_OUVERT);
+    return v === null ? null : v === "oui";
+  } catch {
+    return null;
+  }
+}
+
+function garderLeChoix(ouvert: boolean): void {
+  try {
+    localStorage.setItem(CLE_OUVERT, ouvert ? "oui" : "non");
+  } catch { /* tant pis : le choix ne survivra pas au rechargement */ }
+}
+
+/** Place le panneau et dit s'il est ouvert.
+ *
+ *  IL EXISTE TOUJOURS DÉSORMAIS. Avant, faute de place, il ne se
+ *  posait pas du tout — sur un forum de 1 200 px, il fallait 1 696 px
+ *  de fenêtre, et sur un portable de 1 440 personne ne l'a jamais vu.
+ *  Il se replie maintenant contre le bord, languette dehors. */
 export function ancrerLeRecap(doc: Document, aside: HTMLElement): boolean {
   const bord = bordDesMessages(doc);
-  const { pose, gauche } = placementDuRecap(
+  const e = etatDuRecap(
     bord === null ? null : { droite: bord },
     doc.documentElement.clientWidth,
     LARGEUR,
     ECART,
+    choixGarde(),
   );
-  if (pose) {
-    aside.style.left = `${gauche}px`;
-    aside.dataset.wmPose = "oui";
-  } else {
-    aside.style.removeProperty("left");
-    delete aside.dataset.wmPose;
-  }
-  return pose;
+  aside.dataset.wmPose = "oui";
+  aside.dataset.wmContre = e.contre;
+  aside.dataset.wmOuvert = e.ouvert ? "oui" : "non";
+  if (e.contre === "messages") aside.style.left = `${e.gauche}px`;
+  else aside.style.removeProperty("left");
+  const languette = aside.querySelector<HTMLButtonElement>(".wm-recap__languette");
+  languette?.setAttribute("aria-expanded", String(e.ouvert));
+  return e.ouvert;
 }
 
 export type DependancesDuRecap = {
@@ -271,7 +302,31 @@ export async function poserLeRecap(d: DependancesDuRecap): Promise<boolean> {
   aside.id = ID;
   aside.setAttribute("aria-label", "Où j'en suis dans ce sujet");
 
-  for (const b of blocs) aside.appendChild(dessinerUnBloc(doc, decor, b));
+  //  ── LA LANGUETTE ──────────────────────────────────────────────
+  //
+  //  UN VRAI BOUTON, et pas une étiquette cliquable : il se prend au
+  //  clavier, il s'annonce aux lecteurs d'écran, et `aria-expanded`
+  //  dit dans quel sens il va.
+  const languette = doc.createElement("button");
+  languette.type = "button";
+  languette.className = "wm-recap__languette";
+  languette.textContent = "Où j'en suis";
+  languette.setAttribute("aria-expanded", "false");
+  languette.setAttribute("aria-controls", `${ID}-panneau`);
+  languette.addEventListener("click", () => {
+    const ouvert = aside.dataset.wmOuvert !== "oui";
+    aside.dataset.wmOuvert = ouvert ? "oui" : "non";
+    languette.setAttribute("aria-expanded", String(ouvert));
+    garderLeChoix(ouvert);
+  });
+  aside.appendChild(languette);
+
+  //  LE CONTENU EST DANS SA PROPRE BOÎTE : c'est elle qui glisse, la
+  //  languette ne bouge pas avec.
+  const panneau = element(doc, "div", "wm-recap__panneau");
+  panneau.id = `${ID}-panneau`;
+  for (const b of blocs) panneau.appendChild(dessinerUnBloc(doc, decor, b));
+  aside.appendChild(panneau);
 
   if (ancien === null) doc.body.appendChild(aside);
   else ancien.replaceWith(aside);

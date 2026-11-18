@@ -22,6 +22,7 @@ import {
   type MembreDuRecap,
   type MonSujet,
   nomDuMembre,
+  etatDuRecap,
   partDePv,
   placementDuRecap,
 } from "./recap.ts";
@@ -205,4 +206,37 @@ Deno.test("l'équipe passe entière, avec celui qui se bat marqué", () => {
   assertEquals(bloc.quoi, "equipe");
   if (bloc.quoi !== "equipe") return;
   assertEquals(bloc.equipe.map((m) => m.combat), [false, true]);
+});
+
+// ── le tiroir ───────────────────────────────────────────────────────
+
+Deno.test("AVEC LA PLACE, IL EST OUVERT ET COLLÉ AUX MESSAGES", () => {
+  const e = etatDuRecap({ droite: 1560 }, 1920, 216, 16, null);
+  assertEquals(e, { contre: "messages", gauche: 1576, ouvert: true });
+});
+
+Deno.test("SANS LA PLACE, IL SE REPLIE CONTRE LE BORD", () => {
+  //  Le cas de Callista : forum de 1 200 px sur un portable de 1 440.
+  //  Avant, il ne se posait pas du tout, et rien ne le disait.
+  const e = etatDuRecap({ droite: 1320 }, 1440, 216, 16, null);
+  assertEquals(e.contre, "bord");
+  assertEquals(e.ouvert, false);
+});
+
+Deno.test("LE CHOIX DE LA PERSONNE PASSE AVANT LA MESURE", () => {
+  //  Repliée sur un grand écran, la languette doit rester repliée au
+  //  rechargement ; dépliée sur un portable, rester dépliée. Sinon on
+  //  se bat contre la page à chaque visite.
+  assertEquals(etatDuRecap({ droite: 1560 }, 1920, 216, 16, false).ouvert, false);
+  assertEquals(etatDuRecap({ droite: 1320 }, 1440, 216, 16, true).ouvert, true);
+});
+
+Deno.test("MÊME DÉPLIÉ DE FORCE, IL SAIT CONTRE QUOI IL EST", () => {
+  //  L'état d'ouverture et le point d'accroche sont deux choses : sur
+  //  un portable, déplié, il doit quand même se coller au BORD —
+  //  sinon il se poserait à 1 336 px dans une fenêtre de 1 440 et
+  //  dépasserait de l'écran.
+  const e = etatDuRecap({ droite: 1320 }, 1440, 216, 16, true);
+  assertEquals(e.contre, "bord");
+  assertEquals(e.ouvert, true);
 });
