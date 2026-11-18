@@ -228,12 +228,35 @@ for (const d of duels) {
   }
 }
 
-//  ET LA FICHE SEULE GARDE SA TAILLE DE FICHE. Sans plafond elle
-//  s'étalait sur les 786 px du message et ressemblait à une bannière.
+//  ── LA FICHE SEULE EST UNE BANNIÈRE, ET C'EST VOULU ───────────────
+//
+//  CET ESSAI DISAIT L'INVERSE JUSQU'AU 18 NOVEMBRE : « une fiche
+//  seule ne s'étale pas », plafonnée à 260 px, « sinon elle
+//  ressemblait à une bannière ».
+//
+//  Elle en est une maintenant, sur demande : « sur la maquette,
+//  j'avais proposé aussi d'afficher les pokémons sous forme de
+//  bandeau » (`305:218`). Ce qui était le défaut est devenu la forme.
+//
+//  CE QUI SE MESURE À LA PLACE : qu'elle prenne bien la largeur, et
+//  que le sprite garde sa case de 88 — une bannière dont l'image
+//  s'étire avec elle serait un autre défaut, et c'est celui que
+//  l'essai des sprites, juste en dessous, continue de tenir.
+//  UNE PHOTO DU BANDEAU, QUAND ON LA DEMANDE. « Les informations sont
+//  bien hiérarchisées, c'est ce qu'il manque ici » : une hiérarchie se
+//  regarde.
+if (Deno.args.includes("--photo")) {
+  const q = await monter(900);
+  const bloc = await q.$(".wm-combat--rencontre");
+  if (bloc !== null) await bloc.screenshot({ path: `${R}combat-rencontre.png` });
+  await q.close();
+  console.log("photo : combat-rencontre.png");
+}
+
 const seule = duels.find((d) => d.camps.length === 1);
 dire(
-  "UNE FICHE SEULE NE S'ÉTALE PAS — équipe vide, planche 99 §5.3",
-  seule !== undefined && seule.camps[0] <= 260,
+  "UNE FICHE SEULE PREND LA LARGEUR — c'est le bandeau de `305:218`",
+  seule !== undefined && seule.camps[0] >= 400,
   seule === undefined ? "aucune fiche seule montée" : `${seule.camps[0]}px`,
 );
 

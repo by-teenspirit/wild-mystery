@@ -2756,10 +2756,42 @@
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
+/*  ── LA RENCONTRE A SON FOND, COMME LA CARTE DE DRESSEUR ──────────
+    (maquette `305:218`, demandé le 18 novembre : « le bloc de
+    rencontre, mets un fond, comme la trainer card »)
+
+    LE DESSIN DIT LES DEUX COULEURS AU JETON PRÈS : fond `terre`,
+    filet `accent/terre`. C'est ce qui sort la carte du corps du
+    message — jusqu'ici elle avait le fond `surface`, c'est-à-dire
+    presque celui du message, et elle se lisait comme un paragraphe
+    encadré plutôt que comme une annonce du jeu.
+
+    SUR LA RENCONTRE SEULE, PAS SUR LE TOUR. Un sujet de combat porte
+    une rencontre et cinq tours : six blocs terre d'affilée feraient
+    une page orange. La rencontre ouvre, les tours suivent — et c'est
+    la hiérarchie que Callista demandait.
+
+    EN CSS, DONC SUR LES MESSAGES DÉJÀ POSTÉS. Un message publié ne se
+    répare pas (planche 102), mais sa mise en forme vient de la
+    feuille : les vingt cartes déjà dans les sujets prennent ce fond
+    sans qu'on recolle quoi que ce soit. */
+#modernbb .wm-combat--rencontre {
+  border-color: var(--wm-accent-terre, #8b4725);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
 /*  LE SURTITRE, COMME LES TITRES DE BLOC DE LA CARTE DE DRESSEUR :
     en capitales, petit, pâle. Il dit de quel message il s'agit —
     « RENCONTRE », « TOUR 2 » — et c'est la seule chose qu'on cherche
-    quand on remonte un sujet de dix messages. */
+    quand on remonte un sujet de dix messages.
+
+    DANS LA RENCONTRE IL PREND LA COULEUR DU FILET (`305:218`) : sur
+    le fond terre, le pâle devient illisible, et le dessin le met en
+    accent. */
+#modernbb .wm-combat--rencontre .wm-combat__surtitre {
+  color: var(--wm-accent-terre, #8b4725);
+}
+
 #modernbb .wm-combat__surtitre {
   margin: 0;
   color: var(--wm-texte-pale, #69564c);
@@ -2806,15 +2838,56 @@
     rangée entre SIX cases, ici il y en a deux. Avec `1 1 0` elles
     s'étalaient sur toute la largeur du message, et une fiche seule —
     équipe vide, planche 99 §5.3 — ressemblait à une bannière. */
+/*  ── LE BANDEAU, ET CE QU'IL CHANGE ───────────────────────────────
+    (maquette `305:218`, demandé le 18 novembre : « sur la maquette,
+    j'avais proposé aussi d'afficher les pokémons sous forme de
+    bandeau »)
+
+    DEUX CASES CARRÉES CÔTE À CÔTE NE HIÉRARCHISENT RIEN : le sprite,
+    le nom, le niveau, les types et les PV s'empilaient au centre, à
+    la même taille, et l'œil n'avait aucune entrée. « Les informations
+    ne sont pas les bonnes, mais au moins elles sont bien
+    hiérarchisées. C'est ce qu'il manque ici. »
+
+    LE DESSIN POSE LE SPRITE À GAUCHE, dans son carré de 88 à coins
+    arrondis, et le texte à droite, aligné à gauche. On lit alors dans
+    l'ordre : qui, puis ce qu'il vaut. Le nom monte d'un cran, le
+    reste suit en ligne.
+
+    EN CSS, DONC RÉTROACTIF : les cartes déjà postées se rangent en
+    bandeau sans être recollées. Le balisage ne bouge pas. */
 #modernbb .wm-combat__camp {
   box-sizing: border-box;
-  display: flex;
-  min-width: 104px;
-  flex: 0 1 180px;
-  flex-direction: column;
+  display: grid;
+  min-width: 0;
+  flex: 1 1 260px;
+  /*  LE SPRITE TIENT SA COLONNE, le texte prend le reste. Une grille
+      plutôt qu'une rangée flexible : le nom, le niveau, les types et
+      les PV sont quatre éléments frères, et c'est la grille qui les
+      empile proprement à droite d'une image qui fait toute la
+      hauteur. */
+  grid-template-columns: 88px 1fr;
+  /*  QUATRE RANGÉES DÉCLARÉES, et c'est ce qui fait tenir le bandeau.
+      Le texte est une suite de frères — nom, niveau, types, PV — sans
+      conteneur à eux : le sprite doit donc couvrir toutes les rangées
+      pour que les quatre se rangent à sa droite.
+
+      `grid-row: 1 / -1` NE VAUT QUE SUR UNE GRILLE EXPLICITE. La
+      première version laissait les rangées implicites : `-1` tombait
+      sur la première ligne, le sprite n'occupait qu'une rangée, et le
+      niveau, les types et les PV repassaient SOUS lui, en colonne 1.
+      La photo l'a montré tout de suite.
+
+      QUATRE EST LE MAXIMUM, et une rangée sans contenu vaut zéro :
+      un tour de combat, qui ne porte ni niveau ni types, se range en
+      deux lignes sans laisser de trou. */
+  grid-template-rows: repeat(4, auto);
+  align-content: center;
   align-items: center;
+  justify-items: start;
   padding: var(--wm-espace-8, 8px);
-  gap: var(--wm-espace-4, 4px);
+  gap: 0 var(--wm-espace-14, 14px);
+  text-align: left;
   /*  `relative` ET PAS `overflow: hidden` : c'est la case qui porte la
       bulle, et un débordement caché la couperait net. Le nom garde son
       propre `overflow`, c'est lui seul qui en avait besoin. */
@@ -2896,13 +2969,43 @@
     tailles relatives redeviennent celles des jeux.
 
     `object-position: bottom` les pose sur une même ligne de sol. */
+/*  ── EN BANDEAU, LE SPRITE TIENT SA PROPRE CASE ───────────────────
+
+    88 px à coins arrondis, fond `douce`, filet fin : ce sont les
+    mesures de `305:218`. Il couvre les quatre rangées du texte —
+    `grid-row: 1 / -1` — donc il fait la hauteur du bandeau quoi que
+    le texte raconte.
+
+    `height: auto` ANNULE LE `56px !important` QUI ÉTAIT ICI. Il y
+    était pour battre une règle de ModernBB sur les images de
+    message ; le `!important` reste nécessaire pour la même raison,
+    mais la valeur change. */
+/*  TOUT CE QUI N'EST PAS LE SPRITE VA DANS LA SECONDE COLONNE. Sans
+    cette ligne, le placement automatique remplit la grille rangée par
+    rangée et renvoie le texte sous l'image. */
+#modernbb .wm-combat__camp > :not(.wm-combat__sprite) {
+  grid-column: 2;
+}
+
 #modernbb .wm-combat__sprite {
   display: block;
-  width: 56px;
-  height: 56px !important;
+  box-sizing: border-box;
+  grid-row: 1 / -1;
+  width: 88px;
+  height: 88px !important;
+  padding: var(--wm-espace-6, 6px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-douce, #f3e1d2);
   object-fit: scale-down;
   object-position: bottom;
   image-rendering: pixelated;
+}
+
+/*  UNE CASE SANS SPRITE GARDE SA COLONNE. L'espèce de test n'en a
+    pas, et sans ce vide le texte glisserait sous l'image du voisin. */
+#modernbb .wm-combat__camp:not(:has(.wm-combat__sprite)) {
+  grid-template-columns: 1fr;
 }
 
 #modernbb .wm-combat__camp--mien .wm-combat__sprite {

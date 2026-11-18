@@ -104,6 +104,8 @@ import {
   poserLesNotifications,
 } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { decorDesSprites, poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
+import { rendreLesSprites } from "../src/adaptateurs/navigateur/module-combat.ts";
+import { type CarteDeCouverture, Sprites } from "../src/navigateur/sprites.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
 import { poserSonJeu } from "../src/adaptateurs/navigateur/module-profil-jeu.ts";
@@ -665,6 +667,34 @@ async function avatarDe(urlDuProfil: string): Promise<string | null> {
  *  ELLE NE DEMANDE PAS LA CLÉ DU CARNET, et c'est le point : une carte
  *  est lue par les AUTRES. `carte_dresseur()` est publique et étroite
  *  (migration 0020), là où `carnet()` exige le secret du joueur. */
+/** Rend les sprites des cartes de combat déjà postées.
+ *
+ *  SA PROPRE CARTE DE COUVERTURE, ET PAS `decorDesSprites` : celle-là
+ *  fige tout, parce qu'une carte de dresseur ne bouge pas. Ici c'est
+ *  l'inverse qu'on veut, et le refus de mouvement du lecteur est la
+ *  seule chose qui puisse l'empêcher.
+ *
+ *  `prefers-reduced-motion` N'EST PAS UN CONFORT, c'est une demande.
+ *  `Sprites` la prend en charge toute seule dès qu'on la lui passe —
+ *  elle fige alors partout, rencontre comprise. */
+async function rendreLesSpritesDesCartes(): Promise<void> {
+  if (RACINE === null || DEPOT === null) return;
+  //  PAS DE CARTE DANS LA PAGE, PAS DE FICHIER DEMANDÉ : ce module
+  //  tourne sur tout le forum, et la couverture pèse plus de cent
+  //  kilo-octets.
+  if (document.querySelector("img.wm-combat__sprite") === null) return;
+  const couverture = await fetch(`${RACINE}sprites-couverture.json`, { credentials: "omit" })
+    .then((r) => (r.ok ? r.json() : null))
+    .catch(() => null);
+  if (couverture === null) return;
+  const refuse = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+  rendreLesSprites(document, {
+    depot: DEPOT,
+    sprites: new Sprites(couverture as CarteDeCouverture, refuse),
+    style: prefs.styleDeSprite(),
+  });
+}
+
 async function poserLeJeuDuProfil(): Promise<void> {
   if (RACINE === null) return;
   //  PAS DE SECTION, PAS D'APPEL : ce module tourne sur toutes les
@@ -736,6 +766,11 @@ desQueLeCorpsEstLa(() => {
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
   poserLeRecapitulatif().catch(() => {});
+  //  LES SPRITES DES CARTES POSTÉES, RENDUS AU LECTEUR : animés, dans
+  //  son style, et les adresses mortes des vieux messages réparées au
+  //  passage. Il ne demande qu'un fichier et ne touche rien d'autre,
+  //  donc il part tôt et sans rien attendre.
+  rendreLesSpritesDesCartes().catch(() => {});
   //  APRÈS LE RÉCAPITULATIF, et c'est voulu : le réveil attend puis
   //  recharge la page. Lancé avant, il n'aurait rien changé — mais
   //  l'ordre dit lequel des deux on veut voir en premier si l'un
