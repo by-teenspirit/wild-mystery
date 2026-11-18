@@ -93,19 +93,45 @@ for nom in "${ORDRE[@]}"; do
   fi
 
   printf '══ %s ' "$nom"
-  if psql "$DATABASE_URL" -q -v ON_ERROR_STOP=1 -f "$fichier" >/tmp/semis.log 2>&1; then
+  #  ON MONTRE TOUT CE QUE PSQL A DIT, et c'est une correction du
+  #  17 novembre au soir.
+  #
+  #  La première version filtrait sur `grep -i "error"` pour ne garder
+  #  que la ligne utile. Elle a rendu « ══ objets REFUSÉ » et RIEN
+  #  D'AUTRE : un psql en français écrit « psql : erreur : », pas
+  #  « error ». Le filtre ratait la seule ligne qui disait quoi faire,
+  #  et on s'est retrouvé à deviner.
+  #
+  #  `ON_ERROR_STOP` s'arrête à la première faute, donc la sortie est
+  #  courte de toute façon. UN OUTIL QUI CACHE LE MESSAGE D'ERREUR
+  #  COÛTE PLUS CHER QU'UN OUTIL QUI EN AFFICHE TROP.
+  if sortie=$(psql "$DATABASE_URL" -q -v ON_ERROR_STOP=1 -f "$fichier" 2>&1); then
     echo "semé"
   else
     echo "REFUSÉ"
-    #  La première erreur, et elle seule : la suivre de deux cents
-    #  lignes de contexte ferait fermer le terminal sans la lire.
-    grep -m1 -i "error" /tmp/semis.log >&2 || tail -3 /tmp/semis.log >&2
+    #  Sans l'adresse : elle porte le mot de passe, et un terminal se
+    #  recopie dans une conversation sans y penser.
+    printf '%s\n' "$sortie" | sed -e 's#postgres\(ql\)*://[^[:space:]]*#[adresse masquée]#g' >&2
     fautes=$((fautes + 1))
   fi
 done
 
 if [ $fautes -ne 0 ]; then
-  echo "$fautes seed(s) refusé(s). Les colonnes existent-elles ? « supabase db push » d'abord." >&2
+  #  LE CONSEIL SUIT LE MESSAGE, il ne le remplace pas. La première
+  #  version disait « les colonnes existent-elles ? » quoi qu'il
+  #  arrive — y compris quand psql n'avait même pas réussi à se
+  #  connecter. Un conseil qui désigne le mauvais coupable fait
+  #  chercher plus longtemps que pas de conseil du tout.
+  cat >&2 <<OU
+
+$fautes seed(s) refusé(s). Lis la ligne au-dessus, puis :
+  · « password authentication failed » → le mot de passe, ou un
+    caractère spécial à encoder dans l'adresse.
+  · « Tenant or user not found »       → l'utilisateur doit être
+    postgres.<ref>, pas postgres seul (c'est le pooler).
+  · « relation … does not exist » ou « column … does not exist »
+                                       → « supabase db push » d'abord.
+OU
   exit 1
 fi
 
