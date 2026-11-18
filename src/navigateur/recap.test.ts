@@ -19,10 +19,10 @@ import { assertEquals } from "@std/assert";
 import {
   blocsDuRecap,
   etatDePv,
+  etatDuRecap,
   type MembreDuRecap,
   type MonSujet,
   nomDuMembre,
-  etatDuRecap,
   partDePv,
   placementDuRecap,
 } from "./recap.ts";

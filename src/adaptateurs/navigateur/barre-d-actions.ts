@@ -422,6 +422,17 @@ const NOUVEAU_SUJET: readonly Choix[] = HORS_COMBAT.filter(
 export const ATTENTE = "Le Maître du Jeu répond dans les minutes qui suivent, pas tout de " +
   "suite. Inutile de reposter : un message ne joue qu'un tour.";
 
+/** Ce que disent les quatre choix à menu quand la lecture privée n'a
+ *  rien rendu : un combat est bien ouvert, mais on ne sait pas avec
+ *  quoi le joueur peut agir.
+ *
+ *  ON NE REPREND PAS LE `vide` DU CHOIX. « Tu n'as aucune Poké Ball »
+ *  serait un mensonge : on n'a pas lu son sac, on ne sait pas ce qu'il
+ *  y a dedans. Dire « pas pu être lus » est la seule phrase vraie, et
+ *  elle dit aussi où regarder. */
+export const SOURD = "Ton équipe, ton sac et tes capacités n'ont pas pu être lus — " +
+  "vérifie que ton carnet est relié. Fuir reste possible.";
+
 export const JEUX: Record<Jeu, readonly Choix[]> = {
   hors: HORS_COMBAT,
   nouveau: NOUVEAU_SUJET,
@@ -568,7 +579,15 @@ export class BarreDActions {
       const menu = this.#menus.get(choisi);
       //  UN MENU VIDE SE DIT. « Tu n'as aucune Poké Ball » se lit ; un
       //  menu sans option ne dit rien et laisse croire à une panne.
-      this.#note.textContent = menu !== undefined && menu.options.length === 0
+      //  DEUX RAISONS POUR UN MENU VIDE, ET ELLES NE SE DISENT PAS
+      //  PAREIL : soit on a lu son sac et il est vide (`vide`), soit on
+      //  n'a pas pu le lire du tout (`SOURD`). La seconde ne doit
+      //  jamais emprunter la phrase de la première.
+      const sansMenu = menu !== undefined && menu.options.length === 0;
+      const sourd = this.#combat === null && trouve?.liste !== undefined;
+      this.#note.textContent = sourd
+        ? SOURD
+        : sansMenu
         ? (trouve?.vide ?? "")
         : (trouve?.annonce ?? "");
     }
@@ -834,12 +853,31 @@ export class BarreDActions {
     }
   }
 
-  /** Bascule la barre en combat, avec ce que `mon_combat` a rendu.
+  /** Bascule la barre en combat, avec ce que `mon_combat` a rendu —
+   *  ou `null` quand cette lecture-là n'a rien donné.
    *
    *  LE CHOIX EN COURS EST OUBLIÉ, et c'est voulu : « fouiller » n'a
    *  aucun sens dans un combat, et le garder coché en servant d'autres
-   *  boutons afficherait un état que le serveur refuserait. */
-  basculerEnCombat(donnees: DonneesDeCombat): void {
+   *  boutons afficherait un état que le serveur refuserait.
+   *
+   *  ── `null` EST UN CAS NORMAL, ET IL FAUT LES BOUTONS QUAND MÊME ──
+   *
+   *  « Quand un combat est ouvert, je n'ai pas les boutons pour le
+   *  fermer. » — 18 novembre. La bascule ne tenait qu'à `mon_combat`,
+   *  qui demande un laissez-passer : sans lui, la barre servait ses
+   *  quatre boutons habituels, et « Fuir » n'était nulle part. Un
+   *  combat ouvert devenait une impasse définitive.
+   *
+   *  OR FUIR N'A BESOIN DE RIEN. Pas d'équipe, pas de sac, pas de
+   *  capacités : le bloc est `[[WM-ACTION:fuir]]`, sans argument. La
+   *  sortie ne peut donc pas dépendre d'une lecture privée — c'est le
+   *  combat OUVERT qui décide des boutons, et `combat_du_sujet` le dit
+   *  sans identité (son propre commentaire l'annonçait depuis la
+   *  `0047` : « sert à la barre d'actions pour choisir ses boutons »).
+   *
+   *  Les quatre autres restent là, menus vides, et la phrase dit
+   *  pourquoi — voir `SOURD`. */
+  basculerEnCombat(donnees: DonneesDeCombat | null): void {
     this.#combat = donnees;
     this.#jeu = "combat";
     this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());

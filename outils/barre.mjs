@@ -206,6 +206,11 @@ async function monter(
     forum,
     enveloppe = false,
     combat = null,
+    //  CE QUE REND LA LECTURE PUBLIQUE, séparément du privé. Les deux
+    //  se règlent à la main ici parce que le cas qui nous intéresse est
+    //  justement celui où elles ne disent pas la même chose : un combat
+    //  ouvert (public) dont on ne sait pas lire l'équipe (privé).
+    ouvert = null,
     //  L'ADRESSE COMPTE : `wild-mystery.ts` y lit le sujet, et, quand
     //  il n'y en a pas, le forum dans `f=`. Un harnais qui monterait
     //  toujours `/t996-test` ne pourrait pas voir le formulaire de
@@ -226,6 +231,17 @@ async function monter(
       return r.fulfill({
         contentType: "application/json",
         body: JSON.stringify(combat),
+      });
+    }
+    //  LA LECTURE PUBLIQUE A SA PROPRE ROUTE. Quand `ouvert` n'est pas
+    //  réglé, elle suit le privé — sinon chaque cas déjà écrit devrait
+    //  régler les deux, alors qu'un combat lisible est aussi un combat
+    //  ouvert.
+    if (u.endsWith("/rpc/combat_du_sujet")) {
+      const dit = ouvert ?? (combat === null ? null : { combatId: combat.combatId });
+      return r.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(dit),
       });
     }
     //  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se charge
@@ -1215,6 +1231,46 @@ dire(
   JSON.stringify(horsCombat.mots) === JSON.stringify([RIEN, APPARAITRE, FOUILLER, CLOTURER]) &&
     horsCombat.menus === 0,
   `${JSON.stringify(horsCombat.mots)} · ${horsCombat.menus} menu(s)`,
+);
+await p.close();
+
+// ── 10 ter · UN COMBAT OUVERT QU'ON NE SAIT PAS LIRE ───────────────
+//
+//  « Quand un combat est ouvert, je n'ai pas les boutons pour le
+//  fermer. » — 18 novembre.
+//
+//  LE CAS EXACT : la lecture publique dit qu'un combat tourne, la
+//  privée ne rend rien — carnet non relié, jeton périmé, base qui
+//  refuse. On monte donc SANS laissez-passer (`combat: null` ne pose
+//  rien dans `localStorage`) et avec `ouvert` réglé à la main.
+//
+//  CE QUI DOIT TENIR : les cinq boutons, « Fuir » dedans, des menus
+//  vides qui le DISENT au lieu de prétendre que le sac l'est, et un
+//  bloc `[[WM-ACTION:fuir]]` qui part pour de vrai. Sans ce dernier
+//  point, le bouton serait un décor.
+console.log("\n── COMBAT OUVERT, LECTURE PRIVÉE MUETTE ───────────────");
+p = await monter({ ouvert: { combatId: "11111111-1111-1111-1111-111111111111" } });
+const sourd = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  note: document.querySelector(".wm-barre__note")?.textContent ?? "",
+}));
+dire(
+  "LES CINQ BOUTONS DU COMBAT, « FUIR » COMPRIS",
+  sourd.mots.length === 5 && sourd.mots.includes("Fuir"),
+  JSON.stringify(sourd.mots),
+);
+dire(
+  "LA PHRASE DIT « PAS PU ÊTRE LUS », PAS « TU N'AS AUCUNE »",
+  sourd.note.includes("pas pu être lus") && !sourd.note.includes("aucune"),
+  sourd.note,
+);
+await clic(p, "Fuir");
+await envoyer(p);
+const fuite = await lire(p);
+dire(
+  "FUIR ÉCRIT SON BLOC — le bouton agit, il n'est pas un décor",
+  fuite.includes("[[WM-ACTION:fuir]]"),
+  fuite.trim(),
 );
 await p.close();
 

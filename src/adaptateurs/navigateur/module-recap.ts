@@ -57,7 +57,6 @@ import {
   type MonSujet,
   nomDuMembre,
   partDePv,
-  placementDuRecap,
 } from "../../navigateur/recap.ts";
 import type { LigneEnAttente } from "../../application/bilan.ts";
 

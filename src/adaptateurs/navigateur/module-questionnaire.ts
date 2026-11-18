@@ -64,9 +64,7 @@ export function phraseDuResultat(
 ): string {
   if (repondues < total) {
     const reste = total - repondues;
-    return reste === 1
-      ? "Encore une question."
-      : `Encore ${reste} questions.`;
+    return reste === 1 ? "Encore une question." : `Encore ${reste} questions.`;
   }
   const dits = tetes.map((c) => noms.get(c) ?? c);
   if (dits.length > 1) {

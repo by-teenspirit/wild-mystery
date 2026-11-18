@@ -29,6 +29,7 @@ import { masquerLesMarqueurs } from "../src/adaptateurs/navigateur/marqueurs.ts"
 import { BrouillonForumactif } from "../src/adaptateurs/navigateur/editeur.ts";
 import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts";
 import { monCombat } from "../src/adaptateurs/navigateur/mon-combat.ts";
+import { combatDuSujet } from "../src/adaptateurs/navigateur/combat-du-sujet.ts";
 import { forumDeLAdresse, sujetDeLAdresse } from "../src/navigateur/tableau-des-rp.ts";
 import {
   aNommer,
@@ -207,8 +208,29 @@ async function poserLaBarre(): Promise<void> {
   if (sujet === null) return;
   const config = await configSupabase();
   if (config === null) return;
-  const combat = await monCombat(sujet, config);
-  if (combat !== null) barre.basculerEnCombat(combat);
+
+  //  ── DEUX LECTURES, ET C'EST LA PUBLIQUE QUI DÉCIDE ────────────────
+  //
+  //  « Quand un combat est ouvert, je n'ai pas les boutons pour le
+  //  fermer. » — 18 novembre. La bascule ne tenait qu'à `mon_combat`,
+  //  qui demande le laissez-passer : carnet non relié, jeton périmé,
+  //  base qui refuse, et la barre restait hors combat. Donc pas de
+  //  « Fuir », donc un combat ouvert qu'on ne peut plus fermer — et
+  //  chaque nouvelle demande refusée par la relève, à juste titre.
+  //
+  //  `combat_du_sujet` ne demande rien et répond à la seule question
+  //  qui décide des boutons. Elle passe donc en premier, et les deux
+  //  partent ENSEMBLE : la privée n'est pas la condition de l'autre,
+  //  et les attendre l'une après l'autre doublerait l'attente pour
+  //  rien.
+  const [ouvert, mien] = await Promise.all([
+    combatDuSujet(sujet, config),
+    monCombat(sujet, config),
+  ]);
+  //  `mien` SEUL SUFFIT AUSSI : s'il a répondu, un combat est ouvert
+  //  et il est à lui. On ne dépend donc pas de la lecture publique
+  //  pour le cas qui marchait déjà.
+  if (ouvert !== null || mien !== null) barre.basculerEnCombat(mien);
 }
 
 /** La configuration Supabase servie dans `data/` : l'URL et la clé

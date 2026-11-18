@@ -38,8 +38,8 @@
 
 import {
   type EntreeAffichee,
-  type SectionAffichee,
   pageDeLAdresse,
+  type SectionAffichee,
   slugDepuisAdresse,
   sommaireAffiche,
   sommaireDepuis,

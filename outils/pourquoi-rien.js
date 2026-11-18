@@ -48,13 +48,13 @@
   let conf = null;
   try {
     conf = brut === null ? null : JSON.parse(brut);
-  } catch (e) { /* laissé à null */ }
+  } catch { /* laissé à null */ }
 
   //  6 · LE LAISSEZ-PASSER, et ce que la base répond avec.
   let l = null;
   try {
     l = JSON.parse(localStorage.getItem("wm.carnet.laissez") || "null");
-  } catch (e) { /* laissé à null */ }
+  } catch { /* laissé à null */ }
 
   let combat = "pas appelé";
   let sien = "pas appelé";

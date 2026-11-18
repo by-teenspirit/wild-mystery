@@ -293,7 +293,15 @@ Deno.test("L'ALTERNATIVE PORTE LE NOM, PARCE QUE FORUMACTIF REMPLIT LES VIDES", 
   //  sprite qui ne charge pas affichait donc un numéro de fichier au
   //  milieu de la carte.
   const html = fiche(
-    { especeId: 37, nom: "Goupix", surnom: "Biscotte", niveau: 1, types: ["feu"], pv: 11, pvMax: 11 },
+    {
+      especeId: 37,
+      nom: "Goupix",
+      surnom: "Biscotte",
+      niveau: 1,
+      types: ["feu"],
+      pv: 11,
+      pvMax: 11,
+    },
     "mien",
     RACINE,
   );
