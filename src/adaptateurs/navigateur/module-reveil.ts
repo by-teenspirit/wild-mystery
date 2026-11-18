@@ -141,6 +141,22 @@ export async function reveillerLaReleve(d: DependancesDuReveil): Promise<boolean
     //  serait la publier.
     body: "",
     credentials: "omit",
+    //  ── `no-cors`, ET C'EST MESURÉ ────────────────────────────────
+    //
+    //  Essayé depuis le forum le 18 novembre : l'appel ordinaire rend
+    //  « TypeError: Failed to fetch ». La fonction ne renvoie pas
+    //  d'en-tête `Access-Control-Allow-Origin`, donc le navigateur
+    //  cache la réponse — et jette.
+    //
+    //  LA REQUÊTE PART QUAND MÊME : un POST sans en-tête particulière
+    //  est une requête « simple », donc sans vol de reconnaissance.
+    //  C'est la LECTURE de la réponse qui est refusée, et on n'en veut
+    //  pas : on ne demande qu'un passage.
+    //
+    //  `no-cors` dit exactement ça — envoie, ne me rends rien — et
+    //  évite une erreur rouge dans la console de chaque joueur pour un
+    //  appel qui a marché.
+    mode: "no-cors",
   }).catch(() => null);
 
   const depart = combienDeMessages(d.doc);
