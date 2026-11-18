@@ -105,7 +105,7 @@ Deno.test("une fiche complète, et rien de plus", () => {
     ),
     '<div class="wm-combat__camp wm-combat__camp--sauvage" tabindex="0">' +
       '<img class="wm-combat__sprite" ' +
-      'src="https://exemple.test/wm/assets/sprites-figes/forum/77.png" alt="" loading="lazy">' +
+      'src="https://exemple.test/wm/assets/sprites-figes/forum/77.png" alt="Ponyta" loading="lazy">' +
       '<p class="wm-combat__nom">Ponyta</p>' +
       '<p class="wm-combat__niveau">niv. 10</p>' +
       '<p class="wm-combat__types">' +
@@ -285,4 +285,21 @@ Deno.test("SANS MAXIMUM CONNU, PAS DE JAUGE", () => {
   );
   assert(!html.includes("wm-infobulle__jauge"), html);
   assertStringIncludes(html, "wm-infobulle__stats");
+});
+
+Deno.test("L'ALTERNATIVE PORTE LE NOM, PARCE QUE FORUMACTIF REMPLIT LES VIDES", () => {
+  //  Relevé le 18 novembre sur /t1000 : une `alt=""` revenait en
+  //  `alt="Sujet 2 21"` — le titre du sujet et le nom du fichier. Un
+  //  sprite qui ne charge pas affichait donc un numéro de fichier au
+  //  milieu de la carte.
+  const html = fiche(
+    { especeId: 37, nom: "Goupix", surnom: "Biscotte", niveau: 1, types: ["feu"], pv: 11, pvMax: 11 },
+    "mien",
+    RACINE,
+  );
+  //  LE NOM AFFICHÉ, SURNOM COMPRIS : c'est ce que le lecteur verrait
+  //  à la place de l'image, et il doit lire la même chose que juste
+  //  en dessous.
+  assertStringIncludes(html, 'alt="Biscotte (Goupix)"');
+  assert(!html.includes('alt=""'), "plus aucune alternative vide");
 });

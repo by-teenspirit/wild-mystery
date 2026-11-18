@@ -142,9 +142,23 @@ export function fiche(
 
   //  PAS D'IMAGE PLUTÔT QU'UNE IMAGE CASSÉE — l'espèce de test n'a pas
   //  de sprite, et la fiche doit tenir debout sans lui.
+  //
+  //  ── L'ALTERNATIVE PORTE LE NOM, ET CE N'EST PAS DÉCORATIF ──────
+  //
+  //  Elle était vide : le nom est juste en dessous, donc l'image ne
+  //  dit rien de neuf, et c'est la règle pour une illustration.
+  //  SAUF QUE FORUMACTIF REMPLIT LES ALTERNATIVES VIDES tout seul,
+  //  avec le titre du sujet et le nom du fichier — relevé le
+  //  18 novembre sur /t1000 : `alt="Sujet 2 21"`. Un sprite qui ne
+  //  charge pas affichait donc « Sujet 2 21 » en toutes lettres au
+  //  milieu de la carte.
+  //
+  //  On écrit donc le nom nous-mêmes : si l'image manque, la carte dit
+  //  « Piafabec » plutôt qu'un numéro de fichier.
   if (adresse !== null) {
     morceaux.push(
-      `<img class="wm-combat__sprite" src="${echapper(adresse)}" alt="" loading="lazy">`,
+      `<img class="wm-combat__sprite" src="${echapper(adresse)}" ` +
+        `alt="${echapper(nom)}" loading="lazy">`,
     );
   }
 

@@ -211,7 +211,7 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
       '<div class="wm-combat__duel">' +
       '<div class="wm-combat__camp wm-combat__camp--sauvage" tabindex="0">' +
       '<img class="wm-combat__sprite" ' +
-      'src="https://exemple.test/wm/assets/sprites-figes/forum/77.png" alt="" loading="lazy">' +
+      'src="https://exemple.test/wm/assets/sprites-figes/forum/77.png" alt="Ponyta" loading="lazy">' +
       '<p class="wm-combat__nom">Ponyta</p>' +
       '<p class="wm-combat__niveau">niv. 10</p>' +
       '<p class="wm-combat__types">' +
@@ -222,7 +222,7 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
       '<p class="wm-combat__contre">contre</p>' +
       '<div class="wm-combat__camp wm-combat__camp--mien" tabindex="0">' +
       '<img class="wm-combat__sprite" ' +
-      'src="https://exemple.test/wm/assets/sprites-figes/forum/4.png" alt="" loading="lazy">' +
+      'src="https://exemple.test/wm/assets/sprites-figes/forum/4.png" alt="Salamèche" loading="lazy">' +
       '<p class="wm-combat__nom">Salamèche</p>' +
       '<p class="wm-combat__niveau">niv. 5</p>' +
       '<p class="wm-combat__types">' +
