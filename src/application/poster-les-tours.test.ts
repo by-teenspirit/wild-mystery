@@ -46,8 +46,8 @@ class FileEnMemoire implements ToursEnAttente {
       fin: null,
       essais: 0,
       mentionne: "Jake Dalziel",
-      sauvage: { nom: "Ponyta", pv: 18, pvMax: 30 },
-      combattant: { nom: "Salamèche", surnom: null, pv: 11, pvMax: 18 },
+      sauvage: { especeId: 77, nom: "Ponyta", pv: 18, pvMax: 30 },
+      combattant: { especeId: 4, nom: "Salamèche", surnom: null, pv: 11, pvMax: 18 },
       ...t,
     });
     return this;
@@ -110,6 +110,8 @@ const signataire: Signataire = {
   },
 };
 
+const RACINE = "https://exemple.test/wm/";
+
 Deno.test("un tour part, et sort de la file", async () => {
   const file = new FileEnMemoire().ajouter({ tourId: "t1" });
   const forum = posteur(() => 90001);
@@ -118,6 +120,7 @@ Deno.test("un tour part, et sort de la file", async () => {
     forum,
     signataire,
     new JournalEnMemoire(),
+    RACINE,
   ).executer();
 
   assertEquals(passage.publies, [{
@@ -126,7 +129,10 @@ Deno.test("un tour part, et sort de la file", async () => {
     messageId: 90001,
   }]);
   assertEquals(file.restants.length, 0);
-  assert(forum.vus[0].corps.startsWith("TOUR 1 —"), forum.vus[0].corps);
+  assert(
+    forum.vus[0].corps.startsWith('<div class="wm-combat wm-combat--tour">'),
+    forum.vus[0].corps,
+  );
 });
 
 Deno.test("LE CODE D'UN TOUR N'EST PAS CELUI DE SA CARTE", async () => {
@@ -139,6 +145,7 @@ Deno.test("LE CODE D'UN TOUR N'EST PAS CELUI DE SA CARTE", async () => {
     forumTour,
     signataire,
     new JournalEnMemoire(),
+    RACINE,
   ).executer();
 
   const carte: RencontreEnAttente = {
@@ -148,6 +155,7 @@ Deno.test("LE CODE D'UN TOUR N'EST PAS CELUI DE SA CARTE", async () => {
     mentionne: "Jake Dalziel",
     essais: 0,
     sauvage: {
+      especeId: 77,
       nom: "Ponyta",
       niveau: 10,
       types: ["feu"],
@@ -167,6 +175,7 @@ Deno.test("LE CODE D'UN TOUR N'EST PAS CELUI DE SA CARTE", async () => {
     forumCarte,
     signataire,
     new JournalEnMemoire(),
+    RACINE,
   ).executer();
 
   assert(
@@ -185,6 +194,7 @@ Deno.test("deux tours du même combat portent deux codes", async () => {
     forum,
     signataire,
     new JournalEnMemoire(),
+    RACINE,
   ).executer();
 
   assert(forum.vus[0].code !== forum.vus[1].code);
@@ -198,6 +208,7 @@ Deno.test("un tour qui ne part pas reste en file", async () => {
     posteur(() => new Error("sujet verrouillé")),
     signataire,
     journal,
+    RACINE,
   ).executer();
 
   assertEquals(passage.publies, []);
@@ -217,6 +228,7 @@ Deno.test("un tour qui échoue n'empêche pas les suivants", async () => {
     posteur((sujetId) => sujetId === 100 ? new Error("verrouillé") : 90002),
     signataire,
     new JournalEnMemoire(),
+    RACINE,
   ).executer();
 
   assertEquals(passage.publies.length, 1);
@@ -234,6 +246,7 @@ Deno.test("au-delà de dix essais, la tâche le dit", async () => {
     posteur(() => new Error("toujours non")),
     signataire,
     new JournalEnMemoire(),
+    RACINE,
   ).executer();
 
   assert(passage.erreurs[0].includes("ça ne passera pas tout seul"));
@@ -249,6 +262,7 @@ Deno.test("une file vide se note quand même", async () => {
     posteur(() => 90001),
     signataire,
     journal,
+    RACINE,
   ).executer();
 
   assertEquals(passage.publies, []);

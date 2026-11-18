@@ -10,7 +10,7 @@
   "tasks": {
     "verif": "deno fmt --check && deno lint && deno check src/ js/ supabase/functions/releve/index.ts && bash outils/garde-fou.sh",
     "test": "deno test src/domaine/",
-    "test:usage": "deno test --allow-env src/application/",
+    "test:usage": "deno test --allow-env --allow-read src/application/",
     "test:contrat": "deno test --allow-env --allow-net --allow-read --allow-run src/contrat/",
     "couverture": "bash outils/couverture.sh",
     "garde-fou": "bash outils/garde-fou.sh",
@@ -39,6 +39,7 @@
     "formulaires": "deno run -A outils/formulaires.mjs",
     "messenger": "deno run -A outils/messenger.mjs",
     "barre": "deno run -A outils/barre.mjs",
+    "combat": "deno run -A outils/combat.mjs",
     "boutique": "deno run -A outils/boutique.mjs",
     "zone": "deno run -A outils/zone.mjs",
     "sujet": "deno run -A outils/sujet.mjs",

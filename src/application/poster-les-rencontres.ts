@@ -62,6 +62,13 @@ export class PosterLesRencontres {
     private readonly forum: PosteurSurForum,
     private readonly signataire: Signataire,
     private readonly journal: JournalDeReleve,
+    /** La racine du dépôt, pour l'adresse des sprites de la fiche.
+     *
+     *  ELLE PASSE PAR LE CONSTRUCTEUR ET PAS PAR LA FILE : la base ne
+     *  sait pas où le dépôt est servi, et elle ne doit pas le savoir —
+     *  le jour où la racine change, aucune migration. C'est la relève
+     *  qui la tient, du réglage `WM_RACINE_DONNEES`. */
+    private readonly racine: string,
     private readonly combien = 10,
   ) {}
 
@@ -82,7 +89,7 @@ export class PosterLesRencontres {
         const messageId = await this.forum.repondre(
           carte.sujetId,
           carte.mentionne,
-          redigerLaCarte(carte, code),
+          redigerLaCarte(carte, this.racine),
           code,
         );
         await this.file.postee(carte.combatId, messageId);

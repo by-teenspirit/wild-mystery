@@ -13,18 +13,27 @@
 //  une rencontre. Un message qui s'arrêterait aux stats du sauvage
 //  laisserait le joueur attendre un tour qui ne viendra jamais.
 //
-//  **Que le code soit lisible.** Même raison que dans le bilan : un
-//  joueur qui conteste doit pouvoir le recopier.
+//  **Que le code NE SE VOIE PAS.** « N'affiche pas le code, le joueur
+//  ne doit pas le voir » — 18 novembre. L'ancien test exigeait
+//  l'inverse ; il est retourné, pas supprimé, parce que c'est la
+//  règle qui a changé et qu'un retour en arrière doit se voir.
+//
+//  **Que la fiche tienne sur une ligne.** Forumactif transforme chaque
+//  retour en `<br>`. Un seul `\n` dans le balisage et le message
+//  s'ouvre sur un trou.
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import {
+  APPEL,
   nomDuCombattant,
   redigerLaCarte,
   type RencontreAAnnoncer,
   SANS_COMBATTANT,
   typesLisibles,
 } from "./carte-de-rencontre.ts";
+
+const RACINE = "https://exemple.test/wm/";
 
 const PONYTA: RencontreAAnnoncer = {
   combatId: "11111111-1111-1111-1111-111111111111",
@@ -33,6 +42,7 @@ const PONYTA: RencontreAAnnoncer = {
   essais: 0,
   mentionne: "Jake Dalziel",
   sauvage: {
+    especeId: 77,
     nom: "Ponyta",
     niveau: 10,
     types: ["feu"],
@@ -41,6 +51,7 @@ const PONYTA: RencontreAAnnoncer = {
     defense: 16,
   },
   combattant: {
+    especeId: 4,
     nom: "Salamèche",
     surnom: null,
     niveau: 5,
@@ -53,41 +64,72 @@ const PONYTA: RencontreAAnnoncer = {
 };
 
 Deno.test("la carte annonce le sauvage avant tout le reste", () => {
-  const texte = redigerLaCarte(PONYTA, "WM-ABC123");
-  const lignes = texte.split("\n");
-  assertEquals(lignes[0], "Un Ponyta sauvage apparaît.");
+  const html = redigerLaCarte(PONYTA, RACINE);
+  assertStringIncludes(html, "Un Ponyta sauvage apparaît.");
   //  Le sauvage est l'information neuve : elle vient avant le
   //  combattant, qu'on connaît déjà.
   assert(
-    texte.indexOf("PONYTA") < texte.indexOf("SALAMÈCHE"),
+    html.indexOf("Ponyta") < html.indexOf("Salamèche"),
     "le sauvage doit passer avant le combattant",
   );
+});
+
+Deno.test("TOUT SUR UNE LIGNE — Forumactif fait un <br> de chaque retour", () => {
+  //  Le défaut est connu : « un <br> de l'éditeur traînait entre chaque
+  //  poste », suivi des collages du 10 novembre.
+  const html = redigerLaCarte(PONYTA, RACINE);
+  assert(!html.includes("\n"), "la fiche porte un retour à la ligne");
 });
 
 Deno.test("les chiffres sont recopiés, pas recalculés", () => {
   //  On donne des PV qui ne correspondent à AUCUNE formule — 30 pour
   //  un Ponyta niveau 10 en vaut 30, mais 777 ne vaut rien. La carte
   //  doit écrire 777.
-  const texte = redigerLaCarte(
+  const html = redigerLaCarte(
     { ...PONYTA, sauvage: { ...PONYTA.sauvage, pv: 777 } },
-    "WM-ABC123",
+    RACINE,
   );
-  assertStringIncludes(texte, "PV : 777");
+  assertStringIncludes(html, ">777 PV<");
 });
 
 Deno.test("les PV du joueur se lisent sur leur maximum", () => {
   //  Son Pokémon peut sortir d'un combat précédent, et ça change ce
   //  qu'on décide au premier tour.
-  const texte = redigerLaCarte(
-    {
-      ...PONYTA,
-      combattant: { ...PONYTA.combattant!, pv: 7, pvMax: 18 },
-    },
-    "WM-ABC123",
+  const html = redigerLaCarte(
+    { ...PONYTA, combattant: { ...PONYTA.combattant!, pv: 7, pvMax: 18 } },
+    RACINE,
   );
-  assertStringIncludes(texte, "PV : 7/18");
+  assertStringIncludes(html, ">7/18 PV<");
   //  Le sauvage, lui, arrive entier : pas de fraction de son côté.
-  assertStringIncludes(texte, "PV : 30\n");
+  //  L'écrire ferait croire qu'il a déjà pris des coups.
+  assertStringIncludes(html, ">30 PV<");
+  assert(!html.includes(">30/30 PV<"), "le sauvage ne porte pas de fraction");
+});
+
+Deno.test("LE SPRITE PORTE LE NUMÉRO D'ESPÈCE, pas le nom", () => {
+  //  C'est ce qui permet au navigateur de le réécrire selon le style
+  //  choisi par le lecteur — `Sprites.especeDe()` lit ce numéro.
+  const html = redigerLaCarte(PONYTA, RACINE);
+  assertStringIncludes(html, "https://exemple.test/wm/assets/sprites-figes/forum/77.png");
+  assertStringIncludes(html, "https://exemple.test/wm/assets/sprites-figes/forum/4.png");
+});
+
+Deno.test("une espèce hors Pokédex n'a pas d'image, et la fiche tient", () => {
+  //  L'espèce de test `Debugant` est dans ce cas, et c'est elle qu'on
+  //  a vue sur t1000. Une image cassée se voit plus qu'une absente.
+  const html = redigerLaCarte(
+    { ...PONYTA, sauvage: { ...PONYTA.sauvage, especeId: 0, nom: "Debugant" } },
+    RACINE,
+  );
+  assert(!html.includes("/0.png"), "une adresse de sprite a été écrite quand même");
+  assertStringIncludes(html, "Debugant");
+  assertStringIncludes(html, ">30 PV<");
+});
+
+Deno.test("les types deviennent des pastilles", () => {
+  const html = redigerLaCarte(PONYTA, RACINE);
+  assertStringIncludes(html, 'class="wm-type wm-type--feu" data-wm-type="feu"');
+  assertStringIncludes(html, ">Feu<");
 });
 
 Deno.test("les types reprennent leur majuscule", () => {
@@ -107,53 +149,86 @@ Deno.test("le surnom ne fait pas disparaître l'espèce", () => {
   assertEquals(nomDuCombattant("Salamèche", "   "), "Salamèche");
 });
 
+Deno.test("UN SURNOM DE JOUEUR NE PEUT PAS SORTIR DU TEXTE", () => {
+  //  C'est la seule donnée de ce message qu'un joueur écrit lui-même,
+  //  et le compte qui poste est le nôtre : le forum lui fait
+  //  confiance, la base ne filtre rien.
+  const html = redigerLaCarte(
+    {
+      ...PONYTA,
+      combattant: {
+        ...PONYTA.combattant!,
+        surnom: '<img src=x onerror="alert(1)">',
+      },
+    },
+    RACINE,
+  );
+  assert(!html.includes("<img src=x"), html);
+  assertStringIncludes(html, "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;");
+});
+
 Deno.test("une équipe vide est dite, pas tue", () => {
-  const texte = redigerLaCarte({ ...PONYTA, combattant: null }, "WM-ABC123");
-  assertStringIncludes(texte, SANS_COMBATTANT);
+  const html = redigerLaCarte({ ...PONYTA, combattant: null }, RACINE);
+  assertStringIncludes(html, SANS_COMBATTANT);
   //  Et on ne propose pas d'attaquer avec un Pokémon qu'on n'a pas.
-  assert(!texte.includes("À toi de jouer"), "aucun tour à jouer sans Pokémon");
+  assert(!html.includes("À toi de jouer"), "aucun tour à jouer sans Pokémon");
+  //  Ni de mot « contre » devant une fiche absente.
+  assert(!html.includes("wm-combat__contre"), "pas de duel à un seul camp");
 });
 
 Deno.test("les cinq choix du combat sont nommés", () => {
-  //  La planche 99 §4 les liste ; la barre les servira. Les écrire
-  //  dans la carte, c'est ce qui rend le premier combat jouable sans
-  //  avoir lu l'annexe.
-  const texte = redigerLaCarte(PONYTA, "WM-ABC123");
+  //  La planche 99 §4 les liste, la barre les sert. Les écrire dans la
+  //  carte, c'est ce qui rend le premier combat jouable sans avoir lu
+  //  l'annexe.
+  const html = redigerLaCarte(PONYTA, RACINE);
   for (const choix of ["attaquer", "Poké Ball", "objet", "changer", "fuir"]) {
-    assertStringIncludes(texte, choix);
+    assertStringIncludes(html, choix);
   }
+  assertStringIncludes(html, APPEL);
 });
 
-Deno.test("le code est en toutes lettres, en dernier", () => {
-  const texte = redigerLaCarte(PONYTA, "WM-ABC123");
-  const lignes = texte.split("\n");
-  assertEquals(lignes[lignes.length - 1], "CODE : WM-ABC123");
+Deno.test("LE CODE NE S'AFFICHE PAS", () => {
+  //  Règle retournée le 18 novembre. Il reste dans le marqueur que
+  //  l'adaptateur pose — donc dans la source de la page — mais il ne
+  //  se lit plus. Aucun code n'est même passé à cette fonction.
+  const html = redigerLaCarte(PONYTA, RACINE);
+  assert(!html.includes("CODE"), html);
+  assert(!/WM-[A-Z0-9]{4}-[A-Z0-9]{3}/.test(html), html);
 });
 
 Deno.test("la carte entière, telle qu'un joueur la lit", () => {
   //  UN TEST QUI SE LIT COMME LE MESSAGE. Les assertions au-dessus
   //  vérifient chacune une règle ; celle-ci vérifie que l'ensemble
-  //  tient debout — c'est la seule qui dirait si l'ordre des lignes
+  //  tient debout — c'est la seule qui dirait si l'ordre des morceaux
   //  devenait absurde.
   assertEquals(
-    redigerLaCarte(PONYTA, "WM-ABC123"),
-    [
-      "Un Ponyta sauvage apparaît.",
-      "",
-      "PONYTA — niveau 10",
-      "Types : Feu",
-      "PV : 30",
-      "Attaque : 22 · Défense : 16",
-      "",
-      "SALAMÈCHE — niveau 5",
-      "Types : Feu",
-      "PV : 18/18",
-      "Attaque : 10 · Défense : 9",
-      "",
-      "À toi de jouer : attaquer, lancer une Poké Ball, utiliser un " +
-      "objet, changer de Pokémon ou fuir.",
-      "",
-      "CODE : WM-ABC123",
-    ].join("\n"),
+    redigerLaCarte(PONYTA, RACINE),
+    '<div class="wm-combat wm-combat--rencontre">' +
+      '<p class="wm-combat__titre">Un Ponyta sauvage apparaît.</p>' +
+      '<div class="wm-combat__duel">' +
+      '<div class="wm-combat__camp wm-combat__camp--sauvage">' +
+      '<img class="wm-combat__sprite" ' +
+      'src="https://exemple.test/wm/assets/sprites-figes/forum/77.png" alt="" loading="lazy">' +
+      '<p class="wm-combat__nom">Ponyta</p>' +
+      '<p class="wm-combat__niveau">niv. 10</p>' +
+      '<p class="wm-combat__types">' +
+      '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
+      '<p class="wm-combat__pv">30 PV</p>' +
+      '<p class="wm-combat__stats">Att. 22 · Déf. 16</p>' +
+      "</div>" +
+      '<p class="wm-combat__contre">contre</p>' +
+      '<div class="wm-combat__camp wm-combat__camp--mien">' +
+      '<img class="wm-combat__sprite" ' +
+      'src="https://exemple.test/wm/assets/sprites-figes/forum/4.png" alt="" loading="lazy">' +
+      '<p class="wm-combat__nom">Salamèche</p>' +
+      '<p class="wm-combat__niveau">niv. 5</p>' +
+      '<p class="wm-combat__types">' +
+      '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
+      '<p class="wm-combat__pv">18/18 PV</p>' +
+      '<p class="wm-combat__stats">Att. 10 · Déf. 9</p>' +
+      "</div>" +
+      "</div>" +
+      `<p class="wm-combat__appel">${APPEL}</p>` +
+      "</div>",
   );
 });

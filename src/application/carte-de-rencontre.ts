@@ -1,7 +1,7 @@
 // ════════════════════════════════════════════════════════════════════
 //  src/application/carte-de-rencontre.ts
 //
-//  Le texte que le Maître du Jeu poste sous le message de la joueuse
+//  Le message que le Maître du Jeu poste sous celui de la joueuse
 //  quand un Pokémon apparaît.
 //
 //  « Il faut qu'il s'affiche en dessous de mon message, via un message
@@ -9,19 +9,30 @@
 //  entre le premier pokémon de mon équipe et le ponyta. »
 //  — 17 novembre 2026.
 //
-//  ── TEXTE SIMPLE, COMME LE BILAN ────────────────────────────────────
+//  ── UNE FICHE, PLUS DU TEXTE NU — 18 NOVEMBRE ───────────────────────
 //
-//  Pas de BBCode, pas de tableau. `bilan.ts` écrit des lignes nues
-//  depuis le 2 octobre et ça tient : le forum les affiche partout
-//  pareil, la mise en forme ne casse pas, et un joueur qui conteste
-//  peut recopier ce qu'il lit. Une carte en balises serait plus jolie
-//  trois jours, puis illisible le jour où la charte change.
+//  « Ce serait bien d'avoir une petite card, l'image des pokémons,
+//  avec les infos. » Les briques sont dans `fiche-de-combat.ts`, et
+//  son en-tête dit pourquoi le texte nu était défendable jusque-là et
+//  ne l'est plus.
+//
+//  ── LE CODE NE S'AFFICHE PLUS ───────────────────────────────────────
+//
+//  « N'affiche pas le code, le joueur ne doit pas le voir. » Il était
+//  écrit en dernière ligne, en toutes lettres, pour qu'un joueur qui
+//  conteste puisse le recopier. Il reste dans le message — l'adaptateur
+//  y pose son marqueur, que le navigateur masque — donc il est toujours
+//  dans la source de la page pour qui doit vérifier. Simplement, il ne
+//  se lit plus.
+//
+//  C'est ce qui fait que `redigerLaCarte` ne prend plus de code : une
+//  fonction qui reçoit un argument dont elle ne fait rien finit par
+//  l'afficher à nouveau « puisqu'il est là ».
 //
 //  ── CE QUE LA CARTE DIT, ET DANS QUEL ORDRE ─────────────────────────
 //
 //  Le sauvage d'abord — c'est l'information nouvelle, celle qu'on
-//  attend en ouvrant le sujet. Le combattant ensuite. Le code en
-//  dernier, en toutes lettres, pour la même raison que dans le bilan.
+//  attend en ouvrant le sujet. Le combattant ensuite.
 //
 //  ── LE MARQUEUR N'EST PAS ICI ───────────────────────────────────────
 //
@@ -31,6 +42,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type { RencontreEnAttente } from "./ports.ts";
+import { duel, echapper, enveloppe, fiche, nomAffiche } from "./fiche-de-combat.ts";
 
 /** Ce que la base rend pour une carte à poster.
  *
@@ -44,9 +56,11 @@ export type RencontreAAnnoncer = RencontreEnAttente;
 /** Les types, tels qu'un joueur les lit.
  *
  *  La base les range à plat et sans accent — « electrik » — pour que
- *  les jointures tiennent (`outils/especes-sql.py`). Sur la carte, ils
- *  reprennent leur majuscule : le joueur n'a pas à lire notre
- *  convention de clé. */
+ *  les jointures tiennent (`outils/especes-sql.py`). Ici ils reprennent
+ *  leur majuscule : le joueur n'a pas à lire notre convention de clé.
+ *
+ *  GARDÉE MALGRÉ LES PASTILLES : elle sert au texte de repli de
+ *  `message-de-tour.ts`, et à qui lit la carte sans CSS. */
 export function typesLisibles(types: readonly string[]): string {
   return types
     .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
@@ -54,58 +68,81 @@ export function typesLisibles(types: readonly string[]): string {
 }
 
 /** Le nom d'un Pokémon du joueur : son surnom s'il en a un, et son
- *  espèce entre parenthèses — on ne fait pas disparaître l'espèce, le
- *  joueur doit pouvoir lire l'affiche des types. */
-export function nomDuCombattant(
-  nom: string,
-  surnom: string | null,
-): string {
-  const propre = surnom?.trim();
-  return propre ? `${propre} (${nom})` : nom;
-}
+ *  espèce entre parenthèses.
+ *
+ *  Réexportée depuis `fiche-de-combat.ts`, où la fiche en a besoin
+ *  aussi. Deux fonctions auraient donné deux façons de nommer le même
+ *  Pokémon dans deux messages du même combat. */
+export const nomDuCombattant = nomAffiche;
 
 export const SANS_COMBATTANT =
   "Aucun Pokémon dans ton équipe : pas de combat. Tu peux lancer une " +
   "Poké Ball directement, mais tes chances sont plus faibles.";
 
+export const APPEL = "À toi de jouer : attaquer, lancer une Poké Ball, utiliser un " +
+  "objet, changer de Pokémon ou fuir.";
+
 /** Rédige la carte de rencontre.
  *
- *  `code` s'écrit en toutes lettres, comme dans le bilan : un joueur
- *  qui conteste un combat doit pouvoir le recopier. */
+ *  `racine` est celle du dépôt, pour l'adresse des sprites. Elle
+ *  arrive de la tâche, qui la tient du réglage `WM_RACINE_DONNEES` :
+ *  ce fichier ne sait pas où le dépôt est servi, et il n'a pas à le
+ *  savoir. */
 export function redigerLaCarte(
   r: RencontreAAnnoncer,
-  code: string,
+  racine: string,
 ): string {
   const s = r.sauvage;
-  const texte: string[] = [
-    `Un ${s.nom} sauvage apparaît.`,
-    "",
-    `${s.nom.toUpperCase()} — niveau ${s.niveau}`,
-    `Types : ${typesLisibles(s.types)}`,
-    `PV : ${s.pv}`,
-    `Attaque : ${s.attaque} · Défense : ${s.defense}`,
+  const dedans: string[] = [
+    `<p class="wm-combat__titre">Un ${echapper(s.nom)} sauvage apparaît.</p>`,
   ];
 
+  const sauvage = fiche(
+    {
+      especeId: s.especeId,
+      nom: s.nom,
+      niveau: s.niveau,
+      types: s.types,
+      //  LE SAUVAGE ARRIVE ENTIER, donc pas de maximum : « 30 PV » et
+      //  non « 30/30 PV ». Écrire la fraction des deux côtés ferait
+      //  croire qu'il a déjà pris des coups.
+      pv: s.pv,
+      pvMax: null,
+      attaque: s.attaque,
+      defense: s.defense,
+    },
+    "sauvage",
+    racine,
+  );
+
   if (r.combattant === null) {
-    texte.push("", SANS_COMBATTANT);
-  } else {
-    const c = r.combattant;
-    texte.push(
-      "",
-      `${nomDuCombattant(c.nom, c.surnom).toUpperCase()} — niveau ${c.niveau}`,
-      `Types : ${typesLisibles(c.types)}`,
-      //  LES PV SUR LEUR MAXIMUM, et seulement de ce côté-ci. Le
-      //  sauvage arrive toujours entier ; le Pokémon du joueur, non —
-      //  il peut sortir d'un combat précédent, et ça change ce qu'on
-      //  décide au premier tour.
-      `PV : ${c.pv}/${c.pvMax}`,
-      `Attaque : ${c.attaque} · Défense : ${c.defense}`,
-      "",
-      "À toi de jouer : attaquer, lancer une Poké Ball, utiliser un " +
-        "objet, changer de Pokémon ou fuir.",
-    );
+    dedans.push(duel(sauvage, null));
+    dedans.push(`<p class="wm-combat__appel">${echapper(SANS_COMBATTANT)}</p>`);
+    return enveloppe("rencontre", dedans);
   }
 
-  texte.push("", `CODE : ${code}`);
-  return texte.join("\n");
+  const c = r.combattant;
+  dedans.push(duel(
+    sauvage,
+    fiche(
+      {
+        especeId: c.especeId,
+        nom: c.nom,
+        surnom: c.surnom,
+        niveau: c.niveau,
+        types: c.types,
+        //  LES PV SUR LEUR MAXIMUM, et seulement de ce côté-ci : le
+        //  Pokémon du joueur peut sortir d'un combat précédent, et ça
+        //  change ce qu'on décide au premier tour.
+        pv: c.pv,
+        pvMax: c.pvMax,
+        attaque: c.attaque,
+        defense: c.defense,
+      },
+      "mien",
+      racine,
+    ),
+  ));
+  dedans.push(`<p class="wm-combat__appel">${echapper(APPEL)}</p>`);
+  return enveloppe("rencontre", dedans);
 }

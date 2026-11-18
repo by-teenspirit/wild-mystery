@@ -2715,3 +2715,211 @@
     transition: filter 0.15s ease, opacity 0.15s ease;
   }
 }
+
+/* ── 23 · LA FICHE DE COMBAT ─────────────────────────────────────────
+
+    Les messages du Maître du Jeu, posés dans un sujet : la carte de
+    rencontre et chacun des cinq tours.
+
+    « Ce serait bien d'avoir une petite card, l'image des pokémons,
+    avec les infos » — 18 novembre, en regardant la carte du Debugant
+    sur t1000, qui était du texte nu.
+
+    ── POURQUOI DEUX FICHES CÔTE À CÔTE ET PAS L'UNE SOUS L'AUTRE ────
+
+    Un combat est une comparaison. Les deux camps empilés se lisent
+    comme deux listes qu'il faut tenir en tête ; côte à côte, les PV se
+    comparent sans y penser. C'est aussi ce que font les jeux.
+
+    EN COLONNE SOUS 420 px, parce qu'à cette largeur deux sprites de
+    96 px et deux colonnes de texte ne tiennent plus — et on ne touche
+    à rien d'autre pour la version mobile.
+
+    ── LE SPRITE SAUVAGE EST RETOURNÉ ───────────────────────────────
+
+    Les sprites de face regardent tous dans le même sens. Deux Pokémon
+    qui regardent à droite n'ont pas l'air de se battre, ils ont l'air
+    d'attendre le bus. */
+#modernbb .wm-combat {
+  box-sizing: border-box;
+  margin: var(--wm-espace-8, 8px) 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-16, 16px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  LE TITRE EST UN `<p>`, PAS UN TITRE DE SECTION : un message de
+    combat n'est pas un chapitre du sujet, et douze `<h3>` dans un
+    sujet feraient douze entrées dans le sommaire d'un lecteur
+    d'écran. */
+#modernbb .wm-combat__titre {
+  margin: 0 0 var(--wm-espace-12, 12px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+}
+
+/*  LE RÉCIT SE LIT EN PROSE. C'est la partie qu'un joueur relit pour
+    vérifier un dé, et elle doit se lire comme une phrase, pas comme un
+    relevé. */
+#modernbb .wm-combat__recit {
+  margin: 0 0 var(--wm-espace-14, 14px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: 1.55;
+  text-align: center;
+}
+
+#modernbb .wm-combat__duel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wm-espace-12, 12px);
+}
+
+#modernbb .wm-combat__camp {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  /*  `1 1 0` ET PAS `1 1 auto` : les deux camps font la même largeur
+      quoi qu'ils portent. Avec `auto`, « Biscotte (Carapuce) » poussait
+      sa colonne et le sauvage se retrouvait à l'étroit — alors que
+      c'est lui l'information neuve. */
+  flex: 1 1 0;
+  /*  DEUX CENT VINGT AU PLUS. Sans plafond, une fiche seule — équipe
+      vide, planche 99 §5.3 — s'étalait sur les 786 px du message et
+      ressemblait à une bannière. Avec, les deux fiches restent côte à
+      côte au centre, et la fiche seule garde sa taille de fiche. */
+  max-width: 220px;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-6, 6px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  text-align: center;
+}
+
+/*  ── LA BOÎTE EST FIXE, L'IMAGE NE GROSSIT PAS ────────────────────
+    (mesuré au rendu, 18 novembre)
+
+    Les sprites figés font de 48 à 64 px de large et de 55 à 68 px de
+    haut — ce sont les images de la septième génération, pas des
+    pixels d'époque. `width: 88px` les étirait de 1,7 fois et le
+    résultat était flou.
+
+    `scale-down` RÉDUIT MAIS N'AGRANDIT JAMAIS : chaque sprite s'affiche
+    à sa taille, et la boîte de 96 × 76 garde les deux colonnes de
+    texte alignées même quand un Pokémon est plus petit que l'autre.
+
+    `height` SE DIT, parce que `05-sujet.css` ne le dit plus pour nous :
+    sa règle `height: auto` exclut tout ce qui commence par `wm-`,
+    depuis qu'elle écrasait le bandeau des annonces. Nos composants
+    connaissent leur taille — alors celui-ci la donne. */
+#modernbb .wm-combat__sprite {
+  display: block;
+  width: 96px;
+  height: 76px;
+  margin-bottom: var(--wm-espace-4, 4px);
+  object-fit: scale-down;
+}
+
+/*  C'EST LE NÔTRE QU'ON RETOURNE, PAS LE SAUVAGE — vu au rendu.
+    Les sprites de face regardent vers la droite ; retourner le sauvage
+    les faisait regarder tous les deux du même côté. Retourner le nôtre
+    les met face à face, et garde au sauvage son image telle qu'elle
+    est partout ailleurs sur le forum — Pokédex, faune, carnet. */
+#modernbb .wm-combat__camp--mien .wm-combat__sprite {
+  transform: scaleX(-1);
+}
+
+#modernbb .wm-combat__nom {
+  margin: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+#modernbb .wm-combat__niveau {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-combat__types {
+  display: flex;
+  margin: var(--wm-espace-4, 4px) 0 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--wm-espace-2, 2px);
+}
+
+/*  LES PV SONT LE CHIFFRE QU'ON CHERCHE. C'est la seule ligne de la
+    fiche qui change à chaque tour, donc la seule qui a droit au
+    chiffre de la charte. */
+#modernbb .wm-combat__pv {
+  margin: var(--wm-espace-6, 6px) 0 0;
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+#modernbb .wm-combat__stats {
+  margin: var(--wm-espace-2, 2px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
+/*  « CONTRE » NE PREND PAS DE PLACE. Il est dans le balisage pour être
+    entendu, et réduit à son minimum pour ne pas voler de largeur aux
+    deux fiches. */
+#modernbb .wm-combat__contre {
+  margin: 0;
+  flex: 0 0 auto;
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-accent, "Kaushan Script", "Brush Script MT", cursive);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1.2;
+}
+
+#modernbb .wm-combat__appel {
+  margin: var(--wm-espace-12, 12px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  line-height: 1.45;
+  text-align: center;
+}
+
+/*  ── EN COLONNE QUAND LA LARGEUR MANQUE ──────────────────────────
+    Deux sprites de 88 px et deux colonnes de texte ne tiennent pas
+    sous 420 px. Le mot « contre » reste entre les deux, c'est lui qui
+    dit que ce sont deux camps et pas deux fiches à la suite. */
+@media (max-width: 420px) {
+  #modernbb .wm-combat__duel {
+    flex-direction: column;
+  }
+
+  #modernbb .wm-combat__camp {
+    width: 100%;
+    flex: 0 0 auto;
+  }
+}

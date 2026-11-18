@@ -16,7 +16,8 @@
 //  3. L'ÉTAT DES DEUX. En « 12/18 », parce que le chiffre seul ne dit
 //     pas si c'est grave.
 //  4. LA FIN, s'il y en a une.
-//  5. LE CODE, en toutes lettres.
+//  5. RIEN D'AUTRE. Le code ne s'affiche plus — 18 novembre,
+//     « n'affiche pas le code, le joueur ne doit pas le voir ».
 //
 //  ── LE DÉ EST ÉCRIT, ET C'EST VOULU ────────────────────────────────
 //
@@ -30,6 +31,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { nomDuCombattant } from "./carte-de-rencontre.ts";
+import { duel, echapper, enveloppe, fiche } from "./fiche-de-combat.ts";
 import type { TourEnAttente } from "./ports.ts";
 
 /** L'efficacité en mots, comme les jeux la disent.
@@ -156,32 +158,90 @@ export function phraseDeLaChance(t: TourEnAttente): string | null {
     `(tirage ${Math.round(d.de * 100)} %).`;
 }
 
-export function redigerLeTour(t: TourEnAttente, code: string): string {
-  const texte: string[] = [
-    `TOUR ${t.numero} — ${phraseDeLaDemande(t)}`,
-  ];
+/** Le récit du tour, en phrases.
+ *
+ *  SÉPARÉ DU MESSAGE depuis le 18 novembre, parce que la fiche
+ *  l'enveloppe maintenant : le récit se lit en prose, l'état des deux
+ *  combattants se lit en images. Mélanger les deux dans une seule
+ *  fonction avait donné une ligne « Salamèche : 11/18 PV » juste
+ *  au-dessus d'une fiche qui disait la même chose.
+ *
+ *  Exportée pour être testée seule, et parce que le récit est la partie
+ *  qu'on relit : un combat se vérifie sur ses phrases, pas sur sa mise
+ *  en page. */
+export function phrasesDuTour(t: TourEnAttente): readonly string[] {
+  //  ── « ATTAQUER » NE S'ANNONCE PAS DEUX FOIS ─────────────────────
+  //
+  //  VU AU RENDU, 18 novembre : « Biscotte (Salamèche) attaque avec
+  //  Flammèche. Biscotte (Salamèche) utilise Flammèche : 12 dégâts
+  //  (dé 93). » La même chose, deux fois, à la suite.
+  //
+  //  Ça ne se voyait pas tant que chaque phrase avait sa ligne : en
+  //  paragraphe, la répétition saute aux yeux. La frappe dit déjà qui
+  //  attaque et avec quoi, donc l'annonce ne sert plus — mais SEULEMENT
+  //  pour « attaquer ». « Tu lances une Poké Ball » ou « tu prends la
+  //  fuite » ne sont dites nulle part ailleurs.
+  const frappeDuJoueur = t.recit.frappes.some((f) => f.qui === "joueur");
+  const texte: string[] = t.demande === "attaquer" && frappeDuJoueur
+    ? []
+    : [phraseDeLaDemande(t)];
 
   const chance = phraseDeLaChance(t);
   if (chance !== null) texte.push(chance);
 
-  for (const f of t.recit.frappes) {
-    texte.push("", ...phrasesDeLaFrappe(f, t));
-  }
-
-  //  L'ÉTAT DES DEUX, TOUJOURS, même quand personne n'a frappé : c'est
-  //  la ligne qu'on relit pour décider du tour suivant.
-  texte.push("");
-  if (t.combattant !== null) {
-    texte.push(
-      `${nomDuCombattant(t.combattant.nom, t.combattant.surnom)} : ` +
-        `${t.combattant.pv}/${t.combattant.pvMax} PV`,
-    );
-  }
-  texte.push(`${t.sauvage.nom} : ${t.sauvage.pv}/${t.sauvage.pvMax} PV`);
+  for (const f of t.recit.frappes) texte.push(...phrasesDeLaFrappe(f, t));
 
   const fin = phraseDeLaFin(t);
-  if (fin !== null) texte.push("", fin);
+  if (fin !== null) texte.push(fin);
 
-  texte.push("", `CODE : ${code}`);
-  return texte.join("\n");
+  return texte;
+}
+
+/** Le message d'un tour : le numéro, le récit, puis l'état des deux.
+ *
+ *  `racine` est celle du dépôt, pour l'adresse des sprites — comme
+ *  pour la carte de rencontre, et pour la même raison : ce fichier ne
+ *  sait pas où le dépôt est servi.
+ *
+ *  LE CODE N'Y EST PLUS. « N'affiche pas le code, le joueur ne doit pas
+ *  le voir » — il reste dans le marqueur que l'adaptateur pose, donc
+ *  dans la source de la page pour qui vérifie. */
+export function redigerLeTour(t: TourEnAttente, racine: string): string {
+  const dedans: string[] = [
+    `<p class="wm-combat__titre">Tour ${t.numero}</p>`,
+    `<p class="wm-combat__recit">${phrasesDuTour(t).map(echapper).join(" ")}</p>`,
+  ];
+
+  //  L'ÉTAT DES DEUX, TOUJOURS, même quand personne n'a frappé : c'est
+  //  ce qu'on relit pour décider du tour suivant.
+  //
+  //  LE SAUVAGE SUR SON MAXIMUM ICI, contrairement à la carte de
+  //  rencontre : en combat il a pris des coups, et « 18/30 PV » est
+  //  précisément l'information du tour.
+  const sauvage = fiche(
+    {
+      especeId: t.sauvage.especeId,
+      nom: t.sauvage.nom,
+      pv: t.sauvage.pv,
+      pvMax: t.sauvage.pvMax,
+    },
+    "sauvage",
+    racine,
+  );
+  dedans.push(duel(
+    sauvage,
+    t.combattant === null ? null : fiche(
+      {
+        especeId: t.combattant.especeId,
+        nom: t.combattant.nom,
+        surnom: t.combattant.surnom,
+        pv: t.combattant.pv,
+        pvMax: t.combattant.pvMax,
+      },
+      "mien",
+      racine,
+    ),
+  ));
+
+  return enveloppe("tour", dedans);
 }

@@ -54,6 +54,13 @@ export class PosterLesTours {
     private readonly forum: PosteurSurForum,
     private readonly signataire: Signataire,
     private readonly journal: JournalDeReleve,
+    /** La racine du dépôt, pour l'adresse des sprites de la fiche.
+     *
+     *  ELLE PASSE PAR LE CONSTRUCTEUR ET PAS PAR LA FILE : la base ne
+     *  sait pas où le dépôt est servi, et elle ne doit pas le savoir —
+     *  le jour où la racine change, aucune migration. C'est la relève
+     *  qui la tient, du réglage `WM_RACINE_DONNEES`. */
+    private readonly racine: string,
     private readonly combien = 10,
   ) {}
 
@@ -78,7 +85,7 @@ export class PosterLesTours {
         const messageId = await this.forum.repondre(
           tour.sujetId,
           tour.mentionne,
-          redigerLeTour(tour, code),
+          redigerLeTour(tour, this.racine),
           code,
         );
         await this.file.poste(tour.tourId, messageId);

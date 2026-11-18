@@ -26,6 +26,7 @@ import {
   efficaciteEnMots,
   phraseDeLaChance,
   phraseDeLaFin,
+  phrasesDuTour,
   redigerLeTour,
 } from "./message-de-tour.ts";
 
@@ -36,8 +37,8 @@ const BASE = {
   messageId: 15601,
   essais: 0,
   mentionne: "Jake Dalziel",
-  sauvage: { nom: "Ponyta", pv: 18, pvMax: 30 },
-  combattant: { nom: "Salamèche", surnom: null, pv: 11, pvMax: 18 },
+  sauvage: { especeId: 77, nom: "Ponyta", pv: 18, pvMax: 30 },
+  combattant: { especeId: 4, nom: "Salamèche", surnom: null, pv: 11, pvMax: 18 },
 };
 
 function attaque(p: Partial<TourEnAttente> = {}): TourEnAttente {
@@ -61,18 +62,52 @@ function attaque(p: Partial<TourEnAttente> = {}): TourEnAttente {
   };
 }
 
-Deno.test("le tour s'ouvre sur son numéro et ce que le joueur a fait", () => {
-  const texte = redigerLeTour(attaque(), "WM-7K4P-9QX");
-  assertEquals(
-    texte.split("\n")[0],
-    "TOUR 1 — Salamèche attaque avec Flammèche.",
+const RACINE = "https://exemple.test/wm/";
+
+Deno.test("le tour s'ouvre sur son numéro, puis raconte", () => {
+  const html = redigerLeTour(attaque(), RACINE);
+  assertStringIncludes(html, '<p class="wm-combat__titre">Tour 1</p>');
+  assertStringIncludes(html, "Salamèche utilise Flammèche");
+  //  LE RÉCIT AVANT LES FICHES : on lit ce qui s'est passé, puis on
+  //  regarde où en sont les deux.
+  assert(
+    html.indexOf("utilise Flammèche") < html.indexOf("wm-combat__duel"),
+    html,
   );
+});
+
+Deno.test("« ATTAQUER » NE S'ANNONCE PAS DEUX FOIS", () => {
+  //  Vu au rendu : « Salamèche attaque avec Flammèche. Salamèche
+  //  utilise Flammèche : 12 dégâts. » La frappe dit déjà tout.
+  const phrases = phrasesDuTour(attaque());
+  assertEquals(
+    phrases.filter((p) => p.includes("Flammèche")).length,
+    1,
+    phrases.join(" | "),
+  );
+  assert(!phrases.some((p) => p.includes("attaque avec")), phrases.join(" | "));
+});
+
+Deno.test("les autres demandes, elles, s'annoncent", () => {
+  //  « Tu lances une Poké Ball » n'est dit nulle part ailleurs : sans
+  //  l'annonce, un lancer raté ne produirait aucune phrase.
+  const phrases = phrasesDuTour(
+    attaque({ demande: "fuir", detail: null, recit: { frappes: [] } }),
+  );
+  assertEquals(phrases[0], "Tu prends la fuite.");
+});
+
+Deno.test("une attaque qui ne frappe pas garde son annonce", () => {
+  //  Le cas du tour refusé : sans frappe, la seule phrase disponible
+  //  est l'annonce. La supprimer laisserait un message muet.
+  const phrases = phrasesDuTour(attaque({ recit: { frappes: [] } }));
+  assertEquals(phrases[0], "Salamèche attaque avec Flammèche.");
 });
 
 Deno.test("LE DÉ EST ÉCRIT, et il est le même qu'en base", () => {
   //  Un joueur qui perd d'un point doit pouvoir lire le tirage plutôt
   //  que de soupçonner le serveur.
-  assertStringIncludes(redigerLeTour(attaque(), "C"), "(dé 93)");
+  assertStringIncludes(redigerLeTour(attaque(), RACINE), "(dé 93)");
 });
 
 Deno.test("un raté n'affiche pas son dé", () => {
@@ -89,7 +124,7 @@ Deno.test("un raté n'affiche pas son dé", () => {
         }],
       },
     }),
-    "C",
+    RACINE,
   );
   assertStringIncludes(texte, "manque sa cible");
   assert(!texte.includes("dé "), texte);
@@ -120,7 +155,7 @@ Deno.test("« AUCUN EFFET » NE PARLE PAS DE DÉGÂTS", () => {
         }],
       },
     }),
-    "C",
+    RACINE,
   );
   assertStringIncludes(texte, "Ça n'a aucun effet.");
   assert(!texte.includes("0 dégâts"), texte);
@@ -131,10 +166,10 @@ Deno.test("l'état des deux est toujours là", () => {
   //  décider du tour suivant.
   const texte = redigerLeTour(
     attaque({ demande: "fuir", detail: null, recit: { frappes: [] } }),
-    "C",
+    RACINE,
   );
-  assertStringIncludes(texte, "Salamèche : 11/18 PV");
-  assertStringIncludes(texte, "Ponyta : 18/30 PV");
+  assertStringIncludes(texte, ">11/18 PV<");
+  assertStringIncludes(texte, ">18/30 PV<");
 });
 
 Deno.test("la chance de prise est écrite, en pourcentage entier", () => {
@@ -145,7 +180,7 @@ Deno.test("la chance de prise est écrite, en pourcentage entier", () => {
     recit: { frappes: [] },
   });
   assertEquals(phraseDeLaChance(t), "Chance de prise : 66 % (tirage 21 %).");
-  assertStringIncludes(redigerLeTour(t, "C"), "66 %");
+  assertStringIncludes(redigerLeTour(t, RACINE), "66 %");
 });
 
 Deno.test("la chance ne s'écrit que pour une ball", () => {
@@ -161,7 +196,7 @@ Deno.test("LA CAPTURE DIT OÙ VA LE POKÉMON", () => {
       detail: { nom: "Poké Ball", chance: 0.9, de: 0.1 },
       recit: { frappes: [] },
     }),
-    "C",
+    RACINE,
   );
   assertStringIncludes(texte, "est attrapé");
   assertStringIncludes(texte, "boîte à la clôture");
@@ -192,7 +227,7 @@ Deno.test("une Potion dit les PV RENDUS, pas le montant de l'objet", () => {
       detail: { objetId: 990020, nom: "Potion", rendus: 4 },
       recit: { frappes: [] },
     }),
-    "C",
+    RACINE,
   );
   assertStringIncludes(texte, "reprend 4 PV");
   assert(!texte.includes("20 PV"), texte);
@@ -201,9 +236,9 @@ Deno.test("une Potion dit les PV RENDUS, pas le montant de l'objet", () => {
 Deno.test("le surnom paraît, sans faire disparaître l'espèce", () => {
   const texte = redigerLeTour(
     attaque({
-      combattant: { nom: "Carapuce", surnom: "Biscotte", pv: 9, pvMax: 20 },
+      combattant: { especeId: 7, nom: "Carapuce", surnom: "Biscotte", pv: 9, pvMax: 20 },
     }),
-    "C",
+    RACINE,
   );
   assertStringIncludes(texte, "Biscotte (Carapuce)");
 });
@@ -214,13 +249,32 @@ Deno.test("sans combattant, le message tient quand même", () => {
   //  « undefined ».
   const texte = redigerLeTour(
     attaque({ combattant: null, demande: "ball", recit: { frappes: [] } }),
-    "C",
+    RACINE,
   );
   assert(!texte.includes("undefined"), texte);
-  assertStringIncludes(texte, "Ponyta : 18/30 PV");
+  assertStringIncludes(texte, ">18/30 PV<");
 });
 
-Deno.test("le code est en toutes lettres, en dernier", () => {
-  const lignes = redigerLeTour(attaque(), "WM-7K4P-9QX").split("\n");
-  assertEquals(lignes[lignes.length - 1], "CODE : WM-7K4P-9QX");
+Deno.test("LE CODE NE S'AFFICHE PAS", () => {
+  //  Règle retournée le 18 novembre : « n'affiche pas le code, le
+  //  joueur ne doit pas le voir ». Il reste dans le marqueur que
+  //  l'adaptateur pose, donc dans la source de la page pour qui
+  //  vérifie — et cette fonction ne le reçoit même plus.
+  const html = redigerLeTour(attaque(), RACINE);
+  assert(!html.includes("CODE"), html);
+  assert(!/WM-[A-Z0-9]{4}-[A-Z0-9]{3}/.test(html), html);
+});
+
+Deno.test("TOUT SUR UNE LIGNE — Forumactif fait un <br> de chaque retour", () => {
+  assert(!redigerLeTour(attaque(), RACINE).includes("\n"));
+});
+
+Deno.test("LES DEUX FICHES SONT LÀ, avec leurs sprites", () => {
+  //  C'est le message qu'on relit cinq fois dans un combat : l'état
+  //  des deux doit se voir d'un coup d'œil, pas se lire.
+  const html = redigerLeTour(attaque(), RACINE);
+  assertStringIncludes(html, "assets/sprites-figes/forum/77.png");
+  assertStringIncludes(html, "assets/sprites-figes/forum/4.png");
+  assertStringIncludes(html, ">18/30 PV<");
+  assertStringIncludes(html, ">11/18 PV<");
 });

@@ -22,6 +22,7 @@ const CARTE = {
   mentionne: "Jake Dalziel",
   essais: 0,
   sauvage: {
+    especeId: 77,
     nom: "Ponyta",
     niveau: 10,
     types: ["feu"],
@@ -30,6 +31,7 @@ const CARTE = {
     defense: 16,
   },
   combattant: {
+    especeId: 4,
     nom: "Salamèche",
     surnom: null,
     niveau: 5,

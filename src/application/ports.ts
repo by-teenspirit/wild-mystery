@@ -532,6 +532,10 @@ export type RencontreEnAttente = {
   readonly mentionne: string;
   readonly essais: number;
   readonly sauvage: {
+    /** Le numéro d'espèce, et il ne sert qu'à UNE chose : l'adresse du
+     *  sprite. Un nom ne désigne pas un fichier, et la base ne sait pas
+     *  où le dépôt est servi — c'est `sprite.ts` qui assemble les deux. */
+    readonly especeId: number;
     readonly nom: string;
     readonly niveau: number;
     readonly types: readonly string[];
@@ -541,6 +545,7 @@ export type RencontreEnAttente = {
   };
   /** `null` quand l'équipe est vide — planche 99 §5.3. */
   readonly combattant: {
+    readonly especeId: number;
     readonly nom: string;
     readonly surnom: string | null;
     readonly niveau: number;
@@ -585,11 +590,13 @@ export type TourEnAttente = {
   readonly essais: number;
   readonly mentionne: string;
   readonly sauvage: {
+    readonly especeId: number;
     readonly nom: string;
     readonly pv: number;
     readonly pvMax: number;
   };
   readonly combattant: {
+    readonly especeId: number;
     readonly nom: string;
     readonly surnom: string | null;
     readonly pv: number;

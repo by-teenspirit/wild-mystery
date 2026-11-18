@@ -39,6 +39,7 @@ class FileEnMemoire implements CartesDeRencontreEnAttente {
       mentionne: "Jake Dalziel",
       essais: 0,
       sauvage: {
+        especeId: 77,
         nom: "Ponyta",
         niveau: 10,
         types: ["feu"],
@@ -47,6 +48,7 @@ class FileEnMemoire implements CartesDeRencontreEnAttente {
         defense: 16,
       },
       combattant: {
+        especeId: 4,
         nom: "Salamèche",
         surnom: null,
         niveau: 5,
@@ -142,9 +144,11 @@ function tache(
   const journal = new JournalEnMemoire();
   return {
     journal,
-    poster: new PosterLesRencontres(file, forum, signataire, journal),
+    poster: new PosterLesRencontres(file, forum, signataire, journal, RACINE),
   };
 }
+
+const RACINE = "https://exemple.test/wm/";
 
 Deno.test("une carte part, et sort de la file", async () => {
   const file = new FileEnMemoire().ajouter({ combatId: "c1" });
@@ -162,7 +166,11 @@ Deno.test("une carte part, et sort de la file", async () => {
   assertEquals(file.restantes.length, 0);
   //  Le message posté est bien la carte, mentionnée au bon joueur.
   assertEquals(forum.vus[0].mentionne, "Jake Dalziel");
-  assert(forum.vus[0].corps.startsWith("Un Ponyta sauvage apparaît."));
+  assert(
+    forum.vus[0].corps.startsWith('<div class="wm-combat wm-combat--rencontre">'),
+    forum.vus[0].corps,
+  );
+  assert(forum.vus[0].corps.includes("Un Ponyta sauvage apparaît."));
 });
 
 Deno.test("le corps porte les chiffres de la file, pas d'autres", async () => {
@@ -171,6 +179,7 @@ Deno.test("le corps porte les chiffres de la file, pas d'autres", async () => {
   const file = new FileEnMemoire().ajouter({
     combatId: "c1",
     sauvage: {
+      especeId: 77,
       nom: "Ponyta",
       niveau: 10,
       types: ["feu"],
@@ -181,7 +190,7 @@ Deno.test("le corps porte les chiffres de la file, pas d'autres", async () => {
   });
   const forum = posteur(() => 90001);
   await tache(file, forum).poster.executer();
-  assert(forum.vus[0].corps.includes("PV : 777"));
+  assert(forum.vus[0].corps.includes(">777 PV<"), forum.vus[0].corps);
 });
 
 Deno.test("le code suit le message du joueur, pas l'instant", async () => {
@@ -205,13 +214,20 @@ Deno.test("le code suit le message du joueur, pas l'instant", async () => {
   assert(forum3.vus[0].code !== forum1.vus[0].code);
 });
 
-Deno.test("le code se lit dans le message", async () => {
-  //  « Un joueur qui conteste doit pouvoir le recopier » — même règle
-  //  que dans le bilan.
+Deno.test("LE CODE NE SE LIT PLUS DANS LE MESSAGE", async () => {
+  //  Règle retournée le 18 novembre : « n'affiche pas le code, le
+  //  joueur ne doit pas le voir ». L'ancien test exigeait l'inverse —
+  //  il est retourné, pas supprimé, pour que le changement se voie.
+  //
+  //  LE CODE EST TOUJOURS PASSÉ AU FORUM, et c'est ce qui compte : il
+  //  part dans le marqueur que l'adaptateur pose, donc la relève
+  //  reconnaît son propre message si elle repasse.
   const file = new FileEnMemoire().ajouter({ combatId: "c1" });
   const forum = posteur(() => 90001);
   await tache(file, forum).poster.executer();
-  assert(forum.vus[0].corps.endsWith(`CODE : ${forum.vus[0].code}`));
+  assert(!forum.vus[0].corps.includes("CODE"), forum.vus[0].corps);
+  assert(!forum.vus[0].corps.includes(forum.vus[0].code), forum.vus[0].corps);
+  assert(forum.vus[0].code !== "", "aucun code n'a été donné au forum");
 });
 
 Deno.test("une carte qui ne part pas reste en file", async () => {

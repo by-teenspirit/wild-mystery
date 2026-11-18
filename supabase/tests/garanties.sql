@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(399);
+select plan(402);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2572,6 +2572,23 @@ select ok(
   'LE COMBATTANT EST SUR LA CARTE : le joueur voit les deux côtés avant de choisir'
 );
 
+--  ── LE NUMÉRO D'ESPÈCE, DES DEUX CÔTÉS (0052) ────────────────────
+--
+--  C'est lui, et lui seul, qui donne l'adresse du sprite de la fiche :
+--  `assets/sprites-figes/forum/<id>.png`. Un nom ne désigne pas un
+--  fichier. Sans ces deux clés, les messages du Maître du Jeu partent
+--  sans image et personne ne le voit avant d'ouvrir un sujet.
+select is(
+  (cartes_a_poster(jsonb_build_object('combien', 10))->0->'sauvage'->>'especeId')::integer,
+  25,
+  'LA CARTE PORTE LE NUMÉRO D''ESPÈCE DU SAUVAGE — c''est l''adresse de son sprite'
+);
+
+select ok(
+  (cartes_a_poster(jsonb_build_object('combien', 10))->0->'combattant'->>'especeId')::integer > 0,
+  'et celui du combattant'
+);
+
 --  ── POSTER, ET NE PAS REPOSTER ───────────────────────────────────
 select ok(
   (select carte_postee(jsonb_build_object('combat', c.id, 'message', 99001)) from combat c where c.message_id = 15603),
@@ -2765,6 +2782,14 @@ select is(
   jsonb_array_length(tours_a_poster('{}'::jsonb)),
   2,
   'LES DEUX TOURS ATTENDENT LEUR MESSAGE, y compris celui qui a fini le combat — c''est lui qui annonce la fin'
+);
+
+--  LE NUMÉRO D'ESPÈCE AUSSI DANS LE TOUR (0052). Le message d'un tour
+--  est celui qu'on relit cinq fois dans un combat : c'est là qu'on
+--  veut voir d'un coup d'œil qui tient debout.
+select ok(
+  (tours_a_poster('{}'::jsonb)->0->'sauvage'->>'especeId')::integer > 0,
+  'LE TOUR PORTE LE NUMÉRO D''ESPÈCE DU SAUVAGE'
 );
 
 select ok(

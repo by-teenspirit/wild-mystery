@@ -306,6 +306,7 @@ function assembler(reglages: Reglages): Montage {
     forumEnEcriture,
     signataire,
     new JournalSupabase(appeler),
+    reglages.WM_RACINE_DONNEES,
   );
 
   const rencontres = new PosterLesRencontres(
@@ -313,6 +314,7 @@ function assembler(reglages: Reglages): Montage {
     forumEnEcriture,
     signataire,
     new JournalSupabase(appeler),
+    reglages.WM_RACINE_DONNEES,
   );
 
   //  Tâche 3 : la boutique. Elle tient SON curseur, celui du forum qui

@@ -96,6 +96,10 @@ export function lireUneCarte(brut: unknown): RencontreEnAttente {
     const cv = c as Record<string, unknown>;
     const surnom = cv.surnom;
     return {
+      //  LE NUMÉRO D'ESPÈCE EST RELU COMME LE RESTE : sans lui la fiche
+      //  n'a pas d'adresse de sprite, et une fiche à moitié lue ne doit
+      //  pas partir sur le forum.
+      especeId: nombre(cv, "especeId", "combattant"),
       nom: texte(cv, "nom", "combattant"),
       //  Le surnom est le SEUL champ qui a le droit d'être absent : un
       //  Pokémon sans surnom est la règle, pas l'exception.
@@ -116,6 +120,7 @@ export function lireUneCarte(brut: unknown): RencontreEnAttente {
     mentionne: texte(o, "mentionne", "carte"),
     essais: typeof o.essais === "number" ? o.essais : 0,
     sauvage: {
+      especeId: nombre(sv, "especeId", "sauvage"),
       nom: texte(sv, "nom", "sauvage"),
       niveau: nombre(sv, "niveau", "sauvage"),
       types: types(sv, "sauvage"),
@@ -428,11 +433,13 @@ export function lireUnTour(brut: unknown): TourEnAttente {
     essais: typeof o.essais === "number" ? o.essais : 0,
     mentionne: texte(o, "mentionne", "tour"),
     sauvage: {
+      especeId: nombre(sv, "especeId", "sauvage"),
       nom: texte(sv, "nom", "sauvage"),
       pv: nombre(sv, "pv", "sauvage"),
       pvMax: nombre(sv, "pvMax", "sauvage"),
     },
     combattant: c === null || c === undefined ? null : {
+      especeId: nombre(c as Record<string, unknown>, "especeId", "combattant"),
       nom: texte(c as Record<string, unknown>, "nom", "combattant"),
       surnom: lireUnSurnom((c as Record<string, unknown>).surnom),
       pv: nombre(c as Record<string, unknown>, "pv", "combattant"),
