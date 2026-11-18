@@ -28,6 +28,8 @@ import {
   CartesDeRencontreSupabase,
   CombatsSupabase,
 } from "../../../src/adaptateurs/supabase/combat.ts";
+import { TableDesTypesEnFichier } from "../../../src/adaptateurs/faune/types.ts";
+import { JouerUnTour } from "../../../src/application/jouer-un-tour.ts";
 import {
   CatalogueSupabase,
   EtatDuJeuSupabase,
@@ -221,9 +223,21 @@ function assembler(reglages: Reglages): Montage {
   //  d'être illisible : sans elle on ne sait plus ce qu'une fouille rend
   //  (voir son en-tête).
   const butin = new ButinEnFichiers(lecteurHttp(), reglages.WM_RACINE_DONNEES);
+  //  LA TABLE DES TYPES, lue une fois par passage. Elle ne change
+  //  jamais — dix-huit types, cent vingt paires — et c'est la même que
+  //  celle de l'annexe 12 : `data/types.json`, dérivé des CSV PokéAPI.
+  const typesDuJeu = new TableDesTypesEnFichier(
+    lecteurHttp(),
+    reglages.WM_RACINE_DONNEES,
+  );
   const jeu = new EtatDuJeuSupabase(appeler);
   const registre = new RegistreSupabase(appeler);
   const signataire = new SignataireHmac(reglages.WM_SECRET_SIGNATURE);
+
+  //  UNE SEULE INSTANCE DE `Combats` : l'ouverture et les tours doivent
+  //  voir la même base, et deux adaptateurs sur le même appel seraient
+  //  deux endroits où corriger une lecture.
+  const combats = new CombatsSupabase(appeler);
 
   //  Tâche 1 : les blocs d'action deviennent des lignes de registre. Elle
   //  s'exécute SUR UN SUJET ; c'est `ParcourirLesZones` qui l'appelle, au
@@ -243,7 +257,12 @@ function assembler(reglages: Reglages): Montage {
     //  nulle part ensuite : l'ouvrir plus tard obligerait à le retirer
     //  au sort, donc à inventer un autre Pokémon que celui qui est
     //  apparu.
-    new CombatsSupabase(appeler),
+    combats,
+    //  LA RÉSOLUTION D'UN TOUR. Elle ne calcule rien elle-même : le
+    //  domaine le fait, elle orchestre et refuse ce qui n'a pas de
+    //  sens — une capacité qui n'est pas des quatre, un combat qui
+    //  n'est pas le sien.
+    new JouerUnTour(combats, typesDuJeu),
   );
 
   const parcourir = new ParcourirLesZones(

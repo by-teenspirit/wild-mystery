@@ -16,9 +16,17 @@ import type {
   Signataire,
   TableDeButin,
   TableDesFossiles,
+  TableDesTypesEnJeu,
   ZoneSauvage,
 } from "./ports.ts";
 import { CombatsEnMemoire, CombatsEnPanne } from "../adaptateurs/en-memoire/combat.ts";
+import { JouerUnTour } from "./jouer-un-tour.ts";
+
+/** Un extrait de la vraie table des types : les tours d'ici ne jouent
+ *  que du feu et du normal. */
+const TYPES_DE_TEST: TableDesTypesEnJeu = {
+  efficacite: () => Promise.resolve({ feu: { feu: 0.5 }, normal: { spectre: 0 } }),
+};
 import { REGLES_PAR_DEFAUT } from "../domaine/fossile.ts";
 import type { Evenement, LigneRegistre } from "../domaine/cloture.ts";
 import type { EntreeDeTable } from "../domaine/rencontre.ts";
@@ -212,6 +220,9 @@ type Montage = {
 
 function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
   const registre = new RegistreEspion();
+  //  LA MÊME INSTANCE pour l'ouverture et pour les tours : un décor où
+  //  les deux ne voient pas le même combat ne dirait rien de vrai.
+  const combats = d.combats ?? new CombatsEnMemoire();
   const tache = new LireLesNouveauxMessages(
     d.faune ?? new FauneFixe(),
     new ActionsFixes(lues),
@@ -222,7 +233,8 @@ function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
     SIGNATAIRE,
     d.fossiles ?? SANS_FOSSILES,
     d.butin ?? BUTIN_ORDINAIRE,
-    d.combats ?? new CombatsEnMemoire(),
+    d.combats ?? combats,
+    new JouerUnTour(combats, TYPES_DE_TEST),
   );
   return { tache, registre, zone: d.zone ?? ZONE };
 }
@@ -600,6 +612,7 @@ Deno.test("une écriture qui lève n'emporte pas les actions suivantes", async (
     SANS_FOSSILES,
     BUTIN_ORDINAIRE,
     new CombatsEnMemoire(),
+    new JouerUnTour(new CombatsEnMemoire(), TYPES_DE_TEST),
   );
 
   const bilan = await tache.executerSur(ZONE, 976, 0);

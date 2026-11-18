@@ -13,7 +13,12 @@
 //    dessus
 // ════════════════════════════════════════════════════════════════════
 
-import type { Combats, OuvertureDeCombat } from "../../application/ports.ts";
+import type {
+  CombatEnCours,
+  Combats,
+  OuvertureDeCombat,
+  TourJoue,
+} from "../../application/ports.ts";
 
 export type CombatEnMemoire = {
   readonly combatId: string;
@@ -27,7 +32,39 @@ export type CombatEnMemoire = {
 
 export class CombatsEnMemoire implements Combats {
   readonly ouverts: CombatEnMemoire[] = [];
+  /** Les tours écrits, pour qu'un test les relise. */
+  readonly joues: Parameters<Combats["jouer"]>[0][] = [];
+  /** Ce que `jouer` répondra. Par défaut : joué.
+   *
+   *  C'est un champ et pas un paramètre parce que les refus qui
+   *  comptent — `DEJA_JOUE`, `COMBAT_CLOS`, `TOUR_DEPASSE` — viennent
+   *  de l'état de la base et pas de l'appel, et qu'un test doit pouvoir
+   *  les poser sans reconstruire une base. */
+  reponseDeJouer: TourJoue = { tourId: "t-memoire", joue: true, raison: null };
+  #etat: CombatEnCours | null = null;
   private suivant = 1;
+
+  /** Pose l'état que `pourJouer` rendra.
+   *
+   *  LE DOUBLE NE FABRIQUE PAS CET ÉTAT TOUT SEUL, et c'est un choix :
+   *  il faudrait qu'il connaisse les trois chiffres au niveau, les
+   *  quatre capacités et la formule — c'est-à-dire qu'il refasse la
+   *  base. Un double qui calcule finit par calculer autrement, et le
+   *  test dirait le contraire de la production. Le test pose donc
+   *  l'état qu'il veut jouer. */
+  poserLEtat(e: CombatEnCours | null): this {
+    this.#etat = e;
+    return this;
+  }
+
+  pourJouer(): Promise<CombatEnCours | null> {
+    return Promise.resolve(this.#etat);
+  }
+
+  jouer(t: Parameters<Combats["jouer"]>[0]): Promise<TourJoue> {
+    this.joues.push(t);
+    return Promise.resolve(this.reponseDeJouer);
+  }
 
   ouvrir(c: {
     readonly sujetId: number;
@@ -75,6 +112,14 @@ export class CombatsEnPanne implements Combats {
   constructor(private readonly motif = "base injoignable") {}
 
   ouvrir(): Promise<OuvertureDeCombat> {
+    return Promise.reject(new Error(this.motif));
+  }
+
+  pourJouer(): Promise<CombatEnCours | null> {
+    return Promise.reject(new Error(this.motif));
+  }
+
+  jouer(): Promise<TourJoue> {
     return Promise.reject(new Error(this.motif));
   }
 }

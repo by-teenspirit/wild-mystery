@@ -35,6 +35,7 @@ import type {
   ZoneSauvage,
 } from "./ports.ts";
 import { CombatsEnMemoire } from "../adaptateurs/en-memoire/combat.ts";
+import { JouerUnTour } from "./jouer-un-tour.ts";
 import { REGLES_PAR_DEFAUT } from "../domaine/fossile.ts";
 import { CloturerUnSujet } from "./cloturer-un-sujet.ts";
 import {
@@ -126,6 +127,9 @@ function monter(
     sansFossiles,
     butinMuet,
     new CombatsEnMemoire(),
+    new JouerUnTour(new CombatsEnMemoire(), {
+      efficacite: () => Promise.resolve({ feu: { feu: 0.5 } }),
+    }),
   );
 
   const tache = new ParcourirLesZones(

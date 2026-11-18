@@ -20,9 +20,11 @@
 
 import type {
   CartesDeRencontreEnAttente,
+  CombatEnCours,
   Combats,
   OuvertureDeCombat,
   RencontreEnAttente,
+  TourJoue,
 } from "../../application/ports.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
@@ -121,6 +123,66 @@ export function lireUneCarte(brut: unknown): RencontreEnAttente {
   };
 }
 
+/** Un surnom, ou rien. Un surnom vide ferait « (Salamèche) » avec une
+ *  parenthèse orpheline devant. */
+function lireUnSurnom(brut: unknown): string | null {
+  return typeof brut === "string" && brut.trim() !== "" ? brut : null;
+}
+
+/** Un combattant complet, capacités comprises.
+ *
+ *  LES QUATRE CAPACITÉS SONT RELUES UNE PAR UNE. Une capacité sans
+ *  puissance ferait lever `degatsDe` au milieu du tour — après que la
+ *  base a été lue, avant qu'elle ne soit écrite — et le joueur verrait
+ *  son message passer sans rien derrière. */
+function lireUnCombattant(brut: unknown, ou: string): {
+  nom: string;
+  niveau: number;
+  types: readonly string[];
+  pv: number;
+  pvMax: number;
+  attaque: number;
+  defense: number;
+  capacites: readonly {
+    id: number;
+    nom: string;
+    type: string;
+    puissance: number;
+    precision: number;
+  }[];
+} {
+  if (brut === null || typeof brut !== "object") {
+    throw new AppelEchoue("combat_pour_jouer", `${ou} illisible`);
+  }
+  const o = brut as Record<string, unknown>;
+  const brutes = o.capacites;
+  if (!Array.isArray(brutes)) {
+    throw new AppelEchoue("combat_pour_jouer", `${ou}.capacites : tableau attendu`);
+  }
+  return {
+    nom: texte(o, "nom", ou),
+    niveau: nombre(o, "niveau", ou),
+    types: types(o, ou),
+    pv: nombre(o, "pv", ou),
+    pvMax: nombre(o, "pvMax", ou),
+    attaque: nombre(o, "attaque", ou),
+    defense: nombre(o, "defense", ou),
+    capacites: brutes.map((c, i) => {
+      if (c === null || typeof c !== "object") {
+        throw new AppelEchoue("combat_pour_jouer", `${ou}.capacites[${i}] illisible`);
+      }
+      const k = c as Record<string, unknown>;
+      return {
+        id: nombre(k, "id", `${ou}.capacites[${i}]`),
+        nom: texte(k, "nom", `${ou}.capacites[${i}]`),
+        type: texte(k, "type", `${ou}.capacites[${i}]`),
+        puissance: nombre(k, "puissance", `${ou}.capacites[${i}]`),
+        precision: nombre(k, "precision", `${ou}.capacites[${i}]`),
+      };
+    }),
+  };
+}
+
 export class CartesDeRencontreSupabase implements CartesDeRencontreEnAttente {
   constructor(private readonly appeler: AppelSql) {}
 
@@ -152,6 +214,60 @@ export class CartesDeRencontreSupabase implements CartesDeRencontreEnAttente {
  */
 export class CombatsSupabase implements Combats {
   constructor(private readonly appeler: AppelSql) {}
+
+  async pourJouer(sujetId: number): Promise<CombatEnCours | null> {
+    const nom = "combat_pour_jouer";
+    const recu = await this.appeler(nom, { sujetId });
+    //  AUCUN COMBAT OUVERT : `null`, et ce n'est pas une erreur. C'est
+    //  la réponse à « est-ce qu'il y a un combat ici », et elle est
+    //  « non » la plupart du temps.
+    if (recu === null || recu === undefined) return null;
+    if (typeof recu !== "object") {
+      throw new AppelEchoue(nom, `objet attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    //  ON RELIT TOUT, et pour la même raison que les cartes : un
+    //  chiffre absent deviendrait `NaN` au milieu d'un calcul de
+    //  dégâts, et le tour partirait dans le sujet avec un résultat
+    //  absurde — marqué comme joué, donc jamais rejoué.
+    const o = recu as Record<string, unknown>;
+    return {
+      combatId: texte(o, "combatId", "combat"),
+      sujetId: nombre(o, "sujetId", "combat"),
+      joueurId: texte(o, "joueurId", "combat"),
+      tour: nombre(o, "tour", "combat"),
+      sauvage: {
+        ...lireUnCombattant(o.sauvage, "sauvage"),
+        especeId: nombre(o.sauvage as Record<string, unknown>, "especeId", "sauvage"),
+      },
+      combattant: o.combattant === null || o.combattant === undefined ? null : {
+        ...lireUnCombattant(o.combattant, "combattant"),
+        pokemonId: texte(
+          o.combattant as Record<string, unknown>,
+          "pokemonId",
+          "combattant",
+        ),
+        surnom: lireUnSurnom((o.combattant as Record<string, unknown>).surnom),
+      },
+    };
+  }
+
+  async jouer(t: Parameters<Combats["jouer"]>[0]): Promise<TourJoue> {
+    const nom = "jouer_un_tour";
+    const recu = await this.appeler(nom, t);
+    if (recu === null || typeof recu !== "object") {
+      throw new AppelEchoue(nom, `objet attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    const o = recu as Record<string, unknown>;
+    return {
+      tourId: typeof o.tourId === "string" ? o.tourId : null,
+      //  MÊME PRUDENCE QUE POUR `ouvert` : absent vaut faux. Se tromper
+      //  dans ce sens-là fait un tour de moins ; dans l'autre, on
+      //  croirait avoir joué un tour que la base a refusé, et on
+      //  verserait son expérience.
+      joue: o.joue === true,
+      raison: typeof o.raison === "string" ? o.raison : null,
+    };
+  }
 
   async ouvrir(c: {
     readonly sujetId: number;

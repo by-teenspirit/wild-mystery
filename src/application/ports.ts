@@ -372,7 +372,79 @@ export type OuvertureDeCombat = {
   readonly raison: string | null;
 };
 
+/** L'état d'un combat ouvert, avec tout ce qu'il faut pour jouer un
+ *  tour : les deux combattants, leurs chiffres AU NIVEAU, et les quatre
+ *  capacités de chacun.
+ *
+ *  LE SAUVAGE A LES SIENNES, et c'est le détail qu'on oublie en écrivant
+ *  « le joueur attaque » : sans capacités il ne riposte pas, et un
+ *  combat où le sauvage ne frappe jamais n'est pas un combat. */
+export type CapaciteEnJeu = {
+  readonly id: number;
+  readonly nom: string;
+  readonly type: string;
+  readonly puissance: number;
+  readonly precision: number;
+};
+
+export type CombattantEnJeu = {
+  readonly nom: string;
+  readonly niveau: number;
+  readonly types: readonly string[];
+  readonly pv: number;
+  readonly pvMax: number;
+  readonly attaque: number;
+  readonly defense: number;
+  readonly capacites: readonly CapaciteEnJeu[];
+};
+
+export type CombatEnCours = {
+  readonly combatId: string;
+  readonly sujetId: number;
+  readonly joueurId: string;
+  /** Le numéro du DERNIER tour joué. Zéro quand la carte vient de
+   *  partir et que personne n'a encore agi. */
+  readonly tour: number;
+  readonly sauvage: CombattantEnJeu & {
+    readonly especeId: number;
+  };
+  readonly combattant:
+    | (CombattantEnJeu & {
+      readonly pokemonId: string;
+      readonly surnom: string | null;
+    })
+    | null;
+};
+
+/** Ce que la base répond quand on enregistre un tour.
+ *
+ *  `joue` à faux n'est pas une erreur : `DEJA_JOUE` est la relève qui
+ *  relit, `COMBAT_CLOS` un sujet clôturé entre-temps, `TOUR_DEPASSE`
+ *  deux messages du même passage qui voudraient jouer le même tour. */
+export type TourJoue = {
+  readonly tourId: string | null;
+  readonly joue: boolean;
+  readonly raison: string | null;
+};
+
 export interface Combats {
+  /** L'état du combat ouvert d'un sujet, ou `null`. */
+  pourJouer(sujetId: number): Promise<CombatEnCours | null>;
+  /** Enregistre un tour DÉJÀ CALCULÉ par le domaine. Le calcul n'est
+   *  jamais fait en base : il y serait une deuxième fois, et deux
+   *  formules finissent par ne plus dire la même chose. */
+  jouer(t: {
+    readonly combatId: string;
+    readonly messageId: number;
+    readonly numero: number;
+    readonly demande: string;
+    readonly detail: Readonly<Record<string, unknown>> | null;
+    readonly recit: unknown;
+    readonly pvJoueur: number;
+    readonly pvSauvage: number;
+    readonly fin: string | null;
+  }): Promise<TourJoue>;
+
   /** Ouvre un combat sauvage, ou rend celui qui est déjà là.
    *
    *  Idempotente par le numéro du message : la base en garantit un seul
@@ -385,6 +457,16 @@ export interface Combats {
     readonly especeId: number;
     readonly niveau: number;
   }): Promise<OuvertureDeCombat>;
+}
+
+/** La table d'efficacité des dix-huit types.
+ *
+ *  Elle vit dans `data/types.json`, dérivée des CSV de PokéAPI par
+ *  `outils/types-efficacite.py`. Un port parce qu'un fichier du dépôt
+ *  se lit par le réseau côté fonction Edge, comme les tables de faune —
+ *  et parce qu'un test n'a pas à aller le chercher. */
+export interface TableDesTypesEnJeu {
+  efficacite(): Promise<Readonly<Record<string, Readonly<Record<string, number>>>>>;
 }
 
 // ── les cartes de rencontre ─────────────────────────────────────────

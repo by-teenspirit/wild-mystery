@@ -55,6 +55,7 @@ import { quelFossile } from "../domaine/fossile.ts";
 import { fouiller } from "../domaine/fouille.ts";
 import { conditionDeLaZone, estLaNuit, tempsDuJour } from "../domaine/meteo.ts";
 import { tirerUneRencontre } from "../domaine/rencontre.ts";
+import { estUneDemandeDeCombat, type JouerUnTour } from "./jouer-un-tour.ts";
 import type {
   ActionLue,
   Combats,
@@ -113,6 +114,7 @@ export class LireLesNouveauxMessages {
     private readonly fossiles: TableDesFossiles,
     private readonly butin: TableDeButin,
     private readonly combats: Combats,
+    private readonly tours: JouerUnTour,
   ) {}
 
   /**
@@ -190,6 +192,18 @@ export class LireLesNouveauxMessages {
     joueurId: string,
     erreurs: string[],
   ): Promise<readonly Evenement[]> {
+    //  ── LE COMBAT PASSE EN PREMIER, et c'est volontaire ─────────────
+    //
+    //  Les cinq verbes du combat ne tirent dans aucune table de faune
+    //  et ne dépendent pas de la zone : ils dépendent du COMBAT ouvert
+    //  dans ce sujet. Les tester d'abord évite de lire une table de
+    //  faune pour un message qui n'en a pas besoin — et surtout, ça
+    //  les sort du chemin où « une zone sans faune » est une erreur.
+    if (estUneDemandeDeCombat(lue.action)) {
+      const r = await this.tours.executer(lue, lue.action, joueurId, erreurs);
+      return r.evenements;
+    }
+
     if (lue.action.type === "fouiller") return await this.resoudreUneFouille(lue, zone);
 
     //  `lue.action` n'est plus passée : une recherche n'a plus d'argument
