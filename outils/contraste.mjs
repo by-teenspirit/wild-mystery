@@ -442,8 +442,29 @@ if (voile === null || voile.photo === false) {
 //  faire defiler ; a 620 le sommaire, haut de 855, ne tient pas dans
 //  la fenetre et `sticky` le laisse partir — c'est le comportement
 //  normal, pas un defaut. Entre les deux, il colle.
+//  ── ON MESURE AU MILIEU, PAS AU DERNIER PIXEL ─────────────────────
+//
+//  CET ESSAI SE TROMPAIT, et il a fallu le defaut du 18 novembre pour
+//  le voir : il defilait de 400 sur une page qui ne descend que de
+//  194, donc il mesurait TOUJOURS le tout dernier pixel. Or la, le
+//  conteneur du sommaire (`.wm-annexe`) finit avant le bas de la
+//  fenetre — il y a un pied en dessous — et `sticky` fait remonter le
+//  bloc avec la fin de son conteneur. C'est la regle, pas un defaut :
+//  un element colle ne depasse jamais le bas de son conteneur.
+//
+//  Il annoncait donc un DEFAUT permanent, que personne ne pouvait
+//  corriger, sur le comportement meme que le commentaire au-dessus
+//  decrit comme normal. Deuxieme fois aujourd'hui qu'une mesure
+//  mesurait autre chose que ce qu'elle annoncait.
+//
+//  LE MILIEU DU DEFILEMENT, DONC : la ou il reste de la place des deux
+//  cotes, et ou le sommaire doit etre colle a 56.
 await p.setViewportSize({ width: 1280, height: 1000 });
-await p.evaluate(() => globalThis.scrollTo(0, 400));
+const aMiChemin = await p.evaluate(() => {
+  const max = document.documentElement.scrollHeight - globalThis.innerHeight;
+  globalThis.scrollTo(0, Math.round(max / 2));
+  return Math.round(max);
+});
 await p.waitForTimeout(250);
 const sousLaBarre = await p.evaluate(() => {
   const s = document.querySelector(".wm-annexe__sommaire");
@@ -463,12 +484,15 @@ await p.evaluate(() => globalThis.scrollTo(0, 0));
 await p.setViewportSize({ width: 1280, height: 1400 });
 await p.waitForTimeout(150);
 if (sousLaBarre !== null) {
-  const bon = sousLaBarre.sommaire >= sousLaBarre.basDeLaBarre &&
-    sousLaBarre.hautDeLaBarre === 0;
+  //  UNE PAGE QUI NE DEFILE PAS NE PROUVE RIEN, et le dire vaut mieux
+  //  que rendre un vert gratuit.
+  const bon = aMiChemin < 8 ||
+    (sousLaBarre.sommaire >= sousLaBarre.basDeLaBarre && sousLaBarre.hautDeLaBarre === 0);
   console.log(
-    `defile de ${sousLaBarre.defile} : barre a ${sousLaBarre.hautDeLaBarre}, ` +
-      `sommaire a ${sousLaBarre.sommaire}, bas de la barre a ` +
-      `${sousLaBarre.basDeLaBarre}` +
+    `defile de ${sousLaBarre.defile} sur ${aMiChemin} possibles : barre a ` +
+      `${sousLaBarre.hautDeLaBarre}, sommaire a ${sousLaBarre.sommaire}, ` +
+      `bas de la barre a ${sousLaBarre.basDeLaBarre}` +
+      (aMiChemin < 8 ? " — page trop courte pour defiler, rien a mesurer" : "") +
       (bon ? "" : " — DEFAUT, il passe dessous"),
   );
   if (!bon) fautes++;

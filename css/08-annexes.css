@@ -536,10 +536,42 @@ body:has(#modernbb .wm-carnet) {
   flex: 0 0 252px;
   width: 252px;
   padding: 0 0 var(--wm-espace-24, 24px);
-  /*  LE PLAFOND DE HAUTEUR EST DANS `27-repertoire.css`, sur
-      `.wm-bottins` : c'est la seule colonne qui peut dépasser
-      l'écran. Ne pas le redire ici — deux plafonds à tenir d'accord
-      valent moins qu'un. */
+  /*  ── IL DÉFILE CHEZ LUI, ET PAS AVEC LA PAGE ───────────────────────
+
+      « Je dois être en bas de ma page pour pouvoir scroller : c'est
+      contre-intuitif. » — 18 novembre. Exact, et c'était mécanique :
+      quatorze entrées font 1 020 px, donc le sommaire était plus HAUT
+      que la fenêtre. Un bloc `sticky` plus haut que la fenêtre ne colle
+      pas en haut — il suit la page jusqu'à ce que son bas touche le bas
+      de l'écran. Ses dernières entrées n'étaient donc atteignables
+      qu'en descendant toute l'annexe, et elles remontaient dès qu'on
+      revenait en haut.
+
+      LE PLAFOND LE RAMÈNE DANS LA FENÊTRE : `100vh` moins les 56 de la
+      barre, c'est-à-dire exactement la place qui lui reste quand il est
+      collé. À partir de là `overflow-y` lui donne son propre
+      défilement, utilisable dès le haut de la page — et la barre que
+      les trois règles plus bas habillent depuis le 17 novembre a enfin
+      quelque chose à habiller.
+
+      DEUX PLAFONDS VALENT MOINS QU'UN, et c'est toujours vrai : celui
+      de `.wm-bottins` (`27-repertoire.css`) borne une COLONNE DE
+      CONTENU, pas cette barre-ci. Les deux ne se superposent sur aucun
+      élément.
+
+      ET `border-box`, SINON LE PLAFOND MENT DE 24 PX. Mesuré : avec le
+      calcul par défaut, `max-height` borne la boîte de contenu et le
+      rembourrage du bas s'ajoute par-dessus — le sommaire dépassait de
+      la fenêtre d'exactement ses 24 px de pied. Le forum ne pose pas
+      `border-box` partout, donc ça s'écrit ici. */
+  box-sizing: border-box;
+  max-height: calc(100vh - 56px);
+  overflow-y: auto;
+  /*  LE DÉFILEMENT NE DÉBORDE PAS SUR LA PAGE : arrivé au bout du
+      sommaire, la molette ne doit pas se mettre à faire défiler
+      l'annexe derrière. Deux défilements enchaînés dans un même geste,
+      c'est l'impression de ne plus savoir ce qu'on manipule. */
+  overscroll-behavior: contain;
   /*  Le fond est peint par `.wm-annexe`, pour courir sur toute la
       hauteur de la page sans empêcher ce bloc de coller. */
   color: var(--wm-texte-sur-nuit, #fffbf7);
@@ -1151,6 +1183,15 @@ body:has(#modernbb .wm-carnet) {
     flex: 1 1 auto;
     width: auto;
     align-self: stretch;
+    /*  ET IL REPREND SA HAUTEUR ENTIÈRE. Le plafond et le défilement
+        propre ajoutés le 18 novembre servent au sommaire COLLÉ : ici il
+        est passé au-dessus du texte, dans le fil de la page, et un
+        panneau de 700 px à faire défiler dans un téléphone serait pire
+        que le défaut qu'on vient de corriger. Trois lignes pour que
+        rien ne change sur petit écran. */
+    max-height: none;
+    overflow-y: visible;
+    overscroll-behavior: auto;
   }
 
   #modernbb .wm-annexe__corps {

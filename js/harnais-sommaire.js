@@ -46,11 +46,19 @@
     const trouve = /^\/h\d+-([a-z0-9-]+)\/?$/.exec(chemin);
     return trouve === null ? null : trouve[1];
   }
-  function sommaireAffiche(sommaire, slugCourant) {
+  function pageDeLAdresse(adresse2) {
+    if (adresse2 === null) return null;
+    const trouve = /\/h(\d+)(?:-|\/|$)/.exec(adresse2);
+    if (trouve === null) return null;
+    const n = Number(trouve[1]);
+    return Number.isInteger(n) && n > 0 ? n : null;
+  }
+  function sommaireAffiche(sommaire, slugCourant, pageCourante = null) {
     return sommaire.sections.map((s) => ({
       titre: s.titre,
       entrees: s.entrees.map((e) => {
-        const active = slugCourant !== null && e.slug === slugCourant;
+        const sienne = pageDeLAdresse(e.adresse);
+        const active = sienne !== null && pageCourante !== null ? sienne === pageCourante : slugCourant !== null && e.slug === slugCourant;
         return {
           ...e,
           active,
@@ -100,7 +108,7 @@
   function poserLeSommaire({ doc, donnees }) {
     const trou = doc.querySelector("[data-wm-sommaire]");
     if (trou === null) return false;
-    const sections = sommaireAffiche(sommaireDepuis(donnees), slugDepuisAdresse(doc.location?.pathname ?? ""));
+    const sections = sommaireAffiche(sommaireDepuis(donnees), slugDepuisAdresse(doc.location?.pathname ?? ""), pageDeLAdresse(doc.location?.pathname ?? ""));
     if (sections.length === 0) return false;
     trou.textContent = "";
     const entete = element(doc, "div", "wm-annexe__entete");
@@ -110,12 +118,22 @@
     entete.appendChild(element(doc, "p", "wm-annexe__enseigne", "Les annexes"));
     trou.appendChild(entete);
     sections.forEach((s, i) => trou.appendChild(sectionEnDOM(doc, s, i === 0)));
+    amenerLActive(trou);
     return true;
+  }
+  function amenerLActive(sommaire) {
+    if (sommaire.scrollHeight <= sommaire.clientHeight) return;
+    const active = sommaire.querySelector('[aria-current="page"]');
+    if (active === null) return;
+    const liste = sommaire.getBoundingClientRect();
+    const cible = active.getBoundingClientRect();
+    if (cible.top >= liste.top && cible.bottom <= liste.bottom) return;
+    sommaire.scrollTop += cible.top - liste.top - (sommaire.clientHeight - cible.height) / 2;
   }
   function poserLaSuivante({ doc, donnees }) {
     const bouton2 = doc.querySelector("a.wm-suivante__bouton");
     if (bouton2 === null) return false;
-    const sections = sommaireAffiche(sommaireDepuis(donnees), slugDepuisAdresse(doc.location?.pathname ?? ""));
+    const sections = sommaireAffiche(sommaireDepuis(donnees), slugDepuisAdresse(doc.location?.pathname ?? ""), pageDeLAdresse(doc.location?.pathname ?? ""));
     const toutes = sections.flatMap((s) => s.entrees);
     const ici = toutes.findIndex((e) => e.active);
     if (ici === -1) return false;

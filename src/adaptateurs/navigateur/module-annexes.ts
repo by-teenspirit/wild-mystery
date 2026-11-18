@@ -144,7 +144,38 @@ export function poserLeSommaire({ doc, donnees }: Dependances): boolean {
   trou.appendChild(entete);
 
   sections.forEach((s, i) => trou.appendChild(sectionEnDOM(doc, s, i === 0)));
+  amenerLActive(trou);
   return true;
+}
+
+/** Amène l'entrée active dans la partie visible du sommaire.
+ *
+ *  LE SOMMAIRE DÉFILE CHEZ LUI depuis le 18 novembre (`08-annexes.css`)
+ *  : il est plus haut que la fenêtre, donc sur une annexe du bas —
+ *  « 13 · Arènes, colosseums et Ligue » — l'entrée où on se trouve
+ *  était hors de sa partie visible. On s'ouvrait sur une liste qui ne
+ *  montrait pas où on était.
+ *
+ *  ON ÉCRIT `scrollTop`, ON N'APPELLE PAS `scrollIntoView`. Celui-ci
+ *  remonte la chaîne des parents et fait défiler LA PAGE aussi : on
+ *  arriverait sur l'annexe déjà descendue de deux cents pixels, sans
+ *  avoir rien demandé. Écrire la position du conteneur ne touche que
+ *  lui.
+ *
+ *  ET SEULEMENT SI C'EST NÉCESSAIRE : quand le sommaire tient dans la
+ *  fenêtre, il n'y a rien à faire, et une écriture de `scrollTop` sur
+ *  un bloc qui ne défile pas est une occasion de se tromper plus tard. */
+function amenerLActive(sommaire: Element): void {
+  if (sommaire.scrollHeight <= sommaire.clientHeight) return;
+  const active = sommaire.querySelector('[aria-current="page"]');
+  if (active === null) return;
+  const liste = sommaire.getBoundingClientRect();
+  const cible = active.getBoundingClientRect();
+  if (cible.top >= liste.top && cible.bottom <= liste.bottom) return;
+  //  CENTRÉE, PAS COLLÉE AU BORD : une entrée active posée tout en haut
+  //  ou tout en bas laisse croire qu'il n'y a rien au-delà.
+  sommaire.scrollTop += (cible.top - liste.top) -
+    (sommaire.clientHeight - cible.height) / 2;
 }
 
 /**
