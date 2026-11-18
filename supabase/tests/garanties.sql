@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(370);
+select plan(384);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2784,7 +2784,130 @@ select ok(
   'PERSONNE N''ÉCRIT UN TOUR DEPUIS LE NAVIGATEUR : un tour qu''on écrit soi-même est un combat qu''on gagne en écrivant qu''on l''a gagné'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0049 · LES PV DANS LE SUJET
+--
+--  « Ils se soignent à la clôture » — 18 novembre. Les PV comptent
+--  pendant tout le sujet : changer ne soigne pas, revenir ne soigne
+--  pas, une seconde rencontre dans le même sujet se joue avec le
+--  Pokémon qu'on a.
+-- ════════════════════════════════════════════════════════════════════
+
+select has_table('pv_du_sujet', 'LES PV ONT LEUR TABLE');
+
+select ok(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 998, 'messageId', 15800,
+      'joueurId', j.id, 'especeId', 77, 'niveau', 10))->>'ouvert')::boolean
+     from joueur j where j.forum_user_id = 9110),
+  'un combat dans un sujet neuf'
+);
+
+select is(
+  (select pv_pokemon from combat where message_id = 15800),
+  (select pv_pokemon_max from combat where message_id = 15800),
+  'UN POKÉMON JAMAIS BLESSÉ DANS CE SUJET ENTRE ENTIER'
+);
+
+--  ── UN TOUR ÉCRIT LES DEUX, DANS LA MÊME TRANSACTION ─────────────
+select ok(
+  (select (jouer_un_tour(jsonb_build_object(
+      'combatId', c.id, 'messageId', 15801, 'numero', 1,
+      'demande', 'attaquer', 'recit', '{}'::jsonb,
+      'pvJoueur', 7, 'pvSauvage', 20))->>'joue')::boolean
+     from combat c where c.message_id = 15800),
+  'un tour qui blesse'
+);
+
+select is(
+  (select pv from pv_du_sujet pvs
+     join combat c on c.pokemon_id = pvs.pokemon_id
+    where c.message_id = 15800 and pvs.sujet_id = 998),
+  7::smallint,
+  'LES PV DU SUJET SUIVENT LE TOUR'
+);
+
+select is(
+  (select pv_pokemon from combat where message_id = 15800),
+  (select pv from pv_du_sujet where sujet_id = 998),
+  'ET LA COPIE S''ACCORDE AVEC LA VÉRITÉ : une seule fonction écrit les deux, dans la même transaction'
+);
+
+--  ── UNE SECONDE RENCONTRE DANS LE MÊME SUJET ─────────────────────
+--
+--  C'est le cœur de la décision du 18 novembre. Si cette assertion
+--  tombe, les Potions ne servent plus à rien.
+select ok(
+  (select fermer_un_combat(jsonb_build_object('combatId', c.id, 'etat', 'fuite'))
+     from combat c where c.message_id = 15800),
+  'le premier combat se ferme'
+);
+
+select ok(
+  (select (ouvrir_un_combat(jsonb_build_object(
+      'sujetId', 998, 'messageId', 15810,
+      'joueurId', j.id, 'especeId', 25, 'niveau', 8))->>'ouvert')::boolean
+     from joueur j where j.forum_user_id = 9110),
+  'et un second s''ouvre dans le même sujet'
+);
+
+select is(
+  (select pv_pokemon from combat where message_id = 15810),
+  7::smallint,
+  'LE COMBATTANT ARRIVE COMME IL EST : blessé au combat d''avant, blessé à celui-ci'
+);
+
+select ok(
+  (select pv_pokemon < pv_pokemon_max from combat where message_id = 15810),
+  'et son maximum, lui, n''a pas bougé — c''est ce qui fait « 7/18 » sur la carte'
+);
+
+--  ── CHANGER DE POKÉMON : CELUI QUI SORT GARDE SES PV ─────────────
+--
+--  LE DÉCOR MANQUAIT, et le test l'a dit : le joueur n'avait que son
+--  starter, donc « changer » ne changeait pour personne et la ligne
+--  attendue n'arrivait pas. On lui donne un second Pokémon.
+insert into pokemon (joueur_id, espece_id, emplacement, position, niveau)
+select j.id, 25, 'equipe', 2, 6 from joueur j where j.forum_user_id = 9110;
+
+select ok(
+  (select (jouer_un_tour(jsonb_build_object(
+      'combatId', c.id, 'messageId', 15811, 'numero', 1,
+      'demande', 'changer', 'recit', '{}'::jsonb,
+      'pokemonId', (select id from pokemon
+                     where joueur_id = c.joueur_id and id <> c.pokemon_id limit 1),
+      'pvPokemonMax', 20, 'pvJoueur', 20, 'pvSauvage', 25))->>'joue')::boolean
+     from combat c where c.message_id = 15810),
+  'un changement de Pokémon se joue'
+);
+
+select is(
+  (select count(*)::int from pv_du_sujet where sujet_id = 998),
+  2,
+  'DEUX POKÉMON ONT MAINTENANT DES PV DANS CE SUJET : celui qui sort garde les siens'
+);
+
+--  ── ET LA CLÔTURE SOIGNE TOUT ────────────────────────────────────
+--
+--  Par un DÉCLENCHEUR, pas par une ligne ajoutée dans
+--  `appliquer_cloture` : cette fonction a été réécrite deux fois cette
+--  semaine et les deux fois quelque chose est revenu en arrière.
+insert into cloture (sujet_id, code, resultat)
+values (998, 'WM-SOIN-998', '{}'::jsonb);
+
+select is(
+  (select count(*)::int from pv_du_sujet where sujet_id = 998),
+  0,
+  'LA CLÔTURE SOIGNE TOUT LE MONDE — « ils se soignent à la clôture », 18 novembre'
+);
+
+select ok(
+  not has_table_privilege('anon', 'pv_du_sujet', 'update'),
+  'et personne n''écrit ses PV depuis le navigateur : les PV sont le score'
+);
+
 select * from finish();
+
 
 
 
