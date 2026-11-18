@@ -55,6 +55,62 @@ def e(t):
     return html.escape(str(t), quote=True)
 
 
+def questionnaire(d):
+    #  LES HUIT QUESTIONS SONT ÉCRITES DANS LA PAGE, pas chargées : le
+    #  questionnaire marche à la seconde où la page s'affiche, et même
+    #  sans JavaScript on peut répondre — il ne manque que le compte.
+    #  Les poids voyagent en attributs sur chaque bouton, une seule
+    #  source, celle de `data/groupes.json`.
+    out = []
+    w = out.append
+    w('        <div class="wm-annexe__carte" data-wm-questionnaire>')
+    w('          <h2 class="wm-annexe__carte-titre">Vers quel groupe penches-tu ?</h2>')
+    w('          <p>')
+    w("            Huit situations, quatre réponses. Aucune n'est la bonne : chacune")
+    w("            pèse sur deux natures. Tu peux être un peu de chaque — les jauges")
+    w("            le disent en pourcentage, et le questionnaire ne décide de rien.")
+    w("          </p>")
+    w("")
+    w('          <form class="wm-sondage">')
+    for n, q in enumerate(d["questionnaire"], start=1):
+        w(f'            <fieldset class="wm-sondage__question">')
+        w(f'              <legend class="wm-sondage__situation">'
+          f'<span class="wm-sondage__numero">{n}</span> {e(q["situation"])}</legend>')
+        for i, r in enumerate(q["reponses"], start=1):
+            idr = f"wm-q{n}-{i}"
+            w(f'              <label class="wm-sondage__reponse" for="{idr}">')
+            w(f'                <input type="radio" id="{idr}" name="wm-q{n}"'
+              f' value="{i}" data-wm-premier="{e(r["premier"])}"'
+              f' data-wm-second="{e(r["second"])}" />')
+            w(f'                <span>{e(r["dit"])}</span>')
+            w("              </label>")
+        w("            </fieldset>")
+    w("          </form>")
+    w("")
+    #  LES JAUGES PORTENT LE NOM DU GROUPE EN ATTRIBUT : la phrase du
+    #  résultat le lit là, au lieu d'une seconde liste de noms dans le
+    #  script qui vieillirait de son côté.
+    w('          <div class="wm-sondage__resultat">')
+    w('            <p class="wm-sondage__verdict" data-wm-resultat'
+      ' role="status">Encore 8 questions.</p>')
+    w('            <ul class="wm-sondage__jauges">')
+    for g in d["groupes"]:
+        cle = e(g["cle"])
+        w(f'              <li class="wm-sonde wm-groupe--{cle}" data-wm-jauge="{cle}"'
+          f' data-wm-nom="{e(g["nom"])}">')
+        w(f'                <span class="wm-sonde__nom">{e(g["nom"])}</span>')
+        w('                <span class="wm-sonde__piste">'
+          '<span class="wm-sonde__barre" style="width: 0%"></span></span>')
+        w('                <span class="wm-sonde__part">0 %</span>')
+        w("              </li>")
+    w("            </ul>")
+    w('            <button type="button" class="wm-sondage__bouton"'
+      " data-wm-recommencer>Tout effacer et recommencer</button>")
+    w("          </div>")
+    w("        </div>")
+    return "\n".join(out)
+
+
 def corps():
     d = json.loads((R / "data/groupes.json").read_text(encoding="utf-8"))
     out = []
@@ -134,6 +190,8 @@ def corps():
         w('            </li>')
     w('          </ul>')
     w('        </div>')
+    w("")
+    w(questionnaire(d))
     w("")
     w(pied_de_page(SLUG))
     w("")

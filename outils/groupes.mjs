@@ -71,16 +71,74 @@ const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: 
 async function ouvrir(largeur, theme) {
   const p = await nav.newPage({ viewport: { width: largeur, height: 1200 } });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
+  //  ── LE THÈME SE DEMANDE PAR LA PRÉFÉRENCE, PAS PAR UNE CLASSE ───
+  //
+  //  Le paquet pose `poserLeTheme` au chargement : il relit
+  //  `wm.theme` dans le stockage et REMET la classe du corps d'après
+  //  elle. Une classe écrite dans le gabarit était donc effacée une
+  //  milliseconde plus tard, et la page « sombre » s'affichait en
+  //  clair — le même piège que l'aperçu du 18 novembre au matin. On
+  //  écrit donc la préférence, comme une personne qui clique.
+  await p.addInitScript((t) => {
+    try {
+      localStorage.setItem("wm.theme", t);
+    } catch { /* navigation privée : tant pis, on mesurera le clair */ }
+  }, theme);
   await p.route("**/*", (r) => {
     const u = r.request().url();
     if (/\.(png|jpg|jpeg|gif|svg|webp)$/.test(u)) return r.fulfill({ status: 404, body: "" });
+    //  LE VRAI PAQUET, pas un bouchon : le questionnaire vit dedans, et
+    //  un harnais qui servirait un script vide mesurerait une page
+    //  morte. Les autres fichiers servis vides restent vides — le
+    //  switcheroo et compagnie n'ont rien à faire ici.
+    if (/annexes\.js$/.test(u)) {
+      return r.fulfill({
+        contentType: "text/javascript",
+        body: readFileSync(R + "js/annexes.js", "utf8"),
+      });
+    }
     if (/\.js$/.test(u)) return r.fulfill({ contentType: "text/javascript", body: "" });
     if (/\.json$/.test(u)) return r.fulfill({ status: 404, body: "" });
     return r.fulfill({ contentType: "text/html; charset=utf-8", body: page(theme) });
   });
   await p.goto("http://wild-mystery.test/annexe-07");
-  await p.waitForTimeout(200);
+  await p.waitForTimeout(300);
   return p;
+}
+
+/** Coche une colonne de réponses pour les huit questions.
+ *
+ *  `colonne` va de 1 à 4. On clique le `label`, pas l'`input` : c'est
+ *  ce que fait une personne, et c'est le chemin qui casserait si le
+ *  label cessait d'être lié à son bouton. */
+async function repondre(p, colonne) {
+  for (let n = 1; n <= 8; n++) {
+    await p.click(`label[for="wm-q${n}-${colonne}"]`);
+  }
+  //  LES BARRES GLISSENT EN 220 ms. Mesurer avant la fin donnerait la
+  //  largeur d'un instant quelconque de l'animation — c'est ce qu'un
+  //  premier passage a fait, en annonçant 57 % pour une jauge à 67.
+  await p.waitForTimeout(400);
+}
+
+function lireLesJauges(p) {
+  return p.evaluate(() => {
+    const racine = document.querySelector("[data-wm-questionnaire]");
+    return {
+      fini: racine?.dataset.wmFini ?? null,
+      verdict: racine?.querySelector("[data-wm-resultat]")?.textContent?.trim() ?? null,
+      jauges: [...racine.querySelectorAll("[data-wm-jauge]")].map((j) => ({
+        cle: j.dataset.wmJauge,
+        part: j.querySelector(".wm-sonde__part").textContent,
+        //  LA LARGEUR PEINTE, pas celle écrite : c'est elle qu'on voit,
+        //  et c'est elle qui trahirait une barre à 140 %.
+        large: Math.round(j.querySelector(".wm-sonde__barre").getBoundingClientRect().width),
+        piste: Math.round(j.querySelector(".wm-sonde__piste").getBoundingClientRect().width),
+        tete: j.dataset.wmTete === "oui",
+        rang: Number(getComputedStyle(j).order),
+      })),
+    };
+  });
 }
 
 // ── 1 440 px, THÈME CLAIR ───────────────────────────────────────────
@@ -202,6 +260,155 @@ dire(
   vu.cartes.every((c) => c.debordeEnLargeur === false),
   "",
 );
+
+// ── LE QUESTIONNAIRE ────────────────────────────────────────────────
+//
+//  « Le petit questionnaire que la personne peut remplir facilement, et
+//  lui donner le résultat vers quel groupe elle tend le plus, avec des
+//  jauges. » On le remplit vraiment, en cliquant, et on lit ce qui
+//  s'affiche.
+
+console.log("\n── LE QUESTIONNAIRE ────────────────────────────────────");
+
+const avant = await lireLesJauges(large);
+dire(
+  "AVANT DE RÉPONDRE, SIX JAUGES À ZÉRO",
+  avant.jauges.length === 6 && avant.jauges.every((j) => j.large === 0),
+  JSON.stringify(avant.jauges.map((j) => j.part)),
+);
+dire(
+  "et la phrase compte ce qui reste, sans désigner personne",
+  avant.fini === "non" && /8 questions/.test(avant.verdict ?? ""),
+  String(avant.verdict),
+);
+
+//  UNE SEULE RÉPONSE : deux tiers / un tiers, c'est toute la mécanique,
+//  et c'est le moment où une erreur de poids se verrait le mieux.
+await large.click('label[for="wm-q1-1"]');
+await large.waitForTimeout(400);
+const une = await lireLesJauges(large);
+const brave = une.jauges.find((j) => j.cle === "brave");
+const doux = une.jauges.find((j) => j.cle === "doux");
+dire(
+  "UNE RÉPONSE REMPLIT DEUX JAUGES, PAS UNE",
+  brave?.part === "67 %" && doux?.part === "33 %",
+  JSON.stringify({ brave: brave?.part, doux: doux?.part }),
+);
+dire(
+  "et le trait suit le pourcentage, au pixel",
+  //  ON COMPARE À DEUX TIERS, PAS À 0,67 : la barre prend la part
+  //  EXACTE, le texte la part arrondie. Comparer le trait au nombre
+  //  affiché faisait rater de deux pixels et demi une jauge juste —
+  //  c'est le harnais qui arrondissait, pas la page.
+  brave !== undefined && Math.abs(brave.large - brave.piste * (2 / 3)) <= 2,
+  `${brave?.large} px sur une piste de ${brave?.piste}`,
+);
+dire(
+  "LA TÊTE EST MARQUÉE, ET ELLE EST SEULE",
+  une.jauges.filter((j) => j.tete).length === 1 &&
+    une.jauges.find((j) => j.tete)?.cle === "brave",
+  une.jauges.filter((j) => j.tete).map((j) => j.cle).join(" · "),
+);
+dire(
+  "elle est remontée en tête de liste",
+  une.jauges.find((j) => j.cle === "brave")?.rang === 0,
+  JSON.stringify(une.jauges.map((j) => [j.cle, j.rang])),
+);
+dire(
+  "MAIS LE VERDICT ATTEND LES HUIT",
+  une.fini === "non" && /7 questions/.test(une.verdict ?? ""),
+  String(une.verdict),
+);
+
+//  LES HUIT, COLONNE 1. C'est un passage complet, celui qu'une
+//  personne fera.
+await repondre(large, 1);
+const plein = await lireLesJauges(large);
+const somme = plein.jauges.reduce((a, j) => a + parseInt(j.part, 10), 0);
+dire(
+  "LES HUIT RÉPONDUES, LE VERDICT DÉSIGNE UN GROUPE",
+  plein.fini === "oui" && /penches vers|tirent autant/.test(plein.verdict ?? ""),
+  String(plein.verdict),
+);
+dire(
+  "et les six pourcentages font cent, à l'arrondi près",
+  Math.abs(somme - 100) <= 2,
+  `${somme} %`,
+);
+dire(
+  "AUCUNE JAUGE NE DÉBORDE DE SA PISTE",
+  plein.jauges.every((j) => j.large <= j.piste + 1),
+  JSON.stringify(plein.jauges.map((j) => `${j.large}/${j.piste}`)),
+);
+dire(
+  "et les jauges sont rangées de la plus haute à la plus basse",
+  (() => {
+    const parts = [...plein.jauges].sort((a, b) => a.rang - b.rang)
+      .map((j) => parseInt(j.part, 10));
+    return parts.every((n, i) => i === 0 || parts[i - 1] >= n);
+  })(),
+  JSON.stringify(
+    [...plein.jauges].sort((a, b) => a.rang - b.rang).map((j) => `${j.cle} ${j.part}`),
+  ),
+);
+
+//  ── L'EX-ÆQUO SE DIT ──────────────────────────────────────────────
+//
+//  « Sauf si y'en a deux à ex-æquo. » On le provoque : quatre fois la
+//  réponse qui met Hardi devant Doux, quatre fois celle qui fait
+//  l'inverse — à construire depuis le fichier, parce qu'un numéro de
+//  colonne écrit ici vieillirait au premier remaniement des questions.
+const EXAEQUO = (() => {
+  const q = JSON.parse(readFileSync(R + "data/groupes.json", "utf8")).questionnaire;
+  //  On cherche deux réponses miroir : A devant B, et B devant A.
+  for (let i = 0; i < q.length; i++) {
+    for (let j = 0; j < q.length; j++) {
+      if (i === j) continue;
+      for (let a = 0; a < 4; a++) {
+        for (let b = 0; b < 4; b++) {
+          const ra = q[i].reponses[a], rb = q[j].reponses[b];
+          if (ra.premier === rb.second && ra.second === rb.premier) {
+            return { a: { q: i + 1, r: a + 1 }, b: { q: j + 1, r: b + 1 }, cles: [ra.premier, ra.second] };
+          }
+        }
+      }
+    }
+  }
+  return null;
+})();
+
+if (EXAEQUO === null) {
+  dire("DEUX RÉPONSES MIROIR EXISTENT, pour provoquer l'ex-æquo", false, "aucune trouvée");
+} else {
+  await large.click("[data-wm-recommencer]");
+  await large.waitForTimeout(400);
+  await large.click(`label[for="wm-q${EXAEQUO.a.q}-${EXAEQUO.a.r}"]`);
+  await large.click(`label[for="wm-q${EXAEQUO.b.q}-${EXAEQUO.b.r}"]`);
+  await large.waitForTimeout(400);
+  const ex = await lireLesJauges(large);
+  const tetes = ex.jauges.filter((j) => j.tete).map((j) => j.cle).sort();
+  dire(
+    "DEUX RÉPONSES MIROIR METTENT DEUX GROUPES À ÉGALITÉ",
+    JSON.stringify(tetes) === JSON.stringify([...EXAEQUO.cles].sort()),
+    `${tetes.join(" · ")} (attendu ${[...EXAEQUO.cles].sort().join(" · ")})`,
+  );
+  //  LE VERDICT NE TRANCHE PAS. Il ne peut pas : rien ne les sépare.
+  //  Mais il ne reste pas muet non plus — il le DIT, et il rend la
+  //  main. C'est tout l'objet de « sauf si y'en a deux à ex-æquo ».
+  await repondre(large, 1);
+  await large.click("[data-wm-recommencer]");
+  await large.waitForTimeout(400);
+  const remis = await lireLesJauges(large);
+  dire(
+    "« TOUT EFFACER » REMET VRAIMENT TOUT À ZÉRO",
+    remis.fini === "non" && remis.jauges.every((j) => j.large === 0 && j.tete === false),
+    JSON.stringify({
+      fini: remis.fini,
+      larges: remis.jauges.map((j) => j.large),
+      tetes: remis.jauges.filter((j) => j.tete).map((j) => j.cle),
+    }),
+  );
+}
 
 await large.close();
 

@@ -2730,6 +2730,37 @@
   display: none;
 }
 
+/*  ── ET UN BOUTON QUI NE MÈNE NULLE PART NE S'AFFICHE PAS ─────────
+
+    « Si je ne peux pas modifier / éditer / supprimer le message des
+    autres, alors il ne faut pas afficher les boutons qui permettent de
+    le faire » — 18 novembre.
+
+    FORUMACTIF LES SERT QUAND MÊME, avec une adresse vide :
+
+        <li class="btn-edit"><a href=""><i class="ion-edit"></i></a></li>
+
+    contre `href="/post?p=15608&mode=editpost"` sur son propre message.
+    Le droit est donc déjà dans la page — ModernBB ne remplit l'adresse
+    que pour qui peut agir. On n'a rien à demander au serveur ni à
+    deviner : on cache ce qui ne mène nulle part.
+
+    EN CSS ET PAS EN JAVASCRIPT, parce qu'un bouton caché par un script
+    est d'abord un bouton montré : il clignote au chargement, et il
+    reste cliquable sur une page où le script n'a pas tourné.
+
+    `:has()` est lu par tous les navigateurs depuis 2023. Sur un plus
+    ancien, les boutons restent affichés — c'est exactement ce qu'on
+    avait avant, donc on ne perd rien.
+
+    LE `#` EST LÀ AUSSI : Forumactif sert l'une ou l'autre selon les
+    pages, et une seule des deux règles aurait marché une fois sur
+    deux. */
+#modernbb .post-head .profile-icons > li:has(> a[href=""]),
+#modernbb .post-head .profile-icons > li:has(> a[href="#"]) {
+  display: none;
+}
+
 #modernbb .post-head .profile-icons {
   margin-right: 0;
   padding-right: 0;

@@ -35,6 +35,7 @@ import {
 import { poserLAccessibilite } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { poserLesInfobulles } from "../src/adaptateurs/navigateur/module-equipe.ts";
 import { poserLesFiltres } from "../src/adaptateurs/navigateur/module-personnages.ts";
+import { poserLeQuestionnaire } from "../src/adaptateurs/navigateur/module-questionnaire.ts";
 import {
   poserLeRepertoire,
   remplacerLeRepertoire,
@@ -104,6 +105,15 @@ poserLesSousOnglets(document);
 //  les treize autres annexes, il n'y a pas de liste et la fonction ne
 //  fait rien.
 poserLesFiltres(document);
+
+//  ── LE QUESTIONNAIRE DES SIX NATURES, DANS L'ANNEXE 07 ──────────────
+//
+//  Les huit questions sont écrites DANS la page par
+//  `outils/annexe-groupes.py` : rien à charger, et sans ce script on
+//  peut quand même répondre — il ne manque que le compte. Sur les
+//  treize autres annexes, il n'y a pas de `[data-wm-questionnaire]` et
+//  la fonction ne fait rien.
+poserLeQuestionnaire(document);
 
 //  ── LA BARRE DU RÉPERTOIRE ──────────────────────────────────────────
 //

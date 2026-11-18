@@ -416,6 +416,26 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
     if (nom === "ONLINE_IMG_NEW") return i === 0 ? " online" : "";
     if (nom === "U_POST_ID") return String(15500 + i);
     if (nom === "POSTER_ID") return "3";
+    //  ── LES ADRESSES DES ACTIONS, COMME LE FORUM LES SERT ────────
+    //
+    //  RELEVÉ SUR `/t1000` LE 18 NOVEMBRE, dans la page de Callista,
+    //  qui n'est ni admin ni modératrice :
+    //
+    //    · sur SON message : `href="/post?p=15608&mode=editpost"` ;
+    //    · sur celui d'un autre : `href=""`, balise comprise.
+    //
+    //  Forumactif sert donc le bouton dans les deux cas et ne remplit
+    //  l'adresse que pour qui peut agir. Le décor fait pareil : le
+    //  premier message est le sien, le second ne l'est pas. Un décor
+    //  qui remplirait les deux ne verrait jamais la règle agir, et un
+    //  décor qui n'en remplirait aucun ne verrait jamais qu'elle en
+    //  cache trop.
+    if (nom === "QUOTE_URL") return `/post?p=${15500 + i}&mode=quote`;
+    if (nom === "EDIT_URL") return i === 0 ? `/post?p=${15500 + i}&mode=editpost` : "";
+    //  SUPPRIMER ET VOIR L'IP SONT VIDES MÊME SUR SON PROPRE MESSAGE :
+    //  c'est ce que la page montre, et c'est le cas le plus courant.
+    if (nom === "DELETE_URL") return "";
+    if (nom === "IP_URL") return "";
     if (nom === "POST_URL") return "/t10-un-sujet#15500";
     //  ── LA FEUILLE DE PERSONNAGE ET LES RÉCOMPENSES ──────────────
     //
@@ -1888,6 +1908,53 @@ dire(
   jaime !== null && jaime.fondNonVote !== null &&
     jaime.fondVote !== jaime.fondNonVote,
   JSON.stringify({ vote: jaime?.fondVote, nonVote: jaime?.fondNonVote }),
+);
+
+//  ── UN BOUTON QUI NE MÈNE NULLE PART NE S'AFFICHE PAS ──────────────
+//
+//  « Si je ne peux pas modifier / éditer / supprimer le message des
+//  autres, alors il ne faut pas afficher les boutons qui permettent de
+//  le faire » — 18 novembre.
+//
+//  Le décor sert les adresses comme `/t1000` les sert à quelqu'un qui
+//  n'est ni admin ni modérateur : « modifier » rempli sur SON message,
+//  vide sur celui d'un autre, « supprimer » et « voir l'IP » vides
+//  partout. On vérifie donc les DEUX sens — ce qui disparaît, et ce
+//  qui reste.
+const boutonsDAction = await p.evaluate(() => {
+  const lire = (post) =>
+    [...post.querySelectorAll(".post-head .profile-icons > li")].map((li) => ({
+      classe: li.className,
+      adresse: li.querySelector("a")?.getAttribute("href") ?? null,
+      vu: getComputedStyle(li).display !== "none",
+    }));
+  const posts = [...document.querySelectorAll(".post")];
+  return { mien: lire(posts[0]), autre: lire(posts[1]) };
+});
+
+const vus = (liste) => liste.filter((l) => l.vu).map((l) => l.classe.trim());
+
+dire(
+  "SUR LE MESSAGE D'UN AUTRE, NI MODIFIER NI SUPPRIMER NI L'IP",
+  ["btn-edit", "btn-delete", "btn-ip"].every((c) => vus(boutonsDAction.autre).includes(c) === false),
+  vus(boutonsDAction.autre).join(" · ") || "rien",
+);
+dire(
+  "MAIS « MODIFIER » RESTE SUR LE SIEN",
+  vus(boutonsDAction.mien).includes("btn-edit"),
+  vus(boutonsDAction.mien).join(" · ") || "rien",
+);
+dire(
+  "et citer reste partout — on ne cache que ce qui est vide",
+  vus(boutonsDAction.mien).includes("btn-quote") && vus(boutonsDAction.autre).includes("btn-quote"),
+  JSON.stringify({ mien: vus(boutonsDAction.mien), autre: vus(boutonsDAction.autre) }),
+);
+dire(
+  "AUCUN BOUTON VISIBLE NE MÈNE NULLE PART",
+  [...boutonsDAction.mien, ...boutonsDAction.autre].every(
+    (l) => l.vu === false || (l.adresse !== "" && l.adresse !== "#"),
+  ),
+  JSON.stringify([...boutonsDAction.mien, ...boutonsDAction.autre].filter((l) => l.vu)),
 );
 
 //  ── LES DEUX RESSORTS, ET LA SECTION DE LA RÉPONSE RAPIDE ──────────

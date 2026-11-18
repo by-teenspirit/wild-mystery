@@ -7708,6 +7708,37 @@ html:has(body.wm-sombre) {
   display: none;
 }
 
+/*  ── ET UN BOUTON QUI NE MÈNE NULLE PART NE S'AFFICHE PAS ─────────
+
+    « Si je ne peux pas modifier / éditer / supprimer le message des
+    autres, alors il ne faut pas afficher les boutons qui permettent de
+    le faire » — 18 novembre.
+
+    FORUMACTIF LES SERT QUAND MÊME, avec une adresse vide :
+
+        <li class="btn-edit"><a href=""><i class="ion-edit"></i></a></li>
+
+    contre `href="/post?p=15608&mode=editpost"` sur son propre message.
+    Le droit est donc déjà dans la page — ModernBB ne remplit l'adresse
+    que pour qui peut agir. On n'a rien à demander au serveur ni à
+    deviner : on cache ce qui ne mène nulle part.
+
+    EN CSS ET PAS EN JAVASCRIPT, parce qu'un bouton caché par un script
+    est d'abord un bouton montré : il clignote au chargement, et il
+    reste cliquable sur une page où le script n'a pas tourné.
+
+    `:has()` est lu par tous les navigateurs depuis 2023. Sur un plus
+    ancien, les boutons restent affichés — c'est exactement ce qu'on
+    avait avant, donc on ne perd rien.
+
+    LE `#` EST LÀ AUSSI : Forumactif sert l'une ou l'autre selon les
+    pages, et une seule des deux règles aurait marché une fois sur
+    deux. */
+#modernbb .post-head .profile-icons > li:has(> a[href=""]),
+#modernbb .post-head .profile-icons > li:has(> a[href="#"]) {
+  display: none;
+}
+
 #modernbb .post-head .profile-icons {
   margin-right: 0;
   padding-right: 0;
@@ -13669,6 +13700,248 @@ body:has(#modernbb .wm-carnet) {
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   text-align: center;
   text-transform: uppercase;
+}
+
+/* ── wm-sondage · le questionnaire des six natures ──────────────────
+
+    « Le petit questionnaire que la personne peut remplir facilement, et
+    lui donner le résultat vers quel groupe elle tend le plus, avec des
+    jauges. Elle peut être un peu de chaque mais en pourcentage. »
+    18 novembre.
+
+    ── LES JAUGES RESTENT SOUS LES YEUX ────────────────────────────
+
+    `position: sticky` sur le bloc du résultat : on répond en haut, on
+    regarde les barres bouger en bas, et sans ça il faudrait faire
+    l'aller-retour à chaque question. Collant et pas fixe — il
+    s'arrête au bas de sa carte au lieu de suivre toute la page.
+
+    AUCUNE BORDURE À GAUCHE NULLE PART — consigne du 9 novembre. Les
+    questions sont séparées par de l'écart, et le `fieldset` perd la
+    sienne, que le navigateur met d'office. */
+#modernbb .wm-annexe .wm-sondage {
+  display: flex;
+  margin: 0 0 var(--wm-espace-20, 20px);
+  flex-direction: column;
+  gap: var(--wm-espace-18, 18px);
+}
+
+#modernbb .wm-annexe .wm-sondage__question {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+  /*  LE NAVIGATEUR POSE UN CADRE ET DES MARGES SUR TOUT `fieldset`.
+      Les retirer ici évite d'avoir à choisir un autre élément : c'est
+      `fieldset` + `legend` qui disent au lecteur d'écran que les
+      quatre réponses vont ensemble, et aucune `div` ne le dit. */
+  padding: 0;
+  border: 0;
+}
+
+#modernbb .wm-annexe .wm-sondage__situation {
+  display: flex;
+  padding: 0;
+  gap: var(--wm-espace-8, 8px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: var(--wm-interligne-carte, 1.25);
+}
+
+/*  LE NUMÉRO EST UNE PASTILLE : huit situations à la suite se
+    ressemblent, et c'est lui qui dit où on en est. */
+#modernbb .wm-annexe .wm-sondage__numero {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+/*  TOUTE LA LIGNE EST CLIQUABLE, parce qu'un rond de 13 px ne l'est
+    pas vraiment sur un portable. C'est le `label` qui porte le cadre,
+    et le bouton radio vit dedans. */
+#modernbb .wm-annexe .wm-sondage__reponse {
+  display: flex;
+  align-items: baseline;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+  cursor: pointer;
+}
+
+#modernbb .wm-annexe .wm-sondage__reponse:hover {
+  border-color: var(--wm-bord-net, #d9c3b1);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LA RÉPONSE COCHÉE SE VOIT SANS COMPTER SUR LE ROND. Huit questions
+    plus bas, on doit pouvoir retrouver d'un coup d'œil celles qu'on a
+    déjà faites. `:has()` est lu partout depuis 2023 ; sur un
+    navigateur plus ancien, le rond coché reste, et c'est ce qu'on
+    avait avant. */
+#modernbb .wm-annexe .wm-sondage__reponse:has(input:checked) {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-douce, #f3e1d2);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-annexe .wm-sondage__reponse:focus-within {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: 2px;
+}
+
+#modernbb .wm-annexe .wm-sondage__reponse input {
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--wm-accent-primaire, #275e7a);
+}
+
+/*  ── LE RÉSULTAT ──────────────────────────────────────────────── */
+#modernbb .wm-annexe .wm-sondage__resultat {
+  display: flex;
+  position: sticky;
+  bottom: var(--wm-espace-12, 12px);
+  flex-direction: column;
+  gap: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 20px rgb(46 32 24 / 10%);
+}
+
+#modernbb .wm-annexe .wm-sondage__verdict {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LA PHRASE GROSSIT QUAND ELLE A QUELQUE CHOSE À DIRE, et pas avant :
+    « encore trois questions » n'a pas besoin de dix-sept pixels. */
+#modernbb .wm-annexe [data-wm-fini="oui"] .wm-sondage__verdict {
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-annexe .wm-sondage__jauges {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+  list-style: none;
+}
+
+/*  TROIS COLONNES : le nom, la piste, le pourcentage. Le nom a une
+    largeur fixe pour que les six pistes commencent au même endroit —
+    sinon « Sérieux » et « Doux » décalent leurs barres et on compare
+    des longueurs qui ne partent pas du même trait. */
+#modernbb .wm-annexe .wm-sonde {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-annexe .wm-sonde__nom {
+  width: 64px;
+  flex: 0 0 auto;
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+#modernbb .wm-annexe .wm-sonde__piste {
+  display: block;
+  height: 10px;
+  flex: 1 1 auto;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  overflow: hidden;
+}
+
+/*  LA BARRE PREND LA COULEUR DE SON GROUPE, celle du panneau
+    d'administration : six jetons déjà là, et les deux thèmes les
+    redéfinissent. Une couleur écrite ici resterait claire en sombre. */
+#modernbb .wm-annexe .wm-sonde__barre {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--texte-groupe, var(--wm-accent-primaire, #275e7a));
+  transition: width 220ms ease-out;
+}
+
+#modernbb .wm-annexe .wm-sonde__part {
+  width: 38px;
+  flex: 0 0 auto;
+  color: var(--wm-texte-pale, #69564c);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/*  CELLE QUI SORT EST DITE EN GRAS, pas seulement teintée : une
+    couleur seule ne se lit pas pour tout le monde, et deux ex-æquo
+    doivent se voir toutes les deux. */
+#modernbb .wm-annexe .wm-sonde[data-wm-tete] .wm-sonde__nom,
+#modernbb .wm-annexe .wm-sonde[data-wm-tete] .wm-sonde__part {
+  color: var(--texte-groupe, var(--wm-encre, #2e2018));
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-annexe .wm-sondage__bouton {
+  align-self: flex-start;
+  padding: var(--wm-espace-6, 6px) var(--wm-espace-12, 12px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  cursor: pointer;
+}
+
+#modernbb .wm-annexe .wm-sondage__bouton:hover {
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+}
+
+/*  ── À 390 ────────────────────────────────────────────────────────
+
+    « On touche à rien pour la version mobile » : ce qui change ici,
+    c'est seulement ce qui ne tient pas. Le nom passe au-dessus de sa
+    piste, sinon 64 px de nom plus 38 de pourcentage ne laissent que
+    cent et quelques à la barre, et les six se ressemblent toutes. */
+@media (max-width: 520px) {
+  #modernbb .wm-annexe .wm-sonde {
+    flex-wrap: wrap;
+  }
+
+  #modernbb .wm-annexe .wm-sonde__nom {
+    width: auto;
+    flex: 1 1 auto;
+  }
+
+  #modernbb .wm-annexe .wm-sonde__piste {
+    flex: 1 1 100%;
+    order: 2;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

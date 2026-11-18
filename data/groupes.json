@@ -100,5 +100,209 @@
   "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires.",
   "_embleme": "`emblemeId` est le numéro national du légendaire, relevé dans `pokemon.csv` de PokéAPI le 8 novembre — pas écrit de mémoire. Il sert à bâtir l'adresse de l'illustration officielle, `other/official-artwork/<id>.png`, qui est détourée et en haute définition : c'est elle qui passe en filigrane au fond de la carte. CE N'EST PAS LA CARTE DE COUVERTURE : elle ne connaît aucun légendaire, puisque le Pokédex de Rhode n'en porte pas. L'illustration officielle, elle, existe pour n'importe quel numéro.",
   "_noms": "`espece` est le nom FRANÇAIS, `especeEn` l'ANGLAIS — et il n'est posé que lorsqu'il diffère. « On a des canadiens avec nous qui connaissent plutôt les noms anglais », 18 novembre. Un seul des six change : Créhelf s'appelle Uxie en anglais. Vérifié sur `pokemon_species_names.csv` de PokéAPI, langues 5 et 9, pas de mémoire.",
-  "_avantages": "Les six avantages sont actés. Le JOVIAL a été tranché le 18 novembre : le doublement des fossiles, pas la variante. Le SÉRIEUX disait « 19 % contre 10 % » — c'était le premier jet, et la simulation du 4 novembre (deno task natures, vingt mille sujets par zone contre les dix-sept tables réelles) a mesuré 5,23 % → 10,17 %. La mécanique double bien la rareté ; c'est le chiffre de départ qui était faux. Corrigé ici le 18 novembre, avant publication. Les autres nombres sont mesurés : Hardi +19,84 % de ₽, Doux +15 %, Jovial morceau 10,34 → 20,16 % et entier 0,18 → 0,35 %. Brave n'est pas mesuré."
+  "_avantages": "Les six avantages sont actés. Le JOVIAL a été tranché le 18 novembre : le doublement des fossiles, pas la variante. Le SÉRIEUX disait « 19 % contre 10 % » — c'était le premier jet, et la simulation du 4 novembre (deno task natures, vingt mille sujets par zone contre les dix-sept tables réelles) a mesuré 5,23 % → 10,17 %. La mécanique double bien la rareté ; c'est le chiffre de départ qui était faux. Corrigé ici le 18 novembre, avant publication. Les autres nombres sont mesurés : Hardi +19,84 % de ₽, Doux +15 %, Jovial morceau 10,34 → 20,16 % et entier 0,18 → 0,35 %. Brave n'est pas mesuré.",
+  "questionnaire": [
+    {
+      "situation": "Une tempête de sable se lève. Un dresseur est à terre un peu plus loin, son pokémon blessé. La ville est à deux heures de marche.",
+      "reponses": [
+        {
+          "dit": "Tu le portes toi-même, quitte à y passer la nuit.",
+          "premier": "brave",
+          "second": "doux"
+        },
+        {
+          "dit": "Tu le soignes sur place avec ce que tu as.",
+          "premier": "doux",
+          "second": "malin"
+        },
+        {
+          "dit": "Tu pars chercher de l'aide, c'est plus rapide.",
+          "premier": "malin",
+          "second": "serieux"
+        },
+        {
+          "dit": "Tu l'aides, mais tu veux savoir ce qu'il faisait là.",
+          "premier": "serieux",
+          "second": "jovial"
+        }
+      ]
+    },
+    {
+      "situation": "Un ami ment sur ce qu'il a rapporté de l'Île Ténèbra. Tu le sais.",
+      "reponses": [
+        {
+          "dit": "Tu le dis devant les autres.",
+          "premier": "serieux",
+          "second": "hardi"
+        },
+        {
+          "dit": "Tu attends d'être seul avec lui.",
+          "premier": "brave",
+          "second": "doux"
+        },
+        {
+          "dit": "Tu ne dis rien et tu vas vérifier toi-même.",
+          "premier": "jovial",
+          "second": "malin"
+        },
+        {
+          "dit": "Tu le laisses mentir, il a ses raisons.",
+          "premier": "doux",
+          "second": "malin"
+        }
+      ]
+    },
+    {
+      "situation": "Ton pokémon échoue pour la troisième fois à la même épreuve.",
+      "reponses": [
+        {
+          "dit": "Tu recommences une quatrième.",
+          "premier": "hardi",
+          "second": "brave"
+        },
+        {
+          "dit": "Tu changes complètement de méthode.",
+          "premier": "malin",
+          "second": "jovial"
+        },
+        {
+          "dit": "Tu demandes à quelqu'un de meilleur que toi.",
+          "premier": "malin",
+          "second": "serieux"
+        },
+        {
+          "dit": "Tu le laisses souffler, l'épreuve attendra.",
+          "premier": "doux",
+          "second": "brave"
+        }
+      ]
+    },
+    {
+      "situation": "Dans un couloir du laboratoire abandonné, une porte verrouillée. Personne ne sait ce qu'il y a derrière.",
+      "reponses": [
+        {
+          "dit": "Tu l'ouvres.",
+          "premier": "jovial",
+          "second": "hardi"
+        },
+        {
+          "dit": "Tu notes l'endroit et tu reviendras accompagné.",
+          "premier": "brave",
+          "second": "serieux"
+        },
+        {
+          "dit": "Tu cherches un autre chemin, il y en a toujours un.",
+          "premier": "hardi",
+          "second": "malin"
+        },
+        {
+          "dit": "Tu préviens les autres avant qu'on touche à quoi que ce soit.",
+          "premier": "doux",
+          "second": "brave"
+        }
+      ]
+    },
+    {
+      "situation": "Un pokémon obscur refuse de te suivre. Il gronde dès que tu approches.",
+      "reponses": [
+        {
+          "dit": "Tu restes là, chaque jour, jusqu'à ce qu'il s'habitue.",
+          "premier": "hardi",
+          "second": "doux"
+        },
+        {
+          "dit": "Tu changes d'approche : la nourriture, la distance, l'heure.",
+          "premier": "malin",
+          "second": "jovial"
+        },
+        {
+          "dit": "Tu te mets entre lui et ce qui lui fait peur.",
+          "premier": "brave",
+          "second": "doux"
+        },
+        {
+          "dit": "Tu lui parles franchement, même s'il ne comprend pas.",
+          "premier": "serieux",
+          "second": "hardi"
+        }
+      ]
+    },
+    {
+      "situation": "On te propose une place dans une écurie du Grand Prix. Elle se libère parce qu'on vient d'en écarter quelqu'un que tu connais.",
+      "reponses": [
+        {
+          "dit": "Tu refuses tant qu'on ne t'a pas dit pourquoi.",
+          "premier": "serieux",
+          "second": "brave"
+        },
+        {
+          "dit": "Tu acceptes, et tu feras en sorte qu'il revienne.",
+          "premier": "hardi",
+          "second": "doux"
+        },
+        {
+          "dit": "Tu acceptes. La place est là, c'est tout.",
+          "premier": "malin",
+          "second": "jovial"
+        },
+        {
+          "dit": "Tu refuses, et tu prends sa défense.",
+          "premier": "brave",
+          "second": "serieux"
+        }
+      ]
+    },
+    {
+      "situation": "Le Clan de la Nuit se réunit sur la place. Ils ne font rien d'illégal.",
+      "reponses": [
+        {
+          "dit": "Tu les écoutes jusqu'au bout.",
+          "premier": "jovial",
+          "second": "serieux"
+        },
+        {
+          "dit": "Tu restes à côté, au cas où ça tourne.",
+          "premier": "brave",
+          "second": "hardi"
+        },
+        {
+          "dit": "Tu vas discuter avec l'un d'eux.",
+          "premier": "doux",
+          "second": "jovial"
+        },
+        {
+          "dit": "Tu dis tout haut ce que tu en penses.",
+          "premier": "serieux",
+          "second": "hardi"
+        }
+      ]
+    },
+    {
+      "situation": "Tu trouves un œuf, seul, en plein désert.",
+      "reponses": [
+        {
+          "dit": "Tu le couves toi-même, le temps qu'il faudra.",
+          "premier": "hardi",
+          "second": "doux"
+        },
+        {
+          "dit": "Tu le confies à quelqu'un dont c'est le métier.",
+          "premier": "doux",
+          "second": "brave"
+        },
+        {
+          "dit": "Tu veux savoir d'où il vient avant d'y toucher.",
+          "premier": "jovial",
+          "second": "serieux"
+        },
+        {
+          "dit": "Tu le ramasses, et tu improviseras.",
+          "premier": "malin",
+          "second": "jovial"
+        }
+      ]
+    }
+  ],
+  "_questionnaire": "Les huit situations de la planche 79. Chaque réponse pèse sur DEUX natures : la première reçoit 2 points, la seconde 1 — c'est ce qui empêche de deviner la bonne réponse et d'en sortir avec un score nul partout sauf une. Aucune question sur les goûts, que des choix sous contrainte. Le dépouillement est dans `src/navigateur/questionnaire.ts` ; la page ne demande rien au réseau, les huit questions sont écrites dedans par `outils/annexe-groupes.py`.",
+  "_equilibre": "RECOMPTÉ LE 18 NOVEMBRE, et ce n'est pas ce que la planche 79 annonçait (« Doux et Brave six, les quatre autres cinq »). En premier choix : brave 6, doux 6, malin 6, serieux 5, hardi 5, JOVIAL 4. En points atteignables (2 par premier, 1 par second) : doux 17, brave 16, malin 16, serieux 16, hardi 15, jovial 14. Le Jovial est le moins accessible des six. On ne retouche pas les poids avant d'avoir compté les vingt premiers passages — c'est la règle du §3 de la planche 79 — mais le déséquilibre est écrit ici pour qu'on sache où regarder."
 }
