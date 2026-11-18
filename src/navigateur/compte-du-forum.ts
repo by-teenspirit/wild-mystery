@@ -8,7 +8,7 @@
 //
 //  ── POURQUOI ON VA LE CHERCHER AILLEURS ─────────────────────────────
 //
-//  `/h15-mon-carnet` est servie SANS l'en-tête du forum — c'est ce qui
+//  `/h17-mon-carnet` est servie SANS l'en-tête du forum — c'est ce qui
 //  lui donne son allure, et c'est aussi ce qui fait qu'il n'y a pas de
 //  `_userdata` dessus. Mesuré le 3 novembre : `globalThis._userdata`
 //  vaut `undefined` sur cette page.

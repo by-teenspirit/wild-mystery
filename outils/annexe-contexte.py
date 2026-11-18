@@ -16,7 +16,7 @@
 #  ── ON NE TOUCHE PAS AU TEXTE ───────────────────────────────────────
 #
 #  « Ne modifie pas notre texte » (6 novembre). Il a été relevé sur
-#  `/h2-contexte` et recopié au caractère près — vérifié par empreinte
+#  `/h2-contexte-chronologie` et recopié au caractère près — vérifié par empreinte
 #  SHA-256, les onze blocs, avant et après : identiques. Ses trois
 #  coquilles sont dedans, et elles y restent.
 #

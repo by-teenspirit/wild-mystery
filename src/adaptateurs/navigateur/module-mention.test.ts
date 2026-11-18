@@ -39,7 +39,7 @@ Deno.test("LES PAGES QUI PORTENT DES NOMS DE MEMBRES SANS ÊTRE DES SUJETS", () 
   assertEquals(estUnePageDeMention("/c2-zones-sauvages"), false);
   //  Le carnet est une page HTML, et son adresse commence par un « h »
   //  suivi d'un nombre : la même forme qu'un sujet à une lettre près.
-  assertEquals(estUnePageDeMention("/h15-mon-carnet"), false);
+  assertEquals(estUnePageDeMention("/h17-mon-carnet"), false);
 });
 
 Deno.test("la mention garde la forme que Forumactif relit", () => {

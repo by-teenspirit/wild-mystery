@@ -421,7 +421,7 @@ function poserLaFiche(doc: Document, k: CaseDePokedex, decor: Decor): void {
     //  route que sur le numéro — le lien ne tombait donc pas en 404, il
     //  menait simplement ailleurs. La règle 27 du garde-fou relit tous
     //  les `/hN-` du dépôt contre `data/annexes.json`.
-    lien.href = `/h5-la-region-et-ses-zones#zone-${k.espece.zone}`;
+    lien.href = `/h4-la-region-et-ses-zones#zone-${k.espece.zone}`;
     enfants.push(lien);
   }
   fiche.replaceChildren(...enfants);

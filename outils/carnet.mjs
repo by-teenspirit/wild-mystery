@@ -2,7 +2,7 @@
 //  outils/carnet.mjs — le harnais du carnet de bord
 //
 //  Ce qu'il monte : la page `pages/carnet.html` SERVIE À SON ADRESSE
-//  RÉELLE, `https://mysteryinrhode.forumactif.com/h15-mon-carnet`, avec
+//  RÉELLE, `https://mysteryinrhode.forumactif.com/h17-mon-carnet`, avec
 //  le vrai paquet `js/carnet.js`, les vraies feuilles et les vraies
 //  données du dépôt. Seul l'appel à Supabase est joué par le décor —
 //  c'est la seule chose qu'on ne peut pas servir depuis des fichiers.
@@ -51,7 +51,7 @@ const ANNEXE_REGION = (() => {
   return e.adresse;
 })();
 
-const ADRESSE = "https://mysteryinrhode.forumactif.com/h15-mon-carnet";
+const ADRESSE = "https://mysteryinrhode.forumactif.com/h17-mon-carnet";
 const BASE = "https://by-teenspirit.github.io/wild-mystery/";
 
 const CHEMINS = [
@@ -113,29 +113,77 @@ const CARNET = {
   },
   pokemon: [
     {
-      id: "p1", especeId: 95, surnom: null, niveau: 26, xp: 7440, sexe: "M",
-      obscur: false, etoiles: null, emplacement: "equipe", boite: 0, place: 1,
-      captureLe: "2026-06-14T10:00:00Z", captureDans: 34, enPension: false,
+      id: "p1",
+      especeId: 95,
+      surnom: null,
+      niveau: 26,
+      xp: 7440,
+      sexe: "M",
+      obscur: false,
+      etoiles: null,
+      emplacement: "equipe",
+      boite: 0,
+      place: 1,
+      captureLe: "2026-06-14T10:00:00Z",
+      captureDans: 34,
+      enPension: false,
     },
     {
-      id: "p2", especeId: 25, surnom: "Pika", niveau: 24, xp: 5000, sexe: "F",
-      obscur: false, etoiles: null, emplacement: "equipe", boite: 0, place: 2,
-      captureLe: "2026-07-01T10:00:00Z", captureDans: 36, enPension: true,
+      id: "p2",
+      especeId: 25,
+      surnom: "Pika",
+      niveau: 24,
+      xp: 5000,
+      sexe: "F",
+      obscur: false,
+      etoiles: null,
+      emplacement: "equipe",
+      boite: 0,
+      place: 2,
+      captureLe: "2026-07-01T10:00:00Z",
+      captureDans: 36,
+      enPension: true,
     },
     {
-      id: "p3", especeId: 7, surnom: null, niveau: 21, xp: 3000, sexe: "M",
-      obscur: true, etoiles: 2, emplacement: "equipe", boite: 0, place: 4,
-      captureLe: "2026-08-02T10:00:00Z", captureDans: 32, enPension: false,
+      id: "p3",
+      especeId: 7,
+      surnom: null,
+      niveau: 21,
+      xp: 3000,
+      sexe: "M",
+      obscur: true,
+      etoiles: 2,
+      emplacement: "equipe",
+      boite: 0,
+      place: 4,
+      captureLe: "2026-08-02T10:00:00Z",
+      captureDans: 32,
+      enPension: false,
     },
     {
-      id: "p4", especeId: 562, surnom: "EnBoite", niveau: 9, xp: 100, sexe: null,
-      obscur: false, etoiles: null, emplacement: "boite", boite: 2, place: 5,
-      captureLe: "2026-08-20T10:00:00Z", captureDans: 36, enPension: false,
+      id: "p4",
+      especeId: 562,
+      surnom: "EnBoite",
+      niveau: 9,
+      xp: 100,
+      sexe: null,
+      obscur: false,
+      etoiles: null,
+      emplacement: "boite",
+      boite: 2,
+      place: 5,
+      captureLe: "2026-08-20T10:00:00Z",
+      captureDans: 36,
+      enPension: false,
     },
   ],
   pension: [{
-    id: "s1", pokemonId: "p2", gerantId: null,
-    deposeLe: "2026-10-12T10:00:00Z", niveauAuDepot: 22, tarif: 500,
+    id: "s1",
+    pokemonId: "p2",
+    gerantId: null,
+    deposeLe: "2026-10-12T10:00:00Z",
+    niveauAuDepot: 22,
+    tarif: 500,
   }],
   badges: [
     { arene: "Arène Feu", obtenuLe: "2026-08-12T10:00:00Z" },
@@ -148,13 +196,26 @@ const CARNET = {
     { objetId: 990020, quantite: 3 },
   ],
   pokedex: [
-    { especeId: 562, croiseLe: "2026-06-14T10:00:00Z", attrapeLe: "2026-06-20T10:00:00Z", fois: 3 },
+    {
+      especeId: 562,
+      croiseLe: "2026-06-14T10:00:00Z",
+      attrapeLe: "2026-06-20T10:00:00Z",
+      fois: 3,
+    },
     { especeId: 557, croiseLe: "2026-07-01T10:00:00Z", attrapeLe: null, fois: 0 },
-    { especeId: 95, croiseLe: "2026-06-14T10:00:00Z", attrapeLe: "2026-06-14T10:00:00Z", fois: 1 },
+    {
+      especeId: 95,
+      croiseLe: "2026-06-14T10:00:00Z",
+      attrapeLe: "2026-06-14T10:00:00Z",
+      fois: 1,
+    },
   ],
   dernierJet: {
-    messageId: 15001, sujetId: 976, type: "rencontre",
-    charge: { especeId: 562 }, code: "7F3A-9C21-B4E8-05D7",
+    messageId: 15001,
+    sujetId: 976,
+    type: "rencontre",
+    charge: { especeId: 562 },
+    code: "7F3A-9C21-B4E8-05D7",
     creeLe: "2026-09-30T21:14:00Z",
   },
 };
@@ -176,7 +237,7 @@ console.log("\n── le carnet de bord ──");
 
 //  ── LA PAGE DE PROFIL EST SERVIE PAR LE DÉCOR ─────────────────────
 //
-//  C'est tout le mécanisme : `/h15-mon-carnet` n'a pas d'en-tête de
+//  C'est tout le mécanisme : `/h17-mon-carnet` n'a pas d'en-tête de
 //  forum, donc pas de `_userdata`, et la page va chercher DEUX choses
 //  sur la page d'édition de profil du membre — son numéro de compte et
 //  sa clé de liaison, que le staff y a posée.
@@ -458,7 +519,10 @@ async function monter(
         return route.fulfill({
           status: 403,
           contentType: "application/json",
-          body: JSON.stringify({ code: "42501", message: "new row violates row-level security policy" }),
+          body: JSON.stringify({
+            code: "42501",
+            message: "new row violates row-level security policy",
+          }),
         });
       }
       return route.fulfill({ status: 204, body: "" });
@@ -611,10 +675,12 @@ async function monter(
   await q.close();
 }
 
-for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
-  "absent",
-  /ne s'est pas charg/i,
-], ["autre", /pas de la m[êe]me version/i]]) {
+for (
+  const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
+    "absent",
+    /ne s'est pas charg/i,
+  ], ["autre", /pas de la m[êe]me version/i]]
+) {
   //  ET QUAND ILS NE LE SONT PAS, LA PAGE LE DIT. Trois façons de ne
   //  pas l'être : le script d'avant le contrat, le script qui ne
   //  descend pas du tout, et celui d'une version qu'on ne connaît pas.
@@ -719,8 +785,12 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
     //  sombre — du gris, pas du bleu.
     encadre !== null && encadre.fond === encadre.terre &&
       encadre.titre === encadre.accent,
-    JSON.stringify({ fond: encadre?.fond, terre: encadre?.terre,
-      titre: encadre?.titre, accent: encadre?.accent }),
+    JSON.stringify({
+      fond: encadre?.fond,
+      terre: encadre?.terre,
+      titre: encadre?.titre,
+      accent: encadre?.accent,
+    }),
   );
   dire(
     "et il répond aux trois questions qu'on se pose avant de taper",
@@ -967,14 +1037,25 @@ for (const [cas, attendu] of [["vieux", /ne s'est pas charg/i], [
   await q.close();
 }
 
-
 // ── 3 · Écrire ──────────────────────────────────────────────────────
 
 const TROIS = [
-  { place: 1, sujet_id: 1002, titre: "La brume ne lève pas", corps: "[b]Elle[/b] sortit la main",
-    mots: 4, modifie_le: new Date(Date.now() - 4 * 60_000).toISOString() },
-  { place: 2, sujet_id: null, titre: "", corps: "deux mots", mots: 2,
-    modifie_le: new Date(Date.now() - 86_400_000).toISOString() },
+  {
+    place: 1,
+    sujet_id: 1002,
+    titre: "La brume ne lève pas",
+    corps: "[b]Elle[/b] sortit la main",
+    mots: 4,
+    modifie_le: new Date(Date.now() - 4 * 60_000).toISOString(),
+  },
+  {
+    place: 2,
+    sujet_id: null,
+    titre: "",
+    corps: "deux mots",
+    mots: 2,
+    modifie_le: new Date(Date.now() - 86_400_000).toISOString(),
+  },
 ];
 
 {
@@ -1036,7 +1117,10 @@ const TROIS = [
   //  vérifie qu'elle est bien celle qui est branchée.
   const { q } = await monter({ brouillons: TROIS });
   await q.click('[data-wm-carnet-onglet="ecrire"]');
-  await q.fill("[data-wm-ecrire-corps]", "[quote]tout ce qu'elle avait dit avant[/quote][b]trois petits mots[/b]");
+  await q.fill(
+    "[data-wm-ecrire-corps]",
+    "[quote]tout ce qu'elle avait dit avant[/quote][b]trois petits mots[/b]",
+  );
   await q.waitForTimeout(100);
   const mots = await q.evaluate(() =>
     document.querySelector("[data-wm-ecrire-mots]")?.textContent ?? ""
@@ -1152,8 +1236,9 @@ const TROIS = [
   const vu = await q.evaluate(() => ({
     pose: document.querySelector('[data-wm-carnet-page="ecrire"]')
       ?.hasAttribute("data-wm-focus") ?? false,
-    blocsVisibles: [...document.querySelectorAll('[data-wm-carnet-page="ecrire"] .wm-carnet__bloc')]
-      .filter((e) => e.getBoundingClientRect().height > 0).length,
+    blocsVisibles:
+      [...document.querySelectorAll('[data-wm-carnet-page="ecrire"] .wm-carnet__bloc')]
+        .filter((e) => e.getBoundingClientRect().height > 0).length,
     texte: document.querySelector("[data-wm-ecrire-corps]")?.value ?? "",
     adresse: location.href,
   }));
@@ -1194,7 +1279,6 @@ const TROIS = [
   await q.close();
 }
 
-
 // ── 4 · Mon histoire ────────────────────────────────────────────────
 
 const FICHE = {
@@ -1204,16 +1288,29 @@ const FICHE = {
   ],
   fiche_description: [{
     texte: "Elle est arrivée à Rhode avec un sac trop lourd.",
-    affiche: true, image_mode: "avatar", image_lien: "", carte_affiche: false,
+    affiche: true,
+    image_mode: "avatar",
+    image_lien: "",
+    carte_affiche: false,
   }],
   fiche_trait: [{ mot: "patiente", ordre: 0 }, { mot: "rancunière", ordre: 1 }],
   fiche_moment: [
-    { id: "11111111-0000-0000-0000-000000000001", quand: "2026-06-12",
-      titre: "Arrivée à Portevent", texte: "Descendue du bateau.",
-      auto: true, affiche: true },
-    { id: "11111111-0000-0000-0000-000000000002", quand: "2026-08-16",
-      titre: "La nuit sans lune", texte: "La scène qui a tout changé.",
-      auto: false, affiche: true },
+    {
+      id: "11111111-0000-0000-0000-000000000001",
+      quand: "2026-06-12",
+      titre: "Arrivée à Portevent",
+      texte: "Descendue du bateau.",
+      auto: true,
+      affiche: true,
+    },
+    {
+      id: "11111111-0000-0000-0000-000000000002",
+      quand: "2026-08-16",
+      titre: "La nuit sans lune",
+      texte: "La scène qui a tout changé.",
+      auto: false,
+      affiche: true,
+    },
   ],
 };
 
@@ -1270,7 +1367,9 @@ const FICHE = {
   //  le défaut de la colonne depuis la 0033. Ce qu'on mesure, c'est
   //  qu'il n'envoie PAS `affiche: true` en douce.
   const { q, appels } = await monter({ fiche: FICHE });
-  await q.evaluate(() => { globalThis.prompt = () => "Métier"; });
+  await q.evaluate(() => {
+    globalThis.prompt = () => "Métier";
+  });
   await q.click('[data-wm-carnet-onglet="mon-histoire"]');
   await q.waitForTimeout(300);
   await q.click("[data-wm-histoire-ajouter-champ]");
@@ -1352,27 +1451,51 @@ const FICHE = {
   dire(
     "UNE ADRESSE D'IMAGE QUI N'EST PAS `https` NE PART PAS",
     appels.filter((a) => a.ou === "POST-fiche_description").length === avant,
-    JSON.stringify({ avant, apres: appels.filter((a) => a.ou === "POST-fiche_description").length }),
+    JSON.stringify({
+      avant,
+      apres: appels.filter((a) => a.ou === "POST-fiche_description").length,
+    }),
   );
   await q.close();
 }
 
-
 // ── 5 · Mes liens ───────────────────────────────────────────────────
 
 const LIENS = [
-  { cible_forum_id: 77, cible_pseudo: "Murphy", court: "sœur adoptive", long: "Elles ont grandi sous le même toit.", image: "", ordre: 0 },
-  { cible_forum_id: 88, cible_pseudo: "Salomé", court: "celle qui sait", long: "", image: "", ordre: 1 },
+  {
+    cible_forum_id: 77,
+    cible_pseudo: "Murphy",
+    court: "sœur adoptive",
+    long: "Elles ont grandi sous le même toit.",
+    image: "",
+    ordre: 0,
+  },
+  {
+    cible_forum_id: 88,
+    cible_pseudo: "Salomé",
+    court: "celle qui sait",
+    long: "",
+    image: "",
+    ordre: 1,
+  },
 ];
 
 const PAS_PUBLIEE = {
-  texte: "[center][b]Eliott Vanner[/b][/center]", empreinte: "aaa",
-  sujetId: null, messageId: null, publieLe: null, aChange: false,
+  texte: "[center][b]Eliott Vanner[/b][/center]",
+  empreinte: "aaa",
+  sujetId: null,
+  messageId: null,
+  publieLe: null,
+  aChange: false,
 };
 
 const PUBLIEE_ET_CHANGEE = {
-  texte: "[center][b]Eliott Vanner[/b][/center]", empreinte: "bbb",
-  sujetId: 1500, messageId: 9001, publieLe: "2026-09-24T10:00:00Z", aChange: true,
+  texte: "[center][b]Eliott Vanner[/b][/center]",
+  empreinte: "bbb",
+  sujetId: 1500,
+  messageId: 9001,
+  publieLe: "2026-09-24T10:00:00Z",
+  aChange: true,
 };
 
 {
@@ -1423,12 +1546,20 @@ const PUBLIEE_ET_CHANGEE = {
   const { q, appels } = await monter({ lesLiens: LIENS, etatDeLaFiche: PUBLIEE_ET_CHANGEE });
   await q.evaluate(() => {
     globalThis.ouvertures = [];
-    globalThis.open = (a) => { globalThis.ouvertures.push(a); return null; };
+    globalThis.open = (a) => {
+      globalThis.ouvertures.push(a);
+      return null;
+    };
     let n = 0;
     globalThis.prompt = () => (++n === 1 ? "1500" : "9001");
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
-      value: { writeText: (t) => { globalThis.colle = t; return Promise.resolve(); } },
+      value: {
+        writeText: (t) => {
+          globalThis.colle = t;
+          return Promise.resolve();
+        },
+      },
     });
   });
   await q.click('[data-wm-carnet-onglet="mes-liens"]');
@@ -1456,7 +1587,10 @@ const PUBLIEE_ET_CHANGEE = {
   const { q } = await monter({ lesLiens: LIENS, etatDeLaFiche: PAS_PUBLIEE });
   await q.evaluate(() => {
     globalThis.ouvertures = [];
-    globalThis.open = (a) => { globalThis.ouvertures.push(a); return null; };
+    globalThis.open = (a) => {
+      globalThis.ouvertures.push(a);
+      return null;
+    };
     globalThis.prompt = () => null;
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -1482,7 +1616,7 @@ const PUBLIEE_ET_CHANGEE = {
   const { q, appels } = await monter({ lesLiens: LIENS, etatDeLaFiche: PAS_PUBLIEE });
   await q.click('[data-wm-carnet-onglet="mes-liens"]');
   await q.waitForTimeout(300);
-  await q.click('.wm-liens__carte:nth-child(2) .wm-liens__carte-outils button:first-child');
+  await q.click(".wm-liens__carte:nth-child(2) .wm-liens__carte-outils button:first-child");
   await q.waitForTimeout(300);
   const noms = await q.evaluate(() =>
     [...document.querySelectorAll(".wm-liens__carte-nom")].map((e) => e.textContent.trim())
@@ -1514,7 +1648,6 @@ const PUBLIEE_ET_CHANGEE = {
   );
   await q.close();
 }
-
 
 // ── 6 · Mes boîtes ──────────────────────────────────────────────────
 
@@ -1560,7 +1693,9 @@ const PUBLIEE_ET_CHANGEE = {
   await q.waitForTimeout(150);
   const apres = await q.evaluate(() => ({
     pleines: document.querySelectorAll(".wm-boites__case:not(.wm-boites__case--vide)").length,
-    choisie: document.querySelector('[data-wm-boites-onglet="2"]')?.getAttribute("aria-pressed"),
+    choisie: document.querySelector('[data-wm-boites-onglet="2"]')?.getAttribute(
+      "aria-pressed",
+    ),
     dit: document.querySelector("[data-wm-boites-dit]")?.textContent?.trim(),
   }));
   dire(
@@ -1636,7 +1771,9 @@ const PUBLIEE_ET_CHANGEE = {
       {
         method: "POST",
         headers: { apikey: "x", "Content-Type": "application/json" },
-        body: JSON.stringify({ p: { pokemonId: "p2", emplacement: "boite", boiteNo: 1, position: 1 } }),
+        body: JSON.stringify({
+          p: { pokemonId: "p2", emplacement: "boite", boiteNo: 1, position: 1 },
+        }),
       },
     );
     return { statut: r.status, corps: await r.text() };
@@ -1653,19 +1790,45 @@ const PUBLIEE_ET_CHANGEE = {
   await q.close();
 }
 
-
 // ── 7 · Mes RP ──────────────────────────────────────────────────────
 
 const RP = [
-  { sujet_id: 996, titre: "La brume ne lève pas", forum_nom: "Montagnes Embrumées",
-    reponses: 3, dernier_le: "2026-10-28T13:34:00Z", dernier_auteur: "Murphy",
-    dernier_message: 15582, extrait: "Le vent se lève.", etat: "en-cours", ordre: 0 },
-  { sujet_id: 977, titre: "Un café, deux silences", forum_nom: "Portevent",
-    reponses: 8, dernier_le: "2026-11-01T09:00:00Z", dernier_auteur: "Eliott Vanner",
-    dernier_message: 15600, extrait: "", etat: "en-cours", ordre: 0 },
-  { sujet_id: 1200, titre: "Ce qui vient après", forum_nom: "",
-    reponses: 0, dernier_le: null, dernier_auteur: "", dernier_message: null,
-    extrait: "", etat: "prevu", ordre: 0 },
+  {
+    sujet_id: 996,
+    titre: "La brume ne lève pas",
+    forum_nom: "Montagnes Embrumées",
+    reponses: 3,
+    dernier_le: "2026-10-28T13:34:00Z",
+    dernier_auteur: "Murphy",
+    dernier_message: 15582,
+    extrait: "Le vent se lève.",
+    etat: "en-cours",
+    ordre: 0,
+  },
+  {
+    sujet_id: 977,
+    titre: "Un café, deux silences",
+    forum_nom: "Portevent",
+    reponses: 8,
+    dernier_le: "2026-11-01T09:00:00Z",
+    dernier_auteur: "Eliott Vanner",
+    dernier_message: 15600,
+    extrait: "",
+    etat: "en-cours",
+    ordre: 0,
+  },
+  {
+    sujet_id: 1200,
+    titre: "Ce qui vient après",
+    forum_nom: "",
+    reponses: 0,
+    dernier_le: null,
+    dernier_auteur: "",
+    dernier_message: null,
+    extrait: "",
+    etat: "prevu",
+    ordre: 0,
+  },
 ];
 
 //  ── LE PSEUDO DU CARNET SUIT CELUI DU FORUM ───────────────────────
@@ -1808,7 +1971,10 @@ const RP = [
   const { q, appels } = await monter({ lesRp: RP });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(300);
-  await q.fill("[data-wm-rp-neuf-adresse]", "https://mysteryinrhode.forumactif.com/t1450-le-pont");
+  await q.fill(
+    "[data-wm-rp-neuf-adresse]",
+    "https://mysteryinrhode.forumactif.com/t1450-le-pont",
+  );
   await q.fill("[data-wm-rp-neuf-titre]", "Le pont");
   await q.click("[data-wm-rp-ajouter]");
   await q.waitForTimeout(250);
@@ -1840,7 +2006,8 @@ const RP = [
   );
   dire(
     "SANS ADRESSE DE SUJET, RIEN NE PART, ET LA PAGE DIT CE QU'IL MANQUE",
-    appels.filter((a) => a.ou === "POST-rp").length === 0 && /adresse du sujet/i.test(dit ?? ""),
+    appels.filter((a) => a.ou === "POST-rp").length === 0 &&
+      /adresse du sujet/i.test(dit ?? ""),
     JSON.stringify({ dit }),
   );
   await q.close();
@@ -1867,7 +2034,6 @@ const RP = [
   );
   await q.close();
 }
-
 
 {
   //  LE TABLEAU EST LA VUE PAR DÉFAUT, et ses colonnes sont les
@@ -2161,10 +2327,18 @@ const { q: p, appels } = await monter();
   //  Le second passage ne demande plus rien, et c'est ce que la seconde
   //  visite mesure ici.
   const avant = appels.length;
-  for (const clef of [
-    "mon-sac", "mon-pokedex", "mes-rp", "ecrire", "mon-histoire", "mes-liens",
-    "mes-boites", "mon-jeu",
-  ]) {
+  for (
+    const clef of [
+      "mon-sac",
+      "mon-pokedex",
+      "mes-rp",
+      "ecrire",
+      "mon-histoire",
+      "mes-liens",
+      "mes-boites",
+      "mon-jeu",
+    ]
+  ) {
     await p.click(`[data-wm-carnet-onglet='${clef}']`);
     await p.waitForTimeout(60);
   }
@@ -2172,8 +2346,16 @@ const { q: p, appels } = await monter();
   //  Second tour : plus rien ne doit partir, Écrire compris.
   for (
     const clef of [
-      "ecrire", "mon-histoire", "mes-liens", "mes-rp", "mon-sac",
-      "ecrire", "mon-histoire", "mes-liens", "mes-rp", "mon-jeu",
+      "ecrire",
+      "mon-histoire",
+      "mes-liens",
+      "mes-rp",
+      "mon-sac",
+      "ecrire",
+      "mon-histoire",
+      "mes-liens",
+      "mes-rp",
+      "mon-jeu",
     ]
   ) {
     await p.click(`[data-wm-carnet-onglet='${clef}']`);
@@ -2199,10 +2381,15 @@ const { q: p, appels } = await monter();
     return {
       places: cases.length,
       libres: cases.filter((c) => c.classList.contains("wm-carnet__pkmn--libre")).length,
-      noms: cases.map((c) => c.querySelector(".wm-carnet__pkmn-nom")?.textContent?.trim() ?? ""),
-      niveaux: cases.map((c) => c.querySelector(".wm-carnet__pkmn-niveau")?.textContent?.trim() ?? ""),
+      noms: cases.map((c) =>
+        c.querySelector(".wm-carnet__pkmn-nom")?.textContent?.trim() ?? ""
+      ),
+      niveaux: cases.map((c) =>
+        c.querySelector(".wm-carnet__pkmn-niveau")?.textContent?.trim() ?? ""
+      ),
       pension: cases.filter((c) => c.classList.contains("wm-carnet__pkmn--pension")).length,
-      compte: document.querySelector("[data-wm-carnet-equipe-compte]")?.textContent?.trim() ?? "",
+      compte: document.querySelector("[data-wm-carnet-equipe-compte]")?.textContent?.trim() ??
+        "",
     };
   });
   dire(
@@ -2216,8 +2403,10 @@ const { q: p, appels } = await monter();
 
 {
   const vu = await p.evaluate(() => ({
-    arenes: document.querySelectorAll("[data-wm-carnet-badges='arene'] .wm-carnet__badge").length,
-    colos: document.querySelectorAll("[data-wm-carnet-badges='colosseum'] .wm-carnet__badge").length,
+    arenes:
+      document.querySelectorAll("[data-wm-carnet-badges='arene'] .wm-carnet__badge").length,
+    colos:
+      document.querySelectorAll("[data-wm-carnet-badges='colosseum'] .wm-carnet__badge").length,
     gagnes: document.querySelectorAll(
       "[data-wm-carnet-badges='arene'] .wm-carnet__badge:not(.wm-carnet__badge--agagner)",
     ).length,
@@ -2236,7 +2425,9 @@ const { q: p, appels } = await monter();
     return {
       visible: document.querySelector("[data-wm-carnet-jet-bloc]")?.hidden === false,
       code: dl?.querySelector(".wm-carnet__code")?.textContent?.trim() ?? "",
-      chasseFixe: dl === null ? "" : getComputedStyle(dl.querySelector(".wm-carnet__code")).fontFamily,
+      chasseFixe: dl === null
+        ? ""
+        : getComputedStyle(dl.querySelector(".wm-carnet__code")).fontFamily,
     };
   });
   dire(
@@ -2315,7 +2506,8 @@ const { q: p, appels } = await monter();
   //  dans ce bac à sable — mais on peut vérifier OÙ ON LES DEMANDE, et
   //  c'est ce qui aurait suffi.
   const vu = await p.evaluate(() => {
-    const src = (s) => [...document.querySelectorAll(s)].map((i) => i.getAttribute("src") ?? "");
+    const src = (s) =>
+      [...document.querySelectorAll(s)].map((i) => i.getAttribute("src") ?? "");
     return {
       dex: src("[data-wm-carnet-grille] img").slice(0, 40),
       combien: document.querySelectorAll("[data-wm-carnet-grille] img").length,
@@ -2323,8 +2515,13 @@ const { q: p, appels } = await monter();
   });
   dire(
     "les sprites du Pokédex vont chercher `assets/sprites-figes/`, pas un dossier vide",
-    vu.combien > 0 && vu.dex.every((u) => /\/assets\/sprites-figes\/[^/]+\/\d+\.(png|gif)$/.test(u)),
-    JSON.stringify({ combien: vu.combien, premier: vu.dex[0], mauvais: vu.dex.filter((u) => !/sprites-figes/.test(u)).slice(0, 3) }),
+    vu.combien > 0 &&
+      vu.dex.every((u) => /\/assets\/sprites-figes\/[^/]+\/\d+\.(png|gif)$/.test(u)),
+    JSON.stringify({
+      combien: vu.combien,
+      premier: vu.dex[0],
+      mauvais: vu.dex.filter((u) => !/sprites-figes/.test(u)).slice(0, 3),
+    }),
   );
 }
 
@@ -2560,7 +2757,11 @@ const { q: p, appels } = await monter();
     b.click();
     const apres = document.body.classList.contains("wm-sombre");
     b.click();
-    return { bouton: true, bascule: avant !== apres, revient: document.body.classList.contains("wm-sombre") === avant };
+    return {
+      bouton: true,
+      bascule: avant !== apres,
+      revient: document.body.classList.contains("wm-sombre") === avant,
+    };
   });
   dire(
     "le bouton de thème est posé et la bascule revient à son point de départ",

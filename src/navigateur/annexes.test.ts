@@ -17,6 +17,7 @@
 
 import { assertEquals } from "@std/assert";
 import {
+  pageDeLAdresse,
   slugDepuisAdresse,
   type Sommaire,
   sommaireAffiche,
@@ -220,4 +221,94 @@ Deno.test("l'entrée de la page qu'on lit n'est jamais « à venir »", () => {
   const [ici, ailleurs] = sections[0].entrees;
   assertEquals([ici.active, ici.aVenir], [true, false]);
   assertEquals([ailleurs.active, ailleurs.aVenir], [false, true]);
+});
+
+// ── le surlignage se reconnaît au numéro ────────────────────────────
+
+Deno.test("LE NUMÉRO DE PAGE SE LIT, CHEMIN OU ADRESSE ENTIÈRE", () => {
+  //  `data/annexes.json` porte les deux formes selon l'époque où la
+  //  ligne a été écrite.
+  assertEquals(pageDeLAdresse("/h12-elever-ses-pokemon"), 12);
+  assertEquals(pageDeLAdresse("https://exemple.test/h5-les-groupes"), 5);
+  assertEquals(pageDeLAdresse("/h7-x/"), 7);
+  assertEquals(pageDeLAdresse(null), null);
+  assertEquals(pageDeLAdresse("/t1000-un-sujet"), null);
+  assertEquals(pageDeLAdresse(""), null);
+});
+
+Deno.test("LE SOMMAIRE SE SURLIGNE AU NUMÉRO, PAS AU SLUG", () => {
+  //  C'EST LE DÉFAUT DU 18 NOVEMBRE. Le bout d'adresse après le numéro
+  //  vient du TITRE tapé dans le panneau : « Les groupes » donne
+  //  `/h5-les-groupes` alors que notre clé est `groupes`. Onze pages
+  //  sur quinze ne se reconnaissaient plus.
+  const sommaire = sommaireDepuis({
+    sections: [{
+      titre: "Le monde",
+      entrees: [
+        { numero: "05", slug: "groupes", titre: "Les groupes", adresse: "/h5-les-groupes" },
+        {
+          numero: "13",
+          slug: "arenes-colosseums-ligues",
+          titre: "Arènes",
+          adresse: "/h13-arenes-colosseums-ligue",
+        },
+      ],
+    }],
+  });
+  const vu = sommaireAffiche(sommaire, slugDepuisAdresse("/h5-les-groupes"), 5);
+  assertEquals(vu[0].entrees.map((e) => e.active), [true, false]);
+
+  //  « ligue » contre « ligues » : un caractère, et le slug ne suffit
+  //  plus. Le numéro, lui, ne se trompe pas.
+  const treize = sommaireAffiche(
+    sommaire,
+    slugDepuisAdresse("/h13-arenes-colosseums-ligue"),
+    13,
+  );
+  assertEquals(treize[0].entrees.map((e) => e.active), [false, true]);
+});
+
+Deno.test("UNE PAGE SANS ADRESSE NE VOLE PAS LE SURLIGNAGE", () => {
+  //  Une annexe pas encore créée n'a pas d'adresse. Elle peut se
+  //  reconnaître à son slug — mais seulement elle, et seulement quand
+  //  aucune entrée numérotée ne correspond.
+  const sommaire = sommaireDepuis({
+    sections: [{
+      titre: "Jouer",
+      entrees: [
+        { numero: "11", slug: "trouver-et-capturer", titre: "Trouver", adresse: null },
+        { numero: "12", slug: "elever", titre: "Élever", adresse: "/h12-elever" },
+      ],
+    }],
+  });
+  //  On lit la page 12 : c'est elle qui est active, pas celle qui n'a
+  //  pas d'adresse.
+  assertEquals(
+    sommaireAffiche(sommaire, "elever", 12)[0].entrees.map((e) => e.active),
+    [false, true],
+  );
+  //  Et la page sans adresse se reconnaît quand même à son slug.
+  assertEquals(
+    sommaireAffiche(sommaire, "trouver-et-capturer", 99)[0].entrees.map((e) => e.active),
+    [true, false],
+  );
+});
+
+Deno.test("LE NUMÉRO TRANCHE CONTRE UN SLUG QUI DIRAIT L'INVERSE", () => {
+  //  Le cas qui décide de la règle : deux entrées, et le slug de la
+  //  SECONDE correspond à l'adresse lue alors que le numéro désigne la
+  //  PREMIÈRE. Sans priorité claire, les deux seraient surlignées.
+  const sommaire = sommaireDepuis({
+    sections: [{
+      titre: "x",
+      entrees: [
+        { numero: "05", slug: "groupes", titre: "Les groupes", adresse: "/h5-les-groupes" },
+        { numero: "09", slug: "les-groupes", titre: "Un homonyme", adresse: "/h9-autre" },
+      ],
+    }],
+  });
+  assertEquals(
+    sommaireAffiche(sommaire, "les-groupes", 5)[0].entrees.map((e) => e.active),
+    [true, false],
+  );
 });

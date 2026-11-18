@@ -3,7 +3,7 @@ import { compteDansLaPage } from "./compte-du-forum.ts";
 
 //  ════════════════════════════════════════════════════════════════════
 //  LES EXTRAITS SONT CEUX DU FORUM, relevés le 3 novembre 2026 depuis
-//  `/h15-mon-carnet` en demandant `/privmsg?folder=inbox` et
+//  `/h17-mon-carnet` en demandant `/privmsg?folder=inbox` et
 //  `/memberlist`. Les inventer aurait fait un analyseur d'accord avec
 //  mon idée de Forumactif et pas avec Forumactif.
 //  ════════════════════════════════════════════════════════════════════

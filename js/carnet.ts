@@ -3,7 +3,7 @@
 //  js/carnet.ts — le troisième paquet, et il ne sert qu'à une page
 //
 //  POURQUOI PAS `wild-mystery.js`. Même raison que pour les annexes :
-//  `/h15-mon-carnet` est créée SANS l'en-tête du forum, donc sans
+//  `/h17-mon-carnet` est créée SANS l'en-tête du forum, donc sans
 //  jQuery, sans `_userdata`, sans les scripts de la Gestion des codes.
 //  Et le gros paquet réécrit une barre d'outils qui n'existe pas ici,
 //  pose le tchat, les territoires — et monte le switcheroo, qui écrit

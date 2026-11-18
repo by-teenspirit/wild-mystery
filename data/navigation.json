@@ -34,12 +34,12 @@
   {
    "icone": "menu_book",
    "titre": "Mon Carnet de Bord",
-   "adresse": "/h15-mon-carnet"
+   "adresse": "/h17-mon-carnet"
   },
   {
    "icone": "badge",
    "titre": "Répertoire des personnages",
-   "adresse": "/h14-repertoire-des-personnages"
+   "adresse": "/h16-repertoire-et-bottins"
   },
   {
    "icone": "list_alt",
@@ -49,7 +49,7 @@
   {
    "icone": "map",
    "titre": "Carte de Rhode",
-   "adresse": "/h5-la-region-et-ses-zones"
+   "adresse": "/h4-la-region-et-ses-zones"
   },
   {
    "icone": "storefront",
@@ -87,7 +87,7 @@
   {
    "icone": "menu_book",
    "titre": "Mon carnet de bord",
-   "modele": "/h15-mon-carnet"
+   "modele": "/h17-mon-carnet"
   },
   {
    "icone": "forum",

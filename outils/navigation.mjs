@@ -599,14 +599,14 @@ dire(
 //  encore. Un contrôle par entrée aurait dit la même chose en sept
 //  fois, et aurait laissé passer une entrée disparue.
 const ATTENDU = [
-  ["Mon Carnet de Bord", "/h15-mon-carnet"],
+  ["Mon Carnet de Bord", "/h17-mon-carnet"],
   //  LE RÉPERTOIRE EST DEUXIÈME. Il se range juste après le carnet
   //  parce que les deux disent « qui je suis » — le carnet pour soi,
   //  le répertoire pour les autres. Sans adresse jusqu'au 12 novembre,
   //  jour où la page a été créée en `h14`.
-  ["Répertoire des personnages", "/h14-repertoire-des-personnages"],
+  ["Répertoire des personnages", "/h16-repertoire-et-bottins"],
   ["Annexes", "/h1-par-ou-commencer"],
-  ["Carte de Rhode", "/h5-la-region-et-ses-zones"],
+  ["Carte de Rhode", "/h4-la-region-et-ses-zones"],
   ["Marché de Rhode", "/f3-le-marche-de-rhode"],
   ["Liste des pensions", null],
   ["Laboratoire fossile", "/f25-laboratoire"],
@@ -887,7 +887,7 @@ if (menu !== null) {
   dire(
     "DANS LE MENU DU PROFIL AUSSI, LE CARNET EST UN LIEN",
     carnetDuMenu !== null && carnetDuMenu.estUnLien &&
-      carnetDuMenu.adresse === "/h15-mon-carnet",
+      carnetDuMenu.adresse === "/h17-mon-carnet",
     JSON.stringify(carnetDuMenu),
   );
 }
@@ -1115,7 +1115,9 @@ const compteur = await p.evaluate(() => {
   //  mesure du défaut. La pastille terre faisait 1,97 sur la barre.
   const lum = (couleur) => {
     const [r, v, b] = couleur.match(/\d+/g).slice(0, 3).map(Number);
-    const f = (x) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
+    const f = (
+      x,
+    ) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
     return 0.2126 * f(r) + 0.7152 * f(v) + 0.0722 * f(b);
   };
   const ratio = (a, b) => {
@@ -1614,7 +1616,9 @@ const boutons = await p3.evaluate(() => {
     ),
     //  Aucun avatar à rafraîchir ici : le compte en session est le 4,
     //  et aucun des dix n'est actif.
-    rafraichir: liste.filter((li) => li.querySelector(".wm-panneau__rafraichir") !== null).length,
+    rafraichir: liste.filter((li) =>
+      li.querySelector(".wm-panneau__rafraichir") !== null
+    ).length,
   };
 });
 dire(
@@ -1648,7 +1652,9 @@ p3.on("dialog", (d) => {
   d.accept();
 });
 
-const stockAvant = await p3.evaluate(() => JSON.parse(localStorage.getItem("switcheroo")).length);
+const stockAvant = await p3.evaluate(() =>
+  JSON.parse(localStorage.getItem("switcheroo")).length
+);
 await p3.evaluate(() => {
   //  ON RETIENT LE RECHARGEMENT, et sans ça le contrôle ne mesure rien :
   //  `deleteRecord` écrit le stockage PUIS appelle `monomer.reload()`, et
@@ -1656,7 +1662,9 @@ await p3.evaluate(() => {
   //  personnages. On observait donc le décor, pas le retrait. Mesuré en
   //  l'essayant : dix avant, dix après, et la suppression marchait.
   globalThis.monomer.reload = () => {};
-  document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[2]
+  document.querySelectorAll(
+    "#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)",
+  )[2]
     ?.querySelector(".wm-panneau__retirer")?.click();
 });
 await p3.waitForTimeout(400);
@@ -1736,7 +1744,9 @@ await p3bis.evaluate(() => document.querySelector('[aria-controls="wm-panneau"]'
 await p3bis.waitForTimeout(400);
 
 const refus = await p3bis.evaluate(() => {
-  const li = document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[1];
+  const li = document.querySelectorAll(
+    "#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)",
+  )[1];
   li?.querySelector(".wm-panneau__retirer")?.click();
   return li === undefined ? -1 : 0;
 });
@@ -1781,7 +1791,9 @@ const vuAvatar = await p3bis.evaluate(() => {
   document.addEventListener("contextmenu", (e) => {
     if (e.target.matches('[data-action="switcheroo"].active')) recu += 1;
   });
-  document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[0]
+  document.querySelectorAll(
+    "#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)",
+  )[0]
     ?.querySelector(".wm-panneau__rafraichir")?.click();
   return recu;
 });
@@ -1793,7 +1805,9 @@ dire(
 
 //  ── ET UN NOM LONG NE POUSSE PAS LES BOUTONS HORS DU PANNEAU ──────
 const largeurs = await p3bis.evaluate(() => {
-  const li = document.querySelectorAll("#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)")[0];
+  const li = document.querySelectorAll(
+    "#wm-panneau .wm-panneau__personnage:not(.wm-panneau__personnage--ajout)",
+  )[0];
   const nom = li.querySelector(".wm-panneau__nom");
   nom.textContent = "Un personnage au nom beaucoup trop long pour cette colonne";
   const panneau = document.querySelector("#wm-panneau").getBoundingClientRect();

@@ -1141,10 +1141,13 @@ for s in sommaire["sections"]:
 
 #  LES PAGES QUI NE SONT PAS DES ANNEXES. Elles vivent sur le même
 #  forum et portent le même genre d'adresse ; les lister ici est plus
-#  honnête que d'exempter un fichier entier. Le répertoire des
-#  personnages est en `h14` depuis le 12 novembre : juste après les
-#  treize annexes, mais pas au sommaire — il n'en est pas une.
-AUTRES = {"15": "mon-carnet", "14": "repertoire-des-personnages"}
+#  honnête que d'exempter un fichier entier.
+#
+#  ELLES ONT RECULÉ LE 18 NOVEMBRE : les annexes sont passées de treize
+#  à quinze et Callista a renuméroté les pages pour suivre l'ordre du
+#  sommaire. Le répertoire est donc en 16 et le carnet en 17, juste
+#  après — toujours pas au sommaire, ils n'en sont pas.
+AUTRES = {"17": "mon-carnet", "16": "repertoire-et-bottins"}
 connues = {**par_numero, **AUTRES}
 
 #  Les fichiers où un `/hN-` est un EXEMPLE et pas une adresse : les

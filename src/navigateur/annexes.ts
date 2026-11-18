@@ -103,17 +103,38 @@ export function sommaireDepuis(donnees: unknown): Sommaire {
 
 /** Le slug de la page courante, lu dans l'adresse.
  *
- *  `/h20-le-reglement` → `le-reglement`. On lit le SLUG et pas le numéro
- *  de page : `h20` dépend de l'ordre de création des pages chez
- *  Forumactif, le slug est celui qu'on a choisi. Déplacer une annexe
- *  d'un numéro à l'autre ne doit pas décrocher le sommaire.
+ *  `/h20-le-reglement` → `le-reglement`.
  *
- *  Forumactif tolère n'importe quel suffixe après le numéro : `/h20-x`
- *  sert la même page que `/h20-le-reglement`. Le sommaire n'y reconnaît
- *  alors rien, et c'est bien — il ne surligne pas au hasard. */
+ *  IL NE SUFFIT PLUS À LUI SEUL depuis le 18 novembre : le titre tapé
+ *  dans le panneau décide de ce bout-là, et il ne ressemble pas
+ *  toujours à notre slug. « Les groupes » donne `/h5-les-groupes`, et
+ *  notre clé interne est `groupes` ; « Arènes, colosseums & Ligue »
+ *  donne `ligue` là où nous écrivons `ligues`. Onze pages sur quinze
+ *  ne se reconnaissaient plus.
+ *
+ *  Gardé comme SECOND recours, pour une page dont l'adresse n'a pas
+ *  encore été reportée. */
 export function slugDepuisAdresse(chemin: string): string | null {
   const trouve = /^\/h\d+-([a-z0-9-]+)\/?$/.exec(chemin);
   return trouve === null ? null : trouve[1];
+}
+
+/** Le numéro de page Forumactif d'une adresse : `/h12-x` → 12.
+ *
+ *  C'EST LA SEULE PARTIE QUI IDENTIFIE VRAIMENT LA PAGE. Forumactif
+ *  sert `/h12-n-importe-quoi` pour la page 12 ; le reste est
+ *  décoratif, et il change dès qu'on renomme le titre. Comparer les
+ *  numéros, c'est comparer ce que le forum garantit.
+ *
+ *  Marche sur un chemin (`/h12-x`) comme sur une adresse entière
+ *  (`https://…/h12-x`), parce que `data/annexes.json` porte les deux
+ *  formes selon l'époque où la ligne a été écrite. */
+export function pageDeLAdresse(adresse: string | null): number | null {
+  if (adresse === null) return null;
+  const trouve = /\/h(\d+)(?:-|\/|$)/.exec(adresse);
+  if (trouve === null) return null;
+  const n = Number(trouve[1]);
+  return Number.isInteger(n) && n > 0 ? n : null;
 }
 
 export type EntreeAffichee = EntreeDAnnexe & {
@@ -135,11 +156,28 @@ export type SectionAffichee = {
 export function sommaireAffiche(
   sommaire: Sommaire,
   slugCourant: string | null,
+  /** Le numéro de page Forumactif de la page lue, quand on l'a. C'est
+   *  LUI qui désigne l'entrée courante ; le slug ne sert plus que de
+   *  second recours. */
+  pageCourante: number | null = null,
 ): readonly SectionAffichee[] {
   return sommaire.sections.map((s) => ({
     titre: s.titre,
     entrees: s.entrees.map((e) => {
-      const active = slugCourant !== null && e.slug === slugCourant;
+      const sienne = pageDeLAdresse(e.adresse);
+      //  LE NUMÉRO D'ABORD, LE SLUG ENSUITE.
+      //
+      //  Quand les deux numéros sont connus, ils TRANCHENT : c'est ce
+      //  que Forumactif garantit, et le slug ne peut plus créer ni
+      //  faux positif ni faux négatif.
+      //
+      //  Le slug ne sert que lorsqu'un des deux numéros manque — une
+      //  entrée dont l'adresse n'a pas encore été reportée, ou un
+      //  appelant qui ne sait pas sur quelle page il est. Sans ce
+      //  recours, une page toute neuve ne se surlignerait jamais.
+      const active = sienne !== null && pageCourante !== null
+        ? sienne === pageCourante
+        : slugCourant !== null && e.slug === slugCourant;
       return {
         ...e,
         active,

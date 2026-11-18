@@ -39,6 +39,7 @@
 import {
   type EntreeAffichee,
   type SectionAffichee,
+  pageDeLAdresse,
   slugDepuisAdresse,
   sommaireAffiche,
   sommaireDepuis,
@@ -123,6 +124,7 @@ export function poserLeSommaire({ doc, donnees }: Dependances): boolean {
   const sections = sommaireAffiche(
     sommaireDepuis(donnees),
     slugDepuisAdresse(doc.location?.pathname ?? ""),
+    pageDeLAdresse(doc.location?.pathname ?? ""),
   );
   if (sections.length === 0) return false;
 
@@ -172,6 +174,7 @@ export function poserLaSuivante({ doc, donnees }: Dependances): boolean {
   const sections = sommaireAffiche(
     sommaireDepuis(donnees),
     slugDepuisAdresse(doc.location?.pathname ?? ""),
+    pageDeLAdresse(doc.location?.pathname ?? ""),
   );
   const toutes = sections.flatMap((s) => s.entrees);
   const ici = toutes.findIndex((e) => e.active);

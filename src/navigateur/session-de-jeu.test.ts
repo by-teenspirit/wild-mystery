@@ -73,8 +73,8 @@ Deno.test("LE JETON EST EFFACÉ DE L'ADRESSE, pas gardé dans l'historique", () 
   //  dans l'historique, et dans le lien qu'on copie pour demander de
   //  l'aide. Celui-là ouvre le carnet.
   assertEquals(
-    adresseSansJeton("https://exemple.test/h15-mon-carnet" + RETOUR, RETOUR),
-    "https://exemple.test/h15-mon-carnet",
+    adresseSansJeton("https://exemple.test/h17-mon-carnet" + RETOUR, RETOUR),
+    "https://exemple.test/h17-mon-carnet",
   );
   assertEquals(
     adresseSansJeton(
@@ -88,7 +88,7 @@ Deno.test("LE JETON EST EFFACÉ DE L'ADRESSE, pas gardé dans l'historique", () 
 Deno.test("et une adresse sans jeton n'est pas touchée", () => {
   //  L'onglet ouvert vit dans le fragment : l'effacer renverrait sur
   //  « Mon jeu » quelqu'un qui lisait son Pokédex.
-  const avecOnglet = "https://exemple.test/h15-mon-carnet#mon-pokedex";
+  const avecOnglet = "https://exemple.test/h17-mon-carnet#mon-pokedex";
   assertEquals(adresseSansJeton(avecOnglet, "#mon-pokedex"), avecOnglet);
   assert(adresseSansJeton(avecOnglet, "#mon-pokedex").includes("#mon-pokedex"));
 });

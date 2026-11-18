@@ -8,7 +8,7 @@
 //
 //  ── UNE SEULE PAGE, ET ELLE DIT LES DEUX CHOSES ─────────────────────
 //
-//  `/h15-mon-carnet` est servie sans l'en-tête du forum — c'est ce qui
+//  `/h17-mon-carnet` est servie sans l'en-tête du forum — c'est ce qui
 //  lui donne son allure — donc `_userdata` n'existe pas dessus, mesuré
 //  le 3 novembre. Mais le navigateur peut demander une page du forum
 //  AVEC la session du membre, puisqu'on est sur le même domaine.

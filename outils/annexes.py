@@ -394,7 +394,7 @@ def renvoi_vers(slug):
     ── POURQUOI ÇA NE S'ÉCRIT PAS À LA MAIN ────────────────────────
 
     L'annexe des célébrités renvoyait vers celle des arènes avec un
-    `/h6-arenes-colosseums-ligues` tapé dans le générateur. Ça marchait,
+    `/h13-arenes-colosseums-ligue` tapé dans le générateur. Ça marchait,
     et ça ne garantissait rien : Forumactif ne route QUE sur le numéro,
     le slug est décoratif, et une adresse dont le numéro a glissé ne
     tombe pas en 404 — elle mène ailleurs, en silence. C'est la leçon
