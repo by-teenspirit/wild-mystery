@@ -60,6 +60,8 @@ import {
   poserMonSac,
 } from "../src/adaptateurs/navigateur/module-carnet.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
+import { poserLAccessibilite } from "../src/adaptateurs/navigateur/module-confort.ts";
+import { aidesDepuis, poserLesAides } from "../src/adaptateurs/navigateur/module-aide.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
 import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
 import {
@@ -116,7 +118,28 @@ function mouvementRefuse(): boolean {
   }
 }
 
-poserLeTheme(document, new Preferences(new StockageLocal()));
+const PREFS = new Preferences(new StockageLocal());
+poserLeTheme(document, PREFS);
+
+//  ── LE MODULE D'ACCESSIBILITÉ, ICI AUSSI ────────────────────────────
+//
+//  « Tu rajouteras aussi le module d'accessibilité ici aussi. » — 18
+//  novembre.
+//
+//  IL N'Y ÉTAIT PAS, et ce n'était pas un oubli de configuration : le
+//  carnet est une page HTML autonome de Forumactif, comme les annexes.
+//  `overall_header` ne l'habille pas, donc pas de coin d'outils — et
+//  `poserLAccessibilite` cherchait un coin qui n'existe pas.
+//
+//  IL S'ACCROCHE À LA BARRE DE RETOUR, que cette page a déjà, et le
+//  module sait le faire depuis le 8 novembre : il essaie le coin, puis
+//  la barre. Une seule ligne suffisait donc ; c'est la ligne qui
+//  manquait.
+//
+//  APRÈS `poserLeTheme`, et c'est une dépendance d'ordre : les deux
+//  visent la même barre, et on veut le thème en premier — c'est celui
+//  qu'on cherche le plus souvent.
+poserLAccessibilite(document, PREFS);
 
 async function lire(nom: string): Promise<unknown> {
   if (RACINE === null) return null;
@@ -639,6 +662,20 @@ export const VERSION_DU_CONTRAT = 6; //  6 : Mes RP (0036, 0037)
 //  LES ONGLETS D'ABORD, SANS DONNÉES. Cliquer doit marcher pendant que
 //  ça charge, sinon la page a l'air morte.
 poserLesOnglets(document, () => {});
+
+//  ── LES AIDES, AVANT LES DONNÉES ELLES AUSSI ────────────────────────
+//
+//  Elles n'en dépendent pas : les huit pages existent dans le HTML
+//  collé, et l'aide explique la PAGE, pas son contenu. Elle se pose
+//  donc tout de suite, et elle est là même si le carnet ne s'ouvre
+//  pas — c'est justement ce moment-là qu'on a besoin de comprendre à
+//  quoi sert ce qu'on ne voit pas encore.
+lire("aide-carnet.json")
+  .then((brut) => {
+    const aides = aidesDepuis(brut);
+    if (aides.size > 0) poserLesAides({ doc: document, aides, depot: DEPOT });
+  })
+  .catch(() => {});
 
 //  ET ON OUVRE. Sans bouton, sans champ, sans clé : la page va chercher
 //  qui la regarde et la clé que le staff lui a posée.

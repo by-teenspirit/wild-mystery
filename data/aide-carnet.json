@@ -1,0 +1,96 @@
+{
+  "_": "L'aide de chaque page du carnet. Demandée le 18 novembre : « sur chaque page du carnet de bord, tu vas mettre une petite aide accessible quelque part qui explique l'utilité de chaque page et comment l'utiliser, avec des captures d'écran. » SOURCE UNIQUE : `module-aide.ts` la lit et pose un bouton dans l'en-tête de chaque page. On corrige ici, jamais dans la page.",
+  "_aQuoi": "Une phrase. Elle répond à « pourquoi cette page existe », pas à « qu'est-ce qu'elle contient » — le chapô de la page le dit déjà, et le répéter ferait deux textes à tenir d'accord.",
+  "_gestes": "Ce qu'on fait sur la page, dans l'ordre où on le fait. Des gestes, pas des descriptions : « clique », « glisse », « coche ». Une aide qui décrit un écran qu'on a sous les yeux n'apprend rien.",
+  "_capture": "Chemin relatif à la racine du dépôt. LES IMAGES SONT DÉRIVÉES : `deno task carnet --captures` les refait depuis le carnet monté avec ses données d'essai, donc elles ne peuvent pas vieillir sans que le harnais le dise. Ne pas les retoucher à la main.",
+  "pages": {
+    "mes-rp": {
+      "titre": "Mes RP",
+      "aQuoi": "Pour ne plus avoir à ouvrir six onglets du forum pour savoir où tu en es, ni à qui c'est d'écrire.",
+      "gestes": [
+        "Le tableau se remplit tout seul depuis le forum : tu n'as rien à y recopier.",
+        "« À toi d'écrire » se calcule sur le dernier message du sujet. Si tu as posté en dernier, c'est à l'autre.",
+        "Ajoute un RP convenu mais pas encore ouvert avec le bouton du haut : il apparaîtra comme « prévu » jusqu'au premier message.",
+        "Change l'état d'un RP quand il s'arrête ou qu'il reprend — c'est la seule chose que le forum ne peut pas deviner."
+      ],
+      "capture": "img/aide/mes-rp.png"
+    },
+    "ecrire": {
+      "titre": "Écrire",
+      "aQuoi": "Pour écrire sans perdre ce que tu écris, et pour t'y mettre quand c'est difficile.",
+      "gestes": [
+        "Tape : c'est enregistré au fil de la frappe, sans bouton à chercher. Tu peux fermer l'onglet.",
+        "Le compteur de mots est là pour te repérer, pas pour te juger — aucune longueur n'est exigée.",
+        "Lance une session quand tu veux écrire d'affilée : tu choisis la durée, le carnet compte.",
+        "Le mode sans distraction vide l'écran autour du texte. On en sort par Échap."
+      ],
+      "capture": "img/aide/ecrire.png"
+    },
+    "mon-histoire": {
+      "titre": "Mon histoire",
+      "aQuoi": "Pour garder au même endroit ce que tu sais de ton personnage — et choisir, champ par champ, ce qui se montre.",
+      "gestes": [
+        "Remplis ce que tu veux, dans l'ordre que tu veux. Rien n'est obligatoire.",
+        "Chaque champ porte un interrupteur « affiché » : allumé, il part dans ta fiche de liens ; éteint, il ne sort jamais du carnet.",
+        "La chronologie se range par date — écris-les comme tu veux, c'est ton calendrier.",
+        "Ce qui est caché reste lisible par toi seule, même sur un autre navigateur."
+      ],
+      "capture": "img/aide/mon-histoire.png"
+    },
+    "mes-liens": {
+      "titre": "Mes liens",
+      "aQuoi": "Pour fabriquer ta fiche de liens d'ici, au lieu de la tenir à la main dans un sujet.",
+      "gestes": [
+        "Ajoute une personne, dis en deux mots ce qu'elle est pour ton personnage.",
+        "Le type du lien colore la carte : on repère d'un coup d'œil les proches et les ennemis.",
+        "Ce que tu ranges ici compose le sujet de ta fiche — tu n'as pas à le recopier.",
+        "Un lien peut rester en attente tant que l'autre ne l'a pas accepté."
+      ],
+      "capture": "img/aide/mes-liens.png"
+    },
+    "mon-jeu": {
+      "titre": "Mon jeu",
+      "aQuoi": "Pour voir d'un coup ce que le serveur sait de ta partie, sans avoir à le demander à personne.",
+      "gestes": [
+        "Tout est en lecture seule : rien ne se modifie depuis cette page.",
+        "Ça bouge quand tu écris, quand tu clôtures une scène, quand tu passes à la boutique ou à la pension.",
+        "Un chiffre qui te semble faux se signale au staff : c'est le registre du jeu qui est à corriger, pas l'affichage.",
+        "Passe la souris sur un Pokémon de l'équipe pour voir ses chiffres."
+      ],
+      "capture": "img/aide/mon-jeu.png"
+    },
+    "mes-boites": {
+      "titre": "Mes boîtes",
+      "aQuoi": "Pour ranger ce que tu as attrapé, et composer l'équipe que tu emmènes.",
+      "gestes": [
+        "Trois boîtes de trente places. C'est ici, et nulle part ailleurs, que l'équipe se change.",
+        "Glisse un Pokémon vers l'équipe pour l'emmener, et l'inverse pour le déposer.",
+        "Six places dans l'équipe, pas une de plus : il faut en sortir un pour en entrer un autre.",
+        "Un Pokémon en pension n'est ni dans la boîte ni dans l'équipe — il revient à la fin du dépôt."
+      ],
+      "capture": "img/aide/mes-boites.png"
+    },
+    "mon-sac": {
+      "titre": "Mon sac",
+      "aQuoi": "Pour savoir ce que tu transportes avant d'écrire une scène où tu t'en sers.",
+      "gestes": [
+        "On n'utilise rien depuis ici : un objet se sort EN RP, dans le message où tu t'en sers.",
+        "La barre d'actions du sujet propose ce que tu as — si un objet manque là-bas, c'est qu'il n'est pas dans le sac.",
+        "Les quantités se mettent à jour quand la relève lit ton message, pas au moment où tu l'écris.",
+        "Les objets s'achètent à la boutique du forum, pas ici."
+      ],
+      "capture": "img/aide/mon-sac.png"
+    },
+    "mon-pokedex": {
+      "titre": "Mon Pokédex",
+      "aQuoi": "Pour suivre ce que tu as croisé et ce que tu as attrapé parmi les espèces de Rhode.",
+      "gestes": [
+        "Il se remplit tout seul : croiser une espèce suffit à débloquer sa silhouette.",
+        "Une case pleine veut dire « attrapé », une silhouette veut dire « vu ».",
+        "Filtre par zone pour voir ce qu'il te reste à croiser quelque part.",
+        "Les espèces hors nature — les cadeaux, les fossiles — n'apparaissent qu'une fois obtenues."
+      ],
+      "capture": "img/aide/mon-pokedex.png"
+    }
+  }
+}

@@ -800,6 +800,108 @@
   min-width: 0;
 }
 
+/*  ── L'AIDE DE CHAQUE PAGE ────────────────────────────────────────
+
+    « Sur chaque page du carnet de bord, tu vas mettre une petite aide
+    accessible quelque part qui explique l'utilité de chaque page et
+    comment l'utiliser, avec des captures d'écran. » — 18 novembre.
+
+    UN POINT D'INTERROGATION DANS L'EN-TÊTE, à côté du titre. Pas un
+    panneau déplié d'office — il pousserait le travail vers le bas à
+    chaque visite, et on le refermerait sans le lire. Pas un bouton
+    dans un coin non plus : il se chercherait.
+
+    LA CIBLE FAIT 44 PX comme partout ailleurs : c'est un bouton pour
+    un doigt autant que pour une souris. */
+#modernbb .wm-aide {
+  margin-top: var(--wm-espace-12, 12px);
+}
+
+#modernbb button.wm-aide__bouton {
+  display: inline-flex;
+  min-width: var(--wm-cible-tactile, 44px);
+  min-height: var(--wm-cible-tactile, 44px);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: 999px;
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-accent-primaire, #275e7a);
+  cursor: pointer;
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-demi, 600);
+  line-height: 1;
+}
+
+#modernbb button.wm-aide__bouton:hover,
+#modernbb button.wm-aide__bouton:focus-visible {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LE PANNEAU PREND LA LARGEUR DE LA COLONNE, et il reste dans le
+    flux : une bulle flottante au-dessus du contenu cacherait
+    justement ce qu'elle explique. */
+#modernbb .wm-aide__panneau {
+  box-sizing: border-box;
+  max-width: 44rem;
+  margin-top: var(--wm-espace-10, 10px);
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-terre, #f8eae1);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  `[hidden]` DOIT GAGNER. Même leçon qu'avec les menus de la barre
+    d'actions, le 18 novembre : n'importe quel `display` écrit dans
+    une feuille bat la règle de base du navigateur. Ici rien n'en
+    pose, mais la régularité du dépôt vaut mieux qu'un oubli futur. */
+#modernbb .wm-aide__panneau[hidden] {
+  display: none;
+}
+
+#modernbb .wm-aide__titre {
+  margin: 0 0 var(--wm-espace-4, 4px);
+  color: var(--wm-accent-primaire, #275e7a);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+}
+
+#modernbb .wm-aide__titre + * + .wm-aide__titre {
+  margin-top: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wm-aide__quoi {
+  margin: 0;
+}
+
+#modernbb .wm-aide__gestes {
+  margin: 0;
+  padding-left: var(--wm-espace-18, 18px);
+}
+
+#modernbb .wm-aide__gestes li {
+  margin-bottom: var(--wm-espace-4, 4px);
+}
+
+/*  LA CAPTURE EST UN BONUS. Elle arrive en différé, elle ne dépasse
+    jamais la colonne, et si elle manque le texte au-dessus dit tout —
+    une aide qui dépend d'une image est une aide qui tombe en panne. */
+#modernbb img.wm-aide__capture {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
 /*  ── LA PRÉSENTATION, AVANT LE FORMULAIRE ─────────────────────────
 
     « Il faut vraiment que l'onboarding serve à expliquer à quoi il

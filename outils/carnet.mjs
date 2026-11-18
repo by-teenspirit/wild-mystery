@@ -28,7 +28,7 @@
 //  5. **Rien ne se clique qui modifie les données.** Le carnet montre.
 // ════════════════════════════════════════════════════════════════════
 
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import { chromium } from "npm:playwright@1.56.0";
 
 const R = new URL("..", import.meta.url).pathname;
@@ -1294,6 +1294,24 @@ const TROIS = [
   //  bouge pas, et ce qui n'est pas le texte disparaît.
   const { q } = await monter({ brouillons: TROIS });
   await q.click('[data-wm-carnet-onglet="ecrire"]');
+  //  ── ON ATTEND QUE LE BROUILLON SOIT ARRIVÉ AVANT DE TAPER ────────
+  //
+  //  Le 18 novembre, une requête de plus au chargement (l'aide des
+  //  pages) a décalé l'arrivée du brouillon d'une poignée de
+  //  millisecondes : le harnais tapait AVANT, le brouillon se posait
+  //  APRÈS, et le champ contenait les deux bouts collés. L'essai a
+  //  échoué sur une mesure qu'il ne surveillait pas.
+  //
+  //  IL AVAIT RAISON DE TOMBER. La même course existe pour une
+  //  joueuse qui ouvre « Écrire » et commence à taper tout de suite :
+  //  le carnet écraserait ce qu'elle vient d'écrire. Ce n'est pas
+  //  corrigé ici — le harnais ne corrige rien — mais c'est noté, et
+  //  cette attente dit où regarder.
+  await q.waitForFunction(
+    () => (document.querySelector("[data-wm-ecrire-corps]")?.value ?? "") !== "",
+    null,
+    { timeout: 5000 },
+  ).catch(() => soucis.push("le brouillon n'arrive pas dans le champ"));
   await q.fill("[data-wm-ecrire-corps]", "le texte de la session");
   const avant = await q.evaluate(() => location.href);
   await q.click("[data-wm-ecrire-focus]");
@@ -2863,8 +2881,179 @@ await p.close();
   await q.close();
 }
 
+// ── L'AIDE DE CHAQUE PAGE ───────────────────────────────────────────
+//
+//  « Sur chaque page du carnet de bord, tu vas mettre une petite aide
+//  accessible quelque part qui explique l'utilité de chaque page et
+//  comment l'utiliser, avec des captures d'écran. » — 18 novembre.
+{
+  const { q } = await monter();
+  await q.waitForTimeout(250);
+  const aides = await q.evaluate(() => {
+    const pages = [...document.querySelectorAll("[data-wm-carnet-page]")];
+    return {
+      pages: pages.length,
+      avecAide: pages.filter((p) => p.querySelector(".wm-aide__bouton") !== null).length,
+      //  REPLIÉES AU DÉPART, TOUTES. Une aide dépliée d'office pousse
+      //  le travail vers le bas à chaque visite.
+      ouvertes: pages.filter((p) => {
+        const pan = p.querySelector(".wm-aide__panneau");
+        return pan !== null && pan.hidden === false;
+      }).length,
+      //  UNE SEULE PAR PAGE : le carnet redessine ses pages quand les
+      //  données arrivent, et deux points d'interrogation côte à côte
+      //  seraient le signe que quelque chose se repose en double.
+      doubles: pages.filter((p) => p.querySelectorAll(".wm-aide__bouton").length > 1).length,
+    };
+  });
+  dire(
+    "CHAQUE PAGE A SON AIDE, ET AUCUNE N'EST POSÉE EN DOUBLE",
+    aides.pages >= 8 && aides.avecAide === aides.pages && aides.doubles === 0,
+    JSON.stringify(aides),
+  );
+  dire(
+    "elles sont repliées au départ",
+    aides.ouvertes === 0,
+    `${aides.ouvertes} ouverte(s)`,
+  );
+
+  //  ON CLIQUE POUR DE VRAI, sur la page visible. Un panneau qu'on
+  //  déclare ouvert sans le regarder ne prouve rien.
+  await q.click('[data-wm-carnet-onglet="mon-sac"]');
+  await q.waitForTimeout(150);
+  await q.click('[data-wm-carnet-page="mon-sac"] .wm-aide__bouton');
+  await q.waitForTimeout(150);
+  const ouvert = await q.evaluate(() => {
+    const page = document.querySelector('[data-wm-carnet-page="mon-sac"]');
+    const pan = page.querySelector(".wm-aide__panneau");
+    const b = page.querySelector(".wm-aide__bouton");
+    return {
+      visible: pan.getBoundingClientRect().height > 0,
+      annonce: b.getAttribute("aria-expanded"),
+      cible: Math.round(b.getBoundingClientRect().height),
+      gestes: pan.querySelectorAll(".wm-aide__gestes li").length,
+      capture: pan.querySelector(".wm-aide__capture")?.getAttribute("src") ?? null,
+      //  L'ALTERNATIVE N'EST PAS VIDE : Forumactif remplit les
+      //  alternatives vides avec le titre de la page et le nom du
+      //  fichier — relevé le 18 novembre sur un sprite de combat.
+      alt: pan.querySelector(".wm-aide__capture")?.getAttribute("alt") ?? null,
+      //  ELLE DIT CE QUE LA PAGE FAIT, pas ce qu'elle contient.
+      dit: pan.textContent.slice(0, 60),
+    };
+  });
+  dire(
+    "ELLE S'OUVRE AU CLIC, ET LE BOUTON L'ANNONCE",
+    ouvert.visible && ouvert.annonce === "true",
+    JSON.stringify({ visible: ouvert.visible, annonce: ouvert.annonce }),
+  );
+  dire(
+    "la cible fait 44 px, et l'aide donne des gestes",
+    ouvert.cible >= 44 && ouvert.gestes >= 3,
+    `${ouvert.cible} px · ${ouvert.gestes} geste(s)`,
+  );
+  dire(
+    "et elle porte sa capture, avec une alternative qui dit quoi",
+    ouvert.capture !== null && /img\/aide\/mon-sac\.png$/.test(ouvert.capture) &&
+      (ouvert.alt ?? "").includes("Mon sac"),
+    JSON.stringify({ capture: ouvert.capture, alt: ouvert.alt }),
+  );
+
+  //  ── LE MODULE D'ACCESSIBILITÉ, ICI AUSSI ──────────────────────────
+  //
+  //  « Tu rajouteras aussi le module d'accessibilité ici aussi. » Il
+  //  n'y était pas : le carnet est une page autonome, sans coin
+  //  d'outils, et le module cherchait un coin. Il sait s'accrocher à
+  //  la barre de retour depuis le 8 novembre ; c'est l'appel qui
+  //  manquait.
+  const confort = await q.evaluate(() => {
+    const b = document.querySelector(".wm-confort__bouton");
+    if (b === null) return null;
+    return {
+      dansLaBarre: b.closest(".wm-retour") !== null,
+      annonce: b.getAttribute("aria-expanded"),
+      cible: Math.round(b.getBoundingClientRect().height),
+    };
+  });
+  dire(
+    "LE RÉGLAGE DE CONFORT EST DANS LA BARRE DU CARNET",
+    confort !== null && confort.dansLaBarre && confort.annonce === "false",
+    JSON.stringify(confort),
+  );
+  await q.close();
+}
+
+
+// ── LES CAPTURES DE L'AIDE ──────────────────────────────────────────
+//
+//  `deno task carnet --captures` refait les huit images que les
+//  panneaux d'aide affichent.
+//
+//  ELLES SONT DÉRIVÉES, PAS DESSINÉES. Une capture prise à la main
+//  vieillit sans prévenir : la page change, l'image reste, et l'aide
+//  se met à montrer un écran qui n'existe plus. Ici elles sortent du
+//  carnet MONTÉ AVEC SES DONNÉES D'ESSAI, par le même harnais qui le
+//  mesure — donc d'un carnet dont on vient de vérifier qu'il est
+//  juste.
+//
+//  LES DONNÉES SONT CELLES DU DÉCOR, et c'est volontaire : aucune
+//  capture ne montre le carnet de quelqu'un.
+if (Deno.args.includes("--captures")) {
+  const PAGES = [
+    "mes-rp",
+    "ecrire",
+    "mon-histoire",
+    "mes-liens",
+    "mon-jeu",
+    "mes-boites",
+    "mon-sac",
+    "mon-pokedex",
+  ];
+  const { q } = await monter({ brouillons: TROIS });
+  //  UNE FENÊTRE LARGE : la capture sert à reconnaître la page d'un
+  //  coup d'œil dans un panneau d'aide, pas à lire son texte. En
+  //  colonne étroite, les huit se ressembleraient toutes.
+  await q.setViewportSize({ width: 1280, height: 900 });
+  mkdirSync(R + "img/aide", { recursive: true });
+  for (const nom of PAGES) {
+    await q.click(`[data-wm-carnet-onglet="${nom}"]`);
+    await q.waitForTimeout(250);
+    const section = await q.$(`[data-wm-carnet-page="${nom}"]`);
+    if (section === null) {
+      soucis.push(`capture : pas de page « ${nom} »`);
+      continue;
+    }
+    //  ── LES IMAGES ABSENTES DEVIENNENT DES CASES, PAS DES CROIX ───
+    //
+    //  Le harnais n'a pas de réseau : les vignettes d'objet et les
+    //  sprites viennent de PokeAPI, et le navigateur peint à leur
+    //  place son icône d'image cassée. Sur une capture qui part dans
+    //  l'aide des joueuses, ça ferait croire que le carnet est en
+    //  panne.
+    //
+    //  ON NE CACHE PAS CE QUI EXISTE : seules les images dont la
+    //  largeur naturelle vaut zéro — donc celles qui n'ont pas chargé
+    //  — passent en case sourde. Celles qui sont là restent telles
+    //  quelles, et la capture montre la vraie page.
+    await q.evaluate(() => {
+      for (const i of document.querySelectorAll("img")) {
+        if (i.naturalWidth > 0) continue;
+        i.style.visibility = "hidden";
+      }
+    });
+    //  LE PANNEAU D'AIDE NE SE PHOTOGRAPHIE PAS LUI-MÊME. Il est
+    //  replié, donc invisible — mais son bouton, lui, est dans
+    //  l'en-tête, et une capture qui le montre apprendrait au lecteur
+    //  qu'il peut cliquer sur ce qu'il est déjà en train de lire.
+    await section.screenshot({ path: `${R}img/aide/${nom}.png` });
+  }
+  await q.close();
+  console.log(`captures : ${PAGES.length} images dans img/aide/`);
+}
+
 await nav.close();
+
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
+
 if (soucis.length > 0) Deno.exit(1);
