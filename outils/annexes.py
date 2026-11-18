@@ -231,37 +231,14 @@ PIED = """    <footer class="wm-pied-annexe">
       <a href="https://www.forumactif.com/">Forumactif</a>
     </footer>"""
 
-GABARIT = """<!-- ═══════════════════════════════════════════════════════════════════
-     Annexe {numero} · {titre} — à coller dans une page HTML.
-
-     ÉCRITE PAR `outils/annexes.py`. Ne pas corriger ce fichier à la
-     main : la correction serait perdue à la prochaine génération, et
-     elle ne toucherait qu'une des quatorze pages. Le gabarit est dans
-     l'outil, la liste dans `data/annexes.json`.
-
-     ── CRÉER LA PAGE SUR LE FORUM ─────────────────────────────────
-
-     Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
-     MODE AVANCÉ, et surtout :
-
-       · « Utiliser le header et footer du forum » = **NON**. La page
-         est un document complet : elle charge elle-même les polices,
-         `jetons.css`, la feuille et `js/annexes.js`. Avec la case à
-         OUI, on aurait deux en-têtes et deux pieds l'un dans l'autre.
-       · L'adresse doit finir par **{slug}** — c'est ce bout que le
-         sommaire reconnaît pour se surligner, et pas le numéro `hN`,
-         qui dépend de l'ordre de création chez Forumactif.
-       · Reporter l'adresse obtenue dans `data/annexes.json`, champ
-         `adresse` : le lien apparaît alors dans les quatorze
-         sommaires d'un coup.
-
-     ── LE TEXTE EST UN REMPLISSAGE ────────────────────────────────
-
-     Les sept briques sont montrées une fois chacune, avec des phrases
-     neutres. Remplacer bloc par bloc ; supprimer les briques dont la
-     page n'a pas besoin. Ce qui ne doit PAS changer : les classes, et
-     le `<nav data-wm-sommaire>` qui reçoit le sommaire.
-     ═══════════════════════════════════════════════════════════════════ -->
+#  LE COMMENTAIRE DE TÊTE TIENT EN TROIS LIGNES. Il en faisait trente,
+#  recopiées dans les quatorze pages. « Arrête de mettre autant de
+#  commentaires dans les annexes », 18 novembre : le mode d'emploi du
+#  panneau d'administration est dans la planche 86, pas dans la page.
+GABARIT = """<!-- Annexe {numero} · {titre}. Écrite par `outils/annexes.py` : une
+     correction faite ici serait perdue à la prochaine génération.
+     Page HTML en mode avancé, « header et footer du forum » sur NON,
+     adresse finissant par `{slug}` et reportée dans `data/annexes.json`. -->
 
 <!DOCTYPE html>
 <html lang="fr">

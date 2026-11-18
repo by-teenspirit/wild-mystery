@@ -23,6 +23,7 @@ import {
   type MonSujet,
   nomDuMembre,
   partDePv,
+  placementDuRecap,
 } from "./recap.ts";
 import type { LigneEnAttente } from "../application/bilan.ts";
 
@@ -155,6 +156,45 @@ Deno.test("une ligne de bilan sans rubrique ne fait pas un bloc", () => {
   //  d'un bloc qui dit quelque chose.
   const vide: LigneEnAttente = { ...GAINS, captures: [] };
   assertEquals(blocsDuRecap({ equipe: [], combat: null }, vide), []);
+});
+
+// ── le placement ────────────────────────────────────────────────────
+
+Deno.test("IL SE POSE À 16 PX DES MESSAGES, OÙ QU'ILS FINISSENT", () => {
+  //  « Pas besoin de mesurer l'écran, tu l'accroches à ça. » Le même
+  //  panneau, la même fenêtre, deux largeurs de messages : seul le
+  //  bord des messages décide.
+  assertEquals(placementDuRecap({ droite: 1560 }, 1920, 216, 16).gauche, 1576);
+  assertEquals(placementDuRecap({ droite: 1180 }, 1920, 216, 16).gauche, 1196);
+});
+
+Deno.test("SUR UN GRAND ÉCRAN, IL NE S'ÉLOIGNE PAS DES MESSAGES", () => {
+  //  C'est le défaut qu'on corrige : collé au bord, il partait à
+  //  2 328 sur un 2 560 et laissait 448 px de vide entre les messages
+  //  et lui.
+  const p = placementDuRecap({ droite: 1880 }, 2560, 216, 16);
+  assertEquals(p.pose, true);
+  assertEquals(p.gauche, 1896);
+});
+
+Deno.test("SANS LA PLACE, IL NE SE POSE PAS", () => {
+  //  Un portable de 1 440 avec un forum de 1 200 : les messages
+  //  finissent à 1 320, il reste 120 px. Le panneau en demande 216,
+  //  plus l'écart des deux côtés.
+  assertEquals(placementDuRecap({ droite: 1320 }, 1440, 216, 16).pose, false);
+  //  LE BORD COMPTE : il faut l'écart aussi entre le panneau et le
+  //  bord de la fenêtre. 1 320 + 16 + 216 = 1 552, donc 1 552 ne
+  //  suffit pas et 1 568 suffit tout juste.
+  assertEquals(placementDuRecap({ droite: 1320 }, 1552, 216, 16).pose, false);
+  assertEquals(placementDuRecap({ droite: 1320 }, 1568, 216, 16).pose, true);
+});
+
+Deno.test("SANS ANCRE, RIEN — et surtout pas un panneau à zéro", () => {
+  //  Une page sans message : le panneau n'a rien à longer. Posé quand
+  //  même, il se serait collé à gauche, par-dessus le texte.
+  assertEquals(placementDuRecap(null, 1920, 216, 16).pose, false);
+  assertEquals(placementDuRecap({ droite: Number.NaN }, 1920, 216, 16).pose, false);
+  assertEquals(placementDuRecap({ droite: 1560 }, Number.NaN, 216, 16).pose, false);
 });
 
 Deno.test("l'équipe passe entière, avec celui qui se bat marqué", () => {

@@ -2659,8 +2659,21 @@ body:has(#modernbb .wm-carnet) {
   /*  LA HAUTEUR MINIMALE EXISTE pour que six cartes courtes ne
       s'écrasent pas sur deux lignes de rien. Au-delà, c'est le
       contenu le plus long qui fixe la ligne, et les autres suivent. */
-  min-height: 260px;
-  max-height: 340px;
+  /*  ── PLUS DE HAUTEUR MAXIMALE ────────────────────────────────
+      (relevé au rendu, 18 novembre)
+
+      Il y en avait une, et un défilement dans chaque carte : c'était
+      juste tant que le texte était du lorem. Avec les vraies
+      descriptions, les quatre lignes de caractère tombaient toutes
+      sous le pli, et deux cartes coupaient leur question en deux au
+      milieu d'un mot. Personne ne déroule une carte dont rien ne dit
+      qu'elle se déroule.
+
+      LES SIX RESTENT DE MÊME HAUTEUR SANS ÇA : c'est la ligne de
+      grille qui les égalise, et elle prend la plus haute des trois.
+      La hauteur minimale reste, pour que six cartes courtes ne
+      s'écrasent pas. */
+  min-height: 300px;
   padding: var(--wm-espace-16, 16px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
@@ -2715,6 +2728,68 @@ body:has(#modernbb .wm-carnet) {
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  ── LE NOM DE L'EMBLÈME, EN DEUX LANGUES QUAND IL EN FAUT DEUX ───
+
+    « On a des canadiens avec nous qui connaissent plutôt les noms
+    anglais » — 18 novembre. Un seul des six diffère, et c'est celui-là
+    qui porte le point médian : Créhelf · Uxie. Les cinq autres n'ont
+    qu'un mot, parce que répéter « Keldeo · Keldeo » ferait douter du
+    reste de la page.
+
+    IL EST AU-DESSUS DE LA DESCRIPTION et pas dans le titre : le titre
+    est le nom du GROUPE, qui ne change pas de langue. */
+#modernbb .wm-annexe .wm-groupe__espece {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--texte-groupe, var(--wm-texte-pale, #69564c));
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LA QUESTION EST CELLE DE CALLISTA, et elle finit la description :
+    elle s'adresse au lecteur, donc elle ne se lit pas comme la
+    légende. L'italique suffit à le dire — un encadré en ferait une
+    règle de jeu, ce qu'elle n'est pas. */
+#modernbb .wm-annexe .wm-groupe__question {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  color: var(--texte-groupe, var(--wm-encre, #2e2018));
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  ── LES QUATRE LIGNES DE CARACTÈRE ───────────────────────────────
+
+    En flexbox, pas en grille à deux colonnes : les valeurs sont des
+    listes de mots séparés par des points médians, et une colonne
+    étroite les couperait au milieu. L'étiquette au-dessus, la valeur
+    en dessous, comme l'encadré de l'avantage.
+
+    AUCUNE BORDURE, NI À GAUCHE NI AILLEURS — consigne du 9 novembre.
+    C'est l'écart qui sépare les quatre couples. */
+#modernbb .wm-annexe .wm-groupe__traits {
+  display: flex;
+  margin: var(--wm-espace-12, 12px) 0 0;
+  flex-direction: column;
+  gap: var(--wm-espace-2, 2px);
+}
+
+#modernbb .wm-annexe .wm-groupe__traits dt {
+  margin-bottom: 0;
+}
+
+#modernbb .wm-annexe .wm-groupe__traits dt + dd {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-annexe .wm-groupe__traits dd:last-child {
+  margin-bottom: 0;
 }
 
 /*  L'AVANTAGE EST COLLÉ EN BAS, hors du défilement : c'est la seule

@@ -13066,8 +13066,21 @@ body:has(#modernbb .wm-carnet) {
   /*  LA HAUTEUR MINIMALE EXISTE pour que six cartes courtes ne
       s'écrasent pas sur deux lignes de rien. Au-delà, c'est le
       contenu le plus long qui fixe la ligne, et les autres suivent. */
-  min-height: 260px;
-  max-height: 340px;
+  /*  ── PLUS DE HAUTEUR MAXIMALE ────────────────────────────────
+      (relevé au rendu, 18 novembre)
+
+      Il y en avait une, et un défilement dans chaque carte : c'était
+      juste tant que le texte était du lorem. Avec les vraies
+      descriptions, les quatre lignes de caractère tombaient toutes
+      sous le pli, et deux cartes coupaient leur question en deux au
+      milieu d'un mot. Personne ne déroule une carte dont rien ne dit
+      qu'elle se déroule.
+
+      LES SIX RESTENT DE MÊME HAUTEUR SANS ÇA : c'est la ligne de
+      grille qui les égalise, et elle prend la plus haute des trois.
+      La hauteur minimale reste, pour que six cartes courtes ne
+      s'écrasent pas. */
+  min-height: 300px;
   padding: var(--wm-espace-16, 16px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-md, 8px);
@@ -13122,6 +13135,68 @@ body:has(#modernbb .wm-carnet) {
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  ── LE NOM DE L'EMBLÈME, EN DEUX LANGUES QUAND IL EN FAUT DEUX ───
+
+    « On a des canadiens avec nous qui connaissent plutôt les noms
+    anglais » — 18 novembre. Un seul des six diffère, et c'est celui-là
+    qui porte le point médian : Créhelf · Uxie. Les cinq autres n'ont
+    qu'un mot, parce que répéter « Keldeo · Keldeo » ferait douter du
+    reste de la page.
+
+    IL EST AU-DESSUS DE LA DESCRIPTION et pas dans le titre : le titre
+    est le nom du GROUPE, qui ne change pas de langue. */
+#modernbb .wm-annexe .wm-groupe__espece {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--texte-groupe, var(--wm-texte-pale, #69564c));
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
+}
+
+/*  LA QUESTION EST CELLE DE CALLISTA, et elle finit la description :
+    elle s'adresse au lecteur, donc elle ne se lit pas comme la
+    légende. L'italique suffit à le dire — un encadré en ferait une
+    règle de jeu, ce qu'elle n'est pas. */
+#modernbb .wm-annexe .wm-groupe__question {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  color: var(--texte-groupe, var(--wm-encre, #2e2018));
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  ── LES QUATRE LIGNES DE CARACTÈRE ───────────────────────────────
+
+    En flexbox, pas en grille à deux colonnes : les valeurs sont des
+    listes de mots séparés par des points médians, et une colonne
+    étroite les couperait au milieu. L'étiquette au-dessus, la valeur
+    en dessous, comme l'encadré de l'avantage.
+
+    AUCUNE BORDURE, NI À GAUCHE NI AILLEURS — consigne du 9 novembre.
+    C'est l'écart qui sépare les quatre couples. */
+#modernbb .wm-annexe .wm-groupe__traits {
+  display: flex;
+  margin: var(--wm-espace-12, 12px) 0 0;
+  flex-direction: column;
+  gap: var(--wm-espace-2, 2px);
+}
+
+#modernbb .wm-annexe .wm-groupe__traits dt {
+  margin-bottom: 0;
+}
+
+#modernbb .wm-annexe .wm-groupe__traits dt + dd {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+#modernbb .wm-annexe .wm-groupe__traits dd:last-child {
+  margin-bottom: 0;
 }
 
 /*  L'AVANTAGE EST COLLÉ EN BAS, hors du défilement : c'est la seule
@@ -16577,42 +16652,22 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     « Le bilan du sujet qui nous suit, en petit récap à droite ou à
     gauche, en vertical, pour savoir où on en est, en tout temps. »
 
-    ── FIXE, PAS COLLANT ────────────────────────────────────────────
+    ── LE PLACEMENT N'EST PAS ICI ───────────────────────────────────
 
-    `position: sticky` aurait demandé de mettre les messages et le
-    récapitulatif dans une même rangée, donc de toucher à la structure
-    de la page d'un sujet — posée le 30 octobre, et que personne n'a
-    demandé de changer. `fixed` ne touche à rien : il flotte au-dessus,
-    à droite, et la page reste ce qu'elle était.
+    « Pas besoin de mesurer l'écran, tu l'accroches à ça » —
+    18 novembre, le code d'un sujet à l'appui. Le panneau longe le
+    bord droit des messages, et une feuille de style ne connaît pas le
+    bord d'un élément : c'est `module-recap.ts` qui mesure, écrit le
+    `left` et pose `data-wm-pose` quand il y a la place.
 
-    ── LE SEUIL EST CALCULÉ, PAS CHOISI ─────────────────────────────
+    IL Y AVAIT UN SEUIL DE 1 700 PX ICI, calculé à la main depuis la
+    largeur du forum, à recalculer à chaque fois qu'elle changeait, et
+    qu'une requête de média ne savait pas lire de toute façon. Il n'y
+    en a plus : la mesure le remplace, et elle se reprend quand la
+    fenêtre change de taille.
 
-    « Faudra peut-être réduire la largeur du forum pour que ce soit
-    propre ? » — 18 novembre. Non, et c'est mesurable : le forum fait
-    `--wm-largeur-forum`, soit 1 200 px (`02-socle.css`). Le panneau
-    en demande 216, plus 16 d'écart au bord et 16 entre lui et le
-    forum. Il faut donc
-
-        1200 + 2 × (216 + 16 + 16) = 1696 px
-
-    pour qu'il tienne À CÔTÉ du contenu et non PAR-DESSUS. On
-    l'arrondit à 1700. En dessous, il ne se pose pas — plutôt que de
-    recouvrir les messages, ce qu'aucune largeur de forum ne
-    rattraperait sur un portable de 1 440.
-
-    LE SEUIL EST ÉCRIT EN DUR PARCE QU'UNE REQUÊTE DE MÉDIA NE LIT PAS
-    LES VARIABLES. Si `--wm-largeur-forum` change, ce nombre doit
-    changer avec — d'où le calcul écrit juste au-dessus, et pas
-    seulement le résultat.
-
-    LES DEUX CÔTÉS SONT COMPTÉS, même si le panneau n'est qu'à droite :
-    le forum est centré, donc la marge de droite vaut la moitié de ce
-    qui reste. Ne compter qu'un côté aurait donné 1 448 et un panneau
-    qui mord sur les messages.
-
-    Il vit dans `12-confort.css` et pas dans `05-sujet.css` : c'est un
-    confort de lecture qui se pose PAR-DESSUS la page, comme le repli
-    du bandeau latéral, pas un morceau de la page d'un sujet. */
+    Cette feuille ne garde donc que l'APPARENCE — et le fait qu'il ne
+    se montre pas tant que personne ne l'a placé. */
 #modernbb .wm-recap {
   display: none;
 }
@@ -16621,41 +16676,36 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     (vu au rendu, 18 novembre)
 
     `.wm-coin` est fixe en bas à droite, à 16 px du bord, et porte
-    quatre boutons — sombre, haut, bas, confort. Le récapitulatif
-    centré verticalement passait juste au-dessus dans le décor
-    d'essai ; avec six Pokémon et six rubriques, il serait descendu
-    dessus.
+    quatre boutons. Le récapitulatif centré verticalement passait
+    juste au-dessus dans le décor d'essai ; avec six Pokémon et six
+    rubriques, il serait descendu dessus.
 
     ON L'ANCRE DONC EN HAUT, pas au centre, et on lui donne pour
     plafond ce qui reste au-dessus du coin : la hauteur de la fenêtre,
     moins les 88 du haut, moins les 16 du bas du coin, ses 190 de
-    hauteur et les 16 d'écart entre eux. Au-delà, il défile dans son
-    cadre.
+    hauteur et les 16 d'écart entre eux.
 
     LES 190 SONT MESURÉS SUR LE COIN RÉEL : quatre boutons de 40 et
     trois écarts de 10. S'il gagne un cinquième bouton, ce nombre doit
     changer — d'où le calcul écrit, et pas seulement le résultat. */
-@media (min-width: 1700px) {
-  #modernbb .wm-recap {
-    box-sizing: border-box;
-    display: flex;
-    position: fixed;
-    z-index: 20;
-    top: 88px;
-    right: var(--wm-espace-16, 16px);
-    width: 216px;
-    max-height: calc(100vh - 88px - 16px - 190px - 16px);
-    flex-direction: column;
-    gap: var(--wm-espace-12, 12px);
-    overflow-y: auto;
-    padding: var(--wm-espace-14, 14px);
-    border: 1px solid var(--wm-bord-fin, #eadacd);
-    border-radius: var(--wm-rayon-lg, 10px);
-    background: var(--wm-fond-surface, #fffbf7);
-    box-shadow: 0 6px 20px rgb(46 32 24 / 12%);
-    color: var(--wm-texte-corps, #4e3b30);
-    font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
-  }
+#modernbb .wm-recap[data-wm-pose="oui"] {
+  box-sizing: border-box;
+  display: flex;
+  position: fixed;
+  z-index: 20;
+  top: 88px;
+  width: 216px;
+  max-height: calc(100vh - 88px - 16px - 190px - 16px);
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+  overflow-y: auto;
+  padding: var(--wm-espace-14, 14px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 20px rgb(46 32 24 / 12%);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
 #modernbb .wm-recap__bloc {

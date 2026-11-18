@@ -99,7 +99,29 @@ def corps():
           f' src="{ARTWORK}/{g["emblemeId"]}.png" />')
         w('              <div class="wm-groupe__texte">')
         w(f'                <h3 class="wm-groupe__nom">{e(g["nom"])}</h3>')
+        #  LE NOM ANGLAIS N'EST ÉCRIT QUE S'IL DIFFÈRE : un seul des six
+        #  change (Créhelf · Uxie), et « Keldeo · Keldeo » ferait douter
+        #  du reste de la page. Vérifié sur les CSV de PokéAPI.
+        if g.get("especeEn"):
+            w(f'                <p class="wm-groupe__espece">{e(g["espece"])} '
+              f'· <span lang="en">{e(g["especeEn"])}</span></p>')
+        else:
+            w(f'                <p class="wm-groupe__espece">{e(g["espece"])}</p>')
         w(f'                <p class="wm-groupe__dit">{e(g["description"])}</p>')
+        w(f'                <p class="wm-groupe__question">{e(g["question"])}</p>')
+        #  La description dit la légende, ces quatre lignes disent le
+        #  caractère. Un `dl` en flexbox : des couples étiquette-valeur,
+        #  pas un tableau de mise en page.
+        w('                <dl class="wm-groupe__traits">')
+        for mot, clef in (
+            ("Ses qualités", "qualites"),
+            ("Ses défauts", "defauts"),
+            ("Ce qu'il fait d'abord", "dAbord"),
+            ("Ce qu'il ne supporte pas", "insupportable"),
+        ):
+            w(f'                  <dt class="wm-groupe__mot">{e(mot)}</dt>')
+            w(f'                  <dd>{e(g[clef])}</dd>')
+        w('                </dl>')
         w('              </div>')
         #  L'AVANTAGE EST ENCADRÉ ET COLLÉ EN BAS. C'est la seule chose
         #  de la carte qui change quelque chose au jeu ; il ne doit pas

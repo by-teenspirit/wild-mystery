@@ -1,34 +1,7 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     Annexe 07 · Les groupes — à coller dans une page HTML.
-
-     ÉCRITE PAR `outils/annexes.py`. Ne pas corriger ce fichier à la
-     main : la correction serait perdue à la prochaine génération, et
-     elle ne toucherait qu'une des quatorze pages. Le gabarit est dans
-     l'outil, la liste dans `data/annexes.json`.
-
-     ── CRÉER LA PAGE SUR LE FORUM ─────────────────────────────────
-
-     Modules > HTML & JAVASCRIPT > Gestion des pages HTML > Créer, en
-     MODE AVANCÉ, et surtout :
-
-       · « Utiliser le header et footer du forum » = **NON**. La page
-         est un document complet : elle charge elle-même les polices,
-         `jetons.css`, la feuille et `js/annexes.js`. Avec la case à
-         OUI, on aurait deux en-têtes et deux pieds l'un dans l'autre.
-       · L'adresse doit finir par **groupes** — c'est ce bout que le
-         sommaire reconnaît pour se surligner, et pas le numéro `hN`,
-         qui dépend de l'ordre de création chez Forumactif.
-       · Reporter l'adresse obtenue dans `data/annexes.json`, champ
-         `adresse` : le lien apparaît alors dans les quatorze
-         sommaires d'un coup.
-
-     ── LE TEXTE EST UN REMPLISSAGE ────────────────────────────────
-
-     Les sept briques sont montrées une fois chacune, avec des phrases
-     neutres. Remplacer bloc par bloc ; supprimer les briques dont la
-     page n'a pas besoin. Ce qui ne doit PAS changer : les classes, et
-     le `<nav data-wm-sommaire>` qui reçoit le sommaire.
-     ═══════════════════════════════════════════════════════════════════ -->
+<!-- Annexe 07 · Les groupes. Écrite par `outils/annexes.py` : une
+     correction faite ici serait perdue à la prochaine génération.
+     Page HTML en mode avancé, « header et footer du forum » sur NON,
+     adresse finissant par `groupes` et reportée dans `data/annexes.json`. -->
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -78,7 +51,19 @@
               <img class="wm-groupe__embleme" alt="" loading="lazy" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/647.png" />
               <div class="wm-groupe__texte">
                 <h3 class="wm-groupe__nom">Hardi</h3>
-                <p class="wm-groupe__dit">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p class="wm-groupe__espece">Keldeo</p>
+                <p class="wm-groupe__dit">On dit que Keldeo est un Pokémon poulain au cœur noble, un combattant qui aspire à devenir plus fort. Même s&#x27;il fuit son premier affrontement, il ne baisse pas les bras pour autant : il s&#x27;entraîne, apprend de ses erreurs et revient plus déterminé que jamais, jusqu&#x27;à atteindre sa forme décidée ! Après tout, échouer ne signifie pas que tout est perdu. L&#x27;important, c&#x27;est de trouver le courage de se relever, de persévérer et de continuer à avancer, car chaque échec peut nous rapprocher de la victoire.</p>
+                <p class="wm-groupe__question">Et vous… ? Êtes-vous comme Keldeo ?</p>
+                <dl class="wm-groupe__traits">
+                  <dt class="wm-groupe__mot">Ses qualités</dt>
+                  <dd>obstiné · endurant · bon perdant · franc sur ses échecs · fidèle aux causes perdues · sans orgueil mal placé · increvable</dd>
+                  <dt class="wm-groupe__mot">Ses défauts</dt>
+                  <dd>têtu · incapable de lâcher · revient là où il n&#x27;est plus attendu · prend un refus pour une étape · s&#x27;épuise et épuise les autres</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il fait d&#x27;abord</dt>
+                  <dd>il recommence.</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il ne supporte pas</dt>
+                  <dd>qu&#x27;on abandonne proprement, avec de bonnes raisons.</dd>
+                </dl>
               </div>
               <div class="wm-groupe__avantage">
                 <span class="wm-groupe__mot">Son avantage</span>
@@ -89,7 +74,19 @@
               <img class="wm-groupe__embleme" alt="" loading="lazy" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/480.png" />
               <div class="wm-groupe__texte">
                 <h3 class="wm-groupe__nom">Sérieux</h3>
-                <p class="wm-groupe__dit">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p class="wm-groupe__espece">Créhelf · <span lang="en">Uxie</span></p>
+                <p class="wm-groupe__dit">On dit qu&#x27;Uxie est le Pokémon du Savoir, celui qui incarne la connaissance et la sagesse. Il nous rappelle l&#x27;importance de réfléchir avant de parler, de chercher à comprendre avant de juger et de ne pas déformer la vérité pour servir nos intérêts. Car savoir, ce n&#x27;est pas seulement apprendre, c&#x27;est aussi reconnaître la valeur de ce que l&#x27;on connaît et prendre la responsabilité de ses paroles. Après tout, être sérieux, c&#x27;est savoir faire preuve d&#x27;honnêteté, même lorsque la vérité est difficile à accepter.</p>
+                <p class="wm-groupe__question">Est-ce que vous vous voyez dans Uxie ?</p>
+                <dl class="wm-groupe__traits">
+                  <dt class="wm-groupe__mot">Ses qualités</dt>
+                  <dd>observateur · précis · mémoire des dates · intègre · difficile à manipuler · ne flatte jamais · fiable</dd>
+                  <dt class="wm-groupe__mot">Ses défauts</dt>
+                  <dd>rigide · blessant sans le vouloir · toujours le mauvais moment · méfiant · tient des comptes</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il fait d&#x27;abord</dt>
+                  <dd>il vérifie.</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il ne supporte pas</dt>
+                  <dd>la version qui arrange tout le monde.</dd>
+                </dl>
               </div>
               <div class="wm-groupe__avantage">
                 <span class="wm-groupe__mot">Son avantage</span>
@@ -100,7 +97,19 @@
               <img class="wm-groupe__embleme" alt="" loading="lazy" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/720.png" />
               <div class="wm-groupe__texte">
                 <h3 class="wm-groupe__nom">Malin</h3>
-                <p class="wm-groupe__dit">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                <p class="wm-groupe__espece">Hoopa</p>
+                <p class="wm-groupe__dit">On dit que Hoopa est un Pokémon capable de plier l&#x27;espace grâce à ses anneaux mystérieux. Rusé et ingénieux, il nous rappelle qu&#x27;il existe toujours plusieurs chemins pour atteindre un objectif et qu&#x27;il ne faut pas s&#x27;obstiner lorsqu&#x27;une porte refuse de s&#x27;ouvrir. Parfois, il suffit de changer de perspective, de faire preuve d&#x27;imagination et de trouver une autre façon d&#x27;avancer. Après tout, savoir s&#x27;adapter, ce n&#x27;est pas abandonner ses convictions, mais apprendre à changer de méthode sans perdre de vue ce que l&#x27;on souhaite accomplir !</p>
+                <p class="wm-groupe__question">Et vous… ? Êtes-vous comme Hoopa ?</p>
+                <dl class="wm-groupe__traits">
+                  <dt class="wm-groupe__mot">Ses qualités</dt>
+                  <dd>débrouillard · rapide · inventif · bon négociateur · lit les règles mieux que ceux qui les écrivent · jamais à court</dd>
+                  <dt class="wm-groupe__mot">Ses défauts</dt>
+                  <dd>inconstant · s&#x27;ennuie vite · contourne au lieu d&#x27;affronter · promet large · difficile à tenir</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il fait d&#x27;abord</dt>
+                  <dd>il cherche une autre porte.</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il ne supporte pas</dt>
+                  <dd>refaire trois fois la même chose en espérant autre chose.</dd>
+                </dl>
               </div>
               <div class="wm-groupe__avantage">
                 <span class="wm-groupe__mot">Son avantage</span>
@@ -111,7 +120,19 @@
               <img class="wm-groupe__embleme" alt="" loading="lazy" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/492.png" />
               <div class="wm-groupe__texte">
                 <h3 class="wm-groupe__nom">Doux</h3>
-                <p class="wm-groupe__dit">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est.</p>
+                <p class="wm-groupe__espece">Shaymin</p>
+                <p class="wm-groupe__dit">On dit que Shaymin est le Pokémon Gratitude, celui qui apporte la beauté et la vie là où tout semblait fané. Symbole de reconnaissance et de générosité, il nous rappelle l&#x27;importance de penser aux autres, de partager ce que l&#x27;on possède et de faire preuve de bienveillance sans rien attendre en retour. Après tout, un simple geste peut suffire à illuminer la journée de quelqu&#x27;un et à faire fleurir un endroit qui en avait oublié la beauté. Car donner aux autres, c&#x27;est aussi faire grandir le bonheur autour de soi !</p>
+                <p class="wm-groupe__question">Et vous… ? Êtes-vous comme Shaymin ?</p>
+                <dl class="wm-groupe__traits">
+                  <dt class="wm-groupe__mot">Ses qualités</dt>
+                  <dd>attentif · patient · généreux · remarque qui n&#x27;a pas parlé · apaise · réconcilie</dd>
+                  <dt class="wm-groupe__mot">Ses défauts</dt>
+                  <dd>se fait avoir, régulièrement · s&#x27;efface trop · dit oui trop vite · s&#x27;oublie · rancune tardive</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il fait d&#x27;abord</dt>
+                  <dd>il demande comment va l&#x27;autre.</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il ne supporte pas</dt>
+                  <dd>qu&#x27;on laisse quelqu&#x27;un sur le bord.</dd>
+                </dl>
               </div>
               <div class="wm-groupe__avantage">
                 <span class="wm-groupe__mot">Son avantage</span>
@@ -122,7 +143,19 @@
               <img class="wm-groupe__embleme" alt="" loading="lazy" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/488.png" />
               <div class="wm-groupe__texte">
                 <h3 class="wm-groupe__nom">Brave</h3>
-                <p class="wm-groupe__dit">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.</p>
+                <p class="wm-groupe__espece">Cresselia</p>
+                <p class="wm-groupe__dit">On dit que Cresselia est le Pokémon Lunaire, celui qui veille sur les rêves et chasse les cauchemars. Symbole de protection et de courage, il nous rappelle qu&#x27;il faut parfois savoir se tenir devant les autres pour leur offrir un refuge, même lorsque le danger ne nous concerne pas directement. Car être brave, ce n&#x27;est pas seulement affronter ses propres peurs, c&#x27;est aussi trouver la force de défendre ceux qui ne peuvent pas toujours se défendre eux-mêmes. Après tout, protéger les autres, c&#x27;est parfois accepter de faire face à ce qui nous effraie !</p>
+                <p class="wm-groupe__question">Et vous… ? Êtes-vous comme Cresselia ?</p>
+                <dl class="wm-groupe__traits">
+                  <dt class="wm-groupe__mot">Ses qualités</dt>
+                  <dd>fiable · courageux sans goût de la bagarre · protecteur · tient ses délais · couvre les absents · prend les corvées</dd>
+                  <dt class="wm-groupe__mot">Ses défauts</dt>
+                  <dd>se met en danger sans qu&#x27;on le lui demande · paternaliste · le reproche ensuite · ne délègue pas · dort mal</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il fait d&#x27;abord</dt>
+                  <dd>il se place entre.</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il ne supporte pas</dt>
+                  <dd>regarder sans rien faire.</dd>
+                </dl>
               </div>
               <div class="wm-groupe__avantage">
                 <span class="wm-groupe__mot">Son avantage</span>
@@ -133,7 +166,19 @@
               <img class="wm-groupe__embleme" alt="" loading="lazy" src="https://raw.githubusercontent.com/PokeAPI/sprites/bfb75391935310368065096fa08c51e8970bc43e/sprites/pokemon/other/official-artwork/251.png" />
               <div class="wm-groupe__texte">
                 <h3 class="wm-groupe__nom">Jovial</h3>
-                <p class="wm-groupe__dit">Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae itaque earum rerum hic tenetur.</p>
+                <p class="wm-groupe__espece">Celebi</p>
+                <p class="wm-groupe__dit">On dit que Celebi est le Pokémon Voyageur du Temps, un être mystérieux qui traverse les époques et les forêts, guidé par sa curiosité et son envie de découvrir le monde. Symbole de joie et d&#x27;émerveillement, il nous rappelle qu&#x27;il ne faut pas avoir peur de l&#x27;inconnu et que chaque découverte est une occasion d&#x27;apprendre et de s&#x27;émerveiller. Parfois, il suffit simplement d&#x27;oser explorer, de suivre son instinct et de profiter de ce que la vie nous réserve. Après tout, le bonheur ne se trouve pas toujours au bout du chemin, mais aussi dans le plaisir de le parcourir !</p>
+                <p class="wm-groupe__question">Et vous… ? Êtes-vous comme Celebi ?</p>
+                <dl class="wm-groupe__traits">
+                  <dt class="wm-groupe__mot">Ses qualités</dt>
+                  <dd>curieux · enthousiaste · sans peur du nouveau · pose les questions qu&#x27;on n&#x27;ose pas · bon public · optimiste</dd>
+                  <dt class="wm-groupe__mot">Ses défauts</dt>
+                  <dd>imprudent · dispersé · fauché · indiscret · ouvre ce qu&#x27;il valait mieux laisser fermé</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il fait d&#x27;abord</dt>
+                  <dd>il ouvre.</dd>
+                  <dt class="wm-groupe__mot">Ce qu&#x27;il ne supporte pas</dt>
+                  <dd>qu&#x27;on lui dise « n&#x27;y va pas » sans dire pourquoi.</dd>
+                </dl>
               </div>
               <div class="wm-groupe__avantage">
                 <span class="wm-groupe__mot">Son avantage</span>

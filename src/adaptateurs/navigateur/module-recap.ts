@@ -18,9 +18,21 @@
 //
 //  `position: fixed` ne touche à rien : le récapitulatif flotte
 //  au-dessus, à droite, et la page reste exactement ce qu'elle était.
-//  Il disparaît sous 1280 px — « on touche à rien pour la version
-//  mobile », et un panneau fixe sur un écran étroit couvrirait le
-//  texte au lieu de l'accompagner.
+//
+//  ── MAIS IL EST ACCROCHÉ AUX MESSAGES ───────────────────────────────
+//
+//  « Pas besoin de mesurer l'écran, tu l'accroches à ça » — 18
+//  novembre, le code d'un sujet à l'appui. Le panneau est donc placé
+//  d'après le bord droit de la colonne des messages, relevé dans la
+//  page, et pas d'après la largeur de la fenêtre.
+//
+//  C'EST LE CSS QUI PERDAIT : une requête de média ne connaît que
+//  l'écran, et la largeur du forum y était recopiée en dur. Ici, le
+//  placement est mesuré sur la page réelle, et il se reprend à chaque
+//  changement de taille. Le CSS ne garde que l'apparence.
+//
+//  IL NE SE POSE PAS S'IL N'Y A PAS LA PLACE : sur un portable, il
+//  couvrirait les messages au lieu de les accompagner.
 //
 //  ── IL SE REFAIT, IL NE SE MET PAS À JOUR ───────────────────────────
 //
@@ -44,6 +56,7 @@ import {
   type MonSujet,
   nomDuMembre,
   partDePv,
+  placementDuRecap,
 } from "../../navigateur/recap.ts";
 import type { LigneEnAttente } from "../../application/bilan.ts";
 
@@ -177,6 +190,56 @@ function dessinerUnBloc(doc: Document, decor: Decor, b: BlocDuRecap): HTMLElemen
   return section;
 }
 
+/*  LA COLONNE DES MESSAGES, dans l'ordre où on la cherche.
+ *
+ *  `.post` D'ABORD, parce que c'est littéralement « l'affichage des
+ *  messages » : c'est ce bloc-là que le joueur lit, et c'est son bord
+ *  droit qu'on longe. Les deux autres sont des filets, pour une page
+ *  de sujet vide ou un gabarit qu'on n'a pas encore vu. */
+const ANCRES = [".post", ".wm-sujet__section", "#page-body .wrap"];
+
+/** Le bord droit de la colonne des messages, ou `null`.
+ *
+ *  LE PLUS À DROITE DES MESSAGES, et pas le premier : un message cité
+ *  ou un module posé au-dessus peut être plus étroit, et un panneau
+ *  aligné sur lui mordrait sur les autres. */
+export function bordDesMessages(doc: Document): number | null {
+  for (const quoi of ANCRES) {
+    const trouves = [...doc.querySelectorAll(quoi)];
+    if (trouves.length === 0) continue;
+    const droite = Math.max(...trouves.map((e) => e.getBoundingClientRect().right));
+    if (Number.isFinite(droite) && droite > 0) return droite;
+  }
+  return null;
+}
+
+const LARGEUR = 216;
+const ECART = 16;
+
+/** Place le panneau le long des messages, ou le cache faute de place.
+ *
+ *  LE `left` EST ÉCRIT EN STYLE DIRECT parce que c'est une mesure, pas
+ *  une décision de charte : le CSS ne peut pas connaître le bord d'un
+ *  élément. `data-wm-pose` dit l'autre moitié — c'est lui que le CSS
+ *  lit pour afficher ou non. */
+export function ancrerLeRecap(doc: Document, aside: HTMLElement): boolean {
+  const bord = bordDesMessages(doc);
+  const { pose, gauche } = placementDuRecap(
+    bord === null ? null : { droite: bord },
+    doc.documentElement.clientWidth,
+    LARGEUR,
+    ECART,
+  );
+  if (pose) {
+    aside.style.left = `${gauche}px`;
+    aside.dataset.wmPose = "oui";
+  } else {
+    aside.style.removeProperty("left");
+    delete aside.dataset.wmPose;
+  }
+  return pose;
+}
+
 export type DependancesDuRecap = {
   readonly doc: Document;
   readonly decor: Decor;
@@ -212,6 +275,9 @@ export async function poserLeRecap(d: DependancesDuRecap): Promise<boolean> {
 
   if (ancien === null) doc.body.appendChild(aside);
   else ancien.replaceWith(aside);
+  //  ON MESURE APRÈS L'AVOIR POSÉ : avant, il n'est pas dans la page
+  //  et les messages n'ont pas encore la largeur qu'ils auront.
+  ancrerLeRecap(doc, aside);
   return true;
 }
 
@@ -224,5 +290,16 @@ export function suivreLeRecap(d: DependancesDuRecap): void {
   void poserLeRecap(d);
   d.doc.addEventListener("visibilitychange", () => {
     if (d.doc.visibilityState === "visible") void poserLeRecap(d);
+  });
+  //  ── ET IL SE REPLACE QUAND LA FENÊTRE CHANGE DE TAILLE ──────────
+  //
+  //  Sans ça, il resterait là où les messages étaient : fenêtre
+  //  rétrécie, il leur passerait dessus. ON NE RELIT PAS LA BASE pour
+  //  autant — c'est une mesure, pas une nouvelle donnée.
+  const fenetre = d.doc.defaultView;
+  if (fenetre === null) return;
+  fenetre.addEventListener("resize", () => {
+    const aside = d.doc.getElementById(ID);
+    if (aside !== null) ancrerLeRecap(d.doc, aside);
   });
 }

@@ -2511,9 +2511,9 @@ async function monterAvecScript(
   //  ── LE RÉCAPITULATIF A BESOIN DE TROIS CHOSES ───────────────────
   //
   //  Un laissez-passer dans `localStorage`, ce que `mon_sujet` rend,
-  //  et une largeur d'écran suffisante — 1 700 px, le calcul est dans
-  //  `12-confort.css`. Les 1 440 par défaut du harnais sont EXPRÈS en
-  //  dessous : c'est la largeur où le panneau ne doit PAS se poser.
+  //  et de la place à droite des messages, que `module-recap.ts`
+  //  mesure. Les 1 440 par défaut du harnais n'en laissent EXPRÈS pas
+  //  assez : c'est la largeur où le panneau ne doit PAS se poser.
   { recap = null, largeur = 1440 } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: largeur, height: 900 } });
@@ -3036,7 +3036,12 @@ const vuLarge = await large.evaluate(() => {
   const r = document.querySelector(".wm-recap");
   if (r === null) return { pose: false };
   const b = r.getBoundingClientRect();
-  const forum = document.querySelector("#wrap, .wrap")?.getBoundingClientRect() ?? null;
+  //  LE BORD DES MESSAGES, pas celui de `#wrap` : c'est à ça que le
+  //  panneau est accroché depuis le 18 novembre.
+  const messages = [...document.querySelectorAll(".post")];
+  const forum = messages.length === 0
+    ? null
+    : { right: Math.max(...messages.map((m) => m.getBoundingClientRect().right)) };
   return {
     pose: getComputedStyle(r).display !== "none",
     blocs: [...r.querySelectorAll(".wm-recap__titre")].map((t) => t.textContent),
@@ -3046,6 +3051,14 @@ const vuLarge = await large.evaluate(() => {
     //  LE POINT QUI COMPTE : il ne doit PAS recouvrir le forum.
     mord: forum === null ? null : b.left < forum.right,
     aDroite: b.left > (globalThis.innerWidth ?? 0) / 2,
+    //  ── ET IL EST COLLÉ AUX MESSAGES, PAS AU BORD ────────────────
+    //  « On peut le coller plutôt à l'affichage des messages qu'au
+    //  bord de l'écran de la personne ? » — 18 novembre. Les deux
+    //  écarts sont rendus parce que c'est leur DIFFÉRENCE qui le
+    //  prouve : collé au bord, le premier vaudrait 184 sur un 1 920
+    //  et le second 16. L'un seul ne distinguerait pas les deux.
+    ecartAuForum: forum === null ? null : Math.round(b.left - forum.right),
+    ecartAuBord: Math.round((globalThis.innerWidth ?? 0) - b.right),
   };
 });
 dire("IL SE POSE SUR UN SUJET DE ZONE", vuLarge.pose === true, JSON.stringify(vuLarge.pose));
@@ -3069,11 +3082,28 @@ dire(
   JSON.stringify(vuLarge.etats),
 );
 dire(
-  "IL NE RECOUVRE PAS LE FORUM — c'est tout l'objet du seuil de 1 700",
+  "IL NE RECOUVRE PAS LES MESSAGES",
   vuLarge.mord === false,
   `mord : ${vuLarge.mord}`,
 );
 dire("et il est à droite", vuLarge.aDroite === true, String(vuLarge.aDroite));
+//  ── COLLÉ AUX MESSAGES, PAS AU BORD DE L'ÉCRAN ────────────────────
+//
+//  Sur un 1 920, le forum finit à 1 560 : le panneau doit commencer à
+//  1 576 et laisser 128 de vide à sa droite. Collé au bord, il
+//  commencerait à 1 688 et laisserait 112 de vide ENTRE LUI ET LES
+//  MESSAGES. C'est pour ça qu'on vérifie les deux écarts : le premier
+//  dit où il est, le second dit qu'il n'est pas à l'autre endroit.
+dire(
+  "IL EST COLLÉ AUX MESSAGES, PAS AU BORD DE L'ÉCRAN",
+  vuLarge.ecartAuForum !== null && Math.abs(vuLarge.ecartAuForum - 16) <= 2,
+  `écart au forum : ${vuLarge.ecartAuForum} px (attendu 16)`,
+);
+dire(
+  "et il reste donc du vide à sa droite",
+  vuLarge.ecartAuBord >= 64,
+  `écart au bord : ${vuLarge.ecartAuBord} px`,
+);
 
 //  ── ET IL NE MARCHE PAS SUR LE COIN D'OUTILS ──────────────────────
 //
@@ -3100,12 +3130,87 @@ dire(
 );
 await large.close();
 
+//  ── SUR UN GRAND ÉCRAN, IL NE PART PAS DANS LE VIDE ───────────────
+//
+//  C'EST LE CAS QUI A MOTIVÉ LE CHANGEMENT, donc c'est le cas qu'on
+//  mesure. Sur un 2 560, le forum finit à 1 880 : collé au bord, le
+//  panneau aurait commencé à 2 328, soit 448 px de vide entre les
+//  messages et lui. Un essai à 1 920 seulement n'aurait pas vu la
+//  différence, parce qu'à cette largeur les deux placements sont
+//  voisins.
+const tresLarge = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  recap: DECOR_RECAP,
+  largeur: 2560,
+});
+await tresLarge.waitForTimeout(500);
+const vuTresLarge = await tresLarge.evaluate(() => {
+  const b = document.querySelector(".wm-recap")?.getBoundingClientRect() ?? null;
+  //  LE BORD DES MESSAGES, pas celui de `#wrap` : c'est à ça que le
+  //  panneau est accroché depuis le 18 novembre.
+  const messages = [...document.querySelectorAll(".post")];
+  const forum = messages.length === 0
+    ? null
+    : { right: Math.max(...messages.map((m) => m.getBoundingClientRect().right)) };
+  if (b === null || forum === null) return { mesurable: false };
+  return {
+    mesurable: true,
+    ecartAuForum: Math.round(b.left - forum.right),
+    ecartAuBord: Math.round((globalThis.innerWidth ?? 0) - b.right),
+  };
+});
+dire(
+  "SUR UN 2 560, IL RESTE À 16 PX DES MESSAGES",
+  vuTresLarge.mesurable === true && Math.abs(vuTresLarge.ecartAuForum - 16) <= 2,
+  JSON.stringify(vuTresLarge),
+);
+dire(
+  "et c'est le vide à droite qui grandit, pas l'écart",
+  vuTresLarge.ecartAuBord >= 400,
+  `${vuTresLarge.ecartAuBord} px de vide à droite`,
+);
+
+//  ── ET IL SE REPLACE QUAND LA FENÊTRE CHANGE ──────────────────────
+//
+//  C'est le risque d'une mesure : prise une fois, elle vieillit. On
+//  rétrécit la fenêtre sous la place nécessaire — il doit s'effacer —
+//  puis on la rouvre : il doit revenir au bon endroit, sans
+//  rechargement et sans relire la base.
+await tresLarge.setViewportSize({ width: 1400, height: 900 });
+await tresLarge.waitForTimeout(300);
+const apresRetreci = await tresLarge.evaluate(() => {
+  const r = document.querySelector(".wm-recap");
+  return r === null ? null : getComputedStyle(r).display;
+});
+dire(
+  "RÉTRÉCIE, LA FENÊTRE L'EFFACE — il ne reste pas sur les messages",
+  apresRetreci === "none",
+  String(apresRetreci),
+);
+await tresLarge.setViewportSize({ width: 2000, height: 900 });
+await tresLarge.waitForTimeout(300);
+const apresRouvert = await tresLarge.evaluate(() => {
+  const b = document.querySelector(".wm-recap")?.getBoundingClientRect() ?? null;
+  const messages = [...document.querySelectorAll(".post")];
+  if (b === null || messages.length === 0) return { mesurable: false };
+  return {
+    mesurable: true,
+    visible: getComputedStyle(document.querySelector(".wm-recap")).display !== "none",
+    ecart: Math.round(b.left - Math.max(...messages.map((m) => m.getBoundingClientRect().right))),
+  };
+});
+dire(
+  "ROUVERTE, IL REVIENT À 16 PX DES MESSAGES",
+  apresRouvert.mesurable === true && apresRouvert.visible === true &&
+    Math.abs(apresRouvert.ecart - 16) <= 2,
+  JSON.stringify(apresRouvert),
+);
+await tresLarge.close();
+
 //  ── À 1 440 px, IL N'EST PAS LÀ ────────────────────────────────────
 //
-//  C'est la largeur d'un portable courant : le forum fait 1 200, il ne
-//  reste que 120 de chaque côté. Un panneau de 216 y recouvrirait les
-//  messages, et aucune largeur de forum ne rattraperait ça sans
-//  rétrécir le forum pour tout le monde.
+//  C'est la largeur d'un portable courant : les messages finissent
+//  vers 1 330, il ne reste pas 216 px à droite. La mesure le voit
+//  toute seule — il n'y a plus de seuil à régler.
 const etroit = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
   recap: DECOR_RECAP,
   largeur: 1440,
@@ -3119,7 +3224,7 @@ const vuEtroit = await etroit.evaluate(() => {
   };
 });
 dire(
-  "SOUS 1 700 px, IL NE S'AFFICHE PAS",
+  "FAUTE DE PLACE À DROITE DES MESSAGES, IL NE S'AFFICHE PAS",
   vuEtroit.visible === false,
   JSON.stringify(vuEtroit),
 );

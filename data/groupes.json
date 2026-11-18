@@ -1,5 +1,5 @@
 {
-  "_": "Les six natures de Rhode (planche 79). Le groupe ne dit ni le métier ni le camp : il dit ce qu'on choisit quand il faut choisir. LES DESCRIPTIONS SONT PROVISOIRES — une phrase chacune, à remplacer par le texte de l'annexe. Les avantages, eux, sont actés.",
+  "_": "Les six natures de Rhode (planche 79). Le groupe ne dit ni le métier ni le camp : il dit ce qu'on choisit quand il faut choisir. LES DESCRIPTIONS SONT CELLES DE CALLISTA, reçues le 18 novembre — on n'y touche pas. Les avantages sont actés, mais leurs NOMBRES sont un premier jet : ils restent à simuler sur vingt mille sujets, comme les taux de la planche 75.",
   "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module lit `duMoment` et dessine ce groupe. Changer de groupe, c'est changer ce mot. Les couleurs ne sont pas ici : chaque groupe a déjà sa paire de jetons `--wm-groupe-<clé>-fond` et `-texte` dans le panneau d'administration.",
   "_pokemons": "Les numéros du Pokédex national. Le module les passe à la carte de couverture (`data/sprites-couverture.json`) pour en tirer une image ; un numéro qu'elle ne couvre pas ne donne pas de case vide, il ne donne rien.",
   "duMoment": "hardi",
@@ -7,77 +7,98 @@
     {
       "cle": "hardi",
       "nom": "Hardi",
-      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "description": "On dit que Keldeo est un Pokémon poulain au cœur noble, un combattant qui aspire à devenir plus fort. Même s'il fuit son premier affrontement, il ne baisse pas les bras pour autant : il s'entraîne, apprend de ses erreurs et revient plus déterminé que jamais, jusqu'à atteindre sa forme décidée ! Après tout, échouer ne signifie pas que tout est perdu. L'important, c'est de trouver le courage de se relever, de persévérer et de continuer à avancer, car chaque échec peut nous rapprocher de la victoire.",
       "avantage": "Si une fouille est bredouille dans le sujet, il peut relancer une fois pour avoir quelque chose.",
       "pokemons": [],
       "embleme": "Keldeo",
       "emblemeId": 647,
-      "_redige": {
-        "description": "On se relève. Ce qui a échoué peut encore gagner."
-      }
+      "espece": "Keldeo",
+      "question": "Et vous… ? Êtes-vous comme Keldeo ?",
+      "qualites": "obstiné · endurant · bon perdant · franc sur ses échecs · fidèle aux causes perdues · sans orgueil mal placé · increvable",
+      "defauts": "têtu · incapable de lâcher · revient là où il n'est plus attendu · prend un refus pour une étape · s'épuise et épuise les autres",
+      "dAbord": "il recommence.",
+      "insupportable": "qu'on abandonne proprement, avec de bonnes raisons."
     },
     {
       "cle": "serieux",
       "nom": "Sérieux",
-      "description": "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      "description": "On dit qu'Uxie est le Pokémon du Savoir, celui qui incarne la connaissance et la sagesse. Il nous rappelle l'importance de réfléchir avant de parler, de chercher à comprendre avant de juger et de ne pas déformer la vérité pour servir nos intérêts. Car savoir, ce n'est pas seulement apprendre, c'est aussi reconnaître la valeur de ce que l'on connaît et prendre la responsabilité de ses paroles. Après tout, être sérieux, c'est savoir faire preuve d'honnêteté, même lorsque la vérité est difficile à accepter.",
       "avantage": "À chaque rencontre, la rareté est tirée deux fois et on garde la plus rare : environ 19 % de rares contre 10 % pour les autres.",
       "pokemons": [],
-      "embleme": "Uxie",
+      "embleme": "Créhelf",
       "emblemeId": 480,
-      "_redige": {
-        "description": "On dit ce qu'on a vu. On ne s'arrange pas avec la vérité."
-      }
+      "espece": "Créhelf",
+      "especeEn": "Uxie",
+      "question": "Est-ce que vous vous voyez dans Uxie ?",
+      "qualites": "observateur · précis · mémoire des dates · intègre · difficile à manipuler · ne flatte jamais · fiable",
+      "defauts": "rigide · blessant sans le vouloir · toujours le mauvais moment · méfiant · tient des comptes",
+      "dAbord": "il vérifie.",
+      "insupportable": "la version qui arrange tout le monde."
     },
     {
       "cle": "malin",
       "nom": "Malin",
-      "description": "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+      "description": "On dit que Hoopa est un Pokémon capable de plier l'espace grâce à ses anneaux mystérieux. Rusé et ingénieux, il nous rappelle qu'il existe toujours plusieurs chemins pour atteindre un objectif et qu'il ne faut pas s'obstiner lorsqu'une porte refuse de s'ouvrir. Parfois, il suffit de changer de perspective, de faire preuve d'imagination et de trouver une autre façon d'avancer. Après tout, savoir s'adapter, ce n'est pas abandonner ses convictions, mais apprendre à changer de méthode sans perdre de vue ce que l'on souhaite accomplir !",
       "avantage": "Avec six types différents dans son équipe, l'expérience versée à la clôture monte de 10 %.",
       "pokemons": [],
       "embleme": "Hoopa",
       "emblemeId": 720,
-      "_redige": {
-        "description": "On change de méthode, pas d'avis."
-      }
+      "espece": "Hoopa",
+      "question": "Et vous… ? Êtes-vous comme Hoopa ?",
+      "qualites": "débrouillard · rapide · inventif · bon négociateur · lit les règles mieux que ceux qui les écrivent · jamais à court",
+      "defauts": "inconstant · s'ennuie vite · contourne au lieu d'affronter · promet large · difficile à tenir",
+      "dAbord": "il cherche une autre porte.",
+      "insupportable": "refaire trois fois la même chose en espérant autre chose."
     },
     {
       "cle": "doux",
       "nom": "Doux",
-      "description": "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est.",
+      "description": "On dit que Shaymin est le Pokémon Gratitude, celui qui apporte la beauté et la vie là où tout semblait fané. Symbole de reconnaissance et de générosité, il nous rappelle l'importance de penser aux autres, de partager ce que l'on possède et de faire preuve de bienveillance sans rien attendre en retour. Après tout, un simple geste peut suffire à illuminer la journée de quelqu'un et à faire fleurir un endroit qui en avait oublié la beauté. Car donner aux autres, c'est aussi faire grandir le bonheur autour de soi !",
       "avantage": "Dans un sujet à plusieurs, tout le monde gagne 15 % de pokédollars en plus à la clôture.",
       "pokemons": [],
       "embleme": "Shaymin",
       "emblemeId": 492,
-      "_redige": {
-        "description": "On fait passer les autres devant."
-      }
+      "espece": "Shaymin",
+      "question": "Et vous… ? Êtes-vous comme Shaymin ?",
+      "qualites": "attentif · patient · généreux · remarque qui n'a pas parlé · apaise · réconcilie",
+      "defauts": "se fait avoir, régulièrement · s'efface trop · dit oui trop vite · s'oublie · rancune tardive",
+      "dAbord": "il demande comment va l'autre.",
+      "insupportable": "qu'on laisse quelqu'un sur le bord."
     },
     {
       "cle": "brave",
       "nom": "Brave",
-      "description": "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.",
+      "description": "On dit que Cresselia est le Pokémon Lunaire, celui qui veille sur les rêves et chasse les cauchemars. Symbole de protection et de courage, il nous rappelle qu'il faut parfois savoir se tenir devant les autres pour leur offrir un refuge, même lorsque le danger ne nous concerne pas directement. Car être brave, ce n'est pas seulement affronter ses propres peurs, c'est aussi trouver la force de défendre ceux qui ne peuvent pas toujours se défendre eux-mêmes. Après tout, protéger les autres, c'est parfois accepter de faire face à ce qui nous effraie !",
       "avantage": "Une fois par sujet, un pokémon de son équipe mis K.O. tient un tour de plus.",
       "pokemons": [],
       "embleme": "Cresselia",
       "emblemeId": 488,
-      "_redige": {
-        "description": "On se met devant, et on ne bouge pas."
-      }
+      "espece": "Cresselia",
+      "question": "Et vous… ? Êtes-vous comme Cresselia ?",
+      "qualites": "fiable · courageux sans goût de la bagarre · protecteur · tient ses délais · couvre les absents · prend les corvées",
+      "defauts": "se met en danger sans qu'on le lui demande · paternaliste · le reproche ensuite · ne délègue pas · dort mal",
+      "dAbord": "il se place entre.",
+      "insupportable": "regarder sans rien faire."
     },
     {
       "cle": "jovial",
       "nom": "Jovial",
-      "description": "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae itaque earum rerum hic tenetur.",
+      "description": "On dit que Celebi est le Pokémon Voyageur du Temps, un être mystérieux qui traverse les époques et les forêts, guidé par sa curiosité et son envie de découvrir le monde. Symbole de joie et d'émerveillement, il nous rappelle qu'il ne faut pas avoir peur de l'inconnu et que chaque découverte est une occasion d'apprendre et de s'émerveiller. Parfois, il suffit simplement d'oser explorer, de suivre son instinct et de profiter de ce que la vie nous réserve. Après tout, le bonheur ne se trouve pas toujours au bout du chemin, mais aussi dans le plaisir de le parcourir !",
       "avantage": "Ses chances de morceau de fossile passent de 10 à 20 %, et de fossile entier de 0,2 à 0,4 %.",
       "pokemons": [],
       "embleme": "Celebi",
       "emblemeId": 251,
-      "_redige": {
-        "description": "On veut voir ce qu'il y a derrière."
-      }
+      "espece": "Celebi",
+      "question": "Et vous… ? Êtes-vous comme Celebi ?",
+      "qualites": "curieux · enthousiaste · sans peur du nouveau · pose les questions qu'on n'ose pas · bon public · optimiste",
+      "defauts": "imprudent · dispersé · fauché · indiscret · ouvre ce qu'il valait mieux laisser fermé",
+      "dAbord": "il ouvre.",
+      "insupportable": "qu'on lui dise « n'y va pas » sans dire pourquoi."
     }
   ],
-  "_lorem": "LES SIX DESCRIPTIONS SONT DU LOREM IPSUM, demandé le 8 novembre (« la description en lorem ipsum »). Les phrases écrites le 9 octobre sont gardées sous `_redige` dans chaque groupe — une ligne à remonter. LES AVANTAGES, EUX, NE SONT PAS DU REMPLISSAGE : ils sont actés et le jeu s'en sert.",
+  "_lorem": "IL N'Y A PLUS DE LOREM. Les six descriptions ont été écrites par Callista le 18 novembre et posées telles quelles. Les phrases du 9 octobre, gardées jusque-là sous `_redige`, ont été retirées : deux textes pour une même case, c'est un texte de trop.",
   "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires.",
-  "_embleme": "`emblemeId` est le numéro national du légendaire, relevé dans `pokemon.csv` de PokéAPI le 8 novembre — pas écrit de mémoire. Il sert à bâtir l'adresse de l'illustration officielle, `other/official-artwork/<id>.png`, qui est détourée et en haute définition : c'est elle qui passe en filigrane au fond de la carte. CE N'EST PAS LA CARTE DE COUVERTURE : elle ne connaît aucun légendaire, puisque le Pokédex de Rhode n'en porte pas. L'illustration officielle, elle, existe pour n'importe quel numéro."
+  "_embleme": "`emblemeId` est le numéro national du légendaire, relevé dans `pokemon.csv` de PokéAPI le 8 novembre — pas écrit de mémoire. Il sert à bâtir l'adresse de l'illustration officielle, `other/official-artwork/<id>.png`, qui est détourée et en haute définition : c'est elle qui passe en filigrane au fond de la carte. CE N'EST PAS LA CARTE DE COUVERTURE : elle ne connaît aucun légendaire, puisque le Pokédex de Rhode n'en porte pas. L'illustration officielle, elle, existe pour n'importe quel numéro.",
+  "_noms": "`espece` est le nom FRANÇAIS, `especeEn` l'ANGLAIS — et il n'est posé que lorsqu'il diffère. « On a des canadiens avec nous qui connaissent plutôt les noms anglais », 18 novembre. Un seul des six change : Créhelf s'appelle Uxie en anglais. Vérifié sur `pokemon_species_names.csv` de PokéAPI, langues 5 et 9, pas de mémoire.",
+  "_avantages": "Les six avantages sont actés. Celui du JOVIAL a été tranché le 18 novembre : c'est le doublement des fossiles, pas la variante. Leurs NOMBRES restent un premier jet, à simuler sur vingt mille sujets comme les taux de la planche 75 — avant de les écrire ailleurs, pas après."
 }

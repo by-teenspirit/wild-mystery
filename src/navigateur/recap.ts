@@ -104,6 +104,41 @@ export function etatDePv(pv: number, pvMax: number): EtatDePv {
   return "bien";
 }
 
+/** Où poser le panneau, et s'il y a la place de le poser.
+ *
+ *  ── ON MESURE LES MESSAGES, PAS L'ÉCRAN ────────────────────────────
+ *
+ *  « Pas besoin de mesurer l'écran, tu l'accroches à ça » — 18
+ *  novembre, avec le code de la page d'un sujet. C'est le bord droit de
+ *  la colonne des messages qui décide : le panneau se pose à `ecart`
+ *  de là, et il ne se pose pas si ce qui reste à droite ne suffit pas.
+ *
+ *  CE QUI DISPARAÎT AVEC ÇA : le seuil de 1 700 px, qui était un
+ *  nombre calculé à la main depuis la largeur du forum et qu'il fallait
+ *  recalculer à chaque fois qu'elle changeait. Ici, rien à recalculer —
+ *  si le forum rétrécit, le panneau se pose plus tôt, tout seul.
+ *
+ *  `fenetre` est la largeur de la fenêtre, et c'est la SEULE chose que
+ *  l'écran dise encore : il faut bien savoir ce qui reste à droite des
+ *  messages. Mais elle ne décide plus de rien seule. */
+export type Ancre = { readonly droite: number };
+
+export function placementDuRecap(
+  ancre: Ancre | null,
+  fenetre: number,
+  largeur: number,
+  ecart: number,
+): { readonly pose: boolean; readonly gauche: number } {
+  if (ancre === null || !Number.isFinite(ancre.droite) || !Number.isFinite(fenetre)) {
+    return { pose: false, gauche: 0 };
+  }
+  const gauche = Math.round(ancre.droite + ecart);
+  //  IL FAUT L'ÉCART DES DEUX CÔTÉS : celui entre les messages et le
+  //  panneau, et celui entre le panneau et le bord. Sans le second, le
+  //  panneau toucherait le bord de l'écran sur les largeurs justes.
+  return { pose: gauche + largeur + ecart <= fenetre, gauche };
+}
+
 /** Un bloc du récapitulatif, prêt à dessiner. */
 export type BlocDuRecap =
   | { readonly quoi: "combat"; readonly combat: CombatDuRecap }
