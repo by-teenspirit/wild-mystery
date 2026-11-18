@@ -6,6 +6,7 @@ import {
 } from "./lire-les-nouveaux-messages.ts";
 import type {
   ActionLue,
+  Combats,
   EtatDuJeu,
   EtatDuJoueur,
   Faune,
@@ -17,6 +18,7 @@ import type {
   TableDesFossiles,
   ZoneSauvage,
 } from "./ports.ts";
+import { CombatsEnMemoire, CombatsEnPanne } from "../adaptateurs/en-memoire/combat.ts";
 import { REGLES_PAR_DEFAUT } from "../domaine/fossile.ts";
 import type { Evenement, LigneRegistre } from "../domaine/cloture.ts";
 import type { EntreeDeTable } from "../domaine/rencontre.ts";
@@ -139,6 +141,7 @@ type Decor = {
   zone?: ZoneSauvage;
   fossiles?: TableDesFossiles;
   butin?: TableDeButin;
+  combats?: Combats;
 };
 
 /** AUCUN FOSSILE, par défaut — et c'est le décor HONNÊTE : la table
@@ -219,6 +222,7 @@ function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
     SIGNATAIRE,
     d.fossiles ?? SANS_FOSSILES,
     d.butin ?? BUTIN_ORDINAIRE,
+    d.combats ?? new CombatsEnMemoire(),
   );
   return { tache, registre, zone: d.zone ?? ZONE };
 }
@@ -412,6 +416,80 @@ Deno.test("une recherche devient une ligne « croisé »", async () => {
   assert(e.type === "croise" && [129, 54].includes(e.especeId), "espèce hors table");
 });
 
+Deno.test("UNE RECHERCHE OUVRE UN COMBAT, pas seulement une ligne", async () => {
+  //  C'est la demande du 17 novembre : « quand je fais apparaître un
+  //  pokémon, il faut qu'il s'affiche en dessous de mon message […] et
+  //  que ça engage un combat ». Avant, la ligne « croisé » était tout ce
+  //  qui se passait — elle crédite le Pokédex à la clôture, et rien à
+  //  lire, rien à jouer entre-temps.
+  const combats = new CombatsEnMemoire();
+  const c = monter([action(15601, { type: "chercher" })], { combats });
+  const bilan = await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(bilan.erreurs, []);
+  assertEquals(combats.ouverts.length, 1);
+  assertEquals(combats.ouverts[0].sujetId, 976);
+  assertEquals(combats.ouverts[0].messageId, 15601);
+  //  LE COMBAT PORTE L'ESPÈCE ET LE NIVEAU DU MÊME TIRAGE. Si le niveau
+  //  était retiré au sort plus tard, ce serait un autre Pokémon que
+  //  celui qui est apparu.
+  const e = c.registre.ecrites[0].evenement;
+  assert(e.type === "croise");
+  assertEquals(combats.ouverts[0].especeId, e.especeId);
+  assert(combats.ouverts[0].niveau >= 1, "un niveau est tiré");
+});
+
+Deno.test("RELIRE LE MÊME MESSAGE N'OUVRE PAS UN SECOND COMBAT", async () => {
+  //  La relève relit : le curseur n'avance pas quand une zone a eu un
+  //  incident. Sans la garde par message, chaque relecture rouvrirait le
+  //  combat à pleine vie.
+  const combats = new CombatsEnMemoire();
+  const c = monter([action(15601, { type: "chercher" })], { combats });
+  await c.tache.executerSur(c.zone, 976, 0);
+  await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(combats.ouverts.length, 1);
+});
+
+Deno.test("UN COMBAT DÉJÀ EN COURS SE DIT, et la rencontre reste inscrite", async () => {
+  //  Le joueur a cliqué pendant qu'un combat tournait dans le même
+  //  sujet. Ce n'est pas une panne — mais il faut que ça se VOIE, sinon
+  //  il croira que le forum l'a ignoré.
+  const combats = new CombatsEnMemoire();
+  const c = monter(
+    [action(15601, { type: "chercher" }), action(15602, { type: "chercher" })],
+    { combats },
+  );
+  const bilan = await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(combats.ouverts.length, 1);
+  //  LES DEUX LIGNES SONT ÉCRITES : le Pokédex crédite les deux
+  //  rencontres à la clôture, c'est le combat qui est unique, pas la
+  //  rencontre.
+  assertEquals(c.registre.ecrites.length, 2);
+  assertEquals(bilan.erreurs.length, 1);
+  assert(
+    bilan.erreurs[0].includes("un combat tourne déjà"),
+    bilan.erreurs[0],
+  );
+});
+
+Deno.test("une ouverture en panne n'emporte pas les actions suivantes", async () => {
+  //  Le joueur d'après n'a rien fait de mal. La ligne du registre de ce
+  //  message-là est perdue avec le combat — les deux tombent ensemble,
+  //  pour la même cause — mais la fouille du suivant passe.
+  const c = monter(
+    [action(15601, { type: "chercher" }), action(15602, { type: "fouiller" })],
+    { combats: new CombatsEnPanne(), butin: butinCertain("objet") },
+  );
+  const bilan = await c.tache.executerSur(c.zone, 976, 0);
+
+  assertEquals(bilan.erreurs.length, 1);
+  assert(bilan.erreurs[0].includes("base injoignable"), bilan.erreurs[0]);
+  assertEquals(c.registre.ecrites.length, 1);
+  assertEquals(c.registre.ecrites[0].messageId, 15602);
+});
+
 Deno.test("UN ANCIEN BLOC AVEC UN LIEU SE JOUE QUAND MÊME", async () => {
   //  CE TEST DISAIT L'INVERSE JUSQU'AU 15 OCTOBRE : un lieu d'une autre
   //  zone était refusé, parce qu'il aurait fait tirer dans la mauvaise
@@ -521,6 +599,7 @@ Deno.test("une écriture qui lève n'emporte pas les actions suivantes", async (
     SIGNATAIRE,
     SANS_FOSSILES,
     BUTIN_ORDINAIRE,
+    new CombatsEnMemoire(),
   );
 
   const bilan = await tache.executerSur(ZONE, 976, 0);

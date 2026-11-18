@@ -57,6 +57,7 @@ import { conditionDeLaZone, estLaNuit, tempsDuJour } from "../domaine/meteo.ts";
 import { tirerUneRencontre } from "../domaine/rencontre.ts";
 import type {
   ActionLue,
+  Combats,
   EtatDuJeu,
   Faune,
   Horloge,
@@ -111,6 +112,7 @@ export class LireLesNouveauxMessages {
     private readonly signataire: Signataire,
     private readonly fossiles: TableDesFossiles,
     private readonly butin: TableDeButin,
+    private readonly combats: Combats,
   ) {}
 
   /**
@@ -304,6 +306,46 @@ export class LireLesNouveauxMessages {
     //  d'objet. **Fixée à la seconde où le joueur poste, elle rend la
     //  rencontre rejouable à l'identique des années plus tard.**
     const rencontre = tirerUneRencontre(table, String(lue.messageId));
+
+    //  ── ET LE COMBAT S'OUVRE ICI, PAS AILLEURS ───────────────────────
+    //
+    //  « Quand je fais apparaître un pokémon, il faut qu'il s'affiche en
+    //  dessous de mon message, via un message du Maître du Jeu, et que
+    //  ça engage un combat. » — 17 novembre. La ligne « croisé » du
+    //  registre ne suffisait pas : elle crédite le Pokédex à la clôture,
+    //  et c'est tout ce qui se passait. Rien à lire, rien à jouer.
+    //
+    //  LE NIVEAU EST LA RAISON POUR LAQUELLE C'EST ICI. L'événement
+    //  `croise` ne porte que l'espèce ; le niveau sort du tirage et
+    //  n'est écrit nulle part ensuite. Ouvrir le combat plus tard
+    //  obligerait à le retirer au sort — donc à inventer un autre
+    //  Pokémon que celui qui est apparu.
+    //
+    //  ET C'EST À CÔTÉ DE LA LIGNE DU REGISTRE, VOLONTAIREMENT. Une
+    //  erreur de lecture n'empêche pas le curseur d'avancer
+    //  (`parcourir-les-zones.ts`), donc ce qui échoue ici est perdu
+    //  comme la ligne du registre l'est déjà. Les deux tombent
+    //  ensemble, pour la même cause, et aucune fiabilité n'est promise
+    //  que l'autre n'ait pas. Un deuxième mécanisme serait un deuxième
+    //  endroit où regarder.
+    const ouverture = await this.combats.ouvrir({
+      sujetId: lue.sujetId,
+      messageId: lue.messageId,
+      joueurId,
+      especeId: rencontre.especeId,
+      niveau: rencontre.niveau,
+    });
+    //  `COMBAT_EN_COURS` : le joueur a cliqué pendant qu'un combat
+    //  tournait dans le même sujet. Ce n'est pas une panne, et la
+    //  rencontre reste inscrite au registre — mais il faut que ça se
+    //  VOIE, sinon il croira que le forum l'a ignoré.
+    if (!ouverture.ouvert && ouverture.raison === "COMBAT_EN_COURS") {
+      erreurs.push(
+        `message ${lue.messageId} : un combat tourne déjà dans ce sujet, ` +
+          `la rencontre est inscrite mais aucun combat n'est ouvert`,
+      );
+    }
+
     return { type: "croise", especeId: rencontre.especeId };
   }
 }

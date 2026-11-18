@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(336);
+select plan(347);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2460,19 +2460,19 @@ select is(
 
 --  ── LA BARRE SAIT QUOI SERVIR ────────────────────────────────────
 select is(
-  (combat_du_sujet(996)->>'nom'),
+  (combat_du_sujet(jsonb_build_object('sujetId', 996))->>'nom'),
   'Ponyta',
   'LA BARRE LIT LE COMBAT OUVERT DU SUJET — c''est ce qui lui fait changer ses boutons'
 );
 
 select ok(
-  combat_du_sujet(999996) is null,
+  combat_du_sujet(jsonb_build_object('sujetId', 999996)) is null,
   'et un sujet sans combat ne rend rien'
 );
 
 --  ── LA FERMETURE, ET LA PREMIÈRE FIN QUI L'EMPORTE ───────────────
 select ok(
-  (select fermer_un_combat(c.id, 'capture') from combat c where c.message_id = 15601),
+  (select fermer_un_combat(jsonb_build_object('combatId', c.id, 'etat', 'capture')) from combat c where c.message_id = 15601),
   'ON FERME UN COMBAT'
 );
 
@@ -2482,7 +2482,7 @@ select ok(
 );
 
 select ok(
-  (select not fermer_un_combat(c.id, 'defaite') from combat c where c.message_id = 15601),
+  (select not fermer_un_combat(jsonb_build_object('combatId', c.id, 'etat', 'defaite')) from combat c where c.message_id = 15601),
   'LA PREMIÈRE FIN L''EMPORTE : refermer ne change ni la fin ni la date'
 );
 
@@ -2493,7 +2493,7 @@ select is(
 );
 
 select throws_ok(
-  $$ select fermer_un_combat(c.id, 'ouvert') from combat c where c.message_id = 15601 $$,
+  $$ select fermer_un_combat(jsonb_build_object('combatId', c.id, 'etat', 'ouvert')) from combat c where c.message_id = 15601 $$,
   'P0001',
   'ETAT_DE_FERMETURE_INVALIDE',
   'et « fermer en ouvert » n''est pas une fin'
@@ -2534,7 +2534,81 @@ select ok(
   'PERSONNE N''ÉCRIT UN COMBAT DEPUIS LE NAVIGATEUR : les PV sont le score'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0047 · LA FILE DES CARTES DE RENCONTRE
+--
+--  Le combat du message 15603 est resté ouvert plus haut (celui du
+--  Pikachu niveau 8, ouvert après la capture du Ponyta). C'est lui qui
+--  sert ici : un test qui se fabrique son propre monde ne prouve rien
+--  sur celui des autres.
+-- ════════════════════════════════════════════════════════════════════
+
+select has_column('combat', 'carte_poste_le', 'LA CARTE A SA FILE — ouvrir le combat et poster sa carte ne sont pas atomiques (leçon du 2 octobre)');
+
+select is(
+  jsonb_array_length(cartes_a_poster(jsonb_build_object('combien', 10))),
+  1,
+  'UN COMBAT OUVERT MET SA CARTE EN FILE'
+);
+
+select is(
+  cartes_a_poster(jsonb_build_object('combien', 10))->0->'sauvage'->>'nom',
+  'Pikachu',
+  'et la carte sait quoi annoncer'
+);
+
+--  LES CHIFFRES VIENNENT DE LA 0045, PAS D'UN CALCUL REFAIT DANS LA
+--  LECTURE. Pikachu, base 55 d'attaque, niveau 8 : ⌊2×55×8/100⌋+5 = 13.
+--  Si cette assertion tombe, la carte et le combat ne diraient plus la
+--  même chose au même joueur.
+select is(
+  (cartes_a_poster(jsonb_build_object('combien', 10))->0->'sauvage'->>'attaque')::integer,
+  stat_au_niveau(55::smallint, 8::smallint),
+  'LA CARTE ET LE COMBAT CALCULENT PAREIL, par la même fonction'
+);
+
+select ok(
+  cartes_a_poster(jsonb_build_object('combien', 10))->0->'combattant' <> 'null'::jsonb,
+  'LE COMBATTANT EST SUR LA CARTE : le joueur voit les deux côtés avant de choisir'
+);
+
+--  ── POSTER, ET NE PAS REPOSTER ───────────────────────────────────
+select ok(
+  (select carte_postee(jsonb_build_object('combat', c.id, 'message', 99001)) from combat c where c.message_id = 15603),
+  'ON NOTE LA CARTE COMME POSTÉE'
+);
+
+select is(
+  jsonb_array_length(cartes_a_poster(jsonb_build_object('combien', 10))),
+  0,
+  'et elle sort de la file'
+);
+
+select ok(
+  (select not carte_postee(jsonb_build_object('combat', c.id, 'message', 99002)) from combat c where c.message_id = 15603),
+  'LE PREMIER MESSAGE POSTÉ EST CELUI QUE LES JOUEURS ONT LU : un second succès ne remplace pas son numéro'
+);
+
+select is(
+  (select carte_message_id from combat where message_id = 15603),
+  99001::bigint,
+  'le numéro noté reste le premier'
+);
+
+--  ── L'ÉCHEC SE COMPTE, SAUF QUAND IL N'EN EST PAS UN ─────────────
+select is(
+  (select carte_echouee(jsonb_build_object('combat', c.id, 'erreur', 'forum injoignable')) from combat c where c.message_id = 15603),
+  0,
+  'UN ÉCHEC SUR UNE CARTE DÉJÀ POSTÉE NE COMPTE PAS : c''est un envoi en double refusé, pas une panne'
+);
+
+select ok(
+  not has_function_privilege('anon', 'cartes_a_poster(jsonb)', 'execute'),
+  'PERSONNE NE LIT LA FILE DEPUIS LE NAVIGATEUR : la carte arrive dans le sujet, pas avant'
+);
+
 select * from finish();
+
 
 
 rollback;

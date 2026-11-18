@@ -34,6 +34,7 @@ import type {
   TableDesFossiles,
   ZoneSauvage,
 } from "./ports.ts";
+import { CombatsEnMemoire } from "../adaptateurs/en-memoire/combat.ts";
 import { REGLES_PAR_DEFAUT } from "../domaine/fossile.ts";
 import { CloturerUnSujet } from "./cloturer-un-sujet.ts";
 import {
@@ -124,6 +125,7 @@ function monter(
     new SignataireDeTest(),
     sansFossiles,
     butinMuet,
+    new CombatsEnMemoire(),
   );
 
   const tache = new ParcourirLesZones(

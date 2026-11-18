@@ -356,6 +356,87 @@ export interface BilansEnAttente {
   echoue(sujetId: number, erreur: string): Promise<number>;
 }
 
+// ── les combats ─────────────────────────────────────────────────────
+
+/** Ce que la base répond quand on ouvre un combat.
+ *
+ *  `ouvert` à faux n'est PAS une erreur, et c'est tout l'intérêt de ce
+ *  type : `DEJA_LU` veut dire que la relève repasse sur un message
+ *  qu'elle a déjà traité, `COMBAT_EN_COURS` que le joueur a cliqué
+ *  pendant qu'un combat tournait dans le même sujet. Dans les deux cas
+ *  il n'y a rien à corriger — et lever ferait passer un cas du jeu pour
+ *  une panne. */
+export type OuvertureDeCombat = {
+  readonly combatId: string;
+  readonly ouvert: boolean;
+  readonly raison: string | null;
+};
+
+export interface Combats {
+  /** Ouvre un combat sauvage, ou rend celui qui est déjà là.
+   *
+   *  Idempotente par le numéro du message : la base en garantit un seul
+   *  combat par message et un seul ouvert par sujet (migration 0046).
+   *  Le navigateur ne peut pas l'appeler. */
+  ouvrir(c: {
+    readonly sujetId: number;
+    readonly messageId: number;
+    readonly joueurId: string;
+    readonly especeId: number;
+    readonly niveau: number;
+  }): Promise<OuvertureDeCombat>;
+}
+
+// ── les cartes de rencontre ─────────────────────────────────────────
+
+/** Une carte de rencontre qui attend d'être publiée.
+ *
+ *  MÊME MOTIF QUE LES BILANS, et la même leçon du 2 octobre : ouvrir le
+ *  combat et poster sa carte ne sont pas atomiques, donc le combat est
+ *  le point de non-retour et la publication se repasse.
+ *
+ *  LA DIFFÉRENCE EST QUE LE TEXTE N'EST PAS ICI. Un bilan garde le sien
+ *  en colonne parce qu'appliquer la clôture consomme le registre : il ne
+ *  pourrait plus se recomposer. La ligne `combat`, elle, porte encore
+ *  tout ce que la carte dit — alors on transporte les CHIFFRES et on
+ *  compose au moment de poster. Deux copies d'un même chiffre finissent
+ *  par se contredire, et c'est le sujet qui annoncerait les anciens. */
+export type RencontreEnAttente = {
+  readonly combatId: string;
+  readonly sujetId: number;
+  /** Le message du joueur sous lequel la carte se pose. Il sert aussi de
+   *  graine au code : un reposté après incident porte le même code, donc
+   *  le marqueur de l'adaptateur reconnaît son propre message. */
+  readonly messageId: number;
+  readonly mentionne: string;
+  readonly essais: number;
+  readonly sauvage: {
+    readonly nom: string;
+    readonly niveau: number;
+    readonly types: readonly string[];
+    readonly pv: number;
+    readonly attaque: number;
+    readonly defense: number;
+  };
+  /** `null` quand l'équipe est vide — planche 99 §5.3. */
+  readonly combattant: {
+    readonly nom: string;
+    readonly surnom: string | null;
+    readonly niveau: number;
+    readonly types: readonly string[];
+    readonly pv: number;
+    readonly pvMax: number;
+    readonly attaque: number;
+    readonly defense: number;
+  } | null;
+};
+
+export interface CartesDeRencontreEnAttente {
+  aPoster(combien: number): Promise<readonly RencontreEnAttente[]>;
+  postee(combatId: string, messageId: number): Promise<void>;
+  echouee(combatId: string, erreur: string): Promise<number>;
+}
+
 // ── la boutique ─────────────────────────────────────────────────────
 
 /** Un panier posé par un joueur, tel qu'on le lit dans son message.

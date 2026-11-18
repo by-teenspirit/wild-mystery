@@ -25,6 +25,10 @@ import {
   ClotureSupabase,
 } from "../../../src/adaptateurs/supabase/cloture.ts";
 import {
+  CartesDeRencontreSupabase,
+  CombatsSupabase,
+} from "../../../src/adaptateurs/supabase/combat.ts";
+import {
   CatalogueSupabase,
   EtatDuJeuSupabase,
   HeuresSupabase,
@@ -62,6 +66,7 @@ import { CloturerUnSujet } from "../../../src/application/cloturer-un-sujet.ts";
 import { LireLesNouveauxMessages } from "../../../src/application/lire-les-nouveaux-messages.ts";
 import { ParcourirLesZones } from "../../../src/application/parcourir-les-zones.ts";
 import { PosterLesBilans } from "../../../src/application/poster-les-bilans.ts";
+import { PosterLesRencontres } from "../../../src/application/poster-les-rencontres.ts";
 import { ServirUneCommande } from "../../../src/application/servir-une-commande.ts";
 import { RangerLePokedex } from "../../../src/application/ranger-le-pokedex.ts";
 import { RendreLesFossiles } from "../../../src/application/rendre-les-fossiles.ts";
@@ -149,6 +154,7 @@ type Montage = {
    *  séparée, et c'est le fond de la correction du 2 octobre : la clôture
    *  est le seul point de non-retour, la publication se repasse. */
   readonly bilans: PosterLesBilans;
+  readonly rencontres: PosterLesRencontres;
   /** Tâche 3 : la boutique. Les paniers posés dans les sujets de comptoir
    *  deviennent des commandes servies, et chacune reçoit son reçu. */
   readonly boutique: ServirUneCommande;
@@ -232,6 +238,12 @@ function assembler(reglages: Reglages): Montage {
     signataire,
     fossiles,
     butin,
+    //  L'OUVERTURE DU COMBAT. Elle est ici et pas dans une tâche à part
+    //  parce que le NIVEAU du sauvage sort du tirage et n'est écrit
+    //  nulle part ensuite : l'ouvrir plus tard obligerait à le retirer
+    //  au sort, donc à inventer un autre Pokémon que celui qui est
+    //  apparu.
+    new CombatsSupabase(appeler),
   );
 
   const parcourir = new ParcourirLesZones(
@@ -258,6 +270,17 @@ function assembler(reglages: Reglages): Montage {
     new JournalSupabase(appeler),
   );
 
+  //  LES CARTES DE RENCONTRE. Même forme que les bilans, et pour la
+  //  même raison : ouvrir un combat et poster sa carte ne sont pas
+  //  atomiques, donc le combat est le point de non-retour et la carte
+  //  se repasse (planche 99, migration 0047).
+  const rencontres = new PosterLesRencontres(
+    new CartesDeRencontreSupabase(appeler),
+    forumEnEcriture,
+    signataire,
+    new JournalSupabase(appeler),
+  );
+
   //  Tâche 3 : la boutique. Elle tient SON curseur, celui du forum qui
   //  porte le comptoir — `ParcourirLesZones` tient ceux des zones, et
   //  deux tâches qui avancent le même curseur se voleraient des
@@ -275,6 +298,7 @@ function assembler(reglages: Reglages): Montage {
   return {
     parcourir,
     bilans,
+    rencontres,
     boutique,
     pokedex: new RangerLePokedex(
       new PokedexSupabase(appeler),
@@ -379,6 +403,7 @@ Deno.serve(async (requete: Request): Promise<Response> => {
   const {
     parcourir,
     bilans,
+    rencontres,
     boutique,
     comptoirs,
     carnet,
@@ -413,6 +438,12 @@ Deno.serve(async (requete: Request): Promise<Response> => {
     // minutes.
     const bilan = await parcourir.executer();
     const repris = await bilans.executer();
+
+    //  LES CARTES DE RENCONTRE PARTENT APRÈS LE PARCOURS, dans le même
+    //  passage : un Pokémon qui apparaît voit sa carte postée quelques
+    //  secondes plus tard, pas cinq minutes. Avant le parcours, elle
+    //  aurait toujours un passage de retard.
+    const cartesDeCombat = await rencontres.executer();
 
     //  ── LA BOUTIQUE PASSE EN DERNIER, ET C'EST UN CHOIX ──────────────
     //
@@ -514,6 +545,8 @@ Deno.serve(async (requete: Request): Promise<Response> => {
       cartesPubliees: cartesPosees.publiees,
       bilans_publies: repris.publies.length,
       bilans_en_echec: repris.erreurs,
+      cartes_de_combat: cartesDeCombat.publiees.length,
+      cartes_de_combat_en_echec: cartesDeCombat.erreurs,
       commandes_servies: achats.servies,
       commandes_refusees: achats.refusees,
       boutique_en_echec: achats.erreurs,

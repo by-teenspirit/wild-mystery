@@ -1618,6 +1618,83 @@ sys.exit(1 if fautes else 0)
 FIN
 [ $? -ne 0 ] && fautes=$((fautes + 1))
 
+echo "── 38. chaque fonction appelée existe, et avec la bonne signature ─"
+# UNE FONCTION QU'AUCUN APPELANT NE PEUT ATTEINDRE EST UNE FONCTION QUI
+# N'EXISTE PAS. `fermer_un_combat(uuid, text)` et
+# `combat_du_sujet(integer)` ont vécu une journée : elles compilaient,
+# la suite pgTAP les passait, et AUCUN CODE N'AURAIT PU LES APPELER.
+#
+# `AppelSql` poste un seul corps JSON à PostgREST — c'est ce qui permet
+# au même adaptateur de tourner contre PostgREST en production et contre
+# psql dans le CI. Donc tout ce que le TypeScript appelle doit exister
+# avec la signature `(p jsonb)`, et rien d'autre.
+#
+# Le piège qui rend ce contrôle nécessaire : `create or replace` sur une
+# signature DIFFÉRENTE ne remplace rien, il AJOUTE une surcharge. Les
+# deux versions vivent côte à côte, et corriger l'une laisse l'autre en
+# place.
+python3 - <<'FIN'
+import pathlib, re, sys
+
+migrations = "\n".join(
+    p.read_text() for p in sorted(pathlib.Path("supabase/migrations").glob("*.sql"))
+)
+# Trois formes sont bonnes, et il a fallu les trois pour que la règle
+# arrête de crier sur du code juste :
+#   (p jsonb)                      — la forme courante
+#   (p jsonb default \'{}\'::jsonb)  — quand l\'argument est optionnel
+#   ()                             — PostgREST accepte un corps vide
+# Ce qui reste interdit, c\'est la signature à arguments TYPÉS :
+# `(uuid, text)`, `(integer)`. C\'est elle qu\'aucun appelant ne peut
+# atteindre, et c\'est elle qu\'on cherche.
+declarees = re.findall(
+    r"create\s+or\s+replace\s+function\s+([a-z0-9_]+)\s*\(([^)]*)\)",
+    migrations, re.I | re.S)
+offertes = {
+    nom for nom, args in declarees
+    if args.strip() == "" or re.match(r"^\s*p\s+jsonb\b", args, re.I)
+}
+# Les signatures typées, gardées à part : si un nom N\'EXISTE QUE sous
+# cette forme, le message doit dire laquelle, sinon on cherche une
+# fonction absente alors qu\'elle est là, mal signée.
+typees = {}
+for nom, args in declarees:
+    if nom not in offertes and args.strip():
+        typees.setdefault(nom, args.strip().replace("\n", " "))
+
+appels = {}
+for f in sorted(pathlib.Path("src").rglob("*.ts")):
+    if f.name.endswith(".test.ts"):
+        continue
+    for m in re.finditer(r"appeler\(\s*[\"'`]([a-z0-9_]+)[\"'`]", f.read_text()):
+        appels.setdefault(m.group(1), set()).add(str(f))
+# Les noms rangés dans une variable juste avant l'appel : `const nom =
+# "clotures_sans_bilan";` puis `this.appeler(nom, …)`.
+for f in sorted(pathlib.Path("src").rglob("*.ts")):
+    if f.name.endswith(".test.ts"):
+        continue
+    t = f.read_text()
+    if re.search(r"appeler\(\s*nom\s*,", t):
+        for m in re.finditer(r"const\s+nom\s*=\s*[\"'`]([a-z0-9_]+)[\"'`]", t):
+            appels.setdefault(m.group(1), set()).add(str(f))
+
+fautes = []
+for nom, ou in sorted(appels.items()):
+    if nom not in offertes:
+        quoi = typees.get(nom)
+        fautes.append(
+            f"{nom} est appelée ({', '.join(sorted(ou))}) mais n'est déclarée "
+            + (f"qu'en ({quoi}) — aucun appelant ne peut l'atteindre"
+               if quoi else "dans aucune migration"))
+
+for f in fautes[:8]:
+    print(f"::error::{f}")
+if not fautes:
+    print(f"   appels SQL : {len(appels)} fonctions appelées, toutes en (p jsonb)")
+sys.exit(1 if fautes else 0)
+FIN
+[ $? -ne 0 ] && fautes=$((fautes + 1))
+
 echo "── 37. la table des types, celle du combat et celle de l'annexe ─"
 # UNE SEULE TABLE D'EFFICACITÉ, ET ELLE EST DÉRIVÉE. Elle a vécu en
 # mémoire dans `outils/equipes-de-champions.py` jusqu'au 17 novembre ;
