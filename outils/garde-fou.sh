@@ -8,6 +8,30 @@
 # ════════════════════════════════════════════════════════════════════
 set -uo pipefail
 
+#  ── `mapfile` N'EXISTE PAS DANS LE BASH DE macOS ────────────────────
+#
+#  macOS livre bash 3.2 — la dernière version sous GPLv2 — et
+#  `mapfile` est arrivé dans la 4. Lancé par le bash du système, ce
+#  script s'arrêtait sur « mapfile: command not found » puis sur
+#  « TESTS[@]: unbound variable », et ne relevait donc plus rien :
+#  un garde-fou que seule la CI sait lancer ne garde qu'à moitié.
+#
+#  On le rend plutôt que de réécrire les appels. `printf %q` existe
+#  depuis la 2, et l'affectation passe par `eval` parce que bash 3.2
+#  n'a pas d'autre moyen de remplir un tableau dont le nom est dans
+#  une variable. Une entrée vide donne `NOM=()`, donc un tableau vide
+#  et pas une erreur de `set -u`.
+if ! type mapfile >/dev/null 2>&1; then
+  mapfile() {
+    [ "${1-}" = "-t" ] && shift
+    local nom="$1" ligne liste=""
+    while IFS= read -r ligne; do
+      liste="$liste $(printf '%q' "$ligne")"
+    done
+    eval "$nom=($liste)"
+  }
+fi
+
 fautes=0
 gronde() {
   echo "::error::$1"
