@@ -56,22 +56,87 @@ cd "$(dirname "$0")/.."
 #  4 · capacites — besoin des espèces.
 ORDRE=(objets especes fossiles capacites)
 
-if [ -z "${DATABASE_URL:-}" ]; then
+#  DEUX FAÇONS DE DIRE OÙ EST LA BASE, ET LA SECONDE EST LA BONNE.
+#
+#  L'URL d'un coup — `DATABASE_URL` — est ce que le Dashboard donne, et
+#  c'est un piège qu'on a payé deux fois le 17 novembre :
+#
+#      psql: error: could not translate host name  to address
+#
+#  L'hôte est VIDE. Un seul `/` dans le mot de passe suffit : libpq lit
+#  `postgresql://u:ab/cd@hote/postgres` comme une autorité `u:ab` suivie
+#  d'un chemin, et l'hôte disparaît. Pareil pour `@`, `#`, `?`. Le
+#  message ne parle ni du mot de passe ni d'encodage — il parle d'un nom
+#  d'hôte qu'on croit avoir écrit.
+#
+#  Les variables séparées n'ont pas ce problème : `PGPASSWORD` est une
+#  valeur, pas un morceau d'URL, et le mot de passe y passe TEL QUEL,
+#  caractères spéciaux compris. Rien à encoder, rien à deviner.
+#
+#  Et il n'a pas à traîner dans l'historique du terminal : sans
+#  `PGPASSWORD`, psql le demande lui-même, une fois par seed.
+if [ -z "${DATABASE_URL:-}" ] && [ -z "${PGHOST:-}" ]; then
   cat >&2 <<'AIDE'
-DATABASE_URL n'est pas posée, et sans elle psql cherche une base locale
+Il manque l'adresse de la base. Sans elle, psql cherche une base locale
 qui n'existe pas — c'est le « database "…" does not exist » qui ne parle
 de rien.
 
-Où la prendre : Supabase → le projet → Connect → Session pooler. Puis,
-dans le terminal où tu lances ce script :
+LE CHEMIN SANS PIÈGE — les paramètres séparés. Rien à encoder, même si
+le mot de passe contient / @ # ? ou une espace :
+
+    export PGHOST=aws-0-eu-west-1.pooler.supabase.com
+    export PGPORT=5432
+    export PGUSER=postgres.<ref>
+    export PGDATABASE=postgres
+
+Hôte, port et utilisateur viennent de Supabase → Connect → Direct →
+Session pooler. Aucun des quatre ne contient de caractère spécial, donc
+rien à encoder et rien à protéger.
+
+LE MOT DE PASSE, LE SCRIPT LE DEMANDE LUI-MÊME. Tu n'as pas à le poser
+dans ton terminal : il ne passe donc ni par l'historique, ni par une
+URL, ni par un fichier.
+
+L'AUTRE CHEMIN — l'URL d'un coup, si le mot de passe n'a aucun
+caractère spécial :
 
     export DATABASE_URL='postgresql://postgres.<ref>:<motdepasse>@…pooler.supabase.com:5432/postgres'
-
-Elle ne vaut que pour ce terminal, et c'est voulu : un mot de passe
-écrit dans un fichier du dépôt est un mot de passe publié.
 AIDE
   exit 1
 fi
+
+#  LE MOT DE PASSE SE DEMANDE ICI, ET C'EST VOULU.
+#
+#  L'aide disait d'abord de le poser dans le terminal avec
+#  `read -rs -p …`. Sur macOS le terminal est en ZSH, et zsh répond :
+#
+#      read: -p: no coprocess
+#
+#  `-p` veut dire « invite » en bash et « depuis un coprocessus » en
+#  zsh. L'aide d'un script ne doit rien supposer du shell de celui qui
+#  la lit — alors que LE SCRIPT, LUI, tourne sous bash puisqu'on
+#  l'appelle par `bash outils/semer.sh`. L'invite appartient donc ici.
+#
+#  Et c'est mieux de toute façon : le mot de passe ne traverse ni
+#  l'historique du terminal, ni une URL, ni un fichier. Il reste dans
+#  l'environnement de ce seul processus, le temps des quatre seeds.
+if [ -z "${DATABASE_URL:-}" ] && [ -z "${PGPASSWORD:-}" ]; then
+  if [ -t 0 ]; then
+    read -rsp "mot de passe de la base : " PGPASSWORD
+    echo
+    export PGPASSWORD
+  fi
+  #  Pas de terminal — un CI, un cron : on ne demande rien et on
+  #  laisse psql échouer avec son propre message. Un script qui attend
+  #  une saisie que personne ne fera est un script qui a l'air de
+  #  tourner.
+fi
+
+#  L'URL si elle est là, sinon rien : psql lit alors les PG* tout seul.
+#  Un tableau et pas une chaîne — `psql ""` chercherait une base dont le
+#  nom est vide.
+cible=()
+[ -n "${DATABASE_URL:-}" ] && cible=("$DATABASE_URL")
 
 demandes=("$@")
 [ ${#demandes[@]} -eq 0 ] && demandes=("${ORDRE[@]}")
@@ -105,7 +170,7 @@ for nom in "${ORDRE[@]}"; do
   #  `ON_ERROR_STOP` s'arrête à la première faute, donc la sortie est
   #  courte de toute façon. UN OUTIL QUI CACHE LE MESSAGE D'ERREUR
   #  COÛTE PLUS CHER QU'UN OUTIL QUI EN AFFICHE TROP.
-  if sortie=$(psql "$DATABASE_URL" -q -v ON_ERROR_STOP=1 -f "$fichier" 2>&1); then
+  if sortie=$(psql "${cible[@]+${cible[@]}}" -q -v ON_ERROR_STOP=1 -f "$fichier" 2>&1); then
     echo "semé"
   else
     echo "REFUSÉ"
@@ -125,8 +190,13 @@ if [ $fautes -ne 0 ]; then
   cat >&2 <<OU
 
 $fautes seed(s) refusé(s). Lis la ligne au-dessus, puis :
-  · « password authentication failed » → le mot de passe, ou un
-    caractère spécial à encoder dans l'adresse.
+  · « password authentication failed » → le mot de passe. S'il
+    contient / @ # ? ou une espace, passe par PGHOST/PGPASSWORD
+    plutôt que par DATABASE_URL (lance le script sans rien pour
+    avoir les lignes à coller).
+  · « could not translate host name  to address » (hôte VIDE)
+                                       → même cause : un caractère
+    spécial a coupé l'URL. Même remède.
   · « Tenant or user not found »       → l'utilisateur doit être
     postgres.<ref>, pas postgres seul (c'est le pooler).
   · « relation … does not exist » ou « column … does not exist »
