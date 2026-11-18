@@ -265,7 +265,11 @@ const bande = await p.evaluate(() => {
         colonnesAvec: avant,
         colonnesSans: apres,
         neDeplaceRien: JSON.stringify(avant) === JSON.stringify(apres),
-        hautAligne: Math.abs(Math.round(r.top - bloc.top)) <= 2,
+        //  DE COMBIEN IL DÉPASSE PAR LE HAUT. Positif = il sort du
+        //  bloc, et c'est ce débordement qui le fait décorer au lieu
+        //  d'illustrer. Mesuré, pas supposé : la feuille dit -28 px,
+        //  et un parent qui le rognerait rendrait 0 ici.
+        depasseDe: Math.round(bloc.top - r.top),
         //  Il mord à droite, c'est voulu — mais il ne doit pas aller
         //  se poser sur le texte du groupe.
         mordDe: Math.round(bloc.right - r.left),
@@ -286,8 +290,19 @@ dire(
 dire(
   "LE SABELETTE NE DÉPLACE RIEN",
   bande.mascotte !== null && bande.mascotte.horsDuFlux === true &&
-    bande.mascotte.neDeplaceRien === true && bande.mascotte.hautAligne === true,
+    bande.mascotte.neDeplaceRien === true,
   JSON.stringify(bande.mascotte),
+);
+//  « REMONTE UN PEU LE SABLAIREAU » — 18 novembre. L'essai disait
+//  avant que son haut était ALIGNÉ sur celui du bloc ; il demande
+//  maintenant le contraire, et il dit de combien. Une borne haute avec
+//  la basse : remonté de deux cents pixels, il ne décorerait plus rien,
+//  il flotterait au-dessus.
+dire(
+  "et il dépasse par le haut, assez pour décorer, pas assez pour s'envoler",
+  bande.mascotte !== null && bande.mascotte.depasseDe >= 20 &&
+    bande.mascotte.depasseDe <= 60,
+  `${bande.mascotte?.depasseDe} px au-dessus du bloc`,
 );
 
 //  ON CLIQUE VRAIMENT, et la carte doit changer de groupe. Sans ça on
@@ -373,21 +388,91 @@ dire(
 const lisible = await p.evaluate(() => {
   const t = document.querySelector(".wm-enligne__groupe-texte");
   const n = document.querySelector(".wm-enligne__groupe-nom");
-  return t === null ? null : {
+  const carte = document.querySelector(".wm-enligne__groupe");
+  if (t === null || carte === null) return null;
+  const dedans = carte.getBoundingClientRect();
+  const mot = t.getBoundingClientRect();
+  return {
     taille: getComputedStyle(t).fontSize,
     reserveTexte: getComputedStyle(t).paddingRight,
     reserveNom: n === null ? null : getComputedStyle(n).paddingRight,
+    //  LA LARGEUR RÉELLE, pas seulement le rembourrage : une réserve
+    //  retirée d'un côté et remise de l'autre ne se verrait pas dans
+    //  `padding-right` seul.
+    jeuADroite: Math.round(dedans.right - mot.right),
+    //  LE PLANCHER ET LE DÉFILEMENT, demandés le 18 novembre.
+    hauteurCarte: Math.round(dedans.height),
+    texteDefile: t.scrollHeight > t.clientHeight,
+    debordeDeLaCarte: Math.round(mot.bottom) > Math.round(dedans.bottom),
   };
 });
 dire(
   "LE TEXTE DU GROUPE EST À LA TAILLE NORMALE",
   lisible?.taille === "13.5px",
-  JSON.stringify(lisible),
+  JSON.stringify({ taille: lisible?.taille }),
+);
+//  « Fais en sorte que le texte prenne toute la largeur du bloc, qu'il
+//  n'y ait plus de décalage » — 18 novembre. L'essai disait l'inverse
+//  depuis le 9 octobre ; il dit maintenant ce qu'elle a demandé, et il
+//  le mesure en pixels rendus, pas en propriété déclarée. Le jeu
+//  restant est le rembourrage de la carte, 16 px.
+dire(
+  "et il prend toute la largeur : plus de réserve pour le Sabelette",
+  lisible?.reserveTexte === "0px" && lisible?.reserveNom === "0px" &&
+    lisible?.jeuADroite <= 20,
+  JSON.stringify({
+    reserveTexte: lisible?.reserveTexte,
+    reserveNom: lisible?.reserveNom,
+    jeuADroite: lisible?.jeuADroite,
+  }),
+);
+//  « Veille à mettre une taille minimum et un scroll » — 18 novembre.
+//  LA CARTE NE COMMANDE PLUS LA HAUTEUR DU BLOC : son texte défile
+//  chez lui, et rien ne sort par le bas. La description du Hardi fait
+//  une dizaine de lignes, donc ce cas-ci défile pour de vrai.
+dire(
+  "LA CARTE A UN PLANCHER DE HAUTEUR",
+  lisible !== null && lisible.hauteurCarte >= 437,
+  `${lisible?.hauteurCarte} px`,
 );
 dire(
-  "et la réserve du Sabelette vaut 100 px, sur le nom comme sur le texte",
-  lisible?.reserveTexte === "100px" && lisible?.reserveNom === "100px",
-  JSON.stringify(lisible),
+  "et rien ne sort de la carte",
+  lisible !== null && lisible.debordeDeLaCarte === false,
+  JSON.stringify({ deborde: lisible?.debordeDeLaCarte }),
+);
+//  ── ON PROVOQUE LE DÉBORDEMENT, ON NE L'ATTEND PAS ────────────────
+//
+//  Première version de cet essai : il exigeait que la description du
+//  Hardi défile. Elle ne défile plus — une fois rendue à toute la
+//  largeur, elle tient. L'essai annonçait donc un défaut pour une
+//  amélioration, et il n'aurait rien prouvé du jour où une
+//  description serait vraiment trop longue.
+//
+//  On en écrit une de trente lignes à la place, et on regarde : elle
+//  doit défiler DANS la carte, et la carte ne doit pas grandir.
+const trop = await p.evaluate(() => {
+  const t = document.querySelector(".wm-enligne__groupe-texte");
+  const carte = document.querySelector(".wm-enligne__groupe");
+  if (t === null || carte === null) return null;
+  const avant = Math.round(carte.getBoundingClientRect().height);
+  const garde = t.textContent;
+  t.textContent = (garde + " ").repeat(8);
+  const apres = Math.round(carte.getBoundingClientRect().height);
+  const etat = {
+    hauteurAvant: avant,
+    hauteurApres: apres,
+    defile: t.scrollHeight > t.clientHeight,
+    deborde: Math.round(t.getBoundingClientRect().bottom) >
+      Math.round(carte.getBoundingClientRect().bottom),
+  };
+  t.textContent = garde;
+  return etat;
+});
+dire(
+  "UNE DESCRIPTION TROP LONGUE DÉFILE, ET LA CARTE NE GRANDIT PAS",
+  trop !== null && trop.defile === true && trop.deborde === false &&
+    trop.hauteurApres === trop.hauteurAvant,
+  JSON.stringify(trop),
 );
 dire(
   "et son avantage, entier",
@@ -863,6 +948,37 @@ dire(
   JSON.stringify(sansCategorie.noms),
 );
 await p7.close();
+
+//  ── UNE PHOTO, QUAND ON LA DEMANDE ────────────────────────────────
+//
+//  `deno task enligne --photo`. Les mesures disent des nombres ; le
+//  bloc en ligne est un DESSIN, et certaines demandes ne se mesurent
+//  pas en pixels — « remonte un peu le Sabelette », « je veux voir ce
+//  que ça donne sans ». On remonte une page propre et on la
+//  photographie, dans les deux thèmes.
+if (Deno.args.includes("--photo")) {
+  const pp = await ouvrir(page(statistiques("436", "3", "Compte de test"), ""), GROUPES);
+  const bloc = await pp.$(".wm-enligne");
+  for (const theme of ["clair", "sombre"]) {
+    await pp.evaluate((t) => document.body.classList.toggle("wm-sombre", t === "sombre"), theme);
+    await pp.waitForTimeout(120);
+    //  LA PHOTO DÉBORDE DU BLOC EXPRÈS : le Sabelette est posé HORS de
+    //  lui, à droite. Une capture bornée au bloc le couperait, et
+    //  c'est justement lui qu'on regarde.
+    const b = await bloc.boundingBox();
+    await pp.screenshot({
+      path: `${R}en-ligne-${theme}.png`,
+      clip: {
+        x: Math.max(0, b.x - 20),
+        y: Math.max(0, b.y - 60),
+        width: Math.min(1440 - Math.max(0, b.x - 20), b.width + 180),
+        height: b.height + 80,
+      },
+    });
+  }
+  await pp.close();
+  console.log("photos : en-ligne-clair.png, en-ligne-sombre.png");
+}
 
 await nav.close();
 if (soucis.length > 0) { for (const s of soucis) console.log("  · " + s); }

@@ -401,8 +401,16 @@ function ficheStaff(doc: Document, m: Accueil["staff"][number]): HTMLElement {
   fiche.appendChild(tete);
 
   if (m.personnages.length > 0) {
+    //  SINGULIER QUAND IL N'Y EN A QU'UN. Les quatre administratrices
+    //  n'ont qu'un personnage chacune (18 novembre) : « Ses personnages
+    //  — Jake Dalziel » se lit comme une liste tronquée.
     fiche.appendChild(
-      element(doc, "p", "wm-accueil__fiche-intitule", "Ses personnages"),
+      element(
+        doc,
+        "p",
+        "wm-accueil__fiche-intitule",
+        m.personnages.length === 1 ? "Son personnage" : "Ses personnages",
+      ),
     );
     const liste = element(doc, "ul", "wm-accueil__fiche-persos");
     for (const p of m.personnages) {

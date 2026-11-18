@@ -43,6 +43,7 @@ templates/*.a-publier.html
 /messagerie-*.png
 /barre.png
 /qui-est-en-ligne-*.png
+/en-ligne-*.png
 
 # Le calque de contrôle du découpage, rendu par `carte-decoupage.py --rendu` :
 # on le regarde avant de valider, il ne fait pas partie du dépôt.

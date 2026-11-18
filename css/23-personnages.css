@@ -201,6 +201,50 @@
   color: var(--wm-texte-corps, #4e3b30);
 }
 
+/*  ── CE QUI N'EST PAS ENCORE ÉCRIT SE VOIT COMME TEL ───────────────
+
+    « Une description que chacun fera » — 18 novembre. Les quatre
+    présentations du staff sont à elles, et je ne les invente pas.
+    L'attente s'affiche donc en gris et en italique, pour qu'on ne la
+    lise pas comme une phrase du forum. */
+#modernbb .wm-perso__texte--vide {
+  color: var(--wm-texte-doux, #6e5749);
+  font-style: italic;
+}
+
+/*  ── LA FICHE DE STAFF RESPIRE ─────────────────────────────────────
+
+    Une fiche de personnage tient dans 224 px et son corps défile :
+    c'est bon pour une galerie où l'on survole quarante noms. Les
+    quatre du staff, elles, SE LISENT — pseudo, rôle, présentation,
+    personnage, présence — et un texte à faire défiler dans une
+    vignette de 224 px ne se lit pas.
+
+    La hauteur devient donc un plancher et plus un plafond, et le
+    corps cesse de défiler. Les deux fiches d'une même rangée
+    s'alignent toutes seules : c'est ce que `stretch` fait déjà dans
+    une rangée flexible.
+
+    UN MODIFICATEUR, PAS UNE SECONDE FAMILLE : le dessin est le même —
+    avatar à gauche, corps à droite — et deux familles pour un seul
+    dessin font deux endroits à corriger le jour où il bouge. */
+#modernbb .wm-perso--staff {
+  height: auto;
+  min-height: 224px;
+}
+
+#modernbb .wm-perso--staff .wm-perso__corps {
+  gap: var(--wm-espace-6, 6px);
+  overflow-y: visible;
+}
+
+/*  ET LE DÉGRADÉ DE BAS DE FICHE S'EN VA AVEC. Il annonce « il reste
+    du texte en dessous » ; sur une fiche qui ne défile plus, il
+    annoncerait du vide. */
+#modernbb .wm-perso--staff::after {
+  content: none;
+}
+
 #modernbb .wm-perso__traits {
   display: flex;
   flex-wrap: wrap;

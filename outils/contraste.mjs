@@ -457,14 +457,23 @@ if (voile === null || voile.photo === false) {
 //  decrit comme normal. Deuxieme fois aujourd'hui qu'une mesure
 //  mesurait autre chose que ce qu'elle annoncait.
 //
-//  LE MILIEU DU DEFILEMENT, DONC : la ou il reste de la place des deux
-//  cotes, et ou le sommaire doit etre colle a 56.
+//  ON MESURE DONC A LA DERNIERE POSITION OU IL DOIT ENCORE ETRE
+//  COLLE, et ce point se CALCULE au lieu de se deviner : le sommaire
+//  tient a 56 tant que le bas de son conteneur reste sous
+//  `56 + sa hauteur`. Un seuil ecrit a la main (« une page de moins de
+//  tant ne compte pas ») serait le meme defaut sous une autre forme.
 await p.setViewportSize({ width: 1280, height: 1000 });
-const aMiChemin = await p.evaluate(() => {
+const jusqua = await p.evaluate((barre) => {
+  const s = document.querySelector(".wm-annexe__sommaire");
+  if (s === null) return 0;
+  const conteneur = s.parentElement.getBoundingClientRect();
+  const basDuConteneur = conteneur.bottom + globalThis.scrollY;
+  const borne = Math.round(basDuConteneur - barre - s.getBoundingClientRect().height);
   const max = document.documentElement.scrollHeight - globalThis.innerHeight;
-  globalThis.scrollTo(0, Math.round(max / 2));
-  return Math.round(max);
-});
+  const ou = Math.min(Math.round(max), borne);
+  globalThis.scrollTo(0, Math.max(0, ou));
+  return ou;
+}, 56);
 await p.waitForTimeout(250);
 const sousLaBarre = await p.evaluate(() => {
   const s = document.querySelector(".wm-annexe__sommaire");
@@ -486,13 +495,14 @@ await p.waitForTimeout(150);
 if (sousLaBarre !== null) {
   //  UNE PAGE QUI NE DEFILE PAS NE PROUVE RIEN, et le dire vaut mieux
   //  que rendre un vert gratuit.
-  const bon = aMiChemin < 8 ||
+  const rienAMesurer = jusqua <= 0;
+  const bon = rienAMesurer ||
     (sousLaBarre.sommaire >= sousLaBarre.basDeLaBarre && sousLaBarre.hautDeLaBarre === 0);
   console.log(
-    `defile de ${sousLaBarre.defile} sur ${aMiChemin} possibles : barre a ` +
+    `defile de ${sousLaBarre.defile} (colle jusqu'a ${jusqua}) : barre a ` +
       `${sousLaBarre.hautDeLaBarre}, sommaire a ${sousLaBarre.sommaire}, ` +
       `bas de la barre a ${sousLaBarre.basDeLaBarre}` +
-      (aMiChemin < 8 ? " — page trop courte pour defiler, rien a mesurer" : "") +
+      (rienAMesurer ? " — page trop courte pour qu'il tienne, rien a mesurer" : "") +
       (bon ? "" : " — DEFAUT, il passe dessous"),
   );
   if (!bon) fautes++;

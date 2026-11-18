@@ -339,7 +339,12 @@
     il ne dit rien que le texte ne dise déjà. */
 #modernbb .wm-enligne__mascotte {
   position: absolute;
-  top: 0;
+  /*  REMONTÉ DE 28 PX, demandé le 18 novembre : « remonte un peu le
+      Sablaireau ». Il dépasse donc par le haut du bloc — c'est ce
+      débordement qui le fait décorer au lieu d'illustrer, et c'est ce
+      que le premier commentaire de cette section décrivait déjà sans
+      que le chiffre soit jamais posé. */
+  top: -28px;
   right: -103px;
   width: 250px;
   height: auto;
@@ -518,6 +523,32 @@
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-groupe-hardi-fond, #d4e4ed);
   color: var(--wm-groupe-hardi-texte, #21658c);
+  /*  ── UNE HAUTEUR PLANCHER, ET RIEN AU-DESSUS ───────────────────
+
+      « Veille à mettre une taille minimum et un scroll. » — 18
+      novembre.
+
+      LES SIX DESCRIPTIONS N'ONT PAS LA MÊME LONGUEUR, et depuis
+      qu'elles sont écrites la carte faisait la loi : celle du Hardi
+      tire le bloc entier vers le bas, celle d'un groupe plus court le
+      laisse retomber. Changer d'onglet changeait la hauteur de la
+      page.
+
+      437 EST LA HAUTEUR DU DESSIN (`390:3387`), déjà citée plus bas
+      pour l'encart d'avantage. Elle devient le plancher ; au-dessus,
+      c'est la colonne voisine qui décide, et le texte défile. La
+      carte ne commande plus rien.
+
+      `height: 0` AVEC `min-height` EST CE QUI LE REND VRAI, et le
+      harnais a refusé la première version sans lui : une carte en
+      `flex: 1 1 auto` et `min-height` seule donne encore sa hauteur de
+      CONTENU à la colonne, donc la colonne grandit, donc la carte
+      grandit, donc le texte ne défile jamais — mesuré à 1 765 px avec
+      une description de trente lignes. Avec `height: 0`, la carte
+      n'apporte à la colonne que son plancher ; le reste lui vient de
+      la rangée, c'est-à-dire des deux autres colonnes. */
+  height: 0;
+  min-height: 437px;
 }
 
 #modernbb .wm-enligne__groupe[data-wm-groupe="serieux"] {
@@ -554,33 +585,21 @@
   line-height: var(--wm-interligne-affiche, 1);
 }
 
-/*  ── LA GRIFFE DU SABELETTE NE MORD PLUS LE TEXTE ──────────────────
+/*  ── LE TEXTE PREND TOUTE LA LARGEUR ───────────────────────────────
 
-    « Moins large pour que la griffe de Sabelette ne vienne pas
-    chevaucher le texte », 9 octobre.
+    « Pour le moment, fais en sorte que le texte prenne toute la
+    largeur du bloc, qu'il n'y ait plus de décalage pour ne pas passer
+    sous le Sablaireau : j'ai besoin de voir ce que ça donne sans,
+    d'abord. » — 18 novembre.
 
-    Il est à `right: -103px` et large de 250 : il couvre donc 147 px
-    du bord droit du bloc, et le haut de la carte du groupe est
-    justement là. On rend ces 147 px au décor — le texte s'arrête
-    avant, le nom aussi.
+    IL Y AVAIT 100 PX DE RÉSERVE À DROITE, posés le 9 octobre pour que
+    la griffe ne morde pas le texte. Ils partent : les descriptions
+    sont écrites depuis, elles font dix lignes, et cent pixels pris sur
+    chaque ligne les étirent en colonne étroite.
 
-    SUR LE TEXTE ET LE NOM, PAS SUR LA CARTE : l'encart d'avantage est
-    en bas, sous les 239 px du Sabelette, et rien ne l'y gêne. Lui
-    retirer sa largeur serait payer pour un chevauchement qui n'existe
-    pas. */
-#modernbb .wm-enligne__groupe-nom,
-#modernbb .wm-enligne__groupe-texte {
-  padding-right: 100px;
-}
-
-@media (max-width: 1199px) {
-  /*  Sous 1200 px le Sabelette disparaît : le texte reprend toute sa
-      largeur, sinon on garderait un trou pour une image absente. */
-  #modernbb .wm-enligne__groupe-nom,
-  #modernbb .wm-enligne__groupe-texte {
-    padding-right: 0;
-  }
-}
+    LE DÉCALAGE N'EST PAS SUPPRIMÉ DU DÉPÔT, il est retiré de la
+    feuille — ce n'est pas la même chose. Callista veut voir le bloc
+    sans, et le remettre est une ligne. */
 
 /*  LA TAILLE NORMALE, PAS LA PETITE. 11,5 px pour un paragraphe de
     quatre lignes qu'on lit vraiment, c'était la taille d'une légende
@@ -590,6 +609,42 @@
   color: inherit;
   font-size: var(--wm-taille-normal, 13.5px);
   line-height: var(--wm-interligne-courant, 1.5);
+  /*  C'EST LE TEXTE QUI DÉFILE, PAS LA CARTE. Le nom reste lisible en
+      haut et l'avantage collé en bas : ce sont les deux choses qu'on
+      vient chercher. `min-height: 0` est ce qui l'autorise à
+      rétrécir — sans lui, un enfant de colonne flexible garde la
+      taille de son contenu et déborde au lieu de défiler. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  /*  ET SA BARRE SE TEINTE DU GROUPE. `currentColor` est la couleur du
+      groupe courant — six cartes, une seule règle, et le thème sombre
+      suit sans qu'on écrive une couleur. Même leçon que le 17
+      novembre : les propriétés standard et `::-webkit-scrollbar` ne se
+      complètent pas, donc les standard ne vont qu'à Firefox. */
+  scrollbar-gutter: stable;
+}
+
+#modernbb .wm-enligne__groupe-texte::-webkit-scrollbar {
+  width: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-enligne__groupe-texte::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 12%, transparent);
+}
+
+#modernbb .wm-enligne__groupe-texte::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 45%, transparent);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  #modernbb .wm-enligne__groupe-texte {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, currentcolor 45%, transparent)
+      color-mix(in srgb, currentcolor 12%, transparent);
+  }
 }
 
 /*  L'encart d'avantage est collé en bas : `margin-top: auto` le pousse

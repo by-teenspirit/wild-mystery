@@ -54,10 +54,22 @@ def e(t):
     return html.escape(str(t), quote=True)
 
 
+#  ── CE QU'UNE FICHE DIT, ET DANS QUEL ORDRE ─────────────────────────
+#
+#  Demandé le 18 novembre : « un avatar, le nom de la personne / son
+#  pseudo, une description que chacun fera, les personnages que la
+#  personne joue, et sa présence ».
+#
+#  LA DESCRIPTION ET LA PRÉSENCE SONT À ELLES, pas à moi : je ne les
+#  invente pas. Un champ vide écrit donc une ligne qui le dit, à la
+#  place du texte — et la fiche reste lisible en attendant.
 def carte(w, fiche):
-    vide = not fiche.get("pseudo")
-    w('              <li class="wm-perso">')
+    w('              <li class="wm-perso wm-perso--staff">')
     if fiche.get("avatar"):
+        #  L'AVATAR EST CELUI DU COMPTE, et le compte EST le personnage :
+        #  sur ce forum on joue sous le nom de son personnage. Mettre le
+        #  visage du personnage à côté du pseudo de la joueuse, c'est
+        #  exactement ce qui relie les deux.
         w(f'                <img class="wm-perso__avatar" src="{e(fiche["avatar"])}"'
           ' alt="" loading="lazy" />')
     else:
@@ -65,47 +77,42 @@ def carte(w, fiche):
           ' aria-hidden="true"></span>')
     w('                <div class="wm-perso__corps">')
 
-    if vide:
-        w('                  <h3 class="wm-perso__nom">Cette place attend quelqu\'un</h3>')
-        w('                  <p class="wm-perso__texte">Le staff recrute. Si tu as envie'
-          " de donner un coup de main, écris-nous.</p>")
-        w("                </div>")
-        w("              </li>")
-        return
-
     w(f'                  <h3 class="wm-perso__nom">{e(fiche["pseudo"])}</h3>')
-
-    #  LA LIGNE QUI SITUE : le rôle, puis les autres pseudos. En gris et
-    #  sur une ligne, comme sur les fiches de personnages — en pastilles,
-    #  « Administratrice » pesait plus lourd que le nom.
-    situe = []
     if fiche.get("role"):
-        situe.append(fiche["role"])
-    if fiche.get("aussi"):
-        situe.append("aussi " + " · ".join(fiche["aussi"]))
-    if situe:
-        w(f'                  <p class="wm-perso__situe">{e(" · ".join(situe))}</p>')
+        w(f'                  <p class="wm-perso__situe">{e(fiche["role"])}</p>')
 
     if fiche.get("texte"):
         w(f'                  <p class="wm-perso__texte">{e(fiche["texte"])}</p>')
+    else:
+        w('                  <p class="wm-perso__texte wm-perso__texte--vide">'
+          "Sa présentation reste à écrire.</p>")
 
-    #  LES COMPTES DE JEU SONT DITS. Sur un forum, savoir que trois
-    #  personnages sont la même personne change la façon de jouer avec
-    #  eux — c'est l'information que la page du staff apporte vraiment.
-    if fiche.get("comptes"):
-        w('                  <p class="wm-perso__texte"><b>Ses personnages :</b> '
-          + e(", ".join(fiche["comptes"])) + "</p>")
+    #  LE PERSONNAGE, AVEC LE LIEN VERS SON COMPTE. « Pour le moment,
+    #  chacun possède un personnage » — le pluriel est quand même prévu
+    #  dans la donnée : le jour où quelqu'un en prend un deuxième, on
+    #  ajoute une entrée, on ne retouche pas le générateur.
+    perso = fiche.get("personnage")
+    persos = fiche.get("personnages") or ([perso] if perso else [])
+    if persos:
+        liens = []
+        for x in persos:
+            nom = e(x["nom"])
+            compte = x.get("compte")
+            liens.append(
+                f'<a class="wm-perso__lien" href="{e(compte)}">{nom}</a>'
+                if compte else nom
+            )
+        mot = "Son personnage" if len(liens) == 1 else "Ses personnages"
+        w(f'                  <p class="wm-perso__texte"><b>{mot} :</b> '
+          + ", ".join(liens) + "</p>")
 
-    if fiche.get("traits"):
-        w('                  <p class="wm-perso__traits">')
-        for t in fiche["traits"]:
-            w(f'                    <span class="wm-perso__trait">{e(t)}</span>')
-        w("                  </p>")
-
-    if fiche.get("aConfirmer"):
-        w('                  <p class="wm-perso__texte"><b>À confirmer</b> — cette'
-          " fiche vient de la version précédente du forum et n'a pas encore été"
-          " relue.</p>")
+    presence = fiche.get("presence")
+    if presence:
+        w('                  <p class="wm-perso__texte"><b>Présence :</b> '
+          + e(presence) + "</p>")
+    else:
+        w('                  <p class="wm-perso__texte wm-perso__texte--vide">'
+          "<b>Présence :</b> à préciser.</p>")
 
     w("                </div>")
     w("              </li>")
@@ -138,17 +145,6 @@ def corps():
     w('          <ul class="wm-persos">')
     for fiche in d["staff"]:
         carte(w, fiche)
-    w("          </ul>")
-    w("        </div>")
-    w("")
-    #  À QUI S'ADRESSER : c'est la question qu'on se pose vraiment en
-    #  arrivant sur cette page. Elle passe donc après les visages, mais
-    #  avant tout le reste.
-    w('        <div class="wm-annexe__carte">')
-    w('          <h2 class="wm-annexe__carte-titre">À qui s\'adresser</h2>')
-    w('          <ul class="wm-tirets">')
-    for ligne in d["aQuiSAdresser"]:
-        w(f'            <li><b>{e(ligne["quoi"])}</b> — {e(ligne["qui"])}</li>')
     w("          </ul>")
     w("        </div>")
     w("")

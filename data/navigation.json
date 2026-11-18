@@ -29,7 +29,7 @@
    "adresse": "/privmsg?folder=inbox"
   }
  ],
- "_utiles": "Les sept liens du panneau latéral. `icone` est un nom de Material Symbols — la police est déjà chargée par le forum, on n'en ajoute pas. Deux adresses sont MESURÉES sur le forum ; les cinq autres sont des pages qui n'existent pas encore.",
+ "_utiles": "Les huit liens du panneau latéral. `icone` est un nom de Material Symbols — la police est déjà chargée par le forum, on n'en ajoute pas. Les adresses nulles sont des pages qui n'existent pas encore : l'entrée s'affiche en gris, sans lien.",
  "utiles": [
   {
    "icone": "menu_book",
@@ -67,8 +67,8 @@
    "adresse": "/f25-laboratoire"
   },
   {
-   "icone": "emoji_events",
-   "titre": "Liste des arènes",
+   "icone": "pin_drop",
+   "titre": "Liste des lieux",
    "adresse": null
   }
  ],
@@ -101,5 +101,6 @@
   }
  ],
  "_messagerie": "⚠ `?folder=inbox` N'EST PAS DÉCORATIF. `/privmsg` tout nu répond « Le dossier n'existe pas » — relevé le 13 novembre sur le forum, connectée : la page attend le dossier en paramètre et n'en suppose aucun. Le lien de la barre et celui du menu du compte y menaient tous les deux, donc la messagerie était inatteignable depuis le thème.",
- "_membres": "« Personnages » est devenu « Membres » le 10 novembre : l'entrée mène à `/memberlist`, la liste des COMPTES, et le mot promettait les personnages — qui ont maintenant leur propre page, le répertoire."
+ "_membres": "« Personnages » est devenu « Membres » le 10 novembre : l'entrée mène à `/memberlist`, la liste des COMPTES, et le mot promettait les personnages — qui ont maintenant leur propre page, le répertoire.",
+ "_lieux": "18 novembre : « Enlève la liste des arènes. Rajoute à la place la liste des lieux (tu auras le lien plus tard). » L'entrée remplace celle des arènes à sa place et attend son adresse — les arènes restent accessibles par l'annexe 13 (« Arènes, colosseums et Ligue »), elles ne perdent pas leur page."
 }

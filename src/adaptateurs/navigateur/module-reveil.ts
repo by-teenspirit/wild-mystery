@@ -31,13 +31,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { type ConfigSupabase } from "./registre.ts";
-import {
-  type EtatDeLaPage,
-  faut_il_sonner,
-  GUET_SECONDES,
-  instantsDuGuet,
-  PAS_SECONDES,
-} from "../../navigateur/reveil.ts";
+import { type EtatDeLaPage, faut_il_sonner, instantsDuGuet } from "../../navigateur/reveil.ts";
 
 /** Le dernier message du sujet, et ce qu'il porte. */
 export function dernierMessage(doc: Document): Element | null {
@@ -161,7 +155,7 @@ export async function reveillerLaReleve(d: DependancesDuReveil): Promise<boolean
 
   const depart = combienDeMessages(d.doc);
   let ecoule = 0;
-  for (const t of instantsDuGuet(GUET_SECONDES, PAS_SECONDES)) {
+  for (const t of instantsDuGuet()) {
     await attendre(t - ecoule);
     ecoule = t;
     //  ON REDEMANDE LA PAGE, on ne devine pas. Le sujet est sur le

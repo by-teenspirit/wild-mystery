@@ -610,7 +610,11 @@ const ATTENDU = [
   ["Marché de Rhode", "/f3-le-marche-de-rhode"],
   ["Liste des pensions", null],
   ["Laboratoire fossile", "/f25-laboratoire"],
-  ["Liste des arènes", null],
+  //  LES ARÈNES ONT CÉDÉ LEUR PLACE AUX LIEUX, 18 novembre : « enlève
+  //  la liste des arènes, rajoute à la place la liste des lieux (tu
+  //  auras le lien plus tard) ». Même rang, adresse encore nulle —
+  //  les arènes gardent leur page, c'est l'annexe 13.
+  ["Liste des lieux", null],
 ];
 const utiles = await p.evaluate(() =>
   [...document.querySelectorAll(".wm-panneau__entree")].map((li) => {

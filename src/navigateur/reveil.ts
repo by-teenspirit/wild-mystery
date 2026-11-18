@@ -52,13 +52,33 @@ export const TROP_VIEUX = 600;
 
 /** Combien de temps guetter la réponse, et à quel rythme.
  *
- *  TRENTE SECONDES, PAR PAS DE DEUX. Un passage lit le forum, calcule
- *  et poste : deux à quatre secondes en temps normal. Trente laisse la
- *  place à un passage lent sans laisser la page tourner en rond une
- *  minute — au-delà, c'est une panne, et une panne ne se guette pas,
- *  elle se dit. */
-export const GUET_SECONDES = 30;
-export const PAS_SECONDES = 2;
+ *  ── UN RYTHME QUI SE RELÂCHE ────────────────────────────────────────
+ *
+ *  « C'est plus rapide, mais c'est encore un peu lent avant d'avoir une
+ *  réaction. » — 18 novembre.
+ *
+ *  LE PAS RÉGULIER DE DEUX SECONDES ÉTAIT LE COUPABLE, et pas le
+ *  passage : un passage lit le forum, calcule et poste en deux à
+ *  quatre secondes — c'est ce que dit le journal de la relève. Avec un
+ *  regard toutes les deux secondes, une réponse arrivée à 2,1 s se
+ *  voyait à 4 s. On attendait deux fois le temps du travail.
+ *
+ *  ON REGARDE DONC CHAQUE SECONDE AU DÉBUT, là où la réponse tombe, et
+ *  de plus en plus espacé ensuite, là où il ne reste qu'à patienter.
+ *  Dix-huit regards sur quarante secondes, contre quinze sur trente :
+ *  presque le même coût, deux fois moins d'attente dans le cas
+ *  courant, et dix secondes de marge en plus pour un passage lent.
+ *
+ *  AU-DELÀ DE QUARANTE SECONDES, CE N'EST PLUS UNE ATTENTE, c'est une
+ *  panne — et une panne ne se guette pas, elle se dit. Le cron de cinq
+ *  minutes reste derrière de toute façon. */
+export type Palier = { readonly jusqua: number; readonly pas: number };
+
+export const GUET: readonly Palier[] = [
+  { jusqua: 6, pas: 1 },
+  { jusqua: 20, pas: 2 },
+  { jusqua: 40, pas: 4 },
+];
 
 export function faut_il_sonner(etat: EtatDeLaPage): boolean {
   if (!etat.derniereActionEstLaMienne) return false;
@@ -72,14 +92,20 @@ export function faut_il_sonner(etat: EtatDeLaPage): boolean {
 
 /** Les instants où regarder si la réponse est arrivée, en secondes
  *  depuis le réveil. */
-export function instantsDuGuet(
-  guet: number = GUET_SECONDES,
-  pas: number = PAS_SECONDES,
-): readonly number[] {
-  if (!Number.isFinite(guet) || !Number.isFinite(pas) || pas <= 0 || guet <= 0) {
-    return [];
-  }
+export function instantsDuGuet(paliers: readonly Palier[] = GUET): readonly number[] {
   const instants: number[] = [];
-  for (let t = pas; t <= guet; t += pas) instants.push(t);
+  let t = 0;
+  for (const palier of paliers) {
+    const { jusqua, pas } = palier;
+    //  UN PALIER ABÎMÉ EST SAUTÉ, PAS DEVINÉ. Un pas nul ou négatif
+    //  ferait une boucle sans fin, et une borne qu'on a déjà dépassée
+    //  n'a rien à ajouter — dans les deux cas on passe au suivant
+    //  plutôt que d'inventer un rythme.
+    if (!Number.isFinite(jusqua) || !Number.isFinite(pas) || pas <= 0) continue;
+    while (t + pas <= jusqua) {
+      t += pas;
+      instants.push(t);
+    }
+  }
   return instants;
 }

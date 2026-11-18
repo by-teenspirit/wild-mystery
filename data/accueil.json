@@ -124,53 +124,53 @@
  },
  "staff": [
   {
-   "pseudo": "Teenspirit",
-   "role": "Admin",
+   "pseudo": "teenspirit",
+   "role": "Administratrice",
    "profil": "",
-   "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
+   "avatar": "https://i.postimg.cc/nrShF5MF/154cd8d068a4df7d86483db683378fc7699880a4.jpg",
    "personnages": [
     {
-     "texte": "Elijah Springsteen",
-     "url": null
+     "texte": "Jake Dalziel",
+     "url": "/u4"
     }
    ],
    "presence": "Présente"
   },
   {
    "pseudo": "Plumyts",
-   "role": "Admin",
+   "role": "Administratrice",
    "profil": "",
-   "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
+   "avatar": "https://tinyurl.com/ybh4pre4",
    "personnages": [
     {
-     "texte": "Maeve Calloway",
-     "url": null
+     "texte": "Erin Kavanagh",
+     "url": "/u5"
     }
    ],
    "presence": "Présente"
   },
   {
    "pseudo": "Ekko",
-   "role": "Admin",
+   "role": "Administratrice",
    "profil": "",
-   "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
+   "avatar": "https://tinyurl.com/4pvykr2r",
    "personnages": [
     {
-     "texte": "Silas Renner",
-     "url": null
+     "texte": "Xaden Dalziel",
+     "url": "/u6"
     }
    ],
    "presence": "Présente"
   },
   {
    "pseudo": "mangue.",
-   "role": "Admin",
+   "role": "Administratrice",
    "profil": "",
-   "avatar": "https://by-teenspirit.github.io/wild-mystery/img/accueil/avatar-par-defaut.png",
+   "avatar": "https://2img.net/u/4113/47/07/72/avatars/7-71.jpg",
    "personnages": [
     {
-     "texte": "Iris Bellamy",
-     "url": null
+     "texte": "Winifred Sainclair",
+     "url": "/u7"
     }
    ],
    "presence": "Présente"
@@ -262,5 +262,5 @@
   "mascotte": "https://by-teenspirit.github.io/wild-mystery/img/accueil/mascotte.png",
   "fond": ""
  },
- "_staff": "QUATRE ADMINS, 12 novembre 2026 : Teenspirit, Plumyts, Ekko, mangue, tous présents. Les portraits sont l'avatar générique du dépôt — à remplacer par les vrais quand on les aura.\nLE RÔLE EST « ADMIN » ET LA PRÉSENCE « PRÉSENT·E », sans genre : je ne connais pas celui d'Ekko ni de mangue, et un masculin générique sur une équipe où deux membres sont des femmes est un choix, pas une neutralité. À corriger personne par personne.\nAUCUN PERSONNAGE N'EST RENSEIGNÉ, et c'est volontaire : les deux qui traînaient sur Teenspirit — Arceus et Maître du Jeu — sont les comptes système du forum, pas ses personnages de jeu. Mieux vaut l'intitulé absent qu'une liste fausse sur la page d'accueil.\nLES PROFILS SONT VIDES : le pseudo s'affiche alors en texte et pas en lien, plutôt que de pointer sur « # »."
+ "_staff": "QUATRE ADMINISTRATRICES, données par Callista le 18 novembre : teenspirit (Jake Dalziel), Plumyts (Erin Kavanagh), Ekko (Xaden Dalziel), mangue. (Winifred Sainclair).\nLES NUMÉROS DE COMPTE ET LES AVATARS SONT RELEVÉS sur la liste des membres du forum le même jour, pas devinés : /u4, /u5, /u6, /u7. Les quatre noms inventés qui traînaient ici — Elijah Springsteen, Maeve Calloway, Silas Renner, Iris Bellamy — venaient de la maquette `390:3170` et n'ont jamais existé sur le forum.\nLE PSEUDO N'EST PAS UN LIEN, ET LE PERSONNAGE EN EST UN : sur ce forum on joue sous le nom de son personnage, donc le compte EST le personnage. Deux liens vers la même page sur la même ligne seraient une hésitation, pas une commodité.\nLE FÉMININ EST CELUI DE CALLISTA : « tout le monde est administratrice ». La note prudente du 12 novembre sur le genre d'Ekko et de mangue. est donc levée."
 }

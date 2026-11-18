@@ -12,13 +12,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals } from "@std/assert";
-import {
-  faut_il_sonner,
-  GUET_SECONDES,
-  instantsDuGuet,
-  PAS_SECONDES,
-  TROP_VIEUX,
-} from "./reveil.ts";
+import { faut_il_sonner, instantsDuGuet, TROP_VIEUX } from "./reveil.ts";
 
 Deno.test("ON SONNE QUAND MA DERNIÈRE ACTION ATTEND SA RÉPONSE", () => {
   assert(faut_il_sonner({ derniereActionEstLaMienne: true, ageDuMessage: 3 }));
@@ -63,21 +57,53 @@ Deno.test("SANS DATE, ON SONNE QUAND MÊME", () => {
   assert(faut_il_sonner({ derniereActionEstLaMienne: true, ageDuMessage: null }));
 });
 
-Deno.test("LE GUET VA DE DEUX EN DEUX, JUSQU'À TRENTE", () => {
+Deno.test("LE GUET REGARDE CHAQUE SECONDE AU DÉBUT, PUIS S'ESPACE", () => {
   const i = instantsDuGuet();
-  assertEquals(i[0], PAS_SECONDES);
-  assertEquals(i.at(-1), GUET_SECONDES);
-  assertEquals(i.length, GUET_SECONDES / PAS_SECONDES);
+  //  LE PREMIER REGARD EST À UNE SECONDE, et c'est tout l'objet du
+  //  changement du 18 novembre : « c'est encore un peu lent avant
+  //  d'avoir une réaction ». Un passage répond en deux à quatre
+  //  secondes ; le voir à quatre quand il a fini à deux, c'est
+  //  attendre deux fois le travail.
+  assertEquals(i[0], 1);
+  assertEquals(i.slice(0, 6), [1, 2, 3, 4, 5, 6]);
+  //  PUIS ÇA S'ESPACE, parce qu'au-delà il ne reste qu'à patienter.
+  assertEquals(i.slice(6, 13), [8, 10, 12, 14, 16, 18, 20]);
+  assertEquals(i.slice(13), [24, 28, 32, 36, 40]);
+  assertEquals(i.at(-1), 40);
   //  STRICTEMENT CROISSANT : un pas qui repasserait en arrière ferait
   //  deux requêtes au même instant.
   assert(i.every((t, n) => n === 0 || t > i[n - 1]));
 });
 
-Deno.test("UN RÉGLAGE ABSURDE NE BOUCLE PAS À L'INFINI", () => {
+Deno.test("ON NE PAIE PRESQUE RIEN POUR CES DIX SECONDES DE PLUS", () => {
+  //  L'ANCIEN RYTHME : quinze regards sur trente secondes. Le neuf en
+  //  fait dix-huit sur quarante. Si un jour quelqu'un ajoute un palier
+  //  serré « pour aller plus vite », cette ligne dira ce qu'il coûte —
+  //  chaque regard redemande la page du sujet au forum.
+  assert(instantsDuGuet().length <= 20, `${instantsDuGuet().length} regards`);
+});
+
+Deno.test("UN PALIER ABSURDE NE BOUCLE PAS À L'INFINI", () => {
   //  Un pas à zéro ou négatif ferait une boucle sans fin dans la page
   //  du joueur — le genre de défaut qui fige un onglet.
-  assertEquals(instantsDuGuet(30, 0), []);
-  assertEquals(instantsDuGuet(30, -1), []);
-  assertEquals(instantsDuGuet(0, 2), []);
-  assertEquals(instantsDuGuet(Number.NaN, 2), []);
+  assertEquals(instantsDuGuet([{ jusqua: 30, pas: 0 }]), []);
+  assertEquals(instantsDuGuet([{ jusqua: 30, pas: -1 }]), []);
+  assertEquals(instantsDuGuet([{ jusqua: 0, pas: 2 }]), []);
+  assertEquals(instantsDuGuet([{ jusqua: Number.NaN, pas: 2 }]), []);
+  assertEquals(instantsDuGuet([]), []);
+  //  ET UN PALIER ABÎMÉ AU MILIEU NE MANGE PAS LES AUTRES.
+  assertEquals(
+    instantsDuGuet([{ jusqua: 3, pas: 1 }, { jusqua: 9, pas: 0 }, { jusqua: 9, pas: 3 }]),
+    [1, 2, 3, 6, 9],
+  );
+});
+
+Deno.test("LES PALIERS SE SUIVENT, ILS NE REPARTENT PAS DE ZÉRO", () => {
+  //  Chaque palier reprend là où le précédent s'est arrêté : sans ça,
+  //  le second recommencerait à son propre pas et on regarderait deux
+  //  fois le même instant.
+  assertEquals(
+    instantsDuGuet([{ jusqua: 4, pas: 2 }, { jusqua: 10, pas: 3 }]),
+    [2, 4, 7, 10],
+  );
 });
