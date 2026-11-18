@@ -393,6 +393,26 @@
   line-height: 1.45;
 }
 
+/*  ── LA PHRASE D'ATTENTE ──────────────────────────────────────────
+    (18 novembre)
+
+    Elle dit le rythme du jeu, pas ce que fait le choix — d'où une
+    ligne à elle, séparée par un filet et non par une marge : la note
+    au-dessus change à chaque clic, celle-ci ne change jamais, et l'œil
+    doit pouvoir arrêter de la relire.
+
+    PLUS PÂLE QUE LA NOTE, parce qu'on ne la lit qu'une fois. */
+#modernbb .wm-barre__attente {
+  margin: 0;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  font-style: italic;
+  line-height: 1.45;
+}
+
 /*  ── LE MENU « OÙ » EST PARTI, LE 15 OCTOBRE ─────────────────────
     Il y avait une quatrième règle ici : une rangée `--lieu`, une
     étiquette, un menu des quinze lieux. Callista, en regardant la barre

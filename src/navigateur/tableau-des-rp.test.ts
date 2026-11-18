@@ -2,6 +2,7 @@ import { assertEquals } from "@std/assert";
 import {
   adresseDuSujet,
   etatVu,
+  forumDeLAdresse,
   garderLesRp,
   type LigneDeRp,
   rangerLesRp,
@@ -125,4 +126,31 @@ Deno.test("et l'ancre d'un message est un nombre nu, comme celles du forum", () 
   //  et surtout pas sur `#null`.
   assertEquals(adresseDuSujet(996, null), "/t996-");
   assertEquals(adresseDuSujet(996, undefined), "/t996-");
+});
+
+// ── LE FORUM LU DANS L'ADRESSE ───────────────────────────────────────
+//
+//  Il sert au formulaire de création, où le fil d'Ariane n'existe pas.
+
+Deno.test("le forum se lit dans l'adresse, dans les deux ordres", () => {
+  assertEquals(forumDeLAdresse("/post?f=9&mode=newtopic"), 9);
+  assertEquals(forumDeLAdresse("/post?mode=newtopic&f=9"), 9);
+  assertEquals(forumDeLAdresse("?f=117"), 117);
+});
+
+Deno.test("un `f` qui n'est pas un forum ne passe pas", () => {
+  //  `f=0` N'EXISTE PAS, et `fid`, `ref` ou `f=9x` ne sont pas `f`.
+  assertEquals(forumDeLAdresse("/post?f=0&mode=newtopic"), null);
+  assertEquals(forumDeLAdresse("/post?f=9x"), null);
+  assertEquals(forumDeLAdresse("/post?fid=9"), null);
+  assertEquals(forumDeLAdresse("/post?ref=9"), null);
+  assertEquals(forumDeLAdresse("/post?mode=newtopic"), null);
+  assertEquals(forumDeLAdresse(""), null);
+});
+
+Deno.test("l'adresse d'un sujet ne porte pas de forum", () => {
+  //  CE QUI SÉPARE LES DEUX FONCTIONS : sur `/t996-test` il n'y a pas
+  //  de forum à lire, et c'est ce qui fait choisir le fil d'Ariane.
+  assertEquals(forumDeLAdresse("/t996-test"), null);
+  assertEquals(sujetDeLAdresse("/post?f=9&mode=newtopic"), null);
 });

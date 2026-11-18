@@ -124,7 +124,17 @@ const formulaire = (quick, enveloppe = false) =>
 //  un commentaire**, plus haut dans le document, et c'est lui que le
 //  remplacement attrapait. Remplacer une chaîne dans un document entier
 //  touche la première occurrence, pas celle qu'on visait.
-const page = (quick, texte = "", forum = "f9-foret-marecageuse", enveloppe = false) =>
+//  `fil` DIT SI LE FIL D'ARIANE EST DANS LA PAGE. Il y est dans un
+//  sujet et dans une liste de sujets ; il N'Y EST PAS sur le
+//  formulaire de création, parce que `posting_body` ne le porte pas.
+//  C'est ce qui faisait que la barre ne s'y posait pas du tout.
+const page = (
+  quick,
+  texte = "",
+  forum = "f9-foret-marecageuse",
+  enveloppe = false,
+  fil = true,
+) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>html,body{margin:0;min-height:100%}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
@@ -135,7 +145,7 @@ const page = (quick, texte = "", forum = "f9-foret-marecageuse", enveloppe = fal
 </head>
 <body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
-${chemin(forum)}
+${fil ? chemin(forum) : ""}
 <div id="page-body">
   <div class="post post--15552"><div class="postbody"><div class="content">Un message de RP.</div></div></div>
   ${formulaire(quick, enveloppe).replace("></textarea>", `>${texte}</textarea>`)}
@@ -189,7 +199,20 @@ const COMBAT = {
 };
 
 async function monter(
-  { quick = true, texte = "", largeur = 1440, forum, enveloppe = false, combat = null } = {},
+  {
+    quick = true,
+    texte = "",
+    largeur = 1440,
+    forum,
+    enveloppe = false,
+    combat = null,
+    //  L'ADRESSE COMPTE : `wild-mystery.ts` y lit le sujet, et, quand
+    //  il n'y en a pas, le forum dans `f=`. Un harnais qui monterait
+    //  toujours `/t996-test` ne pourrait pas voir le formulaire de
+    //  création.
+    adresse = "/t996-test",
+    fil = true,
+  } = {},
 ) {
   const p = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
@@ -232,10 +255,10 @@ async function monter(
     }
     return r.fulfill({
       contentType: "text/html; charset=utf-8",
-      body: page(quick, texte, forum, enveloppe),
+      body: page(quick, texte, forum, enveloppe, fil),
     });
   });
-  await p.goto("http://wild-mystery.test/t996-test");
+  await p.goto("http://wild-mystery.test" + adresse);
   //  LE LAISSEZ-PASSER, POSÉ AVANT LE SCRIPT. Sans lui `monCombat` sort
   //  avant tout réseau — c'est voulu, et c'est aussi ce qui fait qu'un
   //  harnais qui l'oublierait mesurerait une barre hors combat en
@@ -1192,6 +1215,93 @@ dire(
   JSON.stringify(horsCombat.mots) === JSON.stringify([RIEN, APPARAITRE, FOUILLER, CLOTURER]) &&
     horsCombat.menus === 0,
   `${JSON.stringify(horsCombat.mots)} · ${horsCombat.menus} menu(s)`,
+);
+await p.close();
+
+// ── 11 · LE FORMULAIRE DE CRÉATION D'UN SUJET ──────────────────────
+//
+//  « Quand je crée un sujet, dans les zones sauvages, il faut pouvoir
+//  déjà avoir les options » — 18 novembre.
+//
+//  DEUX CHOSES CHANGENT SUR CETTE PAGE, et il faut les deux pour que le
+//  harnais dise la vérité :
+//
+//    · PAS DE FIL D'ARIANE. `posting_body` ne le porte pas, donc
+//      `forumDeLaPage` rend `null` et la barre ne se posait pas du
+//      tout. C'est le défaut même qu'on corrige : le monter avec le fil
+//      aurait fait passer le test sans rien prouver.
+//    · PAS DE SUJET DANS L'ADRESSE. `/post?f=9&mode=newtopic` — donc
+//      pas de clôture, et aucun combat à demander.
+console.log("\n── LE FORMULAIRE DE CRÉATION ──────────────────────────");
+p = await monter({
+  quick: false,
+  fil: false,
+  adresse: "/post?f=9&mode=newtopic",
+});
+const creation = await p.evaluate(() => ({
+  barres: document.querySelectorAll(".wm-barre").length,
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  attente: document.querySelector(".wm-barre__attente")?.hidden,
+}));
+dire(
+  "LA BARRE SE POSE, SANS FIL D'ARIANE — le forum vient de `f=` dans l'adresse",
+  creation.barres === 1,
+  `${creation.barres} barre(s)`,
+);
+dire(
+  "TROIS CHOIX, SANS LA CLÔTURE — on ne clôt pas un sujet qui n'existe pas",
+  JSON.stringify(creation.mots) === JSON.stringify([RIEN, APPARAITRE, FOUILLER]),
+  JSON.stringify(creation.mots),
+);
+
+//  ET L'ACTION S'ÉCRIT QUAND MÊME : une barre qui s'affiche sans
+//  envoyer serait pire que pas de barre.
+await p.evaluate(() => {
+  const b = [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((x) => x.textContent.includes("apparaître"));
+  b.click();
+  document.querySelector("form[name=post]").dispatchEvent(new Event("submit"));
+});
+const ecritALaCreation = await p.evaluate(() =>
+  document.querySelector("#text_editor_textarea").value
+);
+dire(
+  "LE BLOC PART DEPUIS LA CRÉATION",
+  ecritALaCreation.includes(BLOC),
+  JSON.stringify(ecritALaCreation.slice(-60)),
+);
+await p.close();
+
+// ── 12 · LA PHRASE D'ATTENTE ───────────────────────────────────────
+//
+//  « Il faut mettre un petit message aussi au joueur pour dire que
+//  lorsqu'on effectue une action, attendre quelques minutes. »
+//
+//  ELLE NE DOIT PAS PARAÎTRE SUR « NE RIEN FAIRE » : annoncer un délai
+//  pour un message normal ferait attendre une réponse qui ne vient pas.
+console.log("\n── LA PHRASE D'ATTENTE ────────────────────────────────");
+p = await monter({});
+const attenteAuDepart = await p.evaluate(() => ({
+  cache: document.querySelector(".wm-barre__attente").hidden,
+  choisi: [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((x) => x.getAttribute("aria-checked") === "true")?.textContent.trim(),
+}));
+dire(
+  "CACHÉE SUR « NE RIEN FAIRE »",
+  attenteAuDepart.cache === true && attenteAuDepart.choisi === RIEN,
+  `cachée : ${attenteAuDepart.cache}, choisi : ${attenteAuDepart.choisi}`,
+);
+
+const attenteSurAction = await p.evaluate(() => {
+  [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((x) => x.textContent.includes("Fouiller")).click();
+  const ph = document.querySelector(".wm-barre__attente");
+  return { cache: ph.hidden, mots: ph.textContent.trim() };
+});
+dire(
+  "VISIBLE DÈS QU'UNE ACTION EST ARMÉE",
+  attenteSurAction.cache === false && /minutes/.test(attenteSurAction.mots),
+  JSON.stringify(attenteSurAction.mots.slice(0, 70)),
 );
 await p.close();
 

@@ -163,7 +163,15 @@ type Cle =
   | "fuir";
 
 /** Lequel des deux jeux la barre sert. */
-export type Jeu = "hors" | "combat";
+/** Les trois jeux de choix.
+ *
+ *  `nouveau` est celui du FORMULAIRE DE CRÉATION D'UN SUJET — demandé
+ *  le 18 novembre : « quand je crée un sujet, dans les zones sauvages,
+ *  il faut pouvoir déjà avoir les options ». C'est `hors` moins la
+ *  clôture : on ne clôt pas un sujet qui n'existe pas encore, et un
+ *  bouton qui écrirait `[cloture]` dans le premier message ferait
+ *  fermer le sujet par la relève à la seconde où il s'ouvre. */
+export type Jeu = "hors" | "nouveau" | "combat";
 
 /** Dit si une action est une de celles que le jeu courant propose.
  *
@@ -396,8 +404,27 @@ const EN_COMBAT: readonly Choix[] = [
   },
 ];
 
+/** LES MÊMES CHOIX, MOINS LA CLÔTURE — dérivés, pas recopiés.
+ *
+ *  Une seconde liste écrite à la main divergerait à la première
+ *  retouche d'un libellé, et c'est justement le libellé que Callista
+ *  reprend le plus souvent. */
+const NOUVEAU_SUJET: readonly Choix[] = HORS_COMBAT.filter(
+  (c) => c.cle !== "cloture",
+);
+
+/** La phrase d'attente, sous les choix.
+ *
+ *  CINQ MINUTES EST LE PAS DE LA RELÈVE, et on ne l'écrit pas : une
+ *  minute de retard sur une promesse chiffrée se lit comme une panne.
+ *  « Quelques minutes » est vrai même quand le passage a pris du
+ *  retard, et c'est ce qu'il faut dire. */
+export const ATTENTE = "Le Maître du Jeu répond dans les minutes qui suivent, pas tout de " +
+  "suite. Inutile de reposter : un message ne joue qu'un tour.";
+
 export const JEUX: Record<Jeu, readonly Choix[]> = {
   hors: HORS_COMBAT,
+  nouveau: NOUVEAU_SUJET,
   combat: EN_COMBAT,
 };
 
@@ -455,14 +482,23 @@ export class BarreDActions {
   readonly #boutons = new Map<Cle, HTMLButtonElement>();
   readonly #menus = new Map<Cle, HTMLSelectElement>();
   #note: HTMLParagraphElement | null = null;
+  #attente: HTMLParagraphElement | null = null;
   #action: Action | null = null;
-  #jeu: Jeu = "hors";
+  #jeu: Jeu;
+  readonly #depart: "hors" | "nouveau";
   #combat: DonneesDeCombat | null = null;
   #groupe: HTMLElement | null = null;
 
-  constructor(doc: Document, brouillon: Brouillon) {
+  /** `jeu` est celui des choix SERVIS AU DÉPART, et il n'y en a que
+   *  deux de possibles ici : `hors` dans un sujet, `nouveau` sur le
+   *  formulaire de création. Le combat, lui, n'arrive jamais au
+   *  départ — il demande un aller-retour réseau, et la barre se pose
+   *  avant de l'attendre. */
+  constructor(doc: Document, brouillon: Brouillon, jeu: "hors" | "nouveau" = "hors") {
     this.#doc = doc;
     this.#brouillon = brouillon;
+    this.#jeu = jeu;
+    this.#depart = jeu;
   }
 
   /** Le choix en cours, pour qui veut l'envoyer lui-même (l'essai, le
@@ -536,6 +572,11 @@ export class BarreDActions {
         ? (trouve?.vide ?? "")
         : (trouve?.annonce ?? "");
     }
+
+    //  ELLE NE PARAÎT QUE SI QUELQU'UN DOIT ATTENDRE. « Ne rien faire »
+    //  n'appelle aucune réponse du Maître du Jeu : annoncer un délai
+    //  pour un message normal ferait croire qu'on en attend un.
+    if (this.#attente !== null) this.#attente.hidden = choisi === "rien";
   }
 
   /** Ce qu'un clic produit. Les quatre s'excluent, donc poser l'un
@@ -641,6 +682,30 @@ export class BarreDActions {
     note.className = "wm-barre__note";
     this.#note = note;
     barre.appendChild(note);
+
+    //  ── L'ATTENTE SE DIT ──────────────────────────────────────────
+    //
+    //  Demandé le 18 novembre : « il faut mettre un petit message
+    //  aussi au joueur pour dire que lorsqu'on effectue une action,
+    //  attendre quelques minutes avant que le maître du jeu poste un
+    //  message ».
+    //
+    //  C'EST LE RYTHME DE LA MÉCANIQUE, PAS UNE LENTEUR À EXCUSER :
+    //  la relève passe toutes les cinq minutes (planche 99 §1). Sans
+    //  cette phrase, un joueur qui poste et ne voit rien croit que son
+    //  action n'a pas été prise — et il la repostera, ce qui ne
+    //  produira rien de plus : un message ne joue qu'un tour.
+    //
+    //  UNE SECONDE LIGNE ET PAS UNE PHRASE AJOUTÉE À L'ANNONCE : les
+    //  annonces disent ce que FAIT le choix, et il y en a neuf. Les
+    //  allonger toutes des mêmes mots aurait répété la même chose neuf
+    //  fois dans le fichier, et dit deux choses dans une même phrase à
+    //  l'écran.
+    const attente = this.#doc.createElement("p");
+    attente.className = "wm-barre__attente";
+    attente.textContent = ATTENTE;
+    this.#attente = attente;
+    barre.appendChild(attente);
 
     const formulaire = apres.closest("form") ?? apres;
     placer(barre, formulaire);
@@ -783,10 +848,14 @@ export class BarreDActions {
   }
 
   /** Repasse hors combat — le combat s'est terminé, ou il n'y en a
-   *  jamais eu. */
+   *  jamais eu.
+   *
+   *  ON REVIENT AU JEU DE DÉPART, pas à `hors` : sur le formulaire de
+   *  création, « Clôturer le sujet » n'a pas plus de sens après un
+   *  combat qu'avant. */
   basculerHorsCombat(): void {
     this.#combat = null;
-    this.#jeu = "hors";
+    this.#jeu = this.#depart;
     this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());
     this.#remplirLeGroupe();
     this.#rafraichir();

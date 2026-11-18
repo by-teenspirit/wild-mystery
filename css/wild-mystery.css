@@ -14232,6 +14232,26 @@ body:has(#modernbb .wm-carnet) {
   line-height: 1.45;
 }
 
+/*  ── LA PHRASE D'ATTENTE ──────────────────────────────────────────
+    (18 novembre)
+
+    Elle dit le rythme du jeu, pas ce que fait le choix — d'où une
+    ligne à elle, séparée par un filet et non par une marge : la note
+    au-dessus change à chaque clic, celle-ci ne change jamais, et l'œil
+    doit pouvoir arrêter de la relire.
+
+    PLUS PÂLE QUE LA NOTE, parce qu'on ne la lit qu'une fois. */
+#modernbb .wm-barre__attente {
+  margin: 0;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  color: var(--wm-texte-pale, #69564c);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-legende, 10.5px);
+  font-style: italic;
+  line-height: 1.45;
+}
+
 /*  ── LE MENU « OÙ » EST PARTI, LE 15 OCTOBRE ─────────────────────
     Il y avait une quatrième règle ici : une rangée `--lieu`, une
     étiquette, un menu des quinze lieux. Callista, en regardant la barre
@@ -18456,6 +18476,34 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     var(--wm-espace-20, 20px);
   object-fit: cover;
   object-position: center;
+}
+
+/*  ── ET IL FAUT LE DIRE DEUX FOIS POUR QU'IL TOUCHE LE BORD DROIT ─
+    (18 novembre, mesuré sur le sujet t1009)
+
+    `05-sujet.css` écrit, pour toute image d'un corps de message :
+
+        #modernbb .postbody .content img { max-width: 100%; }
+
+    Un identifiant, DEUX classes et UN TYPE. La règle du dessus n'a
+    qu'un identifiant et UNE classe : son `width: calc(100% + 48px)`
+    passait, et `max-width: 100%` le reprenait aussitôt. Le bandeau
+    commençait donc 24 px à gauche de la fiche et s'arrêtait 49 px
+    avant son bord droit — décalé, pas centré. Mesuré : 1/49.
+
+    MÊME PIÈGE QUE LES TEXTES DU 9 NOVEMBRE, même remède : trois
+    classes. `.postbody .content` plus la nôtre les donne, et la paire
+    `.wm-annonce …` reste à côté pour les pages qui montent le
+    composant hors d'un message — la planche de composants, les
+    harnais.
+
+    LA RÈGLE DE `05-sujet.css` NE BOUGE PAS. Elle protège les images
+    des joueurs, qui n'annoncent aucune taille ; trois de nos classes
+    d'image n'en annoncent pas non plus, donc la sortir pour tout ce
+    qui commence par `wm-` les laisserait déborder de la colonne. */
+#modernbb .postbody .content .wm-annonce__bandeau,
+#modernbb .wm-annonce .wm-annonce__bandeau {
+  max-width: none;
 }
 
 /*  ── UNE OU PLUSIEURS IMAGES ──────────────────────────────────────

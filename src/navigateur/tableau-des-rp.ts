@@ -103,6 +103,33 @@ export function sujetDeLAdresse(dit: string): number | null {
   return m === null ? null : Number(m[1]);
 }
 
+/** Le forum porté par l'adresse d'un formulaire de création.
+ *
+ *  `/post?f=9&mode=newtopic` — et l'ordre des paramètres n'est pas
+ *  garanti : Forumactif écrit `?f=9&mode=newtopic` depuis le bouton
+ *  d'un forum, et `?mode=newtopic&f=9` depuis le nôtre
+ *  (`adresseDuFormulaire`). On lit donc le paramètre, pas la place.
+ *
+ *  ── POURQUOI PAS `forumDeLaPage` ─────────────────────────────────
+ *
+ *  Celle-là lit le fil d'Ariane, et le fil d'Ariane vit dans
+ *  `viewforum_body` et dans notre `viewtopic_body` — PAS dans
+ *  `posting_body`. Sur le formulaire de création il n'y a donc rien à
+ *  lire dans la page, et la barre ne se posait pas : « quand je crée
+ *  un sujet, dans les zones sauvages, il faut pouvoir déjà avoir les
+ *  options », 18 novembre.
+ *
+ *  L'ADRESSE EST LA SOURCE LA PLUS SÛRE DES DEUX, ici : c'est elle
+ *  que Forumactif lit lui-même pour savoir dans quel forum il va
+ *  écrire. Un fil d'Ariane peut être déplacé par un template ; `f=`
+ *  ne peut pas l'être sans casser le forum. */
+export function forumDeLAdresse(dit: string): number | null {
+  const m = /[?&]f=(\d+)(?:&|$)/.exec(dit.trim());
+  if (m === null) return null;
+  const n = Number(m[1]);
+  return Number.isInteger(n) && n > 0 ? n : null;
+}
+
 /** L'adresse d'un sujet sur le forum, éventuellement sur un message.
  *
  *  ── LE TIRET N'EST PAS DÉCORATIF ──────────────────────────────────

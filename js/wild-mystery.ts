@@ -29,7 +29,7 @@ import { masquerLesMarqueurs } from "../src/adaptateurs/navigateur/marqueurs.ts"
 import { BrouillonForumactif } from "../src/adaptateurs/navigateur/editeur.ts";
 import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts";
 import { monCombat } from "../src/adaptateurs/navigateur/mon-combat.ts";
-import { sujetDeLAdresse } from "../src/navigateur/tableau-des-rp.ts";
+import { forumDeLAdresse, sujetDeLAdresse } from "../src/navigateur/tableau-des-rp.ts";
 import {
   adresseDuScript,
   CatalogueDistant,
@@ -142,16 +142,40 @@ async function poserLaBarre(): Promise<void> {
   if (formulaire === null) return;
   if (RACINE === null) return;
 
+  //  ── DEUX PAGES, DEUX FAÇONS DE SAVOIR DE QUEL FORUM ON PARLE ────
+  //
+  //  Dans un sujet, c'est le fil d'Ariane. SUR LE FORMULAIRE DE
+  //  CRÉATION, IL N'Y EN A PAS : le fil vit dans `viewforum_body` et
+  //  dans notre `viewtopic_body`, pas dans `posting_body`. La barre ne
+  //  se posait donc jamais là — « quand je crée un sujet, dans les
+  //  zones sauvages, il faut pouvoir déjà avoir les options »,
+  //  18 novembre.
+  //
+  //  L'adresse porte `f=`, et c'est ce que Forumactif lit lui-même
+  //  pour savoir où il va écrire.
   const catalogue = new CatalogueDistant(RACINE);
-  const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
+  const forum = forumDeLaPage(document) ?? forumDeLAdresse(location.search);
+  const zone = zoneDe(forum, await catalogue.zones());
   if (zone === null) return;
+
+  //  ── ET LE JEU DE CHOIX SUIT LA PAGE ─────────────────────────────
+  //
+  //  Pas de sujet dans l'adresse : on est en train d'en créer un, donc
+  //  « Clôturer le sujet » n'a personne à clôturer, et un combat n'a
+  //  pas pu s'ouvrir sur un sujet qui n'existe pas. Le jeu `nouveau`
+  //  dit les deux d'un coup.
+  const sujet = sujetDeLAdresse(location.pathname);
 
   //  LA BARRE N'A PLUS BESOIN DES LIEUX, depuis le 15 octobre : le menu
   //  « Où » est parti et c'est le serveur qui tire le lieu. Un
   //  aller-retour réseau de moins au chargement d'un sujet de zone — le
   //  fichier de faune pèse de 7 à 28 Ko selon la zone, et la barre
   //  l'attendait avant de se poser.
-  const barre = new BarreDActions(document, brouillon);
+  const barre = new BarreDActions(
+    document,
+    brouillon,
+    sujet === null ? "nouveau" : "hors",
+  );
   barre.poser(formulaire);
 
   //  ── ET ELLE BASCULE SI UN COMBAT EST OUVERT ─────────────────────
@@ -165,10 +189,9 @@ async function poserLaBarre(): Promise<void> {
   //  autres quand la réponse arrive. Le joueur qui clique entre les
   //  deux voit son choix oublié, et c'est le bon comportement :
   //  « fouiller » n'a aucun sens dans un combat.
-  //  LE NUMÉRO DU SUJET SE LIT DANS L'ADRESSE, par la fonction qui le
-  //  fait déjà pour le tableau des RP : `t996-test`, `t996p2`, avec ou
-  //  sans ancre. On n'en écrit pas une seconde.
-  const sujet = sujetDeLAdresse(location.pathname);
+  //  LE NUMÉRO DU SUJET S'EST LU PLUS HAUT, dans l'adresse, par la
+  //  fonction qui le fait déjà pour le tableau des RP : `t996-test`,
+  //  `t996p2`, avec ou sans ancre. On n'en écrit pas une seconde.
   if (sujet === null) return;
   const config = await configSupabase();
   if (config === null) return;
