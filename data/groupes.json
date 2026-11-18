@@ -23,7 +23,7 @@
       "cle": "serieux",
       "nom": "Sérieux",
       "description": "On dit qu'Uxie est le Pokémon du Savoir, celui qui incarne la connaissance et la sagesse. Il nous rappelle l'importance de réfléchir avant de parler, de chercher à comprendre avant de juger et de ne pas déformer la vérité pour servir nos intérêts. Car savoir, ce n'est pas seulement apprendre, c'est aussi reconnaître la valeur de ce que l'on connaît et prendre la responsabilité de ses paroles. Après tout, être sérieux, c'est savoir faire preuve d'honnêteté, même lorsque la vérité est difficile à accepter.",
-      "avantage": "À chaque rencontre, la rareté est tirée deux fois et on garde la plus rare : environ 19 % de rares contre 10 % pour les autres.",
+      "avantage": "À chaque rencontre, la rareté est tirée deux fois et on garde la plus rare : environ 10 % de rares au lieu de 5 %.",
       "pokemons": [],
       "embleme": "Créhelf",
       "emblemeId": 480,
@@ -100,5 +100,5 @@
   "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires.",
   "_embleme": "`emblemeId` est le numéro national du légendaire, relevé dans `pokemon.csv` de PokéAPI le 8 novembre — pas écrit de mémoire. Il sert à bâtir l'adresse de l'illustration officielle, `other/official-artwork/<id>.png`, qui est détourée et en haute définition : c'est elle qui passe en filigrane au fond de la carte. CE N'EST PAS LA CARTE DE COUVERTURE : elle ne connaît aucun légendaire, puisque le Pokédex de Rhode n'en porte pas. L'illustration officielle, elle, existe pour n'importe quel numéro.",
   "_noms": "`espece` est le nom FRANÇAIS, `especeEn` l'ANGLAIS — et il n'est posé que lorsqu'il diffère. « On a des canadiens avec nous qui connaissent plutôt les noms anglais », 18 novembre. Un seul des six change : Créhelf s'appelle Uxie en anglais. Vérifié sur `pokemon_species_names.csv` de PokéAPI, langues 5 et 9, pas de mémoire.",
-  "_avantages": "Les six avantages sont actés. Celui du JOVIAL a été tranché le 18 novembre : c'est le doublement des fossiles, pas la variante. Leurs NOMBRES restent un premier jet, à simuler sur vingt mille sujets comme les taux de la planche 75 — avant de les écrire ailleurs, pas après."
+  "_avantages": "Les six avantages sont actés. Le JOVIAL a été tranché le 18 novembre : le doublement des fossiles, pas la variante. Le SÉRIEUX disait « 19 % contre 10 % » — c'était le premier jet, et la simulation du 4 novembre (deno task natures, vingt mille sujets par zone contre les dix-sept tables réelles) a mesuré 5,23 % → 10,17 %. La mécanique double bien la rareté ; c'est le chiffre de départ qui était faux. Corrigé ici le 18 novembre, avant publication. Les autres nombres sont mesurés : Hardi +19,84 % de ₽, Doux +15 %, Jovial morceau 10,34 → 20,16 % et entier 0,18 → 0,35 %. Brave n'est pas mesuré."
 }
