@@ -17,6 +17,7 @@ import type {
   LecteurDeDemandes,
   LecteurDeForum,
   MessageDuForum,
+  PokemonNomme,
   PosteurSurForum,
   Signataire,
   SujetRemue,
@@ -35,6 +36,33 @@ export class EtatDuJeuEnMemoire implements EtatDuJeu {
 
   pseudoDe(joueurId: string): Promise<string> {
     return Promise.resolve(this.#pseudos.get(joueurId) ?? joueurId);
+  }
+
+  readonly #pokemon = new Map<string, PokemonNomme>();
+
+  /** Pose un Pokémon nommé, comme la base le rendrait.
+   *
+   *  LE DÉCOR DOIT RESSEMBLER À CE QU'IL REMPLACE : c'est précisément
+   *  l'inverse qui a caché l'UUID du bilan pendant des semaines. Le
+   *  décor du test écrivait un NOM là où l'appelant passe un
+   *  IDENTIFIANT, donc la traduction manquante ne se voyait pas. */
+  pokemon(pokemonId: string, nomme: PokemonNomme): this {
+    this.#pokemon.set(pokemonId, nomme);
+    return this;
+  }
+
+  pokemonNommes(
+    pokemonIds: readonly string[],
+  ): Promise<ReadonlyMap<string, PokemonNomme>> {
+    const table = new Map<string, PokemonNomme>();
+    for (const id of pokemonIds) {
+      //  UN IDENTIFIANT INCONNU NE PARAÎT PAS dans la réponse, comme
+      //  en base : c'est le cas du Pokémon relâché entre le registre
+      //  et la clôture.
+      const trouve = this.#pokemon.get(id);
+      if (trouve !== undefined) table.set(id, trouve);
+    }
+    return Promise.resolve(table);
   }
 
   readonly #joueurs = new Map<string, EtatDuJoueur>();

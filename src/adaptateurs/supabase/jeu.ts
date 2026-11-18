@@ -10,7 +10,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type { EtatDuJoueur } from "../../domaine/cloture.ts";
-import type { Catalogue, EtatDuJeu } from "../../application/ports.ts";
+import type { Catalogue, EtatDuJeu, PokemonNomme } from "../../application/ports.ts";
 import type { HeuresDesJoueurs } from "../../application/lire-les-nouveaux-messages.ts";
 import { AppelEchoue, type AppelSql } from "./appel.ts";
 
@@ -61,6 +61,45 @@ export class EtatDuJeuSupabase implements EtatDuJeu {
       throw new AppelEchoue(nom, `pseudo introuvable pour ${joueurId}`);
     }
     return recu.pseudo;
+  }
+
+  /** Les Pokémon d'une liste d'identifiants, en UN appel.
+   *
+   *  UNE LISTE VIDE NE PART PAS. Le cas est ordinaire — un joueur qui
+   *  n'a fait combattre personne — et c'est un aller-retour par
+   *  joueur sans effet dans une fonction qui tourne toutes les cinq
+   *  minutes.
+   *
+   *  UN POKÉMON MANQUANT N'EST PAS UNE FAUTE : il a pu être relâché
+   *  entre le registre et la clôture. La table rendue est simplement
+   *  plus courte, et l'appelant le nomme comme il peut. */
+  async pokemonNommes(
+    pokemonIds: readonly string[],
+  ): Promise<ReadonlyMap<string, PokemonNomme>> {
+    const table = new Map<string, PokemonNomme>();
+    if (pokemonIds.length === 0) return table;
+
+    const nom = "pokemon_nommes";
+    const recu = await this.appeler(nom, { pokemonIds: [...pokemonIds] });
+    if (!Array.isArray(recu)) {
+      throw new AppelEchoue(nom, `tableau attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    for (const brut of recu) {
+      const ligne = objet(nom, brut);
+      if (typeof ligne.pokemonId !== "string" || typeof ligne.nom !== "string") {
+        throw new AppelEchoue(nom, `ligne illisible : ${JSON.stringify(brut)}`);
+      }
+      table.set(ligne.pokemonId, {
+        especeId: entier(nom, ligne.especeId, "especeId"),
+        nom: ligne.nom,
+        //  Le surnom est le seul champ qui a le droit d'être absent :
+        //  un Pokémon sans surnom est la règle.
+        surnom: typeof ligne.surnom === "string" && ligne.surnom.trim() !== ""
+          ? ligne.surnom
+          : null,
+      });
+    }
+    return table;
   }
 
   async joueurDuCompte(forumUserId: number): Promise<string | null> {

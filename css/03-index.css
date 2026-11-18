@@ -616,10 +616,41 @@
   max-height: 36px;
   overflow-x: hidden;
   overflow-y: auto;
-  /*  Firefox n'a pas de `::-webkit-scrollbar` : il lit ces deux-là, et
-      il faut donc que le curseur y soit de la même couleur. */
-  scrollbar-color: var(--wm-texte-doux, #6e5749) var(--wm-fond-douce, #f3e1d2);
-  scrollbar-width: thin;
+}
+
+/*  ── LES DEUX FAÇONS DE PEINDRE UNE BARRE S'ANNULENT ──────────────
+
+    « La scrollbar doit être tout le temps visible, pas seulement au
+    survol », 17 novembre — après la mise en ligne du correctif, donc
+    sur le vrai forum, avec les règles `::-webkit-scrollbar` servies.
+
+    LA CAUSE : elles ÉTAIENT là et elles ne s'appliquaient pas. Depuis
+    Chrome 121, un élément qui déclare `scrollbar-width` ou
+    `scrollbar-color` — les propriétés standard — voit TOUTES ses
+    règles `::-webkit-scrollbar` ignorées. Les deux syntaxes ne se
+    complètent pas, la standard gagne et l'autre disparaît. Et la
+    standard, sous macOS, laisse la barre FLOTTANTE : elle s'efface
+    dès qu'on arrête de défiler.
+
+    J'avais écrit les deux sur le même sélecteur en croyant couvrir
+    deux moteurs. J'en couvrais zéro : Chrome lisait la standard et
+    jetait la mienne, et le forum est resté exactement comme avant,
+    avec vingt lignes de CSS de plus et un commentaire qui expliquait
+    pourquoi c'était réglé.
+
+    LA SÉPARATION EST DONC OBLIGATOIRE, pas élégante : les propriétés
+    standard ne vont QU'À Firefox, qui n'a pas `::-webkit-scrollbar`
+    et que `@supports not selector(…)` désigne sans le nommer. Chrome
+    et Safari ne les voient jamais, gardent les règles ci-dessous, et
+    une barre `::-webkit-scrollbar` n'est jamais flottante.
+
+    `outils/categories.mjs` refuse désormais qu'un même sélecteur
+    porte les deux hors de cette garde. C'est la règle, pas le cas. */
+@supports not selector(::-webkit-scrollbar) {
+  #modernbb ul.topiclist li.row .wm-forum__description {
+    scrollbar-color: var(--wm-texte-doux, #6e5749) var(--wm-fond-douce, #f3e1d2);
+    scrollbar-width: thin;
+  }
 }
 
 /*  ── LA BARRE EST TOUJOURS LÀ, ET ELLE PREND SA PLACE ─────────────

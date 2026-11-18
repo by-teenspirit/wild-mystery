@@ -1,5 +1,11 @@
 // ════════════════════════════════════════════════════════════════════
-//  outils/combat.mjs — la fiche de combat, mesurée dans un message
+//  outils/combat.mjs — les messages du Maître du Jeu, mesurés
+//
+//  LA CARTE DE RENCONTRE, LE TOUR, ET LE BILAN DE CLÔTURE. Le fichier
+//  s'appelle « combat » parce qu'il est né avec la fiche de combat, et
+//  il garde ce nom : le renommer coûterait une ligne de CI à changer à
+//  la main pour rien. Ce qu'il couvre est écrit ici, c'est ce qui
+//  compte.
 //
 //  Les messages du Maître du Jeu sont les SEULS de la charte que nous
 //  écrivons côté serveur : personne ne les relit avant qu'ils partent
@@ -27,6 +33,7 @@ import { chromium } from "npm:playwright@1.56.0";
 import { readFileSync } from "node:fs";
 import { redigerLaCarte } from "../src/application/carte-de-rencontre.ts";
 import { redigerLeTour } from "../src/application/message-de-tour.ts";
+import { redigerLeBilan } from "../src/application/bilan.ts";
 
 const R = new URL("../", import.meta.url).pathname;
 const CHROME = Deno.env.get("CHROME");
@@ -117,6 +124,44 @@ const SEUL = redigerLaCarte({
   combattant: null,
 }, RACINE);
 
+const BILAN = redigerLeBilan([
+  {
+    pseudo: "Jake Dalziel",
+    captures: [{ nom: "Farfuret", especeId: 215, niveau: 19 }],
+    experience: [
+      { nom: "Biscotte", especeId: 4, gain: 180 },
+      { nom: "Goupix", especeId: 37, gain: 240 },
+    ],
+    croisees: [{ nom: "Stalgamin", especeId: 220 }, { nom: "Ponyta", especeId: 77 }],
+    ajoutes: [{ objet: "Pierre Feu", quantite: 1 }],
+    consommes: [{ objet: "Poké Ball", quantite: 2 }],
+    pokedollarsAvant: 1240,
+    pokedollarsApres: 1590,
+  },
+  {
+    pseudo: "Erin Kavanagh",
+    captures: [],
+    experience: [],
+    croisees: [{ nom: "Évoli", especeId: 133 }],
+    ajoutes: [],
+    consommes: [],
+    pokedollarsAvant: 800,
+    pokedollarsApres: 800,
+  },
+  //  UN JOUEUR SANS RIEN : il doit être nommé quand même, sinon son
+  //  nom suivi de rien ressemble à un bogue.
+  {
+    pseudo: "Nael Ardent",
+    captures: [],
+    experience: [],
+    croisees: [],
+    ajoutes: [],
+    consommes: [],
+    pokedollarsAvant: 500,
+    pokedollarsApres: 500,
+  },
+], RACINE);
+
 const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>html,body{margin:0}body{background:var(--wm-fond-page)}
 .sujet{max-width:820px;margin:0 auto}</style>
@@ -128,6 +173,11 @@ const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <div class="essai" data-n="2">${TOUR}</div>
 <div class="essai" data-n="3">${SEUL}</div>
 </div></div></div></div></body></html>`;
+
+const pageDuBilan = page.replace(
+  '<div class="essai" data-n="1">' + CARTE + "</div>",
+  '<div class="essai" data-n="4">' + BILAN + "</div>",
+);
 
 const soucis = [];
 function dire(nom, ok, detail = "") {
@@ -301,6 +351,101 @@ for (const theme of ["clair", "sombre"]) {
   //  4,5 : le seuil AA pour du texte normal. Les PV sont en gras à
   //  13,5 px, donc on ne s'autorise pas le seuil « grand texte ».
   dire(`${theme} : les PV passent AA`, mesure >= 4.5, `${mesure}:1`);
+}
+await p.close();
+
+// ── 5 · LE BILAN DE CLÔTURE ─────────────────────────────────────────
+//
+//  « Habiller plus proprement le bilan du sujet avec un sprite », et
+//  les trois listes : les captures, ceux qui ont gagné de
+//  l'expérience, les espèces croisées.
+//
+//  CE QUI SE MESURE ICI ET NULLE PART AILLEURS : qu'il reste LISIBLE
+//  SANS FEUILLE DE STYLE. C'est la règle d'origine du bilan — « dans
+//  dix ans » — et elle survit au passage en fiche à une condition :
+//  que le sens soit dans le texte, pas dans la mise en page. On coupe
+//  donc la feuille et on relit.
+console.log("\n── LE BILAN DE CLÔTURE ────────────────────────────────");
+p = await nav.newPage({ viewport: { width: 900, height: 1200 } });
+p.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
+await p.setContent(pageDuBilan);
+await p.waitForFunction(
+  () => [...document.querySelectorAll(".wm-bilanp__sprite")].every((i) => i.complete),
+  null,
+  { timeout: 20000 },
+).catch(() => soucis.push("les sprites du bilan ne se chargent pas"));
+
+const bilan = await p.evaluate(() => ({
+  prises: [...document.querySelectorAll(".wm-bilanp__prise")].length,
+  //  ── ICI ON NE DEMANDE QUE « JAMAIS AGRANDI » ────────────────────
+  //
+  //  Pas « peint à sa taille », contrairement à la fiche de combat :
+  //  la vignette du bilan est PLUS PETITE EXPRÈS — 64 × 56 contre
+  //  96 × 76 —, parce qu'un bilan à quatre joueurs peut en aligner
+  //  vingt là où un combat en montre deux. Un sprite de 68 px de haut
+  //  y est donc réduit, et c'est voulu.
+  //
+  //  Ce qui reste interdit est l'agrandissement : il rend flou, et
+  //  `scale-down` est là pour l'empêcher. On vérifie que le facteur
+  //  ne dépasse jamais 1.
+  //  ON MESURE L'IMAGE PEINTE, PAS LA BOÎTE — deuxième fois que ce
+  //  piège se referme dans ce fichier. La boîte fait 64 × 56 quoi
+  //  qu'elle contienne ; `scale-down` dessine l'image dedans, à sa
+  //  taille ou plus petit.
+  peints: [...document.querySelectorAll(".wm-bilanp__sprite")].map((i) => {
+    const r = i.getBoundingClientRect();
+    const f = Math.min(r.width / i.naturalWidth, r.height / i.naturalHeight, 1);
+    return Math.round(Math.min(i.naturalWidth, i.naturalWidth * f));
+  }),
+  ajustement: [
+    ...new Set(
+      [...document.querySelectorAll(".wm-bilanp__sprite")]
+        .map((i) => getComputedStyle(i).objectFit),
+    ),
+  ],
+  //  LA FEUILLE COUPÉE : ce qui reste doit se lire.
+  sansStyle: (() => {
+    for (const s of document.querySelectorAll("style")) s.disabled = true;
+    const lu = document.querySelector(".wm-bilanp").innerText;
+    for (const s of document.querySelectorAll("style")) s.disabled = false;
+    return lu;
+  })(),
+}));
+
+dire(
+  "LES TROIS LISTES ONT LEUR VIGNETTE — captures, expérience, croisées",
+  bilan.prises === 6,
+  `${bilan.prises} vignettes`,
+);
+//  ── RÉDUITE OUI, C'EST VOULU ; AGRANDIE NON, C'EST FLOU ───────────
+//
+//  La vignette du bilan est PLUS PETITE EXPRÈS — 64 × 56 contre
+//  96 × 76 pour la fiche de combat —, parce qu'un bilan à quatre
+//  joueurs peut en aligner vingt là où un combat en montre deux. Un
+//  sprite de 68 px de haut y est donc réduit.
+//
+//  C'est `scale-down` qui interdit l'agrandissement, et le contrôle
+//  d'à côté le vérifie. Ici on garde l'autre bout : qu'une vignette
+//  reste assez grande pour qu'on reconnaisse le Pokémon.
+dire(
+  "LES VIGNETTES RESTENT RECONNAISSABLES — 40 px au moins",
+  bilan.peints.length > 0 && bilan.peints.every((l) => l >= 40),
+  bilan.peints.join(", ") + " px de large",
+);
+dire(
+  "et c'est `scale-down` qui le tient",
+  bilan.ajustement.length === 1 && bilan.ajustement[0] === "scale-down",
+  bilan.ajustement.join(", "),
+);
+
+//  SANS CSS, CHAQUE VALEUR GARDE SON ÉTIQUETTE. C'est ce qui distingue
+//  un balisage qui habille d'un balisage qui porte le sens.
+for (const mot of ["CAPTURÉ : Farfuret niv. 19", "EXPÉRIENCE :", "Rien à verser"]) {
+  dire(
+    `sans feuille de style, « ${mot} » se lit encore`,
+    bilan.sansStyle.includes(mot),
+    bilan.sansStyle.slice(0, 80).replace(/\n/g, " / "),
+  );
 }
 await p.close();
 

@@ -642,6 +642,15 @@ body,
 #modernbb input[type="button"],
 #modernbb input[type="reset"],
 #modernbb button[type="submit"] {
+  /*  `border-box`, SINON LES 44 PX SONT CEUX DU CONTENU. Relevé le
+      17 novembre sur « Exporter vos données » : 44 de hauteur
+      minimale + 16 de rembourrage + 2 de bord = 62 px de bouton, dont
+      39 sous le texte. « Y'a un gros padding en dessous, dans le
+      bouton » — c'était cette addition, pas un rembourrage.
+
+      La cible tactile est une hauteur TOTALE : c'est ce qu'on vise
+      avec le doigt. */
+  box-sizing: border-box;
   min-height: var(--wm-cible-tactile, 44px);
   padding: 10px 18px;
   border: 1.5px solid var(--wm-bord-net, #d9c3b1);
@@ -654,6 +663,22 @@ body,
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-courant, 1.5);
   text-transform: none;
+}
+
+/*  UN BOUTON QUI EST UN LIEN. Le gabarit amont écrit
+    `<a class="button1">` sur la ligne « Exporter vos données », et
+    ailleurs selon les pages. Un `<a>` est une boîte EN LIGNE : son
+    rembourrage vertical ne pousse rien, sa hauteur minimale ne
+    s'applique pas, et son texte se colle en haut. Trois défauts pour
+    une balise, et un seul correctif.
+
+    `inline-flex` plutôt que `inline-block` : c'est ce qui centre le
+    texte dans les 44 px au lieu de le poser contre le bord haut. */
+#modernbb a:is(.button1, .button2, .mainoption, .liteoption) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 /*  L'action principale d'un formulaire. ModernBB la marque déjà avec

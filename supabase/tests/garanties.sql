@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(402);
+select plan(407);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -88,6 +88,55 @@ select throws_ok($$
   insert into pokemon (joueur_id, espece_id, niveau, emplacement, position)
   values ('11111111-1111-1111-1111-111111111111', 37, 10, 'equipe', 3)
 $$, '23505', NULL, 'deux pokémon sur la même position d''équipe : refusé');
+
+--  ── NOMMER UN POKÉMON DONT ON N'A QUE L'IDENTIFIANT (0053) ───────
+--
+--  Le bilan de clôture écrivait « EXPÉRIENCE : 3f2a7c1e-… +48 » :
+--  `xpParPokemon` est indexée par identifiant, et personne ne le
+--  traduisait. Cette fonction est la traduction, et elle rend aussi le
+--  numéro d'espèce — c'est l'adresse du sprite.
+select is(
+  jsonb_array_length(pokemon_nommes(jsonb_build_object(
+    'pokemonIds', jsonb_build_array(
+      '33333333-3333-3333-3333-000000000001',
+      '33333333-3333-3333-3333-000000000002'
+    )))),
+  2,
+  'UN SEUL APPEL NOMME TOUTE LA LISTE — un bilan à quatre joueurs ne fait pas douze allers-retours'
+);
+
+select is(
+  pokemon_nommes(jsonb_build_object(
+    'pokemonIds', jsonb_build_array('33333333-3333-3333-3333-000000000001')
+  ))->0->>'nom',
+  --  L'ESPÈCE 37 EST GOUPIX, et c'est le décor de la ligne 82 qui le
+  --  dit. Le premier jet écrivait « Pikachu » de mémoire : une
+  --  assertion qui se trompe de décor ne garde rien.
+  'Goupix',
+  'et elle rend l''espèce, pas l''identifiant'
+);
+
+select is(
+  (pokemon_nommes(jsonb_build_object(
+    'pokemonIds', jsonb_build_array('33333333-3333-3333-3333-000000000001')
+  ))->0->>'especeId')::integer,
+  37,
+  'avec le numéro d''espèce, qui est l''adresse du sprite'
+);
+
+--  UNE LISTE VIDE N'EST PAS UNE ERREUR : un joueur qui n'a fait
+--  combattre personne a une rubrique d'expérience vide, et c'est le
+--  cas ordinaire du premier RP.
+select is(
+  jsonb_array_length(pokemon_nommes('{}'::jsonb)),
+  0,
+  'une liste absente rend un tableau vide, pas une erreur'
+);
+
+select ok(
+  not has_function_privilege('anon', 'pokemon_nommes(jsonb)', 'execute'),
+  'ELLE REND DES SURNOMS, donc elle n''est pas à portée d''un navigateur'
+);
 
 select throws_ok($$
   insert into pokemon (joueur_id, espece_id, niveau, emplacement, position)

@@ -187,9 +187,23 @@ export async function poserLeBilan(
   }
   const objets = await registre.nomsDObjets(quoi.objets);
 
+  //  ── LES POKÉMON NE SONT PAS NOMMÉS ICI, ET C'EST ASSUMÉ ─────────
+  //
+  //  `xpParPokemon` est indexée par identifiant, et le module écrivait
+  //  l'UUID : « EXPÉRIENCE : 3f2a7c1e-… +48 ». Jamais vu par un
+  //  joueur — aucune clôture n'avait encore versé d'expérience — mais
+  //  le premier bilan complet l'aurait montré.
+  //
+  //  TABLE VIDE PLUTÔT QU'UNE REQUÊTE DE PLUS : le module se pose sur
+  //  chaque sujet de zone, et il ne demande déjà que les noms qu'il va
+  //  écrire. `ligneEnAttente` écrit « ton Pokémon » pour ce qu'elle ne
+  //  sait pas nommer, ce qui est vrai et lisible. Le récapitulatif
+  //  latéral, lui, lira `mon_combat` et aura les vrais noms : c'est là
+  //  que la table se remplira.
   const colonnes = colonnesDuBilan(lignes, pseudoParJoueur(lignes, lecteurDePseudos(doc)), {
     especes,
     objets,
+    pokemon: new Map(),
   });
   if (colonnes.length === 0) return false;
 

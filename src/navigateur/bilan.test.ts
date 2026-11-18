@@ -171,12 +171,13 @@ Deno.test("la colonne reprend les noms, et dit ce qu'elle n'a pas su nommer", ()
   const l = ligneEnAttente("Anna", lignes, {
     especes: new Map([[37, "Goupix"]]),
     objets: new Map([[990001, "Poké Ball"]]),
+    pokemon: new Map(),
   });
 
-  assertEquals(l.croisees, ["Goupix"]);
+  assertEquals(l.croisees, [{ nom: "Goupix", especeId: 37 }]);
   //  999 n'est pas dans l'index : « #999 » dit qu'il manque un nom,
   //  pas que l'espèce s'appelle comme ça.
-  assertEquals(l.captures, [{ espece: "#999", niveau: 7 }]);
+  assertEquals(l.captures, [{ nom: "#999", especeId: 999, niveau: 7 }]);
   assertEquals(l.consommes, [{ objet: "Poké Ball", quantite: 1 }]);
   assertEquals(l.pokedollars, 350);
 
@@ -189,7 +190,11 @@ Deno.test("la colonne reprend les noms, et dit ce qu'elle n'a pas su nommer", ()
 });
 
 Deno.test("un joueur sans rien à montrer n'a aucune rubrique", () => {
-  const l = ligneEnAttente("Anna", [], { especes: new Map(), objets: new Map() });
+  const l = ligneEnAttente("Anna", [], {
+    especes: new Map(),
+    objets: new Map(),
+    pokemon: new Map(),
+  });
   assertEquals(rubriquesEnAttente(l), []);
   assertEquals(l.pseudo, "Anna");
 });
@@ -203,6 +208,7 @@ Deno.test("une ball lancée s'affiche même sans l'avoir trouvée", () => {
   const l = ligneEnAttente("Anna", lignes, {
     especes: new Map(),
     objets: new Map([[990001, "Poké Ball"]]),
+    pokemon: new Map(),
   });
   assertEquals(rubriquesEnAttente(l), [
     { etiquette: "CONSOMMÉ", valeur: "2 Poké Ball" },
@@ -238,6 +244,7 @@ Deno.test("et il n'a pas de colonne non plus", () => {
   const cols = colonnesDuBilan(lues, pseudoParJoueur(lues, dansLaPage), {
     especes: new Map([[37, "Goupix"]]),
     objets: new Map(),
+    pokemon: new Map(),
   });
   assertEquals(cols.length, 1);
   assertEquals(cols[0].ligne.pseudo, "Anna");
@@ -251,6 +258,7 @@ Deno.test("les colonnes sortent dans l'ordre d'entrée dans le sujet", () => {
   const cols = colonnesDuBilan(lues, pseudoParJoueur(lues, dansLaPage), {
     especes: new Map(),
     objets: new Map(),
+    pokemon: new Map(),
   });
   //  Boris parle en premier dans le tableau reçu : il passe en premier,
   //  quel que soit son identifiant.
@@ -263,14 +271,43 @@ Deno.test("un joueur nommé mais sans effet garde sa colonne", () => {
   const lues = lignesDepuis([brut(ANNA, 10, "evolution", { especeId: 37 })]);
   assertEquals(lues.length, 0, "le type inconnu a bien été écarté");
 
-  const avecLigne = lignesDepuis([brut(ANNA, 10, "xp", { pokemonId: "lumi", gain: 0 })]);
+  const avecLigne = lignesDepuis([
+    brut(ANNA, 10, "xp", { pokemonId: "3f2a7c1e-0000-4000-8000-000000000001", gain: 0 }),
+  ]);
   const cols = colonnesDuBilan(avecLigne, pseudoParJoueur(avecLigne, dansLaPage), {
     especes: new Map(),
     objets: new Map(),
+    pokemon: new Map(),
   });
   assertEquals(cols.length, 1);
+  //  ── « lumi » ÉTAIT L'IDENTIFIANT, ET LE MODULE L'AFFICHAIT ──────
+  //
+  //  Cette assertion disait `"lumi +0"` : le décor passait un
+  //  identifiant court et lisible, donc personne ne voyait que le
+  //  module écrivait l'identifiant. Avec un vrai UUID, elle aurait
+  //  dit `"3f2a7c1e-… +0"` et la faute aurait sauté aux yeux.
+  //
+  //  Un décor doit ressembler à ce qu'il remplace. Il porte donc un
+  //  UUID maintenant, et le module écrit « ton Pokémon » tant que
+  //  personne ne lui a donné la table des noms.
   assertEquals(rubriquesEnAttente(cols[0].ligne), [
-    { etiquette: "EXPÉRIENCE", valeur: "lumi +0" },
+    { etiquette: "EXPÉRIENCE", valeur: "ton Pokémon +0" },
+  ]);
+});
+
+Deno.test("et quand on lui donne la table, il nomme le Pokémon", () => {
+  const avecLigne = lignesDepuis([
+    brut(ANNA, 10, "xp", { pokemonId: "3f2a7c1e-0000-4000-8000-000000000001", gain: 48 }),
+  ]);
+  const cols = colonnesDuBilan(avecLigne, pseudoParJoueur(avecLigne, dansLaPage), {
+    especes: new Map(),
+    objets: new Map(),
+    pokemon: new Map([
+      ["3f2a7c1e-0000-4000-8000-000000000001", { nom: "Biscotte", especeId: 4 }],
+    ]),
+  });
+  assertEquals(rubriquesEnAttente(cols[0].ligne), [
+    { etiquette: "EXPÉRIENCE", valeur: "Biscotte +48" },
   ]);
 });
 
@@ -298,6 +335,7 @@ Deno.test("le registre réel du sujet 976, tel que PostgREST le rend", () => {
   const cols = colonnesDuBilan(lignes, pseudos, {
     especes: new Map(),
     objets: new Map([[990001, "Poké Ball"]]),
+    pokemon: new Map(),
   });
 
   assertEquals(cols.length, 1);

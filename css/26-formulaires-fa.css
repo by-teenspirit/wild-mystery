@@ -408,10 +408,40 @@
     !important` écrit plus haut, et c'est voulu : il faut le battre. */
 #modernbb :is(.ucp-main, form[name="searchform"])
   dd:has(:is(select, input[type="text"]) ~ :is(select, input[type="text"])) {
-  display: flex;
-  flex-wrap: wrap;
+  /*  ── L'ÉTIQUETTE AU-DESSUS DE SON CHAMP, SANS UNE LIGNE DE JS ───
+
+      « Il manque un écart entre la flèche qui va vers le bas et
+      "Mois", et "Année" est loin de son champ. Tu crois que tu
+      pourrais mettre le label au-dessus de chaque champ et les mettre
+      côte à côte ? », 17 novembre.
+
+      EN RANGÉE, LES SIX MORCEAUX SONT À PLAT et rien ne dit lequel va
+      avec lequel : « Mois » était aussi près de la flèche du menu des
+      jours que de son propre menu. Un écart plus grand n'aurait pas
+      résolu ça, il aurait juste éloigné tout le monde.
+
+      LA GRILLE LES APPARIE SANS LES ENVELOPPER. « Jour », « Mois » et
+      « Année » sont des NŒUDS DE TEXTE NUS — Forumactif les écrit
+      sans balise, et aucun sélecteur ne les atteint. Mais en grille
+      ils deviennent des éléments à part entière : deux rangées, un
+      remplissage par COLONNE, et chaque étiquette tombe au-dessus de
+      son champ. Trois paires côte à côte, et pas une balise ajoutée.
+
+      C'est aussi pourquoi le style d'étiquette est posé sur le `dd`
+      et DÉFAIT sur les champs : on ne peut pas viser un nœud de texte,
+      on peut viser tout le reste. */
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: auto auto;
+  justify-content: start;
   align-items: center;
-  gap: var(--wm-espace-8, 8px);
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-16, 16px);
+
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
   /*  LA BORNE DE 420 px SAUTE ICI, ET SEULEMENT ICI. Elle existe pour
       qu'un champ unique ne s'étire pas sur sept cents pixels — un
       « Pseudo » large comme un paragraphe. Une ligne de trois champs
@@ -444,7 +474,15 @@
 #modernbb :is(.ucp-main, form[name="searchform"])
   dd:has(:is(select, input[type="text"]) ~ :is(select, input[type="text"]))
   :is(select, input[type="text"]) {
-  flex: 0 1 auto;
+  /*  LE CHAMP REPREND SA VOIX : le `dd` porte maintenant le style
+      d'étiquette pour que les nœuds de texte l'héritent, et il
+      déteindrait sur les menus sans ça. */
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-normale, 400);
+  letter-spacing: normal;
+  text-transform: none;
+
   min-width: 3.5rem;
   /*  CONTRE LE `100% !important` D'AU-DESSUS, et contre le
       `style="width:250px"` en ligne : à spécificité égale c'est la

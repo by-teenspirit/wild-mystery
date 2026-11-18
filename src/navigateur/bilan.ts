@@ -149,7 +149,26 @@ function nomme(id: number, noms: ReadonlyMap<number, string>): string {
 export type Noms = {
   readonly especes: ReadonlyMap<number, string>;
   readonly objets: ReadonlyMap<number, string>;
+  /** Les Pokémon du joueur, par identifiant.
+   *
+   *  `xpParPokemon` EST INDEXÉE PAR IDENTIFIANT, et le module
+   *  recopiait la clé telle quelle : « EXPÉRIENCE : 3f2a7c1e-… +48 ».
+   *  Trouvé le 18 novembre en habillant le bilan, jamais vu par un
+   *  joueur — aucune clôture n'avait encore versé d'expérience.
+   *
+   *  La table peut être vide : le module la remplit avec ce qu'il a
+   *  sous la main, et un Pokémon absent se dit en mots plutôt qu'en
+   *  UUID. */
+  readonly pokemon: ReadonlyMap<string, { readonly nom: string; readonly especeId: number }>;
 };
+
+/** Ce qu'on écrit d'un Pokémon qu'on n'a pas su nommer.
+ *
+ *  PAS DE CROISILLON ICI, contrairement aux espèces : « #3f2a7c1e-… »
+ *  reste un UUID à l'écran. Un joueur n'a pas besoin de l'identifiant,
+ *  il a besoin de savoir de qui on parle — et quand on ne le sait pas,
+ *  il vaut mieux le dire. */
+const POKEMON_SANS_NOM = "ton Pokémon";
 
 /** Ce qu'un joueur a fait dans ce sujet, prêt pour `rubriquesEnAttente`. */
 export function ligneEnAttente(
@@ -161,11 +180,22 @@ export function ligneEnAttente(
   return {
     pseudo,
     captures: e.captures.map((c) => ({
-      espece: nomme(c.especeId, noms.especes),
+      nom: nomme(c.especeId, noms.especes),
+      especeId: c.especeId,
       niveau: c.niveau,
     })),
-    croisees: e.especesCroisees.map((id) => nomme(id, noms.especes)),
-    experience: [...e.xpParPokemon].map(([pokemon, gain]) => ({ pokemon, gain })),
+    croisees: e.especesCroisees.map((id) => ({
+      nom: nomme(id, noms.especes),
+      especeId: id,
+    })),
+    experience: [...e.xpParPokemon].map(([pokemonId, gain]) => {
+      const p = noms.pokemon.get(pokemonId);
+      return {
+        nom: p?.nom ?? POKEMON_SANS_NOM,
+        especeId: p?.especeId ?? null,
+        gain,
+      };
+    }),
     ajoutes: [...e.objetsAjoutes].map(([id, quantite]) => ({
       objet: nomme(id, noms.objets),
       quantite,

@@ -353,6 +353,9 @@ jobs:
       - name: Le répertoire des personnages
         run: deno task repertoire
 
+      - name: La fiche de combat
+        run: deno task combat
+
       #  Ajoutés le 4 novembre, avec l'annexe de la carte et celle des
       #  célébrités. Le garde-fou n° 22 refuse un harnais que le CI ne
       #  lance pas : un harnais qu'on lance à la main ne garde rien.
@@ -361,21 +364,6 @@ jobs:
 
       - name: Les célébrités et leurs filtres
         run: deno task personnages
-
-      #  Ajoutés le 18 novembre. Le garde-fou n° 22 refuse un harnais
-      #  que le CI ne lance pas : un harnais qu'on lance à la main ne
-      #  garde rien.
-      - name: La messagerie et le QEEL
-        run: deno task messagerie
-
-      - name: Le répertoire des personnages
-        run: deno task repertoire
-
-      - name: La messagerie
-        run: deno task messagerie
-
-      - name: Le répertoire des personnages
-        run: deno task repertoire
 
       - name: Le message de validation et ses contrôles
         run: deno task valider

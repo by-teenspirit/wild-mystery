@@ -1541,7 +1541,25 @@ for p in fichiers:
     try:
         arbre = ast.parse(p.read_text(encoding="utf-8"), filename=str(p))
     except SyntaxError as e:
+        #  ── DIRE LE VRAI COUPABLE ───────────────────────────────
+        #
+        #  18 novembre : ce contrôle annonçait « un outil importe un
+        #  nom qu'un autre ne définit plus » pour un fichier qui ne
+        #  compilait pas du tout — et la cause n'était pas un import,
+        #  c'était la VERSION DE PYTHON. `fiche-ailleurs.py` écrit des
+        #  expressions sur plusieurs lignes dans un f-string, ce que
+        #  seul Python 3.12 accepte (PEP 701). Sur un Mac livré avec
+        #  3.9, le garde-fou désignait le mauvais coupable, et un
+        #  conseil qui désigne le mauvais coupable fait chercher plus
+        #  longtemps que pas de conseil du tout.
         print(f"   {p} ne se lit pas : ligne {e.lineno}, {e.msg}")
+        if sys.version_info < (3, 12):
+            print(
+                f"   ↳ ce Python est {sys.version_info.major}."
+                f"{sys.version_info.minor} ; certains outils demandent 3.12 "
+                "(expressions sur plusieurs lignes dans un f-string, PEP 701)."
+                " Ce n'est pas une faute du dépôt : la CI tourne en 3.12."
+            )
         sys.exit(1)
     noms = set()
     for n in arbre.body:

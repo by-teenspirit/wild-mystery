@@ -152,16 +152,44 @@ export class CloturerUnSujet {
     for (const v of versements) {
       const avant = await this.jeu.etatDe(v.joueurId);
       const e = v.effets;
+
+      //  ── NOMMER LES POKÉMON QUI ONT GAGNÉ DE L'EXPÉRIENCE ────────
+      //
+      //  `xpParPokemon` EST INDEXÉE PAR IDENTIFIANT — `cloture.ts`
+      //  ligne 16. Cette ligne recopiait la clé telle quelle, et le
+      //  bilan écrivait « EXPÉRIENCE : 3f2a7c1e-… +48 ». Le décor du
+      //  test écrivait un nom là où l'appelant passe un UUID, donc
+      //  aucun test ne pouvait le dire.
+      //
+      //  UN SEUL APPEL POUR TOUTE LA LISTE : un bilan à quatre joueurs
+      //  ferait sinon douze allers-retours par clôture.
+      const nommes = await this.jeu.pokemonNommes([...e.xpParPokemon.keys()]);
+
       lignes.push({
         pseudo: await this.jeu.pseudoDe(v.joueurId),
         captures: await Promise.all(e.captures.map(async (c) => ({
-          espece: await this.catalogue.nomEspece(c.especeId),
+          nom: await this.catalogue.nomEspece(c.especeId),
+          especeId: c.especeId,
           niveau: c.niveau,
         }))),
         croisees: await Promise.all(
-          e.especesCroisees.map((id) => this.catalogue.nomEspece(id)),
+          e.especesCroisees.map(async (id) => ({
+            nom: await this.catalogue.nomEspece(id),
+            especeId: id,
+          })),
         ),
-        experience: [...e.xpParPokemon].map(([pokemon, gain]) => ({ pokemon, gain })),
+        experience: [...e.xpParPokemon].map(([pokemonId, gain]) => {
+          const n = nommes.get(pokemonId);
+          return {
+            //  SON SURNOM S'IL EN A UN, et l'espèce sinon — la même
+            //  règle que la fiche de combat. Un Pokémon effacé entre
+            //  le registre et la clôture n'est pas dans la table : on
+            //  le dit, plutôt que d'écrire son identifiant.
+            nom: n === undefined ? "un Pokémon relâché depuis" : (n.surnom ?? n.nom),
+            especeId: n?.especeId ?? null,
+            gain,
+          };
+        }),
         ajoutes: await Promise.all(
           [...e.objetsAjoutes].map(async ([id, quantite]) => ({
             objet: await this.catalogue.nomObjet(id),

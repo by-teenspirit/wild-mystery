@@ -12,6 +12,7 @@ import type {
   Faune,
   Horloge,
   LecteurDActions,
+  PokemonNomme,
   Registre,
   Signataire,
   TableDeButin,
@@ -80,6 +81,11 @@ class JeuFixe implements EtatDuJeu {
   }
   pseudoDe(): Promise<string> {
     return Promise.resolve("Anna");
+  }
+  //  CE PASSAGE NE NOMME AUCUN POKÉMON : c'est le bilan de clôture qui
+  //  le fait. Une table vide est la réponse juste, pas un raccourci.
+  pokemonNommes(): Promise<ReadonlyMap<string, PokemonNomme>> {
+    return Promise.resolve(new Map());
   }
   joueurDuCompte(compte: number): Promise<string | null> {
     return Promise.resolve(this.liens.get(compte) ?? null);

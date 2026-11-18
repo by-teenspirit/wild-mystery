@@ -410,14 +410,37 @@ body:has(#modernbb .wm-carnet) {
     la ligne de texte deviendrait trop longue pour se lire d'un trait.
 
     Les quatre pages de la région portaient `--large` ; elles ont
-    disparu du sommaire, la classe reste pour qui en aura besoin. */
+    disparu du sommaire, la classe reste pour qui en aura besoin.
+
+    ── ET `--large` NE DOIT PAS SAUTER LA MESURE ────────────────────
+
+    Il posait `max-width: none`, ce qui est exactement ce que la règle
+    d'en dessous interdit : « `--annexe-mesure` est le seul endroit où
+    la largeur se décide, et les deux règles la lisent ». La colonne
+    grandissait, le voile non — et `deno task contraste` l'a dit sur
+    le répertoire des personnages : « TEXTE SUR LA PHOTO », le voile
+    opaque s'arrête à 1188 et « Les habitants de Rhode » va jusqu'à
+    1232. Quarante-quatre pixels de texte sur une photo.
+
+    `--large` ÉLARGIT DONC LA MESURE, il ne la contourne plus. Les
+    deux nombres rebougent ensemble, et la bande de photo reste là où
+    elle a la place — même garde que l'annexe de la carte, et pour la
+    même raison : en dessous de 1 420, la colonne serait bornée par la
+    fenêtre et plus par sa mesure, et les deux ne diraient plus la
+    même chose. */
 #modernbb .wm-annexe__colonne {
   position: relative;
   max-width: var(--annexe-mesure, 880px);
 }
 
-#modernbb .wm-annexe__colonne--large {
-  max-width: none;
+#modernbb .wm-annexe:has(.wm-annexe__colonne--large) {
+  --annexe-mesure: 880px;
+}
+
+@media (min-width: 1420px) {
+  #modernbb .wm-annexe:has(.wm-annexe__colonne--large) {
+    --annexe-mesure: 1060px;
+  }
 }
 
 /*  ── LA MESURE EST UN NOMBRE, ET DEUX RÈGLES LE LISENT ─────────────
@@ -513,9 +536,42 @@ body:has(#modernbb .wm-carnet) {
   flex: 0 0 252px;
   width: 252px;
   padding: 0 0 var(--wm-espace-24, 24px);
+  /*  LE PLAFOND DE HAUTEUR EST DANS `27-repertoire.css`, sur
+      `.wm-bottins` : c'est la seule colonne qui peut dépasser
+      l'écran. Ne pas le redire ici — deux plafonds à tenir d'accord
+      valent moins qu'un. */
   /*  Le fond est peint par `.wm-annexe`, pour courir sur toute la
       hauteur de la page sans empêcher ce bloc de coller. */
   color: var(--wm-texte-sur-nuit, #fffbf7);
+}
+
+/*  ET SA BARRE SE VOIT. Même leçon que les descriptions de
+    catégories, le 17 novembre : les propriétés standard
+    (`scrollbar-width`, `scrollbar-color`) et les règles
+    `::-webkit-scrollbar` NE SE COMPLÈTENT PAS — depuis Chrome 121, la
+    présence des premières fait ignorer les secondes, et la barre
+    redevient flottante sous macOS. Les standard ne vont donc qu'à
+    Firefox, derrière la garde qui le désigne sans le nommer. */
+#modernbb .wm-annexe__sommaire::-webkit-scrollbar {
+  width: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-annexe__sommaire::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 14%, transparent);
+}
+
+#modernbb .wm-annexe__sommaire::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 55%, transparent);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  #modernbb .wm-annexe__sommaire {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 55%, transparent)
+      color-mix(in srgb, var(--wm-texte-sur-nuit, #fffbf7) 14%, transparent);
+  }
 }
 
 /*  L'en-tête de 163 px : le cercle, l'enseigne, le filet. */
@@ -2216,9 +2272,24 @@ body:has(#modernbb .wm-carnet) {
   height: 7px;
 }
 
+/*  LE NIVEAU PASSE DE « PÂLE » À « DOUX », et ce n'est pas un goût :
+    mesuré par `deno task contraste` sur l'annexe 06, le pâle donnait
+    4,49 en thème clair et 4,38 en sombre, pour un texte de 10 px —
+    sous les 4,5 exigés, des deux côtés. Un niveau qu'on ne lit pas
+    sur une case d'équipe ne sert à rien.
+
+    DEUX CENTIÈMES, C'EST UN DÉFAUT QUAND MÊME. La tentation est de
+    laisser passer 4,49 ; mais le seuil n'est pas une moyenne à
+    atteindre, c'est le point où un œil ordinaire décroche.
+
+    ET « DOUX » NE SUFFISAIT PAS NON PLUS : il répare le sombre et
+    ABÎME le clair — 4,37 —, parce qu'en thème clair `--wm-texte-doux`
+    (#6e5749) est plus CLAIR que `--wm-texte-pale` (#69564c), à
+    l'inverse de ce que leurs noms laissent croire. Deux jetons dont
+    l'ordre s'inverse d'un thème à l'autre : mesuré, pas deviné. */
 #modernbb .wm-equipe__niveau {
   margin: 2px 0 0;
-  color: var(--wm-texte-pale, #69564c);
+  color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-etiquette, 10px);
   letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
   line-height: var(--wm-interligne-etiquette, 1.3);

@@ -199,11 +199,33 @@ export type EtatDuJoueur = {
   readonly pokedollars: number;
 };
 
+/** Un Pokémon dont on n'avait que l'identifiant. */
+export type PokemonNomme = {
+  readonly especeId: number;
+  readonly nom: string;
+  readonly surnom: string | null;
+};
+
 export interface EtatDuJeu {
   etatDe(joueurId: string): Promise<EtatDuJoueur>;
   /** Le pseudo du joueur. Un bilan doit nommer les gens, pas afficher
    *  leur identifiant : personne ne se reconnaît dans un UUID. */
   pseudoDe(joueurId: string): Promise<string>;
+  /** Les Pokémon d'une liste d'identifiants, indexés par identifiant.
+   *
+   *  LA MÊME RÈGLE QUE `pseudoDe`, ET ELLE MANQUAIT : `xpParPokemon`
+   *  est indexée par `pokemonId`, et le bilan écrivait l'UUID.
+   *
+   *  EN UN SEUL APPEL, parce qu'un bilan à quatre joueurs qui ont
+   *  chacun fait combattre trois Pokémon ferait douze allers-retours
+   *  dans une fonction qui tourne toutes les cinq minutes.
+   *
+   *  Un identifiant absent de la réponse est un Pokémon effacé entre
+   *  le registre et la clôture : l'appelant le nomme comme il peut,
+   *  il ne lève pas. */
+  pokemonNommes(
+    pokemonIds: readonly string[],
+  ): Promise<ReadonlyMap<string, PokemonNomme>>;
   /** Le joueur lié à un compte Forumactif, ou null s'il n'est pas lié. */
   joueurDuCompte(forumUserId: number): Promise<string | null>;
   estClos(sujetId: number): Promise<boolean>;
