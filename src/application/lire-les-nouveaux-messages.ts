@@ -168,6 +168,20 @@ export class LireLesNouveauxMessages {
       return [];
     }
 
+    //  ── LE NOM SE MET À JOUR AU PASSAGE ────────────────────────────
+    //
+    //  Le pseudo à jour est DANS le message qu'on vient de lire. Le
+    //  recopier ici coûte un appel et évite une tâche de
+    //  synchronisation entière — « pourquoi le Maître du Jeu tague
+    //  encore le compte de test alors que j'ai changé de nom ? »,
+    //  18 novembre.
+    //
+    //  ON N'ATTEND PAS SON RÉSULTAT POUR AGIR, et un échec ne compte
+    //  pas : un nom périmé n'empêche pas de fouiller, et perdre une
+    //  rencontre parce qu'on n'a pas su corriger une étiquette serait
+    //  absurde.
+    await this.jeu.renommer(joueurId, lue.auteurPseudo).catch(() => {});
+
     const ecrites: LigneEcrite[] = [];
     for (const evenement of await this.resoudre(zone, lue, joueurId, erreurs)) {
       //  LE CODE EST PROPRE À L'ÉVÉNEMENT, pas au message : deux lignes

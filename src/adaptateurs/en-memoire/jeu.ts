@@ -97,6 +97,16 @@ export class EtatDuJeuEnMemoire implements EtatDuJeu {
   estClos(sujetId: number): Promise<boolean> {
     return Promise.resolve(this.#clos.has(sujetId));
   }
+
+  /** Les renommages demandés, dans l'ordre. Un tableau et pas une
+   *  carte : un essai doit pouvoir vérifier qu'on ne renomme pas deux
+   *  fois pour un même message. */
+  readonly renommages: { joueurId: string; pseudo: string }[] = [];
+
+  renommer(joueurId: string, pseudo: string): Promise<void> {
+    this.renommages.push({ joueurId, pseudo });
+    return Promise.resolve();
+  }
 }
 
 export class ClotureEnMemoire implements Cloture {

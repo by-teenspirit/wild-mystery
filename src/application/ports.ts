@@ -228,6 +228,20 @@ export interface EtatDuJeu {
   ): Promise<ReadonlyMap<string, PokemonNomme>>;
   /** Le joueur lié à un compte Forumactif, ou null s'il n'est pas lié. */
   joueurDuCompte(forumUserId: number): Promise<string | null>;
+  /** Met le pseudo du joueur d'accord avec celui que le forum sert.
+   *
+   *  POURQUOI C'EST NÉCESSAIRE : `joueur.pseudo` est posé à la liaison
+   *  du carnet et plus rien ne le touchait. Les messages du Maître du
+   *  Jeu mentionnent ce pseudo-là — ils citaient donc le nom qu'on
+   *  portait le jour de la liaison, pour toujours.
+   *
+   *  APPELÉE À CHAQUE ACTION LUE, parce que le pseudo à jour est déjà
+   *  dans le message : aucune tâche de synchronisation à écrire, et le
+   *  nom se répare au premier message d'après le changement.
+   *
+   *  NE LÈVE PAS ET NE REND RIEN : un nom périmé n'empêche pas de
+   *  jouer, et faire échouer une fouille pour ça serait absurde. */
+  renommer(joueurId: string, pseudo: string): Promise<void>;
   estClos(sujetId: number): Promise<boolean>;
 }
 

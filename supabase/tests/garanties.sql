@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(424);
+select plan(430);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -2718,6 +2718,63 @@ select is(
     (select sujet_id from combat where etat = 'ouvert')))->>'rappelee',
   'false',
   'NI UNE CARTE ENCORE EN ATTENTE DE SON PREMIER ENVOI'
+);
+
+-- ════════════════════════════════════════════════════════════════════
+--  LE PSEUDO SUIT LE FORUM (0056)
+--
+--  Il était posé à la liaison du carnet et plus rien ne le touchait :
+--  le Maître du Jeu citait le nom du jour de la liaison, pour
+--  toujours.
+-- ════════════════════════════════════════════════════════════════════
+
+--  `ORDER BY` ET PAS SEULEMENT `LIMIT 1` : sans ordre, PostgreSQL ne
+--  rend pas deux fois la même ligne, et trois de ces assertions
+--  lisaient un autre joueur que celui qu'elles venaient de renommer.
+select is(
+  joueur_renommer(jsonb_build_object(
+    'joueurId', (select id from joueur order by forum_user_id limit 1),
+    'pseudo',   'Jake Dalziel'))->>'renomme',
+  'true',
+  'UN JOUEUR QUI A CHANGÉ DE NOM SE RENOMME'
+);
+
+select is(
+  (select pseudo from joueur order by forum_user_id limit 1),
+  'Jake Dalziel',
+  'et la fiche porte le nouveau nom'
+);
+
+select is(
+  joueur_renommer(jsonb_build_object(
+    'joueurId', (select id from joueur order by forum_user_id limit 1),
+    'pseudo',   'Jake Dalziel'))->>'motif',
+  'DEJA_A_JOUR',
+  'LE MÊME NOM NE RÉÉCRIT RIEN — la relève appelle à chaque action'
+);
+
+--  UN PSEUDO VIDE NE REMPLACE RIEN : un gabarit mal lu ferait
+--  mentionner « @ ». Mieux vaut un nom périmé qu'un nom absent.
+select is(
+  joueur_renommer(jsonb_build_object(
+    'joueurId', (select id from joueur order by forum_user_id limit 1),
+    'pseudo',   '   '))->>'motif',
+  'PSEUDO_VIDE',
+  'UN PSEUDO VIDE NE REMPLACE RIEN'
+);
+
+select is(
+  (select pseudo from joueur order by forum_user_id limit 1),
+  'Jake Dalziel',
+  'et la fiche garde le sien'
+);
+
+select is(
+  joueur_renommer(jsonb_build_object(
+    'joueurId', '00000000-0000-0000-0000-000000000000',
+    'pseudo',   'Personne'))->>'motif',
+  'JOUEUR_INCONNU',
+  'UN JOUEUR INCONNU NE LÈVE PAS — ce n''est pas une panne de la zone'
 );
 
 --  ── POSTER, ET NE PAS REPOSTER ───────────────────────────────────

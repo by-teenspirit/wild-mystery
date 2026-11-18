@@ -102,6 +102,16 @@ export class EtatDuJeuSupabase implements EtatDuJeu {
     return table;
   }
 
+  /** Met le pseudo du joueur d'accord avec le forum (migration 0056).
+   *
+   *  NE REND RIEN ET NE LÈVE PAS SUR UN REFUS ORDINAIRE : la base
+   *  répond `renomme: false` quand le nom est déjà bon, quand il est
+   *  vide, ou quand le joueur est inconnu. Aucun de ces cas n'est une
+   *  panne, et l'appelant n'en fait rien. */
+  async renommer(joueurId: string, pseudo: string): Promise<void> {
+    await this.appeler("joueur_renommer", { joueurId, pseudo });
+  }
+
   async joueurDuCompte(forumUserId: number): Promise<string | null> {
     const nom = "joueur_du_compte";
     const recu = objet(nom, await this.appeler(nom, { forumUserId }));

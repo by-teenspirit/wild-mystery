@@ -90,6 +90,14 @@ class JeuFixe implements EtatDuJeu {
   joueurDuCompte(compte: number): Promise<string | null> {
     return Promise.resolve(this.liens.get(compte) ?? null);
   }
+  /** Les renommages demandés. Un tableau, pour qu'un essai puisse dire
+   *  combien de fois on a corrigé le nom, pas seulement qu'on l'a
+   *  fait. */
+  readonly renommages: { joueurId: string; pseudo: string }[] = [];
+  renommer(joueurId: string, pseudo: string): Promise<void> {
+    this.renommages.push({ joueurId, pseudo });
+    return Promise.resolve();
+  }
   estClos(): Promise<boolean> {
     return Promise.resolve(false);
   }
@@ -706,4 +714,46 @@ Deno.test("le jour est en temps universel, pas dans le fuseau de qui demande", (
   //  être la même pour tout le monde.
   assertEquals(jourDe(new Date("2026-10-03T23:30:00Z")), "2026-10-03");
   assertEquals(jourDe(new Date("2026-10-04T00:30:00Z")), "2026-10-04");
+});
+
+// ── le pseudo suit le forum ─────────────────────────────────────────
+
+Deno.test("LE NOM DU JOUEUR SE MET À JOUR À CHAQUE ACTION", () => {
+  //  « Pourquoi le Maître du Jeu tague encore le compte de test alors
+  //  que j'ai changé de nom ? » — 18 novembre. Le pseudo était posé à
+  //  la liaison du carnet et plus rien ne le touchait : les messages
+  //  citaient le nom du jour de la liaison, pour toujours.
+  //
+  //  IL EST DANS LE MESSAGE QU'ON VIENT DE LIRE. Le recopier coûte un
+  //  appel et évite une tâche de synchronisation entière.
+  const jeu = new JeuFixe();
+  const c = monter([action(15601, { type: "fouiller" })], { jeu });
+  return c.tache.executerSur(c.zone, 976, 0).then(() => {
+    assertEquals(jeu.renommages, [{ joueurId: JOUEUR, pseudo: "Anna" }]);
+  });
+});
+
+Deno.test("UN AUTEUR SANS FICHE NE RENOMME PERSONNE", () => {
+  //  Il n'est lié à aucun joueur : il n'y a pas de fiche à corriger, et
+  //  appeler avec un identifiant nul serait une erreur de base.
+  const jeu = new JeuFixe(new Map());
+  const c = monter([action(15601, { type: "fouiller" })], { jeu });
+  return c.tache.executerSur(c.zone, 976, 0).then(() => {
+    assertEquals(jeu.renommages, []);
+  });
+});
+
+Deno.test("UN RENOMMAGE QUI ÉCHOUE N'EMPORTE PAS LA FOUILLE", () => {
+  //  Un nom périmé n'empêche pas de jouer. Perdre une rencontre parce
+  //  qu'on n'a pas su corriger une étiquette serait absurde.
+  const jeu = new JeuFixe();
+  jeu.renommer = () => Promise.reject(new Error("base injoignable"));
+  const c = monter([action(15601, { type: "fouiller" })], {
+    jeu,
+    butin: butinCertain("objet"),
+  });
+  return c.tache.executerSur(c.zone, 976, 0).then((bilan) => {
+    assertEquals(bilan.erreurs, []);
+    assertEquals(c.registre.ecrites.length, 1);
+  });
 });
