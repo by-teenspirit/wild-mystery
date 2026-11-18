@@ -197,9 +197,11 @@ export async function poserLeBilan(
   //  TABLE VIDE PLUTÔT QU'UNE REQUÊTE DE PLUS : le module se pose sur
   //  chaque sujet de zone, et il ne demande déjà que les noms qu'il va
   //  écrire. `ligneEnAttente` écrit « ton Pokémon » pour ce qu'elle ne
-  //  sait pas nommer, ce qui est vrai et lisible. Le récapitulatif
-  //  latéral, lui, lira `mon_combat` et aura les vrais noms : c'est là
-  //  que la table se remplira.
+  //  sait pas nommer, ce qui est vrai et lisible.
+  //
+  //  LE BILAN POSTÉ, LUI, LES NOMME — `pokemon_nommes` (0053), lue par
+  //  la relève. C'est lui qui reste dans le sujet ; ce module est un
+  //  aperçu de ce qui sera versé.
   const colonnes = colonnesDuBilan(lignes, pseudoParJoueur(lignes, lecteurDePseudos(doc)), {
     especes,
     objets,

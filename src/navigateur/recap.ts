@@ -1,0 +1,140 @@
+// ════════════════════════════════════════════════════════════════════
+//  src/navigateur/recap.ts
+//
+//  Ce que le récapitulatif latéral montre. Pur : aucun DOM, aucun
+//  `fetch` — on reçoit ce que la base a rendu, on rend des blocs
+//  prêts à dessiner.
+//
+//  « Ce serait cool d'avoir le bilan du sujet qui nous suit, en petit
+//  récap à droite ou à gauche, en vertical, pour savoir où on en est,
+//  en tout temps », puis : « à chaque fois qu'une action est faite, en
+//  plus d'avoir les pokémons, il faudrait une récap de son équipe et
+//  le combat en cours. »
+//
+//  ── TROIS BLOCS, ET LEUR ORDRE EST CELUI DE L'URGENCE ───────────────
+//
+//  1. LE COMBAT, s'il y en a un. C'est ce qui attend une réponse.
+//  2. L'ÉQUIPE et ses PV. C'est ce qui décide de la réponse.
+//  3. CE QUE LE SUJET A RAPPORTÉ. C'est ce qu'on regarde quand il n'y
+//     a rien à décider.
+//
+//  Un bloc vide ne se dessine pas : un récapitulatif qui montrerait
+//  trois cadres vides sur un sujet neuf prendrait de la place sans
+//  rien dire.
+//
+//  ── IL NE RECALCULE RIEN ────────────────────────────────────────────
+//
+//  Les PV viennent de `mon_sujet`, les rubriques de `rubriquesEnAttente`
+//  — la même fonction que le module au-dessus du premier message et
+//  que le bilan posté. Trois endroits qui compteraient chacun de leur
+//  côté finiraient par annoncer trois totaux.
+// ════════════════════════════════════════════════════════════════════
+
+import { type LigneEnAttente, rubriquesEnAttente } from "../application/bilan.ts";
+
+/** Un Pokémon de l'équipe, tel que `mon_sujet` le rend. */
+export type MembreDuRecap = {
+  readonly position: number | null;
+  readonly especeId: number;
+  readonly nom: string;
+  readonly surnom: string | null;
+  readonly niveau: number;
+  readonly pv: number;
+  readonly pvMax: number;
+  /** Celui qui se bat en ce moment. La base le dit ; on ne le devine
+   *  pas depuis les PV, qui peuvent coïncider. */
+  readonly combat: boolean;
+};
+
+export type CombatDuRecap = {
+  readonly tour: number;
+  readonly sauvage: {
+    readonly especeId: number;
+    readonly nom: string;
+    readonly niveau: number;
+    readonly types: readonly string[];
+    readonly pv: number;
+    readonly pvMax: number;
+  };
+  /** `null` quand l'équipe est vide — planche 99 §5.3 : la rencontre
+   *  reste une rencontre, et la ball se lance quand même. */
+  readonly pvPokemon: number | null;
+  readonly pvPokemonMax: number | null;
+};
+
+export type MonSujet = {
+  readonly equipe: readonly MembreDuRecap[];
+  readonly combat: CombatDuRecap | null;
+};
+
+/** Le nom affiché d'un Pokémon : son surnom, l'espèce entre
+ *  parenthèses. La même règle que les messages du Maître du Jeu — un
+ *  joueur ne doit pas lire deux noms pour un même Pokémon selon
+ *  l'endroit où il regarde. */
+export function nomDuMembre(m: MembreDuRecap): string {
+  const propre = m.surnom?.trim();
+  return propre ? `${propre} (${m.nom})` : m.nom;
+}
+
+/** La part de PV restants, de 0 à 100.
+ *
+ *  BORNÉE DES DEUX CÔTÉS. Une jauge à 140 % sortirait du cadre et on
+ *  chercherait le défaut dans le CSS ; une jauge négative disparaîtrait
+ *  sans qu'on sache pourquoi. */
+export function partDePv(pv: number, pvMax: number): number {
+  if (!Number.isFinite(pv) || !Number.isFinite(pvMax) || pvMax <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round((pv / pvMax) * 100)));
+}
+
+/** L'état d'un Pokémon, en un mot — pour la couleur de sa jauge.
+ *
+ *  LES SEUILS SONT CEUX DES JEUX : le vert jusqu'à la moitié, l'orange
+ *  jusqu'au cinquième, le rouge en dessous. Un joueur qui a joué à un
+ *  Pokémon les lit sans les apprendre.
+ *
+ *  `terre` est à part : zéro PV n'est pas « presque mort », c'est une
+ *  case qui ne peut plus se battre, et la différence décide d'un tour. */
+export type EtatDePv = "terre" | "critique" | "entame" | "bien";
+
+export function etatDePv(pv: number, pvMax: number): EtatDePv {
+  if (pv <= 0) return "terre";
+  const part = partDePv(pv, pvMax);
+  if (part <= 20) return "critique";
+  if (part <= 50) return "entame";
+  return "bien";
+}
+
+/** Un bloc du récapitulatif, prêt à dessiner. */
+export type BlocDuRecap =
+  | { readonly quoi: "combat"; readonly combat: CombatDuRecap }
+  | { readonly quoi: "equipe"; readonly equipe: readonly MembreDuRecap[] }
+  | {
+    readonly quoi: "gains";
+    readonly rubriques: readonly { readonly etiquette: string; readonly valeur: string }[];
+  };
+
+/** Les blocs à dessiner, dans l'ordre, pour ce joueur et ce sujet.
+ *
+ *  `mien` est la ligne de bilan du joueur connecté — celle que le
+ *  module au-dessus du premier message calcule déjà. `null` quand il
+ *  n'a encore rien fait dans ce sujet, ce qui est le cas de tout le
+ *  monde au premier message.
+ *
+ *  REND UN TABLEAU VIDE QUAND IL N'Y A RIEN À MONTRER, et l'appelant
+ *  ne pose alors pas le récapitulatif : un cadre vide collé au bord
+ *  de l'écran est une gêne, pas une information. */
+export function blocsDuRecap(
+  sujet: MonSujet | null,
+  mien: LigneEnAttente | null,
+): readonly BlocDuRecap[] {
+  const blocs: BlocDuRecap[] = [];
+  if (sujet !== null && sujet.combat !== null) {
+    blocs.push({ quoi: "combat", combat: sujet.combat });
+  }
+  if (sujet !== null && sujet.equipe.length > 0) {
+    blocs.push({ quoi: "equipe", equipe: sujet.equipe });
+  }
+  const rubriques = mien === null ? [] : rubriquesEnAttente(mien);
+  if (rubriques.length > 0) blocs.push({ quoi: "gains", rubriques });
+  return blocs;
+}

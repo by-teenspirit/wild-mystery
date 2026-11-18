@@ -30,45 +30,10 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { type ConfigSupabase } from "./registre.ts";
-import type { Laissez } from "../../navigateur/session-de-jeu.ts";
-import { appelerAvecLeJeton, rafraichir } from "./auth-supabase.ts";
-import { garderLeLaissez, lireLeLaissez, oublierLeLaissez } from "./laissez-garde.ts";
-import { encoreBon } from "../../navigateur/session-de-jeu.ts";
+import { avecLeLaissez, type Rouages } from "./laissez-utilisable.ts";
 import type { DonneesDeCombat } from "./barre-d-actions.ts";
 
-export type Rouages = {
-  readonly lire?: () => Laissez | null;
-  readonly garder?: (l: Laissez) => void;
-  readonly oublier?: () => void;
-  readonly maintenant?: () => number;
-  readonly rafraichirLe?: typeof rafraichir;
-  readonly appeler?: typeof appelerAvecLeJeton;
-};
-
-/** Le laissez-passer utilisable, rafraîchi si besoin.
- *
- *  LES MÊMES GESTES QUE DANS `dex-du-joueur.ts`, et pas partagés pour
- *  la même raison qu'eux : là-bas un refus n'a aucune suite, ici non
- *  plus, mais dans `js/carnet.ts` il ouvre le formulaire de liaison. Une
- *  fonction commune devrait rendre la raison du refus, que ces deux-là
- *  jetteraient. */
-async function laissezUtilisable(
-  r: Rouages,
-  acces: ConfigSupabase,
-): Promise<Laissez | null> {
-  const garde = (r.lire ?? lireLeLaissez)();
-  if (garde === null) return null;
-  const quand = (r.maintenant ?? Date.now)();
-  if (encoreBon(garde, quand)) return garde;
-  const neuf = await (r.rafraichirLe ?? rafraichir)(acces, garde.rafraichir, quand)
-    .catch(() => null);
-  if (neuf === null) {
-    (r.oublier ?? oublierLeLaissez)();
-    return null;
-  }
-  (r.garder ?? garderLeLaissez)(neuf);
-  return neuf;
-}
+export type { Rouages };
 
 function nombre(o: Record<string, unknown>, clef: string): number | null {
   const v = o[clef];
@@ -137,19 +102,5 @@ export async function monCombat(
   acces: ConfigSupabase,
   r: Rouages = {},
 ): Promise<DonneesDeCombat | null> {
-  const laissez = await laissezUtilisable(r, acces);
-  if (laissez === null) return null;
-  try {
-    const reponse = await (r.appeler ?? appelerAvecLeJeton)(
-      acces,
-      laissez.jeton,
-      "mon_combat",
-      { sujetId },
-    );
-    if (!reponse.ok) return null;
-    return lireMonCombat(await reponse.json());
-  } catch (e) {
-    console.warn("wild-mystery : mon_combat", e);
-    return null;
-  }
+  return lireMonCombat(await avecLeLaissez(acces, "mon_combat", { sujetId }, r));
 }

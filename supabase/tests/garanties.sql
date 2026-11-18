@@ -9,7 +9,7 @@
 -- ════════════════════════════════════════════════════════════════════
 
 begin;
-select plan(407);
+select plan(414);
 
 -- ── le décor ────────────────────────────────────────────────────────
 --  LES DEUX MAISONS SONT DES NATURES, pas des légendaires. La
@@ -3078,6 +3078,56 @@ select ok(
   'LE SAC EST RÉDUIT À CE QUI SERT EN COMBAT : une pierre d''évolution dans une liste où chaque ligne coûte un tour serait un piège'
 );
 
+-- ════════════════════════════════════════════════════════════════════
+--  0054 · MON SUJET
+--
+--  La même frontière, et une question différente : « où en suis-je
+--  dans ce sujet ? » plutôt que « ai-je un combat ouvert ici ? ».
+--  C'est ce qui justifie deux fonctions — élargir `mon_combat` aurait
+--  changé le sens de son `null` pour la barre d'actions, qui s'en sert
+--  pour savoir s'il faut servir les boutons de combat.
+-- ════════════════════════════════════════════════════════════════════
+
+select ok(
+  jsonb_array_length(mon_sujet(jsonb_build_object('sujetId', 999))->'equipe') >= 2,
+  'MON SUJET REND L''ÉQUIPE, avec les PV du sujet'
+);
+
+select ok(
+  mon_sujet(jsonb_build_object('sujetId', 999))->'combat' <> 'null'::jsonb,
+  'et le combat ouvert quand il y en a un'
+);
+
+--  LE POINT QUI SÉPARE LES DEUX FONCTIONS. Sur un sujet SANS combat,
+--  `mon_combat` rend `null` — pas de boutons de combat — tandis que
+--  `mon_sujet` rend quand même l'équipe : c'est le cas ordinaire, et
+--  c'est même là qu'on regarde son équipe avant de faire apparaître
+--  quelque chose.
+--  UN NUMÉRO DE SUJET QUI N'EXISTE NULLE PART, exprès : c'est le seul
+--  moyen d'être sûr qu'aucun combat n'y traîne, quel que soit l'ordre
+--  des décors au-dessus.
+select ok(
+  mon_combat(jsonb_build_object('sujetId', 123456)) is null,
+  'SUR UN SUJET SANS COMBAT, `mon_combat` ne rend rien'
+);
+
+select ok(
+  jsonb_array_length(mon_sujet(jsonb_build_object('sujetId', 123456))->'equipe') >= 2,
+  'MAIS `mon_sujet` REND L''ÉQUIPE QUAND MÊME — un sujet sans combat est le cas ordinaire, et c''est même là qu''on la regarde'
+);
+
+select ok(
+  mon_sujet(jsonb_build_object('sujetId', 123456))->'combat' = 'null'::jsonb,
+  'et il DIT qu''il n''y a pas de combat, plutôt que de ne rien rendre'
+);
+
+select ok(
+  (select bool_and((m->>'pvMax')::integer > 0)
+     from jsonb_array_elements(
+       mon_sujet(jsonb_build_object('sujetId', 999))->'equipe') m),
+  'CHAQUE POKÉMON PORTE SON MAXIMUM : sans lui, la jauge du récapitulatif n''a pas d''échelle'
+);
+
 --  ── ET LE COMBAT DU VOISIN RESTE LE SIEN ─────────────────────────
 select set_config(
   'request.jwt.claims',
@@ -3093,6 +3143,14 @@ select ok(
 select ok(
   combat_du_sujet(jsonb_build_object('sujetId', 999)) is not null,
   'MAIS IL VOIT LA CARTE : ce qui est dans le sujet reste public'
+);
+
+--  CETTE IDENTITÉ-LÀ N'EST LIÉE À AUCUN JOUEUR : `joueur_courant()`
+--  rend `null`, donc le récapitulatif ne se pose pas. C'est la même
+--  frontière que le combat, vérifiée par le même décor.
+select ok(
+  mon_sujet(jsonb_build_object('sujetId', 999)) is null,
+  'ET LE RÉCAPITULATIF NE SE POSE PAS POUR UNE IDENTITÉ INCONNUE'
 );
 
 select set_config('request.jwt.claims', '', true);

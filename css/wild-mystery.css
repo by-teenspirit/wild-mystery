@@ -16572,6 +16572,247 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   bottom: auto;
 }
 
+/* ── LE RÉCAPITULATIF LATÉRAL ────────────────────────────────────────
+
+    « Le bilan du sujet qui nous suit, en petit récap à droite ou à
+    gauche, en vertical, pour savoir où on en est, en tout temps. »
+
+    ── FIXE, PAS COLLANT ────────────────────────────────────────────
+
+    `position: sticky` aurait demandé de mettre les messages et le
+    récapitulatif dans une même rangée, donc de toucher à la structure
+    de la page d'un sujet — posée le 30 octobre, et que personne n'a
+    demandé de changer. `fixed` ne touche à rien : il flotte au-dessus,
+    à droite, et la page reste ce qu'elle était.
+
+    ── LE SEUIL EST CALCULÉ, PAS CHOISI ─────────────────────────────
+
+    « Faudra peut-être réduire la largeur du forum pour que ce soit
+    propre ? » — 18 novembre. Non, et c'est mesurable : le forum fait
+    `--wm-largeur-forum`, soit 1 200 px (`02-socle.css`). Le panneau
+    en demande 216, plus 16 d'écart au bord et 16 entre lui et le
+    forum. Il faut donc
+
+        1200 + 2 × (216 + 16 + 16) = 1696 px
+
+    pour qu'il tienne À CÔTÉ du contenu et non PAR-DESSUS. On
+    l'arrondit à 1700. En dessous, il ne se pose pas — plutôt que de
+    recouvrir les messages, ce qu'aucune largeur de forum ne
+    rattraperait sur un portable de 1 440.
+
+    LE SEUIL EST ÉCRIT EN DUR PARCE QU'UNE REQUÊTE DE MÉDIA NE LIT PAS
+    LES VARIABLES. Si `--wm-largeur-forum` change, ce nombre doit
+    changer avec — d'où le calcul écrit juste au-dessus, et pas
+    seulement le résultat.
+
+    LES DEUX CÔTÉS SONT COMPTÉS, même si le panneau n'est qu'à droite :
+    le forum est centré, donc la marge de droite vaut la moitié de ce
+    qui reste. Ne compter qu'un côté aurait donné 1 448 et un panneau
+    qui mord sur les messages.
+
+    Il vit dans `12-confort.css` et pas dans `05-sujet.css` : c'est un
+    confort de lecture qui se pose PAR-DESSUS la page, comme le repli
+    du bandeau latéral, pas un morceau de la page d'un sujet. */
+#modernbb .wm-recap {
+  display: none;
+}
+
+/*  ── IL NE MARCHE PAS SUR LE COIN D'OUTILS ────────────────────────
+    (vu au rendu, 18 novembre)
+
+    `.wm-coin` est fixe en bas à droite, à 16 px du bord, et porte
+    quatre boutons — sombre, haut, bas, confort. Le récapitulatif
+    centré verticalement passait juste au-dessus dans le décor
+    d'essai ; avec six Pokémon et six rubriques, il serait descendu
+    dessus.
+
+    ON L'ANCRE DONC EN HAUT, pas au centre, et on lui donne pour
+    plafond ce qui reste au-dessus du coin : la hauteur de la fenêtre,
+    moins les 88 du haut, moins les 16 du bas du coin, ses 190 de
+    hauteur et les 16 d'écart entre eux. Au-delà, il défile dans son
+    cadre.
+
+    LES 190 SONT MESURÉS SUR LE COIN RÉEL : quatre boutons de 40 et
+    trois écarts de 10. S'il gagne un cinquième bouton, ce nombre doit
+    changer — d'où le calcul écrit, et pas seulement le résultat. */
+@media (min-width: 1700px) {
+  #modernbb .wm-recap {
+    box-sizing: border-box;
+    display: flex;
+    position: fixed;
+    z-index: 20;
+    top: 88px;
+    right: var(--wm-espace-16, 16px);
+    width: 216px;
+    max-height: calc(100vh - 88px - 16px - 190px - 16px);
+    flex-direction: column;
+    gap: var(--wm-espace-12, 12px);
+    overflow-y: auto;
+    padding: var(--wm-espace-14, 14px);
+    border: 1px solid var(--wm-bord-fin, #eadacd);
+    border-radius: var(--wm-rayon-lg, 10px);
+    background: var(--wm-fond-surface, #fffbf7);
+    box-shadow: 0 6px 20px rgb(46 32 24 / 12%);
+    color: var(--wm-texte-corps, #4e3b30);
+    font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  }
+}
+
+#modernbb .wm-recap__bloc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
+}
+
+/*  UN FILET ENTRE DEUX BLOCS, JAMAIS AU-DESSUS DU PREMIER — `+` et pas
+    `:not(:first-child)`, comme la carte de dresseur : si un bloc
+    disparaît, le filet suit le bloc visible qui le précède. */
+#modernbb .wm-recap__bloc + .wm-recap__bloc {
+  padding-top: var(--wm-espace-12, 12px);
+  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+}
+
+#modernbb .wm-recap__titre {
+  margin: 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-surtitre, 1.4);
+  text-transform: uppercase;
+}
+
+#modernbb .wm-recap__liste {
+  display: flex;
+  margin: 0;
+  flex-direction: column;
+  padding: 0;
+  gap: var(--wm-espace-6, 6px);
+  list-style: none;
+}
+
+/*  UNE LIGNE PAR POKÉMON, EN RANGÉE : le sprite à gauche, le nom et
+    la jauge à droite. Six cases empilées en colonne comme la carte de
+    dresseur prendraient toute la hauteur de l'écran. */
+#modernbb .wm-recap__membre {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-8, 8px);
+}
+
+/*  CELUI QUI SE BAT SE VOIT. La teinte ne porte pas le sens seule :
+    le module pose aussi `aria-current`. */
+#modernbb .wm-recap__membre--combat {
+  margin: 0 calc(-1 * var(--wm-espace-6, 6px));
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-6, 6px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+/*  MÊMES RÈGLES QUE PARTOUT AILLEURS : boîte fixe, jamais agrandi,
+    posé sur sa ligne de sol. Plus petit qu'ailleurs — 40 px — parce
+    qu'il y en a sept au maximum dans une colonne de 216. */
+#modernbb .wm-recap__sprite {
+  display: block;
+  width: 40px;
+  height: 40px !important;
+  flex: 0 0 auto;
+  object-fit: scale-down;
+  object-position: bottom;
+  image-rendering: pixelated;
+}
+
+#modernbb .wm-recap__texte {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#modernbb .wm-recap__nom {
+  overflow: hidden;
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modernbb .wm-recap__jauge {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-bord-net, #d9c3b1) 55%, transparent);
+}
+
+#modernbb .wm-recap__barre {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--wm-accent-primaire, #275e7a);
+}
+
+/*  ── LES QUATRE ÉTATS, ET POURQUOI CES SEUILS ─────────────────────
+
+    Ce sont ceux des jeux : vert jusqu'à la moitié, orange jusqu'au
+    cinquième, rouge en dessous. Un joueur qui a joué à un Pokémon les
+    lit sans les apprendre.
+
+    LA COULEUR NE PORTE PAS LE SENS SEULE : le chiffre « 11/18 PV »
+    est écrit juste en dessous, et c'est lui qui fait foi.
+
+    LES TROIS TEINTES SONT CELLES DU DANGER D'UNE ZONE, et c'est voulu
+    plutôt que subi : la charte a UNE échelle vert-ambre-rouge, déjà
+    validée en contraste dans les deux thèmes, et le garde-fou n° 7
+    rappelle que « le dépôt se SERT des jetons, il ne les déclare
+    pas ». Trois nouvelles valeurs inventées ici auraient été une
+    seconde échelle à tenir d'accord avec la première. */
+#modernbb .wm-recap__jauge[data-wm-pv="bien"] .wm-recap__barre {
+  background: var(--wm-danger-paisible, #4f7a52);
+}
+
+#modernbb .wm-recap__jauge[data-wm-pv="entame"] .wm-recap__barre {
+  background: var(--wm-danger-dangereuse, #8d5d27);
+}
+
+#modernbb .wm-recap__jauge[data-wm-pv="critique"] .wm-recap__barre,
+#modernbb .wm-recap__jauge[data-wm-pv="terre"] .wm-recap__barre {
+  background: var(--wm-danger-interdite, #a64430);
+}
+
+#modernbb .wm-recap__pv {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+#modernbb .wm-recap__rubriques {
+  display: grid;
+  margin: 0;
+  grid-template-columns: auto 1fr;
+  gap: 2px var(--wm-espace-8, 8px);
+}
+
+#modernbb .wm-recap__etiquette {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+#modernbb .wm-recap__valeur {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: 1.4;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 13 · La bibliothèque de composants
 

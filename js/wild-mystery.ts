@@ -31,6 +31,17 @@ import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts"
 import { monCombat } from "../src/adaptateurs/navigateur/mon-combat.ts";
 import { forumDeLAdresse, sujetDeLAdresse } from "../src/navigateur/tableau-des-rp.ts";
 import {
+  aNommer,
+  colonnesDuBilan,
+  lignesDepuis,
+  parJoueur,
+  pseudoParJoueur,
+} from "../src/navigateur/bilan.ts";
+import { cumuler } from "../src/domaine/cloture.ts";
+import { lecteurDePseudos } from "../src/adaptateurs/navigateur/module-bilan.ts";
+import { suivreLeRecap } from "../src/adaptateurs/navigateur/module-recap.ts";
+import { monSujet } from "../src/adaptateurs/navigateur/mon-sujet.ts";
+import {
   adresseDuScript,
   CatalogueDistant,
   forumDeLaPage,
@@ -364,6 +375,87 @@ async function poserLeModule(): Promise<void> {
   });
 }
 
+/** Le récapitulatif latéral : « le bilan du sujet qui nous suit, en
+ *  petit récap à droite ou à gauche, en vertical, pour savoir où on en
+ *  est, en tout temps ».
+ *
+ *  MÊME PORTE QUE LA BARRE ET QUE LE MODULE DE BILAN : une zone
+ *  sauvage, et un sujet. Ailleurs il n'y a ni équipe engagée ni
+ *  registre, donc rien à récapituler.
+ *
+ *  ── COMMENT IL SAIT QUELLE COLONNE EST LA MIENNE ───────────────────
+ *
+ *  Par le PSEUDO, lu dans `_userdata`, comparé à celui que le module
+ *  de bilan tire de la page. Ce n'est pas un raccourci : « le pseudo
+ *  vient de la page, pas de la base » est déjà la règle du bilan
+ *  depuis le 2 octobre, et les colonnes sont nommées ainsi.
+ *
+ *  L'AUTRE CHEMIN AURAIT ÉTÉ `joueur_du_compte`, donc une requête de
+ *  plus et une SECONDE façon de dire qui je suis — exactement ce que
+ *  `0051` a refusé pour la barre. */
+async function poserLeRecapitulatif(): Promise<void> {
+  if (RACINE === null) return;
+
+  const sujet = sujetDeLAdresse(location.pathname);
+  if (sujet === null) return;
+
+  const catalogue = new CatalogueDistant(RACINE);
+  const zone = zoneDe(forumDeLaPage(document), await catalogue.zones());
+  if (zone === null) return;
+
+  const config = await configSupabase();
+  if (config === null) return;
+
+  const registre = new RegistreDistant(config);
+  const moi = pseudoDuCompte();
+
+  suivreLeRecap({
+    doc: document,
+    decor: { depot: RACINE },
+    lire: async () => {
+      const [sien, lignesBrutes] = await Promise.all([
+        monSujet(sujet, config),
+        //  UN REGISTRE ILLISIBLE N'EMPÊCHE PAS L'ÉQUIPE DE S'AFFICHER :
+        //  les deux moitiés du récapitulatif sont indépendantes, et la
+        //  moitié qui marche vaut mieux que rien.
+        registre.lignesDuSujet(sujet).catch(() => []),
+      ]);
+
+      const lignes = lignesDepuis(lignesBrutes);
+      if (lignes.length === 0 || moi === null) return { sujet: sien, mien: null };
+
+      const tout = cumuler([...parJoueur(lignes).values()].flat());
+      const quoi = aNommer(tout);
+      const especes = new Map<number, string>();
+      for (const id of quoi.especes) {
+        const nom = await catalogue.nomEspece(id);
+        if (nom !== null) especes.set(id, nom);
+      }
+      const objets = await registre.nomsDObjets(quoi.objets).catch(() => new Map());
+
+      //  ── LES POKÉMON NE SONT PAS NOMMÉS ICI NON PLUS ──────────
+      //
+      //  `xpParPokemon` est indexée par IDENTIFIANT, et `mon_sujet` ne
+      //  rend pas les identifiants de l'équipe : le drapeau `combat`
+      //  suffit à marquer celui qui se bat, et un identifiant de plus
+      //  n'aurait servi qu'à ça.
+      //
+      //  `ligneEnAttente` écrit donc « ton Pokémon +48 », ce qui est
+      //  vrai et lisible. LE BILAN POSTÉ, LUI, LES NOMME — il passe
+      //  par `pokemon_nommes` (0053), et c'est lui qui reste dans le
+      //  sujet. Le récapitulatif est un aperçu ; le message est la
+      //  pièce.
+      const colonnes = colonnesDuBilan(
+        lignes,
+        pseudoParJoueur(lignes, lecteurDePseudos(document)),
+        { especes, objets, pokemon: new Map() },
+      );
+      const mienne = colonnes.find((c) => c.ligne.pseudo === moi) ?? null;
+      return { sujet: sien, mien: mienne?.ligne ?? null };
+    },
+  });
+}
+
 /** Le bandeau d'une zone, maquettes `301:13` et `301:26`, et la page
  *  d'un sujet, maquette `305:24`.
  *
@@ -566,6 +658,7 @@ desQueLeCorpsEstLa(() => {
   //  `catch` qui ne fait rien de plus que l'empêcher de remonter.
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
+  poserLeRecapitulatif().catch(() => {});
   poserLaVie().catch(() => {});
   //  LE PRÉAMBULE DE FORUMACTIF EN PREMIER, AVANT TOUS LES AUTRES.
   //

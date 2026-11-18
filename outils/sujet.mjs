@@ -2505,11 +2505,35 @@ dire(
     depuis le 3 novembre, le « @ » ne se pose que sur l'affichage d'un
     sujet, et c'est l'ADRESSE qui le dit. Monter toujours la page à
     `/t10-un-sujet` rendrait la barrière invisible au harnais. */
-async function monterAvecScript(ariane, adresse = "https://exemple.test/t10-un-sujet") {
-  const q = await nav.newPage({ viewport: { width: 1440, height: 900 } });
+async function monterAvecScript(
+  ariane,
+  adresse = "https://exemple.test/t10-un-sujet",
+  //  ── LE RÉCAPITULATIF A BESOIN DE TROIS CHOSES ───────────────────
+  //
+  //  Un laissez-passer dans `localStorage`, ce que `mon_sujet` rend,
+  //  et une largeur d'écran suffisante — 1 700 px, le calcul est dans
+  //  `12-confort.css`. Les 1 440 par défaut du harnais sont EXPRÈS en
+  //  dessous : c'est la largeur où le panneau ne doit PAS se poser.
+  { recap = null, largeur = 1440 } = {},
+) {
+  const q = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   await q.route("**/*", (route) => {
     const chemin = new URL(route.request().url()).pathname;
+    if (chemin.endsWith("/rpc/mon_sujet")) {
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(recap?.sujet ?? null),
+      });
+    }
+    //  LE REGISTRE EST SERVI VIDE PAR DÉFAUT : un sujet neuf n'a pas
+    //  de lignes, et c'est le cas ordinaire.
+    if (chemin.endsWith("/registre")) {
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(recap?.registre ?? []),
+      });
+    }
     if (chemin === "/js/wild-mystery.js") {
       return route.fulfill({
         contentType: "text/javascript; charset=utf-8",
@@ -2554,6 +2578,22 @@ async function monterAvecScript(ariane, adresse = "https://exemple.test/t10-un-s
     });
   });
   await q.goto(adresse);
+  //  LE LAISSEZ-PASSER, POSÉ AVANT LE SCRIPT. Sans lui, `mon_sujet`
+  //  sort avant tout réseau — c'est voulu, et c'est aussi ce qui fait
+  //  qu'un harnais qui l'oublierait mesurerait une page sans
+  //  récapitulatif en croyant mesurer un récapitulatif.
+  if (recap !== null) {
+    await q.evaluate(() =>
+      localStorage.setItem(
+        "wm.carnet.laissez",
+        JSON.stringify({
+          jeton: "jeton-d-essai",
+          rafraichir: "rafraichir-d-essai",
+          expireLe: Date.now() + 3600_000,
+        }),
+      )
+    );
+  }
   await q.evaluate(() => {
     const s = document.createElement("script");
     s.src = "https://exemple.test/js/wild-mystery.js";
@@ -2931,6 +2971,174 @@ dire(
   JSON.stringify(rien),
 );
 await horsZone.close();
+
+//  ══════════════════════════════════════════════════════════════════
+//  LE RÉCAPITULATIF LATÉRAL
+//
+//  « Le bilan du sujet qui nous suit, en petit récap à droite ou à
+//  gauche, en vertical, pour savoir où on en est, en tout temps. »
+//
+//  CE QU'AUCUN TEST DENO NE PEUT DIRE : s'il se pose au bon endroit,
+//  s'il recouvre les messages, et s'il disparaît quand l'écran est
+//  trop étroit pour l'accueillir à côté du forum.
+//  ══════════════════════════════════════════════════════════════════
+
+console.log("\n── LE RÉCAPITULATIF LATÉRAL ──────────────────────────");
+
+const DECOR_RECAP = {
+  sujet: {
+    equipe: [
+      {
+        position: 1,
+        especeId: 4,
+        nom: "Salamèche",
+        surnom: "Biscotte",
+        niveau: 5,
+        pv: 7,
+        pvMax: 18,
+        combat: true,
+      },
+      {
+        position: 2,
+        especeId: 37,
+        nom: "Goupix",
+        surnom: null,
+        niveau: 6,
+        pv: 0,
+        pvMax: 20,
+        combat: false,
+      },
+    ],
+    combat: {
+      tour: 2,
+      sauvage: {
+        especeId: 77,
+        nom: "Ponyta",
+        niveau: 10,
+        types: ["feu"],
+        pv: 18,
+        pvMax: 30,
+      },
+      pvPokemon: 7,
+      pvPokemonMax: 18,
+    },
+  },
+  registre: [],
+};
+
+//  ── À 1 920 px, IL EST LÀ ET IL NE MORD PAS ────────────────────────
+const large = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  recap: DECOR_RECAP,
+  largeur: 1920,
+});
+await large.waitForTimeout(500);
+const vuLarge = await large.evaluate(() => {
+  const r = document.querySelector(".wm-recap");
+  if (r === null) return { pose: false };
+  const b = r.getBoundingClientRect();
+  const forum = document.querySelector("#wrap, .wrap")?.getBoundingClientRect() ?? null;
+  return {
+    pose: getComputedStyle(r).display !== "none",
+    blocs: [...r.querySelectorAll(".wm-recap__titre")].map((t) => t.textContent),
+    membres: r.querySelectorAll(".wm-recap__membre").length,
+    enCombat: r.querySelectorAll(".wm-recap__membre--combat").length,
+    etats: [...r.querySelectorAll(".wm-recap__jauge")].map((j) => j.dataset.wmPv),
+    //  LE POINT QUI COMPTE : il ne doit PAS recouvrir le forum.
+    mord: forum === null ? null : b.left < forum.right,
+    aDroite: b.left > (globalThis.innerWidth ?? 0) / 2,
+  };
+});
+dire("IL SE POSE SUR UN SUJET DE ZONE", vuLarge.pose === true, JSON.stringify(vuLarge.pose));
+dire(
+  "avec le combat, puis l'équipe",
+  JSON.stringify(vuLarge.blocs) === JSON.stringify(["Combat · tour 2", "Mon équipe"]),
+  JSON.stringify(vuLarge.blocs),
+);
+dire(
+  "LE POKÉMON QUI SE BAT EST MARQUÉ",
+  vuLarge.enCombat === 1,
+  `${vuLarge.enCombat} marqué(s) sur ${vuLarge.membres} lignes`,
+);
+//  LES TROIS ÉTATS DANS UN SEUL DÉCOR : le sauvage à 18/30 (60 %,
+//  « bien »), le mien à 7/18 (39 %, « entamé »), le second à 0 (« à
+//  terre »). Un décor qui n'en montrerait que deux laisserait le
+//  troisième seuil sans surveillance.
+dire(
+  "et les jauges disent les trois états",
+  JSON.stringify(vuLarge.etats) === JSON.stringify(["bien", "entame", "terre"]),
+  JSON.stringify(vuLarge.etats),
+);
+dire(
+  "IL NE RECOUVRE PAS LE FORUM — c'est tout l'objet du seuil de 1 700",
+  vuLarge.mord === false,
+  `mord : ${vuLarge.mord}`,
+);
+dire("et il est à droite", vuLarge.aDroite === true, String(vuLarge.aDroite));
+
+//  ── ET IL NE MARCHE PAS SUR LE COIN D'OUTILS ──────────────────────
+//
+//  `.wm-coin` est fixe en bas à droite, au même endroit. Vu au rendu
+//  le 18 novembre : le récapitulatif centré verticalement passait
+//  juste au-dessus, et avec six Pokémon il serait descendu dessus.
+const chevauche = await large.evaluate(() => {
+  const r = document.querySelector(".wm-recap")?.getBoundingClientRect();
+  const c = document.querySelector(".wm-coin")?.getBoundingClientRect();
+  if (r === undefined || c === undefined) return { mesurable: false };
+  return {
+    mesurable: true,
+    //  Deux rectangles se croisent s'ils se chevauchent sur les DEUX
+    //  axes. Ils partagent la colonne de droite, donc c'est la
+    //  verticale qui tranche.
+    croise: r.bottom > c.top && r.top < c.bottom,
+    ecart: Math.round(c.top - r.bottom),
+  };
+});
+dire(
+  "IL NE MARCHE PAS SUR LE COIN D'OUTILS",
+  chevauche.mesurable === true && chevauche.croise === false,
+  JSON.stringify(chevauche),
+);
+await large.close();
+
+//  ── À 1 440 px, IL N'EST PAS LÀ ────────────────────────────────────
+//
+//  C'est la largeur d'un portable courant : le forum fait 1 200, il ne
+//  reste que 120 de chaque côté. Un panneau de 216 y recouvrirait les
+//  messages, et aucune largeur de forum ne rattraperait ça sans
+//  rétrécir le forum pour tout le monde.
+const etroit = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  recap: DECOR_RECAP,
+  largeur: 1440,
+});
+await etroit.waitForTimeout(500);
+const vuEtroit = await etroit.evaluate(() => {
+  const r = document.querySelector(".wm-recap");
+  return {
+    dansLaPage: r !== null,
+    visible: r === null ? false : getComputedStyle(r).display !== "none",
+  };
+});
+dire(
+  "SOUS 1 700 px, IL NE S'AFFICHE PAS",
+  vuEtroit.visible === false,
+  JSON.stringify(vuEtroit),
+);
+await etroit.close();
+
+//  ── SANS LAISSEZ-PASSER, RIEN ──────────────────────────────────────
+//
+//  Un visiteur déconnecté n'a ni équipe ni registre : le panneau ne se
+//  pose pas, et il ne doit pas laisser de cadre vide collé au bord.
+const invite = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  largeur: 1920,
+});
+await invite.waitForTimeout(500);
+dire(
+  "SANS LAISSEZ-PASSER, AUCUN RÉCAPITULATIF",
+  await invite.evaluate(() => document.querySelector(".wm-recap") === null),
+  "",
+);
+await invite.close();
 
 await p.close();
 await nav.close();
