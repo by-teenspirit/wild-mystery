@@ -387,8 +387,13 @@ export class LireLesNouveauxMessages {
       const rappelee = await this.combats.rappelerLaCarte(lue.sujetId)
         .catch(() => false);
       erreurs.push(
+        //  LA PHRASE A DÉJÀ TROMPÉ SON LECTEUR. Elle disait « aucun
+        //  combat n'est ouvert » en parlant du combat qu'elle venait
+        //  de refuser d'ouvrir — donc un journal qui annonce le
+        //  contraire de la table juste à côté. Une heure perdue le 18
+        //  novembre à chercher une panne qui n'existait pas.
         `message ${lue.messageId} : un combat tourne déjà dans ce sujet, ` +
-          `la rencontre est inscrite mais aucun combat n'est ouvert` +
+          `la rencontre est inscrite mais aucun second combat n'a été ouvert` +
           (rappelee ? ` — sa carte est redemandée` : ``),
       );
     }
