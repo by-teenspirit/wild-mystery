@@ -584,7 +584,22 @@ export function poserLeLienDEvitement(doc: Document): boolean {
   lien.className = "wm-evitement";
   lien.href = `#${cible.id}`;
   lien.textContent = "Aller au contenu";
-  doc.body?.insertBefore(lien, doc.body.firstChild);
+  //  SOUS `#modernbb`, ET C'EST TOUTE LA DIFFÉRENCE. Notre feuille est
+  //  cadrée là — `#modernbb .wm-evitement`, y compris la règle qui le
+  //  tient hors de l'écran tant qu'on ne tabule pas dessus.
+  //
+  //  Sur le forum, `#modernbb` EST le `<body>` (planche 04) : poser le
+  //  lien en tête de `body` le mettait donc bien dans le cadre. La page
+  //  du carnet, elle, est une page autonome où `#modernbb` est un
+  //  `<div>` À L'INTÉRIEUR du `<body>` — le lien atterrissait avant
+  //  lui, aucune règle ne le visait, et « Aller au contenu » s'affichait
+  //  en permanence tout en haut. Relevé par Callista le 19 novembre.
+  //
+  //  `getElementById` rend le `<body>` lui-même quand c'est lui qui
+  //  porte l'identifiant : les deux cas passent par la même ligne.
+  const hote = doc.getElementById("modernbb") ?? doc.body;
+  if (hote === null || hote === undefined) return false;
+  hote.insertBefore(lien, hote.firstChild);
   return true;
 }
 

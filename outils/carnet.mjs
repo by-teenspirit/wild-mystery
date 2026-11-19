@@ -3407,10 +3407,19 @@ if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"))
   //  ET LA CIBLE DOIT PRENDRE LE FOCUS, pas seulement défiler : sans
   //  `tabindex="-1"` dessus, la tabulation suivante repart du haut de
   //  la page et le lien n'a rien évité.
+  //  ── ET IL NE SE VOIT PAS TANT QU'ON NE TABULE PAS DESSUS ──────
+  //
+  //  Le premier jet ne mesurait que la présence et le focus, et le
+  //  lien s'affichait en permanence en haut de la page : il était
+  //  posé HORS de `#modernbb`, où aucune de nos règles ne le visait.
+  //  Un harnais qui vérifie qu'une chose existe sans regarder où elle
+  //  est ne vérifie pas grand-chose.
   const saut = await q.evaluate(() => {
     const lien = document.getElementById("wm-evitement");
     if (lien === null) return { lien: false };
+    const repos = lien.getBoundingClientRect();
     lien.focus();
+    const tenu = lien.getBoundingClientRect();
     lien.click();
     const cible = document.getElementById("wm-carnet-corps");
     return {
@@ -3418,6 +3427,11 @@ if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"))
       vise: lien.getAttribute("href"),
       cibleFocalisable: cible?.getAttribute("tabindex") === "-1",
       focusDansLeCorps: cible !== null && cible.contains(document.activeElement),
+      //  DANS LE CADRE : sans ça, aucune de nos règles ne l'atteint.
+      dansLeCadre: lien.closest("#modernbb") !== null,
+      //  AU REPOS IL EST AU-DESSUS DE L'ÉCRAN, au focus il redescend.
+      basAuRepos: Math.round(repos.bottom),
+      hautAuFocus: Math.round(tenu.top),
     };
   });
   dire(
@@ -3425,6 +3439,15 @@ if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"))
     saut.lien === true && saut.vise === "#wm-carnet-corps" &&
       saut.cibleFocalisable === true && saut.focusDansLeCorps === true,
     JSON.stringify(saut),
+  );
+  dire(
+    "ET IL NE SE VOIT QU'AU CLAVIER — hors de l'écran au repos",
+    saut.dansLeCadre === true && saut.basAuRepos <= 0 && saut.hautAuFocus >= 0,
+    JSON.stringify({
+      dansLeCadre: saut.dansLeCadre,
+      basAuRepos: saut.basAuRepos,
+      hautAuFocus: saut.hautAuFocus,
+    }),
   );
   await q.close();
 }
