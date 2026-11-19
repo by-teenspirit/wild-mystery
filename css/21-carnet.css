@@ -765,8 +765,46 @@
   display: none;
 }
 
+/*  ── LA PORTE D'ENTRÉE EST PLUS LARGE QUE LE RESTE ────────────────
+
+    « L'action de lier son compte à gauche, et à droite comprendre à
+    quoi ça sert. Comme quand on arrive sur la connexion d'un nouveau
+    site. » — 18 novembre.
+
+    520 px suffisaient pour une colonne ; deux n'y tiennent pas. Le
+    bloc passe donc à 980, et c'est l'EN-TÊTE qu'on retient à la main :
+    un chapô de 980 px de large se lit mal, une ligne de prose ne
+    dépasse pas la soixantaine de signes. */
 #modernbb .wm-carnet__dehors {
-  max-width: 520px;
+  max-width: 980px;
+}
+
+#modernbb .wm-carnet__dehors .wm-carnet__entete,
+#modernbb .wm-carnet__dehors .wm-carnet__souci {
+  max-width: 60ch;
+}
+
+/*  LES DEUX COLONNES. La coupure se décide sur la largeur DU BLOC et
+    pas sur celle de l'écran — le carnet vit dans une colonne dont on
+    ne connaît pas la taille, et une `@media` a déjà menti une fois ce
+    mois-ci sur l'organigramme de l'annexe 13.
+
+    PAS DE FILET ENTRE LES DEUX. « Ne mets pas un border à gauche. Ne
+    mets ça nulle part, ce n'est pas beau » — c'est le panneau du
+    formulaire qui sépare, par son fond. */
+#modernbb .wm-carnet__porte {
+  container-type: inline-size;
+  display: grid;
+  gap: var(--wm-espace-32, 32px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+@container (max-width: 820px) {
+  #modernbb .wm-carnet__porte {
+    gap: var(--wm-espace-24, 24px);
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /*  ── LIER SON COMPTE ───────────────────────────────────────────────
@@ -775,9 +813,9 @@
     d'un personnage. Il est donc écrit sobrement : un champ, un bouton,
     une phrase de réponse. Rien qui ressemble à une étape de jeu. */
 #modernbb .wm-carnet__lier {
-  margin-top: var(--wm-espace-24, 24px);
-  padding-top: var(--wm-espace-20, 20px);
-  border-top: 1px solid var(--wm-bord-fin, #eadacd);
+  /*  LE FILET DU HAUT EST PARTI AVEC LA MISE EN COLONNES. Il séparait
+      le formulaire de la présentation qui le précédait ; maintenant
+      qu'elles sont côte à côte, il ne séparait plus que du vide. */
   /*  LE FORMULAIRE À GAUCHE, L'INFORMATION À DROITE. La coupure se
       décide sur LA LARGEUR DU BLOC et pas sur celle de l'écran : le
       carnet vit dans une colonne dont on ne connaît pas la taille, et
@@ -796,8 +834,32 @@
   }
 }
 
+/*  ── DANS LA COLONNE DE GAUCHE, LE BLOC EST TOUJOURS EN UN SEUL
+    MORCEAU ──────────────────────────────────────────────────────
+
+    Et il faut l'écrire, parce qu'une requête de conteneur ne mesure
+    JAMAIS l'élément qui la porte : `@container` interroge l'ancêtre
+    le plus proche qui soit un conteneur, donc ici `__porte` — 980 px,
+    jamais sous le seuil. Le formulaire restait côte à côte avec son
+    encadré dans une colonne de 470 px, et tenait sur 180.
+
+    C'est la même famille d'erreur que la `@media` de l'organigramme :
+    une mesure qui ne mesure pas ce qu'on croit. */
+#modernbb .wm-carnet__porte > .wm-carnet__lier {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/*  ── LE FORMULAIRE EST UN PANNEAU, pas un bout de page ────────────
+
+    C'est lui l'action, et c'est à ça qu'une page de connexion se
+    reconnaît : un bloc posé, avec son fond et son cadre, qu'on
+    distingue du discours autour. */
 #modernbb .wm-carnet__lier-forme {
   min-width: 0;
+  padding: var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
 /*  ── L'AIDE DE CHAQUE PAGE ────────────────────────────────────────
@@ -918,7 +980,6 @@
     dans une colonne dont on ne connaît pas la taille. */
 #modernbb .wm-carnet__presentation {
   container-type: inline-size;
-  margin-bottom: var(--wm-espace-24, 24px);
 }
 
 #modernbb .wm-carnet__atouts {

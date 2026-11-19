@@ -119,160 +119,177 @@
         </header>
         <p class="wm-carnet__souci" data-wm-carnet-souci role="status"></p>
 
-        <!--  ── À QUOI IL SERT, AVANT DE DEMANDER QUOI QUE CE SOIT ────
+        <!--  ── DEUX COLONNES : LE GESTE, PUIS LA RAISON ─────────────
 
-              « Il faut vraiment que l'onboarding serve à expliquer à
-              quoi il sert, comment on lie son compte » — 18 novembre.
+              « Je pense que tu peux mettre les informations à droite,
+              et en gros avoir l'action de lier son compte à gauche, et
+              à droite comprendre à quoi ça sert. Comme quand on arrive
+              sur la connexion d'un nouveau site. » — 18 novembre.
 
-              LA PAGE DEMANDAIT UNE ADRESSE E-MAIL SANS AVOIR DIT CE
-              QU'ELLE OUVRAIT. On arrivait sur « Lier mon compte » et un
-              champ. Personne ne donne son adresse à un formulaire qui
-              ne s'est pas présenté.
+              L'ACTION EST LA PREMIÈRE DANS LE BALISAGE, pas seulement
+              à gauche. Au téléphone les deux colonnes s'empilent, et
+              c'est le formulaire qu'on veut voir en premier : on est
+              venu relier son carnet, pas lire une brochure. Un lecteur
+              d'écran suit le même ordre.
 
-              Les sept cartes viennent de la liste que Callista a
-              dictée, dans son ordre. Elles sont AVANT le formulaire, et
-              c'est tout l'objet du changement.  -->
-        <section class="wm-carnet__presentation" data-wm-carnet-presentation hidden>
-          <h2 class="wm-carnet__bloc-titre">Ce que tu y trouveras</h2>
-          <ul class="wm-carnet__atouts">
-            <li class="wm-carnet__atout">
-              <b>Le suivi de tes RP</b>
-              <span>Tes sujets en cours, ceux qui sont prévus, tes solos — et
-                surtout, à qui c'est de répondre.</span>
-            </li>
-            <li class="wm-carnet__atout">
-              <b>Un éditeur qui sauvegarde tout seul</b>
-              <span>Tu écris tes RP dedans. Il enregistre tout le temps, sans
-                que tu aies à y penser, et garde tes brouillons.</span>
-            </li>
-            <li class="wm-carnet__atout">
-              <b>Des sprints d'écriture</b>
-              <span>Pour s'y mettre à plusieurs, ou se donner un temps à soi.</span>
-            </li>
-            <li class="wm-carnet__atout">
-              <b>Un mode focus</b>
-              <span>L'écran se vide, il ne reste que le texte.</span>
-            </li>
-            <li class="wm-carnet__atout">
-              <b>Ton histoire et ta chronologie</b>
-              <span>Les informations de ton personnage, rangées là où tu
-                écris, et ta fiche de liens tenue depuis la même
-                interface.</span>
-            </li>
-            <li class="wm-carnet__atout">
-              <b>Ton jeu, à l'instant</b>
-              <span>Ton équipe, tes boîtes, ton sac, et ton Pokédex — ce que
-                tu as vu, ce que tu as attrapé.</span>
-            </li>
-          </ul>
-        </section>
+              Les deux blocs s'affichent et se cachent ENSEMBLE —
+              `montrerLaLiaison` les tient par la même fonction — donc
+              la grille n'a jamais une seule colonne remplie.  -->
+        <div class="wm-carnet__porte">
+          <!--  LIER SON COMPTE, UNE SEULE FOIS DANS LA VIE DU
+                PERSONNAGE. Le bloc est caché par défaut : il ne s'ouvre
+                que si la page n'a pas de laissez-passer valable. Le
+                script remplit tout le reste.  -->
+          <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
+            <div class="wm-carnet__lier-forme">
+              <h2 class="wm-carnet__bloc-titre">Relier ton carnet</h2>
+              <!--  ── LA CONDITION D'ABORD, LE GESTE ENSUITE ───────────
 
-        <!--  LIER SON COMPTE, UNE SEULE FOIS DANS LA VIE DU
-              PERSONNAGE. Le bloc est caché par défaut : il ne s'ouvre
-              que si la page n'a pas de laissez-passer valable. Le
-              script remplit tout le reste.  -->
-        <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
-          <div class="wm-carnet__lier-forme">
-            <h2 class="wm-carnet__bloc-titre">Relier ton carnet</h2>
-            <!--  ── LA CONDITION D'ABORD, LE GESTE ENSUITE ───────────
+                    « Cela ne peut être fait qu'une fois validée : le staff
+                    effectue une manipulation pour permettre l'accès à
+                    votre pseudo et votre email au carnet de bord. »
 
-                  « Cela ne peut être fait qu'une fois validée : le staff
-                  effectue une manipulation pour permettre l'accès à
-                  votre pseudo et votre email au carnet de bord. »
+                    ELLE EST ÉCRITE AVANT LE CHAMP. Quelqu'un qui n'est pas
+                    encore validé tapait son adresse, ne recevait rien, et
+                    n'avait aucun moyen de savoir que c'était normal.  -->
+              <p>
+                <b>D'abord, il faut que ton personnage soit validé.</b> À ce
+                moment-là, le staff fait une manipulation de son côté : il
+                autorise le carnet à lire ton pseudo et ton adresse e-mail.
+                Tant que ce n'est pas fait, le lien ne partira pas.
+              </p>
+              <p>
+                Ensuite, tape ici l'adresse de ton inscription. Tu recevras un
+                lien à cliquer : c'est lui qui confirme que c'est bien toi.
+                Une seule fois, et ton carnet s'ouvrira tout seul ensuite —
+                sur tous tes personnages, sur tous tes navigateurs.
+              </p>
+              <form data-wm-carnet-liaison>
+                <label for="wm-courriel">Ton adresse e-mail</label>
+                <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
+                       spellcheck="false" required placeholder="celle de ton inscription" />
+                <button type="submit">Recevoir mon lien</button>
+              </form>
+              <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+            </div>
 
-                  ELLE EST ÉCRITE AVANT LE CHAMP. Quelqu'un qui n'est pas
-                  encore validé tapait son adresse, ne recevait rien, et
-                  n'avait aucun moyen de savoir que c'était normal.  -->
-            <p>
-              <b>D'abord, il faut que ton personnage soit validé.</b> À ce
-              moment-là, le staff fait une manipulation de son côté : il
-              autorise le carnet à lire ton pseudo et ton adresse e-mail.
-              Tant que ce n'est pas fait, le lien ne partira pas.
-            </p>
-            <p>
-              Ensuite, tape ici l'adresse de ton inscription. Tu recevras un
-              lien à cliquer : c'est lui qui confirme que c'est bien toi.
-              Une seule fois, et ton carnet s'ouvrira tout seul ensuite —
-              sur tous tes personnages, sur tous tes navigateurs.
-            </p>
-            <form data-wm-carnet-liaison>
-              <label for="wm-courriel">Ton adresse e-mail</label>
-              <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
-                     spellcheck="false" required placeholder="celle de ton inscription" />
-              <button type="submit">Recevoir mon lien</button>
-            </form>
-            <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+            <!--  L'ENCADRÉ D'INFORMATION. Il répond aux trois questions
+                  que les joueuses posent avant de taper quoi que ce soit —
+                  pourquoi une adresse, et si j'en change, et si j'ai
+                  plusieurs personnages. Demandé le 16 novembre, après
+                  qu'une joueuse est restée bloquée trois jours.  -->
+            <aside class="wm-info" data-wm-carnet-lier-info>
+              <p class="wm-info__titre">
+                <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+                  <circle cx="10" cy="5.9" r="1.15" fill="currentColor" />
+                  <path d="M10 9v5.6" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+                Pourquoi ton adresse&nbsp;?
+              </p>
+              <p>
+                À ta validation, le staff relie ton adresse à une
+                <b>clé de liaison</b> — un petit code qui prouve que c'est
+                bien toi, et qui empêche quelqu'un d'autre d'ouvrir ton
+                carnet.
+              </p>
+              <p>
+                <b>Si tu changes d'adresse ensuite, préviens-nous.</b> Nous
+                mettrons la nouvelle à jour&nbsp;; sans ça, ton carnet ne
+                s'ouvrira plus.
+              </p>
+              <p>
+                Plusieurs personnages&nbsp;? La même adresse les ouvre
+                <b>tous d'un coup</b>. Le format
+                <code>mail+perso@gmail.com</code> marche aussi, si tu
+                préfères les séparer.
+              </p>
+            </aside>
+
+            <!--  ── LES DEUX CHOSES QUI BLOQUENT POUR DE VRAI ──────────
+
+                  « Attention, l'email peut tomber dans les spams ! Si il
+                  y a un problème, il ne faut pas hésiter à demander au
+                  staff. » — 18 novembre.
+
+                  ELLES SONT DANS UN ENCART À PART, après le formulaire et
+                  non avant : on les lit au moment où elles servent,
+                  c'est-à-dire quand le lien n'arrive pas. Les mettre plus
+                  haut, c'était annoncer une panne avant d'avoir essayé.  -->
+            <aside class="wm-info wm-info--attention" data-wm-carnet-lier-spam>
+              <p class="wm-info__titre">
+                <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M10 2.6 18.4 17H1.6Z" fill="none" stroke="currentColor"
+                        stroke-width="1.6" stroke-linejoin="round" />
+                  <path d="M10 7.8v4.1" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" />
+                  <circle cx="10" cy="14.5" r="1.1" fill="currentColor" />
+                </svg>
+                Le lien n'arrive pas&nbsp;?
+              </p>
+              <p>
+                <b>Regarde dans tes spams.</b> C'est là qu'il tombe le plus
+                souvent — le courrier vient d'un service automatique, et les
+                messageries s'en méfient. Pense à le marquer comme
+                «&nbsp;non indésirable&nbsp;» pour les fois suivantes.
+              </p>
+              <p>
+                Rien non plus au bout de quelques minutes&nbsp;?
+                <b>Écris au staff</b>, on regarde avec toi. C'est en général
+                que l'adresse notée à ta validation n'est pas celle que tu
+                viens de taper, ou que la manipulation reste à faire. Il n'y
+                a rien à réparer de ton côté.
+              </p>
+            </aside>
           </div>
+          <!--  ── À QUOI IL SERT, AVANT DE DEMANDER QUOI QUE CE SOIT ────
 
-          <!--  L'ENCADRÉ D'INFORMATION. Il répond aux trois questions
-                que les joueuses posent avant de taper quoi que ce soit —
-                pourquoi une adresse, et si j'en change, et si j'ai
-                plusieurs personnages. Demandé le 16 novembre, après
-                qu'une joueuse est restée bloquée trois jours.  -->
-          <aside class="wm-info" data-wm-carnet-lier-info>
-            <p class="wm-info__titre">
-              <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
-                <circle cx="10" cy="5.9" r="1.15" fill="currentColor" />
-                <path d="M10 9v5.6" fill="none" stroke="currentColor"
-                      stroke-width="1.8" stroke-linecap="round" />
-              </svg>
-              Pourquoi ton adresse&nbsp;?
-            </p>
-            <p>
-              À ta validation, le staff relie ton adresse à une
-              <b>clé de liaison</b> — un petit code qui prouve que c'est
-              bien toi, et qui empêche quelqu'un d'autre d'ouvrir ton
-              carnet.
-            </p>
-            <p>
-              <b>Si tu changes d'adresse ensuite, préviens-nous.</b> Nous
-              mettrons la nouvelle à jour&nbsp;; sans ça, ton carnet ne
-              s'ouvrira plus.
-            </p>
-            <p>
-              Plusieurs personnages&nbsp;? La même adresse les ouvre
-              <b>tous d'un coup</b>. Le format
-              <code>mail+perso@gmail.com</code> marche aussi, si tu
-              préfères les séparer.
-            </p>
-          </aside>
+                « Il faut vraiment que l'onboarding serve à expliquer à
+                quoi il sert, comment on lie son compte » — 18 novembre.
 
-          <!--  ── LES DEUX CHOSES QUI BLOQUENT POUR DE VRAI ──────────
+                LA PAGE DEMANDAIT UNE ADRESSE E-MAIL SANS AVOIR DIT CE
+                QU'ELLE OUVRAIT. On arrivait sur « Lier mon compte » et un
+                champ. Personne ne donne son adresse à un formulaire qui
+                ne s'est pas présenté.
 
-                « Attention, l'email peut tomber dans les spams ! Si il
-                y a un problème, il ne faut pas hésiter à demander au
-                staff. » — 18 novembre.
-
-                ELLES SONT DANS UN ENCART À PART, après le formulaire et
-                non avant : on les lit au moment où elles servent,
-                c'est-à-dire quand le lien n'arrive pas. Les mettre plus
-                haut, c'était annoncer une panne avant d'avoir essayé.  -->
-          <aside class="wm-info wm-info--attention" data-wm-carnet-lier-spam>
-            <p class="wm-info__titre">
-              <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                <path d="M10 2.6 18.4 17H1.6Z" fill="none" stroke="currentColor"
-                      stroke-width="1.6" stroke-linejoin="round" />
-                <path d="M10 7.8v4.1" fill="none" stroke="currentColor"
-                      stroke-width="1.8" stroke-linecap="round" />
-                <circle cx="10" cy="14.5" r="1.1" fill="currentColor" />
-              </svg>
-              Le lien n'arrive pas&nbsp;?
-            </p>
-            <p>
-              <b>Regarde dans tes spams.</b> C'est là qu'il tombe le plus
-              souvent — le courrier vient d'un service automatique, et les
-              messageries s'en méfient. Pense à le marquer comme
-              «&nbsp;non indésirable&nbsp;» pour les fois suivantes.
-            </p>
-            <p>
-              Rien non plus au bout de quelques minutes&nbsp;?
-              <b>Écris au staff</b>, on regarde avec toi. C'est en général
-              que l'adresse notée à ta validation n'est pas celle que tu
-              viens de taper, ou que la manipulation reste à faire. Il n'y
-              a rien à réparer de ton côté.
-            </p>
-          </aside>
+                Les sept cartes viennent de la liste que Callista a
+                dictée, dans son ordre. Elles sont AVANT le formulaire, et
+                c'est tout l'objet du changement.  -->
+          <section class="wm-carnet__presentation" data-wm-carnet-presentation hidden>
+            <h2 class="wm-carnet__bloc-titre">Ce que tu y trouveras</h2>
+            <ul class="wm-carnet__atouts">
+              <li class="wm-carnet__atout">
+                <b>Le suivi de tes RP</b>
+                <span>Tes sujets en cours, ceux qui sont prévus, tes solos — et
+                  surtout, à qui c'est de répondre.</span>
+              </li>
+              <li class="wm-carnet__atout">
+                <b>Un éditeur qui sauvegarde tout seul</b>
+                <span>Tu écris tes RP dedans. Il enregistre tout le temps, sans
+                  que tu aies à y penser, et garde tes brouillons.</span>
+              </li>
+              <li class="wm-carnet__atout">
+                <b>Des sprints d'écriture</b>
+                <span>Pour s'y mettre à plusieurs, ou se donner un temps à soi.</span>
+              </li>
+              <li class="wm-carnet__atout">
+                <b>Un mode focus</b>
+                <span>L'écran se vide, il ne reste que le texte.</span>
+              </li>
+              <li class="wm-carnet__atout">
+                <b>Ton histoire et ta chronologie</b>
+                <span>Les informations de ton personnage, rangées là où tu
+                  écris, et ta fiche de liens tenue depuis la même
+                  interface.</span>
+              </li>
+              <li class="wm-carnet__atout">
+                <b>Ton jeu, à l'instant</b>
+                <span>Ton équipe, tes boîtes, ton sac, et ton Pokédex — ce que
+                  tu as vu, ce que tu as attrapé.</span>
+              </li>
+            </ul>
+          </section>
         </div>
       </div>
 

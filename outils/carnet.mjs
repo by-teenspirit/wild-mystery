@@ -722,9 +722,21 @@ for (
   //  demandait une adresse e-mail sans s'être présentée : un titre,
   //  un champ, et c'est tout.
   //
-  //  CE QUI SE MESURE, C'EST L'ORDRE autant que la présence. Une
-  //  présentation posée SOUS le formulaire ne présente rien : on a
-  //  déjà tapé, ou déjà renoncé.
+  //  ── L'ORDRE A CHANGÉ LE 18 NOVEMBRE, ET DANS L'AUTRE SENS ──────
+  //
+  //  « L'action de lier son compte à gauche, et à droite comprendre à
+  //  quoi ça sert. Comme quand on arrive sur la connexion d'un
+  //  nouveau site. »
+  //
+  //  La présentation était AVANT le formulaire, et ce harnais
+  //  l'exigeait. Deux colonnes maintenant : le formulaire en premier
+  //  dans le balisage — c'est ce qu'on vient faire —, la présentation
+  //  à sa droite. Au téléphone les colonnes s'empilent et l'ordre du
+  //  balisage devient l'ordre à l'écran, d'où le sens choisi.
+  //
+  //  ON MESURE LES DEUX CHOSES : l'ordre du document, et la position
+  //  RÉELLE à l'écran. La première sans la seconde laisserait passer
+  //  une grille qui remet la présentation à gauche.
   const onb = await q.evaluate(() => {
     const pres = document.querySelector("[data-wm-carnet-presentation]");
     const form = document.querySelector("[data-wm-carnet-liaison]");
@@ -735,9 +747,19 @@ for (
       presentationVisible: pres.hidden === false &&
         pres.getBoundingClientRect().height > 0,
       atouts: pres.querySelectorAll(".wm-carnet__atout").length,
-      //  AVANT LE FORMULAIRE, dans l'ordre du document.
-      avantLeChamp: (pres.compareDocumentPosition(form) &
-        Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
+      //  APRÈS LE FORMULAIRE, dans l'ordre du document.
+      apresLeChamp: (pres.compareDocumentPosition(form) &
+        Node.DOCUMENT_POSITION_PRECEDING) !== 0,
+      //  ET À SA DROITE À L'ÉCRAN, sur la même ligne : deux blocs
+      //  l'un sous l'autre ne sont pas deux colonnes.
+      aDroite: Math.round(pres.getBoundingClientRect().left) >
+        Math.round(form.getBoundingClientRect().right),
+      surLaMemeLigne: Math.abs(
+        Math.round(pres.getBoundingClientRect().top) -
+          Math.round(
+            document.querySelector("[data-wm-carnet-lier]").getBoundingClientRect().top,
+          ),
+      ) <= 8,
       spamVisible: spam !== null && spam.getBoundingClientRect().height > 0,
       //  LES QUATRE CHOSES QU'ELLE A DICTÉES, cherchées dans le texte
       //  rendu — pas dans la source : c'est ce que la joueuse lit.
@@ -748,13 +770,18 @@ for (
     };
   });
   dire(
-    "LA PRÉSENTATION EST LÀ, ET AVANT LE FORMULAIRE",
-    onb !== null && onb.presentationVisible && onb.avantLeChamp && onb.atouts >= 6,
+    "LA PRÉSENTATION EST LÀ, ET APRÈS LE FORMULAIRE DANS LE BALISAGE",
+    onb !== null && onb.presentationVisible && onb.apresLeChamp && onb.atouts >= 6,
     JSON.stringify(onb && {
       visible: onb.presentationVisible,
       atouts: onb.atouts,
-      avant: onb.avantLeChamp,
+      apres: onb.apresLeChamp,
     }),
+  );
+  dire(
+    "ET ELLE EST BIEN À DROITE, SUR LA MÊME LIGNE — deux colonnes, pas deux étages",
+    onb?.aDroite === true && onb?.surLaMemeLigne === true,
+    JSON.stringify(onb && { aDroite: onb.aDroite, memeLigne: onb.surLaMemeLigne }),
   );
   dire(
     "ELLE DIT LA VALIDATION, LES SPAMS, LE STAFF, ET D'OÙ VIENNENT LES DONNÉES",
@@ -832,15 +859,30 @@ for (
       titre: getComputedStyle(e.querySelector(".wm-info__titre")).color,
       accent,
       icone: e.querySelector(".wm-info__icone") !== null,
-      //  À DROITE DU FORMULAIRE, pas en dessous.
-      aDroite: Math.round(e.getBoundingClientRect().left) >
-        Math.round(forme.getBoundingClientRect().right) - 2,
+      //  ── SOUS LE FORMULAIRE, ET C'EST UN CHANGEMENT DU
+      //  18 NOVEMBRE ────────────────────────────────────────────
+      //
+      //  Il était à sa droite. Depuis que la page s'ouvre en deux
+      //  colonnes — l'action à gauche, la présentation à droite —,
+      //  cette colonne-là fait 470 px : le formulaire et son
+      //  encadré côte à côte y tenaient sur 180 px chacun.
+      //
+      //  L'ORDRE DE LECTURE NE CHANGE PAS pour autant : on lit le
+      //  formulaire, puis pourquoi il demande une adresse.
+      sousLeFormulaire: Math.round(e.getBoundingClientRect().top) >=
+        Math.round(forme.getBoundingClientRect().bottom) - 2,
+      //  ET IL FAIT LA MÊME LARGEUR QUE LUI : un encadré plus étroit
+      //  que le panneau au-dessus donnerait une colonne en escalier.
+      memeLargeur: Math.abs(
+        Math.round(e.getBoundingClientRect().width) -
+          Math.round(forme.getBoundingClientRect().width),
+      ) <= 2,
       dit: e.textContent.replace(/\s+/g, " ").trim(),
     };
   });
   dire(
-    "L'ENCADRÉ D'INFORMATION EST LÀ, À DROITE DU FORMULAIRE",
-    encadre !== null && encadre.aDroite && encadre.icone,
+    "L'ENCADRÉ D'INFORMATION EST LÀ, SOUS LE FORMULAIRE ET À SA LARGEUR",
+    encadre !== null && encadre.sousLeFormulaire && encadre.memeLargeur && encadre.icone,
     JSON.stringify({ ...encadre, dit: (encadre?.dit ?? "").slice(0, 40) }),
   );
   dire(
