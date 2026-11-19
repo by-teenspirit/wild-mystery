@@ -57,7 +57,9 @@ const CHEMIN = (() => {
   const e = json("data/annexes.json").sections
     .flatMap((s) => s.entrees)
     .find((x) => x.slug === "la-region-et-ses-zones");
-  if (e === undefined) throw new Error("la-region-et-ses-zones n'est pas dans data/annexes.json");
+  if (e === undefined) {
+    throw new Error("la-region-et-ses-zones n'est pas dans data/annexes.json");
+  }
   return `pages/annexe-${e.numero}-${e.slug}.html`;
 })();
 const PAGE = lire(CHEMIN);
@@ -524,7 +526,9 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     ZONE.forumId,
   );
   await p.waitForFunction(
-    () => document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length > 0,
+    () =>
+      document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")
+        .length > 0,
     undefined,
     { timeout: 15000 },
   );
@@ -549,7 +553,11 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
     //  espèces ensemble dans l'ordre, tu rajoutes un filtre ».
     const tranches = [{
       rarete: "toutes",
-      especes: Array.from(document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")).map((e) => ({
+      especes: Array.from(
+        document.querySelectorAll(
+          "[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])",
+        ),
+      ).map((e) => ({
         id: Number(e.dataset.wmEspece),
         nom: e.querySelector(".wm-faune__nom")?.textContent ?? "",
         pct: pct(e.querySelector(".wm-faune__pct")?.textContent),
@@ -588,7 +596,9 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
         ),
       dit: document.querySelector(".wm-faune__dit")?.textContent ?? "",
       tranches,
-      total: document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length,
+      total: document.querySelectorAll(
+        "[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])",
+      ).length,
       issues: Array.from(document.querySelectorAll(".wm-faune__issue")).map((n) => ({
         clef: n.dataset.wmIssue,
         pct: pct(n.querySelector(".wm-faune__issue-pct")?.textContent),
@@ -733,9 +743,7 @@ console.log(`\n── un clic sur ${ZONE.nom} ──`);
   ok(
     "ET SA RARETÉ, écrite et pas seulement colorée",
     rareteFausse.length === 0 &&
-      vu.tranches[0].especes.every((e) =>
-        ["commun", "peu commun", "rare"].includes(e.rarete)
-      ),
+      vu.tranches[0].especes.every((e) => ["commun", "peu commun", "rare"].includes(e.rarete)),
     rareteFausse.slice(0, 3),
   );
   //  LES TYPES VIENNENT DES FICHES, pas d'une recopie : on relit la
@@ -899,7 +907,10 @@ console.log("\n── on change de zone, puis on clique une ville ──");
     autre.nom,
     { timeout: 15000 },
   );
-  const compte = await p.evaluate(() => document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length);
+  const compte = await p.evaluate(() =>
+    document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")
+      .length
+  );
   ok(
     "LA FAUNE EST REMPLACÉE, PAS AJOUTÉE",
     compte === sienne.length,
@@ -920,7 +931,9 @@ console.log("\n── on change de zone, puis on clique une ville ──");
   );
   const vu = await p.evaluate(() => ({
     mot: document.querySelector(".wm-faune__vide")?.textContent ?? "",
-    especes: document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length,
+    especes:
+      document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")
+        .length,
   }));
   ok("une ville le dit", vu.mot.includes("Aucune faune"), vu.mot);
   ok(
@@ -949,14 +962,18 @@ console.log("\n── à 390 px ──");
     ZONE.forumId,
   );
   await p.waitForFunction(
-    () => document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])").length > 0,
+    () =>
+      document.querySelectorAll("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")
+        .length > 0,
     undefined,
     { timeout: 15000 },
   );
   const vu = await p.evaluate(() => ({
     debord: document.documentElement.scrollWidth > window.innerWidth + 1,
     large: document.documentElement.scrollWidth,
-    espece: document.querySelector("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")?.getBoundingClientRect().width ?? 0,
+    espece:
+      document.querySelector("[data-wm-espece]:not([data-wm-breche-liste] [data-wm-espece])")
+        ?.getBoundingClientRect().width ?? 0,
   }));
   ok("rien ne déborde", !vu.debord, vu);
   ok("et une carte d'espèce tient dans l'écran", vu.espece > 0 && vu.espece <= 390, vu.espece);
@@ -1347,9 +1364,9 @@ console.log("\n── les étiquettes de rareté se lisent, « très rare » com
         gauche: bande === null
           ? 0
           : Math.round(bande.getBoundingClientRect().left - carte.getBoundingClientRect().left),
-        droite: bande === null
-          ? 0
-          : Math.round(carte.getBoundingClientRect().right - bande.getBoundingClientRect().right),
+        droite: bande === null ? 0 : Math.round(
+          carte.getBoundingClientRect().right - bande.getBoundingClientRect().right,
+        ),
         rembourrage: carte === undefined ? "" : getComputedStyle(carte).paddingLeft,
       };
     });
@@ -1398,7 +1415,9 @@ console.log("\n── les étiquettes de rareté se lisent, « très rare » com
 //  mesurait. On mesure maintenant ce que le script écrit.
 // ════════════════════════════════════════════════════════════════════
 for (const theme of ["light", "dark"]) {
-  console.log(`\n── ce que le script écrit se lit (thème ${theme === "dark" ? "sombre" : "clair"}) ──`);
+  console.log(
+    `\n── ce que le script écrit se lit (thème ${theme === "dark" ? "sombre" : "clair"}) ──`,
+  );
   const q = await ouvrir(nav, { theme });
   await ouvrirLOngletDeLaCarte(q);
   await q.waitForSelector(".wm-carte__dessin", { timeout: 15000 });
@@ -1409,9 +1428,13 @@ for (const theme of ["light", "dark"]) {
       ),
     ZONE.forumId,
   );
-  await q.waitForFunction(() => document.querySelectorAll("[data-wm-espece]").length > 0, undefined, {
-    timeout: 15000,
-  });
+  await q.waitForFunction(
+    () => document.querySelectorAll("[data-wm-espece]").length > 0,
+    undefined,
+    {
+      timeout: 15000,
+    },
+  );
 
   const mesures = await q.evaluate(() => {
     //  ── LIRE UNE COULEUR, ET PAS SEULEMENT UN `rgb()` ────────────
@@ -1512,19 +1535,25 @@ for (const theme of ["light", "dark"]) {
   //  déclarée et que le navigateur est retombé sur sa valeur initiale.
   //  Le dire à part du contraste, parce que c'est une AUTRE faute —
   //  elle passe inaperçue en thème clair, où le noir se lit très bien.
-  const nus = [...new Set(mesures.filter((m) => m.couleur === "rgb(0, 0, 0)").map((m) => m.quoi))];
+  const nus = [
+    ...new Set(mesures.filter((m) => m.couleur === "rgb(0, 0, 0)").map((m) => m.quoi)),
+  ];
   ok(
     "AUCUN TEXTE SANS COULEUR DÉCLARÉE",
     nus.length === 0,
     nus,
   );
-  const sombres = [...new Set(
-    mesures.filter((m) => m.contraste < 4.5).map((m) => `${m.quoi} ${m.contraste}:1`),
-  )];
+  const sombres = [
+    ...new Set(
+      mesures.filter((m) => m.contraste < 4.5).map((m) => `${m.quoi} ${m.contraste}:1`),
+    ),
+  ];
   ok(
     `les ${mesures.length} textes du script tiennent 4,5:1`,
     sombres.length === 0,
-    sombres.length === 0 ? `le plus faible : ${Math.min(...mesures.map((m) => m.contraste))}:1` : sombres,
+    sombres.length === 0
+      ? `le plus faible : ${Math.min(...mesures.map((m) => m.contraste))}:1`
+      : sombres,
   );
   await q.close();
 }
@@ -1553,7 +1582,8 @@ console.log("\n── la carte et la liste des paliers ──");
   await q.waitForSelector(".wm-carte__dessin", { timeout: 15000 });
   const hauteurs = await q.evaluate(() => {
     const l = (s) => Math.round(document.querySelector(s)?.getBoundingClientRect().width ?? -1);
-    const h = (s) => Math.round(document.querySelector(s)?.getBoundingClientRect().height ?? -1);
+    const h = (s) =>
+      Math.round(document.querySelector(s)?.getBoundingClientRect().height ?? -1);
     const liste = document.querySelector(".wm-carte__liste-cadre");
     if (liste === null) return null;
     const lire = () => ({

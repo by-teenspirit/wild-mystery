@@ -139,9 +139,7 @@ const entiers = await p.evaluate(() =>
     //  Une balise mal refermée se voit là : le navigateur recolle, et
     //  la carte se retrouve avec un enfant qu'elle ne devrait pas
     //  avoir ou un texte orphelin au niveau du conteneur.
-    orphelin: [...e.childNodes].some((n) =>
-      n.nodeType === 3 && n.textContent.trim() !== ""
-    ),
+    orphelin: [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim() !== ""),
   }))
 );
 for (const s of entiers) {
@@ -179,9 +177,7 @@ const doubles = await p.evaluate(() =>
       .map((t) => t.dataset.wmType),
   }))
 );
-const menteuses = doubles.filter((c) =>
-  c.surLaCase.join(",") !== c.dansLaBulle.join(",")
-);
+const menteuses = doubles.filter((c) => c.surLaCase.join(",") !== c.dansLaBulle.join(","));
 dire(
   `les ${doubles.length} cases affichent TOUS leurs types, bulle comprise`,
   menteuses.length === 0,
@@ -252,7 +248,11 @@ const uneLigne = await p.evaluate(() => {
     });
   }
   pires.sort((a, b) => a.marge - b.marge);
-  return { combien: pires.length, pire: pires[0] ?? null, replies: pires.filter((x) => x.lignes > 1) };
+  return {
+    combien: pires.length,
+    pire: pires[0] ?? null,
+    replies: pires.filter((x) => x.lignes > 1),
+  };
 });
 dire(
   `les ${uneLigne.combien} doubles types tiennent sur UNE ligne`,
@@ -292,7 +292,8 @@ const alignement = await p.evaluate(() =>
     const sc = getComputedStyle(carte);
     const bordCarte = carte.getBoundingClientRect().left +
       parseFloat(sc.borderLeftWidth) + parseFloat(sc.paddingLeft);
-    const bord = (el) => el === null ? null : Math.round(el.getBoundingClientRect().left - bordCarte);
+    const bord = (el) =>
+      el === null ? null : Math.round(el.getBoundingClientRect().left - bordCarte);
     return {
       nom: e.dataset.sujet,
       centre: carte.classList.contains("wm-annonce--centre"),
@@ -381,7 +382,9 @@ const ligue = await p.evaluate(() => {
     combien: duels.length,
     //  L'écart RÉEL entre deux cartes, pas la marge déclarée.
     ecarts: duels.slice(1).map((d, i) => Math.round(haut(d) - bas(duels[i]))),
-    rangs: duels.map((d) => d.querySelector(".wm-annonce__duel-rang")?.textContent.trim() ?? null),
+    rangs: duels.map((d) =>
+      d.querySelector(".wm-annonce__duel-rang")?.textContent.trim() ?? null
+    ),
     //  Le rang est muet pour un lecteur d'écran, et le mot le dit.
     muets: duels.every((d) =>
       d.querySelector(".wm-annonce__duel-rang")?.getAttribute("aria-hidden") === "true"
@@ -427,12 +430,16 @@ const ligue = await p.evaluate(() => {
     ),
     //  Le titre d'un adversaire doit peser PLUS qu'une étiquette de
     //  section : c'est lui qui dit « nouvelle personne ».
-    tailleTitre: parseFloat(getComputedStyle(
-      duels[0].querySelector(".wm-annonce__duel-titre"),
-    ).fontSize),
-    tailleRappel: parseFloat(getComputedStyle(
-      duels[0].querySelector(".wm-annonce__duel-rappel"),
-    ).fontSize),
+    tailleTitre: parseFloat(
+      getComputedStyle(
+        duels[0].querySelector(".wm-annonce__duel-titre"),
+      ).fontSize,
+    ),
+    tailleRappel: parseFloat(
+      getComputedStyle(
+        duels[0].querySelector(".wm-annonce__duel-rappel"),
+      ).fontSize,
+    ),
     debord: document.documentElement.scrollWidth > innerWidth,
   };
 });

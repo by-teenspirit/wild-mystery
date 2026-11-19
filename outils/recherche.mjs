@@ -177,9 +177,8 @@ const vu = await p.evaluate(() => {
     recherche: mesurer("#recherche"),
     forum: mesurer("#forum"),
     deborde: [...document.querySelectorAll("#modernbb *")]
-      .filter((e) =>
-        e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-      ).length,
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      .length,
   };
 });
 
@@ -255,9 +254,8 @@ for (const largeur of [900, 760, 390]) {
   await p.waitForTimeout(80);
   const trop = await p.evaluate(() =>
     [...document.querySelectorAll("#modernbb *")]
-      .filter((e) =>
-        e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-      ).map((e) => e.className).slice(0, 3)
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      .map((e) => e.className).slice(0, 3)
   );
   ok(`rien ne déborde à ${largeur}`, trop.length === 0, trop);
 }
@@ -277,6 +275,8 @@ if (Deno.args.includes("--photo")) {
 
 await p.close();
 await nav.close();
-console.log(soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`);
+console.log(
+  soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`,
+);
 for (const s of soucis) console.log("  · " + s);
 if (soucis.length > 0) Deno.exit(1);

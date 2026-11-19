@@ -1483,7 +1483,10 @@ const NOTRE_LARGEUR = (() => {
 //  bandeau parlent de la même largeur.
 {
   const socle = readFileSync(R + "css/02-socle.css", "utf8");
-  const bloc = socle.slice(socle.indexOf("#modernbb #wrap,"), socle.indexOf("#modernbb #wrap,") + 1200);
+  const bloc = socle.slice(
+    socle.indexOf("#modernbb #wrap,"),
+    socle.indexOf("#modernbb #wrap,") + 1200,
+  );
   const forum = readFileSync(R + "css/04-forum.css", "utf8");
   dire(
     "LA LARGEUR DU FORUM EST ÉCRITE UNE SEULE FOIS",

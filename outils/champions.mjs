@@ -237,7 +237,9 @@ const p2 = await p.evaluate(() => {
       ).length,
       contre: f.querySelectorAll(".wm-lexique__relations--contre .wm-lexique__relation").length,
       sansPastille: [...f.querySelectorAll(".wm-lexique__relation")]
-        .filter((r) => r.querySelector(".wm-type") === null).length,
+        .filter((r) =>
+          r.querySelector(".wm-type") === null
+        ).length,
       //  Creux contre plein : c'est ce qui sépare les deux familles,
       //  et ça ne se lit pas dans le HTML.
       pleines: [...f.querySelectorAll(

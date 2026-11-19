@@ -192,12 +192,10 @@ const vu = await p.evaluate(() => {
       hauteur: Math.round(barre.getBoundingClientRect().height),
       fond: getComputedStyle(barre).backgroundColor,
       //  La largeur porte la VALEUR : 91 % de la gouttière.
-      part: gouttiere === null
-        ? null
-        : Math.round(
-          (barre.getBoundingClientRect().width /
-            gouttiere.getBoundingClientRect().width) * 100,
-        ),
+      part: gouttiere === null ? null : Math.round(
+        (barre.getBoundingClientRect().width /
+          gouttiere.getBoundingClientRect().width) * 100,
+      ),
     },
     embouts: [...document.querySelectorAll('.stat-bar img[src*="cap"]')]
       .map((e) => getComputedStyle(e).display),
@@ -282,9 +280,7 @@ for (const largeur of [900, 620, 390]) {
   await p.waitForTimeout(80);
   const trop = await p.evaluate(() =>
     [...document.querySelectorAll("#modernbb *")]
-      .filter((e) =>
-        e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-      )
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
       .map((e) => e.className).slice(0, 3)
   );
   ok(`rien ne déborde à ${largeur}`, trop.length === 0, trop);
@@ -305,6 +301,8 @@ if (Deno.args.includes("--photo")) {
 
 await p.close();
 await nav.close();
-console.log(soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`);
+console.log(
+  soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`,
+);
 for (const s of soucis) console.log("  · " + s);
 if (soucis.length > 0) Deno.exit(1);

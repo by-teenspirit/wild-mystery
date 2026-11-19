@@ -386,7 +386,11 @@ const gros = await p.evaluate(() => {
     ),
   };
 });
-dire("le gros bloc est le premier du panneau", gros !== null && gros.premier, JSON.stringify(gros));
+dire(
+  "le gros bloc est le premier du panneau",
+  gros !== null && gros.premier,
+  JSON.stringify(gros),
+);
 dire(
   "et il prend toute la largeur",
   gros !== null && gros.panneau - gros.largeur < 60,
@@ -423,7 +427,7 @@ const pokemon = await p.evaluate(() => {
   const ri = img.getBoundingClientRect();
   const textes = [...bloc.querySelectorAll(
     ".wm-accueil__decouvrir-surtitre, .wm-accueil__decouvrir-titre," +
-    " .wm-accueil__decouvrir-texte, .wm-accueil__decouvrir-bouton",
+      " .wm-accueil__decouvrir-texte, .wm-accueil__decouvrir-bouton",
   )];
   return {
     //  Posée, et pas seulement présente dans le HTML.
@@ -441,7 +445,9 @@ const pokemon = await p.evaluate(() => {
       Math.min(...textes.map((t) => Number(getComputedStyle(t).zIndex))),
     inerte: si.pointerEvents === "none",
     //  L'écart entre le texte le plus large et l'image.
-    ecart: Math.round(ri.left - Math.max(...textes.map((t) => t.getBoundingClientRect().right))),
+    ecart: Math.round(
+      ri.left - Math.max(...textes.map((t) => t.getBoundingClientRect().right)),
+    ),
     coupee: getComputedStyle(bloc).overflow === "hidden",
     debordeADroite: Math.round(ri.right - bloc.getBoundingClientRect().right),
   };
@@ -1791,7 +1797,9 @@ if (Deno.args.includes("--photo")) {
 const selection = await p.evaluate(() => {
   const lum = (couleur) => {
     const [r, v, b] = couleur.match(/\d+/g).slice(0, 3).map(Number);
-    const f = (x) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
+    const f = (
+      x,
+    ) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
     return 0.2126 * f(r) + 0.7152 * f(v) + 0.0722 * f(b);
   };
   const ratio = (x, y) => {

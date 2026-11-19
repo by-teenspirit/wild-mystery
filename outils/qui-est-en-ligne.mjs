@@ -140,7 +140,9 @@ const vu = await p.evaluate(() => {
   //  du défaut principal.
   const lum = (couleur) => {
     const [r, v, b] = couleur.match(/\d+/g).slice(0, 3).map(Number);
-    const f = (x) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
+    const f = (
+      x,
+    ) => (x / 255 <= 0.03928 ? x / 255 / 12.92 : ((x / 255 + 0.055) / 1.055) ** 2.4);
     return 0.2126 * f(r) + 0.7152 * f(v) + 0.0722 * f(b);
   };
   const ratio = (x, y) => {
@@ -191,9 +193,8 @@ const vu = await p.evaluate(() => {
     enligne: mesurer("#enligne"),
     temoin: mesurer("#temoin"),
     deborde: [...document.querySelectorAll("#modernbb *")]
-      .filter((e) =>
-        e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-      ).length,
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      .length,
   };
 });
 
@@ -266,9 +267,8 @@ for (const largeur of [1100, 760, 390]) {
   await p.waitForTimeout(80);
   const trop = await p.evaluate(() =>
     [...document.querySelectorAll("#modernbb *")]
-      .filter((e) =>
-        e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-      ).map((e) => e.className).slice(0, 3)
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      .map((e) => e.className).slice(0, 3)
   );
   ok(`rien ne déborde à ${largeur}`, trop.length === 0, trop);
 }
@@ -288,6 +288,8 @@ if (Deno.args.includes("--photo")) {
 
 await p.close();
 await nav.close();
-console.log(soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`);
+console.log(
+  soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`,
+);
 for (const s of soucis) console.log("  · " + s);
 if (soucis.length > 0) Deno.exit(1);

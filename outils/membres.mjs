@@ -1112,7 +1112,12 @@ dire(
   "LA FICHE DU GROUPE EST UN BLOC BLANC",
   groupe !== null && groupe.fond !== groupe.fondPage &&
     groupe.filet === "1px" && groupe.rayon === "10px",
-  JSON.stringify({ fond: groupe?.fond, fondPage: groupe?.fondPage, filet: groupe?.filet, rayon: groupe?.rayon }),
+  JSON.stringify({
+    fond: groupe?.fond,
+    fondPage: groupe?.fondPage,
+    filet: groupe?.filet,
+    rayon: groupe?.rayon,
+  }),
 );
 dire(
   "LES MEMBRES SONT UNE GRILLE DE CARTES DE MÊME HAUTEUR",

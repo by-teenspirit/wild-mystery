@@ -129,7 +129,9 @@ async function ouvrir(
       }
     }
     if (MORTE !== null && u === MORTE) return r.fulfill({ status: 404, body: "" });
-    if (/\.(png|jpe?g|gif)/.test(u)) return r.fulfill({ contentType: "image/png", body: PIXEL });
+    if (/\.(png|jpe?g|gif)/.test(u)) {
+      return r.fulfill({ contentType: "image/png", body: PIXEL });
+    }
     if (/fonts\.(googleapis|gstatic)/.test(u)) return rendre("text/css", "");
     return r.fulfill({ status: 404, body: "" });
   });
@@ -291,9 +293,7 @@ console.log("\n── les avatars : une image quand le fichier en donne une ─�
   //  qu'une fiche SANS adresse montre une silhouette plutôt qu'un
   //  trou, et qu'une fiche qui en a une montre une image.
   const sansAdresse = FICHES.filter((f) => !f.avatar).map((f) => f.nom);
-  const manquent = vu.fiches.filter((f) =>
-    sansAdresse.includes(f.nom) && !f.silhouette
-  );
+  const manquent = vu.fiches.filter((f) => sansAdresse.includes(f.nom) && !f.silhouette);
   ok(
     `les ${sansAdresse.length} fiches sans adresse montrent une silhouette`,
     manquent.length === 0,
@@ -302,7 +302,9 @@ console.log("\n── les avatars : une image quand le fichier en donne une ─�
   //  MOINS UNE : l'adresse morte a été remplacée par la silhouette,
   //  et c'est précisément ce qu'on vient voir.
   ok(
-    `${attenduAvecGif.length - (MORTE === null ? 0 : 1)} GIF tiennent, l'adresse morte retombe sur la silhouette`,
+    `${
+      attenduAvecGif.length - (MORTE === null ? 0 : 1)
+    } GIF tiennent, l'adresse morte retombe sur la silhouette`,
     avecImage.length === attenduAvecGif.length - (MORTE === null ? 0 : 1),
     { vus: avecImage, attendus: attenduAvecGif },
   );
@@ -343,9 +345,9 @@ console.log("\n── un lien peut ouvrir la page déjà filtrée ──");
   });
   const vu = await q.evaluate(() => ({
     onglet: document.querySelector(".wm-onglet--actif")?.textContent?.trim() ?? "",
-    fichesVues: Array.from(document.querySelectorAll("[data-wm-statut-fiche]")).filter((f) =>
-      !f.hidden
-    ).length,
+    fichesVues:
+      Array.from(document.querySelectorAll("[data-wm-statut-fiche]")).filter((f) => !f.hidden)
+        .length,
   }));
   ok("#les-champions ouvre l'onglet des champions", /champions/i.test(vu.onglet), vu.onglet);
   ok(
@@ -543,7 +545,7 @@ function engendrer(fiches) {
     "et les onze postes restent vacants",
     vide.ok &&
       (vide.page.match(/wm-poste__etat">poste vacant/g) ?? []).length === ARENES.length,
-    (vide.page?.match(/wm-poste__etat">[^<]*/g) ?? []),
+    vide.page?.match(/wm-poste__etat">[^<]*/g) ?? [],
   );
 }
 
@@ -688,7 +690,8 @@ if (ENGENDREE.ok) {
   ok("la tranche d'âge s'affiche", pleine?.age?.mot === ESSAI.pleine.age, pleine?.age);
   ok(
     "le niveau vient de l'arène, pas de la fiche",
-    pleine?.niveau?.mot === `niveau ${eau.niveau}` && nue?.niveau?.mot === `niveau ${dragon.niveau}`,
+    pleine?.niveau?.mot === `niveau ${eau.niveau}` &&
+      nue?.niveau?.mot === `niveau ${dragon.niveau}`,
     { pleine: pleine?.niveau?.mot, nue: nue?.niveau?.mot, attendu: eau.niveau },
   );
   ok(

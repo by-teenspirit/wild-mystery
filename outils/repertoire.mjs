@@ -101,7 +101,14 @@ function png(l, h) {
   const lignes = [];
   for (let y = 0; y < h; y++) lignes.push(0, ...new Array(l * 3).fill(140));
   return Buffer.from([
-    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    0x89,
+    0x50,
+    0x4e,
+    0x47,
+    0x0d,
+    0x0a,
+    0x1a,
+    0x0a,
     ...bloc("IHDR", ihdr),
     ...bloc("IDAT", new Uint8Array(deflateSync(Buffer.from(lignes)))),
     ...bloc("IEND", new Uint8Array()),
@@ -124,14 +131,126 @@ const MORTE = "https://exemple.test/morte.png";
 //  réparties comme les clans, sinon deux filtres cumulés ne prouvent
 //  rien — on ne saurait pas lequel a retenu.
 const GENS = [
-  ["Ana Vasquez", "hardi", "Fleuriste", "Franche, têtue, incapable de laisser passer une injustice même quand elle n'est pas la sienne.", "Lumirandé", "24 ans", "Rhode", "Jessica Henwick", "/t1-a", "/t2-a", "https://exemple.test/0.png", "Célibataire", "/u10"],
-  ["Bo Ferrand", "serieux", "Pêcheur", "Bourru.", "Port-Varène", "41 ans", "Kanto", "Pedro Pascal", "", "/t3-b", "https://exemple.test/1.png", "Marié", "/u11"],
-  ["Cy Nakamura", "doux", "Infirmier", "Patient jusqu'à l'épuisement. Dort peu, écoute beaucoup.", "Lumirandé", "29 ans", "Johto", "Steven Yeun", "/t4-c", "", "https://exemple.test/2.png", "En couple", "/u12"],
-  ["Dalia Okonkwo", "brave", "Rangère", "Ne recule pas. Pose les questions après.", "Steppes arides", "33 ans", "Unys", "Lupita Nyong'o", "/t5-d", "/t6-d", MORTE, "Célibataire", "/u13"],
-  ["Elio Marchetti", "jovial", "Géologue", "Curieux comme un enfant, ouvre tout ce qui est fermé.", "Samaragd", "26 ans", "Rhode", "Timothée Chalamet", "/t7-e", "/t8-e", "https://exemple.test/4.png", "En couple", "/u14"],
-  ["Faye Lindqvist", "malin", "Marchande", "Sait ce que vaut chaque chose, et ce que vaut chaque personne.", "Port-Varène", "37 ans", "Sinnoh", "Alicia Vikander", "/t9-f", "/t10-f", "https://exemple.test/5.png", "Marié", "/u15"],
-  ["Gil Abadie", "hardi", "Mineur", "Monte d'abord, réfléchit plus haut.", "Monts Enneigés", "31 ans", "Rhode", "", "", "/t11-g", "https://exemple.test/6.png", "Célibataire", "/u16"],
-  ["Hana Toriyama", "fantaisiste", "Étudiante", "Timide à l'oral, redoutable par écrit.", "Samaragd", "19 ans", "Johto", "Sakura Ando", "/t12-h", "/t13-h", "", "Célibataire", ""],
+  [
+    "Ana Vasquez",
+    "hardi",
+    "Fleuriste",
+    "Franche, têtue, incapable de laisser passer une injustice même quand elle n'est pas la sienne.",
+    "Lumirandé",
+    "24 ans",
+    "Rhode",
+    "Jessica Henwick",
+    "/t1-a",
+    "/t2-a",
+    "https://exemple.test/0.png",
+    "Célibataire",
+    "/u10",
+  ],
+  [
+    "Bo Ferrand",
+    "serieux",
+    "Pêcheur",
+    "Bourru.",
+    "Port-Varène",
+    "41 ans",
+    "Kanto",
+    "Pedro Pascal",
+    "",
+    "/t3-b",
+    "https://exemple.test/1.png",
+    "Marié",
+    "/u11",
+  ],
+  [
+    "Cy Nakamura",
+    "doux",
+    "Infirmier",
+    "Patient jusqu'à l'épuisement. Dort peu, écoute beaucoup.",
+    "Lumirandé",
+    "29 ans",
+    "Johto",
+    "Steven Yeun",
+    "/t4-c",
+    "",
+    "https://exemple.test/2.png",
+    "En couple",
+    "/u12",
+  ],
+  [
+    "Dalia Okonkwo",
+    "brave",
+    "Rangère",
+    "Ne recule pas. Pose les questions après.",
+    "Steppes arides",
+    "33 ans",
+    "Unys",
+    "Lupita Nyong'o",
+    "/t5-d",
+    "/t6-d",
+    MORTE,
+    "Célibataire",
+    "/u13",
+  ],
+  [
+    "Elio Marchetti",
+    "jovial",
+    "Géologue",
+    "Curieux comme un enfant, ouvre tout ce qui est fermé.",
+    "Samaragd",
+    "26 ans",
+    "Rhode",
+    "Timothée Chalamet",
+    "/t7-e",
+    "/t8-e",
+    "https://exemple.test/4.png",
+    "En couple",
+    "/u14",
+  ],
+  [
+    "Faye Lindqvist",
+    "malin",
+    "Marchande",
+    "Sait ce que vaut chaque chose, et ce que vaut chaque personne.",
+    "Port-Varène",
+    "37 ans",
+    "Sinnoh",
+    "Alicia Vikander",
+    "/t9-f",
+    "/t10-f",
+    "https://exemple.test/5.png",
+    "Marié",
+    "/u15",
+  ],
+  [
+    "Gil Abadie",
+    "hardi",
+    "Mineur",
+    "Monte d'abord, réfléchit plus haut.",
+    "Monts Enneigés",
+    "31 ans",
+    "Rhode",
+    "",
+    "",
+    "/t11-g",
+    "https://exemple.test/6.png",
+    "Célibataire",
+    "/u16",
+  ],
+  [
+    "Hana Toriyama",
+    "fantaisiste",
+    "Étudiante",
+    "Timide à l'oral, redoutable par écrit.",
+    "Samaragd",
+    "19 ans",
+    "Johto",
+    "Sakura Ando",
+    "/t12-h",
+    "/t13-h",
+    "",
+    "Célibataire",
+    "",
+  ],
 ];
 
 //  ── ET TRENTE-DEUX DE PLUS, POUR TENIR L'ÉCHELLE ──────────────────
@@ -149,16 +268,72 @@ const GENS = [
 //  apparaître au bottin des noms de famille ; et assez de monde pour
 //  que la colonne dépasse la fenêtre si on retire son plafond.
 const PRENOMS = [
-  "Élise", "Zéphyr", "Noor", "Ivar", "Soline", "Kemal", "Ada", "Björn",
-  "Chiara", "Dmitri", "Esme", "Félix", "Gaia", "Hugo", "Ines", "Jonas",
-  "Keiko", "Luc", "Maya", "Nils", "Oona", "Piotr", "Quentin", "Rina",
-  "Sacha", "Tomas", "Ulla", "Viggo", "Wanda", "Yara", "Zoltan", "Amara",
+  "Élise",
+  "Zéphyr",
+  "Noor",
+  "Ivar",
+  "Soline",
+  "Kemal",
+  "Ada",
+  "Björn",
+  "Chiara",
+  "Dmitri",
+  "Esme",
+  "Félix",
+  "Gaia",
+  "Hugo",
+  "Ines",
+  "Jonas",
+  "Keiko",
+  "Luc",
+  "Maya",
+  "Nils",
+  "Oona",
+  "Piotr",
+  "Quentin",
+  "Rina",
+  "Sacha",
+  "Tomas",
+  "Ulla",
+  "Viggo",
+  "Wanda",
+  "Yara",
+  "Zoltan",
+  "Amara",
 ];
 const NOMSDEFAMILLE = [
-  "", "", "Haddad", "Lindgren", "Berger", "Demir", "Okafor", "Eriksen",
-  "Russo", "Volkov", "Clarke", "Moreau", "Panagos", "Weber", "Costa", "Dahl",
-  "Watanabe", "Fabre", "Singh", "Holm", "Kelly", "Nowak", "Girard", "Sato",
-  "Petrov", "Alves", "Virtanen", "Ekman", "Nowicka", "Khoury", "Nagy", "Diallo",
+  "",
+  "",
+  "Haddad",
+  "Lindgren",
+  "Berger",
+  "Demir",
+  "Okafor",
+  "Eriksen",
+  "Russo",
+  "Volkov",
+  "Clarke",
+  "Moreau",
+  "Panagos",
+  "Weber",
+  "Costa",
+  "Dahl",
+  "Watanabe",
+  "Fabre",
+  "Singh",
+  "Holm",
+  "Kelly",
+  "Nowak",
+  "Girard",
+  "Sato",
+  "Petrov",
+  "Alves",
+  "Virtanen",
+  "Ekman",
+  "Nowicka",
+  "Khoury",
+  "Nagy",
+  "Diallo",
 ];
 const LIEUX = ["Lumirandé", "Port-Varène", "Samaragd", "Canyon Lekro", "Oasis Perdue"];
 const CLANS = ["hardi", "serieux", "malin", "doux", "brave", "jovial"];
@@ -191,8 +366,21 @@ const ESSAI = {
   intro: "Tous les personnages validés du forum.",
   personnages: TOUS.map(
     (
-      [nom, groupe, metier, caractere, lieu, age, origine, faceclaim, liens, presentation,
-        avatar, statut, profil],
+      [
+        nom,
+        groupe,
+        metier,
+        caractere,
+        lieu,
+        age,
+        origine,
+        faceclaim,
+        liens,
+        presentation,
+        avatar,
+        statut,
+        profil,
+      ],
     ) => ({
       nom,
       groupe,
@@ -540,7 +728,14 @@ await p.waitForTimeout(300);
     );
   //  Le clan « fantaisiste » n'existe pas : sa carte n'a pas de
   //  groupe, donc il n'est pas au menu — et elle reste affichée.
-  const clans = { hardi: "Hardi", serieux: "Sérieux", malin: "Malin", doux: "Doux", brave: "Brave", jovial: "Jovial" };
+  const clans = {
+    hardi: "Hardi",
+    serieux: "Sérieux",
+    malin: "Malin",
+    doux: "Doux",
+    brave: "Brave",
+    jovial: "Jovial",
+  };
   const groupesAttendus = [...new Set(TOUS.map((g) => clans[g[1]]).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b, "fr"));
 
@@ -583,8 +778,12 @@ const vuesApres = async (quoi) => {
 //  menus : écrits à la main, ils auraient été à refaire au premier
 //  personnage ajouté — et c'est exactement ce qui vient d'arriver.
 const CLAN = {
-  hardi: "Hardi", serieux: "Sérieux", malin: "Malin",
-  doux: "Doux", brave: "Brave", jovial: "Jovial",
+  hardi: "Hardi",
+  serieux: "Sérieux",
+  malin: "Malin",
+  doux: "Doux",
+  brave: "Brave",
+  jovial: "Jovial",
 };
 const quiHabite = (lieu) => TOUS.filter((g) => g[4] === lieu).map((g) => g[0]);
 
@@ -809,8 +1008,13 @@ console.log("\n── la mise à jour sans recollage ──");
   };
   writeFileSync(`${DOSSIER}/demain.json`, JSON.stringify(demain), "utf8");
   const g = await new Deno.Command("python3", {
-    args: [`${R}outils/repertoire.py`, "--donnees", `${DOSSIER}/demain.json`,
-      "--sortie", `${DOSSIER}/demain.html`],
+    args: [
+      `${R}outils/repertoire.py`,
+      "--donnees",
+      `${DOSSIER}/demain.json`,
+      "--sortie",
+      `${DOSSIER}/demain.html`,
+    ],
     stdout: "piped",
     stderr: "piped",
   }).output();
@@ -848,8 +1052,8 @@ console.log("\n── la mise à jour sans recollage ──");
     b2.listes.prenoms.some(([x]) => x === "Nouvelle") &&
       b2.onglets.length === 4 &&
       await q.evaluate(() =>
-        document.querySelectorAll(".wm-bottins .wm-sous-onglets__barre").length
-      ) === 1,
+          document.querySelectorAll(".wm-bottins .wm-sous-onglets__barre").length
+        ) === 1,
     { onglets: b2.onglets.map((o) => o.mot) },
   );
   await q.close();
@@ -955,8 +1159,10 @@ console.log("\n── la carte ──");
   //  surtitre : le filet les sépare des faits, sur toutes les cartes.
   ok(
     "le filet ouvre le pied de chaque carte",
-    vu.cartes.every((c) => c.filet !== null && c.filet.epais === "1px" &&
-      c.filet.sur === "liens"),
+    vu.cartes.every((c) =>
+      c.filet !== null && c.filet.epais === "1px" &&
+      c.filet.sur === "liens"
+    ),
     vu.cartes.filter((c) => c.filet === null || c.filet.sur !== "liens")
       .map((c) => [c.nom, c.filet]),
   );
@@ -1053,7 +1259,7 @@ console.log("\n── la carte ──");
   ok(
     "un lien manquant n'affiche pas de bouton",
     JSON.stringify(vu.cartes.find((c) => c.nom === "Bo Ferrand").liens) ===
-      JSON.stringify(["Présentation"]) &&
+        JSON.stringify(["Présentation"]) &&
       JSON.stringify(vu.cartes.find((c) => c.nom === "Cy Nakamura").liens) ===
         JSON.stringify(["Liens"]),
     vu.cartes.map((c) => [c.nom, c.liens]),
@@ -1070,7 +1276,9 @@ console.log("\n── les largeurs ──");
 //  de PAGE : sous 900 px la colonne des bottins repasse au-dessus du
 //  corps et rend ses 252 px, ce qui explique que trois colonnes
 //  tiennent encore à 900 alors qu'elles seraient à l'étroit à 1 000.
-for (const [largeur, attendu] of [[1440, 5], [1280, 4], [1100, 3], [900, 3], [800, 2], [390, 1]]) {
+for (
+  const [largeur, attendu] of [[1440, 5], [1280, 4], [1100, 3], [900, 3], [800, 2], [390, 1]]
+) {
   await p.setViewportSize({ width: largeur, height: 1000 });
   await p.waitForTimeout(120);
   const vu = await p.evaluate(() => {
@@ -1081,7 +1289,9 @@ for (const [largeur, attendu] of [[1440, 5], [1280, 4], [1100, 3], [900, 3], [80
       //  RIEN NE DÉBORDE : un débordement horizontal fait glisser la
       //  page entière sous le doigt.
       trop: Array.from(document.querySelectorAll("#modernbb *"))
-        .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+        .filter((e) =>
+          e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
+        )
         .map((e) => e.className).slice(0, 3),
     };
   });
@@ -1103,8 +1313,13 @@ console.log("\n── la page sans personne ──");
   //  de son contenu rougirait le jour où on la remplit pour de bon.
   writeFileSync(`${DOSSIER}/vide.json`, JSON.stringify({ ...ESSAI, personnages: [] }), "utf8");
   const g = await new Deno.Command("python3", {
-    args: [`${R}outils/repertoire.py`, "--donnees", `${DOSSIER}/vide.json`, "--sortie",
-      `${DOSSIER}/vide.html`],
+    args: [
+      `${R}outils/repertoire.py`,
+      "--donnees",
+      `${DOSSIER}/vide.json`,
+      "--sortie",
+      `${DOSSIER}/vide.html`,
+    ],
     stdout: "piped",
     stderr: "piped",
   }).output();
@@ -1132,6 +1347,8 @@ await p.close();
 await nav.close();
 await Deno.remove(DOSSIER, { recursive: true });
 
-console.log(soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`);
+console.log(
+  soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`,
+);
 for (const s of soucis) console.log("  · " + s);
 if (soucis.length > 0) Deno.exit(1);

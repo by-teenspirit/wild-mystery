@@ -42,7 +42,11 @@ const CHROME = [
 
 let fautes = 0;
 function ok(quoi, vrai, detail) {
-  console.log(`  ${vrai ? "ok  " : "NON "} ${quoi}${detail === undefined ? "" : ` — ${JSON.stringify(detail)}`}`);
+  console.log(
+    `  ${vrai ? "ok  " : "NON "} ${quoi}${
+      detail === undefined ? "" : ` — ${JSON.stringify(detail)}`
+    }`,
+  );
   if (!vrai) fautes += 1;
 }
 
@@ -123,7 +127,11 @@ const MESURE = () => {
     return [255, 255, 255];
   };
   const out = [];
-  for (const el of document.querySelectorAll("#modernbb .mcp-main *, #modernbb .linkmcp, #modernbb h1")) {
+  for (
+    const el of document.querySelectorAll(
+      "#modernbb .mcp-main *, #modernbb .linkmcp, #modernbb h1",
+    )
+  ) {
     const mot = [...el.childNodes].filter((n) => n.nodeType === 3)
       .map((n) => n.textContent.trim()).filter(Boolean).join(" ");
     if (mot === "") continue;
@@ -167,7 +175,9 @@ for (const theme of ["clair", "sombre"]) {
   //  canal le plus fort, en clair comme en sombre.
   const surfaces = await p.evaluate(() => {
     const rgb = (t) => (t.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
-    return [...document.querySelectorAll("#modernbb tr, #modernbb table.table1, #modernbb thead th")]
+    return [
+      ...document.querySelectorAll("#modernbb tr, #modernbb table.table1, #modernbb thead th"),
+    ]
       .map((el) => ({
         ou: (el.tagName.toLowerCase() + "." + (el.className || "")).slice(0, 24),
         fond: getComputedStyle(el).backgroundColor,
@@ -185,13 +195,13 @@ for (const theme of ["clair", "sombre"]) {
   );
 
   //  ── 2 · LES ZÉBRURES SONT TOUTES LA MÊME ─────────────────────────
-  const zebres = await p.evaluate(() =>
-    [...new Set(
+  const zebres = await p.evaluate(() => [
+    ...new Set(
       [...document.querySelectorAll("#modernbb tbody tr")].map((t) =>
         getComputedStyle(t).backgroundColor
       ),
-    )]
-  );
+    ),
+  ]);
   ok(`${theme} : les six lignes ont la même surface`, zebres.length === 1, zebres);
 
   //  ── 3 · TOUT SE LIT ──────────────────────────────────────────────

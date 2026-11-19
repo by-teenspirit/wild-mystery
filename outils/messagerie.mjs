@@ -142,7 +142,8 @@ const sujet = `
     `position`, `top`, `left` et les 88 px de hauteur viennent de la
     feuille de ModernBB, que ce fac-similé ne charge pas : relevés sur
     la vraie page, ils sont reposés en style en ligne. */
-const CALQUE = 'class="active" style="position: absolute; top: 0; left: 0; width: 100%; height: 88px"';
+const CALQUE =
+  'class="active" style="position: absolute; top: 0; left: 0; width: 100%; height: 88px"';
 
 /*  La mise en page du menu vient elle aussi de ModernBB : des `li` en
     ligne de 129 px, centrés, hauts de 88, avec un rond d'icône de 33
@@ -409,9 +410,8 @@ const vu = await p.evaluate(() => {
       };
     })(),
     deborde: [...document.querySelectorAll("#modernbb *")]
-      .filter((e) =>
-        e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-      ).length,
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      .length,
   };
 });
 
@@ -582,9 +582,8 @@ for (const largeur of [1100, 740, 390]) {
   await p.waitForTimeout(80);
   const trop = await p.evaluate(() =>
     [...document.querySelectorAll("#modernbb *")]
-      .filter((e) =>
-        e.getBoundingClientRect().right > document.documentElement.clientWidth + 1
-      ).map((e) => e.className).slice(0, 3)
+      .filter((e) => e.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      .map((e) => e.className).slice(0, 3)
   );
   ok(`rien ne déborde à ${largeur}`, trop.length === 0, trop);
 }
@@ -604,7 +603,8 @@ await p.setViewportSize({ width: 1384, height: 1200 });
 //  le même jour sur `?folder=inbox`.
 // ════════════════════════════════════════════════════════════════════
 {
-  const panneau = (phrase) => `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+  const panneau = (phrase) =>
+    `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
 <title>Messages privés</title>
 <link rel="stylesheet" href="/jetons.css"><link rel="stylesheet" href="/wild-mystery.css">
 </head><body><div id="modernbb"><div class="wrap"><div id="main-content">
@@ -725,6 +725,8 @@ if (Deno.args.includes("--photo")) {
 
 await p.close();
 await nav.close();
-console.log(soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`);
+console.log(
+  soucis.length === 0 ? `\nTOUT PASSE (${passes}).` : `\n${soucis.length} DÉFAUT(S).`,
+);
 for (const s of soucis) console.log("  · " + s);
 if (soucis.length > 0) Deno.exit(1);
