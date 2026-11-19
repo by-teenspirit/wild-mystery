@@ -216,7 +216,7 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
       '<p class="wm-combat__niveau">niv. 10</p>' +
       '<p class="wm-combat__types">' +
       '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
-      '<p class="wm-combat__pv">30 PV</p>' +
+      '<p class="wm-combat__pv" data-wm-part="100"><span class="wm-combat__pv-chiffre">30 PV</span><span class="wm-combat__jauge" aria-hidden="true"><span class="wm-combat__jauge-plein" style="width:100%"></span></span></p>' +
       '<span class="wm-infobulle" role="tooltip"><span class="wm-infobulle__tete"><span class="wm-infobulle__nom">Ponyta</span><span class="wm-infobulle__niveau">Niv. 10</span></span><span class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></span><span class="wm-infobulle__surtitre">Statistiques</span><span class="wm-infobulle__stats"><span class="wm-infobulle__stat"><span>Attaque</span><span>22</span></span><span class="wm-infobulle__stat"><span>Défense</span><span>16</span></span></span></span>' +
       "</div>" +
       '<p class="wm-combat__contre">contre</p>' +
@@ -227,7 +227,7 @@ Deno.test("la carte entière, telle qu'un joueur la lit", () => {
       '<p class="wm-combat__niveau">niv. 5</p>' +
       '<p class="wm-combat__types">' +
       '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
-      '<p class="wm-combat__pv">18/18 PV</p>' +
+      '<p class="wm-combat__pv" data-wm-part="100"><span class="wm-combat__pv-chiffre">18/18 PV</span><span class="wm-combat__jauge" aria-hidden="true"><span class="wm-combat__jauge-plein" style="width:100%"></span></span></p>' +
       '<span class="wm-infobulle" role="tooltip"><span class="wm-infobulle__tete"><span class="wm-infobulle__nom">Salamèche</span><span class="wm-infobulle__niveau">Niv. 5</span></span><span class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></span><span class="wm-infobulle__pv"><span class="wm-infobulle__jauge"><span style="width:100%"></span></span><span class="wm-infobulle__chiffre">18/18 PV</span></span><span class="wm-infobulle__surtitre">Statistiques</span><span class="wm-infobulle__stats"><span class="wm-infobulle__stat"><span>Attaque</span><span>10</span></span><span class="wm-infobulle__stat"><span>Défense</span><span>9</span></span></span></span>' +
       "</div>" +
       "</div>" +

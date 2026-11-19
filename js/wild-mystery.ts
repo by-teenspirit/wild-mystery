@@ -104,7 +104,10 @@ import {
   poserLesNotifications,
 } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { decorDesSprites, poserLesCartes } from "../src/adaptateurs/navigateur/module-tcard.ts";
-import { rendreLesSprites } from "../src/adaptateurs/navigateur/module-combat.ts";
+import {
+  poserLesJauges,
+  rendreLesSprites,
+} from "../src/adaptateurs/navigateur/module-combat.ts";
 import { type CarteDeCouverture, Sprites } from "../src/navigateur/sprites.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
@@ -771,6 +774,16 @@ desQueLeCorpsEstLa(() => {
   //  passage. Il ne demande qu'un fichier et ne touche rien d'autre,
   //  donc il part tôt et sans rien attendre.
   rendreLesSpritesDesCartes().catch(() => {});
+  //  LA JAUGE DE PV EST SYNCHRONE ET NE DEMANDE RIEN AU RÉSEAU : elle
+  //  lit le chiffre écrit dans la carte. Elle est donc à part du
+  //  rendu des sprites, qui attend la carte de couverture — et elle
+  //  sert aussi les fiches sans sprite.
+  try {
+    poserLesJauges(document);
+  } catch {
+    //  Une carte qu'on n'a pas su lire garde son chiffre. C'est le
+    //  pire qui puisse arriver, et ce n'est pas grave.
+  }
   //  APRÈS LE RÉCAPITULATIF, et c'est voulu : le réveil attend puis
   //  recharge la page. Lancé avant, il n'aurait rien changé — mais
   //  l'ordre dit lequel des deux on veut voir en premier si l'un

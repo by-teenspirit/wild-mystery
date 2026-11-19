@@ -484,7 +484,11 @@ p = await monter(900);
 for (const theme of ["clair", "sombre"]) {
   const mesure = await p.evaluate((t) => {
     document.body.classList.toggle("wm-sombre", t === "sombre");
-    const pv = document.querySelector(".wm-combat__pv");
+    //  LE CHIFFRE, PAS LE PARAGRAPHE. Depuis la jauge du 19
+    //  novembre, `.wm-combat__pv` est un conteneur qui n'a plus de
+    //  couleur à lui : c'est `__pv-chiffre` qui porte l'accent, et
+    //  mesurer le parent lirait la couleur héritée de la case.
+    const pv = document.querySelector(".wm-combat__pv-chiffre");
     const fond = pv.closest(".wm-combat__camp");
     const lire = (c) => {
       const m = getComputedStyle(c).color.match(/[\d.]+/g).slice(0, 3).map(Number);
@@ -505,7 +509,9 @@ for (const theme of ["clair", "sombre"]) {
     return Math.round(((haut + 0.05) / (bas + 0.05)) * 100) / 100;
   }, theme);
   //  4,5 : le seuil AA pour du texte normal. Les PV sont en gras à
-  //  13,5 px, donc on ne s'autorise pas le seuil « grand texte ».
+  //  11,5 px — ils ont rapetissé le 19 novembre, quand la barre a
+  //  pris la charge de se voir de loin — donc le seuil « grand
+  //  texte » est encore moins de mise qu'avant.
   dire(`${theme} : les PV passent AA`, mesure >= 4.5, `${mesure}:1`);
 }
 await p.close();

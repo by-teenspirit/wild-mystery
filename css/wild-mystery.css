@@ -20497,24 +20497,48 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   transform: scaleX(-1);
 }
 
+/*  ── TROIS RANGS, ET ILS ÉTAIENT À L'ENVERS ───────────────────────
+
+    « Améliore la hiérarchisation des informations entre le nom du
+    pokémon, son niveau, ses pvs » — 18 novembre.
+
+    Le nom était à 11,5 px et les PV à 13,5 : le chiffre criait plus
+    fort que la bête à qui il appartient. Trois rangs, maintenant, et
+    dans cet ordre :
+
+      1. LE NOM, en titre — c'est ce qu'on cherche en remontant un
+         sujet, et c'est la seule chose qui identifie la case.
+      2. LE NIVEAU, en sous-titre discret — il qualifie le nom, il ne
+         vit pas sans lui.
+      3. LES PV, qui gardent l'accent parce qu'ils changent à chaque
+         tour, mais en dessous du nom, pas au-dessus.
+
+    Cette rangée-là est du CSS seul, donc elle rattrape les cartes
+    déjà postées dans les sujets. */
 #modernbb .wm-combat__nom {
   margin: 0;
   max-width: 100%;
   overflow: hidden;
   color: var(--wm-encre, #2e2018);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   line-height: var(--wm-interligne-etiquette, 1.3);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/*  LE NIVEAU EST UN SOUS-TITRE, donc petit, pâle et serré sous le
+    nom : la rangée de la grille lui donnait autant d'air qu'au reste,
+    et il flottait comme une information à part. */
 #modernbb .wm-combat__niveau {
-  margin: 0;
-  color: var(--wm-texte-doux, #6e5749);
-  font-size: 11px;
-  font-weight: var(--wm-graisse-gras, 700);
-  line-height: 1;
+  margin: calc(-1 * var(--wm-espace-4, 4px)) 0 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 /*  LA PAIRE DE TYPES EST UNE CHOSE, pas deux : elle a son bloc, comme
@@ -20529,15 +20553,66 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-2, 2px);
 }
 
-/*  LES PV SONT LE CHIFFRE QU'ON CHERCHE : la seule ligne de la fiche
-    qui change à chaque tour, donc la seule qui a droit à l'accent. */
+/*  ── LES PV : UN CHIFFRE ET UNE BARRE ─────────────────────────────
+
+    « Peut-être faire une jauge ? » — 18 novembre.
+
+    Les PV sont la seule ligne de la fiche qui change à chaque tour.
+    Mais « 18 sur 24 » demande une soustraction, et une barre aux
+    trois quarts n'en demande aucune. Les deux cohabitent : le chiffre
+    dit combien de dégâts passent encore, la barre dit où on en est.
+
+    LE CHIFFRE A RAPETISSÉ, de 13,5 à 11,5 px. Il n'a plus besoin de
+    crier : c'est la barre qui se voit de loin, et le nom reprend le
+    premier rang. */
 #modernbb .wm-combat__pv {
+  display: flex;
+  min-width: 0;
   margin: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--wm-espace-4, 4px);
+}
+
+#modernbb .wm-combat__pv-chiffre {
   color: var(--wm-accent-fort, #1f5470);
-  font-size: var(--wm-taille-normal, 13.5px);
+  font-size: var(--wm-taille-petit, 11.5px);
   font-variant-numeric: tabular-nums;
   font-weight: var(--wm-graisse-gras, 700);
   line-height: 1.2;
+}
+
+/*  LA BARRE EST UN DESSIN, DONC ELLE SE TAIT. `aria-hidden` dans le
+    balisage : le chiffre juste au-dessus dit déjà tout, et une
+    seconde lecture du même fait est du bruit au casque. */
+#modernbb .wm-combat__jauge {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  LA LARGEUR EST ÉCRITE DANS LE MESSAGE, en style en ligne, parce
+    qu'une feuille ne sait pas lire « 18/24 ». C'est déjà la façon
+    dont la jauge de l'infobulle fonctionne depuis le 18 novembre, et
+    Forumactif garde les styles en ligne des messages — vérifié. */
+#modernbb .wm-combat__jauge-plein {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--wm-palier-1, #3f7d52);
+}
+
+/*  TROIS PALIERS, les jetons du forum. La teinte ne porte rien toute
+    seule : le chiffre est écrit juste au-dessus. */
+#modernbb .wm-combat__jauge--moyen .wm-combat__jauge-plein {
+  background: var(--wm-palier-2, #a05e18);
+}
+
+#modernbb .wm-combat__jauge--bas .wm-combat__jauge-plein {
+  background: var(--wm-palier-3, #b1402f);
 }
 
 /*  « CONTRE » NE PREND PAS DE PLACE. Il est dans le balisage pour

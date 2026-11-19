@@ -26,6 +26,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "npm:playwright@1.56.0";
+import { redigerLaCarte } from "../src/application/carte-de-rencontre.ts";
 
 //  LE MÊME CHROMIUM QUE LES AUTRES HARNAIS, et la même façon de le
 //  trouver : le garde-fou n° 20 vérifie qu'il n'y en a qu'un.
@@ -111,6 +112,64 @@ const MESSAGES = [
     signature: "",
   },
 ];
+
+
+/*  ── UNE CARTE DE RENCONTRE TELLE QU'OCTOBRE L'A PUBLIÉE ──────────
+
+    Elle est DÉRIVÉE DU VRAI GÉNÉRATEUR, puis ramenée à la forme
+    d'alors. Écrire le balisage d'octobre à la main ici le figerait
+    dans une forme que plus rien ne produit : le jour où la carte
+    change, ce harnais mesurerait un fossile.
+
+    Deux retours en arrière, et un seul chacun :
+
+    1. LA JAUGE N'EXISTAIT PAS. Le paragraphe des PV ne portait que
+       son texte — « 30 PV », « 18/18 PV ». C'est ce que le module
+       doit retrouver et compléter.
+
+    2. L'ADRESSE DU SPRITE ÉTAIT MORTE. `cdn.jsdelivr.net/gh/…
+       @socle-v2` est un alias de branche que jsDelivr a figé sur un
+       commit et ne réévalue jamais. Les cartes d'octobre pointent
+       dessus, pour toujours.
+
+    Relevé sur /t1000 le 19 novembre : c'est exactement cette forme
+    que les vingt cartes déjà postées portent. */
+const CARTE_D_OCTOBRE = redigerLaCarte({
+  combatId: "c",
+  sujetId: 10,
+  messageId: 15601,
+  essais: 0,
+  mentionne: "Compte de test",
+  sauvage: {
+    especeId: 77,
+    nom: "Ponyta",
+    niveau: 10,
+    types: ["feu"],
+    //  UN SAUVAGE QUI A ENCAISSÉ : 6 sur 30, soit un cinquième, soit
+    //  le palier bas. Une carte où tout le monde est entier ne
+    //  montrerait qu'une seule des trois teintes.
+    pv: 6,
+    pvMax: 30,
+    attaque: 22,
+    defense: 16,
+  },
+  combattant: {
+    especeId: 4,
+    nom: "Salamèche",
+    surnom: null,
+    niveau: 5,
+    types: ["feu"],
+    pv: 18,
+    pvMax: 18,
+    attaque: 10,
+    defense: 9,
+  },
+}, "https://cdn.jsdelivr.net/gh/by-teenspirit/wild-mystery@socle-v2/")
+  //  LA JAUGE RETIRÉE : on ne garde que le texte du paragraphe.
+  .replace(
+    /<p class="wm-combat__pv"[^>]*><span class="wm-combat__pv-chiffre">([^<]*)<\/span>.*?<\/p>/g,
+    '<p class="wm-combat__pv">$1</p>',
+  );
 
 /*  ── LE FIL D'ARIANE DÉCIDE DU BANDEAU ─────────────────────────────
 
@@ -2587,13 +2646,27 @@ async function monterAvecScript(
   //  décor et le date d'aujourd'hui : c'est exactement l'état d'une
   //  page où le joueur vient de poster. `compteur` reçoit les appels,
   //  pour qu'on puisse les compter du dehors.
-  { recap = null, largeur = 1440, action = false, compteur = null } = {},
+  //  ── `carte` POSE UNE CARTE DE RENCONTRE TELLE QU'ELLE A ÉTÉ
+  //  PUBLIÉE EN OCTOBRE ─────────────────────────────────────────
+  //
+  //  Dans sa forme d'ALORS, c'est-à-dire sans jauge et avec une
+  //  adresse de sprite morte. C'est le cas que le module doit
+  //  réparer, et il ne se rencontre nulle part ailleurs : un message
+  //  publié sur Forumactif ne se répare pas tout seul (planche 102).
+  { recap = null, largeur = 1440, action = false, compteur = null, carte = false } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
   const maintenant = new Date();
   const heure = `${maintenant.getHours()}:${String(maintenant.getMinutes()).padStart(2, "0")}`;
   const decor = () => {
+    if (carte) {
+      const avant = MESSAGES[0].corps;
+      MESSAGES[0].corps += CARTE_D_OCTOBRE;
+      const html = page(pageDeSujet({ ariane }));
+      MESSAGES[0].corps = avant;
+      return html;
+    }
     if (!action) return page(pageDeSujet({ ariane }));
     const avant = [MESSAGES[1].corps, MESSAGES[1].date];
     MESSAGES[1].corps += '<span class="wm-marqueur">[[WM-ACTION:chercher]]</span>';
@@ -3540,6 +3613,126 @@ dire(
   `${sansCarnet?.blocs} bloc(s)`,
 );
 await invite.close();
+
+
+//  ══════════════════════════════════════════════════════════════════
+//  LES CARTES DÉJÀ POSTÉES : LE SPRITE ET LA JAUGE
+//
+//  Un message publié sur Forumactif est figé (planche 102). Les
+//  vingt cartes qui dorment dans les sujets gardent donc pour
+//  toujours leur adresse de sprite morte et leur paragraphe de PV
+//  sans barre — sauf si le navigateur les rattrape à la lecture.
+//
+//  C'EST CE QUE CE BLOC MESURE, et c'est la seule chose qui le
+//  mesure : l'en-tête de `module-combat.ts` annonçait cette
+//  couverture depuis le 18 novembre sans qu'elle existe.
+//  ══════════════════════════════════════════════════════════════════
+console.log("\n── LES CARTES DÉJÀ POSTÉES ────────────────────────────");
+const avecCarte = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  carte: true,
+});
+const posee = await avecCarte.evaluate(() => {
+  const camps = [...document.querySelectorAll(".wm-combat__camp")];
+  const lire = (camp) => {
+    const p = camp.querySelector(".wm-combat__pv");
+    const jauge = camp.querySelector(".wm-combat__jauge");
+    const plein = camp.querySelector(".wm-combat__jauge-plein");
+    return {
+      part: p?.dataset.wmPart ?? null,
+      chiffre: camp.querySelector(".wm-combat__pv-chiffre")?.textContent?.trim() ?? null,
+      //  ── ON MESURE DES PIXELS, PAS LA CHAÎNE DE STYLE ──────────
+      //
+      //  `style.width = "20%"` se lit tel quel même si la barre
+      //  parente fait zéro pixel de large, auquel cas rien ne se
+      //  voit. Le rapport des deux rectangles, lui, ne peut pas
+      //  mentir.
+      rapport: jauge === null || plein === null || jauge.getBoundingClientRect().width === 0
+        ? null
+        : Math.round(
+          (plein.getBoundingClientRect().width / jauge.getBoundingClientRect().width) * 100,
+        ),
+      classe: jauge?.className ?? null,
+      //  LA HIÉRARCHIE SE MESURE EN PIXELS, elle aussi : « améliore
+      //  la hiérarchisation entre le nom, le niveau, les pvs ».
+      tailleNom: parseFloat(getComputedStyle(camp.querySelector(".wm-combat__nom")).fontSize),
+      tailleChiffre: parseFloat(
+        getComputedStyle(camp.querySelector(".wm-combat__pv-chiffre")).fontSize,
+      ),
+      tailleNiveau: camp.querySelector(".wm-combat__niveau") === null
+        ? null
+        : parseFloat(getComputedStyle(camp.querySelector(".wm-combat__niveau")).fontSize),
+    };
+  };
+  return {
+    combien: camps.length,
+    sauvage: camps[0] === undefined ? null : lire(camps[0]),
+    mien: camps[1] === undefined ? null : lire(camps[1]),
+    //  LE SPRITE MORT A ÉTÉ RÉÉCRIT : plus aucune adresse jsDelivr
+    //  dans la page, et chaque image porte sa marque.
+    jsdelivr: [...document.querySelectorAll("img.wm-combat__sprite")]
+      .filter((i) => /jsdelivr/.test(i.getAttribute("src") ?? "")).length,
+    rendus: [...document.querySelectorAll("img.wm-combat__sprite[data-wm-rendu]")].length,
+  };
+});
+
+dire(
+  "LA CARTE D'OCTOBRE EST BIEN LÀ, SES DEUX CASES",
+  posee.combien === 2,
+  `${posee.combien} case(s)`,
+);
+dire(
+  "PLUS UNE SEULE ADRESSE JSDELIVR, ET LES DEUX SPRITES SONT RENDUS",
+  posee.jsdelivr === 0 && posee.rendus === 2,
+  `${posee.jsdelivr} morte(s) · ${posee.rendus} rendu(s)`,
+);
+
+//  6 PV SUR 30 : un cinquième, donc 20 %, donc le palier bas.
+dire(
+  "LA JAUGE EST POSÉE SUR UNE CARTE QUI N'EN AVAIT PAS",
+  posee.sauvage?.part === "20" && posee.sauvage?.chiffre === "6/30 PV",
+  JSON.stringify(posee.sauvage),
+);
+dire(
+  "et la barre est VRAIMENT remplie au cinquième, en pixels",
+  posee.sauvage !== null && posee.sauvage.rapport !== null &&
+    Math.abs(posee.sauvage.rapport - 20) <= 2,
+  `${posee.sauvage?.rapport}% de la barre`,
+);
+dire(
+  "un cinquième ou moins prend la teinte basse",
+  /wm-combat__jauge--bas/.test(posee.sauvage?.classe ?? ""),
+  posee.sauvage?.classe ?? "aucune",
+);
+dire(
+  "ET UN POKÉMON ENTIER A SA BARRE PLEINE",
+  posee.mien?.part === "100" && Math.abs((posee.mien?.rapport ?? -1) - 100) <= 2,
+  JSON.stringify({ part: posee.mien?.part, rapport: posee.mien?.rapport }),
+);
+dire(
+  "et pleine ne prend aucune teinte d'alerte",
+  posee.mien?.classe === "wm-combat__jauge",
+  posee.mien?.classe ?? "aucune",
+);
+
+//  ── LA HIÉRARCHIE, EN PIXELS ────────────────────────────────────
+//
+//  « Améliore la hiérarchisation des informations entre le nom du
+//  pokémon, son niveau, ses pvs. » Le nom était à 11,5 px et les PV
+//  à 13,5 : le chiffre criait plus fort que la bête à qui il
+//  appartient. Trois rangs, et on les mesure plutôt que de les
+//  croire.
+dire(
+  "LE NOM PASSE DEVANT LE CHIFFRE DES PV",
+  posee.sauvage !== null && posee.sauvage.tailleNom > posee.sauvage.tailleChiffre,
+  `nom ${posee.sauvage?.tailleNom}px · PV ${posee.sauvage?.tailleChiffre}px`,
+);
+dire(
+  "et le niveau passe derrière les deux",
+  posee.sauvage !== null && posee.sauvage.tailleNiveau !== null &&
+    posee.sauvage.tailleNiveau < posee.sauvage.tailleChiffre,
+  `niveau ${posee.sauvage?.tailleNiveau}px`,
+);
+await avecCarte.close();
 
 await p.close();
 await nav.close();

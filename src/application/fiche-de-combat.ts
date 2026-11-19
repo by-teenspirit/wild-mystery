@@ -169,7 +169,7 @@ export function fiche(
   if (c.types !== undefined && c.types.length > 0) {
     morceaux.push(`<p class="wm-combat__types">${pastillesDeType(c.types)}</p>`);
   }
-  morceaux.push(`<p class="wm-combat__pv">${pv}</p>`);
+  morceaux.push(jaugeDesPv(c, pv));
 
   //  ── LES CHIFFRES PASSENT DANS L'INFOBULLE ───────────────────────
   //
@@ -191,6 +191,55 @@ export function fiche(
 
   morceaux.push("</div>");
   return joindre(morceaux);
+}
+
+/**
+ * La ligne des PV : le chiffre, et la barre qui le montre.
+ *
+ * ── POURQUOI UNE BARRE ──────────────────────────────────────────────
+ *
+ * « Améliore la hiérarchisation des informations entre le nom du
+ * pokémon, son niveau, ses pvs. Peut-être faire une jauge ? » —
+ * 18 novembre.
+ *
+ * Les PV sont la seule ligne de la fiche qui change à chaque tour, et
+ * c'est une PROPORTION qu'on lit, pas un nombre : « 18 sur 24 »
+ * demande une soustraction, une barre aux trois quarts ne demande
+ * rien. Le chiffre reste écrit à côté — une barre seule ne dit pas
+ * combien de dégâts passent encore.
+ *
+ * ── LA COULEUR NE PORTE RIEN TOUTE SEULE ────────────────────────────
+ *
+ * Trois paliers, les jetons du forum : vert, ocre, rouge. Mais le
+ * chiffre est là quoi qu'il arrive, et la barre est `aria-hidden` :
+ * personne ne dépend de la teinte pour savoir où il en est.
+ *
+ * ── LE SAUVAGE ENTIER N'A PAS DE MAXIMUM ────────────────────────────
+ *
+ * `pvMax` manque à la première apparition, et ce n'est pas un trou :
+ * la bête arrive intacte, donc la barre est pleine et le chiffre
+ * reste « 30 PV » sans fraction. Écrire « 30/30 » ferait croire
+ * qu'on connaît un total qu'on ne nous a pas donné.
+ */
+export function jaugeDesPv(c: Combattant, texte: string): string {
+  const connu = c.pvMax !== null && c.pvMax !== undefined && c.pvMax > 0;
+  const max = connu ? (c.pvMax as number) : c.pv;
+  const part = max > 0 ? Math.max(0, Math.min(100, Math.round((c.pv / max) * 100))) : 0;
+  const classe = part <= 20
+    ? " wm-combat__jauge--bas"
+    : part <= 50
+    ? " wm-combat__jauge--moyen"
+    : "";
+  return joindre([
+    //  `data-wm-part` DIT QUE LA FICHE PORTE DÉJÀ SA JAUGE. Le module
+    //  du navigateur en pose une sur les cartes plus anciennes, qui
+    //  n'en ont pas ; sans cette marque il la poserait deux fois.
+    `<p class="wm-combat__pv" data-wm-part="${part}">`,
+    `<span class="wm-combat__pv-chiffre">${echapper(texte)}</span>`,
+    `<span class="wm-combat__jauge${classe}" aria-hidden="true">` +
+    `<span class="wm-combat__jauge-plein" style="width:${part}%"></span></span>`,
+    "</p>",
+  ]);
 }
 
 /** La bulle d'une case, ou `null` quand il n'y a rien de plus à dire.

@@ -25,6 +25,7 @@ import {
   echapper,
   enveloppe,
   fiche,
+  jaugeDesPv,
   joindre,
   nomAffiche,
   pastillesDeType,
@@ -110,7 +111,7 @@ Deno.test("une fiche complète, et rien de plus", () => {
       '<p class="wm-combat__niveau">niv. 10</p>' +
       '<p class="wm-combat__types">' +
       '<span class="wm-type wm-type--feu" data-wm-type="feu">Feu</span></p>' +
-      '<p class="wm-combat__pv">30 PV</p>' +
+      '<p class="wm-combat__pv" data-wm-part="100"><span class="wm-combat__pv-chiffre">30 PV</span><span class="wm-combat__jauge" aria-hidden="true"><span class="wm-combat__jauge-plein" style="width:100%"></span></span></p>' +
       '<span class="wm-infobulle" role="tooltip"><span class="wm-infobulle__tete"><span class="wm-infobulle__nom">Ponyta</span><span class="wm-infobulle__niveau">Niv. 10</span></span><span class="wm-infobulle__types"><span class="wm-infobulle__type" data-wm-type="feu">Feu</span></span><span class="wm-infobulle__surtitre">Statistiques</span><span class="wm-infobulle__stats"><span class="wm-infobulle__stat"><span>Attaque</span><span>22</span></span><span class="wm-infobulle__stat"><span>Défense</span><span>16</span></span></span></span>' +
       "</div>",
   );
@@ -310,4 +311,44 @@ Deno.test("L'ALTERNATIVE PORTE LE NOM, PARCE QUE FORUMACTIF REMPLIT LES VIDES", 
   //  en dessous.
   assertStringIncludes(html, 'alt="Biscotte (Goupix)"');
   assert(!html.includes('alt=""'), "plus aucune alternative vide");
+});
+
+// ── LA JAUGE DE PV ──────────────────────────────────────────────────
+//
+//  « Améliore la hiérarchisation des informations entre le nom du
+//  pokémon, son niveau, ses pvs. Peut-être faire une jauge ? »
+//  — 18 novembre.
+
+Deno.test("LA JAUGE DIT LA PROPORTION, ET LE CHIFFRE RESTE ÉCRIT", () => {
+  const html = jaugeDesPv({ especeId: 1, nom: "X", pv: 18, pvMax: 24 }, "18/24 PV");
+  assert(html.includes('data-wm-part="75"'), html);
+  assert(html.includes('style="width:75%"'), html);
+  assert(html.includes(">18/24 PV<"), html);
+  //  LA BARRE SE TAIT : le chiffre juste au-dessus dit déjà tout, et
+  //  une seconde lecture du même fait est du bruit au casque.
+  assert(html.includes('aria-hidden="true"'), html);
+});
+
+Deno.test("TROIS PALIERS, ET LES BORNES SONT CELLES QU'ON CROIT", () => {
+  const part = (pv: number, max: number) =>
+    jaugeDesPv({ especeId: 1, nom: "X", pv, pvMax: max }, `${pv}/${max} PV`);
+  //  Au-dessus de la moitié : rien, c'est le vert par défaut.
+  assert(!part(51, 100).includes("wm-combat__jauge--"));
+  //  Pile la moitié est déjà un avertissement.
+  assert(part(50, 100).includes("wm-combat__jauge--moyen"));
+  assert(part(21, 100).includes("wm-combat__jauge--moyen"));
+  //  Un cinquième ou moins : le rouge.
+  assert(part(20, 100).includes("wm-combat__jauge--bas"));
+  assert(part(0, 24).includes("wm-combat__jauge--bas"));
+  assert(part(0, 24).includes('style="width:0%"'));
+});
+
+Deno.test("LE SAUVAGE ENTIER A UNE BARRE PLEINE, SANS FRACTION", () => {
+  //  `pvMax` manque à la première apparition, et ce n'est pas un trou
+  //  — la bête arrive intacte. Écrire « 30/30 » ferait croire qu'on
+  //  connaît un total qu'on ne nous a pas donné.
+  const html = jaugeDesPv({ especeId: 1, nom: "X", pv: 30 }, "30 PV");
+  assert(html.includes('data-wm-part="100"'), html);
+  assert(html.includes(">30 PV<"), html);
+  assert(!html.includes("/30"), html);
 });

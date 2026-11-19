@@ -116,3 +116,69 @@ export function rendreLesSprites(doc: Document, decor: DecorDuCombat): number {
   }
   return faites;
 }
+
+/** Les PV lus dans le texte d'une fiche, ou `null`.
+ *
+ *  DEUX FORMES, celles que `fiche-de-combat.ts` écrit : « 18/24 PV »
+ *  quand le maximum est connu, « 30 PV » quand la bête vient
+ *  d'arriver entière. Rien d'autre n'est accepté — un texte qu'on ne
+ *  reconnaît pas ne devient pas une jauge approximative. */
+export function pvDuTexte(texte: string): { pv: number; max: number } | null {
+  const m = /(\d+)\s*(?:\/\s*(\d+))?\s*PV/.exec(texte);
+  if (m === null) return null;
+  const pv = Number(m[1]);
+  const max = m[2] === undefined ? pv : Number(m[2]);
+  if (!Number.isInteger(pv) || !Number.isInteger(max) || max <= 0) return null;
+  return { pv, max };
+}
+
+/**
+ * Pose la jauge de PV sur les cartes qui n'en ont pas.
+ *
+ * ── POURQUOI ICI ET PAS SEULEMENT DANS LE GÉNÉRATEUR ────────────────
+ *
+ * Le générateur écrit la jauge dans les cartes À VENIR. Les vingt
+ * déjà postées dans les sujets, elles, ne se réparent pas toutes
+ * seules : un message publié sur Forumactif est figé (planche 102).
+ *
+ * Mais le chiffre est écrit dedans, en toutes lettres. On le lit, on
+ * en fait une proportion, et la carte d'octobre reçoit sa barre comme
+ * les autres. Rien n'est réécrit sur le forum : la réparation vit le
+ * temps de la page.
+ *
+ * Renvoie combien de fiches ont reçu leur jauge.
+ */
+export function poserLesJauges(doc: Document): number {
+  let faites = 0;
+  for (const p of doc.querySelectorAll<HTMLElement>("p.wm-combat__pv")) {
+    //  DÉJÀ SERVIE. Le générateur pose `data-wm-part`, et une seconde
+    //  barre sous la première serait le genre de défaut qu'on ne voit
+    //  qu'en recomptant.
+    if (p.dataset.wmPart !== undefined) continue;
+    const lu = pvDuTexte(p.textContent ?? "");
+    if (lu === null) continue;
+
+    const part = Math.max(0, Math.min(100, Math.round((lu.pv / lu.max) * 100)));
+    const texte = p.textContent ?? "";
+    p.textContent = "";
+
+    const chiffre = doc.createElement("span");
+    chiffre.className = "wm-combat__pv-chiffre";
+    chiffre.textContent = texte.trim();
+
+    const jauge = doc.createElement("span");
+    jauge.className = "wm-combat__jauge" +
+      (part <= 20 ? " wm-combat__jauge--bas" : part <= 50 ? " wm-combat__jauge--moyen" : "");
+    jauge.setAttribute("aria-hidden", "true");
+    const plein = doc.createElement("span");
+    plein.className = "wm-combat__jauge-plein";
+    plein.style.width = `${part}%`;
+    jauge.appendChild(plein);
+
+    p.appendChild(chiffre);
+    p.appendChild(jauge);
+    p.dataset.wmPart = String(part);
+    faites += 1;
+  }
+  return faites;
+}
