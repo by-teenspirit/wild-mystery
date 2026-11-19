@@ -77,7 +77,12 @@
 
       <div class="wm-carnet__filet"></div>
 
-      <nav aria-label="Les onglets du carnet">
+      <!--  ── CES ONGLETS N'EXISTENT QUE CARNET OUVERT ───────────────
+
+            Huit liens, zéro page derrière tant que rien n'est relié —
+            relevé le 19 novembre. La feuille les retire sur
+            `data-wm-etat`, et la classe ci-dessous est la poignée.  -->
+      <nav aria-label="Les onglets du carnet" class="wm-carnet__onglets-pages">
         <ul class="wm-carnet__onglets">
           <li><a class="wm-carnet__onglet" href="#mes-rp" data-wm-carnet-onglet="mes-rp">Mes RP</a></li>
           <li><a class="wm-carnet__onglet" href="#ecrire" data-wm-carnet-onglet="ecrire">Écrire</a></li>
@@ -96,7 +101,11 @@
       </ul>
     </aside>
 
-    <div class="wm-carnet__corps">
+    <!--  L'IDENTIFIANT SERT AU LIEN D'ÉVITEMENT : `module-navigation.ts`
+          cherche `wm-carnet-corps` dans sa liste de cibles. Sans lui, la
+          page du carnet n'avait pas de lien « Aller au contenu », parce
+          qu'elle ne porte aucun des identifiants de ModernBB.  -->
+    <div class="wm-carnet__corps" id="wm-carnet-corps">
 
       <!-- ── le carnet n'est pas ouvert, et on dit pourquoi ──────── -->
       <!--  IL N'Y A PLUS RIEN À FAIRE ICI. Ni code à poster, ni clé à
@@ -140,6 +149,46 @@
                 PERSONNAGE. Le bloc est caché par défaut : il ne s'ouvre
                 que si la page n'a pas de laissez-passer valable. Le
                 script remplit tout le reste.  -->
+          <!--  ── L'ÉTAT QU'ON N'AVAIT PAS DESSINÉ ────────────────────
+
+                Quatre états sur cette page, et un seul avait été fait :
+
+                  1 · pas connectée au forum
+                  2 · connectée, carnet pas encore relié  ← le seul
+                  3 · lien parti, en attente du clic
+                  4 · carnet relié
+
+                L'état 1 est celui où arrive la plupart des gens, parce
+                qu'on vient ici par un lien d'annexe avant de s'être
+                connectée. On y voyait un formulaire qui ne pouvait pas
+                aboutir, sous une ligne grise de 11,5 px qui disait
+                pourquoi.
+
+                On ne demande donc plus une adresse à quelqu'un dont on
+                ne sait pas encore le nom : on demande la connexion, et
+                on laisse la colonne de droite expliquer pourquoi ça
+                vaut la peine.  -->
+          <div class="wm-carnet__lier" data-wm-carnet-connexion hidden>
+            <div class="wm-carnet__lier-forme">
+              <h2 class="wm-carnet__bloc-titre">Connecte-toi d'abord</h2>
+              <p>
+                Le carnet s'appuie sur ton compte du forum : il a besoin de
+                savoir qui tu es avant de pouvoir s'ouvrir.
+              </p>
+              <p>
+                <!--  L'ADRESSE DE RETOUR EST POSÉE PAR LE SCRIPT, qui
+                      seul connaît la page courante. Sans lui, le lien
+                      reste bon : il ramène à la connexion, et le
+                      forum ramène à l'accueil.  -->
+                <a class="wm-carnet__bouton wm-carnet__bouton--plein"
+                   href="/login" data-wm-carnet-connexion-lien>Me connecter</a>
+              </p>
+              <p class="wm-carnet__aide-champ">
+                Tu reviendras ici tout de suite après.
+              </p>
+            </div>
+          </div>
+
           <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
             <div class="wm-carnet__lier-forme">
               <h2 class="wm-carnet__bloc-titre">Relier ton carnet</h2>
@@ -166,10 +215,29 @@
               </p>
               <form data-wm-carnet-liaison>
                 <label for="wm-courriel">Ton adresse e-mail</label>
+                <!--  « celle de ton inscription » vivait dans le
+                      `placeholder` : elle disparaissait au premier
+                      caractère, et c'était le seul endroit qui disait
+                      QUELLE adresse taper.  -->
+                <p class="wm-carnet__aide-champ" id="wm-courriel-aide">celle de ton inscription</p>
                 <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
-                       spellcheck="false" required placeholder="celle de ton inscription" />
+                       spellcheck="false" required aria-describedby="wm-courriel-aide" />
                 <button type="submit">Recevoir mon lien</button>
               </form>
+
+              <!--  ── APRÈS L'ENVOI, LE FORMULAIRE S'EFFACE ──────────
+
+                    La chose à faire n'est plus de taper une adresse,
+                    c'est d'aller voir ses mails. Laisser le champ et
+                    le bouton en place invitait à redemander, et le
+                    deuxième clic répond « trop de demandes d'un
+                    coup » — ce qui se lit comme une panne du jeu
+                    alors que le premier lien est déjà arrivé.  -->
+              <div data-wm-carnet-parti hidden>
+                <p class="wm-carnet__parti-adresse" data-wm-carnet-parti-adresse></p>
+                <p><button type="button" class="wm-carnet__renvoyer" data-wm-carnet-renvoyer>Changer d'adresse ou redemander un lien</button></p>
+              </div>
+
               <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
             </div>
 
@@ -179,7 +247,7 @@
                   plusieurs personnages. Demandé le 16 novembre, après
                   qu'une joueuse est restée bloquée trois jours.  -->
             <aside class="wm-info" data-wm-carnet-lier-info>
-              <p class="wm-info__titre">
+              <h3 class="wm-info__titre">
                 <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
                   <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
                   <circle cx="10" cy="5.9" r="1.15" fill="currentColor" />
@@ -187,7 +255,7 @@
                         stroke-width="1.8" stroke-linecap="round" />
                 </svg>
                 Pourquoi ton adresse&nbsp;?
-              </p>
+              </h3>
               <p>
                 À ta validation, le staff relie ton adresse à une
                 <b>clé de liaison</b> — un petit code qui prouve que c'est
@@ -218,7 +286,7 @@
                   c'est-à-dire quand le lien n'arrive pas. Les mettre plus
                   haut, c'était annoncer une panne avant d'avoir essayé.  -->
             <aside class="wm-info wm-info--attention" data-wm-carnet-lier-spam>
-              <p class="wm-info__titre">
+              <h3 class="wm-info__titre">
                 <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
                   <path d="M10 2.6 18.4 17H1.6Z" fill="none" stroke="currentColor"
                         stroke-width="1.6" stroke-linejoin="round" />
@@ -227,7 +295,7 @@
                   <circle cx="10" cy="14.5" r="1.1" fill="currentColor" />
                 </svg>
                 Le lien n'arrive pas&nbsp;?
-              </p>
+              </h3>
               <p>
                 <b>Regarde dans tes spams.</b> C'est là qu'il tombe le plus
                 souvent — le courrier vient d'un service automatique, et les

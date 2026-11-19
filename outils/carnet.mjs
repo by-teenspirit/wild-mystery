@@ -2056,6 +2056,18 @@ const RP = [
   const { q } = await monter({ lesRp: RP });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(300);
+  //  ── ON PASSE EN LISTE D'ABORD, COMME UNE JOUEUSE ───────────────
+  //
+  //  Les filtres ne servent qu'à la vue en liste : `rp.ts` les cache
+  //  au départ et ne les rouvre qu'en quittant le tableau. Ce clic-ci
+  //  marchait quand même, parce que `display: flex` écrit dans la
+  //  feuille battait le `[hidden]` du navigateur — la même fuite que
+  //  sur le bloc de liaison, troisième endroit.
+  //
+  //  Le harnais cliquait donc un bouton qu'une joueuse ne peut pas
+  //  atteindre, et le validait.
+  await q.click('[data-wm-rp-vue="liste"]');
+  await q.waitForTimeout(100);
   await q.click('[data-wm-rp-filtre="a-moi"]');
   await q.waitForTimeout(150);
   const titres = await q.evaluate(() =>
@@ -2075,6 +2087,10 @@ const RP = [
   const { q, appels } = await monter({ lesRp: RP });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(300);
+  //  LA LIGNE EST CELLE DE LA VUE EN LISTE : le tableau n'en a pas.
+  //  Ce test travaillait sur une vue cachée (19 novembre).
+  await q.click('[data-wm-rp-vue="liste"]');
+  await q.waitForTimeout(100);
   await q.selectOption(".wm-rp__ligne:first-child select", "en-pause");
   await q.waitForTimeout(250);
   const ecrit = appels.find((a) => a.ou === "PATCH-rp");
@@ -2145,6 +2161,8 @@ const RP = [
   const { q } = await monter({ lesRp: RP });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(300);
+  await q.click('[data-wm-rp-vue="liste"]');
+  await q.waitForTimeout(100);
   const boutons = await q.evaluate(() =>
     [...document.querySelectorAll(".wm-rp__ligne")].map((e) => ({
       etat: e.querySelector(".wm-rp__etat")?.textContent?.trim(),
@@ -2371,15 +2389,22 @@ const RP = [
 {
   //  UN INVITÉ DU FORUM N'EST PAS UN PROBLÈME DE LIAISON. Il n'a rien à
   //  lier : il a à se connecter au forum, et c'est tout autre chose.
+  //
+  //  LE MESSAGE A CHANGÉ DE PLACE le 19 novembre : il vivait sur la
+  //  ligne de souci, en terre brûlée, qui est le canal des pannes.
+  //  Il tient maintenant dans l'encadré, en titre et en phrase — et
+  //  la ligne de souci se tait. Le test suit la phrase, pas le canal.
   const { q, appels } = await monter({ compte: "invite" });
   const vu = await q.evaluate(() => ({
-    souci: document.querySelector("[data-wm-carnet-souci]")?.textContent?.trim() ?? "",
+    dit: document.querySelector("[data-wm-carnet-connexion]")?.textContent?.trim() ?? "",
+    connexionOuverte: document.querySelector("[data-wm-carnet-connexion]")?.hidden === false,
     lierCache: document.querySelector("[data-wm-carnet-lier]")?.hidden === true,
   }));
   dire(
     "UN INVITÉ S'ENTEND DIRE DE SE CONNECTER AU FORUM, PAS DE SE LIER",
-    /connecte-toi/i.test(vu.souci) && vu.lierCache && appels.length === 0,
-    JSON.stringify({ ...vu, appels: appels.length }),
+    /connecte-toi/i.test(vu.dit) && vu.connexionOuverte && vu.lierCache &&
+      appels.length === 0,
+    JSON.stringify({ ...vu, dit: vu.dit.slice(0, 40), appels: appels.length }),
   );
   await q.close();
 }
@@ -3092,10 +3117,249 @@ if (Deno.args.includes("--captures")) {
   console.log(`captures : ${PAGES.length} images dans img/aide/`);
 }
 
-await nav.close();
 
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));
+// ══════════════════════════════════════════════════════════════════
+//  LES QUATRE ÉTATS DE L'ACCUEIL
+//
+//  Relevé sur la page EN LIGNE le 19 novembre, à 1440 px :
+//
+//      lier         hidden=true  display=grid   ← s'affichait
+//      présentation hidden=true  display=none   ← obéissait
+//
+//  Le script cachait les deux ; `display: grid` écrit dans la feuille
+//  battait le `[hidden] { display: none }` du navigateur. Une
+//  visiteuse non connectée voyait donc le formulaire d'adresse — qui
+//  ne pouvait pas aboutir — SANS l'explication d'à côté.
+//
+//  Trois endroits du carnet avaient la même fuite : ce bloc, les
+//  filtres de RP, et la vue en liste. Les deux derniers ont été
+//  découverts par ce harnais, qui cliquait depuis des semaines des
+//  boutons qu'une joueuse ne peut pas atteindre.
+// ══════════════════════════════════════════════════════════════════
+{
+  console.log("\n── L'ACCUEIL, QUAND ON N'EST PAS CONNECTÉE ─────────────");
+  const { q } = await monter({ compte: "invite" });
+  await q.waitForTimeout(300);
+  const vu = await q.evaluate(() => {
+    const voit = (s) => {
+      const e = document.querySelector(s);
+      return e !== null && getComputedStyle(e).display !== "none" && e.offsetParent !== null;
+    };
+    const lien = document.querySelector("[data-wm-carnet-connexion-lien]");
+    const foc = [...document.querySelectorAll("a[href],button,input,textarea,select")]
+      .filter((e) => e.offsetParent !== null && !e.disabled);
+    //  L'UNIQUE ACTION DE LA PAGE, MESURÉE. Une ancre à qui on donne
+    //  une classe de bouton reste une ancre : en ligne, soulignée,
+    //  haute comme son texte. Trois mesures, pas une classe lue.
+    const sl = lien === null ? null : getComputedStyle(lien);
+    const action = lien === null ? null : {
+      hauteur: Math.round(lien.getBoundingClientRect().height),
+      fond: sl.backgroundColor,
+      souligne: sl.textDecorationLine,
+    };
+    return {
+      action,
+      presentation: voit("[data-wm-carnet-presentation]"),
+      formulaire: voit("[data-wm-carnet-liaison]"),
+      connexion: voit("[data-wm-carnet-connexion]"),
+      retour: lien?.getAttribute("href") ?? null,
+      onglets: voit('nav[aria-label="Les onglets du carnet"]'),
+      //  CE QUI EST MARQUÉ CACHÉ EST CACHÉ — partout, pas seulement
+      //  ici. C'est la règle qui tient les trois fuites d'un coup.
+      cachesQuiSAffichent: [...document.querySelectorAll(".wm-carnet [hidden]")]
+        .filter((e) => getComputedStyle(e).display !== "none").length,
+      focusables: foc.length,
+      //  LE CANAL DES PANNES DOIT ÊTRE MUET ICI : arriver déconnectée
+      //  n'est pas une panne, et la ligne en terre brûlée disait la
+      //  même chose que l'encadré, en plus alarmant.
+      souci: (document.querySelector(".wm-carnet__souci")?.textContent ?? "").trim(),
+    };
+  });
+  dire(
+    "LA PRÉSENTATION EST LÀ — c'est l'état où elle sert le plus",
+    vu.presentation === true,
+    JSON.stringify(vu),
+  );
+  dire(
+    "ET LE FORMULAIRE D'ADRESSE N'Y EST PAS — il ne pourrait pas aboutir",
+    vu.formulaire === false,
+    `formulaire visible : ${vu.formulaire}`,
+  );
+  dire(
+    "on demande la connexion, et le lien ramène ici",
+    vu.connexion === true && /^\/login\?redirect=/.test(vu.retour ?? ""),
+    String(vu.retour),
+  );
+  dire(
+    "ET ELLE RESSEMBLE À UNE ACTION, PAS À UNE NOTE DE BAS DE PAGE",
+    vu.action !== null &&
+      vu.action.hauteur >= 36 &&
+      vu.action.souligne === "none" &&
+      !/rgba\(0, 0, 0, 0\)|transparent/.test(vu.action.fond),
+    JSON.stringify(vu.action),
+  );
+  dire(
+    "LES ONGLETS NE SONT PAS DANS LE PARCOURS — ils ne mènent nulle part",
+    vu.onglets === false,
+    `onglets visibles : ${vu.onglets} · ${vu.focusables} éléments focalisables`,
+  );
+  dire(
+    "ET RIEN DE MARQUÉ CACHÉ NE S'AFFICHE",
+    vu.cachesQuiSAffichent === 0,
+    `${vu.cachesQuiSAffichent} bloc(s) caché(s) mais visible(s)`,
+  );
+  dire(
+    "ET LE CANAL DES PANNES RESTE MUET — ce n'est pas une panne",
+    vu.souci === "",
+    `souci : « ${vu.souci} »`,
+  );
+  if (Deno.args.includes("--photo")) {
+    const bloc = await q.$(".wm-carnet__dehors");
+    if (bloc !== null) await bloc.screenshot({ path: "carnet-decouverte.png" });
+  }
+  await q.close();
+}
+
+{
+  //  ── L'ÉTAT 3 : LE LIEN EST PARTI ──────────────────────────────
+  //
+  //  Le formulaire restait en place sous le message de succès : même
+  //  champ, même bouton. Le deuxième clic ne redemande pas un lien,
+  //  il répond « trop de demandes d'un coup » — ce qui se lit comme
+  //  une panne alors que le premier est déjà dans la boîte.
+  console.log("\n── QUAND LE LIEN EST PARTI ────────────────────────────");
+  const { q } = await monter({ laissez: null });
+  await q.waitForTimeout(300);
+  await q.fill("#wm-courriel", "eliott@exemple.test");
+  await q.click('[data-wm-carnet-liaison] button[type="submit"]');
+  await q.waitForTimeout(400);
+  const apres = await q.evaluate(() => {
+    const voit = (s) => {
+      const e = document.querySelector(s);
+      return e !== null && getComputedStyle(e).display !== "none" && e.offsetParent !== null;
+    };
+    return {
+      formulaire: voit("[data-wm-carnet-liaison]"),
+      parti: voit("[data-wm-carnet-parti]"),
+      adresse: document.querySelector("[data-wm-carnet-parti-adresse]")?.textContent?.trim(),
+      message: document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim()?.slice(0, 40),
+    };
+  });
+  dire(
+    "LE FORMULAIRE S'EFFACE, ET L'ADRESSE S'AFFICHE",
+    apres.formulaire === false && apres.parti === true &&
+      (apres.adresse ?? "").includes("eliott@exemple.test"),
+    JSON.stringify(apres),
+  );
+  dire(
+    "et le message qui dit quoi faire est toujours là",
+    /spams/.test(apres.message ?? ""),
+    String(apres.message),
+  );
+  //  LE RENVOI EST UN SECOND CHOIX, mais il existe : une faute de
+  //  frappe dans l'adresse est la première cause d'un lien perdu.
+  await q.click("[data-wm-carnet-renvoyer]");
+  await q.waitForTimeout(150);
+  const revenu = await q.evaluate(() => ({
+    formulaire: document.querySelector("[data-wm-carnet-liaison]")?.hidden === false,
+    focus: document.activeElement?.id ?? null,
+  }));
+  dire(
+    "ET LE RENVOI RAMÈNE LE CHAMP, CURSEUR DEDANS",
+    revenu.formulaire === true && revenu.focus === "wm-courriel",
+    JSON.stringify(revenu),
+  );
+  if (Deno.args.includes("--photo")) {
+    //  On repart sur l'état 3 pour la photo : le renvoi vient de
+    //  ramener le formulaire.
+    await q.fill("#wm-courriel", "eliott@exemple.test");
+    await q.click('[data-wm-carnet-liaison] button[type="submit"]');
+    await q.waitForTimeout(400);
+    const bloc = await q.$(".wm-carnet__dehors");
+    if (bloc !== null) await bloc.screenshot({ path: "carnet-lien-parti.png" });
+  }
+  await q.close();
+}
+
+{
+  //  ── CE QUI SE LIT AU CLAVIER ET AU LECTEUR D'ÉCRAN ────────────
+  console.log("\n── LA STRUCTURE DE L'ACCUEIL ──────────────────────────");
+  const { q } = await monter({ laissez: null });
+  await q.waitForTimeout(300);
+  const st = await q.evaluate(() => {
+    const champ = document.querySelector("#wm-courriel");
+    const foc = [...document.querySelectorAll("a[href],button,input,textarea,select")]
+      .filter((e) => e.offsetParent !== null && !e.disabled);
+    return {
+      titres: [...document.querySelectorAll("h1,h2,h3")]
+        .filter((e) => e.offsetParent !== null)
+        .map((e) => e.tagName + " " + e.textContent.trim().replace(/\s+/g, " ").slice(0, 34)),
+      rangDuChamp: foc.indexOf(champ) + 1,
+      total: foc.length,
+      //  L'AIDE EST UN TEXTE, PAS UN PLACEHOLDER : « celle de ton
+      //  inscription » disparaissait au premier caractère tapé, et
+      //  c'était le seul endroit qui disait QUELLE adresse.
+      decritPar: champ?.getAttribute("aria-describedby"),
+      aideTexte: document.getElementById(champ?.getAttribute("aria-describedby") ?? "")
+        ?.textContent?.trim(),
+      placeholder: champ?.getAttribute("placeholder"),
+    };
+  });
+  dire(
+    "LES DEUX ENCADRÉS ONT DE VRAIS TITRES — ils étaient en <p>",
+    st.titres.filter((t) => t.startsWith("H3")).length === 2,
+    JSON.stringify(st.titres),
+  );
+  dire(
+    "L'AIDE DU CHAMP EST UN TEXTE LIÉ, PAS UN PLACEHOLDER",
+    st.decritPar === "wm-courriel-aide" &&
+      (st.aideTexte ?? "").includes("inscription") && st.placeholder === null,
+    JSON.stringify({ decritPar: st.decritPar, aide: st.aideTexte, placeholder: st.placeholder }),
+  );
+  //  LE CHAMP ÉTAIT LA SEIZIÈME TABULATION SUR DIX-HUIT, pour la
+  //  seule action possible de la page. Les huit onglets morts sont
+  //  partis ; il doit être bien plus près.
+  dire(
+    "ET LE CHAMP SE TROUVE SANS TRAVERSER LA PAGE",
+    st.rangDuChamp > 0 && st.rangDuChamp <= 9,
+    `${st.rangDuChamp}ᵉ tabulation sur ${st.total}`,
+  );
+  //  ── LE LIEN D'ÉVITEMENT MANQUAIT TOUT À FAIT ──────────────────
+  //
+  //  `module-navigation.ts` en pose un sur les pages du forum, en
+  //  cherchant `#main-content`, `#page-body` ou `#content-main`. La
+  //  page du carnet n'est pas un gabarit ModernBB : elle n'en porte
+  //  aucun, donc elle n'avait pas de lien du tout.
+  //
+  //  ET LA CIBLE DOIT PRENDRE LE FOCUS, pas seulement défiler : sans
+  //  `tabindex="-1"` dessus, la tabulation suivante repart du haut de
+  //  la page et le lien n'a rien évité.
+  const saut = await q.evaluate(() => {
+    const lien = document.getElementById("wm-evitement");
+    if (lien === null) return { lien: false };
+    lien.focus();
+    lien.click();
+    const cible = document.getElementById("wm-carnet-corps");
+    return {
+      lien: true,
+      vise: lien.getAttribute("href"),
+      cibleFocalisable: cible?.getAttribute("tabindex") === "-1",
+      focusDansLeCorps: cible !== null && cible.contains(document.activeElement),
+    };
+  });
+  dire(
+    "LA PAGE A UN LIEN D'ÉVITEMENT, ET IL DONNE VRAIMENT LE FOCUS",
+    saut.lien === true && saut.vise === "#wm-carnet-corps" &&
+      saut.cibleFocalisable === true && saut.focusDansLeCorps === true,
+    JSON.stringify(saut),
+  );
+  await q.close();
+}
+
+
+await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
 
 if (soucis.length > 0) Deno.exit(1);

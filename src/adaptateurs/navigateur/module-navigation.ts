@@ -568,7 +568,13 @@ export function poserLeLienDEvitement(doc: Document): boolean {
   //  Le premier qui existe : `#main-content` sur l'index et la liste
   //  des membres, `#page-body` sur un sujet. On ne vise pas un `<main>`,
   //  que les gabarits de ModernBB ne posent pas.
-  const cibles = ["main-content", "page-body", "content-main"];
+  //
+  //  `wm-carnet-corps` A ÉTÉ AJOUTÉ LE 19 NOVEMBRE. La page du carnet
+  //  n'est pas un gabarit ModernBB : elle ne porte aucun des trois
+  //  autres identifiants, donc elle n'avait pas de lien d'évitement du
+  //  tout. Le champ e-mail — seule action de la page quand le carnet
+  //  n'est pas relié — était la seizième tabulation sur dix-huit.
+  const cibles = ["main-content", "page-body", "content-main", "wm-carnet-corps"];
   const cible = cibles.map((id) => doc.getElementById(id)).find((e) => e !== null);
   if (cible === undefined || cible === null) return false;
   cible.setAttribute("tabindex", "-1");

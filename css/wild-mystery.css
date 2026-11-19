@@ -30112,6 +30112,118 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
+/* ── CE QUI EST MARQUÉ CACHÉ EST CACHÉ ──────────────────────────────
+
+   Relevé sur la page en ligne le 19 novembre, à 1440 :
+
+     lier         hidden=true  display=grid   ← s'affichait quand même
+     présentation hidden=true  display=none   ← obéissait
+
+   Le script cachait les deux ; une règle de cette feuille en
+   ressuscitait UN SEUL. `display: grid` écrit ici bat le
+   `[hidden] { display: none }` de la feuille du navigateur, qui n'a
+   qu'une spécificité d'attribut.
+
+   CE QU'UNE VISITEUSE VOYAIT : le formulaire de liaison sans
+   l'explication d'à côté, c'est-à-dire exactement l'inverse de ce
+   qu'on venait de construire — et un formulaire qu'elle ne pouvait
+   pas utiliser, puisqu'elle n'était pas connectée.
+
+   Le même défaut avait été corrigé le 18 novembre sur le menu de la
+   barre d'actions. Il n'avait pas été reporté ici. La règle couvre
+   donc TOUT le carnet d'un coup, et pas un bloc à la fois : il y a
+   onze porteurs de `hidden` dans cette page, et la prochaine règle
+   d'affichage écrite sur l'un d'eux rouvrirait le même trou. */
+#modernbb .wm-carnet [hidden],
+#modernbb .wm-carnet[hidden] {
+  display: none !important;
+}
+
+/* ── LES ONGLETS NE MÈNENT NULLE PART TANT QUE RIEN N'EST RELIÉ ─────
+
+   Huit liens cliquables et focalisables, zéro page affichée : mesuré
+   le 19 novembre. Au clavier, il fallait les traverser tous les huit
+   — plus les six liens de l'en-tête — avant d'atteindre le champ
+   e-mail, SEIZIÈME tabulation sur dix-huit, et seule action possible
+   de la page.
+
+   ON LES RETIRE AU LIEU DE LES GRISER. Un lien grisé reste une
+   promesse ; ici il n'y a rien derrière. Ce que le carnet contient
+   est dit par la colonne de droite de l'accueil, qui est faite pour
+   ça.
+
+   `data-wm-etat` vaut `pret` quand le carnet est ouvert — c'est le
+   script qui le pose, et c'est le seul moment où ces pages existent. */
+#modernbb .wm-carnet:not([data-wm-etat="pret"]) .wm-carnet__onglets-pages {
+  display: none;
+}
+
+/*  ── L'AIDE DU CHAMP, SOUS SON ÉTIQUETTE ──────────────────────────
+
+    « celle de ton inscription » vivait dans le `placeholder`, donc
+    disparaissait au premier caractère tapé — et c'était le seul
+    endroit qui disait QUELLE adresse. */
+#modernbb .wm-carnet__aide-champ {
+  margin: calc(-1 * var(--wm-espace-4, 4px)) 0 var(--wm-espace-8, 8px);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  ── LE PANNEAU « LE LIEN EST PARTI » ─────────────────────────────
+
+    Avant, le formulaire restait en place sous le message de succès :
+    le même champ, le même bouton, invitant à redemander. Au deuxième
+    clic, le service de mail répond « trop de demandes d'un coup »,
+    ce qui se lit comme une panne du jeu alors que le premier lien est
+    déjà dans la boîte.
+
+    La chose à faire après l'envoi n'est pas de retaper une adresse,
+    c'est d'aller voir ses mails. Le formulaire s'efface donc, et le
+    renvoi redevient ce qu'il est : un second choix. */
+#modernbb .wm-carnet__parti-adresse {
+  margin: 0 0 var(--wm-espace-8, 8px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  overflow-wrap: anywhere;
+}
+
+#modernbb .wm-carnet__renvoyer {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--wm-accent-primaire, #275e7a);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-decoration: underline;
+}
+
+/*  ── L'UNIQUE ACTION DE L'ACCUEIL EST UN LIEN, PAS UN BOUTON ──────
+
+    « Me connecter » est une navigation : c'est une ancre, et ça doit
+    rester une ancre — on ne simule pas un lien avec un bouton et du
+    script. Mais la règle qui habille le bouton d'envoi du formulaire
+    ne vise que `button`, et la classe posée sur l'ancre n'existait
+    dans aucune feuille. Relevé sur capture : la seule action de la
+    page se lisait comme une note de bas de page soulignée.
+
+    Une ancre n'est pas un bouton : elle est en ligne, elle est
+    soulignée, et sa hauteur est celle du texte. Les trois se
+    rattrapent ici. */
+#modernbb .wm-carnet__lier a.wm-carnet__bouton--plein {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  text-decoration: none;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    22-faune.css — l'annexe de la carte
 

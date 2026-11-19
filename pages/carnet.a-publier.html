@@ -38,7 +38,7 @@
 
       <div class="wm-carnet__filet"></div>
 
-      <nav aria-label="Les onglets du carnet">
+      <nav aria-label="Les onglets du carnet" class="wm-carnet__onglets-pages">
         <ul class="wm-carnet__onglets">
           <li><a class="wm-carnet__onglet" href="#mes-rp" data-wm-carnet-onglet="mes-rp">Mes RP</a></li>
           <li><a class="wm-carnet__onglet" href="#ecrire" data-wm-carnet-onglet="ecrire">Écrire</a></li>
@@ -57,7 +57,7 @@
       </ul>
     </aside>
 
-    <div class="wm-carnet__corps">
+    <div class="wm-carnet__corps" id="wm-carnet-corps">
 
       <div class="wm-carnet__dehors">
         <header class="wm-carnet__entete">
@@ -75,6 +75,24 @@
         <p class="wm-carnet__souci" data-wm-carnet-souci role="status"></p>
 
         <div class="wm-carnet__porte">
+
+          <div class="wm-carnet__lier" data-wm-carnet-connexion hidden>
+            <div class="wm-carnet__lier-forme">
+              <h2 class="wm-carnet__bloc-titre">Connecte-toi d'abord</h2>
+              <p>
+                Le carnet s'appuie sur ton compte du forum : il a besoin de
+                savoir qui tu es avant de pouvoir s'ouvrir.
+              </p>
+              <p>
+
+                <a class="wm-carnet__bouton wm-carnet__bouton--plein"
+                   href="/login" data-wm-carnet-connexion-lien>Me connecter</a>
+              </p>
+              <p class="wm-carnet__aide-champ">
+                Tu reviendras ici tout de suite après.
+              </p>
+            </div>
+          </div>
 
           <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
             <div class="wm-carnet__lier-forme">
@@ -94,15 +112,23 @@
               </p>
               <form data-wm-carnet-liaison>
                 <label for="wm-courriel">Ton adresse e-mail</label>
+
+                <p class="wm-carnet__aide-champ" id="wm-courriel-aide">celle de ton inscription</p>
                 <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
-                       spellcheck="false" required placeholder="celle de ton inscription" />
+                       spellcheck="false" required aria-describedby="wm-courriel-aide" />
                 <button type="submit">Recevoir mon lien</button>
               </form>
+
+              <div data-wm-carnet-parti hidden>
+                <p class="wm-carnet__parti-adresse" data-wm-carnet-parti-adresse></p>
+                <p><button type="button" class="wm-carnet__renvoyer" data-wm-carnet-renvoyer>Changer d'adresse ou redemander un lien</button></p>
+              </div>
+
               <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
             </div>
 
             <aside class="wm-info" data-wm-carnet-lier-info>
-              <p class="wm-info__titre">
+              <h3 class="wm-info__titre">
                 <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
                   <circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6" />
                   <circle cx="10" cy="5.9" r="1.15" fill="currentColor" />
@@ -110,7 +136,7 @@
                         stroke-width="1.8" stroke-linecap="round" />
                 </svg>
                 Pourquoi ton adresse&nbsp;?
-              </p>
+              </h3>
               <p>
                 À ta validation, le staff relie ton adresse à une
                 <b>clé de liaison</b> — un petit code qui prouve que c'est
@@ -131,7 +157,7 @@
             </aside>
 
             <aside class="wm-info wm-info--attention" data-wm-carnet-lier-spam>
-              <p class="wm-info__titre">
+              <h3 class="wm-info__titre">
                 <svg class="wm-info__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
                   <path d="M10 2.6 18.4 17H1.6Z" fill="none" stroke="currentColor"
                         stroke-width="1.6" stroke-linejoin="round" />
@@ -140,7 +166,7 @@
                   <circle cx="10" cy="14.5" r="1.1" fill="currentColor" />
                 </svg>
                 Le lien n'arrive pas&nbsp;?
-              </p>
+              </h3>
               <p>
                 <b>Regarde dans tes spams.</b> C'est là qu'il tombe le plus
                 souvent — le courrier vient d'un service automatique, et les

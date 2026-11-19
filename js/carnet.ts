@@ -60,6 +60,7 @@ import {
   poserMonSac,
 } from "../src/adaptateurs/navigateur/module-carnet.ts";
 import { poserLeTheme } from "../src/adaptateurs/navigateur/module-theme-annexe.ts";
+import { poserLeLienDEvitement } from "../src/adaptateurs/navigateur/module-navigation.ts";
 import { poserLAccessibilite } from "../src/adaptateurs/navigateur/module-confort.ts";
 import { aidesDepuis, poserLesAides } from "../src/adaptateurs/navigateur/module-aide.ts";
 import { Preferences } from "../src/navigateur/preferences.ts";
@@ -140,6 +141,20 @@ poserLeTheme(document, PREFS);
 //  visent la même barre, et on veut le thème en premier — c'est celui
 //  qu'on cherche le plus souvent.
 poserLAccessibilite(document, PREFS);
+
+//  ── LE LIEN D'ÉVITEMENT, QUI N'EXISTAIT PAS ICI ────────────────────
+//
+//  `module-navigation.ts` en pose un sur toutes les pages du forum. Il
+//  cherche `#main-content`, `#page-body` ou `#content-main` — trois
+//  identifiants de ModernBB. La page du carnet n'est pas un gabarit
+//  ModernBB : elle n'en porte aucun, et personne n'appelait la fonction
+//  ici. Elle n'avait donc pas de lien du tout.
+//
+//  CE QUE ÇA COÛTAIT : le champ e-mail, seule action de la page tant
+//  que le carnet n'est pas relié, était la seizième tabulation sur
+//  dix-huit — derrière six liens d'en-tête et huit onglets qui ne
+//  menaient nulle part.
+poserLeLienDEvitement(document);
 
 async function lire(nom: string): Promise<unknown> {
   if (RACINE === null) return null;
@@ -273,10 +288,93 @@ function direLaLiaison(mot: string): void {
  *  par se désaccorder, et on verrait la présentation seule au-dessus
  *  d'un carnet ouvert. */
 function montrerLaLiaison(ouvert: boolean): void {
-  for (const nom of ["[data-wm-carnet-presentation]", "[data-wm-carnet-lier]"]) {
+  montrerLAccueil(ouvert ? "liaison" : "rien");
+}
+
+/**
+ * Lequel des trois accueils on montre.
+ *
+ * ── QUATRE ÉTATS, ET UN SEUL ÉTAIT DESSINÉ ──────────────────────────
+ *
+ * Relevé sur la page en ligne le 19 novembre :
+ *
+ *   1 · pas connectée au forum
+ *   2 · connectée, carnet pas encore relié   ← le seul qui existait
+ *   3 · lien parti, en attente du clic
+ *   4 · carnet relié
+ *
+ * L'état 1 est celui où arrive la plupart des gens : on vient ici par
+ * un lien d'annexe, avant de s'être connectée. On y montrait un
+ * formulaire d'adresse e-mail qui ne pouvait pas aboutir, sous une
+ * ligne grise de 11,5 px qui expliquait pourquoi.
+ *
+ * `decouverte` demande donc la CONNEXION plutôt qu'une adresse, et
+ * laisse la présentation ouverte : c'est l'état où elle sert le plus,
+ * et c'est précisément celui où elle était cachée.
+ */
+function montrerLAccueil(quoi: "rien" | "decouverte" | "liaison"): void {
+  const pose = (nom: string, visible: boolean) => {
     const bloc = document.querySelector<HTMLElement>(nom);
-    if (bloc !== null) bloc.hidden = !ouvert;
+    if (bloc !== null) bloc.hidden = !visible;
+  };
+  //  LA PRÉSENTATION ACCOMPAGNE LES DEUX ACCUEILS. Une fois le carnet
+  //  relié on vient y travailler, pas relire ce qu'il sait faire.
+  pose("[data-wm-carnet-presentation]", quoi !== "rien");
+  pose("[data-wm-carnet-lier]", quoi === "liaison");
+  pose("[data-wm-carnet-connexion]", quoi === "decouverte");
+
+  //  LE RETOUR SE POSE ICI, parce que le script est le seul à savoir
+  //  d'où l'on vient. Sans lui le lien reste bon — il mène à la
+  //  connexion, et le forum ramène à l'accueil.
+  if (quoi === "decouverte") {
+    const lien = document.querySelector<HTMLAnchorElement>("[data-wm-carnet-connexion-lien]");
+    if (lien !== null) {
+      lien.href = "/login?redirect=" + encodeURIComponent(location.pathname + location.hash);
+    }
   }
+}
+
+/**
+ * Le formulaire s'efface, l'adresse s'affiche.
+ *
+ * ── CE QUE LE FORMULAIRE INVITAIT À FAIRE ───────────────────────────
+ *
+ * Il restait en place sous le message de succès : le même champ, le
+ * même bouton. La chose à faire, pourtant, n'est plus de taper une
+ * adresse — c'est d'aller voir ses mails.
+ *
+ * Et le deuxième clic ne redemande pas un lien : le service de mail
+ * répond « trop de demandes d'un coup », ce qui se lit comme une panne
+ * du jeu alors que le premier lien est déjà arrivé.
+ */
+function lienParti(courriel: string): void {
+  const forme = document.querySelector<HTMLFormElement>("[data-wm-carnet-liaison]");
+  const parti = document.querySelector<HTMLElement>("[data-wm-carnet-parti]");
+  const adresse = document.querySelector<HTMLElement>("[data-wm-carnet-parti-adresse]");
+  if (forme === null || parti === null) return;
+  //  L'ADRESSE EST RÉAFFICHÉE parce qu'une faute de frappe est la
+  //  première cause d'un lien qui n'arrive pas, et qu'on ne peut plus
+  //  la relire dans le champ une fois celui-ci effacé.
+  if (adresse !== null) adresse.textContent = "Envoyé à " + courriel;
+  forme.hidden = true;
+  parti.hidden = false;
+}
+
+/** On refait apparaître le formulaire. Le renvoi est un SECOND choix,
+ *  pas le geste par défaut : voir `lienParti`. */
+function brancherLeRenvoi(): void {
+  const bouton = document.querySelector<HTMLButtonElement>("[data-wm-carnet-renvoyer]");
+  if (bouton === null || bouton.dataset.wmBranche === "oui") return;
+  bouton.dataset.wmBranche = "oui";
+  bouton.addEventListener("click", () => {
+    const forme = document.querySelector<HTMLFormElement>("[data-wm-carnet-liaison]");
+    const parti = document.querySelector<HTMLElement>("[data-wm-carnet-parti]");
+    if (forme === null || parti === null) return;
+    parti.hidden = true;
+    forme.hidden = false;
+    direLaLiaison("");
+    forme.querySelector("input")?.focus();
+  });
 }
 
 /** Le laissez-passer utilisable, rafraîchi si besoin.
@@ -355,10 +453,16 @@ async function ouvrirLeCarnet(): Promise<void> {
 
   if (profil.compte === null) {
     poserLEtat(document, "dehors");
-    direLeSouci(
-      document,
-      "Tu n'es pas connectée au forum. Connecte-toi, puis reviens sur cette page.",
-    );
+    //  ── ON MONTRE À QUOI ÇA SERT, ET ON DEMANDE LA CONNEXION ──────
+    //
+    //  C'est l'état où arrive la plupart des gens, et c'était le seul
+    //  où la présentation restait cachée. Voir `montrerLAccueil`.
+    //  ET PAS DE LIGNE DE SOUCI. Le canal `souci` est celui des
+    //  pannes — il est en terre brûlée, et il se lit comme « quelque
+    //  chose ne va pas ». Ne pas être connectée à sa première visite
+    //  n'est pas une panne, c'est l'état normal d'arrivée ; l'encadré
+    //  le dit déjà, en titre et en phrase entière.
+    montrerLAccueil("decouverte");
     return;
   }
   const compte = profil.compte;
@@ -587,6 +691,7 @@ function brancherLaLiaison(acces: ConfigSupabase): void {
   const f = document.querySelector<HTMLFormElement>("[data-wm-carnet-liaison]");
   if (f === null || f.dataset.wmBranche === "oui") return;
   f.dataset.wmBranche = "oui";
+  brancherLeRenvoi();
 
   f.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -604,6 +709,7 @@ function brancherLaLiaison(acces: ConfigSupabase): void {
           //  « Il vient de tomber dans les spams sur l'autre mail »,
           //  16 novembre : un lien qui dure quinze minutes et qu'on
           //  cherche dans la mauvaise boîte est un lien perdu.
+          lienParti(courriel);
           direLaLiaison(
             "Regarde ta boîte, et tes spams — c'est souvent là qu'il tombe. " +
               "Le lien part tout de suite et il ne vaut qu'un quart d'heure. " +
