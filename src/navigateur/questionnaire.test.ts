@@ -10,7 +10,7 @@
 //  une nature désignée au hasard entre deux égales serait un mensonge
 //  tranquille.
 //
-//  **Que les huit questions du fichier soient jouables.** Le dernier
+//  **Que les douze questions du fichier soient jouables.** Le dernier
 //  essai lit `data/groupes.json` et les répond toutes, pour chacune des
 //  quatre colonnes : chaque passage doit désigner une nature, et les
 //  six clés doivent exister.
@@ -98,26 +98,26 @@ Deno.test("UNE CLÉ INCONNUE NE FAIT PAS UNE SEPTIÈME JAUGE", () => {
   assertEquals(d.tetes, ["doux"]);
 });
 
-Deno.test("LE QUESTIONNAIRE COMPLET DONNE VINGT-SEPT POINTS", () => {
-  const neuf = Array.from({ length: 9 }, () => choix("hardi", "doux"));
-  const d = depouiller(neuf, SIX);
-  assertEquals(d.repondues, 9);
-  assertEquals(d.classement.reduce((a, r) => a + r.points, 0), 27);
+Deno.test("LE QUESTIONNAIRE COMPLET DONNE TRENTE-SIX POINTS", () => {
+  const douze = Array.from({ length: 12 }, () => choix("hardi", "doux"));
+  const d = depouiller(douze, SIX);
+  assertEquals(d.repondues, 12);
+  assertEquals(d.classement.reduce((a, r) => a + r.points, 0), 36);
   assertEquals(d.classement[0], {
     cle: "hardi",
-    points: 18,
+    points: 24,
     part: 67,
-    partExacte: (18 / 27) * 100,
-    premiers: 9,
+    partExacte: (24 / 36) * 100,
+    premiers: 12,
   });
 });
 
 // ── les vraies questions ────────────────────────────────────────────
 
-Deno.test("LES NEUF QUESTIONS DU FICHIER SONT JOUABLES", async () => {
+Deno.test("LES DOUZE QUESTIONS DU FICHIER SONT JOUABLES", async () => {
   //  Pas un décor : les questions de `data/groupes.json`, celles que la
   //  page sert. On répond toute la colonne 1, puis la 2, la 3 et la
-  //  4 — quatre passages complets, qui touchent les trente-six
+  //  4 — quatre passages complets, qui touchent les quarante-huit
   //  réponses.
   const brut = JSON.parse(await Deno.readTextFile("data/groupes.json"));
   const cles: string[] = brut.groupes.map((g: { cle: string }) => g.cle);
@@ -125,13 +125,13 @@ Deno.test("LES NEUF QUESTIONS DU FICHIER SONT JOUABLES", async () => {
     reponses: { premier: string; second: string }[];
   }[];
 
-  assertEquals(questions.length, 9);
+  assertEquals(questions.length, 12);
   for (const q of questions) assertEquals(q.reponses.length, 4);
 
   for (const colonne of [0, 1, 2, 3]) {
     const d = depouiller(questions.map((q) => q.reponses[colonne]), cles);
-    assertEquals(d.repondues, 9);
-    assertEquals(d.classement.reduce((a, r) => a + r.points, 0), 27);
+    assertEquals(d.repondues, 12);
+    assertEquals(d.classement.reduce((a, r) => a + r.points, 0), 36);
     //  CHAQUE PASSAGE DÉSIGNE QUELQUE CHOSE : un questionnaire qui
     //  rendrait six natures à égalité n'aurait servi à rien.
     assert(d.tetes.length >= 1 && d.tetes.length <= 2, JSON.stringify(d.tetes));
@@ -143,9 +143,11 @@ Deno.test("LES SIX NATURES SONT ÉGALEMENT ACCESSIBLES", () => {
   //  en premier choix est plus dure à obtenir, et personne ne peut le
   //  voir en lisant les questions — il faut compter.
   //
-  //  NEUF QUESTIONS, ET C'EST LE SEUL NOMBRE QUI TOMBE JUSTE : 9 × 4 =
-  //  36 réponses, donc exactement 6 premiers et 6 seconds par nature.
-  //  À huit questions, le Jovial n'en avait que 4 contre 6 au Brave.
+  //  DOUZE QUESTIONS : 12 × 4 = 48 réponses, donc exactement 8 premiers
+  //  et 8 seconds par nature. Le total doit se diviser par 6 pour que
+  //  l'égalité soit seulement possible — c'est pour ça qu'on n'a PAS
+  //  ajouté une cinquième réponse aux neuf questions, qui aurait fait
+  //  45. Voir la planche 105.
   const brut = JSON.parse(Deno.readTextFileSync("data/groupes.json"));
   const cles: string[] = brut.groupes.map((g: { cle: string }) => g.cle);
   const premiers = new Map(cles.map((c) => [c, 0]));
@@ -159,16 +161,16 @@ Deno.test("LES SIX NATURES SONT ÉGALEMENT ACCESSIBLES", () => {
   //  ON COMPARE À UNE VALEUR UNIQUE, pas à un écart toléré : « au plus
   //  un de différence » laisserait repasser exactement le défaut qu'on
   //  vient de corriger.
-  assertEquals([...new Set(premiers.values())], [6], JSON.stringify([...premiers]));
-  assertEquals([...new Set(seconds.values())], [6], JSON.stringify([...seconds]));
-  //  ET LES POINTS ATTEIGNABLES SONT LES MÊMES : 2 × 6 + 6 = 18 pour
+  assertEquals([...new Set(premiers.values())], [8], JSON.stringify([...premiers]));
+  assertEquals([...new Set(seconds.values())], [8], JSON.stringify([...seconds]));
+  //  ET LES POINTS ATTEIGNABLES SONT LES MÊMES : 2 × 8 + 8 = 24 pour
   //  chacune. C'est ça, « également accessibles ».
   for (const c of cles) {
-    assertEquals((premiers.get(c) ?? 0) * 2 + (seconds.get(c) ?? 0), 18, c);
+    assertEquals((premiers.get(c) ?? 0) * 2 + (seconds.get(c) ?? 0), 24, c);
   }
 });
 
-Deno.test("LES TRENTE-SIX RÉPONSES NOMMENT DES NATURES QUI EXISTENT", () => {
+Deno.test("LES QUARANTE-HUIT RÉPONSES NOMMENT DES NATURES QUI EXISTENT", () => {
   //  Une clé mal tapée serait silencieuse : la réponse compterait pour
   //  rien, et le joueur ne verrait qu'une jauge un peu basse.
   const brut = JSON.parse(Deno.readTextFileSync("data/groupes.json"));

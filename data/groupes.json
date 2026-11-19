@@ -1,333 +1,408 @@
 {
-  "_": "Les six natures de Rhode (planche 79). Le groupe ne dit ni le métier ni le camp : il dit ce qu'on choisit quand il faut choisir. LES DESCRIPTIONS SONT CELLES DE CALLISTA, reçues le 18 novembre — on n'y touche pas. Les avantages sont actés, mais leurs NOMBRES sont un premier jet : ils restent à simuler sur vingt mille sujets, comme les taux de la planche 75.",
-  "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module lit `duMoment` et dessine ce groupe. Changer de groupe, c'est changer ce mot. Les couleurs ne sont pas ici : chaque groupe a déjà sa paire de jetons `--wm-groupe-<clé>-fond` et `-texte` dans le panneau d'administration.",
-  "_pokemons": "Les numéros du Pokédex national. Le module les passe à la carte de couverture (`data/sprites-couverture.json`) pour en tirer une image ; un numéro qu'elle ne couvre pas ne donne pas de case vide, il ne donne rien.",
-  "duMoment": "hardi",
-  "groupes": [
+ "_": "Les six natures de Rhode (planche 79). Le groupe ne dit ni le métier ni le camp : il dit ce qu'on choisit quand il faut choisir. LES DESCRIPTIONS SONT CELLES DE CALLISTA, reçues le 18 novembre — on n'y touche pas. Les avantages sont actés, mais leurs NOMBRES sont un premier jet : ils restent à simuler sur vingt mille sujets, comme les taux de la planche 75.",
+ "_commentCaMarche": "Le fichier est servi par GitHub Pages, le module lit `duMoment` et dessine ce groupe. Changer de groupe, c'est changer ce mot. Les couleurs ne sont pas ici : chaque groupe a déjà sa paire de jetons `--wm-groupe-<clé>-fond` et `-texte` dans le panneau d'administration.",
+ "_pokemons": "Les numéros du Pokédex national. Le module les passe à la carte de couverture (`data/sprites-couverture.json`) pour en tirer une image ; un numéro qu'elle ne couvre pas ne donne pas de case vide, il ne donne rien.",
+ "duMoment": "hardi",
+ "groupes": [
+  {
+   "cle": "hardi",
+   "nom": "Hardi",
+   "description": "On dit que Keldeo est un Pokémon poulain au cœur noble, un combattant qui aspire à devenir plus fort. Même s'il fuit son premier affrontement, il ne baisse pas les bras pour autant : il s'entraîne, apprend de ses erreurs et revient plus déterminé que jamais, jusqu'à atteindre sa forme décidée ! Après tout, échouer ne signifie pas que tout est perdu. L'important, c'est de trouver le courage de se relever, de persévérer et de continuer à avancer, car chaque échec peut nous rapprocher de la victoire.",
+   "avantage": "Si une fouille est bredouille dans le sujet, il peut relancer une fois pour avoir quelque chose.",
+   "pokemons": [],
+   "embleme": "Keldeo",
+   "emblemeId": 647,
+   "espece": "Keldeo",
+   "question": "Et vous… ? Êtes-vous comme Keldeo ?",
+   "qualites": "obstiné · endurant · bon perdant · franc sur ses échecs · fidèle aux causes perdues · sans orgueil mal placé · increvable",
+   "defauts": "têtu · incapable de lâcher · revient là où il n'est plus attendu · prend un refus pour une étape · s'épuise et épuise les autres",
+   "dAbord": "il recommence.",
+   "insupportable": "qu'on abandonne proprement, avec de bonnes raisons."
+  },
+  {
+   "cle": "serieux",
+   "nom": "Sérieux",
+   "description": "On dit qu'Uxie est le Pokémon du Savoir, celui qui incarne la connaissance et la sagesse. Il nous rappelle l'importance de réfléchir avant de parler, de chercher à comprendre avant de juger et de ne pas déformer la vérité pour servir nos intérêts. Car savoir, ce n'est pas seulement apprendre, c'est aussi reconnaître la valeur de ce que l'on connaît et prendre la responsabilité de ses paroles. Après tout, être sérieux, c'est savoir faire preuve d'honnêteté, même lorsque la vérité est difficile à accepter.",
+   "avantage": "À chaque rencontre, la rareté est tirée deux fois et on garde la plus rare : environ 10 % de rares au lieu de 5 %.",
+   "pokemons": [],
+   "embleme": "Créhelf",
+   "emblemeId": 480,
+   "espece": "Créhelf",
+   "especeEn": "Uxie",
+   "question": "Est-ce que vous vous voyez dans Uxie ?",
+   "qualites": "observateur · précis · mémoire des dates · intègre · difficile à manipuler · ne flatte jamais · fiable",
+   "defauts": "rigide · blessant sans le vouloir · toujours le mauvais moment · méfiant · tient des comptes",
+   "dAbord": "il vérifie.",
+   "insupportable": "la version qui arrange tout le monde."
+  },
+  {
+   "cle": "malin",
+   "nom": "Malin",
+   "description": "On dit que Hoopa est un Pokémon capable de plier l'espace grâce à ses anneaux mystérieux. Rusé et ingénieux, il nous rappelle qu'il existe toujours plusieurs chemins pour atteindre un objectif et qu'il ne faut pas s'obstiner lorsqu'une porte refuse de s'ouvrir. Parfois, il suffit de changer de perspective, de faire preuve d'imagination et de trouver une autre façon d'avancer. Après tout, savoir s'adapter, ce n'est pas abandonner ses convictions, mais apprendre à changer de méthode sans perdre de vue ce que l'on souhaite accomplir !",
+   "avantage": "Avec six types différents dans son équipe, l'expérience versée à la clôture monte de 10 %.",
+   "pokemons": [],
+   "embleme": "Hoopa",
+   "emblemeId": 720,
+   "espece": "Hoopa",
+   "question": "Et vous… ? Êtes-vous comme Hoopa ?",
+   "qualites": "débrouillard · rapide · inventif · bon négociateur · lit les règles mieux que ceux qui les écrivent · jamais à court",
+   "defauts": "inconstant · s'ennuie vite · contourne au lieu d'affronter · promet large · difficile à tenir",
+   "dAbord": "il cherche une autre porte.",
+   "insupportable": "refaire trois fois la même chose en espérant autre chose."
+  },
+  {
+   "cle": "doux",
+   "nom": "Doux",
+   "description": "On dit que Shaymin est le Pokémon Gratitude, celui qui apporte la beauté et la vie là où tout semblait fané. Symbole de reconnaissance et de générosité, il nous rappelle l'importance de penser aux autres, de partager ce que l'on possède et de faire preuve de bienveillance sans rien attendre en retour. Après tout, un simple geste peut suffire à illuminer la journée de quelqu'un et à faire fleurir un endroit qui en avait oublié la beauté. Car donner aux autres, c'est aussi faire grandir le bonheur autour de soi !",
+   "avantage": "Dans un sujet à plusieurs, tout le monde gagne 15 % de pokédollars en plus à la clôture.",
+   "pokemons": [],
+   "embleme": "Shaymin",
+   "emblemeId": 492,
+   "espece": "Shaymin",
+   "question": "Et vous… ? Êtes-vous comme Shaymin ?",
+   "qualites": "attentif · patient · généreux · remarque qui n'a pas parlé · apaise · réconcilie",
+   "defauts": "se fait avoir, régulièrement · s'efface trop · dit oui trop vite · s'oublie · rancune tardive",
+   "dAbord": "il demande comment va l'autre.",
+   "insupportable": "qu'on laisse quelqu'un sur le bord."
+  },
+  {
+   "cle": "brave",
+   "nom": "Brave",
+   "description": "On dit que Cresselia est le Pokémon Lunaire, celui qui veille sur les rêves et chasse les cauchemars. Symbole de protection et de courage, il nous rappelle qu'il faut parfois savoir se tenir devant les autres pour leur offrir un refuge, même lorsque le danger ne nous concerne pas directement. Car être brave, ce n'est pas seulement affronter ses propres peurs, c'est aussi trouver la force de défendre ceux qui ne peuvent pas toujours se défendre eux-mêmes. Après tout, protéger les autres, c'est parfois accepter de faire face à ce qui nous effraie !",
+   "avantage": "Une fois par sujet, un pokémon de son équipe mis K.O. tient un tour de plus.",
+   "pokemons": [],
+   "embleme": "Cresselia",
+   "emblemeId": 488,
+   "espece": "Cresselia",
+   "question": "Et vous… ? Êtes-vous comme Cresselia ?",
+   "qualites": "fiable · courageux sans goût de la bagarre · protecteur · tient ses délais · couvre les absents · prend les corvées",
+   "defauts": "se met en danger sans qu'on le lui demande · paternaliste · le reproche ensuite · ne délègue pas · dort mal",
+   "dAbord": "il se place entre.",
+   "insupportable": "regarder sans rien faire."
+  },
+  {
+   "cle": "jovial",
+   "nom": "Jovial",
+   "description": "On dit que Celebi est le Pokémon Voyageur du Temps, un être mystérieux qui traverse les époques et les forêts, guidé par sa curiosité et son envie de découvrir le monde. Symbole de joie et d'émerveillement, il nous rappelle qu'il ne faut pas avoir peur de l'inconnu et que chaque découverte est une occasion d'apprendre et de s'émerveiller. Parfois, il suffit simplement d'oser explorer, de suivre son instinct et de profiter de ce que la vie nous réserve. Après tout, le bonheur ne se trouve pas toujours au bout du chemin, mais aussi dans le plaisir de le parcourir !",
+   "avantage": "Ses chances de morceau de fossile passent de 10 à 20 %, et de fossile entier de 0,2 à 0,4 %.",
+   "pokemons": [],
+   "embleme": "Celebi",
+   "emblemeId": 251,
+   "espece": "Celebi",
+   "question": "Et vous… ? Êtes-vous comme Celebi ?",
+   "qualites": "curieux · enthousiaste · sans peur du nouveau · pose les questions qu'on n'ose pas · bon public · optimiste",
+   "defauts": "imprudent · dispersé · fauché · indiscret · ouvre ce qu'il valait mieux laisser fermé",
+   "dAbord": "il ouvre.",
+   "insupportable": "qu'on lui dise « n'y va pas » sans dire pourquoi."
+  }
+ ],
+ "_lorem": "IL N'Y A PLUS DE LOREM. Les six descriptions ont été écrites par Callista le 18 novembre et posées telles quelles. Les phrases du 9 octobre, gardées jusque-là sous `_redige`, ont été retirées : deux textes pour une même case, c'est un texte de trop.",
+ "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires.",
+ "_embleme": "`emblemeId` est le numéro national du légendaire, relevé dans `pokemon.csv` de PokéAPI le 8 novembre — pas écrit de mémoire. Il sert à bâtir l'adresse de l'illustration officielle, `other/official-artwork/<id>.png`, qui est détourée et en haute définition : c'est elle qui passe en filigrane au fond de la carte. CE N'EST PAS LA CARTE DE COUVERTURE : elle ne connaît aucun légendaire, puisque le Pokédex de Rhode n'en porte pas. L'illustration officielle, elle, existe pour n'importe quel numéro.",
+ "_noms": "`espece` est le nom FRANÇAIS, `especeEn` l'ANGLAIS — et il n'est posé que lorsqu'il diffère. « On a des canadiens avec nous qui connaissent plutôt les noms anglais », 18 novembre. Un seul des six change : Créhelf s'appelle Uxie en anglais. Vérifié sur `pokemon_species_names.csv` de PokéAPI, langues 5 et 9, pas de mémoire.",
+ "_avantages": "Les six avantages sont actés. Le JOVIAL a été tranché le 18 novembre : le doublement des fossiles, pas la variante. Le SÉRIEUX disait « 19 % contre 10 % » — c'était le premier jet, et la simulation du 4 novembre (deno task natures, vingt mille sujets par zone contre les dix-sept tables réelles) a mesuré 5,23 % → 10,17 %. La mécanique double bien la rareté ; c'est le chiffre de départ qui était faux. Corrigé ici le 18 novembre, avant publication. Les autres nombres sont mesurés : Hardi +19,84 % de ₽, Doux +15 %, Jovial morceau 10,34 → 20,16 % et entier 0,18 → 0,35 %. Brave n'est pas mesuré.",
+ "questionnaire": [
+  {
+   "situation": "Une tempête de sable se lève. Un dresseur est à terre un peu plus loin et son pokémon est blessé. La ville la plus proche est à deux heures de marche. Que fais-tu ?",
+   "reponses": [
     {
-      "cle": "hardi",
-      "nom": "Hardi",
-      "description": "On dit que Keldeo est un Pokémon poulain au cœur noble, un combattant qui aspire à devenir plus fort. Même s'il fuit son premier affrontement, il ne baisse pas les bras pour autant : il s'entraîne, apprend de ses erreurs et revient plus déterminé que jamais, jusqu'à atteindre sa forme décidée ! Après tout, échouer ne signifie pas que tout est perdu. L'important, c'est de trouver le courage de se relever, de persévérer et de continuer à avancer, car chaque échec peut nous rapprocher de la victoire.",
-      "avantage": "Si une fouille est bredouille dans le sujet, il peut relancer une fois pour avoir quelque chose.",
-      "pokemons": [],
-      "embleme": "Keldeo",
-      "emblemeId": 647,
-      "espece": "Keldeo",
-      "question": "Et vous… ? Êtes-vous comme Keldeo ?",
-      "qualites": "obstiné · endurant · bon perdant · franc sur ses échecs · fidèle aux causes perdues · sans orgueil mal placé · increvable",
-      "defauts": "têtu · incapable de lâcher · revient là où il n'est plus attendu · prend un refus pour une étape · s'épuise et épuise les autres",
-      "dAbord": "il recommence.",
-      "insupportable": "qu'on abandonne proprement, avec de bonnes raisons."
+     "dit": "Je le porte moi-même, pour les mettre à l'abri avec moi. Quels que soient les risques.",
+     "premier": "brave",
+     "second": "hardi"
     },
     {
-      "cle": "serieux",
-      "nom": "Sérieux",
-      "description": "On dit qu'Uxie est le Pokémon du Savoir, celui qui incarne la connaissance et la sagesse. Il nous rappelle l'importance de réfléchir avant de parler, de chercher à comprendre avant de juger et de ne pas déformer la vérité pour servir nos intérêts. Car savoir, ce n'est pas seulement apprendre, c'est aussi reconnaître la valeur de ce que l'on connaît et prendre la responsabilité de ses paroles. Après tout, être sérieux, c'est savoir faire preuve d'honnêteté, même lorsque la vérité est difficile à accepter.",
-      "avantage": "À chaque rencontre, la rareté est tirée deux fois et on garde la plus rare : environ 10 % de rares au lieu de 5 %.",
-      "pokemons": [],
-      "embleme": "Créhelf",
-      "emblemeId": 480,
-      "espece": "Créhelf",
-      "especeEn": "Uxie",
-      "question": "Est-ce que vous vous voyez dans Uxie ?",
-      "qualites": "observateur · précis · mémoire des dates · intègre · difficile à manipuler · ne flatte jamais · fiable",
-      "defauts": "rigide · blessant sans le vouloir · toujours le mauvais moment · méfiant · tient des comptes",
-      "dAbord": "il vérifie.",
-      "insupportable": "la version qui arrange tout le monde."
+     "dit": "Je soigne son pokémon d'abord. On verra le reste après.",
+     "premier": "doux",
+     "second": "serieux"
     },
     {
-      "cle": "malin",
-      "nom": "Malin",
-      "description": "On dit que Hoopa est un Pokémon capable de plier l'espace grâce à ses anneaux mystérieux. Rusé et ingénieux, il nous rappelle qu'il existe toujours plusieurs chemins pour atteindre un objectif et qu'il ne faut pas s'obstiner lorsqu'une porte refuse de s'ouvrir. Parfois, il suffit de changer de perspective, de faire preuve d'imagination et de trouver une autre façon d'avancer. Après tout, savoir s'adapter, ce n'est pas abandonner ses convictions, mais apprendre à changer de méthode sans perdre de vue ce que l'on souhaite accomplir !",
-      "avantage": "Avec six types différents dans son équipe, l'expérience versée à la clôture monte de 10 %.",
-      "pokemons": [],
-      "embleme": "Hoopa",
-      "emblemeId": 720,
-      "espece": "Hoopa",
-      "question": "Et vous… ? Êtes-vous comme Hoopa ?",
-      "qualites": "débrouillard · rapide · inventif · bon négociateur · lit les règles mieux que ceux qui les écrivent · jamais à court",
-      "defauts": "inconstant · s'ennuie vite · contourne au lieu d'affronter · promet large · difficile à tenir",
-      "dAbord": "il cherche une autre porte.",
-      "insupportable": "refaire trois fois la même chose en espérant autre chose."
+     "dit": "Je le laisse là. Il n'avait qu'à mieux anticiper la météo. Je ne peux pas risquer ma vie pour lui.",
+     "premier": "malin",
+     "second": "hardi"
     },
     {
-      "cle": "doux",
-      "nom": "Doux",
-      "description": "On dit que Shaymin est le Pokémon Gratitude, celui qui apporte la beauté et la vie là où tout semblait fané. Symbole de reconnaissance et de générosité, il nous rappelle l'importance de penser aux autres, de partager ce que l'on possède et de faire preuve de bienveillance sans rien attendre en retour. Après tout, un simple geste peut suffire à illuminer la journée de quelqu'un et à faire fleurir un endroit qui en avait oublié la beauté. Car donner aux autres, c'est aussi faire grandir le bonheur autour de soi !",
-      "avantage": "Dans un sujet à plusieurs, tout le monde gagne 15 % de pokédollars en plus à la clôture.",
-      "pokemons": [],
-      "embleme": "Shaymin",
-      "emblemeId": 492,
-      "espece": "Shaymin",
-      "question": "Et vous… ? Êtes-vous comme Shaymin ?",
-      "qualites": "attentif · patient · généreux · remarque qui n'a pas parlé · apaise · réconcilie",
-      "defauts": "se fait avoir, régulièrement · s'efface trop · dit oui trop vite · s'oublie · rancune tardive",
-      "dAbord": "il demande comment va l'autre.",
-      "insupportable": "qu'on laisse quelqu'un sur le bord."
-    },
-    {
-      "cle": "brave",
-      "nom": "Brave",
-      "description": "On dit que Cresselia est le Pokémon Lunaire, celui qui veille sur les rêves et chasse les cauchemars. Symbole de protection et de courage, il nous rappelle qu'il faut parfois savoir se tenir devant les autres pour leur offrir un refuge, même lorsque le danger ne nous concerne pas directement. Car être brave, ce n'est pas seulement affronter ses propres peurs, c'est aussi trouver la force de défendre ceux qui ne peuvent pas toujours se défendre eux-mêmes. Après tout, protéger les autres, c'est parfois accepter de faire face à ce qui nous effraie !",
-      "avantage": "Une fois par sujet, un pokémon de son équipe mis K.O. tient un tour de plus.",
-      "pokemons": [],
-      "embleme": "Cresselia",
-      "emblemeId": 488,
-      "espece": "Cresselia",
-      "question": "Et vous… ? Êtes-vous comme Cresselia ?",
-      "qualites": "fiable · courageux sans goût de la bagarre · protecteur · tient ses délais · couvre les absents · prend les corvées",
-      "defauts": "se met en danger sans qu'on le lui demande · paternaliste · le reproche ensuite · ne délègue pas · dort mal",
-      "dAbord": "il se place entre.",
-      "insupportable": "regarder sans rien faire."
-    },
-    {
-      "cle": "jovial",
-      "nom": "Jovial",
-      "description": "On dit que Celebi est le Pokémon Voyageur du Temps, un être mystérieux qui traverse les époques et les forêts, guidé par sa curiosité et son envie de découvrir le monde. Symbole de joie et d'émerveillement, il nous rappelle qu'il ne faut pas avoir peur de l'inconnu et que chaque découverte est une occasion d'apprendre et de s'émerveiller. Parfois, il suffit simplement d'oser explorer, de suivre son instinct et de profiter de ce que la vie nous réserve. Après tout, le bonheur ne se trouve pas toujours au bout du chemin, mais aussi dans le plaisir de le parcourir !",
-      "avantage": "Ses chances de morceau de fossile passent de 10 à 20 %, et de fossile entier de 0,2 à 0,4 %.",
-      "pokemons": [],
-      "embleme": "Celebi",
-      "emblemeId": 251,
-      "espece": "Celebi",
-      "question": "Et vous… ? Êtes-vous comme Celebi ?",
-      "qualites": "curieux · enthousiaste · sans peur du nouveau · pose les questions qu'on n'ose pas · bon public · optimiste",
-      "defauts": "imprudent · dispersé · fauché · indiscret · ouvre ce qu'il valait mieux laisser fermé",
-      "dAbord": "il ouvre.",
-      "insupportable": "qu'on lui dise « n'y va pas » sans dire pourquoi."
+     "dit": "Je veux d'abord savoir ce qu'il faisait là par ce temps.",
+     "premier": "jovial",
+     "second": "serieux"
     }
-  ],
-  "_lorem": "IL N'Y A PLUS DE LOREM. Les six descriptions ont été écrites par Callista le 18 novembre et posées telles quelles. Les phrases du 9 octobre, gardées jusque-là sous `_redige`, ont été retirées : deux textes pour une même case, c'est un texte de trop.",
-  "_emblemes": "Chaque nature a un légendaire pour emblème : Hardi/Keldeo, Sérieux/Uxie, Malin/Hoopa, Doux/Shaymin, Brave/Cresselia, Jovial/Celebi. Ils n'ont PAS de sprite dans data/sprites-couverture.json — le Pokédex de Rhode n'a aucun légendaire. Les images de la carte de groupe sont donc à choisir parmi des espèces ordinaires.",
-  "_embleme": "`emblemeId` est le numéro national du légendaire, relevé dans `pokemon.csv` de PokéAPI le 8 novembre — pas écrit de mémoire. Il sert à bâtir l'adresse de l'illustration officielle, `other/official-artwork/<id>.png`, qui est détourée et en haute définition : c'est elle qui passe en filigrane au fond de la carte. CE N'EST PAS LA CARTE DE COUVERTURE : elle ne connaît aucun légendaire, puisque le Pokédex de Rhode n'en porte pas. L'illustration officielle, elle, existe pour n'importe quel numéro.",
-  "_noms": "`espece` est le nom FRANÇAIS, `especeEn` l'ANGLAIS — et il n'est posé que lorsqu'il diffère. « On a des canadiens avec nous qui connaissent plutôt les noms anglais », 18 novembre. Un seul des six change : Créhelf s'appelle Uxie en anglais. Vérifié sur `pokemon_species_names.csv` de PokéAPI, langues 5 et 9, pas de mémoire.",
-  "_avantages": "Les six avantages sont actés. Le JOVIAL a été tranché le 18 novembre : le doublement des fossiles, pas la variante. Le SÉRIEUX disait « 19 % contre 10 % » — c'était le premier jet, et la simulation du 4 novembre (deno task natures, vingt mille sujets par zone contre les dix-sept tables réelles) a mesuré 5,23 % → 10,17 %. La mécanique double bien la rareté ; c'est le chiffre de départ qui était faux. Corrigé ici le 18 novembre, avant publication. Les autres nombres sont mesurés : Hardi +19,84 % de ₽, Doux +15 %, Jovial morceau 10,34 → 20,16 % et entier 0,18 → 0,35 %. Brave n'est pas mesuré.",
-  "questionnaire": [
+   ]
+  },
+  {
+   "situation": "Un de mes amis ment sur ce qu'il a rapporté de l'Île Ténèbra. Tu le sais.",
+   "reponses": [
     {
-      "situation": "Une tempête de sable se lève. Un dresseur est à terre un peu plus loin, son pokémon blessé. La ville est à deux heures de marche.",
-      "reponses": [
-        {
-          "dit": "Tu le portes toi-même, quitte à y passer la nuit.",
-          "premier": "brave",
-          "second": "doux"
-        },
-        {
-          "dit": "Tu le soignes sur place avec ce que tu as.",
-          "premier": "doux",
-          "second": "malin"
-        },
-        {
-          "dit": "Tu pars chercher de l'aide, c'est plus rapide.",
-          "premier": "malin",
-          "second": "serieux"
-        },
-        {
-          "dit": "Tu l'aides, mais tu veux savoir ce qu'il faisait là.",
-          "premier": "serieux",
-          "second": "jovial"
-        }
-      ]
+     "dit": "Je le dis devant tout le monde.",
+     "premier": "serieux",
+     "second": "brave"
     },
     {
-      "situation": "Un ami ment sur ce qu'il a rapporté de l'Île Ténèbra. Tu le sais.",
-      "reponses": [
-        {
-          "dit": "Tu le dis devant les autres.",
-          "premier": "serieux",
-          "second": "hardi"
-        },
-        {
-          "dit": "Tu attends d'être seul avec lui.",
-          "premier": "brave",
-          "second": "doux"
-        },
-        {
-          "dit": "Tu ne dis rien et tu vas vérifier toi-même.",
-          "premier": "jovial",
-          "second": "malin"
-        },
-        {
-          "dit": "Tu le laisses mentir, il a ses raisons.",
-          "premier": "doux",
-          "second": "malin"
-        }
-      ]
+     "dit": "J'attends d'être seul avec lui.",
+     "premier": "brave",
+     "second": "doux"
     },
     {
-      "situation": "Ton pokémon échoue pour la troisième fois à la même épreuve.",
-      "reponses": [
-        {
-          "dit": "Tu recommences une quatrième.",
-          "premier": "hardi",
-          "second": "brave"
-        },
-        {
-          "dit": "Tu changes complètement de méthode.",
-          "premier": "malin",
-          "second": "jovial"
-        },
-        {
-          "dit": "Tu demandes à quelqu'un de meilleur que toi.",
-          "premier": "malin",
-          "second": "serieux"
-        },
-        {
-          "dit": "Tu le laisses souffler, l'épreuve attendra.",
-          "premier": "doux",
-          "second": "brave"
-        }
-      ]
+     "dit": "Je le laisse mentir. Il a ses raisons, et ce ne sont pas les miennes.",
+     "premier": "doux",
+     "second": "jovial"
     },
     {
-      "situation": "Dans un couloir du laboratoire abandonné, une porte verrouillée. Personne ne sait ce qu'il y a derrière.",
-      "reponses": [
-        {
-          "dit": "Tu l'ouvres.",
-          "premier": "jovial",
-          "second": "hardi"
-        },
-        {
-          "dit": "Tu notes l'endroit et tu reviendras accompagné.",
-          "premier": "brave",
-          "second": "serieux"
-        },
-        {
-          "dit": "Tu cherches un autre chemin, il y en a toujours un.",
-          "premier": "hardi",
-          "second": "malin"
-        },
-        {
-          "dit": "Tu préviens les autres avant qu'on touche à quoi que ce soit.",
-          "premier": "doux",
-          "second": "brave"
-        }
-      ]
-    },
-    {
-      "situation": "Un pokémon obscur refuse de te suivre. Il gronde dès que tu approches.",
-      "reponses": [
-        {
-          "dit": "Tu restes là, chaque jour, jusqu'à ce qu'il s'habitue.",
-          "premier": "hardi",
-          "second": "doux"
-        },
-        {
-          "dit": "Tu changes d'approche : la nourriture, la distance, l'heure.",
-          "premier": "malin",
-          "second": "jovial"
-        },
-        {
-          "dit": "Tu te mets entre lui et ce qui lui fait peur.",
-          "premier": "brave",
-          "second": "doux"
-        },
-        {
-          "dit": "Tu lui parles franchement, même s'il ne comprend pas.",
-          "premier": "serieux",
-          "second": "hardi"
-        }
-      ]
-    },
-    {
-      "situation": "On te propose une place dans une écurie du Grand Prix. Elle se libère parce qu'on vient d'en écarter quelqu'un que tu connais.",
-      "reponses": [
-        {
-          "dit": "Tu refuses tant qu'on ne t'a pas dit pourquoi.",
-          "premier": "serieux",
-          "second": "brave"
-        },
-        {
-          "dit": "Tu acceptes, et tu feras en sorte qu'il revienne.",
-          "premier": "hardi",
-          "second": "doux"
-        },
-        {
-          "dit": "Tu acceptes. La place est là, c'est tout.",
-          "premier": "malin",
-          "second": "jovial"
-        },
-        {
-          "dit": "Tu refuses, et tu prends sa défense.",
-          "premier": "brave",
-          "second": "serieux"
-        }
-      ]
-    },
-    {
-      "situation": "Le Clan de la Nuit se réunit sur la place. Ils ne font rien d'illégal.",
-      "reponses": [
-        {
-          "dit": "Tu les écoutes jusqu'au bout.",
-          "premier": "jovial",
-          "second": "serieux"
-        },
-        {
-          "dit": "Tu restes à côté, au cas où ça tourne.",
-          "premier": "brave",
-          "second": "hardi"
-        },
-        {
-          "dit": "Tu vas discuter avec l'un d'eux.",
-          "premier": "doux",
-          "second": "jovial"
-        },
-        {
-          "dit": "Tu dis tout haut ce que tu en penses.",
-          "premier": "serieux",
-          "second": "hardi"
-        }
-      ]
-    },
-    {
-      "situation": "Tu trouves un œuf, seul, en plein désert.",
-      "reponses": [
-        {
-          "dit": "Tu le couves toi-même, le temps qu'il faudra.",
-          "premier": "hardi",
-          "second": "doux"
-        },
-        {
-          "dit": "Tu le confies à quelqu'un dont c'est le métier.",
-          "premier": "doux",
-          "second": "brave"
-        },
-        {
-          "dit": "Tu veux savoir d'où il vient avant d'y toucher.",
-          "premier": "jovial",
-          "second": "serieux"
-        },
-        {
-          "dit": "Tu le ramasses, et tu improviseras.",
-          "premier": "malin",
-          "second": "jovial"
-        }
-      ]
-    },
-    {
-      "situation": "Le dernier bateau pour Port-Dorval est parti sans toi. Le prochain est dans deux jours.",
-      "reponses": [
-        {
-          "dit": "Tu longes la côte à pied. Ça prendra la nuit, tant pis.",
-          "premier": "hardi",
-          "second": "malin"
-        },
-        {
-          "dit": "Tu vas demander pourquoi il est parti en avance.",
-          "premier": "serieux",
-          "second": "malin"
-        },
-        {
-          "dit": "Deux jours pour voir ce qu'il y a autour : tu poses ton sac et tu pars marcher.",
-          "premier": "jovial",
-          "second": "hardi"
-        },
-        {
-          "dit": "Tu restes au port avec les autres recalés, et tu veilles sur leurs affaires pendant qu'ils dorment.",
-          "premier": "jovial",
-          "second": "brave"
-        }
-      ]
+     "dit": "Je lui dis en face, une fois, clairement. Et on repart de là.",
+     "premier": "hardi",
+     "second": "serieux"
     }
-  ],
-  "_questionnaire": "Les huit situations de la planche 79, plus une neuvième écrite le 18 novembre pour l'équilibre (voir `_equilibre`). Chaque réponse pèse sur DEUX natures : la première reçoit 2 points, la seconde 1 — c'est ce qui empêche de deviner la bonne réponse et d'en sortir avec un score nul partout sauf une. Aucune question sur les goûts, que des choix sous contrainte. Le dépouillement est dans `src/navigateur/questionnaire.ts` ; la page ne demande rien au réseau, les questions sont écrites dedans par `outils/annexe-groupes.py`.",
-  "_equilibre": "ÉQUILIBRÉ LE 18 NOVEMBRE, et c'est exact, pas approché. À huit questions, le Jovial ne sortait que 4 fois en premier choix contre 6 au Brave, au Doux et au Malin : il était le moins accessible des six. Une NEUVIÈME question le corrige, et c'est le seul nombre qui tombe juste — 9 × 4 = 36 réponses, soit exactement 6 premiers et 6 seconds par nature, donc 18 points atteignables pour chacune des six. À huit questions (32 réponses), aucune répartition ne pouvait être égale. Recompté par `questionnaire.test.ts`, qui refuse tout écart."
+   ]
+  },
+  {
+   "situation": "Ton pokémon échoue pour la troisième fois à la même épreuve.",
+   "reponses": [
+    {
+     "dit": "On recommence. Une quatrième fois ou une cinquième fois s'il le faut.",
+     "premier": "hardi",
+     "second": "brave"
+    },
+    {
+     "dit": "Je change tout : la méthode, l'heure, le terrain.",
+     "premier": "malin",
+     "second": "jovial"
+    },
+    {
+     "dit": "Je le laisse souffler. L'épreuve attendra.",
+     "premier": "doux",
+     "second": "brave"
+    },
+    {
+     "dit": "J'arrête. Trois échecs, ça veut dire quelque chose. Il faut creuser et poser une réflexion dessus.",
+     "premier": "serieux",
+     "second": "malin"
+    }
+   ]
+  },
+  {
+   "situation": "Dans un couloir du laboratoire abandonné, il y a une porte verrouillée. Personne ne sait ce qu'il y a derrière.",
+   "reponses": [
+    {
+     "dit": "Je l'ouvre.",
+     "premier": "jovial",
+     "second": "hardi"
+    },
+    {
+     "dit": "Je note l'endroit, et je reviens accompagné.",
+     "premier": "brave",
+     "second": "serieux"
+    },
+    {
+     "dit": "Je cherche une autre entrée. Il y en a toujours une.",
+     "premier": "malin",
+     "second": "jovial"
+    },
+    {
+     "dit": "Je fais demi-tour. Une porte verrouillée, c'est quelqu'un qui a décidé qu'elle le soit.",
+     "premier": "serieux",
+     "second": "doux"
+    }
+   ]
+  },
+  {
+   "situation": "Un pokémon obscur refuse de te suivre. Il gronde dès que tu approches.",
+   "reponses": [
+    {
+     "dit": "Je reste là. Chaque jour, le temps qu'il faudra.",
+     "premier": "hardi",
+     "second": "doux"
+    },
+    {
+     "dit": "Je change tout : la nourriture, la distance, l'heure.",
+     "premier": "malin",
+     "second": "jovial"
+    },
+    {
+     "dit": "Je me mets entre lui et ce qui lui fait peur.",
+     "premier": "brave",
+     "second": "doux"
+    },
+    {
+     "dit": "Je le laisse. Il ne m'a rien demandé.",
+     "premier": "doux",
+     "second": "malin"
+    }
+   ]
+  },
+  {
+   "situation": "On te propose une place dans une écurie du Grand Prix. Elle se libère parce qu'on vient d'en écarter quelqu'un que tu connais.",
+   "reponses": [
+    {
+     "dit": "Je refuse tant qu'on ne m'a pas dit pourquoi.",
+     "premier": "serieux",
+     "second": "brave"
+    },
+    {
+     "dit": "J'accepte, et je ferai en sorte qu'il revienne.",
+     "premier": "hardi",
+     "second": "doux"
+    },
+    {
+     "dit": "J'accepte. La place est là, c'est tout.",
+     "premier": "malin",
+     "second": "jovial"
+    },
+    {
+     "dit": "Je refuse, et je prends sa défense.",
+     "premier": "brave",
+     "second": "serieux"
+    }
+   ]
+  },
+  {
+   "situation": "Le Clan de la Nuit se réunit sur la place. Ils ne font rien d'illégal.",
+   "reponses": [
+    {
+     "dit": "J'écoute jusqu'au bout.",
+     "premier": "jovial",
+     "second": "serieux"
+    },
+    {
+     "dit": "Je reste à côté, au cas où ça tourne mal.",
+     "premier": "brave",
+     "second": "hardi"
+    },
+    {
+     "dit": "Je vais parler à l'un d'eux.",
+     "premier": "doux",
+     "second": "jovial"
+    },
+    {
+     "dit": "Je passe mon chemin. Ça ne me regarde pas.",
+     "premier": "malin",
+     "second": "hardi"
+    }
+   ]
+  },
+  {
+   "situation": "Tu trouves un œuf, seul, en plein désert.",
+   "reponses": [
+    {
+     "dit": "Je le couve moi-même, le temps qu'il faudra.",
+     "premier": "hardi",
+     "second": "doux"
+    },
+    {
+     "dit": "Je le confie à quelqu'un dont c'est le métier.",
+     "premier": "doux",
+     "second": "brave"
+    },
+    {
+     "dit": "Je le laisse où il est. Un œuf seul en plein désert, quelqu'un sait pourquoi.",
+     "premier": "serieux",
+     "second": "brave"
+    },
+    {
+     "dit": "Je le ramasse. J'improviserai.",
+     "premier": "jovial",
+     "second": "malin"
+    }
+   ]
+  },
+  {
+   "situation": "Le dernier bateau pour Port-Amarée est parti sans toi. Le prochain est dans deux jours.",
+   "reponses": [
+    {
+     "dit": "Je longe la côte à pied. Ça prendra la nuit, tant pis.",
+     "premier": "hardi",
+     "second": "malin"
+    },
+    {
+     "dit": "Je vais demander pourquoi il est parti en avance.",
+     "premier": "serieux",
+     "second": "malin"
+    },
+    {
+     "dit": "Deux jours pour voir ce qu'il y a autour. Je pose mon sac et je marche.",
+     "premier": "jovial",
+     "second": "hardi"
+    },
+    {
+     "dit": "Je reste au port avec les autres recalés, et je veille sur leurs affaires pendant qu'ils dorment.",
+     "premier": "brave",
+     "second": "hardi"
+    }
+   ]
+  },
+  {
+   "situation": "Tu as fouillé une zone avec quelqu'un. Il a trouvé une pièce rare, toi rien. Au moment de rentrer, il ne la mentionne pas.",
+   "reponses": [
+    {
+     "dit": "Je la mentionne à sa place, devant tout le monde.",
+     "premier": "serieux",
+     "second": "hardi"
+    },
+    {
+     "dit": "Je ne dis rien. Il l'a trouvée, elle est à lui.",
+     "premier": "doux",
+     "second": "brave"
+    },
+    {
+     "dit": "Je ne dis rien non plus, la prochaine fois que ce sera moi.",
+     "premier": "malin",
+     "second": "serieux"
+    },
+    {
+     "dit": "Je lui demande surtout ce que c'est.",
+     "premier": "jovial",
+     "second": "doux"
+    }
+   ]
+  },
+  {
+   "situation": "Un garde de la Tour Titanite te dit que l'étage est fermé. Il ne dit pas pourquoi.",
+   "reponses": [
+    {
+     "dit": "Je demande pourquoi, et je ne bouge pas avant d'avoir la réponse.",
+     "premier": "serieux",
+     "second": "brave"
+    },
+    {
+     "dit": "Je reviens demain, et après-demain, jusqu'à ce qu'il change d'avis.",
+     "premier": "hardi",
+     "second": "jovial"
+    },
+    {
+     "dit": "Je n'insiste pas, et je trouve l'autre escalier.",
+     "premier": "malin",
+     "second": "doux"
+    },
+    {
+     "dit": "Je monte pendant qu'il a le dos tourné.",
+     "premier": "jovial",
+     "second": "malin"
+    }
+   ]
+  },
+  {
+   "situation": "Tu as entraîné l'équipe de quelqu'un pendant un mois. Il perd son combat, et il dit devant tout le monde que c'est ta méthode qui l'a coulé.",
+   "reponses": [
+    {
+     "dit": "Je lui propose de recommencer, autrement.",
+     "premier": "hardi",
+     "second": "jovial"
+    },
+    {
+     "dit": "Je dis qu'il a raison. Discuter ici n'aiderait personne.",
+     "premier": "doux",
+     "second": "malin"
+    },
+    {
+     "dit": "Je prends le reproche devant tout le monde, et on en reparle seuls.",
+     "premier": "brave",
+     "second": "serieux"
+    },
+    {
+     "dit": "Je ne réponds pas. J'ai déjà la tête ailleurs.",
+     "premier": "jovial",
+     "second": "malin"
+    }
+   ]
+  }
+ ],
+ "_questionnaire": "DOUZE SITUATIONS, QUATRE RÉPONSES, relevées de la planche 105 et validées par Callista le 19 novembre 2026 — elle a réécrit la première situation, la deuxième, deux réponses de la troisième et une de la septième. Chaque réponse pèse sur DEUX natures : la première reçoit 2 points, la seconde 1 — c'est ce qui empêche de deviner la bonne réponse et d'en sortir avec un score nul partout sauf une. Aucune question sur les goûts, que des choix sous contrainte. Le dépouillement est dans `src/navigateur/questionnaire.ts` ; la page ne demande rien au réseau, les questions sont écrites dedans par `outils/annexe-groupes.py`.",
+ "_equilibre": "ÉQUILIBRÉ, ET C'EST EXACT, PAS APPROCHÉ : 12 × 4 = 48 réponses, soit exactement 8 premiers et 8 seconds par nature, donc 24 points atteignables pour chacune des six. Recompté par `questionnaire.test.ts`, qui refuse tout écart. POURQUOI DOUZE : la garantie tient parce que le total de réponses se divise par 6. Ajouter une cinquième réponse aux neuf questions donnait 45, qui ne se divise pas par 6 — aucune répartition n'aurait pu être égale. Les totaux qui tombent juste sont 36, 42 et 48, et 48 laissait la place aux trois registres qui manquaient : l'argent, l'autorité, et avoir tort. Voir la planche 105."
 }

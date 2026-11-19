@@ -44,6 +44,11 @@ const CHROME = [
 
 const R = new URL("..", import.meta.url).pathname;
 const GROUPES = JSON.parse(readFileSync(R + "data/groupes.json", "utf8")).groupes;
+//  LE NOMBRE DE QUESTIONS VIENT DU FICHIER, jamais d'un littéral :
+//  il est passé de huit à neuf le 18 novembre, puis à douze le 19, et
+//  un harnais qui compte à la main se tait exactement le jour où il
+//  devrait parler.
+const QUESTIONS = JSON.parse(readFileSync(R + "data/groupes.json", "utf8")).questionnaire;
 const ANNEXE = readFileSync(R + "pages/annexe-groupes.html", "utf8");
 
 const soucis = [];
@@ -112,7 +117,7 @@ async function ouvrir(largeur, theme) {
  *  ce que fait une personne, et c'est le chemin qui casserait si le
  *  label cessait d'être lié à son bouton. */
 async function repondre(p, colonne) {
-  for (let n = 1; n <= 9; n++) {
+  for (let n = 1; n <= QUESTIONS.length; n++) {
     await p.click(`label[for="wm-q${n}-${colonne}"]`);
   }
   //  LES BARRES GLISSENT EN 220 ms. Mesurer avant la fin donnerait la
@@ -173,7 +178,11 @@ const vu = await large.evaluate(() => {
         return ra.top >= rc.top && ra.bottom <= rc.bottom + 1;
       })(),
       //  AUCUNE BORDURE SUR LES LIGNES DE CARACTÈRE.
-      bordures: [...c.querySelectorAll(".wm-groupe__traits, .wm-groupe__traits dt, .wm-groupe__traits dd")]
+      bordures: [
+        ...c.querySelectorAll(
+          ".wm-groupe__traits, .wm-groupe__traits dt, .wm-groupe__traits dd",
+        ),
+      ]
         .map((e) => {
           const s = getComputedStyle(e);
           return [s.borderTopWidth, s.borderRightWidth, s.borderBottomWidth, s.borderLeftWidth]
@@ -278,7 +287,8 @@ dire(
 );
 dire(
   "et la phrase compte ce qui reste, sans désigner personne",
-  avant.fini === "non" && /9 questions/.test(avant.verdict ?? ""),
+  avant.fini === "non" &&
+    new RegExp(`${QUESTIONS.length} questions`).test(avant.verdict ?? ""),
   String(avant.verdict),
 );
 
@@ -287,12 +297,17 @@ dire(
 await large.click('label[for="wm-q1-1"]');
 await large.waitForTimeout(400);
 const une = await lireLesJauges(large);
-const brave = une.jauges.find((j) => j.cle === "brave");
-const doux = une.jauges.find((j) => j.cle === "doux");
+//  LES DEUX NATURES VIENNENT DE LA PREMIÈRE RÉPONSE DU FICHIER, pas
+//  de deux noms recopiés ici : c'est le couple que la page doit
+//  remplir, et il change quand le texte change.
+const CLE2 = QUESTIONS[0].reponses[0].premier;
+const CLE1 = QUESTIONS[0].reponses[0].second;
+const brave = une.jauges.find((j) => j.cle === CLE2);
+const doux = une.jauges.find((j) => j.cle === CLE1);
 dire(
   "UNE RÉPONSE REMPLIT DEUX JAUGES, PAS UNE",
   brave?.part === "67 %" && doux?.part === "33 %",
-  JSON.stringify({ brave: brave?.part, doux: doux?.part }),
+  JSON.stringify({ [CLE2]: brave?.part, [CLE1]: doux?.part }),
 );
 dire(
   "et le trait suit le pourcentage, au pixel",
@@ -306,27 +321,28 @@ dire(
 dire(
   "LA TÊTE EST MARQUÉE, ET ELLE EST SEULE",
   une.jauges.filter((j) => j.tete).length === 1 &&
-    une.jauges.find((j) => j.tete)?.cle === "brave",
+    une.jauges.find((j) => j.tete)?.cle === CLE2,
   une.jauges.filter((j) => j.tete).map((j) => j.cle).join(" · "),
 );
 dire(
   "elle est remontée en tête de liste",
-  une.jauges.find((j) => j.cle === "brave")?.rang === 0,
+  une.jauges.find((j) => j.cle === CLE2)?.rang === 0,
   JSON.stringify(une.jauges.map((j) => [j.cle, j.rang])),
 );
 dire(
-  "MAIS LE VERDICT ATTEND LES NEUF",
-  une.fini === "non" && /8 questions/.test(une.verdict ?? ""),
+  "MAIS LE VERDICT ATTEND TOUTES LES AUTRES",
+  une.fini === "non" &&
+    new RegExp(`${QUESTIONS.length - 1} questions`).test(une.verdict ?? ""),
   String(une.verdict),
 );
 
-//  LES NEUF, COLONNE 1. C'est un passage complet, celui qu'une
+//  TOUTE LA COLONNE 1. C'est un passage complet, celui qu'une
 //  personne fera.
 await repondre(large, 1);
 const plein = await lireLesJauges(large);
 const somme = plein.jauges.reduce((a, j) => a + parseInt(j.part, 10), 0);
 dire(
-  "LES NEUF RÉPONDUES, LE VERDICT DÉSIGNE UN GROUPE",
+  "TOUTES RÉPONDUES, LE VERDICT DÉSIGNE UN GROUPE",
   plein.fini === "oui" && /penches vers|tirent autant/.test(plein.verdict ?? ""),
   String(plein.verdict),
 );
@@ -368,7 +384,11 @@ const EXAEQUO = (() => {
         for (let b = 0; b < 4; b++) {
           const ra = q[i].reponses[a], rb = q[j].reponses[b];
           if (ra.premier === rb.second && ra.second === rb.premier) {
-            return { a: { q: i + 1, r: a + 1 }, b: { q: j + 1, r: b + 1 }, cles: [ra.premier, ra.second] };
+            return {
+              a: { q: i + 1, r: a + 1 },
+              b: { q: j + 1, r: b + 1 },
+              cles: [ra.premier, ra.second],
+            };
           }
         }
       }
@@ -421,12 +441,18 @@ await large.close();
 console.log("\n── À 390 ───────────────────────────────────────────────");
 const etroit = await ouvrir(390, "clair");
 const vuEtroit = await etroit.evaluate(() => ({
-  colonnes: [...new Set(
-    [...document.querySelectorAll(".wm-groupe")].map((c) => Math.round(c.getBoundingClientRect().left)),
-  )].length,
+  colonnes: [
+    ...new Set(
+      [...document.querySelectorAll(".wm-groupe")].map((c) =>
+        Math.round(c.getBoundingClientRect().left)
+      ),
+    ),
+  ].length,
   pageDeborde: document.documentElement.scrollWidth > globalThis.innerWidth + 1,
   plusLarge: Math.max(
-    ...[...document.querySelectorAll(".wm-groupe")].map((c) => Math.round(c.getBoundingClientRect().width)),
+    ...[...document.querySelectorAll(".wm-groupe")].map((c) =>
+      Math.round(c.getBoundingClientRect().width)
+    ),
   ),
 }));
 dire("UNE SEULE COLONNE", vuEtroit.colonnes === 1, `${vuEtroit.colonnes}`);
