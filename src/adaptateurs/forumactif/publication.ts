@@ -679,17 +679,28 @@ export class ForumactifEnPublication implements PosteurSurForum {
     //  class="wm-combat"…`. Un nom seul au-dessus d'une carte, à la
     //  taille du corps, qu'on ne lit pas.
     //
-    //  FORUMACTIF NE LE TRANSFORME PAS, et c'est ce qui rend
-    //  l'habillage sûr : dans le message publié, le `@Jake Dalziel`
-    //  est resté du texte — pas un lien, pas une balise de mention.
-    //  L'entourer d'un `<p>` ne lui retire donc rien, et le texte
-    //  `@<pseudo>` reste d'un seul tenant pour qui le relirait.
+    //  ── ET LES GUILLEMETS NE SONT PAS UNE COQUETTERIE ───────────────
+    //
+    //  « Le tag ne semble pas fonctionner dans ce sujet quand le
+    //  Maître du Jeu a tagué Jake Dalziel » — 19 novembre.
+    //
+    //  Il ne fonctionnait pas, en effet : `@Jake Dalziel` restait du
+    //  texte. Forumactif reconnaît une mention à la forme
+    //  `@"Pseudo"`, GUILLEMETS DROITS COMPRIS — c'est ce que son
+    //  propre panneau de mention insère quand une joueuse clique un
+    //  nom, relevé le 2 novembre et reproduit depuis dans le faux
+    //  SCEditor de `outils/sujet.mjs`. C'est cette forme-là qui
+    //  déclenche la notification.
+    //
+    //  SANS LES GUILLEMETS, UN NOM EN DEUX MOTS NE PEUT PAS MARCHER :
+    //  rien ne dit où le pseudo s'arrête. « Jake » aurait pu passer ;
+    //  « Jake Dalziel » ne le pouvait pas.
     //
     //  LE PSEUDO EST ÉCHAPPÉ. Il vient du forum, pas de nous, et un
     //  nom qui porterait un chevron casserait la balise.
     const message = mentionne === ""
       ? avecMarqueur
-      : `<p class="wm-tag">@${echapperLeTexte(mentionne)}</p>\n\n${avecMarqueur}`;
+      : `<p class="wm-tag">@"${echapperLeTexte(mentionne)}"</p>\n\n${avecMarqueur}`;
     const codes = marqueursDe(message).map((m) => m.code);
 
     // ── ON REGARDE AVANT D'ÉCRIRE ────────────────────────────────────

@@ -3013,6 +3013,65 @@
   grid-column: 2;
 }
 
+/*  ── LA MARGE DE SEIZE, QUATRIÈME FOIS ────────────────────────────
+
+    « Y'a trop d'écart entre les infos » — 19 novembre. Mesuré :
+    chaque rangée de la case faisait 33, 29 et 43 px pour un contenu
+    de 18, 13 et 27. Seize pixels de trop par rangée, trois fois.
+
+    C'est `#modernbb .postbody .content p { margin: 0 0 16px }` de
+    `05-sujet.css` : un identifiant, DEUX classes et UN TYPE. Les
+    règles de la case n'en comptaient qu'une — leur `margin: 0` ne
+    s'appliquait pas, et personne ne pouvait le voir sans mesurer les
+    RANGÉES plutôt que les éléments. Le `.wm-combat__pv` y échappait
+    par hasard : sa règle a été réécrite hier, donc plus tard dans la
+    feuille.
+
+    Une seule règle pour les quatre, assez forte pour gagner. */
+#modernbb .postbody .content .wm-combat__camp > p,
+#modernbb .wm-combat .wm-combat__camp > p {
+  margin: 0;
+}
+
+/*  ── ET LES RANGÉES SE SERRENT POUR DE BON ────────────────────────
+
+    Les quatre rangées étaient en `auto` : elles absorbaient la
+    hauteur libre de la case. `min-content` les taille sur leur
+    contenu, et `row-gap` décide seul de l'air entre elles — six
+    pixels, le même écart que dans la carte de dresseur. */
+#modernbb .wm-combat__camp {
+  grid-template-rows: repeat(4, min-content);
+  row-gap: var(--wm-espace-6, 6px);
+}
+
+/*  ── LE SPRITE FAIT LA HAUTEUR DE LA CASE ─────────────────────────
+
+    « Les infos sont plus hautes que le pokémon. » Elles l'étaient :
+    88 px de sprite contre 135 de texte. Le sprite couvre les quatre
+    rangées depuis le début — il lui manquait seulement de s'étirer
+    avec elles.
+
+    `min-height` GARDE LE PLANCHER : sur un message de TOUR, qui ne
+    porte ni niveau ni types, le texte tient en deux lignes et un
+    sprite étiré sur elles serait un timbre-poste. */
+#modernbb .wm-combat__camp .wm-combat__sprite {
+  height: auto !important;
+  min-height: 88px;
+  align-self: stretch;
+}
+
+/*  ── LA JAUGE PREND TOUTE LA LARGEUR ──────────────────────────────
+
+    « Ce serait bien que la jauge de PV prenne toute la largeur. »
+    La case est en `justify-items: start` — chaque élément se taille
+    sur son contenu, et la barre faisait la largeur du mot « 30 PV ».
+    Seule la ligne des PV s'étire : le nom et le niveau n'ont rien à
+    gagner à traverser la case. */
+#modernbb .wm-combat__camp .wm-combat__pv {
+  justify-self: stretch;
+  width: 100%;
+}
+
 #modernbb .wm-combat__sprite {
   display: block;
   box-sizing: border-box;
@@ -3115,7 +3174,35 @@
   gap: var(--wm-espace-4, 4px);
 }
 
+/*  ── LES TYPES PASSENT DERRIÈRE LE NOM ───────────────────────────
+
+    « Ses types sont plus gros que le nom du pokémon ou son niveau. »
+    Ils l'étaient : 12 px gras dans une pastille de 27 de haut, contre
+    13,5 px pour le nom — et une pastille pleine pèse plus lourd à
+    l'œil que du texte de la même taille.
+
+    La pastille de la case est donc la petite : 10,5 px, le
+    rembourrage et l'arrondi réduits d'autant. Ailleurs — annexes,
+    carte de dresseur — elle ne bouge pas. */
+#modernbb .wm-combat__types .wm-type {
+  padding: 2px var(--wm-espace-8, 8px) 2px var(--wm-espace-6, 6px);
+  gap: var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  line-height: 1.5;
+}
+
+#modernbb .wm-combat__types .wm-type::before {
+  width: 6px;
+  height: 6px;
+}
+
 #modernbb .wm-combat__pv-chiffre {
+  /*  LE CHIFFRE RESTE À GAUCHE, comme le nom et le niveau. La case
+      est en `text-align: center` ; tant que la ligne des PV se
+      taillait sur son contenu, ça ne se voyait pas — depuis qu'elle
+      prend toute la largeur, le chiffre partait au milieu. */
+  text-align: left;
   color: var(--wm-accent-fort, #1f5470);
   font-size: var(--wm-taille-petit, 11.5px);
   font-variant-numeric: tabular-nums;

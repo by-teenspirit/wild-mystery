@@ -108,6 +108,7 @@ import {
   poserLesJauges,
   rendreLesSprites,
 } from "../src/adaptateurs/navigateur/module-combat.ts";
+import { poserLaPaginationDuBas } from "../src/adaptateurs/navigateur/module-pagination.ts";
 import { type CarteDeCouverture, Sprites } from "../src/navigateur/sprites.ts";
 import { poserLesAvertissements } from "../src/adaptateurs/navigateur/module-tw.ts";
 import { poserLeProfil } from "../src/adaptateurs/navigateur/module-profil.ts";
@@ -778,6 +779,14 @@ desQueLeCorpsEstLa(() => {
   //  lit le chiffre écrit dans la carte. Elle est donc à part du
   //  rendu des sprites, qui attend la carte de couverture — et elle
   //  sert aussi les fiches sans sprite.
+  //  LA PAGINATION DU BAS : le gabarit n'en sert qu'une, en haut, et
+  //  un sujet de cinq pages se lit par le bas.
+  try {
+    poserLaPaginationDuBas(document);
+  } catch {
+    //  Pas de pagination à recopier : la page reste celle du gabarit,
+    //  qui n'est pas pire qu'avant.
+  }
   try {
     poserLesJauges(document);
   } catch {

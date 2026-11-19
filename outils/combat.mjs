@@ -264,6 +264,75 @@ for (const d of duels) {
 //  UNE PHOTO DU BANDEAU, QUAND ON LA DEMANDE. « Les informations sont
 //  bien hiérarchisées, c'est ce qu'il manque ici » : une hiérarchie se
 //  regarde.
+if (Deno.args.includes("--mesure")) {
+  const q = await monter(900);
+  console.log(JSON.stringify(await q.evaluate(() => {
+    const c = document.querySelector(".wm-combat__camp");
+    const R = (e) => { const r = e.getBoundingClientRect(); return { y: Math.round(r.top), h: Math.round(r.height), w: Math.round(r.width) }; };
+    return {
+      camp: R(c),
+      sprite: R(c.querySelector(".wm-combat__sprite")),
+      nom: R(c.querySelector(".wm-combat__nom")),
+      niveau: R(c.querySelector(".wm-combat__niveau")),
+      types: R(c.querySelector(".wm-combat__types")),
+      pv: R(c.querySelector(".wm-combat__pv")),
+      jauge: R(c.querySelector(".wm-combat__jauge")),
+      typePastille: R(c.querySelector(".wm-type")),
+      tailles: {
+        nom: getComputedStyle(c.querySelector(".wm-combat__nom")).fontSize,
+        type: getComputedStyle(c.querySelector(".wm-type")).fontSize,
+        niveau: getComputedStyle(c.querySelector(".wm-combat__niveau")).fontSize,
+      },
+      rows: getComputedStyle(c).gridTemplateRows,
+      campCss: (() => { const g = getComputedStyle(c); return { alignContent: g.alignContent, alignItems: g.alignItems, h: g.height, minH: g.minHeight, rowGap: g.rowGap, padding: g.padding }; })(),
+      duel: (() => { const d = c.closest(".wm-combat__duel"); const g = getComputedStyle(d); const r = d.getBoundingClientRect(); return { h: Math.round(r.height), alignItems: g.alignItems, display: g.display }; })(),
+      autresCamps: [...document.querySelectorAll(".wm-combat__duel")[0].querySelectorAll(".wm-combat__camp")].map((x) => Math.round(x.getBoundingClientRect().height)),
+      spriteCss: (() => { const g = getComputedStyle(c.querySelector(".wm-combat__sprite")); return { h: g.height, row: g.gridRow, alignSelf: g.alignSelf }; })(),
+      essais: (() => {
+        const h = () => Math.round(c.getBoundingClientRect().height);
+        const avant = h();
+        const bulle = c.querySelector(".wm-infobulle");
+        bulle?.remove();
+        const sansBulle = h();
+        const sp = c.querySelector(".wm-combat__sprite");
+        const gardeH = sp.style.height;
+        sp.style.setProperty("height", "20px", "important");
+        const petitSprite = h();
+        sp.style.setProperty("height", gardeH || "88px", "important");
+        c.style.alignContent = "start";
+        const alignStart = h();
+        c.style.alignContent = "";
+        c.style.lineHeight = "1";
+        const ligne1 = h();
+        c.style.lineHeight = "";
+        c.style.gridTemplateRows = "repeat(4, min-content)";
+        const minContent = h();
+        const rowsMin = getComputedStyle(c).gridTemplateRows;
+        c.style.gridTemplateRows = "";
+        const d = c.closest(".wm-combat__duel");
+        const gardeD = d.style.display;
+        d.style.display = "block";
+        const duelBlock = h();
+        d.style.display = gardeD;
+        const voisins = [...d.children].filter((x) => x !== c);
+        const hauteursVoisins = voisins.map((x) => x.className.slice(0, 24) + ":" + Math.round(x.getBoundingClientRect().height));
+        const gardes = voisins.map((x) => [x, x.style.display]);
+        for (const [x] of gardes) x.style.display = "none";
+        const seul = h();
+        for (const [x, g] of gardes) x.style.display = g;
+        const marges = {};
+        for (const cle of ["nom", "niveau", "types", "pv"]) {
+          const e = c.querySelector(".wm-combat__" + cle);
+          const g = getComputedStyle(e);
+          marges[cle] = g.marginTop + " / " + g.marginBottom + " · lh " + g.lineHeight +
+            " · disp " + g.display;
+        }
+        return { avant, sansBulle, petitSprite, alignStart, ligne1, minContent, rowsMin, duelBlock, hauteursVoisins, seul, marges };
+      })(),
+    };
+  }), null, 1));
+  await q.close();
+}
 if (Deno.args.includes("--photo")) {
   const q = await monter(900);
   //  LA PHOTO PREND LE TAG AVEC LA CARTE : il est posé AVANT elle, par
@@ -368,14 +437,30 @@ dire(
     mesurables.every((s) => s.peint[0] <= s.nat[0] && s.peint[1] <= s.nat[1]),
   mesurables.map((s) => `${s.nat.join("×")}→${s.peint.join("×")}`).join(", "),
 );
-//  ET TOUTES LES BOÎTES FONT LA MÊME TAILLE. C'est elle qui aligne
-//  les noms d'une rangée : la carte de dresseur l'a payé le
-//  30 octobre, quand ModernBB écrasait sa hauteur et que « les noms
-//  flottaient chacun à sa hauteur ».
+//  ── LA LARGEUR EST COMMUNE, LA HAUTEUR NE L'EST PLUS ─────────────
+//
+//  C'est la largeur qui aligne les noms d'une rangée : la carte de
+//  dresseur l'a payé le 30 octobre, quand ModernBB écrasait sa
+//  hauteur et que « les noms flottaient chacun à sa hauteur ».
+//
+//  LA HAUTEUR, ELLE, SUIT LA CASE DEPUIS LE 19 NOVEMBRE. « Les infos
+//  sont plus hautes que le pokémon » : le sprite s'étire sur les
+//  quatre rangées, donc une carte de rencontre (nom, niveau, types,
+//  PV) lui donne plus de hauteur qu'un message de tour (nom, PV). Ce
+//  sont deux cartes différentes ; exiger la même hauteur reviendrait
+//  à interdire la correction.
+//
+//  CE QUI RESTE EXIGÉ : la largeur commune, le plancher de 88, et
+//  qu'aucune image ne soit agrandie — c'est l'essai juste au-dessus.
 dire(
-  "et toutes les boîtes font la même taille",
-  new Set(mesurables.map((s) => s.boite.join("×"))).size === 1,
+  "et toutes les boîtes font la même largeur",
+  new Set(mesurables.map((s) => s.boite[0])).size === 1,
   [...new Set(mesurables.map((s) => s.boite.join("×")))].join(" / "),
+);
+dire(
+  "et aucune ne descend sous le plancher de 88",
+  mesurables.every((s) => s.boite[1] >= 88),
+  mesurables.map((s) => s.boite[1]).join(", "),
 );
 //  ET C'EST `scale-down` QUI LE GARANTIT, pas la chance : avec `fill`
 //  ou `cover` la boîte étirerait l'image sans que la mesure

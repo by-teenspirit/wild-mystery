@@ -328,10 +328,15 @@ Deno.test("repondre · se connecte, relit le formulaire, poste, rend l'id", asyn
   ]);
   //  LE TAG EST HABILLÉ DEPUIS LE 18 NOVEMBRE — « mieux afficher le
   //  tag, le styliser, le mettre en titre ou en sous-titre ». Il reste
-  //  EN PREMIER et le texte `@<pseudo>` reste d'un seul tenant : c'est
-  //  ce que Forumactif relit, et c'est ce que cette ligne tient.
+  //  EN PREMIER.
+  //
+  //  ET IL PORTE SES GUILLEMETS DEPUIS LE 19 — « le tag ne semble pas
+  //  fonctionner ». Forumactif reconnaît une mention à la forme
+  //  `@"Pseudo"`, guillemets droits compris : c'est ce que son propre
+  //  panneau de mention insère. Sans eux, rien ne dit où s'arrête un
+  //  pseudo en deux mots.
   assert(
-    forum.posteCorps?.startsWith('<p class="wm-tag">@Dresseuse</p>\n\n'),
+    forum.posteCorps?.startsWith('<p class="wm-tag">@"Dresseuse"</p>\n\n'),
     forum.posteCorps ?? "rien",
   );
 });
@@ -767,7 +772,7 @@ Deno.test("repondre · un pseudo à chevrons ne casse pas la balise du tag", asy
   await p.repondre(813, '<b>Dresseuse</b> & "co"', "Bilan du sujet.", CODE);
   assert(
     forum.posteCorps?.startsWith(
-      '<p class="wm-tag">@&lt;b&gt;Dresseuse&lt;/b&gt; &amp; &quot;co&quot;</p>',
+      '<p class="wm-tag">@"&lt;b&gt;Dresseuse&lt;/b&gt; &amp; &quot;co&quot;"</p>',
     ),
     forum.posteCorps ?? "rien",
   );

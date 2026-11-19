@@ -55,17 +55,25 @@ const R = new URL("..", import.meta.url).pathname;
 const lire = (c) => readFileSync(R + c, "utf8");
 const json = (c) => JSON.parse(lire(c));
 
-//  LA PAGE SE TROUVE PAR SON SLUG, pas par son numéro : le numéro
-//  est un rang dans le sommaire, et il a reculé d'un cran le 4
-//  novembre quand « créer son personnage » s'est repliée dans « par
-//  où commencer ». Un chemin écrit à la main aurait fait tomber le
-//  harnais sur un fichier absent.
+//  LA PAGE SE TROUVE PAR SON SLUG, et SON NOM NE PORTE PLUS DE
+//  NUMÉRO — depuis le 18 novembre, quand les annexes ont été rangées
+//  en quatre sections.
+//
+//  CE HARNAIS A PASSÉ UNE JOURNÉE MORT SANS QUE PERSONNE LE SACHE.
+//  Il composait `pages/annexe-<numero>-<slug>.html`, forme qui
+//  n'existe plus : il tombait sur `ENOENT` avant la première mesure.
+//  Un harnais qui ne démarre pas ne dit pas « défaut », il ne dit
+//  rien — et la feuille des fiches de personnage est restée sans
+//  couverture pendant tout ce temps.
+//
+//  LE SLUG RESTE VÉRIFIÉ dans `data/annexes.json` : le fichier peut
+//  exister sans être au sommaire, et ce serait un autre défaut.
 const CHEMIN = (() => {
   const e = json("data/annexes.json").sections
     .flatMap((s) => s.entrees)
     .find((x) => x.slug === "celebrites-de-rhode");
   if (e === undefined) throw new Error("celebrites-de-rhode n'est pas dans data/annexes.json");
-  return `pages/annexe-${e.numero}-${e.slug}.html`;
+  return `pages/annexe-${e.slug}.html`;
 })();
 const PAGE = lire(CHEMIN);
 const PERSOS = json("data/personnages.json");
@@ -978,6 +986,65 @@ console.log("\n── à 390 pixels ──");
   }));
   ok("rien ne déborde", !vu.debord, vu);
   ok("et une fiche tient dans l'écran", vu.fiche > 0 && vu.fiche <= 390, vu.fiche);
+  await q.close();
+}
+
+// ── LA FICHE DU STAFF ───────────────────────────────────────────────
+//
+//  « On a un problème d'affichage des blocs présence et personnage,
+//  y'a beaucoup trop d'écarts en haut et en bas » — 19 novembre.
+//
+//  Trois causes, toutes mesurées, toutes dans NOS feuilles :
+//
+//    1. `#modernbb .wm-perso__lien { margin: 24px 0 0 }` — posée pour
+//       le lien qui suit la description d'une célébrité, elle
+//       s'appliquait aussi dans la pastille ;
+//    2. l'interligne du corps de message, 23,6 px, hérité par des
+//       pastilles de 11,5 ;
+//    3. `#modernbb .postbody .content p { margin: 0 0 16px }`, plus
+//       fort que les règles de la fiche, qui mangeait leurs marges.
+//
+//  Ce bloc tient les trois par leur effet : deux pastilles de même
+//  hauteur, alignées, et qui ne dépassent pas de beaucoup leur texte.
+{
+  const q = await ouvrir(nav, { page: lire("pages/annexe-staff.html") });
+  const staff = await q.evaluate(() => {
+    const c = document.querySelector(".wm-perso--staff");
+    if (c === null) return null;
+    const h = (s) => {
+      const e = c.querySelector(s);
+      return e === null ? null : Math.round(e.getBoundingClientRect().height);
+    };
+    const y = (s) => {
+      const e = c.querySelector(s);
+      return e === null ? null : Math.round(e.getBoundingClientRect().top);
+    };
+    return {
+      presence: h(".wm-perso__presence"),
+      joue: h(".wm-perso__joue"),
+      //  LES DEUX SUR LA MÊME LIGNE : c'est le décalage qu'elle voit
+      //  d'abord, avant même de compter les pixels.
+      memeHaut: Math.abs((y(".wm-perso__presence") ?? 0) - (y(".wm-perso__joue") ?? 99)) <= 1,
+      //  ET LA PASTILLE NE DÉPASSE PAS SON TEXTE DE PLUS DE DOUZE :
+      //  quatre pixels de rembourrage en haut, quatre en bas, un
+      //  filet de chaque côté. Au-delà, c'est l'interligne qui a
+      //  repris la main.
+      lien: h(".wm-perso__lien"),
+      tete: h(".wm-perso__tete"),
+    };
+  });
+  ok("LA FICHE DU STAFF EST LÀ", staff !== null, JSON.stringify(staff));
+  ok(
+    "LES DEUX PASTILLES FONT LA MÊME HAUTEUR, SUR LA MÊME LIGNE",
+    staff !== null && staff.presence === staff.joue && staff.memeHaut,
+    JSON.stringify({ presence: staff?.presence, joue: staff?.joue, aligne: staff?.memeHaut }),
+  );
+  ok(
+    "et une pastille ne dépasse pas son texte de plus de douze pixels",
+    staff !== null && staff.joue !== null && staff.lien !== null &&
+      staff.joue - staff.lien <= 12,
+    `pastille ${staff?.joue} · texte ${staff?.lien}`,
+  );
   await q.close();
 }
 

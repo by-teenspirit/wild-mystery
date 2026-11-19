@@ -8454,6 +8454,37 @@ html:has(body.wm-sombre) {
   color: var(--wm-accent-fort, #1f5470);
 }
 
+/* ── LA PAGINATION DU BAS ────────────────────────────────────────────
+
+   « J'ai pas de pagination en bas du sujet » — 19 novembre.
+
+   Le gabarit n'en sert qu'une, au-dessus du premier message : relevé
+   le même jour, la page ne contient qu'UN SEUL `.topic-actions`. Sur
+   un sujet de cinq pages, arrivé en bas, il fallait remonter soixante
+   -dix mille pixels pour changer de page.
+
+   `module-pagination.ts` recopie les liens sous le dernier message —
+   les liens seuls, pas le bloc : voir son en-tête. Ici on ne décide
+   que de la place.
+
+   ELLE EST CENTRÉE, et c'est la différence avec celle du haut. En
+   haut, elle partage sa rangée avec les boutons et se colle à droite.
+   En bas elle est seule : centrée, elle se trouve sans la chercher,
+   quel que soit l'endroit où l'œil quitte le dernier message. */
+#modernbb .wm-sujet__pages {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+/*  PAS DE FILET AU-DESSUS. « Ne mets pas un border à gauche. Ne mets
+    ça nulle part, ce n'est pas beau » — et un trait horizontal entre
+    le dernier message et ses pages dirait qu'ils se séparent, alors
+    qu'ils se suivent. C'est la marge qui sépare. */
+#modernbb .wm-sujet__pages .pagination {
+  justify-content: center;
+}
+
 /* ════════════════════════════════════════════════════════════════════
    Wild Mystery · 06 · Écrire
 
@@ -20531,6 +20562,65 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   grid-column: 2;
 }
 
+/*  ── LA MARGE DE SEIZE, QUATRIÈME FOIS ────────────────────────────
+
+    « Y'a trop d'écart entre les infos » — 19 novembre. Mesuré :
+    chaque rangée de la case faisait 33, 29 et 43 px pour un contenu
+    de 18, 13 et 27. Seize pixels de trop par rangée, trois fois.
+
+    C'est `#modernbb .postbody .content p { margin: 0 0 16px }` de
+    `05-sujet.css` : un identifiant, DEUX classes et UN TYPE. Les
+    règles de la case n'en comptaient qu'une — leur `margin: 0` ne
+    s'appliquait pas, et personne ne pouvait le voir sans mesurer les
+    RANGÉES plutôt que les éléments. Le `.wm-combat__pv` y échappait
+    par hasard : sa règle a été réécrite hier, donc plus tard dans la
+    feuille.
+
+    Une seule règle pour les quatre, assez forte pour gagner. */
+#modernbb .postbody .content .wm-combat__camp > p,
+#modernbb .wm-combat .wm-combat__camp > p {
+  margin: 0;
+}
+
+/*  ── ET LES RANGÉES SE SERRENT POUR DE BON ────────────────────────
+
+    Les quatre rangées étaient en `auto` : elles absorbaient la
+    hauteur libre de la case. `min-content` les taille sur leur
+    contenu, et `row-gap` décide seul de l'air entre elles — six
+    pixels, le même écart que dans la carte de dresseur. */
+#modernbb .wm-combat__camp {
+  grid-template-rows: repeat(4, min-content);
+  row-gap: var(--wm-espace-6, 6px);
+}
+
+/*  ── LE SPRITE FAIT LA HAUTEUR DE LA CASE ─────────────────────────
+
+    « Les infos sont plus hautes que le pokémon. » Elles l'étaient :
+    88 px de sprite contre 135 de texte. Le sprite couvre les quatre
+    rangées depuis le début — il lui manquait seulement de s'étirer
+    avec elles.
+
+    `min-height` GARDE LE PLANCHER : sur un message de TOUR, qui ne
+    porte ni niveau ni types, le texte tient en deux lignes et un
+    sprite étiré sur elles serait un timbre-poste. */
+#modernbb .wm-combat__camp .wm-combat__sprite {
+  height: auto !important;
+  min-height: 88px;
+  align-self: stretch;
+}
+
+/*  ── LA JAUGE PREND TOUTE LA LARGEUR ──────────────────────────────
+
+    « Ce serait bien que la jauge de PV prenne toute la largeur. »
+    La case est en `justify-items: start` — chaque élément se taille
+    sur son contenu, et la barre faisait la largeur du mot « 30 PV ».
+    Seule la ligne des PV s'étire : le nom et le niveau n'ont rien à
+    gagner à traverser la case. */
+#modernbb .wm-combat__camp .wm-combat__pv {
+  justify-self: stretch;
+  width: 100%;
+}
+
 #modernbb .wm-combat__sprite {
   display: block;
   box-sizing: border-box;
@@ -20633,7 +20723,35 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-4, 4px);
 }
 
+/*  ── LES TYPES PASSENT DERRIÈRE LE NOM ───────────────────────────
+
+    « Ses types sont plus gros que le nom du pokémon ou son niveau. »
+    Ils l'étaient : 12 px gras dans une pastille de 27 de haut, contre
+    13,5 px pour le nom — et une pastille pleine pèse plus lourd à
+    l'œil que du texte de la même taille.
+
+    La pastille de la case est donc la petite : 10,5 px, le
+    rembourrage et l'arrondi réduits d'autant. Ailleurs — annexes,
+    carte de dresseur — elle ne bouge pas. */
+#modernbb .wm-combat__types .wm-type {
+  padding: 2px var(--wm-espace-8, 8px) 2px var(--wm-espace-6, 6px);
+  gap: var(--wm-espace-4, 4px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  line-height: 1.5;
+}
+
+#modernbb .wm-combat__types .wm-type::before {
+  width: 6px;
+  height: 6px;
+}
+
 #modernbb .wm-combat__pv-chiffre {
+  /*  LE CHIFFRE RESTE À GAUCHE, comme le nom et le niveau. La case
+      est en `text-align: center` ; tant que la ligne des PV se
+      taillait sur son contenu, ça ne se voyait pas — depuis qu'elle
+      prend toute la largeur, le chiffre partait au milieu. */
+  text-align: left;
   color: var(--wm-accent-fort, #1f5470);
   font-size: var(--wm-taille-petit, 11.5px);
   font-variant-numeric: tabular-nums;
@@ -31678,10 +31796,27 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-perso__etats {
   display: flex;
   flex-wrap: wrap;
+  /*  LES PASTILLES SE CENTRENT, ELLES NE S'ÉTIRENT PAS. Par défaut
+      une rangée flexible étire ses éléments sur la hauteur de la
+      plus haute : la pastille du personnage, qui porte un lien en
+      gras, tirait celle de la présence avec elle et les deux
+      s'écartaient de leur texte. */
+  align-items: center;
   margin: var(--wm-espace-8, 8px) 0 0;
   gap: var(--wm-espace-6, 6px);
 }
 
+/*  ── L'INTERLIGNE DU MESSAGE GONFLAIT LES PASTILLES ───────────────
+
+    « On a un problème d'affichage des blocs présence et personnage,
+    y'a beaucoup trop d'écarts en haut et en bas » — 19 novembre.
+
+    Mesuré : 23,6 px d'interligne HÉRITÉ du corps de message, pour un
+    texte de 11,5. Huit pixels de rembourrage par-dessus, et la
+    pastille faisait 34 px de haut pour une ligne de onze. C'est le
+    même défaut que la pastille de type le 9 novembre, et il a la
+    même réponse : ce n'était pas le rembourrage, c'était
+    l'interligne. */
 #modernbb .wm-perso__presence,
 #modernbb .wm-perso__joue {
   display: inline-flex;
@@ -31693,6 +31828,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   background: var(--wm-fond-douce, #f3e1d2);
   color: var(--wm-texte-corps, #4e3b30);
   font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-etiquette, 1.3);
 }
 
 #modernbb .wm-perso__point {
@@ -31705,8 +31841,24 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 }
 
 /*  LE PERSONNAGE RESTE UN LIEN, et il se voit comme tel dans sa
-    pastille : c'est le seul endroit de la fiche où l'on clique. */
+    pastille : c'est le seul endroit de la fiche où l'on clique.
+
+    ── ET SA MARGE DE VINGT-QUATRE N'A RIEN À FAIRE LÀ ──────────────
+
+    `#modernbb .wm-perso__lien { margin: 24px 0 0 }`, plus bas dans
+    cette feuille, sert le lien qui suit la description d'une fiche de
+    célébrité : il y est posé seul, sous un paragraphe, et il lui faut
+    de l'air.
+
+    Dans une pastille, ces vingt-quatre pixels poussaient le nom vers
+    le bas et faisaient une ellipse de 49 px à côté d'une « Présente »
+    de 25. C'est le décalage qu'elle décrit — « beaucoup trop d'écarts
+    en haut et en bas ».
+
+    Relevé en demandant au navigateur QUELLE RÈGLE gagnait, plutôt
+    qu'en cherchant un coupable chez ModernBB : c'était la nôtre. */
 #modernbb .wm-perso__joue .wm-perso__lien {
+  margin: 0;
   color: var(--wm-accent-primaire, #275e7a);
   font-weight: var(--wm-graisse-gras, 700);
 }
@@ -32914,6 +33066,33 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     sont maintenant deux sections d'une même carte. */
 #modernbb .wm-credits-bloc + .wm-credits-bloc {
   margin-top: var(--wm-espace-32, 32px);
+}
+
+/* ── LES MARGES DE LA FICHE, CONTRE LA RÈGLE DES PARAGRAPHES ────────
+
+   Cinquième fois que ce piège se referme, et il mérite sa section.
+
+   `05-sujet.css` écrit `#modernbb .postbody .content p { margin: 0 0
+   16px }` — un identifiant, DEUX classes et UN TYPE. Les règles de
+   `.wm-perso__situe` et `.wm-perso__etats` n'en comptent qu'une : sur
+   une page d'annexe, qui est un corps de message, leurs marges ne
+   s'appliquaient pas.
+
+   Le relevé du 19 novembre : « Administratrice » poussait seize
+   pixels au lieu de dix, et la rangée des pastilles perdait les huit
+   qui la séparaient de lui. Les deux défauts tiraient dans le même
+   sens, et c'est ce qu'elle voyait — « beaucoup trop d'écarts en haut
+   et en bas ».
+
+   ON NE CHANGE PAS LES VALEURS, on les rend applicables. */
+#modernbb .postbody .content .wm-perso__situe,
+#modernbb .wm-perso .wm-perso__situe {
+  margin: 0 0 var(--wm-espace-10, 10px);
+}
+
+#modernbb .postbody .content .wm-perso__etats,
+#modernbb .wm-perso .wm-perso__etats {
+  margin: var(--wm-espace-8, 8px) 0 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════

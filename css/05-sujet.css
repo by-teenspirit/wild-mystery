@@ -3470,3 +3470,34 @@
   background: var(--wm-fond-surface-haute, #fcf4ec);
   color: var(--wm-accent-fort, #1f5470);
 }
+
+/* ── LA PAGINATION DU BAS ────────────────────────────────────────────
+
+   « J'ai pas de pagination en bas du sujet » — 19 novembre.
+
+   Le gabarit n'en sert qu'une, au-dessus du premier message : relevé
+   le même jour, la page ne contient qu'UN SEUL `.topic-actions`. Sur
+   un sujet de cinq pages, arrivé en bas, il fallait remonter soixante
+   -dix mille pixels pour changer de page.
+
+   `module-pagination.ts` recopie les liens sous le dernier message —
+   les liens seuls, pas le bloc : voir son en-tête. Ici on ne décide
+   que de la place.
+
+   ELLE EST CENTRÉE, et c'est la différence avec celle du haut. En
+   haut, elle partage sa rangée avec les boutons et se colle à droite.
+   En bas elle est seule : centrée, elle se trouve sans la chercher,
+   quel que soit l'endroit où l'œil quitte le dernier message. */
+#modernbb .wm-sujet__pages {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--wm-espace-20, 20px);
+}
+
+/*  PAS DE FILET AU-DESSUS. « Ne mets pas un border à gauche. Ne mets
+    ça nulle part, ce n'est pas beau » — et un trait horizontal entre
+    le dernier message et ses pages dirait qu'ils se séparent, alors
+    qu'ils se suivent. C'est la marge qui sépare. */
+#modernbb .wm-sujet__pages .pagination {
+  justify-content: center;
+}

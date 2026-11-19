@@ -270,7 +270,7 @@ const FAUX_SCEDITOR = `<script>
 })();
 </script>`;
 
-function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
+function pageDeSujet({ ariane = ARIANE_ZONE, pageUnique = false } = {}) {
   //  ON MONTE LE GABARIT QU'ON VA PUBLIER, pas celui qui tourne.
   //  `viewtopic_body.html` est le code actuel du forum : il sert de
   //  témoin, mais un harnais qui le monte ne teste jamais ce qu'on
@@ -584,7 +584,32 @@ function pageDeSujet({ ariane = ARIANE_ZONE } = {}) {
     NAV_CAT_DESC: ariane,
     TOPIC_ID: "10",
     TOPIC_TITLE: "Règlement et disclaimer",
-    PAGINATION: "<span>Page <strong>1</strong> sur 1</span>",
+    //  ── LA PAGINATION, RELEVÉE SUR /t1000p100- LE 19 NOVEMBRE ──
+    //
+    //  Trois choses dans le bloc, et il fallait les voir pour écrire
+    //  le module : un `<script>`, un `<a href="javascript:…">` qui
+    //  ouvre le formulaire « Aller à la page », et un `<span>` avec
+    //  la flèche et les numéros. Seul le troisième se recopie.
+    //
+    //  CINQ PAGES, LA CINQUIÈME COURANTE : c'est l'état du sujet ce
+    //  jour-là, et c'est celui qui a la flèche « précédent » ET des
+    //  numéros avant la page courante.
+    //  UN SUJET D'UNE SEULE PAGE : Forumactif sert le bloc quand
+    //  même, avec la phrase et AUCUN lien de page. C'est le cas que
+    //  le module doit laisser tranquille.
+    PAGINATION: pageUnique
+      ? "<span>Page <strong>1</strong> sur <strong>1</strong></span>"
+      : '<script>var sondePagination = 1;</script>' +
+      '<a href="javascript:Pagination();" onmousedown="return false;">' +
+      "Page <strong>5</strong> sur <strong>5</strong></a> \u2022" +
+      "<span> " +
+      '<a href="/t10p75-un-sujet" class="pag-img">' +
+      '<img src="https://2img.net/i/fa/modernbb/arrow_left.png" alt="Pr\u00e9c\u00e9dent" loading="lazy"></a>&nbsp;&nbsp;' +
+      '<a href="/t10-un-sujet">1</a><span class="page-sep">, </span>' +
+      '<a href="/t10p25-un-sujet">2</a><span class="page-sep">, </span>' +
+      '<a href="/t10p50-un-sujet">3</a><span class="page-sep">, </span>' +
+      '<a href="/t10p75-un-sujet">4</a><span class="page-sep">, </span>' +
+      "<strong>5</strong></span>",
     L_POST_REPLY_TOPIC: "Répondre",
     U_POST_REPLY_TOPIC: "/post?t=10&mode=reply",
     L_VIEW_PREVIOUS_TOPIC: "Sujet précédent",
@@ -2653,7 +2678,7 @@ async function monterAvecScript(
   //  adresse de sprite morte. C'est le cas que le module doit
   //  réparer, et il ne se rencontre nulle part ailleurs : un message
   //  publié sur Forumactif ne se répare pas tout seul (planche 102).
-  { recap = null, largeur = 1440, action = false, compteur = null, carte = false } = {},
+  { recap = null, largeur = 1440, action = false, compteur = null, carte = false, pageUnique = false } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
@@ -2663,15 +2688,15 @@ async function monterAvecScript(
     if (carte) {
       const avant = MESSAGES[0].corps;
       MESSAGES[0].corps += CARTE_D_OCTOBRE;
-      const html = page(pageDeSujet({ ariane }));
+      const html = page(pageDeSujet({ ariane, pageUnique }));
       MESSAGES[0].corps = avant;
       return html;
     }
-    if (!action) return page(pageDeSujet({ ariane }));
+    if (!action) return page(pageDeSujet({ ariane, pageUnique }));
     const avant = [MESSAGES[1].corps, MESSAGES[1].date];
     MESSAGES[1].corps += '<span class="wm-marqueur">[[WM-ACTION:chercher]]</span>';
     MESSAGES[1].date = `Aujourd'hui à ${heure}`;
-    const html = page(pageDeSujet({ ariane }));
+    const html = page(pageDeSujet({ ariane, pageUnique }));
     [MESSAGES[1].corps, MESSAGES[1].date] = avant;
     //  UN TROISIÈME MESSAGE À PARTIR DU SECOND APPEL : c'est la
     //  réponse du Maître du Jeu qui arrive pendant le guet, et c'est
@@ -3666,6 +3691,126 @@ dire(
   `${sansCarnet?.blocs} bloc(s)`,
 );
 await invite.close();
+
+
+//  ══════════════════════════════════════════════════════════════════
+//  LA PAGINATION DU BAS
+//
+//  « J'ai pas de pagination en bas du sujet » — 19 novembre.
+//
+//  Relevé le même jour sur /t1000p100- : la page ne contient qu'UN
+//  SEUL `.topic-actions`, et il est au-dessus du premier message. Le
+//  gabarit n'en sert pas de second, et personne ne peut en ajouter un
+//  sans recoller le template à la main.
+//  ══════════════════════════════════════════════════════════════════
+console.log("\n── LA PAGINATION DU BAS ───────────────────────────────");
+const cinqPages = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10p100-un-sujet");
+const pagesBas = await cinqPages.evaluate(() => {
+  const nav = document.querySelector(".wm-sujet__pages");
+  const posts = [...document.querySelectorAll(".post")];
+  const dernier = posts[posts.length - 1];
+  if (nav === null || dernier === undefined) {
+    return { pose: false, hautes: document.querySelectorAll(".topic-actions").length };
+  }
+  const r = nav.getBoundingClientRect();
+  return {
+    pose: true,
+    //  SOUS LE DERNIER MESSAGE, pas ailleurs dans la page.
+    sousLeDernier: Math.round(r.top) >= Math.round(dernier.getBoundingClientRect().bottom),
+    liens: [...nav.querySelectorAll("a")].map((a) => a.getAttribute("href")),
+    //  ── CE QUI NE DOIT PAS ÊTRE RECOPIÉ ────────────────────────
+    //
+    //  Le script définit `createPagination` ; le `javascript:` ouvre
+    //  le formulaire « Aller à la page ». Deux ouvreurs pour un même
+    //  panneau, et un script qui tourne deux fois.
+    scripts: nav.querySelectorAll("script").length,
+    javascript: [...nav.querySelectorAll("a")]
+      .filter((a) => (a.getAttribute("href") ?? "").startsWith("javascript:")).length,
+    //  LA PAGE COURANTE RESTE LA PAGE COURANTE : elle n'est pas un
+    //  lien, et elle ne doit pas le devenir en se faisant recopier.
+    courante: nav.querySelector("strong")?.textContent ?? null,
+    nomme: nav.getAttribute("aria-label"),
+    //  ET LE HAUT N'A PAS BOUGÉ : une seule barre d'actions, la
+    //  sienne, toujours là.
+    hautes: document.querySelectorAll(".topic-actions").length,
+    //  ── LE PIÈGE DE L'ESSAI QUI NE PROUVE RIEN ─────────────────
+    //
+    //  « Ni script ni javascript: recopiés » ne vaut que si le
+    //  décor EN CONTIENT. Le harnais retire tous les `<script>` du
+    //  gabarit avant de substituer les variables : il a fallu que
+    //  la pagination relevée arrive APRÈS ce nettoyage pour qu'ils
+    //  survivent. On le vérifie ici plutôt que de l'espérer.
+    sourceScripts: document.querySelectorAll(".topic-actions .pagination script").length,
+    sourceJavascript: [...document.querySelectorAll(".topic-actions .pagination a")]
+      .filter((a) => (a.getAttribute("href") ?? "").startsWith("javascript:")).length,
+  };
+});
+
+dire(
+  "ELLE EST POSÉE SOUS LE DERNIER MESSAGE",
+  pagesBas.pose === true && pagesBas.sousLeDernier === true,
+  JSON.stringify({ pose: pagesBas.pose, sous: pagesBas.sousLeDernier }),
+);
+dire(
+  "et elle porte les quatre pages, pas la courante en lien",
+  JSON.stringify(pagesBas.liens) ===
+    JSON.stringify([
+      "/t10p75-un-sujet",
+      "/t10-un-sujet",
+      "/t10p25-un-sujet",
+      "/t10p50-un-sujet",
+      "/t10p75-un-sujet",
+    ]) && pagesBas.courante === "5",
+  JSON.stringify({ liens: pagesBas.liens, courante: pagesBas.courante }),
+);
+dire(
+  "NI SCRIPT NI « javascript: » RECOPIÉS",
+  pagesBas.scripts === 0 && pagesBas.javascript === 0 &&
+    //  ET IL Y AVAIT BIEN QUELQUE CHOSE À NE PAS RECOPIER.
+    pagesBas.sourceScripts >= 1 && pagesBas.sourceJavascript >= 1,
+  JSON.stringify({
+    recopies: { scripts: pagesBas.scripts, js: pagesBas.javascript },
+    source: { scripts: pagesBas.sourceScripts, js: pagesBas.sourceJavascript },
+  }),
+);
+dire(
+  "elle se nomme, parce qu'il y en a deux dans la page",
+  pagesBas.nomme === "Pages du sujet",
+  String(pagesBas.nomme),
+);
+dire(
+  "et la barre du haut n'a pas bougé",
+  pagesBas.hautes === 1,
+  `${pagesBas.hautes} barre(s) d'actions`,
+);
+await cinqPages.close();
+
+//  ── ET SUR UN SUJET D'UNE SEULE PAGE, RIEN ──────────────────────
+//
+//  Forumactif sert alors le bloc quand même, avec la phrase et aucun
+//  lien de page. Une barre vide sous le dernier message annoncerait
+//  des pages qui n'existent pas.
+//
+//  ON RECHARGE UNE VRAIE PAGE, et on ne bricole pas celle d'avant :
+//  le module tourne une fois, au chargement. Lui redemander son
+//  travail à la main depuis le harnais mesurerait le harnais.
+const seulePage = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+  pageUnique: true,
+});
+const rienPose = await seulePage.evaluate(() => ({
+  pages: document.querySelectorAll(".wm-sujet__pages").length,
+  //  LA PREUVE QUE LE DÉCOR EST BIEN CELUI D'UNE SEULE PAGE : le
+  //  bloc est là, et il ne porte aucun lien.
+  blocPresent: document.querySelector(".topic-actions .pagination") !== null,
+  liensDePage: document.querySelectorAll(".topic-actions .pagination a").length,
+}));
+dire(
+  "UNE SEULE PAGE : RIEN N'EST POSÉ",
+  rienPose.pages === 0 && rienPose.blocPresent === true && rienPose.liensDePage === 0,
+  JSON.stringify(rienPose),
+);
+await seulePage.close();
+
 
 
 //  ══════════════════════════════════════════════════════════════════
