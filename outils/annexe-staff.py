@@ -75,44 +75,54 @@ def carte(w, fiche):
     else:
         w('                <span class="wm-perso__avatar wm-perso__avatar--vide"'
           ' aria-hidden="true"></span>')
+    #  ── UNE TÊTE FIXE, UN CORPS QUI DÉFILE ──────────────────────
+    #
+    #  « La description sera longue et risque de nécessiter un scroll.
+    #  Dans ce cas, j'ai besoin que les infos de présence soient
+    #  visuelles, comme les personnages joués, et lisibles sans
+    #  scroll. Un peu comme sur la PA en fait. » — 18 novembre.
+    #
+    #  CE QUI SERT À REPÉRER QUELQU'UN NE DOIT PAS DÉPENDRE DE CE
+    #  QU'ELLE A ÉCRIT : pseudo, rôle, présence et personnage sont
+    #  dans une tête qui ne bouge pas. La présentation, elle, a toute
+    #  la place qu'elle veut — elle défile.
     w('                <div class="wm-perso__corps">')
-
-    w(f'                  <h3 class="wm-perso__nom">{e(fiche["pseudo"])}</h3>')
+    w('                  <div class="wm-perso__tete">')
+    w(f'                    <h3 class="wm-perso__nom">{e(fiche["pseudo"])}</h3>')
     if fiche.get("role"):
-        w(f'                  <p class="wm-perso__situe">{e(fiche["role"])}</p>')
+        w(f'                    <p class="wm-perso__situe">{e(fiche["role"])}</p>')
 
-    if fiche.get("texte"):
-        w(f'                  <p class="wm-perso__texte">{e(fiche["texte"])}</p>')
-    else:
-        w('                  <p class="wm-perso__texte wm-perso__texte--vide">'
-          "Sa présentation reste à écrire.</p>")
-
-    #  LE PERSONNAGE, AVEC LE LIEN VERS SON COMPTE. « Pour le moment,
-    #  chacun possède un personnage » — le pluriel est quand même prévu
-    #  dans la donnée : le jour où quelqu'un en prend un deuxième, on
-    #  ajoute une entrée, on ne retouche pas le générateur.
-    perso = fiche.get("personnage")
-    persos = fiche.get("personnages") or ([perso] if perso else [])
-    if persos:
-        liens = []
-        for x in persos:
-            nom = e(x["nom"])
-            compte = x.get("compte")
-            liens.append(
-                f'<a class="wm-perso__lien" href="{e(compte)}">{nom}</a>'
-                if compte else nom
-            )
-        mot = "Son personnage" if len(liens) == 1 else "Ses personnages"
-        w(f'                  <p class="wm-perso__texte"><b>{mot} :</b> '
-          + ", ".join(liens) + "</p>")
-
+    #  LA PRÉSENCE EST UNE PASTILLE, pas une phrase. Un état se lit
+    #  d'un coup d'œil ; une phrase se lit en entier. Et c'est ce que
+    #  fait le panneau d'administration de Forumactif, qu'elle cite.
     presence = fiche.get("presence")
     if presence:
-        w('                  <p class="wm-perso__texte"><b>Présence :</b> '
-          + e(presence) + "</p>")
+        w('                    <p class="wm-perso__etats">')
+        w('                      <span class="wm-perso__presence">'
+          f'<span class="wm-perso__point" aria-hidden="true"></span>{e(presence)}</span>')
+
+    #  LE PERSONNAGE EST DANS LA MÊME RANGÉE QUE LA PRÉSENCE : les
+    #  deux répondent à la même question — qui est cette personne dans
+    #  le jeu, et est-ce qu'on peut lui écrire.
+    perso = fiche.get("personnage")
+    persos = fiche.get("personnages") or ([perso] if perso else [])
+    for x in persos:
+        nom = e(x["nom"])
+        compte = x.get("compte")
+        dedans = (f'<a class="wm-perso__lien" href="{e(compte)}">{nom}</a>'
+                  if compte else nom)
+        w(f'                      <span class="wm-perso__joue">{dedans}</span>')
+    if presence or persos:
+        w("                    </p>")
+    w("                  </div>")
+
+    w('                  <div class="wm-perso__dit">')
+    if fiche.get("texte"):
+        w(f'                    <p class="wm-perso__texte">{e(fiche["texte"])}</p>')
     else:
-        w('                  <p class="wm-perso__texte wm-perso__texte--vide">'
-          "<b>Présence :</b> à préciser.</p>")
+        w('                    <p class="wm-perso__texte wm-perso__texte--vide">'
+          "Sa présentation reste à écrire.</p>")
+    w("                  </div>")
 
     w("                </div>")
     w("              </li>")

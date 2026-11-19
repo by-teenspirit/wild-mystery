@@ -344,8 +344,18 @@
       débordement qui le fait décorer au lieu d'illustrer, et c'est ce
       que le premier commentaire de cette section décrivait déjà sans
       que le chiffre soit jamais posé. */
-  top: -28px;
+  /*  SES GRIFFES AU NIVEAU DU TITRE DU GROUPE, et c'est exact par
+      construction depuis le 18 novembre : il vit maintenant DANS la
+      colonne du groupe, donc `bottom` se compte depuis le bas de
+      cette colonne et `100% - 52px` met son bas à 52 px du haut —
+      la hauteur du nom du groupe.
+
+      AVANT, il pendait au bloc entier avec un `top` en pixels. La
+      hauteur du bloc dépend de ce que les listes contiennent : le
+      réglage visait juste un jour et faux le lendemain, et à 1440 px
+      il tombait hors de la fenêtre. */
   right: -103px;
+  bottom: calc(100% - 121px);
   width: 250px;
   height: auto;
   pointer-events: none;

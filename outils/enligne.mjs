@@ -142,6 +142,25 @@ async function ouvrir(corps, groupes) {
         body: readFileSync(R + "js/wild-mystery.js", "utf8"),
       });
     }
+    //  ── LES IMAGES DU DÉPÔT SONT SERVIES POUR DE VRAI ──────────────
+    //
+    //  Le 18 novembre, en voulant placer le Sabelette : son `<img>`
+    //  est en `height: auto`, et sans image le navigateur lui donne
+    //  une hauteur de ZÉRO. Toutes les mesures de position tombaient
+    //  donc sur son bord haut, et l'essai mesurait un rectangle plat.
+    //
+    //  Les six vignettes de groupe et le Sabelette sont dans le dépôt :
+    //  on les sert depuis le disque, et la géométrie devient vraie.
+    if (/\/assets\/.+\.(png|jpg|gif)$/.test(u)) {
+      try {
+        return r.fulfill({
+          contentType: u.endsWith(".png") ? "image/png" : "image/jpeg",
+          body: readFileSync(R + u.replace(/^\//, "")),
+        });
+      } catch {
+        return r.fulfill({ status: 404, body: "" });
+      }
+    }
     if (u.endsWith("/data/carte.json") || u.endsWith("/data/navigation.json")) {
       return r.fulfill({ status: 404, body: "" });
     }
@@ -270,6 +289,25 @@ const bande = await p.evaluate(() => {
         //  d'illustrer. Mesuré, pas supposé : la feuille dit -28 px,
         //  et un parent qui le rognerait rendrait 0 ici.
         depasseDe: Math.round(bloc.top - r.top),
+        //  ── OÙ TOMBENT SES GRIFFES ───────────────────────────────
+        //
+        //  « Remonte le sablaireau pour que ses griffes soient au
+        //  niveau du titre du groupe et qu'il ne chevauche pas le
+        //  texte. » — 18 novembre. Les griffes sont le bas de
+        //  l'image ; on mesure donc son bas contre le nom du groupe
+        //  et contre le haut de la description.
+        basContreLeNom: (() => {
+          const n = document.querySelector(".wm-enligne__groupe-nom");
+          return n === null
+            ? null
+            : Math.round(r.bottom - n.getBoundingClientRect().bottom);
+        })(),
+        couvreLeTexte: (() => {
+          const t = document.querySelector(".wm-enligne__groupe-texte");
+          if (t === null) return null;
+          const b = t.getBoundingClientRect();
+          return r.bottom > b.top && r.right > b.left && r.left < b.right;
+        })(),
         //  Il mord à droite, c'est voulu — mais il ne doit pas aller
         //  se poser sur le texte du groupe.
         mordDe: Math.round(bloc.right - r.left),
@@ -298,11 +336,28 @@ dire(
 //  maintenant le contraire, et il dit de combien. Une borne haute avec
 //  la basse : remonté de deux cents pixels, il ne décorerait plus rien,
 //  il flotterait au-dessus.
+//  CETTE MESURE A CHANGÉ DE SENS LE 18 NOVEMBRE. Tant que le
+//  Sabelette pendait au bloc entier, « dépasser par le haut » était
+//  ce qui le faisait décorer au lieu d'illustrer. Il vit maintenant
+//  dans la colonne du groupe, et c'est la position de ses GRIFFES qui
+//  compte — l'essai juste en dessous. On garde quand même une borne :
+//  il ne doit pas descendre dans le bloc au point de devenir une
+//  illustration posée dedans.
 dire(
-  "et il dépasse par le haut, assez pour décorer, pas assez pour s'envoler",
-  bande.mascotte !== null && bande.mascotte.depasseDe >= 20 &&
-    bande.mascotte.depasseDe <= 60,
-  `${bande.mascotte?.depasseDe} px au-dessus du bloc`,
+  "il reste au-dessus du corps du bloc",
+  bande.mascotte !== null && bande.mascotte.depasseDe >= -140,
+  `${bande.mascotte?.depasseDe} px par rapport au haut du bloc`,
+);
+dire(
+  "SES GRIFFES TOMBENT AU NIVEAU DU NOM DU GROUPE",
+  bande.mascotte !== null && bande.mascotte.basContreLeNom !== null &&
+    Math.abs(bande.mascotte.basContreLeNom) <= 24,
+  `${bande.mascotte?.basContreLeNom} px sous le bas du nom`,
+);
+dire(
+  "ET IL NE CHEVAUCHE PLUS LA DESCRIPTION",
+  bande.mascotte?.couvreLeTexte === false,
+  String(bande.mascotte?.couvreLeTexte),
 );
 
 //  ON CLIQUE VRAIMENT, et la carte doit changer de groupe. Sans ça on

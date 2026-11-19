@@ -14649,17 +14649,57 @@ body:has(#modernbb .wm-carnet) {
     LA COULEUR EST CELLE DES AVERTISSEMENTS DE LA CHARTE, pas un rouge
     inventé ici : ce n'est pas une panne, c'est une étape qui manque,
     et le rouge d'erreur dirait que quelque chose est cassé. */
+/*  ── LE FILET EST PARTI, LA PASTILLE LE REMPLACE ──────────────────
+
+    « Enlève la border top. Et ajoute une petite icône à gauche dans
+    une petite bulle. Et mets un espace avec le top "ton tour". »
+    — 18 novembre.
+
+    LE FILET DISAIT « ATTENTION » PAR LA FORME, et il coupait le bloc
+    en deux dans la largeur. La pastille le dit mieux : elle a un
+    centre, donc un endroit où l'œil se pose, et elle laisse le bloc
+    entier.
+
+    L'ESPACE EN HAUT EST LE SIEN, pas celui de l'en-tête : « Ton
+    tour » se place par rapport à la barre, l'alerte par rapport à ce
+    qui la précède. Le lui donner ici veut dire qu'il disparaît avec
+    elle. */
 #modernbb .wm-barre__alerte {
-  margin: 0 14px 12px;
-  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
-  border-top: 3px solid var(--wm-rarete-peu-commun-texte, #96540e);
+  margin: var(--wm-espace-14, 14px) 14px 12px;
+  padding: var(--wm-espace-14, 14px);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-douce, #f3e1d2);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
+#modernbb .wm-barre__alerte-tete {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  margin-bottom: var(--wm-espace-6, 6px);
+}
+
+/*  LA BULLE NE RÉTRÉCIT PAS. Dans une rangée flexible, un rond sans
+    `flex: 0 0 auto` se laisse écraser par le texte à côté dès que la
+    place manque — et un rond écrasé devient une ellipse. */
+#modernbb .wm-barre__alerte-pastille {
+  display: flex;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--wm-rarete-peu-commun-texte, #96540e);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
 #modernbb .wm-barre__alerte-titre {
-  margin: 0 0 var(--wm-espace-4, 4px);
+  margin: 0;
   color: var(--wm-rarete-peu-commun-texte, #96540e);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
@@ -25418,8 +25458,18 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
       débordement qui le fait décorer au lieu d'illustrer, et c'est ce
       que le premier commentaire de cette section décrivait déjà sans
       que le chiffre soit jamais posé. */
-  top: -28px;
+  /*  SES GRIFFES AU NIVEAU DU TITRE DU GROUPE, et c'est exact par
+      construction depuis le 18 novembre : il vit maintenant DANS la
+      colonne du groupe, donc `bottom` se compte depuis le bas de
+      cette colonne et `100% - 52px` met son bas à 52 px du haut —
+      la hauteur du nom du groupe.
+
+      AVANT, il pendait au bloc entier avec un `top` en pixels. La
+      hauteur du bloc dépend de ce que les listes contiennent : le
+      réglage visait juste un jour et faux le lendemain, et à 1440 px
+      il tombait hors de la fenêtre. */
   right: -103px;
+  bottom: calc(100% - 121px);
   width: 250px;
   height: auto;
   pointer-events: none;
@@ -31378,6 +31428,92 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wm-perso--staff .wm-perso__corps {
   gap: var(--wm-espace-6, 6px);
   overflow-y: visible;
+}
+
+/*  ── LA TÊTE NE DÉFILE PAS, LE CORPS OUI ──────────────────────────
+
+    « La description sera longue et risque de nécessiter un scroll.
+    Dans ce cas, j'ai besoin que les infos de présence soient
+    visuelles, comme les personnages joués, et lisibles sans scroll.
+    Un peu comme sur la PA en fait. » — 18 novembre.
+
+    CE QUI SERT À REPÉRER QUELQU'UN NE DOIT PAS DÉPENDRE DE CE QU'ELLE
+    A ÉCRIT. Pseudo, rôle, présence et personnage tiennent dans une
+    tête fixe ; la présentation prend la place qui reste et défile
+    dedans. Une fiche de staff dont il faut faire défiler le texte
+    pour savoir si la personne est là serait une fiche qui ne répond
+    pas à la question qu'on lui pose. */
+#modernbb .wm-perso--staff .wm-perso__tete {
+  flex: 0 0 auto;
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  /*  ARRIVÉ AU BOUT, LA MOLETTE NE PART PAS DANS LA PAGE. Deux
+      défilements enchaînés dans un même geste, c'est l'impression de
+      ne plus savoir ce qu'on manipule. */
+  overscroll-behavior: contain;
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit::-webkit-scrollbar {
+  width: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 10%, transparent);
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 35%, transparent);
+}
+
+/*  ── LA PRÉSENCE ET LE PERSONNAGE, EN PASTILLES ───────────────────
+
+    Deux états sur une rangée, qui se lisent sans lire. La présence
+    porte un point vert : c'est le signe que le panneau
+    d'administration de Forumactif emploie, celui qu'elle cite, et il
+    se reconnaît avant d'être lu.
+
+    LE POINT N'EST PAS SEUL À PORTER LE SENS : le mot est écrit à côté.
+    Une couleur seule ne dit rien à qui ne la distingue pas. */
+#modernbb .wm-perso__etats {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-8, 8px) 0 0;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-perso__presence,
+#modernbb .wm-perso__joue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-perso__point {
+  display: block;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 999px;
+  background: var(--wm-palier-1, #3f7d52);
+}
+
+/*  LE PERSONNAGE RESTE UN LIEN, et il se voit comme tel dans sa
+    pastille : c'est le seul endroit de la fiche où l'on clique. */
+#modernbb .wm-perso__joue .wm-perso__lien {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-weight: var(--wm-graisse-gras, 700);
 }
 
 /*  ET LE DÉGRADÉ DE BAS DE FICHE S'EN VA AVEC. Il annonce « il reste

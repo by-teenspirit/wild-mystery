@@ -15,7 +15,7 @@
       },
       "avatar": "https://i.postimg.cc/nrShF5MF/154cd8d068a4df7d86483db683378fc7699880a4.jpg",
       "texte": "",
-      "presence": ""
+      "presence": "Présente"
     },
     {
       "pseudo": "Plumyts",
@@ -26,7 +26,7 @@
       },
       "avatar": "https://tinyurl.com/ybh4pre4",
       "texte": "",
-      "presence": ""
+      "presence": "Présente"
     },
     {
       "pseudo": "Ekko",
@@ -37,7 +37,7 @@
       },
       "avatar": "https://tinyurl.com/4pvykr2r",
       "texte": "",
-      "presence": ""
+      "presence": "Présente"
     },
     {
       "pseudo": "mangue.",
@@ -48,9 +48,11 @@
       },
       "avatar": "https://2img.net/u/4113/47/07/72/avatars/7-71.jpg",
       "texte": "",
-      "presence": ""
+      "presence": "Présente"
     }
   ],
   "_anciens": "Les anciens staffiens remerciés dans les crédits (planche 42) : Hippogriffe (co-fondatrice), Sullivan et Ryune (anciennes administratrices), Thaenerys et Owlikho (anciens modérateurs), Golden (ancienne modératrice). Ils vivent dans `data/credits.json`, pas ici : cette page présente qui répond aujourd'hui.",
-  "_retire": "Le tableau « À qui s'adresser » est parti le 18 novembre. Je l'avais inventé la veille, et ses quatre lignes disaient « à confirmer » : maintenant que les quatre sont administratrices, il n'y a plus de tri à faire — le chapô dit déjà d'écrire à n'importe laquelle."
+  "_retire": "Le tableau « À qui s'adresser » est parti le 18 novembre. Je l'avais inventé la veille, et ses quatre lignes disaient « à confirmer » : maintenant que les quatre sont administratrices, il n'y a plus de tri à faire — le chapô dit déjà d'écrire à n'importe laquelle.",
+  "_presence": "« Tout le monde est présent » — 18 novembre. La présence est un ÉTAT, pas une phrase : elle s'affiche en pastille, lisible sans défiler, à côté du personnage. Un texte libre ici la ferait retomber dans la description, c'est-à-dire dans la zone qui défile.",
+  "_texteLong": "« La description sera longue et risque de nécessiter un scroll. » La fiche a donc une tête FIXE — avatar, pseudo, rôle, présence, personnage — et un corps qui défile. Ce qui compte pour repérer quelqu'un reste visible quoi qu'elle écrive ; ce qu'elle écrit a toute la place qu'elle veut."
 }

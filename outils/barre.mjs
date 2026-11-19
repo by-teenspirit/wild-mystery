@@ -1291,6 +1291,22 @@ const sourd = await p.evaluate(() => {
       fondDeLaBarre: getComputedStyle(document.querySelector(".wm-barre")).backgroundColor,
       filet: getComputedStyle(a).borderTopWidth,
       filetGauche: getComputedStyle(a).borderLeftWidth,
+      pastille: (() => {
+        const b = a.querySelector(".wm-barre__alerte-pastille");
+        const t = a.querySelector(".wm-barre__alerte-titre");
+        if (b === null || t === null) return null;
+        const rb = b.getBoundingClientRect();
+        return {
+          largeur: Math.round(rb.width),
+          hauteur: Math.round(rb.height),
+          avantLeTitre: rb.right <= t.getBoundingClientRect().left + 1,
+        };
+      })(),
+      //  L'ESPACE AVEC « TON TOUR », demandé le 18 novembre.
+      espaceEnHaut: (() => {
+        const e = document.querySelector(".wm-barre__entete");
+        return e === null ? 0 : Math.round(r.top - e.getBoundingClientRect().bottom);
+      })(),
     },
   };
 });
@@ -1315,16 +1331,34 @@ dire(
     titre: sourd.alerte.titre,
   }),
 );
+//  LE FILET DU HAUT EST PARTI LE 18 NOVEMBRE — « enlève la border
+//  top » — et une pastille le remplace. L'essai demandait sa
+//  présence ; il demande maintenant son ABSENCE, et celle de la
+//  bulle qui prend le relais. Ce qui ne change pas : le bloc doit se
+//  détacher du fond de la barre, sinon ce n'est pas un bloc d'erreur,
+//  c'est un paragraphe.
 dire(
-  "il se détache du fond de la barre, et son filet n'est pas à gauche",
+  "il se détache du fond de la barre, sans aucun filet",
   sourd.alerte !== null && sourd.alerte.fond !== sourd.alerte.fondDeLaBarre &&
-    sourd.alerte.filet !== "0px" && sourd.alerte.filetGauche === "0px",
+    sourd.alerte.filet === "0px" && sourd.alerte.filetGauche === "0px",
   JSON.stringify(sourd.alerte && {
     fond: sourd.alerte.fond,
     barre: sourd.alerte.fondDeLaBarre,
     haut: sourd.alerte.filet,
     gauche: sourd.alerte.filetGauche,
   }),
+);
+dire(
+  "LA PASTILLE EST RONDE, À GAUCHE DU TITRE, ET ELLE NE S'ÉCRASE PAS",
+  sourd.alerte !== null && sourd.alerte.pastille !== null &&
+    sourd.alerte.pastille.largeur === sourd.alerte.pastille.hauteur &&
+    sourd.alerte.pastille.avantLeTitre,
+  JSON.stringify(sourd.alerte?.pastille),
+);
+dire(
+  "et l'alerte respire sous « Ton tour »",
+  sourd.alerte !== null && sourd.alerte.espaceEnHaut >= 10,
+  `${sourd.alerte?.espaceEnHaut} px sous l'en-tête`,
 );
 dire(
   "il dit quoi faire ET où, avec une cible qu'un doigt peut viser",

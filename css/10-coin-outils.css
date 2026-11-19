@@ -416,17 +416,57 @@
     LA COULEUR EST CELLE DES AVERTISSEMENTS DE LA CHARTE, pas un rouge
     inventé ici : ce n'est pas une panne, c'est une étape qui manque,
     et le rouge d'erreur dirait que quelque chose est cassé. */
+/*  ── LE FILET EST PARTI, LA PASTILLE LE REMPLACE ──────────────────
+
+    « Enlève la border top. Et ajoute une petite icône à gauche dans
+    une petite bulle. Et mets un espace avec le top "ton tour". »
+    — 18 novembre.
+
+    LE FILET DISAIT « ATTENTION » PAR LA FORME, et il coupait le bloc
+    en deux dans la largeur. La pastille le dit mieux : elle a un
+    centre, donc un endroit où l'œil se pose, et elle laisse le bloc
+    entier.
+
+    L'ESPACE EN HAUT EST LE SIEN, pas celui de l'en-tête : « Ton
+    tour » se place par rapport à la barre, l'alerte par rapport à ce
+    qui la précède. Le lui donner ici veut dire qu'il disparaît avec
+    elle. */
 #modernbb .wm-barre__alerte {
-  margin: 0 14px 12px;
-  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
-  border-top: 3px solid var(--wm-rarete-peu-commun-texte, #96540e);
+  margin: var(--wm-espace-14, 14px) 14px 12px;
+  padding: var(--wm-espace-14, 14px);
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-douce, #f3e1d2);
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
+#modernbb .wm-barre__alerte-tete {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-espace-10, 10px);
+  margin-bottom: var(--wm-espace-6, 6px);
+}
+
+/*  LA BULLE NE RÉTRÉCIT PAS. Dans une rangée flexible, un rond sans
+    `flex: 0 0 auto` se laisse écraser par le texte à côté dès que la
+    place manque — et un rond écrasé devient une ellipse. */
+#modernbb .wm-barre__alerte-pastille {
+  display: flex;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--wm-rarete-peu-commun-texte, #96540e);
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  line-height: 1;
+}
+
 #modernbb .wm-barre__alerte-titre {
-  margin: 0 0 var(--wm-espace-4, 4px);
+  margin: 0;
   color: var(--wm-rarete-peu-commun-texte, #96540e);
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);

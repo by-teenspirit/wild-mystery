@@ -732,6 +732,23 @@ export class BarreDActions {
     alerte.className = "wm-barre__alerte";
     alerte.hidden = true;
     alerte.setAttribute("role", "status");
+    //  ── UNE PASTILLE AVEC SON ICÔNE, À GAUCHE ─────────────────────
+    //
+    //  « Enlève la border top. Et ajoute une petite icône à gauche
+    //  dans une petite bulle. » — 18 novembre.
+    //
+    //  LE FILET DU HAUT PARTAIT POUR DIRE « ATTENTION » par la forme.
+    //  Une pastille le dit mieux : elle a un centre, donc un endroit
+    //  où l'œil se pose, et elle ne coupe pas le bloc en deux.
+    //
+    //  `aria-hidden` : le titre juste à côté dit déjà de quoi il
+    //  s'agit, et un point d'exclamation annoncé deux fois est du
+    //  bruit pour qui écoute la page.
+    const pastille = this.#doc.createElement("span");
+    pastille.className = "wm-barre__alerte-pastille";
+    pastille.setAttribute("aria-hidden", "true");
+    pastille.appendChild(this.#doc.createTextNode("!"));
+
     const alerteTitre = this.#doc.createElement("p");
     alerteTitre.className = "wm-barre__alerte-titre";
     alerteTitre.textContent = "Ton carnet n'est pas relié";
@@ -742,7 +759,13 @@ export class BarreDActions {
     alerteLien.className = "wm-barre__alerte-lien";
     alerteLien.href = ADRESSE_DU_CARNET;
     alerteLien.textContent = "Relier mon carnet";
-    alerte.append(alerteTitre, alerteTexte, alerteLien);
+    //  LA PASTILLE ET LE TITRE SUR LA MÊME LIGNE, le reste dessous :
+    //  c'est une grille à deux colonnes, et la pastille tient la
+    //  première sur toute la hauteur.
+    const tete = this.#doc.createElement("div");
+    tete.className = "wm-barre__alerte-tete";
+    tete.append(pastille, alerteTitre);
+    alerte.append(tete, alerteTexte, alerteLien);
     this.#alerte = alerte;
     barre.appendChild(alerte);
 

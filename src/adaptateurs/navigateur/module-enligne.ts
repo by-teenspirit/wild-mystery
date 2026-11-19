@@ -486,6 +486,7 @@ export function poserQuiEstEnLigne(
   //  chercher une image (garde-fou n° 7), et surtout un fond ne se
   //  cadre pas sur un débordement sans qu'on lui donne des cotes en
   //  dur. `aria-hidden` : il ne dit rien, il décore.
+  let laBete: HTMLImageElement | null = null;
   if (mascotte !== null) {
     const bete = doc.createElement("img");
     bete.className = "wm-enligne__mascotte";
@@ -493,7 +494,27 @@ export function poserQuiEstEnLigne(
     bete.alt = "";
     bete.loading = "lazy";
     bete.setAttribute("aria-hidden", "true");
-    racine.appendChild(bete);
+    //  ── IL SE RANGE DANS LA COLONNE DU GROUPE, PAS DANS LE BLOC ────
+    //
+    //  « Remonte le Sablaireau pour que ses griffes soient au niveau
+    //  du titre du groupe et qu'il ne chevauche pas le texte. » — 18
+    //  novembre.
+    //
+    //  ACCROCHÉ AU BLOC ENTIER, SA PLACE NE SE CALCULE PAS. Le bloc
+    //  commence au-dessus des trois colonnes et sa hauteur dépend de
+    //  ce que les listes contiennent : un décalage en pixels qui vise
+    //  le titre du groupe vise juste un jour et faux le lendemain.
+    //  Mesuré le 18 : à 1440 px, il tombait même hors de la fenêtre.
+    //
+    //  ACCROCHÉ À LA COLONNE DU GROUPE, sa place est exacte par
+    //  construction : la feuille le pose par rapport au HAUT de cette
+    //  colonne, et le titre du groupe est à quelques pixels de ce
+    //  haut-là. Rien à recalculer quand une liste s'allonge.
+    //  ON LE GARDE SOUS LE COUDE : la colonne du groupe n'est
+    //  construite que soixante lignes plus bas, et `querySelector`
+    //  rendrait `null` ici — le repli aurait repris l'ancien
+    //  comportement sans que rien ne le dise.
+    laBete = bete;
   }
 
   racine.appendChild(el(doc, "h2", "wm-enligne__titre", "Qui est en ligne ?"));
@@ -570,6 +591,9 @@ export function poserQuiEstEnLigne(
   if (groupe !== null) {
     const col3 = el(doc, "div", "wm-enligne__colonne wm-enligne__colonne--groupe");
     col3.appendChild(blocDesGroupes(doc, ongletsDesGroupes(groupes), groupe, icone));
+    //  ET LE SABELETTE AVEC, pour que la feuille puisse le poser par
+    //  rapport au HAUT de cette colonne — donc au titre du groupe.
+    if (laBete !== null) col3.appendChild(laBete);
     panneau.appendChild(col3);
   }
 

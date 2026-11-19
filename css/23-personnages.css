@@ -238,6 +238,92 @@
   overflow-y: visible;
 }
 
+/*  ── LA TÊTE NE DÉFILE PAS, LE CORPS OUI ──────────────────────────
+
+    « La description sera longue et risque de nécessiter un scroll.
+    Dans ce cas, j'ai besoin que les infos de présence soient
+    visuelles, comme les personnages joués, et lisibles sans scroll.
+    Un peu comme sur la PA en fait. » — 18 novembre.
+
+    CE QUI SERT À REPÉRER QUELQU'UN NE DOIT PAS DÉPENDRE DE CE QU'ELLE
+    A ÉCRIT. Pseudo, rôle, présence et personnage tiennent dans une
+    tête fixe ; la présentation prend la place qui reste et défile
+    dedans. Une fiche de staff dont il faut faire défiler le texte
+    pour savoir si la personne est là serait une fiche qui ne répond
+    pas à la question qu'on lui pose. */
+#modernbb .wm-perso--staff .wm-perso__tete {
+  flex: 0 0 auto;
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  /*  ARRIVÉ AU BOUT, LA MOLETTE NE PART PAS DANS LA PAGE. Deux
+      défilements enchaînés dans un même geste, c'est l'impression de
+      ne plus savoir ce qu'on manipule. */
+  overscroll-behavior: contain;
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit::-webkit-scrollbar {
+  width: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 10%, transparent);
+}
+
+#modernbb .wm-perso--staff .wm-perso__dit::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, currentcolor 35%, transparent);
+}
+
+/*  ── LA PRÉSENCE ET LE PERSONNAGE, EN PASTILLES ───────────────────
+
+    Deux états sur une rangée, qui se lisent sans lire. La présence
+    porte un point vert : c'est le signe que le panneau
+    d'administration de Forumactif emploie, celui qu'elle cite, et il
+    se reconnaît avant d'être lu.
+
+    LE POINT N'EST PAS SEUL À PORTER LE SENS : le mot est écrit à côté.
+    Une couleur seule ne dit rien à qui ne la distingue pas. */
+#modernbb .wm-perso__etats {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--wm-espace-8, 8px) 0 0;
+  gap: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wm-perso__presence,
+#modernbb .wm-perso__joue {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-10, 10px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: 999px;
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-perso__point {
+  display: block;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 999px;
+  background: var(--wm-palier-1, #3f7d52);
+}
+
+/*  LE PERSONNAGE RESTE UN LIEN, et il se voit comme tel dans sa
+    pastille : c'est le seul endroit de la fiche où l'on clique. */
+#modernbb .wm-perso__joue .wm-perso__lien {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
 /*  ET LE DÉGRADÉ DE BAS DE FICHE S'EN VA AVEC. Il annonce « il reste
     du texte en dessous » ; sur une fiche qui ne défile plus, il
     annoncerait du vide. */
