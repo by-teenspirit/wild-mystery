@@ -202,6 +202,43 @@ function dessinerUnBloc(doc: Document, decor: Decor, b: BlocDuRecap): HTMLElemen
     return section;
   }
 
+  //  ── LE SAC, RANGÉ PAR ÉTAGÈRE ──────────────────────────────────
+  //
+  //  « Afficher le sac de la personne pour savoir ce qu'elle a, à
+  //  l'instant T » — 18 novembre.
+  //
+  //  PAS DE VIGNETTES. Le carnet en pose, parce qu'il a la place et
+  //  qu'on y vient pour regarder son sac. Ici le panneau fait 216 px
+  //  et le sac est la troisième chose qu'on lit : une colonne
+  //  d'images coûterait une requête par objet et pousserait les
+  //  gains hors de l'écran.
+  //
+  //  LES TITRES D'ÉTAGÈRE SONT CEUX DU CARNET — « Pour attraper »,
+  //  « Pour soigner » —, et c'est `sacDuRecap` qui les tient : deux
+  //  listes de familles finiraient par ne plus dire la même chose.
+  if (b.quoi === "sac") {
+    const section = bloc(doc, "Mon sac");
+    for (const etagere of b.sections) {
+      section.appendChild(
+        element(doc, "p", "wm-recap__etagere", etagere.titre),
+      );
+      const liste = element(doc, "ul", "wm-recap__objets");
+      for (const ligne of etagere.lignes) {
+        const li = element(doc, "li", "wm-recap__objet");
+        li.appendChild(element(doc, "span", "wm-recap__objet-nom", ligne.nom));
+        //  LA QUANTITÉ EST ÉCRITE « × 4 », comme dans le carnet et
+        //  comme dans le bilan posté. Trois façons de dire quatre
+        //  objets, c'est trois fois la même chose à relire.
+        li.appendChild(
+          element(doc, "span", "wm-recap__objet-quantite", `× ${ligne.quantite}`),
+        );
+        liste.appendChild(li);
+      }
+      section.appendChild(liste);
+    }
+    return section;
+  }
+
   const section = bloc(doc, "Ce que ce sujet t'a rapporté");
   const liste = element(doc, "dl", "wm-recap__rubriques");
   for (const { etiquette, valeur } of b.rubriques) {

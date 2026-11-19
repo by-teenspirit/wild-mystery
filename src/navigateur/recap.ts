@@ -62,10 +62,68 @@ export type CombatDuRecap = {
   readonly pvPokemonMax: number | null;
 };
 
+/** Une ligne du sac, telle que `mon_sujet` la rend.
+ *
+ *  LE NOM ET LA FAMILLE VIENNENT DE LA BASE, et pas du catalogue : le
+ *  carnet, lui, a son catalogue sous la main et s'en sert. Une page de
+ *  sujet n'en a pas, et aller le chercher pour trois lignes coûterait
+ *  une requête de plus sur chaque sujet du forum. */
+export type LigneDuSac = {
+  readonly objetId: number;
+  readonly nom: string;
+  readonly famille: string;
+  readonly quantite: number;
+};
+
 export type MonSujet = {
   readonly equipe: readonly MembreDuRecap[];
   readonly combat: CombatDuRecap | null;
+  /** FACULTATIF, et ce n'est pas une négligence : la migration qui
+   *  l'ajoute (0057) peut ne pas être encore déployée quand ce code
+   *  l'est. Un récapitulatif qui lèverait là-dessus effacerait aussi
+   *  l'équipe et le combat, qui, eux, sont bien là. */
+  readonly sac?: readonly LigneDuSac[];
 };
+
+/** Une section du sac : une famille, son titre, ses lignes. */
+export type SectionDuSac = {
+  readonly famille: string;
+  readonly titre: string;
+  readonly lignes: readonly LigneDuSac[];
+};
+
+/*  LES TITRES SONT CEUX DU CARNET, repris de `FAMILLES_DU_SAC`. Un
+    joueur ne doit pas lire « Pour attraper » dans son carnet et
+    « Balls » dans le sujet pour la même étagère. L'ordre aussi est le
+    sien : les balls d'abord, les fossiles en dernier. */
+const FAMILLES: readonly (readonly [string, string])[] = [
+  ["ball", "Pour attraper"],
+  ["soin", "Pour soigner"],
+  ["statut", "Contre les statuts"],
+  ["rappel", "Pour ranimer"],
+  ["evolution", "Les cailloux étranges"],
+  ["tenu", "À faire tenir"],
+  ["fossile", "Les fossiles"],
+];
+
+/** Le sac rangé par étagère.
+ *
+ *  UNE FAMILLE QU'ON NE CONNAÎT PAS N'EST PAS JETÉE : elle finit dans
+ *  une section à part plutôt que de disparaître du sac. Un objet qu'on
+ *  possède et qui ne s'affiche nulle part est pire qu'un titre
+ *  approximatif — on le chercherait dans le carnet, où il serait. */
+export function sacDuRecap(sac: readonly LigneDuSac[]): readonly SectionDuSac[] {
+  const sections: SectionDuSac[] = [];
+  const vues = new Set<string>();
+  for (const [famille, titre] of FAMILLES) {
+    vues.add(famille);
+    const lignes = sac.filter((l) => l.famille === famille && l.quantite > 0);
+    if (lignes.length > 0) sections.push({ famille, titre, lignes });
+  }
+  const reste = sac.filter((l) => !vues.has(l.famille) && l.quantite > 0);
+  if (reste.length > 0) sections.push({ famille: "inconnu", titre: "Le reste", lignes: reste });
+  return sections;
+}
 
 /** Le nom affiché d'un Pokémon : son surnom, l'espèce entre
  *  parenthèses. La même règle que les messages du Maître du Jeu — un
@@ -187,6 +245,7 @@ export function etatDuRecap(
 export type BlocDuRecap =
   | { readonly quoi: "combat"; readonly combat: CombatDuRecap }
   | { readonly quoi: "equipe"; readonly equipe: readonly MembreDuRecap[] }
+  | { readonly quoi: "sac"; readonly sections: readonly SectionDuSac[] }
   | {
     readonly quoi: "gains";
     readonly rubriques: readonly { readonly etiquette: string; readonly valeur: string }[];
@@ -230,6 +289,19 @@ export function blocsDuRecap(
   if (sujet !== null && sujet.equipe.length > 0) {
     blocs.push({ quoi: "equipe", equipe: sujet.equipe });
   }
+  //  ── LE SAC VIENT APRÈS L'ÉQUIPE, ET AVANT LES GAINS ─────────────
+  //
+  //  « Pour savoir ce qu'elle a, à l'instant T » — 18 novembre. C'est
+  //  une information qui DÉCIDE, comme l'équipe : on regarde ses
+  //  balls avant d'écrire qu'on en lance une. Les gains, eux, se
+  //  regardent quand il n'y a plus rien à décider.
+  //
+  //  UN SAC VIDE NE SE DESSINE PAS, comme les autres blocs. Mais
+  //  « vide » veut dire « la base a dit zéro objet », pas « la base
+  //  n'a pas répondu » : les deux se ressemblent et ne se disent pas
+  //  pareil.
+  const sections = sacDuRecap(sujet.sac ?? []);
+  if (sections.length > 0) blocs.push({ quoi: "sac", sections });
   const rubriques = mien === null ? [] : rubriquesEnAttente(mien);
   if (rubriques.length > 0) blocs.push({ quoi: "gains", rubriques });
   return blocs;

@@ -25,6 +25,7 @@ import {
   nomDuMembre,
   partDePv,
   placementDuRecap,
+  sacDuRecap,
 } from "./recap.ts";
 import type { LigneEnAttente } from "../application/bilan.ts";
 
@@ -124,12 +125,73 @@ Deno.test("ZÉRO PV N'EST PAS « PRESQUE MORT »", () => {
 
 // ── les blocs ───────────────────────────────────────────────────────
 
-Deno.test("les trois blocs sortent dans l'ordre de l'urgence", () => {
-  //  Le combat attend une réponse, l'équipe la décide, les gains se
-  //  regardent quand il n'y a rien à décider.
+Deno.test("les blocs sortent dans l'ordre de l'urgence", () => {
+  //  Le combat attend une réponse, l'équipe et le sac la décident, les
+  //  gains se regardent quand il n'y a rien à décider.
   assertEquals(
     blocsDuRecap(SUJET, GAINS).map((b) => b.quoi),
     ["combat", "equipe", "gains"],
+  );
+  assertEquals(
+    blocsDuRecap({ ...SUJET, sac: SAC }, GAINS).map((b) => b.quoi),
+    ["combat", "equipe", "sac", "gains"],
+  );
+});
+
+// ── le sac ──────────────────────────────────────────────────────────
+//
+//  « Afficher le sac de la personne pour savoir ce qu'elle a, à
+//  l'instant T » — 18 novembre.
+
+const SAC = [
+  { objetId: 3, nom: "Potion", famille: "soin", quantite: 3 },
+  { objetId: 1, nom: "Poké Ball", famille: "ball", quantite: 4 },
+  { objetId: 9, nom: "Pierre Feu", famille: "evolution", quantite: 1 },
+];
+
+Deno.test("LE SAC SE RANGE PAR ÉTAGÈRE, DANS L'ORDRE DU CARNET", () => {
+  //  Les balls d'abord, les cailloux ensuite : c'est l'ordre de
+  //  `FAMILLES_DU_SAC`, et un joueur ne doit pas lire deux rangements
+  //  pour le même sac.
+  const sections = sacDuRecap(SAC);
+  assertEquals(sections.map((s) => s.titre), [
+    "Pour attraper",
+    "Pour soigner",
+    "Les cailloux étranges",
+  ]);
+  assertEquals(sections[0].lignes.map((l) => l.nom), ["Poké Ball"]);
+});
+
+Deno.test("UNE FAMILLE INCONNUE N'EST PAS JETÉE", () => {
+  //  Un objet qu'on possède et qui ne s'affiche nulle part est pire
+  //  qu'un titre approximatif : on le chercherait dans le carnet, où
+  //  il serait.
+  const sections = sacDuRecap([
+    { objetId: 77, nom: "Chose", famille: "machin", quantite: 2 },
+  ]);
+  assertEquals(sections.map((s) => s.titre), ["Le reste"]);
+});
+
+Deno.test("UNE QUANTITÉ NULLE N'EST PAS UNE LIGNE", () => {
+  //  La base filtre déjà `quantite > 0`, mais une ligne à zéro qui
+  //  passerait afficherait « × 0 » — un objet qu'on n'a pas.
+  assertEquals(
+    sacDuRecap([{ objetId: 1, nom: "Poké Ball", famille: "ball", quantite: 0 }]),
+    [],
+  );
+});
+
+Deno.test("UN SAC ABSENT N'EST PAS UNE PANNE", () => {
+  //  La migration qui ajoute le sac peut ne pas être déployée quand ce
+  //  code l'est. Le panneau doit alors montrer l'équipe et le combat,
+  //  pas disparaître.
+  assertEquals(
+    blocsDuRecap(SUJET, null).map((b) => b.quoi),
+    ["combat", "equipe"],
+  );
+  assertEquals(
+    blocsDuRecap({ ...SUJET, sac: [] }, null).map((b) => b.quoi),
+    ["combat", "equipe"],
   );
 });
 

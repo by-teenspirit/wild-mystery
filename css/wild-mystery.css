@@ -17434,6 +17434,65 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   line-height: 1.25;
 }
 
+/*  ── LE SAC DANS LE PANNEAU ────────────────────────────────────────
+
+    « Afficher le sac de la personne pour savoir ce qu'elle a, à
+    l'instant T » — 18 novembre.
+
+    DEUX COLONNES, LE NOM ET LA QUANTITÉ, et la quantité alignée à
+    droite : on parcourt une liste d'objets en lisant les nombres,
+    pas les noms. Les nombres sont en chasse tabulaire pour que les
+    chiffres se superposent d'une ligne à l'autre.
+
+    Pas de vignettes : le panneau fait 216 px, et le carnet est là
+    pour regarder son sac pour de bon. */
+#modernbb .wm-recap__etagere {
+  margin: var(--wm-espace-8, 8px) 0 var(--wm-espace-4, 4px);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: 9px;
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/*  LA PREMIÈRE ÉTAGÈRE NE POUSSE PAS : le titre du bloc lui donne
+    déjà son air. */
+#modernbb .wm-recap__etagere:first-of-type {
+  margin-top: 0;
+}
+
+#modernbb .wm-recap__objets {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 2px var(--wm-espace-8, 8px);
+  grid-template-columns: minmax(0, 1fr) auto;
+  list-style: none;
+}
+
+#modernbb .wm-recap__objet {
+  display: contents;
+}
+
+#modernbb .wm-recap__objet-nom {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-etiquette, 10px);
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#modernbb .wm-recap__objet-quantite {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  text-align: right;
+}
+
 #modernbb .wm-recap__rubriques {
   display: grid;
   margin: 0;

@@ -27,7 +27,12 @@
 
 import { type ConfigSupabase } from "./registre.ts";
 import { avecLeLaissez, type Rouages } from "./laissez-utilisable.ts";
-import type { CombatDuRecap, MembreDuRecap, MonSujet } from "../../navigateur/recap.ts";
+import type {
+  CombatDuRecap,
+  LigneDuSac,
+  MembreDuRecap,
+  MonSujet,
+} from "../../navigateur/recap.ts";
 
 export type { Rouages };
 
@@ -96,6 +101,22 @@ function lireLeCombat(brut: unknown): CombatDuRecap | null {
   };
 }
 
+/** Une ligne du sac, ou `null` si elle n'est pas lisible.
+ *
+ *  AUSSI STRICT QUE POUR UN MEMBRE D'ÉQUIPE, et pour la même raison :
+ *  une ligne à moitié lue afficherait « undefined × NaN » dans le
+ *  panneau. Mieux vaut une ligne de moins qu'une ligne fausse. */
+function lireUnObjet(brut: unknown): LigneDuSac | null {
+  if (brut === null || typeof brut !== "object") return null;
+  const o = brut as Record<string, unknown>;
+  const objetId = nombre(o, "objetId");
+  const quantite = nombre(o, "quantite");
+  const nom = texte(o, "nom");
+  const famille = texte(o, "famille");
+  if (objetId === null || quantite === null || nom === null || famille === null) return null;
+  return { objetId, nom, famille, quantite };
+}
+
 export function lireMonSujet(brut: unknown): MonSujet | null {
   if (brut === null || typeof brut !== "object") return null;
   const o = brut as Record<string, unknown>;
@@ -104,7 +125,19 @@ export function lireMonSujet(brut: unknown): MonSujet | null {
     const lu = lireUnMembre(m);
     if (lu !== null) equipe.push(lu);
   }
-  return { equipe, combat: lireLeCombat(o.combat) };
+  //  ── LE SAC EST FACULTATIF, ET C'EST VOULU ───────────────────────
+  //
+  //  La migration qui l'ajoute (0057) peut ne pas être déployée quand
+  //  ce code l'est : `supabase db push` et `git push` sont deux
+  //  gestes, et ils ne se font pas à la même seconde. Un lecteur qui
+  //  exigerait le sac rendrait `null` — donc effacerait aussi
+  //  l'équipe et le combat, qui, eux, sont bien là.
+  const sac: LigneDuSac[] = [];
+  for (const l of Array.isArray(o.sac) ? o.sac : []) {
+    const lu = lireUnObjet(l);
+    if (lu !== null) sac.push(lu);
+  }
+  return { equipe, combat: lireLeCombat(o.combat), sac };
 }
 
 /** Où en est le joueur dans ce sujet, ou `null`.

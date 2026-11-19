@@ -3205,6 +3205,19 @@ const DECOR_RECAP = {
       pvPokemon: 7,
       pvPokemonMax: 18,
     },
+    //  ── LE SAC, TEL QUE `mon_sujet` LE REND DEPUIS LA 0057 ────────
+    //
+    //  Trois étagères distinctes exprès : une seule ne montrerait pas
+    //  que les titres se posent entre les listes. Et « Pierre Feu »
+    //  est là pour la raison inverse de `mon_combat` — une pierre
+    //  d'évolution n'est pas un bouton de combat, mais elle compte
+    //  pour décider quoi écrire.
+    sac: [
+      { objetId: 1, nom: "Poké Ball", famille: "ball", quantite: 4 },
+      { objetId: 2, nom: "Super Ball", famille: "ball", quantite: 1 },
+      { objetId: 3, nom: "Potion", famille: "soin", quantite: 3 },
+      { objetId: 9, nom: "Pierre Feu", famille: "evolution", quantite: 1 },
+    ],
   },
   registre: [],
 };
@@ -3246,9 +3259,49 @@ const vuLarge = await large.evaluate(() => {
 });
 dire("IL SE POSE SUR UN SUJET DE ZONE", vuLarge.pose === true, JSON.stringify(vuLarge.pose));
 dire(
-  "avec le combat, puis l'équipe",
-  JSON.stringify(vuLarge.blocs) === JSON.stringify(["Combat · tour 2", "Mon équipe"]),
+  "avec le combat, puis l'équipe, puis le sac",
+  JSON.stringify(vuLarge.blocs) ===
+    JSON.stringify(["Combat · tour 2", "Mon équipe", "Mon sac"]),
   JSON.stringify(vuLarge.blocs),
+);
+
+//  ── LE SAC : LES ÉTAGÈRES, LES QUANTITÉS, ET LA LARGEUR ──────────
+//
+//  « Afficher le sac de la personne pour savoir ce qu'elle a, à
+//  l'instant T » — 18 novembre. Trois choses à tenir : les étagères
+//  portent les titres du carnet, chaque objet dit sa quantité, et
+//  rien ne déborde des 216 px du panneau.
+const sac = await large.evaluate(() => {
+  const bloc = [...document.querySelectorAll(".wm-recap__bloc")]
+    .find((b) => b.querySelector(".wm-recap__titre")?.textContent === "Mon sac");
+  if (bloc === undefined) return null;
+  const largeurBloc = bloc.getBoundingClientRect().width;
+  return {
+    etageres: [...bloc.querySelectorAll(".wm-recap__etagere")].map((e) => e.textContent),
+    objets: [...bloc.querySelectorAll(".wm-recap__objet-nom")].map((e) => e.textContent),
+    quantites: [...bloc.querySelectorAll(".wm-recap__objet-quantite")].map((e) => e.textContent),
+    //  RIEN NE DÉPASSE : le panneau fait 216 px, et un nom d'objet
+    //  long doit se couper plutôt que pousser le panneau.
+    deborde: [...bloc.querySelectorAll(".wm-recap__objet-nom, .wm-recap__objet-quantite")]
+      .some((e) => e.getBoundingClientRect().right > bloc.getBoundingClientRect().right + 1),
+    largeur: Math.round(largeurBloc),
+  };
+});
+dire(
+  "LE SAC EST RANGÉ PAR ÉTAGÈRE, AVEC LES TITRES DU CARNET",
+  JSON.stringify(sac?.etageres) ===
+    JSON.stringify(["Pour attraper", "Pour soigner", "Les cailloux étranges"]),
+  JSON.stringify(sac?.etageres),
+);
+dire(
+  "et chaque objet dit sa quantité, dans la même forme qu'ailleurs",
+  JSON.stringify(sac?.quantites) === JSON.stringify(["× 4", "× 1", "× 3", "× 1"]),
+  JSON.stringify({ objets: sac?.objets, quantites: sac?.quantites }),
+);
+dire(
+  "et rien ne dépasse du panneau",
+  sac?.deborde === false,
+  JSON.stringify({ deborde: sac?.deborde, largeur: sac?.largeur }),
 );
 dire(
   "LE POKÉMON QUI SE BAT EST MARQUÉ",
