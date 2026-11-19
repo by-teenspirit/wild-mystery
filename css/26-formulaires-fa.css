@@ -801,3 +801,151 @@
 #modernbb .ucp-main #list_awards div.award {
   margin: 0;
 }
+
+/* ── LA PAGE DES NOTIFICATIONS ───────────────────────────────────────
+
+   « Il faut revoir cette page aussi » — 18 novembre, sur
+   `/profile?mode=editprofile&page_profil=notifications`.
+
+   ── CE QUI N'ALLAIT PAS, MESURÉ SUR LA PAGE SERVIE ────────────────
+
+   | Constat | Mesure |
+   |---|---|
+   | La case est loin de ce qu'elle décide | **924 px** entre le début du libellé et la case, sur une table de 1 098. Quinze lignes à traverser des yeux. |
+   | La cible est minuscule | **13 × 13 px**, le défaut du navigateur. Le bouton d'envoi de la même page en fait 44. |
+   | Rien ne guide l'œil | `.row1` et `.row2` sont posées par Forumactif mais leurs fonds sont **transparents** : le zébrage qu'il prévoit ne fait rien. |
+   | Les lignes sont serrées | **27 px** de haut. |
+   | Pas un seul `<label>` | trente cases, aucune étiquette associée : cliquer le texte ne coche rien. |
+
+   ── LA TABLE DEVIENT UNE GRILLE, SANS TOUCHER AU BALISAGE ─────────
+
+   `display: contents` sur la table, ses sections et ses lignes : les
+   cellules deviennent les cases d'une seule grille à trois colonnes.
+   Le balisage reste celui de Forumactif — on ne le réécrit pas, on
+   ne peut pas —, mais la mise en page est la nôtre.
+
+   LE ZÉBRAGE VA SUR LES CELLULES, pas sur la ligne : avec
+   `display: contents` le `<tr>` ne peint plus rien. Forumactif pose
+   justement `row1`/`row2` sur chaque `<td>`, ce qui tombe bien.
+
+   ── LA CASE REMPLIT SA CELLULE ────────────────────────────────────
+
+   `appearance: none` et un masque : la case devient une boîte de
+   44 px de haut sur toute la largeur de sa colonne, et le dessin —
+   carré arrondi vide, carré plein coché — est peint par
+   `background-color`, donc par un jeton, donc il suit le thème. Une
+   image de fond ne le ferait pas : une couleur écrite dans un
+   `data:` ne connaît pas les variables CSS.
+
+   C'est la seule façon d'agrandir la cible sans JavaScript : sans
+   `<label for>`, le seul élément cliquable est la case elle-même. */
+#modernbb .ucp-main #checkboxes,
+#modernbb .ucp-main #checkboxes > thead,
+#modernbb .ucp-main #checkboxes > tbody,
+#modernbb .ucp-main #checkboxes > thead > tr,
+#modernbb .ucp-main #checkboxes > tbody > tr {
+  display: contents;
+}
+
+/*  ── ET SURTOUT : LA LISTE NE FAIT PLUS TOUTE LA LARGEUR ──────────
+
+    C'était ça, le vrai défaut. Mettre la table en grille rangeait
+    tout sauf l'essentiel : sur 1 168 px, la colonne des libellés en
+    prenait 912 et la case restait à 924 px du mot qu'elle décide.
+    Mesuré, et le harnais l'a dit — la grille seule n'avait rien
+    corrigé.
+
+    Une liste de réglages n'a aucune raison de s'étendre : on la
+    borne à 40 rem, la case revient à environ 400 px du libellé, et
+    l'œil fait le trajet d'un coup. Le panneau, lui, garde sa
+    largeur. */
+#modernbb .ucp-main #checkboxes {
+  display: grid;
+  width: 100%;
+  max-width: 40rem;
+  border-collapse: collapse;
+  grid-template-columns: minmax(0, 1fr) minmax(5.5rem, 8rem) minmax(5.5rem, 8rem);
+}
+
+/*  L'EN-TÊTE RESTE VISIBLE PENDANT QU'ON DESCEND. Quinze lignes et
+    deux colonnes qui se ressemblent : arrivé en bas, on ne sait plus
+    laquelle est l'e-mail. */
+#modernbb .ucp-main #checkboxes > thead > tr > th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  border-bottom: 1px solid var(--wm-bord-fin, #eadacd);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+#modernbb .ucp-main #checkboxes > thead > tr > th:first-child {
+  text-align: left;
+}
+
+#modernbb .ucp-main #checkboxes > tbody > tr > td {
+  display: flex;
+  padding: 0 var(--wm-espace-12, 12px);
+  border: 0;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+#modernbb .ucp-main #checkboxes > tbody > tr > td:first-child {
+  justify-content: flex-start;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+  text-align: left;
+}
+
+#modernbb .ucp-main #checkboxes > tbody > tr > td.row2 {
+  background: var(--wm-fond-douce, #f3e1d2);
+}
+
+/*  ── LA CASE, DESSINÉE PAR UN MASQUE ──────────────────────────────
+
+    Le masque ne garde que la forme ; la couleur vient de
+    `background-color`, donc d'un jeton. Carré arrondi vide au repos,
+    carré plein avec sa coche en creux une fois cochée — la coche est
+    un trou, obtenu par `fill-rule='evenodd'` dans le même tracé. */
+#modernbb .ucp-main #checkboxes input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background-color: var(--wm-texte-pale, #69564c);
+  cursor: pointer;
+  -webkit-mask: center / 21px 21px no-repeat
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect x='1.6' y='1.6' width='16.8' height='16.8' rx='4.2' fill='none' stroke='black' stroke-width='1.7'/%3E%3C/svg%3E");
+  mask: center / 21px 21px no-repeat
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Crect x='1.6' y='1.6' width='16.8' height='16.8' rx='4.2' fill='none' stroke='black' stroke-width='1.7'/%3E%3C/svg%3E");
+}
+
+#modernbb .ucp-main #checkboxes input[type="checkbox"]:checked {
+  background-color: var(--wm-accent-primaire, #275e7a);
+  -webkit-mask-image:
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M4.2 1h11.6a3.2 3.2 0 0 1 3.2 3.2v11.6a3.2 3.2 0 0 1-3.2 3.2H4.2A3.2 3.2 0 0 1 1 15.8V4.2A3.2 3.2 0 0 1 4.2 1Z M8.5 14.3 4.2 10l1.7-1.7 2.6 2.6 5.6-5.6L15.8 7Z'/%3E%3C/svg%3E");
+  mask-image:
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill-rule='evenodd' d='M4.2 1h11.6a3.2 3.2 0 0 1 3.2 3.2v11.6a3.2 3.2 0 0 1-3.2 3.2H4.2A3.2 3.2 0 0 1 1 15.8V4.2A3.2 3.2 0 0 1 4.2 1Z M8.5 14.3 4.2 10l1.7-1.7 2.6 2.6 5.6-5.6L15.8 7Z'/%3E%3C/svg%3E");
+}
+
+/*  LE FOCUS SE VOIT, et il se voit sur la CELLULE : la case remplit
+    sa colonne, un contour collé au dessin de 21 px ne dirait pas où
+    on se trouve. */
+#modernbb .ucp-main #checkboxes input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--wm-accent-primaire, #275e7a);
+  outline-offset: -3px;
+}

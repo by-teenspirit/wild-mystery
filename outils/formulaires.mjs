@@ -175,6 +175,60 @@ const feuilleEditee = (id, aGauche) =>
   }</div></div>
 </div>`;
 
+
+/*  ── LA PAGE DES NOTIFICATIONS, RELEVÉE LE 19 NOVEMBRE ────────────
+
+    `/profile?mode=editprofile&page_profil=notifications`, lue dans le
+    navigateur de Callista, sa session ouverte. On ne monte QUE ce
+    qu'on a vu — « monter ce qu'on n'a pas vu donne un harnais vert
+    sur une page qui n'existe pas », et cette page-là est exactement
+    celle qui l'a appris à ce fichier.
+
+    Ce que le relevé dit, et qui ne se devine pas :
+
+      · une `<table id="checkboxes" class="table1">`, trois colonnes
+        — le libellé, « Par email », « Par Push et Toolbar » ;
+      · quinze lignes, `row1`/`row2` posées sur les CELLULES et pas
+        sur la ligne ;
+      · deux cases par ligne, `mail_type[]` et `notif_type[]`,
+        chacune avec un `id` mais SANS `<label>` associé ;
+      · un seul bouton, `input[type=submit].button1`.
+
+    Les quinze libellés sont recopiés mot pour mot : trois d'entre
+    eux sont assez longs pour passer à la ligne, et c'est le cas qui
+    fait grandir une rangée. */
+const NOTIFICATIONS = [
+  "Les demandes d'amitié",
+  "La réception d'un message privé",
+  "La réception d'un message sur le profil",
+  "Un nouveau message dans un sujet suivi",
+  "Un nouveau sujet dans un forum suivi",
+  "Un nouveau sujet par un membre suivi",
+  "Un nouveau message par un membre suivi",
+  "Une demande d'adhésion à un groupe",
+  "Un abus signalé",
+  "Un nouveau rapport",
+  "La connexion d'un ami au forum",
+  "L'obtention d'une nouvelle récompense",
+  "Un nouvel achat participatif d'un membre (don de crédits)",
+  "Le tag de son nom d'utilisateur dans un message",
+  "Une mention \"J'aime\" sur l'un de vos messages",
+];
+
+const tableDesNotifications = `<table id="checkboxes" class="table1">
+<thead><tr><th>Types de notifications</th><th>Par email</th><th>Par Push et Toolbar</th></tr></thead>
+<tbody>${
+  NOTIFICATIONS.map((libelle, i) => {
+    const r = i % 2 === 0 ? "row1" : "row2";
+    //  UNE LIGNE SUR TROIS EST COCHÉE : une page où rien n'est coché
+    //  ne montrerait jamais le dessin de l'état coché.
+    const coche = i % 3 === 0 ? " checked" : "";
+    return `<tr><td class="${r}">${libelle}</td>` +
+      `<td class="${r}"><input type="checkbox" id="mail_${i}" name="mail_type[]"${coche}></td>` +
+      `<td class="${r}"><input type="checkbox" id="notif_${i}" name="notif_type[]"></td></tr>`;
+  }).join("")
+}</tbody></table>`;
+
 const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>html,body{margin:0;min-height:100%}</style>
 <style>${lire("panneau-admin/jetons.css")}</style>
@@ -200,6 +254,17 @@ const page = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
         <input type="submit" class="button1" value="Enregistrer" />
         <input type="reset" class="button2" value="Annuler" />
       </fieldset>
+      <span class="corners-bottom"><span></span></span>
+    </div></div>
+  </div>
+</form>
+<form action="/profile" method="post" id="ucp-notif">
+  <div id="cp-main-notif" class="ucp-main">
+    <h1 class="page-title">Options</h1>
+    <div class="panel"><div class="inner">
+      <span class="corners-top"><span></span></span>
+      <fieldset>${tableDesNotifications}</fieldset>
+      <fieldset class="submit-buttons"><input type="submit" class="button1" name="submit" value="Enregistrer" /></fieldset>
       <span class="corners-bottom"><span></span></span>
     </div></div>
   </div>
@@ -556,6 +621,137 @@ if (Deno.args.includes("--photo")) {
     path: Deno.args[Deno.args.indexOf("--photo") + 1],
   });
 }
+
+
+// ── LA PAGE DES NOTIFICATIONS ───────────────────────────────────────
+//
+//  Les cinq défauts relevés sur la page servie, et ce qu'on en fait.
+//  Chacun est une mesure, pas une impression.
+console.log("\n── LES NOTIFICATIONS ──────────────────────────────────");
+//  ── ON REMET LA FENÊTRE ET LE THÈME AVANT DE MESURER ────────────
+//
+//  Les blocs précédents laissent la page à 390 px de large et en
+//  thème sombre. Sans ces deux lignes, ce qui suit mesure CE DÉCOR-LÀ
+//  en croyant mesurer la page : la colonne des libellés tombait à
+//  114 px, et l'écart libellé-case passait le seuil pour la pire des
+//  raisons — parce qu'il n'y avait plus de place pour rien.
+//
+//  Une mesure qui mesure son environnement ne prouve rien.
+await p.setViewportSize({ width: 1440, height: 1000 });
+await p.evaluate(() => document.body.classList.remove("wm-sombre"));
+await p.waitForTimeout(80);
+const notif = await p.evaluate(() => {
+  const t = document.getElementById("checkboxes");
+  const lignes = [...t.querySelectorAll("tbody tr")];
+  const premiere = lignes[0];
+  const libelle = premiere.cells[0].getBoundingClientRect();
+  const caseMail = premiere.cells[1].querySelector("input");
+  const r = caseMail.getBoundingClientRect();
+  const coche = document.getElementById("mail_0");
+  const vide = document.getElementById("notif_0");
+  const th = t.querySelector("thead th:nth-child(2)");
+  return {
+    //  1 · LA DISTANCE ENTRE LE LIBELLÉ ET LA CASE QU'IL DÉCIDE.
+    //  924 px sur la page servie ; on exige largement moins.
+    ecart: Math.round(r.left - libelle.left),
+    //  2 · LA CIBLE. 13 × 13 au départ ; le reste du forum vise 44.
+    cible: [Math.round(r.width), Math.round(r.height)],
+    //  3 · LE ZÉBRAGE, QUI VIT SUR LES CELLULES.
+    zebre: [
+      getComputedStyle(lignes[0].cells[0]).backgroundColor,
+      getComputedStyle(lignes[1].cells[0]).backgroundColor,
+    ],
+    //  4 · LA HAUTEUR D'UNE RANGÉE.
+    rangee: Math.round(premiere.cells[0].getBoundingClientRect().height),
+    //  5 · L'EN-TÊTE QUI RESTE EN PLACE.
+    enTeteCollant: getComputedStyle(th).position,
+    //  LE DESSIN SUIT L'ÉTAT, et il suit un JETON : une case cochée
+    //  et une case vide ne peuvent pas avoir la même couleur.
+    cocheePeinte: getComputedStyle(coche).backgroundColor,
+    videPeinte: getComputedStyle(vide).backgroundColor,
+    masqueDifferent:
+      getComputedStyle(coche).webkitMaskImage !== getComputedStyle(vide).webkitMaskImage,
+    //  ET LA GRILLE : trois colonnes, et les quinze lignes dedans.
+    colonnes: getComputedStyle(t).gridTemplateColumns.split(" ").length,
+    lignes: lignes.length,
+    //  RIEN NE DÉBORDE : la table était à 100 % et le reste tient.
+    deborde: document.documentElement.scrollWidth > window.innerWidth,
+  };
+});
+
+dire(
+  "LA CASE EST PRÈS DE CE QU'ELLE DÉCIDE — 924 px sur la page servie",
+  notif.ecart < 440,
+  `${notif.ecart} px entre le libellé et la case`,
+);
+dire(
+  "LA CIBLE FAIT 44 PX DE HAUT — 13 × 13 au départ",
+  notif.cible[1] >= 44 && notif.cible[0] >= 44,
+  `${notif.cible[0]} × ${notif.cible[1]}`,
+);
+dire(
+  "UNE RANGÉE SUR DEUX EST PEINTE — row1/row2 étaient transparentes",
+  notif.zebre[0] !== notif.zebre[1],
+  JSON.stringify(notif.zebre),
+);
+dire(
+  "et une rangée respire — 27 px au départ",
+  notif.rangee >= 44,
+  `${notif.rangee} px`,
+);
+dire(
+  "L'EN-TÊTE RESTE VISIBLE PENDANT QU'ON DESCEND",
+  notif.enTeteCollant === "sticky",
+  notif.enTeteCollant,
+);
+dire(
+  "LE DESSIN DIT L'ÉTAT, ET IL SUIT LES JETONS",
+  notif.cocheePeinte !== notif.videPeinte && notif.masqueDifferent,
+  JSON.stringify({ cochee: notif.cocheePeinte, vide: notif.videPeinte }),
+);
+if (Deno.args.includes("--photo")) {
+  const bloc = await p.$("#cp-main-notif");
+  if (bloc !== null) await bloc.screenshot({ path: "/tmp/notif.png" });
+  console.log("photo : /tmp/notif.png");
+}
+//  ── ET EN THÈME SOMBRE ──────────────────────────────────────────
+//
+//  La case vide est dessinée par un masque et peinte par un jeton :
+//  si le jeton sombre tombe près du fond de la rangée, la case
+//  disparaît. C'est exactement ce qui était arrivé au panneau des
+//  notifications le 13 novembre — du noir pur sur du `#1C1C1C`.
+const sombreNotif = await p.evaluate(() => {
+  document.body.classList.add("wm-sombre");
+  const vide = document.getElementById("notif_0");
+  const lum = (c) => {
+    const [r, v, b] = c.match(/[\d.]+/g).slice(0, 3).map(Number);
+    const f = (x) => {
+      const y = x / 255;
+      return y <= 0.03928 ? y / 12.92 : Math.pow((y + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(r) + 0.7152 * f(v) + 0.0722 * f(b);
+  };
+  const a = lum(getComputedStyle(vide).backgroundColor);
+  const b = lum(getComputedStyle(vide.closest("td")).backgroundColor === "rgba(0, 0, 0, 0)"
+    ? getComputedStyle(document.querySelector(".ucp-main .panel .inner")).backgroundColor
+    : getComputedStyle(vide.closest("td")).backgroundColor);
+  const [haut, bas] = a > b ? [a, b] : [b, a];
+  document.body.classList.remove("wm-sombre");
+  return Math.round(((haut + 0.05) / (bas + 0.05)) * 100) / 100;
+});
+//  3:1 — le seuil AA des éléments d'interface non textuels. Le
+//  contour d'une case à cocher en est un.
+dire(
+  "EN THÈME SOMBRE, LA CASE VIDE SE VOIT ENCORE",
+  sombreNotif >= 3,
+  `${sombreNotif}:1`,
+);
+
+dire(
+  "TROIS COLONNES, QUINZE LIGNES, ET RIEN NE DÉBORDE",
+  notif.colonnes === 3 && notif.lignes === 15 && !notif.deborde,
+  JSON.stringify({ colonnes: notif.colonnes, lignes: notif.lignes, deborde: notif.deborde }),
+);
 
 await p.close();
 await nav.close();
