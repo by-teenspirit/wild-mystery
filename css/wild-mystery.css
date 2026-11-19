@@ -28481,12 +28481,21 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     PAS DE FILET ENTRE LES DEUX. « Ne mets pas un border à gauche. Ne
     mets ça nulle part, ce n'est pas beau » — c'est le panneau du
     formulaire qui sépare, par son fond. */
+/*  ── LES PROPORTIONS VIENNENT DE LA MAQUETTE ──────────────────────
+
+    795 et 371 au gabarit, relevés sur Figma le 19 novembre. Écrits en
+    `fr` et pas en pixels : ce sont des PARTS, pas des largeurs, et la
+    colonne où vit le carnet n'a pas de taille connue.
+
+    `align-items: stretch` ET PAS `start` : les deux colonnes doivent
+    finir sur la même ligne. C'est l'étirement qui donne sa hauteur à
+    la rangée du bas, et sans lui la page se termine en escalier. */
 #modernbb .wm-carnet__porte {
   container-type: inline-size;
   display: grid;
-  gap: var(--wm-espace-32, 32px);
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: start;
+  gap: var(--wm-espace-18, 18px);
+  grid-template-columns: minmax(0, 795fr) minmax(0, 371fr);
+  align-items: stretch;
 }
 
 @container (max-width: 820px) {
@@ -28496,59 +28505,144 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   }
 }
 
+/*  ── LA COLONNE DU GESTE ──────────────────────────────────────────
+
+    Le panneau, puis les deux encadrés de secours. La rangée du bas
+    prend ce qui reste sous le panneau — c'est là que l'égalité des
+    deux colonnes se joue. */
+#modernbb .wm-carnet__geste {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-18, 18px);
+}
+
+#modernbb .wm-carnet__secours {
+  display: grid;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: var(--wm-espace-20, 20px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/*  SOUS 620 PX DE PANNEAU, LES DEUX ENCADRÉS S'EMPILENT. Mesuré sur le
+    conteneur `__porte` et pas sur l'écran : le carnet vit dans une
+    colonne dont on ne connaît pas la largeur, et une `@media` a déjà
+    menti une fois ce mois-ci sur l'organigramme de l'annexe 13. */
+@container (max-width: 620px) {
+  #modernbb .wm-carnet__secours {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /*  ── LIER SON COMPTE ───────────────────────────────────────────────
 
     Le seul formulaire de la page, et il ne sert qu'une fois dans la vie
     d'un personnage. Il est donc écrit sobrement : un champ, un bouton,
     une phrase de réponse. Rien qui ressemble à une étape de jeu. */
+/*  LE PANNEAU N'EST PLUS UNE GRILLE : les deux encadrés qu'il tenait à
+    sa droite, puis dessous, sont sortis dans `__secours`. Il ne reste
+    que la forme, et le bloc n'est plus qu'un porteur d'état caché. */
 #modernbb .wm-carnet__lier {
-  /*  LE FILET DU HAUT EST PARTI AVEC LA MISE EN COLONNES. Il séparait
-      le formulaire de la présentation qui le précédait ; maintenant
-      qu'elles sont côte à côte, il ne séparait plus que du vide. */
-  /*  LE FORMULAIRE À GAUCHE, L'INFORMATION À DROITE. La coupure se
-      décide sur LA LARGEUR DU BLOC et pas sur celle de l'écran : le
-      carnet vit dans une colonne dont on ne connaît pas la taille, et
-      une `@media` a déjà menti une fois ce mois-ci sur l'organigramme
-      de l'annexe 13. */
-  container-type: inline-size;
-  display: grid;
-  gap: var(--wm-espace-20, 20px);
-  grid-template-columns: minmax(0, 1fr) minmax(0, 17rem);
-  align-items: start;
-}
-
-@container (max-width: 620px) {
-  #modernbb .wm-carnet__lier {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/*  ── DANS LA COLONNE DE GAUCHE, LE BLOC EST TOUJOURS EN UN SEUL
-    MORCEAU ──────────────────────────────────────────────────────
-
-    Et il faut l'écrire, parce qu'une requête de conteneur ne mesure
-    JAMAIS l'élément qui la porte : `@container` interroge l'ancêtre
-    le plus proche qui soit un conteneur, donc ici `__porte` — 980 px,
-    jamais sous le seuil. Le formulaire restait côte à côte avec son
-    encadré dans une colonne de 470 px, et tenait sur 180.
-
-    C'est la même famille d'erreur que la `@media` de l'organigramme :
-    une mesure qui ne mesure pas ce qu'on croit. */
-#modernbb .wm-carnet__porte > .wm-carnet__lier {
-  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
 }
 
 /*  ── LE FORMULAIRE EST UN PANNEAU, pas un bout de page ────────────
 
     C'est lui l'action, et c'est à ça qu'une page de connexion se
-    reconnaît : un bloc posé, avec son fond et son cadre, qu'on
-    distingue du discours autour. */
+    reconnaît : un bloc posé qu'on distingue du discours autour.
+
+    LE CADRE FIN A LAISSÉ LA PLACE À UNE OMBRE, le 19 novembre : sur un
+    fond de page qui n'est pas blanc, un filet d'un pixel ne détache
+    rien, et la maquette pose la carte au-dessus du fond plutôt qu'à
+    côté. Le rayon et la marge restent sur l'échelle des jetons — 10 et
+    24 — là où la maquette dit 14 et 26/28 ; inventer deux jetons pour
+    quatre pixels obligerait à recoller `jetons.css`. */
 #modernbb .wm-carnet__lier-forme {
   min-width: 0;
-  padding: var(--wm-espace-20, 20px);
-  border: 1px solid var(--wm-bord-fin, #eadacd);
+  padding: var(--wm-espace-24, 24px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 10px rgb(46 28 15 / 10%);
+}
+
+#modernbb .wm-carnet__lier-sous {
+  margin: var(--wm-espace-4, 4px) 0 0;
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  ── LES DEUX ÉTAPES ──────────────────────────────────────────────
+
+    Deux conditions qui se franchissent dans un ordre. La pastille
+    porte le numéro et ne rétrécit jamais : dans un flex, un rond sans
+    `flex: 0 0 auto` devient une ellipse dès que le texte à côté
+    manque de place. */
+#modernbb .wm-carnet__etapes {
+  display: flex;
+  margin: var(--wm-espace-16, 16px) 0 0;
+  padding: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-18, 18px);
+  list-style: none;
+  counter-reset: wm-etape;
+}
+
+/*  UNE GRILLE ET PAS UN FLEX, et c'est la correction d'un premier jet :
+    en flex, la pastille, le titre et le paragraphe faisaient TROIS
+    objets sur une ligne, et le titre se coupait en deux pendant que le
+    texte partait à sa droite.
+
+    Deux colonnes, et les deux enfants forcés dans la seconde : la
+    pastille tient la première, le titre et le texte s'empilent à côté
+    d'elle. Sans `grid-column: 2`, le paragraphe reprendrait la première
+    colonne à la ligne suivante, sous la pastille. */
+#modernbb .wm-carnet__etape {
+  display: grid;
+  column-gap: var(--wm-espace-16, 16px);
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: start;
+}
+
+#modernbb .wm-carnet__etape > b,
+#modernbb .wm-carnet__etape > p {
+  grid-column: 2;
+}
+
+#modernbb .wm-carnet__etape::before {
+  display: flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-fort, #1f5470);
+  content: counter(wm-etape);
+  counter-increment: wm-etape;
+  font-size: var(--wm-taille-normal, 13.5px);
+  font-weight: var(--wm-graisse-gras, 700);
+}
+
+#modernbb .wm-carnet__etape-titre {
+  display: block;
+  margin-bottom: var(--wm-espace-6, 6px);
+  color: var(--wm-encre, #2e2018);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+/*  PAS DE SÉLECTEUR DOUBLÉ ICI : le carnet est une page autonome, il ne
+    vit pas dans `.postbody .content` et n'a donc personne à battre. Le
+    reste de cette feuille écrit ses marges de paragraphe de la même
+    façon — vérifié, pas supposé. */
+#modernbb .wm-carnet__etape p {
+  margin: 0;
+  min-width: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
 }
 
 /*  ── L'AIDE DE CHAQUE PAGE ────────────────────────────────────────
@@ -28667,23 +28761,31 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     formulaire juste en dessous : même `container-type`, même seuil.
     Une `@media` mesurerait l'écran, pas la colonne — et le carnet vit
     dans une colonne dont on ne connaît pas la taille. */
+/*  ── LA COLONNE DE DROITE EST UNE CARTE ───────────────────────────
+
+    Et les six atouts sont dedans, sur fond doux : ils étaient six
+    cartes blanches posées à même le fond de page, en deux colonnes.
+    Une carte qui en contient six se lit comme une liste ; six cartes
+    éparses se lisent comme six objets sans rapport. */
 #modernbb .wm-carnet__presentation {
   container-type: inline-size;
+  min-width: 0;
+  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: 0 6px 10px rgb(46 28 15 / 10%);
 }
 
+/*  UNE SEULE COLONNE, parce que la carte en fait 371 sur 1184 : deux
+    colonnes y donneraient des cartes de 170 px, soit trois mots par
+    ligne. */
 #modernbb .wm-carnet__atouts {
-  display: grid;
-  margin: var(--wm-espace-14, 14px) 0 0;
+  display: flex;
+  margin: var(--wm-espace-18, 18px) 0 0;
   padding: 0;
-  gap: var(--wm-espace-12, 12px);
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  flex-direction: column;
+  gap: var(--wm-espace-10, 10px);
   list-style: none;
-}
-
-@container (max-width: 620px) {
-  #modernbb .wm-carnet__atouts {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 /*  UNE CARTE PAR ATOUT, et le titre sur sa propre ligne : la liste se
@@ -28692,10 +28794,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     sections, et six `<h3>` dans une page qui en a déjà casseraient le
     plan pour un lecteur d'écran. */
 #modernbb .wm-carnet__atout {
-  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface, #fffbf7);
+  padding: var(--wm-espace-12, 12px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-normal, 1.65);
 }
@@ -28737,9 +28838,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     « information » sans avoir à teinter une surface entière, et il y
     tient ses contrastes : 6,01 en clair, 7,77 en sombre sur le marron.
     Le texte courant fait 13,36 et 12,28, le texte doux 5,72 et 5,42. */
+/*  LA MARGE INTÉRIEURE EST PASSÉE DE 14/16 À 20, le 19 novembre :
+    « plus de marges pour les deux blocs côte à côte en bas ». Ils
+    tiennent chacun trois paragraphes dans une demi-colonne, et le
+    texte touchait presque le cadre. */
 #modernbb .wm-info {
   box-sizing: border-box;
-  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  padding: var(--wm-espace-20, 20px);
   border: 1px solid var(--wm-bord-fin, #eadacd);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-terre, #f8eae1);
@@ -28769,10 +28874,11 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
     LE FOND NE CHANGE PAS. Deux fonds différents à dix pixels d'écart
     feraient deux blocs qui se disputent, et c'est le formulaire qu'on
-    doit regarder. */
-#modernbb .wm-info--attention {
-  margin-top: var(--wm-espace-12, 12px);
-}
+    doit regarder.
+
+    LA MARGE DU HAUT EST PARTIE le 19 novembre : les deux encadrés
+    étaient l'un SOUS l'autre, ils sont maintenant l'un À CÔTÉ de
+    l'autre, et douze pixels sur le second seul les décalaient. */
 
 #modernbb .wm-info--attention .wm-info__titre {
   color: var(--wm-rarete-peu-commun-texte, #96540e);
@@ -28809,33 +28915,63 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   overflow-wrap: anywhere;
 }
 
+/*  ── LE CHAMP ET SON BOUTON SUR UNE LIGNE ─────────────────────────
+
+    `align-items: flex-end` aligne les deux BAS, pas les hauts : le
+    champ porte une étiquette au-dessus de lui, le bouton non, et
+    aligner les hauts décalerait le bouton d'une hauteur de ligne.
+
+    `flex-wrap: wrap` parce qu'à l'étroit le bouton passe dessous
+    plutôt que d'écraser le champ — c'est le seul endroit de la page
+    où deux choses se partagent une largeur. */
+#modernbb .wm-carnet__lier form {
+  display: flex;
+  margin-top: var(--wm-espace-24, 24px);
+  gap: var(--wm-espace-20, 20px);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+#modernbb .wm-carnet__champ {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 15rem;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+}
+
+/*  L'ÉTIQUETTE EN PETITES CAPITALES TERRE, comme sur la maquette : elle
+    nomme le champ sans se faire passer pour une phrase. Elle reste un
+    vrai `<label for>` — c'est une étiquette, pas une décoration. */
 #modernbb .wm-carnet__lier label {
-  display: block;
-  margin-bottom: var(--wm-espace-6, 6px);
-  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-etiquette, 10px);
   font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.15px;
+  text-transform: uppercase;
 }
 
 #modernbb .wm-carnet__lier input {
   box-sizing: border-box;
   width: 100%;
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-14, 14px);
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface, #fffbf7);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-encre, #2e2018);
   font-family: inherit;
   font-size: var(--wm-taille-normal, 13.5px);
 }
 
 #modernbb .wm-carnet__lier button {
-  margin-top: var(--wm-espace-12, 12px);
-  padding: var(--wm-espace-10, 10px) var(--wm-espace-20, 20px);
+  flex: 0 0 auto;
+  padding: var(--wm-espace-10, 10px) var(--wm-espace-16, 16px);
   border: 0;
-  border-radius: var(--wm-rayon-md, 8px);
+  border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-accent-primaire, #275e7a);
   color: var(--wm-texte-inverse, #fffbf7);
   font-family: inherit;
-  font-size: var(--wm-taille-normal, 13.5px);
+  font-size: var(--wm-taille-petit, 11.5px);
   font-weight: var(--wm-graisse-gras, 700);
   cursor: pointer;
 }
@@ -30181,6 +30317,13 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     La chose à faire après l'envoi n'est pas de retaper une adresse,
     c'est d'aller voir ses mails. Le formulaire s'efface donc, et le
     renvoi redevient ce qu'il est : un second choix. */
+/*  LE MÊME ÉCART QUE LE FORMULAIRE AU-DESSUS : le bloc prend sa place
+    quand le formulaire s'efface, et sans ce retrait « Envoyé à … »
+    venait se coller à la dernière étape. */
+#modernbb [data-wm-carnet-parti] {
+  margin-top: var(--wm-espace-24, 24px);
+}
+
 #modernbb .wm-carnet__parti-adresse {
   margin: 0 0 var(--wm-espace-8, 8px);
   color: var(--wm-encre, #2e2018);
@@ -30189,9 +30332,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   overflow-wrap: anywhere;
 }
 
-#modernbb .wm-carnet__renvoyer {
+/*  LE SÉLECTEUR PORTE `button` ET LA CLASSE, parce que
+    `#modernbb .wm-carnet__lier button` — un id, une classe, un type —
+    l'emporte sur `#modernbb .wm-carnet__renvoyer`, qui n'a pas de
+    type. Le renvoi se peignait donc comme le bouton d'envoi : bleu,
+    plein, et souligné par-dessus. Relevé sur capture le 19 novembre. */
+#modernbb .wm-carnet__renvoi {
+  margin: var(--wm-espace-12, 12px) 0 0;
+}
+
+#modernbb button.wm-carnet__renvoyer {
   padding: 0;
   border: 0;
+  border-radius: 0;
   background: none;
   color: var(--wm-accent-primaire, #275e7a);
   cursor: pointer;

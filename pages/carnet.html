@@ -145,6 +145,15 @@
               `montrerLaLiaison` les tient par la même fonction — donc
               la grille n'a jamais une seule colonne remplie.  -->
         <div class="wm-carnet__porte">
+          <!--  ── LA COLONNE DU GESTE ──────────────────────────────
+
+                Elle tient le panneau ET les deux encadrés de secours,
+                qui étaient jusqu'ici DANS le panneau. Il fallait un
+                parent commun pour que les encadrés se posent sous la
+                carte et prennent ensemble la hauteur qui reste : sans
+                lui, la colonne de gauche s'arrêtait plus haut que
+                celle de droite et la page finissait en escalier.  -->
+          <div class="wm-carnet__geste">
           <!--  LIER SON COMPTE, UNE SEULE FOIS DANS LA VIE DU
                 PERSONNAGE. Le bloc est caché par défaut : il ne s'ouvre
                 que si la page n'a pas de laissez-passer valable. Le
@@ -192,6 +201,11 @@
           <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
             <div class="wm-carnet__lier-forme">
               <h2 class="wm-carnet__bloc-titre">Relier ton carnet</h2>
+              <p class="wm-carnet__lier-sous">
+                Une seule fois, et il s'ouvrira tout seul ensuite — sur tous
+                tes personnages, sur tous tes navigateurs.
+              </p>
+
               <!--  ── LA CONDITION D'ABORD, LE GESTE ENSUITE ───────────
 
                     « Cela ne peut être fait qu'une fois validée : le staff
@@ -200,28 +214,46 @@
 
                     ELLE EST ÉCRITE AVANT LE CHAMP. Quelqu'un qui n'est pas
                     encore validé tapait son adresse, ne recevait rien, et
-                    n'avait aucun moyen de savoir que c'était normal.  -->
-              <p>
-                <b>D'abord, il faut que ton personnage soit validé.</b> À ce
-                moment-là, le staff fait une manipulation de son côté : il
-                autorise le carnet à lire ton pseudo et ton adresse e-mail.
-                Tant que ce n'est pas fait, le lien ne partira pas.
-              </p>
-              <p>
-                Ensuite, tape ici l'adresse de ton inscription. Tu recevras un
-                lien à cliquer : c'est lui qui confirme que c'est bien toi.
-                Une seule fois, et ton carnet s'ouvrira tout seul ensuite —
-                sur tous tes personnages, sur tous tes navigateurs.
-              </p>
+                    n'avait aucun moyen de savoir que c'était normal.
+
+                    LES DEUX PARAGRAPHES SONT DEVENUS DEUX ÉTAPES NUMÉROTÉES
+                    le 19 novembre : ce sont deux conditions qui se
+                    franchissent dans un ordre, et deux blocs de prose ne
+                    disaient pas lequel venait en premier.  -->
+              <ol class="wm-carnet__etapes">
+                <li class="wm-carnet__etape">
+                  <b class="wm-carnet__etape-titre">Attends ta validation.</b>
+                  <p>
+                    Le staff fait une manipulation de son côté : il autorise
+                    le carnet à lire ton pseudo et ton adresse e-mail. Tant
+                    que ce n'est pas fait, le lien ne partira pas.
+                  </p>
+                </li>
+                <li class="wm-carnet__etape">
+                  <b class="wm-carnet__etape-titre">Renseigne ton adresse e-mail.</b>
+                  <!--  « celle de ton inscription » vivait dans le
+                        `placeholder` : elle disparaissait au premier
+                        caractère, et c'était le seul endroit qui disait
+                        QUELLE adresse taper. Elle a d'abord été une
+                        ligne d'aide sous l'étiquette, puis cette
+                        phrase-ci — et c'est toujours elle que le champ
+                        désigne en `aria-describedby`.  -->
+                  <p id="wm-courriel-aide">
+                    Celle de ton inscription. Tu recevras un lien à cliquer :
+                    c'est lui qui confirme que c'est bien toi.
+                  </p>
+                </li>
+              </ol>
+
+              <!--  LE CHAMP ET SON BOUTON SUR UNE LIGNE, et l'étiquette
+                    au-dessus du champ seul : le bouton n'est pas une
+                    partie du champ, il en est la suite.  -->
               <form data-wm-carnet-liaison>
-                <label for="wm-courriel">Ton adresse e-mail</label>
-                <!--  « celle de ton inscription » vivait dans le
-                      `placeholder` : elle disparaissait au premier
-                      caractère, et c'était le seul endroit qui disait
-                      QUELLE adresse taper.  -->
-                <p class="wm-carnet__aide-champ" id="wm-courriel-aide">celle de ton inscription</p>
-                <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
-                       spellcheck="false" required aria-describedby="wm-courriel-aide" />
+                <div class="wm-carnet__champ">
+                  <label for="wm-courriel">Adresse e-mail</label>
+                  <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
+                         spellcheck="false" required aria-describedby="wm-courriel-aide" />
+                </div>
                 <button type="submit">Recevoir mon lien</button>
               </form>
 
@@ -235,11 +267,31 @@
                     alors que le premier lien est déjà arrivé.  -->
               <div data-wm-carnet-parti hidden>
                 <p class="wm-carnet__parti-adresse" data-wm-carnet-parti-adresse></p>
-                <p><button type="button" class="wm-carnet__renvoyer" data-wm-carnet-renvoyer>Changer d'adresse ou redemander un lien</button></p>
               </div>
 
               <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+
+              <!--  LE RENVOI EST APRÈS LE MESSAGE, et c'est pour ça qu'il
+                    a son propre bloc caché plutôt que de vivre dans
+                    `__parti`. L'ordre compte : on lit l'adresse, puis ce
+                    qu'il faut faire — aller voir ses mails —, et le
+                    renvoi seulement ensuite. Placé avant, il se lisait
+                    comme l'étape suivante, et le deuxième clic répond
+                    « trop de demandes d'un coup ».  -->
+              <p class="wm-carnet__renvoi" data-wm-carnet-renvoi hidden>
+                <button type="button" class="wm-carnet__renvoyer" data-wm-carnet-renvoyer>Changer d'adresse ou redemander un lien</button>
+              </p>
             </div>
+          </div>
+
+          <!--  ── LES DEUX ENCADRÉS DE SECOURS, SOUS LA CARTE ──────────
+
+                Ils étaient DANS le panneau, et ils en héritaient donc
+                l'affichage. Posés dessous et côte à côte, ils ont leur
+                propre état caché : `montrerLAccueil` les tient avec la
+                liaison, et rien ne les montre quand on n'est pas encore
+                connectée au forum.  -->
+          <div class="wm-carnet__secours" data-wm-carnet-secours hidden>
 
             <!--  L'ENCADRÉ D'INFORMATION. Il répond aux trois questions
                   que les joueuses posent avant de taper quoi que ce soit —
@@ -310,6 +362,7 @@
                 a rien à réparer de ton côté.
               </p>
             </aside>
+          </div>
           </div>
           <!--  ── À QUOI IL SERT, AVANT DE DEMANDER QUOI QUE CE SOIT ────
 

@@ -321,6 +321,11 @@ function montrerLAccueil(quoi: "rien" | "decouverte" | "liaison"): void {
   //  relié on vient y travailler, pas relire ce qu'il sait faire.
   pose("[data-wm-carnet-presentation]", quoi !== "rien");
   pose("[data-wm-carnet-lier]", quoi === "liaison");
+  //  LES DEUX ENCADRÉS DE SECOURS SUIVENT LA LIAISON. Ils étaient dans
+  //  le panneau et en héritaient l'affichage ; posés dessous, ils ont
+  //  leur propre état, et il faut le tenir ici — sinon « pourquoi ton
+  //  adresse » s'affiche à quelqu'un à qui on n'en demande pas.
+  pose("[data-wm-carnet-secours]", quoi === "liaison");
   pose("[data-wm-carnet-connexion]", quoi === "decouverte");
 
   //  LE RETOUR SE POSE ICI, parce que le script est le seul à savoir
@@ -358,6 +363,11 @@ function lienParti(courriel: string): void {
   if (adresse !== null) adresse.textContent = "Envoyé à " + courriel;
   forme.hidden = true;
   parti.hidden = false;
+  //  LE RENVOI VIT À PART, APRÈS LE MESSAGE : voir le commentaire du
+  //  balisage. Deux blocs à montrer au lieu d'un, pour un ordre de
+  //  lecture juste.
+  const renvoi = document.querySelector<HTMLElement>("[data-wm-carnet-renvoi]");
+  if (renvoi !== null) renvoi.hidden = false;
 }
 
 /** On refait apparaître le formulaire. Le renvoi est un SECOND choix,
@@ -369,8 +379,10 @@ function brancherLeRenvoi(): void {
   bouton.addEventListener("click", () => {
     const forme = document.querySelector<HTMLFormElement>("[data-wm-carnet-liaison]");
     const parti = document.querySelector<HTMLElement>("[data-wm-carnet-parti]");
+    const renvoi = document.querySelector<HTMLElement>("[data-wm-carnet-renvoi]");
     if (forme === null || parti === null) return;
     parti.hidden = true;
+    if (renvoi !== null) renvoi.hidden = true;
     forme.hidden = false;
     direLaLiaison("");
     forme.querySelector("input")?.focus();

@@ -76,6 +76,8 @@
 
         <div class="wm-carnet__porte">
 
+          <div class="wm-carnet__geste">
+
           <div class="wm-carnet__lier" data-wm-carnet-connexion hidden>
             <div class="wm-carnet__lier-forme">
               <h2 class="wm-carnet__bloc-titre">Connecte-toi d'abord</h2>
@@ -97,35 +99,52 @@
           <div class="wm-carnet__lier" data-wm-carnet-lier hidden>
             <div class="wm-carnet__lier-forme">
               <h2 class="wm-carnet__bloc-titre">Relier ton carnet</h2>
+              <p class="wm-carnet__lier-sous">
+                Une seule fois, et il s'ouvrira tout seul ensuite — sur tous
+                tes personnages, sur tous tes navigateurs.
+              </p>
 
-              <p>
-                <b>D'abord, il faut que ton personnage soit validé.</b> À ce
-                moment-là, le staff fait une manipulation de son côté : il
-                autorise le carnet à lire ton pseudo et ton adresse e-mail.
-                Tant que ce n'est pas fait, le lien ne partira pas.
-              </p>
-              <p>
-                Ensuite, tape ici l'adresse de ton inscription. Tu recevras un
-                lien à cliquer : c'est lui qui confirme que c'est bien toi.
-                Une seule fois, et ton carnet s'ouvrira tout seul ensuite —
-                sur tous tes personnages, sur tous tes navigateurs.
-              </p>
+              <ol class="wm-carnet__etapes">
+                <li class="wm-carnet__etape">
+                  <b class="wm-carnet__etape-titre">Attends ta validation.</b>
+                  <p>
+                    Le staff fait une manipulation de son côté : il autorise
+                    le carnet à lire ton pseudo et ton adresse e-mail. Tant
+                    que ce n'est pas fait, le lien ne partira pas.
+                  </p>
+                </li>
+                <li class="wm-carnet__etape">
+                  <b class="wm-carnet__etape-titre">Renseigne ton adresse e-mail.</b>
+
+                  <p id="wm-courriel-aide">
+                    Celle de ton inscription. Tu recevras un lien à cliquer :
+                    c'est lui qui confirme que c'est bien toi.
+                  </p>
+                </li>
+              </ol>
+
               <form data-wm-carnet-liaison>
-                <label for="wm-courriel">Ton adresse e-mail</label>
-
-                <p class="wm-carnet__aide-champ" id="wm-courriel-aide">celle de ton inscription</p>
-                <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
-                       spellcheck="false" required aria-describedby="wm-courriel-aide" />
+                <div class="wm-carnet__champ">
+                  <label for="wm-courriel">Adresse e-mail</label>
+                  <input id="wm-courriel" type="email" name="courriel" autocomplete="email"
+                         spellcheck="false" required aria-describedby="wm-courriel-aide" />
+                </div>
                 <button type="submit">Recevoir mon lien</button>
               </form>
 
               <div data-wm-carnet-parti hidden>
                 <p class="wm-carnet__parti-adresse" data-wm-carnet-parti-adresse></p>
-                <p><button type="button" class="wm-carnet__renvoyer" data-wm-carnet-renvoyer>Changer d'adresse ou redemander un lien</button></p>
               </div>
 
               <p class="wm-carnet__bloc-dit" data-wm-carnet-lier-dit role="status"></p>
+
+              <p class="wm-carnet__renvoi" data-wm-carnet-renvoi hidden>
+                <button type="button" class="wm-carnet__renvoyer" data-wm-carnet-renvoyer>Changer d'adresse ou redemander un lien</button>
+              </p>
             </div>
+          </div>
+
+          <div class="wm-carnet__secours" data-wm-carnet-secours hidden>
 
             <aside class="wm-info" data-wm-carnet-lier-info>
               <h3 class="wm-info__titre">
@@ -181,6 +200,7 @@
                 a rien à réparer de ton côté.
               </p>
             </aside>
+          </div>
           </div>
 
           <section class="wm-carnet__presentation" data-wm-carnet-presentation hidden>

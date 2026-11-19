@@ -761,9 +761,49 @@ for (
           ),
       ) <= 8,
       spamVisible: spam !== null && spam.getBoundingClientRect().height > 0,
+      //  ── LES DEUX COLONNES FINISSENT SUR LA MÊME LIGNE ────────
+      //
+      //  « Fais en sorte que la colonne de gauche fasse la même
+      //  hauteur que la colonne de droite », 19 novembre. C'est la
+      //  rangée des deux encadrés qui absorbe ce qui reste sous la
+      //  carte ; sans elle la page se terminait en escalier.
+      //
+      //  ON MESURE LES BAS, pas les hauteurs : deux colonnes de même
+      //  hauteur qui ne partiraient pas du même haut finiraient
+      //  quand même décalées.
+      memeBas: (() => {
+        const g = document.querySelector(".wm-carnet__geste");
+        if (g === null) return null;
+        return Math.abs(
+          Math.round(g.getBoundingClientRect().bottom) -
+            Math.round(pres.getBoundingClientRect().bottom),
+        );
+      })(),
+      //  ── LE CHAMP ET SON BOUTON SUR UNE LIGNE ─────────────────
+      //
+      //  Ils étaient empilés. Le bouton est à droite du champ, et les
+      //  deux se recouvrent verticalement — un bouton passé à la
+      //  ligne les laisserait « à droite » au sens du document et
+      //  l'un sous l'autre à l'écran.
+      champEtBouton: (() => {
+        const i = document.querySelector("[data-wm-carnet-liaison] input");
+        const b = document.querySelector("[data-wm-carnet-liaison] button");
+        if (i === null || b === null) return null;
+        const ri = i.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        return {
+          aDroite: Math.round(rb.left) >= Math.round(ri.right),
+          seRecouvrent: rb.top < ri.bottom && ri.top < rb.bottom,
+        };
+      })(),
       //  LES QUATRE CHOSES QU'ELLE A DICTÉES, cherchées dans le texte
       //  rendu — pas dans la source : c'est ce que la joueuse lit.
-      ditLaValidation: /validé/i.test(tout),
+      //  « VALIDATION » AUTANT QUE « VALIDÉ » : la condition était une
+      //  phrase — « il faut que ton personnage soit validé » — et elle
+      //  est devenue le titre de la première étape, « Attends ta
+      //  validation ». C'est la même chose dite, et c'est elle qu'on
+      //  cherche, pas une forme du verbe.
+      ditLaValidation: /valid(é|ation)/i.test(tout),
       ditLesSpams: /spams?/i.test(tout),
       ditLeStaff: /staff/i.test(tout),
       ditLaBase: /base de données/i.test(tout),
@@ -798,6 +838,17 @@ for (
     "et l'encart des spams se voit sans avoir à chercher",
     onb?.spamVisible === true,
     String(onb?.spamVisible),
+  );
+  dire(
+    "LES DEUX COLONNES FINISSENT SUR LA MÊME LIGNE",
+    onb !== null && onb.memeBas !== null && onb.memeBas <= 2,
+    `${onb?.memeBas} px d'écart entre les deux bas`,
+  );
+  dire(
+    "ET LE CHAMP ET SON BOUTON TIENNENT SUR UNE LIGNE",
+    onb?.champEtBouton?.aDroite === true &&
+      onb?.champEtBouton?.seRecouvrent === true,
+    JSON.stringify(onb?.champEtBouton),
   );
   //  UNE PHOTO DE L'ONBOARDING. C'est une page qu'on lit : sa
   //  hiérarchie et sa longueur se regardent, elles ne se comptent pas.
@@ -840,8 +891,15 @@ for (
   const encadre = await q.evaluate(() => {
     const e = document.querySelector("[data-wm-carnet-lier-info]");
     if (e === null) return null;
-    const bloc = e.closest(".wm-carnet__lier");
-    const forme = bloc.querySelector(".wm-carnet__lier-forme");
+    //  LA CARTE NE SE TROUVE PLUS PAR `closest` : l'encadré en est
+    //  SORTI le 19 novembre, il est posé dessous. On la cherche donc
+    //  dans la colonne du geste, qui les tient tous les deux.
+    //  LA CARTE DE LA LIAISON, PAS CELLE DE LA CONNEXION : la colonne
+    //  du geste en tient deux, et un `querySelector` sur la classe
+    //  rendait la première — celle qui est cachée, donc large de zéro.
+    const forme = document.querySelector("[data-wm-carnet-lier] .wm-carnet__lier-forme");
+    const spam = document.querySelector("[data-wm-carnet-lier-spam]");
+    if (forme === null || spam === null) return null;
     const c = getComputedStyle(e);
     //  LES COULEURS SE RÉSOLVENT, elles ne se comparent pas à un nom
     //  de jeton : `var(--wm-fond-terre)` et `rgb(…)` ne correspondent
@@ -859,30 +917,43 @@ for (
       titre: getComputedStyle(e.querySelector(".wm-info__titre")).color,
       accent,
       icone: e.querySelector(".wm-info__icone") !== null,
-      //  ── SOUS LE FORMULAIRE, ET C'EST UN CHANGEMENT DU
-      //  18 NOVEMBRE ────────────────────────────────────────────
+      //  ── SOUS LA CARTE, ET CÔTE À CÔTE ───────────────────────
       //
-      //  Il était à sa droite. Depuis que la page s'ouvre en deux
-      //  colonnes — l'action à gauche, la présentation à droite —,
-      //  cette colonne-là fait 470 px : le formulaire et son
-      //  encadré côte à côte y tenaient sur 180 px chacun.
+      //  Il était à la droite du formulaire, puis dessous et à sa
+      //  largeur. Depuis le 19 novembre les deux encadrés sont
+      //  SORTIS de la carte et se partagent la ligne sous elle.
       //
       //  L'ORDRE DE LECTURE NE CHANGE PAS pour autant : on lit le
       //  formulaire, puis pourquoi il demande une adresse.
-      sousLeFormulaire: Math.round(e.getBoundingClientRect().top) >=
+      sousLaCarte: Math.round(e.getBoundingClientRect().top) >=
         Math.round(forme.getBoundingClientRect().bottom) - 2,
-      //  ET IL FAIT LA MÊME LARGEUR QUE LUI : un encadré plus étroit
-      //  que le panneau au-dessus donnerait une colonne en escalier.
-      memeLargeur: Math.abs(
-        Math.round(e.getBoundingClientRect().width) -
-          Math.round(forme.getBoundingClientRect().width),
-      ) <= 2,
+      //  ET LES DEUX SE PARTAGENT LA LIGNE : même haut, le second à
+      //  droite du premier, et chacun la moitié de la carte au gap
+      //  près. Trois mesures, parce qu'un seul `top` égal laisserait
+      //  passer deux encadrés superposés.
+      cotACote: Math.abs(
+        Math.round(e.getBoundingClientRect().top) -
+          Math.round(spam.getBoundingClientRect().top),
+      ) <= 2 &&
+        Math.round(spam.getBoundingClientRect().left) >=
+          Math.round(e.getBoundingClientRect().right),
+      largeurs: [
+        Math.round(e.getBoundingClientRect().width),
+        Math.round(spam.getBoundingClientRect().width),
+        Math.round(forme.getBoundingClientRect().width),
+      ],
+      demiLargeur: Math.abs(
+        e.getBoundingClientRect().width +
+          spam.getBoundingClientRect().width -
+          forme.getBoundingClientRect().width,
+      ) <= 24,
       dit: e.textContent.replace(/\s+/g, " ").trim(),
     };
   });
   dire(
-    "L'ENCADRÉ D'INFORMATION EST LÀ, SOUS LE FORMULAIRE ET À SA LARGEUR",
-    encadre !== null && encadre.sousLeFormulaire && encadre.memeLargeur && encadre.icone,
+    "LES DEUX ENCADRÉS SONT SOUS LA CARTE, ET CÔTE À CÔTE",
+    encadre !== null && encadre.sousLaCarte && encadre.cotACote &&
+      encadre.demiLargeur && encadre.icone,
     JSON.stringify({ ...encadre, dit: (encadre?.dit ?? "").slice(0, 40) }),
   );
   dire(
