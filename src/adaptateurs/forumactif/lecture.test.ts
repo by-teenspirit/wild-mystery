@@ -11,11 +11,16 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assert, assertEquals, assertThrows } from "@std/assert";
+import type { Recuperateur } from "./lecture.ts";
 import {
+  cheminDuSujet,
+  decalagesDesPages,
   decoder,
   ForumactifEnLecture,
   lireLesMessages,
   lireLesSujetsRemues,
+  messagePortantUnMarqueur,
+  messagesApres,
   PageIllisible,
 } from "./lecture.ts";
 
@@ -274,4 +279,178 @@ Deno.test("mais la PREMIÈRE page qui tombe, elle, remonte", async () => {
     leve = true;
   }
   assertEquals(leve, true);
+});
+
+// ════════════════════════════════════════════════════════════════════
+//  LA PAGINATION
+//
+//  Le 19 novembre, un sujet a dépassé vingt-cinq messages, et six
+//  lectures sont devenues aveugles d'un coup : clôture, fouille,
+//  panier, réclamation de carnet, messages du sujet, et la
+//  vérification de publication. Toutes les six demandaient `/t<id>-`.
+//
+//  Les adresses de page sont relevées sur le forum le même jour, sur
+//  /t1000-sujet-2 : /t1000p25-, p50, p75, p100 — vingt-cinq messages
+//  par page, et le slug est facultatif.
+//
+//  Les pages d'essai ci-dessous ne sont PAS un gabarit écrit pour
+//  l'occasion : on découpe un vrai message de la fixture et on lui
+//  change son numéro. Le parseur voit donc du HTML de Forumactif.
+// ════════════════════════════════════════════════════════════════════
+
+/** Un vrai bloc de message de la fixture, renuméroté.
+ *
+ *  Le découpage traîne derrière lui le bloc de publicité `p0` que
+ *  Forumactif glisse entre les messages — on le garde, c'est le vrai
+ *  HTML. Ce qu'on ajoute au message va donc DEVANT la publicité : au
+ *  delà, le texte appartiendrait au bloc suivant, pas à celui-ci. */
+function blocReel(id: number, ajout = ""): string {
+  const debut = PAGE.indexOf('<div id="p12485"');
+  const fin = PAGE.indexOf('<div id="p15263"');
+  assert(debut >= 0 && fin > debut, "la fixture doit contenir ses deux messages");
+  const bloc = PAGE.slice(debut, fin).replaceAll("12485", String(id));
+  if (ajout === "") return bloc;
+  const pub = bloc.indexOf('<div id="p0"');
+  return pub < 0 ? bloc + ajout : bloc.slice(0, pub) + ajout + bloc.slice(pub);
+}
+
+/** La pagination telle que Forumactif la sème, pour `pages` pages. */
+function pagination(sujetId: number, pages: number): string {
+  if (pages < 2) return "";
+  const liens = [];
+  for (let p = 1; p < pages; p++) {
+    liens.push(`<a href="/t${sujetId}p${p * 25}-petites-annonces">${p + 1}</a>`);
+  }
+  return `<div class="pagination"><span>${liens.join("")}</span></div>`;
+}
+
+/** Un sujet de `pages` pages, vingt-cinq messages chacune, le dernier
+ *  message portant éventuellement un texte en plus. */
+function sujetPagine(
+  sujetId: number,
+  pages: number,
+  ajout: Record<number, string> = {},
+): {
+  recuperer: Recuperateur;
+  demandees: string[];
+  dernierId: number;
+} {
+  const parPage = new Map<number, string>();
+  let id = 1000;
+  for (let p = 0; p < pages; p++) {
+    const blocs = [];
+    for (let i = 0; i < 25; i++, id++) {
+      blocs.push(blocReel(id, ajout[id] ?? ""));
+    }
+    parPage.set(p * 25, blocs.join("\n") + pagination(sujetId, pages));
+  }
+  const demandees: string[] = [];
+  const recuperer = (chemin: string) => {
+    demandees.push(chemin);
+    const m = /^\/t(\d+)(?:p(\d+))?-$/.exec(chemin);
+    if (!m || Number(m[1]) !== sujetId) return Promise.reject(new Error(`404 ${chemin}`));
+    const html = parPage.get(Number(m[2] ?? 0));
+    if (html === undefined) return Promise.reject(new Error(`404 ${chemin}`));
+    return Promise.resolve(html);
+  };
+  return { recuperer, demandees, dernierId: id - 1 };
+}
+
+Deno.test("les décalages de page se relèvent dans la pagination", () => {
+  assertEquals(decalagesDesPages(pagination(1000, 5), 1000), [0, 25, 50, 75, 100]);
+  // Un sujet d'une page n'a pas de pagination : il n'a que la sienne.
+  assertEquals(decalagesDesPages("<div>rien</div>", 1000), [0]);
+  // La pagination d'un AUTRE sujet ne compte pas.
+  assertEquals(decalagesDesPages(pagination(999, 4), 1000), [0]);
+});
+
+Deno.test("l'adresse d'une page est celle du forum", () => {
+  assertEquals(cheminDuSujet(1000, 0), "/t1000-");
+  assertEquals(cheminDuSujet(1000, 100), "/t1000p100-");
+});
+
+Deno.test("un sujet d'une seule page se lit en une seule demande", async () => {
+  //  Garde-fou de coût : la pagination ne doit rien changer au cas
+  //  courant, sinon la relève double son trafic pour rien.
+  const { recuperer, demandees } = sujetPagine(1000, 1);
+  const lus = await messagesApres(recuperer, 1000, 1010);
+  assertEquals(demandees, ["/t1000-"]);
+  assertEquals(lus.map((m) => m.id), [
+    1011,
+    1012,
+    ...Array.from({ length: 12 }, (_, i) => 1013 + i),
+  ]);
+});
+
+Deno.test("LE BUG DU 19 NOVEMBRE : le neuf est sur la dernière page", async () => {
+  //  Cinq pages, et le dernier message lu était l'avant-dernier du
+  //  sujet. L'ancienne lecture demandait `/t1000-` et rendait zéro
+  //  message : le sujet paraissait muet.
+  const { recuperer, demandees, dernierId } = sujetPagine(1000, 5);
+  const lus = await messagesApres(recuperer, 1000, dernierId - 1);
+  assertEquals(lus.map((m) => m.id), [dernierId]);
+  //  Deux pages lues : la première pour sa pagination, la dernière
+  //  pour son contenu. Pas les cinq.
+  assertEquals(demandees, ["/t1000-", "/t1000p100-"]);
+});
+
+Deno.test("et on remonte tant que la page lue ne contient que du neuf", async () => {
+  const { recuperer, demandees, dernierId } = sujetPagine(1000, 5);
+  //  La frontière est deux pages en arrière : il faut les traverser.
+  const lus = await messagesApres(recuperer, 1000, dernierId - 30);
+  assertEquals(lus.length, 30);
+  assertEquals(lus[0].id, dernierId - 29);
+  assertEquals(lus[lus.length - 1].id, dernierId);
+  assertEquals(demandees, ["/t1000-", "/t1000p100-", "/t1000p75-"]);
+});
+
+Deno.test("LA FOUILLE : une action postée page 5 est vue", async () => {
+  //  Le symptôme qu'elle décrit — « quand je fouille, ça ne fonctionne
+  //  pas ». Le bloc du bouton est dans le dernier message du sujet.
+  const { recuperer, dernierId } = sujetPagine(1000, 5, {});
+  const avecFouille = sujetPagine(1000, 5, { [dernierId]: "[[WM-ACTION:fouiller]]" });
+  const forum = new ForumactifEnLecture(avecFouille.recuperer);
+  const actions = await forum.actionsDuSujet(1000, dernierId - 1);
+  assertEquals(actions.map((a) => a.action.type), ["fouiller"]);
+  assertEquals(actions[0].messageId, dernierId);
+  //  Et la preuve que l'ancienne lecture ne le voyait pas : la
+  //  première page ne contient pas ce bloc.
+  const page1 = await recuperer("/t1000-");
+  assertEquals(page1.includes("WM-ACTION"), false);
+});
+
+Deno.test("LES 144 : la carte posée page 5 est retrouvée", async () => {
+  //  `carte_essais 144`, et l'erreur « statut 200, et le message n'est
+  //  pas dans le sujet ». Le message Y ÉTAIT — page 5.
+  const code = "WM-A4C7-D3E";
+  const { recuperer, dernierId } = sujetPagine(1000, 5, {
+    [1024]: `[[WM:vieux:WM-W9Y7-X4V]]`,
+  });
+  const avecCarte = sujetPagine(1000, 5, { [dernierId]: `[[WM:charge:${code}]]` });
+  const trouve = await messagePortantUnMarqueur(avecCarte.recuperer, 1000, code);
+  assertEquals(trouve?.id, dernierId);
+  //  Et ce qui n'y est pas rend bien null, sans boucler.
+  assertEquals(await messagePortantUnMarqueur(recuperer, 1000, code), null);
+});
+
+Deno.test("la pagination tronquée d'un très long sujet est suivie", async () => {
+  //  Passé une poignée de pages, Forumactif masque le milieu : la
+  //  première page ne montre que le début et la fin. On vérifie quand
+  //  même sur la dernière page connue qu'elle n'en révèle pas de plus
+  //  loin — ici elle en révèle.
+  const demandees: string[] = [];
+  const recuperer = (chemin: string) => {
+    demandees.push(chemin);
+    if (chemin === "/t1000-") {
+      return Promise.resolve(blocReel(1) + `<a href="/t1000p25-x">2</a>`);
+    }
+    if (chemin === "/t1000p25-") {
+      return Promise.resolve(blocReel(2) + `<a href="/t1000p50-x">3</a>`);
+    }
+    if (chemin === "/t1000p50-") return Promise.resolve(blocReel(3));
+    return Promise.reject(new Error(`404 ${chemin}`));
+  };
+  const lus = await messagesApres(recuperer, 1000, 2);
+  assertEquals(lus.map((m) => m.id), [3]);
+  assert(demandees.includes("/t1000p50-"), "la dernière page doit être atteinte");
 });

@@ -166,6 +166,138 @@ export function lireLesMessages(html: string, sujetId: number): readonly Message
   return messages;
 }
 
+/** L'adresse d'une page de sujet, par son décalage.
+ *
+ *  Relevé sur le forum le 19 novembre : la première page est
+ *  `/t1000-titre`, la deuxième `/t1000p25-titre`, et le slug est
+ *  facultatif — `/t1000p100-` répond 200 et redirige. */
+export function cheminDuSujet(sujetId: number, decalage: number): string {
+  return decalage === 0 ? `/t${sujetId}-` : `/t${sujetId}p${decalage}-`;
+}
+
+/**
+ * Les décalages de page d'un sujet, relevés dans sa pagination.
+ *
+ * Forumactif numérote les pages d'un sujet par un décalage dans
+ * l'adresse, et sème ces adresses dans le bloc de pagination. On les
+ * ramasse plutôt que de calculer : vingt-cinq messages par page est un
+ * réglage du panneau d'administration, et un réglage change.
+ *
+ * Zéro est toujours dans la liste : c'est la page qu'on vient de lire.
+ */
+export function decalagesDesPages(html: string, sujetId: number): readonly number[] {
+  const vus = new Set<number>([0]);
+  for (const m of html.matchAll(new RegExp(`/t${sujetId}p(\\d+)-`, "g"))) {
+    vus.add(Number(m[1]));
+  }
+  return [...vus].sort((a, b) => a - b);
+}
+
+/** Une lecture de sujet qui ne redemande jamais deux fois la même page. */
+function pagesDUnSujet(
+  recuperer: Recuperateur,
+  sujetId: number,
+): (decalage: number) => Promise<string> {
+  const vues = new Map<number, string>();
+  return async (decalage: number): Promise<string> => {
+    const deja = vues.get(decalage);
+    if (deja !== undefined) return deja;
+    const html = await recuperer(cheminDuSujet(sujetId, decalage));
+    vues.set(decalage, html);
+    return html;
+  };
+}
+
+/** Toutes les pages d'un sujet, de la première à la dernière.
+ *
+ *  La pagination d'un sujet très long masque le milieu derrière des
+ *  points de suspension, mais elle montre toujours la dernière page.
+ *  On y va quand même pour vérifier qu'elle n'en révèle pas de plus
+ *  loin — ça ne coûte rien, puisque c'est la page qu'on allait lire. */
+async function decalagesDuSujet(
+  lire: (decalage: number) => Promise<string>,
+  sujetId: number,
+): Promise<readonly number[]> {
+  let connus = decalagesDesPages(await lire(0), sujetId);
+  for (let garde = 0; garde < 20; garde++) {
+    const dernier = connus[connus.length - 1];
+    if (dernier === 0) return connus;
+    const plus = decalagesDesPages(await lire(dernier), sujetId);
+    const fusion = [...new Set([...connus, ...plus])].sort((a, b) => a - b);
+    if (fusion[fusion.length - 1] <= dernier) return fusion;
+    connus = fusion;
+  }
+  return connus;
+}
+
+/**
+ * Les messages d'un sujet postérieurs à un message donné, pagination
+ * comprise.
+ *
+ * ── POURQUOI ON REMONTE AU LIEU DE DESCENDRE ────────────────────────
+ *
+ * Un sujet de zone grossit sans fin et ce qu'on cherche est toujours à
+ * la fin. On part donc de la dernière page et on remonte tant que la
+ * page lue ne contient que du neuf. Sur un sujet d'une seule page,
+ * c'est exactement la lecture d'avant : une page, une fois.
+ *
+ * ── CE QUE CETTE FONCTION RÉPARE ────────────────────────────────────
+ *
+ * Jusqu'au 19 novembre, chaque lecture de sujet demandait `/t<id>-` et
+ * s'arrêtait là. Passé vingt-cinq messages, un sujet devenait muet :
+ * plus de fouille, plus de panier, plus de clôture, plus de
+ * réclamation de carnet. Et la vérification de publication ne
+ * retrouvait plus la carte qu'elle venait de poster — alors le relevé
+ * la reposait, toutes les dix minutes, cent quarante-quatre fois.
+ *
+ * Une seule page lue était la cause des quatre pannes à la fois.
+ */
+export async function messagesApres(
+  recuperer: Recuperateur,
+  sujetId: number,
+  depuisMessageId: number,
+): Promise<readonly MessageLu[]> {
+  const lire = pagesDUnSujet(recuperer, sujetId);
+  const decalages = await decalagesDuSujet(lire, sujetId);
+  const moisson: MessageLu[] = [];
+  for (let i = decalages.length - 1; i >= 0; i--) {
+    const lus = lireLesMessages(await lire(decalages[i]), sujetId);
+    moisson.unshift(...lus.filter((m) => m.id > depuisMessageId));
+    // Cette page contient du vieux : la frontière est franchie, inutile
+    // de remonter plus haut.
+    if (lus.some((m) => m.id <= depuisMessageId)) break;
+  }
+  return moisson;
+}
+
+/**
+ * Le message d'un sujet qui porte ce marqueur, cherché depuis la fin.
+ *
+ * `pagesAuPlus` borne la remontée. Un marqueur qu'on cherche a été
+ * posé par le relevé lui-même, dans la passe en cours ou la
+ * précédente : il est à quelques messages de la fin, jamais au début
+ * d'un sujet de cent. Deux pages, c'est entre vingt-six et cinquante
+ * messages de marge — davantage qu'une passe n'en produit.
+ */
+export async function messagePortantUnMarqueur(
+  recuperer: Recuperateur,
+  sujetId: number,
+  code: string,
+  pagesAuPlus = 2,
+): Promise<MessageLu | null> {
+  const lire = pagesDUnSujet(recuperer, sujetId);
+  const decalages = await decalagesDuSujet(lire, sujetId);
+  const depuis = Math.max(0, decalages.length - pagesAuPlus);
+  for (let i = decalages.length - 1; i >= depuis; i--) {
+    const lus = lireLesMessages(await lire(decalages[i]), sujetId);
+    // Le dernier d'abord : ce qu'on cherche vient d'être posté.
+    for (const m of [...lus].reverse()) {
+      if (m.marqueurs.some((q) => q.code === code)) return m;
+    }
+  }
+  return null;
+}
+
 const SUJET_ET_DERNIER = /href="\/t(\d+)-[^"#]*#(\d+)"/g;
 
 /**
@@ -210,49 +342,45 @@ export class ForumactifEnLecture
     sujetId: number,
     depuisMessageId: number,
   ): Promise<readonly DemandeDeClotureLue[]> {
-    const html = await this.recuperer(`/t${sujetId}-`);
-    const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    const nouveaux = await messagesApres(this.recuperer, sujetId, depuisMessageId);
     return demandesDeCloture(nouveaux).map((d) => ({ sujetId, ...d }));
   }
 
   /** Les actions demandées dans un sujet, depuis un message donné.
    *
-   *  Même page, même découpage, même frontière que `demandesDeCloture` :
+   *  Même lecture, même découpage, même frontière que `demandesDeCloture` :
    *  le HTML s'arrête ici. La couche application reçoit des `Action` du
    *  domaine, jamais du texte de message. */
   async actionsDuSujet(
     sujetId: number,
     depuisMessageId: number,
   ): Promise<readonly ActionLue[]> {
-    const html = await this.recuperer(`/t${sujetId}-`);
-    const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    const nouveaux = await messagesApres(this.recuperer, sujetId, depuisMessageId);
     return actionsDemandees(nouveaux).map((a) => ({ sujetId, ...a }));
   }
 
   /** Les paniers posés dans un sujet, depuis un message donné.
    *
-   *  Même page, même découpage, même frontière que les deux précédentes :
+   *  Même lecture, même découpage, même frontière que les deux précédentes :
    *  le HTML s'arrête ici. La couche application reçoit des lignes de
    *  panier du domaine, jamais du texte de message. */
   async commandesDuSujet(
     sujetId: number,
     depuisMessageId: number,
   ): Promise<readonly CommandeLue[]> {
-    const html = await this.recuperer(`/t${sujetId}-`);
-    const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    const nouveaux = await messagesApres(this.recuperer, sujetId, depuisMessageId);
     return paniersPoses(nouveaux).map((p) => ({ sujetId, ...p }));
   }
 
   /** Les ouvertures de carnet réclamées dans un sujet.
    *
-   *  Même page, même découpage, même frontière : le HTML s'arrête ici,
+   *  Même lecture, même découpage, même frontière : le HTML s'arrête ici,
    *  et la couche application ne reçoit qu'une empreinte et un auteur. */
   async reclamationsDuSujet(
     sujetId: number,
     depuisMessageId: number,
   ): Promise<readonly ReclamationDeCarnetLue[]> {
-    const html = await this.recuperer(`/t${sujetId}-`);
-    const nouveaux = lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    const nouveaux = await messagesApres(this.recuperer, sujetId, depuisMessageId);
     return reclamationsDeCarnet(nouveaux);
   }
 
@@ -260,8 +388,7 @@ export class ForumactifEnLecture
     sujetId: number,
     depuisMessageId: number,
   ): Promise<readonly MessageLu[]> {
-    const html = await this.recuperer(`/t${sujetId}-`);
-    return lireLesMessages(html, sujetId).filter((m) => m.id > depuisMessageId);
+    return await messagesApres(this.recuperer, sujetId, depuisMessageId);
   }
 
   async sujetsRemues(forums: readonly number[]): Promise<readonly SujetRemue[]> {

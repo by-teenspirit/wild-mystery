@@ -36,7 +36,7 @@
 
 import type { PosteurSurForum } from "../../application/ports.ts";
 import { ecrireUnMarqueur, marqueursDe } from "./marqueur.ts";
-import { lireLesMessages } from "./lecture.ts";
+import { messagePortantUnMarqueur } from "./lecture.ts";
 //  L'ÉCHAPPEMENT EST CELUI DES CARTES, pas un second écrit ici : une
 //  seconde table de caractères finirait par ne plus couvrir les mêmes.
 import { echapper as echapperLeTexte } from "../../application/fiche-de-combat.ts";
@@ -539,14 +539,29 @@ export class ForumactifEnPublication implements PosteurSurForum {
 
   /** Cherche dans le sujet un message portant ce code de marqueur, et
    *  rend son identifiant. C'est le filet contre le double envoi. */
+  /**
+   * Le message du sujet qui porte ce marqueur, s'il y est.
+   *
+   * ── CETTE LECTURE NE REGARDAIT QUE LA PREMIÈRE PAGE ─────────────
+   *
+   * Le 19 novembre, un sujet a dépassé vingt-cinq messages. La carte
+   * partait, Forumactif répondait 200, et cette vérification allait
+   * la chercher sur `/t1000-` — alors qu'elle venait d'atterrir sur
+   * la deuxième page. Ne la trouvant pas, elle concluait « refusé ».
+   * Le relevé recommençait dix minutes plus tard. Cent quarante-quatre
+   * fois.
+   *
+   * Une vérification qui regarde au mauvais endroit est pire que pas
+   * de vérification du tout : elle ne dit pas « je ne sais pas », elle
+   * dit « ce n'est pas là », et on la croit.
+   */
   private async messagePortantLeCode(sujetId: number, code: string): Promise<number | null> {
-    const reponse = await this.lirePage(`/t${sujetId}-`);
-    const messages = lireLesMessages(reponse.corps, sujetId);
-    // Le dernier d'abord : un bilan vient d'être posté, il est en fin de page.
-    for (const m of [...messages].reverse()) {
-      if (m.marqueurs.some((q) => q.code === code)) return m.id;
-    }
-    return null;
+    const trouve = await messagePortantUnMarqueur(
+      (chemin) => this.lirePage(chemin).then((r) => r.corps),
+      sujetId,
+      code,
+    );
+    return trouve === null ? null : trouve.id;
   }
 
   /**
