@@ -27910,8 +27910,10 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   inset: 0;
 }
 
+/*  L'EN-TÊTE N'EST PLUS RETENUE EN LARGEUR, décidé le 19 novembre :
+    elle prend celle du bloc. Les deux plafonds qu'elle portait — 820 px
+    ici, 60 signes sur la porte d'entrée — sont tombés ensemble. */
 #modernbb .wm-carnet__entete {
-  max-width: 820px;
   margin-bottom: var(--wm-espace-32, 32px);
 }
 
@@ -28461,16 +28463,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     site. » — 18 novembre.
 
     520 px suffisaient pour une colonne ; deux n'y tiennent pas. Le
-    bloc passe donc à 980, et c'est l'EN-TÊTE qu'on retient à la main :
-    un chapô de 980 px de large se lit mal, une ligne de prose ne
-    dépasse pas la soixantaine de signes. */
+    bloc passe donc à 980.
+
+    L'EN-TÊTE Y ÉTAIT RETENUE À SOIXANTE SIGNES, au nom de la longueur
+    de ligne confortable. C'est tombé le 19 novembre : au-dessus de
+    deux colonnes qui, elles, vont jusqu'au bord, un chapô arrêté au
+    tiers de la largeur laissait un trou à droite du titre et la page
+    commençait de travers. La règle de lisibilité valait pour une
+    colonne de prose ; ce n'en est pas une. */
 #modernbb .wm-carnet__dehors {
   max-width: 980px;
-}
-
-#modernbb .wm-carnet__dehors .wm-carnet__entete,
-#modernbb .wm-carnet__dehors .wm-carnet__souci {
-  max-width: 60ch;
 }
 
 /*  LES DEUX COLONNES. La coupure se décide sur la largeur DU BLOC et
