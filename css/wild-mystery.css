@@ -27861,6 +27861,105 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-weight: var(--wm-graisse-gras, 700);
 }
 
+/* ── 2 bis · LA BARRE SE REPLIE EN ICÔNES ──────────────────────────
+
+   « La barre latérale : on doit pouvoir la fermer. Ajoute aussi des
+   icônes à côté de chaque onglet. Quand on ferme la barre latérale, on
+   a que les icônes d'affichées. » — 20 novembre.
+
+   UNE LARGEUR DE 60 PX ET NON ZÉRO : les onglets restent cliquables,
+   seuls leurs mots s'en vont. Une barre refermée à zéro obligerait à la
+   rouvrir pour changer d'onglet.
+
+   L'ICÔNE NE RÉTRÉCIT PAS. `flex: 0 0 auto` sur un dessin de 18 px :
+   sans ça, la largeur de 60 px l'écrase à deux pixels de large et la
+   barre repliée devient une colonne de traits. */
+#modernbb .wm-carnet__icone {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-right: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-carnet__onglet-mot {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*  LE BOUTON DE REPLI PORTE EXACTEMENT L'ALLURE D'UN ONGLET, parce
+    qu'il vit dans la même colonne : un bouton dessiné autrement
+    ressemblerait à une pièce tombée là. */
+#modernbb .wm-carnet__replier {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
+  align-items: center;
+  padding: 0 var(--wm-espace-18, 18px);
+  border: 0;
+  background: none;
+  color: var(--wm-texte-sur-nuit, #fffbf7);
+  font-family: inherit;
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  /*  L'OPACITÉ ET PAS UN JETON DE GRIS : c'est ainsi que le nom de
+      groupe s'éteint juste au-dessus, et il n'existe pas de jeton de
+      texte pâle sur fond nuit. Deux façons de pâlir dans la même
+      colonne finiraient par ne plus pâlir pareil. */
+  opacity: 0.55;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#modernbb .wm-carnet__replier:hover,
+#modernbb .wm-carnet__replier:focus-visible {
+  background: rgb(255 251 247 / 8%);
+  opacity: 1;
+}
+
+/*  LA FLÈCHE TOURNE AU LIEU DE CHANGER DE DESSIN : un seul chemin à
+    tenir, et le sens du geste se lit dans le mouvement. */
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__replier .wm-carnet__icone {
+  transform: scaleX(-1);
+}
+
+#modernbb .wm-carnet__barre[data-wm-repliee] {
+  flex: 0 0 60px;
+  width: 60px;
+}
+
+/*  CE QUI DISPARAÎT EN REPLIÉ : les mots des onglets, le nom du
+    groupe, et le bloc d'identité — un nom de personnage et son
+    emblème ne tiennent pas dans 60 px, et les rogner les rendrait
+    illisibles plutôt que petits. Les onglets, eux, restent tous là. */
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__onglet-mot,
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__titre-groupe,
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__moi {
+  display: none;
+}
+
+/*  L'ICÔNE SE CENTRE, et sa marge droite s'en va : sans ça, les neuf
+    dessins restent collés au bord gauche avec dix pixels de vide à
+    droite, et la colonne penche. */
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__onglet,
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__replier {
+  justify-content: center;
+  padding: 0;
+}
+
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__icone {
+  margin-right: 0;
+}
+
+/*  L'ONGLET OUVERT GARDE SON ACCENT mais perd son décalage de 4 px :
+    une icône centrée qui se décale ne se lit plus comme centrée. */
+#modernbb .wm-carnet__barre[data-wm-repliee] .wm-carnet__onglet[aria-current="page"] {
+  padding-left: 0;
+}
+
 /* ── 3 · la colonne de contenu, sur sa photo ──────────────────────── */
 
 #modernbb .wm-carnet__corps {
@@ -30357,6 +30456,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-accent-primaire, #275e7a);
 }
 
+/* ── LES CONVERSATIONS DU MESSENGER ─────────────────────────────────
+
+   Elles réutilisent `.wm-rp__ligne` : c'est la même lecture que la vue
+   Liste, sans le menu d'état. Il n'y a donc presque rien à habiller —
+   seulement le mot qui s'affiche quand il n'y a encore rien. */
+#modernbb .wm-rp__sms-vide {
+  margin: 0;
+  padding: var(--wm-espace-16, 16px) 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  color: var(--wm-texte-pale, #69564c);
+}
+
 #modernbb .wm-rp__colonne-vide {
   margin: 0;
   font-size: var(--wm-taille-petit, 11.5px);
@@ -30675,6 +30787,53 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-style: italic;
   line-height: var(--wm-interligne-normal, 1.65);
   color: var(--wm-texte-doux, #6e5749);
+}
+
+/* ── CE QUE LA CLÔTURE VERSERAIT ────────────────────────────────────
+
+   Une étiquette à gauche, sa valeur à droite, sur un fond qui le
+   détache du reste du dialogue : c'est un relevé, pas une phrase, et
+   il doit se lire en diagonale. */
+#modernbb .wm-rp__butin {
+  margin-top: var(--wm-espace-16, 16px);
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  border-radius: var(--wm-rayon-sm, 6px);
+}
+
+#modernbb .wm-rp__butin-liste {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+  margin: var(--wm-espace-8, 8px) 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-rp__butin-ligne {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+#modernbb .wm-rp__butin-etiquette {
+  flex: 0 0 auto;
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+/*  LA VALEUR GARDE `min-width: 0` : une capture en nomme l'espèce et
+    son niveau, et trois captures dans une colonne de 34 rem doivent
+    passer à la ligne au lieu d'élargir le dialogue. */
+#modernbb .wm-rp__butin-valeur {
+  min-width: 0;
+  flex: 1 1 auto;
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-align: right;
+  color: var(--wm-encre, #2e2018);
 }
 
 #modernbb .wm-rp__grand-champ {

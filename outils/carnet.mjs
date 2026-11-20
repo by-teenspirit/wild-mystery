@@ -302,6 +302,8 @@ async function monter(
     lesRp = [],
     lesCompagnons = [],
     lesNomsDeColonnes = [],
+    leRegistre = [],
+    lesObjets = [],
     etatDeLaFiche = null,
   } = {},
 ) {
@@ -442,6 +444,28 @@ async function monter(
       return route.fulfill({
         contentType: "application/json",
         body: JSON.stringify(lesCompagnons),
+      });
+    }
+
+    //  ── LE REGISTRE, ET LES NOMS D'OBJETS ────────────────────────
+    //
+    //  Le récap de butin lit le registre du sujet et ne garde que les
+    //  lignes à son nom. Le décor en sert donc de DEUX joueurs : si le
+    //  filtre tombait, le récap afficherait le butin de la table, et
+    //  c'est exactement la faute qu'on veut voir.
+    if (u.pathname.endsWith("/rest/v1/registre")) {
+      appels.push({ ou: "lire-registre", ou_quoi: u.search });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(leRegistre),
+      });
+    }
+
+    if (u.pathname.endsWith("/rest/v1/objet")) {
+      appels.push({ ou: "lire-objets", ou_quoi: u.search });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(lesObjets),
       });
     }
 
@@ -3911,6 +3935,354 @@ const COMPAGNONS = [
     "ET ROUVRIR REND CE QU'ON VIENT D'ÉCRIRE, pas ce qu'il y avait avant",
     rouvert === "On repart au matin.",
     JSON.stringify({ rouvert }),
+  );
+  await q.close();
+}
+
+// ── 7 ter · La barre latérale se replie, 20 novembre ────────────────
+
+{
+  //  « La barre latérale : on doit pouvoir la fermer. Ajoute aussi des
+  //  icônes à côté de chaque onglet. Quand on ferme la barre latérale,
+  //  on a que les icônes d'affichées. »
+  const { q } = await monter();
+  await q.waitForTimeout(300);
+
+  const icones = await q.evaluate(() =>
+    [...document.querySelectorAll("[data-wm-carnet-onglet]")].map((a) => ({
+      clef: a.getAttribute("data-wm-carnet-onglet"),
+      icone: a.querySelector("svg.wm-carnet__icone") !== null,
+      mot: a.querySelector(".wm-carnet__onglet-mot")?.textContent?.trim() ?? "",
+    }))
+  );
+  dire(
+    "CHAQUE ONGLET PORTE UNE ICÔNE ET SON MOT",
+    icones.length === 8 && icones.every((o) => o.icone && o.mot !== ""),
+    JSON.stringify(icones),
+  );
+
+  //  L'ICÔNE NE RÉTRÉCIT PAS. Mesurée et pas déduite du CSS : une
+  //  largeur de 60 px sur un enfant de flex sans `flex: 0 0 auto`
+  //  l'écrase à deux pixels, et la barre repliée devient une colonne
+  //  de traits. C'est la faute que cette mesure attrape.
+  const dessine = await q.evaluate(() => {
+    const i = document.querySelector("[data-wm-carnet-onglet] svg.wm-carnet__icone");
+    const r = i?.getBoundingClientRect();
+    return r === undefined ? null : { l: Math.round(r.width), h: Math.round(r.height) };
+  });
+  dire(
+    "ET ELLE EST VRAIMENT DESSINÉE, pas écrasée à deux pixels",
+    dessine !== null && dessine.l >= 14 && dessine.h >= 14,
+    JSON.stringify(dessine),
+  );
+
+  const avant = await q.evaluate(() => ({
+    large: Math.round(
+      document.querySelector("[data-wm-carnet-barre]").getBoundingClientRect().width,
+    ),
+    ouverte: document.querySelector("[data-wm-carnet-replier]")
+      ?.getAttribute("aria-expanded"),
+    motVisible: document.querySelector(".wm-carnet__onglet-mot")?.offsetParent !== null,
+  }));
+  dire(
+    "LA BARRE EST OUVERTE AU DÉPART — c'est l'état où l'on sait lire",
+    avant.large > 200 && avant.ouverte === "true" && avant.motVisible === true,
+    JSON.stringify(avant),
+  );
+
+  await q.click("[data-wm-carnet-replier]");
+  await q.waitForTimeout(200);
+  const apres = await q.evaluate(() => ({
+    large: Math.round(
+      document.querySelector("[data-wm-carnet-barre]").getBoundingClientRect().width,
+    ),
+    ouverte: document.querySelector("[data-wm-carnet-replier]")
+      ?.getAttribute("aria-expanded"),
+    motVisible: document.querySelector(".wm-carnet__onglet-mot")?.offsetParent !== null,
+    //  LES ONGLETS RESTENT TOUS LÀ, ET CLIQUABLES : replier n'est pas
+    //  cacher. Une barre vidée obligerait à la rouvrir pour changer
+    //  d'onglet, un clic de plus à chaque fois.
+    onglets: document.querySelectorAll("[data-wm-carnet-onglet]").length,
+    icones: [...document.querySelectorAll("[data-wm-carnet-onglet] svg.wm-carnet__icone")]
+      .filter((i) => i.getBoundingClientRect().width >= 14).length,
+  }));
+  dire(
+    "REPLIÉE, IL NE RESTE QUE LES ICÔNES — ET ELLES Y SONT TOUTES LES HUIT",
+    apres.large <= 80 && apres.ouverte === "false" && apres.motVisible === false &&
+      apres.onglets === 8 && apres.icones === 8,
+    JSON.stringify(apres),
+  );
+
+  //  ET ON PEUT ENCORE CHANGER D'ONGLET : c'est tout l'intérêt de
+  //  replier au lieu de cacher.
+  await q.click('[data-wm-carnet-onglet="mon-sac"]');
+  await q.waitForTimeout(250);
+  const navigue = await q.evaluate(() => ({
+    page: [...document.querySelectorAll("[data-wm-carnet-page]")]
+      .filter((p) => p.hidden === false)
+      .map((p) => p.getAttribute("data-wm-carnet-page")),
+    toujoursRepliee:
+      document.querySelector("[data-wm-carnet-barre]")?.hasAttribute("data-wm-repliee") ===
+        true,
+  }));
+  dire(
+    "BARRE REPLIÉE, ON CHANGE QUAND MÊME D'ONGLET",
+    navigue.page.length === 1 && navigue.page[0] === "mon-sac" &&
+      navigue.toujoursRepliee === true,
+    JSON.stringify(navigue),
+  );
+
+  await q.click("[data-wm-carnet-replier]");
+  await q.waitForTimeout(200);
+  const rouverte = await q.evaluate(() => ({
+    large: Math.round(
+      document.querySelector("[data-wm-carnet-barre]").getBoundingClientRect().width,
+    ),
+    garde: (() => {
+      try {
+        return globalThis.localStorage.getItem("wm-carnet-barre");
+      } catch {
+        return "inaccessible";
+      }
+    })(),
+  }));
+  dire(
+    "UN SECOND APPUI LA ROUVRE, ET LE CHOIX EST GARDÉ EN LOCAL",
+    rouverte.large > 200 && rouverte.garde === "ouverte",
+    JSON.stringify(rouverte),
+  );
+  await q.close();
+}
+
+// ── 7 quater · Les SMS et le récap de butin, 20 novembre ────────────
+
+{
+  //  ── LES CONVERSATIONS DU MESSENGER QUITTENT LE TABLEAU ──────────
+  //
+  //  « Il faudrait aussi un endroit qui récapitule toutes les
+  //  conversations sms de son personnage » · « les sms = le messenger.
+  //  ça fonctionnera un peu comme les rps du coup. »
+  const AVEC_SMS = [
+    ...RP,
+    {
+      sujet_id: 400,
+      titre: "Tu es où ?",
+      //  1, C'EST LE MESSENGER — `data/forums.json`, famille « sms ».
+      forum_id: 1,
+      forum_nom: "Messenger",
+      reponses: 12,
+      dernier_le: "2026-11-19T21:10:00Z",
+      dernier_auteur: "Murphy",
+      dernier_message: 15700,
+      extrait: "J'arrive.",
+      etat: "en-cours",
+      ordre: 0,
+    },
+  ];
+  //  ET UN COMPAGNON SUR LA CONVERSATION : sans lui, la ligne dit
+  //  « 12 messages » tout court, et la mesure du « avec qui » ne
+  //  mesurait que mon oubli de décor.
+  const { q } = await monter({
+    lesRp: AVEC_SMS,
+    lesCompagnons: [...COMPAGNONS, { sujet_id: 400, pseudo: "Murphy" }],
+  });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+
+  const tableau = await q.evaluate(() => ({
+    cartes: [...document.querySelectorAll("[data-wm-rp-carte]")]
+      .map((c) => Number(c.getAttribute("data-wm-rp-carte"))),
+    compte: document.querySelector("[data-wm-rp-compte]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "LA CONVERSATION N'EST PAS UNE CARTE DU TABLEAU",
+    !tableau.cartes.includes(400) && tableau.cartes.length === 3,
+    JSON.stringify(tableau),
+  );
+  dire(
+    "ET LE COMPTE LES DIT À PART, sans les mélanger aux RP",
+    tableau.compte.includes("3 RP") && tableau.compte.includes("1 conversation"),
+    JSON.stringify({ compte: tableau.compte }),
+  );
+
+  await q.click('[data-wm-rp-vue="sms"]');
+  await q.waitForTimeout(250);
+  const vueSms = await q.evaluate(() => {
+    const ul = document.querySelector("[data-wm-rp-sms]");
+    const li = ul?.querySelector("[data-wm-rp-sms-fil]");
+    return {
+      visible: ul?.hidden === false,
+      tableauCache: document.querySelector("[data-wm-rp-tableau]")?.hidden === true,
+      //  LES FILTRES PARLENT D'ÉTATS QU'UNE CONVERSATION N'A PAS.
+      filtresCaches: document.querySelector("[data-wm-rp-filtres]")?.hidden === true,
+      fils: ul?.querySelectorAll("[data-wm-rp-sms-fil]").length ?? 0,
+      titre: li?.querySelector(".wm-rp__titre")?.textContent ?? "",
+      mene: li?.querySelector(".wm-rp__titre")?.getAttribute("href") ?? "",
+      avec: li?.querySelector(".wm-rp__lieu")?.textContent ?? "",
+      etat: li?.querySelector(".wm-rp__etat")?.textContent ?? "",
+      //  PAS DE MENU D'ÉTAT : on ne met pas un SMS « en pause ».
+      menus: ul?.querySelectorAll("select").length ?? 0,
+    };
+  });
+  dire(
+    "LA VUE SMS MONTRE LA CONVERSATION, ET ELLE MÈNE AU DERNIER MESSAGE",
+    vueSms.visible && vueSms.tableauCache && vueSms.fils === 1 &&
+      vueSms.titre === "Tu es où ?" && vueSms.mene === "/t400-#15700",
+    JSON.stringify(vueSms),
+  );
+  dire(
+    "AVEC QUI, COMBIEN DE MESSAGES, ET À QUI D'ÉCRIRE — MAIS AUCUN MENU D'ÉTAT",
+    //  LE MOT EST CELUI DE `MOTS` — « à moi d'écrire » : c'est le
+    //  carnet qui parle à la première personne, et la vue SMS ne doit
+    //  pas en inventer un second.
+    vueSms.avec === "avec Murphy · 12 messages" && vueSms.etat === "à moi d'écrire" &&
+      vueSms.menus === 0 && vueSms.filtresCaches,
+    JSON.stringify(vueSms),
+  );
+  await q.close();
+}
+
+{
+  //  ── SANS CONVERSATION, LA VUE LE DIT ────────────────────────────
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  await q.click('[data-wm-rp-vue="sms"]');
+  await q.waitForTimeout(250);
+  const vide = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-sms] .wm-rp__sms-vide")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "UNE VUE SMS VIDE DIT POURQUOI, elle ne reste pas blanche",
+    vide.startsWith("Aucune conversation"),
+    JSON.stringify({ vide }),
+  );
+  await q.close();
+}
+
+{
+  //  ── LE RÉCAP DE BUTIN, EN ZONE SAUVAGE ──────────────────────────
+  //
+  //  « Ce serait cool aussi d'avoir un récap pour les rps des zones
+  //  sauvages de ce qu'on va récupérer si on clôture le sujet (rp solo
+  //  et à plusieurs). »
+  //
+  //  LE REGISTRE DU DÉCOR PORTE DEUX JOUEURS, et l'ordre compte : la
+  //  Poké Ball est TROUVÉE au message 15580 puis UTILISÉE au 15581.
+  //  Un cumul qui ne rejouerait pas l'ordre la compterait deux fois en
+  //  gain, ou refuserait la capture faute de ball.
+  const MOI = "eeee0000-0000-0000-0000-000000000001";
+  const AUTRE = "eeee0000-0000-0000-0000-000000000099";
+  const REGISTRE = [
+    { joueur_id: MOI, message_id: 15579, type: "croise", charge: { especeId: 25 } },
+    {
+      joueur_id: MOI,
+      message_id: 15580,
+      type: "objet_trouve",
+      charge: { objetId: 4, quantite: 2 },
+    },
+    {
+      joueur_id: MOI,
+      message_id: 15581,
+      type: "objet_utilise",
+      charge: { objetId: 4, quantite: 1 },
+    },
+    {
+      joueur_id: MOI,
+      message_id: 15582,
+      type: "capture",
+      charge: { especeId: 25, niveau: 7 },
+    },
+    { joueur_id: MOI, message_id: 15583, type: "xp", charge: { pokemonId: "p2", gain: 48 } },
+    { joueur_id: MOI, message_id: 15584, type: "pokedollars", charge: { montant: 350 } },
+    //  LE BUTIN DE QUELQU'UN D'AUTRE, dans le même sujet. Il ne doit
+    //  PAS entrer dans le récap : « rp solo et à plusieurs » veut dire
+    //  ce que TU toucherais, pas ce que la table ramasse.
+    {
+      joueur_id: AUTRE,
+      message_id: 15585,
+      type: "pokedollars",
+      charge: { montant: 9999 },
+    },
+    {
+      joueur_id: AUTRE,
+      message_id: 15586,
+      type: "capture",
+      charge: { especeId: 95, niveau: 30 },
+    },
+  ];
+  const { q, appels } = await monter({
+    lesRp: RP,
+    lesCompagnons: COMPAGNONS,
+    leRegistre: REGISTRE,
+    lesObjets: [{ id: 4, nom: "Poké Ball" }],
+  });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  await q.click('[data-wm-rp-ouvrir="996"]');
+  await q.waitForTimeout(600);
+
+  const vu = await q.evaluate(() => {
+    const bloc = document.querySelector("[data-wm-rp-grand-butin]");
+    return {
+      visible: bloc?.hidden === false,
+      titre: bloc?.querySelector(".wm-histoire__etiquette")?.textContent?.trim() ?? "",
+      lignes: [...(bloc?.querySelectorAll("[data-wm-rp-grand-butin-liste] li") ?? [])]
+        .map((li) => [
+          li.querySelector(".wm-rp__butin-etiquette")?.textContent ?? "",
+          li.querySelector(".wm-rp__butin-valeur")?.textContent ?? "",
+        ]),
+    };
+  });
+  const dit = Object.fromEntries(vu.lignes);
+  dire(
+    "LE RÉCAP S'AFFICHE, ET IL DIT « SI » — rien n'est acquis avant la clôture",
+    vu.visible && vu.titre === "Si tu clôtures ce sujet",
+    JSON.stringify({ visible: vu.visible, titre: vu.titre }),
+  );
+  dire(
+    "IL NOMME L'ESPÈCE ET L'OBJET, au lieu d'écrire leurs numéros",
+    //  25, c'est Pikachu dans le VRAI `especes.json` — le décor sert le
+    //  fichier du dépôt, donc ce nom-là n'est pas inventé ici.
+    (dit["CAPTURÉ"] ?? "").includes("Pikachu niv. 7") &&
+      (dit["AJOUTÉ AU SAC"] ?? "").includes("Poké Ball") &&
+      (dit["CONSOMMÉ"] ?? "").includes("1 Poké Ball"),
+    JSON.stringify(dit),
+  );
+  dire(
+    "ET LE POKÉMON PORTE SON SURNOM, pas son UUID",
+    //  `p2` est Pika dans CARNET. Le module posé dans le sujet écrit
+    //  « ton Pokémon » faute de pouvoir lire `joueur` ; ici, on est
+    //  chez soi.
+    (dit["EXPÉRIENCE"] ?? "").includes("Pika"),
+    JSON.stringify({ experience: dit["EXPÉRIENCE"] }),
+  );
+  dire(
+    "LE BUTIN DE L'AUTRE JOUEUR N'Y EST PAS",
+    //  +350 est le mien, 9999 celui de l'autre. Et une seule capture :
+    //  la sienne, pas celle du voisin.
+    (dit["POKÉDOLLARS"] ?? "") === "+350" &&
+      !(dit["CAPTURÉ"] ?? "").includes("niv. 30"),
+    JSON.stringify({ pokedollars: dit["POKÉDOLLARS"], capture: dit["CAPTURÉ"] }),
+  );
+
+  //  ── ET AILLEURS QU'EN ZONE, ON NE DEMANDE RIEN ──────────────────
+  //
+  //  977 est à Phenacit — une ville. Le registre n'y a rien à verser,
+  //  donc la requête serait posée pour rien.
+  const avant = appels.filter((a) => a.ou === "lire-registre").length;
+  await q.keyboard.press("Escape");
+  await q.waitForTimeout(200);
+  await q.click('[data-wm-rp-ouvrir="977"]');
+  await q.waitForTimeout(500);
+  const apres = appels.filter((a) => a.ou === "lire-registre").length;
+  const cache = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-grand-butin]")?.hidden === true
+  );
+  dire(
+    "UN RP EN VILLE NE DEMANDE PAS LE REGISTRE, ET N'AFFICHE PAS DE RÉCAP",
+    avant === 1 && apres === 1 && cache === true,
+    JSON.stringify({ avant, apres, cache }),
   );
   await q.close();
 }

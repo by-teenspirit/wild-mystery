@@ -185,6 +185,48 @@ function brancherLeTuto(doc: Document): void {
 
 brancherLeTuto(document);
 
+//  ── LA BARRE SE REPLIE, ET S'EN SOUVIENT ────────────────────────────
+//
+//  « La barre latérale : on doit pouvoir la fermer. Quand on ferme la
+//  barre latérale, on a que les icônes d'affichées. » — 20 novembre.
+//
+//  LE CHOIX TIENT D'UNE VISITE À L'AUTRE : quelqu'un qui travaille sur
+//  un petit écran replie une fois, pas à chaque chargement. Le stockage
+//  local peut jeter, refuser ou ne pas exister — en navigation privée,
+//  en préversion — donc chaque accès est gardé et la valeur par défaut
+//  est la barre OUVERTE : c'est l'état où l'on sait lire les onglets.
+function brancherLaBarre(doc: Document): void {
+  const CLEF = "wm-carnet-barre";
+  const barre = doc.querySelector<HTMLElement>("[data-wm-carnet-barre]");
+  const bouton = doc.querySelector<HTMLButtonElement>("[data-wm-carnet-replier]");
+  if (barre === null || bouton === null) return;
+
+  let ouverte = true;
+  try {
+    ouverte = globalThis.localStorage?.getItem(CLEF) !== "repliee";
+  } catch { /* rien : on reste sur la barre ouverte */ }
+
+  const poser = (): void => {
+    //  UN ATTRIBUT ET PAS UNE CLASSE QUI S'AJOUTE : l'état se lit dans
+    //  l'inspecteur sans croiser deux listes de classes, et la feuille
+    //  n'a qu'un sélecteur à porter.
+    if (ouverte) barre.removeAttribute("data-wm-repliee");
+    else barre.setAttribute("data-wm-repliee", "");
+    bouton.setAttribute("aria-expanded", ouverte ? "true" : "false");
+  };
+  poser();
+
+  bouton.addEventListener("click", () => {
+    ouverte = !ouverte;
+    try {
+      globalThis.localStorage?.setItem(CLEF, ouverte ? "ouverte" : "repliee");
+    } catch { /* rien : le choix ne survivra pas, la page marche */ }
+    poser();
+  });
+}
+
+brancherLaBarre(document);
+
 async function lire(nom: string): Promise<unknown> {
   if (RACINE === null) return null;
   return await fetch(`${RACINE}${nom}`, { credentials: "omit" })
@@ -686,8 +728,18 @@ async function ouvrirLeCarnet(): Promise<void> {
         jeton: laissez.jeton,
         joueurId: carnet.dresseur.joueurId,
         pseudo: carnet.dresseur.pseudo,
-        //  POUR LE TAG DE LIEU : `carte.json` et `forums.json`.
+        //  POUR LE TAG DE LIEU : `carte.json` et `forums.json`. Et
+        //  pour nommer les espèces du récap de butin : `especes.json`.
         racine: RACINE,
+        //  POUR NOMMER L'EXPÉRIENCE DU RÉCAP. Le module posé dans le
+        //  sujet ne peut pas le faire — `joueur` n'est lisible que par
+        //  son propriétaire —, mais ici on est chez soi : le carnet les
+        //  a déjà en main, sans une requête de plus.
+        pokemon: carnet.pokemon.map((p) => ({
+          id: p.id,
+          surnom: p.surnom,
+          especeId: p.especeId,
+        })),
       });
       poserLesLiens({
         doc: document,

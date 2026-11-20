@@ -63,7 +63,7 @@
   <div class="wm-carnet" data-wm-etat="charge"
        style="--carnet-fond: url('https://by-teenspirit.github.io/wild-mystery/assets/zones/montagnes-embrumees.jpg')">
 
-    <aside class="wm-carnet__barre">
+    <aside class="wm-carnet__barre" id="wm-carnet-barre" data-wm-carnet-barre>
       <!--  PAS D'AVATAR ICI, ET C'EST UNE ABSENCE RAISONNÉE. La
             maquette en dessine un ; une page créée sans l'en-tête du
             forum n'a pas `_userdata`, donc aucun moyen de savoir quel
@@ -77,6 +77,31 @@
 
       <div class="wm-carnet__filet"></div>
 
+      <!--  ── LA BARRE SE REPLIE ────────────────────────────────────
+
+            « La barre latérale : on doit pouvoir la fermer. Ajoute
+            aussi des icônes à côté de chaque onglet. Quand on ferme la
+            barre latérale, on a que les icônes d'affichées. » —
+            20 novembre.
+
+            REPLIER ET NON CACHER : les onglets restent là, cliquables,
+            et seulement leurs mots s'en vont. Une barre qui
+            disparaîtrait obligerait à la rouvrir pour changer d'onglet,
+            ce qui coûte un clic de plus à chaque fois.
+
+            LE BOUTON PORTE `aria-expanded` ET PAS UN LIBELLÉ QUI
+            CHANGE : son nom accessible reste le même d'un état à
+            l'autre, et c'est l'attribut qui dit où on en est.  -->
+      <button type="button" class="wm-carnet__replier" data-wm-carnet-replier
+              aria-expanded="true" aria-controls="wm-carnet-barre">
+        <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true"
+             focusable="false" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M11.6 6.2 7.8 10l3.8 3.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+        <span class="wm-carnet__onglet-mot">Replier la barre</span>
+      </button>
+
       <!--  ── CES ONGLETS N'EXISTENT QUE CARNET OUVERT ───────────────
 
             Huit liens, zéro page derrière tant que rien n'est relié —
@@ -84,20 +109,36 @@
             `data-wm-etat`, et la classe ci-dessous est la poignée.  -->
       <nav aria-label="Les onglets du carnet" class="wm-carnet__onglets-pages">
         <ul class="wm-carnet__onglets">
-          <li><a class="wm-carnet__onglet" href="#mes-rp" data-wm-carnet-onglet="mes-rp">Mes RP</a></li>
-          <li><a class="wm-carnet__onglet" href="#ecrire" data-wm-carnet-onglet="ecrire">Écrire</a></li>
-          <li><a class="wm-carnet__onglet" href="#mon-histoire" data-wm-carnet-onglet="mon-histoire">Mon histoire</a></li>
-          <li><a class="wm-carnet__onglet" href="#mes-liens" data-wm-carnet-onglet="mes-liens">Mes liens</a></li>
-          <li><a class="wm-carnet__onglet" href="#mon-jeu" data-wm-carnet-onglet="mon-jeu">Mon jeu</a></li>
-          <li><a class="wm-carnet__onglet" href="#mes-boites" data-wm-carnet-onglet="mes-boites">Mes boîtes</a></li>
-          <li><a class="wm-carnet__onglet" href="#mon-sac" data-wm-carnet-onglet="mon-sac">Mon sac</a></li>
-          <li><a class="wm-carnet__onglet" href="#mon-pokedex" data-wm-carnet-onglet="mon-pokedex">Mon Pokédex</a></li>
+          <li><a class="wm-carnet__onglet" href="#mes-rp" data-wm-carnet-onglet="mes-rp">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 3.2h11v13.6H4.5Z"/><path d="M7.4 7h5.2M7.4 10h5.2M7.4 13h3.2"/></svg>
+            <span class="wm-carnet__onglet-mot">Mes RP</span></a></li>
+          <li><a class="wm-carnet__onglet" href="#ecrire" data-wm-carnet-onglet="ecrire">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.4 16.6l1-3.4 8.1-8.1 2.4 2.4-8.1 8.1Z" stroke-linejoin="round"/><path d="M12.5 5.1l1.6-1.6 2.4 2.4-1.6 1.6"/></svg>
+            <span class="wm-carnet__onglet-mot">Écrire</span></a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-histoire" data-wm-carnet-onglet="mon-histoire">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 4.6C8.6 3.4 6.6 3.1 4 3.4v12.2c2.6-.3 4.6 0 6 1.2 1.4-1.2 3.4-1.5 6-1.2V3.4c-2.6-.3-4.6 0-6 1.2Z" stroke-linejoin="round"/><path d="M10 4.6v12.2"/></svg>
+            <span class="wm-carnet__onglet-mot">Mon histoire</span></a></li>
+          <li><a class="wm-carnet__onglet" href="#mes-liens" data-wm-carnet-onglet="mes-liens">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.3 11.7 11.7 8.3"/><path d="M7.2 8.8 5.6 10.4a2.6 2.6 0 0 0 3.7 3.7l1.6-1.6" stroke-linecap="round"/><path d="M12.8 11.2l1.6-1.6a2.6 2.6 0 0 0-3.7-3.7L9.1 7.5" stroke-linecap="round"/></svg>
+            <span class="wm-carnet__onglet-mot">Mes liens</span></a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-jeu" data-wm-carnet-onglet="mon-jeu">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M3 10h14"/><circle cx="10" cy="10" r="2.4"/></svg>
+            <span class="wm-carnet__onglet-mot">Mon jeu</span></a></li>
+          <li><a class="wm-carnet__onglet" href="#mes-boites" data-wm-carnet-onglet="mes-boites">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.2 6.4h13.6v10.2H3.2Z"/><path d="M3.2 6.4 5.4 3.4h9.2l2.2 3"/><path d="M8.2 9.6h3.6"/></svg>
+            <span class="wm-carnet__onglet-mot">Mes boîtes</span></a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-sac" data-wm-carnet-onglet="mon-sac">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.4 7.4h11.2v9.2H4.4Z" stroke-linejoin="round"/><path d="M7.4 7.4V5.9a2.6 2.6 0 0 1 5.2 0v1.5"/><path d="M4.4 11h11.2"/></svg>
+            <span class="wm-carnet__onglet-mot">Mon sac</span></a></li>
+          <li><a class="wm-carnet__onglet" href="#mon-pokedex" data-wm-carnet-onglet="mon-pokedex">
+            <svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.4 4.2h13.2v11.6H3.4Z"/><circle cx="7.1" cy="7.6" r="1.8"/><path d="M11 6.6h3.6M11 9.2h3.6M6 12.4h8.6"/></svg>
+            <span class="wm-carnet__onglet-mot">Mon Pokédex</span></a></li>
         </ul>
       </nav>
 
       <p class="wm-carnet__titre-groupe">Ailleurs sur le forum</p>
       <ul class="wm-carnet__onglets">
-        <li><a class="wm-carnet__onglet" href="/h1-par-ou-commencer">Les annexes</a></li>
+        <li><a class="wm-carnet__onglet" href="/h1-par-ou-commencer"><svg class="wm-carnet__icone" viewBox="0 0 20 20" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3.4h7l3 3v10.2H5Z" stroke-linejoin="round"/><path d="M11.8 3.4v3.2H15"/><path d="M7.6 11h4.8M7.6 13.6h3.2"/></svg><span class="wm-carnet__onglet-mot">Les annexes</span></a></li>
       </ul>
     </aside>
 
@@ -773,6 +814,23 @@
                       aria-pressed="true">Tableau</button>
               <button type="button" class="wm-boites__onglet" data-wm-rp-vue="liste"
                       aria-pressed="false">Liste</button>
+              <!--  ── LES SMS SONT UNE TROISIÈME VUE ────────────────
+
+                    « Il faudrait aussi un endroit qui récapitule toutes
+                    les conversations sms de son personnage » · « les
+                    sms = le messenger » — 20 novembre.
+
+                    MÊME SOURCE, TROISIÈME VUE : la relève range déjà
+                    les sujets du Messenger dans la même table, parce
+                    qu'elle cherche tous les sujets où la personne a
+                    écrit. Il n'y a donc rien de plus à relever, juste
+                    à les montrer ailleurs.
+
+                    ET ILS QUITTENT LE TABLEAU : une conversation n'a
+                    pas d'état à poser. « Prévu », « solo », « clôturé »
+                    ne veulent rien dire pour elle.  -->
+              <button type="button" class="wm-boites__onglet" data-wm-rp-vue="sms"
+                      aria-pressed="false">SMS</button>
             </div>
             <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer"
                  data-wm-rp-filtres>
@@ -803,6 +861,7 @@
                 sans rien apprendre.  -->
           <div class="wm-rp__tableau" data-wm-rp-tableau></div>
           <ul class="wm-rp__liste" data-wm-rp-liste hidden></ul>
+          <ul class="wm-rp__liste wm-rp__sms" data-wm-rp-sms hidden></ul>
         </div>
 
         <!--  ── LA CARTE EN GRAND ─────────────────────────────────────
@@ -831,6 +890,32 @@
           <p class="wm-rp__carte-lieu" data-wm-rp-grand-lieu></p>
           <p class="wm-rp__carte-avec" data-wm-rp-grand-avec></p>
           <p class="wm-rp__grand-extrait" data-wm-rp-grand-extrait></p>
+
+          <!--  ── CE QUE LA CLÔTURE VERSERAIT ───────────────────────
+
+                « Ce serait cool aussi d'avoir un récap pour les rps
+                des zones sauvages de ce qu'on va récupérer si on
+                clôture le sujet (rp solo et à plusieurs). » —
+                20 novembre.
+
+                IL NE S'AFFICHE QUE POUR UNE ZONE SAUVAGE, et
+                seulement si le registre a noté quelque chose à ton
+                nom dans ce sujet : ailleurs, il n'y a rien à verser,
+                et un bloc vide qui dit « rien » ferait croire à une
+                perte.
+
+                LE TEXTE DIT « SI » ET PAS « TU GAGNES ». Rien n'est
+                acquis avant la clôture : c'est la règle 1 du jeu, et
+                c'est le même mot que le module posé dans le sujet. -->
+          <div class="wm-rp__butin" data-wm-rp-grand-butin hidden>
+            <p class="wm-histoire__etiquette">Si tu clôtures ce sujet</p>
+            <ul class="wm-rp__butin-liste" data-wm-rp-grand-butin-liste></ul>
+            <p class="wm-histoire__aide">
+              C'est ce que le registre a noté jusqu'ici, pas une promesse : rien
+              n'est acquis avant la clôture, et la clôture se demande dans le
+              sujet.
+            </p>
+          </div>
           <label class="wm-rp__grand-champ">
             <span>Ta description</span>
             <textarea data-wm-rp-grand-description rows="4" maxlength="600"></textarea>

@@ -12,13 +12,19 @@
 // ════════════════════════════════════════════════════════════════════
 
 import type { ConfigSupabase } from "./registre.ts";
+import { aNommer, ligneEnAttente, lignesDepuis } from "../../navigateur/bilan.ts";
+import { rubriquesEnAttente } from "../../application/bilan.ts";
+import { cumuler, type LigneRegistre } from "../../domaine/cloture.ts";
+import { especesDepuis } from "./catalogue.ts";
 import {
   adresseDuSujet,
   etatVu,
+  FAMILLE_ZONE,
   familleDuForum,
   garderLesRp,
   type LigneDeRp,
   MOTS,
+  partagerLesRp,
   rangerLesRp,
   sujetDeLAdresse,
   type TableDesForums,
@@ -30,10 +36,32 @@ export type ReglagesRp = {
   readonly jeton: string;
   readonly joueurId: string;
   readonly pseudo: string;
-  //  LA RACINE DES DONNÉES, pour `carte.json` et `forums.json` — les
-  //  deux fichiers qui donnent son tag à un RP. Facultative : sans
-  //  elle, les cartes s'affichent sans tag, et rien d'autre ne change.
+  //  LA RACINE DES DONNÉES, pour `carte.json`, `forums.json` et
+  //  `especes.json` — les fichiers qui donnent son tag à un RP et un
+  //  nom à une espèce. Facultative : sans elle, les cartes s'affichent
+  //  sans tag, et rien d'autre ne change.
   readonly racine?: string | null;
+  //  LES POKÉMON DE LA PERSONNE, pour nommer l'expérience du récap.
+  //
+  //  LE MODULE POSÉ DANS LE SUJET NE PEUT PAS LES NOMMER : il ne
+  //  connaît que des identifiants, et `joueur` n'est lisible que par
+  //  son propriétaire — c'est la bonne politique. Ici, on EST chez
+  //  soi : le carnet les a déjà en main, sans une requête de plus.
+  //
+  //  Facultatifs : sans eux, `ligneEnAttente` écrit « ton Pokémon »,
+  //  ce qui est vrai et lisible.
+  readonly pokemon?: readonly PokemonNomme[];
+};
+
+/** Juste ce qu'il faut d'un Pokémon pour l'écrire dans un récap.
+ *
+ *  PAS `PokemonDuCarnet` : ce fichier n'a pas besoin du niveau, du
+ *  sexe ni de la boîte, et un type large ici obligerait l'appelant à
+ *  tout donner pour afficher un nom. */
+export type PokemonNomme = {
+  readonly id: string;
+  readonly surnom: string | null;
+  readonly especeId: number;
 };
 
 /** Le tag d'un forum, lu une fois au chargement.
@@ -76,6 +104,22 @@ async function lireLesForums(racine: string | null | undefined): Promise<TableDe
 //  `solo` EST UNE COLONNE ET PAS UNE DÉDUCTION : le jeu poste lui-même
 //  dans les sujets de zone sauvage, donc compter les participants
 //  rangerait toutes les fouilles hors du solo (0058).
+/** Les noms d'espèces, lus une fois.
+ *
+ *  LE MÊME FICHIER QUE LE MODULE DU SUJET — `especes.json`, 444
+ *  espèces — et pris en entier : un récap en nomme volontiers une
+ *  dizaine, et une requête par identifiant serait dix allers-retours
+ *  pour le même fichier. */
+async function lireLesEspeces(
+  racine: string | null | undefined,
+): Promise<ReadonlyMap<number, string>> {
+  if (racine === undefined || racine === null || racine === "") return new Map();
+  const reponse = await fetch(`${racine}especes.json`, { credentials: "omit" })
+    .catch(() => null);
+  if (reponse === null || !reponse.ok) return new Map();
+  return especesDepuis(await reponse.json().catch(() => null));
+}
+
 const ETATS: readonly { readonly clef: string; readonly mot: string }[] = [
   { clef: "prevu", mot: "prévu" },
   { clef: "en-cours", mot: "en cours" },
@@ -126,6 +170,11 @@ export function poserLesRp(r: ReglagesRp): boolean {
   //  LES NOMS DE COLONNES, par clé d'état. Vide au départ : une
   //  colonne sans entrée porte son mot par défaut.
   const noms = new Map<string, string>();
+
+  //  LE <ul> DES SMS EST FACULTATIF : une page collée avant le
+  //  20 novembre ne l'a pas, et le reste doit marcher quand même. Les
+  //  conversations restent alors dans le tableau, comme avant.
+  const sms = doc.querySelector<HTMLElement>("[data-wm-rp-sms]");
 
   const tableau = doc.querySelector<HTMLElement>("[data-wm-rp-tableau]");
   if (tableau === null) {
@@ -205,6 +254,101 @@ export function poserLesRp(r: ReglagesRp): boolean {
   const g = (quoi: string): HTMLElement | null =>
     grand?.querySelector<HTMLElement>(`[data-wm-rp-grand-${quoi}]`) ?? null;
 
+  //  ── CE QUE LA CLÔTURE VERSERAIT ─────────────────────────────────
+  //
+  //  « Ce serait cool aussi d'avoir un récap pour les rps des zones
+  //  sauvages de ce qu'on va récupérer si on clôture le sujet (rp solo
+  //  et à plusieurs). » — 20 novembre.
+  //
+  //  LE CUMUL EST CELUI DU DOMAINE, PAS UN SECOND CALCUL. `cumuler`
+  //  rejoue le registre dans l'ordre des messages : une ball trouvée au
+  //  message 3 peut être lancée au message 7, et seul l'ordre le dit.
+  //  Recompter ici donnerait deux vérités pour le même sujet, et la
+  //  nôtre serait la fausse le jour où une règle change.
+  //
+  //  « SOLO ET À PLUSIEURS » SE RÈGLE TOUT SEUL : on ne garde que les
+  //  lignes à son nom. Un RP à trois montre donc ce que la personne
+  //  toucherait, elle, et pas le butin de la table.
+  //
+  //  UNE SEULE ESPÈCE DE CACHE : les noms d'espèces, qui sont un
+  //  fichier. Le registre, lui, est relu à chaque ouverture — il bouge
+  //  à chaque message posté, et un récap d'hier serait pire que pas de
+  //  récap.
+  let lesEspeces: Promise<ReadonlyMap<number, string>> | null = null;
+
+  const nomsDObjets = async (ids: readonly number[]): Promise<ReadonlyMap<number, string>> => {
+    const index = new Map<number, string>();
+    //  `in.()` SUR UNE LISTE VIDE EST UNE ERREUR CÔTÉ POSTGREST, d'où
+    //  ce retour avant la requête.
+    if (ids.length === 0) return index;
+    const lu = await rest(r, `objet?id=in.(${ids.join(",")})&select=id,nom`);
+    if (!Array.isArray(lu.corps)) return index;
+    for (const o of lu.corps as Record<string, unknown>[]) {
+      const id = Number(o.id);
+      const nom = String(o.nom ?? "");
+      if (Number.isInteger(id) && nom !== "") index.set(id, nom);
+    }
+    return index;
+  };
+
+  const peindreLeButin = async (sujetId: number): Promise<void> => {
+    const bloc = g("butin");
+    const ou = g("butin-liste");
+    if (bloc === null || ou === null) return;
+    bloc.hidden = true;
+    ou.textContent = "";
+
+    const lu = await rest(
+      r,
+      `registre?sujet_id=eq.${sujetId}` +
+        `&select=joueur_id,message_id,type,charge&order=message_id.asc`,
+    );
+    //  LE SUJET A PU CHANGER PENDANT LA REQUÊTE : on a rouvert une
+    //  autre carte avant que celle-ci réponde. Sans ce test, le récap
+    //  d'un sujet s'écrit dans le dialogue d'un autre.
+    if (grand?.getAttribute("data-wm-rp-grand-sujet") !== String(sujetId)) return;
+    if (!lu.ok) return;
+
+    const miennes: LigneRegistre[] = lignesDepuis(lu.corps)
+      .filter((x) => x.joueurId === r.joueurId)
+      .map((x) => x.ligne);
+    if (miennes.length === 0) return;
+
+    const quoi = aNommer(cumuler(miennes));
+    lesEspeces ??= lireLesEspeces(r.racine);
+    const [especes, objets] = await Promise.all([lesEspeces, nomsDObjets(quoi.objets)]);
+    if (grand?.getAttribute("data-wm-rp-grand-sujet") !== String(sujetId)) return;
+
+    const pokemon = new Map<string, { nom: string; especeId: number }>();
+    for (const p of r.pokemon ?? []) {
+      //  LE SURNOM D'ABORD, puis le nom d'espèce : c'est l'ordre dans
+      //  lequel la personne reconnaît son Pokémon.
+      pokemon.set(p.id, {
+        nom: p.surnom ?? especes.get(p.especeId) ?? "ton Pokémon",
+        especeId: p.especeId,
+      });
+    }
+
+    const rubriques = rubriquesEnAttente(
+      ligneEnAttente(r.pseudo, miennes, { especes, objets, pokemon }),
+    );
+    if (rubriques.length === 0) return;
+
+    for (const rub of rubriques) {
+      const li = doc.createElement("li");
+      li.className = "wm-rp__butin-ligne";
+      const quoiDit = doc.createElement("span");
+      quoiDit.className = "wm-rp__butin-etiquette";
+      quoiDit.textContent = rub.etiquette;
+      const valeur = doc.createElement("span");
+      valeur.className = "wm-rp__butin-valeur";
+      valeur.textContent = rub.valeur;
+      li.append(quoiDit, valeur);
+      ou.append(li);
+    }
+    bloc.hidden = false;
+  };
+
   const ouvrirEnGrand = (sujetId: number): void => {
     const l = lignes.find((x) => x.sujetId === sujetId);
     if (grand === null || l === undefined) return;
@@ -254,6 +398,22 @@ export function poserLesRp(r: ReglagesRp): boolean {
     if (ditG !== null) ditG.textContent = "";
     grand.setAttribute("data-wm-rp-grand-sujet", String(sujetId));
     grand.showModal();
+
+    //  ── LE RÉCAP ARRIVE APRÈS, ET LE DIALOGUE N'ATTEND PAS ─────────
+    //
+    //  Il demande le registre : une requête. Retenir l'ouverture le
+    //  temps qu'elle réponde ferait un clic sans effet visible, pour
+    //  une ligne qui n'est pas celle qu'on vient chercher.
+    //
+    //  ET SEULEMENT EN ZONE SAUVAGE : ailleurs, le registre n'a rien à
+    //  verser, et la requête serait posée pour rien. Le tag se déduit
+    //  du même fichier que celui de la carte, donc les deux disent
+    //  toujours la même chose.
+    const butin = g("butin");
+    if (butin !== null) butin.hidden = true;
+    if (familleDuForum(l.forumId, forums) === FAMILLE_ZONE) {
+      void peindreLeButin(sujetId);
+    }
   };
 
   if (grand !== null) {
@@ -284,13 +444,13 @@ export function poserLesRp(r: ReglagesRp): boolean {
     });
   }
 
-  const peindreLeTableau = (): void => {
+  const peindreLeTableau = (lesRp: readonly LigneDeRp[]): void => {
     tableau.textContent = "";
     for (const colonne of ETATS) {
       //  LA COLONNE DES CLÔTURÉS SE REPLIE, et elle seule : c'est la
       //  seule qui ne demande rien et qui grossit sans fin.
       if (colonne.clef === "cloture" && !clotures) continue;
-      const dedans = rangerLesRp(lignes.filter((l) => l.etat === colonne.clef));
+      const dedans = rangerLesRp(lesRp.filter((l) => l.etat === colonne.clef));
       const bloc = doc.createElement("div");
       bloc.className = "wm-rp__colonne";
       bloc.setAttribute("data-wm-rp-colonne", colonne.clef);
@@ -492,18 +652,98 @@ export function poserLesRp(r: ReglagesRp): boolean {
     }
   };
 
+  /** Les conversations du Messenger, à plat et dans l'ordre.
+   *
+   *  PAS DE COLONNES, PAS DE MENU D'ÉTAT : on ne met pas un SMS « en
+   *  pause ». Ce qu'on veut savoir d'une conversation, c'est avec qui,
+   *  qui a parlé en dernier, et quand — rien de plus, et c'est la même
+   *  lecture que la vue Liste, sans ce qui ne s'applique pas.
+   *
+   *  `rangerLesRp` TRIE COMME AILLEURS : deux listes du même carnet qui
+   *  ne rangent pas pareil se lisent comme deux carnets. */
+  const peindreLesSms = (lesSms: readonly LigneDeRp[]): void => {
+    if (sms === null) return;
+    sms.textContent = "";
+    if (lesSms.length === 0) {
+      const vide = doc.createElement("li");
+      vide.className = "wm-rp__sms-vide";
+      vide.textContent =
+        "Aucune conversation pour l'instant. Celles du Messenger arrivent ici dès que tu y écris.";
+      sms.append(vide);
+      return;
+    }
+
+    for (const l of rangerLesRp(lesSms)) {
+      const vu = etatVu(l, r.pseudo);
+      const li = doc.createElement("li");
+      li.className = "wm-rp__ligne";
+      li.setAttribute("data-wm-rp-sms-fil", String(l.sujetId));
+
+      const mot = doc.createElement("div");
+      mot.className = "wm-rp__mot";
+      const titre = doc.createElement("a");
+      titre.className = "wm-rp__titre";
+      titre.textContent = l.titre === "" ? `Conversation ${l.sujetId}` : l.titre;
+      titre.href = adresseDuSujet(l.sujetId, l.dernierMessage);
+      //  AVEC QUI, ET SOI-MÊME EXCLU — même règle que sur les cartes :
+      //  « avec Jake Dalziel » sur la conversation de Jake ne dit rien.
+      const avec = (compagnons.get(l.sujetId) ?? [])
+        .filter((p) => p.trim() !== r.pseudo.trim());
+      const qui = doc.createElement("span");
+      qui.className = "wm-rp__lieu";
+      qui.textContent = avec.length === 0
+        ? `${l.reponses} message${l.reponses > 1 ? "s" : ""}`
+        : `avec ${avec.join(", ")} · ${l.reponses} message${l.reponses > 1 ? "s" : ""}`;
+      mot.append(titre, qui);
+      if (l.extrait !== "") {
+        const extrait = doc.createElement("span");
+        extrait.className = "wm-rp__extrait";
+        extrait.textContent = `« ${l.extrait} »`;
+        mot.append(extrait);
+      }
+
+      const etiquette = doc.createElement("span");
+      etiquette.className = "wm-rp__etat" +
+        (vu === "a-moi" || vu === "neuf" ? " wm-rp__etat--a-moi" : "");
+      etiquette.textContent = MOTS[vu];
+
+      const quand = doc.createElement("span");
+      quand.className = "wm-rp__quand";
+      quand.textContent = l.dernierLe === null
+        ? "—"
+        : new Date(l.dernierLe).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+
+      li.append(mot, etiquette, quand);
+      sms.append(li);
+    }
+  };
+
   const peindre = (): void => {
     tableau.hidden = vue !== "tableau";
     liste.hidden = vue !== "liste";
-    if (vue === "tableau") peindreLeTableau();
-    const vues = rangerLesRp(garderLesRp(lignes, filtre, r.pseudo));
-    const aMoi = lignes.filter((l) => {
+    if (sms !== null) sms.hidden = vue !== "sms";
+    //  LE PARTAGE SE FAIT À LA PEINTURE ET PAS AU CHARGEMENT : la table
+    //  des forums arrive par une autre requête, qui peut répondre après
+    //  les RP. Partager une fois pour toutes au chargement laisserait
+    //  les conversations dans le tableau jusqu'au prochain repeint.
+    //  SANS LE <ul> DES SMS, ON NE PARTAGE PAS : les sortir du tableau
+    //  sans avoir où les mettre les ferait disparaître des deux côtés.
+    const partage = sms === null
+      ? { rp: lignes, sms: [] as readonly LigneDeRp[] }
+      : partagerLesRp(lignes, forums);
+    if (vue === "tableau") peindreLeTableau(partage.rp);
+    if (vue === "sms") peindreLesSms(partage.sms);
+    const vues = rangerLesRp(garderLesRp(partage.rp, filtre, r.pseudo));
+    const aMoi = partage.rp.filter((l) => {
       const v = etatVu(l, r.pseudo);
       return v === "a-moi" || v === "neuf";
     }).length;
-    compte.textContent = lignes.length === 0
+    const conversations = partage.sms.length === 0
+      ? ""
+      : ` ${partage.sms.length} conversation${partage.sms.length > 1 ? "s" : ""} au Messenger.`;
+    compte.textContent = partage.rp.length === 0
       ? "Rien pour l'instant. La relève remplit ce tableau une fois par heure."
-      : `${lignes.length} RP, dont ${aMoi} où c'est à toi d'écrire.`;
+      : `${partage.rp.length} RP, dont ${aMoi} où c'est à toi d'écrire.${conversations}`;
 
     liste.textContent = "";
     for (const l of vues) {
@@ -622,8 +862,11 @@ export function poserLesRp(r: ReglagesRp): boolean {
       //  LES FILTRES NE SERVENT QU'À LA LISTE : le tableau montre déjà
       //  tout, rangé par colonnes. Les laisser visibles donnerait des
       //  colonnes à moitié vides sans qu'on comprenne pourquoi.
+      //  ET PAS DAVANTAGE À LA VUE SMS : ses quatre mots — à moi,
+      //  prévus, clôturés — parlent d'états qu'une conversation n'a
+      //  pas.
       const filtres = doc.querySelector<HTMLElement>("[data-wm-rp-filtres]");
-      if (filtres !== null) filtres.hidden = vue === "tableau";
+      if (filtres !== null) filtres.hidden = vue !== "liste";
       peindre();
     });
   }

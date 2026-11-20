@@ -77,6 +77,45 @@ export function familleDuForum(forumId: number, table: TableDesForums): string |
   return table[forumId] ?? null;
 }
 
+/** Le mot que `data/forums.json` donne à la famille du Messenger.
+ *
+ *  Il est ÉCRIT UNE FOIS ICI et pas recopié à chaque comparaison : la
+ *  table vient d'un fichier de données, et un littéral en trois
+ *  endroits finirait par ne plus dire la même chose que le fichier. */
+export const FAMILLE_SMS = "sms";
+
+/** Et celui de la zone sauvage, pour la même raison.
+ *
+ *  C'est la seule famille où le registre a quelque chose à verser :
+ *  c'est elle qui décide si un RP montre son récap de butin. */
+export const FAMILLE_ZONE = "zone sauvage";
+
+/** Les RP d'un côté, les conversations du Messenger de l'autre.
+ *
+ *  « Les sms = le messenger. Ça fonctionnera un peu comme les rps du
+ *  coup. » — 20 novembre.
+ *
+ *  POURQUOI UN PARTAGE ET PAS UN FILTRE DE PLUS : une conversation
+ *  Messenger n'a pas d'état à poser. « Prévu », « solo », « clôturé »
+ *  ne veulent rien dire pour elle, et la laisser dans le tableau
+ *  mettrait des cartes dans des colonnes qui ne la concernent pas.
+ *
+ *  LA TABLE PEUT ÊTRE VIDE — `forums.json` pas encore lu, réseau
+ *  coupé. Alors personne n'est reconnu comme SMS, et tout reste du
+ *  côté des RP : un tableau complet vaut mieux qu'une page amputée. */
+export function partagerLesRp(
+  lignes: readonly LigneDeRp[],
+  forums: TableDesForums,
+): { readonly rp: readonly LigneDeRp[]; readonly sms: readonly LigneDeRp[] } {
+  const rp: LigneDeRp[] = [];
+  const sms: LigneDeRp[] = [];
+  for (const l of lignes) {
+    if (familleDuForum(l.forumId, forums) === FAMILLE_SMS) sms.push(l);
+    else rp.push(l);
+  }
+  return { rp, sms };
+}
+
 /** L'état visible d'un RP.
  *
  *  L'ORDRE DES TESTS EST LA RÈGLE : ce que la personne a posé —

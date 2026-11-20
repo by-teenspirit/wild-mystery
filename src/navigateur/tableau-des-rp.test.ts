@@ -7,6 +7,7 @@ import {
   garderLesRp,
   type LigneDeRp,
   MOTS,
+  partagerLesRp,
   rangerLesRp,
   sujetDeLAdresse,
 } from "./tableau-des-rp.ts";
@@ -190,4 +191,30 @@ Deno.test("UN FORUM INCONNU N'A PAS DE TAG, et ce n'est pas une panne", () => {
   //  corrige, un tag faux se croit.
   assertEquals(familleDuForum(999, { 36: "zone sauvage" }), null);
   assertEquals(familleDuForum(0, {}), null);
+});
+
+Deno.test("LES SMS PARTENT DU TABLEAU : le Messenger n'a pas d'état à poser", () => {
+  //  « Les sms = le messenger. Ça fonctionnera un peu comme les rps du
+  //  coup. » Mais « prévu », « solo » et « clôturé » ne veulent rien
+  //  dire pour une conversation : la laisser dans le tableau mettrait
+  //  des cartes dans des colonnes qui ne la concernent pas.
+  const table = { 34: "zone sauvage", 1: "sms" };
+  const lignes = [
+    ligne({ sujetId: 996, forumId: 34 }),
+    ligne({ sujetId: 400, forumId: 1, titre: "Tu es où ?" }),
+    ligne({ sujetId: 401, forumId: 1, titre: "Demain, 9 h" }),
+  ];
+  const { rp, sms } = partagerLesRp(lignes, table);
+  assertEquals(rp.map((l) => l.sujetId), [996]);
+  assertEquals(sms.map((l) => l.sujetId), [400, 401]);
+});
+
+Deno.test("SANS TABLE DES FORUMS, TOUT RESTE DU CÔTÉ DES RP", () => {
+  //  `forums.json` pas encore lu, réseau coupé : personne n'est reconnu
+  //  comme SMS. Un tableau complet vaut mieux qu'une page amputée — et
+  //  surtout, aucune conversation ne disparaît des deux côtés à la fois.
+  const lignes = [ligne({ forumId: 1 }), ligne({ sujetId: 997, forumId: 34 })];
+  const { rp, sms } = partagerLesRp(lignes, {});
+  assertEquals(rp.length, 2);
+  assertEquals(sms.length, 0);
 });
