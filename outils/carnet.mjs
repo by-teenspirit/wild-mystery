@@ -301,6 +301,7 @@ async function monter(
     lesLiens = [],
     lesRp = [],
     lesCompagnons = [],
+    lesNomsDeColonnes = [],
     etatDeLaFiche = null,
   } = {},
 ) {
@@ -442,6 +443,29 @@ async function monter(
         contentType: "application/json",
         body: JSON.stringify(lesCompagnons),
       });
+    }
+
+    //  ── LES NOMS DE COLONNES ─────────────────────────────────────
+    //
+    //  `rp_colonne` de la 0059. L'upsert passe par un POST avec
+    //  `Prefer: resolution=merge-duplicates`, et le retour au mot par
+    //  défaut par un DELETE : le décor relève les deux tels quels.
+    if (u.pathname.endsWith("/rest/v1/rp_colonne")) {
+      const methode = route.request().method();
+      if (methode === "GET") {
+        appels.push({ ou: "lire-noms" });
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(lesNomsDeColonnes),
+        });
+      }
+      appels.push({
+        ou: `${methode}-nom`,
+        corps: JSON.parse(route.request().postData() ?? "{}"),
+        ou_quoi: u.search,
+        prefere: route.request().headers()["prefer"] ?? "",
+      });
+      return route.fulfill({ status: 204, body: "" });
     }
 
     //  ── LE TABLEAU DES RP ────────────────────────────────────────
@@ -2263,7 +2287,10 @@ const RP = [
   const boutons = await q.evaluate(() =>
     [...document.querySelectorAll(".wm-rp__ligne")].map((e) => ({
       etat: e.querySelector(".wm-rp__etat")?.textContent?.trim(),
-      retirable: e.querySelector(".wm-rp__outils button") !== null,
+      //  LE SÉLECTEUR NOMME LE BOUTON QU'ON MESURE : « un bouton dans
+      //  les outils » est devenu faux le jour où « en grand » s'y est
+      //  ajouté, et la mesure aurait dit vrai pour la mauvaise raison.
+      retirable: e.querySelector("[data-wm-rp-retirer]") !== null,
     }))
   );
   dire(
@@ -2286,7 +2313,10 @@ const RP = [
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(300);
   const vu = await q.evaluate(() => ({
-    colonnes: [...document.querySelectorAll(".wm-rp__colonne-tete span:first-child")]
+    //  LE NOM DE LA COLONNE EST UN BOUTON depuis la 0059 : il
+    //  s'écrit. On le lit par son attribut et pas par sa place, pour
+    //  ne pas remesurer l'ordre du balisage à chaque remaniement.
+    colonnes: [...document.querySelectorAll("[data-wm-rp-renommer]")]
       .map((e) => e.textContent.trim()),
     comptes: [...document.querySelectorAll(".wm-rp__colonne-tete span:last-child")]
       .map((e) => e.textContent.trim()),
@@ -2616,11 +2646,12 @@ const { q: p, appels } = await monter();
   }));
   dire(
     "changer d'onglet ne demande RIEN, sauf la première ouverture des quatre onglets qui écrivent",
-    //  NEUF ET PLUS HUIT DEPUIS LE 20 NOVEMBRE : « Mes RP » demande
-    //  désormais aussi `rp_participant`, pour savoir avec qui on
-    //  écrit. Une requête de plus, UNE SEULE FOIS — c'est la garantie
+    //  DIX, ET PLUS HUIT DEPUIS LE 20 NOVEMBRE : « Mes RP » demande
+    //  désormais aussi `rp_participant` — avec qui on écrit — et
+    //  `rp_colonne` — le nom qu'on donne à ses colonnes. Deux requêtes
+    //  de plus, UNE SEULE FOIS chacune : c'est exactement la garantie
     //  que ce test porte, et elle tient.
-    apresLePremierTour === avant + 9 && appels.length === apresLePremierTour &&
+    apresLePremierTour === avant + 10 && appels.length === apresLePremierTour &&
       vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
       vu.adresse === "#mon-jeu",
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),
@@ -3689,6 +3720,197 @@ const COMPAGNONS = [
     "ÉCHAP LE REFERME, ET LE FOCUS REVIENT SUR LE BOUTON",
     referme.cache === true && referme.focusSurLeBouton === true,
     JSON.stringify(referme),
+  );
+  await q.close();
+}
+
+{
+  //  ── CHACUN NOMME SES COLONNES ───────────────────────────────────
+  //
+  //  « L'idée était de changer le nom de la colonne, que chacun puisse
+  //  la personnaliser. C'est possible ? » — 20 novembre.
+  const { q, appels } = await monter({
+    lesRp: RP,
+    lesCompagnons: COMPAGNONS,
+    lesNomsDeColonnes: [{ etat: "prevu", nom: "À lancer" }],
+  });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+
+  const lu = await q.evaluate(() => ({
+    prevu: document.querySelector('[data-wm-rp-renommer="prevu"]')?.textContent ?? "",
+    encours: document.querySelector('[data-wm-rp-renommer="en-cours"]')?.textContent ?? "",
+  }));
+  dire(
+    "LE NOM GARDÉ S'AFFICHE, ET LES AUTRES GARDENT LE LEUR",
+    lu.prevu === "À lancer" && lu.encours === "en cours",
+    JSON.stringify(lu),
+  );
+
+  //  LA CLÉ NE BOUGE PAS AVEC L'ÉTIQUETTE : c'est tout le pari de la
+  //  0059. Si l'attribut suivait le nom, un dépôt écrirait « À lancer »
+  //  dans `etat` et la contrainte le refuserait.
+  const clefTenue = await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-colonne="prevu"]') !== null
+  );
+  dire(
+    "ET LA CLÉ DE LA COLONNE RESTE `prevu`, quoi qu'on ait écrit dessus",
+    clefTenue === true,
+    JSON.stringify({ clefTenue }),
+  );
+
+  //  ── ON RENOMME ──────────────────────────────────────────────────
+  await q.click('[data-wm-rp-renommer="en-cours"]');
+  await q.waitForTimeout(150);
+  const enEdition = await q.evaluate(() => {
+    const c = document.querySelector(".wm-rp__colonne-champ");
+    return { la: c !== null, focus: c === document.activeElement, dit: c?.value ?? "" };
+  });
+  dire(
+    "AU CLIC, LE NOM DEVIENT UN CHAMP QUI A LE FOCUS",
+    enEdition.la && enEdition.focus && enEdition.dit === "en cours",
+    JSON.stringify(enEdition),
+  );
+
+  await q.fill(".wm-rp__colonne-champ", "Ça tourne");
+  await q.keyboard.press("Enter");
+  await q.waitForTimeout(300);
+  const ecrit = appels.filter((a) => a.ou === "POST-nom");
+  dire(
+    "ENTRÉE L'ENREGISTRE — UN UPSERT, PARCE QUE LA LIGNE PEUT NE PAS EXISTER",
+    ecrit.length === 1 && ecrit[0].corps.etat === "en-cours" &&
+      ecrit[0].corps.nom === "Ça tourne" &&
+      ecrit[0].prefere.includes("merge-duplicates"),
+    JSON.stringify(ecrit),
+  );
+  const repeint = await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-renommer="en-cours"]')?.textContent ?? ""
+  );
+  dire(
+    "ET LA COLONNE PORTE LE NOUVEAU NOM SANS RECHARGER",
+    repeint === "Ça tourne",
+    JSON.stringify({ repeint }),
+  );
+
+  //  ── LE VIDE REMET LE MOT D'ORIGINE ──────────────────────────────
+  //
+  //  On EFFACE la ligne au lieu d'y écrire « en cours » : le jour où ce
+  //  mot change dans ETATS, une colonne jamais renommée doit suivre.
+  await q.click('[data-wm-rp-renommer="en-cours"]');
+  await q.waitForTimeout(150);
+  await q.fill(".wm-rp__colonne-champ", "   ");
+  await q.keyboard.press("Enter");
+  await q.waitForTimeout(300);
+  const efface = appels.filter((a) => a.ou === "DELETE-nom");
+  const revenu = await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-renommer="en-cours"]')?.textContent ?? ""
+  );
+  dire(
+    "UN NOM VIDE EFFACE LA LIGNE ET REND SON MOT À LA COLONNE",
+    efface.length === 1 && efface[0].ou_quoi.includes("etat=eq.en-cours") &&
+      revenu === "en cours",
+    JSON.stringify({ efface, revenu }),
+  );
+
+  //  ── ÉCHAP N'ÉCRIT RIEN ──────────────────────────────────────────
+  const avant = appels.filter((a) => a.ou.endsWith("-nom")).length;
+  await q.click('[data-wm-rp-renommer="prevu"]');
+  await q.waitForTimeout(150);
+  await q.fill(".wm-rp__colonne-champ", "Jamais écrit");
+  await q.keyboard.press("Escape");
+  await q.waitForTimeout(300);
+  const apres = appels.filter((a) => a.ou.endsWith("-nom")).length;
+  const intact = await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-renommer="prevu"]')?.textContent ?? ""
+  );
+  dire(
+    "ÉCHAP ABANDONNE : RIEN N'EST ÉCRIT, ET LE NOM NE BOUGE PAS",
+    apres === avant && intact === "À lancer",
+    JSON.stringify({ avant, apres, intact }),
+  );
+  await q.close();
+}
+
+{
+  //  ── UNE CARTE EN GRAND, ET SA DESCRIPTION ───────────────────────
+  //
+  //  « Dans chaque card, pouvoir l'afficher en grand et mettre une
+  //  description. »
+  const AVEC_MOT = RP.map((l) =>
+    l.sujet_id === 996 ? { ...l, description: "Finir la descente avant la nuit." } : l
+  );
+  const { q, appels } = await monter({ lesRp: AVEC_MOT, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+
+  const ferme = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-grand]")?.open === false
+  );
+  dire(
+    "LE DIALOGUE EST FERMÉ TANT QU'ON NE L'OUVRE PAS",
+    ferme === true,
+    JSON.stringify({ ferme }),
+  );
+
+  await q.click('[data-wm-rp-ouvrir="996"]');
+  await q.waitForTimeout(250);
+  const ouvert = await q.evaluate(() => {
+    const d = document.querySelector("[data-wm-rp-grand]");
+    if (d === null) return null;
+    return {
+      ouvert: d.open,
+      titre: d.querySelector("[data-wm-rp-grand-titre]")?.textContent ?? "",
+      mene: d.querySelector("[data-wm-rp-grand-titre]")?.getAttribute("href") ?? "",
+      tag: d.querySelector(".wm-rp__tag")?.textContent ?? "",
+      ou: d.querySelector(".wm-rp__carte-ou")?.textContent ?? "",
+      avec: d.querySelector("[data-wm-rp-grand-avec]")?.textContent ?? "",
+      extrait: d.querySelector("[data-wm-rp-grand-extrait]")?.textContent ?? "",
+      mot: d.querySelector("[data-wm-rp-grand-description]")?.value ?? "",
+      //  LE DIALOGUE MODAL ENFERME LE FOCUS : c'est pour ça qu'on
+      //  prend <dialog> et pas une couche à nous.
+      focusDedans: d.contains(document.activeElement),
+    };
+  });
+  dire(
+    "IL S'OUVRE SUR LE BON RP, AVEC SON LIEU, SES COMPAGNONS ET SON EXTRAIT",
+    ouvert !== null && ouvert.ouvert === true &&
+      ouvert.titre === "La brume ne lève pas" && ouvert.mene === "/t996-#15582" &&
+      ouvert.tag === "zone sauvage" && ouvert.ou === "Montagnes Embrumées" &&
+      ouvert.avec === "avec Murphy" && ouvert.extrait === "Le vent se lève." &&
+      ouvert.focusDedans === true,
+    JSON.stringify(ouvert),
+  );
+  dire(
+    "ET LA DESCRIPTION DÉJÀ ÉCRITE EST DANS LE CHAMP",
+    ouvert?.mot === "Finir la descente avant la nuit.",
+    JSON.stringify({ mot: ouvert?.mot }),
+  );
+
+  await q.fill("[data-wm-rp-grand-description]", "On repart au matin.");
+  await q.click("[data-wm-rp-grand-garder]");
+  await q.waitForTimeout(300);
+  const garde = appels.filter((a) => a.ou === "PATCH-rp" && "description" in a.corps);
+  dire(
+    "GARDER N'ÉCRIT QUE LA DESCRIPTION, ET SUR LE BON SUJET",
+    garde.length === 1 && garde[0].corps.description === "On repart au matin." &&
+      Object.keys(garde[0].corps).length === 1 &&
+      garde[0].ou_quoi.includes("sujet_id=eq.996"),
+    JSON.stringify(garde),
+  );
+
+  //  ET ELLE RESTE APRÈS FERMETURE : la ligne en mémoire a été mise à
+  //  jour, donc rouvrir ne doit pas rendre l'ancien texte.
+  await q.keyboard.press("Escape");
+  await q.waitForTimeout(200);
+  await q.click('[data-wm-rp-ouvrir="996"]');
+  await q.waitForTimeout(250);
+  const rouvert = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-grand-description]")?.value ?? ""
+  );
+  dire(
+    "ET ROUVRIR REND CE QU'ON VIENT D'ÉCRIRE, pas ce qu'il y avait avant",
+    rouvert === "On repart au matin.",
+    JSON.stringify({ rouvert }),
   );
   await q.close();
 }

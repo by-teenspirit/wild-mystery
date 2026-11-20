@@ -943,7 +943,10 @@ export type SujetDUnJoueur = {
   readonly titre: string;
   readonly forumId: number;
   readonly forumNom: string;
-  readonly reponses: number;
+  /** `null` quand la page de recherche n'a pas donné le nombre. La
+   *  relève laisse alors en base ce qui y était : un zéro inventé
+   *  écraserait un compte juste (0059). */
+  readonly reponses: number | null;
   /** ISO, ou `null` quand la page n'a pas donné de date lisible. */
   readonly dernierLe: string | null;
   readonly dernierAuteur: string;

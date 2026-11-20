@@ -570,6 +570,33 @@
           <div class="wm-rp__tableau" data-wm-rp-tableau></div>
           <ul class="wm-rp__liste" data-wm-rp-liste hidden></ul>
         </div>
+
+        <dialog class="wm-rp__grand" data-wm-rp-grand aria-labelledby="wm-rp-grand-titre">
+          <div class="wm-rp__grand-tete">
+            <a class="wm-rp__grand-titre" id="wm-rp-grand-titre" data-wm-rp-grand-titre
+               href="#">—</a>
+            <button type="button" class="wm-tuto__fermer" data-wm-rp-grand-fermer>
+              <span aria-hidden="true">×</span>
+              <span class="wm-carnet__hors-ecran">Fermer</span>
+            </button>
+          </div>
+          <p class="wm-rp__carte-lieu" data-wm-rp-grand-lieu></p>
+          <p class="wm-rp__carte-avec" data-wm-rp-grand-avec></p>
+          <p class="wm-rp__grand-extrait" data-wm-rp-grand-extrait></p>
+          <label class="wm-rp__grand-champ">
+            <span>Ta description</span>
+            <textarea data-wm-rp-grand-description rows="4" maxlength="600"></textarea>
+          </label>
+          <p class="wm-histoire__aide">
+            Elle n'est qu'à toi : le forum ne la voit pas, et la relève n'y
+            touche pas. 600 signes au plus.
+          </p>
+          <div class="wm-rp__grand-pied">
+            <button type="button" class="wm-carnet__bouton wm-carnet__bouton--plein"
+                    data-wm-rp-grand-garder>Garder</button>
+            <span class="wm-histoire__aide" data-wm-rp-grand-dit role="status"></span>
+          </div>
+        </dialog>
       </section>
 
       <section class="wm-carnet__onglet-page wm-ecrire" data-wm-carnet-page="ecrire" hidden>

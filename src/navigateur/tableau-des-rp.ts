@@ -24,6 +24,10 @@ export type LigneDeRp = {
   readonly extrait: string;
   readonly etat: string;
   readonly ordre: number;
+  //  CE QUE LA PERSONNE ÉCRIT SUR SON RP — un pense-bête, où on en
+  //  est. La relève n'y touche pas (0059) ; vide tant que personne
+  //  n'a rien écrit.
+  readonly description: string;
 };
 
 /** Ce que l'étiquette dit, une fois le calcul fait. */

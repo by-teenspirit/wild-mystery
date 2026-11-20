@@ -30304,6 +30304,59 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   justify-content: space-between;
 }
 
+/* ── LE NOM DE LA COLONNE S'ÉCRIT ───────────────────────────────────
+
+   C'est un bouton, et il ne doit pas en avoir l'air : la ligne du
+   haut garde exactement l'allure qu'elle avait quand c'était un
+   texte. Le survol est le seul indice, et le `title` dit le reste. */
+#modernbb .wm-rp__colonne-nom {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  text-transform: inherit;
+  cursor: text;
+}
+
+#modernbb .wm-rp__colonne-nom:hover,
+#modernbb .wm-rp__colonne-nom:focus-visible {
+  color: var(--wm-encre, #2e2018);
+  text-decoration: underline dotted;
+}
+
+#modernbb .wm-rp__colonne-champ {
+  width: 100%;
+  min-width: 0;
+  padding: 2px var(--wm-espace-6, 6px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/* ── LA LOUPE DE LA CARTE ───────────────────────────────────────── */
+#modernbb .wm-rp__carte-loupe {
+  flex: 0 0 auto;
+  padding: 0 var(--wm-espace-6, 6px);
+  border: 0;
+  background: none;
+  color: var(--wm-texte-pale, #69564c);
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: 1;
+  cursor: pointer;
+}
+
+#modernbb .wm-rp__carte-loupe:hover,
+#modernbb .wm-rp__carte-loupe:focus-visible {
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
 #modernbb .wm-rp__colonne-vide {
   margin: 0;
   font-size: var(--wm-taille-petit, 11.5px);
@@ -30571,6 +30624,93 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   #modernbb .wm-tuto {
     width: 100%;
   }
+}
+
+/* ══ UN RP EN GRAND ═════════════════════════════════════════════════
+
+   « Dans chaque card, pouvoir l'afficher en grand et mettre une
+   description. »
+
+   UN <dialog> ET PAS UNE COUCHE À NOUS : le navigateur garde le focus
+   dedans, Échap ferme, et le reste de la page passe en inerte. Trois
+   choses qu'on écrirait mal à la main.
+
+   LE FOND SOMBRE EST POSÉ ICI, parce que ModernBB ne met rien sur
+   ::backdrop et que le défaut des navigateurs est presque invisible
+   sur un fond papier.
+   ═══════════════════════════════════════════════════════════════════ */
+#modernbb .wm-rp__grand {
+  width: min(34rem, calc(100vw - var(--wm-espace-32, 32px)));
+  max-height: calc(100vh - var(--wm-espace-48, 48px));
+  padding: var(--wm-espace-20, 20px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  overflow-y: auto;
+}
+
+#modernbb .wm-rp__grand::backdrop {
+  background: rgb(46 28 15 / 46%);
+}
+
+#modernbb .wm-rp__grand-tete {
+  display: flex;
+  gap: var(--wm-espace-12, 12px);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+#modernbb .wm-rp__grand-titre {
+  min-width: 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb .wm-rp__grand-extrait {
+  margin: var(--wm-espace-12, 12px) 0 0;
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  line-height: var(--wm-interligne-normal, 1.65);
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-rp__grand-champ {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-rp__grand-champ > span {
+  font-size: var(--wm-taille-etiquette, 10px);
+  letter-spacing: 0.16px;
+  text-transform: uppercase;
+  color: var(--wm-texte-doux, #6e5749);
+}
+
+#modernbb .wm-rp__grand-champ textarea {
+  width: 100%;
+  min-width: 0;
+  padding: var(--wm-espace-10, 10px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-encre, #2e2018);
+  font-family: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+  resize: vertical;
+}
+
+#modernbb .wm-rp__grand-pied {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  align-items: center;
+  margin-top: var(--wm-espace-16, 16px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

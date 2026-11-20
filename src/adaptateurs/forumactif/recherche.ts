@@ -44,8 +44,9 @@ export type SujetTrouve = {
   readonly forumId: number;
   readonly forumNom: string;
   readonly ouvertParId: number | null;
-  readonly reponses: number;
-  readonly vues: number;
+  /** `null` quand la page n'a pas donné le nombre — voir `nombre()`. */
+  readonly reponses: number | null;
+  readonly vues: number | null;
   readonly dernierAuteurId: number | null;
   readonly dernierAuteurPseudo: string;
   readonly dernierMessageId: number | null;
@@ -114,13 +115,26 @@ function sansBalises(bout: string): string {
     .trim();
 }
 
-function nombre(bout: string, quoi: string): number {
+/*  ── `null` QUAND ON N'A PAS TROUVÉ, ET PAS ZÉRO ──────────────────
+ *
+ *  Relevé le 20 novembre, en cherchant pourquoi le carnet de Jake
+ *  disait « 0 réponses » sur un sujet qui en a huit. Ce n'était pas
+ *  ça — la page de recherche porte bien son `<dd class="posts">`,
+ *  vérifié à la main ce jour-là — mais ce repli l'aurait caché si ça
+ *  l'avait été.
+ *
+ *  UN ZÉRO INVENTÉ EST INDISCERNABLE D'UN VRAI ZÉRO. Un sujet sans
+ *  réponse en a vraiment zéro ; un gabarit qui change de classe en
+ *  rendait zéro aussi, et la relève écrasait alors un compte juste
+ *  par un faux, en silence. `null` dit « je n'ai pas trouvé », et
+ *  l'appelant décide — ici, la base garde ce qu'elle avait (0059). */
+function nombre(bout: string, quoi: string): number | null {
   const m = new RegExp(`<dd[^>]*class="[^"]*\\b${quoi}\\b[^"]*"[^>]*>([\\s\\S]*?)</dd>`, "i")
     .exec(bout);
-  if (m === null) return 0;
+  if (m === null) return null;
   //  « 1 234 » avec une espace insécable : le forum sépare les milliers.
   const n = Number(sansBalises(m[1]).replace(/[\s ]/g, ""));
-  return Number.isFinite(n) ? n : 0;
+  return Number.isFinite(n) ? n : null;
 }
 
 /** Les sujets d'une page de recherche `show_results=topics`. */

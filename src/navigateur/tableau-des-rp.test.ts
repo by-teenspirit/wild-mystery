@@ -26,6 +26,7 @@ function ligne(dessus: Partial<LigneDeRp> = {}): LigneDeRp {
     extrait: "",
     etat: "en-cours",
     ordre: 0,
+    description: "",
     ...dessus,
   };
 }

@@ -157,3 +157,38 @@ Deno.test("et les formes numériques aussi, sans table à tenir", () => {
   const page = PAGE.replace(">test</a>", ">L&#233;on&#x202f;: la suite</a>");
   assertEquals(sujetsDeLaRecherche(page)[0].titre, "Léon : la suite");
 });
+
+// ── LE COMPTE ABSENT NE VAUT PAS ZÉRO, 20 novembre ──────────────────
+
+Deno.test("UN COMPTE INTROUVABLE REND `null`, PAS ZÉRO", () => {
+  //  Un zéro inventé est indiscernable d'un vrai zéro. Un sujet sans
+  //  réponse en a vraiment zéro ; un gabarit qui change de classe en
+  //  rendait zéro aussi, et la relève écrasait alors un compte juste
+  //  par un faux, en silence.
+  //
+  //  LE DÉCOR EST LA PAGE RÉELLE, MOINS SES DEUX COMPTES, et pas une
+  //  ligne écrite à la main : c'est la forme qu'aurait un gabarit
+  //  retouché. Un décor inventé ne mesurerait que mon invention —
+  //  c'est déjà arrivé trois fois dans ce dépôt.
+  const sansComptes = PAGE.replace(
+    /<dd[^>]*class="[^"]*\b(posts|views)\b[^"]*"[^>]*>[\s\S]*?<\/dd>/gi,
+    "",
+  );
+  const vus = sujetsDeLaRecherche(sansComptes);
+  assertEquals(vus.length, sujetsDeLaRecherche(PAGE).length);
+  assertEquals(vus[0].reponses, null);
+  assertEquals(vus[0].vues, null);
+  //  ET LE RESTE DE LA LIGNE SE LIT QUAND MÊME : une donnée qui manque
+  //  n'en emporte pas d'autres.
+  assertEquals(vus[0].sujetId, sujetsDeLaRecherche(PAGE)[0].sujetId);
+  assertEquals(vus[0].dernierMessageId, 15582);
+});
+
+Deno.test("ET UN VRAI ZÉRO RESTE UN ZÉRO", () => {
+  //  La distinction ne vaut que si les deux se disent autrement.
+  const aZero = PAGE.replace(
+    /(<dd[^>]*class="[^"]*\bposts\b[^"]*"[^>]*>)[\s\S]*?(<\/dd>)/i,
+    "$10$2",
+  );
+  assertEquals(sujetsDeLaRecherche(aZero)[0].reponses, 0);
+});

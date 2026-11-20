@@ -123,6 +123,9 @@ export function poserLesRp(r: ReglagesRp): boolean {
   //  n'est pas encore là n'empêche pas de lire ses RP.
   let forums: TableDesForums = {};
   const compagnons = new Map<number, string[]>();
+  //  LES NOMS DE COLONNES, par clé d'état. Vide au départ : une
+  //  colonne sans entrée porte son mot par défaut.
+  const noms = new Map<string, string>();
 
   const tableau = doc.querySelector<HTMLElement>("[data-wm-rp-tableau]");
   if (tableau === null) {
@@ -155,6 +158,132 @@ export function poserLesRp(r: ReglagesRp): boolean {
     return true;
   };
 
+  /** Écrire le nom qu'on donne à une colonne.
+   *
+   *  UN UPSERT ET PAS UN PATCH : la première fois qu'on renomme, la
+   *  ligne n'existe pas. `merge-duplicates` fait les deux cas en une
+   *  requête, sans avoir à demander d'abord si elle est là. */
+  const poserLeNom = async (clef: string, nom: string): Promise<void> => {
+    const fait = await rest(r, "rp_colonne", {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify({ joueur_id: r.joueurId, etat: clef, nom }),
+    });
+    if (!fait.ok) {
+      dit.textContent = "Ce nom de colonne n'a pas pu être enregistré.";
+      return;
+    }
+    noms.set(clef, nom);
+    peindre();
+  };
+
+  /** Rendre à une colonne son mot par défaut.
+   *
+   *  ON EFFACE LA LIGNE AU LIEU D'Y ÉCRIRE LE MOT PAR DÉFAUT : le jour
+   *  où un mot change dans `ETATS`, une colonne jamais renommée doit
+   *  suivre, et une ligne qui recopie l'ancien mot ne suivrait pas. */
+  const oublierLeNom = async (clef: string): Promise<void> => {
+    const fait = await rest(
+      r,
+      `rp_colonne?joueur_id=eq.${r.joueurId}&etat=eq.${clef}`,
+      { method: "DELETE", headers: { Prefer: "return=minimal" } },
+    );
+    if (!fait.ok) {
+      dit.textContent = "Ce nom de colonne n'a pas pu être effacé.";
+      return;
+    }
+    noms.delete(clef);
+    peindre();
+  };
+
+  //  ── L'AFFICHAGE EN GRAND ────────────────────────────────────────
+  //
+  //  UN SEUL DIALOGUE POUR TOUTES LES CARTES, rempli à l'ouverture :
+  //  cinquante dialogues dans la page, un par RP, feraient cinquante
+  //  champs de texte dans l'ordre de tabulation pour un seul ouvert.
+  const grand = doc.querySelector<HTMLDialogElement>("[data-wm-rp-grand]");
+  const g = (quoi: string): HTMLElement | null =>
+    grand?.querySelector<HTMLElement>(`[data-wm-rp-grand-${quoi}]`) ?? null;
+
+  const ouvrirEnGrand = (sujetId: number): void => {
+    const l = lignes.find((x) => x.sujetId === sujetId);
+    if (grand === null || l === undefined) return;
+
+    const titre = g("titre");
+    if (titre instanceof HTMLAnchorElement) {
+      titre.textContent = l.titre === "" ? `Sujet ${l.sujetId}` : l.titre;
+      titre.href = adresseDuSujet(l.sujetId, l.dernierMessage);
+    }
+
+    const lieu = g("lieu");
+    if (lieu !== null) {
+      lieu.textContent = "";
+      const famille = familleDuForum(l.forumId, forums);
+      if (famille !== null) {
+        const tag = doc.createElement("span");
+        tag.className = "wm-rp__tag";
+        tag.setAttribute("data-wm-rp-tag", famille);
+        tag.textContent = famille;
+        lieu.append(tag);
+      }
+      if (l.forumNom !== "") {
+        const ou = doc.createElement("span");
+        ou.className = "wm-rp__carte-ou";
+        ou.textContent = l.forumNom;
+        lieu.append(ou);
+      }
+    }
+
+    const avec = g("avec");
+    if (avec !== null) {
+      const qui = (compagnons.get(l.sujetId) ?? [])
+        .filter((p) => p.trim() !== r.pseudo.trim());
+      avec.textContent = qui.length === 0 ? "" : `avec ${qui.join(", ")}`;
+      avec.hidden = qui.length === 0;
+    }
+
+    const extrait = g("extrait");
+    if (extrait !== null) {
+      extrait.textContent = l.extrait;
+      extrait.hidden = l.extrait === "";
+    }
+
+    const champ = g("description");
+    if (champ instanceof HTMLTextAreaElement) champ.value = l.description;
+    const ditG = g("dit");
+    if (ditG !== null) ditG.textContent = "";
+    grand.setAttribute("data-wm-rp-grand-sujet", String(sujetId));
+    grand.showModal();
+  };
+
+  if (grand !== null) {
+    g("fermer")?.addEventListener("click", () => grand.close());
+    g("garder")?.addEventListener("click", () => {
+      const champ = g("description");
+      const ditG = g("dit");
+      const sujetId = Number(grand.getAttribute("data-wm-rp-grand-sujet"));
+      if (!(champ instanceof HTMLTextAreaElement) || !Number.isInteger(sujetId)) return;
+      //  LA BORNE EST CELLE DE LA BASE (600 signes, contrainte de la
+      //  0059) : couper ici évite un refus que personne ne saurait
+      //  lire, et le `maxlength` de la page dit déjà la même chose.
+      const description = champ.value.slice(0, 600);
+      void (async () => {
+        const fait = await rest(r, `rp?sujet_id=eq.${sujetId}`, {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ description }),
+        });
+        if (!fait.ok) {
+          if (ditG !== null) ditG.textContent = "Ça n'a pas pu être enregistré.";
+          return;
+        }
+        lignes = lignes.map((x) => (x.sujetId === sujetId ? { ...x, description } : x));
+        if (ditG !== null) ditG.textContent = "Gardé.";
+        peindre();
+      })();
+    });
+  }
+
   const peindreLeTableau = (): void => {
     tableau.textContent = "";
     for (const colonne of ETATS) {
@@ -166,14 +295,69 @@ export function poserLesRp(r: ReglagesRp): boolean {
       bloc.className = "wm-rp__colonne";
       bloc.setAttribute("data-wm-rp-colonne", colonne.clef);
 
+      //  ── LE NOM DE LA COLONNE S'ÉCRIT ──────────────────────────
+      //
+      //  « L'idée était de changer le nom de la colonne, que chacun
+      //  puisse la personnaliser. » C'est l'ÉTIQUETTE qui change, pas
+      //  la clé : `etat` garde ses cinq mots, le tri ne bouge pas, et
+      //  une carte déposée ici écrit toujours `colonne.clef`.
+      //
+      //  UN BOUTON ET PAS UN CHAMP TOUJOURS OUVERT : cinq champs de
+      //  texte en haut du tableau attraperaient le focus à chaque
+      //  tabulation, pour un geste qu'on fait une fois.
       const tete = doc.createElement("p");
       tete.className = "wm-rp__colonne-tete";
-      const nom = doc.createElement("span");
-      nom.textContent = colonne.mot;
+      const nom = doc.createElement("button");
+      nom.type = "button";
+      nom.className = "wm-rp__colonne-nom";
+      nom.textContent = noms.get(colonne.clef) ?? colonne.mot;
+      nom.title = "Renommer cette colonne";
+      nom.setAttribute("data-wm-rp-renommer", colonne.clef);
       const nb = doc.createElement("span");
       nb.textContent = String(dedans.length);
       tete.append(nom, nb);
       bloc.append(tete);
+
+      nom.addEventListener("click", () => {
+        const champ = doc.createElement("input");
+        champ.type = "text";
+        champ.className = "wm-rp__colonne-champ";
+        champ.maxLength = 24;
+        champ.value = nom.textContent ?? "";
+        champ.setAttribute("aria-label", "Le nom de cette colonne");
+        //  LE VIDE REMET LE NOM D'ORIGINE, et c'est la seule façon de
+        //  revenir en arrière sans un second bouton : une colonne sans
+        //  ligne dans `rp_colonne` porte son nom par défaut.
+        //
+        //  UN VERROU, PARCE QUE SORTIR DU CHAMP LE FERME AUSSI :
+        //  retirer du document l'élément qui a le focus déclenche
+        //  `blur` dans plusieurs navigateurs, donc Entrée écrirait
+        //  deux fois sans ce garde-fou.
+        let ferme = false;
+        const fini = (garder: boolean): void => {
+          if (ferme) return;
+          ferme = true;
+          const mot = champ.value.trim().slice(0, 24);
+          champ.replaceWith(nom);
+          if (!garder) return;
+          if (mot === "" || mot === colonne.mot) void oublierLeNom(colonne.clef);
+          else void poserLeNom(colonne.clef, mot);
+        };
+        champ.addEventListener("keydown", (e) => {
+          const touche = (e as KeyboardEvent).key;
+          if (touche === "Enter") {
+            e.preventDefault();
+            fini(true);
+          } else if (touche === "Escape") {
+            e.preventDefault();
+            fini(false);
+          }
+        });
+        champ.addEventListener("blur", () => fini(true));
+        nom.replaceWith(champ);
+        champ.focus();
+        champ.select();
+      });
 
       if (dedans.length === 0) {
         const vide = doc.createElement("p");
@@ -252,7 +436,23 @@ export function poserLesRp(r: ReglagesRp): boolean {
             day: "numeric",
             month: "short",
           });
-        pied.append(etiquette, quand);
+        //  ── L'AFFICHER EN GRAND ───────────────────────────────────
+        //
+        //  « Dans chaque card, pouvoir l'afficher en grand et mettre
+        //  une description. » Un bouton, et pas un clic sur la carte :
+        //  le titre mène déjà au sujet et la carte se glisse, donc un
+        //  troisième sens au même clic en aurait fait trop.
+        const loupe = doc.createElement("button");
+        loupe.type = "button";
+        loupe.className = "wm-rp__carte-loupe";
+        loupe.setAttribute("data-wm-rp-ouvrir", String(l.sujetId));
+        loupe.append(doc.createTextNode("⤢"));
+        const ditLoupe = doc.createElement("span");
+        ditLoupe.className = "wm-carnet__hors-ecran";
+        ditLoupe.textContent = `Afficher « ${l.titre} » en grand`;
+        loupe.append(ditLoupe);
+        loupe.addEventListener("click", () => ouvrirEnGrand(l.sujetId));
+        pied.append(etiquette, quand, loupe);
         //  LE TITRE EN PREMIER, quoi qu'on ait ajouté entre-temps :
         //  `prepend` le remet en tête, et le pied ferme la carte.
         carte.prepend(titre);
@@ -352,7 +552,10 @@ export function poserLesRp(r: ReglagesRp): boolean {
       for (const e of ETATS) {
         const o = doc.createElement("option");
         o.value = e.clef;
-        o.textContent = e.mot;
+        //  LE MENU DIT LE NOM QU'ON A DONNÉ À LA COLONNE : deux vues
+        //  de la même chose qui ne l'appellent pas pareil, et on ne
+        //  sait plus laquelle croire.
+        o.textContent = noms.get(e.clef) ?? e.mot;
         o.selected = e.clef === l.etat;
         choix.append(o);
       }
@@ -373,6 +576,16 @@ export function poserLesRp(r: ReglagesRp): boolean {
       });
       outils.append(choix);
 
+      //  LA LISTE OUVRE LE MÊME GRAND QUE LE TABLEAU : c'est le repli
+      //  accessible du tableau, et un geste qui n'existe que dans la
+      //  vue qu'on ne peut pas atteindre au clavier n'existe pas.
+      const voir = doc.createElement("button");
+      voir.type = "button";
+      voir.textContent = "en grand";
+      voir.setAttribute("data-wm-rp-ouvrir", String(l.sujetId));
+      voir.addEventListener("click", () => ouvrirEnGrand(l.sujetId));
+      outils.append(voir);
+
       //  ON N'EFFACE QU'UNE CARTE PRÉVUE, et la base le tient aussi
       //  (0037). Le bouton n'apparaît pas ailleurs pour la même raison
       //  qu'on ne grise pas : proposer un geste qui sera refusé
@@ -381,6 +594,7 @@ export function poserLesRp(r: ReglagesRp): boolean {
         const oter = doc.createElement("button");
         oter.type = "button";
         oter.textContent = "retirer";
+        oter.setAttribute("data-wm-rp-retirer", String(l.sujetId));
         oter.addEventListener("click", () => {
           void (async () => {
             await rest(r, `rp?sujet_id=eq.${l.sujetId}`, {
@@ -456,6 +670,7 @@ export function poserLesRp(r: ReglagesRp): boolean {
         extrait: "",
         etat: "prevu",
         ordre: 0,
+        description: "",
       };
       const fait = await rest(r, "rp", {
         method: "POST",
@@ -512,16 +727,25 @@ export function poserLesRp(r: ReglagesRp): boolean {
     if (charge) return;
     charge = true;
     void (async () => {
-      //  LES TROIS LECTURES PARTENT ENSEMBLE. Les compagnons et les
-      //  forums ne dépendent pas des RP : les enchaîner ajouterait
-      //  deux allers-retours au premier affichage pour rien.
-      const [lus, avec] = await Promise.all([
+      //  LES QUATRE LECTURES PARTENT ENSEMBLE. Les compagnons, les
+      //  forums et les noms de colonnes ne dépendent pas des RP : les
+      //  enchaîner ajouterait trois allers-retours au premier
+      //  affichage pour rien.
+      const [lus, avec, titres] = await Promise.all([
         rest(r, "rp?select=*&order=ordre,dernier_le.desc"),
         rest(r, "rp_participant?select=sujet_id,pseudo"),
+        rest(r, "rp_colonne?select=etat,nom"),
         lireLesForums(r.racine).then((t) => {
           forums = t;
         }),
       ]);
+      if (Array.isArray(titres.corps)) {
+        for (const c of titres.corps as Record<string, unknown>[]) {
+          const clef = String(c.etat ?? "");
+          const nom = String(c.nom ?? "").trim();
+          if (clef !== "" && nom !== "") noms.set(clef, nom);
+        }
+      }
       if (Array.isArray(avec.corps)) {
         for (const p of avec.corps as Record<string, unknown>[]) {
           const sujetId = Number(p.sujet_id);
@@ -544,6 +768,7 @@ export function poserLesRp(r: ReglagesRp): boolean {
           extrait: String(c.extrait ?? ""),
           etat: String(c.etat ?? "en-cours"),
           ordre: Number(c.ordre ?? 0),
+          description: String(c.description ?? ""),
         }));
       }
       peindre();
