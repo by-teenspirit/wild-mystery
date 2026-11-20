@@ -30174,14 +30174,31 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   display: flex;
   gap: 12px;
   margin-top: 12px;
+  padding-bottom: var(--wm-espace-8, 8px);
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
 }
 
+/*  ── LES COLONNES NE SE SERRENT PLUS, ELLES DÉFILENT ──────────────
+
+    « Tu peux mettre un défilement horizontal ? comme il y en a
+    beaucoup » — 20 novembre, à cinq colonnes.
+
+    `flex: 0 0` AU LIEU DE `1 1` : une colonne garde sa largeur et
+    c'est la rangée qui glisse. Avec `1 1`, cinq colonnes se
+    partageaient la place et chacune tombait à deux mots par ligne
+    avant que le défilement ne serve à quoi que ce soit.
+
+    L'accroche pose chaque colonne au bord gauche après un glissement,
+    plutôt que de s'arrêter au tiers de l'une et aux deux tiers de la
+    suivante. */
 #modernbb .wm-rp__colonne {
   display: flex;
-  flex: 1 1 14rem;
+  flex: 0 0 15rem;
   flex-direction: column;
   gap: 8px;
+  scroll-snap-align: start;
   min-width: 13rem;
   padding: 10px;
   background: var(--wm-fond-terre);
@@ -30221,10 +30238,62 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   cursor: grabbing;
 }
 
+/*  LE TITRE EST UN LIEN, et il doit en avoir l'air sans faire une
+    carte soulignée de part en part : pas de soulignement au repos, il
+    revient au survol et au focus. */
 #modernbb .wm-rp__carte-titre {
   font-family: var(--wm-police-titre);
   font-size: var(--wm-taille-normal, 13.5px);
   color: var(--wm-texte-titre);
+  text-decoration: none;
+}
+
+#modernbb .wm-rp__carte-titre:hover,
+#modernbb .wm-rp__carte-titre:focus-visible {
+  text-decoration: underline;
+}
+
+/*  ── LE LIEU, ET DE QUELLE FAMILLE ────────────────────────────────
+
+    Le tag se déduit du forum : `carte.json` sait ce qu'est un lieu de
+    Rhode, `forums.json` porte le reste. Un forum inconnu n'a pas de
+    tag et la ligne n'affiche que son nom — un tag absent se remarque,
+    un tag faux se croit. */
+#modernbb .wm-rp__carte-lieu {
+  display: flex;
+  margin: 0;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px);
+  align-items: baseline;
+}
+
+#modernbb .wm-rp__tag {
+  padding: 1px var(--wm-espace-6, 6px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  color: var(--wm-accent-terre, #8b4725);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: 0.15px;
+  text-transform: uppercase;
+}
+
+/*  LA ZONE SAUVAGE SE DISTINGUE DES AUTRES, parce que c'est la seule
+    famille où la clôture rapporte quelque chose. */
+#modernbb .wm-rp__tag[data-wm-rp-tag="zone sauvage"] {
+  background: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-texte-inverse, #fffbf7);
+}
+
+#modernbb .wm-rp__carte-ou,
+#modernbb .wm-rp__carte-avec {
+  color: var(--wm-texte-pale, #69564c);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wm-rp__carte-avec {
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 #modernbb .wm-rp__carte-pied {
@@ -30377,6 +30446,131 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-size: var(--wm-taille-normal, 13.5px);
   font-weight: var(--wm-graisse-gras, 700);
   text-decoration: none;
+}
+
+/*  ════════════════════════════════════════════════════════════════
+    LE TUTO : UN BOUTON EN BAS À DROITE, UN PANNEAU À DROITE
+    ════════════════════════════════════════════════════════════════
+
+    « Tous les boutons, tu les mets en bas à droite. Pour pas que ça
+    gêne la lecture. Et au clic, ça ouvre un panneau à droite. »
+    — 20 novembre.
+
+    IL NE S'APPELLE PAS `wm-aide`, ET C'EST LE HARNAIS QUI L'A DIT.
+    `wm-aide` existe déjà — `module-aide.ts` pose un « ? » dans l'en-tête
+    d'un bloc et déplie un panneau DANS LE FLUX. Mes règles, écrites
+    plus bas dans la même feuille, l'emportaient à spécificité égale :
+    tous les panneaux d'aide du carnet sont devenus des tiroirs fixes
+    qui recouvraient la page, et le harnais a buté dessus en essayant
+    de cliquer sous l'un d'eux. Deux systèmes, deux noms.
+
+    Ce qui était trois paragraphes d'explication au milieu de la page
+    tient derrière un « ? ». Le bouton est FIXE et non ABSOLU : absolu,
+    il se serait ancré au bloc et serait sorti de l'écran au premier
+    défilement, c'est-à-dire au moment précis où on le cherche. */
+
+#modernbb .wm-carnet__hors-ecran {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*  LES MARGES DE SÛRETÉ SONT DANS LE CALCUL : sur un téléphone à
+    encoche, 20 px du bord droit peuvent tomber sous la barre système.
+    `max()` garde le plus grand des deux. */
+#modernbb .wm-tuto__bouton {
+  position: fixed;
+  z-index: 40;
+  right: max(20px, env(safe-area-inset-right, 0px));
+  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--wm-accent-primaire, #275e7a);
+  box-shadow: 0 6px 14px rgb(46 28 15 / 22%);
+  color: var(--wm-texte-inverse, #fffbf7);
+  font-family: inherit;
+  font-size: var(--wm-taille-titre-carte, 16px);
+  font-weight: var(--wm-graisse-gras, 700);
+  cursor: pointer;
+}
+
+#modernbb .wm-tuto {
+  position: fixed;
+  z-index: 41;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  width: min(26rem, 100%);
+  flex-direction: column;
+  padding: var(--wm-espace-20, 20px);
+  padding-right: max(var(--wm-espace-20, 20px), env(safe-area-inset-right, 0px));
+  padding-bottom: max(var(--wm-espace-20, 20px), env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: -8px 0 24px rgb(46 28 15 / 18%);
+}
+
+#modernbb .wm-tuto__tete {
+  display: flex;
+  gap: var(--wm-espace-12, 12px);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+#modernbb .wm-tuto__titre {
+  margin: 0;
+  color: var(--wm-accent-primaire, #275e7a);
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-titre-carte, 16px);
+}
+
+#modernbb .wm-tuto__fermer {
+  padding: 0 var(--wm-espace-6, 6px);
+  border: 0;
+  background: none;
+  color: var(--wm-texte-pale, #69564c);
+  font-family: inherit;
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: 1;
+  cursor: pointer;
+}
+
+#modernbb .wm-tuto__corps h3 {
+  margin: var(--wm-espace-18, 18px) 0 var(--wm-espace-6, 6px);
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre);
+  font-size: var(--wm-taille-normal, 13.5px);
+}
+
+#modernbb .wm-tuto__corps h3:first-child {
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-tuto__corps p {
+  margin: 0;
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
+}
+
+/*  SOUS 480 PX, LE PANNEAU PREND TOUT : un tiroir de 26 rem sur un
+    écran de 24 n'aurait plus de bord à montrer. Mesuré sur l'écran et
+    pas sur un conteneur : c'est une couche fixe, elle ne vit dans
+    aucun bloc. */
+@media (max-width: 480px) {
+  #modernbb .wm-tuto {
+    width: 100%;
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════

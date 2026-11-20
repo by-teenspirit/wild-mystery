@@ -2,9 +2,11 @@ import { assertEquals } from "@std/assert";
 import {
   adresseDuSujet,
   etatVu,
+  familleDuForum,
   forumDeLAdresse,
   garderLesRp,
   type LigneDeRp,
+  MOTS,
   rangerLesRp,
   sujetDeLAdresse,
 } from "./tableau-des-rp.ts";
@@ -15,6 +17,7 @@ function ligne(dessus: Partial<LigneDeRp> = {}): LigneDeRp {
   return {
     sujetId: 996,
     titre: "La brume ne lève pas",
+    forumId: 34,
     forumNom: "Montagnes Embrumées",
     reponses: 3,
     dernierLe: "2026-10-28T13:34:00Z",
@@ -153,4 +156,37 @@ Deno.test("l'adresse d'un sujet ne porte pas de forum", () => {
   //  de forum à lire, et c'est ce qui fait choisir le fil d'Ariane.
   assertEquals(forumDeLAdresse("/t996-test"), null);
   assertEquals(sujetDeLAdresse("/post?f=9&mode=newtopic"), null);
+});
+
+// ── LA COLONNE SOLO ET LE TAG DE LIEU, 20 novembre ─────────────────
+
+Deno.test("UN SOLO N'ATTEND PERSONNE, MÊME QUAND LE JEU Y A ÉCRIT", () => {
+  //  LE CAS RÉEL : le sujet « test » de Jake a onze messages, dont un
+  //  d'Arceus — le jeu poste le résultat des fouilles. Sans l'état
+  //  solo, l'étiquette disait « à moi d'écrire » pour un RP où
+  //  personne ne doit répondre.
+  const seul = ligne({ etat: "solo", dernierAuteur: "Arceus" });
+  assertEquals(etatVu(seul, MOI), "solo");
+  assertEquals(MOTS[etatVu(seul, MOI)], "personne à attendre");
+});
+
+Deno.test("ET IL PASSE AVANT LE CALCUL, comme les autres états posés", () => {
+  //  Le dernier message est de moi : le calcul dirait « à l'autre ».
+  //  Ce que la personne a posé l'emporte.
+  assertEquals(etatVu(ligne({ etat: "solo", dernierAuteur: MOI }), MOI), "solo");
+});
+
+Deno.test("LE TAG SE DÉDUIT DU FORUM", () => {
+  const table = { 36: "zone sauvage", 5: "ville", 72: "voyage dans le temps" };
+  assertEquals(familleDuForum(36, table), "zone sauvage");
+  assertEquals(familleDuForum(5, table), "ville");
+  assertEquals(familleDuForum(72, table), "voyage dans le temps");
+});
+
+Deno.test("UN FORUM INCONNU N'A PAS DE TAG, et ce n'est pas une panne", () => {
+  //  Un forum ajouté sur le forum n'entre pas tout seul dans la table.
+  //  La carte s'affiche sans tag : un tag absent se remarque et se
+  //  corrige, un tag faux se croit.
+  assertEquals(familleDuForum(999, { 36: "zone sauvage" }), null);
+  assertEquals(familleDuForum(0, {}), null);
 });

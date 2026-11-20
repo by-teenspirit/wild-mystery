@@ -489,13 +489,57 @@
               Ajouter
             </button>
           </div>
-          <p class="wm-histoire__aide">
-            Une carte ajoutée ici est « prévue » : un RP convenu où tu n'as pas
-            encore écrit. Dès que tu y postes, la relève la remplit avec le
-            vrai titre et le dernier message.
-          </p>
           <p class="wm-histoire__aide" data-wm-rp-dit role="status"></p>
         </div>
+
+        <button type="button" class="wm-tuto__bouton" data-wm-tuto-ouvrir
+                aria-expanded="false" aria-controls="wm-tuto-rp">
+          <span aria-hidden="true">?</span>
+          <span class="wm-carnet__hors-ecran">Comment ça marche</span>
+        </button>
+
+        <aside class="wm-tuto" id="wm-tuto-rp" data-wm-tuto aria-label="Comment ça marche"
+               hidden>
+          <div class="wm-tuto__tete">
+            <h2 class="wm-tuto__titre">Comment ça marche</h2>
+            <button type="button" class="wm-tuto__fermer" data-wm-tuto-fermer>
+              <span aria-hidden="true">×</span>
+              <span class="wm-carnet__hors-ecran">Fermer l'aide</span>
+            </button>
+          </div>
+          <div class="wm-tuto__corps">
+            <h3>Le tableau se remplit tout seul</h3>
+            <p>
+              La relève passe sur le forum et range chaque sujet où tu as écrit :
+              le titre, le lieu, qui joue avec toi, et qui a posté en dernier.
+              Tu n'as rien à recopier.
+            </p>
+            <h3>Les cinq colonnes</h3>
+            <p>
+              <b>Prévu</b> : convenu, pas commencé. <b>En cours</b> : ça tourne.
+              <b>Solo</b> : tu écris seul, personne n'est attendu — même si le jeu
+              poste dans le sujet. <b>En pause</b> : mis de côté sans le clore.
+              <b>Clôturé</b> : fini. Tu peux replier cette dernière colonne.
+            </p>
+            <h3>Changer une carte de colonne</h3>
+            <p>
+              Attrape-la et dépose-la ailleurs. Au clavier, passe en vue
+              <b>Liste</b> : chaque ligne y porte le même menu d'état.
+            </p>
+            <h3>Ajouter un RP prévu</h3>
+            <p>
+              Colle l'adresse du sujet. Une carte ajoutée là est « prévue » : un
+              RP convenu où tu n'as pas encore écrit. Dès que tu y postes, la
+              relève la remplit avec le vrai titre et le dernier message.
+            </p>
+            <h3>Les étiquettes de lieu</h3>
+            <p>
+              Elles se déduisent du forum où vit le sujet, donc elles ne peuvent
+              pas se désaccorder. Un forum que le carnet ne connaît pas s'affiche
+              sans étiquette plutôt qu'avec une fausse.
+            </p>
+          </div>
+        </aside>
 
         <div class="wm-carnet__bloc">
           <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
@@ -517,6 +561,9 @@
               <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
                       aria-pressed="false">Clôturés</button>
             </div>
+
+            <button type="button" class="wm-boites__onglet" data-wm-rp-clotures
+                    aria-pressed="true">Montrer les clôturés</button>
           </div>
           <p class="wm-carnet__bloc-dit" data-wm-rp-compte></p>
 

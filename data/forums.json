@@ -1,0 +1,20 @@
+{
+ "_": "Les forums de RP qui ne sont PAS des lieux de la carte. Relevé sur l'index du forum le 20 novembre 2026. Sert à poser le tag d'un RP dans le carnet, avec `carte.json` qui porte déjà le `type` des vingt-six lieux de Rhode — zone, ville, ligue. Ici, seulement ce que la carte ne connaît pas : on ne voyage pas dans le temps à un endroit, et le Messenger n'est pas un lieu.",
+ "_pourquoi_pas_tout_ici": "Recopier les dix-sept zones et les huit villes ferait deux listes pour une même vérité, et la seconde serait fausse le jour où une zone bouge. `carte.json` décide des lieux ; ce fichier décide du reste.",
+ "_a_tenir": "Un forum de RP ajouté sur le forum n'apparaît pas ici tout seul. Un RP dans un forum inconnu s'affiche SANS tag : un tag absent se remarque et se corrige, un tag faux se croit.",
+ "hors_carte": [
+  { "forumId": 71, "type": "monde", "nom": "Le reste du monde" },
+  { "forumId": 72, "type": "temps", "nom": "Voyage dans le temps" },
+  { "forumId": 1, "type": "sms", "nom": "Messenger" },
+  { "forumId": 10, "type": "reseaux", "nom": "Réseaux sociaux" }
+ ],
+ "mots": {
+  "zone": "zone sauvage",
+  "ville": "ville",
+  "ligue": "ligue",
+  "monde": "reste du monde",
+  "temps": "voyage dans le temps",
+  "sms": "sms",
+  "reseaux": "réseaux sociaux"
+ }
+}

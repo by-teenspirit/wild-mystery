@@ -15,6 +15,7 @@
 export type LigneDeRp = {
   readonly sujetId: number;
   readonly titre: string;
+  readonly forumId: number;
   readonly forumNom: string;
   readonly reponses: number;
   readonly dernierLe: string | null;
@@ -26,7 +27,14 @@ export type LigneDeRp = {
 };
 
 /** Ce que l'étiquette dit, une fois le calcul fait. */
-export type EtatVu = "a-moi" | "a-l-autre" | "prevu" | "en-pause" | "cloture" | "neuf";
+export type EtatVu =
+  | "a-moi"
+  | "a-l-autre"
+  | "prevu"
+  | "en-pause"
+  | "cloture"
+  | "solo"
+  | "neuf";
 
 export const MOTS: Readonly<Record<EtatVu, string>> = {
   "a-moi": "à moi d'écrire",
@@ -34,8 +42,36 @@ export const MOTS: Readonly<Record<EtatVu, string>> = {
   "prevu": "prévu",
   "en-pause": "en pause",
   "cloture": "clôturé",
+  "solo": "personne à attendre",
   "neuf": "personne n'a écrit",
 };
+
+/** ── LA FAMILLE D'UN FORUM ─────────────────────────────────────────
+ *
+ *  « Peut-être un tag pour les rps en ville, les rps en zones
+ *  sauvages, les rps reste du monde et voyage dans le temps » —
+ *  20 novembre, suivi de « déduit du forum ».
+ *
+ *  Et c'est le bon choix : le sujet sait déjà où il est, la relève
+ *  range son `forum_id`, et un tag posé à la main se désaccorderait du
+ *  jour où quelqu'un déplace un sujet.
+ *
+ *  LA TABLE N'EST PAS ÉCRITE ICI : elle arrive en argument, depuis
+ *  `data/forums.json` et `data/butin.json`. Ce module reste pur, et
+ *  surtout les dix-sept zones ne se recopient pas — elles ont déjà un
+ *  fichier, et deux listes pour une même vérité en font toujours une
+ *  fausse. */
+export type TableDesForums = Readonly<Record<number, string>>;
+
+/** Le mot du tag, ou `null` quand le forum n'est pas dans la table.
+ *
+ *  `null` EST UN RÉSULTAT NORMAL : un forum ajouté sur le forum
+ *  n'apparaît pas tout seul dans la table. La carte s'affiche alors
+ *  sans tag — un tag absent se remarque et se corrige, un tag faux se
+ *  croit. */
+export function familleDuForum(forumId: number, table: TableDesForums): string | null {
+  return table[forumId] ?? null;
+}
 
 /** L'état visible d'un RP.
  *
@@ -48,6 +84,11 @@ export function etatVu(l: LigneDeRp, monPseudo: string): EtatVu {
   if (l.etat === "prevu") return "prevu";
   if (l.etat === "en-pause") return "en-pause";
   if (l.etat === "cloture") return "cloture";
+  //  UN SOLO N'ATTEND PERSONNE, et c'est tout l'intérêt de la colonne.
+  //  Sans ce test, « à l'autre » s'affiche dès que le jeu poste le
+  //  résultat d'une fouille — ce qui est exactement ce que Callista a
+  //  vu sur le sujet « test », où Arceus avait écrit (0058).
+  if (l.etat === "solo") return "solo";
   if (l.dernierAuteur === "") return "neuf";
   //  LA COMPARAISON EST INSENSIBLE AUX ESPACES DE BORD, pas à la
   //  casse : Forumactif ne laisse pas deux pseudos différer par elle,

@@ -300,6 +300,7 @@ async function monter(
     fiche = {},
     lesLiens = [],
     lesRp = [],
+    lesCompagnons = [],
     etatDeLaFiche = null,
   } = {},
 ) {
@@ -427,6 +428,19 @@ async function monter(
       return route.fulfill({
         contentType: "application/json",
         body: JSON.stringify({ range: true, echange: false }),
+      });
+    }
+
+    //  ── LES COMPAGNONS ───────────────────────────────────────────
+    //
+    //  La table existait depuis la 0036 et n'était lisible par
+    //  personne : RLS active, aucune politique de lecture. Le décor la
+    //  sert maintenant, parce que la 0058 l'ouvre.
+    if (u.pathname.endsWith("/rest/v1/rp_participant")) {
+      appels.push({ ou: "lire-compagnons" });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(lesCompagnons),
       });
     }
 
@@ -812,11 +826,13 @@ for (
   dire(
     "LA PRÉSENTATION EST LÀ, ET APRÈS LE FORMULAIRE DANS LE BALISAGE",
     onb !== null && onb.presentationVisible && onb.apresLeChamp && onb.atouts >= 6,
-    JSON.stringify(onb && {
-      visible: onb.presentationVisible,
-      atouts: onb.atouts,
-      apres: onb.apresLeChamp,
-    }),
+    JSON.stringify(
+      onb && {
+        visible: onb.presentationVisible,
+        atouts: onb.atouts,
+        apres: onb.apresLeChamp,
+      },
+    ),
   );
   dire(
     "ET ELLE EST BIEN À DROITE, SUR LA MÊME LIGNE — deux colonnes, pas deux étages",
@@ -827,12 +843,14 @@ for (
     "ELLE DIT LA VALIDATION, LES SPAMS, LE STAFF, ET D'OÙ VIENNENT LES DONNÉES",
     onb !== null && onb.ditLaValidation && onb.ditLesSpams && onb.ditLeStaff &&
       onb.ditLaBase,
-    JSON.stringify(onb && {
-      validation: onb.ditLaValidation,
-      spams: onb.ditLesSpams,
-      staff: onb.ditLeStaff,
-      base: onb.ditLaBase,
-    }),
+    JSON.stringify(
+      onb && {
+        validation: onb.ditLaValidation,
+        spams: onb.ditLesSpams,
+        staff: onb.ditLeStaff,
+        base: onb.ditLaBase,
+      },
+    ),
   );
   dire(
     "et l'encart des spams se voit sans avoir à chercher",
@@ -932,9 +950,9 @@ for (
       //  près. Trois mesures, parce qu'un seul `top` égal laisserait
       //  passer deux encadrés superposés.
       cotACote: Math.abs(
-        Math.round(e.getBoundingClientRect().top) -
-          Math.round(spam.getBoundingClientRect().top),
-      ) <= 2 &&
+            Math.round(e.getBoundingClientRect().top) -
+              Math.round(spam.getBoundingClientRect().top),
+          ) <= 2 &&
         Math.round(spam.getBoundingClientRect().left) >=
           Math.round(e.getBoundingClientRect().right),
       largeurs: [
@@ -1992,6 +2010,7 @@ const RP = [
   {
     sujet_id: 996,
     titre: "La brume ne lève pas",
+    forum_id: 34,
     forum_nom: "Montagnes Embrumées",
     reponses: 3,
     dernier_le: "2026-10-28T13:34:00Z",
@@ -2004,7 +2023,8 @@ const RP = [
   {
     sujet_id: 977,
     titre: "Un café, deux silences",
-    forum_nom: "Portevent",
+    forum_id: 5,
+    forum_nom: "Phenacit",
     reponses: 8,
     dernier_le: "2026-11-01T09:00:00Z",
     dernier_auteur: "Eliott Vanner",
@@ -2016,6 +2036,7 @@ const RP = [
   {
     sujet_id: 1200,
     titre: "Ce qui vient après",
+    forum_id: 0,
     forum_nom: "",
     reponses: 0,
     dernier_le: null,
@@ -2084,7 +2105,12 @@ const RP = [
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(300);
   const vu = await q.evaluate(() => ({
-    etats: [...document.querySelectorAll(".wm-rp__etat")].map((e) => e.textContent.trim()),
+    //  LES ÉTIQUETTES DE LA LISTE, pas celles de toute la page : le
+    //  tableau en pose aussi, et son ORDRE suit les colonnes — qui ont
+    //  changé le 20 novembre. Une mesure qui prend les deux lots
+    //  mélangés dépend d'un ordre qui n'est pas celui qu'elle teste.
+    etats: [...document.querySelectorAll(".wm-rp__liste .wm-rp__etat")]
+      .map((e) => e.textContent.trim()),
     compte: document.querySelector("[data-wm-rp-compte]")?.textContent?.trim(),
     liens: [...document.querySelectorAll(".wm-rp__titre")].map((a) => a.getAttribute("href")),
   }));
@@ -2251,7 +2277,8 @@ const RP = [
 
 {
   //  LE TABLEAU EST LA VUE PAR DÉFAUT, et ses colonnes sont les
-  //  QUATRE ÉTATS QU'ON PEUT POSER. Pas « à moi » et « à l'autre » :
+  //  CINQ ÉTATS QU'ON PEUT POSER — « solo » est arrivé le 20 novembre.
+  //  Pas « à moi » et « à l'autre » :
   //  on ne décide pas de qui doit écrire, ça se calcule — et déposer
   //  une carte dans une colonne qui ne change rien serait un geste
   //  sans effet.
@@ -2268,9 +2295,9 @@ const RP = [
     cartes: document.querySelectorAll(".wm-rp__carte").length,
   }));
   dire(
-    "LE TABLEAU A QUATRE COLONNES, CELLES DES ÉTATS QU'ON PEUT POSER",
-    vu.colonnes.join() === "en cours,prévu,en pause,clôturé" &&
-      vu.comptes.join() === "2,1,0,0" && vu.listeCachee === true &&
+    "LE TABLEAU A CINQ COLONNES, CELLES DES ÉTATS QU'ON PEUT POSER",
+    vu.colonnes.join() === "prévu,en cours,solo,en pause,clôturé" &&
+      vu.comptes.join() === "1,2,0,0,0" && vu.listeCachee === true &&
       vu.filtresCaches === true && vu.cartes === 3,
     JSON.stringify(vu),
   );
@@ -2302,7 +2329,7 @@ const RP = [
     "DÉPOSER UNE CARTE DANS UNE COLONNE ÉCRIT SON ÉTAT",
     ecrit?.corps?.etat === "en-pause" &&
       decodeURIComponent(ecrit?.ou_quoi ?? "").includes("996") &&
-      comptes.join() === "1,1,1,0",
+      comptes.join() === "1,1,0,1,0",
     JSON.stringify({ corps: ecrit?.corps, comptes }),
   );
   await q.close();
@@ -2589,7 +2616,11 @@ const { q: p, appels } = await monter();
   }));
   dire(
     "changer d'onglet ne demande RIEN, sauf la première ouverture des quatre onglets qui écrivent",
-    apresLePremierTour === avant + 8 && appels.length === apresLePremierTour &&
+    //  NEUF ET PLUS HUIT DEPUIS LE 20 NOVEMBRE : « Mes RP » demande
+    //  désormais aussi `rp_participant`, pour savoir avec qui on
+    //  écrit. Une requête de plus, UNE SEULE FOIS — c'est la garantie
+    //  que ce test porte, et elle tient.
+    apresLePremierTour === avant + 9 && appels.length === apresLePremierTour &&
       vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
       vu.adresse === "#mon-jeu",
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),
@@ -3120,7 +3151,6 @@ await p.close();
   await q.close();
 }
 
-
 // ── LES CAPTURES DE L'AIDE ──────────────────────────────────────────
 //
 //  `deno task carnet --captures` refait les huit images que les
@@ -3187,8 +3217,6 @@ if (Deno.args.includes("--captures")) {
   await q.close();
   console.log(`captures : ${PAGES.length} images dans img/aide/`);
 }
-
-
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));
 // ══════════════════════════════════════════════════════════════════
@@ -3315,7 +3343,10 @@ if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"))
       formulaire: voit("[data-wm-carnet-liaison]"),
       parti: voit("[data-wm-carnet-parti]"),
       adresse: document.querySelector("[data-wm-carnet-parti-adresse]")?.textContent?.trim(),
-      message: document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim()?.slice(0, 40),
+      message: document.querySelector("[data-wm-carnet-lier-dit]")?.textContent?.trim()?.slice(
+        0,
+        40,
+      ),
     };
   });
   dire(
@@ -3387,7 +3418,11 @@ if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"))
     "L'AIDE DU CHAMP EST UN TEXTE LIÉ, PAS UN PLACEHOLDER",
     st.decritPar === "wm-courriel-aide" &&
       (st.aideTexte ?? "").includes("inscription") && st.placeholder === null,
-    JSON.stringify({ decritPar: st.decritPar, aide: st.aideTexte, placeholder: st.placeholder }),
+    JSON.stringify({
+      decritPar: st.decritPar,
+      aide: st.aideTexte,
+      placeholder: st.placeholder,
+    }),
   );
   //  LE CHAMP ÉTAIT LA SEIZIÈME TABULATION SUR DIX-HUIT, pour la
   //  seule action possible de la page. Les huit onglets morts sont
@@ -3452,6 +3487,211 @@ if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"))
   await q.close();
 }
 
+// ── 7 bis · La page des RP reprise, 20 novembre ─────────────────────
+
+const COMPAGNONS = [
+  { sujet_id: 996, pseudo: "Murphy" },
+  { sujet_id: 996, pseudo: "Eliott Vanner" },
+  { sujet_id: 977, pseudo: "Linus Armstrong" },
+];
+
+{
+  //  ── LA CARTE DIT OÙ, AVEC QUI, ET MÈNE AU SUJET ─────────────────
+  //
+  //  Trois demandes du 20 novembre, mesurées ensemble parce qu'elles
+  //  vivent sur la même carte.
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  const vu = await q.evaluate(() => {
+    const carte = document.querySelector('[data-wm-rp-carte="996"]');
+    if (carte === null) return null;
+    const lien = carte.querySelector("a.wm-rp__carte-titre");
+    return {
+      titreEstUnLien: lien !== null,
+      mene: lien?.getAttribute("href") ?? "",
+      tag: carte.querySelector(".wm-rp__tag")?.textContent ?? "",
+      ou: carte.querySelector(".wm-rp__carte-ou")?.textContent ?? "",
+      avec: carte.querySelector(".wm-rp__carte-avec")?.textContent ?? "",
+    };
+  });
+  dire(
+    "LE TITRE DE LA CARTE EST UN LIEN QUI MÈNE AU DERNIER MESSAGE",
+    vu !== null && vu.titreEstUnLien && vu.mene === "/t996-#15582",
+    JSON.stringify(vu),
+  );
+  dire(
+    "ET LE TAG SE DÉDUIT DU FORUM, sans rien demander au joueur",
+    //  34, c'est les Montagnes Embrumées : `carte.json` dit « zone ».
+    vu?.tag === "zone sauvage" && vu?.ou === "Montagnes Embrumées",
+    JSON.stringify({ tag: vu?.tag, ou: vu?.ou }),
+  );
+  dire(
+    "ET LES COMPAGNONS S'AFFICHENT — SOI-MÊME EXCLU",
+    //  La relève range TOUS les participants, celui qui lit compris.
+    //  « avec Eliott Vanner » sur la carte d'Eliott serait un défaut.
+    vu?.avec === "avec Murphy",
+    JSON.stringify({ avec: vu?.avec }),
+  );
+
+  const ville = await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-carte="977"] .wm-rp__tag')?.textContent ?? ""
+  );
+  dire("UNE VILLE SE DIT VILLE", ville === "ville", `tag : « ${ville} »`);
+
+  //  UN FORUM INCONNU N'A PAS DE TAG, et c'est voulu : un tag absent
+  //  se remarque et se corrige, un tag faux se croit.
+  const inconnu = await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-carte="1200"] .wm-rp__tag') === null
+  );
+  dire("ET UN FORUM INCONNU N'EN A PAS", inconnu === true, String(inconnu));
+  await q.close();
+}
+
+{
+  //  ── LES CINQ COLONNES, DANS L'ORDRE DEMANDÉ ─────────────────────
+  //
+  //  « Mes rps : la première colonne : prévu. et ensuite, en cours. »
+  //  Et « rajoute la colonne des rps solo ».
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  const colonnes = await q.evaluate(() =>
+    [...document.querySelectorAll("[data-wm-rp-colonne]")]
+      .map((c) => c.getAttribute("data-wm-rp-colonne"))
+  );
+  dire(
+    "LES COLONNES SONT DANS L'ORDRE, ET LE SOLO EST LÀ",
+    JSON.stringify(colonnes) ===
+      JSON.stringify(["prevu", "en-cours", "solo", "en-pause", "cloture"]),
+    JSON.stringify(colonnes),
+  );
+
+  //  ── ELLES DÉFILENT AU LIEU DE SE SERRER ─────────────────────────
+  //
+  //  Avec `flex: 1 1`, cinq colonnes se partageaient la place et
+  //  tombaient à deux mots par ligne. On mesure que la rangée déborde
+  //  VRAIMENT, pas que la règle est écrite.
+  const glisse = await q.evaluate(() => {
+    const t = document.querySelector("[data-wm-rp-tableau]");
+    if (t === null) return null;
+    const c = getComputedStyle(t);
+    return {
+      deborde: t.scrollWidth > t.clientWidth,
+      largeurColonne: Math.round(
+        document.querySelector("[data-wm-rp-colonne]")?.getBoundingClientRect().width ?? 0,
+      ),
+      defile: c.overflowX,
+    };
+  });
+  dire(
+    "ET LA RANGÉE DÉFILE AU LIEU DE SERRER LES COLONNES",
+    glisse !== null && glisse.deborde === true && glisse.defile === "auto" &&
+      glisse.largeurColonne >= 200,
+    JSON.stringify(glisse),
+  );
+  await q.close();
+}
+
+{
+  //  ── LA COLONNE DES CLÔTURÉS SE REPLIE ───────────────────────────
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  const compter = () =>
+    q.evaluate(() => document.querySelectorAll("[data-wm-rp-colonne]").length);
+  const avant = await compter();
+  await q.click("[data-wm-rp-clotures]");
+  await q.waitForTimeout(200);
+  const apres = await compter();
+  const reste = await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-colonne="cloture"]') === null &&
+    document.querySelector('[data-wm-rp-colonne="en-cours"]') !== null
+  );
+  dire(
+    "ON REPLIE LES CLÔTURÉS, ET SEULEMENT EUX",
+    avant === 5 && apres === 4 && reste === true,
+    JSON.stringify({ avant, apres, reste }),
+  );
+  const ditLeBouton = await q.evaluate(() => {
+    const b = document.querySelector("[data-wm-rp-clotures]");
+    return { dit: b?.textContent?.trim() ?? "", presse: b?.getAttribute("aria-pressed") };
+  });
+  dire(
+    "ET LE BOUTON DIT CE QU'IL EST, pas ce qu'il fera",
+    ditLeBouton.dit === "Clôturés cachés" && ditLeBouton.presse === "false",
+    JSON.stringify(ditLeBouton),
+  );
+  await q.close();
+}
+
+{
+  //  ── L'AIDE SORT DU TEXTE ────────────────────────────────────────
+  //
+  //  « Tous les boutons, tu les mets en bas à droite. Pour pas que ça
+  //  gêne la lecture. Et au clic, ça ouvre un panneau à droite. »
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  const bouton = await q.evaluate(() => {
+    const b = document.querySelector("[data-wm-tuto-ouvrir]");
+    if (b === null) return null;
+    const r = b.getBoundingClientRect();
+    const c = getComputedStyle(b);
+    return {
+      fixe: c.position,
+      //  EN BAS À DROITE, mesuré : à moins de 80 px des deux bords.
+      duBasDroit: [
+        Math.round(globalThis.innerWidth - r.right),
+        Math.round(globalThis.innerHeight - r.bottom),
+      ],
+      ouvert: b.getAttribute("aria-expanded"),
+      panneauCache: document.querySelector("[data-wm-tuto]")?.hidden === true,
+    };
+  });
+  dire(
+    "LE BOUTON D'AIDE EST FIXE, EN BAS À DROITE, ET LE PANNEAU EST FERMÉ",
+    bouton !== null && bouton.fixe === "fixed" && bouton.ouvert === "false" &&
+      bouton.panneauCache === true && bouton.duBasDroit.every((d) => d >= 0 && d < 80),
+    JSON.stringify(bouton),
+  );
+
+  await q.click("[data-wm-tuto-ouvrir]");
+  await q.waitForTimeout(250);
+  const ouvert = await q.evaluate(() => {
+    const p = document.querySelector("[data-wm-tuto]");
+    if (p === null) return null;
+    const r = p.getBoundingClientRect();
+    return {
+      visible: p.hidden === false,
+      //  À DROITE : son bord droit touche celui de la fenêtre.
+      colleADroite: Math.round(globalThis.innerWidth - r.right) <= 2,
+      //  ET LE FOCUS EST DEDANS, sinon le clavier reste derrière.
+      focusDedans: p.contains(document.activeElement),
+      dit: p.getAttribute("aria-expanded"),
+    };
+  });
+  dire(
+    "AU CLIC, IL OUVRE UN PANNEAU À DROITE, ET LE FOCUS Y ENTRE",
+    ouvert !== null && ouvert.visible && ouvert.colleADroite && ouvert.focusDedans,
+    JSON.stringify(ouvert),
+  );
+
+  await q.keyboard.press("Escape");
+  await q.waitForTimeout(250);
+  const referme = await q.evaluate(() => ({
+    cache: document.querySelector("[data-wm-tuto]")?.hidden === true,
+    //  ET LE FOCUS REVIENT SUR LE BOUTON : sans ça on referme et on se
+    //  retrouve en haut du document, loin de ce qu'on lisait.
+    focusSurLeBouton: document.activeElement?.hasAttribute("data-wm-tuto-ouvrir") === true,
+  }));
+  dire(
+    "ÉCHAP LE REFERME, ET LE FOCUS REVIENT SUR LE BOUTON",
+    referme.cache === true && referme.focusSurLeBouton === true,
+    JSON.stringify(referme),
+  );
+  await q.close();
+}
 
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);

@@ -156,6 +156,35 @@ poserLAccessibilite(document, PREFS);
 //  menaient nulle part.
 poserLeLienDEvitement(document);
 
+//  ── L'AIDE S'OUVRE ET SE FERME ──────────────────────────────────────
+//
+//  Trois façons de la fermer, et c'est le minimum pour un panneau qui
+//  recouvre la page : le bouton, la touche Échap, et un second appui
+//  sur le « ? ». Le focus part dans le panneau à l'ouverture et revient
+//  sur le bouton à la fermeture — sans ça, on referme et on se retrouve
+//  en haut du document, loin de ce qu'on lisait.
+function brancherLeTuto(doc: Document): void {
+  for (const bouton of doc.querySelectorAll<HTMLButtonElement>("[data-wm-tuto-ouvrir]")) {
+    const id = bouton.getAttribute("aria-controls") ?? "";
+    const panneau = doc.getElementById(id);
+    if (panneau === null) continue;
+    const montrer = (ouvert: boolean): void => {
+      panneau.hidden = !ouvert;
+      bouton.setAttribute("aria-expanded", ouvert ? "true" : "false");
+      if (ouvert) panneau.querySelector<HTMLElement>("[data-wm-tuto-fermer]")?.focus();
+      else bouton.focus();
+    };
+    bouton.addEventListener("click", () => montrer(panneau.hidden === true));
+    panneau.querySelector("[data-wm-tuto-fermer]")
+      ?.addEventListener("click", () => montrer(false));
+    panneau.addEventListener("keydown", (e) => {
+      if ((e as KeyboardEvent).key === "Escape") montrer(false);
+    });
+  }
+}
+
+brancherLeTuto(document);
+
 async function lire(nom: string): Promise<unknown> {
   if (RACINE === null) return null;
   return await fetch(`${RACINE}${nom}`, { credentials: "omit" })
@@ -657,6 +686,8 @@ async function ouvrirLeCarnet(): Promise<void> {
         jeton: laissez.jeton,
         joueurId: carnet.dresseur.joueurId,
         pseudo: carnet.dresseur.pseudo,
+        //  POUR LE TAG DE LIEU : `carte.json` et `forums.json`.
+        racine: RACINE,
       });
       poserLesLiens({
         doc: document,
