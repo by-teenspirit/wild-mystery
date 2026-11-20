@@ -807,50 +807,45 @@
 
         <!-- ── le tableau ─────────────────────────────────────────── -->
         <div class="wm-carnet__bloc">
-          <div class="wm-carnet__bloc-tete wm-histoire__tete-a-bascule">
+          <!--  ── LE TITRE SUR SA LIGNE, LES CHOIX EN DESSOUS ───────
+
+                « Tu peux mettre les options tableau et liste en dessous
+                de "RPs" » — 20 novembre.
+
+                Le titre et les trois groupes de boutons se partageaient
+                une seule rangée : à 1184 px le titre se retrouvait
+                coincé entre deux séries d'onglets, et on ne savait plus
+                lequel commandait quoi. Le titre prend sa ligne ; les
+                choix prennent la leur.  -->
+          <div class="wm-carnet__bloc-tete wm-rp__tete">
             <h2 class="wm-carnet__bloc-titre">Mes RP</h2>
-            <div class="wm-boites__onglets" role="group" aria-label="Comment montrer">
-              <button type="button" class="wm-boites__onglet" data-wm-rp-vue="tableau"
-                      aria-pressed="true">Tableau</button>
-              <button type="button" class="wm-boites__onglet" data-wm-rp-vue="liste"
-                      aria-pressed="false">Liste</button>
-              <!--  ── LES SMS SONT UNE TROISIÈME VUE ────────────────
-
-                    « Il faudrait aussi un endroit qui récapitule toutes
-                    les conversations sms de son personnage » · « les
-                    sms = le messenger » — 20 novembre.
-
-                    MÊME SOURCE, TROISIÈME VUE : la relève range déjà
-                    les sujets du Messenger dans la même table, parce
-                    qu'elle cherche tous les sujets où la personne a
-                    écrit. Il n'y a donc rien de plus à relever, juste
-                    à les montrer ailleurs.
-
-                    ET ILS QUITTENT LE TABLEAU : une conversation n'a
-                    pas d'état à poser. « Prévu », « solo », « clôturé »
-                    ne veulent rien dire pour elle.  -->
-              <button type="button" class="wm-boites__onglet" data-wm-rp-vue="sms"
-                      aria-pressed="false">SMS</button>
+            <div class="wm-rp__reglages">
+              <div class="wm-boites__onglets" role="group" aria-label="Comment montrer">
+                <button type="button" class="wm-boites__onglet" data-wm-rp-vue="tableau"
+                        aria-pressed="true">Tableau</button>
+                <button type="button" class="wm-boites__onglet" data-wm-rp-vue="liste"
+                        aria-pressed="false">Liste</button>
+              </div>
+              <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer"
+                   data-wm-rp-filtres>
+                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
+                        aria-pressed="true">Tous</button>
+                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
+                        aria-pressed="false">À moi d'écrire</button>
+                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="prevu"
+                        aria-pressed="false">Prévus</button>
+                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
+                        aria-pressed="false">Clôturés</button>
+              </div>
+              <!--  CACHER LES CLÔTURÉS, et seulement eux. « On doit
+                    pouvoir cacher la colonne des rps clôturés », 20
+                    novembre. C'est une colonne qui ne demande rien et
+                    qui grossit sans fin ; les quatre autres restent.
+                    `aria-pressed` porte l'état : le bouton dit ce qu'il
+                    est, pas ce qu'il fera.  -->
+              <button type="button" class="wm-boites__onglet" data-wm-rp-clotures
+                      aria-pressed="true">Montrer les clôturés</button>
             </div>
-            <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer"
-                 data-wm-rp-filtres>
-              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
-                      aria-pressed="true">Tous</button>
-              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
-                      aria-pressed="false">À moi d'écrire</button>
-              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="prevu"
-                      aria-pressed="false">Prévus</button>
-              <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
-                      aria-pressed="false">Clôturés</button>
-            </div>
-            <!--  CACHER LES CLÔTURÉS, et seulement eux. « On doit
-                  pouvoir cacher la colonne des rps clôturés », 20
-                  novembre. C'est une colonne qui ne demande rien et
-                  qui grossit sans fin ; les quatre autres restent.
-                  `aria-pressed` porte l'état : le bouton dit ce qu'il
-                  est, pas ce qu'il fera.  -->
-            <button type="button" class="wm-boites__onglet" data-wm-rp-clotures
-                    aria-pressed="true">Montrer les clôturés</button>
           </div>
           <p class="wm-carnet__bloc-dit" data-wm-rp-compte></p>
           <!--  DEUX VUES, UNE SEULE SOURCE. Le tableau sert à CHANGER
@@ -861,7 +856,32 @@
                 sans rien apprendre.  -->
           <div class="wm-rp__tableau" data-wm-rp-tableau></div>
           <ul class="wm-rp__liste" data-wm-rp-liste hidden></ul>
-          <ul class="wm-rp__liste wm-rp__sms" data-wm-rp-sms hidden></ul>
+        </div>
+
+        <!--  ── LES SMS NE SONT PAS UNE TROISIÈME VUE ─────────────────
+
+              « Tableau et liste c'est un style d'affichage des rps.
+              Alors que les sms ça pourrait faire partie des deux
+              onglets. Mais faudrait les afficher autrement. » —
+              20 novembre.
+
+              ELLE A RAISON, ET MON PREMIER JET AVAIT TORT : Tableau et
+              Liste répondent à « comment les montrer », les SMS à
+              « montrer quoi ». Les mettre sur la même rangée de boutons
+              mélangeait deux questions, et choisir SMS faisait
+              disparaître les RP — alors que ce sont deux choses qu'on
+              regarde ensemble.
+
+              LEUR BLOC EST DONC À PART, et il est là dans les DEUX
+              vues. Et il s'affiche AUTREMENT : une rangée qui défile,
+              des vignettes larges, aucune colonne et aucun menu d'état.
+              Une conversation ne se range pas, elle se reprend.  -->
+        <div class="wm-carnet__bloc wm-rp__sms-bloc" data-wm-rp-sms-bloc hidden>
+          <div class="wm-carnet__bloc-tete">
+            <h2 class="wm-carnet__bloc-titre">Mes SMS</h2>
+            <p class="wm-carnet__bloc-dit" data-wm-rp-sms-compte></p>
+          </div>
+          <ul class="wm-rp__sms" data-wm-rp-sms></ul>
         </div>
 
         <!--  ── LA CARTE EN GRAND ─────────────────────────────────────
@@ -926,7 +946,7 @@
           </p>
           <div class="wm-rp__grand-pied">
             <button type="button" class="wm-carnet__bouton wm-carnet__bouton--plein"
-                    data-wm-rp-grand-garder>Garder</button>
+                    data-wm-rp-grand-garder>Enregistrer</button>
             <span class="wm-histoire__aide" data-wm-rp-grand-dit role="status"></span>
           </div>
         </dialog>

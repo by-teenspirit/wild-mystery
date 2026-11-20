@@ -78,38 +78,90 @@ function element(doc: Document, balise: string, classe: string, texte?: string):
 }
 
 /** Le point d'interrogation. Un vrai bouton : il se prend au clavier,
- *  il s'annonce, et `aria-expanded` dit dans quel sens il va. */
+ *  il s'annonce, et `aria-expanded` dit dans quel sens il va.
+ *
+ *  ── IL A QUITTÉ L'EN-TÊTE LE 20 NOVEMBRE ──────────────────────────
+ *
+ *  « J'ai vu qu'il y avait encore le "?" au début de la page. Du coup,
+ *  celui-ci tu peux le retirer. »
+ *
+ *  Il était posé à côté du titre, et c'était la convention d'avant :
+ *  « tous les boutons ?, tu les mets en bas à droite, pour pas que ça
+ *  gêne la lecture » a changé la règle le 20 novembre, mais seule la
+ *  page « Mes RP » l'avait suivie — à la main, dans le HTML. Les sept
+ *  autres gardaient l'ancien bouton, d'où DEUX conventions dans un
+ *  même carnet.
+ *
+ *  IL PORTE DONC LES CLASSES DU TUTO, et pas des siennes : un second
+ *  bouton rond en bas à droite, habillé par une autre feuille, se
+ *  mettrait à dériver du premier au premier ajustement. Le
+ *  comportement est celui de `brancherLeTuto`, pour la même raison. */
 function bouton(doc: Document, cle: string, titre: string): HTMLButtonElement {
   const b = doc.createElement("button");
   b.type = "button";
-  b.className = "wm-aide__bouton";
+  b.className = "wm-tuto__bouton";
+  b.setAttribute("data-wm-tuto-ouvrir", "");
   b.setAttribute("aria-expanded", "false");
   b.setAttribute("aria-controls", `wm-aide-${cle}`);
   //  LE LIBELLÉ DIT DE QUOI ON PARLE. « Aide » seul, répété huit fois
   //  dans une page, ne distingue rien pour qui navigue de bouton en
   //  bouton.
   b.setAttribute("aria-label", `Aide : ${titre}`);
-  b.appendChild(doc.createTextNode("?"));
+  //  LE « ? » EST CACHÉ AUX LECTEURS D'ÉCRAN : `aria-label` dit déjà
+  //  de quoi il s'agit, et « point d'interrogation » lu par-dessus
+  //  n'ajoute rien.
+  const signe = element(doc, "span", "", "?");
+  signe.setAttribute("aria-hidden", "true");
+  b.appendChild(signe);
   return b;
 }
 
+/** Le tiroir, à droite, replié au départ.
+ *
+ *  LA MÊME CHARPENTE QUE LE TUTO ÉCRIT À LA MAIN dans « Mes RP » : une
+ *  tête avec un titre et une croix, puis le corps. C'est ce que
+ *  `brancherLeTuto` sait ouvrir et fermer, et c'est ce que la feuille
+ *  sait habiller.
+ *
+ *  LES CLASSES `wm-aide__*` RESTENT DANS LE CORPS : ce sont elles qui
+ *  habillent le texte, les gestes et la capture, et elles n'ont rien à
+ *  voir avec l'endroit où le panneau s'affiche. Seule la coquille a
+ *  changé. */
 function panneau(
   doc: Document,
   cle: string,
   a: AideDUnePage,
   depot: string | null,
 ): HTMLElement {
-  const p = element(doc, "div", "wm-aide__panneau");
+  const p = element(doc, "aside", "wm-tuto");
   p.id = `wm-aide-${cle}`;
+  p.setAttribute("data-wm-tuto", "");
+  p.setAttribute("aria-label", `Aide : ${a.titre}`);
   p.hidden = true;
 
-  p.appendChild(element(doc, "p", "wm-aide__titre", `À quoi sert cette page`));
-  p.appendChild(element(doc, "p", "wm-aide__quoi", a.aQuoi));
+  const tete = element(doc, "div", "wm-tuto__tete");
+  tete.appendChild(element(doc, "h2", "wm-tuto__titre", a.titre));
+  const fermer = doc.createElement("button");
+  fermer.type = "button";
+  fermer.className = "wm-tuto__fermer";
+  fermer.setAttribute("data-wm-tuto-fermer", "");
+  const croix = element(doc, "span", "", "×");
+  croix.setAttribute("aria-hidden", "true");
+  fermer.append(croix, element(doc, "span", "wm-carnet__hors-ecran", "Fermer l'aide"));
+  tete.appendChild(fermer);
+  p.appendChild(tete);
 
-  p.appendChild(element(doc, "p", "wm-aide__titre", "Comment s'en servir"));
+  const corps = element(doc, "div", "wm-tuto__corps wm-aide__panneau");
+  corps.appendChild(element(doc, "p", "wm-aide__titre", `À quoi sert cette page`));
+  corps.appendChild(element(doc, "p", "wm-aide__quoi", a.aQuoi));
+
+  corps.appendChild(element(doc, "p", "wm-aide__titre", "Comment s'en servir"));
   const liste = element(doc, "ul", "wm-aide__gestes");
   for (const g of a.gestes) liste.appendChild(element(doc, "li", "", g));
-  p.appendChild(liste);
+  corps.appendChild(liste);
+
+  p.appendChild(corps);
+  const pour = corps;
 
   if (a.capture !== null && depot !== null) {
     const img = doc.createElement("img");
@@ -120,7 +172,7 @@ function panneau(
     //  vides avec le titre de la page et le nom du fichier.
     img.alt = `La page « ${a.titre} » du carnet`;
     img.loading = "lazy";
-    p.appendChild(img);
+    pour.appendChild(img);
   }
   return p;
 }
@@ -145,20 +197,29 @@ export function poserLesAides(d: DependancesDeLAide): number {
     const cle = section.dataset.wmCarnetPage ?? "";
     const aide = d.aides.get(cle);
     if (aide === undefined) continue;
-    const entete = section.querySelector(".wm-carnet__entete");
-    if (entete === null) continue;
-    if (entete.querySelector(".wm-aide") !== null) continue;
+    //  UNE PAGE QUI A DÉJÀ SON TUTO N'EN REÇOIT PAS UN SECOND.
+    //
+    //  « Mes RP » porte le sien dans le HTML, écrit à la main : il dit
+    //  les cinq colonnes, le glisser-déposer, les étiquettes de lieu —
+    //  des choses que `data/aide-carnet.json` ne sait pas dire. Poser
+    //  celui-ci par-dessus mettrait DEUX boutons ronds au même endroit
+    //  de l'écran, l'un sur l'autre.
+    //
+    //  ON CHERCHE LE BOUTON, PAS LE PANNEAU, et c'est le harnais qui
+    //  l'a dit : `brancherLeTuto` DÉPLACE le panneau à la racine de la
+    //  page pour qu'il passe au-dessus de la barre. Chercher
+    //  `[data-wm-tuto]` dans la section ne trouvait donc plus rien, et
+    //  « Mes RP » recevait un second bouton — invisible sous le
+    //  premier. Le bouton, lui, ne bouge jamais de son onglet.
+    if (section.querySelector("[data-wm-tuto-ouvrir]") !== null) continue;
 
-    const bloc = element(d.doc, "div", "wm-aide");
     const b = bouton(d.doc, cle, aide.titre);
     const pan = panneau(d.doc, cle, aide, d.depot);
-    b.addEventListener("click", () => {
-      const ouvert = pan.hidden;
-      pan.hidden = !ouvert;
-      b.setAttribute("aria-expanded", String(ouvert));
-    });
-    bloc.append(b, pan);
-    entete.appendChild(bloc);
+    //  LES DEUX SONT POSÉS DANS LA SECTION, et pas dans l'en-tête : un
+    //  bouton `fixed` dans un onglet caché ne se dessine pas, donc il
+    //  disparaît avec sa page sans qu'on ait rien à éteindre. C'est la
+    //  même raison qui l'a mis là dans « Mes RP ».
+    section.append(b, pan);
     posees += 1;
   }
   return posees;

@@ -28752,64 +28752,20 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     accessible quelque part qui explique l'utilité de chaque page et
     comment l'utiliser, avec des captures d'écran. » — 18 novembre.
 
-    UN POINT D'INTERROGATION DANS L'EN-TÊTE, à côté du titre. Pas un
-    panneau déplié d'office — il pousserait le travail vers le bas à
-    chaque visite, et on le refermerait sans le lire. Pas un bouton
-    dans un coin non plus : il se chercherait.
+    ── ELLE A DÉMÉNAGÉ LE 20 NOVEMBRE ───────────────────────────────
 
-    LA CIBLE FAIT 44 PX comme partout ailleurs : c'est un bouton pour
-    un doigt autant que pour une souris. */
-#modernbb .wm-aide {
-  margin-top: var(--wm-espace-12, 12px);
-}
+    « J'ai vu qu'il y avait encore le "?" au début de la page. Du coup,
+    celui-ci tu peux le retirer. »
 
-#modernbb button.wm-aide__bouton {
-  display: inline-flex;
-  min-width: var(--wm-cible-tactile, 44px);
-  min-height: var(--wm-cible-tactile, 44px);
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 1px solid var(--wm-bord-net, #d9c3b1);
-  border-radius: 999px;
-  background: var(--wm-fond-surface, #fffbf7);
-  color: var(--wm-accent-primaire, #275e7a);
-  cursor: pointer;
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
-  font-size: var(--wm-taille-titre-carte, 16px);
-  font-weight: var(--wm-graisse-demi, 600);
-  line-height: 1;
-}
+    Le bouton était dans l'en-tête, à côté du titre — la convention
+    d'avant. Il est maintenant en bas à droite, dans un tiroir, comme
+    celui de « Mes RP » : c'est le `wm-tuto` ci-dessous qui porte la
+    coquille et son habillage.
 
-#modernbb button.wm-aide__bouton:hover,
-#modernbb button.wm-aide__bouton:focus-visible {
-  border-color: var(--wm-accent-primaire, #275e7a);
-  background: var(--wm-fond-douce, #f3e1d2);
-}
-
-/*  LE PANNEAU PREND LA LARGEUR DE LA COLONNE, et il reste dans le
-    flux : une bulle flottante au-dessus du contenu cacherait
-    justement ce qu'elle explique. */
-#modernbb .wm-aide__panneau {
-  box-sizing: border-box;
-  max-width: 44rem;
-  margin-top: var(--wm-espace-10, 10px);
-  padding: var(--wm-espace-16, 16px) var(--wm-espace-18, 18px);
-  border: 1px solid var(--wm-bord-fin, #eadacd);
-  border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-terre, #f8eae1);
-  color: var(--wm-texte-corps, #4e3b30);
-  font-size: var(--wm-taille-petit, 11.5px);
-  line-height: var(--wm-interligne-normal, 1.65);
-}
-
-/*  `[hidden]` DOIT GAGNER. Même leçon qu'avec les menus de la barre
-    d'actions, le 18 novembre : n'importe quel `display` écrit dans
-    une feuille bat la règle de base du navigateur. Ici rien n'en
-    pose, mais la régularité du dépôt vaut mieux qu'un oubli futur. */
-#modernbb .wm-aide__panneau[hidden] {
-  display: none;
-}
+    IL NE RESTE DONC ICI QUE LE TEXTE : le titre de section, les
+    gestes et la capture, qui ne dépendent pas de l'endroit où le
+    panneau s'affiche. Les règles du bouton rond et du panneau-carte
+    ont été retirées, parce que plus rien ne porte ces classes. */
 
 #modernbb .wm-aide__titre {
   margin: 0 0 var(--wm-espace-4, 4px);
@@ -30456,17 +30412,124 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-accent-primaire, #275e7a);
 }
 
+/* ── LE TITRE SUR SA LIGNE, LES CHOIX EN DESSOUS ────────────────────
+
+   « Tu peux mettre les options tableau et liste en dessous de "RPs" »
+   — 20 novembre. Le titre et les trois groupes de boutons se
+   partageaient une rangée, et le titre finissait coincé entre deux
+   séries d'onglets. */
+#modernbb .wm-rp__tete {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-10, 10px);
+  align-items: flex-start;
+}
+
+#modernbb .wm-rp__reglages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
+  align-items: center;
+}
+
 /* ── LES CONVERSATIONS DU MESSENGER ─────────────────────────────────
 
-   Elles réutilisent `.wm-rp__ligne` : c'est la même lecture que la vue
-   Liste, sans le menu d'état. Il n'y a donc presque rien à habiller —
-   seulement le mot qui s'affiche quand il n'y a encore rien. */
-#modernbb .wm-rp__sms-vide {
+   « Tableau et liste c'est un style d'affichage des rps. Alors que les
+   sms ça pourrait faire partie des deux onglets. Mais faudrait les
+   afficher autrement. » — 20 novembre.
+
+   DONC NI COLONNES NI LIGNES : une rangée de vignettes qui défile,
+   présente dans les deux vues. C'est la troisième forme de la page, et
+   elle est volontairement la plus légère — une conversation ne se
+   range pas, elle se reprend.
+
+   LE MÊME DÉFILEMENT QUE LE TABLEAU, avec `scroll-snap` : deux rangées
+   qui défilent dans la même page doivent défiler pareil. */
+/*  LE BLOC EST LE CONTENEUR MESURÉ. `@container` interroge toujours un
+    ANCÊTRE, jamais l'élément qui porte la requête : sans cette ligne,
+    la règle de repli plus bas ne s'appliquerait jamais, et rien ne le
+    dirait. */
+#modernbb .wm-rp__sms-bloc {
+  container-type: inline-size;
+}
+
+#modernbb .wm-rp__sms {
+  display: flex;
+  gap: var(--wm-espace-12, 12px);
+  margin: var(--wm-espace-12, 12px) 0 0;
+  padding: 0 0 var(--wm-espace-8, 8px);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  list-style: none;
+  scrollbar-width: thin;
+}
+
+#modernbb .wm-rp__sms-carte {
+  display: flex;
+  flex: 0 0 17rem;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--wm-espace-4, 4px);
+  scroll-snap-align: start;
+  padding: var(--wm-espace-12, 12px) var(--wm-espace-14, 14px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-terre, #f8eae1);
+}
+
+/*  LE NOM DE LA PERSONNE EN PREMIER, et c'est lui qui porte le poids :
+    on retrouve une conversation par son correspondant, pas par le
+    titre que Forumactif lui donne. */
+#modernbb .wm-rp__sms-qui {
   margin: 0;
-  padding: var(--wm-espace-16, 16px) 0;
+  color: var(--wm-encre, #2e2018);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-etiquette, 1.3);
+}
+
+#modernbb a.wm-rp__sms-titre {
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-decoration: none;
+}
+
+#modernbb a.wm-rp__sms-titre:hover,
+#modernbb a.wm-rp__sms-titre:focus-visible {
+  text-decoration: underline;
+}
+
+/*  L'EXTRAIT TIENT SUR DEUX LIGNES, et il est coupé plutôt que de
+    faire grandir une vignette plus que ses voisines : une rangée dont
+    chaque case a sa hauteur ne se lit plus comme une rangée. */
+#modernbb .wm-rp__sms-extrait {
+  display: -webkit-box;
+  margin: var(--wm-espace-4, 4px) 0 0;
+  overflow: hidden;
   font-size: var(--wm-taille-petit, 11.5px);
   font-style: italic;
-  color: var(--wm-texte-pale, #69564c);
+  line-height: var(--wm-interligne-normal, 1.65);
+  color: var(--wm-texte-doux, #6e5749);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+#modernbb .wm-rp__sms-pied {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--wm-espace-8, 8px) 0 0;
+}
+
+/*  SOUS 520 PX, LES VIGNETTES PRENNENT PRESQUE TOUT L'ÉCRAN : à 17 rem
+    sur un téléphone, on en verrait une et demie, et la demie fait
+    croire qu'on a mal défilé. Mesuré sur le CONTENEUR et pas sur
+    l'écran, comme le reste du carnet. */
+@container (max-width: 520px) {
+  #modernbb .wm-rp__sms-carte {
+    flex: 0 0 82%;
+  }
 }
 
 #modernbb .wm-rp__colonne-vide {
@@ -30622,12 +30685,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     — 20 novembre.
 
     IL NE S'APPELLE PAS `wm-aide`, ET C'EST LE HARNAIS QUI L'A DIT.
-    `wm-aide` existe déjà — `module-aide.ts` pose un « ? » dans l'en-tête
-    d'un bloc et déplie un panneau DANS LE FLUX. Mes règles, écrites
-    plus bas dans la même feuille, l'emportaient à spécificité égale :
-    tous les panneaux d'aide du carnet sont devenus des tiroirs fixes
-    qui recouvraient la page, et le harnais a buté dessus en essayant
-    de cliquer sous l'un d'eux. Deux systèmes, deux noms.
+    `wm-aide` existait déjà — `module-aide.ts` posait un « ? » dans
+    l'en-tête d'un bloc et dépliait un panneau DANS LE FLUX. Mes
+    règles, écrites plus bas dans la même feuille, l'emportaient à
+    spécificité égale : tous les panneaux d'aide du carnet sont devenus
+    des tiroirs fixes qui recouvraient la page, et le harnais a buté
+    dessus en essayant de cliquer sous l'un d'eux. Deux systèmes, deux
+    noms.
+
+    ET DEPUIS LE 20 NOVEMBRE, UN SEUL. « J'ai vu qu'il y avait encore
+    le "?" au début de la page. » Les sept autres pages avaient gardé
+    l'ancien bouton : `module-aide.ts` produit maintenant CETTE
+    coquille, et ce bloc l'habille pour les huit. Les classes
+    `wm-aide__*` ne décrivent plus que le texte à l'intérieur.
 
     Ce qui était trois paragraphes d'explication au milieu de la page
     tient derrière un « ? ». Le bouton est FIXE et non ABSOLU : absolu,
@@ -30646,6 +30716,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LES MARGES DE SÛRETÉ SONT DANS LE CALCUL : sur un téléphone à
     encoche, 20 px du bord droit peuvent tomber sous la barre système.
     `max()` garde le plus grand des deux. */
+/*  ── LES DEUX PLANS DU TUTO ───────────────────────────────────────
+
+    La barre de retour est COLLANTE ET EN PLAN 70 (`08-annexes.css`).
+    Le tiroir était en 41 : il glissait DESSOUS, et comme sa croix est
+    en haut, le clic tombait sur la barre au lieu du bouton. « J'arrive
+    pas à le fermer et il passe en dessous de la barre de navigation »
+    — 20 novembre. Les deux moitiés du même défaut.
+
+    LE TIROIR PASSE DONC AU-DESSUS (80) : c'est une couche qui recouvre
+    la page, et une couche qui recouvre doit recouvrir aussi la barre.
+    Le bouton flottant, lui, reste SOUS la barre (40) : il vit dans le
+    corps de la page, et rien ne l'amène jamais sous ses 56 px du
+    haut. */
 #modernbb .wm-tuto__bouton {
   position: fixed;
   z-index: 40;
@@ -30668,9 +30751,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   cursor: pointer;
 }
 
+/*  `[hidden]` DOIT GAGNER, ET ICI PLUS QU'AILLEURS. La règle fourre-tout
+    du carnet — `#modernbb .wm-carnet [hidden]` — ne couvre plus ce
+    tiroir : il DÉMÉNAGE à la racine de la page au branchement, donc il
+    sort de `.wm-carnet`. Sans cette ligne, le `display: flex` juste en
+    dessous rouvrirait les huit panneaux d'un coup. C'est le piège qui
+    s'est refermé quatre fois sur ce dépôt. */
+#modernbb .wm-tuto[hidden] {
+  display: none;
+}
+
 #modernbb .wm-tuto {
   position: fixed;
-  z-index: 41;
+  z-index: 80;
   top: 0;
   right: 0;
   bottom: 0;

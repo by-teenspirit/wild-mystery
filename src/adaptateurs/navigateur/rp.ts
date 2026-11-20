@@ -171,10 +171,12 @@ export function poserLesRp(r: ReglagesRp): boolean {
   //  colonne sans entrée porte son mot par défaut.
   const noms = new Map<string, string>();
 
-  //  LE <ul> DES SMS EST FACULTATIF : une page collée avant le
+  //  LE BLOC DES SMS EST FACULTATIF : une page collée avant le
   //  20 novembre ne l'a pas, et le reste doit marcher quand même. Les
   //  conversations restent alors dans le tableau, comme avant.
   const sms = doc.querySelector<HTMLElement>("[data-wm-rp-sms]");
+  const smsBloc = doc.querySelector<HTMLElement>("[data-wm-rp-sms-bloc]");
+  const smsCompte = doc.querySelector<HTMLElement>("[data-wm-rp-sms-compte]");
 
   const tableau = doc.querySelector<HTMLElement>("[data-wm-rp-tableau]");
   if (tableau === null) {
@@ -438,7 +440,7 @@ export function poserLesRp(r: ReglagesRp): boolean {
           return;
         }
         lignes = lignes.map((x) => (x.sujetId === sujetId ? { ...x, description } : x));
-        if (ditG !== null) ditG.textContent = "Gardé.";
+        if (ditG !== null) ditG.textContent = "Enregistré.";
         peindre();
       })();
     });
@@ -656,64 +658,89 @@ export function poserLesRp(r: ReglagesRp): boolean {
    *
    *  PAS DE COLONNES, PAS DE MENU D'ÉTAT : on ne met pas un SMS « en
    *  pause ». Ce qu'on veut savoir d'une conversation, c'est avec qui,
-   *  qui a parlé en dernier, et quand — rien de plus, et c'est la même
-   *  lecture que la vue Liste, sans ce qui ne s'applique pas.
+   *  qui a parlé en dernier, et quand.
+   *
+   *  ── ET ELLES NE RESSEMBLENT NI AU TABLEAU NI À LA LISTE ──────────
+   *
+   *  « Les sms ça pourrait faire partie des deux onglets. Mais faudrait
+   *  les afficher autrement. » — 20 novembre. Des vignettes dans une
+   *  rangée qui défile, avec LE NOM DE LA PERSONNE EN PREMIER : un fil
+   *  s'appelle « Tu es où ? », ce qui ne dit pas à qui on parle. Un RP
+   *  se retrouve par son titre, une conversation par son
+   *  correspondant.
    *
    *  `rangerLesRp` TRIE COMME AILLEURS : deux listes du même carnet qui
    *  ne rangent pas pareil se lisent comme deux carnets. */
   const peindreLesSms = (lesSms: readonly LigneDeRp[]): void => {
     if (sms === null) return;
     sms.textContent = "";
-    if (lesSms.length === 0) {
-      const vide = doc.createElement("li");
-      vide.className = "wm-rp__sms-vide";
-      vide.textContent =
-        "Aucune conversation pour l'instant. Celles du Messenger arrivent ici dès que tu y écris.";
-      sms.append(vide);
-      return;
+    //  AUCUNE CONVERSATION, AUCUN BLOC. Un encadré qui dit « rien »
+    //  prend la place d'un encadré qui dirait quelque chose, et sur une
+    //  page qui a déjà un tableau il se lit comme une panne. Le tuto
+    //  dit où elles arriveront.
+    if (smsBloc !== null) smsBloc.hidden = lesSms.length === 0;
+    if (lesSms.length === 0) return;
+    if (smsCompte !== null) {
+      smsCompte.textContent = lesSms.length === 1
+        ? "Une conversation au Messenger."
+        : `${lesSms.length} conversations au Messenger.`;
     }
 
     for (const l of rangerLesRp(lesSms)) {
       const vu = etatVu(l, r.pseudo);
       const li = doc.createElement("li");
-      li.className = "wm-rp__ligne";
+      li.className = "wm-rp__sms-carte";
       li.setAttribute("data-wm-rp-sms-fil", String(l.sujetId));
 
-      const mot = doc.createElement("div");
-      mot.className = "wm-rp__mot";
-      const titre = doc.createElement("a");
-      titre.className = "wm-rp__titre";
-      titre.textContent = l.titre === "" ? `Conversation ${l.sujetId}` : l.titre;
-      titre.href = adresseDuSujet(l.sujetId, l.dernierMessage);
-      //  AVEC QUI, ET SOI-MÊME EXCLU — même règle que sur les cartes :
-      //  « avec Jake Dalziel » sur la conversation de Jake ne dit rien.
+      //  ── AVEC QUI, EN PREMIER ──────────────────────────────────
+      //
+      //  Et pas le titre : un fil de SMS s'appelle « Tu es où ? » ou
+      //  « Demain, 9 h », ce qui ne dit pas de qui il s'agit. On
+      //  retrouve une conversation par la personne, pas par son sujet.
+      //  C'est la différence de fond avec un RP, et c'est pour ça que
+      //  ces vignettes ne ressemblent pas aux cartes du tableau.
+      //
+      //  SOI-MÊME EXCLU, même règle que partout : « avec Jake
+      //  Dalziel » sur la conversation de Jake ne dit rien.
       const avec = (compagnons.get(l.sujetId) ?? [])
         .filter((p) => p.trim() !== r.pseudo.trim());
-      const qui = doc.createElement("span");
-      qui.className = "wm-rp__lieu";
-      qui.textContent = avec.length === 0
-        ? `${l.reponses} message${l.reponses > 1 ? "s" : ""}`
-        : `avec ${avec.join(", ")} · ${l.reponses} message${l.reponses > 1 ? "s" : ""}`;
-      mot.append(titre, qui);
+      const qui = doc.createElement("p");
+      qui.className = "wm-rp__sms-qui";
+      qui.textContent = avec.length === 0 ? "Sans destinataire connu" : avec.join(", ");
+      li.append(qui);
+
+      const titre = doc.createElement("a");
+      titre.className = "wm-rp__sms-titre";
+      titre.textContent = l.titre === "" ? `Conversation ${l.sujetId}` : l.titre;
+      titre.href = adresseDuSujet(l.sujetId, l.dernierMessage);
+      li.append(titre);
+
       if (l.extrait !== "") {
-        const extrait = doc.createElement("span");
-        extrait.className = "wm-rp__extrait";
+        const extrait = doc.createElement("p");
+        extrait.className = "wm-rp__sms-extrait";
         extrait.textContent = `« ${l.extrait} »`;
-        mot.append(extrait);
+        li.append(extrait);
       }
 
+      const pied = doc.createElement("p");
+      pied.className = "wm-rp__sms-pied";
       const etiquette = doc.createElement("span");
       etiquette.className = "wm-rp__etat" +
         (vu === "a-moi" || vu === "neuf" ? " wm-rp__etat--a-moi" : "");
       etiquette.textContent = MOTS[vu];
-
       const quand = doc.createElement("span");
       quand.className = "wm-rp__quand";
+      const nb = `${l.reponses} message${l.reponses > 1 ? "s" : ""}`;
       quand.textContent = l.dernierLe === null
-        ? "—"
-        : new Date(l.dernierLe).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
-
-      li.append(mot, etiquette, quand);
+        ? nb
+        : `${nb} · ${
+          new Date(l.dernierLe).toLocaleDateString("fr-FR", {
+            day: "numeric",
+            month: "short",
+          })
+        }`;
+      pied.append(etiquette, quand);
+      li.append(pied);
       sms.append(li);
     }
   };
@@ -721,7 +748,7 @@ export function poserLesRp(r: ReglagesRp): boolean {
   const peindre = (): void => {
     tableau.hidden = vue !== "tableau";
     liste.hidden = vue !== "liste";
-    if (sms !== null) sms.hidden = vue !== "sms";
+
     //  LE PARTAGE SE FAIT À LA PEINTURE ET PAS AU CHARGEMENT : la table
     //  des forums arrive par une autre requête, qui peut répondre après
     //  les RP. Partager une fois pour toutes au chargement laisserait
@@ -732,18 +759,21 @@ export function poserLesRp(r: ReglagesRp): boolean {
       ? { rp: lignes, sms: [] as readonly LigneDeRp[] }
       : partagerLesRp(lignes, forums);
     if (vue === "tableau") peindreLeTableau(partage.rp);
-    if (vue === "sms") peindreLesSms(partage.sms);
+    //  LES SMS SE PEIGNENT DANS LES DEUX VUES, parce qu'ils ne sont pas
+    //  une vue : « tableau et liste c'est un style d'affichage des rps,
+    //  alors que les sms ça pourrait faire partie des deux onglets ».
+    peindreLesSms(partage.sms);
     const vues = rangerLesRp(garderLesRp(partage.rp, filtre, r.pseudo));
     const aMoi = partage.rp.filter((l) => {
       const v = etatVu(l, r.pseudo);
       return v === "a-moi" || v === "neuf";
     }).length;
-    const conversations = partage.sms.length === 0
-      ? ""
-      : ` ${partage.sms.length} conversation${partage.sms.length > 1 ? "s" : ""} au Messenger.`;
+    //  ET IL NE PARLE QUE DES RP : les conversations ont leur propre
+    //  bloc, avec son propre compte. Les annoncer deux fois ferait
+    //  chercher où est la différence.
     compte.textContent = partage.rp.length === 0
       ? "Rien pour l'instant. La relève remplit ce tableau une fois par heure."
-      : `${partage.rp.length} RP, dont ${aMoi} où c'est à toi d'écrire.${conversations}`;
+      : `${partage.rp.length} RP, dont ${aMoi} où c'est à toi d'écrire.`;
 
     liste.textContent = "";
     for (const l of vues) {
@@ -862,11 +892,8 @@ export function poserLesRp(r: ReglagesRp): boolean {
       //  LES FILTRES NE SERVENT QU'À LA LISTE : le tableau montre déjà
       //  tout, rangé par colonnes. Les laisser visibles donnerait des
       //  colonnes à moitié vides sans qu'on comprenne pourquoi.
-      //  ET PAS DAVANTAGE À LA VUE SMS : ses quatre mots — à moi,
-      //  prévus, clôturés — parlent d'états qu'une conversation n'a
-      //  pas.
       const filtres = doc.querySelector<HTMLElement>("[data-wm-rp-filtres]");
-      if (filtres !== null) filtres.hidden = vue !== "liste";
+      if (filtres !== null) filtres.hidden = vue === "tableau";
       peindre();
     });
   }

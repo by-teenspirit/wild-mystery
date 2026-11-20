@@ -3117,23 +3117,49 @@ await p.close();
     const pages = [...document.querySelectorAll("[data-wm-carnet-page]")];
     return {
       pages: pages.length,
-      avecAide: pages.filter((p) => p.querySelector(".wm-aide__bouton") !== null).length,
+      //  LE BOUTON EST CELUI DU TUTO DEPUIS LE 20 NOVEMBRE : « j'ai vu
+      //  qu'il y avait encore le "?" au début de la page. Du coup,
+      //  celui-ci tu peux le retirer. » Les sept pages servies par
+      //  `aide-carnet.json` et la page « Mes RP », qui porte le sien
+      //  dans le HTML, ont maintenant la MÊME coquille.
+      avecAide: pages.filter((p) => p.querySelector("[data-wm-tuto-ouvrir]") !== null).length,
       //  REPLIÉES AU DÉPART, TOUTES. Une aide dépliée d'office pousse
       //  le travail vers le bas à chaque visite.
+      //
+      //  ET LE PANNEAU SE CHERCHE PAR L'ID QUE SON BOUTON NOMME, pas
+      //  dans la page : `brancherLeTuto` le DÉPLACE à la racine du
+      //  document pour qu'il passe au-dessus de la barre de retour.
+      //  Le chercher dans la section ne trouvait plus rien — et une
+      //  mesure qui ne trouve rien ne mesure rien.
       ouvertes: pages.filter((p) => {
-        const pan = p.querySelector(".wm-aide__panneau");
+        const b = p.querySelector("[data-wm-tuto-ouvrir]");
+        const id = b?.getAttribute("aria-controls") ?? "";
+        const pan = id === "" ? null : document.getElementById(id);
         return pan !== null && pan.hidden === false;
       }).length,
       //  UNE SEULE PAR PAGE : le carnet redessine ses pages quand les
       //  données arrivent, et deux points d'interrogation côte à côte
-      //  seraient le signe que quelque chose se repose en double.
-      doubles: pages.filter((p) => p.querySelectorAll(".wm-aide__bouton").length > 1).length,
+      //  seraient le signe que quelque chose se repose en double. La
+      //  page « Mes RP » est le cas à surveiller : elle a déjà son
+      //  tuto écrit à la main, et `poserLesAides` doit la sauter.
+      doubles: pages.filter((p) => p.querySelectorAll("[data-wm-tuto-ouvrir]").length > 1)
+        .length,
+      //  ET PLUS AUCUN « ? » DANS UN EN-TÊTE : c'est exactement ce
+      //  qu'elle a vu, et ce qui ne doit pas revenir.
+      dansLEntete: pages.filter((p) =>
+        p.querySelector(".wm-carnet__entete [data-wm-tuto-ouvrir]") !== null
+      ).length,
     };
   });
   dire(
     "CHAQUE PAGE A SON AIDE, ET AUCUNE N'EST POSÉE EN DOUBLE",
     aides.pages >= 8 && aides.avecAide === aides.pages && aides.doubles === 0,
     JSON.stringify(aides),
+  );
+  dire(
+    "ET PLUS AUCUN « ? » AU DÉBUT D'UNE PAGE — ils sont tous en bas à droite",
+    aides.dansLEntete === 0,
+    JSON.stringify({ dansLEntete: aides.dansLEntete }),
   );
   dire(
     "elles sont repliées au départ",
@@ -3145,16 +3171,36 @@ await p.close();
   //  déclare ouvert sans le regarder ne prouve rien.
   await q.click('[data-wm-carnet-onglet="mon-sac"]');
   await q.waitForTimeout(150);
-  await q.click('[data-wm-carnet-page="mon-sac"] .wm-aide__bouton');
+  await q.click('[data-wm-carnet-page="mon-sac"] [data-wm-tuto-ouvrir]');
   await q.waitForTimeout(150);
   const ouvert = await q.evaluate(() => {
     const page = document.querySelector('[data-wm-carnet-page="mon-sac"]');
-    const pan = page.querySelector(".wm-aide__panneau");
-    const b = page.querySelector(".wm-aide__bouton");
+    const b = page.querySelector("[data-wm-tuto-ouvrir]");
+    const pan = document.getElementById(b.getAttribute("aria-controls"));
+    const r = b.getBoundingClientRect();
     return {
       visible: pan.getBoundingClientRect().height > 0,
       annonce: b.getAttribute("aria-expanded"),
-      cible: Math.round(b.getBoundingClientRect().height),
+      cible: Math.round(r.height),
+      //  EN BAS À DROITE, mesuré : à moins de 80 px des deux bords.
+      //  C'est la règle du 20 novembre, et elle vaut pour les huit
+      //  pages, pas seulement pour « Mes RP ».
+      duBasDroit: [
+        Math.round(globalThis.innerWidth - r.right),
+        Math.round(globalThis.innerHeight - r.bottom),
+      ],
+      //  ET LE TIROIR PASSE AU-DESSUS DE LA BARRE DE RETOUR : elle est
+      //  collante en plan 70, le tiroir était en 41, donc sa croix
+      //  tombait dessous et le clic allait à la barre. « J'arrive pas à
+      //  le fermer et il passe en dessous de la barre de navigation. »
+      auDessusDeLaBarre: (() => {
+        const haut = pan.getBoundingClientRect().top + 8;
+        const dessus = document.elementFromPoint(
+          pan.getBoundingClientRect().right - 24,
+          haut,
+        );
+        return dessus !== null && pan.contains(dessus);
+      })(),
       gestes: pan.querySelectorAll(".wm-aide__gestes li").length,
       capture: pan.querySelector(".wm-aide__capture")?.getAttribute("src") ?? null,
       //  L'ALTERNATIVE N'EST PAS VIDE : Forumactif remplit les
@@ -3171,9 +3217,61 @@ await p.close();
     JSON.stringify({ visible: ouvert.visible, annonce: ouvert.annonce }),
   );
   dire(
-    "la cible fait 44 px, et l'aide donne des gestes",
-    ouvert.cible >= 44 && ouvert.gestes >= 3,
-    `${ouvert.cible} px · ${ouvert.gestes} geste(s)`,
+    "la cible fait 44 px, elle est en bas à droite, et l'aide donne des gestes",
+    ouvert.cible >= 44 && ouvert.gestes >= 3 &&
+      ouvert.duBasDroit.every((d) => d >= 0 && d < 80),
+    `${ouvert.cible} px · ${ouvert.gestes} geste(s) · ${JSON.stringify(ouvert.duBasDroit)}`,
+  );
+  dire(
+    "ET LE HAUT DU TIROIR EST CLIQUABLE : il passe AU-DESSUS de la barre de retour",
+    ouvert.auDessusDeLaBarre === true,
+    JSON.stringify({ auDessusDeLaBarre: ouvert.auDessusDeLaBarre }),
+  );
+
+  //  ── ET ON LE REFERME POUR DE VRAI ─────────────────────────────────
+  //
+  //  « Quand j'ouvre le "?" en bas à droite, j'arrive pas à le
+  //  fermer. » La croix était là, mais sous la barre : le clic ne
+  //  l'atteignait pas. On clique donc la croix, pas une fonction.
+  const quelleAide = await q.evaluate(() =>
+    document.querySelector('[data-wm-carnet-page="mon-sac"] [data-wm-tuto-ouvrir]')
+      ?.getAttribute("aria-controls") ?? ""
+  );
+  await q.click(`#${quelleAide} [data-wm-tuto-fermer]`);
+  await q.waitForTimeout(200);
+  const referme = await q.evaluate((id) => {
+    const page = document.querySelector('[data-wm-carnet-page="mon-sac"]');
+    return {
+      cache: document.getElementById(id)?.hidden === true,
+      annonce: page.querySelector("[data-wm-tuto-ouvrir]")?.getAttribute("aria-expanded"),
+    };
+  }, quelleAide);
+  dire(
+    "LA CROIX LE REFERME, ET LE BOUTON LE DIT",
+    referme.cache === true && referme.annonce === "false",
+    JSON.stringify(referme),
+  );
+
+  //  ── ET IL N'A PAS ÉTÉ BRANCHÉ DEUX FOIS ───────────────────────────
+  //
+  //  Les aides arrivent après le premier passage de `brancherLeTuto`,
+  //  donc on la rappelle. Sans marque, le bouton de « Mes RP » aurait
+  //  reçu un second écouteur : les deux basculeraient au même clic, et
+  //  le panneau s'ouvrirait puis se refermerait aussitôt. Un bouton
+  //  mort, pour une raison invisible.
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(200);
+  await q.click('[data-wm-carnet-page="mes-rp"] [data-wm-tuto-ouvrir]');
+  await q.waitForTimeout(200);
+  const uneSeuleFois = await q.evaluate(() => {
+    const b = document.querySelector('[data-wm-carnet-page="mes-rp"] [data-wm-tuto-ouvrir]');
+    const id = b?.getAttribute("aria-controls") ?? "";
+    return id !== "" && document.getElementById(id)?.hidden === false;
+  });
+  dire(
+    "LE TUTO DE « MES RP » N'A PAS ÉTÉ BRANCHÉ DEUX FOIS — il s'ouvre et il reste ouvert",
+    uneSeuleFois === true,
+    JSON.stringify({ uneSeuleFois }),
   );
   dire(
     "et elle porte sa capture, avec une alternative qui dit quoi",
@@ -3689,7 +3787,7 @@ const COMPAGNONS = [
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(400);
   const bouton = await q.evaluate(() => {
-    const b = document.querySelector("[data-wm-tuto-ouvrir]");
+    const b = document.querySelector('[data-wm-carnet-page="mes-rp"] [data-wm-tuto-ouvrir]');
     if (b === null) return null;
     const r = b.getBoundingClientRect();
     const c = getComputedStyle(b);
@@ -3701,7 +3799,10 @@ const COMPAGNONS = [
         Math.round(globalThis.innerHeight - r.bottom),
       ],
       ouvert: b.getAttribute("aria-expanded"),
-      panneauCache: document.querySelector("[data-wm-tuto]")?.hidden === true,
+      //  LE PANNEAU SE TROUVE PAR SON ID : il y en a huit à la racine
+      //  du document depuis que `brancherLeTuto` les y déplace, et le
+      //  premier venu n'est pas forcément celui de cette page.
+      panneauCache: document.getElementById(b.getAttribute("aria-controls"))?.hidden === true,
     };
   });
   dire(
@@ -3711,10 +3812,11 @@ const COMPAGNONS = [
     JSON.stringify(bouton),
   );
 
-  await q.click("[data-wm-tuto-ouvrir]");
+  await q.click('[data-wm-carnet-page="mes-rp"] [data-wm-tuto-ouvrir]');
   await q.waitForTimeout(250);
   const ouvert = await q.evaluate(() => {
-    const p = document.querySelector("[data-wm-tuto]");
+    const b = document.querySelector('[data-wm-carnet-page="mes-rp"] [data-wm-tuto-ouvrir]');
+    const p = document.getElementById(b?.getAttribute("aria-controls") ?? "");
     if (p === null) return null;
     const r = p.getBoundingClientRect();
     return {
@@ -3735,7 +3837,10 @@ const COMPAGNONS = [
   await q.keyboard.press("Escape");
   await q.waitForTimeout(250);
   const referme = await q.evaluate(() => ({
-    cache: document.querySelector("[data-wm-tuto]")?.hidden === true,
+    cache: document.getElementById(
+      document.querySelector('[data-wm-carnet-page="mes-rp"] [data-wm-tuto-ouvrir]')
+        ?.getAttribute("aria-controls") ?? "",
+    )?.hidden === true,
     //  ET LE FOCUS REVIENT SUR LE BOUTON : sans ça on referme et on se
     //  retrouve en haut du document, loin de ce qu'on lisait.
     focusSurLeBouton: document.activeElement?.hasAttribute("data-wm-tuto-ouvrir") === true,
@@ -3910,12 +4015,32 @@ const COMPAGNONS = [
     JSON.stringify({ mot: ouvert?.mot }),
   );
 
+  //  LE BOUTON DIT « ENREGISTRER » — « quand on ajoute la description :
+  //  tu peux mettre "enregistrer" plutôt ? », 20 novembre. « Garder »
+  //  dit qu'on ne jette pas ; « Enregistrer » dit qu'on écrit.
+  const motDuBouton = await q.evaluate(() => ({
+    bouton: document.querySelector("[data-wm-rp-grand-garder]")?.textContent?.trim() ?? "",
+  }));
+  dire(
+    "LE BOUTON DE LA DESCRIPTION DIT « ENREGISTRER »",
+    motDuBouton.bouton === "Enregistrer",
+    JSON.stringify(motDuBouton),
+  );
+
   await q.fill("[data-wm-rp-grand-description]", "On repart au matin.");
   await q.click("[data-wm-rp-grand-garder]");
   await q.waitForTimeout(300);
+  const ditApres = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-grand-dit]")?.textContent?.trim() ?? ""
+  );
+  dire(
+    "ET IL LE CONFIRME DANS LE MÊME MOT",
+    ditApres === "Enregistré.",
+    JSON.stringify({ dit: ditApres }),
+  );
   const garde = appels.filter((a) => a.ou === "PATCH-rp" && "description" in a.corps);
   dire(
-    "GARDER N'ÉCRIT QUE LA DESCRIPTION, ET SUR LE BON SUJET",
+    "ENREGISTRER N'ÉCRIT QUE LA DESCRIPTION, ET SUR LE BON SUJET",
     garde.length === 1 && garde[0].corps.description === "On repart au matin." &&
       Object.keys(garde[0].corps).length === 1 &&
       garde[0].ou_quoi.includes("sujet_id=eq.996"),
@@ -4093,6 +4218,7 @@ const COMPAGNONS = [
     cartes: [...document.querySelectorAll("[data-wm-rp-carte]")]
       .map((c) => Number(c.getAttribute("data-wm-rp-carte"))),
     compte: document.querySelector("[data-wm-rp-compte]")?.textContent?.trim() ?? "",
+    smsCompte: document.querySelector("[data-wm-rp-sms-compte]")?.textContent?.trim() ?? "",
   }));
   dire(
     "LA CONVERSATION N'EST PAS UNE CARTE DU TABLEAU",
@@ -4100,62 +4226,132 @@ const COMPAGNONS = [
     JSON.stringify(tableau),
   );
   dire(
-    "ET LE COMPTE LES DIT À PART, sans les mélanger aux RP",
-    tableau.compte.includes("3 RP") && tableau.compte.includes("1 conversation"),
-    JSON.stringify({ compte: tableau.compte }),
+    "ET CHAQUE BLOC COMPTE LE SIEN : les RP d'un côté, les SMS de l'autre",
+    //  Le compte des RP ne parle plus des conversations : les annoncer
+    //  deux fois ferait chercher où est la différence.
+    tableau.compte.includes("3 RP") && !tableau.compte.includes("conversation") &&
+      tableau.smsCompte === "Une conversation au Messenger.",
+    JSON.stringify({ compte: tableau.compte, smsCompte: tableau.smsCompte }),
   );
 
-  await q.click('[data-wm-rp-vue="sms"]');
+  //  ── LES SMS NE SONT PAS UNE VUE, ET ILS SONT LÀ DANS LES DEUX ───
+  //
+  //  « Tableau et liste c'est un style d'affichage des rps. Alors que
+  //  les sms ça pourrait faire partie des deux onglets. » Mon premier
+  //  jet en avait fait un troisième bouton : choisir SMS faisait
+  //  disparaître les RP, alors que ce sont deux choses qu'on regarde
+  //  ensemble.
+  const pasUneVue = await q.evaluate(() => ({
+    boutons: [...document.querySelectorAll("[data-wm-rp-vue]")]
+      .map((b) => b.getAttribute("data-wm-rp-vue")),
+    blocVisible: document.querySelector("[data-wm-rp-sms-bloc]")?.hidden === false,
+    tableauVisible: document.querySelector("[data-wm-rp-tableau]")?.hidden === false,
+  }));
+  dire(
+    "DEUX VUES SEULEMENT, ET LE BLOC DES SMS EST LÀ EN MÊME TEMPS QUE LE TABLEAU",
+    pasUneVue.boutons.length === 2 && pasUneVue.boutons.join(",") === "tableau,liste" &&
+      pasUneVue.blocVisible && pasUneVue.tableauVisible,
+    JSON.stringify(pasUneVue),
+  );
+
+  //  ── ET LES CHOIX SONT SOUS LE TITRE ─────────────────────────────
+  //
+  //  « Tu peux mettre les options tableau et liste en dessous de
+  //  "RPs". » Mesuré en pixels : un titre et des boutons sur la même
+  //  ligne ont le même haut, l'un en dessous de l'autre non.
+  const sousLeTitre = await q.evaluate(() => {
+    const titre = document.querySelector(
+      '[data-wm-carnet-page="mes-rp"] .wm-carnet__bloc-titre',
+    );
+    const vues = document.querySelector('[data-wm-rp-vue="tableau"]');
+    if (titre === null || vues === null) return null;
+    const t = titre.getBoundingClientRect();
+    const v = vues.getBoundingClientRect();
+    return { basDuTitre: Math.round(t.bottom), hautDesVues: Math.round(v.top) };
+  });
+  dire(
+    "LES OPTIONS TABLEAU ET LISTE SONT SOUS LE TITRE, pas à côté",
+    sousLeTitre !== null && sousLeTitre.hautDesVues >= sousLeTitre.basDuTitre - 2,
+    JSON.stringify(sousLeTitre),
+  );
+
+  await q.click('[data-wm-rp-vue="liste"]');
   await q.waitForTimeout(250);
-  const vueSms = await q.evaluate(() => {
-    const ul = document.querySelector("[data-wm-rp-sms]");
-    const li = ul?.querySelector("[data-wm-rp-sms-fil]");
+  const enListe = await q.evaluate(() => ({
+    //  ET IL Y RESTE : c'est tout le sens de « ça fait partie des deux
+    //  onglets ».
+    blocVisible: document.querySelector("[data-wm-rp-sms-bloc]")?.hidden === false,
+    listeVisible: document.querySelector("[data-wm-rp-liste]")?.hidden === false,
+    //  LA CONVERSATION N'EST PAS DANS LA LISTE DES RP non plus.
+    lignes: document.querySelectorAll("[data-wm-rp-liste] [data-wm-rp-sujet]").length,
+  }));
+  dire(
+    "EN VUE LISTE AUSSI, LE BLOC DES SMS EST LÀ — ET LA CONVERSATION N'EST PAS DANS LA LISTE",
+    enListe.blocVisible && enListe.listeVisible && enListe.lignes === 3,
+    JSON.stringify(enListe),
+  );
+
+  //  ── ET ELLES S'AFFICHENT AUTREMENT ──────────────────────────────
+  //
+  //  « Mais faudrait les afficher autrement. » Des vignettes, pas des
+  //  lignes et pas des colonnes : le nom de la personne en premier,
+  //  parce qu'un fil s'appelle « Tu es où ? » et que ça ne dit pas à
+  //  qui on parle.
+  const vignette = await q.evaluate(() => {
+    const li = document.querySelector("[data-wm-rp-sms-fil]");
+    if (li === null) return null;
     return {
-      visible: ul?.hidden === false,
-      tableauCache: document.querySelector("[data-wm-rp-tableau]")?.hidden === true,
-      //  LES FILTRES PARLENT D'ÉTATS QU'UNE CONVERSATION N'A PAS.
-      filtresCaches: document.querySelector("[data-wm-rp-filtres]")?.hidden === true,
-      fils: ul?.querySelectorAll("[data-wm-rp-sms-fil]").length ?? 0,
-      titre: li?.querySelector(".wm-rp__titre")?.textContent ?? "",
-      mene: li?.querySelector(".wm-rp__titre")?.getAttribute("href") ?? "",
-      avec: li?.querySelector(".wm-rp__lieu")?.textContent ?? "",
-      etat: li?.querySelector(".wm-rp__etat")?.textContent ?? "",
+      qui: li.querySelector(".wm-rp__sms-qui")?.textContent ?? "",
+      titre: li.querySelector(".wm-rp__sms-titre")?.textContent ?? "",
+      mene: li.querySelector(".wm-rp__sms-titre")?.getAttribute("href") ?? "",
+      pied: li.querySelector(".wm-rp__sms-pied")?.textContent ?? "",
+      etat: li.querySelector(".wm-rp__etat")?.textContent ?? "",
       //  PAS DE MENU D'ÉTAT : on ne met pas un SMS « en pause ».
-      menus: ul?.querySelectorAll("select").length ?? 0,
+      menus: li.querySelectorAll("select").length,
+      //  ET CE N'EST PAS UNE LIGNE DE LISTE : la forme diffère, et
+      //  c'est ce qu'elle a demandé.
+      commeUneLigne: li.classList.contains("wm-rp__ligne"),
     };
   });
   dire(
-    "LA VUE SMS MONTRE LA CONVERSATION, ET ELLE MÈNE AU DERNIER MESSAGE",
-    vueSms.visible && vueSms.tableauCache && vueSms.fils === 1 &&
-      vueSms.titre === "Tu es où ?" && vueSms.mene === "/t400-#15700",
-    JSON.stringify(vueSms),
+    "LA VIGNETTE MET LA PERSONNE EN PREMIER, et son titre mène au dernier message",
+    vignette !== null && vignette.qui === "Murphy" && vignette.titre === "Tu es où ?" &&
+      vignette.mene === "/t400-#15700",
+    JSON.stringify(vignette),
   );
   dire(
-    "AVEC QUI, COMBIEN DE MESSAGES, ET À QUI D'ÉCRIRE — MAIS AUCUN MENU D'ÉTAT",
+    "ELLE DIT COMBIEN DE MESSAGES ET À QUI D'ÉCRIRE, SANS MENU D'ÉTAT NI FORME DE LISTE",
     //  LE MOT EST CELUI DE `MOTS` — « à moi d'écrire » : c'est le
-    //  carnet qui parle à la première personne, et la vue SMS ne doit
-    //  pas en inventer un second.
-    vueSms.avec === "avec Murphy · 12 messages" && vueSms.etat === "à moi d'écrire" &&
-      vueSms.menus === 0 && vueSms.filtresCaches,
-    JSON.stringify(vueSms),
+    //  carnet qui parle à la première personne, et les vignettes ne
+    //  doivent pas en inventer un second.
+    (vignette?.pied ?? "").includes("12 messages") &&
+      vignette?.etat === "à moi d'écrire" && vignette?.menus === 0 &&
+      vignette?.commeUneLigne === false,
+    JSON.stringify(vignette),
   );
   await q.close();
 }
 
 {
-  //  ── SANS CONVERSATION, LA VUE LE DIT ────────────────────────────
+  //  ── SANS CONVERSATION, PAS DE BLOC ──────────────────────────────
+  //
+  //  Un encadré qui dit « rien » prend la place d'un encadré qui dirait
+  //  quelque chose, et sur une page qui a déjà un tableau il se lit
+  //  comme une panne. C'est le tuto qui dit où elles arriveront.
   const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(400);
-  await q.click('[data-wm-rp-vue="sms"]');
-  await q.waitForTimeout(250);
-  const vide = await q.evaluate(() =>
-    document.querySelector("[data-wm-rp-sms] .wm-rp__sms-vide")?.textContent?.trim() ?? ""
-  );
+  const sansSms = await q.evaluate(() => ({
+    bloc: document.querySelector("[data-wm-rp-sms-bloc]")?.hidden,
+    vignettes: document.querySelectorAll("[data-wm-rp-sms-fil]").length,
+    //  ET LE TABLEAU, LUI, EST BIEN LÀ : pas de bloc SMS ne veut pas
+    //  dire pas de page.
+    cartes: document.querySelectorAll("[data-wm-rp-carte]").length,
+  }));
   dire(
-    "UNE VUE SMS VIDE DIT POURQUOI, elle ne reste pas blanche",
-    vide.startsWith("Aucune conversation"),
-    JSON.stringify({ vide }),
+    "SANS CONVERSATION, LE BLOC DES SMS NE S'AFFICHE PAS DU TOUT",
+    sansSms.bloc === true && sansSms.vignettes === 0 && sansSms.cartes === 3,
+    JSON.stringify(sansSms),
   );
   await q.close();
 }

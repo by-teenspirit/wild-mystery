@@ -163,11 +163,43 @@ poserLeLienDEvitement(document);
 //  sur le « ? ». Le focus part dans le panneau à l'ouverture et revient
 //  sur le bouton à la fermeture — sans ça, on referme et on se retrouve
 //  en haut du document, loin de ce qu'on lisait.
+//
+//  ── ELLE SE RAPPELLE CE QU'ELLE A DÉJÀ BRANCHÉ ─────────────────────
+//
+//  Les aides des sept autres pages sont posées PLUS TARD, quand
+//  `data/aide-carnet.json` répond : il faut donc rappeler cette
+//  fonction après. Sans marque, le bouton de « Mes RP » recevrait un
+//  second écouteur, les deux basculeraient à chaque clic, et le
+//  panneau s'ouvrirait puis se refermerait aussitôt — un bouton mort,
+//  pour une raison invisible.
 function brancherLeTuto(doc: Document): void {
   for (const bouton of doc.querySelectorAll<HTMLButtonElement>("[data-wm-tuto-ouvrir]")) {
+    if (bouton.hasAttribute("data-wm-tuto-branche")) continue;
     const id = bouton.getAttribute("aria-controls") ?? "";
     const panneau = doc.getElementById(id);
     if (panneau === null) continue;
+    bouton.setAttribute("data-wm-tuto-branche", "");
+
+    //  ── LE TIROIR DÉMÉNAGE À LA RACINE, ET C'EST MESURÉ ──────────
+    //
+    //  « Quand j'ouvre le "?" en bas à droite, j'arrive pas à le
+    //  fermer et il passe en dessous de la barre de navigation. »
+    //  — 20 novembre. Les deux moitiés du même défaut : la croix est
+    //  en haut du tiroir, donc elle tombait sous la barre.
+    //
+    //  MONTER LE `z-index` NE SUFFIT PAS, et la sonde l'a dit :
+    //  `.wm-carnet__corps` porte `isolation: isolate`, ce qui crée un
+    //  CONTEXTE D'EMPILEMENT. Un enfant de ce contexte ne peut pas
+    //  passer au-dessus d'un élément de dehors, même en plan 999 —
+    //  c'est tout le contexte qui est rangé sous la barre, en bloc.
+    //  `elementFromPoint` rendait bien `wm-retour` au sommet du
+    //  tiroir.
+    //
+    //  UNE COUCHE QUI RECOUVRE LA PAGE VIT DONC À LA RACINE DE LA
+    //  PAGE. Le BOUTON, lui, reste dans son onglet : c'est ce qui le
+    //  fait disparaître avec sa page sans qu'on ait rien à éteindre.
+    const racine = doc.getElementById("modernbb") ?? doc.body;
+    if (racine !== null && panneau.parentElement !== racine) racine.appendChild(panneau);
     const montrer = (ouvert: boolean): void => {
       panneau.hidden = !ouvert;
       bouton.setAttribute("aria-expanded", ouvert ? "true" : "false");
@@ -874,7 +906,14 @@ poserLesOnglets(document, () => {});
 lire("aide-carnet.json")
   .then((brut) => {
     const aides = aidesDepuis(brut);
-    if (aides.size > 0) poserLesAides({ doc: document, aides, depot: DEPOT });
+    if (aides.size > 0) {
+      poserLesAides({ doc: document, aides, depot: DEPOT });
+      //  ET ON LES BRANCHE : elles arrivent après le premier passage,
+      //  donc personne ne les aurait câblées. La fonction saute les
+      //  boutons déjà branchés, donc celui de « Mes RP » ne reçoit pas
+      //  un second écouteur.
+      brancherLeTuto(document);
+    }
   })
   .catch(() => {});
 
