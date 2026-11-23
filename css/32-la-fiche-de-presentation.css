@@ -203,6 +203,39 @@
   color: var(--wm-danger-interdite, #a64430);
 }
 
+/*  ── L'APERÇU ──────────────────────────────────────────────────────
+
+    « Faut voir directement ce que ça va faire, c'est pas juste des
+    champs à remplir. »
+
+    IL N'A PRESQUE PAS DE STYLE À LUI, ET C'EST VOULU : ce qu'il
+    contient est le VRAI HTML publié, habillé par les règles de la
+    fiche publiée, plus bas dans cette même feuille. Lui donner son
+    propre habillage le ferait mentir — on verrait un aperçu plus beau
+    que le message. */
+
+#modernbb .wmf-form__rendu {
+  margin-top: var(--wm-espace-12, 12px);
+  padding: var(--wm-espace-16, 16px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-page, #eecfb5);
+}
+
+/*  UN APERÇU VIDE LE DIT, plutôt que de laisser un cadre creux dont
+    on ne sait pas s'il est cassé ou simplement vide. */
+#modernbb .wmf-form__rendu:empty::after {
+  content: "Remplis le formulaire : ta fiche s'écrira ici.";
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+}
+
+/*  LES DEUX PORTES DE SORTIE, côte à côte sous le mot d'accueil. */
+#modernbb .wmf-form__brut,
+#modernbb .wmf-form__reprendre {
+  margin-top: var(--wm-espace-8, 8px);
+}
+
 /*  ── LA FICHE PUBLIÉE ──────────────────────────────────────────────
 
     Elle vit dans un message, donc elle ne peut compter sur rien :

@@ -171,6 +171,50 @@ function champsDe(bloc: HTMLElement): HTMLElement {
   return (bloc as unknown as { champs: HTMLElement }).champs;
 }
 
+/*  CE QU'ON RETIRE DE L'APERÇU, ET POURQUOI SEULEMENT DE L'APERÇU.
+
+    « Faut voir directement ce que ça va faire, c'est pas juste des
+    champs à remplir » — 23 novembre. L'aperçu rend donc le VRAI HTML
+    publié, avec la vraie feuille de style : c'est la seule façon
+    honnête de montrer le résultat, et toute autre construction
+    finirait par diverger de ce qui part vraiment.
+
+    Mais le rendre, c'est l'exécuter. Le texte vient du joueur
+    lui-même, dans sa propre page, donc il ne peut atteindre que lui —
+    il n'y a personne à protéger de lui. Ce n'est pas une barrière de
+    sécurité et ça ne prétend pas l'être.
+
+    C'EST UNE BARRIÈRE CONTRE L'ACCIDENT. Un `<script>` collé depuis un
+    tutoriel, une `<iframe>` recopiée d'un générateur de bannières, et
+    l'aperçu se met à charger des choses ou à casser la page de
+    réponse — au milieu de la rédaction, sans que le joueur comprenne
+    ce qui arrive. Ce qui part dans le message, lui, n'est pas touché :
+    c'est le filtre de Forumactif qui en décide, comme pour n'importe
+    quel message. */
+const HORS_APERCU = "script, iframe, object, embed, link, meta, base, form";
+
+export function pourLApercu(doc: Document, html: string): DocumentFragment {
+  const lu = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
+  for (const e of lu.querySelectorAll(HORS_APERCU)) e.remove();
+  for (const e of lu.querySelectorAll("*")) {
+    for (const a of [...e.attributes]) {
+      //  LES GESTIONNAIRES D'ÉVÈNEMENTS ET LES ADRESSES EXÉCUTABLES.
+      //  `onerror` sur une image suffit, et il se recopie sans qu'on
+      //  le voie dans un collage.
+      if (/^on/i.test(a.name)) e.removeAttribute(a.name);
+      else if (
+        (a.name === "href" || a.name === "src") &&
+        /^\s*javascript:/i.test(a.value)
+      ) e.removeAttribute(a.name);
+    }
+  }
+  const sortie = doc.createDocumentFragment();
+  for (const n of [...(lu.body.firstElementChild?.childNodes ?? [])]) {
+    sortie.appendChild(doc.importNode(n, true));
+  }
+  return sortie;
+}
+
 /** Pose le formulaire. Rend `false` si la page ne s'y prête pas. */
 export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   const { doc, brouillon } = d;
@@ -193,6 +237,52 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
 
   const dit = el(doc, "p", "wmf-form__dit");
   dit.setAttribute("role", "status");
+
+  //  ── L'APERÇU ────────────────────────────────────────────────────
+  //
+  //  « Faut voir directement ce que ça va faire, c'est pas juste des
+  //  champs à remplir » — 23 novembre.
+  //
+  //  Il rend LE VRAI HTML PUBLIÉ, avec la vraie feuille de style.
+  //  C'est la seule façon honnête de montrer le résultat : une mise
+  //  en page reconstruite pour l'occasion finirait par ne plus
+  //  ressembler à ce qui part.
+  const apercu = el(doc, "div", "panel wmf-form__apercu");
+  const dedansApercu = el(doc, "div", "inner");
+  dedansApercu.appendChild(el(doc, "div", "h3", "Ce que ça donnera"));
+  const rendu = el(doc, "div", "wmf-form__rendu");
+  dedansApercu.appendChild(rendu);
+  apercu.appendChild(dedansApercu);
+
+  //  ── LE BLOC D'ÉDITION S'EFFACE, MAIS IL REVIENT SUR DEMANDE ─────
+  //
+  //  « Ça remplace tout. » Le `#postingbox` de Forumactif disparaît —
+  //  le titre du sujet est repris plus haut, et le bouton d'envoi vit
+  //  dans un AUTRE panneau, donc il survit.
+  //
+  //  LA PORTE DE SORTIE N'EST PAS UNE PRÉCAUTION DE PRINCIPE. Le jour
+  //  où un champ manque, où quelqu'un veut coller un bout de code à
+  //  lui, ou simplement relire le message tel qu'il part, un
+  //  formulaire qui a mangé l'éditeur et ne le rend pas est une
+  //  impasse. Elle rend le message visible ET rend la main : le
+  //  formulaire cesse d'écrire, plutôt que d'écraser par-dessus.
+  const boiteEditeur = boite as HTMLElement;
+  const voirLeTexte = el<HTMLButtonElement>(
+    doc,
+    "button",
+    "button2 wmf-form__brut",
+    "Écrire le message à la main",
+  );
+  voirLeTexte.type = "button";
+  voirLeTexte.addEventListener("click", () => {
+    boiteEditeur.hidden = false;
+    arrete = true;
+    cadre.dataset.wmArrete = "oui";
+    voirLeTexte.hidden = true;
+    reprendre.hidden = false;
+    dit.textContent = "Le message est en dessous, tel qu'il partira. " +
+      "Le formulaire a cessé d'écrire pour ne pas effacer tes retouches.";
+  });
 
   const ecrire = (): void => {
     if (arrete) return;
@@ -227,6 +317,12 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     brouillon.ecrire(html);
     dernier = html;
     dit.textContent = "";
+    peindreLApercu(html);
+  };
+
+  const peindreLApercu = (html: string): void => {
+    rendu.textContent = "";
+    rendu.appendChild(pourLApercu(doc, html));
   };
 
   //  ── REPRENDRE LA MAIN, ET SEULEMENT SUR UN CLIC ────────────────
@@ -247,6 +343,11 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     dernier = "";
     delete cadre.dataset.wmArrete;
     reprendre.hidden = true;
+    //  LE FORMULAIRE REPREND LA PLACE qu'il avait laissée : il écrit
+    //  de nouveau, donc laisser l'éditeur visible montrerait un texte
+    //  qui change tout seul sous les doigts.
+    boiteEditeur.hidden = true;
+    voirLeTexte.hidden = false;
     ecrire();
   });
 
@@ -271,11 +372,40 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     parent.appendChild(ligne(doc, c.etiquette, champ, c.exemple));
   };
 
+  //  ── LE TITRE DU SUJET VIENT ICI ────────────────────────────────
+  //
+  //  « Pas besoin d'avoir ce qui est écrit en dessous, le bloc
+  //  d'édition, ça remplace tout » — 23 novembre.
+  //
+  //  Le champ « Sujet » de Forumactif est DANS `#postingbox`, qu'on
+  //  s'apprête à masquer. Sans ce relais, le joueur ne pourrait plus
+  //  nommer son sujet du tout — et il s'en apercevrait au moment
+  //  d'envoyer, pas avant.
+  //
+  //  IL SE REMPLIT TOUT SEUL DU NOM DU PERSONNAGE tant que personne
+  //  n'y a touché : c'est ce que les fiches s'appellent, et une chose
+  //  de moins à taper. Dès qu'on l'édite à la main, il cesse de
+  //  suivre.
+  const sujetNatif = doc.querySelector<HTMLInputElement>('input[name="subject"]');
+  let titreSuitLeNom = (sujetNatif?.value ?? "").trim() === "";
+  const titre = saisie(doc, "titre", sujetNatif?.value ?? "", false);
+  titre.addEventListener("input", () => {
+    titreSuitLeNom = false;
+    if (sujetNatif !== null) sujetNatif.value = titre.value;
+  });
+
   const perso = section(doc, "Le personnage");
   {
     const dedans = champsDe(perso);
+    dedans.appendChild(
+      ligne(doc, "TITRE DU SUJET", titre, "ce qui s'affichera dans la liste des sujets"),
+    );
     unChamp(dedans, { clef: "nom", etiquette: "NOM DU PERSONNAGE" }, fiche.nom, (v) => {
       fiche = { ...fiche, nom: v };
+      if (titreSuitLeNom) {
+        titre.value = v;
+        if (sujetNatif !== null) sujetNatif.value = v;
+      }
     });
     unChamp(
       dedans,
@@ -595,11 +725,26 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
         "et tu l'envoies quand tu es prête. Rien n'est posté sans toi.",
     ),
   );
-  dedansTete.append(dit, reprendre);
+  dedansTete.append(dit, reprendre, voirLeTexte);
   tete.appendChild(dedansTete);
 
-  cadre.append(tete, perso, hist, poke, ombre, joueur);
+  //  L'APERÇU EN DERNIER, après les champs : on remplit, puis on
+  //  regarde. Au-dessus, il faudrait remonter pour saisir et
+  //  redescendre pour voir.
+  cadre.append(tete, perso, hist, poke, ombre, joueur, apercu);
   boite.parentNode?.insertBefore(cadre, boite);
+
+  //  ── ET LE BLOC D'ÉDITION S'EFFACE ───────────────────────────────
+  //
+  //  SEULEMENT SI LA FICHE EST À NOUS. Sur un message qu'on ne
+  //  reconnaît pas, le masquer priverait le joueur du seul endroit où
+  //  son texte existe encore — et le formulaire, lui, n'écrit pas.
+  //  Il réapparaîtra quand il aura cliqué sur « remplacer ».
+  boiteEditeur.hidden = connu;
+  voirLeTexte.hidden = !connu;
+  //  L'APERÇU DÈS L'OUVERTURE, et pas seulement à la première frappe :
+  //  une fiche qu'on rouvre doit se montrer telle qu'elle est.
+  peindreLApercu(connu && avant !== "" ? avant : publier(fiche));
 
   //  ── LE DERNIER MOT AVANT L'ENVOI ────────────────────────────────
   //

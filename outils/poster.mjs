@@ -551,7 +551,7 @@ const pageAvecScript = (corps, message = "") =>
 </div>
 </body></html>`;
 
-async function monterLaFiche(message = "") {
+async function monterLaFiche(message = "", { sujetVide = false } = {}) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1200 } });
   q.on("pageerror", (e) => {
     soucis.push("erreur JS (fiche) : " + e.message);
@@ -583,6 +583,14 @@ async function monterLaFiche(message = "") {
     });
   });
   await q.goto("https://exemple.test/post");
+  //  LE CHAMP « SUJET » VIDE, COMME À LA CRÉATION D'UN SUJET. Il doit
+  //  l'être AVANT que le script se pose : c'est à ce moment-là que le
+  //  formulaire décide si le titre suivra le nom du personnage.
+  if (sujetVide) {
+    await q.evaluate(() => {
+      document.querySelector('input[name="subject"]').value = "";
+    });
+  }
   await q.evaluate(() => {
     const s = document.createElement("script");
     s.src = "/js/wild-mystery.js";
@@ -627,6 +635,10 @@ console.log("\n── le formulaire de la fiche ──");
       "Son premier Pokémon",
       "Le Groupe Ombre",
       "Derrière l'écran",
+      //  L'APERÇU EST LA SEPTIÈME, et il vient en dernier : on
+      //  remplit, puis on regarde. Au-dessus, il faudrait remonter
+      //  pour saisir et redescendre pour voir.
+      "Ce que ça donnera",
     ]),
     JSON.stringify(pose.sections),
   );
@@ -899,6 +911,209 @@ console.log("\n── le formulaire de la fiche ──");
     "   et le talent revient, bien que son menu soit arrivé après",
     talent === "Échauffement",
     JSON.stringify(talent),
+  );
+  await q.close();
+}
+
+{
+  //  ── « ÇA REMPLACE TOUT » ─────────────────────────────────────────
+  //
+  //  « Pas besoin d'avoir ce qui est écrit en dessous, le bloc
+  //  d'édition, ça remplace tout. Et aussi, faut voir directement ce
+  //  que ça va faire, c'est pas juste des champs à remplir. »
+  //  — 23 novembre.
+  const q = await monterLaFiche("");
+  const vu = await q.evaluate(() => ({
+    editeurMasque: document.getElementById("postingbox").hidden,
+    //  LE BOUTON D'ENVOI SURVIT : il vit dans un AUTRE panneau que le
+    //  bloc d'édition. Si masquer l'un emportait l'autre, personne ne
+    //  pourrait plus poster.
+    envoiVisible: !!document.querySelector('input[name="post"]')?.offsetParent,
+    //  ET LE TITRE DU SUJET EST REPRIS, puisque son champ natif était
+    //  dans le bloc masqué.
+    champTitre: !!document.getElementById("wmf-titre"),
+    sujetNatif: !!document.querySelector('input[name="subject"]'),
+    apercu: !!document.querySelector(".wmf-form__rendu"),
+    sortie: !document.querySelector(".wmf-form__brut").hidden,
+  }));
+  dire(
+    "LE BLOC D'ÉDITION EST MASQUÉ, ET L'ENVOI RESTE",
+    vu.editeurMasque === true && vu.envoiVisible === true,
+    JSON.stringify(vu),
+  );
+  dire(
+    "   le titre du sujet est repris dans le formulaire",
+    vu.champTitre === true && vu.sujetNatif === true,
+    JSON.stringify({ champ: vu.champTitre }),
+  );
+
+  //  ── UN SUJET DÉJÀ ÉCRIT NE SE FAIT PAS ÉCRASER ──────────────────
+  //
+  //  Le décor pré-remplit le champ « Sujet », comme le fait une
+  //  ÉDITION : le sujet existe déjà, et il porte peut-être un titre
+  //  que personne ne veut voir remplacé par le nom du personnage.
+  const garde = await q.evaluate(async () => {
+    const e = document.getElementById("wmf-nom");
+    e.value = "Quelqu'un d'autre";
+    e.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 150));
+    return document.querySelector('input[name="subject"]').value;
+  });
+  dire(
+    "UN SUJET DÉJÀ ÉCRIT NE SE FAIT PAS ÉCRASER PAR LE NOM",
+    garde === "Un sujet de test",
+    JSON.stringify(garde),
+  );
+
+  //  ── SUR UN SUJET NEUF, LE TITRE SUIT LE NOM ─────────────────────
+  //
+  //  C'est le cas réel d'une création : `/post?f=7&mode=newtopic` sert
+  //  un champ « Sujet » VIDE. On le vide donc ici, et on repose le
+  //  formulaire pour qu'il reparte de là.
+  await q.close();
+}
+
+{
+  const q = await monterLaFiche("", { sujetVide: true });
+  const titres = await q.evaluate(async () => {
+    const poser = (id, v) => {
+      const e = document.getElementById(id);
+      e.value = v;
+      e.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    poser("wmf-nom", "Jak A. Fering");
+    await new Promise((r) => setTimeout(r, 150));
+    const suivi = {
+      formulaire: document.getElementById("wmf-titre").value,
+      natif: document.querySelector('input[name="subject"]').value,
+    };
+    poser("wmf-titre", "Un titre à moi");
+    poser("wmf-nom", "Autre nom");
+    await new Promise((r) => setTimeout(r, 150));
+    return {
+      suivi,
+      apres: {
+        formulaire: document.getElementById("wmf-titre").value,
+        natif: document.querySelector('input[name="subject"]').value,
+      },
+    };
+  });
+  dire(
+    "LE TITRE SE REMPLIT DU NOM DU PERSONNAGE",
+    titres.suivi.formulaire === "Jak A. Fering" && titres.suivi.natif === "Jak A. Fering",
+    JSON.stringify(titres.suivi),
+  );
+  dire(
+    "   et dès qu'on l'écrit soi-même, il cesse de suivre",
+    titres.apres.formulaire === "Un titre à moi" && titres.apres.natif === "Un titre à moi",
+    JSON.stringify(titres.apres),
+  );
+
+  //  ── L'APERÇU MONTRE LE VRAI RENDU ───────────────────────────────
+  const rendu = await q.evaluate(async () => {
+    const poser = (id, v) => {
+      const e = document.getElementById(id);
+      e.value = v;
+      e.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    poser("wmf-metier", "Ranger");
+    poser("wmf-histoire", "Il est né un <b>mardi</b>.");
+    await new Promise((r) => setTimeout(r, 250));
+    const r = document.querySelector(".wmf-form__rendu");
+    return {
+      titre: r.querySelector(".wmf__titre")?.textContent,
+      deuxColonnes: !!r.querySelector(".wmf__haut .wmf__infos"),
+      //  LES BALISES DU JOUEUR SONT RENDUES, pas affichées en clair :
+      //  c'est tout l'objet d'un aperçu.
+      gras: !!r.querySelector("b"),
+      texteDuGras: r.querySelector("b")?.textContent,
+      etiquette: !!r.querySelector("y"),
+    };
+  });
+  dire(
+    "L'APERÇU REND LA FICHE, pas le code",
+    rendu.titre === "Autre nom" && rendu.deuxColonnes === true && rendu.etiquette === true,
+    JSON.stringify(rendu),
+  );
+  dire(
+    "   et les balises du joueur y sont rendues",
+    rendu.gras === true && rendu.texteDuGras === "mardi",
+    JSON.stringify({ gras: rendu.gras }),
+  );
+
+  //  ── UN SCRIPT COLLÉ PAR MÉGARDE NE S'EXÉCUTE PAS DANS L'APERÇU ──
+  //
+  //  Le texte est celui du joueur, dans sa propre page : il n'y a
+  //  personne à protéger de lui. Mais un `<script>` recopié d'un
+  //  générateur de bannières casserait sa page de réponse au milieu
+  //  de la rédaction, sans qu'il comprenne pourquoi.
+  const propre = await q.evaluate(async () => {
+    globalThis.__wmTouche = false;
+    const e = document.getElementById("wmf-histoire");
+    e.value = "<script>globalThis.__wmTouche = true;<\/script>" +
+      '<img src="x" onerror="globalThis.__wmTouche = true">' +
+      '<iframe src="https://exemple.test"></iframe>' +
+      '<a href="javascript:void(0)">lien</a>';
+    e.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 300));
+    const r = document.querySelector(".wmf-form__rendu");
+    return {
+      execute: globalThis.__wmTouche,
+      script: r.querySelectorAll("script").length,
+      iframe: r.querySelectorAll("iframe").length,
+      onerror: r.querySelector("img")?.hasAttribute("onerror") ?? false,
+      href: r.querySelector("a")?.getAttribute("href") ?? null,
+      //  ET LE MESSAGE, LUI, PART INTACT : c'est Forumactif qui filtre
+      //  ce qui est publié, pas nous.
+      message: document.querySelector("#text_editor_textarea").value.includes("<script>"),
+    };
+  });
+  dire(
+    "UN SCRIPT COLLÉ PAR MÉGARDE NE S'EXÉCUTE PAS DANS L'APERÇU",
+    propre.execute === false && propre.script === 0 && propre.iframe === 0 &&
+      propre.onerror === false && propre.href === null,
+    JSON.stringify(propre),
+  );
+  dire(
+    "   et le message, lui, part intact — c'est Forumactif qui filtre",
+    propre.message === true,
+    String(propre.message),
+  );
+
+  //  ── LA PORTE DE SORTIE ──────────────────────────────────────────
+  const sortie = await q.evaluate(async () => {
+    document.querySelector(".wmf-form__brut").click();
+    await new Promise((r) => setTimeout(r, 150));
+    const avant = document.querySelector("#text_editor_textarea").value;
+    const e = document.getElementById("wmf-nom");
+    e.value = "Ne doit rien écrire";
+    e.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 200));
+    return {
+      editeurRevenu: document.getElementById("postingbox").hidden === false,
+      messageIntact: document.querySelector("#text_editor_textarea").value === avant,
+      reprendreOffert: !document.querySelector(".wmf-form__reprendre").hidden,
+    };
+  });
+  dire(
+    "« ÉCRIRE À LA MAIN » REND L'ÉDITEUR ET REND LA MAIN",
+    sortie.editeurRevenu === true && sortie.messageIntact === true &&
+      sortie.reprendreOffert === true,
+    JSON.stringify(sortie),
+  );
+  const retour = await q.evaluate(async () => {
+    document.querySelector(".wmf-form__reprendre").click();
+    await new Promise((r) => setTimeout(r, 200));
+    return {
+      editeurRemasque: document.getElementById("postingbox").hidden,
+      message: document.querySelector("#text_editor_textarea").value,
+    };
+  });
+  dire(
+    "   et reprendre le formulaire remasque l'éditeur",
+    retour.editeurRemasque === true &&
+      retour.message.includes("<wmf-nom>Ne doit rien écrire</wmf-nom>"),
+    JSON.stringify({ masque: retour.editeurRemasque }),
   );
   await q.close();
 }
