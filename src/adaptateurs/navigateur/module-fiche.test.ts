@@ -12,7 +12,7 @@
 // ════════════════════════════════════════════════════════════════════
 
 import { assertEquals } from "@std/assert";
-import { lireLesStarters, memeFiche } from "./module-fiche.ts";
+import { adresseDeLien, lireLesStarters, memeFiche } from "./module-fiche.ts";
 import { type Fiche, ficheVide } from "../../navigateur/fiche.ts";
 
 // ── le catalogue des espèces ────────────────────────────────────────
@@ -125,4 +125,45 @@ Deno.test("CHANGER DE FORME SE VOIT, même à contenu vide", () => {
   const pave: Fiche = { ...UNE, histoire: { mode: "pave", texte: "" } };
   const chrono: Fiche = { ...UNE, histoire: { mode: "chronologie", moments: [] } };
   assertEquals(memeFiche(pave, chrono), false);
+});
+
+// ── l'adresse d'un lien ─────────────────────────────────────────────
+
+Deno.test("UNE ADRESSE SANS PROTOCOLE EN REÇOIT UN", () => {
+  //  C'est ce qu'on colle neuf fois sur dix, et `href="exemple.test"`
+  //  pointerait sur une page du forum qui n'existe pas.
+  assertEquals(adresseDeLien("exemple.test/page"), "https://exemple.test/page");
+  assertEquals(adresseDeLien("  exemple.test  "), "https://exemple.test");
+});
+
+Deno.test("CELLES QUI EN ONT UN LE GARDENT", () => {
+  assertEquals(adresseDeLien("https://exemple.test"), "https://exemple.test");
+  assertEquals(adresseDeLien("http://exemple.test"), "http://exemple.test");
+  assertEquals(adresseDeLien("/t50-modele"), "/t50-modele");
+  assertEquals(adresseDeLien("#ici"), "#ici");
+  assertEquals(adresseDeLien("mailto:qui@exemple.test"), "mailto:qui@exemple.test");
+});
+
+Deno.test("LE GUILLEMET NE FERME PAS L'ATTRIBUT", () => {
+  //  Pas une protection contre quelqu'un — le joueur écrit dans sa
+  //  propre fiche. C'est une adresse collée qui, un jour, en
+  //  contiendra un, et tout ce qui suit deviendrait du balisage.
+  assertEquals(
+    adresseDeLien(`https://exemple.test/a"b`),
+    "https://exemple.test/a&quot;b",
+  );
+});
+
+Deno.test("`javascript:` NE PART PAS DANS UNE FICHE", () => {
+  //  Forumactif le filtrerait de toute façon. Mais une fiche porte le
+  //  nom de son auteur, et on ne lui met pas ça dans la bouche.
+  assertEquals(adresseDeLien("javascript:alert(1)"), "");
+  assertEquals(adresseDeLien("  JavaScript:alert(1)"), "");
+  assertEquals(adresseDeLien("data:text/html,<script>"), "");
+  assertEquals(adresseDeLien("vbscript:msgbox"), "");
+});
+
+Deno.test("UNE ADRESSE VIDE NE POSE RIEN", () => {
+  assertEquals(adresseDeLien(""), "");
+  assertEquals(adresseDeLien("   "), "");
 });

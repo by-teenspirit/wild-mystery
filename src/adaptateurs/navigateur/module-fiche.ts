@@ -251,13 +251,41 @@ const BALISES: readonly {
   readonly mot: string;
   readonly ouvre: string;
   readonly ferme: string;
+  /** Le bouton demande une adresse avant d'insérer. */
+  readonly demande?: boolean;
 }[] = [
   { mot: "Gras", ouvre: "<b>", ferme: "</b>" },
   { mot: "Italique", ouvre: "<i>", ferme: "</i>" },
   { mot: "Souligné", ouvre: "<u>", ferme: "</u>" },
   { mot: "Centré", ouvre: "<center>", ferme: "</center>" },
-  { mot: "Lien", ouvre: `<a href="">`, ferme: "</a>" },
+  { mot: "Lien", ouvre: `<a href="">`, ferme: "</a>", demande: true },
 ];
+
+/** L'adresse telle qu'elle peut entrer dans un `href`.
+ *
+ *  ── DEUX CHOSES, ET PAS UNE DE PLUS ───────────────────────────────
+ *
+ *  LE GUILLEMET SE NEUTRALISE, sinon il ferme l'attribut et le reste
+ *  de l'adresse devient du balisage. Ce n'est pas une protection
+ *  contre quelqu'un — le joueur écrit dans sa propre fiche — c'est
+ *  une adresse collée depuis une barre d'adresse qui, un jour, en
+ *  contiendra un.
+ *
+ *  ET `javascript:` NE PART PAS. Forumactif filtre les messages, donc
+ *  il ne passerait pas ; mais on ne l'écrit pas pour autant, parce
+ *  qu'une fiche porte le nom de son auteur et qu'on ne lui met pas ça
+ *  dans la bouche. Une adresse sans protocole en reçoit un : c'est ce
+ *  qu'on colle neuf fois sur dix.
+ *
+ *  Rend la chaîne vide si l'adresse n'a pas de sens — l'appelant
+ *  n'insère alors rien. */
+export function adresseDeLien(brut: string): string {
+  const propre = brut.trim();
+  if (propre === "") return "";
+  if (/^(javascript|data|vbscript):/i.test(propre)) return "";
+  const avec = /^(https?:\/\/|\/|#|mailto:)/i.test(propre) ? propre : `https://${propre}`;
+  return avec.replace(/"/g, "&quot;");
+}
 
 const DES_IDENTITES = new Set(IDENTITE.map((c) => c.clef));
 const DES_JOUEURS = new Set(JOUEUR.map((c) => c.clef));
@@ -676,10 +704,81 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       bouton.type = "button";
       bouton.title = `${b.ouvre}…${b.ferme}`;
       bouton.addEventListener("mousedown", (e) => e.preventDefault());
-      bouton.addEventListener("click", () => entourer(doc, z, b.ouvre, b.ferme));
+      bouton.addEventListener(
+        "click",
+        b.demande === true
+          ? () => ouvrirLeLien(z, barre)
+          : () => entourer(doc, z, b.ouvre, b.ferme),
+      );
       barre.appendChild(bouton);
     }
     return barre;
+  };
+
+  //  ── LE LIEN DEMANDE SON ADRESSE ────────────────────────────────
+  //
+  //  Insérer `<a href="">` et laisser le joueur viser l'intérieur des
+  //  guillemets, c'est lui demander de comprendre ce qu'est un
+  //  attribut. Le bouton ouvre donc un champ, et pose le lien complet.
+  //
+  //  LA SÉLECTION EST GARDÉE AVANT D'OUVRIR LE CHAMP. Dès qu'on y
+  //  tape, le curseur a quitté la zone et la sélection n'existe plus :
+  //  sans cette copie, le lien se poserait autour de rien.
+  const ouvrirLeLien = (z: HTMLElement, barre: HTMLElement): void => {
+    const existant = barre.nextElementSibling;
+    if (existant !== null && existant.classList.contains("wmf-form__lien")) {
+      existant.remove();
+      return;
+    }
+    const sel = doc.getSelection();
+    const gardee = sel !== null && sel.rangeCount > 0 && sel.anchorNode !== null &&
+        z.contains(sel.anchorNode)
+      ? sel.getRangeAt(0).cloneRange()
+      : null;
+
+    const boite = el(doc, "div", "wmf-form__lien");
+    const champ = el<HTMLInputElement>(doc, "input", "inputbox");
+    champ.type = "url";
+    champ.placeholder = "https://…";
+    champ.setAttribute("aria-label", "L'adresse du lien");
+
+    const fermer = (): void => {
+      boite.remove();
+      z.focus();
+    };
+    const poser = (): void => {
+      const ou = adresseDeLien(champ.value);
+      if (ou === "") {
+        champ.focus();
+        return;
+      }
+      boite.remove();
+      z.focus();
+      //  ON REMET LA SÉLECTION D'AVANT : c'est elle qui décide quel
+      //  texte devient cliquable.
+      if (gardee !== null && sel !== null) {
+        sel.removeAllRanges();
+        sel.addRange(gardee);
+      }
+      entourer(doc, z, `<a href="${ou}">`, "</a>");
+    };
+
+    champ.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        poser();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        fermer();
+      }
+    });
+    boite.append(
+      champ,
+      bouton(doc, "Poser le lien", poser, "button2 wmf-form__poser"),
+      bouton(doc, "Annuler", fermer, "button2 wmf-form__annuler"),
+    );
+    barre.after(boite);
+    champ.focus();
   };
 
   const brancher = (z: HTMLElement, clef: string, rang: number, invite: string): void => {

@@ -38763,6 +38763,24 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-accent-primaire, #275e7a);
 }
 
+/*  LE CHAMP DU LIEN, ouvert par le bouton et posé entre la barre et
+    la zone. Insérer `<a href="">` et laisser viser l'intérieur des
+    guillemets, c'était demander au joueur de savoir ce qu'est un
+    attribut. */
+#modernbb .wmf-form__lien {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px);
+  align-items: center;
+  margin-bottom: var(--wm-espace-8, 8px);
+}
+
+#modernbb .wmf-form__lien .inputbox {
+  box-sizing: border-box;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
 /*  ET LA COLONNE DIT CE QU'ELLE ATTEND tant qu'aucune image n'y est.
     Sans ça, une fiche neuve n'a là qu'une adresse vide, et rien ne
     laisse deviner que c'est la place du visage. */
@@ -39061,7 +39079,9 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     disent, et un texte coupé net sur un fond uni ne le dirait pas. */
 #modernbb .wmf__infos,
 #modernbb .wmf__histoire-corps,
-#modernbb .wmf__joueur-infos {
+#modernbb .wmf__joueur-infos,
+#modernbb .wmf__rencontre > wmf-s-rencontre,
+#modernbb .wmf__ancienne > wmf-ancienne {
   overflow-y: auto;
   box-sizing: border-box;
   padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
@@ -39073,13 +39093,17 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 #modernbb .wmf__infos::-webkit-scrollbar,
 #modernbb .wmf__histoire-corps::-webkit-scrollbar,
-#modernbb .wmf__joueur-infos::-webkit-scrollbar {
+#modernbb .wmf__joueur-infos::-webkit-scrollbar,
+#modernbb .wmf__rencontre > wmf-s-rencontre::-webkit-scrollbar,
+#modernbb .wmf__ancienne > wmf-ancienne::-webkit-scrollbar {
   width: 8px;
 }
 
 #modernbb .wmf__infos::-webkit-scrollbar-thumb,
 #modernbb .wmf__histoire-corps::-webkit-scrollbar-thumb,
-#modernbb .wmf__joueur-infos::-webkit-scrollbar-thumb {
+#modernbb .wmf__joueur-infos::-webkit-scrollbar-thumb,
+#modernbb .wmf__rencontre > wmf-s-rencontre::-webkit-scrollbar-thumb,
+#modernbb .wmf__ancienne > wmf-ancienne::-webkit-scrollbar-thumb {
   border-radius: var(--wm-rayon-xs, 4px);
   background: var(--wm-bord-net, #d9c3b1);
 }
@@ -39196,6 +39220,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex: 1 1 320px;
   min-width: 0;
   font-size: var(--wm-taille-message, 16px);
+}
+
+/*  CES DEUX-LÀ DÉFILENT AUSSI, et le panneau est sur la VALEUR, pas
+    sur le bloc : mis sur le bloc, le bandeau « COMPAGNON D'UNE VIE »
+    défilerait avec le texte et on ne saurait plus ce qu'on lit. */
+#modernbb .wmf__rencontre > wmf-s-rencontre {
+  display: block;
+  max-height: 260px;
+}
+
+#modernbb .wmf__ancienne > wmf-ancienne {
+  display: block;
+  max-height: 200px;
 }
 
 /*  LES SAUTS DE LIGNE DU JOUEUR SE GARDENT. On les pose sur les

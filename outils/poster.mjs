@@ -1000,6 +1000,67 @@ const OUTILS = () => {
     "",
   );
 
+  //  ── LE LIEN DEMANDE SON ADRESSE ───────────────────────────────
+  //
+  //  Le seul bouton qui n'insère pas tout de suite. On vérifie les
+  //  deux moitiés : que le champ s'ouvre, et que la SÉLECTION D'AVANT
+  //  survit au passage dans ce champ — c'est elle qui décide quel
+  //  texte devient cliquable, et taper dedans l'efface.
+  const lien = await q.evaluate(async () => {
+    const z = globalThis.wmZone("histoire");
+    const barre = z.previousElementSibling;
+    globalThis.wmTaper("histoire", "Il écrit sur Bazzart tous les jours.");
+    await globalThis.wmPause(200);
+    const noeud = globalThis.wmZone("histoire").firstChild;
+    const debut = noeud.textContent.indexOf("Bazzart");
+    const r = document.createRange();
+    r.setStart(noeud, debut);
+    r.setEnd(noeud, debut + 7);
+    const sel = document.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+    [...barre.querySelectorAll(".wmf-form__balise")]
+      .find((b) => b.textContent === "Lien")
+      .click();
+    await globalThis.wmPause(200);
+    const boite = barre.nextElementSibling;
+    const ouvert = boite?.classList.contains("wmf-form__lien") === true;
+    const champ = boite.querySelector("input");
+    //  SANS PROTOCOLE, comme on colle neuf fois sur dix.
+    champ.value = "bazzart.net";
+    champ.focus();
+    [...boite.querySelectorAll("button")]
+      .find((b) => b.textContent === "Poser le lien")
+      .click();
+    await globalThis.wmPause(250);
+    return {
+      ouvert,
+      refermee: barre.nextElementSibling?.classList.contains("wmf-form__lien") !== true,
+      zone: globalThis.wmTexte("histoire"),
+      message: globalThis.wmMessage(),
+    };
+  });
+  dire(
+    "LE BOUTON « LIEN » DEMANDE L'ADRESSE AVANT D'INSÉRER",
+    lien.ouvert === true && lien.refermee === true,
+    JSON.stringify({ ouvert: lien.ouvert, referme: lien.refermee }),
+  );
+  dire(
+    "   ET LA SÉLECTION SURVIT AU PASSAGE DANS LE CHAMP",
+    lien.zone === 'Il écrit sur <a href="https://bazzart.net">Bazzart</a> tous les jours.',
+    JSON.stringify(lien.zone),
+  );
+  dire(
+    "   et le lien part dans le message",
+    lien.message.includes('<a href="https://bazzart.net">Bazzart</a>'),
+    "",
+  );
+
+  //  CE QU'IL Y A DANS LE PAVÉ AVANT DE BASCULER. On le relève
+  //  plutôt que de l'écrire dans l'attente : la mesure cesse ainsi de
+  //  dépendre de tout ce qui a été tapé plus haut.
+  const avantLaChrono = await q.evaluate(() => globalThis.wmTexte("histoire"));
+
   //  ── LA CHRONOLOGIE ─────────────────────────────────────────────
   const chrono = await q.evaluate(async () => {
     const vers = (mot) =>
@@ -1113,8 +1174,8 @@ const OUTILS = () => {
   });
   dire(
     "SE RAVISER NE PERD PAS LE PAVÉ QU'ON AVAIT ÉCRIT",
-    retour.pave === "Il est né un <b>mardi</b>." && retour.marque === "true",
-    JSON.stringify(retour),
+    retour.pave === avantLaChrono && retour.marque === "true",
+    JSON.stringify({ attendu: avantLaChrono, rendu: retour.pave }),
   );
 
   //  ── LE GROUPE OMBRE ────────────────────────────────────────────
