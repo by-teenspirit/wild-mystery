@@ -167,10 +167,23 @@
 /*  CE QU'UNE ZONE VIDE DIT. Le texte vient de l'attribut, donc il
     n'est jamais dans le contenu : il ne peut pas partir dans le
     message, et `innerText` ne le voit pas. */
+/*  ELLE PREND LA TYPO DE CE QU'ELLE VA DEVENIR, et pas une taille à
+    elle. « Pour le champ du nom du personnage, tu peux déjà mettre la
+    vraie typo ? » — 23 novembre : une fiche neuve montrait le nom
+    comme une petite ligne italique, alors que c'est un titre de 25 px
+    en Fraunces dès qu'on tape une lettre. On voyait le champ, pas la
+    fiche.
+
+    `inherit` LE RÈGLE PARTOUT EN UNE LIGNE : la pseudo-élément hérite
+    de sa zone, donc chaque invite s'affiche à la taille du texte
+    qu'elle remplace. Restent le gris et l'italique, qui disent « pas
+    encore écrit », et la casse remise à plat — une invite en
+    capitales dans la colonne des dates serait un ordre, pas une
+    suggestion. */
 #modernbb .wmf-form__fiche [data-wmf-zone]:empty::before {
   content: attr(data-wmf-vide);
   color: var(--wm-texte-doux, #6e5749);
-  font-size: var(--wm-taille-petit, 11.5px);
+  font-size: inherit;
   font-style: italic;
   font-weight: var(--wm-graisse-normale, 400);
   letter-spacing: normal;
