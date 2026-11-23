@@ -513,14 +513,22 @@ await p.close();
 //  ══════════════════════════════════════════════════════════════════
 
 const STARTERS = {
+  spriteBase: "https://exemple.test/sprites",
   especes: [
     {
       id: 172,
       nom: "Pichu",
+      sprite: "ultra-sun-ultra-moon/172.gif",
       types: ["electrik"],
       talents: [{ nom: "Statik" }, { nom: "Paratonnerre", cache: true }],
     },
-    { id: 133, nom: "Évoli", types: ["normal"], talents: [{ nom: "Échauffement" }] },
+    {
+      id: 133,
+      nom: "Évoli",
+      sprite: "ultra-sun-ultra-moon/133.gif",
+      types: ["normal"],
+      talents: [{ nom: "Échauffement" }],
+    },
     { id: 1, nom: "Bulbizarre", types: ["plante", "poison"], talents: [{ nom: "Engrais" }] },
   ],
 };
@@ -997,7 +1005,7 @@ const OUTILS = () => {
   });
   dire(
     "LE POKÉMON CHOISI S'AFFICHE DANS SA CARTE",
-    sprite.src?.endsWith("/assets/sprites-figes/forum/172.png") === true &&
+    sprite.src?.endsWith("/ultra-sun-ultra-moon/172.gif") === true &&
       sprite.dansLaCarte === true,
     JSON.stringify({ src: sprite.src }),
   );
@@ -1009,7 +1017,7 @@ const OUTILS = () => {
   dire(
     "   et son adresse part dans le message",
     sprite.message.includes('<img class="wmf__sprite" src=') &&
-      sprite.message.includes("/forum/172.png"),
+      sprite.message.includes("/ultra-sun-ultra-moon/172.gif"),
     "",
   );
 

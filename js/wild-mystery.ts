@@ -554,11 +554,6 @@ function poserLeFormulaireDeFiche(): void {
   poserLaFiche({
     doc: document,
     brouillon,
-    //  `DEPOT` ET PAS `RACINE` : le sprite vit dans
-    //  `assets/sprites-figes/`, à la racine du dépôt, tandis que
-    //  `RACINE` finit par `data/`. Le confondre donnerait
-    //  `…/data/assets/…`, un 404, et une carte de Pokémon sans image.
-    racine: DEPOT ?? undefined,
     starters: async () => {
       //  `RACINE` FINIT DÉJÀ PAR `data/` — c'est ce que
       //  `racineDesDonnees` rend, et tous les autres appels de ce

@@ -133,10 +133,66 @@ def noms_des_especes():
     return sortie
 
 
+def sprites_animes():
+    """id → l'adresse complète du sprite ANIMÉ, style du forum.
+
+    ── POURQUOI L'ANIMÉ, ET POURQUOI ICI ──────────────────────────
+
+    « Si tu les prends pas animé, évite de prendre l'animé et de le
+    figer. » — 23 novembre.
+
+    Mesuré le même jour : PokéAPI ne sert **que** le GIF pour
+    Ultra-Soleil/Ultra-Lune (le `.png` du même dossier répond 404 sur
+    les cinq espèces vérifiées). Il n'y a donc pas de version fixe à
+    prendre : notre PNG figé était fabriqué par nous, faute de mieux.
+
+    La fiche n'en porte qu'UN — là où une carte de combat en met dix
+    dans un sujet — et le navigateur du lecteur le réécrivait déjà en
+    animé au chargement. On pointe donc l'animé directement, et il n'y
+    a plus rien à héberger pour ce sprite-là.
+
+    ── ET POURQUOI DANS CE FICHIER ────────────────────────────────
+
+    L'adresse dépend de la source qui a l'espèce — Ultra-Soleil
+    d'abord, Showdown en repli — et seule la couverture le sait. La
+    lire dans le navigateur coûterait CENT KILO-OCTETS pour un sprite,
+    sur une page qui charge déjà ce fichier-ci. On la recopie donc
+    ici, une fois, à la livraison.
+
+    LE DÉPÔT DES SPRITES EST ÉPINGLÉ À UN COMMIT : l'adresse ne bouge
+    pas tant que `sprites-couverture.json` ne bouge pas, et le
+    garde-fou 40 refait ce fichier dès qu'elle bouge.
+
+    ── LA BASE SORT DU TABLEAU ────────────────────────────────────
+
+    Elle fait 151 caractères et elle est la même pour les 436 : écrite
+    à chaque ligne, elle pesait 64 Ko sur un fichier de 199, chargés à
+    chaque ouverture de la page de réponse. Elle est donc écrite UNE
+    fois, et chaque espèce ne porte que son chemin.
+    """
+    couverture = charger("sprites-couverture.json")
+    base = couverture["base"].rstrip("/")
+    especes = couverture["styles"]["forum"]["especes"]
+    sortie = {}
+    for clef, entree in especes.items():
+        chemin = entree.get("source") if isinstance(entree, dict) else None
+        if not chemin:
+            continue
+        #  UN CHEMIN QUI COMMENCE PAR `assets/` EST CHEZ NOUS, et il
+        #  n'a rien à faire ici : ce fichier ne sert que les sources
+        #  distantes. Aucune n'est dans ce cas pour le style du forum,
+        #  mais la règle est celle de `sprites.ts` et on la garde.
+        if chemin.startswith("assets/"):
+            continue
+        sortie[int(clef)] = chemin
+    return base, sortie
+
+
 def main():
     fiches = charger("especes-fiches.json")["fiches"]
     noms = noms_des_especes()
     talents = charger("talents.json")["talents"]
+    base_sprites, animes = sprites_animes()
     fossiles = {
         e["id"] for e in charger("hors-nature.json")["especes"] if e["origine"] == "fossile"
     }
@@ -144,6 +200,7 @@ def main():
     especes = []
     sans_nom = []
     sans_talent = []
+    sans_sprite = []
     for clef, fiche in fiches.items():
         ident = int(clef)
         if fiche["stade"] != 1:
@@ -162,11 +219,18 @@ def main():
         siens = talents.get(clef, [])
         if not siens:
             sans_talent.append(nom)
+        sprite = animes.get(ident)
+        if sprite is None:
+            sans_sprite.append(nom)
         especes.append(
             {
                 "id": ident,
                 "nom": nom,
                 "types": fiche["types"],
+                #  L'ADRESSE EST COMPLÈTE, et pas un chemin à recoller :
+                #  le navigateur n'a alors rien à savoir d'où vit le
+                #  dépôt des sprites.
+                **({"sprite": sprite} if sprite else {}),
                 #  LE TALENT CACHÉ EST MARQUÉ, pas retiré : « il peut
                 #  choisir le talent », et le staff tranchera si un
                 #  talent caché demande une justification.
@@ -195,10 +259,21 @@ def main():
             "Aucun niveau ici, et c'est la règle : le staff l'attribue à la validation, "
             "selon l'âge, le métier et le passé du personnage."
         ),
-        "source": "data/especes-fiches.json, data/especes.json, data/talents.json",
+        "spriteBase": base_sprites,
+        "_sprite": (
+            "Le sprite ANIMÉ du style du forum : `spriteBase` + le chemin de chaque "
+            "espèce, sur le dépôt épinglé. "
+            "PokéAPI ne sert que le GIF pour Ultra-Soleil/Ultra-Lune : il n'y a pas "
+            "de version fixe à prendre, et la fiche n'en porte qu'un."
+        ),
+        "source": (
+            "data/especes-fiches.json, data/especes.json, data/talents.json, "
+            "data/sprites-couverture.json"
+        ),
         "compte": {
             "especes": len(especes),
             "sansTalent": len(sans_talent),
+            "sansSprite": len(sans_sprite),
             "ecartesParRegle": len(HORS_STARTER) + len(fossiles),
         },
         "especes": especes,
@@ -221,6 +296,8 @@ def main():
         print(f"  {len(sans_nom)} sans nom, écartées : {sans_nom[:8]}")
     if sans_talent:
         print(f"  {len(sans_talent)} sans aucun talent : {sans_talent[:8]}")
+    if sans_sprite:
+        print(f"  {len(sans_sprite)} sans sprite animé : {sans_sprite[:8]}")
     return 0
 
 

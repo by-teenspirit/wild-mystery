@@ -59,8 +59,6 @@
 //  traverser casse ce test, et c'est voulu.
 // ════════════════════════════════════════════════════════════════════
 
-import { adresseDuSpriteFige } from "../application/sprite.ts";
-
 /** Un champ de texte de la fiche, tel qu'il se demande et se publie. */
 export type Champ = {
   /** La clé technique. Elle nomme la balise publiée : `wmf-<clef>`. */
@@ -378,23 +376,24 @@ export type Rendu = {
    *  (`publier` → `lireUneFiche`) est mesuré sans elle. */
   readonly pourEcrire?: boolean;
 
-  /** La racine du dépôt, pour écrire l'adresse du sprite du starter.
+  /** L'adresse complète du sprite du starter, ou rien.
    *
-   *  ── POURQUOI L'ADRESSE EST ÉCRITE DANS LE MESSAGE ───────────────
+   *  ── POURQUOI UNE ADRESSE TOUTE FAITE ────────────────────────────
    *
-   *  « Affiche le pokémon qui est sélectionné. » Un message est du
-   *  HTML figé : aucun script ne tourne dedans pour aller chercher
-   *  l'image plus tard. L'adresse part donc avec la fiche.
+   *  Elle est écrite DANS le message, et c'est la seule façon : un
+   *  message est du HTML figé, aucun script n'y tourne pour aller
+   *  chercher l'image plus tard.
    *
-   *  C'EST LE MÊME CHEMIN QUE LA FICHE DE COMBAT, et pour les mêmes
-   *  raisons — voir l'en-tête de `application/sprite.ts` : style
-   *  `forum` figé, parce qu'un message n'a pas de lecteur au moment
-   *  où il part, et PNG plutôt que GIF, parce qu'une page de fiches
-   *  animées rame. Le numéro reste en clair à la fin de l'adresse, ce
-   *  qui permet au navigateur de la réécrire selon le goût du lecteur.
+   *  MAIS ON NE LA CALCULE PLUS ICI. C'était `racine` et un chemin
+   *  deviné, qui menait au PNG que nous figions nous-mêmes. « Si tu
+   *  les prends pas animé, évite de prendre l'animé et de le figer »
+   *  — 23 novembre : on sert maintenant le GIF d'origine, dont
+   *  l'adresse dépend de la source qui a l'espèce et que seule la
+   *  couverture connaît. `data/starters.json` la porte, déjà chargé
+   *  par l'éditeur, et l'appelant la passe telle quelle.
    *
-   *  Sans racine, pas d'image — et pas d'image cassée non plus. */
-  readonly racine?: string;
+   *  Sans adresse, pas d'image — et pas d'image cassée non plus. */
+  readonly sprite?: string;
 };
 
 const STARTER_VIDE: Starter = {
@@ -492,7 +491,11 @@ export function publier(f: Fiche, r: Rendu = {}): string {
 
   if (f.starter !== null || ecrire) {
     const s = f.starter ?? STARTER_VIDE;
-    const sprite = r.racine === undefined ? null : adresseDuSpriteFige(r.racine, s.especeId);
+    //  PAS D'ESPÈCE, PAS DE SPRITE : l'éditeur rend le bloc du starter
+    //  avant qu'on ait choisi, pour qu'il y ait où écrire.
+    const sprite = s.especeId > 0 && r.sprite !== undefined && r.sprite !== ""
+      ? echappe(r.sprite)
+      : null;
     morceaux.push(`<div class="wmf__starter">`);
     morceaux.push(
       `<div class="wmf__pokemon">` +

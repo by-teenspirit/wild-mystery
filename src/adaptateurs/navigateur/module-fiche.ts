@@ -111,7 +111,6 @@ import {
   ressembleAUneFiche,
   type Starter,
 } from "../../navigateur/fiche.ts";
-import { adresseDuSpriteFige } from "../../application/sprite.ts";
 import type { Brouillon } from "./editeur.ts";
 
 /** Une espèce choisissable, telle que `data/starters.json` la rend. */
@@ -120,6 +119,20 @@ export type EspeceDeDepart = {
   readonly nom: string;
   readonly types: readonly string[];
   readonly talents: readonly { readonly nom: string; readonly cache?: boolean }[];
+  /** Le chemin de son sprite animé, à recoller derrière la base du
+   *  catalogue. `outils/starters.py` les recopie de la couverture. */
+  readonly sprite?: string;
+};
+
+/** Le catalogue tel qu'il arrive : une base, et des chemins.
+ *
+ *  LA BASE EST SORTIE DU TABLEAU parce qu'elle fait 151 caractères et
+ *  qu'elle est la même pour les 436 : écrite à chaque ligne, elle
+ *  pesait 64 Ko sur un fichier de 199, chargés à chaque ouverture de
+ *  la page de réponse. */
+export type CatalogueDesStarters = {
+  readonly base: string;
+  readonly especes: readonly EspeceDeDepart[];
 };
 
 export type DependancesDeLaFiche = {
@@ -128,10 +141,7 @@ export type DependancesDeLaFiche = {
   /** Les espèces de départ. Appelée une fois, à l'ouverture. Une
    *  lecture qui échoue ne doit pas empêcher le reste du formulaire :
    *  le bloc du starter se dit indisponible, les autres marchent. */
-  readonly starters: () => Promise<readonly EspeceDeDepart[]>;
-  /** La racine du dépôt, pour le sprite du starter. Sans elle, la
-   *  carte du Pokémon n'affiche pas d'image — et c'est tout. */
-  readonly racine?: string;
+  readonly starters: () => Promise<CatalogueDesStarters>;
 };
 
 const ID = "wm-fiche";
@@ -503,7 +513,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
         "arrêté pour ne pas l'effacer, et il te le rend tel qu'il est, en dessous.";
       return;
     }
-    const html = publier(pourLeMessage(), { racine: d.racine });
+    const html = publier(pourLeMessage(), { sprite: spriteCourant() });
     brouillon.ecrire(html);
     dernier = html;
     dit.textContent = "";
@@ -543,6 +553,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  bascule de forme perdrait l'un et l'autre. `equiper` ne fait que
   //  les remettre à leur place dans la fiche.
   let catalogue: readonly EspeceDeDepart[] = [];
+  let base = "";
   const especeMenu = el<HTMLSelectElement>(doc, "select", "inputbox wmf-form__menu");
   especeMenu.id = "wmf-espece";
   especeMenu.setAttribute("aria-label", "L'espèce de son premier Pokémon");
@@ -690,13 +701,19 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     colonne.insertBefore(neuve, colonne.firstChild);
   };
 
-  const majLeSprite = (): void => {
+  /*  L'ADRESSE VIENT DU CATALOGUE, pas d'un calcul. Elle y est écrite
+      par `outils/starters.py`, qui la recopie de la couverture : le
+      navigateur n'a donc à savoir ni où vit le dépôt des sprites, ni
+      quelle source a cette espèce-là. */
+  const spriteCourant = (): string => {
     const id = vue.starter?.especeId ?? 0;
-    majImage(
-      ".wmf__pokemon",
-      d.racine === undefined ? "" : adresseDuSpriteFige(d.racine, id) ?? "",
-      "wmf__sprite",
-    );
+    if (id <= 0 || base === "") return "";
+    const chemin = catalogue.find((e) => e.id === id)?.sprite ?? "";
+    return chemin === "" ? "" : `${base}/${chemin}`;
+  };
+
+  const majLeSprite = (): void => {
+    majImage(".wmf__pokemon", spriteCourant(), "wmf__sprite");
   };
 
   // ── rendre la fiche, puis la rendre modifiable ───────────────────
@@ -954,7 +971,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   const peindre = (): void => {
     laFiche.textContent = "";
     laFiche.appendChild(
-      pourLApercu(doc, publier(vue, { pourEcrire: true, racine: d.racine })),
+      pourLApercu(doc, publier(vue, { pourEcrire: true, sprite: spriteCourant() })),
     );
     equiper();
   };
@@ -1028,8 +1045,10 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     ecrire();
   });
 
-  void d.starters().then((liste) => {
-    catalogue = liste;
+  void d.starters().then((lu) => {
+    catalogue = lu.especes;
+    base = lu.base;
+    const liste = lu.especes;
     especeMenu.textContent = "";
     const aucun = el<HTMLOptionElement>(doc, "option", "", "— aucune pour l'instant —");
     aucun.value = "";
@@ -1060,9 +1079,12 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
  *  Le fichier est dérivé et contrôlé par le garde-fou 40, mais il
  *  arrive par le réseau : une réponse tronquée ou une page d'erreur
  *  déguisée ne doit pas peupler le menu de `undefined`. */
-export function lireLesStarters(brut: unknown): readonly EspeceDeDepart[] {
-  const o = brut as { especes?: unknown };
-  if (!Array.isArray(o?.especes)) return [];
+export function lireLesStarters(brut: unknown): CatalogueDesStarters {
+  const o = brut as { especes?: unknown; spriteBase?: unknown };
+  const base = typeof o?.spriteBase === "string" && /^https?:\/\//.test(o.spriteBase)
+    ? o.spriteBase.replace(/\/+$/, "")
+    : "";
+  if (!Array.isArray(o?.especes)) return { base, especes: [] };
   const sortie: EspeceDeDepart[] = [];
   for (const e of o.especes) {
     if (typeof e !== "object" || e === null) continue;
@@ -1070,9 +1092,17 @@ export function lireLesStarters(brut: unknown): readonly EspeceDeDepart[] {
     const id = typeof x.id === "number" && Number.isInteger(x.id) && x.id > 0 ? x.id : null;
     const nom = typeof x.nom === "string" && x.nom !== "" ? x.nom : null;
     if (id === null || nom === null) continue;
+    //  UN CHEMIN QUI N'EN EST PAS UN NE DEVIENT PAS UN `src`. Ni
+    //  absolu, ni remontant : il se recolle derrière NOTRE base, et
+    //  `..` l'en ferait sortir.
+    const sprite = typeof x.sprite === "string" && /^[\w./-]+\.(?:gif|png)$/.test(x.sprite) &&
+        !x.sprite.includes("..") && !x.sprite.startsWith("/")
+      ? x.sprite
+      : null;
     sortie.push({
       id,
       nom,
+      ...(sprite === null ? {} : { sprite }),
       types: Array.isArray(x.types) ? x.types.filter((t) => typeof t === "string") : [],
       talents: Array.isArray(x.talents)
         ? x.talents.flatMap((t) => {
@@ -1086,5 +1116,5 @@ export function lireLesStarters(brut: unknown): readonly EspeceDeDepart[] {
         : [],
     });
   }
-  return sortie;
+  return { base, especes: sortie };
 }

@@ -30,7 +30,7 @@ const BRUT = {
 };
 
 Deno.test("le catalogue se lit, talent caché compris", () => {
-  assertEquals(lireLesStarters(BRUT), [
+  assertEquals(lireLesStarters(BRUT).especes, [
     {
       id: 172,
       nom: "Pichu",
@@ -41,15 +41,49 @@ Deno.test("le catalogue se lit, talent caché compris", () => {
   ]);
 });
 
+Deno.test("LA BASE DES SPRITES SE LIT, ET SEULEMENT SI C'EN EST UNE", () => {
+  //  Elle est sortie du tableau pour ne pas peser 64 Ko de répétition.
+  //  Une base absente laisse les espèces sans image, pas avec une
+  //  adresse inventée.
+  assertEquals(
+    lireLesStarters({ spriteBase: "https://exemple.test/s/", especes: [] }).base,
+    "https://exemple.test/s",
+  );
+  assertEquals(lireLesStarters({ especes: [] }).base, "");
+  assertEquals(lireLesStarters({ spriteBase: "pas-une-adresse", especes: [] }).base, "");
+});
+
+Deno.test("UN CHEMIN DE SPRITE QUI N'EN EST PAS UN EST ÉCARTÉ", () => {
+  //  Il se recolle derrière NOTRE base : un chemin absolu ou remontant
+  //  l'en ferait sortir, et irait chercher ailleurs.
+  const lu = lireLesStarters({
+    spriteBase: "https://exemple.test/s",
+    especes: [
+      { id: 1, nom: "Bon", sprite: "versions/x/1.gif", talents: [] },
+      { id: 2, nom: "Absolu", sprite: "/ailleurs/2.gif", talents: [] },
+      { id: 3, nom: "Remontant", sprite: "../../3.gif", talents: [] },
+      { id: 4, nom: "Externe", sprite: "https://ailleurs.test/4.gif", talents: [] },
+      { id: 5, nom: "Pas une image", sprite: "versions/x/5.js", talents: [] },
+    ],
+  });
+  assertEquals(lu.especes.map((e) => e.sprite ?? null), [
+    "versions/x/1.gif",
+    null,
+    null,
+    null,
+    null,
+  ]);
+});
+
 Deno.test("UNE RÉPONSE QUI N'EN EST PAS UNE NE PEUPLE PAS LE MENU", () => {
   //  Le fichier est dérivé et tenu par le garde-fou 40, mais il arrive
   //  par le réseau : une page d'erreur déguisée en JSON, une réponse
   //  tronquée, et le menu se remplirait de « undefined » — qu'un
   //  joueur choisirait, et qui partirait dans sa fiche publiée.
-  assertEquals(lireLesStarters(null), []);
-  assertEquals(lireLesStarters({}), []);
-  assertEquals(lireLesStarters({ especes: "bientôt" }), []);
-  assertEquals(lireLesStarters("<html>404</html>"), []);
+  assertEquals(lireLesStarters(null).especes, []);
+  assertEquals(lireLesStarters({}).especes, []);
+  assertEquals(lireLesStarters({ especes: "bientôt" }).especes, []);
+  assertEquals(lireLesStarters("<html>404</html>").especes, []);
 });
 
 Deno.test("une espèce sans nom ou sans numéro est écartée, pas affichée", () => {
@@ -66,7 +100,7 @@ Deno.test("une espèce sans nom ou sans numéro est écartée, pas affichée", (
       null,
     ],
   });
-  assertEquals(sortie.map((e) => e.nom), ["Pichu"]);
+  assertEquals(sortie.especes.map((e) => e.nom), ["Pichu"]);
 });
 
 Deno.test("un talent sans nom ne devient pas une option vide", () => {
@@ -77,7 +111,7 @@ Deno.test("un talent sans nom ne devient pas une option vide", () => {
       talents: [{ nom: "Engrais" }, {}, { nom: "" }, null],
     }],
   });
-  assertEquals(sortie[0].talents, [{ nom: "Engrais" }]);
+  assertEquals(sortie.especes[0].talents, [{ nom: "Engrais" }]);
 });
 
 // ── a-t-on retouché le message à la main ? ──────────────────────────

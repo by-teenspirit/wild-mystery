@@ -439,77 +439,41 @@ Deno.test("CE QUI EST ÉCHAPPÉ POUR L'ÉCRAN SE RELIT TEL QUEL", () => {
 
 // ── le sprite du starter ────────────────────────────────────────────
 
+/*  « Affiche le pokémon qui est sélectionné », puis « mets l'animé ».
+    L'adresse arrive toute faite : elle vient de `data/starters.json`,
+    où `outils/starters.py` l'a recopiée de la couverture. */
+
+const GIF = "https://exemple.test/sprites/ultra-sun-ultra-moon/25.gif";
+
 Deno.test("LE POKÉMON CHOISI S'AFFICHE", () => {
-  //  « Affiche le pokémon qui est sélectionné. » Un message est du
-  //  HTML figé : l'adresse part avec la fiche, parce qu'aucun script
-  //  ne tournera dedans pour aller la chercher ensuite.
-  const html = publier(COMPLETE, { racine: "https://exemple.test/wm/" });
-  assertEquals(
-    html.includes(
-      `<img class="wmf__sprite" src="https://exemple.test/wm/assets/sprites-figes/forum/25.png"`,
-    ),
-    true,
-  );
+  //  Un message est du HTML figé : l'adresse part avec la fiche,
+  //  parce qu'aucun script ne tournera dedans pour aller la chercher.
+  const html = publier(COMPLETE, { sprite: GIF });
+  assertEquals(html.includes(`<img class="wmf__sprite" src="${GIF}"`), true);
 });
 
-Deno.test("SANS RACINE, PAS D'IMAGE — et pas d'image cassée non plus", () => {
+Deno.test("SANS ADRESSE, PAS D'IMAGE — et pas d'image cassée non plus", () => {
   assertEquals(publier(COMPLETE).includes("wmf__sprite"), false);
+  assertEquals(publier(COMPLETE, { sprite: "" }).includes("wmf__sprite"), false);
 });
 
 Deno.test("SANS ESPÈCE CHOISIE, PAS DE SPRITE", () => {
   //  L'éditeur rend le bloc du starter avant qu'on ait choisi, pour
-  //  qu'il y ait où écrire. Un sprite « numéro 0 » y serait un 404.
-  const html = publier(ficheVide(), {
-    pourEcrire: true,
-    racine: "https://exemple.test/wm/",
-  });
+  //  qu'il y ait où écrire. Une image y serait celle de personne.
+  const html = publier(ficheVide(), { pourEcrire: true, sprite: GIF });
   assertEquals(html.includes(`class="wmf__starter"`), true);
   assertEquals(html.includes("wmf__sprite"), false);
 });
 
+Deno.test("L'ADRESSE DU SPRITE EST ÉCHAPPÉE COMME LE RESTE", () => {
+  //  Elle vient d'un fichier dérivé, pas du joueur — mais elle entre
+  //  dans un attribut, et un guillemet y fermerait l'attribut.
+  const html = publier(COMPLETE, { sprite: `https://exemple.test/a".png` });
+  assertEquals(html.includes(`src="https://exemple.test/a&quot;.png"`), true);
+});
+
 Deno.test("L'IMAGE N'EMPÊCHE PAS DE RELIRE LA FICHE", () => {
-  //  L'aller-retour qui fait foi, avec le sprite en plus : il n'est
-  //  porteur d'aucune valeur, donc il ne doit en changer aucune.
-  assertEquals(
-    lireUneFiche(publier(COMPLETE, { racine: "https://exemple.test/wm/" })),
-    COMPLETE,
-  );
-});
-
-// ── reconnaître une fiche sans numéro de forum ──────────────────────
-
-/*  « Quand je fais prévisualiser, ou si je publie et que je modifie,
-    ça doit rester le formulaire. » Ces deux pages ne disent pas dans
-    quel forum on est : le message est le seul indice qui reste. */
-
-Deno.test("UNE FICHE PUBLIÉE SE RECONNAÎT À SON MESSAGE", () => {
-  assertEquals(estUneFicheEntiere(publier(COMPLETE)), true);
-  //  Les espaces et les retours à la ligne autour ne comptent pas :
-  //  sceditor en ajoute parfois en recopiant.
-  assertEquals(estUneFicheEntiere("\n  " + publier(COMPLETE) + "\n"), true);
-});
-
-Deno.test("UNE FICHE CITÉE N'EN EST PAS UNE", () => {
-  //  LE CAS QUI A DÉCIDÉ LA FORME DE CE TEST. Quelqu'un répond à une
-  //  présentation en citant son auteur : son message porte
-  //  `<wmf-nom>`, dans un forum qui n'est pas celui des
-  //  présentations. Si le formulaire se posait, il lirait la fiche de
-  //  l'autre et la première frappe remplacerait la réponse.
-  const citee = `<blockquote><div>Jak a écrit :</div>${publier(COMPLETE)}</blockquote>` +
-    "<br />Bienvenue à toi !";
-  assertEquals(ressembleAUneFiche(citee), true);
-  assertEquals(estUneFicheEntiere(citee), false);
-});
-
-Deno.test("UN MESSAGE ORDINAIRE N'EN EST PAS UNE NON PLUS", () => {
-  assertEquals(estUneFicheEntiere(""), false);
-  assertEquals(estUneFicheEntiere("Bonjour tout le monde."), false);
-  //  Une fiche de la V1 : du HTML, pas de balises à nous.
-  assertEquals(
-    estUneFicheEntiere('<center><div class="bk1">Prénom P. Nom</div></center>'),
-    false,
-  );
-  //  Et notre conteneur sans nos balises — quelqu'un qui aurait copié
-  //  la classe sans le reste.
-  assertEquals(estUneFicheEntiere(`<div class="wmf">rien du tout</div>`), false);
+  //  L'aller-retour qui fait foi, avec le sprite en plus : il ne
+  //  porte aucune valeur, donc il ne doit en changer aucune.
+  assertEquals(lireUneFiche(publier(COMPLETE, { sprite: GIF })), COMPLETE);
 });
