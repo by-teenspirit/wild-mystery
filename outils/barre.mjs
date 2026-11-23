@@ -211,6 +211,17 @@ async function monter(
     //  justement celui où elles ne disent pas la même chose : un combat
     //  ouvert (public) dont on ne sait pas lire l'équipe (privé).
     ouvert = null,
+    //  ── CE QUE `defi_du_sujet` RÉPOND ─────────────────────────────
+    //
+    //  TROIS VALEURS, ET LA TROISIÈME EST LA RAISON DE CE RÉGLAGE :
+    //
+    //    · `undefined` (le défaut) → la route REFUSE l'appel, comme
+    //      une base qui dit non. La barre n'offre alors ni « Défier »
+    //      ni « Accepter », et tous les cas écrits avant le
+    //      23 novembre continuent de mesurer ce qu'ils mesuraient ;
+    //    · `null` → aucun défi ouvert. « Défier » paraît ;
+    //    · un objet → un défi ouvert, et `aMoi` dit s'il est de nous.
+    defi = undefined,
     //  L'ADRESSE COMPTE : `wild-mystery.ts` y lit le sujet, et, quand
     //  il n'y en a pas, le forum dans `f=`. Un harnais qui monterait
     //  toujours `/t996-test` ne pourrait pas voir le formulaire de
@@ -242,6 +253,17 @@ async function monter(
       return r.fulfill({
         contentType: "application/json",
         body: JSON.stringify(dit),
+      });
+    }
+    //  LE DÉFI, SUR SA PROPRE ROUTE ET AVEC SON PROPRE REFUS. Un 401
+    //  plutôt qu'une absence de route : la barre doit distinguer
+    //  « pas de défi » de « pas pu lire », et c'est le refus explicite
+    //  qui mesure la seconde.
+    if (u.endsWith("/rpc/defi_du_sujet")) {
+      if (defi === undefined) return r.fulfill({ status: 401, body: "" });
+      return r.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(defi),
       });
     }
     //  LE SWITCHEROO EST SERVI VIDE. Depuis le 31 octobre il se charge
@@ -279,7 +301,10 @@ async function monter(
   //  avant tout réseau — c'est voulu, et c'est aussi ce qui fait qu'un
   //  harnais qui l'oublierait mesurerait une barre hors combat en
   //  croyant mesurer un combat.
-  if (combat !== null) {
+  //  LE DÉFI AUSSI DEMANDE LE LAISSEZ-PASSER : `aMoi` n'a de sens que
+  //  si la base sait qui demande. Sans lui, un cas « un défi d'un
+  //  autre » mesurerait une barre qui n'a rien lu.
+  if (combat !== null || defi !== undefined) {
     await p.evaluate(() =>
       localStorage.setItem(
         "wm.carnet.laissez",
@@ -1477,6 +1502,274 @@ dire(
   "VISIBLE DÈS QU'UNE ACTION EST ARMÉE",
   attenteSurAction.cache === false && /minutes/.test(attenteSurAction.mots),
   JSON.stringify(attenteSurAction.mots.slice(0, 70)),
+);
+await p.close();
+
+// ── 15 · LE DÉFI, SUR UN SUJET SANS COMBAT ─────────────────────────
+//
+//  « Comment on lance un combat entre mon pokémon et le pokémon de
+//  l'autre joueur dans un sujet ? » — 23 novembre. Deux boutons de
+//  plus, et ils ne paraissent jamais ensemble.
+console.log("\n── LE DÉFI ────────────────────────────────────────────");
+p = await monter({ defi: null });
+const sansDefi = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+}));
+dire(
+  "AUCUN DÉFI OUVERT : « Défier un dresseur » s'ajoute aux quatre choix habituels",
+  sansDefi.mots.includes("Défier un dresseur") &&
+    !sansDefi.mots.includes("Accepter le défi") &&
+    sansDefi.mots.includes(RIEN) && sansDefi.mots.includes(FOUILLER),
+  sansDefi.mots.join(" · "),
+);
+
+await clic(p, "Défier un dresseur");
+await envoyer(p);
+let lance = await lire(p);
+dire(
+  "ET LE BLOC NE NOMME PERSONNE : c'est l'acceptation qui désigne l'adversaire",
+  lance.includes("[[WM-ACTION:defier]]") && !/defier:/.test(lance),
+  lance.trim(),
+);
+await p.close();
+
+//  ── UN DÉFI D'UN AUTRE : ON L'ACCEPTE ────────────────────────────
+p = await monter({ defi: { defiId: "d1", aMoi: false } });
+const aAccepter = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+}));
+dire(
+  "UN DÉFI D'UN AUTRE : « Accepter le défi » paraît, et « Défier » s'en va",
+  aAccepter.mots.includes("Accepter le défi") &&
+    !aAccepter.mots.includes("Défier un dresseur"),
+  aAccepter.mots.join(" · "),
+);
+
+await clic(p, "Accepter le défi");
+await envoyer(p);
+let pris = await lire(p);
+dire(
+  "et le bloc d'acceptation part sans argument non plus",
+  pris.includes("[[WM-ACTION:accepter]]"),
+  pris.trim(),
+);
+await p.close();
+
+//  ── SON PROPRE DÉFI : AUCUN DES DEUX, ET LA PHRASE LE DIT ────────
+//
+//  LE BOUTON QUI DISPARAÎT SANS EXPLICATION EST LE DÉFAUT QU'ON ÉVITE
+//  ICI : un joueur qui a défié voit « Défier » s'en aller et croit que
+//  son message n'est pas passé.
+p = await monter({ defi: { defiId: "d1", aMoi: true } });
+const leMien = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  note: document.querySelector(".wm-barre__note").textContent.trim(),
+}));
+dire(
+  "SON PROPRE DÉFI N'OFFRE RIEN : on ne l'accepte pas, et on n'en relance pas un second",
+  !leMien.mots.includes("Défier un dresseur") &&
+    !leMien.mots.includes("Accepter le défi"),
+  leMien.mots.join(" · "),
+);
+dire(
+  "MAIS LA PHRASE DIT QUE LE DÉFI ATTEND PRENEUR",
+  /défi est lancé/i.test(leMien.note),
+  JSON.stringify(leMien.note.slice(0, 80)),
+);
+await p.close();
+
+//  ── ET SANS RÉPONSE DE LA BASE, AUCUN DES DEUX ───────────────────
+//
+//  C'EST L'ÉCHEC FERMÉ. Offrir « Défier » sans avoir lu reviendrait à
+//  le proposer sur un sujet qui porte déjà un défi, et la relève
+//  refuserait.
+p = await monter({});
+const sourdAuDefi = await p.evaluate(() =>
+  [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim())
+);
+dire(
+  "LECTURE REFUSÉE : ni « Défier » ni « Accepter » — on échoue fermé",
+  !sourdAuDefi.includes("Défier un dresseur") && !sourdAuDefi.includes("Accepter le défi"),
+  sourdAuDefi.join(" · "),
+);
+await p.close();
+
+// ── 16 · LE DUEL ───────────────────────────────────────────────────
+//
+//  Un tour de duel est UNE frappe (0061), et la main passe. La barre
+//  sert donc DEUX jeux : celui de qui a la main, et celui de qui
+//  attend.
+console.log("\n── LE DUEL ────────────────────────────────────────────");
+
+const DUEL = {
+  ...COMBAT,
+  genre: "duel",
+  aMoi: true,
+  adverse: "Erin Kavanagh",
+  sauvage: {
+    nom: "Ponyta",
+    surnom: "Braise",
+    niveau: 10,
+    types: ["feu"],
+    pv: 18,
+    pvMax: 30,
+  },
+};
+
+p = await monter({ combat: DUEL, ouvert: { combatId: DUEL.combatId, genre: "duel" } });
+const maMain = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  coche: [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((b) => b.getAttribute("aria-checked") === "true")?.textContent.trim(),
+  menus: [...document.querySelectorAll(".wm-barre__menu")].filter((m) => !m.hidden).length,
+}));
+dire(
+  "LA MAIN À MOI : « Frapper » et « Déclarer forfait », et rien d'autre",
+  JSON.stringify(maMain.mots) === JSON.stringify(["Frapper", "Déclarer forfait"]),
+  maMain.mots.join(" · "),
+);
+dire(
+  "LA BALL, L'OBJET ET LE CHANGEMENT NE SONT PAS OFFERTS — la 0061 les refuse, " +
+    "et un bouton qui se fait refuser coûte un message au joueur",
+  !maMain.mots.some((m) => /Ball|objet|Changer/.test(m)),
+  maMain.mots.join(" · "),
+);
+dire(
+  "« Frapper » est coché, et son menu de capacités est ouvert",
+  maMain.coche === "Frapper" && maMain.menus === 1,
+  `${maMain.coche}, ${maMain.menus} menu(s)`,
+);
+
+await envoyer(p);
+let frappe = await lire(p);
+dire(
+  "ET LE BLOC EST CELUI DE L'ATTAQUE : même verbe, c'est le mot qui change",
+  frappe.includes("[[WM-ACTION:attaquer:52]]"),
+  frappe.trim(),
+);
+await p.close();
+
+//  ── LE FORFAIT ───────────────────────────────────────────────────
+p = await monter({ combat: DUEL, ouvert: { combatId: DUEL.combatId, genre: "duel" } });
+const motDuForfait = await p.evaluate(() => {
+  const b = [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((x) => x.textContent.includes("forfait"));
+  b.click();
+  return document.querySelector(".wm-barre__note").textContent.trim();
+});
+dire(
+  "LE FORFAIT DIT QUE L'AUTRE GAGNE — « fuir » devant un dresseur, ce n'est pas s'échapper",
+  /autre dresseur gagne/i.test(motDuForfait),
+  JSON.stringify(motDuForfait.slice(0, 80)),
+);
+await envoyer(p);
+let renonce = await lire(p);
+dire(
+  "et le bloc reste `fuir` : un seul verbe pour « je sors de ce combat »",
+  renonce.includes("[[WM-ACTION:fuir]]"),
+  renonce.trim(),
+);
+await p.close();
+
+//  ── LA MAIN À L'AUTRE ────────────────────────────────────────────
+//
+//  LE CAS QUI MANQUAIT AVANT LA 0062 : `mon_combat` ne répondait qu'au
+//  défieur, et l'adversaire n'avait AUCUN bouton — un duel injouable
+//  pour celui qui l'avait accepté.
+p = await monter({
+  combat: { ...DUEL, aMoi: false },
+  ouvert: { combatId: DUEL.combatId, genre: "duel" },
+});
+const saMain = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  note: document.querySelector(".wm-barre__note").textContent.trim(),
+}));
+dire(
+  "LA MAIN À L'AUTRE : pas de « Frapper » — la base le refuserait APRÈS le message posté",
+  !saMain.mots.includes("Frapper"),
+  saMain.mots.join(" · "),
+);
+dire(
+  "MAIS « NE RIEN FAIRE » ET LA CLÔTURE RESTENT : poster son RP, et fermer le fil si " +
+    "l'autre ne revient jamais",
+  saMain.mots.includes(RIEN) && saMain.mots.includes(CLOTURER),
+  saMain.mots.join(" · "),
+);
+dire(
+  "ET LA PHRASE NOMME QUI ON ATTEND — « ce n'est pas ton tour » laisse chercher",
+  saMain.note.includes("Erin Kavanagh") && /frapper/i.test(saMain.note),
+  JSON.stringify(saMain.note.slice(0, 80)),
+);
+await p.close();
+
+//  ── UN DUEL D'AUTRES JOUEURS NE DONNE AUCUN BOUTON DE COMBAT ─────
+//
+//  `combat_du_sujet` dit le genre depuis la 0062, et c'est ce qui
+//  tranche. Pour un SAUVAGE, la barre bascule même sans lecture privée,
+//  parce que « Fuir » est la sortie d'un sujet où un combat traîne.
+//  Pour un duel, non : renoncer demande la main, et celui qui passe
+//  n'a rien à y faire.
+p = await monter({ ouvert: { combatId: "autre", genre: "duel" }, defi: null });
+const spectateur = await p.evaluate(() => ({
+  mots: [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim()),
+  alerte: document.querySelector(".wm-barre__alerte").hidden,
+}));
+dire(
+  "LE DUEL DES AUTRES : aucun bouton de combat, et pas de « forfait » à proposer",
+  !spectateur.mots.includes("Frapper") && !spectateur.mots.includes("Déclarer forfait") &&
+    !spectateur.mots.includes("Fuir"),
+  spectateur.mots.join(" · "),
+);
+dire(
+  "la barre reste celle d'un sujet ordinaire, sans bloc d'erreur",
+  spectateur.mots.includes(RIEN) && spectateur.mots.includes(CLOTURER) &&
+    spectateur.alerte === true,
+  `${spectateur.mots.join(" · ")} — alerte cachée : ${spectateur.alerte}`,
+);
+dire(
+  "ET « DÉFIER » NE S'Y AJOUTE PAS : les deux index uniques de `combat` " +
+    "interdisent un second affrontement dans le même fil",
+  !spectateur.mots.includes("Défier un dresseur"),
+  spectateur.mots.join(" · "),
+);
+await p.close();
+
+//  ── UN COMBAT SAUVAGE N'A PAS CHANGÉ ─────────────────────────────
+p = await monter({ ouvert: { combatId: "sauvage", genre: "sauvage" } });
+const sauvageSeul = await p.evaluate(() =>
+  [...document.querySelectorAll(".wm-barre__bouton")].map((b) => b.textContent.trim())
+);
+dire(
+  "UN SAUVAGE OUVERT SANS LECTURE PRIVÉE GARDE SES CINQ BOUTONS — « Fuir » reste la sortie",
+  sauvageSeul.includes("Fuir") && sauvageSeul.includes("Attaquer"),
+  sauvageSeul.join(" · "),
+);
+await p.close();
+
+// ── 17 · LE MOT DE CLÔTURE PENDANT UN COMBAT ───────────────────────
+//
+//  UN TROU QUE CE LOT A RÉVÉLÉ. `get choix()` rend « cloture » dès que
+//  le mot est dans le texte, y compris dans un jeu qui ne l'offre pas,
+//  et son commentaire promettait : « on le dit par la phrase plutôt que
+//  de la cacher ». La phrase ne venait pas — `#rafraichir` cherchait
+//  l'annonce dans le jeu courant, qui n'en a pas.
+console.log("\n── [cloture] EN COMBAT ────────────────────────────────");
+p = await monter({ combat: COMBAT, texte: "Il s'approche.\n\n[cloture]" });
+const cloturePendant = await p.evaluate(() => ({
+  coche: [...document.querySelectorAll(".wm-barre__bouton")]
+    .find((b) => b.getAttribute("aria-checked") === "true")?.textContent.trim(),
+  note: document.querySelector(".wm-barre__note").textContent.trim(),
+}));
+dire(
+  "AUCUN BOUTON DE COMBAT N'EST COCHÉ : c'est la clôture qui l'emporte, et c'est le joueur " +
+    "qui l'a écrite",
+  cloturePendant.coche === undefined,
+  String(cloturePendant.coche),
+);
+dire(
+  "ET LA PHRASE L'EXPLIQUE ENFIN, au lieu d'une note vide",
+  /clôturé/i.test(cloturePendant.note) && /effacer/i.test(cloturePendant.note),
+  JSON.stringify(cloturePendant.note.slice(0, 90)),
 );
 await p.close();
 

@@ -69,12 +69,31 @@ export async function laissezUtilisable(
   return neuf;
 }
 
-/** Appelle une fonction SQL avec le laissez-passer, et rend `null` à
- *  la moindre difficulté.
+/** Appelle une fonction SQL avec le laissez-passer, et rend
+ *  `undefined` à la moindre difficulté.
  *
- *  LE `null` COUVRE TOUT : pas de laissez-passer, réseau en panne,
- *  refus de la base, réponse vide. L'appelant ne pose simplement pas
- *  son bonus. */
+ *  L'`undefined` COUVRE TOUT CE QUI A ÉCHOUÉ : pas de laissez-passer,
+ *  réseau en panne, refus de la base, réponse illisible. L'appelant ne
+ *  pose simplement pas son bonus.
+ *
+ *  ── POURQUOI `undefined` ET PLUS `null`, DEPUIS LE 23 NOVEMBRE ──────
+ *
+ *  `null` est une RÉPONSE que plusieurs de ces fonctions donnent
+ *  vraiment : `mon_combat` le rend quand aucun combat ne concerne le
+ *  joueur, `defi_du_sujet` quand aucun défi n'est ouvert. Le rendre
+ *  aussi pour un refus mettait les deux dans le même mot.
+ *
+ *  Ça ne gênait personne tant que les appelants traitaient les deux
+ *  pareil — et c'était le cas de `mon_sujet` et `mon_combat`, qui ne
+ *  posent rien dans les deux cas. `defi_du_sujet` est le premier à
+ *  devoir les séparer : « il n'y a pas de défi » offre le bouton
+ *  « Défier », « je n'ai pas pu lire » ne doit rien offrir. Sans la
+ *  distinction, un joueur sans laissez-passer se voyait proposer de
+ *  défier dans un sujet portant déjà un défi, et la relève refusait.
+ *
+ *  LES DEUX AUTRES APPELANTS NE CHANGENT PAS : ils passent le résultat
+ *  à un `lire…` qui refuse tout ce qui n'est pas un objet, et
+ *  `undefined` n'en est pas plus un que `null`. */
 export async function avecLeLaissez(
   acces: ConfigSupabase,
   fonction: string,
@@ -82,7 +101,7 @@ export async function avecLeLaissez(
   r: Rouages = {},
 ): Promise<unknown> {
   const laissez = await laissezUtilisable(r, acces);
-  if (laissez === null) return null;
+  if (laissez === null) return undefined;
   try {
     const reponse = await (r.appeler ?? appelerAvecLeJeton)(
       acces,
@@ -90,10 +109,10 @@ export async function avecLeLaissez(
       fonction,
       corps,
     );
-    if (!reponse.ok) return null;
+    if (!reponse.ok) return undefined;
     return await reponse.json();
   } catch (e) {
     console.warn(`wild-mystery : ${fonction}`, e);
-    return null;
+    return undefined;
   }
 }

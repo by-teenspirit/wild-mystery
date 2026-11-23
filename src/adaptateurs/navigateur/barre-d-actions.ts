@@ -160,7 +160,9 @@ type Cle =
   | "ball"
   | "objet"
   | "changer"
-  | "fuir";
+  | "fuir"
+  | "defier"
+  | "accepter";
 
 /** Lequel des deux jeux la barre sert. */
 /** Les trois jeux de choix.
@@ -171,7 +173,20 @@ type Cle =
  *  clôture : on ne clôt pas un sujet qui n'existe pas encore, et un
  *  bouton qui écrirait `[cloture]` dans le premier message ferait
  *  fermer le sujet par la relève à la seconde où il s'ouvre. */
-export type Jeu = "hors" | "nouveau" | "combat";
+/** Les cinq jeux de choix.
+ *
+ *  ── ET LE DUEL EN FAIT DEUX, PAS UN ─────────────────────────────────
+ *
+ *  `duel` est servi à celui qui a la main ; `attente` à l'autre. C'est
+ *  la différence avec un combat sauvage, où le joueur a toujours la
+ *  main parce que le sauvage ne poste pas.
+ *
+ *  POURQUOI DEUX JEUX ET PAS DES BOUTONS DÉSACTIVÉS : un bouton gris
+ *  qu'on ne peut pas cliquer ne dit pas POURQUOI, et il laisse croire
+ *  à une panne. Les choix de `attente` sont ceux qui marchent — poster
+ *  son RP, clôturer — et la phrase dit qui doit frapper. Le joueur
+ *  n'apprend pas la règle en dépensant un message. */
+export type Jeu = "hors" | "nouveau" | "combat" | "duel" | "attente";
 
 /** Dit si une action est une de celles que le jeu courant propose.
  *
@@ -301,6 +316,22 @@ const ICONES: Record<Cle, (doc: Document) => SVGSVGElement> = {
       ["M8 8h6", "1.6"],
       ["M11.5 5.5 14 8l-2.5 2.5", "1.6"],
     ]),
+  //  ── LES DEUX DU DÉFI ─────────────────────────────────────────────
+  //
+  //  Deux lames croisées : le signe du « contre », celui que tout le
+  //  monde lit sans l'avoir appris. Deux traits qui se croisent et
+  //  deux gardes courtes — à 17 px, une poignée dessinée en détail ne
+  //  serait qu'un pâté.
+  defier: (d) =>
+    dessin(d, [
+      ["M3.2 2.9 11 12.4", "1.6"],
+      ["M12.8 2.9 5 12.4", "1.6"],
+      ["M2.2 12 4.6 14.4", "1.5"],
+      ["M13.8 12 11.4 14.4", "1.5"],
+    ]),
+  //  Une coche : accepter, c'est dire oui. Pas une main tendue — deux
+  //  mains à cette taille ne se distinguent pas d'un nœud.
+  accepter: (d) => dessin(d, [["M2.6 8.4 6.3 12.1 13.4 4.4", "1.9"]]),
   //  Un cadenas : le mot des forums pour un sujet qui se ferme.
   cloture: (d) =>
     dessin(d, [
@@ -328,6 +359,29 @@ type Choix = {
   readonly vide?: string;
 };
 
+/** LA CLÔTURE, SORTIE DE SA LISTE — et pas par goût du rangement.
+ *
+ *  ELLE SE LIT DANS LE TEXTE, pas dans un champ à nous : le joueur
+ *  écrit `[cloture]` et l'efface à la main. `get choix()` la rend donc
+ *  COCHÉE même dans un jeu qui ne l'offre pas, et son commentaire le
+ *  disait depuis le 18 novembre : « on le dit par la phrase plutôt que
+ *  de la cacher ».
+ *
+ *  SAUF QUE LA PHRASE NE VENAIT PAS. `#rafraichir` cherchait l'annonce
+ *  dans le jeu courant, et le jeu de combat n'a pas de clôture : la
+ *  note restait VIDE. Un joueur qui tapait le mot pendant un combat
+ *  voyait tous les boutons décochés et pas un mot d'explication.
+ *
+ *  Un seul objet, nommé, retrouvé par `#annonceDe` quel que soit le
+ *  jeu — c'est ce qui rend la promesse vraie. */
+const CLOTURE: Choix = {
+  cle: "cloture",
+  libelle: "Clôturer le sujet",
+  annonce: "Quand tu enverras ce message, le sujet sera clôturé. " +
+    "Le mot « [cloture] » est écrit à la fin de ton texte : tu peux l'effacer à la main.",
+  secondaire: true,
+};
+
 const HORS_COMBAT: readonly Choix[] = [
   {
     cle: "rien",
@@ -348,13 +402,7 @@ const HORS_COMBAT: readonly Choix[] = [
     libelle: "Fouiller la zone",
     annonce: "Quand tu enverras ce message, tu fouilles la zone.",
   },
-  {
-    cle: "cloture",
-    libelle: "Clôturer le sujet",
-    annonce: "Quand tu enverras ce message, le sujet sera clôturé. " +
-      "Le mot « [cloture] » est écrit à la fin de ton texte : tu peux l'effacer à la main.",
-    secondaire: true,
-  },
+  CLOTURE,
 ];
 
 /** LES CINQ DU COMBAT, dans l'ordre de la planche 99 §4 : attaquer,
@@ -404,6 +452,134 @@ const EN_COMBAT: readonly Choix[] = [
   },
 ];
 
+/** ── LE DUEL, POUR CELUI QUI A LA MAIN ───────────────────────────────
+ *
+ *  DEUX CHOIX, ET L'ABSENCE DES TROIS AUTRES EST LA PARTIE QUI COMPTE.
+ *  La `0061` refuse la ball, l'objet et le changement dans un duel, et
+ *  chacun pour une raison différente :
+ *
+ *    · LA BALL n'a pas de sens — on n'attrape pas le Pokémon de
+ *      quelqu'un, et ça ne changera pas ;
+ *    · L'OBJET attend une règle : l'annexe n'en dit qu'une chose,
+ *      « cela compte comme un tour » ;
+ *    · CHANGER DE POKÉMON n'est pas tranché. Dans un combat sauvage,
+ *      changer coûte le tour parce que le sauvage frappe pendant ce
+ *      temps. Dans un duel, personne ne frappe automatiquement : est-ce
+ *      que changer passe la main sans plus, ou l'adversaire gagne-t-il
+ *      un coup gratuit ? C'est une RÈGLE DE JEU, et Callista ne l'a pas
+ *      posée.
+ *
+ *  LES OFFRIR QUAND MÊME AURAIT ÉTÉ PIRE QUE DE LES TAIRE : la barre
+ *  les aurait proposés, la relève les aurait refusés, et le joueur
+ *  aurait dépensé un message pour apprendre une règle qu'on pouvait
+ *  lire avant de cliquer. C'est la règle de `domaine/action.ts`, dans
+ *  l'autre sens : **une action que le serveur refuse n'a rien à faire
+ *  dans un bouton.** */
+const EN_DUEL: readonly Choix[] = [
+  {
+    //  MÊME CLÉ, MÊME ACTION, AUTRE MOT. « Attaquer » vise un sauvage ;
+    //  ici on frappe le Pokémon d'un dresseur, et c'est le mot de la
+    //  0061 — un tour de duel est UNE frappe.
+    cle: "attaquer",
+    libelle: "Frapper",
+    annonce: "Quand tu enverras ce message, ton Pokémon frappera, et ce " +
+      "sera à l'autre dresseur de répondre.",
+    liste: "capacite",
+    vide: "Ton Pokémon ne connaît aucune capacité.",
+  },
+  {
+    //  « FUIR » DANS LE TEXTE, « FORFAIT » À L'ÉCRAN. Le bloc reste
+    //  `[[WM-ACTION:fuir]]` — un seul verbe pour « je sors de ce
+    //  combat », et la 0061 en tire une défaite dans un duel. Mais
+    //  « fuir » devant un dresseur, ce n'est pas s'échapper : c'est
+    //  lui donner la victoire, et le bouton doit le dire.
+    cle: "fuir",
+    libelle: "Déclarer forfait",
+    annonce: "Quand tu enverras ce message, tu abandonnes le duel. " +
+      "L'autre dresseur gagne.",
+    secondaire: true,
+  },
+];
+
+/** ── ET POUR CELUI QUI ATTEND SON TOUR ───────────────────────────────
+ *
+ *  « Ne rien faire » et la clôture. Pas « Frapper » : la base le
+ *  refuserait avec `PAS_TON_TOUR` (0061), et le refus arriverait APRÈS
+ *  le message posté.
+ *
+ *  LA CLÔTURE RESTE, ET C'EST LA SEULE SORTIE D'UN DUEL QUI S'ARRÊTE.
+ *  Renoncer demande la main — donc un joueur dont l'adversaire ne
+ *  reposte jamais ne peut pas déclarer forfait. Il peut clôturer le
+ *  sujet, et le duel se ferme avec lui. Retirer la clôture d'ici aurait
+ *  fait un fil sans issue. */
+const EN_ATTENTE: readonly Choix[] = [
+  {
+    cle: "rien",
+    libelle: "Ne rien faire",
+    annonce: "Ton message part comme un message normal. Rien n'est envoyé sans toi.",
+  },
+  {
+    cle: "cloture",
+    libelle: "Clôturer le sujet",
+    annonce: "Quand tu enverras ce message, le sujet sera clôturé, et le " +
+      "duel avec lui. Le mot « [cloture] » est écrit à la fin de ton " +
+      "texte : tu peux l'effacer à la main.",
+    secondaire: true,
+  },
+];
+
+/** ── LE DÉFI, AJOUTÉ AUX CHOIX HORS COMBAT ───────────────────────────
+ *
+ *  PAS UN SIXIÈME JEU : défier, c'est une action de plus sur un sujet
+ *  ordinaire, à côté de « faire apparaître » et « fouiller ». Un jeu à
+ *  part aurait voulu dire que le reste disparaît, et il n'y a aucune
+ *  raison qu'il disparaisse.
+ *
+ *  LES DEUX NE PARAISSENT JAMAIS ENSEMBLE. `defi_du_sujet` dit s'il y
+ *  en a un d'ouvert et s'il est de celui qui regarde :
+ *
+ *    · aucun défi        → « Défier » ;
+ *    · un défi, le sien  → ni l'un ni l'autre, et la phrase dit qu'il
+ *                          attend ;
+ *    · un défi, d'un autre → « Accepter le défi ».
+ *
+ *  ON N'ACCEPTE PAS SON PROPRE DÉFI, et la base le refuse déjà
+ *  (`combat_pas_contre_soi`). Le bouton ne doit pas l'offrir : un
+ *  contrôle qui existe pour être refusé est un piège. */
+const DEFIER: Choix = {
+  cle: "defier",
+  libelle: "Défier un dresseur",
+  annonce: "Quand tu enverras ce message, tu lances un défi. " +
+    "Le premier dresseur qui l'accepte dans ce sujet devient ton adversaire.",
+};
+
+const ACCEPTER: Choix = {
+  cle: "accepter",
+  libelle: "Accepter le défi",
+  annonce: "Quand tu enverras ce message, le duel s'ouvre. " +
+    "C'est le dresseur qui a défié qui frappe le premier.",
+};
+
+/** La phrase servie à celui qui a lancé un défi et attend preneur.
+ *
+ *  ELLE REMPLACE UN BOUTON ABSENT, et c'est pour ça qu'elle existe :
+ *  sans elle, un joueur qui a défié voit son bouton « Défier »
+ *  disparaître sans explication et croit que son message n'est pas
+ *  passé. */
+export const DEFI_LANCE = "Ton défi est lancé. Il attend qu'un dresseur l'accepte dans ce " +
+  "sujet — tant que personne ne l'a pris, tu peux poster normalement.";
+
+/** Ce que lit celui dont ce n'est pas le tour, dans un duel.
+ *
+ *  LE PSEUDO QUAND ON L'A, parce que « ce n'est pas ton tour » laisse
+ *  chercher qui on attend — et dans un sujet à plusieurs, ce n'est pas
+ *  évident. */
+export function attenteDuDuel(adverse: string | null): string {
+  return adverse === null
+    ? "C'est à l'autre dresseur de frapper. Tu pourras répondre après son coup."
+    : `C'est à ${adverse} de frapper. Tu pourras répondre après son coup.`;
+}
+
 /** LES MÊMES CHOIX, MOINS LA CLÔTURE — dérivés, pas recopiés.
  *
  *  Une seconde liste écrite à la main divergerait à la première
@@ -445,6 +621,8 @@ export const JEUX: Record<Jeu, readonly Choix[]> = {
   hors: HORS_COMBAT,
   nouveau: NOUVEAU_SUJET,
   combat: EN_COMBAT,
+  duel: EN_DUEL,
+  attente: EN_ATTENTE,
 };
 
 /** L'action que porte un choix, ou `null` pour ceux qui n'en demandent
@@ -457,7 +635,10 @@ export const JEUX: Record<Jeu, readonly Choix[]> = {
  *  déjà un bloc sans argument. Autant ne pas l'écrire. */
 function actionDuChoix(cle: Cle, argument: number | null): Action | null {
   if (cle === "chercher" || cle === "fouiller") return { type: cle };
-  if (cle === "fuir") return { type: "fuir" };
+  //  LES TROIS SANS ARGUMENT. `defier` et `accepter` ne nomment
+  //  personne — c'est l'acceptation qui désigne l'adversaire, et il n'y
+  //  a qu'un défi ouvert par sujet.
+  if (cle === "fuir" || cle === "defier" || cle === "accepter") return { type: cle };
   if (argument === null) return null;
   if (cle === "attaquer") return { type: "attaquer", capacite: argument };
   if (cle === "ball") return { type: "ball", objetId: argument };
@@ -471,6 +652,15 @@ function actionDuChoix(cle: Cle, argument: number | null): Action | null {
  *  LA BARRE NE CALCULE RIEN : les PV, les capacités, qui se bat déjà —
  *  tout vient de la base. Elle choisit seulement quoi montrer. */
 export type DonneesDeCombat = {
+  /** `sauvage` ou `duel` — la `0062` le rend. Absent pour une réponse
+   *  d'avant cette migration, et la barre le lit comme un sauvage :
+   *  c'est le cas qui marchait, et le plus courant de loin. */
+  readonly genre?: "sauvage" | "duel";
+  /** Est-ce à moi de frapper ? Toujours vrai contre un sauvage — il ne
+   *  poste pas, il n'attend rien. */
+  readonly aMoi?: boolean;
+  /** Le pseudo de l'autre dresseur, dans un duel. */
+  readonly adverse?: string | null;
   readonly capacites: readonly {
     readonly id: number;
     readonly nom: string;
@@ -495,6 +685,28 @@ export type DonneesDeCombat = {
   }[];
 };
 
+/** Ce que `defi_du_sujet` dit, réduit à ce que la barre en fait.
+ *
+ *  TROIS ÉTATS ET PAS DEUX, et c'est la raison de ce type : « aucun
+ *  défi ouvert » et « je n'ai pas pu lire » ne mènent pas au même
+ *  bouton. Le premier donne « Défier » ; le second ne donne rien, parce
+ *  qu'offrir « Défier » sur un sujet qui porte déjà un défi serait
+ *  offrir un bouton que la base refuse (un seul défi ouvert par sujet,
+ *  0060). `null` est donc l'absence de réponse, pas l'absence de défi. */
+export type EtatDuDefi =
+  | { readonly ouvert: false }
+  | { readonly ouvert: true; readonly aMoi: boolean };
+
+/** Quel jeu de choix un combat appelle.
+ *
+ *  UN SAUVAGE N'ATTEND PERSONNE : `aMoi` n'a pas de sens contre lui, et
+ *  une réponse d'avant la `0062` n'a pas de `genre` du tout. Les deux
+ *  tombent sur `combat`, qui est le cas qui marchait. */
+function jeuDuCombat(donnees: DonneesDeCombat | null): Jeu {
+  if (donnees === null || donnees.genre !== "duel") return "combat";
+  return donnees.aMoi === false ? "attente" : "duel";
+}
+
 export class BarreDActions {
   readonly #doc: Document;
   readonly #brouillon: Brouillon;
@@ -508,6 +720,14 @@ export class BarreDActions {
   #combat: DonneesDeCombat | null = null;
   #groupe: HTMLElement | null = null;
   #alerte: HTMLElement | null = null;
+  /** `null` tant que `defi_du_sujet` n'a pas répondu — voir
+   *  `EtatDuDefi` : l'absence de réponse n'est pas l'absence de défi. */
+  #defi: EtatDuDefi | null = null;
+  /** Le pseudo d'en face, dans un duel. */
+  #adverse: string | null = null;
+  /** « Un combat tourne dans ce sujet », dit par la lecture PUBLIQUE —
+   *  même quand la barre n'y bascule pas. Voir `poserLeDefi`. */
+  #combatDansLeSujet = false;
 
   /** `jeu` est celui des choix SERVIS AU DÉPART, et il n'y en a que
    *  deux de possibles ici : `hors` dans un sujet, `nouveau` sur le
@@ -533,8 +753,53 @@ export class BarreDActions {
     return this.#jeu;
   }
 
+  /** Les choix servis en ce moment : ceux du jeu, plus le défi quand il
+   *  a sa place.
+   *
+   *  LE DÉFI NE S'AJOUTE QU'AUX SUJETS SANS COMBAT. `combat` porte deux
+   *  index uniques — un combat par message, un seul ouvert par sujet
+   *  (0060) : un « Défier » pendant un combat serait un bouton qui se
+   *  fait refuser. */
   #lesChoix(): readonly Choix[] {
-    return JEUX[this.#jeu];
+    const base = JEUX[this.#jeu];
+    if (this.#jeu !== "hors" && this.#jeu !== "nouveau") return base;
+    //  ── ET UN COMBAT OUVERT SUFFIT, MÊME SI LA BARRE N'Y BASCULE PAS ─
+    //
+    //  LE HARNAIS A ATTRAPÉ ÇA. Un duel entre deux AUTRES joueurs ne
+    //  fait pas basculer la barre — c'est voulu, celui qui passe n'a
+    //  rien à y faire — mais le jeu reste `hors`, et « Défier » s'y
+    //  ajoutait tranquillement.
+    //
+    //  `ouvrir_un_defi` l'aurait refusé avec `COMBAT_EN_COURS`, et son
+    //  propre commentaire dit pourquoi ce refus existe : « cliqué
+    //  pendant qu'un combat tournait ». Le bouton n'a donc pas à être
+    //  là — c'est la même règle que les trois refus du duel, et elle
+    //  vaut aussi pour le combat sauvage d'un autre joueur.
+    if (this.#combatDansLeSujet) return base;
+    if (this.#defi === null) return base;
+    //  UN DÉFI OUVERT : on l'accepte s'il est d'un autre, et on ne fait
+    //  rien s'il est de soi — on n'accepte pas son propre défi, et la
+    //  base le refuse déjà (`combat_pas_contre_soi`).
+    if (this.#defi.ouvert) return this.#defi.aMoi ? base : [...base, ACCEPTER];
+    return [...base, DEFIER];
+  }
+
+  /** Dit à la barre ce que `defi_du_sujet` a répondu.
+   *
+   *  APPELABLE APRÈS COUP, comme `basculerEnCombat` : la lecture
+   *  demande le réseau, et la barre se pose avant de l'attendre.
+   *
+   *  `combatDansLeSujet` EST UNE SECONDE QUESTION, et elle vient de la
+   *  lecture PUBLIQUE : un combat peut tourner ici sans que la barre y
+   *  bascule — le duel de deux autres joueurs. Dans ce cas il n'y a
+   *  pas de défi à lancer, et le dire ici évite un bouton que la base
+   *  refuserait (`COMBAT_EN_COURS`). */
+  poserLeDefi(etat: EtatDuDefi | null, combatDansLeSujet = false): void {
+    this.#defi = etat;
+    this.#combatDansLeSujet = combatDansLeSujet;
+    this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());
+    this.#remplirLeGroupe();
+    this.#rafraichir();
   }
 
   /** Le choix de départ du jeu courant.
@@ -588,7 +853,7 @@ export class BarreDActions {
     }
 
     if (this.#note !== null) {
-      const trouve = this.#lesChoix().find((c) => c.cle === choisi);
+      const trouve = this.#annonceDe(choisi);
       const menu = this.#menus.get(choisi);
       //  UN MENU VIDE SE DIT. « Tu n'as aucune Poké Ball » se lit ; un
       //  menu sans option ne dit rien et laisse croire à une panne.
@@ -598,14 +863,19 @@ export class BarreDActions {
       //  jamais emprunter la phrase de la première.
       const sansMenu = menu !== undefined && menu.options.length === 0;
       const sourd = this.#combat === null && trouve?.liste !== undefined;
+      //  LA SITUATION PASSE DEVANT L'ANNONCE, parce qu'elle explique
+      //  pourquoi le bouton attendu n'est pas là — et une annonce qui
+      //  décrit un message normal ne l'explique pas.
+      const situation = this.#situation(choisi);
       //  EN COMBAT SOURD, LA NOTE SE TAIT et laisse parler l'alerte :
       //  deux textes qui disent la même chose à dix pixels l'un de
       //  l'autre se lisent moins bien qu'un seul.
-      this.#note.textContent = sourd
-        ? "Ce choix demande ton carnet."
-        : sansMenu
-        ? (trouve?.vide ?? "")
-        : (trouve?.annonce ?? "");
+      this.#note.textContent = situation ??
+        (sourd
+          ? "Ce choix demande ton carnet."
+          : sansMenu
+          ? (trouve?.vide ?? "")
+          : (trouve?.annonce ?? ""));
     }
 
     //  L'ALERTE SUIT L'ÉTAT, ELLE N'EST PAS POSÉE UNE FOIS : la
@@ -620,6 +890,41 @@ export class BarreDActions {
     //  n'appelle aucune réponse du Maître du Jeu : annoncer un délai
     //  pour un message normal ferait croire qu'on en attend un.
     if (this.#attente !== null) this.#attente.hidden = choisi === "rien";
+  }
+
+  /** Le choix qui porte l'annonce à lire, même s'il n'est pas dans le
+   *  jeu courant.
+   *
+   *  LE SEUL CAS EST LA CLÔTURE, et c'est le `CLOTURE` nommé plus haut
+   *  qui le règle : elle se coche depuis le TEXTE, donc dans n'importe
+   *  quel jeu, y compris ceux qui ne l'offrent pas. Sans ce
+   *  rattrapage, la note restait vide. */
+  #annonceDe(choisi: Cle): Choix | undefined {
+    const trouve = this.#lesChoix().find((c) => c.cle === choisi);
+    if (trouve !== undefined) return trouve;
+    return choisi === "cloture" ? CLOTURE : undefined;
+  }
+
+  /** La phrase qui dit la SITUATION plutôt que le choix.
+   *
+   *  DEUX CAS, ET LES DEUX SONT UN BOUTON ABSENT. Un joueur qui ne
+   *  comprend pas pourquoi « Frapper » ou « Défier » a disparu croit à
+   *  une panne et reposte — c'est exactement ce que la phrase d'attente
+   *  évite depuis le 18 novembre.
+   *
+   *  ELLE NE PARLE QUE SOUS LE CHOIX PAR DÉFAUT : si le joueur a cliqué
+   *  sur « Clôturer », c'est la clôture qu'il veut lire, pas un rappel
+   *  de ce qu'il ne peut pas faire. */
+  #situation(choisi: Cle): string | null {
+    if (choisi !== this.#parDefaut()) return null;
+    if (this.#jeu === "attente") return attenteDuDuel(this.#adverse);
+    if (
+      (this.#jeu === "hors" || this.#jeu === "nouveau") &&
+      this.#defi !== null && this.#defi.ouvert && this.#defi.aMoi
+    ) {
+      return DEFI_LANCE;
+    }
+    return null;
   }
 
   /** Ce qu'un clic produit. Les quatre s'excluent, donc poser l'un
@@ -958,9 +1263,16 @@ export class BarreDActions {
    *
    *  Les quatre autres restent là, menus vides, et la phrase dit
    *  pourquoi — voir `SOURD`. */
+  /**  ── ET DEPUIS LE 23 NOVEMBRE, LE JEU DÉPEND DU GENRE ────────────
+   *
+   *  Un duel n'offre pas les mêmes boutons qu'une rencontre, et surtout
+   *  il n'offre pas les mêmes aux deux joueurs : celui qui n'a pas la
+   *  main ne peut pas frapper, et la base le lui dirait APRÈS son
+   *  message. `jeuDuCombat` tranche entre les trois. */
   basculerEnCombat(donnees: DonneesDeCombat | null): void {
     this.#combat = donnees;
-    this.#jeu = "combat";
+    this.#adverse = donnees?.adverse ?? null;
+    this.#jeu = jeuDuCombat(donnees);
     this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());
     this.#remplirLeGroupe();
     this.#rafraichir();
@@ -974,6 +1286,7 @@ export class BarreDActions {
    *  combat qu'avant. */
   basculerHorsCombat(): void {
     this.#combat = null;
+    this.#adverse = null;
     this.#jeu = this.#depart;
     this.#action = offerte(actionDe(this.#brouillon.lire()), this.#lesChoix());
     this.#remplirLeGroupe();

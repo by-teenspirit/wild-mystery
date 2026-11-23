@@ -89,7 +89,20 @@ export function lireMonCombat(brut: unknown): DonneesDeCombat | null {
     sac.push({ objetId, nom: k.nom, famille: k.famille, quantite });
   }
 
-  return { capacites, equipe, sac };
+  //  ── CE QUI DÉCIDE DU JEU DE BOUTONS ───────────────────────────────
+  //
+  //  Trois champs rendus par la `0062`, et tous les trois FACULTATIFS :
+  //  une base d'avant cette migration n'en rend aucun, et l'absence se
+  //  lit comme un combat sauvage — le cas qui marchait.
+  //
+  //  `aMoi` NE VAUT `false` QU'ÉCRIT NOIR SUR BLANC. Un champ manquant
+  //  ou abîmé laisserait croire au joueur qu'il attend son tour, dans
+  //  un combat où personne ne frappera jamais à sa place.
+  const genre = o.genre === "duel" ? "duel" : o.genre === "sauvage" ? "sauvage" : undefined;
+  const aMoi = o.aMoi === false ? false : o.aMoi === true ? true : undefined;
+  const adverse = typeof o.adverse === "string" && o.adverse.trim() !== "" ? o.adverse : null;
+
+  return { genre, aMoi, adverse, capacites, equipe, sac };
 }
 
 /** Le combat ouvert du sujet, ou `null`.

@@ -13,6 +13,8 @@ import type {
   Faune,
   Horloge,
   LecteurDActions,
+  OuvertureDeDefi,
+  OuvertureDeDuel,
   PokemonNomme,
   Registre,
   Signataire,
@@ -781,11 +783,11 @@ class DefisEspion implements Defis {
       raison: null,
     },
   ) {}
-  lancer(d: unknown) {
+  lancer(d: unknown): Promise<OuvertureDeDefi> {
     this.lances.push(d);
     return Promise.resolve({ defiId: "d1", ...this.reponseLancer });
   }
-  accepter(d: unknown) {
+  accepter(d: unknown): Promise<OuvertureDeDuel> {
     this.acceptes.push(d);
     return Promise.resolve({
       combatId: "c1",
@@ -794,7 +796,7 @@ class DefisEspion implements Defis {
       ...this.reponseAccepter,
     });
   }
-  retirer() {
+  retirer(): Promise<boolean> {
     return Promise.resolve(true);
   }
 }

@@ -43,8 +43,25 @@
 
 import { type ConfigSupabase } from "./registre.ts";
 
-/** Ce qu'on retient : un combat est ouvert ici, et voici lequel. */
-export type CombatOuvert = { readonly combatId: string };
+/** Ce qu'on retient : un combat est ouvert ici, lequel, et de quel
+ *  genre.
+ *
+ *  ── LE GENRE EST ARRIVÉ LE 23 NOVEMBRE, ET IL SERT À NE RIEN FAIRE ──
+ *
+ *  Un combat SAUVAGE fait basculer la barre même sans lecture privée,
+ *  pour que « Fuir » reste atteignable. UN DUEL ENTRE DEUX AUTRES
+ *  JOUEURS, non : celui qui passe n'a rien à y faire, et renoncer
+ *  demande la main de toute façon (0061).
+ *
+ *  Sans le genre, les deux se ressemblaient — et la barre proposait à
+ *  un lecteur de passage d'abandonner un duel qui n'était pas le sien.
+ *
+ *  `genre` RESTE FACULTATIF : une base d'avant la 0062 ne le rend pas,
+ *  et l'absence se lit comme un sauvage — le cas qui marchait. */
+export type CombatOuvert = {
+  readonly combatId: string;
+  readonly genre?: "sauvage" | "duel";
+};
 
 /** Relit la réponse, et rend `null` au premier doute.
  *
@@ -54,9 +71,14 @@ export type CombatOuvert = { readonly combatId: string };
  *  identifiant n'est pas un combat. */
 export function lireLeCombatDuSujet(brut: unknown): CombatOuvert | null {
   if (brut === null || typeof brut !== "object") return null;
-  const id = (brut as Record<string, unknown>).combatId;
+  const o = brut as Record<string, unknown>;
+  const id = o.combatId;
   if (typeof id !== "string" || id.trim() === "") return null;
-  return { combatId: id };
+  //  UN GENRE QU'ON NE RECONNAÎT PAS EST LAISSÉ DE CÔTÉ, et il se lira
+  //  comme un sauvage. C'est le bon défaut : il donne les boutons, et
+  //  un combat ouvert sans boutons est une impasse.
+  const genre = o.genre === "duel" ? "duel" : o.genre === "sauvage" ? "sauvage" : undefined;
+  return genre === undefined ? { combatId: id } : { combatId: id, genre };
 }
 
 type Appel = (url: string, init: RequestInit) => Promise<unknown>;

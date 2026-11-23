@@ -34,6 +34,28 @@ Deno.test("aucun combat : la fonction SQL rend null, et nous aussi", () => {
   assertEquals(lireLeCombatDuSujet(null), null);
 });
 
+Deno.test("le genre passe, et un genre inconnu est laissé de côté", () => {
+  //  UN DUEL DOIT SE RECONNAÎTRE ICI, parce que c'est cette lecture-là
+  //  qui décide si la barre bascule : un duel entre deux autres
+  //  joueurs ne doit donner aucun bouton à qui passe.
+  assertEquals(
+    lireLeCombatDuSujet({ combatId: "abc", genre: "duel" }),
+    { combatId: "abc", genre: "duel" },
+  );
+  assertEquals(
+    lireLeCombatDuSujet({ combatId: "abc", genre: "sauvage" }),
+    { combatId: "abc", genre: "sauvage" },
+  );
+  //  ── ET L'ABSENCE SE LIT COMME UN SAUVAGE ──────────────────────────
+  //
+  //  Pas « comme rien » : une base d'avant la 0062 ne rend pas le
+  //  genre, et la barre doit continuer de basculer. C'est le défaut qui
+  //  donne les boutons — un combat ouvert sans boutons est une impasse.
+  assertEquals(lireLeCombatDuSujet({ combatId: "abc" }), { combatId: "abc" });
+  assertEquals(lireLeCombatDuSujet({ combatId: "abc", genre: "tournoi" }), { combatId: "abc" });
+  assertEquals(lireLeCombatDuSujet({ combatId: "abc", genre: 2 }), { combatId: "abc" });
+});
+
 Deno.test("un combat sans identifiant n'est pas un combat", () => {
   assertEquals(lireLeCombatDuSujet({ nom: "Nidoran♀", tour: 3 }), null);
   assertEquals(lireLeCombatDuSujet({ combatId: "" }), null);

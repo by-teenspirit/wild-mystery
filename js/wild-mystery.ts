@@ -30,6 +30,7 @@ import { BrouillonForumactif } from "../src/adaptateurs/navigateur/editeur.ts";
 import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts";
 import { monCombat } from "../src/adaptateurs/navigateur/mon-combat.ts";
 import { combatDuSujet } from "../src/adaptateurs/navigateur/combat-du-sujet.ts";
+import { defiDuSujet } from "../src/adaptateurs/navigateur/defi-du-sujet.ts";
 import { forumDeLAdresse, sujetDeLAdresse } from "../src/navigateur/tableau-des-rp.ts";
 import {
   aNommer,
@@ -255,14 +256,50 @@ async function poserLaBarre(): Promise<void> {
   //  partent ENSEMBLE : la privée n'est pas la condition de l'autre,
   //  et les attendre l'une après l'autre doublerait l'attente pour
   //  rien.
-  const [ouvert, mien] = await Promise.all([
+  //  ── ET UNE TROISIÈME, DEPUIS LE 23 NOVEMBRE : LE DÉFI ─────────────
+  //
+  //  Elle part avec les deux autres plutôt qu'après : les trois
+  //  répondent à des questions indépendantes, et les enchaîner
+  //  tripleraient l'attente d'une page de sujet.
+  const [ouvert, mien, defi] = await Promise.all([
     combatDuSujet(sujet, config),
     monCombat(sujet, config),
+    defiDuSujet(sujet, config),
   ]);
-  //  `mien` SEUL SUFFIT AUSSI : s'il a répondu, un combat est ouvert
-  //  et il est à lui. On ne dépend donc pas de la lecture publique
-  //  pour le cas qui marchait déjà.
-  if (ouvert !== null || mien !== null) barre.basculerEnCombat(mien);
+
+  //  ── UN DUEL QUI N'EST PAS LE SIEN NE DONNE AUCUN BOUTON ───────────
+  //
+  //  `combat_du_sujet` dit le genre depuis la 0062, et c'est ce qui
+  //  tranche ici. Un combat SAUVAGE fait basculer la barre même sans
+  //  lecture privée : « Fuir » est la seule sortie d'un sujet où un
+  //  combat traîne, et ça reste vrai sans laissez-passer (18 novembre).
+  //
+  //  UN DUEL, NON. Deux raisons, et la seconde est la vraie :
+  //
+  //    · celui qui passe dans le sujet n'a rien à y faire — lui offrir
+  //      « Déclarer forfait » lui proposerait d'abandonner un duel qui
+  //      n'est pas le sien ;
+  //    · et renoncer DEMANDE LA MAIN (0061). Même pour un vrai
+  //      combattant dont la lecture privée a échoué, le bouton serait
+  //      refusé une fois sur deux. La sortie d'un duel qui s'arrête,
+  //      c'est la clôture du sujet — et elle est dans le jeu hors
+  //      combat, donc déjà là.
+  const estUnDuel = ouvert?.genre === "duel";
+  if (mien !== null) barre.basculerEnCombat(mien);
+  else if (ouvert !== null && !estUnDuel) barre.basculerEnCombat(null);
+
+  //  LE DÉFI APRÈS LE COMBAT, et l'ordre compte : `poserLeDefi`
+  //  reconstruit le groupe, et il ne doit pas ajouter « Défier » à un
+  //  jeu de combat. C'est `#lesChoix` qui le tient — le défi ne
+  //  s'ajoute qu'à `hors` et `nouveau` —, et le poser en second laisse
+  //  cette garde faire son travail une seule fois.
+  //
+  //  LE SECOND ARGUMENT EST LA LECTURE PUBLIQUE, et il est là parce que
+  //  le harnais a attrapé le cas qui s'en passait : sur le duel de deux
+  //  autres joueurs, la barre reste hors combat, et « Défier » s'y
+  //  ajoutait — un bouton que `ouvrir_un_defi` refuse avec
+  //  `COMBAT_EN_COURS`.
+  barre.poserLeDefi(defi, ouvert !== null);
 }
 
 /** La configuration Supabase servie dans `data/` : l'URL et la clé
