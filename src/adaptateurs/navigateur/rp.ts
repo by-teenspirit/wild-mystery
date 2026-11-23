@@ -977,9 +977,27 @@ export function poserLesRp(r: ReglagesRp): boolean {
     try {
       clotures = globalThis.localStorage?.getItem(CLEF) !== "non";
     } catch { /* rien : on reste sur « montrés » */ }
+    //  ── UN INTERRUPTEUR, DEPUIS LE 23 NOVEMBRE ────────────────────
+    //
+    //  « "Montrer les clôturés" : fais un switch. »
+    //
+    //  DEUX CHOSES CHANGENT ICI, ET LA SECONDE EST LA PLUS UTILE :
+    //
+    //  · `aria-checked` remplace `aria-pressed`. Un `role="switch"` se
+    //    lit par `aria-checked`, et un lecteur d'écran annonce alors
+    //    « activé / désactivé » au lieu de « enfoncé » — ce qui est
+    //    exactement ce que la chose fait ;
+    //  · ON NE RÉÉCRIT PLUS LE TEXTE. Il passait de « Montrer les
+    //    clôturés » à « Clôturés cachés », donc d'une PROMESSE à un
+    //    ÉTAT : le même contrôle disait une fois ce qu'il ferait et une
+    //    fois ce qu'il était. Le mot nomme la chose et ne bouge plus ;
+    //    l'état vit dans l'attribut, et dans l'interrupteur qu'on voit.
+    //
+    //  ET LE TEXTE N'EST PLUS ÉCRASÉ : `textContent` effaçait les
+    //  enfants, ce qui aurait emporté la piste de l'interrupteur à la
+    //  première bascule.
     const direLeBouton = (): void => {
-      bouton.setAttribute("aria-pressed", clotures ? "true" : "false");
-      bouton.textContent = clotures ? "Montrer les clôturés" : "Clôturés cachés";
+      bouton.setAttribute("aria-checked", clotures ? "true" : "false");
     };
     direLeBouton();
     bouton.addEventListener("click", () => {

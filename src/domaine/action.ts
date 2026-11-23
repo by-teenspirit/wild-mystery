@@ -106,7 +106,43 @@ export type Action =
   | { readonly type: "defier" }
   /** « J'accepte le défi. » Sans argument non plus : il n'y a qu'un
    *  défi ouvert par sujet, donc il n'y a rien à désigner. */
-  | { readonly type: "accepter" };
+  | { readonly type: "accepter" }
+  /** « J'ouvre ma pension, à ce tarif. » — 23 novembre.
+   *
+   *  L'ARGUMENT EST LE TARIF, en pokédollars, et c'est le gérant qui le
+   *  fixe : « le gérant fixe son tarif et touche l'argent ». La pension
+   *  publique d'Aulne, elle, n'est pas ouverte par un joueur — c'est
+   *  une ligne de configuration, pas un message.
+   *
+   *  UNE PENSION GRATUITE S'ÉCRIT 1 ₽, ET PAS 0. Le bloc ne sait pas
+   *  porter zéro : `entierPositif` refuse tout ce qui n'est pas
+   *  strictement positif, et c'est la garde qui empêche un bloc abîmé
+   *  de devenir une action approximative pour les six autres verbes.
+   *  L'ouvrir pour celui-ci la relâcherait pour tous. */
+  | { readonly type: "gerer"; readonly tarif: number }
+  /** « Je confie ce Pokémon à la pension de ce sujet. »
+   *
+   *  LA POSITION DANS L'ÉQUIPE, de 1 à 6, exactement comme `changer` et
+   *  pour la même raison : l'équipe est une suite de six cases, et c'est
+   *  la case que le joueur a cliquée.
+   *
+   *  LA PENSION N'EST PAS NOMMÉE — c'est le SUJET qui la désigne. Un
+   *  gérant ouvre sa pension sur un sujet, et on y confie un Pokémon en
+   *  y postant. Même dessin que le défi : le lieu porte l'information,
+   *  donc le bloc n'a pas à la porter. */
+  | { readonly type: "confier"; readonly position: number }
+  /** « Je prends en pension ce qui attend. » Le gérant, chez lui.
+   *
+   *  Sans argument : la base prend le plus ancien dépôt en attente de
+   *  ce sujet. Nommer lequel aurait demandé une liste au joueur, et
+   *  une liste qui change entre l'affichage et l'envoi. */
+  | { readonly type: "prendre" }
+  /** « Je reprends mon Pokémon. » Sans argument non plus.
+   *
+   *  C'est au RETRAIT que les niveaux se comptent et que le tarif se
+   *  paie — « il ne lui restera plus qu'à régler la somme demandée par
+   *  le gérant », annexe élevage de la V1. On paie ce qu'on a obtenu. */
+  | { readonly type: "reprendre" };
 
 export const VERBES = [
   "chercher",
@@ -118,6 +154,10 @@ export const VERBES = [
   "fuir",
   "defier",
   "accepter",
+  "gerer",
+  "confier",
+  "prendre",
+  "reprendre",
 ] as const;
 
 /** Les cases d'une équipe. Six, comme partout dans ce jeu. */
@@ -152,7 +192,10 @@ function argumentDe(action: Action): string {
     case "objet":
       return `:${action.objetId}`;
     case "changer":
+    case "confier":
       return `:${action.position}`;
+    case "gerer":
+      return `:${action.tarif}`;
     default:
       return "";
   }
@@ -196,14 +239,15 @@ export function actionDe(texte: string): Action | null {
     //  lieu. Le message, lui, garde son texte : c'est la trace.
     if (verbe === "chercher") return { type: "chercher" };
 
-    //  LES QUATRE VERBES SANS ARGUMENT. « fouiller » AVEC un lieu
+    //  LES SIX VERBES SANS ARGUMENT. « fouiller » AVEC un lieu
     //  dit quelque chose qu'on ne sait pas honorer : fouiller vaut pour
     //  la zone entière. On passe, plutôt que de deviner ce que le
-    //  joueur voulait — et « fuir », « defier » et « accepter » suivent
-    //  la même règle, pour la même raison.
+    //  joueur voulait — et « fuir », « defier », « accepter »,
+    //  « prendre » et « reprendre » suivent la même règle, pour la
+    //  même raison.
     if (
       verbe === "fouiller" || verbe === "fuir" || verbe === "defier" ||
-      verbe === "accepter"
+      verbe === "accepter" || verbe === "prendre" || verbe === "reprendre"
     ) {
       if (!argument) return { type: verbe };
       continue;
@@ -223,9 +267,16 @@ export function actionDe(texte: string): Action | null {
     //  dépend d'aucune base : une équipe a six cases. Le reste — le
     //  Pokémon existe, il n'est pas à terre, ce n'est pas celui qui se
     //  bat déjà — se vérifie là où ces faits vivent.
-    if (verbe === "changer" && n <= EQUIPE_MAX) {
-      return { type: "changer", position: n };
+    //  LA SEULE BORNE TENUE ICI vaut pour les deux verbes qui désignent
+    //  une case : changer de Pokémon, et en confier un à la pension.
+    if ((verbe === "changer" || verbe === "confier") && n <= EQUIPE_MAX) {
+      return { type: verbe, position: n };
     }
+    //  LE TARIF N'A PAS DE PLAFOND ICI. Un gérant qui demande un
+    //  million n'aura pas de client, et ce n'est pas à ce fichier d'en
+    //  décider : il ne connaît ni les prix du catalogue ni ce qu'un
+    //  joueur gagne par clôture.
+    if (verbe === "gerer") return { type: "gerer", tarif: n };
   }
   return null;
 }

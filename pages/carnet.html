@@ -820,31 +820,72 @@
           <div class="wm-carnet__bloc-tete wm-rp__tete">
             <h2 class="wm-carnet__bloc-titre">Mes RP</h2>
             <div class="wm-rp__reglages">
-              <div class="wm-boites__onglets" role="group" aria-label="Comment montrer">
-                <button type="button" class="wm-boites__onglet" data-wm-rp-vue="tableau"
-                        aria-pressed="true">Tableau</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-vue="liste"
-                        aria-pressed="false">Liste</button>
+              <!--  ── TROIS CONTRÔLES QUI SE RESSEMBLAIENT TROP ───────
+
+                    « Il me faut une vraie différence visuelle entre les
+                    onglets tableau & liste (ajoute une icône d'ailleurs).
+                    "Montrer les clôturés" : fais un switch. Et les
+                    filtres dans la liste. » — 23 novembre.
+
+                    ELLE A RAISON, ET LE DÉFAUT N'ÉTAIT PAS LA COULEUR :
+                    les trois groupes portaient la MÊME classe
+                    `.wm-boites__onglet`, donc la même pastille, le même
+                    remplissage à l'état coché. Sur une seule rangée, on
+                    ne pouvait pas savoir lequel commandait quoi — «
+                    Liste » et « Clôturés » étaient deux pastilles
+                    identiques qui ne font pas du tout la même chose.
+
+                    TROIS QUESTIONS, TROIS FORMES :
+
+                      · COMMENT montrer → un sélecteur segmenté : une
+                        piste unique, le segment actif en relief. On voit
+                        qu'il y a deux états d'une même chose ;
+                      · MONTRER LES CLÔTURÉS OU PAS → un interrupteur.
+                        C'est oui/non, et un interrupteur est la seule
+                        forme qui le dit sans lire le mot ;
+                      · QUELS RP montrer → les pastilles, descendues
+                        AVEC la liste. Elles ne servent que là, et dans
+                        la rangée du titre elles parlaient d'un contenu
+                        qui n'était pas en face.  -->
+              <div class="wm-rp__vues" role="group" aria-label="Comment montrer">
+                <!--  L'ICÔNE DIT LA FORME, PAS LE MOT : trois colonnes
+                      pour le tableau, trois rangées pour la liste. C'est
+                      ce qu'on voit à l'écran, en petit.  -->
+                <button type="button" class="wm-rp__vue" data-wm-rp-vue="tableau"
+                        aria-pressed="true">
+                  <svg class="wm-rp__vue-icone" viewBox="0 0 20 20" aria-hidden="true"
+                       focusable="false" fill="none" stroke="currentColor"
+                       stroke-width="1.5"><path d="M3.4 4.2h3.6v11.6H3.4Z"/><path
+                       d="M8.2 4.2h3.6v8.2H8.2Z"/><path d="M13 4.2h3.6v5.4H13Z"/></svg>
+                  <span class="wm-rp__vue-mot">Tableau</span>
+                </button>
+                <button type="button" class="wm-rp__vue" data-wm-rp-vue="liste"
+                        aria-pressed="false">
+                  <svg class="wm-rp__vue-icone" viewBox="0 0 20 20" aria-hidden="true"
+                       focusable="false" fill="none" stroke="currentColor"
+                       stroke-width="1.5" stroke-linecap="round"><path
+                       d="M4 5.6h12M4 10h12M4 14.4h8"/></svg>
+                  <span class="wm-rp__vue-mot">Liste</span>
+                </button>
               </div>
-              <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer"
-                   data-wm-rp-filtres>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
-                        aria-pressed="true">Tous</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
-                        aria-pressed="false">À moi d'écrire</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="prevu"
-                        aria-pressed="false">Prévus</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
-                        aria-pressed="false">Clôturés</button>
-              </div>
-              <!--  CACHER LES CLÔTURÉS, et seulement eux. « On doit
-                    pouvoir cacher la colonne des rps clôturés », 20
-                    novembre. C'est une colonne qui ne demande rien et
-                    qui grossit sans fin ; les quatre autres restent.
-                    `aria-pressed` porte l'état : le bouton dit ce qu'il
-                    est, pas ce qu'il fera.  -->
-              <button type="button" class="wm-boites__onglet" data-wm-rp-clotures
-                      aria-pressed="true">Montrer les clôturés</button>
+              <!--  ── L'INTERRUPTEUR, ET SON MOT QUI NE BOUGE PLUS ────
+
+                    « On doit pouvoir cacher la colonne des rps
+                    clôturés », 20 novembre. C'est une colonne qui ne
+                    demande rien et qui grossit sans fin.
+
+                    LE LIBELLÉ ÉTAIT LE PROBLÈME, EN PLUS DE LA FORME :
+                    il passait de « Montrer les clôturés » à « Clôturés
+                    cachés », donc d'une PROMESSE à un ÉTAT, et on ne
+                    savait plus si le bouton disait ce qu'il est ou ce
+                    qu'il ferait. Un interrupteur n'a pas ce problème :
+                    le mot nomme la chose, et `aria-checked` porte
+                    l'état — pour l'œil comme pour un lecteur d'écran.  -->
+              <button type="button" class="wm-rp__bascule" role="switch"
+                      aria-checked="true" data-wm-rp-clotures>
+                <span class="wm-rp__bascule-piste" aria-hidden="true"></span>
+                <span class="wm-rp__bascule-mot">Clôturés</span>
+              </button>
             </div>
           </div>
           <p class="wm-carnet__bloc-dit" data-wm-rp-compte></p>
@@ -855,6 +896,32 @@
                 écrivent la même chose, et la liste marche au clavier
                 sans rien apprendre.  -->
           <div class="wm-rp__tableau" data-wm-rp-tableau></div>
+          <!--  ── LES FILTRES VIVENT AVEC LA LISTE ──────────────────
+
+                « Et les filtres dans la liste. » — 23 novembre.
+
+                Ils ne servent QUE dans la vue liste — le tableau range
+                déjà par colonnes, c'est son métier — et le JavaScript
+                les cachait déjà en vue tableau. Mais ils étaient posés
+                dans la rangée du TITRE : quatre pastilles qui
+                apparaissaient en haut pour filtrer quelque chose qui se
+                trouve en bas, à côté de deux autres groupes de
+                pastilles identiques.
+
+                Ici, ils touchent la liste qu'ils filtrent. Et les
+                pastilles redeviennent lisibles : elles sont le seul
+                groupe de pastilles de leur rangée.  -->
+          <div class="wm-boites__onglets wm-rp__filtres" role="group"
+               aria-label="Quels RP montrer" data-wm-rp-filtres hidden>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
+                    aria-pressed="true">Tous</button>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
+                    aria-pressed="false">À moi d'écrire</button>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="prevu"
+                    aria-pressed="false">Prévus</button>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
+                    aria-pressed="false">Clôturés</button>
+          </div>
           <ul class="wm-rp__liste" data-wm-rp-liste hidden></ul>
         </div>
 

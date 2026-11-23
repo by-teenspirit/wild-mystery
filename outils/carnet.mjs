@@ -3766,14 +3766,168 @@ const COMPAGNONS = [
     avant === 5 && apres === 4 && reste === true,
     JSON.stringify({ avant, apres, reste }),
   );
+  //  ── C'EST UN INTERRUPTEUR, PAS UNE PASTILLE ─────────────────────
+  //
+  //  « "Montrer les clôturés" : fais un switch. » — 23 novembre.
+  //
+  //  LE MOT NE BOUGE PLUS, et c'est la moitié du changement : il
+  //  passait de « Montrer les clôturés » à « Clôturés cachés », donc
+  //  d'une promesse à un état. L'état vit dans `aria-checked`, que
+  //  `role="switch"` fait annoncer « activé / désactivé ».
   const ditLeBouton = await q.evaluate(() => {
     const b = document.querySelector("[data-wm-rp-clotures]");
-    return { dit: b?.textContent?.trim() ?? "", presse: b?.getAttribute("aria-pressed") };
+    const piste = b?.querySelector(".wm-rp__bascule-piste");
+    return {
+      role: b?.getAttribute("role"),
+      coche: b?.getAttribute("aria-checked"),
+      mot: b?.querySelector(".wm-rp__bascule-mot")?.textContent?.trim() ?? "",
+      //  LA PISTE A SURVÉCU À LA BASCULE : `textContent` l'effaçait.
+      piste: piste === null || piste === undefined
+        ? null
+        : Math.round(piste.getBoundingClientRect().width),
+    };
   });
   dire(
-    "ET LE BOUTON DIT CE QU'IL EST, pas ce qu'il fera",
-    ditLeBouton.dit === "Clôturés cachés" && ditLeBouton.presse === "false",
+    "L'ÉTAT EST DANS `aria-checked`, ET LE MOT NE CHANGE PAS",
+    ditLeBouton.role === "switch" && ditLeBouton.coche === "false" &&
+      ditLeBouton.mot === "Clôturés",
     JSON.stringify(ditLeBouton),
+  );
+  dire(
+    "ET LA PISTE EST TOUJOURS LÀ APRÈS LA BASCULE",
+    ditLeBouton.piste !== null && ditLeBouton.piste >= 28,
+    `piste : ${ditLeBouton.piste} px`,
+  );
+  await q.close();
+}
+
+{
+  //  ── LES TROIS CONTRÔLES NE SE RESSEMBLENT PLUS ──────────────────
+  //
+  //  « Il me faut une vraie différence visuelle entre les onglets
+  //  tableau & liste (ajoute une icône d'ailleurs). » — 23 novembre.
+  //
+  //  LE DÉFAUT N'ÉTAIT PAS LA COULEUR : les vues, les filtres et la
+  //  bascule portaient la MÊME classe, donc la même pastille. Ce bloc
+  //  mesure qu'ils ont trois formes, pas trois teintes.
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+
+  const vues = await q.evaluate(() => {
+    const b = [...document.querySelectorAll("[data-wm-rp-vue]")];
+    const piste = document.querySelector(".wm-rp__vues");
+    return {
+      combien: b.length,
+      //  AUCUNE N'EST UNE PASTILLE DE FILTRE : c'était tout le défaut.
+      pastille: b.some((x) => x.classList.contains("wm-boites__onglet")),
+      icones: b.filter((x) => x.querySelector("svg") !== null).length,
+      mots: b.map((x) => x.querySelector(".wm-rp__vue-mot")?.textContent?.trim()),
+      //  ET UNE SEULE PISTE AUTOUR DES DEUX, qui porte le contour.
+      pisteUnique: piste !== null &&
+        getComputedStyle(piste).borderTopWidth !== "0px",
+      icone: (() => {
+        const svg = b[0]?.querySelector("svg");
+        const r = svg?.getBoundingClientRect();
+        return r === undefined ? null : Math.round(r.width);
+      })(),
+    };
+  });
+  dire(
+    "CHAQUE VUE PORTE SON ICÔNE, ET AUCUNE N'EST UNE PASTILLE DE FILTRE",
+    vues.combien === 2 && vues.pastille === false && vues.icones === 2 &&
+      JSON.stringify(vues.mots) === JSON.stringify(["Tableau", "Liste"]),
+    JSON.stringify(vues),
+  );
+  dire(
+    "LES DEUX SEGMENTS SONT DANS UNE SEULE PISTE, et l'icône ne s'écrase pas",
+    vues.pisteUnique === true && vues.icone !== null && vues.icone >= 14,
+    `piste : ${vues.pisteUnique}, icône : ${vues.icone} px`,
+  );
+
+  //  ── LE SEGMENT ACTIF EST EN RELIEF, PAS REMPLI D'ACCENT ─────────
+  //
+  //  L'accent rempli est la marque des FILTRES. S'en servir aussi ici
+  //  nous ramènerait au défaut qu'on vient de corriger.
+  const ecart = await q.evaluate(() => {
+    const actif = document.querySelector('[data-wm-rp-vue][aria-pressed="true"]');
+    const libre = document.querySelector('[data-wm-rp-vue][aria-pressed="false"]');
+    const pastille = document.querySelector('[data-wm-rp-filtre][aria-pressed="true"]');
+    return {
+      actif: getComputedStyle(actif).backgroundColor,
+      libre: getComputedStyle(libre).backgroundColor,
+      ombre: getComputedStyle(actif).boxShadow,
+      filtre: pastille === null ? null : getComputedStyle(pastille).backgroundColor,
+    };
+  });
+  dire(
+    "LE SEGMENT ACTIF SE DISTINGUE PAR SON FOND ET SON RELIEF",
+    ecart.actif !== ecart.libre && ecart.ombre !== "none",
+    JSON.stringify(ecart),
+  );
+
+  //  ── ET L'INTERRUPTEUR EST AU BOUT DE LA RANGÉE ──────────────────
+  const place = await q.evaluate(() => {
+    const rangee = document.querySelector(".wm-rp__reglages");
+    const bascule = document.querySelector("[data-wm-rp-clotures]");
+    const vues = document.querySelector(".wm-rp__vues");
+    const r = rangee.getBoundingClientRect();
+    const b = bascule.getBoundingClientRect();
+    const v = vues.getBoundingClientRect();
+    return {
+      aDroite: Math.round(r.right - b.right) <= 2,
+      apresLesVues: b.left > v.right,
+      ecart: Math.round(b.left - v.right),
+    };
+  });
+  dire(
+    "L'INTERRUPTEUR PART À DROITE, SEUL DE SON CÔTÉ",
+    place.aDroite === true && place.apresLesVues === true && place.ecart >= 24,
+    JSON.stringify(place),
+  );
+  await q.close();
+}
+
+{
+  //  ── LES FILTRES SONT COLLÉS À LA LISTE ──────────────────────────
+  //
+  //  « Et les filtres dans la liste. » — 23 novembre. Ils étaient dans
+  //  la rangée du TITRE, à filtrer quelque chose qui se trouve en bas.
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  const enTableau = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-filtres]")?.hidden
+  );
+  dire(
+    "EN VUE TABLEAU, PAS DE FILTRES : le tableau range déjà par colonnes",
+    enTableau === true,
+    String(enTableau),
+  );
+
+  await q.click('[data-wm-rp-vue="liste"]');
+  await q.waitForTimeout(300);
+  const enListe = await q.evaluate(() => {
+    const f = document.querySelector("[data-wm-rp-filtres]");
+    const liste = document.querySelector("[data-wm-rp-liste]");
+    const tete = document.querySelector(".wm-rp__tete");
+    const rf = f.getBoundingClientRect();
+    const rl = liste.getBoundingClientRect();
+    return {
+      visibles: !f.hidden,
+      //  DANS LA RANGÉE DU TITRE ? Non : c'est ce qui changeait.
+      dansLaTete: tete.contains(f),
+      //  AU-DESSUS DE LA LISTE, ET TOUT PRÈS.
+      auDessus: rf.bottom <= rl.top + 1,
+      ecart: Math.round(rl.top - rf.bottom),
+      combien: f.querySelectorAll("[data-wm-rp-filtre]").length,
+    };
+  });
+  dire(
+    "EN VUE LISTE, LES FILTRES SONT JUSTE AU-DESSUS DE LA LISTE, hors de la rangée du titre",
+    enListe.visibles === true && enListe.dansLaTete === false &&
+      enListe.auDessus === true && enListe.ecart <= 24 && enListe.combien === 4,
+    JSON.stringify(enListe),
   );
   await q.close();
 }

@@ -13,6 +13,13 @@ const FUIR = { type: "fuir" } as const;
 //  nomme personne, et c'est l'acceptation qui désigne.
 const DEFIER = { type: "defier" } as const;
 const ACCEPTER = { type: "accepter" } as const;
+//  Les quatre de la pension, ouverts le 23 novembre. `gerer` porte le
+//  tarif, `confier` la case d'équipe ; les deux autres ne désignent
+//  rien, parce que c'est le SUJET qui désigne la pension.
+const GERER = { type: "gerer", tarif: 2000 } as const;
+const CONFIER = { type: "confier", position: 3 } as const;
+const PRENDRE = { type: "prendre" } as const;
+const REPRENDRE = { type: "reprendre" } as const;
 
 Deno.test("ce que le bouton écrit, le serveur le relit", () => {
   // Le trajet complet, pour chaque action. C'est le test qui empêche
@@ -30,6 +37,10 @@ Deno.test("ce que le bouton écrit, le serveur le relit", () => {
       FUIR,
       DEFIER,
       ACCEPTER,
+      GERER,
+      CONFIER,
+      PRENDRE,
+      REPRENDRE,
     ]
   ) {
     const bloc = ecrireUneAction(action);
@@ -42,10 +53,14 @@ Deno.test("ce que le bouton écrit, le serveur le relit", () => {
     "ball",
     "changer",
     "chercher",
+    "confier",
     "defier",
     "fouiller",
     "fuir",
+    "gerer",
     "objet",
+    "prendre",
+    "reprendre",
   ]);
 });
 

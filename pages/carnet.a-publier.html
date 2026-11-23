@@ -572,31 +572,49 @@
           <div class="wm-carnet__bloc-tete wm-rp__tete">
             <h2 class="wm-carnet__bloc-titre">Mes RP</h2>
             <div class="wm-rp__reglages">
-              <div class="wm-boites__onglets" role="group" aria-label="Comment montrer">
-                <button type="button" class="wm-boites__onglet" data-wm-rp-vue="tableau"
-                        aria-pressed="true">Tableau</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-vue="liste"
-                        aria-pressed="false">Liste</button>
-              </div>
-              <div class="wm-boites__onglets" role="group" aria-label="Quels RP montrer"
-                   data-wm-rp-filtres>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
-                        aria-pressed="true">Tous</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
-                        aria-pressed="false">À moi d'écrire</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="prevu"
-                        aria-pressed="false">Prévus</button>
-                <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
-                        aria-pressed="false">Clôturés</button>
+
+              <div class="wm-rp__vues" role="group" aria-label="Comment montrer">
+
+                <button type="button" class="wm-rp__vue" data-wm-rp-vue="tableau"
+                        aria-pressed="true">
+                  <svg class="wm-rp__vue-icone" viewBox="0 0 20 20" aria-hidden="true"
+                       focusable="false" fill="none" stroke="currentColor"
+                       stroke-width="1.5"><path d="M3.4 4.2h3.6v11.6H3.4Z"/><path
+                       d="M8.2 4.2h3.6v8.2H8.2Z"/><path d="M13 4.2h3.6v5.4H13Z"/></svg>
+                  <span class="wm-rp__vue-mot">Tableau</span>
+                </button>
+                <button type="button" class="wm-rp__vue" data-wm-rp-vue="liste"
+                        aria-pressed="false">
+                  <svg class="wm-rp__vue-icone" viewBox="0 0 20 20" aria-hidden="true"
+                       focusable="false" fill="none" stroke="currentColor"
+                       stroke-width="1.5" stroke-linecap="round"><path
+                       d="M4 5.6h12M4 10h12M4 14.4h8"/></svg>
+                  <span class="wm-rp__vue-mot">Liste</span>
+                </button>
               </div>
 
-              <button type="button" class="wm-boites__onglet" data-wm-rp-clotures
-                      aria-pressed="true">Montrer les clôturés</button>
+              <button type="button" class="wm-rp__bascule" role="switch"
+                      aria-checked="true" data-wm-rp-clotures>
+                <span class="wm-rp__bascule-piste" aria-hidden="true"></span>
+                <span class="wm-rp__bascule-mot">Clôturés</span>
+              </button>
             </div>
           </div>
           <p class="wm-carnet__bloc-dit" data-wm-rp-compte></p>
 
           <div class="wm-rp__tableau" data-wm-rp-tableau></div>
+
+          <div class="wm-boites__onglets wm-rp__filtres" role="group"
+               aria-label="Quels RP montrer" data-wm-rp-filtres hidden>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="tous"
+                    aria-pressed="true">Tous</button>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="a-moi"
+                    aria-pressed="false">À moi d'écrire</button>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="prevu"
+                    aria-pressed="false">Prévus</button>
+            <button type="button" class="wm-boites__onglet" data-wm-rp-filtre="cloture"
+                    aria-pressed="false">Clôturés</button>
+          </div>
           <ul class="wm-rp__liste" data-wm-rp-liste hidden></ul>
         </div>
 

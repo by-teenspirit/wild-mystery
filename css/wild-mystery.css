@@ -30430,6 +30430,151 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   flex-wrap: wrap;
   gap: var(--wm-espace-8, 8px) var(--wm-espace-16, 16px);
   align-items: center;
+  /*  ELLE PREND TOUTE LA LARGEUR pour que l'interrupteur puisse aller
+      au bout. Sans ça, `margin-left: auto` ne pousse rien : il n'y a
+      pas de place à prendre. */
+  width: 100%;
+}
+
+/* ── LE SÉLECTEUR DES DEUX VUES ─────────────────────────────────────
+
+   « Il me faut une vraie différence visuelle entre les onglets tableau
+   & liste (ajoute une icône d'ailleurs). » — 23 novembre.
+
+   LES DEUX VUES PORTAIENT LA MÊME PASTILLE QUE LES FILTRES ET QUE LA
+   BASCULE DES CLÔTURÉS. Trois contrôles qui ne font pas la même chose,
+   dessinés pareil, sur une seule rangée : la couleur disait lequel
+   était coché, elle ne disait pas lequel commandait quoi.
+
+   UNE PISTE UNIQUE, DEUX SEGMENTS. C'est la forme qui dit « deux états
+   d'une même chose », là où deux pastilles séparées disent « deux
+   choses ». Le segment actif est EN RELIEF sur un fond creux — et pas
+   rempli d'accent, parce que l'accent rempli est maintenant la marque
+   des filtres, et deux marques identiques nous ramèneraient au
+   problème. */
+#modernbb .wm-rp__vues {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--wm-fond-douce);
+  border: 1px solid var(--wm-bord-fin);
+  border-radius: 999px;
+}
+
+#modernbb .wm-rp__vue {
+  display: inline-flex;
+  gap: var(--wm-espace-6, 6px);
+  align-items: center;
+  padding: 6px 13px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+  cursor: pointer;
+  background: none;
+  /*  PAS DE BORD SUR LE SEGMENT : c'est la piste qui porte le contour.
+      Un bord par segment ferait trois traits au lieu d'un. */
+  border: 0;
+  border-radius: 999px;
+}
+
+#modernbb .wm-rp__vue[aria-pressed="true"] {
+  color: var(--wm-texte-titre);
+  background: var(--wm-fond-surface-haute);
+  /*  LE RELIEF EST CE QUI SE VOIT EN PREMIER, avant la couleur : il
+      marche aussi pour qui distingue mal les teintes. */
+  box-shadow: 0 1px 2px rgb(0 0 0 / 12%);
+}
+
+/*  L'ICÔNE NE SE REDIMENSIONNE PAS. Un enfant de flex à taille fixe sans
+    `flex: 0 0 auto` se fait écraser dès que la rangée serre — le piège
+    s'est déjà refermé sur la barre repliée du carnet. */
+#modernbb .wm-rp__vue-icone {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+}
+
+#modernbb .wm-rp__vue-mot {
+  white-space: nowrap;
+}
+
+/* ── L'INTERRUPTEUR DES CLÔTURÉS ────────────────────────────────────
+
+   « "Montrer les clôturés" : fais un switch. » — 23 novembre.
+
+   C'EST UNE QUESTION À DEUX RÉPONSES, pas un choix parmi plusieurs, et
+   un interrupteur le dit sans qu'on lise le mot. Une pastille, non :
+   elle ressemble à un onglet, donc à un choix dans un groupe, donc on
+   cherche les autres.
+
+   IL PART À DROITE, seul de son côté de la rangée : ce qu'il commande
+   n'est pas ce que commande le sélecteur de vue, et l'espace entre eux
+   le dit mieux qu'une étiquette. */
+#modernbb .wm-rp__bascule {
+  display: inline-flex;
+  gap: var(--wm-espace-8, 8px);
+  align-items: center;
+  margin-left: auto;
+  padding: 0;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+#modernbb .wm-rp__bascule-piste {
+  position: relative;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 18px;
+  background: var(--wm-fond-douce);
+  border: 1px solid var(--wm-bord-fin);
+  border-radius: 999px;
+  transition: background-color 120ms ease-out;
+}
+
+#modernbb .wm-rp__bascule-piste::after {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  content: "";
+  background: var(--wm-fond-surface-haute);
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
+  transition: transform 120ms ease-out;
+}
+
+/*  L'ACCENT EST SUR LA PISTE, PAS SUR LE MOT : le mot nomme la chose et
+    ne change jamais — ni son texte, ni sa couleur. C'est l'état qui
+    bouge, et il bouge d'un seul endroit. */
+#modernbb .wm-rp__bascule[aria-checked="true"] .wm-rp__bascule-piste {
+  background: var(--wm-accent-primaire);
+  border-color: var(--wm-accent-fort);
+}
+
+#modernbb .wm-rp__bascule[aria-checked="true"] .wm-rp__bascule-piste::after {
+  transform: translateX(14px);
+}
+
+/*  QUI N'AIME PAS LE MOUVEMENT N'EN A PAS. Deux transitions de 120 ms
+    ne gênent presque personne, et « presque » ne suffit pas. */
+@media (prefers-reduced-motion: reduce) {
+  #modernbb .wm-rp__bascule-piste,
+  #modernbb .wm-rp__bascule-piste::after {
+    transition: none;
+  }
+}
+
+/*  LES FILTRES, DESCENDUS AVEC LA LISTE qu'ils filtrent. Ils gardent
+    leurs pastilles : seuls dans leur rangée, elles redeviennent
+    lisibles. */
+#modernbb .wm-rp__filtres {
+  flex-wrap: wrap;
+  margin: var(--wm-espace-12, 12px) 0 0;
 }
 
 /* ── LES CONVERSATIONS DU MESSENGER ─────────────────────────────────
