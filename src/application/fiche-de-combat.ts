@@ -120,13 +120,18 @@ export function nomAffiche(nom: string, surnom?: string | null): string {
 
 /** La fiche d'un combattant : sprite, nom, niveau, types, PV, stats.
  *
- *  `camp` vaut `sauvage` ou `mien`, et sert au CSS à retourner le
+ *  `camp` vaut `sauvage`, `adverse` ou `mien`, et sert au CSS à retourner le
  *  sprite : les sprites de face regardent tous dans le même sens, et
  *  deux Pokémon qui regardent à droite ne se battent pas, ils
  *  attendent le bus. */
 export function fiche(
   c: Combattant,
-  camp: "sauvage" | "mien",
+  //  `adverse` EST ARRIVÉ AVEC LE DUEL (0060), et il se dessine comme
+  //  `sauvage` : c'est le même côté de la carte. Un troisième mot
+  //  plutôt que de réutiliser `sauvage` parce que la classe CSS finit
+  //  dans le message posté — et `wm-combat__camp--sauvage` sur le
+  //  Pokémon d'un joueur se lirait comme une insulte dans l'inspecteur.
+  camp: "sauvage" | "adverse" | "mien",
   racine: string,
 ): string {
   const adresse = adresseDuSpriteFige(racine, c.especeId);
@@ -317,7 +322,10 @@ export function duel(gauche: string, droite: string | null): string {
  *  pour que l'une puisse se poser autrement que l'autre sans toucher à
  *  l'autre. */
 export function enveloppe(
-  variante: "rencontre" | "tour",
+  //  `duel` DEPUIS LA 0060. Il ne se pose pas autrement aujourd'hui,
+  //  et c'est bien : la classe existe pour que le jour où il faut le
+  //  distinguer, il n'y ait rien à changer dans ce fichier.
+  variante: "rencontre" | "tour" | "duel",
   dedans: readonly string[],
 ): string {
   return joindre([

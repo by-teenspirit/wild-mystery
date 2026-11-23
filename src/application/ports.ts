@@ -545,6 +545,66 @@ export interface Combats {
   rappelerLaCarte(sujetId: number): Promise<boolean>;
 }
 
+/** Ce qu'un défi lancé rend. Même forme que `OuvertureDeCombat`, et
+ *  pour la même raison : un refus est un CAS DU JEU, pas une panne.
+ *
+ *  Les raisons que la base peut rendre : `DEJA_LU` (la relève relit),
+ *  `COMBAT_EN_COURS`, `DEFI_EN_COURS`, `EQUIPE_VIDE`. Aucune ne mérite
+ *  qu'on arrête le passage sur le sujet. */
+export type OuvertureDeDefi = {
+  readonly defiId: string | null;
+  readonly ouvert: boolean;
+  readonly raison: string | null;
+};
+
+/** Ce qu'une acceptation rend : le duel, et qui frappe en premier.
+ *
+ *  Raisons possibles : `DEJA_LU`, `AUCUN_DEFI` — personne n'a défié,
+ *  ou quelqu'un a accepté avant —, `C_EST_LE_TIEN`, `COMBAT_EN_COURS`,
+ *  `EQUIPE_VIDE`, `EQUIPE_VIDE_CHEZ_LUI`. */
+export type OuvertureDeDuel = {
+  readonly combatId: string | null;
+  readonly ouvert: boolean;
+  readonly raison: string | null;
+  /** Celui qui a lancé le défi. C'est lui qui frappe en premier : il a
+   *  attendu, l'autre vient d'écrire son acceptation. */
+  readonly defieur: string | null;
+  readonly adverse: string | null;
+};
+
+/** Les défis d'un sujet.
+ *
+ *  UN PORT À PART DE `Combats`, parce qu'un défi n'est pas un combat :
+ *  il n'a pas encore d'adversaire, donc pas de second Pokémon, donc
+ *  rien à jouer. Les mélanger aurait donné une interface dont la
+ *  moitié des méthodes ne s'appliquent qu'à la moitié des états. */
+export interface Defis {
+  /** Lance un défi, ou rend celui qui est déjà là.
+   *
+   *  IL NE NOMME PERSONNE : c'est l'acceptation qui désigne
+   *  l'adversaire (migration 0060). */
+  lancer(d: {
+    readonly sujetId: number;
+    readonly messageId: number;
+    readonly joueurId: string;
+  }): Promise<OuvertureDeDefi>;
+
+  /** Accepte le défi ouvert du sujet et ouvre le duel.
+   *
+   *  LES DEUX GESTES SONT UN SEUL APPEL, et la base les fait dans une
+   *  transaction : un défi accepté sans combat serait un état dont
+   *  personne ne sait quoi faire. */
+  accepter(d: {
+    readonly sujetId: number;
+    readonly messageId: number;
+    readonly joueurId: string;
+  }): Promise<OuvertureDeDuel>;
+
+  /** Retire un défi qu'on a lancé. Rend faux s'il était déjà clos :
+   *  la première fin l'emporte. */
+  retirer(defiId: string): Promise<boolean>;
+}
+
 /** La table d'efficacité des dix-huit types.
  *
  *  Elle vit dans `data/types.json`, dérivée des CSV de PokéAPI par
@@ -583,6 +643,19 @@ export type RencontreEnAttente = {
    *  tournait encore (migration 0055). La carte dit alors où il en est
    *  au lieu d'annoncer une apparition qui n'a pas lieu. */
   readonly rappel: boolean;
+  /** `sauvage` ou `duel` (migration 0060).
+   *
+   *  LA CLÉ D'EN FACE S'APPELLE TOUJOURS `sauvage`, parce qu'elle veut
+   *  dire « le combattant d'en face » depuis la 0047 et que toute la
+   *  chaîne la lit ainsi. Ce champ-ci dit S'IL EST SAUVAGE — sans quoi
+   *  la carte d'un duel annoncerait « un Ponyta sauvage apparaît » à
+   *  propos du Pokémon d'un joueur.
+   *
+   *  FACULTATIF : une file remplie avant la 0060 ne le porte pas, et
+   *  l'absence veut dire `sauvage` — ce qui était le seul genre. */
+  readonly genre?: string | null;
+  /** Le pseudo de l'adversaire, pour un duel. Nul pour une rencontre. */
+  readonly adverse?: string | null;
   readonly sauvage: {
     /** Le numéro d'espèce, et il ne sert qu'à UNE chose : l'adresse du
      *  sprite. Un nom ne désigne pas un fichier, et la base ne sait pas

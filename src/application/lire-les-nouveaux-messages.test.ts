@@ -7,6 +7,7 @@ import {
 import type {
   ActionLue,
   Combats,
+  Defis,
   EtatDuJeu,
   EtatDuJoueur,
   Faune,
@@ -164,6 +165,7 @@ type Decor = {
   fossiles?: TableDesFossiles;
   butin?: TableDeButin;
   combats?: Combats;
+  defis?: Defis | null;
 };
 
 /** AUCUN FOSSILE, par défaut — et c'est le décor HONNÊTE : la table
@@ -249,6 +251,10 @@ function monter(lues: readonly ActionLue[], d: Decor = {}): Montage {
     d.butin ?? BUTIN_ORDINAIRE,
     d.combats ?? combats,
     new JouerUnTour(combats, TYPES_DE_TEST, d.heures ?? new HeuresFixes()),
+    //  `undefined` LAISSE LE DÉFAUT — `null`, pas de défis servis. Le
+    //  décor doit pouvoir dire les deux : « cette relève ne sert pas
+    //  les défis » est un cas qu'on mesure.
+    d.defis,
   );
   return { tache, registre, zone: d.zone ?? ZONE };
 }
@@ -756,4 +762,113 @@ Deno.test("UN RENOMMAGE QUI ÉCHOUE N'EMPORTE PAS LA FOUILLE", () => {
     assertEquals(bilan.erreurs, []);
     assertEquals(c.registre.ecrites.length, 1);
   });
+});
+
+// ── LE DÉFI ET SON ACCEPTATION, 23 novembre ─────────────────────────
+
+/** Un carnet de défis qui note ce qu'on lui demande et rend ce qu'on
+ *  lui a dit de rendre. */
+class DefisEspion implements Defis {
+  readonly lances: unknown[] = [];
+  readonly acceptes: unknown[] = [];
+  constructor(
+    private readonly reponseLancer: { ouvert: boolean; raison: string | null } = {
+      ouvert: true,
+      raison: null,
+    },
+    private readonly reponseAccepter: { ouvert: boolean; raison: string | null } = {
+      ouvert: true,
+      raison: null,
+    },
+  ) {}
+  lancer(d: unknown) {
+    this.lances.push(d);
+    return Promise.resolve({ defiId: "d1", ...this.reponseLancer });
+  }
+  accepter(d: unknown) {
+    this.acceptes.push(d);
+    return Promise.resolve({
+      combatId: "c1",
+      defieur: "j1",
+      adverse: "j2",
+      ...this.reponseAccepter,
+    });
+  }
+  retirer() {
+    return Promise.resolve(true);
+  }
+}
+
+Deno.test("UN DÉFI N'ÉCRIT RIEN AU REGISTRE", async () => {
+  //  Ce n'est pas un gain, c'est un état du sujet. Une ligne de
+  //  registre se verserait à la clôture — et un défi ne se verse pas.
+  const defis = new DefisEspion();
+  const { tache, registre, zone } = monter([action(15601, { type: "defier" })], { defis });
+  const bilan = await tache.executerSur(zone, 976, 15600);
+  assertEquals(registre.ecrites.length, 0);
+  assertEquals(bilan.erreurs, []);
+  assertEquals(defis.lances, [{ sujetId: 976, messageId: 15601, joueurId: JOUEUR }]);
+});
+
+Deno.test("ET IL NE LIT AUCUNE TABLE DE FAUNE", async () => {
+  //  Comme les verbes du combat : un défi ne dépend pas de la zone. Le
+  //  décor sert une zone SANS faune — ce qui est une erreur pour une
+  //  recherche — et le défi doit passer quand même.
+  const defis = new DefisEspion();
+  const { tache } = monter([action(15601, { type: "defier" })], {
+    defis,
+    faune: { tables: () => Promise.resolve([]) } as unknown as Faune,
+  });
+  const bilan = await tache.executerSur(ZONE, 976, 15600);
+  assertEquals(bilan.erreurs, []);
+  assertEquals(defis.lances.length, 1);
+});
+
+Deno.test("UN REFUS SE NOTE, ET N'ARRÊTE PAS LE PASSAGE", async () => {
+  //  « Un refus que personne ne lit n'existe pas » — la leçon du 18
+  //  novembre, payée deux fois dans la journée. Et le message suivant
+  //  doit quand même être lu.
+  const defis = new DefisEspion({ ouvert: false, raison: "COMBAT_EN_COURS" });
+  const { tache, registre, zone } = monter([
+    action(15601, { type: "defier" }),
+    action(15602, { type: "fouiller" }),
+    //  LA FOUILLE TROUVE UN OBJET : le décor des fossiles est vide par
+    //  défaut, donc un fossile ne s'écrirait pas et on mesurerait son
+    //  absence au lieu de la continuation.
+  ], { defis, butin: butinCertain("objet") });
+  const bilan = await tache.executerSur(zone, 976, 15600);
+  assertEquals(bilan.erreurs.length, 1);
+  assert(bilan.erreurs[0].includes("COMBAT_EN_COURS"));
+  //  La fouille d'après a bien eu lieu.
+  assertEquals(registre.ecrites.length, 1);
+});
+
+Deno.test("`DEJA_LU` NE SE NOTE PAS — c'est la relève qui relit", async () => {
+  //  Elle relit chaque fois qu'un incident l'empêche d'avancer le
+  //  curseur, et c'est voulu. Le noter ferait un journal illisible.
+  const defis = new DefisEspion({ ouvert: false, raison: "DEJA_LU" });
+  const { tache, zone } = monter([action(15601, { type: "defier" })], { defis });
+  const bilan = await tache.executerSur(zone, 976, 15600);
+  assertEquals(bilan.erreurs, []);
+});
+
+Deno.test("UNE ACCEPTATION PASSE PAR L'AUTRE CHEMIN", async () => {
+  //  Deux verbes, deux appels : lancer et accepter ne sont pas la même
+  //  chose, et confondre les deux ouvrirait un duel là où quelqu'un
+  //  voulait défier.
+  const defis = new DefisEspion();
+  const { tache, zone } = monter([action(15602, { type: "accepter" })], { defis });
+  await tache.executerSur(zone, 976, 15600);
+  assertEquals(defis.lances, []);
+  assertEquals(defis.acceptes, [{ sujetId: 976, messageId: 15602, joueurId: JOUEUR }]);
+});
+
+Deno.test("SANS PORT, LA RELÈVE LE DIT PLUTÔT QUE DE SE TAIRE", async () => {
+  //  La fonction Edge peut tourner une version en avance sur sa
+  //  configuration. Mieux vaut une ligne de journal qu'un joueur qui
+  //  défie dans le vide.
+  const { tache, zone } = monter([action(15601, { type: "defier" })], { defis: null });
+  const bilan = await tache.executerSur(zone, 976, 15600);
+  assertEquals(bilan.erreurs.length, 1);
+  assert(bilan.erreurs[0].includes("n'est pas servi"));
 });

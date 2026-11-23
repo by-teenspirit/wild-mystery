@@ -9,22 +9,40 @@ const BALL = { type: "ball", objetId: 990001 } as const;
 const OBJET = { type: "objet", objetId: 990020 } as const;
 const CHANGER = { type: "changer", position: 2 } as const;
 const FUIR = { type: "fuir" } as const;
+//  Les deux du duel, ouverts le 23 novembre. Sans argument : le défi ne
+//  nomme personne, et c'est l'acceptation qui désigne.
+const DEFIER = { type: "defier" } as const;
+const ACCEPTER = { type: "accepter" } as const;
 
 Deno.test("ce que le bouton écrit, le serveur le relit", () => {
   // Le trajet complet, pour chaque action. C'est le test qui empêche
   // d'ajouter un verbe d'un seul côté — et il a fait exactement ça le
   // 18 novembre, quand les cinq verbes du combat sont arrivés dans le
   // type sans passer par ici.
-  for (const action of [CHERCHER, FOUILLER, ATTAQUER, BALL, OBJET, CHANGER, FUIR]) {
+  for (
+    const action of [
+      CHERCHER,
+      FOUILLER,
+      ATTAQUER,
+      BALL,
+      OBJET,
+      CHANGER,
+      FUIR,
+      DEFIER,
+      ACCEPTER,
+    ]
+  ) {
     const bloc = ecrireUneAction(action);
     assertEquals(actionDe(`Elle avance prudemment.\n\n${bloc}`), action);
   }
   // Et le vocabulaire déclaré est bien celui qu'on sait écrire.
   assertEquals([...VERBES].sort(), [
+    "accepter",
     "attaquer",
     "ball",
     "changer",
     "chercher",
+    "defier",
     "fouiller",
     "fuir",
     "objet",
@@ -181,4 +199,24 @@ Deno.test("retirer les blocs ne mange pas le texte autour", () => {
   assertEquals(sansActions("avant[[WM-ACTION:fouiller]]après"), "avantaprès");
   assertEquals(sansActions("a[[WM-ACTION:chercher:berge-est]]b"), "ab");
   assertEquals(sansActions("rien à retirer"), "rien à retirer");
+});
+
+Deno.test("LE DÉFI NE NOMME PERSONNE, ET UN ARGUMENT NE LE REND PAS PLUS PRÉCIS", () => {
+  //  `defier:murphy` dirait quelque chose qu'on ne sait pas honorer :
+  //  c'est l'ACCEPTATION qui désigne l'adversaire. On passe, plutôt que
+  //  de lire le bloc en laissant tomber son argument — un joueur qui a
+  //  cru choisir quelqu'un ne doit pas se retrouver à défier le
+  //  premier venu.
+  for (
+    const bloc of [
+      "[[WM-ACTION:defier:murphy]]",
+      "[[WM-ACTION:accepter:murphy]]",
+      "[[WM-ACTION:defier:4]]",
+    ]
+  ) {
+    assertEquals(actionDe(bloc), null);
+  }
+  //  Et les deux formes nues se lisent.
+  assertEquals(actionDe("[[WM-ACTION:defier]]"), { type: "defier" });
+  assertEquals(actionDe("[[WM-ACTION:accepter]]"), { type: "accepter" });
 });

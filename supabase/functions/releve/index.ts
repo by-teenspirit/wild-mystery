@@ -27,6 +27,7 @@ import {
 import {
   CartesDeRencontreSupabase,
   CombatsSupabase,
+  DefisSupabase,
   ToursSupabase,
 } from "../../../src/adaptateurs/supabase/combat.ts";
 import { TableDesTypesEnFichier } from "../../../src/adaptateurs/faune/types.ts";
@@ -266,6 +267,12 @@ function assembler(reglages: Reglages): Montage {
     //  sens — une capacité qui n'est pas des quatre, un combat qui
     //  n'est pas le sien.
     new JouerUnTour(combats, typesDuJeu, new HeuresSupabase(appeler)),
+    //  LES DÉFIS (0060). Un port à part parce qu'un défi n'a rien à
+    //  jouer : il n'a pas encore d'adversaire, donc pas de second
+    //  Pokémon. C'est son acceptation qui ouvre le duel, et le duel
+    //  entre alors dans la file des cartes tout seul — la file est
+    //  `combat.carte_poste_le is null`, pas une table à part.
+    new DefisSupabase(appeler),
   );
 
   const parcourir = new ParcourirLesZones(

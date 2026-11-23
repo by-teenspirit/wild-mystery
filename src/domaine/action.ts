@@ -85,7 +85,28 @@ export type Action =
    *  ensemble, et c'est la case qu'il a cliquée. */
   | { readonly type: "changer"; readonly position: number }
   /** Sans argument : on s'en va, et le combat se ferme. */
-  | { readonly type: "fuir" };
+  | { readonly type: "fuir" }
+  /** « Je lance un défi. » — 23 novembre.
+   *
+   *  ── IL NE NOMME PERSONNE, ET C'EST LE CŒUR DU DESSIN ──────────────
+   *
+   *  Un `defier:<pseudo>` aurait demandé une liste des présents dans le
+   *  sujet, un choix dans un menu, et un pseudo écrit par un joueur
+   *  dans un bloc d'action — donc à échapper, à vérifier contre la base,
+   *  et à retrouver quand quelqu'un se renomme.
+   *
+   *  C'est L'ACCEPTATION QUI DÉSIGNE : le premier qui accepte devient
+   *  l'adversaire. Et ça colle à ce que l'annexe « Se battre contre un
+   *  dresseur » décrit déjà — l'accord se fait entre les joueurs, par
+   *  MP ou dans le sujet des recherches ; le sujet ne fait que
+   *  l'enregistrer.
+   *
+   *  UN SEUL DÉFI OUVERT PAR SUJET, et c'est la base qui le tient, pas
+   *  ce fichier. */
+  | { readonly type: "defier" }
+  /** « J'accepte le défi. » Sans argument non plus : il n'y a qu'un
+   *  défi ouvert par sujet, donc il n'y a rien à désigner. */
+  | { readonly type: "accepter" };
 
 export const VERBES = [
   "chercher",
@@ -95,6 +116,8 @@ export const VERBES = [
   "objet",
   "changer",
   "fuir",
+  "defier",
+  "accepter",
 ] as const;
 
 /** Les cases d'une équipe. Six, comme partout dans ce jeu. */
@@ -173,11 +196,15 @@ export function actionDe(texte: string): Action | null {
     //  lieu. Le message, lui, garde son texte : c'est la trace.
     if (verbe === "chercher") return { type: "chercher" };
 
-    //  LES DEUX VERBES SANS ARGUMENT. « fouiller » AVEC un lieu dit
-    //  quelque chose qu'on ne sait pas honorer : fouiller vaut pour la
-    //  zone entière. On passe, plutôt que de deviner ce que le joueur
-    //  voulait — et « fuir » suit la même règle.
-    if (verbe === "fouiller" || verbe === "fuir") {
+    //  LES QUATRE VERBES SANS ARGUMENT. « fouiller » AVEC un lieu
+    //  dit quelque chose qu'on ne sait pas honorer : fouiller vaut pour
+    //  la zone entière. On passe, plutôt que de deviner ce que le
+    //  joueur voulait — et « fuir », « defier » et « accepter » suivent
+    //  la même règle, pour la même raison.
+    if (
+      verbe === "fouiller" || verbe === "fuir" || verbe === "defier" ||
+      verbe === "accepter"
+    ) {
       if (!argument) return { type: verbe };
       continue;
     }

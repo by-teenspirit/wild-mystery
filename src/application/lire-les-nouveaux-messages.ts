@@ -56,6 +56,7 @@ import { fouiller } from "../domaine/fouille.ts";
 import { conditionDeLaZone, estLaNuit, tempsDuJour } from "../domaine/meteo.ts";
 import { tirerUneRencontre } from "../domaine/rencontre.ts";
 import { estUneDemandeDeCombat, type JouerUnTour } from "./jouer-un-tour.ts";
+import type { Defis } from "./ports.ts";
 import type {
   ActionLue,
   Combats,
@@ -115,6 +116,15 @@ export class LireLesNouveauxMessages {
     private readonly butin: TableDeButin,
     private readonly combats: Combats,
     private readonly tours: JouerUnTour,
+    //  ── LES DÉFIS, ET POURQUOI ILS SONT FACULTATIFS ────────────────
+    //
+    //  Le dernier paramètre, avec une valeur par défaut : la fonction
+    //  Edge et une dizaine de tests construisent cette classe, et
+    //  rendre le port obligatoire les aurait tous fait échouer sur une
+    //  dépendance dont ils n'ont que faire. Sans lui, « defier » et
+    //  « accepter » sont notés dans le journal et rien ne se passe —
+    //  ce qui est le comportement d'avant la 0060.
+    private readonly defis: Defis | null = null,
   ) {}
 
   /**
@@ -218,12 +228,68 @@ export class LireLesNouveauxMessages {
       return r.evenements;
     }
 
+    //  ── LE DÉFI ET SON ACCEPTATION ─────────────────────────────────
+    //
+    //  Comme le combat : ils ne tirent dans aucune table de faune et ne
+    //  dépendent pas de la zone. Ils ne produisent AUCUN événement de
+    //  registre non plus — un défi n'est pas un gain, c'est un état du
+    //  sujet. Ce qui se voit, c'est le message du Maître du Jeu.
+    if (lue.action.type === "defier" || lue.action.type === "accepter") {
+      await this.resoudreUnDefi(lue, joueurId, erreurs);
+      return [];
+    }
+
     if (lue.action.type === "fouiller") return await this.resoudreUneFouille(lue, zone);
 
     //  `lue.action` n'est plus passée : une recherche n'a plus d'argument
     //  à lire. Le type suffit, et il est déjà testé juste au-dessus.
     const un = await this.resoudreUneRecherche(zone, lue, joueurId, erreurs);
     return un === null ? [] : [un];
+  }
+
+  /** Le défi, ou son acceptation.
+   *
+   *  ── RIEN NE SE PERD, ET RIEN NE S'ARRÊTE ────────────────────────
+   *
+   *  Toutes les raisons de refus de la base sont des CAS DU JEU : un
+   *  combat tourne déjà, quelqu'un a défié avant, l'équipe est vide,
+   *  c'est son propre défi, un autre a accepté le premier. Aucune ne
+   *  justifie d'arrêter le passage sur le sujet — et chacune se note,
+   *  parce qu'un refus que personne ne lit n'existe pas. C'est la
+   *  leçon du 18 novembre, payée deux fois dans la journée.
+   *
+   *  ── SANS PORT, ON LE DIT PLUTÔT QUE DE SE TAIRE ─────────────────
+   *
+   *  La fonction Edge peut tourner une version en avance sur sa
+   *  configuration. Mieux vaut une ligne de journal qu'un joueur qui
+   *  défie dans le vide. */
+  private async resoudreUnDefi(
+    lue: ActionLue,
+    joueurId: string,
+    erreurs: string[],
+  ): Promise<void> {
+    if (this.defis === null) {
+      erreurs.push(
+        `message ${lue.messageId} : « ${lue.action.type} » n'est pas servi ` +
+          `par cette relève`,
+      );
+      return;
+    }
+
+    const quoi = { sujetId: lue.sujetId, messageId: lue.messageId, joueurId };
+    const fait = lue.action.type === "defier"
+      ? await this.defis.lancer(quoi)
+      : await this.defis.accepter(quoi);
+
+    //  `DEJA_LU` EST LE CAS NORMAL : la relève relit un sujet chaque
+    //  fois qu'un incident l'empêche d'avancer le curseur, et c'est
+    //  voulu. Le noter ferait un journal illisible.
+    if (fait.ouvert || fait.raison === "DEJA_LU") return;
+
+    erreurs.push(
+      `message ${lue.messageId} : « ${lue.action.type} » refusé ` +
+        `(${fait.raison ?? "sans raison"})`,
+    );
   }
 
   /** Une fouille rend UNE chose : rien, des Pokédollars, un objet, un

@@ -22,9 +22,12 @@ import type {
   CartesDeRencontreEnAttente,
   CombatEnCours,
   Combats,
+  Defis,
   MembreDEquipe,
   ObjetDuSac,
   OuvertureDeCombat,
+  OuvertureDeDefi,
+  OuvertureDeDuel,
   RencontreEnAttente,
   TourEnAttente,
   TourJoue,
@@ -485,5 +488,78 @@ export class ToursSupabase implements ToursEnAttente {
   async echoue(tourId: string, erreur: string): Promise<number> {
     const recu = await this.appeler("tour_echoue", { tour: tourId, erreur });
     return typeof recu === "number" ? recu : 0;
+  }
+}
+
+/** Les défis (migration 0060).
+ *
+ *  ── UNE CLASSE À PART, COMME LE PORT ───────────────────────────────
+ *
+ *  `CombatsSupabase` sait jouer des tours ; un défi n'a rien à jouer.
+ *  Les mettre ensemble aurait donné une classe dont la moitié des
+ *  méthodes ne s'appliquent qu'à la moitié des lignes.
+ *
+ *  ── ET AUCUN REFUS NE LÈVE ──────────────────────────────────────────
+ *
+ *  Un défi refusé n'est pas un appel manqué : c'est une réponse. Seule
+ *  une forme inattendue lève — un objet qui n'est pas un objet veut
+ *  dire que la fonction n'est pas celle qu'on croit. */
+export class DefisSupabase implements Defis {
+  constructor(private readonly appeler: AppelSql) {}
+
+  async lancer(d: {
+    readonly sujetId: number;
+    readonly messageId: number;
+    readonly joueurId: string;
+  }): Promise<OuvertureDeDefi> {
+    const nom = "ouvrir_un_defi";
+    const o = await this.#objet(nom, d);
+    return {
+      defiId: typeof o.defiId === "string" ? o.defiId : null,
+      //  `ouvert` ABSENT VAUT FAUX, même raison que l'ouverture d'un
+      //  combat : annoncer un défi de moins ne fait rien de grave,
+      //  annoncer un défi qui n'existe pas en ferait accepter un vide.
+      ouvert: o.ouvert === true,
+      raison: typeof o.raison === "string" ? o.raison : null,
+    };
+  }
+
+  async accepter(d: {
+    readonly sujetId: number;
+    readonly messageId: number;
+    readonly joueurId: string;
+  }): Promise<OuvertureDeDuel> {
+    const nom = "accepter_un_defi";
+    const o = await this.#objet(nom, d);
+    const ouvert = o.ouvert === true;
+    //  UN DUEL OUVERT SANS IDENTIFIANT EST UNE PANNE, pas un refus :
+    //  la suite — poster la carte, jouer les tours — n'a rien à quoi
+    //  se raccrocher. On lève, et le passage note le sujet.
+    if (ouvert && (typeof o.combatId !== "string" || o.combatId === "")) {
+      throw new AppelEchoue(nom, `combatId manquant : ${JSON.stringify(o)}`);
+    }
+    return {
+      combatId: typeof o.combatId === "string" ? o.combatId : null,
+      ouvert,
+      raison: typeof o.raison === "string" ? o.raison : null,
+      defieur: typeof o.defieur === "string" ? o.defieur : null,
+      adverse: typeof o.adverse === "string" ? o.adverse : null,
+    };
+  }
+
+  async retirer(defiId: string): Promise<boolean> {
+    const recu = await this.appeler("fermer_un_defi", {
+      defiId,
+      etat: "retire",
+    });
+    return recu === true;
+  }
+
+  async #objet(nom: string, argument: unknown): Promise<Record<string, unknown>> {
+    const recu = await this.appeler(nom, argument);
+    if (recu === null || typeof recu !== "object") {
+      throw new AppelEchoue(nom, `objet attendu, reçu ${JSON.stringify(recu)}`);
+    }
+    return recu as Record<string, unknown>;
   }
 }

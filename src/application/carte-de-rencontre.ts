@@ -82,6 +82,15 @@ export const SANS_COMBATTANT =
 export const APPEL = "À toi de jouer : attaquer, lancer une Poké Ball, utiliser un " +
   "objet, changer de Pokémon ou fuir.";
 
+/** L'appel d'un duel. Il ne propose NI ball NI objet.
+ *
+ *  Pas de Poké Ball : on n'attrape pas le Pokémon de quelqu'un. Pas
+ *  d'objet non plus pour l'instant — soigner son Pokémon au milieu d'un
+ *  duel est une règle de jeu à trancher, pas un bouton à poser, et
+ *  l'annexe dit seulement « cela compte comme un tour ». Le jour où
+ *  elle le dira, le verbe existe déjà. */
+export const APPEL_DUEL = "À toi de frapper, ou de déclarer forfait.";
+
 /** Rédige la carte de rencontre.
  *
  *  `racine` est celle du dépôt, pour l'adresse des sprites. Elle
@@ -93,6 +102,14 @@ export function redigerLaCarte(
   racine: string,
 ): string {
   const s = r.sauvage;
+  //  ── UN DUEL N'EST PAS UNE APPARITION NON PLUS ────────────────────
+  //
+  //  Et c'est le même raisonnement que le rappel juste en dessous : les
+  //  chiffres sont identiques, seules les PHRASES changent. Ce qui est
+  //  en face n'est pas sauvage, personne n'apparaît, et il n'y a ni
+  //  ball ni fuite à proposer — on ne capture pas le Pokémon d'un
+  //  joueur, et on ne fuit pas un adversaire : on déclare forfait.
+  const duelEnCours = r.genre === "duel";
   //  ── UN RAPPEL NE S'ANNONCE PAS COMME UNE APPARITION ──────────────
   //
   //  « Un Debugant sauvage apparaît » est faux la seconde fois, et
@@ -104,7 +121,13 @@ export function redigerLaCarte(
   //  LE RESTE EST IDENTIQUE À DESSEIN. Deux mises en forme pour le
   //  même état finiraient par ne plus dire la même chose, et le
   //  joueur apprendrait à lire deux cartes au lieu d'une.
-  const dedans: string[] = r.rappel
+  const dedans: string[] = duelEnCours
+    ? [
+      '<p class="wm-combat__surtitre">Duel</p>',
+      `<p class="wm-combat__titre">${echapper(r.mentionne)} affronte ` +
+      `${echapper(r.adverse ?? "son adversaire")}.</p>`,
+    ]
+    : r.rappel
     ? [
       '<p class="wm-combat__surtitre">Combat en cours</p>',
       `<p class="wm-combat__titre">Ton combat contre ${echapper(s.nom)} ` +
@@ -136,7 +159,11 @@ export function redigerLaCarte(
       attaque: s.attaque,
       defense: s.defense,
     },
-    "sauvage",
+    //  LE CÔTÉ, ET PAS LE GENRE : la fiche s'en sert pour savoir de
+    //  quel côté de la carte elle se dessine, pas pour dire ce qu'est
+    //  le Pokémon. « adverse » et « sauvage » se dessinent pareil, et
+    //  c'est voulu — c'est le même côté.
+    duelEnCours ? "adverse" : "sauvage",
     racine,
   );
 
@@ -168,6 +195,8 @@ export function redigerLaCarte(
       racine,
     ),
   ));
-  dedans.push(`<p class="wm-combat__appel">${echapper(APPEL)}</p>`);
-  return enveloppe("rencontre", dedans);
+  dedans.push(
+    `<p class="wm-combat__appel">${echapper(duelEnCours ? APPEL_DUEL : APPEL)}</p>`,
+  );
+  return enveloppe(duelEnCours ? "duel" : "rencontre", dedans);
 }

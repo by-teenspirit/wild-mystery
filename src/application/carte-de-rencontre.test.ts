@@ -26,6 +26,7 @@
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import {
   APPEL,
+  APPEL_DUEL,
   nomDuCombattant,
   redigerLaCarte,
   type RencontreAAnnoncer,
@@ -278,4 +279,68 @@ Deno.test("À L'APPARITION, LE SAUVAGE N'A PAS DE FRACTION", () => {
   const html = redigerLaCarte(PONYTA, RACINE);
   assert(!html.includes("30/30"), "le sauvage ne doit pas porter de maximum");
   assertStringIncludes(html, "30");
+});
+
+// ── LA CARTE D'UN DUEL, 23 novembre ─────────────────────────────────
+
+/** Le même affrontement, mais en face c'est le Pokémon d'un joueur.
+ *
+ *  LES CHIFFRES SONT IDENTIQUES À DESSEIN : c'est ce qui rend ces
+ *  tests utiles. S'ils changeaient aussi, on ne saurait pas si c'est
+ *  le genre ou la donnée qui a fait changer le message. */
+const DUEL: RencontreAAnnoncer = {
+  ...PONYTA,
+  genre: "duel",
+  adverse: "Erin Kavanagh",
+};
+
+Deno.test("UN DUEL N'ANNONCE PAS UNE APPARITION", () => {
+  //  « Un Ponyta sauvage apparaît » à propos du Pokémon d'un joueur
+  //  serait un demi-mensonge posté dans le sujet, avec les bons
+  //  chiffres — donc de ceux qui se remarquent le plus tard.
+  const html = redigerLaCarte(DUEL, RACINE);
+  assertStringIncludes(html, "Jake Dalziel affronte Erin Kavanagh.");
+  assert(!html.includes("sauvage apparaît"), "aucune apparition dans un duel");
+  assertStringIncludes(html, "Duel");
+});
+
+Deno.test("ET IL NE PROPOSE NI BALL NI OBJET", () => {
+  //  On n'attrape pas le Pokémon de quelqu'un, et soigner au milieu
+  //  d'un duel est une règle de jeu à trancher — pas un bouton à
+  //  poser. L'appel ne propose donc que frapper ou renoncer.
+  const html = redigerLaCarte(DUEL, RACINE);
+  assertStringIncludes(html, APPEL_DUEL);
+  assert(!html.includes("Poké Ball"), "pas de ball dans un duel");
+  assert(!html.includes("fuir"), "on ne fuit pas un dresseur, on renonce");
+});
+
+Deno.test("LE CÔTÉ D'EN FACE N'EST PLUS MARQUÉ « SAUVAGE »", () => {
+  //  La classe finit dans le message posté : `camp--sauvage` sur le
+  //  Pokémon d'un joueur se lirait comme une insulte dans
+  //  l'inspecteur. Et les deux se dessinent pareil — c'est le même
+  //  côté de la carte.
+  const html = redigerLaCarte(DUEL, RACINE);
+  assertStringIncludes(html, "wm-combat__camp--adverse");
+  assert(!html.includes("camp--sauvage"), "pas de camp sauvage dans un duel");
+  //  L'enveloppe le dit aussi, pour que le CSS puisse un jour les
+  //  distinguer sans qu'on touche à ce fichier.
+  assertStringIncludes(html, "wm-combat--duel");
+});
+
+Deno.test("LES CHIFFRES D'UN DUEL SONT CEUX D'UNE RENCONTRE", () => {
+  //  La carte recopie, elle ne recalcule pas — et le genre ne change
+  //  pas un seul chiffre. Les deux fiches sont celles de la base.
+  const html = redigerLaCarte(DUEL, RACINE);
+  for (const dit of ["niv. 10", "30 PV", "18/18 PV", "Salamèche"]) {
+    assertStringIncludes(html, dit);
+  }
+});
+
+Deno.test("UNE FILE D'AVANT LA 0060 S'ÉCRIT COMME AVANT", () => {
+  //  `genre` est facultatif, et son absence veut dire « sauvage » —
+  //  ce qui était le seul genre. Une carte restée en file pendant la
+  //  montée ne doit pas devenir un duel sans adversaire.
+  const html = redigerLaCarte(PONYTA, RACINE);
+  assertStringIncludes(html, "Un Ponyta sauvage apparaît.");
+  assert(!html.includes("affronte"), "pas de duel sans genre");
 });

@@ -13,7 +13,7 @@
 
 import { assertEquals, assertThrows } from "@std/assert";
 import { AppelEchoue } from "./appel.ts";
-import { CartesDeRencontreSupabase, lireUneCarte } from "./combat.ts";
+import { CartesDeRencontreSupabase, DefisSupabase, lireUneCarte } from "./combat.ts";
 
 const CARTE = {
   combatId: "26f32b16-29cf-4d53-b0d9-b1a7596e1853",
@@ -149,4 +149,101 @@ Deno.test("les deux issues passent les bons noms à la base", async () => {
   assertEquals(vus[0].argument, { combat: "c1", message: 90001 });
   assertEquals(vus[1].fonction, "carte_echouee");
   assertEquals(vus[1].argument, { combat: "c1", erreur: "forum injoignable" });
+});
+
+// ── LES DÉFIS, 23 novembre ──────────────────────────────────────────
+
+/** Un appel qui rend ce qu'on lui dit, et retient ce qu'on lui a
+ *  demandé. Assez pour ces quatre tests : la question est toujours
+ *  « qu'est-ce que l'adaptateur fait d'une réponse », jamais « est-ce
+ *  que PostgREST répond ». */
+function appelQuiRend(reponse: unknown): {
+  appeler: (f: string, a: unknown) => Promise<unknown>;
+  vus: { f: string; a: unknown }[];
+} {
+  const vus: { f: string; a: unknown }[] = [];
+  return {
+    appeler: (f, a) => {
+      vus.push({ f, a });
+      return Promise.resolve(reponse);
+    },
+    vus,
+  };
+}
+
+Deno.test("UN DÉFI REFUSÉ EST UNE RÉPONSE, PAS UNE PANNE", async () => {
+  //  Toutes les raisons de la 0060 sont des cas du jeu : un combat
+  //  tourne déjà, quelqu'un a défié avant, l'équipe est vide. Lever
+  //  ferait passer une règle du jeu pour un incident, et le passage
+  //  s'arrêterait sur le sujet.
+  const { appeler, vus } = appelQuiRend({ ouvert: false, raison: "COMBAT_EN_COURS" });
+  const defis = new DefisSupabase(appeler);
+  const fait = await defis.lancer({ sujetId: 996, messageId: 15601, joueurId: "j1" });
+  assertEquals(fait, { defiId: null, ouvert: false, raison: "COMBAT_EN_COURS" });
+  assertEquals(vus[0].f, "ouvrir_un_defi");
+});
+
+Deno.test("`ouvert` ABSENT VAUT FAUX, et jamais l'inverse", async () => {
+  //  Annoncer un défi de moins ne fait rien de grave ; annoncer un défi
+  //  qui n'existe pas en ferait accepter un vide.
+  const { appeler } = appelQuiRend({ defiId: "d1" });
+  const fait = await new DefisSupabase(appeler).lancer({
+    sujetId: 996,
+    messageId: 15601,
+    joueurId: "j1",
+  });
+  assertEquals(fait.ouvert, false);
+  assertEquals(fait.defiId, "d1");
+});
+
+Deno.test("UN DUEL OUVERT SANS IDENTIFIANT LÈVE", async () => {
+  //  C'est le seul cas qui lève, et c'en est bien un : la suite —
+  //  poster la carte, jouer les tours — n'aurait rien à quoi se
+  //  raccrocher. Mieux vaut que le passage note le sujet.
+  const { appeler } = appelQuiRend({ ouvert: true, defieur: "j1", adverse: "j2" });
+  const defis = new DefisSupabase(appeler);
+  let leve = false;
+  await defis.accepter({ sujetId: 996, messageId: 15602, joueurId: "j2" })
+    .catch((e) => {
+      leve = e instanceof AppelEchoue;
+    });
+  assertEquals(leve, true);
+});
+
+Deno.test("UNE ACCEPTATION LUE DIT QUI FRAPPE EN PREMIER", async () => {
+  //  Le défieur. Il a attendu ; l'autre vient d'écrire son
+  //  acceptation. C'est la même idée que « le joueur poste, donc le
+  //  joueur agit » du combat sauvage, appliquée à deux auteurs.
+  const { appeler, vus } = appelQuiRend({
+    ouvert: true,
+    combatId: "c1",
+    defieur: "j1",
+    adverse: "j2",
+    aQui: "j1",
+  });
+  const fait = await new DefisSupabase(appeler).accepter({
+    sujetId: 996,
+    messageId: 15602,
+    joueurId: "j2",
+  });
+  assertEquals(fait, {
+    combatId: "c1",
+    ouvert: true,
+    raison: null,
+    defieur: "j1",
+    adverse: "j2",
+  });
+  assertEquals(vus[0].f, "accepter_un_defi");
+  assertEquals(vus[0].a, { sujetId: 996, messageId: 15602, joueurId: "j2" });
+});
+
+Deno.test("RETIRER REND VRAI SEULEMENT SI LA BASE A FERMÉ", async () => {
+  //  `fermer_un_defi` rend faux quand le défi était déjà clos : la
+  //  première fin l'emporte, comme pour un combat et comme pour une
+  //  demande de clôture.
+  const oui = appelQuiRend(true);
+  assertEquals(await new DefisSupabase(oui.appeler).retirer("d1"), true);
+  assertEquals(oui.vus[0].a, { defiId: "d1", etat: "retire" });
+  const non = appelQuiRend(false);
+  assertEquals(await new DefisSupabase(non.appeler).retirer("d1"), false);
 });
