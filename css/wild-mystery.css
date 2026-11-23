@@ -38667,7 +38667,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 /*  LES ZONES LONGUES PRENNENT LA LARGEUR, et leur hauteur annonce ce
     qu'on attend : un récit de vie ne se tape pas dans une ligne. */
 #modernbb .wmf-form__fiche .wmf__tw [data-wmf-zone],
-#modernbb .wmf-form__fiche .wmf__histoire > [data-wmf-zone],
+#modernbb .wmf-form__fiche .wmf__histoire-corps > [data-wmf-zone],
 #modernbb .wmf-form__fiche .wmf__moment-texte > [data-wmf-zone],
 #modernbb .wmf-form__fiche .wmf__rencontre > [data-wmf-zone],
 #modernbb .wmf-form__fiche .wmf__ancienne > [data-wmf-zone],
@@ -38676,7 +38676,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   min-height: 3.4em;
 }
 
-#modernbb .wmf-form__fiche .wmf__histoire > [data-wmf-zone] {
+#modernbb .wmf-form__fiche .wmf__histoire-corps > [data-wmf-zone] {
   min-height: 12em;
 }
 
@@ -38697,6 +38697,70 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin-top: var(--wm-espace-8, 8px);
   font-size: var(--wm-taille-petit, 11.5px);
   word-break: break-all;
+}
+
+/*  LA TRAINER CARD SE COLLE COMME L'AVATAR : une adresse, et c'est
+    l'image qui s'affiche. Il faut donc qu'on puisse écrire l'adresse,
+    et seulement à l'écran. */
+#modernbb .wmf-form__fiche .wmf__tcard wmf-j-tcard {
+  display: block;
+  min-width: 0;
+  margin-top: var(--wm-espace-8, 8px);
+  font-size: var(--wm-taille-petit, 11.5px);
+  word-break: break-all;
+}
+
+#modernbb .wmf-form__fiche .wmf__tcard:not(:has(img))::before {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--wm-rayon-md, 8px);
+  background: color-mix(in srgb, var(--wm-fond-surface-haute, #fcf4ec) 45%, transparent);
+  color: var(--wm-texte-doux, #6e5749);
+  content: "ta trainer card, carrée";
+  font-size: var(--wm-taille-petit, 11.5px);
+  font-style: italic;
+  text-align: center;
+}
+
+/*  ── LA BARRE DE BALISES ───────────────────────────────────────────
+
+    « Permettre aussi de modifier l'histoire et la description du
+    compagnon d'une vie comme un bloc d'édition pour mettre des
+    balises si on en a envie. »
+
+    Elle est au-dessus de SA zone, et sur trois zones seulement —
+    l'histoire, chaque moment de la chronologie, le compagnon. Les
+    mots sont écrits en toutes lettres : un « G » gras et un « I »
+    penché sont une convention de traitement de texte, et la barre
+    sert justement à ceux qui ne l'ont pas. */
+#modernbb .wmf-form__balises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px);
+  margin-bottom: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wmf-form__balise {
+  padding: var(--wm-espace-2, 2px) var(--wm-espace-8, 8px);
+  border: 1px solid var(--wm-bord-net, #d9c3b1);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface, #fffbf7);
+  color: var(--wm-texte-corps, #4e3b30);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  line-height: var(--wm-interligne-surtitre, 1.4);
+  text-transform: uppercase;
+}
+
+#modernbb .wmf-form__balise:hover,
+#modernbb .wmf-form__balise:focus-visible {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 /*  ET LA COLONNE DIT CE QU'ELLE ATTEND tant qu'aucune image n'y est.
@@ -38801,66 +38865,173 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 
 /*  ── LA FICHE PUBLIÉE ──────────────────────────────────────────────
 
-    Elle vit dans un message, donc elle ne peut compter sur rien :
-    tout ce qu'elle dessine part d'ici. */
+    Elle vit dans un message, donc elle ne peut compter sur rien : tout
+    ce qu'elle dessine part d'ici.
+
+    ── LES TROIS SURFACES, ET POURQUOI CELLES-LÀ ────────────────────
+
+    Un message est peint `fond-surface` (#fffbf7) par `05-sujet`. Une
+    carte de fiche à `fond-surface` serait donc INVISIBLE : on verrait
+    des bordures flotter sur rien. D'où l'échelle :
+
+      le message      fond-surface        #fffbf7
+      une carte       fond-surface-haute  #fcf4ec
+      un panneau      fond-douce          #f3e1d2
+
+    Trois crans, chacun lisible sur le précédent, et aucun en dur : le
+    thème sombre les retourne tous les trois sans qu'on y revienne.
+
+    ── LES LARGEURS SONT CELLES DU FORUM, PAS DES RONDS DE SERVIETTE ─
+
+    Relevé du 30 octobre (`81-…`) : le corps d'un message fait **762
+    px** (profil 236 + corps 762 dans un forum à 1200). Dans une carte
+    à 24 px de marge, il reste **714**.
+
+    L'avatar fait **200 × 320**, comme celui de la colonne de profil —
+    c'est la même image, le joueur ne la recadre pas deux fois. Reste
+    donc 762 − 200 − 12 = **550** pour la colonne d'à côté, et c'est
+    pour ça que la tête n'est PAS une carte : les 24 px de marge
+    mangeraient les 550.
+
+    ── ET ELLE DÉFILE, PARCE QU'ON ÉCRIT LONG ───────────────────────
+
+    « Les gens ont tendance à beaucoup écrire. » Mesuré sur une fiche
+    remplie comme un joueur bavard le ferait : 3 300 px de haut, soit
+    quatre écrans pour passer au message suivant. Les deux blocs qui
+    gonflent — l'état civil et l'histoire — défilent donc sur place.
+    La fiche retombe à 2 400. */
 
 #modernbb .wmf {
   display: flex;
   flex-direction: column;
   gap: var(--wm-espace-20, 20px);
-  text-align: left;
+  line-height: var(--wm-interligne-courant, 1.5);
 }
 
 /*  « LE NOM DU PERSONNAGE EN HAUT, EN TITRE, COLLÉ À GAUCHE. » C'est
-    une consigne, et c'est la seule différence de fond avec la mise en
-    page de la V1, qui enveloppait tout dans un `<center>`. */
+    la consigne du 23 novembre, et la seule différence de fond avec la
+    fiche de la V1, qui centrait tout. */
 #modernbb .wmf__titre {
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-page, 25px);
-  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
   line-height: var(--wm-interligne-titre, 1.1);
-  text-align: left;
+  color: var(--wm-encre, #2e2018);
 }
 
 #modernbb .wmf__tw {
+  margin-top: calc(-1 * var(--wm-espace-14, 14px));
   color: var(--wm-texte-doux, #6e5749);
   font-size: var(--wm-taille-petit, 11.5px);
   line-height: var(--wm-interligne-courant, 1.5);
 }
 
-/*  LES DEUX COLONNES. Elles s'empilent quand la place manque, et
-    l'avatar passe alors au-dessus — c'est le bon ordre : on voit le
-    visage avant la fiche d'état civil. */
+/*  ── LA TÊTE : DEUX COLONNES DE MÊME HAUTEUR ───────────────────────
+
+    « Mets en 2 colonnes l'avatar et les infos à côté, et fais en sorte
+    que la 2e colonne soit aussi haute que l'avatar. »
+
+    `align-items: stretch` ALIGNE SUR LA COLONNE, PAS SUR L'IMAGE : la
+    gauche porte l'avatar PUIS l'encadré du faceclaim, donc elle est
+    plus haute que l'image seule. Aligner sur l'image laisserait
+    l'encadré dépasser tout seul en bas à gauche. */
 #modernbb .wmf__haut {
+  --wmf-haut: 388px;
+
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-20, 20px);
+  gap: var(--wm-espace-12, 12px);
   align-items: flex-start;
 }
 
+/*  388 = 320 (l'image) + 8 (l'écart) + 60 (l'encadré). On l'écrit
+    plutôt que de le laisser au navigateur : `align-items: stretch`
+    ferait l'inverse de ce qu'on veut ici, puisque c'est la colonne de
+    DROITE qui a une hauteur sans fin — elle étirerait la rangée au
+    lieu de s'y plier. Sans encadré, la colonne s'arrête à l'image. */
+#modernbb .wmf__haut:not(:has(.wmf__fc)) {
+  --wmf-haut: 320px;
+}
+
 #modernbb .wmf__avatar {
+  display: flex;
   flex: 0 0 200px;
+  flex-direction: column;
+  gap: var(--wm-espace-8, 8px);
   max-width: 100%;
 }
 
 #modernbb .wmf__avatar img {
   display: block;
-  width: 100%;
-  height: auto;
+  width: 200px;
+  height: 320px;
   border-radius: var(--wm-rayon-md, 8px);
+  object-fit: cover;
 }
 
-/*  L'ADRESSE EST DANS LA FICHE, mais on ne la lit pas : c'est la
-    valeur que le formulaire relit, et elle n'a rien à faire sous
-    l'image. */
-#modernbb .wmf__avatar wmf-avatar {
+/*  L'ADRESSE DE L'IMAGE EST DANS LA FICHE, mais on ne la lit pas :
+    c'est la valeur que l'éditeur relit, et elle n'a rien à faire sous
+    le visage. */
+#modernbb .wmf__avatar wmf-avatar,
+#modernbb .wmf__tcard wmf-j-tcard {
   display: none;
 }
 
+/*  L'ENCADRÉ DU FACECLAIM. « Le mieux, mettre ça sous l'avatar, dans
+    un encadré. » C'est là qu'on le cherche — à côté du visage, et pas
+    trente lignes plus bas dans « derrière l'écran ». */
+#modernbb .wmf__fc {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 60px;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  font-size: var(--wm-taille-petit, 11.5px);
+  text-align: center;
+}
+
+/*  LA COLONNE DE DROITE PREND LES 550 QUI RESTENT, et elle défile :
+    neuf champs de trois lignes font neuf cents pixels, et personne ne
+    doit scroller la page entière pour atteindre l'histoire. */
+/*  LA BASE EST BASSE, ET LA LARGEUR VIENT DU RESTE. Écrite `1 1
+    550px`, la colonne passait à la ligne dès que le conteneur faisait
+    un pixel de moins que 762 — ce qui arrive partout ailleurs que
+    dans un message : l'éditeur a son propre cadre, et le thème sombre
+    pourrait bouger d'un rembourrage. `1 1 320px` donne 550 à 762 px
+    de large, et se contente de moins sans se casser. */
 #modernbb .wmf__infos {
+  box-sizing: border-box;
   flex: 1 1 320px;
   min-width: 0;
-  line-height: var(--wm-interligne-message, 1.75);
+  max-height: var(--wmf-haut, 388px);
+}
+
+/*  ── UN CHAMP, ÉTIQUETTE AU-DESSUS ─────────────────────────────────
+
+    « Mets sur une seule colonne, les gens ont tendance à développer et
+    à écrire quelques lignes pour chaque info. » À quatre lignes de
+    texte, une étiquette au fil de la ligne se perd dans le paragraphe
+    d'avant : elle ouvre son champ, elle ne le coupe plus. */
+#modernbb .wmf__infos,
+#modernbb .wmf__joueur-infos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wmf__champ > y {
+  display: block;
+}
+
+#modernbb .wmf__champ > y + * {
+  display: block;
+  margin-top: var(--wm-espace-2, 2px);
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: var(--wm-interligne-normal, 1.65);
 }
 
 /*  LES ÉTIQUETTES DE LA FICHE PUBLIÉE : `<y>` est la balise de
@@ -38871,6 +39042,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-size: var(--wm-taille-surtitre, 10.5px);
   font-weight: var(--wm-graisse-demi, 600);
   letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-etiquette, 1.3);
   text-transform: uppercase;
 }
 
@@ -38882,19 +39054,66 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-accent-terre, #8b4725);
 }
 
+/*  ── CE QUI DÉFILE ─────────────────────────────────────────────────
+
+    Un panneau qui se lit sans fin n'a pas besoin de dire qu'il défile
+    si on voit qu'il est un panneau : le fond et la barre fine le
+    disent, et un texte coupé net sur un fond uni ne le dirait pas. */
+#modernbb .wmf__infos,
+#modernbb .wmf__histoire-corps,
+#modernbb .wmf__joueur-infos {
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: var(--wm-espace-14, 14px) var(--wm-espace-16, 16px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-douce, #f3e1d2);
+  scrollbar-color: var(--wm-bord-net, #d9c3b1) transparent;
+  scrollbar-width: thin;
+}
+
+#modernbb .wmf__infos::-webkit-scrollbar,
+#modernbb .wmf__histoire-corps::-webkit-scrollbar,
+#modernbb .wmf__joueur-infos::-webkit-scrollbar {
+  width: 8px;
+}
+
+#modernbb .wmf__infos::-webkit-scrollbar-thumb,
+#modernbb .wmf__histoire-corps::-webkit-scrollbar-thumb,
+#modernbb .wmf__joueur-infos::-webkit-scrollbar-thumb {
+  border-radius: var(--wm-rayon-xs, 4px);
+  background: var(--wm-bord-net, #d9c3b1);
+}
+
+/*  ── LES SECTIONS DU MILIEU SONT DES CARTES ────────────────────────
+
+    La tête et le pied sont à plat, les trois sections du milieu sont
+    des cartes. Ce n'est pas un ornement : à plat, les cinq blocs
+    s'enchaînaient sans qu'on sache où l'un finissait. */
+#modernbb .wmf__histoire,
+#modernbb .wmf__starter,
+#modernbb .wmf__ancienne,
+#modernbb .wmf__ombre {
+  box-sizing: border-box;
+  padding: var(--wm-espace-24, 24px);
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  line-height: var(--wm-interligne-message, 1.75);
+}
+
 /*  LE BANDEAU DE SECTION. Pas de filet à gauche — « ne mets pas un
     border à gauche, ne mets ça nulle part, ce n'est pas beau ». */
 #modernbb .wmf__bandeau {
-  margin-bottom: var(--wm-espace-8, 8px);
+  margin-bottom: var(--wm-espace-14, 14px);
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
   line-height: var(--wm-interligne-section, 1.2);
+  color: var(--wm-encre, #2e2018);
 }
 
-#modernbb .wmf__histoire,
-#modernbb .wmf__ancienne,
-#modernbb .wmf__ombre,
-#modernbb .wmf__joueur {
+#modernbb .wmf__histoire-corps {
+  max-height: 520px;
+  font-size: var(--wm-taille-message, 16px);
   line-height: var(--wm-interligne-message, 1.75);
 }
 
@@ -38904,22 +39123,23 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf__chrono {
   display: flex;
   flex-direction: column;
-  gap: var(--wm-espace-14, 14px);
+  gap: var(--wm-espace-18, 18px);
 }
 
 #modernbb .wmf__moment {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-4, 4px) var(--wm-espace-16, 16px);
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-18, 18px);
 }
 
 #modernbb .wmf__moment-date {
   flex: 0 0 120px;
+  padding-top: var(--wm-espace-4, 4px);
   color: var(--wm-accent-primaire, #275e7a);
   font-size: var(--wm-taille-surtitre, 10.5px);
   font-weight: var(--wm-graisse-demi, 600);
   letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
-  line-height: var(--wm-interligne-message, 1.75);
+  line-height: var(--wm-interligne-surtitre, 1.4);
   text-transform: uppercase;
 }
 
@@ -38933,15 +39153,16 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf__starter {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--wm-espace-20, 20px);
+  gap: var(--wm-espace-16, 16px);
   align-items: flex-start;
 }
 
 #modernbb .wmf__pokemon {
-  flex: 0 0 200px;
+  box-sizing: border-box;
+  flex: 0 0 160px;
   padding: var(--wm-espace-14, 14px);
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-surface-haute, #fcf4ec);
+  background: var(--wm-fond-douce, #f3e1d2);
   text-align: center;
 }
 
@@ -38949,6 +39170,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
   font-size: var(--wm-taille-titre-carte, 16px);
   line-height: var(--wm-interligne-section, 1.2);
+  color: var(--wm-encre, #2e2018);
 }
 
 /*  `<ifn>` ET `<ifi>` VIENNENT DE L'ANCIENNE FICHE, comme `<y>`. */
@@ -38973,6 +39195,71 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf__rencontre {
   flex: 1 1 320px;
   min-width: 0;
+  font-size: var(--wm-taille-message, 16px);
+}
+
+/*  LES SAUTS DE LIGNE DU JOUEUR SE GARDENT. On les pose sur les
+    conteneurs de prose, nommés un par un, et jamais sur une carte
+    entière : nos propres retours à la ligne y deviendraient des
+    lignes vides. */
+#modernbb .wmf__champ > y + *,
+#modernbb .wmf__histoire-corps,
+#modernbb .wmf__moment-texte,
+#modernbb .wmf__rencontre,
+#modernbb .wmf__ancienne,
+#modernbb .wmf__question {
+  white-space: pre-wrap;
+}
+
+#modernbb .wmf__question {
+  margin-bottom: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wmf__question:last-child {
+  margin-bottom: 0;
+}
+
+/*  ── LE PIED REPREND LA GRAMMAIRE DE LA TÊTE ───────────────────────
+
+    « Derrière l'écran, les informations sont pareilles du coup, comme
+    tout en haut. » Une image à gauche, les champs à droite, même
+    hauteur — mais carrée, parce que la trainer card l'est. */
+#modernbb .wmf__joueur-haut {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-12, 12px);
+  align-items: stretch;
+}
+
+#modernbb .wmf__tcard {
+  flex: 0 0 200px;
+  max-width: 100%;
+}
+
+#modernbb .wmf__tcard img {
+  display: block;
+  width: 200px;
+  height: 200px;
+  border-radius: var(--wm-rayon-md, 8px);
+  object-fit: cover;
+}
+
+/*  LES CHAMPS DU JOUEUR SE RANGENT EN DEUX, eux : « pseudo », « âge »,
+    « pronoms » tiennent en trois mots, et une seule colonne leur
+    ferait une page de blanc à droite. Ceux qui ne s'y rangent pas sont
+    marqués, et prennent la largeur. */
+#modernbb .wmf__joueur-infos {
+  display: grid;
+  flex: 1 1 300px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: var(--wm-espace-12, 12px) var(--wm-espace-20, 20px);
+  min-width: 0;
+  max-height: 200px;
+}
+
+#modernbb .wmf__joueur-infos .wmf__champ[data-long="oui"] {
+  grid-column: 1 / -1;
 }
 
 /*  ── SOUS 760 PX ────────────────────────────────────────────────── */

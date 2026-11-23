@@ -228,6 +228,37 @@ const INVITES: readonly { readonly clef: string; readonly invite: string }[] = [
   ...JOUEUR.map((c) => ({ clef: c.clef, invite: c.exemple ?? c.etiquette.toLowerCase() })),
 ];
 
+/*  LES ZONES QUI MÉRITENT UNE BARRE DE BALISES.
+
+    « Permettre aussi de modifier l'histoire et la description du
+    compagnon d'une vie comme un bloc d'édition, pour mettre des
+    balises si on en a envie. » — 23 novembre, et « oui » pour les
+    moments de la chronologie.
+
+    CE SONT LES TROIS ENDROITS OÙ L'ON ÉCRIT DU RÉCIT. Ailleurs — un
+    métier, un pseudo, une date — une barre d'outils au-dessus de
+    chaque champ ferait trente barres pour rien.
+
+    ELLE N'AJOUTE RIEN QU'ON NE PUISSE TAPER. Le joueur qui connaît
+    `<b>` l'écrit directement ; la barre existe pour celui qui ne le
+    connaît pas, et elle lui montre ce qu'elle insère. */
+const BALISEES = new Set(["histoire", "m-texte", "s-rencontre"]);
+
+//  EN TOUTES LETTRES, PAS EN PICTOGRAMMES : un « G » gras et un « I »
+//  penché sont une convention de traitement de texte, pas de forum, et
+//  la barre sert justement à ceux qui ne la connaissent pas.
+const BALISES: readonly {
+  readonly mot: string;
+  readonly ouvre: string;
+  readonly ferme: string;
+}[] = [
+  { mot: "Gras", ouvre: "<b>", ferme: "</b>" },
+  { mot: "Italique", ouvre: "<i>", ferme: "</i>" },
+  { mot: "Souligné", ouvre: "<u>", ferme: "</u>" },
+  { mot: "Centré", ouvre: "<center>", ferme: "</center>" },
+  { mot: "Lien", ouvre: `<a href="">`, ferme: "</a>" },
+];
+
 const DES_IDENTITES = new Set(IDENTITE.map((c) => c.clef));
 const DES_JOUEURS = new Set(JOUEUR.map((c) => c.clef));
 const DE_L_OMBRE = new Set(OMBRE.map((c) => c.clef));
@@ -248,6 +279,57 @@ const SANS_STARTER: Starter = {
  *  personne le voie avant de relire le message publié. */
 function lu(z: HTMLElement): string {
   return (z.innerText ?? z.textContent ?? "").replace(/ /g, " ");
+}
+
+/** Entoure ce qui est sélectionné dans `z` par deux balises.
+ *
+ *  ── POURQUOI `execCommand` ET PAS UN CALCUL D'INDICES ──────────────
+ *
+ *  La façon évidente serait de lire le texte, de repérer la sélection
+ *  en nombre de caractères, et de recoller la chaîne. Elle est fausse
+ *  ici : dans une zone modifiable, un retour à la ligne est un
+ *  `<br>`, que `Range.toString()` ne compte pas. Dans un pavé de trois
+ *  paragraphes, la balise atterrirait deux ou trois caractères avant
+ *  l'endroit visé — d'autant plus loin qu'on écrit long, c'est-à-dire
+ *  exactement là où cette barre sert.
+ *
+ *  `insertText` remplace la sélection sans qu'on ait à la mesurer, il
+ *  garde l'annulation du navigateur (Ctrl-Z défait l'insertion) et il
+ *  émet lui-même l'évènement `input` que le reste écoute. Il est
+ *  déprécié et il n'a pas de remplaçant : `beforeinput` ne s'écrit
+ *  pas, et l'API de saisie ne sait pas faire ça.
+ *
+ *  LE REPLI, S'IL VENAIT À DISPARAÎTRE : on ajoute les deux balises à
+ *  la fin du texte. C'est grossier, mais rien n'est perdu et le joueur
+ *  voit ce qui s'est passé — plutôt qu'un bouton qui ne fait rien. */
+function entourer(doc: Document, z: HTMLElement, ouvre: string, ferme: string): void {
+  z.focus();
+  const sel = doc.getSelection();
+  const dedans = sel !== null && sel.rangeCount > 0 && sel.anchorNode !== null &&
+    z.contains(sel.anchorNode);
+
+  if (sel !== null && dedans) {
+    const choisi = sel.toString();
+    if (doc.execCommand("insertText", false, ouvre + choisi + ferme)) {
+      //  RIEN DE SÉLECTIONNÉ : le curseur s'est posé APRÈS la balise
+      //  fermante, donc on le ramène entre les deux — sinon il
+      //  faudrait cliquer pour écrire au bon endroit.
+      if (choisi === "" && sel.rangeCount > 0) {
+        const r = sel.getRangeAt(0);
+        const ou = r.startOffset - ferme.length;
+        if (ou >= 0) {
+          r.setStart(r.startContainer, ou);
+          r.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(r);
+        }
+      }
+      return;
+    }
+  }
+
+  z.textContent = lu(z) + ouvre + ferme;
+  z.dispatchEvent(new InputEvent("input", { bubbles: true }));
 }
 
 /** Pose l'éditeur. Rend `false` si la page ne s'y prête pas. */
@@ -518,7 +600,14 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     }
     if (clef === "avatar") {
       vue = { ...vue, avatar: v };
-      majImage(v);
+      majImage(".wmf__avatar", v);
+      return;
+    }
+    //  LA TRAINER CARD EST UNE IMAGE, ELLE AUSSI, et elle suit le même
+    //  chemin que l'avatar : l'adresse se tape, l'image se montre.
+    if (clef === "j-tcard") {
+      vue = { ...vue, joueur: { ...vue.joueur, "j-tcard": v } };
+      majImage(".wmf__tcard", v);
       return;
     }
     if (clef === "ancienne") {
@@ -545,13 +634,14 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     }
   };
 
-  //  ── L'IMAGE SUIT L'ADRESSE SANS TOUT REDESSINER ────────────────
+  //  ── UNE IMAGE SUIT SON ADRESSE SANS TOUT REDESSINER ────────────
   //
-  //  Changer l'adresse de l'avatar change une seule chose : le `src`
-  //  de l'image. Redessiner la fiche entière pour ça ferait perdre le
-  //  curseur à chaque caractère tapé dans l'adresse.
-  const majImage = (adresse: string): void => {
-    const colonne = laFiche.querySelector<HTMLElement>(".wmf__avatar");
+  //  Deux images se collent par leur adresse : l'avatar du personnage
+  //  et la trainer card du joueur. Changer l'adresse change une seule
+  //  chose, le `src` ; redessiner la fiche entière pour ça ferait
+  //  perdre le curseur à chaque caractère tapé dans l'adresse.
+  const majImage = (ou: string, adresse: string): void => {
+    const colonne = laFiche.querySelector<HTMLElement>(ou);
     if (colonne === null) return;
     const img = colonne.querySelector("img");
     const propre = adresse.trim();
@@ -571,6 +661,27 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
 
   // ── rendre la fiche, puis la rendre modifiable ───────────────────
 
+  //  ── LA BARRE DE BALISES, AU-DESSUS DE SA ZONE ──────────────────
+  //
+  //  `mousedown` EST ANNULÉ, ET C'EST TOUTE L'ASTUCE. Sans ça, appuyer
+  //  sur le bouton sort le curseur de la zone et efface la sélection
+  //  avant même que le clic arrive : on mettrait les balises autour de
+  //  rien, à un endroit quelconque.
+  const laBarre = (z: HTMLElement): HTMLElement => {
+    const barre = el(doc, "div", "wmf-form__balises");
+    barre.setAttribute("role", "group");
+    barre.setAttribute("aria-label", "Mettre en forme le texte");
+    for (const b of BALISES) {
+      const bouton = el<HTMLButtonElement>(doc, "button", "wmf-form__balise", b.mot);
+      bouton.type = "button";
+      bouton.title = `${b.ouvre}…${b.ferme}`;
+      bouton.addEventListener("mousedown", (e) => e.preventDefault());
+      bouton.addEventListener("click", () => entourer(doc, z, b.ouvre, b.ferme));
+      barre.appendChild(bouton);
+    }
+    return barre;
+  };
+
   const brancher = (z: HTMLElement, clef: string, rang: number, invite: string): void => {
     z.dataset.wmfZone = clef;
     z.dataset.wmfVide = invite;
@@ -583,6 +694,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     if (!modifiable) return;
     z.setAttribute("role", "textbox");
     z.setAttribute("aria-label", invite);
+    if (BALISEES.has(clef)) z.before(laBarre(z));
     z.addEventListener("input", () => {
       //  UNE ZONE VIDÉE GARDE UN `<br>` dans Chrome, et `:empty` ne la
       //  reconnaît plus : l'invite disparaîtrait pour de bon dès la
@@ -742,7 +854,8 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   boite.parentNode?.insertBefore(cadre, boite);
 
   peindre();
-  majImage(vue.avatar);
+  majImage(".wmf__avatar", vue.avatar);
+  majImage(".wmf__tcard", vue.joueur["j-tcard"] ?? "");
 
   //  ── ET LE BLOC D'ÉDITION S'EFFACE ───────────────────────────────
   //

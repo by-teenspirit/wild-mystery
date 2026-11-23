@@ -303,14 +303,54 @@ function bloc(
   valeurs: Readonly<Record<string, string>>,
   ecrire: boolean,
 ): string {
-  //  UN CHAMP VIDE NE S'IMPRIME PAS. « SURNOM : » tout seul dans une
+  //  UN CHAMP VIDE NE S'IMPRIME PAS. « SURNOM » tout seul dans une
   //  fiche publiée n'apprend rien et occupe une ligne ; et le joueur
   //  qui n'a pas de surnom n'a pas à en inventer un.
+  //
+  //  ── UN CHAMP EST UN BLOC, ET L'ÉTIQUETTE EST AU-DESSUS ───────────
+  //
+  //  « Mets sur une seule [colonne], les gens ont tendance à
+  //  développer et à écrire quelques lignes pour chaque info. »
+  //  — 23 novembre.
+  //
+  //  C'est ce qui a décidé la forme. Tant que les valeurs tenaient en
+  //  trois mots, « MÉTIER : ranger » sur une ligne suffisait. À quatre
+  //  lignes de texte, l'étiquette se perd au milieu du paragraphe
+  //  précédent : il faut qu'elle ouvre son champ, pas qu'elle le
+  //  coupe.
+  //
+  //  `data-long` MARQUE CEUX QUI NE SE RANGENT PAS EN GRILLE — l'avis
+  //  sur le forum, les traits de caractère. Le CSS leur donne la
+  //  largeur entière ; sans cette marque, une colonne de grille
+  //  s'étirerait sur la hauteur d'un paragraphe et laisserait un trou
+  //  en face.
   return champs
     .filter((c) => ecrire || (valeurs[c.clef] ?? "").trim() !== "")
-    .map((c) => `<y>${c.etiquette} :</y> ${balise(c.clef, valeurs[c.clef] ?? "", ecrire)}`)
-    .join(" ");
+    .map((c) =>
+      `<div class="wmf__champ"${c.long === true ? ` data-long="oui"` : ""}>` +
+      `<y>${c.etiquette}</y> ${balise(c.clef, valeurs[c.clef] ?? "", ecrire)}` +
+      `</div>`
+    )
+    .join("");
 }
+
+/*  CE QUI SORT DU BLOC « DERRIÈRE L'ÉCRAN », ET POURQUOI.
+
+    Deux champs du joueur ne sont pas du texte : ce sont des adresses
+    d'image, et les laisser en texte afficherait une URL de deux cents
+    caractères au milieu de la fiche.
+
+    L'AVATAR JOUÉ PAR LA PERSONNE monte en tête, dans un encadré sous
+    l'image du personnage — « le mieux, mettre ça sous l'avatar, dans
+    un encadré », 23 novembre. C'est là qu'on le cherche : à côté du
+    visage, pas trente écrans plus bas.
+
+    L'IMAGE DE LA TRAINER CARD est carrée, et elle s'affiche. « C'est
+    une image carrée. Le mieux, c'est de mettre le lien et de
+    l'intégrer dans la fiche pour que ça rende bien. » */
+const JOUEUR_EN_BLOC: readonly Champ[] = JOUEUR.filter(
+  (c) => c.clef !== "j-avatar" && c.clef !== "j-tcard",
+);
 
 /** Comment rendre la fiche. */
 export type Rendu = {
@@ -370,6 +410,15 @@ export function publier(f: Fiche, r: Rendu = {}): string {
     morceaux.push(`<div class="wmf__tw"><x>${b("tw", f.tw)}</x></div>`);
   }
 
+  //  ── LA TÊTE : DEUX COLONNES DE MÊME HAUTEUR ────────────────────
+  //
+  //  « Mets en 2 colonnes l'avatar et les infos à côté, et fais en
+  //  sorte que la 2e colonne soit aussi haute que l'avatar. »
+  //
+  //  La colonne de gauche porte l'image PUIS l'encadré du faceclaim,
+  //  donc elle est plus haute que l'image seule : c'est sur ELLE que
+  //  la droite s'aligne, sinon l'encadré dépasserait tout seul en bas.
+  const fc = f.joueur["j-avatar"] ?? "";
   morceaux.push(`<div class="wmf__haut">`);
   morceaux.push(
     `<div class="wmf__avatar">` +
@@ -377,6 +426,9 @@ export function publier(f: Fiche, r: Rendu = {}): string {
         ? ""
         : `<img src="${ecrire ? echappe(f.avatar.trim()) : f.avatar.trim()}" alt="" />`) +
       b("avatar", f.avatar) +
+      (ecrire || fc.trim() !== ""
+        ? `<div class="wmf__fc"><y>AVATAR JOUÉ PAR</y> ${b("j-avatar", fc)}</div>`
+        : "") +
       `</div>`,
   );
   morceaux.push(`<div class="wmf__infos">${bloc(IDENTITE, f.identite, ecrire)}</div>`);
@@ -388,29 +440,35 @@ export function publier(f: Fiche, r: Rendu = {}): string {
   //  chronologie à un seul moment ressemble à un pavé, et un pavé qui
   //  commence par une date ressemble à une chronologie : deviner
   //  ferait changer de forme une fiche qu'on rouvre.
-  morceaux.push(`<div class="wmf__histoire" data-mode="${f.histoire.mode}">`);
-  morceaux.push(`<div class="wmf__bandeau">RACONTE-NOUS TON HISTOIRE</div>`);
-  if (f.histoire.mode === "pave") {
-    morceaux.push(b("histoire", f.histoire.texte));
-  } else {
-    morceaux.push(`<div class="wmf__chrono">`);
-    //  UNE CHRONOLOGIE VIDE OFFRE QUAND MÊME UN MOMENT À REMPLIR :
-    //  sinon, choisir la chronologie n'afficherait rien du tout, et le
-    //  joueur devrait deviner qu'il y a un bouton à trouver.
-    const moments = ecrire && f.histoire.moments.length === 0
-      ? [{ date: "", texte: "" }]
-      : f.histoire.moments;
-    for (const m of moments) {
-      morceaux.push(
-        `<div class="wmf__moment">` +
+  //  LE CORPS EST UNE SEULE CHAÎNE, et ce n'est pas qu'une question de
+  //  style : il porte `white-space: pre-wrap`, pour que les
+  //  paragraphes tapés par le joueur restent des paragraphes. Un
+  //  retour à la ligne de NOTRE fabrication s'y afficherait comme une
+  //  ligne vide au-dessus de son texte.
+  //
+  //  ET UNE CHRONOLOGIE VIDE OFFRE QUAND MÊME UN MOMENT À REMPLIR :
+  //  sinon, choisir la chronologie n'afficherait rien du tout, et le
+  //  joueur devrait deviner qu'il y a un bouton à trouver.
+  const corps = f.histoire.mode === "pave"
+    ? b("histoire", f.histoire.texte)
+    : `<div class="wmf__chrono">` +
+      (ecrire && f.histoire.moments.length === 0
+        ? [{ date: "", texte: "" } as Moment]
+        : f.histoire.moments)
+        .map((m) =>
+          `<div class="wmf__moment">` +
           `<div class="wmf__moment-date">${b("m-date", m.date)}</div>` +
           `<div class="wmf__moment-texte">${b("m-texte", m.texte)}</div>` +
-          `</div>`,
-      );
-    }
-    morceaux.push(`</div>`);
-  }
-  morceaux.push(`</div>`);
+          `</div>`
+        )
+        .join("") +
+      `</div>`;
+  morceaux.push(
+    `<div class="wmf__histoire" data-mode="${f.histoire.mode}">` +
+      `<div class="wmf__bandeau">RACONTE-NOUS TON HISTOIRE</div>` +
+      `<div class="wmf__histoire-corps">${corps}</div>` +
+      `</div>`,
+  );
 
   if (f.starter !== null || ecrire) {
     const s = f.starter ?? STARTER_VIDE;
@@ -453,10 +511,24 @@ export function publier(f: Fiche, r: Rendu = {}): string {
     morceaux.push(`</div>`);
   }
 
+  //  ── LE PIED REPREND LA GRAMMAIRE DE LA TÊTE ────────────────────
+  //
+  //  « Derrière l'écran, les informations sont pareilles du coup,
+  //  comme tout en haut. » Une image à gauche, les champs à droite,
+  //  même hauteur — mais carrée, parce que la trainer card l'est.
+  const tcard = f.joueur["j-tcard"] ?? "";
   morceaux.push(
     `<div class="wmf__joueur">` +
       `<div class="wmf__bandeau">DERRIÈRE L'ÉCRAN</div>` +
-      bloc(JOUEUR, f.joueur, ecrire) +
+      `<div class="wmf__joueur-haut">` +
+      `<div class="wmf__tcard">` +
+      (tcard.trim() === ""
+        ? ""
+        : `<img src="${ecrire ? echappe(tcard.trim()) : tcard.trim()}" alt="" />`) +
+      b("j-tcard", tcard) +
+      `</div>` +
+      `<div class="wmf__joueur-infos">${bloc(JOUEUR_EN_BLOC, f.joueur, ecrire)}</div>` +
+      `</div>` +
       `</div>`,
   );
   morceaux.push(`</div>`);

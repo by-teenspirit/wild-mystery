@@ -745,7 +745,7 @@ const OUTILS = () => {
   dire(
     "CE QU'ON TAPE S'ÉCRIT DANS LE MESSAGE",
     ecrit.includes("<wmf-nom>Jak A. Fering</wmf-nom>") &&
-      ecrit.includes("MÉTIER :") && ecrit.includes("Ranger"),
+      ecrit.includes("<y>MÉTIER</y>") && ecrit.includes("Ranger"),
     JSON.stringify(ecrit.slice(0, 120)),
   );
   dire(
@@ -773,6 +773,113 @@ const OUTILS = () => {
       surnom: ecrit.includes("<wmf-surnom>"),
       ombre: ecrit.includes('class="wmf__ombre"'),
     }),
+  );
+
+  //  ── LES DEUX IMAGES, ET LÀ OÙ ELLES SONT ALLÉES ───────────────
+  //
+  //  « Le mieux, mettre ça sous l'avatar, dans un encadré » pour le
+  //  faceclaim ; « c'est une image carrée, mettre le lien et
+  //  l'intégrer » pour la trainer card. Les deux ont quitté le bloc
+  //  « derrière l'écran », et le risque de ce remaniement est qu'un
+  //  champ déplacé soit un champ perdu.
+  const images = await q.evaluate(async () => {
+    const f = document.querySelector(".wmf-form__fiche");
+    const place = {
+      fcSousLAvatar: !!f.querySelector('.wmf__avatar .wmf__fc [data-wmf-zone="j-avatar"]'),
+      tcardDansLePied: !!f.querySelector('.wmf__tcard [data-wmf-zone="j-tcard"]'),
+      //  ET NULLE PART AILLEURS : un champ écrit deux fois serait relu
+      //  deux fois, et la seconde écraserait la première.
+      fcEnDouble: f.querySelectorAll('[data-wmf-zone="j-avatar"]').length,
+      tcardEnDouble: f.querySelectorAll('[data-wmf-zone="j-tcard"]').length,
+    };
+    globalThis.wmTaper("j-avatar", "Alex Høgh Andersen");
+    globalThis.wmTaper("j-tcard", "https://exemple.test/carte.png");
+    await globalThis.wmPause(220);
+    return {
+      place,
+      carree: document
+        .querySelector(".wmf-form__fiche .wmf__tcard img")
+        ?.getAttribute("src"),
+      message: globalThis.wmMessage(),
+    };
+  });
+  dire(
+    "LE FACECLAIM EST SOUS L'AVATAR, LA TRAINER CARD DANS LE PIED",
+    images.place.fcSousLAvatar === true && images.place.tcardDansLePied === true,
+    JSON.stringify(images.place),
+  );
+  dire(
+    "   et chacun n'est écrit qu'une fois",
+    images.place.fcEnDouble === 1 && images.place.tcardEnDouble === 1,
+    JSON.stringify({ fc: images.place.fcEnDouble, tcard: images.place.tcardEnDouble }),
+  );
+  dire(
+    "   l'adresse collée devient l'image carrée",
+    images.carree === "https://exemple.test/carte.png" &&
+      images.message.includes(
+        '<div class="wmf__tcard"><img src="https://exemple.test/carte.png"',
+      ),
+    JSON.stringify({ src: images.carree }),
+  );
+
+  //  ── LA BARRE DE BALISES ────────────────────────────────────────
+  //
+  //  « Permettre aussi de modifier l'histoire et la description du
+  //  compagnon d'une vie comme un bloc d'édition pour mettre des
+  //  balises si on en a envie » — et « oui » pour les moments.
+  //
+  //  ON SÉLECTIONNE VRAIMENT, et on clique vraiment : c'est tout
+  //  l'objet. Poser les balises à la main dans la zone prouverait
+  //  seulement que la chaîne se concatène.
+  const balises = await q.evaluate(async () => {
+    const ou = (clef) =>
+      globalThis.wmZone(clef)?.previousElementSibling?.classList
+        .contains("wmf-form__balises") === true;
+    const avant = {
+      histoire: ou("histoire"),
+      rencontre: ou("s-rencontre"),
+      //  ET NULLE PART AILLEURS : trente barres pour trente champs
+      //  seraient trente barres de trop.
+      metier: ou("metier"),
+      nom: ou("nom"),
+      combien: document.querySelectorAll(".wmf-form__balises").length,
+    };
+    //  on écrit, on sélectionne « mardi », on clique sur Gras.
+    globalThis.wmTaper("histoire", "Il est né un mardi.");
+    await globalThis.wmPause(200);
+    const z = globalThis.wmZone("histoire");
+    const noeud = z.firstChild;
+    const texte = noeud.textContent;
+    const debut = texte.indexOf("mardi");
+    const r = document.createRange();
+    r.setStart(noeud, debut);
+    r.setEnd(noeud, debut + 5);
+    const sel = document.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+    [...document.querySelectorAll(".wmf-form__balise")]
+      .find((b) =>
+        b.textContent === "Gras" && b.closest(".wmf-form__balises") === z.previousElementSibling
+      )
+      .click();
+    await globalThis.wmPause(250);
+    return { avant, zone: globalThis.wmTexte("histoire"), message: globalThis.wmMessage() };
+  });
+  dire(
+    "LA BARRE DE BALISES EST SUR LES ZONES DE RÉCIT, ET SUR ELLES SEULES",
+    balises.avant.histoire === true && balises.avant.rencontre === true &&
+      balises.avant.metier === false && balises.avant.nom === false,
+    JSON.stringify(balises.avant),
+  );
+  dire(
+    "   et elle entoure VRAIMENT ce qui est sélectionné",
+    balises.zone === "Il est né un <b>mardi</b>.",
+    JSON.stringify(balises.zone),
+  );
+  dire(
+    "   et ça part dans le message, en balise vivante",
+    balises.message.includes("Il est né un <b>mardi</b>."),
+    "",
   );
 
   //  ── LE CURSEUR NE SAUTE PAS À LA FRAPPE ────────────────────────
@@ -916,6 +1023,45 @@ const OUTILS = () => {
       message: globalThis.wmMessage(),
     };
   });
+  //  ── ET CHAQUE MOMENT A SA BARRE ────────────────────────────────
+  //
+  //  « Oui » — 23 novembre, à la question de savoir si la barre va
+  //  aussi sur les moments. Ils sont redessinés à chaque ajout et à
+  //  chaque retrait, donc la barre doit se reposer avec eux : c'est
+  //  exactement le genre de chose qui marche une fois et plus jamais.
+  const barresDesMoments = await q.evaluate(async () => {
+    const z = globalThis.wmZone("m-texte");
+    const barre = z?.previousElementSibling;
+    const noeud = z.firstChild;
+    const texte = noeud.textContent;
+    const debut = texte.indexOf("départ");
+    const r = document.createRange();
+    r.setStart(noeud, debut);
+    r.setEnd(noeud, debut + 6);
+    const sel = document.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+    [...barre.querySelectorAll(".wmf-form__balise")]
+      .find((b) => b.textContent === "Italique")
+      .click();
+    await globalThis.wmPause(250);
+    return {
+      barres: document.querySelectorAll(".wmf__moment .wmf-form__balises").length,
+      moments: document.querySelectorAll(".wmf-form__fiche .wmf__moment").length,
+      zone: globalThis.wmTexte("m-texte"),
+    };
+  });
+  dire(
+    "   CHAQUE MOMENT A SA BARRE, ET ELLE REVIENT APRÈS UN REDESSIN",
+    barresDesMoments.barres === barresDesMoments.moments && barresDesMoments.barres === 2,
+    JSON.stringify(barresDesMoments),
+  );
+  dire(
+    "   et elle entoure la sélection du bon moment",
+    barresDesMoments.zone === "Le <i>départ</i>.",
+    JSON.stringify(barresDesMoments.zone),
+  );
+
   dire(
     "LA CHRONOLOGIE OFFRE UN MOMENT D'EMBLÉE",
     chrono.dEmblee === 1,

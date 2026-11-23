@@ -211,16 +211,71 @@ Deno.test("SANS AVATAR, PAS D'IMAGE CASSÉE", () => {
 });
 
 Deno.test("UN CHAMP VIDE NE S'IMPRIME PAS", () => {
-  //  « SURNOM : » tout seul dans une fiche publiée n'apprend rien, et
-  //  le joueur qui n'a pas de surnom n'a pas à en inventer un.
+  //  « SURNOM » tout seul dans une fiche publiée n'apprend rien, et le
+  //  joueur qui n'a pas de surnom n'a pas à en inventer un.
   const f: Fiche = {
     ...ficheVide(),
     nom: "X",
     identite: { ...ficheVide().identite, metier: "Ranger" },
   };
   const html = publier(f);
-  assertEquals(html.includes("MÉTIER :"), true);
-  assertEquals(html.includes("SURNOM :"), false);
+  assertEquals(html.includes("<y>MÉTIER</y>"), true);
+  assertEquals(html.includes("<y>SURNOM</y>"), false);
+});
+
+Deno.test("UN CHAMP EST UN BLOC, ÉTIQUETTE AU-DESSUS", () => {
+  //  « Les gens ont tendance à développer et à écrire quelques lignes
+  //  pour chaque info. » Une étiquette au fil du texte se perd dans le
+  //  paragraphe d'avant ; il lui faut son bloc.
+  const html = publier(COMPLETE);
+  assertEquals(html.includes(`<div class="wmf__champ"><y>MÉTIER</y>`), true);
+  //  ET CELLES QUI NE SE RANGENT PAS EN GRILLE SONT MARQUÉES.
+  assertEquals(html.includes(`<div class="wmf__champ" data-long="oui"><y>TRAITS`), true);
+  assertEquals(html.includes(`data-long="oui"><y>AVIS SUR LE FORUM`), true);
+});
+
+Deno.test("LE FACECLAIM MONTE SOUS L'AVATAR, ET N'EST PLUS EN BAS", () => {
+  //  « Le mieux, mettre ça sous l'avatar, dans un encadré. » Il doit
+  //  donc sortir du bloc « Derrière l'écran » — sinon il s'écrirait
+  //  deux fois, et `lireUneFiche` relirait le second.
+  const html = publier(COMPLETE);
+  const haut = html.slice(0, html.indexOf(`class="wmf__histoire"`));
+  assertEquals(haut.includes(`<div class="wmf__fc">`), true);
+  assertEquals(haut.includes("<wmf-j-avatar>"), true);
+  //  UNE SEULE FOIS DANS TOUTE LA FICHE.
+  assertEquals(html.split("<wmf-j-avatar>").length - 1, 1);
+});
+
+Deno.test("LA TRAINER CARD EST UNE IMAGE, PAS UNE ADRESSE EN TOUTES LETTRES", () => {
+  //  « C'est une image carrée. Le mieux, c'est de mettre le lien et de
+  //  l'intégrer dans la fiche pour que ça rende bien. »
+  const f: Fiche = {
+    ...COMPLETE,
+    joueur: { ...COMPLETE.joueur, "j-tcard": "https://exemple.test/carte.png" },
+  };
+  const html = publier(f);
+  assertEquals(
+    html.includes(`<div class="wmf__tcard"><img src="https://exemple.test/carte.png"`),
+    true,
+  );
+  assertEquals(html.split("<wmf-j-tcard>").length - 1, 1);
+  //  SANS ADRESSE, PAS D'IMAGE CASSÉE — comme pour l'avatar.
+  const sans: Fiche = { ...COMPLETE, joueur: { ...COMPLETE.joueur, "j-tcard": "" } };
+  assertEquals(publier(sans).includes(`<div class="wmf__tcard"><img`), false);
+});
+
+Deno.test("LES DEUX IMAGES SE RELISENT, OÙ QU'ELLES SOIENT PASSÉES", () => {
+  //  Déplacer un champ dans la mise en page ne doit pas le perdre à la
+  //  relecture : c'est le seul risque de ce remaniement.
+  const f: Fiche = {
+    ...COMPLETE,
+    joueur: {
+      ...COMPLETE.joueur,
+      "j-avatar": "Alex Høgh Andersen",
+      "j-tcard": "https://exemple.test/carte.png",
+    },
+  };
+  assertEquals(lireUneFiche(publier(f)), f);
 });
 
 Deno.test("LES ÉTIQUETTES SONT CELLES DE L'ANCIENNE FICHE", () => {
