@@ -1997,6 +1997,73 @@ EVO
   fi
 fi
 
+echo "── 40. les starters sont vraiment choisissables ───────────────"
+
+# `data/starters.json` est DÉRIVÉ par `outils/starters.py` de quatre
+# fichiers du dépôt. Contrairement à la règle 39, **sa source est ici**
+# — aucun réseau — donc on peut le refabriquer et comparer, comme les
+# autres dérivés du dépôt.
+#
+# ET ON VÉRIFIE AUSSI LA RÈGLE, pas seulement l'accord : un fichier
+# d'accord avec un générateur devenu faux reste faux. Un starter de
+# stade 2 ou un fossile dans la liste ne se verrait qu'au moment où un
+# joueur le choisit — et il serait alors déjà dans sa fiche publiée.
+if [ -f data/starters.json ]; then
+  casse=$(python3 outils/starters.py --verifier 2>&1 | grep -v "d'accord avec ses sources" || true)
+  regle=$(python3 - <<'STA'
+import json
+
+fiches = json.load(open("data/especes-fiches.json", encoding="utf-8"))["fiches"]
+fossiles = {
+    e["id"]
+    for e in json.load(open("data/hors-nature.json", encoding="utf-8"))["especes"]
+    if e["origine"] == "fossile"
+}
+st = json.load(open("data/starters.json", encoding="utf-8"))
+fautes = []
+vus = set()
+for e in st["especes"]:
+    fiche = fiches.get(str(e["id"]))
+    if fiche is None:
+        fautes.append(f"starters : {e['nom']} ({e['id']}) n'est pas dans especes-fiches.json")
+        continue
+    #  LA RÈGLE DU 23 NOVEMBRE : stade 1, pas d'évolution.
+    if fiche["stade"] != 1:
+        fautes.append(f"starters : {e['nom']} est de stade {fiche['stade']}, ce n'est pas une base")
+    #  LES FOSSILES NE SORTENT QUE DU LABORATOIRE.
+    if e["id"] in fossiles:
+        fautes.append(f"starters : {e['nom']} est un fossile, il ne s'obtient qu'au laboratoire")
+    if e["id"] in vus:
+        fautes.append(f"starters : {e['nom']} apparaît deux fois")
+    vus.add(e["id"])
+    #  « Il peut choisir le talent » : sans talent, le menu est vide et
+    #  le joueur ne peut pas remplir sa fiche.
+    if not e.get("talents"):
+        fautes.append(f"starters : {e['nom']} n'a aucun talent à proposer")
+    #  NI NIVEAU NI ATTAQUES : « les niveaux ne sont pas choisis par
+    #  les joueurs ». Une clé qui réapparaîtrait ici les remettrait
+    #  dans le formulaire sans que personne le décide.
+    for interdite in ("niveau", "attaques", "level"):
+        if interdite in e:
+            fautes.append(f"starters : {e['nom']} porte « {interdite} », que le joueur ne choisit pas")
+
+for f in fautes[:12]:
+    print("   " + f)
+if len(fautes) > 12:
+    print(f"   … et {len(fautes) - 12} autre(s)")
+STA
+)
+  if [ -n "$casse$regle" ]; then
+    [ -n "$casse" ] && echo "   $casse"
+    [ -n "$regle" ] && echo "$regle"
+    echo "   ↳ refabriquez : python3 outils/starters.py"
+    fautes=$((fautes + 1))
+  else
+    combien=$(python3 -c "import json;print(len(json.load(open('data/starters.json'))['especes']))")
+    echo "   $combien espèces de base, sans fossile, chacune avec ses talents"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

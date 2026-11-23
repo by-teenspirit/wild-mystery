@@ -27,6 +27,7 @@ import { StockageLocal } from "../src/adaptateurs/navigateur/stockage.ts";
 import { CoinOutils } from "../src/adaptateurs/navigateur/coin-outils.ts";
 import { masquerLesMarqueurs } from "../src/adaptateurs/navigateur/marqueurs.ts";
 import { BrouillonForumactif } from "../src/adaptateurs/navigateur/editeur.ts";
+import { lireLesStarters, poserLaFiche } from "../src/adaptateurs/navigateur/module-fiche.ts";
 import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts";
 import { monCombat } from "../src/adaptateurs/navigateur/mon-combat.ts";
 import { combatDuSujet } from "../src/adaptateurs/navigateur/combat-du-sujet.ts";
@@ -498,6 +499,53 @@ async function reveiller(): Promise<void> {
   await reveillerLaReleve({ doc: document, acces: config });
 }
 
+/*  LE FORUM DES PRÉSENTATIONS. Voir le commentaire de
+    `poserLeFormulaireDeFiche`. */
+const FORUM_DES_PRESENTATIONS = 7;
+
+/** Le formulaire de la fiche, sur la page de réponse des
+ *  Présentations.
+ *
+ *  ── POURQUOI UN NUMÉRO DE FORUM EN DUR ────────────────────────────
+ *
+ *  `7`, relevé dans l'adresse qu'elle a donnée :
+ *  `/f7-presentations`. Il n'y a pas de fichier de données qui nomme
+ *  les forums de service — `forums.json` ne porte que les forums de RP
+ *  hors carte — et en créer un pour une valeur serait un fichier de
+ *  plus à tenir d'accord. Si le forum change de numéro, c'est ici, en
+ *  une ligne.
+ *
+ *  ── ET POURQUOI ON NE REGARDE PAS LE MODE ─────────────────────────
+ *
+ *  `mode=newtopic` ou `mode=editpost`, le formulaire se pose pareil :
+ *  c'est le CONTENU de l'éditeur qui décide ce qu'il fait, pas
+ *  l'adresse. Une fiche qu'il reconnaît, il la relit ; un message
+ *  qu'il ne reconnaît pas, il n'y touche pas. Distinguer les deux
+ *  modes ajouterait une règle sans rien protéger de plus — et
+ *  laisserait dehors le cas où quelqu'un rouvre son brouillon par un
+ *  chemin qu'on n'avait pas prévu.
+ */
+function poserLeFormulaireDeFiche(): void {
+  if (RACINE === null) return;
+  if (forumDeLaPage(document) !== FORUM_DES_PRESENTATIONS) return;
+  const brouillon = BrouillonForumactif.surLaPage(document);
+  if (brouillon === null) return;
+  poserLaFiche({
+    doc: document,
+    brouillon,
+    starters: async () => {
+      //  `RACINE` FINIT DÉJÀ PAR `data/` — c'est ce que
+      //  `racineDesDonnees` rend, et tous les autres appels de ce
+      //  fichier l'écrivent ainsi. Un `data/` de plus donnait
+      //  `…/data/data/starters.json`, un 404, et un menu vide dont
+      //  personne n'aurait su dire pourquoi.
+      const r = await fetch(`${RACINE}starters.json`, { credentials: "omit" });
+      if (!r.ok) throw new Error(String(r.status));
+      return lireLesStarters(await r.json());
+    },
+  });
+}
+
 async function poserLeRecapitulatif(): Promise<void> {
   if (RACINE === null) return;
 
@@ -804,6 +852,16 @@ desQueLeCorpsEstLa(() => {
   //  La barre attend deux fichiers : elle arrive donc après le reste, et
   //  c'est voulu. Une panne de réseau ne doit priver que d'elle — d'où le
   //  `catch` qui ne fait rien de plus que l'empêcher de remonter.
+  //  LE FORMULAIRE DE LA FICHE est synchrone et ne demande rien : il
+  //  se pose, et c'est lui qui va chercher la liste des espèces une
+  //  fois en place. Il ne fait rien du tout hors de la page de
+  //  réponse des Présentations.
+  try {
+    poserLeFormulaireDeFiche();
+  } catch {
+    //  Le formulaire ne s'est pas posé : la page de réponse reste
+    //  celle du forum, entière. On ne prive personne d'écrire.
+  }
   poserLaBarre().catch(() => {});
   poserLeModule().catch(() => {});
   poserLeRecapitulatif().catch(() => {});

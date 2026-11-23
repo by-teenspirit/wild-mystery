@@ -34,20 +34,7 @@
 
 import { readFileSync } from "node:fs";
 import { chromium } from "npm:playwright@1.56.0";
-
-//  LE MÊME CHROMIUM QUE LES AUTRES HARNAIS, et la même façon de le
-//  trouver : le garde-fou n° 20 vérifie qu'il n'y en a qu'un.
-const CHROME = [
-  "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
-  "/opt/pw-browsers/chromium/chrome-linux64/chrome",
-].find((c) => {
-  try {
-    readFileSync(c);
-    return true;
-  } catch {
-    return false;
-  }
-});
+import { ouvrirChromium } from "./chromium.mjs";
 
 const R = new URL("..", import.meta.url).pathname;
 
@@ -204,7 +191,25 @@ const page = (corps) =>
 
 // ── le navigateur ───────────────────────────────────────────────────
 
-const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
+//  ── UN HARNAIS QUI NE DÉMARRE PAS DOIT ÉCHOUER ───────────────────
+//
+//  Troisième fois le 23 novembre : la liste de chemins figée ne
+//  trouvait pas le Chromium de la machine, le lancement cassait dans
+//  une promesse de haut niveau, **et Deno sortait en code 0**. Le CI
+//  lisait « réussi » sur un harnais qui n'avait pas ouvert une page.
+globalThis.addEventListener("unhandledrejection", (e) => {
+  e.preventDefault();
+  console.error("\nLE HARNAIS A CASSÉ EN COURS DE ROUTE :\n" + String(e.reason));
+  Deno.exit(1);
+});
+
+let nav;
+try {
+  nav = await ouvrirChromium(chromium);
+} catch (e) {
+  console.error(String(e instanceof Error ? e.message : e));
+  Deno.exit(1);
+}
 const soucis = [];
 
 function dire(nom, ok, detail = "") {
@@ -487,6 +492,417 @@ dire(
 );
 
 await p.close();
+//  ══════════════════════════════════════════════════════════════════
+//  LE FORMULAIRE DE LA FICHE DE PRÉSENTATION — 23 novembre
+//
+//  « Normalement, quand on crée un sujet [dans Présentations] ça
+//  remplit un formulaire HTML. Et d'ailleurs quand on édite son
+//  message, ce serait super que ça reste comme ça. »
+//
+//  CE HARNAIS MONTE NOTRE JAVASCRIPT, contrairement au reste du
+//  fichier qui ne mesure que la feuille de style. C'est nécessaire :
+//  le formulaire n'existe pas dans le gabarit, il est posé par le
+//  script, et une page sans script ne montrerait rien à mesurer.
+//
+//  SANS SCEDITOR, ET C'EST LE BON CAS À MESURER. `BrouillonForumactif`
+//  a deux chemins — l'instance sceditor et le champ brut — et le
+//  second est celui de la réponse rapide, donc un chemin réel. C'est
+//  aussi le seul qu'on puisse monter ici sans servir le greffon entier
+//  de Forumactif. La dette est dite : le chemin sceditor n'est mesuré
+//  par rien.
+//  ══════════════════════════════════════════════════════════════════
+
+const STARTERS = {
+  especes: [
+    {
+      id: 172,
+      nom: "Pichu",
+      types: ["electrik"],
+      talents: [{ nom: "Statik" }, { nom: "Paratonnerre", cache: true }],
+    },
+    { id: 133, nom: "Évoli", types: ["normal"], talents: [{ nom: "Échauffement" }] },
+    { id: 1, nom: "Bulbizarre", types: ["plante", "poison"], talents: [{ nom: "Engrais" }] },
+  ],
+};
+
+//  LE FIL D'ARIANE DIT LE FORUM, et c'est par lui que le script sait
+//  qu'il est dans les Présentations — `forumDeLaPage` lit le dernier
+//  maillon en `/fN-`.
+//  `.sub-header-path` EST LE VRAI NOM, relevé dans `catalogue.ts` :
+//  c'est l'une des deux classes que `forumDeLaPage` interroge. Un
+//  décor qui en invente une autre mesure une page que le forum ne
+//  sert pas — et le formulaire ne se poserait jamais, sans qu'on
+//  sache pourquoi.
+const ARIANE_PRESENTATIONS =
+  '<div class="sub-header-path"><a href="/">Index</a> <a href="/c1-categorie">Le forum</a> ' +
+  '<a href="/f7-presentations">Présentations</a></div>';
+
+const pageAvecScript = (corps, message = "") =>
+  `<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<style>${BASE_MODERNBB}</style>
+<style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
+<style>${readFileSync(R + "css/wild-mystery.css", "utf8")}</style>
+<style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
+</head><body id="modernbb">
+<div class="conteneur_minwidth_IE modern-resp">
+<div id="wrap">${ARIANE_PRESENTATIONS}<div id="page-body">${
+    corps.replace("Le corps du message.", message)
+  }</div></div>
+</div>
+</body></html>`;
+
+async function monterLaFiche(message = "") {
+  const q = await nav.newPage({ viewport: { width: 1440, height: 1200 } });
+  q.on("pageerror", (e) => {
+    soucis.push("erreur JS (fiche) : " + e.message);
+    console.log("  ERREUR JS :", e.message);
+  });
+  await q.route("**/*", (route) => {
+    const u = new URL(route.request().url());
+    if (u.pathname.endsWith("/starters.json")) {
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(STARTERS),
+      });
+    }
+    if (u.pathname === "/js/wild-mystery.js") {
+      return route.fulfill({
+        contentType: "text/javascript; charset=utf-8",
+        body: readFileSync(R + "js/wild-mystery.js", "utf8"),
+      });
+    }
+    //  TOUT LE RESTE EST SERVI VIDE : le paquet va chercher d'autres
+    //  fichiers pour d'autres modules, et aucun ne concerne la fiche.
+    if (u.pathname.startsWith("/data/")) {
+      return route.fulfill({ contentType: "application/json", body: "{}" });
+    }
+    if (u.pathname !== "/post") return route.fulfill({ status: 404, body: "" });
+    return route.fulfill({
+      contentType: "text/html; charset=utf-8",
+      body: pageAvecScript(pageDePost(), message),
+    });
+  });
+  await q.goto("https://exemple.test/post");
+  await q.evaluate(() => {
+    const s = document.createElement("script");
+    s.src = "/js/wild-mystery.js";
+    document.body.appendChild(s);
+  });
+  await q.waitForTimeout(900);
+  return q;
+}
+
+console.log("\n── le formulaire de la fiche ──");
+
+{
+  const q = await monterLaFiche("");
+
+  const pose = await q.evaluate(() => {
+    const f = document.getElementById("wm-fiche");
+    if (f === null) return { pose: false };
+    const boite = document.getElementById("postingbox");
+    return {
+      pose: true,
+      //  AU-DESSUS DE L'ÉDITEUR : on remplit la fiche, puis on relit
+      //  le message qu'elle a écrit, puis on envoie. Dans l'autre
+      //  ordre, le formulaire serait hors de l'écran au moment où on
+      //  en a besoin.
+      avantLEditeur: !!(f.compareDocumentPosition(boite) & Node.DOCUMENT_POSITION_FOLLOWING),
+      sections: [...f.querySelectorAll(".h3")].map((h) => h.textContent),
+      champs: f.querySelectorAll("input[type=text], textarea, select").length,
+      tableaux: f.querySelectorAll("table").length,
+    };
+  });
+  dire(
+    "LE FORMULAIRE EST POSÉ, AU-DESSUS DE L'ÉDITEUR",
+    pose.pose === true && pose.avantLEditeur === true,
+    JSON.stringify({ pose: pose.pose, avant: pose.avantLEditeur }),
+  );
+  dire(
+    "   et il porte les cinq sections qu'elle a décrites",
+    JSON.stringify(pose.sections) === JSON.stringify([
+      "Ta fiche de présentation",
+      "Le personnage",
+      "Son histoire",
+      "Son premier Pokémon",
+      "Le Groupe Ombre",
+      "Derrière l'écran",
+    ]),
+    JSON.stringify(pose.sections),
+  );
+  //  « Je veux pas de tableau, que du flexbox. »
+  dire("   et aucun tableau", pose.tableaux === 0, String(pose.tableaux));
+
+  //  ── CE QU'ON TAPE PART DANS L'ÉDITEUR ──────────────────────────
+  const ecrit = await q.evaluate(async () => {
+    const poser = (id, v) => {
+      const e = document.getElementById(id);
+      e.value = v;
+      e.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    poser("wmf-nom", "Jak A. Fering");
+    poser("wmf-metier", "Ranger");
+    poser("wmf-histoire", "Il est né un <b>mardi</b>.");
+    await new Promise((r) => setTimeout(r, 200));
+    return document.querySelector("#text_editor_textarea").value;
+  });
+  dire(
+    "CE QU'ON TAPE S'ÉCRIT DANS LE MESSAGE",
+    ecrit.includes("<wmf-nom>Jak A. Fering</wmf-nom>") &&
+      ecrit.includes("MÉTIER :") && ecrit.includes("Ranger"),
+    JSON.stringify(ecrit.slice(0, 120)),
+  );
+  dire(
+    "   et les balises du joueur traversent",
+    ecrit.includes("Il est né un <b>mardi</b>."),
+    "",
+  );
+  //  « Le nom du personnage en haut, en titre, collé à gauche. »
+  dire(
+    "   le nom est en titre, et rien n'est centré",
+    ecrit.includes('<div class="wmf__titre">') && !/<center>/i.test(ecrit),
+    "",
+  );
+
+  //  ── LA LISTE DES ESPÈCES ARRIVE, ET LES TALENTS SUIVENT ────────
+  const starter = await q.evaluate(async () => {
+    const menu = document.getElementById("wmf-espece");
+    const options = [...menu.options].map((o) => o.textContent);
+    menu.value = "172";
+    menu.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 150));
+    return {
+      options,
+      talents: [...document.getElementById("wmf-talent").options].map((o) => o.textContent),
+      message: document.querySelector("#text_editor_textarea").value,
+    };
+  });
+  dire(
+    "LES ESPÈCES SONT DANS LE MENU",
+    starter.options.includes("Pichu") && starter.options.includes("Évoli"),
+    JSON.stringify(starter.options),
+  );
+  //  « Il peut choisir le talent » — et le talent caché est dit, pas
+  //  retiré : c'est au staff de trancher.
+  dire(
+    "   les talents suivent l'espèce, et le talent caché est marqué",
+    JSON.stringify(starter.talents) ===
+      JSON.stringify(["Statik", "Paratonnerre (talent caché)"]),
+    JSON.stringify(starter.talents),
+  );
+  dire(
+    "   et l'espèce choisie entre dans le message, avec son numéro",
+    starter.message.includes("<wmf-s-id>172</wmf-s-id>") &&
+      starter.message.includes("Pichu"),
+    "",
+  );
+  //  « Les niveaux ne sont pas choisis par les joueurs. »
+  dire(
+    "   LE NIVEAU N'EST DEMANDÉ NULLE PART",
+    !/niveau/i.test(starter.message),
+    "",
+  );
+
+  //  ── LA CHRONOLOGIE ─────────────────────────────────────────────
+  const chrono = await q.evaluate(async () => {
+    const radio = [...document.querySelectorAll('input[name="wmf-forme"]')]
+      .find((r) => r.value === "chronologie");
+    radio.checked = true;
+    radio.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 120));
+    document.querySelector(".wmf-form__plus").click();
+    await new Promise((r) => setTimeout(r, 120));
+    const bloc = document.querySelector(".wmf-form__moment");
+    const date = bloc.querySelector("input");
+    const texte = bloc.querySelector("textarea");
+    date.value = "2015";
+    date.dispatchEvent(new Event("input", { bubbles: true }));
+    texte.value = "Le départ.";
+    texte.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 150));
+    return {
+      moments: document.querySelectorAll(".wmf-form__moment").length,
+      message: document.querySelector("#text_editor_textarea").value,
+    };
+  });
+  dire(
+    "LA CHRONOLOGIE S'AJOUTE, ET ELLE ENTRE DANS LE MESSAGE",
+    chrono.moments === 1 &&
+      chrono.message.includes('data-mode="chronologie"') &&
+      chrono.message.includes("<wmf-m-date>2015</wmf-m-date>") &&
+      chrono.message.includes("<wmf-m-texte>Le départ.</wmf-m-texte>"),
+    JSON.stringify({ moments: chrono.moments }),
+  );
+  //  CHANGER DE FORME NE PERD PAS LE PAVÉ tant qu'on n'a pas quitté la
+  //  page : on peut se raviser.
+  const retour = await q.evaluate(async () => {
+    const radio = [...document.querySelectorAll('input[name="wmf-forme"]')]
+      .find((r) => r.value === "pave");
+    radio.checked = true;
+    radio.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 150));
+    return document.getElementById("wmf-histoire").value;
+  });
+  dire(
+    "   et se raviser ne perd pas le pavé qu'on avait écrit",
+    retour === "Il est né un <b>mardi</b>.",
+    JSON.stringify(retour),
+  );
+
+  //  ── LA CROIX RETIRE UN MOMENT ──────────────────────────────────
+  const oté = await q.evaluate(async () => {
+    const radio = [...document.querySelectorAll('input[name="wmf-forme"]')]
+      .find((r) => r.value === "chronologie");
+    radio.checked = true;
+    radio.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 150));
+    document.querySelector(".wmf-form__croix").click();
+    await new Promise((r) => setTimeout(r, 150));
+    return document.querySelectorAll(".wmf-form__moment").length;
+  });
+  dire("   et la croix retire le moment", oté === 0, String(oté));
+
+  //  ── LE GROUPE OMBRE ────────────────────────────────────────────
+  const ombre = await q.evaluate(async () => {
+    const avant = document.querySelector(".wmf-form__ombre").hidden;
+    const case_ = document.getElementById("wmf-ombre");
+    case_.checked = true;
+    case_.dispatchEvent(new Event("change", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 150));
+    return {
+      avant,
+      apres: document.querySelector(".wmf-form__ombre").hidden,
+      message: document.querySelector("#text_editor_textarea").value,
+    };
+  });
+  dire(
+    "LE GROUPE OMBRE EST UNE OPTION : caché par défaut, montré sur la case",
+    ombre.avant === true && ombre.apres === false &&
+      ombre.message.includes('class="wmf__ombre"'),
+    JSON.stringify({ avant: ombre.avant, apres: ombre.apres }),
+  );
+  await q.close();
+}
+
+{
+  //  ── CE QU'IL NE FAUT SURTOUT PAS ÉCRASER ───────────────────────
+  //
+  //  Une fiche de la V1, ou n'importe quel message écrit à la main.
+  //  Le formulaire réécrit le message ENTIER : s'il le faisait ici,
+  //  il effacerait le travail de quelqu'un sans le lui demander.
+  const q = await monterLaFiche(
+    '<center><div class="bk1"><div class="bkt2">Prénom P. Nom</div>son ancienne fiche</div></center>',
+  );
+  const vu = await q.evaluate(async () => {
+    const champ = document.querySelector("#text_editor_textarea");
+    const avant = champ.value;
+    const nom = document.getElementById("wmf-nom");
+    nom.value = "Quelqu'un";
+    nom.dispatchEvent(new Event("input", { bubbles: true }));
+    await new Promise((r) => setTimeout(r, 200));
+    return {
+      intact: champ.value === avant,
+      dit: document.querySelector(".wmf-form__dit").textContent,
+      boutonVisible: !document.querySelector(".wmf-form__reprendre").hidden,
+    };
+  });
+  dire(
+    "UNE FICHE DE LA V1 N'EST PAS ÉCRASÉE — on tape, le message ne bouge pas",
+    vu.intact === true,
+    JSON.stringify(vu.dit?.slice(0, 60)),
+  );
+  dire(
+    "   et le formulaire le dit, avec un bouton pour reprendre la main",
+    /n'a pas été écrit avec ce formulaire/.test(vu.dit ?? "") && vu.boutonVisible === true,
+    JSON.stringify({ bouton: vu.boutonVisible }),
+  );
+  //  LE SEUL CHEMIN QUI ÉCRASE EST UN CLIC EXPLICITE.
+  const apres = await q.evaluate(async () => {
+    document.querySelector(".wmf-form__reprendre").click();
+    await new Promise((r) => setTimeout(r, 200));
+    return document.querySelector("#text_editor_textarea").value;
+  });
+  dire(
+    "   et il ne remplace QUE sur un clic nommé",
+    apres.includes("<wmf-nom>Quelqu'un</wmf-nom>") && !apres.includes("ancienne fiche"),
+    JSON.stringify(apres.slice(0, 80)),
+  );
+  await q.close();
+}
+
+{
+  //  ── ROUVRIR SA FICHE LA RETROUVE ───────────────────────────────
+  //
+  //  « Quand on édite son message, ce serait super que ça reste comme
+  //  ça. » C'est la demande, mesurée de bout en bout : une fiche
+  //  publiée est remise dans l'éditeur, et le formulaire doit la
+  //  présenter remplie.
+  const { publier } = await import("../src/navigateur/fiche.ts");
+  const { ficheVide } = await import("../src/navigateur/fiche.ts");
+  const deja = publier({
+    ...ficheVide(),
+    nom: "Erin Kavanagh",
+    identite: { ...ficheVide().identite, metier: "Infirmière", surnom: "Rin" },
+    histoire: { mode: "chronologie", moments: [{ date: "2012", texte: "L'incendie." }] },
+    starter: {
+      especeId: 133,
+      espece: "Évoli",
+      surnom: "Noisette",
+      talent: "Échauffement",
+      rencontre: "Dans une grange.",
+    },
+    joueur: { ...ficheVide().joueur, "j-pseudo": "Callista" },
+  });
+  const q = await monterLaFiche(deja);
+  const relu = await q.evaluate(() => ({
+    nom: document.getElementById("wmf-nom").value,
+    metier: document.getElementById("wmf-metier").value,
+    surnom: document.getElementById("wmf-surnom").value,
+    pseudo: document.getElementById("wmf-j-pseudo").value,
+    forme: [...document.querySelectorAll('input[name="wmf-forme"]')]
+      .find((r) => r.checked)?.value,
+    moments: [...document.querySelectorAll(".wmf-form__moment")].map((m) => [
+      m.querySelector("input").value,
+      m.querySelector("textarea").value,
+    ]),
+    rencontre: document.getElementById("wmf-s-rencontre").value,
+    surnomDuPoke: document.getElementById("wmf-s-surnom").value,
+    dit: document.querySelector(".wmf-form__dit").textContent,
+  }));
+  dire(
+    "ROUVRIR SA FICHE LA RETROUVE REMPLIE",
+    relu.nom === "Erin Kavanagh" && relu.metier === "Infirmière" &&
+      relu.surnom === "Rin" && relu.pseudo === "Callista",
+    JSON.stringify(relu),
+  );
+  dire(
+    "   la chronologie revient en chronologie, avec ses moments",
+    relu.forme === "chronologie" &&
+      JSON.stringify(relu.moments) === JSON.stringify([["2012", "L'incendie."]]),
+    JSON.stringify({ forme: relu.forme, moments: relu.moments }),
+  );
+  dire(
+    "   et le starter revient aussi",
+    relu.surnomDuPoke === "Noisette" && relu.rencontre === "Dans une grange.",
+    JSON.stringify({ surnom: relu.surnomDuPoke }),
+  );
+  //  ET SA PROPRE FICHE N'EST PAS « UN MESSAGE QU'ON NE RECONNAÎT PAS ».
+  dire(
+    "   et rien ne l'avertit : c'est bien SA fiche",
+    (relu.dit ?? "") === "",
+    JSON.stringify(relu.dit),
+  );
+  //  LE TALENT REVIENT APRÈS LE CATALOGUE, et c'est un piège réel : le
+  //  menu est vide à la pose, rempli une requête plus tard.
+  const talent = await q.evaluate(() => document.getElementById("wmf-talent").value);
+  dire(
+    "   et le talent revient, bien que son menu soit arrivé après",
+    talent === "Échauffement",
+    JSON.stringify(talent),
+  );
+  await q.close();
+}
+
 await nav.close();
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));

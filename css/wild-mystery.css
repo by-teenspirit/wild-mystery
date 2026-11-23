@@ -37,6 +37,7 @@
      · css/29-recherche.css
      · css/30-messagerie.css
      · css/31-qui-est-en-ligne.css
+     · css/32-la-fiche-de-presentation.css
    ════════════════════════════════════════════════════════════════════ */
 
 /* ════════════════════════════════════════════════════════════════════
@@ -38478,6 +38479,408 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   #modernbb table.table1:has(th.active) tbody td {
     padding-right: var(--wm-espace-10, 10px);
     padding-left: var(--wm-espace-10, 10px);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   32 · LA FICHE DE PRÉSENTATION
+
+   « Visuellement, on doit avoir le nom du personnage en haut, en
+   titre, collé à gauche. En dessous, 2 colonnes : une pour l'avatar
+   […], à droite, les informations du personnage. » — 23 novembre.
+
+   ── DEUX CHOSES DANS UNE SEULE FEUILLE, ET C'EST VOULU ────────────
+
+   Le FORMULAIRE, posé sur la page de réponse, et la FICHE PUBLIÉE,
+   qui vit dans un message. Ce sont deux endroits du forum, mais c'est
+   un seul sujet : un champ ajouté au formulaire doit s'habiller dans
+   la fiche, et deux feuilles finiraient par ne plus dire la même
+   chose.
+
+   C'est le raisonnement de la feuille 26 — « ce qu'elle décrit n'est
+   pas une page, c'est une forme ».
+
+   ── LE PÉRIMÈTRE EST NOMMÉ, COMME EN 26 ───────────────────────────
+
+   `/post` porte l'éditeur de message, et il ne se touche pas sans
+   qu'on le demande. Tout ici est donc sous `#wm-fiche` ou `.wmf` —
+   jamais sous `.panel` ou `fieldset` tout court, qui prendraient le
+   formulaire entier de Forumactif avec.
+   ════════════════════════════════════════════════════════════════ */
+
+/*  ── LE FORMULAIRE ───────────────────────────────────────────────── */
+
+#modernbb #wm-fiche {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-12, 12px);
+  margin-bottom: var(--wm-espace-16, 16px);
+}
+
+#modernbb #wm-fiche .h3 {
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-section, 19px);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wmf-form__mot,
+#modernbb .wmf-form__note {
+  margin: var(--wm-espace-6, 6px) 0 0;
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  CE QUE LE FORMULAIRE A À DIRE, et il n'a à le dire que quand il a
+    quelque chose : un bandeau d'état toujours présent apprend à ne
+    plus le lire. */
+#modernbb .wmf-form__dit:empty {
+  display: none;
+}
+
+#modernbb .wmf-form__dit {
+  margin: var(--wm-espace-8, 8px) 0 0;
+  padding: var(--wm-espace-8, 8px) var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  color: var(--wm-texte-corps, #4e3b30);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LE FORMULAIRE ARRÊTÉ SE VOIT. Il ne suffit pas de l'écrire : on
+    revient à la page après avoir fait autre chose, et la phrase a
+    défilé hors de l'écran. La teinte reste. */
+#modernbb #wm-fiche[data-wm-arrete="oui"] .wmf-form__dit {
+  background: color-mix(in srgb, var(--wm-palier-2, #a05e18) 12%, transparent);
+}
+
+/*  ── UNE LIGNE DE FORMULAIRE ───────────────────────────────────────
+
+    `<dl>` en flex, comme le relevé du 10 novembre le dit : « display:
+    flex sur le dl suffit à les mettre côte à côte et à les empiler
+    quand la place manque ». Aucun tableau à démonter, et aucun à
+    écrire. */
+#modernbb .wmf-form__champs dl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-12, 12px);
+  margin: 0 0 var(--wm-espace-12, 12px);
+}
+
+#modernbb .wmf-form__champs dt {
+  flex: 0 0 180px;
+  padding-top: var(--wm-espace-6, 6px);
+}
+
+#modernbb .wmf-form__champs dt label {
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+/*  L'AIDE EST SOUS L'ÉTIQUETTE, pas en texte de remplacement dans le
+    champ : un `placeholder` disparaît dès qu'on tape, c'est-à-dire
+    exactement au moment où on en aurait besoin. */
+#modernbb .wmf-form__aide {
+  display: block;
+  margin-top: var(--wm-espace-2, 2px);
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-normale, 400);
+  letter-spacing: normal;
+  line-height: var(--wm-interligne-etiquette, 1.3);
+  text-transform: none;
+}
+
+#modernbb .wmf-form__champs dd {
+  flex: 1 1 320px;
+  /*  SANS LUI, UN CHAMP LONG POUSSE LA LIGNE : un enfant de flex ne
+      descend pas sous la largeur de son contenu tant qu'on ne le lui
+      dit pas. */
+  min-width: 0;
+  margin: 0;
+}
+
+#modernbb .wmf-form__champs dd .inputbox {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+#modernbb .wmf-form__champs dd textarea.inputbox {
+  min-height: 60px;
+  resize: vertical;
+}
+
+#modernbb .wmf-form__pave {
+  min-height: 220px;
+}
+
+/*  LES DEUX FORMES DE L'HISTOIRE, côte à côte et lisibles sans
+    cliquer. */
+#modernbb .wmf-form__formes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wmf-form__forme {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wm-espace-6, 6px);
+  cursor: pointer;
+}
+
+#modernbb .wmf-form__histoire {
+  margin-top: var(--wm-espace-4, 4px);
+}
+
+/*  ── UN MOMENT DE LA CHRONOLOGIE ───────────────────────────────── */
+
+#modernbb .wmf-form__chrono {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-10, 10px);
+}
+
+#modernbb .wmf-form__moment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-10, 10px);
+  border-radius: var(--wm-rayon-md, 8px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+}
+
+#modernbb .wmf-form__moment .wmf-form__date {
+  flex: 0 0 160px;
+}
+
+#modernbb .wmf-form__moment textarea {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+/*  LA CROIX : une vraie cible, pas un caractère de douze pixels. La
+    même taille que celle du carnet, mesurée le 23 novembre —
+    28 × 28 px, « une cible qu'un doigt peut viser ». */
+#modernbb .wmf-form__croix {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--wm-rayon-sm, 6px);
+  background: transparent;
+  color: var(--wm-texte-doux, #6e5749);
+  cursor: pointer;
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: 1;
+}
+
+#modernbb .wmf-form__croix:hover,
+#modernbb .wmf-form__croix:focus-visible {
+  background: color-mix(in srgb, var(--wm-danger-interdite, #a64430) 12%, transparent);
+  color: var(--wm-danger-interdite, #a64430);
+}
+
+/*  ── LA FICHE PUBLIÉE ──────────────────────────────────────────────
+
+    Elle vit dans un message, donc elle ne peut compter sur rien :
+    tout ce qu'elle dessine part d'ici. */
+
+#modernbb .wmf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-20, 20px);
+  text-align: left;
+}
+
+/*  « LE NOM DU PERSONNAGE EN HAUT, EN TITRE, COLLÉ À GAUCHE. » C'est
+    une consigne, et c'est la seule différence de fond avec la mise en
+    page de la V1, qui enveloppait tout dans un `<center>`. */
+#modernbb .wmf__titre {
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-page, 25px);
+  font-variation-settings: var(--wm-police-titre-axes, "SOFT" 0, "WONK" 1);
+  line-height: var(--wm-interligne-titre, 1.1);
+  text-align: left;
+}
+
+#modernbb .wmf__tw {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+  line-height: var(--wm-interligne-courant, 1.5);
+}
+
+/*  LES DEUX COLONNES. Elles s'empilent quand la place manque, et
+    l'avatar passe alors au-dessus — c'est le bon ordre : on voit le
+    visage avant la fiche d'état civil. */
+#modernbb .wmf__haut {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-20, 20px);
+  align-items: flex-start;
+}
+
+#modernbb .wmf__avatar {
+  flex: 0 0 200px;
+  max-width: 100%;
+}
+
+#modernbb .wmf__avatar img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
+/*  L'ADRESSE EST DANS LA FICHE, mais on ne la lit pas : c'est la
+    valeur que le formulaire relit, et elle n'a rien à faire sous
+    l'image. */
+#modernbb .wmf__avatar wmf-avatar {
+  display: none;
+}
+
+#modernbb .wmf__infos {
+  flex: 1 1 320px;
+  min-width: 0;
+  line-height: var(--wm-interligne-message, 1.75);
+}
+
+/*  LES ÉTIQUETTES DE LA FICHE PUBLIÉE : `<y>` est la balise de
+    l'ancienne fiche, gardée telle quelle. Les joueurs la connaissent,
+    et leurs anciennes fiches la portent. */
+#modernbb .wmf y,
+#modernbb .wmf o {
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  text-transform: uppercase;
+}
+
+#modernbb .wmf y {
+  color: var(--wm-accent-primaire, #275e7a);
+}
+
+#modernbb .wmf o {
+  color: var(--wm-accent-terre, #8b4725);
+}
+
+/*  LE BANDEAU DE SECTION. Pas de filet à gauche — « ne mets pas un
+    border à gauche, ne mets ça nulle part, ce n'est pas beau ». */
+#modernbb .wmf__bandeau {
+  margin-bottom: var(--wm-espace-8, 8px);
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+#modernbb .wmf__histoire,
+#modernbb .wmf__ancienne,
+#modernbb .wmf__ombre,
+#modernbb .wmf__joueur {
+  line-height: var(--wm-interligne-message, 1.75);
+}
+
+/*  LA CHRONOLOGIE : la date tient sa colonne, le texte prend le
+    reste. Elle s'empile aussi, et la date reste au-dessus de son
+    moment. */
+#modernbb .wmf__chrono {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-14, 14px);
+}
+
+#modernbb .wmf__moment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-4, 4px) var(--wm-espace-16, 16px);
+}
+
+#modernbb .wmf__moment-date {
+  flex: 0 0 120px;
+  color: var(--wm-accent-primaire, #275e7a);
+  font-size: var(--wm-taille-surtitre, 10.5px);
+  font-weight: var(--wm-graisse-demi, 600);
+  letter-spacing: var(--wm-interlettre-surtitre, 0.018em);
+  line-height: var(--wm-interligne-message, 1.75);
+  text-transform: uppercase;
+}
+
+#modernbb .wmf__moment-texte {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+/*  ── LE STARTER ────────────────────────────────────────────────── */
+
+#modernbb .wmf__starter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-20, 20px);
+  align-items: flex-start;
+}
+
+#modernbb .wmf__pokemon {
+  flex: 0 0 200px;
+  padding: var(--wm-espace-14, 14px);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
+  text-align: center;
+}
+
+#modernbb .wmf__espece {
+  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  line-height: var(--wm-interligne-section, 1.2);
+}
+
+/*  `<ifn>` ET `<ifi>` VIENNENT DE L'ANCIENNE FICHE, comme `<y>`. */
+#modernbb .wmf__surnom ifn {
+  color: var(--wm-texte-doux, #6e5749);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+#modernbb .wmf__talent ifi {
+  display: block;
+  margin-top: var(--wm-espace-6, 6px);
+  font-size: var(--wm-taille-petit, 11.5px);
+}
+
+/*  L'IDENTIFIANT D'ESPÈCE EST UNE DONNÉE, PAS UN TEXTE. Il relie la
+    fiche à nos données ; l'afficher mettrait « 25 » au milieu de la
+    carte du Pokémon. */
+#modernbb .wmf wmf-s-id {
+  display: none;
+}
+
+#modernbb .wmf__rencontre {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+/*  ── SOUS 760 PX ────────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  #modernbb .wmf-form__champs dt {
+    flex: 1 1 100%;
+    padding-top: 0;
+  }
+
+  #modernbb .wmf-form__moment .wmf-form__date {
+    flex: 1 1 100%;
+  }
+
+  #modernbb .wmf__avatar {
+    flex: 1 1 100%;
+  }
+
+  #modernbb .wmf__moment-date {
+    flex: 1 1 100%;
   }
 }
 

@@ -1,0 +1,7802 @@
+{
+  "_": "Les espèces qu'on peut choisir comme premier Pokémon, et leurs talents. DÉRIVÉ par outils/starters.py — ne pas modifier à la main.",
+  "_regle": "Stade 1 uniquement (pas d'évolutions), pas de légendaires — ils sont déjà hors du Pokédex de Rhode — et pas de fossiles, qui ne sortent que du laboratoire. Les formes régionales sont gardées : « peu importe la région d'origine ».",
+  "_niveau": "Aucun niveau ici, et c'est la règle : le staff l'attribue à la validation, selon l'âge, le métier et le passé du personnage.",
+  "source": "data/especes-fiches.json, data/especes.json, data/talents.json",
+  "compte": {
+    "especes": 436,
+    "sansTalent": 0
+  },
+  "especes": [
+    {
+      "id": 23,
+      "nom": "Abo",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Tension",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 63,
+      "nom": "Abra",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Synchro"
+        },
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Garde Magik",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 359,
+      "nom": "Absol",
+      "types": [
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Pression"
+        },
+        {
+          "nom": "Chanceux"
+        },
+        {
+          "nom": "Cœur Noble",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 631,
+      "nom": "Aflamanoir",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Écran Fumée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 227,
+      "nom": "Airmure",
+      "types": [
+        "acier",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Armurouillée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 602,
+      "nom": "Anchwatt",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 415,
+      "nom": "Apitrini",
+      "types": [
+        "insecte",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Cherche Miel"
+        },
+        {
+          "nom": "Agitation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 283,
+      "nom": "Arakdo",
+      "types": [
+        "insecte",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Cuvette",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 751,
+      "nom": "Araqua",
+      "types": [
+        "eau",
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Aquabulle"
+        },
+        {
+          "nom": "Absorbe-Eau",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 436,
+      "nom": "Archéomire",
+      "types": [
+        "acier",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        },
+        {
+          "nom": "Ignifugé"
+        },
+        {
+          "nom": "Heavy Metal",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 252,
+      "nom": "Arcko",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Délestage",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "nom": "Aspicot",
+      "types": [
+        "insecte",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Écran Poudre"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 194,
+      "nom": "Axoloto",
+      "types": [
+        "eau",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Moiteur"
+        },
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Inconscient",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 298,
+      "nom": "Azurill",
+      "types": [
+        "normal",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Coloforce"
+        },
+        {
+          "nom": "Herbivore",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 458,
+      "nom": "Babimanta",
+      "types": [
+        "eau",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Ignifu-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 769,
+      "nom": "Bacabouh",
+      "types": [
+        "spectre",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Sable Humide"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 559,
+      "nom": "Baggiguane",
+      "types": [
+        "tenebres",
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Impudence"
+        },
+        {
+          "nom": "Intimidation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 343,
+      "nom": "Balbuto",
+      "types": [
+        "sol",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 285,
+      "nom": "Balignon",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Pose Spore"
+        },
+        {
+          "nom": "Soin Poison"
+        },
+        {
+          "nom": "Pied Véloce",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 550,
+      "nom": "Bargantua",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Téméraire"
+        },
+        {
+          "nom": "Adaptabilité"
+        },
+        {
+          "nom": "Brise Moule",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 339,
+      "nom": "Barloche",
+      "types": [
+        "eau",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Anticipation"
+        },
+        {
+          "nom": "Hydratation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 349,
+      "nom": "Barpau",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Adaptabilité",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 425,
+      "nom": "Baudrive",
+      "types": [
+        "spectre",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Boom Final"
+        },
+        {
+          "nom": "Délestage"
+        },
+        {
+          "nom": "Rage Brûlure",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 875,
+      "nom": "Bekaglaçon",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Tête de Gel"
+        }
+      ]
+    },
+    {
+      "id": 856,
+      "nom": "Bibichut",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur Soin"
+        },
+        {
+          "nom": "Anticipation"
+        },
+        {
+          "nom": "Miroir Magik",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 459,
+      "nom": "Blizzi",
+      "types": [
+        "plante",
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Alerte Neige"
+        },
+        {
+          "nom": "Anti-Bruit",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 742,
+      "nom": "Bombydou",
+      "types": [
+        "insecte",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Cherche Miel"
+        },
+        {
+          "nom": "Écran Poudre"
+        },
+        {
+          "nom": "Gluco-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 776,
+      "nom": "Boumata",
+      "types": [
+        "feu",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Coque Armure"
+        }
+      ]
+    },
+    {
+      "id": 722,
+      "nom": "Brindibou",
+      "types": [
+        "plante",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Longue Portée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 708,
+      "nom": "Brocélôme",
+      "types": [
+        "spectre",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Médic Nature"
+        },
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Récolte",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 701,
+      "nom": "Brutalibré",
+      "types": [
+        "combat",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Échauffement"
+        },
+        {
+          "nom": "Délestage"
+        },
+        {
+          "nom": "Brise Moule",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "nom": "Bulbizarre",
+      "types": [
+        "plante",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Chlorophylle",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 782,
+      "nom": "Bébécaille",
+      "types": [
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Pare-Balles"
+        },
+        {
+          "nom": "Anti-Bruit"
+        },
+        {
+          "nom": "Envelocape",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 672,
+      "nom": "Cabriolaine",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Herbivore"
+        },
+        {
+          "nom": "Toison Herbue",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 331,
+      "nom": "Cacnea",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Voile Sable"
+        },
+        {
+          "nom": "Absorbe-Eau",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 225,
+      "nom": "Cadoizo",
+      "types": [
+        "glace",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Esprit Vital"
+        },
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Insomnia",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 83,
+      "nom": "Canarticho",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Acharné",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10166,
+      "nom": "Canarticho de Galar",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Impassible"
+        },
+        {
+          "nom": "Querelleur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 58,
+      "nom": "Caninos",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Cœur Noble",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10229,
+      "nom": "Caninos de Hisui",
+      "types": [
+        "feu",
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Tête de Roc",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 190,
+      "nom": "Capumain",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Multi-Coups",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 588,
+      "nom": "Carabing",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Annule Garde",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "nom": "Carapuce",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Cuvette",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 213,
+      "nom": "Caratroc",
+      "types": [
+        "insecte",
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Contestation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 318,
+      "nom": "Carvanha",
+      "types": [
+        "eau",
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Peau Dure"
+        },
+        {
+          "nom": "Turbo",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 234,
+      "nom": "Cerfrousse",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Herbivore",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 420,
+      "nom": "Ceribou",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        }
+      ]
+    },
+    {
+      "id": 509,
+      "nom": "Chacripan",
+      "types": [
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Échauffement"
+        },
+        {
+          "nom": "Délestage"
+        },
+        {
+          "nom": "Farceur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 431,
+      "nom": "Chaglam",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Échauffement"
+        },
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Regard Vif",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 322,
+      "nom": "Chamallot",
+      "types": [
+        "feu",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Simple"
+        },
+        {
+          "nom": "Tempo Perso",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 935,
+      "nom": "Charbambin",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Corps Ardent",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 837,
+      "nom": "Charbi",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Turbine"
+        },
+        {
+          "nom": "Ignifugé"
+        },
+        {
+          "nom": "Torche",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 878,
+      "nom": "Charibari",
+      "types": [
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Sans Limite"
+        },
+        {
+          "nom": "Heavy Metal",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 532,
+      "nom": "Charpenti",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Sans Limite"
+        },
+        {
+          "nom": "Poing de Fer",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 324,
+      "nom": "Chartor",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Écran Fumée"
+        },
+        {
+          "nom": "Sécheresse"
+        },
+        {
+          "nom": "Coque Armure",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "nom": "Chenipan",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Écran Poudre"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 265,
+      "nom": "Chenipotte",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Écran Poudre"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 412,
+      "nom": "Cheniti",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Envelocape",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 572,
+      "nom": "Chinchidou",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Joli Sourire"
+        },
+        {
+          "nom": "Technicien"
+        },
+        {
+          "nom": "Multi-Coups",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 548,
+      "nom": "Chlorobule",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Feuille Garde",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 909,
+      "nom": "Chochodile",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Inconscient",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 527,
+      "nom": "Chovsourir",
+      "types": [
+        "psy",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Inconscient"
+        },
+        {
+          "nom": "Maladresse"
+        },
+        {
+          "nom": "Simple",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 293,
+      "nom": "Chuchmur",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Anti-Bruit"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 69,
+      "nom": "Chétiflor",
+      "types": [
+        "plante",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Gloutonnerie",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 912,
+      "nom": "Coiffeton",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Impudence",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 924,
+      "nom": "Compagnol",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Tempo Perso",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 771,
+      "nom": "Concombaffe",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Expuls'Organes"
+        },
+        {
+          "nom": "Inconscient",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 366,
+      "nom": "Coquiperl",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 222,
+      "nom": "Corayon",
+      "types": [
+        "eau",
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Médic Nature"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10173,
+      "nom": "Corayon de Galar",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Armurouillée"
+        },
+        {
+          "nom": "Corps Maudit",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 198,
+      "nom": "Cornèbre",
+      "types": [
+        "tenebres",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Insomnia"
+        },
+        {
+          "nom": "Chanceux"
+        },
+        {
+          "nom": "Farceur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 676,
+      "nom": "Couafarel",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Toison Épaisse"
+        }
+      ]
+    },
+    {
+      "id": 580,
+      "nom": "Couaneton",
+      "types": [
+        "eau",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Cœur de Coq"
+        },
+        {
+          "nom": "Hydratation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 610,
+      "nom": "Coupenotte",
+      "types": [
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Rivalité"
+        },
+        {
+          "nom": "Brise Moule"
+        },
+        {
+          "nom": "Tension",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 165,
+      "nom": "Coxy",
+      "types": [
+        "insecte",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 739,
+      "nom": "Crabagarre",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Hyper Cutter"
+        },
+        {
+          "nom": "Poing de Fer"
+        },
+        {
+          "nom": "Colérique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 557,
+      "nom": "Crabicoque",
+      "types": [
+        "insecte",
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Armurouillée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 453,
+      "nom": "Cradopaud",
+      "types": [
+        "poison",
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Anticipation"
+        },
+        {
+          "nom": "Peau Sèche"
+        },
+        {
+          "nom": "Toxitouche",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 950,
+      "nom": "Craparoi",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Courroupace"
+        },
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 401,
+      "nom": "Crikzik",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 761,
+      "nom": "Croquine",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Feuille Garde"
+        },
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Gluco-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 561,
+      "nom": "Cryptéro",
+      "types": [
+        "psy",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Peau Miracle"
+        },
+        {
+          "nom": "Garde Magik"
+        },
+        {
+          "nom": "Lentiteintée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 868,
+      "nom": "Crèmy",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Gluco-Voile"
+        },
+        {
+          "nom": "Aroma-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 554,
+      "nom": "Darumarond",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Attention",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10176,
+      "nom": "Darumarond de Galar",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Attention",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 236,
+      "nom": "Debugant",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Impassible"
+        },
+        {
+          "nom": "Esprit Vital",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 702,
+      "nom": "Dedenne",
+      "types": [
+        "electrik",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Bajoues"
+        },
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Plus",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 779,
+      "nom": "Denticrisse",
+      "types": [
+        "eau",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Coloré"
+        },
+        {
+          "nom": "Prognathe"
+        },
+        {
+          "nom": "Peau Miracle",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 775,
+      "nom": "Dodoala",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Hypersommeil"
+        }
+      ]
+    },
+    {
+      "id": 84,
+      "nom": "Doduo",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Pieds Confus",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 963,
+      "nom": "Dofin",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Ignifu-Voile"
+        }
+      ]
+    },
+    {
+      "id": 874,
+      "nom": "Dolman",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Cercle d'Énergie"
+        }
+      ]
+    },
+    {
+      "id": 546,
+      "nom": "Doudouvet",
+      "types": [
+        "plante",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Farceur"
+        },
+        {
+          "nom": "Infiltration"
+        },
+        {
+          "nom": "Chlorophylle",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 371,
+      "nom": "Draby",
+      "types": [
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 621,
+      "nom": "Drakkarmin",
+      "types": [
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Peau Dure"
+        },
+        {
+          "nom": "Sans Limite"
+        },
+        {
+          "nom": "Brise Moule",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 780,
+      "nom": "Draïeul",
+      "types": [
+        "normal",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Folle Furie"
+        },
+        {
+          "nom": "Herbivore"
+        },
+        {
+          "nom": "Ciel Gris",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 843,
+      "nom": "Dunaja",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Expul'Sable"
+        },
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 884,
+      "nom": "Duralugon",
+      "types": [
+        "acier",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Light Metal"
+        },
+        {
+          "nom": "Heavy Metal"
+        },
+        {
+          "nom": "Nerfs d'Acier",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 309,
+      "nom": "Dynavolt",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Paratonnerre"
+        },
+        {
+          "nom": "Moins",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 976,
+      "nom": "Délestin",
+      "types": [
+        "eau",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Brise Moule"
+        },
+        {
+          "nom": "Incisif",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 846,
+      "nom": "Embrochet",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Propulseur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 246,
+      "nom": "Embrylex",
+      "types": [
+        "roche",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 587,
+      "nom": "Emolga",
+      "types": [
+        "electrik",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Motorisé",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 616,
+      "nom": "Escargaume",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Hydratation"
+        },
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Envelocape",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 108,
+      "nom": "Excelangue",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Ciel Gris",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 92,
+      "nom": "Fantominus",
+      "types": [
+        "spectre",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 885,
+      "nom": "Fantyrm",
+      "types": [
+        "dragon",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Sain"
+        },
+        {
+          "nom": "Infiltration"
+        },
+        {
+          "nom": "Corps Maudit",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 215,
+      "nom": "Farfuret",
+      "types": [
+        "tenebres",
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Pickpocket",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10235,
+      "nom": "Farfuret de Hisui",
+      "types": [
+        "combat",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Pickpocket",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 968,
+      "nom": "Ferdeter",
+      "types": [
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Terre"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 632,
+      "nom": "Fermite",
+      "types": [
+        "insecte",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Absentéisme",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 200,
+      "nom": "Feuforêve",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 511,
+      "nom": "Feuillajou",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Engrais",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 653,
+      "nom": "Feunnec",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Magicien",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 669,
+      "nom": "Flabébé",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Flora-Voile"
+        },
+        {
+          "nom": "Symbiose",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 513,
+      "nom": "Flamajou",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Brasier",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 813,
+      "nom": "Flambino",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Libéro",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 973,
+      "nom": "Flamenroule",
+      "types": [
+        "vol",
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Querelleur"
+        },
+        {
+          "nom": "Pieds Confus"
+        },
+        {
+          "nom": "Collab",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 725,
+      "nom": "Flamiaou",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Intimidation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 692,
+      "nom": "Flingouste",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Méga Blaster"
+        }
+      ]
+    },
+    {
+      "id": 515,
+      "nom": "Flotajou",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Torrent",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 955,
+      "nom": "Flotillon",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Anticipation"
+        },
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Turbo",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 682,
+      "nom": "Fluvetin",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur Soin"
+        },
+        {
+          "nom": "Aroma-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 957,
+      "nom": "Forgerette",
+      "types": [
+        "fee",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Brise Moule"
+        },
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Pickpocket",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 161,
+      "nom": "Fouinette",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Fouille",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 996,
+      "nom": "Frigodo",
+      "types": [
+        "dragon",
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Thermodynamique"
+        },
+        {
+          "nom": "Corps Gel",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 626,
+      "nom": "Frison",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Téméraire"
+        },
+        {
+          "nom": "Herbivore"
+        },
+        {
+          "nom": "Anti-Bruit",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 872,
+      "nom": "Frissonille",
+      "types": [
+        "glace",
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Écran Poudre"
+        },
+        {
+          "nom": "Écailles Glacées",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 746,
+      "nom": "Froussardine",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Banc"
+        }
+      ]
+    },
+    {
+      "id": 607,
+      "nom": "Funécire",
+      "types": [
+        "spectre",
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Corps Ardent"
+        },
+        {
+          "nom": "Infiltration",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 627,
+      "nom": "Furaiglon",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Sans Limite"
+        },
+        {
+          "nom": "Agitation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 56,
+      "nom": "Férosinge",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Esprit Vital"
+        },
+        {
+          "nom": "Colérique"
+        },
+        {
+          "nom": "Acharné",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 304,
+      "nom": "Galekid",
+      "types": [
+        "acier",
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Heavy Metal",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 881,
+      "nom": "Galvagla",
+      "types": [
+        "electrik",
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Volt"
+        },
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Chasse-Neige",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 880,
+      "nom": "Galvagon",
+      "types": [
+        "electrik",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Volt"
+        },
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Baigne Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 694,
+      "nom": "Galvaran",
+      "types": [
+        "electrik",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Peau Sèche"
+        },
+        {
+          "nom": "Voile Sable"
+        },
+        {
+          "nom": "Force Soleil",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 152,
+      "nom": "Germignon",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Feuille Garde",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 969,
+      "nom": "Germéclat",
+      "types": [
+        "roche",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Dépôt Toxique"
+        },
+        {
+          "nom": "Corrosion",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 203,
+      "nom": "Girafarig",
+      "types": [
+        "normal",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Herbivore",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 316,
+      "nom": "Gloupti",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Suintement"
+        },
+        {
+          "nom": "Glu"
+        },
+        {
+          "nom": "Gloutonnerie",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 258,
+      "nom": "Gobou",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Moiteur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 446,
+      "nom": "Goinfrex",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Gloutonnerie",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 827,
+      "nom": "Goupilou",
+      "types": [
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Délestage"
+        },
+        {
+          "nom": "Filature",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "nom": "Goupix",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Sécheresse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10103,
+      "nom": "Goupix d'Alola",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Rideau Neige"
+        },
+        {
+          "nom": "Alerte Neige",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 915,
+      "nom": "Gourmelet",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Aroma-Voile"
+        },
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Isograisse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 765,
+      "nom": "Gouroutan",
+      "types": [
+        "normal",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Télépathe"
+        },
+        {
+          "nom": "Symbiose",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 278,
+      "nom": "Goélise",
+      "types": [
+        "eau",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Hydratation"
+        },
+        {
+          "nom": "Cuvette",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 273,
+      "nom": "Grainipiot",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Pickpocket",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 187,
+      "nom": "Granivol",
+      "types": [
+        "plante",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Feuille Garde"
+        },
+        {
+          "nom": "Infiltration",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 712,
+      "nom": "Grelaçon",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Corps Gel"
+        },
+        {
+          "nom": "Fermeté",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 656,
+      "nom": "Grenousse",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Protéen",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 944,
+      "nom": "Gribouraigne",
+      "types": [
+        "poison",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Délestage"
+        },
+        {
+          "nom": "Pickpocket"
+        },
+        {
+          "nom": "Farceur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 443,
+      "nom": "Griknot",
+      "types": [
+        "dragon",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Voile Sable"
+        },
+        {
+          "nom": "Peau Dure",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 850,
+      "nom": "Grillepattes",
+      "types": [
+        "feu",
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Écran Fumée"
+        },
+        {
+          "nom": "Corps Ardent",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 859,
+      "nom": "Grimalin",
+      "types": [
+        "tenebres",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Farceur"
+        },
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Pickpocket",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 597,
+      "nom": "Grindur",
+      "types": [
+        "plante",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Épine de Fer"
+        }
+      ]
+    },
+    {
+      "id": 622,
+      "nom": "Gringolem",
+      "types": [
+        "sol",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Poing de Fer"
+        },
+        {
+          "nom": "Maladresse"
+        },
+        {
+          "nom": "Annule Garde",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 942,
+      "nom": "Grondogue",
+      "types": [
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Filature",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 498,
+      "nom": "Gruikui",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Isograisse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 764,
+      "nom": "Guérilande",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Flora-Voile"
+        },
+        {
+          "nom": "Prioguérison"
+        },
+        {
+          "nom": "Médic Nature",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 870,
+      "nom": "Hexadron",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Armurbaston"
+        },
+        {
+          "nom": "Acharné",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 615,
+      "nom": "Hexagel",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 449,
+      "nom": "Hippopotas",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Sable Volant"
+        },
+        {
+          "nom": "Force Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 163,
+      "nom": "Hoothoot",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Insomnia"
+        },
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Lentiteintée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 883,
+      "nom": "Hydragla",
+      "types": [
+        "eau",
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Corps Gel"
+        },
+        {
+          "nom": "Chasse-Neige",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 882,
+      "nom": "Hydragon",
+      "types": [
+        "eau",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Prognathe"
+        },
+        {
+          "nom": "Baigne Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 116,
+      "nom": "Hypotrempe",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Sniper"
+        },
+        {
+          "nom": "Moiteur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 667,
+      "nom": "Hélionceau",
+      "types": [
+        "feu",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Rivalité"
+        },
+        {
+          "nom": "Tension"
+        },
+        {
+          "nom": "Impudence",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 155,
+      "nom": "Héricendre",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Torche",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 206,
+      "nom": "Insolourdo",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Sérénité"
+        },
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 123,
+      "nom": "Insécateur",
+      "types": [
+        "insecte",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Technicien"
+        },
+        {
+          "nom": "Impassible",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 538,
+      "nom": "Judokrak",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Brise Moule",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 158,
+      "nom": "Kaiminus",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 115,
+      "nom": "Kangourex",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Querelleur"
+        },
+        {
+          "nom": "Attention",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 539,
+      "nom": "Karaclée",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Brise Moule",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 352,
+      "nom": "Kecleon",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Homochromie"
+        },
+        {
+          "nom": "Protéen",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 399,
+      "nom": "Keunotor",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Simple"
+        },
+        {
+          "nom": "Inconscient"
+        },
+        {
+          "nom": "Lunatique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 833,
+      "nom": "Khélocrok",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Prognathe"
+        },
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Glissade",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 90,
+      "nom": "Kokiyas",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Multi-Coups"
+        },
+        {
+          "nom": "Envelocape",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 433,
+      "nom": "Korillon",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 98,
+      "nom": "Krabby",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Hyper Cutter"
+        },
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 328,
+      "nom": "Kraknoix",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Hyper Cutter"
+        },
+        {
+          "nom": "Piège Sable"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 619,
+      "nom": "Kungfouine",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Régé-Force"
+        },
+        {
+          "nom": "Téméraire",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 427,
+      "nom": "Laporeille",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Maladresse"
+        },
+        {
+          "nom": "Échauffement",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 816,
+      "nom": "Larméléon",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Sniper",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 824,
+      "nom": "Larvadar",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Œil Composé"
+        },
+        {
+          "nom": "Télépathe",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 540,
+      "nom": "Larveyette",
+      "types": [
+        "insecte",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Envelocape",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 736,
+      "nom": "Larvibule",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        }
+      ]
+    },
+    {
+      "id": 962,
+      "nom": "Lestombaile",
+      "types": [
+        "vol",
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur de Coq"
+        },
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Porte-Roche",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 605,
+      "nom": "Lewsor",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Télépathe"
+        },
+        {
+          "nom": "Synchro"
+        },
+        {
+          "nom": "Analyste",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 919,
+      "nom": "Lilliterelle",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Lentiteintée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 218,
+      "nom": "Limagma",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Armumagma"
+        },
+        {
+          "nom": "Corps Ardent"
+        },
+        {
+          "nom": "Armurouillée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 618,
+      "nom": "Limonde",
+      "types": [
+        "sol",
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Échauffement"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10180,
+      "nom": "Limonde de Galar",
+      "types": [
+        "sol",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Mimétisme"
+        }
+      ]
+    },
+    {
+      "id": 238,
+      "nom": "Lippouti",
+      "types": [
+        "glace",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Prédiction"
+        },
+        {
+          "nom": "Hydratation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 403,
+      "nom": "Lixy",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Rivalité"
+        },
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Cran",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 131,
+      "nom": "Lokhlass",
+      "types": [
+        "eau",
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Hydratation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 170,
+      "nom": "Loupio",
+      "types": [
+        "eau",
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Volt"
+        },
+        {
+          "nom": "Lumiattirance"
+        },
+        {
+          "nom": "Absorbe-Eau",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 370,
+      "nom": "Lovdisc",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Hydratation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 314,
+      "nom": "Lumivole",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Lentiteintée"
+        },
+        {
+          "nom": "Farceur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 953,
+      "nom": "Léboulérou",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Œil Composé"
+        },
+        {
+          "nom": "Mue",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 664,
+      "nom": "Lépidonille",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Écran Poudre"
+        },
+        {
+          "nom": "Œil Composé"
+        },
+        {
+          "nom": "Garde-Ami",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "nom": "Machoc",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Annule Garde"
+        },
+        {
+          "nom": "Impassible",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 240,
+      "nom": "Magby",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Ardent"
+        },
+        {
+          "nom": "Esprit Vital",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 129,
+      "nom": "Magicarpe",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 81,
+      "nom": "Magnéti",
+      "types": [
+        "electrik",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Magnépiège"
+        },
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Analyste",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 296,
+      "nom": "Makuhita",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 228,
+      "nom": "Malosse",
+      "types": [
+        "tenebres",
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Tension",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 594,
+      "nom": "Mamanbo",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur Soin"
+        },
+        {
+          "nom": "Hydratation"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 734,
+      "nom": "Manglouton",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Filature"
+        },
+        {
+          "nom": "Prognathe"
+        },
+        {
+          "nom": "Adaptabilité",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 335,
+      "nom": "Mangriff",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Vaccin"
+        },
+        {
+          "nom": "Rage Poison",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 438,
+      "nom": "Manzaï",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 556,
+      "nom": "Maracachi",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Lavabo",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 220,
+      "nom": "Marcacrin",
+      "types": [
+        "glace",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Rideau Neige"
+        },
+        {
+          "nom": "Isograisse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 650,
+      "nom": "Marisson",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Pare-Balles",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 551,
+      "nom": "Mascaïman",
+      "types": [
+        "sol",
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Impudence"
+        },
+        {
+          "nom": "Colérique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 261,
+      "nom": "Medhyèna",
+      "types": [
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Pied Véloce"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 568,
+      "nom": "Miamiasme",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Puanteur"
+        },
+        {
+          "nom": "Glu"
+        },
+        {
+          "nom": "Boom Final",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 52,
+      "nom": "Miaouss",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Technicien"
+        },
+        {
+          "nom": "Tension",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10107,
+      "nom": "Miaouss d'Alola",
+      "types": [
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Technicien"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10161,
+      "nom": "Miaouss de Galar",
+      "types": [
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Griffe Dure"
+        },
+        {
+          "nom": "Tension",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 753,
+      "nom": "Mimantis",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Feuille Garde"
+        },
+        {
+          "nom": "Contestation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 439,
+      "nom": "Mime Jr.",
+      "types": [
+        "psy",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Anti-Bruit"
+        },
+        {
+          "nom": "Filtre"
+        },
+        {
+          "nom": "Technicien",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 167,
+      "nom": "Mimigal",
+      "types": [
+        "insecte",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Insomnia"
+        },
+        {
+          "nom": "Sniper",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 778,
+      "nom": "Mimiqui",
+      "types": [
+        "spectre",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Fantômasque"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "nom": "Mimitoss",
+      "types": [
+        "insecte",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Œil Composé"
+        },
+        {
+          "nom": "Lentiteintée"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 147,
+      "nom": "Minidraco",
+      "types": [
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Écaille Spéciale",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 821,
+      "nom": "Minisange",
+      "types": [
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Tension"
+        },
+        {
+          "nom": "Cœur de Coq",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 679,
+      "nom": "Monorpale",
+      "types": [
+        "acier",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Annule Garde"
+        }
+      ]
+    },
+    {
+      "id": 999,
+      "nom": "Mordudor",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Phobique"
+        }
+      ]
+    },
+    {
+      "id": 877,
+      "nom": "Morpeko",
+      "types": [
+        "electrik",
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Déclic Fringale"
+        }
+      ]
+    },
+    {
+      "id": 351,
+      "nom": "Morphéo",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Météo"
+        }
+      ]
+    },
+    {
+      "id": 479,
+      "nom": "Motisma",
+      "types": [
+        "electrik",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 967,
+      "nom": "Motorizard",
+      "types": [
+        "dragon",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 434,
+      "nom": "Moufouette",
+      "types": [
+        "poison",
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Puanteur"
+        },
+        {
+          "nom": "Boom Final"
+        },
+        {
+          "nom": "Regard Vif",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 831,
+      "nom": "Moumouton",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Boule de Poils"
+        },
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Pare-Balles",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 501,
+      "nom": "Moustillon",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Coque Armure",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 313,
+      "nom": "Muciole",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Lumiattirance"
+        },
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Farceur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 704,
+      "nom": "Mucuscule",
+      "types": [
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Herbivore"
+        },
+        {
+          "nom": "Hydratation"
+        },
+        {
+          "nom": "Poisseux",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 517,
+      "nom": "Munna",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Prédiction"
+        },
+        {
+          "nom": "Synchro"
+        },
+        {
+          "nom": "Télépathe",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 418,
+      "nom": "Mustébouée",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Ignifu-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 303,
+      "nom": "Mysdibule",
+      "types": [
+        "acier",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Hyper Cutter"
+        },
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "nom": "Mystherbe",
+      "types": [
+        "plante",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 307,
+      "nom": "Méditikka",
+      "types": [
+        "combat",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Force Pure"
+        },
+        {
+          "nom": "Télépathe",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 173,
+      "nom": "Mélo",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Joli Sourire"
+        },
+        {
+          "nom": "Garde Magik"
+        },
+        {
+          "nom": "Garde-Ami",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 132,
+      "nom": "Métamorph",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Échauffement"
+        },
+        {
+          "nom": "Imposteur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 774,
+      "nom": "Météno",
+      "types": [
+        "roche",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Bouclier-Carcan"
+        }
+      ]
+    },
+    {
+      "id": 531,
+      "nom": "Nanméouïe",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur Soin"
+        },
+        {
+          "nom": "Régé-Force"
+        },
+        {
+          "nom": "Maladresse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 177,
+      "nom": "Natu",
+      "types": [
+        "psy",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Synchro"
+        },
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Miroir Magik",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "nom": "Nidoran♀",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Point Poison"
+        },
+        {
+          "nom": "Rivalité"
+        },
+        {
+          "nom": "Agitation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "nom": "Nidoran♂",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Point Poison"
+        },
+        {
+          "nom": "Rivalité"
+        },
+        {
+          "nom": "Agitation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 978,
+      "nom": "Nigirigon",
+      "types": [
+        "dragon",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Commandant"
+        },
+        {
+          "nom": "Lavabo",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 845,
+      "nom": "Nigosier",
+      "types": [
+        "vol",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Dégobage"
+        }
+      ]
+    },
+    {
+      "id": 290,
+      "nom": "Ningale",
+      "types": [
+        "insecte",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Œil Composé"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 276,
+      "nom": "Nirondelle",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Querelleur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 524,
+      "nom": "Nodulithe",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Armurouillée"
+        },
+        {
+          "nom": "Force Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 102,
+      "nom": "Noeunoeuf",
+      "types": [
+        "plante",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Récolte",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "nom": "Nosferapti",
+      "types": [
+        "poison",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Infiltration",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 759,
+      "nom": "Nounourson",
+      "types": [
+        "normal",
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Boule de Poils"
+        },
+        {
+          "nom": "Maladresse"
+        },
+        {
+          "nom": "Joli Sourire",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 577,
+      "nom": "Nucléos",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Envelocape"
+        },
+        {
+          "nom": "Garde Magik"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 312,
+      "nom": "Négapi",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Moins"
+        },
+        {
+          "nom": "Absorbe-Volt",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 270,
+      "nom": "Nénupiot",
+      "types": [
+        "eau",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Cuvette"
+        },
+        {
+          "nom": "Tempo Perso",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 363,
+      "nom": "Obalie",
+      "types": [
+        "glace",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Corps Gel"
+        },
+        {
+          "nom": "Benêt",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 360,
+      "nom": "Okéoké",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Marque Ombre"
+        },
+        {
+          "nom": "Télépathe",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 928,
+      "nom": "Olivini",
+      "types": [
+        "plante",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Matinal"
+        },
+        {
+          "nom": "Récolte",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 95,
+      "nom": "Onix",
+      "types": [
+        "roche",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Armurouillée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 688,
+      "nom": "Opermine",
+      "types": [
+        "roche",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Griffe Dure"
+        },
+        {
+          "nom": "Sniper"
+        },
+        {
+          "nom": "Pickpocket",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "nom": "Osselait",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Paratonnerre"
+        },
+        {
+          "nom": "Armurbaston",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 728,
+      "nom": "Otaquin",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Hydrata-Son",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 86,
+      "nom": "Otaria",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Hydratation"
+        },
+        {
+          "nom": "Corps Gel",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 810,
+      "nom": "Ouistempo",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Créa-Herbe",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 390,
+      "nom": "Ouisticram",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Poing de Fer",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 977,
+      "nom": "Oyacata",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Inconscient"
+        },
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Ignifu-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 417,
+      "nom": "Pachirisu",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Absorbe-Volt",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 674,
+      "nom": "Pandespiègle",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Poing de Fer"
+        },
+        {
+          "nom": "Brise Moule"
+        },
+        {
+          "nom": "Querelleur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "nom": "Paras",
+      "types": [
+        "insecte",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Pose Spore"
+        },
+        {
+          "nom": "Peau Sèche"
+        },
+        {
+          "nom": "Moiteur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 287,
+      "nom": "Parecool",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Absentéisme"
+        }
+      ]
+    },
+    {
+      "id": 661,
+      "nom": "Passerouge",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur de Coq"
+        },
+        {
+          "nom": "Ailes Bourrasque",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 231,
+      "nom": "Phanpy",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "nom": "Piafabec",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Sniper",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 731,
+      "nom": "Picassaut",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Multi-Coups"
+        },
+        {
+          "nom": "Ramassage",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 172,
+      "nom": "Pichu",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Paratonnerre",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 441,
+      "nom": "Pijako",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Pieds Confus"
+        },
+        {
+          "nom": "Cœur de Coq",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 951,
+      "nom": "Pimito",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Insomnia"
+        },
+        {
+          "nom": "Maladresse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 710,
+      "nom": "Pitrouille",
+      "types": [
+        "spectre",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Insomnia",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 974,
+      "nom": "Piétacé",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Rideau Neige"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10125,
+      "nom": "Plumeline Buyō",
+      "types": [
+        "spectre",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Danseuse"
+        }
+      ]
+    },
+    {
+      "id": 741,
+      "nom": "Plumeline Flamenco",
+      "types": [
+        "feu",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Danseuse"
+        }
+      ]
+    },
+    {
+      "id": 10124,
+      "nom": "Plumeline Hula",
+      "types": [
+        "psy",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Danseuse"
+        }
+      ]
+    },
+    {
+      "id": 10123,
+      "nom": "Plumeline Pom-Pom",
+      "types": [
+        "electrik",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Danseuse"
+        }
+      ]
+    },
+    {
+      "id": 921,
+      "nom": "Pohm",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Médic Nature"
+        },
+        {
+          "nom": "Poing de Fer",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 519,
+      "nom": "Poichigeon",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur de Coq"
+        },
+        {
+          "nom": "Chanceux"
+        },
+        {
+          "nom": "Rivalité",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 118,
+      "nom": "Poissirène",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Ignifu-Voile"
+        },
+        {
+          "nom": "Paratonnerre",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 613,
+      "nom": "Polarhume",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Rideau Neige"
+        },
+        {
+          "nom": "Chasse-Neige"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 353,
+      "nom": "Polichombr",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Insomnia"
+        },
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Corps Maudit",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 1012,
+      "nom": "Poltchageist",
+      "types": [
+        "plante",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Aux Petits Soins"
+        },
+        {
+          "nom": "Ignifugé",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 204,
+      "nom": "Pomdepik",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Envelocape",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 506,
+      "nom": "Ponchiot",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Esprit Vital"
+        },
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Fuite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 77,
+      "nom": "Ponyta",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Torche"
+        },
+        {
+          "nom": "Corps Ardent",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10162,
+      "nom": "Ponyta de Galar",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Voile Pastel"
+        },
+        {
+          "nom": "Anticipation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 137,
+      "nom": "Porygon",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Calque"
+        },
+        {
+          "nom": "Télécharge"
+        },
+        {
+          "nom": "Analyste",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 311,
+      "nom": "Posipi",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Plus"
+        },
+        {
+          "nom": "Paratonnerre",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 852,
+      "nom": "Poulpaf",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Échauffement"
+        },
+        {
+          "nom": "Technicien",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 906,
+      "nom": "Poussacha",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Protéen",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 255,
+      "nom": "Poussifeu",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Turbo",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 54,
+      "nom": "Psykokwak",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Moiteur"
+        },
+        {
+          "nom": "Ciel Gris"
+        },
+        {
+          "nom": "Glissade",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 677,
+      "nom": "Psystigri",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Infiltration"
+        },
+        {
+          "nom": "Tempo Perso",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 440,
+      "nom": "Ptiravi",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Médic Nature"
+        },
+        {
+          "nom": "Sérénité"
+        },
+        {
+          "nom": "Garde-Ami",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "nom": "Ptitard",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Moiteur"
+        },
+        {
+          "nom": "Glissade",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 636,
+      "nom": "Pyronille",
+      "types": [
+        "insecte",
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Ardent"
+        },
+        {
+          "nom": "Essaim",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 926,
+      "nom": "Pâtachiot",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Maladresse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 766,
+      "nom": "Quartermac",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Receveur"
+        },
+        {
+          "nom": "Acharné",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 235,
+      "nom": "Queulorior",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Technicien"
+        },
+        {
+          "nom": "Lunatique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 211,
+      "nom": "Qwilfish",
+      "types": [
+        "eau",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Point Poison"
+        },
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Intimidation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10234,
+      "nom": "Qwilfish de Hisui",
+      "types": [
+        "tenebres",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Point Poison"
+        },
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Intimidation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 74,
+      "nom": "Racaillou",
+      "types": [
+        "roche",
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10109,
+      "nom": "Racaillou d'Alola",
+      "types": [
+        "roche",
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Magnépiège"
+        },
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Peau Électrique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 79,
+      "nom": "Ramoloss",
+      "types": [
+        "eau",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10164,
+      "nom": "Ramoloss de Galar",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 451,
+      "nom": "Rapion",
+      "types": [
+        "poison",
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Armurbaston"
+        },
+        {
+          "nom": "Sniper"
+        },
+        {
+          "nom": "Regard Vif",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 504,
+      "nom": "Ratentif",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Analyste",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "nom": "Rattata",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Agitation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10091,
+      "nom": "Rattata d'Alola",
+      "types": [
+        "tenebres",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Isograisse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 369,
+      "nom": "Relicanth",
+      "types": [
+        "eau",
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Fermeté",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 111,
+      "nom": "Rhinocorne",
+      "types": [
+        "sol",
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Paratonnerre"
+        },
+        {
+          "nom": "Tête de Roc"
+        },
+        {
+          "nom": "Téméraire",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 447,
+      "nom": "Riolu",
+      "types": [
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Impassible"
+        },
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Farceur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 744,
+      "nom": "Rocabot",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Esprit Vital"
+        },
+        {
+          "nom": "Impassible",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 819,
+      "nom": "Rongourmand",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Bajoues"
+        },
+        {
+          "nom": "Gloutonnerie",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 529,
+      "nom": "Rototaupe",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Baigne Sable"
+        },
+        {
+          "nom": "Force Sable"
+        },
+        {
+          "nom": "Brise Moule",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "nom": "Roucool",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Pieds Confus"
+        },
+        {
+          "nom": "Cœur de Coq",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 406,
+      "nom": "Rozbouton",
+      "types": [
+        "plante",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Médic Nature"
+        },
+        {
+          "nom": "Point Poison"
+        },
+        {
+          "nom": "Feuille Garde",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 223,
+      "nom": "Rémoraid",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Sniper"
+        },
+        {
+          "nom": "Lunatique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "nom": "Sabelette",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Voile Sable"
+        },
+        {
+          "nom": "Baigne Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10101,
+      "nom": "Sabelette d'Alola",
+      "types": [
+        "glace",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Rideau Neige"
+        },
+        {
+          "nom": "Chasse-Neige",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "nom": "Salamèche",
+      "types": [
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Brasier"
+        },
+        {
+          "nom": "Force Soleil",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 422,
+      "nom": "Sancoki",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glu"
+        },
+        {
+          "nom": "Lavabo"
+        },
+        {
+          "nom": "Force Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 659,
+      "nom": "Sapereau",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Bajoues"
+        },
+        {
+          "nom": "Coloforce",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 114,
+      "nom": "Saquedeneu",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Feuille Garde"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 624,
+      "nom": "Scalpion",
+      "types": [
+        "tenebres",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Acharné"
+        },
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Pression",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 127,
+      "nom": "Scarabrute",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Hyper Cutter"
+        },
+        {
+          "nom": "Brise Moule"
+        },
+        {
+          "nom": "Impudence",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 214,
+      "nom": "Scarhino",
+      "types": [
+        "insecte",
+        "combat"
+      ],
+      "talents": [
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Cran"
+        },
+        {
+          "nom": "Impudence",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 207,
+      "nom": "Scorplane",
+      "types": [
+        "sol",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Hyper Cutter"
+        },
+        {
+          "nom": "Voile Sable"
+        },
+        {
+          "nom": "Vaccin",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 574,
+      "nom": "Scrutella",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Battant"
+        },
+        {
+          "nom": "Marque Ombre",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 932,
+      "nom": "Selutin",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Sel Purificateur"
+        },
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Corps Sain",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 686,
+      "nom": "Sepiatop",
+      "types": [
+        "tenebres",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Contestation"
+        },
+        {
+          "nom": "Ventouse"
+        },
+        {
+          "nom": "Infiltration",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 781,
+      "nom": "Sinistrail",
+      "types": [
+        "spectre",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Expert Acier"
+        }
+      ]
+    },
+    {
+      "id": 355,
+      "nom": "Skelénox",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        },
+        {
+          "nom": "Fouille",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 300,
+      "nom": "Skitty",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Joli Sourire"
+        },
+        {
+          "nom": "Normalise"
+        },
+        {
+          "nom": "Peau Miracle",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 109,
+      "nom": "Smogo",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        },
+        {
+          "nom": "Gaz Inhibiteur"
+        },
+        {
+          "nom": "Puanteur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 209,
+      "nom": "Snubbull",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 338,
+      "nom": "Solaroc",
+      "types": [
+        "roche",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 633,
+      "nom": "Solochi",
+      "types": [
+        "tenebres",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Agitation"
+        }
+      ]
+    },
+    {
+      "id": 714,
+      "nom": "Sonistrelle",
+      "types": [
+        "vol",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Fouille"
+        },
+        {
+          "nom": "Infiltration"
+        },
+        {
+          "nom": "Télépathe",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 96,
+      "nom": "Soporifik",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Insomnia"
+        },
+        {
+          "nom": "Prédiction"
+        },
+        {
+          "nom": "Attention",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 582,
+      "nom": "Sorbébé",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Gel"
+        },
+        {
+          "nom": "Rideau Neige"
+        },
+        {
+          "nom": "Armurouillée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 767,
+      "nom": "Sovkipou",
+      "types": [
+        "insecte",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Escampette"
+        }
+      ]
+    },
+    {
+      "id": 327,
+      "nom": "Spinda",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Pieds Confus"
+        },
+        {
+          "nom": "Contestation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 442,
+      "nom": "Spiritomb",
+      "types": [
+        "spectre",
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Pression"
+        },
+        {
+          "nom": "Infiltration",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 755,
+      "nom": "Spododo",
+      "types": [
+        "plante",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Lumiattirance"
+        },
+        {
+          "nom": "Pose Spore"
+        },
+        {
+          "nom": "Cuvette",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 325,
+      "nom": "Spoink",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Gloutonnerie",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 361,
+      "nom": "Stalgamin",
+      "types": [
+        "glace"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Corps Gel"
+        },
+        {
+          "nom": "Lunatique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 120,
+      "nom": "Stari",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Lumiattirance"
+        },
+        {
+          "nom": "Médic Nature"
+        },
+        {
+          "nom": "Analyste",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 595,
+      "nom": "Statitik",
+      "types": [
+        "insecte",
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Œil Composé"
+        },
+        {
+          "nom": "Tension"
+        },
+        {
+          "nom": "Essaim",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 703,
+      "nom": "Strassie",
+      "types": [
+        "roche",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Sain"
+        },
+        {
+          "nom": "Fermeté",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 684,
+      "nom": "Sucroquin",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Gluco-Voile"
+        },
+        {
+          "nom": "Délestage",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 337,
+      "nom": "Séléroc",
+      "types": [
+        "roche",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 336,
+      "nom": "Séviper",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Mue"
+        },
+        {
+          "nom": "Infiltration",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 88,
+      "nom": "Tadmorv",
+      "types": [
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Puanteur"
+        },
+        {
+          "nom": "Glu"
+        },
+        {
+          "nom": "Toxitouche",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10112,
+      "nom": "Tadmorv d'Alola",
+      "types": [
+        "poison",
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Toxitouche"
+        },
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Osmose",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 931,
+      "nom": "Tapatoès",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Cran",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 299,
+      "nom": "Tarinor",
+      "types": [
+        "roche"
+      ],
+      "talents": [
+        {
+          "nom": "Fermeté"
+        },
+        {
+          "nom": "Magnépiège"
+        },
+        {
+          "nom": "Force Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 280,
+      "nom": "Tarsal",
+      "types": [
+        "psy",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Synchro"
+        },
+        {
+          "nom": "Calque"
+        },
+        {
+          "nom": "Télépathe",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 960,
+      "nom": "Taupikeau",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Poisseux"
+        },
+        {
+          "nom": "Phobique"
+        },
+        {
+          "nom": "Voile Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 50,
+      "nom": "Taupiqueur",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Voile Sable"
+        },
+        {
+          "nom": "Piège Sable"
+        },
+        {
+          "nom": "Force Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10105,
+      "nom": "Taupiqueur d'Alola",
+      "types": [
+        "sol",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Voile Sable"
+        },
+        {
+          "nom": "Mèche Rebelle"
+        },
+        {
+          "nom": "Force Sable",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 128,
+      "nom": "Tauros",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Intimidation"
+        },
+        {
+          "nom": "Colérique"
+        },
+        {
+          "nom": "Sans Limite",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 216,
+      "nom": "Teddiursa",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Pied Véloce"
+        },
+        {
+          "nom": "Cherche Miel",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 72,
+      "nom": "Tentacool",
+      "types": [
+        "eau",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Sain"
+        },
+        {
+          "nom": "Suintement"
+        },
+        {
+          "nom": "Cuvette",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 374,
+      "nom": "Terhal",
+      "types": [
+        "acier",
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Corps Sain"
+        },
+        {
+          "nom": "Light Metal",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 948,
+      "nom": "Terracool",
+      "types": [
+        "sol",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Force Fongique"
+        }
+      ]
+    },
+    {
+      "id": 854,
+      "nom": "Théffroi",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Armurouillée"
+        },
+        {
+          "nom": "Corps Maudit",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 749,
+      "nom": "Tiboudet",
+      "types": [
+        "sol"
+      ],
+      "talents": [
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Endurance"
+        },
+        {
+          "nom": "Attention",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 599,
+      "nom": "Tic",
+      "types": [
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Plus"
+        },
+        {
+          "nom": "Moins"
+        },
+        {
+          "nom": "Corps Sain",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 393,
+      "nom": "Tiplouf",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Torrent"
+        },
+        {
+          "nom": "Battant",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 917,
+      "nom": "Tissenboule",
+      "types": [
+        "insecte"
+      ],
+      "talents": [
+        {
+          "nom": "Insomnia"
+        },
+        {
+          "nom": "Filature",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 777,
+      "nom": "Togedemaru",
+      "types": [
+        "electrik",
+        "acier"
+      ],
+      "talents": [
+        {
+          "nom": "Épine de Fer"
+        },
+        {
+          "nom": "Paratonnerre"
+        },
+        {
+          "nom": "Fermeté",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 175,
+      "nom": "Togepi",
+      "types": [
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Agitation"
+        },
+        {
+          "nom": "Sérénité"
+        },
+        {
+          "nom": "Chanceux",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 387,
+      "nom": "Tortipouss",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Coque Armure",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 174,
+      "nom": "Toudoudou",
+      "types": [
+        "normal",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Joli Sourire"
+        },
+        {
+          "nom": "Battant"
+        },
+        {
+          "nom": "Garde-Ami",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 191,
+      "nom": "Tournegrin",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Force Soleil"
+        },
+        {
+          "nom": "Matinal",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 829,
+      "nom": "Tournicoton",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Effilochage"
+        },
+        {
+          "nom": "Régé-Force"
+        },
+        {
+          "nom": "Pose Spore",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 971,
+      "nom": "Toutombe",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Boule de Poils",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 848,
+      "nom": "Toxizap",
+      "types": [
+        "electrik",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Phobique"
+        },
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Maladresse",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 535,
+      "nom": "Tritonde",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Hydratation"
+        },
+        {
+          "nom": "Absorbe-Eau",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 757,
+      "nom": "Tritox",
+      "types": [
+        "poison",
+        "feu"
+      ],
+      "talents": [
+        {
+          "nom": "Corrosion"
+        },
+        {
+          "nom": "Benêt",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 590,
+      "nom": "Trompignon",
+      "types": [
+        "plante",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Pose Spore"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 357,
+      "nom": "Tropius",
+      "types": [
+        "plante",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Force Soleil"
+        },
+        {
+          "nom": "Récolte",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 707,
+      "nom": "Trousselin",
+      "types": [
+        "acier",
+        "fee"
+      ],
+      "talents": [
+        {
+          "nom": "Farceur"
+        },
+        {
+          "nom": "Magicien",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 562,
+      "nom": "Tutafeh",
+      "types": [
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Momie"
+        }
+      ]
+    },
+    {
+      "id": 10179,
+      "nom": "Tutafeh de Galar",
+      "types": [
+        "sol",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Âme Vagabonde"
+        }
+      ]
+    },
+    {
+      "id": 333,
+      "nom": "Tylton",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Médic Nature"
+        },
+        {
+          "nom": "Ciel Gris",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 302,
+      "nom": "Ténéfix",
+      "types": [
+        "tenebres",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Frein"
+        },
+        {
+          "nom": "Farceur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 938,
+      "nom": "Têtampoule",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Tempo Perso"
+        },
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Moiteur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 690,
+      "nom": "Venalgue",
+      "types": [
+        "poison",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Point Poison"
+        },
+        {
+          "nom": "Toxitouche"
+        },
+        {
+          "nom": "Adaptabilité",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 543,
+      "nom": "Venipatte",
+      "types": [
+        "insecte",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Point Poison"
+        },
+        {
+          "nom": "Essaim"
+        },
+        {
+          "nom": "Turbo",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 840,
+      "nom": "Verpom",
+      "types": [
+        "plante",
+        "dragon"
+      ],
+      "talents": [
+        {
+          "nom": "Mûrissement"
+        },
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Pare-Balles",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 495,
+      "nom": "Vipélierre",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Engrais"
+        },
+        {
+          "nom": "Contestation",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 946,
+      "nom": "Virovent",
+      "types": [
+        "plante",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Aéroporté"
+        },
+        {
+          "nom": "Infiltration",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 592,
+      "nom": "Viskuse",
+      "types": [
+        "eau",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Absorbe-Eau"
+        },
+        {
+          "nom": "Corps Maudit"
+        },
+        {
+          "nom": "Moiteur",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 585,
+      "nom": "Vivaldaim",
+      "types": [
+        "normal",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Chlorophylle"
+        },
+        {
+          "nom": "Herbivore"
+        },
+        {
+          "nom": "Sérénité",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 100,
+      "nom": "Voltorbe",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Anti-Bruit"
+        },
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Boom Final",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10231,
+      "nom": "Voltorbe de Hisui",
+      "types": [
+        "electrik",
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Anti-Bruit"
+        },
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Boom Final",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 835,
+      "nom": "Voltoutou",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Ramasse Ball"
+        },
+        {
+          "nom": "Phobique",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 747,
+      "nom": "Vorastérie",
+      "types": [
+        "poison",
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Cruauté"
+        },
+        {
+          "nom": "Échauffement"
+        },
+        {
+          "nom": "Régé-Force",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 455,
+      "nom": "Vortente",
+      "types": [
+        "plante"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 629,
+      "nom": "Vostourno",
+      "types": [
+        "tenebres",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Cœur de Coq"
+        },
+        {
+          "nom": "Envelocape"
+        },
+        {
+          "nom": "Armurouillée",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 965,
+      "nom": "Vrombi",
+      "types": [
+        "acier",
+        "poison"
+      ],
+      "talents": [
+        {
+          "nom": "Envelocape"
+        },
+        {
+          "nom": "Début Calme",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 320,
+      "nom": "Wailmer",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Ignifu-Voile"
+        },
+        {
+          "nom": "Benêt"
+        },
+        {
+          "nom": "Pression",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 871,
+      "nom": "Wattapik",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Paratonnerre"
+        },
+        {
+          "nom": "Créa-Élec",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 179,
+      "nom": "Wattouat",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Plus",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 876,
+      "nom": "Wimessir",
+      "types": [
+        "psy",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Attention"
+        },
+        {
+          "nom": "Synchro"
+        },
+        {
+          "nom": "Créa-Psy",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 193,
+      "nom": "Yanma",
+      "types": [
+        "insecte",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Turbo"
+        },
+        {
+          "nom": "Œil Composé"
+        },
+        {
+          "nom": "Fouille",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 940,
+      "nom": "Zapétrel",
+      "types": [
+        "electrik",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Turbine Éolienne"
+        },
+        {
+          "nom": "Absorbe-Volt"
+        },
+        {
+          "nom": "Battant",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 201,
+      "nom": "Zarbi",
+      "types": [
+        "psy"
+      ],
+      "talents": [
+        {
+          "nom": "Lévitation"
+        }
+      ]
+    },
+    {
+      "id": 263,
+      "nom": "Zigzaton",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Pied Véloce",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 10174,
+      "nom": "Zigzaton de Galar",
+      "types": [
+        "tenebres",
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Ramassage"
+        },
+        {
+          "nom": "Gloutonnerie"
+        },
+        {
+          "nom": "Pied Véloce",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 570,
+      "nom": "Zorua",
+      "types": [
+        "tenebres"
+      ],
+      "talents": [
+        {
+          "nom": "Illusion"
+        }
+      ]
+    },
+    {
+      "id": 10238,
+      "nom": "Zorua de Hisui",
+      "types": [
+        "normal",
+        "spectre"
+      ],
+      "talents": [
+        {
+          "nom": "Illusion"
+        }
+      ]
+    },
+    {
+      "id": 522,
+      "nom": "Zébibron",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Paratonnerre"
+        },
+        {
+          "nom": "Motorisé"
+        },
+        {
+          "nom": "Herbivore",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 456,
+      "nom": "Écayon",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Glissade"
+        },
+        {
+          "nom": "Lavabo"
+        },
+        {
+          "nom": "Ignifu-Voile",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 341,
+      "nom": "Écrapince",
+      "types": [
+        "eau"
+      ],
+      "talents": [
+        {
+          "nom": "Hyper Cutter"
+        },
+        {
+          "nom": "Coque Armure"
+        },
+        {
+          "nom": "Adaptabilité",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 241,
+      "nom": "Écrémeuh",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Isograisse"
+        },
+        {
+          "nom": "Querelleur"
+        },
+        {
+          "nom": "Herbivore",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 239,
+      "nom": "Élekid",
+      "types": [
+        "electrik"
+      ],
+      "talents": [
+        {
+          "nom": "Statik"
+        },
+        {
+          "nom": "Esprit Vital",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 396,
+      "nom": "Étourmi",
+      "types": [
+        "normal",
+        "vol"
+      ],
+      "talents": [
+        {
+          "nom": "Regard Vif"
+        },
+        {
+          "nom": "Téméraire",
+          "cache": true
+        }
+      ]
+    },
+    {
+      "id": 133,
+      "nom": "Évoli",
+      "types": [
+        "normal"
+      ],
+      "talents": [
+        {
+          "nom": "Fuite"
+        },
+        {
+          "nom": "Adaptabilité"
+        },
+        {
+          "nom": "Anticipation",
+          "cache": true
+        }
+      ]
+    }
+  ]
+}
