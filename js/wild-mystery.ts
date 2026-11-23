@@ -48,6 +48,7 @@ import {
   adresseDuScript,
   CatalogueDistant,
   forumDeLaPage,
+  forumDuPost,
   racineDesDonnees,
   racineDesImages,
   racineDuDepot,
@@ -527,7 +528,9 @@ const FORUM_DES_PRESENTATIONS = 7;
  */
 function poserLeFormulaireDeFiche(): void {
   if (RACINE === null) return;
-  if (forumDeLaPage(document) !== FORUM_DES_PRESENTATIONS) return;
+  if (forumDuPost(globalThis.location?.search ?? "", document) !== FORUM_DES_PRESENTATIONS) {
+    return;
+  }
   const brouillon = BrouillonForumactif.surLaPage(document);
   if (brouillon === null) return;
   poserLaFiche({

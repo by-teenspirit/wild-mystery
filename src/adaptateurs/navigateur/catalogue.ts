@@ -219,6 +219,38 @@ export function filDAriane(dedans = ""): string {
   return LES_DEUX_FILS.map((s) => (dedans === "" ? s : `${s} ${dedans}`)).join(", ");
 }
 
+/** Le forum d'une page de réponse — `/post?f=7&mode=newtopic`.
+ *
+ *  ── L'ADRESSE D'ABORD, ET C'EST UN DÉFAUT PAYÉ ──────────────────────
+ *
+ *  « Quand je veux poster ma fiche de présentation, j'ai pas le
+ *  formulaire » — 23 novembre.
+ *
+ *  Le formulaire de la fiche demandait son forum à `forumDeLaPage`,
+ *  qui ne sait lire QUE le fil d'Ariane. Sur `/post`, le numéro du
+ *  forum est **dans l'adresse** — c'est même la seule chose qui dit
+ *  dans quel forum on s'apprête à écrire — et rien ne promet que
+ *  Forumactif y serve un fil d'Ariane.
+ *
+ *  Demander au fil ce que l'adresse dit déjà, c'était faire dépendre
+ *  le formulaire d'un élément de page dont on n'avait pas besoin.
+ *
+ *  LE FIL RESTE EN REPLI, et il sert vraiment : en édition
+ *  (`/post?p=123&mode=editpost`) il n'y a pas de `f`, et le fil est
+ *  alors la seule source. */
+export function forumDeLAdresse(recherche: string): number | null {
+  const f = new URLSearchParams(recherche).get("f") ?? "";
+  //  `^\d+$` ET PAS `Number()` : `Number(" 7 ")` rend 7, `Number("")`
+  //  rend 0, et `parseInt("7a")` rend 7. Aucun des trois n'est un
+  //  numéro de forum, et le dernier ferait poser le formulaire sur un
+  //  forum qui n'est pas celui-là.
+  return /^\d+$/.test(f) ? Number(f) : null;
+}
+
+export function forumDuPost(recherche: string, doc: Document): number | null {
+  return forumDeLAdresse(recherche) ?? forumDeLaPage(doc);
+}
+
 export function forumDeLaPage(doc: Document): number | null {
   const dit = doc.querySelector<HTMLElement>("[data-wm-forum]")?.dataset.wmForum ?? "";
   if (/^\d+$/.test(dit)) return Number(dit);

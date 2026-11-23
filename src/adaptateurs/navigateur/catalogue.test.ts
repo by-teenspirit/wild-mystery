@@ -8,6 +8,7 @@ import { assertEquals } from "@std/assert";
 import {
   CatalogueDistant,
   especesDepuis,
+  forumDeLAdresse,
   racineDesDonnees,
   racineDesImages,
 } from "./catalogue.ts";
@@ -149,4 +150,31 @@ Deno.test("la racine des images est sœur de celle des données", () => {
   );
   assertEquals(racineDesImages(null), null);
   assertEquals(racineDesImages("https://exemple.test/wild-mystery.js"), null);
+});
+
+// ── le forum d'une page de réponse ──────────────────────────────────
+
+Deno.test("L'ADRESSE DIT LE FORUM, ET ELLE PASSE AVANT LE FIL", () => {
+  //  « Quand je veux poster ma fiche de présentation, j'ai pas le
+  //  formulaire » — 23 novembre. Il demandait son forum au fil
+  //  d'Ariane, alors que le numéro est dans l'adresse, et que rien ne
+  //  promet un fil d'Ariane sur `/post`.
+  assertEquals(forumDeLAdresse("?f=7&mode=newtopic"), 7);
+  assertEquals(forumDeLAdresse("?mode=newtopic&f=12"), 12);
+  assertEquals(forumDeLAdresse("f=7"), 7);
+});
+
+Deno.test("SANS `f`, ON REND NULL — et c'est le fil qui reprendra", () => {
+  //  C'est le cas de l'édition : `/post?p=123&mode=editpost` ne porte
+  //  pas de `f`, et le fil est alors la seule source.
+  assertEquals(forumDeLAdresse("?p=123&mode=editpost"), null);
+  assertEquals(forumDeLAdresse(""), null);
+});
+
+Deno.test("un `f` qui n'est pas un nombre entier ne passe pas", () => {
+  //  `parseInt("7a")` rendrait 7, et le formulaire se poserait sur un
+  //  forum qui n'est pas celui-là.
+  for (const quoi of ["?f=", "?f=abc", "?f=7a", "?f=-3", "?f=7.5", "?f= 7"]) {
+    assertEquals(forumDeLAdresse(quoi), null, quoi);
+  }
 });
