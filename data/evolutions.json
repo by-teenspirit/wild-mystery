@@ -1,0 +1,4293 @@
+{
+ "lisezMoi": "Qui évolue vers qui, et à quelle condition. DÉRIVÉ des tables de PokéAPI par outils/evolutions.py, avec les écarts de l'annexe « Faire évoluer son pokémon » appliqués ici — l'échange remplacé par le niveau 40, le bonheur réduit à cinq étoiles, les formes régionales ajoutées au choix du joueur. NE PAS MODIFIER À LA MAIN.",
+ "source": "https://github.com/PokeAPI/pokeapi — data/v2/csv",
+ "comment": "python3 outils/evolutions.py",
+ "par": {
+  "niveau": "un niveau à atteindre",
+  "bonheur": "cinq étoiles de bonheur, puis un niveau de plus",
+  "objet": "un objet à utiliser ; objetId est null s'il n'est pas au catalogue",
+  "attaque": "connaître une attaque, puis un niveau de plus",
+  "special": "pas automatisable — « pourquoi » le dit, et le staff tranche"
+ },
+ "objetsAbsentsDuCatalogue": [
+  "Améliorator",
+  "Armure de la Fortune",
+  "Armure de la Rancune",
+  "Bloc de Tourbe",
+  "Bol Exceptionnel",
+  "Bol Médiocre",
+  "Bracelet Galanoa",
+  "CD Douteux",
+  "Chantibonbon",
+  "Couronne Galanoa",
+  "Croc Rasoir",
+  "Fil de Liaison",
+  "Griffe Rasoir",
+  "Magmariseur",
+  "Métal Composite",
+  "Météorite",
+  "Obsidienne",
+  "Pierre Ovale",
+  "Pomme Acidulée",
+  "Pomme Nectar",
+  "Pomme Sucrée",
+  "Protecteur",
+  "Sachet Senteur",
+  "Théière Fêlée",
+  "Théière Ébréchée",
+  "Tissu Fauche",
+  "Écaille Draco",
+  "Électriseur"
+ ],
+ "compte": {
+  "especes": 451,
+  "chemins": 539,
+  "speciales": 29,
+  "objetsManquants": 28
+ },
+ "evolutions": {
+  "1": [
+   {
+    "vers": 2,
+    "nom": "Herbizarre",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "2": [
+   {
+    "vers": 3,
+    "nom": "Florizarre",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "4": [
+   {
+    "vers": 5,
+    "nom": "Reptincel",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "5": [
+   {
+    "vers": 6,
+    "nom": "Dracaufeu",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "7": [
+   {
+    "vers": 8,
+    "nom": "Carabaffe",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "8": [
+   {
+    "vers": 9,
+    "nom": "Tortank",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "10": [
+   {
+    "vers": 11,
+    "nom": "Chrysacier",
+    "par": "niveau",
+    "niveau": 7
+   }
+  ],
+  "11": [
+   {
+    "vers": 12,
+    "nom": "Papilusion",
+    "par": "niveau",
+    "niveau": 10
+   }
+  ],
+  "13": [
+   {
+    "vers": 14,
+    "nom": "Coconfort",
+    "par": "niveau",
+    "niveau": 7
+   }
+  ],
+  "14": [
+   {
+    "vers": 15,
+    "nom": "Dardargnan",
+    "par": "niveau",
+    "niveau": 10
+   }
+  ],
+  "16": [
+   {
+    "vers": 17,
+    "nom": "Roucoups",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "17": [
+   {
+    "vers": 18,
+    "nom": "Roucarnage",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "19": [
+   {
+    "vers": 20,
+    "nom": "Rattatac",
+    "par": "niveau",
+    "niveau": 20
+   },
+   {
+    "vers": 20,
+    "nom": "Rattatac",
+    "par": "niveau",
+    "niveau": 20,
+    "moment": "nuit"
+   },
+   {
+    "vers": 10092,
+    "nom": "Rattatac d'Alola",
+    "par": "niveau",
+    "niveau": 20
+   },
+   {
+    "vers": 10092,
+    "nom": "Rattatac d'Alola",
+    "par": "niveau",
+    "niveau": 20,
+    "moment": "nuit"
+   }
+  ],
+  "21": [
+   {
+    "vers": 22,
+    "nom": "Rapasdepic",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "23": [
+   {
+    "vers": 24,
+    "nom": "Arbok",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "25": [
+   {
+    "vers": 26,
+    "nom": "Raichu",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   },
+   {
+    "vers": 10100,
+    "nom": "Raichu d'Alola",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   }
+  ],
+  "27": [
+   {
+    "vers": 28,
+    "nom": "Sablaireau",
+    "par": "niveau",
+    "niveau": 22
+   },
+   {
+    "vers": 10102,
+    "nom": "Sablaireau d'Alola",
+    "par": "niveau",
+    "niveau": 22
+   },
+   {
+    "vers": 28,
+    "nom": "Sablaireau",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   },
+   {
+    "vers": 10102,
+    "nom": "Sablaireau d'Alola",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   }
+  ],
+  "29": [
+   {
+    "vers": 30,
+    "nom": "Nidorina",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "30": [
+   {
+    "vers": 31,
+    "nom": "Nidoqueen",
+    "par": "objet",
+    "objet": "Pierre Lune",
+    "objetId": 990085
+   }
+  ],
+  "32": [
+   {
+    "vers": 33,
+    "nom": "Nidorino",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "33": [
+   {
+    "vers": 34,
+    "nom": "Nidoking",
+    "par": "objet",
+    "objet": "Pierre Lune",
+    "objetId": 990085
+   }
+  ],
+  "35": [
+   {
+    "vers": 36,
+    "nom": "Mélodelfe",
+    "par": "objet",
+    "objet": "Pierre Lune",
+    "objetId": 990085
+   }
+  ],
+  "37": [
+   {
+    "vers": 38,
+    "nom": "Feunard",
+    "par": "objet",
+    "objet": "Pierre Feu",
+    "objetId": 990080
+   },
+   {
+    "vers": 38,
+    "nom": "Feunard",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   },
+   {
+    "vers": 10104,
+    "nom": "Feunard d'Alola",
+    "par": "objet",
+    "objet": "Pierre Feu",
+    "objetId": 990080
+   },
+   {
+    "vers": 10104,
+    "nom": "Feunard d'Alola",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   }
+  ],
+  "39": [
+   {
+    "vers": 40,
+    "nom": "Grodoudou",
+    "par": "objet",
+    "objet": "Pierre Lune",
+    "objetId": 990085
+   }
+  ],
+  "41": [
+   {
+    "vers": 42,
+    "nom": "Nosferalto",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "42": [
+   {
+    "vers": 169,
+    "nom": "Nostenfer",
+    "par": "bonheur"
+   }
+  ],
+  "43": [
+   {
+    "vers": 44,
+    "nom": "Ortide",
+    "par": "niveau",
+    "niveau": 21
+   }
+  ],
+  "44": [
+   {
+    "vers": 45,
+    "nom": "Rafflesia",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   },
+   {
+    "vers": 182,
+    "nom": "Joliflor",
+    "par": "objet",
+    "objet": "Pierre Soleil",
+    "objetId": 990086
+   }
+  ],
+  "46": [
+   {
+    "vers": 47,
+    "nom": "Parasect",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "48": [
+   {
+    "vers": 49,
+    "nom": "Aéromite",
+    "par": "niveau",
+    "niveau": 31
+   }
+  ],
+  "50": [
+   {
+    "vers": 51,
+    "nom": "Triopikeur",
+    "par": "niveau",
+    "niveau": 26
+   },
+   {
+    "vers": 10106,
+    "nom": "Triopikeur d'Alola",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "52": [
+   {
+    "vers": 53,
+    "nom": "Persian",
+    "par": "bonheur"
+   },
+   {
+    "vers": 10108,
+    "nom": "Persian d'Alola",
+    "par": "bonheur"
+   },
+   {
+    "vers": 53,
+    "nom": "Persian",
+    "par": "niveau",
+    "niveau": 28
+   },
+   {
+    "vers": 863,
+    "nom": "Berserkatt",
+    "par": "niveau",
+    "niveau": 28
+   },
+   {
+    "vers": 10108,
+    "nom": "Persian d'Alola",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "54": [
+   {
+    "vers": 55,
+    "nom": "Akwakwak",
+    "par": "niveau",
+    "niveau": 33
+   }
+  ],
+  "56": [
+   {
+    "vers": 57,
+    "nom": "Colossinge",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "57": [
+   {
+    "vers": 979,
+    "nom": "Courrousinge",
+    "par": "special",
+    "pourquoi": "la façon d'évoluer (use-move) n'a pas d'équivalent ici"
+   }
+  ],
+  "58": [
+   {
+    "vers": 59,
+    "nom": "Arcanin",
+    "par": "objet",
+    "objet": "Pierre Feu",
+    "objetId": 990080
+   },
+   {
+    "vers": 10230,
+    "nom": "Arcanin de Hisui",
+    "par": "objet",
+    "objet": "Pierre Feu",
+    "objetId": 990080
+   }
+  ],
+  "60": [
+   {
+    "vers": 61,
+    "nom": "Têtarte",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "61": [
+   {
+    "vers": 62,
+    "nom": "Tartard",
+    "par": "objet",
+    "objet": "Pierre Eau",
+    "objetId": 990081
+   },
+   {
+    "vers": 186,
+    "nom": "Tarpaud",
+    "par": "objet",
+    "objet": "Roche Royale",
+    "objetId": 990103
+   }
+  ],
+  "63": [
+   {
+    "vers": 64,
+    "nom": "Kadabra",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "64": [
+   {
+    "vers": 65,
+    "nom": "Alakazam",
+    "par": "niveau",
+    "niveau": 40
+   },
+   {
+    "vers": 65,
+    "nom": "Alakazam",
+    "par": "objet",
+    "objet": "Fil de Liaison",
+    "objetId": null
+   }
+  ],
+  "66": [
+   {
+    "vers": 67,
+    "nom": "Machopeur",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "67": [
+   {
+    "vers": 68,
+    "nom": "Mackogneur",
+    "par": "niveau",
+    "niveau": 40
+   },
+   {
+    "vers": 68,
+    "nom": "Mackogneur",
+    "par": "objet",
+    "objet": "Fil de Liaison",
+    "objetId": null
+   }
+  ],
+  "69": [
+   {
+    "vers": 70,
+    "nom": "Boustiflor",
+    "par": "niveau",
+    "niveau": 21
+   }
+  ],
+  "70": [
+   {
+    "vers": 71,
+    "nom": "Empiflor",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   }
+  ],
+  "72": [
+   {
+    "vers": 73,
+    "nom": "Tentacruel",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "74": [
+   {
+    "vers": 75,
+    "nom": "Gravalanch",
+    "par": "niveau",
+    "niveau": 25
+   },
+   {
+    "vers": 10110,
+    "nom": "Gravalanch d'Alola",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "75": [
+   {
+    "vers": 76,
+    "nom": "Grolem",
+    "par": "niveau",
+    "niveau": 40
+   },
+   {
+    "vers": 10111,
+    "nom": "Grolem d'Alola",
+    "par": "niveau",
+    "niveau": 40
+   },
+   {
+    "vers": 76,
+    "nom": "Grolem",
+    "par": "objet",
+    "objet": "Fil de Liaison",
+    "objetId": null
+   },
+   {
+    "vers": 10111,
+    "nom": "Grolem d'Alola",
+    "par": "objet",
+    "objet": "Fil de Liaison",
+    "objetId": null
+   }
+  ],
+  "77": [
+   {
+    "vers": 78,
+    "nom": "Galopa",
+    "par": "niveau",
+    "niveau": 40
+   },
+   {
+    "vers": 10163,
+    "nom": "Galopa de Galar",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "79": [
+   {
+    "vers": 80,
+    "nom": "Flagadoss",
+    "par": "niveau",
+    "niveau": 37
+   },
+   {
+    "vers": 10165,
+    "nom": "Flagadoss de Galar",
+    "par": "niveau",
+    "niveau": 37
+   },
+   {
+    "vers": 80,
+    "nom": "Flagadoss",
+    "par": "objet",
+    "objet": "Bracelet Galanoa",
+    "objetId": null
+   },
+   {
+    "vers": 199,
+    "nom": "Roigada",
+    "par": "objet",
+    "objet": "Roche Royale",
+    "objetId": 990103
+   },
+   {
+    "vers": 199,
+    "nom": "Roigada",
+    "par": "objet",
+    "objet": "Couronne Galanoa",
+    "objetId": null
+   },
+   {
+    "vers": 10165,
+    "nom": "Flagadoss de Galar",
+    "par": "objet",
+    "objet": "Bracelet Galanoa",
+    "objetId": null
+   },
+   {
+    "vers": 10172,
+    "nom": "Roigada de Galar",
+    "par": "objet",
+    "objet": "Roche Royale",
+    "objetId": 990103
+   },
+   {
+    "vers": 10172,
+    "nom": "Roigada de Galar",
+    "par": "objet",
+    "objet": "Couronne Galanoa",
+    "objetId": null
+   }
+  ],
+  "81": [
+   {
+    "vers": 82,
+    "nom": "Magnéton",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "82": [
+   {
+    "vers": 462,
+    "nom": "Magnézone",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   }
+  ],
+  "83": [
+   {
+    "vers": 865,
+    "nom": "Palarticho",
+    "par": "special",
+    "pourquoi": "la façon d'évoluer (three-critical-hits) n'a pas d'équivalent ici"
+   }
+  ],
+  "84": [
+   {
+    "vers": 85,
+    "nom": "Dodrio",
+    "par": "niveau",
+    "niveau": 31
+   }
+  ],
+  "86": [
+   {
+    "vers": 87,
+    "nom": "Lamantine",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "88": [
+   {
+    "vers": 89,
+    "nom": "Grotadmorv",
+    "par": "niveau",
+    "niveau": 38
+   },
+   {
+    "vers": 10113,
+    "nom": "Grotadmorv d'Alola",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "90": [
+   {
+    "vers": 91,
+    "nom": "Crustabri",
+    "par": "objet",
+    "objet": "Pierre Eau",
+    "objetId": 990081
+   }
+  ],
+  "92": [
+   {
+    "vers": 93,
+    "nom": "Spectrum",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "93": [
+   {
+    "vers": 94,
+    "nom": "Ectoplasma",
+    "par": "niveau",
+    "niveau": 40
+   },
+   {
+    "vers": 94,
+    "nom": "Ectoplasma",
+    "par": "objet",
+    "objet": "Fil de Liaison",
+    "objetId": null
+   }
+  ],
+  "95": [
+   {
+    "vers": 208,
+    "nom": "Steelix",
+    "par": "objet",
+    "objet": "Peau Métal",
+    "objetId": 990100
+   }
+  ],
+  "96": [
+   {
+    "vers": 97,
+    "nom": "Hypnomade",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "98": [
+   {
+    "vers": 99,
+    "nom": "Krabboss",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "100": [
+   {
+    "vers": 101,
+    "nom": "Électrode",
+    "par": "niveau",
+    "niveau": 30
+   },
+   {
+    "vers": 10232,
+    "nom": "Électrode de Hisui",
+    "par": "niveau",
+    "niveau": 30
+   },
+   {
+    "vers": 101,
+    "nom": "Électrode",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   },
+   {
+    "vers": 10232,
+    "nom": "Électrode de Hisui",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   }
+  ],
+  "102": [
+   {
+    "vers": 103,
+    "nom": "Noadkoko",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   },
+   {
+    "vers": 10114,
+    "nom": "Noadkoko d'Alola",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   }
+  ],
+  "104": [
+   {
+    "vers": 105,
+    "nom": "Ossatueur",
+    "par": "niveau",
+    "niveau": 28
+   },
+   {
+    "vers": 105,
+    "nom": "Ossatueur",
+    "par": "niveau",
+    "niveau": 28,
+    "moment": "nuit"
+   },
+   {
+    "vers": 10115,
+    "nom": "Ossatueur d'Alola",
+    "par": "niveau",
+    "niveau": 28
+   },
+   {
+    "vers": 10115,
+    "nom": "Ossatueur d'Alola",
+    "par": "niveau",
+    "niveau": 28,
+    "moment": "nuit"
+   }
+  ],
+  "108": [
+   {
+    "vers": 463,
+    "nom": "Coudlangue",
+    "par": "attaque",
+    "attaque": "Roulade"
+   }
+  ],
+  "109": [
+   {
+    "vers": 110,
+    "nom": "Smogogo",
+    "par": "niveau",
+    "niveau": 35
+   },
+   {
+    "vers": 10167,
+    "nom": "Smogogo de Galar",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "111": [
+   {
+    "vers": 112,
+    "nom": "Rhinoféros",
+    "par": "niveau",
+    "niveau": 42
+   }
+  ],
+  "112": [
+   {
+    "vers": 464,
+    "nom": "Rhinastoc",
+    "par": "objet",
+    "objet": "Protecteur",
+    "objetId": null
+   }
+  ],
+  "113": [
+   {
+    "vers": 242,
+    "nom": "Leuphorie",
+    "par": "bonheur"
+   }
+  ],
+  "114": [
+   {
+    "vers": 465,
+    "nom": "Bouldeneu",
+    "par": "attaque",
+    "attaque": "Pouvoir Antique"
+   }
+  ],
+  "116": [
+   {
+    "vers": 117,
+    "nom": "Hypocéan",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "117": [
+   {
+    "vers": 230,
+    "nom": "Hyporoi",
+    "par": "objet",
+    "objet": "Écaille Draco",
+    "objetId": null
+   }
+  ],
+  "118": [
+   {
+    "vers": 119,
+    "nom": "Poissoroy",
+    "par": "niveau",
+    "niveau": 33
+   }
+  ],
+  "120": [
+   {
+    "vers": 121,
+    "nom": "Staross",
+    "par": "objet",
+    "objet": "Pierre Eau",
+    "objetId": 990081
+   }
+  ],
+  "122": [
+   {
+    "vers": 866,
+    "nom": "M. Glaquette",
+    "par": "niveau",
+    "niveau": 42
+   }
+  ],
+  "123": [
+   {
+    "vers": 212,
+    "nom": "Cizayox",
+    "par": "objet",
+    "objet": "Peau Métal",
+    "objetId": 990100
+   },
+   {
+    "vers": 900,
+    "nom": "Hachécateur",
+    "par": "objet",
+    "objet": "Obsidienne",
+    "objetId": null
+   }
+  ],
+  "125": [
+   {
+    "vers": 466,
+    "nom": "Élekable",
+    "par": "objet",
+    "objet": "Électriseur",
+    "objetId": null
+   }
+  ],
+  "126": [
+   {
+    "vers": 467,
+    "nom": "Maganon",
+    "par": "objet",
+    "objet": "Magmariseur",
+    "objetId": null
+   }
+  ],
+  "129": [
+   {
+    "vers": 130,
+    "nom": "Léviator",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "133": [
+   {
+    "vers": 196,
+    "nom": "Mentali",
+    "par": "bonheur",
+    "moment": "jour"
+   },
+   {
+    "vers": 197,
+    "nom": "Noctali",
+    "par": "bonheur",
+    "moment": "nuit"
+   },
+   {
+    "vers": 700,
+    "nom": "Nymphali",
+    "par": "bonheur",
+    "attaqueDeType": "Fée"
+   },
+   {
+    "vers": 134,
+    "nom": "Aquali",
+    "par": "objet",
+    "objet": "Pierre Eau",
+    "objetId": 990081
+   },
+   {
+    "vers": 135,
+    "nom": "Voltali",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   },
+   {
+    "vers": 136,
+    "nom": "Pyroli",
+    "par": "objet",
+    "objet": "Pierre Feu",
+    "objetId": 990080
+   },
+   {
+    "vers": 470,
+    "nom": "Phyllali",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   },
+   {
+    "vers": 471,
+    "nom": "Givrali",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   }
+  ],
+  "137": [
+   {
+    "vers": 233,
+    "nom": "Porygon2",
+    "par": "objet",
+    "objet": "Améliorator",
+    "objetId": null
+   }
+  ],
+  "138": [
+   {
+    "vers": 139,
+    "nom": "Amonistar",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "140": [
+   {
+    "vers": 141,
+    "nom": "Kabutops",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "147": [
+   {
+    "vers": 148,
+    "nom": "Draco",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "148": [
+   {
+    "vers": 149,
+    "nom": "Dracolosse",
+    "par": "niveau",
+    "niveau": 55
+   }
+  ],
+  "152": [
+   {
+    "vers": 153,
+    "nom": "Macronium",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "153": [
+   {
+    "vers": 154,
+    "nom": "Méganium",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "155": [
+   {
+    "vers": 156,
+    "nom": "Feurisson",
+    "par": "niveau",
+    "niveau": 14
+   },
+   {
+    "vers": 156,
+    "nom": "Feurisson",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "156": [
+   {
+    "vers": 157,
+    "nom": "Typhlosion",
+    "par": "niveau",
+    "niveau": 36
+   },
+   {
+    "vers": 10233,
+    "nom": "Typhlosion de Hisui",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "158": [
+   {
+    "vers": 159,
+    "nom": "Crocrodil",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "159": [
+   {
+    "vers": 160,
+    "nom": "Aligatueur",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "161": [
+   {
+    "vers": 162,
+    "nom": "Fouinar",
+    "par": "niveau",
+    "niveau": 15
+   }
+  ],
+  "163": [
+   {
+    "vers": 164,
+    "nom": "Noarfang",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "165": [
+   {
+    "vers": 166,
+    "nom": "Coxyclaque",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "167": [
+   {
+    "vers": 168,
+    "nom": "Migalos",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "170": [
+   {
+    "vers": 171,
+    "nom": "Lanturn",
+    "par": "niveau",
+    "niveau": 27
+   }
+  ],
+  "172": [
+   {
+    "vers": 25,
+    "nom": "Pikachu",
+    "par": "bonheur"
+   }
+  ],
+  "173": [
+   {
+    "vers": 35,
+    "nom": "Mélofée",
+    "par": "bonheur"
+   }
+  ],
+  "174": [
+   {
+    "vers": 39,
+    "nom": "Rondoudou",
+    "par": "bonheur"
+   }
+  ],
+  "175": [
+   {
+    "vers": 176,
+    "nom": "Togetic",
+    "par": "bonheur"
+   }
+  ],
+  "176": [
+   {
+    "vers": 468,
+    "nom": "Togekiss",
+    "par": "objet",
+    "objet": "Pierre Éclat",
+    "objetId": 990087
+   }
+  ],
+  "177": [
+   {
+    "vers": 178,
+    "nom": "Xatu",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "179": [
+   {
+    "vers": 180,
+    "nom": "Lainergie",
+    "par": "niveau",
+    "niveau": 15
+   }
+  ],
+  "180": [
+   {
+    "vers": 181,
+    "nom": "Pharamp",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "183": [
+   {
+    "vers": 184,
+    "nom": "Azumarill",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "187": [
+   {
+    "vers": 188,
+    "nom": "Floravol",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "188": [
+   {
+    "vers": 189,
+    "nom": "Cotovol",
+    "par": "niveau",
+    "niveau": 27
+   }
+  ],
+  "190": [
+   {
+    "vers": 424,
+    "nom": "Capidextre",
+    "par": "attaque",
+    "attaque": "Coup Double"
+   }
+  ],
+  "191": [
+   {
+    "vers": 192,
+    "nom": "Héliatronc",
+    "par": "objet",
+    "objet": "Pierre Soleil",
+    "objetId": 990086
+   }
+  ],
+  "193": [
+   {
+    "vers": 469,
+    "nom": "Yanmega",
+    "par": "attaque",
+    "attaque": "Pouvoir Antique"
+   }
+  ],
+  "194": [
+   {
+    "vers": 195,
+    "nom": "Maraiste",
+    "par": "niveau",
+    "niveau": 20
+   },
+   {
+    "vers": 980,
+    "nom": "Terraiste",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "198": [
+   {
+    "vers": 430,
+    "nom": "Corboss",
+    "par": "objet",
+    "objet": "Pierre Nuit",
+    "objetId": 990088
+   }
+  ],
+  "200": [
+   {
+    "vers": 429,
+    "nom": "Magirêve",
+    "par": "objet",
+    "objet": "Pierre Nuit",
+    "objetId": 990088
+   }
+  ],
+  "203": [
+   {
+    "vers": 981,
+    "nom": "Farigiraf",
+    "par": "attaque",
+    "attaque": "Double Laser"
+   }
+  ],
+  "204": [
+   {
+    "vers": 205,
+    "nom": "Foretress",
+    "par": "niveau",
+    "niveau": 31
+   }
+  ],
+  "206": [
+   {
+    "vers": 982,
+    "nom": "Deusolourdo",
+    "par": "attaque",
+    "attaque": "Hyperceuse"
+   }
+  ],
+  "207": [
+   {
+    "vers": 472,
+    "nom": "Scorvol",
+    "par": "objet",
+    "objet": "Croc Rasoir",
+    "objetId": null
+   }
+  ],
+  "209": [
+   {
+    "vers": 210,
+    "nom": "Granbull",
+    "par": "niveau",
+    "niveau": 23
+   }
+  ],
+  "211": [
+   {
+    "vers": 904,
+    "nom": "Qwilpik",
+    "par": "attaque",
+    "attaque": "Multitoxik"
+   }
+  ],
+  "215": [
+   {
+    "vers": 461,
+    "nom": "Dimoret",
+    "par": "objet",
+    "objet": "Griffe Rasoir",
+    "objetId": null
+   },
+   {
+    "vers": 903,
+    "nom": "Farfurex",
+    "par": "objet",
+    "objet": "Griffe Rasoir",
+    "objetId": null
+   }
+  ],
+  "216": [
+   {
+    "vers": 217,
+    "nom": "Ursaring",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "217": [
+   {
+    "vers": 901,
+    "nom": "Ursaking",
+    "par": "objet",
+    "objet": "Bloc de Tourbe",
+    "objetId": null
+   }
+  ],
+  "218": [
+   {
+    "vers": 219,
+    "nom": "Volcaropod",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "220": [
+   {
+    "vers": 221,
+    "nom": "Cochignon",
+    "par": "niveau",
+    "niveau": 33
+   }
+  ],
+  "221": [
+   {
+    "vers": 473,
+    "nom": "Mammochon",
+    "par": "attaque",
+    "attaque": "Pouvoir Antique"
+   }
+  ],
+  "222": [
+   {
+    "vers": 864,
+    "nom": "Corayôme",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "223": [
+   {
+    "vers": 224,
+    "nom": "Octillery",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "228": [
+   {
+    "vers": 229,
+    "nom": "Démolosse",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "231": [
+   {
+    "vers": 232,
+    "nom": "Donphan",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "233": [
+   {
+    "vers": 474,
+    "nom": "Porygon-Z",
+    "par": "objet",
+    "objet": "CD Douteux",
+    "objetId": null
+   }
+  ],
+  "234": [
+   {
+    "vers": 899,
+    "nom": "Cerbyllin",
+    "par": "special",
+    "pourquoi": "la façon d'évoluer (agile-style-move) n'a pas d'équivalent ici"
+   }
+  ],
+  "236": [
+   {
+    "vers": 106,
+    "nom": "Kicklee",
+    "par": "special",
+    "pourquoi": "il faut comparer deux statistiques, que l'annexe laisse au choix"
+   },
+   {
+    "vers": 107,
+    "nom": "Tygnon",
+    "par": "special",
+    "pourquoi": "il faut comparer deux statistiques, que l'annexe laisse au choix"
+   },
+   {
+    "vers": 237,
+    "nom": "Kapoera",
+    "par": "special",
+    "pourquoi": "il faut comparer deux statistiques, que l'annexe laisse au choix"
+   }
+  ],
+  "238": [
+   {
+    "vers": 124,
+    "nom": "Lippoutou",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "239": [
+   {
+    "vers": 125,
+    "nom": "Élektek",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "240": [
+   {
+    "vers": 126,
+    "nom": "Magmar",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "246": [
+   {
+    "vers": 247,
+    "nom": "Ymphect",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "247": [
+   {
+    "vers": 248,
+    "nom": "Tyranocif",
+    "par": "niveau",
+    "niveau": 55
+   }
+  ],
+  "252": [
+   {
+    "vers": 253,
+    "nom": "Massko",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "253": [
+   {
+    "vers": 254,
+    "nom": "Jungko",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "255": [
+   {
+    "vers": 256,
+    "nom": "Galifeu",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "256": [
+   {
+    "vers": 257,
+    "nom": "Braségali",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "258": [
+   {
+    "vers": 259,
+    "nom": "Flobio",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "259": [
+   {
+    "vers": 260,
+    "nom": "Laggron",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "261": [
+   {
+    "vers": 262,
+    "nom": "Grahyèna",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "263": [
+   {
+    "vers": 264,
+    "nom": "Linéon",
+    "par": "niveau",
+    "niveau": 20
+   },
+   {
+    "vers": 10175,
+    "nom": "Linéon de Galar",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "264": [
+   {
+    "vers": 862,
+    "nom": "Ixon",
+    "par": "niveau",
+    "niveau": 35,
+    "moment": "nuit"
+   }
+  ],
+  "265": [
+   {
+    "vers": 266,
+    "nom": "Armulys",
+    "par": "niveau",
+    "niveau": 7
+   },
+   {
+    "vers": 268,
+    "nom": "Blindalys",
+    "par": "niveau",
+    "niveau": 7
+   }
+  ],
+  "266": [
+   {
+    "vers": 267,
+    "nom": "Charmillon",
+    "par": "niveau",
+    "niveau": 10
+   }
+  ],
+  "268": [
+   {
+    "vers": 269,
+    "nom": "Papinox",
+    "par": "niveau",
+    "niveau": 10
+   }
+  ],
+  "270": [
+   {
+    "vers": 271,
+    "nom": "Lombre",
+    "par": "niveau",
+    "niveau": 14
+   }
+  ],
+  "271": [
+   {
+    "vers": 272,
+    "nom": "Ludicolo",
+    "par": "objet",
+    "objet": "Pierre Eau",
+    "objetId": 990081
+   }
+  ],
+  "273": [
+   {
+    "vers": 274,
+    "nom": "Pifeuil",
+    "par": "niveau",
+    "niveau": 14
+   }
+  ],
+  "274": [
+   {
+    "vers": 275,
+    "nom": "Tengalice",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   }
+  ],
+  "276": [
+   {
+    "vers": 277,
+    "nom": "Hélédelle",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "278": [
+   {
+    "vers": 279,
+    "nom": "Bekipan",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "280": [
+   {
+    "vers": 281,
+    "nom": "Kirlia",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "281": [
+   {
+    "vers": 282,
+    "nom": "Gardevoir",
+    "par": "niveau",
+    "niveau": 30
+   },
+   {
+    "vers": 475,
+    "nom": "Gallame",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "283": [
+   {
+    "vers": 284,
+    "nom": "Maskadra",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "285": [
+   {
+    "vers": 286,
+    "nom": "Chapignon",
+    "par": "niveau",
+    "niveau": 23
+   }
+  ],
+  "287": [
+   {
+    "vers": 288,
+    "nom": "Vigoroth",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "288": [
+   {
+    "vers": 289,
+    "nom": "Monaflèmit",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "290": [
+   {
+    "vers": 291,
+    "nom": "Ninjask",
+    "par": "niveau",
+    "niveau": 20
+   },
+   {
+    "vers": 292,
+    "nom": "Munja",
+    "par": "special",
+    "pourquoi": "la façon d'évoluer (shed) n'a pas d'équivalent ici"
+   }
+  ],
+  "293": [
+   {
+    "vers": 294,
+    "nom": "Ramboum",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "294": [
+   {
+    "vers": 295,
+    "nom": "Brouhabam",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "296": [
+   {
+    "vers": 297,
+    "nom": "Hariyama",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "298": [
+   {
+    "vers": 183,
+    "nom": "Marill",
+    "par": "bonheur"
+   }
+  ],
+  "299": [
+   {
+    "vers": 476,
+    "nom": "Tarinorme",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   }
+  ],
+  "300": [
+   {
+    "vers": 301,
+    "nom": "Delcatty",
+    "par": "objet",
+    "objet": "Pierre Lune",
+    "objetId": 990085
+   }
+  ],
+  "304": [
+   {
+    "vers": 305,
+    "nom": "Galegon",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "305": [
+   {
+    "vers": 306,
+    "nom": "Galeking",
+    "par": "niveau",
+    "niveau": 42
+   }
+  ],
+  "307": [
+   {
+    "vers": 308,
+    "nom": "Charmina",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "309": [
+   {
+    "vers": 310,
+    "nom": "Élecsprint",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "315": [
+   {
+    "vers": 407,
+    "nom": "Roserade",
+    "par": "objet",
+    "objet": "Pierre Éclat",
+    "objetId": 990087
+   }
+  ],
+  "316": [
+   {
+    "vers": 317,
+    "nom": "Avaltout",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "318": [
+   {
+    "vers": 319,
+    "nom": "Sharpedo",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "320": [
+   {
+    "vers": 321,
+    "nom": "Wailord",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "322": [
+   {
+    "vers": 323,
+    "nom": "Camérupt",
+    "par": "niveau",
+    "niveau": 33
+   }
+  ],
+  "325": [
+   {
+    "vers": 326,
+    "nom": "Groret",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "328": [
+   {
+    "vers": 329,
+    "nom": "Vibraninf",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "329": [
+   {
+    "vers": 330,
+    "nom": "Libégon",
+    "par": "niveau",
+    "niveau": 45
+   }
+  ],
+  "331": [
+   {
+    "vers": 332,
+    "nom": "Cacturne",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "333": [
+   {
+    "vers": 334,
+    "nom": "Altaria",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "339": [
+   {
+    "vers": 340,
+    "nom": "Barbicha",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "341": [
+   {
+    "vers": 342,
+    "nom": "Colhomard",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "343": [
+   {
+    "vers": 344,
+    "nom": "Kaorine",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "345": [
+   {
+    "vers": 346,
+    "nom": "Vacilys",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "347": [
+   {
+    "vers": 348,
+    "nom": "Armaldo",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "349": [
+   {
+    "vers": 350,
+    "nom": "Milobellus",
+    "par": "objet",
+    "objet": "Bel'Écaille",
+    "objetId": 990101
+   },
+   {
+    "vers": 350,
+    "nom": "Milobellus",
+    "par": "objet",
+    "objet": "Météorite",
+    "objetId": null
+   }
+  ],
+  "353": [
+   {
+    "vers": 354,
+    "nom": "Branette",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "355": [
+   {
+    "vers": 356,
+    "nom": "Téraclope",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "356": [
+   {
+    "vers": 477,
+    "nom": "Noctunoir",
+    "par": "objet",
+    "objet": "Tissu Fauche",
+    "objetId": null
+   }
+  ],
+  "360": [
+   {
+    "vers": 202,
+    "nom": "Qulbutoké",
+    "par": "niveau",
+    "niveau": 15
+   }
+  ],
+  "361": [
+   {
+    "vers": 362,
+    "nom": "Oniglali",
+    "par": "niveau",
+    "niveau": 42
+   },
+   {
+    "vers": 478,
+    "nom": "Momartik",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "363": [
+   {
+    "vers": 364,
+    "nom": "Phogleur",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "364": [
+   {
+    "vers": 365,
+    "nom": "Kaimorse",
+    "par": "niveau",
+    "niveau": 44
+   }
+  ],
+  "366": [
+   {
+    "vers": 367,
+    "nom": "Serpang",
+    "par": "objet",
+    "objet": "Bel'Écaille",
+    "niveau": 40,
+    "objetId": 990101
+   }
+  ],
+  "371": [
+   {
+    "vers": 372,
+    "nom": "Drackhaus",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "372": [
+   {
+    "vers": 373,
+    "nom": "Drattak",
+    "par": "niveau",
+    "niveau": 50
+   }
+  ],
+  "374": [
+   {
+    "vers": 375,
+    "nom": "Métang",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "375": [
+   {
+    "vers": 376,
+    "nom": "Métalosse",
+    "par": "niveau",
+    "niveau": 45
+   }
+  ],
+  "387": [
+   {
+    "vers": 388,
+    "nom": "Boskara",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "388": [
+   {
+    "vers": 389,
+    "nom": "Torterra",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "390": [
+   {
+    "vers": 391,
+    "nom": "Chimpenfeu",
+    "par": "niveau",
+    "niveau": 14
+   }
+  ],
+  "391": [
+   {
+    "vers": 392,
+    "nom": "Simiabraz",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "393": [
+   {
+    "vers": 394,
+    "nom": "Prinplouf",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "394": [
+   {
+    "vers": 395,
+    "nom": "Pingoléon",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "396": [
+   {
+    "vers": 397,
+    "nom": "Étourvol",
+    "par": "niveau",
+    "niveau": 14
+   }
+  ],
+  "397": [
+   {
+    "vers": 398,
+    "nom": "Étouraptor",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "399": [
+   {
+    "vers": 400,
+    "nom": "Castorno",
+    "par": "niveau",
+    "niveau": 15
+   }
+  ],
+  "401": [
+   {
+    "vers": 402,
+    "nom": "Mélokrik",
+    "par": "niveau",
+    "niveau": 10
+   }
+  ],
+  "403": [
+   {
+    "vers": 404,
+    "nom": "Luxio",
+    "par": "niveau",
+    "niveau": 15
+   }
+  ],
+  "404": [
+   {
+    "vers": 405,
+    "nom": "Luxray",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "406": [
+   {
+    "vers": 315,
+    "nom": "Rosélia",
+    "par": "bonheur",
+    "moment": "jour"
+   }
+  ],
+  "408": [
+   {
+    "vers": 409,
+    "nom": "Charkos",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "410": [
+   {
+    "vers": 411,
+    "nom": "Bastiodon",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "412": [
+   {
+    "vers": 413,
+    "nom": "Cheniselle",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   },
+   {
+    "vers": 414,
+    "nom": "Papilord",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "415": [
+   {
+    "vers": 416,
+    "nom": "Apireine",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "418": [
+   {
+    "vers": 419,
+    "nom": "Mustéflott",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "420": [
+   {
+    "vers": 421,
+    "nom": "Ceriflor",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "422": [
+   {
+    "vers": 423,
+    "nom": "Tritosor",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "425": [
+   {
+    "vers": 426,
+    "nom": "Grodrive",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "427": [
+   {
+    "vers": 428,
+    "nom": "Lockpin",
+    "par": "bonheur"
+   }
+  ],
+  "431": [
+   {
+    "vers": 432,
+    "nom": "Chaffreux",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "433": [
+   {
+    "vers": 358,
+    "nom": "Éoko",
+    "par": "bonheur",
+    "moment": "nuit"
+   }
+  ],
+  "434": [
+   {
+    "vers": 435,
+    "nom": "Moufflair",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "436": [
+   {
+    "vers": 437,
+    "nom": "Archéodong",
+    "par": "niveau",
+    "niveau": 33
+   }
+  ],
+  "438": [
+   {
+    "vers": 185,
+    "nom": "Simularbre",
+    "par": "attaque",
+    "attaque": "Copie"
+   }
+  ],
+  "439": [
+   {
+    "vers": 122,
+    "nom": "M. Mime",
+    "par": "attaque",
+    "attaque": "Copie"
+   },
+   {
+    "vers": 10168,
+    "nom": "M. Mime de Galar",
+    "par": "attaque",
+    "attaque": "Copie"
+   }
+  ],
+  "440": [
+   {
+    "vers": 113,
+    "nom": "Leveinard",
+    "par": "objet",
+    "objet": "Pierre Ovale",
+    "objetId": null
+   }
+  ],
+  "443": [
+   {
+    "vers": 444,
+    "nom": "Carmache",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "444": [
+   {
+    "vers": 445,
+    "nom": "Carchacrok",
+    "par": "niveau",
+    "niveau": 48
+   }
+  ],
+  "446": [
+   {
+    "vers": 143,
+    "nom": "Ronflex",
+    "par": "bonheur"
+   }
+  ],
+  "447": [
+   {
+    "vers": 448,
+    "nom": "Lucario",
+    "par": "bonheur",
+    "moment": "jour"
+   }
+  ],
+  "449": [
+   {
+    "vers": 450,
+    "nom": "Hippodocus",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "451": [
+   {
+    "vers": 452,
+    "nom": "Drascore",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "453": [
+   {
+    "vers": 454,
+    "nom": "Coatox",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "456": [
+   {
+    "vers": 457,
+    "nom": "Luminéon",
+    "par": "niveau",
+    "niveau": 31
+   }
+  ],
+  "458": [
+   {
+    "vers": 226,
+    "nom": "Démanta",
+    "par": "special",
+    "pourquoi": "il faut un autre Pokémon dans l'équipe"
+   }
+  ],
+  "459": [
+   {
+    "vers": 460,
+    "nom": "Blizzaroi",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "495": [
+   {
+    "vers": 496,
+    "nom": "Lianaja",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "496": [
+   {
+    "vers": 497,
+    "nom": "Majaspic",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "498": [
+   {
+    "vers": 499,
+    "nom": "Grotichon",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "499": [
+   {
+    "vers": 500,
+    "nom": "Roitiflam",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "501": [
+   {
+    "vers": 502,
+    "nom": "Mateloutre",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "502": [
+   {
+    "vers": 503,
+    "nom": "Clamiral",
+    "par": "niveau",
+    "niveau": 36
+   },
+   {
+    "vers": 10236,
+    "nom": "Clamiral de Hisui",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "504": [
+   {
+    "vers": 505,
+    "nom": "Miradar",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "506": [
+   {
+    "vers": 507,
+    "nom": "Ponchien",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "507": [
+   {
+    "vers": 508,
+    "nom": "Mastouffe",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "509": [
+   {
+    "vers": 510,
+    "nom": "Léopardus",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "511": [
+   {
+    "vers": 512,
+    "nom": "Feuiloutan",
+    "par": "objet",
+    "objet": "Pierre Plante",
+    "objetId": 990083
+   }
+  ],
+  "513": [
+   {
+    "vers": 514,
+    "nom": "Flamoutan",
+    "par": "objet",
+    "objet": "Pierre Feu",
+    "objetId": 990080
+   }
+  ],
+  "515": [
+   {
+    "vers": 516,
+    "nom": "Flotoutan",
+    "par": "objet",
+    "objet": "Pierre Eau",
+    "objetId": 990081
+   }
+  ],
+  "517": [
+   {
+    "vers": 518,
+    "nom": "Mushana",
+    "par": "objet",
+    "objet": "Pierre Lune",
+    "objetId": 990085
+   }
+  ],
+  "519": [
+   {
+    "vers": 520,
+    "nom": "Colombeau",
+    "par": "niveau",
+    "niveau": 21
+   }
+  ],
+  "520": [
+   {
+    "vers": 521,
+    "nom": "Déflaisan",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "522": [
+   {
+    "vers": 523,
+    "nom": "Zéblitz",
+    "par": "niveau",
+    "niveau": 27
+   }
+  ],
+  "524": [
+   {
+    "vers": 525,
+    "nom": "Géolithe",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "525": [
+   {
+    "vers": 526,
+    "nom": "Gigalithe",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "527": [
+   {
+    "vers": 528,
+    "nom": "Rhinolove",
+    "par": "bonheur"
+   }
+  ],
+  "529": [
+   {
+    "vers": 530,
+    "nom": "Minotaupe",
+    "par": "niveau",
+    "niveau": 31
+   }
+  ],
+  "532": [
+   {
+    "vers": 533,
+    "nom": "Ouvrifier",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "533": [
+   {
+    "vers": 534,
+    "nom": "Bétochef",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "535": [
+   {
+    "vers": 536,
+    "nom": "Batracné",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "536": [
+   {
+    "vers": 537,
+    "nom": "Crapustule",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "540": [
+   {
+    "vers": 541,
+    "nom": "Couverdure",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "541": [
+   {
+    "vers": 542,
+    "nom": "Manternel",
+    "par": "bonheur"
+   }
+  ],
+  "543": [
+   {
+    "vers": 544,
+    "nom": "Scobolide",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "544": [
+   {
+    "vers": 545,
+    "nom": "Brutapode",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "546": [
+   {
+    "vers": 547,
+    "nom": "Farfaduvet",
+    "par": "objet",
+    "objet": "Pierre Soleil",
+    "objetId": 990086
+   }
+  ],
+  "548": [
+   {
+    "vers": 549,
+    "nom": "Fragilady",
+    "par": "objet",
+    "objet": "Pierre Soleil",
+    "objetId": 990086
+   },
+   {
+    "vers": 10237,
+    "nom": "Fragilady de Hisui",
+    "par": "objet",
+    "objet": "Pierre Soleil",
+    "objetId": 990086
+   }
+  ],
+  "550": [
+   {
+    "vers": 902,
+    "nom": "Paragruel",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "551": [
+   {
+    "vers": 552,
+    "nom": "Escroco",
+    "par": "niveau",
+    "niveau": 29
+   }
+  ],
+  "552": [
+   {
+    "vers": 553,
+    "nom": "Crocorible",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "554": [
+   {
+    "vers": 555,
+    "nom": "Darumacho",
+    "par": "niveau",
+    "niveau": 35
+   },
+   {
+    "vers": 10177,
+    "nom": "Darumacho de Galar",
+    "par": "niveau",
+    "niveau": 35
+   },
+   {
+    "vers": 555,
+    "nom": "Darumacho",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   },
+   {
+    "vers": 10177,
+    "nom": "Darumacho de Galar",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   }
+  ],
+  "557": [
+   {
+    "vers": 558,
+    "nom": "Crabaraque",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "559": [
+   {
+    "vers": 560,
+    "nom": "Baggaïd",
+    "par": "niveau",
+    "niveau": 39
+   }
+  ],
+  "562": [
+   {
+    "vers": 563,
+    "nom": "Tutankafer",
+    "par": "niveau",
+    "niveau": 34
+   },
+   {
+    "vers": 867,
+    "nom": "Tutétékri",
+    "par": "special",
+    "pourquoi": "il faut être à un endroit précis, que Rhode ne porte pas"
+   }
+  ],
+  "564": [
+   {
+    "vers": 565,
+    "nom": "Mégapagos",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "566": [
+   {
+    "vers": 567,
+    "nom": "Aéroptéryx",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "568": [
+   {
+    "vers": 569,
+    "nom": "Miasmax",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "570": [
+   {
+    "vers": 571,
+    "nom": "Zoroark",
+    "par": "niveau",
+    "niveau": 30
+   },
+   {
+    "vers": 10239,
+    "nom": "Zoroark de Hisui",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "572": [
+   {
+    "vers": 573,
+    "nom": "Pashmilla",
+    "par": "objet",
+    "objet": "Pierre Éclat",
+    "objetId": 990087
+   }
+  ],
+  "574": [
+   {
+    "vers": 575,
+    "nom": "Mesmérella",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "575": [
+   {
+    "vers": 576,
+    "nom": "Sidérella",
+    "par": "niveau",
+    "niveau": 41
+   }
+  ],
+  "577": [
+   {
+    "vers": 578,
+    "nom": "Méios",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "578": [
+   {
+    "vers": 579,
+    "nom": "Symbios",
+    "par": "niveau",
+    "niveau": 41
+   }
+  ],
+  "580": [
+   {
+    "vers": 581,
+    "nom": "Lakmécygne",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "582": [
+   {
+    "vers": 583,
+    "nom": "Sorboul",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "583": [
+   {
+    "vers": 584,
+    "nom": "Sorbouboul",
+    "par": "niveau",
+    "niveau": 47
+   }
+  ],
+  "585": [
+   {
+    "vers": 586,
+    "nom": "Haydaim",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "588": [
+   {
+    "vers": 589,
+    "nom": "Lançargot",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "590": [
+   {
+    "vers": 591,
+    "nom": "Gaulet",
+    "par": "niveau",
+    "niveau": 39
+   }
+  ],
+  "592": [
+   {
+    "vers": 593,
+    "nom": "Moyade",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "595": [
+   {
+    "vers": 596,
+    "nom": "Mygavolt",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "597": [
+   {
+    "vers": 598,
+    "nom": "Noacier",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "599": [
+   {
+    "vers": 600,
+    "nom": "Clic",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "600": [
+   {
+    "vers": 601,
+    "nom": "Cliticlic",
+    "par": "niveau",
+    "niveau": 49
+   }
+  ],
+  "602": [
+   {
+    "vers": 603,
+    "nom": "Lampéroie",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   }
+  ],
+  "603": [
+   {
+    "vers": 604,
+    "nom": "Ohmassacre",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   }
+  ],
+  "605": [
+   {
+    "vers": 606,
+    "nom": "Neitram",
+    "par": "niveau",
+    "niveau": 42
+   }
+  ],
+  "607": [
+   {
+    "vers": 608,
+    "nom": "Mélancolux",
+    "par": "niveau",
+    "niveau": 41
+   }
+  ],
+  "608": [
+   {
+    "vers": 609,
+    "nom": "Lugulabre",
+    "par": "objet",
+    "objet": "Pierre Nuit",
+    "objetId": 990088
+   }
+  ],
+  "610": [
+   {
+    "vers": 611,
+    "nom": "Incisache",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "611": [
+   {
+    "vers": 612,
+    "nom": "Tranchodon",
+    "par": "niveau",
+    "niveau": 48
+   }
+  ],
+  "613": [
+   {
+    "vers": 614,
+    "nom": "Polagriffe",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "616": [
+   {
+    "vers": 617,
+    "nom": "Limaspeed",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "619": [
+   {
+    "vers": 620,
+    "nom": "Shaofouine",
+    "par": "niveau",
+    "niveau": 50
+   }
+  ],
+  "622": [
+   {
+    "vers": 623,
+    "nom": "Golemastoc",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "624": [
+   {
+    "vers": 625,
+    "nom": "Scalproie",
+    "par": "niveau",
+    "niveau": 52
+   }
+  ],
+  "625": [
+   {
+    "vers": 983,
+    "nom": "Scalpereur",
+    "par": "special",
+    "pourquoi": "la façon d'évoluer (three-defeated-bisharp) n'a pas d'équivalent ici"
+   }
+  ],
+  "627": [
+   {
+    "vers": 628,
+    "nom": "Gueriaigle",
+    "par": "niveau",
+    "niveau": 54
+   },
+   {
+    "vers": 10240,
+    "nom": "Gueriaigle de Hisui",
+    "par": "niveau",
+    "niveau": 54
+   }
+  ],
+  "629": [
+   {
+    "vers": 630,
+    "nom": "Vaututrice",
+    "par": "niveau",
+    "niveau": 54
+   }
+  ],
+  "633": [
+   {
+    "vers": 634,
+    "nom": "Diamat",
+    "par": "niveau",
+    "niveau": 50
+   }
+  ],
+  "634": [
+   {
+    "vers": 635,
+    "nom": "Trioxhydre",
+    "par": "niveau",
+    "niveau": 64
+   }
+  ],
+  "636": [
+   {
+    "vers": 637,
+    "nom": "Pyrax",
+    "par": "niveau",
+    "niveau": 59
+   }
+  ],
+  "650": [
+   {
+    "vers": 651,
+    "nom": "Boguérisse",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "651": [
+   {
+    "vers": 652,
+    "nom": "Blindépique",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "653": [
+   {
+    "vers": 654,
+    "nom": "Roussil",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "654": [
+   {
+    "vers": 655,
+    "nom": "Goupelin",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "656": [
+   {
+    "vers": 657,
+    "nom": "Croâporal",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "657": [
+   {
+    "vers": 658,
+    "nom": "Amphinobi",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "659": [
+   {
+    "vers": 660,
+    "nom": "Excavarenne",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "661": [
+   {
+    "vers": 662,
+    "nom": "Braisillon",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "662": [
+   {
+    "vers": 663,
+    "nom": "Flambusard",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "664": [
+   {
+    "vers": 665,
+    "nom": "Pérégrain",
+    "par": "niveau",
+    "niveau": 9
+   }
+  ],
+  "665": [
+   {
+    "vers": 666,
+    "nom": "Prismillon",
+    "par": "niveau",
+    "niveau": 12
+   }
+  ],
+  "667": [
+   {
+    "vers": 668,
+    "nom": "Némélios",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "669": [
+   {
+    "vers": 670,
+    "nom": "Floette",
+    "par": "niveau",
+    "niveau": 19
+   }
+  ],
+  "670": [
+   {
+    "vers": 671,
+    "nom": "Florges",
+    "par": "objet",
+    "objet": "Pierre Éclat",
+    "objetId": 990087
+   }
+  ],
+  "672": [
+   {
+    "vers": 673,
+    "nom": "Chevroum",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "674": [
+   {
+    "vers": 675,
+    "nom": "Pandarbare",
+    "par": "special",
+    "pourquoi": "il faut un autre Pokémon dans l'équipe"
+   }
+  ],
+  "677": [
+   {
+    "vers": 678,
+    "nom": "Mistigrix",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "679": [
+   {
+    "vers": 680,
+    "nom": "Dimoclès",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "680": [
+   {
+    "vers": 681,
+    "nom": "Exagide",
+    "par": "objet",
+    "objet": "Pierre Nuit",
+    "objetId": 990088
+   }
+  ],
+  "682": [
+   {
+    "vers": 683,
+    "nom": "Cocotine",
+    "par": "objet",
+    "objet": "Sachet Senteur",
+    "objetId": null
+   }
+  ],
+  "684": [
+   {
+    "vers": 685,
+    "nom": "Cupcanaille",
+    "par": "objet",
+    "objet": "Chantibonbon",
+    "objetId": null
+   }
+  ],
+  "686": [
+   {
+    "vers": 687,
+    "nom": "Sepiatroce",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "688": [
+   {
+    "vers": 689,
+    "nom": "Golgopathe",
+    "par": "niveau",
+    "niveau": 39
+   }
+  ],
+  "690": [
+   {
+    "vers": 691,
+    "nom": "Kravarech",
+    "par": "niveau",
+    "niveau": 48
+   }
+  ],
+  "692": [
+   {
+    "vers": 693,
+    "nom": "Gamblast",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "694": [
+   {
+    "vers": 695,
+    "nom": "Iguolta",
+    "par": "objet",
+    "objet": "Pierre Soleil",
+    "objetId": 990086
+   }
+  ],
+  "696": [
+   {
+    "vers": 697,
+    "nom": "Rexillius",
+    "par": "niveau",
+    "niveau": 39,
+    "moment": "jour"
+   }
+  ],
+  "698": [
+   {
+    "vers": 699,
+    "nom": "Dragmara",
+    "par": "niveau",
+    "niveau": 39,
+    "moment": "nuit"
+   }
+  ],
+  "704": [
+   {
+    "vers": 705,
+    "nom": "Colimucus",
+    "par": "niveau",
+    "niveau": 40
+   },
+   {
+    "vers": 10241,
+    "nom": "Colimucus de Hisui",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "705": [
+   {
+    "vers": 706,
+    "nom": "Muplodocus",
+    "par": "special",
+    "pourquoi": "il faut qu'il pleuve, et la météo n'existe pas ici"
+   },
+   {
+    "vers": 10242,
+    "nom": "Muplodocus de Hisui",
+    "par": "special",
+    "pourquoi": "il faut qu'il pleuve, et la météo n'existe pas ici"
+   }
+  ],
+  "708": [
+   {
+    "vers": 709,
+    "nom": "Desséliande",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "710": [
+   {
+    "vers": 711,
+    "nom": "Banshitrouye",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "712": [
+   {
+    "vers": 713,
+    "nom": "Séracrawl",
+    "par": "niveau",
+    "niveau": 37
+   },
+   {
+    "vers": 10243,
+    "nom": "Séracrawl de Hisui",
+    "par": "niveau",
+    "niveau": 37
+   }
+  ],
+  "714": [
+   {
+    "vers": 715,
+    "nom": "Bruyverne",
+    "par": "niveau",
+    "niveau": 48
+   }
+  ],
+  "722": [
+   {
+    "vers": 723,
+    "nom": "Efflèche",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "723": [
+   {
+    "vers": 724,
+    "nom": "Archéduc",
+    "par": "niveau",
+    "niveau": 34
+   },
+   {
+    "vers": 724,
+    "nom": "Archéduc",
+    "par": "niveau",
+    "niveau": 36
+   },
+   {
+    "vers": 10244,
+    "nom": "Archéduc de Hisui",
+    "par": "niveau",
+    "niveau": 34
+   },
+   {
+    "vers": 10244,
+    "nom": "Archéduc de Hisui",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "725": [
+   {
+    "vers": 726,
+    "nom": "Matoufeu",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "726": [
+   {
+    "vers": 727,
+    "nom": "Félinferno",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "728": [
+   {
+    "vers": 729,
+    "nom": "Otarlette",
+    "par": "niveau",
+    "niveau": 17
+   }
+  ],
+  "729": [
+   {
+    "vers": 730,
+    "nom": "Oratoria",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "731": [
+   {
+    "vers": 732,
+    "nom": "Piclairon",
+    "par": "niveau",
+    "niveau": 14
+   }
+  ],
+  "732": [
+   {
+    "vers": 733,
+    "nom": "Bazoucan",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "734": [
+   {
+    "vers": 735,
+    "nom": "Argouste",
+    "par": "niveau",
+    "niveau": 20,
+    "moment": "jour"
+   }
+  ],
+  "736": [
+   {
+    "vers": 737,
+    "nom": "Chrysapile",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "737": [
+   {
+    "vers": 738,
+    "nom": "Lucanon",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   }
+  ],
+  "739": [
+   {
+    "vers": 740,
+    "nom": "Crabominable",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   }
+  ],
+  "742": [
+   {
+    "vers": 743,
+    "nom": "Rubombelle",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "744": [
+   {
+    "vers": 745,
+    "nom": "Lougaroc Diurne",
+    "par": "niveau",
+    "niveau": 25,
+    "moment": "jour"
+   },
+   {
+    "vers": 745,
+    "nom": "Lougaroc Diurne",
+    "par": "niveau",
+    "niveau": 25,
+    "moment": "nuit"
+   },
+   {
+    "vers": 10126,
+    "nom": "Lougaroc Nocturne",
+    "par": "niveau",
+    "niveau": 25,
+    "moment": "jour"
+   },
+   {
+    "vers": 10126,
+    "nom": "Lougaroc Nocturne",
+    "par": "niveau",
+    "niveau": 25,
+    "moment": "nuit"
+   },
+   {
+    "vers": 10152,
+    "nom": "Lougaroc Crépusculaire",
+    "par": "niveau",
+    "niveau": 25,
+    "moment": "jour"
+   },
+   {
+    "vers": 10152,
+    "nom": "Lougaroc Crépusculaire",
+    "par": "niveau",
+    "niveau": 25,
+    "moment": "nuit"
+   }
+  ],
+  "747": [
+   {
+    "vers": 748,
+    "nom": "Prédastérie",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "749": [
+   {
+    "vers": 750,
+    "nom": "Bourrinos",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "751": [
+   {
+    "vers": 752,
+    "nom": "Tarenbulle",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "753": [
+   {
+    "vers": 754,
+    "nom": "Floramantis",
+    "par": "niveau",
+    "niveau": 34,
+    "moment": "jour"
+   }
+  ],
+  "755": [
+   {
+    "vers": 756,
+    "nom": "Lampignon",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "757": [
+   {
+    "vers": 758,
+    "nom": "Malamandre",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "759": [
+   {
+    "vers": 760,
+    "nom": "Chelours",
+    "par": "niveau",
+    "niveau": 27
+   }
+  ],
+  "761": [
+   {
+    "vers": 762,
+    "nom": "Candine",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "762": [
+   {
+    "vers": 763,
+    "nom": "Sucreine",
+    "par": "attaque",
+    "attaque": "Écrasement"
+   }
+  ],
+  "767": [
+   {
+    "vers": 768,
+    "nom": "Sarmuraï",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "769": [
+   {
+    "vers": 770,
+    "nom": "Trépassable",
+    "par": "niveau",
+    "niveau": 42
+   }
+  ],
+  "782": [
+   {
+    "vers": 783,
+    "nom": "Écaïd",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "783": [
+   {
+    "vers": 784,
+    "nom": "Ékaïser",
+    "par": "niveau",
+    "niveau": 45
+   }
+  ],
+  "810": [
+   {
+    "vers": 811,
+    "nom": "Badabouin",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "811": [
+   {
+    "vers": 812,
+    "nom": "Gorythmic",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "813": [
+   {
+    "vers": 814,
+    "nom": "Lapyro",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "814": [
+   {
+    "vers": 815,
+    "nom": "Pyrobut",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "816": [
+   {
+    "vers": 817,
+    "nom": "Arrozard",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "817": [
+   {
+    "vers": 818,
+    "nom": "Lézargus",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "819": [
+   {
+    "vers": 820,
+    "nom": "Rongrigou",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "821": [
+   {
+    "vers": 822,
+    "nom": "Bleuseille",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "822": [
+   {
+    "vers": 823,
+    "nom": "Corvaillus",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "824": [
+   {
+    "vers": 825,
+    "nom": "Coléodôme",
+    "par": "niveau",
+    "niveau": 10
+   }
+  ],
+  "825": [
+   {
+    "vers": 826,
+    "nom": "Astronelle",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "827": [
+   {
+    "vers": 828,
+    "nom": "Roublenard",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "829": [
+   {
+    "vers": 830,
+    "nom": "Blancoton",
+    "par": "niveau",
+    "niveau": 20
+   }
+  ],
+  "831": [
+   {
+    "vers": 832,
+    "nom": "Moumouflon",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "833": [
+   {
+    "vers": 834,
+    "nom": "Torgamord",
+    "par": "niveau",
+    "niveau": 22
+   }
+  ],
+  "835": [
+   {
+    "vers": 836,
+    "nom": "Fulgudog",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "837": [
+   {
+    "vers": 838,
+    "nom": "Wagomine",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "838": [
+   {
+    "vers": 839,
+    "nom": "Monthracite",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "840": [
+   {
+    "vers": 841,
+    "nom": "Pomdrapi",
+    "par": "objet",
+    "objet": "Pomme Acidulée",
+    "objetId": null
+   },
+   {
+    "vers": 842,
+    "nom": "Dratatin",
+    "par": "objet",
+    "objet": "Pomme Sucrée",
+    "objetId": null
+   },
+   {
+    "vers": 1011,
+    "nom": "Pomdramour",
+    "par": "objet",
+    "objet": "Pomme Nectar",
+    "objetId": null
+   }
+  ],
+  "843": [
+   {
+    "vers": 844,
+    "nom": "Dunaconda",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "846": [
+   {
+    "vers": 847,
+    "nom": "Hastacuda",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "848": [
+   {
+    "vers": 849,
+    "nom": "Salarsen",
+    "par": "special",
+    "pourquoi": "il faut une nature, une beauté ou une affection qu'on ne tient pas"
+   }
+  ],
+  "850": [
+   {
+    "vers": 851,
+    "nom": "Scolocendre",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "852": [
+   {
+    "vers": 853,
+    "nom": "Krakos",
+    "par": "attaque",
+    "attaque": "Provoc"
+   }
+  ],
+  "854": [
+   {
+    "vers": 855,
+    "nom": "Polthégeist",
+    "par": "objet",
+    "objet": "Théière Fêlée",
+    "objetId": null
+   },
+   {
+    "vers": 855,
+    "nom": "Polthégeist",
+    "par": "objet",
+    "objet": "Théière Ébréchée",
+    "objetId": null
+   }
+  ],
+  "856": [
+   {
+    "vers": 857,
+    "nom": "Chapotus",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "857": [
+   {
+    "vers": 858,
+    "nom": "Sorcilence",
+    "par": "niveau",
+    "niveau": 42
+   }
+  ],
+  "859": [
+   {
+    "vers": 860,
+    "nom": "Fourbelin",
+    "par": "niveau",
+    "niveau": 32
+   }
+  ],
+  "860": [
+   {
+    "vers": 861,
+    "nom": "Angoliath",
+    "par": "niveau",
+    "niveau": 42
+   }
+  ],
+  "868": [
+   {
+    "vers": 869,
+    "nom": "Charmilly",
+    "par": "objet",
+    "objet": "Fleur Sucrée",
+    "objetId": 990102
+   }
+  ],
+  "872": [
+   {
+    "vers": 873,
+    "nom": "Beldeneige",
+    "par": "bonheur",
+    "moment": "nuit"
+   }
+  ],
+  "878": [
+   {
+    "vers": 879,
+    "nom": "Pachyradjah",
+    "par": "niveau",
+    "niveau": 34
+   }
+  ],
+  "884": [
+   {
+    "vers": 1018,
+    "nom": "Pondralugon",
+    "par": "objet",
+    "objet": "Métal Composite",
+    "objetId": null
+   }
+  ],
+  "885": [
+   {
+    "vers": 886,
+    "nom": "Dispareptil",
+    "par": "niveau",
+    "niveau": 50
+   }
+  ],
+  "886": [
+   {
+    "vers": 887,
+    "nom": "Lanssorien",
+    "par": "niveau",
+    "niveau": 60
+   }
+  ],
+  "906": [
+   {
+    "vers": 907,
+    "nom": "Matourgeon",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "907": [
+   {
+    "vers": 908,
+    "nom": "Miascarade",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "909": [
+   {
+    "vers": 910,
+    "nom": "Crocogril",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "910": [
+   {
+    "vers": 911,
+    "nom": "Flâmigator",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "912": [
+   {
+    "vers": 913,
+    "nom": "Canarbello",
+    "par": "niveau",
+    "niveau": 16
+   }
+  ],
+  "913": [
+   {
+    "vers": 914,
+    "nom": "Palmaval",
+    "par": "niveau",
+    "niveau": 36
+   }
+  ],
+  "915": [
+   {
+    "vers": 916,
+    "nom": "Fragroin",
+    "par": "special",
+    "pourquoi": "il faut un sexe, et nos Pokémon n'en ont pas"
+   }
+  ],
+  "917": [
+   {
+    "vers": 918,
+    "nom": "Filentrappe",
+    "par": "niveau",
+    "niveau": 15
+   }
+  ],
+  "919": [
+   {
+    "vers": 920,
+    "nom": "Gambex",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "921": [
+   {
+    "vers": 922,
+    "nom": "Pohmotte",
+    "par": "niveau",
+    "niveau": 18
+   }
+  ],
+  "922": [
+   {
+    "vers": 923,
+    "nom": "Pohmarmotte",
+    "par": "special",
+    "pourquoi": "la condition des jeux ne se lit pas ici"
+   }
+  ],
+  "924": [
+   {
+    "vers": 925,
+    "nom": "Famignol",
+    "par": "special",
+    "pourquoi": "la façon d'évoluer (in-battle-level-up) n'a pas d'équivalent ici"
+   }
+  ],
+  "926": [
+   {
+    "vers": 927,
+    "nom": "Briochien",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "928": [
+   {
+    "vers": 929,
+    "nom": "Olivado",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "929": [
+   {
+    "vers": 930,
+    "nom": "Arboliva",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "932": [
+   {
+    "vers": 933,
+    "nom": "Amassel",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "933": [
+   {
+    "vers": 934,
+    "nom": "Gigansel",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "935": [
+   {
+    "vers": 936,
+    "nom": "Carmadura",
+    "par": "objet",
+    "objet": "Armure de la Fortune",
+    "objetId": null
+   },
+   {
+    "vers": 937,
+    "nom": "Malvalame",
+    "par": "objet",
+    "objet": "Armure de la Rancune",
+    "objetId": null
+   }
+  ],
+  "938": [
+   {
+    "vers": 939,
+    "nom": "Ampibidou",
+    "par": "objet",
+    "objet": "Pierre Foudre",
+    "objetId": 990082
+   }
+  ],
+  "940": [
+   {
+    "vers": 941,
+    "nom": "Fulgulairo",
+    "par": "niveau",
+    "niveau": 25
+   }
+  ],
+  "942": [
+   {
+    "vers": 943,
+    "nom": "Dogrino",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "944": [
+   {
+    "vers": 945,
+    "nom": "Tag-Tag",
+    "par": "niveau",
+    "niveau": 28
+   }
+  ],
+  "946": [
+   {
+    "vers": 947,
+    "nom": "Virevorreur",
+    "par": "special",
+    "pourquoi": "la condition des jeux ne se lit pas ici"
+   }
+  ],
+  "948": [
+   {
+    "vers": 949,
+    "nom": "Terracruel",
+    "par": "niveau",
+    "niveau": 30
+   }
+  ],
+  "951": [
+   {
+    "vers": 952,
+    "nom": "Scovilain",
+    "par": "objet",
+    "objet": "Pierre Feu",
+    "objetId": 990080
+   }
+  ],
+  "953": [
+   {
+    "vers": 954,
+    "nom": "Bérasca",
+    "par": "special",
+    "pourquoi": "la condition des jeux ne se lit pas ici"
+   }
+  ],
+  "955": [
+   {
+    "vers": 956,
+    "nom": "Cléopsytra",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "957": [
+   {
+    "vers": 958,
+    "nom": "Forgella",
+    "par": "niveau",
+    "niveau": 24
+   }
+  ],
+  "958": [
+   {
+    "vers": 959,
+    "nom": "Forgelina",
+    "par": "niveau",
+    "niveau": 38
+   }
+  ],
+  "960": [
+   {
+    "vers": 961,
+    "nom": "Triopikeau",
+    "par": "niveau",
+    "niveau": 26
+   }
+  ],
+  "963": [
+   {
+    "vers": 964,
+    "nom": "Superdofin",
+    "par": "special",
+    "pourquoi": "il faut un autre joueur ou un rocher particulier"
+   }
+  ],
+  "965": [
+   {
+    "vers": 966,
+    "nom": "Vrombotor",
+    "par": "niveau",
+    "niveau": 40
+   }
+  ],
+  "969": [
+   {
+    "vers": 970,
+    "nom": "Floréclat",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "971": [
+   {
+    "vers": 972,
+    "nom": "Tomberro",
+    "par": "niveau",
+    "niveau": 30,
+    "moment": "nuit"
+   }
+  ],
+  "974": [
+   {
+    "vers": 975,
+    "nom": "Balbalèze",
+    "par": "objet",
+    "objet": "Pierre Glace",
+    "objetId": 990084
+   }
+  ],
+  "996": [
+   {
+    "vers": 997,
+    "nom": "Cryodo",
+    "par": "niveau",
+    "niveau": 35
+   }
+  ],
+  "997": [
+   {
+    "vers": 998,
+    "nom": "Glaivodo",
+    "par": "niveau",
+    "niveau": 54
+   }
+  ],
+  "999": [
+   {
+    "vers": 1000,
+    "nom": "Gromago",
+    "par": "special",
+    "pourquoi": "la façon d'évoluer (gimmighoul-coins) n'a pas d'équivalent ici"
+   }
+  ],
+  "1011": [
+   {
+    "vers": 1019,
+    "nom": "Pomdorochi",
+    "par": "attaque",
+    "attaque": "Cri Draconique"
+   }
+  ],
+  "1012": [
+   {
+    "vers": 1013,
+    "nom": "Théffroyable",
+    "par": "objet",
+    "objet": "Bol Médiocre",
+    "objetId": null
+   },
+   {
+    "vers": 1013,
+    "nom": "Théffroyable",
+    "par": "objet",
+    "objet": "Bol Exceptionnel",
+    "objetId": null
+   }
+  ]
+ }
+}

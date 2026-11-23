@@ -1921,6 +1921,82 @@ else
   echo "   chaque .panel.row3 dit de quel panneau il parle"
 fi
 
+echo "── 39. les évolutions et les talents désignent ce qui existe ───"
+
+# `data/evolutions.json` et `data/talents.json` sont DÉRIVÉS des tables
+# de PokéAPI par leurs deux outils, et ils ne se tiennent pas à la main.
+#
+# POURQUOI PAS UN `--verifier` COMME LES AUTRES DÉRIVÉS : la source est
+# sur GitHub, pas dans le dépôt — un million de caractères de CSV
+# tierce. Refabriquer pour comparer demande donc le RÉSEAU, et un
+# garde-fou qui tombe quand le réseau tousse est un garde-fou qu'on
+# finit par désactiver. Les deux outils gardent leur `--verifier` pour
+# qui veut le lancer à la main ; ce qui est tenu ICI est ce qui se
+# vérifie hors ligne, et c'est le vrai risque : une référence qui ne
+# désigne plus rien.
+if [ -f data/evolutions.json ] && [ -f data/talents.json ]; then
+  casse=$(python3 - <<'EVO'
+import json
+
+especes = set(json.load(open("data/especes.json", encoding="utf-8"))["especes"])
+catalogue = {str(o["id"]) for o in json.load(open("data/objets.json", encoding="utf-8"))["objets"]}
+evo = json.load(open("data/evolutions.json", encoding="utf-8"))
+tal = json.load(open("data/talents.json", encoding="utf-8"))
+fautes = []
+
+PAR = {"niveau", "bonheur", "objet", "attaque", "special"}
+
+for source, chemins in evo["evolutions"].items():
+    if source not in especes:
+        fautes.append(f"evolutions : l'espèce {source} n'est pas dans especes.json")
+    for c in chemins:
+        if str(c["vers"]) not in especes:
+            fautes.append(f"evolutions : {source} évolue vers {c['vers']}, inconnu")
+        if c["par"] not in PAR:
+            fautes.append(f"evolutions : {source} → {c['vers']} par « {c['par']} », inconnu")
+        #  UN `objetId` QUI NE DÉSIGNE RIEN est pire qu'un `null` : le
+        #  null dit « cet objet n'est pas encore au catalogue », et le
+        #  code sait le refuser proprement. Un identifiant mort, lui,
+        #  fait chercher un objet qui n'existe pas.
+        if c["par"] == "objet":
+            if "objetId" not in c:
+                fautes.append(f"evolutions : {source} → {c['vers']} par objet, sans objetId")
+            elif c["objetId"] is not None and str(c["objetId"]) not in catalogue:
+                fautes.append(
+                    f"evolutions : {source} → {c['vers']} désigne l'objet "
+                    f"{c['objetId']}, absent du catalogue"
+                )
+        #  UNE ÉVOLUTION À LA MAIN DIT POURQUOI. Sans la raison, le
+        #  staff reçoit « le code ne sait pas faire » et doit deviner.
+        if c["par"] == "special" and not c.get("pourquoi"):
+            fautes.append(f"evolutions : {source} → {c['vers']} est spéciale sans raison")
+
+#  LES TALENTS COUVRENT TOUTES LES ESPÈCES, et c'est une promesse qu'on
+#  tient : l'infobulle en nommera un pour n'importe quel Pokémon.
+for espece in especes:
+    if espece not in tal["talents"]:
+        fautes.append(f"talents : l'espèce {espece} n'en a aucun")
+for espece, liste in tal["talents"].items():
+    if espece not in especes:
+        fautes.append(f"talents : l'espèce {espece} n'est pas dans especes.json")
+    if not liste:
+        fautes.append(f"talents : l'espèce {espece} a une liste vide")
+
+for f in fautes[:12]:
+    print("   " + f)
+if len(fautes) > 12:
+    print(f"   … et {len(fautes) - 12} autre(s)")
+EVO
+)
+  if [ -n "$casse" ]; then
+    echo "$casse"
+    echo "   ↳ refabriquez : python3 outils/evolutions.py && python3 outils/talents.py"
+    fautes=$((fautes + 1))
+  else
+    echo "   chaque évolution et chaque talent désigne une espèce et un objet connus"
+  fi
+fi
+
 echo "────────────────────────────────────────────────────────────────"
 if [ "$fautes" -gt 0 ]; then
   echo "garde-fou : $fautes faute(s)."

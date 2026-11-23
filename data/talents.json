@@ -1,0 +1,12375 @@
+{
+ "lisezMoi": "Les talents possibles de chaque espèce. DÉRIVÉ des tables de PokéAPI par outils/talents.py. Une espèce a une à trois possibilités ; un Pokémon en porte UNE, et ce choix est une colonne sur `pokemon`, pas une donnée d'espèce. NE PAS MODIFIER À LA MAIN.",
+ "source": "https://github.com/PokeAPI/pokeapi — data/v2/csv",
+ "comment": "python3 outils/talents.py",
+ "cache": "cache: true marque le talent caché des jeux. Rien ne l'impose encore ici : la règle reste à écrire, et le marquage est là pour qu'elle puisse l'être sans refabriquer le fichier.",
+ "especesSansTalent": [],
+ "compte": {
+  "especes": 955,
+  "talents": 260,
+  "sansTalent": 0
+ },
+ "talents": {
+  "1": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle",
+    "cache": true
+   }
+  ],
+  "2": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle",
+    "cache": true
+   }
+  ],
+  "3": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle",
+    "cache": true
+   }
+  ],
+  "4": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil",
+    "cache": true
+   }
+  ],
+  "5": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil",
+    "cache": true
+   }
+  ],
+  "6": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil",
+    "cache": true
+   }
+  ],
+  "7": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "8": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "9": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "10": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "11": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   }
+  ],
+  "12": [
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "13": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "14": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   }
+  ],
+  "15": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "16": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq",
+    "cache": true
+   }
+  ],
+  "17": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq",
+    "cache": true
+   }
+  ],
+  "18": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq",
+    "cache": true
+   }
+  ],
+  "19": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "20": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "21": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "22": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "23": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "24": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "25": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre",
+    "cache": true
+   }
+  ],
+  "26": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre",
+    "cache": true
+   }
+  ],
+  "27": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 146,
+    "nom": "Baigne Sable",
+    "cache": true
+   }
+  ],
+  "28": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 146,
+    "nom": "Baigne Sable",
+    "cache": true
+   }
+  ],
+  "29": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "30": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "31": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "32": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "33": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "34": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "35": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "36": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "37": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 70,
+    "nom": "Sécheresse",
+    "cache": true
+   }
+  ],
+  "38": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 70,
+    "nom": "Sécheresse",
+    "cache": true
+   }
+  ],
+  "39": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 172,
+    "nom": "Battant"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "40": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 172,
+    "nom": "Battant"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "41": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "42": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "43": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "44": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 1,
+    "nom": "Puanteur",
+    "cache": true
+   }
+  ],
+  "45": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 27,
+    "nom": "Pose Spore",
+    "cache": true
+   }
+  ],
+  "46": [
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 87,
+    "nom": "Peau Sèche"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "47": [
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 87,
+    "nom": "Peau Sèche"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "48": [
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "49": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée"
+   },
+   {
+    "id": 147,
+    "nom": "Peau Miracle",
+    "cache": true
+   }
+  ],
+  "50": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 71,
+    "nom": "Piège Sable"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "51": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 71,
+    "nom": "Piège Sable"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "52": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "53": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "54": [
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 13,
+    "nom": "Ciel Gris"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "55": [
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 13,
+    "nom": "Ciel Gris"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "56": [
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "57": [
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "58": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 154,
+    "nom": "Cœur Noble",
+    "cache": true
+   }
+  ],
+  "59": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 154,
+    "nom": "Cœur Noble",
+    "cache": true
+   }
+  ],
+  "60": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "61": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "62": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "63": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik",
+    "cache": true
+   }
+  ],
+  "64": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik",
+    "cache": true
+   }
+  ],
+  "65": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik",
+    "cache": true
+   }
+  ],
+  "66": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 99,
+    "nom": "Annule Garde"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible",
+    "cache": true
+   }
+  ],
+  "67": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 99,
+    "nom": "Annule Garde"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible",
+    "cache": true
+   }
+  ],
+  "68": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 99,
+    "nom": "Annule Garde"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible",
+    "cache": true
+   }
+  ],
+  "69": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "70": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "71": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "72": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 64,
+    "nom": "Suintement"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "73": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 64,
+    "nom": "Suintement"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "74": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "75": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "76": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "77": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent",
+    "cache": true
+   }
+  ],
+  "78": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent",
+    "cache": true
+   }
+  ],
+  "79": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "80": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "81": [
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "82": [
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "83": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "84": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus",
+    "cache": true
+   }
+  ],
+  "85": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus",
+    "cache": true
+   }
+  ],
+  "86": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "87": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "88": [
+   {
+    "id": 1,
+    "nom": "Puanteur"
+   },
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche",
+    "cache": true
+   }
+  ],
+  "89": [
+   {
+    "id": 1,
+    "nom": "Puanteur"
+   },
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche",
+    "cache": true
+   }
+  ],
+  "90": [
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "91": [
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "92": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "93": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "94": [
+   {
+    "id": 130,
+    "nom": "Corps Maudit"
+   }
+  ],
+  "95": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "96": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 108,
+    "nom": "Prédiction"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "97": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 108,
+    "nom": "Prédiction"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "98": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "99": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "100": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final",
+    "cache": true
+   }
+  ],
+  "101": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final",
+    "cache": true
+   }
+  ],
+  "102": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "103": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "104": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 4,
+    "nom": "Armurbaston",
+    "cache": true
+   }
+  ],
+  "105": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 4,
+    "nom": "Armurbaston",
+    "cache": true
+   }
+  ],
+  "106": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage",
+    "cache": true
+   }
+  ],
+  "107": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "108": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 13,
+    "nom": "Ciel Gris",
+    "cache": true
+   }
+  ],
+  "109": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   },
+   {
+    "id": 256,
+    "nom": "Gaz Inhibiteur"
+   },
+   {
+    "id": 1,
+    "nom": "Puanteur",
+    "cache": true
+   }
+  ],
+  "110": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   },
+   {
+    "id": 256,
+    "nom": "Gaz Inhibiteur"
+   },
+   {
+    "id": 1,
+    "nom": "Puanteur",
+    "cache": true
+   }
+  ],
+  "111": [
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "112": [
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "113": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 131,
+    "nom": "Cœur Soin",
+    "cache": true
+   }
+  ],
+  "114": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "115": [
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "116": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "117": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "118": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre",
+    "cache": true
+   }
+  ],
+  "119": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre",
+    "cache": true
+   }
+  ],
+  "120": [
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "121": [
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "122": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 111,
+    "nom": "Filtre"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "123": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible",
+    "cache": true
+   }
+  ],
+  "124": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 108,
+    "nom": "Prédiction"
+   },
+   {
+    "id": 87,
+    "nom": "Peau Sèche",
+    "cache": true
+   }
+  ],
+  "125": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital",
+    "cache": true
+   }
+  ],
+  "126": [
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital",
+    "cache": true
+   }
+  ],
+  "127": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "128": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "129": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "130": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "131": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "132": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 150,
+    "nom": "Imposteur",
+    "cache": true
+   }
+  ],
+  "133": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation",
+    "cache": true
+   }
+  ],
+  "134": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "135": [
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce",
+    "cache": true
+   }
+  ],
+  "136": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 62,
+    "nom": "Cran",
+    "cache": true
+   }
+  ],
+  "137": [
+   {
+    "id": 36,
+    "nom": "Calque"
+   },
+   {
+    "id": 88,
+    "nom": "Télécharge"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "138": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "139": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "140": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "141": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "142": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "143": [
+   {
+    "id": 17,
+    "nom": "Vaccin"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "147": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 63,
+    "nom": "Écaille Spéciale",
+    "cache": true
+   }
+  ],
+  "148": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 63,
+    "nom": "Écaille Spéciale",
+    "cache": true
+   }
+  ],
+  "149": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 136,
+    "nom": "Multiécaille",
+    "cache": true
+   }
+  ],
+  "152": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "153": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "154": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "155": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 18,
+    "nom": "Torche",
+    "cache": true
+   }
+  ],
+  "156": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 18,
+    "nom": "Torche",
+    "cache": true
+   }
+  ],
+  "157": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 18,
+    "nom": "Torche",
+    "cache": true
+   }
+  ],
+  "158": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "159": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "160": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "161": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "162": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "163": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "164": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "165": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "166": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "167": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "168": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "169": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "170": [
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "171": [
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "172": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre",
+    "cache": true
+   }
+  ],
+  "173": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "174": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 172,
+    "nom": "Battant"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "175": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux",
+    "cache": true
+   }
+  ],
+  "176": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux",
+    "cache": true
+   }
+  ],
+  "177": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 156,
+    "nom": "Miroir Magik",
+    "cache": true
+   }
+  ],
+  "178": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 156,
+    "nom": "Miroir Magik",
+    "cache": true
+   }
+  ],
+  "179": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 57,
+    "nom": "Plus",
+    "cache": true
+   }
+  ],
+  "180": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 57,
+    "nom": "Plus",
+    "cache": true
+   }
+  ],
+  "181": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 57,
+    "nom": "Plus",
+    "cache": true
+   }
+  ],
+  "182": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 131,
+    "nom": "Cœur Soin",
+    "cache": true
+   }
+  ],
+  "183": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 37,
+    "nom": "Coloforce"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "184": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 37,
+    "nom": "Coloforce"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "185": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "186": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 2,
+    "nom": "Crachin",
+    "cache": true
+   }
+  ],
+  "187": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "188": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "189": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "190": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups",
+    "cache": true
+   }
+  ],
+  "191": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal",
+    "cache": true
+   }
+  ],
+  "192": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal",
+    "cache": true
+   }
+  ],
+  "193": [
+   {
+    "id": 3,
+    "nom": "Turbo"
+   },
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "194": [
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "195": [
+   {
+    "id": 6,
+    "nom": "Moiteur"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "196": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 156,
+    "nom": "Miroir Magik",
+    "cache": true
+   }
+  ],
+  "197": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "198": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "199": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "200": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "201": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "202": [
+   {
+    "id": 23,
+    "nom": "Marque Ombre"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "203": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "204": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "205": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "206": [
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "207": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 17,
+    "nom": "Vaccin",
+    "cache": true
+   }
+  ],
+  "208": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "209": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "210": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "211": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "212": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 135,
+    "nom": "Light Metal",
+    "cache": true
+   }
+  ],
+  "213": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 126,
+    "nom": "Contestation",
+    "cache": true
+   }
+  ],
+  "214": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "215": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "216": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce"
+   },
+   {
+    "id": 118,
+    "nom": "Cherche Miel",
+    "cache": true
+   }
+  ],
+  "217": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "218": [
+   {
+    "id": 40,
+    "nom": "Armumagma"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "219": [
+   {
+    "id": 40,
+    "nom": "Armumagma"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "220": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "221": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "222": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "223": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "224": [
+   {
+    "id": 21,
+    "nom": "Ventouse"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "225": [
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 15,
+    "nom": "Insomnia",
+    "cache": true
+   }
+  ],
+  "226": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "227": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "228": [
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "229": [
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "230": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "231": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "232": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "233": [
+   {
+    "id": 36,
+    "nom": "Calque"
+   },
+   {
+    "id": 88,
+    "nom": "Télécharge"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "234": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "235": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "236": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital",
+    "cache": true
+   }
+  ],
+  "237": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible",
+    "cache": true
+   }
+  ],
+  "238": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 108,
+    "nom": "Prédiction"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "239": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital",
+    "cache": true
+   }
+  ],
+  "240": [
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital",
+    "cache": true
+   }
+  ],
+  "241": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "242": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 131,
+    "nom": "Cœur Soin",
+    "cache": true
+   }
+  ],
+  "246": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "247": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   }
+  ],
+  "248": [
+   {
+    "id": 45,
+    "nom": "Sable Volant"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "252": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage",
+    "cache": true
+   }
+  ],
+  "253": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage",
+    "cache": true
+   }
+  ],
+  "254": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage",
+    "cache": true
+   }
+  ],
+  "255": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "256": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "257": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "258": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "259": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "260": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "261": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "262": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "263": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce",
+    "cache": true
+   }
+  ],
+  "264": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce",
+    "cache": true
+   }
+  ],
+  "265": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "266": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   }
+  ],
+  "267": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité",
+    "cache": true
+   }
+  ],
+  "268": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   }
+  ],
+  "269": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 14,
+    "nom": "Œil Composé",
+    "cache": true
+   }
+  ],
+  "270": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso",
+    "cache": true
+   }
+  ],
+  "271": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso",
+    "cache": true
+   }
+  ],
+  "272": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso",
+    "cache": true
+   }
+  ],
+  "273": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "274": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "275": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 274,
+    "nom": "Aéroporté"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "276": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "277": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "278": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "279": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 2,
+    "nom": "Crachin"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "280": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 36,
+    "nom": "Calque"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "281": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 36,
+    "nom": "Calque"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "282": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 36,
+    "nom": "Calque"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "283": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "284": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "285": [
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 90,
+    "nom": "Soin Poison"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce",
+    "cache": true
+   }
+  ],
+  "286": [
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 90,
+    "nom": "Soin Poison"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "287": [
+   {
+    "id": 54,
+    "nom": "Absentéisme"
+   }
+  ],
+  "288": [
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   }
+  ],
+  "289": [
+   {
+    "id": 54,
+    "nom": "Absentéisme"
+   }
+  ],
+  "290": [
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "291": [
+   {
+    "id": 3,
+    "nom": "Turbo"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "292": [
+   {
+    "id": 25,
+    "nom": "Garde Mystik"
+   }
+  ],
+  "293": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "294": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "295": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "296": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "297": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "298": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 37,
+    "nom": "Coloforce"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "299": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "300": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 96,
+    "nom": "Normalise"
+   },
+   {
+    "id": 147,
+    "nom": "Peau Miracle",
+    "cache": true
+   }
+  ],
+  "301": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 96,
+    "nom": "Normalise"
+   },
+   {
+    "id": 147,
+    "nom": "Peau Miracle",
+    "cache": true
+   }
+  ],
+  "302": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 100,
+    "nom": "Frein"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "303": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "304": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal",
+    "cache": true
+   }
+  ],
+  "305": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal",
+    "cache": true
+   }
+  ],
+  "306": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal",
+    "cache": true
+   }
+  ],
+  "307": [
+   {
+    "id": 74,
+    "nom": "Force Pure"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "308": [
+   {
+    "id": 74,
+    "nom": "Force Pure"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "309": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 58,
+    "nom": "Moins",
+    "cache": true
+   }
+  ],
+  "310": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 58,
+    "nom": "Moins",
+    "cache": true
+   }
+  ],
+  "311": [
+   {
+    "id": 57,
+    "nom": "Plus"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre",
+    "cache": true
+   }
+  ],
+  "312": [
+   {
+    "id": 58,
+    "nom": "Moins"
+   },
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt",
+    "cache": true
+   }
+  ],
+  "313": [
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "314": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "315": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "316": [
+   {
+    "id": 64,
+    "nom": "Suintement"
+   },
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "317": [
+   {
+    "id": 64,
+    "nom": "Suintement"
+   },
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "318": [
+   {
+    "id": 24,
+    "nom": "Peau Dure"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "319": [
+   {
+    "id": 24,
+    "nom": "Peau Dure"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "320": [
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 46,
+    "nom": "Pression",
+    "cache": true
+   }
+  ],
+  "321": [
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 46,
+    "nom": "Pression",
+    "cache": true
+   }
+  ],
+  "322": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 86,
+    "nom": "Simple"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso",
+    "cache": true
+   }
+  ],
+  "323": [
+   {
+    "id": 40,
+    "nom": "Armumagma"
+   },
+   {
+    "id": 116,
+    "nom": "Solide Roc"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique",
+    "cache": true
+   }
+  ],
+  "324": [
+   {
+    "id": 73,
+    "nom": "Écran Fumée"
+   },
+   {
+    "id": 70,
+    "nom": "Sécheresse"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure",
+    "cache": true
+   }
+  ],
+  "325": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "326": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "327": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus"
+   },
+   {
+    "id": 126,
+    "nom": "Contestation",
+    "cache": true
+   }
+  ],
+  "328": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 71,
+    "nom": "Piège Sable"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "329": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "330": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "331": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "332": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "333": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 13,
+    "nom": "Ciel Gris",
+    "cache": true
+   }
+  ],
+  "334": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 13,
+    "nom": "Ciel Gris",
+    "cache": true
+   }
+  ],
+  "335": [
+   {
+    "id": 17,
+    "nom": "Vaccin"
+   },
+   {
+    "id": 137,
+    "nom": "Rage Poison",
+    "cache": true
+   }
+  ],
+  "336": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "337": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "338": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "339": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "340": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "341": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité",
+    "cache": true
+   }
+  ],
+  "342": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité",
+    "cache": true
+   }
+  ],
+  "343": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "344": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "345": [
+   {
+    "id": 21,
+    "nom": "Ventouse"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo",
+    "cache": true
+   }
+  ],
+  "346": [
+   {
+    "id": 21,
+    "nom": "Ventouse"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo",
+    "cache": true
+   }
+  ],
+  "347": [
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "348": [
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "349": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité",
+    "cache": true
+   }
+  ],
+  "350": [
+   {
+    "id": 63,
+    "nom": "Écaille Spéciale"
+   },
+   {
+    "id": 172,
+    "nom": "Battant"
+   },
+   {
+    "id": 56,
+    "nom": "Joli Sourire",
+    "cache": true
+   }
+  ],
+  "351": [
+   {
+    "id": 59,
+    "nom": "Météo"
+   }
+  ],
+  "352": [
+   {
+    "id": 16,
+    "nom": "Homochromie"
+   },
+   {
+    "id": 168,
+    "nom": "Protéen",
+    "cache": true
+   }
+  ],
+  "353": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "354": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "355": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "356": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "357": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "358": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "359": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux"
+   },
+   {
+    "id": 154,
+    "nom": "Cœur Noble",
+    "cache": true
+   }
+  ],
+  "360": [
+   {
+    "id": 23,
+    "nom": "Marque Ombre"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "361": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "362": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "363": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt",
+    "cache": true
+   }
+  ],
+  "364": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt",
+    "cache": true
+   }
+  ],
+  "365": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt",
+    "cache": true
+   }
+  ],
+  "366": [
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "367": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "368": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "369": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté",
+    "cache": true
+   }
+  ],
+  "370": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "371": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "372": [
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "373": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "374": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 135,
+    "nom": "Light Metal",
+    "cache": true
+   }
+  ],
+  "375": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 135,
+    "nom": "Light Metal",
+    "cache": true
+   }
+  ],
+  "376": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 135,
+    "nom": "Light Metal",
+    "cache": true
+   }
+  ],
+  "387": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure",
+    "cache": true
+   }
+  ],
+  "388": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure",
+    "cache": true
+   }
+  ],
+  "389": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure",
+    "cache": true
+   }
+  ],
+  "390": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "391": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "392": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "393": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 172,
+    "nom": "Battant",
+    "cache": true
+   }
+  ],
+  "394": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 172,
+    "nom": "Battant",
+    "cache": true
+   }
+  ],
+  "395": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 172,
+    "nom": "Battant",
+    "cache": true
+   }
+  ],
+  "396": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "397": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "398": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "399": [
+   {
+    "id": 86,
+    "nom": "Simple"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "400": [
+   {
+    "id": 86,
+    "nom": "Simple"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "401": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "402": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "403": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 62,
+    "nom": "Cran",
+    "cache": true
+   }
+  ],
+  "404": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 62,
+    "nom": "Cran",
+    "cache": true
+   }
+  ],
+  "405": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 62,
+    "nom": "Cran",
+    "cache": true
+   }
+  ],
+  "406": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "407": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "408": [
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "409": [
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "410": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit",
+    "cache": true
+   }
+  ],
+  "411": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit",
+    "cache": true
+   }
+  ],
+  "412": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "413": [
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "414": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "415": [
+   {
+    "id": 118,
+    "nom": "Cherche Miel"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "416": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "417": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt",
+    "cache": true
+   }
+  ],
+  "418": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "419": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "420": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   }
+  ],
+  "421": [
+   {
+    "id": 122,
+    "nom": "Don Floral"
+   }
+  ],
+  "422": [
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "423": [
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "424": [
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups",
+    "cache": true
+   }
+  ],
+  "425": [
+   {
+    "id": 106,
+    "nom": "Boom Final"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 138,
+    "nom": "Rage Brûlure",
+    "cache": true
+   }
+  ],
+  "426": [
+   {
+    "id": 106,
+    "nom": "Boom Final"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 138,
+    "nom": "Rage Brûlure",
+    "cache": true
+   }
+  ],
+  "427": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 7,
+    "nom": "Échauffement",
+    "cache": true
+   }
+  ],
+  "428": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 7,
+    "nom": "Échauffement",
+    "cache": true
+   }
+  ],
+  "429": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "430": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "431": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif",
+    "cache": true
+   }
+  ],
+  "432": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "433": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "434": [
+   {
+    "id": 1,
+    "nom": "Puanteur"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif",
+    "cache": true
+   }
+  ],
+  "435": [
+   {
+    "id": 1,
+    "nom": "Puanteur"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif",
+    "cache": true
+   }
+  ],
+  "436": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   },
+   {
+    "id": 85,
+    "nom": "Ignifugé"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal",
+    "cache": true
+   }
+  ],
+  "437": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   },
+   {
+    "id": 85,
+    "nom": "Ignifugé"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal",
+    "cache": true
+   }
+  ],
+  "438": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "439": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 111,
+    "nom": "Filtre"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "440": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "441": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq",
+    "cache": true
+   }
+  ],
+  "442": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "443": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 24,
+    "nom": "Peau Dure",
+    "cache": true
+   }
+  ],
+  "444": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 24,
+    "nom": "Peau Dure",
+    "cache": true
+   }
+  ],
+  "445": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 24,
+    "nom": "Peau Dure",
+    "cache": true
+   }
+  ],
+  "446": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "447": [
+   {
+    "id": 80,
+    "nom": "Impassible"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "448": [
+   {
+    "id": 80,
+    "nom": "Impassible"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 154,
+    "nom": "Cœur Noble",
+    "cache": true
+   }
+  ],
+  "449": [
+   {
+    "id": 45,
+    "nom": "Sable Volant"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "450": [
+   {
+    "id": 45,
+    "nom": "Sable Volant"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "451": [
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif",
+    "cache": true
+   }
+  ],
+  "452": [
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif",
+    "cache": true
+   }
+  ],
+  "453": [
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 87,
+    "nom": "Peau Sèche"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche",
+    "cache": true
+   }
+  ],
+  "454": [
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 87,
+    "nom": "Peau Sèche"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche",
+    "cache": true
+   }
+  ],
+  "455": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "456": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "457": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "458": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "459": [
+   {
+    "id": 117,
+    "nom": "Alerte Neige"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit",
+    "cache": true
+   }
+  ],
+  "460": [
+   {
+    "id": 117,
+    "nom": "Alerte Neige"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit",
+    "cache": true
+   }
+  ],
+  "461": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "462": [
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "463": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 13,
+    "nom": "Ciel Gris",
+    "cache": true
+   }
+  ],
+  "464": [
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 116,
+    "nom": "Solide Roc"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "465": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "466": [
+   {
+    "id": 78,
+    "nom": "Motorisé"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital",
+    "cache": true
+   }
+  ],
+  "467": [
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital",
+    "cache": true
+   }
+  ],
+  "468": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux",
+    "cache": true
+   }
+  ],
+  "469": [
+   {
+    "id": 3,
+    "nom": "Turbo"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "470": [
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle",
+    "cache": true
+   }
+  ],
+  "471": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "472": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 90,
+    "nom": "Soin Poison",
+    "cache": true
+   }
+  ],
+  "473": [
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "474": [
+   {
+    "id": 91,
+    "nom": "Adaptabilité"
+   },
+   {
+    "id": 88,
+    "nom": "Télécharge"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "475": [
+   {
+    "id": 80,
+    "nom": "Impassible"
+   },
+   {
+    "id": 292,
+    "nom": "Incisif"
+   },
+   {
+    "id": 154,
+    "nom": "Cœur Noble",
+    "cache": true
+   }
+  ],
+  "476": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "477": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "478": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "479": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "495": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 126,
+    "nom": "Contestation",
+    "cache": true
+   }
+  ],
+  "496": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 126,
+    "nom": "Contestation",
+    "cache": true
+   }
+  ],
+  "497": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 126,
+    "nom": "Contestation",
+    "cache": true
+   }
+  ],
+  "498": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "499": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "500": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "501": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure",
+    "cache": true
+   }
+  ],
+  "502": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure",
+    "cache": true
+   }
+  ],
+  "503": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure",
+    "cache": true
+   }
+  ],
+  "504": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "505": [
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "506": [
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite",
+    "cache": true
+   }
+  ],
+  "507": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 146,
+    "nom": "Baigne Sable"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "508": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 146,
+    "nom": "Baigne Sable"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "509": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "510": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "511": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 65,
+    "nom": "Engrais",
+    "cache": true
+   }
+  ],
+  "512": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 65,
+    "nom": "Engrais",
+    "cache": true
+   }
+  ],
+  "513": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 66,
+    "nom": "Brasier",
+    "cache": true
+   }
+  ],
+  "514": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 66,
+    "nom": "Brasier",
+    "cache": true
+   }
+  ],
+  "515": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 67,
+    "nom": "Torrent",
+    "cache": true
+   }
+  ],
+  "516": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 67,
+    "nom": "Torrent",
+    "cache": true
+   }
+  ],
+  "517": [
+   {
+    "id": 108,
+    "nom": "Prédiction"
+   },
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "518": [
+   {
+    "id": 108,
+    "nom": "Prédiction"
+   },
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "519": [
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité",
+    "cache": true
+   }
+  ],
+  "520": [
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité",
+    "cache": true
+   }
+  ],
+  "521": [
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 105,
+    "nom": "Chanceux"
+   },
+   {
+    "id": 79,
+    "nom": "Rivalité",
+    "cache": true
+   }
+  ],
+  "522": [
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 78,
+    "nom": "Motorisé"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "523": [
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 78,
+    "nom": "Motorisé"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "524": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "525": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "526": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 45,
+    "nom": "Sable Volant"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "527": [
+   {
+    "id": 109,
+    "nom": "Inconscient"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 86,
+    "nom": "Simple",
+    "cache": true
+   }
+  ],
+  "528": [
+   {
+    "id": 109,
+    "nom": "Inconscient"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 86,
+    "nom": "Simple",
+    "cache": true
+   }
+  ],
+  "529": [
+   {
+    "id": 146,
+    "nom": "Baigne Sable"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "530": [
+   {
+    "id": 146,
+    "nom": "Baigne Sable"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "531": [
+   {
+    "id": 131,
+    "nom": "Cœur Soin"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse",
+    "cache": true
+   }
+  ],
+  "532": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "533": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "534": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "535": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "536": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "537": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "538": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "539": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "540": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "541": [
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "542": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "543": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "544": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "545": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "546": [
+   {
+    "id": 158,
+    "nom": "Farceur"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle",
+    "cache": true
+   }
+  ],
+  "547": [
+   {
+    "id": 158,
+    "nom": "Farceur"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle",
+    "cache": true
+   }
+  ],
+  "548": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "549": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "550": [
+   {
+    "id": 120,
+    "nom": "Téméraire"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "551": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique",
+    "cache": true
+   }
+  ],
+  "552": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique",
+    "cache": true
+   }
+  ],
+  "553": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique",
+    "cache": true
+   }
+  ],
+  "554": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "555": [
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 161,
+    "nom": "Mode Transe",
+    "cache": true
+   }
+  ],
+  "556": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo",
+    "cache": true
+   }
+  ],
+  "557": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "558": [
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "559": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "560": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "561": [
+   {
+    "id": 147,
+    "nom": "Peau Miracle"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "562": [
+   {
+    "id": 152,
+    "nom": "Momie"
+   }
+  ],
+  "563": [
+   {
+    "id": 152,
+    "nom": "Momie"
+   }
+  ],
+  "564": [
+   {
+    "id": 116,
+    "nom": "Solide Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "565": [
+   {
+    "id": 116,
+    "nom": "Solide Roc"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "566": [
+   {
+    "id": 129,
+    "nom": "Défaitiste"
+   }
+  ],
+  "567": [
+   {
+    "id": 129,
+    "nom": "Défaitiste"
+   }
+  ],
+  "568": [
+   {
+    "id": 1,
+    "nom": "Puanteur"
+   },
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final",
+    "cache": true
+   }
+  ],
+  "569": [
+   {
+    "id": 1,
+    "nom": "Puanteur"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final",
+    "cache": true
+   }
+  ],
+  "570": [
+   {
+    "id": 149,
+    "nom": "Illusion"
+   }
+  ],
+  "571": [
+   {
+    "id": 149,
+    "nom": "Illusion"
+   }
+  ],
+  "572": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups",
+    "cache": true
+   }
+  ],
+  "573": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups",
+    "cache": true
+   }
+  ],
+  "574": [
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 172,
+    "nom": "Battant"
+   },
+   {
+    "id": 23,
+    "nom": "Marque Ombre",
+    "cache": true
+   }
+  ],
+  "575": [
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 172,
+    "nom": "Battant"
+   },
+   {
+    "id": 23,
+    "nom": "Marque Ombre",
+    "cache": true
+   }
+  ],
+  "576": [
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 172,
+    "nom": "Battant"
+   },
+   {
+    "id": 23,
+    "nom": "Marque Ombre",
+    "cache": true
+   }
+  ],
+  "577": [
+   {
+    "id": 142,
+    "nom": "Envelocape"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "578": [
+   {
+    "id": 142,
+    "nom": "Envelocape"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "579": [
+   {
+    "id": 142,
+    "nom": "Envelocape"
+   },
+   {
+    "id": 98,
+    "nom": "Garde Magik"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "580": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "581": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation",
+    "cache": true
+   }
+  ],
+  "582": [
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "583": [
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "584": [
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 117,
+    "nom": "Alerte Neige"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "585": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité",
+    "cache": true
+   }
+  ],
+  "586": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 32,
+    "nom": "Sérénité",
+    "cache": true
+   }
+  ],
+  "587": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 78,
+    "nom": "Motorisé",
+    "cache": true
+   }
+  ],
+  "588": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 99,
+    "nom": "Annule Garde",
+    "cache": true
+   }
+  ],
+  "589": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "590": [
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "591": [
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "592": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "593": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "594": [
+   {
+    "id": 131,
+    "nom": "Cœur Soin"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "595": [
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 127,
+    "nom": "Tension"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim",
+    "cache": true
+   }
+  ],
+  "596": [
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 127,
+    "nom": "Tension"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim",
+    "cache": true
+   }
+  ],
+  "597": [
+   {
+    "id": 160,
+    "nom": "Épine de Fer"
+   }
+  ],
+  "598": [
+   {
+    "id": 160,
+    "nom": "Épine de Fer"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation",
+    "cache": true
+   }
+  ],
+  "599": [
+   {
+    "id": 57,
+    "nom": "Plus"
+   },
+   {
+    "id": 58,
+    "nom": "Moins"
+   },
+   {
+    "id": 29,
+    "nom": "Corps Sain",
+    "cache": true
+   }
+  ],
+  "600": [
+   {
+    "id": 57,
+    "nom": "Plus"
+   },
+   {
+    "id": 58,
+    "nom": "Moins"
+   },
+   {
+    "id": 29,
+    "nom": "Corps Sain",
+    "cache": true
+   }
+  ],
+  "601": [
+   {
+    "id": 57,
+    "nom": "Plus"
+   },
+   {
+    "id": 58,
+    "nom": "Moins"
+   },
+   {
+    "id": 29,
+    "nom": "Corps Sain",
+    "cache": true
+   }
+  ],
+  "602": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "603": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "604": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "605": [
+   {
+    "id": 140,
+    "nom": "Télépathe"
+   },
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "606": [
+   {
+    "id": 140,
+    "nom": "Télépathe"
+   },
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 148,
+    "nom": "Analyste",
+    "cache": true
+   }
+  ],
+  "607": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "608": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "609": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "610": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "611": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "612": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "613": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 202,
+    "nom": "Chasse-Neige"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "614": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 202,
+    "nom": "Chasse-Neige"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "615": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "616": [
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "617": [
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 60,
+    "nom": "Glu"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage",
+    "cache": true
+   }
+  ],
+  "618": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "619": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "620": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force"
+   },
+   {
+    "id": 120,
+    "nom": "Téméraire",
+    "cache": true
+   }
+  ],
+  "621": [
+   {
+    "id": 24,
+    "nom": "Peau Dure"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "622": [
+   {
+    "id": 89,
+    "nom": "Poing de Fer"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 99,
+    "nom": "Annule Garde",
+    "cache": true
+   }
+  ],
+  "623": [
+   {
+    "id": 89,
+    "nom": "Poing de Fer"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 99,
+    "nom": "Annule Garde",
+    "cache": true
+   }
+  ],
+  "624": [
+   {
+    "id": 128,
+    "nom": "Acharné"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 46,
+    "nom": "Pression",
+    "cache": true
+   }
+  ],
+  "625": [
+   {
+    "id": 128,
+    "nom": "Acharné"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 46,
+    "nom": "Pression",
+    "cache": true
+   }
+  ],
+  "626": [
+   {
+    "id": 120,
+    "nom": "Téméraire"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit",
+    "cache": true
+   }
+  ],
+  "627": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "628": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "629": [
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "630": [
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "631": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 73,
+    "nom": "Écran Fumée",
+    "cache": true
+   }
+  ],
+  "632": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 54,
+    "nom": "Absentéisme",
+    "cache": true
+   }
+  ],
+  "633": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   }
+  ],
+  "634": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   }
+  ],
+  "635": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "636": [
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim",
+    "cache": true
+   }
+  ],
+  "637": [
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 68,
+    "nom": "Essaim",
+    "cache": true
+   }
+  ],
+  "650": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 171,
+    "nom": "Pare-Balles",
+    "cache": true
+   }
+  ],
+  "651": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 171,
+    "nom": "Pare-Balles",
+    "cache": true
+   }
+  ],
+  "652": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 171,
+    "nom": "Pare-Balles",
+    "cache": true
+   }
+  ],
+  "653": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 170,
+    "nom": "Magicien",
+    "cache": true
+   }
+  ],
+  "654": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 170,
+    "nom": "Magicien",
+    "cache": true
+   }
+  ],
+  "655": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 170,
+    "nom": "Magicien",
+    "cache": true
+   }
+  ],
+  "656": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 168,
+    "nom": "Protéen",
+    "cache": true
+   }
+  ],
+  "657": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 168,
+    "nom": "Protéen",
+    "cache": true
+   }
+  ],
+  "658": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 168,
+    "nom": "Protéen",
+    "cache": true
+   }
+  ],
+  "659": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 167,
+    "nom": "Bajoues"
+   },
+   {
+    "id": 37,
+    "nom": "Coloforce",
+    "cache": true
+   }
+  ],
+  "660": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 167,
+    "nom": "Bajoues"
+   },
+   {
+    "id": 37,
+    "nom": "Coloforce",
+    "cache": true
+   }
+  ],
+  "661": [
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 177,
+    "nom": "Ailes Bourrasque",
+    "cache": true
+   }
+  ],
+  "662": [
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 177,
+    "nom": "Ailes Bourrasque",
+    "cache": true
+   }
+  ],
+  "663": [
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 177,
+    "nom": "Ailes Bourrasque",
+    "cache": true
+   }
+  ],
+  "664": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "665": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "666": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 132,
+    "nom": "Garde-Ami",
+    "cache": true
+   }
+  ],
+  "667": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 127,
+    "nom": "Tension"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "668": [
+   {
+    "id": 79,
+    "nom": "Rivalité"
+   },
+   {
+    "id": 127,
+    "nom": "Tension"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "669": [
+   {
+    "id": 166,
+    "nom": "Flora-Voile"
+   },
+   {
+    "id": 180,
+    "nom": "Symbiose",
+    "cache": true
+   }
+  ],
+  "670": [
+   {
+    "id": 166,
+    "nom": "Flora-Voile"
+   },
+   {
+    "id": 180,
+    "nom": "Symbiose",
+    "cache": true
+   }
+  ],
+  "671": [
+   {
+    "id": 166,
+    "nom": "Flora-Voile"
+   },
+   {
+    "id": 180,
+    "nom": "Symbiose",
+    "cache": true
+   }
+  ],
+  "672": [
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 179,
+    "nom": "Toison Herbue",
+    "cache": true
+   }
+  ],
+  "673": [
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 179,
+    "nom": "Toison Herbue",
+    "cache": true
+   }
+  ],
+  "674": [
+   {
+    "id": 89,
+    "nom": "Poing de Fer"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "675": [
+   {
+    "id": 89,
+    "nom": "Poing de Fer"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "676": [
+   {
+    "id": 169,
+    "nom": "Toison Épaisse"
+   }
+  ],
+  "677": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso",
+    "cache": true
+   }
+  ],
+  "678": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "679": [
+   {
+    "id": 99,
+    "nom": "Annule Garde"
+   }
+  ],
+  "680": [
+   {
+    "id": 99,
+    "nom": "Annule Garde"
+   }
+  ],
+  "681": [
+   {
+    "id": 176,
+    "nom": "Déclic Tactique"
+   }
+  ],
+  "682": [
+   {
+    "id": 131,
+    "nom": "Cœur Soin"
+   },
+   {
+    "id": 165,
+    "nom": "Aroma-Voile",
+    "cache": true
+   }
+  ],
+  "683": [
+   {
+    "id": 131,
+    "nom": "Cœur Soin"
+   },
+   {
+    "id": 165,
+    "nom": "Aroma-Voile",
+    "cache": true
+   }
+  ],
+  "684": [
+   {
+    "id": 175,
+    "nom": "Gluco-Voile"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage",
+    "cache": true
+   }
+  ],
+  "685": [
+   {
+    "id": 175,
+    "nom": "Gluco-Voile"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage",
+    "cache": true
+   }
+  ],
+  "686": [
+   {
+    "id": 126,
+    "nom": "Contestation"
+   },
+   {
+    "id": 21,
+    "nom": "Ventouse"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "687": [
+   {
+    "id": 126,
+    "nom": "Contestation"
+   },
+   {
+    "id": 21,
+    "nom": "Ventouse"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "688": [
+   {
+    "id": 181,
+    "nom": "Griffe Dure"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "689": [
+   {
+    "id": 181,
+    "nom": "Griffe Dure"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "690": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité",
+    "cache": true
+   }
+  ],
+  "691": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité",
+    "cache": true
+   }
+  ],
+  "692": [
+   {
+    "id": 178,
+    "nom": "Méga Blaster"
+   }
+  ],
+  "693": [
+   {
+    "id": 178,
+    "nom": "Méga Blaster"
+   }
+  ],
+  "694": [
+   {
+    "id": 87,
+    "nom": "Peau Sèche"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil",
+    "cache": true
+   }
+  ],
+  "695": [
+   {
+    "id": 87,
+    "nom": "Peau Sèche"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 94,
+    "nom": "Force Soleil",
+    "cache": true
+   }
+  ],
+  "696": [
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté",
+    "cache": true
+   }
+  ],
+  "697": [
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc",
+    "cache": true
+   }
+  ],
+  "698": [
+   {
+    "id": 174,
+    "nom": "Peau Gelée"
+   },
+   {
+    "id": 117,
+    "nom": "Alerte Neige",
+    "cache": true
+   }
+  ],
+  "699": [
+   {
+    "id": 174,
+    "nom": "Peau Gelée"
+   },
+   {
+    "id": 117,
+    "nom": "Alerte Neige",
+    "cache": true
+   }
+  ],
+  "700": [
+   {
+    "id": 56,
+    "nom": "Joli Sourire"
+   },
+   {
+    "id": 182,
+    "nom": "Peau Féérique",
+    "cache": true
+   }
+  ],
+  "701": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "702": [
+   {
+    "id": 167,
+    "nom": "Bajoues"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 57,
+    "nom": "Plus",
+    "cache": true
+   }
+  ],
+  "703": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté",
+    "cache": true
+   }
+  ],
+  "704": [
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 183,
+    "nom": "Poisseux",
+    "cache": true
+   }
+  ],
+  "705": [
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 183,
+    "nom": "Poisseux",
+    "cache": true
+   }
+  ],
+  "706": [
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 93,
+    "nom": "Hydratation"
+   },
+   {
+    "id": 183,
+    "nom": "Poisseux",
+    "cache": true
+   }
+  ],
+  "707": [
+   {
+    "id": 158,
+    "nom": "Farceur"
+   },
+   {
+    "id": 170,
+    "nom": "Magicien",
+    "cache": true
+   }
+  ],
+  "708": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "709": [
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "710": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 15,
+    "nom": "Insomnia",
+    "cache": true
+   }
+  ],
+  "711": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 15,
+    "nom": "Insomnia",
+    "cache": true
+   }
+  ],
+  "712": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté",
+    "cache": true
+   }
+  ],
+  "713": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté",
+    "cache": true
+   }
+  ],
+  "714": [
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "715": [
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "722": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 203,
+    "nom": "Longue Portée",
+    "cache": true
+   }
+  ],
+  "723": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 203,
+    "nom": "Longue Portée",
+    "cache": true
+   }
+  ],
+  "724": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 203,
+    "nom": "Longue Portée",
+    "cache": true
+   }
+  ],
+  "725": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "726": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "727": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "728": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 204,
+    "nom": "Hydrata-Son",
+    "cache": true
+   }
+  ],
+  "729": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 204,
+    "nom": "Hydrata-Son",
+    "cache": true
+   }
+  ],
+  "730": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 204,
+    "nom": "Hydrata-Son",
+    "cache": true
+   }
+  ],
+  "731": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage",
+    "cache": true
+   }
+  ],
+  "732": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage",
+    "cache": true
+   }
+  ],
+  "733": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 92,
+    "nom": "Multi-Coups"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "734": [
+   {
+    "id": 198,
+    "nom": "Filature"
+   },
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité",
+    "cache": true
+   }
+  ],
+  "735": [
+   {
+    "id": 198,
+    "nom": "Filature"
+   },
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité",
+    "cache": true
+   }
+  ],
+  "736": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   }
+  ],
+  "737": [
+   {
+    "id": 217,
+    "nom": "Batterie"
+   }
+  ],
+  "738": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   }
+  ],
+  "739": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique",
+    "cache": true
+   }
+  ],
+  "740": [
+   {
+    "id": 52,
+    "nom": "Hyper Cutter"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer"
+   },
+   {
+    "id": 83,
+    "nom": "Colérique",
+    "cache": true
+   }
+  ],
+  "741": [
+   {
+    "id": 216,
+    "nom": "Danseuse"
+   }
+  ],
+  "742": [
+   {
+    "id": 118,
+    "nom": "Cherche Miel"
+   },
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 175,
+    "nom": "Gluco-Voile",
+    "cache": true
+   }
+  ],
+  "743": [
+   {
+    "id": 118,
+    "nom": "Cherche Miel"
+   },
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 175,
+    "nom": "Gluco-Voile",
+    "cache": true
+   }
+  ],
+  "744": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible",
+    "cache": true
+   }
+  ],
+  "745": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 146,
+    "nom": "Baigne Sable"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible",
+    "cache": true
+   }
+  ],
+  "746": [
+   {
+    "id": 208,
+    "nom": "Banc"
+   }
+  ],
+  "747": [
+   {
+    "id": 196,
+    "nom": "Cruauté"
+   },
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "748": [
+   {
+    "id": 196,
+    "nom": "Cruauté"
+   },
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "749": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 192,
+    "nom": "Endurance"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "750": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 192,
+    "nom": "Endurance"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "751": [
+   {
+    "id": 199,
+    "nom": "Aquabulle"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "752": [
+   {
+    "id": 199,
+    "nom": "Aquabulle"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau",
+    "cache": true
+   }
+  ],
+  "753": [
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 126,
+    "nom": "Contestation",
+    "cache": true
+   }
+  ],
+  "754": [
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 126,
+    "nom": "Contestation",
+    "cache": true
+   }
+  ],
+  "755": [
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "756": [
+   {
+    "id": 35,
+    "nom": "Lumiattirance"
+   },
+   {
+    "id": 27,
+    "nom": "Pose Spore"
+   },
+   {
+    "id": 44,
+    "nom": "Cuvette",
+    "cache": true
+   }
+  ],
+  "757": [
+   {
+    "id": 212,
+    "nom": "Corrosion"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt",
+    "cache": true
+   }
+  ],
+  "758": [
+   {
+    "id": 212,
+    "nom": "Corrosion"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt",
+    "cache": true
+   }
+  ],
+  "759": [
+   {
+    "id": 218,
+    "nom": "Boule de Poils"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 56,
+    "nom": "Joli Sourire",
+    "cache": true
+   }
+  ],
+  "760": [
+   {
+    "id": 218,
+    "nom": "Boule de Poils"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "761": [
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 175,
+    "nom": "Gluco-Voile",
+    "cache": true
+   }
+  ],
+  "762": [
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 175,
+    "nom": "Gluco-Voile",
+    "cache": true
+   }
+  ],
+  "763": [
+   {
+    "id": 102,
+    "nom": "Feuille Garde"
+   },
+   {
+    "id": 214,
+    "nom": "Prestance Royale"
+   },
+   {
+    "id": 175,
+    "nom": "Gluco-Voile",
+    "cache": true
+   }
+  ],
+  "764": [
+   {
+    "id": 166,
+    "nom": "Flora-Voile"
+   },
+   {
+    "id": 205,
+    "nom": "Prioguérison"
+   },
+   {
+    "id": 30,
+    "nom": "Médic Nature",
+    "cache": true
+   }
+  ],
+  "765": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe"
+   },
+   {
+    "id": 180,
+    "nom": "Symbiose",
+    "cache": true
+   }
+  ],
+  "766": [
+   {
+    "id": 222,
+    "nom": "Receveur"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "767": [
+   {
+    "id": 193,
+    "nom": "Escampette"
+   }
+  ],
+  "768": [
+   {
+    "id": 194,
+    "nom": "Repli Tactique"
+   }
+  ],
+  "769": [
+   {
+    "id": 195,
+    "nom": "Sable Humide"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "770": [
+   {
+    "id": 195,
+    "nom": "Sable Humide"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "771": [
+   {
+    "id": 215,
+    "nom": "Expuls’Organes"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "774": [
+   {
+    "id": 197,
+    "nom": "Bouclier-Carcan"
+   }
+  ],
+  "775": [
+   {
+    "id": 213,
+    "nom": "Hypersommeil"
+   }
+  ],
+  "776": [
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   }
+  ],
+  "777": [
+   {
+    "id": 160,
+    "nom": "Épine de Fer"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté",
+    "cache": true
+   }
+  ],
+  "778": [
+   {
+    "id": 209,
+    "nom": "Fantômasque"
+   }
+  ],
+  "779": [
+   {
+    "id": 219,
+    "nom": "Corps Coloré"
+   },
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 147,
+    "nom": "Peau Miracle",
+    "cache": true
+   }
+  ],
+  "780": [
+   {
+    "id": 201,
+    "nom": "Folle Furie"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 13,
+    "nom": "Ciel Gris",
+    "cache": true
+   }
+  ],
+  "781": [
+   {
+    "id": 200,
+    "nom": "Expert Acier"
+   }
+  ],
+  "782": [
+   {
+    "id": 171,
+    "nom": "Pare-Balles"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "783": [
+   {
+    "id": 171,
+    "nom": "Pare-Balles"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "784": [
+   {
+    "id": 171,
+    "nom": "Pare-Balles"
+   },
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 142,
+    "nom": "Envelocape",
+    "cache": true
+   }
+  ],
+  "810": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 229,
+    "nom": "Créa-Herbe",
+    "cache": true
+   }
+  ],
+  "811": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 229,
+    "nom": "Créa-Herbe",
+    "cache": true
+   }
+  ],
+  "812": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 229,
+    "nom": "Créa-Herbe",
+    "cache": true
+   }
+  ],
+  "813": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 236,
+    "nom": "Libéro",
+    "cache": true
+   }
+  ],
+  "814": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 236,
+    "nom": "Libéro",
+    "cache": true
+   }
+  ],
+  "815": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 236,
+    "nom": "Libéro",
+    "cache": true
+   }
+  ],
+  "816": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "817": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "818": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 97,
+    "nom": "Sniper",
+    "cache": true
+   }
+  ],
+  "819": [
+   {
+    "id": 167,
+    "nom": "Bajoues"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "820": [
+   {
+    "id": 167,
+    "nom": "Bajoues"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie",
+    "cache": true
+   }
+  ],
+  "821": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 127,
+    "nom": "Tension"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq",
+    "cache": true
+   }
+  ],
+  "822": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 127,
+    "nom": "Tension"
+   },
+   {
+    "id": 145,
+    "nom": "Cœur de Coq",
+    "cache": true
+   }
+  ],
+  "823": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 127,
+    "nom": "Tension"
+   },
+   {
+    "id": 240,
+    "nom": "Armure Miroir",
+    "cache": true
+   }
+  ],
+  "824": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "825": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "826": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "827": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 198,
+    "nom": "Filature",
+    "cache": true
+   }
+  ],
+  "828": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 198,
+    "nom": "Filature",
+    "cache": true
+   }
+  ],
+  "829": [
+   {
+    "id": 238,
+    "nom": "Effilochage"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force"
+   },
+   {
+    "id": 27,
+    "nom": "Pose Spore",
+    "cache": true
+   }
+  ],
+  "830": [
+   {
+    "id": 238,
+    "nom": "Effilochage"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force"
+   },
+   {
+    "id": 27,
+    "nom": "Pose Spore",
+    "cache": true
+   }
+  ],
+  "831": [
+   {
+    "id": 218,
+    "nom": "Boule de Poils"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 171,
+    "nom": "Pare-Balles",
+    "cache": true
+   }
+  ],
+  "832": [
+   {
+    "id": 218,
+    "nom": "Boule de Poils"
+   },
+   {
+    "id": 80,
+    "nom": "Impassible"
+   },
+   {
+    "id": 171,
+    "nom": "Pare-Balles",
+    "cache": true
+   }
+  ],
+  "833": [
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "834": [
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade",
+    "cache": true
+   }
+  ],
+  "835": [
+   {
+    "id": 237,
+    "nom": "Ramasse Ball"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "836": [
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 172,
+    "nom": "Battant",
+    "cache": true
+   }
+  ],
+  "837": [
+   {
+    "id": 243,
+    "nom": "Turbine"
+   },
+   {
+    "id": 85,
+    "nom": "Ignifugé"
+   },
+   {
+    "id": 18,
+    "nom": "Torche",
+    "cache": true
+   }
+  ],
+  "838": [
+   {
+    "id": 243,
+    "nom": "Turbine"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 18,
+    "nom": "Torche",
+    "cache": true
+   }
+  ],
+  "839": [
+   {
+    "id": 243,
+    "nom": "Turbine"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent"
+   },
+   {
+    "id": 18,
+    "nom": "Torche",
+    "cache": true
+   }
+  ],
+  "840": [
+   {
+    "id": 247,
+    "nom": "Mûrissement"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 171,
+    "nom": "Pare-Balles",
+    "cache": true
+   }
+  ],
+  "841": [
+   {
+    "id": 247,
+    "nom": "Mûrissement"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation",
+    "cache": true
+   }
+  ],
+  "842": [
+   {
+    "id": 247,
+    "nom": "Mûrissement"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "843": [
+   {
+    "id": 245,
+    "nom": "Expul’Sable"
+   },
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "844": [
+   {
+    "id": 245,
+    "nom": "Expul’Sable"
+   },
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "845": [
+   {
+    "id": 241,
+    "nom": "Dégobage"
+   }
+  ],
+  "846": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 239,
+    "nom": "Propulseur",
+    "cache": true
+   }
+  ],
+  "847": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 239,
+    "nom": "Propulseur",
+    "cache": true
+   }
+  ],
+  "848": [
+   {
+    "id": 155,
+    "nom": "Phobique"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse",
+    "cache": true
+   }
+  ],
+  "849": [
+   {
+    "id": 244,
+    "nom": "Punk Rock"
+   },
+   {
+    "id": 57,
+    "nom": "Plus"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "850": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 73,
+    "nom": "Écran Fumée"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent",
+    "cache": true
+   }
+  ],
+  "851": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 73,
+    "nom": "Écran Fumée"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent",
+    "cache": true
+   }
+  ],
+  "852": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "853": [
+   {
+    "id": 7,
+    "nom": "Échauffement"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "854": [
+   {
+    "id": 133,
+    "nom": "Armurouillée"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "855": [
+   {
+    "id": 133,
+    "nom": "Armurouillée"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "856": [
+   {
+    "id": 131,
+    "nom": "Cœur Soin"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 156,
+    "nom": "Miroir Magik",
+    "cache": true
+   }
+  ],
+  "857": [
+   {
+    "id": 131,
+    "nom": "Cœur Soin"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 156,
+    "nom": "Miroir Magik",
+    "cache": true
+   }
+  ],
+  "858": [
+   {
+    "id": 131,
+    "nom": "Cœur Soin"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 156,
+    "nom": "Miroir Magik",
+    "cache": true
+   }
+  ],
+  "859": [
+   {
+    "id": 158,
+    "nom": "Farceur"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "860": [
+   {
+    "id": 158,
+    "nom": "Farceur"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "861": [
+   {
+    "id": 158,
+    "nom": "Farceur"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "862": [
+   {
+    "id": 120,
+    "nom": "Téméraire"
+   },
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "863": [
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 181,
+    "nom": "Griffe Dure"
+   },
+   {
+    "id": 252,
+    "nom": "Boost Acier",
+    "cache": true
+   }
+  ],
+  "864": [
+   {
+    "id": 133,
+    "nom": "Armurouillée"
+   },
+   {
+    "id": 253,
+    "nom": "Corps Condamné",
+    "cache": true
+   }
+  ],
+  "865": [
+   {
+    "id": 80,
+    "nom": "Impassible"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "866": [
+   {
+    "id": 77,
+    "nom": "Pieds Confus"
+   },
+   {
+    "id": 251,
+    "nom": "Brise-Barrière"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "867": [
+   {
+    "id": 254,
+    "nom": "Âme Vagabonde"
+   }
+  ],
+  "868": [
+   {
+    "id": 175,
+    "nom": "Gluco-Voile"
+   },
+   {
+    "id": 165,
+    "nom": "Aroma-Voile",
+    "cache": true
+   }
+  ],
+  "869": [
+   {
+    "id": 175,
+    "nom": "Gluco-Voile"
+   },
+   {
+    "id": 165,
+    "nom": "Aroma-Voile",
+    "cache": true
+   }
+  ],
+  "870": [
+   {
+    "id": 4,
+    "nom": "Armurbaston"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "871": [
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 226,
+    "nom": "Créa-Élec",
+    "cache": true
+   }
+  ],
+  "872": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 246,
+    "nom": "Écailles Glacées",
+    "cache": true
+   }
+  ],
+  "873": [
+   {
+    "id": 19,
+    "nom": "Écran Poudre"
+   },
+   {
+    "id": 246,
+    "nom": "Écailles Glacées",
+    "cache": true
+   }
+  ],
+  "874": [
+   {
+    "id": 249,
+    "nom": "Cercle d’Énergie"
+   }
+  ],
+  "875": [
+   {
+    "id": 248,
+    "nom": "Tête de Gel"
+   }
+  ],
+  "876": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 227,
+    "nom": "Créa-Psy",
+    "cache": true
+   }
+  ],
+  "877": [
+   {
+    "id": 258,
+    "nom": "Déclic Fringale"
+   }
+  ],
+  "878": [
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal",
+    "cache": true
+   }
+  ],
+  "879": [
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal",
+    "cache": true
+   }
+  ],
+  "880": [
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 146,
+    "nom": "Baigne Sable",
+    "cache": true
+   }
+  ],
+  "881": [
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 202,
+    "nom": "Chasse-Neige",
+    "cache": true
+   }
+  ],
+  "882": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 146,
+    "nom": "Baigne Sable",
+    "cache": true
+   }
+  ],
+  "883": [
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 202,
+    "nom": "Chasse-Neige",
+    "cache": true
+   }
+  ],
+  "884": [
+   {
+    "id": 135,
+    "nom": "Light Metal"
+   },
+   {
+    "id": 134,
+    "nom": "Heavy Metal"
+   },
+   {
+    "id": 242,
+    "nom": "Nerfs d’Acier",
+    "cache": true
+   }
+  ],
+  "885": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "886": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "887": [
+   {
+    "id": 29,
+    "nom": "Corps Sain"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "899": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "900": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 292,
+    "nom": "Incisif",
+    "cache": true
+   }
+  ],
+  "901": [
+   {
+    "id": 62,
+    "nom": "Cran"
+   },
+   {
+    "id": 171,
+    "nom": "Pare-Balles"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "902": [
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 91,
+    "nom": "Adaptabilité"
+   },
+   {
+    "id": 104,
+    "nom": "Brise Moule",
+    "cache": true
+   }
+  ],
+  "903": [
+   {
+    "id": 46,
+    "nom": "Pression"
+   },
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche",
+    "cache": true
+   }
+  ],
+  "904": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "906": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 168,
+    "nom": "Protéen",
+    "cache": true
+   }
+  ],
+  "907": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 168,
+    "nom": "Protéen",
+    "cache": true
+   }
+  ],
+  "908": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 168,
+    "nom": "Protéen",
+    "cache": true
+   }
+  ],
+  "909": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "910": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "911": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "912": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "913": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "914": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 153,
+    "nom": "Impudence",
+    "cache": true
+   }
+  ],
+  "915": [
+   {
+    "id": 165,
+    "nom": "Aroma-Voile"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "916": [
+   {
+    "id": 268,
+    "nom": "Odeur Tenace"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "917": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 198,
+    "nom": "Filature",
+    "cache": true
+   }
+  ],
+  "918": [
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 198,
+    "nom": "Filature",
+    "cache": true
+   }
+  ],
+  "919": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "920": [
+   {
+    "id": 68,
+    "nom": "Essaim"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "921": [
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "922": [
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "923": [
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 30,
+    "nom": "Médic Nature"
+   },
+   {
+    "id": 89,
+    "nom": "Poing de Fer",
+    "cache": true
+   }
+  ],
+  "924": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso",
+    "cache": true
+   }
+  ],
+  "925": [
+   {
+    "id": 132,
+    "nom": "Garde-Ami"
+   },
+   {
+    "id": 167,
+    "nom": "Bajoues"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien",
+    "cache": true
+   }
+  ],
+  "926": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse",
+    "cache": true
+   }
+  ],
+  "927": [
+   {
+    "id": 273,
+    "nom": "Bien Cuit"
+   },
+   {
+    "id": 165,
+    "nom": "Aroma-Voile",
+    "cache": true
+   }
+  ],
+  "928": [
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "929": [
+   {
+    "id": 48,
+    "nom": "Matinal"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "930": [
+   {
+    "id": 269,
+    "nom": "Semencier"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "931": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 62,
+    "nom": "Cran",
+    "cache": true
+   }
+  ],
+  "932": [
+   {
+    "id": 272,
+    "nom": "Sel Purificateur"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 29,
+    "nom": "Corps Sain",
+    "cache": true
+   }
+  ],
+  "933": [
+   {
+    "id": 272,
+    "nom": "Sel Purificateur"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 29,
+    "nom": "Corps Sain",
+    "cache": true
+   }
+  ],
+  "934": [
+   {
+    "id": 272,
+    "nom": "Sel Purificateur"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 29,
+    "nom": "Corps Sain",
+    "cache": true
+   }
+  ],
+  "935": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 49,
+    "nom": "Corps Ardent",
+    "cache": true
+   }
+  ],
+  "936": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "937": [
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 133,
+    "nom": "Armurouillée",
+    "cache": true
+   }
+  ],
+  "938": [
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "939": [
+   {
+    "id": 280,
+    "nom": "Grecharge"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 6,
+    "nom": "Moiteur",
+    "cache": true
+   }
+  ],
+  "940": [
+   {
+    "id": 277,
+    "nom": "Turbine Éolienne"
+   },
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 172,
+    "nom": "Battant",
+    "cache": true
+   }
+  ],
+  "941": [
+   {
+    "id": 277,
+    "nom": "Turbine Éolienne"
+   },
+   {
+    "id": 10,
+    "nom": "Absorbe-Volt"
+   },
+   {
+    "id": 172,
+    "nom": "Battant",
+    "cache": true
+   }
+  ],
+  "942": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 198,
+    "nom": "Filature",
+    "cache": true
+   }
+  ],
+  "943": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 275,
+    "nom": "Chien de Garde"
+   },
+   {
+    "id": 198,
+    "nom": "Filature",
+    "cache": true
+   }
+  ],
+  "944": [
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "945": [
+   {
+    "id": 84,
+    "nom": "Délestage"
+   },
+   {
+    "id": 143,
+    "nom": "Toxitouche"
+   },
+   {
+    "id": 158,
+    "nom": "Farceur",
+    "cache": true
+   }
+  ],
+  "946": [
+   {
+    "id": 274,
+    "nom": "Aéroporté"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "947": [
+   {
+    "id": 274,
+    "nom": "Aéroporté"
+   },
+   {
+    "id": 151,
+    "nom": "Infiltration",
+    "cache": true
+   }
+  ],
+  "948": [
+   {
+    "id": 298,
+    "nom": "Force Fongique"
+   }
+  ],
+  "949": [
+   {
+    "id": 298,
+    "nom": "Force Fongique"
+   }
+  ],
+  "950": [
+   {
+    "id": 271,
+    "nom": "Courroupace"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "951": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 103,
+    "nom": "Maladresse",
+    "cache": true
+   }
+  ],
+  "952": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 15,
+    "nom": "Insomnia"
+   },
+   {
+    "id": 141,
+    "nom": "Lunatique",
+    "cache": true
+   }
+  ],
+  "953": [
+   {
+    "id": 14,
+    "nom": "Œil Composé"
+   },
+   {
+    "id": 61,
+    "nom": "Mue",
+    "cache": true
+   }
+  ],
+  "954": [
+   {
+    "id": 28,
+    "nom": "Synchro"
+   },
+   {
+    "id": 140,
+    "nom": "Télépathe",
+    "cache": true
+   }
+  ],
+  "955": [
+   {
+    "id": 107,
+    "nom": "Anticipation"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "956": [
+   {
+    "id": 290,
+    "nom": "Opportuniste"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 3,
+    "nom": "Turbo",
+    "cache": true
+   }
+  ],
+  "957": [
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "958": [
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "959": [
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "960": [
+   {
+    "id": 183,
+    "nom": "Poisseux"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "961": [
+   {
+    "id": 183,
+    "nom": "Poisseux"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "962": [
+   {
+    "id": 145,
+    "nom": "Cœur de Coq"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 276,
+    "nom": "Porte-Roche",
+    "cache": true
+   }
+  ],
+  "963": [
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile"
+   }
+  ],
+  "964": [
+   {
+    "id": 278,
+    "nom": "Supermutation"
+   }
+  ],
+  "965": [
+   {
+    "id": 142,
+    "nom": "Envelocape"
+   },
+   {
+    "id": 112,
+    "nom": "Début Calme",
+    "cache": true
+   }
+  ],
+  "966": [
+   {
+    "id": 142,
+    "nom": "Envelocape"
+   },
+   {
+    "id": 111,
+    "nom": "Filtre",
+    "cache": true
+   }
+  ],
+  "967": [
+   {
+    "id": 61,
+    "nom": "Mue"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "968": [
+   {
+    "id": 297,
+    "nom": "Absorbe-Terre"
+   },
+   {
+    "id": 8,
+    "nom": "Voile Sable",
+    "cache": true
+   }
+  ],
+  "969": [
+   {
+    "id": 295,
+    "nom": "Dépôt Toxique"
+   },
+   {
+    "id": 212,
+    "nom": "Corrosion",
+    "cache": true
+   }
+  ],
+  "970": [
+   {
+    "id": 295,
+    "nom": "Dépôt Toxique"
+   },
+   {
+    "id": 212,
+    "nom": "Corrosion",
+    "cache": true
+   }
+  ],
+  "971": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 218,
+    "nom": "Boule de Poils",
+    "cache": true
+   }
+  ],
+  "972": [
+   {
+    "id": 146,
+    "nom": "Baigne Sable"
+   },
+   {
+    "id": 218,
+    "nom": "Boule de Poils",
+    "cache": true
+   }
+  ],
+  "973": [
+   {
+    "id": 113,
+    "nom": "Querelleur"
+   },
+   {
+    "id": 77,
+    "nom": "Pieds Confus"
+   },
+   {
+    "id": 294,
+    "nom": "Collab",
+    "cache": true
+   }
+  ],
+  "974": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "975": [
+   {
+    "id": 47,
+    "nom": "Isograisse"
+   },
+   {
+    "id": 202,
+    "nom": "Chasse-Neige"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite",
+    "cache": true
+   }
+  ],
+  "976": [
+   {
+    "id": 104,
+    "nom": "Brise Moule"
+   },
+   {
+    "id": 292,
+    "nom": "Incisif",
+    "cache": true
+   }
+  ],
+  "977": [
+   {
+    "id": 109,
+    "nom": "Inconscient"
+   },
+   {
+    "id": 12,
+    "nom": "Benêt"
+   },
+   {
+    "id": 41,
+    "nom": "Ignifu-Voile",
+    "cache": true
+   }
+  ],
+  "978": [
+   {
+    "id": 279,
+    "nom": "Commandant"
+   },
+   {
+    "id": 114,
+    "nom": "Lavabo",
+    "cache": true
+   }
+  ],
+  "979": [
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 128,
+    "nom": "Acharné",
+    "cache": true
+   }
+  ],
+  "980": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 11,
+    "nom": "Absorbe-Eau"
+   },
+   {
+    "id": 109,
+    "nom": "Inconscient",
+    "cache": true
+   }
+  ],
+  "981": [
+   {
+    "id": 291,
+    "nom": "Ruminant"
+   },
+   {
+    "id": 296,
+    "nom": "Armure Caudale"
+   },
+   {
+    "id": 157,
+    "nom": "Herbivore",
+    "cache": true
+   }
+  ],
+  "982": [
+   {
+    "id": 32,
+    "nom": "Sérénité"
+   },
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "983": [
+   {
+    "id": 128,
+    "nom": "Acharné"
+   },
+   {
+    "id": 293,
+    "nom": "Général Suprême"
+   },
+   {
+    "id": 46,
+    "nom": "Pression",
+    "cache": true
+   }
+  ],
+  "996": [
+   {
+    "id": 270,
+    "nom": "Thermodynamique"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "997": [
+   {
+    "id": 270,
+    "nom": "Thermodynamique"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "998": [
+   {
+    "id": 270,
+    "nom": "Thermodynamique"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "999": [
+   {
+    "id": 155,
+    "nom": "Phobique"
+   }
+  ],
+  "1000": [
+   {
+    "id": 283,
+    "nom": "Corps en Or"
+   }
+  ],
+  "1011": [
+   {
+    "id": 300,
+    "nom": "Nectar Mielleux"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 60,
+    "nom": "Glu",
+    "cache": true
+   }
+  ],
+  "1012": [
+   {
+    "id": 301,
+    "nom": "Aux Petits Soins"
+   },
+   {
+    "id": 85,
+    "nom": "Ignifugé",
+    "cache": true
+   }
+  ],
+  "1013": [
+   {
+    "id": 301,
+    "nom": "Aux Petits Soins"
+   },
+   {
+    "id": 85,
+    "nom": "Ignifugé",
+    "cache": true
+   }
+  ],
+  "1018": [
+   {
+    "id": 192,
+    "nom": "Endurance"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 242,
+    "nom": "Nerfs d’Acier",
+    "cache": true
+   }
+  ],
+  "1019": [
+   {
+    "id": 300,
+    "nom": "Nectar Mielleux"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force"
+   },
+   {
+    "id": 60,
+    "nom": "Glu",
+    "cache": true
+   }
+  ],
+  "10091": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "10092": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 47,
+    "nom": "Isograisse",
+    "cache": true
+   }
+  ],
+  "10100": [
+   {
+    "id": 207,
+    "nom": "Surf Caudal"
+   }
+  ],
+  "10101": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 202,
+    "nom": "Chasse-Neige",
+    "cache": true
+   }
+  ],
+  "10102": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 202,
+    "nom": "Chasse-Neige",
+    "cache": true
+   }
+  ],
+  "10103": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 117,
+    "nom": "Alerte Neige",
+    "cache": true
+   }
+  ],
+  "10104": [
+   {
+    "id": 81,
+    "nom": "Rideau Neige"
+   },
+   {
+    "id": 117,
+    "nom": "Alerte Neige",
+    "cache": true
+   }
+  ],
+  "10105": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 221,
+    "nom": "Mèche Rebelle"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "10106": [
+   {
+    "id": 8,
+    "nom": "Voile Sable"
+   },
+   {
+    "id": 221,
+    "nom": "Mèche Rebelle"
+   },
+   {
+    "id": 159,
+    "nom": "Force Sable",
+    "cache": true
+   }
+  ],
+  "10107": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "10108": [
+   {
+    "id": 169,
+    "nom": "Toison Épaisse"
+   },
+   {
+    "id": 101,
+    "nom": "Technicien"
+   },
+   {
+    "id": 155,
+    "nom": "Phobique",
+    "cache": true
+   }
+  ],
+  "10109": [
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 206,
+    "nom": "Peau Électrique",
+    "cache": true
+   }
+  ],
+  "10110": [
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 206,
+    "nom": "Peau Électrique",
+    "cache": true
+   }
+  ],
+  "10111": [
+   {
+    "id": 42,
+    "nom": "Magnépiège"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté"
+   },
+   {
+    "id": 206,
+    "nom": "Peau Électrique",
+    "cache": true
+   }
+  ],
+  "10112": [
+   {
+    "id": 143,
+    "nom": "Toxitouche"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 223,
+    "nom": "Osmose",
+    "cache": true
+   }
+  ],
+  "10113": [
+   {
+    "id": 143,
+    "nom": "Toxitouche"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 223,
+    "nom": "Osmose",
+    "cache": true
+   }
+  ],
+  "10114": [
+   {
+    "id": 119,
+    "nom": "Fouille"
+   },
+   {
+    "id": 139,
+    "nom": "Récolte",
+    "cache": true
+   }
+  ],
+  "10115": [
+   {
+    "id": 130,
+    "nom": "Corps Maudit"
+   },
+   {
+    "id": 31,
+    "nom": "Paratonnerre"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc",
+    "cache": true
+   }
+  ],
+  "10123": [
+   {
+    "id": 216,
+    "nom": "Danseuse"
+   }
+  ],
+  "10124": [
+   {
+    "id": 216,
+    "nom": "Danseuse"
+   }
+  ],
+  "10125": [
+   {
+    "id": 216,
+    "nom": "Danseuse"
+   }
+  ],
+  "10126": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 99,
+    "nom": "Annule Garde",
+    "cache": true
+   }
+  ],
+  "10152": [
+   {
+    "id": 181,
+    "nom": "Griffe Dure"
+   }
+  ],
+  "10161": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 181,
+    "nom": "Griffe Dure"
+   },
+   {
+    "id": 127,
+    "nom": "Tension",
+    "cache": true
+   }
+  ],
+  "10162": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 257,
+    "nom": "Voile Pastel"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation",
+    "cache": true
+   }
+  ],
+  "10163": [
+   {
+    "id": 50,
+    "nom": "Fuite"
+   },
+   {
+    "id": 257,
+    "nom": "Voile Pastel"
+   },
+   {
+    "id": 107,
+    "nom": "Anticipation",
+    "cache": true
+   }
+  ],
+  "10164": [
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "10165": [
+   {
+    "id": 259,
+    "nom": "Tir Vif"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "10166": [
+   {
+    "id": 80,
+    "nom": "Impassible"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ],
+  "10167": [
+   {
+    "id": 26,
+    "nom": "Lévitation"
+   },
+   {
+    "id": 256,
+    "nom": "Gaz Inhibiteur"
+   },
+   {
+    "id": 228,
+    "nom": "Créa-Brume",
+    "cache": true
+   }
+  ],
+  "10168": [
+   {
+    "id": 72,
+    "nom": "Esprit Vital"
+   },
+   {
+    "id": 251,
+    "nom": "Brise-Barrière"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel",
+    "cache": true
+   }
+  ],
+  "10172": [
+   {
+    "id": 261,
+    "nom": "Breuvage Suspect"
+   },
+   {
+    "id": 20,
+    "nom": "Tempo Perso"
+   },
+   {
+    "id": 144,
+    "nom": "Régé-Force",
+    "cache": true
+   }
+  ],
+  "10173": [
+   {
+    "id": 133,
+    "nom": "Armurouillée"
+   },
+   {
+    "id": 130,
+    "nom": "Corps Maudit",
+    "cache": true
+   }
+  ],
+  "10174": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce",
+    "cache": true
+   }
+  ],
+  "10175": [
+   {
+    "id": 53,
+    "nom": "Ramassage"
+   },
+   {
+    "id": 82,
+    "nom": "Gloutonnerie"
+   },
+   {
+    "id": 95,
+    "nom": "Pied Véloce",
+    "cache": true
+   }
+  ],
+  "10176": [
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 39,
+    "nom": "Attention",
+    "cache": true
+   }
+  ],
+  "10177": [
+   {
+    "id": 255,
+    "nom": "Entêtement"
+   },
+   {
+    "id": 161,
+    "nom": "Mode Transe",
+    "cache": true
+   }
+  ],
+  "10179": [
+   {
+    "id": 254,
+    "nom": "Âme Vagabonde"
+   }
+  ],
+  "10180": [
+   {
+    "id": 250,
+    "nom": "Mimétisme"
+   }
+  ],
+  "10229": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc",
+    "cache": true
+   }
+  ],
+  "10230": [
+   {
+    "id": 22,
+    "nom": "Intimidation"
+   },
+   {
+    "id": 18,
+    "nom": "Torche"
+   },
+   {
+    "id": 69,
+    "nom": "Tête de Roc",
+    "cache": true
+   }
+  ],
+  "10231": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final",
+    "cache": true
+   }
+  ],
+  "10232": [
+   {
+    "id": 43,
+    "nom": "Anti-Bruit"
+   },
+   {
+    "id": 9,
+    "nom": "Statik"
+   },
+   {
+    "id": 106,
+    "nom": "Boom Final",
+    "cache": true
+   }
+  ],
+  "10233": [
+   {
+    "id": 66,
+    "nom": "Brasier"
+   },
+   {
+    "id": 119,
+    "nom": "Fouille",
+    "cache": true
+   }
+  ],
+  "10234": [
+   {
+    "id": 38,
+    "nom": "Point Poison"
+   },
+   {
+    "id": 33,
+    "nom": "Glissade"
+   },
+   {
+    "id": 22,
+    "nom": "Intimidation",
+    "cache": true
+   }
+  ],
+  "10235": [
+   {
+    "id": 39,
+    "nom": "Attention"
+   },
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 124,
+    "nom": "Pickpocket",
+    "cache": true
+   }
+  ],
+  "10236": [
+   {
+    "id": 67,
+    "nom": "Torrent"
+   },
+   {
+    "id": 292,
+    "nom": "Incisif",
+    "cache": true
+   }
+  ],
+  "10237": [
+   {
+    "id": 34,
+    "nom": "Chlorophylle"
+   },
+   {
+    "id": 55,
+    "nom": "Agitation"
+   },
+   {
+    "id": 102,
+    "nom": "Feuille Garde",
+    "cache": true
+   }
+  ],
+  "10238": [
+   {
+    "id": 149,
+    "nom": "Illusion"
+   }
+  ],
+  "10239": [
+   {
+    "id": 149,
+    "nom": "Illusion"
+   }
+  ],
+  "10240": [
+   {
+    "id": 51,
+    "nom": "Regard Vif"
+   },
+   {
+    "id": 125,
+    "nom": "Sans Limite"
+   },
+   {
+    "id": 110,
+    "nom": "Lentiteintée",
+    "cache": true
+   }
+  ],
+  "10241": [
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 183,
+    "nom": "Poisseux",
+    "cache": true
+   }
+  ],
+  "10242": [
+   {
+    "id": 157,
+    "nom": "Herbivore"
+   },
+   {
+    "id": 75,
+    "nom": "Coque Armure"
+   },
+   {
+    "id": 183,
+    "nom": "Poisseux",
+    "cache": true
+   }
+  ],
+  "10243": [
+   {
+    "id": 173,
+    "nom": "Prognathe"
+   },
+   {
+    "id": 115,
+    "nom": "Corps Gel"
+   },
+   {
+    "id": 5,
+    "nom": "Fermeté",
+    "cache": true
+   }
+  ],
+  "10244": [
+   {
+    "id": 65,
+    "nom": "Engrais"
+   },
+   {
+    "id": 113,
+    "nom": "Querelleur",
+    "cache": true
+   }
+  ]
+ }
+}
