@@ -31,13 +31,16 @@ import {
   type Combattant,
   degatsAuSauvage,
   degatsDe,
+  degatsPortes,
   efficacite,
   pvAuNiveau,
+  resoudreUneFrappe,
   resoudreUneRiposte,
   resoudreUnTour,
   statAuNiveau,
   type TableDesTypes,
   TOURS_MAX,
+  TOURS_MAX_DUEL,
 } from "./combat.ts";
 
 //  UN EXTRAIT DE LA VRAIE TABLE, pas une table inventée : les lignes
@@ -409,4 +412,196 @@ Deno.test("on ne riposte pas contre une cible déjà à terre", () => {
     () => resoudreUneRiposte(1, combattant({ pv: 0 }), combattant(), CHARGE, TABLE, "g", "x"),
     CombatInvalide,
   );
+});
+
+// ── LE DUEL : UNE FRAPPE, ET ON PASSE LA MAIN ───────────────────────
+
+Deno.test("UNE FRAPPE DE DUEL NE RIPOSTE PAS", () => {
+  //  C'est toute la différence avec un tour sauvage, et elle n'est pas
+  //  un détail : l'adversaire choisira SA capacité dans SON message.
+  //  Lui en choisir une ici, ce serait jouer à sa place.
+  const tour = resoudreUneFrappe(
+    1,
+    combattant({ types: ["feu"], attaque: 20 }),
+    combattant({ types: ["plante"], defense: 10 }),
+    FLAMMECHE,
+    TABLE,
+    "15601",
+    "joueur",
+  );
+  assertEquals(tour.frappes.length, 1);
+  assertEquals(tour.frappes[0].qui, "joueur");
+});
+
+Deno.test("LES PV RESTENT DANS LE REPÈRE DE `joueur_id`, QUI QUE CE SOIT QUI FRAPPE", () => {
+  //  `pvJoueur` et `pvSauvage` disent « le côté de joueur_id » et
+  //  « celui d'en face » — PAS « celui qui frappe » et « celui qui
+  //  encaisse », qui changent à chaque tour. Deux repères dans la même
+  //  table, c'est une table qu'on ne sait plus lire.
+  const mien = combattant({ types: ["feu"], pv: 25, attaque: 20 });
+  const sien = combattant({ types: ["plante"], pv: 25, defense: 10 });
+
+  const aMoi = resoudreUneFrappe(1, mien, sien, FLAMMECHE, TABLE, "15601", "joueur");
+  //  J'ai frappé : mes PV sont intacts, les siens ont baissé.
+  assertEquals(aMoi.pvJoueur, 25);
+  assert(aMoi.pvSauvage < 25, "le défenseur doit avoir encaissé");
+
+  const aLui = resoudreUneFrappe(1, sien, mien, CHARGE, TABLE, "15601", "adverse");
+  //  Il a frappé : c'est l'inverse, dans le MÊME repère.
+  assertEquals(aLui.pvSauvage, 25);
+  assert(aLui.pvJoueur < 25, "c'est moi qui encaisse");
+});
+
+Deno.test("LA VICTOIRE SE DIT AUSSI DANS CE REPÈRE, PAS DU POINT DE VUE DU FRAPPEUR", () => {
+  //  « Victoire » veut dire que le côté de `joueur_id` a gagné. Sans
+  //  ça, le même mot voudrait dire deux choses selon le tour, et les
+  //  deux joueurs liraient le résultat à l'envers une fois sur deux.
+  const fort = combattant({ types: ["feu"], attaque: 200, niveau: 60 });
+  const mourant = combattant({ types: ["plante"], pv: 1, defense: 1 });
+
+  const jeGagne = resoudreUneFrappe(1, fort, mourant, FLAMMECHE, TABLE, "1", "joueur");
+  assertEquals(jeGagne.pvSauvage, 0);
+  assertEquals(jeGagne.fin, "victoire");
+
+  const jePerds = resoudreUneFrappe(1, fort, mourant, FLAMMECHE, TABLE, "1", "adverse");
+  assertEquals(jePerds.pvJoueur, 0);
+  assertEquals(jePerds.fin, "defaite");
+});
+
+Deno.test("TRENTE TOURS SANS VAINQUEUR FONT UN NUL, PAS UNE FUITE", () => {
+  //  Un sauvage s'en va au cinquième tour — c'est SA fuite, et elle a
+  //  un sens : il n'avait aucune raison de rester. Deux dresseurs qui
+  //  n'arrivent pas à se blesser en trente tours n'ont rien gagné, et
+  //  inventer un vainqueur au compte des PV serait une règle que
+  //  personne n'a écrite.
+  const mou = combattant({ types: ["normal"], attaque: 1, pv: 500, pvMax: 500 });
+  const dur = combattant({ types: ["normal"], defense: 500, pv: 500, pvMax: 500 });
+  const dernier = resoudreUneFrappe(
+    TOURS_MAX_DUEL,
+    mou,
+    dur,
+    CHARGE,
+    TABLE,
+    "15601",
+    "joueur",
+  );
+  assert(dernier.pvSauvage > 0, "personne ne doit être tombé");
+  assertEquals(dernier.fin, "nul");
+  //  Et le tour d'avant ne finit rien.
+  const avant = resoudreUneFrappe(
+    TOURS_MAX_DUEL - 1,
+    mou,
+    dur,
+    CHARGE,
+    TABLE,
+    "15601",
+    "joueur",
+  );
+  assertEquals(avant.fin, null);
+});
+
+Deno.test("LE PLAFOND DU DUEL EST CELUI DU DUEL, ET IL SE REFUSE AU-DELÀ", () => {
+  //  Trente, pas cinq : un tour de duel est une seule frappe, donc
+  //  cinq tours ne feraient que deux coups et demi chacun.
+  assertEquals(TOURS_MAX_DUEL, 30);
+  assert(TOURS_MAX_DUEL > TOURS_MAX, "un duel dure plus qu'une rencontre");
+  for (const hors of [0, -1, TOURS_MAX_DUEL + 1, 1.5]) {
+    assertThrows(
+      () => resoudreUneFrappe(hors, combattant(), combattant(), CHARGE, TABLE, "1", "joueur"),
+      CombatInvalide,
+    );
+  }
+});
+
+Deno.test("ON NE FRAPPE PAS AVEC UN POKÉMON À TERRE, NI UN POKÉMON À TERRE", () => {
+  //  Ça paraît aller de soi ; ça ne va de soi que si on l'écrit. Un
+  //  duel où l'on frappe un Pokémon déjà tombé donnerait une seconde
+  //  victoire sur le même combat.
+  assertThrows(
+    () =>
+      resoudreUneFrappe(
+        1,
+        combattant({ pv: 0 }),
+        combattant(),
+        CHARGE,
+        TABLE,
+        "1",
+        "joueur",
+      ),
+    CombatInvalide,
+  );
+  assertThrows(
+    () =>
+      resoudreUneFrappe(
+        1,
+        combattant(),
+        combattant({ pv: 0 }),
+        CHARGE,
+        TABLE,
+        "1",
+        "joueur",
+      ),
+    CombatInvalide,
+  );
+});
+
+Deno.test("MÊME GRAINE, MÊME FRAPPE — un duel se conteste en le rejouant", () => {
+  //  La même promesse que le combat sauvage, et elle vaut davantage
+  //  ici : un duel a deux joueurs, donc deux fois plus de raisons
+  //  d'être contesté.
+  const a = resoudreUneFrappe(
+    3,
+    combattant({ types: ["feu"], attaque: 30 }),
+    combattant({ types: ["plante"] }),
+    FLAMMECHE,
+    TABLE,
+    "15601",
+    "joueur",
+  );
+  const b = resoudreUneFrappe(
+    3,
+    combattant({ types: ["feu"], attaque: 30 }),
+    combattant({ types: ["plante"] }),
+    FLAMMECHE,
+    TABLE,
+    "15601",
+    "joueur",
+  );
+  assertEquals(a, b);
+  //  Et un autre tour donne autre chose : la graine porte le numéro.
+  const autre = resoudreUneFrappe(
+    4,
+    combattant({ types: ["feu"], attaque: 30 }),
+    combattant({ types: ["plante"] }),
+    FLAMMECHE,
+    TABLE,
+    "15601",
+    "joueur",
+  );
+  assert(
+    autre.frappes[0].degats?.points !== a.frappes[0].degats?.points ||
+      autre.frappes[0].touche !== a.frappes[0].touche,
+    "deux tours de la même graine ne doivent pas être identiques",
+  );
+});
+
+Deno.test("L'EXPÉRIENCE D'UN DUEL SE COMPTE DES DEUX CÔTÉS", () => {
+  //  `degatsAuSauvage` ne compte que les frappes du joueur, parce que
+  //  la riposte d'un sauvage ne rapporte rien à personne. Dans un duel,
+  //  les deux côtés gagnent en frappant — c'est la même règle du 1er
+  //  octobre, lue dans les deux sens.
+  const aLui = resoudreUneFrappe(
+    1,
+    combattant({ types: ["normal"], attaque: 40 }),
+    combattant({ types: ["normal"], defense: 10 }),
+    CHARGE,
+    TABLE,
+    "15601",
+    "adverse",
+  );
+  const portes = degatsPortes(aLui);
+  assert(portes > 0, "la frappe a fait des dégâts");
+  //  Et l'ancienne fonction, elle, n'en voit aucun : cette frappe
+  //  n'est pas celle du « joueur ».
+  assertEquals(degatsAuSauvage(aLui), 0);
 });

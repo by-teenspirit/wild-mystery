@@ -468,10 +468,26 @@ export type CombatEnCours = {
   /** Le numéro du DERNIER tour joué. Zéro quand la carte vient de
    *  partir et que personne n'a encore agi. */
   readonly tour: number;
+  /** `sauvage` ou `duel` (migration 0060).
+   *
+   *  FACULTATIF, et son absence vaut `sauvage` : c'était le seul genre
+   *  jusqu'au 23 novembre, et une relève qui tourne pendant la montée
+   *  doit continuer de jouer les combats sauvages. */
+  readonly genre?: string | null;
+  /** L'autre dresseur, pour un duel. */
+  readonly adverseJoueurId?: string | null;
+  /** Son Pokémon : c'est lui qui gagne l'expérience quand il frappe. */
+  readonly adversePokemonId?: string | null;
+  /** De qui on attend le prochain message. Nul pour un combat sauvage :
+   *  le sauvage ne poste pas. */
+  readonly aQui?: string | null;
   readonly sauvage: CombattantEnJeu & {
     readonly especeId: number;
     /** Le taux de capture de l'espèce, de 3 à 255 (migration 0050). */
     readonly capture: number;
+    /** Le surnom du Pokémon d'en face, quand c'est celui d'un joueur :
+     *  il l'a nommé, et les messages doivent l'appeler par son nom. */
+    readonly surnom?: string | null;
   };
   readonly combattant:
     | (CombattantEnJeu & {
@@ -512,6 +528,15 @@ export interface Combats {
     readonly pvJoueur: number;
     readonly pvSauvage: number;
     readonly fin: string | null;
+    /** QUI JOUE. Exigé par la base pour un duel, inutile pour un
+     *  sauvage : elle y refuse qui n'a pas la main, et fait passer la
+     *  main dans la même transaction (migration 0061). */
+    readonly joueurId?: string;
+    /** L'arrivant D'EN FACE, quand c'est l'autre dresseur qui change
+     *  de Pokémon. Jamais posé en même temps que `pokemonId` : un tour
+     *  est d'un seul joueur. */
+    readonly pokemonAdverse?: string;
+    readonly pvAdverseMax?: number;
     /** Le Pokémon qui porte ces PV. Absent veut dire « celui qui se
      *  bat déjà » ; un changement le NOMME, parce que les PV écrits
      *  sont alors ceux de l'arrivant — et ceux de celui qui sort sont
@@ -703,9 +728,17 @@ export type TourEnAttente = {
   /** L'argument de la demande, tel que le tour l'a rangé : le nom de la
    *  capacité, celui de l'objet, les PV rendus. */
   readonly detail: Readonly<Record<string, string | number>> | null;
+  /** `sauvage` ou `duel` (migration 0061). Son absence vaut `sauvage`. */
+  readonly genre?: string | null;
+  /** Les deux dresseurs d'un duel. `mentionne` reste celui qu'on
+   *  interpelle — c'est l'auteur du message qui a déclenché le tour —
+   *  mais le TEXTE a besoin des deux noms : « tu » ne désigne personne
+   *  dans un message lu par deux joueurs. */
+  readonly defieur?: string | null;
+  readonly adverse?: string | null;
   readonly recit: {
     readonly frappes: readonly {
-      readonly qui: "joueur" | "sauvage";
+      readonly qui: "joueur" | "sauvage" | "adverse";
       readonly capacite: { readonly nom: string };
       readonly touche: boolean;
       readonly degats: {
@@ -721,6 +754,9 @@ export type TourEnAttente = {
   readonly sauvage: {
     readonly especeId: number;
     readonly nom: string;
+    /** Le surnom du Pokémon d'en face, pour un duel : son dresseur
+     *  l'a nommé, et le récit doit l'appeler par son nom. */
+    readonly surnom?: string | null;
     readonly pv: number;
     readonly pvMax: number;
   };

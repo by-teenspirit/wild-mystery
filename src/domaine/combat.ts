@@ -186,7 +186,17 @@ export function degatsDe(
 // ── UN TOUR ───────────────────────────────────────────────────────────
 
 export type Frappe = {
-  readonly qui: "joueur" | "sauvage";
+  /** Qui a frappé.
+   *
+   *  `joueur` et `sauvage` sont ceux du combat sauvage. `adverse` est
+   *  arrivé avec le duel (23 novembre) : c'est le camp de l'autre
+   *  joueur, celui que `combat.adverse_joueur_id` désigne.
+   *
+   *  TROIS MOTS ET PAS DEUX, parce que `sauvage` dit ce que le
+   *  combattant EST et pas seulement de quel côté il se tient. Un
+   *  Pokémon de joueur marqué « sauvage » dans un récit stocké en base
+   *  resterait faux pour toujours — un récit ne se réécrit pas. */
+  readonly qui: "joueur" | "sauvage" | "adverse";
   readonly capacite: Capacite;
   /** Faux quand la capacité a manqué : aucun dégât, et le tour
    *  continue — rater n'est pas passer son tour. */
@@ -204,8 +214,13 @@ export type Tour = {
   readonly frappes: readonly Frappe[];
   readonly pvJoueur: number;
   readonly pvSauvage: number;
-  /** `null` tant que le combat continue. */
-  readonly fin: "victoire" | "defaite" | "fuite" | null;
+  /** `null` tant que le combat continue.
+   *
+   *  `nul` N'EXISTE QUE POUR UN DUEL : trente tours sans que personne
+   *  ne tombe. Un sauvage, lui, s'en va au cinquième — c'est `fuite`.
+   *  Inventer un vainqueur au compte des PV serait une règle que
+   *  personne n'a écrite. */
+  readonly fin: "victoire" | "defaite" | "fuite" | "nul" | null;
 };
 
 /** Le nombre de tours au-delà duquel le sauvage s'en va.
@@ -215,6 +230,19 @@ export type Tour = {
  *  vingt messages — et ça rend la Poké Ball précieuse : on n'a pas le
  *  temps d'user le sauvage jusqu'à un PV. */
 export const TOURS_MAX = 5;
+
+/** Et celui d'un duel entre joueurs.
+ *
+ *  TRENTE, LÀ OÙ LE SAUVAGE EN A CINQ, et pour deux raisons qui
+ *  s'ajoutent. Un sauvage s'en va au bout de cinq tours ; un dresseur
+ *  reste. Et surtout UN TOUR DE DUEL EST UNE SEULE FRAPPE : cinq tours
+ *  ne feraient que deux coups et demi chacun, moins qu'un seul échange
+ *  de combat sauvage.
+ *
+ *  C'est un plafond contre le fil qui ne finit jamais, pas une règle
+ *  de jeu — d'où sa largeur. Quinze coups par joueur sans que personne
+ *  ne tombe, c'est que les deux Pokémon ne peuvent pas se blesser. */
+export const TOURS_MAX_DUEL = 30;
 
 /** Résout un échange complet : le joueur frappe, puis le sauvage
  *  riposte s'il tient encore debout.
@@ -366,4 +394,115 @@ export function degatsAuSauvage(tour: Tour): number {
   return tour.frappes
     .filter((f) => f.qui === "joueur")
     .reduce((somme, f) => somme + (f.degats?.points ?? 0), 0);
+}
+
+// ── LE DUEL : UNE FRAPPE, ET ON PASSE LA MAIN ────────────────────────
+//
+//  « Comment on lance un combat entre mon pokémon et le pokémon de
+//  l'autre joueur dans un sujet ? » — 23 novembre.
+//
+//  ── CE QUI CHANGE VRAIMENT, ET CE N'EST PAS LE CALCUL ───────────────
+//
+//  Les dégâts, l'efficacité des types, le dé, le coup critique : tout
+//  est déjà là et ne bouge pas. `degatsDe` ne sait pas qui frappe, et
+//  c'est exactement ce qu'il faut.
+//
+//  CE QUI CHANGE, C'EST QU'UN TOUR N'EST PLUS UN ÉCHANGE. Dans un
+//  combat sauvage, un message fait l'aller ET le retour, parce que le
+//  sauvage n'a pas d'auteur : personne n'écrirait sa riposte. Dans un
+//  duel, chacun écrit son coup — alors un tour est UNE frappe, et la
+//  main passe.
+//
+//  ── POURQUOI PAS « resoudreUnTour » AVEC UNE OPTION ─────────────────
+//
+//  Parce que `resoudreUnTour` consomme QUATRE tirages dans un ordre
+//  fixe, et qu'un combat se conteste en le rejouant des années plus
+//  tard. Lui ajouter une branche qui n'en consomme que deux changerait
+//  la suite pour tous les combats sauvages à venir — et surtout, rien
+//  ne garantirait que les anciens se rejouent pareil. On n'y touche
+//  pas. Deux tirages ici, quatre là, et les deux ordres sont écrits.
+
+/** Résout UNE frappe de duel, du point de vue de `joueur_id`.
+ *
+ *  ── UN SEUL REPÈRE, ET C'EST LA TABLE QUI LE DONNE ──────────────────
+ *
+ *  `pvJoueur` et `pvSauvage` gardent leur sens de toujours : le côté de
+ *  `combat.joueur_id`, et celui d'en face. Ils ne disent PAS « celui
+ *  qui frappe » et « celui qui encaisse » — ça change à chaque tour, et
+ *  deux repères dans la même table, c'est une table qu'on ne sait plus
+ *  lire.
+ *
+ *  D'où `qui` : il dit de quel côté vient le coup, et c'est tout ce
+ *  qu'il faut pour ranger les PV du bon côté.
+ *
+ *  ── ET IL N'Y A PAS DE RIPOSTE ──────────────────────────────────────
+ *
+ *  Ce n'est pas un oubli. L'adversaire choisira SA capacité dans SON
+ *  message : lui en choisir une ici, ce serait jouer à sa place. */
+export function resoudreUneFrappe(
+  numero: number,
+  attaquant: Combattant,
+  defenseur: Combattant,
+  choisie: Capacite,
+  table: TableDesTypes,
+  graine: string,
+  qui: "joueur" | "adverse",
+): Tour {
+  if (!Number.isInteger(numero) || numero < 1 || numero > TOURS_MAX_DUEL) {
+    throw new CombatInvalide(`tour ${numero} hors de 1..${TOURS_MAX_DUEL}`);
+  }
+  if (attaquant.pv <= 0) throw new CombatInvalide("l'attaquant est déjà à terre");
+  if (defenseur.pv <= 0) throw new CombatInvalide("le défenseur est déjà à terre");
+
+  //  DEUX TIRAGES, ET DANS CET ORDRE : précision, puis dé des dégâts.
+  //  Les deux premiers d'un tour sauvage, exactement — ce qui rend les
+  //  deux fonctions lisibles côte à côte sans se demander laquelle
+  //  avance la suite autrement.
+  const tirer = suiteAleatoire(graineDepuis(`${graine}|${numero}`));
+  const des = [tirer(), tirer()];
+
+  const touche = des[0] * 100 < choisie.precision;
+  const degats = touche ? degatsDe(attaquant, defenseur, choisie, table, des[1]) : null;
+  const pvDefenseur = Math.max(0, defenseur.pv - (degats?.points ?? 0));
+
+  const frappe: Frappe = {
+    qui,
+    capacite: choisie,
+    touche,
+    degats,
+    pvRestants: pvDefenseur,
+  };
+
+  //  LE RANGEMENT DES PV, et c'est la seule ligne qui dépend de `qui`.
+  const pvJoueur = qui === "joueur" ? attaquant.pv : pvDefenseur;
+  const pvSauvage = qui === "joueur" ? pvDefenseur : attaquant.pv;
+
+  //  ── LA FIN SE DIT AUSSI DANS LE REPÈRE DE `joueur_id` ─────────────
+  //
+  //  « Victoire » veut dire que le côté de `joueur_id` a gagné, pas que
+  //  celui qui vient de frapper a gagné. Sans ça, le même mot voudrait
+  //  dire deux choses selon le tour, et les deux joueurs liraient le
+  //  résultat à l'envers une fois sur deux.
+  //
+  //  ET LE PLAFOND NE DONNE PAS DE VAINQUEUR : `nul`. Un sauvage s'en
+  //  va au bout de cinq tours — c'est sa fuite. Deux dresseurs qui
+  //  n'arrivent pas à se blesser en trente tours n'ont rien gagné, et
+  //  inventer un vainqueur au compte des PV serait une règle que
+  //  personne n'a écrite.
+  let fin: Tour["fin"] = null;
+  if (pvDefenseur === 0) fin = qui === "joueur" ? "victoire" : "defaite";
+  else if (numero === TOURS_MAX_DUEL) fin = "nul";
+
+  return { numero, frappes: [frappe], pvJoueur, pvSauvage, fin };
+}
+
+/** Les dégâts d'une frappe, pour l'expérience de celui qui l'a portée.
+ *
+ *  `degatsAuSauvage` ne vaut que pour un combat sauvage : il ne compte
+ *  que les frappes du joueur, parce que la riposte du sauvage ne
+ *  rapporte rien à personne. Dans un duel, LES DEUX CÔTÉS GAGNENT de
+ *  l'expérience en frappant — ce qui est la même règle, lue dans les
+ *  deux sens. */
+export function degatsPortes(tour: Tour): number {
+  return tour.frappes.reduce((somme, f) => somme + (f.degats?.points ?? 0), 0);
 }

@@ -278,3 +278,102 @@ Deno.test("LES DEUX FICHES SONT LÀ, avec leurs sprites", () => {
   assertStringIncludes(html, ">18/30 PV<");
   assertStringIncludes(html, ">11/18 PV<");
 });
+
+// ── LE TOUR D'UN DUEL, 23 novembre ──────────────────────────────────
+
+/** Le même tour, mais entre deux dresseurs.
+ *
+ *  LE DÉCOR NOMME LES DEUX, parce que c'est précisément ce qui manque
+ *  à un message de combat sauvage : il n'a qu'un lecteur, donc il dit
+ *  « tu ». */
+function frappeDeDuel(p: Partial<TourEnAttente> = {}): TourEnAttente {
+  return attaque({
+    genre: "duel",
+    defieur: "Jake Dalziel",
+    adverse: "Erin Kavanagh",
+    sauvage: { especeId: 7, nom: "Carapuce", surnom: "Bulle", pv: 14, pvMax: 21 },
+    ...p,
+  });
+}
+
+Deno.test("UN TOUR DE DUEL NE DIT JAMAIS « TU »", () => {
+  //  Il est lu par les DEUX dresseurs. « Tu attaques » y serait vrai
+  //  pour l'un et faux pour l'autre, dans le même message, et celui
+  //  qui vient de prendre le coup lirait qu'il l'a donné.
+  const texte = phrasesDuTour(frappeDeDuel()).join(" ");
+  assert(!/\btu\b/i.test(texte), `« tu » dans : ${texte}`);
+  assert(!/\bton\b/i.test(texte), `« ton » dans : ${texte}`);
+});
+
+Deno.test("ET IL NOMME LES DEUX POKÉMON, SURNOM COMPRIS", () => {
+  //  Le Pokémon d'en face a un dresseur qui l'a nommé. L'appeler par
+  //  son espèce quand il a un surnom, c'est ignorer le seul mot que ce
+  //  joueur a écrit sur lui.
+  const texte = phrasesDuTour(frappeDeDuel()).join(" ");
+  assertStringIncludes(texte, "Salamèche");
+  assertStringIncludes(texte, "Bulle");
+});
+
+Deno.test("LA FRAPPE DE L'ADVERSAIRE SE RACONTE DANS L'AUTRE SENS", () => {
+  //  Même repère — `pvJoueur` est toujours le côté du défieur — mais
+  //  l'attaquant et la cible s'échangent.
+  const texte = phrasesDuTour(frappeDeDuel({
+    recit: {
+      frappes: [
+        {
+          qui: "adverse",
+          capacite: { nom: "Charge" },
+          touche: true,
+          degats: { points: 7, efficacite: 1, de: 88 },
+        },
+      ],
+    },
+  })).join(" ");
+  assertStringIncludes(texte, "Bulle (Carapuce) utilise Charge");
+  assertStringIncludes(texte, "7 dégâts");
+});
+
+Deno.test("LA FIN D'UN DUEL NOMME LE VAINQUEUR", () => {
+  //  « Le combat est terminé » tout court laisserait deux joueurs
+  //  compter les PV pour savoir qui a gagné.
+  const gagne = phrasesDuTour(frappeDeDuel({ fin: "victoire" })).join(" ");
+  assertStringIncludes(gagne, "Jake Dalziel remporte le duel");
+  const perd = phrasesDuTour(frappeDeDuel({ fin: "defaite" })).join(" ");
+  assertStringIncludes(perd, "Erin Kavanagh remporte le duel");
+});
+
+Deno.test("TRENTE TOURS SANS VAINQUEUR SE DIT, ET NE S'INVENTE PAS", () => {
+  //  `nul` n'existe que dans un duel. Inventer un vainqueur au compte
+  //  des PV serait une règle que personne n'a écrite.
+  const texte = phrasesDuTour(frappeDeDuel({ fin: "nul" })).join(" ");
+  assertStringIncludes(texte, "sans vainqueur");
+  assert(!texte.includes("remporte"), "personne ne remporte un nul");
+});
+
+Deno.test("LE FORFAIT NOMME CELUI QUI ABANDONNE", () => {
+  //  On ne fuit pas un dresseur : on déclare forfait, et le forfait a
+  //  un auteur. La fin dit lequel — `defaite` est le défieur.
+  const lui = phrasesDuTour(frappeDeDuel({
+    demande: "renoncer",
+    fin: "defaite",
+    recit: { frappes: [] },
+  })).join(" ");
+  assertStringIncludes(lui, "Jake Dalziel déclare forfait");
+  assertStringIncludes(lui, "Erin Kavanagh remporte le duel");
+
+  const elle = phrasesDuTour(frappeDeDuel({
+    demande: "renoncer",
+    fin: "victoire",
+    recit: { frappes: [] },
+  })).join(" ");
+  assertStringIncludes(elle, "Erin Kavanagh déclare forfait");
+});
+
+Deno.test("UN TOUR SAUVAGE CONTINUE DE PARLER AU JOUEUR", () => {
+  //  C'est juste pour lui : un seul lecteur, et « ton Salamèche » est
+  //  plus chaleureux qu'un nom répété. Le genre absent vaut `sauvage`,
+  //  donc rien ne change pour les combats d'avant le 23 novembre.
+  const texte = phrasesDuTour(attaque({ fin: "defaite" })).join(" ");
+  assertStringIncludes(texte, "Le combat est terminé");
+  assert(!texte.includes("remporte le duel"), "pas de duel dans un combat sauvage");
+});

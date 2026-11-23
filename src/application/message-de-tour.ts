@@ -53,10 +53,55 @@ export function efficaciteEnMots(facteur: number): string | null {
  *  joueur quand c'est lui : « Salamèche attaque » mais « Tu lances une
  *  Poké Ball ». C'est ce qui rend la lecture naturelle sans jamais
  *  écrire « le joueur ». */
+/** Un duel se raconte à la troisième personne.
+ *
+ *  ── « TU » NE DÉSIGNE PERSONNE DANS UN MESSAGE LU PAR DEUX ─────────
+ *
+ *  Les messages d'un combat sauvage parlent au joueur : « tu attaques »,
+ *  « ton Pokémon est K.O. ». C'est juste — ils n'ont qu'un lecteur, et
+ *  c'est plus chaleureux qu'un nom répété.
+ *
+ *  Un tour de duel est lu par les DEUX dresseurs. « Tu attaques » y
+ *  serait vrai pour l'un et faux pour l'autre, dans le même message, et
+ *  celui qui vient de prendre le coup lirait qu'il l'a donné. */
+function estUnDuel(t: TourEnAttente): boolean {
+  return t.genre === "duel";
+}
+
+/** Le nom du Pokémon d'en face. Son surnom quand il en a un — dans un
+ *  duel, son dresseur l'a nommé. */
+function nomDEnFace(t: TourEnAttente): string {
+  return nomDuCombattant(t.sauvage.nom, t.sauvage.surnom ?? null);
+}
+
+/** Le nom du Pokémon de ce côté-ci. */
+function nomDeCeCote(t: TourEnAttente, majuscule = false): string {
+  if (t.combattant !== null) {
+    return nomDuCombattant(t.combattant.nom, t.combattant.surnom);
+  }
+  return majuscule ? "Ton Pokémon" : "ton Pokémon";
+}
+
 export function phraseDeLaDemande(t: TourEnAttente): string {
   const soi = t.combattant === null
     ? "Ton Pokémon"
     : nomDuCombattant(t.combattant.nom, t.combattant.surnom);
+  //  ── LA SEULE DEMANDE D'UN DUEL QUI S'ANNONCE ──────────────────────
+  //
+  //  `renoncer` n'existe que là : on ne fuit pas un dresseur. Et il se
+  //  dit À LA TROISIÈME PERSONNE, avec le nom de celui qui abandonne —
+  //  « tu déclares forfait » serait faux pour l'un des deux lecteurs.
+  //
+  //  LA FIN DIT QUI : `defaite` est le défieur qui renonce, `victoire`
+  //  l'autre. C'est le repère de `joueur_id`, le même partout.
+  //
+  //  `attaquer` n'est pas annoncé — la frappe le dit déjà (voir
+  //  `phrasesDuTour`) — et les trois autres ne peuvent pas arriver : le
+  //  duel refuse la ball, l'objet et le changement, en les nommant.
+  if (estUnDuel(t) && t.demande === "renoncer") {
+    const renonce = (t.fin === "defaite" ? t.defieur : t.adverse) ?? "Le dresseur";
+    return `${renonce} déclare forfait.`;
+  }
   const d = t.detail ?? {};
   switch (t.demande) {
     case "attaquer":
@@ -83,16 +128,18 @@ function phrasesDeLaFrappe(
   f: TourEnAttente["recit"]["frappes"][number],
   t: TourEnAttente,
 ): string[] {
-  const attaquant = f.qui === "joueur"
-    ? (t.combattant === null
-      ? "Ton Pokémon"
-      : nomDuCombattant(t.combattant.nom, t.combattant.surnom))
-    : t.sauvage.nom;
-  const cible = f.qui === "joueur"
-    ? t.sauvage.nom
-    : (t.combattant === null
-      ? "ton Pokémon"
-      : nomDuCombattant(t.combattant.nom, t.combattant.surnom));
+  //  ── DANS UN DUEL, LES DEUX CÔTÉS ONT UN NOM ─────────────────────
+  //
+  //  « Ton Pokémon utilise Flammèche » dans un message lu par deux
+  //  dresseurs laisse chacun se demander lequel des deux est « ton ».
+  //  Les deux Pokémon sont nommés, et leur surnom est celui que leur
+  //  dresseur leur a donné.
+  const attaquant = estUnDuel(t)
+    ? (f.qui === "joueur" ? nomDeCeCote(t, true) : nomDEnFace(t))
+    : (f.qui === "joueur" ? nomDeCeCote(t, true) : t.sauvage.nom);
+  const cible = estUnDuel(t)
+    ? (f.qui === "joueur" ? nomDEnFace(t) : nomDeCeCote(t))
+    : (f.qui === "joueur" ? t.sauvage.nom : nomDeCeCote(t));
 
   if (!f.touche || f.degats === null) {
     return [`${attaquant} lance ${f.capacite.nom}… et manque sa cible.`];
@@ -106,9 +153,22 @@ function phrasesDeLaFrappe(
     lignes.push("Ça n'a aucun effet.");
     return lignes;
   }
+  //  ── DANS UN DUEL, LA CIBLE SE NOMME AUSSI ───────────────────────
+  //
+  //  « Salamèche utilise Flammèche : 12 dégâts » suffit contre un
+  //  sauvage — il n'y a qu'une autre chose sur la carte. Entre deux
+  //  dresseurs, la phrase ne dit plus QUI a pris le coup : il faut
+  //  descendre lire les deux jauges pour le savoir.
+  //
+  //  Le test l'a réclamé, et il avait raison : la cible n'était nommée
+  //  que sur un coup RATÉ ou SANS EFFET — les deux cas où il n'y a pas
+  //  de chiffre à annoncer.
   lignes.push(
-    `${attaquant} utilise ${f.capacite.nom} : ${f.degats.points} dégâts ` +
-      `(dé ${f.degats.de}).`,
+    estUnDuel(t)
+      ? `${attaquant} utilise ${f.capacite.nom} sur ${cible} : ` +
+        `${f.degats.points} dégâts (dé ${f.degats.de}).`
+      : `${attaquant} utilise ${f.capacite.nom} : ${f.degats.points} dégâts ` +
+        `(dé ${f.degats.de}).`,
   );
   const mots = efficaciteEnMots(f.degats.efficacite);
   if (mots !== null) lignes.push(mots);
@@ -117,6 +177,25 @@ function phrasesDeLaFrappe(
 
 /** La fin, dite du point de vue du joueur. */
 export function phraseDeLaFin(t: TourEnAttente): string | null {
+  //  ── LA FIN D'UN DUEL NOMME LE VAINQUEUR ─────────────────────────
+  //
+  //  « Le combat est terminé » tout court laisserait deux joueurs
+  //  compter les PV pour savoir qui a gagné. Et `nul` n'existe que
+  //  dans un duel : trente tours sans que personne ne tombe.
+  if (estUnDuel(t)) {
+    const moi = t.defieur ?? "le défieur";
+    const lui = t.adverse ?? "son adversaire";
+    switch (t.fin) {
+      case "victoire":
+        return `${nomDEnFace(t)} est K.O. ${moi} remporte le duel.`;
+      case "defaite":
+        return `${nomDeCeCote(t, true)} est K.O. ${lui} remporte le duel.`;
+      case "nul":
+        return "Trente tours, et personne à terre : le duel s'arrête sans vainqueur.";
+      default:
+        return null;
+    }
+  }
   switch (t.fin) {
     case "victoire":
       return `${t.sauvage.nom} est K.O. Le combat est terminé.`;

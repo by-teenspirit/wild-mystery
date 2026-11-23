@@ -43,10 +43,13 @@ import {
   type Capacite,
   type Combattant,
   degatsAuSauvage,
+  degatsPortes,
+  resoudreUneFrappe,
   resoudreUneRiposte,
   resoudreUnTour,
   type Tour,
   TOURS_MAX,
+  TOURS_MAX_DUEL,
 } from "../domaine/combat.ts";
 import { type Jet, lancerUneBall } from "../domaine/capture.ts";
 import { estLaNuit } from "../domaine/meteo.ts";
@@ -179,10 +182,35 @@ export class JouerUnTour {
       return rien;
     }
 
-    //  LE COMBAT APPARTIENT À CELUI QUI A FAIT APPARAÎTRE LE POKÉMON
-    //  (planche 99 §5.4). Sans cette règle, dans un sujet à deux, le
-    //  second joueur jouerait les tours du premier.
-    if (etat.joueurId !== joueurId) {
+    //  ── UN DUEL A DEUX AYANTS DROIT, ET UN SEUL À LA FOIS ──────────
+    //
+    //  Le combat sauvage appartient à celui qui a fait apparaître le
+    //  Pokémon (planche 99 §5.4) : dans un sujet à deux, le second
+    //  joueur ne joue pas les tours du premier.
+    //
+    //  Un duel renverse la première moitié de cette règle et garde la
+    //  seconde : LES DEUX ont le droit d'agir, mais pas en même temps.
+    //  C'est `a_qui` qui tranche — et la base le tranche aussi, dans la
+    //  même transaction que le tour. Ce refus-ci est là pour le DIRE,
+    //  pas pour le tenir : la relève lit plusieurs messages par
+    //  passage, et seule une transaction empêche deux coups d'affilée.
+    const duel = etat.genre === "duel";
+    if (duel) {
+      if (etat.joueurId !== joueurId && etat.adverseJoueurId !== joueurId) {
+        erreurs.push(
+          `message ${lue.messageId} : ce duel n'est pas le tien, ` +
+            `il se joue entre deux autres dresseurs`,
+        );
+        return rien;
+      }
+      if (etat.aQui !== joueurId) {
+        erreurs.push(
+          `message ${lue.messageId} : ce n'est pas ton tour, ` +
+            `c'est à l'autre dresseur de frapper`,
+        );
+        return rien;
+      }
+    } else if (etat.joueurId !== joueurId) {
       erreurs.push(
         `message ${lue.messageId} : ce combat n'est pas le tien, ` +
           `il appartient au joueur qui a fait apparaître le Pokémon`,
@@ -190,15 +218,63 @@ export class JouerUnTour {
       return rien;
     }
 
-    if (etat.tour >= TOURS_MAX) {
-      //  Le cinquième tour a déjà été joué : le sauvage est parti, et
-      //  `jouer_un_tour` refuserait de toute façon. On le dit plutôt
-      //  que de laisser la base répondre par un code.
+    //  LE PLAFOND N'EST PAS LE MÊME DES DEUX CÔTÉS : cinq pour un
+    //  sauvage qui s'en va, trente pour un duel dont chaque tour n'est
+    //  qu'une frappe.
+    const plafond = duel ? TOURS_MAX_DUEL : TOURS_MAX;
+    if (etat.tour >= plafond) {
+      //  Le dernier tour a déjà été joué, et `jouer_un_tour` refuserait
+      //  de toute façon. On le dit plutôt que de laisser la base
+      //  répondre par un code.
       erreurs.push(
-        `message ${lue.messageId} : le combat a déjà joué ses ${TOURS_MAX} tours`,
+        `message ${lue.messageId} : le combat a déjà joué ses ${plafond} tours`,
       );
       return rien;
     }
+
+    //  ── CE QU'UN DUEL NE SAIT PAS FAIRE, ET LE DIT ─────────────────
+    //
+    //  Pas de Poké Ball : on n'attrape pas le Pokémon de quelqu'un.
+    //  Pas d'objet non plus — soigner son Pokémon au milieu d'un duel
+    //  est une règle de jeu à trancher, pas un bouton à poser, et
+    //  l'annexe n'en dit qu'une chose : « cela compte comme un tour ».
+    //  Le jour où elle la tranchera, le verbe existe déjà.
+    //
+    //  ON NOMME LE REFUS plutôt que de l'avaler : un joueur dont la
+    //  barre a écrit un bloc que le serveur ne sert pas doit savoir
+    //  pourquoi son tour n'a pas été joué.
+    //  ET « CHANGER » EST REFUSÉ AUSSI, POUR UNE AUTRE RAISON.
+    //
+    //  Celle-là n'est pas « ça n'a pas de sens » mais « on n'a pas
+    //  tranché ». Changer coûte le tour dans un combat sauvage parce
+    //  que le sauvage frappe pendant qu'on change — c'est ce qui rend
+    //  le choix coûteux. Dans un duel, personne ne frappe
+    //  automatiquement : est-ce que changer passe la main sans plus,
+    //  ou est-ce que l'adversaire gagne un coup gratuit ?
+    //
+    //  C'EST UNE RÈGLE DE JEU, PAS UNE LIGNE DE CODE. Deviner ici
+    //  donnerait une mécanique que personne n'a choisie et que les
+    //  joueurs découvriraient en la subissant. On refuse, on le nomme,
+    //  et le verbe attend sa règle.
+    if (duel && (action.type === "ball" || action.type === "objet")) {
+      erreurs.push(
+        `message ${lue.messageId} : « ${action.type} » n'a pas de sens ` +
+          `dans un duel entre dresseurs`,
+      );
+      return rien;
+    }
+    if (duel && action.type === "changer") {
+      erreurs.push(
+        `message ${lue.messageId} : changer de Pokémon en duel n'est pas ` +
+          `encore réglé — la règle reste à trancher`,
+      );
+      return rien;
+    }
+
+    if (duel && action.type === "attaquer") {
+      return await this.#frapper(etat, lue, action.capacite, joueurId, erreurs);
+    }
+    if (duel && action.type === "fuir") return await this.#renoncer(etat, lue, joueurId);
 
     if (action.type === "fuir") return await this.#fuir(etat, lue);
     if (action.type === "changer") {
@@ -614,6 +690,156 @@ export class JouerUnTour {
       evenements: [{ type: "objet_utilise", objetId, quantite: 1 }],
       tour,
     };
+  }
+
+  /** ── UNE FRAPPE DE DUEL ──────────────────────────────────────────
+   *
+   *  Un tour est UNE frappe, pas un échange. Dans un combat sauvage, un
+   *  message fait l'aller et le retour parce que le sauvage n'a pas
+   *  d'auteur : personne n'écrirait sa riposte. Ici, l'adversaire
+   *  choisira sa capacité dans son message — lui en choisir une serait
+   *  jouer à sa place.
+   *
+   *  ── LES DEUX RÔLES, ET LE REPÈRE QUI NE BOUGE PAS ────────────────
+   *
+   *  `etat.combattant` est TOUJOURS le côté de `joueur_id`, et
+   *  `etat.sauvage` TOUJOURS celui d'en face — même quand c'est l'autre
+   *  dresseur qui frappe. C'est ce que la table dit, et changer de
+   *  repère selon le tour donnerait une ligne qu'on ne sait plus lire.
+   *
+   *  Ce qui change, c'est QUI est l'attaquant des deux. */
+  async #frapper(
+    etat: CombatEnCours,
+    lue: ActionLue,
+    capaciteId: number,
+    joueurId: string,
+    erreurs: string[],
+  ): Promise<Resolution> {
+    const rien: Resolution = { evenements: [], tour: null };
+
+    if (etat.combattant === null) {
+      erreurs.push(
+        `message ${lue.messageId} : il n'y a aucun Pokémon de ce côté-ci, ` +
+          `le duel ne peut pas se jouer`,
+      );
+      return rien;
+    }
+
+    //  LE DÉFIEUR EST `joueur_id` (0060), donc son camp est « joueur ».
+    const monCote = etat.joueurId === joueurId;
+    const qui = monCote ? "joueur" as const : "adverse" as const;
+    const attaquant = monCote ? etat.combattant : etat.sauvage;
+    const defenseur = monCote ? etat.sauvage : etat.combattant;
+
+    //  LA CAPACITÉ DOIT ÊTRE UNE DES QUATRE DE L'ATTAQUANT, et c'est
+    //  ici que la promesse de `action.ts` se tient — taper le bloc à la
+    //  main ne donne aucun avantage. Celles d'en face sont celles que
+    //  SON dresseur a choisies (0061), pas celles de son espèce.
+    const choisie = attaquant.capacites.find((c) => c.id === capaciteId);
+    if (choisie === undefined) {
+      erreurs.push(
+        `message ${lue.messageId} : la capacité ${capaciteId} n'est pas ` +
+          `une de celles de ${attaquant.nom}`,
+      );
+      return rien;
+    }
+
+    const numero = etat.tour + 1;
+    const tour = resoudreUneFrappe(
+      numero,
+      combattantDe(attaquant),
+      combattantDe(defenseur),
+      capaciteDe(choisie),
+      await this.types.efficacite(),
+      //  LA MÊME GRAINE QUE PARTOUT : le numéro du message. Fixée à la
+      //  seconde où le joueur poste, impossible à rejouer, refaisable à
+      //  l'identique des années plus tard. Un duel a deux joueurs, donc
+      //  deux fois plus de raisons d'être contesté.
+      String(lue.messageId),
+      qui,
+    );
+
+    const joue = await this.combats.jouer({
+      combatId: etat.combatId,
+      messageId: lue.messageId,
+      numero,
+      demande: "attaquer",
+      detail: { capacite: choisie.id, nom: choisie.nom },
+      recit: tour,
+      pvJoueur: tour.pvJoueur,
+      pvSauvage: tour.pvSauvage,
+      fin: tour.fin,
+      //  LA BASE EXIGE DE SAVOIR QUI JOUE, et elle refuse qui n'a pas
+      //  la main. C'est elle qui tient l'ordre des coups, pas le test
+      //  d'`executer` : la relève lit plusieurs messages par passage.
+      joueurId,
+    });
+
+    if (!joue.joue) {
+      if (joue.raison !== "DEJA_JOUE") {
+        erreurs.push(
+          `message ${lue.messageId} : tour refusé (${joue.raison ?? "sans raison"})`,
+        );
+      }
+      return rien;
+    }
+
+    //  ── L'EXPÉRIENCE VA À CELUI QUI A FRAPPÉ ───────────────────────
+    //
+    //  `degatsAuSauvage` ne compte que les frappes du « joueur », parce
+    //  que la riposte d'un sauvage ne rapporte rien à personne. Dans un
+    //  duel les deux côtés gagnent en frappant : c'est la même règle du
+    //  1er octobre, lue dans les deux sens.
+    //
+    //  ET ELLE VA AU POKÉMON DE L'ATTAQUANT, pas à celui de `joueur_id`.
+    //  Se tromper ici ferait monter le Pokémon de l'adversaire chaque
+    //  fois qu'il se fait frapper.
+    const degats = degatsPortes(tour);
+    const evenements: Evenement[] = [];
+    const pokemonId = monCote ? etat.combattant.pokemonId : etat.adversePokemonId;
+    if (degats > 0 && pokemonId !== null && pokemonId !== undefined) {
+      evenements.push({
+        type: "xp",
+        pokemonId,
+        gain: experienceGagnee(degats, attaquant.niveau),
+      });
+    }
+    return { evenements, tour };
+  }
+
+  /** Renoncer à un duel. Le combat se ferme, et celui qui renonce perd.
+   *
+   *  ── « FUIR » NE VEUT PAS DIRE LA MÊME CHOSE ICI ──────────────────
+   *
+   *  On fuit un Pokémon sauvage sans conséquence : il ne poursuit pas,
+   *  et c'est ce qui rend la fuite utile. On ne fuit pas un dresseur —
+   *  on déclare forfait, et le forfait a un vainqueur. Sinon le verbe
+   *  deviendrait le moyen d'annuler un duel qu'on est en train de
+   *  perdre.
+   *
+   *  LA FIN SE DIT DANS LE REPÈRE DE `joueur_id`, comme toujours : le
+   *  défieur qui renonce est une `defaite`, l'autre une `victoire`. */
+  async #renoncer(
+    etat: CombatEnCours,
+    lue: ActionLue,
+    joueurId: string,
+  ): Promise<Resolution> {
+    const monCote = etat.joueurId === joueurId;
+    await this.combats.jouer({
+      combatId: etat.combatId,
+      messageId: lue.messageId,
+      numero: etat.tour + 1,
+      demande: "renoncer",
+      detail: null,
+      recit: { renonce: monCote ? "joueur" : "adverse" },
+      //  LES PV NE BOUGENT PAS : on renonce, on ne se fait pas frapper
+      //  en partant.
+      pvJoueur: etat.combattant?.pv ?? 0,
+      pvSauvage: etat.sauvage.pv,
+      fin: monCote ? "defaite" : "victoire",
+      joueurId,
+    });
+    return { evenements: [], tour: null };
   }
 
   async #attaquer(

@@ -300,9 +300,23 @@ export class CombatsSupabase implements Combats {
       sujetId: nombre(o, "sujetId", "combat"),
       joueurId: texte(o, "joueurId", "combat"),
       tour: nombre(o, "tour", "combat"),
+      //  ── LES QUATRE CHAMPS DU DUEL (0061) ──────────────────────
+      //
+      //  LUS SANS LEVER, contrairement aux chiffres du combat : un
+      //  genre absent veut dire `sauvage`, qui était le seul genre
+      //  jusqu'au 23 novembre. Lever ici aurait arrêté tous les
+      //  combats sauvages le temps que la migration monte — et un
+      //  champ qu'on ne sait pas lire ne fait pas de dégâts, alors
+      //  qu'un PV absent devient un `NaN` au milieu d'un calcul.
+      genre: typeof o.genre === "string" ? o.genre : null,
+      adverseJoueurId: typeof o.adverseJoueurId === "string" ? o.adverseJoueurId : null,
+      adversePokemonId: typeof o.adversePokemonId === "string" ? o.adversePokemonId : null,
+      aQui: typeof o.aQui === "string" ? o.aQui : null,
       sauvage: {
         ...lireUnCombattant(o.sauvage, "sauvage"),
         especeId: nombre(o.sauvage as Record<string, unknown>, "especeId", "sauvage"),
+        //  LE SURNOM D'EN FACE, quand c'est le Pokémon d'un joueur.
+        surnom: lireUnSurnom((o.sauvage as Record<string, unknown>).surnom),
         //  LE TAUX DE CAPTURE. Absent, la Poké Ball lèverait sur un
         //  « taux de capture undefined » au milieu d'un lancer — après
         //  que la base a été lue, avant qu'elle ne soit écrite.
