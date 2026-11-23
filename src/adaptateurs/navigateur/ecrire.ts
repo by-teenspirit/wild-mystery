@@ -557,10 +557,267 @@ export function poserEcrire(r: Reglages): boolean {
 
   peindreLesPlaces();
   peindreLaTete();
+  //  LES MODÈLES SE BRANCHENT À PART, ET NE PEUVENT PAS FAIRE TOMBER
+  //  L'ÉDITEUR : voir `brancherLesModeles`.
+  brancherLesModeles(r, p);
   for (const lien of r.doc.querySelectorAll('[data-wm-carnet-onglet="ecrire"]')) {
     lien.addEventListener("click", charger);
   }
   if (globalThis.location?.hash === "#ecrire") charger();
 
   return true;
+}
+
+// ── LES MODÈLES DE RP ──────────────────────────────────────────────
+//
+//  « Quand on écrit, faudrait des modèles de rp. Et aussi, permettre aux
+//  gens de sauvegarder leurs propres modèles de rp. » — 23 novembre.
+//
+//  ── POURQUOI PAS DANS `pieces()` ───────────────────────────────────
+//
+//  Parce que `pieces()` ARRÊTE TOUT quand une pièce manque, et c'est la
+//  bonne règle pour l'éditeur : la leçon du 3 novembre est qu'une page
+//  plus vieille que le script laissait un écran muet, et on cherchait la
+//  panne ailleurs.
+//
+//  Mais un onglet Écrire SANS modèles marche très bien, et une page pas
+//  encore recollée est l'état normal pendant quelques jours — Callista
+//  colle ses pages à la main. Y mettre les modèles aurait fait tomber
+//  l'éditeur entier pour un menu déroulant absent. Ils se branchent
+//  donc à part, et leur absence ne dit rien à personne.
+
+type Modele = {
+  readonly id: string;
+  readonly nom: string;
+  readonly corps: string;
+  /** Vrai quand `joueur_id` est nul : un modèle du forum. On ne le
+   *  supprime pas, et la base le refuserait de toute façon. */
+  readonly duForum: boolean;
+};
+
+export function lireLesModeles(brut: unknown): Modele[] {
+  if (!Array.isArray(brut)) return [];
+  const sortie: Modele[] = [];
+  for (const l of brut) {
+    const o = l as Record<string, unknown>;
+    const id = typeof o.id === "string" ? o.id : "";
+    const nom = typeof o.nom === "string" ? o.nom.trim() : "";
+    const corps = typeof o.corps === "string" ? o.corps : "";
+    //  UN MODÈLE SANS CORPS N'EST PAS UN MODÈLE, et un sans nom ne se
+    //  choisit pas dans un menu. On le laisse plutôt que de l'afficher
+    //  vide.
+    if (id === "" || nom === "" || corps === "") continue;
+    sortie.push({ id, nom, corps, duForum: o.joueur_id === null });
+  }
+  //  CEUX DU FORUM D'ABORD, puis les siens, chacun par ordre
+  //  alphabétique : on cherche « le modèle de présentation » dans la
+  //  première moitié et « mon intro » dans la seconde.
+  return sortie.sort((a, b) =>
+    a.duForum === b.duForum ? a.nom.localeCompare(b.nom, "fr") : (a.duForum ? -1 : 1)
+  );
+}
+
+function brancherLesModeles(r: Reglages, p: Pieces): void {
+  const doc = r.doc;
+  const q = <T extends HTMLElement>(s: string) => doc.querySelector<T>(s);
+  const menu = q<HTMLSelectElement>("[data-wm-ecrire-modele]");
+  const inserer = q("[data-wm-ecrire-inserer]");
+  const oter = q<HTMLButtonElement>("[data-wm-ecrire-oter-modele]");
+  const nom = q<HTMLInputElement>("[data-wm-ecrire-modele-nom]");
+  const garder = q("[data-wm-ecrire-garder-modele]");
+  const dit = q("[data-wm-ecrire-modele-dit]");
+  const bloc = q("[data-wm-ecrire-modeles]");
+  if (
+    menu === null || inserer === null || oter === null || nom === null ||
+    garder === null || dit === null || bloc === null
+  ) {
+    return;
+  }
+
+  let modeles: Modele[] = [];
+
+  //  ── ELLE S'APPELLE `rest` ET PAS `appeler`, ET CE N'EST PAS DU
+  //     GOÛT ────────────────────────────────────────────────────────
+  //
+  //  LE GARDE-FOU N° 38 M'A ATTRAPÉ : il relève tous les
+  //  `appeler("<nom>")` du dépôt et vérifie que `<nom>` est bien une
+  //  fonction déclarée dans une migration. C'est la garde qui a trouvé
+  //  `fermer_un_defi(p_id uuid, p_etat text)` le 23 novembre.
+  //
+  //  Mon aide appelait une TABLE par son chemin REST, pas une fonction
+  //  par son nom — et sous le nom `appeler`, elle disait au garde-fou
+  //  que `rp_modele` était une fonction SQL manquante. Le nom `rest`
+  //  est celui que `rp.ts` emploie déjà pour exactement ce geste : une
+  //  convention tenue par un outil est une convention qu'on ne contourne
+  //  pas, on s'y range.
+  const rest = (chemin: string, options: RequestInit = {}) =>
+    fetch(`${r.acces.url}/rest/v1/${chemin}`, {
+      ...options,
+      credentials: "omit",
+      headers: {
+        apikey: r.acces.clePubliable,
+        Authorization: `Bearer ${r.jeton}`,
+        "Content-Type": "application/json",
+        ...(options.headers ?? {}),
+      },
+    }).catch(() => null);
+
+  const peindre = (): void => {
+    const choisi = menu.value;
+    menu.textContent = "";
+    if (modeles.length === 0) {
+      const vide = doc.createElement("option");
+      vide.value = "";
+      //  UN MOT PLUTÔT QU'UN MENU VIDE : une liste déroulante sans
+      //  option est un contrôle qui ment, et c'est la règle qu'on tient
+      //  déjà dans la barre d'actions.
+      vide.textContent = "Aucun modèle pour l'instant";
+      menu.append(vide);
+      menu.disabled = true;
+      oter.hidden = true;
+      return;
+    }
+    menu.disabled = false;
+    for (const m of modeles) {
+      const o = doc.createElement("option");
+      o.value = m.id;
+      //  LE MODÈLE DU FORUM EST MARQUÉ : sinon on ne sait pas pourquoi
+      //  la moitié de la liste ne se supprime pas.
+      o.textContent = m.duForum ? `${m.nom} (du forum)` : m.nom;
+      o.selected = m.id === choisi;
+      menu.append(o);
+    }
+    direLeBoutonDOter();
+  };
+
+  const choisi = (): Modele | undefined => modeles.find((m) => m.id === menu.value);
+
+  //  LE BOUTON DE SUPPRESSION NE PARAÎT QUE SUR LES SIENS. Le montrer
+  //  grisé sur un modèle du forum apprendrait à se méfier de l'écran,
+  //  et la base le refuserait de toute façon.
+  const direLeBoutonDOter = (): void => {
+    const m = choisi();
+    oter.hidden = m === undefined || m.duForum;
+  };
+  menu.addEventListener("change", direLeBoutonDOter);
+
+  inserer.addEventListener("click", () => {
+    const m = choisi();
+    if (m === undefined) return;
+    //  ── À L'ENDROIT DU CURSEUR, ET ON N'EFFACE RIEN ────────────────
+    //
+    //  Remplacer le texte serait le geste le plus simple à écrire et le
+    //  pire à subir : on insère un modèle APRÈS avoir commencé, pour
+    //  ajouter une fiche de présentation ou un en-tête, et un
+    //  remplacement effacerait ce qu'on venait d'écrire sans retour
+    //  possible.
+    const champ = p.corps;
+    const debut = champ.selectionStart ?? champ.value.length;
+    const fin = champ.selectionEnd ?? debut;
+    champ.value = champ.value.slice(0, debut) + m.corps + champ.value.slice(fin);
+    //  LE CURSEUR SE POSE APRÈS CE QU'ON VIENT D'INSÉRER, pour qu'on
+    //  continue à écrire là où on en était.
+    champ.selectionStart = champ.selectionEnd = debut + m.corps.length;
+    champ.focus();
+    //  `input` À LA MAIN : une écriture par script n'en émet pas, et
+    //  c'est lui qui déclenche le compteur de mots et l'enregistrement.
+    champ.dispatchEvent(new Event("input", { bubbles: true }));
+    dit.textContent = `« ${m.nom} » inséré.`;
+  });
+
+  garder.addEventListener("click", () => {
+    const titre = nom.value.trim().slice(0, 60);
+    const corps = p.corps.value;
+    if (titre === "") {
+      dit.textContent = "Il me faut un nom pour ce modèle.";
+      return;
+    }
+    //  LA BORNE EST CELLE DE LA BASE (8 000 signes, contrainte de la
+    //  0067) : couper ici donnerait un modèle tronqué sans le dire, et
+    //  refuser est plus honnête — c'est au joueur de choisir ce qu'il
+    //  garde.
+    if (corps.trim() === "") {
+      dit.textContent = "Ton texte est vide : il n'y a rien à garder.";
+      return;
+    }
+    if (corps.length > 8000) {
+      dit.textContent = "Ce texte est trop long pour un modèle (8 000 signes au plus).";
+      return;
+    }
+    void (async () => {
+      //  `merge-duplicates` SUR (joueur_id, nom) : garder deux fois sous
+      //  le même nom REMPLACE, et c'est ce qu'on attend d'un modèle
+      //  qu'on retouche. Sans ça, l'index unique refuserait et le
+      //  message serait « ça n'a pas pu être gardé » sur un geste qui
+      //  avait du sens.
+      const reponse = await rest("rp_modele", {
+        method: "POST",
+        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+        body: JSON.stringify({ joueur_id: r.joueurId, nom: titre, corps }),
+      });
+      if (reponse === null || !reponse.ok) {
+        dit.textContent = "Ce modèle n'a pas pu être gardé.";
+        return;
+      }
+      const rendus = lireLesModeles(await reponse.json().catch(() => null));
+      //  ON RELIT CE QUE LA BASE A RENDU plutôt que de reconstruire la
+      //  ligne : c'est elle qui tient l'identifiant, et un identifiant
+      //  inventé rendrait le bouton « Supprimer » inopérant jusqu'au
+      //  rechargement.
+      modeles = [
+        ...modeles.filter((m) => m.duForum || m.nom !== titre),
+        ...rendus.map((m) => ({ ...m, duForum: false })),
+      ];
+      modeles = lireLesModeles(modeles.map((m) => ({
+        id: m.id,
+        nom: m.nom,
+        corps: m.corps,
+        joueur_id: m.duForum ? null : r.joueurId,
+      })));
+      nom.value = "";
+      dit.textContent = `« ${titre} » gardé.`;
+      peindre();
+    })();
+  });
+
+  oter.addEventListener("click", () => {
+    const m = choisi();
+    if (m === undefined || m.duForum) return;
+    void (async () => {
+      const reponse = await rest(`rp_modele?id=eq.${encodeURIComponent(m.id)}`, {
+        method: "DELETE",
+        headers: { Prefer: "return=minimal" },
+      });
+      if (reponse === null || !reponse.ok) {
+        dit.textContent = "Ce modèle n'a pas pu être supprimé.";
+        return;
+      }
+      modeles = modeles.filter((x) => x.id !== m.id);
+      dit.textContent = `« ${m.nom} » supprimé.`;
+      peindre();
+    })();
+  });
+
+  //  ── ON NE LIT QU'À LA PREMIÈRE OUVERTURE DU TIROIR ────────────────
+  //
+  //  Un joueur sur dix s'en sert, et la liste n'est pas visible tant
+  //  que le `<details>` est fermé : la charger au montage de l'onglet
+  //  ajouterait une requête à chaque visite pour un menu que personne
+  //  ne regarde.
+  let charge = false;
+  bloc.addEventListener("toggle", () => {
+    if (charge || !(bloc as HTMLDetailsElement).open) return;
+    charge = true;
+    void (async () => {
+      const reponse = await rest("rp_modele?select=id,nom,corps,joueur_id&order=nom");
+      if (reponse === null || !reponse.ok) {
+        dit.textContent = "Les modèles n'ont pas pu être lus.";
+        return;
+      }
+      modeles = lireLesModeles(await reponse.json().catch(() => null));
+      peindre();
+    })();
+  });
+
+  peindre();
 }

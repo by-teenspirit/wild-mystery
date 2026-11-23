@@ -301,6 +301,12 @@ async function monter(
     lesLiens = [],
     lesRp = [],
     lesCompagnons = [],
+    //  ── LES GENS QU'ON ATTEND, TAPÉS À LA MAIN (0066) ─────────────
+    //
+    //  `rp_invite`. Le décor la sert et relève les écritures : c'est la
+    //  troisième table que le joueur écrit lui-même depuis son carnet,
+    //  après `rp` et `rp_colonne`.
+    lesInvites = [],
     lesNomsDeColonnes = [],
     leRegistre = [],
     lesObjets = [],
@@ -445,6 +451,23 @@ async function monter(
         contentType: "application/json",
         body: JSON.stringify(lesCompagnons),
       });
+    }
+
+    if (u.pathname.endsWith("/rest/v1/rp_invite")) {
+      const methode = route.request().method();
+      if (methode === "GET") {
+        appels.push({ ou: "lire-invites" });
+        return route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify(lesInvites),
+        });
+      }
+      appels.push({
+        ou: `${methode}-invite`,
+        corps: methode === "POST" ? JSON.parse(route.request().postData() ?? "{}") : null,
+        ou_quoi: u.search,
+      });
+      return route.fulfill({ status: 204, body: "" });
     }
 
     //  ── LE REGISTRE, ET LES NOMS D'OBJETS ────────────────────────
@@ -2300,9 +2323,16 @@ const RP = [
 }
 
 {
-  //  ON NE PROPOSE PAS DE RETIRER CE QU'ON NE PEUT PAS RETIRER. La
-  //  base n'efface qu'une carte prévue (0037) : offrir le bouton
-  //  ailleurs apprendrait à se méfier de l'écran.
+  //  ── LA CROIX EST SUR TOUTES LES LIGNES, DEPUIS LE 23 NOVEMBRE ───
+  //
+  //  « Si on veut supprimer une carte, tu mets un "X", peu importe si
+  //  c'est prévu ou dans une autre colonne. »
+  //
+  //  CE BLOC DISAIT LE CONTRAIRE, et sa raison était bonne : on ne
+  //  propose pas de retirer ce que la base refuse, et la 0037 n'effaçait
+  //  qu'une carte prévue. La 0066 ouvre les deux — parce que la carte
+  //  n'est pas le sujet. Le forum, les messages et le registre restent,
+  //  et la relève remettra la carte si le sujet vit toujours.
   const { q } = await monter({ lesRp: RP });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(300);
@@ -2318,9 +2348,8 @@ const RP = [
     }))
   );
   dire(
-    "SEULE UNE CARTE PRÉVUE SE RETIRE",
-    boutons.filter((b) => b.retirable).length === 1 &&
-      boutons.find((b) => b.retirable)?.etat === "prévu",
+    "TOUTE LIGNE SE RETIRE, et plus seulement les prévues",
+    boutons.length > 1 && boutons.every((b) => b.retirable),
     JSON.stringify(boutons),
   );
   await q.close();
@@ -2349,9 +2378,9 @@ const RP = [
     cartes: document.querySelectorAll(".wm-rp__carte").length,
   }));
   dire(
-    "LE TABLEAU A CINQ COLONNES, CELLES DES ÉTATS QU'ON PEUT POSER",
-    vu.colonnes.join() === "prévu,en cours,solo,en pause,clôturé" &&
-      vu.comptes.join() === "1,2,0,0,0" && vu.listeCachee === true &&
+    "LE TABLEAU A SIX COLONNES, CELLES DES ÉTATS QU'ON PEUT POSER",
+    vu.colonnes.join() === "prévu,en cours,solo,en pause,abandonné,clôturé" &&
+      vu.comptes.join() === "1,2,0,0,0,0" && vu.listeCachee === true &&
       vu.filtresCaches === true && vu.cartes === 3,
     JSON.stringify(vu),
   );
@@ -2383,7 +2412,7 @@ const RP = [
     "DÉPOSER UNE CARTE DANS UNE COLONNE ÉCRIT SON ÉTAT",
     ecrit?.corps?.etat === "en-pause" &&
       decodeURIComponent(ecrit?.ou_quoi ?? "").includes("996") &&
-      comptes.join() === "1,1,0,1,0",
+      comptes.join() === "1,1,0,1,0,0",
     JSON.stringify({ corps: ecrit?.corps, comptes }),
   );
   await q.close();
@@ -2670,12 +2699,15 @@ const { q: p, appels } = await monter();
   }));
   dire(
     "changer d'onglet ne demande RIEN, sauf la première ouverture des quatre onglets qui écrivent",
-    //  DIX, ET PLUS HUIT DEPUIS LE 20 NOVEMBRE : « Mes RP » demande
-    //  désormais aussi `rp_participant` — avec qui on écrit — et
-    //  `rp_colonne` — le nom qu'on donne à ses colonnes. Deux requêtes
-    //  de plus, UNE SEULE FOIS chacune : c'est exactement la garantie
-    //  que ce test porte, et elle tient.
-    apresLePremierTour === avant + 10 && appels.length === apresLePremierTour &&
+    //  ONZE, ET PLUS HUIT : « Mes RP » demande aussi `rp_participant`
+    //  — avec qui on écrit —, `rp_colonne` — le nom et la visibilité de
+    //  ses colonnes — et, depuis le 23 novembre, `rp_invite` : les gens
+    //  qu'on attend. Trois requêtes de plus, UNE SEULE FOIS chacune :
+    //  c'est exactement la garantie que ce test porte, et elle tient.
+    //
+    //  LE CHIFFRE MONTE À CHAQUE LECTURE AJOUTÉE, et c'est voulu — ce
+    //  qu'il tient, c'est qu'aucune ne reparte au second clic.
+    apresLePremierTour === avant + 11 && appels.length === apresLePremierTour &&
       vu.visibles.length === 1 && vu.visibles[0] === "mon-jeu" &&
       vu.adresse === "#mon-jeu",
     JSON.stringify({ ...vu, appelsEnPlus: appels.length - avant }),
@@ -3648,6 +3680,23 @@ const COMPAGNONS = [
   { sujet_id: 977, pseudo: "Linus Armstrong" },
 ];
 
+//  ── LES INVITÉS DU DÉCOR (0066) ───────────────────────────────────
+//
+//  Trois cas en trois lignes, et le troisième est celui qui compte :
+//
+//  · `1200` est une carte PRÉVUE, où personne n'a posté. C'est le cas
+//    que Callista décrit — « si la personne n'a pas encore répondu » ;
+//  · `977` a déjà Linus relevé, donc l'invité s'y AJOUTE ;
+//  · `996` a « murphy » en minuscules alors que la relève a relevé
+//    « Murphy ». Il ne doit paraître QU'UNE FOIS : quand l'invité finit
+//    par poster, les deux listes le portent, et « avec Murphy, murphy »
+//    serait le symptôme.
+const INVITES = [
+  { sujet_id: 1200, pseudo: "Erin Kavanagh" },
+  { sujet_id: 977, pseudo: "Wren Sallow" },
+  { sujet_id: 996, pseudo: "murphy" },
+];
+
 {
   //  ── LA CARTE DIT OÙ, AVEC QUI, ET MÈNE AU SUJET ─────────────────
   //
@@ -3702,10 +3751,13 @@ const COMPAGNONS = [
 }
 
 {
-  //  ── LES CINQ COLONNES, DANS L'ORDRE DEMANDÉ ─────────────────────
+  //  ── LES SIX COLONNES, DANS L'ORDRE DEMANDÉ ──────────────────────
   //
   //  « Mes rps : la première colonne : prévu. et ensuite, en cours. »
-  //  Et « rajoute la colonne des rps solo ».
+  //  Et « rajoute la colonne des rps solo ». Et, le 23 novembre, « il
+  //  faudrait aussi une colonne abandonné » — placée AVANT les
+  //  clôturés, parce que l'ordre de la liste est l'ordre de la lecture :
+  //  de l'intention vers la fin.
   const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(400);
@@ -3714,9 +3766,9 @@ const COMPAGNONS = [
       .map((c) => c.getAttribute("data-wm-rp-colonne"))
   );
   dire(
-    "LES COLONNES SONT DANS L'ORDRE, ET LE SOLO EST LÀ",
+    "LES COLONNES SONT DANS L'ORDRE, LE SOLO ET L'ABANDON COMPRIS",
     JSON.stringify(colonnes) ===
-      JSON.stringify(["prevu", "en-cours", "solo", "en-pause", "cloture"]),
+      JSON.stringify(["prevu", "en-cours", "solo", "en-pause", "abandonne", "cloture"]),
     JSON.stringify(colonnes),
   );
 
@@ -3763,7 +3815,7 @@ const COMPAGNONS = [
   );
   dire(
     "ON REPLIE LES CLÔTURÉS, ET SEULEMENT EUX",
-    avant === 5 && apres === 4 && reste === true,
+    avant === 6 && apres === 5 && reste === true,
     JSON.stringify({ avant, apres, reste }),
   );
   //  ── C'EST UN INTERRUPTEUR, PAS UNE PASTILLE ─────────────────────
@@ -4637,7 +4689,360 @@ const COMPAGNONS = [
   await q.close();
 }
 
+if (soucis.length > 0) Deno.exit(1);
+
+{
+  //  ── CE QUE LA CARTE SAIT DIRE, APRÈS LE 23 NOVEMBRE ─────────────
+  //
+  //  Quatre demandes du même message, mesurées ensemble parce qu'elles
+  //  vivent sur les mêmes cartes : le titre, les gens, l'ajout à la
+  //  main, et le lieu.
+  const { q, appels } = await monter({
+    lesRp: RP,
+    lesCompagnons: COMPAGNONS,
+    lesInvites: INVITES,
+  });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+
+  dire(
+    "LES INVITÉS SONT LUS AU MÊME PASSAGE que les RP, les compagnons et les colonnes",
+    appels.filter((a) => a.ou === "lire-invites").length === 1,
+    JSON.stringify(appels.filter((a) => String(a.ou).startsWith("lire-")).map((a) => a.ou)),
+  );
+
+  const cartes = await q.evaluate(() => {
+    const lire = (sujetId) => {
+      const c = [...document.querySelectorAll("[data-wm-rp-carte]")]
+        .find((x) => x.getAttribute("data-wm-rp-carte") === String(sujetId));
+      return c === undefined ? null : {
+        avec: c.querySelector(".wm-rp__carte-avec")?.textContent?.trim() ?? "",
+        ou: c.querySelector(".wm-rp__carte-ou")?.textContent?.trim() ?? "",
+        croix: c.querySelector("[data-wm-rp-retirer]") !== null,
+      };
+    };
+    return { prevu: lire(1200), encours: lire(996), autre: lire(977) };
+  });
+
+  dire(
+    "UNE CARTE PRÉVUE AFFICHE ENFIN AVEC QUI — personne n'a posté, mais le joueur le sait",
+    cartes.prevu !== null && cartes.prevu.avec.includes("Erin Kavanagh"),
+    JSON.stringify(cartes.prevu),
+  );
+  dire(
+    "L'INVITÉ S'AJOUTE AUX PARTICIPANTS RELEVÉS, il ne les remplace pas",
+    cartes.autre !== null && cartes.autre.avec.includes("Linus Armstrong") &&
+      cartes.autre.avec.includes("Wren Sallow"),
+    JSON.stringify(cartes.autre?.avec),
+  );
+  dire(
+    "ET CELUI QUI A FINI PAR POSTER NE PARAÎT QU'UNE FOIS, quelle que soit la casse",
+    cartes.encours !== null &&
+      (cartes.encours.avec.match(/murphy/gi) ?? []).length === 1,
+    JSON.stringify(cartes.encours?.avec),
+  );
+  dire(
+    "LE LIEU EST SUR LA CARTE, et la croix aussi — sur TOUTES les colonnes",
+    cartes.encours?.ou === "Montagnes Embrumées" &&
+      cartes.prevu?.croix === true && cartes.encours?.croix === true,
+    JSON.stringify({
+      ou: cartes.encours?.ou,
+      prevu: cartes.prevu?.croix,
+      encours: cartes.encours?.croix,
+    }),
+  );
+  await q.close();
+}
+
+{
+  //  ── ON DEMANDE AVANT D'EFFACER ──────────────────────────────────
+  //
+  //  « Avoir une boîte de dialogue qui demande si on veut vraiment
+  //  supprimer ce rp. » Et la question doit NOMMER le RP : « supprimer
+  //  cette carte ? » ne dit pas laquelle quand on a cliqué sur la
+  //  mauvaise croix.
+  const { q, appels } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+
+  const demande = await q.evaluate(() => {
+    document.querySelector('[data-wm-rp-retirer="996"]').click();
+    const d = document.querySelector("[data-wm-rp-confirme]");
+    return {
+      ouvert: d.open,
+      quoi: d.querySelector("[data-wm-rp-confirme-quoi]").textContent.trim(),
+      cartes: document.querySelectorAll("[data-wm-rp-carte]").length,
+    };
+  });
+  dire(
+    "LA CROIX DEMANDE, ET LA QUESTION NOMME LE RP",
+    demande.ouvert === true && demande.quoi.includes("La brume ne lève pas"),
+    JSON.stringify(demande),
+  );
+
+  const annule = await q.evaluate(() => {
+    document.querySelector("[data-wm-rp-confirme-non]").click();
+    return {
+      ouvert: document.querySelector("[data-wm-rp-confirme]").open,
+      cartes: document.querySelectorAll("[data-wm-rp-carte]").length,
+    };
+  });
+  dire(
+    "ANNULER N'EFFACE RIEN — et c'est le seul moyen de le prouver",
+    annule.ouvert === false && annule.cartes === demande.cartes,
+    JSON.stringify(annule),
+  );
+  dire(
+    "   et aucun DELETE n'est parti",
+    appels.filter((a) => a.ou === "DELETE-rp").length === 0,
+    JSON.stringify(appels.filter((a) => String(a.ou).includes("rp")).map((a) => a.ou)),
+  );
+
+  //  ── ET LA DEUXIÈME FOIS, ON CONFIRME ──────────────────────────
+  const fait = await q.evaluate(async () => {
+    document.querySelector('[data-wm-rp-retirer="996"]').click();
+    document.querySelector("[data-wm-rp-confirme-oui]").click();
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      reste: document.querySelector('[data-wm-rp-carte="996"]') === null,
+      cartes: document.querySelectorAll("[data-wm-rp-carte]").length,
+    };
+  });
+  dire(
+    "CONFIRMER EFFACE, et seulement la carte visée",
+    fait.reste === true && fait.cartes === demande.cartes - 1,
+    JSON.stringify(fait),
+  );
+  dire(
+    "   et le DELETE part sur le bon sujet",
+    appels.some((a) => a.ou === "DELETE-rp" && String(a.ou_quoi).includes("996")),
+    JSON.stringify(appels.filter((a) => a.ou === "DELETE-rp").map((a) => a.ou_quoi)),
+  );
+  await q.close();
+}
+
+{
+  //  ── LA COLONNE ABANDONNÉE, ET LE CHOIX DES COLONNES ─────────────
+  //
+  //  « Il faudrait aussi une colonne abandonné » · « la personne peut
+  //  afficher les colonnes qu'elle souhaite. »
+  const { q, appels } = await monter({
+    lesRp: RP,
+    lesCompagnons: COMPAGNONS,
+    //  UNE COLONNE CACHÉE DANS LE DÉCOR : c'est l'état qu'on ne peut
+    //  pas obtenir en cliquant, et celui qui compte au chargement.
+    lesNomsDeColonnes: [
+      { etat: "solo", nom: "Mes solos", montree: false },
+      { etat: "prevu", nom: "À lancer", montree: true },
+    ],
+  });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+
+  const colonnes = await q.evaluate(() => ({
+    clefs: [...document.querySelectorAll("[data-wm-rp-colonne]")]
+      .map((c) => c.getAttribute("data-wm-rp-colonne")),
+    cases: [...document.querySelectorAll("[data-wm-rp-colonne-montree]")]
+      .map((c) => [c.getAttribute("data-wm-rp-colonne-montree"), c.checked]),
+    mots: [...document.querySelectorAll(".wm-rp__colonnes-choix span")]
+      .map((s) => s.textContent.trim()),
+  }));
+
+  dire(
+    "LA COLONNE « ABANDONNÉ » EXISTE, et elle est avant les clôturés",
+    colonnes.clefs.includes("abandonne") &&
+      colonnes.clefs.indexOf("abandonne") < colonnes.clefs.indexOf("cloture"),
+    JSON.stringify(colonnes.clefs),
+  );
+  dire(
+    "UNE COLONNE CACHÉE NE S'AFFICHE PAS, et sa case est décochée",
+    !colonnes.clefs.includes("solo") &&
+      colonnes.cases.some(([c, v]) => c === "solo" && v === false),
+    JSON.stringify({ clefs: colonnes.clefs, cases: colonnes.cases }),
+  );
+  dire(
+    "LE PANNEAU DIT LE NOM QU'ELLE PORTE, pas le mot du code",
+    colonnes.mots.includes("À lancer") && colonnes.mots.includes("Mes solos"),
+    JSON.stringify(colonnes.mots),
+  );
+
+  //  ── COCHER LA RAMÈNE, ET ÉCRIT ─────────────────────────────────
+  const apres = await q.evaluate(async () => {
+    document.querySelector('[data-wm-rp-colonne-montree="solo"]').click();
+    await new Promise((r) => setTimeout(r, 300));
+    return [...document.querySelectorAll("[data-wm-rp-colonne]")]
+      .map((c) => c.getAttribute("data-wm-rp-colonne"));
+  });
+  dire(
+    "COCHER LA RAMÈNE TOUT DE SUITE, sans attendre le réseau",
+    apres.includes("solo"),
+    JSON.stringify(apres),
+  );
+  const ecrit = appels.filter((a) => a.ou === "POST-nom").at(-1);
+  dire(
+    "ET L'ÉCRITURE REPOSE LE NOM EN PLACE — la base l'exige, et sans lui le choix serait refusé",
+    ecrit !== undefined && ecrit.corps.etat === "solo" && ecrit.corps.montree === true &&
+      ecrit.corps.nom === "Mes solos" &&
+      String(ecrit.prefere).includes("merge-duplicates"),
+    JSON.stringify(ecrit),
+  );
+  await q.close();
+}
+
+{
+  //  ── LE BOUTON D'INFOS N'ÉCRIT PLUS « EN GRAND » ─────────────────
+  //
+  //  « Pourquoi en liste tu écris "en grand" pour afficher les infos du
+  //  rp ? Mets juste un bouton avec une icône. » Le mot décrivait ce
+  //  que le bouton fait à la FENÊTRE, pas ce qu'on va y trouver.
+  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  await q.click('[data-wm-rp-vue="liste"]');
+  await q.waitForTimeout(300);
+
+  const bouton = await q.evaluate(() => {
+    //  LA LIGNE DU RP QU'ON NOMME, et pas la première venue : la liste
+    //  est triée par date, donc « la première » change dès qu'un décor
+    //  bouge — et la mesure dirait faux pour une bonne raison. Elle
+    //  l'avait déjà dit une fois, en attrapant « Un café, deux
+    //  silences ».
+    const b = document.querySelector('[data-wm-rp-liste] [data-wm-rp-ouvrir="996"]');
+    const r = b.getBoundingClientRect();
+    return {
+      mots: b.textContent.trim(),
+      icone: b.querySelector("svg") !== null,
+      //  L'ÉTIQUETTE HORS ÉCRAN NOMME LE RP : une icône qui porte le
+      //  sens n'est lisible que par qui l'a déjà appris.
+      dit: b.querySelector(".wm-carnet__hors-ecran")?.textContent?.trim() ?? "",
+      cache: b.querySelector("svg")?.getAttribute("aria-hidden"),
+      taille: [Math.round(r.width), Math.round(r.height)],
+    };
+  });
+  dire(
+    "UNE ICÔNE, PLUS LE MOT « EN GRAND »",
+    bouton.icone === true && !/en grand/i.test(bouton.mots),
+    JSON.stringify(bouton),
+  );
+  dire(
+    "ET LE MOT RESTE POUR QUI ÉCOUTE LA PAGE, avec le nom du RP",
+    bouton.cache === "true" && /infos/i.test(bouton.dit) &&
+      bouton.dit.includes("brume"),
+    JSON.stringify(bouton.dit),
+  );
+  dire(
+    "UNE CIBLE QU'UN DOIGT PEUT VISER",
+    bouton.taille[0] >= 26 && bouton.taille[1] >= 26,
+    `${bouton.taille[0]} × ${bouton.taille[1]} px`,
+  );
+  await q.close();
+}
+
+{
+  //  ── AJOUTER ET RETIRER QUELQU'UN À LA MAIN ──────────────────────
+  const { q, appels } = await monter({
+    lesRp: RP,
+    lesCompagnons: COMPAGNONS,
+    lesInvites: INVITES,
+  });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(400);
+  await q.evaluate(() => document.querySelector('[data-wm-rp-ouvrir="1200"]').click());
+  await q.waitForTimeout(200);
+
+  const dedans = await q.evaluate(() => ({
+    //  `> span:first-child` : un `span` tout court attrapait AUSSI
+    //  l'étiquette hors écran rangée dans la croix — « Retirer Erin
+    //  Kavanagh » comptait pour un second invité.
+    noms: [...document.querySelectorAll(
+      "[data-wm-rp-grand-invites] .wm-rp__invite > span:first-child",
+    )].map((s) => s.textContent.trim()),
+    croix: document.querySelectorAll("[data-wm-rp-desinviter]").length,
+  }));
+  dire(
+    "LE GRAND DIALOGUE LISTE LES INVITÉS, chacun avec sa croix",
+    JSON.stringify(dedans.noms) === JSON.stringify(["Erin Kavanagh"]) && dedans.croix === 1,
+    JSON.stringify(dedans),
+  );
+
+  const ajoute = await q.evaluate(async () => {
+    const champ = document.querySelector("[data-wm-rp-grand-invite]");
+    champ.value = "Wren Sallow";
+    document.querySelector("[data-wm-rp-grand-inviter]").click();
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      noms: [
+        ...document.querySelectorAll(
+          "[data-wm-rp-grand-invites] .wm-rp__invite > span:first-child",
+        ),
+      ]
+        .map((s) => s.textContent.trim()),
+      champ: champ.value,
+      dit: document.querySelector("[data-wm-rp-grand-dit]").textContent.trim(),
+      carte: document.querySelector('[data-wm-rp-carte="1200"] .wm-rp__carte-avec')
+        ?.textContent?.trim() ?? "",
+    };
+  });
+  dire(
+    "ON AJOUTE QUELQU'UN, LE CHAMP SE VIDE, ET LA CARTE DERRIÈRE SUIT",
+    ajoute.noms.includes("Wren Sallow") && ajoute.champ === "" &&
+      ajoute.carte.includes("Wren Sallow"),
+    JSON.stringify(ajoute),
+  );
+  const envoi = appels.filter((a) => a.ou === "POST-invite").at(-1);
+  dire(
+    "   et l'écriture porte le sujet et le pseudo",
+    envoi !== undefined && envoi.corps.sujet_id === 1200 &&
+      envoi.corps.pseudo === "Wren Sallow",
+    JSON.stringify(envoi),
+  );
+
+  //  ── LE MÊME DEUX FOIS NE S'ÉCRIT PAS ──────────────────────────
+  const deux = await q.evaluate(async () => {
+    const champ = document.querySelector("[data-wm-rp-grand-invite]");
+    champ.value = "wren sallow";
+    document.querySelector("[data-wm-rp-grand-inviter]").click();
+    await new Promise((r) => setTimeout(r, 200));
+    return {
+      combien: document.querySelectorAll("[data-wm-rp-desinviter]").length,
+      dit: document.querySelector("[data-wm-rp-grand-dit]").textContent.trim(),
+    };
+  });
+  dire(
+    "LE MÊME PSEUDO NE S'AJOUTE PAS DEUX FOIS, même écrit autrement",
+    deux.combien === 2 && /déjà/i.test(deux.dit),
+    JSON.stringify(deux),
+  );
+  dire(
+    "   et aucune seconde écriture n'est partie",
+    appels.filter((a) => a.ou === "POST-invite").length === 1,
+    String(appels.filter((a) => a.ou === "POST-invite").length),
+  );
+
+  //  ── ET LA CROIX RETIRE ────────────────────────────────────────
+  const oter = await q.evaluate(async () => {
+    document.querySelector('[data-wm-rp-desinviter="Erin Kavanagh"]').click();
+    await new Promise((r) => setTimeout(r, 300));
+    //  `> span:first-child` : un `span` tout court attrapait AUSSI
+    //  l'étiquette hors écran rangée dans la croix — « Retirer Erin
+    //  Kavanagh » comptait pour un second invité.
+    return [...document.querySelectorAll(
+      "[data-wm-rp-grand-invites] .wm-rp__invite > span:first-child",
+    )].map((s) => s.textContent.trim());
+  });
+  dire(
+    "LA CROIX RETIRE CELUI QU'ON VISE",
+    JSON.stringify(oter) === JSON.stringify(["Wren Sallow"]),
+    JSON.stringify(oter),
+  );
+  const parti = appels.filter((a) => a.ou === "DELETE-invite").at(-1);
+  dire(
+    "   et le pseudo est échappé dans l'adresse — « Jean-Luc, dit Jango » est un pseudo possible",
+    parti !== undefined && String(parti.ou_quoi).includes("Erin%20Kavanagh"),
+    JSON.stringify(parti?.ou_quoi),
+  );
+  await q.close();
+}
+
 await nav.close();
 console.log(soucis.length === 0 ? "\nTOUT PASSE." : `\n${soucis.length} DÉFAUT(S).`);
-
-if (soucis.length > 0) Deno.exit(1);

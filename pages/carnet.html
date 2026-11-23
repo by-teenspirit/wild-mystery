@@ -881,6 +881,32 @@
                     qu'il ferait. Un interrupteur n'a pas ce problème :
                     le mot nomme la chose, et `aria-checked` porte
                     l'état — pour l'œil comme pour un lecteur d'écran.  -->
+              <!--  ── CHOISIR SES COLONNES ──────────────────────────
+
+                    « La personne peut afficher les colonnes qu'elle
+                    souhaite. » — 23 novembre.
+
+                    DEUX GESTES POUR DEUX BESOINS, et c'est pour ça
+                    que les clôturés gardent leur interrupteur à côté :
+                    on le bascule souvent, celui-ci se règle une fois.
+                    Mettre les six dans le panneau aurait enterré le
+                    geste quotidien avec les réglages.
+
+                    LE PANNEAU EST UN `<details>` : il s'ouvre et se
+                    ferme sans une ligne de JavaScript, il se navigue
+                    au clavier tout seul, et Échap n'a rien à y
+                    faire.  -->
+              <details class="wm-rp__colonnes">
+                <summary class="wm-rp__colonnes-bouton">
+                  <svg class="wm-rp__vue-icone" viewBox="0 0 20 20" aria-hidden="true"
+                       focusable="false" fill="none" stroke="currentColor"
+                       stroke-width="1.5"><path d="M3.4 4.2h3.6v11.6H3.4Z"/><path
+                       d="M8.2 4.2h3.6v11.6H8.2Z"/><path
+                       d="M13 4.2h3.6v11.6H13Z" stroke-dasharray="2 2"/></svg>
+                  <span>Colonnes</span>
+                </summary>
+                <div class="wm-rp__colonnes-liste" data-wm-rp-colonnes></div>
+              </details>
               <button type="button" class="wm-rp__bascule" role="switch"
                       aria-checked="true" data-wm-rp-clotures>
                 <span class="wm-rp__bascule-piste" aria-hidden="true"></span>
@@ -978,6 +1004,40 @@
           <p class="wm-rp__carte-avec" data-wm-rp-grand-avec></p>
           <p class="wm-rp__grand-extrait" data-wm-rp-grand-extrait></p>
 
+          <!--  ── LES GENS QU'ON ATTEND ─────────────────────────────
+
+                « Si la personne n'a pas encore répondu, faudrait
+                pouvoir les rajouter manuellement. » — 23 novembre.
+
+                UNE CARTE PRÉVUE N'A AUCUN PARTICIPANT RELEVÉ, et
+                c'est normal : personne n'a posté. Elle affichait donc
+                un vide alors que le joueur SAIT avec qui il va
+                écrire. Ici il le dit.
+
+                CE N'EST PAS LA MÊME VÉRITÉ QUE « qui a posté », et la
+                base le tient dans deux tables pour ça : l'une est un
+                fait du forum, l'autre une annotation qui peut être
+                fausse. Le texte sous le champ le dit, parce qu'un
+                joueur qui ne le saurait pas croirait avoir invité
+                quelqu'un.  -->
+          <div class="wm-rp__invites">
+            <p class="wm-histoire__etiquette">Avec qui tu écris</p>
+            <ul class="wm-rp__invites-liste" data-wm-rp-grand-invites></ul>
+            <div class="wm-rp__invites-ajout">
+              <label class="wm-carnet__hors-ecran" for="wm-rp-invite">
+                Le pseudo de quelqu'un que tu attends
+              </label>
+              <input id="wm-rp-invite" data-wm-rp-grand-invite type="text"
+                     maxlength="40" placeholder="Un pseudo" autocomplete="off">
+              <button type="button" class="wm-carnet__bouton"
+                      data-wm-rp-grand-inviter>Ajouter</button>
+            </div>
+            <p class="wm-histoire__aide">
+              C'est pour toi : ça ne prévient personne et ça ne les met pas dans
+              le sujet. Dès qu'ils y écriront, la relève les ajoutera d'elle-même.
+            </p>
+          </div>
+
           <!--  ── CE QUE LA CLÔTURE VERSERAIT ───────────────────────
 
                 « Ce serait cool aussi d'avoir un récap pour les rps
@@ -1017,6 +1077,39 @@
             <span class="wm-histoire__aide" data-wm-rp-grand-dit role="status"></span>
           </div>
         </dialog>
+
+        <!--  ── ON DEMANDE AVANT D'EFFACER ──────────────────────────
+
+              « Si on veut supprimer une carte, tu mets un "X", peu
+              importe si c'est prévu ou dans une autre colonne. Et
+              avoir une boîte de dialogue qui demande si on veut
+              vraiment supprimer ce rp. » — 23 novembre.
+
+              UN `<dialog>` ET PAS `confirm()` : la fenêtre du
+              navigateur sort du cadre, n'a pas notre typographie, et
+              se fait bloquer par certains réglages. Celle-ci est dans
+              la page, elle se ferme à Échap, et le bouton qui efface
+              est celui qui PORTE le danger — pas celui qui a le focus
+              au départ.
+
+              LE TITRE DU RP EST ÉCRIT DANS LA QUESTION. « Supprimer
+              cette carte ? » ne dit pas laquelle quand on vient de
+              cliquer sur la mauvaise.  -->
+        <dialog class="wm-rp__confirme" data-wm-rp-confirme
+                aria-labelledby="wm-rp-confirme-titre">
+          <p class="wm-rp__confirme-titre" id="wm-rp-confirme-titre">Retirer ce RP ?</p>
+          <p class="wm-rp__confirme-quoi" data-wm-rp-confirme-quoi></p>
+          <p class="wm-histoire__aide">
+            La carte s'en va de ton carnet. Le sujet, lui, reste sur le forum avec
+            tous ses messages — et si tu y écris encore, la relève le remettra.
+          </p>
+          <div class="wm-rp__confirme-pied">
+            <button type="button" class="wm-carnet__bouton"
+                    data-wm-rp-confirme-non>Annuler</button>
+            <button type="button" class="wm-carnet__bouton wm-rp__confirme-oui"
+                    data-wm-rp-confirme-oui>Retirer</button>
+          </div>
+        </dialog>
       </section>
 
       <!-- ══ ÉCRIRE ═══════════════════════════════════════════════════
@@ -1050,6 +1143,55 @@
 
           <div class="wm-ecrire__outils" role="toolbar"
                aria-label="Mise en forme" data-wm-ecrire-outils></div>
+
+          <!--  ── LES MODÈLES DE RP ─────────────────────────────────
+
+                « Quand on écrit, faudrait des modèles de rp. Et aussi,
+                permettre aux gens de sauvegarder leurs propres modèles
+                de rp. » — 23 novembre.
+
+                UN `<details>` FERMÉ : on écrit la plupart du temps
+                sans modèle, et une rangée de réglages ouverte en
+                permanence au-dessus du texte prendrait la place de ce
+                qu'on vient écrire.
+
+                ET IL EST HORS DE LA BARRE D'OUTILS, qui porte
+                `role="toolbar"` : les flèches y déplacent le focus
+                entre les sept boutons de mise en forme, et y glisser un
+                menu déroulant le ferait attraper par ce déplacement.
+
+                CE BLOC EST FACULTATIF POUR LE SCRIPT. L'onglet Écrire
+                s'arrête net si une pièce lui manque — c'est la leçon du
+                3 novembre, une page plus vieille que le script laissait
+                un écran muet. Les modèles, eux, se branchent à part :
+                une page pas encore recollée garde son éditeur, sans
+                modèles.  -->
+          <details class="wm-ecrire__modeles" data-wm-ecrire-modeles>
+            <summary class="wm-ecrire__modeles-bouton">Modèles</summary>
+            <div class="wm-ecrire__modeles-corps">
+              <div class="wm-ecrire__modeles-rangee">
+                <label class="wm-ecrire__invisible" for="wm-modele">Un modèle</label>
+                <select id="wm-modele" data-wm-ecrire-modele></select>
+                <button type="button" class="wm-carnet__bouton"
+                        data-wm-ecrire-inserer>Insérer</button>
+                <button type="button" class="wm-carnet__bouton"
+                        data-wm-ecrire-oter-modele hidden>Supprimer</button>
+              </div>
+              <p class="wm-histoire__aide">
+                Insérer ajoute le modèle à l'endroit du curseur. Il n'efface rien.
+              </p>
+              <div class="wm-ecrire__modeles-rangee">
+                <label class="wm-ecrire__invisible" for="wm-modele-nom">
+                  Le nom du modèle à garder
+                </label>
+                <input id="wm-modele-nom" data-wm-ecrire-modele-nom type="text"
+                       maxlength="60" placeholder="Nom du modèle" autocomplete="off">
+                <button type="button" class="wm-carnet__bouton"
+                        data-wm-ecrire-garder-modele>Garder ce texte</button>
+              </div>
+              <p class="wm-histoire__aide" data-wm-ecrire-modele-dit role="status"></p>
+            </div>
+          </details>
 
           <label class="wm-ecrire__invisible" for="wm-corps">Ton texte</label>
           <textarea class="wm-ecrire__corps" id="wm-corps" data-wm-ecrire-corps

@@ -593,6 +593,17 @@
                 </button>
               </div>
 
+              <details class="wm-rp__colonnes">
+                <summary class="wm-rp__colonnes-bouton">
+                  <svg class="wm-rp__vue-icone" viewBox="0 0 20 20" aria-hidden="true"
+                       focusable="false" fill="none" stroke="currentColor"
+                       stroke-width="1.5"><path d="M3.4 4.2h3.6v11.6H3.4Z"/><path
+                       d="M8.2 4.2h3.6v11.6H8.2Z"/><path
+                       d="M13 4.2h3.6v11.6H13Z" stroke-dasharray="2 2"/></svg>
+                  <span>Colonnes</span>
+                </summary>
+                <div class="wm-rp__colonnes-liste" data-wm-rp-colonnes></div>
+              </details>
               <button type="button" class="wm-rp__bascule" role="switch"
                       aria-checked="true" data-wm-rp-clotures>
                 <span class="wm-rp__bascule-piste" aria-hidden="true"></span>
@@ -639,6 +650,24 @@
           <p class="wm-rp__carte-avec" data-wm-rp-grand-avec></p>
           <p class="wm-rp__grand-extrait" data-wm-rp-grand-extrait></p>
 
+          <div class="wm-rp__invites">
+            <p class="wm-histoire__etiquette">Avec qui tu écris</p>
+            <ul class="wm-rp__invites-liste" data-wm-rp-grand-invites></ul>
+            <div class="wm-rp__invites-ajout">
+              <label class="wm-carnet__hors-ecran" for="wm-rp-invite">
+                Le pseudo de quelqu'un que tu attends
+              </label>
+              <input id="wm-rp-invite" data-wm-rp-grand-invite type="text"
+                     maxlength="40" placeholder="Un pseudo" autocomplete="off">
+              <button type="button" class="wm-carnet__bouton"
+                      data-wm-rp-grand-inviter>Ajouter</button>
+            </div>
+            <p class="wm-histoire__aide">
+              C'est pour toi : ça ne prévient personne et ça ne les met pas dans
+              le sujet. Dès qu'ils y écriront, la relève les ajoutera d'elle-même.
+            </p>
+          </div>
+
           <div class="wm-rp__butin" data-wm-rp-grand-butin hidden>
             <p class="wm-histoire__etiquette">Si tu clôtures ce sujet</p>
             <ul class="wm-rp__butin-liste" data-wm-rp-grand-butin-liste></ul>
@@ -662,6 +691,22 @@
             <span class="wm-histoire__aide" data-wm-rp-grand-dit role="status"></span>
           </div>
         </dialog>
+
+        <dialog class="wm-rp__confirme" data-wm-rp-confirme
+                aria-labelledby="wm-rp-confirme-titre">
+          <p class="wm-rp__confirme-titre" id="wm-rp-confirme-titre">Retirer ce RP ?</p>
+          <p class="wm-rp__confirme-quoi" data-wm-rp-confirme-quoi></p>
+          <p class="wm-histoire__aide">
+            La carte s'en va de ton carnet. Le sujet, lui, reste sur le forum avec
+            tous ses messages — et si tu y écris encore, la relève le remettra.
+          </p>
+          <div class="wm-rp__confirme-pied">
+            <button type="button" class="wm-carnet__bouton"
+                    data-wm-rp-confirme-non>Annuler</button>
+            <button type="button" class="wm-carnet__bouton wm-rp__confirme-oui"
+                    data-wm-rp-confirme-oui>Retirer</button>
+          </div>
+        </dialog>
       </section>
 
       <section class="wm-carnet__onglet-page wm-ecrire" data-wm-carnet-page="ecrire" hidden>
@@ -683,6 +728,33 @@
 
           <div class="wm-ecrire__outils" role="toolbar"
                aria-label="Mise en forme" data-wm-ecrire-outils></div>
+
+          <details class="wm-ecrire__modeles" data-wm-ecrire-modeles>
+            <summary class="wm-ecrire__modeles-bouton">Modèles</summary>
+            <div class="wm-ecrire__modeles-corps">
+              <div class="wm-ecrire__modeles-rangee">
+                <label class="wm-ecrire__invisible" for="wm-modele">Un modèle</label>
+                <select id="wm-modele" data-wm-ecrire-modele></select>
+                <button type="button" class="wm-carnet__bouton"
+                        data-wm-ecrire-inserer>Insérer</button>
+                <button type="button" class="wm-carnet__bouton"
+                        data-wm-ecrire-oter-modele hidden>Supprimer</button>
+              </div>
+              <p class="wm-histoire__aide">
+                Insérer ajoute le modèle à l'endroit du curseur. Il n'efface rien.
+              </p>
+              <div class="wm-ecrire__modeles-rangee">
+                <label class="wm-ecrire__invisible" for="wm-modele-nom">
+                  Le nom du modèle à garder
+                </label>
+                <input id="wm-modele-nom" data-wm-ecrire-modele-nom type="text"
+                       maxlength="60" placeholder="Nom du modèle" autocomplete="off">
+                <button type="button" class="wm-carnet__bouton"
+                        data-wm-ecrire-garder-modele>Garder ce texte</button>
+              </div>
+              <p class="wm-histoire__aide" data-wm-ecrire-modele-dit role="status"></p>
+            </div>
+          </details>
 
           <label class="wm-ecrire__invisible" for="wm-corps">Ton texte</label>
           <textarea class="wm-ecrire__corps" id="wm-corps" data-wm-ecrire-corps

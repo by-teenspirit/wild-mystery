@@ -30577,6 +30577,243 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   margin: var(--wm-espace-12, 12px) 0 0;
 }
 
+/* ── LE PANNEAU DES COLONNES ────────────────────────────────────────
+
+   « La personne peut afficher les colonnes qu'elle souhaite. »
+   — 23 novembre.
+
+   UN `<details>`, DONC AUCUN JAVASCRIPT POUR L'OUVRIR : il se navigue
+   au clavier tout seul, Échap n'a rien à y faire, et le jour où le
+   script tombe la liste reste atteignable. */
+#modernbb .wm-rp__colonnes {
+  position: relative;
+}
+
+#modernbb .wm-rp__colonnes-bouton {
+  display: inline-flex;
+  gap: var(--wm-espace-6, 6px);
+  align-items: center;
+  padding: 7px 13px;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  cursor: pointer;
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-bord-fin);
+  border-radius: 999px;
+  /*  LE TRIANGLE PAR DÉFAUT S'EN VA : l'icône dit déjà de quoi il
+      s'agit, et deux signes pour une chose font du bruit. */
+  list-style: none;
+}
+
+#modernbb .wm-rp__colonnes-bouton::-webkit-details-marker {
+  display: none;
+}
+
+#modernbb .wm-rp__colonnes[open] .wm-rp__colonnes-bouton {
+  color: var(--wm-texte-titre);
+  border-color: var(--wm-accent-fort);
+}
+
+/*  LA LISTE FLOTTE AU-DESSUS DU TABLEAU plutôt que de pousser la
+    rangée : six cases qui écartent le titre à chaque ouverture font
+    sauter toute la page. */
+#modernbb .wm-rp__colonnes-liste {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+  min-width: 12rem;
+  margin-top: var(--wm-espace-6, 6px);
+  padding: var(--wm-espace-12, 12px);
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-bord-fin);
+  border-radius: var(--wm-rayon-lg, 10px);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 12%);
+}
+
+#modernbb .wm-rp__colonnes-choix {
+  display: flex;
+  gap: var(--wm-espace-8, 8px);
+  align-items: center;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  cursor: pointer;
+}
+
+/* ── LA CROIX, ET LE BOUTON D'INFOS ─────────────────────────────────
+
+   « Mets juste un bouton avec une icône pour avoir les infos. » « Si
+   on veut supprimer une carte, tu mets un "X". » — 23 novembre.
+
+   LES DEUX SONT DES CIBLES QU'UN DOIGT PEUT VISER : 28 px, et pas
+   16 — une croix de la taille du caractère qu'elle dessine se rate une
+   fois sur trois sur un téléphone, et celle-là efface. */
+#modernbb .wm-rp__croix,
+#modernbb .wm-rp__infos {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: var(--wm-taille-normal, 13.5px);
+  line-height: 1;
+  color: var(--wm-texte-doux);
+  cursor: pointer;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 50%;
+}
+
+#modernbb .wm-rp__infos svg {
+  width: 16px;
+  height: 16px;
+}
+
+#modernbb .wm-rp__croix:hover,
+#modernbb .wm-rp__croix:focus-visible {
+  color: var(--wm-texte-titre);
+  background: var(--wm-fond-douce);
+  border-color: var(--wm-bord-fin);
+}
+
+#modernbb .wm-rp__infos:hover,
+#modernbb .wm-rp__infos:focus-visible {
+  color: var(--wm-texte-titre);
+  background: var(--wm-fond-douce);
+  border-color: var(--wm-bord-fin);
+}
+
+/* ── LA DEMANDE AVANT D'EFFACER ─────────────────────────────────────
+
+   « Avoir une boîte de dialogue qui demande si on veut vraiment
+   supprimer ce rp. »
+
+   LE BOUTON QUI EFFACE PORTE LE DANGER, et il n'a pas le focus au
+   départ : c'est « Annuler » qui l'a, parce qu'une boîte qui apparaît
+   sous un doigt déjà en train d'appuyer ne doit pas effacer. */
+#modernbb .wm-rp__confirme {
+  max-width: 26rem;
+  padding: var(--wm-espace-20, 20px);
+  color: var(--wm-texte-corps);
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-bord-fin);
+  border-radius: var(--wm-rayon-lg, 10px);
+}
+
+#modernbb .wm-rp__confirme::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+#modernbb .wm-rp__confirme-titre {
+  margin: 0 0 var(--wm-espace-6, 6px);
+  font-size: var(--wm-taille-titre-carte, 16px);
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-rp__confirme-quoi {
+  margin: 0 0 var(--wm-espace-10, 10px);
+  font-weight: 600;
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-rp__confirme-pied {
+  display: flex;
+  gap: var(--wm-espace-8, 8px);
+  justify-content: flex-end;
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+/*  IL EST ROUGE PARCE QU'IL EST DÉFINITIF, et le mot le dit aussi :
+    « Retirer », pas « OK ». Un bouton de confirmation qui ne nomme pas
+    son geste fait cliquer sans lire. */
+#modernbb .wm-rp__confirme-oui {
+  color: var(--wm-texte-inverse);
+  background: var(--wm-danger-interdite, #a64430);
+  border-color: var(--wm-danger-interdite, #a64430);
+}
+
+/* ── LES GENS QU'ON ATTEND ──────────────────────────────────────────
+
+   « Si la personne n'a pas encore répondu, faudrait pouvoir les
+   rajouter manuellement. » */
+#modernbb .wm-rp__invites {
+  margin-top: var(--wm-espace-16, 16px);
+}
+
+#modernbb .wm-rp__invites-liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-6, 6px);
+  margin: var(--wm-espace-6, 6px) 0;
+  padding: 0;
+  list-style: none;
+}
+
+#modernbb .wm-rp__invites-vide {
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+}
+
+/*  UNE PASTILLE PAR PERSONNE, avec sa croix dedans : la liste se lit
+    d'un coup d'œil, et on retire celui qu'on vise sans compter les
+    lignes. */
+#modernbb .wm-rp__invite {
+  display: inline-flex;
+  gap: var(--wm-espace-6, 6px);
+  align-items: center;
+  padding: 4px 4px 4px 12px;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  background: var(--wm-fond-douce);
+  border-radius: 999px;
+}
+
+#modernbb .wm-rp__invite-oter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  line-height: 1;
+  color: var(--wm-texte-doux);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+}
+
+#modernbb .wm-rp__invite-oter:hover,
+#modernbb .wm-rp__invite-oter:focus-visible {
+  color: var(--wm-texte-titre);
+  background: var(--wm-fond-surface-haute);
+}
+
+#modernbb .wm-rp__invites-ajout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  align-items: center;
+}
+
+#modernbb .wm-rp__invites-ajout input {
+  flex: 1 1 10rem;
+  /*  `min-width: 0` SUR UN ENFANT DE FLEX QUI PORTE DU TEXTE : sans
+      lui, un champ refuse de rétrécir et pousse le dialogue au-delà de
+      l'écran. */
+  min-width: 0;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  background: var(--wm-fond-page);
+  border: 1px solid var(--wm-bord-fin);
+  border-radius: var(--wm-rayon-md, 8px);
+}
+
 /* ── LES CONVERSATIONS DU MESSENGER ─────────────────────────────────
 
    « Tableau et liste c'est un style d'affichage des rps. Alors que les
@@ -31108,6 +31345,74 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-12, 12px);
   align-items: center;
   margin-top: var(--wm-espace-16, 16px);
+}
+
+/* ── LES MODÈLES DE RP ──────────────────────────────────────────────
+
+   « Quand on écrit, faudrait des modèles de rp. Et aussi, permettre aux
+   gens de sauvegarder leurs propres modèles de rp. » — 23 novembre.
+
+   UN TIROIR FERMÉ, au-dessus du texte : on écrit la plupart du temps
+   sans modèle, et une rangée de réglages ouverte en permanence prendrait
+   la place de ce qu'on vient écrire. */
+#modernbb .wm-ecrire__modeles {
+  margin: 0 0 var(--wm-espace-10, 10px);
+}
+
+#modernbb .wm-ecrire__modeles-bouton {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-doux);
+  cursor: pointer;
+  background: var(--wm-fond-douce);
+  border-radius: 999px;
+  list-style: none;
+}
+
+#modernbb .wm-ecrire__modeles-bouton::-webkit-details-marker {
+  display: none;
+}
+
+#modernbb .wm-ecrire__modeles[open] .wm-ecrire__modeles-bouton {
+  color: var(--wm-texte-titre);
+}
+
+#modernbb .wm-ecrire__modeles-corps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wm-espace-6, 6px);
+  margin-top: var(--wm-espace-8, 8px);
+  padding: var(--wm-espace-12, 12px);
+  background: var(--wm-fond-douce);
+  border-radius: var(--wm-rayon-lg, 10px);
+}
+
+/*  LES DEUX RANGÉES S'EMPILENT AU LIEU DE SERRER : un menu de modèles
+    et deux boutons sur 360 px ne tiennent pas sur une ligne, et un
+    `<select>` écrasé n'affiche plus le nom qu'on cherche. */
+#modernbb .wm-ecrire__modeles-rangee {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-espace-8, 8px);
+  align-items: center;
+}
+
+#modernbb .wm-ecrire__modeles-rangee select,
+#modernbb .wm-ecrire__modeles-rangee input {
+  flex: 1 1 11rem;
+  /*  `min-width: 0` SUR UN ENFANT DE FLEX QUI PORTE DU TEXTE : sans
+      lui, ni l'un ni l'autre ne consent à rétrécir, et la rangée pousse
+      l'éditeur hors de l'écran. */
+  min-width: 0;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: var(--wm-taille-petit, 11.5px);
+  color: var(--wm-texte-corps);
+  background: var(--wm-fond-surface-haute);
+  border: 1px solid var(--wm-bord-fin);
+  border-radius: var(--wm-rayon-md, 8px);
 }
 
 /* ════════════════════════════════════════════════════════════════════

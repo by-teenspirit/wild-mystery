@@ -125,6 +125,19 @@ const ETATS: readonly { readonly clef: string; readonly mot: string }[] = [
   { clef: "en-cours", mot: "en cours" },
   { clef: "solo", mot: "solo" },
   { clef: "en-pause", mot: "en pause" },
+  //  ── LE SIXIÈME, DEPUIS LE 23 NOVEMBRE ────────────────────────────
+  //
+  //  « Il faudrait aussi une colonne abandonné. »
+  //
+  //  ABANDONNÉ N'EST PAS EN-PAUSE, et c'est pour ça qu'il faut un mot
+  //  de plus plutôt qu'un usage détourné : une pause est un RP qu'on
+  //  reprendra, un abandon un RP qu'on ne reprendra pas. Le joueur sait
+  //  lequel est lequel ; le code, non.
+  //
+  //  IL EST AVANT « clôturé » parce que l'ordre de cette liste EST
+  //  l'ordre des colonnes, et qu'on lit de l'intention vers la fin : du
+  //  prévu au clos, en passant par ce qui s'est arrêté.
+  { clef: "abandonne", mot: "abandonné" },
   { clef: "cloture", mot: "clôturé" },
 ];
 
@@ -167,6 +180,50 @@ export function poserLesRp(r: ReglagesRp): boolean {
   //  n'est pas encore là n'empêche pas de lire ses RP.
   let forums: TableDesForums = {};
   const compagnons = new Map<number, string[]>();
+  //  ── LES GENS QU'ON ATTEND, TAPÉS À LA MAIN ───────────────────────
+  //
+  //  « Si la personne n'a pas encore répondu, faudrait pouvoir les
+  //  rajouter manuellement. » — 23 novembre.
+  //
+  //  DEUX SOURCES, ET C'EST VOULU : `rp_participant` dit qui a POSTÉ,
+  //  un fait du forum ; `rp_invite` dit qui J'ATTENDS, une annotation
+  //  qui peut être fausse. Les fondre en une seule table aurait fait
+  //  d'une intention un fait.
+  const invites = new Map<number, string[]>();
+  /** Les colonnes que le joueur a cachées.
+   *
+   *  ── UN ENSEMBLE DES CACHÉES, PAS DES MONTRÉES ────────────────────
+   *
+   *  C'est le même choix que le `default true` de la base, et pour la
+   *  même raison : au premier affichage, avant que la lecture réponde,
+   *  cet ensemble est VIDE — donc tout est montré. Un ensemble des
+   *  montrées serait vide aussi, et la page s'ouvrirait sans aucune
+   *  colonne pendant un aller-retour réseau. */
+  const cachees = new Set<string>();
+  /** Les deux listes fondues, sans moi et sans doublon.
+   *
+   *  SANS MOI : la relève range TOUS les participants, y compris celui
+   *  qui lit, et l'afficher ferait « avec Jake » sur le carnet de Jake.
+   *
+   *  SANS DOUBLON, ET LA CASSE NE COMPTE PAS : quand l'invité finit par
+   *  poster, la relève l'écrit dans `rp_participant` et il serait là
+   *  deux fois. Comparer en minuscules, parce que « Erin » et « erin »
+   *  sont la même personne pour qui a tapé le nom.
+   *
+   *  L'INVITÉ NE S'EFFACE PAS TOUT SEUL quand le fait le rejoint : c'est
+   *  au joueur de le retirer. Effacer son annotation parce qu'elle s'est
+   *  réalisée serait effacer ce qu'il avait écrit. */
+  const avecQui = (sujetId: number): string[] => {
+    const vus = new Set<string>([r.pseudo.trim().toLowerCase()]);
+    const sortie: string[] = [];
+    for (const p of [...(compagnons.get(sujetId) ?? []), ...(invites.get(sujetId) ?? [])]) {
+      const clef = p.trim().toLowerCase();
+      if (clef === "" || vus.has(clef)) continue;
+      vus.add(clef);
+      sortie.push(p.trim());
+    }
+    return sortie;
+  };
   //  LES NOMS DE COLONNES, par clé d'état. Vide au départ : une
   //  colonne sans entrée porte son mot par défaut.
   const noms = new Map<string, string>();
@@ -351,6 +408,67 @@ export function poserLesRp(r: ReglagesRp): boolean {
     bloc.hidden = false;
   };
 
+  /** La liste des gens qu'on attend, avec une croix sur chacun.
+   *
+   *  ── ON N'Y MET QUE LES INVITÉS, PAS LES PARTICIPANTS RELEVÉS ─────
+   *
+   *  La ligne « avec … » au-dessus montre déjà les deux fondus. Ici, ce
+   *  sont les seuls qu'on peut RETIRER : on n'efface pas quelqu'un qui a
+   *  posté, ce serait nier un fait du forum. Une croix qui ne marche
+   *  qu'une fois sur deux apprend à se méfier de l'écran.
+   *
+   *  ET CELUI QUI A FINI PAR POSTER RESTE AFFICHÉ ICI, avec sa croix :
+   *  c'est le joueur qui décide de ranger son annotation, pas nous.
+   *  Elle est devenue redondante, elle n'est pas devenue fausse. */
+  const peindreLesInvites = (sujetId: number): void => {
+    const ou = g("invites");
+    if (ou === null) return;
+    ou.textContent = "";
+    const miens = invites.get(sujetId) ?? [];
+    if (miens.length === 0) {
+      const vide = doc.createElement("li");
+      vide.className = "wm-rp__invites-vide";
+      //  UN MOT PLUTÔT QU'UNE LISTE VIDE : « personne pour l'instant »
+      //  se lit, un blanc laisse croire que ça n'a pas chargé.
+      vide.textContent = "Personne d'ajouté pour l'instant.";
+      ou.append(vide);
+      return;
+    }
+    for (const pseudo of miens) {
+      const li = doc.createElement("li");
+      li.className = "wm-rp__invite";
+      const mot = doc.createElement("span");
+      mot.textContent = pseudo;
+      const oter = doc.createElement("button");
+      oter.type = "button";
+      oter.className = "wm-rp__invite-oter";
+      oter.setAttribute("data-wm-rp-desinviter", pseudo);
+      oter.append(doc.createTextNode("×"));
+      const ditOter = doc.createElement("span");
+      ditOter.className = "wm-carnet__hors-ecran";
+      ditOter.textContent = `Retirer ${pseudo}`;
+      oter.append(ditOter);
+      oter.addEventListener("click", () => {
+        void (async () => {
+          //  LE PSEUDO EST DANS L'ADRESSE, donc il s'échappe : un nom
+          //  avec une virgule ou un espace casserait la requête, et
+          //  « Jean-Luc, dit Jango » est un pseudo possible.
+          const fait = await rest(
+            r,
+            `rp_invite?sujet_id=eq.${sujetId}&pseudo=eq.${encodeURIComponent(pseudo)}`,
+            { method: "DELETE", headers: { Prefer: "return=minimal" } },
+          );
+          if (!fait.ok) return;
+          invites.set(sujetId, (invites.get(sujetId) ?? []).filter((x) => x !== pseudo));
+          peindreLesInvites(sujetId);
+          peindre();
+        })();
+      });
+      li.append(mot, oter);
+      ou.append(li);
+    }
+  };
+
   const ouvrirEnGrand = (sujetId: number): void => {
     const l = lignes.find((x) => x.sujetId === sujetId);
     if (grand === null || l === undefined) return;
@@ -382,11 +500,12 @@ export function poserLesRp(r: ReglagesRp): boolean {
 
     const avec = g("avec");
     if (avec !== null) {
-      const qui = (compagnons.get(l.sujetId) ?? [])
-        .filter((p) => p.trim() !== r.pseudo.trim());
+      const qui = avecQui(l.sujetId);
       avec.textContent = qui.length === 0 ? "" : `avec ${qui.join(", ")}`;
       avec.hidden = qui.length === 0;
     }
+
+    peindreLesInvites(l.sujetId);
 
     const extrait = g("extrait");
     if (extrait !== null) {
@@ -420,6 +539,62 @@ export function poserLesRp(r: ReglagesRp): boolean {
 
   if (grand !== null) {
     g("fermer")?.addEventListener("click", () => grand.close());
+    const inviter = (): void => {
+      const champ = g("invite");
+      const sujetId = Number(grand.getAttribute("data-wm-rp-grand-sujet"));
+      if (!(champ instanceof HTMLInputElement) || !Number.isInteger(sujetId)) return;
+      //  LA BORNE EST CELLE DE LA BASE (40 signes, contrainte de la
+      //  0066), et un pseudo vide n'est pas un pseudo.
+      const pseudo = champ.value.trim().slice(0, 40);
+      const ditG = g("dit");
+      if (pseudo === "") {
+        if (ditG !== null) ditG.textContent = "Il me faut un pseudo.";
+        return;
+      }
+      //  ── DÉJÀ LÀ ? ON LE DIT, ON NE RÉÉCRIT PAS ────────────────────
+      //
+      //  La clé primaire de la base refuserait le doublon, et le refus
+      //  arriverait sous la forme d'un « ça n'a pas pu être ajouté »
+      //  que personne ne comprend. On compare en minuscules, comme
+      //  `avecQui` : pour qui tape un nom, « Erin » et « erin » sont la
+      //  même personne.
+      const bas = pseudo.toLowerCase();
+      if ((invites.get(sujetId) ?? []).some((x) => x.toLowerCase() === bas)) {
+        if (ditG !== null) ditG.textContent = `${pseudo} y est déjà.`;
+        champ.value = "";
+        return;
+      }
+      void (async () => {
+        const fait = await rest(r, "rp_invite", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            joueur_id: r.joueurId,
+            sujet_id: sujetId,
+            pseudo,
+          }),
+        });
+        if (!fait.ok) {
+          if (ditG !== null) ditG.textContent = "Ça n'a pas pu être ajouté.";
+          return;
+        }
+        invites.set(sujetId, [...(invites.get(sujetId) ?? []), pseudo]);
+        champ.value = "";
+        if (ditG !== null) ditG.textContent = `${pseudo} ajouté.`;
+        peindreLesInvites(sujetId);
+        //  ET LA CARTE DERRIÈRE SUIT : le « avec … » du tableau et de
+        //  la liste lit la même fusion.
+        peindre();
+      })();
+    };
+    g("inviter")?.addEventListener("click", inviter);
+    //  ENTRÉE VAUT LE BOUTON : on tape un nom, on tape Entrée. Sans ça,
+    //  un champ dans un dialogue sans formulaire avale la touche.
+    g("invite")?.addEventListener("keydown", (e) => {
+      if ((e as KeyboardEvent).key !== "Enter") return;
+      e.preventDefault();
+      inviter();
+    });
     g("garder")?.addEventListener("click", () => {
       const champ = g("description");
       const ditG = g("dit");
@@ -446,12 +621,120 @@ export function poserLesRp(r: ReglagesRp): boolean {
     });
   }
 
+  //  ── ON DEMANDE AVANT D'EFFACER ────────────────────────────────────
+  //
+  //  « Avoir une boîte de dialogue qui demande si on veut vraiment
+  //  supprimer ce rp. » — 23 novembre.
+  //
+  //  UN `<dialog>` ET PAS `confirm()`. La fenêtre du navigateur sort du
+  //  cadre, n'a pas notre typographie, et se fait bloquer par certains
+  //  réglages — un geste définitif qui ne demande rien parce que la
+  //  question n'a pas pu s'afficher, c'est le pire des deux mondes.
+  //
+  //  LE TITRE DU RP EST DANS LA QUESTION : « supprimer cette carte ? »
+  //  ne dit pas laquelle quand on vient de cliquer sur la mauvaise.
+  const confirme = doc.querySelector<HTMLDialogElement>("[data-wm-rp-confirme]");
+  let aEffacer: number | null = null;
+
+  const effacerVraiment = (sujetId: number): void => {
+    void (async () => {
+      const fait = await rest(r, `rp?sujet_id=eq.${sujetId}`, {
+        method: "DELETE",
+        headers: { Prefer: "return=minimal" },
+      });
+      //  ON NE RETIRE DE L'ÉCRAN QUE CE QUI EST PARTI DE LA BASE. Sans
+      //  ce test, un refus faisait disparaître la carte jusqu'au
+      //  rechargement, et le joueur croyait l'avoir effacée.
+      if (!fait.ok) {
+        dit.textContent = "Cette carte n'a pas pu être retirée.";
+        return;
+      }
+      lignes = lignes.filter((x) => x.sujetId !== sujetId);
+      peindre();
+    })();
+  };
+
+  const demanderAEffacer = (l: LigneDeRp): void => {
+    if (confirme === null) {
+      //  PAS DE DIALOGUE DANS LA PAGE : on n'efface pas en silence, et
+      //  on n'efface pas sans demander non plus. Ce cas n'arrive que si
+      //  le markup a été recollé à moitié.
+      dit.textContent = "Le dialogue de confirmation manque dans la page.";
+      return;
+    }
+    aEffacer = l.sujetId;
+    const quoi = confirme.querySelector("[data-wm-rp-confirme-quoi]");
+    if (quoi !== null) {
+      quoi.textContent = l.titre === "" ? `Sujet ${l.sujetId}` : `« ${l.titre} »`;
+    }
+    confirme.showModal();
+  };
+
+  if (confirme !== null) {
+    confirme.querySelector("[data-wm-rp-confirme-non]")
+      ?.addEventListener("click", () => confirme.close());
+    confirme.querySelector("[data-wm-rp-confirme-oui]")
+      ?.addEventListener("click", () => {
+        const sujetId = aEffacer;
+        confirme.close();
+        //  ON OUBLIE LA CIBLE EN FERMANT : un dialogue réouvert sans
+        //  cible effacerait la dernière carte visée, et c'est
+        //  exactement le genre de geste qu'on ne peut pas reprendre.
+        aEffacer = null;
+        if (sujetId !== null) effacerVraiment(sujetId);
+      });
+    //  ÉCHAP FERME ET OUBLIE AUSSI : `cancel` part avant `close`.
+    confirme.addEventListener("close", () => {
+      aEffacer = null;
+    });
+  }
+
+  /** La croix d'une carte, la même dans les deux vues.
+   *
+   *  ── SUR TOUTES LES COLONNES, DEPUIS LE 23 NOVEMBRE ───────────────
+   *
+   *  « Peu importe si c'est prévu ou dans une autre colonne. » Elle
+   *  n'était que sur les cartes prévues, et la base ne permettait que
+   *  celles-là (0037) : la 0066 ouvre les deux.
+   *
+   *  LA RAISON D'ALORS ÉTAIT BONNE, ET ELLE A CHANGÉ DE SENS : on
+   *  n'ajoute qu'une INTENTION, donc on n'effaçait qu'une intention.
+   *  Mais la carte n'est pas le sujet — le forum, les messages et le
+   *  registre restent, et la relève la remettra si le sujet vit
+   *  toujours. On ne disparaît pas d'un RP, on range son carnet. */
+  const croix = (l: LigneDeRp): HTMLButtonElement => {
+    const oter = doc.createElement("button");
+    oter.type = "button";
+    oter.className = "wm-rp__croix";
+    oter.setAttribute("data-wm-rp-retirer", String(l.sujetId));
+    oter.append(doc.createTextNode("×"));
+    const ditOter = doc.createElement("span");
+    ditOter.className = "wm-carnet__hors-ecran";
+    //  LE NOM DANS L'ÉTIQUETTE : six croix identiques dans une colonne
+    //  ne se distinguent pas au lecteur d'écran.
+    ditOter.textContent = `Retirer « ${l.titre === "" ? `Sujet ${l.sujetId}` : l.titre}` +
+      ` » de ton carnet`;
+    oter.append(ditOter);
+    oter.addEventListener("click", () => demanderAEffacer(l));
+    return oter;
+  };
+
   const peindreLeTableau = (lesRp: readonly LigneDeRp[]): void => {
     tableau.textContent = "";
     for (const colonne of ETATS) {
-      //  LA COLONNE DES CLÔTURÉS SE REPLIE, et elle seule : c'est la
-      //  seule qui ne demande rien et qui grossit sans fin.
+      //  LA COLONNE DES CLÔTURÉS SE REPLIE PAR SON INTERRUPTEUR, qui
+      //  est à part des autres : c'est la seule qui ne demande rien et
+      //  qui grossit sans fin, et elle a son propre geste depuis le
+      //  20 novembre.
       if (colonne.clef === "cloture" && !clotures) continue;
+      //  ── ET LES AUTRES SE CACHENT UNE PAR UNE ──────────────────────
+      //
+      //  « La personne peut afficher les colonnes qu'elle souhaite. »
+      //  — 23 novembre. Deux gestes pour deux besoins : l'interrupteur
+      //  des clôturés est à portée parce qu'on le bascule souvent ;
+      //  celui-ci est rangé dans un panneau parce qu'on le règle une
+      //  fois.
+      if (cachees.has(colonne.clef)) continue;
       const dedans = rangerLesRp(lesRp.filter((l) => l.etat === colonne.clef));
       const bloc = doc.createElement("div");
       bloc.className = "wm-rp__colonne";
@@ -575,8 +858,12 @@ export function poserLesRp(r: ReglagesRp): boolean {
         //  Soi-même n'est pas un compagnon : la relève range TOUS les
         //  participants, y compris celui qui lit. L'afficher ferait
         //  « avec Jake Dalziel » sur la carte de Jake.
-        const avec = (compagnons.get(l.sujetId) ?? [])
-          .filter((p) => p.trim() !== r.pseudo.trim());
+        //
+        //  ET LES INVITÉS COMPTENT ICI AUSSI, depuis le 23 novembre :
+        //  une carte prévue n'a aucun participant relevé — personne n'a
+        //  posté — et elle affichait donc un vide alors que le joueur
+        //  SAIT avec qui il va écrire.
+        const avec = avecQui(l.sujetId);
         if (avec.length > 0) {
           const qui = doc.createElement("p");
           qui.className = "wm-rp__carte-avec";
@@ -614,7 +901,7 @@ export function poserLesRp(r: ReglagesRp): boolean {
         ditLoupe.textContent = `Afficher « ${l.titre} » en grand`;
         loupe.append(ditLoupe);
         loupe.addEventListener("click", () => ouvrirEnGrand(l.sujetId));
-        pied.append(etiquette, quand, loupe);
+        pied.append(etiquette, quand, loupe, croix(l));
         //  LE TITRE EN PREMIER, quoi qu'on ait ajouté entre-temps :
         //  `prepend` le remet en tête, et le pied ferme la carte.
         carte.prepend(titre);
@@ -702,6 +989,11 @@ export function poserLesRp(r: ReglagesRp): boolean {
       //
       //  SOI-MÊME EXCLU, même règle que partout : « avec Jake
       //  Dalziel » sur la conversation de Jake ne dit rien.
+      //
+      //  MAIS PAS LES INVITÉS : un destinataire de conversation est
+      //  quelqu'un qui est DANS la conversation, pas quelqu'un qu'on
+      //  attend. Ajouter les invités ici dirait « tu parles avec Erin »
+      //  à propos d'une personne qui n'a rien reçu.
       const avec = (compagnons.get(l.sujetId) ?? [])
         .filter((p) => p.trim() !== r.pseudo.trim());
       const qui = doc.createElement("p");
@@ -849,34 +1141,50 @@ export function poserLesRp(r: ReglagesRp): boolean {
       //  LA LISTE OUVRE LE MÊME GRAND QUE LE TABLEAU : c'est le repli
       //  accessible du tableau, et un geste qui n'existe que dans la
       //  vue qu'on ne peut pas atteindre au clavier n'existe pas.
+      //  ── UNE ICÔNE, PAS LE MOT « EN GRAND » ──────────────────────
+      //
+      //  « Pourquoi en liste tu écris "en grand" pour afficher les
+      //  infos du rp ? Mets juste un bouton avec une icône pour avoir
+      //  les infos. » — 23 novembre.
+      //
+      //  ELLE A RAISON SUR LE MOT AVANT LA FORME : « en grand » décrit
+      //  ce que le bouton FAIT À LA FENÊTRE, pas ce qu'on va y trouver.
+      //  Ce qu'on vient chercher, ce sont les infos du RP — le lieu,
+      //  les gens, le récap, sa description. Un « i » dans un cercle le
+      //  dit sans mot, et c'est le signe que tout le monde connaît.
+      //
+      //  LE MOT RESTE POUR QUI ÉCOUTE LA PAGE : l'icône est
+      //  `aria-hidden`, l'étiquette hors écran nomme le RP. Une icône
+      //  qui porte le sens n'est lisible que par qui l'a déjà appris.
       const voir = doc.createElement("button");
       voir.type = "button";
-      voir.textContent = "en grand";
+      voir.className = "wm-rp__infos";
       voir.setAttribute("data-wm-rp-ouvrir", String(l.sujetId));
+      const oeil = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+      oeil.setAttribute("viewBox", "0 0 20 20");
+      oeil.setAttribute("aria-hidden", "true");
+      oeil.setAttribute("focusable", "false");
+      oeil.setAttribute("fill", "none");
+      oeil.setAttribute("stroke", "currentColor");
+      oeil.setAttribute("stroke-width", "1.5");
+      for (const d of ["M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z", "M10 9v4.6", "M10 6.3v.1"]) {
+        const trait = doc.createElementNS("http://www.w3.org/2000/svg", "path");
+        trait.setAttribute("d", d);
+        trait.setAttribute("stroke-linecap", "round");
+        oeil.append(trait);
+      }
+      voir.append(oeil);
+      const ditVoir = doc.createElement("span");
+      ditVoir.className = "wm-carnet__hors-ecran";
+      ditVoir.textContent = `Les infos de « ${titre.textContent} »`;
+      voir.append(ditVoir);
       voir.addEventListener("click", () => ouvrirEnGrand(l.sujetId));
       outils.append(voir);
 
-      //  ON N'EFFACE QU'UNE CARTE PRÉVUE, et la base le tient aussi
-      //  (0037). Le bouton n'apparaît pas ailleurs pour la même raison
-      //  qu'on ne grise pas : proposer un geste qui sera refusé
-      //  apprend à se méfier de l'écran.
-      if (l.etat === "prevu") {
-        const oter = doc.createElement("button");
-        oter.type = "button";
-        oter.textContent = "retirer";
-        oter.setAttribute("data-wm-rp-retirer", String(l.sujetId));
-        oter.addEventListener("click", () => {
-          void (async () => {
-            await rest(r, `rp?sujet_id=eq.${l.sujetId}`, {
-              method: "DELETE",
-              headers: { Prefer: "return=minimal" },
-            });
-            lignes = lignes.filter((x) => x.sujetId !== l.sujetId);
-            peindre();
-          })();
-        });
-        outils.append(oter);
-      }
+      //  LA CROIX EST LA MÊME QUE SUR LES CARTES DU TABLEAU, et elle
+      //  est sur TOUTES les lignes depuis le 23 novembre — voir
+      //  `croix`.
+      outils.append(croix(l));
 
       li.append(mot, etiquette, quand, outils);
       liste.append(li);
@@ -910,6 +1218,47 @@ export function poserLesRp(r: ReglagesRp): boolean {
     });
   }
 
+  /** Le titre d'un sujet, lu sur le forum.
+   *
+   *  ── « EST-CE QUE TU PEUX RÉCUPÉRER LE TITRE DIRECTEMENT ? » ─────────
+   *
+   *  Oui, et sans rien demander à Supabase : le carnet TOURNE sur le
+   *  forum. Une page de sujet est à la même origine, donc un `fetch`
+   *  l'atteint avec la session du joueur, exactement comme s'il cliquait
+   *  le lien.
+   *
+   *  LE `<title>` PLUTÔT QUE LE FIL D'ARIANE : Forumactif l'écrit en
+   *  premier dans la page, il ne dépend d'aucun gabarit qu'on a modifié,
+   *  et il survit aux versions. Il porte souvent le nom du forum en
+   *  suffixe, après un tiret cadratin ou un pipe — on coupe au premier.
+   *
+   *  ── ET C'EST UN CONFORT, JAMAIS UNE CONDITION ───────────────────────
+   *
+   *  Tout refus rend `null` : réseau coupé, sujet d'un forum interdit,
+   *  page qui a changé de forme. La carte s'ajoute quand même avec ce que
+   *  le joueur a tapé — et de toute façon **la relève écrira le vrai
+   *  titre au prochain passage.** Ce champ ne sert qu'à ce que la carte
+   *  ne s'appelle pas « Sujet 996 » en attendant.
+   */
+  async function titreDuSujet(sujetId: number): Promise<string | null> {
+    try {
+      const reponse = await fetch(`/t${sujetId}-`, { credentials: "same-origin" });
+      if (!reponse.ok) return null;
+      const html = await reponse.text();
+      const trouve = /<title[^>]*>([^<]{1,300})<\/title>/i.exec(html);
+      if (trouve === null) return null;
+      //  LES ENTITÉS SE DÉCODENT, et il en faut : un titre avec une
+      //  apostrophe arrive en `&#039;`, et l'afficher brut serait pire
+      //  que de ne rien afficher.
+      const brut = new DOMParser()
+        .parseFromString(trouve[1], "text/html").documentElement.textContent ?? "";
+      const titre = brut.split(/\s[—|·]\s/)[0].trim();
+      return titre === "" ? null : titre.slice(0, 160);
+    } catch {
+      return null;
+    }
+  }
+
   doc.querySelector("[data-wm-rp-ajouter]")?.addEventListener("click", () => {
     const adresse = doc.querySelector<HTMLInputElement>("[data-wm-rp-neuf-adresse]");
     const titre = doc.querySelector<HTMLInputElement>("[data-wm-rp-neuf-titre]");
@@ -928,9 +1277,24 @@ export function poserLesRp(r: ReglagesRp): boolean {
       return;
     }
     void (async () => {
+      //  ── LE TITRE SE CHERCHE TOUT SEUL ─────────────────────────────
+      //
+      //  « Est-ce que tu peux récupérer le titre du sujet
+      //  directement ? » — 23 novembre.
+      //
+      //  SEULEMENT SI LE CHAMP EST VIDE : ce que le joueur a tapé
+      //  l'emporte sur ce qu'on trouve. Il a peut-être un nom à lui
+      //  pour ce RP, et l'écraser par le titre du sujet lui retirerait
+      //  ce qu'il venait d'écrire.
+      //
+      //  ET ÇA NE RETIENT RIEN : si la lecture échoue, la carte part
+      //  avec « Sujet 996 », et la relève écrira le vrai titre au
+      //  prochain passage.
+      const tape = titre.value.trim().slice(0, 160);
+      const trouve = tape === "" ? await titreDuSujet(sujetId) : null;
       const neuf: LigneDeRp = {
         sujetId,
-        titre: titre.value.trim().slice(0, 160),
+        titre: trouve ?? tape,
         forumId: 0,
         forumNom: "",
         reponses: 0,
@@ -959,10 +1323,80 @@ export function poserLesRp(r: ReglagesRp): boolean {
       lignes = [...lignes, neuf];
       adresse.value = "";
       titre.value = "";
-      dit.textContent = "Ajouté. Dès que tu y écriras, la relève le remplira.";
+      dit.textContent = trouve === null
+        ? "Ajouté. Dès que tu y écriras, la relève le remplira."
+        : `Ajouté : « ${trouve} ».`;
       peindre();
     })();
   });
+
+  //  ── CHOISIR SES COLONNES ────────────────────────────────────────
+  //
+  //  « La personne peut afficher les colonnes qu'elle souhaite. »
+  //
+  //  SIX CASES, ET PAS DE BOUTON « ENREGISTRER ». Cocher EST le geste :
+  //  un panneau de réglages qui demande une validation en plus fait
+  //  deux clics pour une case, et laisse croire qu'on peut annuler.
+  //
+  //  LA CASE DIT « MONTRÉE », PAS « CACHÉE ». C'est l'état de la chose
+  //  qu'on regarde, et une case à cocher pour cacher se lit à l'envers
+  //  — cochée voudrait dire absente.
+  const panneau = doc.querySelector<HTMLElement>("[data-wm-rp-colonnes]");
+  const peindreLesColonnes = (): void => {
+    if (panneau === null) return;
+    panneau.textContent = "";
+    for (const colonne of ETATS) {
+      const ligne = doc.createElement("label");
+      ligne.className = "wm-rp__colonnes-choix";
+      const case_ = doc.createElement("input");
+      case_.type = "checkbox";
+      case_.checked = !cachees.has(colonne.clef);
+      case_.setAttribute("data-wm-rp-colonne-montree", colonne.clef);
+      const mot = doc.createElement("span");
+      //  LE NOM QU'ELLE PORTE, pas le mot du code : si le joueur a
+      //  renommé « prévu » en « mes envies », c'est « mes envies »
+      //  qu'il cherche dans cette liste.
+      mot.textContent = noms.get(colonne.clef) ?? colonne.mot;
+      ligne.append(case_, mot);
+      case_.addEventListener("change", () => {
+        const montree = case_.checked;
+        if (montree) cachees.delete(colonne.clef);
+        else cachees.add(colonne.clef);
+        //  ON REPEINT TOUT DE SUITE, ET ON ENREGISTRE DERRIÈRE : la
+        //  colonne doit disparaître au clic, pas après un
+        //  aller-retour. Si l'écriture échoue, le mot le dit et le
+        //  choix ne survivra pas au rechargement — ce qui est plus
+        //  honnête que de refuser le clic.
+        peindre();
+        void (async () => {
+          const fait = await rest(r, "rp_colonne", {
+            method: "POST",
+            headers: {
+              //  `merge-duplicates` : la ligne existe peut-être déjà
+              //  parce que le joueur a renommé la colonne. Un POST sec
+              //  se ferait refuser par la clé primaire.
+              Prefer: "return=minimal,resolution=merge-duplicates",
+            },
+            body: JSON.stringify({
+              joueur_id: r.joueurId,
+              etat: colonne.clef,
+              //  LE NOM EST OBLIGATOIRE EN BASE (entre 1 et 24
+              //  signes) : on repose celui qui est en place, ou le mot
+              //  par défaut. Sans ça, cacher une colonne jamais
+              //  renommée se ferait refuser par la contrainte.
+              nom: noms.get(colonne.clef) ?? colonne.mot,
+              montree,
+            }),
+          });
+          if (!fait.ok) {
+            dit.textContent = "Ce choix de colonnes n'a pas pu être enregistré.";
+          }
+        })();
+      });
+      panneau.append(ligne);
+    }
+  };
+  peindreLesColonnes();
 
   //  ── LE BOUTON DES CLÔTURÉS ──────────────────────────────────────
   //
@@ -1015,14 +1449,18 @@ export function poserLesRp(r: ReglagesRp): boolean {
     if (charge) return;
     charge = true;
     void (async () => {
-      //  LES QUATRE LECTURES PARTENT ENSEMBLE. Les compagnons, les
-      //  forums et les noms de colonnes ne dépendent pas des RP : les
-      //  enchaîner ajouterait trois allers-retours au premier
-      //  affichage pour rien.
-      const [lus, avec, titres] = await Promise.all([
+      //  LES CINQ LECTURES PARTENT ENSEMBLE. Les compagnons, les
+      //  invités, les forums et les noms de colonnes ne dépendent pas
+      //  des RP : les enchaîner ajouterait quatre allers-retours au
+      //  premier affichage pour rien.
+      const [lus, avec, titres, pris] = await Promise.all([
         rest(r, "rp?select=*&order=ordre,dernier_le.desc"),
         rest(r, "rp_participant?select=sujet_id,pseudo"),
-        rest(r, "rp_colonne?select=etat,nom"),
+        //  `montree` EN MÊME TEMPS QUE `nom` : c'est la même ligne, et
+        //  une seconde requête pour une colonne de la même table serait
+        //  un aller-retour offert.
+        rest(r, "rp_colonne?select=etat,nom,montree"),
+        rest(r, "rp_invite?select=sujet_id,pseudo"),
         lireLesForums(r.racine).then((t) => {
           forums = t;
         }),
@@ -1032,6 +1470,22 @@ export function poserLesRp(r: ReglagesRp): boolean {
           const clef = String(c.etat ?? "");
           const nom = String(c.nom ?? "").trim();
           if (clef !== "" && nom !== "") noms.set(clef, nom);
+          //  ── MONTRÉE SAUF SI LA LIGNE DIT NON ───────────────────────
+          //
+          //  Une ligne de `rp_colonne` n'existe que si le joueur a
+          //  touché à la colonne. Lire l'absence comme « cachée »
+          //  viderait un carnet neuf de toutes ses colonnes — c'est la
+          //  raison du `default true` en base, et elle vaut ici aussi.
+          if (clef !== "" && c.montree === false) cachees.add(clef);
+        }
+      }
+      if (Array.isArray(pris.corps)) {
+        for (const p of pris.corps as Record<string, unknown>[]) {
+          const sujetId = Number(p.sujet_id);
+          const pseudo = String(p.pseudo ?? "").trim();
+          if (!Number.isInteger(sujetId) || pseudo === "") continue;
+          const deja = invites.get(sujetId) ?? [];
+          if (!deja.includes(pseudo)) invites.set(sujetId, [...deja, pseudo]);
         }
       }
       if (Array.isArray(avec.corps)) {
@@ -1059,6 +1513,12 @@ export function poserLesRp(r: ReglagesRp): boolean {
           description: String(c.description ?? ""),
         }));
       }
+      //  LE PANNEAU SE REPEINT APRÈS LA LECTURE, et il le faut : il est
+      //  posé avant, donc avec les mots du code et toutes les cases
+      //  cochées. Sans ce second passage, un joueur qui avait caché
+      //  trois colonnes les verrait cochées dans le panneau et absentes
+      //  du tableau.
+      peindreLesColonnes();
       peindre();
     })();
   };
