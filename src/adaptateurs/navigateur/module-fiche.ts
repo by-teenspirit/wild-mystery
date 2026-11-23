@@ -66,14 +66,30 @@
 //  Deux moments :
 //
 //   · À L'OUVERTURE. Message vide → fiche neuve. Message qui est une
-//     fiche → on la relit dans les champs. Message qui n'en est pas
-//     une → **on ne touche à rien**, et un bandeau propose de
-//     reprendre, ce qui demande un clic explicite.
+//     fiche → on la relit dans ses zones. Message qui n'en est pas
+//     une → **on ne se pose pas du tout**, et le joueur garde son
+//     bloc d'édition comme sur n'importe quelle autre page.
 //
 //   · AVANT CHAQUE ÉCRITURE. On relit ce qu'il y a dans l'éditeur. Si
 //     ce n'est plus exactement ce qu'on y avait mis, le joueur a écrit
-//     à la main entre-temps : on s'arrête et on le dit, plutôt que
-//     d'écraser.
+//     à la main entre-temps : on s'arrête, on le dit, et **on lui rend
+//     son bloc d'édition** plutôt que d'écraser.
+//
+//  ── IL N'Y A PLUS DE BOUTON, ET C'EST POURQUOI ──────────────────────
+//
+//  « Du coup tu peux enlever les deux boutons du haut, non ? » — 23
+//  novembre, après que la typo des invites a rendu la fiche lisible
+//  d'un coup d'œil.
+//
+//  Les deux portaient chacune une sortie : « écrire le message à la
+//  main » rendait le bloc d'édition, « remplacer le message par cette
+//  fiche » reprenait un message inconnu. Les retirer en l'état aurait
+//  laissé DEUX IMPASSES — un formulaire qui n'écrit pas et plus rien à
+//  cliquer, un bloc d'édition caché qu'on ne peut plus récupérer.
+//
+//  On a donc retiré les boutons ET les états qui les demandaient : on
+//  ne se pose plus sur un message inconnu, et l'arrêt rend le bloc de
+//  lui-même. Zéro bouton, zéro impasse.
 //
 //  COUVERT PAR : outils/poster.mjs
 //
@@ -371,9 +387,22 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   if (boite === null || doc.getElementById(ID) !== null) return false;
 
   //  ── CE QU'IL Y A DÉJÀ DANS L'ÉDITEUR ───────────────────────────
+  //
+  //  UN MESSAGE QU'ON NE RECONNAÎT PAS, ON NE S'Y POSE PAS. C'était
+  //  avant un bandeau et un bouton « remplacer le message par cette
+  //  fiche » ; les boutons sont partis le 23 novembre, et les garder
+  //  en silence aurait laissé une impasse : on remplissait trente
+  //  champs, rien ne s'écrivait, et il n'y avait plus rien à cliquer
+  //  pour demander.
+  //
+  //  Ne pas se poser du tout est plus honnête — le joueur garde son
+  //  bloc d'édition et son texte, exactement comme sur n'importe
+  //  quelle autre page du forum. Pour repartir d'une fiche neuve, il
+  //  vide son message : c'est explicite, et c'est réversible tant
+  //  qu'il n'a pas envoyé.
   const avant = brouillon.lire().trim();
-  const connu = avant === "" || ressembleAUneFiche(avant);
-  const lue: Fiche = connu && avant !== "" ? lireUneFiche(avant) : ficheVide();
+  if (avant !== "" && !ressembleAUneFiche(avant)) return false;
+  const lue: Fiche = avant === "" ? ficheVide() : lireUneFiche(avant);
 
   //  ── L'ÉTAT DE L'ÉCRAN N'EST PAS L'ÉTAT DU MESSAGE ──────────────
   //
@@ -415,7 +444,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  main. La chaîne vide veut dire « on n'a encore rien écrit », donc
   //  la première écriture passe toujours.
   let dernier = "";
-  let arrete = !connu;
+  let arrete = false;
 
   const cadre = el(doc, "div", "wmf-form");
   cadre.id = ID;
@@ -434,28 +463,12 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  est celle du message, et rien ne peut diverger.
   const laFiche = el(doc, "div", "wmf-form__fiche");
 
-  //  ── LE BLOC D'ÉDITION S'EFFACE, MAIS IL REVIENT SUR DEMANDE ─────
+  //  ── LE BLOC D'ÉDITION S'EFFACE ──────────────────────────────────
   //
   //  « Ça remplace tout. » Le `#postingbox` de Forumactif disparaît —
   //  le titre du sujet est repris plus haut, et le bouton d'envoi vit
   //  dans un AUTRE panneau, donc il survit.
-  //
-  //  LA PORTE DE SORTIE N'EST PAS UNE PRÉCAUTION DE PRINCIPE. Le jour
-  //  où un champ manque, où quelqu'un veut coller un bout de code à
-  //  lui, ou simplement relire le message tel qu'il part, un éditeur
-  //  qui a mangé le bloc d'édition et ne le rend pas est une impasse.
-  //  Elle rend le message visible ET rend la main : l'éditeur cesse
-  //  d'écrire, plutôt que d'écraser par-dessus.
   const boiteEditeur = boite as HTMLElement;
-  const voirLeTexte = bouton(doc, "Écrire le message à la main", () => {
-    boiteEditeur.hidden = false;
-    arrete = true;
-    cadre.dataset.wmArrete = "oui";
-    voirLeTexte.hidden = true;
-    reprendre.hidden = false;
-    dit.textContent = "Le message est en dessous, tel qu'il partira. " +
-      "L'éditeur a cessé d'écrire pour ne pas effacer tes retouches.";
-  }, "button2 wmf-form__brut");
 
   const ecrire = (): void => {
     if (arrete) return;
@@ -479,11 +492,15 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     //  et sera emporté à la prochaine écriture. Reste à mesurer sur le
     //  vrai éditeur si c'est un cas réel.
     if (dernier !== "" && !memeFiche(lireUneFiche(actuel), lireUneFiche(dernier))) {
+      //  ET ON REND LE BLOC D'ÉDITION, puisqu'il n'y a plus de bouton
+      //  pour le demander. S'arrêter en gardant le message caché
+      //  laisserait le joueur devant un formulaire qui n'écrit plus
+      //  et un texte qu'il ne peut plus voir.
       arrete = true;
       cadre.dataset.wmArrete = "oui";
+      boiteEditeur.hidden = false;
       dit.textContent = "Tu as modifié le message à la main : l'éditeur s'est " +
-        "arrêté pour ne pas l'effacer. Reprends-le quand tu veux.";
-      reprendre.hidden = false;
+        "arrêté pour ne pas l'effacer, et il te le rend tel qu'il est, en dessous.";
       return;
     }
     const html = publier(pourLeMessage(), { racine: d.racine });
@@ -491,30 +508,6 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     dernier = html;
     dit.textContent = "";
   };
-
-  //  ── REPRENDRE LA MAIN, ET SEULEMENT SUR UN CLIC ────────────────
-  //
-  //  Le seul chemin par lequel l'éditeur écrase un message qu'il n'a
-  //  pas écrit. Il est explicite, il est nommé, et il ne se déclenche
-  //  jamais tout seul.
-  const reprendre = bouton(doc, "Remplacer le message par cette fiche", () => {
-    arrete = false;
-    dernier = "";
-    delete cadre.dataset.wmArrete;
-    reprendre.hidden = true;
-    //  L'ÉDITEUR REPREND LA PLACE qu'il avait laissée : il écrit de
-    //  nouveau, donc laisser le bloc visible montrerait un texte qui
-    //  change tout seul sous les doigts.
-    boiteEditeur.hidden = true;
-    voirLeTexte.hidden = false;
-    ecrire();
-  }, "button2 wmf-form__reprendre");
-  reprendre.hidden = connu;
-
-  if (!connu) {
-    dit.textContent = "Ce message n'a pas été écrit avec cet éditeur. " +
-      "Le remplir ne le touchera pas tant que tu ne l'auras pas demandé.";
-  }
 
   //  ── LE TITRE DU SUJET VIENT ICI ────────────────────────────────
   //
@@ -967,7 +960,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   ddTitre.appendChild(titre);
   dlTitre.append(dtTitre, ddTitre);
   dedansTete.appendChild(dlTitre);
-  dedansTete.append(dit, reprendre, voirLeTexte);
+  dedansTete.appendChild(dit);
   tete.appendChild(dedansTete);
 
   cadre.append(tete, laFiche);
@@ -980,12 +973,9 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
 
   //  ── ET LE BLOC D'ÉDITION S'EFFACE ───────────────────────────────
   //
-  //  SEULEMENT SI LA FICHE EST À NOUS. Sur un message qu'on ne
-  //  reconnaît pas, le masquer priverait le joueur du seul endroit où
-  //  son texte existe encore — et l'éditeur, lui, n'écrit pas. Il
-  //  réapparaîtra quand il aura cliqué sur « remplacer ».
-  boiteEditeur.hidden = connu;
-  voirLeTexte.hidden = !connu;
+  //  ON NE L'ATTEINT QUE SUR UNE FICHE À NOUS : les autres messages
+  //  sont partis plus haut, avant que quoi que ce soit ne se pose.
+  boiteEditeur.hidden = true;
 
   //  ── LE DERNIER MOT AVANT L'ENVOI ────────────────────────────────
   //

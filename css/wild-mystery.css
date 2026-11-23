@@ -38567,10 +38567,15 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
     Ce qui suit n'ajoute donc que ce que l'écran a de plus que le
     message : des zones où écrire, et quatre commandes. */
 
+/*  LE FOND EST CELUI D'UN MESSAGE, et pas celui de la page. Un
+    message est peint `fond-surface` par `05-sujet` : l'éditeur qui
+    prétend montrer la fiche telle qu'elle sera doit donc la poser sur
+    la même surface. Sur le fond de page, les cartes et les panneaux
+    ne tombaient pas aux mêmes écarts qu'une fois publiés. */
 #modernbb .wmf-form__fiche {
   padding: var(--wm-espace-16, 16px);
   border-radius: var(--wm-rayon-lg, 10px);
-  background: var(--wm-fond-page, #eecfb5);
+  background: var(--wm-fond-surface, #fffbf7);
 }
 
 /*  LE TITRE DU SUJET, repris du bloc d'édition qu'on masque. */
@@ -38888,11 +38893,6 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   color: var(--wm-danger-interdite, #a64430);
 }
 
-/*  LES DEUX PORTES DE SORTIE, côte à côte sous le mot d'accueil. */
-#modernbb .wmf-form__brut,
-#modernbb .wmf-form__reprendre {
-  margin-top: var(--wm-espace-8, 8px);
-}
 
 /*  ── LA FICHE PUBLIÉE ──────────────────────────────────────────────
 

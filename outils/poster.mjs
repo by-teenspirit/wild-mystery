@@ -1367,46 +1367,32 @@ const OUTILS = () => {
   //  ── CE QU'IL NE FAUT SURTOUT PAS ÉCRASER ───────────────────────
   //
   //  Une fiche de la V1, ou n'importe quel message écrit à la main.
-  //  L'éditeur réécrit le message ENTIER : s'il le faisait ici, il
-  //  effacerait le travail de quelqu'un sans le lui demander.
+  //  L'éditeur réécrit le message ENTIER : s'il se posait ici, il
+  //  effacerait le travail de quelqu'un.
+  //
+  //  IL Y AVAIT UN BANDEAU ET UN BOUTON « REPRENDRE ». Les boutons
+  //  sont partis le 23 novembre, et les garder en silence aurait
+  //  laissé une impasse : trente champs remplis, rien d'écrit, et
+  //  plus rien à cliquer pour demander. On ne se pose donc plus du
+  //  tout — le joueur garde son bloc d'édition, comme partout
+  //  ailleurs sur le forum.
   const q = await monterLaFiche(
     '<center><div class="bk1"><div class="bkt2">Prénom P. Nom</div>son ancienne fiche</div></center>',
   );
-  await q.evaluate(OUTILS);
-  const vu = await q.evaluate(async () => {
-    const champ = document.querySelector("#text_editor_textarea");
-    const avant = champ.value;
-    globalThis.wmTaper("nom", "Quelqu'un");
-    await globalThis.wmPause(220);
-    return {
-      intact: champ.value === avant,
-      dit: document.querySelector(".wmf-form__dit").textContent,
-      boutonVisible: !document.querySelector(".wmf-form__reprendre").hidden,
-      //  ET LE BLOC D'ÉDITION RESTE VISIBLE : c'est le seul endroit où
-      //  son texte existe encore.
-      editeurVisible: document.getElementById("postingbox").hidden === false,
-    };
-  });
+  const vu = await q.evaluate(() => ({
+    pose: document.getElementById("wm-fiche") !== null,
+    editeurVisible: document.getElementById("postingbox").hidden === false,
+    message: document.querySelector("#text_editor_textarea").value,
+  }));
   dire(
-    "UNE FICHE DE LA V1 N'EST PAS ÉCRASÉE — on tape, le message ne bouge pas",
-    vu.intact === true && vu.editeurVisible === true,
-    JSON.stringify({ intact: vu.intact, editeur: vu.editeurVisible }),
+    "SUR UN MESSAGE QU'ON NE RECONNAÎT PAS, L'ÉDITEUR NE SE POSE PAS",
+    vu.pose === false && vu.editeurVisible === true,
+    JSON.stringify({ pose: vu.pose, editeur: vu.editeurVisible }),
   );
   dire(
-    "   et l'éditeur le dit, avec un bouton pour reprendre la main",
-    /n'a pas été écrit avec cet éditeur/.test(vu.dit ?? "") && vu.boutonVisible === true,
-    JSON.stringify(vu.dit?.slice(0, 60)),
-  );
-  //  LE SEUL CHEMIN QUI ÉCRASE EST UN CLIC EXPLICITE.
-  const apres = await q.evaluate(async () => {
-    document.querySelector(".wmf-form__reprendre").click();
-    await globalThis.wmPause(220);
-    return globalThis.wmMessage();
-  });
-  dire(
-    "   et il ne remplace QUE sur un clic nommé",
-    apres.includes("<wmf-nom>Quelqu'un</wmf-nom>") && !apres.includes("ancienne fiche"),
-    JSON.stringify(apres.slice(0, 80)),
+    "   et le message reste intact, à sa place",
+    vu.message.includes("son ancienne fiche"),
+    "",
   );
   await q.close();
 }
@@ -1531,7 +1517,6 @@ const OUTILS = () => {
     //  dans le bloc masqué.
     champTitre: !!document.getElementById("wmf-titre"),
     sujetNatif: !!document.querySelector('input[name="subject"]'),
-    sortie: !document.querySelector(".wmf-form__brut").hidden,
   }));
   dire(
     "LE BLOC D'ÉDITION EST MASQUÉ, ET L'ENVOI RESTE",
@@ -1560,38 +1545,54 @@ const OUTILS = () => {
     JSON.stringify(garde),
   );
 
-  //  ── LA PORTE DE SORTIE ──────────────────────────────────────────
-  const sortie = await q.evaluate(async () => {
-    document.querySelector(".wmf-form__brut").click();
-    await globalThis.wmPause(200);
-    const avant = globalThis.wmMessage();
-    globalThis.wmTaper("nom", "Ne doit rien écrire");
+  //  ── UNE RETOUCHE À LA MAIN ARRÊTE L'ÉDITEUR, ET REND LE BLOC ───
+  //
+  //  C'EST CE QUI REMPLACE LES DEUX BOUTONS. S'arrêter en gardant le
+  //  message caché laisserait le joueur devant un formulaire qui
+  //  n'écrit plus et un texte qu'il ne peut plus voir : l'arrêt rend
+  //  donc le bloc d'édition de lui-même.
+  const retouche = await q.evaluate(async () => {
+    globalThis.wmTaper("nom", "Jak");
+    await globalThis.wmPause(220);
+    //  quelqu'un écrit dans le message, par-dessus la fiche.
+    const champ = document.querySelector("#text_editor_textarea");
+    champ.value =
+      '<div class="wmf"><div class="wmf__titre"><wmf-nom>À la main</wmf-nom></div></div>';
+    globalThis.wmTaper("nom", "Jak A. Fering");
     await globalThis.wmPause(250);
     return {
-      editeurRevenu: document.getElementById("postingbox").hidden === false,
-      messageIntact: globalThis.wmMessage() === avant,
-      reprendreOffert: !document.querySelector(".wmf-form__reprendre").hidden,
+      arrete: document.getElementById("wm-fiche").dataset.wmArrete === "oui",
+      editeurRendu: document.getElementById("postingbox").hidden === false,
+      message: champ.value,
+      dit: document.querySelector(".wmf-form__dit").textContent,
     };
   });
   dire(
-    "« ÉCRIRE À LA MAIN » REND LE BLOC D'ÉDITION ET REND LA MAIN",
-    sortie.editeurRevenu === true && sortie.messageIntact === true &&
-      sortie.reprendreOffert === true,
-    JSON.stringify(sortie),
+    "UNE RETOUCHE À LA MAIN ARRÊTE L'ÉDITEUR ET REND LE BLOC",
+    retouche.arrete === true && retouche.editeurRendu === true,
+    JSON.stringify({ arrete: retouche.arrete, rendu: retouche.editeurRendu }),
   );
-  const retour = await q.evaluate(async () => {
-    document.querySelector(".wmf-form__reprendre").click();
-    await globalThis.wmPause(250);
+  dire(
+    "   la retouche n'est pas écrasée, et l'éditeur le dit",
+    retouche.message.includes("À la main") &&
+      /il te le rend tel qu'il est/.test(retouche.dit ?? ""),
+    JSON.stringify(retouche.dit?.slice(0, 70)),
+  );
+
+  //  ── ET PLUS AUCUN BOUTON DANS L'EN-TÊTE ────────────────────────
+  const sansBoutons = await q.evaluate(() => {
+    const tete = document.querySelector(".wmf-form__tete");
     return {
-      editeurRemasque: document.getElementById("postingbox").hidden,
-      message: globalThis.wmMessage(),
+      boutons: tete.querySelectorAll("button").length,
+      brut: document.querySelector(".wmf-form__brut") !== null,
+      reprendre: document.querySelector(".wmf-form__reprendre") !== null,
     };
   });
   dire(
-    "   et reprendre la fiche remasque le bloc d'édition",
-    retour.editeurRemasque === true &&
-      retour.message.includes("<wmf-nom>Ne doit rien écrire</wmf-nom>"),
-    JSON.stringify({ masque: retour.editeurRemasque }),
+    "   et l'en-tête ne porte plus aucun bouton",
+    sansBoutons.boutons === 0 && sansBoutons.brut === false &&
+      sansBoutons.reprendre === false,
+    JSON.stringify(sansBoutons),
   );
   await q.close();
 }
