@@ -601,6 +601,34 @@ export function ressembleAUneFiche(html: string): boolean {
   return /<wmf-nom>/i.test(html);
 }
 
+/** Ce message EST une fiche, et pas un message qui en contient une.
+ *
+ *  ── LA QUESTION QUE POSE UNE PAGE SANS NUMÉRO DE FORUM ─────────────
+ *
+ *  « Quand je fais prévisualiser, ou si je publie et que je modifie,
+ *  ça doit rester le formulaire. » — 23 novembre.
+ *
+ *  Ces deux pages ne disent pas dans quel forum on est : l'édition
+ *  s'ouvre sur `/post?p=…&mode=editpost`, sans `f=`, et la
+ *  prévisualisation re-poste le formulaire sur `/post` tout court. Le
+ *  seul indice qui reste est le message lui-même.
+ *
+ *  ── ET POURQUOI PAS `ressembleAUneFiche` ───────────────────────────
+ *
+ *  Parce qu'elle dirait oui à une fiche CITÉE. Quelqu'un qui répond à
+ *  une présentation en citant son auteur a `<wmf-nom>` dans son
+ *  message, dans un forum qui n'est pas celui des présentations : le
+ *  formulaire se poserait, lirait la fiche de l'autre, et la première
+ *  frappe remplacerait sa réponse par une fiche.
+ *
+ *  On exige donc que la fiche OUVRE le message. Une citation la fait
+ *  précéder de son propre balisage, et sceditor nous rend notre HTML
+ *  au caractère près — mesuré sur la vraie page le 23 novembre. */
+export function estUneFicheEntiere(html: string): boolean {
+  const propre = html.trim();
+  return propre.startsWith(`<div class="wmf">`) && ressembleAUneFiche(propre);
+}
+
 /** La fiche que porte ce message, ou la fiche vide.
  *
  *  Elle rend toujours une fiche : l'appelant demande d'abord

@@ -28,6 +28,7 @@ import { CoinOutils } from "../src/adaptateurs/navigateur/coin-outils.ts";
 import { masquerLesMarqueurs } from "../src/adaptateurs/navigateur/marqueurs.ts";
 import { BrouillonForumactif } from "../src/adaptateurs/navigateur/editeur.ts";
 import { lireLesStarters, poserLaFiche } from "../src/adaptateurs/navigateur/module-fiche.ts";
+import { estUneFicheEntiere } from "../src/navigateur/fiche.ts";
 import { BarreDActions } from "../src/adaptateurs/navigateur/barre-d-actions.ts";
 import { monCombat } from "../src/adaptateurs/navigateur/mon-combat.ts";
 import { combatDuSujet } from "../src/adaptateurs/navigateur/combat-du-sujet.ts";
@@ -528,11 +529,28 @@ const FORUM_DES_PRESENTATIONS = 7;
  */
 function poserLeFormulaireDeFiche(): void {
   if (RACINE === null) return;
-  if (forumDuPost(globalThis.location?.search ?? "", document) !== FORUM_DES_PRESENTATIONS) {
-    return;
-  }
   const brouillon = BrouillonForumactif.surLaPage(document);
   if (brouillon === null) return;
+  //  ── DEUX FAÇONS DE SAVOIR QU'ON EST SUR UNE FICHE ───────────────
+  //
+  //  PAR LE FORUM, quand la page le dit : c'est le cas à la création
+  //  d'un sujet, `/post?f=7&mode=newtopic`.
+  //
+  //  PAR LE MESSAGE, quand elle ne le dit pas — et elle ne le dit pas
+  //  sur les deux pages qui comptent le plus. « Quand je fais
+  //  prévisualiser, ou si je publie et que je modifie, ça doit rester
+  //  le formulaire » : l'édition s'ouvre sur `?p=…&mode=editpost`,
+  //  sans `f=`, et la prévisualisation re-poste sur `/post` tout
+  //  court. Le fil d'Ariane ne sauve pas toujours la mise, puisqu'il
+  //  n'y en a pas sur `/post`.
+  //
+  //  `estUneFicheEntiere` EXIGE QUE LA FICHE OUVRE LE MESSAGE, et pas
+  //  seulement qu'elle y figure : sinon une réponse qui CITE une
+  //  présentation se ferait remplacer par une fiche à la première
+  //  frappe.
+  const surLeForum =
+    forumDuPost(globalThis.location?.search ?? "", document) === FORUM_DES_PRESENTATIONS;
+  if (!surLeForum && !estUneFicheEntiere(brouillon.lire())) return;
   poserLaFiche({
     doc: document,
     brouillon,

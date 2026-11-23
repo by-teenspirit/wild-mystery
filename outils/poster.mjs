@@ -537,7 +537,7 @@ const ARIANE_PRESENTATIONS =
   '<div class="sub-header-path"><a href="/">Index</a> <a href="/c1-categorie">Le forum</a> ' +
   '<a href="/f7-presentations">Présentations</a></div>';
 
-const pageAvecScript = (corps, message = "") =>
+const pageAvecScript = (corps, message = "", ariane = ARIANE_PRESENTATIONS) =>
   `<!doctype html><html lang="fr"><head><meta charset="utf-8">
 <style>${BASE_MODERNBB}</style>
 <style>${readFileSync(R + "panneau-admin/jetons.css", "utf8")}</style>
@@ -545,13 +545,22 @@ const pageAvecScript = (corps, message = "") =>
 <style>html,body{margin:0}body{background:var(--wm-fond-page)}</style>
 </head><body id="modernbb">
 <div class="conteneur_minwidth_IE modern-resp">
-<div id="wrap">${ARIANE_PRESENTATIONS}<div id="page-body">${
+<div id="wrap">${ariane}<div id="page-body">${
     corps.replace("Le corps du message.", message)
   }</div></div>
 </div>
 </body></html>`;
 
-async function monterLaFiche(message = "", { sujetVide = false } = {}) {
+//  ── LE DÉCOR DES PAGES QUI NE DISENT PAS LE FORUM ──────────────────
+//
+//  `sansForum` retire le fil d'Ariane ET le `?f=` : c'est exactement
+//  ce que servent l'édition d'un message (`/post?p=…&mode=editpost`)
+//  et la prévisualisation (qui re-poste sur `/post` tout court).
+//
+//  SANS CETTE OPTION, LE BANC NE POUVAIT PAS VOIR LE DÉFAUT : son
+//  décor a toujours porté le fil d'Ariane des Présentations, donc le
+//  module trouvait le forum même là où la vraie page ne le donne pas.
+async function monterLaFiche(message = "", { sujetVide = false, sansForum = false } = {}) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1200 } });
   q.on("pageerror", (e) => {
     soucis.push("erreur JS (fiche) : " + e.message);
@@ -579,7 +588,7 @@ async function monterLaFiche(message = "", { sujetVide = false } = {}) {
     if (u.pathname !== "/post") return route.fulfill({ status: 404, body: "" });
     return route.fulfill({
       contentType: "text/html; charset=utf-8",
-      body: pageAvecScript(pageDePost(), message),
+      body: pageAvecScript(pageDePost(), message, sansForum ? "" : ARIANE_PRESENTATIONS),
     });
   });
   await q.goto("https://exemple.test/post");
@@ -1625,6 +1634,72 @@ const OUTILS = () => {
     JSON.stringify(titres.apres),
   );
   await q.close();
+}
+
+{
+  //  ── PRÉVISUALISER, PUIS MODIFIER : ÇA RESTE LE FORMULAIRE ──────
+  //
+  //  « Quand je fais prévisualiser, ou si je publie et que je
+  //  modifie, ça doit rester le formulaire. » — 23 novembre.
+  //
+  //  Ces deux pages ne disent pas dans quel forum on est : l'édition
+  //  s'ouvre sur `/post?p=…&mode=editpost`, la prévisualisation
+  //  re-poste sur `/post`, et il n'y a de fil d'Ariane ni sur l'une
+  //  ni sur l'autre. Le décor le reproduit avec `sansForum`.
+  const { ficheVide, publier } = await import("../src/navigateur/fiche.ts");
+  const deja = publier({
+    ...ficheVide(),
+    nom: "Erin Kavanagh",
+    identite: { ...ficheVide().identite, metier: "Infirmière" },
+    joueur: { ...ficheVide().joueur, "j-pseudo": "Callista" },
+  });
+
+  const q = await monterLaFiche(deja, { sansForum: true });
+  await q.evaluate(OUTILS);
+  const vu = await q.evaluate(() => ({
+    pose: document.getElementById("wm-fiche") !== null,
+    editeurMasque: document.getElementById("postingbox").hidden,
+    nom: globalThis.wmTexte("nom"),
+    metier: globalThis.wmTexte("metier"),
+    //  ET SANS AVERTISSEMENT : c'est bien SA fiche, pas un message
+    //  qu'on ne reconnaît pas.
+    dit: document.querySelector(".wmf-form__dit")?.textContent ?? null,
+  }));
+  dire(
+    "SANS NUMÉRO DE FORUM, UNE FICHE RESTE UNE FICHE",
+    vu.pose === true && vu.editeurMasque === true,
+    JSON.stringify({ pose: vu.pose, masque: vu.editeurMasque }),
+  );
+  dire(
+    "   et elle revient remplie, sans avertissement",
+    vu.nom === "Erin Kavanagh" && vu.metier === "Infirmière" && vu.dit === "",
+    JSON.stringify({ nom: vu.nom, dit: vu.dit }),
+  );
+  await q.close();
+
+  //  ── MAIS UNE FICHE CITÉE N'EN EST PAS UNE ──────────────────────
+  //
+  //  LE CAS QU'IL NE FAUT SURTOUT PAS ATTRAPER. Quelqu'un répond à une
+  //  présentation en citant son auteur : son message porte nos
+  //  balises, dans un forum qui n'est pas celui des présentations. Si
+  //  le formulaire se posait, la première frappe remplacerait sa
+  //  réponse par une fiche.
+  const r = await monterLaFiche(
+    `<blockquote><div>Erin a écrit :</div>${deja}</blockquote><br />Bienvenue à toi !`,
+    { sansForum: true },
+  );
+  const cite = await r.evaluate(() => ({
+    pose: document.getElementById("wm-fiche") !== null,
+    editeurVisible: document.getElementById("postingbox").hidden === false,
+    message: document.querySelector("#text_editor_textarea").value,
+  }));
+  dire(
+    "UNE FICHE CITÉE NE DÉCLENCHE PAS LE FORMULAIRE",
+    cite.pose === false && cite.editeurVisible === true &&
+      cite.message.includes("Bienvenue à toi"),
+    JSON.stringify({ pose: cite.pose, editeur: cite.editeurVisible }),
+  );
+  await r.close();
 }
 
 await nav.close();
