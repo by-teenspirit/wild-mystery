@@ -745,18 +745,39 @@ function brancherLesModeles(r: Reglages, p: Pieces): void {
       return;
     }
     void (async () => {
+      //  ── `on_conflict` EST OBLIGATOIRE, ET C'EST CE QUI MANQUAIT ────
+      //
       //  `merge-duplicates` SUR (joueur_id, nom) : garder deux fois sous
       //  le même nom REMPLACE, et c'est ce qu'on attend d'un modèle
-      //  qu'on retouche. Sans ça, l'index unique refuserait et le
-      //  message serait « ça n'a pas pu être gardé » sur un geste qui
-      //  avait du sens.
-      const reponse = await rest("rp_modele", {
+      //  qu'on retouche.
+      //
+      //  MAIS `?on_conflict=joueur_id,nom` DOIT ÊTRE ÉCRIT. Sans lui,
+      //  PostgREST résout sur la clé PRIMAIRE — `id`, un
+      //  `gen_random_uuid()` qui ne collisionne jamais — donc l'upsert se
+      //  comporte comme un insert et la seconde sauvegarde lève sur
+      //  l'unicité. Et la 0068 a dû remplacer les deux index PARTIELS de
+      //  la 0067 par une vraie contrainte : un index partiel ne sert pas
+      //  à un `ON CONFLICT`, et PostgreSQL refusait net.
+      //
+      //  **LES DEUX DÉFAUTS ENSEMBLE ONT RENDU CE BOUTON INOPÉRANT**, et
+      //  le message « ça n'a pas pu être gardé » était tout ce que le
+      //  joueur en voyait.
+      const reponse = await rest("rp_modele?on_conflict=joueur_id,nom", {
         method: "POST",
         headers: { Prefer: "resolution=merge-duplicates,return=representation" },
         body: JSON.stringify({ joueur_id: r.joueurId, nom: titre, corps }),
       });
       if (reponse === null || !reponse.ok) {
-        dit.textContent = "Ce modèle n'a pas pu être gardé.";
+        //  CE QUE LA BASE A DIT, ET PAS SEULEMENT « ça n'a pas marché » :
+        //  une table absente (migration pas encore montée) et un texte
+        //  refusé ne se réparent pas du même geste, et sans le motif le
+        //  joueur ne peut rien faire de l'erreur.
+        const motif = await reponse?.json().then(
+          (e) => (typeof e?.message === "string" ? e.message : null),
+        ).catch(() => null) ?? null;
+        dit.textContent = motif === null
+          ? "Ce modèle n'a pas pu être gardé."
+          : `Ce modèle n'a pas pu être gardé : ${motif}`;
         return;
       }
       const rendus = lireLesModeles(await reponse.json().catch(() => null));

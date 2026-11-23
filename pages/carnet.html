@@ -820,33 +820,42 @@
           <div class="wm-carnet__bloc-tete wm-rp__tete">
             <h2 class="wm-carnet__bloc-titre">Mes RP</h2>
             <div class="wm-rp__reglages">
-              <!--  ── TROIS CONTRÔLES QUI SE RESSEMBLAIENT TROP ───────
+              <!--  ── TROIS CONTRÔLES QUI SE RESSEMBLAIENT TROP, PUIS
+                        DEUX ────────────────────────────────────────────
 
                     « Il me faut une vraie différence visuelle entre les
                     onglets tableau & liste (ajoute une icône d'ailleurs).
                     "Montrer les clôturés" : fais un switch. Et les
-                    filtres dans la liste. » — 23 novembre.
+                    filtres dans la liste. » — 23 novembre. Puis, une
+                    heure plus tard : « si on peut choisir quelles
+                    colonnes afficher, tu n'es plus obligé de mettre
+                    celui qui est tout à droite. »
 
-                    ELLE A RAISON, ET LE DÉFAUT N'ÉTAIT PAS LA COULEUR :
-                    les trois groupes portaient la MÊME classe
+                    LE PREMIER DÉFAUT N'ÉTAIT PAS LA COULEUR : les trois
+                    groupes portaient la MÊME classe
                     `.wm-boites__onglet`, donc la même pastille, le même
                     remplissage à l'état coché. Sur une seule rangée, on
-                    ne pouvait pas savoir lequel commandait quoi — «
-                    Liste » et « Clôturés » étaient deux pastilles
+                    ne pouvait pas savoir lequel commandait quoi —
+                    « Liste » et « Clôturés » étaient deux pastilles
                     identiques qui ne font pas du tout la même chose.
 
-                    TROIS QUESTIONS, TROIS FORMES :
+                    LE SECOND, C'EST QU'IL Y AVAIT UN CONTRÔLE DE TROP.
+                    J'avais défendu l'interrupteur des clôturés à côté du
+                    panneau : « deux gestes pour deux besoins ». Faux dès
+                    que le panneau existe — les clôturés sont une colonne
+                    comme les cinq autres, et deux chemins vers le même
+                    état finissent toujours par se contredire.
+
+                    DEUX QUESTIONS, DEUX FORMES :
 
                       · COMMENT montrer → un sélecteur segmenté : une
                         piste unique, le segment actif en relief. On voit
                         qu'il y a deux états d'une même chose ;
-                      · MONTRER LES CLÔTURÉS OU PAS → un interrupteur.
-                        C'est oui/non, et un interrupteur est la seule
-                        forme qui le dit sans lire le mot ;
-                      · QUELS RP montrer → les pastilles, descendues
-                        AVEC la liste. Elles ne servent que là, et dans
-                        la rangée du titre elles parlaient d'un contenu
-                        qui n'était pas en face.  -->
+                      · QUELLES COLONNES, et QUELS RP → un panneau de
+                        cases pour les six colonnes, et les pastilles de
+                        filtre descendues AVEC la liste. Dans la rangée
+                        du titre, elles parlaient d'un contenu qui
+                        n'était pas en face.  -->
               <div class="wm-rp__vues" role="group" aria-label="Comment montrer">
                 <!--  L'ICÔNE DIT LA FORME, PAS LE MOT : trois colonnes
                       pour le tableau, trois rangées pour la liste. C'est
@@ -868,34 +877,21 @@
                   <span class="wm-rp__vue-mot">Liste</span>
                 </button>
               </div>
-              <!--  ── L'INTERRUPTEUR, ET SON MOT QUI NE BOUGE PLUS ────
-
-                    « On doit pouvoir cacher la colonne des rps
-                    clôturés », 20 novembre. C'est une colonne qui ne
-                    demande rien et qui grossit sans fin.
-
-                    LE LIBELLÉ ÉTAIT LE PROBLÈME, EN PLUS DE LA FORME :
-                    il passait de « Montrer les clôturés » à « Clôturés
-                    cachés », donc d'une PROMESSE à un ÉTAT, et on ne
-                    savait plus si le bouton disait ce qu'il est ou ce
-                    qu'il ferait. Un interrupteur n'a pas ce problème :
-                    le mot nomme la chose, et `aria-checked` porte
-                    l'état — pour l'œil comme pour un lecteur d'écran.  -->
               <!--  ── CHOISIR SES COLONNES ──────────────────────────
 
                     « La personne peut afficher les colonnes qu'elle
-                    souhaite. » — 23 novembre.
+                    souhaite. » Et, une heure après : « si on peut
+                    choisir quelles colonnes afficher, tu n'es plus
+                    obligé de mettre celui qui est tout à droite. »
 
-                    DEUX GESTES POUR DEUX BESOINS, et c'est pour ça
-                    que les clôturés gardent leur interrupteur à côté :
-                    on le bascule souvent, celui-ci se règle une fois.
-                    Mettre les six dans le panneau aurait enterré le
-                    geste quotidien avec les réglages.
+                    LES SIX SONT ICI, CLÔTURÉS COMPRIS. Ils avaient leur
+                    interrupteur à part, et c'était un contrôle de trop
+                    dès que ce panneau a existé — deux chemins vers le
+                    même état finissent toujours par se contredire.
 
                     LE PANNEAU EST UN `<details>` : il s'ouvre et se
-                    ferme sans une ligne de JavaScript, il se navigue
-                    au clavier tout seul, et Échap n'a rien à y
-                    faire.  -->
+                    ferme sans une ligne de JavaScript, il se navigue au
+                    clavier tout seul, et Échap n'a rien à y faire.  -->
               <details class="wm-rp__colonnes">
                 <summary class="wm-rp__colonnes-bouton">
                   <svg class="wm-rp__vue-icone" viewBox="0 0 20 20" aria-hidden="true"
@@ -907,11 +903,6 @@
                 </summary>
                 <div class="wm-rp__colonnes-liste" data-wm-rp-colonnes></div>
               </details>
-              <button type="button" class="wm-rp__bascule" role="switch"
-                      aria-checked="true" data-wm-rp-clotures>
-                <span class="wm-rp__bascule-piste" aria-hidden="true"></span>
-                <span class="wm-rp__bascule-mot">Clôturés</span>
-              </button>
             </div>
           </div>
           <p class="wm-carnet__bloc-dit" data-wm-rp-compte></p>

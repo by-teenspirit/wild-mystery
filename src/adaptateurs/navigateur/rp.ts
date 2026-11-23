@@ -244,7 +244,6 @@ export function poserLesRp(r: ReglagesRp): boolean {
   let lignes: LigneDeRp[] = [];
   let filtre = "tous";
   let vue = "tableau";
-  let clotures = true;
 
   /** Poser un état, d'où qu'il vienne — du menu ou d'un dépôt.
    *
@@ -722,18 +721,12 @@ export function poserLesRp(r: ReglagesRp): boolean {
   const peindreLeTableau = (lesRp: readonly LigneDeRp[]): void => {
     tableau.textContent = "";
     for (const colonne of ETATS) {
-      //  LA COLONNE DES CLÔTURÉS SE REPLIE PAR SON INTERRUPTEUR, qui
-      //  est à part des autres : c'est la seule qui ne demande rien et
-      //  qui grossit sans fin, et elle a son propre geste depuis le
-      //  20 novembre.
-      if (colonne.clef === "cloture" && !clotures) continue;
-      //  ── ET LES AUTRES SE CACHENT UNE PAR UNE ──────────────────────
+      //  ── CHACUNE SE CACHE, Y COMPRIS LES CLÔTURÉS ─────────────────
       //
-      //  « La personne peut afficher les colonnes qu'elle souhaite. »
-      //  — 23 novembre. Deux gestes pour deux besoins : l'interrupteur
-      //  des clôturés est à portée parce qu'on le bascule souvent ;
-      //  celui-ci est rangé dans un panneau parce qu'on le règle une
-      //  fois.
+      //  « La personne peut afficher les colonnes qu'elle souhaite. » Un
+      //  seul chemin pour les six : les clôturés avaient leur
+      //  interrupteur à part, et c'était un contrôle de trop dès que le
+      //  panneau a existé — voir plus bas.
       if (cachees.has(colonne.clef)) continue;
       const dedans = rangerLesRp(lesRp.filter((l) => l.etat === colonne.clef));
       const bloc = doc.createElement("div");
@@ -1259,10 +1252,28 @@ export function poserLesRp(r: ReglagesRp): boolean {
     }
   }
 
+  //  ── UN AJOUT À LA FOIS, ET IL LE DIT ──────────────────────────────
+  //
+  //  « Je peux plus ajouter de cartes. » — 23 novembre.
+  //
+  //  CE QUI S'EST PASSÉ : depuis que le titre se cherche tout seul, le
+  //  clic attend une PAGE DE FORUMACTIF avant d'écrire quoi que ce soit
+  //  — une à trois secondes. Et pendant ce temps, l'écran ne disait
+  //  rien. On clique, rien ne bouge, on reclique : le second clic part
+  //  avant que `lignes` ait appris la carte, la base refuse la clé en
+  //  double, et le seul mot qu'on lit est « cette carte n'a pas pu être
+  //  ajoutée ».
+  //
+  //  **UN BOUTON MUET PENDANT TROIS SECONDES EST UN BOUTON CASSÉ**, même
+  //  quand le code derrière est juste. Deux choses, donc : il se grise
+  //  le temps du vol, et il dit ce qu'il attend.
+  let enVol = false;
   doc.querySelector("[data-wm-rp-ajouter]")?.addEventListener("click", () => {
     const adresse = doc.querySelector<HTMLInputElement>("[data-wm-rp-neuf-adresse]");
     const titre = doc.querySelector<HTMLInputElement>("[data-wm-rp-neuf-titre]");
+    const bouton = doc.querySelector<HTMLButtonElement>("[data-wm-rp-ajouter]");
     if (adresse === null || titre === null) return;
+    if (enVol) return;
     const sujetId = sujetDeLAdresse(adresse.value);
     if (sujetId === null) {
       //  SANS SUJET, PAS DE CARTE : la clé est (joueur, sujet), et un
@@ -1291,6 +1302,10 @@ export function poserLesRp(r: ReglagesRp): boolean {
       //  avec « Sujet 996 », et la relève écrira le vrai titre au
       //  prochain passage.
       const tape = titre.value.trim().slice(0, 160);
+      enVol = true;
+      if (bouton !== null) bouton.disabled = true;
+      //  LE MOT PART AVANT L'ATTENTE, pas après : c'est tout l'objet.
+      if (tape === "") dit.textContent = "Je cherche le titre du sujet…";
       const trouve = tape === "" ? await titreDuSujet(sujetId) : null;
       const neuf: LigneDeRp = {
         sujetId,
@@ -1316,6 +1331,11 @@ export function poserLesRp(r: ReglagesRp): boolean {
           etat: "prevu",
         }),
       });
+      //  LE BOUTON SE REND AVANT TOUT RETOUR, réussite ou échec : laissé
+      //  grisé sur un refus, il transformerait une carte ratée en page
+      //  bloquée, et c'est pire que le défaut qu'on répare.
+      enVol = false;
+      if (bouton !== null) bouton.disabled = false;
       if (!fait.ok) {
         dit.textContent = "Cette carte n'a pas pu être ajoutée.";
         return;
@@ -1398,51 +1418,27 @@ export function poserLesRp(r: ReglagesRp): boolean {
   };
   peindreLesColonnes();
 
-  //  ── LE BOUTON DES CLÔTURÉS ──────────────────────────────────────
+  //  ── L'INTERRUPTEUR DES CLÔTURÉS S'EN EST ALLÉ ───────────────────
   //
-  //  Il garde son choix d'une visite à l'autre : quelqu'un qui a replié
-  //  cette colonne ne veut pas la rouvrir à chaque fois. Le stockage
-  //  local peut jeter, refuser ou ne pas exister — en privé, en
-  //  préversion — donc chaque accès est gardé et la valeur par défaut
-  //  est « montrés ».
-  const CLEF = "wm-rp-clotures";
-  const bouton = doc.querySelector<HTMLButtonElement>("[data-wm-rp-clotures]");
-  if (bouton !== null) {
-    try {
-      clotures = globalThis.localStorage?.getItem(CLEF) !== "non";
-    } catch { /* rien : on reste sur « montrés » */ }
-    //  ── UN INTERRUPTEUR, DEPUIS LE 23 NOVEMBRE ────────────────────
-    //
-    //  « "Montrer les clôturés" : fais un switch. »
-    //
-    //  DEUX CHOSES CHANGENT ICI, ET LA SECONDE EST LA PLUS UTILE :
-    //
-    //  · `aria-checked` remplace `aria-pressed`. Un `role="switch"` se
-    //    lit par `aria-checked`, et un lecteur d'écran annonce alors
-    //    « activé / désactivé » au lieu de « enfoncé » — ce qui est
-    //    exactement ce que la chose fait ;
-    //  · ON NE RÉÉCRIT PLUS LE TEXTE. Il passait de « Montrer les
-    //    clôturés » à « Clôturés cachés », donc d'une PROMESSE à un
-    //    ÉTAT : le même contrôle disait une fois ce qu'il ferait et une
-    //    fois ce qu'il était. Le mot nomme la chose et ne bouge plus ;
-    //    l'état vit dans l'attribut, et dans l'interrupteur qu'on voit.
-    //
-    //  ET LE TEXTE N'EST PLUS ÉCRASÉ : `textContent` effaçait les
-    //  enfants, ce qui aurait emporté la piste de l'interrupteur à la
-    //  première bascule.
-    const direLeBouton = (): void => {
-      bouton.setAttribute("aria-checked", clotures ? "true" : "false");
-    };
-    direLeBouton();
-    bouton.addEventListener("click", () => {
-      clotures = !clotures;
-      try {
-        globalThis.localStorage?.setItem(CLEF, clotures ? "oui" : "non");
-      } catch { /* rien : le choix ne survivra pas, la page marche */ }
-      direLeBouton();
-      peindre();
-    });
-  }
+  //  « Dans ce cas, si on peut choisir quelles colonnes afficher, tu
+  //  n'es plus obligé de mettre celui qui est tout à droite. » —
+  //  23 novembre, après le panneau des colonnes.
+  //
+  //  ELLE A RAISON, ET C'EST MOI QUI AVAIS DÉFENDU LE CONTRAIRE une
+  //  heure plus tôt : « deux gestes pour deux besoins », disais-je, l'un
+  //  à portée parce qu'on le bascule souvent, l'autre rangé parce qu'on
+  //  le règle une fois. L'argument tenait tant que le panneau n'existait
+  //  pas. Dès qu'il existe, c'est DEUX CONTRÔLES POUR UNE SEULE CHOSE —
+  //  et deux chemins vers le même état finissent toujours par se
+  //  contredire : l'interrupteur gardait son choix dans `localStorage`,
+  //  le panneau l'écrit en base. Un joueur qui cachait les clôturés d'un
+  //  côté et les montrait de l'autre aurait eu raison de ne plus savoir
+  //  lequel croire.
+  //
+  //  LES CLÔTURÉS N'ONT DONC PLUS RIEN DE PARTICULIER : ils sont la
+  //  sixième ligne du panneau, comme les cinq autres. Le choix suit le
+  //  joueur d'un appareil à l'autre, ce que `localStorage` ne faisait
+  //  pas, et la page a un contrôle de moins.
 
   let charge = false;
   const charger = (): void => {

@@ -311,12 +311,20 @@ async function monter(
     leRegistre = [],
     lesObjets = [],
     etatDeLaFiche = null,
+    //  LES MODÈLES DÉJÀ EN BASE : ceux du forum (`joueur_id` nul) et
+    //  ceux du joueur, comme la 0067 les range.
+    lesModeles = [],
+    //  LA PAGE DU SUJET MET CE TEMPS À VENIR, et `titreMuet` est le cas
+    //  où elle ne vient pas du tout (sujet supprimé, forum en panne).
+    sujetLent = 0,
+    titreMuet = false,
   } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: 1440, height: 1000 } });
   const appels = [];
   let liaisonJouee = false;
   let brouillonsVus = brouillons.map((b) => ({ ...b }));
+  let modelesVus = lesModeles.map((m) => ({ ...m }));
   const demandes = [];
   const jetonsVus = [];
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
@@ -641,6 +649,53 @@ async function monter(
       });
     }
 
+    //  ── LES MODÈLES DE RP, ET LA RÉSOLUTION QU'ON EXIGE ──────────────
+    //
+    //  Le décor garde les lignes ET IL EXIGE `on_conflict` : sans ce
+    //  paramètre, PostgREST résout sur la clé primaire et l'upsert se
+    //  comporte comme un insert. C'est le défaut du 23 novembre — « je
+    //  n'arrive pas à sauvegarder les modèles » — et un décor qui
+    //  l'accepterait quand même le laisserait revenir.
+    if (u.pathname.endsWith("/rest/v1/rp_modele")) {
+      const methode = route.request().method();
+      if (methode === "POST") {
+        const corps = JSON.parse(route.request().postData() ?? "{}");
+        const sur = u.searchParams.get("on_conflict");
+        appels.push({ ou: "modele-garde", corps, sur });
+        //  CE QUE LA VRAIE BASE RÉPOND quand la résolution n'est pas
+        //  nommée : la seconde sauvegarde lève sur l'unicité.
+        if (sur !== "joueur_id,nom") {
+          return route.fulfill({
+            status: 409,
+            contentType: "application/json",
+            body: JSON.stringify({
+              message: 'duplicate key value violates unique constraint "rp_modele_un_nom"',
+            }),
+          });
+        }
+        modelesVus = [
+          ...modelesVus.filter((m) => m.joueur_id === null || m.nom !== corps.nom),
+          { id: `mod-${corps.nom}`, ...corps },
+        ];
+        return route.fulfill({
+          status: 201,
+          contentType: "application/json",
+          body: JSON.stringify([{ id: `mod-${corps.nom}`, ...corps }]),
+        });
+      }
+      if (methode === "DELETE") {
+        const id = (u.searchParams.get("id") ?? "").replace("eq.", "");
+        appels.push({ ou: "modele-ote", id });
+        modelesVus = modelesVus.filter((m) => m.id !== id);
+        return route.fulfill({ status: 204, body: "" });
+      }
+      appels.push({ ou: "modeles" });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify(modelesVus),
+      });
+    }
+
     if (u.pathname.endsWith("/rest/v1/rpc/carnet_de_la_session")) {
       const jeton = (entetes.authorization ?? "").replace("Bearer ", "");
       jetonsVus.push(jeton);
@@ -712,6 +767,29 @@ async function monter(
         contentType: "text/html; charset=utf-8",
         body: readFileSync(R + "pages/carnet.html", "utf8"),
       });
+    }
+
+    //  ── LA PAGE D'UN SUJET, POUR EN LIRE LE TITRE ────────────────────
+    //
+    //  `/t1450-` : c'est ce que la page va chercher quand on ajoute une
+    //  carte sans taper de titre. ET ELLE PEUT ÊTRE LENTE — une page de
+    //  Forumactif entière, une à trois secondes. `sujetLent` sert à
+    //  mesurer ce que l'écran dit PENDANT ce temps-là, qui est tout le
+    //  défaut du 23 novembre.
+    const sujet = /^\/t(\d+)-/.exec(u.pathname);
+    if (sujet !== null) {
+      demandes.push(u.pathname);
+      const rendre = () =>
+        titreMuet ? route.fulfill({ status: 404, body: "" }) : route.fulfill({
+          contentType: "text/html; charset=utf-8",
+          //  L'ENTITÉ EST DANS LE DÉCOR EXPRÈS : Forumactif écrit
+          //  « L&#039;auberge », et l'afficher brut serait pire que
+          //  rien.
+          body:
+            `<html><head><title>L&#039;auberge du pont — Wild Mystery</title></head><body></body></html>`,
+        });
+      if (sujetLent > 0) return setTimeout(rendre, sujetLent);
+      return rendre();
     }
 
     return route.fulfill({ status: 404, body: "" });
@@ -3799,15 +3877,24 @@ const INVITES = [
 }
 
 {
-  //  ── LA COLONNE DES CLÔTURÉS SE REPLIE ───────────────────────────
-  const { q } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
+  //  ── LA COLONNE DES CLÔTURÉS SE REPLIE, PAR LE PANNEAU ───────────
+  //
+  //  « Si on peut choisir quelles colonnes afficher, tu n'es plus obligé
+  //  de mettre celui qui est tout à droite. » — 23 novembre.
+  //
+  //  CE BLOC MESURAIT UN INTERRUPTEUR qui n'existe plus. Les clôturés
+  //  sont la sixième ligne du panneau, comme les cinq autres : ce qu'il
+  //  reste à tenir, c'est que le repli marche ET qu'il ne replie qu'eux.
+  const { q, appels } = await monter({ lesRp: RP, lesCompagnons: COMPAGNONS });
   await q.click('[data-wm-carnet-onglet="mes-rp"]');
   await q.waitForTimeout(400);
   const compter = () =>
     q.evaluate(() => document.querySelectorAll("[data-wm-rp-colonne]").length);
   const avant = await compter();
-  await q.click("[data-wm-rp-clotures]");
-  await q.waitForTimeout(200);
+  await q.evaluate(() =>
+    document.querySelector('[data-wm-rp-colonne-montree="cloture"]').click()
+  );
+  await q.waitForTimeout(250);
   const apres = await compter();
   const reste = await q.evaluate(() =>
     document.querySelector('[data-wm-rp-colonne="cloture"]') === null &&
@@ -3818,37 +3905,32 @@ const INVITES = [
     avant === 6 && apres === 5 && reste === true,
     JSON.stringify({ avant, apres, reste }),
   );
-  //  ── C'EST UN INTERRUPTEUR, PAS UNE PASTILLE ─────────────────────
+  //  ── ET LE CHOIX S'ÉCRIT EN BASE, PLUS DANS `localStorage` ───────
   //
-  //  « "Montrer les clôturés" : fais un switch. » — 23 novembre.
-  //
-  //  LE MOT NE BOUGE PLUS, et c'est la moitié du changement : il
-  //  passait de « Montrer les clôturés » à « Clôturés cachés », donc
-  //  d'une promesse à un état. L'état vit dans `aria-checked`, que
-  //  `role="switch"` fait annoncer « activé / désactivé ».
-  const ditLeBouton = await q.evaluate(() => {
-    const b = document.querySelector("[data-wm-rp-clotures]");
-    const piste = b?.querySelector(".wm-rp__bascule-piste");
-    return {
-      role: b?.getAttribute("role"),
-      coche: b?.getAttribute("aria-checked"),
-      mot: b?.querySelector(".wm-rp__bascule-mot")?.textContent?.trim() ?? "",
-      //  LA PISTE A SURVÉCU À LA BASCULE : `textContent` l'effaçait.
-      piste: piste === null || piste === undefined
-        ? null
-        : Math.round(piste.getBoundingClientRect().width),
-    };
-  });
+  //  C'est le gain du retrait, en plus d'un contrôle de moins : le choix
+  //  suit le joueur d'un appareil à l'autre. L'interrupteur gardait le
+  //  sien en local, et un joueur qui cachait les clôturés sur son
+  //  téléphone les retrouvait sur son ordinateur.
+  const ecrit = appels.filter((a) => a.ou === "POST-nom").at(-1);
   dire(
-    "L'ÉTAT EST DANS `aria-checked`, ET LE MOT NE CHANGE PAS",
-    ditLeBouton.role === "switch" && ditLeBouton.coche === "false" &&
-      ditLeBouton.mot === "Clôturés",
-    JSON.stringify(ditLeBouton),
+    "ET LE CHOIX S'ÉCRIT EN BASE, pour qu'il suive le joueur d'un appareil à l'autre",
+    ecrit !== undefined && ecrit.corps.etat === "cloture" &&
+      ecrit.corps.montree === false,
+    JSON.stringify(ecrit),
   );
+  //  ── IL N'Y A PLUS D'INTERRUPTEUR DU TOUT ───────────────────────
+  //
+  //  La mesure la plus utile de ce bloc : un contrôle retiré du markup
+  //  mais oublié dans le CSS ou dans le script laisse un bouton mort
+  //  quelque part. Celle-ci refuse les deux.
+  const plusDeBascule = await q.evaluate(() => ({
+    bouton: document.querySelector("[data-wm-rp-clotures]") === null,
+    piste: document.querySelector(".wm-rp__bascule-piste") === null,
+  }));
   dire(
-    "ET LA PISTE EST TOUJOURS LÀ APRÈS LA BASCULE",
-    ditLeBouton.piste !== null && ditLeBouton.piste >= 28,
-    `piste : ${ditLeBouton.piste} px`,
+    "L'INTERRUPTEUR DES CLÔTURÉS N'EST PLUS DANS LA PAGE",
+    plusDeBascule.bouton === true && plusDeBascule.piste === true,
+    JSON.stringify(plusDeBascule),
   );
   await q.close();
 }
@@ -3918,10 +4000,15 @@ const INVITES = [
     JSON.stringify(ecart),
   );
 
-  //  ── ET L'INTERRUPTEUR EST AU BOUT DE LA RANGÉE ──────────────────
+  //  ── ET LE PANNEAU DES COLONNES EST AU BOUT DE LA RANGÉE ─────────
+  //
+  //  C'ÉTAIT LA PLACE DE L'INTERRUPTEUR DES CLÔTURÉS, et il l'a reprise
+  //  quand celui-ci s'en est allé. Même raison : ce qu'il commande n'est
+  //  pas ce que commande le sélecteur de vue, et l'espace entre les deux
+  //  le dit mieux qu'une étiquette.
   const place = await q.evaluate(() => {
     const rangee = document.querySelector(".wm-rp__reglages");
-    const bascule = document.querySelector("[data-wm-rp-clotures]");
+    const bascule = document.querySelector(".wm-rp__colonnes");
     const vues = document.querySelector(".wm-rp__vues");
     const r = rangee.getBoundingClientRect();
     const b = bascule.getBoundingClientRect();
@@ -3933,7 +4020,7 @@ const INVITES = [
     };
   });
   dire(
-    "L'INTERRUPTEUR PART À DROITE, SEUL DE SON CÔTÉ",
+    "LE PANNEAU DES COLONNES PART À DROITE, SEUL DE SON CÔTÉ",
     place.aDroite === true && place.apresLesVues === true && place.ecart >= 24,
     JSON.stringify(place),
   );
@@ -5040,6 +5127,308 @@ if (soucis.length > 0) Deno.exit(1);
     "   et le pseudo est échappé dans l'adresse — « Jean-Luc, dit Jango » est un pseudo possible",
     parti !== undefined && String(parti.ou_quoi).includes("Erin%20Kavanagh"),
     JSON.stringify(parti?.ou_quoi),
+  );
+  await q.close();
+}
+
+// ── 7 quinquies · Les modèles de RP, 23 novembre ────────────────────
+//
+//  « Je n'arrive pas à sauvegarder les modèles. »
+//
+//  Deux défauts se tenaient la main : les index uniques de la 0067
+//  étaient PARTIELS, et un index partiel ne sert pas à un `ON CONFLICT` ;
+//  et le navigateur ne nommait pas `on_conflict`, donc PostgREST
+//  résolvait sur la clé primaire. Le bouton ne pouvait pas marcher.
+//
+//  Ce bloc mesure le geste entier, décor exigeant : s'il manque
+//  `on_conflict=joueur_id,nom`, la route rend 409 comme la vraie base.
+
+const DEUX_MODELES = [
+  {
+    id: "forum-1",
+    joueur_id: null,
+    nom: "Fiche de présentation",
+    corps: "[b]Nom :[/b]\n[b]Âge :[/b]",
+  },
+  { id: "mien-1", joueur_id: "j-1", nom: "Mon intro", corps: "Le vent se lève." },
+];
+
+{
+  const { q, appels } = await monter({ brouillons: TROIS, lesModeles: DEUX_MODELES });
+  await q.click('[data-wm-carnet-onglet="ecrire"]');
+  await q.waitForTimeout(200);
+
+  //  ── RIEN N'EST LU TANT QUE LE TIROIR EST FERMÉ ──────────────────
+  dire(
+    "LE TIROIR FERMÉ NE LIT RIEN",
+    appels.filter((a) => a.ou === "modeles").length === 0,
+    JSON.stringify(appels.filter((a) => a.ou === "modeles")),
+  );
+
+  await q.evaluate(() => {
+    document.querySelector("[data-wm-ecrire-modeles]").open = true;
+  });
+  await q.waitForTimeout(300);
+
+  const liste = await q.evaluate(() => ({
+    options: [...document.querySelectorAll("[data-wm-ecrire-modele] option")].map((o) =>
+      o.textContent
+    ),
+    oteCache: document.querySelector("[data-wm-ecrire-oter-modele]").hidden,
+  }));
+  //  CEUX DU FORUM D'ABORD ET MARQUÉS : sinon on ne comprend pas
+  //  pourquoi la moitié de la liste ne se supprime pas.
+  dire(
+    "LE TIROIR OUVERT LIT, LE FORUM D'ABORD ET MARQUÉ",
+    liste.options.length === 2 &&
+      liste.options[0] === "Fiche de présentation (du forum)" &&
+      liste.options[1] === "Mon intro" && liste.oteCache === true,
+    JSON.stringify(liste),
+  );
+
+  //  ── L'INSERTION SE FAIT AU CURSEUR ET N'EFFACE RIEN ─────────────
+  const insere = await q.evaluate(async () => {
+    const champ = document.querySelector("[data-wm-ecrire-corps]");
+    champ.value = "AVANT|APRÈS";
+    champ.selectionStart = champ.selectionEnd = 6;
+    document.querySelector("[data-wm-ecrire-modele]").value = "forum-1";
+    document.querySelector("[data-wm-ecrire-modele]").dispatchEvent(
+      new Event("change", { bubbles: true }),
+    );
+    document.querySelector("[data-wm-ecrire-inserer]").click();
+    await new Promise((r) => setTimeout(r, 150));
+    return {
+      corps: champ.value,
+      curseur: champ.selectionStart,
+      mots: document.querySelector("[data-wm-ecrire-mots]").textContent,
+    };
+  });
+  dire(
+    "LE MODÈLE S'INSÈRE AU CURSEUR, SANS RIEN EFFACER",
+    insere.corps === "AVANT|[b]Nom :[/b]\n[b]Âge :[/b]APRÈS" &&
+      insere.curseur === 6 + "[b]Nom :[/b]\n[b]Âge :[/b]".length,
+    JSON.stringify(insere),
+  );
+  //  LE COMPTEUR A BOUGÉ : c'est la preuve que l'`input` posé à la main
+  //  est bien parti — une écriture par script n'en émet pas.
+  dire(
+    "   et le compteur de mots a bougé, donc l'`input` à la main est parti",
+    insere.mots !== "4" && insere.mots !== "0",
+    insere.mots,
+  );
+
+  //  ── CE QUI NE MARCHAIT PAS : GARDER ─────────────────────────────
+  const garde = await q.evaluate(async () => {
+    document.querySelector("[data-wm-ecrire-modele-nom]").value = "Mon ouverture";
+    document.querySelector("[data-wm-ecrire-garder-modele]").click();
+    await new Promise((r) => setTimeout(r, 300));
+    return {
+      dit: document.querySelector("[data-wm-ecrire-modele-dit]").textContent,
+      options: [...document.querySelectorAll("[data-wm-ecrire-modele] option")].map((o) =>
+        o.textContent
+      ),
+      nomVide: document.querySelector("[data-wm-ecrire-modele-nom]").value === "",
+    };
+  });
+  const envoi = appels.filter((a) => a.ou === "modele-garde").at(-1);
+  dire(
+    "L'ADRESSE NOMME LA RÉSOLUTION — c'est tout le défaut du 23 novembre",
+    envoi !== undefined && envoi.sur === "joueur_id,nom",
+    JSON.stringify(envoi?.sur),
+  );
+  dire(
+    "   et le modèle est gardé, le champ vidé, la liste à jour",
+    garde.dit === "« Mon ouverture » gardé." && garde.nomVide === true &&
+      garde.options.length === 3 && garde.options.includes("Mon ouverture"),
+    JSON.stringify(garde),
+  );
+
+  //  ── GARDER DEUX FOIS SOUS LE MÊME NOM REMPLACE ──────────────────
+  //
+  //  C'est le geste réel : on retouche son modèle et on le regarde. Sans
+  //  l'`upsert`, on obtiendrait deux « Mon intro » indistinguables dans
+  //  un menu — ou un refus.
+  const deuxFois = await q.evaluate(async () => {
+    document.querySelector("[data-wm-ecrire-corps]").value = "Le vent est tombé.";
+    document.querySelector("[data-wm-ecrire-modele-nom]").value = "Mon ouverture";
+    document.querySelector("[data-wm-ecrire-garder-modele]").click();
+    await new Promise((r) => setTimeout(r, 300));
+    return [...document.querySelectorAll("[data-wm-ecrire-modele] option")].map((o) =>
+      o.textContent
+    );
+  });
+  dire(
+    "GARDER DEUX FOIS SOUS LE MÊME NOM REMPLACE, ET NE DOUBLE PAS LA LIGNE",
+    deuxFois.filter((o) => o === "Mon ouverture").length === 1 && deuxFois.length === 3,
+    JSON.stringify(deuxFois),
+  );
+
+  //  ── UN NOM VIDE SE REFUSE AVANT LA REQUÊTE ──────────────────────
+  const avant = appels.filter((a) => a.ou === "modele-garde").length;
+  const vide = await q.evaluate(async () => {
+    document.querySelector("[data-wm-ecrire-modele-nom]").value = "   ";
+    document.querySelector("[data-wm-ecrire-garder-modele]").click();
+    await new Promise((r) => setTimeout(r, 200));
+    return document.querySelector("[data-wm-ecrire-modele-dit]").textContent;
+  });
+  dire(
+    "UN NOM VIDE SE REFUSE ICI, SANS DÉRANGER LA BASE",
+    vide === "Il me faut un nom pour ce modèle." &&
+      appels.filter((a) => a.ou === "modele-garde").length === avant,
+    JSON.stringify({
+      vide,
+      avant,
+      apres: appels.filter((a) => a.ou === "modele-garde").length,
+    }),
+  );
+
+  //  ── ET LA CROIX NE PARAÎT QUE SUR LES SIENS ─────────────────────
+  const propre = await q.evaluate(async () => {
+    const menu = document.querySelector("[data-wm-ecrire-modele]");
+    const etat = {};
+    for (const v of ["forum-1", "mien-1"]) {
+      menu.value = v;
+      menu.dispatchEvent(new Event("change", { bubbles: true }));
+      await new Promise((r) => setTimeout(r, 80));
+      etat[v] = document.querySelector("[data-wm-ecrire-oter-modele]").hidden;
+    }
+    return etat;
+  });
+  dire(
+    "   et « Supprimer » ne paraît que sur les siens",
+    propre["forum-1"] === true && propre["mien-1"] === false,
+    JSON.stringify(propre),
+  );
+
+  const ote = await q.evaluate(async () => {
+    document.querySelector("[data-wm-ecrire-oter-modele]").click();
+    await new Promise((r) => setTimeout(r, 300));
+    return [...document.querySelectorAll("[data-wm-ecrire-modele] option")].map((o) =>
+      o.textContent
+    );
+  });
+  dire(
+    "LA SUPPRESSION ÔTE CELUI QU'ON VISE",
+    !ote.includes("Mon intro") && ote.includes("Fiche de présentation (du forum)"),
+    JSON.stringify(ote),
+  );
+  await q.close();
+}
+
+// ── 7 sexies · Ajouter sans taper de titre, 23 novembre ─────────────
+//
+//  « Je peux plus ajouter de cartes. »
+//
+//  Le harnais mesurait l'ajout AVEC un titre tapé, et ce chemin-là
+//  marchait. Le chemin neuf — champ vide, titre cherché sur le forum —
+//  n'était pas mesuré du tout, et c'est celui qu'on emprunte depuis
+//  qu'on n'a plus à taper le titre.
+
+{
+  //  ── LE TITRE SE TROUVE, ET L'ENTITÉ SE DÉCODE ───────────────────
+  const { q, appels, demandes } = await monter({ lesRp: RP });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.fill(
+    "[data-wm-rp-neuf-adresse]",
+    "https://mysteryinrhode.forumactif.com/t1450-le-pont",
+  );
+  await q.click("[data-wm-rp-ajouter]");
+  await q.waitForTimeout(400);
+  const pose = appels.find((a) => a.ou === "POST-rp");
+  const dit = await q.evaluate(() =>
+    document.querySelector("[data-wm-rp-dit]")?.textContent?.trim()
+  );
+  dire(
+    "SANS TITRE TAPÉ, LE TITRE SE PREND SUR LE SUJET — et l'entité se décode",
+    pose?.corps?.titre === "L'auberge du pont" && pose?.corps?.sujet_id === 1450 &&
+      demandes.includes("/t1450-"),
+    JSON.stringify({ titre: pose?.corps?.titre, dit }),
+  );
+  await q.close();
+}
+
+{
+  //  ── CE QUI SE VOIT PENDANT L'ATTENTE ────────────────────────────
+  //
+  //  C'EST LE DÉFAUT, ET IL EST ENTIER ICI. Une page de Forumactif met
+  //  une à trois secondes à venir. Si l'écran ne dit rien, on reclique.
+  const { q, appels } = await monter({ lesRp: RP, sujetLent: 900 });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.fill(
+    "[data-wm-rp-neuf-adresse]",
+    "https://mysteryinrhode.forumactif.com/t1450-le-pont",
+  );
+  await q.click("[data-wm-rp-ajouter]");
+  await q.waitForTimeout(250);
+  const pendant = await q.evaluate(() => ({
+    dit: document.querySelector("[data-wm-rp-dit]")?.textContent?.trim(),
+    grise: document.querySelector("[data-wm-rp-ajouter]")?.disabled,
+  }));
+  dire(
+    "PENDANT L'ATTENTE, LE BOUTON LE DIT ET SE GRISE",
+    /cherche le titre/i.test(pendant.dit ?? "") && pendant.grise === true,
+    JSON.stringify(pendant),
+  );
+
+  //  ── ET RECLIQUER NE PART PAS DEUX FOIS ──────────────────────────
+  //
+  //  Le second clic partait AVANT que `lignes` ait appris la carte : la
+  //  base refusait la clé en double, et le seul mot qu'on lisait était
+  //  « cette carte n'a pas pu être ajoutée ». C'est exactement ce que
+  //  « je peux plus ajouter de cartes » décrivait.
+  await q.evaluate(() => document.querySelector("[data-wm-rp-ajouter]").click());
+  await q.waitForTimeout(1200);
+  const apres = await q.evaluate(() => ({
+    dit: document.querySelector("[data-wm-rp-dit]")?.textContent?.trim(),
+    grise: document.querySelector("[data-wm-rp-ajouter]")?.disabled,
+    adresse: document.querySelector("[data-wm-rp-neuf-adresse]")?.value,
+  }));
+  dire(
+    "RECLIQUER PENDANT LE VOL N'ENVOIE RIEN DE PLUS",
+    appels.filter((a) => a.ou === "POST-rp").length === 1,
+    String(appels.filter((a) => a.ou === "POST-rp").length),
+  );
+  dire(
+    "   et le bouton se rend après, le champ se vide, la carte est annoncée",
+    apres.grise === false && apres.adresse === "" && /Ajouté/.test(apres.dit ?? ""),
+    JSON.stringify(apres),
+  );
+  await q.close();
+}
+
+{
+  //  ── LE SUJET MUET NE BLOQUE PAS LA CARTE ────────────────────────
+  //
+  //  Sujet supprimé, forum en panne : la carte part quand même, avec
+  //  « Sujet 1450 », et la relève écrira le vrai titre au prochain
+  //  passage. C'est ce que le commentaire promettait depuis le début.
+  const { q, appels } = await monter({ lesRp: RP, titreMuet: true });
+  await q.click('[data-wm-carnet-onglet="mes-rp"]');
+  await q.waitForTimeout(300);
+  await q.fill(
+    "[data-wm-rp-neuf-adresse]",
+    "https://mysteryinrhode.forumactif.com/t1450-le-pont",
+  );
+  await q.click("[data-wm-rp-ajouter]");
+  await q.waitForTimeout(500);
+  const pose = appels.find((a) => a.ou === "POST-rp");
+  const vu = await q.evaluate(() => ({
+    dit: document.querySelector("[data-wm-rp-dit]")?.textContent?.trim(),
+    grise: document.querySelector("[data-wm-rp-ajouter]")?.disabled,
+    titres: [...document.querySelectorAll(".wm-rp__titre")].map((e) => e.textContent.trim()),
+  }));
+  dire(
+    "UN SUJET MUET NE RETIENT PAS LA CARTE, et le bouton se rend",
+    pose !== undefined && pose.corps.titre === "" && vu.grise === false &&
+      /relève le remplira/i.test(vu.dit ?? ""),
+    JSON.stringify({ titre: pose?.corps?.titre, dit: vu.dit }),
+  );
+  dire(
+    "   et la carte s'affiche « Sujet 1450 » plutôt que vide",
+    vu.titres.includes("Sujet 1450"),
+    JSON.stringify(vu.titres),
   );
   await q.close();
 }
