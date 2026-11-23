@@ -2012,6 +2012,14 @@ if [ -f data/starters.json ]; then
   casse=$(python3 outils/starters.py --verifier 2>&1 | grep -v "d'accord avec ses sources" || true)
   regle=$(python3 - <<'STA'
 import json
+import sys
+
+#  ON IMPORTE LA LISTE DU GÉNÉRATEUR plutôt que de la recopier : deux
+#  listes d'exclusion finiraient par ne plus dire la même chose, et
+#  c'est précisément le genre d'écart qu'un garde-fou doit empêcher,
+#  pas produire.
+sys.path.insert(0, "outils")
+from starters import HORS_STARTER  # noqa: E402
 
 fiches = json.load(open("data/especes-fiches.json", encoding="utf-8"))["fiches"]
 fossiles = {
@@ -2023,6 +2031,19 @@ st = json.load(open("data/starters.json", encoding="utf-8"))
 fautes = []
 vus = set()
 for e in st["especes"]:
+    #  ── CELUI-CI D'ABORD, ET C'EST UNE CORRECTION ─────────────────
+    #
+    #  Il était écrit plus bas, APRÈS le `continue` du cas « espèce
+    #  inconnue ». Or aucun légendaire n'est dans `especes-fiches.json`
+    #  — c'est tout l'objet — donc le `continue` tombait toujours en
+    #  premier et **le contrôle n'était jamais atteint**. Éprouvé avec
+    #  Mew et Mewtwo : la faute remontée parlait du mauvais défaut.
+    #
+    #  Et il est juste ici : être légendaire disqualifie, qu'on ait ses
+    #  statistiques ou non.
+    if e["id"] in HORS_STARTER:
+        fautes.append(f"starters : {e['nom']} est légendaire, fabuleux ou unique")
+        continue
     fiche = fiches.get(str(e["id"]))
     if fiche is None:
         fautes.append(f"starters : {e['nom']} ({e['id']}) n'est pas dans especes-fiches.json")
@@ -2060,7 +2081,7 @@ STA
     fautes=$((fautes + 1))
   else
     combien=$(python3 -c "import json;print(len(json.load(open('data/starters.json'))['especes']))")
-    echo "   $combien espèces de base, sans fossile, chacune avec ses talents"
+    echo "   $combien espèces de base — ni évolution, ni fossile, ni légendaire, ni fabuleux, ni unique"
   fi
 fi
 

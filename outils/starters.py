@@ -62,6 +62,46 @@ from pathlib import Path
 RACINE = Path(__file__).resolve().parent.parent
 SORTIE = RACINE / "data" / "starters.json"
 
+#  ── CEUX QU'ON ÉCARTE PAR RÈGLE, ET PLUS PAR CHANCE ─────────────────
+#
+#  « Pas de pokémons fabuleux ou uniques non plus, pas de fossiles. »
+#  — 23 novembre.
+#
+#  Mesuré le même jour : aucun d'eux n'est dans `especes-fiches.json`,
+#  parce que ce fichier dérive du Pokédex de Rhode, qui les laisse
+#  volontairement dehors. Zéro sur 125 identifiants vérifiés.
+#
+#  **MAIS ÊTRE ABSENT N'EST PAS ÊTRE INTERDIT.** Le jour où quelqu'un
+#  refabrique `especes-fiches.json` depuis une source plus large — et
+#  c'est le genre de chose qui arrive quand on ajoute une génération —
+#  Mew deviendrait un starter sans que personne l'ait décidé, et sans
+#  qu'aucun contrôle ne s'en aperçoive.
+#
+#  La liste est donc écrite ici, et elle exclut pour de bon. Si elle
+#  est déjà vide de travail, tant mieux : c'est une ceinture, pas un
+#  correctif.
+FABULEUX = {
+    151, 251, 385, 386, 489, 490, 491, 492, 493, 494, 647, 648, 649,
+    719, 720, 721, 801, 802, 807, 808, 809, 893, 1025,
+}
+LEGENDAIRES = {
+    144, 145, 146, 150, 243, 244, 245, 249, 250, 377, 378, 379, 380, 381,
+    382, 383, 384, 480, 481, 482, 483, 484, 485, 486, 487, 488, 638, 639,
+    640, 641, 642, 643, 644, 645, 646, 716, 717, 718, 772, 773, 785, 786,
+    787, 788, 789, 790, 791, 792, 800, 888, 889, 890, 891, 892, 894, 895,
+    896, 897, 898, 905, 1001, 1002, 1003, 1004, 1007, 1008, 1014, 1015,
+    1016, 1017, 1024,
+}
+#  LES UNIQUES : Ultra-Chimères et Pokémon Paradoxes. Le Pokédex de
+#  Rhode les nomme ainsi et les écarte pour la même raison — ce ne sont
+#  pas des Pokémon qu'on rencontre, et encore moins qu'on élève depuis
+#  l'enfance.
+UNIQUES = set(range(793, 800)) | {803, 804, 805, 806} | set(range(984, 996)) | {
+    1005, 1006, 1009, 1010, 1020, 1021, 1022, 1023,
+}
+
+HORS_STARTER = FABULEUX | LEGENDAIRES | UNIQUES
+
 
 def plat(texte):
     """L'apostrophe courbe et la droite sont le même signe.
@@ -110,6 +150,8 @@ def main():
             continue
         if ident in fossiles:
             continue
+        if ident in HORS_STARTER:
+            continue
         nom = noms.get(ident)
         if nom is None:
             #  ON NE DEVINE PAS UN NOM. Une espèce qu'on ne sait pas
@@ -143,10 +185,11 @@ def main():
             "DÉRIVÉ par outils/starters.py — ne pas modifier à la main."
         ),
         "_regle": (
-            "Stade 1 uniquement (pas d'évolutions), pas de légendaires — ils sont déjà "
-            "hors du Pokédex de Rhode — et pas de fossiles, qui ne sortent que du "
-            "laboratoire. Les formes régionales sont gardées : « peu importe la région "
-            "d'origine »."
+            "Stade 1 uniquement (pas d'évolutions). Ni légendaires, ni fabuleux, ni "
+            "uniques (Ultra-Chimères et Paradoxes) : ils sont déjà hors du Pokédex de "
+            "Rhode, et la liste les exclut en plus par règle. Pas de fossiles non plus, "
+            "qui ne sortent que du laboratoire. Les formes régionales sont gardées : "
+            "« peu importe la région d'origine »."
         ),
         "_niveau": (
             "Aucun niveau ici, et c'est la règle : le staff l'attribue à la validation, "
@@ -156,6 +199,7 @@ def main():
         "compte": {
             "especes": len(especes),
             "sansTalent": len(sans_talent),
+            "ecartesParRegle": len(HORS_STARTER) + len(fossiles),
         },
         "especes": especes,
     }

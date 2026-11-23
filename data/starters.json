@@ -1,11 +1,12 @@
 {
   "_": "Les espèces qu'on peut choisir comme premier Pokémon, et leurs talents. DÉRIVÉ par outils/starters.py — ne pas modifier à la main.",
-  "_regle": "Stade 1 uniquement (pas d'évolutions), pas de légendaires — ils sont déjà hors du Pokédex de Rhode — et pas de fossiles, qui ne sortent que du laboratoire. Les formes régionales sont gardées : « peu importe la région d'origine ».",
+  "_regle": "Stade 1 uniquement (pas d'évolutions). Ni légendaires, ni fabuleux, ni uniques (Ultra-Chimères et Paradoxes) : ils sont déjà hors du Pokédex de Rhode, et la liste les exclut en plus par règle. Pas de fossiles non plus, qui ne sortent que du laboratoire. Les formes régionales sont gardées : « peu importe la région d'origine ».",
   "_niveau": "Aucun niveau ici, et c'est la règle : le staff l'attribue à la validation, selon l'âge, le métier et le passé du personnage.",
   "source": "data/especes-fiches.json, data/especes.json, data/talents.json",
   "compte": {
     "especes": 436,
-    "sansTalent": 0
+    "sansTalent": 0,
+    "ecartesParRegle": 136
   },
   "especes": [
     {
