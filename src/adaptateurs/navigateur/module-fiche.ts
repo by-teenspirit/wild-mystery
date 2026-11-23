@@ -820,9 +820,15 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     const bloc = laFiche.querySelector<HTMLElement>(".wmf__histoire");
     if (bloc === null) return;
     const barre = el(doc, "div", "wmf-form__barre");
-    for (
-      const forme of [["pave", "Un grand pavé"], ["chronologie", "Une chronologie"]] as const
-    ) {
+    //  LES DEUX MOTS DISENT LA FAÇON DE RACONTER, pas le format du
+    //  texte. « Un grand pavé » nommait l'objet technique ; « moment
+    //  par moment » reprend en plus le mot du bouton qui suit,
+    //  « Ajouter un moment ».
+    const formes = [
+      ["pave", "D'un seul tenant"],
+      ["chronologie", "Moment par moment"],
+    ] as const;
+    for (const forme of formes) {
       const [mode, mot] = forme;
       const b = bouton(doc, mot, () => {
         if (vue.histoire.mode === mode) return;
@@ -838,7 +844,26 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       b.setAttribute("aria-pressed", String(vue.histoire.mode === mode));
       barre.appendChild(b);
     }
+    //  ── ON DIT CE QU'ON PEUT Y METTRE ───────────────────────────
+    //
+    //  « Préciser aussi dans "raconte-nous ton histoire" que la
+    //  personne peut rajouter des balises, des images, ce qu'elle
+    //  veut. » — 23 novembre.
+    //
+    //  La barre de balises ne montre que cinq boutons, et un joueur
+    //  qui n'a que ça sous les yeux croit que la liste s'arrête là.
+    //  Elle ne s'arrête pas : le message part en HTML, et tout ce que
+    //  Forumactif accepte dans un message passe.
+    const dit = el(
+      doc,
+      "p",
+      "wmf-form__note",
+      "Écris comme tu veux : les cinq boutons ne sont qu'un raccourci. " +
+        "Tu peux taper tes propres balises, coller une image, une bannière, " +
+        "un tableau — tout ce qui marche dans un message marche ici.",
+    );
     bloc.querySelector(".wmf__bandeau")?.after(barre);
+    barre.before(dit);
 
     const chrono = bloc.querySelector<HTMLElement>(".wmf__chrono");
     if (chrono === null) return;
@@ -939,15 +964,6 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   const tete = el(doc, "div", "panel wmf-form__tete");
   const dedansTete = el(doc, "div", "inner");
   dedansTete.appendChild(el(doc, "div", "h3", "Ta fiche de présentation"));
-  dedansTete.appendChild(
-    el(
-      doc,
-      "p",
-      "wmf-form__mot",
-      "Écris directement dans la fiche : elle devient le message, " +
-        "et tu l'envoies quand tu es prête. Rien n'est posté sans toi.",
-    ),
-  );
   const dlTitre = el(doc, "dl", "wmf-form__titre");
   const dtTitre = el(doc, "dt", "");
   const labelTitre = el<HTMLLabelElement>(doc, "label", "", "TITRE DU SUJET");

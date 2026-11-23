@@ -1114,7 +1114,7 @@ const OUTILS = () => {
       [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
         b.textContent.includes(mot)
       );
-    vers("chronologie").click();
+    vers("Moment").click();
     await globalThis.wmPause(200);
     //  UNE CHRONOLOGIE VIDE OFFRE DÉJÀ UN MOMENT : sans lui, choisir
     //  la chronologie n'afficherait rien, et il faudrait deviner
@@ -1211,12 +1211,12 @@ const OUTILS = () => {
       [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
         b.textContent.includes(mot)
       );
-    vers("pavé").click();
+    vers("tenant").click();
     await globalThis.wmPause(220);
     return {
       pave: globalThis.wmTexte("histoire"),
       //  ET LA FORME CHOISIE SE VOIT SUR LE BOUTON.
-      marque: vers("pavé").getAttribute("aria-pressed"),
+      marque: vers("tenant").getAttribute("aria-pressed"),
     };
   });
   dire(
@@ -1316,9 +1316,9 @@ const OUTILS = () => {
       [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
         b.textContent.includes(mot)
       );
-    vers("chronologie").click();
+    vers("Moment").click();
     await globalThis.wmPause(200);
-    vers("pavé").click();
+    vers("tenant").click();
     await globalThis.wmPause(300);
     const f = document.querySelector(".wmf-form__fiche");
     return {
@@ -1444,7 +1444,7 @@ const OUTILS = () => {
   );
   dire(
     "   la chronologie revient en chronologie, avec ses moments",
-    (relu.forme ?? "").includes("chronologie") &&
+    (relu.forme ?? "").includes("Moment") &&
       JSON.stringify(relu.moments) === JSON.stringify([["2012", "L'incendie."]]),
     JSON.stringify({ forme: relu.forme, moments: relu.moments }),
   );

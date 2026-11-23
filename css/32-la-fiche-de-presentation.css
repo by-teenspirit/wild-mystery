@@ -26,20 +26,45 @@
 
 /*  ── LE FORMULAIRE ───────────────────────────────────────────────── */
 
+/*  ── DEUX SURFACES, ET CHACUNE DIT CE QU'ELLE EST ─────────────────
+
+    L'ENCART EST CELUI DE FORUMACTIF. Mêmes valeurs que `#postingbox`
+    dans `06` — rembourrage, filet, rayon, `fond-surface-haute` : la
+    fiche remplace la boîte de rédaction, donc elle en prend la place
+    ET l'apparence. Recopiées plutôt que partagées, parce qu'un jour
+    l'une des deux bougera sans l'autre.
+
+    LA FICHE, DEDANS, EST UN MESSAGE. `fond-surface`, comme le peint
+    `05-sujet` : c'est la surface sur laquelle elle finira, et c'est
+    elle qui fait tomber les cartes et les panneaux aux bons écarts.
+    Un seul fond pour les deux rendrait les cartes invisibles. */
 #modernbb #wm-fiche {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--wm-espace-12, 12px);
+  gap: var(--wm-espace-16, 16px);
   margin-bottom: var(--wm-espace-16, 16px);
+  padding: var(--wm-espace-20, 20px) 22px 22px;
+  border: 1px solid var(--wm-bord-fin, #eadacd);
+  border-radius: var(--wm-rayon-lg, 10px);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
 }
 
+/*  SON TITRE EST CELUI DE L'ENCART DE FORUMACTIF, pas un titre de
+    section : « Poster un nouveau sujet » est une étiquette discrète,
+    et « Ta fiche de présentation » prend sa place, donc son ton. */
 #modernbb #wm-fiche .h3 {
-  font-family: var(--wm-police-titre, "Fraunces", Georgia, "Times New Roman", serif);
-  font-size: var(--wm-taille-titre-section, 19px);
-  line-height: var(--wm-interligne-section, 1.2);
+  margin: 0 0 var(--wm-espace-16, 16px);
+  padding: 0;
+  background: none;
+  color: var(--wm-texte-doux, #6e5749);
+  font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
+  font-size: var(--wm-taille-etiquette, 10px);
+  font-weight: var(--wm-graisse-gras, 700);
+  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
+  text-transform: uppercase;
 }
 
-#modernbb .wmf-form__mot,
 #modernbb .wmf-form__note {
   margin: var(--wm-espace-6, 6px) 0 0;
   color: var(--wm-texte-doux, #6e5749);
@@ -89,6 +114,7 @@
     la même surface. Sur le fond de page, les cartes et les panneaux
     ne tombaient pas aux mêmes écarts qu'une fois publiés. */
 #modernbb .wmf-form__fiche {
+  box-sizing: border-box;
   padding: var(--wm-espace-16, 16px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
@@ -146,12 +172,27 @@
     pixel de large : sans fond ni largeur minimale, la fiche neuve
     serait une liste d'étiquettes suivies de rien, et il faudrait
     deviner où viser. */
+/*  ── ET ELLE SE LIT SUR LES TROIS FONDS ───────────────────────────
+
+    Une zone ne vit pas sur une seule surface : le nom et le TW sont
+    posés sur le blanc du cadre, le récit sur une carte
+    `fond-surface-haute`, l'état civil dans un panneau `fond-douce`.
+    Aucune teinte de remplissage ne contraste avec les trois — celle
+    d'avant, un `fond-surface-haute` à 60 %, disparaissait tout
+    simplement sur le blanc, et on ne voyait plus où écrire.
+
+    D'OÙ UN FILET, ET LE REMPLISSAGE LE PLUS CLAIR. Le filet se voit
+    partout ; le fond `fond-surface` fait de la zone la chose la plus
+    claire de l'écran, où qu'elle soit posée. `box-shadow` plutôt
+    qu'une bordure, pour ne pas ajouter deux pixels à la largeur de
+    trente champs déjà serrés. */
 #modernbb .wmf-form__fiche [data-wmf-zone] {
   display: inline-block;
   min-width: 7em;
   padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
   border-radius: var(--wm-rayon-sm, 6px);
-  background: color-mix(in srgb, var(--wm-fond-surface-haute, #fcf4ec) 60%, transparent);
+  background: var(--wm-fond-surface, #fffbf7);
+  box-shadow: inset 0 0 0 1px var(--wm-bord-net, #d9c3b1);
   /*  LES SAUTS DE LIGNE SE GARDENT. Sans `pre-wrap`, un pavé tapé en
       paragraphes se relirait d'un seul bloc — et c'est `innerText`
       qui le renvoie au code, donc la valeur serait juste. Seul
@@ -160,11 +201,10 @@
 }
 
 #modernbb .wmf-form__fiche [data-wmf-zone]:hover {
-  background: var(--wm-fond-surface-haute, #fcf4ec);
+  box-shadow: inset 0 0 0 1px var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb .wmf-form__fiche [data-wmf-zone]:focus {
-  background: var(--wm-fond-surface-haute, #fcf4ec);
   outline: 2px solid var(--wm-accent-primaire, #275e7a);
   outline-offset: 1px;
 }
@@ -248,9 +288,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  border: 1px dashed var(--wm-bord-net, #d9c3b1);
   aspect-ratio: 1 / 1;
   border-radius: var(--wm-rayon-md, 8px);
-  background: color-mix(in srgb, var(--wm-fond-surface-haute, #fcf4ec) 45%, transparent);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
   color: var(--wm-texte-doux, #6e5749);
   content: "ta trainer card, carrée";
   font-size: var(--wm-taille-petit, 11.5px);
@@ -322,9 +364,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  border: 1px dashed var(--wm-bord-net, #d9c3b1);
   aspect-ratio: 3 / 4;
   border-radius: var(--wm-rayon-md, 8px);
-  background: color-mix(in srgb, var(--wm-fond-surface-haute, #fcf4ec) 45%, transparent);
+  background: var(--wm-fond-surface-haute, #fcf4ec);
   color: var(--wm-texte-doux, #6e5749);
   content: "l'image de ton personnage";
   font-size: var(--wm-taille-petit, 11.5px);
@@ -370,10 +414,13 @@
 
 #modernbb .wmf-form__fiche [data-wmf-zone][contenteditable="false"] {
   /*  REPLIÉE TANT QU'ELLE NE S'ÉCRIT PAS : cinq zones à leur hauteur
-      d'écriture feraient une page de blanc sous une case décochée. */
+      d'écriture feraient une page de blanc sous une case décochée. Et
+      sans filet, puisque ce n'est pas un champ tant que la case n'est
+      pas cochée. */
   min-width: 0;
   min-height: 0;
   background: transparent;
+  box-shadow: none;
 }
 
 #modernbb .wmf-form__menu {
