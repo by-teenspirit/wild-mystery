@@ -26,7 +26,42 @@ export type Rencontre = {
   readonly especeId: number;
   readonly niveau: number;
   readonly rarete: Rarete;
+  /** Un chromatique. Tiré à la rencontre, pas à la capture : « ce
+   *  serait bien qu'il se tire à chaque rencontre aussi »
+   *  — 23 novembre. */
+  readonly chromatique: boolean;
 };
+
+/*  ── LA CHANCE D'UN CHROMATIQUE ────────────────────────────────────
+
+    « On peut faire un peu plus généreux pour le forum ? » — 23
+    novembre.
+
+    LES JEUX DONNENT 1/4096. Sur un forum, ça ne veut rien dire : on
+    n'y croise pas un Pokémon toutes les vingt secondes, on en croise
+    un quand on écrit un message dans une zone. À ce rythme, personne
+    n'en verrait jamais un — et une mécanique que personne ne
+    rencontre n'existe pas.
+
+    1/512 EST HUIT FOIS PLUS GÉNÉREUX, et voici ce que ça donne selon
+    l'activité du forum, en espérance :
+
+      | rencontres par an, tout le forum | chromatiques par an |
+      |---------------------------------:|--------------------:|
+      |                              500 |                 1.0 |
+      |                             1000 |                 2.0 |
+      |                             2000 |                 3.9 |
+      |                             5000 |                 9.8 |
+
+    Pour une seule personne qui croise cent fois dans l'année : **17 %
+    de chance** d'en voir un. C'est rare sans être hors d'atteinte, et
+    ça reste un évènement dont on parle.
+
+    POUR CHANGER LE CURSEUR, c'est cette ligne et rien d'autre. Le
+    tirage est le troisième de la suite : le modifier ne déplace ni
+    l'espèce ni le niveau, donc les rencontres déjà jouées se
+    rejouent à l'identique. */
+export const CHANCE_CHROMATIQUE = 1 / 512;
 
 export class TableInvalide extends Error {
   constructor(raison: string) {
@@ -97,10 +132,23 @@ export function tirerUneRencontre(
     if (cible < cumul) break;
   }
 
+  //  ── L'ORDRE DES TROIS TIRAGES EST UN CONTRAT ──────────────────
+  //
+  //  Espèce, puis niveau, puis chromatique. Le chromatique est
+  //  DERNIER, et pas par hasard : une suite pseudo-aléatoire rend ses
+  //  valeurs dans l'ordre où on les demande, donc glisser un tirage
+  //  AVANT les deux autres changerait l'espèce et le niveau de toutes
+  //  les rencontres déjà jouées. Mises en queue, elles ne bougent pas
+  //  — et un tirage contesté se rejoue encore à l'identique.
+  //
+  //  C'est la même discipline que `tourSansFrappe` au combat, qui ne
+  //  consomme aucun tirage pour ne rien décaler.
+  const niveau = entreBornes(tirage(), choisie.niveauMin, choisie.niveauMax);
   return {
     especeId: choisie.especeId,
-    niveau: entreBornes(tirage(), choisie.niveauMin, choisie.niveauMax),
+    niveau,
     rarete: choisie.rarete,
+    chromatique: tirage() < CHANCE_CHROMATIQUE,
   };
 }
 

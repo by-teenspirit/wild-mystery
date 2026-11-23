@@ -4826,6 +4826,4788 @@
    "manquants": [],
    "titre": "Ultra-Soleil / Ultra-Lune"
   },
+  "forum-chromatique": {
+   "anime": true,
+   "especes": {
+    "1": {
+     "fige": "assets/sprites-figes/forum-chromatique/1.png",
+     "poids_fige": 3524,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/1.gif"
+    },
+    "10": {
+     "fige": "assets/sprites-figes/forum-chromatique/10.png",
+     "poids_fige": 2240,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10.gif"
+    },
+    "100": {
+     "fige": "assets/sprites-figes/forum-chromatique/100.png",
+     "poids_fige": 1572,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/100.gif"
+    },
+    "1000": {
+     "fige": "assets/sprites-figes/forum-chromatique/1000.png",
+     "poids_fige": 2654,
+     "source": "other/showdown/shiny/1000.gif"
+    },
+    "10091": {
+     "fige": "assets/sprites-figes/forum-chromatique/10091.png",
+     "poids_fige": 2942,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10091.gif"
+    },
+    "10092": {
+     "fige": "assets/sprites-figes/forum-chromatique/10092.png",
+     "poids_fige": 3326,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10092.gif"
+    },
+    "101": {
+     "fige": "assets/sprites-figes/forum-chromatique/101.png",
+     "poids_fige": 2279,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/101.gif"
+    },
+    "10100": {
+     "fige": "assets/sprites-figes/forum-chromatique/10100.png",
+     "poids_fige": 5154,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10100.gif"
+    },
+    "10101": {
+     "fige": "assets/sprites-figes/forum-chromatique/10101.png",
+     "poids_fige": 3121,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10101.gif"
+    },
+    "10102": {
+     "fige": "assets/sprites-figes/forum-chromatique/10102.png",
+     "poids_fige": 6714,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10102.gif"
+    },
+    "10103": {
+     "fige": "assets/sprites-figes/forum-chromatique/10103.png",
+     "poids_fige": 2793,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10103.gif"
+    },
+    "10104": {
+     "fige": "assets/sprites-figes/forum-chromatique/10104.png",
+     "poids_fige": 6276,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10104.gif"
+    },
+    "10105": {
+     "fige": "assets/sprites-figes/forum-chromatique/10105.png",
+     "poids_fige": 1957,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10105.gif"
+    },
+    "10106": {
+     "fige": "assets/sprites-figes/forum-chromatique/10106.png",
+     "poids_fige": 4404,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10106.gif"
+    },
+    "10107": {
+     "fige": "assets/sprites-figes/forum-chromatique/10107.png",
+     "poids_fige": 4067,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10107.gif"
+    },
+    "10108": {
+     "fige": "assets/sprites-figes/forum-chromatique/10108.png",
+     "poids_fige": 5511,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10108.gif"
+    },
+    "10109": {
+     "fige": "assets/sprites-figes/forum-chromatique/10109.png",
+     "poids_fige": 3126,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10109.gif"
+    },
+    "1011": {
+     "fige": "assets/sprites-figes/forum-chromatique/1011.png",
+     "poids_fige": 1670,
+     "source": "other/showdown/shiny/1011.gif"
+    },
+    "10110": {
+     "fige": "assets/sprites-figes/forum-chromatique/10110.png",
+     "poids_fige": 7166,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10110.gif"
+    },
+    "10111": {
+     "fige": "assets/sprites-figes/forum-chromatique/10111.png",
+     "poids_fige": 8983,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10111.gif"
+    },
+    "10112": {
+     "fige": "assets/sprites-figes/forum-chromatique/10112.png",
+     "poids_fige": 4297,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10112.gif"
+    },
+    "10113": {
+     "fige": "assets/sprites-figes/forum-chromatique/10113.png",
+     "poids_fige": 8813,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10113.gif"
+    },
+    "10114": {
+     "fige": "assets/sprites-figes/forum-chromatique/10114.png",
+     "poids_fige": 8748,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10114.gif"
+    },
+    "10115": {
+     "fige": "assets/sprites-figes/forum-chromatique/10115.png",
+     "poids_fige": 5757,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10115.gif"
+    },
+    "1012": {
+     "fige": "assets/sprites-figes/forum-chromatique/1012.png",
+     "poids_fige": 1875,
+     "source": "other/showdown/shiny/1012.gif"
+    },
+    "10123": {
+     "fige": "assets/sprites-figes/forum-chromatique/10123.png",
+     "poids_fige": 2964,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10123.gif"
+    },
+    "10124": {
+     "fige": "assets/sprites-figes/forum-chromatique/10124.png",
+     "poids_fige": 3416,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10124.gif"
+    },
+    "10125": {
+     "fige": "assets/sprites-figes/forum-chromatique/10125.png",
+     "poids_fige": 4175,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10125.gif"
+    },
+    "10126": {
+     "fige": "assets/sprites-figes/forum-chromatique/10126.png",
+     "poids_fige": 6479,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10126.gif"
+    },
+    "1013": {
+     "fige": "assets/sprites-figes/forum-chromatique/1013.png",
+     "poids_fige": 3267,
+     "source": "other/showdown/shiny/1013.gif"
+    },
+    "10152": {
+     "fige": "assets/sprites-figes/forum-chromatique/10152.png",
+     "poids_fige": 5488,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/10152.gif"
+    },
+    "10161": {
+     "fige": "assets/sprites-figes/forum-chromatique/10161.png",
+     "poids_fige": 4056,
+     "source": "other/showdown/shiny/10161.gif"
+    },
+    "10162": {
+     "fige": "assets/sprites-figes/forum-chromatique/10162.png",
+     "poids_fige": 5158,
+     "source": "other/showdown/shiny/10162.gif"
+    },
+    "10163": {
+     "fige": "assets/sprites-figes/forum-chromatique/10163.png",
+     "poids_fige": 6340,
+     "source": "other/showdown/shiny/10163.gif"
+    },
+    "10164": {
+     "fige": "assets/sprites-figes/forum-chromatique/10164.png",
+     "poids_fige": 4487,
+     "source": "other/showdown/shiny/10164.gif"
+    },
+    "10165": {
+     "fige": "assets/sprites-figes/forum-chromatique/10165.png",
+     "poids_fige": 5716,
+     "source": "other/showdown/shiny/10165.gif"
+    },
+    "10166": {
+     "fige": "assets/sprites-figes/forum-chromatique/10166.png",
+     "poids_fige": 4141,
+     "source": "other/showdown/shiny/10166.gif"
+    },
+    "10167": {
+     "fige": "assets/sprites-figes/forum-chromatique/10167.png",
+     "poids_fige": 9843,
+     "source": "other/showdown/shiny/10167.gif"
+    },
+    "10168": {
+     "fige": "assets/sprites-figes/forum-chromatique/10168.png",
+     "poids_fige": 5655,
+     "source": "other/showdown/shiny/10168.gif"
+    },
+    "10172": {
+     "fige": "assets/sprites-figes/forum-chromatique/10172.png",
+     "poids_fige": 5364,
+     "source": "other/showdown/shiny/10172.gif"
+    },
+    "10173": {
+     "fige": "assets/sprites-figes/forum-chromatique/10173.png",
+     "poids_fige": 4418,
+     "source": "other/showdown/shiny/10173.gif"
+    },
+    "10174": {
+     "fige": "assets/sprites-figes/forum-chromatique/10174.png",
+     "poids_fige": 4037,
+     "source": "other/showdown/shiny/10174.gif"
+    },
+    "10175": {
+     "fige": "assets/sprites-figes/forum-chromatique/10175.png",
+     "poids_fige": 4860,
+     "source": "other/showdown/shiny/10175.gif"
+    },
+    "10176": {
+     "fige": "assets/sprites-figes/forum-chromatique/10176.png",
+     "poids_fige": 2238,
+     "source": "other/showdown/shiny/10176.gif"
+    },
+    "10177": {
+     "fige": "assets/sprites-figes/forum-chromatique/10177.png",
+     "poids_fige": 6034,
+     "source": "other/showdown/shiny/10177.gif"
+    },
+    "10179": {
+     "fige": "assets/sprites-figes/forum-chromatique/10179.png",
+     "poids_fige": 2684,
+     "source": "other/showdown/shiny/10179.gif"
+    },
+    "1018": {
+     "fige": "assets/sprites-figes/forum-chromatique/1018.png",
+     "poids_fige": 6940,
+     "source": "other/showdown/shiny/1018.gif"
+    },
+    "10180": {
+     "fige": "assets/sprites-figes/forum-chromatique/10180.png",
+     "poids_fige": 4175,
+     "source": "other/showdown/shiny/10180.gif"
+    },
+    "1019": {
+     "fige": "assets/sprites-figes/forum-chromatique/1019.png",
+     "poids_fige": 2841,
+     "source": "other/showdown/shiny/1019.gif"
+    },
+    "102": {
+     "fige": "assets/sprites-figes/forum-chromatique/102.png",
+     "poids_fige": 2569,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/102.gif"
+    },
+    "10229": {
+     "fige": "assets/sprites-figes/forum-chromatique/10229.png",
+     "poids_fige": 4149,
+     "source": "other/showdown/shiny/10229.gif"
+    },
+    "10230": {
+     "fige": "assets/sprites-figes/forum-chromatique/10230.png",
+     "poids_fige": 13871,
+     "source": "other/showdown/shiny/10230.gif"
+    },
+    "10231": {
+     "fige": "assets/sprites-figes/forum-chromatique/10231.png",
+     "poids_fige": 4068,
+     "source": "other/showdown/shiny/10231.gif"
+    },
+    "10232": {
+     "fige": "assets/sprites-figes/forum-chromatique/10232.png",
+     "poids_fige": 8191,
+     "source": "other/showdown/shiny/10232.gif"
+    },
+    "10233": {
+     "fige": "assets/sprites-figes/forum-chromatique/10233.png",
+     "poids_fige": 2416,
+     "source": "other/showdown/shiny/10233.gif"
+    },
+    "10234": {
+     "fige": "assets/sprites-figes/forum-chromatique/10234.png",
+     "poids_fige": 4347,
+     "source": "other/showdown/shiny/10234.gif"
+    },
+    "10235": {
+     "fige": "assets/sprites-figes/forum-chromatique/10235.png",
+     "poids_fige": 4288,
+     "source": "other/showdown/shiny/10235.gif"
+    },
+    "10236": {
+     "fige": "assets/sprites-figes/forum-chromatique/10236.png",
+     "poids_fige": 4749,
+     "source": "other/showdown/shiny/10236.gif"
+    },
+    "10237": {
+     "fige": "assets/sprites-figes/forum-chromatique/10237.png",
+     "poids_fige": 5110,
+     "source": "other/showdown/shiny/10237.gif"
+    },
+    "10238": {
+     "fige": "assets/sprites-figes/forum-chromatique/10238.png",
+     "poids_fige": 2898,
+     "source": "other/showdown/shiny/10238.gif"
+    },
+    "10239": {
+     "fige": "assets/sprites-figes/forum-chromatique/10239.png",
+     "poids_fige": 5466,
+     "source": "other/showdown/shiny/10239.gif"
+    },
+    "10240": {
+     "fige": "assets/sprites-figes/forum-chromatique/10240.png",
+     "poids_fige": 10405,
+     "source": "other/showdown/shiny/10240.gif"
+    },
+    "10241": {
+     "fige": "assets/sprites-figes/forum-chromatique/10241.png",
+     "poids_fige": 3647,
+     "source": "other/showdown/shiny/10241.gif"
+    },
+    "10242": {
+     "fige": "assets/sprites-figes/forum-chromatique/10242.png",
+     "poids_fige": 9484,
+     "source": "other/showdown/shiny/10242.gif"
+    },
+    "10243": {
+     "fige": "assets/sprites-figes/forum-chromatique/10243.png",
+     "poids_fige": 12732,
+     "source": "other/showdown/shiny/10243.gif"
+    },
+    "10244": {
+     "fige": "assets/sprites-figes/forum-chromatique/10244.png",
+     "poids_fige": 3754,
+     "source": "other/showdown/shiny/10244.gif"
+    },
+    "103": {
+     "fige": "assets/sprites-figes/forum-chromatique/103.png",
+     "poids_fige": 8153,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/103.gif"
+    },
+    "104": {
+     "fige": "assets/sprites-figes/forum-chromatique/104.png",
+     "poids_fige": 2423,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/104.gif"
+    },
+    "105": {
+     "fige": "assets/sprites-figes/forum-chromatique/105.png",
+     "poids_fige": 4076,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/105.gif"
+    },
+    "106": {
+     "fige": "assets/sprites-figes/forum-chromatique/106.png",
+     "poids_fige": 4304,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/106.gif"
+    },
+    "107": {
+     "fige": "assets/sprites-figes/forum-chromatique/107.png",
+     "poids_fige": 4103,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/107.gif"
+    },
+    "108": {
+     "fige": "assets/sprites-figes/forum-chromatique/108.png",
+     "poids_fige": 5071,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/108.gif"
+    },
+    "109": {
+     "fige": "assets/sprites-figes/forum-chromatique/109.png",
+     "poids_fige": 2411,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/109.gif"
+    },
+    "11": {
+     "fige": "assets/sprites-figes/forum-chromatique/11.png",
+     "poids_fige": 2092,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/11.gif"
+    },
+    "110": {
+     "fige": "assets/sprites-figes/forum-chromatique/110.png",
+     "poids_fige": 5285,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/110.gif"
+    },
+    "111": {
+     "fige": "assets/sprites-figes/forum-chromatique/111.png",
+     "poids_fige": 5816,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/111.gif"
+    },
+    "112": {
+     "fige": "assets/sprites-figes/forum-chromatique/112.png",
+     "poids_fige": 9053,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/112.gif"
+    },
+    "113": {
+     "fige": "assets/sprites-figes/forum-chromatique/113.png",
+     "poids_fige": 3683,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/113.gif"
+    },
+    "114": {
+     "fige": "assets/sprites-figes/forum-chromatique/114.png",
+     "poids_fige": 5187,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/114.gif"
+    },
+    "115": {
+     "fige": "assets/sprites-figes/forum-chromatique/115.png",
+     "poids_fige": 8604,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/115.gif"
+    },
+    "116": {
+     "fige": "assets/sprites-figes/forum-chromatique/116.png",
+     "poids_fige": 2090,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/116.gif"
+    },
+    "117": {
+     "fige": "assets/sprites-figes/forum-chromatique/117.png",
+     "poids_fige": 4886,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/117.gif"
+    },
+    "118": {
+     "fige": "assets/sprites-figes/forum-chromatique/118.png",
+     "poids_fige": 3239,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/118.gif"
+    },
+    "119": {
+     "fige": "assets/sprites-figes/forum-chromatique/119.png",
+     "poids_fige": 3497,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/119.gif"
+    },
+    "12": {
+     "fige": "assets/sprites-figes/forum-chromatique/12.png",
+     "poids_fige": 5006,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/12.gif"
+    },
+    "120": {
+     "fige": "assets/sprites-figes/forum-chromatique/120.png",
+     "poids_fige": 2745,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/120.gif"
+    },
+    "121": {
+     "fige": "assets/sprites-figes/forum-chromatique/121.png",
+     "poids_fige": 5263,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/121.gif"
+    },
+    "122": {
+     "fige": "assets/sprites-figes/forum-chromatique/122.png",
+     "poids_fige": 5560,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/122.gif"
+    },
+    "123": {
+     "fige": "assets/sprites-figes/forum-chromatique/123.png",
+     "poids_fige": 6013,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/123.gif"
+    },
+    "124": {
+     "fige": "assets/sprites-figes/forum-chromatique/124.png",
+     "poids_fige": 7019,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/124.gif"
+    },
+    "125": {
+     "fige": "assets/sprites-figes/forum-chromatique/125.png",
+     "poids_fige": 6843,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/125.gif"
+    },
+    "126": {
+     "fige": "assets/sprites-figes/forum-chromatique/126.png",
+     "poids_fige": 6063,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/126.gif"
+    },
+    "127": {
+     "fige": "assets/sprites-figes/forum-chromatique/127.png",
+     "poids_fige": 6188,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/127.gif"
+    },
+    "128": {
+     "fige": "assets/sprites-figes/forum-chromatique/128.png",
+     "poids_fige": 5533,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/128.gif"
+    },
+    "129": {
+     "fige": "assets/sprites-figes/forum-chromatique/129.png",
+     "poids_fige": 2465,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/129.gif"
+    },
+    "13": {
+     "fige": "assets/sprites-figes/forum-chromatique/13.png",
+     "poids_fige": 1737,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/13.gif"
+    },
+    "130": {
+     "fige": "assets/sprites-figes/forum-chromatique/130.png",
+     "poids_fige": 7384,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/130.gif"
+    },
+    "131": {
+     "fige": "assets/sprites-figes/forum-chromatique/131.png",
+     "poids_fige": 6359,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/131.gif"
+    },
+    "132": {
+     "fige": "assets/sprites-figes/forum-chromatique/132.png",
+     "poids_fige": 1554,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/132.gif"
+    },
+    "133": {
+     "fige": "assets/sprites-figes/forum-chromatique/133.png",
+     "poids_fige": 3769,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/133.gif"
+    },
+    "134": {
+     "fige": "assets/sprites-figes/forum-chromatique/134.png",
+     "poids_fige": 5507,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/134.gif"
+    },
+    "135": {
+     "fige": "assets/sprites-figes/forum-chromatique/135.png",
+     "poids_fige": 4981,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/135.gif"
+    },
+    "136": {
+     "fige": "assets/sprites-figes/forum-chromatique/136.png",
+     "poids_fige": 5988,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/136.gif"
+    },
+    "137": {
+     "fige": "assets/sprites-figes/forum-chromatique/137.png",
+     "poids_fige": 2202,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/137.gif"
+    },
+    "138": {
+     "fige": "assets/sprites-figes/forum-chromatique/138.png",
+     "poids_fige": 2958,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/138.gif"
+    },
+    "139": {
+     "fige": "assets/sprites-figes/forum-chromatique/139.png",
+     "poids_fige": 4705,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/139.gif"
+    },
+    "14": {
+     "fige": "assets/sprites-figes/forum-chromatique/14.png",
+     "poids_fige": 2406,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/14.gif"
+    },
+    "140": {
+     "fige": "assets/sprites-figes/forum-chromatique/140.png",
+     "poids_fige": 2142,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/140.gif"
+    },
+    "141": {
+     "fige": "assets/sprites-figes/forum-chromatique/141.png",
+     "poids_fige": 4960,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/141.gif"
+    },
+    "142": {
+     "fige": "assets/sprites-figes/forum-chromatique/142.png",
+     "poids_fige": 5883,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/142.gif"
+    },
+    "143": {
+     "fige": "assets/sprites-figes/forum-chromatique/143.png",
+     "poids_fige": 6170,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/143.gif"
+    },
+    "147": {
+     "fige": "assets/sprites-figes/forum-chromatique/147.png",
+     "poids_fige": 2351,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/147.gif"
+    },
+    "148": {
+     "fige": "assets/sprites-figes/forum-chromatique/148.png",
+     "poids_fige": 3159,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/148.gif"
+    },
+    "149": {
+     "fige": "assets/sprites-figes/forum-chromatique/149.png",
+     "poids_fige": 7238,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/149.gif"
+    },
+    "15": {
+     "fige": "assets/sprites-figes/forum-chromatique/15.png",
+     "poids_fige": 4607,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/15.gif"
+    },
+    "152": {
+     "fige": "assets/sprites-figes/forum-chromatique/152.png",
+     "poids_fige": 2463,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/152.gif"
+    },
+    "153": {
+     "fige": "assets/sprites-figes/forum-chromatique/153.png",
+     "poids_fige": 4310,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/153.gif"
+    },
+    "154": {
+     "fige": "assets/sprites-figes/forum-chromatique/154.png",
+     "poids_fige": 6207,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/154.gif"
+    },
+    "155": {
+     "fige": "assets/sprites-figes/forum-chromatique/155.png",
+     "poids_fige": 2283,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/155.gif"
+    },
+    "156": {
+     "fige": "assets/sprites-figes/forum-chromatique/156.png",
+     "poids_fige": 3048,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/156.gif"
+    },
+    "157": {
+     "fige": "assets/sprites-figes/forum-chromatique/157.png",
+     "poids_fige": 5599,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/157.gif"
+    },
+    "158": {
+     "fige": "assets/sprites-figes/forum-chromatique/158.png",
+     "poids_fige": 3722,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/158.gif"
+    },
+    "159": {
+     "fige": "assets/sprites-figes/forum-chromatique/159.png",
+     "poids_fige": 4824,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/159.gif"
+    },
+    "16": {
+     "fige": "assets/sprites-figes/forum-chromatique/16.png",
+     "poids_fige": 2607,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/16.gif"
+    },
+    "160": {
+     "fige": "assets/sprites-figes/forum-chromatique/160.png",
+     "poids_fige": 8792,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/160.gif"
+    },
+    "161": {
+     "fige": "assets/sprites-figes/forum-chromatique/161.png",
+     "poids_fige": 3466,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/161.gif"
+    },
+    "162": {
+     "fige": "assets/sprites-figes/forum-chromatique/162.png",
+     "poids_fige": 5224,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/162.gif"
+    },
+    "163": {
+     "fige": "assets/sprites-figes/forum-chromatique/163.png",
+     "poids_fige": 3563,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/163.gif"
+    },
+    "164": {
+     "fige": "assets/sprites-figes/forum-chromatique/164.png",
+     "poids_fige": 5908,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/164.gif"
+    },
+    "165": {
+     "fige": "assets/sprites-figes/forum-chromatique/165.png",
+     "poids_fige": 3915,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/165.gif"
+    },
+    "166": {
+     "fige": "assets/sprites-figes/forum-chromatique/166.png",
+     "poids_fige": 4222,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/166.gif"
+    },
+    "167": {
+     "fige": "assets/sprites-figes/forum-chromatique/167.png",
+     "poids_fige": 1818,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/167.gif"
+    },
+    "168": {
+     "fige": "assets/sprites-figes/forum-chromatique/168.png",
+     "poids_fige": 4513,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/168.gif"
+    },
+    "169": {
+     "fige": "assets/sprites-figes/forum-chromatique/169.png",
+     "poids_fige": 3751,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/169.gif"
+    },
+    "17": {
+     "fige": "assets/sprites-figes/forum-chromatique/17.png",
+     "poids_fige": 5321,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/17.gif"
+    },
+    "170": {
+     "fige": "assets/sprites-figes/forum-chromatique/170.png",
+     "poids_fige": 3685,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/170.gif"
+    },
+    "171": {
+     "fige": "assets/sprites-figes/forum-chromatique/171.png",
+     "poids_fige": 4831,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/171.gif"
+    },
+    "172": {
+     "fige": "assets/sprites-figes/forum-chromatique/172.png",
+     "poids_fige": 1984,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/172.gif"
+    },
+    "173": {
+     "fige": "assets/sprites-figes/forum-chromatique/173.png",
+     "poids_fige": 2054,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/173.gif"
+    },
+    "174": {
+     "fige": "assets/sprites-figes/forum-chromatique/174.png",
+     "poids_fige": 1887,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/174.gif"
+    },
+    "175": {
+     "fige": "assets/sprites-figes/forum-chromatique/175.png",
+     "poids_fige": 3082,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/175.gif"
+    },
+    "176": {
+     "fige": "assets/sprites-figes/forum-chromatique/176.png",
+     "poids_fige": 3303,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/176.gif"
+    },
+    "177": {
+     "fige": "assets/sprites-figes/forum-chromatique/177.png",
+     "poids_fige": 2234,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/177.gif"
+    },
+    "178": {
+     "fige": "assets/sprites-figes/forum-chromatique/178.png",
+     "poids_fige": 5549,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/178.gif"
+    },
+    "179": {
+     "fige": "assets/sprites-figes/forum-chromatique/179.png",
+     "poids_fige": 4582,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/179.gif"
+    },
+    "18": {
+     "fige": "assets/sprites-figes/forum-chromatique/18.png",
+     "poids_fige": 5778,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/18.gif"
+    },
+    "180": {
+     "fige": "assets/sprites-figes/forum-chromatique/180.png",
+     "poids_fige": 4067,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/180.gif"
+    },
+    "181": {
+     "fige": "assets/sprites-figes/forum-chromatique/181.png",
+     "poids_fige": 5310,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/181.gif"
+    },
+    "182": {
+     "fige": "assets/sprites-figes/forum-chromatique/182.png",
+     "poids_fige": 4015,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/182.gif"
+    },
+    "183": {
+     "fige": "assets/sprites-figes/forum-chromatique/183.png",
+     "poids_fige": 2814,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/183.gif"
+    },
+    "184": {
+     "fige": "assets/sprites-figes/forum-chromatique/184.png",
+     "poids_fige": 4979,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/184.gif"
+    },
+    "185": {
+     "fige": "assets/sprites-figes/forum-chromatique/185.png",
+     "poids_fige": 2994,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/185.gif"
+    },
+    "186": {
+     "fige": "assets/sprites-figes/forum-chromatique/186.png",
+     "poids_fige": 5581,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/186.gif"
+    },
+    "187": {
+     "fige": "assets/sprites-figes/forum-chromatique/187.png",
+     "poids_fige": 2528,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/187.gif"
+    },
+    "188": {
+     "fige": "assets/sprites-figes/forum-chromatique/188.png",
+     "poids_fige": 2142,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/188.gif"
+    },
+    "189": {
+     "fige": "assets/sprites-figes/forum-chromatique/189.png",
+     "poids_fige": 5193,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/189.gif"
+    },
+    "19": {
+     "fige": "assets/sprites-figes/forum-chromatique/19.png",
+     "poids_fige": 2987,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/19.gif"
+    },
+    "190": {
+     "fige": "assets/sprites-figes/forum-chromatique/190.png",
+     "poids_fige": 3834,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/190.gif"
+    },
+    "191": {
+     "fige": "assets/sprites-figes/forum-chromatique/191.png",
+     "poids_fige": 1843,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/191.gif"
+    },
+    "192": {
+     "fige": "assets/sprites-figes/forum-chromatique/192.png",
+     "poids_fige": 4006,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/192.gif"
+    },
+    "193": {
+     "fige": "assets/sprites-figes/forum-chromatique/193.png",
+     "poids_fige": 3000,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/193.gif"
+    },
+    "194": {
+     "fige": "assets/sprites-figes/forum-chromatique/194.png",
+     "poids_fige": 2209,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/194.gif"
+    },
+    "195": {
+     "fige": "assets/sprites-figes/forum-chromatique/195.png",
+     "poids_fige": 3782,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/195.gif"
+    },
+    "196": {
+     "fige": "assets/sprites-figes/forum-chromatique/196.png",
+     "poids_fige": 4350,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/196.gif"
+    },
+    "197": {
+     "fige": "assets/sprites-figes/forum-chromatique/197.png",
+     "poids_fige": 2995,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/197.gif"
+    },
+    "198": {
+     "fige": "assets/sprites-figes/forum-chromatique/198.png",
+     "poids_fige": 3685,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/198.gif"
+    },
+    "199": {
+     "fige": "assets/sprites-figes/forum-chromatique/199.png",
+     "poids_fige": 6542,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/199.gif"
+    },
+    "2": {
+     "fige": "assets/sprites-figes/forum-chromatique/2.png",
+     "poids_fige": 5110,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/2.gif"
+    },
+    "20": {
+     "fige": "assets/sprites-figes/forum-chromatique/20.png",
+     "poids_fige": 4287,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/20.gif"
+    },
+    "200": {
+     "fige": "assets/sprites-figes/forum-chromatique/200.png",
+     "poids_fige": 2601,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/200.gif"
+    },
+    "201": {
+     "fige": "assets/sprites-figes/forum-chromatique/201.png",
+     "poids_fige": 1484,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/201.gif"
+    },
+    "202": {
+     "fige": "assets/sprites-figes/forum-chromatique/202.png",
+     "poids_fige": 3065,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/202.gif"
+    },
+    "203": {
+     "fige": "assets/sprites-figes/forum-chromatique/203.png",
+     "poids_fige": 4202,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/203.gif"
+    },
+    "204": {
+     "fige": "assets/sprites-figes/forum-chromatique/204.png",
+     "poids_fige": 4637,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/204.gif"
+    },
+    "205": {
+     "fige": "assets/sprites-figes/forum-chromatique/205.png",
+     "poids_fige": 7692,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/205.gif"
+    },
+    "206": {
+     "fige": "assets/sprites-figes/forum-chromatique/206.png",
+     "poids_fige": 3304,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/206.gif"
+    },
+    "207": {
+     "fige": "assets/sprites-figes/forum-chromatique/207.png",
+     "poids_fige": 5877,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/207.gif"
+    },
+    "208": {
+     "fige": "assets/sprites-figes/forum-chromatique/208.png",
+     "poids_fige": 9385,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/208.gif"
+    },
+    "209": {
+     "fige": "assets/sprites-figes/forum-chromatique/209.png",
+     "poids_fige": 3882,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/209.gif"
+    },
+    "21": {
+     "fige": "assets/sprites-figes/forum-chromatique/21.png",
+     "poids_fige": 2672,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/21.gif"
+    },
+    "210": {
+     "fige": "assets/sprites-figes/forum-chromatique/210.png",
+     "poids_fige": 6330,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/210.gif"
+    },
+    "211": {
+     "fige": "assets/sprites-figes/forum-chromatique/211.png",
+     "poids_fige": 3701,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/211.gif"
+    },
+    "212": {
+     "fige": "assets/sprites-figes/forum-chromatique/212.png",
+     "poids_fige": 6949,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/212.gif"
+    },
+    "213": {
+     "fige": "assets/sprites-figes/forum-chromatique/213.png",
+     "poids_fige": 3273,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/213.gif"
+    },
+    "214": {
+     "fige": "assets/sprites-figes/forum-chromatique/214.png",
+     "poids_fige": 6145,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/214.gif"
+    },
+    "215": {
+     "fige": "assets/sprites-figes/forum-chromatique/215.png",
+     "poids_fige": 3795,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/215.gif"
+    },
+    "216": {
+     "fige": "assets/sprites-figes/forum-chromatique/216.png",
+     "poids_fige": 3452,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/216.gif"
+    },
+    "217": {
+     "fige": "assets/sprites-figes/forum-chromatique/217.png",
+     "poids_fige": 7472,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/217.gif"
+    },
+    "218": {
+     "fige": "assets/sprites-figes/forum-chromatique/218.png",
+     "poids_fige": 2910,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/218.gif"
+    },
+    "219": {
+     "fige": "assets/sprites-figes/forum-chromatique/219.png",
+     "poids_fige": 7244,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/219.gif"
+    },
+    "22": {
+     "fige": "assets/sprites-figes/forum-chromatique/22.png",
+     "poids_fige": 7429,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/22.gif"
+    },
+    "220": {
+     "fige": "assets/sprites-figes/forum-chromatique/220.png",
+     "poids_fige": 1965,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/220.gif"
+    },
+    "221": {
+     "fige": "assets/sprites-figes/forum-chromatique/221.png",
+     "poids_fige": 4109,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/221.gif"
+    },
+    "222": {
+     "fige": "assets/sprites-figes/forum-chromatique/222.png",
+     "poids_fige": 3832,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/222.gif"
+    },
+    "223": {
+     "fige": "assets/sprites-figes/forum-chromatique/223.png",
+     "poids_fige": 2164,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/223.gif"
+    },
+    "224": {
+     "fige": "assets/sprites-figes/forum-chromatique/224.png",
+     "poids_fige": 4438,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/224.gif"
+    },
+    "225": {
+     "fige": "assets/sprites-figes/forum-chromatique/225.png",
+     "poids_fige": 4108,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/225.gif"
+    },
+    "226": {
+     "fige": "assets/sprites-figes/forum-chromatique/226.png",
+     "poids_fige": 4835,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/226.gif"
+    },
+    "227": {
+     "fige": "assets/sprites-figes/forum-chromatique/227.png",
+     "poids_fige": 4833,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/227.gif"
+    },
+    "228": {
+     "fige": "assets/sprites-figes/forum-chromatique/228.png",
+     "poids_fige": 3672,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/228.gif"
+    },
+    "229": {
+     "fige": "assets/sprites-figes/forum-chromatique/229.png",
+     "poids_fige": 6089,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/229.gif"
+    },
+    "23": {
+     "fige": "assets/sprites-figes/forum-chromatique/23.png",
+     "poids_fige": 1743,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/23.gif"
+    },
+    "230": {
+     "fige": "assets/sprites-figes/forum-chromatique/230.png",
+     "poids_fige": 4952,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/230.gif"
+    },
+    "231": {
+     "fige": "assets/sprites-figes/forum-chromatique/231.png",
+     "poids_fige": 3236,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/231.gif"
+    },
+    "232": {
+     "fige": "assets/sprites-figes/forum-chromatique/232.png",
+     "poids_fige": 8924,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/232.gif"
+    },
+    "233": {
+     "fige": "assets/sprites-figes/forum-chromatique/233.png",
+     "poids_fige": 3413,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/233.gif"
+    },
+    "234": {
+     "fige": "assets/sprites-figes/forum-chromatique/234.png",
+     "poids_fige": 5010,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/234.gif"
+    },
+    "235": {
+     "fige": "assets/sprites-figes/forum-chromatique/235.png",
+     "poids_fige": 4962,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/235.gif"
+    },
+    "236": {
+     "fige": "assets/sprites-figes/forum-chromatique/236.png",
+     "poids_fige": 2959,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/236.gif"
+    },
+    "237": {
+     "fige": "assets/sprites-figes/forum-chromatique/237.png",
+     "poids_fige": 4630,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/237.gif"
+    },
+    "238": {
+     "fige": "assets/sprites-figes/forum-chromatique/238.png",
+     "poids_fige": 3673,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/238.gif"
+    },
+    "239": {
+     "fige": "assets/sprites-figes/forum-chromatique/239.png",
+     "poids_fige": 3676,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/239.gif"
+    },
+    "24": {
+     "fige": "assets/sprites-figes/forum-chromatique/24.png",
+     "poids_fige": 5733,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/24.gif"
+    },
+    "240": {
+     "fige": "assets/sprites-figes/forum-chromatique/240.png",
+     "poids_fige": 3108,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/240.gif"
+    },
+    "241": {
+     "fige": "assets/sprites-figes/forum-chromatique/241.png",
+     "poids_fige": 5924,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/241.gif"
+    },
+    "242": {
+     "fige": "assets/sprites-figes/forum-chromatique/242.png",
+     "poids_fige": 5527,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/242.gif"
+    },
+    "246": {
+     "fige": "assets/sprites-figes/forum-chromatique/246.png",
+     "poids_fige": 2377,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/246.gif"
+    },
+    "247": {
+     "fige": "assets/sprites-figes/forum-chromatique/247.png",
+     "poids_fige": 3221,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/247.gif"
+    },
+    "248": {
+     "fige": "assets/sprites-figes/forum-chromatique/248.png",
+     "poids_fige": 9658,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/248.gif"
+    },
+    "25": {
+     "fige": "assets/sprites-figes/forum-chromatique/25.png",
+     "poids_fige": 2966,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/25.gif"
+    },
+    "252": {
+     "fige": "assets/sprites-figes/forum-chromatique/252.png",
+     "poids_fige": 2635,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/252.gif"
+    },
+    "253": {
+     "fige": "assets/sprites-figes/forum-chromatique/253.png",
+     "poids_fige": 5061,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/253.gif"
+    },
+    "254": {
+     "fige": "assets/sprites-figes/forum-chromatique/254.png",
+     "poids_fige": 9707,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/254.gif"
+    },
+    "255": {
+     "fige": "assets/sprites-figes/forum-chromatique/255.png",
+     "poids_fige": 2249,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/255.gif"
+    },
+    "256": {
+     "fige": "assets/sprites-figes/forum-chromatique/256.png",
+     "poids_fige": 4409,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/256.gif"
+    },
+    "257": {
+     "fige": "assets/sprites-figes/forum-chromatique/257.png",
+     "poids_fige": 6707,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/257.gif"
+    },
+    "258": {
+     "fige": "assets/sprites-figes/forum-chromatique/258.png",
+     "poids_fige": 3313,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/258.gif"
+    },
+    "259": {
+     "fige": "assets/sprites-figes/forum-chromatique/259.png",
+     "poids_fige": 5065,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/259.gif"
+    },
+    "26": {
+     "fige": "assets/sprites-figes/forum-chromatique/26.png",
+     "poids_fige": 5493,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/26.gif"
+    },
+    "260": {
+     "fige": "assets/sprites-figes/forum-chromatique/260.png",
+     "poids_fige": 9825,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/260.gif"
+    },
+    "261": {
+     "fige": "assets/sprites-figes/forum-chromatique/261.png",
+     "poids_fige": 3744,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/261.gif"
+    },
+    "262": {
+     "fige": "assets/sprites-figes/forum-chromatique/262.png",
+     "poids_fige": 6924,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/262.gif"
+    },
+    "263": {
+     "fige": "assets/sprites-figes/forum-chromatique/263.png",
+     "poids_fige": 3197,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/263.gif"
+    },
+    "264": {
+     "fige": "assets/sprites-figes/forum-chromatique/264.png",
+     "poids_fige": 4080,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/264.gif"
+    },
+    "265": {
+     "fige": "assets/sprites-figes/forum-chromatique/265.png",
+     "poids_fige": 2740,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/265.gif"
+    },
+    "266": {
+     "fige": "assets/sprites-figes/forum-chromatique/266.png",
+     "poids_fige": 3147,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/266.gif"
+    },
+    "267": {
+     "fige": "assets/sprites-figes/forum-chromatique/267.png",
+     "poids_fige": 7528,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/267.gif"
+    },
+    "268": {
+     "fige": "assets/sprites-figes/forum-chromatique/268.png",
+     "poids_fige": 3156,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/268.gif"
+    },
+    "269": {
+     "fige": "assets/sprites-figes/forum-chromatique/269.png",
+     "poids_fige": 7266,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/269.gif"
+    },
+    "27": {
+     "fige": "assets/sprites-figes/forum-chromatique/27.png",
+     "poids_fige": 3569,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/27.gif"
+    },
+    "270": {
+     "fige": "assets/sprites-figes/forum-chromatique/270.png",
+     "poids_fige": 1467,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/270.gif"
+    },
+    "271": {
+     "fige": "assets/sprites-figes/forum-chromatique/271.png",
+     "poids_fige": 3643,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/271.gif"
+    },
+    "272": {
+     "fige": "assets/sprites-figes/forum-chromatique/272.png",
+     "poids_fige": 8457,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/272.gif"
+    },
+    "273": {
+     "fige": "assets/sprites-figes/forum-chromatique/273.png",
+     "poids_fige": 1993,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/273.gif"
+    },
+    "274": {
+     "fige": "assets/sprites-figes/forum-chromatique/274.png",
+     "poids_fige": 4469,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/274.gif"
+    },
+    "275": {
+     "fige": "assets/sprites-figes/forum-chromatique/275.png",
+     "poids_fige": 9933,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/275.gif"
+    },
+    "276": {
+     "fige": "assets/sprites-figes/forum-chromatique/276.png",
+     "poids_fige": 2578,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/276.gif"
+    },
+    "277": {
+     "fige": "assets/sprites-figes/forum-chromatique/277.png",
+     "poids_fige": 3742,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/277.gif"
+    },
+    "278": {
+     "fige": "assets/sprites-figes/forum-chromatique/278.png",
+     "poids_fige": 1654,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/278.gif"
+    },
+    "279": {
+     "fige": "assets/sprites-figes/forum-chromatique/279.png",
+     "poids_fige": 4934,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/279.gif"
+    },
+    "28": {
+     "fige": "assets/sprites-figes/forum-chromatique/28.png",
+     "poids_fige": 5628,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/28.gif"
+    },
+    "280": {
+     "fige": "assets/sprites-figes/forum-chromatique/280.png",
+     "poids_fige": 1897,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/280.gif"
+    },
+    "281": {
+     "fige": "assets/sprites-figes/forum-chromatique/281.png",
+     "poids_fige": 3494,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/281.gif"
+    },
+    "282": {
+     "fige": "assets/sprites-figes/forum-chromatique/282.png",
+     "poids_fige": 4155,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/282.gif"
+    },
+    "283": {
+     "fige": "assets/sprites-figes/forum-chromatique/283.png",
+     "poids_fige": 1896,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/283.gif"
+    },
+    "284": {
+     "fige": "assets/sprites-figes/forum-chromatique/284.png",
+     "poids_fige": 4006,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/284.gif"
+    },
+    "285": {
+     "fige": "assets/sprites-figes/forum-chromatique/285.png",
+     "poids_fige": 1831,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/285.gif"
+    },
+    "286": {
+     "fige": "assets/sprites-figes/forum-chromatique/286.png",
+     "poids_fige": 5119,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/286.gif"
+    },
+    "287": {
+     "fige": "assets/sprites-figes/forum-chromatique/287.png",
+     "poids_fige": 2829,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/287.gif"
+    },
+    "288": {
+     "fige": "assets/sprites-figes/forum-chromatique/288.png",
+     "poids_fige": 5021,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/288.gif"
+    },
+    "289": {
+     "fige": "assets/sprites-figes/forum-chromatique/289.png",
+     "poids_fige": 9981,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/289.gif"
+    },
+    "29": {
+     "fige": "assets/sprites-figes/forum-chromatique/29.png",
+     "poids_fige": 2299,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/29.gif"
+    },
+    "290": {
+     "fige": "assets/sprites-figes/forum-chromatique/290.png",
+     "poids_fige": 2272,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/290.gif"
+    },
+    "291": {
+     "fige": "assets/sprites-figes/forum-chromatique/291.png",
+     "poids_fige": 3398,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/291.gif"
+    },
+    "292": {
+     "fige": "assets/sprites-figes/forum-chromatique/292.png",
+     "poids_fige": 3720,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/292.gif"
+    },
+    "293": {
+     "fige": "assets/sprites-figes/forum-chromatique/293.png",
+     "poids_fige": 2393,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/293.gif"
+    },
+    "294": {
+     "fige": "assets/sprites-figes/forum-chromatique/294.png",
+     "poids_fige": 8175,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/294.gif"
+    },
+    "295": {
+     "fige": "assets/sprites-figes/forum-chromatique/295.png",
+     "poids_fige": 9844,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/295.gif"
+    },
+    "296": {
+     "fige": "assets/sprites-figes/forum-chromatique/296.png",
+     "poids_fige": 4462,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/296.gif"
+    },
+    "297": {
+     "fige": "assets/sprites-figes/forum-chromatique/297.png",
+     "poids_fige": 10024,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/297.gif"
+    },
+    "298": {
+     "fige": "assets/sprites-figes/forum-chromatique/298.png",
+     "poids_fige": 2068,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/298.gif"
+    },
+    "299": {
+     "fige": "assets/sprites-figes/forum-chromatique/299.png",
+     "poids_fige": 3149,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/299.gif"
+    },
+    "3": {
+     "fige": "assets/sprites-figes/forum-chromatique/3.png",
+     "poids_fige": 9536,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/3.gif"
+    },
+    "30": {
+     "fige": "assets/sprites-figes/forum-chromatique/30.png",
+     "poids_fige": 3029,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/30.gif"
+    },
+    "300": {
+     "fige": "assets/sprites-figes/forum-chromatique/300.png",
+     "poids_fige": 3429,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/300.gif"
+    },
+    "301": {
+     "fige": "assets/sprites-figes/forum-chromatique/301.png",
+     "poids_fige": 4295,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/301.gif"
+    },
+    "302": {
+     "fige": "assets/sprites-figes/forum-chromatique/302.png",
+     "poids_fige": 2712,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/302.gif"
+    },
+    "303": {
+     "fige": "assets/sprites-figes/forum-chromatique/303.png",
+     "poids_fige": 5040,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/303.gif"
+    },
+    "304": {
+     "fige": "assets/sprites-figes/forum-chromatique/304.png",
+     "poids_fige": 2345,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/304.gif"
+    },
+    "305": {
+     "fige": "assets/sprites-figes/forum-chromatique/305.png",
+     "poids_fige": 5473,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/305.gif"
+    },
+    "306": {
+     "fige": "assets/sprites-figes/forum-chromatique/306.png",
+     "poids_fige": 10039,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/306.gif"
+    },
+    "307": {
+     "fige": "assets/sprites-figes/forum-chromatique/307.png",
+     "poids_fige": 3014,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/307.gif"
+    },
+    "308": {
+     "fige": "assets/sprites-figes/forum-chromatique/308.png",
+     "poids_fige": 4534,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/308.gif"
+    },
+    "309": {
+     "fige": "assets/sprites-figes/forum-chromatique/309.png",
+     "poids_fige": 2963,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/309.gif"
+    },
+    "31": {
+     "fige": "assets/sprites-figes/forum-chromatique/31.png",
+     "poids_fige": 7487,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/31.gif"
+    },
+    "310": {
+     "fige": "assets/sprites-figes/forum-chromatique/310.png",
+     "poids_fige": 5536,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/310.gif"
+    },
+    "311": {
+     "fige": "assets/sprites-figes/forum-chromatique/311.png",
+     "poids_fige": 2314,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/311.gif"
+    },
+    "312": {
+     "fige": "assets/sprites-figes/forum-chromatique/312.png",
+     "poids_fige": 2355,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/312.gif"
+    },
+    "313": {
+     "fige": "assets/sprites-figes/forum-chromatique/313.png",
+     "poids_fige": 4328,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/313.gif"
+    },
+    "314": {
+     "fige": "assets/sprites-figes/forum-chromatique/314.png",
+     "poids_fige": 4001,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/314.gif"
+    },
+    "315": {
+     "fige": "assets/sprites-figes/forum-chromatique/315.png",
+     "poids_fige": 3746,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/315.gif"
+    },
+    "316": {
+     "fige": "assets/sprites-figes/forum-chromatique/316.png",
+     "poids_fige": 2207,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/316.gif"
+    },
+    "317": {
+     "fige": "assets/sprites-figes/forum-chromatique/317.png",
+     "poids_fige": 4763,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/317.gif"
+    },
+    "318": {
+     "fige": "assets/sprites-figes/forum-chromatique/318.png",
+     "poids_fige": 2920,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/318.gif"
+    },
+    "319": {
+     "fige": "assets/sprites-figes/forum-chromatique/319.png",
+     "poids_fige": 5104,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/319.gif"
+    },
+    "32": {
+     "fige": "assets/sprites-figes/forum-chromatique/32.png",
+     "poids_fige": 3421,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/32.gif"
+    },
+    "320": {
+     "fige": "assets/sprites-figes/forum-chromatique/320.png",
+     "poids_fige": 5968,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/320.gif"
+    },
+    "321": {
+     "fige": "assets/sprites-figes/forum-chromatique/321.png",
+     "poids_fige": 10933,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/321.gif"
+    },
+    "322": {
+     "fige": "assets/sprites-figes/forum-chromatique/322.png",
+     "poids_fige": 3869,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/322.gif"
+    },
+    "323": {
+     "fige": "assets/sprites-figes/forum-chromatique/323.png",
+     "poids_fige": 8025,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/323.gif"
+    },
+    "324": {
+     "fige": "assets/sprites-figes/forum-chromatique/324.png",
+     "poids_fige": 6803,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/324.gif"
+    },
+    "325": {
+     "fige": "assets/sprites-figes/forum-chromatique/325.png",
+     "poids_fige": 2308,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/325.gif"
+    },
+    "326": {
+     "fige": "assets/sprites-figes/forum-chromatique/326.png",
+     "poids_fige": 5266,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/326.gif"
+    },
+    "327": {
+     "fige": "assets/sprites-figes/forum-chromatique/327.png",
+     "poids_fige": 3270,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/327.gif"
+    },
+    "328": {
+     "fige": "assets/sprites-figes/forum-chromatique/328.png",
+     "poids_fige": 2473,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/328.gif"
+    },
+    "329": {
+     "fige": "assets/sprites-figes/forum-chromatique/329.png",
+     "poids_fige": 3713,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/329.gif"
+    },
+    "33": {
+     "fige": "assets/sprites-figes/forum-chromatique/33.png",
+     "poids_fige": 4624,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/33.gif"
+    },
+    "330": {
+     "fige": "assets/sprites-figes/forum-chromatique/330.png",
+     "poids_fige": 6856,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/330.gif"
+    },
+    "331": {
+     "fige": "assets/sprites-figes/forum-chromatique/331.png",
+     "poids_fige": 3684,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/331.gif"
+    },
+    "332": {
+     "fige": "assets/sprites-figes/forum-chromatique/332.png",
+     "poids_fige": 5876,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/332.gif"
+    },
+    "333": {
+     "fige": "assets/sprites-figes/forum-chromatique/333.png",
+     "poids_fige": 2793,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/333.gif"
+    },
+    "334": {
+     "fige": "assets/sprites-figes/forum-chromatique/334.png",
+     "poids_fige": 5849,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/334.gif"
+    },
+    "335": {
+     "fige": "assets/sprites-figes/forum-chromatique/335.png",
+     "poids_fige": 5125,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/335.gif"
+    },
+    "336": {
+     "fige": "assets/sprites-figes/forum-chromatique/336.png",
+     "poids_fige": 6647,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/336.gif"
+    },
+    "337": {
+     "fige": "assets/sprites-figes/forum-chromatique/337.png",
+     "poids_fige": 3145,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/337.gif"
+    },
+    "338": {
+     "fige": "assets/sprites-figes/forum-chromatique/338.png",
+     "poids_fige": 4916,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/338.gif"
+    },
+    "339": {
+     "fige": "assets/sprites-figes/forum-chromatique/339.png",
+     "poids_fige": 2087,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/339.gif"
+    },
+    "34": {
+     "fige": "assets/sprites-figes/forum-chromatique/34.png",
+     "poids_fige": 9614,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/34.gif"
+    },
+    "340": {
+     "fige": "assets/sprites-figes/forum-chromatique/340.png",
+     "poids_fige": 4341,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/340.gif"
+    },
+    "341": {
+     "fige": "assets/sprites-figes/forum-chromatique/341.png",
+     "poids_fige": 3490,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/341.gif"
+    },
+    "342": {
+     "fige": "assets/sprites-figes/forum-chromatique/342.png",
+     "poids_fige": 7531,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/342.gif"
+    },
+    "343": {
+     "fige": "assets/sprites-figes/forum-chromatique/343.png",
+     "poids_fige": 2470,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/343.gif"
+    },
+    "344": {
+     "fige": "assets/sprites-figes/forum-chromatique/344.png",
+     "poids_fige": 6528,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/344.gif"
+    },
+    "345": {
+     "fige": "assets/sprites-figes/forum-chromatique/345.png",
+     "poids_fige": 4270,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/345.gif"
+    },
+    "346": {
+     "fige": "assets/sprites-figes/forum-chromatique/346.png",
+     "poids_fige": 6462,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/346.gif"
+    },
+    "347": {
+     "fige": "assets/sprites-figes/forum-chromatique/347.png",
+     "poids_fige": 2002,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/347.gif"
+    },
+    "348": {
+     "fige": "assets/sprites-figes/forum-chromatique/348.png",
+     "poids_fige": 10172,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/348.gif"
+    },
+    "349": {
+     "fige": "assets/sprites-figes/forum-chromatique/349.png",
+     "poids_fige": 2618,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/349.gif"
+    },
+    "35": {
+     "fige": "assets/sprites-figes/forum-chromatique/35.png",
+     "poids_fige": 2546,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/35.gif"
+    },
+    "350": {
+     "fige": "assets/sprites-figes/forum-chromatique/350.png",
+     "poids_fige": 7180,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/350.gif"
+    },
+    "351": {
+     "fige": "assets/sprites-figes/forum-chromatique/351.png",
+     "poids_fige": 2083,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/351.gif"
+    },
+    "352": {
+     "fige": "assets/sprites-figes/forum-chromatique/352.png",
+     "poids_fige": 4751,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/352.gif"
+    },
+    "353": {
+     "fige": "assets/sprites-figes/forum-chromatique/353.png",
+     "poids_fige": 1640,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/353.gif"
+    },
+    "354": {
+     "fige": "assets/sprites-figes/forum-chromatique/354.png",
+     "poids_fige": 3223,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/354.gif"
+    },
+    "355": {
+     "fige": "assets/sprites-figes/forum-chromatique/355.png",
+     "poids_fige": 2588,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/355.gif"
+    },
+    "356": {
+     "fige": "assets/sprites-figes/forum-chromatique/356.png",
+     "poids_fige": 7615,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/356.gif"
+    },
+    "357": {
+     "fige": "assets/sprites-figes/forum-chromatique/357.png",
+     "poids_fige": 8131,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/357.gif"
+    },
+    "358": {
+     "fige": "assets/sprites-figes/forum-chromatique/358.png",
+     "poids_fige": 2094,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/358.gif"
+    },
+    "359": {
+     "fige": "assets/sprites-figes/forum-chromatique/359.png",
+     "poids_fige": 4685,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/359.gif"
+    },
+    "36": {
+     "fige": "assets/sprites-figes/forum-chromatique/36.png",
+     "poids_fige": 4014,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/36.gif"
+    },
+    "360": {
+     "fige": "assets/sprites-figes/forum-chromatique/360.png",
+     "poids_fige": 2692,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/360.gif"
+    },
+    "361": {
+     "fige": "assets/sprites-figes/forum-chromatique/361.png",
+     "poids_fige": 2229,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/361.gif"
+    },
+    "362": {
+     "fige": "assets/sprites-figes/forum-chromatique/362.png",
+     "poids_fige": 8023,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/362.gif"
+    },
+    "363": {
+     "fige": "assets/sprites-figes/forum-chromatique/363.png",
+     "poids_fige": 2283,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/363.gif"
+    },
+    "364": {
+     "fige": "assets/sprites-figes/forum-chromatique/364.png",
+     "poids_fige": 4712,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/364.gif"
+    },
+    "365": {
+     "fige": "assets/sprites-figes/forum-chromatique/365.png",
+     "poids_fige": 7671,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/365.gif"
+    },
+    "366": {
+     "fige": "assets/sprites-figes/forum-chromatique/366.png",
+     "poids_fige": 3701,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/366.gif"
+    },
+    "367": {
+     "fige": "assets/sprites-figes/forum-chromatique/367.png",
+     "poids_fige": 5083,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/367.gif"
+    },
+    "368": {
+     "fige": "assets/sprites-figes/forum-chromatique/368.png",
+     "poids_fige": 4169,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/368.gif"
+    },
+    "369": {
+     "fige": "assets/sprites-figes/forum-chromatique/369.png",
+     "poids_fige": 6422,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/369.gif"
+    },
+    "37": {
+     "fige": "assets/sprites-figes/forum-chromatique/37.png",
+     "poids_fige": 3686,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/37.gif"
+    },
+    "370": {
+     "fige": "assets/sprites-figes/forum-chromatique/370.png",
+     "poids_fige": 1543,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/370.gif"
+    },
+    "371": {
+     "fige": "assets/sprites-figes/forum-chromatique/371.png",
+     "poids_fige": 3219,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/371.gif"
+    },
+    "372": {
+     "fige": "assets/sprites-figes/forum-chromatique/372.png",
+     "poids_fige": 4044,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/372.gif"
+    },
+    "373": {
+     "fige": "assets/sprites-figes/forum-chromatique/373.png",
+     "poids_fige": 9773,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/373.gif"
+    },
+    "374": {
+     "fige": "assets/sprites-figes/forum-chromatique/374.png",
+     "poids_fige": 2062,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/374.gif"
+    },
+    "375": {
+     "fige": "assets/sprites-figes/forum-chromatique/375.png",
+     "poids_fige": 7577,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/375.gif"
+    },
+    "376": {
+     "fige": "assets/sprites-figes/forum-chromatique/376.png",
+     "poids_fige": 12704,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/376.gif"
+    },
+    "38": {
+     "fige": "assets/sprites-figes/forum-chromatique/38.png",
+     "poids_fige": 8110,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/38.gif"
+    },
+    "387": {
+     "fige": "assets/sprites-figes/forum-chromatique/387.png",
+     "poids_fige": 2355,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/387.gif"
+    },
+    "388": {
+     "fige": "assets/sprites-figes/forum-chromatique/388.png",
+     "poids_fige": 7706,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/388.gif"
+    },
+    "389": {
+     "fige": "assets/sprites-figes/forum-chromatique/389.png",
+     "poids_fige": 12702,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/389.gif"
+    },
+    "39": {
+     "fige": "assets/sprites-figes/forum-chromatique/39.png",
+     "poids_fige": 2659,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/39.gif"
+    },
+    "390": {
+     "fige": "assets/sprites-figes/forum-chromatique/390.png",
+     "poids_fige": 3857,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/390.gif"
+    },
+    "391": {
+     "fige": "assets/sprites-figes/forum-chromatique/391.png",
+     "poids_fige": 5243,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/391.gif"
+    },
+    "392": {
+     "fige": "assets/sprites-figes/forum-chromatique/392.png",
+     "poids_fige": 9383,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/392.gif"
+    },
+    "393": {
+     "fige": "assets/sprites-figes/forum-chromatique/393.png",
+     "poids_fige": 3568,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/393.gif"
+    },
+    "394": {
+     "fige": "assets/sprites-figes/forum-chromatique/394.png",
+     "poids_fige": 5364,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/394.gif"
+    },
+    "395": {
+     "fige": "assets/sprites-figes/forum-chromatique/395.png",
+     "poids_fige": 7879,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/395.gif"
+    },
+    "396": {
+     "fige": "assets/sprites-figes/forum-chromatique/396.png",
+     "poids_fige": 2285,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/396.gif"
+    },
+    "397": {
+     "fige": "assets/sprites-figes/forum-chromatique/397.png",
+     "poids_fige": 5393,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/397.gif"
+    },
+    "398": {
+     "fige": "assets/sprites-figes/forum-chromatique/398.png",
+     "poids_fige": 9467,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/398.gif"
+    },
+    "399": {
+     "fige": "assets/sprites-figes/forum-chromatique/399.png",
+     "poids_fige": 3506,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/399.gif"
+    },
+    "4": {
+     "fige": "assets/sprites-figes/forum-chromatique/4.png",
+     "poids_fige": 3267,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/4.gif"
+    },
+    "40": {
+     "fige": "assets/sprites-figes/forum-chromatique/40.png",
+     "poids_fige": 4536,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/40.gif"
+    },
+    "400": {
+     "fige": "assets/sprites-figes/forum-chromatique/400.png",
+     "poids_fige": 5323,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/400.gif"
+    },
+    "401": {
+     "fige": "assets/sprites-figes/forum-chromatique/401.png",
+     "poids_fige": 3344,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/401.gif"
+    },
+    "402": {
+     "fige": "assets/sprites-figes/forum-chromatique/402.png",
+     "poids_fige": 5173,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/402.gif"
+    },
+    "403": {
+     "fige": "assets/sprites-figes/forum-chromatique/403.png",
+     "poids_fige": 4239,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/403.gif"
+    },
+    "404": {
+     "fige": "assets/sprites-figes/forum-chromatique/404.png",
+     "poids_fige": 6277,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/404.gif"
+    },
+    "405": {
+     "fige": "assets/sprites-figes/forum-chromatique/405.png",
+     "poids_fige": 6926,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/405.gif"
+    },
+    "406": {
+     "fige": "assets/sprites-figes/forum-chromatique/406.png",
+     "poids_fige": 1723,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/406.gif"
+    },
+    "407": {
+     "fige": "assets/sprites-figes/forum-chromatique/407.png",
+     "poids_fige": 4644,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/407.gif"
+    },
+    "408": {
+     "fige": "assets/sprites-figes/forum-chromatique/408.png",
+     "poids_fige": 4181,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/408.gif"
+    },
+    "409": {
+     "fige": "assets/sprites-figes/forum-chromatique/409.png",
+     "poids_fige": 6460,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/409.gif"
+    },
+    "41": {
+     "fige": "assets/sprites-figes/forum-chromatique/41.png",
+     "poids_fige": 2681,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/41.gif"
+    },
+    "410": {
+     "fige": "assets/sprites-figes/forum-chromatique/410.png",
+     "poids_fige": 3041,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/410.gif"
+    },
+    "411": {
+     "fige": "assets/sprites-figes/forum-chromatique/411.png",
+     "poids_fige": 8125,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/411.gif"
+    },
+    "412": {
+     "fige": "assets/sprites-figes/forum-chromatique/412.png",
+     "poids_fige": 2142,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/412.gif"
+    },
+    "413": {
+     "fige": "assets/sprites-figes/forum-chromatique/413.png",
+     "poids_fige": 3583,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/413.gif"
+    },
+    "414": {
+     "fige": "assets/sprites-figes/forum-chromatique/414.png",
+     "poids_fige": 4462,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/414.gif"
+    },
+    "415": {
+     "fige": "assets/sprites-figes/forum-chromatique/415.png",
+     "poids_fige": 2258,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/415.gif"
+    },
+    "416": {
+     "fige": "assets/sprites-figes/forum-chromatique/416.png",
+     "poids_fige": 7010,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/416.gif"
+    },
+    "417": {
+     "fige": "assets/sprites-figes/forum-chromatique/417.png",
+     "poids_fige": 3842,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/417.gif"
+    },
+    "418": {
+     "fige": "assets/sprites-figes/forum-chromatique/418.png",
+     "poids_fige": 3335,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/418.gif"
+    },
+    "419": {
+     "fige": "assets/sprites-figes/forum-chromatique/419.png",
+     "poids_fige": 6138,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/419.gif"
+    },
+    "42": {
+     "fige": "assets/sprites-figes/forum-chromatique/42.png",
+     "poids_fige": 4198,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/42.gif"
+    },
+    "420": {
+     "fige": "assets/sprites-figes/forum-chromatique/420.png",
+     "poids_fige": 2016,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/420.gif"
+    },
+    "421": {
+     "fige": "assets/sprites-figes/forum-chromatique/421.png",
+     "poids_fige": 2172,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/421.gif"
+    },
+    "422": {
+     "fige": "assets/sprites-figes/forum-chromatique/422.png",
+     "poids_fige": 3208,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/422.gif"
+    },
+    "423": {
+     "fige": "assets/sprites-figes/forum-chromatique/423.png",
+     "poids_fige": 6091,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/423.gif"
+    },
+    "424": {
+     "fige": "assets/sprites-figes/forum-chromatique/424.png",
+     "poids_fige": 9035,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/424.gif"
+    },
+    "425": {
+     "fige": "assets/sprites-figes/forum-chromatique/425.png",
+     "poids_fige": 1845,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/425.gif"
+    },
+    "426": {
+     "fige": "assets/sprites-figes/forum-chromatique/426.png",
+     "poids_fige": 5809,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/426.gif"
+    },
+    "427": {
+     "fige": "assets/sprites-figes/forum-chromatique/427.png",
+     "poids_fige": 3514,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/427.gif"
+    },
+    "428": {
+     "fige": "assets/sprites-figes/forum-chromatique/428.png",
+     "poids_fige": 5832,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/428.gif"
+    },
+    "429": {
+     "fige": "assets/sprites-figes/forum-chromatique/429.png",
+     "poids_fige": 6086,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/429.gif"
+    },
+    "43": {
+     "fige": "assets/sprites-figes/forum-chromatique/43.png",
+     "poids_fige": 2149,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/43.gif"
+    },
+    "430": {
+     "fige": "assets/sprites-figes/forum-chromatique/430.png",
+     "poids_fige": 7916,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/430.gif"
+    },
+    "431": {
+     "fige": "assets/sprites-figes/forum-chromatique/431.png",
+     "poids_fige": 4705,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/431.gif"
+    },
+    "432": {
+     "fige": "assets/sprites-figes/forum-chromatique/432.png",
+     "poids_fige": 7021,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/432.gif"
+    },
+    "433": {
+     "fige": "assets/sprites-figes/forum-chromatique/433.png",
+     "poids_fige": 2520,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/433.gif"
+    },
+    "434": {
+     "fige": "assets/sprites-figes/forum-chromatique/434.png",
+     "poids_fige": 5415,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/434.gif"
+    },
+    "435": {
+     "fige": "assets/sprites-figes/forum-chromatique/435.png",
+     "poids_fige": 7603,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/435.gif"
+    },
+    "436": {
+     "fige": "assets/sprites-figes/forum-chromatique/436.png",
+     "poids_fige": 2424,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/436.gif"
+    },
+    "437": {
+     "fige": "assets/sprites-figes/forum-chromatique/437.png",
+     "poids_fige": 6382,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/437.gif"
+    },
+    "438": {
+     "fige": "assets/sprites-figes/forum-chromatique/438.png",
+     "poids_fige": 2092,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/438.gif"
+    },
+    "439": {
+     "fige": "assets/sprites-figes/forum-chromatique/439.png",
+     "poids_fige": 2478,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/439.gif"
+    },
+    "44": {
+     "fige": "assets/sprites-figes/forum-chromatique/44.png",
+     "poids_fige": 3862,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/44.gif"
+    },
+    "440": {
+     "fige": "assets/sprites-figes/forum-chromatique/440.png",
+     "poids_fige": 1983,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/440.gif"
+    },
+    "441": {
+     "fige": "assets/sprites-figes/forum-chromatique/441.png",
+     "poids_fige": 2929,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/441.gif"
+    },
+    "442": {
+     "fige": "assets/sprites-figes/forum-chromatique/442.png",
+     "poids_fige": 5552,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/442.gif"
+    },
+    "443": {
+     "fige": "assets/sprites-figes/forum-chromatique/443.png",
+     "poids_fige": 4056,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/443.gif"
+    },
+    "444": {
+     "fige": "assets/sprites-figes/forum-chromatique/444.png",
+     "poids_fige": 5196,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/444.gif"
+    },
+    "445": {
+     "fige": "assets/sprites-figes/forum-chromatique/445.png",
+     "poids_fige": 10392,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/445.gif"
+    },
+    "446": {
+     "fige": "assets/sprites-figes/forum-chromatique/446.png",
+     "poids_fige": 2674,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/446.gif"
+    },
+    "447": {
+     "fige": "assets/sprites-figes/forum-chromatique/447.png",
+     "poids_fige": 3281,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/447.gif"
+    },
+    "448": {
+     "fige": "assets/sprites-figes/forum-chromatique/448.png",
+     "poids_fige": 5797,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/448.gif"
+    },
+    "449": {
+     "fige": "assets/sprites-figes/forum-chromatique/449.png",
+     "poids_fige": 4390,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/449.gif"
+    },
+    "45": {
+     "fige": "assets/sprites-figes/forum-chromatique/45.png",
+     "poids_fige": 2761,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/45.gif"
+    },
+    "450": {
+     "fige": "assets/sprites-figes/forum-chromatique/450.png",
+     "poids_fige": 7225,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/450.gif"
+    },
+    "451": {
+     "fige": "assets/sprites-figes/forum-chromatique/451.png",
+     "poids_fige": 4688,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/451.gif"
+    },
+    "452": {
+     "fige": "assets/sprites-figes/forum-chromatique/452.png",
+     "poids_fige": 13195,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/452.gif"
+    },
+    "453": {
+     "fige": "assets/sprites-figes/forum-chromatique/453.png",
+     "poids_fige": 4752,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/453.gif"
+    },
+    "454": {
+     "fige": "assets/sprites-figes/forum-chromatique/454.png",
+     "poids_fige": 6787,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/454.gif"
+    },
+    "455": {
+     "fige": "assets/sprites-figes/forum-chromatique/455.png",
+     "poids_fige": 5919,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/455.gif"
+    },
+    "456": {
+     "fige": "assets/sprites-figes/forum-chromatique/456.png",
+     "poids_fige": 2844,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/456.gif"
+    },
+    "457": {
+     "fige": "assets/sprites-figes/forum-chromatique/457.png",
+     "poids_fige": 5121,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/457.gif"
+    },
+    "458": {
+     "fige": "assets/sprites-figes/forum-chromatique/458.png",
+     "poids_fige": 2845,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/458.gif"
+    },
+    "459": {
+     "fige": "assets/sprites-figes/forum-chromatique/459.png",
+     "poids_fige": 4719,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/459.gif"
+    },
+    "46": {
+     "fige": "assets/sprites-figes/forum-chromatique/46.png",
+     "poids_fige": 2815,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/46.gif"
+    },
+    "460": {
+     "fige": "assets/sprites-figes/forum-chromatique/460.png",
+     "poids_fige": 9101,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/460.gif"
+    },
+    "461": {
+     "fige": "assets/sprites-figes/forum-chromatique/461.png",
+     "poids_fige": 5864,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/461.gif"
+    },
+    "462": {
+     "fige": "assets/sprites-figes/forum-chromatique/462.png",
+     "poids_fige": 5455,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/462.gif"
+    },
+    "463": {
+     "fige": "assets/sprites-figes/forum-chromatique/463.png",
+     "poids_fige": 5240,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/463.gif"
+    },
+    "464": {
+     "fige": "assets/sprites-figes/forum-chromatique/464.png",
+     "poids_fige": 14015,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/464.gif"
+    },
+    "465": {
+     "fige": "assets/sprites-figes/forum-chromatique/465.png",
+     "poids_fige": 10701,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/465.gif"
+    },
+    "466": {
+     "fige": "assets/sprites-figes/forum-chromatique/466.png",
+     "poids_fige": 10782,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/466.gif"
+    },
+    "467": {
+     "fige": "assets/sprites-figes/forum-chromatique/467.png",
+     "poids_fige": 10731,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/467.gif"
+    },
+    "468": {
+     "fige": "assets/sprites-figes/forum-chromatique/468.png",
+     "poids_fige": 2695,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/468.gif"
+    },
+    "469": {
+     "fige": "assets/sprites-figes/forum-chromatique/469.png",
+     "poids_fige": 4040,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/469.gif"
+    },
+    "47": {
+     "fige": "assets/sprites-figes/forum-chromatique/47.png",
+     "poids_fige": 5495,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/47.gif"
+    },
+    "470": {
+     "fige": "assets/sprites-figes/forum-chromatique/470.png",
+     "poids_fige": 4965,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/470.gif"
+    },
+    "471": {
+     "fige": "assets/sprites-figes/forum-chromatique/471.png",
+     "poids_fige": 4827,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/471.gif"
+    },
+    "472": {
+     "fige": "assets/sprites-figes/forum-chromatique/472.png",
+     "poids_fige": 8497,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/472.gif"
+    },
+    "473": {
+     "fige": "assets/sprites-figes/forum-chromatique/473.png",
+     "poids_fige": 10572,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/473.gif"
+    },
+    "474": {
+     "fige": "assets/sprites-figes/forum-chromatique/474.png",
+     "poids_fige": 3255,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/474.gif"
+    },
+    "475": {
+     "fige": "assets/sprites-figes/forum-chromatique/475.png",
+     "poids_fige": 3133,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/475.gif"
+    },
+    "476": {
+     "fige": "assets/sprites-figes/forum-chromatique/476.png",
+     "poids_fige": 7214,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/476.gif"
+    },
+    "477": {
+     "fige": "assets/sprites-figes/forum-chromatique/477.png",
+     "poids_fige": 9339,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/477.gif"
+    },
+    "478": {
+     "fige": "assets/sprites-figes/forum-chromatique/478.png",
+     "poids_fige": 4930,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/478.gif"
+    },
+    "479": {
+     "fige": "assets/sprites-figes/forum-chromatique/479.png",
+     "poids_fige": 1958,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/479.gif"
+    },
+    "48": {
+     "fige": "assets/sprites-figes/forum-chromatique/48.png",
+     "poids_fige": 3339,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/48.gif"
+    },
+    "49": {
+     "fige": "assets/sprites-figes/forum-chromatique/49.png",
+     "poids_fige": 6831,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/49.gif"
+    },
+    "495": {
+     "fige": "assets/sprites-figes/forum-chromatique/495.png",
+     "poids_fige": 3053,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/495.gif"
+    },
+    "496": {
+     "fige": "assets/sprites-figes/forum-chromatique/496.png",
+     "poids_fige": 3572,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/496.gif"
+    },
+    "497": {
+     "fige": "assets/sprites-figes/forum-chromatique/497.png",
+     "poids_fige": 6820,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/497.gif"
+    },
+    "498": {
+     "fige": "assets/sprites-figes/forum-chromatique/498.png",
+     "poids_fige": 3286,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/498.gif"
+    },
+    "499": {
+     "fige": "assets/sprites-figes/forum-chromatique/499.png",
+     "poids_fige": 6023,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/499.gif"
+    },
+    "5": {
+     "fige": "assets/sprites-figes/forum-chromatique/5.png",
+     "poids_fige": 4259,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/5.gif"
+    },
+    "50": {
+     "fige": "assets/sprites-figes/forum-chromatique/50.png",
+     "poids_fige": 1434,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/50.gif"
+    },
+    "500": {
+     "fige": "assets/sprites-figes/forum-chromatique/500.png",
+     "poids_fige": 12676,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/500.gif"
+    },
+    "501": {
+     "fige": "assets/sprites-figes/forum-chromatique/501.png",
+     "poids_fige": 2406,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/501.gif"
+    },
+    "502": {
+     "fige": "assets/sprites-figes/forum-chromatique/502.png",
+     "poids_fige": 3656,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/502.gif"
+    },
+    "503": {
+     "fige": "assets/sprites-figes/forum-chromatique/503.png",
+     "poids_fige": 8852,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/503.gif"
+    },
+    "504": {
+     "fige": "assets/sprites-figes/forum-chromatique/504.png",
+     "poids_fige": 3503,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/504.gif"
+    },
+    "505": {
+     "fige": "assets/sprites-figes/forum-chromatique/505.png",
+     "poids_fige": 4342,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/505.gif"
+    },
+    "506": {
+     "fige": "assets/sprites-figes/forum-chromatique/506.png",
+     "poids_fige": 2899,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/506.gif"
+    },
+    "507": {
+     "fige": "assets/sprites-figes/forum-chromatique/507.png",
+     "poids_fige": 4945,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/507.gif"
+    },
+    "508": {
+     "fige": "assets/sprites-figes/forum-chromatique/508.png",
+     "poids_fige": 9165,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/508.gif"
+    },
+    "509": {
+     "fige": "assets/sprites-figes/forum-chromatique/509.png",
+     "poids_fige": 3662,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/509.gif"
+    },
+    "51": {
+     "fige": "assets/sprites-figes/forum-chromatique/51.png",
+     "poids_fige": 2919,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/51.gif"
+    },
+    "510": {
+     "fige": "assets/sprites-figes/forum-chromatique/510.png",
+     "poids_fige": 5799,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/510.gif"
+    },
+    "511": {
+     "fige": "assets/sprites-figes/forum-chromatique/511.png",
+     "poids_fige": 4224,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/511.gif"
+    },
+    "512": {
+     "fige": "assets/sprites-figes/forum-chromatique/512.png",
+     "poids_fige": 6761,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/512.gif"
+    },
+    "513": {
+     "fige": "assets/sprites-figes/forum-chromatique/513.png",
+     "poids_fige": 3776,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/513.gif"
+    },
+    "514": {
+     "fige": "assets/sprites-figes/forum-chromatique/514.png",
+     "poids_fige": 6866,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/514.gif"
+    },
+    "515": {
+     "fige": "assets/sprites-figes/forum-chromatique/515.png",
+     "poids_fige": 4719,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/515.gif"
+    },
+    "516": {
+     "fige": "assets/sprites-figes/forum-chromatique/516.png",
+     "poids_fige": 5864,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/516.gif"
+    },
+    "517": {
+     "fige": "assets/sprites-figes/forum-chromatique/517.png",
+     "poids_fige": 2131,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/517.gif"
+    },
+    "518": {
+     "fige": "assets/sprites-figes/forum-chromatique/518.png",
+     "poids_fige": 7931,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/518.gif"
+    },
+    "519": {
+     "fige": "assets/sprites-figes/forum-chromatique/519.png",
+     "poids_fige": 2627,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/519.gif"
+    },
+    "52": {
+     "fige": "assets/sprites-figes/forum-chromatique/52.png",
+     "poids_fige": 3944,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/52.gif"
+    },
+    "520": {
+     "fige": "assets/sprites-figes/forum-chromatique/520.png",
+     "poids_fige": 5764,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/520.gif"
+    },
+    "521": {
+     "fige": "assets/sprites-figes/forum-chromatique/521.png",
+     "poids_fige": 8855,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/521.gif"
+    },
+    "522": {
+     "fige": "assets/sprites-figes/forum-chromatique/522.png",
+     "poids_fige": 3635,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/522.gif"
+    },
+    "523": {
+     "fige": "assets/sprites-figes/forum-chromatique/523.png",
+     "poids_fige": 5810,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/523.gif"
+    },
+    "524": {
+     "fige": "assets/sprites-figes/forum-chromatique/524.png",
+     "poids_fige": 3120,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/524.gif"
+    },
+    "525": {
+     "fige": "assets/sprites-figes/forum-chromatique/525.png",
+     "poids_fige": 6624,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/525.gif"
+    },
+    "526": {
+     "fige": "assets/sprites-figes/forum-chromatique/526.png",
+     "poids_fige": 10187,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/526.gif"
+    },
+    "527": {
+     "fige": "assets/sprites-figes/forum-chromatique/527.png",
+     "poids_fige": 2526,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/527.gif"
+    },
+    "528": {
+     "fige": "assets/sprites-figes/forum-chromatique/528.png",
+     "poids_fige": 5338,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/528.gif"
+    },
+    "529": {
+     "fige": "assets/sprites-figes/forum-chromatique/529.png",
+     "poids_fige": 3721,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/529.gif"
+    },
+    "53": {
+     "fige": "assets/sprites-figes/forum-chromatique/53.png",
+     "poids_fige": 4882,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/53.gif"
+    },
+    "530": {
+     "fige": "assets/sprites-figes/forum-chromatique/530.png",
+     "poids_fige": 7112,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/530.gif"
+    },
+    "531": {
+     "fige": "assets/sprites-figes/forum-chromatique/531.png",
+     "poids_fige": 5122,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/531.gif"
+    },
+    "532": {
+     "fige": "assets/sprites-figes/forum-chromatique/532.png",
+     "poids_fige": 4006,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/532.gif"
+    },
+    "533": {
+     "fige": "assets/sprites-figes/forum-chromatique/533.png",
+     "poids_fige": 6084,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/533.gif"
+    },
+    "534": {
+     "fige": "assets/sprites-figes/forum-chromatique/534.png",
+     "poids_fige": 11680,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/534.gif"
+    },
+    "535": {
+     "fige": "assets/sprites-figes/forum-chromatique/535.png",
+     "poids_fige": 1974,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/535.gif"
+    },
+    "536": {
+     "fige": "assets/sprites-figes/forum-chromatique/536.png",
+     "poids_fige": 4963,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/536.gif"
+    },
+    "537": {
+     "fige": "assets/sprites-figes/forum-chromatique/537.png",
+     "poids_fige": 12547,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/537.gif"
+    },
+    "538": {
+     "fige": "assets/sprites-figes/forum-chromatique/538.png",
+     "poids_fige": 8433,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/538.gif"
+    },
+    "539": {
+     "fige": "assets/sprites-figes/forum-chromatique/539.png",
+     "poids_fige": 6712,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/539.gif"
+    },
+    "54": {
+     "fige": "assets/sprites-figes/forum-chromatique/54.png",
+     "poids_fige": 2421,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/54.gif"
+    },
+    "540": {
+     "fige": "assets/sprites-figes/forum-chromatique/540.png",
+     "poids_fige": 2259,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/540.gif"
+    },
+    "541": {
+     "fige": "assets/sprites-figes/forum-chromatique/541.png",
+     "poids_fige": 2752,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/541.gif"
+    },
+    "542": {
+     "fige": "assets/sprites-figes/forum-chromatique/542.png",
+     "poids_fige": 4470,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/542.gif"
+    },
+    "543": {
+     "fige": "assets/sprites-figes/forum-chromatique/543.png",
+     "poids_fige": 3772,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/543.gif"
+    },
+    "544": {
+     "fige": "assets/sprites-figes/forum-chromatique/544.png",
+     "poids_fige": 6903,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/544.gif"
+    },
+    "545": {
+     "fige": "assets/sprites-figes/forum-chromatique/545.png",
+     "poids_fige": 10597,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/545.gif"
+    },
+    "546": {
+     "fige": "assets/sprites-figes/forum-chromatique/546.png",
+     "poids_fige": 2754,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/546.gif"
+    },
+    "547": {
+     "fige": "assets/sprites-figes/forum-chromatique/547.png",
+     "poids_fige": 6466,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/547.gif"
+    },
+    "548": {
+     "fige": "assets/sprites-figes/forum-chromatique/548.png",
+     "poids_fige": 3162,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/548.gif"
+    },
+    "549": {
+     "fige": "assets/sprites-figes/forum-chromatique/549.png",
+     "poids_fige": 5856,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/549.gif"
+    },
+    "55": {
+     "fige": "assets/sprites-figes/forum-chromatique/55.png",
+     "poids_fige": 4278,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/55.gif"
+    },
+    "550": {
+     "fige": "assets/sprites-figes/forum-chromatique/550.png",
+     "poids_fige": 3909,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/550.gif"
+    },
+    "551": {
+     "fige": "assets/sprites-figes/forum-chromatique/551.png",
+     "poids_fige": 2803,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/551.gif"
+    },
+    "552": {
+     "fige": "assets/sprites-figes/forum-chromatique/552.png",
+     "poids_fige": 5237,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/552.gif"
+    },
+    "553": {
+     "fige": "assets/sprites-figes/forum-chromatique/553.png",
+     "poids_fige": 9004,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/553.gif"
+    },
+    "554": {
+     "fige": "assets/sprites-figes/forum-chromatique/554.png",
+     "poids_fige": 3153,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/554.gif"
+    },
+    "555": {
+     "fige": "assets/sprites-figes/forum-chromatique/555.png",
+     "poids_fige": 8669,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/555.gif"
+    },
+    "556": {
+     "fige": "assets/sprites-figes/forum-chromatique/556.png",
+     "poids_fige": 6283,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/556.gif"
+    },
+    "557": {
+     "fige": "assets/sprites-figes/forum-chromatique/557.png",
+     "poids_fige": 2797,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/557.gif"
+    },
+    "558": {
+     "fige": "assets/sprites-figes/forum-chromatique/558.png",
+     "poids_fige": 10656,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/558.gif"
+    },
+    "559": {
+     "fige": "assets/sprites-figes/forum-chromatique/559.png",
+     "poids_fige": 2964,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/559.gif"
+    },
+    "56": {
+     "fige": "assets/sprites-figes/forum-chromatique/56.png",
+     "poids_fige": 3061,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/56.gif"
+    },
+    "560": {
+     "fige": "assets/sprites-figes/forum-chromatique/560.png",
+     "poids_fige": 4737,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/560.gif"
+    },
+    "561": {
+     "fige": "assets/sprites-figes/forum-chromatique/561.png",
+     "poids_fige": 7510,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/561.gif"
+    },
+    "562": {
+     "fige": "assets/sprites-figes/forum-chromatique/562.png",
+     "poids_fige": 2401,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/562.gif"
+    },
+    "563": {
+     "fige": "assets/sprites-figes/forum-chromatique/563.png",
+     "poids_fige": 8878,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/563.gif"
+    },
+    "564": {
+     "fige": "assets/sprites-figes/forum-chromatique/564.png",
+     "poids_fige": 3769,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/564.gif"
+    },
+    "565": {
+     "fige": "assets/sprites-figes/forum-chromatique/565.png",
+     "poids_fige": 9733,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/565.gif"
+    },
+    "566": {
+     "fige": "assets/sprites-figes/forum-chromatique/566.png",
+     "poids_fige": 4232,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/566.gif"
+    },
+    "567": {
+     "fige": "assets/sprites-figes/forum-chromatique/567.png",
+     "poids_fige": 9444,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/567.gif"
+    },
+    "568": {
+     "fige": "assets/sprites-figes/forum-chromatique/568.png",
+     "poids_fige": 2798,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/568.gif"
+    },
+    "569": {
+     "fige": "assets/sprites-figes/forum-chromatique/569.png",
+     "poids_fige": 11416,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/569.gif"
+    },
+    "57": {
+     "fige": "assets/sprites-figes/forum-chromatique/57.png",
+     "poids_fige": 4852,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/57.gif"
+    },
+    "570": {
+     "fige": "assets/sprites-figes/forum-chromatique/570.png",
+     "poids_fige": 4327,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/570.gif"
+    },
+    "571": {
+     "fige": "assets/sprites-figes/forum-chromatique/571.png",
+     "poids_fige": 8503,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/571.gif"
+    },
+    "572": {
+     "fige": "assets/sprites-figes/forum-chromatique/572.png",
+     "poids_fige": 5111,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/572.gif"
+    },
+    "573": {
+     "fige": "assets/sprites-figes/forum-chromatique/573.png",
+     "poids_fige": 5330,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/573.gif"
+    },
+    "574": {
+     "fige": "assets/sprites-figes/forum-chromatique/574.png",
+     "poids_fige": 2552,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/574.gif"
+    },
+    "575": {
+     "fige": "assets/sprites-figes/forum-chromatique/575.png",
+     "poids_fige": 3874,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/575.gif"
+    },
+    "576": {
+     "fige": "assets/sprites-figes/forum-chromatique/576.png",
+     "poids_fige": 5110,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/576.gif"
+    },
+    "577": {
+     "fige": "assets/sprites-figes/forum-chromatique/577.png",
+     "poids_fige": 1691,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/577.gif"
+    },
+    "578": {
+     "fige": "assets/sprites-figes/forum-chromatique/578.png",
+     "poids_fige": 2957,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/578.gif"
+    },
+    "579": {
+     "fige": "assets/sprites-figes/forum-chromatique/579.png",
+     "poids_fige": 7503,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/579.gif"
+    },
+    "58": {
+     "fige": "assets/sprites-figes/forum-chromatique/58.png",
+     "poids_fige": 4175,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/58.gif"
+    },
+    "580": {
+     "fige": "assets/sprites-figes/forum-chromatique/580.png",
+     "poids_fige": 3092,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/580.gif"
+    },
+    "581": {
+     "fige": "assets/sprites-figes/forum-chromatique/581.png",
+     "poids_fige": 8417,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/581.gif"
+    },
+    "582": {
+     "fige": "assets/sprites-figes/forum-chromatique/582.png",
+     "poids_fige": 2602,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/582.gif"
+    },
+    "583": {
+     "fige": "assets/sprites-figes/forum-chromatique/583.png",
+     "poids_fige": 3955,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/583.gif"
+    },
+    "584": {
+     "fige": "assets/sprites-figes/forum-chromatique/584.png",
+     "poids_fige": 6575,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/584.gif"
+    },
+    "585": {
+     "fige": "assets/sprites-figes/forum-chromatique/585.png",
+     "poids_fige": 3821,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/585.gif"
+    },
+    "586": {
+     "fige": "assets/sprites-figes/forum-chromatique/586.png",
+     "poids_fige": 5273,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/586.gif"
+    },
+    "587": {
+     "fige": "assets/sprites-figes/forum-chromatique/587.png",
+     "poids_fige": 2693,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/587.gif"
+    },
+    "588": {
+     "fige": "assets/sprites-figes/forum-chromatique/588.png",
+     "poids_fige": 3469,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/588.gif"
+    },
+    "589": {
+     "fige": "assets/sprites-figes/forum-chromatique/589.png",
+     "poids_fige": 7187,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/589.gif"
+    },
+    "59": {
+     "fige": "assets/sprites-figes/forum-chromatique/59.png",
+     "poids_fige": 8639,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/59.gif"
+    },
+    "590": {
+     "fige": "assets/sprites-figes/forum-chromatique/590.png",
+     "poids_fige": 1857,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/590.gif"
+    },
+    "591": {
+     "fige": "assets/sprites-figes/forum-chromatique/591.png",
+     "poids_fige": 6802,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/591.gif"
+    },
+    "592": {
+     "fige": "assets/sprites-figes/forum-chromatique/592.png",
+     "poids_fige": 5203,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/592.gif"
+    },
+    "593": {
+     "fige": "assets/sprites-figes/forum-chromatique/593.png",
+     "poids_fige": 7652,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/593.gif"
+    },
+    "594": {
+     "fige": "assets/sprites-figes/forum-chromatique/594.png",
+     "poids_fige": 4607,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/594.gif"
+    },
+    "595": {
+     "fige": "assets/sprites-figes/forum-chromatique/595.png",
+     "poids_fige": 1944,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/595.gif"
+    },
+    "596": {
+     "fige": "assets/sprites-figes/forum-chromatique/596.png",
+     "poids_fige": 5430,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/596.gif"
+    },
+    "597": {
+     "fige": "assets/sprites-figes/forum-chromatique/597.png",
+     "poids_fige": 4780,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/597.gif"
+    },
+    "598": {
+     "fige": "assets/sprites-figes/forum-chromatique/598.png",
+     "poids_fige": 9860,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/598.gif"
+    },
+    "599": {
+     "fige": "assets/sprites-figes/forum-chromatique/599.png",
+     "poids_fige": 5028,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/599.gif"
+    },
+    "6": {
+     "fige": "assets/sprites-figes/forum-chromatique/6.png",
+     "poids_fige": 7440,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/6.gif"
+    },
+    "60": {
+     "fige": "assets/sprites-figes/forum-chromatique/60.png",
+     "poids_fige": 2998,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/60.gif"
+    },
+    "600": {
+     "fige": "assets/sprites-figes/forum-chromatique/600.png",
+     "poids_fige": 6869,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/600.gif"
+    },
+    "601": {
+     "fige": "assets/sprites-figes/forum-chromatique/601.png",
+     "poids_fige": 8482,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/601.gif"
+    },
+    "602": {
+     "fige": "assets/sprites-figes/forum-chromatique/602.png",
+     "poids_fige": 1310,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/602.gif"
+    },
+    "603": {
+     "fige": "assets/sprites-figes/forum-chromatique/603.png",
+     "poids_fige": 4628,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/603.gif"
+    },
+    "604": {
+     "fige": "assets/sprites-figes/forum-chromatique/604.png",
+     "poids_fige": 6620,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/604.gif"
+    },
+    "605": {
+     "fige": "assets/sprites-figes/forum-chromatique/605.png",
+     "poids_fige": 2606,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/605.gif"
+    },
+    "606": {
+     "fige": "assets/sprites-figes/forum-chromatique/606.png",
+     "poids_fige": 4995,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/606.gif"
+    },
+    "607": {
+     "fige": "assets/sprites-figes/forum-chromatique/607.png",
+     "poids_fige": 2366,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/607.gif"
+    },
+    "608": {
+     "fige": "assets/sprites-figes/forum-chromatique/608.png",
+     "poids_fige": 3547,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/608.gif"
+    },
+    "609": {
+     "fige": "assets/sprites-figes/forum-chromatique/609.png",
+     "poids_fige": 7172,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/609.gif"
+    },
+    "61": {
+     "fige": "assets/sprites-figes/forum-chromatique/61.png",
+     "poids_fige": 4952,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/61.gif"
+    },
+    "610": {
+     "fige": "assets/sprites-figes/forum-chromatique/610.png",
+     "poids_fige": 3338,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/610.gif"
+    },
+    "611": {
+     "fige": "assets/sprites-figes/forum-chromatique/611.png",
+     "poids_fige": 6977,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/611.gif"
+    },
+    "612": {
+     "fige": "assets/sprites-figes/forum-chromatique/612.png",
+     "poids_fige": 11498,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/612.gif"
+    },
+    "613": {
+     "fige": "assets/sprites-figes/forum-chromatique/613.png",
+     "poids_fige": 3161,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/613.gif"
+    },
+    "614": {
+     "fige": "assets/sprites-figes/forum-chromatique/614.png",
+     "poids_fige": 9830,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/614.gif"
+    },
+    "615": {
+     "fige": "assets/sprites-figes/forum-chromatique/615.png",
+     "poids_fige": 9849,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/615.gif"
+    },
+    "616": {
+     "fige": "assets/sprites-figes/forum-chromatique/616.png",
+     "poids_fige": 3203,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/616.gif"
+    },
+    "617": {
+     "fige": "assets/sprites-figes/forum-chromatique/617.png",
+     "poids_fige": 5177,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/617.gif"
+    },
+    "618": {
+     "fige": "assets/sprites-figes/forum-chromatique/618.png",
+     "poids_fige": 1042,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/618.gif"
+    },
+    "619": {
+     "fige": "assets/sprites-figes/forum-chromatique/619.png",
+     "poids_fige": 3977,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/619.gif"
+    },
+    "62": {
+     "fige": "assets/sprites-figes/forum-chromatique/62.png",
+     "poids_fige": 6166,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/62.gif"
+    },
+    "620": {
+     "fige": "assets/sprites-figes/forum-chromatique/620.png",
+     "poids_fige": 5689,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/620.gif"
+    },
+    "621": {
+     "fige": "assets/sprites-figes/forum-chromatique/621.png",
+     "poids_fige": 9402,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/621.gif"
+    },
+    "622": {
+     "fige": "assets/sprites-figes/forum-chromatique/622.png",
+     "poids_fige": 5508,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/622.gif"
+    },
+    "623": {
+     "fige": "assets/sprites-figes/forum-chromatique/623.png",
+     "poids_fige": 14072,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/623.gif"
+    },
+    "624": {
+     "fige": "assets/sprites-figes/forum-chromatique/624.png",
+     "poids_fige": 3820,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/624.gif"
+    },
+    "625": {
+     "fige": "assets/sprites-figes/forum-chromatique/625.png",
+     "poids_fige": 6164,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/625.gif"
+    },
+    "626": {
+     "fige": "assets/sprites-figes/forum-chromatique/626.png",
+     "poids_fige": 9410,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/626.gif"
+    },
+    "627": {
+     "fige": "assets/sprites-figes/forum-chromatique/627.png",
+     "poids_fige": 3854,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/627.gif"
+    },
+    "628": {
+     "fige": "assets/sprites-figes/forum-chromatique/628.png",
+     "poids_fige": 9794,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/628.gif"
+    },
+    "629": {
+     "fige": "assets/sprites-figes/forum-chromatique/629.png",
+     "poids_fige": 4248,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/629.gif"
+    },
+    "63": {
+     "fige": "assets/sprites-figes/forum-chromatique/63.png",
+     "poids_fige": 3655,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/63.gif"
+    },
+    "630": {
+     "fige": "assets/sprites-figes/forum-chromatique/630.png",
+     "poids_fige": 8539,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/630.gif"
+    },
+    "631": {
+     "fige": "assets/sprites-figes/forum-chromatique/631.png",
+     "poids_fige": 7903,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/631.gif"
+    },
+    "632": {
+     "fige": "assets/sprites-figes/forum-chromatique/632.png",
+     "poids_fige": 3991,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/632.gif"
+    },
+    "633": {
+     "fige": "assets/sprites-figes/forum-chromatique/633.png",
+     "poids_fige": 2923,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/633.gif"
+    },
+    "634": {
+     "fige": "assets/sprites-figes/forum-chromatique/634.png",
+     "poids_fige": 6412,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/634.gif"
+    },
+    "635": {
+     "fige": "assets/sprites-figes/forum-chromatique/635.png",
+     "poids_fige": 8876,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/635.gif"
+    },
+    "636": {
+     "fige": "assets/sprites-figes/forum-chromatique/636.png",
+     "poids_fige": 5041,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/636.gif"
+    },
+    "637": {
+     "fige": "assets/sprites-figes/forum-chromatique/637.png",
+     "poids_fige": 9707,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/637.gif"
+    },
+    "64": {
+     "fige": "assets/sprites-figes/forum-chromatique/64.png",
+     "poids_fige": 7078,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/64.gif"
+    },
+    "65": {
+     "fige": "assets/sprites-figes/forum-chromatique/65.png",
+     "poids_fige": 7372,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/65.gif"
+    },
+    "650": {
+     "fige": "assets/sprites-figes/forum-chromatique/650.png",
+     "poids_fige": 2955,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/650.gif"
+    },
+    "651": {
+     "fige": "assets/sprites-figes/forum-chromatique/651.png",
+     "poids_fige": 5509,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/651.gif"
+    },
+    "652": {
+     "fige": "assets/sprites-figes/forum-chromatique/652.png",
+     "poids_fige": 12996,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/652.gif"
+    },
+    "653": {
+     "fige": "assets/sprites-figes/forum-chromatique/653.png",
+     "poids_fige": 3100,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/653.gif"
+    },
+    "654": {
+     "fige": "assets/sprites-figes/forum-chromatique/654.png",
+     "poids_fige": 6033,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/654.gif"
+    },
+    "655": {
+     "fige": "assets/sprites-figes/forum-chromatique/655.png",
+     "poids_fige": 7616,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/655.gif"
+    },
+    "656": {
+     "fige": "assets/sprites-figes/forum-chromatique/656.png",
+     "poids_fige": 4173,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/656.gif"
+    },
+    "657": {
+     "fige": "assets/sprites-figes/forum-chromatique/657.png",
+     "poids_fige": 5116,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/657.gif"
+    },
+    "658": {
+     "fige": "assets/sprites-figes/forum-chromatique/658.png",
+     "poids_fige": 7075,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/658.gif"
+    },
+    "659": {
+     "fige": "assets/sprites-figes/forum-chromatique/659.png",
+     "poids_fige": 5539,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/659.gif"
+    },
+    "66": {
+     "fige": "assets/sprites-figes/forum-chromatique/66.png",
+     "poids_fige": 2887,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/66.gif"
+    },
+    "660": {
+     "fige": "assets/sprites-figes/forum-chromatique/660.png",
+     "poids_fige": 10290,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/660.gif"
+    },
+    "661": {
+     "fige": "assets/sprites-figes/forum-chromatique/661.png",
+     "poids_fige": 2065,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/661.gif"
+    },
+    "662": {
+     "fige": "assets/sprites-figes/forum-chromatique/662.png",
+     "poids_fige": 3524,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/662.gif"
+    },
+    "663": {
+     "fige": "assets/sprites-figes/forum-chromatique/663.png",
+     "poids_fige": 8239,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/663.gif"
+    },
+    "664": {
+     "fige": "assets/sprites-figes/forum-chromatique/664.png",
+     "poids_fige": 2242,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/664.gif"
+    },
+    "665": {
+     "fige": "assets/sprites-figes/forum-chromatique/665.png",
+     "poids_fige": 2068,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/665.gif"
+    },
+    "666": {
+     "fige": "assets/sprites-figes/forum-chromatique/666.png",
+     "poids_fige": 8743,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/666.gif"
+    },
+    "667": {
+     "fige": "assets/sprites-figes/forum-chromatique/667.png",
+     "poids_fige": 4282,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/667.gif"
+    },
+    "668": {
+     "fige": "assets/sprites-figes/forum-chromatique/668.png",
+     "poids_fige": 9078,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/668.gif"
+    },
+    "669": {
+     "fige": "assets/sprites-figes/forum-chromatique/669.png",
+     "poids_fige": 3964,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/669.gif"
+    },
+    "67": {
+     "fige": "assets/sprites-figes/forum-chromatique/67.png",
+     "poids_fige": 8175,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/67.gif"
+    },
+    "670": {
+     "fige": "assets/sprites-figes/forum-chromatique/670.png",
+     "poids_fige": 4506,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/670.gif"
+    },
+    "671": {
+     "fige": "assets/sprites-figes/forum-chromatique/671.png",
+     "poids_fige": 8661,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/671.gif"
+    },
+    "672": {
+     "fige": "assets/sprites-figes/forum-chromatique/672.png",
+     "poids_fige": 5048,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/672.gif"
+    },
+    "673": {
+     "fige": "assets/sprites-figes/forum-chromatique/673.png",
+     "poids_fige": 7507,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/673.gif"
+    },
+    "674": {
+     "fige": "assets/sprites-figes/forum-chromatique/674.png",
+     "poids_fige": 3612,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/674.gif"
+    },
+    "675": {
+     "fige": "assets/sprites-figes/forum-chromatique/675.png",
+     "poids_fige": 10175,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/675.gif"
+    },
+    "676": {
+     "fige": "assets/sprites-figes/forum-chromatique/676.png",
+     "poids_fige": 4333,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/676.gif"
+    },
+    "677": {
+     "fige": "assets/sprites-figes/forum-chromatique/677.png",
+     "poids_fige": 3593,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/677.gif"
+    },
+    "678": {
+     "fige": "assets/sprites-figes/forum-chromatique/678.png",
+     "poids_fige": 5205,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/678.gif"
+    },
+    "679": {
+     "fige": "assets/sprites-figes/forum-chromatique/679.png",
+     "poids_fige": 4833,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/679.gif"
+    },
+    "68": {
+     "fige": "assets/sprites-figes/forum-chromatique/68.png",
+     "poids_fige": 8749,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/68.gif"
+    },
+    "680": {
+     "fige": "assets/sprites-figes/forum-chromatique/680.png",
+     "poids_fige": 7385,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/680.gif"
+    },
+    "681": {
+     "fige": "assets/sprites-figes/forum-chromatique/681.png",
+     "poids_fige": 6267,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/681.gif"
+    },
+    "682": {
+     "fige": "assets/sprites-figes/forum-chromatique/682.png",
+     "poids_fige": 3298,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/682.gif"
+    },
+    "683": {
+     "fige": "assets/sprites-figes/forum-chromatique/683.png",
+     "poids_fige": 7914,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/683.gif"
+    },
+    "684": {
+     "fige": "assets/sprites-figes/forum-chromatique/684.png",
+     "poids_fige": 3689,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/684.gif"
+    },
+    "685": {
+     "fige": "assets/sprites-figes/forum-chromatique/685.png",
+     "poids_fige": 4687,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/685.gif"
+    },
+    "686": {
+     "fige": "assets/sprites-figes/forum-chromatique/686.png",
+     "poids_fige": 3227,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/686.gif"
+    },
+    "687": {
+     "fige": "assets/sprites-figes/forum-chromatique/687.png",
+     "poids_fige": 9307,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/687.gif"
+    },
+    "688": {
+     "fige": "assets/sprites-figes/forum-chromatique/688.png",
+     "poids_fige": 5457,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/688.gif"
+    },
+    "689": {
+     "fige": "assets/sprites-figes/forum-chromatique/689.png",
+     "poids_fige": 12634,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/689.gif"
+    },
+    "69": {
+     "fige": "assets/sprites-figes/forum-chromatique/69.png",
+     "poids_fige": 1648,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/69.gif"
+    },
+    "690": {
+     "fige": "assets/sprites-figes/forum-chromatique/690.png",
+     "poids_fige": 3101,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/690.gif"
+    },
+    "691": {
+     "fige": "assets/sprites-figes/forum-chromatique/691.png",
+     "poids_fige": 7919,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/691.gif"
+    },
+    "692": {
+     "fige": "assets/sprites-figes/forum-chromatique/692.png",
+     "poids_fige": 2567,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/692.gif"
+    },
+    "693": {
+     "fige": "assets/sprites-figes/forum-chromatique/693.png",
+     "poids_fige": 8330,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/693.gif"
+    },
+    "694": {
+     "fige": "assets/sprites-figes/forum-chromatique/694.png",
+     "poids_fige": 3595,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/694.gif"
+    },
+    "695": {
+     "fige": "assets/sprites-figes/forum-chromatique/695.png",
+     "poids_fige": 4159,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/695.gif"
+    },
+    "696": {
+     "fige": "assets/sprites-figes/forum-chromatique/696.png",
+     "poids_fige": 5594,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/696.gif"
+    },
+    "697": {
+     "fige": "assets/sprites-figes/forum-chromatique/697.png",
+     "poids_fige": 12767,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/697.gif"
+    },
+    "698": {
+     "fige": "assets/sprites-figes/forum-chromatique/698.png",
+     "poids_fige": 2632,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/698.gif"
+    },
+    "699": {
+     "fige": "assets/sprites-figes/forum-chromatique/699.png",
+     "poids_fige": 7090,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/699.gif"
+    },
+    "7": {
+     "fige": "assets/sprites-figes/forum-chromatique/7.png",
+     "poids_fige": 2999,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/7.gif"
+    },
+    "70": {
+     "fige": "assets/sprites-figes/forum-chromatique/70.png",
+     "poids_fige": 2746,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/70.gif"
+    },
+    "700": {
+     "fige": "assets/sprites-figes/forum-chromatique/700.png",
+     "poids_fige": 5261,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/700.gif"
+    },
+    "701": {
+     "fige": "assets/sprites-figes/forum-chromatique/701.png",
+     "poids_fige": 6111,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/701.gif"
+    },
+    "702": {
+     "fige": "assets/sprites-figes/forum-chromatique/702.png",
+     "poids_fige": 2833,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/702.gif"
+    },
+    "703": {
+     "fige": "assets/sprites-figes/forum-chromatique/703.png",
+     "poids_fige": 3297,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/703.gif"
+    },
+    "704": {
+     "fige": "assets/sprites-figes/forum-chromatique/704.png",
+     "poids_fige": 2221,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/704.gif"
+    },
+    "705": {
+     "fige": "assets/sprites-figes/forum-chromatique/705.png",
+     "poids_fige": 4077,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/705.gif"
+    },
+    "706": {
+     "fige": "assets/sprites-figes/forum-chromatique/706.png",
+     "poids_fige": 6660,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/706.gif"
+    },
+    "707": {
+     "fige": "assets/sprites-figes/forum-chromatique/707.png",
+     "poids_fige": 4411,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/707.gif"
+    },
+    "708": {
+     "fige": "assets/sprites-figes/forum-chromatique/708.png",
+     "poids_fige": 3773,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/708.gif"
+    },
+    "709": {
+     "fige": "assets/sprites-figes/forum-chromatique/709.png",
+     "poids_fige": 10439,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/709.gif"
+    },
+    "71": {
+     "fige": "assets/sprites-figes/forum-chromatique/71.png",
+     "poids_fige": 4834,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/71.gif"
+    },
+    "710": {
+     "fige": "assets/sprites-figes/forum-chromatique/710.png",
+     "poids_fige": 1954,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/710.gif"
+    },
+    "711": {
+     "fige": "assets/sprites-figes/forum-chromatique/711.png",
+     "poids_fige": 4498,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/711.gif"
+    },
+    "712": {
+     "fige": "assets/sprites-figes/forum-chromatique/712.png",
+     "poids_fige": 3960,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/712.gif"
+    },
+    "713": {
+     "fige": "assets/sprites-figes/forum-chromatique/713.png",
+     "poids_fige": 11862,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/713.gif"
+    },
+    "714": {
+     "fige": "assets/sprites-figes/forum-chromatique/714.png",
+     "poids_fige": 4086,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/714.gif"
+    },
+    "715": {
+     "fige": "assets/sprites-figes/forum-chromatique/715.png",
+     "poids_fige": 8340,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/715.gif"
+    },
+    "72": {
+     "fige": "assets/sprites-figes/forum-chromatique/72.png",
+     "poids_fige": 2212,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/72.gif"
+    },
+    "722": {
+     "fige": "assets/sprites-figes/forum-chromatique/722.png",
+     "poids_fige": 3084,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/722.gif"
+    },
+    "723": {
+     "fige": "assets/sprites-figes/forum-chromatique/723.png",
+     "poids_fige": 4292,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/723.gif"
+    },
+    "724": {
+     "fige": "assets/sprites-figes/forum-chromatique/724.png",
+     "poids_fige": 5912,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/724.gif"
+    },
+    "725": {
+     "fige": "assets/sprites-figes/forum-chromatique/725.png",
+     "poids_fige": 3155,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/725.gif"
+    },
+    "726": {
+     "fige": "assets/sprites-figes/forum-chromatique/726.png",
+     "poids_fige": 5442,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/726.gif"
+    },
+    "727": {
+     "fige": "assets/sprites-figes/forum-chromatique/727.png",
+     "poids_fige": 9556,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/727.gif"
+    },
+    "728": {
+     "fige": "assets/sprites-figes/forum-chromatique/728.png",
+     "poids_fige": 3517,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/728.gif"
+    },
+    "729": {
+     "fige": "assets/sprites-figes/forum-chromatique/729.png",
+     "poids_fige": 4251,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/729.gif"
+    },
+    "73": {
+     "fige": "assets/sprites-figes/forum-chromatique/73.png",
+     "poids_fige": 5742,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/73.gif"
+    },
+    "730": {
+     "fige": "assets/sprites-figes/forum-chromatique/730.png",
+     "poids_fige": 6735,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/730.gif"
+    },
+    "731": {
+     "fige": "assets/sprites-figes/forum-chromatique/731.png",
+     "poids_fige": 2537,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/731.gif"
+    },
+    "732": {
+     "fige": "assets/sprites-figes/forum-chromatique/732.png",
+     "poids_fige": 4576,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/732.gif"
+    },
+    "733": {
+     "fige": "assets/sprites-figes/forum-chromatique/733.png",
+     "poids_fige": 5050,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/733.gif"
+    },
+    "734": {
+     "fige": "assets/sprites-figes/forum-chromatique/734.png",
+     "poids_fige": 3179,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/734.gif"
+    },
+    "735": {
+     "fige": "assets/sprites-figes/forum-chromatique/735.png",
+     "poids_fige": 5012,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/735.gif"
+    },
+    "736": {
+     "fige": "assets/sprites-figes/forum-chromatique/736.png",
+     "poids_fige": 2686,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/736.gif"
+    },
+    "737": {
+     "fige": "assets/sprites-figes/forum-chromatique/737.png",
+     "poids_fige": 4156,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/737.gif"
+    },
+    "738": {
+     "fige": "assets/sprites-figes/forum-chromatique/738.png",
+     "poids_fige": 5889,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/738.gif"
+    },
+    "739": {
+     "fige": "assets/sprites-figes/forum-chromatique/739.png",
+     "poids_fige": 3105,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/739.gif"
+    },
+    "74": {
+     "fige": "assets/sprites-figes/forum-chromatique/74.png",
+     "poids_fige": 2986,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/74.gif"
+    },
+    "740": {
+     "fige": "assets/sprites-figes/forum-chromatique/740.png",
+     "poids_fige": 9478,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/740.gif"
+    },
+    "741": {
+     "fige": "assets/sprites-figes/forum-chromatique/741.png",
+     "poids_fige": 3876,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/741.gif"
+    },
+    "742": {
+     "fige": "assets/sprites-figes/forum-chromatique/742.png",
+     "poids_fige": 2147,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/742.gif"
+    },
+    "743": {
+     "fige": "assets/sprites-figes/forum-chromatique/743.png",
+     "poids_fige": 4682,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/743.gif"
+    },
+    "744": {
+     "fige": "assets/sprites-figes/forum-chromatique/744.png",
+     "poids_fige": 4039,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/744.gif"
+    },
+    "745": {
+     "fige": "assets/sprites-figes/forum-chromatique/745.png",
+     "poids_fige": 6135,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/745.gif"
+    },
+    "746": {
+     "fige": "assets/sprites-figes/forum-chromatique/746.png",
+     "poids_fige": 2242,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/746.gif"
+    },
+    "747": {
+     "fige": "assets/sprites-figes/forum-chromatique/747.png",
+     "poids_fige": 5024,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/747.gif"
+    },
+    "748": {
+     "fige": "assets/sprites-figes/forum-chromatique/748.png",
+     "poids_fige": 7971,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/748.gif"
+    },
+    "749": {
+     "fige": "assets/sprites-figes/forum-chromatique/749.png",
+     "poids_fige": 4143,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/749.gif"
+    },
+    "75": {
+     "fige": "assets/sprites-figes/forum-chromatique/75.png",
+     "poids_fige": 5357,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/75.gif"
+    },
+    "750": {
+     "fige": "assets/sprites-figes/forum-chromatique/750.png",
+     "poids_fige": 6505,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/750.gif"
+    },
+    "751": {
+     "fige": "assets/sprites-figes/forum-chromatique/751.png",
+     "poids_fige": 3198,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/751.gif"
+    },
+    "752": {
+     "fige": "assets/sprites-figes/forum-chromatique/752.png",
+     "poids_fige": 6273,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/752.gif"
+    },
+    "753": {
+     "fige": "assets/sprites-figes/forum-chromatique/753.png",
+     "poids_fige": 3038,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/753.gif"
+    },
+    "754": {
+     "fige": "assets/sprites-figes/forum-chromatique/754.png",
+     "poids_fige": 4182,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/754.gif"
+    },
+    "755": {
+     "fige": "assets/sprites-figes/forum-chromatique/755.png",
+     "poids_fige": 2763,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/755.gif"
+    },
+    "756": {
+     "fige": "assets/sprites-figes/forum-chromatique/756.png",
+     "poids_fige": 4586,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/756.gif"
+    },
+    "757": {
+     "fige": "assets/sprites-figes/forum-chromatique/757.png",
+     "poids_fige": 3202,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/757.gif"
+    },
+    "758": {
+     "fige": "assets/sprites-figes/forum-chromatique/758.png",
+     "poids_fige": 5555,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/758.gif"
+    },
+    "759": {
+     "fige": "assets/sprites-figes/forum-chromatique/759.png",
+     "poids_fige": 3578,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/759.gif"
+    },
+    "76": {
+     "fige": "assets/sprites-figes/forum-chromatique/76.png",
+     "poids_fige": 10364,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/76.gif"
+    },
+    "760": {
+     "fige": "assets/sprites-figes/forum-chromatique/760.png",
+     "poids_fige": 3842,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/760.gif"
+    },
+    "761": {
+     "fige": "assets/sprites-figes/forum-chromatique/761.png",
+     "poids_fige": 2420,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/761.gif"
+    },
+    "762": {
+     "fige": "assets/sprites-figes/forum-chromatique/762.png",
+     "poids_fige": 4915,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/762.gif"
+    },
+    "763": {
+     "fige": "assets/sprites-figes/forum-chromatique/763.png",
+     "poids_fige": 7310,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/763.gif"
+    },
+    "764": {
+     "fige": "assets/sprites-figes/forum-chromatique/764.png",
+     "poids_fige": 6786,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/764.gif"
+    },
+    "765": {
+     "fige": "assets/sprites-figes/forum-chromatique/765.png",
+     "poids_fige": 8215,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/765.gif"
+    },
+    "766": {
+     "fige": "assets/sprites-figes/forum-chromatique/766.png",
+     "poids_fige": 5942,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/766.gif"
+    },
+    "767": {
+     "fige": "assets/sprites-figes/forum-chromatique/767.png",
+     "poids_fige": 2524,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/767.gif"
+    },
+    "768": {
+     "fige": "assets/sprites-figes/forum-chromatique/768.png",
+     "poids_fige": 8770,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/768.gif"
+    },
+    "769": {
+     "fige": "assets/sprites-figes/forum-chromatique/769.png",
+     "poids_fige": 2541,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/769.gif"
+    },
+    "77": {
+     "fige": "assets/sprites-figes/forum-chromatique/77.png",
+     "poids_fige": 3672,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/77.gif"
+    },
+    "770": {
+     "fige": "assets/sprites-figes/forum-chromatique/770.png",
+     "poids_fige": 4779,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/770.gif"
+    },
+    "771": {
+     "fige": "assets/sprites-figes/forum-chromatique/771.png",
+     "poids_fige": 2395,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/771.gif"
+    },
+    "774": {
+     "fige": "assets/sprites-figes/forum-chromatique/774.png",
+     "poids_fige": 4122,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/774.gif"
+    },
+    "775": {
+     "fige": "assets/sprites-figes/forum-chromatique/775.png",
+     "poids_fige": 4263,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/775.gif"
+    },
+    "776": {
+     "fige": "assets/sprites-figes/forum-chromatique/776.png",
+     "poids_fige": 6969,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/776.gif"
+    },
+    "777": {
+     "fige": "assets/sprites-figes/forum-chromatique/777.png",
+     "poids_fige": 3301,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/777.gif"
+    },
+    "778": {
+     "fige": "assets/sprites-figes/forum-chromatique/778.png",
+     "poids_fige": 3048,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/778.gif"
+    },
+    "779": {
+     "fige": "assets/sprites-figes/forum-chromatique/779.png",
+     "poids_fige": 4999,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/779.gif"
+    },
+    "78": {
+     "fige": "assets/sprites-figes/forum-chromatique/78.png",
+     "poids_fige": 7508,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/78.gif"
+    },
+    "780": {
+     "fige": "assets/sprites-figes/forum-chromatique/780.png",
+     "poids_fige": 6864,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/780.gif"
+    },
+    "781": {
+     "fige": "assets/sprites-figes/forum-chromatique/781.png",
+     "poids_fige": 6713,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/781.gif"
+    },
+    "782": {
+     "fige": "assets/sprites-figes/forum-chromatique/782.png",
+     "poids_fige": 3576,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/782.gif"
+    },
+    "783": {
+     "fige": "assets/sprites-figes/forum-chromatique/783.png",
+     "poids_fige": 5323,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/783.gif"
+    },
+    "784": {
+     "fige": "assets/sprites-figes/forum-chromatique/784.png",
+     "poids_fige": 10462,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/784.gif"
+    },
+    "79": {
+     "fige": "assets/sprites-figes/forum-chromatique/79.png",
+     "poids_fige": 2867,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/79.gif"
+    },
+    "8": {
+     "fige": "assets/sprites-figes/forum-chromatique/8.png",
+     "poids_fige": 5370,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/8.gif"
+    },
+    "80": {
+     "fige": "assets/sprites-figes/forum-chromatique/80.png",
+     "poids_fige": 7989,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/80.gif"
+    },
+    "81": {
+     "fige": "assets/sprites-figes/forum-chromatique/81.png",
+     "poids_fige": 1608,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/81.gif"
+    },
+    "810": {
+     "fige": "assets/sprites-figes/forum-chromatique/810.png",
+     "poids_fige": 3622,
+     "source": "other/showdown/shiny/810.gif"
+    },
+    "811": {
+     "fige": "assets/sprites-figes/forum-chromatique/811.png",
+     "poids_fige": 5503,
+     "source": "other/showdown/shiny/811.gif"
+    },
+    "812": {
+     "fige": "assets/sprites-figes/forum-chromatique/812.png",
+     "poids_fige": 12389,
+     "source": "other/showdown/shiny/812.gif"
+    },
+    "813": {
+     "fige": "assets/sprites-figes/forum-chromatique/813.png",
+     "poids_fige": 3758,
+     "source": "other/showdown/shiny/813.gif"
+    },
+    "814": {
+     "fige": "assets/sprites-figes/forum-chromatique/814.png",
+     "poids_fige": 4404,
+     "source": "other/showdown/shiny/814.gif"
+    },
+    "815": {
+     "fige": "assets/sprites-figes/forum-chromatique/815.png",
+     "poids_fige": 2933,
+     "source": "other/showdown/shiny/815.gif"
+    },
+    "816": {
+     "fige": "assets/sprites-figes/forum-chromatique/816.png",
+     "poids_fige": 3247,
+     "source": "other/showdown/shiny/816.gif"
+    },
+    "817": {
+     "fige": "assets/sprites-figes/forum-chromatique/817.png",
+     "poids_fige": 4581,
+     "source": "other/showdown/shiny/817.gif"
+    },
+    "818": {
+     "fige": "assets/sprites-figes/forum-chromatique/818.png",
+     "poids_fige": 4643,
+     "source": "other/showdown/shiny/818.gif"
+    },
+    "819": {
+     "fige": "assets/sprites-figes/forum-chromatique/819.png",
+     "poids_fige": 4961,
+     "source": "other/showdown/shiny/819.gif"
+    },
+    "82": {
+     "fige": "assets/sprites-figes/forum-chromatique/82.png",
+     "poids_fige": 6039,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/82.gif"
+    },
+    "820": {
+     "fige": "assets/sprites-figes/forum-chromatique/820.png",
+     "poids_fige": 6868,
+     "source": "other/showdown/shiny/820.gif"
+    },
+    "821": {
+     "fige": "assets/sprites-figes/forum-chromatique/821.png",
+     "poids_fige": 2132,
+     "source": "other/showdown/shiny/821.gif"
+    },
+    "822": {
+     "fige": "assets/sprites-figes/forum-chromatique/822.png",
+     "poids_fige": 5740,
+     "source": "other/showdown/shiny/822.gif"
+    },
+    "823": {
+     "fige": "assets/sprites-figes/forum-chromatique/823.png",
+     "poids_fige": 5789,
+     "source": "other/showdown/shiny/823.gif"
+    },
+    "824": {
+     "fige": "assets/sprites-figes/forum-chromatique/824.png",
+     "poids_fige": 2797,
+     "source": "other/showdown/shiny/824.gif"
+    },
+    "825": {
+     "fige": "assets/sprites-figes/forum-chromatique/825.png",
+     "poids_fige": 3100,
+     "source": "other/showdown/shiny/825.gif"
+    },
+    "826": {
+     "fige": "assets/sprites-figes/forum-chromatique/826.png",
+     "poids_fige": 3471,
+     "source": "other/showdown/shiny/826.gif"
+    },
+    "827": {
+     "fige": "assets/sprites-figes/forum-chromatique/827.png",
+     "poids_fige": 3387,
+     "source": "other/showdown/shiny/827.gif"
+    },
+    "828": {
+     "fige": "assets/sprites-figes/forum-chromatique/828.png",
+     "poids_fige": 4736,
+     "source": "other/showdown/shiny/828.gif"
+    },
+    "829": {
+     "fige": "assets/sprites-figes/forum-chromatique/829.png",
+     "poids_fige": 4373,
+     "source": "other/showdown/shiny/829.gif"
+    },
+    "83": {
+     "fige": "assets/sprites-figes/forum-chromatique/83.png",
+     "poids_fige": 2919,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/83.gif"
+    },
+    "830": {
+     "fige": "assets/sprites-figes/forum-chromatique/830.png",
+     "poids_fige": 4218,
+     "source": "other/showdown/shiny/830.gif"
+    },
+    "831": {
+     "fige": "assets/sprites-figes/forum-chromatique/831.png",
+     "poids_fige": 4436,
+     "source": "other/showdown/shiny/831.gif"
+    },
+    "832": {
+     "fige": "assets/sprites-figes/forum-chromatique/832.png",
+     "poids_fige": 9129,
+     "source": "other/showdown/shiny/832.gif"
+    },
+    "833": {
+     "fige": "assets/sprites-figes/forum-chromatique/833.png",
+     "poids_fige": 2400,
+     "source": "other/showdown/shiny/833.gif"
+    },
+    "834": {
+     "fige": "assets/sprites-figes/forum-chromatique/834.png",
+     "poids_fige": 5789,
+     "source": "other/showdown/shiny/834.gif"
+    },
+    "835": {
+     "fige": "assets/sprites-figes/forum-chromatique/835.png",
+     "poids_fige": 3045,
+     "source": "other/showdown/shiny/835.gif"
+    },
+    "836": {
+     "fige": "assets/sprites-figes/forum-chromatique/836.png",
+     "poids_fige": 3757,
+     "source": "other/showdown/shiny/836.gif"
+    },
+    "837": {
+     "fige": "assets/sprites-figes/forum-chromatique/837.png",
+     "poids_fige": 3853,
+     "source": "other/showdown/shiny/837.gif"
+    },
+    "838": {
+     "fige": "assets/sprites-figes/forum-chromatique/838.png",
+     "poids_fige": 7587,
+     "source": "other/showdown/shiny/838.gif"
+    },
+    "839": {
+     "fige": "assets/sprites-figes/forum-chromatique/839.png",
+     "poids_fige": 15288,
+     "source": "other/showdown/shiny/839.gif"
+    },
+    "84": {
+     "fige": "assets/sprites-figes/forum-chromatique/84.png",
+     "poids_fige": 2643,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/84.gif"
+    },
+    "840": {
+     "fige": "assets/sprites-figes/forum-chromatique/840.png",
+     "poids_fige": 1556,
+     "source": "other/showdown/shiny/840.gif"
+    },
+    "841": {
+     "fige": "assets/sprites-figes/forum-chromatique/841.png",
+     "poids_fige": 4959,
+     "source": "other/showdown/shiny/841.gif"
+    },
+    "842": {
+     "fige": "assets/sprites-figes/forum-chromatique/842.png",
+     "poids_fige": 4442,
+     "source": "other/showdown/shiny/842.gif"
+    },
+    "843": {
+     "fige": "assets/sprites-figes/forum-chromatique/843.png",
+     "poids_fige": 2901,
+     "source": "other/showdown/shiny/843.gif"
+    },
+    "844": {
+     "fige": "assets/sprites-figes/forum-chromatique/844.png",
+     "poids_fige": 5162,
+     "source": "other/showdown/shiny/844.gif"
+    },
+    "845": {
+     "fige": "assets/sprites-figes/forum-chromatique/845.png",
+     "poids_fige": 5040,
+     "source": "other/showdown/shiny/845.gif"
+    },
+    "846": {
+     "fige": "assets/sprites-figes/forum-chromatique/846.png",
+     "poids_fige": 2471,
+     "source": "other/showdown/shiny/846.gif"
+    },
+    "847": {
+     "fige": "assets/sprites-figes/forum-chromatique/847.png",
+     "poids_fige": 3928,
+     "source": "other/showdown/shiny/847.gif"
+    },
+    "848": {
+     "fige": "assets/sprites-figes/forum-chromatique/848.png",
+     "poids_fige": 3206,
+     "source": "other/showdown/shiny/848.gif"
+    },
+    "849": {
+     "fige": "assets/sprites-figes/forum-chromatique/849.png",
+     "poids_fige": 7410,
+     "source": "other/showdown/shiny/849.gif"
+    },
+    "85": {
+     "fige": "assets/sprites-figes/forum-chromatique/85.png",
+     "poids_fige": 5479,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/85.gif"
+    },
+    "850": {
+     "fige": "assets/sprites-figes/forum-chromatique/850.png",
+     "poids_fige": 1770,
+     "source": "other/showdown/shiny/850.gif"
+    },
+    "851": {
+     "fige": "assets/sprites-figes/forum-chromatique/851.png",
+     "poids_fige": 8859,
+     "source": "other/showdown/shiny/851.gif"
+    },
+    "852": {
+     "fige": "assets/sprites-figes/forum-chromatique/852.png",
+     "poids_fige": 4447,
+     "source": "other/showdown/shiny/852.gif"
+    },
+    "853": {
+     "fige": "assets/sprites-figes/forum-chromatique/853.png",
+     "poids_fige": 6360,
+     "source": "other/showdown/shiny/853.gif"
+    },
+    "854": {
+     "fige": "assets/sprites-figes/forum-chromatique/854.png",
+     "poids_fige": 2457,
+     "source": "other/showdown/shiny/854.gif"
+    },
+    "855": {
+     "fige": "assets/sprites-figes/forum-chromatique/855.png",
+     "poids_fige": 5266,
+     "source": "other/showdown/shiny/855.gif"
+    },
+    "856": {
+     "fige": "assets/sprites-figes/forum-chromatique/856.png",
+     "poids_fige": 3349,
+     "source": "other/showdown/shiny/856.gif"
+    },
+    "857": {
+     "fige": "assets/sprites-figes/forum-chromatique/857.png",
+     "poids_fige": 5039,
+     "source": "other/showdown/shiny/857.gif"
+    },
+    "858": {
+     "fige": "assets/sprites-figes/forum-chromatique/858.png",
+     "poids_fige": 5951,
+     "source": "other/showdown/shiny/858.gif"
+    },
+    "859": {
+     "fige": "assets/sprites-figes/forum-chromatique/859.png",
+     "poids_fige": 3780,
+     "source": "other/showdown/shiny/859.gif"
+    },
+    "86": {
+     "fige": "assets/sprites-figes/forum-chromatique/86.png",
+     "poids_fige": 2555,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/86.gif"
+    },
+    "860": {
+     "fige": "assets/sprites-figes/forum-chromatique/860.png",
+     "poids_fige": 6120,
+     "source": "other/showdown/shiny/860.gif"
+    },
+    "861": {
+     "fige": "assets/sprites-figes/forum-chromatique/861.png",
+     "poids_fige": 10663,
+     "source": "other/showdown/shiny/861.gif"
+    },
+    "862": {
+     "fige": "assets/sprites-figes/forum-chromatique/862.png",
+     "poids_fige": 6993,
+     "source": "other/showdown/shiny/862.gif"
+    },
+    "863": {
+     "fige": "assets/sprites-figes/forum-chromatique/863.png",
+     "poids_fige": 5707,
+     "source": "other/showdown/shiny/863.gif"
+    },
+    "864": {
+     "fige": "assets/sprites-figes/forum-chromatique/864.png",
+     "poids_fige": 8914,
+     "source": "other/showdown/shiny/864.gif"
+    },
+    "865": {
+     "fige": "assets/sprites-figes/forum-chromatique/865.png",
+     "poids_fige": 6287,
+     "source": "other/showdown/shiny/865.gif"
+    },
+    "866": {
+     "fige": "assets/sprites-figes/forum-chromatique/866.png",
+     "poids_fige": 6532,
+     "source": "other/showdown/shiny/866.gif"
+    },
+    "867": {
+     "fige": "assets/sprites-figes/forum-chromatique/867.png",
+     "poids_fige": 10147,
+     "source": "other/showdown/shiny/867.gif"
+    },
+    "868": {
+     "fige": "assets/sprites-figes/forum-chromatique/868.png",
+     "poids_fige": 1831,
+     "source": "other/showdown/shiny/868.gif"
+    },
+    "869": {
+     "fige": "assets/sprites-figes/forum-chromatique/869.png",
+     "poids_fige": 4956,
+     "source": "other/showdown/shiny/869.gif"
+    },
+    "87": {
+     "fige": "assets/sprites-figes/forum-chromatique/87.png",
+     "poids_fige": 3117,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/87.gif"
+    },
+    "870": {
+     "fige": "assets/sprites-figes/forum-chromatique/870.png",
+     "poids_fige": 5147,
+     "source": "other/showdown/shiny/870.gif"
+    },
+    "871": {
+     "fige": "assets/sprites-figes/forum-chromatique/871.png",
+     "poids_fige": 2335,
+     "source": "other/showdown/shiny/871.gif"
+    },
+    "872": {
+     "fige": "assets/sprites-figes/forum-chromatique/872.png",
+     "poids_fige": 2615,
+     "source": "other/showdown/shiny/872.gif"
+    },
+    "873": {
+     "fige": "assets/sprites-figes/forum-chromatique/873.png",
+     "poids_fige": 7089,
+     "source": "other/showdown/shiny/873.gif"
+    },
+    "874": {
+     "fige": "assets/sprites-figes/forum-chromatique/874.png",
+     "poids_fige": 3435,
+     "source": "other/showdown/shiny/874.gif"
+    },
+    "875": {
+     "fige": "assets/sprites-figes/forum-chromatique/875.png",
+     "poids_fige": 2486,
+     "source": "other/showdown/shiny/875.gif"
+    },
+    "876": {
+     "fige": "assets/sprites-figes/forum-chromatique/876.png",
+     "poids_fige": 2218,
+     "source": "other/showdown/shiny/876.gif"
+    },
+    "877": {
+     "fige": "assets/sprites-figes/forum-chromatique/877.png",
+     "poids_fige": 1505,
+     "source": "other/showdown/shiny/877.gif"
+    },
+    "878": {
+     "fige": "assets/sprites-figes/forum-chromatique/878.png",
+     "poids_fige": 2291,
+     "source": "other/showdown/shiny/878.gif"
+    },
+    "879": {
+     "fige": "assets/sprites-figes/forum-chromatique/879.png",
+     "poids_fige": 4658,
+     "source": "other/showdown/shiny/879.gif"
+    },
+    "88": {
+     "fige": "assets/sprites-figes/forum-chromatique/88.png",
+     "poids_fige": 4421,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/88.gif"
+    },
+    "880": {
+     "fige": "assets/sprites-figes/forum-chromatique/880.png",
+     "poids_fige": 4456,
+     "source": "other/showdown/shiny/880.gif"
+    },
+    "881": {
+     "fige": "assets/sprites-figes/forum-chromatique/881.png",
+     "poids_fige": 3137,
+     "source": "other/showdown/shiny/881.gif"
+    },
+    "882": {
+     "fige": "assets/sprites-figes/forum-chromatique/882.png",
+     "poids_fige": 4300,
+     "source": "other/showdown/shiny/882.gif"
+    },
+    "883": {
+     "fige": "assets/sprites-figes/forum-chromatique/883.png",
+     "poids_fige": 3271,
+     "source": "other/showdown/shiny/883.gif"
+    },
+    "884": {
+     "fige": "assets/sprites-figes/forum-chromatique/884.png",
+     "poids_fige": 9694,
+     "source": "other/showdown/shiny/884.gif"
+    },
+    "885": {
+     "fige": "assets/sprites-figes/forum-chromatique/885.png",
+     "poids_fige": 1685,
+     "source": "other/showdown/shiny/885.gif"
+    },
+    "886": {
+     "fige": "assets/sprites-figes/forum-chromatique/886.png",
+     "poids_fige": 2606,
+     "source": "other/showdown/shiny/886.gif"
+    },
+    "887": {
+     "fige": "assets/sprites-figes/forum-chromatique/887.png",
+     "poids_fige": 2776,
+     "source": "other/showdown/shiny/887.gif"
+    },
+    "89": {
+     "fige": "assets/sprites-figes/forum-chromatique/89.png",
+     "poids_fige": 8574,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/89.gif"
+    },
+    "899": {
+     "fige": "assets/sprites-figes/forum-chromatique/899.png",
+     "poids_fige": 7572,
+     "source": "other/showdown/shiny/899.gif"
+    },
+    "9": {
+     "fige": "assets/sprites-figes/forum-chromatique/9.png",
+     "poids_fige": 9712,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/9.gif"
+    },
+    "90": {
+     "fige": "assets/sprites-figes/forum-chromatique/90.png",
+     "poids_fige": 2968,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/90.gif"
+    },
+    "900": {
+     "fige": "assets/sprites-figes/forum-chromatique/900.png",
+     "poids_fige": 4545,
+     "source": "other/showdown/shiny/900.gif"
+    },
+    "901": {
+     "fige": "assets/sprites-figes/forum-chromatique/901.png",
+     "poids_fige": 21712,
+     "source": "other/showdown/shiny/901.gif"
+    },
+    "902": {
+     "fige": "assets/sprites-figes/forum-chromatique/902.png",
+     "poids_fige": 4559,
+     "source": "other/showdown/shiny/902.gif"
+    },
+    "903": {
+     "fige": "assets/sprites-figes/forum-chromatique/903.png",
+     "poids_fige": 7671,
+     "source": "other/showdown/shiny/903.gif"
+    },
+    "904": {
+     "fige": "assets/sprites-figes/forum-chromatique/904.png",
+     "poids_fige": 6912,
+     "source": "other/showdown/shiny/904.gif"
+    },
+    "906": {
+     "fige": "assets/sprites-figes/forum-chromatique/906.png",
+     "poids_fige": 2574,
+     "source": "other/showdown/shiny/906.gif"
+    },
+    "907": {
+     "fige": "assets/sprites-figes/forum-chromatique/907.png",
+     "poids_fige": 3138,
+     "source": "other/showdown/shiny/907.gif"
+    },
+    "908": {
+     "fige": "assets/sprites-figes/forum-chromatique/908.png",
+     "poids_fige": 5696,
+     "source": "other/showdown/shiny/908.gif"
+    },
+    "909": {
+     "fige": "assets/sprites-figes/forum-chromatique/909.png",
+     "poids_fige": 1816,
+     "source": "other/showdown/shiny/909.gif"
+    },
+    "91": {
+     "fige": "assets/sprites-figes/forum-chromatique/91.png",
+     "poids_fige": 7595,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/91.gif"
+    },
+    "910": {
+     "fige": "assets/sprites-figes/forum-chromatique/910.png",
+     "poids_fige": 3787,
+     "source": "other/showdown/shiny/910.gif"
+    },
+    "911": {
+     "fige": "assets/sprites-figes/forum-chromatique/911.png",
+     "poids_fige": 6133,
+     "source": "other/showdown/shiny/911.gif"
+    },
+    "912": {
+     "fige": "assets/sprites-figes/forum-chromatique/912.png",
+     "poids_fige": 2118,
+     "source": "other/showdown/shiny/912.gif"
+    },
+    "913": {
+     "fige": "assets/sprites-figes/forum-chromatique/913.png",
+     "poids_fige": 4516,
+     "source": "other/showdown/shiny/913.gif"
+    },
+    "914": {
+     "fige": "assets/sprites-figes/forum-chromatique/914.png",
+     "poids_fige": 11550,
+     "source": "other/showdown/shiny/914.gif"
+    },
+    "915": {
+     "fige": "assets/sprites-figes/forum-chromatique/915.png",
+     "poids_fige": 2490,
+     "source": "other/showdown/shiny/915.gif"
+    },
+    "916": {
+     "fige": "assets/sprites-figes/forum-chromatique/916.png",
+     "poids_fige": 2856,
+     "source": "other/showdown/shiny/916.gif"
+    },
+    "917": {
+     "fige": "assets/sprites-figes/forum-chromatique/917.png",
+     "poids_fige": 3115,
+     "source": "other/showdown/shiny/917.gif"
+    },
+    "918": {
+     "fige": "assets/sprites-figes/forum-chromatique/918.png",
+     "poids_fige": 3269,
+     "source": "other/showdown/shiny/918.gif"
+    },
+    "919": {
+     "fige": "assets/sprites-figes/forum-chromatique/919.png",
+     "poids_fige": 1709,
+     "source": "other/showdown/shiny/919.gif"
+    },
+    "92": {
+     "fige": "assets/sprites-figes/forum-chromatique/92.png",
+     "poids_fige": 3342,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/92.gif"
+    },
+    "920": {
+     "fige": "assets/sprites-figes/forum-chromatique/920.png",
+     "poids_fige": 2955,
+     "source": "other/showdown/shiny/920.gif"
+    },
+    "921": {
+     "fige": "assets/sprites-figes/forum-chromatique/921.png",
+     "poids_fige": 1734,
+     "source": "other/showdown/shiny/921.gif"
+    },
+    "922": {
+     "fige": "assets/sprites-figes/forum-chromatique/922.png",
+     "poids_fige": 1956,
+     "source": "other/showdown/shiny/922.gif"
+    },
+    "923": {
+     "fige": "assets/sprites-figes/forum-chromatique/923.png",
+     "poids_fige": 2941,
+     "source": "other/showdown/shiny/923.gif"
+    },
+    "924": {
+     "fige": "assets/sprites-figes/forum-chromatique/924.png",
+     "poids_fige": 2253,
+     "source": "other/showdown/shiny/924.gif"
+    },
+    "925": {
+     "fige": "assets/sprites-figes/forum-chromatique/925.png",
+     "poids_fige": 2313,
+     "source": "other/showdown/shiny/925.gif"
+    },
+    "926": {
+     "fige": "assets/sprites-figes/forum-chromatique/926.png",
+     "poids_fige": 1588,
+     "source": "other/showdown/shiny/926.gif"
+    },
+    "927": {
+     "fige": "assets/sprites-figes/forum-chromatique/927.png",
+     "poids_fige": 2971,
+     "source": "other/showdown/shiny/927.gif"
+    },
+    "928": {
+     "fige": "assets/sprites-figes/forum-chromatique/928.png",
+     "poids_fige": 1154,
+     "source": "other/showdown/shiny/928.gif"
+    },
+    "929": {
+     "fige": "assets/sprites-figes/forum-chromatique/929.png",
+     "poids_fige": 1773,
+     "source": "other/showdown/shiny/929.gif"
+    },
+    "93": {
+     "fige": "assets/sprites-figes/forum-chromatique/93.png",
+     "poids_fige": 4429,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/93.gif"
+    },
+    "930": {
+     "fige": "assets/sprites-figes/forum-chromatique/930.png",
+     "poids_fige": 5636,
+     "source": "other/showdown/shiny/930.gif"
+    },
+    "931": {
+     "fige": "assets/sprites-figes/forum-chromatique/931.png",
+     "poids_fige": 3297,
+     "source": "other/showdown/shiny/931.gif"
+    },
+    "932": {
+     "fige": "assets/sprites-figes/forum-chromatique/932.png",
+     "poids_fige": 1253,
+     "source": "other/showdown/shiny/932.gif"
+    },
+    "933": {
+     "fige": "assets/sprites-figes/forum-chromatique/933.png",
+     "poids_fige": 1950,
+     "source": "other/showdown/shiny/933.gif"
+    },
+    "934": {
+     "fige": "assets/sprites-figes/forum-chromatique/934.png",
+     "poids_fige": 5216,
+     "source": "other/showdown/shiny/934.gif"
+    },
+    "935": {
+     "fige": "assets/sprites-figes/forum-chromatique/935.png",
+     "poids_fige": 1787,
+     "source": "other/showdown/shiny/935.gif"
+    },
+    "936": {
+     "fige": "assets/sprites-figes/forum-chromatique/936.png",
+     "poids_fige": 2666,
+     "source": "other/showdown/shiny/936.gif"
+    },
+    "937": {
+     "fige": "assets/sprites-figes/forum-chromatique/937.png",
+     "poids_fige": 3605,
+     "source": "other/showdown/shiny/937.gif"
+    },
+    "938": {
+     "fige": "assets/sprites-figes/forum-chromatique/938.png",
+     "poids_fige": 1060,
+     "source": "other/showdown/shiny/938.gif"
+    },
+    "939": {
+     "fige": "assets/sprites-figes/forum-chromatique/939.png",
+     "poids_fige": 3453,
+     "source": "other/showdown/shiny/939.gif"
+    },
+    "94": {
+     "fige": "assets/sprites-figes/forum-chromatique/94.png",
+     "poids_fige": 5175,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/94.gif"
+    },
+    "940": {
+     "fige": "assets/sprites-figes/forum-chromatique/940.png",
+     "poids_fige": 1810,
+     "source": "other/showdown/shiny/940.gif"
+    },
+    "941": {
+     "fige": "assets/sprites-figes/forum-chromatique/941.png",
+     "poids_fige": 3772,
+     "source": "other/showdown/shiny/941.gif"
+    },
+    "942": {
+     "fige": "assets/sprites-figes/forum-chromatique/942.png",
+     "poids_fige": 1914,
+     "source": "other/showdown/shiny/942.gif"
+    },
+    "943": {
+     "fige": "assets/sprites-figes/forum-chromatique/943.png",
+     "poids_fige": 3437,
+     "source": "other/showdown/shiny/943.gif"
+    },
+    "944": {
+     "fige": "assets/sprites-figes/forum-chromatique/944.png",
+     "poids_fige": 1126,
+     "source": "other/showdown/shiny/944.gif"
+    },
+    "945": {
+     "fige": "assets/sprites-figes/forum-chromatique/945.png",
+     "poids_fige": 2296,
+     "source": "other/showdown/shiny/945.gif"
+    },
+    "946": {
+     "fige": "assets/sprites-figes/forum-chromatique/946.png",
+     "poids_fige": 2267,
+     "source": "other/showdown/shiny/946.gif"
+    },
+    "947": {
+     "fige": "assets/sprites-figes/forum-chromatique/947.png",
+     "poids_fige": 4046,
+     "source": "other/showdown/shiny/947.gif"
+    },
+    "948": {
+     "fige": "assets/sprites-figes/forum-chromatique/948.png",
+     "poids_fige": 1050,
+     "source": "other/showdown/shiny/948.gif"
+    },
+    "949": {
+     "fige": "assets/sprites-figes/forum-chromatique/949.png",
+     "poids_fige": 2867,
+     "source": "other/showdown/shiny/949.gif"
+    },
+    "95": {
+     "fige": "assets/sprites-figes/forum-chromatique/95.png",
+     "poids_fige": 8127,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/95.gif"
+    },
+    "950": {
+     "fige": "assets/sprites-figes/forum-chromatique/950.png",
+     "poids_fige": 4211,
+     "source": "other/showdown/shiny/950.gif"
+    },
+    "951": {
+     "fige": "assets/sprites-figes/forum-chromatique/951.png",
+     "poids_fige": 1501,
+     "source": "other/showdown/shiny/951.gif"
+    },
+    "952": {
+     "fige": "assets/sprites-figes/forum-chromatique/952.png",
+     "poids_fige": 2763,
+     "source": "other/showdown/shiny/952.gif"
+    },
+    "953": {
+     "fige": "assets/sprites-figes/forum-chromatique/953.png",
+     "poids_fige": 3615,
+     "source": "other/showdown/shiny/953.gif"
+    },
+    "954": {
+     "fige": "assets/sprites-figes/forum-chromatique/954.png",
+     "poids_fige": 4302,
+     "source": "other/showdown/shiny/954.gif"
+    },
+    "955": {
+     "fige": "assets/sprites-figes/forum-chromatique/955.png",
+     "poids_fige": 1708,
+     "source": "other/showdown/shiny/955.gif"
+    },
+    "956": {
+     "fige": "assets/sprites-figes/forum-chromatique/956.png",
+     "poids_fige": 5750,
+     "source": "other/showdown/shiny/956.gif"
+    },
+    "957": {
+     "fige": "assets/sprites-figes/forum-chromatique/957.png",
+     "poids_fige": 3423,
+     "source": "other/showdown/shiny/957.gif"
+    },
+    "958": {
+     "fige": "assets/sprites-figes/forum-chromatique/958.png",
+     "poids_fige": 3929,
+     "source": "other/showdown/shiny/958.gif"
+    },
+    "959": {
+     "fige": "assets/sprites-figes/forum-chromatique/959.png",
+     "poids_fige": 10418,
+     "source": "other/showdown/shiny/959.gif"
+    },
+    "96": {
+     "fige": "assets/sprites-figes/forum-chromatique/96.png",
+     "poids_fige": 3004,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/96.gif"
+    },
+    "960": {
+     "fige": "assets/sprites-figes/forum-chromatique/960.png",
+     "poids_fige": 1387,
+     "source": "other/showdown/shiny/960.gif"
+    },
+    "961": {
+     "fige": "assets/sprites-figes/forum-chromatique/961.png",
+     "poids_fige": 3952,
+     "source": "other/showdown/shiny/961.gif"
+    },
+    "962": {
+     "fige": "assets/sprites-figes/forum-chromatique/962.png",
+     "poids_fige": 3731,
+     "source": "other/showdown/shiny/962.gif"
+    },
+    "963": {
+     "fige": "assets/sprites-figes/forum-chromatique/963.png",
+     "poids_fige": 2635,
+     "source": "other/showdown/shiny/963.gif"
+    },
+    "964": {
+     "fige": "assets/sprites-figes/forum-chromatique/964.png",
+     "poids_fige": 2747,
+     "source": "other/showdown/shiny/964.gif"
+    },
+    "965": {
+     "fige": "assets/sprites-figes/forum-chromatique/965.png",
+     "poids_fige": 2483,
+     "source": "other/showdown/shiny/965.gif"
+    },
+    "966": {
+     "fige": "assets/sprites-figes/forum-chromatique/966.png",
+     "poids_fige": 5776,
+     "source": "other/showdown/shiny/966.gif"
+    },
+    "967": {
+     "fige": "assets/sprites-figes/forum-chromatique/967.png",
+     "poids_fige": 3842,
+     "source": "other/showdown/shiny/967.gif"
+    },
+    "968": {
+     "fige": "assets/sprites-figes/forum-chromatique/968.png",
+     "poids_fige": 2230,
+     "source": "other/showdown/shiny/968.gif"
+    },
+    "969": {
+     "fige": "assets/sprites-figes/forum-chromatique/969.png",
+     "poids_fige": 1032,
+     "source": "other/showdown/shiny/969.gif"
+    },
+    "97": {
+     "fige": "assets/sprites-figes/forum-chromatique/97.png",
+     "poids_fige": 5553,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/97.gif"
+    },
+    "970": {
+     "fige": "assets/sprites-figes/forum-chromatique/970.png",
+     "poids_fige": 3298,
+     "source": "other/showdown/shiny/970.gif"
+    },
+    "971": {
+     "fige": "assets/sprites-figes/forum-chromatique/971.png",
+     "poids_fige": 2555,
+     "source": "other/showdown/shiny/971.gif"
+    },
+    "972": {
+     "fige": "assets/sprites-figes/forum-chromatique/972.png",
+     "poids_fige": 5198,
+     "source": "other/showdown/shiny/972.gif"
+    },
+    "973": {
+     "fige": "assets/sprites-figes/forum-chromatique/973.png",
+     "poids_fige": 1437,
+     "source": "other/showdown/shiny/973.gif"
+    },
+    "974": {
+     "fige": "assets/sprites-figes/forum-chromatique/974.png",
+     "poids_fige": 2341,
+     "source": "other/showdown/shiny/974.gif"
+    },
+    "975": {
+     "fige": "assets/sprites-figes/forum-chromatique/975.png",
+     "poids_fige": 4658,
+     "source": "other/showdown/shiny/975.gif"
+    },
+    "976": {
+     "fige": "assets/sprites-figes/forum-chromatique/976.png",
+     "poids_fige": 2293,
+     "source": "other/showdown/shiny/976.gif"
+    },
+    "977": {
+     "fige": "assets/sprites-figes/forum-chromatique/977.png",
+     "poids_fige": 4113,
+     "source": "other/showdown/shiny/977.gif"
+    },
+    "978": {
+     "fige": "assets/sprites-figes/forum-chromatique/978.png",
+     "poids_fige": 1813,
+     "source": "other/showdown/shiny/978.gif"
+    },
+    "979": {
+     "fige": "assets/sprites-figes/forum-chromatique/979.png",
+     "poids_fige": 5951,
+     "source": "other/showdown/shiny/979.gif"
+    },
+    "98": {
+     "fige": "assets/sprites-figes/forum-chromatique/98.png",
+     "poids_fige": 3377,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/98.gif"
+    },
+    "980": {
+     "fige": "assets/sprites-figes/forum-chromatique/980.png",
+     "poids_fige": 2792,
+     "source": "other/showdown/shiny/980.gif"
+    },
+    "981": {
+     "fige": "assets/sprites-figes/forum-chromatique/981.png",
+     "poids_fige": 3909,
+     "source": "other/showdown/shiny/981.gif"
+    },
+    "982": {
+     "fige": "assets/sprites-figes/forum-chromatique/982.png",
+     "poids_fige": 2848,
+     "source": "other/showdown/shiny/982.gif"
+    },
+    "983": {
+     "fige": "assets/sprites-figes/forum-chromatique/983.png",
+     "poids_fige": 8808,
+     "source": "other/showdown/shiny/983.gif"
+    },
+    "99": {
+     "fige": "assets/sprites-figes/forum-chromatique/99.png",
+     "poids_fige": 6867,
+     "source": "versions/generation-vii/ultra-sun-ultra-moon/shiny/99.gif"
+    },
+    "996": {
+     "fige": "assets/sprites-figes/forum-chromatique/996.png",
+     "poids_fige": 2193,
+     "source": "other/showdown/shiny/996.gif"
+    },
+    "997": {
+     "fige": "assets/sprites-figes/forum-chromatique/997.png",
+     "poids_fige": 2507,
+     "source": "other/showdown/shiny/997.gif"
+    },
+    "998": {
+     "fige": "assets/sprites-figes/forum-chromatique/998.png",
+     "poids_fige": 4774,
+     "source": "other/showdown/shiny/998.gif"
+    },
+    "999": {
+     "fige": "assets/sprites-figes/forum-chromatique/999.png",
+     "poids_fige": 2299,
+     "source": "other/showdown/shiny/999.gif"
+    }
+   },
+   "manquants": [],
+   "titre": "Ultra-Soleil / Ultra-Lune, chromatique"
+  },
   "gba-ds": {
    "anime": false,
    "especes": {

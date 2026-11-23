@@ -12,7 +12,14 @@
 
 export type Evenement =
   | { readonly type: "croise"; readonly especeId: number }
-  | { readonly type: "capture"; readonly especeId: number; readonly niveau: number }
+  | {
+    readonly type: "capture";
+    readonly especeId: number;
+    readonly niveau: number;
+    /** Décidé à la rencontre. Absent sur l'immense majorité des
+     *  lignes — on ne l'écrit que quand il est vrai. */
+    readonly chromatique?: boolean;
+  }
   | { readonly type: "xp"; readonly pokemonId: string; readonly gain: number }
   | { readonly type: "objet_utilise"; readonly objetId: number; readonly quantite: number }
   | { readonly type: "objet_trouve"; readonly objetId: number; readonly quantite: number }
@@ -41,7 +48,11 @@ export type Manque =
 
 export type Effets = {
   readonly especesCroisees: readonly number[];
-  readonly captures: readonly { readonly especeId: number; readonly niveau: number }[];
+  readonly captures: readonly {
+    readonly especeId: number;
+    readonly niveau: number;
+    readonly chromatique?: boolean;
+  }[];
   readonly xpParPokemon: ReadonlyMap<string, number>;
   readonly objetsConsommes: ReadonlyMap<number, number>;
   readonly objetsAjoutes: ReadonlyMap<number, number>;
@@ -124,7 +135,7 @@ function rejouer(
   const ajoutes = new Map<number, number>();
   const xp = new Map<string, number>();
   const croisees: number[] = [];
-  const captures: { especeId: number; niveau: number }[] = [];
+  const captures: { especeId: number; niveau: number; chromatique?: boolean }[] = [];
   const manques: Manque[] = [];
   let pokedollars = 0;
 
@@ -135,7 +146,13 @@ function rejouer(
         break;
 
       case "capture":
-        captures.push({ especeId: e.especeId, niveau: e.niveau });
+        //  L'ÉCLAT SUIT JUSQU'À LA BOÎTE. Un chromatique capturé est
+        //  un individu : son éclat ne se recalcule pas, il se recopie.
+        captures.push({
+          especeId: e.especeId,
+          niveau: e.niveau,
+          ...(e.chromatique === true ? { chromatique: true } : {}),
+        });
         break;
 
       case "xp":

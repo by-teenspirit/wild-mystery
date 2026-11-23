@@ -517,6 +517,11 @@ export class JouerUnTour {
         type: "capture",
         especeId: etat.sauvage.especeId,
         niveau: etat.sauvage.niveau,
+        //  ON NE L'ÉCRIT QUE S'IL EST VRAI : une clé `false` sur
+        //  chaque capture alourdirait le registre pour dire
+        //  l'ordinaire. Et `vie.ts` attend exactement cette clé pour
+        //  écrire « a capturé Vivaldaim chromatique ».
+        ...(etat.sauvage.chromatique === true ? { chromatique: true } : {}),
       });
       return { evenements, tour: { ...tour, fin: null } };
     }

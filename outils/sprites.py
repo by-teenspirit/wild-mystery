@@ -95,6 +95,29 @@ STYLES = {
             ("other/showdown", "gif"),
         ],
     },
+    #  ── LE MÊME STYLE, EN CHROMATIQUE ─────────────────────────────
+    #
+    #  « Ce serait bien qu'il se tire à chaque rencontre aussi »
+    #  — 23 novembre. Un chromatique qu'on ne voit pas n'est pas un
+    #  chromatique : il lui faut son sprite, sinon la seule différence
+    #  est une ligne de texte.
+    #
+    #  MÊMES SOURCES, MÊME ORDRE, avec `/shiny` au bout : PokéAPI range
+    #  les variantes dans un sous-dossier de chaque version. Vérifié le
+    #  23 novembre sur les trois chemins — ils répondent tous.
+    #
+    #  SEUL LE STYLE DU FORUM EN A UN. Les deux autres servent le
+    #  Pokédex et la carte, où l'on montre l'espèce et pas l'individu ;
+    #  un chromatique n'y a rien à faire, et ce serait deux mille
+    #  images de plus pour personne.
+    "forum-chromatique": {
+        "titre": "Ultra-Soleil / Ultra-Lune, chromatique",
+        "anime": True,
+        "sources": [
+            ("versions/generation-vii/ultra-sun-ultra-moon/shiny", "gif"),
+            ("other/showdown/shiny", "gif"),
+        ],
+    },
     "retro": {
         "titre": "Rétro animé",
         "anime": True,

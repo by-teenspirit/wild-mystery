@@ -488,6 +488,10 @@ export type CombatEnCours = {
     /** Le surnom du Pokémon d'en face, quand c'est celui d'un joueur :
      *  il l'a nommé, et les messages doivent l'appeler par son nom. */
     readonly surnom?: string | null;
+    /** Décidé au tirage de la rencontre (0070). Il remonte jusqu'ici
+     *  pour que la ligne `capture` du registre puisse le porter : un
+     *  chromatique capturé reste chromatique dans la boîte. */
+    readonly chromatique?: boolean;
   };
   readonly combattant:
     | (CombattantEnJeu & {
@@ -556,6 +560,10 @@ export interface Combats {
     readonly joueurId: string;
     readonly especeId: number;
     readonly niveau: number;
+    /** Décidé par le tirage de la rencontre, pas par la base.
+     *  Facultatif : la base a un défaut à `false`, parce que la relève
+     *  et la base ne se déploient pas à la même seconde. */
+    readonly chromatique?: boolean;
   }): Promise<OuvertureDeCombat>;
 
   /** Remet la carte du combat ouvert de ce sujet dans la file.

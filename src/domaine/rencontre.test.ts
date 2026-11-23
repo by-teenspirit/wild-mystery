@@ -9,6 +9,7 @@
 
 import { assert, assertEquals, assertThrows } from "@std/assert";
 import {
+  CHANCE_CHROMATIQUE,
   type EntreeDeTable,
   TableInvalide,
   tirerEtTracer,
@@ -36,10 +37,16 @@ Deno.test("deux fois la même graine, deux fois la même rencontre", () => {
 Deno.test("le tirage est figé dans le temps", () => {
   // Valeur gelée volontairement. Si elle change, les tirages déjà
   // joués ne sont plus rejouables et l'arbitrage du staff tombe.
+  //  L'ESPÈCE ET LE NIVEAU N'ONT PAS BOUGÉ en ajoutant le tirage du
+  //  chromatique, le 23 novembre : il est TROISIÈME dans la suite,
+  //  donc il ne décale pas les deux premiers. C'est ce que cette
+  //  valeur gelée prouve, et c'est la raison pour laquelle on l'a mis
+  //  en queue plutôt qu'en tête.
   assertEquals(tirerUneRencontre(FORET, "message:8001"), {
     especeId: 43,
     niveau: 8,
     rarete: "peu commun",
+    chromatique: false,
   });
 });
 
@@ -56,6 +63,7 @@ Deno.test("une table à une seule espèce rend toujours cette espèce", () => {
       especeId: 25,
       niveau: 7,
       rarete: "rare",
+      chromatique: false,
     });
   }
 });
@@ -146,4 +154,50 @@ Deno.test("tirerEtTracer garde la graine en clair à côté du résultat", () =>
   const t = tirerEtTracer(FORET, "message:8001");
   assertEquals(t.graine, "message:8001");
   assertEquals(t.rencontre, tirerUneRencontre(FORET, "message:8001"));
+});
+
+// ── les chromatiques ────────────────────────────────────────────────
+
+Deno.test("UN CHROMATIQUE SE TIRE, ET IL EST RARE SANS ÊTRE INTROUVABLE", () => {
+  //  « On peut faire un peu plus généreux pour le forum ? Ce serait
+  //  bien qu'il se tire à chaque rencontre aussi » — 23 novembre.
+  //
+  //  On mesure sur vingt mille graines : à 1/512, on en attend 39.
+  //  Les bornes sont larges exprès — ce test garde l'ORDRE DE
+  //  GRANDEUR, pas une valeur exacte, sinon il casserait au premier
+  //  changement de curseur sans rien apprendre à personne.
+  let combien = 0;
+  const combien_de_tirages = 20000;
+  for (let i = 0; i < combien_de_tirages; i++) {
+    if (tirerUneRencontre(UNE_SEULE, `chroma:${i}`).chromatique) combien++;
+  }
+  const attendu = combien_de_tirages * CHANCE_CHROMATIQUE;
+  assert(
+    combien > attendu / 3 && combien < attendu * 3,
+    `${combien} chromatiques sur ${combien_de_tirages}, on en attendait environ ${attendu}`,
+  );
+});
+
+Deno.test("LE CHROMATIQUE NE DÉPLACE NI L'ESPÈCE NI LE NIVEAU", () => {
+  //  C'est la propriété qui compte le plus ici. Le tirage est le
+  //  troisième de la suite ; s'il passait devant, TOUTES les
+  //  rencontres déjà jouées changeraient d'espèce, et un tirage
+  //  contesté ne se rejouerait plus. On le vérifie sur les graines
+  //  qui produisent un chromatique ET sur celles qui n'en produisent
+  //  pas : les deux doivent donner la même espèce que la table impose.
+  for (let i = 0; i < 300; i++) {
+    const r = tirerUneRencontre(UNE_SEULE, `chroma:${i}`);
+    assertEquals(r.especeId, 25);
+    assertEquals(r.niveau, 7);
+  }
+});
+
+Deno.test("le même message rend toujours le même chromatique", () => {
+  //  Sans ça, une rencontre deviendrait chromatique ou non selon le
+  //  moment où la relève passe, et personne ne pourrait arbitrer.
+  for (const graine of ["message:8001", "message:9", "chroma:42"]) {
+    const a = tirerUneRencontre(FORET, graine).chromatique;
+    const b = tirerUneRencontre(FORET, graine).chromatique;
+    assertEquals(a, b, graine);
+  }
 });

@@ -428,6 +428,9 @@ export class LireLesNouveauxMessages {
       joueurId,
       especeId: rencontre.especeId,
       niveau: rencontre.niveau,
+      //  L'ÉCLAT VIENT DU TIRAGE, et il descend jusqu'à la ligne du
+      //  combat. La base ne le recalcule pas : elle constate.
+      chromatique: rencontre.chromatique,
     });
     //  `COMBAT_EN_COURS` : le joueur a cliqué pendant qu'un combat
     //  tournait dans le même sujet. Ce n'est pas une panne, et la
@@ -464,7 +467,21 @@ export class LireLesNouveauxMessages {
       );
     }
 
-    return { type: "croise", especeId: rencontre.especeId };
+    //  ── ET LE REGISTRE LE PORTE AUSSI ──────────────────────────────
+    //
+    //  `vie.ts` sait dire « a capturé Vivaldaim chromatique » depuis le
+    //  début, et attendait qu'on lui écrive cette clé. Sans elle, un
+    //  chromatique croisé passait dans le fil de vie comme un Pokémon
+    //  ordinaire.
+    //
+    //  ON NE L'ÉCRIT QUE S'IL EST VRAI : une charge qui porterait
+    //  `chromatique: false` sur chaque rencontre alourdirait le
+    //  registre entier pour une information qui est l'exception.
+    return {
+      type: "croise",
+      especeId: rencontre.especeId,
+      ...(rencontre.chromatique ? { chromatique: true } : {}),
+    };
   }
 }
 

@@ -22,6 +22,11 @@ export type StyleDeSprite = "forum" | "retro" | "gba-ds";
 
 export const STYLE_PAR_DEFAUT: StyleDeSprite = "forum";
 
+/*  LE DOSSIER DES CHROMATIQUES, produit par `outils/sprites.py` depuis
+    les mêmes sources avec `/shiny` au bout. Ce n'est PAS un
+    `StyleDeSprite` : voir `adresse`. */
+const VARIANTE_CHROMATIQUE = "forum-chromatique";
+
 /** Là où un sprite s'affiche. C'est l'endroit qui décide s'il bouge, pas
  *  l'appelant : sinon la règle se perd en trois opinions différentes. */
 export type Emplacement =
@@ -108,12 +113,39 @@ export class Sprites {
 
   /** L'adresse complète, ou null si l'espèce n'est pas dans la carte —
    *  auquel cas l'appelant n'affiche rien plutôt qu'une image cassée. */
-  adresse(especeId: number, style: StyleDeSprite, ou: Emplacement): string | null {
-    const voulu = this.carte.styles[style];
-    if (!voulu) throw new StyleInconnu(style);
+  /*  ── LE CHROMATIQUE N'EST PAS UN STYLE ──────────────────────────
+
+      Il serait tentant d'ajouter « forum-chromatique » à
+      `StyleDeSprite` : le dossier existe, la carte le connaît, une
+      ligne suffirait.
+
+      **CE SERAIT FAUX.** `StyleDeSprite` est ce que le JOUEUR CHOISIT
+      dans ses préférences — `estUnStyleDeSprite` garde cette porte —
+      et personne ne veut « tout le forum en chromatique ». L'éclat
+      n'appartient pas au lecteur, il appartient à l'individu qu'on
+      regarde.
+
+      D'où un argument à part, et un seul style concerné : celui du
+      forum. Les deux autres servent le Pokédex et la carte, où l'on
+      montre l'espèce et pas l'individu. */
+  adresse(
+    especeId: number,
+    style: StyleDeSprite,
+    ou: Emplacement,
+    chromatique = false,
+  ): string | null {
+    const voulu =
+      this.carte.styles[chromatique && style === "forum" ? VARIANTE_CHROMATIQUE : style];
+    //  ON NOMME LA CLÉ RÉELLEMENT DEMANDÉE : « style inconnu : forum »
+    //  sur une carte sans le dossier chromatique enverrait chercher au
+    //  mauvais endroit.
+    if (!voulu) throw new StyleInconnu(chromatique ? VARIANTE_CHROMATIQUE : style);
     const entree = voulu.especes[String(especeId)];
     if (!entree) return null;
 
+    //  `anime` REÇOIT LE STYLE CHOISISSABLE, pas la variante : c'est
+    //  l'emplacement qui décide si ça bouge, et un chromatique bouge
+    //  exactement comme les autres.
     const chemin = this.anime(style, ou) ? entree.source : entree.fige;
     //  Les images figées que nous produisons vivent dans NOTRE dépôt ; les
     //  autres chemins sont relatifs au dépôt des sprites. Le préfixe le dit.

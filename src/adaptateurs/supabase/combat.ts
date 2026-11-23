@@ -321,6 +321,15 @@ export class CombatsSupabase implements Combats {
         //  « taux de capture undefined » au milieu d'un lancer — après
         //  que la base a été lue, avant qu'elle ne soit écrite.
         capture: nombre(o.sauvage as Record<string, unknown>, "capture", "sauvage"),
+        //  ── L'ÉCLAT, LU SANS EXIGENCE ──────────────────────────────
+        //
+        //  `=== true` ET PAS `nombre()` NI UNE CONVERSION : la clé
+        //  manque tant que la base n'a pas la 0070, et la relève se
+        //  déploie avant ou après elle, jamais à la même seconde.
+        //  Une lecture exigeante arrêterait toutes les captures
+        //  pendant ce laps de temps, pour une information dont
+        //  l'absence veut simplement dire « non ».
+        chromatique: (o.sauvage as Record<string, unknown>).chromatique === true,
       },
       combattant: o.combattant === null || o.combattant === undefined ? null : {
         ...lireUnCombattant(o.combattant, "combattant"),
@@ -360,6 +369,7 @@ export class CombatsSupabase implements Combats {
     readonly joueurId: string;
     readonly especeId: number;
     readonly niveau: number;
+    readonly chromatique?: boolean;
   }): Promise<OuvertureDeCombat> {
     const nom = "ouvrir_un_combat";
     const recu = await this.appeler(nom, c);

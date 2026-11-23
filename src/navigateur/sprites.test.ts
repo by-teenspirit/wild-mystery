@@ -122,3 +122,61 @@ Deno.test("un style venu du stockage est validé avant d'être cru", () => {
     assertFalse(estUnStyleDeSprite(mauvais), String(mauvais));
   }
 });
+
+// ── les chromatiques ────────────────────────────────────────────────
+
+Deno.test("UN CHROMATIQUE PREND SON PROPRE SPRITE", () => {
+  //  « Ce serait bien qu'il se tire à chaque rencontre aussi » — et un
+  //  chromatique qu'on ne voit pas n'est pas un chromatique.
+  const s = new Sprites(CARTE_CHROMA);
+  assertEquals(
+    s.adresse(172, "forum", "pokedex", true),
+    "assets/sprites-figes/forum-chromatique/172.png",
+  );
+  assertEquals(
+    s.adresse(172, "forum", "pokedex", false),
+    "assets/sprites-figes/forum/172.png",
+  );
+});
+
+Deno.test("SANS LE DRAPEAU, RIEN NE CHANGE — c'est le cas de tout le monde", () => {
+  const s = new Sprites(CARTE_CHROMA);
+  assertEquals(s.adresse(172, "forum", "pokedex"), "assets/sprites-figes/forum/172.png");
+});
+
+Deno.test("LE CHROMATIQUE N'EST PAS UN STYLE QU'ON CHOISIT", () => {
+  //  `StyleDeSprite` est ce que le joueur règle dans ses préférences,
+  //  et personne ne veut « tout le forum en chromatique ». L'éclat
+  //  appartient à l'individu qu'on regarde, pas au lecteur.
+  assertEquals(estUnStyleDeSprite("forum-chromatique"), false);
+  assertEquals(estUnStyleDeSprite("forum"), true);
+});
+
+Deno.test("les autres styles ignorent le drapeau", () => {
+  //  Le Pokédex et la carte montrent l'ESPÈCE, pas l'individu : il n'y
+  //  a pas de dossier chromatique pour eux, et en demander un
+  //  lèverait. Le drapeau y est donc sans effet, plutôt que fatal.
+  const s = new Sprites(CARTE_CHROMA);
+  assertEquals(s.adresse(172, "retro", "pokedex", true), "assets/sprites-figes/retro/172.png");
+});
+
+const CARTE_CHROMA = {
+  commit: "abc123",
+  base: "https://exemple.test/sprites",
+  styles: {
+    forum: {
+      anime: true,
+      especes: { "172": { source: "x.gif", fige: "assets/sprites-figes/forum/172.png" } },
+    },
+    "forum-chromatique": {
+      anime: true,
+      especes: {
+        "172": { source: "y.gif", fige: "assets/sprites-figes/forum-chromatique/172.png" },
+      },
+    },
+    retro: {
+      anime: true,
+      especes: { "172": { source: "z.gif", fige: "assets/sprites-figes/retro/172.png" } },
+    },
+  },
+};
