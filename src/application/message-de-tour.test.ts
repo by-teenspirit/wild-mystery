@@ -377,3 +377,62 @@ Deno.test("UN TOUR SAUVAGE CONTINUE DE PARLER AU JOUEUR", () => {
   assertStringIncludes(texte, "Le combat est terminé");
   assert(!texte.includes("remporte le duel"), "pas de duel dans un combat sauvage");
 });
+
+Deno.test("SOIGNER ET REMPLACER EN DUEL NOMMENT QUI A JOUÉ, ET DISENT QUE LA MAIN PASSE", () => {
+  //  ── DEUX PHRASES NEUVES, LA MÊME RAISON QUE LA FRAPPE ─────────────
+  //
+  //  « Tu utilises une Potion » dans un message lu par DEUX dresseurs
+  //  est vrai pour l'un et faux pour l'autre. Et la phrase doit dire
+  //  que le tour est dépensé : sans ça, celui qui soigne attend une
+  //  frappe qui ne viendra pas, puis reposte.
+  const soin = phrasesDuTour(frappeDeDuel({
+    demande: "objet",
+    detail: { objetId: 990020, nom: "Potion", rendus: 12, qui: "Salamèche", parDefieur: true },
+    recit: { frappes: [] },
+    fin: null,
+  })).join(" ");
+  assert(soin.includes("Jake Dalziel"), soin);
+  assert(soin.includes("Potion"), soin);
+  assert(soin.includes("12 PV"), soin);
+  //  LA MAIN PASSE À L'AUTRE, ET IL EST NOMMÉ.
+  assert(soin.includes("Erin Kavanagh"), soin);
+  assert(!/\btu\b/i.test(soin), `« tu » dans : ${soin}`);
+
+  //  ── ET DEPUIS L'AUTRE CÔTÉ, LES DEUX NOMS S'ÉCHANGENT ─────────────
+  //
+  //  `parDefieur` EST LA SEULE TRACE DE QUI A JOUÉ : `combat_tour` n'a
+  //  pas de colonne de joueur, et `a_qui` a déjà basculé quand ce
+  //  message s'écrit. Le lire à l'envers attribuerait le soin à
+  //  l'adversaire de celui qui l'a payé.
+  const sien = phrasesDuTour(frappeDeDuel({
+    demande: "objet",
+    detail: { objetId: 990020, nom: "Potion", rendus: 12, qui: "Bulle", parDefieur: false },
+    recit: { frappes: [] },
+    fin: null,
+  })).join(" ");
+  assert(sien.indexOf("Erin Kavanagh") < sien.indexOf("Jake Dalziel"), sien);
+
+  const change = phrasesDuTour(frappeDeDuel({
+    demande: "changer",
+    detail: { position: 2, pokemonId: "p-9", nom: "Biscotte", parDefieur: true },
+    recit: { frappes: [] },
+    fin: null,
+  })).join(" ");
+  assert(change.includes("Jake Dalziel envoie Biscotte"), change);
+  assert(change.includes("Erin Kavanagh"), change);
+  assert(!/\btu\b/i.test(change), `« tu » dans : ${change}`);
+});
+
+Deno.test("UN TOUR SANS FRAPPE QUI FINIT LE COMBAT N'APPELLE PERSONNE", () => {
+  //  LA PHRASE D'APPEL NE DOIT PAS SURVIVRE À LA FIN. Si le duel se
+  //  clôt sur ce tour — un sujet clôturé, un forfait de l'autre arrivé
+  //  dans le même passage —, « à X de frapper » serait une invitation à
+  //  jouer dans un combat qui n'existe plus.
+  const texte = phrasesDuTour(frappeDeDuel({
+    demande: "changer",
+    detail: { position: 2, nom: "Biscotte", parDefieur: true },
+    recit: { frappes: [] },
+    fin: "victoire",
+  })).join(" ");
+  assert(!/de frapper/.test(texte), texte);
+});

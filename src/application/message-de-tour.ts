@@ -96,13 +96,44 @@ export function phraseDeLaDemande(t: TourEnAttente): string {
   //  l'autre. C'est le repère de `joueur_id`, le même partout.
   //
   //  `attaquer` n'est pas annoncé — la frappe le dit déjà (voir
-  //  `phrasesDuTour`) — et les trois autres ne peuvent pas arriver : le
-  //  duel refuse la ball, l'objet et le changement, en les nommant.
+  //  `phrasesDuTour`) — et la ball ne peut pas arriver : on n'attrape
+  //  pas le Pokémon d'un dresseur.
   if (estUnDuel(t) && t.demande === "renoncer") {
     const renonce = (t.fin === "defaite" ? t.defieur : t.adverse) ?? "Le dresseur";
     return `${renonce} déclare forfait.`;
   }
   const d = t.detail ?? {};
+
+  //  ── SOIGNER ET REMPLACER, DITS À LA TROISIÈME PERSONNE ────────────
+  //
+  //  « Les objets sont autorisés en combat. Changer de pokémon, ça
+  //  permet à l'autre d'attaquer, ça utilise un de tes tours. » —
+  //  23 novembre.
+  //
+  //  DEUX PHRASES DE PLUS, ET LA MÊME RAISON QUE POUR LA FRAPPE : « tu
+  //  utilises une Potion » dans un message lu par DEUX dresseurs est
+  //  vrai pour l'un et faux pour l'autre. Qui a agi est nommé.
+  //
+  //  `parDefieur` VIENT DU DÉTAIL, et c'est la seule façon de le
+  //  savoir : `combat_tour` ne porte pas de colonne de joueur, et
+  //  `a_qui` a déjà basculé quand ce message s'écrit. L'application
+  //  l'écrit au moment où elle sait de quel côté est celui qui joue.
+  if (estUnDuel(t) && (t.demande === "objet" || t.demande === "changer")) {
+    const qui = (d.parDefieur === true ? t.defieur : t.adverse) ?? "Le dresseur";
+    const autre = (d.parDefieur === true ? t.adverse : t.defieur) ?? "l'autre dresseur";
+    //  ET LA PHRASE DIT QUE LA MAIN PASSE. C'est toute la règle que
+    //  Callista vient de donner : le tour est dépensé. Sans ce bout de
+    //  phrase, un joueur qui soigne attend une frappe qui ne viendra
+    //  pas, puis reposte.
+    const suite = t.fin === null ? ` À ${autre} de frapper.` : "";
+    if (t.demande === "objet") {
+      //  LES PV RENDUS, pas le montant de l'objet — même règle que
+      //  pour un combat sauvage.
+      return `${qui} utilise une ${d.nom ?? "objet"} : ${d.qui ?? "son Pokémon"} ` +
+        `reprend ${d.rendus ?? 0} PV.${suite}`;
+    }
+    return `${qui} envoie ${d.nom ?? "un autre Pokémon"} au combat.${suite}`;
+  }
   switch (t.demande) {
     case "attaquer":
       return `${soi} attaque avec ${d.nom ?? "sa capacité"}.`;

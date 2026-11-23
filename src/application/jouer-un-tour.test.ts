@@ -23,7 +23,7 @@
 
 import { assert, assertEquals } from "@std/assert";
 import type { Action } from "../domaine/action.ts";
-import { TOURS_MAX } from "../domaine/combat.ts";
+import { type Tour, TOURS_MAX } from "../domaine/combat.ts";
 import type { ActionLue, CombatEnCours, TableDesTypesEnJeu } from "./ports.ts";
 import { CombatsEnMemoire } from "../adaptateurs/en-memoire/combat.ts";
 import { JouerUnTour, riposteDe } from "./jouer-un-tour.ts";
@@ -753,26 +753,120 @@ Deno.test("L'EXPÉRIENCE VA AU POKÉMON QUI A FRAPPÉ", async () => {
   assertEquals((r2.evenements[0] as { pokemonId: string }).pokemonId, "p-2");
 });
 
-Deno.test("NI BALL NI OBJET DANS UN DUEL, ET LE REFUS SE NOMME", async () => {
-  //  On n'attrape pas le Pokémon de quelqu'un. Et soigner au milieu
-  //  d'un duel est une règle de jeu à trancher, pas un bouton à poser.
-  for (
-    const action of [{ type: "ball" as const, objetId: 1 }, {
-      type: "objet" as const,
-      objetId: 2,
-    }]
-  ) {
-    const combats = faux(duel());
-    const erreurs: string[] = [];
-    await new JouerUnTour(combats, TYPES, HEURES).executer(
-      lue(15707),
-      action,
-      JOUEUR,
-      erreurs,
-    );
-    assertEquals(combats.joues.length, 0);
-    assert(erreurs[0].includes("n'a pas de sens"));
-  }
+Deno.test("LA BALL RESTE LE SEUL REFUS D'UN DUEL", async () => {
+  //  ── DEUX DES TROIS REFUS ONT REÇU LEUR RÈGLE ──────────────────────
+  //
+  //  Ce test en refusait trois le 23 novembre au matin : la ball,
+  //  l'objet et le changement. Callista a tranché les deux derniers le
+  //  même jour — « les objets sont autorisés en combat », « changer de
+  //  pokémon, ça permet à l'autre d'attaquer, ça utilise un de tes
+  //  tours » — et il n'en reste qu'un.
+  //
+  //  CELUI-LÀ NE RECEVRA PAS DE RÈGLE : on n'attrape pas le Pokémon de
+  //  quelqu'un.
+  const combats = faux(duel({ sac: [POKE_BALL] }));
+  const erreurs: string[] = [];
+  await new JouerUnTour(combats, TYPES, HEURES).executer(
+    lue(15707),
+    { type: "ball", objetId: 990001 },
+    JOUEUR,
+    erreurs,
+  );
+  assertEquals(combats.joues.length, 0);
+  assert(erreurs[0].includes("on n'attrape pas"));
+});
+
+Deno.test("SOIGNER EN DUEL DÉPENSE LE TOUR ET NE FRAPPE PERSONNE", async () => {
+  //  ── LE CHEMIN SAUVAGE N'AURAIT PAS PU SERVIR ──────────────────────
+  //
+  //  `#utiliserUnObjet` calcule une riposte DU SAUVAGE et la joue dans
+  //  le même message. Ici le « sauvage » est le Pokémon d'un joueur :
+  //  le faire riposter tout seul jouerait à sa place. C'est ce que ce
+  //  test mesure — un tour, et AUCUNE frappe.
+  const combats = faux(duel({
+    sac: [POTION],
+    combattant: { ...EN_EQUIPE[0], pv: 6, pvMax: 18 },
+  }));
+  const erreurs: string[] = [];
+  const r = await new JouerUnTour(combats, TYPES, HEURES).executer(
+    lue(15721),
+    { type: "objet", objetId: 990020 },
+    JOUEUR,
+    erreurs,
+  );
+  assertEquals(erreurs, []);
+  assertEquals(combats.joues.length, 1);
+  assertEquals(combats.joues[0].demande, "objet");
+  //  `recit` est du jsonb pour le port : on le relit en Tour pour
+  //  mesurer qu'il n'y a AUCUNE frappe — c'est tout le sujet de ce
+  //  chemin.
+  assertEquals((combats.joues[0].recit as Tour).frappes, []);
+  //  LA MAIN PASSE PARCE QUE LA BASE LA FAIT PASSER : elle exige de
+  //  savoir qui joue, et tout tour de duel qui ne finit pas le combat
+  //  bascule `a_qui` (0061). Sans `joueurId`, elle lèverait.
+  assertEquals(combats.joues[0].joueurId, JOUEUR);
+  assertEquals(combats.joues[0].fin, null);
+  //  LES PV S'ÉCRIVENT DANS LE REPÈRE DE LA TABLE : le défieur soigne,
+  //  donc c'est `pvJoueur` qui monte, et celui d'en face ne bouge pas.
+  assertEquals(combats.joues[0].pvJoueur, 18);
+  assertEquals(combats.joues[0].pvSauvage, 21);
+  //  ET L'OBJET SE CONSOMME.
+  assertEquals(r.evenements, [{ type: "objet_utilise", objetId: 990020, quantite: 1 }]);
+});
+
+Deno.test("SOIGNER DEPUIS L'AUTRE CÔTÉ SOIGNE L'AUTRE CÔTÉ", async () => {
+  //  LE PIÈGE EXACT : `pvJoueur` est le côté de `joueur_id`, toujours.
+  //  Écrire la guérison là quand c'est l'ADVERSAIRE qui soigne
+  //  soignerait son adversaire — et le joueur aurait dépensé une Potion
+  //  pour aider celui qu'il combat.
+  const combats = faux(duel({
+    aQui: ADVERSE,
+    sac: [POTION],
+    sauvage: {
+      especeId: 7,
+      nom: "Carapuce",
+      surnom: "Bulle",
+      niveau: 6,
+      types: ["eau"],
+      //  BLESSÉ DE PLUS QUE CE QU'UNE POTION REND, pour que le chiffre
+      //  mesuré soit une vraie guérison et pas le plafond : 8 + 20
+      //  dépasserait 21, et le test ne dirait plus rien de l'endroit
+      //  où la guérison s'écrit.
+      pv: 1,
+      pvMax: 40,
+      attaque: 10,
+      defense: 12,
+      capture: 45,
+      capacites: [CHARGE],
+    },
+  }));
+  await new JouerUnTour(combats, TYPES, HEURES).executer(
+    lue(15722),
+    { type: "objet", objetId: 990020 },
+    ADVERSE,
+    [],
+  );
+  assertEquals(combats.joues.length, 1);
+  //  SON côté monte — une Potion rend 20 PV —, et celui du défieur ne
+  //  bouge pas d'un point.
+  assertEquals(combats.joues[0].pvSauvage, 21);
+  assertEquals(combats.joues[0].pvJoueur, 18);
+});
+
+Deno.test("UNE POTION SUR UN POKÉMON AU MAXIMUM NE DÉPENSE PAS LE TOUR", async () => {
+  //  Dans un duel, dépenser son tour pour rien laisse l'adversaire
+  //  frapper derrière. Le refus vaut donc plus cher ici que contre un
+  //  sauvage.
+  const combats = faux(duel({ sac: [POTION] }));
+  const erreurs: string[] = [];
+  await new JouerUnTour(combats, TYPES, HEURES).executer(
+    lue(15723),
+    { type: "objet", objetId: 990020 },
+    JOUEUR,
+    erreurs,
+  );
+  assertEquals(combats.joues.length, 0);
+  assert(erreurs[0].includes("déjà au maximum"));
 });
 
 Deno.test("RENONCER FAIT PERDRE CELUI QUI RENONCE", async () => {
@@ -838,19 +932,99 @@ Deno.test("UNE CAPACITÉ QUI N'EST PAS DES SIENNES EST REFUSÉE, DES DEUX CÔTÉ
   assert(erreurs[0].includes("Carapuce"));
 });
 
-Deno.test("CHANGER EN DUEL EST REFUSÉ, ET LE REFUS DIT QU'IL EST PROVISOIRE", async () => {
-  const combats = faux(duel());
+Deno.test("CHANGER EN DUEL DÉPENSE LE TOUR, SANS RIPOSTE", async () => {
+  //  « Ça permet à l'autre d'attaquer, ça utilise un de tes tours. »
+  //
+  //  ET LES DEUX SONT LA MÊME PHRASE : personne ne riposte
+  //  automatiquement, l'autre frappe parce que c'est son tour. Sans ce
+  //  chemin, celui du combat sauvage aurait fait frapper « le
+  //  sauvage » — qui est ici le Pokémon d'un joueur, à sa place.
+  const combats = faux(duel({ equipe: [EN_EQUIPE[0], BISCOTTE] }));
   const erreurs: string[] = [];
-  await new JouerUnTour(combats, TYPES, HEURES).executer(
+  const r = await new JouerUnTour(combats, TYPES, HEURES).executer(
     lue(15713),
     { type: "changer", position: 2 },
     JOUEUR,
     erreurs,
   );
-  assertEquals(combats.joues.length, 0);
-  assert(erreurs[0].includes("reste à trancher"));
-  //  Et surtout : AUCUNE RIPOSTE n'a été jouée. Sans ce refus, le
-  //  chemin du combat sauvage aurait fait frapper « le sauvage » — qui
-  //  est ici le Pokémon d'un joueur, à sa place.
-  assertEquals(combats.joues.length, 0);
+  assertEquals(erreurs, []);
+  assertEquals(combats.joues.length, 1);
+  assertEquals(combats.joues[0].demande, "changer");
+  //  `recit` est du jsonb pour le port : on le relit en Tour pour
+  //  mesurer qu'il n'y a AUCUNE frappe — c'est tout le sujet de ce
+  //  chemin.
+  assertEquals((combats.joues[0].recit as Tour).frappes, []);
+  assertEquals(combats.joues[0].fin, null);
+  //  LE DÉFIEUR CHANGE : c'est `pokemonId` que la base doit écrire, et
+  //  les PV de l'arrivant qui deviennent `pvJoueur`.
+  assertEquals(combats.joues[0].pokemonId, "p-2");
+  assertEquals(combats.joues[0].pvPokemonMax, 20);
+  assertEquals(combats.joues[0].pvJoueur, 20);
+  assertEquals(combats.joues[0].pokemonAdverse, undefined);
+  //  AUCUNE EXPÉRIENCE : personne n'a frappé.
+  assertEquals(r.evenements, []);
+});
+
+Deno.test("CHANGER DEPUIS L'AUTRE CÔTÉ ÉCRIT LES CHAMPS DE L'AUTRE CÔTÉ", async () => {
+  //  LE PIÈGE : la base écrit `pokemon_id`/`pv_pokemon_max` pour un
+  //  camp et `adverse_pokemon_id`/`pv_sauvage_max` pour l'autre (0061).
+  //  Les poser du mauvais côté remplacerait le Pokémon de l'adversaire
+  //  par le nôtre, et sa jauge afficherait le nôtre.
+  //  ── SON ÉQUIPE, PAS CELLE DU DÉFIEUR ────────────────────────────
+  //
+  //  `combat_pour_jouer` sert l'équipe de CELUI QUI A LA MAIN (0062).
+  //  Reprendre `EN_EQUIPE` ici aurait donné à l'adversaire l'équipe du
+  //  défieur — et `p-2`, qui EST son combattant du moment, se serait
+  //  fait refuser avec « se bat déjà ». La fixture dit donc la vérité :
+  //  son combattant en case 1, son remplaçant en case 2.
+  const combats = faux(duel({
+    aQui: ADVERSE,
+    equipe: [
+      { ...BISCOTTE, pokemonId: "p-2", position: 1 },
+      { ...BISCOTTE, pokemonId: "p-9", position: 2, surnom: "Relève", pvMax: 24, pv: 24 },
+    ],
+  }));
+  await new JouerUnTour(combats, TYPES, HEURES).executer(
+    lue(15714),
+    { type: "changer", position: 2 },
+    ADVERSE,
+    [],
+  );
+  assertEquals(combats.joues.length, 1);
+  assertEquals(combats.joues[0].pokemonAdverse, "p-9");
+  assertEquals(combats.joues[0].pvAdverseMax, 24);
+  assertEquals(combats.joues[0].pvSauvage, 24);
+  assertEquals(combats.joues[0].pokemonId, undefined);
+});
+
+Deno.test("ON NE REMPLACE PAS SON COMBATTANT PAR LUI-MÊME, DES DEUX CÔTÉS", async () => {
+  //  LE COMPILATEUR A ATTRAPÉ LA MOITIÉ DE ÇA : d'en face,
+  //  l'identifiant du Pokémon n'est pas dans `sauvage` — ce côté est
+  //  décrit comme une ESPÈCE — mais dans `adversePokemonId`. La
+  //  comparaison naïve n'aurait jamais refusé pour l'adversaire, et il
+  //  aurait dépensé son tour à se remplacer par lui-même.
+  const mien = faux(duel({ equipe: [EN_EQUIPE[0]] }));
+  const e1: string[] = [];
+  await new JouerUnTour(mien, TYPES, HEURES).executer(
+    lue(15715),
+    { type: "changer", position: 1 },
+    JOUEUR,
+    e1,
+  );
+  assertEquals(mien.joues.length, 0);
+  assert(e1[0].includes("se bat déjà"));
+
+  const sien = faux(duel({
+    aQui: ADVERSE,
+    equipe: [{ ...BISCOTTE, pokemonId: "p-2", position: 1 }],
+  }));
+  const e2: string[] = [];
+  await new JouerUnTour(sien, TYPES, HEURES).executer(
+    lue(15716),
+    { type: "changer", position: 1 },
+    ADVERSE,
+    e2,
+  );
+  assertEquals(sien.joues.length, 0);
+  assert(e2[0].includes("se bat déjà"));
 });

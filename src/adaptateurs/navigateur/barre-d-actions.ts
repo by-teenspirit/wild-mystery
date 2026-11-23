@@ -454,27 +454,29 @@ const EN_COMBAT: readonly Choix[] = [
 
 /** ── LE DUEL, POUR CELUI QUI A LA MAIN ───────────────────────────────
  *
- *  DEUX CHOIX, ET L'ABSENCE DES TROIS AUTRES EST LA PARTIE QUI COMPTE.
- *  La `0061` refuse la ball, l'objet et le changement dans un duel, et
- *  chacun pour une raison différente :
+ *  QUATRE CHOIX, ET L'ABSENCE DU CINQUIÈME EST LA PARTIE QUI COMPTE.
  *
- *    · LA BALL n'a pas de sens — on n'attrape pas le Pokémon de
- *      quelqu'un, et ça ne changera pas ;
- *    · L'OBJET attend une règle : l'annexe n'en dit qu'une chose,
- *      « cela compte comme un tour » ;
- *    · CHANGER DE POKÉMON n'est pas tranché. Dans un combat sauvage,
- *      changer coûte le tour parce que le sauvage frappe pendant ce
- *      temps. Dans un duel, personne ne frappe automatiquement : est-ce
- *      que changer passe la main sans plus, ou l'adversaire gagne-t-il
- *      un coup gratuit ? C'est une RÈGLE DE JEU, et Callista ne l'a pas
- *      posée.
+ *  Le 23 novembre, la barre n'en servait que deux : la `0061` refusait
+ *  la ball, l'objet ET le changement, les deux derniers parce que la
+ *  règle n'était pas écrite. Callista l'a écrite le même jour — « les
+ *  objets sont autorisés en combat », « changer de pokémon, ça permet à
+ *  l'autre d'attaquer, ça utilise un de tes tours » — et les deux
+ *  boutons reviennent.
  *
- *  LES OFFRIR QUAND MÊME AURAIT ÉTÉ PIRE QUE DE LES TAIRE : la barre
- *  les aurait proposés, la relève les aurait refusés, et le joueur
- *  aurait dépensé un message pour apprendre une règle qu'on pouvait
- *  lire avant de cliquer. C'est la règle de `domaine/action.ts`, dans
- *  l'autre sens : **une action que le serveur refuse n'a rien à faire
- *  dans un bouton.** */
+ *  LA BALL RESTE DEHORS, et c'est le seul refus qui tienne : on
+ *  n'attrape pas le Pokémon de quelqu'un, et ça ne changera pas.
+ *  L'offrir aurait été pire que de la taire — la barre l'aurait
+ *  proposée, la relève l'aurait refusée, et le joueur aurait dépensé un
+ *  message pour apprendre une règle qu'on pouvait lire avant de
+ *  cliquer. C'est la règle de `domaine/action.ts`, dans l'autre sens :
+ *  **une action que le serveur refuse n'a rien à faire dans un
+ *  bouton.**
+ *
+ *  ET LES DEUX ANNONCES DISENT CE QUE LA RÈGLE COÛTE : le tour est
+ *  dépensé, la main passe. Dans un combat sauvage, l'annonce dit « le
+ *  sauvage attaquera quand même » — ici, personne ne riposte
+ *  automatiquement : l'autre frappe parce que c'est son tour. Les deux
+ *  phrases ne peuvent donc pas être recopiées. */
 const EN_DUEL: readonly Choix[] = [
   {
     //  MÊME CLÉ, MÊME ACTION, AUTRE MOT. « Attaquer » vise un sauvage ;
@@ -486,6 +488,22 @@ const EN_DUEL: readonly Choix[] = [
       "sera à l'autre dresseur de répondre.",
     liste: "capacite",
     vide: "Ton Pokémon ne connaît aucune capacité.",
+  },
+  {
+    cle: "objet",
+    libelle: "Utiliser un objet",
+    annonce: "Quand tu enverras ce message, tu utiliseras l'objet choisi. " +
+      "Ça dépense ton tour : ce sera à l'autre dresseur de frapper.",
+    liste: "objet",
+    vide: "Tu n'as aucun objet utilisable en combat.",
+  },
+  {
+    cle: "changer",
+    libelle: "Changer de Pokémon",
+    annonce: "Quand tu enverras ce message, tu enverras ce Pokémon à la " +
+      "place. Ça dépense ton tour : ce sera à l'autre dresseur de frapper.",
+    liste: "equipe",
+    vide: "Tu n'as aucun autre Pokémon en état de se battre.",
   },
   {
     //  « FUIR » DANS LE TEXTE, « FORFAIT » À L'ÉCRAN. Le bloc reste

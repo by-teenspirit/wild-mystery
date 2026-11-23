@@ -50,6 +50,7 @@ import {
   type Tour,
   TOURS_MAX,
   TOURS_MAX_DUEL,
+  tourSansFrappe,
 } from "../domaine/combat.ts";
 import { type Jet, lancerUneBall } from "../domaine/capture.ts";
 import { estLaNuit } from "../domaine/meteo.ts";
@@ -232,41 +233,20 @@ export class JouerUnTour {
       return rien;
     }
 
-    //  ── CE QU'UN DUEL NE SAIT PAS FAIRE, ET LE DIT ─────────────────
+    //  ── LE SEUL REFUS QUI RESTE DANS UN DUEL ───────────────────────
     //
-    //  Pas de Poké Ball : on n'attrape pas le Pokémon de quelqu'un.
-    //  Pas d'objet non plus — soigner son Pokémon au milieu d'un duel
-    //  est une règle de jeu à trancher, pas un bouton à poser, et
-    //  l'annexe n'en dit qu'une chose : « cela compte comme un tour ».
-    //  Le jour où elle la tranchera, le verbe existe déjà.
+    //  Pas de Poké Ball : on n'attrape pas le Pokémon de quelqu'un, et
+    //  ça ne changera pas. C'est le seul des trois refus du 23 novembre
+    //  qui tient — les deux autres ont reçu leur règle le même jour :
+    //  « les objets sont autorisés en combat », et « changer de pokémon,
+    //  ça permet à l'autre d'attaquer, ça utilise un de tes tours ».
     //
     //  ON NOMME LE REFUS plutôt que de l'avaler : un joueur dont la
     //  barre a écrit un bloc que le serveur ne sert pas doit savoir
     //  pourquoi son tour n'a pas été joué.
-    //  ET « CHANGER » EST REFUSÉ AUSSI, POUR UNE AUTRE RAISON.
-    //
-    //  Celle-là n'est pas « ça n'a pas de sens » mais « on n'a pas
-    //  tranché ». Changer coûte le tour dans un combat sauvage parce
-    //  que le sauvage frappe pendant qu'on change — c'est ce qui rend
-    //  le choix coûteux. Dans un duel, personne ne frappe
-    //  automatiquement : est-ce que changer passe la main sans plus,
-    //  ou est-ce que l'adversaire gagne un coup gratuit ?
-    //
-    //  C'EST UNE RÈGLE DE JEU, PAS UNE LIGNE DE CODE. Deviner ici
-    //  donnerait une mécanique que personne n'a choisie et que les
-    //  joueurs découvriraient en la subissant. On refuse, on le nomme,
-    //  et le verbe attend sa règle.
-    if (duel && (action.type === "ball" || action.type === "objet")) {
+    if (duel && action.type === "ball") {
       erreurs.push(
-        `message ${lue.messageId} : « ${action.type} » n'a pas de sens ` +
-          `dans un duel entre dresseurs`,
-      );
-      return rien;
-    }
-    if (duel && action.type === "changer") {
-      erreurs.push(
-        `message ${lue.messageId} : changer de Pokémon en duel n'est pas ` +
-          `encore réglé — la règle reste à trancher`,
+        `message ${lue.messageId} : on n'attrape pas le Pokémon d'un dresseur`,
       );
       return rien;
     }
@@ -275,6 +255,24 @@ export class JouerUnTour {
       return await this.#frapper(etat, lue, action.capacite, joueurId, erreurs);
     }
     if (duel && action.type === "fuir") return await this.#renoncer(etat, lue, joueurId);
+    //  ── SOIGNER ET REMPLACER : UN TOUR, PAS UNE FRAPPE ─────────────
+    //
+    //  SA RÉPONSE ÉTAIT PLUS SIMPLE QUE MES DEUX OPTIONS. Je lui avais
+    //  demandé si changer « passe la main sans plus » ou si
+    //  « l'adversaire gagne un coup gratuit » : dans un duel, c'est LA
+    //  MÊME CHOSE. Personne ne riposte automatiquement, l'autre frappe
+    //  parce que c'est son tour.
+    //
+    //  Les deux chemins sauvages ne pouvaient pas servir : ils
+    //  calculent une riposte du sauvage, et ici le « sauvage » est le
+    //  Pokémon d'un joueur — le faire riposter tout seul jouerait à sa
+    //  place.
+    if (duel && action.type === "objet") {
+      return await this.#soignerEnDuel(etat, lue, action.objetId, joueurId, erreurs);
+    }
+    if (duel && action.type === "changer") {
+      return await this.#remplacerEnDuel(etat, lue, action.position, joueurId, erreurs);
+    }
 
     if (action.type === "fuir") return await this.#fuir(etat, lue);
     if (action.type === "changer") {
@@ -690,6 +688,238 @@ export class JouerUnTour {
       evenements: [{ type: "objet_utilise", objetId, quantite: 1 }],
       tour,
     };
+  }
+
+  /** Mon Pokémon et celui d'en face, dans un duel.
+   *
+   *  LE REPÈRE DE LA TABLE NE BOUGE PAS : `etat.combattant` est
+   *  TOUJOURS le côté de `joueur_id`, `etat.sauvage` TOUJOURS celui d'en
+   *  face. Ce qui change, c'est de quel côté est celui qui joue — et
+   *  c'est la seule chose que ces deux lignes calculent.
+   *
+   *  Trois méthodes en avaient besoin, donc elle existe : la quatrième
+   *  copie aurait été celle qui se trompe. */
+  #mesCotes(etat: CombatEnCours, joueurId: string): {
+    readonly monCote: boolean;
+    readonly moi: CombatEnCours["combattant"] | CombatEnCours["sauvage"];
+    readonly enFace: CombatEnCours["combattant"] | CombatEnCours["sauvage"];
+    readonly monPokemonId: string | null;
+  } {
+    const monCote = etat.joueurId === joueurId;
+    return {
+      monCote,
+      moi: monCote ? etat.combattant : etat.sauvage,
+      enFace: monCote ? etat.sauvage : etat.combattant,
+      //  ── L'IDENTIFIANT NE SE LIT PAS AU MÊME ENDROIT ──────────────
+      //
+      //  LE COMPILATEUR M'A ATTRAPÉ ICI, et il avait raison : le côté
+      //  « sauvage » est décrit comme une ESPÈCE — elle n'a pas de
+      //  `pokemonId`, parce qu'un Pokémon sauvage n'existe pas en base
+      //  avant d'être attrapé. Dans un duel, celui d'en face EST un
+      //  Pokémon de joueur, et son identifiant vit dans un champ à
+      //  part, `adversePokemonId` (0061).
+      //
+      //  Sans ça, la garde « celui-là se bat déjà » ne se serait jamais
+      //  déclenchée pour l'adversaire : il aurait pu « remplacer » son
+      //  combattant par lui-même et dépenser son tour pour rien.
+      monPokemonId: monCote
+        ? (etat.combattant?.pokemonId ?? null)
+        : (etat.adversePokemonId ?? null),
+    };
+  }
+
+  /** ── SOIGNER DANS UN DUEL ────────────────────────────────────────
+   *
+   *  « Les objets sont autorisés en combat » — 23 novembre.
+   *
+   *  CE N'EST PAS `#utiliserUnObjet` AVEC UN DRAPEAU. Ce chemin-là
+   *  calcule une riposte du sauvage et la joue dans le même message :
+   *  ici, le « sauvage » est le Pokémon d'un joueur, et le faire
+   *  riposter tout seul jouerait à sa place. Le tour soigne, et la main
+   *  passe. */
+  async #soignerEnDuel(
+    etat: CombatEnCours,
+    lue: ActionLue,
+    objetId: number,
+    joueurId: string,
+    erreurs: string[],
+  ): Promise<Resolution> {
+    const rien: Resolution = { evenements: [], tour: null };
+    const { monCote, moi } = this.#mesCotes(etat, joueurId);
+
+    if (moi === null) {
+      erreurs.push(
+        `message ${lue.messageId} : tu n'as aucun Pokémon sur le terrain`,
+      );
+      return rien;
+    }
+
+    //  LE SAC EST CELUI DE QUI A LA MAIN (0062) : `combat_pour_jouer`
+    //  sert l'équipe et le sac de `a_qui`. On soigne donc avec SES
+    //  objets, et pas avec ceux du défieur.
+    const objet = this.#duSac(etat, objetId);
+    if (objet === undefined) {
+      erreurs.push(
+        `message ${lue.messageId} : tu n'as pas cet objet (${objetId}) dans ton sac`,
+      );
+      return rien;
+    }
+    if (!estUnSoin(objet.slug)) {
+      erreurs.push(
+        `message ${lue.messageId} : ${objet.nom} ne s'utilise pas en combat`,
+      );
+      return rien;
+    }
+
+    let guerison;
+    try {
+      guerison = soigner(objet.slug, moi.pv, moi.pvMax);
+    } catch (e) {
+      erreurs.push(
+        `message ${lue.messageId} : ${objet.nom} — ${(e as Error).message}`,
+      );
+      return rien;
+    }
+    //  DÉJÀ AU MAXIMUM : on refuse, et on le dit. Sans ce refus, le
+    //  joueur dépense une Potion ET son tour pour rien, dans un duel où
+    //  l'adversaire va frapper derrière.
+    if (guerison.rendus === 0) {
+      erreurs.push(
+        `message ${lue.messageId} : ${moi.nom} est déjà au maximum, ` +
+          `${objet.nom} n'a pas été utilisée`,
+      );
+      return rien;
+    }
+
+    const numero = etat.tour + 1;
+    const tour = tourSansFrappe(
+      numero,
+      //  LES PV S'ÉCRIVENT DANS LE REPÈRE DE LA TABLE, jamais dans celui
+      //  de qui joue : `pvJoueur` est le côté de `joueur_id`. Se tromper
+      //  ici soignerait l'adversaire.
+      monCote ? guerison.pv : (etat.combattant?.pv ?? 0),
+      monCote ? etat.sauvage.pv : guerison.pv,
+    );
+
+    const joue = await this.combats.jouer({
+      combatId: etat.combatId,
+      messageId: lue.messageId,
+      numero,
+      demande: "objet",
+      //  `parDefieur` EST LA SEULE TRACE DE QUI A JOUÉ. `combat_tour`
+      //  n'a pas de colonne de joueur, et `a_qui` aura déjà basculé
+      //  quand le message du Maître du Jeu s'écrira — sans ce champ, la
+      //  phrase ne pourrait pas nommer celui qui a soigné.
+      detail: {
+        objetId,
+        nom: objet.nom,
+        rendus: guerison.rendus,
+        qui: moi.nom,
+        parDefieur: monCote,
+      },
+      recit: tour,
+      pvJoueur: tour.pvJoueur,
+      pvSauvage: tour.pvSauvage,
+      fin: tour.fin,
+      joueurId,
+    });
+    if (!joue.joue) {
+      if (joue.raison !== "DEJA_JOUE") {
+        erreurs.push(
+          `message ${lue.messageId} : tour refusé (${joue.raison ?? "sans raison"})`,
+        );
+      }
+      return rien;
+    }
+    return {
+      evenements: [{ type: "objet_utilise", objetId, quantite: 1 }],
+      tour,
+    };
+  }
+
+  /** ── CHANGER DE POKÉMON DANS UN DUEL ─────────────────────────────
+   *
+   *  « Ça permet à l'autre d'attaquer, ça utilise un de tes tours. »
+   *
+   *  ET LES DEUX SONT LA MÊME PHRASE ICI : le tour est consommé, la
+   *  main passe, et l'autre frappe parce que c'est son tour. Dans un
+   *  combat sauvage, `#changer` fait riposter le sauvage dans le même
+   *  message — il n'a personne pour écrire sa riposte. Un dresseur, si. */
+  async #remplacerEnDuel(
+    etat: CombatEnCours,
+    lue: ActionLue,
+    position: number,
+    joueurId: string,
+    erreurs: string[],
+  ): Promise<Resolution> {
+    const rien: Resolution = { evenements: [], tour: null };
+    const { monCote, monPokemonId } = this.#mesCotes(etat, joueurId);
+
+    const vise = etat.equipe.find((m) => m.position === position);
+    if (vise === undefined) {
+      erreurs.push(
+        `message ${lue.messageId} : aucun Pokémon en case ${position} de ton équipe`,
+      );
+      return rien;
+    }
+    //  CELUI QUI SE BAT DÉJÀ EST LE MIEN, pas celui de `joueur_id`. La
+    //  comparaison naïve — `etat.combattant` — aurait laissé
+    //  l'adversaire « remplacer » son propre combattant par lui-même, et
+    //  dépenser son tour pour rien.
+    if (monPokemonId !== null && vise.pokemonId === monPokemonId) {
+      erreurs.push(`message ${lue.messageId} : ${vise.nom} se bat déjà`);
+      return rien;
+    }
+    if (vise.pv <= 0) {
+      erreurs.push(
+        `message ${lue.messageId} : ${vise.nom} est à terre, il ne peut pas entrer`,
+      );
+      return rien;
+    }
+
+    const numero = etat.tour + 1;
+    const tour = tourSansFrappe(
+      numero,
+      monCote ? vise.pv : (etat.combattant?.pv ?? 0),
+      monCote ? etat.sauvage.pv : vise.pv,
+    );
+
+    const joue = await this.combats.jouer({
+      combatId: etat.combatId,
+      messageId: lue.messageId,
+      numero,
+      demande: "changer",
+      detail: {
+        position,
+        pokemonId: vise.pokemonId,
+        nom: vise.nom,
+        parDefieur: monCote,
+      },
+      recit: tour,
+      pvJoueur: tour.pvJoueur,
+      pvSauvage: tour.pvSauvage,
+      fin: tour.fin,
+      //  ── DEUX CHAMPS, ET PAS LES MÊMES SELON LE CÔTÉ ──────────────
+      //
+      //  La base écrit `pokemon_id`/`pv_pokemon_max` pour un camp et
+      //  `adverse_pokemon_id`/`pv_sauvage_max` pour l'autre (0061). Les
+      //  poser du mauvais côté remplacerait le Pokémon de l'adversaire
+      //  par le nôtre — et sa jauge afficherait notre Pokémon.
+      ...(monCote
+        ? { pokemonId: vise.pokemonId, pvPokemonMax: vise.pvMax }
+        : { pokemonAdverse: vise.pokemonId, pvAdverseMax: vise.pvMax }),
+      joueurId,
+    });
+    if (!joue.joue) {
+      if (joue.raison !== "DEJA_JOUE") {
+        erreurs.push(
+          `message ${lue.messageId} : tour refusé (${joue.raison ?? "sans raison"})`,
+        );
+      }
+      return rien;
+    }
+    //  AUCUNE EXPÉRIENCE : personne n'a frappé.
+    return { evenements: [], tour };
   }
 
   /** ── UNE FRAPPE DE DUEL ──────────────────────────────────────────

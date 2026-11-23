@@ -506,3 +506,46 @@ export function resoudreUneFrappe(
 export function degatsPortes(tour: Tour): number {
   return tour.frappes.reduce((somme, f) => somme + (f.degats?.points ?? 0), 0);
 }
+
+/** ── UN TOUR DE DUEL OÙ PERSONNE NE FRAPPE ───────────────────────────
+ *
+ *  « Les objets sont autorisés en combat. Changer de pokémon, ça permet
+ *  à l'autre d'attaquer, ça utilise un de tes tours. » — Callista,
+ *  23 novembre.
+ *
+ *  SA RÉPONSE EST PLUS SIMPLE QUE MES DEUX OPTIONS. Je lui avais
+ *  demandé si changer « passe la main sans plus » ou si « l'adversaire
+ *  gagne un coup gratuit » — dans un duel, c'est LA MÊME CHOSE.
+ *  Personne ne riposte automatiquement : l'autre frappe parce que c'est
+ *  son tour.
+ *
+ *  Un tour qui soigne ou qui remplace est donc un tour SANS frappe, et
+ *  ce n'est pas un tour vide : il consomme le tour, il fait passer la
+ *  main, et il laisse sa trace dans le sujet.
+ *
+ *  ── IL NE TIRE RIEN, ET C'EST CE QUI LE REND SÛR ────────────────────
+ *
+ *  Pas un seul tirage. La graine d'un tour est `<graine>|<numero>`,
+ *  donc chaque tour tire dans sa propre suite : un tour qui ne tire
+ *  rien ne décale aucun autre. Un combat contesté se rejoue à
+ *  l'identique, et le contrat de la 0048 tient sans qu'on y touche.
+ *
+ *  C'EST DONC UNE FONCTION, ET PAS UN OBJET ÉCRIT À LA MAIN DANS
+ *  L'APPLICATION : la borne des trente tours vit ici avec les deux
+ *  autres résolutions, et trois endroits qui la tiennent sont trois
+ *  endroits qui peuvent diverger. */
+export function tourSansFrappe(
+  numero: number,
+  pvJoueur: number,
+  pvSauvage: number,
+): Tour {
+  if (!Number.isInteger(numero) || numero < 1 || numero > TOURS_MAX_DUEL) {
+    throw new CombatInvalide(`tour ${numero} hors de 1..${TOURS_MAX_DUEL}`);
+  }
+  //  `fin: null` TOUJOURS. Un tour sans frappe ne met personne à terre,
+  //  et il ne peut pas non plus conclure un nul : le nul se déclare au
+  //  trentième tour, et c'est `resoudreUneFrappe` qui le voit. Un tour
+  //  sans frappe au trentième laisse donc le combat ouvert — ce qui est
+  //  juste : soigner son Pokémon n'est pas une façon de gagner.
+  return { numero, frappes: [], pvJoueur, pvSauvage, fin: null };
+}

@@ -41,6 +41,7 @@ import {
   type TableDesTypes,
   TOURS_MAX,
   TOURS_MAX_DUEL,
+  tourSansFrappe,
 } from "./combat.ts";
 
 //  UN EXTRAIT DE LA VRAIE TABLE, pas une table inventée : les lignes
@@ -604,4 +605,68 @@ Deno.test("L'EXPÉRIENCE D'UN DUEL SE COMPTE DES DEUX CÔTÉS", () => {
   //  Et l'ancienne fonction, elle, n'en voit aucun : cette frappe
   //  n'est pas celle du « joueur ».
   assertEquals(degatsAuSauvage(aLui), 0);
+});
+
+Deno.test("UN TOUR SANS FRAPPE CONSOMME LE TOUR ET RIEN D'AUTRE", () => {
+  //  « Les objets sont autorisés en combat. Changer de pokémon, ça
+  //  permet à l'autre d'attaquer, ça utilise un de tes tours. »
+  //
+  //  Soigner ou remplacer dépense le tour sans que personne ne frappe :
+  //  l'autre attaque parce que c'est son tour, pas par une riposte
+  //  automatique.
+  const t = tourSansFrappe(3, 18, 21);
+  assertEquals(t, { numero: 3, frappes: [], pvJoueur: 18, pvSauvage: 21, fin: null });
+});
+
+Deno.test("UN TOUR SANS FRAPPE NE CONCLUT JAMAIS, PAS MÊME AU TRENTIÈME", () => {
+  //  ── CE N'EST PAS UN OUBLI ─────────────────────────────────────────
+  //
+  //  `resoudreUneFrappe` déclare `nul` au trentième tour, parce que
+  //  trente coups sans que personne tombe veut dire que le duel
+  //  s'arrête. Un tour SANS frappe au trentième, non : soigner son
+  //  Pokémon n'est pas une façon de conclure un duel, et donner un
+  //  « nul » à qui vient de boire une Potion récompenserait l'attente.
+  assertEquals(tourSansFrappe(TOURS_MAX_DUEL, 18, 21).fin, null);
+});
+
+Deno.test("UN TOUR SANS FRAPPE RESTE DANS LES TRENTE", () => {
+  //  LA BORNE VIT ICI, avec les deux autres résolutions. Trois endroits
+  //  qui la tiennent sont trois endroits qui peuvent diverger.
+  assertThrows(() => tourSansFrappe(0, 18, 21), CombatInvalide);
+  assertThrows(() => tourSansFrappe(TOURS_MAX_DUEL + 1, 18, 21), CombatInvalide);
+  assertThrows(() => tourSansFrappe(1.5, 18, 21), CombatInvalide);
+});
+
+Deno.test("UN TOUR SANS FRAPPE NE DÉCALE AUCUN TIRAGE", () => {
+  //  ── LE CONTRAT DE REPRODUCTIBILITÉ ───────────────────────────────
+  //
+  //  C'est la seule chose qui aurait pu casser en ajoutant un troisième
+  //  genre de tour. La graine d'un tour est `<graine>|<numero>`, donc
+  //  chaque tour tire dans SA propre suite : un tour qui ne tire rien
+  //  ne touche pas aux autres.
+  //
+  //  Le test le mesure plutôt que de le croire : la frappe du tour 4 est
+  //  identique, qu'un tour sans frappe soit passé avant ou pas.
+  const mien = {
+    nom: "Salamèche",
+    niveau: 5,
+    pv: 18,
+    pvMax: 18,
+    attaque: 10,
+    defense: 9,
+    types: ["feu"],
+  };
+  const sien = {
+    nom: "Carapuce",
+    niveau: 6,
+    pv: 21,
+    pvMax: 21,
+    attaque: 11,
+    defense: 13,
+    types: ["eau"],
+  };
+  const seule = resoudreUneFrappe(4, mien, sien, FLAMMECHE, TABLE, "15601", "joueur");
+  tourSansFrappe(3, 18, 21);
+  const apres = resoudreUneFrappe(4, mien, sien, FLAMMECHE, TABLE, "15601", "joueur");
+  assertEquals(apres, seule);
 });

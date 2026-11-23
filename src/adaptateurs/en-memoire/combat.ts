@@ -61,7 +61,44 @@ export class CombatsEnMemoire implements Combats {
     return Promise.resolve(this.#etat);
   }
 
+  /** ── LES DEMANDES QUE LA BASE ACCEPTE, ET ELLES SONT ÉCRITES ICI ──
+   *
+   *  `combat_tour.demande` porte une contrainte `check` depuis la 0048.
+   *  Ce double, lui, n'en portait aucune : il poussait dans `joues` tout
+   *  ce qu'on lui donnait et répondait « joué ».
+   *
+   *  CE TROU A LAISSÉ PASSER UN DÉFAUT RÉEL, le 23 novembre. Le lot 2
+   *  du duel écrivait `demande: "renoncer"`, que la contrainte ne
+   *  connaissait pas : 1385 tests verts, un harnais vert, un exercice
+   *  en base réelle vert — et en production, **personne n'aurait pu
+   *  déclarer forfait.** L'exercice en base avait joué « attaquer », pas
+   *  « renoncer », et le double ne disait rien.
+   *
+   *  UN DOUBLE QUI ACCEPTE PLUS QUE LA BASE EST UN DOUBLE QUI MENT. La
+   *  liste est donc recopiée ici, et le jour où elle s'élargit, c'est
+   *  dans les deux endroits ou le test refuse. La recopie est le prix de
+   *  la garde : un double qui irait lire le SQL ne serait plus un
+   *  double. */
+  static readonly DEMANDES = [
+    "attaquer",
+    "ball",
+    "objet",
+    "changer",
+    "fuir",
+    "renoncer",
+  ] as const;
+
   jouer(t: Parameters<Combats["jouer"]>[0]): Promise<TourJoue> {
+    if (!(CombatsEnMemoire.DEMANDES as readonly string[]).includes(t.demande)) {
+      //  ON LÈVE, et c'est voulu : la base lèverait aussi — une
+      //  contrainte `check` violée n'est pas un refus métier, c'est une
+      //  faute de programmation. La rendre en valeur de retour la
+      //  ferait passer pour un cas de jeu.
+      throw new Error(
+        `demande « ${t.demande} » refusée : la base n'accepte que ` +
+          `${CombatsEnMemoire.DEMANDES.join(", ")} (contrainte combat_tour_demande_check)`,
+      );
+    }
     this.joues.push(t);
     return Promise.resolve(this.reponseDeJouer);
   }

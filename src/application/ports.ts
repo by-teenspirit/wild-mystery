@@ -726,8 +726,18 @@ export type TourEnAttente = {
   readonly numero: number;
   readonly demande: string;
   /** L'argument de la demande, tel que le tour l'a rangé : le nom de la
-   *  capacité, celui de l'objet, les PV rendus. */
-  readonly detail: Readonly<Record<string, string | number>> | null;
+   *  capacité, celui de l'objet, les PV rendus.
+   *
+   *  ET DES BOOLÉENS, DEPUIS LE 23 NOVEMBRE. `parDefieur` dit de quel
+   *  côté est celui qui a joué le tour, et c'est la seule trace :
+   *  `combat_tour` n'a pas de colonne de joueur, et `a_qui` a déjà
+   *  basculé quand le message du Maître du Jeu s'écrit.
+   *
+   *  LE TYPE ÉTAIT TROP ÉTROIT, pas le champ : le détail est du jsonb,
+   *  et il porte depuis toujours ce que la demande a besoin de dire. Le
+   *  compilateur a refusé la comparaison, et il avait raison de la
+   *  refuser — c'est le type qui mentait. */
+  readonly detail: Readonly<Record<string, string | number | boolean>> | null;
   /** `sauvage` ou `duel` (migration 0061). Son absence vaut `sauvage`. */
   readonly genre?: string | null;
   /** Les deux dresseurs d'un duel. `mentionne` reste celui qu'on

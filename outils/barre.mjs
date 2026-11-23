@@ -1624,14 +1624,19 @@ const maMain = await p.evaluate(() => ({
   menus: [...document.querySelectorAll(".wm-barre__menu")].filter((m) => !m.hidden).length,
 }));
 dire(
-  "LA MAIN À MOI : « Frapper » et « Déclarer forfait », et rien d'autre",
-  JSON.stringify(maMain.mots) === JSON.stringify(["Frapper", "Déclarer forfait"]),
+  "LA MAIN À MOI : frapper, un objet, changer, ou le forfait",
+  JSON.stringify(maMain.mots) === JSON.stringify([
+    "Frapper",
+    "Utiliser un objet",
+    "Changer de Pokémon",
+    "Déclarer forfait",
+  ]),
   maMain.mots.join(" · "),
 );
 dire(
-  "LA BALL, L'OBJET ET LE CHANGEMENT NE SONT PAS OFFERTS — la 0061 les refuse, " +
+  "LA BALL EST LE SEUL REFUS QUI RESTE — on n'attrape pas le Pokémon d'un dresseur, " +
     "et un bouton qui se fait refuser coûte un message au joueur",
-  !maMain.mots.some((m) => /Ball|objet|Changer/.test(m)),
+  !maMain.mots.some((m) => /Ball/.test(m)),
   maMain.mots.join(" · "),
 );
 dire(
@@ -1647,6 +1652,37 @@ dire(
   frappe.includes("[[WM-ACTION:attaquer:52]]"),
   frappe.trim(),
 );
+await p.close();
+
+//  ── L'OBJET ET LE CHANGEMENT DISENT CE QU'ILS COÛTENT ────────────
+//
+//  « Les objets sont autorisés en combat. Changer de pokémon, ça permet
+//  à l'autre d'attaquer, ça utilise un de tes tours. » — 23 novembre.
+//
+//  LES DEUX ANNONCES NE SONT PAS CELLES DU COMBAT SAUVAGE : là-bas
+//  elles disent « le sauvage attaquera quand même ». Ici personne ne
+//  riposte automatiquement, et c'est la main qui passe.
+p = await monter({ combat: DUEL, ouvert: { combatId: DUEL.combatId, genre: "duel" } });
+for (const [mot, bloc] of [["Utiliser un objet", "objet:990020"], ["Changer de Pokémon", "changer:2"]]) {
+  const dit = await p.evaluate((m) => {
+    [...document.querySelectorAll(".wm-barre__bouton")]
+      .find((x) => x.textContent.trim() === m).click();
+    return document.querySelector(".wm-barre__note").textContent.trim();
+  }, mot);
+  dire(
+    `« ${mot} » dit que le tour est dépensé et que la main passe`,
+    /dépense ton tour/i.test(dit) && /autre dresseur/i.test(dit) &&
+      !/sauvage/i.test(dit),
+    JSON.stringify(dit.slice(0, 90)),
+  );
+  await envoyer(p);
+  const parti = await lire(p);
+  dire(
+    `   et le bloc part : ${bloc}`,
+    parti.includes(`[[WM-ACTION:${bloc}]]`),
+    parti.trim(),
+  );
+}
 await p.close();
 
 //  ── LE FORFAIT ───────────────────────────────────────────────────
