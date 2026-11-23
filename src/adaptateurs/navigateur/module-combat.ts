@@ -63,7 +63,12 @@ import { adresseDuSprite } from "./module-faune.ts";
 import type { Sprites, StyleDeSprite } from "../../navigateur/sprites.ts";
 
 /** Les images de sprite d'une carte de combat, où qu'elles soient. */
-const SPRITES = "img.wm-combat__sprite";
+/*  LES DEUX ENDROITS OÙ UN SPRITE EST FIGÉ DANS UN MESSAGE : la carte
+    de combat et la carte du starter d'une fiche de présentation. Tous
+    deux écrivent le style `forum` au moment de poster — ils n'ont pas
+    de lecteur à ce moment-là — et tous deux veulent être réécrits
+    selon le goût de celui qui lit. Une seule règle pour les deux. */
+const SPRITES = "img.wm-combat__sprite, img.wmf__sprite";
 
 /** Le numéro d'espèce écrit à la fin d'une adresse de sprite, ou
  *  `null`.

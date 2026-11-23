@@ -966,6 +966,44 @@ const OUTILS = () => {
       message: globalThis.wmMessage(),
     };
   });
+  //  ── ET LE POKÉMON CHOISI S'AFFICHE ────────────────────────────
+  //
+  //  « Affiche le pokémon qui est sélectionné. » L'image doit suivre
+  //  le menu SANS redessin — changer d'espèce ne change qu'une image,
+  //  et refaire la fiche ferait sauter le curseur de qui écrivait à
+  //  côté.
+  const sprite = await q.evaluate(() => {
+    const img = document.querySelector(".wmf-form__fiche .wmf__pokemon img");
+    return {
+      src: img?.getAttribute("src") ?? null,
+      //  DANS LA CARTE, et pas ailleurs dans la fiche.
+      dansLaCarte: img?.closest(".wmf__pokemon") !== null,
+      //  ET HABILLÉE. L'image qui apparaît au choix de l'espèce est
+      //  posée par le code, pas par `publier` : sans sa classe, le
+      //  CSS ne l'atteint pas et elle sort à sa taille d'origine.
+      classe: img?.className ?? "",
+      large: Math.round(img?.getBoundingClientRect().width ?? 0),
+      message: globalThis.wmMessage(),
+    };
+  });
+  dire(
+    "LE POKÉMON CHOISI S'AFFICHE DANS SA CARTE",
+    sprite.src?.endsWith("/assets/sprites-figes/forum/172.png") === true &&
+      sprite.dansLaCarte === true,
+    JSON.stringify({ src: sprite.src }),
+  );
+  dire(
+    "   ET ELLE EST HABILLÉE — sinon elle sort à sa taille d'origine",
+    sprite.classe === "wmf__sprite" && sprite.large === 96,
+    JSON.stringify({ classe: sprite.classe, large: sprite.large }),
+  );
+  dire(
+    "   et son adresse part dans le message",
+    sprite.message.includes('<img class="wmf__sprite" src=') &&
+      sprite.message.includes("/forum/172.png"),
+    "",
+  );
+
   dire(
     "LES ESPÈCES SONT DANS LE MENU, et le menu est dans la carte du Pokémon",
     starter.options.includes("Pichu") && starter.options.includes("Évoli") &&
@@ -1445,14 +1483,24 @@ const OUTILS = () => {
     await globalThis.wmPause(250);
     return { avant, apres: globalThis.wmMessage() };
   });
+  //  LA SEULE DIFFÉRENCE ADMISE EST LE SPRITE. La fiche du décor a été
+  //  publiée sans racine, donc sans image ; l'éditeur, lui, en écrit
+  //  une. Tout le reste doit être identique au caractère près — et
+  //  surtout, aucun champ vide ne doit apparaître.
+  const sansSprite = (s) => s.replace(/<img class="wmf__sprite"[^>]*>/g, "");
   dire(
     "   et retaper la même valeur ne gonfle pas le message",
-    inchange.avant === inchange.apres &&
+    sansSprite(inchange.avant) === sansSprite(inchange.apres) &&
       !inchange.apres.includes("<wmf-j-age>"),
     JSON.stringify({
-      egal: inchange.avant === inchange.apres,
+      egal: sansSprite(inchange.avant) === sansSprite(inchange.apres),
       creux: inchange.apres.includes("<wmf-j-age>"),
     }),
+  );
+  dire(
+    "   et la seule chose qu'elle gagne, c'est le sprite de son starter",
+    !inchange.avant.includes("wmf__sprite") && inchange.apres.includes("wmf__sprite"),
+    "",
   );
   await q.close();
 }

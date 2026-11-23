@@ -95,6 +95,7 @@ import {
   ressembleAUneFiche,
   type Starter,
 } from "../../navigateur/fiche.ts";
+import { adresseDuSpriteFige } from "../../application/sprite.ts";
 import type { Brouillon } from "./editeur.ts";
 
 /** Une espèce choisissable, telle que `data/starters.json` la rend. */
@@ -112,6 +113,9 @@ export type DependancesDeLaFiche = {
    *  lecture qui échoue ne doit pas empêcher le reste du formulaire :
    *  le bloc du starter se dit indisponible, les autres marchent. */
   readonly starters: () => Promise<readonly EspeceDeDepart[]>;
+  /** La racine du dépôt, pour le sprite du starter. Sans elle, la
+   *  carte du Pokémon n'affiche pas d'image — et c'est tout. */
+  readonly racine?: string;
 };
 
 const ID = "wm-fiche";
@@ -482,7 +486,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       reprendre.hidden = false;
       return;
     }
-    const html = publier(pourLeMessage());
+    const html = publier(pourLeMessage(), { racine: d.racine });
     brouillon.ecrire(html);
     dernier = html;
     dit.textContent = "";
@@ -668,7 +672,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  et la trainer card du joueur. Changer l'adresse change une seule
   //  chose, le `src` ; redessiner la fiche entière pour ça ferait
   //  perdre le curseur à chaque caractère tapé dans l'adresse.
-  const majImage = (ou: string, adresse: string): void => {
+  const majImage = (ou: string, adresse: string, classe = ""): void => {
     const colonne = laFiche.querySelector<HTMLElement>(ou);
     if (colonne === null) return;
     const img = colonne.querySelector("img");
@@ -682,9 +686,24 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       return;
     }
     const neuve = doc.createElement("img");
+    //  LA CLASSE SE POSE ICI AUSSI, et c'est le piège : `publier`
+    //  l'écrit, donc on la croit acquise. Mais la première image d'une
+    //  fiche neuve n'existe pas encore quand la fiche se dessine — on
+    //  n'a pas d'espèce — et c'est CELLE-CI qui la remplace. Sans la
+    //  classe, le sprite sortait à sa taille d'origine, un pixel.
+    if (classe !== "") neuve.className = classe;
     neuve.src = propre;
     neuve.alt = "";
     colonne.insertBefore(neuve, colonne.firstChild);
+  };
+
+  const majLeSprite = (): void => {
+    const id = vue.starter?.especeId ?? 0;
+    majImage(
+      ".wmf__pokemon",
+      d.racine === undefined ? "" : adresseDuSpriteFige(d.racine, id) ?? "",
+      "wmf__sprite",
+    );
   };
 
   // ── rendre la fiche, puis la rendre modifiable ───────────────────
@@ -916,7 +935,9 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  déplacé le curseur.
   const peindre = (): void => {
     laFiche.textContent = "";
-    laFiche.appendChild(pourLApercu(doc, publier(vue, { pourEcrire: true })));
+    laFiche.appendChild(
+      pourLApercu(doc, publier(vue, { pourEcrire: true, racine: d.racine })),
+    );
     equiper();
   };
 
@@ -953,6 +974,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   boite.parentNode?.insertBefore(cadre, boite);
 
   peindre();
+  majLeSprite();
   majImage(".wmf__avatar", vue.avatar);
   majImage(".wmf__tcard", vue.joueur["j-tcard"] ?? "");
 
@@ -989,6 +1011,10 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     poserLeStarter("s-espece", especeMenu.value);
     peindreTalents();
     poserLeStarter("s-talent", talentMenu.value);
+    //  LE SPRITE SUIT LE MENU SANS REDESSIN : changer d'espèce ne
+    //  change qu'une image, et refaire la fiche entière ferait sauter
+    //  le curseur de qui écrivait juste à côté.
+    majLeSprite();
     ecrire();
   });
   talentMenu.addEventListener("change", () => {

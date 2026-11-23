@@ -435,3 +435,42 @@ Deno.test("CE QUI EST ÉCHAPPÉ POUR L'ÉCRAN SE RELIT TEL QUEL", () => {
     piege.histoire.mode === "pave" ? piege.histoire.texte : "",
   );
 });
+
+// ── le sprite du starter ────────────────────────────────────────────
+
+Deno.test("LE POKÉMON CHOISI S'AFFICHE", () => {
+  //  « Affiche le pokémon qui est sélectionné. » Un message est du
+  //  HTML figé : l'adresse part avec la fiche, parce qu'aucun script
+  //  ne tournera dedans pour aller la chercher ensuite.
+  const html = publier(COMPLETE, { racine: "https://exemple.test/wm/" });
+  assertEquals(
+    html.includes(
+      `<img class="wmf__sprite" src="https://exemple.test/wm/assets/sprites-figes/forum/25.png"`,
+    ),
+    true,
+  );
+});
+
+Deno.test("SANS RACINE, PAS D'IMAGE — et pas d'image cassée non plus", () => {
+  assertEquals(publier(COMPLETE).includes("wmf__sprite"), false);
+});
+
+Deno.test("SANS ESPÈCE CHOISIE, PAS DE SPRITE", () => {
+  //  L'éditeur rend le bloc du starter avant qu'on ait choisi, pour
+  //  qu'il y ait où écrire. Un sprite « numéro 0 » y serait un 404.
+  const html = publier(ficheVide(), {
+    pourEcrire: true,
+    racine: "https://exemple.test/wm/",
+  });
+  assertEquals(html.includes(`class="wmf__starter"`), true);
+  assertEquals(html.includes("wmf__sprite"), false);
+});
+
+Deno.test("L'IMAGE N'EMPÊCHE PAS DE RELIRE LA FICHE", () => {
+  //  L'aller-retour qui fait foi, avec le sprite en plus : il n'est
+  //  porteur d'aucune valeur, donc il ne doit en changer aucune.
+  assertEquals(
+    lireUneFiche(publier(COMPLETE, { racine: "https://exemple.test/wm/" })),
+    COMPLETE,
+  );
+});

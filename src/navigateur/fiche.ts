@@ -59,6 +59,8 @@
 //  traverser casse ce test, et c'est voulu.
 // ════════════════════════════════════════════════════════════════════
 
+import { adresseDuSpriteFige } from "../application/sprite.ts";
+
 /** Un champ de texte de la fiche, tel qu'il se demande et se publie. */
 export type Champ = {
   /** La clé technique. Elle nomme la balise publiée : `wmf-<clef>`. */
@@ -375,6 +377,24 @@ export type Rendu = {
    *  ELLE NE CHANGE RIEN PAR DÉFAUT, et l'aller-retour qui fait foi
    *  (`publier` → `lireUneFiche`) est mesuré sans elle. */
   readonly pourEcrire?: boolean;
+
+  /** La racine du dépôt, pour écrire l'adresse du sprite du starter.
+   *
+   *  ── POURQUOI L'ADRESSE EST ÉCRITE DANS LE MESSAGE ───────────────
+   *
+   *  « Affiche le pokémon qui est sélectionné. » Un message est du
+   *  HTML figé : aucun script ne tourne dedans pour aller chercher
+   *  l'image plus tard. L'adresse part donc avec la fiche.
+   *
+   *  C'EST LE MÊME CHEMIN QUE LA FICHE DE COMBAT, et pour les mêmes
+   *  raisons — voir l'en-tête de `application/sprite.ts` : style
+   *  `forum` figé, parce qu'un message n'a pas de lecteur au moment
+   *  où il part, et PNG plutôt que GIF, parce qu'une page de fiches
+   *  animées rame. Le numéro reste en clair à la fin de l'adresse, ce
+   *  qui permet au navigateur de la réécrire selon le goût du lecteur.
+   *
+   *  Sans racine, pas d'image — et pas d'image cassée non plus. */
+  readonly racine?: string;
 };
 
 const STARTER_VIDE: Starter = {
@@ -472,9 +492,11 @@ export function publier(f: Fiche, r: Rendu = {}): string {
 
   if (f.starter !== null || ecrire) {
     const s = f.starter ?? STARTER_VIDE;
+    const sprite = r.racine === undefined ? null : adresseDuSpriteFige(r.racine, s.especeId);
     morceaux.push(`<div class="wmf__starter">`);
     morceaux.push(
       `<div class="wmf__pokemon">` +
+        (sprite === null ? "" : `<img class="wmf__sprite" src="${sprite}" alt="" />`) +
         `<wmf-s-id>${s.especeId}</wmf-s-id>` +
         `<div class="wmf__espece">${b("s-espece", s.espece)}</div>` +
         `<div class="wmf__surnom"><ifn>${b("s-surnom", s.surnom)}</ifn></div>` +

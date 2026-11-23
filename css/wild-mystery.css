@@ -38628,7 +38628,7 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
 #modernbb .wmf-form__fiche [data-wmf-zone] {
   display: inline-block;
   min-width: 7em;
-  padding: 1px var(--wm-espace-4, 4px);
+  padding: var(--wm-espace-4, 4px) var(--wm-espace-8, 8px);
   border-radius: var(--wm-rayon-sm, 6px);
   background: color-mix(in srgb, var(--wm-fond-surface-haute, #fcf4ec) 60%, transparent);
   /*  LES SAUTS DE LIGNE SE GARDENT. Sans `pre-wrap`, un pavé tapé en
@@ -39188,6 +39188,19 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-douce, #f3e1d2);
   text-align: center;
+}
+
+/*  LE SPRITE DU STARTER, au-dessus de son nom. 96 px : la carte fait
+    160 de large, et un sprite plus gros y tiendrait mal à côté du nom
+    et du talent. `image-rendering: pixelated` garde les pixels nets —
+    un sprite de 96 lissé par le navigateur devient une bouillie. */
+#modernbb .wmf__sprite {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto var(--wm-espace-6, 6px);
+  image-rendering: pixelated;
+  object-fit: contain;
 }
 
 #modernbb .wmf__espece {

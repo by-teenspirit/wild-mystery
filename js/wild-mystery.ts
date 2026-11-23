@@ -536,6 +536,11 @@ function poserLeFormulaireDeFiche(): void {
   poserLaFiche({
     doc: document,
     brouillon,
+    //  `DEPOT` ET PAS `RACINE` : le sprite vit dans
+    //  `assets/sprites-figes/`, à la racine du dépôt, tandis que
+    //  `RACINE` finit par `data/`. Le confondre donnerait
+    //  `…/data/assets/…`, un 404, et une carte de Pokémon sans image.
+    racine: DEPOT ?? undefined,
     starters: async () => {
       //  `RACINE` FINIT DÉJÀ PAR `data/` — c'est ce que
       //  `racineDesDonnees` rend, et tous les autres appels de ce
@@ -774,7 +779,7 @@ async function rendreLesSpritesDesCartes(): Promise<void> {
   //  PAS DE CARTE DANS LA PAGE, PAS DE FICHIER DEMANDÉ : ce module
   //  tourne sur tout le forum, et la couverture pèse plus de cent
   //  kilo-octets.
-  if (document.querySelector("img.wm-combat__sprite") === null) return;
+  if (document.querySelector("img.wm-combat__sprite, img.wmf__sprite") === null) return;
   const couverture = await fetch(`${RACINE}sprites-couverture.json`, { credentials: "omit" })
     .then((r) => (r.ok ? r.json() : null))
     .catch(() => null);
