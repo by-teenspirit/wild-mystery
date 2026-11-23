@@ -29,6 +29,7 @@ import { type ConfigSupabase } from "./registre.ts";
 import { avecLeLaissez, type Rouages } from "./laissez-utilisable.ts";
 import type {
   CombatDuRecap,
+  CombatFini,
   LigneDuSac,
   MembreDuRecap,
   MonSujet,
@@ -101,6 +102,41 @@ function lireLeCombat(brut: unknown): CombatDuRecap | null {
   };
 }
 
+/*  LES CINQ FINS QUE LA BASE ÉCRIT, et pas une de plus. `combat.etat`
+    les borne par une contrainte `check` depuis la 0046 ; une sixième
+    arriverait d'une version du serveur plus récente que ce paquet, et
+    on la saute plutôt que de dessiner un bloc sans titre. */
+const FINS = ["capture", "fuite", "victoire", "defaite", "expire"] as const;
+
+/** Le dernier combat clos, ou `null` si la base n'en rend pas.
+ *
+ *  ── UN LECTEUR QUI VALIDE DOIT APPRENDRE CHAQUE CLÉ ─────────────────
+ *
+ *  `lireMonSujet` reconstruit l'objet champ par champ, exprès : une
+ *  réponse abîmée doit se réduire à ce qui est lisible, pas traverser
+ *  telle quelle. Le revers, c'est qu'une clé neuve en base reste
+ *  invisible tant que personne ne l'a lue ici — et c'est exactement ce
+ *  que le harnais a attrapé le 23 novembre : la 0069 rendait `fini`,
+ *  le domaine savait en faire un bloc, et il n'arrivait jamais. */
+function lireLaFin(brut: unknown): CombatFini | null {
+  if (brut === null || typeof brut !== "object") return null;
+  const o = brut as Record<string, unknown>;
+  const etat = FINS.find((f) => f === o.etat);
+  const especeId = nombre(o, "especeId");
+  const niveau = nombre(o, "niveau");
+  const nom = texte(o, "nom");
+  if (etat === undefined || especeId === null || niveau === null || nom === null) {
+    return null;
+  }
+  return {
+    etat,
+    especeId,
+    nom,
+    niveau,
+    types: Array.isArray(o.types) ? o.types.filter((x) => typeof x === "string") : [],
+  };
+}
+
 /** Une ligne du sac, ou `null` si elle n'est pas lisible.
  *
  *  AUSSI STRICT QUE POUR UN MEMBRE D'ÉQUIPE, et pour la même raison :
@@ -137,7 +173,7 @@ export function lireMonSujet(brut: unknown): MonSujet | null {
     const lu = lireUnObjet(l);
     if (lu !== null) sac.push(lu);
   }
-  return { equipe, combat: lireLeCombat(o.combat), sac };
+  return { equipe, combat: lireLeCombat(o.combat), sac, fini: lireLaFin(o.fini) };
 }
 
 /** Où en est le joueur dans ce sujet, ou `null`.

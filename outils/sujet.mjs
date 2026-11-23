@@ -26,21 +26,26 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { chromium } from "npm:playwright@1.56.0";
+import { ouvrirChromium } from "./chromium.mjs";
+
+//  ── UN PLANTAGE NE DOIT PAS RESSEMBLER À UNE RÉUSSITE ──────────────
+//
+//  Mesuré deux fois le 23 novembre : une promesse de haut niveau qui
+//  casse — Chromium introuvable, puis un bloc de contrôle écrit après
+//  `nav.close()` — faisait sortir Deno **en code 0**. Le harnais
+//  s'arrêtait au milieu, n'imprimait pas son verdict, et le CI lisait
+//  « réussi ».
+//
+//  **UN CONTRÔLE QUI NE TOURNE PAS N'EST PAS UN CONTRÔLE QUI PASSE.**
+globalThis.addEventListener("unhandledrejection", (e) => {
+  e.preventDefault();
+  console.error("\nLE HARNAIS A CASSÉ EN COURS DE ROUTE :\n" + String(e.reason));
+  Deno.exit(1);
+});
 import { redigerLaCarte } from "../src/application/carte-de-rencontre.ts";
 
 //  LE MÊME CHROMIUM QUE LES AUTRES HARNAIS, et la même façon de le
 //  trouver : le garde-fou n° 20 vérifie qu'il n'y en a qu'un.
-const CHROME = [
-  "/opt/pw-browsers/chromium-1194/chrome-linux/chrome",
-  "/opt/pw-browsers/chromium/chrome-linux64/chrome",
-].find((c) => {
-  try {
-    readFileSync(c);
-    return true;
-  } catch {
-    return false;
-  }
-});
 
 const R = new URL("..", import.meta.url).pathname;
 const PIXEL =
@@ -112,7 +117,6 @@ const MESSAGES = [
     signature: "",
   },
 ];
-
 
 /*  ── UNE CARTE DE RENCONTRE TELLE QU'OCTOBRE L'A PUBLIÉE ──────────
 
@@ -599,17 +603,17 @@ function pageDeSujet({ ariane = ARIANE_ZONE, pageUnique = false } = {}) {
     //  le module doit laisser tranquille.
     PAGINATION: pageUnique
       ? "<span>Page <strong>1</strong> sur <strong>1</strong></span>"
-      : '<script>var sondePagination = 1;</script>' +
-      '<a href="javascript:Pagination();" onmousedown="return false;">' +
-      "Page <strong>5</strong> sur <strong>5</strong></a> \u2022" +
-      "<span> " +
-      '<a href="/t10p75-un-sujet" class="pag-img">' +
-      '<img src="https://2img.net/i/fa/modernbb/arrow_left.png" alt="Pr\u00e9c\u00e9dent" loading="lazy"></a>&nbsp;&nbsp;' +
-      '<a href="/t10-un-sujet">1</a><span class="page-sep">, </span>' +
-      '<a href="/t10p25-un-sujet">2</a><span class="page-sep">, </span>' +
-      '<a href="/t10p50-un-sujet">3</a><span class="page-sep">, </span>' +
-      '<a href="/t10p75-un-sujet">4</a><span class="page-sep">, </span>' +
-      "<strong>5</strong></span>",
+      : "<script>var sondePagination = 1;</script>" +
+        '<a href="javascript:Pagination();" onmousedown="return false;">' +
+        "Page <strong>5</strong> sur <strong>5</strong></a> \u2022" +
+        "<span> " +
+        '<a href="/t10p75-un-sujet" class="pag-img">' +
+        '<img src="https://2img.net/i/fa/modernbb/arrow_left.png" alt="Pr\u00e9c\u00e9dent" loading="lazy"></a>&nbsp;&nbsp;' +
+        '<a href="/t10-un-sujet">1</a><span class="page-sep">, </span>' +
+        '<a href="/t10p25-un-sujet">2</a><span class="page-sep">, </span>' +
+        '<a href="/t10p50-un-sujet">3</a><span class="page-sep">, </span>' +
+        '<a href="/t10p75-un-sujet">4</a><span class="page-sep">, </span>' +
+        "<strong>5</strong></span>",
     L_POST_REPLY_TOPIC: "Répondre",
     U_POST_REPLY_TOPIC: "/post?t=10&mode=reply",
     L_VIEW_PREVIOUS_TOPIC: "Sujet précédent",
@@ -880,7 +884,19 @@ ${NOTE}
 
 // ── le navigateur ───────────────────────────────────────────────────
 
-const nav = await chromium.launch(CHROME === undefined ? {} : { executablePath: CHROME });
+//  ── UN HARNAIS QUI NE DÉMARRE PAS DOIT ÉCHOUER ───────────────────
+//
+//  Le 23 novembre : le lancement ratait, la promesse de haut niveau
+//  n'était rattrapée par personne, **et Deno sortait en code 0**. Le CI
+//  lisait « réussi » sur un harnais qui n'avait pas ouvert une page.
+//  `ouvrirChromium` lève, et on sort en 1.
+let nav;
+try {
+  nav = await ouvrirChromium(chromium);
+} catch (e) {
+  console.error(String(e instanceof Error ? e.message : e));
+  Deno.exit(1);
+}
 const soucis = [];
 
 function dire(nom, ok, detail = "") {
@@ -2020,7 +2036,9 @@ const vus = (liste) => liste.filter((l) => l.vu).map((l) => l.classe.trim());
 
 dire(
   "SUR LE MESSAGE D'UN AUTRE, NI MODIFIER NI SUPPRIMER NI L'IP",
-  ["btn-edit", "btn-delete", "btn-ip"].every((c) => vus(boutonsDAction.autre).includes(c) === false),
+  ["btn-edit", "btn-delete", "btn-ip"].every((c) =>
+    vus(boutonsDAction.autre).includes(c) === false
+  ),
   vus(boutonsDAction.autre).join(" · ") || "rien",
 );
 dire(
@@ -2030,7 +2048,8 @@ dire(
 );
 dire(
   "et citer reste partout — on ne cache que ce qui est vide",
-  vus(boutonsDAction.mien).includes("btn-quote") && vus(boutonsDAction.autre).includes("btn-quote"),
+  vus(boutonsDAction.mien).includes("btn-quote") &&
+    vus(boutonsDAction.autre).includes("btn-quote"),
   JSON.stringify({ mien: vus(boutonsDAction.mien), autre: vus(boutonsDAction.autre) }),
 );
 dire(
@@ -2678,7 +2697,19 @@ async function monterAvecScript(
   //  adresse de sprite morte. C'est le cas que le module doit
   //  réparer, et il ne se rencontre nulle part ailleurs : un message
   //  publié sur Forumactif ne se répare pas tout seul (planche 102).
-  { recap = null, largeur = 1440, action = false, compteur = null, carte = false, pageUnique = false } = {},
+  {
+    recap = null,
+    largeur = 1440,
+    action = false,
+    compteur = null,
+    carte = false,
+    pageUnique = false,
+    //  LE PSEUDO DU COMPTE QUI REGARDE, tel que Forumactif le pose
+    //  dans `_userdata`. « Compte de test » est l'auteur du second
+    //  message du décor : c'est lui qu'on joue quand on veut une
+    //  colonne de bilan à soi.
+    compte = null,
+  } = {},
 ) {
   const q = await nav.newPage({ viewport: { width: largeur, height: 900 } });
   q.on("pageerror", (e) => soucis.push("erreur JS : " + e.message));
@@ -2800,6 +2831,22 @@ async function monterAvecScript(
           expireLe: Date.now() + 3600_000,
         }),
       )
+    );
+  }
+  //  ── QUI REGARDE LA PAGE ───────────────────────────────────────
+  //
+  //  `_userdata.username` : Forumactif le pose sur chaque page, et le
+  //  récapitulatif s'en sert pour trouver SA colonne de bilan. Sans
+  //  lui, `pseudoDuCompte()` rend null et le bloc des gains ne se
+  //  dessine jamais — un harnais qui l'oublie mesure une absence en
+  //  croyant mesurer une présence. C'est exactement le trou par
+  //  lequel la panne du 23 novembre est passée.
+  if (compte !== null) {
+    await q.evaluate(
+      (nom) => {
+        globalThis._userdata = { username: nom, session_logged_in: 1, user_id: 4 };
+      },
+      compte,
     );
   }
   await q.evaluate(() => {
@@ -3304,7 +3351,9 @@ const sac = await large.evaluate(() => {
   return {
     etageres: [...bloc.querySelectorAll(".wm-recap__etagere")].map((e) => e.textContent),
     objets: [...bloc.querySelectorAll(".wm-recap__objet-nom")].map((e) => e.textContent),
-    quantites: [...bloc.querySelectorAll(".wm-recap__objet-quantite")].map((e) => e.textContent),
+    quantites: [...bloc.querySelectorAll(".wm-recap__objet-quantite")].map((e) =>
+      e.textContent
+    ),
     //  RIEN NE DÉPASSE : le panneau fait 216 px, et un nom d'objet
     //  long doit se couper plutôt que pousser le panneau.
     deborde: [...bloc.querySelectorAll(".wm-recap__objet-nom, .wm-recap__objet-quantite")]
@@ -3468,7 +3517,9 @@ const apresRouvert = await tresLarge.evaluate(() => {
   return {
     mesurable: true,
     visible: getComputedStyle(document.querySelector(".wm-recap")).display !== "none",
-    ecart: Math.round(b.left - Math.max(...messages.map((m) => m.getBoundingClientRect().right))),
+    ecart: Math.round(
+      b.left - Math.max(...messages.map((m) => m.getBoundingClientRect().right)),
+    ),
   };
 });
 dire(
@@ -3692,7 +3743,6 @@ dire(
 );
 await invite.close();
 
-
 //  ══════════════════════════════════════════════════════════════════
 //  LA PAGINATION DU BAS
 //
@@ -3754,13 +3804,13 @@ dire(
 dire(
   "et elle porte les quatre pages, pas la courante en lien",
   JSON.stringify(pagesBas.liens) ===
-    JSON.stringify([
-      "/t10p75-un-sujet",
-      "/t10-un-sujet",
-      "/t10p25-un-sujet",
-      "/t10p50-un-sujet",
-      "/t10p75-un-sujet",
-    ]) && pagesBas.courante === "5",
+      JSON.stringify([
+        "/t10p75-un-sujet",
+        "/t10-un-sujet",
+        "/t10p25-un-sujet",
+        "/t10p50-un-sujet",
+        "/t10p75-un-sujet",
+      ]) && pagesBas.courante === "5",
   JSON.stringify({ liens: pagesBas.liens, courante: pagesBas.courante }),
 );
 dire(
@@ -3810,8 +3860,6 @@ dire(
   JSON.stringify(rienPose),
 );
 await seulePage.close();
-
-
 
 //  ══════════════════════════════════════════════════════════════════
 //  LES CARTES DÉJÀ POSTÉES : LE SPRITE ET LA JAUGE
@@ -3933,6 +3981,211 @@ dire(
 await avecCarte.close();
 
 await p.close();
+//  ══════════════════════════════════════════════════════════════════
+//  « OÙ J'EN SUIS » APRÈS UNE CAPTURE — 23 novembre
+//
+//  « "Où j'en suis" n'a pas été mis à jour suite à ma capture : il
+//  devrait dire si je suis en pleine rencontre, en plein combat, qui
+//  je viens de capturer. »
+//
+//  DEUX PANNES DISTINCTES, et une seule se voyait.
+//
+//   1. Le bloc des gains — « Ce que ce sujet t'a rapporté » — ne
+//      s'affichait POUR PERSONNE. Le récapitulatif cherche sa colonne
+//      par `ligne.pseudo === _userdata.username`, et le pseudo lu dans
+//      la page contenait le « @ » de NOTRE PROPRE bouton de mention,
+//      que `module-mention` pose dans `.postprofile-name`.
+//
+//   2. `mon_sujet` ne rendait que le combat OUVERT. Une capture le
+//      ferme, donc le bloc s'effaçait à la seconde la plus
+//      intéressante du sujet.
+//
+//  Rien de tout ça n'était mesuré : le harnais ne posait pas
+//  `_userdata`, donc le bloc des gains était absent par construction,
+//  et son absence ressemblait à la normale.
+//  ══════════════════════════════════════════════════════════════════
+
+const APRES_CAPTURE = {
+  sujet: {
+    equipe: [{
+      position: 1,
+      especeId: 25,
+      nom: "Pikachu",
+      surnom: "Spark",
+      niveau: 12,
+      pv: 30,
+      pvMax: 30,
+      combat: false,
+    }],
+    //  LE COMBAT EST FERMÉ : c'est tout le cas. La capture a réussi,
+    //  `mon_sujet` ne rend plus de combat ouvert.
+    combat: null,
+    fini: {
+      etat: "capture",
+      especeId: 585,
+      nom: "Vivaldaim",
+      niveau: 5,
+      types: ["normal", "plante"],
+    },
+    sac: [{ objetId: 1, nom: "Poké Ball", famille: "ball", quantite: 3 }],
+  },
+  //  LE REGISTRE TEL QUE LA RELÈVE L'ÉCRIT, sur les messages du décor.
+  //  15501 est le message de « Compte de test », celui qu'on joue.
+  registre: [
+    {
+      joueur_id: "aaaa0000-0000-0000-0000-00000000000a",
+      message_id: 15501,
+      type: "croise",
+      charge: { especeId: 585 },
+    },
+    {
+      joueur_id: "aaaa0000-0000-0000-0000-00000000000a",
+      message_id: 15501,
+      type: "capture",
+      charge: { especeId: 585, niveau: 5 },
+    },
+  ],
+};
+
+{
+  const q = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+    recap: APRES_CAPTURE,
+    largeur: 1920,
+    compte: "Compte de test",
+  });
+  await q.waitForTimeout(700);
+
+  //  ── 1 · LE PSEUDO N'EMPORTE PLUS NOTRE BOUTON ────────────────────
+  const pseudo = await q.evaluate(() => {
+    const post = document.querySelector('[class*="post--"]:nth-of-type(2)') ??
+      [...document.querySelectorAll('[class*="post--"]')].at(-1);
+    const nom = post?.querySelector(".postprofile-name");
+    return {
+      brut: nom?.textContent?.replace(/\s+/g, " ").trim() ?? null,
+      bouton: !!nom?.querySelector(".wm-mentionner"),
+    };
+  });
+  //  LE BOUTON EST BIEN LÀ : sans lui, ce contrôle ne prouverait rien.
+  dire(
+    "LE BOUTON « @ » EST POSÉ DANS LE LIBELLÉ DE L'AUTEUR",
+    pseudo.bouton === true,
+    JSON.stringify(pseudo),
+  );
+
+  //  ── 2 · ET LE BLOC DES GAINS S'AFFICHE QUAND MÊME ────────────────
+  const vu = await q.evaluate(() => {
+    const r = document.querySelector(".wm-recap");
+    if (r === null) return { pose: false };
+    const bloc = [...r.querySelectorAll(".wm-recap__bloc")]
+      .find((b) =>
+        b.querySelector(".wm-recap__titre")?.textContent === "Ce que ce sujet t'a rapporté"
+      );
+    return {
+      pose: true,
+      titres: [...r.querySelectorAll(".wm-recap__titre")].map((t) => t.textContent),
+      etiquettes: bloc
+        ? [...bloc.querySelectorAll(".wm-recap__etiquette")].map((e) => e.textContent)
+        : null,
+      valeurs: bloc
+        ? [...bloc.querySelectorAll(".wm-recap__valeur")].map((e) => e.textContent)
+        : null,
+    };
+  });
+  dire(
+    "LE BLOC DES GAINS S'AFFICHE — il ne s'affichait POUR PERSONNE",
+    vu.etiquettes !== null && vu.etiquettes.includes("CAPTURÉ"),
+    JSON.stringify(vu.etiquettes),
+  );
+  dire(
+    "   et il nomme la capture avec son niveau, comme le bilan posté",
+    (vu.valeurs ?? []).some((v) => /Vivaldaim niv\. 5/.test(v)),
+    JSON.stringify(vu.valeurs),
+  );
+
+  //  ── 3 · CE QUI VIENT DE SE PASSER ────────────────────────────────
+  const fin = await q.evaluate(() => {
+    const bloc = [...document.querySelectorAll(".wm-recap__bloc")]
+      .find((b) => b.dataset.wmFin !== undefined);
+    if (!bloc) return null;
+    return {
+      titre: bloc.querySelector(".wm-recap__titre")?.textContent,
+      etat: bloc.dataset.wmFin,
+      nom: bloc.querySelector(".wm-recap__nom")?.textContent,
+      niveau: bloc.querySelector(".wm-recap__pv")?.textContent,
+      sprite: bloc.querySelector(".wm-recap__sprite")?.getAttribute("src") ?? null,
+      jauge: bloc.querySelectorAll(".wm-recap__jauge").length,
+    };
+  });
+  dire(
+    "LE PANNEAU DIT QUI JE VIENS DE CAPTURER",
+    fin !== null && fin.titre === "Capturé" && fin.nom === "Vivaldaim" &&
+      fin.niveau === "niv. 5",
+    JSON.stringify(fin),
+  );
+  //  « Ce serait bien d'afficher visuellement qu'il l'a été. »
+  dire(
+    "   et il le MONTRE : le sprite est là, et il désigne la bonne espèce",
+    fin !== null && typeof fin.sprite === "string" && fin.sprite.includes("585.png"),
+    JSON.stringify(fin?.sprite),
+  );
+  //  PAS DE JAUGE : le combat est fini. Une barre pleine ou à zéro
+  //  raconterait un combat qui court encore.
+  dire(
+    "   et pas de jauge de PV, parce que le combat est fini",
+    fin !== null && fin.jauge === 0,
+    String(fin?.jauge),
+  );
+  //  ET LE BLOC DE COMBAT N'EST PAS LÀ EN MÊME TEMPS : les deux
+  //  ensemble feraient lire « tu es en combat » et « tu viens de
+  //  capturer » pour deux Pokémon différents.
+  dire(
+    "   et aucun bloc de combat à côté",
+    !(vu.titres ?? []).some((t) => t === "Rencontre" || /^Combat · tour/.test(t)),
+    JSON.stringify(vu.titres),
+  );
+  await q.close();
+}
+
+{
+  //  ── LA RENCONTRE N'EST PAS UN COMBAT ─────────────────────────────
+  //
+  //  `tour = 0` est la carte de rencontre : postée, personne n'a
+  //  encore agi. Le panneau écrivait « Combat · tour 0 ».
+  const q = await monterAvecScript(ARIANE_ZONE, "https://exemple.test/t10-un-sujet", {
+    recap: {
+      sujet: {
+        equipe: [],
+        combat: {
+          tour: 0,
+          sauvage: {
+            especeId: 585,
+            nom: "Vivaldaim",
+            niveau: 5,
+            types: ["normal", "plante"],
+            pv: 21,
+            pvMax: 21,
+          },
+          pvPokemon: 30,
+          pvPokemonMax: 30,
+        },
+      },
+      registre: [],
+    },
+    largeur: 1920,
+    compte: "Compte de test",
+  });
+  await q.waitForTimeout(700);
+  const titres = await q.evaluate(() =>
+    [...document.querySelectorAll(".wm-recap__titre")].map((t) => t.textContent)
+  );
+  dire(
+    "LE TOUR ZÉRO S'ANNONCE « RENCONTRE », PAS « COMBAT · TOUR 0 »",
+    titres.includes("Rencontre") && !titres.some((t) => /tour 0/.test(t)),
+    JSON.stringify(titres),
+  );
+  await q.close();
+}
+
 await nav.close();
 
 if (soucis.length > 0) console.log("\n-- ce qui reste --\n" + soucis.join("\n"));

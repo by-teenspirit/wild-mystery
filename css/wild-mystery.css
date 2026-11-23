@@ -17375,6 +17375,30 @@ body.wm-liens-soulignes #modernbb a:not(.wm-suivante__bouton):not(.wm-panneau__l
   gap: var(--wm-espace-8, 8px);
 }
 
+/*  ── CE QUI VIENT DE SE PASSER ─────────────────────────────────────
+
+    « Vivaldaim a été capturé : ce serait bien d'afficher visuellement
+    qu'il l'a été » — 23 novembre.
+
+    LE SPRITE FAIT LE GROS DU TRAVAIL : le bloc réutilise
+    `.wm-recap__membre`, donc l'image est déjà là, à la même taille que
+    dans l'équipe — ce qui est exactement le propos, puisqu'il va y
+    entrer.
+
+    LA TEINTE NE PORTE PAS LE SENS SEULE. Le titre dit « Capturé »,
+    « Il s'est enfui », « Mis K.O. » en toutes lettres ; la couleur ne
+    fait que confirmer. Ce sont les teintes des paliers, les seules du
+    projet qui disent « ça va » et « ça ne va pas », et elles sont
+    terreuses plutôt que signalétiques. */
+#modernbb .wm-recap__bloc[data-wm-fin="capture"] .wm-recap__titre {
+  color: var(--wm-palier-1, #3f7d52);
+}
+
+#modernbb .wm-recap__bloc[data-wm-fin="defaite"] .wm-recap__titre,
+#modernbb .wm-recap__bloc[data-wm-fin="fuite"] .wm-recap__titre {
+  color: var(--wm-palier-3, #b1402f);
+}
+
 /*  CELUI QUI SE BAT SE VOIT. La teinte ne porte pas le sens seule :
     le module pose aussi `aria-current`. */
 #modernbb .wm-recap__membre--combat {

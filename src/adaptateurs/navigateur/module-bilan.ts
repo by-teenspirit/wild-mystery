@@ -49,13 +49,67 @@ export function sujetDepuisAdresse(chemin: string): number | null {
  *  Chaque message porte `post--<messageId>` et le pseudo de son auteur ;
  *  le registre porte le même `messageId`. On relie les deux là où ils se
  *  rencontrent déjà, plutôt que d'ouvrir la table des joueurs. */
+/** Le pseudo que porte un libellé d'auteur, nettoyé de son décor.
+ *
+ *  ── L'AROBASE ÉTAIT NOTRE PROPRE BOUTON ─────────────────────────────
+ *
+ *  « "Où j'en suis" n'a pas été mis à jour suite à ma capture » —
+ *  23 novembre. Mesuré dans la page du sujet 1014 :
+ *
+ *      <div class="postprofile-name">
+ *        <button class="wm-mentionner">@</button>
+ *        <a href="/u4">…Jake Dalziel…</a>
+ *      </div>
+ *
+ *  `textContent` recolle tout : « @Jake Dalziel ». Et
+ *  `_userdata.username` rend « Jake Dalziel ».
+ *
+ *  Le récapitulatif cherche SA colonne par `ligne.pseudo === moi`. Avec
+ *  l'arobase d'un côté et pas de l'autre, la comparaison ne pouvait
+ *  jamais réussir : **le bloc des gains ne s'affichait pour personne,
+ *  et en silence.** Le module au-dessus du premier message, lui, ne
+ *  comparait rien — il affichait —, donc il marchait, et c'est ce qui a
+ *  rendu la panne difficile à voir : la même donnée, juste à côté,
+ *  parfaitement juste.
+ *
+ *  **UN MODULE QUI DÉCORE LE DOM CASSE LE MODULE QUI LE LIT.** C'est
+ *  `module-mention` qui pose ce bouton, et rien ne disait aux autres de
+ *  l'éviter.
+ *
+ *  ── DEUX NETTOYAGES, POUR DEUX SOURCES DIFFÉRENTES ──────────────────
+ *
+ *  `sansDecor` retire NOS boutons : c'est la cause, et elle se répare à
+ *  la cause. Elle tient quel que soit le libellé du bouton — « @ »
+ *  aujourd'hui, autre chose demain.
+ *
+ *  L'arobage de tête est retiré en plus, et ce n'est pas la même chose :
+ *  un thème qui préfixerait ses auteurs d'un « @ » produirait le même
+ *  symptôme sans qu'aucun bouton soit en cause. Deux sources, deux
+ *  nettoyages — et aucun des deux ne couvre l'autre. */
+export function pseudoLu(brut: string | null | undefined): string {
+  return (brut ?? "").replace(/\s+/g, " ").trim().replace(/^@\s*/, "").trim();
+}
+
+/** Le libellé d'un auteur, débarrassé de ce que NOS modules y ont posé.
+ *
+ *  ON CLONE PLUTÔT QUE DE LIRE LE LIEN : `.postprofile-name` contient
+ *  une ancre vers le profil quand le compte existe encore, et rien
+ *  quand il a été supprimé. Lire l'ancre marcherait neuf fois sur dix
+ *  et rendrait la chaîne vide la dixième. Retirer ce qu'on a ajouté
+ *  marche dans les dix cas. */
+function sansDecor(nom: Element | null): string {
+  if (nom === null) return "";
+  const copie = nom.cloneNode(true) as Element;
+  for (const pose of copie.querySelectorAll("[class*='wm-']")) pose.remove();
+  return copie.textContent ?? "";
+}
+
 export function lecteurDePseudos(doc: Document): (messageId: number) => string | null {
   const pseudos = new Map<number, string>();
   for (const post of doc.querySelectorAll<HTMLElement>('[class*="post--"]')) {
     const trouve = /post--(\d+)/.exec(post.className);
     if (trouve === null) continue;
-    const nom = post.querySelector(".postprofile-name");
-    const texte = nom?.textContent?.replace(/\s+/g, " ").trim() ?? "";
+    const texte = pseudoLu(sansDecor(post.querySelector(".postprofile-name")));
     if (texte !== "") pseudos.set(Number(trouve[1]), texte);
   }
   return (messageId) => pseudos.get(messageId) ?? null;
@@ -216,7 +270,11 @@ export async function poserLeBilan(
   const grille = element(doc, "div", "wm-bilan__colonnes");
   for (const { ligne } of colonnes) {
     const colonne = element(doc, "article", "wm-bilan__colonne");
-    colonne.appendChild(element(doc, "h3", "wm-bilan__pseudo", ligne.pseudo));
+    //  L'AROBASE EST ÉCRITE ICI, EXPRÈS. Elle arrivait jusque-là par
+    //  accident, collée au pseudo lu dans le thème ; maintenant que la
+    //  lecture la retire, c'est l'affichage qui la pose. À l'écran,
+    //  rien ne bouge — et le pseudo, lui, est redevenu un pseudo.
+    colonne.appendChild(element(doc, "h3", "wm-bilan__pseudo", `@${ligne.pseudo}`));
 
     const rubriques = rubriquesEnAttente(ligne);
     if (rubriques.length === 0) {

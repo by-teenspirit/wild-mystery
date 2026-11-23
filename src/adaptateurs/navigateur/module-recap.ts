@@ -57,6 +57,8 @@ import {
   type MonSujet,
   nomDuMembre,
   partDePv,
+  titreDeLaFin,
+  titreDuCombat,
 } from "../../navigateur/recap.ts";
 import type { LigneEnAttente } from "../../application/bilan.ts";
 
@@ -175,7 +177,10 @@ function dessinerUnBloc(doc: Document, decor: Decor, b: BlocDuRecap): HTMLElemen
   }
 
   if (b.quoi === "combat") {
-    const section = bloc(doc, `Combat · tour ${b.combat.tour}`);
+    //  LE TITRE VIENT DU DOMAINE, et il distingue la rencontre du
+    //  combat : « Combat · tour 0 » décrivait mal une bête qu'on vient
+    //  d'apercevoir et qu'on peut encore laisser filer.
+    const section = bloc(doc, titreDuCombat(b.combat.tour));
     const liste = element(doc, "ul", "wm-recap__liste");
     const s = b.combat.sauvage;
     liste.appendChild(ligneDUnMembre(doc, decor, {
@@ -188,6 +193,32 @@ function dessinerUnBloc(doc: Document, decor: Decor, b: BlocDuRecap): HTMLElemen
       pvMax: s.pvMax,
       combat: false,
     }, false));
+    section.appendChild(liste);
+    return section;
+  }
+
+  //  ── CE QUI VIENT DE SE PASSER ───────────────────────────────────
+  //
+  //  « Vivaldaim a été capturé : ce serait bien d'afficher visuellement
+  //  qu'il l'a été » — 23 novembre.
+  //
+  //  PAS DE JAUGE DE PV ICI. Le combat est fini : une barre à zéro, ou
+  //  pire une barre pleine, raconterait un combat qui court encore. Le
+  //  sprite et le niveau suffisent, et c'est le sprite qu'elle
+  //  demandait.
+  if (b.quoi === "fini") {
+    const section = bloc(doc, titreDeLaFin(b.fini.etat));
+    section.dataset.wmFin = b.fini.etat;
+    const liste = element(doc, "ul", "wm-recap__liste");
+    const li = element(doc, "li", "wm-recap__membre");
+    li.appendChild(sprite(doc, decor, b.fini.especeId, "wm-recap__sprite"));
+    const texte = element(doc, "span", "wm-recap__texte");
+    texte.appendChild(element(doc, "span", "wm-recap__nom", b.fini.nom));
+    texte.appendChild(
+      element(doc, "span", "wm-recap__pv", `niv. ${b.fini.niveau}`),
+    );
+    li.appendChild(texte);
+    liste.appendChild(li);
     section.appendChild(liste);
     return section;
   }

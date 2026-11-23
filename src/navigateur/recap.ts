@@ -75,6 +75,23 @@ export type LigneDuSac = {
   readonly quantite: number;
 };
 
+/** Le dernier combat CLOS de ce sujet, quand il n'y en a pas d'ouvert.
+ *
+ *  « Il devrait dire [...] qui je viens de capturer » — 23 novembre.
+ *
+ *  LA CAPTURE FERME LE COMBAT, donc la ligne ouverte disparaît à la
+ *  seconde où elle réussit, et le panneau se taisait sur le moment le
+ *  plus intéressant du sujet. Celui-ci prend le relais, et il le
+ *  prend TOUT DE SUITE : la relève n'a pas encore écrit sa ligne de
+ *  registre, mais le combat, lui, est déjà clos. */
+export type CombatFini = {
+  readonly etat: "capture" | "fuite" | "victoire" | "defaite" | "expire";
+  readonly especeId: number;
+  readonly nom: string;
+  readonly niveau: number;
+  readonly types: readonly string[];
+};
+
 export type MonSujet = {
   readonly equipe: readonly MembreDuRecap[];
   readonly combat: CombatDuRecap | null;
@@ -83,6 +100,9 @@ export type MonSujet = {
    *  l'est. Un récapitulatif qui lèverait là-dessus effacerait aussi
    *  l'équipe et le combat, qui, eux, sont bien là. */
   readonly sac?: readonly LigneDuSac[];
+  /** Facultatif pour la même raison, et elle a servi : la 0069
+   *  l'ajoute, et le paquet part avant le `supabase db push`. */
+  readonly fini?: CombatFini | null;
 };
 
 /** Une section du sac : une famille, son titre, ses lignes. */
@@ -241,9 +261,44 @@ export function etatDuRecap(
   };
 }
 
+/** Le titre du bloc en cours.
+ *
+ *  ── LE TOUR ZÉRO EST UNE RENCONTRE, PAS UN COMBAT ─────────────────
+ *
+ *  « Il devrait dire si je suis en pleine rencontre, en plein
+ *  combat. » La distinction existait déjà en base depuis la 0046 —
+ *  « zéro, c'est la carte de rencontre : elle est postée, personne
+ *  n'a encore agi » — et personne ne la lisait : le panneau écrivait
+ *  « Combat · tour 0 », ce qui décrit mal une bête qu'on vient
+ *  d'apercevoir et qu'on peut encore laisser filer. */
+export function titreDuCombat(tour: number): string {
+  return tour <= 0 ? "Rencontre" : `Combat · tour ${tour}`;
+}
+
+/** Le titre du bloc de ce qui vient de se passer.
+ *
+ *  ON DIT LE RÉSULTAT, PAS « COMBAT TERMINÉ ». Capturé, enfui, battu :
+ *  ce sont trois fins différentes, et c'est la seule chose qu'on vient
+ *  vérifier dans le panneau. */
+export function titreDeLaFin(etat: CombatFini["etat"]): string {
+  switch (etat) {
+    case "capture":
+      return "Capturé";
+    case "fuite":
+      return "Il s'est enfui";
+    case "victoire":
+      return "Mis K.O.";
+    case "defaite":
+      return "Mon Pokémon est K.O.";
+    case "expire":
+      return "La rencontre a tourné court";
+  }
+}
+
 /** Un bloc du récapitulatif, prêt à dessiner. */
 export type BlocDuRecap =
   | { readonly quoi: "combat"; readonly combat: CombatDuRecap }
+  | { readonly quoi: "fini"; readonly fini: CombatFini }
   | { readonly quoi: "equipe"; readonly equipe: readonly MembreDuRecap[] }
   | { readonly quoi: "sac"; readonly sections: readonly SectionDuSac[] }
   | {
@@ -283,8 +338,21 @@ export function blocsDuRecap(
   //  ça veut dire « on n'a pas pu lire ». Un joueur dont l'équipe est
   //  vide reçoit un objet avec des listes vides, pas `null`.
   if (sujet === null) return [{ quoi: "carnet" }];
+  //  `?? null` PLUTÔT QU'UN TEST LÂCHE : la clé est facultative, donc
+  //  elle peut être absente ou nulle, et le dépôt interdit `!=`. Une
+  //  variable règle les deux cas d'un coup et porte le rétrécissement
+  //  de type jusqu'à la poussée.
+  const fini = sujet.fini ?? null;
   if (sujet !== null && sujet.combat !== null) {
     blocs.push({ quoi: "combat", combat: sujet.combat });
+  } else if (fini !== null) {
+    //  ── L'UN OU L'AUTRE, JAMAIS LES DEUX ──────────────────────────
+    //
+    //  La base ne rend `fini` que faute de combat ouvert, et le `else`
+    //  le redit ici. Les montrer ensemble ferait lire « tu es en
+    //  combat » et « tu viens de capturer » dans la même colonne, pour
+    //  deux Pokémon différents.
+    blocs.push({ quoi: "fini", fini });
   }
   if (sujet !== null && sujet.equipe.length > 0) {
     blocs.push({ quoi: "equipe", equipe: sujet.equipe });

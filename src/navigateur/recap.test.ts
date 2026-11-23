@@ -26,6 +26,8 @@ import {
   partDePv,
   placementDuRecap,
   sacDuRecap,
+  titreDeLaFin,
+  titreDuCombat,
 } from "./recap.ts";
 import type { LigneEnAttente } from "../application/bilan.ts";
 
@@ -319,4 +321,80 @@ Deno.test("MÊME DÉPLIÉ DE FORCE, IL SAIT CONTRE QUOI IL EST", () => {
   const e = etatDuRecap({ droite: 1320 }, 1440, 216, 16, true);
   assertEquals(e.contre, "bord");
   assertEquals(e.ouvert, true);
+});
+
+// ── la rencontre, le combat, et ce qui vient de se passer ───────────
+
+Deno.test("LE TOUR ZÉRO EST UNE RENCONTRE, PAS UN COMBAT", () => {
+  //  La distinction existait en base depuis la 0046 — « zéro, c'est la
+  //  carte de rencontre : elle est postée, personne n'a encore agi » —
+  //  et le panneau écrivait « Combat · tour 0 », ce qui décrit mal une
+  //  bête qu'on peut encore laisser filer.
+  assertEquals(titreDuCombat(0), "Rencontre");
+  assertEquals(titreDuCombat(1), "Combat · tour 1");
+  assertEquals(titreDuCombat(5), "Combat · tour 5");
+});
+
+Deno.test("un tour négatif reste une rencontre, il ne s'affiche pas", () => {
+  //  La base borne `tour` entre 0 et 5 ; si une version future ou une
+  //  réponse abîmée rendait autre chose, « Combat · tour -1 » serait
+  //  la pire des deux réponses.
+  assertEquals(titreDuCombat(-1), "Rencontre");
+});
+
+Deno.test("ON DIT LE RÉSULTAT, PAS « COMBAT TERMINÉ »", () => {
+  //  « Il devrait dire [...] qui je viens de capturer » — 23 novembre.
+  //  Capturé, enfui, battu : trois fins différentes, et c'est la seule
+  //  chose qu'on vient vérifier dans le panneau.
+  assertEquals(titreDeLaFin("capture"), "Capturé");
+  assertEquals(titreDeLaFin("fuite"), "Il s'est enfui");
+  assertEquals(titreDeLaFin("victoire"), "Mis K.O.");
+  assertEquals(titreDeLaFin("defaite"), "Mon Pokémon est K.O.");
+  assertEquals(titreDeLaFin("expire"), "La rencontre a tourné court");
+});
+
+const FINI = {
+  etat: "capture",
+  especeId: 586,
+  nom: "Vivaldaim",
+  niveau: 5,
+  types: ["normal", "plante"],
+} as const;
+
+Deno.test("LA CAPTURE FERMAIT LE COMBAT, ET LE PANNEAU SE TAISAIT", () => {
+  //  C'est la panne du 23 novembre vue du domaine : `mon_sujet` ne
+  //  rendait que le combat OUVERT, une capture le ferme, et le bloc
+  //  s'effaçait à la seconde la plus intéressante du sujet.
+  assertEquals(
+    blocsDuRecap({ equipe: [membre()], combat: null, fini: FINI }, null)
+      .map((b) => b.quoi),
+    ["fini", "equipe"],
+  );
+});
+
+Deno.test("UN COMBAT OUVERT L'EMPORTE SUR CE QUI VIENT DE SE PASSER", () => {
+  //  Les montrer ensemble ferait lire « tu es en combat » et « tu viens
+  //  de capturer » dans la même colonne, pour deux Pokémon différents.
+  //  La base ne rend `fini` que faute de combat ouvert ; le domaine le
+  //  redit, parce qu'un contrat tenu à un seul endroit finit par
+  //  céder.
+  assertEquals(
+    blocsDuRecap({ ...SUJET, fini: FINI }, null).map((b) => b.quoi),
+    ["combat", "equipe"],
+  );
+});
+
+Deno.test("sans `fini`, rien ne change — une base en retard ne casse rien", () => {
+  //  Le paquet part avant le `supabase db push` : tant que la 0069
+  //  n'est pas montée, la clé n'existe pas, et le panneau doit se
+  //  comporter exactement comme avant.
+  assertEquals(
+    blocsDuRecap({ equipe: [membre()], combat: null }, null).map((b) => b.quoi),
+    ["equipe"],
+  );
+  assertEquals(
+    blocsDuRecap({ equipe: [membre()], combat: null, fini: null }, null)
+      .map((b) => b.quoi),
+    ["equipe"],
+  );
 });
