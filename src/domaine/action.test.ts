@@ -20,6 +20,10 @@ const GERER = { type: "gerer", tarif: 2000 } as const;
 const CONFIER = { type: "confier", position: 3 } as const;
 const PRENDRE = { type: "prendre" } as const;
 const REPRENDRE = { type: "reprendre" } as const;
+//  Le seul verbe à DEUX arguments : quel Pokémon, et vers quoi. Et son
+//  voisin, qui n'en a qu'un.
+const EVOLUER = { type: "evoluer", position: 2, espece: 470 } as const;
+const PURIFIER = { type: "purifier", position: 5 } as const;
 
 Deno.test("ce que le bouton écrit, le serveur le relit", () => {
   // Le trajet complet, pour chaque action. C'est le test qui empêche
@@ -41,6 +45,8 @@ Deno.test("ce que le bouton écrit, le serveur le relit", () => {
       CONFIER,
       PRENDRE,
       REPRENDRE,
+      EVOLUER,
+      PURIFIER,
     ]
   ) {
     const bloc = ecrireUneAction(action);
@@ -55,11 +61,13 @@ Deno.test("ce que le bouton écrit, le serveur le relit", () => {
     "chercher",
     "confier",
     "defier",
+    "evoluer",
     "fouiller",
     "fuir",
     "gerer",
     "objet",
     "prendre",
+    "purifier",
     "reprendre",
   ]);
 });
@@ -234,4 +242,58 @@ Deno.test("LE DÉFI NE NOMME PERSONNE, ET UN ARGUMENT NE LE REND PAS PLUS PRÉCI
   //  Et les deux formes nues se lisent.
   assertEquals(actionDe("[[WM-ACTION:defier]]"), { type: "defier" });
   assertEquals(actionDe("[[WM-ACTION:accepter]]"), { type: "accepter" });
+});
+
+Deno.test("LES DEUX ARGUMENTS D'`evoluer` SONT EXIGÉS, ET LES AUTRES EN REFUSENT UN SECOND", () => {
+  //  ── LA CIBLE NE SE DEVINE PAS ─────────────────────────────────────
+  //
+  //  L'annexe laisse le choix de la forme au joueur — Évoli en a huit.
+  //  Compléter un `evoluer:3` d'office lui donnerait une forme
+  //  définitive qu'il n'a pas choisie, et c'est irréversible. On
+  //  préfère ne rien faire.
+  for (
+    const abime of [
+      "[[WM-ACTION:evoluer]]",
+      "[[WM-ACTION:evoluer:2]]",
+      "[[WM-ACTION:evoluer::470]]",
+      //  Une case hors de l'équipe : six, pas sept.
+      "[[WM-ACTION:evoluer:7:470]]",
+      "[[WM-ACTION:evoluer:0:470]]",
+      "[[WM-ACTION:evoluer:deux:470]]",
+    ]
+  ) {
+    assertEquals(actionDe(abime), null, abime);
+  }
+  assertEquals(actionDe("[[WM-ACTION:evoluer:2:470]]"), {
+    type: "evoluer",
+    position: 2,
+    espece: 470,
+  });
+
+  //  ── ET UN SECOND ARGUMENT AILLEURS EST UN BLOC ABÎMÉ ──────────────
+  //
+  //  La forme s'est ouverte à deux arguments pour un seul verbe. Les
+  //  dix autres n'en lisent pas un second : le lire quand même
+  //  reviendrait à honorer un bloc qu'on ne sait pas composer.
+  for (
+    const trop of [
+      "[[WM-ACTION:attaquer:52:3]]",
+      "[[WM-ACTION:purifier:2:470]]",
+      "[[WM-ACTION:fuir:1:2]]",
+      "[[WM-ACTION:changer:2:3]]",
+    ]
+  ) {
+    assertEquals(actionDe(trop), null, trop);
+  }
+});
+
+Deno.test("UN BLOC À UN ARGUMENT N'A PAS CHANGÉ DE SENS", () => {
+  //  LA FORME S'EST ÉLARGIE, PAS DÉPLACÉE. Des messages postés portent
+  //  ces blocs-là, et ils doivent se lire exactement comme avant — la
+  //  même prudence que pour `chercher:<lieu>`, qui se lit encore alors
+  //  que les lieux n'existent plus.
+  assertEquals(actionDe("[[WM-ACTION:attaquer:52]]"), { type: "attaquer", capacite: 52 });
+  assertEquals(actionDe("[[WM-ACTION:chercher:etang-vaseux]]"), { type: "chercher" });
+  assertEquals(actionDe("[[WM-ACTION:changer:3]]"), { type: "changer", position: 3 });
+  assertEquals(actionDe("[[WM-ACTION:fuir]]"), { type: "fuir" });
 });

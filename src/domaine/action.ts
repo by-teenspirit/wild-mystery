@@ -142,7 +142,36 @@ export type Action =
    *  C'est au RETRAIT que les niveaux se comptent et que le tarif se
    *  paie — « il ne lui restera plus qu'à régler la somme demandée par
    *  le gérant », annexe élevage de la V1. On paie ce qu'on a obtenu. */
-  | { readonly type: "reprendre" };
+  | { readonly type: "reprendre" }
+  /** « Fais évoluer celui-ci, vers cette espèce. » — 23 novembre.
+   *
+   *  LE SEUL VERBE À DEUX ARGUMENTS, et les deux sont nécessaires :
+   *
+   *  · LA POSITION, de 1 à 6, comme `changer` et `confier`. C'est la
+   *    case que le joueur a cliquée ;
+   *  · L'ESPÈCE VISÉE, parce que l'annexe laisse le choix : « si le
+   *    pokémon a plusieurs formes d'évolution possible, elles sont
+   *    laissées à votre choix sur WM ». Évoli en a huit, Débugant
+   *    trois. Deviner serait choisir à la place du joueur une forme
+   *    qu'il garde pour toujours.
+   *
+   *  L'IDENTIFIANT DE L'ESPÈCE, PAS SON RANG dans les possibilités —
+   *  même raison que la capacité : le rang dit OÙ était le choix dans
+   *  une liste, pas LEQUEL, et cette liste change avec le niveau et le
+   *  contenu du sac.
+   *
+   *  LA CONDITION N'EST PAS DANS LE BLOC. Le bloc dit « je demande », il
+   *  ne dit jamais « j'ai le droit » : c'est la relève qui relit
+   *  `data/evolutions.json`, le niveau, le sac et les étoiles. Taper le
+   *  bloc à la main ne donne donc aucun avantage, comme pour les huit
+   *  autres. */
+  | { readonly type: "evoluer"; readonly position: number; readonly espece: number }
+  /** « Purifie ce Pokémon Obscur. » La position, de 1 à 6.
+   *
+   *  SANS CIBLE À CHOISIR : purifier ne transforme pas, ça rouvre une
+   *  conscience. Et la jauge retombe à zéro — « au moment de la
+   *  purification, on retombe à 0 », 23 novembre. */
+  | { readonly type: "purifier"; readonly position: number };
 
 export const VERBES = [
   "chercher",
@@ -158,6 +187,8 @@ export const VERBES = [
   "confier",
   "prendre",
   "reprendre",
+  "evoluer",
+  "purifier",
 ] as const;
 
 /** Les cases d'une équipe. Six, comme partout dans ce jeu. */
@@ -174,8 +205,34 @@ export type Verbe = (typeof VERBES)[number];
  *  vérification, et il a déjà été payé une fois.
  *
  *  Le préfixe est `WM-ACTION` et pas `WM` : les deux blocs ne doivent
- *  jamais pouvoir être confondus par une expression trop gourmande. */
-const FORME = /\[\[WM-ACTION:([a-z]+)(?::([a-z0-9-]+))?\]\]/g;
+ *  jamais pouvoir être confondus par une expression trop gourmande.
+ *
+ *  ── ET IL PORTE JUSQU'À DEUX ARGUMENTS, DEPUIS LE 23 NOVEMBRE ───────
+ *
+ *  Il n'en portait qu'un, et ça a tenu pour huit verbes : attaquer dit
+ *  LAQUELLE, changer dit LAQUELLE, défier ne dit rien. `evoluer` est le
+ *  premier à devoir dire deux choses — QUEL Pokémon, et VERS QUOI —
+ *  parce que l'annexe laisse le choix de la forme au joueur :
+ *  « Chenipotte : Blindalys ou Armulys, Débugant : Kiclee, Tygnon ou
+ *  Kapoera, etc. »
+ *
+ *  LES TROIS CONTOURNEMENTS ÉTAIENT PIRES, et c'est pour ça que la
+ *  forme change plutôt qu'eux :
+ *
+ *    · deviner la cible quand il n'y en a qu'une et demander au joueur
+ *      sinon aurait fait DEUX mécaniques pour un seul verbe, dont une
+ *      qui demande un aller-retour de messages ;
+ *    · encoder les deux dans un seul nombre (`3470`) aurait été un
+ *      format qu'on ne peut plus lire à l'œil, dans un bloc dont tout
+ *      l'intérêt est de rester lisible dans un vieux message ;
+ *    · un second bloc dans le même message aurait cassé la seule règle
+ *      qui compte ici — une seule action par message.
+ *
+ *  LES BLOCS DÉJÀ POSTÉS NE CHANGENT PAS DE SENS : un argument reste un
+ *  argument, deux sont nouveaux, et aucun verbe existant n'en lit un
+ *  second. C'est la même prudence que pour `chercher:<lieu>`, qui se lit
+ *  encore alors que les lieux n'existent plus. */
+const FORME = /\[\[WM-ACTION:([a-z]+)(?::([a-z0-9-]+))?(?::([a-z0-9-]+))?\]\]/g;
 
 function estUnVerbe(valeur: string): valeur is Verbe {
   return (VERBES as readonly string[]).includes(valeur);
@@ -193,9 +250,14 @@ function argumentDe(action: Action): string {
       return `:${action.objetId}`;
     case "changer":
     case "confier":
+    case "purifier":
       return `:${action.position}`;
     case "gerer":
       return `:${action.tarif}`;
+    //  LE SEUL À DEUX ARGUMENTS, ET L'ORDRE EST CELUI DE LA PHRASE :
+    //  « fais évoluer celui-ci vers cette espèce ».
+    case "evoluer":
+      return `:${action.position}:${action.espece}`;
     default:
       return "";
   }
@@ -231,6 +293,11 @@ export function actionDe(texte: string): Action | null {
   for (const trouve of texte.matchAll(FORME)) {
     const verbe = trouve[1];
     const argument = trouve[2];
+    //  LE SECOND ARGUMENT, QUAND IL Y EN A UN. Un seul verbe en lit un
+    //  (`evoluer`) ; partout ailleurs, sa présence veut dire que le bloc
+    //  est abîmé, et les gardes ci-dessous le refusent déjà en exigeant
+    //  qu'il n'y ait pas d'argument de trop.
+    const second = trouve[3];
     if (!estUnVerbe(verbe)) continue;
     //  « chercher » SE LIT DES DEUX FAÇONS, et rend la même chose : avec
     //  un lieu, parce que des messages en portent déjà un, et sans,
@@ -249,9 +316,31 @@ export function actionDe(texte: string): Action | null {
       verbe === "fouiller" || verbe === "fuir" || verbe === "defier" ||
       verbe === "accepter" || verbe === "prendre" || verbe === "reprendre"
     ) {
-      if (!argument) return { type: verbe };
+      if (!argument && !second) return { type: verbe };
       continue;
     }
+
+    //  ── LE SEUL À DEUX ARGUMENTS ────────────────────────────────────
+    //
+    //  Les deux sont EXIGÉS. Un `evoluer:3` sans cible ne dit pas vers
+    //  quoi, et l'annexe laisse ce choix au joueur : le compléter
+    //  d'office lui donnerait une forme définitive qu'il n'a pas
+    //  choisie. On préfère ne rien faire.
+    //
+    //  Il est traité AVANT le `entierPositif(argument)` commun parce
+    //  qu'il doit lire les deux, et après les sans-argument parce qu'il
+    //  n'en est pas.
+    if (verbe === "evoluer") {
+      const ou = entierPositif(argument);
+      const vers = entierPositif(second);
+      if (ou === null || vers === null || ou > EQUIPE_MAX) continue;
+      return { type: "evoluer", position: ou, espece: vers };
+    }
+
+    //  TOUS LES AUTRES N'EN LISENT QU'UN. Un second argument sur
+    //  « attaquer » ou « purifier » est un bloc abîmé — pas une action
+    //  à deviner.
+    if (second) continue;
 
     //  LES QUATRE QUI DISENT QUOI. Sans argument lisible, le bloc est
     //  abîmé : on ne le remplace pas par un choix par défaut. « Attaque
@@ -267,9 +356,13 @@ export function actionDe(texte: string): Action | null {
     //  dépend d'aucune base : une équipe a six cases. Le reste — le
     //  Pokémon existe, il n'est pas à terre, ce n'est pas celui qui se
     //  bat déjà — se vérifie là où ces faits vivent.
-    //  LA SEULE BORNE TENUE ICI vaut pour les deux verbes qui désignent
-    //  une case : changer de Pokémon, et en confier un à la pension.
-    if ((verbe === "changer" || verbe === "confier") && n <= EQUIPE_MAX) {
+    //
+    //  Elle vaut pour les trois verbes qui désignent une case : changer
+    //  de Pokémon, en confier un à la pension, en purifier un.
+    if (
+      (verbe === "changer" || verbe === "confier" || verbe === "purifier") &&
+      n <= EQUIPE_MAX
+    ) {
       return { type: verbe, position: n };
     }
     //  LE TARIF N'A PAS DE PLAFOND ICI. Un gérant qui demande un
