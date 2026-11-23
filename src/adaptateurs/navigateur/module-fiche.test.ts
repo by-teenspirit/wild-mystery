@@ -1,12 +1,14 @@
 // ════════════════════════════════════════════════════════════════════
-//  Ce qui se teste sans navigateur dans le formulaire de la fiche : la
+//  Ce qui se teste sans navigateur dans l'éditeur de la fiche : la
 //  lecture du catalogue des espèces, et la comparaison qui décide si
 //  quelqu'un a retouché le message à la main.
 //
-//  Le reste est du DOM — trente champs, une chronologie qui s'ajoute
-//  et se retire, un menu de talents qui suit l'espèce. Il est mesuré
-//  par `outils/fiche.mjs`, qui monte le vrai gabarit de la page de
-//  réponse.
+//  LE RESTE DEMANDE UN VRAI NAVIGATEUR, et pas par paresse : l'éditeur
+//  est la fiche rendue, dont chaque valeur devient une zone
+//  modifiable. Ce qu'on y lit vient d'`innerText`, qui demande une
+//  mise en page ; et le piège qu'on y a trouvé — le `<b>` du joueur
+//  analysé puis perdu — ne se voit que là. C'est `outils/poster.mjs`
+//  qui le monte, sur le vrai gabarit de la page de réponse.
 // ════════════════════════════════════════════════════════════════════
 
 import { assertEquals } from "@std/assert";

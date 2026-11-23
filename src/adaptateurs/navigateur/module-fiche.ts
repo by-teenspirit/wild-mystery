@@ -16,7 +16,40 @@
 //  chaque recollage est une occasion de perdre un bloc. Le paquet, lui,
 //  part tout seul avec le `git push`.
 //
-//  ── LE FORMULAIRE ÉCRIT LE MESSAGE, IL NE LE POSTE PAS ──────────────
+//  ── L'ÉDITEUR EST LA FICHE, PAS UN FORMULAIRE À CÔTÉ ───────────────
+//
+//  « En fait, je veux pas juste remplir les champs. Je veux
+//  visuellement remplir ma fiche de présentation. » — 23 novembre.
+//
+//  Il n'y a donc pas de liste d'étiquettes et de cases. `publier` rend
+//  la fiche — la VRAIE, celle qui partira, avec la vraie feuille de
+//  style — et chacune de ses valeurs devient une zone où l'on écrit,
+//  là où elle se trouve dans la mise en page.
+//
+//  C'EST CE QUI GARANTIT QU'IL N'Y EN A QU'UNE. Une seconde mise en
+//  page écrite pour l'écran finirait par ne plus ressembler à ce qui
+//  part : un bloc ajouté d'un côté, une colonne déplacée de l'autre,
+//  et personne pour s'en apercevoir avant un joueur.
+//
+//  DEUX CONSÉQUENCES, ÉCRITES PLUTÔT QUE DÉCOUVERTES :
+//
+//   · LES BALISES S'AFFICHENT COMME DES BALISES pendant qu'on écrit.
+//     La mise en page est vivante, le `<b>` tapé dans le pavé ne l'est
+//     pas — il le devient dans le message publié. Le rendre vivant
+//     demanderait un éditeur de texte riche, et le message cesserait
+//     d'être la seule source de la fiche.
+//
+//     CE N'EST PAS QU'UN CHOIX D'AFFICHAGE : rendu vivant, le `<b>`
+//     devient un vrai élément dans la zone, et relire la zone le perd.
+//     C'est `pourEcrire` qui l'échappe, et c'est pour ça qu'il existe
+//     — voir `echappe` dans `fiche.ts`.
+//
+//   · L'ÉCRAN MONTRE PLUS QUE LE MESSAGE. `publier` tait les champs
+//     vides ; l'éditeur les affiche, sinon il n'y aurait nulle part où
+//     cliquer. D'où `publier(f, { pourEcrire: true })` pour l'écran, et
+//     `publier(f)` pour ce qui part.
+//
+//  ── IL ÉCRIT LE MESSAGE, IL NE LE POSTE PAS ─────────────────────────
 //
 //  C'est la même règle que la fiche de liens du carnet (`33-…`, § 4) :
 //  le joueur garde son bouton « Envoyer », il peut relire, retoucher à
@@ -51,7 +84,6 @@
 // ════════════════════════════════════════════════════════════════════
 
 import {
-  type Champ,
   type Fiche,
   ficheVide,
   IDENTITE,
@@ -107,70 +139,6 @@ function el<T extends HTMLElement>(
   return e;
 }
 
-/*  UNE LIGNE DE FORMULAIRE EST UN `<dl>`, pas une ligne de tableau.
-
-    C'est le vocabulaire de Forumactif lui-même, relevé le 10 novembre
-    (`89-…`) : `<dt>` porte l'étiquette, `<dd>` le champ. En le reprenant,
-    le formulaire hérite du style du forum au lieu de s'y superposer —
-    et « je veux pas de tableau, que du flexbox » tient tout seul. */
-function ligne(
-  doc: Document,
-  etiquette: string,
-  champ: HTMLElement,
-  aide?: string,
-): HTMLElement {
-  const dl = el(doc, "dl", "");
-  const dt = el(doc, "dt", "");
-  const label = el<HTMLLabelElement>(doc, "label", "", etiquette);
-  if (champ.id !== "") label.htmlFor = champ.id;
-  dt.appendChild(label);
-  if (aide !== undefined && aide !== "") {
-    dt.appendChild(el(doc, "span", "wmf-form__aide", aide));
-  }
-  const dd = el(doc, "dd", "");
-  dd.appendChild(champ);
-  dl.append(dt, dd);
-  return dl;
-}
-
-function saisie(
-  doc: Document,
-  clef: string,
-  valeur: string,
-  long: boolean,
-): HTMLInputElement | HTMLTextAreaElement {
-  if (long) {
-    const t = el<HTMLTextAreaElement>(doc, "textarea", "inputbox");
-    t.id = `wmf-${clef}`;
-    t.rows = 3;
-    t.value = valeur;
-    return t;
-  }
-  const i = el<HTMLInputElement>(doc, "input", "inputbox medium");
-  i.id = `wmf-${clef}`;
-  i.type = "text";
-  i.value = valeur;
-  return i;
-}
-
-function section(doc: Document, titre: string): HTMLElement {
-  const bloc = el(doc, "div", "panel wmf-form__section");
-  const dedans = el(doc, "div", "inner");
-  dedans.appendChild(el(doc, "div", "h3", titre));
-  const champs = el(doc, "fieldset", "fields1 wmf-form__champs");
-  dedans.appendChild(champs);
-  bloc.appendChild(dedans);
-  //  LE `fieldset` EST RENDU, pas le panneau : c'est là qu'on ajoute
-  //  les lignes, et l'appelant n'a pas à connaître l'emboîtement de
-  //  ModernBB pour poser un champ.
-  (bloc as unknown as { champs: HTMLElement }).champs = champs;
-  return bloc;
-}
-
-function champsDe(bloc: HTMLElement): HTMLElement {
-  return (bloc as unknown as { champs: HTMLElement }).champs;
-}
-
 /*  CE QU'ON RETIRE DE L'APERÇU, ET POURQUOI SEULEMENT DE L'APERÇU.
 
     « Faut voir directement ce que ça va faire, c'est pas juste des
@@ -215,7 +183,74 @@ export function pourLApercu(doc: Document, html: string): DocumentFragment {
   return sortie;
 }
 
-/** Pose le formulaire. Rend `false` si la page ne s'y prête pas. */
+function bouton(
+  doc: Document,
+  texte: string,
+  clic: () => void,
+  classe = "button2",
+  nomme?: string,
+): HTMLButtonElement {
+  const b = el<HTMLButtonElement>(doc, "button", classe, texte);
+  b.type = "button";
+  if (nomme !== undefined) b.setAttribute("aria-label", nomme);
+  b.addEventListener("click", clic);
+  return b;
+}
+
+/*  CE QU'UNE ZONE VIDE AFFICHE, ET POURQUOI IL EN FAUT UN.
+
+    Une zone vide fait zéro pixel de large. L'étiquette est juste à
+    côté — « MÉTIER : » — donc la ligne se voit, mais la cible, non.
+    Le CSS affiche cette phrase en gris dans la zone vide ; elle n'est
+    pas dans le texte, et rien n'en part dans le message.
+
+    LES DEUX MENUS N'Y SONT PAS. L'espèce et le talent ne se tapent
+    pas, ils se choisissent : leur zone est remplacée par le menu. */
+const INVITES: readonly { readonly clef: string; readonly invite: string }[] = [
+  { clef: "nom", invite: "le nom de ton personnage" },
+  { clef: "tw", invite: "ce que ta fiche contient, et qu'on préfère annoncer" },
+  { clef: "avatar", invite: "l'adresse de l'image à afficher à gauche" },
+  ...IDENTITE.map((c) => ({ clef: c.clef, invite: c.exemple ?? c.etiquette.toLowerCase() })),
+  { clef: "histoire", invite: "son histoire, aussi longue que tu veux" },
+  { clef: "m-date", invite: "2015, ou « l'hiver d'après »" },
+  { clef: "m-texte", invite: "ce qui s'est passé" },
+  { clef: "s-surnom", invite: "son surnom, si tu lui en donnes un" },
+  {
+    clef: "s-rencontre",
+    invite: "comment vous vous êtes rencontrés — c'est ce qui permet au staff de " +
+      "fixer son niveau",
+  },
+  {
+    clef: "ancienne",
+    invite: "les Pokémon que ton personnage avait déjà, et qu'il récupérera aux paliers",
+  },
+  ...OMBRE.map((c) => ({ clef: c.clef, invite: "ta réponse" })),
+  ...JOUEUR.map((c) => ({ clef: c.clef, invite: c.exemple ?? c.etiquette.toLowerCase() })),
+];
+
+const DES_IDENTITES = new Set(IDENTITE.map((c) => c.clef));
+const DES_JOUEURS = new Set(JOUEUR.map((c) => c.clef));
+const DE_L_OMBRE = new Set(OMBRE.map((c) => c.clef));
+
+const SANS_STARTER: Starter = {
+  especeId: 0,
+  espece: "",
+  surnom: "",
+  talent: "",
+  rencontre: "",
+};
+
+/** Le texte d'une zone, sauts de ligne compris.
+ *
+ *  `innerText` ET PAS `textContent` : dans une zone modifiable, un
+ *  retour à la ligne est un `<br>`, que `textContent` rend par rien du
+ *  tout. Le pavé d'histoire y perdrait tous ses paragraphes — sans que
+ *  personne le voie avant de relire le message publié. */
+function lu(z: HTMLElement): string {
+  return (z.innerText ?? z.textContent ?? "").replace(/ /g, " ");
+}
+
+/** Pose l'éditeur. Rend `false` si la page ne s'y prête pas. */
 export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   const { doc, brouillon } = d;
   const boite = doc.querySelector("#postingbox");
@@ -224,7 +259,43 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  ── CE QU'IL Y A DÉJÀ DANS L'ÉDITEUR ───────────────────────────
   const avant = brouillon.lire().trim();
   const connu = avant === "" || ressembleAUneFiche(avant);
-  let fiche: Fiche = connu && avant !== "" ? lireUneFiche(avant) : ficheVide();
+  const lue: Fiche = connu && avant !== "" ? lireUneFiche(avant) : ficheVide();
+
+  //  ── L'ÉTAT DE L'ÉCRAN N'EST PAS L'ÉTAT DU MESSAGE ──────────────
+  //
+  //  Deux blocs se remplissent avant d'être valides :
+  //
+  //   · LE STARTER. Tant qu'aucune espèce n'est choisie, ce n'en est
+  //     pas un — la fiche publiée ne le porte pas, et `lireUneFiche`
+  //     ne saurait pas le relire. Mais le surnom déjà tapé et le récit
+  //     déjà écrit doivent rester à l'écran.
+  //
+  //   · L'ORGANISATION. La case peut se décocher, et les cinq
+  //     réponses doivent survivre à l'aller-retour.
+  //
+  //  D'où deux états : `vue`, qui porte tout ce qui est à l'écran, et
+  //  `pourLeMessage()`, qui n'en garde que ce qui est bon. Sans cette
+  //  séparation, chaque frappe avant le choix de l'espèce serait
+  //  perdue au redessin suivant.
+  let vue: Fiche = {
+    ...lue,
+    starter: lue.starter ?? SANS_STARTER,
+    ombre: lue.ombre ?? Object.fromEntries(OMBRE.map((c) => [c.clef, ""])),
+  };
+  let ombreActive = lue.ombre !== null;
+
+  //  LES DEUX FORMES DE L'HISTOIRE SE GARDENT CÔTE À CÔTE : basculer
+  //  de la chronologie au pavé et revenir ne doit rien effacer.
+  let garde: { pave: string; moments: readonly Moment[] } = {
+    pave: lue.histoire.mode === "pave" ? lue.histoire.texte : "",
+    moments: lue.histoire.mode === "chronologie" ? lue.histoire.moments : [],
+  };
+
+  const pourLeMessage = (): Fiche => ({
+    ...vue,
+    starter: (vue.starter?.especeId ?? 0) > 0 ? vue.starter : null,
+    ombre: ombreActive ? vue.ombre : null,
+  });
 
   //  CE QU'ON A ÉCRIT EN DERNIER, pour reconnaître une retouche à la
   //  main. La chaîne vide veut dire « on n'a encore rien écrit », donc
@@ -238,21 +309,16 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   const dit = el(doc, "p", "wmf-form__dit");
   dit.setAttribute("role", "status");
 
-  //  ── L'APERÇU ────────────────────────────────────────────────────
+  //  ── LA FICHE ELLE-MÊME, ET C'EST TOUT L'ÉDITEUR ─────────────────
   //
-  //  « Faut voir directement ce que ça va faire, c'est pas juste des
-  //  champs à remplir » — 23 novembre.
+  //  « Je veux pas juste remplir les champs. Je veux visuellement
+  //  remplir ma fiche de présentation. » — 23 novembre.
   //
-  //  Il rend LE VRAI HTML PUBLIÉ, avec la vraie feuille de style.
-  //  C'est la seule façon honnête de montrer le résultat : une mise
-  //  en page reconstruite pour l'occasion finirait par ne plus
-  //  ressembler à ce qui part.
-  const apercu = el(doc, "div", "panel wmf-form__apercu");
-  const dedansApercu = el(doc, "div", "inner");
-  dedansApercu.appendChild(el(doc, "div", "h3", "Ce que ça donnera"));
-  const rendu = el(doc, "div", "wmf-form__rendu");
-  dedansApercu.appendChild(rendu);
-  apercu.appendChild(dedansApercu);
+  //  Ce bloc reçoit le rendu de `publier`, avec la vraie feuille de
+  //  style, et chacune de ses valeurs y devient une zone où l'on
+  //  écrit. Il n'y a donc PAS DEUX MISES EN PAGE : celle de l'écran
+  //  est celle du message, et rien ne peut diverger.
+  const laFiche = el(doc, "div", "wmf-form__fiche");
 
   //  ── LE BLOC D'ÉDITION S'EFFACE, MAIS IL REVIENT SUR DEMANDE ─────
   //
@@ -262,27 +328,20 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //
   //  LA PORTE DE SORTIE N'EST PAS UNE PRÉCAUTION DE PRINCIPE. Le jour
   //  où un champ manque, où quelqu'un veut coller un bout de code à
-  //  lui, ou simplement relire le message tel qu'il part, un
-  //  formulaire qui a mangé l'éditeur et ne le rend pas est une
-  //  impasse. Elle rend le message visible ET rend la main : le
-  //  formulaire cesse d'écrire, plutôt que d'écraser par-dessus.
+  //  lui, ou simplement relire le message tel qu'il part, un éditeur
+  //  qui a mangé le bloc d'édition et ne le rend pas est une impasse.
+  //  Elle rend le message visible ET rend la main : l'éditeur cesse
+  //  d'écrire, plutôt que d'écraser par-dessus.
   const boiteEditeur = boite as HTMLElement;
-  const voirLeTexte = el<HTMLButtonElement>(
-    doc,
-    "button",
-    "button2 wmf-form__brut",
-    "Écrire le message à la main",
-  );
-  voirLeTexte.type = "button";
-  voirLeTexte.addEventListener("click", () => {
+  const voirLeTexte = bouton(doc, "Écrire le message à la main", () => {
     boiteEditeur.hidden = false;
     arrete = true;
     cadre.dataset.wmArrete = "oui";
     voirLeTexte.hidden = true;
     reprendre.hidden = false;
     dit.textContent = "Le message est en dessous, tel qu'il partira. " +
-      "Le formulaire a cessé d'écrire pour ne pas effacer tes retouches.";
-  });
+      "L'éditeur a cessé d'écrire pour ne pas effacer tes retouches.";
+  }, "button2 wmf-form__brut");
 
   const ecrire = (): void => {
     if (arrete) return;
@@ -295,8 +354,8 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     //  promet qu'il rende EXACTEMENT le HTML qu'on lui a donné — un
     //  espace déplacé, un attribut réordonné, et la garde se
     //  déclencherait dès la seconde frappe, sur un message que
-    //  personne n'a touché. Le formulaire s'arrêterait tout seul, et
-    //  le joueur n'aurait aucun moyen de comprendre pourquoi.
+    //  personne n'a touché. L'éditeur s'arrêterait tout seul, et le
+    //  joueur n'aurait aucun moyen de comprendre pourquoi.
     //
     //  La fiche relue, elle, ne bouge que si quelqu'un a changé une
     //  VALEUR. C'est exactement la question qu'on pose.
@@ -308,74 +367,42 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     if (dernier !== "" && !memeFiche(lireUneFiche(actuel), lireUneFiche(dernier))) {
       arrete = true;
       cadre.dataset.wmArrete = "oui";
-      dit.textContent = "Tu as modifié le message à la main : le formulaire s'est " +
+      dit.textContent = "Tu as modifié le message à la main : l'éditeur s'est " +
         "arrêté pour ne pas l'effacer. Reprends-le quand tu veux.";
       reprendre.hidden = false;
       return;
     }
-    const html = publier(fiche);
+    const html = publier(pourLeMessage());
     brouillon.ecrire(html);
     dernier = html;
     dit.textContent = "";
-    peindreLApercu(html);
-  };
-
-  const peindreLApercu = (html: string): void => {
-    rendu.textContent = "";
-    rendu.appendChild(pourLApercu(doc, html));
   };
 
   //  ── REPRENDRE LA MAIN, ET SEULEMENT SUR UN CLIC ────────────────
   //
-  //  Le seul chemin par lequel le formulaire écrase un message qu'il
-  //  n'a pas écrit. Il est explicite, il est nommé, et il ne se
-  //  déclenche jamais tout seul.
-  const reprendre = el<HTMLButtonElement>(
-    doc,
-    "button",
-    "button2 wmf-form__reprendre",
-    "Remplacer le message par cette fiche",
-  );
-  reprendre.type = "button";
-  reprendre.hidden = connu;
-  reprendre.addEventListener("click", () => {
+  //  Le seul chemin par lequel l'éditeur écrase un message qu'il n'a
+  //  pas écrit. Il est explicite, il est nommé, et il ne se déclenche
+  //  jamais tout seul.
+  const reprendre = bouton(doc, "Remplacer le message par cette fiche", () => {
     arrete = false;
     dernier = "";
     delete cadre.dataset.wmArrete;
     reprendre.hidden = true;
-    //  LE FORMULAIRE REPREND LA PLACE qu'il avait laissée : il écrit
-    //  de nouveau, donc laisser l'éditeur visible montrerait un texte
-    //  qui change tout seul sous les doigts.
+    //  L'ÉDITEUR REPREND LA PLACE qu'il avait laissée : il écrit de
+    //  nouveau, donc laisser le bloc visible montrerait un texte qui
+    //  change tout seul sous les doigts.
     boiteEditeur.hidden = true;
     voirLeTexte.hidden = false;
     ecrire();
-  });
+  }, "button2 wmf-form__reprendre");
+  reprendre.hidden = connu;
 
   if (!connu) {
-    dit.textContent = "Ce message n'a pas été écrit avec ce formulaire. " +
+    dit.textContent = "Ce message n'a pas été écrit avec cet éditeur. " +
       "Le remplir ne le touchera pas tant que tu ne l'auras pas demandé.";
   }
 
-  // ── le personnage ────────────────────────────────────────────────
-
-  const unChamp = (
-    parent: HTMLElement,
-    c: Champ,
-    valeur: string,
-    poser: (v: string) => void,
-  ): void => {
-    const champ = saisie(doc, c.clef, valeur, c.long === true);
-    champ.addEventListener("input", () => {
-      poser(champ.value);
-      ecrire();
-    });
-    parent.appendChild(ligne(doc, c.etiquette, champ, c.exemple));
-  };
-
   //  ── LE TITRE DU SUJET VIENT ICI ────────────────────────────────
-  //
-  //  « Pas besoin d'avoir ce qui est écrit en dessous, le bloc
-  //  d'édition, ça remplace tout » — 23 novembre.
   //
   //  Le champ « Sujet » de Forumactif est DANS `#postingbox`, qu'on
   //  s'apprête à masquer. Sans ce relais, le joueur ne pourrait plus
@@ -388,202 +415,33 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   //  suivre.
   const sujetNatif = doc.querySelector<HTMLInputElement>('input[name="subject"]');
   let titreSuitLeNom = (sujetNatif?.value ?? "").trim() === "";
-  const titre = saisie(doc, "titre", sujetNatif?.value ?? "", false);
+  const titre = el<HTMLInputElement>(doc, "input", "inputbox medium");
+  titre.id = "wmf-titre";
+  titre.type = "text";
+  titre.value = sujetNatif?.value ?? "";
   titre.addEventListener("input", () => {
     titreSuitLeNom = false;
     if (sujetNatif !== null) sujetNatif.value = titre.value;
   });
-
-  const perso = section(doc, "Le personnage");
-  {
-    const dedans = champsDe(perso);
-    dedans.appendChild(
-      ligne(doc, "TITRE DU SUJET", titre, "ce qui s'affichera dans la liste des sujets"),
-    );
-    unChamp(dedans, { clef: "nom", etiquette: "NOM DU PERSONNAGE" }, fiche.nom, (v) => {
-      fiche = { ...fiche, nom: v };
-      if (titreSuitLeNom) {
-        titre.value = v;
-        if (sujetNatif !== null) sujetNatif.value = v;
-      }
-    });
-    unChamp(
-      dedans,
-      {
-        clef: "tw",
-        etiquette: "TRIGGER WARNINGS",
-        exemple: "ce que ta fiche contient, et qu'on préfère annoncer",
-        long: true,
-      },
-      fiche.tw,
-      (v) => {
-        fiche = { ...fiche, tw: v };
-      },
-    );
-    unChamp(
-      dedans,
-      {
-        clef: "avatar",
-        etiquette: "IMAGE DE LA FICHE",
-        exemple: "l'adresse de l'image à afficher à gauche",
-      },
-      fiche.avatar,
-      (v) => {
-        fiche = { ...fiche, avatar: v };
-      },
-    );
-    for (const c of IDENTITE) {
-      unChamp(dedans, c, fiche.identite[c.clef] ?? "", (v) => {
-        fiche = { ...fiche, identite: { ...fiche.identite, [c.clef]: v } };
-      });
-    }
-  }
-
-  // ── son histoire ─────────────────────────────────────────────────
-
-  const hist = section(doc, "Son histoire");
-  const corpsHistoire = el(doc, "div", "wmf-form__histoire");
-  {
-    const dedans = champsDe(hist);
-    //  ── LE CHOIX DE LA FORME, EN BOUTONS RADIO ───────────────────
-    //
-    //  « Soit un grand pavé […], soit une chronologie » — et c'est le
-    //  joueur qui choisit. Deux radios plutôt qu'une liste
-    //  déroulante : il y a deux choix, ils tiennent sur une ligne, et
-    //  on voit les deux sans cliquer.
-    const choix = el(doc, "div", "wmf-form__formes");
-    for (const [mode, mot] of [["pave", "Un grand pavé"], ["chronologie", "Une chronologie"]]) {
-      const label = el<HTMLLabelElement>(doc, "label", "wmf-form__forme");
-      const radio = el<HTMLInputElement>(doc, "input", "");
-      radio.type = "radio";
-      radio.name = "wmf-forme";
-      radio.value = mode;
-      radio.checked = fiche.histoire.mode === mode;
-      radio.addEventListener("change", () => {
-        if (!radio.checked) return;
-        //  CHANGER DE FORME NE PERD RIEN TANT QU'ON NE SAUVE PAS :
-        //  on garde le pavé et les moments côte à côte dans la page,
-        //  et seule la forme choisie part dans la fiche.
-        fiche = {
-          ...fiche,
-          histoire: mode === "pave" ? { mode: "pave", texte: pave.value } : {
-            mode: "chronologie",
-            moments: lesMoments(),
-          },
-        };
-        peindreHistoire();
-        ecrire();
-      });
-      label.append(radio, doc.createTextNode(" " + mot));
-      choix.appendChild(label);
-    }
-    dedans.appendChild(ligne(doc, "LA FORME", choix));
-    dedans.appendChild(corpsHistoire);
-  }
-
-  const pave = el<HTMLTextAreaElement>(doc, "textarea", "inputbox wmf-form__pave");
-  pave.id = "wmf-histoire";
-  pave.rows = 10;
-  pave.value = fiche.histoire.mode === "pave" ? fiche.histoire.texte : "";
-  pave.addEventListener("input", () => {
-    fiche = { ...fiche, histoire: { mode: "pave", texte: pave.value } };
-    ecrire();
-  });
-
-  const chrono = el(doc, "div", "wmf-form__chrono");
-  let moments: Moment[] = fiche.histoire.mode === "chronologie"
-    ? [...fiche.histoire.moments]
-    : [];
-  const lesMoments = (): readonly Moment[] => moments;
-
-  const peindreChrono = (): void => {
-    chrono.textContent = "";
-    moments.forEach((m, i) => {
-      const bloc = el(doc, "div", "wmf-form__moment");
-      const date = el<HTMLInputElement>(doc, "input", "inputbox wmf-form__date");
-      date.type = "text";
-      date.value = m.date;
-      date.placeholder = "2015, ou « l'hiver d'après »";
-      date.setAttribute("aria-label", `Date du moment ${i + 1}`);
-      const texte = el<HTMLTextAreaElement>(doc, "textarea", "inputbox");
-      texte.rows = 3;
-      texte.value = m.texte;
-      texte.setAttribute("aria-label", `Ce qui s'est passé, moment ${i + 1}`);
-      const majJ = (): void => {
-        moments[i] = { date: date.value, texte: texte.value };
-        fiche = { ...fiche, histoire: { mode: "chronologie", moments: [...moments] } };
-        ecrire();
-      };
-      date.addEventListener("input", majJ);
-      texte.addEventListener("input", majJ);
-      //  LA CROIX EST SUR CHAQUE MOMENT, comme sur chaque carte du
-      //  carnet : « peu importe si c'est prévu ou dans une autre
-      //  colonne », 23 novembre. Un seul endroit pour retirer, et il
-      //  est là où on regarde.
-      const croix = el<HTMLButtonElement>(doc, "button", "wmf-form__croix", "×");
-      croix.type = "button";
-      croix.setAttribute("aria-label", `Retirer le moment ${i + 1}`);
-      croix.addEventListener("click", () => {
-        moments.splice(i, 1);
-        fiche = { ...fiche, histoire: { mode: "chronologie", moments: [...moments] } };
-        peindreChrono();
-        ecrire();
-      });
-      bloc.append(date, texte, croix);
-      chrono.appendChild(bloc);
-    });
-    const plus = el<HTMLButtonElement>(
-      doc,
-      "button",
-      "button2 wmf-form__plus",
-      "Ajouter un moment",
-    );
-    plus.type = "button";
-    plus.addEventListener("click", () => {
-      moments = [...moments, { date: "", texte: "" }];
-      fiche = { ...fiche, histoire: { mode: "chronologie", moments: [...moments] } };
-      peindreChrono();
-      ecrire();
-      chrono.querySelector<HTMLInputElement>(".wmf-form__moment:last-of-type input")?.focus();
-    });
-    chrono.appendChild(plus);
+  const suivreLeTitre = (nom: string): void => {
+    if (!titreSuitLeNom) return;
+    titre.value = nom;
+    if (sujetNatif !== null) sujetNatif.value = nom;
   };
 
-  const peindreHistoire = (): void => {
-    corpsHistoire.textContent = "";
-    if (fiche.histoire.mode === "pave") corpsHistoire.appendChild(pave);
-    else {
-      peindreChrono();
-      corpsHistoire.appendChild(chrono);
-    }
-  };
-  peindreHistoire();
+  // ── les deux menus, construits une fois pour toutes ──────────────
 
-  // ── son premier Pokémon ──────────────────────────────────────────
-
-  const poke = section(doc, "Son premier Pokémon");
-  const especeMenu = el<HTMLSelectElement>(doc, "select", "inputbox");
-  especeMenu.id = "wmf-espece";
-  const talentMenu = el<HTMLSelectElement>(doc, "select", "inputbox");
-  talentMenu.id = "wmf-talent";
+  //  ILS VIVENT HORS DU REDESSIN. Le catalogue arrive par le réseau et
+  //  le choix du joueur est dedans : les reconstruire à chaque
+  //  bascule de forme perdrait l'un et l'autre. `equiper` ne fait que
+  //  les remettre à leur place dans la fiche.
   let catalogue: readonly EspeceDeDepart[] = [];
-
-  const starterCourant = (): Starter | null => {
-    const id = Number(especeMenu.value);
-    if (!Number.isInteger(id) || id <= 0) return null;
-    const e = catalogue.find((x) => x.id === id);
-    return {
-      especeId: id,
-      espece: e?.nom ?? fiche.starter?.espece ?? "",
-      surnom: surnom.value,
-      talent: talentMenu.value,
-      rencontre: rencontre.value,
-    };
-  };
-  const majStarter = (): void => {
-    fiche = { ...fiche, starter: starterCourant() };
-    ecrire();
-  };
+  const especeMenu = el<HTMLSelectElement>(doc, "select", "inputbox wmf-form__menu");
+  especeMenu.id = "wmf-espece";
+  especeMenu.setAttribute("aria-label", "L'espèce de son premier Pokémon");
+  const talentMenu = el<HTMLSelectElement>(doc, "select", "inputbox wmf-form__menu");
+  talentMenu.id = "wmf-talent";
+  talentMenu.setAttribute("aria-label", "Son talent");
 
   const peindreTalents = (): void => {
     const e = catalogue.find((x) => x.id === Number(especeMenu.value));
@@ -591,9 +449,9 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     talentMenu.textContent = "";
     if (e === undefined || e.talents.length === 0) {
       talentMenu.disabled = true;
-      const vide = el<HTMLOptionElement>(doc, "option", "", "—");
-      vide.value = "";
-      talentMenu.appendChild(vide);
+      const rien = el<HTMLOptionElement>(doc, "option", "", "—");
+      rien.value = "";
+      talentMenu.appendChild(rien);
       return;
     }
     talentMenu.disabled = false;
@@ -607,109 +465,249 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     }
   };
 
-  const surnom = saisie(doc, "s-surnom", fiche.starter?.surnom ?? "", false);
-  const rencontre = saisie(doc, "s-rencontre", fiche.starter?.rencontre ?? "", true);
-  (rencontre as HTMLTextAreaElement).rows = 5;
-  const ancienne = saisie(doc, "ancienne", fiche.ancienneEquipe, true);
+  // ── poser une valeur, d'où qu'elle vienne ────────────────────────
 
-  especeMenu.addEventListener("change", () => {
-    peindreTalents();
-    majStarter();
-  });
-  talentMenu.addEventListener("change", majStarter);
-  surnom.addEventListener("input", majStarter);
-  rencontre.addEventListener("input", majStarter);
-  ancienne.addEventListener("input", () => {
-    fiche = { ...fiche, ancienneEquipe: ancienne.value };
-    ecrire();
-  });
+  const poserUnMoment = (clef: string, rang: number, v: string): void => {
+    if (vue.histoire.mode !== "chronologie") return;
+    const moments: Moment[] = [...vue.histoire.moments];
+    //  LE MOMENT PEUT NE PAS EXISTER ENCORE : une chronologie vide
+    //  affiche une ligne à remplir, et c'est la première frappe qui la
+    //  fait exister.
+    while (moments.length <= rang) moments.push({ date: "", texte: "" });
+    moments[rang] = clef === "m-date"
+      ? { ...moments[rang], date: v }
+      : { ...moments[rang], texte: v };
+    garde = { ...garde, moments };
+    vue = { ...vue, histoire: { mode: "chronologie", moments } };
+  };
 
-  {
-    const dedans = champsDe(poke);
-    dedans.appendChild(
-      ligne(doc, "L'ESPÈCE", especeMenu, "une forme de base, sans évolution ni légendaire"),
-    );
-    dedans.appendChild(ligne(doc, "SON SURNOM", surnom));
-    dedans.appendChild(ligne(doc, "SON TALENT", talentMenu));
-    dedans.appendChild(
-      ligne(
+  const poserLeStarter = (clef: string, v: string): void => {
+    const s = vue.starter ?? SANS_STARTER;
+    if (clef === "s-espece") {
+      const id = Number(v);
+      const bon = Number.isInteger(id) && id > 0;
+      vue = {
+        ...vue,
+        starter: {
+          ...s,
+          especeId: bon ? id : 0,
+          espece: bon ? catalogue.find((x) => x.id === id)?.nom ?? "" : "",
+        },
+      };
+      return;
+    }
+    vue = {
+      ...vue,
+      starter: clef === "s-surnom"
+        ? { ...s, surnom: v }
+        : clef === "s-talent"
+        ? { ...s, talent: v }
+        : { ...s, rencontre: v },
+    };
+  };
+
+  const poser = (clef: string, rang: number, v: string): void => {
+    if (clef === "nom") {
+      vue = { ...vue, nom: v };
+      suivreLeTitre(v);
+      return;
+    }
+    if (clef === "tw") {
+      vue = { ...vue, tw: v };
+      return;
+    }
+    if (clef === "avatar") {
+      vue = { ...vue, avatar: v };
+      majImage(v);
+      return;
+    }
+    if (clef === "ancienne") {
+      vue = { ...vue, ancienneEquipe: v };
+      return;
+    }
+    if (clef === "histoire") {
+      garde = { ...garde, pave: v };
+      vue = { ...vue, histoire: { mode: "pave", texte: v } };
+      return;
+    }
+    if (clef === "m-date" || clef === "m-texte") return poserUnMoment(clef, rang, v);
+    if (clef.startsWith("s-")) return poserLeStarter(clef, v);
+    if (DES_IDENTITES.has(clef)) {
+      vue = { ...vue, identite: { ...vue.identite, [clef]: v } };
+      return;
+    }
+    if (DES_JOUEURS.has(clef)) {
+      vue = { ...vue, joueur: { ...vue.joueur, [clef]: v } };
+      return;
+    }
+    if (DE_L_OMBRE.has(clef)) {
+      vue = { ...vue, ombre: { ...(vue.ombre ?? {}), [clef]: v } };
+    }
+  };
+
+  //  ── L'IMAGE SUIT L'ADRESSE SANS TOUT REDESSINER ────────────────
+  //
+  //  Changer l'adresse de l'avatar change une seule chose : le `src`
+  //  de l'image. Redessiner la fiche entière pour ça ferait perdre le
+  //  curseur à chaque caractère tapé dans l'adresse.
+  const majImage = (adresse: string): void => {
+    const colonne = laFiche.querySelector<HTMLElement>(".wmf__avatar");
+    if (colonne === null) return;
+    const img = colonne.querySelector("img");
+    const propre = adresse.trim();
+    if (propre === "") {
+      img?.remove();
+      return;
+    }
+    if (img !== null) {
+      img.src = propre;
+      return;
+    }
+    const neuve = doc.createElement("img");
+    neuve.src = propre;
+    neuve.alt = "";
+    colonne.insertBefore(neuve, colonne.firstChild);
+  };
+
+  // ── rendre la fiche, puis la rendre modifiable ───────────────────
+
+  const brancher = (z: HTMLElement, clef: string, rang: number, invite: string): void => {
+    z.dataset.wmfZone = clef;
+    z.dataset.wmfVide = invite;
+    //  LES CINQ QUESTIONS DE L'ORGANISATION SE LISENT SANS SE TAPER
+    //  tant que la case n'est pas cochée. Les laisser modifiables
+    //  donnerait un texte qui ne part pas dans le message, sans que
+    //  rien ne le dise.
+    const modifiable = !(DE_L_OMBRE.has(clef) && !ombreActive);
+    z.contentEditable = modifiable ? "plaintext-only" : "false";
+    if (!modifiable) return;
+    z.setAttribute("role", "textbox");
+    z.setAttribute("aria-label", invite);
+    z.addEventListener("input", () => {
+      //  UNE ZONE VIDÉE GARDE UN `<br>` dans Chrome, et `:empty` ne la
+      //  reconnaît plus : l'invite disparaîtrait pour de bon dès la
+      //  première frappe effacée.
+      if (lu(z) === "") z.replaceChildren();
+      poser(clef, rang, lu(z));
+      ecrire();
+    });
+  };
+
+  const equiperLHistoire = (): void => {
+    const bloc = laFiche.querySelector<HTMLElement>(".wmf__histoire");
+    if (bloc === null) return;
+    const barre = el(doc, "div", "wmf-form__barre");
+    for (
+      const forme of [["pave", "Un grand pavé"], ["chronologie", "Une chronologie"]] as const
+    ) {
+      const [mode, mot] = forme;
+      const b = bouton(doc, mot, () => {
+        if (vue.histoire.mode === mode) return;
+        vue = {
+          ...vue,
+          histoire: mode === "pave"
+            ? { mode: "pave", texte: garde.pave }
+            : { mode: "chronologie", moments: garde.moments },
+        };
+        peindre();
+        ecrire();
+      }, "button2 wmf-form__forme");
+      b.setAttribute("aria-pressed", String(vue.histoire.mode === mode));
+      barre.appendChild(b);
+    }
+    bloc.querySelector(".wmf__bandeau")?.after(barre);
+
+    const chrono = bloc.querySelector<HTMLElement>(".wmf__chrono");
+    if (chrono === null) return;
+    chrono.querySelectorAll<HTMLElement>(".wmf__moment").forEach((m, i) => {
+      //  LA CROIX EST SUR CHAQUE MOMENT, comme sur chaque carte du
+      //  carnet : un seul endroit pour retirer, et il est là où on
+      //  regarde.
+      m.appendChild(bouton(
         doc,
-        "COMPAGNON D'UNE VIE",
-        rencontre,
-        "comment vous vous êtes rencontrés — c'est ce qui permet au staff de fixer son niveau",
-      ),
-    );
-    dedans.appendChild(
-      ligne(
-        doc,
-        "L'ÉQUIPE D'AVANT",
-        ancienne,
-        "les Pokémon que ton personnage avait déjà, et qu'il récupérera aux paliers",
-      ),
-    );
-    //  LE NIVEAU N'EST PAS DEMANDÉ, ET ON LE DIT. Sans cette phrase,
-    //  la première question du premier joueur sera « où je mets son
+        "×",
+        () => {
+          const moments = [...garde.moments];
+          moments.splice(i, 1);
+          garde = { ...garde, moments };
+          vue = { ...vue, histoire: { mode: "chronologie", moments } };
+          peindre();
+          ecrire();
+        },
+        "wmf-form__croix",
+        `Retirer le moment ${i + 1}`,
+      ));
+    });
+    chrono.appendChild(bouton(doc, "Ajouter un moment", () => {
+      const moments = [...garde.moments, { date: "", texte: "" }];
+      garde = { ...garde, moments };
+      vue = { ...vue, histoire: { mode: "chronologie", moments } };
+      peindre();
+      ecrire();
+      laFiche
+        .querySelector<HTMLElement>(".wmf__moment:last-of-type [data-wmf-zone]")
+        ?.focus();
+    }, "button2 wmf-form__plus"));
+  };
+
+  const equiperLOmbre = (): void => {
+    const bloc = laFiche.querySelector<HTMLElement>(".wmf__ombre");
+    if (bloc === null) return;
+    bloc.dataset.wmActive = ombreActive ? "oui" : "non";
+    const label = el<HTMLLabelElement>(doc, "label", "wmf-form__bascule");
+    const case_ = el<HTMLInputElement>(doc, "input", "");
+    case_.type = "checkbox";
+    case_.id = "wmf-ombre";
+    case_.checked = ombreActive;
+    case_.addEventListener("change", () => {
+      ombreActive = case_.checked;
+      peindre();
+      ecrire();
+    });
+    label.append(case_, doc.createTextNode(" Mon personnage rejoint le Groupe Ombre"));
+    bloc.querySelector(".wmf__bandeau")?.after(label);
+  };
+
+  const equiperLeStarter = (): void => {
+    const bloc = laFiche.querySelector<HTMLElement>(".wmf__pokemon");
+    if (bloc === null) return;
+    bloc.querySelector("wmf-s-espece")?.replaceWith(especeMenu);
+    bloc.querySelector("wmf-s-talent")?.replaceWith(talentMenu);
+    //  LE NIVEAU N'EST PAS DEMANDÉ, ET ON LE DIT. Sans cette phrase, la
+    //  première question du premier joueur sera « où je mets son
     //  niveau ? ».
-    const note = el(
+    laFiche.querySelector(".wmf__starter")?.appendChild(el(
       doc,
       "p",
       "wmf-form__note",
       "Le niveau n'est pas à choisir : le staff l'attribue à la validation, " +
         "d'après l'âge, le métier et le passé de ton personnage.",
-    );
-    dedans.appendChild(note);
-  }
+    ));
+  };
 
-  // ── le Groupe Ombre ──────────────────────────────────────────────
-
-  const ombre = section(doc, "Le Groupe Ombre");
-  const corpsOmbre = el(doc, "div", "wmf-form__ombre");
-  {
-    const dedans = champsDe(ombre);
-    const bascule = el<HTMLInputElement>(doc, "input", "");
-    bascule.type = "checkbox";
-    bascule.id = "wmf-ombre";
-    bascule.checked = fiche.ombre !== null;
-    const peindreOmbre = (): void => {
-      corpsOmbre.hidden = fiche.ombre === null;
-    };
-    bascule.addEventListener("change", () => {
-      fiche = {
-        ...fiche,
-        ombre: bascule.checked
-          ? Object.fromEntries(OMBRE.map((c) => [c.clef, valeursOmbre[c.clef] ?? ""]))
-          : null,
-      };
-      peindreOmbre();
-      ecrire();
-    });
-    dedans.appendChild(
-      ligne(doc, "MON PERSONNAGE REJOINT LE GROUPE OMBRE", bascule),
-    );
-    const valeursOmbre: Record<string, string> = { ...(fiche.ombre ?? {}) };
-    for (const c of OMBRE) {
-      const champ = saisie(doc, c.clef, valeursOmbre[c.clef] ?? "", true);
-      champ.addEventListener("input", () => {
-        valeursOmbre[c.clef] = champ.value;
-        if (fiche.ombre !== null) {
-          fiche = { ...fiche, ombre: { ...fiche.ombre, [c.clef]: champ.value } };
-          ecrire();
-        }
-      });
-      corpsOmbre.appendChild(ligne(doc, c.etiquette, champ));
+  const equiper = (): void => {
+    for (const { clef, invite } of INVITES) {
+      laFiche
+        .querySelectorAll<HTMLElement>(`wmf-${clef}`)
+        .forEach((z, rang) => brancher(z, clef, rang, invite));
     }
-    dedans.appendChild(corpsOmbre);
-    peindreOmbre();
-  }
+    equiperLHistoire();
+    equiperLeStarter();
+    equiperLOmbre();
+  };
 
-  // ── derrière l'écran ─────────────────────────────────────────────
-
-  const joueur = section(doc, "Derrière l'écran");
-  for (const c of JOUEUR) {
-    unChamp(champsDe(joueur), c, fiche.joueur[c.clef] ?? "", (v) => {
-      fiche = { ...fiche, joueur: { ...fiche.joueur, [c.clef]: v } };
-    });
-  }
+  //  ── LE REDESSIN NE SE FAIT QUE SUR UN CHANGEMENT DE STRUCTURE ───
+  //
+  //  Jamais à la frappe : refaire le DOM sous le curseur le ferait
+  //  sauter au début de la zone à chaque caractère. Trois boutons
+  //  seulement redessinent — la forme de l'histoire, un moment
+  //  ajouté ou retiré, la case de l'organisation — et un clic a déjà
+  //  déplacé le curseur.
+  const peindre = (): void => {
+    laFiche.textContent = "";
+    laFiche.appendChild(pourLApercu(doc, publier(vue, { pourEcrire: true })));
+    equiper();
+  };
 
   // ── l'assemblage ─────────────────────────────────────────────────
 
@@ -721,30 +719,39 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
       doc,
       "p",
       "wmf-form__mot",
-      "Remplis ce que tu veux : le message en dessous s'écrit tout seul, " +
+      "Écris directement dans la fiche : elle devient le message, " +
         "et tu l'envoies quand tu es prête. Rien n'est posté sans toi.",
     ),
   );
+  const dlTitre = el(doc, "dl", "wmf-form__titre");
+  const dtTitre = el(doc, "dt", "");
+  const labelTitre = el<HTMLLabelElement>(doc, "label", "", "TITRE DU SUJET");
+  labelTitre.htmlFor = titre.id;
+  dtTitre.appendChild(labelTitre);
+  dtTitre.appendChild(
+    el(doc, "span", "wmf-form__aide", "ce qui s'affichera dans la liste des sujets"),
+  );
+  const ddTitre = el(doc, "dd", "");
+  ddTitre.appendChild(titre);
+  dlTitre.append(dtTitre, ddTitre);
+  dedansTete.appendChild(dlTitre);
   dedansTete.append(dit, reprendre, voirLeTexte);
   tete.appendChild(dedansTete);
 
-  //  L'APERÇU EN DERNIER, après les champs : on remplit, puis on
-  //  regarde. Au-dessus, il faudrait remonter pour saisir et
-  //  redescendre pour voir.
-  cadre.append(tete, perso, hist, poke, ombre, joueur, apercu);
+  cadre.append(tete, laFiche);
   boite.parentNode?.insertBefore(cadre, boite);
+
+  peindre();
+  majImage(vue.avatar);
 
   //  ── ET LE BLOC D'ÉDITION S'EFFACE ───────────────────────────────
   //
   //  SEULEMENT SI LA FICHE EST À NOUS. Sur un message qu'on ne
   //  reconnaît pas, le masquer priverait le joueur du seul endroit où
-  //  son texte existe encore — et le formulaire, lui, n'écrit pas.
-  //  Il réapparaîtra quand il aura cliqué sur « remplacer ».
+  //  son texte existe encore — et l'éditeur, lui, n'écrit pas. Il
+  //  réapparaîtra quand il aura cliqué sur « remplacer ».
   boiteEditeur.hidden = connu;
   voirLeTexte.hidden = !connu;
-  //  L'APERÇU DÈS L'OUVERTURE, et pas seulement à la première frappe :
-  //  une fiche qu'on rouvre doit se montrer telle qu'elle est.
-  peindreLApercu(connu && avant !== "" ? avant : publier(fiche));
 
   //  ── LE DERNIER MOT AVANT L'ENVOI ────────────────────────────────
   //
@@ -758,30 +765,42 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
 
   //  ── LE CATALOGUE ARRIVE APRÈS, ET LE RESTE N'ATTEND PAS ─────────
   //
-  //  436 espèces. Les attendre pour poser le formulaire ferait une
-  //  page vide le temps de la requête, et une lecture qui échoue
-  //  emporterait les trente autres champs avec elle.
-  const vide = el<HTMLOptionElement>(doc, "option", "", "Chargement…");
-  vide.value = "";
-  especeMenu.appendChild(vide);
+  //  436 espèces. Les attendre pour poser l'éditeur ferait une page
+  //  vide le temps de la requête, et une lecture qui échoue
+  //  emporterait les trente autres zones avec elle.
+  const attente = el<HTMLOptionElement>(doc, "option", "", "Chargement…");
+  attente.value = "";
+  especeMenu.appendChild(attente);
   especeMenu.disabled = true;
+  peindreTalents();
+  especeMenu.addEventListener("change", () => {
+    poserLeStarter("s-espece", especeMenu.value);
+    peindreTalents();
+    poserLeStarter("s-talent", talentMenu.value);
+    ecrire();
+  });
+  talentMenu.addEventListener("change", () => {
+    poserLeStarter("s-talent", talentMenu.value);
+    ecrire();
+  });
+
   void d.starters().then((liste) => {
     catalogue = liste;
     especeMenu.textContent = "";
-    const aucun = el<HTMLOptionElement>(doc, "option", "", "— aucun pour l'instant —");
+    const aucun = el<HTMLOptionElement>(doc, "option", "", "— aucune pour l'instant —");
     aucun.value = "";
     especeMenu.appendChild(aucun);
     for (const e of liste) {
       const o = el<HTMLOptionElement>(doc, "option", "", e.nom);
       o.value = String(e.id);
-      o.selected = e.id === fiche.starter?.especeId;
+      o.selected = e.id === vue.starter?.especeId;
       especeMenu.appendChild(o);
     }
     especeMenu.disabled = false;
     peindreTalents();
     //  ON REPOSE LE TALENT RELU : le menu vient d'être rempli, et la
     //  valeur d'une fiche rouverte n'y était pas une seconde plus tôt.
-    if (fiche.starter !== null) talentMenu.value = fiche.starter.talent;
+    if ((vue.starter?.especeId ?? 0) > 0) talentMenu.value = vue.starter?.talent ?? "";
   }).catch(() => {
     especeMenu.textContent = "";
     const raté = el<HTMLOptionElement>(doc, "option", "", "La liste n'a pas pu être lue");

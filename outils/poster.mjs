@@ -600,10 +600,35 @@ async function monterLaFiche(message = "", { sujetVide = false } = {}) {
   return q;
 }
 
-console.log("\n── le formulaire de la fiche ──");
+console.log("\n── l'éditeur de la fiche ──");
+
+//  ── CE QU'ON TAPE DANS UNE ZONE ─────────────────────────────────────
+//
+//  Il n'y a plus de champ à qui donner une `value` : on écrit DANS la
+//  fiche. Le harnais fait donc ce que fait un doigt — il pose le texte
+//  dans la zone et émet `input`, exactement l'évènement que le
+//  navigateur émet à la frappe.
+//
+//  ON REQUÊTE À CHAQUE FOIS, et jamais une référence gardée : trois
+//  commandes redessinent la fiche, et une zone gardée d'avant le
+//  redessin ne serait plus dans la page.
+const OUTILS = () => {
+  globalThis.wmZone = (clef, rang = 0) =>
+    [...document.querySelectorAll(`[data-wmf-zone="${clef}"]`)][rang] ?? null;
+  globalThis.wmTaper = (clef, v, rang = 0) => {
+    const z = globalThis.wmZone(clef, rang);
+    if (z === null) throw new Error(`pas de zone ${clef} au rang ${rang}`);
+    z.textContent = v;
+    z.dispatchEvent(new InputEvent("input", { bubbles: true }));
+  };
+  globalThis.wmTexte = (clef, rang = 0) => globalThis.wmZone(clef, rang)?.innerText ?? null;
+  globalThis.wmMessage = () => document.querySelector("#text_editor_textarea").value;
+  globalThis.wmPause = (ms = 180) => new Promise((r) => setTimeout(r, ms));
+};
 
 {
   const q = await monterLaFiche("");
+  await q.evaluate(OUTILS);
 
   const pose = await q.evaluate(() => {
     const f = document.getElementById("wm-fiche");
@@ -611,52 +636,111 @@ console.log("\n── le formulaire de la fiche ──");
     const boite = document.getElementById("postingbox");
     return {
       pose: true,
-      //  AU-DESSUS DE L'ÉDITEUR : on remplit la fiche, puis on relit
-      //  le message qu'elle a écrit, puis on envoie. Dans l'autre
-      //  ordre, le formulaire serait hors de l'écran au moment où on
-      //  en a besoin.
+      //  AU-DESSUS DU BLOC D'ÉDITION : on remplit la fiche, puis on
+      //  envoie. Dans l'autre ordre, elle serait hors de l'écran au
+      //  moment où on en a besoin.
       avantLEditeur: !!(f.compareDocumentPosition(boite) & Node.DOCUMENT_POSITION_FOLLOWING),
-      sections: [...f.querySelectorAll(".h3")].map((h) => h.textContent),
-      champs: f.querySelectorAll("input[type=text], textarea, select").length,
+      //  ET C'EST LA FICHE, pas un formulaire : le rendu publié vit
+      //  dans l'éditeur, avec ses vraies classes.
+      estLaFiche: !!f.querySelector(".wmf-form__fiche .wmf"),
+      colonnes: !!f.querySelector(".wmf__haut .wmf__avatar") &&
+        !!f.querySelector(".wmf__haut .wmf__infos"),
+      bandeaux: [...f.querySelectorAll(".wmf__bandeau")].map((b) => b.textContent),
       tableaux: f.querySelectorAll("table").length,
+      //  AUCUN CHAMP DE FORMULAIRE SAUF LES QUATRE COMMANDES — le titre
+      //  du sujet, les deux menus, la case de l'organisation. S'il en
+      //  revenait un, c'est que le vieux dessin serait revenu avec.
+      champs: [...f.querySelectorAll("input, textarea, select")].map((e) => e.id || e.type),
     };
   });
   dire(
-    "LE FORMULAIRE EST POSÉ, AU-DESSUS DE L'ÉDITEUR",
+    "L'ÉDITEUR EST POSÉ, AU-DESSUS DU BLOC D'ÉDITION",
     pose.pose === true && pose.avantLEditeur === true,
     JSON.stringify({ pose: pose.pose, avant: pose.avantLEditeur }),
   );
+  //  « Je veux pas juste remplir les champs. Je veux visuellement
+  //  remplir ma fiche de présentation. »
   dire(
-    "   et il porte les cinq sections qu'elle a décrites",
-    JSON.stringify(pose.sections) === JSON.stringify([
-      "Ta fiche de présentation",
-      "Le personnage",
-      "Son histoire",
-      "Son premier Pokémon",
-      "Le Groupe Ombre",
-      "Derrière l'écran",
-      //  L'APERÇU EST LA SEPTIÈME, et il vient en dernier : on
-      //  remplit, puis on regarde. Au-dessus, il faudrait remonter
-      //  pour saisir et redescendre pour voir.
-      "Ce que ça donnera",
+    "   ET C'EST LA FICHE ELLE-MÊME, avec ses deux colonnes",
+    pose.estLaFiche === true && pose.colonnes === true,
+    JSON.stringify({ fiche: pose.estLaFiche, colonnes: pose.colonnes }),
+  );
+  dire(
+    "   et ses sections sont celles de la fiche publiée",
+    JSON.stringify(pose.bandeaux) === JSON.stringify([
+      "RACONTE-NOUS TON HISTOIRE",
+      "COMPAGNON D'UNE VIE",
+      "L'ÉQUIPE D'AVANT",
+      "L'ORGANISATION",
+      "DERRIÈRE L'ÉCRAN",
     ]),
-    JSON.stringify(pose.sections),
+    JSON.stringify(pose.bandeaux),
   );
   //  « Je veux pas de tableau, que du flexbox. »
   dire("   et aucun tableau", pose.tableaux === 0, String(pose.tableaux));
+  dire(
+    "   et plus aucun champ de formulaire, hors les quatre commandes",
+    JSON.stringify(pose.champs) ===
+      JSON.stringify(["wmf-titre", "wmf-espece", "wmf-talent", "wmf-ombre"]),
+    JSON.stringify(pose.champs),
+  );
 
-  //  ── CE QU'ON TAPE PART DANS L'ÉDITEUR ──────────────────────────
-  const ecrit = await q.evaluate(async () => {
-    const poser = (id, v) => {
-      const e = document.getElementById(id);
-      e.value = v;
-      e.dispatchEvent(new Event("input", { bubbles: true }));
+  //  ── CHAQUE VALEUR A SA ZONE, VIDE COMPRISE ─────────────────────
+  //
+  //  C'est la propriété dont tout le reste dépend : une valeur sans
+  //  zone est une valeur qu'on ne peut pas écrire, et la fiche neuve
+  //  en est pleine.
+  const zones = await q.evaluate(() => {
+    const vues = [...document.querySelectorAll("[data-wmf-zone]")];
+    return {
+      clefs: vues.map((z) => z.dataset.wmfZone),
+      //  ET CHACUNE DIT CE QU'ON Y MET, sinon une fiche neuve serait
+      //  une suite d'étiquettes suivies de rien.
+      sansInvite: vues.filter((z) => (z.dataset.wmfVide ?? "") === "")
+        .map((z) => z.dataset.wmfZone),
+      modifiables: vues.filter((z) => z.getAttribute("contenteditable") === "plaintext-only")
+        .length,
     };
-    poser("wmf-nom", "Jak A. Fering");
-    poser("wmf-metier", "Ranger");
-    poser("wmf-histoire", "Il est né un <b>mardi</b>.");
-    await new Promise((r) => setTimeout(r, 200));
-    return document.querySelector("#text_editor_textarea").value;
+  });
+  const attendues = [
+    "nom",
+    "tw",
+    "avatar",
+    "surnom",
+    "metier",
+    "traits",
+    "histoire",
+    "s-surnom",
+    "s-rencontre",
+    "ancienne",
+    "o-avis",
+    "j-pseudo",
+    "j-credits",
+  ];
+  dire(
+    "CHAQUE VALEUR A SA ZONE, MÊME VIDE",
+    attendues.every((c) => zones.clefs.includes(c)),
+    JSON.stringify(attendues.filter((c) => !zones.clefs.includes(c))),
+  );
+  dire(
+    "   et chaque zone dit ce qu'on y met",
+    zones.sansInvite.length === 0,
+    JSON.stringify(zones.sansInvite),
+  );
+  //  L'ESPÈCE ET LE TALENT NE SONT PAS DES ZONES : ils se choisissent.
+  dire(
+    "   l'espèce et le talent sont des menus, pas des zones",
+    !zones.clefs.includes("s-espece") && !zones.clefs.includes("s-talent"),
+    JSON.stringify(zones.clefs.filter((c) => c.startsWith("s-"))),
+  );
+
+  //  ── CE QU'ON TAPE PART DANS LE MESSAGE ─────────────────────────
+  const ecrit = await q.evaluate(async () => {
+    globalThis.wmTaper("nom", "Jak A. Fering");
+    globalThis.wmTaper("metier", "Ranger");
+    globalThis.wmTaper("histoire", "Il est né un <b>mardi</b>.");
+    await globalThis.wmPause(220);
+    return globalThis.wmMessage();
   });
   dire(
     "CE QU'ON TAPE S'ÉCRIT DANS LE MESSAGE",
@@ -675,24 +759,111 @@ console.log("\n── le formulaire de la fiche ──");
     ecrit.includes('<div class="wmf__titre">') && !/<center>/i.test(ecrit),
     "",
   );
+  //  ── L'ÉCRAN MONTRE PLUS QUE LE MESSAGE, ET C'EST VOULU ─────────
+  //
+  //  La garde du dessin : l'éditeur affiche les trente zones, le
+  //  message n'emporte que les trois qu'on a remplies. Si elle
+  //  cassait, chaque fiche partirait avec « SURNOM : » suivi de rien,
+  //  trente fois.
+  dire(
+    "   MAIS LE MESSAGE NE PORTE PAS CE QU'ON N'A PAS REMPLI",
+    !ecrit.includes("<wmf-surnom>") && !ecrit.includes("<wmf-j-pseudo>") &&
+      !ecrit.includes('class="wmf__ombre"'),
+    JSON.stringify({
+      surnom: ecrit.includes("<wmf-surnom>"),
+      ombre: ecrit.includes('class="wmf__ombre"'),
+    }),
+  );
+
+  //  ── LE CURSEUR NE SAUTE PAS À LA FRAPPE ────────────────────────
+  //
+  //  LA MESURE QUI PROTÈGE TOUT LE DESSIN. L'éditeur est du HTML
+  //  redessiné depuis `publier` : le redessiner à chaque `input`
+  //  remplacerait la zone sous le doigt, et le curseur repartirait au
+  //  début à chaque caractère. On ne redessine donc que sur les trois
+  //  commandes — et seulement elles.
+  const curseur = await q.evaluate(async () => {
+    const z = globalThis.wmZone("metier");
+    z.dataset.wmTemoin = "ici";
+    z.focus();
+    globalThis.wmTaper("metier", "Rangeuse");
+    await globalThis.wmPause(220);
+    const apres = globalThis.wmZone("metier");
+    return {
+      memeNoeud: apres?.dataset.wmTemoin === "ici",
+      garde: document.activeElement === apres,
+    };
+  });
+  dire(
+    "LE CURSEUR NE SAUTE PAS : LA ZONE N'EST PAS REMPLACÉE À LA FRAPPE",
+    curseur.memeNoeud === true && curseur.garde === true,
+    JSON.stringify(curseur),
+  );
+
+  //  ── L'AVATAR : L'IMAGE SUIT L'ADRESSE, SANS REDESSIN ───────────
+  const image = await q.evaluate(async () => {
+    const z = globalThis.wmZone("avatar");
+    z.dataset.wmTemoin = "ici";
+    globalThis.wmTaper("avatar", "https://exemple.test/a.png");
+    await globalThis.wmPause(200);
+    return {
+      src: document.querySelector(".wmf-form__fiche .wmf__avatar img")?.getAttribute("src"),
+      memeNoeud: globalThis.wmZone("avatar")?.dataset.wmTemoin === "ici",
+    };
+  });
+  dire(
+    "L'IMAGE SUIT L'ADRESSE, et la zone n'est pas redessinée pour autant",
+    image.src === "https://exemple.test/a.png" && image.memeNoeud === true,
+    JSON.stringify(image),
+  );
+
+  //  ── CE QU'ON ÉCRIT AVANT DE CHOISIR L'ESPÈCE N'EST PAS PERDU ───
+  //
+  //  Sans espèce, il n'y a pas de starter : la fiche publiée ne porte
+  //  pas le bloc, et `lireUneFiche` ne saurait pas le relire. Mais le
+  //  récit déjà tapé doit rester à l'écran — c'est tout l'objet de la
+  //  séparation entre ce qui est affiché et ce qui part.
+  const avantLEspece = await q.evaluate(async () => {
+    globalThis.wmTaper("s-rencontre", "Dans une grange, un soir de pluie.");
+    globalThis.wmTaper("s-surnom", "Noisette");
+    await globalThis.wmPause(200);
+    return {
+      sansStarter: !globalThis.wmMessage().includes("<wmf-s-id>"),
+      aLEcran: globalThis.wmTexte("s-rencontre"),
+    };
+  });
+  dire(
+    "SANS ESPÈCE, PAS DE STARTER DANS LE MESSAGE",
+    avantLEspece.sansStarter === true,
+    JSON.stringify(avantLEspece.sansStarter),
+  );
+  dire(
+    "   mais ce qu'on a écrit reste à l'écran",
+    avantLEspece.aLEcran === "Dans une grange, un soir de pluie.",
+    JSON.stringify(avantLEspece.aLEcran),
+  );
 
   //  ── LA LISTE DES ESPÈCES ARRIVE, ET LES TALENTS SUIVENT ────────
   const starter = await q.evaluate(async () => {
     const menu = document.getElementById("wmf-espece");
     const options = [...menu.options].map((o) => o.textContent);
+    const place = !!document.querySelector(".wmf__pokemon #wmf-espece") &&
+      !!document.querySelector(".wmf__pokemon #wmf-talent");
     menu.value = "172";
     menu.dispatchEvent(new Event("change", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 150));
+    await globalThis.wmPause(200);
     return {
       options,
+      place,
       talents: [...document.getElementById("wmf-talent").options].map((o) => o.textContent),
-      message: document.querySelector("#text_editor_textarea").value,
+      message: globalThis.wmMessage(),
     };
   });
   dire(
-    "LES ESPÈCES SONT DANS LE MENU",
-    starter.options.includes("Pichu") && starter.options.includes("Évoli"),
-    JSON.stringify(starter.options),
+    "LES ESPÈCES SONT DANS LE MENU, et le menu est dans la carte du Pokémon",
+    starter.options.includes("Pichu") && starter.options.includes("Évoli") &&
+      starter.place === true,
+    JSON.stringify({ place: starter.place, n: starter.options.length }),
   );
   //  « Il peut choisir le talent » — et le talent caché est dit, pas
   //  retiré : c'est au staff de trancher.
@@ -708,6 +879,13 @@ console.log("\n── le formulaire de la fiche ──");
       starter.message.includes("Pichu"),
     "",
   );
+  //  ET LE RÉCIT ÉCRIT AVANT LE CHOIX PART AVEC LUI.
+  dire(
+    "   et le récit écrit avant le choix part avec lui",
+    starter.message.includes("Dans une grange, un soir de pluie.") &&
+      starter.message.includes("Noisette"),
+    "",
+  );
   //  « Les niveaux ne sont pas choisis par les joueurs. »
   dire(
     "   LE NIVEAU N'EST DEMANDÉ NULLE PART",
@@ -717,81 +895,216 @@ console.log("\n── le formulaire de la fiche ──");
 
   //  ── LA CHRONOLOGIE ─────────────────────────────────────────────
   const chrono = await q.evaluate(async () => {
-    const radio = [...document.querySelectorAll('input[name="wmf-forme"]')]
-      .find((r) => r.value === "chronologie");
-    radio.checked = true;
-    radio.dispatchEvent(new Event("change", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 120));
+    const vers = (mot) =>
+      [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
+        b.textContent.includes(mot)
+      );
+    vers("chronologie").click();
+    await globalThis.wmPause(200);
+    //  UNE CHRONOLOGIE VIDE OFFRE DÉJÀ UN MOMENT : sans lui, choisir
+    //  la chronologie n'afficherait rien, et il faudrait deviner
+    //  qu'un bouton attend quelque part.
+    const dEmblee = document.querySelectorAll(".wmf-form__fiche .wmf__moment").length;
+    globalThis.wmTaper("m-date", "2015");
+    globalThis.wmTaper("m-texte", "Le départ.");
+    await globalThis.wmPause(200);
     document.querySelector(".wmf-form__plus").click();
-    await new Promise((r) => setTimeout(r, 120));
-    const bloc = document.querySelector(".wmf-form__moment");
-    const date = bloc.querySelector("input");
-    const texte = bloc.querySelector("textarea");
-    date.value = "2015";
-    date.dispatchEvent(new Event("input", { bubbles: true }));
-    texte.value = "Le départ.";
-    texte.dispatchEvent(new Event("input", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 150));
+    await globalThis.wmPause(200);
     return {
-      moments: document.querySelectorAll(".wmf-form__moment").length,
-      message: document.querySelector("#text_editor_textarea").value,
+      dEmblee,
+      moments: document.querySelectorAll(".wmf-form__fiche .wmf__moment").length,
+      message: globalThis.wmMessage(),
     };
   });
   dire(
-    "LA CHRONOLOGIE S'AJOUTE, ET ELLE ENTRE DANS LE MESSAGE",
-    chrono.moments === 1 &&
-      chrono.message.includes('data-mode="chronologie"') &&
+    "LA CHRONOLOGIE OFFRE UN MOMENT D'EMBLÉE",
+    chrono.dEmblee === 1,
+    String(chrono.dEmblee),
+  );
+  dire(
+    "   on y écrit, et ça entre dans le message",
+    chrono.message.includes('data-mode="chronologie"') &&
       chrono.message.includes("<wmf-m-date>2015</wmf-m-date>") &&
       chrono.message.includes("<wmf-m-texte>Le départ.</wmf-m-texte>"),
-    JSON.stringify({ moments: chrono.moments }),
+    JSON.stringify(chrono.message.slice(0, 80)),
   );
-  //  CHANGER DE FORME NE PERD PAS LE PAVÉ tant qu'on n'a pas quitté la
-  //  page : on peut se raviser.
-  const retour = await q.evaluate(async () => {
-    const radio = [...document.querySelectorAll('input[name="wmf-forme"]')]
-      .find((r) => r.value === "pave");
-    radio.checked = true;
-    radio.dispatchEvent(new Event("change", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 150));
-    return document.getElementById("wmf-histoire").value;
-  });
   dire(
-    "   et se raviser ne perd pas le pavé qu'on avait écrit",
-    retour === "Il est né un <b>mardi</b>.",
-    JSON.stringify(retour),
+    "   et le bouton en ajoute un second",
+    chrono.moments === 2,
+    String(chrono.moments),
   );
 
   //  ── LA CROIX RETIRE UN MOMENT ──────────────────────────────────
   const oté = await q.evaluate(async () => {
-    const radio = [...document.querySelectorAll('input[name="wmf-forme"]')]
-      .find((r) => r.value === "chronologie");
-    radio.checked = true;
-    radio.dispatchEvent(new Event("change", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 150));
-    document.querySelector(".wmf-form__croix").click();
-    await new Promise((r) => setTimeout(r, 150));
-    return document.querySelectorAll(".wmf-form__moment").length;
-  });
-  dire("   et la croix retire le moment", oté === 0, String(oté));
-
-  //  ── LE GROUPE OMBRE ────────────────────────────────────────────
-  const ombre = await q.evaluate(async () => {
-    const avant = document.querySelector(".wmf-form__ombre").hidden;
-    const case_ = document.getElementById("wmf-ombre");
-    case_.checked = true;
-    case_.dispatchEvent(new Event("change", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 150));
+    document.querySelectorAll(".wmf-form__croix")[1].click();
+    await globalThis.wmPause(200);
     return {
-      avant,
-      apres: document.querySelector(".wmf-form__ombre").hidden,
-      message: document.querySelector("#text_editor_textarea").value,
+      moments: document.querySelectorAll(".wmf-form__fiche .wmf__moment").length,
+      //  ET C'EST BIEN LE SECOND QUI PART, pas le premier.
+      garde: globalThis.wmTexte("m-date"),
     };
   });
   dire(
-    "LE GROUPE OMBRE EST UNE OPTION : caché par défaut, montré sur la case",
-    ombre.avant === true && ombre.apres === false &&
-      ombre.message.includes('class="wmf__ombre"'),
-    JSON.stringify({ avant: ombre.avant, apres: ombre.apres }),
+    "   la croix retire SON moment, et pas un autre",
+    oté.moments === 1 && oté.garde === "2015",
+    JSON.stringify(oté),
+  );
+
+  //  CHANGER DE FORME NE PERD PAS LE PAVÉ tant qu'on n'a pas quitté la
+  //  page : on peut se raviser.
+  const retour = await q.evaluate(async () => {
+    const vers = (mot) =>
+      [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
+        b.textContent.includes(mot)
+      );
+    vers("pavé").click();
+    await globalThis.wmPause(220);
+    return {
+      pave: globalThis.wmTexte("histoire"),
+      //  ET LA FORME CHOISIE SE VOIT SUR LE BOUTON.
+      marque: vers("pavé").getAttribute("aria-pressed"),
+    };
+  });
+  dire(
+    "SE RAVISER NE PERD PAS LE PAVÉ QU'ON AVAIT ÉCRIT",
+    retour.pave === "Il est né un <b>mardi</b>." && retour.marque === "true",
+    JSON.stringify(retour),
+  );
+
+  //  ── LE GROUPE OMBRE ────────────────────────────────────────────
+  //
+  //  « On la garde, en option du formulaire. » Les cinq questions se
+  //  LISENT sans la case : on décide en les ayant lues. Elles ne se
+  //  tapent qu'une fois la case cochée, sinon on écrirait un texte qui
+  //  ne part pas dans le message sans que rien ne le dise.
+  const ombre = await q.evaluate(async () => {
+    const bloc = () => document.querySelector(".wmf-form__fiche .wmf__ombre");
+    const avant = {
+      visible: !!bloc(),
+      actif: bloc()?.dataset.wmActive,
+      verrou: globalThis.wmZone("o-avis")?.getAttribute("contenteditable"),
+    };
+    const case_ = document.getElementById("wmf-ombre");
+    case_.checked = true;
+    case_.dispatchEvent(new Event("change", { bubbles: true }));
+    await globalThis.wmPause(220);
+    globalThis.wmTaper("o-avis", "Elle me fait peur.");
+    await globalThis.wmPause(200);
+    const coche = {
+      verrou: globalThis.wmZone("o-avis")?.getAttribute("contenteditable"),
+      message: globalThis.wmMessage(),
+    };
+    const encore = document.getElementById("wmf-ombre");
+    encore.checked = false;
+    encore.dispatchEvent(new Event("change", { bubbles: true }));
+    await globalThis.wmPause(220);
+    const decoche = {
+      aLEcran: globalThis.wmTexte("o-avis"),
+      message: globalThis.wmMessage(),
+    };
+    const derechef = document.getElementById("wmf-ombre");
+    derechef.checked = true;
+    derechef.dispatchEvent(new Event("change", { bubbles: true }));
+    await globalThis.wmPause(220);
+    return { avant, coche, decoche, revenu: globalThis.wmMessage() };
+  });
+  dire(
+    "LE GROUPE OMBRE SE LIT SANS LA CASE, ET NE S'ÉCRIT QU'AVEC",
+    ombre.avant.visible === true && ombre.avant.actif === "non" &&
+      ombre.avant.verrou === "false" && ombre.coche.verrou === "plaintext-only",
+    JSON.stringify({ avant: ombre.avant, coche: ombre.coche.verrou }),
+  );
+  dire(
+    "   cochée, le bloc entre dans le message",
+    ombre.coche.message.includes('class="wmf__ombre"') &&
+      ombre.coche.message.includes("Elle me fait peur."),
+    "",
+  );
+  dire(
+    "   DÉCOCHÉE, LE BLOC SORT DU MESSAGE MAIS LA RÉPONSE RESTE À L'ÉCRAN",
+    !ombre.decoche.message.includes('class="wmf__ombre"') &&
+      ombre.decoche.aLEcran === "Elle me fait peur.",
+    JSON.stringify({
+      message: ombre.decoche.message.includes('class="wmf__ombre"'),
+      ecran: ombre.decoche.aLEcran,
+    }),
+  );
+  dire(
+    "   et la recocher la remet dans le message",
+    ombre.revenu.includes("Elle me fait peur."),
+    "",
+  );
+
+  //  ── LE HTML DU JOUEUR NE S'ANALYSE PAS DANS L'ÉDITEUR ─────────
+  //
+  //  L'éditeur rend la fiche, donc il rendrait aussi le HTML du
+  //  joueur. DEUX RAISONS DE NE PAS LE FAIRE, et la première est la
+  //  plus importante :
+  //
+  //   · ANALYSÉ, IL EST PERDU. Son `<b>mardi</b>` deviendrait un vrai
+  //     élément, et relire la zone rendrait « mardi » tout court. La
+  //     frappe suivante réécrirait le message appauvri, sans que rien
+  //     ne le dise.
+  //
+  //   · ET UN `<script>` RECOPIÉ D'UN GÉNÉRATEUR DE BANNIÈRES
+  //     casserait sa page de réponse au milieu de la rédaction.
+  const propre = await q.evaluate(async () => {
+    globalThis.__wmTouche = false;
+    const colle = "<script>globalThis.__wmTouche = true;<\/script>" +
+      '<img src="x" onerror="globalThis.__wmTouche = true">' +
+      '<b>gras</b> & "guillemets" <wmf-nom>forgé</wmf-nom>';
+    globalThis.wmTaper("histoire", colle);
+    await globalThis.wmPause(300);
+    //  ON REDESSINE, parce que c'est là que le danger serait : la
+    //  frappe laisse le texte dans sa zone, le redessin le fait
+    //  repasser par `publier`.
+    const vers = (mot) =>
+      [...document.querySelectorAll(".wmf-form__forme")].find((b) =>
+        b.textContent.includes(mot)
+      );
+    vers("chronologie").click();
+    await globalThis.wmPause(200);
+    vers("pavé").click();
+    await globalThis.wmPause(300);
+    const f = document.querySelector(".wmf-form__fiche");
+    return {
+      execute: globalThis.__wmTouche,
+      script: f.querySelectorAll("script").length,
+      gras: f.querySelectorAll(".wmf__histoire b").length,
+      image: f.querySelectorAll(".wmf__histoire img").length,
+      //  LA BALISE FORGÉE N'EN DEVIENT PAS UNE : sinon un joueur
+      //  pourrait écrire `<wmf-nom>` dans son histoire et déplacer son
+      //  propre nom.
+      forgee: f.querySelectorAll(".wmf__histoire wmf-nom").length,
+      //  ET LA ZONE REND EXACTEMENT CE QU'IL A TAPÉ.
+      relu: globalThis.wmTexte("histoire"),
+      attendu: colle,
+      //  LE MESSAGE, LUI, PART AVEC SES BALISES VIVANTES.
+      message: globalThis.wmMessage(),
+    };
+  });
+  dire(
+    "LE HTML DU JOUEUR RESTE DU TEXTE DANS L'ÉDITEUR",
+    propre.execute === false && propre.script === 0 && propre.gras === 0 &&
+      propre.image === 0 && propre.forgee === 0,
+    JSON.stringify({
+      execute: propre.execute,
+      script: propre.script,
+      gras: propre.gras,
+      forgee: propre.forgee,
+    }),
+  );
+  //  LA MESURE QUI COMPTE : L'ALLER-RETOUR NE PERD RIEN.
+  dire(
+    "   ET LA ZONE REND EXACTEMENT CE QU'IL A TAPÉ, APRÈS REDESSIN",
+    propre.relu === propre.attendu,
+    JSON.stringify({ relu: propre.relu }),
+  );
+  dire(
+    "   et le message part avec ses balises vivantes",
+    propre.message.includes("<b>gras</b>") &&
+      propre.message.includes("<script>"),
+    JSON.stringify(propre.message.includes("<b>gras</b>")),
   );
   await q.close();
 }
@@ -800,39 +1113,41 @@ console.log("\n── le formulaire de la fiche ──");
   //  ── CE QU'IL NE FAUT SURTOUT PAS ÉCRASER ───────────────────────
   //
   //  Une fiche de la V1, ou n'importe quel message écrit à la main.
-  //  Le formulaire réécrit le message ENTIER : s'il le faisait ici,
-  //  il effacerait le travail de quelqu'un sans le lui demander.
+  //  L'éditeur réécrit le message ENTIER : s'il le faisait ici, il
+  //  effacerait le travail de quelqu'un sans le lui demander.
   const q = await monterLaFiche(
     '<center><div class="bk1"><div class="bkt2">Prénom P. Nom</div>son ancienne fiche</div></center>',
   );
+  await q.evaluate(OUTILS);
   const vu = await q.evaluate(async () => {
     const champ = document.querySelector("#text_editor_textarea");
     const avant = champ.value;
-    const nom = document.getElementById("wmf-nom");
-    nom.value = "Quelqu'un";
-    nom.dispatchEvent(new Event("input", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 200));
+    globalThis.wmTaper("nom", "Quelqu'un");
+    await globalThis.wmPause(220);
     return {
       intact: champ.value === avant,
       dit: document.querySelector(".wmf-form__dit").textContent,
       boutonVisible: !document.querySelector(".wmf-form__reprendre").hidden,
+      //  ET LE BLOC D'ÉDITION RESTE VISIBLE : c'est le seul endroit où
+      //  son texte existe encore.
+      editeurVisible: document.getElementById("postingbox").hidden === false,
     };
   });
   dire(
     "UNE FICHE DE LA V1 N'EST PAS ÉCRASÉE — on tape, le message ne bouge pas",
-    vu.intact === true,
-    JSON.stringify(vu.dit?.slice(0, 60)),
+    vu.intact === true && vu.editeurVisible === true,
+    JSON.stringify({ intact: vu.intact, editeur: vu.editeurVisible }),
   );
   dire(
-    "   et le formulaire le dit, avec un bouton pour reprendre la main",
-    /n'a pas été écrit avec ce formulaire/.test(vu.dit ?? "") && vu.boutonVisible === true,
-    JSON.stringify({ bouton: vu.boutonVisible }),
+    "   et l'éditeur le dit, avec un bouton pour reprendre la main",
+    /n'a pas été écrit avec cet éditeur/.test(vu.dit ?? "") && vu.boutonVisible === true,
+    JSON.stringify(vu.dit?.slice(0, 60)),
   );
   //  LE SEUL CHEMIN QUI ÉCRASE EST UN CLIC EXPLICITE.
   const apres = await q.evaluate(async () => {
     document.querySelector(".wmf-form__reprendre").click();
-    await new Promise((r) => setTimeout(r, 200));
-    return document.querySelector("#text_editor_textarea").value;
+    await globalThis.wmPause(220);
+    return globalThis.wmMessage();
   });
   dire(
     "   et il ne remplace QUE sur un clic nommé",
@@ -847,10 +1162,9 @@ console.log("\n── le formulaire de la fiche ──");
   //
   //  « Quand on édite son message, ce serait super que ça reste comme
   //  ça. » C'est la demande, mesurée de bout en bout : une fiche
-  //  publiée est remise dans l'éditeur, et le formulaire doit la
-  //  présenter remplie.
-  const { publier } = await import("../src/navigateur/fiche.ts");
-  const { ficheVide } = await import("../src/navigateur/fiche.ts");
+  //  publiée est remise dans l'éditeur, et elle doit s'y présenter
+  //  remplie — dans sa mise en page, et non dans des champs.
+  const { ficheVide, publier } = await import("../src/navigateur/fiche.ts");
   const deja = publier({
     ...ficheVide(),
     nom: "Erin Kavanagh",
@@ -866,30 +1180,31 @@ console.log("\n── le formulaire de la fiche ──");
     joueur: { ...ficheVide().joueur, "j-pseudo": "Callista" },
   });
   const q = await monterLaFiche(deja);
+  await q.evaluate(OUTILS);
   const relu = await q.evaluate(() => ({
-    nom: document.getElementById("wmf-nom").value,
-    metier: document.getElementById("wmf-metier").value,
-    surnom: document.getElementById("wmf-surnom").value,
-    pseudo: document.getElementById("wmf-j-pseudo").value,
-    forme: [...document.querySelectorAll('input[name="wmf-forme"]')]
-      .find((r) => r.checked)?.value,
-    moments: [...document.querySelectorAll(".wmf-form__moment")].map((m) => [
-      m.querySelector("input").value,
-      m.querySelector("textarea").value,
+    nom: globalThis.wmTexte("nom"),
+    metier: globalThis.wmTexte("metier"),
+    surnom: globalThis.wmTexte("surnom"),
+    pseudo: globalThis.wmTexte("j-pseudo"),
+    forme: [...document.querySelectorAll(".wmf-form__forme")]
+      .find((b) => b.getAttribute("aria-pressed") === "true")?.textContent,
+    moments: [...document.querySelectorAll(".wmf-form__fiche .wmf__moment")].map((m) => [
+      m.querySelector('[data-wmf-zone="m-date"]')?.innerText,
+      m.querySelector('[data-wmf-zone="m-texte"]')?.innerText,
     ]),
-    rencontre: document.getElementById("wmf-s-rencontre").value,
-    surnomDuPoke: document.getElementById("wmf-s-surnom").value,
+    rencontre: globalThis.wmTexte("s-rencontre"),
+    surnomDuPoke: globalThis.wmTexte("s-surnom"),
     dit: document.querySelector(".wmf-form__dit").textContent,
   }));
   dire(
-    "ROUVRIR SA FICHE LA RETROUVE REMPLIE",
+    "ROUVRIR SA FICHE LA RETROUVE REMPLIE, À SA PLACE",
     relu.nom === "Erin Kavanagh" && relu.metier === "Infirmière" &&
       relu.surnom === "Rin" && relu.pseudo === "Callista",
     JSON.stringify(relu),
   );
   dire(
     "   la chronologie revient en chronologie, avec ses moments",
-    relu.forme === "chronologie" &&
+    (relu.forme ?? "").includes("chronologie") &&
       JSON.stringify(relu.moments) === JSON.stringify([["2012", "L'incendie."]]),
     JSON.stringify({ forme: relu.forme, moments: relu.moments }),
   );
@@ -912,6 +1227,26 @@ console.log("\n── le formulaire de la fiche ──");
     talent === "Échauffement",
     JSON.stringify(talent),
   );
+  //  ── ET LA ROUVRIR SANS RIEN TOUCHER NE CHANGE PAS LE MESSAGE ───
+  //
+  //  La garde la plus silencieuse du lot : si le rendu de l'écran
+  //  fuyait dans le message — les trente zones vides avec — une
+  //  simple relecture de sa fiche la gonflerait d'étiquettes creuses.
+  const inchange = await q.evaluate(async () => {
+    const avant = globalThis.wmMessage();
+    globalThis.wmTaper("metier", "Infirmière");
+    await globalThis.wmPause(250);
+    return { avant, apres: globalThis.wmMessage() };
+  });
+  dire(
+    "   et retaper la même valeur ne gonfle pas le message",
+    inchange.avant === inchange.apres &&
+      !inchange.apres.includes("<wmf-j-age>"),
+    JSON.stringify({
+      egal: inchange.avant === inchange.apres,
+      creux: inchange.apres.includes("<wmf-j-age>"),
+    }),
+  );
   await q.close();
 }
 
@@ -919,10 +1254,9 @@ console.log("\n── le formulaire de la fiche ──");
   //  ── « ÇA REMPLACE TOUT » ─────────────────────────────────────────
   //
   //  « Pas besoin d'avoir ce qui est écrit en dessous, le bloc
-  //  d'édition, ça remplace tout. Et aussi, faut voir directement ce
-  //  que ça va faire, c'est pas juste des champs à remplir. »
-  //  — 23 novembre.
+  //  d'édition, ça remplace tout. » — 23 novembre.
   const q = await monterLaFiche("");
+  await q.evaluate(OUTILS);
   const vu = await q.evaluate(() => ({
     editeurMasque: document.getElementById("postingbox").hidden,
     //  LE BOUTON D'ENVOI SURVIT : il vit dans un AUTRE panneau que le
@@ -933,7 +1267,6 @@ console.log("\n── le formulaire de la fiche ──");
     //  dans le bloc masqué.
     champTitre: !!document.getElementById("wmf-titre"),
     sujetNatif: !!document.querySelector('input[name="subject"]'),
-    apercu: !!document.querySelector(".wmf-form__rendu"),
     sortie: !document.querySelector(".wmf-form__brut").hidden,
   }));
   dire(
@@ -942,7 +1275,7 @@ console.log("\n── le formulaire de la fiche ──");
     JSON.stringify(vu),
   );
   dire(
-    "   le titre du sujet est repris dans le formulaire",
+    "   le titre du sujet est repris dans l'éditeur",
     vu.champTitre === true && vu.sujetNatif === true,
     JSON.stringify({ champ: vu.champTitre }),
   );
@@ -953,10 +1286,8 @@ console.log("\n── le formulaire de la fiche ──");
   //  ÉDITION : le sujet existe déjà, et il porte peut-être un titre
   //  que personne ne veut voir remplacé par le nom du personnage.
   const garde = await q.evaluate(async () => {
-    const e = document.getElementById("wmf-nom");
-    e.value = "Quelqu'un d'autre";
-    e.dispatchEvent(new Event("input", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 150));
+    globalThis.wmTaper("nom", "Quelqu'un d'autre");
+    await globalThis.wmPause(200);
     return document.querySelector('input[name="subject"]').value;
   });
   dire(
@@ -965,155 +1296,78 @@ console.log("\n── le formulaire de la fiche ──");
     JSON.stringify(garde),
   );
 
-  //  ── SUR UN SUJET NEUF, LE TITRE SUIT LE NOM ─────────────────────
-  //
-  //  C'est le cas réel d'une création : `/post?f=7&mode=newtopic` sert
-  //  un champ « Sujet » VIDE. On le vide donc ici, et on repose le
-  //  formulaire pour qu'il reparte de là.
-  await q.close();
-}
-
-{
-  const q = await monterLaFiche("", { sujetVide: true });
-  const titres = await q.evaluate(async () => {
-    const poser = (id, v) => {
-      const e = document.getElementById(id);
-      e.value = v;
-      e.dispatchEvent(new Event("input", { bubbles: true }));
-    };
-    poser("wmf-nom", "Jak A. Fering");
-    await new Promise((r) => setTimeout(r, 150));
-    const suivi = {
-      formulaire: document.getElementById("wmf-titre").value,
-      natif: document.querySelector('input[name="subject"]').value,
-    };
-    poser("wmf-titre", "Un titre à moi");
-    poser("wmf-nom", "Autre nom");
-    await new Promise((r) => setTimeout(r, 150));
-    return {
-      suivi,
-      apres: {
-        formulaire: document.getElementById("wmf-titre").value,
-        natif: document.querySelector('input[name="subject"]').value,
-      },
-    };
-  });
-  dire(
-    "LE TITRE SE REMPLIT DU NOM DU PERSONNAGE",
-    titres.suivi.formulaire === "Jak A. Fering" && titres.suivi.natif === "Jak A. Fering",
-    JSON.stringify(titres.suivi),
-  );
-  dire(
-    "   et dès qu'on l'écrit soi-même, il cesse de suivre",
-    titres.apres.formulaire === "Un titre à moi" && titres.apres.natif === "Un titre à moi",
-    JSON.stringify(titres.apres),
-  );
-
-  //  ── L'APERÇU MONTRE LE VRAI RENDU ───────────────────────────────
-  const rendu = await q.evaluate(async () => {
-    const poser = (id, v) => {
-      const e = document.getElementById(id);
-      e.value = v;
-      e.dispatchEvent(new Event("input", { bubbles: true }));
-    };
-    poser("wmf-metier", "Ranger");
-    poser("wmf-histoire", "Il est né un <b>mardi</b>.");
-    await new Promise((r) => setTimeout(r, 250));
-    const r = document.querySelector(".wmf-form__rendu");
-    return {
-      titre: r.querySelector(".wmf__titre")?.textContent,
-      deuxColonnes: !!r.querySelector(".wmf__haut .wmf__infos"),
-      //  LES BALISES DU JOUEUR SONT RENDUES, pas affichées en clair :
-      //  c'est tout l'objet d'un aperçu.
-      gras: !!r.querySelector("b"),
-      texteDuGras: r.querySelector("b")?.textContent,
-      etiquette: !!r.querySelector("y"),
-    };
-  });
-  dire(
-    "L'APERÇU REND LA FICHE, pas le code",
-    rendu.titre === "Autre nom" && rendu.deuxColonnes === true && rendu.etiquette === true,
-    JSON.stringify(rendu),
-  );
-  dire(
-    "   et les balises du joueur y sont rendues",
-    rendu.gras === true && rendu.texteDuGras === "mardi",
-    JSON.stringify({ gras: rendu.gras }),
-  );
-
-  //  ── UN SCRIPT COLLÉ PAR MÉGARDE NE S'EXÉCUTE PAS DANS L'APERÇU ──
-  //
-  //  Le texte est celui du joueur, dans sa propre page : il n'y a
-  //  personne à protéger de lui. Mais un `<script>` recopié d'un
-  //  générateur de bannières casserait sa page de réponse au milieu
-  //  de la rédaction, sans qu'il comprenne pourquoi.
-  const propre = await q.evaluate(async () => {
-    globalThis.__wmTouche = false;
-    const e = document.getElementById("wmf-histoire");
-    e.value = "<script>globalThis.__wmTouche = true;<\/script>" +
-      '<img src="x" onerror="globalThis.__wmTouche = true">' +
-      '<iframe src="https://exemple.test"></iframe>' +
-      '<a href="javascript:void(0)">lien</a>';
-    e.dispatchEvent(new Event("input", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 300));
-    const r = document.querySelector(".wmf-form__rendu");
-    return {
-      execute: globalThis.__wmTouche,
-      script: r.querySelectorAll("script").length,
-      iframe: r.querySelectorAll("iframe").length,
-      onerror: r.querySelector("img")?.hasAttribute("onerror") ?? false,
-      href: r.querySelector("a")?.getAttribute("href") ?? null,
-      //  ET LE MESSAGE, LUI, PART INTACT : c'est Forumactif qui filtre
-      //  ce qui est publié, pas nous.
-      message: document.querySelector("#text_editor_textarea").value.includes("<script>"),
-    };
-  });
-  dire(
-    "UN SCRIPT COLLÉ PAR MÉGARDE NE S'EXÉCUTE PAS DANS L'APERÇU",
-    propre.execute === false && propre.script === 0 && propre.iframe === 0 &&
-      propre.onerror === false && propre.href === null,
-    JSON.stringify(propre),
-  );
-  dire(
-    "   et le message, lui, part intact — c'est Forumactif qui filtre",
-    propre.message === true,
-    String(propre.message),
-  );
-
   //  ── LA PORTE DE SORTIE ──────────────────────────────────────────
   const sortie = await q.evaluate(async () => {
     document.querySelector(".wmf-form__brut").click();
-    await new Promise((r) => setTimeout(r, 150));
-    const avant = document.querySelector("#text_editor_textarea").value;
-    const e = document.getElementById("wmf-nom");
-    e.value = "Ne doit rien écrire";
-    e.dispatchEvent(new Event("input", { bubbles: true }));
-    await new Promise((r) => setTimeout(r, 200));
+    await globalThis.wmPause(200);
+    const avant = globalThis.wmMessage();
+    globalThis.wmTaper("nom", "Ne doit rien écrire");
+    await globalThis.wmPause(250);
     return {
       editeurRevenu: document.getElementById("postingbox").hidden === false,
-      messageIntact: document.querySelector("#text_editor_textarea").value === avant,
+      messageIntact: globalThis.wmMessage() === avant,
       reprendreOffert: !document.querySelector(".wmf-form__reprendre").hidden,
     };
   });
   dire(
-    "« ÉCRIRE À LA MAIN » REND L'ÉDITEUR ET REND LA MAIN",
+    "« ÉCRIRE À LA MAIN » REND LE BLOC D'ÉDITION ET REND LA MAIN",
     sortie.editeurRevenu === true && sortie.messageIntact === true &&
       sortie.reprendreOffert === true,
     JSON.stringify(sortie),
   );
   const retour = await q.evaluate(async () => {
     document.querySelector(".wmf-form__reprendre").click();
-    await new Promise((r) => setTimeout(r, 200));
+    await globalThis.wmPause(250);
     return {
       editeurRemasque: document.getElementById("postingbox").hidden,
-      message: document.querySelector("#text_editor_textarea").value,
+      message: globalThis.wmMessage(),
     };
   });
   dire(
-    "   et reprendre le formulaire remasque l'éditeur",
+    "   et reprendre la fiche remasque le bloc d'édition",
     retour.editeurRemasque === true &&
       retour.message.includes("<wmf-nom>Ne doit rien écrire</wmf-nom>"),
     JSON.stringify({ masque: retour.editeurRemasque }),
+  );
+  await q.close();
+}
+
+{
+  //  ── SUR UN SUJET NEUF, LE TITRE SUIT LE NOM ─────────────────────
+  //
+  //  C'est le cas réel d'une création : `/post?f=7&mode=newtopic` sert
+  //  un champ « Sujet » VIDE.
+  const q = await monterLaFiche("", { sujetVide: true });
+  await q.evaluate(OUTILS);
+  const titres = await q.evaluate(async () => {
+    globalThis.wmTaper("nom", "Jak A. Fering");
+    await globalThis.wmPause(200);
+    const suivi = {
+      editeur: document.getElementById("wmf-titre").value,
+      natif: document.querySelector('input[name="subject"]').value,
+    };
+    const champ = document.getElementById("wmf-titre");
+    champ.value = "Un titre à moi";
+    champ.dispatchEvent(new Event("input", { bubbles: true }));
+    globalThis.wmTaper("nom", "Autre nom");
+    await globalThis.wmPause(200);
+    return {
+      suivi,
+      apres: {
+        editeur: document.getElementById("wmf-titre").value,
+        natif: document.querySelector('input[name="subject"]').value,
+      },
+    };
+  });
+  dire(
+    "LE TITRE SE REMPLIT DU NOM DU PERSONNAGE",
+    titres.suivi.editeur === "Jak A. Fering" && titres.suivi.natif === "Jak A. Fering",
+    JSON.stringify(titres.suivi),
+  );
+  dire(
+    "   et dès qu'on l'écrit soi-même, il cesse de suivre",
+    titres.apres.editeur === "Un titre à moi" && titres.apres.natif === "Un titre à moi",
+    JSON.stringify(titres.apres),
   );
   await q.close();
 }

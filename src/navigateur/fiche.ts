@@ -266,19 +266,84 @@ function rendu(texte: string): string {
   return texte.replace(new RegExp(`<${SEPARE}(/?)wmf-`, "g"), "<$1wmf-");
 }
 
-function balise(clef: string, valeur: string): string {
-  return `<wmf-${clef}>${sur(valeur)}</wmf-${clef}>`;
+/*  CE QU'IL FAUT ÉCHAPPER POUR L'ÉDITEUR, ET SEULEMENT POUR LUI.
+
+    L'éditeur rend cette fiche puis rend chaque valeur modifiable sur
+    place. Or une valeur PORTE LES BALISES DU JOUEUR — « pouvoir
+    ajouter des balises de texte comme on veut » — et le navigateur les
+    analyse : son `<b>mardi</b>` devient un vrai élément dans la zone.
+
+    LA PERTE EST SILENCIEUSE ET DÉFINITIVE. Relire la zone rend
+    « mardi » sans ses balises ; la frappe suivante réécrit le message
+    avec cette version appauvrie, et le joueur voit son gras disparaître
+    sans savoir ce qui l'a mangé. Mesuré le 23 novembre, sur le vrai
+    navigateur.
+
+    Pour l'écran, le texte du joueur est donc du TEXTE : ses balises
+    s'affichent telles qu'il les a tapées, et se relisent telles
+    quelles. Pour le message, rien n'est échappé — c'est tout l'objet.
+
+    `sur` NE SUFFIRAIT PAS : elle ne protège que `<wmf-`, ce qui
+    empêche de forger une balise à nous, pas d'en faire analyser
+    d'autres. */
+function echappe(texte: string): string {
+  return texte
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-function bloc(champs: readonly Champ[], valeurs: Readonly<Record<string, string>>): string {
+function balise(clef: string, valeur: string, brut = false): string {
+  return `<wmf-${clef}>${brut ? echappe(valeur) : sur(valeur)}</wmf-${clef}>`;
+}
+
+function bloc(
+  champs: readonly Champ[],
+  valeurs: Readonly<Record<string, string>>,
+  ecrire: boolean,
+): string {
   //  UN CHAMP VIDE NE S'IMPRIME PAS. « SURNOM : » tout seul dans une
   //  fiche publiée n'apprend rien et occupe une ligne ; et le joueur
   //  qui n'a pas de surnom n'a pas à en inventer un.
   return champs
-    .filter((c) => (valeurs[c.clef] ?? "").trim() !== "")
-    .map((c) => `<y>${c.etiquette} :</y> ${balise(c.clef, valeurs[c.clef])}`)
+    .filter((c) => ecrire || (valeurs[c.clef] ?? "").trim() !== "")
+    .map((c) => `<y>${c.etiquette} :</y> ${balise(c.clef, valeurs[c.clef] ?? "", ecrire)}`)
     .join(" ");
 }
+
+/** Comment rendre la fiche. */
+export type Rendu = {
+  /** Rendre AUSSI ce qui est vide : chaque champ, le bloc du starter,
+   *  le bloc de l'organisation.
+   *
+   *  ── POURQUOI CETTE OPTION EXISTE ────────────────────────────────
+   *
+   *  « Je veux pas juste remplir les champs. Je veux visuellement
+   *  remplir ma fiche de présentation. » — 23 novembre.
+   *
+   *  L'éditeur n'est pas un formulaire posé à côté de la fiche : c'est
+   *  la fiche, rendue par cette fonction, dont chaque valeur devient
+   *  une zone où l'on écrit. Une seule mise en page, donc, pour
+   *  l'écran et pour le message — et rien à faire diverger.
+   *
+   *  Mais la fiche publiée TAIT ce qui est vide, et c'est voulu. Un
+   *  champ qu'on ne rend pas n'offre aucune zone où écrire — et c'est
+   *  précisément celui qu'il reste à remplir. D'où cette option :
+   *  l'écran montre tout, le message ne garde que ce qui est rempli.
+   *
+   *  ELLE NE CHANGE RIEN PAR DÉFAUT, et l'aller-retour qui fait foi
+   *  (`publier` → `lireUneFiche`) est mesuré sans elle. */
+  readonly pourEcrire?: boolean;
+};
+
+const STARTER_VIDE: Starter = {
+  especeId: 0,
+  espece: "",
+  surnom: "",
+  talent: "",
+  rencontre: "",
+};
 
 /** Le message à publier, tel qu'il entrera dans l'éditeur.
  *
@@ -295,22 +360,26 @@ function bloc(champs: readonly Champ[], valeurs: Readonly<Record<string, string>
  *  LES DEUX COLONNES SONT UN FLEX, pas un tableau — « je veux pas de
  *  tableau, que du flexbox ». Le CSS vit dans la feuille du forum ;
  *  ici on ne pose que la structure et les classes. */
-export function publier(f: Fiche): string {
+export function publier(f: Fiche, r: Rendu = {}): string {
+  const ecrire = r.pourEcrire === true;
+  const b = (clef: string, v: string): string => balise(clef, v, ecrire);
   const morceaux: string[] = [];
   morceaux.push(`<div class="wmf">`);
-  morceaux.push(`<div class="wmf__titre">${balise("nom", f.nom)}</div>`);
-  if (f.tw.trim() !== "") {
-    morceaux.push(`<div class="wmf__tw"><x>${balise("tw", f.tw)}</x></div>`);
+  morceaux.push(`<div class="wmf__titre">${b("nom", f.nom)}</div>`);
+  if (ecrire || f.tw.trim() !== "") {
+    morceaux.push(`<div class="wmf__tw"><x>${b("tw", f.tw)}</x></div>`);
   }
 
   morceaux.push(`<div class="wmf__haut">`);
   morceaux.push(
     `<div class="wmf__avatar">` +
-      (f.avatar.trim() === "" ? "" : `<img src="${f.avatar.trim()}" alt="" />`) +
-      balise("avatar", f.avatar) +
+      (f.avatar.trim() === ""
+        ? ""
+        : `<img src="${ecrire ? echappe(f.avatar.trim()) : f.avatar.trim()}" alt="" />`) +
+      b("avatar", f.avatar) +
       `</div>`,
   );
-  morceaux.push(`<div class="wmf__infos">${bloc(IDENTITE, f.identite)}</div>`);
+  morceaux.push(`<div class="wmf__infos">${bloc(IDENTITE, f.identite, ecrire)}</div>`);
   morceaux.push(`</div>`);
 
   //  ── L'HISTOIRE, DANS LA FORME CHOISIE ──────────────────────────
@@ -322,14 +391,20 @@ export function publier(f: Fiche): string {
   morceaux.push(`<div class="wmf__histoire" data-mode="${f.histoire.mode}">`);
   morceaux.push(`<div class="wmf__bandeau">RACONTE-NOUS TON HISTOIRE</div>`);
   if (f.histoire.mode === "pave") {
-    morceaux.push(balise("histoire", f.histoire.texte));
+    morceaux.push(b("histoire", f.histoire.texte));
   } else {
     morceaux.push(`<div class="wmf__chrono">`);
-    for (const m of f.histoire.moments) {
+    //  UNE CHRONOLOGIE VIDE OFFRE QUAND MÊME UN MOMENT À REMPLIR :
+    //  sinon, choisir la chronologie n'afficherait rien du tout, et le
+    //  joueur devrait deviner qu'il y a un bouton à trouver.
+    const moments = ecrire && f.histoire.moments.length === 0
+      ? [{ date: "", texte: "" }]
+      : f.histoire.moments;
+    for (const m of moments) {
       morceaux.push(
         `<div class="wmf__moment">` +
-          `<div class="wmf__moment-date">${balise("m-date", m.date)}</div>` +
-          `<div class="wmf__moment-texte">${balise("m-texte", m.texte)}</div>` +
+          `<div class="wmf__moment-date">${b("m-date", m.date)}</div>` +
+          `<div class="wmf__moment-texte">${b("m-texte", m.texte)}</div>` +
           `</div>`,
       );
     }
@@ -337,42 +412,42 @@ export function publier(f: Fiche): string {
   }
   morceaux.push(`</div>`);
 
-  if (f.starter !== null) {
-    const s = f.starter;
+  if (f.starter !== null || ecrire) {
+    const s = f.starter ?? STARTER_VIDE;
     morceaux.push(`<div class="wmf__starter">`);
     morceaux.push(
       `<div class="wmf__pokemon">` +
         `<wmf-s-id>${s.especeId}</wmf-s-id>` +
-        `<div class="wmf__espece">${balise("s-espece", s.espece)}</div>` +
-        `<div class="wmf__surnom"><ifn>${balise("s-surnom", s.surnom)}</ifn></div>` +
-        `<div class="wmf__talent"><ifi>${balise("s-talent", s.talent)}</ifi></div>` +
+        `<div class="wmf__espece">${b("s-espece", s.espece)}</div>` +
+        `<div class="wmf__surnom"><ifn>${b("s-surnom", s.surnom)}</ifn></div>` +
+        `<div class="wmf__talent"><ifi>${b("s-talent", s.talent)}</ifi></div>` +
         `</div>`,
     );
     morceaux.push(
       `<div class="wmf__rencontre">` +
         `<div class="wmf__bandeau">COMPAGNON D'UNE VIE</div>` +
-        balise("s-rencontre", s.rencontre) +
+        b("s-rencontre", s.rencontre) +
         `</div>`,
     );
     morceaux.push(`</div>`);
   }
-  if (f.ancienneEquipe.trim() !== "") {
+  if (ecrire || f.ancienneEquipe.trim() !== "") {
     morceaux.push(
       `<div class="wmf__ancienne">` +
         `<div class="wmf__bandeau">L'ÉQUIPE D'AVANT</div>` +
-        balise("ancienne", f.ancienneEquipe) +
+        b("ancienne", f.ancienneEquipe) +
         `</div>`,
     );
   }
 
-  if (f.ombre !== null) {
+  if (f.ombre !== null || ecrire) {
     morceaux.push(`<div class="wmf__ombre">`);
     morceaux.push(`<div class="wmf__bandeau">L'ORGANISATION</div>`);
     for (const c of OMBRE) {
-      const v = f.ombre[c.clef] ?? "";
-      if (v.trim() === "") continue;
+      const v = f.ombre?.[c.clef] ?? "";
+      if (!ecrire && v.trim() === "") continue;
       morceaux.push(
-        `<div class="wmf__question"><o>${c.etiquette}</o> ${balise(c.clef, v)}</div>`,
+        `<div class="wmf__question"><o>${c.etiquette}</o> ${b(c.clef, v)}</div>`,
       );
     }
     morceaux.push(`</div>`);
@@ -381,7 +456,7 @@ export function publier(f: Fiche): string {
   morceaux.push(
     `<div class="wmf__joueur">` +
       `<div class="wmf__bandeau">DERRIÈRE L'ÉCRAN</div>` +
-      bloc(JOUEUR, f.joueur) +
+      bloc(JOUEUR, f.joueur, ecrire) +
       `</div>`,
   );
   morceaux.push(`</div>`);

@@ -281,3 +281,102 @@ Deno.test("AUCUNE CLÉ N'EST LE PRÉFIXE D'UNE AUTRE", () => {
     }
   }
 });
+
+// ── rendre aussi ce qui est vide, pour l'éditeur ─────────────────────
+
+/*  « Je veux visuellement remplir ma fiche de présentation. »
+
+    L'éditeur EST cette fonction : il rend la fiche, puis rend chacune
+    de ses valeurs modifiable sur place. Pour qu'il y ait une zone où
+    écrire là où rien n'est encore écrit, `publier` doit savoir rendre
+    le vide — sans jamais le faire pour le message publié. */
+
+Deno.test("POUR L'ÉDITEUR, CHAQUE CHAMP A SA ZONE", () => {
+  //  C'est la propriété dont dépend tout l'éditeur : un champ sans
+  //  balise est un champ sur lequel on ne peut pas cliquer, et le
+  //  joueur n'aurait aucun moyen de le remplir.
+  const html = publier(ficheVide(), { pourEcrire: true });
+  const manquants = [
+    "nom",
+    "tw",
+    "avatar",
+    "ancienne",
+    ...IDENTITE.map((c) => c.clef),
+    ...JOUEUR.map((c) => c.clef),
+    ...OMBRE.map((c) => c.clef),
+    "s-espece",
+    "s-surnom",
+    "s-talent",
+    "s-rencontre",
+  ].filter((clef) => !html.includes(`<wmf-${clef}>`));
+  assertEquals(manquants, []);
+});
+
+Deno.test("POUR L'ÉDITEUR, LES BLOCS OPTIONNELS SONT LÀ AUSSI", () => {
+  //  Le starter et l'organisation ne se publient que remplis. À
+  //  l'écran, il faut pouvoir les remplir — donc les voir.
+  const html = publier(ficheVide(), { pourEcrire: true });
+  assertEquals(html.includes(`class="wmf__starter"`), true);
+  assertEquals(html.includes(`class="wmf__ombre"`), true);
+  assertEquals(html.includes(`class="wmf__tw"`), true);
+  assertEquals(html.includes(`class="wmf__ancienne"`), true);
+});
+
+Deno.test("UNE CHRONOLOGIE VIDE OFFRE UN MOMENT À REMPLIR", () => {
+  const f: Fiche = { ...ficheVide(), histoire: { mode: "chronologie", moments: [] } };
+  assertEquals(publier(f).includes("<wmf-m-date>"), false);
+  assertEquals(publier(f, { pourEcrire: true }).includes("<wmf-m-date>"), true);
+});
+
+Deno.test("L'OPTION NE CHANGE RIEN AU MESSAGE PUBLIÉ", () => {
+  //  La garde qui compte : `pourEcrire` sert l'écran, et rien d'autre.
+  //  Si elle fuyait dans le chemin de publication, chaque fiche
+  //  partirait avec trente étiquettes suivies de rien — et les balises
+  //  du joueur en caractères visibles.
+  assertEquals(publier(COMPLETE, {}), publier(COMPLETE));
+  assertEquals(publier(COMPLETE, { pourEcrire: false }), publier(COMPLETE));
+  assertEquals(publier(ficheVide()).includes("<wmf-metier>"), false);
+});
+
+Deno.test("POUR L'ÉDITEUR, LES BALISES DU JOUEUR SONT DU TEXTE", () => {
+  //  LE DÉFAUT QUI A FAIT NAÎTRE CE DRAPEAU, mesuré sur le vrai
+  //  navigateur le 23 novembre : rendu tel quel, `<b>mardi</b>` devient
+  //  un vrai élément dans la zone modifiable, et relire la zone rend
+  //  « mardi » tout court. La frappe suivante réécrit le message avec
+  //  cette version appauvrie — le gras disparaît sans que rien ne le
+  //  dise.
+  const ecran = publier(COMPLETE, { pourEcrire: true });
+  assertEquals(ecran.includes("&lt;b&gt;pavé&lt;/b&gt;"), true);
+  assertEquals(ecran.includes("<b>pavé</b>"), false);
+  //  ET LE MESSAGE, LUI, LES GARDE VIVANTES.
+  assertEquals(publier(COMPLETE).includes("<b>pavé</b>"), true);
+});
+
+Deno.test("CE QUI EST ÉCHAPPÉ POUR L'ÉCRAN SE RELIT TEL QUEL", () => {
+  //  L'aller-retour de l'éditeur : le navigateur ré-analyse ce HTML,
+  //  donc `&lt;` redevient `<` dans la zone, et c'est ce `<` qui part
+  //  dans le message. Les deux chemins doivent rendre le même texte.
+  const piege: Fiche = {
+    ...ficheVide(),
+    nom: "A & B",
+    histoire: { mode: "pave", texte: '<b>gras</b> & "guillemets" <wmf-nom>forgé</wmf-nom>' },
+  };
+  const ecran = publier(piege, { pourEcrire: true });
+  //  RIEN NE S'Y ANALYSE : ni les balises du joueur, ni une balise à
+  //  nous qu'il aurait tapée pour se faire passer pour l'éditeur.
+  assertEquals(/<b>|<wmf-nom>forgé/.test(ecran), false);
+  //  ET LE DÉSÉCHAPPEMENT DU NAVIGATEUR REND LE TEXTE D'ORIGINE.
+  const comme = (s: string) =>
+    s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+      .replace(/&amp;/g, "&");
+  assertEquals(
+    /<wmf-histoire>([\s\S]*?)<\/wmf-histoire>/.exec(ecran)?.[1] ?? "",
+    "&lt;b&gt;gras&lt;/b&gt; &amp; &quot;guillemets&quot; &lt;wmf-nom&gt;forgé&lt;/wmf-nom&gt;",
+  );
+  assertEquals(
+    comme(
+      "&lt;b&gt;gras&lt;/b&gt; &amp; &quot;guillemets&quot; &lt;wmf-nom&gt;forgé&lt;/wmf-nom&gt;",
+    ),
+    piege.histoire.mode === "pave" ? piege.histoire.texte : "",
+  );
+});
