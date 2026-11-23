@@ -161,22 +161,31 @@ essai("`monter_niveaux` s'arrête à 100", async (url) => {
 
 // ── la pension ──────────────────────────────────────────────────────
 
-essai("`rendre_pension` : dix jours par niveau, dix niveaux au plafond", async (url) => {
-  //  ATTENTION : cette fonction applique `floor(jours / 10)`, et la
-  //  planche 50 §2 a déclaré cette règle FAUSSE — l'annexe élevage dit
-  //  que le gérant DÉCLARE les niveaux, plafonnés à dix par sujet.
+essai("`rendre_pension` : le rythme de la pension, dix niveaux au plafond", async (url) => {
+  //  ── CE TEST A CHANGÉ DE RÈGLE LE 23 NOVEMBRE ──────────────────────
   //
-  //  Ce test fixe donc le comportement du corps, pas la règle du jeu :
-  //  il garantit que l'arithmétique, le déplacement en boîte et le refus
-  //  du rejeu marchent, pour que la réécriture de la règle n'ait pas à
-  //  tout revérifier.
+  //  Il portait un avertissement : « la planche 50 §2 a déclaré cette
+  //  règle FAUSSE ». Callista l'a tranchée — « y'a la pension publique
+  //  et n'importe quel joueur peut ouvrir la sienne » — et la 0065
+  //  l'écrit : dix jours par niveau chez Aulne, sept chez un joueur,
+  //  dix niveaux au plafond, l'horloge partant de l'ACCEPTATION.
+  //
+  //  Ce qui ne change pas, et que ce test garde : l'arithmétique, le
+  //  retour en boîte, la libération de la case, et le refus du rejeu.
   await psql(
     url,
-    `insert into pension (id, joueur_id, pokemon_id, depose_le, niveau_au_depot, tarif)
+    `insert into pension (id, joueur_id, pokemon_id, depose_le, accepte_le,
+                          niveau_au_depot, tarif)
      values ('${PENSION}', '${ANNA}', '${POKEMON}',
-             now() - interval '35 days', 1, 500)`,
+             now() - interval '35 days', now() - interval '35 days', 1, 500)`,
   );
-  assertEquals(await psql(url, `select rendre_pension('${PENSION}')`), "3");
+  //  `gerant_id` EST NUL : c'est la pension publique, donc dix jours
+  //  par niveau. 35 jours en donnent trois.
+  const rendu = await psql(
+    url,
+    `select rendre_pension(jsonb_build_object('pensionId','${PENSION}'))->>'niveaux'`,
+  );
+  assertEquals(rendu, "3");
 
   const apres = await psql(
     url,
@@ -193,27 +202,72 @@ essai("`rendre_pension` : dix jours par niveau, dix niveaux au plafond", async (
   assert(apres.includes("boite"));
 });
 
-essai("`rendre_pension` refuse un second retrait", async (url) => {
+essai("`rendre_pension` refuse un second retrait, en le disant", async (url) => {
+  //  CE N'EST PLUS UNE LEVÉE MAIS UN REFUS : la forme de
+  //  `boutique_servir` (0011). Un `raise` annulerait la transaction et
+  //  donc la trace du refus, et la relève a besoin de savoir pourquoi
+  //  elle n'a rien rendu.
   await psql(
     url,
-    `insert into pension (id, joueur_id, pokemon_id, depose_le, niveau_au_depot, tarif)
-     values ('${PENSION}', '${ANNA}', '${POKEMON}', now() - interval '12 days', 1, 500)`,
+    `insert into pension (id, joueur_id, pokemon_id, depose_le, accepte_le,
+                          niveau_au_depot, tarif)
+     values ('${PENSION}', '${ANNA}', '${POKEMON}', now() - interval '12 days',
+             now() - interval '12 days', 1, 500)`,
   );
-  await psql(url, `select rendre_pension('${PENSION}')`);
-  await assertRejects(
-    () => psql(url, `select rendre_pension('${PENSION}')`),
-    Error,
-    "déjà rendu",
+  await psql(url, `select rendre_pension(jsonb_build_object('pensionId','${PENSION}'))`);
+  assertEquals(
+    await psql(
+      url,
+      `select rendre_pension(jsonb_build_object('pensionId','${PENSION}'))->>'raison'`,
+    ),
+    "DEJA_RENDU",
   );
 });
 
-essai("`rendre_pension` ne donne rien en dessous de dix jours", async (url) => {
+essai(
+  "`rendre_pension` ne donne rien en dessous du pas, et ne fait rien payer",
+  async (url) => {
+    //  ZÉRO NIVEAU, ZÉRO POKÉDOLLAR. Faire payer un séjour qui n'a rien
+    //  donné serait faire payer l'attente — et l'annexe V1 dit l'inverse :
+    //  « régler ainsi la somme demandée » vient APRÈS « lorsque les
+    //  niveaux sont atteints ».
+    await psql(
+      url,
+      `insert into pension (id, joueur_id, pokemon_id, depose_le, accepte_le,
+                          niveau_au_depot, tarif)
+     values ('${PENSION}', '${ANNA}', '${POKEMON}', now() - interval '9 days',
+             now() - interval '9 days', 1, 500)`,
+    );
+    const avant = await psql(url, `select pokedollars from joueur where id = '${ANNA}'`);
+    assertEquals(
+      await psql(
+        url,
+        `select rendre_pension(jsonb_build_object('pensionId','${PENSION}'))->>'niveaux'`,
+      ),
+      "0",
+    );
+    assertEquals(await psql(url, `select pokedollars from joueur where id = '${ANNA}'`), avant);
+    assertEquals(await psql(url, `select paye from pension where id = '${PENSION}'`), "0");
+  },
+);
+
+essai("un Pokémon qui attend à la porte ne se reprend pas", async (url) => {
+  //  « Le dépôt n'est effectif qu'une fois que le gérant l'a accepté. »
+  //  L'horloge part de `accepte_le` : sans acceptation, il n'y a pas de
+  //  séjour à compter, et le dire vaut mieux que rendre zéro niveau
+  //  sans explication.
   await psql(
     url,
     `insert into pension (id, joueur_id, pokemon_id, depose_le, niveau_au_depot, tarif)
-     values ('${PENSION}', '${ANNA}', '${POKEMON}', now() - interval '9 days', 1, 500)`,
+     values ('${PENSION}', '${ANNA}', '${POKEMON}', now() - interval '30 days', 1, 500)`,
   );
-  assertEquals(await psql(url, `select rendre_pension('${PENSION}')`), "0");
+  assertEquals(
+    await psql(
+      url,
+      `select rendre_pension(jsonb_build_object('pensionId','${PENSION}'))->>'raison'`,
+    ),
+    "PAS_ENCORE_PRIS",
+  );
 });
 
 // ── le palier ───────────────────────────────────────────────────────
