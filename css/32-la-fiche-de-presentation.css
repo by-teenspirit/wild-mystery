@@ -113,9 +113,17 @@
     prétend montrer la fiche telle qu'elle sera doit donc la poser sur
     la même surface. Sur le fond de page, les cartes et les panneaux
     ne tombaient pas aux mêmes écarts qu'une fois publiés. */
+/*  AUCUN ÉCART ENTRE LE FOND ET LE CONTOUR DE LA FICHE. « Mets pas un
+    padding entre le fond blanc et le contour de la fiche de prez »
+    — 24 novembre.
+
+    Cet encart simule la surface d'un message, et la fiche porte
+    depuis ce matin son propre fond, de la même couleur. Les seize
+    pixels qui les séparaient étaient donc du blanc sur du blanc : à
+    l'œil, un trait qui flottait à l'intérieur de sa boîte au lieu
+    d'en être le bord. */
 #modernbb .wmf-form__fiche {
   box-sizing: border-box;
-  padding: var(--wm-espace-16, 16px);
   border-radius: var(--wm-rayon-lg, 10px);
   background: var(--wm-fond-surface, #fffbf7);
 }
@@ -274,32 +282,22 @@
   word-break: break-all;
 }
 
-/*  LA TRAINER CARD SE COLLE COMME L'AVATAR : une adresse, et c'est
-    l'image qui s'affiche. Il faut donc qu'on puisse écrire l'adresse,
-    et seulement à l'écran. */
-#modernbb .wmf-form__fiche .wmf__tcard wmf-j-tcard {
-  display: block;
-  min-width: 0;
-  margin-top: var(--wm-espace-8, 8px);
-  font-size: var(--wm-taille-petit, 11.5px);
-  word-break: break-all;
-}
+/*  ── UN SEUL CARRÉ, ET C'EST LE CADRE ─────────────────────────────
 
-#modernbb .wmf-form__fiche .wmf__tcard:not(:has(img))::before {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  border: 1px dashed var(--wm-bord-net, #d9c3b1);
-  aspect-ratio: 1 / 1;
-  border-radius: var(--wm-rayon-md, 8px);
-  background: var(--wm-fond-surface-haute, #fcf4ec);
-  color: var(--wm-texte-doux, #6e5749);
-  content: "ta trainer card, carrée";
-  font-size: var(--wm-taille-petit, 11.5px);
-  font-style: italic;
-  text-align: center;
-}
+    « En fait tu as mis deux carrés, la trainer card carrée et l'image
+    en dessous. Enlève tout le cadre "ta trainer card carrée" dans
+    "derrière l'écran". » — 24 novembre.
+
+    Trois règles sont parties d'ici, toutes écrites AVANT que l'image,
+    son adresse et son crédit n'emménagent dans un cadre commun. Elles
+    visaient la COLONNE : un carré en pointillés dessus, et l'adresse
+    écrite sous elle. Depuis que le cadre fait les deux, elles en
+    faisaient un second par-dessus le premier.
+
+    La leçon vaut pour la suite : quand un élément déménage dans un
+    nouveau conteneur, ce sont les règles de l'ANCIEN qu'il faut aller
+    chercher, pas celles du nouveau — elles ne cassent rien, elles
+    doublent. */
 
 /*  ── LA BARRE DE BALISES ───────────────────────────────────────────
 
@@ -372,19 +370,35 @@
   cursor: pointer;
 }
 
+/*  UN BOUTON D'OUTIL EST UN CARRÉ, depuis le passage aux icônes :
+    vingt largeurs différentes faisaient une barre en dents de scie
+    où l'œil ne retrouvait rien d'une fois sur l'autre. Même boîte
+    pour tous, le dessin au milieu. */
 #modernbb .wmf-form__balise {
-  padding: var(--wm-espace-2, 2px) var(--wm-espace-8, 8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 26px;
+  height: 24px;
+  padding: 0;
   border: 1px solid var(--wm-bord-net, #d9c3b1);
   border-radius: var(--wm-rayon-sm, 6px);
   background: var(--wm-fond-surface, #fffbf7);
   color: var(--wm-texte-corps, #4e3b30);
   cursor: pointer;
-  font-family: inherit;
-  font-size: var(--wm-taille-etiquette, 10px);
-  font-weight: var(--wm-graisse-demi, 600);
-  letter-spacing: var(--wm-interlettre-etiquette, 0.012em);
-  line-height: var(--wm-interligne-surtitre, 1.4);
-  text-transform: uppercase;
+}
+
+#modernbb .wmf-form__balise svg {
+  width: 15px;
+  height: 15px;
+  fill: currentcolor;
+}
+
+#modernbb .wmf-form__balise:hover,
+#modernbb .wmf-form__balise:focus-visible {
+  border-color: var(--wm-accent-primaire, #275e7a);
+  color: var(--wm-accent-primaire, #275e7a);
 }
 
 #modernbb .wmf-form__balise:hover,
@@ -1368,8 +1382,6 @@
     Le cadre en pointillés dit que la place attend une image, et
     disparaît dès qu'il y en a une — `:has(img)` est vrai au moment où
     l'éditeur en pose une, donc la bascule est immédiate. */
-#modernbb .wmf__avatar:not(:has(img))::before,
-#modernbb .wmf__tcard:not(:has(img))::before,
 #modernbb .wmf__avatar .wmf__cadre:not(:has(img))::before {
   width: 100%;
   height: 320px;
@@ -1687,4 +1699,65 @@
     atteindre le tag qu'on est en train de remplir. */
 #modernbb .wmf__credit-tag:has([data-vide]:empty) {
   display: none;
+}
+
+/*  ── LES CHAMPS D'INFORMATIONS PRENNENT TOUTE LA LARGEUR ───────────
+
+    « Fais en sorte que les champs dans informations prennent toute la
+    largeur. » — 24 novembre. Le bloc est une colonne, donc ses
+    enfants s'étirent déjà ; c'est la VALEUR qui ne le faisait pas,
+    parce qu'une balise inconnue du navigateur est en ligne par
+    défaut et s'arrête donc à son texte. Le liseré du champ dessinait
+    la longueur du mot, pas celle de la place qu'on a pour écrire. */
+#modernbb .wmf__infos > .wmf__champ,
+#modernbb .wmf__infos > .wmf__champ > y + * {
+  display: block;
+  width: 100%;
+}
+
+/*  ── LES TRIGGER WARNINGS : UNE LIGNE, TOUTE LA LARGEUR ────────────
+
+    « Le champ doit faire une ligne de hauteur et prendre toute la
+    largeur. » — 24 novembre.
+
+    Toute la largeur et l'étiquette sur la même ligne ne tiennent pas
+    ensemble : l'étiquette passe donc au-dessus, comme sa consigne de
+    ce matin le prévoyait — « sinon, le label doit passer au-dessus du
+    champ ». */
+#modernbb .wmf__tw {
+  flex-direction: column;
+  gap: var(--wm-espace-2, 2px);
+  align-items: stretch;
+}
+
+#modernbb .wmf__tw > y,
+#modernbb .wmf__tw > x {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 0;
+}
+
+/*  UNE LIGNE DE HAUT, et elle s'allonge si la liste déborde : une
+    hauteur fixée couperait la fin d'une longue liste, et une liste de
+    trigger warnings coupée est pire que pas de liste. */
+#modernbb .wmf__tw > x > [data-wmf-zone],
+#modernbb .wmf__tw > x > wmf-tw {
+  display: block;
+  width: 100%;
+  min-height: 1.6em;
+}
+
+/*  ── LES OPTIONS D'UN MENU NE SONT PAS DES ÉTIQUETTES ──────────────
+
+    « Évite de mettre un uppercase sur les options quand on veut
+    choisir dans le menu déroulant. » Les majuscules sont la marque
+    des étiquettes de la fiche ; dans une liste déroulante, elles
+    ralentissent la lecture de ce qu'on compare — « 9 PX, 10 PX, 12
+    PX » se lit moins vite que « 9 px, 10 px, 12 px ». Le bouton
+    fermé, lui, reste une étiquette. */
+#modernbb .wmf-form__menu option {
+  font-size: var(--wm-taille-normal, 13.5px);
+  letter-spacing: normal;
+  text-transform: none;
 }

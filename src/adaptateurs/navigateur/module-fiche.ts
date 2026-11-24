@@ -273,12 +273,24 @@ const BALISEES = new Set(["histoire", "m-texte", "s-rencontre"]);
     Les imiter donnerait des boutons qui ne feraient rien, ou pire,
     qui écriraient un code mort dans la fiche.
 
-    EN TOUTES LETTRES, PAS EN PICTOGRAMMES : un « G » gras et un « I »
-    penché sont une convention de traitement de texte, pas de forum,
-    et la barre sert justement à ceux qui ne la connaissent pas. */
+    EN ICÔNES. « Dans le bloc d'édition, mets les icônes plutôt que le
+    texte pour les outils d'édition » — 24 novembre, après un essai en
+    toutes lettres : vingt mots faisaient trois rangées, un mur de
+    texte au-dessus du texte qu'on vient écrire.
+
+    LE MOT N'EST PAS PERDU : il reste en `title`, donc au survol, et
+    en `aria-label`, donc pour qui lit la page autrement qu'avec les
+    yeux. Une icône sans nom accessible est un bouton muet.
+
+    LES QUATRE PREMIÈRES SONT DES LETTRES, et c'est voulu : B, I, U, S
+    sont les icônes de tous les éditeurs depuis trente ans, celui de
+    Forumactif compris. Les dessiner autrement serait inventer une
+    convention là où il en existe une. */
 type Balise = {
   readonly mot: string;
   readonly titre?: string;
+  /** Le dessin du bouton : l'intérieur d'un `<svg viewBox="0 0 16 16">`. */
+  readonly dessin: string;
   readonly ouvre: string;
   readonly ferme: string;
   /** Le bouton demande une adresse avant d'insérer. */
@@ -288,14 +300,55 @@ type Balise = {
 };
 
 const BALISES: readonly Balise[] = [
-  { mot: "Gras", ouvre: "<b>", ferme: "</b>" },
-  { mot: "Ital.", titre: "Italique", ouvre: "<i>", ferme: "</i>" },
-  { mot: "Soulig.", titre: "Souligné", ouvre: "<u>", ferme: "</u>" },
-  { mot: "Barré", ouvre: "<s>", ferme: "</s>" },
-  { mot: "Indice", ouvre: "<sub>", ferme: "</sub>", groupe: true },
-  { mot: "Exposant", ouvre: "<sup>", ferme: "</sup>" },
+  {
+    mot: "Gras",
+    dessin:
+      `<text x="8" y="12.2" text-anchor="middle" font-size="12" font-family="Georgia, serif" font-weight="700">B</text>`,
+    ouvre: "<b>",
+    ferme: "</b>",
+  },
+  {
+    mot: "Ital.",
+    dessin:
+      `<text x="8" y="12.2" text-anchor="middle" font-size="12" font-family="Georgia, serif" font-style="italic" font-weight="600">I</text>`,
+    titre: "Italique",
+    ouvre: "<i>",
+    ferme: "</i>",
+  },
+  {
+    mot: "Soulig.",
+    dessin:
+      `<text x="8" y="12.2" text-anchor="middle" font-size="12" font-family="Georgia, serif" font-weight="600">U</text><rect x="4" y="13.2" width="8" height="1.3" rx=".65"/>`,
+    titre: "Souligné",
+    ouvre: "<u>",
+    ferme: "</u>",
+  },
+  {
+    mot: "Barré",
+    dessin:
+      `<text x="8" y="12.2" text-anchor="middle" font-size="12" font-family="Georgia, serif" font-weight="600">S</text><rect x="3" y="8" width="10" height="1.3" rx=".65"/>`,
+    ouvre: "<s>",
+    ferme: "</s>",
+  },
+  {
+    mot: "Indice",
+    dessin:
+      `<text x="6" y="11" text-anchor="middle" font-size="10" font-family="Georgia, serif">x</text><text x="12" y="14" text-anchor="middle" font-size="7" font-family="Georgia, serif">2</text>`,
+    ouvre: "<sub>",
+    ferme: "</sub>",
+    groupe: true,
+  },
+  {
+    mot: "Exposant",
+    dessin:
+      `<text x="6" y="12" text-anchor="middle" font-size="10" font-family="Georgia, serif">x</text><text x="12" y="6" text-anchor="middle" font-size="7" font-family="Georgia, serif">2</text>`,
+    ouvre: "<sup>",
+    ferme: "</sup>",
+  },
   {
     mot: "Gauche",
+    dessin:
+      `<rect x="2" y="3" width="12" height="1.8" rx=".9"/><rect x="2" y="7.1" width="8" height="1.8" rx=".9"/><rect x="2" y="11.2" width="11" height="1.8" rx=".9"/>`,
     titre: "Aligné à gauche",
     ouvre: `<div style="text-align:left">`,
     ferme: "</div>",
@@ -303,39 +356,77 @@ const BALISES: readonly Balise[] = [
   },
   {
     mot: "Centré",
+    dessin:
+      `<rect x="2" y="3" width="12" height="1.8" rx=".9"/><rect x="4" y="7.1" width="8" height="1.8" rx=".9"/><rect x="2.5" y="11.2" width="11" height="1.8" rx=".9"/>`,
     ouvre: `<div style="text-align:center">`,
     ferme: "</div>",
   },
   {
     mot: "Droite",
+    dessin:
+      `<rect x="2" y="3" width="12" height="1.8" rx=".9"/><rect x="6" y="7.1" width="8" height="1.8" rx=".9"/><rect x="3" y="11.2" width="11" height="1.8" rx=".9"/>`,
     titre: "Aligné à droite",
     ouvre: `<div style="text-align:right">`,
     ferme: "</div>",
   },
   {
     mot: "Justifié",
+    dessin:
+      `<rect x="2" y="3" width="12" height="1.8" rx=".9"/><rect x="2" y="7.1" width="12" height="1.8" rx=".9"/><rect x="2" y="11.2" width="12" height="1.8" rx=".9"/>`,
     ouvre: `<div style="text-align:justify">`,
     ferme: "</div>",
   },
-  { mot: "Liste", ouvre: "<ul><li>", ferme: "</li></ul>", groupe: true },
-  { mot: "Liste n°", titre: "Liste ordonnée", ouvre: "<ol><li>", ferme: "</li></ol>" },
+  {
+    mot: "Liste",
+    dessin:
+      `<circle cx="3" cy="4" r="1.3"/><circle cx="3" cy="8" r="1.3"/><circle cx="3" cy="12" r="1.3"/><rect x="6" y="3.1" width="8" height="1.8" rx=".9"/><rect x="6" y="7.1" width="8" height="1.8" rx=".9"/><rect x="6" y="11.1" width="8" height="1.8" rx=".9"/>`,
+    ouvre: "<ul><li>",
+    ferme: "</li></ul>",
+    groupe: true,
+  },
+  {
+    mot: "Liste n°",
+    dessin:
+      `<text x="2.6" y="5.6" font-size="5.4" font-family="Georgia, serif">1</text><text x="2.6" y="10" font-size="5.4" font-family="Georgia, serif">2</text><text x="2.6" y="14.4" font-size="5.4" font-family="Georgia, serif">3</text><rect x="6.5" y="3.1" width="7.5" height="1.8" rx=".9"/><rect x="6.5" y="7.1" width="7.5" height="1.8" rx=".9"/><rect x="6.5" y="11.1" width="7.5" height="1.8" rx=".9"/>`,
+    titre: "Liste ordonnée",
+    ouvre: "<ol><li>",
+    ferme: "</li></ol>",
+  },
   {
     mot: "Citation",
+    dessin:
+      `<path d="M6.4 3.2C4 4.3 2.6 6.2 2.6 8.6c0 2.3 1.2 3.9 3 3.9 1.5 0 2.6-1.1 2.6-2.5 0-1.4-1-2.4-2.3-2.4-.3 0-.5 0-.7.1.3-1.1 1.2-2.1 2.5-2.8zm7 0c-2.4 1.1-3.8 3-3.8 5.4 0 2.3 1.2 3.9 3 3.9 1.5 0 2.6-1.1 2.6-2.5 0-1.4-1-2.4-2.3-2.4-.3 0-.5 0-.7.1.3-1.1 1.2-2.1 2.5-2.8z"/>`,
     titre: "Citer",
     ouvre: "<blockquote>",
     ferme: "</blockquote>",
     groupe: true,
   },
-  { mot: "Code", ouvre: "<code>", ferme: "</code>" },
-  { mot: "Ligne", titre: "Insérer une ligne", ouvre: "<hr />", ferme: "" },
+  {
+    mot: "Code",
+    dessin:
+      `<path d="M5.6 3.6 1.8 8l3.8 4.4M10.4 3.6 14.2 8l-3.8 4.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
+    ouvre: "<code>",
+    ferme: "</code>",
+  },
+  {
+    mot: "Ligne",
+    dessin: `<rect x="1.5" y="7.2" width="13" height="1.6" rx=".8"/>`,
+    titre: "Insérer une ligne",
+    ouvre: "<hr />",
+    ferme: "",
+  },
   {
     mot: "Tableau",
+    dessin:
+      `<rect x="1.8" y="3.2" width="12.4" height="9.6" rx="1.2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M1.8 6.6h12.4M8 6.6v6.2" stroke="currentColor" stroke-width="1.2" fill="none"/>`,
     titre: "Insérer un tableau",
     ouvre: "<table><tr><td>",
     ferme: "</td><td></td></tr><tr><td></td><td></td></tr></table>",
   },
   {
     mot: "Lien",
+    dessin:
+      `<path d="M6.6 9.4a2.8 2.8 0 0 0 4 0l2.2-2.2a2.8 2.8 0 1 0-4-4l-1 1M9.4 6.6a2.8 2.8 0 0 0-4 0L3.2 8.8a2.8 2.8 0 1 0 4 4l1-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>`,
     titre: "Insérer un lien",
     ouvre: `<a href="">`,
     ferme: "</a>",
@@ -344,6 +435,8 @@ const BALISES: readonly Balise[] = [
   },
   {
     mot: "Image",
+    dessin:
+      `<rect x="1.8" y="3.2" width="12.4" height="9.6" rx="1.2" stroke="currentColor" stroke-width="1.3" fill="none"/><circle cx="5.6" cy="6.4" r="1.1"/><path d="M2.6 11.6 6 8.6l2.4 2.1 2.3-2 2.7 2.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`,
     titre: "Insérer une image",
     ouvre: `<img src="`,
     ferme: `" />`,
@@ -846,9 +939,15 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
         trait.setAttribute("aria-hidden", "true");
         barre.appendChild(trait);
       }
-      const bouton = el<HTMLButtonElement>(doc, "button", "wmf-form__balise", b.mot);
+      const nom = b.titre ?? b.mot;
+      const bouton = el<HTMLButtonElement>(doc, "button", "wmf-form__balise");
       bouton.type = "button";
-      bouton.title = b.titre ?? `${b.ouvre}…${b.ferme}`;
+      bouton.title = nom;
+      //  LE NOM EST LÀ, MAIS PLUS À L'ÉCRAN : une icône sans nom
+      //  accessible est un bouton muet pour qui lit la page
+      //  autrement qu'avec les yeux.
+      bouton.setAttribute("aria-label", nom);
+      bouton.appendChild(icone(b.dessin));
       bouton.addEventListener("mousedown", (e) => e.preventDefault());
       bouton.addEventListener(
         "click",
@@ -893,9 +992,16 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     //  qu'ici elles SONT du texte : la zone est en texte brut, et
     //  « <b>mardi</b> » y est une suite de caractères comme une
     //  autre. Rien à démêler dans un arbre, une expression suffit.
-    const propre = el<HTMLButtonElement>(doc, "button", "wmf-form__balise", "Effacer");
+    const propre = el<HTMLButtonElement>(doc, "button", "wmf-form__balise");
     propre.type = "button";
     propre.title = "Supprimer le formatage du texte";
+    propre.setAttribute("aria-label", "Supprimer le formatage du texte");
+    propre.appendChild(icone(
+      `<path d="M6.2 12.6 2.4 8.8a1.4 1.4 0 0 1 0-2l4.9-4.9a1.4 1.4 0 0 1 2 0l3.8` +
+        ` 3.8a1.4 1.4 0 0 1 0 2l-5.6 5.6z" stroke="currentColor" stroke-width="1.3"` +
+        ` fill="none"/><path d="M6.2 12.6h7.4" stroke="currentColor"` +
+        ` stroke-width="1.3" stroke-linecap="round" fill="none"/>`,
+    ));
     propre.addEventListener("mousedown", (e) => e.preventDefault());
     propre.addEventListener("click", () => {
       z.focus();
@@ -908,6 +1014,17 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     barre.appendChild(propre);
 
     return barre;
+  };
+
+  /*  UNE ICÔNE DE BARRE. Elle est DÉCORATIVE : le nom du bouton vit
+      dans son `aria-label` et son `title`, pas dans le dessin. */
+  const icone = (dessin: string): SVGElement => {
+    const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 16 16");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    svg.innerHTML = dessin;
+    return svg;
   };
 
   /*  LA SÉLECTION SE GARDE AVANT D'OUVRIR LE SÉLECTEUR DE COULEUR.
@@ -1119,14 +1236,10 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
         ecrire();
       }, "button2 wmf-form__forme");
       b.setAttribute("aria-pressed", String(vue.histoire.mode === mode));
-      //  L'ICÔNE EST DÉCORATIVE : le mot est à côté, donc une lectrice
-      //  d'écran qui l'annoncerait dirait deux fois la même chose.
-      const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-      svg.setAttribute("viewBox", "0 0 16 16");
-      svg.setAttribute("aria-hidden", "true");
-      svg.setAttribute("focusable", "false");
-      svg.innerHTML = dessin;
-      b.prepend(svg);
+      //  ICI LE MOT RESTE À CÔTÉ : « Bloc » et « Chronologie » sont
+      //  un choix à faire, pas un outil qu'on reconnaît d'un coup
+      //  d'œil, et deux icônes seules ne diraient pas lequel.
+      b.prepend(icone(dessin));
       barre.appendChild(b);
     }
     //  ── LES BOUTONS VIENNENT APRÈS LA CONSIGNE ──────────────────
@@ -1216,16 +1329,11 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     if (bloc === null) return;
     bloc.querySelector("wmf-s-espece")?.replaceWith(especeMenu);
     bloc.querySelector("wmf-s-talent")?.replaceWith(talentMenu);
-    //  LE NIVEAU N'EST PAS DEMANDÉ, ET ON LE DIT. Sans cette phrase, la
-    //  première question du premier joueur sera « où je mets son
-    //  niveau ? ».
-    laFiche.querySelector(".wmf__starter")?.appendChild(el(
-      doc,
-      "p",
-      "wmf-form__note",
-      "Le niveau n'est pas à choisir : le staff l'attribue à la validation, " +
-        "d'après l'âge, le métier et le passé de ton personnage.",
-    ));
+    //  LA PHRASE SUR LE NIVEAU EST PARTIE LE 24 NOVEMBRE : la consigne
+    //  du bloc le dit déjà, avec ses mots à elle — « lors de votre
+    //  validation, nous lui attribuerons un niveau en fonction de
+    //  l'âge de votre personnage, de son métier et du passé ». Deux
+    //  fois la même règle, c'est une règle qu'on ne lit plus.
   };
 
   const equiper = (): void => {

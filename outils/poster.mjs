@@ -886,7 +886,8 @@ const OUTILS = () => {
     sel.addRange(r);
     [...document.querySelectorAll(".wmf-form__balise")]
       .find((b) =>
-        b.textContent === "Gras" && b.closest(".wmf-form__balises") === z.previousElementSibling
+        b.getAttribute("aria-label") === "Gras" &&
+        b.closest(".wmf-form__balises") === z.previousElementSibling
       )
       .click();
     await globalThis.wmPause(250);
@@ -1090,7 +1091,7 @@ const OUTILS = () => {
     sel.removeAllRanges();
     sel.addRange(r);
     [...barre.querySelectorAll(".wmf-form__balise")]
-      .find((b) => b.textContent === "Lien")
+      .find((b) => b.getAttribute("aria-label") === "Insérer un lien")
       .click();
     await globalThis.wmPause(200);
     const boite = barre.nextElementSibling;
@@ -1176,7 +1177,7 @@ const OUTILS = () => {
     sel.removeAllRanges();
     sel.addRange(r);
     [...barre.querySelectorAll(".wmf-form__balise")]
-      .find((b) => b.textContent === "Ital.")
+      .find((b) => b.getAttribute("aria-label") === "Italique")
       .click();
     await globalThis.wmPause(250);
     return {
@@ -1856,7 +1857,10 @@ const OUTILS = () => {
   //  visible, et eux seuls disent si le texte arrive vraiment.
   const q = await monterLaFiche("");
   const vu = await q.evaluate(() => {
-    const zone = document.querySelector(".wmf__avatar:not(:has(img))");
+    //  LA PLACE EST TENUE PAR LE CADRE, pas par la colonne : les
+    //  deux carrés de « derrière l'écran » venaient justement de ce
+    //  qu'une règle dessinait encore sur la colonne.
+    const zone = document.querySelector(".wmf__avatar .wmf__cadre:not(:has(img))");
     const avant = zone === null ? null : getComputedStyle(zone, "::before").height;
     return {
       placeDeLImage: avant,
@@ -1866,7 +1870,7 @@ const OUTILS = () => {
     };
   });
   dire(
-    "LA COLONNE DE L'AVATAR GARDE SA PLACE SANS IMAGE",
+    "LE CADRE DE L'AVATAR GARDE SA PLACE SANS IMAGE",
     vu.placeDeLImage !== null && vu.placeDeLImage !== "0px" &&
       vu.placeDeLImage !== "auto",
     JSON.stringify(vu.placeDeLImage),
@@ -1999,7 +2003,14 @@ const OUTILS = () => {
   const q = await monterLaFiche("");
   const vu = await q.evaluate(() => {
     const barre = document.querySelector(".wmf__histoire-corps .wmf-form__balises");
-    const mots = [...barre.querySelectorAll(".wmf-form__balise")].map((b) => b.textContent);
+    //  LES OUTILS SONT DES ICÔNES DEPUIS LE 24 NOVEMBRE : leur nom
+    //  n'est plus à l'écran, il est dans l'`aria-label`. C'est aussi
+    //  ce que la mesure vérifie au passage — une icône sans nom
+    //  accessible est un bouton muet.
+    const mots = [...barre.querySelectorAll(".wmf-form__balise")].map((b) =>
+      b.getAttribute("aria-label")
+    );
+    const dessins = [...barre.querySelectorAll(".wmf-form__balise svg")].length;
     const menus = [...barre.querySelectorAll(".wmf-form__menu")].map((m) =>
       m.options[0].textContent
     );
@@ -2008,33 +2019,38 @@ const OUTILS = () => {
       menus,
       couleur: barre.querySelector('input[type="color"]') !== null,
       traits: barre.querySelectorAll(".wmf-form__balises-trait").length,
+      dessins,
     };
   });
+  //  LES NOMS SONT CEUX DE FORUMACTIF, relevés sur sa barre le
+  //  24 novembre. C'est le nom accessible de chaque bouton, pas son
+  //  texte : les outils sont des icônes.
   const ATTENDUS = [
     "Gras",
-    "Ital.",
-    "Soulig.",
+    "Italique",
+    "Souligné",
     "Barré",
     "Indice",
     "Exposant",
-    "Gauche",
+    "Aligné à gauche",
     "Centré",
-    "Droite",
+    "Aligné à droite",
     "Justifié",
     "Liste",
-    "Liste n°",
-    "Citation",
+    "Liste ordonnée",
+    "Citer",
     "Code",
-    "Ligne",
-    "Tableau",
-    "Lien",
-    "Image",
-    "Effacer",
+    "Insérer une ligne",
+    "Insérer un tableau",
+    "Insérer un lien",
+    "Insérer une image",
+    "Supprimer le formatage du texte",
   ];
   dire(
-    "LA BARRE PORTE LES OPTIONS DE FORUMACTIF",
-    JSON.stringify(vu.mots) === JSON.stringify(ATTENDUS),
-    JSON.stringify(vu.mots),
+    "LA BARRE PORTE LES OPTIONS DE FORUMACTIF, EN ICÔNES ET NOMMÉES",
+    JSON.stringify(vu.mots) === JSON.stringify(ATTENDUS) &&
+      vu.dessins === ATTENDUS.length,
+    JSON.stringify({ mots: vu.mots, dessins: vu.dessins }),
   );
   dire(
     "   avec ses trois menus — taille, police, couleur",
