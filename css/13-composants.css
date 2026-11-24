@@ -836,11 +836,17 @@
   color: var(--wm-texte-doux, #6e5749);
 }
 
+/*  54 px est un PLAFOND : `scale-down` ne réduit que ce qui dépasse.
+    Les sprites sont rognés au plus près de la bête — `contain` les
+    ramenait tous à 54 et agrandissait les petits, qui paraissaient
+    alors plus gros que les grands. `bottom` les pose sur une même
+    ligne, comme dans la grille de l'équipe. */
 #modernbb .wm-dex__sprite {
   display: block;
   width: 54px;
   height: 54px;
-  object-fit: contain;
+  object-fit: scale-down;
+  object-position: bottom;
 }
 
 #modernbb .wm-dex__nom {
@@ -877,13 +883,15 @@
   font-family: var(--wm-police-corps, "Nunito Sans", "Segoe UI", system-ui, sans-serif);
 }
 
+/*  Même règle que le Pokédex : 46 px est un plafond, pas une taille. */
 #modernbb .wm-boite__sprite {
   position: absolute;
   top: 5px;
   left: 8px;
   width: 46px;
   height: 46px;
-  object-fit: contain;
+  object-fit: scale-down;
+  object-position: bottom;
 }
 
 #modernbb .wm-boite__niveau {

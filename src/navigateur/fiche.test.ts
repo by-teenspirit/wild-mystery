@@ -212,9 +212,12 @@ Deno.test("SANS AVATAR, PAS D'IMAGE CASSÉE", () => {
   assertEquals(/<img/.test(html), false);
 });
 
-Deno.test("UN CHAMP VIDE NE S'IMPRIME PAS", () => {
-  //  « SURNOM » tout seul dans une fiche publiée n'apprend rien, et le
-  //  joueur qui n'a pas de surnom n'a pas à en inventer un.
+Deno.test("UN CHAMP VIDE GARDE SON ÉTIQUETTE ET SON TEXTE PAR DÉFAUT", () => {
+  //  « Si les champs ne sont pas remplis, tu dois quand même afficher
+  //  le label » et « la fiche doit quand même garder son gabarit,
+  //  avoir du texte par défaut » — 24 novembre. C'est l'inverse de la
+  //  règle d'hier : une fiche à trois champs sur dix n'avait plus de
+  //  forme, et deux fiches côte à côte n'avaient plus la même.
   const f: Fiche = {
     ...ficheVide(),
     nom: "X",
@@ -222,7 +225,33 @@ Deno.test("UN CHAMP VIDE NE S'IMPRIME PAS", () => {
   };
   const html = publier(f);
   assertEquals(html.includes("<y>MÉTIER</y>"), true);
-  assertEquals(html.includes("<y>SURNOM</y>"), false);
+  assertEquals(html.includes("<y>SURNOM</y>"), true);
+  //  Le champ rempli n'emporte pas d'invite ; le champ vide, si.
+  assertEquals(/<wmf-metier>Ranger<\/wmf-metier>/.test(html), true);
+  assertEquals(/<wmf-surnom data-vide="[^"]+"><\/wmf-surnom>/.test(html), true);
+});
+
+Deno.test("LE TEXTE PAR DÉFAUT NE SE RELIT PAS COMME UNE RÉPONSE", () => {
+  //  La garde qui rend l'invite sans danger : elle vit dans un
+  //  ATTRIBUT, pas dans le contenu. Si elle était écrite dedans,
+  //  rouvrir sa fiche donnerait à chaque champ vide le texte gris
+  //  comme valeur, et le joueur le publierait sans le voir.
+  const relu = lireUneFiche(publier(ficheVide()));
+  assertEquals(relu.identite["surnom"], "");
+  assertEquals(relu.nom, "");
+  assertEquals(relu.tw, "");
+  assertEquals(relu.sousTitre, "");
+  assertEquals(relu.starter, null);
+});
+
+Deno.test("LES BALISES MUETTES N'ONT PAS DE TEXTE PAR DÉFAUT", () => {
+  //  L'adresse de l'avatar, celle de la carte et le numéro d'espèce
+  //  ne se lisent pas dans le message : elles le portent. Une invite
+  //  dessus ne serait vue que si la feuille de style manquait.
+  const html = publier(ficheVide());
+  assertEquals(html.includes("<wmf-avatar></wmf-avatar>"), true);
+  assertEquals(html.includes("<wmf-j-tcard></wmf-j-tcard>"), true);
+  assertEquals(/<wmf-avatar data-vide/.test(html), false);
 });
 
 Deno.test("UN CHAMP EST UN BLOC, ÉTIQUETTE AU-DESSUS", () => {
@@ -418,13 +447,28 @@ Deno.test("LE SOUS-TITRE ET LES TW SONT DEUX SECTIONS, PAS UNE", () => {
   assertEquals(html.includes("<y>TRIGGER WARNINGS</y>"), true);
 });
 
-Deno.test("UN SOUS-TITRE VIDE NE PUBLIE PAS DE BLOC VIDE", () => {
-  //  Même règle que les TW : ce qu'on n'a pas écrit ne laisse pas de
-  //  trou dans le message. À l'écran, en revanche, il faut la zone
-  //  pour pouvoir l'écrire — c'est l'objet du test des zones.
-  const f: Fiche = { ...COMPLETE, sousTitre: "   " };
-  assertEquals(publier(f).includes(`class="wmf__soustitre"`), false);
-  assertEquals(publier(f).includes(`class="wmf__tete"`), true);
+Deno.test("UNE FICHE VIDE GARDE TOUT SON GABARIT", () => {
+  //  « Si je remplis rien, la fiche doit quand même garder son
+  //  gabarit » — 24 novembre, devant t1016, qui ne montrait que deux
+  //  bandeaux. Les sections sont le squelette ; seule l'organisation
+  //  reste facultative, parce qu'elle ne concerne qu'un groupe.
+  const html = publier(ficheVide());
+  for (
+    const classe of [
+      "wmf__tete",
+      "wmf__soustitre",
+      "wmf__tw",
+      "wmf__haut",
+      "wmf__histoire",
+      "wmf__starter",
+      "wmf__ancienne",
+      "wmf__joueur",
+      "wmf__credits",
+    ]
+  ) {
+    assertEquals(html.includes(`class="${classe}"`), true, classe);
+  }
+  assertEquals(html.includes(`class="wmf__ombre"`), false);
 });
 
 Deno.test("UNE FICHE SANS SOUS-TITRE SE RELIT SANS SOUS-TITRE", () => {

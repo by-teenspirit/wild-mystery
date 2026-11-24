@@ -690,6 +690,7 @@ const OUTILS = () => {
       "L'ÉQUIPE D'AVANT",
       "L'ORGANISATION",
       "DERRIÈRE L'ÉCRAN",
+      "CRÉDITS",
     ]),
     JSON.stringify(pose.bandeaux),
   );
@@ -943,23 +944,28 @@ const OUTILS = () => {
 
   //  ── CE QU'ON ÉCRIT AVANT DE CHOISIR L'ESPÈCE N'EST PAS PERDU ───
   //
-  //  Sans espèce, il n'y a pas de starter : la fiche publiée ne porte
-  //  pas le bloc, et `lireUneFiche` ne saurait pas le relire. Mais le
-  //  récit déjà tapé doit rester à l'écran — c'est tout l'objet de la
-  //  séparation entre ce qui est affiché et ce qui part.
+  //  Sans espèce, la carte du Pokémon fait partie du gabarit — « la
+  //  fiche doit quand même garder son gabarit », 24 novembre — mais
+  //  elle ne porte PAS de numéro d'espèce, et c'est ce numéro qui dit
+  //  à `lireUneFiche` qu'il y a un starter à relire. Le surnom et la
+  //  rencontre déjà tapés partent avec elle et restent à l'écran.
   const avantLEspece = await q.evaluate(async () => {
     globalThis.wmTaper("s-rencontre", "Dans une grange, un soir de pluie.");
     globalThis.wmTaper("s-surnom", "Noisette");
     await globalThis.wmPause(200);
+    const m = globalThis.wmMessage();
     return {
-      sansStarter: !globalThis.wmMessage().includes("<wmf-s-id>"),
+      carte: m.includes('class="wmf__starter"'),
+      sansEspece: /<wmf-s-id>0?<\/wmf-s-id>/.test(m),
+      sansSprite: !m.includes("wmf__sprite"),
       aLEcran: globalThis.wmTexte("s-rencontre"),
     };
   });
   dire(
-    "SANS ESPÈCE, PAS DE STARTER DANS LE MESSAGE",
-    avantLEspece.sansStarter === true,
-    JSON.stringify(avantLEspece.sansStarter),
+    "SANS ESPÈCE, LA CARTE RESTE MAIS LE STARTER N'EXISTE PAS",
+    avantLEspece.carte === true && avantLEspece.sansEspece === true &&
+      avantLEspece.sansSprite === true,
+    JSON.stringify(avantLEspece),
   );
   dire(
     "   mais ce qu'on a écrit reste à l'écran",
@@ -1754,6 +1760,82 @@ const OUTILS = () => {
     "   et la fiche porte un contour, pour ne plus flotter dans le message",
     vu.cadre !== "0px",
     JSON.stringify(vu.cadre),
+  );
+  await q.close();
+}
+
+{
+  //  ── LES CRÉDITS SE REMPLISSENT DEVANT LEURS IMAGES ─────────────
+  //
+  //  « Permet de remplir les crédits directement avec les deux
+  //  images : l'avatar et l'image carrée » — 24 novembre. La mesure
+  //  qui compte est que la vignette SUIVE l'adresse qu'on tape : si
+  //  elle n'apparaissait qu'au rechargement, on créditerait une case
+  //  vide.
+  const q = await monterLaFiche("");
+  await q.evaluate(OUTILS);
+  const vu = await q.evaluate(async () => {
+    const vignette = (c) => {
+      const v = document.querySelector(`.wmf__credit-vignette.${c}`);
+      const img = v?.querySelector("img");
+      return { la: v !== null, image: img?.getAttribute("src") ?? null };
+    };
+    const avant = {
+      avatar: vignette("wmf__credit-avatar"),
+      tcard: vignette("wmf__credit-tcard"),
+    };
+    globalThis.wmTaper("avatar", "https://exemple.test/portrait.png");
+    globalThis.wmTaper("j-tcard", "https://exemple.test/carre.png");
+    globalThis.wmTaper("j-credit-avatar", "@quelquun");
+    await globalThis.wmPause(250);
+    const m = globalThis.wmMessage();
+    return {
+      avant,
+      apres: { avatar: vignette("wmf__credit-avatar"), tcard: vignette("wmf__credit-tcard") },
+      creditDansLeMessage: /<wmf-j-credit-avatar>@quelquun<\/wmf-j-credit-avatar>/.test(m),
+      //  Le crédit est DANS le bloc des crédits, pas dans la grille
+      //  « derrière l'écran » : c'est tout l'objet du changement.
+      dansLeBloc: /<div class="wmf__credits">[\s\S]*?<wmf-j-credit-avatar>/.test(m),
+    };
+  });
+  dire(
+    "LES DEUX VIGNETTES DE CRÉDIT SUIVENT LES ADRESSES TAPÉES",
+    vu.avant.avatar.la && vu.avant.avatar.image === null &&
+      vu.apres.avatar.image === "https://exemple.test/portrait.png" &&
+      vu.apres.tcard.image === "https://exemple.test/carre.png",
+    JSON.stringify(vu.avant) + " → " + JSON.stringify(vu.apres),
+  );
+  dire(
+    "   et le crédit part dans le message, dans son propre bloc",
+    vu.creditDansLeMessage && vu.dansLeBloc,
+    JSON.stringify({ message: vu.creditDansLeMessage, bloc: vu.dansLeBloc }),
+  );
+  await q.close();
+}
+
+{
+  //  ── UNE FICHE VIDE GARDE SON GABARIT, À L'ÉCRAN AUSSI ──────────
+  //
+  //  « Si je remplis rien, la fiche doit quand même garder son
+  //  gabarit, avoir du texte par défaut. » Mesuré sur le message,
+  //  avec la vraie feuille : ce sont les `::before` qui le rendent
+  //  visible, et eux seuls disent si le texte arrive vraiment.
+  const q = await monterLaFiche("");
+  const vu = await q.evaluate(() => {
+    const zone = document.querySelector(".wmf__avatar:not(:has(img))");
+    const avant = zone === null ? null : getComputedStyle(zone, "::before").height;
+    return {
+      placeDeLImage: avant,
+      //  Le texte par défaut vit dans un attribut, donc il ne peut
+      //  pas se retrouver dans le message comme une réponse.
+      dansUnAttribut: document.querySelectorAll(".wmf [data-wmf-vide]").length > 0,
+    };
+  });
+  dire(
+    "LA COLONNE DE L'AVATAR GARDE SA PLACE SANS IMAGE",
+    vu.placeDeLImage !== null && vu.placeDeLImage !== "0px" &&
+      vu.placeDeLImage !== "auto",
+    JSON.stringify(vu.placeDeLImage),
   );
   await q.close();
 }

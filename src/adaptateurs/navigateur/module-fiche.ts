@@ -103,6 +103,7 @@ import {
   type Fiche,
   ficheVide,
   IDENTITE,
+  INVITES,
   JOUEUR,
   lireUneFiche,
   type Moment,
@@ -236,28 +237,6 @@ function bouton(
 
     LES DEUX MENUS N'Y SONT PAS. L'espèce et le talent ne se tapent
     pas, ils se choisissent : leur zone est remplacée par le menu. */
-const INVITES: readonly { readonly clef: string; readonly invite: string }[] = [
-  { clef: "nom", invite: "le nom de ton personnage" },
-  { clef: "soustitre", invite: "une phrase, une réplique, un titre de chanson" },
-  { clef: "tw", invite: "ce que ta fiche contient, et qu'on préfère annoncer" },
-  { clef: "avatar", invite: "l'adresse de l'image à afficher à gauche" },
-  ...IDENTITE.map((c) => ({ clef: c.clef, invite: c.exemple ?? c.etiquette.toLowerCase() })),
-  { clef: "histoire", invite: "son histoire, aussi longue que tu veux" },
-  { clef: "m-date", invite: "2015, ou « l'hiver d'après »" },
-  { clef: "m-texte", invite: "ce qui s'est passé" },
-  { clef: "s-surnom", invite: "son surnom, si tu lui en donnes un" },
-  {
-    clef: "s-rencontre",
-    invite: "comment vous vous êtes rencontrés — c'est ce qui permet au staff de " +
-      "fixer son niveau",
-  },
-  {
-    clef: "ancienne",
-    invite: "les Pokémon que ton personnage avait déjà, et qu'il récupérera aux paliers",
-  },
-  ...OMBRE.map((c) => ({ clef: c.clef, invite: "ta réponse" })),
-  ...JOUEUR.map((c) => ({ clef: c.clef, invite: c.exemple ?? c.etiquette.toLowerCase() })),
-];
 
 /*  LES ZONES QUI MÉRITENT UNE BARRE DE BALISES.
 
@@ -642,6 +621,9 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     if (clef === "avatar") {
       vue = { ...vue, avatar: v };
       majImage(".wmf__avatar", v);
+      //  LA VIGNETTE DU CRÉDIT MONTRE LA MÊME IMAGE : sans ça, on
+      //  crédite une case vide tant qu'on n'a pas rechargé.
+      majImage(".wmf__credit-avatar", v);
       return;
     }
     //  LA TRAINER CARD EST UNE IMAGE, ELLE AUSSI, et elle suit le même
@@ -649,6 +631,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
     if (clef === "j-tcard") {
       vue = { ...vue, joueur: { ...vue.joueur, "j-tcard": v } };
       majImage(".wmf__tcard", v);
+      majImage(".wmf__credit-tcard", v);
       return;
     }
     if (clef === "ancienne") {
@@ -956,7 +939,7 @@ export function poserLaFiche(d: DependancesDeLaFiche): boolean {
   };
 
   const equiper = (): void => {
-    for (const { clef, invite } of INVITES) {
+    for (const [clef, invite] of Object.entries(INVITES)) {
       laFiche
         .querySelectorAll<HTMLElement>(`wmf-${clef}`)
         .forEach((z, rang) => brancher(z, clef, rang, invite));

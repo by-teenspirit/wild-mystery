@@ -129,7 +129,9 @@ export const JOUEUR: readonly Champ[] = [
   },
   { clef: "j-connaissance", etiquette: "D'OÙ NOUS CONNAIS-TU ?" },
   { clef: "j-avis", etiquette: "AVIS SUR LE FORUM", long: true },
-  { clef: "j-credits", etiquette: "CRÉDITS" },
+  { clef: "j-credits", etiquette: "AUTRES CRÉDITS", exemple: "le codage, un kit, une typo" },
+  { clef: "j-credit-avatar", etiquette: "L'AVATAR", exemple: "qui a fait cette image" },
+  { clef: "j-credit-tcard", etiquette: "L'IMAGE CARRÉE", exemple: "qui a fait cette image" },
   { clef: "j-autre", etiquette: "AUTRE", exemple: "une dernière information ?" },
   {
     clef: "j-tcard",
@@ -303,8 +305,55 @@ function echappe(texte: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/*  CE QU'UN CHAMP VIDE AFFICHE, À L'ÉCRAN COMME DANS LE MESSAGE.
+ *
+ *  « Si je remplis rien, la fiche doit quand même garder son gabarit,
+ *  avoir du texte par défaut » — 24 novembre, devant une fiche de test
+ *  qui ne montrait que deux bandeaux.
+ *
+ *  LA TABLE EST ICI, ET PAS DANS L'ADAPTATEUR, parce que les deux
+ *  rendus s'en servent : l'éditeur la pose sur ses zones, le message
+ *  l'écrit en attribut. Deux tables auraient divergé au premier mot
+ *  changé. */
+export const INVITES: Readonly<Record<string, string>> = Object.fromEntries([
+  ["nom", "le nom de ton personnage"],
+  ["soustitre", "une phrase, une réplique, un titre de chanson"],
+  ["tw", "ce que ta fiche contient, et qu'on préfère annoncer"],
+  ["avatar", "l'adresse de l'image à afficher à gauche"],
+  ["histoire", "son histoire, aussi longue que tu veux"],
+  ["m-date", "2015, ou « l'hiver d'après »"],
+  ["m-texte", "ce qui s'est passé"],
+  ["s-surnom", "son surnom, si tu lui en donnes un"],
+  ["s-espece", "l'espèce de ton premier Pokémon"],
+  ["s-talent", "son talent"],
+  [
+    "s-rencontre",
+    "comment vous vous êtes rencontrés — c'est ce qui permet au staff de " +
+    "fixer son niveau",
+  ],
+  [
+    "ancienne",
+    "les Pokémon que ton personnage avait déjà, et qu'il récupérera aux paliers",
+  ],
+  ...OMBRE.map((c) => [c.clef, "ta réponse"] as const),
+  ...IDENTITE.map((c) => [c.clef, c.exemple ?? c.etiquette.toLowerCase()] as const),
+  ...JOUEUR.map((c) => [c.clef, c.exemple ?? c.etiquette.toLowerCase()] as const),
+]);
+
+/*  LES TROIS BALISES QUI NE SONT PAS DU TEXTE À LIRE : deux adresses
+    d'image et un numéro d'espèce. Le message les porte mais ne les
+    montre pas, donc un texte par défaut n'y serait lu par personne —
+    et s'afficherait si une feuille de style venait à manquer. */
+const MUETTES = new Set(["avatar", "j-tcard", "s-id"]);
+
 function balise(clef: string, valeur: string, brut = false): string {
-  return `<wmf-${clef}>${brut ? echappe(valeur) : sur(valeur)}</wmf-${clef}>`;
+  const dedans = brut ? echappe(valeur) : sur(valeur);
+  //  LE TEXTE PAR DÉFAUT NE PART QUE DANS LE MESSAGE. L'éditeur pose
+  //  le sien sur la zone, au moment où il la branche.
+  const vide = !brut && dedans.trim() === "" && !MUETTES.has(clef)
+    ? ` data-vide="${echappe(INVITES[clef] ?? "")}"`
+    : "";
+  return `<wmf-${clef}${vide}>${dedans}</wmf-${clef}>`;
 }
 
 function bloc(
@@ -312,9 +361,22 @@ function bloc(
   valeurs: Readonly<Record<string, string>>,
   ecrire: boolean,
 ): string {
-  //  UN CHAMP VIDE NE S'IMPRIME PAS. « SURNOM » tout seul dans une
-  //  fiche publiée n'apprend rien et occupe une ligne ; et le joueur
-  //  qui n'a pas de surnom n'a pas à en inventer un.
+  //  UN CHAMP VIDE GARDE SON ÉTIQUETTE. « Si les champs ne sont pas
+  //  remplis, tu dois quand même afficher le label » — 24 novembre.
+  //
+  //  C'est l'inverse de ce qu'on faisait, et la raison a changé avec
+  //  la forme. Tant qu'un champ était une ligne, « SURNOM » tout seul
+  //  n'apprenait rien et occupait une ligne pour rien. Depuis que
+  //  chaque champ est un bloc avec son étiquette au-dessus, les
+  //  retirer trouait la grille : une fiche à trois champs sur dix
+  //  n'avait plus de forme, et deux fiches côte à côte n'avaient plus
+  //  la même. L'étiquette dit aussi ce que le joueur a choisi de ne
+  //  pas remplir, ce qui est une information pour le staff.
+  //
+  //  LES SECTIONS ENTIÈRES, ELLES, RESTENT FACULTATIVES : le starter,
+  //  l'organisation, les trigger warnings, le sous-titre. Une carte de
+  //  Pokémon vide n'est pas un champ vide, c'est une rubrique qui ne
+  //  concerne pas ce personnage.
   //
   //  ── UN CHAMP EST UN BLOC, ET L'ÉTIQUETTE EST AU-DESSUS ───────────
   //
@@ -334,7 +396,6 @@ function bloc(
   //  s'étirerait sur la hauteur d'un paragraphe et laisserait un trou
   //  en face.
   return champs
-    .filter((c) => ecrire || (valeurs[c.clef] ?? "").trim() !== "")
     .map((c) =>
       `<div class="wmf__champ"${c.long === true ? ` data-long="oui"` : ""}>` +
       `<y>${c.etiquette}</y> ${balise(c.clef, valeurs[c.clef] ?? "", ecrire)}` +
@@ -357,8 +418,27 @@ function bloc(
     L'IMAGE DE LA TRAINER CARD est carrée, et elle s'affiche. « C'est
     une image carrée. Le mieux, c'est de mettre le lien et de
     l'intégrer dans la fiche pour que ça rende bien. » */
+/*  LES DEUX ADRESSES D'IMAGE NE SONT PAS DU TEXTE : elles montent en
+    tête de leur bloc, sous forme d'image. */
+const DANS_LA_TETE = new Set(["j-avatar", "j-tcard"]);
+
+/*  LES CRÉDITS SE REMPLISSENT DEVANT LEURS IMAGES. « Pour le champ
+    crédits rempli tout en bas, permet de remplir les crédits
+    directement avec les deux images : l'avatar et l'image carrée »
+    — 24 novembre.
+
+    Écrire « Avatar (@boscaesperanza) » à la main dans un champ libre
+    marchait, mais il fallait nommer l'image dont on parlait. En
+    posant la vignette à côté de la ligne, la question ne se pose
+    plus : on crédite ce qu'on a sous les yeux. */
+const CREDITS = new Set(["j-credits", "j-credit-avatar", "j-credit-tcard"]);
+
+const CREDIT_AVATAR = JOUEUR.find((c) => c.clef === "j-credit-avatar") as Champ;
+const CREDIT_TCARD = JOUEUR.find((c) => c.clef === "j-credit-tcard") as Champ;
+const CREDIT_AUTRES = JOUEUR.find((c) => c.clef === "j-credits") as Champ;
+
 const JOUEUR_EN_BLOC: readonly Champ[] = JOUEUR.filter(
-  (c) => c.clef !== "j-avatar" && c.clef !== "j-tcard",
+  (c) => !DANS_LA_TETE.has(c.clef) && !CREDITS.has(c.clef),
 );
 
 /** Comment rendre la fiche. */
@@ -428,6 +508,44 @@ const STARTER_VIDE: Starter = {
  *  LES DEUX COLONNES SONT UN FLEX, pas un tableau — « je veux pas de
  *  tableau, que du flexbox ». Le CSS vit dans la feuille du forum ;
  *  ici on ne pose que la structure et les classes. */
+/** Le bloc des crédits : chaque image avec sa ligne, et une ligne
+ *  pour le reste.
+ *
+ *  ── POURQUOI LES VIGNETTES SONT LÀ ─────────────────────────────────
+ *
+ *  « Permet de remplir les crédits directement avec les deux images :
+ *  l'avatar et l'image carrée » — 24 novembre.
+ *
+ *  Les deux images sont déjà dans la fiche, en haut et en bas. Les
+ *  reposer ici en petit ne les répète pas pour décorer : c'est ce qui
+ *  dit DE QUELLE image parle la ligne qu'on remplit. Sans elles, il
+ *  fallait l'écrire — « Avatar (@quelquun) » — et deviner le mot que
+ *  le lecteur suivant emploierait.
+ *
+ *  UNE VIGNETTE SANS ADRESSE NE LAISSE PAS D'IMAGE CASSÉE : la case
+ *  reste, vide, et la ligne de crédit avec elle. Le gabarit tient
+ *  même quand rien n'est rempli. */
+function credits(f: Fiche, ecrire: boolean): string {
+  const b = (c: Champ, v: string): string =>
+    `<div class="wmf__champ"><y>${c.etiquette}</y> ${balise(c.clef, v, ecrire)}</div>`;
+  const vignette = (classe: string, adresse: string): string => {
+    const propre = adresse.trim();
+    return `<div class="wmf__credit-vignette ${classe}">` +
+      (propre === "" ? "" : `<img src="${ecrire ? echappe(propre) : propre}" alt="" />`) +
+      `</div>`;
+  };
+  const ligne = (classe: string, adresse: string, c: Champ): string =>
+    `<div class="wmf__credit">${vignette(classe, adresse)}${
+      b(c, f.joueur[c.clef] ?? "")
+    }</div>`;
+  return `<div class="wmf__credits">` +
+    `<div class="wmf__bandeau">CRÉDITS</div>` +
+    ligne("wmf__credit-avatar", f.avatar, CREDIT_AVATAR) +
+    ligne("wmf__credit-tcard", f.joueur["j-tcard"] ?? "", CREDIT_TCARD) +
+    b(CREDIT_AUTRES, f.joueur["j-credits"] ?? "") +
+    `</div>`;
+}
+
 export function publier(f: Fiche, r: Rendu = {}): string {
   const ecrire = r.pourEcrire === true;
   const b = (clef: string, v: string): string => balise(clef, v, ecrire);
@@ -441,15 +559,11 @@ export function publier(f: Fiche, r: Rendu = {}): string {
   //  warnings et pour le sous-titre » — 24 novembre.
   morceaux.push(`<div class="wmf__tete">`);
   morceaux.push(`<div class="wmf__titre">${b("nom", f.nom)}</div>`);
-  if (ecrire || f.sousTitre.trim() !== "") {
-    morceaux.push(`<div class="wmf__soustitre">${b("soustitre", f.sousTitre)}</div>`);
-  }
+  morceaux.push(`<div class="wmf__soustitre">${b("soustitre", f.sousTitre)}</div>`);
   morceaux.push(`</div>`);
-  if (ecrire || f.tw.trim() !== "") {
-    morceaux.push(
-      `<div class="wmf__tw"><y>TRIGGER WARNINGS</y> <x>${b("tw", f.tw)}</x></div>`,
-    );
-  }
+  morceaux.push(
+    `<div class="wmf__tw"><y>TRIGGER WARNINGS</y> <x>${b("tw", f.tw)}</x></div>`,
+  );
 
   //  ── LA TÊTE : DEUX COLONNES DE MÊME HAUTEUR ────────────────────
   //
@@ -511,7 +625,11 @@ export function publier(f: Fiche, r: Rendu = {}): string {
       `</div>`,
   );
 
-  if (f.starter !== null || ecrire) {
+  //  LE STARTER ET L'ÉQUIPE D'AVANT FONT PARTIE DU GABARIT, remplis ou
+  //  non : « la fiche doit quand même garder son gabarit ». Une carte
+  //  de Pokémon vide porte son texte par défaut et dit ce qui manque,
+  //  là où son absence ne disait rien.
+  {
     const s = f.starter ?? STARTER_VIDE;
     //  PAS D'ESPÈCE, PAS DE SPRITE : l'éditeur rend le bloc du starter
     //  avant qu'on ait choisi, pour qu'il y ait où écrire.
@@ -536,7 +654,7 @@ export function publier(f: Fiche, r: Rendu = {}): string {
     );
     morceaux.push(`</div>`);
   }
-  if (ecrire || f.ancienneEquipe.trim() !== "") {
+  {
     morceaux.push(
       `<div class="wmf__ancienne">` +
         `<div class="wmf__bandeau">L'ÉQUIPE D'AVANT</div>` +
@@ -550,7 +668,6 @@ export function publier(f: Fiche, r: Rendu = {}): string {
     morceaux.push(`<div class="wmf__bandeau">L'ORGANISATION</div>`);
     for (const c of OMBRE) {
       const v = f.ombre?.[c.clef] ?? "";
-      if (!ecrire && v.trim() === "") continue;
       morceaux.push(
         `<div class="wmf__question"><o>${c.etiquette}</o> ${b(c.clef, v)}</div>`,
       );
@@ -576,6 +693,7 @@ export function publier(f: Fiche, r: Rendu = {}): string {
       `</div>` +
       `<div class="wmf__joueur-infos">${bloc(JOUEUR_EN_BLOC, f.joueur, ecrire)}</div>` +
       `</div>` +
+      credits(f, ecrire) +
       `</div>`,
   );
   morceaux.push(`</div>`);

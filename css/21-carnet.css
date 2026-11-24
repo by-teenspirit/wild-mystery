@@ -531,7 +531,10 @@
   height: 56px;
   border-radius: var(--wm-rayon-md, 8px);
   background: var(--wm-fond-terre, #f8eae1);
-  object-fit: contain;
+  /*  `scale-down`, pas `contain` : les sprites sont rognés au plus
+      près de la bête, et `contain` agrandissait les petits jusqu'à
+      les rendre flous et plus hauts que leurs voisins. */
+  object-fit: scale-down;
   object-position: bottom;
 }
 
