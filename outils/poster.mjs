@@ -2167,8 +2167,11 @@ const OUTILS = () => {
       traitDuDernier: dernier.backgroundSize.split(",").pop().trim(),
       //  LE RAIL EST UNE COLONNE À PART, à gauche de la date.
       railAGauche: date.left > cadre.left + 8,
-      //  LA CROIX EST EN HAUT À DROITE, sur la rangée des outils.
-      croixEnHaut: croix.top < date.top && croix.right > texte.right,
+      //  LA CROIX EST SOUS LA DATE, dans sa colonne : la colonne est
+      //  vide sous elle, et c'est là qu'on regarde quand on pense
+      //  « ce moment-là ». Dans le coin de la barre, elle passait
+      //  pour un vingt-et-unième outil.
+      croixSousLaDate: croix.top >= date.bottom - 1 && croix.right <= texte.left,
     };
   });
   dire(
@@ -2197,9 +2200,9 @@ const OUTILS = () => {
     }),
   );
   dire(
-    "   et la croix est en haut à droite, pas sous la date",
-    vu.croixEnHaut === true,
-    JSON.stringify(vu.croixEnHaut),
+    "   et la croix est sous la date, dans sa colonne",
+    vu.croixSousLaDate === true,
+    JSON.stringify(vu.croixSousLaDate),
   );
 
   //  ── L'IMAGE D'UN MOMENT, ET SON CRÉDIT ─────────────────────────
@@ -2244,39 +2247,6 @@ const OUTILS = () => {
 //  Les mesures disent que la barre porte vingt boutons ; elles ne
 //  disent pas s'ils sont regardables. La photo est pour ça, et pour
 //  montrer un changement sans avoir à poster sur le forum.
-if (Deno.args.includes("--mesure")) {
-  const q = await monterLaFiche("");
-  await q.evaluate(async () => {
-    [...document.querySelectorAll(".wmf-form__forme")]
-      .find((b) => b.textContent.includes("Chronologie")).click();
-    await new Promise((r) => setTimeout(r, 200));
-    document.querySelector(".wmf-form__plus").click();
-    await new Promise((r) => setTimeout(r, 200));
-  });
-  console.log(JSON.stringify(
-    await q.evaluate(() => {
-      const m = document.querySelector(".wmf__moment");
-      const a = getComputedStyle(m, "::after");
-      return {
-        h: Math.round(m.getBoundingClientRect().height),
-        after: {
-          content: a.content,
-          top: a.top,
-          bottom: a.bottom,
-          w: a.width,
-          bg: a.backgroundColor,
-          pos: a.position,
-        },
-        overflowChrono: getComputedStyle(document.querySelector(".wmf__chrono")).overflow,
-        overflowMoment: getComputedStyle(m).overflow,
-      };
-    }),
-    null,
-    1,
-  ));
-  await q.close();
-}
-
 if (Deno.args.includes("--photo")) {
   const q = await monterLaFiche("");
   await q.evaluate(() => document.fonts.ready);
